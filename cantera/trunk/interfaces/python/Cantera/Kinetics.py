@@ -16,14 +16,14 @@ class Kinetics:
 
     parameters -
     kintype    - integer specifying the type of kinetics manager to create.
-    
+
     """
-    
+
     def __init__(self, kintype=-1, thrm=0, xml_phase=None, id=None, phases=[]):
         """Build a kinetics manager from an XML specification.
 
         root     -- root of a CTML tree
-        
+
         id       -- id of the 'kinetics' node within the tree that contains
                     the specification of the parameters.
         """
@@ -55,15 +55,15 @@ class Kinetics:
 
         self._np = self.nPhases()
         for nn in range(self._np):
-                p = self.phase(nn)
-                self._phnum[p.thermophase()] = nn
-                self._end.append(self._end[-1]+p.nSpecies())
-                for k in range(p.nSpecies()):
-                    self._sp.append(p.speciesName(k))
-        
+            p = self.phase(nn)
+            self._phnum[p.thermophase()] = nn
+            self._end.append(self._end[-1]+p.nSpecies())
+            for k in range(p.nSpecies()):
+                self._sp.append(p.speciesName(k))
+
     def __del__(self):
         self.clear()
-        
+
     def clear(self):
         """Delete the kinetics manager."""
         if self.ckin > 0:
@@ -75,7 +75,7 @@ class Kinetics:
 
     def kinetics_hndl(self):
         return self.ckin
-    
+
     def kineticsType(self):
         """Kinetics manager type."""
         return _cantera.kin_type(self.ckin)
@@ -107,11 +107,11 @@ class Kinetics:
     def reactionPhaseIndex(self):
         """The phase in which the reactions take place."""
         return _cantera.kin_reactionPhaseIndex(self)
-    
+
     def phase(self, n):
         """Return an object representing the nth phase."""
         return ThermoPhase(index = _cantera.kin_phase(self.ckin, n))
-    
+
     def nReactions(self):
         """Number of reactions."""
         return _cantera.kin_nreactions(self.ckin)
@@ -162,16 +162,16 @@ class Kinetics:
                 if nup <> 1.0:
                     if nup <> round(nup):
                         s += str(nup)+' '
-                    else:                    
+                    else:
                         s += `int(nup)`+' '
                 s += self._sp[k]+' + '
         s = s[:-2]
         return s
-    
+
     def reactantStoichCoeff(self,k,i):
         """The stoichiometric coefficient of species k as a reactant in reaction i."""
         return _cantera.kin_rstoichcoeff(self.ckin,k,i)
-    
+
     def reactantStoichCoeffs(self):
         """The array of reactant stoichiometric coefficients. Element
         [k,i] of this array is the reactant stoichiometric
@@ -186,12 +186,12 @@ class Kinetics:
 
     def productStoichCoeff(self,k,i):
         """The stoichiometric coefficient of species k as a product in reaction i."""
-        return _cantera.kin_pstoichcoeff(self.ckin,k,i)    
+        return _cantera.kin_pstoichcoeff(self.ckin,k,i)
 
     def productStoichCoeffs(self):
         """The array of product stoichiometric coefficients. Element
         [k,i] of this array is the product stoichiometric
-        coefficient of species k in reaction i."""        
+        coefficient of species k in reaction i."""
         nsp = _cantera.kin_nspecies(self.ckin)
         nr = _cantera.kin_nreactions(self.ckin)
         nu = zeros((nsp,nr),'d')
@@ -199,7 +199,7 @@ class Kinetics:
             for k in range(nsp):
                 nu[k,i] = _cantera.kin_pstoichcoeff(self.ckin,k,i)
         return nu
-    
+
     def fwdRatesOfProgress(self):
         """Forward rates of progress of the reactions."""
         return _cantera.kin_getarray(self.ckin,10)
@@ -230,7 +230,7 @@ class Kinetics:
             return _cantera.kin_getarray(self.ckin,35)
         else:
             return _cantera.kin_getarray(self.ckin,36)
-        
+
     def creationRates(self, phase = None):
         c = _cantera.kin_getarray(self.ckin,50)
         if phase:
@@ -241,13 +241,13 @@ class Kinetics:
             else:
                 raise CanteraError('unknown phase')
         else:
-            return c                
-                
+            return c
+
 
     def destructionRates(self, phase = None):
         d = _cantera.kin_getarray(self.ckin,60)
         if phase:
-            kp = phase.thermophase()            
+            kp = phase.thermophase()
             if self._phnum.has_key(kp):
                 n = self._phnum[kp]
                 return d[self._end[n]:self._end[n+1]]
@@ -256,11 +256,11 @@ class Kinetics:
         else:
             return d
 
-    
+
     def netProductionRates(self, phase = None):
-        w = _cantera.kin_getarray(self.ckin,70)        
+        w = _cantera.kin_getarray(self.ckin,70)
         if phase:
-            kp = phase.thermophase()            
+            kp = phase.thermophase()
             if self._phnum.has_key(kp):
                 n = self._phnum[kp]
                 return w[self._end[n]:self._end[n+1]]
@@ -268,28 +268,28 @@ class Kinetics:
                 raise CanteraError('unknown phase')
         else:
             return w
-        
+
     def sourceTerms(self):
-        return _cantera.kin_getarray(self.ckin,80)        
+        return _cantera.kin_getarray(self.ckin,80)
 
     def delta_H(self):
         return _cantera.kin_getarray(self.ckin,90)
 
     def delta_G(self):
         return _cantera.kin_getarray(self.ckin,91)
-    
+
     def delta_S(self):
-        return _cantera.kin_getarray(self.ckin,92)    
-    
+        return _cantera.kin_getarray(self.ckin,92)
+
     def delta_H0(self):
         return _cantera.kin_getarray(self.ckin,93)
 
     def delta_G0(self):
-        return _cantera.kin_getarray(self.ckin,94)    
+        return _cantera.kin_getarray(self.ckin,94)
 
     def delta_S0(self):
         return _cantera.kin_getarray(self.ckin,95)
-    
+
     def multiplier(self,i):
         return _cantera.kin_multiplier(self.ckin,i)
 
@@ -299,19 +299,7 @@ class Kinetics:
             for i in range(nr):
                 _cantera.kin_setMultiplier(self.ckin,i,value)
         else:
-            _cantera.kin_setMultiplier(self.ckin,reaction,value)    
-    
+            _cantera.kin_setMultiplier(self.ckin,reaction,value)
+
     def advanceCoverages(self,dt):
-        return _cantera.kin_advanceCoverages(self.ckin,dt)    
-
-
-
-
-
-
-
-
-
-    
-
-    
+        return _cantera.kin_advanceCoverages(self.ckin,dt)

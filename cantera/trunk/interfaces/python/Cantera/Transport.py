@@ -40,7 +40,7 @@ class Transport:
     managers may be installed in one Python transport manager,
     although only one is active at any one time. This feature allows
     switching between transport models."""
-    
+
     def __init__(self, xml_phase=None,
                  phase=None, model = "", loglevel=0):
         """Create a transport property manager.
@@ -63,13 +63,13 @@ class Transport:
                 self.model = ""
         else:
             self.model = model
-            
+
         self.__tr_id = 0
         self.__tr_id = _cantera.Transport(self.model,
                                              phase._phase_id, loglevel)
         self.trnsp = phase.nSpecies()
         self._phase_id = phase._phase_id
-        
+
         # dictionary holding all installed transport managers
         self._models = {}
         self._models[self.model] = self.__tr_id
@@ -92,7 +92,7 @@ class Transport:
         new_id = _cantera.Transport(model,
                                     self._phase_id, loglevel)
         self._models[model] = new_id
-        
+
 
     def switchTransportModel(self, model):
         """Switch to a different transport model."""
@@ -102,7 +102,7 @@ class Transport:
         else:
             raise CanteraError("Transport model "+model+" not defined. Use "
                                +"method addTransportModel first.")
-            
+
     def desc(self):
         """A short description of the active model."""
         if self.model == 'Multi':
@@ -111,15 +111,15 @@ class Transport:
             return 'Mixture-averaged'
         else:
             return self.model
-            
+
     def transport_id(self):
         """For internal use."""
         return self.__tr_id
 
     def transport_hndl(self):
-        """For internal use."""        
+        """For internal use."""
         return self.__tr_id
-    
+
     def viscosity(self):
         "Viscosity [Pa-s]."""
         return _cantera.tran_viscosity(self.__tr_id)
@@ -143,11 +143,11 @@ class Transport:
         """Species diffusion coefficients. (m^2/s)."""
         return self.mixDiffCoeffs()
 
-    
+
     def mixDiffCoeffs(self):
         """Mixture-averaged diffusion coefficients."""
         return _cantera.tran_mixDiffCoeffs(self.__tr_id,
-                                         self.trnsp)            
+                                         self.trnsp)
 
     def multiDiffCoeffs(self):
         """Two-dimensional array of species multicomponent diffusion
@@ -159,10 +159,10 @@ class Transport:
         """Set model-specific parameters."""
         return _cantera.tran_setParameters(self.__tr_id,
                                            type, k, asarray(params))
-    
+
 
     def molarFluxes(self, state1, state2, delta):
-        return _cantera.tran_getMolarFluxes(self.__tr_id, self.trnsp, 
+        return _cantera.tran_getMolarFluxes(self.__tr_id, self.trnsp,
                                             asarray(state1), asarray(state2),
                                             delta)
 

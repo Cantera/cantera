@@ -27,7 +27,7 @@ PathDiagram keyword options:
   -- type           'both' or 'net' (forward and reverse arrows,
                                      or net arrow)
   -- dot_options    options passed through to 'dot'
-                    
+
   colors:
   -- normal_color   color for normal-weight lines
   -- bold_color     color for bold-weight lines
@@ -38,7 +38,7 @@ PathDiagram keyword options:
   -- normal_threshold  min relative strength for normal-weight path
                        Below this value, paths are dashed.
   -- bold_threshold    min relative strength for bold-weight path
-  
+
 """
 
 import _cantera
@@ -64,10 +64,10 @@ class PathDiagram:
 
     def __del__(self):
         _cantera.rdiag_del(self.__rdiag_id)
-        
+
     def id(self):
         return self.__rdiag_id
-    
+
     def write(self, fmt, file):
         _cantera.rdiag_write(self.__rdiag_id, fmt, file)
 
@@ -79,7 +79,7 @@ class PathDiagram:
 
     def displayOnly(self, node=-1):
         _cantera.rdiag_displayOnly(self.__rdiag_id, node)
-            
+
     def setOptions(self, options):
         for o in options.keys():
             v = options[o]
@@ -111,7 +111,7 @@ class PathDiagram:
             elif o == "label_threshold":
                 _cantera.rdiag_setLabelThreshold(self.__rdiag_id, v)
             elif o == "font":
-                _cantera.rdiag_setFont(self.__rdiag_id, v)                
+                _cantera.rdiag_setFont(self.__rdiag_id, v)
             elif o == "flow_type":
                 if v == "one_way":
                     _cantera.rdiag_setFlowType(self.__rdiag_id, 0)
@@ -119,9 +119,9 @@ class PathDiagram:
                     _cantera.rdiag_setFlowType(self.__rdiag_id, 1)
             else:
                 raise("unknown attribute "+o)
-        
+
 class PathBuilder:
-    
+
     def __init__(self, kin, logfile=""):
         if logfile == "":
             logfile = "rxnpath.log"
@@ -131,7 +131,7 @@ class PathBuilder:
 
     def __del__(self):
         _cantera.rbuild_del(self.__rbuild_id)
-        
+
     def build(self, diagram = None, element = "C",
               dotfile = "rxnpaths.dot", format="dot"):
         if diagram == None:
@@ -140,7 +140,7 @@ class PathBuilder:
                              "buildlog", diagram.id(), 1)
         if format == "dot":
             diagram.write(0, dotfile)
-            diagram.write(1, "rp.txt")            
+            diagram.write(1, "rp.txt")
         elif format == "plain":
             diagram.write(1, dotfile)
 
@@ -156,14 +156,11 @@ def view(url, ext = 'png'):
     import webbrowser
     dot_server = 'http://webdot.graphviz.org/cgi-bin/webdot/'
     webbrowser.open(dot_server+url+'.dot.'+ext)
-    
-    
+
+
 if __name__ == "__main__":
     from Cantera.gases import GRI30
     gas = GRI30()
     x = [1.0] * gas.nSpecies()
     gas.setState_TPX(1800.0, 1.01325e5, x)
     write(gas, 'C', 'c:/users/dgg/test.dot')
-    
-                
-            

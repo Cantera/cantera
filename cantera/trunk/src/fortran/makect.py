@@ -11,7 +11,7 @@ for m in lines:
         if len(toks) == 2:
             if toks[0] == 'module':
                 mods.append(toks[1])
-                
+
         le = line.find('end')
         lf = line.find('function')
         ls = line.find('subroutine')
@@ -39,7 +39,6 @@ for fn in funcs:
     fout.write('\n  INTERFACE '+fn+'\n')
     for cf in gen[fn]:
         fout.write('     MODULE PROCEDURE '+cf+'\n')
-    fout.write('  END INTERFACE '+fn+'\n')        
+    fout.write('  END INTERFACE '+fn+'\n')
 
 fout.write('\nEND MODULE CANTERA\n\n')
-        

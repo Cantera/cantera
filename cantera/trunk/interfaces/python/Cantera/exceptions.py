@@ -24,4 +24,3 @@ class CanteraError(Exception):
 class OptionError(CanteraError):
     def __init__(self, msg):
         self.msg = 'Unknown option: '+msg
-

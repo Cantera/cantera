@@ -17,7 +17,7 @@ def _isseq(n, x):
         return 1
     except:
         return 0
-    
+
 class Phase:
 
     """Phases of matter.
@@ -30,21 +30,21 @@ class Phase:
 
     It does not know about the pressure, or any other thermodynamic property
     requiring the equation of state -- class ThermoPhase derives from Phase
-    and adds those properties. 
+    and adds those properties.
 
     Class Phase is not usually instantiated directly. It is used as a
     base class for class ThermoPhase.
-    
+
     """
-    
+
     #def __init__(self, index = -1):
     #    pass
-        
+
     def phase_id(self):
         """The integer index used to access the kernel-level object.
         Internal."""
         return self._phase_id
-    
+
     def nElements(self):
         """Number of elements."""
         return _cantera.phase_nelements(self._phase_id)
@@ -66,7 +66,7 @@ class Phase:
             return asarray(ae)
         else:
             return atw
-        
+
     def nSpecies(self):
         """Number of species."""
         return _cantera.phase_nspecies(self._phase_id)
@@ -76,7 +76,7 @@ class Phase:
         The  element and species may be specified by name or by number.
         >>> ph.nAtoms('CH4','H')
         ___ 4
-        
+
         """
         try:
             m = self.elementIndex(element)
@@ -86,7 +86,7 @@ class Phase:
             return na
         except CanteraError:
             return 0
-    
+
     def temperature(self):
         """Temperature [K]."""
         return _cantera.phase_temperature(self._phase_id)
@@ -97,7 +97,7 @@ class Phase:
 
     def volume_mass(self):
         """Specific volume [m^3/kg]."""
-        return 1.0/_cantera.phase_density(self._phase_id)    
+        return 1.0/_cantera.phase_density(self._phase_id)
 
     def molarDensity(self):
         """Molar density [kmol/m^3]."""
@@ -138,7 +138,7 @@ class Phase:
         >>> ph.moleFraction('CH4')
         """
         k = self.speciesIndex(species)
-        return _cantera.phase_molefraction(self._phase_id,k)    
+        return _cantera.phase_molefraction(self._phase_id,k)
 
 
     def massFractions(self, species = None):
@@ -177,7 +177,7 @@ class Phase:
         a string or an integer index. In the latter case, the index is
         checked for validity and returned. If no such element is
         present, an exception is thrown."""
-        
+
         nel = self.nElements()
         if type(element) == types.IntType:
             m = element
@@ -189,14 +189,14 @@ class Phase:
         return m
 
 
-    
+
     def speciesName(self,k):
         """Name of the species with index k."""
         return _cantera.phase_getstring(self._phase_id,2,k)
 
-        
+
     def speciesNames(self):
-        """Return a tuple of all species names."""        
+        """Return a tuple of all species names."""
         nsp = self.nSpecies()
         return map(self.speciesName,range(nsp))
 
@@ -212,7 +212,7 @@ class Phase:
             for sp in species:
                 s.append(self.speciesIndex(sp))
             return s
-        
+
         if type(species) == types.IntType or type(species) == types.FloatType:
             k = species
         else:
@@ -221,8 +221,8 @@ class Phase:
             raise CanteraError("""Species """+`species`+""" not in set """
                                +`self.speciesNames()`)
         return k
-        
-    
+
+
     def setTemperature(self, t):
         """Set the temperature [K]."""
         _cantera.phase_setfp(self._phase_id,1,t)
@@ -233,8 +233,8 @@ class Phase:
 
     def setMolarDensity(self, n):
         """Set the density [kmol/m3]."""
-        _cantera.phase_setfp(self._phase_id,3,n)        
-        
+        _cantera.phase_setfp(self._phase_id,3,n)
+
     def setMoleFractions(self, x, norm = 1):
         """Set the mole fractions.
 
@@ -251,12 +251,12 @@ class Phase:
         """
         if type(x) == types.StringType:
             _cantera.phase_setstring(self._phase_id,1,x)
-        elif _isseq(self.nSpecies(), x): 
+        elif _isseq(self.nSpecies(), x):
             _cantera.phase_setarray(self._phase_id,1,norm,asarray(x))
         else:
             raise CanteraError('mole fractions must be a string or array')
-        
-            
+
+
     def setMassFractions(self, x, norm = 1):
         """Set the mass fractions.
         See: setMoleFractions
@@ -267,14 +267,14 @@ class Phase:
             _cantera.phase_setarray(self._phase_id,2,norm,asarray(x))
         else:
             raise CanteraError('mass fractions must be a string or array')
-        
-        
+
+
     def setState_TRX(self, t, rho, x):
         """Set the temperature, density, and mole fractions. The mole
         fractions may be entered as a string or array,
         >>> ph.setState_TRX(600.0, 2.0e-3, 'CH4:0.4, O2:0.6')
         """
-        
+
         self.setTemperature(t)
         self.setMoleFractions(x)
         self.setDensity(rho)
@@ -284,23 +284,23 @@ class Phase:
         fractions may be entered as a string or array,
         >>> ph.setState_TNX(600.0, 2.0e-3, 'CH4:0.4, O2:0.6')
         """
-        
+
         self.setTemperature(t)
         self.setMoleFractions(x)
-        self.setMolarDensity(n)        
+        self.setMolarDensity(n)
 
     def setState_TRY(self, t, rho, y):
-        """Set the temperature, density, and mass fractions."""        
+        """Set the temperature, density, and mass fractions."""
         self.setTemperature(t)
         self.setMassFractions(y)
-        self.setDensity(rho)        
+        self.setDensity(rho)
 
     def setState_TR(self, t, rho):
         """Set the temperature and density, leaving the composition
-        unchanged."""        
+        unchanged."""
         self.setTemperature(t)
         self.setDensity(rho)
-    
+
     def selectSpecies(self, f, species):
         """Given an array 'f' of floating-point species properties,
         return an array of those values corresponding to species
@@ -309,7 +309,7 @@ class Phase:
         >>> f = ph.chemPotentials()
         >>> muo2, muh2 = ph.selectSpecies(f, ['O2', 'H2'])
         """
-        
+
         if species:
             fs = []
             k = 0
@@ -336,4 +336,3 @@ class Phase:
             return asarray(fs)
         else:
             return asarray(f)
-

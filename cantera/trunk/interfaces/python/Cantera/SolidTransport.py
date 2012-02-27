@@ -7,7 +7,7 @@ modified Arrhenius form, and the thermal conductivity is constant.
 All parameters are user-specified, not computed from a physical model.
 
 Examples:
-    
+
     >>> tr = SolidTransport(solid_phase)
     >>> tr.setThermalConductivity(0.5)  # W/m/K
     >>> tr.setDiffCoeff(species = "OxygenIon", A = 2.0, n = 0.0, E = 700.0)
@@ -30,5 +30,3 @@ class SolidTransport(Transport):
     def setDiffCoeff(self, species = "", A = 0.0, n = 0.0, E = 0.0):
         k = self._phase.speciesIndex(species)
         self.setParameters(0, k, [A, n, E])
-
-    

@@ -13,7 +13,7 @@ def write_CSV_data(fname, names, npts, nvar, append, data):
                 method 'value', defined so that data.value(j,n) returns
                 the value of variable n at point j.
     """
-    
+
     if append > 0:
         f = open(fname,'a')
     else:
@@ -26,6 +26,3 @@ def write_CSV_data(fname, names, npts, nvar, append, data):
             f.write('%10.4e, ' % data.value(j,n))
         f.write('\n')
     f.close()
-
-
-

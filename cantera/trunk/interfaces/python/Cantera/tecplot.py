@@ -15,7 +15,7 @@ def write_TECPLOT_zone(fname, title, zone, names, npts, nvar, append, data):
                 method 'value', defined so that data.value(j,n) returns
                 the value of variable n at point j.
     """
-    
+
     if append > 0:
         f = open(fname,'a')
     else:
@@ -35,6 +35,3 @@ def write_TECPLOT_zone(fname, title, zone, names, npts, nvar, append, data):
             f.write('%10.4e ' % data[j,n])
         f.write('\n')
     f.close()
-
-
-

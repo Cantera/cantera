@@ -60,10 +60,10 @@ for n in range(30):
     v1.append(r1.volume())
     v2.append(r2.volume())
     v.append(r1.volume() + r2.volume())
-    xco.append(r2.moleFraction('CO'))  
+    xco.append(r2.moleFraction('CO'))
     xh2.append(r1.moleFraction('H2'))
 
-    
+
 # plot the results if matplotlib is installed.
 # see http://matplotlib.sourceforge.net to get it
 args = sys.argv
@@ -93,7 +93,6 @@ if len(args) > 1 and (args[1] == '-plot' or
     except:
         print """matplotlib required.
         http://matplotlib.sourceforge.net"""
-        
+
 else:
     print """To view a plot of these results, run this script with the option -plot"""
-

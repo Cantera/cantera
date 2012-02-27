@@ -98,7 +98,7 @@ print 'Directory: '+os.getcwd()
 
 args = sys.argv
 if len(args) > 1 and args[1] == '-plot':
-    try:    
+    try:
         from matplotlib.pylab import *
         clf
         subplot(2,2,1)
@@ -106,22 +106,21 @@ if len(args) > 1 and args[1] == '-plot':
         legend(['Reactor 1','Reactor 2'],2)
         xlabel('Time (s)');
         ylabel('Temperature (K)');
-        
+
         subplot(2,2,2)
         plot(tm, pres[:,0],'g-',tm, pres[:,1],'b-')
         legend(['Reactor 1','Reactor 2'],2)
         xlabel('Time (s)');
         ylabel('Pressure (Bar)');
-         
+
         subplot(2,2,3)
         plot(tm, vol[:,0],'g-',tm, vol[:,1],'b-')
         legend(['Reactor 1','Reactor 2'],2)
         xlabel('Time (s)');
-        ylabel('Volume (m^3)');         
+        ylabel('Volume (m^3)');
 
         show()
     except:
         pass
 else:
     print """To view a plot of these results, run this script with the option -plot"""
-    

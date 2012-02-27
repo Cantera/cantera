@@ -20,7 +20,7 @@ def plotEquilData(mix, phi, tad, xeq):
 
     if warnMac() < 0: return
     npoints = len(phi)
-    
+
     nsp = mix.nSpecies()
 
     #titles = ['Major Species', 'Minor Species', 'N Minor Species']
@@ -50,7 +50,7 @@ def plotEquilData(mix, phi, tad, xeq):
 
         subplot(2,2,2+m);
         hold(True);
-    
+
         for i in range(nsp):
             if p[i] == m:
                 for j in range(npoints):
@@ -74,7 +74,7 @@ def plotEquilData(mix, phi, tad, xeq):
         if m == 0:
             axis([phi[1], phi[-1], 0.0, 1.0]);
         else:
-            axis([phi[1], phi[-1], 1.0e-14, 1]);            
+            axis([phi[1], phi[-1], 1.0e-14, 1]);
 
         xlabel('Equivalence Ratio');
         ylabel('Mole Fraction');
@@ -82,4 +82,3 @@ def plotEquilData(mix, phi, tad, xeq):
         hold(False)
 
     show()
-

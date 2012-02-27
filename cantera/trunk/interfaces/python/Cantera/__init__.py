@@ -32,7 +32,7 @@ def writeCSV(f, list):
             f.write(item+', ')
         else:
             f.write(`item`+', ')
-            
+
     f.write('\n')
 
 
@@ -47,7 +47,7 @@ def table(keys, values):
 
 def getCanteraError():
     """Return the Cantera error message, if any."""
-    return _cantera.get_Cantera_Error() 
+    return _cantera.get_Cantera_Error()
 
 def refCount(a):
     """Return the reference count for an object."""
@@ -65,13 +65,12 @@ def reset():
     """Release all cached Cantera data. Equivalent to
     starting a fresh session."""
     _cantera.ct_appdelete()
-    
+
 # workaround for case problems in CVS repository file Mixture.py. On some
 # systems it appears as mixture.py, and on others as Mixture.py
 try:
     from Mixture import Mixture
 except:
     from mixture import Mixture
-    
-from num import *
 
+from num import *

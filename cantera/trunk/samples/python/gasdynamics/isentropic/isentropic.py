@@ -5,7 +5,7 @@ import math
 
 def soundspeed(gas):
     """The speed of sound. Assumes an ideal gas."""
-    
+
     #    if gas.isIdealGas():
     gamma = gas.cp_mass()/gas.cv_mass()
     return math.sqrt(gamma * GasConstant
@@ -14,11 +14,11 @@ def soundspeed(gas):
     #    raise "non-ideal not implemented."
 
 
-    
+
 def isentropic(g = None):
     """
     ISENTROPIC  isentropic, adiabatic flow example
-    
+
     In this example, the area ratio vs. Mach number curve is
     computed. If a gas object is supplied, it will be used for the
     calculations, with the stagnation state given by the input gas
@@ -39,24 +39,24 @@ def isentropic(g = None):
     s0 = gas.entropy_mass()
     h0 = gas.enthalpy_mass()
     p0 = gas.pressure()
-    
+
     mdot = 1  # arbitrary
     amin = 1.e14
-    
+
     data = zeros((200,4),'d')
-    
+
     # compute values for a range of pressure ratios
     for r in range(200):
         p = p0*(r+1)/201.0
 
         # set the state using (p,s0)
         gas.set(S = s0, P = p)
-   
+
         h = gas.enthalpy_mass()
         rho = gas.density()
-   
+
         v2 = 2.0*(h0 - h)      #   h + V^2/2 = h0
-        v = math.sqrt(v2)    
+        v = math.sqrt(v2)
         area = mdot/(rho*v);   #   rho*v*A = constant
         if area < amin: amin = area
         data[r,:] = [area, v/soundspeed(gas), gas.temperature(), p/p0]
@@ -65,7 +65,7 @@ def isentropic(g = None):
 
     return data
 
-    
+
 
 if __name__ == "__main__":
     print isentropic.__doc__
@@ -78,13 +78,7 @@ if __name__ == "__main__":
         xlabel('Mach Number')
         title('Isentropic Flow: Area Ratio vs. Mach Number')
         show()
-    
+
     except:
         print 'area ratio,   Mach number,   temperature,   pressure ratio'
         print data
-
-
-
-
-
-

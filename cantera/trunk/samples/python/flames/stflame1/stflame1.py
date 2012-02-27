@@ -47,7 +47,7 @@ tol_ts    = [1.0e-4, 1.0e-9]        # [rtol atol] for time stepping
 
 loglevel  = 1                       # amount of diagnostic output (0
                                     # to 5)
-				    
+
 refine_grid = 1                     # 1 to enable refinement, 0 to
                                     # disable
 ratio = 5.0
@@ -114,4 +114,3 @@ for md in mdot:
     print 'solution saved to flame1.csv'
 
 f.showStats()
-

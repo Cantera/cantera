@@ -34,7 +34,7 @@ class PeriodicTable(Frame):
         self.control = Frame(self)
         self.control.config(relief=GROOVE,bd=4)
         Button(self.control, text = 'Display',command=self.show).pack(fill=X,pady=3, padx=10)
-        Button(self.control, text = 'Clear',command=self.clear).pack(fill=X,pady=3, padx=10)    
+        Button(self.control, text = 'Clear',command=self.clear).pack(fill=X,pady=3, padx=10)
         Button(self.control, text = '  OK  ',command=self.get).pack(side=BOTTOM,
                                                                     fill=X,pady=3, padx=10)
         Button(self.control, text = 'Cancel',command=self.master.quit).pack(side=BOTTOM,
@@ -64,7 +64,7 @@ class PeriodicTable(Frame):
         self.c[e]['bg'] = self.color(e, sel=1)
 
     def deselect(self, el):
-        e = string.capitalize(el)        
+        e = string.capitalize(el)
         self.c[e]['relief'] = FLAT
         self.c[e]['bg'] = self.color(e, sel=0)
 
@@ -72,7 +72,7 @@ class PeriodicTable(Frame):
         for el in ellist:
             ename = el
             self.select(ename)
-            
+
     def setColors(self,event):
         el = event.widget['text']
         if event.widget['relief'] == RAISED:
@@ -82,7 +82,7 @@ class PeriodicTable(Frame):
             event.widget['relief'] = RAISED
             back = self.color(el, sel=1)
         event.widget['bg'] = back
-            
+
     def color(self, el, sel=0):
         _normal = ['#88dddd','#dddd88','#dd8888']
         _selected = ['#aaffff','#ffffaa','#ffaaaa']
@@ -104,7 +104,7 @@ class PeriodicTable(Frame):
             if self.c[el]['relief'] == RAISED:
                 selected.append(periodicTable[el])
         showElementProperties(selected)
-        
+
     def get(self):
         self.selected = []
         names = _pos.keys()
@@ -114,7 +114,7 @@ class PeriodicTable(Frame):
                 self.selected.append(periodicTable[el])
         #self.master.quit()'
         self.master.destroy()
-        
+
     def clear(self):
         for el in _pos.keys():
             self.c[el]['bg'] = self.color(el, sel=0)
@@ -132,7 +132,7 @@ class ElementPropertyFrame(Frame):
                                            row=0,
                                            sticky=W+S,
                                            padx=10,
-                                           pady=10)   
+                                           pady=10)
         for el in ellist:
             Label(self,
                   text=el.name).grid(column=0,
@@ -176,9 +176,7 @@ def showElementProperties(ellist):
     m.title('Element Properties')
     elem = []
     ElementPropertyFrame(m, ellist).pack()
-        
+
 
 if __name__ == "__main__":
     print getElements()
-
-

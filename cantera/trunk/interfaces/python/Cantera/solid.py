@@ -11,12 +11,12 @@ from SolidTransport import SolidTransport
 import XML
 import _cantera
 
-class Solid(ThermoPhase, Kinetics, SolidTransport):    
+class Solid(ThermoPhase, Kinetics, SolidTransport):
     """
     """
 
     def __init__(self, src="", root=None):
-        
+
         self.ckin = 0
         self._owner = 0
         self.verbose = 1
@@ -31,7 +31,7 @@ class Solid(ThermoPhase, Kinetics, SolidTransport):
         Kinetics.__init__(self, xml_phase=s, phases=[self])
 
         SolidTransport.__init__(self, phase=self)
-        
+
         #self.setState_TP(300.0, OneAtm)
 
 
@@ -43,4 +43,3 @@ class Solid(ThermoPhase, Kinetics, SolidTransport):
         SolidTransport.__del__(self)
         Kinetics.__del__(self)
         ThermoPhase.__del__(self)
-    

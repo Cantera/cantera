@@ -54,35 +54,35 @@ if ifuel < 0:
 
 if gas.nAtoms(fuel_species,'O') > 0 or  gas.nAtoms(fuel_species,'N') > 0:
     raise "Error: only hydrocarbon fuels are supported."
-    
+
 stoich_O2 = gas.nAtoms(fuel_species,'C') + 0.25*gas.nAtoms(fuel_species,'H')
 
 
 for i in range(npoints):
-   phi[i] = phi_min + (phi_max - phi_min)*i/(npoints - 1)
-   x = zeros(nsp,'d')
-   x[ifuel] = phi[i]
-   x[io2] = stoich_O2
-   x[in2] = stoich_O2*air_N2_O2_ratio
+    phi[i] = phi_min + (phi_max - phi_min)*i/(npoints - 1)
+    x = zeros(nsp,'d')
+    x[ifuel] = phi[i]
+    x[io2] = stoich_O2
+    x[in2] = stoich_O2*air_N2_O2_ratio
 
-   # set the gas state
-   gas.set(T = temp, P = pres, X = x)
+    # set the gas state
+    gas.set(T = temp, P = pres, X = x)
 
-   # create a mixture of 1 mole of gas, and 0 moles of solid carbon.
-   mix = Mixture(mix_phases)
-   mix.setTemperature(temp)
-   mix.setPressure(pres)
+    # create a mixture of 1 mole of gas, and 0 moles of solid carbon.
+    mix = Mixture(mix_phases)
+    mix.setTemperature(temp)
+    mix.setPressure(pres)
 
-   # equilibrate the mixture adiabatically at constant P
-   # 
-   #    mix.equilibrate('HP', maxsteps = 1000,
-   #                err = 1.0e-6, maxiter = 200, loglevel=0)
-   mix.vcs_equilibrate('HP', maxsteps = 1000,
-                       rtol = 1.0e-6, maxiter = 200, loglevel=0)
-   
-   tad[i] = mix.temperature();
-   print 'At phi = %12.4g, Tad = %12.4g'  % (phi[i],tad[i])
-   xeq[:,i] = mix.speciesMoles()
+    # equilibrate the mixture adiabatically at constant P
+    #
+    #    mix.equilibrate('HP', maxsteps = 1000,
+    #                err = 1.0e-6, maxiter = 200, loglevel=0)
+    mix.vcs_equilibrate('HP', maxsteps = 1000,
+                        rtol = 1.0e-6, maxiter = 200, loglevel=0)
+
+    tad[i] = mix.temperature();
+    print 'At phi = %12.4g, Tad = %12.4g'  % (phi[i],tad[i])
+    xeq[:,i] = mix.speciesMoles()
 
 
 # write output CSV file for importing into Excel
@@ -100,4 +100,3 @@ print 'output written to '+csvfile
 if '--plot' in sys.argv:
     import plotting
     plotting.plotEquilData(mix, phi, tad, xeq)
-

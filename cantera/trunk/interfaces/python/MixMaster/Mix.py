@@ -3,18 +3,18 @@ from Cantera.num import zeros, ones
 from utilities import handleError
 
 def spdict(phase, x):
-	nm = phase.speciesNames()
-	data = {}
-	for k in range(len(nm)):
-		data[nm[k]] = x[k]
-	return data
+    nm = phase.speciesNames()
+    data = {}
+    for k in range(len(nm)):
+        data[nm[k]] = x[k]
+    return data
 
 class Species:
     def __init__(self,g,name):
         self.g = g
-	t = g.temperature()
-	p = g.pressure()
-	x = g.moleFractions()
+        t = g.temperature()
+        p = g.pressure()
+        x = g.moleFractions()
         self.name = name
         self.symbol = name
         self.index = g.speciesIndex(name)
@@ -23,28 +23,28 @@ class Species:
         self.molecularWeight = g.molecularWeights()[self.index]
         self.c = []
         self.e = g.elementNames()
-	self.hf0 = self.enthalpy_RT(298.15)*GasConstant*298.15
-	g.setState_TPX(t,p,x)
+        self.hf0 = self.enthalpy_RT(298.15)*GasConstant*298.15
+        g.setState_TPX(t,p,x)
         for n in range(len(self.e)):
             na = g.nAtoms(self.index, n)
             if na > 0:
                 self.c.append((self.e[n],na))
-                
+
     def composition(self):
         return self.c
-        
+
     def enthalpy_RT(self,t):
         self.g.setTemperature(t)
         return self.g.enthalpies_RT()[self.index]
 
     def cp_R(self,t):
         self.g.setTemperature(t)
-        return self.g.cp_R()[self.index]    
+        return self.g.cp_R()[self.index]
 
     def entropy_R(self,t):
         self.g.setTemperature(t)
-        return self.g.entropies_R()[self.index]        
-        
+        return self.g.entropies_R()[self.index]
+
 class Mix:
     def __init__(self,g):
         self.g = g
@@ -71,14 +71,14 @@ class Mix:
         for k in range(self.nsp):
             sum += self._moles[k]*self.wt[k]
         return sum
-    
+
     def moleDict(self):
         d = {}
         nm = self.g.speciesNames()
         for e in range(self.nsp):
             d[nm[e]] = self._moles[e]
         return d
-        
+
     def setMass(self, m):
         self.setMoles( m/self.wt)
 
@@ -99,7 +99,7 @@ class Mix:
             density = None, enthalpy = None,
             entropy = None, intEnergy = None, equil = 0):
         total_mass = self.totalMass()
-        
+
         if temperature and pressure:
             self.g.setState_TP(temperature, pressure)
             if equil:
@@ -114,7 +114,7 @@ class Mix:
             self.g.setState_HP(enthalpy, pressure)
             if equil:
                 self.g.equilibrate('HP',solver=0)
-		
+
         elif pressure and entropy:
             self.g.setState_SP(entropy, pressure)
             if equil:
@@ -130,12 +130,9 @@ class Mix:
             if equil:
                 self.g.equilibrate('UV',solver=0)
 
-#	else:
-#		handleError('unsupported property pair', warning=1)
-		
-                
+#       else:
+#               handleError('unsupported property pair', warning=1)
+
+
         total_moles = total_mass/self.g.meanMolecularWeight()
         self._moles = self.g.moleFractions()*total_moles
-        
-            
-    

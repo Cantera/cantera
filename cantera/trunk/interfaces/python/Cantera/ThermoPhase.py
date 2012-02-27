@@ -37,25 +37,25 @@ class ThermoPhase(Phase):
         The value of 'index' is the integer index number to reference the
         existing kernel object.
         """
-        
+
         self._phase_id = 0
         self._owner = 0
         self.idtag = ""
 
         if index >= 0:
              # create a Python wrapper for an existing kernel
-             # ThermoPhase instance 
+             # ThermoPhase instance
             self._phase_id = index
-                                 
+
         elif xml_phase:
             # create a new kernel instance from an XML specification
             self._phase_id = _cantera.ThermoFromXML(xml_phase._xml_id)
             self.idtag = xml_phase["id"]
             self._owner = 1
-            
+
         else:
             raise CanteraError('either xml_phase or index must be specified')
-        
+
 
     def __del__(self):
         """Delete the object. If it is the owner of the kernel object,
@@ -73,7 +73,7 @@ class ThermoPhase(Phase):
     def setName(self, name):
         """ Set the name attribute. This can be any string"""
         self.idtag = name
-        
+
     def refPressure(self):
         """Reference pressure [Pa].
         All standard-state thermodynamic properties are for this pressure.
@@ -90,7 +90,7 @@ class ThermoPhase(Phase):
             return _cantera.thermo_mintemp(self._phase_id, -1)
         else:
             return _cantera.thermo_mintemp(self._phase_id,
-                                           self.speciesIndex(sp))        
+                                           self.speciesIndex(sp))
 
     def maxTemp(self, sp=None):
         """ Maximum temperature for which thermodynamic property fits
@@ -102,7 +102,7 @@ class ThermoPhase(Phase):
             return _cantera.thermo_maxtemp(self._phase_id, -1)
         else:
             return _cantera.thermo_maxtemp(self._phase_id,
-                                           self.speciesIndex(sp))    
+                                           self.speciesIndex(sp))
 
     def enthalpy_mole(self):
         """ The molar enthalpy [J/kmol]."""
@@ -110,7 +110,7 @@ class ThermoPhase(Phase):
 
     def intEnergy_mole(self):
         """ The molar internal energy [J/kmol]."""
-        return _cantera.thermo_getfp(self._phase_id,2)          
+        return _cantera.thermo_getfp(self._phase_id,2)
 
     def entropy_mole(self):
         """ The molar entropy [J/kmol/K]."""
@@ -119,7 +119,7 @@ class ThermoPhase(Phase):
     def gibbs_mole(self):
         """ The molar Gibbs function [J/kmol]."""
         return _cantera.thermo_getfp(self._phase_id,4)
-    
+
     def cp_mole(self):
         """ The molar heat capacity at constant pressure [J/kmol/K]."""
         return _cantera.thermo_getfp(self._phase_id,5)
@@ -130,15 +130,15 @@ class ThermoPhase(Phase):
 
     def pressure(self):
         """ The pressure [Pa]."""
-        return _cantera.thermo_getfp(self._phase_id,7)        
+        return _cantera.thermo_getfp(self._phase_id,7)
 
     def electricPotential(self):
         """Electric potential [V]."""
         return _cantera.thermo_getfp(self._phase_id,25)
-    
+
     def chemPotentials(self, species = []):
         """Species chemical potentials.
-        
+
         This method returns an array containing the species
         chemical potentials [J/kmol]. The expressions used to
         compute these depend on the model implemented by the
@@ -148,19 +148,19 @@ class ThermoPhase(Phase):
 
     def elementPotentials(self, elements = []):
         """Element potentials of the elements.
-        
+
         This method returns an array containing the element potentials
         [J/kmol]. The element potentials are only defined for
         equilibrium states. This method first sets the composition to
         a state of equilibrium holding T and P constant, then computes
         the element potentials for this equilibrium state.  """
-        
+
         lamb = _cantera.thermo_getarray(self._phase_id,21)
         return self.selectElements(lamb, elements)
-    
+
     def enthalpies_RT(self, species = []):
         """Pure species non-dimensional reference state enthalpies.
-        
+
         This method returns an array containing the pure-species
         standard-state enthalpies divided by RT. For gaseous species,
         these values are ideal gas enthalpies."""
@@ -169,7 +169,7 @@ class ThermoPhase(Phase):
 
     def entropies_R(self, species = []):
         """Pure species non-dimensional entropies.
-        
+
         This method returns an array containing the pure-species
         standard-state entropies divided by R. For gaseous species,
         these values are ideal gas entropies."""
@@ -178,24 +178,24 @@ class ThermoPhase(Phase):
 
     def gibbs_RT(self, species = []):
         """Pure species non-dimensional Gibbs free energies.
-        
+
         This method returns an array containing the pure-species
         standard-state Gibbs free energies divided by R.
-        For gaseous species, these are ideal gas values."""        
+        For gaseous species, these are ideal gas values."""
         grt = (_cantera.thermo_getarray(self._phase_id,23)
                 - _cantera.thermo_getarray(self._phase_id,24))
         return self.selectSpecies(grt, species)
-    
+
     def cp_R(self, species = []):
         """Pure species non-dimensional heat capacities
         at constant pressure.
-        
+
         This method returns an array containing the pure-species
         standard-state heat capacities divided by R. For gaseous
         species, these values are ideal gas heat capacities."""
         cpr = _cantera.thermo_getarray(self._phase_id,25)
         return self.selectSpecies(cpr, species)
-    
+
 
     def setPressure(self, p):
         """Set the pressure [Pa]."""
@@ -203,27 +203,27 @@ class ThermoPhase(Phase):
 
     def enthalpy_mass(self):
         """Specific enthalpy [J/kg]."""
-        return _cantera.thermo_getfp(self._phase_id,8)        
+        return _cantera.thermo_getfp(self._phase_id,8)
 
     def intEnergy_mass(self):
         """Specific internal energy [J/kg]."""
-        return _cantera.thermo_getfp(self._phase_id,9)        
+        return _cantera.thermo_getfp(self._phase_id,9)
 
     def entropy_mass(self):
         """Specific entropy [J/kg/K]."""
-        return _cantera.thermo_getfp(self._phase_id,10)        
+        return _cantera.thermo_getfp(self._phase_id,10)
 
     def gibbs_mass(self):
         """Specific Gibbs free energy [J/kg]."""
-        return _cantera.thermo_getfp(self._phase_id,11)        
+        return _cantera.thermo_getfp(self._phase_id,11)
 
     def cp_mass(self):
         """Specific heat at constant pressure [J/kg/K]."""
-        return _cantera.thermo_getfp(self._phase_id,12)        
+        return _cantera.thermo_getfp(self._phase_id,12)
 
     def cv_mass(self):
-        """Specific heat at constant volume [J/kg/K]."""        
-        return _cantera.thermo_getfp(self._phase_id,13)        
+        """Specific heat at constant volume [J/kg/K]."""
+        return _cantera.thermo_getfp(self._phase_id,13)
 
     def setState_TPX(self, t, p, x):
         """Set the temperature [K], pressure [Pa], and
@@ -234,23 +234,23 @@ class ThermoPhase(Phase):
 
     def setState_TPY(self, t, p, y):
         """Set the temperature [K], pressure [Pa], and
-        mass fractions."""        
+        mass fractions."""
         self.setTemperature(t)
         self.setMassFractions(y)
         self.setPressure(p)
 
     def setState_TP(self, t, p):
-        """Set the temperature [K] and pressure [Pa]."""        
+        """Set the temperature [K] and pressure [Pa]."""
         self.setTemperature(t)
         self.setPressure(p)
 
     def setState_PX(self, p, x):
-        """Set the pressure [Pa], and mole fractions."""        
+        """Set the pressure [Pa], and mole fractions."""
         self.setMoleFractions(x)
         self.setPressure(p)
 
     def setState_PY(self, p, y):
-        """Set the pressure [Pa], and mass fractions."""        
+        """Set the pressure [Pa], and mass fractions."""
         self.setMassFractions(y)
         self.setPressure(p)
 
@@ -262,54 +262,54 @@ class ThermoPhase(Phase):
     def setState_UV(self, u, v):
         """Set the state by specifying the specific internal
         energy and the specific volume."""
-        _cantera.thermo_setfp(self._phase_id, 3, u, v)        
+        _cantera.thermo_setfp(self._phase_id, 3, u, v)
 
     def setState_SV(self, s, v):
         """Set the state by specifying the specific entropy
         and the specific volume."""
         _cantera.thermo_setfp(self._phase_id, 4, s, v)
-        
+
     def setState_SP(self, s, p):
         """Set the state by specifying the specific entropy
-        energy and the pressure."""        
-        _cantera.thermo_setfp(self._phase_id, 5, s, p)        
+        energy and the pressure."""
+        _cantera.thermo_setfp(self._phase_id, 5, s, p)
 
     def setElectricPotential(self, v):
         """Set the electric potential."""
         _cantera.thermo_setfp(self._phase_id, 6, v, 0);
-        
+
     def equilibrate(self, XY, solver = -1, rtol = 1.0e-9,
                     maxsteps = 1000, maxiter = 100, loglevel = 0):
         """  Set to a state of chemical equilibrium holding property pair
             'XY' constant.
-            
+
             XY ---   A two-letter string, which must be one of the set
             ['TP','TV','HP','SP','SV','UV','PT','VT','PH','PS','VS','VU'].
             If H, U, S, or V is specified, the value must be the specific
             value (per unit mass)
-            
+
             solver --- Specifies the equilibrium solver to use. If solver =
             0, a fast solver using the element potential method will be
             used. If solver > 0, a slower but more robust Gibbs
             minimization solver will be used. If solver < 0 or
             unspecified, the fast solver will be tried first, then if it
             fails the other will be tried.
-    
+
             rtol -- the relative error tolerance.
-    
+
             maxsteps -- maximum number of steps in composition to take to
             find a converged solution.
-    
+
             maxiter -- for the Gibbs minimization solver only, this
             specifies the number of 'outer' iterations on T or P when some
             property pair other than TP is specified.
-    
+
             loglevel -- set to a value > 0 to write diagnostic output to a
             file in HTML format. Larger values generate more detailed
             information. The file will be named 'equilibrate_log.html.'
             Subsequent files will be named 'equillibrate_log1.html', etc.,
             so that log files are not overwritten.
-    
+
             """
         _cantera.thermo_equil(self._phase_id, XY, solver,
                               rtol, maxsteps, maxiter, loglevel)
@@ -326,7 +326,7 @@ class ThermoPhase(Phase):
     def restoreState(self, s):
         """Restore the state to that stored in array s."""
         self.setState_TRY(s[0], s[1], s[2:])
-        
+
     def thermophase(self):
         """Return the integer index that is used to
         reference the kernel object. For internal use."""
@@ -334,12 +334,5 @@ class ThermoPhase(Phase):
 
     def thermo_hndl(self):
         """Return the integer index that is used to
-        reference the kernel object. For internal use."""        
+        reference the kernel object. For internal use."""
         return self._phase_id
-    
-
-
-
-    
-
-    

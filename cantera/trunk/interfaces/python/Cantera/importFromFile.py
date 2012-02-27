@@ -36,7 +36,7 @@ def importInterface(file, name = '', phases = []):
     representing a gas phase or a solid.
     >>> gas1, cryst1 = importPhases('diamond.cti', ['gas', 'solid'])
     >>> diamond_surf = importInterface('diamond.cti', [gas1, cryst1])
-    
+
     Note the difference between the lists in the argument lists of these
     two functions. In importPhases, a list of name strings is entered,
     which are used to identify the appropriate definitions in the input
@@ -50,7 +50,7 @@ def importInterface(file, name = '', phases = []):
         src = file+'#'+name
     else:
         src = file
-    return Interface.Interface(src = src, phases = phases)    
+    return Interface.Interface(src = src, phases = phases)
 
 
 def importEdge(file, name = '', surfaces = []):
@@ -58,5 +58,4 @@ def importEdge(file, name = '', surfaces = []):
         src = file+'#'+name
     else:
         src = file
-    return Edge.Edge(src = src, surfaces = surfaces)    
-    
+    return Edge.Edge(src = src, surfaces = surfaces)

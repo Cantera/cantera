@@ -47,17 +47,17 @@ for n in range(np):
     sim.advance(time)
     tim[n] = time
     data[n,0] = r.temperature()
-    data[n,1] = r.moleFraction('OH') 
+    data[n,1] = r.moleFraction('OH')
     data[n,2] = r.moleFraction('H')
     data[n,3] = r.moleFraction('CH4')
-    
+
     # sensitivity of OH to reaction 2
     data[n,4] = sim.sensitivity('OH',2)
-    
-    # sensitivity of OH to reaction 3    
+
+    # sensitivity of OH to reaction 3
     data[n,5] = sim.sensitivity('OH',3)
-    
-    print '%10.3e %10.3f %10.3f %14.6e %10.3f %10.3f' % (sim.time(), r.temperature(), 
+
+    print '%10.3e %10.3f %10.3f %14.6e %10.3f %10.3f' % (sim.time(), r.temperature(),
                                            r.pressure(), r.intEnergy_mass(),  data[n,4],  data[n,5])
 
 
@@ -88,7 +88,7 @@ if len(args) > 1 and args[1] == '-plot':
         plot(tim,data[:,4],'-',tim,data[:,5],'-g')
         legend([r.sensParamName(2),r.sensParamName(3)],'best')
         xlabel('Time (s)');
-        ylabel('OH Sensitivity');        
+        ylabel('OH Sensitivity');
         show()
     except:
         print 'could not make plots'

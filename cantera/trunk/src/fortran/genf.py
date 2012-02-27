@@ -69,7 +69,7 @@ def writeinterface(fint, rtype, name, args):
         elif a[0] in _c2fout:
             fint.write('        '+_c2fout[a[0]]+', intent(out) :: '+a[1]+arr+'\n')
     fint.write('    end function '+name+'\n\n')
-    
+
 
 def writef90(fmod, rtype, otype, hndl, name, args):
     subroutine = 0
@@ -82,7 +82,7 @@ def writef90(fmod, rtype, otype, hndl, name, args):
     if name[-1] == '_':
         name = name[:-1]
     wname = 'ct'+name[1:]
-    
+
     s += wname + '('
     argstr='self, '
     for a in args[1:]:
@@ -98,7 +98,7 @@ def writef90(fmod, rtype, otype, hndl, name, args):
         if a[0][0] == 'd':
             arr = '(*)'
         else:
-            arr = ''            
+            arr = ''
         if a[0] in _c2fin:
             fmod.write('      '+_c2fin[a[0]]+', intent(in) :: '+a[1]+arr+'\n')
         elif a[0] in _c2fout:
@@ -106,7 +106,7 @@ def writef90(fmod, rtype, otype, hndl, name, args):
     if subroutine:
         s = '      self%err = '+name+'(self%'+hndl+', '
     else:
-        s = '      '+wname+' = '+name+'(self%'+hndl+', '                
+        s = '      '+wname+' = '+name+'(self%'+hndl+', '
     argstr = ''
     for a in args[1:]:
         if a[0] <> 'ftnlen':
@@ -117,9 +117,9 @@ def writef90(fmod, rtype, otype, hndl, name, args):
         fmod.write(s+'\n    end subroutine '+wname+'\n\n')
     else:
         fmod.write(s+'\n    end function '+wname+'\n\n')
-    
 
-    
+
+
 fname = sys.argv[1]    # fctxml
 otype = sys.argv[2]    # XML_Node
 hndl = sys.argv[3]     # xml_id
@@ -200,6 +200,3 @@ for line in lines:
 
 fmod.write('end module '+base+'\n')
 fmod.close()
-
-
-        

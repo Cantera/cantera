@@ -34,9 +34,9 @@ tol_ts    = [1.0e-3, 1.0e-9]        # [rtol, atol] for time stepping
 
 loglevel  = 1                       # amount of diagnostic output (0
                                     # to 5)
-				    
+
 refine_grid = 1                     # 1 to enable refinement, 0 to
-                                    # disable 				   
+                                    # disable
 
 
 ################ create the gas object ########################
@@ -119,6 +119,3 @@ print 'solution saved to npflame1.csv'
 
 f.showSolution()
 f.showStats(0)
-
-
-

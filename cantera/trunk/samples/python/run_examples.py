@@ -3,7 +3,7 @@ from os.path import walk
 pycmd = os.getenv("PYTHON_CMD")
 if not pycmd:
     pycmd = "python"
-    
+
 def run_example(dir, file):
     print "******************************************"
     print "  Example "+file+" ("+dir+")"
@@ -16,7 +16,7 @@ def run_examples(a, dir, files):
     for f in files:
         base, ext = os.path.splitext(f)
         print base, " <> ",ext
-        if dir <> "." and ext == ".py": 
+        if dir <> "." and ext == ".py":
             run_example(dir, f)
 
 walk(".",run_examples,None)

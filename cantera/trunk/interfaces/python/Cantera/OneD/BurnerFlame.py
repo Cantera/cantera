@@ -3,7 +3,7 @@ from Cantera.num import array, zeros
 
 class BurnerFlame(Stack):
     """A burner-stabilized flat flame."""
-    
+
     def __init__(self, gas = None, burner = None, outlet = None, grid = None):
         """
         gas -- object to use to evaluate all gas properties and reaction
@@ -18,7 +18,7 @@ class BurnerFlame(Stack):
         represent the flame. The three domains comprising the stack
         are stored as self.burner, self.flame, and self.outlet.
         """
-        
+
         if burner:
             self.burner = burner
         else:
@@ -44,7 +44,7 @@ class BurnerFlame(Stack):
         in the first 20% of the flame to Tad, then is flat. The mass
         fraction profiles are set similarly.
         """
-        self.getInitialSoln()                
+        self.getInitialSoln()
         gas = self.gas
         nsp = gas.nSpecies()
         yin = zeros(nsp, 'd')
@@ -53,7 +53,7 @@ class BurnerFlame(Stack):
         gas.setState_TPY(self.burner.temperature(), self.pressure, yin)
         u0 = self.burner.mdot()/gas.density()
         t0 = self.burner.temperature()
-        
+
         # get adiabatic flame temperature and composition
         gas.equilibrate('HP',solver=1)
         teq = gas.temperature()
@@ -99,24 +99,24 @@ class BurnerFlame(Stack):
             self.flame.setTolerances(default = tol_time, time = 1)
         if energy:
             self.flame.set(energy = energy)
-        
+
     def T(self, point = -1):
         """Temperature profile or value at one point."""
         return self.solution('T', point)
 
     def u(self, point = -1):
-        """Axial velocity profile or value at one point."""        
-        return self.solution('u', point)        
-        
+        """Axial velocity profile or value at one point."""
+        return self.solution('u', point)
+
     def V(self, point = -1):
-        """Radial velocity profile or value at one point."""        
-        return self.solution('V', point)                
+        """Radial velocity profile or value at one point."""
+        return self.solution('V', point)
 
     def solution(self, component = '', point = -1):
         """Solution component at one point, or full profile if no
         point specified."""
         if point >= 0: return self.value(self.flame, component, point)
-        else: return self.profile(self.flame, component)        
+        else: return self.profile(self.flame, component)
 
     def setGasState(self, j):
         """Set the state of the object representing the gas to the
@@ -127,8 +127,3 @@ class BurnerFlame(Stack):
             nm = self.gas.speciesName(n)
             y[n] = self.solution(nm, j)
         self.gas.setState_TPY(self.T(j), self.pressure, y)
-        
-                
-
-        
-        

@@ -17,7 +17,7 @@ class SurfacePhase(ThermoPhase):
     def siteDensity(self):
         """Site density [kmol/m2]"""
         return _cantera.surf_sitedensity(self._phase_id)
-    
+
     def setCoverages(self, theta):
         """Set the surface coverages to the values in array 'theta'."""
         nt = len(theta)

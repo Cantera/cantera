@@ -21,11 +21,11 @@ def testit(e = None):
 class DataFrame(Frame):
 
     def __init__(self,master,top):
-#	    if master==None:
+#           if master==None:
         self.master = Toplevel()
         self.master.protocol("WM_DELETE_WINDOW",self.hide)
         #else:
-        #	    self.master = master
+        #           self.master = master
 
         #self.vis = vis
         Frame.__init__(self,self.master)
@@ -57,7 +57,7 @@ class DataFrame(Frame):
         Label(self.scframe,text='Grid Point').grid(column=0,row=0)
         self.sc.grid(row=0,column=1)
         self.sc.bind('<ButtonRelease-1>',self.updateState)
-        self.gr.grid(row=4,column=0,columnspan=10)	
+        self.gr.grid(row=4,column=0,columnspan=10)
 
         self.grid(column=0,row=10)
         self.makeMenu()
@@ -69,7 +69,7 @@ class DataFrame(Frame):
         self.menubar.grid(row=0,column=0,sticky=N+W+E,columnspan=10)
         f = [('Open...',self.browseForDatafile)]
         #make_menu('File',self.menubar,items)
-        make_menu('File',self.menubar,f)        
+        make_menu('File',self.menubar,f)
         make_menu('Dataset',self.menubar,self.datasets)
         make_menu('Plot',self.menubar,self.vars)
 
@@ -87,7 +87,7 @@ class DataFrame(Frame):
         fname = os.path.basename(self.datafile.get())
         ff = os.path.splitext(fname)
         self.datasets = []
-        if len(ff) == 2 and (ff[1] == '.xml' or ff[1] == '.ctml'): 
+        if len(ff) == 2 and (ff[1] == '.xml' or ff[1] == '.ctml'):
 
             x = XML.XML_Node('root',src=self.datafile.get())
             c = x.child('ctml')
@@ -100,9 +100,9 @@ class DataFrame(Frame):
                     i += 1
             self.solnid.set(self.solns[-1]['id'])
             self.soln = self.solns[-1]
-                
+
             self.importData()
-            
+
         elif len(ff) == 2 and (ff[1] == '.csv' or ff[1] == '.CSV'):
             self.importCSV()
 
@@ -143,7 +143,7 @@ class DataFrame(Frame):
                     fdata[j,n] = float(v[j])
                 except:
                     fdata[j,n] = 0.0
-                    
+
         self.nsp = self.g.nSpecies()
         self.y = zeros(self.nsp,'d')
         self.data = zeros((self.nsp+6,self.np),'d')
@@ -159,29 +159,29 @@ class DataFrame(Frame):
             v2 = vars[n]
             if v2 == 'T':
                 self.data[T_LOC,:] = fdata[n,:]
-                self.label[T_LOC] = vars[n]                
+                self.label[T_LOC] = vars[n]
                 w.append(('T', self.newplot, 'check', self.loc, T_LOC))
             elif v2 == 'P':
                 self.data[P_LOC,:] = fdata[n,:]
-                self.label[P_LOC] = vars[n]                          
+                self.label[P_LOC] = vars[n]
                 w.append((vars[n], self.newplot, 'check', self.loc, P_LOC))
             elif v2 == 'u':
                 self.data[U_LOC,:] = fdata[n,:]
-                self.label[U_LOC] = vars[n]                          
+                self.label[U_LOC] = vars[n]
                 w.append((vars[n], self.newplot, 'check', self.loc, U_LOC))
             elif v2 == 'V':
                 self.data[V_LOC,:] = fdata[n,:]
-                self.label[V_LOC] = vars[n]                          
+                self.label[V_LOC] = vars[n]
                 w.append((vars[n], self.newplot, 'check', self.loc, V_LOC))
             elif k >= 0:
                 self.data[k+Y_LOC,:] = fdata[n,:]
-                self.label[k+Y_LOC] = vars[n]                            
+                self.label[k+Y_LOC] = vars[n]
                 w.append((vars[n], self.newplot, 'check', self.loc, k + Y_LOC))
 
         if self.data[P_LOC,0] == 0.0:
             self.data[P_LOC,:] = ones(self.np,'d')*OneAtm
-            print 'Warning: no pressure data. P set to 1 atm.' 
-            
+            print 'Warning: no pressure data. P set to 1 atm.'
+
         self.sc.config(cnf={'from':0,'to':self.np-1})
         if self.loc.get() <= 0:
             self.loc.set(self.lastloc)
@@ -189,12 +189,12 @@ class DataFrame(Frame):
 
         self.vars = w
         #self.makeMenu()
-        self.scframe.grid(row=5,column=0,columnspan=10)                
-            
+        self.scframe.grid(row=5,column=0,columnspan=10)
+
 
     def pickSoln(self):
         self.solnid.set(self.solns[self.whichsoln.get()]['id'])
-        self.soln = self.solns[self.whichsoln.get()]		
+        self.soln = self.solns[self.whichsoln.get()]
 #        self.t.destroy()
         self.importData()
 
@@ -208,10 +208,10 @@ class DataFrame(Frame):
         self.ydata = None
         if self.plt:
             self.plt.destroy()
-            
+
         self.nsp = self.g.nSpecies()
         self.label = ['-']*(self.nsp + 6)
-        
+
         self.y = zeros(self.nsp,'d')
         gdata = self.soln.child('flowfield/grid_data')
         xp = self.soln.child('flowfield').children('float')
@@ -236,23 +236,23 @@ class DataFrame(Frame):
                 self.label[0] = t
             elif k >= 0:
                 self.data[k + Y_LOC] = v
-                self.label[k + Y_LOC] = t 
+                self.label[k + Y_LOC] = t
                 w.append((t, self.newplot, 'check', self.loc, k + Y_LOC))
             elif t == 'T':
                 self.data[T_LOC,:] = v
-                self.label[T_LOC] = t                
+                self.label[T_LOC] = t
                 w.append((t, self.newplot, 'check', self.loc, T_LOC))
             elif t == 'u':
                 self.data[U_LOC,:] = v
-                self.label[U_LOC] = t                                
+                self.label[U_LOC] = t
                 w.append((t, self.newplot, 'check', self.loc, U_LOC))
             elif t == 'V':
                 self.data[V_LOC,:] = v
-                self.label[V_LOC] = t                                
+                self.label[V_LOC] = t
                 w.append((t, self.newplot, 'check', self.loc, V_LOC))
-                
+
         self.data[P_LOC,:] = ones(self.np,'d')*p
-        self.label[P_LOC] = 'P (Pa)'                
+        self.label[P_LOC] = 'P (Pa)'
         self.sc.config(cnf={'from':0,'to':self.np-1})
         if self.loc.get() <= 0:
             self.loc.set(self.lastloc)
@@ -356,9 +356,4 @@ class DataFrame(Frame):
             i = i + 1
         ymin = fctr*math.floor(ymin/fctr)
         ymax = fctr*(math.floor(ymax/fctr + 1))
-        return (ymin, ymax, fctr)      
-
-
-
-
-
+        return (ymin, ymax, fctr)

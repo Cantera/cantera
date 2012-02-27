@@ -37,8 +37,3 @@ def handleError(message = '<error>', window = None,
     else:
         m = tkMessageBox.showerror(title = 'Error', message = message,
                                    parent = window)
-            
-
-
-
-

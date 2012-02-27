@@ -1,5 +1,5 @@
 # An equilibrium example with charged species in the gas phase
-# and multiple condensed phases. 
+# and multiple condensed phases.
 
 # Note: This example runs fine on Mac and linux platforms, but
 # encounters some convergence difficulties under Windows. The reasons
@@ -35,11 +35,9 @@ for n in range(100):
     # temperature and pressure fixed
     # mix.equilibrate("TP",maxsteps=10000,loglevel=1)
     mix.vcs_equilibrate("TP",printLvl=0,maxsteps=10000,loglevel=0)
-        
+
     # write out the moles of each species
     writeCSV(f,[t]+ list(mix.speciesMoles()))
 
 # close the output file
 f.close()
-
-    

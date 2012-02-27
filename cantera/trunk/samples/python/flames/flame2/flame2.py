@@ -27,9 +27,9 @@ tol_ts    = [1.0e-5, 1.0e-4]        # [rtol atol] for time stepping
 
 loglevel  = 1                       # amount of diagnostic output (0
                                     # to 5)
-				    
+
 refine_grid = 1                     # 1 to enable refinement, 0 to
-                                    # disable 				   
+                                    # disable
 
 
 ################ create the gas object ########################
@@ -94,8 +94,3 @@ fcsv.close()
 print 'solution saved to flame2.csv'
 
 f.showStats()
-
-
-
-
-

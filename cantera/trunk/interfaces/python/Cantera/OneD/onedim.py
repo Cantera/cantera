@@ -6,26 +6,26 @@ _onoff = {'on':1, 'yes':1, 'off':0, 'no':0, 1:1, 0:0}
 
 class Domain1D:
     """Base class for one-dimensional domains."""
-    
+
     def __init__(self):
         self._hndl = 0
-        
+
     def __del__(self):
         _cantera.domain_del(self._hndl)
 
     def domain_hndl(self):
         """Integer used to reference the kernel object."""
         return self._hndl
-    
+
     def type(self):
         """Domain type. Integer."""
         return _cantera.domain_type(self._hndl)
-    
+
     def index(self):
         """Index of this domain in a stack. Returns -1 if this domain
         is not part of a stack."""
         return _cantera.domain_index(self._hndl)
-    
+
     def nComponents(self):
         """Number of solution components at each grid point."""
         return _cantera.domain_nComponents(self._hndl)
@@ -44,12 +44,12 @@ class Domain1D:
         for n in range(self.nComponents()):
             names.append(self.componentName(n))
         return names
-    
+
     def componentIndex(self, name):
         """Index of the component with name 'name'"""
         return _cantera.domain_componentIndex(self._hndl, name)
-    
-    def setBounds(self, **bounds):        
+
+    def setBounds(self, **bounds):
         """Set the lower and upper bounds on the solution.
 
         The argument list should consist of keyword/value pairs, with
@@ -62,13 +62,13 @@ class Domain1D:
         >>> d.setBounds(default = (0, 1),
         ...             Y = (-1.0e-5, 2.0))
         """
-        
+
         d = {}
         if bounds.has_key('default'):
             for n in range(self.nComponents()):
                 d[self.componentName(n)] = bounds['default']
             del bounds['default']
-        
+
         for b in bounds.keys():
             if b == 'Y':
                 if self.type >= 50:
@@ -88,7 +88,7 @@ class Domain1D:
         >>> d.bounds('T')
         (200.0, 5000.0)
         """
-        
+
         ic = self.componentIndex(component)
         lower = _cantera.domain_lowerBound(self._hndl, ic)
         upper = _cantera.domain_upperBound(self._hndl, ic)
@@ -97,20 +97,20 @@ class Domain1D:
     def tolerances(self, component):
         """Return the (relative, absolute) error tolerances for
         a solution component.
-        
+
         (r, a) = d.tolerances('u')
 
         """
         ic = self.componentIndex(component)
         r = _cantera.domain_rtol(self._hndl, ic)
-        a = _cantera.domain_atol(self._hndl, ic)        
+        a = _cantera.domain_atol(self._hndl, ic)
         return (r, a)
-    
+
     def setTolerances(self, **tol):
         """Set the error tolerances. If 'time' is present and
         non-zero, then the values entered will apply to the transient
         problem. Otherwise, they will apply to the steady-state
-        problem. 
+        problem.
 
         The argument list should consist of keyword/value pairs, with
         component names as keywords and (rtol, atol) tuples as the
@@ -122,13 +122,13 @@ class Domain1D:
                         default = (1.0e-7, 1.0e-12),
                         time = 1)
         """
-        
+
         d = {}
         if tol.has_key('default'):
             for n in range(self.nComponents()):
                 d[self.componentName(n)] = tol['default']
             del tol['default']
-                
+
         itime = 0
         for b in tol.keys():
             if b == 'time': itime = -1
@@ -147,22 +147,22 @@ class Domain1D:
             # print 'setting tol for ',b,' itime = ',itime
             _cantera.domain_setTolerances(self._hndl, n, d[b][0], d[b][1], itime)
 
-    
+
     def setupGrid(self, grid):
         """Specify the grid.
 
         d.setupGrid([0.0, 0.1, 0.2])
-        
+
         """
         return _cantera.domain_setupGrid(self._hndl, asarray(grid))
-    
+
     def setID(self, id):
         return _cantera.domain_setID(self._hndl, id)
-    
+
     def setDesc(self, desc):
         """Set the description of this domain."""
         return _cantera.domain_setDesc(self._hndl, desc)
-    
+
     def grid(self, n = -1):
         """ If n >= 0, return the value of the nth grid point
         from the left in this domain. If n is not supplied, return
@@ -191,7 +191,7 @@ class Domain1D:
         """
         self._set(options)
 
-        
+
     def _set(self, options):
         for opt in options.keys():
             v = options[opt]
@@ -212,14 +212,14 @@ class Domain1D:
     def _dict2arrays(self, d = None, array1 = None, array2 = None):
         nc = self.nComponents()
         if d.has_key('default'):
-            a1 = zeros(nc,'d') + d['default'][0]            
+            a1 = zeros(nc,'d') + d['default'][0]
             a2 = zeros(nc,'d') + d['default'][1]
             del d['default']
         else:
             if array1: a1 = array(array1)
             else: a1 = zeros(nc,'d')
             if array2: a2 = array(array2)
-            else: a2 = zeros(nc,'d')        
+            else: a2 = zeros(nc,'d')
 
         for k in d.keys():
             c = self.componentIndex(k)
@@ -229,19 +229,19 @@ class Domain1D:
             else:
                 raise CanteraError('unknown component '+k)
         return (a1, a2)
-    
+
 
 
 class Bdry1D(Domain1D):
     """Base class for boundary domains."""
-    
+
     def __init__(self):
         Domain1D.__init__(self)
-    
+
     def setMdot(self, mdot):
         """Set the mass flow rate per unit area [kg/m2]."""
         _cantera.bdry_setMdot(self._hndl, mdot)
-        
+
     def setTemperature(self, t):
         """Set the temperature [K]"""
         _cantera.bdry_setTemperature(self._hndl, t)
@@ -276,10 +276,10 @@ class Bdry1D(Domain1D):
                 del options[opt]
             elif opt == 'temperature' or opt == 'T':
                 self.setTemperature(v)
-                del options[opt]                
+                del options[opt]
             elif opt == 'mole_fractions' or opt == 'X':
                 self.setMoleFractions(v)
-                del options[opt]                
+                del options[opt]
         self._set(options)
 
 
@@ -292,41 +292,41 @@ class Inlet(Bdry1D):
         Bdry1D.__init__(self)
         self._hndl = _cantera.inlet_new()
         if id: self.setID(id)
-        
+
     def setSpreadRate(self, V0 = 0.0):
         """Set the spead rate, defined as the value of V = v/r at the inlet."""
         _cantera.inlet_setSpreadRate(self._hndl, V0)
-        
-        
+
+
 class Outlet(Bdry1D):
     """A one-dimensional outlet. An outlet imposes a
     zero-gradient boundary condition on the flow."""
-    
+
     def __init__(self, id = 'outlet'):
-        Bdry1D.__init__(self)        
+        Bdry1D.__init__(self)
         self._hndl = _cantera.outlet_new()
-        if id: self.setID(id)        
+        if id: self.setID(id)
 
 class OutletRes(Bdry1D):
     """A one-dimensional outlet into a reservoir."""
-    
-    def __init__(self, id = 'outletres'):
-        Bdry1D.__init__(self)        
-        self._hndl = _cantera.outletres_new()
-        if id: self.setID(id)        
 
-    
+    def __init__(self, id = 'outletres'):
+        Bdry1D.__init__(self)
+        self._hndl = _cantera.outletres_new()
+        if id: self.setID(id)
+
+
 class SymmPlane(Bdry1D):
     """A symmetry plane."""
     def __init__(self, id = 'symmetry_plane'):
-        Bdry1D.__init__(self)        
+        Bdry1D.__init__(self)
         self._hndl = _cantera.symm_new()
-        if id: self.setID(id)        
+        if id: self.setID(id)
 
 class Surface(Bdry1D):
     """A surface (possibly reacting)."""
     def __init__(self, id = 'surface', surface_mech = None):
-        Bdry1D.__init__(self)        
+        Bdry1D.__init__(self)
         if surface_mech:
             self._hndl = _cantera.reactingsurf_new()
             self.setKineticsMgr(surface_mech)
@@ -339,7 +339,7 @@ class Surface(Bdry1D):
         """Set the kinetics manager (surface reaction mechanism object)."""
         _cantera.reactingsurf_setkineticsmgr(self._hndl,
                                              kin.kinetics_hndl())
-        
+
     def setCoverageEqs(self, onoff='on'):
         """Turn solving the surface coverage equations on or off."""
         if onoff == 'on':
@@ -347,19 +347,19 @@ class Surface(Bdry1D):
         else:
             _cantera.reactingsurf_enableCoverageEqs(self._hndl, 0)
 
-        
+
 class AxisymmetricFlow(Domain1D):
     """An axisymmetric flow domain.
 
     In an axisymmetric flow domain, the equations solved are the
     similarity equations for the flow in a finite-height gap of
     infinite radial extent. The solution variables are
-      u       -- axial velocity 
+      u       -- axial velocity
       V       -- radial velocity divided by radius
       T       -- temperature
       lambda  -- (1/r)(dP/dr)
       Y_k     -- species mass fractions
-      
+
     It may be shown that if the boundary conditions on these variables
     are independent of radius, then a similarity solution to the exact
     governing equations exists in which these variables are all
@@ -382,7 +382,7 @@ class AxisymmetricFlow(Domain1D):
         self._p = -1.0
         self.setPressure(gas.pressure())
         self.solveEnergyEqn()
-        
+
     def setPressure(self, p):
         """Set the pressure [Pa]. The pressure is a constant, since
         the governing equations are those for the low-Mach-number limit."""
@@ -404,20 +404,20 @@ class AxisymmetricFlow(Domain1D):
     def pressure(self):
         """Pressure [Pa]."""
         return self._p
-        
+
     def setFixedTempProfile(self, pos, temp):
         """Set the fixed temperature profile.  This profile is used
-        whenever the energy equation is disabled. 
-        
+        whenever the energy equation is disabled.
+
         pos - arrray of relative positions from 0 to 1
         temp - array of temperature values
 
         >>> d.setFixedTempProfile(array([0.0, 0.5, 1.0]),
         ...                       array([500.0, 1500.0, 2000.0])
-        
+
         """
         return _cantera.stflow_setFixedTempProfile(self._hndl, pos, temp)
-    
+
     def solveSpeciesEqs(self, flag = 1):
         """Enable or disable solving the species equations. If invoked
         with no arguments or with a non-zero argument, the species
@@ -426,14 +426,14 @@ class AxisymmetricFlow(Domain1D):
         held at their initial values. Default: species equations
         enabled."""
         return _cantera.stflow_solveSpeciesEqs(self._hndl, _onoff[flag])
-    
+
     def solveEnergyEqn(self, flag = 1):
         """Enable or disable solving the energy equation. If invoked
         with no arguments or with a non-zero argument, the energy
         equations will be solved. If invoked with a zero argument,
         it will not be, and instead the temperature profiles will be
         held to the one specified by the call to setFixedTempProfile.
-        Default: energy equation enabled."""        
+        Default: energy equation enabled."""
         return _cantera.stflow_solveEnergyEqn(self._hndl, _onoff[flag])
 
     def set(self, **opt):
@@ -453,13 +453,13 @@ class AxisymmetricFlow(Domain1D):
                 self.solveEnergyEqn(flag = _onoff[v])
             else:
                 self._set(opt)
-                
+
 
 class Stack:
-    
+
     """ Class Stack is a container for one-dimensional domains. It
     also holds the multi-domain solution vector, and controls the
-    process of finding the solution.  
+    process of finding the solution.
 
     Domains are ordered left-to-right, with domain number 0 at the left.
 
@@ -473,7 +473,7 @@ class Stack:
             hndls[n] = domains[n].domain_hndl()
         self._hndl = _cantera.sim1D_new(hndls)
         self._domains = domains
-        
+
     def __del__(self):
         _cantera.sim1D_del(self._hndl)
 
@@ -492,9 +492,9 @@ class Stack:
         idom = dom.domain_hndl()
         _cantera.sim1D_setValue(self._hndl, idom,
                                 comp, localPoint, value)
-    
+
     def setProfile(self, dom, comp, pos, v):
-        
+
         """Set an initial estimate for a profile of one component in
         one domain.
 
@@ -505,14 +505,14 @@ class Stack:
         v -- sequence of values at the relative positions specified in 'pos'
 
         >>> s.setProfile(d, 'T', [0.0, 0.2, 1.0], [400.0, 800.0, 1500.0])
-        
+
         """
-        
+
         idom = dom.index()
         icomp = dom.componentIndex(comp)
         _cantera.sim1D_setProfile(self._hndl, idom, icomp,
                                   asarray(pos), asarray(v))
-        
+
     def setFlatProfile(self, dom, comp, v):
         """Set a flat profile for one component in one domain.
         dom -- domain object
@@ -523,9 +523,9 @@ class Stack:
 
         """
         idom = dom.index()
-        icomp = dom.componentIndex(comp)        
+        icomp = dom.componentIndex(comp)
         _cantera.sim1D_setFlatProfile(self._hndl, idom, icomp, v)
-    
+
     def showSolution(self, fname='-'):
         """Show the current solution. If called with no argument,
         the solution is printed to the screen. If a filename is
@@ -536,7 +536,7 @@ class Stack:
 
         """
         _cantera.sim1D_showSolution(self._hndl, fname)
-        
+
     def setTimeStep(self, stepsize, nsteps):
         """Set the sequence of time steps to try when Newton fails.
 
@@ -551,26 +551,26 @@ class Stack:
         # type double. This needs to be checked out further.
         # Probably a function of python version and Numerics version
         _cantera.sim1D_setTimeStep(self._hndl, stepsize, asarray(nsteps))
-        
+
     def getInitialSoln(self):
         """Load the initial solution from each domain into the global
         solution vector."""
         _cantera.sim1D_getInitialSoln(self._hndl)
-            
+
     def solve(self, loglevel=1, refine_grid=1):
         """Solve the problem.
         loglevel -- integer flag controlling the amount of
                     diagnostic output. Zero suppresses all output, and
                     5 produces very verbose output. Default: 1
         refine_grid -- if non-zero, enable grid refinement."""
-        
+
         return _cantera.sim1D_solve(self._hndl, loglevel, refine_grid)
-    
+
     def refine(self, loglevel=1):
         """Refine the grid, adding points where solution is not
         adequately resolved."""
         return _cantera.sim1D_refine(self._hndl, loglevel)
-    
+
     def setRefineCriteria(self, domain = None, ratio = 10.0, slope = 0.8,
                           curve = 0.8, prune = 0.05):
         """Set the criteria used to refine one domain.
@@ -589,7 +589,7 @@ class Stack:
                   removed. Set prune significantly smaller than
                   'slope' and 'curve'. Set to zero to disable pruning
                   the grid.
-                  
+
         >>> s.setRefineCriteria(d, ratio = 5.0, slope = 0.2, curve = 0.3,
         ...                     prune = 0.03)
         """
@@ -601,10 +601,10 @@ class Stack:
 
         >>> s.save(file = 'save.xml', id = 'energy_off',
         ...        desc = 'solution with energy eqn. disabled')
-        
+
         """
         return _cantera.sim1D_save(self._hndl, file, id, desc)
-    
+
     def restore(self, file = 'soln.xml', id = 'solution'):
         """Set the solution vector to a previously-saved solution.
 
@@ -662,15 +662,15 @@ class Stack:
 
         >>> t = s.value(flow, 'T', 6)
 
-        """        
-        idom = dom.index()        
+        """
+        idom = dom.index()
         return _cantera.sim1D_workValue(self._hndl, idom, icomp, localPoint)
-    
+
     def eval(self, rdt, count=1):
         """Evaluate the residual function. If count = 0, do is 'silently',
         without adding to the function evaluation counter"""
         return _cantera.sim1D_eval(self._hndl, rdt, count)
-    
+
     def setMaxJacAge(self, ss_age, ts_age):
         """Set the maximum number of times the Jacobian will be used
         before it must be re-evaluated.
@@ -678,7 +678,7 @@ class Stack:
         ts_age -- age criterion during time-stepping mode
         """
         return _cantera.sim1D_setMaxJacAge(self._hndl, ss_age, ts_age)
-    
+
     def timeStepFactor(self, tfactor):
         """Set the factor by which the time step will be increased
         after a successful step, or decreased after an unsuccessful one.
@@ -686,7 +686,7 @@ class Stack:
         s.timeStepFactor(3.0)
         """
         return _cantera.sim1D_timeStepFactor(self._hndl, tfactor)
-    
+
     def setTimeStepLimits(self, tsmin, tsmax):
         """Set the maximum and minimum time steps."""
         return _cantera.sim1D_setTimeStepLimits(self._hndl, tsmin, tsmax)
@@ -694,7 +694,7 @@ class Stack:
     def setFixedTemperature(self, temp):
         """This is a temporary fix."""
         _cantera.sim1D_setFixedTemperature(self._hndl, temp)
-        
+
 def clearDomains():
     """Clear all domains."""
     _cantera.domain_clear()

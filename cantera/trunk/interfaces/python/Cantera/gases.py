@@ -30,17 +30,16 @@ def GRI30(transport = ""):
     elif transport == "Mix":
         return Solution(src="gri30.cti", id="gri30_mix")
     elif transport == "Multi":
-        return Solution(src="gri30.cti", id="gri30_multi")    
-    
+        return Solution(src="gri30.cti", id="gri30_multi")
+
 
 def Air():
     """Return a Solution instance implementing the O/N/Ar portion of
     reaction mechanism GRI-Mech 3.0. The initial composition is set to
-    that of air"""    
+    that of air"""
     return Solution(src="air.cti", id="air")
 
 
 def Argon():
-    """Return a Solution instance representing pure argon."""    
+    """Return a Solution instance representing pure argon."""
     return Solution(src="argon.cti", id="argon")
-
