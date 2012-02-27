@@ -144,10 +144,6 @@ public:
     /// Default constructor.
     Kinetics();
 
-    /// This constructor initializes with a starting phase.
-    /// @deprecated
-    //        Kinetics(thermo_t* thermo);
-
     /// Destructor.
     virtual ~Kinetics();
 
@@ -302,7 +298,7 @@ public:
      *
      * @param n Index of the ThermoPhase being sought.
      */
-    thermo_t& phase(size_t n=0) {
+    DEPRECATED(thermo_t& phase(size_t n=0)) {
         deprecatedMethod("Kinetics","phase","thermo");
         return *m_thermo[n];
     }
@@ -314,7 +310,7 @@ public:
      *
      * @param n Index of the ThermoPhase being sought.
      */
-    const thermo_t& phase(size_t n=0) const {
+    DEPRECATED(const thermo_t& phase(size_t n=0) const) {
         deprecatedMethod("Kinetics","phase","thermo");
         return *m_thermo[n];
     }
@@ -1060,7 +1056,6 @@ protected:
      *
      */
     size_t m_surfphase;
-
 
     //! Phase Index where reactions are assumed to be taking place
     /*!

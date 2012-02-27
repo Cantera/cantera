@@ -248,7 +248,7 @@ void MultiPhase::init()
     /// mole fractions stored in the phase objects
     m_init = true;
 
-    updateMoleFractions();
+    uploadMoleFractionsFromPhases();
 
     updatePhases();
 }

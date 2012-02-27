@@ -470,7 +470,7 @@ public:
      *
      * @deprecated
      */
-    void getMolecularWeights(int iwt, doublereal* weights) const;
+    DEPRECATED(void getMolecularWeights(int iwt, doublereal* weights) const);
 
     /**
      * Copy the vector of molecular weights into array weights.

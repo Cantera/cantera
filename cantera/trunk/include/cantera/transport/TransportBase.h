@@ -249,23 +249,19 @@ public:
 
     //! Returns an integer index number.
     /*!
-     *  This is for internal use
+     *  @internal This is for internal use
      *  of Cantera, and may be removed in the future.
      *
      *  @return  Returns the index number
-     *
-     *  @deprecated
      */
-    size_t index() const ;
+    size_t index() const;
 
     //! Set an integer index number.
     /*!
-     *  This is for internal use of
+     *  @internal This is for internal use of
      *  Cantera, and may be removed in the future.
      *
      *  @param i  index value
-     *
-     *  @deprecated
      */
     void setIndex(size_t i);
 
@@ -353,7 +349,7 @@ public:
      *
      * @deprecated This doesn't seem to be the essential input; it should just be the mobility.
      */
-    virtual void mobilityRatio(double* mobRat) {
+    DEPRECATED(virtual void mobilityRatio(double* mobRat)) {
         err("mobilityRatio");
     }
 
