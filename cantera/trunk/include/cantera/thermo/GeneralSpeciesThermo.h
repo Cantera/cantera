@@ -210,8 +210,9 @@ public:
      * @param index Species index
      * @param c     Vector of coefficients used to set the
      *              parameters for the standard state.
+     * @deprecated
      */
-    virtual void modifyParams(size_t index, doublereal* c);
+    DEPRECATED(virtual void modifyParams(size_t index, doublereal* c));
 
 #ifdef H298MODIFY_CAPABILITY
 
