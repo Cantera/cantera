@@ -350,6 +350,7 @@ def psplit(s):
     Split a path given as a string into a list.
     This is the inverse of os.path.join.
     """
+    s = s.strip('/\\')
     head, tail = os.path.split(s)
     path = [tail]
     while head:
@@ -393,6 +394,7 @@ def which(program):
 optionWrapper = textwrap.TextWrapper(initial_indent='    ',
                                    subsequent_indent='    ',
                                    width=72)
+
 
 def formatOption(env, opt):
     """

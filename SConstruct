@@ -500,6 +500,11 @@ opts.AddVariables(
             local filesystem.""",
         '',
         PathVariable.PathAccept),
+    BoolVariable(
+        'legacy_headers',
+        """Create symbolic links for headers that were installed to the
+        'kernel' subdirectory in previous versions of Cantera.""",
+        False),
     PathVariable(
         'graphvisdir',
         """The directory location of the graphviz program, dot. dot is
@@ -896,6 +901,38 @@ if env['addInstallTargets']:
     headerBase = 'include/cantera'
     inst = env.RecursiveInstall('$inst_incdir', 'include/cantera')
     installTargets.extend(inst)
+
+    # Make symlinks to replicate old header directory structure
+    if env['legacy_headers']:
+        inst = env.Command(pjoin(instRoot, 'include', 'cantera', 'kernel'), [],
+                           Mkdir("$TARGET"))
+        installTargets.extend(inst)
+
+        if env['OS'] == 'Windows':
+            cmd = Copy("$TARGET", "$SOURCE")
+        else:
+            def RelativeSymlink(target, source, env):
+                if os.path.exists(target[0].path):
+                    os.remove(target[0].path)
+                srcpath = psplit(source[0].abspath)
+                tgtpath = psplit(target[0].abspath)
+                nCommon = max(i for i,(dir1,dir2) in enumerate(zip(srcpath, tgtpath))
+                              if dir1 == dir2)
+                relsrc = os.sep.join(['..'] + srcpath[nCommon-1:])
+                os.symlink(relsrc, target[0].abspath)
+
+            cmd = RelativeSymlink
+
+        for name in os.listdir('include/cantera'):
+            if not os.path.isdir(pjoin('include/cantera', name)):
+                continue
+            for filename in os.listdir(pjoin('include/cantera', name)):
+                if not filename.endswith('.h'):
+                    continue
+                headerdir = pjoin(instRoot, 'include', 'cantera')
+                inst = env.Command(pjoin(headerdir, 'kernel', filename),
+                                  pjoin(headerdir, name, filename), cmd)
+                installTargets.extend(inst)
 
     # Install C++ samples
     inst = env.RecursiveInstall(pjoin('$inst_sampledir', 'cxx'),
