@@ -267,7 +267,7 @@ doublereal LTI_Solvent::getMixTransProp(doublereal* speciesValues, doublereal* s
     //if weightings are specified, use those
     if (speciesWeight) {
         for (size_t k = 0; k < nsp; k++) {
-            molefracs[k] = molefracs[k];
+            //molefracs[k] = molefracs[k];
             // should be: molefracs[k] = molefracs[k]*speciesWeight[k]; for consistency, but weight(solvent)=1?
         }
     } else {
@@ -313,7 +313,7 @@ doublereal LTI_Solvent::getMixTransProp(std::vector<LTPspecies*> LTPptrs)
     doublereal value = 0.0;
 
     for (size_t k = 0; k < nsp; k++) {
-        molefracs[k] = molefracs[k];
+        //molefracs[k] = molefracs[k];
         // should be:      molefracs[k] = molefracs[k]*LTPptrs[k]->getMixWeight(); for consistency, but weight(solvent)=1?
     }
 
