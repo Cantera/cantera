@@ -52,7 +52,6 @@ public:
     //@{
 
     /// Set initial guess based on equilibrium
-    //added by Karl Meredith
     void setInitialGuess(std::string component, vector_fp& locs, vector_fp& vals);
 
     /// Set one entry in the solution vector.
@@ -95,9 +94,7 @@ public:
     /// Refine the grid in all domains.
     int refine(int loglevel=0);
 
-    //added by Karl Meredith
     int setFixedTemperature(doublereal t);
-    //added by Karl Meredith
     void setAdiabaticFlame(void);
 
     /// Set the criteria for grid refinement.

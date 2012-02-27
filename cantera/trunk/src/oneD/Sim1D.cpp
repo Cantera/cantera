@@ -51,7 +51,6 @@ Sim1D::Sim1D(vector<Domain1D*>& domains) :
 }
 //====================================================================================================================
 
-// added by Karl Meredith
 void Sim1D::setInitialGuess(string component, vector_fp& locs, vector_fp& vals)
 {
 
@@ -456,7 +455,6 @@ int Sim1D::refine(int loglevel)
 /**
  * Add node for fixed temperature point of freely propagating flame
  */
-//added by Karl Meredith
 int Sim1D::setFixedTemperature(doublereal t)
 {
     int np = 0;
@@ -562,7 +560,6 @@ int Sim1D::setFixedTemperature(doublereal t)
     return np;
 }
 
-//added by Karl Meredith
 void Sim1D::setAdiabaticFlame(void)
 {
     for (size_t n = 0; n < m_nd; n++) {

@@ -185,7 +185,6 @@ public:
 
     virtual std::string componentName(size_t n) const;
 
-    //added by Karl Meredith
     size_t componentIndex(std::string name) const;
 
 
@@ -276,10 +275,6 @@ public:
     void setGas(const doublereal* x, size_t j);
     void setGasAtMidpoint(const doublereal* x, size_t j);
 
-    //Karl Meredith
-    //        doublereal density_unprotected(int j) const {
-    //    return m_rho[j];
-    // }
     doublereal density(size_t j) const {
         return m_rho[j];
     }

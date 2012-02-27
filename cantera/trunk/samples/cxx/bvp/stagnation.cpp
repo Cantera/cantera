@@ -953,7 +953,6 @@ string AxiStagnBVP::componentName(int n) const
 }
 
 
-//added by Karl Meredith
 int AxiStagnBVP::componentIndex(string name) const
 {
 
