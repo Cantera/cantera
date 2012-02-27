@@ -150,32 +150,39 @@ opts.AddVariables(
     )
 opts.Update(env)
 
+defaults.cxxFlags = ''
+defaults.ccFlags = ''
+defaults.noOptimizeCcFlags = ''
+defaults.optimizeCcFlags = ''
+defaults.debugCcFlags = ''
+defaults.noDebugCcFlags = ''
+defaults.debugLinkFlags = ''
+defaults.noDebugLinkFlags = ''
+
 if env['CC'] == 'gcc':
     defaults.cxxFlags = '-ftemplate-depth-128'
-    defaults.ccFlags = '-Wall -g'
-    defaults.debugCcFlags = '-O0 -fno-inline'
-    defaults.releaseCcFlags = '-O3 -finline-functions -Wno-inline -DNDEBUG'
-    defaults.debugLinkFlags = ''
+    defaults.ccFlags = '-Wall'
+    defaults.debugCcFlags = '-g'
+    defaults.noOptimizeCcFlags = '-O0 -fno-inline'
+    defaults.optimizeCcFlags = '-O3 -DNDEBUG -finline-functions -Wno-inline'
+
 elif env['CC'] == 'cl': # Visual Studio
     defaults.cxxFlags = '/EHsc'
     defaults.ccFlags = ' '.join(['/nologo', '/Zi', '/W3', '/Zc:wchar_t', '/Zc:forScope',
                                  '/D_SCL_SECURE_NO_WARNINGS', '/D_CRT_SECURE_NO_WARNINGS'])
-    defaults.debugCcFlags = '/Od /Ob0 /MD' # note: MDd breaks the Python module
-    defaults.releaseCcFlags = '/O2 /MD /DNDEBUG'
+    defaults.debugCcFlags = '/MD' # note: MDd breaks the Python module
+    defaults.noOptimizeCcFlags = '/Od /Ob0'
+    defaults.optimizeCcFlags = '/O2 /DNDEBUG'
     defaults.debugLinkFlags = '/DEBUG'
+
 elif env['CC'] == 'icc':
     defaults.cxxFlags = '-ftemplate-depth-128'
-    defaults.ccFlags = '-Wcheck -g -vec-report0'
-    defaults.debugCcFlags = '-O0 -fno-inline'
-    defaults.releaseCcFlags = '-O3 -finline-functions -DNDEBUG'
-    defaults.debugLinkFlags = ''
+    defaults.ccFlags = '-Wcheck -vec-report0'
+    defaults.debugCcFlags = '-g'
+    defaults.noOptimizeCcFlags = '-O0 -fno-inline'
+    defaults.optimizeCcFlags = '-O3 -finline-functions -DNDEBUG'
 else:
-    print "Warning: Unrecognized C compiler '%s'" % env['CC']
-    defaults.cxxFlags = ''
-    defaults.ccFlags = ''
-    defaults.debugCcFlags = ''
-    defaults.releaseCcFlags = ''
-    defaults.debugLinkFlags = ''
+    print "WARNING: Unrecognized C compiler '%s'" % env['CC']
 
 # **************************************
 # *** Read user-configurable options ***
@@ -263,8 +270,9 @@ opts.AddVariables(
      'Compilation options for the Fortran 90 compiler.',
      '-O3'),
     BoolVariable(
-        'debug',
-        """Enable extra printing code to aid in debugging.""",
+        'debug_verbose',
+        """Enable extra printing to aid in debugging. This code is marked
+            by the preprocessor macros DEBUG_MODE and DEBUG_MODE_ENABLED.""",
         False),
     BoolVariable(
         'coverage',
@@ -446,15 +454,31 @@ opts.AddVariables(
      defaults.ccFlags),
     BoolVariable(
         'optimize',
-        """Enable extra compiler optimizations specified by the "release_flags" variable,
+        """Enable extra compiler optimizations specified by the "optimize_flags" variable,
            instead of the flags specified by the "debug_flags" variable""",
         True),
-    ('release_flags',
+    ('optimize_flags',
      'Additional compiler flags passed to the C/C++ compiler when optimize=yes.',
-     defaults.releaseCcFlags),
-    ('debug_flags',
+     defaults.optimizeCcFlags),
+    ('no_optimize_flags',
      'Additional compiler flags passed to the C/C++ compiler when optimize=no.',
+     defaults.noOptimizeCcFlags),
+    BoolVariable(
+        'debug',
+        """Enable compiler debugging symbols.""",
+        True),
+    ('debug_flags',
+     'Additional compiler flags passed to the C/C++ compiler when debug=yes.',
      defaults.debugCcFlags),
+    ('no_debug_flags',
+     'Additional compiler flags passed to the C/C++ compiler when debug=no.',
+     defaults.noDebugCcFlags),
+    ('debug_linker_flags',
+     'Additional options passed to the linker when debug=yes',
+     defaults.debugLinkFlags),
+    ('no_debug_linker_flags',
+     'Additional options passed to the linker when debug=yes',
+     defaults.noDebugLinkFlags),
     BoolVariable(
         'build_thread_safe',
         """Cantera can be built so that it is thread safe. Doing so
@@ -785,11 +809,19 @@ env['inst_mandir'] = pjoin(instRoot, 'man1')
 env['inst_matlab_dir'] = pjoin(instRoot, 'matlab', 'toolbox')
 
 env['CXXFLAGS'] = listify(env['cxx_flags'])
+
 if env['optimize']:
-    env['CCFLAGS'] = listify(env['cc_flags']) + listify(env['release_flags'])
+    env['CCFLAGS'] = listify(env['cc_flags']) + listify(env['optimize_flags'])
 else:
-    env['CCFLAGS'] = listify(env['cc_flags']) + listify(env['debug_flags'])
-    env['LINKFLAGS'] += listify(defaults.debugLinkFlags)
+    env['CCFLAGS'] = listify(env['cc_flags']) + listify(env['no_optimize_flags'])
+
+if env['debug']:
+    env['CCFLAGS'] += listify(env['debug_flags'])
+    env['LINKFLAGS'] += listify(env['debug_linker_flags'])
+else:
+    env['CCFLAGS'] += listify(env['no_debug_flags'])
+    env['LINKFLAGS'] += listify(env['no_debug_linker_flags'])
+
 
 if env['coverage']:
     if  env['CC'] == 'gcc':
@@ -820,7 +852,7 @@ def cdefine(definevar, configvar, comp=True, value=1):
     else:
         configh[definevar] = None
 
-cdefine('DEBUG_MODE', 'debug')
+cdefine('DEBUG_MODE', 'debug_verbose')
 
 # Need to test all of these to see what platform.system() returns
 configh['SOLARIS'] = 1 if env['OS'] == 'Solaris' else None
