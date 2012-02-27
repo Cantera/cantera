@@ -14,12 +14,12 @@ import types
 
 
 class Func1:
-    """Functors of one variable. 
+    """Functors of one variable.
 
     A Functor is an object that behaves like a function. Class 'Func1'
     is the base class from which several functor classes derive. These
     classes are designed to allow specifying functions of time from Python
-    that can be used by the C++ kernel. 
+    that can be used by the C++ kernel.
 
     Functors can be added, multiplied, and divided to yield new functors.
     >>> f1 = Polynomial([1.0, 0.0, 3.0])  # 3*t*t + 1
@@ -32,7 +32,7 @@ class Func1:
     >>> f3(2.0)
     ___4.3333333
     """
-    
+
     def __init__(self, typ, n, coeffs=[]):
         """
         The constructor is
@@ -55,7 +55,7 @@ class Func1:
 
     def __repr__(self):
         return self.write()
-    
+
     def __call__(self, t):
         """Implements function syntax, so that F(t) is equivalent to
         F.value(t)."""
@@ -65,7 +65,7 @@ class Func1:
             return CompositeFunction(self, t)
         else:
             return _cantera.func_value(self._func_id, t)
-    
+
     def __add__(self, other):
         """Overloads operator '+'
 
@@ -75,17 +75,17 @@ class Func1:
         # it.
         if type(other) == types.FloatType:
             return SumFunction(self, Const(other))
-        
+
         return SumFunction(self, other)
-    
+
     def __radd__(self, other):
         """Overloads operator '+'
 
         Returns a new function other(t) + self(t)"""
         # if 'other' is a number, then create a 'Const' functor for
-        # it.        
+        # it.
         if type(other) == types.FloatType:
-            return SumFunction(Const(other),self)        
+            return SumFunction(Const(other),self)
         return SumFunction(other, self)
 
     def __sub__(self, other):
@@ -97,9 +97,9 @@ class Func1:
         # it.
         if type(other) != types.InstanceType:
             return DiffFunction(self, Const(other))
-        
+
         return DiffFunction(self, other)
-    
+
     def __rsub__(self, other):
         """Overloads operator '-'
 
@@ -110,13 +110,13 @@ class Func1:
         if type(other) != types.InstanceType:
             return DiffFunction(Const(other), self)
         return DiffFunction(other, self)
-    
+
     def __mul__(self, other):
         """Overloads operator '*'
-        
+
            Return a new function self(t)*other(t)"""
         if type(other) != types.InstanceType:
-            return ProdFunction(self, Const(other))                
+            return ProdFunction(self, Const(other))
         return ProdFunction(self, other)
 
     def __rmul__(self, other):
@@ -124,15 +124,15 @@ class Func1:
 
         Returns a new function other(t)*self(t)"""
         if type(other) != types.InstanceType:
-            return ProdFunction(Const(other), self)                        
+            return ProdFunction(Const(other), self)
         return ProdFunction(other, self)
-    
+
     def __div__(self, other):
         """Overloads operator '/'
 
         Returns a new function self(t)/other(t)"""
         if type(other) != types.InstanceType:
-            return RatioFunction(self, Const(other))                        
+            return RatioFunction(self, Const(other))
         return RatioFunction(self, other)
 
     def __rdiv__(self, other):
@@ -140,8 +140,8 @@ class Func1:
 
         Returns a new function other(t)/self(t)"""
         if type(other) != types.InstanceType:
-            return RatioFunction(Const(other), self)                        
-        return RatioFunction(other, self)            
+            return RatioFunction(Const(other), self)
+        return RatioFunction(other, self)
 
     def func_id(self):
         """Internal. Return the integer index used internally to access the
@@ -150,8 +150,8 @@ class Func1:
 
     def write(self, arg = 'x', length = 1000):
         return _cantera.func_write(self._func_id, length, arg)
-    
-    
+
+
 class Sin(Func1):
     def __init__(self,omega=1.0):
         Func1.__init__(self,100,1,omega)
@@ -164,7 +164,7 @@ class Exp(Func1):
 class Pow(Func1):
     def __init__(self, n):
         Func1.__init__(self,106,1,n)
-        
+
 class Polynomial(Func1):
     """A polynomial.
     Instances of class 'Polynomial' evaluate
@@ -173,7 +173,7 @@ class Polynomial(Func1):
     \f]
     The coefficients are supplied as a list, beginning with
     \f$a_N\f$ and ending with \f$a_0\f$.
-    
+
     >>> p1 = Polynomial([1.0, -2.0, 3.0])   #    3t^2 - 2t + 1
     >>> p2 = Polynomial([6.0, 8.0])         #    8t + 6
 
@@ -184,10 +184,10 @@ class Polynomial(Func1):
         """
         Func1.__init__(self, 2, len(coeffs)-1, coeffs)
 
-            
+
 
 class Gaussian(Func1):
-    """A Gaussian pulse. Instances of class 'Gaussian' evaluate 
+    """A Gaussian pulse. Instances of class 'Gaussian' evaluate
     \f[
     f(t) = A \exp[-(t - t_0) / \tau]
     \f]
@@ -200,7 +200,7 @@ class Gaussian(Func1):
     As an example, here is how to create
     a Gaussian pulse with peak amplitude 10.0, centered at time 2.0,
     with full-width at half max = 0.2:
-    >>> f = Gaussian(A = 10.0, t0 = 2.0, FWHM = 0.2)    
+    >>> f = Gaussian(A = 10.0, t0 = 2.0, FWHM = 0.2)
     >>> f(2.0)
     ___10
     >>> f(1.9)
@@ -212,7 +212,7 @@ class Gaussian(Func1):
         coeffs = array([A, t0, FWHM], 'd')
         Func1.__init__(self, 4, 0, coeffs)
 
-        
+
 class Fourier(Func1):
     """Fourier series. Instances of class 'Fourier' evaluate the Fourier series
     \f[
@@ -240,11 +240,11 @@ class Fourier(Func1):
     def __init__(self, omega, coefficients):
         """
         omega - fundamental frequency [radians/sec].
-        
+
         coefficients - List of (a,b) pairs, beginning with \f$n = 0\f$.
-        
+
         """
-        cc = asarray(coefficients,'d')       
+        cc = asarray(coefficients,'d')
         n, m = cc.shape
         if m <> 2:
             raise CanteraError('provide (a, b) for each term')
@@ -256,32 +256,32 @@ class Fourier(Func1):
 #    \f[
 #    f(T) = \sum_{n=1}^N A_n T^{b_n}\exp(-E_n/T)
 #    \f]
-#    
+#
 #    Example:
 #
 #    >>> f = Arrhenius([(a0, b0, e0), (a1, b1, e1)])
-#    
+#
 class Arrhenius(Func1):
     """Sum of modified Arrhenius terms. Instances of class 'Arrhenius' evaluate
     \f[
     f(T) = \sum_{n=1}^N A_n T^{b_n}\exp(-E_n/T)
     \f]
-    
+
     Example:
 
     >>> f = Arrhenius([(a0, b0, e0), (a1, b1, e1)])
-    
+
     """
     def __init__(self, coefficients):
         """
         coefficients - sequence of \f$(A, b, E)\f$ triplets.
-        
+
         """
         cc = asarray(coefficients,'d')
         n, m = cc.shape
         if m <> 3:
             raise CanteraError('Three Arrhenius parameters (A, b, E) required.')
-        Func1.__init__(self, 3, n, ravel(cc))        
+        Func1.__init__(self, 3, n, ravel(cc))
 
 
 
@@ -299,7 +299,7 @@ class Const(Func1):
     degree zero, with the constant term set to the desired value.
     """
     def __init__(self, value):
-        Func1.__init__(self,110,1,value)    
+        Func1.__init__(self,110,1,value)
     #return Polynomial([value])
 
 
@@ -313,7 +313,7 @@ class PeriodicFunction(Func1):
         """
         Func1.__init__(self, 50, func.func_id(), array([T],'d'))
         func._own = 0
-        
+
 
 # functions that combine two functions
 
@@ -323,7 +323,7 @@ class ComboFunc1(Func1):
     This class is the base class for functors that combine two
     other functors in a binary operation.
     """
-    
+
     def __init__(self, typ, f1, f2):
         self._own = 1
         self._func_id = 0
@@ -331,14 +331,14 @@ class ComboFunc1(Func1):
         if type(f1) == types.IntType:
             f1 = Const(f1)
         if type(f2) == types.IntType:
-            f2 = Const(f2)            
+            f2 = Const(f2)
         self.f1 = f1
         self.f2 = f2
         self.f1._own = 0
         self.f2._own = 0
         self._func_id = _cantera.func_newcombo(typ, f1.func_id(), f2.func_id())
 
-        
+
 class SumFunction(ComboFunc1):
     """Sum of two functions.
     Instances of class SumFunction evaluate the sum of two supplied functors.
@@ -351,11 +351,11 @@ class SumFunction(ComboFunc1):
     In this example, object 'f3' is a functor of class'SumFunction' that calls f1 and f2
     and returns their sum.
     """
-    
+
     def __init__(self, f1, f2):
         """
         f1 - first functor.
-        
+
         f2 - second functor.
         """
         ComboFunc1.__init__(self, 20, f1, f2)
@@ -373,15 +373,15 @@ class DiffFunction(ComboFunc1):
     In this example, object 'f3' is a functor of class'DiffFunction' that
     calls f1 and f2 and returns their difference.
     """
-    
+
     def __init__(self, f1, f2):
         """
         f1 - first functor.
-        
+
         f2 - second functor.
         """
         ComboFunc1.__init__(self, 25, f1, f2)
-        
+
 class ProdFunction(ComboFunc1):
 
     """Product of two functions.  Instances of class ProdFunction
@@ -389,14 +389,14 @@ class ProdFunction(ComboFunc1):
     necessary to explicitly create an instance of 'ProdFunction',
     since the multiplication operator of the base class is overloaded
     to return a 'ProdFunction' instance.
-    
+
     >>> f1 = Polynomial([2.0, 1.0])
     >>> f2 = Polynomial([3.0, -5.0])
     >>> f3 = f1 * f2     # functor to evaluate (2t + 1)*(3t - 5)
 
     In this example, object 'f3' is a functor of class'ProdFunction'
     that calls f1 and f2 and returns their product.  """
-    
+
     def __init__(self, f1, f2):
         """ f1 - first functor.
         f2 - second functor.
@@ -415,13 +415,13 @@ class RatioFunction(ComboFunc1):
     >>> f3 = f1 / f2     # functor to evaluate (2t + 1)/(3t - 5)
     In this example, object 'f3' is a functor of class'RatioFunction' that calls f1 and f2
     and returns their ratio.
-    """        
+    """
     def __init__(self, f1, f2):
         """
         f1 - first functor.
-        
+
         f2 - second functor.
-        """                
+        """
         ComboFunc1.__init__(self, 40, f1, f2)
 
 ##  Function of a function.
@@ -442,12 +442,12 @@ class CompositeFunction(ComboFunc1):
     def __init__(self, f1, f2):
         """
         f1 - first functor.
-        
-        f2 - second functor.
-        """                
-        ComboFunc1.__init__(self, 60, f1, f2)    
 
-        
+        f2 - second functor.
+        """
+        ComboFunc1.__init__(self, 60, f1, f2)
+
+
 class DerivativeFunction(Func1):
     def __init__(self, f):
         self.f = f
@@ -460,6 +460,3 @@ class DerivativeFunction(Func1):
 #
 def derivative(f):
     return DerivativeFunction(f)
-
-
-    

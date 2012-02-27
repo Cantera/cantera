@@ -18,10 +18,10 @@ class SpeciesFrame(Frame):
         self.species = {}
         for sp in speciesList:
             self.species[sp.name] = sp
-            
+
         self.control.config(relief=GROOVE,bd=4)
         Button(self.control, text = 'Display',command=self.show).pack(fill=X,pady=3, padx=10)
-        Button(self.control, text = 'Clear',command=self.clear).pack(fill=X,pady=3, padx=10)    
+        Button(self.control, text = 'Clear',command=self.clear).pack(fill=X,pady=3, padx=10)
         Button(self.control, text = '  OK  ',command=self.get).pack(side=BOTTOM,
                                                                     fill=X,pady=3, padx=10)
         Button(self.control, text = 'Cancel',command=self.master.quit).pack(side=BOTTOM,
@@ -64,7 +64,7 @@ class SpeciesFrame(Frame):
         for sp in splist:
             spname = sp.name
             self.select(spname)
-            
+
     def setColors(self,event):
         el = event.widget['text']
         if event.widget['relief'] == RAISED:
@@ -77,7 +77,7 @@ class SpeciesFrame(Frame):
             back = self.color(el, sel=1)
         event.widget['bg'] = back
         event.widget['fg'] = fore
-            
+
     def color(self, el, sel=0):
         _normal = ['#88dddd','#005500','#dd8888']
         _selected = ['#aaffff','#88dd88','#ffaaaa']
@@ -98,7 +98,7 @@ class SpeciesFrame(Frame):
             if self.c[sp.name]['relief'] == RAISED:
                 selected.append(sp)
         #showElementProperties(selected)
-        
+
     def get(self):
         self.selected = []
         for sp in self.species.values():
@@ -106,7 +106,7 @@ class SpeciesFrame(Frame):
                 self.selected.append(sp)
         #self.master.quit()'
         self.master.destroy()
-        
+
     def clear(self):
         for sp in self.species.values():
             self.c[sp]['bg'] = self.color(sp, sel=0)
@@ -124,7 +124,7 @@ class SpeciesFrame(Frame):
 ##                                            row=0,
 ##                                            sticky=W+S,
 ##                                            padx=10,
-##                                            pady=10)   
+##                                            pady=10)
 ##         for el in ellist:
 ##             Label(self,
 ##                   text=el.name).grid(column=0,
@@ -168,9 +168,7 @@ def showElementProperties(ellist):
     m.title('Element Properties')
     elem = []
     ElementPropertyFrame(m, ellist).pack()
-        
+
 
 if __name__ == "__main__":
     print getSpecies()
-
-

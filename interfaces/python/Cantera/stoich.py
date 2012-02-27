@@ -13,9 +13,9 @@ def stoich_fuel_to_oxidizer(mix, fuel, oxidizer):
 
     This function only works for fuels composed of carbon, hydrogen,
     and/or oxygen. The fuel to oxidizer ratio is returned that results in
-    
+
     """
-        
+
     # fuel
     mix.setMoleFractions(fuel)
     f_carbon = elementMoles(mix, 'C')
@@ -43,4 +43,3 @@ def stoich_fuel_to_oxidizer(mix, fuel, oxidizer):
 if __name__ == "__main__":
     g = GRI30()
     print stoich_fuel_to_oxidizer(g, 'CH4:1', 'O2:1')
- 

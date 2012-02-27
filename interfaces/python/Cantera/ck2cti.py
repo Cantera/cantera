@@ -24,11 +24,10 @@ validate - If set to 1, the mechanism will be checked for errors. This
            is recommended, but for very large mechanisms may slow down
            the conversion process. Default: on (1).
 
-The translated file is written to the standard output. 
+The translated file is written to the standard output.
 """
 
 def ck2cti(infile = "chem.inp", thermodb = "", trandb
            = "", idtag = "", debug = 0, validate = 1):
     _cantera.ct_ck2cti(infile,
                        thermodb, trandb, idtag, debug, validate)
-

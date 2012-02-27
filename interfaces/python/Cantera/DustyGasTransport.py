@@ -17,7 +17,7 @@ class DustyGasTransport(Transport):
     DustyGasTransport.
     """
 
-    
+
     def __init__(self, phase = None):
         """
         phase - The object representing the gas phase within the
@@ -39,14 +39,14 @@ class DustyGasTransport(Transport):
 
     def setMeanParticleDiameter(self, diameter):
         """Set the mean particle diameter [m]. Internal. See: set"""
-        self.setParameters(3, 0, [diameter, 0.0])                        
+        self.setParameters(3, 0, [diameter, 0.0])
 
     def setPermeability(self, permeability):
         """Set the permeability. If not called, the value for close-packed
         spheres is used. Internal."""
         self.setParameters(4, 0, [permeability, 0.0])
 
-                    
+
     def set(self, **p):
         """Set model parameters. This is a convenience method that simply
         calls other methods depending on the keyword.
@@ -58,7 +58,7 @@ class DustyGasTransport(Transport):
         tortuous.
 
         pore_radius - The pore radius [m].
-        
+
         All keywords are optional.
         """
         for o in p.keys():
@@ -74,7 +74,3 @@ class DustyGasTransport(Transport):
                 self.setPermeability(p[o])
             else:
                 raise 'unknown parameter'
-
-    
-
-    

@@ -22,8 +22,8 @@ def setByName(a, options):
     Entropy            S             specific entropy
     Vapor              Vap           vapor fraction in a two-phase mixture
     Liquid             Liq           liquid fraction in a two-phase mixture
-    
-    
+
+
     """
 
     tval = None
@@ -33,7 +33,7 @@ def setByName(a, options):
     sval = None
     vval = None
     qval = None
-    
+
     np = 0
     nt = 0
     nv = 0
@@ -43,7 +43,7 @@ def setByName(a, options):
     nh = 0
     nu = 0
     nq = 0
-    
+
     for o in options.keys():
         val = options[o]
         if o == 'Temperature' or o == 'T':
@@ -60,7 +60,7 @@ def setByName(a, options):
             a.setMoleFractions(val)
         elif o == 'MassFractions' or o == 'Y':
             ny += 1
-            a.setMassFractions(val)            
+            a.setMassFractions(val)
         elif o == 'Pressure' or o == 'P':
             pval = val
             np += 1
@@ -69,7 +69,7 @@ def setByName(a, options):
             nh += 1
         elif o == 'IntEnergy' or o == 'U':
             uval = val
-            nu += 1             
+            nu += 1
         elif o == 'Entropy' or o == 'S':
             sval = val
             ns += 1
@@ -78,8 +78,8 @@ def setByName(a, options):
             qval = val
         elif o == 'Liquid' or o == 'Liq':
             nq += 1
-            qval = 1.0 - val            
-            
+            qval = 1.0 - val
+
         else:
             raise CanteraError('unknown property: '+o)
 
@@ -90,7 +90,7 @@ def setByName(a, options):
     for n in nn:
         if n > 1:
             raise CanteraError('property specified multiple times')
-        
+
     ntot = nt + np + nv + ns + nh + nu + nq
 
     # set individual properties
@@ -127,8 +127,6 @@ def setByName(a, options):
         else:
             raise CanteraError('unimplemented property pair')
 
-   
+
 def set(a, **options):
     setByName(a, options)
-
-

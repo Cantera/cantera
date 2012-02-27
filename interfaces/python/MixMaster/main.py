@@ -39,7 +39,7 @@ def testit():
 
 
 class MixMaster:
-	
+
     def stop(self):
         sys.exit(0)
 
@@ -53,7 +53,7 @@ class MixMaster:
 
 
     def loadmech(self, mechname, pathname, mw=1):
-         
+
         p = os.path.normpath(os.path.dirname(pathname))
         self.fname = os.path.basename(pathname)
         ff = os.path.splitext(self.fname)
@@ -61,7 +61,7 @@ class MixMaster:
         try:
             self.mech = IdealGasMix(pathname)
             self.mechname = ff[0]
-            
+
         except:
             utilities.handleError('could not create gas mixture object: '
                                   +ff[0]+'\n')
@@ -72,7 +72,7 @@ class MixMaster:
 
         if not mechname:
             mechname = self.mechname
-            
+
         self.mechframe.addMechanism(mechname, self.mech)
         if mw==1:
             self.makeWindows()
@@ -111,7 +111,7 @@ class MixMaster:
         self.mixfr.show()
 
 
-        
+
     def makeMix(self):
         self.mix = Mix(self.mech)
         nsp = self.mech.nSpecies()
@@ -142,14 +142,14 @@ class MixMaster:
         self._windows = {}
         self._vis = {}
         self.windows = []
-        
+
         self.cwin = ControlWindow(_app_title,self.master)
         self.cwin.master.resizable(FALSE,FALSE)
-        
+
         self.menubar = Frame(self.cwin, relief=GROOVE,bd=2)
         self.menubar.grid(row=0,column=0,sticky=N+W+E)
-        
-	self.mixfr = None
+
+        self.mixfr = None
         self.thermo = None
         self.transport = None
         self.kinetics = None
@@ -157,7 +157,7 @@ class MixMaster:
         self.rxnpaths = None
         self.edit = None
         self.fname = None
-        
+
         self.mechframe = MechManager(self.cwin, self)
         self.mechframe.grid(row=1,column=0,sticky=N+W)
 
@@ -171,7 +171,7 @@ class MixMaster:
                      ]
         self.filemenu = make_menu('File', self.menubar, fileitems)
 
-        
+
         self.vtherm = IntVar()
         self.vcomp = IntVar()
         self.vtran = IntVar()
@@ -190,9 +190,9 @@ class MixMaster:
 
         #toolitems = [(' Convert...', self.importfile),
         #             []]
-        #self.toolmenu = make_menu('Tools', self.menubar, toolitems)        
+        #self.toolmenu = make_menu('Tools', self.menubar, toolitems)
 
-        
+
         w = [(' Thermodynamic State', self.showthermo, 'check', self.vtherm),
              (' Composition', self.showcomp, 'check', self.vcomp),
              'separator',
@@ -200,31 +200,31 @@ class MixMaster:
              (' Reactions...', self.showrxns),
              (' Reaction Paths...', self.showrpaths),
              []]
-             
+
         self.viewmenu = make_menu('Windows', self.menubar, w)
-        
+
         self.helpmenu = make_menu('Help', self.menubar,
                                   [('About '+_app_title+'...', self.aboutmix),
                                    ('About Cantera...', testit),
                                    []
-                                   
+
                                    ])
 
         # load the preloaded mechanisms
         for m in _autoload:
             self.loadmech(m[0],m[1],0)
-            
-        self.makeWindows()        
+
+        self.makeWindows()
         self.addWindow('import',ImportFrame(self))
 
         self.vtherm.set(1)
         self.showthermo()
 ##         self.vcomp.set(1)
 ##         self.showcomp()
-        
-	self.master.iconify()
-	self.master.update()
-	self.master.deiconify()
+
+        self.master.iconify()
+        self.master.update()
+        self.master.deiconify()
         self.cwin.mainloop()
 
 
@@ -237,13 +237,13 @@ class MixMaster:
     def makeWindows(self):
 #        if self.mixfr:
         for w in self.windows:
-                try:
-                    w.destroy()
-                except:
-                    pass
+            try:
+                w.destroy()
+            except:
+                pass
 
         fr = [MixtureFrame, ThermoFrame, TransportFrame]
-                                
+
         self.mixfr = MixtureFrame(self.cwin, self)
         self.thermo = ThermoFrame(self.cwin, self)
 
@@ -254,13 +254,13 @@ class MixMaster:
         self.addWindow('rxnpaths',ReactionPathFrame(self))
         self.addWindow('dataset',DataFrame(None, self))
 
-        
+
         #self.edit = EditFrame(t, self)
 
         self.windows = [self.mixfr,
                         self.thermo, self.transport,
                         self.kinetics]
-        
+
         self.showthermo()
         self.showcomp()
         #self.showtransport()
@@ -268,19 +268,19 @@ class MixMaster:
         #self.showrxns()
         #self.showrpaths()
         #self.showdata()
-        
+
         if self.mech:
             self.mechframe.grid(row=1,column=0)
         else:
             self.mechframe.grid_forget()
         #self.showedit()
-        
+
     def show(self, frame, vis, row, col):
         if vis:
             frame.grid(row=row,column=col,sticky=N+E+S+W)
         else:
             frame.grid_forget()
-			
+
     def showthermo(self):
         if self.thermo:
             self.show(self.thermo, self.vtherm.get(), 7, 0)
@@ -291,25 +291,25 @@ class MixMaster:
 
     def showkinetics(self):
         if self.kinetics:
-            self.show(self.kinetics, self.vkin.get(), 10, 0)        
+            self.show(self.kinetics, self.vkin.get(), 10, 0)
 
     def showrxns(self):
-        self._windows['rxndata'].show()        
+        self._windows['rxndata'].show()
 
     def showrpaths(self):
         self._windows['rxnpaths'].show()
 
     def showdata(self):
         self._windows['dataset'].browseForDatafile()
-            
+
     def aboutmix(self):
-        
+
         m = tkMessageBox.showinfo(title = 'About MixMaster',
                                   message = """
                      MixMaster
-                     
+
                     version """+_app_version+"""
-                    
+
 written by:
 
 Prof. David G. Goodwin
@@ -322,10 +322,4 @@ California Institute of Technology
 
 
 if __name__ == "__main__":
-	MixMaster()
-
-
-
-
-
-
+    MixMaster()

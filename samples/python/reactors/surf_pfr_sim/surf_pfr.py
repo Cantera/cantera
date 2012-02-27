@@ -33,7 +33,7 @@ cat_area_per_vol = 1000.0 / cm    # Catalyst particle surface area
                                   #   per unit volume
 velocity = 40.0 * cm / minute     # gas velocity
 porosity = 0.3                    # Catalyst bed porosity
-                                  
+
 # input file containing the surface reaction mechanism
 cti_file = 'methane_pox_on_pt.cti'
 
@@ -90,79 +90,79 @@ mass_flow_rate = velocity * rho0 * area
 # reactor, integrating each one to steady state.
 
 for n in range(NReactors):
-    
-        # create a new reactor 
-        r = Reactor(contents = gas, energy = 'off', volume = rvol)
 
-        # create a reservoir to represent the reactor immediately
-        # upstream. Note that the gas object is set already to the
-        # state of the upstream reactor
-        upstream = Reservoir(gas, name = 'upstream')
+    # create a new reactor
+    r = Reactor(contents = gas, energy = 'off', volume = rvol)
 
-        # create a reservoir for the reactor to exhaust into. The
-        # composition of this reservoir is irrelevant.
-        downstream = Reservoir(gas, name = 'downstream')
+    # create a reservoir to represent the reactor immediately
+    # upstream. Note that the gas object is set already to the
+    # state of the upstream reactor
+    upstream = Reservoir(gas, name = 'upstream')
 
-        # use a 'Wall' object to implement the reacting surface in the
-        # reactor.  Since walls have to be installed between two
-        # reactors/reserviors, we'll install it between the upstream
-        # reservoir and the reactor.  The area is set to the desired
-        # catalyst area in the reactor, and surface reactions are
-        # included only on the side facing the reactor.
-        w = Wall(left = upstream, right = r, A = cat_area, kinetics = [None, surf])
-        # We need a valve between the reactor and the downstream reservoir.
-        # This will determine the pressure in the reactor. Set Kv large
-        # enough that the pressure difference is very small.
-        v = Valve(upstream = r, downstream = downstream, Kv = 3.0e-6)
+    # create a reservoir for the reactor to exhaust into. The
+    # composition of this reservoir is irrelevant.
+    downstream = Reservoir(gas, name = 'downstream')
 
-        # The mass flow rate into the reactor will be fixed by using a
-        # MassFlowController object.
-        m = MassFlowController(upstream = upstream,
-                               downstream = r, mdot = mass_flow_rate)
+    # use a 'Wall' object to implement the reacting surface in the
+    # reactor.  Since walls have to be installed between two
+    # reactors/reserviors, we'll install it between the upstream
+    # reservoir and the reactor.  The area is set to the desired
+    # catalyst area in the reactor, and surface reactions are
+    # included only on the side facing the reactor.
+    w = Wall(left = upstream, right = r, A = cat_area, kinetics = [None, surf])
+    # We need a valve between the reactor and the downstream reservoir.
+    # This will determine the pressure in the reactor. Set Kv large
+    # enough that the pressure difference is very small.
+    v = Valve(upstream = r, downstream = downstream, Kv = 3.0e-6)
 
-        sim = ReactorNet([upstream, r, downstream])
+    # The mass flow rate into the reactor will be fixed by using a
+    # MassFlowController object.
+    m = MassFlowController(upstream = upstream,
+                           downstream = r, mdot = mass_flow_rate)
 
-        # set relative and absolute tolerances on the simulation
-        sim.setTolerances(rtol = 1.0e-4, atol = 1.0e-11)
-        
-        time = 0
-        while 1 > 0:
-            time = time + dt
-            sim.advance(time)
-            
-            # check whether surface coverages are in steady
-            # state. This will be the case if the creation and
-            # destruction rates for a surface (but not gas) species
-            # are equal. 
-            alldone = 1
+    sim = ReactorNet([upstream, r, downstream])
 
-	    # Note: netProduction = creation - destruction. By
-	    # supplying the surface object as an argument, only the
-	    # values for the surface species are returned by these
-	    # methods
-            sdot = surf.netProductionRates(surf)
-            cdot = surf.creationRates(surf)
-            ddot = surf.destructionRates(surf)
-            for ks in range(nsurf):
-                ratio = sdot[ks]/(cdot[ks] + ddot[ks])
-                if ratio < 0.0: ratio = -ratio
-                if ratio > 1.0e-9 or time < 10*dt:
-                    alldone = 0
-		    
-            if alldone: break
+    # set relative and absolute tolerances on the simulation
+    sim.setTolerances(rtol = 1.0e-4, atol = 1.0e-11)
 
-	# set the gas object state to that of this reactor, in
-	# preparation for the simulation of the next reactor
-	# downstream, where this object will set the inlet conditions
-        gas = r.contents()
+    time = 0
+    while 1 > 0:
+        time = time + dt
+        sim.advance(time)
 
-        dist = n*rlen * 1.0e3   # distance in mm
+        # check whether surface coverages are in steady
+        # state. This will be the case if the creation and
+        # destruction rates for a surface (but not gas) species
+        # are equal.
+        alldone = 1
 
-	# write the gas mole fractions and surface coverages
-	# vs. distance
-        writeCSV(f, [dist, r.temperature() - 273.15,
-		     r.pressure()/OneAtm] + list(gas.moleFractions())
-                 + list(surf.coverages()))
+        # Note: netProduction = creation - destruction. By
+        # supplying the surface object as an argument, only the
+        # values for the surface species are returned by these
+        # methods
+        sdot = surf.netProductionRates(surf)
+        cdot = surf.creationRates(surf)
+        ddot = surf.destructionRates(surf)
+        for ks in range(nsurf):
+            ratio = sdot[ks]/(cdot[ks] + ddot[ks])
+            if ratio < 0.0: ratio = -ratio
+            if ratio > 1.0e-9 or time < 10*dt:
+                alldone = 0
+
+        if alldone: break
+
+    # set the gas object state to that of this reactor, in
+    # preparation for the simulation of the next reactor
+    # downstream, where this object will set the inlet conditions
+    gas = r.contents()
+
+    dist = n*rlen * 1.0e3   # distance in mm
+
+    # write the gas mole fractions and surface coverages
+    # vs. distance
+    writeCSV(f, [dist, r.temperature() - 273.15,
+                 r.pressure()/OneAtm] + list(gas.moleFractions())
+             + list(surf.coverages()))
 
 f.close()
 
@@ -179,5 +179,3 @@ f.close()
 
 element = 'C'
 rxnpath.write(surf, element, 'carbon_pathways.dot')
-
-

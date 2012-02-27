@@ -6,10 +6,10 @@ from SurfacePhase import SurfacePhase, EdgePhase
 from Kinetics import Kinetics
 import XML
 
-class Interface(SurfacePhase, Kinetics):    
+class Interface(SurfacePhase, Kinetics):
     """
     Two-dimensional interfaces.
-    
+
     Instances of class Interface represent reacting 2D interfaces
     between bulk 3D phases. Class Interface defines no methods of its
     own. All of its methods derive from either SurfacePhase or Kinetics.
@@ -43,9 +43,9 @@ class Interface(SurfacePhase, Kinetics):
         fn = src.split('#')
         id = ""
         if len(fn) > 1:
-            id = fn[1]        
+            id = fn[1]
             fn = fn[0]
-        
+
         # read in the root element of the tree if not building from
         # an already-built XML tree. Enable preprocessing if the film
         # is a .cti file instead of XML.
@@ -60,9 +60,9 @@ class Interface(SurfacePhase, Kinetics):
         # otherwise, find the first element with tag name 'phase'
         # (both 2D and 3D phases use the CTML tag name 'phase'
         else:
-            s = root.child(name = "phase")            
+            s = root.child(name = "phase")
 
-        # build the surface phase 
+        # build the surface phase
         SurfacePhase.__init__(self, xml_phase=s)
 
         # build the reaction mechanism. This object (representing the
@@ -74,4 +74,3 @@ class Interface(SurfacePhase, Kinetics):
         """Delete the Interface instance."""
         Kinetics.__del__(self)
         SurfacePhase.__del__(self)
-    

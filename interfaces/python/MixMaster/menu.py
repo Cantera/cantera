@@ -2,7 +2,7 @@ from Tkinter import *
 
 def make_menu(name, menubar, list):
     from types import *
-    button=Menubutton(menubar, text=name, padx=3,pady=1) 
+    button=Menubutton(menubar, text=name, padx=3,pady=1)
     button.pack(side=LEFT, anchor=W)
     menu = Menu(button,tearoff=FALSE)
     for entry in list:

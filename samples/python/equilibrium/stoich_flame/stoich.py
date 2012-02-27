@@ -43,7 +43,7 @@ gas.set(T = temp, P = OneAtm, X = comp)
 ####################################################################
 
 try:
-    gas.equilibrate("TP", solver = 0)       # use the ChemEquil (0) solver   
+    gas.equilibrate("TP", solver = 0)       # use the ChemEquil (0) solver
 except:
     print "ChemEquil solver failed! Try the MultiPhaseEquil solver..."
 

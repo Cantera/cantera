@@ -24,9 +24,9 @@ tol_ts    = [1.0e-5, 1.0e-9]        # [rtol atol] for time stepping
 
 loglevel  = 1                       # amount of diagnostic output (0
                                     # to 5)
-				    
+
 refine_grid = 1                     # 1 to enable refinement, 0 to
-                                    # disable 				   
+                                    # disable
 
 
 gas = GRI30('Mix')
@@ -37,7 +37,7 @@ gas.setState_TPX(tin, p, comp)
 
 f = FreeFlame(gas = gas, grid = initial_grid, tfix = 600.0)
 
-# set the upstream properties 
+# set the upstream properties
 f.inlet.set(mole_fractions = comp, temperature = tin)
 
 f.set(tol = tol_ss, tol_time = tol_ts)

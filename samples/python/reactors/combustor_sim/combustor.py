@@ -80,4 +80,3 @@ while tnow < tfinal:
     writeCSV(f, [tnow, combustor.temperature(), tres]
              +list(combustor.moleFractions()))
 f.close()
-

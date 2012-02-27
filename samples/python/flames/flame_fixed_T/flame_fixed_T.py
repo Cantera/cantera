@@ -25,7 +25,7 @@ def getTempData(filename):
         print 'problem?'
         print 'The one line found is: ',lines[0]
 
-        
+
     for line in lines:
         if line[0] == '#':   # use '#' as the comment character
             pass
@@ -38,13 +38,13 @@ def getTempData(filename):
                 pass
     print 'read',len(z),'temperature values.'
     f.close()
-    
+
     # convert z values into non-dimensional relative positions.
     n = len(z)
     zmax = z[n-1]
     for i in range(n):
         z[i] = z[i]/zmax
-        
+
     return [z,t]
 
 
@@ -70,9 +70,9 @@ tol_ts    = [1.0e-5, 1.0e-4]        # [rtol atol] for time stepping
 
 loglevel  = 1                       # amount of diagnostic output (0
                                     # to 5)
-				    
+
 refine_grid = 1                     # 1 to enable refinement, 0 to
-                                    # disable 				   
+                                    # disable
 
 
 ################ create the gas object ########################
@@ -142,8 +142,3 @@ fcsv.close()
 print 'solution saved to flame_fixed_T.csv'
 
 f.showStats()
-
-
-
-
-

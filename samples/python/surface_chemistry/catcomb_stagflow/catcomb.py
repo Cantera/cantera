@@ -1,5 +1,5 @@
 # CATCOMB  -- Catalytic combustion of methane on platinum.
-# 
+#
 # This script solves a catalytic combustion problem. A stagnation flow
 # is set up, with a gas inlet 10 cm from a platinum surface at 900
 # K. The lean, premixed methane/air mixture enters at ~ 6 cm/s (0.06
@@ -49,10 +49,10 @@ tol_ts    = [1.0e-4, 1.0e-9]       # [rtol, atol] for time stepping
 
 loglevel  = 1                      # amount of diagnostic output
                                    # (0 to 5)
-				    
+
 refine_grid = 1                    # 1 to enable refinement, 0 to
                                    # disable
-				    
+
 ################ create the gas object ########################
 #
 # This object will be used to evaluate all thermodynamic, kinetic,
@@ -60,7 +60,7 @@ refine_grid = 1                    # 1 to enable refinement, 0 to
 #
 # The gas phase will be taken from the definition of phase 'gas' in
 # input file 'ptcombust.cti,' which is a stripped-down version of
-# GRI-Mech 3.0. 
+# GRI-Mech 3.0.
 gas = importPhase('ptcombust.cti','gas')
 gas.set(T = tinlet, P = p, X = comp1)
 
@@ -71,7 +71,7 @@ gas.set(T = tinlet, P = p, X = comp1)
 # rates. It will be created from the interface definition 'Pt_surf'
 # in input file 'ptcombust.cti,' which implements the reaction
 # mechanism of Deutschmann et al., 1995 for catalytic combustion on
-# platinum. 
+# platinum.
 #
 surf_phase = importInterface('ptcombust.cti','Pt_surf', [gas])
 surf_phase.setTemperature(tsurf)
@@ -79,7 +79,7 @@ surf_phase.setTemperature(tsurf)
 
 # integrate the coverage equations in time for 1 s, holding the gas
 # composition fixed to generate a good starting estimate for the
-# coverages. 
+# coverages.
 surf_phase.advanceCoverages(1.0)
 
 # create the object that simulates the stagnation flow, and specify an
@@ -94,7 +94,7 @@ sim.surface.set(T = tsurf)
 # Set error tolerances
 sim.set(tol = tol_ss, tol_time = tol_ts)
 
-# Method 'init' must be called before beginning a simulation 
+# Method 'init' must be called before beginning a simulation
 sim.init()
 
 # Show the initial solution estimate
@@ -172,10 +172,10 @@ cov = sim.coverages()
 names = surf_phase.speciesNames()
 for n in range(len(names)):
     writeCSV(f, [names[n], cov[n]])
-             
+
 f.close()
 
 print 'solution saved to catcomb.csv'
 
-# show some statistics 
+# show some statistics
 sim.showStats()

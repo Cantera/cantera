@@ -80,7 +80,7 @@ def NewtonSolver(f, xstart, C = 0.0):
     """
     f0 = f(xstart) - C
     x0 = xstart
-    dx = 1.0e-6    
+    dx = 1.0e-6
     xlast = 999.0
     n = 0
     while n < 200:
@@ -91,9 +91,9 @@ def NewtonSolver(f, xstart, C = 0.0):
         # avoid taking steps too large
         if abs(step) > 0.1:
             step = 0.1*step/abs(step)
-            
+
         x0 += step
-        emax = 0.00001  # 0.01 mV tolerance 
+        emax = 0.00001  # 0.01 mV tolerance
         if abs(f0) < emax and n > 8:
             return x0
         xlast = x0
@@ -187,7 +187,7 @@ def cathode_curr(E):
     # the cathode potential.
     ee = E + oxide_c.electricPotential()
     cathode_bulk.setElectricPotential(ee)
-    
+
     # get the species net production rates due to the cathode-side TPB
     # reaction mechanism. The production rate array has the values for
     # the neighbor species in the order listed in the .cti file,
@@ -277,13 +277,13 @@ for n in range(100):
 
     # note that both the bulk and the surface potentials must be set
     oxide_c.setElectricPotential(phi_oxide_c)
-    oxide_surf_c.setElectricPotential(phi_oxide_c)    
+    oxide_surf_c.setElectricPotential(phi_oxide_c)
 
     # Find the value of the cathode potential relative to the
     # cathode-side electrolyte that yields the same current density
     # as the anode current density
     Ec = NewtonSolver(cathode_curr, xstart = Ec0 + 0.1, C = curr)
-    
+
     cathode_bulk.setElectricPotential(phi_oxide_c + Ec);
 
     # write the current density, anode and cathode overpotentials,

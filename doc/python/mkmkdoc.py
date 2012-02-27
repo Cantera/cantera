@@ -22,8 +22,3 @@ import Cantera.OneD
 writepydoc(Cantera.OneD, out)
 
 out.close()
-
-
-
-
-

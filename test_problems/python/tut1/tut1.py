@@ -35,7 +35,7 @@ print gas1
 #  heat capacity c_p         14311.8        2.885e+04     J/K
 #  heat capacity c_v         10187.3        2.054e+04     J/K
 
-#                            X                 Y   
+#                            X                 Y
 #                      -------------     ------------
 #                 H2   1.000000e+00     1.000000e+00
 #                  H   0.000000e+00     0.000000e+00
@@ -132,8 +132,8 @@ print gas1
 #       density                 0.081896  kg/m^3
 #       mean mol. weight         2.01594  amu
 #
-#                           X                 Y   
-#                     -------------     ------------ 
+#                           X                 Y
+#                     -------------     ------------
 #                H2   1.000000e+000     1.000000e+000
 #                (other species not shown)
 #
@@ -156,7 +156,7 @@ print gas1
 
 # b) Setting the pressure is done holding temperature and
 #    composition fixed. (The density changes.)
-# 
+#
 # c) Setting the composition is done holding temperature
 #    and density fixed. (The pressure changes).
 #
@@ -196,7 +196,7 @@ print gas1
 #  heat capacity c_p          1304.4        3.604e+04     J/K
 #  heat capacity c_v         1003.52        2.773e+04     J/K
 
-#                            X                 Y   
+#                            X                 Y
 #                      -------------     ------------
 #                 H2   0.000000e+00     0.000000e+00
 #                  H   0.000000e+00     0.000000e+00
@@ -286,9 +286,3 @@ print gas1
 # To set the mass fractions to equal values:
 gas1.set(Y = x)
 print gas1
-
-
-
-
-
-

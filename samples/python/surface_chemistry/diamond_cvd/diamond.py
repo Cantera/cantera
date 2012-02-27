@@ -42,7 +42,3 @@ for n in range(20):
 f.close()
 
 print 'H concentration, growth rate, and surface coverages written to file diamond.csv'
-
-
-
-

@@ -28,7 +28,7 @@ def equilSoundSpeeds(gas, rtol = 1.0e-6, maxiter = 5000):
 
     # save the density for this case for the frozen sound speed
     rho_frozen = gas.density()
-    
+
     # now equilibrate the gas holding S and P constant
     gas.equilibrate("SP", loglevel=0, rtol = rtol, maxiter = maxiter) # , rtol = 1.0e-3, maxsteps=10000)
 
@@ -52,12 +52,10 @@ def equilSoundSpeeds(gas, rtol = 1.0e-6, maxiter = 5000):
 
 # test program
 if __name__ == "__main__":
-    
+
     gas = GRI30()
     gas.set(X = 'CH4:1.00, O2:2.0, N2:7.52')
     for n in range(27):
         temp = 300.0 + n*100.0
         gas.set(T = temp, P = OneAtm)
         print temp, equilSoundSpeeds(gas)
-
-    

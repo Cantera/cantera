@@ -65,23 +65,23 @@ class ReactorBase:
         if self._contents:
             s += "\n"+`self._contents`
         return s
-    
+
     def __repr__(self):
         s = self._name
-        s += ':\n     Volume = '+`self.volume()`        
+        s += ':\n     Volume = '+`self.volume()`
         if self._contents:
             s += ": \n"+`self._contents`
         return s
-        
+
     def name(self):
         """The name of the reactor."""
         return self._name
-    
+
     def reactor_id(self):
         """The integer index used to access the kernel reactor
         object. For internal use."""
         return self.__reactor_id
-    
+
     def insert(self, contents):
         """
         Insert 'contents' into the reactor. Sets the objects used to compute
@@ -94,7 +94,7 @@ class ReactorBase:
             _cantera.reactor_setThermoMgr(self.__reactor_id, contents._phase_id)
             _cantera.reactor_setKineticsMgr(self.__reactor_id, contents.ckin)
 
-        
+
     def setInitialTime(self, T0):
         """Deprecated.
         Set the initial time. Restarts integration from this time
@@ -118,7 +118,7 @@ class ReactorBase:
             if ie:
                 print 'enabling energy equation for reactor',self._name
             else:
-                print 'disabling energy equation for reactor',self._name                
+                print 'disabling energy equation for reactor',self._name
         _cantera.reactor_setEnergy(self.__reactor_id, ie)
 
     def temperature(self):
@@ -132,7 +132,7 @@ class ReactorBase:
     def volume(self):
         """The total reactor volume [m^3]. The volume may change with time
         if non-rigid walls are installed on the reactor."""
-        return _cantera.reactor_volume(self.__reactor_id)            
+        return _cantera.reactor_volume(self.__reactor_id)
 
     def time(self):
         """Deprecated. The current time [s]."""
@@ -153,7 +153,7 @@ class ReactorBase:
 
     def pressure(self):
         """The pressure in the reactor [Pa]."""
-        return _cantera.reactor_pressure(self.__reactor_id)            
+        return _cantera.reactor_pressure(self.__reactor_id)
 
     def advance(self, time):
         """Deprecated.
@@ -168,9 +168,9 @@ class ReactorBase:
         Take one internal time step from the current time toward
         time 'time'. Note: this method is deprecated. See class
         ReactorNet."""
-        raise "use method step of class ReactorNet"        
-        #return _cantera.reactor_step(self.__reactor_id, time)    
-    
+        raise "use method step of class ReactorNet"
+        #return _cantera.reactor_step(self.__reactor_id, time)
+
     def massFraction(self, s):
         """The mass fraction of species s, specified either by name or
         index number.
@@ -206,14 +206,14 @@ class ReactorBase:
         ___0.00012
         >>> x2 = r.moleFraction('CH3')
         ___0.00012
-        """        
+        """
         if type(s) == types.StringType:
             kk = self._contents.speciesIndex(s)
         else:
             kk = s
         x = self.moleFractions()
         return x[kk]
-        
+
     def inlets(self):
         """Return the list of flow devices installed on inlets to this reactor.
         This method can be used to access information about the flows entering
@@ -221,7 +221,7 @@ class ReactorBase:
         >>> for n in r.inlets():
         ...    print n.name(), n.massFlowRate()
         See: MassFlowController, Valve, PressureController.
-        """        
+        """
         return self._inlets
 
     def outlets(self):
@@ -229,7 +229,7 @@ class ReactorBase:
         on this reactor.
         >>> for o in r.outlets():
         ...    print o.name(), o.massFlowRate()
-        See: MassFlowController, Valve, PressureController.        
+        See: MassFlowController, Valve, PressureController.
         """
         return self._outlets
 
@@ -240,20 +240,20 @@ class ReactorBase:
         See: Wall.
         """
         return self._walls
-    
+
     def _addInlet(self, inlet, other):
         """For internal use. Store a reference to 'inlet'
-        so that it will not be deleted before this object."""        
+        so that it will not be deleted before this object."""
         self._inlets.append(inlet)
         if self._type == 2 and other._type == 1:
-            self._reservoirs.append(other)        
+            self._reservoirs.append(other)
 
     def _addOutlet(self, outlet, other):
         """For internal use. Store a reference to 'outlet'
-        so that it will not be deleted before this object."""        
+        so that it will not be deleted before this object."""
         self._outlets.append(outlet)
         if self._type == 2 and other._type == 1:
-            self._reservoirs.append(other)        
+            self._reservoirs.append(other)
 
     def _addWall(self, wall, other):
         """For internal use. Store a reference to 'wall'
@@ -275,7 +275,7 @@ class ReactorBase:
         self._contents.setState_TRY(self.temperature(),
                                    self.density(),
                                    self.massFractions())
-        
+
     def contents(self):
         """Return an object representing the reactor contents, after first
         synchronizing its state with the current reactor state. This method
@@ -285,7 +285,7 @@ class ReactorBase:
         >>> (statements that change the state of object 'gas')
         >>> c = r.contents()
         >>> print c.gibbs_mole(), c.chemPotentials()
-        
+
         Note that after calling method 'contents', object 'c'
         references the same underlying kernel object as object 'gas'
         does. Therefore, all properties of 'c' and 'gas' are
@@ -297,7 +297,7 @@ class ReactorBase:
         """
         self.syncContents()
         return self._contents
-    
+
 
     def nSensParams(self):
         """Number of sensitivity parameters for this reactor."""
@@ -321,7 +321,7 @@ class ReactorBase:
             return self._paramid
         else:
             return self._paramid[n]
-        
+
 _reactorcount = 0
 _reservoircount = 0
 
@@ -383,7 +383,7 @@ class FlowReactor(ReactorBase):
     """
     def __init__(self, contents = None, name = '',
                  volume = 1.0, energy = 'on',
-                 mdot = -1.0, 
+                 mdot = -1.0,
                  verbose = 0):
         """
         contents - Reactor contents. If not specified, the reactor is
@@ -412,11 +412,11 @@ class FlowReactor(ReactorBase):
                              verbose = verbose, type = 3)
         if mdot > 0.0:
             self.setMassFlowRate(mdot)
-        
+
     def setMassFlowRate(self, mdot):
         _cantera.flowReactor_setMassFlowRate(self.__reactor_id, mdot)
-        
-        
+
+
 class ConstPressureReactor(ReactorBase):
     """
     """
@@ -448,7 +448,7 @@ class ConstPressureReactor(ReactorBase):
         ReactorBase.__init__(self, contents = contents, name = name,
                              volume = volume, energy = energy,
                              verbose = verbose, type = 4)
-            
+
 
 class Reservoir(ReactorBase):
     """
@@ -476,17 +476,17 @@ class Reservoir(ReactorBase):
         >>> res1 = Reactor()
         >>> res1.insert(gas)
         Arguments may be specified using keywords in any order:
-        >>> res2 = Reservoir(contents = Air(), 
+        >>> res2 = Reservoir(contents = Air(),
         ...                  name = 'environment')
         >>> res3 = Reservoir(contents = gas, name = 'upstream_state')
-        """        
+        """
         global _reservoircount
         if name == '':
             name = 'Reservoir_'+`_reservoircount`
         _reservoircount += 1
         ReactorBase.__init__(self, contents = contents,
                              name = name, verbose = verbose, type = 1)
-            
+
     def advance(self, time):
         """Deprecated. Do nothing."""
         pass
@@ -515,11 +515,11 @@ class FlowDevice:
         if self._verbose:
             print 'deleting '+self._name
         _cantera.flowdev_del(self.__fdev_id)
-        
+
     def name(self):
         """The name specified when initially constructed."""
         return self._name
-    
+
     def ready(self):
         """
         Deprecated. Returns true if the device is ready to use.
@@ -533,7 +533,7 @@ class FlowDevice:
     def install(self, upstream, downstream):
         """
         Install the device between the upstream and downstream
-        reactors or reservoirs.  
+        reactors or reservoirs.
         >>> f.install(upstream = reactor1, downstream = reservoir2)
         """
         if self._verbose:
@@ -546,18 +546,18 @@ class FlowDevice:
     def _setParameters(self, c):
         params = array(c,'d')
         n = len(params)
-        return _cantera.flowdev_setParameters(self.__fdev_id, n, params)    
+        return _cantera.flowdev_setParameters(self.__fdev_id, n, params)
 
     def setFunction(self, f):
         _cantera.flowdev_setFunction(self.__fdev_id, f.func_id())
 
     def flowdev_id(self):
         return self.__fdev_id
-        
+
 _mfccount = 0
 
 class MassFlowController(FlowDevice):
-    
+
     """Mass flow controllers. A mass flow controller maintains a
     specified mass flow rate independent of upstream and downstream
     conditions. The equation used to compute the mass flow rate is
@@ -567,7 +567,7 @@ class MassFlowController(FlowDevice):
     a constant value or a function of time. Note that if \f$\dot m_0 <
     0\f$, the mass flow rate will be set to zero, since reversal of
     the flow direction is not allowed.
-    
+
     Unlike a real mass flow controller, a MassFlowController object
     will maintain the flow even if the downstream pressure is greater
     than the upstream pressure.  This allows simple implementation of
@@ -585,13 +585,13 @@ class MassFlowController(FlowDevice):
     and downstream reactors.
 
     Examples:
-    
+
     >>> mfc1 = MassFlowController(upstream = res1, downstream = reactr,
     ...                           name = 'fuel_mfc', mdot = 0.1)
     >>> air_mdot = Gaussian(A = 0.1, t0 = 2.0, FWHM = 0.1)
     >>> mfc2 = MassFlowController(upstream = res2, downstream = reactr,
     ...                           name = 'air_mfc', mdot = air_mdot)
-    
+
     """
     def __init__(self, upstream=None,
                  downstream=None,
@@ -614,7 +614,7 @@ class MassFlowController(FlowDevice):
 
         verbose - if set to a positive integer, additional diagnostic
         information will be printed.
-        
+
         """
         global _mfccount
         if name == '':
@@ -662,10 +662,10 @@ class Valve(FlowDevice):
     \dot m = F(P_1 - P_2).
     \f]
     if \f$ P_1 > P_2, \f$
-    or  \f$ \dot m = 0 \f$ otherwise.    
+    or  \f$ \dot m = 0 \f$ otherwise.
     It is never possible for the flow to reverse
     and go from the downstream to the upstream reactor/reservoir through
-    a line containing a Valve object. 
+    a line containing a Valve object.
 
     'Valve' objects are often used between an upstream reactor and a
     downstream reactor or reservoir to maintain them both at nearly the
@@ -681,15 +681,15 @@ class Valve(FlowDevice):
     are constant across a Valve, and the pressure difference equals
     the difference in pressure between the upstream and downstream
     reactors.
-    
+
     """
     def __init__(self, upstream=None, downstream=None,
                  name='', Kv = 0.0, mdot0 = 0.0, verbose=0):
         """
         upstream - upstream reactor or reservoir.
-        
+
         downstream - downstream reactor or reservoir.
-        
+
         name - name used to identify the valve in output.
         If no name is specified, it defaults to 'Valve_n', where n is an
         integer assigned in the order the Valve object
@@ -699,8 +699,8 @@ class Valve(FlowDevice):
 
         verbose - if set to a positive integer, additional diagnostic
         information will be printed.
-        
-        """        
+
+        """
         global _valvecount
         if name == '':
             name = 'Valve_'+`_valvecount`
@@ -739,7 +739,7 @@ class Valve(FlowDevice):
             self.setFunction(F)
         if Kv > 0.0:
             self.setValveCoeff(Kv)
-            
+
 
 
 _pccount = 0
@@ -762,9 +762,9 @@ class PressureController(FlowDevice):
                  name='', master = None, Kv = 0.0, verbose=0):
         """
         upstream - upstream reactor or reservoir.
-        
+
         downstream - downstream reactor or reservoir.
-        
+
         name - name used to identify the pressure controller in
         output.  If no name is specified, it defaults to
         'PressureController_n', where n is an integer assigned in the
@@ -774,8 +774,8 @@ class PressureController(FlowDevice):
 
         verbose - if set to a positive integer, additional diagnostic
         information will be printed.
-        
-        """        
+
+        """
         global _pccount
         if name == '':
             name = 'PressureController_'+`_pccount`
@@ -800,15 +800,15 @@ class PressureController(FlowDevice):
         """Set the master flow controller."""
         _cantera.flowdev_setMaster(self.flowdev_id(),
                                    master.flowdev_id())
-            
+
     def set(self, Kv = -1.0, master = None):
         if master:
             self.setMaster(master)
         if Kv > 0.0:
             self.setPressureCoeff(Kv)
-            
 
-            
+
+
 #------------- Wall ---------------------------
 
 _wallcount = 0
@@ -816,7 +816,7 @@ _wallcount = 0
 class Wall:
     """
     Reactor walls.
-    
+
     A Wall separates two reactors, or a reactor and a reservoir. A
     wall has a finite area, may conduct or radiate heat between the
     two reactors on either side, and may move like a piston.
@@ -852,7 +852,7 @@ class Wall:
     reactor the surface in question faces. The surface temperature on
     each side is taken to be equal to the temperature of the reactor
     it faces.
-    
+
     """
     def __init__(self, left, right, name = '',
                  A = 1.0, K = 0.0, U = 0.0,
@@ -860,7 +860,7 @@ class Wall:
                  kinetics = [None, None]):
         """
         Constructor arguments:
-        
+
         left - Reactor or reservoir on the left. Required.
 
         right - Reactor or reservoir on the right. Required.
@@ -898,30 +898,30 @@ class Wall:
         else:
             _nm = name
         _wallcount += 1
-        
+
         if left and right:
             self.install(left, right)
         else:
             raise CanteraError('both left and right reactors must be specified.')
         self.setArea(A)
         self.setExpansionRateCoeff(K)
-        self.setVelocity(velocity)        
+        self.setVelocity(velocity)
         self.setHeatTransferCoeff(U)
         self.setHeatFlux(Q)
 
         self.setKinetics(kinetics[0],kinetics[1])
 
         self._paramid = []
-        
+
     def __del__(self):
         """ Delete the Wall instance. This method is called
         automatically when no Python object stores a reference to this
         Wall. Since reactors and reserviors store references to all
         Walls installed on them, this method will only be called after
         the reactors/reservoirs have been deleted.  """
-        
+
         _cantera.wall_del(self.__wall_id)
-        
+
     def ready(self):
         """
         Return 1 if the wall instance is ready for use, 0 otherwise. Deprecated.
@@ -955,8 +955,8 @@ class Wall:
         Set the emissivity.
         """
         _cantera.wall_setEmissivity(self.__wall_id, epsilon)
-        
-    
+
+
     def setHeatFlux(self, qfunc):
         """
         Specify the time-dependent heat flux function [W/m2].
@@ -970,8 +970,8 @@ class Wall:
     def setExpansionRateCoeff(self, k):
         """Set the coefficient K that determines the expansion rate
         resulting from a unit pressure drop."""
-        _cantera.wall_setExpansionRateCoeff(self.__wall_id, k)        
-        
+        _cantera.wall_setExpansionRateCoeff(self.__wall_id, k)
+
     def setVelocity(self, vfunc):
         """
         Specify the velocity function [m/s]. 'vfunc' must
@@ -999,7 +999,7 @@ class Wall:
 
     def heatFlux(self):
         return self.heatFlowRate()/self.area()
-    
+
     def install(self, left, right):
         left._addWall(self, right)
         right._addWall(self, left)
@@ -1025,7 +1025,7 @@ class Wall:
             return self._rightkin
         else:
             raise CanteraError("side must be 'left' or 'right'")
-        
+
     def set(self, **p):
         """Set various wall parameters: 'A', 'U', 'K', 'Q'. 'velocity'.
         These have the same meanings as in the constructor.
@@ -1036,7 +1036,7 @@ class Wall:
             elif item == 'R':
                 self.setThermalResistance(p[item])
             elif item == 'U':
-                self.setHeatTransferCoeff(p[item])                
+                self.setHeatTransferCoeff(p[item])
             elif item == 'K':
                 self.setExpansionRateCoeff(p[item])
             elif item == 'Q':
@@ -1045,7 +1045,7 @@ class Wall:
                 self.setVelocity(p[item])
             else:
                 raise 'unknown parameter: ',item
-                
+
 
     def addSensitivityReaction(self, side = 'unknown', reactions = []):
         k = self.kinetics(side)
@@ -1060,10 +1060,10 @@ class Wall:
                 self._paramid.append(k.reactionEqn(n))
                 _cantera.wall_addSensitivityReaction(self.__wall_id,
                                                      _ilr[side], n)
-    
-                
+
+
 class ReactorNet:
-    
+
     """Networks of reactors. ReactorNet objects are used to
     simultaneously advance the state of a set of coupled reactors.
 
@@ -1075,7 +1075,7 @@ class ReactorNet:
 
     >>> reactor_network = ReactorNet([r1, r2])
     >>> reactor_network.advance(time)
-    
+
     """
 
 
@@ -1102,7 +1102,7 @@ class ReactorNet:
         kernel reactornet object. For internal use.  """
         return self.__reactornet_id
 
-    
+
     def add(self, reactor):
         """
         Add a reactor to the network.
@@ -1111,7 +1111,7 @@ class ReactorNet:
         _cantera.reactornet_addreactor(self.__reactornet_id,
                                        reactor.reactor_id())
 
-        
+
     def setInitialTime(self, t0):
         """Set the initial time. Restarts integration from this time
         using the current state as the initial condition. Default: 0.0 s"""
@@ -1126,8 +1126,8 @@ class ReactorNet:
         """Set the relative and absolute error tolerances used in
         integrating the reactor equations."""
         _cantera.reactornet_setTolerances(self.__reactornet_id, rtol, atol)
-        _cantera.reactornet_setSensitivityTolerances(self.__reactornet_id, rtolsens, atolsens)        
-        
+        _cantera.reactornet_setSensitivityTolerances(self.__reactornet_id, rtolsens, atolsens)
+
     def advance(self, time):
         """Advance the state of the reactor network in time from the current
         time to time 'time'."""
@@ -1136,7 +1136,7 @@ class ReactorNet:
     def step(self, time):
         """Take a single internal time step toward time 'time'.
         The time after taking the step is returned."""
-        return _cantera.reactornet_step(self.__reactornet_id, time)    
+        return _cantera.reactornet_step(self.__reactornet_id, time)
 
     def reactors(self):
         """Return the list of reactors in the network."""
@@ -1148,7 +1148,7 @@ class ReactorNet:
         for r in self._reactors:
             sum += r.nSensParams()
         return sum
-    
+
     def sensitivity(self, component = '', parameter = -1, reactor = ''):
 
         """Sensitivity of solution component 'component' with respect
@@ -1166,9 +1166,9 @@ class ReactorNet:
 
         reactor -- reactor containing the desired component.
 
-    
+
         """
-        
+
         n = 0
         if reactor <> '':
             for reac in self._reactors:
@@ -1188,5 +1188,3 @@ class ReactorNet:
             return s
         else:
             raise CanteraError("sensitivity requested for illegal parameter number:"+`parameter`)
-        
-    

@@ -29,7 +29,7 @@ def show_rate_coefficients(mech, doIrrev = 0):
 
     for i in range(nr):
         print '%40s  %12.5g  %12.5g ' % (eqs[i], kf[i], kr[i])
-        
+
     print 'units: kmol, m, s'
 
 
@@ -42,7 +42,5 @@ if __name__ == "__main__":
         mech = importPhase(sys.argv[1], sys.argv[2])
     else:
         mech = GRI30()
-        
+
     show_rate_coefficients(mech)
-
-

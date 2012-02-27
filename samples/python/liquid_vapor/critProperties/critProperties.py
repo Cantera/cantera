@@ -25,5 +25,3 @@ for name in fluids.keys():
     mw = f.meanMolecularWeight()
     zc = pc*mw/(rc*GasConstant*tc)
     print '%20s   %10.4g   %10.4G  %10.4G' % (name, tc, pc, zc)
-    
-

@@ -6,7 +6,7 @@ elements = {
   'N':build.element(7, 'N', 'Nitrogen', 14.0067),
   'Ar':build.element(18, 'Ar', 'Argon', 39.948)
 }
-species = {  
+species = {
  'H2':Species( name = 'H2',
          id = 'TPIS78',
          elements = {'H': 2},
@@ -432,7 +432,7 @@ species = {
              lowCoefficients = [4.7294595, -0.0031932858, 4.7534921e-005, -5.7458611e-008, 2.1931112e-011, -21572.878, 4.1030159])        )
 
 }
-reactions = [ 
+reactions = [
   build.reaction([(-2, 'O'), (1, 'O2')],[1002, 0, 1, 'M', 0],
   {'H2': 1.4, 'AR': -0.17, 'C2H6': 2.0, 'CO': 0.75, 'CH4': 1.0, 'CO2': 2.6, 'H2O': 14.4},
   build.rateCoeff('3',build.arrhenius(120000000000.0, -1.0, 0.0) ),species),

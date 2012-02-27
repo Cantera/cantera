@@ -92,7 +92,7 @@ for n in range(30):
     if mixer.temperature() > 1200.0:
         mfc3.set(mdot = 0.0)
         sim.setInitialTime(t)
-        
+
     print '%14.5g %14.5g %14.5g  %14.5g  %14.5g' % (t, mixer.temperature(),
                                                     mixer.enthalpy_mass(),
                                                     mixer.pressure(),
@@ -100,4 +100,3 @@ for n in range(30):
 
 # view the state of the gas in the mixer
 print mixer.contents()
-

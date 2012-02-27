@@ -26,6 +26,3 @@ for n in range(20):
     print x[ih], rate*1.0e6*3600.0
     writeCSV(f,[x[ih],rate]+list(d.coverages()))
 f.close()
-
-
-

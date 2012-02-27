@@ -9,7 +9,7 @@ from set import setByName
 import XML
 import _cantera
 
-class Solution(ThermoPhase, Kinetics, Transport):    
+class Solution(ThermoPhase, Kinetics, Transport):
     """
     A class for chemically-reacting solutions.
 
@@ -40,12 +40,12 @@ class Solution(ThermoPhase, Kinetics, Transport):
 
         if id:
             s = root.child(id = id)
-            
+
         else:
             s = root.child(name = "phase")
 
         self._name = s['id']
-        
+
         # initialize the equation of state
         ThermoPhase.__init__(self, xml_phase=s)
 
@@ -56,7 +56,7 @@ class Solution(ThermoPhase, Kinetics, Transport):
         # initialize the transport model
         Transport.__init__(self, xml_phase=s, phase=self,
                            model = '', loglevel=loglevel)
-        
+
     def __del__(self):
         Transport.__del__(self)
         Kinetics.__del__(self)
@@ -67,7 +67,7 @@ class Solution(ThermoPhase, Kinetics, Transport):
 
     def name(self):
         return self._name
-    
+
     def set(self, **options):
         """Set various properties.
         T       --- temperature [K]
@@ -83,4 +83,3 @@ class Solution(ThermoPhase, Kinetics, Transport):
         Liquid  --- saturated liquid fraction
         """
         setByName(self, options)
-    

@@ -117,6 +117,3 @@ diamonnd_surf2 = importInterface('diamond.xml','diamond_100',
 #
 # ck2cti -i mech.inp -t therm.dat -tr tran.dat -id mymech > mech.cti
 #
-
-
-

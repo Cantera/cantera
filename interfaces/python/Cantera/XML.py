@@ -1,5 +1,5 @@
 """
-This module provides the Python interface to C++ class XML_Node. 
+This module provides the Python interface to C++ class XML_Node.
 """
 
 import _cantera
@@ -7,17 +7,17 @@ import types
 import tempfile
 import string
 import exceptions
-    
+
 class XML_Node:
     """A node in an XML tree."""
     def __init__(self, name="--", src="", wrap=0, root=None, preprocess=0, debug=0):
         """
         Return an instance representing a node in an XML tree.
-        
+
         If 'src' is specified, then the XML tree found in file 'src' is
         constructed, and this node forms the root of the tree. The XML tree
         is saved, and a second call with the same value for 'src' will use
-        the XML tree already read in, instead of reading it in again. 
+        the XML tree already read in, instead of reading it in again.
 
         If 'wrap' is greater than zero, then only a Python wrapper is
         created - no new kernel object results.
@@ -34,11 +34,11 @@ class XML_Node:
         elif src:
             self._xml_id = _cantera.xml_get_XML_File(src, debug)
             self.wrap = 1  # disable deleting
-            
+
         # create a new empty node
         else:
             self._xml_id = _cantera.xml_new(name)
-            
+
     def __del__(self):
         """Delete the node. Does nothing if this node is only a wrapper."""
         if not self.wrap:
@@ -70,10 +70,10 @@ class XML_Node:
             if (tag == "" or ch.tag() == tag):
                 children.append(ch)
         return children
-    
+
     def removeChild(self, child):
         """Remove a child and all its descendants."""
-        _cantera.xml_removeChild(self._xml_id, child._xml_id)            
+        _cantera.xml_removeChild(self._xml_id, child._xml_id)
 
     def addChild(self, name, value=""):
         """Add a child with tag 'name', and set its value if the value
@@ -89,7 +89,7 @@ class XML_Node:
         x = self.attrib(key)
         if x: return 1
         else: return 0
-        
+
     def attrib(self, key):
         """Return attribute 'key', or the empty string if this attribute
         does not exist."""
@@ -105,7 +105,7 @@ class XML_Node:
     def addComment(self, comment):
         """Add a comment."""
         _cantera.xml_addComment(self._xml_id, comment)
-        
+
     def value(self, loc=""):
         """Return the value of this node, or, if
         the loc argument is supplied, of the node with relative
@@ -123,7 +123,7 @@ class XML_Node:
             m = _cantera.xml_findID(self._xml_id, id)
         elif name:
             m = _cantera.xml_findByName(self._xml_id, name)
-            
+
         ch = XML_Node(wrap=m)
         return ch
 
@@ -133,12 +133,12 @@ class XML_Node:
 
     def __setitem__(self, key, value):
         """Set a new attribute using the syntax node[key] = value."""
-        return self.addAttrib(key, value)    
+        return self.addAttrib(key, value)
 
     def __int__(self):
         """Conversion to integer."""
         return self._xml_id
-    
+
     def __call__(self, loc=''):
         """Get the value using the syntax node(loc)."""
         return self.value(loc)
@@ -160,16 +160,7 @@ class XML_Node:
 def clear_XML():
     _cantera.xml_clear()
 
-    
+
 def getFloatArray(node, convert_units=0):
     sz = int(node['size'])
     return _cantera.ctml_getFloatArray(node._xml_id, convert_units, sz)
-
-
-
-
-
-
-
-    
-        

@@ -51,7 +51,7 @@ def expand(fluid, pfinal, eta):
 
 def printState(n, fluid):
     print '\n\n***************** State '+`n`+' ******************\n', fluid
-    
+
 
 ###############################################################
 
@@ -85,10 +85,3 @@ printState(4,w)
 eff = (turbine_work - pump_work)/heat_added
 
 print 'efficiency = ',eff
-
-
-
-
-
-
-    

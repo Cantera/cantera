@@ -7,7 +7,7 @@ print """
 ######################################################
 
 # Suppose you have created a Cantera object and want to know what
-# methods are available for it, and get help on using the methods. 
+# methods are available for it, and get help on using the methods.
 from Cantera import *
 g = GRI30()
 
@@ -42,7 +42,7 @@ help(g.__class__)
 # do this instead: Run 'pythonw' interactively (not 'python'), import
 # module 'pydoc', and call function 'gui':
 #
-#  pythonw     
+#  pythonw
 # >>> import pydoc
 # >>> pydoc.gui()
 #

@@ -6,11 +6,11 @@ from SurfacePhase import EdgePhase
 from Kinetics import Kinetics
 import XML
 
-class Edge(EdgePhase, Kinetics):    
+class Edge(EdgePhase, Kinetics):
     """
     One-dimensional edge between two surfaces.
-    
-    Instances of class Edge represent reacting 1D edges between 
+
+    Instances of class Edge represent reacting 1D edges between
     between 2D surfaces. Class Edge defines no methods of its
     own. All of its methods derive from either EdgePhase or Kinetics.
 
@@ -43,9 +43,9 @@ class Edge(EdgePhase, Kinetics):
         fn = src.split('#')
         id = ""
         if len(fn) > 1:
-            id = fn[1]        
+            id = fn[1]
             fn = fn[0]
-        
+
         # read in the root element of the tree if not building from
         # an already-built XML tree. Enable preprocessing if the film
         # is a .cti file instead of XML.
@@ -60,9 +60,9 @@ class Edge(EdgePhase, Kinetics):
         # otherwise, find the first element with tag name 'phase'
         # (1D, 2D and 3D phases use the CTML tag name 'phase'
         else:
-            s = root.child(name = "phase")            
+            s = root.child(name = "phase")
 
-        # build the surface phase 
+        # build the surface phase
         EdgePhase.__init__(self, xml_phase=s)
 
         # build the reaction mechanism. This object (representing the

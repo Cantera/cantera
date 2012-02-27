@@ -14,7 +14,7 @@ class Mixture:
     mixtures of one or more phases of matter.  To construct a mixture,
     supply a list of phases to the constructor, each paired with the
     number of moles for that phase:
-    
+
     >>> gas = importPhase('gas.cti')
     >>> gas.speciesNames()
     ['H2', 'H', 'O2', 'O', 'OH']
@@ -24,7 +24,7 @@ class Mixture:
     >>> mix = Mixture([(gas, 1.0), (graphite, 0.1)])
     >>> mix.speciesNames()
     ['H2', 'H', 'O2', 'O', 'OH', 'C(g)']
-    
+
     Note that the objects representing each phase compute only the
     intensive state of the phase -- they do not store any information
     on the amount of this phase. Mixture objects, on the other hand, represent
@@ -36,10 +36,10 @@ class Mixture:
     ('heavyweight') phase objects. Multiple mixture objects may be
     constructed using the same set of phase objects. Each one stores
     its own state information locally, and synchronizes the phases
-    objects whenever it requires phase properties. 
+    objects whenever it requires phase properties.
 
     """
-    
+
     def __init__(self, phases=[]):
         """ init """
         self.__mixid = _cantera.mix_new()
@@ -58,9 +58,9 @@ class Mixture:
                         moles = 0
                 self._addPhase(ph, moles)
                 self._phases.append(ph)
-        _cantera.mix_init(self.__mixid)                
+        _cantera.mix_init(self.__mixid)
         self.setTemperature(self._phases[0].temperature())
-        self.setPressure(self._phases[0].pressure())        
+        self.setPressure(self._phases[0].pressure())
 
     def __del__(self):
         """Delete the Mixture instance. The phase objects are not deleted."""
@@ -77,7 +77,7 @@ class Mixture:
     def _addPhase(self, phase = None, moles = 0.0):
         """Add a phase to the mixture."""
         for k in range(phase.nSpecies()):
-            self._spnames.append(phase.speciesName(k))            
+            self._spnames.append(phase.speciesName(k))
         _cantera.mix_addPhase(self.__mixid, phase.thermo_hndl(), moles)
 
     def nPhases(self):
@@ -87,7 +87,7 @@ class Mixture:
     def phase(self, n):
         """Return the object representing the nth phase in the mixture."""
         return self._phases[n]
-    
+
     def phaseName(self, n):
         """Name of phase n."""
         return self._phases[n].name()
@@ -109,7 +109,7 @@ class Mixture:
             if self.phaseName(n) == phase:
                 return n
         return -1
-    
+
     def nElements(self):
         """Total number of elements present in the mixture."""
         return _cantera.mix_nElements(self.__mixid)
@@ -124,24 +124,24 @@ class Mixture:
             return _cantera.mix_elementIndex(self.__mixid, element)
         else:
             return element
-        
+
     def nSpecies(self):
         """Total number of species present in the mixture. This is the
         sum of the numbers of species in each phase."""
         return _cantera.mix_nSpecies(self.__mixid)
-    
+
     def speciesName(self, k):
         """Name of the species with index k. Note that index numbers
         are assigned in order as phases are added."""
         return self._spnames[k]
-    
+
     def speciesNames(self):
         n = self.nSpecies()
         s = []
         for k in range(n):
             s.append(self.speciesName(k))
         return s
-    
+
     def speciesIndex(self, species):
         """Index of species with name 'species'. If 'species' is not a string,
         then it is simply returned."""
@@ -149,7 +149,7 @@ class Mixture:
             return self._spnames.index(species)
         else:
             return species
-        
+
     def nAtoms(self, k, m):
         """Number of atoms of element m in species k. Both the species and
         the element may be referenced either by name or by index number.
@@ -161,45 +161,45 @@ class Mixture:
         kk = self.speciesIndex(k)
         mm = self.elementIndex(m)
         return _cantera.mix_nAtoms(self.__mixid, kk, mm)
-    
+
     def setTemperature(self, t):
         """Set the temperature [K]. The temperatures of all phases are
         set to this value, holding the pressure fixed."""
         return _cantera.mix_setTemperature(self.__mixid, t)
-    
+
     def temperature(self):
         """The temperature [K]."""
         return _cantera.mix_temperature(self.__mixid)
-    
+
     def minTemp(self):
         """The minimum temperature for which all species in
         multi-species solutions have valid thermo data. Stoichiometric
         phases are not considered in determining minTemp.  """
         return _cantera.mix_minTemp(self.__mixid)
-    
+
     def maxTemp(self):
         """The maximum temperature for which all species in
         multi-species solutions have valid thermo data. Stoichiometric
-        phases are not considered in determining maxTemp.  """        
+        phases are not considered in determining maxTemp.  """
         return _cantera.mix_maxTemp(self.__mixid)
-    
+
     def charge(self):
         """The total charge in Coulombs, summed over all phases."""
         return _cantera.mix_charge(self.__mixid)
-    
+
     def phaseCharge(self, p):
         """The charge of phase p (Coulombs)."""
         return _cantera.mix_phaseCharge(self.__mixid, p)
-    
+
     def setPressure(self, p):
         """Set the pressure [Pa]. The pressures of all phases are set
         to the specified value, holding the temperature fixed."""
         return _cantera.mix_setPressure(self.__mixid, p)
-    
+
     def pressure(self):
         """The pressure [Pa]."""
         return _cantera.mix_pressure(self.__mixid)
-    
+
     def phaseMoles(self, n = -1):
         """Moles of phase n."""
         if n == -1:
@@ -208,13 +208,13 @@ class Mixture:
             for m in range(np):
                 moles[m] = _cantera.mix_phaseMoles(self.__mixid, m)
             return moles
-        else:   
+        else:
             return _cantera.mix_phaseMoles(self.__mixid, n)
-        
+
     def setPhaseMoles(self, n, moles):
         """Set the number of moles of phase n."""
         _cantera.mix_setPhaseMoles(self.__mixid, n, moles)
-        
+
     def setSpeciesMoles(self, moles):
         """Set the moles of the species [kmol]. The moles may be
         specified either as a string, or as an array. If an array is
@@ -229,21 +229,21 @@ class Mixture:
             _cantera.mix_setMolesByName(self.__mixid, moles)
         else:
             _cantera.mix_setMoles(self.__mixid, asarray(moles))
-            
+
     def speciesMoles(self, species = ""):
         """Moles of species k."""
         moles = zeros(self.nSpecies(),'d')
         for k in range(self.nSpecies()):
             moles[k] = _cantera.mix_speciesMoles(self.__mixid, k)
         return self.selectSpecies(moles, species)
-    
+
     def elementMoles(self, m):
         """Total number of moles of element m, summed over all species.
         The element may be referenced either by index number or by name.
         """
         mm = self.elementIndex(m)
         return _cantera.mix_elementMoles(self.__mixid, mm)
-    
+
     def chemPotentials(self, species=[]):
         """The chemical potentials of all species [J/kmol]."""
         mu = zeros(self.nSpecies(),'d')
@@ -261,7 +261,7 @@ class Mixture:
                 self.setSpeciesMoles(v)
             else:
                 raise CanteraError("unknown property: "+o)
-            
+
     def equilibrate(self, XY = "TP", err = 1.0e-9,
                     maxsteps = 1000, maxiter = 200, loglevel = 0):
         """Set the mixture to a state of chemical equilibrium.
@@ -277,11 +277,11 @@ class Mixture:
         specified temperature and pressure. If any other property pair
         other than "TP" is specified, then an outer iteration loop is
         used to adjust T and/or P so that the specified property
-        values are obtained. 
-        
+        values are obtained.
+
         XY - Two-letter string specifying the two properties to hold fixed.
         Currently, 'TP', 'HP', and 'SP' are implemented. Default: 'TP'.
-        
+
         err - Error tolerance. Iteration will continue until (Delta
         mu)/RT is less than this value for each reaction. Default:
         1.0e-9. Note that this default is very conservative, and good
@@ -310,11 +310,11 @@ class Mixture:
         "equilibrate_log.html", "equilibrate_log1.html",
         "equilibrate_log2.html", and so on. Existing log files will
         not be overwritten.
-        
+
 
         >>> mix.equilibrate('TP')
         >>> mix.equilibrate('TP', err = 1.0e-6, maxiter = 500)
-        
+
         """
         i = _cantera.mix_equilibrate(self.__mixid, XY, err, maxsteps,
                                         maxiter, loglevel)
@@ -335,8 +335,8 @@ class Mixture:
         specified temperature and pressure. If any other property pair
         other than "TP" is specified, then an outer iteration loop is
         used to adjust T and/or P so that the specified property
-        values are obtained. 
-        
+        values are obtained.
+
         XY - Two-letter string specifying the two properties to hold fixed.
         Currently, 'TP', 'HP', and 'SP' are implemented. Default: 'TP'.
 
@@ -348,7 +348,7 @@ class Mixture:
         solver - Determines which solver is used.
                     - 1 MultiPhaseEquil solver
                     - 2 VCSnonideal Solver (default)
-        
+
         err - Error tolerance. Iteration will continue until (Delta
         mu)/RT is less than this value for each reaction. Default:
         1.0e-9. Note that this default is very conservative, and good
@@ -377,13 +377,13 @@ class Mixture:
         "equilibrate_log.html", "equilibrate_log1.html",
         "equilibrate_log2.html", and so on. Existing log files will
         not be overwritten.
-        
+
 
         """
         i = _cantera.mix_vcs_equilibrate(self.__mixid, XY, estimateEquil,
                                          printLvl, solver, rtol, maxsteps,
                                          maxiter, loglevel)
-    
+
     def selectSpecies(self, f, species):
         """Given an array 'f' of floating-point species properties,
         return an array of those values corresponding to species
@@ -406,5 +406,3 @@ class Mixture:
             return asarray(fs)
         else:
             return f
-
-

@@ -6,13 +6,13 @@ def interp(z0, z, f):
     Sequences z and f must be of the same length,
     and the entries in z must be monotonically increasing.
 
-    Example: 
+    Example:
     >>> z = [0.0, 0.2, 0.5, 1.2, 2.1]
     >>> f = [3.0, 2.0, 1.0, 0.0, -1.0]
     >>>print interp(-2, z, f), interp(0.5, z, f), interp(6, z, f)
     3.0 7.0 -9.0
     """
-    
+
     n = len(z)
 
     # if z0 is outside the range of z, then return the endpoint value,
@@ -61,4 +61,4 @@ def quadInterp(z0, z, f):
 ##     f = [3.0, 5.0, 11.0, 0.0, -9.0]
 
 ##     print interp(-2, z, f), interp(0.3, z, f), interp(6, z, f)
-##     print quadInterp(-2, z, f), quadInterp(0.3, z, f), quadInterp(6, z, f)    
+##     print quadInterp(-2, z, f), quadInterp(0.3, z, f), quadInterp(6, z, f)

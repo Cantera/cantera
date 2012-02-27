@@ -2,7 +2,7 @@
 
 from solution import Solution
 
-def Solid(src="", 
+def Solid(src="",
                 kmodel=1, transport=None):
     return Solution(import_file=import_file,
                     thermo_db="",
@@ -11,4 +11,3 @@ def Solid(src="",
                     kmodel=kmodel,
                     trmodel=transport,
                     validate=0)
-

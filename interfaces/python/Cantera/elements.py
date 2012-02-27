@@ -13,7 +13,7 @@ def elementMoles(s, element):
     # in s. If it does not, return zero moles.
     try:
         m = s.elementIndex(element)
-	if m < 0.0: return 0.0
+        if m < 0.0: return 0.0
     except:
         return 0.0
 

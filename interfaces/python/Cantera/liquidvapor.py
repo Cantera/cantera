@@ -15,7 +15,7 @@ import XML
 import _cantera
 
 
-class PureFluid(ThermoPhase):    
+class PureFluid(ThermoPhase):
     """
     A class for chemically-reacting solutions.
 
@@ -38,16 +38,16 @@ class PureFluid(ThermoPhase):
 
         if id:
             s = root.child(id = id)
-            
+
         else:
             s = root.child(name = "phase")
 
         self._name = s['id']
-        
+
         # initialize the equation of state
         ThermoPhase.__init__(self, xml_phase=s)
 
-        
+
     def __del__(self):
         ThermoPhase.__del__(self)
 
@@ -56,7 +56,7 @@ class PureFluid(ThermoPhase):
 
     def name(self):
         return self._name
-    
+
     def set(self, **options):
         """Set various properties.
         T       --- temperature [K]
@@ -72,7 +72,7 @@ class PureFluid(ThermoPhase):
         Liquid  --- saturated liquid fraction
         """
         setByName(self, options)
-    
+
     def critTemperature(self):
         """Critical temperature [K]."""
         return _cantera.thermo_getfp(self._phase_id,50)
@@ -96,11 +96,11 @@ class PureFluid(ThermoPhase):
 
     def setState_Tsat(self, t, vaporFraction):
         """Set the state of a saturated liquid/vapor mixture by
-        specifying the temperature and vapor fraction."""        
-        _cantera.thermo_setfp(self._phase_id,7, t, vaporFraction)        
+        specifying the temperature and vapor fraction."""
+        _cantera.thermo_setfp(self._phase_id,7, t, vaporFraction)
 
 
-        
+
 def Water():
     return PureFluid('liquidvapor.cti','water')
 
@@ -124,4 +124,3 @@ def CarbonDioxide():
 
 def Heptane():
     return PureFluid('liquidvapor.cti','heptane')
-

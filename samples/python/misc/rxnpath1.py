@@ -31,7 +31,7 @@ output_urldir = 'http://your.http.server/'
 #-----------------------------------------------------------------------
 # these lines can be replaced by any commands that generate
 # an object of a class derived from class Kinetics (such as IdealGasMix)
-# in some state. 
+# in some state.
 gas = GRI30()
 gas.setState_TPX(2500.0, OneAtm, 'CH4:0.4, O2:1, N2:3.76')
 gas.equilibrate('TP')
@@ -52,5 +52,3 @@ if len(opts) > 1 and opts[1] == "-view":
     # graphics format. Must be one of png, svg, gif, or jpg
     fmt = 'svg'
     rxnpath.view(url, fmt)
-
-

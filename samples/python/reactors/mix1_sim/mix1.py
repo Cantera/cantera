@@ -81,4 +81,3 @@ for n in range(30):
 
 # view the state of the gas in the mixer
 print mixer.contents()
-

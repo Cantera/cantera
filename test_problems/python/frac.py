@@ -39,7 +39,7 @@ print '%12s  %10.4e  %10.4e ' % (gas.speciesName(ih2o),
 print '\nDestruction Rates:'
 for k in range(nsp-1):
     print '%12s  %10.4e  %10.4e ' % (gas.speciesName(k),
-                                     ddot[k], ddot[k]/fwd_rop[1])   
+                                     ddot[k], ddot[k]/fwd_rop[1])
 print '%12s  %10.4e  %10.4e ' % (gas.speciesName(ih2o),
                                  ddot[ih2o], ddot[ih2o]/fwd_rop[0])
 print
@@ -64,11 +64,10 @@ r1 = fwd_rop[1]
 r2 = cproduct*kf[1]
 diff12 = (r1 - r2)/(r1 + r2)
 if (abs(diff12) < 1.0E-10) :
-    diff12 = 0.0 
+    diff12 = 0.0
 print r1, r2, diff12
 print
 print 'Reactant stoichiometric coefficients:'
 print gas.reactantStoichCoeffs()
 print 'Product stoichiometric coefficients:'
 print gas.productStoichCoeffs()
-

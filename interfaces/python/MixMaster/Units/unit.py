@@ -29,7 +29,7 @@ class unit:
 
     _zero = (0,) * 7
     _negativeOne = (-1, ) * 7
-    
+
     _labels = ('m', 'kg', 's', 'A', 'K', 'mol', 'cd')
 
 
@@ -56,7 +56,7 @@ class unit:
     def __mul__(self, other):
         if type(other) == type(0) or type(other) == type(0.0):
             return unit(other*self.value, self.derivation)
-        
+
         value = self.value * other.value
         derivation = tuple(map(operator.add, self.derivation, other.derivation))
 
@@ -66,7 +66,7 @@ class unit:
     def __div__(self, other):
         if type(other) == type(0) or type(other) == type(0.0):
             return unit(self.value/other, self.derivation)
-        
+
         value = self.value / other.value
         derivation = tuple(map(operator.sub, self.derivation, other.derivation))
 
@@ -81,7 +81,7 @@ class unit:
         derivation = tuple(map(operator.mul, [other]*7, self.derivation))
 
         return unit(value, derivation)
-        
+
 
     def __pos__(self): return self
 
@@ -107,7 +107,7 @@ class unit:
 
         value = other/self.value
         derivation = tuple(map(operator.mul, self._negativeOne, self.derivation))
-        
+
         return unit(value, derivation)
 
 
@@ -115,7 +115,7 @@ class unit:
         return self.value
         #if self.derivation == self._zero: return self.value
         #raise BadConversion(self)
-            
+
 
     def __str__(self):
         str = "%g" % self.value
@@ -130,6 +130,6 @@ class unit:
         return str
 
 dimensionless = unit(1, unit._zero)
-                          
+
 #
 # End of file
