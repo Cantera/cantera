@@ -9,28 +9,12 @@
 #include "cantera/oneD/Inlet1D.h"
 #include "cantera/kinetics/InterfaceKinetics.h"
 #include "Cabinet.h"
-#include "Storage.h"
-
 
 using namespace std;
 using namespace Cantera;
 
 typedef Cabinet<Bdry1D> BoundaryCabinet;
-template<> BoundaryCabinet*  BoundaryCabinet::__storage = 0;
-
-//inline Phase* _phase(int n) {
-//    return Storage::__storage->__phasetable[n];
-//}
-
-inline ThermoPhase* _thermo(int n)
-{
-    return Storage::__storage->__thtable[n];
-}
-
-inline Kinetics* _kin(int n)
-{
-    return Storage::__storage->__ktable[n];
-}
+template<> BoundaryCabinet* BoundaryCabinet::__storage = 0;
 
 extern "C" {
 
@@ -137,8 +121,10 @@ extern "C" {
     int DLL_EXPORT surf_setkinetics(int i, int j)
     {
         try {
-            ReactingSurf1D* srf = dynamic_cast<ReactingSurf1D*>(&BoundaryCabinet::item(i));
-            InterfaceKinetics* k = (InterfaceKinetics*)_kin(j);
+            ReactingSurf1D* srf =
+                dynamic_cast<ReactingSurf1D*>(&BoundaryCabinet::item(i));
+            InterfaceKinetics* k =
+                dynamic_cast<InterfaceKinetics*>(&Cabinet<Kinetics>::item(j));
             srf->setKineticsMgr(k);
         } catch (CanteraError) {
             return -1;

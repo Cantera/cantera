@@ -22,7 +22,6 @@
 #include "cantera/base/FactoryBase.h"
 #include "cantera/base/logger.h"
 
-
 #include <fstream>
 #include <memory>
 

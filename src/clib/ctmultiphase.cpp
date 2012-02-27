@@ -9,20 +9,13 @@
 #include "cantera/equil/MultiPhase.h"
 #include "cantera/equil/MultiPhaseEquil.h"
 #include "cantera/equil/vcs_MultiPhaseEquil.h"
-
 #include "Cabinet.h"
-#include "Storage.h"
 
 using namespace std;
 using namespace Cantera;
 
 typedef Cabinet<MultiPhase> mixCabinet;
 template<> mixCabinet* mixCabinet::__storage = 0;
-
-inline ThermoPhase* _th(int n)
-{
-    return Storage::__storage->__thtable[n];
-}
 
 static bool checkSpecies(int i, size_t k)
 {
@@ -91,7 +84,7 @@ extern "C" {
 
     int DLL_EXPORT mix_addPhase(int i, int j, double moles)
     {
-        mixCabinet::item(i).addPhase(_th(j), moles);
+        mixCabinet::item(i).addPhase(&Cabinet<ThermoPhase>::item(j), moles);
         return 0;
     }
 

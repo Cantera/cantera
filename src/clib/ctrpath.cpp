@@ -7,22 +7,16 @@
 // Cantera includes
 #include "cantera/kinetics/ReactionPath.h"
 #include "Cabinet.h"
-#include "Storage.h"
 
 using namespace Cantera;
 using namespace std;
-
-typedef ReactionPathBuilder builder_t;
 
 typedef Cabinet<ReactionPathBuilder> BuilderCabinet;
 typedef Cabinet<ReactionPathDiagram> DiagramCabinet;
 template<> DiagramCabinet* DiagramCabinet::__storage = 0;
 template<> BuilderCabinet* BuilderCabinet::__storage = 0;
 
-inline Kinetics* _kin(int n)
-{
-    return Storage::__storage->__ktable[n];
-}
+typedef Cabinet<Kinetics> KineticsCabinet;
 
 extern "C" {
 
@@ -188,7 +182,7 @@ extern "C" {
     int DLL_EXPORT rbuild_init(int i, char* logfile, int k)
     {
         ofstream flog(logfile);
-        BuilderCabinet::item(i).init(flog, *_kin(k));
+        BuilderCabinet::item(i).init(flog, KineticsCabinet::item(k));
         return 0;
     }
 
@@ -200,7 +194,7 @@ extern "C" {
         if (iquiet > 0) {
             quiet = true;
         }
-        BuilderCabinet::item(i).build(*_kin(k), string(el), fdot,
+        BuilderCabinet::item(i).build(KineticsCabinet::item(k), string(el), fdot,
                                       DiagramCabinet::item(idiag), quiet);
         return 0;
     }

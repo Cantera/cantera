@@ -7,16 +7,12 @@
 // Cantera includes
 #include "cantera/base/ctml.h"
 #include "Cabinet.h"
-#include "Storage.h"
 
 #include <string.h>
 
 using namespace std;
 using namespace Cantera;
 using namespace ctml;
-
-// Assign storage for the static member of the Templated Cabinet class
-// class Cabinet<XML_Node>;
 
 typedef Cabinet<XML_Node, false> XmlCabinet;
 template<> XmlCabinet* XmlCabinet::__storage = 0;
