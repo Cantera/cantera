@@ -94,7 +94,7 @@ if os.name == 'nt':
             extraEnvArgs['MSVC_VERSION'] = pickCompilerEnv['msvc_version']
 
     elif pickCompilerEnv['toolchain'] == 'mingw':
-        toolchain = ['mingw']
+        toolchain = ['mingw', 'f90']
         extraEnvArgs['F77'] = None
         # Next line fixes http://scons.tigris.org/issues/show_bug.cgi?id=2683
         extraEnvArgs['WINDOWS_INSERT_DEF'] = 1

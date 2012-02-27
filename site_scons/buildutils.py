@@ -373,7 +373,10 @@ def stripDrive(s):
 def which(program):
     """ Replicates the functionality of the 'which' shell command """
     def is_exe(fpath):
-        return os.path.exists(fpath) and os.access(fpath, os.X_OK)
+        for ext in ('', '.exe', '.bat'):
+            if os.path.exists(fpath + ext):
+                return os.access(fpath + ext, os.X_OK)
+        return False
 
     fpath, fname = os.path.split(program)
     if fpath:
