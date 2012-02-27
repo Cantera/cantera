@@ -16,14 +16,8 @@
 using namespace std;
 using namespace Cantera;
 
-typedef MultiPhase  mix_t;
-
-template<> Cabinet<mix_t>*    Cabinet<mix_t>::__storage = 0;
-
-inline mix_t* _mix(int i)
-{
-    return Cabinet<mix_t>::cabinet()->item(i);
-}
+typedef Cabinet<MultiPhase> mixCabinet;
+template<> mixCabinet* mixCabinet::__storage = 0;
 
 inline ThermoPhase* _th(int n)
 {
@@ -33,7 +27,7 @@ inline ThermoPhase* _th(int n)
 static bool checkSpecies(int i, size_t k)
 {
     try {
-        if (k >= _mix(i)->nSpecies())
+        if (k >= mixCabinet::item(i).nSpecies())
             throw CanteraError("checkSpecies",
                                "illegal species index ("+int2str(int(k))+") ");
         return true;
@@ -45,7 +39,7 @@ static bool checkSpecies(int i, size_t k)
 static bool checkElement(int i, size_t m)
 {
     try {
-        if (m >= _mix(i)->nElements())
+        if (m >= mixCabinet::item(i).nElements())
             throw CanteraError("checkElement",
                                "illegal element index ("+int2str(int(m))+") ");
         return true;
@@ -57,7 +51,7 @@ static bool checkElement(int i, size_t m)
 static bool checkPhase(int i, int n)
 {
     try {
-        if (n < 0 || n >= int(_mix(i)->nPhases()))
+        if (n < 0 || n >= int(mixCabinet::item(i).nPhases()))
             throw CanteraError("checkPhase",
                                "illegal phase index ("+int2str(n)+") ");
         return true;
@@ -75,63 +69,63 @@ extern "C" {
 
     int DLL_EXPORT mix_new()
     {
-        mix_t* m = new MultiPhase;
-        return Cabinet<mix_t>::cabinet()->add(m);
+        MultiPhase* m = new MultiPhase;
+        return mixCabinet::add(m);
     }
 
     int DLL_EXPORT mix_del(int i)
     {
-        Cabinet<mix_t>::cabinet()->del(i);
+        mixCabinet::del(i);
         return 0;
     }
 
     int DLL_EXPORT mix_copy(int i)
     {
-        return Cabinet<mix_t>::cabinet()->newCopy(i);
+        return mixCabinet::newCopy(i);
     }
 
     int DLL_EXPORT mix_assign(int i, int j)
     {
-        return Cabinet<mix_t>::cabinet()->assign(i,j);
+        return mixCabinet::assign(i,j);
     }
 
     int DLL_EXPORT mix_addPhase(int i, int j, double moles)
     {
-        _mix(i)->addPhase(_th(j), moles);
+        mixCabinet::item(i).addPhase(_th(j), moles);
         return 0;
     }
 
     int DLL_EXPORT mix_init(int i)
     {
-        _mix(i)->init();
+        mixCabinet::item(i).init();
         return 0;
     }
 
     size_t DLL_EXPORT mix_nElements(int i)
     {
-        return _mix(i)->nElements();
+        return mixCabinet::item(i).nElements();
     }
 
     size_t DLL_EXPORT mix_elementIndex(int i, char* name)
     {
-        return _mix(i)->elementIndex(string(name));
+        return mixCabinet::item(i).elementIndex(string(name));
     }
 
     size_t DLL_EXPORT mix_nSpecies(int i)
     {
-        return _mix(i)->nSpecies();
+        return mixCabinet::item(i).nSpecies();
     }
 
     size_t DLL_EXPORT mix_speciesIndex(int i, int k, int p)
     {
-        return _mix(i)->speciesIndex(k, p);
+        return mixCabinet::item(i).speciesIndex(k, p);
     }
 
     doublereal DLL_EXPORT mix_nAtoms(int i, int k, int m)
     {
         bool ok = (checkSpecies(i,k) && checkElement(i,m));
         if (ok) {
-            return _mix(i)->nAtoms(k,m);
+            return mixCabinet::item(i).nAtoms(k,m);
         } else {
             return DERR;
         }
@@ -139,7 +133,7 @@ extern "C" {
 
     size_t DLL_EXPORT mix_nPhases(int i)
     {
-        return _mix(i)->nPhases();
+        return mixCabinet::item(i).nPhases();
     }
 
     doublereal DLL_EXPORT mix_phaseMoles(int i, int n)
@@ -147,7 +141,7 @@ extern "C" {
         if (!checkPhase(i, n)) {
             return DERR;
         }
-        return _mix(i)->phaseMoles(n);
+        return mixCabinet::item(i).phaseMoles(n);
     }
 
     int DLL_EXPORT mix_setPhaseMoles(int i, int n, double v)
@@ -158,17 +152,17 @@ extern "C" {
         if (v < 0.0) {
             return -1;
         }
-        _mix(i)->setPhaseMoles(n, v);
+        mixCabinet::item(i).setPhaseMoles(n, v);
         return 0;
     }
 
     int DLL_EXPORT mix_setMoles(int i, size_t nlen, double* n)
     {
         try {
-            if (nlen < _mix(i)->nSpecies()) {
+            if (nlen < mixCabinet::item(i).nSpecies()) {
                 throw CanteraError("setMoles","array size too small.");
             }
-            _mix(i)->setMoles(n);
+            mixCabinet::item(i).setMoles(n);
             return 0;
         } catch (CanteraError) {
             return ERR;
@@ -179,7 +173,7 @@ extern "C" {
     int DLL_EXPORT mix_setMolesByName(int i, char* n)
     {
         try {
-            _mix(i)->setMolesByName(string(n));
+            mixCabinet::item(i).setMolesByName(string(n));
             return 0;
         } catch (CanteraError) {
             return -1;
@@ -191,28 +185,28 @@ extern "C" {
         if (t < 0.0) {
             return -1;
         }
-        _mix(i)->setTemperature(t);
+        mixCabinet::item(i).setTemperature(t);
         return 0;
     }
 
     doublereal DLL_EXPORT mix_temperature(int i)
     {
-        return _mix(i)->temperature();
+        return mixCabinet::item(i).temperature();
     }
 
     doublereal DLL_EXPORT mix_minTemp(int i)
     {
-        return _mix(i)->minTemp();
+        return mixCabinet::item(i).minTemp();
     }
 
     doublereal DLL_EXPORT mix_maxTemp(int i)
     {
-        return _mix(i)->maxTemp();
+        return mixCabinet::item(i).maxTemp();
     }
 
     doublereal DLL_EXPORT mix_charge(int i)
     {
-        return _mix(i)->charge();
+        return mixCabinet::item(i).charge();
     }
 
     doublereal DLL_EXPORT mix_phaseCharge(int i, int p)
@@ -220,7 +214,7 @@ extern "C" {
         if (!checkPhase(i,p)) {
             return DERR;
         }
-        return _mix(i)->phaseCharge(p);
+        return mixCabinet::item(i).phaseCharge(p);
     }
 
     int DLL_EXPORT mix_setPressure(int i, double p)
@@ -228,13 +222,13 @@ extern "C" {
         if (p < 0.0) {
             return -1;
         }
-        _mix(i)->setPressure(p);
+        mixCabinet::item(i).setPressure(p);
         return 0;
     }
 
     doublereal DLL_EXPORT mix_pressure(int i)
     {
-        return _mix(i)->pressure();
+        return mixCabinet::item(i).pressure();
     }
 
     doublereal DLL_EXPORT mix_speciesMoles(int i, int k)
@@ -242,7 +236,7 @@ extern "C" {
         if (!checkSpecies(i,k)) {
             return DERR;
         }
-        return _mix(i)->speciesMoles(k);
+        return mixCabinet::item(i).speciesMoles(k);
     }
 
     doublereal DLL_EXPORT mix_elementMoles(int i, int m)
@@ -250,7 +244,7 @@ extern "C" {
         if (!checkElement(i,m)) {
             return DERR;
         }
-        return _mix(i)->elementMoles(m);
+        return mixCabinet::item(i).elementMoles(m);
     }
 
 
@@ -259,7 +253,7 @@ extern "C" {
                                           int maxiter, int loglevel)
     {
         try {
-            return equilibrate(*_mix(i), XY,
+            return equilibrate(mixCabinet::item(i), XY,
                                rtol, maxsteps, maxiter, loglevel);
         } catch (CanteraError) {
             return DERR;
@@ -274,7 +268,7 @@ extern "C" {
     {
         try {
 #ifdef WITH_VCSNONIDEAL
-            int retn = vcs_equilibrate(*_mix(i), XY, estimateEquil, printLvl, solver,
+            int retn = vcs_equilibrate(mixCabinet::item(i), XY, estimateEquil, printLvl, solver,
                                        rtol, maxsteps, maxiter, loglevel);
 #else
             int retn = -1;
@@ -291,10 +285,10 @@ extern "C" {
     int DLL_EXPORT mix_getChemPotentials(int i, size_t lenmu, double* mu)
     {
         try {
-            if (lenmu < _mix(i)->nSpecies()) {
+            if (lenmu < mixCabinet::item(i).nSpecies()) {
                 throw CanteraError("getChemPotentials","array too small");
             }
-            _mix(i)->getChemPotentials(mu);
+            mixCabinet::item(i).getChemPotentials(mu);
             return 0;
         } catch (CanteraError) {
             return -1;
@@ -306,10 +300,10 @@ extern "C" {
     {
         bool st = (standard == 1);
         try {
-            if (lenmu < _mix(i)->nSpecies()) {
+            if (lenmu < mixCabinet::item(i).nSpecies()) {
                 throw CanteraError("getChemPotentials","array too small");
             }
-            _mix(i)->getValidChemPotentials(bad_mu, mu, st);
+            mixCabinet::item(i).getValidChemPotentials(bad_mu, mu, st);
             return 0;
         } catch (CanteraError) {
             return -1;
@@ -318,38 +312,36 @@ extern "C" {
 
     double DLL_EXPORT mix_enthalpy(int i)
     {
-        return _mix(i)->enthalpy();
+        return mixCabinet::item(i).enthalpy();
     }
 
     double DLL_EXPORT mix_entropy(int i)
     {
-        return _mix(i)->entropy();
+        return mixCabinet::item(i).entropy();
     }
-
 
     double DLL_EXPORT mix_gibbs(int i)
     {
-        return _mix(i)->gibbs();
+        return mixCabinet::item(i).gibbs();
     }
 
     double DLL_EXPORT mix_cp(int i)
     {
-        return _mix(i)->cp();
+        return mixCabinet::item(i).cp();
     }
 
     double DLL_EXPORT mix_volume(int i)
     {
-        return _mix(i)->volume();
+        return mixCabinet::item(i).volume();
     }
 
     size_t DLL_EXPORT mix_speciesPhaseIndex(int i, int k)
     {
-        return _mix(i)->speciesPhaseIndex(k);
+        return mixCabinet::item(i).speciesPhaseIndex(k);
     }
 
     double DLL_EXPORT mix_moleFraction(int i, int k)
     {
-        return _mix(i)->moleFraction(k);
+        return mixCabinet::item(i).moleFraction(k);
     }
-
 }

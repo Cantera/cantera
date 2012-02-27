@@ -16,12 +16,6 @@
 using namespace std;
 using namespace Cantera;
 
-//Cabinet<Surf1D>*         Cabinet<Surf1D>::__storage = 0;
-
-//inline Surf1D* _surface(int i) {
-//   return Cabinet<Surf1D>::cabinet()->item(i);
-//}
-
 inline SurfPhase* _surfphase(int n)
 {
     return (SurfPhase*)Storage::__storage->__thtable[n];
@@ -32,21 +26,7 @@ inline InterfaceKinetics* _surfkin(int n)
     return (InterfaceKinetics*)Storage::__storage->__ktable[n];
 }
 
-
 extern "C" {
-
-    //     int DLL_EXPORT surface_new(int ikin) {
-    //         InterfaceKinetics* sk = 0;
-    //         if (ikin > 0) sk = _surfkin(ikin);
-    //         Surf1D* s = new Surf1D(sk);
-    //         return Cabinet<Surf1D>::cabinet()->add(s);
-    //     }
-
-    //     int DLL_EXPORT surface_del(int i) {
-    //         Cabinet<Surf1D>::cabinet()->del(i);
-    //         return 0;
-    //     }
-
 
     int DLL_EXPORT surf_setsitedensity(int i, double s0)
     {

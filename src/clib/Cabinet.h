@@ -55,13 +55,15 @@
  * instance. This function calls the constructor on the first call and
  * stores the pointer to this instance. Subsequent calls simply return
  * the already-created pointer.
+ *
+ * Set canDelete to false if the 'clear' method should not delete the entries.
  */
 
-template<class M>
+template<class M, bool canDelete=true>
 class Cabinet
 {
 public:
-
+    typedef std::vector<M*>& dataRef;
     /**
      * Destructor. Delete all objects in the list.
      */
@@ -70,40 +72,24 @@ public:
     }
 
     /**
-     * Static function that returns a pointer to the one Cabinet<M>
-     * instance. All access to the Cabinet<M> instance should go
-     * through this function.
-     */
-    static Cabinet<M>* cabinet(bool canDelete = true) {
-        if (__storage == 0) {
-            __storage = new Cabinet<M>(canDelete);
-        }
-        return __storage;
-    }
-
-
-    /**
      * Add a new object. The index of the object is returned.
      */
-    int add(M* ptr) {
-        //try {
-        __table.push_back(ptr);
-        return static_cast<int>(__table.size()) - 1;
-        //}
-        //catch (CanteraError) {return -1;}
-        //catch (...) {return -999;}
+    static int add(M* ptr) {
+        dataRef data = getData();
+        data.push_back(ptr);
+        return static_cast<int>(data.size()) - 1;
     }
-
 
     /**
      * Make a new copy of an existing object.  The index of the new
      * object is returned.
      */
-    int newCopy(int i) {
+    static int newCopy(int i) {
+        dataRef data = getData();
         try {
-            M* old = __table[i];
-            __table.push_back(new M(*old));
-            return static_cast<int>(__table.size()) - 1;
+            M* old = data[i];
+            data.push_back(new M(*old));
+            return static_cast<int>(data.size()) - 1;
         } catch (Cantera::CanteraError) {
             return -1;
         } catch (...) {
@@ -111,16 +97,16 @@ public:
         }
     }
 
-
     /**
      * Assign one object (index j) to another (index i).  This method
      * is not used currently, and may be removed from the class in the
      * future.
      */
-    int assign(int i, int j) {
+    static int assign(int i, int j) {
+        dataRef data = getData();
         try {
-            M* src = __table[j];
-            M* dest = __table[i];
+            M* src = data[j];
+            M* dest = data[i];
             *dest = *src;
             return 0;
         } catch (Cantera::CanteraError) {
@@ -130,96 +116,94 @@ public:
         }
     }
 
-
     /**
      * Delete all objects but the first.
      */
-    int clear() {
-        int i, n;
-        n = static_cast<int>(__table.size());
-        for (i = 1; i < n; i++) {
+    static int clear() {
+        dataRef data = getData();
+        int n = static_cast<int>(data.size());
+        for (int i = 1; i < n; i++) {
             del(i);
         }
-        if (_can_delete) {
-            delete __table[0];
+        if (canDelete) {
+            delete data[0];
         }
-        __table.clear();
+        data.clear();
         add(new M);
         return 0;
     }
-
 
     /**
      * Delete the nth object. After the object is deleted, the pointer
      * to it in the list is replaced by a pointer to the first element
      * in the list.
      */
-    void del(int n) {
+    static void del(int n) {
+        dataRef data = getData();
         if (n == 0) {
             return;
         }
-        if (__table[n] != __table[0]) {
-            if (_can_delete) {
-                delete __table[n];
+        if (data[n] != data[0]) {
+            if (canDelete) {
+                delete data[n];
             }
-            __table[n] = __table[0];
+            data[n] = data[0];
         } else {
             throw Cantera::CanteraError("Cabinet<M>::del",
                                         "Attempt made to delete an already-deleted object.");
         }
     }
 
-
     /**
-     * Return a pointer to object n.
+     * Return a reference to object n.
      */
-    M* item(size_t n) {
-        if (n < __table.size()) {
-            return __table[n];
+    static M& item(size_t n) {
+        dataRef data = getData();
+        if (n < data.size()) {
+            return *data[n];
         } else {
             throw Cantera::CanteraError("item","index out of range"+Cantera::int2str(int(n)));
-            //return __table[0];
         }
     }
 
     /**
      * Constructor.
      */
-    Cabinet(bool canDelete = true) : _can_delete(canDelete) {
-        add(new M);
+    Cabinet() {
+        __table.push_back(new M);
     }
 
 private:
-
     /**
-     * Constructor.
+     * Static function that returns a pointer to the data member of
+     * the singleton Cabinet<M> instance. All member functions should
+     * access the data through this function.
      */
-    //    Cabinet(bool canDelete = true) : _can_delete(canDelete) { add(new M); }
-
+    static dataRef getData() {
+        if (__storage == 0) {
+            __storage = new Cabinet<M, canDelete>();
+        }
+        return __storage->__table;
+    }
 
     /**
      * Pointer to the single instance of this class.
      */
-    static Cabinet<M>* __storage;
+    static Cabinet<M, canDelete>* __storage;
 
     /**
      * Vector to hold pointers to objects.
      */
     std::vector<M*> __table;
-
-    /**
-     * Set to false if 'clear' should not delete the entries.
-     */
-    bool _can_delete;
 };
 
 //! Declaration stating that the storage for the static member
-//! of each instanteated template will exist
+//! of each instantiated template will exist
 /*!
  *   The actual storage will be allocated in .cpp files
  */
 #ifdef NEEDS_GENERIC_TEMPL_STATIC_DECL
-template<class M>  Cabinet<M>*       Cabinet<M>::__storage;
+template<class M, bool canDelete> Cabinet<M, canDelete>* Cabinet<M, canDelete>::__storage;
 #endif
 
 #endif

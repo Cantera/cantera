@@ -22,24 +22,17 @@
 
 using namespace Cantera;
 
-// Assert that there is storage
-// for the templated classes' static member
-// (needed to compile on solaris)
-//template<> Cabinet<XML_Node> * Cabinet<XML_Node>::__storage;
+typedef Cabinet<XML_Node, false> XmlCabinet;
 
 inline XML_Node* _xml(const integer* n)
 {
-    return Cabinet<XML_Node>::cabinet()->item(*n);
+    return &XmlCabinet::item(*n);
 }
 
 inline ThermoPhase* _fph(const integer* n)
 {
     return th(*n);
 }
-
-//inline Kinetics* _fkin(const integer* n) {
-//    return kin(*n);
-//}
 
 static Kinetics* _fkin(const integer* n)
 {

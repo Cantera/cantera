@@ -7,7 +7,6 @@
 #include "cantera/numerics/Func1.h"
 #include "cantera/base/ctexceptions.h"
 
-
 #include "Cabinet.h"
 
 using namespace Cantera;
@@ -15,13 +14,9 @@ using namespace std;
 
 typedef Func1 func_t;
 
+typedef Cabinet<Func1> FuncCabinet;
 // Assign storage to the Cabinet<Func1> static member
-template<> Cabinet<func_t>*       Cabinet<func_t>::__storage = 0;
-
-inline func_t* _func(size_t i)
-{
-    return Cabinet<func_t>::cabinet()->item(i);
-}
+template<> FuncCabinet* FuncCabinet::__storage = 0;
 
 extern "C" {
 
@@ -67,31 +62,31 @@ extern "C" {
                                        "not enough Arrhenius coefficients");
                 r = new Arrhenius1(n, params);
             } else if (type == PeriodicFuncType) {
-                r = new Periodic1(*_func(n), params[0]);
+                r = new Periodic1(FuncCabinet::item(n), params[0]);
             } else if (type == SumFuncType) {
-                r = &newSumFunction(_func(n)->duplicate(),
-                                    _func(m)->duplicate());
+                r = &newSumFunction(FuncCabinet::item(n).duplicate(),
+                                    FuncCabinet::item(m).duplicate());
             } else if (type == DiffFuncType) {
-                r = &newDiffFunction(_func(n)->duplicate(),
-                                     _func(m)->duplicate());
+                r = &newDiffFunction(FuncCabinet::item(n).duplicate(),
+                                     FuncCabinet::item(m).duplicate());
             } else if (type == ProdFuncType) {
-                r = &newProdFunction(_func(n)->duplicate(),
-                                     _func(m)->duplicate());
+                r = &newProdFunction(FuncCabinet::item(n).duplicate(),
+                                     FuncCabinet::item(m).duplicate());
             } else if (type == RatioFuncType) {
-                r = &newRatioFunction(_func(n)->duplicate(),
-                                      _func(m)->duplicate());
+                r = &newRatioFunction(FuncCabinet::item(n).duplicate(),
+                                      FuncCabinet::item(m).duplicate());
             } else if (type == CompositeFuncType) {
-                r = &newCompositeFunction(_func(n)->duplicate(),
-                                          _func(m)->duplicate());
+                r = &newCompositeFunction(FuncCabinet::item(n).duplicate(),
+                                          FuncCabinet::item(m).duplicate());
             } else if (type == TimesConstantFuncType) {
-                r = &newTimesConstFunction(_func(n)->duplicate(), params[0]);
+                r = &newTimesConstFunction(FuncCabinet::item(n).duplicate(), params[0]);
             } else if (type == PlusConstantFuncType) {
-                r = &newPlusConstFunction(_func(n)->duplicate(), params[0]);
+                r = &newPlusConstFunction(FuncCabinet::item(n).duplicate(), params[0]);
             } else {
                 throw CanteraError("func_new","unknown function type");
                 r = new Func1();
             }
-            return Cabinet<func_t>::cabinet()->add(r);
+            return FuncCabinet::add(r);
         } catch (CanteraError) {
             return -1;
         }
@@ -100,44 +95,44 @@ extern "C" {
 
     int DLL_EXPORT func_del(int i)
     {
-        Cabinet<func_t>::cabinet()->del(i);
+        FuncCabinet::del(i);
         return 0;
     }
 
     int DLL_EXPORT func_copy(int i)
     {
-        return Cabinet<func_t>::cabinet()->newCopy(i);
+        return FuncCabinet::newCopy(i);
     }
 
     int DLL_EXPORT func_assign(int i, int j)
     {
-        return Cabinet<func_t>::cabinet()->assign(i,j);
+        return FuncCabinet::assign(i,j);
     }
 
     double DLL_EXPORT func_value(int i, double t)
     {
-        return _func(i)->eval(t);
+        return FuncCabinet::item(i).eval(t);
     }
 
     int DLL_EXPORT func_derivative(int i)
     {
         func_t* r = 0;
-        r = &_func(i)->derivative();
-        return Cabinet<func_t>::cabinet()->add(r);
+        r = &FuncCabinet::item(i).derivative();
+        return FuncCabinet::add(r);
     }
 
     int DLL_EXPORT func_duplicate(int i)
     {
         func_t* r = 0;
-        r = &_func(i)->duplicate();
-        return Cabinet<func_t>::cabinet()->add(r);
+        r = &FuncCabinet::item(i).duplicate();
+        return FuncCabinet::add(r);
     }
 
     int DLL_EXPORT func_write(int i, size_t lennm, const char* arg, char* nm)
     {
         try {
             std::string a = std::string(arg);
-            std::string w = _func(i)->write(a);
+            std::string w = FuncCabinet::item(i).write(a);
             size_t ws = w.size();
             size_t lout = (lennm > ws ? ws : lennm);
             std::copy(w.c_str(), w.c_str() + lout, nm);

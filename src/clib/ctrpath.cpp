@@ -4,9 +4,7 @@
 #define CANTERA_USE_INTERNAL
 #include "ctrpath.h"
 
-
 // Cantera includes
-
 #include "cantera/kinetics/ReactionPath.h"
 #include "Cabinet.h"
 #include "Storage.h"
@@ -14,23 +12,12 @@
 using namespace Cantera;
 using namespace std;
 
-typedef ReactionPathDiagram diag_t;
 typedef ReactionPathBuilder builder_t;
 
-
-template<> Cabinet<ReactionPathDiagram>*   Cabinet<ReactionPathDiagram>::__storage = 0;
-
-template<> Cabinet<builder_t>*             Cabinet<builder_t>::__storage = 0;
-
-inline ReactionPathDiagram* _diag(int i)
-{
-    return Cabinet<ReactionPathDiagram>::cabinet()->item(i);
-}
-
-inline builder_t* _builder(int i)
-{
-    return Cabinet<builder_t>::cabinet()->item(i);
-}
+typedef Cabinet<ReactionPathBuilder> BuilderCabinet;
+typedef Cabinet<ReactionPathDiagram> DiagramCabinet;
+template<> DiagramCabinet* DiagramCabinet::__storage = 0;
+template<> BuilderCabinet* BuilderCabinet::__storage = 0;
 
 inline Kinetics* _kin(int n)
 {
@@ -41,130 +28,130 @@ extern "C" {
 
     int DLL_EXPORT rdiag_new()
     {
-        diag_t* d = new ReactionPathDiagram();
-        return Cabinet<diag_t>::cabinet()->add(d);
+        ReactionPathDiagram* d = new ReactionPathDiagram();
+        return DiagramCabinet::add(d);
     }
 
     int DLL_EXPORT rdiag_del(int i)
     {
-        Cabinet<diag_t>::cabinet()->del(i);
+        DiagramCabinet::del(i);
         return 0;
     }
 
     int DLL_EXPORT rdiag_copy(int i)
     {
-        return Cabinet<diag_t>::cabinet()->newCopy(i);
+        return DiagramCabinet::newCopy(i);
     }
 
     int DLL_EXPORT rdiag_assign(int i, int j)
     {
-        return Cabinet<diag_t>::cabinet()->assign(i,j);
+        return DiagramCabinet::assign(i,j);
     }
 
     int DLL_EXPORT rdiag_detailed(int i)
     {
-        _diag(i)->show_details = true;
+        DiagramCabinet::item(i).show_details = true;
         return 0;
     }
 
     int DLL_EXPORT rdiag_brief(int i)
     {
-        _diag(i)->show_details = false;
+        DiagramCabinet::item(i).show_details = false;
         return 0;
     }
 
     int DLL_EXPORT rdiag_setThreshold(int i, double v)
     {
-        _diag(i)->threshold = v;
+        DiagramCabinet::item(i).threshold = v;
         return 0;
     }
 
     int DLL_EXPORT rdiag_setBoldColor(int i, char* color)
     {
-        _diag(i)->bold_color = string(color);
+        DiagramCabinet::item(i).bold_color = string(color);
         return 0;
     }
 
     int DLL_EXPORT rdiag_setNormalColor(int i, char* color)
     {
-        _diag(i)->normal_color = string(color);
+        DiagramCabinet::item(i).normal_color = string(color);
         return 0;
     }
 
     int DLL_EXPORT rdiag_setDashedColor(int i, char* color)
     {
-        _diag(i)->dashed_color = string(color);
+        DiagramCabinet::item(i).dashed_color = string(color);
         return 0;
     }
 
     int DLL_EXPORT rdiag_setDotOptions(int i, char* opt)
     {
-        _diag(i)->dot_options = string(opt);
+        DiagramCabinet::item(i).dot_options = string(opt);
         return 0;
     }
 
     int DLL_EXPORT rdiag_setFont(int i, char* font)
     {
-        _diag(i)->setFont(string(font));
+        DiagramCabinet::item(i).setFont(string(font));
         return 0;
     }
 
     int DLL_EXPORT rdiag_setBoldThreshold(int i, double v)
     {
-        _diag(i)->bold_min = v;
+        DiagramCabinet::item(i).bold_min = v;
         return 0;
     }
 
     int DLL_EXPORT rdiag_setNormalThreshold(int i, double v)
     {
-        _diag(i)->dashed_max = v;
+        DiagramCabinet::item(i).dashed_max = v;
         return 0;
     }
 
     int DLL_EXPORT rdiag_setLabelThreshold(int i, double v)
     {
-        _diag(i)->label_min = v;
+        DiagramCabinet::item(i).label_min = v;
         return 0;
     }
 
     int DLL_EXPORT rdiag_setScale(int i, double v)
     {
-        _diag(i)->scale = v;
+        DiagramCabinet::item(i).scale = v;
         return 0;
     }
 
     int DLL_EXPORT rdiag_setFlowType(int i, int iflow)
     {
         if (iflow == 0) {
-            _diag(i)->flow_type = OneWayFlow;
+            DiagramCabinet::item(i).flow_type = OneWayFlow;
         } else {
-            _diag(i)->flow_type = NetFlow;
+            DiagramCabinet::item(i).flow_type = NetFlow;
         }
         return 0;
     }
 
     int DLL_EXPORT rdiag_setArrowWidth(int i, double v)
     {
-        _diag(i)->arrow_width = v;
+        DiagramCabinet::item(i).arrow_width = v;
         return 0;
     }
 
     int DLL_EXPORT rdiag_setTitle(int i, char* title)
     {
-        _diag(i)->title = string(title);
+        DiagramCabinet::item(i).title = string(title);
         return 0;
     }
 
     int DLL_EXPORT rdiag_add(int i, int n)
     {
-        _diag(i)->add(*_diag(n));
+        DiagramCabinet::item(i).add(DiagramCabinet::item(n));
         return 0;
     }
 
     int DLL_EXPORT rdiag_findMajor(int i, double threshold,
                                    size_t lda, double* a)
     {
-        _diag(i)->findMajorPaths(threshold, lda, a);
+        DiagramCabinet::item(i).findMajorPaths(threshold, lda, a);
         return 0;
     }
 
@@ -172,9 +159,9 @@ extern "C" {
     {
         ofstream f(fname);
         if (fmt == 0) {
-            _diag(i)->exportToDot(f);
+            DiagramCabinet::item(i).exportToDot(f);
         } else {
-            _diag(i)->writeData(f);
+            DiagramCabinet::item(i).writeData(f);
         }
         f.close();
         return 0;
@@ -182,26 +169,26 @@ extern "C" {
 
     int DLL_EXPORT rdiag_displayOnly(int i, int k)
     {
-        _diag(i)->displayOnly(k);
+        DiagramCabinet::item(i).displayOnly(k);
         return 0;
     }
 
     int DLL_EXPORT rbuild_new()
     {
-        builder_t* d = new ReactionPathBuilder();
-        return Cabinet<builder_t>::cabinet()->add(d);
+        ReactionPathBuilder* d = new ReactionPathBuilder();
+        return BuilderCabinet::add(d);
     }
 
     int DLL_EXPORT rbuild_del(int i)
     {
-        Cabinet<builder_t>::cabinet()->del(i);
+        BuilderCabinet::del(i);
         return 0;
     }
 
     int DLL_EXPORT rbuild_init(int i, char* logfile, int k)
     {
         ofstream flog(logfile);
-        _builder(i)->init(flog, *_kin(k));
+        BuilderCabinet::item(i).init(flog, *_kin(k));
         return 0;
     }
 
@@ -213,7 +200,8 @@ extern "C" {
         if (iquiet > 0) {
             quiet = true;
         }
-        _builder(i)->build(*_kin(k), string(el), fdot, *_diag(idiag), quiet);
+        BuilderCabinet::item(i).build(*_kin(k), string(el), fdot,
+                                      DiagramCabinet::item(idiag), quiet);
         return 0;
     }
 

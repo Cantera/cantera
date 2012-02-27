@@ -15,12 +15,8 @@
 using namespace std;
 using namespace Cantera;
 
-template<> Cabinet<Bdry1D>*  Cabinet<Bdry1D>::__storage = 0;
-
-inline Bdry1D* _bndry(int i)
-{
-    return Cabinet<Bdry1D>::cabinet()->item(i);
-}
+typedef Cabinet<Bdry1D> BoundaryCabinet;
+template<> BoundaryCabinet*  BoundaryCabinet::__storage = 0;
 
 //inline Phase* _phase(int n) {
 //    return Storage::__storage->__phasetable[n];
@@ -57,25 +53,25 @@ extern "C" {
         default:
             return -2;
         }
-        int i = Cabinet<Bdry1D>::cabinet()->add(s);
+        int i = BoundaryCabinet::add(s);
         return i;
     }
 
     int DLL_EXPORT bndry_del(int i)
     {
-        Cabinet<Bdry1D>::cabinet()->del(i);
+        BoundaryCabinet::del(i);
         return 0;
     }
 
     double DLL_EXPORT bndry_temperature(int i)
     {
-        return _bndry(i)->temperature();
+        return BoundaryCabinet::item(i).temperature();
     }
 
     int DLL_EXPORT bndry_settemperature(int i, double t)
     {
         try {
-            _bndry(i)->setTemperature(t);
+            BoundaryCabinet::item(i).setTemperature(t);
         } catch (CanteraError) {
             return -1;
         }
@@ -85,7 +81,7 @@ extern "C" {
     double DLL_EXPORT bndry_spreadrate(int i)
     {
         try {
-            return ((Inlet1D*)_bndry(i))->spreadRate();
+            return dynamic_cast<Inlet1D*>(&BoundaryCabinet::item(i))->spreadRate();
         } catch (CanteraError) {
             return -1;
         }
@@ -95,7 +91,7 @@ extern "C" {
     int DLL_EXPORT bndry_setSpreadRate(int i, double v)
     {
         try {
-            ((Inlet1D*)_bndry(i))->setSpreadRate(v);
+            dynamic_cast<Inlet1D*>(&BoundaryCabinet::item(i))->setSpreadRate(v);
         } catch (CanteraError) {
             return -1;
         }
@@ -105,7 +101,7 @@ extern "C" {
     int DLL_EXPORT bndry_setmdot(int i, double mdot)
     {
         try {
-            _bndry(i)->setMdot(mdot);
+            BoundaryCabinet::item(i).setMdot(mdot);
         } catch (CanteraError) {
             return -1;
         }
@@ -115,14 +111,13 @@ extern "C" {
 
     double DLL_EXPORT bndry_mdot(int i)
     {
-        return _bndry(i)->mdot();
-        return 0;
+        return BoundaryCabinet::item(i).mdot();
     }
 
     int DLL_EXPORT bndry_setxin(int i, double* xin)
     {
         try {
-            _bndry(i)->setMoleFractions(xin);
+            BoundaryCabinet::item(i).setMoleFractions(xin);
         } catch (CanteraError) {
             return -1;
         }
@@ -132,7 +127,7 @@ extern "C" {
     int DLL_EXPORT bndry_setxinbyname(int i, char* xin)
     {
         try {
-            _bndry(i)->setMoleFractions(string(xin));
+            BoundaryCabinet::item(i).setMoleFractions(string(xin));
         } catch (CanteraError) {
             return -1;
         }
@@ -142,7 +137,7 @@ extern "C" {
     int DLL_EXPORT surf_setkinetics(int i, int j)
     {
         try {
-            ReactingSurf1D* srf = (ReactingSurf1D*)_bndry(i);
+            ReactingSurf1D* srf = dynamic_cast<ReactingSurf1D*>(&BoundaryCabinet::item(i));
             InterfaceKinetics* k = (InterfaceKinetics*)_kin(j);
             srf->setKineticsMgr(k);
         } catch (CanteraError) {
