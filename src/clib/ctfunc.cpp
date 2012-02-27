@@ -22,7 +22,7 @@ extern "C" {
 
     // functions
 
-    int DLL_EXPORT func_new(int type, size_t n, size_t lenp, double* params)
+    int func_new(int type, size_t n, size_t lenp, double* params)
     {
         func_t* r=0;
         size_t m = lenp;
@@ -93,42 +93,42 @@ extern "C" {
     }
 
 
-    int DLL_EXPORT func_del(int i)
+    int func_del(int i)
     {
         FuncCabinet::del(i);
         return 0;
     }
 
-    int DLL_EXPORT func_copy(int i)
+    int func_copy(int i)
     {
         return FuncCabinet::newCopy(i);
     }
 
-    int DLL_EXPORT func_assign(int i, int j)
+    int func_assign(int i, int j)
     {
         return FuncCabinet::assign(i,j);
     }
 
-    double DLL_EXPORT func_value(int i, double t)
+    double func_value(int i, double t)
     {
         return FuncCabinet::item(i).eval(t);
     }
 
-    int DLL_EXPORT func_derivative(int i)
+    int func_derivative(int i)
     {
         func_t* r = 0;
         r = &FuncCabinet::item(i).derivative();
         return FuncCabinet::add(r);
     }
 
-    int DLL_EXPORT func_duplicate(int i)
+    int func_duplicate(int i)
     {
         func_t* r = 0;
         r = &FuncCabinet::item(i).duplicate();
         return FuncCabinet::add(r);
     }
 
-    int DLL_EXPORT func_write(int i, size_t lennm, const char* arg, char* nm)
+    int func_write(int i, size_t lennm, const char* arg, char* nm)
     {
         try {
             std::string a = std::string(arg);

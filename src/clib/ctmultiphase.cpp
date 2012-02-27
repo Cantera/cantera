@@ -60,61 +60,61 @@ int _equilflag(const char* xy);
 
 extern "C" {
 
-    int DLL_EXPORT mix_new()
+    int mix_new()
     {
         MultiPhase* m = new MultiPhase;
         return mixCabinet::add(m);
     }
 
-    int DLL_EXPORT mix_del(int i)
+    int mix_del(int i)
     {
         mixCabinet::del(i);
         return 0;
     }
 
-    int DLL_EXPORT mix_copy(int i)
+    int mix_copy(int i)
     {
         return mixCabinet::newCopy(i);
     }
 
-    int DLL_EXPORT mix_assign(int i, int j)
+    int mix_assign(int i, int j)
     {
         return mixCabinet::assign(i,j);
     }
 
-    int DLL_EXPORT mix_addPhase(int i, int j, double moles)
+    int mix_addPhase(int i, int j, double moles)
     {
         mixCabinet::item(i).addPhase(&Cabinet<ThermoPhase>::item(j), moles);
         return 0;
     }
 
-    int DLL_EXPORT mix_init(int i)
+    int mix_init(int i)
     {
         mixCabinet::item(i).init();
         return 0;
     }
 
-    size_t DLL_EXPORT mix_nElements(int i)
+    size_t mix_nElements(int i)
     {
         return mixCabinet::item(i).nElements();
     }
 
-    size_t DLL_EXPORT mix_elementIndex(int i, char* name)
+    size_t mix_elementIndex(int i, char* name)
     {
         return mixCabinet::item(i).elementIndex(string(name));
     }
 
-    size_t DLL_EXPORT mix_nSpecies(int i)
+    size_t mix_nSpecies(int i)
     {
         return mixCabinet::item(i).nSpecies();
     }
 
-    size_t DLL_EXPORT mix_speciesIndex(int i, int k, int p)
+    size_t mix_speciesIndex(int i, int k, int p)
     {
         return mixCabinet::item(i).speciesIndex(k, p);
     }
 
-    doublereal DLL_EXPORT mix_nAtoms(int i, int k, int m)
+    doublereal mix_nAtoms(int i, int k, int m)
     {
         bool ok = (checkSpecies(i,k) && checkElement(i,m));
         if (ok) {
@@ -124,12 +124,12 @@ extern "C" {
         }
     }
 
-    size_t DLL_EXPORT mix_nPhases(int i)
+    size_t mix_nPhases(int i)
     {
         return mixCabinet::item(i).nPhases();
     }
 
-    doublereal DLL_EXPORT mix_phaseMoles(int i, int n)
+    doublereal mix_phaseMoles(int i, int n)
     {
         if (!checkPhase(i, n)) {
             return DERR;
@@ -137,7 +137,7 @@ extern "C" {
         return mixCabinet::item(i).phaseMoles(n);
     }
 
-    int DLL_EXPORT mix_setPhaseMoles(int i, int n, double v)
+    int mix_setPhaseMoles(int i, int n, double v)
     {
         if (!checkPhase(i, n)) {
             return ERR;
@@ -149,7 +149,7 @@ extern "C" {
         return 0;
     }
 
-    int DLL_EXPORT mix_setMoles(int i, size_t nlen, double* n)
+    int mix_setMoles(int i, size_t nlen, double* n)
     {
         try {
             if (nlen < mixCabinet::item(i).nSpecies()) {
@@ -163,7 +163,7 @@ extern "C" {
     }
 
 
-    int DLL_EXPORT mix_setMolesByName(int i, char* n)
+    int mix_setMolesByName(int i, char* n)
     {
         try {
             mixCabinet::item(i).setMolesByName(string(n));
@@ -173,7 +173,7 @@ extern "C" {
         }
     }
 
-    int DLL_EXPORT mix_setTemperature(int i, double t)
+    int mix_setTemperature(int i, double t)
     {
         if (t < 0.0) {
             return -1;
@@ -182,27 +182,27 @@ extern "C" {
         return 0;
     }
 
-    doublereal DLL_EXPORT mix_temperature(int i)
+    doublereal mix_temperature(int i)
     {
         return mixCabinet::item(i).temperature();
     }
 
-    doublereal DLL_EXPORT mix_minTemp(int i)
+    doublereal mix_minTemp(int i)
     {
         return mixCabinet::item(i).minTemp();
     }
 
-    doublereal DLL_EXPORT mix_maxTemp(int i)
+    doublereal mix_maxTemp(int i)
     {
         return mixCabinet::item(i).maxTemp();
     }
 
-    doublereal DLL_EXPORT mix_charge(int i)
+    doublereal mix_charge(int i)
     {
         return mixCabinet::item(i).charge();
     }
 
-    doublereal DLL_EXPORT mix_phaseCharge(int i, int p)
+    doublereal mix_phaseCharge(int i, int p)
     {
         if (!checkPhase(i,p)) {
             return DERR;
@@ -210,7 +210,7 @@ extern "C" {
         return mixCabinet::item(i).phaseCharge(p);
     }
 
-    int DLL_EXPORT mix_setPressure(int i, double p)
+    int mix_setPressure(int i, double p)
     {
         if (p < 0.0) {
             return -1;
@@ -219,12 +219,12 @@ extern "C" {
         return 0;
     }
 
-    doublereal DLL_EXPORT mix_pressure(int i)
+    doublereal mix_pressure(int i)
     {
         return mixCabinet::item(i).pressure();
     }
 
-    doublereal DLL_EXPORT mix_speciesMoles(int i, int k)
+    doublereal mix_speciesMoles(int i, int k)
     {
         if (!checkSpecies(i,k)) {
             return DERR;
@@ -232,7 +232,7 @@ extern "C" {
         return mixCabinet::item(i).speciesMoles(k);
     }
 
-    doublereal DLL_EXPORT mix_elementMoles(int i, int m)
+    doublereal mix_elementMoles(int i, int m)
     {
         if (!checkElement(i,m)) {
             return DERR;
@@ -241,7 +241,7 @@ extern "C" {
     }
 
 
-    doublereal DLL_EXPORT mix_equilibrate(int i, char* XY,
+    doublereal mix_equilibrate(int i, char* XY,
                                           doublereal rtol, int maxsteps,
                                           int maxiter, int loglevel)
     {
@@ -254,7 +254,7 @@ extern "C" {
     }
 
 
-    doublereal DLL_EXPORT mix_vcs_equilibrate(int i, char* XY, int estimateEquil,
+    doublereal mix_vcs_equilibrate(int i, char* XY, int estimateEquil,
             int printLvl, int solver,
             doublereal rtol, int maxsteps,
             int maxiter, int loglevel)
@@ -275,7 +275,7 @@ extern "C" {
         }
     }
 
-    int DLL_EXPORT mix_getChemPotentials(int i, size_t lenmu, double* mu)
+    int mix_getChemPotentials(int i, size_t lenmu, double* mu)
     {
         try {
             if (lenmu < mixCabinet::item(i).nSpecies()) {
@@ -288,7 +288,7 @@ extern "C" {
         }
     }
 
-    int DLL_EXPORT mix_getValidChemPotentials(int i, double bad_mu,
+    int mix_getValidChemPotentials(int i, double bad_mu,
             int standard, size_t lenmu, double* mu)
     {
         bool st = (standard == 1);
@@ -303,37 +303,37 @@ extern "C" {
         }
     }
 
-    double DLL_EXPORT mix_enthalpy(int i)
+    double mix_enthalpy(int i)
     {
         return mixCabinet::item(i).enthalpy();
     }
 
-    double DLL_EXPORT mix_entropy(int i)
+    double mix_entropy(int i)
     {
         return mixCabinet::item(i).entropy();
     }
 
-    double DLL_EXPORT mix_gibbs(int i)
+    double mix_gibbs(int i)
     {
         return mixCabinet::item(i).gibbs();
     }
 
-    double DLL_EXPORT mix_cp(int i)
+    double mix_cp(int i)
     {
         return mixCabinet::item(i).cp();
     }
 
-    double DLL_EXPORT mix_volume(int i)
+    double mix_volume(int i)
     {
         return mixCabinet::item(i).volume();
     }
 
-    size_t DLL_EXPORT mix_speciesPhaseIndex(int i, int k)
+    size_t mix_speciesPhaseIndex(int i, int k)
     {
         return mixCabinet::item(i).speciesPhaseIndex(k);
     }
 
-    double DLL_EXPORT mix_moleFraction(int i, int k)
+    double mix_moleFraction(int i, int k)
     {
         return mixCabinet::item(i).moleFraction(k);
     }

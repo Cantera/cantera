@@ -17,7 +17,7 @@
 #include "cantera/kinetics/InterfaceKinetics.h"
 #include "cantera/thermo/PureFluidPhase.h"
 
-#include "flib_defs.h"
+#include "clib/clib_defs.h"
 
 using namespace Cantera;
 
@@ -25,6 +25,8 @@ typedef Cabinet<XML_Node, false> XmlCabinet;
 typedef Cabinet<ThermoPhase> ThermoCabinet;
 typedef Cabinet<Kinetics> KineticsCabinet;
 typedef Cabinet<Transport> TransportCabinet;
+
+typedef integer status_t;
 
 inline XML_Node* _xml(const integer* n)
 {
@@ -95,7 +97,7 @@ extern "C" {
 
     //--------------- Phase ---------------------//
 
-    status_t DLL_EXPORT phase_getname_(const integer* n, char* nm,
+    status_t phase_getname_(const integer* n, char* nm,
                                        ftnlen lennm)
     {
         try {
@@ -112,84 +114,84 @@ extern "C" {
         }
     }
 
-    integer DLL_EXPORT phase_nelements_(const integer* n)
+    integer phase_nelements_(const integer* n)
     {
         return _fph(n)->nElements();
     }
 
-    integer DLL_EXPORT phase_nspecies_(const integer* n)
+    integer phase_nspecies_(const integer* n)
     {
         return _fph(n)->nSpecies();
     }
 
-    doublereal DLL_EXPORT phase_temperature_(const integer* n)
+    doublereal phase_temperature_(const integer* n)
     {
         return _fph(n)->temperature();
     }
 
-    status_t DLL_EXPORT phase_settemperature_(const integer* n, doublereal* t)
+    status_t phase_settemperature_(const integer* n, doublereal* t)
     {
         _fph(n)->setTemperature(*t);
         return 0;
     }
 
-    doublereal DLL_EXPORT phase_density_(const integer* n)
+    doublereal phase_density_(const integer* n)
     {
         return _fph(n)->density();
     }
 
-    status_t DLL_EXPORT phase_setdensity_(const integer* n, doublereal* rho)
+    status_t phase_setdensity_(const integer* n, doublereal* rho)
     {
         _fph(n)->setDensity(*rho);
         return 0;
     }
 
-    doublereal DLL_EXPORT phase_molardensity_(const integer* n)
+    doublereal phase_molardensity_(const integer* n)
     {
         return _fph(n)->molarDensity();
     }
 
-    doublereal DLL_EXPORT phase_meanmolecularweight_(const integer* n)
+    doublereal phase_meanmolecularweight_(const integer* n)
     {
         return _fph(n)->meanMolecularWeight();
     }
 
-    integer DLL_EXPORT phase_elementindex_(const integer* n, char* nm, ftnlen lennm)
+    integer phase_elementindex_(const integer* n, char* nm, ftnlen lennm)
     {
         std::string elnm = f2string(nm, lennm);
         return _fph(n)->elementIndex(elnm) + 1;
     }
 
-    integer DLL_EXPORT phase_speciesindex_(const integer* n, char* nm, ftnlen lennm)
+    integer phase_speciesindex_(const integer* n, char* nm, ftnlen lennm)
     {
         std::string spnm = f2string(nm, lennm);
         return _fph(n)->speciesIndex(spnm) + 1;
     }
 
-    status_t DLL_EXPORT phase_getmolefractions_(const integer* n, doublereal* x)
+    status_t phase_getmolefractions_(const integer* n, doublereal* x)
     {
         _fph(n)->getMoleFractions(x);
         return 0;
     }
 
-    doublereal DLL_EXPORT phase_molefraction_(const integer* n, integer* k)
+    doublereal phase_molefraction_(const integer* n, integer* k)
     {
         return _fph(n)->moleFraction(*k-1);
     }
 
-    status_t DLL_EXPORT phase_getmassfractions_(const integer* n, doublereal* y)
+    status_t phase_getmassfractions_(const integer* n, doublereal* y)
     {
         ThermoPhase* p = _fph(n);
         p->getMassFractions(y);
         return 0;
     }
 
-    doublereal DLL_EXPORT phase_massfraction_(const integer* n, integer* k)
+    doublereal phase_massfraction_(const integer* n, integer* k)
     {
         return _fph(n)->massFraction(*k-1);
     }
 
-    status_t DLL_EXPORT phase_setmolefractions_(const integer* n, double* x, const integer* norm)
+    status_t phase_setmolefractions_(const integer* n, double* x, const integer* norm)
     {
         ThermoPhase* p = _fph(n);
         if (*norm) {
@@ -200,7 +202,7 @@ extern "C" {
         return 0;
     }
 
-    status_t DLL_EXPORT phase_setmolefractionsbyname_(const integer* n, char* x, ftnlen lx)
+    status_t phase_setmolefractionsbyname_(const integer* n, char* x, ftnlen lx)
     {
         try {
             ThermoPhase* p = _fph(n);
@@ -218,7 +220,7 @@ extern "C" {
         }
     }
 
-    status_t DLL_EXPORT phase_setmassfractions_(const integer* n, doublereal* y, const integer* norm)
+    status_t phase_setmassfractions_(const integer* n, doublereal* y, const integer* norm)
     {
         ThermoPhase* p = _fph(n);
         if (*norm) {
@@ -229,7 +231,7 @@ extern "C" {
         return 0;
     }
 
-    status_t DLL_EXPORT phase_setmassfractionsbyname_(const integer* n, char* y, ftnlen leny)
+    status_t phase_setmassfractionsbyname_(const integer* n, char* y, ftnlen leny)
     {
         try {
             ThermoPhase* p = _fph(n);
@@ -247,7 +249,7 @@ extern "C" {
         }
     }
 
-    status_t DLL_EXPORT phase_getatomicweights_(const integer* n, doublereal* atw)
+    status_t phase_getatomicweights_(const integer* n, doublereal* atw)
     {
         ThermoPhase* p = _fph(n);
         const vector_fp& wt = p->atomicWeights();
@@ -255,7 +257,7 @@ extern "C" {
         return 0;
     }
 
-    status_t DLL_EXPORT phase_getmolecularweights_(const integer* n, doublereal* mw)
+    status_t phase_getmolecularweights_(const integer* n, doublereal* mw)
     {
         ThermoPhase* p = _fph(n);
         const vector_fp& wt = p->molecularWeights();
@@ -264,7 +266,7 @@ extern "C" {
     }
 
 
-    status_t DLL_EXPORT phase_getspeciesname_(const integer* n, integer* k, char* nm, ftnlen lennm)
+    status_t phase_getspeciesname_(const integer* n, integer* k, char* nm, ftnlen lennm)
     {
         try {
             std::string spnm = _fph(n)->speciesName(*k-1);
@@ -280,7 +282,7 @@ extern "C" {
         }
     }
 
-    status_t DLL_EXPORT phase_getelementname_(const integer* n, integer* m, char* nm, ftnlen lennm)
+    status_t phase_getelementname_(const integer* n, integer* m, char* nm, ftnlen lennm)
     {
         try {
             std::string elnm = _fph(n)->elementName(*m-1);
@@ -297,7 +299,7 @@ extern "C" {
     }
 
 
-    doublereal DLL_EXPORT phase_natoms_(const integer* n, integer* k, integer* m)
+    doublereal phase_natoms_(const integer* n, integer* k, integer* m)
     {
         try {
             return _fph(n)->nAtoms(*k-1,*m-1);
@@ -312,7 +314,7 @@ extern "C" {
 
     //-------------- Thermo --------------------//
 
-    integer DLL_EXPORT newthermofromxml_(integer* mxml)
+    integer newthermofromxml_(integer* mxml)
     {
         try {
             XML_Node* x = _xml(mxml);
@@ -324,17 +326,17 @@ extern "C" {
         }
     }
 
-    integer DLL_EXPORT th_nspecies_(const integer* n)
+    integer th_nspecies_(const integer* n)
     {
         return _fth(n)->nSpecies();
     }
 
-    integer DLL_EXPORT th_eostype_(const integer* n)
+    integer th_eostype_(const integer* n)
     {
         return _fth(n)->eosType();
     }
 
-    doublereal DLL_EXPORT th_enthalpy_mole_(const integer* n)
+    doublereal th_enthalpy_mole_(const integer* n)
     {
         try {
             return _fth(n)->enthalpy_mole();
@@ -344,7 +346,7 @@ extern "C" {
         }
     }
 
-    doublereal DLL_EXPORT th_intenergy_mole_(const integer* n)
+    doublereal th_intenergy_mole_(const integer* n)
     {
         try {
             return _fth(n)->intEnergy_mole();
@@ -354,7 +356,7 @@ extern "C" {
         }
     }
 
-    doublereal DLL_EXPORT th_entropy_mole_(const integer* n)
+    doublereal th_entropy_mole_(const integer* n)
     {
         try {
             return _fth(n)->entropy_mole();
@@ -364,7 +366,7 @@ extern "C" {
         }
     }
 
-    doublereal DLL_EXPORT th_gibbs_mole_(const integer* n)
+    doublereal th_gibbs_mole_(const integer* n)
     {
         try {
             return _fth(n)->gibbs_mole();
@@ -374,7 +376,7 @@ extern "C" {
         }
     }
 
-    doublereal DLL_EXPORT th_cp_mole_(const integer* n)
+    doublereal th_cp_mole_(const integer* n)
     {
         try {
             return _fth(n)->cp_mole();
@@ -384,7 +386,7 @@ extern "C" {
         }
     }
 
-    doublereal DLL_EXPORT th_cv_mole_(const integer* n)
+    doublereal th_cv_mole_(const integer* n)
     {
         try {
             return _fth(n)->cv_mole();
@@ -394,7 +396,7 @@ extern "C" {
         }
     }
 
-    doublereal DLL_EXPORT th_pressure_(const integer* n)
+    doublereal th_pressure_(const integer* n)
     {
         try {
             return _fth(n)->pressure();
@@ -404,7 +406,7 @@ extern "C" {
         }
     }
 
-    doublereal DLL_EXPORT th_enthalpy_mass_(const integer* n)
+    doublereal th_enthalpy_mass_(const integer* n)
     {
         try {
             return _fth(n)->enthalpy_mass();
@@ -414,7 +416,7 @@ extern "C" {
         }
     }
 
-    doublereal DLL_EXPORT th_intenergy_mass_(const integer* n)
+    doublereal th_intenergy_mass_(const integer* n)
     {
         try {
             return _fth(n)->intEnergy_mass();
@@ -424,7 +426,7 @@ extern "C" {
         }
     }
 
-    doublereal DLL_EXPORT th_entropy_mass_(const integer* n)
+    doublereal th_entropy_mass_(const integer* n)
     {
         try {
             return _fth(n)->entropy_mass();
@@ -434,7 +436,7 @@ extern "C" {
         }
     }
 
-    doublereal DLL_EXPORT th_gibbs_mass_(const integer* n)
+    doublereal th_gibbs_mass_(const integer* n)
     {
         try {
             return _fth(n)->gibbs_mass();
@@ -444,7 +446,7 @@ extern "C" {
         }
     }
 
-    doublereal DLL_EXPORT th_cp_mass_(const integer* n)
+    doublereal th_cp_mass_(const integer* n)
     {
         try {
             return _fth(n)->cp_mass();
@@ -454,7 +456,7 @@ extern "C" {
         }
     }
 
-    doublereal DLL_EXPORT th_cv_mass_(const integer* n)
+    doublereal th_cv_mass_(const integer* n)
     {
         try {
             return _fth(n)->cv_mass();
@@ -464,14 +466,14 @@ extern "C" {
         }
     }
 
-    status_t DLL_EXPORT th_chempotentials_(const integer* n, doublereal* murt)
+    status_t th_chempotentials_(const integer* n, doublereal* murt)
     {
         thermo_t* thrm = _fth(n);
         thrm->getChemPotentials(murt);
         return 0;
     }
 
-    status_t DLL_EXPORT th_setpressure_(const integer* n, doublereal* p)
+    status_t th_setpressure_(const integer* n, doublereal* p)
     {
         try {
             _fth(n)->setPressure(*p);
@@ -482,7 +484,7 @@ extern "C" {
         }
     }
 
-    status_t DLL_EXPORT th_set_hp_(const integer* n, doublereal* v1, doublereal* v2)
+    status_t th_set_hp_(const integer* n, doublereal* v1, doublereal* v2)
     {
         try {
             _fth(n)->setState_HP(*v1, *v2);
@@ -493,7 +495,7 @@ extern "C" {
         }
     }
 
-    status_t DLL_EXPORT th_set_uv_(const integer* n, doublereal* v1, doublereal* v2)
+    status_t th_set_uv_(const integer* n, doublereal* v1, doublereal* v2)
     {
         try {
             _fth(n)->setState_UV(*v1, *v2);
@@ -504,7 +506,7 @@ extern "C" {
         }
     }
 
-    status_t DLL_EXPORT th_set_sv_(const integer* n, doublereal* v1, doublereal* v2)
+    status_t th_set_sv_(const integer* n, doublereal* v1, doublereal* v2)
     {
         try {
             _fth(n)->setState_SV(*v1, *v2);
@@ -515,7 +517,7 @@ extern "C" {
         }
     }
 
-    status_t DLL_EXPORT th_set_sp_(const integer* n, doublereal* v1, doublereal* v2)
+    status_t th_set_sp_(const integer* n, doublereal* v1, doublereal* v2)
     {
         try {
             _fth(n)->setState_SP(*v1, *v2);
@@ -526,7 +528,7 @@ extern "C" {
         }
     }
 
-    status_t DLL_EXPORT th_equil_(const integer* n, char* XY, ftnlen lenxy)
+    status_t th_equil_(const integer* n, char* XY, ftnlen lenxy)
     {
         try {
             equilibrate(*_fth(n), f2string(XY,lenxy).c_str());
@@ -537,37 +539,37 @@ extern "C" {
         }
     }
 
-    doublereal DLL_EXPORT th_refpressure_(const integer* n)
+    doublereal th_refpressure_(const integer* n)
     {
         return _fth(n)->refPressure();
     }
 
-    doublereal DLL_EXPORT th_mintemp_(const integer* n, integer* k)
+    doublereal th_mintemp_(const integer* n, integer* k)
     {
         return _fth(n)->minTemp(*k-1);
     }
 
-    doublereal DLL_EXPORT th_maxtemp_(const integer* n, integer* k)
+    doublereal th_maxtemp_(const integer* n, integer* k)
     {
         return _fth(n)->maxTemp(*k-1);
     }
 
 
-    status_t DLL_EXPORT th_getenthalpies_rt_(const integer* n, doublereal* h_rt)
+    status_t th_getenthalpies_rt_(const integer* n, doublereal* h_rt)
     {
         thermo_t* thrm = _fth(n);
         thrm->getEnthalpy_RT(h_rt);
         return 0;
     }
 
-    status_t DLL_EXPORT th_getentropies_r_(const integer* n, doublereal* s_r)
+    status_t th_getentropies_r_(const integer* n, doublereal* s_r)
     {
         thermo_t* thrm = _fth(n);
         thrm->getEntropy_R(s_r);
         return 0;
     }
 
-    status_t DLL_EXPORT th_getcp_r_(const integer* n, integer* lenm, doublereal* cp_r)
+    status_t th_getcp_r_(const integer* n, integer* lenm, doublereal* cp_r)
     {
         thermo_t* thrm = _fth(n);
         thrm->getCp_R(cp_r);
@@ -577,7 +579,7 @@ extern "C" {
 
     //-------------- Kinetics ------------------//
 
-    integer DLL_EXPORT newkineticsfromxml_(integer* mxml, integer* iphase,
+    integer newkineticsfromxml_(integer* mxml, integer* iphase,
                                            const integer* neighbor1, const integer* neighbor2, const integer* neighbor3,
                                            const integer* neighbor4)
     {
@@ -610,7 +612,7 @@ extern "C" {
         }
     }
 
-    //     status_t DLL_EXPORT installRxnArrays_(integer* pxml, integer* ikin,
+    //     status_t installRxnArrays_(integer* pxml, integer* ikin,
     //         char* default_phase) {
     //         try {
     //             XML_Node* p = _xml(pxml);
@@ -623,17 +625,17 @@ extern "C" {
     //     }
 
     //-------------------------------------
-    integer DLL_EXPORT kin_type_(const integer* n)
+    integer kin_type_(const integer* n)
     {
         return _fkin(n)->type();
     }
 
-    integer DLL_EXPORT kin_start_(const integer* n, integer* p)
+    integer kin_start_(const integer* n, integer* p)
     {
         return _fkin(n)->start(*p)+1;
     }
 
-    integer DLL_EXPORT kin_speciesindex_(const integer* n, const char* nm, const char* ph,
+    integer kin_speciesindex_(const integer* n, const char* nm, const char* ph,
                                          ftnlen lennm, ftnlen lenph)
     {
         return _fkin(n)->kineticsSpeciesIndex(f2string(nm, lennm), f2string(ph, lenph))+1;
@@ -641,43 +643,43 @@ extern "C" {
 
     //---------------------------------------
 
-    integer DLL_EXPORT kin_ntotalspecies_(const integer* n)
+    integer kin_ntotalspecies_(const integer* n)
     {
         return _fkin(n)->nTotalSpecies();
     }
 
-    integer DLL_EXPORT kin_nreactions_(const integer* n)
+    integer kin_nreactions_(const integer* n)
     {
         return _fkin(n)->nReactions();
     }
 
-    integer DLL_EXPORT kin_nphases_(const integer* n)
+    integer kin_nphases_(const integer* n)
     {
         return _fkin(n)->nPhases();
     }
 
-    integer DLL_EXPORT kin_phaseindex_(const integer* n, const char* ph,
+    integer kin_phaseindex_(const integer* n, const char* ph,
                                        ftnlen lenph)
     {
         return _fkin(n)->phaseIndex(f2string(ph, lenph));
     }
 
-    doublereal DLL_EXPORT kin_reactantstoichcoeff_(const integer* n, integer* k, integer* i)
+    doublereal kin_reactantstoichcoeff_(const integer* n, integer* k, integer* i)
     {
         return _fkin(n)->reactantStoichCoeff(*k-1,*i-1);
     }
 
-    doublereal DLL_EXPORT kin_productstoichcoeff_(const integer* n, integer* k, integer* i)
+    doublereal kin_productstoichcoeff_(const integer* n, integer* k, integer* i)
     {
         return _fkin(n)->productStoichCoeff(*k-1,*i-1);
     }
 
-    integer DLL_EXPORT kin_reactiontype_(const integer* n, integer* i)
+    integer kin_reactiontype_(const integer* n, integer* i)
     {
         return _fkin(n)->reactionType(*i-1);
     }
 
-    status_t DLL_EXPORT kin_getfwdratesofprogress_(const integer* n, doublereal* fwdROP)
+    status_t kin_getfwdratesofprogress_(const integer* n, doublereal* fwdROP)
     {
         Kinetics* k = _fkin(n);
         try {
@@ -689,7 +691,7 @@ extern "C" {
         }
     }
 
-    status_t DLL_EXPORT kin_getrevratesofprogress_(const integer* n, doublereal* revROP)
+    status_t kin_getrevratesofprogress_(const integer* n, doublereal* revROP)
     {
         Kinetics* k = _fkin(n);
         try {
@@ -701,12 +703,12 @@ extern "C" {
         }
     }
 
-    integer DLL_EXPORT kin_isreversible_(const integer* n, integer* i)
+    integer kin_isreversible_(const integer* n, integer* i)
     {
         return (int)_fkin(n)->isReversible(*i);
     }
 
-    status_t DLL_EXPORT kin_getnetratesofprogress_(const integer* n, doublereal* netROP)
+    status_t kin_getnetratesofprogress_(const integer* n, doublereal* netROP)
     {
         try {
             Kinetics* k = _fkin(n);
@@ -718,7 +720,7 @@ extern "C" {
         }
     }
 
-    status_t DLL_EXPORT kin_getcreationrates_(const integer* n, doublereal* cdot)
+    status_t kin_getcreationrates_(const integer* n, doublereal* cdot)
     {
         try {
             Kinetics* k = _fkin(n);
@@ -730,7 +732,7 @@ extern "C" {
         }
     }
 
-    status_t DLL_EXPORT kin_getdestructionrates_(const integer* n, doublereal* ddot)
+    status_t kin_getdestructionrates_(const integer* n, doublereal* ddot)
     {
         try {
             Kinetics* k = _fkin(n);
@@ -742,7 +744,7 @@ extern "C" {
         }
     }
 
-    status_t DLL_EXPORT kin_getnetproductionrates_(const integer* n, doublereal* wdot)
+    status_t kin_getnetproductionrates_(const integer* n, doublereal* wdot)
     {
         try {
             Kinetics* k = _fkin(n);
@@ -754,12 +756,12 @@ extern "C" {
         }
     }
 
-    doublereal DLL_EXPORT kin_multiplier_(const integer* n, integer* i)
+    doublereal kin_multiplier_(const integer* n, integer* i)
     {
         return _fkin(n)->multiplier(*i);
     }
 
-    status_t DLL_EXPORT kin_getequilibriumconstants_(const integer* n, doublereal* kc)
+    status_t kin_getequilibriumconstants_(const integer* n, doublereal* kc)
     {
         try {
             Kinetics* k = _fkin(n);
@@ -771,7 +773,7 @@ extern "C" {
         }
     }
 
-    status_t DLL_EXPORT kin_getreactionstring_(const integer* n, integer* i, char* buf, ftnlen lenbuf)
+    status_t kin_getreactionstring_(const integer* n, integer* i, char* buf, ftnlen lenbuf)
     {
         try {
             Kinetics* k = _fkin(n);
@@ -788,7 +790,7 @@ extern "C" {
         }
     }
 
-    status_t DLL_EXPORT kin_setmultiplier_(const integer* n, integer* i, doublereal* v)
+    status_t kin_setmultiplier_(const integer* n, integer* i, doublereal* v)
     {
         try {
             _fkin(n)->setMultiplier(*i-1,*v);
@@ -799,7 +801,7 @@ extern "C" {
         }
     }
 
-    status_t DLL_EXPORT kin_advancecoverages_(const integer* n, doublereal* tstep)
+    status_t kin_advancecoverages_(const integer* n, doublereal* tstep)
     {
         try {
             Kinetics* k = _fkin(n);
@@ -818,7 +820,7 @@ extern "C" {
 
     //------------------- Transport ---------------------------
 
-    integer DLL_EXPORT newtransport_(char* model,
+    integer newtransport_(char* model,
                                      integer* ith, integer* loglevel, ftnlen lenmodel)
     {
         std::string mstr = f2string(model, lenmodel);
@@ -832,7 +834,7 @@ extern "C" {
         }
     }
 
-    doublereal DLL_EXPORT trans_viscosity_(const integer* n)
+    doublereal trans_viscosity_(const integer* n)
     {
         try {
             return _ftrans(n)->viscosity();
@@ -842,7 +844,7 @@ extern "C" {
         }
     }
 
-    doublereal DLL_EXPORT trans_thermalconductivity_(const integer* n)
+    doublereal trans_thermalconductivity_(const integer* n)
     {
         try {
             return _ftrans(n)->thermalConductivity();
@@ -852,7 +854,7 @@ extern "C" {
         }
     }
 
-    status_t DLL_EXPORT trans_getthermaldiffcoeffs_(const integer* n, doublereal* dt)
+    status_t trans_getthermaldiffcoeffs_(const integer* n, doublereal* dt)
     {
         try {
             _ftrans(n)->getThermalDiffCoeffs(dt);
@@ -863,7 +865,7 @@ extern "C" {
         }
     }
 
-    status_t DLL_EXPORT trans_getmixdiffcoeffs_(const integer* n, doublereal* d)
+    status_t trans_getmixdiffcoeffs_(const integer* n, doublereal* d)
     {
         try {
             _ftrans(n)->getMixDiffCoeffs(d);
@@ -874,7 +876,7 @@ extern "C" {
         }
     }
 
-    status_t DLL_EXPORT trans_getbindiffcoeffs_(const integer* n, integer* ld, doublereal* d)
+    status_t trans_getbindiffcoeffs_(const integer* n, integer* ld, doublereal* d)
     {
         try {
             _ftrans(n)->getBinaryDiffCoeffs(*ld,d);
@@ -885,7 +887,7 @@ extern "C" {
         }
     }
 
-    status_t DLL_EXPORT trans_getmultidiffcoeffs_(const integer* n, integer* ld, doublereal* d)
+    status_t trans_getmultidiffcoeffs_(const integer* n, integer* ld, doublereal* d)
     {
         try {
             _ftrans(n)->getMultiDiffCoeffs(*ld,d);
@@ -896,7 +898,7 @@ extern "C" {
         }
     }
 
-    status_t DLL_EXPORT trans_setparameters_(const integer* n, integer* type, integer* k, doublereal* d)
+    status_t trans_setparameters_(const integer* n, integer* type, integer* k, doublereal* d)
     {
         try {
             _ftrans(n)->setParameters(*type, *k, d);
@@ -909,7 +911,7 @@ extern "C" {
 
     //-------------------- Functions ---------------------------
 
-    //     status_t DLL_EXPORT import_phase_(const integer* nth, const integer* nxml, char* id, ftnlen lenid) {
+    //     status_t import_phase_(const integer* nth, const integer* nxml, char* id, ftnlen lenid) {
     //         thermo_t* thrm = th(nth);
     //         XML_Node* node = _xml(nxml);
     //         string idstr = f2string(id, lenid);
@@ -920,7 +922,7 @@ extern "C" {
     //         catch (CanteraError) { handleError(); return -1; }
     //     }
 
-    //     status_t DLL_EXPORT import_kinetics_(const integer* nxml, char* id,
+    //     status_t import_kinetics_(const integer* nxml, char* id,
     //         const integer* nphases, integer* ith, const integer* nkin, ftnlen lenid) {
     //         vector<thermo_t*> phases;
     //         for (int i = 0; i < nphases; i++) {
@@ -937,7 +939,7 @@ extern "C" {
     //     }
 
 
-    status_t DLL_EXPORT ctphase_report_(const integer* nth,
+    status_t ctphase_report_(const integer* nth,
                                         char* buf, integer* show_thermo, ftnlen buflen)
     {
         try {
@@ -958,7 +960,7 @@ extern "C" {
         }
     }
 
-    status_t DLL_EXPORT ctgetcanteraerror_(char* buf, ftnlen buflen)
+    status_t ctgetcanteraerror_(char* buf, ftnlen buflen)
     {
         std::string e; // = "<no error>";
         //if (nErrors() > 0)
@@ -971,14 +973,14 @@ extern "C" {
         return 0;
     }
 
-    status_t DLL_EXPORT ctaddcanteradirectory_(integer* buflen, char* buf)
+    status_t ctaddcanteradirectory_(integer* buflen, char* buf)
     {
         addDirectory(std::string(buf));
         return 0;
     }
 
 
-    status_t DLL_EXPORT ctbuildsolutionfromxml(char* src, integer* ixml, char* id,
+    status_t ctbuildsolutionfromxml(char* src, integer* ixml, char* id,
             integer* ith, integer* ikin, ftnlen lensrc, ftnlen lenid)
     {
 

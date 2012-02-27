@@ -8,32 +8,32 @@
 
 extern "C" {
 
-    EEXXTT int DLL_CPREFIX rdiag_new();
-    EEXXTT int DLL_CPREFIX rdiag_del(int i);
-    EEXXTT int DLL_CPREFIX rdiag_detailed(int i);
-    EEXXTT int DLL_CPREFIX rdiag_brief(int i);
-    EEXXTT int DLL_CPREFIX rdiag_setThreshold(int i, double v);
-    EEXXTT int DLL_CPREFIX rdiag_setBoldColor(int i, char* color);
-    EEXXTT int DLL_CPREFIX rdiag_setNormalColor(int i, char* color);
-    EEXXTT int DLL_CPREFIX rdiag_setDashedColor(int i, char* color);
-    EEXXTT int DLL_CPREFIX rdiag_setDotOptions(int i, char* opt);
-    EEXXTT int DLL_CPREFIX rdiag_setBoldThreshold(int i, double v);
-    EEXXTT int DLL_CPREFIX rdiag_setNormalThreshold(int i, double v);
-    EEXXTT int DLL_CPREFIX rdiag_setLabelThreshold(int i, double v);
-    EEXXTT int DLL_CPREFIX rdiag_setScale(int i, double v);
-    EEXXTT int DLL_CPREFIX rdiag_setFlowType(int i, int iflow);
-    EEXXTT int DLL_CPREFIX rdiag_setArrowWidth(int i, double v);
-    EEXXTT int DLL_CPREFIX rdiag_setTitle(int i, char* title);
-    EEXXTT int DLL_CPREFIX rdiag_write(int i, int fmt, char* fname);
-    EEXXTT int DLL_CPREFIX rdiag_add(int i, int n);
-    EEXXTT int DLL_CPREFIX rdiag_findMajor(int i, double threshold, size_t lda, double* a);
-    EEXXTT int DLL_CPREFIX rdiag_setFont(int i, char* font);
-    EEXXTT int DLL_CPREFIX rdiag_displayOnly(int i, int k);
+    CANTERA_CAPI int rdiag_new();
+    CANTERA_CAPI int rdiag_del(int i);
+    CANTERA_CAPI int rdiag_detailed(int i);
+    CANTERA_CAPI int rdiag_brief(int i);
+    CANTERA_CAPI int rdiag_setThreshold(int i, double v);
+    CANTERA_CAPI int rdiag_setBoldColor(int i, char* color);
+    CANTERA_CAPI int rdiag_setNormalColor(int i, char* color);
+    CANTERA_CAPI int rdiag_setDashedColor(int i, char* color);
+    CANTERA_CAPI int rdiag_setDotOptions(int i, char* opt);
+    CANTERA_CAPI int rdiag_setBoldThreshold(int i, double v);
+    CANTERA_CAPI int rdiag_setNormalThreshold(int i, double v);
+    CANTERA_CAPI int rdiag_setLabelThreshold(int i, double v);
+    CANTERA_CAPI int rdiag_setScale(int i, double v);
+    CANTERA_CAPI int rdiag_setFlowType(int i, int iflow);
+    CANTERA_CAPI int rdiag_setArrowWidth(int i, double v);
+    CANTERA_CAPI int rdiag_setTitle(int i, char* title);
+    CANTERA_CAPI int rdiag_write(int i, int fmt, char* fname);
+    CANTERA_CAPI int rdiag_add(int i, int n);
+    CANTERA_CAPI int rdiag_findMajor(int i, double threshold, size_t lda, double* a);
+    CANTERA_CAPI int rdiag_setFont(int i, char* font);
+    CANTERA_CAPI int rdiag_displayOnly(int i, int k);
 
-    EEXXTT int DLL_CPREFIX rbuild_new();
-    EEXXTT int DLL_CPREFIX rbuild_del(int i);
-    EEXXTT int DLL_CPREFIX rbuild_init(int i, char* logfile, int k);
-    EEXXTT int DLL_CPREFIX rbuild_build(int i, int k, char* el, char* dotfile,
+    CANTERA_CAPI int rbuild_new();
+    CANTERA_CAPI int rbuild_del(int i);
+    CANTERA_CAPI int rbuild_init(int i, char* logfile, int k);
+    CANTERA_CAPI int rbuild_build(int i, int k, char* el, char* dotfile,
                                         int idiag, int iquiet);
 }
 

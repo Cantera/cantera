@@ -18,7 +18,7 @@ template<> BoundaryCabinet* BoundaryCabinet::__storage = 0;
 
 extern "C" {
 
-    int DLL_EXPORT bndry_new(int itype)
+    int bndry_new(int itype)
     {
         Bdry1D* s;
         switch (itype) {
@@ -41,18 +41,18 @@ extern "C" {
         return i;
     }
 
-    int DLL_EXPORT bndry_del(int i)
+    int bndry_del(int i)
     {
         BoundaryCabinet::del(i);
         return 0;
     }
 
-    double DLL_EXPORT bndry_temperature(int i)
+    double bndry_temperature(int i)
     {
         return BoundaryCabinet::item(i).temperature();
     }
 
-    int DLL_EXPORT bndry_settemperature(int i, double t)
+    int bndry_settemperature(int i, double t)
     {
         try {
             BoundaryCabinet::item(i).setTemperature(t);
@@ -62,7 +62,7 @@ extern "C" {
         return 0;
     }
 
-    double DLL_EXPORT bndry_spreadrate(int i)
+    double bndry_spreadrate(int i)
     {
         try {
             return dynamic_cast<Inlet1D*>(&BoundaryCabinet::item(i))->spreadRate();
@@ -72,7 +72,7 @@ extern "C" {
         return 0;
     }
 
-    int DLL_EXPORT bndry_setSpreadRate(int i, double v)
+    int bndry_setSpreadRate(int i, double v)
     {
         try {
             dynamic_cast<Inlet1D*>(&BoundaryCabinet::item(i))->setSpreadRate(v);
@@ -82,7 +82,7 @@ extern "C" {
         return 0;
     }
 
-    int DLL_EXPORT bndry_setmdot(int i, double mdot)
+    int bndry_setmdot(int i, double mdot)
     {
         try {
             BoundaryCabinet::item(i).setMdot(mdot);
@@ -93,12 +93,12 @@ extern "C" {
     }
 
 
-    double DLL_EXPORT bndry_mdot(int i)
+    double bndry_mdot(int i)
     {
         return BoundaryCabinet::item(i).mdot();
     }
 
-    int DLL_EXPORT bndry_setxin(int i, double* xin)
+    int bndry_setxin(int i, double* xin)
     {
         try {
             BoundaryCabinet::item(i).setMoleFractions(xin);
@@ -108,7 +108,7 @@ extern "C" {
         return 0;
     }
 
-    int DLL_EXPORT bndry_setxinbyname(int i, char* xin)
+    int bndry_setxinbyname(int i, char* xin)
     {
         try {
             BoundaryCabinet::item(i).setMoleFractions(string(xin));
@@ -118,7 +118,7 @@ extern "C" {
         return 0;
     }
 
-    int DLL_EXPORT surf_setkinetics(int i, int j)
+    int surf_setkinetics(int i, int j)
     {
         try {
             ReactingSurf1D* srf =

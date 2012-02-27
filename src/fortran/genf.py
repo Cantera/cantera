@@ -151,7 +151,7 @@ for line in lines:
             extern = 1
         if extern:
             if not infunc:
-                if line.find('DLL_EXPORT') > 0:
+                if line.find('CANTERA_CAPI') > 0:
                     infunc = 1
                     funcline = line
             elif infunc:
@@ -185,7 +185,7 @@ for line in lines:
             extern = 1
         if extern:
             if not infunc:
-                if line.find('DLL_EXPORT') > 0:
+                if line.find('CANTERA_CAPI') > 0:
                     infunc = 1
                     funcline = line
             elif infunc:

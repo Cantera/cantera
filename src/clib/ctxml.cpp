@@ -19,7 +19,7 @@ template<> XmlCabinet* XmlCabinet::__storage = 0;
 
 extern "C" {
 
-    int DLL_EXPORT xml_new(const char* name = 0)
+    int xml_new(const char* name = 0)
     {
         XML_Node* x;
         if (!name) {
@@ -30,7 +30,7 @@ extern "C" {
         return XmlCabinet::add(x);
     }
 
-    int DLL_EXPORT xml_get_XML_File(const char* file, int debug)
+    int xml_get_XML_File(const char* file, int debug)
     {
         try {
             XML_Node* x = get_XML_File(std::string(file), debug);
@@ -40,7 +40,7 @@ extern "C" {
         }
     }
 
-    int DLL_EXPORT xml_clear()
+    int xml_clear()
     {
         try {
             XmlCabinet::clear();
@@ -51,29 +51,29 @@ extern "C" {
         }
     }
 
-    int DLL_EXPORT xml_del(int i)
+    int xml_del(int i)
     {
         XmlCabinet::del(i);
         return 0;
     }
 
-    int DLL_EXPORT xml_removeChild(int i, int j)
+    int xml_removeChild(int i, int j)
     {
         XmlCabinet::item(i).removeChild(&XmlCabinet::item(j));
         return 0;
     }
 
-    int DLL_EXPORT xml_copy(int i)
+    int xml_copy(int i)
     {
         return XmlCabinet::newCopy(i);
     }
 
-    int DLL_EXPORT xml_assign(int i, int j)
+    int xml_assign(int i, int j)
     {
         return XmlCabinet::assign(i,j);
     }
 
-    int DLL_EXPORT xml_build(int i, const char* file)
+    int xml_build(int i, const char* file)
     {
         try {
             writelog("WARNING: xml_build called. Use get_XML_File instead.");
@@ -91,7 +91,7 @@ extern "C" {
         }
     }
 
-    int DLL_EXPORT xml_preprocess_and_build(int i, const char* file, int debug)
+    int xml_preprocess_and_build(int i, const char* file, int debug)
     {
         try {
             get_CTML_Tree(&XmlCabinet::item(i), string(file), debug);
@@ -103,7 +103,7 @@ extern "C" {
 
 
 
-    int DLL_EXPORT xml_attrib(int i, const char* key, char* value)
+    int xml_attrib(int i, const char* key, char* value)
     {
         try {
             string ky = string(key);
@@ -120,7 +120,7 @@ extern "C" {
         return 0;
     }
 
-    int DLL_EXPORT xml_addAttrib(int i, const char* key, const char* value)
+    int xml_addAttrib(int i, const char* key, const char* value)
     {
         try {
             string ky = string(key);
@@ -133,7 +133,7 @@ extern "C" {
         return 0;
     }
 
-    int DLL_EXPORT xml_addComment(int i, const char* comment)
+    int xml_addComment(int i, const char* comment)
     {
         try {
             string c = string(comment);
@@ -145,7 +145,7 @@ extern "C" {
         return 0;
     }
 
-    int DLL_EXPORT xml_tag(int i, char* tag)
+    int xml_tag(int i, char* tag)
     {
         try {
             XML_Node& node = XmlCabinet::item(i);
@@ -157,7 +157,7 @@ extern "C" {
         return 0;
     }
 
-    int DLL_EXPORT xml_value(int i, char* value)
+    int xml_value(int i, char* value)
     {
         try {
             XML_Node& node = XmlCabinet::item(i);
@@ -169,7 +169,7 @@ extern "C" {
         return 0;
     }
 
-    int DLL_EXPORT xml_child(int i, const char* loc)
+    int xml_child(int i, const char* loc)
     {
         try {
             XML_Node& node = XmlCabinet::item(i);
@@ -181,7 +181,7 @@ extern "C" {
         return 0;
     }
 
-    int DLL_EXPORT xml_child_bynumber(int i, int m)
+    int xml_child_bynumber(int i, int m)
     {
         try {
             XML_Node& node = XmlCabinet::item(i);
@@ -193,7 +193,7 @@ extern "C" {
         return 0;
     }
 
-    int DLL_EXPORT xml_findID(int i, const char* id)
+    int xml_findID(int i, const char* id)
     {
         try {
             XML_Node& node = XmlCabinet::item(i);
@@ -209,7 +209,7 @@ extern "C" {
         return 0;
     }
 
-    int DLL_EXPORT xml_findByName(int i, const char* nm)
+    int xml_findByName(int i, const char* nm)
     {
         try {
             XML_Node& node = XmlCabinet::item(i);
@@ -225,7 +225,7 @@ extern "C" {
         return 0;
     }
 
-    int DLL_EXPORT xml_nChildren(int i)
+    int xml_nChildren(int i)
     {
         try {
             XML_Node& node = XmlCabinet::item(i);
@@ -235,7 +235,7 @@ extern "C" {
         }
     }
 
-    int DLL_EXPORT xml_addChild(int i, const char* name, const char* value)
+    int xml_addChild(int i, const char* name, const char* value)
     {
         try {
             XML_Node& node = XmlCabinet::item(i);
@@ -248,7 +248,7 @@ extern "C" {
         return 0;
     }
 
-    int DLL_EXPORT xml_addChildNode(int i, int j)
+    int xml_addChildNode(int i, int j)
     {
         try {
             XML_Node& node = XmlCabinet::item(i);
@@ -261,7 +261,7 @@ extern "C" {
         return 0;
     }
 
-    int DLL_EXPORT xml_write(int i, const char* file)
+    int xml_write(int i, const char* file)
     {
         try {
             ofstream f(file);
@@ -279,7 +279,7 @@ extern "C" {
         return 0;
     }
 
-    int DLL_EXPORT ctml_getFloatArray(int i, size_t n, doublereal* data, int iconvert)
+    int ctml_getFloatArray(int i, size_t n, doublereal* data, int iconvert)
     {
         try {
             XML_Node& node = XmlCabinet::item(i);

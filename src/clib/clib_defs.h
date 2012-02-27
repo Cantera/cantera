@@ -7,39 +7,28 @@
 #include "cantera/base/ct_defs.h"
 
 #ifdef _WIN32
-//   Either build as a DLL under Windows or  not.
-//   the decision relies upon whether the NO_DLL_BUILD define is
-//   set or not.
-#ifdef NO_DLL_BUILD
-#define DLL_EXPORT
-#define DLL_IMPORT
+// Windows (MSVC or MinGW)
+# ifdef CANTERA_USE_INTERNAL
+#  define CANTERA_CAPI extern __declspec(dllexport)
+# else
+#  define CANTERA_CAPI extern __declspec(dllimport)
+# endif
 #else
-#define DLL_IMPORT __declspec(dllimport)
-#define DLL_EXPORT __declspec(dllexport)
-#endif
-#else
-//   On other platforms, we turn off the DLL macros.
-#define DLL_EXPORT
-#define DLL_IMPORT
-#endif
-
-#ifdef CANTERA_USE_INTERNAL
-#define DLL_CPREFIX DLL_EXPORT
-#define EEXXTT extern
-#else
-#define DLL_CPREFIX DLL_IMPORT
-#define EEXXTT
+// Non-Windows platform
+# ifdef CANTERA_USE_INTERNAL
+#  define CANTERA_CAPI extern
+# else
+#  define CANTERA_CAPI
+# endif
 #endif
 
 // Values returned for error conditions
 #ifndef ERR
-#define ERR -999
-#endif
-#ifndef DERR
-#define DERR -999.999
+# define ERR -999
 #endif
 
-namespace Cantera {}
-namespace std {}
+#ifndef DERR
+# define DERR -999.999
+#endif
 
 #endif

@@ -5,8 +5,7 @@
 // Copyright 2001  California Institute of Technology
 
 
-#include "flib_defs.h"
-
+#include "clib/clib_defs.h"
 #include "cantera/base/ctml.h"
 
 #include <cstring>
@@ -20,6 +19,8 @@ using Cantera::CanteraError;
 
 typedef Cabinet<XML_Node, false> XmlCabinet;
 template<> XmlCabinet* XmlCabinet::__storage = 0;
+
+typedef integer status_t;
 
 inline XML_Node* _xml(const integer* i)
 {
@@ -35,7 +36,7 @@ std::string f2string(const char* s, ftnlen n);
 
 extern "C" {
 
-    integer DLL_EXPORT fxml_new_(const char* name, ftnlen namelen)
+    integer fxml_new_(const char* name, ftnlen namelen)
     {
         XML_Node* x;
         if (!name) {
@@ -46,7 +47,7 @@ extern "C" {
         return XmlCabinet::add(x);
     }
 
-    status_t DLL_EXPORT fxml_get_xml_file_(const char* file, ftnlen filelen)
+    status_t fxml_get_xml_file_(const char* file, ftnlen filelen)
     {
         try {
             XML_Node* x = Cantera::get_XML_File(f2string(file, filelen));
@@ -58,7 +59,7 @@ extern "C" {
         }
     }
 
-    status_t DLL_EXPORT fxml_clear_()
+    status_t fxml_clear_()
     {
         try {
             XmlCabinet::clear();
@@ -70,29 +71,29 @@ extern "C" {
         }
     }
 
-    status_t DLL_EXPORT fxml_del_(const integer* i)
+    status_t fxml_del_(const integer* i)
     {
         XmlCabinet::del(*i);
         return 0;
     }
 
-    status_t DLL_EXPORT fxml_removechild_(const integer* i, const integer* j)
+    status_t fxml_removechild_(const integer* i, const integer* j)
     {
         _xml(i)->removeChild(_xml(j));
         return 0;
     }
 
-    status_t DLL_EXPORT fxml_copy_(const integer* i)
+    status_t fxml_copy_(const integer* i)
     {
         return XmlCabinet::newCopy(*i);
     }
 
-    status_t DLL_EXPORT fxml_assign_(const integer* i, const integer* j)
+    status_t fxml_assign_(const integer* i, const integer* j)
     {
         return XmlCabinet::assign(*i,*j);
     }
 
-    status_t DLL_EXPORT fxml_attrib_(const integer* i, const char* key,
+    status_t fxml_attrib_(const integer* i, const char* key,
                                      char* value, ftnlen keylen, ftnlen valuelen)
     {
         try {
@@ -110,7 +111,7 @@ extern "C" {
         return 0;
     }
 
-    status_t DLL_EXPORT fxml_addattrib_(const integer* i,
+    status_t fxml_addattrib_(const integer* i,
                                         const char* key, const char* value, ftnlen keylen, ftnlen valuelen)
     {
         try {
@@ -124,7 +125,7 @@ extern "C" {
         return 0;
     }
 
-    status_t DLL_EXPORT fxml_addcomment_(const integer* i, const char* comment,
+    status_t fxml_addcomment_(const integer* i, const char* comment,
                                          ftnlen commentlen)
     {
         try {
@@ -137,7 +138,7 @@ extern "C" {
         return 0;
     }
 
-    status_t DLL_EXPORT fxml_tag_(const integer* i, char* tag, ftnlen taglen)
+    status_t fxml_tag_(const integer* i, char* tag, ftnlen taglen)
     {
         try {
             XML_Node& node = *_xml(i);
@@ -149,7 +150,7 @@ extern "C" {
         return 0;
     }
 
-    status_t DLL_EXPORT fxml_value_(const integer* i, char* value, ftnlen valuelen)
+    status_t fxml_value_(const integer* i, char* value, ftnlen valuelen)
     {
         try {
             XML_Node& node = *_xml(i);
@@ -161,7 +162,7 @@ extern "C" {
         return 0;
     }
 
-    status_t DLL_EXPORT fxml_child_(const integer* i, const char* loc, ftnlen loclen)
+    status_t fxml_child_(const integer* i, const char* loc, ftnlen loclen)
     {
         try {
             XML_Node& node = *_xml(i);
@@ -173,7 +174,7 @@ extern "C" {
         return 0;
     }
 
-    status_t DLL_EXPORT fxml_child_bynumber_(const integer* i, const integer* m)
+    status_t fxml_child_bynumber_(const integer* i, const integer* m)
     {
         try {
             XML_Node& node = *_xml(i);
@@ -185,7 +186,7 @@ extern "C" {
         return 0;
     }
 
-    status_t DLL_EXPORT fxml_findid_(const integer* i, const char* id, ftnlen idlen)
+    status_t fxml_findid_(const integer* i, const char* id, ftnlen idlen)
     {
         try {
             XML_Node& node = *_xml(i);
@@ -201,7 +202,7 @@ extern "C" {
         return 0;
     }
 
-    status_t DLL_EXPORT fxml_findbyname_(const integer* i, const char* nm, ftnlen nmlen)
+    status_t fxml_findbyname_(const integer* i, const char* nm, ftnlen nmlen)
     {
         try {
             XML_Node& node = *_xml(i);
@@ -217,7 +218,7 @@ extern "C" {
         return 0;
     }
 
-    integer DLL_EXPORT fxml_nchildren_(const integer* i)
+    integer fxml_nchildren_(const integer* i)
     {
         try {
             XML_Node& node = *_xml(i);
@@ -228,7 +229,7 @@ extern "C" {
         return 0;
     }
 
-    status_t DLL_EXPORT fxml_addchild_(const integer* i, const char* name,
+    status_t fxml_addchild_(const integer* i, const char* name,
                                        const char* value, ftnlen namelen, ftnlen valuelen)
     {
         try {
@@ -242,7 +243,7 @@ extern "C" {
         return 0;
     }
 
-    status_t DLL_EXPORT fxml_addchildnode_(const integer* i, const integer* j)
+    status_t fxml_addchildnode_(const integer* i, const integer* j)
     {
         try {
             XML_Node& node = *_xml(i);
@@ -255,7 +256,7 @@ extern "C" {
         return 0;
     }
 
-    status_t DLL_EXPORT fxml_write_(const integer* i, const char* file, ftnlen filelen)
+    status_t fxml_write_(const integer* i, const char* file, ftnlen filelen)
     {
         try {
             std::string ff(file, filelen);
@@ -274,7 +275,7 @@ extern "C" {
         return 0;
     }
 
-    status_t DLL_EXPORT ctml_getfloatarray_(const integer* i, const integer* n,
+    status_t ctml_getfloatarray_(const integer* i, const integer* n,
                                             doublereal* data, const integer* iconvert)
     {
         try {
