@@ -15,15 +15,11 @@ using namespace std;
 using namespace Cantera;
 using namespace ctml;
 
-
 // Assign storage for the static member of the Templated Cabinet class
 // class Cabinet<XML_Node>;
-template<> Cabinet<XML_Node>*   Cabinet<XML_Node>::__storage = 0;
 
-inline XML_Node* _xml(int i)
-{
-    return Cabinet<XML_Node>::cabinet(false)->item(i);
-}
+typedef Cabinet<XML_Node, false> XmlCabinet;
+template<> XmlCabinet* XmlCabinet::__storage = 0;
 
 extern "C" {
 
@@ -35,14 +31,14 @@ extern "C" {
         } else {
             x = new XML_Node(name);
         }
-        return Cabinet<XML_Node>::cabinet(true)->add(x);
+        return XmlCabinet::add(x);
     }
 
     int DLL_EXPORT xml_get_XML_File(const char* file, int debug)
     {
         try {
             XML_Node* x = get_XML_File(std::string(file), debug);
-            return Cabinet<XML_Node>::cabinet(false)->add(x);
+            return XmlCabinet::add(x);
         } catch (CanteraError) {
             return -1;
         }
@@ -51,7 +47,7 @@ extern "C" {
     int DLL_EXPORT xml_clear()
     {
         try {
-            Cabinet<XML_Node>::cabinet(false)->clear();
+            XmlCabinet::clear();
             close_XML_File("all");
             return 0;
         } catch (CanteraError) {
@@ -61,24 +57,24 @@ extern "C" {
 
     int DLL_EXPORT xml_del(int i)
     {
-        Cabinet<XML_Node>::cabinet(false)->del(i);
+        XmlCabinet::del(i);
         return 0;
     }
 
     int DLL_EXPORT xml_removeChild(int i, int j)
     {
-        _xml(i)->removeChild(_xml(j));
+        XmlCabinet::item(i).removeChild(&XmlCabinet::item(j));
         return 0;
     }
 
     int DLL_EXPORT xml_copy(int i)
     {
-        return Cabinet<XML_Node>::cabinet(false)->newCopy(i);
+        return XmlCabinet::newCopy(i);
     }
 
     int DLL_EXPORT xml_assign(int i, int j)
     {
-        return Cabinet<XML_Node>::cabinet(false)->assign(i,j);
+        return XmlCabinet::assign(i,j);
     }
 
     int DLL_EXPORT xml_build(int i, const char* file)
@@ -91,7 +87,7 @@ extern "C" {
                 throw CanteraError("xml_build",
                                    "file "+string(file)+" not found.");
             }
-            _xml(i)->build(f);
+            XmlCabinet::item(i).build(f);
             f.close();
             return 0;
         } catch (CanteraError) {
@@ -102,7 +98,7 @@ extern "C" {
     int DLL_EXPORT xml_preprocess_and_build(int i, const char* file, int debug)
     {
         try {
-            get_CTML_Tree(_xml(i), string(file), debug);
+            get_CTML_Tree(&XmlCabinet::item(i), string(file), debug);
             return 0;
         } catch (CanteraError) {
             return -1;
@@ -115,7 +111,7 @@ extern "C" {
     {
         try {
             string ky = string(key);
-            XML_Node& node = *_xml(i);
+            XML_Node& node = XmlCabinet::item(i);
             if (node.hasAttrib(ky)) {
                 string v = node[ky];
                 strncpy(value, v.c_str(), 80);
@@ -133,7 +129,7 @@ extern "C" {
         try {
             string ky = string(key);
             string val = string(value);
-            XML_Node& node = *_xml(i);
+            XML_Node& node = XmlCabinet::item(i);
             node.addAttribute(ky, val);
         } catch (CanteraError) {
             return -1;
@@ -145,7 +141,7 @@ extern "C" {
     {
         try {
             string c = string(comment);
-            XML_Node& node = *_xml(i);
+            XML_Node& node = XmlCabinet::item(i);
             node.addComment(c);
         } catch (CanteraError) {
             return -1;
@@ -156,7 +152,7 @@ extern "C" {
     int DLL_EXPORT xml_tag(int i, char* tag)
     {
         try {
-            XML_Node& node = *_xml(i);
+            XML_Node& node = XmlCabinet::item(i);
             const string v = node.name();
             strncpy(tag, v.c_str(), 80);
         } catch (CanteraError) {
@@ -168,7 +164,7 @@ extern "C" {
     int DLL_EXPORT xml_value(int i, char* value)
     {
         try {
-            XML_Node& node = *_xml(i);
+            XML_Node& node = XmlCabinet::item(i);
             const string v = node.value();
             strncpy(value, v.c_str(), 80);
         } catch (CanteraError) {
@@ -180,9 +176,9 @@ extern "C" {
     int DLL_EXPORT xml_child(int i, const char* loc)
     {
         try {
-            XML_Node& node = *_xml(i);
+            XML_Node& node = XmlCabinet::item(i);
             XML_Node& c = node.child(string(loc));
-            return Cabinet<XML_Node>::cabinet()->add(&c);
+            return XmlCabinet::add(&c);
         } catch (CanteraError) {
             return -1;
         }
@@ -192,9 +188,9 @@ extern "C" {
     int DLL_EXPORT xml_child_bynumber(int i, int m)
     {
         try {
-            XML_Node& node = *_xml(i);
+            XML_Node& node = XmlCabinet::item(i);
             XML_Node& c = node.child(m);
-            return Cabinet<XML_Node>::cabinet()->add(&c);
+            return XmlCabinet::add(&c);
         } catch (CanteraError) {
             return -1;
         }
@@ -204,10 +200,10 @@ extern "C" {
     int DLL_EXPORT xml_findID(int i, const char* id)
     {
         try {
-            XML_Node& node = *_xml(i);
+            XML_Node& node = XmlCabinet::item(i);
             XML_Node* c = node.findID(string(id));
             if (c) {
-                return Cabinet<XML_Node>::cabinet()->add(c);
+                return XmlCabinet::add(c);
             } else {
                 throw CanteraError("xml_find_id","id not found: "+string(id));
             }
@@ -220,10 +216,10 @@ extern "C" {
     int DLL_EXPORT xml_findByName(int i, const char* nm)
     {
         try {
-            XML_Node& node = *_xml(i);
+            XML_Node& node = XmlCabinet::item(i);
             XML_Node* c = node.findByName(string(nm));
             if (c) {
-                return Cabinet<XML_Node>::cabinet()->add(c);
+                return XmlCabinet::add(c);
             } else
                 throw CanteraError("xml_findByName","name "+string(nm)
                                    +" not found");
@@ -236,7 +232,7 @@ extern "C" {
     int DLL_EXPORT xml_nChildren(int i)
     {
         try {
-            XML_Node& node = *_xml(i);
+            XML_Node& node = XmlCabinet::item(i);
             return (int) node.nChildren();
         } catch (CanteraError) {
             return -1;
@@ -246,9 +242,9 @@ extern "C" {
     int DLL_EXPORT xml_addChild(int i, const char* name, const char* value)
     {
         try {
-            XML_Node& node = *_xml(i);
+            XML_Node& node = XmlCabinet::item(i);
             XML_Node& c = node.addChild(string(name),string(value));
-            return Cabinet<XML_Node>::cabinet()->add(&c);
+            return XmlCabinet::add(&c);
         } catch (CanteraError) {
             showErrors(cout);
             return -1;
@@ -259,10 +255,10 @@ extern "C" {
     int DLL_EXPORT xml_addChildNode(int i, int j)
     {
         try {
-            XML_Node& node = *_xml(i);
-            XML_Node& chld = *_xml(j);
+            XML_Node& node = XmlCabinet::item(i);
+            XML_Node& chld = XmlCabinet::item(j);
             XML_Node& c = node.addChild(chld);
-            return Cabinet<XML_Node>::cabinet()->add(&c);
+            return XmlCabinet::add(&c);
         } catch (CanteraError) {
             return -1;
         }
@@ -274,7 +270,7 @@ extern "C" {
         try {
             ofstream f(file);
             if (f) {
-                XML_Node& node = *_xml(i);
+                XML_Node& node = XmlCabinet::item(i);
                 node.write(f);
             } else {
                 throw CanteraError("xml_write",
@@ -290,7 +286,7 @@ extern "C" {
     int DLL_EXPORT ctml_getFloatArray(int i, size_t n, doublereal* data, int iconvert)
     {
         try {
-            XML_Node& node = *_xml(i);
+            XML_Node& node = XmlCabinet::item(i);
             vector_fp v;
             bool conv = false;
             if (iconvert > 0) {

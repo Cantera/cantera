@@ -32,12 +32,7 @@ using namespace Cantera;
 #include "windows.h"
 #endif
 
-
-inline XML_Node* _xml(int i)
-{
-    return Cabinet<Cantera::XML_Node>::cabinet(false)->item(i);
-}
-
+typedef Cabinet<XML_Node, false> XmlCabinet;
 
 #ifdef WITH_PURE_FLUIDS
 static PureFluidPhase* purefluid(int n)
@@ -448,8 +443,8 @@ extern "C" {
     size_t DLL_EXPORT newThermoFromXML(int mxml)
     {
         try {
-            XML_Node* x = _xml(mxml);
-            thermo_t* th = newPhase(*x);
+            XML_Node& x = XmlCabinet::item(mxml);
+            thermo_t* th = newPhase(x);
             return Storage::storage()->addThermo(th);
         } catch (CanteraError) {
             return -1;
@@ -879,7 +874,7 @@ extern "C" {
                                          int neighbor4)
     {
         try {
-            XML_Node* x = _xml(mxml);
+            XML_Node& x = XmlCabinet::item(mxml);
             vector<thermo_t*> phases;
             phases.push_back(th(iphase));
             if (neighbor1 >= 0) {
@@ -894,7 +889,7 @@ extern "C" {
                     }
                 }
             }
-            Kinetics* kin = newKineticsMgr(*x, phases);
+            Kinetics* kin = newKineticsMgr(x, phases);
             if (kin) {
                 return Storage::storage()->addKinetics(kin);
             } else {
@@ -909,10 +904,10 @@ extern "C" {
                                     char* default_phase)
     {
         try {
-            XML_Node* p = _xml(pxml);
+            XML_Node& p = XmlCabinet::item(pxml);
             kinetics_t* k = kin(ikin);
             string defphase = string(default_phase);
-            installReactionArrays(*p, *k, defphase);
+            installReactionArrays(p, *k, defphase);
             return 0;
         } catch (CanteraError) {
             return -1;
@@ -1376,10 +1371,10 @@ extern "C" {
     int DLL_EXPORT import_phase(int nth, int nxml, char* id)
     {
         thermo_t* thrm = th(nth);
-        XML_Node* node = _xml(nxml);
+        XML_Node& node = XmlCabinet::item(nxml);
         string idstr = string(id);
         try {
-            importPhase(*node, thrm);
+            importPhase(node, thrm);
             return 0;
         } catch (CanteraError) {
             return -1;
@@ -1393,11 +1388,11 @@ extern "C" {
         for (int i = 0; i < nphases; i++) {
             phases.push_back(th(ith[i]));
         }
-        XML_Node* node = _xml(nxml);
+        XML_Node& node = XmlCabinet::item(nxml);
         Kinetics* k = kin(nkin);
         string idstr = string(id);
         try {
-            importKinetics(*node, phases, k);
+            importKinetics(node, phases, k);
             return 0;
         } catch (CanteraError) {
             return -1;
@@ -1526,7 +1521,7 @@ extern "C" {
 
         XML_Node* root = 0;
         if (ixml > 0) {
-            root = _xml(ixml);
+            root = &XmlCabinet::item(ixml);
         }
 
         thermo_t* t = th(ith);

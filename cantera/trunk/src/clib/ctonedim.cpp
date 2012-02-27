@@ -19,25 +19,16 @@
 using namespace std;
 using namespace Cantera;
 
-template<> Cabinet<Sim1D>*   Cabinet<Sim1D>::__storage = 0;
-template<> Cabinet<Domain1D>*   Cabinet<Domain1D>::__storage = 0;
-
-
-inline Sim1D* _sim1D(int i)
-{
-    return Cabinet<Sim1D>::cabinet()->item(i);
-}
-
-inline Domain1D* _domain(int i)
-{
-    return Cabinet<Domain1D>::cabinet()->item(i);
-}
+typedef Cabinet<Sim1D> SimCabinet;
+typedef Cabinet<Domain1D> DomainCabinet;
+template<> SimCabinet* SimCabinet::__storage = 0;
+template<> DomainCabinet* DomainCabinet::__storage = 0;
 
 static StFlow* _stflow(int i)
 {
-    Domain1D* d = _domain(i);
+    Domain1D* d = &DomainCabinet::item(i);
     if (d->domainType() == cFlowType) {
-        return (StFlow*)d;
+        return dynamic_cast<StFlow*>(d);
     } else {
         throw CanteraError("_stflow","wrong domain type");
     }
@@ -46,11 +37,11 @@ static StFlow* _stflow(int i)
 
 static Bdry1D* _bdry(int i)
 {
-    Domain1D* d = _domain(i);
+    Domain1D* d = &DomainCabinet::item(i);
     if (! d->isConnector()) {
         throw CanteraError("_bdry","wrong domain type: " +int2str(d->domainType()));
     }
-    return (Bdry1D*)d;
+    return dynamic_cast<Bdry1D*>(d);
 }
 
 inline ThermoPhase* _phase(int n)
@@ -79,7 +70,7 @@ extern "C" {
     int DLL_EXPORT domain_clear()
     {
         try {
-            Cabinet<Domain1D>::cabinet()->clear();
+            DomainCabinet::clear();
             return 0;
         } catch (CanteraError) {
             return -1;
@@ -88,35 +79,34 @@ extern "C" {
 
     int DLL_EXPORT domain_del(int i)
     {
-        Cabinet<Domain1D>::cabinet()->del(i);
+        DomainCabinet::del(i);
         return 0;
     }
 
     int DLL_EXPORT domain_type(int i)
     {
-        return _domain(i)->domainType();
+        return DomainCabinet::item(i).domainType();
     }
 
     size_t DLL_EXPORT domain_index(int i)
     {
-        return _domain(i)->domainIndex();
+        return DomainCabinet::item(i).domainIndex();
     }
 
     size_t DLL_EXPORT domain_nComponents(int i)
     {
-        return _domain(i)->nComponents();
+        return DomainCabinet::item(i).nComponents();
     }
 
     size_t DLL_EXPORT domain_nPoints(int i)
     {
-        return _domain(i)->nPoints();
+        return DomainCabinet::item(i).nPoints();
     }
-
 
     int DLL_EXPORT domain_componentName(int i, int n, int sz, char* buf)
     {
         try {
-            string nm = _domain(i)->componentName(n);
+            string nm = DomainCabinet::item(i).componentName(n);
             size_t lout = std::min<size_t>(sz, nm.size());
             copy(nm.c_str(), nm.c_str() + lout, buf);
             buf[lout] = '\0';
@@ -129,7 +119,7 @@ extern "C" {
     size_t DLL_EXPORT domain_componentIndex(int i, char* name)
     {
         try {
-            size_t n = _domain(i)->componentIndex(string(name));
+            size_t n = DomainCabinet::item(i).componentIndex(string(name));
             return n;
         } catch (CanteraError) {
             return -1;
@@ -139,7 +129,7 @@ extern "C" {
     double DLL_EXPORT domain_grid(int i, int n)
     {
         try {
-            return _domain(i)->grid(n);
+            return DomainCabinet::item(i).grid(n);
         } catch (CanteraError) {
             return DERR;
         }
@@ -148,7 +138,7 @@ extern "C" {
     int DLL_EXPORT domain_setBounds(int i, int n, double lower, double upper)
     {
         try {
-            _domain(i)->setBounds(n, lower, upper);
+            DomainCabinet::item(i).setBounds(n, lower, upper);
             return 0;
         } catch (CanteraError) {
             return -1;
@@ -158,7 +148,7 @@ extern "C" {
     double DLL_EXPORT domain_upperBound(int i, int n)
     {
         try {
-            return _domain(i)->upperBound(n);
+            return DomainCabinet::item(i).upperBound(n);
         } catch (CanteraError) {
             return DERR;
         }
@@ -167,7 +157,7 @@ extern "C" {
     double DLL_EXPORT domain_lowerBound(int i, int n)
     {
         try {
-            return _domain(i)->lowerBound(n);
+            return DomainCabinet::item(i).lowerBound(n);
         } catch (CanteraError) {
             return DERR;
         }
@@ -177,7 +167,7 @@ extern "C" {
                                         double atol, int itime)
     {
         try {
-            _domain(i)->setTolerances(n, rtol, atol, itime);
+            DomainCabinet::item(i).setTolerances(n, rtol, atol, itime);
             return 0;
         } catch (CanteraError) {
             return -1;
@@ -187,7 +177,7 @@ extern "C" {
     double DLL_EXPORT domain_rtol(int i, int n)
     {
         try {
-            return _domain(i)->rtol(n);
+            return DomainCabinet::item(i).rtol(n);
         } catch (CanteraError) {
             return DERR;
         }
@@ -196,7 +186,7 @@ extern "C" {
     double DLL_EXPORT domain_atol(int i, int n)
     {
         try {
-            return _domain(i)->atol(n);
+            return DomainCabinet::item(i).atol(n);
         } catch (CanteraError) {
             return DERR;
         }
@@ -205,7 +195,7 @@ extern "C" {
     int DLL_EXPORT domain_setupGrid(int i, size_t npts, double* grid)
     {
         try {
-            _domain(i)->setupGrid(npts, grid);
+            DomainCabinet::item(i).setupGrid(npts, grid);
             return 0;
         } catch (CanteraError) {
             return -1;
@@ -216,7 +206,7 @@ extern "C" {
     {
         try {
             string s = string(id);
-            _domain(i)->setID(s);
+            DomainCabinet::item(i).setID(s);
             return 0;
         } catch (CanteraError) {
             return -1;
@@ -228,7 +218,7 @@ extern "C" {
     {
         try {
             string s = string(desc);
-            _domain(i)->setDesc(s);
+            DomainCabinet::item(i).setDesc(s);
             return 0;
         } catch (CanteraError) {
             return -1;
@@ -240,7 +230,7 @@ extern "C" {
     {
         try {
             Inlet1D* i = new Inlet1D();
-            return Cabinet<Domain1D>::cabinet()->add(i);
+            return DomainCabinet::add(i);
         } catch (CanteraError) {
             return -1;
         }
@@ -250,7 +240,7 @@ extern "C" {
     {
         try {
             Surf1D* i = new Surf1D();
-            return Cabinet<Domain1D>::cabinet()->add(i);
+            return DomainCabinet::add(i);
         } catch (CanteraError) {
             return -1;
         }
@@ -261,7 +251,7 @@ extern "C" {
         try {
             //writelog("in reactingsurf_new\n");
             Domain1D* i = new ReactingSurf1D();
-            return Cabinet<Domain1D>::cabinet()->add(i);
+            return DomainCabinet::add(i);
         } catch (CanteraError) {
             writelog("error");
             return -1;
@@ -272,7 +262,7 @@ extern "C" {
     {
         try {
             Symm1D* i = new Symm1D();
-            return Cabinet<Domain1D>::cabinet()->add(i);
+            return DomainCabinet::add(i);
         } catch (CanteraError) {
             return -1;
         }
@@ -282,7 +272,7 @@ extern "C" {
     {
         try {
             Outlet1D* i = new Outlet1D();
-            return Cabinet<Domain1D>::cabinet()->add(i);
+            return DomainCabinet::add(i);
         } catch (CanteraError) {
             return -1;
         }
@@ -292,7 +282,7 @@ extern "C" {
     {
         try {
             OutletRes1D* i = new OutletRes1D();
-            return Cabinet<Domain1D>::cabinet()->add(i);
+            return DomainCabinet::add(i);
         } catch (CanteraError) {
             return -1;
         }
@@ -403,12 +393,12 @@ extern "C" {
                 AxiStagnFlow* x = new AxiStagnFlow(ph, ph->nSpecies(), 2);
                 x->setKinetics(*_kinetics(ikin));
                 x->setTransport(*_transport(itr));
-                return Cabinet<Domain1D>::cabinet()->add(x);
+                return DomainCabinet::add(x);
             } else if (itype == 2) {
                 FreeFlame* x = new FreeFlame(ph, ph->nSpecies(), 2);
                 x->setKinetics(*_kinetics(ikin));
                 x->setTransport(*_transport(itr));
-                return Cabinet<Domain1D>::cabinet()->add(x);
+                return DomainCabinet::add(x);
             } else {
                 return -2;
             }
@@ -513,12 +503,12 @@ extern "C" {
             for (size_t n = 0; n < nd; n++) {
                 //writelog("n = "+int2str(n)+"\n");
                 //writelog("dom = "+int2str(domains[n])+"\n");
-                d.push_back(_domain(domains[n]));
+                d.push_back(&DomainCabinet::item(domains[n]));
             }
             //writelog("in sim1D_new, calling new Sim1D\n");
             Sim1D* s = new Sim1D(d);
             //writelog("in sim1D_new, ret Sim1D\n");
-            return Cabinet<Sim1D>::cabinet()->add(s);
+            return SimCabinet::add(s);
         } catch (CanteraError) {
             return -1;
         }
@@ -527,7 +517,7 @@ extern "C" {
     int DLL_EXPORT sim1D_clear()
     {
         try {
-            Cabinet<Sim1D>::cabinet()->clear();
+            SimCabinet::clear();
             return 0;
         } catch (CanteraError) {
             return -1;
@@ -536,7 +526,7 @@ extern "C" {
 
     int DLL_EXPORT sim1D_del(int i)
     {
-        Cabinet<Sim1D>::cabinet()->del(i);
+        SimCabinet::del(i);
         return 0;
     }
 
@@ -544,7 +534,7 @@ extern "C" {
                                   int localPoint, double value)
     {
         try {
-            _sim1D(i)->setValue(dom, comp, localPoint, value);
+            SimCabinet::item(i).setValue(dom, comp, localPoint, value);
             return 0;
         } catch (CanteraError) {
             return -1;
@@ -560,7 +550,7 @@ extern "C" {
                 vv.push_back(v[n]);
                 pv.push_back(pos[n]);
             }
-            _sim1D(i)->setProfile(dom, comp, pv, vv);
+            SimCabinet::item(i).setProfile(dom, comp, pv, vv);
             return 0;
         } catch (CanteraError) {
             return -1;
@@ -570,7 +560,7 @@ extern "C" {
     int DLL_EXPORT sim1D_setFlatProfile(int i, int dom, int comp, double v)
     {
         try {
-            _sim1D(i)->setFlatProfile(dom, comp, v);
+            SimCabinet::item(i).setFlatProfile(dom, comp, v);
             return 0;
         } catch (CanteraError) {
             return -1;
@@ -581,10 +571,10 @@ extern "C" {
     {
         string fn = string(fname);
         if (fn == "-") {
-            _sim1D(i)->showSolution();
+            SimCabinet::item(i).showSolution();
         } else {
             ofstream fout(fname);
-            _sim1D(i)->showSolution(fout);
+            SimCabinet::item(i).showSolution(fout);
             fout.close();
         }
         return 0;
@@ -593,7 +583,7 @@ extern "C" {
     int DLL_EXPORT sim1D_setTimeStep(int i, double stepsize, size_t ns, integer* nsteps)
     {
         try {
-            _sim1D(i)->setTimeStep(stepsize, ns, nsteps);
+            SimCabinet::item(i).setTimeStep(stepsize, ns, nsteps);
             return 0;
         } catch (CanteraError) {
             return -1;
@@ -603,7 +593,7 @@ extern "C" {
     int DLL_EXPORT sim1D_getInitialSoln(int i)
     {
         try {
-            _sim1D(i)->getInitialSoln();
+            SimCabinet::item(i).getInitialSoln();
             return 0;
         } catch (CanteraError) {
             return -1;
@@ -614,7 +604,7 @@ extern "C" {
     {
         try {
             bool r = (refine_grid == 0 ? false : true);
-            _sim1D(i)->solve(loglevel, r);
+            SimCabinet::item(i).solve(loglevel, r);
             return 0;
         } catch (CanteraError) {
             return -1;
@@ -624,7 +614,7 @@ extern "C" {
     int DLL_EXPORT sim1D_refine(int i, int loglevel)
     {
         try {
-            _sim1D(i)->refine(loglevel);
+            SimCabinet::item(i).refine(loglevel);
             return 0;
         } catch (CanteraError) {
             return -1;
@@ -635,7 +625,7 @@ extern "C" {
                                            double slope, double curve, double prune)
     {
         try {
-            _sim1D(i)->setRefineCriteria(dom, ratio, slope, curve, prune);
+            SimCabinet::item(i).setRefineCriteria(dom, ratio, slope, curve, prune);
             return 0;
         } catch (CanteraError) {
             return -1;
@@ -649,7 +639,7 @@ extern "C" {
             string sname = string(fname);
             string sid = string(id);
             string sdesc = string(desc);
-            _sim1D(i)->save(sname, sid, sdesc);
+            SimCabinet::item(i).save(sname, sid, sdesc);
             return 0;
         } catch (CanteraError) {
             return -1;
@@ -661,7 +651,7 @@ extern "C" {
         try {
             string sname = string(fname);
             string sid = string(id);
-            _sim1D(i)->restore(sname, sid);
+            SimCabinet::item(i).restore(sname, sid);
             return 0;
         } catch (CanteraError) {
             return -1;
@@ -671,7 +661,7 @@ extern "C" {
     int DLL_EXPORT sim1D_writeStats(int i, int printTime)
     {
         try {
-            _sim1D(i)->writeStats(printTime);
+            SimCabinet::item(i).writeStats(printTime);
             return 0;
         } catch (CanteraError) {
             return -1;
@@ -681,7 +671,7 @@ extern "C" {
     int DLL_EXPORT sim1D_domainIndex(int i, char* name)
     {
         try {
-            return (int) _sim1D(i)->domainIndex(string(name));
+            return (int) SimCabinet::item(i).domainIndex(string(name));
         } catch (CanteraError) {
             return -1;
         }
@@ -690,7 +680,7 @@ extern "C" {
     double DLL_EXPORT sim1D_value(int i, int idom, int icomp, int localPoint)
     {
         try {
-            return _sim1D(i)->value(idom, icomp, localPoint);
+            return SimCabinet::item(i).value(idom, icomp, localPoint);
         } catch (CanteraError) {
             return DERR;
         }
@@ -699,7 +689,7 @@ extern "C" {
     double DLL_EXPORT sim1D_workValue(int i, int idom, int icomp, int localPoint)
     {
         try {
-            return _sim1D(i)->workValue(idom, icomp, localPoint);
+            return SimCabinet::item(i).workValue(idom, icomp, localPoint);
         } catch (CanteraError) {
             return DERR;
         }
@@ -708,7 +698,7 @@ extern "C" {
     int DLL_EXPORT sim1D_eval(int i, double rdt, int count)
     {
         try {
-            _sim1D(i)->eval(rdt, count);
+            SimCabinet::item(i).eval(rdt, count);
             return 0;
         } catch (CanteraError) {
             return -1;
@@ -718,7 +708,7 @@ extern "C" {
     int DLL_EXPORT sim1D_setMaxJacAge(int i, int ss_age, int ts_age)
     {
         try {
-            _sim1D(i)->setJacAge(ss_age, ts_age);
+            SimCabinet::item(i).setJacAge(ss_age, ts_age);
             return 0;
         } catch (CanteraError) {
             return -1;
@@ -728,7 +718,7 @@ extern "C" {
     int DLL_EXPORT sim1D_timeStepFactor(int i, double tfactor)
     {
         try {
-            _sim1D(i)->setTimeStepFactor(tfactor);
+            SimCabinet::item(i).setTimeStepFactor(tfactor);
             return 0;
         } catch (CanteraError) {
             return -1;
@@ -739,10 +729,10 @@ extern "C" {
     {
         try {
             if (tsmin > 0.0) {
-                _sim1D(i)->setMinTimeStep(tsmin);
+                SimCabinet::item(i).setMinTimeStep(tsmin);
             }
             if (tsmax > 0.0) {
-                _sim1D(i)->setMaxTimeStep(tsmax);
+                SimCabinet::item(i).setMaxTimeStep(tsmax);
             }
             return 0;
         } catch (CanteraError) {
@@ -753,7 +743,7 @@ extern "C" {
     int DLL_EXPORT sim1D_setFixedTemperature(int i, double temp)
     {
         try {
-            _sim1D(i)->setFixedTemperature(temp);
+            SimCabinet::item(i).setFixedTemperature(temp);
             return 0;
         } catch (CanteraError) {
             return -1;
@@ -763,7 +753,7 @@ extern "C" {
     int DLL_EXPORT sim1D_evalSSJacobian(int i)
     {
         try {
-            _sim1D(i)->evalSSJacobian();
+            SimCabinet::item(i).evalSSJacobian();
             return 0;
         } catch (CanteraError) {
             return -1;
@@ -773,7 +763,7 @@ extern "C" {
     double DLL_EXPORT sim1D_jacobian(int i, int m, int n)
     {
         try {
-            return _sim1D(i)->jacobian(m,n);
+            return SimCabinet::item(i).jacobian(m,n);
         } catch (CanteraError) {
             return DERR;
         }
@@ -782,10 +772,9 @@ extern "C" {
     size_t DLL_EXPORT sim1D_size(int i)
     {
         try {
-            return _sim1D(i)->size();
+            return SimCabinet::item(i).size();
         } catch (CanteraError) {
             return -1;
         }
     }
-
 }

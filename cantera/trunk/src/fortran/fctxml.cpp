@@ -18,12 +18,12 @@ using Cantera::CanteraError;
 
 #include "clib/Cabinet.h"
 
-// Assign storage for the templated classes static member
-template<> Cabinet<XML_Node> * Cabinet<XML_Node>::__storage = 0;
+typedef Cabinet<XML_Node, false> XmlCabinet;
+template<> XmlCabinet* XmlCabinet::__storage = 0;
 
 inline XML_Node* _xml(const integer* i)
 {
-    return Cabinet<XML_Node>::cabinet(false)->item(*i);
+    return &XmlCabinet::item(*i);
 }
 
 static void handleError()
@@ -43,14 +43,14 @@ extern "C" {
         } else {
             x = new XML_Node(f2string(name, namelen), 0);
         }
-        return Cabinet<XML_Node>::cabinet(true)->add(x);
+        return XmlCabinet::add(x);
     }
 
     status_t DLL_EXPORT fxml_get_xml_file_(const char* file, ftnlen filelen)
     {
         try {
             XML_Node* x = Cantera::get_XML_File(f2string(file, filelen));
-            int ix = Cabinet<XML_Node>::cabinet(false)->add(x);
+            int ix = XmlCabinet::add(x);
             return ix;
         } catch (CanteraError) {
             handleError();
@@ -61,7 +61,7 @@ extern "C" {
     status_t DLL_EXPORT fxml_clear_()
     {
         try {
-            Cabinet<XML_Node>::cabinet(false)->clear();
+            XmlCabinet::clear();
             Cantera::close_XML_File("all");
             return 0;
         } catch (CanteraError) {
@@ -72,7 +72,7 @@ extern "C" {
 
     status_t DLL_EXPORT fxml_del_(const integer* i)
     {
-        Cabinet<XML_Node>::cabinet(false)->del(*i);
+        XmlCabinet::del(*i);
         return 0;
     }
 
@@ -84,12 +84,12 @@ extern "C" {
 
     status_t DLL_EXPORT fxml_copy_(const integer* i)
     {
-        return Cabinet<XML_Node>::cabinet(false)->newCopy(*i);
+        return XmlCabinet::newCopy(*i);
     }
 
     status_t DLL_EXPORT fxml_assign_(const integer* i, const integer* j)
     {
-        return Cabinet<XML_Node>::cabinet(false)->assign(*i,*j);
+        return XmlCabinet::assign(*i,*j);
     }
 
     status_t DLL_EXPORT fxml_attrib_(const integer* i, const char* key,
@@ -166,7 +166,7 @@ extern "C" {
         try {
             XML_Node& node = *_xml(i);
             XML_Node& c = node.child(f2string(loc, loclen));
-            return Cabinet<XML_Node>::cabinet()->add(&c);
+            return XmlCabinet::add(&c);
         } catch (CanteraError) {
             handleError();
         }
@@ -178,7 +178,7 @@ extern "C" {
         try {
             XML_Node& node = *_xml(i);
             XML_Node& c = node.child(*m);
-            return Cabinet<XML_Node>::cabinet()->add(&c);
+            return XmlCabinet::add(&c);
         } catch (CanteraError) {
             handleError();
         }
@@ -191,7 +191,7 @@ extern "C" {
             XML_Node& node = *_xml(i);
             XML_Node* c = node.findID(f2string(id, idlen));
             if (c) {
-                return Cabinet<XML_Node>::cabinet()->add(c);
+                return XmlCabinet::add(c);
             } else {
                 throw CanteraError("fxml_find_id","id not found: "+f2string(id, idlen));
             }
@@ -207,7 +207,7 @@ extern "C" {
             XML_Node& node = *_xml(i);
             XML_Node* c = node.findByName(f2string(nm, nmlen));
             if (c) {
-                return Cabinet<XML_Node>::cabinet()->add(c);
+                return XmlCabinet::add(c);
             } else
                 throw CanteraError("fxml_findByName","name "+f2string(nm, nmlen)
                                    +" not found");
@@ -235,7 +235,7 @@ extern "C" {
             XML_Node& node = *_xml(i);
             XML_Node& c = node.addChild(f2string(name, namelen),
                                         f2string(value,valuelen));
-            return Cabinet<XML_Node>::cabinet()->add(&c);
+            return XmlCabinet::add(&c);
         } catch (CanteraError) {
             handleError();
         }
@@ -248,7 +248,7 @@ extern "C" {
             XML_Node& node = *_xml(i);
             XML_Node& chld = *_xml(j);
             XML_Node& c = node.addChild(chld);
-            return Cabinet<XML_Node>::cabinet()->add(&c);
+            return XmlCabinet::add(&c);
         } catch (CanteraError) {
             handleError();
         }
