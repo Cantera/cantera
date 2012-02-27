@@ -22,7 +22,7 @@ static bool checkSpecies(int i, size_t k)
     try {
         if (k >= mixCabinet::item(i).nSpecies())
             throw CanteraError("checkSpecies",
-                               "illegal species index ("+int2str(int(k))+") ");
+                               "illegal species index ("+int2str(k)+") ");
         return true;
     } catch (CanteraError) {
         return false;
@@ -34,7 +34,7 @@ static bool checkElement(int i, size_t m)
     try {
         if (m >= mixCabinet::item(i).nElements())
             throw CanteraError("checkElement",
-                               "illegal element index ("+int2str(int(m))+") ");
+                               "illegal element index ("+int2str(m)+") ");
         return true;
     } catch (CanteraError) {
         return false;
