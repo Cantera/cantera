@@ -74,6 +74,22 @@ public:
         std::fill(m_data.begin(), m_data.end(), v);
     }
 
+    //!  Constructor.
+    /*!
+     *    Create an \c m by \c n array, initialized with the contents
+     *    of the array \c values.
+     *
+     *  @param m   Number of rows
+     *  @param n   Number of columns
+     *  @param values Initial values of the array. Must be of length m*n,
+     *  and stored in column-major order.
+     */
+    Array2D(const size_t m, const size_t n, const doublereal* values)
+        :  m_data(0), m_nrows(m), m_ncols(n) {
+        m_data.resize(n*m);
+        std::copy(values, values + m_nrows*m_ncols, m_data.begin());
+    }
+
     //!  Copy constructor
     /*!
      *   @param y  Array2D to make the copy from
