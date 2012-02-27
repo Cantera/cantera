@@ -44,6 +44,14 @@ class BasicTest(unittest.TestCase):
     def setUpClass(cls):
         cls.gas = ct.importPhase('../data/air-no-reactions.xml', 'air')
 
+    def setUp(self):
+        # Workaround for Python 2.6 unittest, which does not call setUpClass
+        try:
+            self.gas
+        except AttributeError:
+            self.setUpClass()
+
+
     def test_counts(self):
         self.assertEqual(self.gas.nElements(), 3)
         self.assertEqual(self.gas.nSpecies(), 8)
@@ -96,6 +104,12 @@ class ThermoTest(unittest.TestCase):
         cls.X0 = cls.gas.moleFractions()
 
     def setUp(self):
+        # Workaround for Python 2.6 unittest, which does not call setUpClass
+        try:
+            self.gas
+        except AttributeError:
+            self.setUpClass()
+
         self.gas.set(T=self.T0, P=self.P0, X=self.X0)
 
     def test_volume(self):
