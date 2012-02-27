@@ -23,10 +23,6 @@
 
 using namespace std;
 
-#ifdef WIN32
-#pragma warning(disable:4996)
-#endif
-
 namespace mdp
 {
 /*

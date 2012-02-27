@@ -1203,6 +1203,9 @@ long int Application::readStringRegistryKey(const std::string& keyName, const st
 
     HKEY key;
     long open_error = RegOpenKeyEx(HKEY_LOCAL_MACHINE, keyName.c_str(), 0, KEY_READ, &key);
+    if (open_error != ERROR_SUCCESS) {
+        return open_error;
+    }
     value = defaultValue;
     CHAR buffer[1024];
     DWORD bufferSize = sizeof(buffer);

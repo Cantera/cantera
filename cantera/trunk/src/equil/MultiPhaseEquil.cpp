@@ -863,7 +863,7 @@ void MultiPhaseEquil::computeN()
 
     bool ok;
     for (size_t m = 0; m < m_nel; m++) {
-        size_t k;
+        size_t k = 0;
         for (size_t ik = 0; ik < m_nsp; ik++) {
             k = m_sortindex[ik];
             if (m_mix->nAtoms(m_species[k],m_element[m]) != 0) {

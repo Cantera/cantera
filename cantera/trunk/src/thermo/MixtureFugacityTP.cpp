@@ -16,12 +16,6 @@
  *  $Revision: 388 $
  */
 
-// turn off warnings under Windows
-#ifdef WIN32
-#pragma warning(disable:4786)
-#pragma warning(disable:4503)
-#endif
-
 #include "cantera/thermo/MixtureFugacityTP.h"
 #include "cantera/thermo/VPSSMgr.h"
 #include "cantera/thermo/PDSS.h"
@@ -1169,7 +1163,8 @@ doublereal MixtureFugacityTP::calculatePsat(doublereal TKelvin, doublereal& mola
         doublereal volLiquid = liquidVolEst(TKelvin, pres);
         RhoLiquidGood = mw / volLiquid;
         RhoGasGood    = pres * mw / (GasConstant * TKelvin);
-        doublereal delGRT, liqGRT, gasGRT;
+        doublereal delGRT = 1.0E6;
+        doublereal liqGRT, gasGRT;
         int stab;
         doublereal presLast = pres;
 

@@ -17,12 +17,6 @@
  *  $Revision: 255 $
  */
 
-// turn off warnings under Windows
-#ifdef WIN32
-#pragma warning(disable:4786)
-#pragma warning(disable:4503)
-#endif
-
 #include "cantera/thermo/RedlichKwongMFTP.h"
 
 

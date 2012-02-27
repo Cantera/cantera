@@ -212,7 +212,7 @@ int solveSP::solveSurfProb(int ifunc, doublereal time_scale, doublereal TKelvin,
     }
     int info = 0;
     int label_t=-1; /* Species IDs for time control */
-    int label_d; /* Species IDs for damping control */
+    int label_d = -1; /* Species IDs for damping control */
     int        label_t_old=-1;
     doublereal     label_factor = 1.0;
     int iter=0; // iteration number on numlinear solver

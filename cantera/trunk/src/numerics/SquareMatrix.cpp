@@ -218,7 +218,7 @@ int SquareMatrix::factorQR()
         work.resize(8 * m_nrows, 0.0);
     }
     a1norm_ = ct_dlange('1', m_nrows, m_nrows, &(*(begin())), m_nrows, DATA_PTR(work));
-    int info;
+    int info = 0;
     m_factored = 2;
     size_t lwork = work.size();
     ct_dgeqrf(m_nrows, m_nrows, &(*(begin())), m_nrows, DATA_PTR(tau), DATA_PTR(work), lwork, info);
@@ -312,7 +312,7 @@ doublereal SquareMatrix::rcond(doublereal anorm)
     //  doublereal anorm = ct_dlange('1', m_nrows, m_nrows, &(*(begin())), m_nrows, DATA_PTR(work));
 
 
-    int rinfo;
+    int rinfo = 0;
     rcond = ct_dgecon('1', m_nrows, &(*(begin())), m_nrows, anorm, DATA_PTR(work),
                       DATA_PTR(iwork_), rinfo);
     if (rinfo != 0) {
@@ -345,7 +345,7 @@ doublereal SquareMatrix::rcondQR()
         throw CELapackError("SquareMatrix::rcondQR()", "matrix isn't factored correctly");
     }
 
-    int rinfo;
+    int rinfo = 0;
     rcond =  ct_dtrcon(0, ctlapack::UpperTriangular, 0, m_nrows, &(*(begin())), m_nrows, DATA_PTR(work),
                        DATA_PTR(iwork_), rinfo);
     if (rinfo != 0) {
