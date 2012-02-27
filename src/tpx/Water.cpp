@@ -191,8 +191,8 @@ double water::ldens()
     if ((T < Tmn) || (T >= Tc)) {
         set_Err(TempError);    // Error("water::ldens",TempError,T);
     }
-    for (i=0; i<=8; i++) {
-        sum+=D[i-1]*pow(1.0 - T/Tc, double(i)/3.0);
+    for (i=0; i<8; i++) {
+        sum+=D[i]*pow(1.0 - T/Tc, double(i+1)/3.0);
     }
     double density = Roc*(1+sum);
     return density;
