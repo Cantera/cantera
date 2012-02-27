@@ -8,16 +8,16 @@
 
 extern "C" {
 
-    EEXXTT int DLL_CPREFIX bndry_new(int itype);
-    EEXXTT int DLL_CPREFIX bndry_del(int i);
-    EEXXTT double DLL_CPREFIX bndry_temperature(int i);
-    EEXXTT int DLL_CPREFIX bndry_settemperature(int i, double t);
-    EEXXTT double DLL_CPREFIX bndry_spreadrate(int i);
-    EEXXTT int DLL_CPREFIX bndry_setSpreadRate(int i, double v);
-    EEXXTT int DLL_CPREFIX bndry_setmdot(int i, double mdot);
-    EEXXTT double DLL_CPREFIX bndry_mdot(int i);
-    EEXXTT int DLL_CPREFIX bndry_setxin(int i, double* xin);
-    EEXXTT int DLL_CPREFIX bndry_setxinbyname(int i, char* xin);
-    EEXXTT int DLL_CPREFIX bndry_setkinetics(int i, int j);
+    CANTERA_CAPI int bndry_new(int itype);
+    CANTERA_CAPI int bndry_del(int i);
+    CANTERA_CAPI double bndry_temperature(int i);
+    CANTERA_CAPI int bndry_settemperature(int i, double t);
+    CANTERA_CAPI double bndry_spreadrate(int i);
+    CANTERA_CAPI int bndry_setSpreadRate(int i, double v);
+    CANTERA_CAPI int bndry_setmdot(int i, double mdot);
+    CANTERA_CAPI double bndry_mdot(int i);
+    CANTERA_CAPI int bndry_setxin(int i, double* xin);
+    CANTERA_CAPI int bndry_setxinbyname(int i, char* xin);
+    CANTERA_CAPI int bndry_setkinetics(int i, int j);
 }
 #endif

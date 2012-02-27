@@ -34,7 +34,7 @@ extern "C" {
 
     // reactor
 
-    int DLL_EXPORT reactor_new(int type)
+    int reactor_new(int type)
     {
         ReactorBase* r=0;
         if (type == ReactorType) {
@@ -51,41 +51,41 @@ extern "C" {
         return ReactorCabinet::add(r);
     }
 
-    int DLL_EXPORT reactor_del(int i)
+    int reactor_del(int i)
     {
         ReactorCabinet::del(i);
         return 0;
     }
 
-    int DLL_EXPORT reactor_copy(int i)
+    int reactor_copy(int i)
     {
         return ReactorCabinet::newCopy(i);
     }
 
-    int DLL_EXPORT reactor_assign(int i, int j)
+    int reactor_assign(int i, int j)
     {
         return ReactorCabinet::assign(i,j);
     }
 
-    int DLL_EXPORT reactor_setInitialVolume(int i, double v)
+    int reactor_setInitialVolume(int i, double v)
     {
         ReactorCabinet::item(i).setInitialVolume(v);
         return 0;
     }
 
-    int DLL_EXPORT reactor_setInitialTime(int i, double t)
+    int reactor_setInitialTime(int i, double t)
     {
         ReactorCabinet::item(i).setInitialTime(t);
         return 0;
     }
 
-    int DLL_EXPORT reactor_setThermoMgr(int i, int n)
+    int reactor_setThermoMgr(int i, int n)
     {
         ReactorCabinet::item(i).setThermoMgr(ThermoCabinet::item(n));
         return 0;
     }
 
-    int DLL_EXPORT reactor_setKineticsMgr(int i, int n)
+    int reactor_setKineticsMgr(int i, int n)
     {
         ReactorBase* r = &ReactorCabinet::item(i);
         if (r->type() >= ReactorType) {
@@ -94,7 +94,7 @@ extern "C" {
         return 0;
     }
 
-    int DLL_EXPORT reactor_advance(int i, double t)
+    int reactor_advance(int i, double t)
     {
         try {
             ReactorCabinet::item(i).advance(t);
@@ -104,57 +104,57 @@ extern "C" {
         }
     }
 
-    double DLL_EXPORT reactor_step(int i, double t)
+    double reactor_step(int i, double t)
     {
         return ReactorCabinet::item(i).step(t);
     }
 
-    double DLL_EXPORT reactor_time(int i)
+    double reactor_time(int i)
     {
         return ReactorCabinet::item(i).time();
     }
 
-    double DLL_EXPORT reactor_mass(int i)
+    double reactor_mass(int i)
     {
         return ReactorCabinet::item(i).mass();
     }
 
-    double DLL_EXPORT reactor_volume(int i)
+    double reactor_volume(int i)
     {
         return ReactorCabinet::item(i).volume();
     }
 
-    double DLL_EXPORT reactor_density(int i)
+    double reactor_density(int i)
     {
         return ReactorCabinet::item(i).density();
     }
 
-    double DLL_EXPORT reactor_temperature(int i)
+    double reactor_temperature(int i)
     {
         return ReactorCabinet::item(i).temperature();
     }
 
-    double DLL_EXPORT reactor_enthalpy_mass(int i)
+    double reactor_enthalpy_mass(int i)
     {
         return ReactorCabinet::item(i).enthalpy_mass();
     }
 
-    double DLL_EXPORT reactor_intEnergy_mass(int i)
+    double reactor_intEnergy_mass(int i)
     {
         return ReactorCabinet::item(i).intEnergy_mass();
     }
 
-    double DLL_EXPORT reactor_pressure(int i)
+    double reactor_pressure(int i)
     {
         return ReactorCabinet::item(i).pressure();
     }
 
-    double DLL_EXPORT reactor_massFraction(int i, int k)
+    double reactor_massFraction(int i, int k)
     {
         return ReactorCabinet::item(i).massFraction(k);
     }
 
-    int DLL_EXPORT reactor_setEnergy(int i, int eflag)
+    int reactor_setEnergy(int i, int eflag)
     {
         ReactorBase* r = &ReactorCabinet::item(i);
         if (r->type() >= ReactorType) {
@@ -163,7 +163,7 @@ extern "C" {
         return 0;
     }
 
-    int DLL_EXPORT flowReactor_setMassFlowRate(int i, double mdot)
+    int flowReactor_setMassFlowRate(int i, double mdot)
     {
         ReactorBase* r = &ReactorCabinet::item(i);
         if (r->type() >= ReactorType) {
@@ -172,7 +172,7 @@ extern "C" {
         return 0;
     }
 
-    size_t DLL_EXPORT reactor_nSensParams(int i)
+    size_t reactor_nSensParams(int i)
     {
         ReactorBase* r = &ReactorCabinet::item(i);
         if (r->type() >= ReactorType) {
@@ -183,7 +183,7 @@ extern "C" {
         }
     }
 
-    int DLL_EXPORT reactor_addSensitivityReaction(int i, int rxn)
+    int reactor_addSensitivityReaction(int i, int rxn)
     {
         ReactorBase* r = &ReactorCabinet::item(i);
         ((Reactor*)r)->addSensitivityReaction(rxn);
@@ -193,13 +193,13 @@ extern "C" {
 
     // reactor networks
 
-    int DLL_EXPORT reactornet_new()
+    int reactornet_new()
     {
         ReactorNet* r = new ReactorNet();
         return NetworkCabinet::add(r);
     }
 
-    int DLL_EXPORT reactornet_del(int i)
+    int reactornet_del(int i)
     {
         try {
             NetworkCabinet::del(i);
@@ -209,41 +209,41 @@ extern "C" {
         }
     }
 
-    int DLL_EXPORT reactornet_copy(int i)
+    int reactornet_copy(int i)
     {
         return NetworkCabinet::newCopy(i);
     }
 
-    int DLL_EXPORT reactornet_assign(int i, int j)
+    int reactornet_assign(int i, int j)
     {
         return NetworkCabinet::assign(i,j);
     }
 
-    int DLL_EXPORT reactornet_setInitialTime(int i, double t)
+    int reactornet_setInitialTime(int i, double t)
     {
         NetworkCabinet::item(i).setInitialTime(t);
         return 0;
     }
 
-    int DLL_EXPORT reactornet_setMaxTimeStep(int i, double maxstep)
+    int reactornet_setMaxTimeStep(int i, double maxstep)
     {
         NetworkCabinet::item(i).setMaxTimeStep(maxstep);
         return 0;
     }
 
-    int DLL_EXPORT reactornet_setTolerances(int i, double rtol, double atol)
+    int reactornet_setTolerances(int i, double rtol, double atol)
     {
         NetworkCabinet::item(i).setTolerances(rtol, atol);
         return 0;
     }
 
-    int DLL_EXPORT reactornet_setSensitivityTolerances(int i, double rtol, double atol)
+    int reactornet_setSensitivityTolerances(int i, double rtol, double atol)
     {
         NetworkCabinet::item(i).setSensitivityTolerances(rtol, atol);
         return 0;
     }
 
-    int DLL_EXPORT reactornet_addreactor(int i, int n)
+    int reactornet_addreactor(int i, int n)
     {
         try {
             NetworkCabinet::item(i).addReactor(&ReactorCabinet::item(n));
@@ -253,7 +253,7 @@ extern "C" {
         }
     }
 
-    int DLL_EXPORT reactornet_advance(int i, double t)
+    int reactornet_advance(int i, double t)
     {
         try {
             NetworkCabinet::item(i).advance(t);
@@ -263,7 +263,7 @@ extern "C" {
         }
     }
 
-    double DLL_EXPORT reactornet_step(int i, double t)
+    double reactornet_step(int i, double t)
     {
         try {
             return NetworkCabinet::item(i).step(t);
@@ -272,22 +272,22 @@ extern "C" {
         }
     }
 
-    double DLL_EXPORT reactornet_time(int i)
+    double reactornet_time(int i)
     {
         return NetworkCabinet::item(i).time();
     }
 
-    double DLL_EXPORT reactornet_rtol(int i)
+    double reactornet_rtol(int i)
     {
         return NetworkCabinet::item(i).rtol();
     }
 
-    double DLL_EXPORT reactornet_atol(int i)
+    double reactornet_atol(int i)
     {
         return NetworkCabinet::item(i).atol();
     }
 
-    double DLL_EXPORT reactornet_sensitivity(int i, char* v, int p, int r)
+    double reactornet_sensitivity(int i, char* v, int p, int r)
     {
         return NetworkCabinet::item(i).sensitivity(v, p, r);
     }
@@ -295,7 +295,7 @@ extern "C" {
 
     // flow devices
 
-    int DLL_EXPORT flowdev_new(int type)
+    int flowdev_new(int type)
     {
         FlowDevice* r;
         switch (type) {
@@ -314,13 +314,13 @@ extern "C" {
         return FlowDeviceCabinet::add(r);
     }
 
-    int DLL_EXPORT flowdev_del(int i)
+    int flowdev_del(int i)
     {
         FlowDeviceCabinet::del(i);
         return 0;
     }
 
-    int DLL_EXPORT flowdev_install(int i, int n, int m)
+    int flowdev_install(int i, int n, int m)
     {
         try {
             bool ok = FlowDeviceCabinet::item(i).install(ReactorCabinet::item(n),
@@ -334,7 +334,7 @@ extern "C" {
         }
     }
 
-    int DLL_EXPORT flowdev_setMaster(int i, int n)
+    int flowdev_setMaster(int i, int n)
     {
         if (FlowDeviceCabinet::item(i).type() == PressureController_Type) {
             dynamic_cast<PressureController&>(FlowDeviceCabinet::item(i)).setMaster(
@@ -343,30 +343,30 @@ extern "C" {
         return 0;
     }
 
-    double DLL_EXPORT flowdev_massFlowRate(int i, double time)
+    double flowdev_massFlowRate(int i, double time)
     {
         return FlowDeviceCabinet::item(i).massFlowRate(time);
     }
 
-    int DLL_EXPORT flowdev_setMassFlowRate(int i, double mdot)
+    int flowdev_setMassFlowRate(int i, double mdot)
     {
         FlowDeviceCabinet::item(i).setMassFlowRate(mdot);
         return 0;
     }
 
-    int DLL_EXPORT flowdev_setParameters(int i, int n, double* v)
+    int flowdev_setParameters(int i, int n, double* v)
     {
         FlowDeviceCabinet::item(i).setParameters(n, v);
         return 0;
     }
 
-    int DLL_EXPORT flowdev_setFunction(int i, int n)
+    int flowdev_setFunction(int i, int n)
     {
         FlowDeviceCabinet::item(i).setFunction(&FuncCabinet::item(n));
         return 0;
     }
 
-    int DLL_EXPORT flowdev_ready(int i)
+    int flowdev_ready(int i)
     {
         bool ok = FlowDeviceCabinet::item(i).ready();
         if (ok) {
@@ -379,37 +379,37 @@ extern "C" {
     /////////////    Walls   ///////////////////////
 
 
-    int DLL_EXPORT wall_new(int type)
+    int wall_new(int type)
     {
         Wall* r;
         r = new Wall();
         return WallCabinet::add(r);
     }
 
-    int DLL_EXPORT wall_del(int i)
+    int wall_del(int i)
     {
         WallCabinet::del(i);
         return 0;
     }
 
-    int DLL_EXPORT wall_copy(int i)
+    int wall_copy(int i)
     {
         return WallCabinet::newCopy(i);
     }
 
-    int DLL_EXPORT wall_assign(int i, int j)
+    int wall_assign(int i, int j)
     {
         return WallCabinet::assign(i,j);
     }
 
-    int DLL_EXPORT wall_install(int i, int n, int m)
+    int wall_install(int i, int n, int m)
     {
         WallCabinet::item(i).install(ReactorCabinet::item(n),
                                      ReactorCabinet::item(m));
         return 0;
     }
 
-    int DLL_EXPORT wall_setkinetics(int i, int n, int m)
+    int wall_setkinetics(int i, int n, int m)
     {
         Kinetics* left=0, *right=0;
         if (n > 0)
@@ -424,64 +424,64 @@ extern "C" {
         return 0;
     }
 
-    double DLL_EXPORT wall_vdot(int i, double t)
+    double wall_vdot(int i, double t)
     {
         return WallCabinet::item(i).vdot(t);
     }
 
-    double DLL_EXPORT wall_Q(int i, double t)
+    double wall_Q(int i, double t)
     {
         return WallCabinet::item(i).Q(t);
     }
 
-    double DLL_EXPORT wall_area(int i)
+    double wall_area(int i)
     {
         return WallCabinet::item(i).area();
     }
 
-    int DLL_EXPORT wall_setArea(int i, double v)
+    int wall_setArea(int i, double v)
     {
         WallCabinet::item(i).setArea(v);
         return 0;
     }
 
-    int DLL_EXPORT wall_setThermalResistance(int i, double rth)
+    int wall_setThermalResistance(int i, double rth)
     {
         WallCabinet::item(i).setThermalResistance(rth);
         return 0;
     }
 
-    int DLL_EXPORT wall_setHeatTransferCoeff(int i, double u)
+    int wall_setHeatTransferCoeff(int i, double u)
     {
         WallCabinet::item(i).setHeatTransferCoeff(u);
         return 0;
     }
 
-    int DLL_EXPORT wall_setHeatFlux(int i, int n)
+    int wall_setHeatFlux(int i, int n)
     {
         WallCabinet::item(i).setHeatFlux(&FuncCabinet::item(n));
         return 0;
     }
 
-    int DLL_EXPORT wall_setExpansionRateCoeff(int i, double k)
+    int wall_setExpansionRateCoeff(int i, double k)
     {
         WallCabinet::item(i).setExpansionRateCoeff(k);
         return 0;
     }
 
-    int DLL_EXPORT wall_setVelocity(int i, int n)
+    int wall_setVelocity(int i, int n)
     {
         WallCabinet::item(i).setVelocity(&FuncCabinet::item(n));
         return 0;
     }
 
-    int DLL_EXPORT wall_setEmissivity(int i, double epsilon)
+    int wall_setEmissivity(int i, double epsilon)
     {
         WallCabinet::item(i).setEmissivity(epsilon);
         return 0;
     }
 
-    int DLL_EXPORT wall_ready(int i)
+    int wall_ready(int i)
     {
         if (WallCabinet::item(i).ready()) {
             return 1;
@@ -490,7 +490,7 @@ extern "C" {
         }
     }
 
-    int DLL_EXPORT wall_addSensitivityReaction(int i, int lr, int rxn)
+    int wall_addSensitivityReaction(int i, int lr, int rxn)
     {
         WallCabinet::item(i).addSensitivityReaction(lr, rxn);
         return 0;
