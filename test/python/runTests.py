@@ -14,5 +14,5 @@ if __name__ == '__main__':
 
     loader = unittest.TestLoader()
     runner = unittest.TextTestRunner(verbosity=2)
-    suite = loader.loadTestsFromName('testThermo')
+    suite = loader.loadTestsFromName('testSolution')
     runner.run(suite)
