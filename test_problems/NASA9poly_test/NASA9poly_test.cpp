@@ -77,8 +77,8 @@ int main(int argc, char** argv)
             g.setState_TPX(T1, pres, DATA_PTR(Xset));
             g.getPureGibbs(DATA_PTR(Gvalues));
             //printf("     --  %13g %13.5g %13.5g %13.5g %13.5g \n",
-            //	     Gvalues[0],  Gvalues[1],  Gvalues[2],
-            //	     Gvalues[3],  Gvalues[4]);
+            //    Gvalues[0],  Gvalues[1],  Gvalues[2],
+            //    Gvalues[3],  Gvalues[4]);
             double visc = tran->viscosity();
             double cond = tran->thermalConductivity();
             printf("    %13g %13.5g %13.5g\n", T1, visc, cond);

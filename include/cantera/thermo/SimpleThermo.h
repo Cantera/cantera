@@ -184,7 +184,7 @@ public:
         } else if (fabs(m_p0 - refPressure) > 0.1) {
             std::string logmsg =  " WARNING SimpleThermo: New Species, " + name +
                                   ", has a different reference pressure, "
-                                  + fp2str(refPressure) + ", than existing reference pressure, " 	+ fp2str(m_p0) + "\n";
+                                  + fp2str(refPressure) + ", than existing reference pressure, " + fp2str(m_p0) + "\n";
             writelog(logmsg);
             logmsg = "                  This is now a fatal error\n";
             writelog(logmsg);

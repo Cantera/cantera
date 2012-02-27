@@ -413,11 +413,11 @@ void VPSSMgr::initThermoXML(XML_Node& phaseNode, std::string id)
             m_p0_k = m_spthermo->refPressure(k);
             if (m_p0 != m_p0_k) {
                 //throw CanteraError("VPSSMgr::initThermoXML",
-                //		     "inconsistent ref pressures" + fp2str(m_p0) + " "
-                //	     + fp2str(m_p0_k));
+                //    "inconsistent ref pressures" + fp2str(m_p0) + " "
+                //    + fp2str(m_p0_k));
                 // writelog("VPSSMgr::initThermoXML:"
-                //		     "inconsistent ref pressures: " + fp2str(m_p0) + " "
-                //	   + fp2str(m_p0_k) + " for SpeciesThermo k = " + int2str(k) + "\n");
+                //    "inconsistent ref pressures: " + fp2str(m_p0) + " "
+                //    + fp2str(m_p0_k) + " for SpeciesThermo k = " + int2str(k) + "\n");
             }
         }
     }
@@ -427,11 +427,11 @@ void VPSSMgr::initThermoXML(XML_Node& phaseNode, std::string id)
         m_p0_k = kPDSS->refPressure();
         if (m_p0 != m_p0_k) {
             //throw CanteraError("VPSSMgr::initThermoXML",
-            //		   "inconsistent ref pressures" + fp2str(m_p0) + " "
-            //		   + fp2str(m_p0_k));
+            //    "inconsistent ref pressures" + fp2str(m_p0) + " "
+            //    + fp2str(m_p0_k));
             //writelog("VPSSMgr::initThermoXML"
-            //		   "inconsistent ref pressures: " + fp2str(m_p0) + " "
-            //		   + fp2str(m_p0_k) + " for PDSS k = " + int2str(k) + "\n");
+            //    "inconsistent ref pressures: " + fp2str(m_p0) + " "
+            //    + fp2str(m_p0_k) + " for PDSS k = " + int2str(k) + "\n");
         }
     }
 #endif

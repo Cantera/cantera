@@ -20,43 +20,42 @@ static int PrintInputFile = true;     /* Used to turn on and off the
 
 /*************** R O U T I N E S   I N   T H E   F I L E *******************
 *
-*    NAME				TYPE		CALLED_BY
+*    NAME                       TYPE            CALLED_BY
 *--------------------------------------------------------------------
-*    get_next_keyLine                   bool            extern
-*    tok_to_int                         int             extern
-*    str_to_int                         int             extern, tok_to_int
-*    tok_to_double                      double          extern
-*    str_to_double                      double         extern,tok_to_double
-*    tok_to_boolean                     bool            extern
-*    str_to_boolean                     bool           extern,tok_to_boolean
-*    tok_to_string                      char *          extern
+*    get_next_keyLine           bool            extern
+*    tok_to_int                 int             extern
+*    str_to_int                 int             extern, tok_to_int
+*    tok_to_double              double          extern
+*    str_to_double              double          extern,tok_to_double
+*    tok_to_boolean             bool            extern
+*    str_to_boolean             bool            extern,tok_to_boolean
+*    tok_to_string              char *          extern
 *
-*
-*    scan_for_int                       int             extern
-*    scan_for_double                    double          extern
-*    scan_for_string                    char *          extern
-*    scan_for_boolean                   bool            extern
-*    scan_for_line                      int             extern
-*    read_line				int		scan_for_line,
-*                                                    get_next_keyLine
-*    interpret_int               static bool         str_to_int + others
-*    interpret_boolean           static bool         str_to_boolean
-*    interpret_double            static bool         str_to_double
-*    strip		                int	  read_input_file,
-*						  look_for,
-*                                                 get_next_keyLine
-*    read_string                 static void      scan_for_line
-*    stokenize			        int	  fillTokStruct
-*    outofbnds                   static bool   all
-*    strmatch                           bool   extern, toktokmatch
-*    strstrmatch                        bool   extern
-*    strtokmatch                        bool   extern
-*    toktokmatch                        bool         extern, strtokmatch
-*                                                       strstrmatch
-*    fillTokStruct                      void            extern, strtokmatch
-*                                                       strstrmatch,
-*                                                     get_next_keyLine
-*    copyTokStruct                      void            extern
+*    scan_for_int               int             extern
+*    scan_for_double            double          extern
+*    scan_for_string            char *          extern
+*    scan_for_boolean           bool            extern
+*    scan_for_line              int             extern
+*    read_line                  int             scan_for_line,
+*                                               get_next_keyLine
+*    interpret_int              static bool     str_to_int + others
+*    interpret_boolean          static bool     str_to_boolean
+*    interpret_double           static bool     str_to_double
+*    strip                      int             read_input_file,
+*                                               look_for,
+*                                               get_next_keyLine
+*    read_string                static void     scan_for_line
+*    stokenize                  int             fillTokStruct
+*    outofbnds                  static bool     all
+*    strmatch                   bool            extern, toktokmatch
+*    strstrmatch                bool            extern
+*    strtokmatch                bool            extern
+*    toktokmatch                bool            extern, strtokmatch
+*                                               strstrmatch
+*    fillTokStruct              void            extern, strtokmatch
+*                                               strstrmatch,
+*                                               get_next_keyLine
+*    copyTokStruct              void            extern
 *
 ******************************************************************************/
 /*
@@ -817,27 +816,25 @@ char* scan_for_string(FILE* ifp, const char* string, const int maxVal,
 int scan_for_line(FILE* ifp, const char* str, char input[],
                   const char ch_term, const int print_flag)
 /*
-* 	Scan the input file (reading in strings according to
-*     'read_string(ifp,)'
-*	specifications) until the character pattern in 'string' is matched.
-*     Returns all of the characters after the termination character in
-*     a null-character terminated string,
+* Scan the input file (reading in strings according to * 'read_string(ifp,)'
+* specifications) until the character pattern in 'string' is matched.
+* Returns all of the characters after the termination character in
+* a null-character terminated string,
 *
-*	Parameter list:
+* Parameter list:
 *
-*	ifp    == pointer to file "input"
-*	string == contains string pattern to be matched.
-*	input  == buffer array to hold characters that are read in.
+* ifp    == pointer to file "input"
+* string == contains string pattern to be matched.
+* input  == buffer array to hold characters that are read in.
 *                 On output, it contains the return character string
-*	ch_term== Termination character. When scanning a line of input
-*		  is read until either a newline, the 'ch' termination
-*		  character is read, or the end-of-file is read.
+* ch_term== Termination character. When scanning a line of input
+* is read until either a newline, the 'ch' termination
+* character is read, or the end-of-file is read.
 *
-*     Output:
-*         This function returns the number of characters in the string
-*         input,
-*         excluding the null character.  Error conditions are currently
-*         handled by returning with negative return values.
+* Output:
+*     This function returns the number of characters in the string input,
+*     excluding the null character.  Error conditions are currently
+*     handled by returning with negative return values.
 */
 {
     int       retn_value, i;
@@ -1001,29 +998,29 @@ int read_line(FILE* ifp, char input[], const int print_flag)
 
 int read_string(FILE* ifp, char string[], const char ch)
 /*
- *	This routine reads the standard input until encountering
- *	the end-of-file, a newline,  the character 'ch' or until
- *	MAX_INPUT_STR_LN characters are read. The inputted characters
- *  are read into 'string'.
+ * This routine reads the standard input until encountering
+ * the end-of-file, a newline,  the character 'ch' or until
+ * MAX_INPUT_STR_LN characters are read. The inputted characters
+ * are read into 'string'.
  *        If an EOF occurs, -1 is returned.
  *        If a line is longer than MAX_INPUT_STR_LN, a -2 is returned
  *        and an error message is written to standard error.
  *        string[] will be returned null-terminated with the
  *        first MAX_INPUT_STR_LN of the line.
- *  Upon successful completion with the read terminated by the
- *  character 'ch', the number of characters read plus 1 for the
- *  null character at the end of the string is returned.  If the
- *  read is terminated by '\n', a 0 is returned, even if  ch = '\n'
+ * Upon successful completion with the read terminated by the
+ * character 'ch', the number of characters read plus 1 for the
+ * null character at the end of the string is returned.  If the
+ * read is terminated by '\n', a 0 is returned, even if  ch = '\n'
  *
  *
- *	Parameter list:
+ * Parameter list:
  *
- *	ifp    == pointer to file "input"
- *	string == On output, 'string' contains the characters read
- *		  from the input stream.  However, the termination character
- *                 or the newline character is not included
- *	ch     == Additional Termination character. That is, input function
- *		  stops when 'ch' or '\n' is read.
+ * ifp    == pointer to file "input"
+ * string == On output, 'string' contains the characters read
+ *           from the input stream.  However, the termination character
+ *           or the newline character is not included
+ * ch     == Additional Termination character. That is, input function
+ *           stops when 'ch' or '\n' is read.
  */
 {
     int   i = 0, rtn_value, new_ch;
@@ -1235,19 +1232,19 @@ static bool interpret_double(const char* token, double* retn_value,
 
 int strip(char str[])
 /*
-*	This routine strips off blanks and tabs (only leading and trailing
-*	characters) in 'str'.  On return, it returns the number of
-*     characters still included in the string (excluding the null character).
+* This routine strips off blanks and tabs (only leading and trailing
+* characters) in 'str'.  On return, it returns the number of
+* characters still included in the string (excluding the null character).
 *
-*      Comments are excluded -> All instances of the comment character, '!',
-*                               are replaced by '\0' thereby terminating
-*                               the string
+* Comments are excluded -> All instances of the comment character, '!',
+*                          are replaced by '\0' thereby terminating
+*                          the string
 *
-*	Parameter list:
+* Parameter list:
 *
-*	str == On output 'str' contains the same characters as on
-*		  input except the leading and trailing white space and
-*               comments have been removed.
+* str == On output 'str' contains the same characters as on
+*        input except the leading and trailing white space and
+*        comments have been removed.
 */
 {
     int  i = 0, j = 0;

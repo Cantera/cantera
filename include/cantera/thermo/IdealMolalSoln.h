@@ -117,7 +117,7 @@ public:
     IdealMolalSoln(const IdealMolalSoln&);
 
     //! Assignment operator
-    IdealMolalSoln& operator=(const	IdealMolalSoln&);
+    IdealMolalSoln& operator=(const IdealMolalSoln&);
 
     //! Constructor for phase initialization
     /*!

@@ -45,7 +45,7 @@ VCS_PROB::VCS_PROB(size_t nsp, size_t nel, size_t nph) :
 /* Set the units for the chemical potential data to be
  * unitless */
     iest(-1),    /* The default is to not expect an initial estimate
-		  * of the species concentrations */
+                  * of the species concentrations */
     tolmaj(1.0E-8),
     tolmin(1.0E-6),
     m_Iterations(0),

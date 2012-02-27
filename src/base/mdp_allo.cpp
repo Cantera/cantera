@@ -1034,7 +1034,7 @@ void mdp_realloc_dbl_2(double** *array_hdl,  int ndim1, int ndim2,
  *  mdp_realloc_dbl_2:
  *
  *  mdp_realloc_dbl_2(array_hdl, int ndim1, int ndim2,
- *   	                int ndim1Old, int ndim2Old, const double val)
+ *                    int ndim1Old, int ndim2Old, const double val)
  *
  *    Reallocates a two dimensional array of doubles.
  *    This routine will then copy the pertinent information from

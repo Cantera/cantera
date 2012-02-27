@@ -1421,8 +1421,8 @@ doublereal RedlichKwongMFTP::densityCalc(doublereal TKelvin, doublereal presPa, 
         } else if (TKelvin > tcrit) {
             molarVolLast = Vroot_[0];
         } else {
-            //	molarVolLast = Vroot_[0];
-            //printf("DensityCalc(): Possible problem encountered\n");
+            // molarVolLast = Vroot_[0];
+            // printf("DensityCalc(): Possible problem encountered\n");
             return -2.0;
         }
     } else {
@@ -1952,7 +1952,7 @@ int RedlichKwongMFTP::NicholsSolve(double TKelvin, double pres, doublereal a, do
             }
         }
     }
-    // writelog("RedlichKwongMFTP::NicholsSolve(T = " + fp2str(TKelvin) + ", p = " + 	 fp2str(pres) + "): finished");
+    // writelog("RedlichKwongMFTP::NicholsSolve(T = " + fp2str(TKelvin) + ", p = " + fp2str(pres) + "): finished");
     // writelogendl();
     return nSolnValues;
 }

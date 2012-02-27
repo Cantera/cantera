@@ -796,7 +796,7 @@ int ReactionPathBuilder::init(ostream& logfile, Kinetics& kin)
         }
 
         size_t nrnet = m_reac[i].size();
-        // 	    int npnet = m_prod[i].size();
+        // int npnet = m_prod[i].size();
 
         // compute number of atoms of each element in each reaction,
         // excluding molecules that appear on both sides of the

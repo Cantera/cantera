@@ -74,18 +74,18 @@ public:
     int T_Its;
 
     //!  Current number of iterations in the main loop
-    //!	  of vcs_TP() to solve for thermo equilibrium
+    //!  of vcs_TP() to solve for thermo equilibrium
     int Its;
 
     //! Total number of optimizations of the
-    //!	components basis set done
+    //! components basis set done
     int T_Basis_Opts;
 
     //! number of optimizations of the components basis set done
     int Basis_Opts;
 
     //! Current number of times the initial thermo
-    //!	equilibrium estimator has been called
+    //! equilibrium estimator has been called
     int T_Calls_Inest;
 
     //! Current number of calls to vcs_TP

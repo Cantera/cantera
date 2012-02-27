@@ -369,7 +369,7 @@ doublereal WaterProps::ADebye(doublereal T, doublereal P_input, int ifunc)
 
 #ifdef DEBUG_HKM
         //printf("dAdT = %g, contrib1 = %g, contrib2 = %g\n",
-        //	 dAdT, contrib1, contrib2);
+        //    dAdT, contrib1, contrib2);
 #endif
 
         if (ifunc == 1) {

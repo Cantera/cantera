@@ -628,7 +628,7 @@ public:
     DebyeHuckel(const DebyeHuckel&);
 
     //! Assignment operator
-    DebyeHuckel& operator=(const	DebyeHuckel&);
+    DebyeHuckel& operator=(const DebyeHuckel&);
 
     //! Full constructor for creating the phase.
     /*!

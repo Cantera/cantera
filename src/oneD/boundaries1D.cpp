@@ -498,7 +498,7 @@ eval(size_t jg, doublereal* xg, doublereal* rg,
         // zero Lambda
 
         if (!m_flow_left->fixed_mdot()) {
-            ;    //                rb[0] = xb[0] - xb[0-nc];	//zero U gradient
+            ;    //                rb[0] = xb[0] - xb[0-nc]; //zero U gradient
         } else {
             rb[0] = xb[3];    // zero Lambda
         }

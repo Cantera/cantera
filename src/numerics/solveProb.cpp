@@ -185,7 +185,7 @@ int solveProb::solve(int ifunc, doublereal time_scale,
          * 5 iterations.
          */
         //  if (iter%5 == 4) {
-        //	evalSurfLarge(DATA_PTR(m_CSolnSP));
+        //    evalSurfLarge(DATA_PTR(m_CSolnSP));
         // }
 
         /*
@@ -529,8 +529,8 @@ doublereal solveProb::calc_damping(doublereal x[], doublereal dxneg[], size_t di
             *label = i;
         }
         // else  if (fabs(xnew) > 2.0*MAX(fabs(x[i]), 1.0E-10)) {
-        //	damp = 0.5 * MAX(fabs(x[i]), 1.0E-9)/ fabs(xnew);
-        //	*label = i;
+        //    damp = 0.5 * MAX(fabs(x[i]), 1.0E-9)/ fabs(xnew);
+        //    *label = i;
         //     }
         double denom = fabs(x[i]) + 1.0E5 * m_atol[i];
         if ((fabs(delta_x) / denom) > 0.3) {

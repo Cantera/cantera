@@ -2942,7 +2942,7 @@ int NonlinearSolver::decideStep(const doublereal time_curr, int leg, doublereal 
         // NextTrustFactor_ *= 0.5;
         // ll = trustRegionLength();
         // if (m_print_flag >= 5) {
-        //	printf("\t\tdecideStep(): Trust region decreased from %g to %g due to bounds constraint\n", ll*2, ll);
+        //      printf("\t\tdecideStep(): Trust region decreased from %g to %g due to bounds constraint\n", ll*2, ll);
         //}
     } else {
         retn = 0;

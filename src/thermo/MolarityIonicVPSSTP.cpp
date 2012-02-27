@@ -718,8 +718,8 @@ void MolarityIonicVPSSTP::initThermoXML(XML_Node& phaseNode, std::string id)
         std::string mStringa = acNode.attrib("model");
         std::string mString = lowercase(mStringa);
         // if (mString != "redlich-kister") {
-        //	throw CanteraError(subname.c_str(),
-        //			   "Unknown activity coefficient model: " + mStringa);
+        //   throw CanteraError(subname.c_str(),
+        //        "Unknown activity coefficient model: " + mStringa);
         //}
         size_t n = acNodePtr->nChildren();
         for (size_t i = 0; i < n; i++) {

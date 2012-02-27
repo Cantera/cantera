@@ -124,7 +124,7 @@ void GeneralSpeciesThermo::install(std::string name,
         m_kk = index+1;
     }
     //AssertThrow(m_sp[index] == 0,
-    //		    "Index position isn't null, duplication of assignment: " + int2str(index));
+    //            "Index position isn't null, duplication of assignment: " + int2str(index));
 
     //int nfreq = 3;
     /*
@@ -255,7 +255,7 @@ update(doublereal t, doublereal* cp_R,
             sp_ptr->updatePropertiesTemp(t, cp_R, h_RT, s_R);
         }
         // else {
-        //	writelog("General::update: sp_ptr is NULL!\n");
+        //   writelog("General::update: sp_ptr is NULL!\n");
         //}
     }
 }

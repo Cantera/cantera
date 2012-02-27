@@ -241,7 +241,7 @@ bool buildSolutionFromXML(XML_Node& root, std::string id, std::string nm,
  * @ingroup inputfiles
  */
 //const XML_Node *speciesXML_Node(std::string kname,
-//				  const XML_Node *phaseSpeciesData);
+//                                const XML_Node *phaseSpeciesData);
 
 }
 

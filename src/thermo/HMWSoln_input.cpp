@@ -1382,8 +1382,8 @@ initThermoXML(XML_Node& phaseNode, std::string id)
 #endif
             } else {
                 //  throw CanteraError("HMWSoln::initThermoXML",
-                //	     "Solvent SS Model \"" + modelStringa +
-                //	     "\" is not allowed, name = " + sss[0]);
+                //                     "Solvent SS Model \"" + modelStringa +
+                //                     "\" is not allowed, name = " + sss[0]);
                 m_waterSS = providePDSS(0);
                 m_waterSS->setState_TP(300., OneAtm);
                 double dens = m_waterSS->density();
