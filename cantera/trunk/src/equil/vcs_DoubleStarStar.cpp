@@ -41,8 +41,10 @@ DoubleStarStar::DoubleStarStar(const DoubleStarStar& y)
     m_data.resize(m_nrows*m_ncols);
     m_data = y.m_data;
     m_colAddr.resize(m_ncols);
-    for (size_t jcol = 0; jcol < m_ncols; jcol++) {
-        m_colAddr[jcol] = &(m_data[jcol*m_nrows]);
+    if (!m_data.empty()) {
+        for (size_t jcol = 0; jcol < m_ncols; jcol++) {
+            m_colAddr[jcol] = &(m_data[jcol*m_nrows]);
+        }
     }
 }
 
@@ -57,8 +59,10 @@ DoubleStarStar& DoubleStarStar::operator=(const DoubleStarStar& y)
     m_data.resize(m_nrows*m_ncols);
     m_data = y.m_data;
     m_colAddr.resize(m_ncols);
-    for (size_t jcol = 0; jcol < m_ncols; jcol++) {
-        m_colAddr[jcol] = &(m_data[jcol*m_nrows]);
+    if (!m_data.empty()) {
+        for (size_t jcol = 0; jcol < m_ncols; jcol++) {
+            m_colAddr[jcol] = &(m_data[jcol*m_nrows]);
+        }
     }
     return *this;
 }
@@ -108,8 +112,10 @@ void DoubleStarStar::resize(size_t m, size_t n, double v)
     m_nrows = n;
     m_ncols = m;
     m_colAddr.resize(m_ncols);
-    for (size_t jcol = 0; jcol < m_ncols; jcol++) {
-        m_colAddr[jcol] = &(m_data[jcol*m_nrows]);
+    if (!m_data.empty()) {
+        for (size_t jcol = 0; jcol < m_ncols; jcol++) {
+            m_colAddr[jcol] = &(m_data[jcol*m_nrows]);
+        }
     }
 }
 
