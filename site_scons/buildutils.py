@@ -192,7 +192,7 @@ def compareTextFiles(env, file1, file2):
 
     # Replace nearly-equal floating point numbers with exactly equivalent
     # representations to avoid confusing difflib
-    reFloat = re.compile(r'(\s*)([+-]{0,1}\d+\.\d+[eE]{0,1}[+-]{0,1}\d*)')
+    reFloat = re.compile(r'(\s*)([+-]{0,1}\d+\.{0,1}\d*[eE]{0,1}[+-]{0,1}\d*)')
     for i in range(min(len(text1), len(text2))):
         line1 = text1[i]
         line2 = text2[i]
@@ -243,11 +243,15 @@ def getPrecision(x):
     the number represented by the string 'x'.
     """
     x = x.lower()
+    decimalPt = x.find('.')
+    if decimalPt == -1:
+        decimalPt = 0
+
     if x.find('e') != -1:
-        precision = x.find('.') - x.find('e') + 1
+        precision = decimalPt - x.find('e') + 1
         precision += int(x[x.find('e')+1:])
     else:
-        precision =  x.find('.') - len(x) + 1
+        precision = decimalPt - len(x) + 1
 
     return 10**precision
 
