@@ -33,7 +33,6 @@ Transport::Transport(thermo_t* thermo, size_t ndim) :
     m_thermo(thermo),
     m_ready(false),
     m_nmin(0),
-    m_index(npos),
     m_nDim(ndim),
     m_velocityBasis(VB_MASSAVG)
 {
@@ -44,7 +43,6 @@ Transport::Transport(const Transport& right)
     m_thermo        = right.m_thermo;
     m_ready         = right.m_ready;
     m_nmin          = right.m_nmin;
-    m_index         = right.m_index;
     m_nDim          = right.m_nDim;
     m_velocityBasis = right.m_velocityBasis;
 }
@@ -58,7 +56,6 @@ Transport& Transport::operator=(const Transport& right)
     m_thermo        = right.m_thermo;
     m_ready         = right.m_ready;
     m_nmin          = right.m_nmin;
-    m_index         = right.m_index;
     m_nDim          = right.m_nDim;
     m_velocityBasis = right.m_velocityBasis;
     return *this;
@@ -80,19 +77,6 @@ bool Transport::ready()
     return m_ready;
 }
 
-size_t Transport::index() const
-{
-    return m_index;
-}
-
-/* Set an integer index number. This is for internal use of
- * Cantera, and may be removed in the future.
- */
-void Transport::setIndex(size_t i)
-{
-    m_index = i;
-}
-
 // Set the number of dimensions to be expected in flux expressions
 /* Internal memory will be set with this value
  */
@@ -100,9 +84,6 @@ void Transport::setNDim(const int ndim)
 {
     m_nDim = ndim;
 }
-
-
-
 
 /* Set transport model parameters. This method may be
  * overloaded in subclasses to set model-specific parameters.

@@ -2035,35 +2035,6 @@ public:
      */
     virtual void installSlavePhases(Cantera::XML_Node* phaseNode);
 
-    // The following methods are used by the clib interface
-    // library, and should not be used by application programs.
-
-    /*!
-     * @internal
-     * Index number.  This method can be used to identify the
-     * location of a phase object in a list, and is used by the
-     * interface library (clib) routines for this purpose.
-     */
-    size_t index() const {
-        return m_index;
-    }
-
-
-    /**
-     * @internal Set the index number. The Cantera interface
-     * library uses this method to set the index number to the
-     * location of the pointer to this object in the pointer array
-     * it maintains. Using this method for any other purpose will
-     * lead to unpredictable results if used in conjunction with
-     * the interface library.
-     *
-     * @param m  Input the index number.
-     */
-    void setIndex(size_t m) {
-        m_index = m;
-    }
-
-
     //! Set the equation of state parameters
     /*!
      * @internal
@@ -2243,16 +2214,6 @@ protected:
      * data.
      */
     std::vector<const XML_Node*> m_speciesData;
-
-    //! Index number of the phase
-    /*!
-     * The Cantera interface library uses this member to set the index number to the
-     * location of the pointer to this object in the pointer array of ThermoPhase's
-     * it maintains. Using this member for any other purpose will
-     * lead to unpredictable results if used in conjunction with
-     * the interface library.
-     */
-    size_t m_index;
 
     //! Stored value of the electric potential for this phase
     /*!

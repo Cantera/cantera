@@ -247,22 +247,6 @@ public:
      */
     void setName(std::string nm);
 
-    //! Returns the index of the phase
-    /*!
-     * The index is used in the Python and matlab interfaces to
-     * index into a list of ThermoPhase objects
-     */
-    size_t index() const;
-
-    //! Sets the index of the phase
-    /*!
-     * The index is used in the Python and matlab interfaces to
-     * index into a list of ThermoPhase objects
-     *
-     * @param m Integer index of the phase
-     */
-    void setIndex(size_t m);
-
     //! Returns the index of a species named 'name' within the Phase object
     /*!
      * The first species in the phase will have an index 0, and the last one in the
@@ -572,11 +556,6 @@ protected:
      * dimensionality 2.
      */
     size_t m_ndim;
-    /**
-     * m_index is the index of the phase
-     *
-     */
-    size_t m_index;
 
 private:
 

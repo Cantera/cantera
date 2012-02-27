@@ -246,25 +246,6 @@ public:
      */
     bool ready();
 
-
-    //! Returns an integer index number.
-    /*!
-     *  @internal This is for internal use
-     *  of Cantera, and may be removed in the future.
-     *
-     *  @return  Returns the index number
-     */
-    size_t index() const;
-
-    //! Set an integer index number.
-    /*!
-     *  @internal This is for internal use of
-     *  Cantera, and may be removed in the future.
-     *
-     *  @param i  index value
-     */
-    void setIndex(size_t i);
-
     //! Set the number of dimensions to be expected in flux expressions
     /*!
      *   Internal memory will be set with this value.
@@ -861,12 +842,6 @@ protected:
 
     //! Number of species
     size_t    m_nmin;
-
-    //! Value of the internal index
-    /*!
-     *  @deprecated
-     */
-    size_t       m_index;
 
     //! Number of dimensions used in flux expresions
     size_t m_nDim;
