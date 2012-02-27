@@ -98,7 +98,7 @@ static void getSpeciesThermoTypes(std::vector<XML_Node*> & spDataNodeList,
             } else {
                 has_other = 1;
                 //throw UnknownSpeciesThermoModel("getSpeciesThermoTypes:",
-                //	          	            spNode->attrib("name"), "missing");
+                //                                spNode->attrib("name"), "missing");
             }
         } else {
             throw CanteraError("getSpeciesThermoTypes:",

@@ -2263,8 +2263,8 @@ void DebyeHuckel::s_update_dlnMolalityActCoeff_dT() const
             m_dlnActCoeffMolaldT[k] =
                 m_lnActCoeffMolal[k] * dAdT / m_A_Debye;
         }
-        d_lnActivitySolvent_dT = 	2.0 / 3.0 * dAdT * m_Mnaught *
-                                    m_IionicMolality * sqrt(m_IionicMolality);
+        d_lnActivitySolvent_dT = 2.0 / 3.0 * dAdT * m_Mnaught *
+                                 m_IionicMolality * sqrt(m_IionicMolality);
         m_dlnActCoeffMolaldT[m_indexSolvent] =  d_lnActivitySolvent_dT;
         break;
 

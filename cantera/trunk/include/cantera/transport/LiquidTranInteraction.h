@@ -362,9 +362,9 @@ protected:
  *       <viscosity>
  *          <compositionDependence model="logMoleFractions">
  *             <interaction speciesA="Li+" speciesB="K+">
- *	         <!--
- *	           interactions are from speciesA = LiCl(L)
- *		   and speciesB = KCl(L).
+ *               <!--
+ *                 interactions are from speciesA = LiCl(L)
+ *                 and speciesB = KCl(L).
  *                   -->
  *                <Eij units="J/kmol"> -1.0e3 </Eij>
  *                <Sij units="J/kmol/K"> 80.0e-5 </Sij>

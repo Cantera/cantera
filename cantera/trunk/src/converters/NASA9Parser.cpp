@@ -113,11 +113,11 @@ static double de_atof(std::string s)
  *  @param tmax    maximum temperature
  */
 // static void checkTemps(std::ostream& log, double tmin,
-//			 double tmid, double tmax)
+//                        double tmid, double tmax)
 // {
 //  if (tmin == 0.0 || tmid == 0.0 || tmax == 0.0) {
 //   throw CK_SyntaxError(log,
-//			   "error reading Tmin, Tmid, or Tmax");
+//       "error reading Tmin, Tmid, or Tmax");
 //     }
 //}
 

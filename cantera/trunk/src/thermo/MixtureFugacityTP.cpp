@@ -1009,8 +1009,8 @@ int MixtureFugacityTP::corr0(doublereal TKelvin, doublereal pres, doublereal& de
     doublereal densLiq = densityCalc(TKelvin, pres, FLUID_LIQUID_0, densLiqGuess);
     if (densLiq <= 0.0) {
         // throw Cantera::CanteraError("MixtureFugacityTP::corr0",
-        //			  "Error occurred trying to find liquid density at (T,P) = "
-        //			  + Cantera::fp2str(TKelvin) + "  " + Cantera::fp2str(pres));
+        //     "Error occurred trying to find liquid density at (T,P) = "
+        //     + Cantera::fp2str(TKelvin) + "  " + Cantera::fp2str(pres));
         retn = -1;
     } else {
         densLiqGuess = densLiq;
@@ -1021,8 +1021,8 @@ int MixtureFugacityTP::corr0(doublereal TKelvin, doublereal pres, doublereal& de
     doublereal  densGas = densityCalc(TKelvin, pres, FLUID_GAS, densGasGuess);
     if (densGas <= 0.0) {
         //throw Cantera::CanteraError("MixtureFugacityTP::corr0",
-        //			  "Error occurred trying to find gas density at (T,P) = "
-        //			  + Cantera::fp2str(TKelvin) + "  " + Cantera::fp2str(pres));
+        //    "Error occurred trying to find gas density at (T,P) = "
+        //    + Cantera::fp2str(TKelvin) + "  " + Cantera::fp2str(pres));
         if (retn == -1) {
             throw Cantera::CanteraError("MixtureFugacityTP::corr0",
                                         "Error occurred trying to find gas density at (T,P) = "

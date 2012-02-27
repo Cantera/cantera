@@ -768,7 +768,7 @@ void LiquidTransport::getBinaryDiffCoeffs(size_t ld, doublereal* d)
         for (size_t j = 0; j < m_nsp; j++) {
             //if (!( ( m_bdiff(i,j) > 0.0 ) |  ( m_bdiff(i,j) < 0.0 ))){
             //  throw CanteraError("LiquidTransport::getBinaryDiffCoeffs ",
-            //		     "m_bdiff has zero entry in non-diagonal.");}
+            //      "m_bdiff has zero entry in non-diagonal.");}
             d[ld*j + i] = 1.0 / m_bdiff(i,j);
 
         }
@@ -1703,7 +1703,7 @@ void LiquidTransport::stefan_maxwell_solve()
                 if (j != i) {
                     //if ( !( m_bdiff(i,j) > 0.0 ) )
                     //throw CanteraError("LiquidTransport::stefan_maxwell_solve",
-                    //			 "m_bdiff has zero entry in non-diagonal.");
+                    //    "m_bdiff has zero entry in non-diagonal.");
                     tmp = m_molefracs_tran[j] * m_bdiff(i,j);
                     m_A(i,i) -=   tmp;
                     m_A(i,j)  = + tmp;
@@ -1767,7 +1767,7 @@ void LiquidTransport::stefan_maxwell_solve()
                 if (j != i) {
                     //if ( !( m_bdiff(i,j) > 0.0 ) )
                     //throw CanteraError("LiquidTransport::stefan_maxwell_solve",
-                    //			 "m_bdiff has zero entry in non-diagonal.");
+                    //    "m_bdiff has zero entry in non-diagonal.");
                     tmp =  m_molefracs_tran[j] * m_bdiff(i,j);
                     m_A(i,i) -=   tmp;
                     m_A(i,j)  = + tmp;
@@ -1812,7 +1812,7 @@ void LiquidTransport::stefan_maxwell_solve()
                 if (j != i) {
                     //if ( !( m_bdiff(i,j) > 0.0 ) )
                     //throw CanteraError("LiquidTransport::stefan_maxwell_solve",
-                    //			 "m_bdiff has zero entry in non-diagonal.");
+                    //    "m_bdiff has zero entry in non-diagonal.");
                     tmp =  m_molefracs_tran[j] * m_bdiff(i,j);
                     m_A(i,i) -=   tmp;
                     m_A(i,j)  = + tmp;

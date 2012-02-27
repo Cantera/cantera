@@ -285,7 +285,7 @@ bool SimpleTransport::initLiquid(LiquidTransportParams& tr)
     //LiquidTR_Model cm0 =  ltd0.model_thermalCond;
     //if (cm0 != vm0) {
     //  throw CanteraError("SimpleTransport::initLiquid",
-    //			 "Conductivity model is not the same as the viscosity model for species " + spName0);
+    //    "Conductivity model is not the same as the viscosity model for species " + spName0);
     //    }
 
     for (size_t k = 0; k < m_nsp; k++) {

@@ -104,23 +104,23 @@ int main()
      * Calculate a few test points for the estimated
      * saturation pressure function
      */
-    T =	273.15 + 0.;
+    T = 273.15 + 0.;
     pres = water->psat_est(T);
     printf("psat_est(%g) = %g\n", T, pres);
 
-    T =	 313.9999;
+    T = 313.9999;
     pres = water->psat_est(T);
     printf("psat_est(%g) = %g\n", T, pres);
 
-    T =	314.0001;
+    T = 314.0001;
     pres = water->psat_est(T);
     printf("psat_est(%g) = %g\n", T, pres);
 
-    T =	273.15 + 100.;
+    T = 273.15 + 100.;
     pres = water->psat_est(T);
     printf("psat_est(%g) = %g\n", T, pres);
 
-    T =	647.25;
+    T = 647.25;
     pres = water->psat_est(T);
     printf("psat_est(%g) = %g\n", T, pres);
 

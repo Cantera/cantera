@@ -217,18 +217,18 @@ int main(int argc, char** argv)
             double G_ex_formula = 2 * Is * rgas * T * (- osm1 + log(meanAC));
             /*
                    if (fabs (T-298.15) < 1.0) {
-            	 printf("mu0_Naplus  = %g\n", mu0_Naplus);
-            	 printf("mu0_Clminus = %g\n", mu0_Clminus);
-            	 printf("mu0_NaCl(s) = %g,   mu_NaCl(s) = %g\n",mu0_NaCl, mu_NaCl);
+                     printf("mu0_Naplus  = %g\n", mu0_Naplus);
+                     printf("mu0_Clminus = %g\n", mu0_Clminus);
+                     printf("mu0_NaCl(s) = %g,   mu_NaCl(s) = %g\n",mu0_NaCl, mu_NaCl);
                    }
             */
             double pbar = pres * 1.0E-5;
 
             //if (extraCols && T == 323.15) {
-            //	 for (int k = 0; k < nsp; k++) {
-            //	   printf("mus_kJ/gmol - %s -  %14.8g %14.8g %g\n",
-            //	  HMW->speciesName(k).c_str(), mu0_RT[k], mu[k], Xmol[k]);
-            // }
+            //  for (int k = 0; k < nsp; k++) {
+            //    printf("mus_kJ/gmol - %s -  %14.8g %14.8g %g\n",
+            //    HMW->speciesName(k).c_str(), mu0_RT[k], mu[k], Xmol[k]);
+            //  }
             //}
 
             printf("%10g, %10g, %12g, %12g, %12g, %12g, %12g, %12g, %14.9g, %14.9g",

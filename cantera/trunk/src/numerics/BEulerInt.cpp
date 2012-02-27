@@ -1340,7 +1340,7 @@ double BEulerInt::step(double t_max)
          * if (Cur_Realm->Realm_Nonlinear.Constraint_Backtracking_Flag ==
          * Constraint_Backtrack_Enable) {
          * cropNorm = cropPredictor(mesh, x_pred_n, abs_time_error,
-         *		   m_reltol);
+         *                          m_reltol);
          */
 
         /*
@@ -2039,7 +2039,7 @@ int BEulerInt::dampStep(double time_curr, const double* y0,
             //                HKM setting intermediate y's to zero was a tossup.
             //                    slightly different, equivalent results
             //#ifdef DEBUG_HKM
-            //	    y1[j] = MAX(0.0, y1[j]);
+            //    y1[j] = MAX(0.0, y1[j]);
             //#endif
         }
         calc_ydot(m_order, y1, ydot1);
@@ -2274,7 +2274,7 @@ int BEulerInt::solve_nonlinear_problem(double* const y_comm,
         //                HKM setting intermediate y's to zero was a tossup.
         //                    slightly different, equivalent results
         // #ifdef DEBUG_HKM
-        //	      y_new[j] = MAX(0.0, y_new[j]);
+        //     y_new[j] = MAX(0.0, y_new[j]);
         // #endif
         //  }
         // }

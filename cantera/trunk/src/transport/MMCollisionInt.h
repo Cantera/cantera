@@ -141,7 +141,7 @@ private:
      *
      *  @return
      */
-    doublereal fitDelta(int table, int ntstar,	int degree, doublereal* c);
+    doublereal fitDelta(int table, int ntstar, int degree, doublereal* c);
 
     //! m_o22poly
     std::vector<vector_fp>  m_o22poly;

@@ -24,28 +24,27 @@ public:
     std::string SpName;
 
     VCS_SPECIES_THERMO* SpeciesThermo; /* Pointer to the thermo
-					structure for this species  */
+                                          structure for this species  */
     double WtSpecies;       /* Molecular Weight of the species (gm/mol) */
 
     //! Column of the formula matrix, comprising the
-    //! 	      element composition of the species */
+    //! element composition of the species */
     std::vector<double> FormulaMatrixCol;
 
     double Charge;         /* Charge state of the species -> This may
-			    be duplication of what's in the
-			    FormulaMatrixCol entries. However, it's prudent
-			    to separate it out. */
-    int  SurfaceSpecies;   /* True if this species belongs to a surface phase
-			  */
+                be duplication of what's in the
+                FormulaMatrixCol entries. However, it's prudent
+                to separate it out. */
+    int  SurfaceSpecies;   /* True if this species belongs to a surface phase */
     /*
      *     Various Calculated Quantities that are appropriate to
      *     keep copies of at this level.
      */
     double VolPM;          /* Partial molar volume of the species */
     double ReferenceMoleFraction; /* Representative value of the mole
-				   fraction of this species in a phase.
-				   This value is used for convergence issues
-				   and for calculation of numerical derivs */
+                                     fraction of this species in a phase.
+                                     This value is used for convergence issues
+                                     and for calculation of numerical derivs */
 
     /*
      * constructor and destructor

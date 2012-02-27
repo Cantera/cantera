@@ -2667,8 +2667,8 @@ s_updatePitzer_lnMolalityActCoeff() const
             }
 #endif
             /*
-             * 	both species have a non-zero charge, and one is positive
-             *  and the other is negative
+             * both species have a non-zero charge, and one is positive
+             * and the other is negative
              */
             if (charge[i]*charge[j] < 0.0) {
                 BMX[counterIJ]  = beta0MX[counterIJ]
@@ -2723,8 +2723,8 @@ s_updatePitzer_lnMolalityActCoeff() const
             n = m_kk*i + j;
             counterIJ = m_CounterIJ[n];
             /*
-             * 	both species have a non-zero charge, and one is positive
-             *  and the other is negative
+             * both species have a non-zero charge, and one is positive
+             * and the other is negative
              */
             if (charge[i]*charge[j] < 0.0) {
                 CMX[counterIJ] = CphiMX[counterIJ]/
@@ -2771,8 +2771,8 @@ s_updatePitzer_lnMolalityActCoeff() const
             n = m_kk*i + j;
             counterIJ = m_CounterIJ[n];
             /*
-             * 	both species have a non-zero charge, and one is positive
-             *  and the other is negative
+             * both species have a non-zero charge, and one is positive
+             * and the other is negative
              */
             if (charge[i]*charge[j] > 0) {
                 z1 = (int) fabs(charge[i]);
@@ -2831,8 +2831,8 @@ s_updatePitzer_lnMolalityActCoeff() const
             n = m_kk*i + j;
             counterIJ = m_CounterIJ[n];
             /*
-             * 	both species have a non-zero charge, and one is positive
-             *  and the other is negative
+             * both species have a non-zero charge, and one is positive
+             * and the other is negative
              */
             if (charge[i]*charge[j] < 0) {
                 F = F + molality[i]*molality[j] * BprimeMX[counterIJ];
@@ -3731,8 +3731,8 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dT() const
             n = m_kk*i + j;
             counterIJ = m_CounterIJ[n];
             /*
-             * 	both species have a non-zero charge, and one is positive
-             *  and the other is negative
+             * both species have a non-zero charge, and one is positive
+             * and the other is negative
              */
             if (charge[i]*charge[j] < 0.0) {
                 BMX_L[counterIJ]  = beta0MX_L[counterIJ]
@@ -3787,8 +3787,8 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dT() const
             n = m_kk*i + j;
             counterIJ = m_CounterIJ[n];
             /*
-             * 	both species have a non-zero charge, and one is positive
-             *  and the other is negative
+             * both species have a non-zero charge, and one is positive
+             * and the other is negative
              */
             if (charge[i]*charge[j] < 0.0) {
                 CMX_L[counterIJ] = CphiMX_L[counterIJ]/
@@ -3826,8 +3826,8 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dT() const
             n = m_kk*i + j;
             counterIJ = m_CounterIJ[n];
             /*
-             * 	both species have a non-zero charge, and one is positive
-             *  and the other is negative
+             * both species have a non-zero charge, and one is positive
+             * and the other is negative
              */
             if (charge[i]*charge[j] > 0) {
                 z1 = (int) fabs(charge[i]);
@@ -3890,8 +3890,8 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dT() const
             n = m_kk*i + j;
             counterIJ = m_CounterIJ[n];
             /*
-             * 	both species have a non-zero charge, and one is positive
-             *  and the other is negative
+             * both species have a non-zero charge, and one is positive
+             * and the other is negative
              */
             if (charge[i]*charge[j] < 0) {
                 dFdT = dFdT + molality[i]*molality[j] * BprimeMX_L[counterIJ];
@@ -4602,8 +4602,8 @@ void HMWSoln::s_updatePitzer_d2lnMolalityActCoeff_dT2() const
             n = m_kk*i + j;
             counterIJ = m_CounterIJ[n];
             /*
-             * 	both species have a non-zero charge, and one is positive
-             *  and the other is negative
+             * both species have a non-zero charge, and one is positive
+             * and the other is negative
              */
             if (charge[i]*charge[j] < 0.0) {
                 BMX_LL[counterIJ]  = beta0MX_LL[counterIJ]
@@ -4658,8 +4658,8 @@ void HMWSoln::s_updatePitzer_d2lnMolalityActCoeff_dT2() const
             n = m_kk*i + j;
             counterIJ = m_CounterIJ[n];
             /*
-             * 	both species have a non-zero charge, and one is positive
-             *  and the other is negative
+             * both species have a non-zero charge, and one is positive
+             * and the other is negative
              */
             if (charge[i]*charge[j] < 0.0) {
                 CMX_LL[counterIJ] = CphiMX_LL[counterIJ]/
@@ -4697,8 +4697,8 @@ void HMWSoln::s_updatePitzer_d2lnMolalityActCoeff_dT2() const
             n = m_kk*i + j;
             counterIJ = m_CounterIJ[n];
             /*
-             * 	both species have a non-zero charge, and one is positive
-             *  and the other is negative
+             * both species have a non-zero charge, and one is positive
+             * and the other is negative
              */
             if (charge[i]*charge[j] > 0) {
                 z1 = (int) fabs(charge[i]);
@@ -4721,8 +4721,8 @@ void HMWSoln::s_updatePitzer_d2lnMolalityActCoeff_dT2() const
                 sni = speciesName(i);
                 snj = speciesName(j);
                 //printf(" %-16s %-16s %10.6f %10.6f %10.6f \n",
-                //	     sni.c_str(), snj.c_str(),
-                //     Phi_L[counterIJ], Phiprime[counterIJ], Phiphi_L[counterIJ] );
+                //       sni.c_str(), snj.c_str(),
+                //       Phi_L[counterIJ], Phiprime[counterIJ], Phiphi_L[counterIJ] );
                 printf(" %-16s %-16s %10.6f %10.6f %10.6f \n",
                        sni.c_str(), snj.c_str(),
                        Phi_LL[counterIJ], Phiprime[counterIJ], Phiphi_LL[counterIJ]);
@@ -4755,7 +4755,7 @@ void HMWSoln::s_updatePitzer_d2lnMolalityActCoeff_dT2() const
     //      + (2.0/1.2) * log(1.0+1.2*(sqrtIs)));
     //dAphidT = Al / (4.0 * GasConstant * T * T);
     //dFdT = -dAphidT * ( sqrt(Is) / (1.0 + 1.2*sqrt(Is))
-    //		    + (2.0/1.2) * log(1.0+1.2*(sqrtIs)));
+    //       + (2.0/1.2) * log(1.0+1.2*(sqrtIs)));
     d2FdT2 = -d2AphidT2 * (sqrt(Is) / (1.0 + 1.2*sqrt(Is))
                            + (2.0/1.2) * log(1.0+1.2*(sqrtIs)));
 #ifdef DEBUG_MODE
@@ -4771,8 +4771,8 @@ void HMWSoln::s_updatePitzer_d2lnMolalityActCoeff_dT2() const
             n = m_kk*i + j;
             counterIJ = m_CounterIJ[n];
             /*
-             * 	both species have a non-zero charge, and one is positive
-             *  and the other is negative
+             * both species have a non-zero charge, and one is positive
+             * and the other is negative
              */
             if (charge[i]*charge[j] < 0) {
                 d2FdT2 = d2FdT2 + molality[i]*molality[j] * BprimeMX_LL[counterIJ];
@@ -5484,8 +5484,8 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dP() const
             n = m_kk*i + j;
             counterIJ = m_CounterIJ[n];
             /*
-             * 	both species have a non-zero charge, and one is positive
-             *  and the other is negative
+             * both species have a non-zero charge, and one is positive
+             * and the other is negative
              */
             if (charge[i]*charge[j] < 0.0) {
                 BMX_P[counterIJ]  = beta0MX_P[counterIJ]
@@ -5540,8 +5540,8 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dP() const
             n = m_kk*i + j;
             counterIJ = m_CounterIJ[n];
             /*
-             * 	both species have a non-zero charge, and one is positive
-             *  and the other is negative
+             * both species have a non-zero charge, and one is positive
+             * and the other is negative
              */
             if (charge[i]*charge[j] < 0.0) {
                 CMX_P[counterIJ] = CphiMX_P[counterIJ]/
@@ -5579,8 +5579,8 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dP() const
             n = m_kk*i + j;
             counterIJ = m_CounterIJ[n];
             /*
-             * 	both species have a non-zero charge, and one is positive
-             *  and the other is negative
+             * both species have a non-zero charge, and one is positive
+             * and the other is negative
              */
             if (charge[i]*charge[j] > 0) {
                 z1 = (int) fabs(charge[i]);
@@ -5643,8 +5643,8 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dP() const
             n = m_kk*i + j;
             counterIJ = m_CounterIJ[n];
             /*
-             * 	both species have a non-zero charge, and one is positive
-             *  and the other is negative
+             * both species have a non-zero charge, and one is positive
+             * and the other is negative
              */
             if (charge[i]*charge[j] < 0) {
                 dFdP = dFdP + molality[i]*molality[j] * BprimeMX_P[counterIJ];

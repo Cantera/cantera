@@ -655,7 +655,7 @@ void vcs_VolPhase::setMolesFromVCS(const int stateCalc,
         // for the mole fractions, when the phase doesn't exist.
         // This is currently unimplemented.
         //for (int k = 0; k < m_numSpecies; k++) {
-        //	Xmol_[k] = 1.0 / m_numSpecies;
+        //    Xmol_[k] = 1.0 / m_numSpecies;
         //}
         m_existence = VCS_PHASE_EXIST_NO;
     }
@@ -1062,11 +1062,11 @@ void vcs_VolPhase::_updateLnActCoeffJac()
             double tmp;
             tmp = (ActCoeff[k] - ActCoeff_Base[k]) /
                   ((ActCoeff[k] + ActCoeff_Base[k]) * 0.5 * deltaMoles_j);
-            if (fabs(tmp - 	lnActCoeffCol[k]) > 1.0E-4 * fabs(tmp) +  fabs(lnActCoeffCol[k])) {
+            if (fabs(tmp - lnActCoeffCol[k]) > 1.0E-4 * fabs(tmp) +  fabs(lnActCoeffCol[k])) {
                 //  printf(" we have an error\n");
 
             }
-            //tmp = 	lnActCoeffCol[k];
+            //tmp = lnActCoeffCol[k];
 
         }
         /*

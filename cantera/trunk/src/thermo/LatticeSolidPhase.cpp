@@ -711,7 +711,7 @@ void LatticeSolidPhase::modifyOneHf298SS(const int k, const doublereal Hf298New)
     for (int n = 0; n < m_nlattice; n++) {
         if (lkstart_[n+1] < k) {
             int kk = k-lkstart_[n];
-            SpeciesThermo&	l_spthermo =  m_lattice[n]->speciesThermo();
+            SpeciesThermo& l_spthermo =  m_lattice[n]->speciesThermo();
             l_spthermo.modifyOneHf298(kk, Hf298New);
         }
     }

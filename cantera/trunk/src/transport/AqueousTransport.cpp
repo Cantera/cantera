@@ -495,7 +495,7 @@ void AqueousTransport::update_C()
     //int iStateNew = m_thermo->getIStateMF();
     //if (iStateNew == m_iStateMF) {
     //  if (pres == m_press) {
-    //	return;
+    //    return;
     //     }
     // } else {
     //  m_iStateMF = iStateNew;
@@ -674,7 +674,7 @@ void AqueousTransport::stefan_maxwell_solve()
      * Just for Note, m_A(i,j) refers to the ith row and jth column.
      * They are still fortran ordered, so that i varies fastest.
      */
-    switch (VIM)	{
+    switch (VIM) {
     case 1:  /* 1-D approximation */
         m_B(0,0) = 0.0;
         for (size_t j = 0; j < m_nsp; j++) {

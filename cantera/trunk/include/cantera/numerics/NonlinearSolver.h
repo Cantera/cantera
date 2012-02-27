@@ -544,7 +544,7 @@ public:
      */
     int solve_nonlinear_problem(int SolnType, doublereal* const y_comm, doublereal* const ydot_comm, doublereal CJ,
                                 doublereal time_curr, GeneralMatrix& jac, int& num_newt_its,
-                                int& num_linear_solves,	int& num_backtracks, int loglevelInput);
+                                int& num_linear_solves, int& num_backtracks, int loglevelInput);
 
 private:
     //! Set the column scales

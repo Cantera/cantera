@@ -219,7 +219,7 @@ public:
      *
      * @param b class to be copied.
      */
-    MolalityVPSSTP& operator=(const	MolalityVPSSTP& b);
+    MolalityVPSSTP& operator=(const MolalityVPSSTP& b);
 
     /// Destructor.
     virtual ~MolalityVPSSTP();

@@ -221,7 +221,7 @@ protected:
     std::string m_name;
     std::string m_formula;
 
-    //	virtual double Xm(int k) { return 1.0;}
+    //virtual double Xm(int k) { return 1.0;}
     //virtual int Species() { return 1;}
 
     virtual double ldens()=0;

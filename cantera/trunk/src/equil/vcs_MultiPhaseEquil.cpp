@@ -1387,7 +1387,7 @@ int vcs_Cantera_update_vprob(Cantera::MultiPhase* mphase,
         volPhase->setMolesFromVCS(VCS_STATECALC_OLD, VCS_DATA_PTR(vprob->w));
         if ((nSpPhase == 1) && (volPhase->phiVarIndex() == 0)) {
             volPhase->setExistence(VCS_PHASE_EXIST_ALWAYS);
-        }	else if (volPhase->totalMoles() > 0.0) {
+        } else if (volPhase->totalMoles() > 0.0) {
             volPhase->setExistence(VCS_PHASE_EXIST_YES);
         } else {
             volPhase->setExistence(VCS_PHASE_EXIST_NO);

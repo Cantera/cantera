@@ -38,7 +38,7 @@ static doublereal calcWeightedNorm(const doublereal [], const doublereal dx[], s
 // extern "C" {
 //  extern FSUB_TYPE dgetrf_(int *, int *, doublereal *, int *, int [], int *);
 // extern FSUB_TYPE dgetrs_(char *, int *, int *, doublereal *, int *, int [],
-//			     doublereal [], int *, int *, unsigned int);
+//                          doublereal [], int *, int *, unsigned int);
 // }
 /*****************************************************************************
  *   PROTOTYPES and PREPROC DIRECTIVES FOR MISC. ROUTINES
@@ -165,7 +165,7 @@ solveSP::solveSP(ImplicitSurfChem* surfChemPtr, int bulkFunc) :
         //InterfaceKinetics *m_kin = m_objects[iKinObject];
         //int bulkIndex = m_bulkKinObjPhaseID[isp];
         //kstart = m_kin->kineticsSpeciesIndex(0, bulkIndex);
-        //	nsp =  m_numBulkSpecies[isp];
+        //nsp =  m_numBulkSpecies[isp];
         //m_eqnIndexStartSolnPhase[isp] = kindexSP;
         //for (k = 0; k < nsp; k++, kindexSP++) {
         //  m_kinSpecIndex[kindexSP] = kstart + k;
@@ -397,7 +397,7 @@ int solveSP::solveSurfProb(int ifunc, doublereal time_scale, doublereal TKelvin,
          *  Solve Linear system (with LAPACK).  The solution is in resid[]
          */
         // (void) dgetrf_(&m_neq, &m_neq, m_JacCol[0], &m_neq,
-        //	     DATA_PTR(m_ipiv), &info);
+        //                DATA_PTR(m_ipiv), &info);
         ct_dgetrf(m_neq, m_neq, m_JacCol[0], m_neq, DATA_PTR(m_ipiv), info);
         if (info==0) {
             ct_dgetrs(ctlapack::NoTranspose, m_neq, nrhs, m_JacCol[0],
@@ -565,9 +565,9 @@ void solveSP::updateState(const doublereal* CSolnSP)
     }
     //if (m_bulkFunc == BULK_DEPOSITION) {
     //  for (int n = 0; n < m_numBulkPhasesSS; n++) {
-    //	m_bulkPhasePtrs[n]->setConcentrations(CSolnSP + loc);
-    //	loc += m_numBulkSpecies[n];
-    //   }
+    //    m_bulkPhasePtrs[n]->setConcentrations(CSolnSP + loc);
+    //    loc += m_numBulkSpecies[n];
+    //  }
     //}
 }
 
@@ -581,10 +581,10 @@ void solveSP::updateMFSolnSP(doublereal* XMolSolnSP)
         m_ptrsSurfPhase[isp]->getMoleFractions(XMolSolnSP + keqnStart);
     }
     //if (m_bulkFunc == BULK_DEPOSITION) {
-    // for (int isp = 0; isp < m_numBulkPhasesSS; isp++) {
-    //	int keqnStart = m_eqnIndexStartSolnPhase[isp + m_numSurfPhases];
-    //	m_bulkPhasePtrs[isp]->getMoleFractions(XMolSolnSP + keqnStart);
-    // }
+    //  for (int isp = 0; isp < m_numBulkPhasesSS; isp++) {
+    //    int keqnStart = m_eqnIndexStartSolnPhase[isp + m_numSurfPhases];
+    //    m_bulkPhasePtrs[isp]->getMoleFractions(XMolSolnSP + keqnStart);
+    //  }
     //}
 }
 

@@ -301,6 +301,6 @@ static PyMethodDef ct_methods[] = {
 #include "usermethods.h"
 #endif
 
-    {NULL,  NULL}		   /* sentinel */
+    {NULL,  NULL} /* sentinel */
 };
 
