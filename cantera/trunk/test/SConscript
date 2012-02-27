@@ -23,8 +23,12 @@ def testRunner(target, source, env):
 def scriptRunner(target, source, env):
     """Scons Action to run a test script using the specified interpreter"""
     interpreter = env['test_interpreter']
-    code = subprocess.call([interpreter, str(source[0])],
-                           env=env['ENV'])
+    workDir = Dir('#test/work').abspath
+    if not os.path.isdir(workDir):
+        os.mkdir(workDir)
+    code = subprocess.call([interpreter, source[0].abspath],
+                           env=env['ENV'],
+                           cwd=workDir)
     if not code:
         open(target[0].path, 'w').write(time.asctime()+'\n')
     return code
@@ -45,7 +49,7 @@ def addTestProgram(subdir, progName):
                                                 [], [Delete(passedFile.abspath)]))
 
 
-def addTestScript(subdir, script, interpreter):
+def addTestScript(subdir, script, interpreter, dependencies):
     """
     Create targets for running and resetting a test script.
     """
@@ -53,12 +57,15 @@ def addTestScript(subdir, script, interpreter):
     testenv['test_interpreter'] = interpreter
     passedFile = File(pjoin(subdir, '%s.passed' % (script)))
     run_program = testenv.Command(passedFile, pjoin(subdir, script), scriptRunner)
+    for dep in dependencies:
+        testenv.Depends(run_program, File(pjoin(subdir, dep)))
     Alias('newtest', run_program)
     if os.path.exists(passedFile.abspath):
         Alias('newtest-reset', testenv.Command('reset-%s%s' % (subdir, script),
                                                [], [Delete(passedFile.abspath)]))
 
-
 # Instantiate tests
 addTestProgram('thermo', 'nasapoly')
-addTestScript('python', 'runTests.py', interpreter=sys.executable)
+addTestScript('python', 'runTests.py',
+              interpreter=sys.executable,
+              dependencies=['testSolution.py'])
