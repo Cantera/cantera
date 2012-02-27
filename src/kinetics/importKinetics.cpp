@@ -219,7 +219,7 @@ bool getReagents(const XML_Node& rxn, kinetics_t& kin, int rp,
          * member function kineticsSpeciesIndex(). We will search
          * for the species in all phases defined in the kinetics operator.
          */
-        size_t isp = kin.kineticsSpeciesIndex(sp,"<any>");
+        size_t isp = kin.kineticsSpeciesIndex(sp);
         if (isp == npos) {
             if (rule == 1) {
                 return false;

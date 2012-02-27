@@ -205,45 +205,61 @@ string Kinetics::kineticsSpeciesName(size_t k) const
 }
 
 /**
- * kineticsSpeciesIndex():
- *
- * This routine will look up a species number based on
- * the input string nm. The lookup of species will
- * occur for all phases listed in the kinetics object,
- * unless the string ph refers to a specific phase of
- * the object.
+ * This routine will look up a species number based on the input
+ * std::string nm. The lookup of species will occur for all phases
+ * listed in the kinetics object.
  *
  *  return
- *   - If a match is found, the position in the species list
- *   is returned.
- *   - If no match is found, the value -1 (npos) is returned.
+ *   - If a match is found, the position in the species list is returned.
+ *   - If no match is found, the value -1 is returned.
+ *
+ * @param nm   Input string name of the species
  */
-size_t Kinetics::kineticsSpeciesIndex(std::string nm, std::string ph) const
+size_t Kinetics::kineticsSpeciesIndex(const std::string& nm) const
 {
-    size_t np = m_thermo.size();
-    size_t k;
-    string id;
-    for (size_t n = 0; n < np; n++) {
-        id = thermo(n).id();
-        if (ph == id) {
-            k = thermo(n).speciesIndex(nm);
-            if (k == npos) {
-                return npos;
-            }
+    for (size_t n = 0; n < m_thermo.size(); n++) {
+        string id = thermo(n).id();
+        // Check the ThermoPhase object for a match
+        size_t k = thermo(n).speciesIndex(nm);
+        if (k != npos) {
             return k + m_start[n];
-        } else if (ph == "<any>") {
-            /*
-             * Call the speciesIndex() member function of the
-             * ThermoPhase object to find a match.
-             */
-            k = thermo(n).speciesIndex(nm);
-            if (k != npos) {
-                return k + m_start[n];
-            }
         }
     }
     return npos;
 }
+
+/**
+ * This routine will look up a species number based on the input
+ * std::string nm. The lookup of species will occur in the specified
+ * phase of the object, or all phases if ph is "<any>".
+ *
+ *  return
+ *   - If a match is found, the position in the species list is returned.
+ *   - If no match is found, the value npos (-1) is returned.
+ *
+ * @param nm   Input string name of the species
+ * @param ph   Input string name of the phase.
+ */
+size_t Kinetics::kineticsSpeciesIndex(const std::string& nm,
+                                      const std::string& ph) const
+{
+    if (ph == "<any>") {
+        return kineticsSpeciesIndex(nm);
+    }
+
+    for (size_t n = 0; n < m_thermo.size(); n++) {
+        string id = thermo(n).id();
+        if (ph == id) {
+            size_t k = thermo(n).speciesIndex(nm);
+            if (k == npos) {
+                return npos;
+            }
+            return k + m_start[n];
+        }
+    }
+    return npos;
+}
+
 
 /**
  * This function looks up the string name of a species and
