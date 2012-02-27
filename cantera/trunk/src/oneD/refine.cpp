@@ -53,7 +53,7 @@ int Refiner::analyze(size_t n, const doublereal* z,
 {
 
     if (n >= m_npmax) {
-        writelog("max number of grid points reached ("+int2str(int(m_npmax))+".\n");
+        writelog("max number of grid points reached ("+int2str(m_npmax)+".\n");
         return -2;
     }
 
@@ -183,11 +183,11 @@ int Refiner::analyze(size_t n, const doublereal* z,
         dz[j] = z[j+1] - z[j];
         if (dz[j] > m_ratio*dz[j-1]) {
             m_loc[j] = 1;
-            m_c["point "+int2str(int(j))] = 1;
+            m_c["point "+int2str(j)] = 1;
         }
         if (dz[j] < dz[j-1]/m_ratio) {
             m_loc[j-1] = 1;
-            m_c["point "+int2str(int(j)-1)] = 1;
+            m_c["point "+int2str(j-1)] = 1;
         }
         //if (m_loc.size() + n > m_npmax) goto done;
     }
@@ -212,7 +212,7 @@ void Refiner::show()
                  +"    New points inserted after grid points ");
         map<size_t, int>::const_iterator b = m_loc.begin();
         for (; b != m_loc.end(); ++b) {
-            writelog(int2str(int(b->first))+" ");
+            writelog(int2str(b->first)+" ");
         }
         writelog("\n");
         writelog("    to resolve ");

@@ -837,7 +837,7 @@ void GasKinetics::installGroups(size_t irxn,
                                 const vector<grouplist_t>& r, const vector<grouplist_t>& p)
 {
     if (!r.empty()) {
-        writelog("installing groups for reaction "+int2str(int(reactionNumber())));
+        writelog("installing groups for reaction "+int2str(reactionNumber()));
         m_rgroups[reactionNumber()] = r;
         m_pgroups[reactionNumber()] = p;
     }

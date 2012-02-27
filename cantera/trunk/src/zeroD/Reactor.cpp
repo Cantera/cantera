@@ -343,7 +343,7 @@ void Reactor::addSensitivityReaction(size_t rxn)
     m_mult_save.push_back(1.0);
     if (rxn >= m_kin->nReactions())
         throw CanteraError("Reactor::addSensitivityReaction",
-                           "Reaction number out of range ("+int2str(int(rxn))+")");
+                           "Reaction number out of range ("+int2str(rxn)+")");
 }
 
 

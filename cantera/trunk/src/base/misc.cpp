@@ -1046,7 +1046,7 @@ void Application::thread_complete()
 XML_Node* get_XML_File(std::string file, int debug)
 {
     XML_Node* xtmp = app()->get_XML_File(file, debug) ;
-    //writelog("get_XML_File: returned from app:get_XML_FILE " + int2str(int(xtmp)) + "\n");
+    //writelog("get_XML_File: returned from app:get_XML_FILE " + int2str(xtmp) + "\n");
     return xtmp;
 }
 
@@ -1626,12 +1626,12 @@ CanteraError::~CanteraError() throw()
 
 
 ArraySizeError::ArraySizeError(std::string proc, size_t sz, size_t reqd) :
-    CanteraError(proc, "Array size ("+int2str(int(sz))+
-                 ") too small. Must be at least "+int2str(int(reqd))) {}
+    CanteraError(proc, "Array size ("+int2str(sz)+
+                 ") too small. Must be at least "+int2str(reqd)) {}
 
 ElementRangeError::ElementRangeError(std::string func, size_t m, size_t mmax) :
-    CanteraError(func, "Element index " + int2str(int(m)) +
-                 " outside valid range of 0 to " + int2str(int(mmax-1))) {}
+    CanteraError(func, "Element index " + int2str(m) +
+                 " outside valid range of 0 to " + int2str(mmax-1)) {}
 
 
 

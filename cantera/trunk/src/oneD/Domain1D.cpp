@@ -17,7 +17,7 @@ setTolerances(size_t nr, const doublereal* rtol,
     if (nr < m_nv || na < m_nv)
         throw CanteraError("Domain1D::setTolerances",
                            "wrong array size for solution error tolerances. "
-                           "Size should be at least "+int2str(int(m_nv)));
+                           "Size should be at least "+int2str(m_nv));
     if (ts >= 0) {
         copy(rtol, rtol + m_nv, m_rtol_ss.begin());
         copy(atol, atol + m_nv, m_atol_ss.begin());

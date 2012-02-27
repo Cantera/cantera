@@ -275,7 +275,7 @@ void State::init(const vector_fp& mw)
         if (m_molwts[k] < 0.0) {
             throw CanteraError("State::init",
                                "negative molecular weight for species number "
-                               + int2str(int(k)));
+                               + int2str(k));
         }
         /*
          * Some surface phases may define species representing

@@ -294,7 +294,7 @@ extern "C" {
             // array not big enough
             if (n < nv) {
                 throw CanteraError("ctml_getFloatArray",
-                                   "array must be dimensioned at least "+int2str(int(nv)));
+                                   "array must be dimensioned at least "+int2str(nv));
             }
 
             for (size_t i = 0; i < nv; i++) {

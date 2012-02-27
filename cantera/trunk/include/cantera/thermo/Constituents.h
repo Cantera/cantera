@@ -42,8 +42,8 @@ public:
      *
      */
     SpeciesRangeError(std::string func, size_t k, size_t kmax) :
-        CanteraError(func, "Species index " + int2str(int(k)) +
-                     " outside valid range of 0 to " + int2str(int(kmax)-1)) {}
+        CanteraError(func, "Species index " + int2str(k) +
+                     " outside valid range of 0 to " + int2str(kmax-1)) {}
 };
 
 /******************************************************************/

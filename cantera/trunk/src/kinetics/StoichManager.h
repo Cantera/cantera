@@ -152,7 +152,7 @@ static doublereal ppow(doublereal x, doublereal order)
 
 inline static std::string fmt(std::string r, size_t n)
 {
-    return r + "[" + int2str(int(n)) + "]";
+    return r + "[" + int2str(n) + "]";
 }
 
 

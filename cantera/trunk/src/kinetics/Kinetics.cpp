@@ -280,7 +280,7 @@ size_t Kinetics::speciesPhaseIndex(size_t k)
             return n;
         }
     }
-    throw CanteraError("speciesPhaseIndex", "illegal species index: "+int2str(int(k)));
+    throw CanteraError("speciesPhaseIndex", "illegal species index: "+int2str(k));
     return -1;
 }
 

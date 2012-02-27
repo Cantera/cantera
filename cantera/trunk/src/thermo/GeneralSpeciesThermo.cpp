@@ -199,7 +199,7 @@ void GeneralSpeciesThermo::install_STIT(SpeciesThermoInterpType* stit_ptr)
         m_kk = index+1;
     }
     AssertThrow(m_sp[index] == 0,
-                "Index position isn't null, duplication of assignment: " + int2str(int(index)));
+                "Index position isn't null, duplication of assignment: " + int2str(index));
     /*
      *  Now, simply assign the position
      */

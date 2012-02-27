@@ -39,7 +39,7 @@ void importSolution(size_t points,
     if (size_new < nv_new*points) {
         throw CanteraError("importSolution",
                            "new solution array must have length "+
-                           int2str(int(nv_new*points)));
+                           int2str(nv_new*points));
     }
 
     size_t n, j, knew;
@@ -1068,7 +1068,7 @@ void StFlow::restore(const XML_Node& dom, doublereal* soln)
         if (nm == "z") {
             getFloatArray(fa,x,false);
             np = x.size();
-            writelog("Grid contains "+int2str(int(np))+
+            writelog("Grid contains "+int2str(np)+
                      " points.\n");
             readgrid = true;
             setupGrid(np, DATA_PTR(x));

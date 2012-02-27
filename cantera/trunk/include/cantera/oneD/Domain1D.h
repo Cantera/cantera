@@ -187,7 +187,7 @@ public:
         if (m_name[n] != "") {
             return m_name[n];
         } else {
-            return "component " + int2str(int(n));
+            return "component " + int2str(n);
         }
     }
 
@@ -221,7 +221,7 @@ public:
         if (nl < m_nv || nu < m_nv)
             throw CanteraError("Domain1D::setBounds",
                                "wrong array size for solution bounds. "
-                               "Size should be at least "+int2str(int(m_nv)));
+                               "Size should be at least "+int2str(m_nv));
         std::copy(upper, upper + m_nv, m_max.begin());
         std::copy(lower, lower + m_nv, m_min.begin());
     }
@@ -477,7 +477,7 @@ public:
         if (m_id != "") {
             return m_id;
         } else {
-            return std::string("domain ") + int2str(int(m_index));
+            return std::string("domain ") + int2str(m_index);
         }
     }
 

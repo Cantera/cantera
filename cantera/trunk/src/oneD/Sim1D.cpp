@@ -97,7 +97,7 @@ doublereal Sim1D::value(size_t dom, size_t comp, size_t localPoint) const
     }
     if (j >= (int) m_x.size()) {
         throw CanteraError("Sim1D::value", "exceeded top of bounds: " + int2str(j) +
-                           " >= " + int2str(int(m_x.size())));
+                           " >= " + int2str(m_x.size()));
     }
 #endif
     return m_x[iloc];
@@ -291,7 +291,7 @@ void Sim1D::solve(int loglevel, bool refine_grid)
                     writelog("    success.\n\n");
                     writelog("Problem solved on [");
                     for (size_t mm = 1; mm < nDomains(); mm+=2) {
-                        writelog(int2str(int(domain(mm).nPoints())));
+                        writelog(int2str(domain(mm).nPoints()));
                         if (mm + 2 < nDomains()) {
                             writelog(", ");
                         }

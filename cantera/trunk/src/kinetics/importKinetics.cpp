@@ -873,7 +873,7 @@ bool rxninfo::installReaction(int i, const XML_Node& r, Kinetics* k,
                         || (c < 0.0 && m_rev[nn])) {
                     if ((!dup || !m_dup[nn])) {
                         string msg = string("Undeclared duplicate reactions detected: \n")
-                                     +"Reaction "+int2str(int(nn)+1)+": "+m_eqn[nn]
+                                     +"Reaction "+int2str(nn+1)+": "+m_eqn[nn]
                                      +"\nReaction "+int2str(i+1)+": "+eqn+"\n";
                         throw CanteraError("installReaction", msg);
                     }
