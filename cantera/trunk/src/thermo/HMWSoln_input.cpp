@@ -1183,7 +1183,6 @@ void HMWSoln::constructPhaseXML(XML_Node& phaseNode, std::string id)
      */
     if (thermoNode.hasChild("activityCoefficients")) {
         XML_Node& scNode = thermoNode.child("activityCoefficients");
-        m_formPitzer = m_formPitzer;
         stemp = scNode.attrib("model");
         string formString = lowercase(stemp);
         if (formString != "") {
