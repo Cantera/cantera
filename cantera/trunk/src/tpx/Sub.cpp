@@ -50,6 +50,20 @@ string errorMsg(int flag)
 
 //-------------- Public Member Functions --------------
 
+Substance::Substance() :
+    T(Undef),
+    Rho(Undef),
+    Tslast(Undef),
+    Rhf(Undef),
+    Rhv(Undef),
+    Pst(Undef),
+    Err(0),
+    m_energy_offset(0.0),
+    m_entropy_offset(0.0),
+    kbr(0)
+{
+}
+
 /// Pressure [Pa]. If two phases are present, return the
 /// saturation pressure; otherwise return the pressure
 /// computed directly from the underlying eos.
@@ -161,13 +175,13 @@ double Substance::Tsat(double p)
 
 // absolute tolerances
 
-double TolAbsH = 0.0001;                       // J/kg
-double TolAbsU = 0.0001;
-double TolAbsS = 1.e-7;
-double TolAbsP = 0.000;                      // Pa
-double TolAbsV = 1.e-8;
-double TolAbsT = 1.e-3;
-double TolRel = 3.e-8;
+static const double TolAbsH = 0.0001; // J/kg
+static const double TolAbsU = 0.0001;
+static const double TolAbsS = 1.e-7;
+static const double TolAbsP = 0.000; // Pa
+static const double TolAbsV = 1.e-8;
+static const double TolAbsT = 1.e-3;
+static const double TolRel = 3.e-8;
 
 void Substance::Set(int XY, double x0, double y0)
 {
@@ -620,12 +634,8 @@ double Substance::prop(int ijob)
     }
 }
 
-int kbr;
-const double ErrP = 1.e-7;
-const double Big = 1.e30;
-
-double Vmin, Vmax, Pmin, Pmax, dvs1, dvs2, dpdv, dvbf, dv, dva, dvm,
-       dt, v_here, P_here, vt;
+static const double ErrP = 1.e-7;
+static const double Big = 1.e30;
 
 void Substance::BracketSlope(double Pressure)
 {
@@ -654,8 +664,8 @@ void Substance::set_TPp(double Temp, double Pressure)
     Vmax = Big;
     Pmin = Big;
     Pmax = 0.0;
-    dvs1 = 2.0*Vcrit();
-    dvs2 = 0.7*Vcrit();
+    double dvs1 = 2.0*Vcrit();
+    double dvs2 = 0.7*Vcrit();
     int LoopCount = 0;
 
     double v_save = 1.0/Rho;
@@ -673,7 +683,7 @@ void Substance::set_TPp(double Temp, double Pressure)
                 dv *= -1.0;
             }
             Set(TV, Temp, v_here+dv);
-            dpdv = (Pp() - P_here)/dv;
+            double dpdv = (Pp() - P_here)/dv;
             if (dpdv > 0.0) {
                 BracketSlope(Pressure);
             } else {
@@ -703,7 +713,7 @@ void Substance::set_TPp(double Temp, double Pressure)
                 }
             }
         }
-        dvm = 0.2*v_here;
+        double dvm = 0.2*v_here;
         if (v_here < dvs1) {
             dvm *= 0.5;
         }
@@ -711,12 +721,12 @@ void Substance::set_TPp(double Temp, double Pressure)
             dvm *= 0.5;
         }
         if (kbr != 0) {
-            vt = v_here + dv;
+            double vt = v_here + dv;
             if ((vt < Vmin) || (vt > Vmax)) {
                 dv = Vmin + (Pressure - Pmin)*(Vmax - Vmin)/(Pmax - Pmin) - v_here;
             }
         }
-        dva = fabs(dv);
+        double dva = fabs(dv);
         if (dva > dvm) {
             dv *= dvm/dva;
         }
