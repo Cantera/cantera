@@ -157,6 +157,7 @@ vcs_VolPhase& vcs_VolPhase::operator=(const vcs_VolPhase& b)
         ChargeNeutralityElement = b.ChargeNeutralityElement;
         p_VCS_UnitsFormat   = b.p_VCS_UnitsFormat;
         p_activityConvention= b.p_activityConvention;
+        m_numSpecies = b.m_numSpecies;
         m_numElemConstraints    = b.m_numElemConstraints;
         m_elementNames.resize(b.m_numElemConstraints);
         for (size_t e = 0; e < b.m_numElemConstraints; e++) {
@@ -172,7 +173,6 @@ vcs_VolPhase& vcs_VolPhase::operator=(const vcs_VolPhase& b)
         }
         m_speciesUnknownType = b.m_speciesUnknownType;
         m_elemGlobalIndex    = b.m_elemGlobalIndex;
-        m_numSpecies         = b.m_numSpecies;
         PhaseName           = b.PhaseName;
         m_totalMolesInert   = b.m_totalMolesInert;
         m_isIdealSoln       = b.m_isIdealSoln;
