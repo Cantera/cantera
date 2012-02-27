@@ -1175,7 +1175,7 @@ extern "C" {
 
     size_t DLL_EXPORT kin_phase(int n, size_t i)
     {
-        return KineticsCabinet::item(n).thermo(i).index();
+        return ThermoCabinet::index(KineticsCabinet::item(n).thermo(i));
     }
 
     int DLL_EXPORT kin_getEquilibriumConstants(int n, size_t len, double* kc)

@@ -23,7 +23,6 @@ namespace Cantera
 ThermoPhase::ThermoPhase() :
     Phase(),
     m_spthermo(0), m_speciesData(0),
-    m_index(-1),
     m_phi(0.0),
     m_hasElementPotentials(false),
     m_chargeNeutralityNecessary(false),
@@ -54,7 +53,6 @@ ThermoPhase::ThermoPhase(const ThermoPhase& right)  :
     Phase(),
     m_spthermo(0),
     m_speciesData(0),
-    m_index(-1),
     m_phi(0.0),
     m_hasElementPotentials(false),
     m_chargeNeutralityNecessary(false),
@@ -114,7 +112,6 @@ operator=(const ThermoPhase& right)
         m_speciesData[k] = new XML_Node(*(right.m_speciesData[k]));
     }
 
-    m_index = right.m_index;
     m_phi = right.m_phi;
     m_lambdaRRT = right.m_lambdaRRT;
     m_hasElementPotentials = right.m_hasElementPotentials;

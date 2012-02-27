@@ -961,20 +961,6 @@ public:
     void selectPhase(const doublereal* data, const thermo_t* phase,
                      doublereal* phase_data);
 
-    /// For internal use. May be removed in a future release.
-    size_t index() {
-        return m_index;
-    }
-
-    //! Set the index of the Kinetics Manager
-    /*!
-     *  @param index   input index
-     */
-    void setIndex(size_t index) {
-        m_index = index;
-    }
-
-
 protected:
 
 
@@ -1048,8 +1034,6 @@ protected:
      * -1.
      */
     std::map<std::string, size_t> m_phaseindex;
-    //! Index of the Kinetics Manager
-    size_t m_index;
 
     //! Index in the list of phases of the one surface phase.
     /*!

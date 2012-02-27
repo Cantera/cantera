@@ -32,7 +32,6 @@ Kinetics::Kinetics() :
     m_thermo(0),
     m_start(0),
     m_phaseindex(),
-    m_index(-1),
     m_surfphase(-1),
     m_rxnphase(-1),
     m_mindim(4),
@@ -57,7 +56,6 @@ Kinetics::Kinetics(const Kinetics& right) :
     m_thermo(0),
     m_start(0),
     m_phaseindex(),
-    m_index(-1),
     m_surfphase(-1),
     m_rxnphase(-1),
     m_mindim(4),
@@ -96,7 +94,6 @@ operator=(const Kinetics& right)
 
     m_start             = right.m_start;
     m_phaseindex        = right.m_phaseindex;
-    m_index             = right.m_index;
     m_surfphase         = right.m_surfphase;
     m_rxnphase          = right.m_rxnphase;
     m_mindim            = right.m_mindim;

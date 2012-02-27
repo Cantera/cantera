@@ -64,6 +64,7 @@ class Cabinet
 {
 public:
     typedef std::vector<M*>& dataRef;
+    typedef typename std::vector<M*>::iterator dataIterator;
     /**
      * Destructor. Delete all objects in the list.
      */
@@ -163,6 +164,20 @@ public:
             return *data[n];
         } else {
             throw Cantera::CanteraError("item","index out of range"+Cantera::int2str(int(n)));
+        }
+    }
+
+    /**
+     * Return the index in the Cabinet to the specified object, or -1
+     * if the object is not in the cabinet.
+     */
+    static int index(const M& obj) {
+        dataRef data = getData();
+        dataIterator loc = std::find(data.begin(), data.end(), &obj);
+        if (loc != data.end()) {
+            return static_cast<int>(loc-data.begin());
+        } else {
+            return -1;
         }
     }
 

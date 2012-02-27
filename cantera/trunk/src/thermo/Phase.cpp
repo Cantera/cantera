@@ -22,7 +22,6 @@ Phase::Phase() :
     State(),
     m_kk(0),
     m_ndim(3),
-    m_index(-1),
     m_xml(new XML_Node("phase")),
     m_id("<phase>"),
     m_name("")
@@ -40,7 +39,6 @@ Phase::Phase(const Phase& right) :
     State(),
     m_kk(0),
     m_ndim(3),
-    m_index(-1),
     m_xml(new XML_Node("phase")),
     m_id("<phase>"),
     m_name("")
@@ -78,7 +76,6 @@ Phase& Phase::operator=(const Phase& right)
      */
     m_kk    = right.m_kk;
     m_ndim  = right.m_ndim;
-    m_index = right.m_index;
     m_data  = right.m_data;
     /*
      * This is a little complicated. -> Because we delete m_xml
@@ -132,16 +129,6 @@ std::string Phase::name() const
 void Phase::setName(std::string nm)
 {
     m_name = nm;
-}
-
-size_t Phase::index() const
-{
-    return m_index;
-}
-
-void Phase::setIndex(size_t m)
-{
-    m_index = m;
 }
 
 // Returns the index of a species named 'name' within the Phase object
