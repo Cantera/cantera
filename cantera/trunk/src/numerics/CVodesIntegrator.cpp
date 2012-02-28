@@ -440,7 +440,7 @@ void CVodesIntegrator::reinitialize(double t0, FuncEval& func)
     //error("Teminating execution");
     //}
 
-    int result, flag;
+    int result;
 
 #if defined(SUNDIALS_VERSION_22) || defined(SUNDIALS_VERSION_23)
     if (m_itol == CV_SV) {
@@ -481,13 +481,13 @@ void CVodesIntegrator::reinitialize(double t0, FuncEval& func)
 
     // set options
     if (m_maxord > 0) {
-        flag = CVodeSetMaxOrd(m_cvode_mem, m_maxord);
+        CVodeSetMaxOrd(m_cvode_mem, m_maxord);
     }
     if (m_maxsteps > 0) {
-        flag = CVodeSetMaxNumSteps(m_cvode_mem, m_maxsteps);
+        CVodeSetMaxNumSteps(m_cvode_mem, m_maxsteps);
     }
     if (m_hmax > 0) {
-        flag = CVodeSetMaxStep(m_cvode_mem, m_hmax);
+        CVodeSetMaxStep(m_cvode_mem, m_hmax);
     }
 }
 

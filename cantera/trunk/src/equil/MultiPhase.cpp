@@ -795,7 +795,7 @@ doublereal MultiPhase::equilibrate(int XY, doublereal err,
 
             }
 
-            catch (CanteraError& err) {
+            catch (CanteraError&) {
                 if (!strt) {
                     if (loglevel > 0)
                         addLogEntry("no convergence",
@@ -887,7 +887,7 @@ doublereal MultiPhase::equilibrate(int XY, doublereal err,
                 }
             }
 
-            catch (CanteraError& err) {
+            catch (CanteraError&) {
                 if (!strt) {
                     if (loglevel > 0) {
                         addLogEntry("no convergence",
