@@ -30,6 +30,8 @@ def prep_f2c(env):
         localenv['CCFLAGS'].remove('/W3')
     elif '-Wcheck' in localenv['CCFLAGS']:
         localenv['CCFLAGS'].remove('-Wcheck')
+    if localenv['CC'] == 'clang':
+        localenv['CCFLAGS'].append('-w')
 
     return localenv
 

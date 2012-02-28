@@ -181,6 +181,14 @@ elif env['CC'] == 'icc':
     defaults.debugCcFlags = '-g'
     defaults.noOptimizeCcFlags = '-O0 -fno-inline'
     defaults.optimizeCcFlags = '-O3 -finline-functions -DNDEBUG'
+
+elif env['CC'] == 'clang':
+    defaults.cxxFlags = ''
+    defaults.ccFlags = '-fcolor-diagnostics'
+    defaults.debugCcFlags = '-g'
+    defaults.noOptimizeCcFlags = '-O0'
+    defaults.optimizeCcFlags = '-O3 -DNDEBUG'
+
 else:
     print "WARNING: Unrecognized C compiler '%s'" % env['CC']
 
@@ -656,7 +664,6 @@ if not conf.CheckCXXHeader('cmath', '<>'):
     print 'ERROR: The C++ compiler is not correctly configured.'
     sys.exit(0)
 
-
 env['HAS_SSTREAM'] = conf.CheckCXXHeader('sstream', '<>')
 env['HAS_TIMES_H'] = conf.CheckCHeader('sys/times.h', '""')
 env['HAS_UNISTD_H'] = conf.CheckCHeader('unistd.h', '""')
@@ -664,7 +671,8 @@ env['HAS_MATH_H_ERF'] = conf.CheckDeclaration('erf', '#include <math.h>', 'C++')
 env['HAS_BOOST_MATH'] = conf.CheckCXXHeader('boost/math/special_functions/erf.hpp', '<>')
 env['HAS_SUNDIALS'] = conf.CheckLibWithHeader('sundials_cvodes', 'cvodes/cvodes.h', 'C++',
                                               'CVodeCreate(CV_BDF, CV_NEWTON);', False)
-env['NEED_LIBM'] = not conf.CheckLibWithHeader(None, 'math.h', 'C', 'double x = 2.0; sqrt(x);', False)
+env['NEED_LIBM'] = not conf.CheckLibWithHeader(None, 'math.h', 'C',
+                                               'double x = 2.0; log(x);', False)
 if env['NEED_LIBM']:
     env['LIBM'] = ['m']
 else:
