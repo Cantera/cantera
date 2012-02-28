@@ -46,8 +46,10 @@ doublereal bound_step(const doublereal* x, const doublereal* step,
             val = x[index(m,j)];
             if (loglevel > 0) {
                 if (val > above + 1.0e-12 || val < below - 1.0e-12) {
-                    sprintf(buf, "domain %d: %20s(%d) = %10.3e (%10.3e, %10.3e)\n",
-                            r.domainIndex(), r.componentName(m).c_str(), j, val, below, above);
+                    sprintf(buf, "domain %s: %20s(%s) = %10.3e (%10.3e, %10.3e)\n",
+                            int2str(r.domainIndex()).c_str(),
+                            r.componentName(m).c_str(), int2str(j).c_str(),
+                            val, below, above);
                     writelog(string("\nERROR: solution out of bounds.\n")+buf);
                 }
             }
@@ -69,9 +71,10 @@ doublereal bound_step(const doublereal* x, const doublereal* step,
                     wroteTitle = true;
                     writelog(buf);
                 }
-                sprintf(buf, "          %4i  %12s  %4i  %10.3e  %10.3e  %10.3e  %10.3e\n",
-                        r.domainIndex(), r.componentName(m).c_str(), j, val,
-                        step[index(m,j)], below, above);
+                sprintf(buf, "          %4s  %12s  %4s  %10.3e  %10.3e  %10.3e  %10.3e\n",
+                        int2str(r.domainIndex()).c_str(),
+                        r.componentName(m).c_str(), int2str(j).c_str(),
+                        val, step[index(m,j)], below, above);
                 writelog(buf);
             }
         }

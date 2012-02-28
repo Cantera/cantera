@@ -236,22 +236,22 @@ static void addFalloff(FILE* f, string type,
                        const vector_fp& params)
 {
     if (type == "Troe") {
-        fprintf(f, (",\n         falloff = Troe(A = "
-                    + fp2str(params[0]) + ", T3 = "
-                    + fp2str(params[1]) + ", T1 = "
-                    + fp2str(params[2])).c_str());
+        fprintf(f, "%s", (",\n         falloff = Troe(A = " +
+                          fp2str(params[0]) + ", T3 = " +
+                          fp2str(params[1]) + ", T1 = " +
+                          fp2str(params[2])).c_str());
         if (params.size() >= 4) {
-            fprintf(f, (", T2 = " + fp2str(params[3])).c_str());
+            fprintf(f, "%s", (", T2 = " + fp2str(params[3])).c_str());
         }
         fprintf(f, ")");
     } else if (type == "SRI") {
-        fprintf(f, (",\n         falloff = SRI(A = "
-                    + fp2str(params[0]) + ", B = "
-                    + fp2str(params[1]) + ", C = "
-                    + fp2str(params[2])).c_str());
+        fprintf(f, "%s", (",\n         falloff = SRI(A = " +
+                          fp2str(params[0]) + ", B = " +
+                          fp2str(params[1]) + ", C = " +
+                          fp2str(params[2])).c_str());
         if (params.size() >= 5) {
-            fprintf(f, (", D = " + fp2str(params[3])
-                        + ", E = " + fp2str(params[4])).c_str());
+            fprintf(f, "%s", (", D = " + fp2str(params[3]) +
+                              ", E = " + fp2str(params[4])).c_str());
         }
         fprintf(f,  ")");
     }
@@ -341,7 +341,7 @@ static void addReaction(FILE* f, string idtag, int i,
                         const ckr::ReactionUnits& runits, doublereal version)
 {
 
-    fprintf(f, ("\n#  Reaction " + int2str(i+1) + "\n").c_str());
+    fprintf(f, "%s", ("\n#  Reaction " + int2str(i+1) + "\n").c_str());
     int nc = static_cast<int>(rxn.comment.size());
     vector<string> options;
 

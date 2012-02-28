@@ -16,6 +16,7 @@
 #include "cantera/thermo/mix_defs.h"
 
 #include <string>
+#include <sstream>
 #include <cstdio>
 #include <cstdlib>
 
@@ -261,9 +262,9 @@ void vcs_VolPhase::resize(const size_t phaseNum, const size_t nspecies,
     } else {
         VP_ID_ = phaseNum;
         if (!phaseName) {
-            char itmp[40];
-            sprintf(itmp, "Phase_%d", VP_ID_);
-            PhaseName = itmp;
+            std::stringstream sstmp;
+            sstmp << "Phase_" << VP_ID_;
+            PhaseName = sstmp.str();
         } else {
             PhaseName = phaseName;
         }
@@ -1634,9 +1635,9 @@ size_t vcs_VolPhase::transferElementsFM(const Cantera::ThermoPhase* const tPhase
     if (cne) {
         std::string pname = tPhase->id();
         if (pname == "") {
-            char sss[50];
-            sprintf(sss, "phase%d", VP_ID_);
-            pname = sss;
+            std::stringstream sss;
+            sss << "phase" << VP_ID_;
+            pname = sss.str();
         }
         ename = "cn_" + pname;
         e = ChargeNeutralityElement;

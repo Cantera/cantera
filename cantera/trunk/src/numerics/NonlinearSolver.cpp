@@ -26,6 +26,7 @@
 #include "cantera/base/clockWC.h"
 #include "cantera/base/vec_functions.h"
 #include "cantera/base/mdp_allo.h"
+#include "cantera/base/stringUtils.h"
 
 #include <cfloat>
 #include <ctime>
@@ -549,8 +550,9 @@ doublereal NonlinearSolver::solnErrorNorm(const doublereal* const delta_y, const
                 if (i != npos) {
                     error = delta_y[i] / m_ewt[i];
                     normContrib = sqrt(error * error);
-                    printf("\t\t     %4d %12.4e       | %12.4e %12.4e %12.4e %12.4e\n", i, normContrib/sqrt((double)neq_),
-                           delta_y[i], m_y_n_curr[i], m_y_n_curr[i] + dampFactor * delta_y[i], m_ewt[i]);
+                    printf("\t\t     %4s %12.4e       | %12.4e %12.4e %12.4e %12.4e\n",
+                           int2str(i).c_str(), normContrib/sqrt((double)neq_), delta_y[i],
+                           m_y_n_curr[i], m_y_n_curr[i] + dampFactor * delta_y[i], m_ewt[i]);
 
                 }
             }
@@ -638,7 +640,8 @@ doublereal NonlinearSolver::residErrorNorm(const doublereal* const resid, const 
                 if (i != npos) {
                     error = resid[i] / m_residWts[i];
                     normContrib = sqrt(error * error);
-                    printf("\t\t     %4d     %12.4e     %12.4e     %12.4e | %12.4e\n", i,  normContrib, resid[i], m_residWts[i], y[i]);
+                    printf("\t\t     %4s     %12.4e     %12.4e     %12.4e | %12.4e\n",
+                           int2str(i).c_str(),  normContrib, resid[i], m_residWts[i], y[i]);
                 }
             }
 
@@ -1329,7 +1332,8 @@ int NonlinearSolver::doAffineNewtonSolve(const doublereal* const y_curr,   const
 
             printf("\t\t          --------------------------------------------------------\n");
             for (size_t i =0; i < neq_; i++) {
-                printf("\t\t             %3d  %13.5E %13.5E\n", i, delta_y[i], delyNewton[i]);
+                printf("\t\t             %3s  %13.5E %13.5E\n",
+                       int2str(i).c_str(), delta_y[i], delyNewton[i]);
             }
             printf("\t\t          --------------------------------------------------------\n");
         } else if (doDogLeg_ && m_print_flag >= 4) {
@@ -2113,14 +2117,14 @@ NonlinearSolver::deltaBoundStep(const doublereal* const y_n_curr, const doublere
     if (m_print_flag >= 3) {
         if (f_delta_bounds < 1.0) {
             if (i_fbd) {
-                printf("\t\tdeltaBoundStep: Increase of Variable %d causing "
+                printf("\t\tdeltaBoundStep: Increase of Variable %s causing "
                        "delta damping of %g: origVal = %10.3g, undampedNew = %10.3g, dampedNew = %10.3g\n",
-                       i_fbounds, f_delta_bounds, y_n_curr[i_fbounds], y_n_curr[i_fbounds] + step_1[i_fbounds],
+                       int2str(i_fbounds).c_str(), f_delta_bounds, y_n_curr[i_fbounds], y_n_curr[i_fbounds] + step_1[i_fbounds],
                        y_n_curr[i_fbounds] +  f_delta_bounds * step_1[i_fbounds]);
             } else {
-                printf("\t\tdeltaBoundStep: Decrease of variable %d causing"
+                printf("\t\tdeltaBoundStep: Decrease of variable %s causing"
                        "delta damping of %g: origVal = %10.3g, undampedNew = %10.3g, dampedNew = %10.3g\n",
-                       i_fbounds, f_delta_bounds, y_n_curr[i_fbounds], y_n_curr[i_fbounds] + step_1[i_fbounds],
+                       int2str(i_fbounds).c_str(), f_delta_bounds, y_n_curr[i_fbounds], y_n_curr[i_fbounds] + step_1[i_fbounds],
                        y_n_curr[i_fbounds] +  f_delta_bounds * step_1[i_fbounds]);
             }
         }
@@ -2410,7 +2414,8 @@ doublereal NonlinearSolver::boundStep(const doublereal* const y, const doublerea
      */
     if (m_print_flag >= 3) {
         if (f_bounds != 1.0) {
-            printf("\t\tboundStep: Variable %d causing bounds damping of %g\n", i_lower, f_bounds);
+            printf("\t\tboundStep: Variable %s causing bounds damping of %g\n",
+                   int2str(i_lower).c_str(), f_bounds);
         }
     }
 
@@ -3634,8 +3639,8 @@ print_solnDelta_norm_contrib(const doublereal* const step_1,
             dmax0 = sqrt(error * error);
             error = step_2[i] /  m_ewt[i];
             dmax1 = sqrt(error * error);
-            printf("\t\t  %4d %12.4e %12.4e %12.4e |  %12.4e  %12.4e   %12.4e    |%12.4e %12.4e %12.4e\n",
-                   i, y_n_curr[i], step_1[i],  y_n_curr[i] + step_1[i], y_n_1[i],
+            printf("\t\t  %4s %12.4e %12.4e %12.4e |  %12.4e  %12.4e   %12.4e    |%12.4e %12.4e %12.4e\n",
+                   int2str(i).c_str(), y_n_curr[i], step_1[i],  y_n_curr[i] + step_1[i], y_n_1[i],
                    step_2[i], y_n_1[i]+ step_2[i], m_ewt[i], dmax0, dmax1);
         }
     }
@@ -3747,8 +3752,8 @@ int NonlinearSolver::beuler_jac(GeneralMatrix& J, doublereal* const f,
                     if (neq_ < 20) {
                         printf("\t\tUnk            m_ewt              y                dyVector            ResN\n");
                         for (size_t iii = 0; iii < neq_; iii++) {
-                            printf("\t\t %4d       %16.8e   %16.8e   %16.8e  %16.8e \n",
-                                   iii,   m_ewt[iii],  y[iii], dyVector[iii], f[iii]);
+                            printf("\t\t %4s       %16.8e   %16.8e   %16.8e  %16.8e \n",
+                                   int2str(iii).c_str(), m_ewt[iii], y[iii], dyVector[iii], f[iii]);
                         }
                     }
                 }
@@ -3839,8 +3844,8 @@ int NonlinearSolver::beuler_jac(GeneralMatrix& J, doublereal* const f,
                     if (neq_ < 20) {
                         printf("\t\tUnk            m_ewt              y                dyVector            ResN\n");
                         for (size_t iii = 0; iii < neq_; iii++) {
-                            printf("\t\t %4d       %16.8e   %16.8e   %16.8e  %16.8e \n",
-                                   iii,   m_ewt[iii],  y[iii], dyVector[iii], f[iii]);
+                            printf("\t\t %4s       %16.8e   %16.8e   %16.8e  %16.8e \n",
+                                   int2str(iii).c_str(), m_ewt[iii], y[iii], dyVector[iii], f[iii]);
                         }
                     }
                 }
@@ -3890,12 +3895,12 @@ int NonlinearSolver::beuler_jac(GeneralMatrix& J, doublereal* const f,
             double vSmall;
             size_t ismall = J.checkRows(vSmall);
             if (vSmall < 1.0E-100) {
-                printf("WE have a zero row, %d\n", ismall);
+                printf("WE have a zero row, %s\n", int2str(ismall).c_str());
                 exit(-1);
             }
             ismall = J.checkColumns(vSmall);
             if (vSmall < 1.0E-100) {
-                printf("WE have a zero column, %d\n", ismall);
+                printf("WE have a zero column, %s\n", int2str(ismall).c_str());
                 exit(-1);
             }
 
@@ -3908,7 +3913,7 @@ int NonlinearSolver::beuler_jac(GeneralMatrix& J, doublereal* const f,
             printf("\t\tCurrent Matrix and Residual:\n");
             printf("\t\t    I,J | ");
             for (size_t j = 0; j < neq_; j++) {
-                printf("  %5d     ", j);
+                printf("  %5s     ", int2str(j).c_str());
             }
             printf("|   Residual  \n");
             printf("\t\t        --");
@@ -3919,7 +3924,7 @@ int NonlinearSolver::beuler_jac(GeneralMatrix& J, doublereal* const f,
 
 
             for (size_t i = 0; i < neq_; i++) {
-                printf("\t\t   %4d |", i);
+                printf("\t\t   %4s |", int2str(i).c_str());
                 for (size_t j = 0; j < neq_; j++) {
                     printf(" % 11.4E", J(i,j));
                 }

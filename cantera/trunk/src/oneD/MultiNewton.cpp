@@ -255,8 +255,8 @@ int MultiNewton::dampStep(const doublereal* x0, const doublereal* step0,
         // write log information
         if (loglevel > 0) {
             doublereal ss = r.ssnorm(x1,step1);
-            sprintf(m_buf,"\n%d  %9.5f   %9.5f   %9.5f   %9.5f   %9.5f %4d  %d/%d",
-                    m,damp,fbound,log10(ss+SmallNumber),
+            sprintf(m_buf,"\n%s  %9.5f   %9.5f   %9.5f   %9.5f   %9.5f %4d  %d/%d",
+                    int2str(m).c_str(), damp, fbound, log10(ss+SmallNumber),
                     log10(s0+SmallNumber),
                     log10(s1+SmallNumber),
                     jac.nEvals(), jac.age(), m_maxAge);
