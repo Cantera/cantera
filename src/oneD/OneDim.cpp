@@ -120,12 +120,12 @@ void OneDim::writeStats(int printTime)
     size_t n = m_gridpts.size();
     for (size_t i = 0; i < n; i++) {
         if (printTime) {
-            sprintf(buf,"%5i   %5i    %9.4f    %5i    %9.4f \n",
-                    m_gridpts[i], m_funcEvals[i], m_funcElapsed[i],
+            sprintf(buf,"%5s   %5i    %9.4f    %5i    %9.4f \n",
+                    int2str(m_gridpts[i]).c_str(), m_funcEvals[i], m_funcElapsed[i],
                     m_jacEvals[i], m_jacElapsed[i]);
         } else {
-            sprintf(buf,"%5i   %5i       NA        %5i        NA    \n",
-                    m_gridpts[i], m_funcEvals[i], m_jacEvals[i]);
+            sprintf(buf,"%5s   %5i       NA        %5i        NA    \n",
+                    int2str(m_gridpts[i]).c_str(), m_funcEvals[i], m_jacEvals[i]);
         }
         writelog(buf);
     }

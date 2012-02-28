@@ -425,7 +425,8 @@ int solveSP::solveSurfProb(int ifunc, doublereal time_scale, doublereal TKelvin,
                 printf("solveSurfProb: init guess, current concentration,"
                        "and prod rate:\n");
                 for (size_t jcol = 0; jcol < m_neq; jcol++) {
-                    printf("\t%d  %g %g %g\n", jcol, m_CSolnSPInit[jcol], m_CSolnSP[jcol],
+                    printf("\t%s  %g %g %g\n", int2str(jcol).c_str(),
+                           m_CSolnSPInit[jcol], m_CSolnSP[jcol],
                            m_netProductionRatesSave[m_kinSpecIndex[jcol]]);
                 }
                 printf("-----\n");
@@ -1217,7 +1218,7 @@ void solveSP::printIteration(int ioflag, doublereal damp, int label_d,
     string nm;
     if (ioflag == 1) {
 
-        printf("\t%6d ", iter);
+        printf("\t%6s ", int2str(iter).c_str());
         if (do_time) {
             printf("%9.4e %9.4e ", t_real, 1.0/inv_t);
         } else
@@ -1314,7 +1315,7 @@ void solveSP::printFinal(int ioflag, doublereal damp, int label_d, int label_t,
     string nm;
     if (ioflag == 1) {
 
-        printf("\tFIN%3d ", iter);
+        printf("\tFIN%3s ", int2str(iter).c_str());
         if (do_time) {
             printf("%9.4e %9.4e ", t_real, 1.0/inv_t);
         } else

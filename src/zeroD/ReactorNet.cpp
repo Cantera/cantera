@@ -68,10 +68,11 @@ void ReactorNet::initialize(doublereal t0)
             m_nreactors++;
 
             if (m_verbose) {
-                sprintf(buf,"Reactor %d: %d variables.\n",n,nv);
+                sprintf(buf,"Reactor %s: %s variables.\n",
+                        int2str(n).c_str(), int2str(nv).c_str());
                 writelog(buf);
-                sprintf(buf,"            %d sensitivity params.\n",
-                        r->nSensParams());
+                sprintf(buf,"            %s sensitivity params.\n",
+                        int2str(r->nSensParams()).c_str());
                 writelog(buf);
             }
             if (m_r[n]->type() == FlowReactorType && m_nr > 1) {
@@ -124,7 +125,7 @@ void ReactorNet::initialize(doublereal t0)
     m_integ->setSensitivityTolerances(m_rtolsens, m_atolsens);
     m_integ->setMaxStepSize(m_maxstep);
     if (m_verbose) {
-        sprintf(buf, "Number of equations: %d\n", neq());
+        sprintf(buf, "Number of equations: %s\n", int2str(neq()).c_str());
         writelog(buf);
         sprintf(buf, "Maximum time step:   %14.6g\n", m_maxstep);
         writelog(buf);

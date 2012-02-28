@@ -6357,8 +6357,8 @@ void HMWSoln::printCoeffs() const
     printf("Index  Name                  MoleF   MolalityCropped  Charge\n");
     for (k = 0; k < m_kk; k++) {
         sni = speciesName(k);
-        printf("%2d     %-16s %14.7le %14.7le %5.1f \n",
-               k, sni.c_str(), moleF[k], molality[k], charge[k]);
+        printf("%2s     %-16s %14.7le %14.7le %5.1f \n",
+               int2str(k).c_str(), sni.c_str(), moleF[k], molality[k], charge[k]);
     }
 
     printf("\n Species          Species            beta0MX  "

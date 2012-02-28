@@ -19,6 +19,7 @@
 #include "vcs_species_thermo.h"
 
 #include "cantera/base/clockWC.h"
+#include "cantera/base/stringUtils.h"
 
 using namespace std;
 
@@ -4661,7 +4662,7 @@ void  VCS_SOLVE::vcs_printSpeciesChemPot(const int stateCalc) const
             printf("   ---           ");
         }
         printf("%-24.24s", m_speciesName[kspec].c_str());
-        printf(" %-3d", iphase);
+        printf(" %-3s", Cantera::int2str(iphase).c_str());
         printf(" % -12.4e", mfValue);
         printf(" % -12.4e", m_SSfeSpecies[kspec] * RT);
         printf(" % -12.4e", log(mfValue) * RT);
@@ -5336,7 +5337,7 @@ void  VCS_SOLVE::vcs_printDeltaG(const int stateCalc)
             feFull += log(actCoeff_ptr[kspec]) + log(mfValue);
         }
         printf("%-24.24s", m_speciesName[kspec].c_str());
-        printf(" %-3d", iphase);
+        printf(" %-3s", Cantera::int2str(iphase).c_str());
         printf(" % -12.4e", molNumSpecies[kspec]);
         printf(" % -12.4e", mfValue);
         printf(" % -12.4e", feSpecies[kspec] * RT);

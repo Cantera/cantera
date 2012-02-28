@@ -14,6 +14,7 @@
 #include "cantera/numerics/solveProb.h"
 #include "cantera/base/clockWC.h"
 #include "cantera/numerics/ctlapack.h"
+#include "cantera/base/stringUtils.h"
 
 /* Standard include files */
 
@@ -833,7 +834,7 @@ void solveProb::printIteration(int ioflag, doublereal damp, size_t label_d,
         printf("%9.4e %9.4e", update_norm, resid_norm);
         if (do_time) {
             k = label_t;
-            printf(" %d", k);
+            printf(" %s", int2str(k).c_str());
         } else {
             for (i = 0; i < 16; i++) {
                 printf(" ");
@@ -841,7 +842,7 @@ void solveProb::printIteration(int ioflag, doublereal damp, size_t label_d,
         }
         if (label_d >= 0) {
             k = label_d;
-            printf(" %d", k);
+            printf(" %s", int2str(k).c_str());
         }
         printf("\n");
     }
@@ -923,7 +924,7 @@ void solveProb::printFinal(int ioflag, doublereal damp, size_t label_d, size_t l
         printf("%9.4e %9.4e", update_norm, resid_norm);
         if (do_time) {
             k = label_t;
-            printf(" %d", k);
+            printf(" %s", int2str(k).c_str());
         } else {
             for (i = 0; i < 16; i++) {
                 printf(" ");
@@ -932,7 +933,7 @@ void solveProb::printFinal(int ioflag, doublereal damp, size_t label_d, size_t l
         if (label_d >= 0) {
             k = label_d;
 
-            printf(" %d", k);
+            printf(" %s", int2str(k).c_str());
         }
         printf(" -- success\n");
     }
