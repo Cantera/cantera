@@ -161,7 +161,7 @@ defaults.noDebugLinkFlags = ''
 
 if env['CC'] == 'gcc':
     defaults.cxxFlags = '-ftemplate-depth-128'
-    defaults.ccFlags = '-Wall'
+    defaults.ccFlags = '-Wall -Wno-deprecated-declarations'
     defaults.debugCcFlags = '-g'
     defaults.noOptimizeCcFlags = '-O0 -fno-inline'
     defaults.optimizeCcFlags = '-O3 -DNDEBUG -finline-functions -Wno-inline'
@@ -169,7 +169,7 @@ if env['CC'] == 'gcc':
 elif env['CC'] == 'cl': # Visual Studio
     defaults.cxxFlags = '/EHsc'
     defaults.ccFlags = ' '.join(['/nologo', '/Zi', '/W3', '/Zc:wchar_t', '/Zc:forScope',
-                                 '/D_SCL_SECURE_NO_WARNINGS', '/D_CRT_SECURE_NO_WARNINGS'])
+                                 '/D_SCL_SECURE_NO_WARNINGS', '/D_CRT_SECURE_NO_WARNINGS', '/wd4996'])
     defaults.debugCcFlags = '/MD' # note: MDd breaks the Python module
     defaults.noOptimizeCcFlags = '/Od /Ob0'
     defaults.optimizeCcFlags = '/O2 /DNDEBUG'
@@ -183,6 +183,9 @@ elif env['CC'] == 'icc':
     defaults.optimizeCcFlags = '-O3 -finline-functions -DNDEBUG'
 else:
     print "WARNING: Unrecognized C compiler '%s'" % env['CC']
+
+# TODO: Once deprecated functions have been removed, remove the
+# compiler options: -Wno-deprecated-declarations and /wd4996
 
 # **************************************
 # *** Read user-configurable options ***
