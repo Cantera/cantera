@@ -116,7 +116,7 @@ public:
 protected:
     std::vector<R>             m_rates;
     std::vector<size_t>           m_rxn;
-    vector_fp              m_const; // not used
+    vector_fp              m_const; //!< @deprecated not used
 };
 
 

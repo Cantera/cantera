@@ -685,6 +685,7 @@ public:
      * This ventures into the idea of installing a physical location
      * into a thermodynamics program. This unknown is currently not
      * being used.
+     * @deprecated
      */
     int Domain_ID;
 
