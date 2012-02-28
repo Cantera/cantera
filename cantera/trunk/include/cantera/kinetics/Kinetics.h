@@ -197,8 +197,9 @@ public:
     //! Identifies the subclass of the Kinetics manager type.
     /*!
      * These are listed in mix_defs.h.
+     * @deprecated use type() instead
      */
-    virtual int ID() const;
+    DEPRECATED(virtual int ID() const);
 
     //!  Identifies the kinetics manager type.
     /*!
