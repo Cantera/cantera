@@ -568,8 +568,8 @@ private:
 };
 */
 
-void importSolution(doublereal* oldSoln, igthermo_t& oldmech,
-                    doublereal* newSoln, igthermo_t& newmech);
+void importSolution(size_t points, doublereal* oldSoln, igthermo_t& oldmech,
+                    size_t size_new, doublereal* newSoln, igthermo_t& newmech);
 
 }
 
