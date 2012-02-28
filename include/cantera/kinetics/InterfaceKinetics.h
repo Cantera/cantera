@@ -154,7 +154,8 @@ public:
     virtual Kinetics* duplMyselfAsKinetics(const std::vector<thermo_t*> & tpVector) const;
 
     //! Return the ID of the kinetics object
-    virtual int ID() const;
+    //! @deprecated use type() instead
+    DEPRECATED(virtual int ID() const);
 
     //! Retunr the type of the kinetics object
     virtual int type() const;

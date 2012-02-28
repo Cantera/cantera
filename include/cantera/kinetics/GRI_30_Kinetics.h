@@ -32,7 +32,10 @@ public:
     /// Destructor.
     virtual ~GRI_30_Kinetics() {}
 
-    virtual int ID() const {
+    /**
+     * @deprecated use type() instead
+     */
+    DEPRECATED(virtual int ID() const) {
         return cGRI_30_Kinetics;
     }
     virtual int type() const {
