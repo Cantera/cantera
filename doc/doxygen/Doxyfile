@@ -1332,7 +1332,8 @@ PREDEFINED             = WITH_HTML_LOGS \
                          WITH_PURE_FLUIDS \
                          THREAD_SAFE_CANTERA \
                          WITH_LATTICE_SOLID \
-                         HAVE_CONFIG_H
+                         HAVE_CONFIG_H \
+                         DEPRECATED(x)=x
 
 # If the MACRO_EXPANSION and EXPAND_ONLY_PREDEF tags are set to YES then
 # this tag can be used to specify a list of macro names that should be expanded.

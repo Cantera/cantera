@@ -82,9 +82,9 @@ struct UnknownThermoParam {
     /*!
      * @param thermotype  Integer specifying the thermo parameterization
      *
-     * @todo Is this used?
+     * @deprecated This class is unused?
      */
-    UnknownThermoParam(int thermotype) {
+    DEPRECATED(UnknownThermoParam(int thermotype)) {
         writelog(std::string("\n ### ERROR ### \n") +
                  "Unknown species thermo parameterization ("
                  + int2str(thermotype) + ")\n\n");
@@ -95,9 +95,10 @@ struct UnknownThermoParam {
 //! holds parameterization-dependent index information
 /*!
  * These are all integers.
- * @todo Is this used?
+ * @deprecated This struct is unused.
  */
 struct ThermoIndexData {
+    DEPRECATED(ThermoIndexData()) {}
     //! param
     int param;
     //! number of coefficients

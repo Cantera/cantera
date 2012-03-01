@@ -263,9 +263,8 @@ void addIntegerArray(Cantera::XML_Node& node, const std::string& title, const si
  *   @param typeString    String type. This is an optional parameter. The default
  *                        is to have an empty string.
  *
- * @todo I don't think this is used. Figure out what is used for writing floats,
- *       and codify that. minval and maxval should be codified.
- *       typeString should be codified as to its usage.
+ * @todo minval and maxval should be codified. typeString should be codified
+ *       as to its usage.
  */
 void addFloat(Cantera::XML_Node& node, const std::string& title,
               const doublereal val, const std::string units,
@@ -341,9 +340,7 @@ void addFloat(Cantera::XML_Node& node, const std::string& title,
  *                        special double, Cantera::Undef, which means to ignore the
  *                        entry.
  *
- * @todo I don't think this is used. Figure out what is used for writing integers,
- *       and codify that. unitsString shouldn't be here, since it's an int.
- *       typeString should be codified as to its usage.
+ * @todo typeString should be codified as to its usage.
  */
 void addFloatArray(Cantera::XML_Node& node, const std::string& title, const size_t n,
                    const doublereal* const vals, const std::string units,

@@ -215,7 +215,6 @@ void ChemEquil::setToEquilState(thermo_t& s,
 
 /**
  *  update internally stored state information.
- * @todo argument not used.
  */
 void ChemEquil::update(const thermo_t& s)
 {
