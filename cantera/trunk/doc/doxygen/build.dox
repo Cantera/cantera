@@ -248,6 +248,10 @@ from a Fortran program.
     - Required to enable some features such as sensitivity analysis.
     - https://computation.llnl.gov/casc/sundials/download/download.html
     - Known to work with version 2.4; Support for versions 2.3 and 2.2 is deprecated.
+    - To use Sundials with Cantera, you may need to compile it with the
+      <b>-fPIC</b> flag. You can specify this flag when configuring Sundials:
+      \verbatim
+      configure --with-cflags=-fPIC \endverbatim
 
 \see \ref cxx-ctnew
 
