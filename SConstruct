@@ -159,7 +159,7 @@ defaults.noDebugCcFlags = ''
 defaults.debugLinkFlags = ''
 defaults.noDebugLinkFlags = ''
 
-if env['CC'] == 'gcc':
+if env['CC'] == 'gcc' or env['CC'] == 'llvm-gcc':
     defaults.cxxFlags = '-ftemplate-depth-128'
     defaults.ccFlags = '-Wall -Wno-deprecated-declarations'
     defaults.debugCcFlags = '-g'
