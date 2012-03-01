@@ -2,8 +2,6 @@ from buildutils import *
 
 Import('env', 'buildTargets', 'installTargets', 'sampleTargets')
 
-localenv = env.Clone()
-
 # (subdir, program name, [source extensions])
 samples = [('combustor', 'combustor', ['cpp']),
            ('flamespeed', 'flamespeed', ['cpp']),
@@ -12,8 +10,21 @@ samples = [('combustor', 'combustor', ['cpp']),
            ('rankine', 'rankine', ['cpp'])]
 
 for subdir, name, extensions in samples:
-    prog = localenv.Program(pjoin(subdir, name),
-                            mglob(localenv, subdir, *extensions),
-                            CPPPATH=['#include'],
-                            LIBS=env['cantera_libs'])
-    sampleTargets.extend(prog)
+    localenv = env.Clone()
+    if 'samples' in COMMAND_LINE_TARGETS:
+        prog = localenv.Program(pjoin(subdir, name),
+                                mglob(localenv, subdir, *extensions),
+                                CPPPATH=['#include'],
+                                LIBS=env['cantera_libs'])
+        sampleTargets.extend(prog)
+
+    ## Generate Makefiles to be installed
+    localenv['make_sourcefile'] = '%s.cpp' % name
+    localenv['make_target'] = name
+    makefile = localenv.SubstFile(pjoin(subdir, 'Makefile'), 'Makefile.in')
+    buildTargets.extend(makefile)
+
+    # Note: These Makefiles are automatically installed by the
+    # "RecursiveInstall" that grabs everything in the cxx directory
+
+    ## Generate SConstruct files to be installed
