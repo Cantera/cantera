@@ -216,18 +216,14 @@ public:
      */
     virtual void getGibbs_RT(doublereal* grt) const;
 
-
-    //! Get the nondimensional Gibbs functions for the standard
-    //! state of the species at the current T and P.
+    //! Get the standard state Gibbs functions for each species
+    //! at the current T and P.
     /*!
      *  (Note resolved at this level)
      *
      * @param gpure  Output vector of standard state
      *               Gibbs free energies. length = m_kk.
      *               units are J/kmol.
-     *
-     * @todo This could be eliminated. It doesn't fit into the current
-     *       naming convention.
      */
     void getPureGibbs(doublereal* gpure) const;
 
