@@ -50,9 +50,9 @@ public:
      * @param func        String function id
      * @param thermotype  Integer specifying the thermo parameterization
      *
-     * @todo is this used
+     * deprecated This class is unused
      */
-    UnknownVPSSMgr(std::string func, int thermotype) {
+    DEPRECATED(UnknownVPSSMgr(std::string func, int thermotype)) {
         CanteraError(func, std::string("\n ### ERROR ### \n") +
                      "Unknown species thermo parameterization ("
                      + int2str(thermotype) + ")\n\n");

@@ -159,9 +159,9 @@ public:
      *
      *  @return                 Returns the pointer to the newly malloced
      *                          species property manager for the reference state
-     *  @todo is this used?
+     *  @deprecated Essentially never used
      */
-    SpeciesThermo* newSpeciesThermoOpt(std::vector<XML_Node*> & spDataNodeList) const;
+    DEPRECATED(SpeciesThermo* newSpeciesThermoOpt(std::vector<XML_Node*> & spDataNodeList) const);
 
     //! Install a species thermodynamic property parameterization
     //! for the reference state for one species into a species thermo manager.

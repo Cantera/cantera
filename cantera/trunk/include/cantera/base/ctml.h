@@ -62,11 +62,10 @@ extern std::string INT_Format;
  *   @param titleString   String name of the title attribute
  *   @param value         Value - single bool
  *
- * @todo I don't think this is used. Figure out what is used for writing bools,
- *       and codify that.
+ * @deprecated never used
  */
-void addBool(Cantera::XML_Node& node, const std::string& titleString,
-             const bool value);
+DEPRECATED(void addBool(Cantera::XML_Node& node, const std::string& titleString,
+             const bool value));
 
 //!  This function adds a child node with the name, "integer", with a value
 //!  consisting of a single integer
@@ -213,15 +212,16 @@ void addFloat(Cantera::XML_Node& node, const std::string& titleString,
  *                        special double, Cantera::Undef, which means to ignore the
  *                        entry.
  *
- * @todo I don't think this is used. Figure out what is used for writing integers,
- *       and codify that. unitsString shouldn't be here, since it's an int.
- *       typeString should be codified as to its usage.
+ * @todo unitsString shouldn't be here, since it's an int. typeString should
+ *       be codified as to its usage.
+ *
+ * @deprecated Not currently used.
  */
-void addIntegerArray(Cantera::XML_Node& node, const std::string& titleString,
+DEPRECATED(void addIntegerArray(Cantera::XML_Node& node, const std::string& titleString,
                      const size_t n, const int* const values,
                      const std::string unitsString="", const std::string typeString="",
                      const doublereal minval=Cantera::Undef,
-                     const doublereal maxval=Cantera::Undef);
+                     const doublereal maxval=Cantera::Undef));
 
 //!  This function adds a child node with the name, "floatArray", with a value
 //!  consisting of a comma separated list of floats

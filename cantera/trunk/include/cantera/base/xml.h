@@ -60,9 +60,9 @@ public:
      * @return Returns a string stripped of leading and trailing white
      *         space.
      *
-     * @todo why is this a class method?
+     * @deprecated Use stripws (in stringUtils.h)
      */
-    std::string strip(const std::string& aline) const;
+    DEPRECATED(std::string strip(const std::string& aline) const);
 
     //! Looks for a substring within 'aline' enclosed in double
     //! quotes, and returns this substring (without the quotes) if
@@ -71,9 +71,9 @@ public:
      *
      *  @param aline This is the input string to be searched
      *
-     *  @todo why is this a class method?
+     *  @deprecated why is this a class method?
      */
-    std::string inquotes(const std::string& aline) const;
+    DEPRECATED(std::string inquotes(const std::string& aline) const);
 
     //!  Searches a string for the first occurrence of a valid
     //!  quoted string.

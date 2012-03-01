@@ -21,6 +21,7 @@ namespace Cantera
 
 //====================================================================================================================
 //! Transport solve options
+//! @deprecated GMRES option is unimplemented.
 enum TRANSOLVE_TYPE {
     //!  Solve the dense matrix via a gmres iteration
     TRANSOLVE_GMRES = 1,
@@ -59,8 +60,9 @@ public:
      *
      *   @param b
      *   @param prod
+     *   @deprecated GMRES method is not implemented
      */
-    virtual void mult(const doublereal* b, doublereal* prod) const;
+    DEPRECATED(virtual void mult(const doublereal* b, doublereal* prod) const);
 };
 
 
@@ -197,15 +199,17 @@ public:
     //! Set the solution method for inverting the L matrix
     /*!
      *      @param method enum TRANSOLVE_TYPE Either use direct or TRANSOLVE_GMRES
+     *      @deprecated GMRES option is unimplemented.
      */
-    virtual void setSolutionMethod(TRANSOLVE_TYPE method);
+    DEPRECATED(virtual void setSolutionMethod(TRANSOLVE_TYPE method));
 
     //! Set the options for the GMRES solution
     /*!
      *      @param m    set the mgmres param
      *      @param eps  Set the eps parameter
+     *      @deprecated GMRES option is unimplemented.
      */
-    virtual void setOptions_GMRES(int m, doublereal eps);
+    DEPRECATED(virtual void setOptions_GMRES(int m, doublereal eps));
 
     /**
      * @internal
@@ -326,9 +330,9 @@ private:
     vector_fp m_a;
     vector_fp m_b;
 
-    bool m_gmres;
-    int  m_mgmres;
-    doublereal m_eps_gmres;
+    bool m_gmres; //!< @deprecated
+    int  m_mgmres; //!< @deprecated
+    doublereal m_eps_gmres; //!< @deprecated
 
     // work space
     vector_fp  m_spwork, m_spwork1, m_spwork2, m_spwork3;
