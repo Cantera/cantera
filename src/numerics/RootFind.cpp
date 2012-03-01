@@ -67,78 +67,7 @@ static void print_funcEval(FILE* fp, doublereal xval, doublereal fval, int its)
     fprintf(fp,"\n");
 }
 #endif
-//================================================================================================
-//! Solve Ax = b using gauss's method
-/*!
- *     @param c      Matrix
- *     @param idem   Assumed number of rows in the matrix
- *     @param n      Number of rows and columns
- *     @param b      right hand side
- *     @param m      Number of right hand sides
- *
- *     @todo This function is never used, and should be removed.
- */
-static int smlequ(doublereal* c, int idem, int n, doublereal* b, int m)
-{
-    int i, j, k, l;
-    doublereal R;
-    if (n > idem || n <= 0) {
-        writelogf("smlequ ERROR: badly dimensioned matrix: %d %d\n", n, idem);
-        return 1;
-    }
 
-    /*
-     * Loop over the rows
-     *    -> At the end of each loop, the only nonzero entry in the column
-     *       will be on the diagonal. We can therfore just invert the
-     *       diagonal at the end of the program to solve the equation system.
-     */
-    for (i = 0; i < n; ++i) {
-        if (c[i + i * idem] == 0.0) {
-            /*
-             *   Do a simple form of row pivoting to find a non-zero pivot
-             */
-            for (k = i + 1; k < n; ++k) {
-                if (c[k + i * idem] != 0.0) {
-                    goto FOUND_PIVOT;
-                }
-            }
-            writelogf("smlequ ERROR: Encountered a zero column: %d\n", i);
-            return 1;
-FOUND_PIVOT:
-            ;
-            for (j = 0; j < n; ++j) {
-                c[i + j * idem] += c[k + j * idem];
-            }
-            for (j = 0; j < m; ++j) {
-                b[i + j * idem] += b[k + j * idem];
-            }
-        }
-
-        for (l = 0; l < n; ++l) {
-            if (l != i && c[l + i * idem] != 0.0) {
-                R = c[l + i * idem] / c[i + i * idem];
-                c[l + i * idem] = 0.0;
-                for (j = i+1; j < n; ++j) {
-                    c[l + j * idem] -= c[i + j * idem] * R;
-                }
-                for (j = 0; j < m; ++j) {
-                    b[l + j * idem] -= b[i + j * idem] * R;
-                }
-            }
-        }
-    }
-    /*
-     *  The negative in the last expression is due to the form of B upon
-     *  input
-     */
-    for (i = 0; i < n; ++i) {
-        for (j = 0; j < m; ++j) {
-            b[i + j * idem] = -b[i + j * idem] / c[i + i*idem];
-        }
-    }
-    return 0;
-}
 //================================================================================================
 // Main constructor
 RootFind::RootFind(ResidEval* resid) :
