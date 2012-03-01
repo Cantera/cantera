@@ -33,9 +33,11 @@ localenv = env.Clone()
 localenv.Append(CPPPATH=['#include', '#src'])
 
 cantera_libname = 'cantera_shared' if os.name=='nt' else 'cantera'
+libs = [cantera_libname] + env['sundials_libs']
+
 localenv.Command('build_cantera.m',
                  mglob(localenv, '.', 'cpp'),
-                 MatlabBuilder([cantera_libname]))
+                 MatlabBuilder(libs))
 
 localenv['ENV']['PATH'] = os.environ['PATH']
 if 'TEMP' in os.environ:
