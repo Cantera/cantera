@@ -18,13 +18,27 @@ for subdir, name, extensions in samples:
                                 LIBS=env['cantera_libs'])
         sampleTargets.extend(prog)
 
+    # Note: These Makefiles and SConstruct files are automatically installed
+    # by the "RecursiveInstall" that grabs everything in the cxx directory.
+
     ## Generate Makefiles to be installed
     localenv['make_sourcefile'] = '%s.cpp' % name
     localenv['make_target'] = name
     makefile = localenv.SubstFile(pjoin(subdir, 'Makefile'), 'Makefile.in')
     buildTargets.extend(makefile)
 
-    # Note: These Makefiles are automatically installed by the
-    # "RecursiveInstall" that grabs everything in the cxx directory
-
     ## Generate SConstruct files to be installed
+    incdirs = (localenv['ct_incroot'], localenv['sundials_include'],
+               localenv['boost_inc_dir'])
+    libs = (['cantera'] + localenv['sundials_libs'] +
+            localenv['boost_libs'] + localenv['blas_lapack_libs'])
+    libdirs = (localenv['ct_libdir'], localenv['sundials_libdir'],
+               localenv['blas_lapack_dir'], localenv['boost_lib_dir'])
+    localenv['tmpl_cantera_incdirs'] = repr([x for x in incdirs if x])
+    localenv['tmpl_cantera_libs'] = repr([x for x in libs if x])
+    localenv['tmpl_cantera_libdirs'] = repr([x for x in libdirs if x])
+    localenv['tmpl_progname'] = name
+    localenv['tmpl_sourcename'] = name + '.cpp'
+    localenv['testvariable'] = incdirs
+
+    sconstruct = localenv.SubstFile(pjoin(subdir, 'SConstruct'), 'SConstruct.in')
