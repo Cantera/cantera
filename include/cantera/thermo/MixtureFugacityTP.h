@@ -281,21 +281,11 @@ public:
      */
     virtual void getGibbs_RT(doublereal* grt) const;
 
-
-    //! Get the nondimensional Gibbs functions for the standard
-    //! state of the species at the current T and P.
-    /*!
-     * For all objects with the Mixture Fugacity approximation, we define the
-     * standard state as an ideal gas at the current temperature and pressure
-     * of the solution.
-     *
-     * @param gpure  Output vector of standard state
-     *               Gibbs free energies. length = m_kk.
-     *               units are J/kmol.
-     *
-     * @todo This could be eliminated. It doesn't fit into the current
-     *       naming convention.
-     */
+    //! Get the pure Gibbs free energies of each species.
+    //! Species are assumed to be in their standard states. This is the same
+    //! as getStandardChemPotentials().
+    //! @param gpure[out] Array of standard state Gibbs free energies.
+    //!        length = m_kk. units are J/kmol.
     void getPureGibbs(doublereal* gpure) const;
 
     //!  Returns the vector of nondimensional internal Energies of the standard state at the current temperature
