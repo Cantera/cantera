@@ -39,6 +39,5 @@ for subdir, name, extensions in samples:
     localenv['tmpl_cantera_libdirs'] = repr([x for x in libdirs if x])
     localenv['tmpl_progname'] = name
     localenv['tmpl_sourcename'] = name + '.cpp'
-    localenv['testvariable'] = incdirs
 
     sconstruct = localenv.SubstFile(pjoin(subdir, 'SConstruct'), 'SConstruct.in')
