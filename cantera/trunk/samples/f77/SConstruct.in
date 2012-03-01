@@ -1,0 +1,22 @@
+env = Environment()
+
+env['F77'] = '@F77@'
+env['CC'] = '@CC@'
+env.Append(FFLAGS='-g',
+           CCFLAGS='-g',
+           CPPPATH=@tmpl_cantera_incdirs@,
+           LIBS=@tmpl_cantera_libs@,
+           LIBPATH=@tmpl_cantera_libdirs@)
+
+ctlib = env.Object('demo_ftnlib.cpp')
+
+demo_obj = env.Object('demo.f')
+isentropic_obj = env.Object('isentropic.f')
+
+demo = env.Program('demo', [ctlib, demo_obj],
+                   LINK='$F77')
+isentropic = env.Program('isentropic', [ctlib, isentropic_obj],
+                         LINK='$F77')
+
+Default(demo)
+Default(isentropic)

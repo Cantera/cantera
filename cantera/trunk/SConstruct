@@ -1017,13 +1017,6 @@ if env['f90_interface'] == 'y':
     VariantDir('build/src/fortran/', 'src/fortran', duplicate=1)
     SConscript('build/src/fortran/SConscript')
 
-    if env['addInstallTargets']:
-        # install F90 / F77 samples
-        inst = env.RecursiveInstall(pjoin('$inst_sampledir', 'f77'), 'samples/f77')
-        installTargets.extend(inst)
-        inst = env.RecursiveInstall(pjoin('$inst_sampledir', 'f90'), 'samples/f90')
-        installTargets.extend(inst)
-
 VariantDir('build/src', 'src', duplicate=0)
 SConscript('build/src/SConscript')
 
@@ -1044,13 +1037,23 @@ if env['build_docs']:
 
 if 'samples' in COMMAND_LINE_TARGETS or 'install' in COMMAND_LINE_TARGETS:
     SConscript('samples/cxx/SConscript')
-    if env['f90_interface'] == 'y':
-        SConscript('samples/f77/SConscript')
 
     # Install C++ samples
     inst = env.RecursiveInstall(pjoin('$inst_sampledir', 'cxx'),
                                 'samples/cxx')
     installTargets.extend(inst)
+
+    if env['f90_interface'] == 'y':
+        SConscript('samples/f77/SConscript')
+        SConscript('samples/f90/SConscript')
+
+    if env['addInstallTargets'] and env['f90_interface'] == 'y':
+        # install F90 / F77 samples
+        inst = env.RecursiveInstall(pjoin('$inst_sampledir', 'f77'), 'samples/f77')
+        installTargets.extend(inst)
+        inst = env.RecursiveInstall(pjoin('$inst_sampledir', 'f90'), 'samples/f90')
+        installTargets.extend(inst)
+
 
 ### Meta-targets ###
 build_samples = Alias('samples', sampleTargets)

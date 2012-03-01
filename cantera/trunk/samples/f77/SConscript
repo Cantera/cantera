@@ -14,6 +14,19 @@ for program_name, fortran_sources in samples:
                             fortran_sources + ftn_demo,
                             CPPPATH=['#build/src/fortran', '#include'],
                             LIBS=env['cantera_libs']+['cantera_fortran']+['stdc++'],
-                            LIBPATH=['#build/lib'],
+                            LIBPATH=[env['sundials_libdir'], '#build/lib'],
                             LINK='$F77')
     sampleTargets.extend(prog)
+
+# Generate SConstruct file to be installed
+incdirs = (localenv['ct_incroot'], localenv['sundials_include'],
+           localenv['boost_inc_dir'])
+libs = (['cantera_fortran', 'cantera'] + localenv['sundials_libs'] +
+        localenv['boost_libs'] + localenv['blas_lapack_libs'] + ['stdc++'])
+libdirs = (localenv['ct_libdir'], localenv['sundials_libdir'],
+           localenv['blas_lapack_dir'], localenv['boost_lib_dir'])
+localenv['tmpl_cantera_incdirs'] = repr([x for x in incdirs if x])
+localenv['tmpl_cantera_libs'] = repr([x for x in libs if x])
+localenv['tmpl_cantera_libdirs'] = repr([x for x in libdirs if x])
+
+sconstruct = localenv.SubstFile('SConstruct', 'SConstruct.in')
