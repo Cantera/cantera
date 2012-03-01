@@ -56,8 +56,7 @@ void MultiJac::eval(doublereal* x0, doublereal* resid0, doublereal rdt)
     m_nevals++;
     clock_t t0 = clock();
     bfill(0.0);
-
-    size_t n, m, ipt=0, i, j, nv, mv, iloc;
+    size_t n, m, ipt=0, j, nv, mv, iloc;
     doublereal rdx, dx, xsave;
 
     for (j = 0; j < m_points; j++) {
@@ -75,7 +74,7 @@ void MultiJac::eval(doublereal* x0, doublereal* resid0, doublereal rdt)
             m_resid->eval(j, x0, DATA_PTR(m_r1), rdt, 0);
 
             // compute nth column of Jacobian
-            for (i = j - 1; i <= j+1; i++) {
+            for (size_t i = j - 1; i != j+2; i++) {
                 if (i != npos && i < m_points) {
                     mv = m_resid->nVars(i);
                     iloc = m_resid->loc(i);

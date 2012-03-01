@@ -666,24 +666,22 @@ void FreeFlame::eval(size_t jg, doublereal* xg,
     doublereal* rsd = rg + loc();
     integer* diag = diagg + loc();
 
-    size_t jmin, jmax, jpt;
-    jpt = jg - firstPoint();
+    size_t jmin, jmax;
 
     if (jg == npos) {      // evaluate all points
         jmin = 0;
         jmax = m_points - 1;
     } else {          // evaluate points for Jacobian
-        jmin = std::max<size_t>(jpt-1, 0);
+        size_t jpt = (jg == 0) ? 0 : jg - firstPoint();
+        jmin = std::max<size_t>(jpt, 1) - 1;
         jmax = std::min(jpt+1,m_points-1);
     }
 
     // properties are computed for grid points from j0 to j1
-    size_t j0 = std::max<size_t>(jmin-1,0);
+    size_t j0 = std::max<size_t>(jmin, 1) - 1;
     size_t j1 = std::min(jmax+1,m_points-1);
 
-
     size_t j, k;
-
 
     //-----------------------------------------------------
     //              update properties
@@ -691,7 +689,7 @@ void FreeFlame::eval(size_t jg, doublereal* xg,
 
     // update thermodynamic properties only if a Jacobian is not
     // being evaluated
-    if (jpt == npos) {
+    if (jg == npos) {
         updateThermo(x, j0, j1);
         updateTransport(x, j0, j1);
     }
