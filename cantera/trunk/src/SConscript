@@ -60,7 +60,7 @@ if localenv['addInstallTargets']:
 
 # OS X requires the shared libraries at link time
 if localenv['OS'] == 'Darwin' and localenv['use_sundials'] == 'y':
-    localenv.Append(LIBS=['sundials_cvodes', 'sundials_nvecserial'],
+    localenv.Append(LIBS=localenv['sundials_libs'],
                     LIBPATH=localenv['sundials_libdir'])
 
 # Build the Cantera shared library

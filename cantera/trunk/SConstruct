@@ -990,7 +990,10 @@ if env['addInstallTargets']:
 linkLibs = ['cantera']
 
 if env['use_sundials'] == 'y':
-    linkLibs.extend(('sundials_cvodes','sundials_nvecserial'))
+    env['sundials_libs'] = ['sundials_cvodes', 'sundials_ida', 'sundials_nvecserial']
+    linkLibs.extend(('sundials_cvodes', 'sundials_ida', 'sundials_nvecserial'))
+else:
+    env['sundials_libs'] = []
 
 linkLibs.extend(env['blas_lapack_libs'])
 
