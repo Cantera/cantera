@@ -918,6 +918,13 @@ config_h = env.Command('include/cantera/base/config.h',
 env.AlwaysBuild(config_h)
 env['config_h_target'] = config_h
 
+if env['build_thread_safe']:
+    env['use_boost_libs'] = True
+    env['boost_libs'] = env['boost_thread_lib']
+else:
+    env['use_boost_libs'] = False
+    env['boost_libs'] = []
+
 # *********************
 # *** Build Cantera ***
 # *********************
@@ -977,11 +984,6 @@ if env['addInstallTargets']:
                                   pjoin(headerdir, name, filename), cmd)
                 installTargets.extend(inst)
 
-    # Install C++ samples
-    inst = env.RecursiveInstall(pjoin('$inst_sampledir', 'cxx'),
-                                'samples/cxx')
-    installTargets.extend(inst)
-
     # Data files
     inst = env.Install('$inst_datadir', mglob(env, pjoin('data','inputs'), 'cti', 'xml'))
     installTargets.extend(inst)
@@ -1040,10 +1042,15 @@ if env['OS'] != 'Windows':
 if env['build_docs']:
     SConscript('doc/SConscript')
 
-if 'samples' in COMMAND_LINE_TARGETS:
+if 'samples' in COMMAND_LINE_TARGETS or 'install' in COMMAND_LINE_TARGETS:
     SConscript('samples/cxx/SConscript')
     if env['f90_interface'] == 'y':
         SConscript('samples/f77/SConscript')
+
+    # Install C++ samples
+    inst = env.RecursiveInstall(pjoin('$inst_sampledir', 'cxx'),
+                                'samples/cxx')
+    installTargets.extend(inst)
 
 ### Meta-targets ###
 build_samples = Alias('samples', sampleTargets)
