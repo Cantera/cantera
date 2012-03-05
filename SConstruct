@@ -954,8 +954,11 @@ if env['addInstallTargets']:
 
     # Make symlinks to replicate old header directory structure
     if env['legacy_headers']:
-        inst = env.Command(pjoin(instRoot, 'include', 'cantera', 'kernel'), [],
+        inst = env.Command(pjoin('$inst_incdir', 'kernel'), [],
                            Mkdir("$TARGET"))
+        installTargets.extend(inst)
+
+        inst = env.Install('$inst_incdir', 'platform/legacy/Cantera.h')
         installTargets.extend(inst)
 
         if env['OS'] == 'Windows':
