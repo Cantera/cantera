@@ -50,7 +50,8 @@ localenv.Append(CPPPATH=['#include', '#src', matlab_include],
                 CPPDEFINES=['MATLAB_MEX_FILE'],
                 LIBPATH=[matlab_libs])
 
-linklibs += env['sundials_libs']
+linklibs += localenv['sundials_libs']
+linklibs += localenv['blas_lapack_libs']
 
 ctmethods = build(localenv.SharedLibrary('#interfaces/matlab/toolbox/ctmethods',
                                          mglob(localenv, '.', 'cpp'),
