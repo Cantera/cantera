@@ -405,9 +405,6 @@ void close_XML_File(std::string file);
  *  A, B, and C to be written (in nested HTML lists), loglevel =
  *  2 results in messages only being written from A and B, etc.
  */
-//@{
-//@}
-
 
 //!Create a new group for log messages.
 /*!
@@ -507,7 +504,6 @@ inline void addLogEntry(std::string msg) {}
 inline void endLogGroup(std::string title="") {}
 inline void write_logfile(std::string file = "log.html") {}
 #endif
-
 
 //! This routine will locate an XML node in either the input
 //! XML tree or in another input file specified by the file
