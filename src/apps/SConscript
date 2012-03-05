@@ -1,6 +1,6 @@
 from buildutils import *
 
-Import('env', 'buildTargets', 'installTargets')
+Import('env', 'build', 'install')
 localenv = env.Clone()
 
 programs = [('cti2ctml', ['cti2ctml.cpp']),
@@ -9,16 +9,11 @@ programs = [('cti2ctml', ['cti2ctml.cpp']),
 localenv.Append(CPPPATH=['#src', '#include'])
 
 for name, src in programs:
-    prog = localenv.Program(target=pjoin('#build/bin', name),
-                            source=src,
-                            LIBS=['cantera'])
-
-    if localenv['addInstallTargets']:
-        inst = localenv.Install('$inst_bindir', prog)
-        buildTargets.extend(prog)
-        installTargets.extend(inst)
+    prog = build(localenv.Program(target=pjoin('#build/bin', name),
+                                  source=src,
+                                  LIBS=['cantera']))
+    install('$inst_bindir', prog)
 
 # Copy man pages
-if localenv['addInstallTargets'] and env['INSTALL_MANPAGES']:
-    inst = localenv.Install('$inst_mandir', mglob(localenv, 'man', '*'))
-    installTargets.extend(inst)
+if env['INSTALL_MANPAGES']:
+    install('$inst_mandir', mglob(localenv, 'man', '*'))

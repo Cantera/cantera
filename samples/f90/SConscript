@@ -1,18 +1,16 @@
 from buildutils import *
 
-Import('env', 'installTargets', 'sampleTargets')
+Import('env', 'install', 'buildSample')
 localenv = env.Clone()
 
 # (program name, [source files])
 samples = [('demo', ['demo.f90'])]
 
 for programName, sources in samples:
-    if 'samples' in COMMAND_LINE_TARGETS:
-        prog = localenv.Program(programName, sources,
-                                CPPPATH=['#build/src/fortran', '#include'],
-                                LIBS=env['cantera_libs']+['cantera_fortran']+['stdc++'],
-                                LIBPATH=[env['sundials_libdir'], '#build/lib'])
-        sampleTargets.extend(prog)
+    buildSample(localenv.Program, programName, sources,
+                CPPPATH=['#build/src/fortran', '#include'],
+                LIBS=env['cantera_libs']+['cantera_fortran']+['stdc++'],
+                LIBPATH=[env['sundials_libdir'], '#build/lib'])
 
     # Generate SConstruct files to be installed
     incdirs = [pjoin(localenv['ct_incroot'], 'cantera')]
@@ -33,8 +31,5 @@ for programName, sources in samples:
     localenv['make_sourcefile'] = programName + '.f90'
     makefile = localenv.SubstFile('Makefile', 'Makefile.in')
 
-    if env['addInstallTargets']:
-        inst = localenv.Install(pjoin('$inst_sampledir', 'f90'), makefile)
-        installTargets.extend(inst)
-        inst = localenv.Install(pjoin('$inst_sampledir', 'f90'), sconstruct)
-        installTargets.extend(inst)
+    install(pjoin('$inst_sampledir', 'f90'), makefile)
+    install(pjoin('$inst_sampledir', 'f90'), sconstruct)

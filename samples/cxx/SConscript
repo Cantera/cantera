@@ -1,6 +1,6 @@
 from buildutils import *
 
-Import('env', 'buildTargets', 'installTargets', 'sampleTargets')
+Import('env', 'build', 'install', 'buildSample')
 
 # (subdir, program name, [source extensions])
 samples = [('combustor', 'combustor', ['cpp']),
@@ -11,12 +11,10 @@ samples = [('combustor', 'combustor', ['cpp']),
 
 for subdir, name, extensions in samples:
     localenv = env.Clone()
-    if 'samples' in COMMAND_LINE_TARGETS:
-        prog = localenv.Program(pjoin(subdir, name),
-                                mglob(localenv, subdir, *extensions),
-                                CPPPATH=['#include'],
-                                LIBS=env['cantera_libs'])
-        sampleTargets.extend(prog)
+    buildSample(localenv.Program, pjoin(subdir, name),
+                mglob(localenv, subdir, *extensions),
+                CPPPATH=['#include'],
+                LIBS=env['cantera_libs'])
 
     # Note: These Makefiles and SConstruct files are automatically installed
     # by the "RecursiveInstall" that grabs everything in the cxx directory.
@@ -24,8 +22,8 @@ for subdir, name, extensions in samples:
     ## Generate Makefiles to be installed
     localenv['make_sourcefile'] = '%s.cpp' % name
     localenv['make_target'] = name
-    makefile = localenv.SubstFile(pjoin(subdir, 'Makefile'), 'Makefile.in')
-    buildTargets.extend(makefile)
+    makefile = build(localenv.SubstFile(pjoin(subdir, 'Makefile'), 'Makefile.in'))
+    install(pjoin('$inst_sampledir', 'cxx', subdir), makefile)
 
     ## Generate SConstruct files to be installed
     incdirs = (localenv['ct_incroot'], localenv['sundials_include'],
@@ -41,8 +39,4 @@ for subdir, name, extensions in samples:
     localenv['tmpl_sourcename'] = name + '.cpp'
 
     sconstruct = localenv.SubstFile(pjoin(subdir, 'SConstruct'), 'SConstruct.in')
-    if env['addInstallTargets']:
-        inst = localenv.Install(pjoin('$inst_sampledir', 'cxx', subdir), makefile)
-        installTargets.extend(inst)
-        inst = localenv.Install(pjoin('$inst_sampledir', 'cxx', subdir), sconstruct)
-        installTargets.extend(inst)
+    install(pjoin('$inst_sampledir', 'cxx', subdir), sconstruct)

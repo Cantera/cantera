@@ -1,6 +1,6 @@
 from buildutils import *
 
-Import('env', 'buildDir', 'buildTargets', 'installTargets', 'libraryTargets')
+Import('env', 'build', 'install', 'libraryTargets')
 localenv = env.Clone()
 
 def prep_default(env):
@@ -104,6 +104,5 @@ localenv = env.Clone()
 localenv.Append(CPPPATH=[Dir('#ext/gtest'),
                          Dir('#ext/gtest/include')],
                 CPPDEFINES={'GTEST_HAS_PTHREAD': 0})
-lib = localenv.Library(pjoin('../lib', 'gtest'),
-                       source=['gtest/src/gtest-all.cc'])
-buildTargets.extend(lib)
+build(localenv.Library(pjoin('../lib', 'gtest'),
+                       source=['gtest/src/gtest-all.cc']))

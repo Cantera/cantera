@@ -1,6 +1,6 @@
 from buildutils import *
 
-Import('env', 'buildTargets', 'installTargets', 'libraryTargets')
+Import('env', 'build', 'install', 'libraryTargets')
 
 def defaultSetup(env, subdir, extensions):
     return mglob(env, subdir, *extensions)
@@ -49,14 +49,10 @@ for subdir, extensions, setup in libs:
 
 # build the Cantera static library
 localenv = env.Clone()
-lib = localenv.StaticLibrary('../lib/cantera', libraryTargets,
-                             SPAWN=getSpawn(localenv))
-buildTargets.extend(lib)
+lib = build(localenv.StaticLibrary('../lib/cantera', libraryTargets,
+                                   SPAWN=getSpawn(localenv)))
 localenv.Depends(lib, localenv['config_h_target'])
-
-if localenv['addInstallTargets']:
-    inst = localenv.Install('$inst_libdir', lib)
-    installTargets.extend(inst)
+install('$inst_libdir', lib)
 
 # OS X requires the shared libraries at link time
 if localenv['OS'] == 'Darwin' and localenv['use_sundials'] == 'y':
@@ -64,12 +60,8 @@ if localenv['OS'] == 'Darwin' and localenv['use_sundials'] == 'y':
                     LIBPATH=localenv['sundials_libdir'])
 
 # Build the Cantera shared library
-lib = localenv.SharedLibrary('../lib/cantera_shared', libraryTargets,
-                             SPAWN=getSpawn(localenv))
+lib = build(localenv.SharedLibrary('../lib/cantera_shared', libraryTargets,
+                                   SPAWN=getSpawn(localenv)))
 env['cantera_shlib'] = lib
-buildTargets.extend(lib)
 localenv.Depends(lib, localenv['config_h_target'])
-
-if localenv['addInstallTargets']:
-    inst = localenv.Install('$inst_libdir', lib)
-    installTargets.extend(inst)
+install('$inst_libdir', lib)
