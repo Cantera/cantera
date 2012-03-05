@@ -33,3 +33,9 @@ sconstruct = localenv.SubstFile('SConstruct', 'SConstruct.in')
 
 # Generate Makefile to be installed
 makefile = localenv.SubstFile('Makefile', 'Makefile.in')
+
+if env['addInstallTargets']:
+    inst = localenv.Install(pjoin('$inst_sampledir', 'f77'), makefile)
+    installTargets.extend(inst)
+    inst = localenv.Install(pjoin('$inst_sampledir', 'f77'), sconstruct)
+    installTargets.extend(inst)
