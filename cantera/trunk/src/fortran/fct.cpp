@@ -89,9 +89,8 @@ extern "C" {
             std::string sproc = f2string(proc, proclen);
             std::string smsg = f2string(msg, msglen);
             throw CanteraError(sproc, smsg);
-        } catch (CanteraError& err) {
-            handleError(err);
-            return -1;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
         }
         return -1;
     }
@@ -109,9 +108,8 @@ extern "C" {
                 nm[nn] = ' ';
             }
             return 0;
-        } catch (CanteraError& err) {
-            handleError(err);
-            return -1;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
         }
     }
 
@@ -215,9 +213,8 @@ extern "C" {
             parseCompString(f2string(x, lx), xx);
             p->setMoleFractionsByName(xx);
             return 0;
-        } catch (CanteraError& err) {
-            handleError(err);
-            return -1;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
         }
     }
 
@@ -244,9 +241,8 @@ extern "C" {
             parseCompString(f2string(y, leny), yy);
             p->setMassFractionsByName(yy);
             return 0;
-        } catch (CanteraError& err) {
-            handleError(err);
-            return -1;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
         }
     }
 
@@ -277,9 +273,8 @@ extern "C" {
                 nm[nn] = ' ';
             }
             return 0;
-        } catch (CanteraError& err) {
-            handleError(err);
-            return -1;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
         }
     }
 
@@ -293,9 +288,8 @@ extern "C" {
                 nm[nn] = ' ';
             }
             return 0;
-        } catch (CanteraError& err) {
-            handleError(err);
-            return -1;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
         }
     }
 
@@ -304,9 +298,8 @@ extern "C" {
     {
         try {
             return _fph(n)->nAtoms(*k-1,*m-1);
-        } catch (CanteraError& err) {
-            handleError(err);
-            return -1;
+        } catch (...) {
+            return handleAllExceptions(DERR, DERR);
         }
     }
 
@@ -321,9 +314,8 @@ extern "C" {
             XML_Node* x = _xml(mxml);
             thermo_t* th = newPhase(*x);
             return ThermoCabinet::add(th);
-        } catch (CanteraError& err) {
-            handleError(err);
-            return -1;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
         }
     }
 
@@ -341,9 +333,8 @@ extern "C" {
     {
         try {
             return _fth(n)->enthalpy_mole();
-        } catch (CanteraError& err) {
-            handleError(err);
-            return DERR;
+        } catch (...) {
+            return handleAllExceptions(DERR, DERR);
         }
     }
 
@@ -351,9 +342,8 @@ extern "C" {
     {
         try {
             return _fth(n)->intEnergy_mole();
-        } catch (CanteraError& err) {
-            handleError(err);
-            return DERR;
+        } catch (...) {
+            return handleAllExceptions(DERR, DERR);
         }
     }
 
@@ -361,9 +351,8 @@ extern "C" {
     {
         try {
             return _fth(n)->entropy_mole();
-        } catch (CanteraError& err) {
-            handleError(err);
-            return DERR;
+        } catch (...) {
+            return handleAllExceptions(DERR, DERR);
         }
     }
 
@@ -371,9 +360,8 @@ extern "C" {
     {
         try {
             return _fth(n)->gibbs_mole();
-        } catch (CanteraError& err) {
-            handleError(err);
-            return DERR;
+        } catch (...) {
+            return handleAllExceptions(DERR, DERR);
         }
     }
 
@@ -381,9 +369,8 @@ extern "C" {
     {
         try {
             return _fth(n)->cp_mole();
-        } catch (CanteraError& err) {
-            handleError(err);
-            return DERR;
+        } catch (...) {
+            return handleAllExceptions(DERR, DERR);
         }
     }
 
@@ -391,9 +378,8 @@ extern "C" {
     {
         try {
             return _fth(n)->cv_mole();
-        } catch (CanteraError& err) {
-            handleError(err);
-            return DERR;
+        } catch (...) {
+            return handleAllExceptions(DERR, DERR);
         }
     }
 
@@ -401,9 +387,8 @@ extern "C" {
     {
         try {
             return _fth(n)->pressure();
-        } catch (CanteraError& err) {
-            handleError(err);
-            return DERR;
+        } catch (...) {
+            return handleAllExceptions(DERR, DERR);
         }
     }
 
@@ -411,9 +396,8 @@ extern "C" {
     {
         try {
             return _fth(n)->enthalpy_mass();
-        } catch (CanteraError& err) {
-            handleError(err);
-            return DERR;
+        } catch (...) {
+            return handleAllExceptions(DERR, DERR);
         }
     }
 
@@ -421,9 +405,8 @@ extern "C" {
     {
         try {
             return _fth(n)->intEnergy_mass();
-        } catch (CanteraError& err) {
-            handleError(err);
-            return DERR;
+        } catch (...) {
+            return handleAllExceptions(DERR, DERR);
         }
     }
 
@@ -431,9 +414,8 @@ extern "C" {
     {
         try {
             return _fth(n)->entropy_mass();
-        } catch (CanteraError& err) {
-            handleError(err);
-            return DERR;
+        } catch (...) {
+            return handleAllExceptions(DERR, DERR);
         }
     }
 
@@ -441,9 +423,8 @@ extern "C" {
     {
         try {
             return _fth(n)->gibbs_mass();
-        } catch (CanteraError& err) {
-            handleError(err);
-            return DERR;
+        } catch (...) {
+            return handleAllExceptions(DERR, DERR);
         }
     }
 
@@ -451,9 +432,8 @@ extern "C" {
     {
         try {
             return _fth(n)->cp_mass();
-        } catch (CanteraError& err) {
-            handleError(err);
-            return DERR;
+        } catch (...) {
+            return handleAllExceptions(DERR, DERR);
         }
     }
 
@@ -461,9 +441,8 @@ extern "C" {
     {
         try {
             return _fth(n)->cv_mass();
-        } catch (CanteraError& err) {
-            handleError(err);
-            return DERR;
+        } catch (...) {
+            return handleAllExceptions(DERR, DERR);
         }
     }
 
@@ -479,9 +458,8 @@ extern "C" {
         try {
             _fth(n)->setPressure(*p);
             return 0;
-        } catch (CanteraError& err) {
-            handleError(err);
-            return -1;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
         }
     }
 
@@ -490,9 +468,8 @@ extern "C" {
         try {
             _fth(n)->setState_HP(*v1, *v2);
             return 0;
-        } catch (CanteraError& err) {
-            handleError(err);
-            return -1;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
         }
     }
 
@@ -501,9 +478,8 @@ extern "C" {
         try {
             _fth(n)->setState_UV(*v1, *v2);
             return 0;
-        } catch (CanteraError& err) {
-            handleError(err);
-            return -1;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
         }
     }
 
@@ -512,9 +488,8 @@ extern "C" {
         try {
             _fth(n)->setState_SV(*v1, *v2);
             return 0;
-        } catch (CanteraError& err) {
-            handleError(err);
-            return -1;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
         }
     }
 
@@ -523,9 +498,8 @@ extern "C" {
         try {
             _fth(n)->setState_SP(*v1, *v2);
             return 0;
-        } catch (CanteraError& err) {
-            handleError(err);
-            return -1;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
         }
     }
 
@@ -534,9 +508,8 @@ extern "C" {
         try {
             equilibrate(*_fth(n), f2string(XY,lenxy).c_str());
             return 0;
-        } catch (CanteraError& err) {
-            handleError(err);
-            return -1;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
         }
     }
 
@@ -607,9 +580,8 @@ extern "C" {
             } else {
                 return 0;
             }
-        } catch (CanteraError& err) {
-            handleError(err);
-            return 999;
+        } catch (...) {
+            return handleAllExceptions(999, ERR);
         }
     }
 
@@ -686,9 +658,8 @@ extern "C" {
         try {
             k->getFwdRatesOfProgress(fwdROP);
             return 0;
-        } catch (CanteraError& err) {
-            handleError(err);
-            return -1;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
         }
     }
 
@@ -698,9 +669,8 @@ extern "C" {
         try {
             k->getRevRatesOfProgress(revROP);
             return 0;
-        } catch (CanteraError& err) {
-            handleError(err);
-            return -1;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
         }
     }
 
@@ -715,9 +685,8 @@ extern "C" {
             Kinetics* k = _fkin(n);
             k->getNetRatesOfProgress(netROP);
             return 0;
-        } catch (CanteraError& err) {
-            handleError(err);
-            return -1;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
         }
     }
 
@@ -727,9 +696,8 @@ extern "C" {
             Kinetics* k = _fkin(n);
             k->getCreationRates(cdot);
             return 0;
-        } catch (CanteraError& err) {
-            handleError(err);
-            return -1;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
         }
     }
 
@@ -739,9 +707,8 @@ extern "C" {
             Kinetics* k = _fkin(n);
             k->getDestructionRates(ddot);
             return 0;
-        } catch (CanteraError& err) {
-            handleError(err);
-            return -1;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
         }
     }
 
@@ -751,9 +718,8 @@ extern "C" {
             Kinetics* k = _fkin(n);
             k->getNetProductionRates(wdot);
             return 0;
-        } catch (CanteraError& err) {
-            handleError(err);
-            return -1;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
         }
     }
 
@@ -768,9 +734,8 @@ extern "C" {
             Kinetics* k = _fkin(n);
             k->getEquilibriumConstants(kc);
             return 0;
-        } catch (CanteraError& err) {
-            handleError(err);
-            return -1;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
         }
     }
 
@@ -785,9 +750,8 @@ extern "C" {
                 buf[nn] = ' ';
             }
             return 0;
-        } catch (CanteraError& err) {
-            handleError(err);
-            return -1;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
         }
     }
 
@@ -796,9 +760,8 @@ extern "C" {
         try {
             _fkin(n)->setMultiplier(*i-1,*v);
             return 0;
-        } catch (CanteraError& err) {
-            handleError(err);
-            return -1;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
         }
     }
 
@@ -813,9 +776,8 @@ extern "C" {
                                    "wrong kinetics manager type");
             }
             return 0;
-        } catch (CanteraError& err) {
-            handleError(err);
-            return -1;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
         }
     }
 
@@ -829,9 +791,8 @@ extern "C" {
         try {
             Transport* tr = newTransportMgr(mstr, t, *loglevel);
             return TransportCabinet::add(tr);
-        } catch (CanteraError& err) {
-            handleError(err);
-            return -1;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
         }
     }
 
@@ -839,9 +800,8 @@ extern "C" {
     {
         try {
             return _ftrans(n)->viscosity();
-        } catch (CanteraError& err) {
-            handleError(err);
-            return DERR;
+        } catch (...) {
+            return handleAllExceptions(DERR, DERR);
         }
     }
 
@@ -849,9 +809,8 @@ extern "C" {
     {
         try {
             return _ftrans(n)->thermalConductivity();
-        } catch (CanteraError& err) {
-            handleError(err);
-            return DERR;
+        } catch (...) {
+            return handleAllExceptions(DERR, DERR);
         }
     }
 
@@ -860,9 +819,8 @@ extern "C" {
         try {
             _ftrans(n)->getThermalDiffCoeffs(dt);
             return 0;
-        } catch (CanteraError& err) {
-            handleError(err);
-            return -1;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
         }
     }
 
@@ -871,9 +829,8 @@ extern "C" {
         try {
             _ftrans(n)->getMixDiffCoeffs(d);
             return 0;
-        } catch (CanteraError& err) {
-            handleError(err);
-            return -1;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
         }
     }
 
@@ -882,9 +839,8 @@ extern "C" {
         try {
             _ftrans(n)->getBinaryDiffCoeffs(*ld,d);
             return 0;
-        } catch (CanteraError& err) {
-            handleError(err);
-            return -1;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
         }
     }
 
@@ -893,9 +849,8 @@ extern "C" {
         try {
             _ftrans(n)->getMultiDiffCoeffs(*ld,d);
             return 0;
-        } catch (CanteraError& err) {
-            handleError(err);
-            return -1;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
         }
     }
 
@@ -904,9 +859,8 @@ extern "C" {
         try {
             _ftrans(n)->setParameters(*type, *k, d);
             return 0;
-        } catch (CanteraError& err) {
-            handleError(err);
-            return -1;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
         }
     }
 
@@ -954,10 +908,8 @@ extern "C" {
                 buf[nn] = ' ';
             }
             return 0;
-
-        } catch (CanteraError& err) {
-            handleError(err);
-            return -1;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
         }
     }
 
