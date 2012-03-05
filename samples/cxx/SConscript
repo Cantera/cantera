@@ -41,3 +41,8 @@ for subdir, name, extensions in samples:
     localenv['tmpl_sourcename'] = name + '.cpp'
 
     sconstruct = localenv.SubstFile(pjoin(subdir, 'SConstruct'), 'SConstruct.in')
+    if env['addInstallTargets']:
+        inst = localenv.Install(pjoin('$inst_sampledir', 'cxx', subdir), makefile)
+        installTargets.extend(inst)
+        inst = localenv.Install(pjoin('$inst_sampledir', 'cxx', subdir), sconstruct)
+        installTargets.extend(inst)

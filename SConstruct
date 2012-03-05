@@ -1039,9 +1039,10 @@ if env['build_docs']:
     SConscript('doc/SConscript')
 
 if 'samples' in COMMAND_LINE_TARGETS or 'install' in COMMAND_LINE_TARGETS:
+    VariantDir('build/samples', 'samples', duplicate=0)
     sampledir_excludes = ['ct2ctml', '\\.o$', '^~$', 'xml$', '\\.in',
                           'SConscript', 'Makefile.am']
-    SConscript('samples/cxx/SConscript')
+    SConscript('build/samples/cxx/SConscript')
 
     # Install C++ samples
     inst = env.RecursiveInstall(pjoin('$inst_sampledir', 'cxx'),
@@ -1050,8 +1051,8 @@ if 'samples' in COMMAND_LINE_TARGETS or 'install' in COMMAND_LINE_TARGETS:
     installTargets.extend(inst)
 
     if env['f90_interface'] == 'y':
-        SConscript('samples/f77/SConscript')
-        SConscript('samples/f90/SConscript')
+        SConscript('build/samples/f77/SConscript')
+        SConscript('build/samples/f90/SConscript')
 
     if env['addInstallTargets'] and env['f90_interface'] == 'y':
         # install F90 / F77 samples

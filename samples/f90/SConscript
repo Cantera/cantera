@@ -32,3 +32,9 @@ for programName, sources in samples:
     localenv['make_target'] = programName
     localenv['make_sourcefile'] = programName + '.f90'
     makefile = localenv.SubstFile('Makefile', 'Makefile.in')
+
+    if env['addInstallTargets']:
+        inst = localenv.Install(pjoin('$inst_sampledir', 'f90'), makefile)
+        installTargets.extend(inst)
+        inst = localenv.Install(pjoin('$inst_sampledir', 'f90'), sconstruct)
+        installTargets.extend(inst)
