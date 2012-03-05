@@ -1036,11 +1036,14 @@ if env['build_docs']:
     SConscript('doc/SConscript')
 
 if 'samples' in COMMAND_LINE_TARGETS or 'install' in COMMAND_LINE_TARGETS:
+    sampledir_excludes = ['ct2ctml', '\\.o$', '^~$', 'xml$', '\\.in',
+                          'SConscript', 'Makefile.am']
     SConscript('samples/cxx/SConscript')
 
     # Install C++ samples
     inst = env.RecursiveInstall(pjoin('$inst_sampledir', 'cxx'),
-                                'samples/cxx')
+                                'samples/cxx',
+                                exclude=sampledir_excludes)
     installTargets.extend(inst)
 
     if env['f90_interface'] == 'y':
@@ -1049,9 +1052,11 @@ if 'samples' in COMMAND_LINE_TARGETS or 'install' in COMMAND_LINE_TARGETS:
 
     if env['addInstallTargets'] and env['f90_interface'] == 'y':
         # install F90 / F77 samples
-        inst = env.RecursiveInstall(pjoin('$inst_sampledir', 'f77'), 'samples/f77')
+        inst = env.RecursiveInstall(pjoin('$inst_sampledir', 'f77'),
+                                    'samples/f77', sampledir_excludes)
         installTargets.extend(inst)
-        inst = env.RecursiveInstall(pjoin('$inst_sampledir', 'f90'), 'samples/f90')
+        inst = env.RecursiveInstall(pjoin('$inst_sampledir', 'f90'),
+                                    'samples/f90', sampledir_excludes)
         installTargets.extend(inst)
 
 
