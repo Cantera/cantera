@@ -1,0 +1,34 @@
+from buildutils import *
+
+Import('env', 'installTargets', 'sampleTargets')
+localenv = env.Clone()
+
+# (program name, [source files])
+samples = [('demo', ['demo.f90'])]
+
+for programName, sources in samples:
+    if 'samples' in COMMAND_LINE_TARGETS:
+        prog = localenv.Program(programName, sources,
+                                CPPPATH=['#build/src/fortran', '#include'],
+                                LIBS=env['cantera_libs']+['cantera_fortran']+['stdc++'],
+                                LIBPATH=[env['sundials_libdir'], '#build/lib'])
+        sampleTargets.extend(prog)
+
+    # Generate SConstruct files to be installed
+    incdirs = [pjoin(localenv['ct_incroot'], 'cantera')]
+    libs = (['cantera_fortran', 'cantera'] + localenv['sundials_libs'] +
+            localenv['boost_libs'] + localenv['blas_lapack_libs'] + ['stdc++'])
+    libdirs = (localenv['ct_libdir'], localenv['sundials_libdir'],
+               localenv['blas_lapack_dir'], localenv['boost_lib_dir'])
+    localenv['tmpl_cantera_incdirs'] = repr([x for x in incdirs if x])
+    localenv['tmpl_cantera_libs'] = repr([x for x in libs if x])
+    localenv['tmpl_cantera_libdirs'] = repr([x for x in libdirs if x])
+    localenv['tmpl_progname'] = programName
+    localenv['tmpl_sourcename'] = programName + '.f90'
+
+    sconstruct = localenv.SubstFile('SConstruct', 'SConstruct.in')
+
+    # Generate Makefile to be installed
+    localenv['make_target'] = programName
+    localenv['make_sourcefile'] = programName + '.f90'
+    makefile = localenv.SubstFile('Makefile', 'Makefile.in')

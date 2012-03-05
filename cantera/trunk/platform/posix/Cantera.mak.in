@@ -8,8 +8,10 @@
 #  Main Variables:
 #
 #      CANTERA_INCLUDES = Variable containing the include path
-#
 #      CANTERA_LIBS = List of libraries to include on the link line
+#
+#      CANTERA_FORTRAN_LIBS = list of libraries to link for Fortran programs
+#      CANTERA_FORTRAN_MODS = Directory containing the F90 .mod files
 #
 
 CANTERA_VERSION=@cantera_version@
@@ -27,6 +29,10 @@ CANTERA_CORE_INCLUDES=-I@ct_incroot@
 
 # Required Cantera libraries
 CANTERA_CORE_LIBS=-L@ct_libdir@ -lcantera
+
+CANTERA_CORE_FTN=-L@ct_libdir@ -lcantera_fortran -lcantera
+
+CANTERA_FORTRAN_MODS=@ct_incroot@/cantera
 
 ###############################################################################
 #            BOOST
@@ -66,6 +72,10 @@ CANTERA_DEFINES = -DCANTERA_VERSION=@cantera_version@
 
 CANTERA_LIBS=$(CANTERA_CORE_LIBS) $(CANTERA_SUNDIALS_LIBS) \
              $(CANTERA_BLAS_LAPACK_LIBS) $(CANTERA_BOOST_LIBS)
+
+CANTERA_FORTRAN_LIBS=$(CANTERA_CORE_FTN) $(CANTERA_SUNDIALS_LIBS) \
+                     $(CANTERA_BLAS_LAPACK_LIBS) $(CANTERA_BOOST_LIBS) \
+                     -lstdc++
 
 ###############################################################################
 #  END
