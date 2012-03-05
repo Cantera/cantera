@@ -9,8 +9,9 @@
 #ifndef CT_CTEXCEPTIONS_H
 #define CT_CTEXCEPTIONS_H
 
-#include <string>
 #include <exception>
+#include <iostream>
+#include <string>
 
 namespace Cantera
 {

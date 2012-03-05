@@ -56,9 +56,8 @@ extern "C" {
     {
         try {
             BoundaryCabinet::item(i).setTemperature(t);
-        } catch (CanteraError& err) {
-            err.save();
-            return -1;
+        } catch (...) {
+            return Cantera::handleAllExceptions(-1, ERR);
         }
         return 0;
     }
@@ -67,9 +66,8 @@ extern "C" {
     {
         try {
             return dynamic_cast<Inlet1D*>(&BoundaryCabinet::item(i))->spreadRate();
-        } catch (CanteraError& err) {
-            err.save();
-            return -1;
+        } catch (...) {
+            return Cantera::handleAllExceptions(-1, ERR);
         }
         return 0;
     }
@@ -78,9 +76,8 @@ extern "C" {
     {
         try {
             dynamic_cast<Inlet1D*>(&BoundaryCabinet::item(i))->setSpreadRate(v);
-        } catch (CanteraError& err) {
-            err.save();
-            return -1;
+        } catch (...) {
+            return Cantera::handleAllExceptions(-1, ERR);
         }
         return 0;
     }
@@ -89,9 +86,8 @@ extern "C" {
     {
         try {
             BoundaryCabinet::item(i).setMdot(mdot);
-        } catch (CanteraError& err) {
-            err.save();
-            return -1;
+        } catch (...) {
+            return Cantera::handleAllExceptions(-1, ERR);
         }
         return 0;
     }
@@ -106,9 +102,8 @@ extern "C" {
     {
         try {
             BoundaryCabinet::item(i).setMoleFractions(xin);
-        } catch (CanteraError& err) {
-            err.save();
-            return -1;
+        } catch (...) {
+            return Cantera::handleAllExceptions(-1, ERR);
         }
         return 0;
     }
@@ -117,9 +112,8 @@ extern "C" {
     {
         try {
             BoundaryCabinet::item(i).setMoleFractions(string(xin));
-        } catch (CanteraError& err) {
-            err.save();
-            return -1;
+        } catch (...) {
+            return Cantera::handleAllExceptions(-1, ERR);
         }
         return 0;
     }
@@ -132,9 +126,8 @@ extern "C" {
             InterfaceKinetics* k =
                 dynamic_cast<InterfaceKinetics*>(&Cabinet<Kinetics>::item(j));
             srf->setKineticsMgr(k);
-        } catch (CanteraError& err) {
-            err.save();
-            return -1;
+        } catch (...) {
+            return Cantera::handleAllExceptions(-1, ERR);
         }
         return 0;
     }

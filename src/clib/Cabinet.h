@@ -7,6 +7,7 @@
 #include <vector>
 #include "cantera/base/stringUtils.h"
 #include "cantera/base/config.h"
+#include "cantera/base/ctexceptions.h"
 
 /**
  * Template for classes to hold pointers to objects. The Cabinet<M>
@@ -91,11 +92,8 @@ public:
             M* old = data[i];
             data.push_back(new M(*old));
             return static_cast<int>(data.size()) - 1;
-        } catch (Cantera::CanteraError& err) {
-            err.save();
-            return -1;
         } catch (...) {
-            return -999;
+            return Cantera::handleAllExceptions(-1, -999);
         }
     }
 
@@ -111,11 +109,8 @@ public:
             M* dest = data[i];
             *dest = *src;
             return 0;
-        } catch (Cantera::CanteraError& err) {
-            err.save();
-            return -1;
         } catch (...) {
-            return -999;
+            return Cantera::handleAllExceptions(-1, -999);
         }
     }
 

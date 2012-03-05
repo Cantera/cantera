@@ -87,9 +87,8 @@ extern "C" {
                 r = new Func1();
             }
             return FuncCabinet::add(r);
-        } catch (CanteraError& err) {
-            err.save();
-            return -1;
+        } catch (...) {
+            return Cantera::handleAllExceptions(-1, ERR);
         }
     }
 
@@ -139,9 +138,8 @@ extern "C" {
             std::copy(w.c_str(), w.c_str() + lout, nm);
             nm[lout] = '\0';
             return 0;
-        } catch (CanteraError& err) {
-            err.save();
-            return -1;
+        } catch (...) {
+            return Cantera::handleAllExceptions(-1, ERR);
         }
     }
 
