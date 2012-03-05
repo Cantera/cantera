@@ -253,17 +253,18 @@ opts.AddVariables(
     EnumVariable(
         'matlab_toolbox',
         """This variable controls whether the Matlab toolbox will be
-           built. If it is set to 'default', the Matlab toolbox will
-           be built if Matlab can be found in the $PATH. Note that you
-           may need to run 'mex -setup' within Matlab to configure it
-           for your C++ compiler before building Cantera.""",
+           built. If set to 'y', you will also need to set the value
+           of the 'matlab_path' variable. If set to 'default', the Matlab
+           toolbox will be built if 'matlab_path' is set.""",
         'default', ('y', 'n', 'default')),
     PathVariable(
-        'matlab_cmd',
-        """Path to the Matlab executable. In Windows, this is probably
-           something like "C:/Program Files/MATLAB/R2009a/bin/win64/MATLAB.exe"
-        """,
-        'matlab', PathVariable.PathAccept),
+        'matlab_path',
+        """Path to the Matlab install directory. This should be the directory
+           containing the 'extern', 'bin', etc. subdirectories. Typical values
+           are: "C:/Program Files/MATLAB/R2011a" on Windows,
+           "/Applications/MATLAB_R2011a.app" on OS X, or
+           "/opt/MATLAB/R2011a" on Linux.""",
+        '', PathVariable.PathAccept),
     EnumVariable(
         'f90_interface',
         """This variable controls whether the Fortran 90/95 interface
@@ -728,18 +729,24 @@ else:
     env['python_array_include'] = ''
 
 
-if env['matlab_toolbox'] == 'y' and which(env['matlab_cmd']) is None:
-    print """ERROR: Unable to find the Matlab executable '%s'""" % env['matlab_cmd']
-    sys.exit(1)
-elif env['matlab_toolbox'] == 'default':
-    cmd = which(env['matlab_cmd'])
-    if cmd is not None:
-        env['matlab_toolbox'] = 'y'
-        print """INFO: Building the Matlab toolbox using '%s'""" % cmd
-    else:
-        print """INFO: Skipping compilation of the Matlab toolbox. """
+# Matlab Toolbox settings
+if env['matlab_path'] != '' and env['matlab_toolbox'] == 'default':
+    env['matlab_toolbox'] = 'y'
+
+if env['matlab_toolbox'] == 'y':
+    matPath = env['matlab_path']
+    if matPath == '':
+        print """ERROR: Unable to build the Matlab toolbox because 'matlab_path' has not been set."""
+        sys.exit(1)
+
+    if not (os.path.isdir(matPath) and
+            os.path.isdir(pjoin(matPath, 'extern'))):
+        print """ERROR: Path set for 'matlab_path' is not correct."""
+        print """ERROR: Path was: '%s'""" % matPath
+        sys.exit(1)
 
 
+# Sundials Settings
 if env['use_sundials'] == 'default':
     if env['HAS_SUNDIALS']:
         env['use_sundials'] = 'y'
@@ -1040,7 +1047,7 @@ if env['python_package'] in ('full','minimal'):
     SConscript('src/python/SConscript')
 
 if env['matlab_toolbox'] == 'y':
-    SConscript('src/matlab/SConscript')
+    SConscript('build/src/matlab/SConscript')
 
 SConscript('build/src/apps/SConscript')
 
