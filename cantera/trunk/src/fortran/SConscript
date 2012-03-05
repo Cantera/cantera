@@ -1,6 +1,6 @@
 from buildutils import *
 
-Import('env', 'buildTargets', 'installTargets', 'libraryTargets')
+Import('env', 'build', 'install')
 
 localenv = env.Clone()
 localenv.Append(CPPPATH=['#include', '#src'])
@@ -12,11 +12,8 @@ artifacts = localenv.Object(f90_src,
 mods = [o for o in artifacts if o.path.endswith('.mod')]
 objects = [o for o in artifacts if not o.path.endswith('.mod')]
 
-lib = localenv.Library(target=pjoin('..','..','lib','cantera_fortran'),
-                       source=objects)
-buildTargets.extend(lib)
+lib = build(localenv.Library(target=pjoin('..','..','lib','cantera_fortran'),
+                             source=objects))
 
-if localenv['addInstallTargets']:
-    inst = localenv.Install('$inst_libdir', lib)
-    installTargets.extend(inst)
-    installTargets.extend(localenv.Install('$inst_incdir', mods))
+install('$inst_libdir', lib)
+install('$inst_incdir', mods)

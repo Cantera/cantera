@@ -1,6 +1,6 @@
 from buildutils import *
 
-Import('env', 'buildTargets', 'installTargets')
+Import('env', 'build', 'install')
 
 class MatlabBuilder(object):
     def __init__(self, libs):
@@ -57,32 +57,20 @@ elif os.name == 'nt':
 mexFile = ('#interfaces/matlab/toolbox/ctmethods.mex%s%i' %
            (mexPlatform, localenv['OS_BITS']))
 
-target = localenv.Command(mexFile,
-                          'build_cantera.m',
-                          build_cmd % localenv)
+target = build(localenv.Command(mexFile, 'build_cantera.m',
+                                build_cmd % localenv))
 localenv.Depends(target, localenv['cantera_shlib'])
-buildTargets.extend(target)
 
 ### Install the Matlab toolbox ###
 
 # 'ctpath.m'
-target = localenv.SubstFile('ctpath.m', '#interfaces/matlab/ctpath.m.in')
-buildTargets.extend(target)
+target = build(localenv.SubstFile('ctpath.m', '#interfaces/matlab/ctpath.m.in'))
+install('$inst_matlab_dir', target)
 
-if localenv['addInstallTargets']:
-    inst = localenv.Install('$inst_matlab_dir', target)
-    installTargets.extend(inst)
+# 'cantera_demos.m'
+install('$inst_matlab_dir', '#samples/matlab/cantera_demos.m')
+install(localenv.RecursiveInstall, '$inst_matlab_dir', '#interfaces/matlab/toolbox')
+install(localenv.RecursiveInstall, pjoin('$inst_sampledir', 'matlab'), '#samples/matlab')
 
-    # 'cantera_demos.m'
-    inst = localenv.Install('$inst_matlab_dir', '#samples/matlab/cantera_demos.m')
-    installTargets.extend(inst)
-
-    inst = localenv.RecursiveInstall('$inst_matlab_dir', '#interfaces/matlab/toolbox')
-    installTargets.extend(inst)
-
-    inst = localenv.RecursiveInstall(pjoin('$inst_sampledir', 'matlab'), '#samples/matlab')
-    installTargets.extend(inst)
-
-    if os.name == 'nt':
-        inst = localenv.Install('$inst_matlab_dir', localenv['cantera_shlib'])
-        installTargets.extend(inst)
+if os.name == 'nt':
+    install('$inst_matlab_dir', localenv['cantera_shlib'])

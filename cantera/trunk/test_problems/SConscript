@@ -1,6 +1,6 @@
 from buildutils import *
 
-Import('env','buildTargets','installTargets')
+Import('env','build','install')
 localenv = env.Clone()
 localenv.Append(CPPPATH=['#include', '#src', 'shared'])
 

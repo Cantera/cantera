@@ -1,7 +1,7 @@
 from buildutils import *
 import distutils.sysconfig
 
-Import('env', 'buildTargets', 'installTargets')
+Import('env', 'build', 'install')
 
 localenv = env.Clone()
 
@@ -50,7 +50,7 @@ if localenv['python_package'] == 'full':
                                       LIBS=pylinklibs,
                                       SHLIBPREFIX='',
                                       SHLIBSUFFIX=gcv('SO'))
-    buildTargets.extend(pymodule)
+    build(pymodule)
     localenv.Depends(pymodule, make_setup)
     if localenv['OS'] == 'Windows':
         for file in localenv['cantera_shlib']:
@@ -78,15 +78,12 @@ if 'MSSdk' in os.environ:
     localenv['ENV']['MSSdk'] = os.environ['MSSdk']
 
 if localenv['PYTHON_INSTALLER'] == 'direct':
-    inst = localenv.Command('dummy', pymodule,
-                            'cd %s && $python_cmd setup.py install %s' % (moddir,extra))
-    installTargets.extend(inst)
+    install(localenv.Command, 'dummy', pymodule,
+                                'cd %s && $python_cmd setup.py install %s' % (moddir,extra))
 elif localenv['PYTHON_INSTALLER'] == 'binary':
-    inst = localenv.Command('dummy', pymodule,
-                            'cd %s && $python_cmd setup.py bdist_msi --dist-dir=../..' % moddir)
-    installTargets.extend(inst)
+    install(localenv.Command, 'dummy', pymodule,
+            'cd %s && $python_cmd setup.py bdist_msi --dist-dir=../..' % moddir)
 
 if localenv['python_package'] == 'full':
-    inst = localenv.RecursiveInstall(pjoin('$inst_sampledir', 'python'),
-                                     '#samples/python')
-    installTargets.extend(inst)
+    install(localenv.RecursiveInstall, pjoin('$inst_sampledir', 'python'),
+            '#samples/python')

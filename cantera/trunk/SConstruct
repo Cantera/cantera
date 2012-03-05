@@ -933,33 +933,49 @@ else:
 env.SetOption('max_drift', 2)
 env.SetOption('implicit_cache', True)
 
-env['addInstallTargets'] = 'install' in COMMAND_LINE_TARGETS
-
-buildDir = 'build'
 buildTargets = []
 libraryTargets = [] # objects that go in the Cantera library
 installTargets = []
 sampleTargets = []
+
+def build(targets):
+    """ Wrapper to add target to list of build targets """
+    buildTargets.extend(targets)
+    return targets
+
+def buildSample(*args, **kwargs):
+    """ Wrapper to add target to list of samples """
+    targets = args[0](*args[1:], **kwargs)
+    sampleTargets.extend(targets)
+    return targets
+
+def install(*args, **kwargs):
+    """ Wrapper to add target to list of install targets """
+    if 'install' not in COMMAND_LINE_TARGETS:
+        return
+    if len(args) == 2:
+        inst = env.Install(*args, **kwargs)
+    else:
+        inst = args[0](*args[1:], **kwargs)
+
+    installTargets.extend(inst)
+    return inst
+
 
 env.SConsignFile()
 
 env.Append(CPPPATH=[],
            LIBPATH=[Dir('build/lib')])
 
-if env['addInstallTargets']:
+if 'install' in COMMAND_LINE_TARGETS:
     # Put headers in place
     headerBase = 'include/cantera'
-    inst = env.RecursiveInstall('$inst_incdir', 'include/cantera')
-    installTargets.extend(inst)
+    install(env.RecursiveInstall, '$inst_incdir', 'include/cantera')
 
     # Make symlinks to replicate old header directory structure
     if env['legacy_headers']:
-        inst = env.Command(pjoin('$inst_incdir', 'kernel'), [],
-                           Mkdir("$TARGET"))
-        installTargets.extend(inst)
-
-        inst = env.Install('$inst_incdir', 'platform/legacy/Cantera.h')
-        installTargets.extend(inst)
+        install(env.Command, pjoin('$inst_incdir', 'kernel'), [], Mkdir("$TARGET"))
+        install('$inst_incdir', 'platform/legacy/Cantera.h')
 
         if env['OS'] == 'Windows':
             cmd = Copy("$TARGET", "$SOURCE")
@@ -983,13 +999,11 @@ if env['addInstallTargets']:
                 if not filename.endswith('.h'):
                     continue
                 headerdir = pjoin(instRoot, 'include', 'cantera')
-                inst = env.Command(pjoin(headerdir, 'kernel', filename),
-                                  pjoin(headerdir, name, filename), cmd)
-                installTargets.extend(inst)
+                install(env.Command, pjoin(headerdir, 'kernel', filename),
+                        pjoin(headerdir, name, filename), cmd)
 
     # Data files
-    inst = env.Install('$inst_datadir', mglob(env, pjoin('data','inputs'), 'cti', 'xml'))
-    installTargets.extend(inst)
+    install('$inst_datadir', mglob(env, pjoin('data','inputs'), 'cti', 'xml'))
 
 ### List of libraries needed to link to Cantera ###
 linkLibs = ['cantera']
@@ -1008,8 +1022,7 @@ if not env['build_with_f2c']:
 env['cantera_libs'] = linkLibs
 
 # Add targets from the SConscript files in the various subdirectories
-Export('env', 'buildDir', 'buildTargets', 'libraryTargets',
-       'installTargets', 'sampleTargets')
+Export('env', 'build', 'libraryTargets', 'install', 'buildSample')
 
 # ext needs to come before src so that libraryTargets is fully populated
 VariantDir('build/ext', 'ext', duplicate=0)
@@ -1045,23 +1058,18 @@ if 'samples' in COMMAND_LINE_TARGETS or 'install' in COMMAND_LINE_TARGETS:
     SConscript('build/samples/cxx/SConscript')
 
     # Install C++ samples
-    inst = env.RecursiveInstall(pjoin('$inst_sampledir', 'cxx'),
-                                'samples/cxx',
-                                exclude=sampledir_excludes)
-    installTargets.extend(inst)
+    install(env.RecursiveInstall, pjoin('$inst_sampledir', 'cxx'),
+            'samples/cxx', exclude=sampledir_excludes)
 
     if env['f90_interface'] == 'y':
         SConscript('build/samples/f77/SConscript')
         SConscript('build/samples/f90/SConscript')
 
-    if env['addInstallTargets'] and env['f90_interface'] == 'y':
         # install F90 / F77 samples
-        inst = env.RecursiveInstall(pjoin('$inst_sampledir', 'f77'),
-                                    'samples/f77', sampledir_excludes)
-        installTargets.extend(inst)
-        inst = env.RecursiveInstall(pjoin('$inst_sampledir', 'f90'),
-                                    'samples/f90', sampledir_excludes)
-        installTargets.extend(inst)
+        install(env.RecursiveInstall, pjoin('$inst_sampledir', 'f77'),
+                'samples/f77', sampledir_excludes)
+        install(env.RecursiveInstall, pjoin('$inst_sampledir', 'f90'),
+                'samples/f90', sampledir_excludes)
 
 
 ### Meta-targets ###
