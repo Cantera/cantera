@@ -1,6 +1,7 @@
 import os
+import re
 
-def RecursiveInstall(env, target, dir):
+def RecursiveInstall(env, target, dir, exclude=None):
     """
     This tool adds the builder:
 
@@ -11,6 +12,9 @@ def RecursiveInstall(env, target, dir):
         k = env.RecursiveInstall(dir_target, dir_source)
 
     and if any thing in dir_source is updated the install is rerun
+
+    'exclude' is a list of regular expression patterns for files
+    to skip, e.g. ['\\.o$', '^~']
 
     It behaves similar to the env.Install builtin. However it expects
     two directories and correctly sets up the dependencies between each
@@ -27,7 +31,12 @@ def RecursiveInstall(env, target, dir):
     and see the one to one correspondence between source and target
     files within each directory.
     """
-    nodes = _recursive_install(env, dir)
+    if exclude:
+        excludePatterns = [re.compile(e) for e in exclude]
+    else:
+        excludePatterns = []
+
+    nodes = _recursive_install(env, dir, excludePatterns)
 
     dir = env.Dir(dir).abspath
     target = env.Dir(target).abspath
@@ -45,14 +54,22 @@ def RecursiveInstall(env, target, dir):
     return out
 
 
-def _recursive_install(env, path):
+def _recursive_install(env, path, exclude):
     """ Helper function for RecursiveInstall """
     nodes = env.Glob(os.path.join(path, '*'), strings=False)
     nodes.extend(env.Glob(os.path.join(path, '*.*'), strings=False))
     out = []
     for n in nodes:
+        skip = False
+        for e in exclude:
+            if e.search(n.name):
+                skip = True
+                break
+        if skip:
+            continue
+
         if n.isdir():
-            out.extend(_recursive_install(env, n.abspath))
+            out.extend(_recursive_install(env, n.abspath, exclude))
         else:
             out.append(n)
 
