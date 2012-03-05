@@ -30,3 +30,6 @@ localenv['tmpl_cantera_libs'] = repr([x for x in libs if x])
 localenv['tmpl_cantera_libdirs'] = repr([x for x in libdirs if x])
 
 sconstruct = localenv.SubstFile('SConstruct', 'SConstruct.in')
+
+# Generate Makefile to be installed
+makefile = localenv.SubstFile('Makefile', 'Makefile.in')
