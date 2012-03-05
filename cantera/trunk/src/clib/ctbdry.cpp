@@ -56,7 +56,8 @@ extern "C" {
     {
         try {
             BoundaryCabinet::item(i).setTemperature(t);
-        } catch (CanteraError) {
+        } catch (CanteraError& err) {
+            err.save();
             return -1;
         }
         return 0;
@@ -66,7 +67,8 @@ extern "C" {
     {
         try {
             return dynamic_cast<Inlet1D*>(&BoundaryCabinet::item(i))->spreadRate();
-        } catch (CanteraError) {
+        } catch (CanteraError& err) {
+            err.save();
             return -1;
         }
         return 0;
@@ -76,7 +78,8 @@ extern "C" {
     {
         try {
             dynamic_cast<Inlet1D*>(&BoundaryCabinet::item(i))->setSpreadRate(v);
-        } catch (CanteraError) {
+        } catch (CanteraError& err) {
+            err.save();
             return -1;
         }
         return 0;
@@ -86,7 +89,8 @@ extern "C" {
     {
         try {
             BoundaryCabinet::item(i).setMdot(mdot);
-        } catch (CanteraError) {
+        } catch (CanteraError& err) {
+            err.save();
             return -1;
         }
         return 0;
@@ -102,7 +106,8 @@ extern "C" {
     {
         try {
             BoundaryCabinet::item(i).setMoleFractions(xin);
-        } catch (CanteraError) {
+        } catch (CanteraError& err) {
+            err.save();
             return -1;
         }
         return 0;
@@ -112,7 +117,8 @@ extern "C" {
     {
         try {
             BoundaryCabinet::item(i).setMoleFractions(string(xin));
-        } catch (CanteraError) {
+        } catch (CanteraError& err) {
+            err.save();
             return -1;
         }
         return 0;
@@ -126,7 +132,8 @@ extern "C" {
             InterfaceKinetics* k =
                 dynamic_cast<InterfaceKinetics*>(&Cabinet<Kinetics>::item(j));
             srf->setKineticsMgr(k);
-        } catch (CanteraError) {
+        } catch (CanteraError& err) {
+            err.save();
             return -1;
         }
         return 0;

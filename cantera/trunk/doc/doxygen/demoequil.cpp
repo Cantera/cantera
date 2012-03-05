@@ -16,8 +16,8 @@ int main()
 
     try {
         equil_demo();
-    } catch (CanteraError) {
-        showErrors();
+    } catch (CanteraError& err) {
+        std::cout << err.what() << std::endl;
     }
 }
 

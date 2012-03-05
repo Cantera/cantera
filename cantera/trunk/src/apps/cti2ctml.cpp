@@ -81,8 +81,8 @@ int main(int argc, char** argv)
         //XML_Node *xd = new XML_Node();
         //xc->copy(xd);
 
-    } catch (CanteraError) {
-        showErrors(cout);
+    } catch (CanteraError& err) {
+        std::cout << err.what() << std::endl;
     }
 
     return 0;

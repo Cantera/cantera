@@ -457,30 +457,6 @@ XML_Node* Application::get_XML_File(std::string file, int debug)
 {
     XML_LOCK();
     std::string path = "";
-    /*
-    try {
-        path = findInputFile(file);
-    }
-    catch (CanteraError) {
-        string::size_type idot = file.rfind('.');
-        string ext = "";
-        if (idot != string::npos) {
-            ext = file.substr(idot, file.size());
-            string ctifile = file.substr(0,idot)+".cti";
-            try {
-                path = findInputFile(ctifile);
-            }
-            catch (CanteraError) {
-                path = findInputFile(file);
-            }
-        }
-        else
-            path = findInputFile(file);
-    }
-    */
-    // The code above will try to process a cti file if the xml
-    // file is not found. But I (dgg) don't think it makes much sense,
-    // so it is replaced by:
     path = findInputFile(file);
 #ifdef _WIN32
     // RFB: For Windows make the path POSIX compliant so code looking for directory

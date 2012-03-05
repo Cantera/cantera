@@ -129,6 +129,7 @@ int vcs_equilibrate(thermo_t& s, const char* XY,
             }
             delete m;
         } catch (CanteraError& err) {
+            err.save();
             addLogEntry("MultiPhaseEquil solver failed.");
             delete m;
             throw err;
@@ -145,6 +146,7 @@ int vcs_equilibrate(thermo_t& s, const char* XY,
             delete m;
             retn = 1;
         } catch (CanteraError& err) {
+            err.save();
             if (loglevel > 0) {
                 addLogEntry("MultiPhaseEquil solver failed.");
             }
@@ -177,6 +179,7 @@ int vcs_equilibrate(thermo_t& s, const char* XY,
                 addLogEntry("ChemEquil solver succeeded.");
             }
         } catch (CanteraError& err) {
+            err.save();
             if (loglevel > 0) {
                 addLogEntry("ChemEquil solver failed.");
             }
@@ -344,6 +347,7 @@ int vcs_equilibrate_1(MultiPhase& s, int ixy,
             }
             delete eqsolve;
         } catch (CanteraError& e) {
+            e.save();
             retn = -1;
             addLogEntry("Failure.", lastErrorMessage());
             endLogGroup("equilibrate");
@@ -359,7 +363,7 @@ int vcs_equilibrate_1(MultiPhase& s, int ixy,
 
                 return 0;
             } catch (CanteraError& e) {
-
+                e.save();
                 addLogEntry("Failure.",lastErrorMessage());
                 endLogGroup("equilibrate");
 

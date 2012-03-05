@@ -51,9 +51,9 @@ int main(int argc, char** argv)
                      << endl;
                 exit(-1);
             }
-        } catch (CanteraError) {
+        } catch (CanteraError& err) {
             cout << g;
-            showErrors(cerr);
+            std::cerr << err.what() << std::endl;
             cerr << "ERROR: equilibration step failed at "
                  << " T    = " << T
                  << " Pres = " << pres
@@ -87,9 +87,9 @@ int main(int argc, char** argv)
                      << endl;
                 exit(-1);
             }
-        } catch (CanteraError) {
+        } catch (CanteraError& err) {
             cout << g;
-            showErrors(cerr);
+            std::cerr << err.what() << std::endl;
             cerr << "ERROR: equilibration step failed at "
                  << " T    = " << T
                  << " Pres = " << pres
@@ -125,9 +125,9 @@ int main(int argc, char** argv)
                      << endl;
                 exit(-1);
             }
-        } catch (CanteraError) {
+        } catch (CanteraError& err) {
             cout << g;
-            showErrors(cerr);
+            std::cerr << err.what() << std::endl;
             cerr << "ERROR: equilibration step failed at "
                  << " T    = " << T
                  << " Pres = " << pres
@@ -163,9 +163,9 @@ int main(int argc, char** argv)
                      << endl;
                 exit(-1);
             }
-        } catch (CanteraError) {
+        } catch (CanteraError& err) {
             cout << g;
-            showErrors(cerr);
+            std::cerr << err.what() << std::endl;
             cerr << "ERROR: equilibration step failed at "
                  << " T    = " << T
                  << " Pres = " << pres
@@ -207,8 +207,8 @@ int main(int argc, char** argv)
                                  << " Pres = " << pres
                                  << endl;
                         }
-                    } catch (CanteraError) {
-                        showErrors(cerr);
+                    } catch (CanteraError& err) {
+                        std::cerr << err.what() << std::endl;
                         cerr << "ERROR: equilibration step failed at "
                              << " T    = " << T
                              << " Pres = " << pres
@@ -235,8 +235,8 @@ int main(int argc, char** argv)
         cout << "NUMBER OF FAILURES  =  " << numFail << endl;
 
         return numFail;
-    } catch (CanteraError) {
-        showErrors(cerr);
+    } catch (CanteraError& err) {
+        std::cerr << err.what() << std::endl;
         cerr << "ERROR: program terminating due to unforeseen circumstances." << endl;
         return -1;
     }

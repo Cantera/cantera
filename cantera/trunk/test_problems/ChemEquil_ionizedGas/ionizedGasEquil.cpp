@@ -81,8 +81,9 @@ int main(int argc, char** argv)
         fclose(FF);
     }
 
-    catch (CanteraError) {
-        showErrors();
+    catch (CanteraError& err) {
+        std::cout << err.what() << std::endl;
+        return -1;
     }
     return 0;
 }

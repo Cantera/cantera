@@ -86,8 +86,8 @@ int main()
 
     try {
         return openRankine(0, 0);
-    } catch (CanteraError) {
-        showErrors(cout);
+    } catch (CanteraError& err) {
+        std::cout << err.what() << std::endl;
         return -1;
     }
 }

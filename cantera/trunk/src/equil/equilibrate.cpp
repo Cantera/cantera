@@ -50,6 +50,7 @@ doublereal equilibrate(MultiPhase& s, const char* XY,
             }
             return err;
         } catch (CanteraError& err) {
+            err.save();
             if (loglevel > 0) {
                 addLogEntry("Failure.",lastErrorMessage());
                 endLogGroup("equilibrate");
@@ -143,6 +144,7 @@ int equilibrate(thermo_t& s, const char* XY, int solver,
                 delete m;
                 retn = nAttempts;
             } catch (CanteraError& err) {
+                err.save();
                 if (loglevel > 0) {
                     addLogEntry("VCSnonideal solver failed.");
                 }
@@ -177,6 +179,7 @@ int equilibrate(thermo_t& s, const char* XY, int solver,
                 delete m;
                 retn = nAttempts;
             } catch (CanteraError& err) {
+                err.save();
                 if (loglevel > 0) {
                     addLogEntry("MultiPhaseEquil solver failed.");
                 }
@@ -229,6 +232,7 @@ int equilibrate(thermo_t& s, const char* XY, int solver,
             }
 
             catch (CanteraError& err) {
+                err.save();
                 delete e;
                 if (loglevel > 0) {
                     addLogEntry("ChemEquil solver failed.");

@@ -184,9 +184,8 @@ int main()
         printf("Critical Dens     = %10.3g kg/m3\n", w->critDensity());
 
         delete w;
-    } catch (CanteraError) {
-
-        showErrors();
+    } catch (CanteraError& err) {
+        std::cout << err.what() << std::endl;
         Cantera::appdelete();
         return -1;
     }

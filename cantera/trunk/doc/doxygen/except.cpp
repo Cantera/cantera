@@ -17,8 +17,8 @@ int main()
 {
     try {
         mycode();
-    } catch (CanteraError) {
-        showErrors();
+    } catch (CanteraError& err) {
+        std::cout << err.what() << std::endl;
         error("program terminating.");
     }
 }

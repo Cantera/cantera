@@ -144,8 +144,9 @@ int main(int argc, char** argv)
             printf(" %15s %12.5g %12.5g %12.5g %12.5g %12.5g\n", sn.c_str(), mui[i],
                    HiPM[i], SiPM[i], CpiPM[i], VoliPM[i]);
         }
-    } catch (CanteraError) {
-        showErrors(cout);
+    } catch (CanteraError& err) {
+        std::cout << err.what() << std::endl;
+        return -1;
     }
 
     return 0;

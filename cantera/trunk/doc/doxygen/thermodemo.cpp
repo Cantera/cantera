@@ -34,8 +34,8 @@ int main(int argc, char** argv)
 {
     try {
         thermo_demo("h2o2.cti","ohmech");
-    } catch (CanteraError) {
-        showErrors();
+    } catch (CanteraError& err) {
+        std::cout << err.what() << std::endl;
         return 1;
     }
     return 0;

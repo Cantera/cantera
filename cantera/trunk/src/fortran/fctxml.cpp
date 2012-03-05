@@ -27,8 +27,9 @@ inline XML_Node* _xml(const integer* i)
     return &XmlCabinet::item(*i);
 }
 
-static void handleError()
+static void handleError(CanteraError& err)
 {
+    err.save();
     Cantera::error(Cantera::lastErrorMessage());
 }
 
@@ -53,8 +54,8 @@ extern "C" {
             XML_Node* x = Cantera::get_XML_File(f2string(file, filelen));
             int ix = XmlCabinet::add(x);
             return ix;
-        } catch (CanteraError) {
-            handleError();
+        } catch (CanteraError& err) {
+            handleError(err);
             return -1;
         }
     }
@@ -65,8 +66,8 @@ extern "C" {
             XmlCabinet::clear();
             Cantera::close_XML_File("all");
             return 0;
-        } catch (CanteraError) {
-            handleError();
+        } catch (CanteraError& err) {
+            handleError(err);
             return -1;
         }
     }
@@ -105,8 +106,8 @@ extern "C" {
             } else
                 throw CanteraError("fxml_attrib","node "
                                    " has no attribute '"+ky+"'");
-        } catch (CanteraError) {
-            handleError();
+        } catch (CanteraError& err) {
+            handleError(err);
         }
         return 0;
     }
@@ -119,8 +120,8 @@ extern "C" {
             std::string val = f2string(value, valuelen);
             XML_Node& node = *_xml(i);
             node.addAttribute(ky, val);
-        } catch (CanteraError) {
-            handleError();
+        } catch (CanteraError& err) {
+            handleError(err);
         }
         return 0;
     }
@@ -132,8 +133,8 @@ extern "C" {
             std::string c = f2string(comment, commentlen);
             XML_Node& node = *_xml(i);
             node.addComment(c);
-        } catch (CanteraError) {
-            handleError();
+        } catch (CanteraError& err) {
+            handleError(err);
         }
         return 0;
     }
@@ -144,8 +145,8 @@ extern "C" {
             XML_Node& node = *_xml(i);
             const std::string v = node.name();
             strncpy(tag, v.c_str(), taglen);
-        } catch (CanteraError) {
-            handleError();
+        } catch (CanteraError& err) {
+            handleError(err);
         }
         return 0;
     }
@@ -156,8 +157,8 @@ extern "C" {
             XML_Node& node = *_xml(i);
             const std::string v = node.value();
             strncpy(value, v.c_str(), valuelen);
-        } catch (CanteraError) {
-            handleError();
+        } catch (CanteraError& err) {
+            handleError(err);
         }
         return 0;
     }
@@ -168,8 +169,8 @@ extern "C" {
             XML_Node& node = *_xml(i);
             XML_Node& c = node.child(f2string(loc, loclen));
             return XmlCabinet::add(&c);
-        } catch (CanteraError) {
-            handleError();
+        } catch (CanteraError& err) {
+            handleError(err);
         }
         return 0;
     }
@@ -180,8 +181,8 @@ extern "C" {
             XML_Node& node = *_xml(i);
             XML_Node& c = node.child(*m);
             return XmlCabinet::add(&c);
-        } catch (CanteraError) {
-            handleError();
+        } catch (CanteraError& err) {
+            handleError(err);
         }
         return 0;
     }
@@ -196,8 +197,8 @@ extern "C" {
             } else {
                 throw CanteraError("fxml_find_id","id not found: "+f2string(id, idlen));
             }
-        } catch (CanteraError) {
-            handleError();
+        } catch (CanteraError& err) {
+            handleError(err);
         }
         return 0;
     }
@@ -212,8 +213,8 @@ extern "C" {
             } else
                 throw CanteraError("fxml_findByName","name "+f2string(nm, nmlen)
                                    +" not found");
-        } catch (CanteraError) {
-            handleError();
+        } catch (CanteraError& err) {
+            handleError(err);
         }
         return 0;
     }
@@ -223,8 +224,8 @@ extern "C" {
         try {
             XML_Node& node = *_xml(i);
             return node.nChildren();
-        } catch (CanteraError) {
-            handleError();
+        } catch (CanteraError& err) {
+            handleError(err);
         }
         return 0;
     }
@@ -237,8 +238,8 @@ extern "C" {
             XML_Node& c = node.addChild(f2string(name, namelen),
                                         f2string(value,valuelen));
             return XmlCabinet::add(&c);
-        } catch (CanteraError) {
-            handleError();
+        } catch (CanteraError& err) {
+            handleError(err);
         }
         return 0;
     }
@@ -250,8 +251,8 @@ extern "C" {
             XML_Node& chld = *_xml(j);
             XML_Node& c = node.addChild(chld);
             return XmlCabinet::add(&c);
-        } catch (CanteraError) {
-            handleError();
+        } catch (CanteraError& err) {
+            handleError(err);
         }
         return 0;
     }
@@ -269,8 +270,8 @@ extern "C" {
                                    "file "+f2string(file, filelen)+" not found.");
             }
             return 0;
-        } catch (CanteraError) {
-            handleError();
+        } catch (CanteraError& err) {
+            handleError(err);
         }
         return 0;
     }
@@ -298,8 +299,8 @@ extern "C" {
                 data[i] = v[i];
             }
             //n = nv;
-        } catch (CanteraError) {
-            handleError();
+        } catch (CanteraError& err) {
+            handleError(err);
         }
         return 0;
     }

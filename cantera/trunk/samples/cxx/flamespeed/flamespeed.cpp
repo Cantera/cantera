@@ -65,8 +65,8 @@ int flamespeed(int np, void* p)
 
         try {
             equilibrate(gas,"HP");
-        } catch (CanteraError) {
-            showErrors(cout);
+        } catch (CanteraError& err) {
+            std::cout << err.what() << std::endl;
         }
         double* yout=new double[nsp];
         gas.getMassFractions(yout);
@@ -260,8 +260,8 @@ int flamespeed(int np, void* p)
         fclose(FP);
 
         return 0;
-    } catch (CanteraError) {
-        showErrors(std::cerr);
+    } catch (CanteraError& err) {
+        std::cerr << err.what() << std::endl;
         std::cerr << "program terminating." << endl;
         return -1;
     }

@@ -249,9 +249,8 @@ int main(int argc, char** argv)
 
         return retn;
 
-    } catch (CanteraError) {
-
-        showErrors();
+    } catch (CanteraError& err) {
+        std::cout << err.what() << std::endl;
         Cantera::appdelete();
         return -1;
     }

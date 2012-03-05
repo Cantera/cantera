@@ -487,8 +487,8 @@ int main(int argc, char** argv)
         surfPhaseTP2 = 0;
         delete xc;
         appdelete();
-    } catch (CanteraError) {
-        showErrors(cout);
+    } catch (CanteraError& err) {
+        std::cout << err.what() << std::endl;
     }
 
     return 0;

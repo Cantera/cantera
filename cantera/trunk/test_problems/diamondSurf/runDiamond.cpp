@@ -147,8 +147,8 @@ int main(int argc, char** argv)
                  << "   "
                  << x[k] << endl;
         }
-    } catch (CanteraError) {
-        showErrors(cout);
+    } catch (CanteraError& err) {
+        std::cout << err.what() << std::endl;
     }
 
     return 0;

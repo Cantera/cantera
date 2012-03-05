@@ -660,7 +660,8 @@ int convert_ck(const char* in_file, const char* db_file,
         }
         bool hastransport = (trfile != "");
         ck2ct(f, idtag, r, hastransport);
-    } catch (CanteraError) {
+    } catch (CanteraError& err) {
+        err.save();
         fclose(f);
         return -1;
     }

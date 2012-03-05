@@ -61,9 +61,9 @@ Transport* _transptr()
 #endif
 
 // error handler
-void handleError()
+void handleError(CanteraError& err)
 {
-    showErrors(std::cout);
+    std::cout << err.what() << std::endl;
     exit(-1);
 }
 
@@ -96,8 +96,8 @@ extern "C" {
                 delete _gas;
             }
             _gas = new IdealGasMix(fin, fth);
-        } catch (CanteraError) {
-            handleError();
+        } catch (CanteraError& err) {
+            handleError(err);
         }
 #ifdef WITH_TRANSPORT
         try {
@@ -105,7 +105,7 @@ extern "C" {
                 delete _trans;
             }
             _trans = newTransportMgr(trmodel,_gas,1);
-        } catch (CanteraError) {
+        } catch (CanteraError& err) {
             _trans =  newTransportMgr("",_gas,1);
         }
 #endif
@@ -146,8 +146,8 @@ extern "C" {
     {
         try {
             _gas->setState_TPX(*T, *P, X);
-        } catch (CanteraError) {
-            handleError();
+        } catch (CanteraError& err) {
+            handleError(err);
         }
     }
 
@@ -157,8 +157,8 @@ extern "C" {
     {
         try {
             _gas->setState_TPX(*T, *P, string(X, lenx));
-        } catch (CanteraError) {
-            handleError();
+        } catch (CanteraError& err) {
+            handleError(err);
         }
     }
 
@@ -166,8 +166,8 @@ extern "C" {
     {
         try {
             _gas->setState_TRY(*T, *rho, Y);
-        } catch (CanteraError) {
-            handleError();
+        } catch (CanteraError& err) {
+            handleError(err);
         }
     }
 
@@ -175,8 +175,8 @@ extern "C" {
     {
         try {
             _gas->setState_TPY(*T, *p, Y);
-        } catch (CanteraError) {
-            handleError();
+        } catch (CanteraError& err) {
+            handleError(err);
         }
     }
 
@@ -184,8 +184,8 @@ extern "C" {
     {
         try {
             _gas->setState_SP(*s, *p);
-        } catch (CanteraError) {
-            handleError();
+        } catch (CanteraError& err) {
+            handleError(err);
         }
     }
 
@@ -295,8 +295,8 @@ extern "C" {
             }
             string optstr = string(opt, 2);
             equilibrate(*_gas, optstr.c_str());
-        } catch (CanteraError) {
-            handleError();
+        } catch (CanteraError& err) {
+            handleError(err);
         }
     }
 #endif
@@ -350,8 +350,8 @@ extern "C" {
     {
         try {
             return _trans->viscosity();
-        } catch (CanteraError) {
-            handleError();
+        } catch (CanteraError& err) {
+            handleError(err);
             return 0.0;
         }
     }
@@ -360,8 +360,8 @@ extern "C" {
     {
         try {
             return _trans->thermalConductivity();
-        } catch (CanteraError) {
-            handleError();
+        } catch (CanteraError& err) {
+            handleError(err);
             return 0.0;
         }
     }
@@ -370,8 +370,8 @@ extern "C" {
     {
         try {
             _trans->getMixDiffCoeffs(diff);
-        } catch (CanteraError) {
-            handleError();
+        } catch (CanteraError& err) {
+            handleError(err);
         }
     }
 
@@ -379,8 +379,8 @@ extern "C" {
     {
         try {
             _trans->getThermalDiffCoeffs(dt);
-        } catch (CanteraError) {
-            handleError();
+        } catch (CanteraError& err) {
+            handleError(err);
         }
     }
 #endif
@@ -401,8 +401,8 @@ int main()
 {
     try {
         return MAIN__();
-    } catch (CanteraError) {
-        showErrors(cerr);
+    } catch (CanteraError& err) {
+        std::cerr << err.what() << std::endl;
         exit(-1);
     } catch (...) {
         cout << "An exception was trapped. Program terminating." << endl;

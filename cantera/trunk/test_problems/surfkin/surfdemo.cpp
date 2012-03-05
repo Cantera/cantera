@@ -36,8 +36,8 @@ int main()
             cout << surf.speciesName(k) << "   "
                  << wdot[k+gas.nSpecies()] << endl;
 
-    } catch (CanteraError) {
-        showErrors(cout);
+    } catch (CanteraError& err) {
+        std::cout << err.what() << std::endl;
     }
     return 0;
 }

@@ -91,7 +91,8 @@ public:
             M* old = data[i];
             data.push_back(new M(*old));
             return static_cast<int>(data.size()) - 1;
-        } catch (Cantera::CanteraError) {
+        } catch (Cantera::CanteraError& err) {
+            err.save();
             return -1;
         } catch (...) {
             return -999;
@@ -110,7 +111,8 @@ public:
             M* dest = data[i];
             *dest = *src;
             return 0;
-        } catch (Cantera::CanteraError) {
+        } catch (Cantera::CanteraError& err) {
+            err.save();
             return -1;
         } catch (...) {
             return -999;
