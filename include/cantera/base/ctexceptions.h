@@ -12,9 +12,6 @@
 #include <string>
 #include <exception>
 
-// See file misc.cpp for implementations of methods/functions declared
-// here.
-
 namespace Cantera
 {
 
@@ -75,8 +72,7 @@ class CanteraError : public std::exception
 public:
     //! Normal Constructor for the CanteraError base class
     /*!
-     * This class doesn't have any storage associated with it. In its
-     * constructor, a call to the Application class is made to store
+     * In the constructor, a call to the Application class is made to store
      * the strings associated with the generated error condition.
      *
      * @param procedure String name for the function within which the error was
@@ -86,14 +82,15 @@ public:
     CanteraError(std::string procedure, std::string msg);
 
     //! Destructor for base class does nothing
-    virtual ~CanteraError() throw();
+    virtual ~CanteraError() throw() {};
+
 protected:
     //! Empty base constructor is made protected so that it may be used only by
     //! inherited classes.
     /*!
      *  We want to discourage throwing an error containing no information.
      */
-    CanteraError();
+    CanteraError() {};
 };
 
 //! Array size error.
