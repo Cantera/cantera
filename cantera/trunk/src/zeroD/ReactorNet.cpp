@@ -211,8 +211,8 @@ void ReactorNet::eval(doublereal t, doublereal* y,
             start += m_size[n];
             pstart += m_nparams[n];
         }
-    } catch (...) {
-        showErrors();
+    } catch (CanteraError& err) {
+        std::cerr << err.what() << std::endl;
         error("Terminating execution.");
     }
 }
@@ -247,8 +247,8 @@ void ReactorNet::evalJacobian(doublereal t, doublereal* y,
             }
             y[n] = ysave;
         }
-    } catch (...) {
-        showErrors();
+    } catch (CanteraError& err) {
+        std::cerr << err.what() << std::endl;
         error("Terminating execution.");
     }
 }

@@ -302,12 +302,13 @@ bool CKReader::read(const std::string& inputFile, const std::string& thermoDatab
         }
     }
 
-    catch (CK_Exception e) {
+    catch (CK_Exception& e) {
         log << e.errorMessage() << endl;
         //Cantera::setError("CKReader::read",e.errorMessage());
         return false;
-    } catch (...) {
-        log << "an exception was raised in CKReader.";
+    } catch (std::exception& e) {
+        log << "an exception was raised in CKReader:\n";
+        log << e.what() << std::endl;
         return false;
     }
 
