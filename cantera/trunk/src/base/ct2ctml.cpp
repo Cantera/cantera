@@ -12,10 +12,10 @@
 #include "cantera/base/stringUtils.h"
 
 #include <fstream>
+#include <sstream>
 #include <string>
 #include <cstdlib>
 #include <ctime>
-
 
 // These defines are needed for the windows Sleep() function
 // - comment them out if you don't want the Sleep function.
@@ -158,36 +158,24 @@ void ct2ctml(const char* file, const int debug)
     // This command works on windows machines if Windows.h and Winbase.h are included
     // Sleep(5000);
 #endif
-    // show the contents of the log file on the screen
-    try {
-        char ch=0;
-        string s = "";
-        ifstream ferr("ct2ctml.log");
-        if (ferr) {
-            while (!ferr.eof()) {
-                ferr.get(ch);
-                s += ch;
-                if (ch == '\n') {
-                    writelog(s);
-                    s = "";
-                }
-            }
-            ferr.close();
-        } else {
-            if (debug > 0) {
-                writelog("cannot open ct2ctml.log for reading.\n");
-            }
-        }
-    } catch (std::exception& err) {
-        writelog("ct2ctml: Exception while trying to parse ct2ctml.log:\n");
-        writelog(err.what());
-    }
+
     if (ierr != 0) {
-        string msg = cmd;
-        writelog("ct2ctml: throw cantera error \n");
-        throw CanteraError("ct2ctml",
-                           "could not convert input file to CTML.\n "
-                           "Command line was: \n" + msg);
+        // Generate an error message that includes the contents of the
+        // ct2ctml log file.
+        stringstream message;
+        message << "Error converting input file \"" << file << "\" to CTML.\n";
+        message << "Command was:\n\n";
+        message << cmd << "\n\n";
+        ifstream ferr(logfile.c_str());
+        if (ferr) {
+            message << "-------------- start of ct2ctml.log --------------\n";
+            message << ferr.rdbuf();
+            message << "--------------- end of ct2ctml.log ---------------";
+        } else {
+            message << "Additionally, the contents of ct2ctml.log"
+                "could not be read";
+        }
+        throw CanteraError("ct2ctml", message.str());
     }
 
     // if the conversion succeeded and DEBUG_PATHS is not defined,
