@@ -178,8 +178,9 @@ void ct2ctml(const char* file, const int debug)
                 writelog("cannot open ct2ctml.log for reading.\n");
             }
         }
-    } catch (...) {
-        writelog("ct2ctml: caught something \n");
+    } catch (std::exception& err) {
+        writelog("ct2ctml: Exception while trying to parse ct2ctml.log:\n");
+        writelog(err.what());
     }
     if (ierr != 0) {
         string msg = cmd;
@@ -245,8 +246,9 @@ void get_CTML_Tree(Cantera::XML_Node* rootPtr, const std::string file, const int
     if (ext != ".xml" && ext != ".ctml") {
         try {
             ctml::ct2ctml(inname.c_str(), debug);
-        } catch (...) {
-            writelog("get_CTML_Tree: caught something \n");
+        } catch (std::exception& err) {
+            writelog("get_CTML_Tree: caught an exception:\n");
+            writelog(err.what());
         }
         string ffull = inname.substr(0,idot) + ".xml";
         ff = "./" + getBaseName(ffull) + ".xml";
