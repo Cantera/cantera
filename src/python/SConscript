@@ -44,6 +44,7 @@ if localenv['python_package'] == 'full':
         pylinklibs.append('python%s' % gcv('VERSION'))
 
     pylinklibs.extend(localenv['sundials_libs'])
+    pylinklibs.extend(localenv['blas_lapack_libs'])
 
     pymodule = localenv.SharedLibrary('#interfaces/python/Cantera/_cantera',
                                       ['pycantera.cpp'],
