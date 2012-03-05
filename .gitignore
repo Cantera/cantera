@@ -5,12 +5,12 @@
 *.pyc
 *.obj
 *.exe.manifest
-build
+build/
 include/cantera/base/config.h
-stage
+stage/
 .sconsign.dblite
 .sconf_temp
-cantera.conf
+cantera.conf*
 config.log
 *.lib
 *.exp
@@ -19,6 +19,8 @@ config.log
 *.ilk
 *.suo
 *.dll
+*.a
+*.def
 *.msi
 *.mex*
 .cproject
@@ -27,5 +29,5 @@ config.log
 .settings
 *.gcda
 *.gcno
-coverage
+coverage/
 coverage.info
