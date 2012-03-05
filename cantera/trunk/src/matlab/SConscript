@@ -2,69 +2,68 @@ from buildutils import *
 
 Import('env', 'build', 'install')
 
-class MatlabBuilder(object):
-    def __init__(self, libs):
-        self.libs = libs
-
-    def __call__(self, target, source, env):
-        filenames = [os.path.split(node.path)[1] for node in source]
-        sourcestr = ' '.join(filenames)
-        includes = ' '.join('-I%s' % quoted(Dir(s).abspath) for s in env['CPPPATH'])
-        libdir = ' '.join('-L%s' % quoted(Dir(s).abspath) for s in env['LIBPATH'])
-        libs = ' '.join('-l'+s for s in self.libs)
-        extraFlag = '-cxx' if os.name == 'posix' else ''
-        debugFlag = '-g' if not env['optimize'] else ''
-        outdir = "'%s'" % Dir('#interfaces/matlab/toolbox').abspath
-
-        text = ("disp('building Cantera...');\n"
-                "mex %(debugFlag)s %(extraFlag)s -v -output ctmethods "
-                "-outdir %(outdir)s "
-                "%(includes)s %(libdir)s "
-                "%(libs)s %(sourcestr)s\n"
-                "disp('done.');\n"
-                "pause(2)\n"
-                "exit\n") % locals()
-
-        with open(str(target[0]), 'w') as f:
-            f.write(text)
-
-
 localenv = env.Clone()
-localenv.Append(CPPPATH=['#include', '#src'])
+linkflags = []
 
-cantera_libname = 'cantera_shared' if os.name=='nt' else 'cantera'
-libs = [cantera_libname] + env['sundials_libs']
+matlab_include = pjoin(localenv['matlab_path'], 'extern', 'include')
 
-localenv.Command('build_cantera.m',
-                 mglob(localenv, '.', 'cpp'),
-                 MatlabBuilder(libs))
-
-localenv['ENV']['PATH'] = os.environ['PATH']
-if 'TEMP' in os.environ:
-    localenv['ENV']['TEMP'] = os.environ['TEMP']
-
-build_cmd = 'cd ${SOURCE.dir} && "%(matlab_cmd)s" -nojvm -nosplash -r build_cantera'
-
-if os.name == 'posix':
-    mexPlatform = 'a'
-elif os.name == 'nt':
+if localenv['OS'] == 'Windows':
     mexPlatform = 'w'
-    if localenv['OS_BITS'] == 64:
-        localenv['ENV']['PROCESSOR_ARCHITECTURE'] = "AMD64"
+    linklibs = ['cantera_shared']
+    linklibs += ['libmx', 'libmex', 'libmat']
+    if localenv['OS_BITS'] == 32:
+        matlab_libs = pjoin(localenv['matlab_path'], 'extern',
+                            'lib' ,'win32', 'microsoft')
     else:
-        localenv['ENV']['PROCESSOR_ARCHITECTURE'] = "x86"
+        matlab_libs = pjoin(localenv['matlab_path'], 'extern',
+                    'lib' ,'win64', 'microsoft')
 
-mexFile = ('#interfaces/matlab/toolbox/ctmethods.mex%s%i' %
-           (mexPlatform, localenv['OS_BITS']))
+    if localenv['CC'] == 'cl':
+        linkflags.append('/export:mexFunction')
+        linkflags.append('/MACHINE:X%i' % localenv['OS_BITS'])
 
-target = build(localenv.Command(mexFile, 'build_cantera.m',
-                                build_cmd % localenv))
-localenv.Depends(target, localenv['cantera_shlib'])
+elif localenv['OS'] == 'Darwin':
+    linklibs = ['cantera']
+    linklibs += ['mx', 'mex', 'mat'] + env['LIBM']
+    mexPlatform = 'maci'
+    linkflags.extend(['-Wl,-exported_symbol,_mexFunction'])
+    localenv.Append(FRAMEWORKS=['Accelerate'])
+
+    if localenv['OS_BITS'] == 64:
+        matlab_libs = pjoin(localenv['matlab_path'], 'bin', 'maci64')
+    else:
+        matlab_libs = pjoin(localenv['matlab_path'], 'bin', 'macx86')
+
+elif os.name == 'posix':
+    linklibs = ['cantera']
+    linklibs += ['mx', 'mex', 'mat'] + env['LIBM']
+    mexPlatform = 'a'
+
+    if localenv['OS_BITS'] == 64:
+        matlab_libs = pjoin(localenv['matlab_path'], 'bin', 'glnxa64')
+    else:
+        matlab_libs = pjoin(localenv['matlab_path'], 'bin', 'glnx86')
+
+mexSuffix = '.mex%s%i' % (mexPlatform, localenv['OS_BITS'])
+
+localenv.Append(CPPPATH=['#include', '#src', matlab_include],
+                CPPDEFINES=['MATLAB_MEX_FILE'],
+                LIBPATH=[matlab_libs])
+
+linklibs += env['sundials_libs']
+
+ctmethods = build(localenv.SharedLibrary('#interfaces/matlab/toolbox/ctmethods',
+                                         mglob(localenv, '.', 'cpp'),
+                                         SHLIBPREFIX='',
+                                         SHLIBSUFFIX=mexSuffix,
+                                         LIBS=linklibs,
+                                         LINKFLAGS=linkflags))
 
 ### Install the Matlab toolbox ###
 
 # 'ctpath.m'
-target = build(localenv.SubstFile('ctpath.m', '#interfaces/matlab/ctpath.m.in'))
+target = build(localenv.SubstFile('#interfaces/matlab/ctpath.m',
+                                  '#interfaces/matlab/ctpath.m.in'))
 install('$inst_matlab_dir', target)
 
 # 'cantera_demos.m'
