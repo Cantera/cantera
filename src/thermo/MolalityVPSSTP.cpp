@@ -899,7 +899,8 @@ std::string MolalityVPSSTP::report(bool show_thermo) const
                 sprintf(p, " heat capacity c_v    %12.6g     %12.4g     J/K\n",
                         cv_mass(), cv_mole());
                 s += p;
-            } catch (CanteraError) {
+            } catch (CanteraError& err) {
+                err.save();
                 sprintf(p, " heat capacity c_v    <not implemented>       \n");
                 s += p;
             }
@@ -940,8 +941,8 @@ std::string MolalityVPSSTP::report(bool show_thermo) const
                 s += p;
             }
         }
-    } catch (CanteraError) {
-        ;
+    } catch (CanteraError& err) {
+        err.save();
     }
     return s;
 }
@@ -988,29 +989,29 @@ void MolalityVPSSTP::reportCSV(std::ofstream& csvFile) const
             getMolalities(&temp[0]);
             pNames.push_back("Molal");
             data.push_back(temp);
-        } catch (CanteraError) {
-            ;
+        } catch (CanteraError& err) {
+            err.save();
         }
         try {
             getChemPotentials(&temp[0]);
             pNames.push_back("Chem. Pot. (J/kmol)");
             data.push_back(temp);
-        } catch (CanteraError) {
-            ;
+        } catch (CanteraError& err) {
+            err.save();
         }
         try {
             getStandardChemPotentials(&temp[0]);
             pNames.push_back("Chem. Pot. SS (J/kmol)");
             data.push_back(temp);
-        } catch (CanteraError) {
-            ;
+        } catch (CanteraError& err) {
+            err.save();
         }
         try {
             getMolalityActivityCoefficients(&temp[0]);
             pNames.push_back("Molal Act. Coeff.");
             data.push_back(temp);
-        } catch (CanteraError) {
-            ;
+        } catch (CanteraError& err) {
+            err.save();
         }
         try {
             getActivities(&temp[0]);
@@ -1021,43 +1022,43 @@ void MolalityVPSSTP::reportCSV(std::ofstream& csvFile) const
                 double pH = -log(temp[iHp]) / log(10.0);
                 csvFile << setw(tabL) << "pH = " << setw(tabS) << pH << endl;
             }
-        } catch (CanteraError) {
-            ;
+        } catch (CanteraError& err) {
+            err.save();
         }
         try {
             getPartialMolarEnthalpies(&temp[0]);
             pNames.push_back("Part. Mol Enthalpy (J/kmol)");
             data.push_back(temp);
-        } catch (CanteraError) {
-            ;
+        } catch (CanteraError& err) {
+            err.save();
         }
         try {
             getPartialMolarEntropies(&temp[0]);
             pNames.push_back("Part. Mol. Entropy (J/K/kmol)");
             data.push_back(temp);
-        } catch (CanteraError) {
-            ;
+        } catch (CanteraError& err) {
+            err.save();
         }
         try {
             getPartialMolarIntEnergies(&temp[0]);
             pNames.push_back("Part. Mol. Energy (J/kmol)");
             data.push_back(temp);
-        } catch (CanteraError) {
-            ;
+        } catch (CanteraError& err) {
+            err.save();
         }
         try {
             getPartialMolarCp(&temp[0]);
             pNames.push_back("Part. Mol. Cp (J/K/kmol");
             data.push_back(temp);
-        } catch (CanteraError) {
-            ;
+        } catch (CanteraError& err) {
+            err.save();
         }
         try {
             getPartialMolarVolumes(&temp[0]);
             pNames.push_back("Part. Mol. Cv (J/K/kmol)");
             data.push_back(temp);
-        } catch (CanteraError) {
-            ;
+        } catch (CanteraError& err) {
+            err.save();
         }
 
         csvFile << endl << setw(tabS) << "Species,";
@@ -1084,8 +1085,8 @@ void MolalityVPSSTP::reportCSV(std::ofstream& csvFile) const
                 csvFile << endl;
             }
         }
-    } catch (CanteraError) {
-        ;
+    } catch (CanteraError& err) {
+        err.save();
     }
 }
 

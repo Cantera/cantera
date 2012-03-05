@@ -142,9 +142,9 @@ int main(int argc, char** argv)
                 exit(-1);
             }
             numSucc++;
-        } catch (CanteraError) {
+        } catch (CanteraError& err) {
             cout << *mp;
-            showErrors(cerr);
+            std::cerr << err.what() << std::endl;
             cerr << "ERROR: MultiEquil equilibration step failed at "
                  << " T    = " << T
                  << " Pres = " << pres
@@ -160,8 +160,8 @@ int main(int argc, char** argv)
         cout << "NUMBER OF FAILURES  =  " << numFail << endl;
 
         return numFail;
-    } catch (CanteraError) {
-        showErrors(cerr);
+    } catch (CanteraError& err) {
+        std::cerr << err.what() << std::endl;
         cerr << "ERROR: program terminating due to unforeseen circumstances." << endl;
         return -1;
     }

@@ -54,7 +54,6 @@ namespace Cantera
  *  where the error occurred. These functions may be eliminated from
  *  the source code, if the -DNDEBUG option is specified to the
  *  compiler.
- *
  */
 
 
@@ -84,21 +83,41 @@ public:
     //! Destructor for base class does nothing
     virtual ~CanteraError() throw() {};
 
+    //! Get a description of the error
+    const char* what() const throw();
+
+    //! Function to put this error onto Cantera's error stack
+    void save();
+
+    //! Method overridden by derived classes to formatted the error message
+    virtual std::string getMessage() const;
+
+    //! Method overridden by derived classes to indicate their type
+    virtual std::string getClass() const { return "CanteraError"; }
+
 protected:
-    //! Empty base constructor is made protected so that it may be used only by
-    //! inherited classes.
-    /*!
-     *  We want to discourage throwing an error containing no information.
-     */
-    CanteraError() {};
+    //! Protected default constructor discourages throwing errors containing no information.
+    CanteraError() : saved_(false) {};
+
+    //! Constructor used by derived classes that override getMessage()
+    CanteraError(std::string procedure);
+
+    //! The name of the procedure where the exception occurred
+    std::string procedure_;
+
+private:
+    std::string msg_; //!< Message associated with the exception
+    mutable std::string formattedMessage_; //!< Formatted message returned by what()
+    bool saved_; //!< Exception has already been saved to Cantera's error stack
 };
+
 
 //! Array size error.
 /*!
  *  This error is thrown if a supplied length to a vector supplied
  *  to Cantera is too small.
  *
- * @ingroup errorhandling
+ *  @ingroup errorhandling
  */
 class ArraySizeError : public CanteraError
 {
@@ -113,13 +132,20 @@ public:
      * @param sz   This is the length supplied to Cantera.
      * @param reqd This is the required length needed by Cantera
      */
-    ArraySizeError(std::string procedure, size_t sz, size_t reqd);
+    ArraySizeError(std::string procedure, size_t sz, size_t reqd) :
+        CanteraError(procedure), sz_(sz), reqd_(reqd) {}
+
+    virtual std::string getMessage() const;
+    virtual std::string getClass() const { return "ArraySizeError"; }
+
+private:
+    size_t sz_, reqd_;
 };
+
 
 //! An element index is out of range.
 /*!
- *
- * @ingroup errorhandling
+ *  @ingroup errorhandling
  */
 class ElementRangeError : public CanteraError
 {
@@ -134,8 +160,15 @@ public:
      * @param mmax This is the maximum allowed value of the index. The
      *             minimum allowed value is assumed to be 0.
      */
-    ElementRangeError(std::string func, size_t m, size_t mmax);
+    ElementRangeError(std::string func, size_t m, size_t mmax) :
+        CanteraError(func), m_(m), mmax_(mmax) {}
+    virtual std::string getMessage() const;
+    virtual std::string getClass() const { return "ElementRangeError"; }
+
+private:
+    size_t m_, mmax_;
 };
+
 
 //! Print a warning when a deprecated method is called.
 /*!

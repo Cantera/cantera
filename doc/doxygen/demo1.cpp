@@ -98,11 +98,10 @@ void demoprog()
 
 int main()
 {
-
     try {
         demoprog();
-    } catch (CanteraError) {
-        showErrors(std::cout);
+    } catch (CanteraError& err) {
+        std::cout << err.what() << std::endl;
     }
 }
 

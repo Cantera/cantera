@@ -1201,7 +1201,8 @@ bool buildSolutionFromXML(XML_Node& root, std::string id, std::string nm,
         importKinetics(*x, phases, k);
 
         return true;
-    } catch (CanteraError) {
+    } catch (CanteraError& err) {
+        err.save();
         throw CanteraError("buildSolutionFromXML","error encountered");
         return false;
     }

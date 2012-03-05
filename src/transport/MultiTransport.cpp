@@ -386,7 +386,8 @@ void MultiTransport::solveLMatrixEquation()
     copy(m_b.begin(), m_b.end(), m_a.begin());
     try {
         solve(m_Lmatrix, DATA_PTR(m_a));
-    } catch (CanteraError) {
+    } catch (CanteraError& err) {
+        err.save();
         //if (info != 0) {
         throw CanteraError("MultiTransport::solveLMatrixEquation",
                            "error in solving L matrix.");

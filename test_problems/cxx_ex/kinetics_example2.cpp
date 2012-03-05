@@ -100,8 +100,8 @@ int kinetics_example2(int job)
     }
 
     // handle exceptions thrown by Cantera
-    catch (CanteraError) {
-        showErrors(std::cout);
+    catch (CanteraError& err) {
+        std::cout << err.what() << std::endl;
         std::cout << " terminating... " << std::endl;
         appdelete();
         return -1;

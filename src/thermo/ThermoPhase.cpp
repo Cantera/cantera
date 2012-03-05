@@ -190,7 +190,8 @@ void ThermoPhase::setState_TPX(doublereal t, doublereal p, const std::string& x)
     }
     try {
         parseCompString(x, xx);
-    } catch (CanteraError) {
+    } catch (CanteraError& err) {
+        err.save();
         throw CanteraError("setState_TPX",
                            "Unknown species in composition map: "+ x);
     }
@@ -224,7 +225,8 @@ void ThermoPhase::setState_TPY(doublereal t, doublereal p,
     }
     try {
         parseCompString(y, yy);
-    } catch (CanteraError) {
+    } catch (CanteraError& err) {
+        err.save();
         throw CanteraError("setState_TPY",
                            "Unknown species in composition map: "+ y);
     }
@@ -1284,7 +1286,8 @@ std::string ThermoPhase::report(bool show_thermo) const
                 sprintf(p, " heat capacity c_v    %12.6g     %12.4g     J/K\n",
                         cv_mass(), cv_mole());
                 s += p;
-            } catch (CanteraError) {
+            } catch (CanteraError& err) {
+                err.save();
                 sprintf(p, " heat capacity c_v    <not implemented>       \n");
                 s += p;
             }
@@ -1332,8 +1335,8 @@ std::string ThermoPhase::report(bool show_thermo) const
         }
     }
     //}
-    catch (CanteraError) {
-        ;
+    catch (CanteraError& err) {
+        err.save();
     }
     return s;
 }
@@ -1395,64 +1398,64 @@ void ThermoPhase::reportCSV(std::ofstream& csvFile) const
             getMassFractions(y);
             pNames.push_back("Y");
             data.push_back(y);
-        } catch (CanteraError) {
-            ;
+        } catch (CanteraError& err) {
+            err.save();
         }
         try {
             getChemPotentials(mu);
             pNames.push_back("Chem. Pot (J/kmol)");
             data.push_back(mu);
-        } catch (CanteraError) {
-            ;
+        } catch (CanteraError& err) {
+            err.save();
         }
         try {
             getActivities(a);
             pNames.push_back("Activity");
             data.push_back(a);
-        } catch (CanteraError) {
-            ;
+        } catch (CanteraError& err) {
+            err.save();
         }
         try {
             getActivityCoefficients(ac);
             pNames.push_back("Act. Coeff.");
             data.push_back(ac);
-        } catch (CanteraError) {
-            ;
+        } catch (CanteraError& err) {
+            err.save();
         }
         try {
             getPartialMolarEnthalpies(hbar);
             pNames.push_back("Part. Mol Enthalpy (J/kmol)");
             data.push_back(hbar);
-        } catch (CanteraError) {
-            ;
+        } catch (CanteraError& err) {
+            err.save();
         }
         try {
             getPartialMolarEntropies(sbar);
             pNames.push_back("Part. Mol. Entropy (J/K/kmol)");
             data.push_back(sbar);
-        } catch (CanteraError) {
-            ;
+        } catch (CanteraError& err) {
+            err.save();
         }
         try {
             getPartialMolarIntEnergies(ubar);
             pNames.push_back("Part. Mol. Energy (J/kmol)");
             data.push_back(ubar);
-        } catch (CanteraError) {
-            ;
+        } catch (CanteraError& err) {
+            err.save();
         }
         try {
             getPartialMolarCp(cpbar);
             pNames.push_back("Part. Mol. Cp (J/K/kmol");
             data.push_back(cpbar);
-        } catch (CanteraError) {
-            ;
+        } catch (CanteraError& err) {
+            err.save();
         }
         try {
             getPartialMolarVolumes(vbar);
             pNames.push_back("Part. Mol. Cv (J/K/kmol)");
             data.push_back(vbar);
-        } catch (CanteraError) {
-            ;
+        } catch (CanteraError& err) {
+            err.save();
         }
 
         csvFile << endl << setw(tabS) << "Species,";
@@ -1490,8 +1493,8 @@ void ThermoPhase::reportCSV(std::ofstream& csvFile) const
         delete [] cpbar;
         delete [] vbar;
 
-    } catch (CanteraError) {
-        ;
+    } catch (CanteraError& err) {
+        err.save();
     }
 }
 

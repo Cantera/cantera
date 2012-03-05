@@ -24,7 +24,8 @@ static bool checkSpecies(int i, size_t k)
             throw CanteraError("checkSpecies",
                                "illegal species index ("+int2str(k)+") ");
         return true;
-    } catch (CanteraError) {
+    } catch (CanteraError& err) {
+        err.save();
         return false;
     }
 }
@@ -36,7 +37,8 @@ static bool checkElement(int i, size_t m)
             throw CanteraError("checkElement",
                                "illegal element index ("+int2str(m)+") ");
         return true;
-    } catch (CanteraError) {
+    } catch (CanteraError& err) {
+        err.save();
         return false;
     }
 }
@@ -48,7 +50,8 @@ static bool checkPhase(int i, int n)
             throw CanteraError("checkPhase",
                                "illegal phase index ("+int2str(n)+") ");
         return true;
-    } catch (CanteraError) {
+    } catch (CanteraError& err) {
+        err.save();
         return false;
     }
 }
@@ -157,7 +160,8 @@ extern "C" {
             }
             mixCabinet::item(i).setMoles(n);
             return 0;
-        } catch (CanteraError) {
+        } catch (CanteraError& err) {
+            err.save();
             return ERR;
         }
     }
@@ -168,7 +172,8 @@ extern "C" {
         try {
             mixCabinet::item(i).setMolesByName(string(n));
             return 0;
-        } catch (CanteraError) {
+        } catch (CanteraError& err) {
+            err.save();
             return -1;
         }
     }
@@ -248,7 +253,8 @@ extern "C" {
         try {
             return equilibrate(mixCabinet::item(i), XY,
                                rtol, maxsteps, maxiter, loglevel);
-        } catch (CanteraError) {
+        } catch (CanteraError& err) {
+            err.save();
             return DERR;
         }
     }
@@ -270,7 +276,8 @@ extern "C" {
                                " To use this feature add export WITH_VCS_NONIDEAL='y' to the preconfig file");
 #endif
             return (double) retn;
-        } catch (CanteraError) {
+        } catch (CanteraError& err) {
+            err.save();
             return DERR;
         }
     }
@@ -283,7 +290,8 @@ extern "C" {
             }
             mixCabinet::item(i).getChemPotentials(mu);
             return 0;
-        } catch (CanteraError) {
+        } catch (CanteraError& err) {
+            err.save();
             return -1;
         }
     }
@@ -298,7 +306,8 @@ extern "C" {
             }
             mixCabinet::item(i).getValidChemPotentials(bad_mu, mu, st);
             return 0;
-        } catch (CanteraError) {
+        } catch (CanteraError& err) {
+            err.save();
             return -1;
         }
     }

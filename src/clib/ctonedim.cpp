@@ -52,7 +52,8 @@ extern "C" {
         try {
             DomainCabinet::clear();
             return 0;
-        } catch (CanteraError) {
+        } catch (CanteraError& err) {
+            err.save();
             return -1;
         }
     }
@@ -91,7 +92,8 @@ extern "C" {
             copy(nm.c_str(), nm.c_str() + lout, buf);
             buf[lout] = '\0';
             return static_cast<int>(nm.size());
-        } catch (CanteraError) {
+        } catch (CanteraError& err) {
+            err.save();
             return -1;
         }
     }
@@ -101,7 +103,8 @@ extern "C" {
         try {
             size_t n = DomainCabinet::item(i).componentIndex(string(name));
             return n;
-        } catch (CanteraError) {
+        } catch (CanteraError& err) {
+            err.save();
             return -1;
         }
     }
@@ -110,7 +113,8 @@ extern "C" {
     {
         try {
             return DomainCabinet::item(i).grid(n);
-        } catch (CanteraError) {
+        } catch (CanteraError& err) {
+            err.save();
             return DERR;
         }
     }
@@ -120,7 +124,8 @@ extern "C" {
         try {
             DomainCabinet::item(i).setBounds(n, lower, upper);
             return 0;
-        } catch (CanteraError) {
+        } catch (CanteraError& err) {
+            err.save();
             return -1;
         }
     }
@@ -129,7 +134,8 @@ extern "C" {
     {
         try {
             return DomainCabinet::item(i).upperBound(n);
-        } catch (CanteraError) {
+        } catch (CanteraError& err) {
+            err.save();
             return DERR;
         }
     }
@@ -138,7 +144,8 @@ extern "C" {
     {
         try {
             return DomainCabinet::item(i).lowerBound(n);
-        } catch (CanteraError) {
+        } catch (CanteraError& err) {
+            err.save();
             return DERR;
         }
     }
@@ -149,7 +156,8 @@ extern "C" {
         try {
             DomainCabinet::item(i).setTolerances(n, rtol, atol, itime);
             return 0;
-        } catch (CanteraError) {
+        } catch (CanteraError& err) {
+            err.save();
             return -1;
         }
     }
@@ -158,7 +166,8 @@ extern "C" {
     {
         try {
             return DomainCabinet::item(i).rtol(n);
-        } catch (CanteraError) {
+        } catch (CanteraError& err) {
+            err.save();
             return DERR;
         }
     }
@@ -167,7 +176,8 @@ extern "C" {
     {
         try {
             return DomainCabinet::item(i).atol(n);
-        } catch (CanteraError) {
+        } catch (CanteraError& err) {
+            err.save();
             return DERR;
         }
     }
@@ -177,7 +187,8 @@ extern "C" {
         try {
             DomainCabinet::item(i).setupGrid(npts, grid);
             return 0;
-        } catch (CanteraError) {
+        } catch (CanteraError& err) {
+            err.save();
             return -1;
         }
     }
@@ -188,7 +199,8 @@ extern "C" {
             string s = string(id);
             DomainCabinet::item(i).setID(s);
             return 0;
-        } catch (CanteraError) {
+        } catch (CanteraError& err) {
+            err.save();
             return -1;
         }
     }
@@ -200,7 +212,8 @@ extern "C" {
             string s = string(desc);
             DomainCabinet::item(i).setDesc(s);
             return 0;
-        } catch (CanteraError) {
+        } catch (CanteraError& err) {
+            err.save();
             return -1;
         }
     }
@@ -211,7 +224,8 @@ extern "C" {
         try {
             Inlet1D* i = new Inlet1D();
             return DomainCabinet::add(i);
-        } catch (CanteraError) {
+        } catch (CanteraError& err) {
+            err.save();
             return -1;
         }
     }
@@ -221,7 +235,8 @@ extern "C" {
         try {
             Surf1D* i = new Surf1D();
             return DomainCabinet::add(i);
-        } catch (CanteraError) {
+        } catch (CanteraError& err) {
+            err.save();
             return -1;
         }
     }
@@ -232,7 +247,8 @@ extern "C" {
             //writelog("in reactingsurf_new\n");
             Domain1D* i = new ReactingSurf1D();
             return DomainCabinet::add(i);
-        } catch (CanteraError) {
+        } catch (CanteraError& err) {
+            err.save();
             writelog("error");
             return -1;
         }
@@ -243,7 +259,8 @@ extern "C" {
         try {
             Symm1D* i = new Symm1D();
             return DomainCabinet::add(i);
-        } catch (CanteraError) {
+        } catch (CanteraError& err) {
+            err.save();
             return -1;
         }
     }
@@ -253,7 +270,8 @@ extern "C" {
         try {
             Outlet1D* i = new Outlet1D();
             return DomainCabinet::add(i);
-        } catch (CanteraError) {
+        } catch (CanteraError& err) {
+            err.save();
             return -1;
         }
     }
@@ -263,7 +281,8 @@ extern "C" {
         try {
             OutletRes1D* i = new OutletRes1D();
             return DomainCabinet::add(i);
-        } catch (CanteraError) {
+        } catch (CanteraError& err) {
+            err.save();
             return -1;
         }
     }
@@ -273,7 +292,8 @@ extern "C" {
         try {
             _bdry(i)->setMdot(mdot);
             return 0;
-        } catch (CanteraError) {
+        } catch (CanteraError& err) {
+            err.save();
             return -1;
         }
     }
@@ -283,7 +303,8 @@ extern "C" {
         try {
             _bdry(i)->setTemperature(t);
             return 0;
-        } catch (CanteraError) {
+        } catch (CanteraError& err) {
+            err.save();
             return -1;
         }
     }
@@ -293,7 +314,8 @@ extern "C" {
         try {
             _bdry(i)->setMoleFractions(string(x));
             return 0;
-        } catch (CanteraError) {
+        } catch (CanteraError& err) {
+            err.save();
             return -1;
         }
     }
@@ -302,7 +324,8 @@ extern "C" {
     {
         try {
             return _bdry(i)->temperature();
-        } catch (CanteraError) {
+        } catch (CanteraError& err) {
+            err.save();
             return DERR;
         }
     }
@@ -311,7 +334,8 @@ extern "C" {
     {
         try {
             return _bdry(i)->massFraction(k);
-        } catch (CanteraError) {
+        } catch (CanteraError& err) {
+            err.save();
             return DERR;
         }
     }
@@ -320,7 +344,8 @@ extern "C" {
     {
         try {
             return _bdry(i)->mdot();
-        } catch (CanteraError) {
+        } catch (CanteraError& err) {
+            err.save();
             return DERR;
         }
     }
@@ -333,7 +358,8 @@ extern "C" {
                 dynamic_cast<InterfaceKinetics*>(&Cabinet<Kinetics>::item(j));
             srf->setKineticsMgr(k);
             return 0;
-        } catch (CanteraError) {
+        } catch (CanteraError& err) {
+            err.save();
             return -1;
         }
     }
@@ -346,7 +372,8 @@ extern "C" {
             return 0;
         }
 
-        catch (CanteraError) {
+        catch (CanteraError& err) {
+            err.save();
             return -1;
         }
     }
@@ -359,7 +386,8 @@ extern "C" {
             return 0;
         }
 
-        catch (CanteraError) {
+        catch (CanteraError& err) {
+            err.save();
             return -1;
         }
     }
@@ -383,7 +411,8 @@ extern "C" {
             } else {
                 return -2;
             }
-        } catch (CanteraError) {
+        } catch (CanteraError& err) {
+            err.save();
             return -1;
         }
     }
@@ -398,7 +427,8 @@ extern "C" {
         try {
             _stflow(i)->setTransport(TransportCabinet::item(itr), withSoret);
             return 0;
-        } catch (CanteraError) {
+        } catch (CanteraError& err) {
+            err.save();
             return -1;
         }
     }
@@ -412,7 +442,8 @@ extern "C" {
         try {
             _stflow(i)->enableSoret(withSoret);
             return 0;
-        } catch (CanteraError) {
+        } catch (CanteraError& err) {
+            err.save();
             return -1;
         }
     }
@@ -422,7 +453,8 @@ extern "C" {
         try {
             _stflow(i)->setPressure(p);
             return 0;
-        } catch (CanteraError) {
+        } catch (CanteraError& err) {
+            err.save();
             return -1;
         }
     }
@@ -438,7 +470,8 @@ extern "C" {
             }
             _stflow(i)->setFixedTempProfile(vpos, vtemp);
             return 0;
-        } catch (CanteraError) {
+        } catch (CanteraError& err) {
+            err.save();
             return -1;
         }
     }
@@ -453,7 +486,8 @@ extern "C" {
                 _stflow(i)->fixSpecies(-1);
             }
             return 0;
-        } catch (CanteraError) {
+        } catch (CanteraError& err) {
+            err.save();
             return -1;
         }
     }
@@ -468,7 +502,8 @@ extern "C" {
                 _stflow(i)->fixTemperature(-1);
             }
             return 0;
-        } catch (CanteraError) {
+        } catch (CanteraError& err) {
+            err.save();
             return -1;
         }
     }
@@ -490,7 +525,8 @@ extern "C" {
             Sim1D* s = new Sim1D(d);
             //writelog("in sim1D_new, ret Sim1D\n");
             return SimCabinet::add(s);
-        } catch (CanteraError) {
+        } catch (CanteraError& err) {
+            err.save();
             return -1;
         }
     }
@@ -500,7 +536,8 @@ extern "C" {
         try {
             SimCabinet::clear();
             return 0;
-        } catch (CanteraError) {
+        } catch (CanteraError& err) {
+            err.save();
             return -1;
         }
     }
@@ -517,7 +554,8 @@ extern "C" {
         try {
             SimCabinet::item(i).setValue(dom, comp, localPoint, value);
             return 0;
-        } catch (CanteraError) {
+        } catch (CanteraError& err) {
+            err.save();
             return -1;
         }
     }
@@ -533,7 +571,8 @@ extern "C" {
             }
             SimCabinet::item(i).setProfile(dom, comp, pv, vv);
             return 0;
-        } catch (CanteraError) {
+        } catch (CanteraError& err) {
+            err.save();
             return -1;
         }
     }
@@ -543,7 +582,8 @@ extern "C" {
         try {
             SimCabinet::item(i).setFlatProfile(dom, comp, v);
             return 0;
-        } catch (CanteraError) {
+        } catch (CanteraError& err) {
+            err.save();
             return -1;
         }
     }
@@ -566,7 +606,8 @@ extern "C" {
         try {
             SimCabinet::item(i).setTimeStep(stepsize, ns, nsteps);
             return 0;
-        } catch (CanteraError) {
+        } catch (CanteraError& err) {
+            err.save();
             return -1;
         }
     }
@@ -576,7 +617,8 @@ extern "C" {
         try {
             SimCabinet::item(i).getInitialSoln();
             return 0;
-        } catch (CanteraError) {
+        } catch (CanteraError& err) {
+            err.save();
             return -1;
         }
     }
@@ -587,7 +629,8 @@ extern "C" {
             bool r = (refine_grid == 0 ? false : true);
             SimCabinet::item(i).solve(loglevel, r);
             return 0;
-        } catch (CanteraError) {
+        } catch (CanteraError& err) {
+            err.save();
             return -1;
         }
     }
@@ -597,7 +640,8 @@ extern "C" {
         try {
             SimCabinet::item(i).refine(loglevel);
             return 0;
-        } catch (CanteraError) {
+        } catch (CanteraError& err) {
+            err.save();
             return -1;
         }
     }
@@ -608,7 +652,8 @@ extern "C" {
         try {
             SimCabinet::item(i).setRefineCriteria(dom, ratio, slope, curve, prune);
             return 0;
-        } catch (CanteraError) {
+        } catch (CanteraError& err) {
+            err.save();
             return -1;
         }
     }
@@ -622,7 +667,8 @@ extern "C" {
             string sdesc = string(desc);
             SimCabinet::item(i).save(sname, sid, sdesc);
             return 0;
-        } catch (CanteraError) {
+        } catch (CanteraError& err) {
+            err.save();
             return -1;
         }
     }
@@ -634,7 +680,8 @@ extern "C" {
             string sid = string(id);
             SimCabinet::item(i).restore(sname, sid);
             return 0;
-        } catch (CanteraError) {
+        } catch (CanteraError& err) {
+            err.save();
             return -1;
         }
     }
@@ -644,7 +691,8 @@ extern "C" {
         try {
             SimCabinet::item(i).writeStats(printTime);
             return 0;
-        } catch (CanteraError) {
+        } catch (CanteraError& err) {
+            err.save();
             return -1;
         }
     }
@@ -653,7 +701,8 @@ extern "C" {
     {
         try {
             return (int) SimCabinet::item(i).domainIndex(string(name));
-        } catch (CanteraError) {
+        } catch (CanteraError& err) {
+            err.save();
             return -1;
         }
     }
@@ -662,7 +711,8 @@ extern "C" {
     {
         try {
             return SimCabinet::item(i).value(idom, icomp, localPoint);
-        } catch (CanteraError) {
+        } catch (CanteraError& err) {
+            err.save();
             return DERR;
         }
     }
@@ -671,7 +721,8 @@ extern "C" {
     {
         try {
             return SimCabinet::item(i).workValue(idom, icomp, localPoint);
-        } catch (CanteraError) {
+        } catch (CanteraError& err) {
+            err.save();
             return DERR;
         }
     }
@@ -681,7 +732,8 @@ extern "C" {
         try {
             SimCabinet::item(i).eval(rdt, count);
             return 0;
-        } catch (CanteraError) {
+        } catch (CanteraError& err) {
+            err.save();
             return -1;
         }
     }
@@ -691,7 +743,8 @@ extern "C" {
         try {
             SimCabinet::item(i).setJacAge(ss_age, ts_age);
             return 0;
-        } catch (CanteraError) {
+        } catch (CanteraError& err) {
+            err.save();
             return -1;
         }
     }
@@ -701,7 +754,8 @@ extern "C" {
         try {
             SimCabinet::item(i).setTimeStepFactor(tfactor);
             return 0;
-        } catch (CanteraError) {
+        } catch (CanteraError& err) {
+            err.save();
             return -1;
         }
     }
@@ -716,7 +770,8 @@ extern "C" {
                 SimCabinet::item(i).setMaxTimeStep(tsmax);
             }
             return 0;
-        } catch (CanteraError) {
+        } catch (CanteraError& err) {
+            err.save();
             return -1;
         }
     }
@@ -726,7 +781,8 @@ extern "C" {
         try {
             SimCabinet::item(i).setFixedTemperature(temp);
             return 0;
-        } catch (CanteraError) {
+        } catch (CanteraError& err) {
+            err.save();
             return -1;
         }
     }
@@ -736,7 +792,8 @@ extern "C" {
         try {
             SimCabinet::item(i).evalSSJacobian();
             return 0;
-        } catch (CanteraError) {
+        } catch (CanteraError& err) {
+            err.save();
             return -1;
         }
     }
@@ -745,7 +802,8 @@ extern "C" {
     {
         try {
             return SimCabinet::item(i).jacobian(m,n);
-        } catch (CanteraError) {
+        } catch (CanteraError& err) {
+            err.save();
             return DERR;
         }
     }
@@ -754,7 +812,8 @@ extern "C" {
     {
         try {
             return SimCabinet::item(i).size();
-        } catch (CanteraError) {
+        } catch (CanteraError& err) {
+            err.save();
             return -1;
         }
     }

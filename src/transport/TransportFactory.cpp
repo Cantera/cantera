@@ -915,8 +915,8 @@ void TransportFactory::getTransportData(const std::vector<const XML_Node*> &xspe
                                               "negative rotation relaxation number");
 
             datatable[name] = data;
-        } catch (CanteraError) {
-            ;
+        } catch (CanteraError& err) {
+            err.save();
         }
     }
 
@@ -1078,8 +1078,9 @@ void TransportFactory::getLiquidSpeciesTransportData(const std::vector<const XML
                 }
                 datatable.insert(pair<std::string, LiquidTransportData>(name,data));
             }
-        } catch (CanteraError yy) {
-            throw yy;
+        } catch (CanteraError& err) {
+            err.save();
+            throw err;
         }
     }
 
@@ -1218,12 +1219,9 @@ void TransportFactory::getLiquidInteractionsTransportData(const XML_Node& transp
                 }
             }
         }
-    } catch (CanteraError) {
-        showErrors(std::cout);
+    } catch (CanteraError& err) {
+        std::cout << err.what() << std::endl;
     }
-    //catch(CanteraError) {
-    //  ;
-    //}
     return;
 }
 

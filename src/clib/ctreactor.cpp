@@ -99,7 +99,8 @@ extern "C" {
         try {
             ReactorCabinet::item(i).advance(t);
             return 0;
-        } catch (CanteraError) {
+        } catch (CanteraError& err) {
+            err.save();
             return -1;
         }
     }
@@ -248,7 +249,8 @@ extern "C" {
         try {
             NetworkCabinet::item(i).addReactor(&ReactorCabinet::item(n));
             return 0;
-        } catch (CanteraError) {
+        } catch (CanteraError& err) {
+            err.save();
             return -1;
         }
     }
@@ -329,7 +331,8 @@ extern "C" {
                 throw CanteraError("install","Could not install flow device.");
             }
             return 0;
-        } catch (CanteraError) {
+        } catch (CanteraError& err) {
+            err.save();
             return -1;
         }
     }

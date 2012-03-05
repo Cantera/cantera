@@ -283,9 +283,8 @@ int main(int argc, char** argv)
 #endif
         return retn;
 
-    } catch (CanteraError) {
-        printf("caught error\n");
-        showErrors();
+    } catch (CanteraError& err) {
+        std::cout << err.what() << std::endl;
         Cantera::appdelete();
         return -1;
     }

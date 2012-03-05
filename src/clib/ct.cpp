@@ -49,7 +49,8 @@ static PureFluidPhase* purefluid(int n)
         } else {
             throw CanteraError("purefluid","object is not a PureFluidPhase object");
         }
-    } catch (CanteraError) {
+    } catch (CanteraError& err) {
+        err.save();
         return 0;
     }
     return 0;
@@ -134,7 +135,8 @@ extern "C" {
     {
         try {
             ThermoCabinet::item(n).setTemperature(t);
-        } catch (CanteraError) {
+        } catch (CanteraError& err) {
+            err.save();
             return -1;
         }
         return 0;
@@ -244,7 +246,8 @@ extern "C" {
             parseCompString(string(x), xx);
             p.setMoleFractionsByName(xx);
             return 0;
-        } catch (CanteraError) {
+        } catch (CanteraError& err) {
+            err.save();
             return -1;
         }
         //catch (...) {return ERR;}
@@ -278,7 +281,8 @@ extern "C" {
             parseCompString(string(y), yy);
             p.setMassFractionsByName(yy);
             return 0;
-        } catch (CanteraError) {
+        } catch (CanteraError& err) {
+            err.save();
             return -1;
         }
     }
@@ -333,7 +337,8 @@ extern "C" {
             copy(spnm.c_str(), spnm.c_str() + lout, nm);
             nm[lout] = '\0';
             return 0;
-        } catch (CanteraError) {
+        } catch (CanteraError& err) {
+            err.save();
             return -1;
         }
         //catch (...) {return ERR;}
@@ -347,7 +352,8 @@ extern "C" {
             copy(elnm.c_str(), elnm.c_str() + lout, nm);
             nm[lout] = '\0';
             return 0;
-        } catch (CanteraError) {
+        } catch (CanteraError& err) {
+            err.save();
             return -1;
         }
     }
@@ -357,7 +363,8 @@ extern "C" {
     {
         try {
             return ThermoCabinet::item(n).nAtoms(k,m);
-        } catch (CanteraError) {
+        } catch (CanteraError& err) {
+            err.save();
             return -1;
         }
     }
@@ -367,7 +374,8 @@ extern "C" {
         try {
             ThermoCabinet::item(n).addElement(string(name),weight);
             return 0;
-        } catch (CanteraError) {
+        } catch (CanteraError& err) {
+            err.save();
             return -1;
         }
     }
@@ -400,7 +408,8 @@ extern "C" {
             XML_Node& x = XmlCabinet::item(mxml);
             thermo_t* th = newPhase(x);
             return ThermoCabinet::add(th);
-        } catch (CanteraError) {
+        } catch (CanteraError& err) {
+            err.save();
             return -1;
         }
     }
@@ -419,7 +428,8 @@ extern "C" {
     {
         try {
             return ThermoCabinet::item(n).enthalpy_mole();
-        } catch (CanteraError) {
+        } catch (CanteraError& err) {
+            err.save();
             return DERR;
         }
     }
@@ -428,7 +438,8 @@ extern "C" {
     {
         try {
             return ThermoCabinet::item(n).intEnergy_mole();
-        } catch (CanteraError) {
+        } catch (CanteraError& err) {
+            err.save();
             return DERR;
         }
     }
@@ -437,7 +448,8 @@ extern "C" {
     {
         try {
             return ThermoCabinet::item(n).entropy_mole();
-        } catch (CanteraError) {
+        } catch (CanteraError& err) {
+            err.save();
             return DERR;
         }
     }
@@ -446,7 +458,8 @@ extern "C" {
     {
         try {
             return ThermoCabinet::item(n).gibbs_mole();
-        } catch (CanteraError) {
+        } catch (CanteraError& err) {
+            err.save();
             return DERR;
         }
     }
@@ -455,7 +468,8 @@ extern "C" {
     {
         try {
             return ThermoCabinet::item(n).cp_mole();
-        } catch (CanteraError) {
+        } catch (CanteraError& err) {
+            err.save();
             return DERR;
         }
     }
@@ -464,7 +478,8 @@ extern "C" {
     {
         try {
             return ThermoCabinet::item(n).cv_mole();
-        } catch (CanteraError) {
+        } catch (CanteraError& err) {
+            err.save();
             return DERR;
         }
     }
@@ -473,7 +488,8 @@ extern "C" {
     {
         try {
             return ThermoCabinet::item(n).pressure();
-        } catch (CanteraError) {
+        } catch (CanteraError& err) {
+            err.save();
             return DERR;
         }
     }
@@ -482,7 +498,8 @@ extern "C" {
     {
         try {
             return ThermoCabinet::item(n).enthalpy_mass();
-        } catch (CanteraError) {
+        } catch (CanteraError& err) {
+            err.save();
             return DERR;
         }
     }
@@ -491,7 +508,8 @@ extern "C" {
     {
         try {
             return ThermoCabinet::item(n).intEnergy_mass();
-        } catch (CanteraError) {
+        } catch (CanteraError& err) {
+            err.save();
             return DERR;
         }
     }
@@ -500,7 +518,8 @@ extern "C" {
     {
         try {
             return ThermoCabinet::item(n).entropy_mass();
-        } catch (CanteraError) {
+        } catch (CanteraError& err) {
+            err.save();
             return DERR;
         }
     }
@@ -509,7 +528,8 @@ extern "C" {
     {
         try {
             return ThermoCabinet::item(n).gibbs_mass();
-        } catch (CanteraError) {
+        } catch (CanteraError& err) {
+            err.save();
             return DERR;
         }
     }
@@ -518,7 +538,8 @@ extern "C" {
     {
         try {
             return ThermoCabinet::item(n).cp_mass();
-        } catch (CanteraError) {
+        } catch (CanteraError& err) {
+            err.save();
             return DERR;
         }
     }
@@ -527,7 +548,8 @@ extern "C" {
     {
         try {
             return ThermoCabinet::item(n).cv_mass();
-        } catch (CanteraError) {
+        } catch (CanteraError& err) {
+            err.save();
             return DERR;
         }
     }
@@ -536,7 +558,8 @@ extern "C" {
     {
         try {
             return ThermoCabinet::item(n).electricPotential();
-        } catch (CanteraError) {
+        } catch (CanteraError& err) {
+            err.save();
             return DERR;
         }
     }
@@ -573,7 +596,8 @@ extern "C" {
                                                 "pressure cannot be negative");
             ThermoCabinet::item(n).setPressure(p);
             return 0;
-        } catch (CanteraError) {
+        } catch (CanteraError& err) {
+            err.save();
             return -1;
         }
     }
@@ -589,7 +613,8 @@ extern "C" {
                 throw CanteraError("th_set_HP",
                                    "temperature cannot be negative");
             return 0;
-        } catch (CanteraError) {
+        } catch (CanteraError& err) {
+            err.save();
             return -1;
         }
     }
@@ -605,7 +630,8 @@ extern "C" {
                 throw CanteraError("th_set_UV",
                                    "temperature cannot be negative");
             return 0;
-        } catch (CanteraError) {
+        } catch (CanteraError& err) {
+            err.save();
             return -1;
         }
     }
@@ -615,7 +641,8 @@ extern "C" {
         try {
             ThermoCabinet::item(n).setState_SV(vals[0],vals[1]);
             return 0;
-        } catch (CanteraError) {
+        } catch (CanteraError& err) {
+            err.save();
             return -1;
         }
     }
@@ -625,7 +652,8 @@ extern "C" {
         try {
             ThermoCabinet::item(n).setState_SP(vals[0],vals[1]);
             return 0;
-        } catch (CanteraError) {
+        } catch (CanteraError& err) {
+            err.save();
             return -1;
         }
     }
@@ -637,7 +665,8 @@ extern "C" {
             equilibrate(ThermoCabinet::item(n), XY, solver, rtol, maxsteps,
                         maxiter, loglevel);
             return 0;
-        } catch (CanteraError) {
+        } catch (CanteraError& err) {
+            err.save();
             return -1;
         }
     }
@@ -669,7 +698,8 @@ extern "C" {
             } else {
                 return -10;
             }
-        } catch (CanteraError) {
+        } catch (CanteraError& err) {
+            err.save();
             return -1;
         }
     }
@@ -685,7 +715,8 @@ extern "C" {
             } else {
                 return -10;
             }
-        } catch (CanteraError) {
+        } catch (CanteraError& err) {
+            err.save();
             return -1;
         }
     }
@@ -701,7 +732,8 @@ extern "C" {
             } else {
                 return -10;
             }
-        } catch (CanteraError) {
+        } catch (CanteraError& err) {
+            err.save();
             return -1;
         }
     }
@@ -739,7 +771,8 @@ extern "C" {
     {
         try {
             return purefluid(n)->satTemperature(p);
-        } catch (CanteraError) {
+        } catch (CanteraError& err) {
+            err.save();
             return DERR;
         }
     }
@@ -748,7 +781,8 @@ extern "C" {
     {
         try {
             return purefluid(n)->satPressure(t);
-        } catch (CanteraError) {
+        } catch (CanteraError& err) {
+            err.save();
             return DERR;
         }
     }
@@ -758,7 +792,8 @@ extern "C" {
         try {
             purefluid(n)->setState_Psat(p, x);
             return 0;
-        } catch (CanteraError) {
+        } catch (CanteraError& err) {
+            err.save();
             return -1;
         }
     }
@@ -768,7 +803,8 @@ extern "C" {
         try {
             purefluid(n)->setState_Tsat(t, x);
             return 0;
-        } catch (CanteraError) {
+        } catch (CanteraError& err) {
+            err.save();
             return -1;
         }
     }
@@ -845,7 +881,8 @@ extern "C" {
             } else {
                 return 0;
             }
-        } catch (CanteraError) {
+        } catch (CanteraError& err) {
+            err.save();
             return -1;
         }
     }
@@ -859,7 +896,8 @@ extern "C" {
             string defphase = string(default_phase);
             installReactionArrays(p, k, defphase);
             return 0;
-        } catch (CanteraError) {
+        } catch (CanteraError& err) {
+            err.save();
             return -1;
         }
     }
@@ -932,7 +970,8 @@ extern "C" {
             } else {
                 return ERR;
             }
-        } catch (CanteraError) {
+        } catch (CanteraError& err) {
+            err.save();
             return -1;
         }
     }
@@ -947,7 +986,8 @@ extern "C" {
             } else {
                 return ERR;
             }
-        } catch (CanteraError) {
+        } catch (CanteraError& err) {
+            err.save();
             return -1;
         }
     }
@@ -967,7 +1007,8 @@ extern "C" {
             } else {
                 return ERR;
             }
-        } catch (CanteraError) {
+        } catch (CanteraError& err) {
+            err.save();
             return -1;
         }
     }
@@ -982,7 +1023,8 @@ extern "C" {
             } else {
                 return ERR;
             }
-        } catch (CanteraError) {
+        } catch (CanteraError& err) {
+            err.save();
             return -1;
         }
     }
@@ -1001,7 +1043,8 @@ extern "C" {
             } else {
                 return ERR;
             }
-        } catch (CanteraError) {
+        } catch (CanteraError& err) {
+            err.save();
             return -1;
         }
     }
@@ -1017,7 +1060,8 @@ extern "C" {
             } else {
                 return ERR;
             }
-        } catch (CanteraError) {
+        } catch (CanteraError& err) {
+            err.save();
             return -1;
         }
     }
@@ -1053,7 +1097,8 @@ extern "C" {
                 return ERR;
             }
             return 0;
-        } catch (CanteraError) {
+        } catch (CanteraError& err) {
+            err.save();
             return -1;
         }
     }
@@ -1069,7 +1114,8 @@ extern "C" {
             } else {
                 return ERR;
             }
-        } catch (CanteraError) {
+        } catch (CanteraError& err) {
+            err.save();
             return -1;
         }
     }
@@ -1085,7 +1131,8 @@ extern "C" {
             } else {
                 return ERR;
             }
-        } catch (CanteraError) {
+        } catch (CanteraError& err) {
+            err.save();
             return -1;
         }
     }
@@ -1100,7 +1147,8 @@ extern "C" {
             } else {
                 return ERR;
             }
-        } catch (CanteraError) {
+        } catch (CanteraError& err) {
+            err.save();
             return -1;
         }
         //catch (...) {return ERR;}
@@ -1116,7 +1164,8 @@ extern "C" {
             } else {
                 return ERR;
             }
-        } catch (CanteraError) {
+        } catch (CanteraError& err) {
+            err.save();
             return -1;
         }
     }
@@ -1137,7 +1186,8 @@ extern "C" {
             } else {
                 return ERR;
             }
-        } catch (CanteraError) {
+        } catch (CanteraError& err) {
+            err.save();
             return -1;
         }
     }
@@ -1162,7 +1212,8 @@ extern "C" {
             } else {
                 return ERR;
             }
-        } catch (CanteraError) {
+        } catch (CanteraError& err) {
+            err.save();
             return -1;
         }
     }
@@ -1176,7 +1227,8 @@ extern "C" {
             copy(r.c_str(), r.c_str() + lout, buf);
             buf[lout] = '\0';
             return 0;
-        } catch (CanteraError) {
+        } catch (CanteraError& err) {
+            err.save();
             return -1;
         }
     }
@@ -1190,7 +1242,8 @@ extern "C" {
             } else {
                 return ERR;
             }
-        } catch (CanteraError) {
+        } catch (CanteraError& err) {
+            err.save();
             return -1;
         }
     }
@@ -1206,7 +1259,8 @@ extern "C" {
                                    "wrong kinetics manager type");
             }
             return 0;
-        } catch (CanteraError) {
+        } catch (CanteraError& err) {
+            err.save();
             return -1;
         }
     }
@@ -1221,7 +1275,8 @@ extern "C" {
         try {
             Transport* tr = newTransportMgr(mstr, &t, loglevel);
             return TransportCabinet::add(tr);
-        } catch (CanteraError) {
+        } catch (CanteraError& err) {
+            err.save();
             return -1;
         }
     }
@@ -1230,7 +1285,8 @@ extern "C" {
     {
         try {
             return TransportCabinet::item(n).viscosity();
-        } catch (CanteraError) {
+        } catch (CanteraError& err) {
+            err.save();
             return -1.0;
         }
     }
@@ -1239,7 +1295,8 @@ extern "C" {
     {
         try {
             return TransportCabinet::item(n).thermalConductivity();
-        } catch (CanteraError) {
+        } catch (CanteraError& err) {
+            err.save();
             return -1.0;
         }
     }
@@ -1249,7 +1306,8 @@ extern "C" {
         try {
             TransportCabinet::item(n).getThermalDiffCoeffs(dt);
             return 0;
-        } catch (CanteraError) {
+        } catch (CanteraError& err) {
+            err.save();
             return -1;
         }
     }
@@ -1259,7 +1317,8 @@ extern "C" {
         try {
             TransportCabinet::item(n).getMixDiffCoeffs(d);
             return 0;
-        } catch (CanteraError) {
+        } catch (CanteraError& err) {
+            err.save();
             return -1;
         }
     }
@@ -1269,7 +1328,8 @@ extern "C" {
         try {
             TransportCabinet::item(n).getBinaryDiffCoeffs(ld,d);
             return 0;
-        } catch (CanteraError) {
+        } catch (CanteraError& err) {
+            err.save();
             return -1;
         }
     }
@@ -1279,7 +1339,8 @@ extern "C" {
         try {
             TransportCabinet::item(n).getMultiDiffCoeffs(ld,d);
             return 0;
-        } catch (CanteraError) {
+        } catch (CanteraError& err) {
+            err.save();
             return -1;
         }
     }
@@ -1289,7 +1350,8 @@ extern "C" {
         try {
             TransportCabinet::item(n).setParameters(type, k, d);
             return 0;
-        } catch (CanteraError) {
+        } catch (CanteraError& err) {
+            err.save();
             return -1;
         }
     }
@@ -1300,7 +1362,8 @@ extern "C" {
         try {
             TransportCabinet::item(n).getMolarFluxes(state1, state2, delta, fluxes);
             return 0;
-        } catch (CanteraError) {
+        } catch (CanteraError& err) {
+            err.save();
             return -1;
         }
     }
@@ -1311,7 +1374,8 @@ extern "C" {
         try {
             TransportCabinet::item(n).getMassFluxes(state1, state2, delta, fluxes);
             return 0;
-        } catch (CanteraError) {
+        } catch (CanteraError& err) {
+            err.save();
             return -1;
         }
     }
@@ -1326,7 +1390,8 @@ extern "C" {
         try {
             importPhase(node, &thrm);
             return 0;
-        } catch (CanteraError) {
+        } catch (CanteraError& err) {
+            err.save();
             return -1;
         }
     }
@@ -1344,7 +1409,8 @@ extern "C" {
         try {
             importKinetics(node, phases, &k);
             return 0;
-        } catch (CanteraError) {
+        } catch (CanteraError& err) {
+            err.save();
             return -1;
         }
     }
@@ -1363,7 +1429,8 @@ extern "C" {
             buf[s.size() - 1] = '\0';
             return 0;
 
-        } catch (CanteraError) {
+        } catch (CanteraError& err) {
+            err.save();
             return -1;
         }
     }
@@ -1374,7 +1441,8 @@ extern "C" {
             bool stherm = (show_thermo != 0);
             writephase(ThermoCabinet::item(nth), stherm);
             return 0;
-        } catch (CanteraError) {
+        } catch (CanteraError& err) {
+            err.save();
             return -1;
         }
     }
@@ -1440,7 +1508,8 @@ extern "C" {
             KineticsCabinet::clear();
             TransportCabinet::clear();
             return 0;
-        } catch (CanteraError) {
+        } catch (CanteraError& err) {
+            err.save();
             return -1;
         }
     }
@@ -1450,7 +1519,8 @@ extern "C" {
         try {
             ThermoCabinet::del(n);
             return 0;
-        } catch (CanteraError) {
+        } catch (CanteraError& err) {
+            err.save();
             return -1;
         }
     }

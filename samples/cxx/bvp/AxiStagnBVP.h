@@ -132,8 +132,8 @@ int main()
         // write the solution to a CSV file.
         eqs.writeCSV();
         return 0;
-    } catch (Cantera::CanteraError) {
-        Cantera::showErrors(std::cerr);
+    } catch (Cantera::CanteraError& err) {
+        std::cerr << err.what() << std::endl;
         return -1;
     }
 }

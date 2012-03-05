@@ -613,7 +613,8 @@ std::string PureFluidPhase::report(bool show_thermo) const
                 sprintf(p, " heat capacity c_v    %12.6g     %12.4g     J/K\n",
                         cv_mass(), cv_mole());
                 s += p;
-            } catch (CanteraError) {
+            } catch (CanteraError& err) {
+                err.save();
                 sprintf(p, " heat capacity c_v    <not implemented>       \n");
                 s += p;
             }
@@ -661,8 +662,8 @@ std::string PureFluidPhase::report(bool show_thermo) const
         }
     }
     //}
-    catch (CanteraError) {
-        ;
+    catch (CanteraError& err) {
+        err.save();
     }
     return s;
 }
@@ -723,64 +724,64 @@ void PureFluidPhase::reportCSV(std::ofstream& csvFile) const
             getMassFractions(&y[0]);
             pNames.push_back("Y");
             data.push_back(y);
-        } catch (CanteraError) {
-            ;
+        } catch (CanteraError& err) {
+            err.save();
         }
         try {
             getChemPotentials(&mu[0]);
             pNames.push_back("Chem. Pot (J/kmol)");
             data.push_back(mu);
-        } catch (CanteraError) {
-            ;
+        } catch (CanteraError& err) {
+            err.save();
         }
         try {
             getActivities(&a[0]);
             pNames.push_back("Activity");
             data.push_back(a);
-        } catch (CanteraError) {
-            ;
+        } catch (CanteraError& err) {
+            err.save();
         }
         try {
             getActivityCoefficients(&ac[0]);
             pNames.push_back("Act. Coeff.");
             data.push_back(ac);
-        } catch (CanteraError) {
-            ;
+        } catch (CanteraError& err) {
+            err.save();
         }
         try {
             getPartialMolarEnthalpies(&hbar[0]);
             pNames.push_back("Part. Mol Enthalpy (J/kmol)");
             data.push_back(hbar);
-        } catch (CanteraError) {
-            ;
+        } catch (CanteraError& err) {
+            err.save();
         }
         try {
             getPartialMolarEntropies(&sbar[0]);
             pNames.push_back("Part. Mol. Entropy (J/K/kmol)");
             data.push_back(sbar);
-        } catch (CanteraError) {
-            ;
+        } catch (CanteraError& err) {
+            err.save();
         }
         try {
             getPartialMolarIntEnergies(&ubar[0]);
             pNames.push_back("Part. Mol. Energy (J/kmol)");
             data.push_back(ubar);
-        } catch (CanteraError) {
-            ;
+        } catch (CanteraError& err) {
+            err.save();
         }
         try {
             getPartialMolarCp(&cpbar[0]);
             pNames.push_back("Part. Mol. Cp (J/K/kmol");
             data.push_back(cpbar);
-        } catch (CanteraError) {
-            ;
+        } catch (CanteraError& err) {
+            err.save();
         }
         try {
             getPartialMolarVolumes(&vbar[0]);
             pNames.push_back("Part. Mol. Cv (J/K/kmol)");
             data.push_back(vbar);
-        } catch (CanteraError) {
-            ;
+        } catch (CanteraError& err) {
+            err.save();
         }
 
         csvFile << endl << setw(tabS) << "Species,";
@@ -807,8 +808,8 @@ void PureFluidPhase::reportCSV(std::ofstream& csvFile) const
                 csvFile << endl;
             }
         }
-    } catch (CanteraError) {
-        ;
+    } catch (CanteraError& err) {
+        err.save();
     }
 }
 }

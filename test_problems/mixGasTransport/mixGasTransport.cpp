@@ -241,8 +241,9 @@ int main(int argc, char** argv)
         }
 
 
-    } catch (CanteraError) {
-        showErrors(cout);
+    } catch (CanteraError& err) {
+        std::cout << err.what() << std::endl;
+        return -1;
     }
 
     return 0;

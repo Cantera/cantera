@@ -309,7 +309,8 @@ int ChemEquil::setInitialMoles(thermo_t& s, vector_fp& elMoleGoal,
         delete e;
         delete mp;
         iok = 0;
-    } catch (CanteraError) {
+    } catch (CanteraError& err) {
+        err.save();
         delete e;
         delete mp;
         iok = -1;
@@ -416,7 +417,8 @@ int ChemEquil::estimateElementPotentials(thermo_t& s, vector_fp& lambda_RT,
     int info;
     try {
         info = solve(aa, DATA_PTR(b));
-    } catch (CanteraError) {
+    } catch (CanteraError& err) {
+        err.save();
         if (loglevel > 0) {
             addLogEntry("failed to estimate initial element potentials.");
         }
@@ -912,7 +914,8 @@ next:
      */
     try {
         info = solve(jac, DATA_PTR(res_trial));
-    } catch (CanteraError) {
+    } catch (CanteraError& err) {
+        err.save();
         addLogEntry("Jacobian is singular.");
         endLogGroup(); // iteration
         endLogGroup(); // equilibrate
@@ -1855,7 +1858,8 @@ int ChemEquil::estimateEP_Brinkley(thermo_t& s, vector_fp& x,
 
         try {
             solve(a1, DATA_PTR(resid));
-        } catch (CanteraError) {
+        } catch (CanteraError& err) {
+            err.save();
             addLogEntry("estimateEP_Brinkley:Jacobian is singular.");
 #ifdef DEBUG_MODE
             if (ChemEquil_print_lvl > 0) {

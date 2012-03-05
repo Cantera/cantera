@@ -35,7 +35,7 @@ int main(int argc, char** argv)
     _set_output_format(_TWO_DIGIT_EXPONENT);
 #endif
     try {
-
+        //throw ArraySizeError("MadeUpFunction", 12, 22);
 
         IdealGasMix g("gasNASA9.xml", "gri30_mix");
         int nsp = g.nSpecies();
@@ -84,8 +84,11 @@ int main(int argc, char** argv)
             printf("    %13g %13.5g %13.5g\n", T1, visc, cond);
         }
 
-    } catch (CanteraError) {
+    } catch (CanteraError& err) {
+        err.save();
+//        cout << err.what() << endl;
         showErrors(cout);
+        return 1;
     }
 
     return 0;

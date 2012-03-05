@@ -819,14 +819,15 @@ std::string MolarityIonicVPSSTP::report(bool show_thermo) const
                 sprintf(p, " heat capacity c_v    %12.6g     %12.4g     J/K\n",
                         cv_mass(), cv_mole());
                 s += p;
-            } catch (CanteraError) {
+            } catch (CanteraError& err) {
+                err.save();
                 sprintf(p, " heat capacity c_v    <not implemented>       \n");
                 s += p;
             }
         }
 
-    } catch (CanteraError) {
-        ;
+    } catch (CanteraError& err) {
+        err.save();
     }
     return s;
 }

@@ -304,8 +304,8 @@ void Sim1D::solve(int loglevel, bool refine_grid)
 
             }
 
-            catch (CanteraError) {
-
+            catch (CanteraError& err) {
+                err.save();
                 popError();
                 char buf[100];
                 if (loglevel > 0) {

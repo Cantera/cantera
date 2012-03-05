@@ -47,8 +47,8 @@ int main(int argc, char** argv)
         cout << g;
 
         return 0;
-    } catch (CanteraError) {
-        showErrors(cerr);
+    } catch (CanteraError& err) {
+        std::cerr << err.what() << std::endl;
         cerr << "program terminating." << endl;
         return -1;
     }

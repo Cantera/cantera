@@ -304,7 +304,8 @@ int main()
             Hset += deltaH;
             try {
                 w->setState_HP(Hset, OneAtm);
-            } catch (CanteraError) {
+            } catch (CanteraError& err) {
+                err.save();
                 printf(" %10g, -> Failed to converge, beyond the spinodal probably \n\n", Hset);
                 popError();
                 break;
@@ -324,9 +325,8 @@ int main()
         printf("Critical Dens     = %10.3g kg/m3\n", w->critDensity());
 
         delete w;
-    } catch (CanteraError) {
-
-        showErrors();
+    } catch (CanteraError& err) {
+        std::cout << err.what() << std::endl;
         Cantera::appdelete();
         return -1;
     }
