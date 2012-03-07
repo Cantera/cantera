@@ -21,6 +21,9 @@ if localenv['OS'] == 'Windows':
     if localenv['CC'] == 'cl':
         linkflags.append('/export:mexFunction')
         linkflags.append('/MACHINE:X%i' % localenv['OS_BITS'])
+    elif localenv['CC'] == 'gcc':
+        linkflags.append('-Wl,--export-all-symbols')
+        linkflags.extend(['-static-libgcc', '-static-libstdc++'])
 
 elif localenv['OS'] == 'Darwin':
     linklibs = ['cantera']
@@ -55,6 +58,7 @@ linklibs += localenv['blas_lapack_libs']
 
 ctmethods = build(localenv.SharedLibrary('#interfaces/matlab/toolbox/ctmethods',
                                          mglob(localenv, '.', 'cpp'),
+                                         LIBPREFIX='',
                                          SHLIBPREFIX='',
                                          SHLIBSUFFIX=mexSuffix,
                                          LIBS=linklibs,
