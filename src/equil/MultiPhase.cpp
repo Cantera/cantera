@@ -25,7 +25,7 @@ MultiPhase::MultiPhase() :
     m_nel(0),
     m_nsp(0),
     m_init(false),
-    m_eloc(-1),
+    m_eloc(npos),
     m_Tmin(1.0),
     m_Tmax(100000.0)
 {
@@ -42,7 +42,7 @@ MultiPhase::MultiPhase(const MultiPhase& right) :
     m_nel(0),
     m_nsp(0),
     m_init(false),
-    m_eloc(-1),
+    m_eloc(npos),
     m_Tmin(1.0),
     m_Tmax(100000.0)
 {
@@ -1022,7 +1022,7 @@ size_t MultiPhase::elementIndex(std::string name) const
             return e;
         }
     }
-    return -1;
+    return npos;
 }
 //====================================================================================================================
 // Name of species with global index \a k.

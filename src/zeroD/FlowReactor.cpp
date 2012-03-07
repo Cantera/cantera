@@ -140,7 +140,7 @@ size_t FlowReactor::componentIndex(string nm) const
     if (k != npos) {
         return k + 2;
     } else {
-        return -1;
+        return npos;
     }
 }
 

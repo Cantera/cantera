@@ -243,7 +243,7 @@ public:
      */
     size_t phaseIndex(std::string ph) {
         if (m_phaseindex.find(ph) == m_phaseindex.end()) {
-            return -1;
+            return npos;
         } else {
             return m_phaseindex[ph] - 1;
         }

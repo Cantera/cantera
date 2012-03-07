@@ -422,7 +422,7 @@ size_t Constituents::speciesIndex(std::string name) const
         }
         ++it;
     }
-    return  -1;
+    return npos;
 }
 
 /*

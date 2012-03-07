@@ -255,7 +255,7 @@ public:
      *
      * @param k    Species index
      */
-    virtual doublereal minTemp(size_t k = -1) const;
+    virtual doublereal minTemp(size_t k = npos) const;
 
     //! Maximum temperature.
     /*!
@@ -267,7 +267,7 @@ public:
      *
      * @param k index for parameterization k
      */
-    virtual doublereal maxTemp(size_t k = -1) const;
+    virtual doublereal maxTemp(size_t k = npos) const;
 
     /**
      * The reference-state pressure for species k.
@@ -282,7 +282,7 @@ public:
      *
      * @param k index for parameterization k
      */
-    virtual doublereal refPressure(size_t k = -1) const;
+    virtual doublereal refPressure(size_t k = npos) const;
 
     //! This utility function reports the type of parameterization
     //! used for the species with index number index.
@@ -434,19 +434,19 @@ public:
     /*!
      * @param k species index. Defaults to -1.
      */
-    virtual doublereal minTemp(size_t k = -1) const;
+    virtual doublereal minTemp(size_t k = npos) const;
 
     //! Returns the maximum temperature
     /*!
      * @param k species index. Defaults to -1.
      */
-    virtual doublereal maxTemp(size_t k = -1) const;
+    virtual doublereal maxTemp(size_t k = npos) const;
 
     //! returns the reference pressure
     /*!
      * @param k species index. Defaults to -1.
      */
-    virtual doublereal refPressure(size_t k = -1) const;
+    virtual doublereal refPressure(size_t k = npos) const;
 
     //! This utility function reports the type of parameterization
     //! used for the species with index number index.

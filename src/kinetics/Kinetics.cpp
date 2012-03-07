@@ -32,8 +32,8 @@ Kinetics::Kinetics() :
     m_thermo(0),
     m_start(0),
     m_phaseindex(),
-    m_surfphase(-1),
-    m_rxnphase(-1),
+    m_surfphase(npos),
+    m_rxnphase(npos),
     m_mindim(4),
     m_dummygroups(0)
 {
@@ -56,8 +56,8 @@ Kinetics::Kinetics(const Kinetics& right) :
     m_thermo(0),
     m_start(0),
     m_phaseindex(),
-    m_surfphase(-1),
-    m_rxnphase(-1),
+    m_surfphase(npos),
+    m_rxnphase(npos),
     m_mindim(4),
     m_dummygroups(0)
 {
@@ -297,7 +297,7 @@ size_t Kinetics::speciesPhaseIndex(size_t k)
         }
     }
     throw CanteraError("speciesPhaseIndex", "illegal species index: "+int2str(k));
-    return -1;
+    return npos;
 }
 
 /*

@@ -456,7 +456,7 @@ public:
 
     C_AnyN() :
         m_n(0),
-        m_rxn(-1) {
+        m_rxn(npos) {
     }
 
     C_AnyN(size_t rxn, const std::vector<size_t>& ic, const vector_fp& order, const vector_fp& stoich) :

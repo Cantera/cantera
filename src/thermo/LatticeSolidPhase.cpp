@@ -128,7 +128,7 @@ doublereal LatticeSolidPhase::minTemp(size_t k) const
     }
     doublereal mm = 1.0E300;
     for (size_t n = 0; n < m_nlattice; n++) {
-        double ml = (m_lattice[n])->minTemp(-1);
+        double ml = (m_lattice[n])->minTemp();
         mm = std::min(mm, ml);
     }
     return mm;
@@ -158,7 +158,7 @@ doublereal LatticeSolidPhase::maxTemp(size_t k) const
     }
     doublereal mm = -1.0E300;
     for (size_t n = 0; n < m_nlattice; n++) {
-        double ml = (m_lattice[n])->maxTemp(-1);
+        double ml = (m_lattice[n])->maxTemp();
         mm = std::max(mm, ml);
     }
     return mm;

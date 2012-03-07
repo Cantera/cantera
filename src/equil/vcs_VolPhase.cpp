@@ -31,12 +31,12 @@ namespace VCSnonideal
  */
 vcs_VolPhase::vcs_VolPhase(VCS_SOLVE* owningSolverObject) :
     m_owningSolverObject(0),
-    VP_ID_(-1),
+    VP_ID_(npos),
     Domain_ID(-1),
     m_singleSpecies(true),
     m_gasPhase(false),
     m_eqnState(VCS_EOS_CONSTANT),
-    ChargeNeutralityElement(-1),
+    ChargeNeutralityElement(npos),
     p_VCS_UnitsFormat(VCS_UNITS_MKS),
     p_activityConvention(0),
     m_numElemConstraints(0),
@@ -52,7 +52,7 @@ vcs_VolPhase::vcs_VolPhase(VCS_SOLVE* owningSolverObject) :
     v_totalMoles(0.0),
     creationMoleNumbers_(0),
     creationGlobalRxnNumbers_(0),
-    m_phiVarIndex(-1),
+    m_phiVarIndex(npos),
     m_totalVol(0.0),
     m_vcsStateStatus(VCS_STATECALC_OLD),
     m_phi(0.0),
@@ -114,7 +114,7 @@ vcs_VolPhase::vcs_VolPhase(const vcs_VolPhase& b) :
     v_totalMoles(b.v_totalMoles),
     creationMoleNumbers_(0),
     creationGlobalRxnNumbers_(0),
-    m_phiVarIndex(-1),
+    m_phiVarIndex(npos),
     m_totalVol(b.m_totalVol),
     m_vcsStateStatus(VCS_STATECALC_OLD),
     m_phi(b.m_phi),
@@ -251,7 +251,7 @@ void vcs_VolPhase::resize(const size_t phaseNum, const size_t nspecies,
 #endif
     setTotalMolesInert(molesInert);
     m_phi = 0.0;
-    m_phiVarIndex = -1;
+    m_phiVarIndex = npos;
 
     if (phaseNum == VP_ID_) {
         if (strcmp(PhaseName.c_str(), phaseName)) {
@@ -285,7 +285,7 @@ void vcs_VolPhase::resize(const size_t phaseNum, const size_t nspecies,
     }
 
 
-    IndSpecies.resize(nspecies, -1);
+    IndSpecies.resize(nspecies, npos);
 
     if (ListSpeciesPtr.size() >= m_numSpecies) {
         for (size_t i = 0; i < m_numSpecies; i++) {
@@ -302,7 +302,7 @@ void vcs_VolPhase::resize(const size_t phaseNum, const size_t nspecies,
 
     Xmol_.resize(nspecies, 0.0);
     creationMoleNumbers_.resize(nspecies, 0.0);
-    creationGlobalRxnNumbers_.resize(nspecies, -1);
+    creationGlobalRxnNumbers_.resize(nspecies, npos);
     for (size_t i = 0; i < nspecies; i++) {
         Xmol_[i] = 1.0/nspecies;
         creationMoleNumbers_[i] = 1.0/nspecies;
@@ -342,7 +342,7 @@ void vcs_VolPhase::elemResize(const size_t numElemConstraints)
     m_formulaMatrix.resize(numElemConstraints, m_numSpecies, 0.0);
 
     m_elementNames.resize(numElemConstraints, "");
-    m_elemGlobalIndex.resize(numElemConstraints, -1);
+    m_elemGlobalIndex.resize(numElemConstraints, npos);
 
     m_numElemConstraints = numElemConstraints;
 }
@@ -1700,9 +1700,9 @@ void vcs_VolPhase::setElementType(const size_t e, const int eType)
 }
 /***************************************************************************/
 
-double const* const* const vcs_VolPhase::getFormulaMatrix() const
+double const* const* vcs_VolPhase::getFormulaMatrix() const
 {
-    double const* const* const fm = m_formulaMatrix.constBaseDataAddr();
+    double const* const* fm = m_formulaMatrix.constBaseDataAddr();
     return fm;
 }
 /***************************************************************************/

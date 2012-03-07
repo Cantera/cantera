@@ -56,7 +56,7 @@ public:
     virtual void reinitialize(double t0, FuncEval& func);
     virtual void integrate(double tout);
     virtual doublereal step(double tout);
-    virtual double& solution(int k);
+    virtual double& solution(size_t k);
     virtual double* solution();
     virtual int nEquations() const {
         return m_neq;

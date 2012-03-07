@@ -125,13 +125,13 @@ BEulerInt::~BEulerInt()
     SAFE_DELETE(tdjac_ptr);
 }
 //================================================================================================
-void BEulerInt::setTolerances(double reltol, int n, double* abstol)
+void BEulerInt::setTolerances(double reltol, size_t n, double* abstol)
 {
     m_itol = 1;
     if (!m_abstol) {
         m_abstol = mdp_alloc_dbl_1(m_neq, MDP_DBL_NOINIT);
     }
-    if (n != m_neq) {
+    if (static_cast<int>(n) != m_neq) {
         printf("ERROR n is wrong\n");
         exit(-1);
     }

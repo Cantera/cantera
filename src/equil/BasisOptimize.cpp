@@ -237,7 +237,7 @@ size_t Cantera::BasisOptimize(int* usedZeroedSpecies, bool doFormRxn,
 #endif
 
 
-    size_t jr = -1;
+    size_t jr = npos;
     /*
      *   Top of a loop of some sort based on the index JR. JR is the
      *   current number of component species found.
@@ -752,7 +752,7 @@ size_t Cantera::ElemRearrange(size_t nComponents, const vector_fp& elementAbunda
      *        Top of a loop of some sort based on the index JR. JR is the
      *       current number independent elements found.
      */
-    jr = -1;
+    jr = npos;
     do {
         ++jr;
         /*

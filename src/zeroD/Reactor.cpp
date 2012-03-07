@@ -28,7 +28,7 @@ Reactor::Reactor() : ReactorBase(),
     m_Q(0.0),
     m_rtol(1.e-9),
     m_chem(true),
-    m_energy(true), m_nsens(-1)
+    m_energy(true), m_nsens(npos)
 {}
 
 // overloaded method of FuncEval. Called by the integrator to
@@ -376,7 +376,7 @@ size_t Reactor::componentIndex(string nm) const
             }
         }
     }
-    return -1;
+    return npos;
 }
 
 }

@@ -123,12 +123,12 @@ void LiquidTranInteraction::init(const XML_Node& compModelNode,
         speciesA = xmlChild.attrib("speciesA");
         speciesB = xmlChild.attrib("speciesB");
         size_t iSpecies = m_thermo->speciesIndex(speciesA);
-        if (iSpecies < 0) {
+        if (iSpecies == npos) {
             throw CanteraError("TransportFactory::getLiquidInteractionsTransportData",
                                "Unknown species " + speciesA);
         }
         size_t jSpecies = m_thermo->speciesIndex(speciesB);
-        if (jSpecies < 0)  {
+        if (jSpecies == npos)  {
             throw CanteraError("TransportFactory::getLiquidInteractionsTransportData",
                                "Unknown species " + speciesB);
         }

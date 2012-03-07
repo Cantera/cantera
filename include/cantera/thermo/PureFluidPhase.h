@@ -264,7 +264,7 @@ public:
      *   Returns the standard concentration. The units are by definition
      *   dependent on the ThermoPhase and kinetics manager representation.
      */
-    virtual doublereal standardConcentration(int k=0) const;
+    virtual doublereal standardConcentration(size_t k=0) const;
 
     //! Get the array of non-dimensional activities at
     //! the current solution temperature, pressure, and solution concentration.

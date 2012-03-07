@@ -307,7 +307,7 @@ size_t ConstPressureReactor::componentIndex(string nm) const
             }
         }
     }
-    return -1;
+    return npos;
 }
 
 }

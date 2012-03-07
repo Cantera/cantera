@@ -441,7 +441,7 @@ size_t BandMatrix::checkRows(doublereal& valueSmall) const
     for (size_t i = 0; i < m_n; i++) {
         double valueS = 0.0;
         for (size_t j = i - m_kl; j <= i + m_ku; j++) {
-            if (j >= 0 && (j < m_n)) {
+            if (j < m_n) {
                 vv = fabs(value(i,j));
                 if (vv > valueS) {
                     valueS = vv;
@@ -467,7 +467,7 @@ size_t BandMatrix::checkColumns(doublereal& valueSmall) const
     for (size_t j = 0; j < m_n; j++) {
         double valueS = 0.0;
         for (size_t i = j - m_ku; i <= j + m_kl; i++) {
-            if (i >= 0 && (i < m_n)) {
+            if (i < m_n) {
                 vv = fabs(value(i,j));
                 if (vv > valueS) {
                     valueS = vv;

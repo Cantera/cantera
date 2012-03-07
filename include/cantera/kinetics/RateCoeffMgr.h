@@ -58,7 +58,7 @@ public:
                 return m_rates.size() - 1;
             }
         }
-        return -1;
+        return npos;
     }
 
     /**

@@ -60,11 +60,11 @@ ImplicitSurfChem::ImplicitSurfChem(vector<InterfaceKinetics*> k) :
 
         size_t nPhases = kinPtr->nPhases();
         vector_int pLocTmp(nPhases);
-        size_t imatch = -1;
+        size_t imatch = npos;
         for (size_t ip = 0; ip < nPhases; ip++) {
             if (ip != ns) {
                 ThermoPhase* thPtr = & kinPtr->thermo(ip);
-                if ((imatch = checkMatch(m_bulkPhases, thPtr)) == -1) {
+                if ((imatch = checkMatch(m_bulkPhases, thPtr)) == npos) {
                     m_bulkPhases.push_back(thPtr);
                     m_numBulkPhases++;
                     nsp = thPtr->nSpecies();

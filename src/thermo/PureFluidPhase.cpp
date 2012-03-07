@@ -314,7 +314,7 @@ void  PureFluidPhase::getActivityConcentrations(doublereal* c) const
     c[0] = 1.0;
 }
 //====================================================================================================================
-doublereal PureFluidPhase::standardConcentration(int k) const
+doublereal PureFluidPhase::standardConcentration(size_t k) const
 {
     return 1.0;
 }

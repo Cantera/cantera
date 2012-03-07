@@ -432,7 +432,7 @@ public:
      *             Flat vector with the m_nsp in the inner loop.
      *             length = ldx * ndim
      */
-    virtual void getSpeciesVdiff(int ndim,
+    virtual void getSpeciesVdiff(size_t ndim,
                                  const doublereal* grad_T,
                                  int ldx,
                                  const doublereal* grad_X,
@@ -465,7 +465,7 @@ public:
      *                   Flat vector with the m_nsp in the inner loop.
      *                     length = ldx * ndim
      */
-    virtual void getSpeciesVdiffES(int ndim, const doublereal* grad_T,
+    virtual void getSpeciesVdiffES(size_t ndim, const doublereal* grad_T,
                                    int ldx,  const doublereal* grad_X,
                                    int ldf,  const doublereal* grad_Phi,
                                    doublereal* Vdiff);

@@ -788,7 +788,7 @@ void NonlinearSolver::scaleMatrix(GeneralMatrix& jac, doublereal* const y_comm, 
                 for (jcol = 0; jcol < neq_; jcol++) {
                     colP_j = (doublereal*) jac.ptrColumn(jcol);
                     for (irow = jcol - ku; irow <= jcol + kl; irow++) {
-                        if (irow >= 0 && irow < neq_) {
+                        if (irow < neq_) {
                             colP_j[kl + ku + irow - jcol] *= m_colScales[jcol];
                         }
                     }
@@ -833,7 +833,7 @@ void NonlinearSolver::scaleMatrix(GeneralMatrix& jac, doublereal* const y_comm, 
             for (jcol = 0; jcol < neq_; jcol++) {
                 colP_j = (doublereal*) jac.ptrColumn(jcol);
                 for (irow = jcol - ku; irow <= jcol + kl; irow++) {
-                    if (irow >= 0 && irow < neq_) {
+                    if (irow < neq_) {
                         double vv = fabs(colP_j[kl + ku + irow - jcol]);
                         if (m_rowScaling) {
                             m_rowScales[irow] += vv;
@@ -876,7 +876,7 @@ void NonlinearSolver::scaleMatrix(GeneralMatrix& jac, doublereal* const y_comm, 
                 for (jcol = 0; jcol < neq_; jcol++) {
                     colP_j = (doublereal*) jac.ptrColumn(jcol);
                     for (irow = jcol - ku; irow <= jcol + kl; irow++) {
-                        if (irow >= 0 && irow < neq_) {
+                        if (irow < neq_) {
                             colP_j[kl + ku + irow - jcol] *= m_rowScales[irow];
                         }
                     }
@@ -3879,7 +3879,7 @@ int NonlinearSolver::beuler_jac(GeneralMatrix& J, doublereal* const f,
 
 
                 for (size_t i = j - ku; i <= j + kl; i++) {
-                    if (i >= 0 &&  i < neq_) {
+                    if (i < neq_) {
                         diff = subtractRD(m_wksp[i], f[i]);
                         col_j[kl + ku + i - j] = diff / dy;
                     }

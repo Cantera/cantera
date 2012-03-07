@@ -37,7 +37,7 @@ MolalityVPSSTP::MolalityVPSSTP() :
     VPStandardStateTP(),
     m_indexSolvent(0),
     m_pHScalingType(PHSCALE_PITZER),
-    m_indexCLM(-1),
+    m_indexCLM(npos),
     m_weightSolvent(18.01528),
     m_xmolSolventMIN(0.01),
     m_Mnaught(18.01528E-3)
@@ -334,9 +334,9 @@ void MolalityVPSSTP::setMolalitiesByName(compositionMap& mMap)
     /*
      * check charge neutrality
      */
-    size_t largePos = -1;
+    size_t largePos = npos;
     double cPos = 0.0;
-    size_t largeNeg = -1;
+    size_t largeNeg = npos;
     double cNeg = 0.0;
     double sum = 0.0;
     for (size_t k = 0; k < kk; k++) {
@@ -735,9 +735,9 @@ void MolalityVPSSTP::applyphScale(doublereal* acMolality) const
  */
 size_t MolalityVPSSTP::findCLMIndex() const
 {
-    size_t indexCLM = -1;
-    size_t eCl = -1;
-    size_t eE = -1;
+    size_t indexCLM = npos;
+    size_t eCl = npos;
+    size_t eE = npos;
     size_t ne = nElements();
     string sn;
     for (size_t e = 0; e < ne; e++) {
@@ -749,7 +749,7 @@ size_t MolalityVPSSTP::findCLMIndex() const
     }
     // We have failed if we can't find the Cl element index
     if (eCl == npos) {
-        return -1;
+        return npos;
     }
     for (size_t e = 0; e < ne; e++) {
         sn = elementName(e);

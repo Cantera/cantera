@@ -659,7 +659,7 @@ public:
      *
      * @param k    Species index
      */
-    virtual doublereal minTemp(size_t k=-1) const ;
+    virtual doublereal minTemp(size_t k=npos) const ;
 
     //! Maximum temperature.
     /*!
@@ -671,7 +671,7 @@ public:
      *
      * @param k  Species Index
      */
-    virtual doublereal maxTemp(size_t k=-1) const;
+    virtual doublereal maxTemp(size_t k=npos) const;
 
     //! The reference-state pressure for the standard state
     /*!
@@ -687,7 +687,7 @@ public:
      * @param k Species index. Default is -1, which returns
      *          the generic answer.
      */
-    virtual doublereal refPressure(size_t k = -1) const ;
+    virtual doublereal refPressure(size_t k=npos) const ;
 
 
     //@}

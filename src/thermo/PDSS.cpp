@@ -34,7 +34,7 @@ PDSS::PDSS() :
     m_tp(0),
     m_vpssmgr_ptr(0),
     m_mw(0.0),
-    m_spindex(-1),
+    m_spindex(npos),
     m_spthermo(0),
     m_h0_RT_ptr(0),
     m_cp0_R_ptr(0),

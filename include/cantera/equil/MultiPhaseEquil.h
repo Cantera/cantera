@@ -46,7 +46,7 @@ public:
         if (m < m_nel) {
             return m_order[m];
         } else {
-            return -1;
+            return npos;
         }
     }
 

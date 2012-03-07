@@ -443,9 +443,9 @@ extern "C" {
     {
         try {
             if (flag > 0) {
-                _stflow(i)->solveSpecies(-1);
+                _stflow(i)->solveSpecies(npos);
             } else {
-                _stflow(i)->fixSpecies(-1);
+                _stflow(i)->fixSpecies(npos);
             }
             return 0;
         } catch (...) {
@@ -458,9 +458,9 @@ extern "C" {
     {
         try {
             if (flag > 0) {
-                _stflow(i)->solveEnergyEqn(-1);
+                _stflow(i)->solveEnergyEqn(npos);
             } else {
-                _stflow(i)->fixTemperature(-1);
+                _stflow(i)->fixTemperature(npos);
             }
             return 0;
         } catch (...) {

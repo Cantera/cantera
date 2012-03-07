@@ -48,7 +48,7 @@ void SpeciesThermoInterpType::modifyOneHf298(const int k, const doublereal Hf298
 
 //! Constructor
 STITbyPDSS::STITbyPDSS() :
-    m_speciesIndex(-1)
+    m_speciesIndex(npos)
 {
 }
 

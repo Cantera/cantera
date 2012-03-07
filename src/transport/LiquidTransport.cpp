@@ -1151,7 +1151,7 @@ void LiquidTransport::getSpeciesFluxes(size_t ndim,
  *             Flat vector with the m_nsp in the inner loop.
  *             length = ldx * ndim
  */
-void LiquidTransport::getSpeciesFluxesES(int ndim,
+void LiquidTransport::getSpeciesFluxesES(size_t ndim,
         const doublereal* grad_T,
         int ldx,
         const doublereal* grad_X,

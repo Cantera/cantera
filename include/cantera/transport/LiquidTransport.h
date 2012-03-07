@@ -639,7 +639,7 @@ public:
      *                  Flat vector with the m_nsp in the inner loop.
      *                     length = ldx * ndim
      */
-    virtual void getSpeciesFluxesES(int ndim,
+    virtual void getSpeciesFluxesES(size_t ndim,
                                     const doublereal* grad_T,
                                     int ldx,
                                     const doublereal* grad_X,

@@ -311,7 +311,7 @@ size_t Elements::elementIndex(std::string name) const
             return i;
         }
     }
-    return -1;
+    return npos;
 }
 #endif
 

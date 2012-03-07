@@ -88,7 +88,7 @@ public:
         writelog("Bdry1D::_getInitialSoln called!\n");
     }
 
-    virtual void setupGrid(int n, const doublereal* z) {}
+    virtual void setupGrid(size_t n, const doublereal* z) {}
 
 protected:
 

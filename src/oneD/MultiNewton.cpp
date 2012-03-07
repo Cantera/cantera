@@ -109,7 +109,7 @@ void MultiNewton::step(doublereal* x, doublereal* step,
 {
     size_t iok;
     size_t sz = r.size();
-    r.eval(-1, x, step);
+    r.eval(npos, x, step);
 #undef DEBUG_STEP
 #ifdef DEBUG_STEP
     vector_fp ssave(sz, 0.0);
@@ -324,7 +324,7 @@ int MultiNewton::solve(doublereal* x0, doublereal* x1,
         }
 
         if (forceNewJac) {
-            r.eval(-1, x, stp, 0.0, 0);
+            r.eval(npos, x, stp, 0.0, 0);
             jac.eval(x, stp, 0.0);
             jac.updateTransient(rdt, DATA_PTR(r.transientMask()));
             forceNewJac = false;

@@ -294,7 +294,7 @@ getActivityConcentrations(doublereal* c) const
  * by which the generalized concentration is normalized to produce
  * the activity.
  */
-doublereal FixedChemPotSSTP::standardConcentration(int k) const
+doublereal FixedChemPotSSTP::standardConcentration(size_t k) const
 {
     return 1.0;
 }
@@ -303,7 +303,7 @@ doublereal FixedChemPotSSTP::standardConcentration(int k) const
  * Returns the natural logarithm of the standard
  * concentration of the kth species
  */
-doublereal FixedChemPotSSTP::logStandardConc(int k) const
+doublereal FixedChemPotSSTP::logStandardConc(size_t k) const
 {
     return 0.0;
 }
