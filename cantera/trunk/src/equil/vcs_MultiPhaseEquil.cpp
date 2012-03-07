@@ -1488,7 +1488,7 @@ void vcs_MultiPhaseEquil::getStoichVector(index_t rxn, Cantera::vector_fp& nu)
 
 size_t vcs_MultiPhaseEquil::numComponents() const
 {
-    size_t nc = -1;
+    size_t nc = npos;
     if (m_vsolvePtr) {
         nc =  m_vsolvePtr->m_numComponents;
     }
@@ -1497,7 +1497,7 @@ size_t vcs_MultiPhaseEquil::numComponents() const
 
 size_t vcs_MultiPhaseEquil::numElemConstraints() const
 {
-    size_t nec = -1;
+    size_t nec = npos;
     if (m_vsolvePtr) {
         nec =  m_vsolvePtr->m_numElemConstraints;
     }
@@ -1511,7 +1511,7 @@ size_t vcs_MultiPhaseEquil::component(size_t m) const
     if (m < nc) {
         return m_vsolvePtr->m_speciesMapIndex[m];
     } else {
-        return -1;
+        return npos;
     }
 }
 

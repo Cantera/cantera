@@ -119,19 +119,19 @@ void IntStarStar::resize(size_t m, size_t n, int v)
     }
 }
 
-int* const IntStarStar::operator[](size_t jcol)
+int* IntStarStar::operator[](size_t jcol)
 {
     return m_colAddr[jcol];
 }
 
-const int* const IntStarStar::operator[](size_t jcol) const
+const int* IntStarStar::operator[](size_t jcol) const
 {
-    return (const int * const) m_colAddr[jcol];
+    return (const int*) m_colAddr[jcol];
 }
 
-int* const* const IntStarStar::baseDataAddr()
+int* const* IntStarStar::baseDataAddr()
 {
-    return (int * const * const) &(m_colAddr[0]);
+    return (int* const*) &(m_colAddr[0]);
 }
 
 /// Number of rows

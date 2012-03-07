@@ -71,7 +71,7 @@ public:
     BEulerInt();
     //! Destructor
     virtual ~BEulerInt();
-    virtual void setTolerances(double reltol, int n, double* abstol);
+    virtual void setTolerances(double reltol, size_t n, double* abstol);
     virtual void setTolerances(double reltol, double abstol);
     virtual void setProblemType(int probtype);
     virtual void initializeRJE(double t0, ResidJacEval& func);
@@ -79,7 +79,7 @@ public:
     virtual double integrateRJE(double tout, double tinit = 0.0);
     virtual doublereal step(double tout);
     virtual void setSolnWeights();
-    virtual double& solution(int k) {
+    virtual double& solution(size_t k) {
         return m_y_n[k];
     }
     double* solution() {

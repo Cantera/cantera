@@ -581,7 +581,7 @@ public:
      *               length = ldx * ndim
      *               units are m / s.
      */
-    virtual void getSpeciesVdiff(int ndim,
+    virtual void getSpeciesVdiff(size_t ndim,
                                  const doublereal* grad_T,
                                  int ldx,
                                  const doublereal* grad_X,
@@ -613,7 +613,7 @@ public:
      *               length = ldx * ndim
      *               units are m / s.
      */
-    virtual void getSpeciesVdiffES(int ndim,
+    virtual void getSpeciesVdiffES(size_t ndim,
                                    const doublereal* grad_T,
                                    int ldx,
                                    const doublereal* grad_X,

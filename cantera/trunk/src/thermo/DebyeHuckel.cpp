@@ -1517,7 +1517,7 @@ initThermoXML(XML_Node& phaseNode, std::string id)
         std::string kname, jname;
         size_t jj = xspecies.size();
         for (size_t k = 0; k < m_kk; k++) {
-            size_t jmap = -1;
+            size_t jmap = npos;
             kname = speciesName(k);
             for (size_t j = 0; j < jj; j++) {
                 const XML_Node& sp = *xspecies[j];

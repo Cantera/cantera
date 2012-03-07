@@ -80,7 +80,7 @@ VCS_PROB::VCS_PROB(size_t nsp, size_t nel, size_t nph) :
     FormulaMatrix.resize(ne, nspecies, 0.0);
     SpeciesUnknownType.resize(nspecies, VCS_SPECIES_TYPE_MOLNUM);
     VolPM.resize(nspecies, 0.0);
-    PhaseID.resize(nspecies, -1);
+    PhaseID.resize(nspecies, npos);
     SpName.resize(nspecies, "");
     ElName.resize(ne, "");
     m_elType.resize(ne, VCS_ELEM_TYPE_ABSPOS);
@@ -387,7 +387,7 @@ void VCS_PROB::prob_report(int print_lvl)
 void VCS_PROB::addPhaseElements(vcs_VolPhase* volPhase)
 {
     size_t e, eVP;
-    size_t foundPos = -1;
+    size_t foundPos = npos;
     size_t neVP = volPhase->nElemConstraints();
     std::string en;
     std::string enVP;
@@ -395,7 +395,7 @@ void VCS_PROB::addPhaseElements(vcs_VolPhase* volPhase)
      * Loop through the elements in the vol phase object
      */
     for (eVP = 0; eVP < neVP; eVP++) {
-        foundPos = -1;
+        foundPos = npos;
         enVP = volPhase->elementName(eVP);
         /*
          * Search for matches with the existing elements.

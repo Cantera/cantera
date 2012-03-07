@@ -1539,8 +1539,8 @@ void getMatrixValues(const Cantera::XML_Node& node,
         key2 = rmm.substr(0,icolon);
         val = rmm.substr(icolon+1, rmm.size());
 
-        size_t icol = -1;
-        size_t irow = -1;
+        size_t icol = npos;
+        size_t irow = npos;
         for (size_t j = 0; j < szKey1; j++) {
             if (key1 == keyStringRow[j]) {
                 irow = j;

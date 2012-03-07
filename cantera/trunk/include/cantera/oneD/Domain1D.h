@@ -50,7 +50,7 @@ public:
         m_rdt(0.0),
         m_time(time),
         m_container(0),
-        m_index(-1),
+        m_index(npos),
         m_type(0),
         m_iloc(0),
         m_jstart(0),
@@ -67,14 +67,14 @@ public:
     }
 
     /// Domain type flag.
-    const int domainType() {
+    int domainType() {
         return m_type;
     }
 
     /**
      * The left-to-right location of this domain.
      */
-    const size_t domainIndex() {
+    size_t domainIndex() {
         return m_index;
     }
 
@@ -137,7 +137,7 @@ public:
     virtual void init() {  }
 
     virtual void setInitialState(doublereal* xlocal = 0) {}
-    virtual void setState(int point, const doublereal* state, doublereal* x) {}
+    virtual void setState(size_t point, const doublereal* state, doublereal* x) {}
 
     /**
      * Resize the domain to have nv components and np grid points.
@@ -308,10 +308,10 @@ public:
      * transient mode. Used only to print diagnostic output.
      */
     void evalss(doublereal* x, doublereal* r, integer* mask) {
-        eval(-1,x,r,mask,0.0);
+        eval(npos,x,r,mask,0.0);
     }
 
-    //! Evaluate the residual function at point j. If j < 0,
+    //! Evaluate the residual function at point j. If j == npos,
     //! evaluate the residual function at all points.
     /*!
      *   @param j   Grid point j

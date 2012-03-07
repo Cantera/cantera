@@ -35,7 +35,7 @@ public:
     typedef std::vector<Path*> path_list;
 
     /// Default constructor
-    SpeciesNode() : number(-1), name(""), value(0.0),
+    SpeciesNode() : number(npos), name(""), value(0.0),
         visible(false), m_in(0.0), m_out(0.0) {}
 
     /// Destructor
@@ -218,7 +218,7 @@ public:
 
     void addNode(size_t k, std::string nm, doublereal x = 0.0);
 
-    void displayOnly(size_t k=-1) {
+    void displayOnly(size_t k=npos) {
         m_local = k;
     }
 

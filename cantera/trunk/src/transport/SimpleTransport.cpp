@@ -636,7 +636,7 @@ void SimpleTransport::getThermalDiffCoeffs(doublereal* const dt)
  *             Flat vector with the m_nsp in the inner loop.
  *             length = ldx * ndim
  */
-void SimpleTransport::getSpeciesVdiff(int ndim,
+void SimpleTransport::getSpeciesVdiff(size_t ndim,
                                       const doublereal* grad_T,
                                       int ldx,
                                       const doublereal* grad_X,
@@ -687,7 +687,7 @@ void SimpleTransport::getSpeciesVdiff(int ndim,
  *                   Flat vector with the m_nsp in the inner loop.
  *                     length = ldx * ndim
  */
-void SimpleTransport::getSpeciesVdiffES(int ndim, const doublereal* grad_T,
+void SimpleTransport::getSpeciesVdiffES(size_t ndim, const doublereal* grad_T,
                                         int ldx,  const doublereal* grad_X,
                                         int ldf,  const doublereal* grad_Phi,
                                         doublereal* Vdiff)

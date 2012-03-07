@@ -232,7 +232,7 @@ void OneDim::resize()
 int OneDim::solve(doublereal* x, doublereal* xnew, int loglevel)
 {
     if (!m_jac_ok) {
-        eval(-1, x, xnew, 0.0, 0);
+        eval(npos, x, xnew, 0.0, 0);
         m_jac->eval(x, xnew, 0.0);
         m_jac->updateTransient(m_rdt, DATA_PTR(m_mask));
         m_jac_ok = true;
@@ -246,7 +246,7 @@ void OneDim::evalSSJacobian(doublereal* x, doublereal* xnew)
     doublereal rdt_save = m_rdt;
     m_jac_ok = false;
     setSteadyMode();
-    eval(-1, x, xnew, 0.0, 0);
+    eval(npos, x, xnew, 0.0, 0);
     m_jac->eval(x, xnew, 0.0);
     m_rdt = rdt_save;
 }
@@ -313,7 +313,7 @@ void OneDim::eval(size_t j, double* x, double* r, doublereal rdt, int count)
  */
 doublereal OneDim::ssnorm(doublereal* x, doublereal* r)
 {
-    eval(-1, x, r, 0.0, 0);
+    eval(npos, x, r, 0.0, 0);
     doublereal ss = 0.0;
     for (size_t i = 0; i < m_size; i++) {
         ss = std::max(fabs(r[i]),ss);

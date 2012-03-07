@@ -11,7 +11,7 @@ static string lowercase(string s)
     size_t i, n = s.size();
     string lc(s);
     for (i = 0; i < n; i++) {
-        lc[i] = tolower(s[i]);
+        lc[i] = (char) tolower(s[i]);
     }
     return lc;
 }

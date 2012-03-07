@@ -117,7 +117,7 @@ ReactionPathDiagram::ReactionPathDiagram()
     show_details = false;
     arrow_hue = 0.6666;
     title = "";
-    m_local = -1;
+    m_local = npos;
 }
 
 

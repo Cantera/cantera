@@ -207,8 +207,8 @@ public:
         return "<none>";
     }
 
-    void solveEnergyEqn(int j=-1) {
-        if (j < 0)
+    void solveEnergyEqn(size_t j=npos) {
+        if (j == npos)
             for (size_t i = 0; i < m_points; i++) {
                 m_do_energy[i] = true;
             }

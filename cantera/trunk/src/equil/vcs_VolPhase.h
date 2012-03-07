@@ -567,7 +567,7 @@ public:
      *
      *   fm[e][f] is the formula matrix entry for element e for species k
      */
-    double const* const* const getFormulaMatrix() const;
+    double const* const* getFormulaMatrix() const;
 
     //! Returns the type of the species unknown
     /*!

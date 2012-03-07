@@ -98,7 +98,7 @@ int VCS_SOLVE::vcs_elem_rearrange(double* const aw, double* const sa,
      *        Top of a loop of some sort based on the index JR. JR is the
      *       current number independent elements found.
      */
-    jr = -1;
+    jr = npos;
     do {
         ++jr;
         /*

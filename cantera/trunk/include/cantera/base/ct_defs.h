@@ -199,7 +199,7 @@ typedef doublereal* workPtr;
 typedef const doublereal* const_workPtr;
 
 //! index returned by functions to indicate "no position"
-const size_t npos = -1;
+const size_t npos = static_cast<size_t>(-1);
 
 }  // namespace
 

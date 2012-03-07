@@ -59,13 +59,13 @@ public:
     /*!
      *  @param jcol Pointer to the top of the jth column
      */
-    int* const operator[](size_t jcol);
+    int* operator[](size_t jcol);
 
     //! Pointer to the top of the column
     /*!
      *  @param j Pointer to the top of the jth column
      */
-    const int* const operator[](size_t jcol) const;
+    const int* operator[](size_t jcol) const;
 
     //! Returns a int ** pointer to the base address
     /*!
@@ -73,7 +73,7 @@ public:
      *  This returns a int ** which can later be used in
      *  Imatrix[icol][irow] notation to get to the data
      */
-    int* const* const baseDataAddr();
+    int* const* baseDataAddr();
 
     //! Number of rows
     size_t nRows() const;

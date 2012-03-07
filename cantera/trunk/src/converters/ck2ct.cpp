@@ -278,9 +278,9 @@ static void addSpecies(FILE* f, string idtag, const ckr::Species& sp)
          * second letter, if needed.
          */
         nm = sp.elements[m].name;
-        nm[0] = toupper(nm[0]);
+        nm[0] = (char) toupper(nm[0]);
         if (nm.size() == 2) {
-            nm[1] = tolower(nm[1]);
+            nm[1] = (char) tolower(nm[1]);
         }
         /*
          *  Obtain the current number of atoms in the species.
@@ -480,9 +480,9 @@ void ck2ct(FILE* f, string idtag, ckr::CKReader& r, bool hastransport)
     string elnm;
     for (i = 0; i < nel; i++) {
         elnm = r.elements[i].name;
-        elnm[0] = toupper(elnm[0]);
+        elnm[0] = (char) toupper(elnm[0]);
         if (elnm.size() == 2) {
-            elnm[1] = tolower(elnm[1]);
+            elnm[1] = (char) tolower(elnm[1]);
         }
         emap[r.elements[i].name] = elnm;
         enames += " "+elnm+" ";

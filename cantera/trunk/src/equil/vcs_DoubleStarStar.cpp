@@ -119,24 +119,24 @@ void DoubleStarStar::resize(size_t m, size_t n, double v)
     }
 }
 
-double* const DoubleStarStar::operator[](size_t jcol)
+double* DoubleStarStar::operator[](size_t jcol)
 {
     return m_colAddr[jcol];
 }
 
-const double* const DoubleStarStar::operator[](size_t jcol) const
+const double* DoubleStarStar::operator[](size_t jcol) const
 {
-    return (const double * const) m_colAddr[jcol];
+    return (const double*) m_colAddr[jcol];
 }
 
-double* const* const DoubleStarStar::baseDataAddr()
+double* const* DoubleStarStar::baseDataAddr()
 {
-    return (double * const * const) &(m_colAddr[0]);
+    return (double* const*) &(m_colAddr[0]);
 }
 
-double const* const* const DoubleStarStar::constBaseDataAddr() const
+double const* const* DoubleStarStar::constBaseDataAddr() const
 {
-    return (double const * const * const) &(m_colAddr[0]);
+    return (double const* const*) &(m_colAddr[0]);
 }
 
 // Number of rows

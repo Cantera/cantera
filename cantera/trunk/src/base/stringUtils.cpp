@@ -105,7 +105,7 @@ std::string lowercase(const std::string& s)
     int n = static_cast<int>(s.size());
     std::string lc(s);
     for (int i = 0; i < n; i++) {
-        lc[i] = tolower(s[i]);
+        lc[i] = (char) tolower(s[i]);
     }
     return lc;
 }

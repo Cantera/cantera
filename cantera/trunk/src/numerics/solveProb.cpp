@@ -554,7 +554,7 @@ doublereal solveProb::calc_damping(doublereal x[], doublereal dxneg[], size_t di
      */
     if (damp > damp_old*3) {
         damp = damp_old*3;
-        *label = -1;
+        *label = npos;
     }
 
     /*
@@ -840,7 +840,7 @@ void solveProb::printIteration(int ioflag, doublereal damp, size_t label_d,
                 printf(" ");
             }
         }
-        if (label_d >= 0) {
+        if (label_d != npos) {
             k = label_d;
             printf(" %s", int2str(k).c_str());
         }
@@ -930,7 +930,7 @@ void solveProb::printFinal(int ioflag, doublereal damp, size_t label_d, size_t l
                 printf(" ");
             }
         }
-        if (label_d >= 0) {
+        if (label_d != npos) {
             k = label_d;
 
             printf(" %s", int2str(k).c_str());

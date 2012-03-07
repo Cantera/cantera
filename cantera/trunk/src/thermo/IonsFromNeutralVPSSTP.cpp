@@ -40,8 +40,8 @@ IonsFromNeutralVPSSTP::IonsFromNeutralVPSSTP() :
     GibbsExcessVPSSTP(),
     ionSolnType_(cIonSolnType_SINGLEANION),
     numNeutralMoleculeSpecies_(0),
-    indexSpecialSpecies_(-1),
-    indexSecondSpecialSpecies_(-1),
+    indexSpecialSpecies_(npos),
+    indexSecondSpecialSpecies_(npos),
     numCationSpecies_(0),
     numAnionSpecies_(0),
     numPassThroughSpecies_(0),
@@ -84,8 +84,8 @@ IonsFromNeutralVPSSTP::IonsFromNeutralVPSSTP(std::string inputFile, std::string 
     GibbsExcessVPSSTP(),
     ionSolnType_(cIonSolnType_SINGLEANION),
     numNeutralMoleculeSpecies_(0),
-    indexSpecialSpecies_(-1),
-    indexSecondSpecialSpecies_(-1),
+    indexSpecialSpecies_(npos),
+    indexSecondSpecialSpecies_(npos),
     numCationSpecies_(0),
     numAnionSpecies_(0),
     numPassThroughSpecies_(0),
@@ -106,8 +106,8 @@ IonsFromNeutralVPSSTP::IonsFromNeutralVPSSTP(XML_Node& phaseRoot, std::string id
     GibbsExcessVPSSTP(),
     ionSolnType_(cIonSolnType_SINGLEANION),
     numNeutralMoleculeSpecies_(0),
-    indexSpecialSpecies_(-1),
-    indexSecondSpecialSpecies_(-1),
+    indexSpecialSpecies_(npos),
+    indexSecondSpecialSpecies_(npos),
     numCationSpecies_(0),
     numAnionSpecies_(0),
     numPassThroughSpecies_(0),
@@ -136,8 +136,8 @@ IonsFromNeutralVPSSTP::IonsFromNeutralVPSSTP(const IonsFromNeutralVPSSTP& b) :
     GibbsExcessVPSSTP(),
     ionSolnType_(cIonSolnType_SINGLEANION),
     numNeutralMoleculeSpecies_(0),
-    indexSpecialSpecies_(-1),
-    indexSecondSpecialSpecies_(-1),
+    indexSpecialSpecies_(npos),
+    indexSecondSpecialSpecies_(npos),
     numCationSpecies_(0),
     numAnionSpecies_(0),
     numPassThroughSpecies_(0),
@@ -1233,7 +1233,7 @@ void IonsFromNeutralVPSSTP::initThermoXML(XML_Node& phaseNode, std::string id)
     }
 
     PDSS_IonsFromNeutral* speciesSS = 0;
-    indexSpecialSpecies_ = -1;
+    indexSpecialSpecies_ = npos;
     for (k = 0; k < m_kk; k++) {
         speciesSS = dynamic_cast<PDSS_IonsFromNeutral*>(providePDSS(k));
         if (!speciesSS) {
@@ -1259,7 +1259,7 @@ void IonsFromNeutralVPSSTP::initThermoXML(XML_Node& phaseNode, std::string id)
 
     vector<doublereal> fm_tmp(m_kk);
     for (size_t k = 0; k <  m_kk; k++) {
-        fm_invert_ionForNeutral[k] = -1;
+        fm_invert_ionForNeutral[k] = npos;
     }
     /*    for (int jNeut = 0; jNeut <  numNeutralMoleculeSpecies_; jNeut++) {
       fm_invert_ionForNeutral[jNeut] = -1;

@@ -40,7 +40,7 @@ MolarityIonicVPSSTP::MolarityIonicVPSSTP() :
     GibbsExcessVPSSTP(),
     PBType_(PBTYPE_PASSTHROUGH),
     numPBSpecies_(m_kk),
-    indexSpecialSpecies_(-1),
+    indexSpecialSpecies_(npos),
     numCationSpecies_(0),
     numAnionSpecies_(0),
     numPassThroughSpecies_(0),
@@ -60,7 +60,7 @@ MolarityIonicVPSSTP::MolarityIonicVPSSTP(std::string inputFile, std::string id) 
     GibbsExcessVPSSTP(),
     PBType_(PBTYPE_PASSTHROUGH),
     numPBSpecies_(m_kk),
-    indexSpecialSpecies_(-1),
+    indexSpecialSpecies_(npos),
     numCationSpecies_(0),
     numAnionSpecies_(0),
     numPassThroughSpecies_(0),
@@ -73,7 +73,7 @@ MolarityIonicVPSSTP::MolarityIonicVPSSTP(XML_Node& phaseRoot, std::string id) :
     GibbsExcessVPSSTP(),
     PBType_(PBTYPE_PASSTHROUGH),
     numPBSpecies_(m_kk),
-    indexSpecialSpecies_(-1),
+    indexSpecialSpecies_(npos),
     numCationSpecies_(0),
     numAnionSpecies_(0),
     numPassThroughSpecies_(0),
@@ -92,7 +92,7 @@ MolarityIonicVPSSTP::MolarityIonicVPSSTP(const MolarityIonicVPSSTP& b) :
     GibbsExcessVPSSTP(),
     PBType_(PBTYPE_PASSTHROUGH),
     numPBSpecies_(m_kk),
-    indexSpecialSpecies_(-1),
+    indexSpecialSpecies_(npos),
     numCationSpecies_(0),
     numAnionSpecies_(0),
     numPassThroughSpecies_(0),
@@ -510,7 +510,7 @@ void MolarityIonicVPSSTP::calcPseudoBinaryMoleFractions() const
         for (k = 0; k < m_kk; k++) {
             moleFractionsTmp_[k] = moleFractions_[k];
         }
-        kMax = -1;
+        kMax = npos;
         sumMax = 0.0;
         for (k = 0; k < cationList_.size(); k++) {
             kCat = cationList_[k];

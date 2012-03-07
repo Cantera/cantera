@@ -263,7 +263,7 @@ int VCS_SOLVE::vcs_elcorr(double aa[], double x[])
                 }
             } else {
                 int numCompNonZero = 0;
-                size_t compID = -1;
+                size_t compID = npos;
                 for (size_t kspec = 0; kspec < m_numComponents; kspec++) {
                     if (m_speciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
                         double eval = m_formulaMatrix[i][kspec];

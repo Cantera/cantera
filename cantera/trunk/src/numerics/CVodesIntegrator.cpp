@@ -160,7 +160,7 @@ CVodesIntegrator::~CVodesIntegrator()
     //delete[] m_iopt;
 }
 
-double& CVodesIntegrator::solution(int k)
+double& CVodesIntegrator::solution(size_t k)
 {
     return NV_Ith_S(nv(m_y),k);
 }

@@ -1079,8 +1079,8 @@ void MixedSolventElectrolyte::resizeNumInteractions(const size_t num)
     m_VSE_c_ij.resize(num, 0.0);
     m_VSE_d_ij.resize(num, 0.0);
 
-    m_pSpecies_A_ij.resize(num, -1);
-    m_pSpecies_B_ij.resize(num, -1);
+    m_pSpecies_A_ij.resize(num, npos);
+    m_pSpecies_B_ij.resize(num, npos);
 
 }
 //====================================================================================================================

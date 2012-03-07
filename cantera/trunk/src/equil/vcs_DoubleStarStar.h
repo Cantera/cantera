@@ -71,7 +71,7 @@ public:
      *
      * @return returns the pointer to the top of the jth column
      */
-    double* const operator[](size_t jcol);
+    double* operator[](size_t jcol);
 
     //! Returns a const Pointer to the top of the jth column
     /*!
@@ -79,7 +79,7 @@ public:
      *
      * @return returns the pointer to the top of the jth column
      */
-    const double* const operator[](size_t jcol) const;
+    const double* operator[](size_t jcol) const;
 
     //! Returns a double ** pointer to the base address
     /*!
@@ -87,7 +87,7 @@ public:
      *  This returns a double ** which can later be used in
      *  Dmatrix[icol][irow] notation to get to the data
      */
-    double* const* const baseDataAddr();
+    double* const* baseDataAddr();
 
     //! Returns a const double ** pointer to the base address
     /*!
@@ -95,7 +95,7 @@ public:
      *  This returns a double ** which can later be used in
      *  Dmatrix[icol][irow] notation to get to the data
      */
-    double const* const* const constBaseDataAddr() const;
+    double const* const* constBaseDataAddr() const;
 
     //! Number of rows
     size_t nRows() const;

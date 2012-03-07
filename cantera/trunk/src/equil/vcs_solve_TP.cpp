@@ -436,13 +436,13 @@ L_MAINLOOP_ALL_SPECIES:
     /*
      * Don't do this step if there is a phase pop
      */
-    iphaseDelete = -1;
+    iphaseDelete = npos;
     if (iphasePop == npos) {
         /*
          * Figure out the new reaction step sizes
          * for the major species (do minor species in the future too)
          */
-        kspec = -1;
+        kspec = npos;
         iphaseDelete = vcs_RxnStepSizes(forceComponentCalc, kspec);
     }
 #ifdef DEBUG_MODE
@@ -3207,8 +3207,8 @@ int VCS_SOLVE::vcs_basopt(const bool doJustComponents, double aw[], double sa[],
     size_t  j, k, l, i, jl, ml, jr, irxn, kspec;
     bool lindep;
     size_t ncTrial;
-    size_t juse = -1;
-    size_t jlose = -1;
+    size_t juse = npos;
+    size_t jlose = npos;
     double* dptr, *scrxn_ptr;
     Cantera::clockWC tickTock;
 #ifdef DEBUG_MODE
@@ -3274,7 +3274,7 @@ int VCS_SOLVE::vcs_basopt(const bool doJustComponents, double aw[], double sa[],
         }
     }
 
-    jr = -1;
+    jr = npos;
     /*
      *   Top of a loop of some sort based on the index JR. JR is the
      *   current number of component species found.
@@ -3336,7 +3336,7 @@ int VCS_SOLVE::vcs_basopt(const bool doJustComponents, double aw[], double sa[],
 
                 double maxConcPossKspec = 0.0;
                 double maxConcPoss = 0.0;
-                size_t kfound = -1;
+                size_t kfound = npos;
                 int minNonZeroes = 100000;
                 int nonZeroesKspec = 0;
                 for (kspec = ncTrial; kspec < m_numSpeciesTot; kspec++) {
@@ -3569,8 +3569,8 @@ L_END_LOOP:
      * was just wrong -> hopefully it didn't blow up. Redo the problem.
      * Search for inactive E
      */
-    juse  = -1;
-    jlose = -1;
+    juse  = npos;
+    jlose = npos;
     for (j = 0; j < m_numElemConstraints; j++) {
         if (!(m_elementActive[j])) {
             if (!strcmp((m_elementName[j]).c_str(), "E")) {

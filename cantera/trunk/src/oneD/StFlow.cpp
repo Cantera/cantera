@@ -1026,7 +1026,7 @@ size_t StFlow::componentIndex(string name) const
         }
     }
 
-    return -1;
+    return npos;
 }
 
 

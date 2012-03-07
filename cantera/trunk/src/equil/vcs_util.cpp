@@ -642,7 +642,7 @@ int vcsUtil_gaussj(double* c, size_t idem, size_t n, double* b, size_t m)
         }
     }
     if (needInverse) {
-        for (l = n-1; l >= 0; l--) {
+        for (l = n-1; l != npos; l--) {
             if (indxr[l] != indxc[l]) {
                 for (k = 0; k < n; k++) {
                     std::swap(c[k + idem * indxr[l]], c[k + idem * indxr[l]]);

@@ -64,8 +64,8 @@ int _equilflag(const char* xy)
 
 
 ///  Default Constructor.
-ChemEquil::ChemEquil() : m_skip(-1), m_p1(0), m_p2(0), m_elementTotalSum(1.0),
-    m_p0(OneAtm), m_eloc(-1),
+ChemEquil::ChemEquil() : m_skip(npos), m_p1(0), m_p2(0), m_elementTotalSum(1.0),
+    m_p0(OneAtm), m_eloc(npos),
     m_elemFracCutoff(1.0E-100),
     m_doResPerturb(false)
 {}
@@ -77,9 +77,9 @@ ChemEquil::ChemEquil() : m_skip(-1), m_p1(0), m_p2(0), m_elementTotalSum(1.0),
  *   @param s ThermoPhase object that will be used in the equilibrium calls.
  */
 ChemEquil::ChemEquil(thermo_t& s) :
-    m_skip(-1), m_p1(0), m_p2(0),
+    m_skip(npos), m_p1(0), m_p2(0),
     m_elementTotalSum(1.0),
-    m_p0(OneAtm), m_eloc(-1),
+    m_p0(OneAtm), m_eloc(npos),
     m_elemFracCutoff(1.0E-100),
     m_doResPerturb(false)
 {
@@ -128,7 +128,7 @@ void ChemEquil::initialize(thermo_t& s)
     m_grt.resize(m_kk);
     m_mu_RT.resize(m_kk);
     m_muSS_RT.resize(m_kk);
-    m_component.resize(m_mm,-2);
+    m_component.resize(m_mm,npos);
     m_orderVectorElements.resize(m_mm);
 
     for (size_t m = 0; m < m_mm; m++) {
@@ -140,7 +140,7 @@ void ChemEquil::initialize(thermo_t& s)
     }
 
     // set up elemental composition matrix
-    size_t mneg = -1;
+    size_t mneg = npos;
     doublereal na, ewt;
     for (size_t m = 0; m < m_mm; m++) {
         for (size_t k = 0; k < m_kk; k++) {
@@ -1530,7 +1530,7 @@ int ChemEquil::estimateEP_Brinkley(thermo_t& s, vector_fp& x,
         /*
          * Decide if we are to do a normal step or a modified step
          */
-        size_t iM = -1;
+        size_t iM = npos;
         for (m = 0; m < m_mm; m++) {
             if (elMoles[m] > 0.001 * elMolesTotal) {
                 if (eMolesCalc[m] > 1000. * elMoles[m]) {
@@ -1615,8 +1615,8 @@ int ChemEquil::estimateEP_Brinkley(thermo_t& s, vector_fp& x,
         }
 #endif
         for (m = 0; m < m_mm; m++) {
-            size_t kMSp = -1;
-            size_t kMSp2 = -1;
+            size_t kMSp = npos;
+            size_t kMSp2 = npos;
             int nSpeciesWithElem  = 0;
             for (k = 0; k < m_kk; k++) {
                 if (n_i_calc[k] > nCutoff) {

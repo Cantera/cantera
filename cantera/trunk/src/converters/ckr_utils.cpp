@@ -155,9 +155,9 @@ string capitalize(const std::string& word)
     string cap = word;
     int n = static_cast<int>(word.size());
     if (n > 0) {
-        cap[0] = toupper(word[0]);
+        cap[0] = (char) toupper(word[0]);
         for (int m = 1; m < n; m++) {
-            cap[m] = tolower(word[m]);
+            cap[m] = (char) tolower(word[m]);
         }
     }
     return cap;
