@@ -164,16 +164,19 @@ class SpeciesThermoDuo : public SpeciesThermo
 
 public:
     //! Constructor
-    SpeciesThermoDuo();
+    SpeciesThermoDuo() {};
 
     //! Destructor
-    virtual ~SpeciesThermoDuo();
+    virtual ~SpeciesThermoDuo() {};
 
     //! copy constructor
     /*!
      * @param right Object to be copied
      */
-    SpeciesThermoDuo(const SpeciesThermoDuo& right);
+    SpeciesThermoDuo(const SpeciesThermoDuo& right)
+    {
+        *this = operator=(right);
+    }
 
     //! Assignment operator
     /*!
@@ -224,7 +227,10 @@ public:
      * @param stit_ptr Pointer to the SpeciesThermoInterpType object
      *          This will set up the thermo for one species
      */
-    virtual void install_STIT(SpeciesThermoInterpType* stit_ptr);
+    virtual void install_STIT(SpeciesThermoInterpType* stit_ptr)
+    {
+        throw CanteraError("install_STIT", "not implemented");
+    }
 
     //! Compute the reference-state properties for all species.
     /*!
@@ -254,7 +260,10 @@ public:
      *
      * @param k    Species index
      */
-    virtual doublereal minTemp(size_t k = npos) const;
+    virtual doublereal minTemp(size_t k = npos) const
+    {
+        return std::max(m_thermo1.minTemp(),m_thermo2.minTemp());
+    }
 
     //! Maximum temperature.
     /*!
@@ -266,7 +275,10 @@ public:
      *
      * @param k index for parameterization k
      */
-    virtual doublereal maxTemp(size_t k = npos) const;
+    virtual doublereal maxTemp(size_t k = npos) const
+    {
+        return std::min(m_thermo1.maxTemp(), m_thermo2.maxTemp());
+    }
 
     /**
      * The reference-state pressure for species k.
@@ -281,7 +293,10 @@ public:
      *
      * @param k index for parameterization k
      */
-    virtual doublereal refPressure(size_t k = npos) const;
+    virtual doublereal refPressure(size_t k = npos) const
+    {
+        return m_p0;
+    }
 
     //! This utility function reports the type of parameterization
     //! used for the species with index number index.
@@ -320,7 +335,6 @@ public:
      */
     DEPRECATED(virtual void modifyParams(size_t index, doublereal* c));
 
-
 #ifdef H298MODIFY_CAPABILITY
 
     virtual doublereal reportOneHf298(int k) const {
@@ -349,22 +363,6 @@ private:
 // ------------------------- cpp part of file -------------------------------------
 
 // Definitions for the SpeciesThermoDuo<T1,T2> templated class
-
-template<class T1, class T2>
-SpeciesThermoDuo<T1, T2>::SpeciesThermoDuo()
-{
-}
-
-template<class T1, class T2>
-SpeciesThermoDuo<T1, T2>::~SpeciesThermoDuo()
-{
-}
-
-template<class T1, class T2>
-SpeciesThermoDuo<T1, T2>::SpeciesThermoDuo(const SpeciesThermoDuo& right)
-{
-    *this = operator=(right);
-}
 
 template<class T1, class T2>
 SpeciesThermoDuo<T1, T2> &
@@ -414,13 +412,6 @@ SpeciesThermoDuo<T1, T2>::install(std::string name, size_t sp, int type,
 
 template<class T1, class T2>
 void
-SpeciesThermoDuo<T1, T2>::install_STIT(SpeciesThermoInterpType* stit_ptr)
-{
-    throw CanteraError("install_STIT", "not implemented");
-}
-
-template<class T1, class T2>
-void
 SpeciesThermoDuo<T1, T2>::update(doublereal t, doublereal* cp_R,
                                  doublereal* h_RT, doublereal* s_R) const
 {
@@ -429,38 +420,12 @@ SpeciesThermoDuo<T1, T2>::update(doublereal t, doublereal* cp_R,
 }
 
 template<class T1, class T2>
-doublereal
-SpeciesThermoDuo<T1, T2>::minTemp(size_t k) const
-{
-    doublereal tm1 = m_thermo1.minTemp();
-    doublereal tm2 = m_thermo2.minTemp();
-    return (tm1 < tm2 ? tm2 : tm1);
-}
-
-template<class T1, class T2>
-doublereal
-SpeciesThermoDuo<T1, T2>::maxTemp(size_t k) const
-{
-    doublereal tm1 = m_thermo1.maxTemp();
-    doublereal tm2 = m_thermo2.maxTemp();
-    return (tm1 < tm2 ? tm1 : tm2);
-}
-
-template<class T1, class T2>
-doublereal
-SpeciesThermoDuo<T1, T2>::refPressure(size_t k) const
-{
-    return m_p0;
-}
-
-template<class T1, class T2>
 int
 SpeciesThermoDuo<T1, T2>::reportType(size_t k) const
 {
     std::map<size_t, int>::const_iterator p = speciesToType.find(k);
     if (p != speciesToType.end()) {
-        const int type = p->second;
-        return type;
+        return p->second;
     }
     return -1;
 }
