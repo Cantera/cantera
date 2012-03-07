@@ -38,6 +38,7 @@ namespace Cantera
  *                (length m_kk).
  *
  * @ingroup mgrsrefcalc
+ * @deprecated unused
  */
 template<class InputIter>
 inline void _updateAll(InputIter begin,
@@ -63,6 +64,7 @@ inline void _updateAll(InputIter begin,
  * @param end   end iterator
  *
  * @ingroup mgrsrefcalc
+ * @deprecated unused
  */
 template<class InputIter>
 doublereal _minTemp(InputIter begin, InputIter end)
@@ -85,6 +87,7 @@ doublereal _minTemp(InputIter begin, InputIter end)
  * @param end   end iterator
  *
  * @ingroup mgrsrefcalc
+ * @deprecated unused
  */
 template<class _InputIter>
 doublereal _maxTemp(_InputIter begin, _InputIter end)
@@ -101,6 +104,7 @@ doublereal _maxTemp(_InputIter begin, _InputIter end)
 //! Exception thrown if species reference pressures don't match.
 /*!
  * @ingroup mgrsrefcalc
+ * @deprecated unused
  */
 class RefPressureMismatch : public CanteraError
 {
