@@ -11,6 +11,10 @@ localenv.Append(CPPPATH=['#ext/gtest/include', '#include'],
 localenv['ENV']['PYTHONPATH'] = Dir('#interfaces/python').abspath
 localenv['ENV']['CANTERA_DATA'] = Dir('#data/inputs').abspath
 
+# Needed for Intel runtime libraries when compiling with ICC
+if 'LD_LIBRARY_PATH' in os.environ:
+    localenv['ENV']['LD_LIBRARY_PATH'] = os.environ['LD_LIBRARY_PATH']
+
 def testRunner(target, source, env):
     """SCons Action to run a compiled test program"""
     program = source[0]
