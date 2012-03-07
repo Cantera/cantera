@@ -104,7 +104,6 @@ class SpeciesThermoInterpType;
  *      - This is a general model. Each species is handled separately
  *        via a vector over SpeciesThermoInterpType classes.
  *      .
- *   - SpeciesThermo1        in file SpeciesThermoMgr.h
  *   - SpeciesThermoDuo      in file SpeciesThermoMgr.h
  *      - This is a combination of two SpeciesThermo types.
  *      .
