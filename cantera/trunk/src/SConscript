@@ -59,6 +59,9 @@ if localenv['OS'] == 'Darwin' and localenv['use_sundials'] == 'y':
     localenv.Append(LIBS=localenv['sundials_libs'],
                     LIBPATH=localenv['sundials_libdir'])
 
+if localenv['toolchain'] == 'mingw':
+    localenv.Append(LINKFLAGS=['-static-libgcc', '-static-libstdc++'])
+
 # Build the Cantera shared library
 lib = build(localenv.SharedLibrary('../lib/cantera_shared', libraryTargets,
                                    SPAWN=getSpawn(localenv)))
