@@ -220,7 +220,7 @@ protected:
      * function sets the temperature, and makes sure that
      * the value propagates to underlying objects
      *
-     * @todo Make State::setTemperature a virtual function
+     * @todo Make Phase::setTemperature a virtual function
      *
      * @param temp Temperature in kelvin
      */

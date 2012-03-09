@@ -283,10 +283,10 @@ void IdealSolidSolnPhase::calcDensity()
                          m_speciesMolarVolume.end(), dtmp);
     /*
      * Set the density in the parent State object directly,
-     * by calling the State::setDensity() function.
+     * by calling the Phase::setDensity() function.
      */
     double dens = 1.0/invDens;
-    State::setDensity(dens);
+    Phase::setDensity(dens);
 }
 
 /**
@@ -363,7 +363,7 @@ void IdealSolidSolnPhase::setMolarDensity(const doublereal n)
  */
 void IdealSolidSolnPhase::setMoleFractions(const doublereal* const x)
 {
-    State::setMoleFractions(x);
+    Phase::setMoleFractions(x);
     calcDensity();
 }
 
@@ -374,7 +374,7 @@ void IdealSolidSolnPhase::setMoleFractions(const doublereal* const x)
  */
 void IdealSolidSolnPhase::setMoleFractions_NoNorm(const doublereal* const x)
 {
-    State::setMoleFractions(x);
+    Phase::setMoleFractions(x);
     calcDensity();
 }
 
@@ -385,7 +385,7 @@ void IdealSolidSolnPhase::setMoleFractions_NoNorm(const doublereal* const x)
  */
 void IdealSolidSolnPhase::setMassFractions(const doublereal* const y)
 {
-    State::setMassFractions(y);
+    Phase::setMassFractions(y);
     calcDensity();
 }
 
@@ -396,7 +396,7 @@ void IdealSolidSolnPhase::setMassFractions(const doublereal* const y)
  */
 void IdealSolidSolnPhase::setMassFractions_NoNorm(const doublereal* const y)
 {
-    State::setMassFractions_NoNorm(y);
+    Phase::setMassFractions_NoNorm(y);
     calcDensity();
 }
 
@@ -407,7 +407,7 @@ void IdealSolidSolnPhase::setMassFractions_NoNorm(const doublereal* const y)
  */
 void IdealSolidSolnPhase::setConcentrations(const doublereal* const c)
 {
-    State::setConcentrations(c);
+    Phase::setConcentrations(c);
     calcDensity();
 }
 

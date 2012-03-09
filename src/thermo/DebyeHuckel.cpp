@@ -327,7 +327,7 @@ void DebyeHuckel::setPressure(doublereal p)
 void DebyeHuckel::setState_TP(doublereal t, doublereal p)
 {
 
-    State::setTemperature(t);
+    Phase::setTemperature(t);
     /*
      * Store the current pressure
      */
@@ -387,7 +387,7 @@ void DebyeHuckel::calcDensity()
         vtotal += vbar[i] * x[i];
     }
     doublereal dd = meanMolecularWeight() / vtotal;
-    State::setDensity(dd);
+    Phase::setDensity(dd);
 }
 
 

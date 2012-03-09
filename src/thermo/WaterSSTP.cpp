@@ -246,8 +246,8 @@ initThermoXML(XML_Node& phaseNode, std::string id)
      * Set the baseline
      */
     doublereal T = 298.15;
-    State::setDensity(7.0E-8);
-    State::setTemperature(T);
+    Phase::setDensity(7.0E-8);
+    Phase::setTemperature(T);
 
     doublereal presLow = 1.0E-2;
     doublereal oneBar = 1.0E5;
@@ -588,14 +588,14 @@ doublereal WaterSSTP::critDensity() const
 
 void WaterSSTP::setTemperature(const doublereal temp)
 {
-    State::setTemperature(temp);
+    Phase::setTemperature(temp);
     doublereal dd = density();
     m_sub->setState_TR(temp, dd);
 }
 
 void WaterSSTP::setDensity(const doublereal dens)
 {
-    State::setDensity(dens);
+    Phase::setDensity(dens);
     doublereal temp = temperature();
     m_sub->setState_TR(temp, dens);
 }

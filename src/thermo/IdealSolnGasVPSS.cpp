@@ -185,17 +185,17 @@ void IdealSolnGasVPSS::calcDensity()
     if (m_idealGas) {
         double dens = (m_Pcurrent * meanMolecularWeight()
                        /(GasConstant * temperature()));
-        State::setDensity(dens);
+        Phase::setDensity(dens);
     } else {
         const doublereal* const dtmp = moleFractdivMMW();
         const vector_fp& vss = m_VPSS_ptr->standardVolumes();
         double invDens = dot(vss.begin(), vss.end(), dtmp);
         /*
          * Set the density in the parent State object directly,
-         * by calling the State::setDensity() function.
+         * by calling the Phase::setDensity() function.
          */
         double dens = 1.0/invDens;
-        State::setDensity(dens);
+        Phase::setDensity(dens);
     }
 }
 

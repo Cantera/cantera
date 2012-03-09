@@ -1533,7 +1533,7 @@ public:
      * the value propagates to underlying objects, such as
      * the water standard state model.
      *
-     * @todo Make State::setTemperature a virtual function
+     * @todo Make Phase::setTemperature a virtual function
      *
      * @param temp Temperature in kelvin
      */
