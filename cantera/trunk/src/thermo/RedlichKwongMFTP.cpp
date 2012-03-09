@@ -371,17 +371,17 @@ void RedlichKwongMFTP::calcDensity()
     double invDens = dot(m_tmpV.begin(), m_tmpV.end(), dtmp);
     /*
      * Set the density in the parent State object directly,
-     * by calling the State::setDensity() function.
+     * by calling the Phase::setDensity() function.
      */
     double dens = 1.0/invDens;
-    State::setDensity(dens);
+    Phase::setDensity(dens);
 
 }
 
 //====================================================================================================================
 void RedlichKwongMFTP::setTemperature(const doublereal temp)
 {
-    State::setTemperature(temp);
+    Phase::setTemperature(temp);
     _updateReferenceStateThermo();
     updateAB();
 }

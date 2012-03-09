@@ -787,7 +787,7 @@ void HMWSoln::calcDensity()
         vtotal += vbar[i] * x[i];
     }
     doublereal dd = meanMolecularWeight() / vtotal;
-    State::setDensity(dd);
+    Phase::setDensity(dd);
 }
 
 /*
@@ -828,7 +828,7 @@ doublereal HMWSoln::thermalExpansionCoeff() const
 double HMWSoln::density() const
 {
     //    calcDensity();
-    return State::density();
+    return Phase::density();
 }
 
 /*
@@ -893,7 +893,7 @@ void HMWSoln::setTemperature(const doublereal temp)
  */
 void HMWSoln::setState_TP(doublereal temp, doublereal pres)
 {
-    State::setTemperature(temp);
+    Phase::setTemperature(temp);
     /*
      * Store the current pressure
      */

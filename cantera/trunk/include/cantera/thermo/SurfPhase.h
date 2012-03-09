@@ -590,7 +590,7 @@ public:
      * in kmol/m2, using m_n0, the surface site density,
      * and size(k), which is defined to be the number of
      * surface sites occupied by the kth molecule.
-     * It then calls State::setConcentrations to set the
+     * It then calls Phase::setConcentrations to set the
      * internal concentration in the object.
      *
      * @param theta    This is the surface site fraction
@@ -607,7 +607,7 @@ public:
      * in kmol/m2, using m_n0, the surface site density,
      * and size(k), which is defined to be the number of
      * surface sites occupied by the kth molecule.
-     * It then calls State::setConcentrations to set the
+     * It then calls Phase::setConcentrations to set the
      * internal concentration in the object.
      *
      * @param theta    This is the surface site fraction

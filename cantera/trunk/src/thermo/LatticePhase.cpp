@@ -239,10 +239,10 @@ doublereal LatticePhase::calcDensity()
     // doublereal invDens = dot(m_speciesMolarVolume.begin(), m_speciesMolarVolume.end(), dtmp);
     /*
      * Set the density in the parent State object directly,
-     * by calling the State::setDensity() function.
+     * by calling the Phase::setDensity() function.
      */
     // doublereal dens = 1.0/invDens;
-    //  State::setDensity(dens);
+    //  Phase::setDensity(dens);
     return dens;
 }
 //====================================================================================================================
@@ -254,31 +254,31 @@ void LatticePhase::setPressure(doublereal p)
 //====================================================================================================================
 void LatticePhase::setMoleFractions(const doublereal* const x)
 {
-    State::setMoleFractions(x);
+    Phase::setMoleFractions(x);
     calcDensity();
 }
 //====================================================================================================================
 void LatticePhase::setMoleFractions_NoNorm(const doublereal* const x)
 {
-    State::setMoleFractions(x);
+    Phase::setMoleFractions(x);
     calcDensity();
 }
 //====================================================================================================================
 void LatticePhase::setMassFractions(const doublereal* const y)
 {
-    State::setMassFractions(y);
+    Phase::setMassFractions(y);
     calcDensity();
 }
 //====================================================================================================================
 void LatticePhase::setMassFractions_NoNorm(const doublereal* const y)
 {
-    State::setMassFractions_NoNorm(y);
+    Phase::setMassFractions_NoNorm(y);
     calcDensity();
 }
 //====================================================================================================================
 void LatticePhase::setConcentrations(const doublereal* const c)
 {
-    State::setConcentrations(c);
+    Phase::setConcentrations(c);
     calcDensity();
 }
 //====================================================================================================================

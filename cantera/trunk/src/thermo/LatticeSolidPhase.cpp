@@ -284,7 +284,7 @@ doublereal  LatticeSolidPhase::calcDensity()
     for (size_t n = 0; n < m_nlattice; n++) {
         sum += theta_[n] * m_lattice[n]->density();
     }
-    State::setDensity(sum);
+    Phase::setDensity(sum);
     return sum;
 }
 //====================================================================================================================
@@ -312,7 +312,7 @@ void LatticeSolidPhase::setMoleFractions(const doublereal* const x)
     for (size_t k = 0; k < strt; k++) {
         m_x[k] = x[k] / m_nlattice;
     }
-    State::setMoleFractions(DATA_PTR(m_x));
+    Phase::setMoleFractions(DATA_PTR(m_x));
     calcDensity();
 }
 //====================================================================================================================
@@ -327,7 +327,7 @@ void LatticeSolidPhase::getMoleFractions(doublereal* const x) const
 {
     size_t nsp, strt = 0;
     // the ifdef block should be the way we calculate this.!!!!!
-    State::getMoleFractions(x);
+    Phase::getMoleFractions(x);
     doublereal sum;
     for (size_t n = 0; n < m_nlattice; n++) {
         nsp =  m_lattice[n]->nSpecies();

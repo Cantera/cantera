@@ -629,7 +629,7 @@ void IonsFromNeutralVPSSTP::setState_TP(doublereal t, doublereal p)
 
     //calcDensity();
     double dd = neutralMoleculePhase_->density();
-    State::setDensity(dd);
+    Phase::setDensity(dd);
 }
 
 // Calculate ion mole fractions from neutral molecule

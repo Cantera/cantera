@@ -375,7 +375,7 @@ void SurfPhase::setSiteDensity(doublereal n0)
  * in kmol/m2, using m_n0, the surface site density,
  * and size(k), which is defined to be the number of
  * surface sites occupied by the kth molecule.
- * It then calls State::setConcentrations to set the
+ * It then calls Phase::setConcentrations to set the
  * internal concentration in the object.
  */
 void SurfPhase::
@@ -396,7 +396,7 @@ setCoverages(const doublereal* theta)
         m_work[k] = m_n0*theta[k]/(sum*size(k));
     }
     /*
-     * Call the State:: class function
+     * Call the Phase:: class function
      * setConcentrations.
      */
     setConcentrations(DATA_PTR(m_work));
@@ -409,7 +409,7 @@ setCoveragesNoNorm(const doublereal* theta)
         m_work[k] = m_n0*theta[k]/(size(k));
     }
     /*
-     * Call the State:: class function
+     * Call the Phase:: class function
      * setConcentrations.
      */
     setConcentrations(DATA_PTR(m_work));

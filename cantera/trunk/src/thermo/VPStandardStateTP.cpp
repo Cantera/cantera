@@ -417,7 +417,7 @@ void VPStandardStateTP::setState_TP(doublereal t, doublereal pres)
      *     Therefore, we need to do the standard state thermo calc with the
      *  (t, pres) combo.
      */
-    State::setTemperature(t);
+    Phase::setTemperature(t);
     m_Pcurrent = pres;
     updateStandardStateThermo();
     /*
