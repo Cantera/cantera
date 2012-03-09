@@ -915,11 +915,7 @@ int main(int argc, char* argv[])
     /*
      * Compare the solutions in each file
      */
-    int method = 0;
-#define DGG_MODS
-#ifdef DGG_MODS
-    method = 1;
-#endif
+    int method = 1;
     double slope1, slope2, xatol;
     int notOK;
     for (k = 0; k < nColcomparisons; k++) {

@@ -7,8 +7,6 @@
 #ifndef CT_FUNC1_H
 #define CT_FUNC1_H
 
-#undef DEBUG_FUNC
-
 #include "cantera/base/ct_defs.h"
 
 #include <iostream>
@@ -794,16 +792,6 @@ public:
         Func1* d3 = &newCompositeFunction(*d1, m_f2->duplicate());
         Func1* d2 = &m_f2->derivative();
         Func1* p = &newProdFunction(*d3, *d2);
-#ifdef DEBUG_FUNC
-        cout << "Composite1::derivative: \n";
-        cout << "f1 = " << m_f1->write("x") << endl;
-        cout << "f2 = " << m_f2->write("x") << endl;
-        cout << "d1 = " << d1 << " " << d1->write("x") << endl;
-        cout << "d3 = " << d3->write("x") << endl;
-        cout << "d2 = " << d2->write("x") << endl;
-        cout << "function = \'" + write("x") + "\'\n";
-        cout << "derivative = \'" + p->write("x") + "\'\n";
-#endif
         return *p;
     }
 

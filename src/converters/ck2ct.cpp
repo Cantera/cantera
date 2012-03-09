@@ -202,8 +202,6 @@ static void addTransportParams(FILE* f, string name)
         throw CanteraError("addTransportParams",
                            "Unrecognized geometry flag for species " + name);
     }
-#define FULL_TRANSPORT_PARAMETER_PRECISION
-#ifdef  FULL_TRANSPORT_PARAMETER_PRECISION
     fprintf(f,"                     diam = %g,\n",td.diam);
     fprintf(f,"                     well_depth = %g",td.welldepth);
     if (td.polar != 0.0) {
@@ -215,19 +213,6 @@ static void addTransportParams(FILE* f, string name)
     if (td.rot != 0.0) {
         fprintf(f,",\n                     rot_relax = %g",td.rot);
     }
-#else
-    fprintf(f,"                     diam = %8.2f,\n",td.diam);
-    fprintf(f,"                     well_depth = %8.2f",td.welldepth);
-    if (td.polar != 0.0) {
-        fprintf(f,",\n                     polar = %8.2f",td.polar);
-    }
-    if (td.dipole != 0.0) {
-        fprintf(f,",\n                     dipole = %8.2f",td.dipole);
-    }
-    if (td.rot != 0.0) {
-        fprintf(f,",\n                     rot_relax = %8.2f",td.rot);
-    }
-#endif
     fprintf(f,")");
 }
 

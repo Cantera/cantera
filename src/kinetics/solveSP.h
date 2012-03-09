@@ -260,12 +260,6 @@ private:
                       doublereal TKelvin, doublereal PGas, doublereal netProdRate[],
                       doublereal XMolKinSpecies[]);
 
-#ifdef DEBUG_SOLVESP
-
-    void printResJac(int ioflag, int neq, const Array2D& Jac,
-                     doublereal resid[], doublereal wtResid[], doublereal norm);
-#endif
-
     //! Printing routine that gets called after every iteration
     void printIteration(int ioflag, doublereal damp, int label_d, int label_t,
                         doublereal inv_t, doublereal t_real, size_t iter,
@@ -337,22 +331,6 @@ private:
     void calcWeights(doublereal wtSpecies[], doublereal wtResid[],
                      const Array2D& Jac, const doublereal CSolnSP[],
                      const doublereal abstol, const doublereal reltol);
-
-#ifdef DEBUG_SOLVESP
-    //! Utility routine to print a header for high lvls of debugging
-    /*!
-     *  @param ioflag Lvl of debugging
-     *  @param damp   lvl of damping
-     *  @param inv_t  Inverse of the value of delta T
-     *  @param t_real Value of the time
-     *  @param iter   Interation number
-     *  @param do_time boolean indicating whether time stepping is taking
-     *                 place
-     */
-    void printIterationHeader(int ioflag, doublereal damp,
-                              doublereal inv_t, doublereal t_real, int iter,
-                              bool do_time);
-#endif
 
     /**
      * Update the surface states of the surface phases.

@@ -54,11 +54,6 @@ static PyObject* ErrorObject;
 #include "ctonedim_methods.cpp"
 #include "ctmultiphase_methods.cpp"
 
-#ifdef INCL_USER_PYTHON
-#include "ctuser.h"
-#include "ctuser_methods.cpp"
-#endif
-
 static PyObject*
 pyct_appdelete(PyObject* self, PyObject* args)
 {

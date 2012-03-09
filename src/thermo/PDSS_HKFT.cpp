@@ -1194,49 +1194,6 @@ doublereal PDSS_HKFT::gstar(const doublereal temp, const doublereal pres, const 
     return res;
 }
 
-
-#ifdef OLDWAY
-
-/* awData structure */
-/*!
- * Database for atomic molecular weights
- *
- *  Values are taken from the 1989 Standard Atomic Weights, CRC
- *
- *  awTable[] is a static function with scope limited to this file.
- *  It can only be referenced via the static Elements class function,
- *  LookupWtElements().
- *
- *  units = kg / kg-mol (or equivalently gm / gm-mol)
- *
- * (note: this structure was picked because it's simple, compact,
- *          and extensible).
- *
- */
-struct GeData {
-    char name[4];     ///< Null Terminated name, First letter capitalized
-    doublereal GeValue;   /// < Gibbs free energies of elements J kmol-1
-};
-
-//! Values of G_elements(T=298.15,1atm)
-/*!
- *  all units are Joules kmol-1
- */
-
-static struct GeData geDataTable[] = {
-    {"H",   -19.48112E6}, // NIST Webbook - Cox, Wagman 1984
-    {"Na",  -15.29509E6}, // NIST Webbook - Cox, Wagman 1984
-    {"O",   -30.58303E6}, // NIST Webbook - Cox, Wagman 1984
-    {"Cl",  -33.25580E6}, // NIST Webbook - Cox, Wagman 1984
-    {"Si",   -5.61118E6}, // Janaf
-    {"C",    -1.71138E6}, // barin, Knack, NBS Bulletin 1971
-    {"S",    -9.55690E6}, // Yellow - webbook
-    {"Al",   -8.42870E6}, // Webbook polynomial
-    {"K",   -19.26943E6}, // Webbook
-    {"Fe",   -8.142476E6}, // Nist  Webbook - Cox, Wagman 1984
-    {"E",    0.0}         // Don't overcount
-};
-#endif
 //!  Static function to look up Element Free Energies
 /*!
  *
@@ -1253,18 +1210,6 @@ static struct GeData geDataTable[] = {
  */
 doublereal PDSS_HKFT::LookupGe(const std::string& elemName)
 {
-#ifdef OLDWAY
-    int num = sizeof(geDataTable) / sizeof(struct GeData);
-    string s3 = elemName.substr(0,3);
-    for (int i = 0; i < num; i++) {
-        //if (!std::strncmp(elemName.c_str(), aWTable[i].name, 3)) {
-        if (s3 == geDataTable[i].name) {
-            return (geDataTable[i].GeValue);
-        }
-    }
-    throw CanteraError("LookupGe", "element " + s + " not found");
-    return -1.0;
-#else
     size_t iE = m_tp->elementIndex(elemName);
     if (iE == npos) {
         throw CanteraError("PDSS_HKFT::LookupGe", "element " + elemName + " not found");
@@ -1276,7 +1221,6 @@ doublereal PDSS_HKFT::LookupGe(const std::string& elemName)
     }
     geValue *= (-298.15);
     return geValue;
-#endif
 }
 
 void PDSS_HKFT::convertDGFormation()

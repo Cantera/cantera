@@ -297,10 +297,6 @@ static PyMethodDef ct_methods[] = {
 
     {"ct_appdelete", pyct_appdelete, METH_VARARGS},
 
-#ifdef INCL_USER_PYTHON
-#include "usermethods.h"
-#endif
-
     {NULL,  NULL} /* sentinel */
 };
 

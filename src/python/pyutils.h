@@ -1,5 +1,5 @@
-#ifndef CTPY_UTILS
-#define CTPY_UTILS
+#ifndef CT_PYUTILS_H
+#define CT_PYUTILS_H
 
 #include "Python.h"
 

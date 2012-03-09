@@ -925,9 +925,7 @@ public:
         _writeMultiply(m_cn_list.begin(), m_cn_list.end(), r, out);
     }
 
-
 private:
-
     std::vector<C1>     m_c1_list;
     std::vector<C2>     m_c2_list;
     std::vector<C3>     m_c3_list;
@@ -943,101 +941,6 @@ private:
      */
     std::map<size_t, size_t>  m_loc;
 };
-
-#undef INCL_STOICH_WRITER
-#ifdef INCL_STOICH_WRITER
-
-class StoichWriter
-{
-public:
-
-    StoichWriter() {
-    }
-
-    StoichWriter(const StoichWriter& right) :
-        m_mult(right.m_mult),
-        m_ir(right.m_ir),
-        m_dr(right.m_dr),
-        m_is(right.m_is),
-        m_ds(right.m_ds) {
-    }
-
-    StoichWriter& operator=(const StoichWriter& right) {
-        if (this != &right) {
-            m_mult = right.m_mult;
-            m_ir = right.m_ir;
-            m_dr = right.m_dr;
-            m_is = right.m_is;
-            m_ds = right.m_ds;
-        }
-        return *this;
-    }
-
-
-    void add(int rxn, const vector_int& k) {
-        int n, nn = k.size();
-        for (n = 0; n < nn; n++) {
-            if (m_mult[rxn] != "") {
-                m_mult[rxn] += " * ";
-            }
-            m_mult[rxn] += "c[" + int2str(k[n]) + "]";
-            m_is[k[n]] += " + rop[" + int2str(rxn) + "]";
-            m_ds[k[n]] += " - rop[" + int2str(rxn) + "]";
-            m_ir[rxn] += " + grt[" + int2str(k[n]) + "]";
-            m_dr[rxn] += " - grt[" + int2str(k[n]) + "]";
-        }
-    }
-
-    void add(int rxn, const vector_int& k, const vector_fp& order,
-             const vector_fp& stoich) {
-        int n, nn = k.size();
-        std::string s;
-        for (n = 0; n < nn; n++) {
-            if (order[n] == 1.0) {
-                m_mult[rxn] += "*c[" + int2str(k[n]) + "]";
-            } else {
-                m_mult[rxn] += "*pow(c[" _ int2str(k[n]) + "],"+fp2str(order[n])+")";
-            }
-            if (stoich[n] == 1.0) {
-                m_is[k[n]] += " + r[" + int2str(rxn) + "]";
-                m_ds[k[n]] += " - r[" + int2str(rxn) + "]";
-                m_ir[rxn] += " + g[" + int2str(k[n]) + "]";
-                m_dr[rxn] += " - g[" + int2str(k[n]) + "]";
-            } else {
-                s = fp2str(stoich[n]);
-                m_is[k[n]] += " + "+s+"*r[" + int2str(rxn) + "]";
-                m_ds[k[n]] += " - "+s+"*r[" + int2str(rxn) + "]";
-                m_ir[rxn] += " + "+s+"*g[" + int2str(k[n]) + "]";
-                m_dr[rxn] += " - "+s+"*g[" + int2str(k[n]) + "]";
-            }
-        }
-    }
-
-    std::string mult(int rxn) {
-        return m_mult[rxn];
-    }
-    std::string incrSpec(int k, std::string) {
-        return m_is[k];
-    }
-    std::string decrSpec(int k) {
-        return m_ds[k];
-    }
-    std::string incrRxn(int rxn) {
-        return m_ir[rxn];
-    }
-    std::string decrRxn(int rxn) {
-        return m_dr[rxn];
-    }
-
-private:
-    std::map<int, std::string> m_mult;
-    std::map<int, std::string> m_ir;
-    std::map<int, std::string>  m_dr;
-    std::map<int, std::string>  m_is;
-    std::map<int, std::string>  m_ds;
-};
-#endif
-
 
 }
 

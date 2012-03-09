@@ -26,7 +26,6 @@ typedef int     ftnlen;
 #define _DGETRF_  dgetrf
 #define _DGETRS_  dgetrs
 #define _DGETRI_  dgetri
-#define _DGELSS_  dgelss
 #define _DGBCON_  dgbcon
 #define _DGBSV_   dgbsv
 #define _DGBTRF_  dgbtrf
@@ -49,7 +48,6 @@ typedef int     ftnlen;
 #define _DGETRF_  dgetrf_
 #define _DGETRS_  dgetrs_
 #define _DGETRI_  dgetri_
-#define _DGELSS_  dgelss_
 #define _DGBCON_  dgbcon_
 #define _DGBSV_   dgbsv_
 #define _DGBTRF_  dgbtrf_
@@ -127,12 +125,6 @@ extern "C" {
 
     int _DGETRI_(const integer* n, doublereal* a, const integer* lda,
                  integer* ipiv, doublereal* work, integer* lwork, integer* info);
-
-    int _DGELSS_(integer* m, integer* n, integer* nrhs,
-                 doublereal* a, integer* lda, doublereal* b, integer* ldb, doublereal *
-                 s, doublereal* rcond, integer* rank, doublereal* work, integer* lwork,
-                 integer* info);
-
 
     int _DGBSV_(integer* n, integer* kl, integer* ku, integer* nrhs,
                 doublereal* a, integer* lda, integer* ipiv, doublereal* b,
@@ -371,21 +363,6 @@ inline void ct_dgetri(int n, doublereal* a, int lda, integer* ipiv,
 {
     integer f_n = n, f_lda = lda, f_lwork = lwork, f_info = info;
     _DGETRI_(&f_n, a, &f_lda, ipiv, work, &f_lwork, &f_info);
-}
-//====================================================================================================================
-inline void ct_dgelss(int m, int n, int nrhs, doublereal* a,
-                      int lda, doublereal* b, int ldb, doublereal* s,
-                      doublereal rcond, int& rank, doublereal* work, int lwork,
-                      int& info)
-{
-    doublereal f_rcond = rcond;
-    integer f_m = m, f_n = n, f_nrhs = nrhs, f_lda = lda, f_ldb = ldb,
-            f_rank = rank, f_info = info, f_lwork = lwork;
-    //f_lwork = 2*(3*min(m,n) + max(2*min(m,n), max(m,n)));
-    _DGELSS_(&f_m, &f_n, &f_nrhs, a, &f_lda, b, &f_ldb, s, &f_rcond,
-             &f_rank, work, &f_lwork, &f_info);
-    info = f_info;
-    rank = f_rank;
 }
 
 inline void ct_dscal(int n, doublereal da, doublereal* dx, int incx)

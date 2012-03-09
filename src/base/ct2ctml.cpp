@@ -107,9 +107,6 @@ void ct2ctml(const char* file, const int debug)
     string cmd = "sleep " + sleep() + "; " + "\"" + pypath() + "\"" +
                  " " + "\"" + path + "\"" + " &> " + logfile;
 #endif
-#ifdef DEBUG_PATHS
-    writelog("ct2ctml: executing the command " + cmd + "\n");
-#endif
     if (debug > 0) {
         writelog("ct2ctml: executing the command " + cmd + "\n");
         writelog("ct2ctml: the Python command is: " + pypath() + "\n");
@@ -201,14 +198,10 @@ void ct2ctml(const char* file, const int debug)
  */
 void get_CTML_Tree(Cantera::XML_Node* rootPtr, const std::string file, const int debug)
 {
-
     std::string ff, ext = "";
 
     // find the input file on the Cantera search path
     std::string inname = findInputFile(file);
-#ifdef DEBUG_PATHS
-    writelog("Found file: "+inname+"\n");
-#endif
     if (debug > 0) {
         writelog("Found file: "+inname+"\n");
     }
@@ -234,20 +227,16 @@ void get_CTML_Tree(Cantera::XML_Node* rootPtr, const std::string file, const int
         }
         string ffull = inname.substr(0,idot) + ".xml";
         ff = "./" + getBaseName(ffull) + ".xml";
-#ifdef DEBUG_PATHS
-        writelogf("ffull name = %s\n", ffull.c_str());
-        writelogf("ff name = %s\n", ff.c_str());
-#endif
+        if (debug > 0) {
+            writelogf("ffull name = %s\n", ffull.c_str());
+            writelogf("ff name = %s\n", ff.c_str());
+        }
     } else {
         ff = inname;
     }
-#ifdef DEBUG_PATHS
-    writelog("Attempting to parse xml file " + ff + "\n");
-#else
     if (debug > 0) {
         writelog("Attempting to parse xml file " + ff + "\n");
     }
-#endif
     ifstream fin(ff.c_str());
     if (!fin) {
         throw

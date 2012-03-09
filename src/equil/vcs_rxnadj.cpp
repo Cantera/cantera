@@ -339,27 +339,6 @@ size_t VCS_SOLVE::vcs_RxnStepSizes(int& forceComponentCalc, size_t& kSpecial)
                         /*
                          * Delete the single species phase
                          */
-#ifdef OLDSTUFF
-                        m_molNumSpecies_old[kspec] += dss;
-                        m_tPhaseMoles_old[m_phaseID[kspec]] += dss;
-                        for (j = 0; j < m_numComponents; ++j) {
-                            m_molNumSpecies_old[j] += dss * m_stoichCoeffRxnMatrix[irxn][j];
-                            m_tPhaseMoles_old[m_phaseID[j]] +=  dss * m_stoichCoeffRxnMatrix[irxn][j];
-                        }
-                        m_molNumSpecies_old[k] = 0.0;
-                        iph = m_phaseID[k];
-                        m_tPhaseMoles_old[iph] = 0.0;
-                        Vphase = m_VolPhaseList[iph];
-                        Vphase->setTotalMoles(0.0);
-                        if (k == kspec) {
-                            m_speciesStatus[kspec] = VCS_SPECIES_ZEROEDSS;
-                            if (m_SSPhase[kspec] != 1) {
-                                printf("vcs_RxnStepSizes:: we shouldn't be here!\n");
-                                exit(EXIT_FAILURE);
-                            }
-                        }
-#else
-
                         for (size_t j = 0; j < m_numSpeciesTot; j++) {
                             m_deltaMolNumSpecies[j] = 0.0;
                         }
@@ -404,7 +383,6 @@ size_t VCS_SOLVE::vcs_RxnStepSizes(int& forceComponentCalc, size_t& kSpecial)
                         }
 #endif
                         return iphDel;
-#endif
                     }
                 }
             } /* End of regular processing */

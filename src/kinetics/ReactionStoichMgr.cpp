@@ -22,16 +22,10 @@ ReactionStoichMgr::ReactionStoichMgr() :
     m_reactants(0),
     m_revproducts(0),
     m_irrevproducts(0)
-#ifdef INCL_STOICH_WRITER
-    , m_rwriter(0)
-#endif
 {
     m_reactants = new StoichManagerN;
     m_revproducts = new StoichManagerN;
     m_irrevproducts = new StoichManagerN;
-#ifdef INCL_STOICH_WRITER
-    m_rwriter = new StoichWriter;
-#endif
     m_dummy.resize(10,1.0);
 }
 //====================================================================================================================
@@ -41,26 +35,17 @@ ReactionStoichMgr::~ReactionStoichMgr()
     delete m_reactants;
     delete m_revproducts;
     delete m_irrevproducts;
-#ifdef INCL_STOICH_WRITER
-    delete m_rwriter;
-#endif
 }
 //====================================================================================================================
 ReactionStoichMgr::ReactionStoichMgr(const  ReactionStoichMgr& right) :
     m_reactants(0),
     m_revproducts(0),
     m_irrevproducts(0)
-#ifdef INCL_STOICH_WRITER
-    , m_rwriter(0)
-#endif
 {
     m_reactants = new StoichManagerN(*right.m_reactants);
     m_revproducts = new StoichManagerN(*right.m_revproducts);
     m_irrevproducts = new StoichManagerN(*right.m_irrevproducts);
     m_dummy = right.m_dummy;
-#ifdef INCL_STOICH_WRITER
-    m_rwriter = new StoichManagerN(right.m_writer);
-#endif
 }
 //====================================================================================================================
 ReactionStoichMgr& ReactionStoichMgr::operator=(const ReactionStoichMgr& right)
@@ -80,12 +65,6 @@ ReactionStoichMgr& ReactionStoichMgr::operator=(const ReactionStoichMgr& right)
         m_revproducts = new StoichManagerN(*right.m_revproducts);
         m_irrevproducts = new StoichManagerN(*right.m_irrevproducts);
         m_dummy = right.m_dummy;
-#ifdef INCL_STOICH_WRITER
-        if (m_writer) {
-            delete(m_writer);
-        }
-        m_rwriter = new StoichManagerN(right.m_writer);
-#endif
     }
     return *this;
 }
@@ -128,18 +107,8 @@ add(size_t rxn, const ReactionData& r)
     // or specified reaction orders, then add it in a general reaction
     if (isfrac || r.global || rk.size() > 3) {
         m_reactants->add(rxn, r.reactants, r.rorder, r.rstoich);
-#ifdef INCL_STOICH_WRITER
-        if (m_rwriter) {
-            m_rwriter->add(rxn, r.reactants, r.order, r.rstoich);
-        }
-#endif
     } else {
         m_reactants->add(rxn, rk);
-#ifdef INCL_STOICH_WRITER
-        if (m_rwriter) {
-            m_rwriter->add(rxn, rk);
-        }
-#endif
     }
 
     std::vector<size_t> pk;

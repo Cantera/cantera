@@ -495,20 +495,21 @@ XML_Node* Application::get_XML_File(std::string file, int debug)
             } else {
                 ff = string("./")+path.substr(0,idot) + ".xml";
             }
-#ifdef DEBUG_PATHS
-            cout << "get_XML_File(): Expected location of xml file = "
-                 << ff << endl;
-#endif
+            if (debug > 0) {
+                writelog("get_XML_File(): Expected location of xml file = " +
+                         ff + "\n");
+            }
             /*
              * Do a search of the existing XML trees to determine if we have
              * already processed this file. If we have, return a pointer to
              * the processed xml tree.
              */
             if (xmlfiles.find(ff) != xmlfiles.end()) {
-#ifdef DEBUG_PATHS
-                cout << "get_XML_File(): File, " << ff << ", was previously read."
-                     << " Retrieving the stored xml tree." << endl;
-#endif
+            if (debug > 0) {
+                writelog("get_XML_File(): File, " + ff +
+                         ", was previously read." +
+                         " Retrieving the stored xml tree.\n");
+            }
                 return xmlfiles[ff];
             }
             /*

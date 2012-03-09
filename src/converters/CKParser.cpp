@@ -359,12 +359,6 @@ void CKParser::getCKLine(std::string& s, std::string& comment)
         // if an end-of-line character is seen, then break.
         // Check for all common end-of-line characters.
         if (ch == char13 || (ch == char10 && (m_last_eol != char13)))  {
-#undef DEBUG_EOL
-#ifdef DEBUG_EOL
-            *m_log << "EOL: found character " << int(ch) << " ending line:" << endl;
-            *m_log << line << endl;
-            *m_log << int(m_last_eol) << " " << int('\n') << " " << int(ch) << endl;
-#endif
             m_last_eol = ch;
             break;
         }

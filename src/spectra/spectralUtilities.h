@@ -1,5 +1,5 @@
-#ifndef CT_SPEC_UTILS
-#define CT_SPEC_UTILS
+#ifndef CT_SPEC_UTILS_H
+#define CT_SPEC_UTILS_H
 
 #include "Nuclei.h"
 
