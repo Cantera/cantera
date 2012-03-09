@@ -39,7 +39,7 @@ public:
         PyRun_SimpleString((char*)err.c_str());
     }
 
-    virtual int env() {
+    DEPRECATED(virtual int env()) {
         return 2;
     }
 };
