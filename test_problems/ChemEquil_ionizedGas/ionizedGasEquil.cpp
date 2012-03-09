@@ -57,7 +57,7 @@ int main(int argc, char** argv)
                 beginLogGroup("topEquil", -1);
                 equilibrate(*gas,"UV", -1);
                 endLogGroup("topEquil");
-                cout << report(*gas) << endl;
+                cout << gas->report() << endl;
 
                 tkelvin = gas->temperature();
                 pres = gas->pressure();

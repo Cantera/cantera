@@ -899,7 +899,7 @@ extern "C" {
     {
         try {
             bool stherm = (*show_thermo != 0);
-            std::string s = report(*_fth(nth), stherm);
+            std::string s = _fth(nth)->report(stherm);
             if (int(s.size()) > buflen - 1) {
                 return -(s.size() + 1);
             }

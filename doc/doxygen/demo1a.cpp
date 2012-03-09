@@ -17,7 +17,7 @@ void simple_demo()
     gas->setState_TPX(500.0, 2.0*OneAtm, "H2O:1.0, H2:8.0, AR:1.0");
 
     // Print a summary report of the state of the gas
-    std::cout << report(*gas) << std::endl;
+    std::cout << gas->report() << std::endl;
 
     //  Clean up
     delete gas;

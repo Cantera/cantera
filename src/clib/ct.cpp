@@ -95,12 +95,6 @@ static double pfprop(int n, int i, double v=0.0, double x=0.0)
 }
 #endif
 
-
-namespace Cantera
-{
-void writephase(const ThermoPhase& th, bool show_thermo);
-}
-
 /**
  * Exported functions.
  */
@@ -1351,7 +1345,7 @@ extern "C" {
     {
         try {
             bool stherm = (show_thermo != 0);
-            string s = report(ThermoCabinet::item(nth), stherm);
+            string s = ThermoCabinet::item(nth).report(stherm);
             if (int(s.size()) > ibuf - 1) {
                 return -(static_cast<int>(s.size()) + 1);
             }
@@ -1367,7 +1361,7 @@ extern "C" {
     {
         try {
             bool stherm = (show_thermo != 0);
-            writephase(ThermoCabinet::item(nth), stherm);
+            writelog(ThermoCabinet::item(nth).report(stherm)+"\n");
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
