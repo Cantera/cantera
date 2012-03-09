@@ -16,14 +16,10 @@
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the
  * U.S. Government retains certain rights in this software.
  */
-/*
- *  $Date: 2009-11-09 16:36:49 -0700 (Mon, 09 Nov 2009) $
- *  $Revision: 255 $
- */
-
-
 #include "cantera/thermo/MolarityIonicVPSSTP.h"
 #include "cantera/thermo/ThermoFactory.h"
+#include "cantera/base/stringUtils.h"
+
 #include <cmath>
 
 using namespace std;

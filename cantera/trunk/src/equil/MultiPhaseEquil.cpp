@@ -7,11 +7,12 @@
 #include "cantera/thermo/MolalityVPSSTP.h"
 #endif
 #include "cantera/base/global.h"
+#include "cantera/base/stringUtils.h"
 
 #include <math.h>
 #include <iostream>
-using namespace std;
 
+using namespace std;
 
 namespace Cantera
 {

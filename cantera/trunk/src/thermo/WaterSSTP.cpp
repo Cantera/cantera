@@ -8,12 +8,14 @@
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the
  * U.S. Government retains certain rights in this software.
  */
-#include "cantera/base/xml.h"
+
 #include "cantera/thermo/WaterSSTP.h"
 #include "cantera/thermo/WaterPropsIAPWS.h"
-//#include "importCTML.h"
 #include "cantera/thermo/WaterProps.h"
 #include "cantera/thermo/ThermoFactory.h"
+#include "cantera/base/xml.h"
+#include "cantera/base/stringUtils.h"
+
 #include <cmath>
 
 using namespace std;
@@ -237,7 +239,6 @@ initThermoXML(XML_Node& phaseNode, std::string id)
     }
     double mw_O = atomicWeight(nO);
     m_mw = 2.0 * mw_H + mw_O;
-    m_weight[0] = m_mw;
     setMolecularWeight(0,m_mw);
     double one = 1.0;
     setMoleFractions(&one);

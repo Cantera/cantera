@@ -9,6 +9,8 @@
 
 #include "cantera/thermo/ThermoPhase.h"
 #include "cantera/base/mdp_allo.h"
+#include "cantera/base/stringUtils.h"
+
 #include <iomanip>
 
 using namespace std;

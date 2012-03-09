@@ -58,9 +58,10 @@ std::string ArraySizeError::getMessage() const {
     return ss.str();
 }
 
-std::string ElementRangeError::getMessage() const {
+std::string IndexError::getMessage() const {
     std::stringstream ss;
-    ss << "Element index " << m_ << " outside valid range of 0 to " << (mmax_-1) << ".";
+    ss << "IndexError: " << arrayName_ << "[" << m_ << "]" <<
+        " outside valid range of 0 to " << (mmax_-1) << ".";
     return ss.str();
 }
 

@@ -12,7 +12,7 @@
 #define CT_THERMOPHASE_H
 
 #include "Phase.h"
-
+#include "SpeciesThermo.h"
 
 namespace Cantera
 {

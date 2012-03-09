@@ -13,6 +13,9 @@
  * U.S. Government retains certain rights in this software.
  */
 
+//! @deprecated remove include when UnknownVPSSMgr is removed
+#include "cantera/base/stringUtils.h"
+
 #ifndef VPSSMGR_TYPES_H
 #define VPSSMGR_TYPES_H
 

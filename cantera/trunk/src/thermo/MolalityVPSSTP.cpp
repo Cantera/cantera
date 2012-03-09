@@ -17,7 +17,10 @@
  * U.S. Government retains certain rights in this software.
  */
 #include "cantera/thermo/MolalityVPSSTP.h"
+#include "cantera/base/stringUtils.h"
+
 #include <iomanip>
+
 using namespace std;
 
 namespace Cantera

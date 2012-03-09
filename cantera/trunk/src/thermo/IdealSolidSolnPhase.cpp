@@ -11,7 +11,10 @@
  */
 
 #include "cantera/thermo/IdealSolidSolnPhase.h"
+#include "cantera/base/stringUtils.h"
+
 #include <iostream>
+
 using namespace std;
 
 namespace Cantera

@@ -90,7 +90,6 @@ class ElementRangeError;
 
 //! Positive number indicating we don't know the gibbs free energy
 //! of the element in its most stable state at 298.15 K and 1 bar.
-//#define GIBSSFE298_UNKNOWN 123456789.
 #define ENTROPY298_UNKNOWN -123456789.
 
 //! Object containing the elements that make up species in a phase.
@@ -410,7 +409,7 @@ public:
      */
     static std::vector<Elements*> Global_Elements_List;
 
-    friend class Constituents;
+    friend class Phase;
 };
 
 }  // namespace

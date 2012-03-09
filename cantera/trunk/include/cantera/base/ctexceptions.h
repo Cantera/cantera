@@ -144,16 +144,16 @@ private:
 };
 
 
-//! An element index is out of range.
+//! An array index is out of range.
 /*!
  *  @ingroup errorhandling
  */
-class ElementRangeError : public CanteraError
+class IndexError : public CanteraError
 {
 public:
     //! Constructor
     /*!
-     * This class indicates an out-of-bounds index.
+     * This class indicates an out-of-bounds array index.
      *
      * @param func String name for the function within which the error was
      *             generated.
@@ -161,12 +161,15 @@ public:
      * @param mmax This is the maximum allowed value of the index. The
      *             minimum allowed value is assumed to be 0.
      */
-    ElementRangeError(std::string func, size_t m, size_t mmax) :
-        CanteraError(func), m_(m), mmax_(mmax) {}
+    IndexError(std::string func, std::string arrayName, size_t m, size_t mmax) :
+        CanteraError(func), arrayName_(arrayName), m_(m), mmax_(mmax) {}
+
+    virtual ~IndexError() throw() {};
     virtual std::string getMessage() const;
-    virtual std::string getClass() const { return "ElementRangeError"; }
+    virtual std::string getClass() const { return "IndexError"; }
 
 private:
+    std::string arrayName_;
     size_t m_, mmax_;
 };
 

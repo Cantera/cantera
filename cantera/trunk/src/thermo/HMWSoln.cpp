@@ -22,6 +22,7 @@
 #include "cantera/thermo/ThermoFactory.h"
 #include "cantera/thermo/WaterProps.h"
 #include "cantera/thermo/PDSS_Water.h"
+#include "cantera/base/stringUtils.h"
 
 #include <cmath>
 #include <cstdlib>
@@ -2445,7 +2446,7 @@ s_updatePitzer_lnMolalityActCoeff() const
      */
     const double* molality = DATA_PTR(m_molalitiesCropped);
     /*
-     * These are the charges of the species accessed from Constituents.h
+     * These are the charges of the species accessed from class Phase
      */
     const double* charge = DATA_PTR(m_speciesCharge);
 

@@ -10,6 +10,7 @@
 #include "cantera/base/utilities.h"
 #include "cantera/transport/TransportParams.h"
 #include "cantera/transport/TransportFactory.h"
+#include "cantera/base/stringUtils.h"
 
 #include <iostream>
 using namespace std;

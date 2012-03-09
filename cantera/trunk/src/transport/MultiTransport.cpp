@@ -20,6 +20,7 @@
 #include "cantera/thermo/IdealGasPhase.h"
 
 #include "cantera/transport/TransportFactory.h"
+#include "cantera/base/stringUtils.h"
 
 #include <iostream>
 using namespace std;

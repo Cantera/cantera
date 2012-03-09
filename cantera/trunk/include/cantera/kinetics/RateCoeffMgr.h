@@ -12,7 +12,7 @@
 
 #include "cantera/base/ct_defs.h"
 #include "cantera/base/ctexceptions.h"
-
+#include "cantera/base/stringUtils.h"
 
 namespace Cantera
 {

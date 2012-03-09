@@ -12,6 +12,7 @@
 
 #include "cantera/thermo/ThermoPhase.h"
 #include "cantera/transport/DustyGasTransport.h"
+#include "cantera/base/stringUtils.h"
 
 using namespace std;
 

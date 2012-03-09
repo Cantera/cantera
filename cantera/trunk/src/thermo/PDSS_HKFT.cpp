@@ -15,6 +15,7 @@
 #include "cantera/thermo/PDSS_HKFT.h"
 #include "cantera/thermo/WaterProps.h"
 #include "cantera/thermo/PDSS_Water.h"
+#include "cantera/base/stringUtils.h"
 
 #include <cstdlib>
 

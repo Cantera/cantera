@@ -7,14 +7,11 @@
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the
  * U.S. Government retains certain rights in this software.
  */
-/*
- *  $Date: 2010-11-12 14:37:41 -0700 (Fri, 12 Nov 2010) $
- *  $Revision: 641 $
- */
-
 
 #include "cantera/thermo/PhaseCombo_Interaction.h"
 #include "cantera/thermo/ThermoFactory.h"
+#include "cantera/base/stringUtils.h"
+
 #include <iomanip>
 
 using namespace std;
