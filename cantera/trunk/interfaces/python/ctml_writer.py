@@ -1998,11 +1998,14 @@ class Lindemann:
 #get_atomic_wts()
 validate()
 
-if __name__ == "__main__":
-    import sys, os
-    file = sys.argv[1]
-    base = os.path.basename(file)
+def convert(filename):
+    import os
+    base = os.path.basename(filename)
     root, ext = os.path.splitext(base)
     dataset(root)
-    execfile(file)
+    execfile(filename)
     write()
+
+if __name__ == "__main__":
+    import sys
+    convert(sys.argv[1])
