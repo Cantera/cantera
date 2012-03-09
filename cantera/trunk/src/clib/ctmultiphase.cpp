@@ -53,100 +53,151 @@ static bool checkPhase(int i, int n)
     }
 }
 
-namespace Cantera
-{
-int _equilflag(const char* xy);
-}
-
 extern "C" {
 
     int mix_new()
     {
-        MultiPhase* m = new MultiPhase;
-        return mixCabinet::add(m);
+        try {
+            MultiPhase* m = new MultiPhase;
+            return mixCabinet::add(m);
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
     }
 
     int mix_del(int i)
     {
-        mixCabinet::del(i);
-        return 0;
+        try {
+            mixCabinet::del(i);
+            return 0;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
     }
 
     int mix_copy(int i)
     {
-        return mixCabinet::newCopy(i);
+        try {
+            return mixCabinet::newCopy(i);
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
     }
 
     int mix_assign(int i, int j)
     {
-        return mixCabinet::assign(i,j);
+        try {
+            return mixCabinet::assign(i,j);
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
     }
 
     int mix_addPhase(int i, int j, double moles)
     {
-        mixCabinet::item(i).addPhase(&Cabinet<ThermoPhase>::item(j), moles);
-        return 0;
+        try {
+            mixCabinet::item(i).addPhase(&Cabinet<ThermoPhase>::item(j), moles);
+            return 0;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
     }
 
     int mix_init(int i)
     {
-        mixCabinet::item(i).init();
-        return 0;
+        try {
+            mixCabinet::item(i).init();
+            return 0;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
     }
 
     size_t mix_nElements(int i)
     {
-        return mixCabinet::item(i).nElements();
+        try {
+            return mixCabinet::item(i).nElements();
+        } catch (...) {
+            return handleAllExceptions(npos, npos);
+        }
     }
 
     size_t mix_elementIndex(int i, char* name)
     {
-        return mixCabinet::item(i).elementIndex(string(name));
+        try {
+            return mixCabinet::item(i).elementIndex(string(name));
+        } catch (...) {
+            return handleAllExceptions(npos, npos);
+        }
     }
 
     size_t mix_nSpecies(int i)
     {
-        return mixCabinet::item(i).nSpecies();
+        try {
+            return mixCabinet::item(i).nSpecies();
+        } catch (...) {
+            return handleAllExceptions(npos, npos);
+        }
     }
 
     size_t mix_speciesIndex(int i, int k, int p)
     {
-        return mixCabinet::item(i).speciesIndex(k, p);
+        try {
+            return mixCabinet::item(i).speciesIndex(k, p);
+        } catch (...) {
+            return handleAllExceptions(npos, npos);
+        }
     }
 
     doublereal mix_nAtoms(int i, int k, int m)
     {
-        bool ok = (checkSpecies(i,k) && checkElement(i,m));
-        if (ok) {
-            return mixCabinet::item(i).nAtoms(k,m);
-        } else {
-            return DERR;
+        try {
+            bool ok = (checkSpecies(i,k) && checkElement(i,m));
+            if (ok) {
+                return mixCabinet::item(i).nAtoms(k,m);
+            } else {
+                return DERR;
+            }
+        } catch (...) {
+            return handleAllExceptions(DERR, DERR);
         }
     }
 
     size_t mix_nPhases(int i)
     {
-        return mixCabinet::item(i).nPhases();
+        try {
+            return mixCabinet::item(i).nPhases();
+        } catch (...) {
+            return handleAllExceptions(npos, npos);
+        }
     }
 
     doublereal mix_phaseMoles(int i, int n)
     {
-        if (!checkPhase(i, n)) {
-            return DERR;
+        try {
+            if (!checkPhase(i, n)) {
+                return DERR;
+            }
+            return mixCabinet::item(i).phaseMoles(n);
+        } catch (...) {
+            return handleAllExceptions(DERR, DERR);
         }
-        return mixCabinet::item(i).phaseMoles(n);
     }
 
     int mix_setPhaseMoles(int i, int n, double v)
     {
-        if (!checkPhase(i, n)) {
-            return ERR;
+        try {
+            if (!checkPhase(i, n)) {
+                return ERR;
+            }
+            if (v < 0.0) {
+                return -1;
+            }
+            mixCabinet::item(i).setPhaseMoles(n, v);
+            return 0;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
         }
-        if (v < 0.0) {
-            return -1;
-        }
-        mixCabinet::item(i).setPhaseMoles(n, v);
-        return 0;
     }
 
     int mix_setMoles(int i, size_t nlen, double* n)
@@ -175,69 +226,109 @@ extern "C" {
 
     int mix_setTemperature(int i, double t)
     {
-        if (t < 0.0) {
-            return -1;
+        try {
+            if (t < 0.0) {
+                return -1;
+            }
+            mixCabinet::item(i).setTemperature(t);
+            return 0;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
         }
-        mixCabinet::item(i).setTemperature(t);
-        return 0;
     }
 
     doublereal mix_temperature(int i)
     {
-        return mixCabinet::item(i).temperature();
+        try {
+            return mixCabinet::item(i).temperature();
+        } catch (...) {
+            return handleAllExceptions(DERR, DERR);
+        }
     }
 
     doublereal mix_minTemp(int i)
     {
-        return mixCabinet::item(i).minTemp();
+        try {
+            return mixCabinet::item(i).minTemp();
+        } catch (...) {
+            return handleAllExceptions(DERR, DERR);
+        }
     }
 
     doublereal mix_maxTemp(int i)
     {
-        return mixCabinet::item(i).maxTemp();
+        try {
+            return mixCabinet::item(i).maxTemp();
+        } catch (...) {
+            return handleAllExceptions(DERR, DERR);
+        }
     }
 
     doublereal mix_charge(int i)
     {
-        return mixCabinet::item(i).charge();
+        try {
+            return mixCabinet::item(i).charge();
+        } catch (...) {
+            return handleAllExceptions(DERR, DERR);
+        }
     }
 
     doublereal mix_phaseCharge(int i, int p)
     {
-        if (!checkPhase(i,p)) {
-            return DERR;
+        try {
+            if (!checkPhase(i,p)) {
+                return DERR;
+            }
+            return mixCabinet::item(i).phaseCharge(p);
+        } catch (...) {
+            return handleAllExceptions(DERR, DERR);
         }
-        return mixCabinet::item(i).phaseCharge(p);
     }
 
     int mix_setPressure(int i, double p)
     {
-        if (p < 0.0) {
-            return -1;
+        try {
+            if (p < 0.0) {
+                return -1;
+            }
+            mixCabinet::item(i).setPressure(p);
+            return 0;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
         }
-        mixCabinet::item(i).setPressure(p);
-        return 0;
     }
 
     doublereal mix_pressure(int i)
     {
-        return mixCabinet::item(i).pressure();
+        try {
+            return mixCabinet::item(i).pressure();
+        } catch (...) {
+            return handleAllExceptions(DERR, DERR);
+        }
     }
 
     doublereal mix_speciesMoles(int i, int k)
     {
-        if (!checkSpecies(i,k)) {
-            return DERR;
+        try {
+            if (!checkSpecies(i,k)) {
+                return DERR;
+            }
+            return mixCabinet::item(i).speciesMoles(k);
+        } catch (...) {
+            return handleAllExceptions(DERR, DERR);
         }
-        return mixCabinet::item(i).speciesMoles(k);
     }
 
     doublereal mix_elementMoles(int i, int m)
     {
-        if (!checkElement(i,m)) {
-            return DERR;
+        try {
+            if (!checkElement(i,m)) {
+                return DERR;
+            }
+            return mixCabinet::item(i).elementMoles(m);
+        } catch (...) {
+            return handleAllExceptions(DERR, DERR);
         }
-        return mixCabinet::item(i).elementMoles(m);
     }
 
 
@@ -291,8 +382,8 @@ extern "C" {
     int mix_getValidChemPotentials(int i, double bad_mu,
             int standard, size_t lenmu, double* mu)
     {
-        bool st = (standard == 1);
         try {
+            bool st = (standard == 1);
             if (lenmu < mixCabinet::item(i).nSpecies()) {
                 throw CanteraError("getChemPotentials","array too small");
             }
@@ -305,36 +396,64 @@ extern "C" {
 
     double mix_enthalpy(int i)
     {
-        return mixCabinet::item(i).enthalpy();
+        try {
+            return mixCabinet::item(i).enthalpy();
+        } catch (...) {
+            return handleAllExceptions(DERR, DERR);
+        }
     }
 
     double mix_entropy(int i)
     {
-        return mixCabinet::item(i).entropy();
+        try {
+            return mixCabinet::item(i).entropy();
+        } catch (...) {
+            return handleAllExceptions(DERR, DERR);
+        }
     }
 
     double mix_gibbs(int i)
     {
-        return mixCabinet::item(i).gibbs();
+        try {
+            return mixCabinet::item(i).gibbs();
+        } catch (...) {
+            return handleAllExceptions(DERR, DERR);
+        }
     }
 
     double mix_cp(int i)
     {
-        return mixCabinet::item(i).cp();
+        try {
+            return mixCabinet::item(i).cp();
+        } catch (...) {
+            return handleAllExceptions(DERR, DERR);
+        }
     }
 
     double mix_volume(int i)
     {
-        return mixCabinet::item(i).volume();
+        try {
+            return mixCabinet::item(i).volume();
+        } catch (...) {
+            return handleAllExceptions(DERR, DERR);
+        }
     }
 
     size_t mix_speciesPhaseIndex(int i, int k)
     {
-        return mixCabinet::item(i).speciesPhaseIndex(k);
+        try {
+            return mixCabinet::item(i).speciesPhaseIndex(k);
+        } catch (...) {
+            return handleAllExceptions(npos, npos);
+        }
     }
 
     double mix_moleFraction(int i, int k)
     {
-        return mixCabinet::item(i).moleFraction(k);
+        try {
+            return mixCabinet::item(i).moleFraction(k);
+        } catch (...) {
+            return handleAllExceptions(DERR, DERR);
+        }
     }
 }

@@ -20,36 +20,48 @@ extern "C" {
 
     int bndry_new(int itype)
     {
-        Bdry1D* s;
-        switch (itype) {
-        case 1:
-            s = new Inlet1D();
-            break;
-        case 2:
-            s = new Symm1D();
-            break;
-        case 3:
-            s = new Surf1D();
-            break;
-        case 4:
-            s = new ReactingSurf1D();
-            break;
-        default:
-            return -2;
+        try {
+            Bdry1D* s;
+            switch (itype) {
+            case 1:
+                s = new Inlet1D();
+                break;
+            case 2:
+                s = new Symm1D();
+                break;
+            case 3:
+                s = new Surf1D();
+                break;
+            case 4:
+                s = new ReactingSurf1D();
+                break;
+            default:
+                return -2;
+            }
+            int i = BoundaryCabinet::add(s);
+            return i;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
         }
-        int i = BoundaryCabinet::add(s);
-        return i;
     }
 
     int bndry_del(int i)
     {
-        BoundaryCabinet::del(i);
-        return 0;
+        try {
+            BoundaryCabinet::del(i);
+            return 0;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
     }
 
     double bndry_temperature(int i)
     {
-        return BoundaryCabinet::item(i).temperature();
+        try {
+            return BoundaryCabinet::item(i).temperature();
+        } catch (...) {
+            return handleAllExceptions(DERR, DERR);
+        }
     }
 
     int bndry_settemperature(int i, double t)
@@ -65,7 +77,7 @@ extern "C" {
     double bndry_spreadrate(int i)
     {
         try {
-            return dynamic_cast<Inlet1D*>(&BoundaryCabinet::item(i))->spreadRate();
+            return dynamic_cast<Inlet1D&>(BoundaryCabinet::item(i)).spreadRate();
         } catch (...) {
             return Cantera::handleAllExceptions(-1, ERR);
         }
@@ -75,7 +87,7 @@ extern "C" {
     int bndry_setSpreadRate(int i, double v)
     {
         try {
-            dynamic_cast<Inlet1D*>(&BoundaryCabinet::item(i))->setSpreadRate(v);
+            dynamic_cast<Inlet1D&>(BoundaryCabinet::item(i)).setSpreadRate(v);
         } catch (...) {
             return Cantera::handleAllExceptions(-1, ERR);
         }
@@ -92,10 +104,13 @@ extern "C" {
         return 0;
     }
 
-
     double bndry_mdot(int i)
     {
-        return BoundaryCabinet::item(i).mdot();
+        try {
+            return BoundaryCabinet::item(i).mdot();
+        } catch (...) {
+            return handleAllExceptions(DERR, DERR);
+        }
     }
 
     int bndry_setxin(int i, double* xin)
@@ -121,11 +136,11 @@ extern "C" {
     int surf_setkinetics(int i, int j)
     {
         try {
-            ReactingSurf1D* srf =
-                dynamic_cast<ReactingSurf1D*>(&BoundaryCabinet::item(i));
-            InterfaceKinetics* k =
-                dynamic_cast<InterfaceKinetics*>(&Cabinet<Kinetics>::item(j));
-            srf->setKineticsMgr(k);
+            ReactingSurf1D& srf =
+                dynamic_cast<ReactingSurf1D&>(BoundaryCabinet::item(i));
+            InterfaceKinetics& k =
+                dynamic_cast<InterfaceKinetics&>(Cabinet<Kinetics>::item(j));
+            srf.setKineticsMgr(&k);
         } catch (...) {
             return Cantera::handleAllExceptions(-1, ERR);
         }

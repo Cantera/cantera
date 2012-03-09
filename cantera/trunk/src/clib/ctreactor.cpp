@@ -36,69 +36,105 @@ extern "C" {
 
     int reactor_new(int type)
     {
-        ReactorBase* r=0;
-        if (type == ReactorType) {
-            r = new Reactor();
-        } else if (type == FlowReactorType) {
-            r = new FlowReactor();
-        } else if (type == ConstPressureReactorType) {
-            r = new ConstPressureReactor();
-        } else if (type == ReservoirType) {
-            r = new Reservoir();
-        } else {
-            r = new ReactorBase();
+        try {
+            ReactorBase* r=0;
+            if (type == ReactorType) {
+                r = new Reactor();
+            } else if (type == FlowReactorType) {
+                r = new FlowReactor();
+            } else if (type == ConstPressureReactorType) {
+                r = new ConstPressureReactor();
+            } else if (type == ReservoirType) {
+                r = new Reservoir();
+            } else {
+                r = new ReactorBase();
+            }
+            return ReactorCabinet::add(r);
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
         }
-        return ReactorCabinet::add(r);
     }
 
     int reactor_del(int i)
     {
-        ReactorCabinet::del(i);
-        return 0;
+        try {
+            ReactorCabinet::del(i);
+            return 0;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
     }
 
     int reactor_copy(int i)
     {
-        return ReactorCabinet::newCopy(i);
+        try {
+            return ReactorCabinet::newCopy(i);
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
     }
 
     int reactor_assign(int i, int j)
     {
-        return ReactorCabinet::assign(i,j);
+        try {
+            return ReactorCabinet::assign(i,j);
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
     }
 
     int reactor_setInitialVolume(int i, double v)
     {
-        ReactorCabinet::item(i).setInitialVolume(v);
-        return 0;
+        try {
+            ReactorCabinet::item(i).setInitialVolume(v);
+            return 0;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
     }
 
     int reactor_setInitialTime(int i, double t)
     {
-        ReactorCabinet::item(i).setInitialTime(t);
-        return 0;
+        try {
+            ReactorCabinet::item(i).setInitialTime(t);
+            return 0;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
     }
 
     int reactor_setThermoMgr(int i, int n)
     {
-        ReactorCabinet::item(i).setThermoMgr(ThermoCabinet::item(n));
-        return 0;
+        try {
+            ReactorCabinet::item(i).setThermoMgr(ThermoCabinet::item(n));
+            return 0;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
     }
 
     int reactor_setKineticsMgr(int i, int n)
     {
-        ReactorBase* r = &ReactorCabinet::item(i);
-        if (r->type() >= ReactorType) {
-            ((Reactor*)r)->setKineticsMgr(KineticsCabinet::item(n));
+        try {
+            ReactorBase* r = &ReactorCabinet::item(i);
+            if (r->type() >= ReactorType) {
+                ((Reactor*)r)->setKineticsMgr(KineticsCabinet::item(n));
+            }
+            return 0;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
         }
-        return 0;
     }
 
     int reactor_advance(int i, double t)
     {
         try {
-            ReactorCabinet::item(i).advance(t);
-            return 0;
+            try {
+                ReactorCabinet::item(i).advance(t);
+                return 0;
+            } catch (...) {
+                return handleAllExceptions(-1, ERR);
+            }
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -106,88 +142,144 @@ extern "C" {
 
     double reactor_step(int i, double t)
     {
-        return ReactorCabinet::item(i).step(t);
+        try {
+            return ReactorCabinet::item(i).step(t);
+        } catch (...) {
+            return handleAllExceptions(DERR, DERR);
+        }
     }
 
     double reactor_time(int i)
     {
-        return ReactorCabinet::item(i).time();
+        try {
+            return ReactorCabinet::item(i).time();
+        } catch (...) {
+            return handleAllExceptions(DERR, DERR);
+        }
     }
 
     double reactor_mass(int i)
     {
-        return ReactorCabinet::item(i).mass();
+        try {
+            return ReactorCabinet::item(i).mass();
+        } catch (...) {
+            return handleAllExceptions(DERR, DERR);
+        }
     }
 
     double reactor_volume(int i)
     {
-        return ReactorCabinet::item(i).volume();
+        try {
+            return ReactorCabinet::item(i).volume();
+        } catch (...) {
+            return handleAllExceptions(DERR, DERR);
+        }
     }
 
     double reactor_density(int i)
     {
-        return ReactorCabinet::item(i).density();
+        try {
+            return ReactorCabinet::item(i).density();
+        } catch (...) {
+            return handleAllExceptions(DERR, DERR);
+        }
     }
 
     double reactor_temperature(int i)
     {
-        return ReactorCabinet::item(i).temperature();
+        try {
+            return ReactorCabinet::item(i).temperature();
+        } catch (...) {
+            return handleAllExceptions(DERR, DERR);
+        }
     }
 
     double reactor_enthalpy_mass(int i)
     {
-        return ReactorCabinet::item(i).enthalpy_mass();
+        try {
+            return ReactorCabinet::item(i).enthalpy_mass();
+        } catch (...) {
+            return handleAllExceptions(DERR, DERR);
+        }
     }
 
     double reactor_intEnergy_mass(int i)
     {
-        return ReactorCabinet::item(i).intEnergy_mass();
+        try {
+            return ReactorCabinet::item(i).intEnergy_mass();
+        } catch (...) {
+            return handleAllExceptions(DERR, DERR);
+        }
     }
 
     double reactor_pressure(int i)
     {
-        return ReactorCabinet::item(i).pressure();
+        try {
+            return ReactorCabinet::item(i).pressure();
+        } catch (...) {
+            return handleAllExceptions(DERR, DERR);
+        }
     }
 
     double reactor_massFraction(int i, int k)
     {
-        return ReactorCabinet::item(i).massFraction(k);
+        try {
+            return ReactorCabinet::item(i).massFraction(k);
+        } catch (...) {
+            return handleAllExceptions(DERR, DERR);
+        }
     }
 
     int reactor_setEnergy(int i, int eflag)
     {
-        ReactorBase* r = &ReactorCabinet::item(i);
-        if (r->type() >= ReactorType) {
-            ((Reactor*)r)->setEnergy(eflag);
+        try {
+            ReactorBase* r = &ReactorCabinet::item(i);
+            if (r->type() >= ReactorType) {
+                ((Reactor*)r)->setEnergy(eflag);
+            }
+            return 0;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
         }
-        return 0;
     }
 
     int flowReactor_setMassFlowRate(int i, double mdot)
     {
-        ReactorBase* r = &ReactorCabinet::item(i);
-        if (r->type() >= ReactorType) {
-            ((FlowReactor*)r)->setMassFlowRate(mdot);
+        try {
+            ReactorBase* r = &ReactorCabinet::item(i);
+            if (r->type() >= ReactorType) {
+                ((FlowReactor*)r)->setMassFlowRate(mdot);
+            }
+            return 0;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
         }
-        return 0;
     }
 
     size_t reactor_nSensParams(int i)
     {
-        ReactorBase* r = &ReactorCabinet::item(i);
-        if (r->type() >= ReactorType) {
-            return ((Reactor*)r)->nSensParams();
-        } else {
-            std::cout << "type problem..." << r->type() << std::endl;
-            return 0;
+        try {
+            ReactorBase* r = &ReactorCabinet::item(i);
+            if (r->type() >= ReactorType) {
+                return ((Reactor*)r)->nSensParams();
+            } else {
+                std::cout << "type problem..." << r->type() << std::endl;
+                return 0;
+            }
+        } catch (...) {
+            return handleAllExceptions(npos, npos);
         }
     }
 
     int reactor_addSensitivityReaction(int i, int rxn)
     {
-        ReactorBase* r = &ReactorCabinet::item(i);
-        ((Reactor*)r)->addSensitivityReaction(rxn);
-        return 0;
+        try {
+            ReactorBase* r = &ReactorCabinet::item(i);
+            ((Reactor*)r)->addSensitivityReaction(rxn);
+            return 0;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
     }
 
 
@@ -195,8 +287,12 @@ extern "C" {
 
     int reactornet_new()
     {
-        ReactorNet* r = new ReactorNet();
-        return NetworkCabinet::add(r);
+        try {
+            ReactorNet* r = new ReactorNet();
+            return NetworkCabinet::add(r);
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
     }
 
     int reactornet_del(int i)
@@ -205,42 +301,66 @@ extern "C" {
             NetworkCabinet::del(i);
             return 0;
         } catch (...) {
-            return -1;
+            return handleAllExceptions(-1, ERR);
         }
     }
 
     int reactornet_copy(int i)
     {
-        return NetworkCabinet::newCopy(i);
+        try {
+            return NetworkCabinet::newCopy(i);
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
     }
 
     int reactornet_assign(int i, int j)
     {
-        return NetworkCabinet::assign(i,j);
+        try {
+            return NetworkCabinet::assign(i,j);
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
     }
 
     int reactornet_setInitialTime(int i, double t)
     {
-        NetworkCabinet::item(i).setInitialTime(t);
-        return 0;
+        try {
+            NetworkCabinet::item(i).setInitialTime(t);
+            return 0;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
     }
 
     int reactornet_setMaxTimeStep(int i, double maxstep)
     {
-        NetworkCabinet::item(i).setMaxTimeStep(maxstep);
-        return 0;
+        try {
+            NetworkCabinet::item(i).setMaxTimeStep(maxstep);
+            return 0;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
     }
 
     int reactornet_setTolerances(int i, double rtol, double atol)
     {
-        NetworkCabinet::item(i).setTolerances(rtol, atol);
-        return 0;
+        try {
+            NetworkCabinet::item(i).setTolerances(rtol, atol);
+            return 0;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
     }
 
     int reactornet_setSensitivityTolerances(int i, double rtol, double atol)
     {
-        NetworkCabinet::item(i).setSensitivityTolerances(rtol, atol);
-        return 0;
+        try {
+            NetworkCabinet::item(i).setSensitivityTolerances(rtol, atol);
+            return 0;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
     }
 
     int reactornet_addreactor(int i, int n)
@@ -274,50 +394,73 @@ extern "C" {
 
     double reactornet_time(int i)
     {
-        return NetworkCabinet::item(i).time();
+        try {
+            return NetworkCabinet::item(i).time();
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
     }
 
     double reactornet_rtol(int i)
     {
-        return NetworkCabinet::item(i).rtol();
+        try {
+            return NetworkCabinet::item(i).rtol();
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
     }
 
     double reactornet_atol(int i)
     {
-        return NetworkCabinet::item(i).atol();
+        try {
+            return NetworkCabinet::item(i).atol();
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
     }
 
     double reactornet_sensitivity(int i, char* v, int p, int r)
     {
-        return NetworkCabinet::item(i).sensitivity(v, p, r);
+        try {
+            return NetworkCabinet::item(i).sensitivity(v, p, r);
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
     }
-
 
     // flow devices
 
     int flowdev_new(int type)
     {
-        FlowDevice* r;
-        switch (type) {
-        case MFC_Type:
-            r = new MassFlowController();
-            break;
-        case PressureController_Type:
-            r = new PressureController();
-            break;
-        case Valve_Type:
-            r = new Valve();
-            break;
-        default:
-            r = new FlowDevice();
+        try {
+            FlowDevice* r;
+            switch (type) {
+            case MFC_Type:
+                r = new MassFlowController();
+                break;
+            case PressureController_Type:
+                r = new PressureController();
+                break;
+            case Valve_Type:
+                r = new Valve();
+                break;
+            default:
+                r = new FlowDevice();
+            }
+            return FlowDeviceCabinet::add(r);
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
         }
-        return FlowDeviceCabinet::add(r);
     }
 
     int flowdev_del(int i)
     {
-        FlowDeviceCabinet::del(i);
-        return 0;
+        try {
+            FlowDeviceCabinet::del(i);
+            return 0;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
     }
 
     int flowdev_install(int i, int n, int m)
@@ -336,43 +479,67 @@ extern "C" {
 
     int flowdev_setMaster(int i, int n)
     {
-        if (FlowDeviceCabinet::item(i).type() == PressureController_Type) {
-            dynamic_cast<PressureController&>(FlowDeviceCabinet::item(i)).setMaster(
-                &FlowDeviceCabinet::item(n));
+        try {
+            if (FlowDeviceCabinet::item(i).type() == PressureController_Type) {
+                dynamic_cast<PressureController&>(FlowDeviceCabinet::item(i)).setMaster(
+                    &FlowDeviceCabinet::item(n));
+            }
+            return 0;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
         }
-        return 0;
     }
 
     double flowdev_massFlowRate(int i, double time)
     {
-        return FlowDeviceCabinet::item(i).massFlowRate(time);
+        try {
+            return FlowDeviceCabinet::item(i).massFlowRate(time);
+        } catch (...) {
+            return handleAllExceptions(DERR, DERR);
+        }
     }
 
     int flowdev_setMassFlowRate(int i, double mdot)
     {
-        FlowDeviceCabinet::item(i).setMassFlowRate(mdot);
-        return 0;
+        try {
+            FlowDeviceCabinet::item(i).setMassFlowRate(mdot);
+            return 0;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
     }
 
     int flowdev_setParameters(int i, int n, double* v)
     {
-        FlowDeviceCabinet::item(i).setParameters(n, v);
-        return 0;
+        try {
+            FlowDeviceCabinet::item(i).setParameters(n, v);
+            return 0;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
     }
 
     int flowdev_setFunction(int i, int n)
     {
-        FlowDeviceCabinet::item(i).setFunction(&FuncCabinet::item(n));
-        return 0;
+        try {
+            FlowDeviceCabinet::item(i).setFunction(&FuncCabinet::item(n));
+            return 0;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
     }
 
     int flowdev_ready(int i)
     {
-        bool ok = FlowDeviceCabinet::item(i).ready();
-        if (ok) {
-            return 1;
+        try {
+            bool ok = FlowDeviceCabinet::item(i).ready();
+            if (ok) {
+                return 1;
+            }
+            return 0;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
         }
-        return 0;
     }
 
 
@@ -381,118 +548,190 @@ extern "C" {
 
     int wall_new(int type)
     {
-        Wall* r;
-        r = new Wall();
-        return WallCabinet::add(r);
+        try {
+            Wall* r;
+            r = new Wall();
+            return WallCabinet::add(r);
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
     }
 
     int wall_del(int i)
     {
-        WallCabinet::del(i);
-        return 0;
+        try {
+            WallCabinet::del(i);
+            return 0;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
     }
 
     int wall_copy(int i)
     {
-        return WallCabinet::newCopy(i);
+        try {
+            return WallCabinet::newCopy(i);
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
     }
 
     int wall_assign(int i, int j)
     {
-        return WallCabinet::assign(i,j);
+        try {
+            return WallCabinet::assign(i,j);
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
     }
 
     int wall_install(int i, int n, int m)
     {
-        WallCabinet::item(i).install(ReactorCabinet::item(n),
-                                     ReactorCabinet::item(m));
-        return 0;
+        try {
+            WallCabinet::item(i).install(ReactorCabinet::item(n),
+                                         ReactorCabinet::item(m));
+            return 0;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
     }
 
     int wall_setkinetics(int i, int n, int m)
     {
-        Kinetics* left=0, *right=0;
-        if (n > 0)
-            if (KineticsCabinet::item(n).type() == cInterfaceKinetics) {
-                left = &KineticsCabinet::item(n);
-            }
-        if (m > 0)
-            if (KineticsCabinet::item(m).type() == cInterfaceKinetics) {
-                right = &KineticsCabinet::item(m);
-            }
-        WallCabinet::item(i).setKinetics(left, right);
-        return 0;
+        try {
+            Kinetics* left=0, *right=0;
+            if (n > 0)
+                if (KineticsCabinet::item(n).type() == cInterfaceKinetics) {
+                    left = &KineticsCabinet::item(n);
+                }
+            if (m > 0)
+                if (KineticsCabinet::item(m).type() == cInterfaceKinetics) {
+                    right = &KineticsCabinet::item(m);
+                }
+            WallCabinet::item(i).setKinetics(left, right);
+            return 0;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
     }
 
     double wall_vdot(int i, double t)
     {
-        return WallCabinet::item(i).vdot(t);
+        try {
+            return WallCabinet::item(i).vdot(t);
+        } catch (...) {
+            return handleAllExceptions(DERR, DERR);
+        }
     }
 
     double wall_Q(int i, double t)
     {
-        return WallCabinet::item(i).Q(t);
+        try {
+            return WallCabinet::item(i).Q(t);
+        } catch (...) {
+            return handleAllExceptions(DERR, DERR);
+        }
     }
 
     double wall_area(int i)
     {
-        return WallCabinet::item(i).area();
+        try {
+            return WallCabinet::item(i).area();
+        } catch (...) {
+            return handleAllExceptions(DERR, DERR);
+        }
     }
 
     int wall_setArea(int i, double v)
     {
-        WallCabinet::item(i).setArea(v);
-        return 0;
+        try {
+            WallCabinet::item(i).setArea(v);
+            return 0;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
     }
 
     int wall_setThermalResistance(int i, double rth)
     {
-        WallCabinet::item(i).setThermalResistance(rth);
-        return 0;
+        try {
+            WallCabinet::item(i).setThermalResistance(rth);
+            return 0;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
     }
 
     int wall_setHeatTransferCoeff(int i, double u)
     {
-        WallCabinet::item(i).setHeatTransferCoeff(u);
-        return 0;
+        try {
+            WallCabinet::item(i).setHeatTransferCoeff(u);
+            return 0;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
     }
 
     int wall_setHeatFlux(int i, int n)
     {
-        WallCabinet::item(i).setHeatFlux(&FuncCabinet::item(n));
-        return 0;
+        try {
+            WallCabinet::item(i).setHeatFlux(&FuncCabinet::item(n));
+            return 0;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
     }
 
     int wall_setExpansionRateCoeff(int i, double k)
     {
-        WallCabinet::item(i).setExpansionRateCoeff(k);
-        return 0;
+        try {
+            WallCabinet::item(i).setExpansionRateCoeff(k);
+            return 0;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
     }
 
     int wall_setVelocity(int i, int n)
     {
-        WallCabinet::item(i).setVelocity(&FuncCabinet::item(n));
-        return 0;
+        try {
+            WallCabinet::item(i).setVelocity(&FuncCabinet::item(n));
+            return 0;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
     }
 
     int wall_setEmissivity(int i, double epsilon)
     {
-        WallCabinet::item(i).setEmissivity(epsilon);
-        return 0;
+        try {
+            WallCabinet::item(i).setEmissivity(epsilon);
+            return 0;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
     }
 
     int wall_ready(int i)
     {
-        if (WallCabinet::item(i).ready()) {
-            return 1;
-        } else {
-            return 0;
+        try {
+            if (WallCabinet::item(i).ready()) {
+                return 1;
+            } else {
+                return 0;
+            }
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
         }
     }
 
     int wall_addSensitivityReaction(int i, int lr, int rxn)
     {
-        WallCabinet::item(i).addSensitivityReaction(lr, rxn);
-        return 0;
+        try {
+            WallCabinet::item(i).addSensitivityReaction(lr, rxn);
+            return 0;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
     }
 }
