@@ -64,7 +64,7 @@ int _equilflag(const char* xy)
 
 
 ///  Default Constructor.
-ChemEquil::ChemEquil() : m_skip(npos), m_p1(0), m_p2(0), m_elementTotalSum(1.0),
+ChemEquil::ChemEquil() : m_skip(npos), m_elementTotalSum(1.0),
     m_p0(OneAtm), m_eloc(npos),
     m_elemFracCutoff(1.0E-100),
     m_doResPerturb(false)
@@ -77,7 +77,7 @@ ChemEquil::ChemEquil() : m_skip(npos), m_p1(0), m_p2(0), m_elementTotalSum(1.0),
  *   @param s ThermoPhase object that will be used in the equilibrium calls.
  */
 ChemEquil::ChemEquil(thermo_t& s) :
-    m_skip(npos), m_p1(0), m_p2(0),
+    m_skip(npos),
     m_elementTotalSum(1.0),
     m_p0(OneAtm), m_eloc(npos),
     m_elemFracCutoff(1.0E-100),
@@ -86,18 +86,9 @@ ChemEquil::ChemEquil(thermo_t& s) :
     initialize(s);
 }
 
-/// Destructor
 ChemEquil::~ChemEquil()
 {
-    if (m_p1) {
-        delete m_p1;
-    }
-    if (m_p2) {
-        delete m_p2;
-    }
 }
-
-
 
 /**
  *  Prepare for equilibrium calculations.
@@ -251,25 +242,23 @@ void ChemEquil::update(const thermo_t& s)
 int ChemEquil::setInitialMoles(thermo_t& s, vector_fp& elMoleGoal,
                                int loglevel)
 {
-    MultiPhase* mp = 0;
-    MultiPhaseEquil* e = 0;
     int iok = 0;
     if (loglevel > 0) {
         beginLogGroup("ChemEquil::setInitialMoles");
     }
     try {
-        mp = new MultiPhase;
-        mp->addPhase(&s, 1.0);
-        mp->init();
-        e = new MultiPhaseEquil(mp, true, loglevel-1);
-        e->setInitialMixMoles(loglevel-1);
+        MultiPhase mp;
+        mp.addPhase(&s, 1.0);
+        mp.init();
+        MultiPhaseEquil e(&mp, true, loglevel-1);
+        e.setInitialMixMoles(loglevel-1);
 
         // store component indices
         if (m_nComponents > m_kk) {
             m_nComponents = m_kk;
         }
         for (size_t m = 0; m < m_nComponents; m++) {
-            m_component[m] = e->componentIndex(m);
+            m_component[m] = e.componentIndex(m);
         }
         for (size_t k = 0; k < m_kk; k++) {
             if (s.moleFraction(k) > 0.0) {
@@ -306,13 +295,9 @@ int ChemEquil::setInitialMoles(thermo_t& s, vector_fp& elMoleGoal,
         }
 #endif
 
-        delete e;
-        delete mp;
         iok = 0;
     } catch (CanteraError& err) {
         err.save();
-        delete e;
-        delete mp;
         iok = -1;
     }
     if (loglevel > 0) {
@@ -352,13 +337,13 @@ int ChemEquil::estimateElementPotentials(thermo_t& s, vector_fp& lambda_RT,
     s.setMoleFractions(DATA_PTR(xMF_est));
     s.getMoleFractions(DATA_PTR(xMF_est));
 
-    MultiPhase* mp = new MultiPhase;
-    mp->addPhase(&s, 1.0);
-    mp->init();
+    MultiPhase mp;
+    mp.addPhase(&s, 1.0);
+    mp.init();
     int usedZeroedSpecies = 0;
     vector_fp formRxnMatrix;
     m_nComponents = BasisOptimize(&usedZeroedSpecies, false,
-                                  mp, m_orderVectorSpecies,
+                                  &mp, m_orderVectorSpecies,
                                   m_orderVectorElements, formRxnMatrix);
 
     for (size_t m = 0; m < m_nComponents; m++) {
@@ -371,15 +356,12 @@ int ChemEquil::estimateElementPotentials(thermo_t& s, vector_fp& lambda_RT,
     s.setMoleFractions(DATA_PTR(xMF_est));
     s.getMoleFractions(DATA_PTR(xMF_est));
 
-    size_t nct = Cantera::ElemRearrange(m_nComponents, elMolesGoal, mp,
+    size_t nct = Cantera::ElemRearrange(m_nComponents, elMolesGoal, &mp,
                                         m_orderVectorSpecies, m_orderVectorElements);
     if (nct != m_nComponents) {
         throw CanteraError("ChemEquil::estimateElementPotentials",
                            "confused");
     }
-
-    delete mp;
-
 
     s.getChemPotentials(DATA_PTR(mu_RT));
     doublereal rrt = 1.0/(GasConstant* s.temperature());
@@ -510,12 +492,6 @@ int ChemEquil::equilibrate(thermo_t& s, const char* XYstr,
     doublereal xval, yval, tmp;
     int fail = 0;
 
-    if (m_p1) {
-        delete m_p1;
-    }
-    if (m_p2) {
-        delete m_p2;
-    }
     bool tempFixed = true;
     int XY = _equilflag(XYstr);
 
@@ -542,37 +518,37 @@ int ChemEquil::equilibrate(thermo_t& s, const char* XYstr,
     switch (XY) {
     case TP:
     case PT:
-        m_p1 = new TemperatureCalculator<thermo_t>;
-        m_p2 = new PressureCalculator<thermo_t>;
+        m_p1.reset(new TemperatureCalculator<thermo_t>);
+        m_p2.reset(new PressureCalculator<thermo_t>);
         break;
     case HP:
     case PH:
         tempFixed = false;
-        m_p1 = new EnthalpyCalculator<thermo_t>;
-        m_p2 = new PressureCalculator<thermo_t>;
+        m_p1.reset(new EnthalpyCalculator<thermo_t>);
+        m_p2.reset(new PressureCalculator<thermo_t>);
         break;
     case SP:
     case PS:
         tempFixed = false;
-        m_p1 = new EntropyCalculator<thermo_t>;
-        m_p2 = new PressureCalculator<thermo_t>;
+        m_p1.reset(new EntropyCalculator<thermo_t>);
+        m_p2.reset(new PressureCalculator<thermo_t>);
         break;
     case SV:
     case VS:
         tempFixed = false;
-        m_p1 = new EntropyCalculator<thermo_t>;
-        m_p2 = new DensityCalculator<thermo_t>;
+        m_p1.reset(new EntropyCalculator<thermo_t>);
+        m_p2.reset(new DensityCalculator<thermo_t>);
         break;
     case TV:
     case VT:
-        m_p1 = new TemperatureCalculator<thermo_t>;
-        m_p2 = new DensityCalculator<thermo_t>;
+        m_p1.reset(new TemperatureCalculator<thermo_t>);
+        m_p2.reset(new DensityCalculator<thermo_t>);
         break;
     case UV:
     case VU:
         tempFixed = false;
-        m_p1 = new IntEnergyCalculator<thermo_t>;
-        m_p2 = new DensityCalculator<thermo_t>;
+        m_p1.reset(new IntEnergyCalculator<thermo_t>);
+        m_p2.reset(new DensityCalculator<thermo_t>);
         break;
     default:
         if (loglevel > 0) {
