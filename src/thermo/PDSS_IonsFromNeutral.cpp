@@ -8,14 +8,15 @@
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the
  * U.S. Government retains certain rights in this software.
  */
-#include "cantera/base/ct_defs.h"
-#include "cantera/base/xml.h"
-#include "cantera/base/ctml.h"
+
 #include "cantera/thermo/PDSS_IonsFromNeutral.h"
 #include "cantera/thermo/ThermoFactory.h"
 #include "cantera/thermo/IonsFromNeutralVPSSTP.h"
-
 #include "cantera/thermo/VPStandardStateTP.h"
+#include "cantera/base/stringUtils.h"
+#include "cantera/base/ct_defs.h"
+#include "cantera/base/xml.h"
+#include "cantera/base/ctml.h"
 
 using namespace std;
 

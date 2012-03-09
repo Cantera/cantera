@@ -17,6 +17,7 @@
  * U.S. Government retains certain rights in this software.
  */
 #include "cantera/thermo/PseudoBinaryVPSSTP.h"
+#include "cantera/base/stringUtils.h"
 
 #include <cmath>
 

@@ -17,6 +17,7 @@
 #include "cantera/thermo/PDSS.h"
 #include "cantera/thermo/mix_defs.h"
 #include "cantera/thermo/ThermoFactory.h"
+#include "cantera/base/stringUtils.h"
 
 using namespace std;
 

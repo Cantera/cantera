@@ -97,7 +97,6 @@ initThermo()
                            "could not create new substance object.");
     }
     m_mw = m_sub->MolWt();
-    m_weight[0] = m_mw;
     setMolecularWeight(0,m_mw);
     double one = 1.0;
     setMoleFractions(&one);

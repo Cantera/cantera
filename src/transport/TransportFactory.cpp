@@ -32,6 +32,7 @@
 #include "cantera/base/global.h"
 #include "cantera/thermo/IdealGasPhase.h"
 #include "cantera/base/ctml.h"
+#include "cantera/base/stringUtils.h"
 
 #include <cstdio>
 #include <cstring>

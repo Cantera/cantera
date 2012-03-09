@@ -13,6 +13,8 @@
 
 #include "cantera/numerics/ctlapack.h"
 
+#include "cantera/base/stringUtils.h"
+
 #include <iostream>
 using namespace std;
 

@@ -11,13 +11,13 @@
 #ifndef CT_PHASE_H
 #define CT_PHASE_H
 
-#include "Constituents.h"
 #include "cantera/base/vec_functions.h"
-
 #include "cantera/base/ctml.h"
+#include "Elements.h"
 
 namespace Cantera
 {
+class SpeciesThermo;
 
 //! Base class for phases of matter
 /*!
@@ -54,6 +54,14 @@ namespace Cantera
  *  (or phases which utilize standard states based on a T and P) this
  *  may be advantageous as well, and they need to overload these functions
  *  too.
+ *
+ * Class %Constituents is designed to provide information
+ * about the elements and species in a phase - names, index
+ * numbers (location in arrays), atomic or molecular weights,
+ * etc. No computations are performed by the methods of this
+ * class. The set of elements must include all those that compose
+ * the species, but may include additional elements. The species
+ * all must belong to the same phase.
  *
  * @ingroup phases
  *
@@ -111,7 +119,7 @@ namespace Cantera
  *
  * @ingroup phases
  */
-class Phase : public Constituents
+class Phase
 {
 public:
     /// Default constructor.
@@ -185,6 +193,75 @@ public:
      */
     void setName(std::string nm);
 
+    /// @name Element Information
+    // @{
+
+    /// Name of the element with index m.
+    ///   This is a passthrough routine to the Element object.
+    ///   \param m  Element index.
+    ///   \exception If m < 0 or m >= nElements(), the
+    ///          exception, ElementRangeError, is thrown.
+    std::string elementName(size_t m) const;
+
+    /// Index of element named 'name'.
+    /// The index is an integer
+    /// assigned to each element in the order it was added,
+    /// beginning with 0 for the first element.
+    /// @param name  name of the element
+    ///
+    /// If 'name' is not
+    /// the name of an element in the set, then the value -1 is
+    /// returned.
+    size_t elementIndex(std::string name) const;
+
+    /// Return a read-only reference to the vector of element names.
+    const std::vector<std::string>& elementNames() const;
+
+    /// Atomic weight of element m.
+    /*!
+     * @param m  Element index
+     */
+    doublereal atomicWeight(size_t m) const;
+
+    /// Entropy of the element in its standard state at 298 K and 1 bar
+    /*!
+     * @param m  Element index
+     */
+    doublereal entropyElement298(size_t m) const;
+
+    /// Atomic number of element m.
+    /*!
+     *  @param m Element index
+     */
+    int atomicNumber(size_t m) const;
+
+    int elementType(size_t m) const;
+
+
+    /// Return a read-only reference to the vector of atomic weights.
+    const vector_fp& atomicWeights() const;
+
+    /// Number of elements.
+    size_t nElements() const;
+
+    // @}
+
+
+    //! Number of atoms of element \c m in species \c k.
+    /*!
+     * @param k    species index
+     * @param m    element index
+     */
+    doublereal nAtoms(size_t k, size_t m) const;
+
+    //! Get a vector containing the atomic composition  of species k
+    /*!
+     * @param  k         species index
+     * @param atomArray  vector containing the atomic number in the species.
+     *                   Length: m_mm
+     */
+    void getAtoms(size_t k, double* atomArray) const;
+
     //! Returns the index of a species named 'name' within the Phase object
     /*!
      * The first species in the phase will have an index 0, and the last one in the
@@ -208,6 +285,12 @@ public:
      */
     size_t speciesIndex(std::string name) const;
 
+    //! Name of the species with index k
+    /*!
+     * @param k index of the species
+     */
+    std::string speciesName(size_t k) const;
+
     //! Returns the expanded species name of a species, including the phase name
     /*!
      *  Returns the expanded phase name species name string.
@@ -217,6 +300,14 @@ public:
      * @return   Returns the "phaseName:speciesName" string
      */
     std::string speciesSPName(int k) const;
+
+    /// Return a const reference to the vector of species names
+    const std::vector<std::string>& speciesNames() const;
+
+    /// Returns the number of species in the phase
+    size_t nSpecies() const {
+        return m_kk;
+    }
 
     //! Save the current internal state of the phase
     /*!
@@ -370,6 +461,25 @@ public:
      */
     void setState_RY(doublereal rho, doublereal* y);
 
+    //! Molecular weight of species \c k.
+    /*!
+     * @param k   index of species \c k
+     * @return    Returns the molecular weight of species \c k.
+     */
+    doublereal molecularWeight(size_t k) const;
+
+    //! Return the Molar mass of species \c k
+    /*!
+     * Alternate name for molecular weight.
+     *
+     * @param k  index for species
+     * @return   Return the molar mass of species k kg/kmol.
+     * @deprecated use molecularWeight instead
+     */
+    doublereal molarMass(size_t k) const {
+        return molecularWeight(k);
+    }
+
     /**
      * Copy the vector of molecular weights into vector weights.
      *
@@ -396,8 +506,19 @@ public:
 
     /**
      * Return a const reference to the internal vector of molecular weights.
+     * units = kg / kmol
      */
     const vector_fp& molecularWeights() const;
+
+    //!  This routine returns the size of species k
+    /*!
+     * @param k index of the species
+     * @return
+     *      Returns the size of the species. Units are meters.
+     */
+    doublereal size(size_t k) const {
+        return m_speciesSize[k];
+    }
 
     /**
      * Get the mole fractions by name.
@@ -551,6 +672,14 @@ public:
 
     //@}
 
+    /*!
+     *   Electrical charge of one species k molecule, divided by
+     *   the magnitude of the electron charge ( \f$ e = 1.602
+     *   \times 10^{-19}\f$ Coulombs). Dimensionless.
+     *
+     * @param k species index
+     */
+    doublereal charge(size_t k) const;
 
     /**
      * Charge density [C/m^3].
@@ -680,13 +809,130 @@ public:
     doublereal sum_xlogQ(doublereal* const Q) const;
     //@}
 
+    /// @name Adding Elements and Species
+    /// These methods are used to add new elements or species.
+    /// These are not usually called by user programs.
+    ///
+    /// Since species are checked to insure that they are only
+    /// composed of declared elements, it is necessary to first
+    /// add all elements before adding any species.
+    //@{
+
+    //! Add an element.
+    /*!
+     *  @param symbol Atomic symbol std::string.
+     *  @param weight Atomic mass in amu.
+     */
+    void addElement(const std::string& symbol, doublereal weight);
+
+    //! Add an element from an XML specification.
+    /*!
+     * @param e Reference to the XML_Node where the element is described.
+     */
+    void addElement(const XML_Node& e);
+
+    //! Add an element, checking for uniqueness
+    /*!
+     * The uniqueness is checked by comparing the string symbol. If
+     * not unique, nothing is done.
+     *
+     * @param symbol  String symbol of the element
+     * @param weight  Atomic weight of the element (kg kmol-1).
+     * @param atomicNumber Atomic number of the element (unitless)
+     * @param entropy298 Entropy of the element at 298 K and 1 bar
+     *                   in its most stable form. The default is
+     *                   the value ENTROPY298_UNKNOWN, which is
+     *                   interpreted as an unknown, and if used
+     *                   will cause Cantera to throw an error.
+     * @param elem_type Specifies the type of the element constraint equation. This defaults
+     *                   to CT_ELEM_TYPE_ABSPOS, i.e., an element.
+     */
+    void addUniqueElement(const std::string& symbol, doublereal weight,
+                          int atomicNumber = 0,
+                          doublereal entropy298 = ENTROPY298_UNKNOWN, int elem_type = CT_ELEM_TYPE_ABSPOS);
+
+    //! Add an element, checking for uniqueness
+    /*!
+     * The uniqueness is checked by comparing the string symbol. If
+     * not unique, nothing is done.
+     *
+     * @param e Reference to the XML_Node where the element is described.
+     */
+    void addUniqueElement(const XML_Node& e);
+
+    //! Add all elements referenced in an XML_Node tree
+    /*!
+     * @param phase Reference to the top  XML_Node of a phase
+     */
+    void addElementsFromXML(const XML_Node& phase);
+
+    /// Prohibit addition of more elements, and prepare to add species.
+    void freezeElements();
+
+    /// True if freezeElements has been called.
+    bool elementsFrozen();
+
+    //! Add an element after the elements have been frozen, checking for uniqueness
+    /*!
+     * The uniqueness is checked by comparing the string symbol. If
+     * not unique, nothing is done.
+     *
+     * @param symbol  String symbol of the element
+     * @param weight  Atomic weight of the element (kg kmol-1).
+     * @param atomicNumber Atomic number of the element (unitless)
+     * @param entropy298 Entropy of the element at 298 K and 1 bar
+     *                   in its most stable form. The default is
+     *                   the value ENTROPY298_UNKNOWN, which is
+     *                   interpreted as an unknown, and if used
+     *                   will cause Cantera to throw an error.
+     * @param elem_type Specifies the type of the element constraint equation. This defaults
+     *                   to CT_ELEM_TYPE_ABSPOS, i.e., an element.
+     */
+    size_t addUniqueElementAfterFreeze(const std::string& symbol, doublereal weight, int atomicNumber,
+                                       doublereal entropy298 = ENTROPY298_UNKNOWN, int elem_type = CT_ELEM_TYPE_ABSPOS);
+
+    //@}
+
+    /**
+     * @name Adding Species
+     * These methods are used to add new species.
+     * They are not usually called by user programs.
+     */
+    //@{
+    void addSpecies(const std::string& name, const doublereal* comp,
+                    doublereal charge = 0.0, doublereal size = 1.0);
+
+    //! Add a species to the phase, checking for uniqueness of the name
+    /*!
+     * This routine checks for uniqueness of the string name. It only
+     * adds the species if it is unique.
+     *
+     * @param name    String name of the species
+     * @param  comp   Double vector containing the elemental composition of the
+     *                species.
+     * @param charge  Charge of the species. Defaults to zero.
+     * @param size    Size of the species (meters). Defaults to 1 meter.
+     */
+    void addUniqueSpecies(const std::string& name, const doublereal* comp,
+                          doublereal charge = 0.0,
+                          doublereal size = 1.0);
+    //@}
+
     /**
      *  Finished adding species, prepare to use them for calculation
      *  of mixture properties.
      */
     virtual void freezeSpecies();
 
+    /// True if freezeSpecies has been called.
+    bool speciesFrozen() {
+        return m_speciesFrozen;
+    }
+
     virtual bool ready() const;
+
+    /// Remove all elements and species
+    void clear();
 
     //! Return the State Mole Fraction Number
     DEPRECATED(int stateMFNumber() const) {
@@ -740,6 +986,29 @@ protected:
      */
     size_t m_ndim;
 
+    //! Atomic composition of the species.
+    /*!
+     * the number of atoms of i in species k is equal to
+     * m_speciesComp[k * m_mm + i]
+     * The length of this vector is equal to m_kk * m_mm
+     */
+    vector_fp m_speciesComp;
+
+    /**
+     * m_speciesSize(): Vector of species sizes.
+     *           length m_kk
+     *           This is used in some equations of state
+     *           which employ the constant partial molar
+     *           volume approximation. It's so fundamental
+     *           we've put it at the Constituents class level
+     */
+    vector_fp m_speciesSize;
+
+    /**
+     * m_speciesCharge: Vector of species charges
+     *           length = m_kk
+     */
+    vector_fp m_speciesCharge;
 private:
 
     //! This stores the initial state of the system
@@ -824,6 +1093,23 @@ private:
      * @deprecated
      */
     int m_stateNum;
+
+    //! Boolean indicating whether the number of species has been frozen.
+    /*!
+     * During the construction of the phase, this is false. After
+     * construction of the the phase, this is true.
+     */
+    bool m_speciesFrozen;
+
+    /*!
+     * Pointer to the element object corresponding to this
+     * phase. Normally, this will be the default Element object
+     * common to all phases.
+     */
+    Elements* m_Elements;
+
+    //! Vector of the species names
+    std::vector<std::string> m_speciesNames;
 };
 
 //! typedef for the base Phase class

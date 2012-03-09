@@ -2,17 +2,13 @@
  *  @file LiquidTransportParams.cpp
  *  Source code for liquid mixture transport property evaluations.
  */
-/*
- * Latest Checkin:
- *  $Author$
- *  $Date$
- *  $Revision$
- */
 
 #include "cantera/transport/LiquidTransportParams.h"
 #include <iostream>
 #include "cantera/thermo/IonsFromNeutralVPSSTP.h"
 #include "cantera/thermo/MargulesVPSSTP.h"
+#include "cantera/base/stringUtils.h"
+
 #include <stdlib.h>
 using namespace std;
 using namespace ctml;

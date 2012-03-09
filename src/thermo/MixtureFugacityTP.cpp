@@ -10,23 +10,16 @@
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the
  * U.S. Government retains certain rights in this software.
  */
-/*
- *  $Author: hkmoffa $
- *  $Date: 2010-01-17 12:08:00 -0700 (Sun, 17 Jan 2010) $
- *  $Revision: 388 $
- */
 
 #include "cantera/thermo/MixtureFugacityTP.h"
 #include "cantera/thermo/VPSSMgr.h"
 #include "cantera/thermo/PDSS.h"
+#include "cantera/base/stringUtils.h"
 
 using namespace std;
 
 namespace Cantera
 {
-
-
-
 //====================================================================================================================
 /*
  * Default constructor

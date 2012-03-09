@@ -11,6 +11,7 @@
 #include "cantera/base/ctml.h"
 #include "cantera/thermo/PDSS_Water.h"
 #include "cantera/thermo/WaterPropsIAPWS.h"
+#include "cantera/base/stringUtils.h"
 
 #include <cmath>
 

@@ -10,9 +10,9 @@
 #include "cantera/thermo/SurfPhase.h"
 #include "cantera/thermo/EdgePhase.h"
 #include "cantera/thermo/ThermoFactory.h"
+#include "cantera/base/stringUtils.h"
 
 using namespace ctml;
-
 using namespace std;
 
 ///////////////////////////////////////////////////////////

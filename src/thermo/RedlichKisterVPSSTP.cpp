@@ -11,14 +11,11 @@
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the
  * U.S. Government retains certain rights in this software.
  */
-/*
- *  $Date: 2011-04-14 12:24:13 -0600 (Thu, 14 Apr 2011) $
- *  $Revision: 713 $
- */
-
 
 #include "RedlichKisterVPSSTP.h"
 #include "cantera/thermo/ThermoFactory.h"
+#include "cantera/base/stringUtils.h"
+
 #include <iomanip>
 
 using namespace std;

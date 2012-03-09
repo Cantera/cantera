@@ -14,6 +14,7 @@
 #include "cantera/kinetics/AqueousKinetics.h"
 #include "ReactionData.h"
 #include "cantera/kinetics/RateCoeffMgr.h"
+#include "cantera/base/stringUtils.h"
 
 #include <iostream>
 using namespace std;

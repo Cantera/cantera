@@ -11,6 +11,7 @@
  * U.S. Government retains certain rights in this software.
  */
 #include "cantera/thermo/SingleSpeciesTP.h"
+#include "cantera/base/stringUtils.h"
 
 using namespace std;
 

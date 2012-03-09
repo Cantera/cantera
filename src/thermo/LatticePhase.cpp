@@ -15,6 +15,7 @@
 #include "cantera/thermo/LatticePhase.h"
 #include "cantera/thermo/SpeciesThermo.h"
 #include "cantera/thermo/ThermoFactory.h"
+#include "cantera/base/stringUtils.h"
 
 #include <cmath>
 

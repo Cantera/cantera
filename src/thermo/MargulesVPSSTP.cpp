@@ -13,6 +13,8 @@
  */
 #include "cantera/thermo/MargulesVPSSTP.h"
 #include "cantera/thermo/ThermoFactory.h"
+#include "cantera/base/stringUtils.h"
+
 #include <iomanip>
 
 using namespace std;

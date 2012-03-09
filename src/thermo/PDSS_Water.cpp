@@ -17,6 +17,7 @@
 #include "cantera/thermo/ThermoFactory.h"
 #include "cantera/thermo/WaterProps.h"
 #include "cantera/thermo/VPStandardStateTP.h"
+#include "cantera/base/stringUtils.h"
 
 #include <cmath>
 

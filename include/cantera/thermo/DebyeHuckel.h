@@ -1550,12 +1550,6 @@ protected:
     vector_int  m_electrolyteSpeciesType;
 
     /**
-     * Species molar volumes \f$ m^3 kmol^-1 \f$
-     *  -> m_speciesSize in Constituents.h
-     */
-    //vector_fp m_speciesMolarVolume;
-
-    /**
      *  a_k = Size of the ionic species in the DH formulation
      *        units = meters
      */

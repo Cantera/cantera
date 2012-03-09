@@ -323,7 +323,8 @@ size_t Elements::elementIndex(std::string name) const
 string Elements::elementName(size_t m) const
 {
     if (m >= nElements()) {
-        throw ElementRangeError("Elements::elementName", m, nElements());
+        throw IndexError("Elements::elementName", "m_elementNames",
+                         m, nElements());
     }
     return m_elementNames[m];
 }
