@@ -15,6 +15,20 @@ namespace Cantera
 {
 class SpeciesThermo;
 
+//!  Exception class to indicate a fixed set of elements.
+/*!
+ *   This class is used to warn the user when the number of elements
+ *   are changed after at least one species is defined.
+ */
+class ElementsFrozen : public CanteraError
+{
+public:
+    //! Constructor for class
+    //! @param func Function where the error occurred.
+    ElementsFrozen(std::string func)
+        : CanteraError(func, "Elements cannot be added after species.") {}
+};
+
 //! Base class for phases of matter
 /*!
  * Class Phase manages the species and elements in a phase, as well as the
@@ -149,7 +163,29 @@ public:
     //!     @param m Element index
     int atomicNumber(size_t m) const;
 
+    //! Return the element constraint type
+    //! Possible types include:
+    //!
+    //! CT_ELEM_TYPE_TURNEDOFF        -1
+    //! CT_ELEM_TYPE_ABSPOS            0
+    //! CT_ELEM_TYPE_ELECTRONCHARGE    1
+    //! CT_ELEM_TYPE_CHARGENEUTRALITY  2
+    //! CT_ELEM_TYPE_LATTICERATIO      3
+    //! CT_ELEM_TYPE_KINETICFROZEN     4
+    //! CT_ELEM_TYPE_SURFACECONSTRAINT 5
+    //! CT_ELEM_TYPE_OTHERCONSTRAINT   6
+    //!
+    //! The default is CT_ELEM_TYPE_ABSPOS.
+    //!     @param m  Element index
+    //!     @return Returns the element type
     int elementType(size_t m) const;
+
+    //! Change the element type of the mth constraint
+    //! Reassigns an element type.
+    //!     @param m  Element index
+    //!     @param elem_type New elem type to be assigned
+    //!     @return Returns the old element type
+    int changeElementType(int m, int elem_type);
 
     //! Return a read-only reference to the vector of atomic weights.
     const vector_fp& atomicWeights() const;
@@ -547,7 +583,7 @@ public:
     //! Add an element.
     //!     @param symbol Atomic symbol std::string.
     //!     @param weight Atomic mass in amu.
-    void addElement(const std::string& symbol, doublereal weight);
+    void addElement(const std::string& symbol, doublereal weight=-12345.0);
 
     //! Add an element from an XML specification.
     //!     @param e Reference to the XML_Node where the element is described.
@@ -565,7 +601,7 @@ public:
     //! error.
     //!     @param elem_type Specifies the type of the element constraint
     //! equation. This defaults to CT_ELEM_TYPE_ABSPOS, i.e., an element.
-    void addUniqueElement(const std::string& symbol, doublereal weight,
+    void addUniqueElement(const std::string& symbol, doublereal weight=-12345.0,
                           int atomicNumber = 0,
                           doublereal entropy298 = ENTROPY298_UNKNOWN,
                           int elem_type = CT_ELEM_TYPE_ABSPOS);
@@ -628,9 +664,6 @@ public:
     }
 
     virtual bool ready() const;
-
-    //! Remove all elements and species
-    void clear();
 
     //! Return the State Mole Fraction Number
     DEPRECATED(int stateMFNumber() const) {
@@ -717,12 +750,21 @@ private:
     //! of the the phase, this is true.
     bool m_speciesFrozen;
 
-    //! Pointer to the element object corresponding to this phase. Normally,
-    //! this will be the default Element object common to all phases.
-    Elements* m_Elements;
+    //! If this is true, then no elements may be added to the object.
+    bool m_elementsFrozen;
 
     //! Vector of the species names
     std::vector<std::string> m_speciesNames;
+
+    size_t m_mm; //!< Number of elements.
+    vector_fp m_atomicWeights; //!< element atomic weights (kg kmol-1)
+    vector_int m_atomicNumbers; //!< element atomic numbers
+    std::vector<std::string> m_elementNames; //!< element names
+    vector_int m_elem_type; //!< Vector of element types
+
+    //! Entropy at 298.15 K and 1 bar of stable state pure elements (J kmol-1)
+    vector_fp m_entropy298;
+
 };
 
 //! typedef for the base Phase class

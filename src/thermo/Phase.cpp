@@ -25,10 +25,11 @@ Phase::Phase() :
     m_dens(0.001),
     m_mmw(0.0),
     m_stateNum(-1),
-    m_speciesFrozen(false) ,
-    m_Elements(new Elements())
+    m_speciesFrozen(false),
+    m_elementsFrozen(false),
+    m_mm(0),
+    m_elem_type(0)
 {
-    m_Elements->subscribe();
 }
 
 Phase::Phase(const Phase& right) :
@@ -42,7 +43,9 @@ Phase::Phase(const Phase& right) :
     m_mmw(0.0),
     m_stateNum(-1),
     m_speciesFrozen(false) ,
-    m_Elements(0)
+    m_elementsFrozen(false),
+    m_mm(0),
+    m_elem_type(0)
 {
     // Use the assignment operator to do the actual copying
     *this = operator=(right);
@@ -66,30 +69,20 @@ Phase& Phase::operator=(const Phase& right)
     m_molwts = right.m_molwts;
     m_rmolwts = right.m_rmolwts;
     m_stateNum = -1;
+
     m_speciesFrozen = right.m_speciesFrozen;
-    if (m_Elements) {
-        int nleft = m_Elements->unsubscribe();
-        if (nleft <= 0) {
-            vector<Elements*>::iterator it;
-            for (it  = Elements::Global_Elements_List.begin();
-                    it != Elements::Global_Elements_List.end(); ++it) {
-                if (*it == m_Elements) {
-                    Elements::Global_Elements_List.erase(it);
-                    break;
-                }
-            }
-            delete m_Elements;
-        }
-    }
-    m_Elements = right.m_Elements;
-    if (m_Elements) {
-        m_Elements->subscribe();
-    }
     m_speciesNames = right.m_speciesNames;
     m_speciesComp = right.m_speciesComp;
     m_speciesCharge = right.m_speciesCharge;
     m_speciesSize = right.m_speciesSize;
 
+    m_mm             = right.m_mm;
+    m_elementsFrozen = right.m_elementsFrozen;
+    m_atomicWeights  = right.m_atomicWeights;
+    m_atomicNumbers  = right.m_atomicNumbers;
+    m_elementNames   = right.m_elementNames;
+    m_entropy298     = right.m_entropy298;
+    m_elem_type      = right.m_elem_type;
     /*
      * This is a little complicated. -> Because we delete m_xml
      * in the destructor, we own m_xml completely, and we need
@@ -116,24 +109,6 @@ Phase::~Phase()
     if (m_xml) {
         delete m_xml;
         m_xml = 0;
-    }
-
-    int ileft = m_Elements->unsubscribe();
-    /*
-     * Here we may delete Elements Objects or not. Right now, we
-     * will delete them. We also delete the global pointer entry
-     * to keep everything consistent.
-     */
-    if (ileft <= 0) {
-        vector<Elements*>::iterator it;
-        for (it  = Elements::Global_Elements_List.begin();
-                it != Elements::Global_Elements_List.end(); ++it) {
-            if (*it == m_Elements) {
-                Elements::Global_Elements_List.erase(it);
-                break;
-            }
-        }
-        delete m_Elements;
     }
 }
 
@@ -174,52 +149,71 @@ void Phase::setName(std::string nm)
 
 size_t Phase::nElements() const
 {
-    return m_Elements->nElements();
+    return m_mm;
 }
 
 string Phase::elementName(size_t m) const
 {
-    return m_Elements->elementName(m);
+    if (m >= nElements()) {
+        throw IndexError("Elements::elementName", "m_elementNames",
+                         m, nElements());
+    }
+    return m_elementNames[m];
 }
 
 size_t Phase::elementIndex(std::string name) const
 {
-    return m_Elements->elementIndex(name);
+    for (size_t i = 0; i < m_mm; i++) {
+        if (m_elementNames[i] == name) {
+            return i;
+        }
+    }
+    return npos;
 }
 
 const vector<string>& Phase::elementNames() const
 {
-    return m_Elements->elementNames();
+    return m_elementNames;
 }
 
 doublereal Phase::atomicWeight(size_t m) const
 {
-    return m_Elements->atomicWeight(m);
+    return m_atomicWeights[m];
 }
 
 doublereal Phase::entropyElement298(size_t m) const
 {
-    return m_Elements->entropyElement298(m);
+    AssertThrowMsg(m_entropy298[m] != ENTROPY298_UNKNOWN,
+                   "Elements::entropy298",
+                   "Entropy at 298 K of element is unknown");
+    AssertTrace(m < m_mm);
+    return (m_entropy298[m]);
 }
 
 const vector_fp& Phase::atomicWeights() const
 {
-    return m_Elements->atomicWeights();
+    return m_atomicWeights;
 }
 
 int Phase::atomicNumber(size_t m) const
 {
-    return m_Elements->atomicNumber(m);
+    return m_atomicNumbers[m];
 }
 
 int Phase::elementType(size_t m) const
 {
-    return m_Elements->elementType(m);
+    return m_elem_type[m];
+}
+
+int Phase::changeElementType(int m, int elem_type)
+{
+    int old = m_elem_type[m];
+    m_elem_type[m] = elem_type;
+    return old;
 }
 
 doublereal Phase::nAtoms(size_t k, size_t m) const
 {
-    const size_t m_mm = m_Elements->nElements();
     if (m >= m_mm) {
         throw IndexError("Phase::nAtoms", "", m, nElements());
     }
@@ -231,7 +225,6 @@ doublereal Phase::nAtoms(size_t k, size_t m) const
 
 void Phase::getAtoms(size_t k, double* atomArray) const
 {
-    const size_t m_mm = m_Elements->nElements();
     for (size_t m = 0; m < m_mm; m++) {
         atomArray[m] = (double) m_speciesComp[m_mm * k + m];
     }
@@ -655,40 +648,165 @@ doublereal Phase::sum_xlogQ(doublereal* Q) const
 
 void Phase::addElement(const std::string& symbol, doublereal weight)
 {
-    m_Elements->addElement(symbol, weight);
+    if (weight == -12345.0) {
+        weight = LookupWtElements(symbol);
+        if (weight < 0.0) {
+            throw ElementsFrozen("addElement");
+        }
+    }
+    if (m_elementsFrozen) {
+        throw ElementsFrozen("addElement");
+        return;
+    }
+    m_atomicWeights.push_back(weight);
+    m_elementNames.push_back(symbol);
+    if (symbol == "E") {
+        m_elem_type.push_back(CT_ELEM_TYPE_ELECTRONCHARGE);
+    } else {
+        m_elem_type.push_back(CT_ELEM_TYPE_ABSPOS);
+    }
+
+    m_mm++;
 }
 
 void Phase::addElement(const XML_Node& e)
 {
-    m_Elements->addElement(e);
+    doublereal weight = atof(e["atomicWt"].c_str());
+    string symbol = e["name"];
+    addElement(symbol, weight);
 }
 
 void Phase::addUniqueElement(const std::string& symbol, doublereal weight,
                              int atomicNumber, doublereal entropy298,
                              int elem_type)
 {
-    m_Elements->addUniqueElement(symbol, weight, atomicNumber,
-                                 entropy298, elem_type);
+    if (weight == -12345.0) {
+        weight =  LookupWtElements(symbol);
+        if (weight < 0.0) {
+            throw ElementsFrozen("addElement");
+        }
+    }
+    /*
+     * First decide if this element has been previously added
+     * by conducting a string search. If it unique, add it to
+     * the list.
+     */
+    int ifound = 0;
+    int i = 0;
+    for (vector<string>::const_iterator it = m_elementNames.begin();
+            it < m_elementNames.end(); ++it, ++i) {
+        if (*it == symbol) {
+            ifound = 1;
+            break;
+        }
+    }
+    if (!ifound) {
+        if (m_elementsFrozen) {
+            throw ElementsFrozen("addElement");
+            return;
+        }
+        m_atomicWeights.push_back(weight);
+        m_elementNames.push_back(symbol);
+        m_atomicNumbers.push_back(atomicNumber);
+        m_entropy298.push_back(entropy298);
+        if (symbol == "E") {
+            m_elem_type.push_back(CT_ELEM_TYPE_ELECTRONCHARGE);
+        } else {
+            m_elem_type.push_back(elem_type);
+        }
+        m_mm++;
+    } else {
+        if (m_atomicWeights[i] != weight) {
+            throw CanteraError("AddUniqueElement",
+                "Duplicate Elements (" + symbol + ") have different weights");
+        }
+    }
 }
 
 void Phase::addUniqueElement(const XML_Node& e)
 {
-    m_Elements->addUniqueElement(e);
+    doublereal weight = 0.0;
+    if (e.hasAttrib("atomicWt")) {
+        weight = atof(stripws(e["atomicWt"]).c_str());
+    }
+    int anum = 0;
+    if (e.hasAttrib("atomicNumber")) {
+        anum = atoi(stripws(e["atomicNumber"]).c_str());
+    }
+    string symbol = e["name"];
+    doublereal entropy298 = ENTROPY298_UNKNOWN;
+    if (e.hasChild("entropy298")) {
+        XML_Node& e298Node = e.child("entropy298");
+        if (e298Node.hasAttrib("value")) {
+            entropy298 = atofCheck(stripws(e298Node["value"]).c_str());
+        }
+    }
+    if (weight != 0.0) {
+        addUniqueElement(symbol, weight, anum, entropy298);
+    } else {
+        addUniqueElement(symbol);
+    }
 }
 
 void Phase::addElementsFromXML(const XML_Node& phase)
 {
-    m_Elements->addElementsFromXML(phase);
+    // get the declared element names
+    if (! phase.hasChild("elementArray")) {
+        throw CanteraError("Elements::addElementsFromXML",
+            "phase xml node doesn't have \"elementArray\" XML Node");
+    }
+    XML_Node& elements = phase.child("elementArray");
+    vector<string> enames;
+    ctml::getStringArray(elements, enames);
+
+    // // element database defaults to elements.xml
+    string element_database = "elements.xml";
+    if (elements.hasAttrib("datasrc")) {
+        element_database = elements["datasrc"];
+    }
+
+    XML_Node* doc = get_XML_File(element_database);
+    XML_Node* dbe = &doc->child("ctml/elementData");
+
+    XML_Node& root = phase.root();
+    XML_Node* local_db = 0;
+    if (root.hasChild("ctml")) {
+        if (root.child("ctml").hasChild("elementData")) {
+            local_db = &root.child("ctml/elementData");
+        }
+    }
+
+    int nel = static_cast<int>(enames.size());
+    int i;
+    string enm;
+    XML_Node* e = 0;
+    for (i = 0; i < nel; i++) {
+        e = 0;
+        if (local_db) {
+            //writelog("looking in local database.");
+            e = local_db->findByAttr("name",enames[i]);
+            //if (!e) writelog(enames[i]+" not found.");
+        }
+        if (!e) {
+            e = dbe->findByAttr("name",enames[i]);
+        }
+        if (e) {
+            addUniqueElement(*e);
+        } else {
+            throw CanteraError("addElementsFromXML","no data for element "
+                               +enames[i]);
+        }
+    }
 }
 
 void Phase::freezeElements()
 {
-    m_Elements->freezeElements();
+    m_elementsFrozen = true;
 }
 
 bool Phase::elementsFrozen()
 {
-    return m_Elements->elementsFrozen();
+    return m_elementsFrozen;
 }
 
 size_t Phase::addUniqueElementAfterFreeze(const std::string& symbol,
@@ -700,10 +818,9 @@ size_t Phase::addUniqueElementAfterFreeze(const std::string& symbol,
         return ii;
     }
     // Check to see that the element isn't really in the list
-    m_Elements->m_elementsFrozen = false;
+    m_elementsFrozen = false;
     addUniqueElement(symbol, weight, atomicNumber, entropy298, elem_type);
-    m_Elements->m_elementsFrozen = true;
-    size_t m_mm = m_Elements->nElements();
+    m_elementsFrozen = true;
     ii = elementIndex(symbol);
     if (ii != m_mm-1) {
         throw CanteraError("Phase::addElementAfterFreeze()", "confused");
@@ -725,11 +842,11 @@ size_t Phase::addUniqueElementAfterFreeze(const std::string& symbol,
 void Phase::addSpecies(const std::string& name, const doublereal* comp,
                        doublereal charge, doublereal size)
 {
-    m_Elements->freezeElements();
+    freezeElements();
     m_speciesNames.push_back(name);
     m_speciesCharge.push_back(charge);
     m_speciesSize.push_back(size);
-    size_t ne = m_Elements->nElements();
+    size_t ne = nElements();
     // Create a changeable copy of the element composition. We now change
     // the charge potentially
     vector_fp compNew(ne);
@@ -737,9 +854,9 @@ void Phase::addSpecies(const std::string& name, const doublereal* comp,
         compNew[m] = comp[m];
     }
     double wt = 0.0;
-    const vector_fp& aw = m_Elements->atomicWeights();
+    const vector_fp& aw = atomicWeights();
     if (charge != 0.0) {
-        size_t eindex = m_Elements->elementIndex("E");
+        size_t eindex = elementIndex("E");
         if (eindex != npos) {
             doublereal ecomp = compNew[eindex];
             if (fabs(charge + ecomp) > 0.001) {
@@ -756,8 +873,8 @@ void Phase::addSpecies(const std::string& name, const doublereal* comp,
         } else {
             addUniqueElementAfterFreeze("E", 0.000545, 0, 0.0,
                                         CT_ELEM_TYPE_ELECTRONCHARGE);
-            ne = m_Elements->nElements();
-            eindex = m_Elements->elementIndex("E");
+            ne = nElements();
+            eindex = elementIndex("E");
             compNew.resize(ne);
             compNew[ne - 1] = - charge;
         }
@@ -779,7 +896,6 @@ void Phase::addUniqueSpecies(const std::string& name, const doublereal* comp,
             // We have found a match. At this point we could do some
             // compatibility checks. However, let's just return for the moment
             // without specifying any error.
-            size_t m_mm = m_Elements->nElements();
             for (size_t i = 0; i < m_mm; i++) {
                 if (comp[i] != m_speciesComp[m_kk * m_mm + i]) {
                     throw CanteraError("addUniqueSpecies",
@@ -809,7 +925,6 @@ void Phase::freezeSpecies()
     m_speciesFrozen = true;
     init(molecularWeights());
     size_t kk = nSpecies();
-    size_t nv = kk + 2;
     m_kk = nSpecies();
 }
 
@@ -848,7 +963,7 @@ void Phase::init(const vector_fp& mw)
 
 bool Phase::ready() const
 {
-    return (m_kk > 0 && m_Elements->elementsFrozen() && m_speciesFrozen);
+    return (m_kk > 0 && m_elementsFrozen && m_speciesFrozen);
 }
 
 } // namespace Cantera
