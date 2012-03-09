@@ -178,21 +178,15 @@ void ct2ctml(const char* file, const int debug)
         throw CanteraError("ct2ctml", message.str());
     }
 
-    // if the conversion succeeded and DEBUG_PATHS is not defined,
-    // then clean up by deleting the temporary Python file.
-#ifndef DEBUG_PATHS
-    //#ifdef _WIN32
-    //cmd = "cmd /C rm " + path;
+    // If the conversion succeeded and no debugging information is needed,
+    // clean up by deleting the temporary Python file and the log file.
     if (debug == 0) {
         remove(path.c_str());
+        remove(logfile.c_str());
     } else {
         writelog("ct2ctml: retaining temporary file "+path+"\n");
+        writelog("ct2ctml: retaining temporary file "+logfile+"\n");
     }
-#else
-    if (debug > 0) {
-        writelog("ct2ctml: retaining temporary file "+path+"\n");
-    }
-#endif
 }
 
 
