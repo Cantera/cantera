@@ -71,12 +71,6 @@ std::string f2string(const char* s, ftnlen n)
     return ss;
 }
 
-static void handleError(CanteraError& err)
-{
-    err.save();
-    error(lastErrorMessage());
-}
-
 /**
  * Exported functions.
  */
@@ -85,13 +79,9 @@ extern "C" {
     status_t cantera_error_(const char* proc, const char* msg,
                             ftnlen proclen, ftnlen msglen)
     {
-        try {
-            std::string sproc = f2string(proc, proclen);
-            std::string smsg = f2string(msg, msglen);
-            throw CanteraError(sproc, smsg);
-        } catch (...) {
-            return handleAllExceptions(-1, ERR);
-        }
+        std::string sproc = f2string(proc, proclen);
+        std::string smsg = f2string(msg, msglen);
+        throw CanteraError(sproc, smsg);
         return -1;
     }
 
@@ -107,96 +97,157 @@ extern "C" {
             for (int nn = lout; nn < lennm; nn++) {
                 nm[nn] = ' ';
             }
-            return 0;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+        return 0;
+    }
+
+    integer phase_nelements_(const integer* n)
+    {
+        try {
+            return _fph(n)->nElements();
+        } catch (...) {
+             return handleAllExceptions(-1, ERR);
+        }
+    }
+
+    integer phase_nspecies_(const integer* n)
+    {
+        try {
+            return _fph(n)->nSpecies();
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
     }
 
-    integer phase_nelements_(const integer* n)
-    {
-        return _fph(n)->nElements();
-    }
-
-    integer phase_nspecies_(const integer* n)
-    {
-        return _fph(n)->nSpecies();
-    }
-
     doublereal phase_temperature_(const integer* n)
     {
-        return _fph(n)->temperature();
+        try {
+            return _fph(n)->temperature();
+        } catch (...) {
+            return handleAllExceptions(DERR, DERR);
+        }
     }
 
     status_t phase_settemperature_(const integer* n, doublereal* t)
     {
-        _fph(n)->setTemperature(*t);
+        try {
+            _fph(n)->setTemperature(*t);
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
         return 0;
     }
 
     doublereal phase_density_(const integer* n)
     {
-        return _fph(n)->density();
+        try {
+            return _fph(n)->density();
+        } catch (...) {
+            return handleAllExceptions(DERR, DERR);
+        }
     }
 
     status_t phase_setdensity_(const integer* n, doublereal* rho)
     {
-        _fph(n)->setDensity(*rho);
+        try {
+            _fph(n)->setDensity(*rho);
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
         return 0;
     }
 
     doublereal phase_molardensity_(const integer* n)
     {
-        return _fph(n)->molarDensity();
+        try {
+            return _fph(n)->molarDensity();
+        } catch (...) {
+            return handleAllExceptions(DERR, DERR);
+        }
     }
 
     doublereal phase_meanmolecularweight_(const integer* n)
     {
-        return _fph(n)->meanMolecularWeight();
+        try {
+            return _fph(n)->meanMolecularWeight();
+        } catch (...) {
+            return handleAllExceptions(DERR, DERR);
+        }
     }
 
     integer phase_elementindex_(const integer* n, char* nm, ftnlen lennm)
     {
-        std::string elnm = f2string(nm, lennm);
-        return _fph(n)->elementIndex(elnm) + 1;
+        try {
+            std::string elnm = f2string(nm, lennm);
+            return _fph(n)->elementIndex(elnm) + 1;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
     }
 
     integer phase_speciesindex_(const integer* n, char* nm, ftnlen lennm)
     {
-        std::string spnm = f2string(nm, lennm);
-        return _fph(n)->speciesIndex(spnm) + 1;
+        try {
+            std::string spnm = f2string(nm, lennm);
+            return _fph(n)->speciesIndex(spnm) + 1;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
     }
 
     status_t phase_getmolefractions_(const integer* n, doublereal* x)
     {
-        _fph(n)->getMoleFractions(x);
+        try {
+            _fph(n)->getMoleFractions(x);
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
         return 0;
     }
 
     doublereal phase_molefraction_(const integer* n, integer* k)
     {
-        return _fph(n)->moleFraction(*k-1);
+        try {
+            return _fph(n)->moleFraction(*k-1);
+        } catch (...) {
+            return handleAllExceptions(DERR, DERR);
+        }
+
     }
 
     status_t phase_getmassfractions_(const integer* n, doublereal* y)
     {
-        ThermoPhase* p = _fph(n);
-        p->getMassFractions(y);
-        return 0;
+        try {
+            ThermoPhase* p = _fph(n);
+            p->getMassFractions(y);
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+            return 0;
     }
 
     doublereal phase_massfraction_(const integer* n, integer* k)
     {
-        return _fph(n)->massFraction(*k-1);
+        try {
+            return _fph(n)->massFraction(*k-1);
+        } catch (...) {
+            return handleAllExceptions(DERR, DERR);
+        }
     }
 
     status_t phase_setmolefractions_(const integer* n, double* x, const integer* norm)
     {
-        ThermoPhase* p = _fph(n);
-        if (*norm) {
-            p->setMoleFractions(x);
-        } else {
-            p->setMoleFractions_NoNorm(x);
+        try {
+            ThermoPhase* p = _fph(n);
+            if (*norm) {
+                p->setMoleFractions(x);
+            } else {
+                p->setMoleFractions_NoNorm(x);
+            }
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
         }
         return 0;
     }
@@ -212,19 +263,23 @@ extern "C" {
             }
             parseCompString(f2string(x, lx), xx);
             p->setMoleFractionsByName(xx);
-            return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
+        return 0;
     }
 
     status_t phase_setmassfractions_(const integer* n, doublereal* y, const integer* norm)
     {
-        ThermoPhase* p = _fph(n);
-        if (*norm) {
-            p->setMassFractions(y);
-        } else {
-            p->setMassFractions_NoNorm(y);
+        try {
+            ThermoPhase* p = _fph(n);
+            if (*norm) {
+                p->setMassFractions(y);
+            } else {
+                p->setMassFractions_NoNorm(y);
+            }
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
         }
         return 0;
     }
@@ -240,28 +295,35 @@ extern "C" {
             }
             parseCompString(f2string(y, leny), yy);
             p->setMassFractionsByName(yy);
-            return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
+        return 0;
     }
 
     status_t phase_getatomicweights_(const integer* n, doublereal* atw)
     {
-        ThermoPhase* p = _fph(n);
-        const vector_fp& wt = p->atomicWeights();
-        copy(wt.begin(), wt.end(), atw);
+        try {
+            ThermoPhase* p = _fph(n);
+            const vector_fp& wt = p->atomicWeights();
+            copy(wt.begin(), wt.end(), atw);
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
         return 0;
     }
 
     status_t phase_getmolecularweights_(const integer* n, doublereal* mw)
     {
-        ThermoPhase* p = _fph(n);
-        const vector_fp& wt = p->molecularWeights();
-        copy(wt.begin(), wt.end(), mw);
+        try {
+            ThermoPhase* p = _fph(n);
+            const vector_fp& wt = p->molecularWeights();
+            copy(wt.begin(), wt.end(), mw);
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
         return 0;
     }
-
 
     status_t phase_getspeciesname_(const integer* n, integer* k, char* nm, ftnlen lennm)
     {
@@ -272,10 +334,10 @@ extern "C" {
             for (int nn = lout; nn < lennm; nn++) {
                 nm[nn] = ' ';
             }
-            return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
+        return 0;
     }
 
     status_t phase_getelementname_(const integer* n, integer* m, char* nm, ftnlen lennm)
@@ -287,10 +349,10 @@ extern "C" {
             for (int nn = lout; nn < lennm; nn++) {
                 nm[nn] = ' ';
             }
-            return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
+        return 0;
     }
 
 
@@ -302,9 +364,6 @@ extern "C" {
             return handleAllExceptions(DERR, DERR);
         }
     }
-
-
-
 
     //-------------- Thermo --------------------//
 
@@ -321,12 +380,20 @@ extern "C" {
 
     integer th_nspecies_(const integer* n)
     {
-        return _fth(n)->nSpecies();
+        try {
+            return _fth(n)->nSpecies();
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
     }
 
     integer th_eostype_(const integer* n)
     {
-        return _fth(n)->eosType();
+        try {
+            return _fth(n)->eosType();
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
     }
 
     doublereal th_enthalpy_mole_(const integer* n)
@@ -448,8 +515,12 @@ extern "C" {
 
     status_t th_chempotentials_(const integer* n, doublereal* murt)
     {
-        thermo_t* thrm = _fth(n);
-        thrm->getChemPotentials(murt);
+        try {
+            thermo_t* thrm = _fth(n);
+            thrm->getChemPotentials(murt);
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
         return 0;
     }
 
@@ -457,96 +528,120 @@ extern "C" {
     {
         try {
             _fth(n)->setPressure(*p);
-            return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
+        return 0;
     }
 
     status_t th_set_hp_(const integer* n, doublereal* v1, doublereal* v2)
     {
         try {
             _fth(n)->setState_HP(*v1, *v2);
-            return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
+        return 0;
     }
 
     status_t th_set_uv_(const integer* n, doublereal* v1, doublereal* v2)
     {
         try {
             _fth(n)->setState_UV(*v1, *v2);
-            return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
+        return 0;
     }
 
     status_t th_set_sv_(const integer* n, doublereal* v1, doublereal* v2)
     {
         try {
             _fth(n)->setState_SV(*v1, *v2);
-            return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
+        return 0;
     }
 
     status_t th_set_sp_(const integer* n, doublereal* v1, doublereal* v2)
     {
         try {
             _fth(n)->setState_SP(*v1, *v2);
-            return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
+        return 0;
     }
 
     status_t th_equil_(const integer* n, char* XY, ftnlen lenxy)
     {
         try {
             equilibrate(*_fth(n), f2string(XY,lenxy).c_str());
-            return 0;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+        return 0;
+    }
+
+    doublereal th_refpressure_(const integer* n)
+    {
+        try {
+            return _fth(n)->refPressure();
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
     }
 
-    doublereal th_refpressure_(const integer* n)
-    {
-        return _fth(n)->refPressure();
-    }
-
     doublereal th_mintemp_(const integer* n, integer* k)
     {
-        return _fth(n)->minTemp(*k-1);
+        try {
+            return _fth(n)->minTemp(*k-1);
+        } catch (...) {
+            return handleAllExceptions(DERR, DERR);
+        }
     }
 
     doublereal th_maxtemp_(const integer* n, integer* k)
     {
-        return _fth(n)->maxTemp(*k-1);
+        try {
+            return _fth(n)->maxTemp(*k-1);
+        } catch (...) {
+            return handleAllExceptions(DERR, DERR);
+        }
     }
 
 
     status_t th_getenthalpies_rt_(const integer* n, doublereal* h_rt)
     {
-        thermo_t* thrm = _fth(n);
-        thrm->getEnthalpy_RT(h_rt);
+        try {
+            thermo_t* thrm = _fth(n);
+            thrm->getEnthalpy_RT(h_rt);
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
         return 0;
     }
 
     status_t th_getentropies_r_(const integer* n, doublereal* s_r)
     {
-        thermo_t* thrm = _fth(n);
-        thrm->getEntropy_R(s_r);
+        try {
+            thermo_t* thrm = _fth(n);
+            thrm->getEntropy_R(s_r);
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
         return 0;
     }
 
     status_t th_getcp_r_(const integer* n, integer* lenm, doublereal* cp_r)
     {
-        thermo_t* thrm = _fth(n);
-        thrm->getCp_R(cp_r);
+        try {
+            thermo_t* thrm = _fth(n);
+            thrm->getCp_R(cp_r);
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
         return 0;
     }
 
@@ -585,98 +680,130 @@ extern "C" {
         }
     }
 
-    //     status_t installRxnArrays_(integer* pxml, integer* ikin,
-    //         char* default_phase) {
-    //         try {
-    //             XML_Node* p = _xml(pxml);
-    //             kinetics_t* k = kin(ikin);
-    //             string defphase = string(default_phase);
-    //             installReactionArrays(*p, *k, defphase);
-    //             return 0;
-    //         }
-    //         catch (CanteraError) { handleError(); return -1; }
-    //     }
-
     //-------------------------------------
     integer kin_type_(const integer* n)
     {
-        return _fkin(n)->type();
+        try {
+            return _fkin(n)->type();
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
     }
 
     integer kin_start_(const integer* n, integer* p)
     {
-        return _fkin(n)->start(*p)+1;
+        try {
+            return _fkin(n)->start(*p)+1;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
     }
 
     integer kin_speciesindex_(const integer* n, const char* nm, const char* ph,
                                          ftnlen lennm, ftnlen lenph)
     {
-        return _fkin(n)->kineticsSpeciesIndex(f2string(nm, lennm), f2string(ph, lenph))+1;
+        try {
+            return _fkin(n)->kineticsSpeciesIndex(f2string(nm, lennm),
+                                                  f2string(ph, lenph)) + 1;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
     }
 
     //---------------------------------------
 
     integer kin_ntotalspecies_(const integer* n)
     {
-        return _fkin(n)->nTotalSpecies();
+        try {
+            return _fkin(n)->nTotalSpecies();
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
     }
 
     integer kin_nreactions_(const integer* n)
     {
-        return _fkin(n)->nReactions();
+        try {
+            return _fkin(n)->nReactions();
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
     }
 
     integer kin_nphases_(const integer* n)
     {
-        return _fkin(n)->nPhases();
+        try {
+            return _fkin(n)->nPhases();
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
     }
 
-    integer kin_phaseindex_(const integer* n, const char* ph,
-                                       ftnlen lenph)
+    integer kin_phaseindex_(const integer* n, const char* ph, ftnlen lenph)
     {
-        return _fkin(n)->phaseIndex(f2string(ph, lenph));
+        try {
+            return _fkin(n)->phaseIndex(f2string(ph, lenph));
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
     }
 
     doublereal kin_reactantstoichcoeff_(const integer* n, integer* k, integer* i)
     {
-        return _fkin(n)->reactantStoichCoeff(*k-1,*i-1);
+        try {
+            return _fkin(n)->reactantStoichCoeff(*k-1,*i-1);
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
     }
 
     doublereal kin_productstoichcoeff_(const integer* n, integer* k, integer* i)
     {
-        return _fkin(n)->productStoichCoeff(*k-1,*i-1);
+        try {
+            return _fkin(n)->productStoichCoeff(*k-1,*i-1);
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
     }
 
     integer kin_reactiontype_(const integer* n, integer* i)
     {
-        return _fkin(n)->reactionType(*i-1);
+        try {
+            return _fkin(n)->reactionType(*i-1);
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
     }
 
     status_t kin_getfwdratesofprogress_(const integer* n, doublereal* fwdROP)
     {
-        Kinetics* k = _fkin(n);
         try {
+            Kinetics* k = _fkin(n);
             k->getFwdRatesOfProgress(fwdROP);
-            return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
+        return 0;
     }
 
     status_t kin_getrevratesofprogress_(const integer* n, doublereal* revROP)
     {
-        Kinetics* k = _fkin(n);
         try {
+            Kinetics* k = _fkin(n);
             k->getRevRatesOfProgress(revROP);
-            return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
+        return 0;
     }
 
     integer kin_isreversible_(const integer* n, integer* i)
     {
-        return (int)_fkin(n)->isReversible(*i);
+        try {
+            return (int)_fkin(n)->isReversible(*i);
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
     }
 
     status_t kin_getnetratesofprogress_(const integer* n, doublereal* netROP)
@@ -684,10 +811,10 @@ extern "C" {
         try {
             Kinetics* k = _fkin(n);
             k->getNetRatesOfProgress(netROP);
-            return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
+        return 0;
     }
 
     status_t kin_getcreationrates_(const integer* n, doublereal* cdot)
@@ -695,10 +822,10 @@ extern "C" {
         try {
             Kinetics* k = _fkin(n);
             k->getCreationRates(cdot);
-            return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
+        return 0;
     }
 
     status_t kin_getdestructionrates_(const integer* n, doublereal* ddot)
@@ -706,10 +833,10 @@ extern "C" {
         try {
             Kinetics* k = _fkin(n);
             k->getDestructionRates(ddot);
-            return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
+        return 0;
     }
 
     status_t kin_getnetproductionrates_(const integer* n, doublereal* wdot)
@@ -717,15 +844,19 @@ extern "C" {
         try {
             Kinetics* k = _fkin(n);
             k->getNetProductionRates(wdot);
-            return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
+        return 0;
     }
 
     doublereal kin_multiplier_(const integer* n, integer* i)
     {
-        return _fkin(n)->multiplier(*i);
+        try {
+            return _fkin(n)->multiplier(*i);
+        } catch (...) {
+            return handleAllExceptions(DERR, DERR);
+        }
     }
 
     status_t kin_getequilibriumconstants_(const integer* n, doublereal* kc)
@@ -733,10 +864,10 @@ extern "C" {
         try {
             Kinetics* k = _fkin(n);
             k->getEquilibriumConstants(kc);
-            return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
+        return 0;
     }
 
     status_t kin_getreactionstring_(const integer* n, integer* i, char* buf, ftnlen lenbuf)
@@ -749,20 +880,20 @@ extern "C" {
             for (int nn = lout; nn < lenbuf; nn++) {
                 buf[nn] = ' ';
             }
-            return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
+        return 0;
     }
 
     status_t kin_setmultiplier_(const integer* n, integer* i, doublereal* v)
     {
         try {
             _fkin(n)->setMultiplier(*i-1,*v);
-            return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
+        return 0;
     }
 
     status_t kin_advancecoverages_(const integer* n, doublereal* tstep)
@@ -775,20 +906,20 @@ extern "C" {
                 throw CanteraError("kin_advanceCoverages",
                                    "wrong kinetics manager type");
             }
-            return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
+        return 0;
     }
 
     //------------------- Transport ---------------------------
 
-    integer newtransport_(char* model,
-                                     integer* ith, integer* loglevel, ftnlen lenmodel)
+    integer newtransport_(char* model, integer* ith,
+                          integer* loglevel, ftnlen lenmodel)
     {
-        std::string mstr = f2string(model, lenmodel);
-        thermo_t* t = _fth(ith);
         try {
+            std::string mstr = f2string(model, lenmodel);
+            thermo_t* t = _fth(ith);
             Transport* tr = newTransportMgr(mstr, t, *loglevel);
             return TransportCabinet::add(tr);
         } catch (...) {
@@ -866,34 +997,6 @@ extern "C" {
 
     //-------------------- Functions ---------------------------
 
-    //     status_t import_phase_(const integer* nth, const integer* nxml, char* id, ftnlen lenid) {
-    //         thermo_t* thrm = th(nth);
-    //         XML_Node* node = _xml(nxml);
-    //         string idstr = f2string(id, lenid);
-    //         try {
-    //             importPhase(*node, thrm);
-    //             return 0;
-    //         }
-    //         catch (CanteraError) { handleError(); return -1; }
-    //     }
-
-    //     status_t import_kinetics_(const integer* nxml, char* id,
-    //         const integer* nphases, integer* ith, const integer* nkin, ftnlen lenid) {
-    //         vector<thermo_t*> phases;
-    //         for (int i = 0; i < nphases; i++) {
-    //             phases.push_back(th(ith[i]));
-    //         }
-    //         XML_Node* node = _xml(nxml);
-    //         Kinetics* k = kin(nkin);
-    //         string idstr = f2string(id, lenid);
-    //         try {
-    //             importKinetics(*node, phases, k);
-    //             return 0;
-    //         }
-    //         catch (CanteraError) { handleError(); return -1; }
-    //     }
-
-
     status_t ctphase_report_(const integer* nth,
                                         char* buf, integer* show_thermo, ftnlen buflen)
     {
@@ -915,20 +1018,28 @@ extern "C" {
 
     status_t ctgetcanteraerror_(char* buf, ftnlen buflen)
     {
-        std::string e; // = "<no error>";
-        //if (nErrors() > 0)
-        e = lastErrorMessage();
-        int n = std::min((int) e.size(), buflen-1);
-        copy(e.begin(), e.begin() + n, buf);
-        for (int nn = n; nn < buflen; nn++) {
-            buf[nn] = ' ';
+        try {
+            std::string e; // = "<no error>";
+            //if (nErrors() > 0)
+            e = lastErrorMessage();
+            int n = std::min((int) e.size(), buflen-1);
+            copy(e.begin(), e.begin() + n, buf);
+            for (int nn = n; nn < buflen; nn++) {
+                buf[nn] = ' ';
+            }
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
         }
         return 0;
     }
 
     status_t ctaddcanteradirectory_(integer* buflen, char* buf)
     {
-        addDirectory(std::string(buf));
+        try {
+            addDirectory(std::string(buf));
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
         return 0;
     }
 
@@ -936,42 +1047,44 @@ extern "C" {
     status_t ctbuildsolutionfromxml(char* src, integer* ixml, char* id,
             integer* ith, integer* ikin, ftnlen lensrc, ftnlen lenid)
     {
+        try {
+            XML_Node* root = 0;
+            if (*ixml > 0) {
+                root = _xml(ixml);
+            }
 
-        XML_Node* root = 0;
-        if (*ixml > 0) {
-            root = _xml(ixml);
-        }
+            thermo_t* t = _fth(ith);
+            kinetics_t* k = _fkin(ikin);
 
-        thermo_t* t = _fth(ith);
-        kinetics_t* k = _fkin(ikin);
-
-        Kinetics& kin = *k;
-        XML_Node* x, *r=0;
-        if (root) {
-            r = &root->root();
-        }
-        std::string srcS = f2string(src, lensrc);
-        std::string idS  = f2string(id, lenid);
-        if (srcS != "") {
-            x = get_XML_Node(srcS, r);
-        } else {
-            x = get_XML_Node(idS, r);
-        }
-        // x = find_XML(f2string(src, lensrc), r, f2string(id,lenid), "", "phase");
-        if (!x) {
-            return 0;
-        }
-        importPhase(*x, t);
-        kin.addPhase(*t);
-        kin.init();
-        installReactionArrays(*x, kin, x->id());
-        t->setState_TP(300.0, OneAtm);
-        if (r) {
-            if (&x->root() != &r->root()) {
+            Kinetics& kin = *k;
+            XML_Node* x, *r=0;
+            if (root) {
+                r = &root->root();
+            }
+            std::string srcS = f2string(src, lensrc);
+            std::string idS  = f2string(id, lenid);
+            if (srcS != "") {
+                x = get_XML_Node(srcS, r);
+            } else {
+                x = get_XML_Node(idS, r);
+            }
+            if (!x) {
+                return 0;
+            }
+            importPhase(*x, t);
+            kin.addPhase(*t);
+            kin.init();
+            installReactionArrays(*x, kin, x->id());
+            t->setState_TP(300.0, OneAtm);
+            if (r) {
+                if (&x->root() != &r->root()) {
+                    delete &x->root();
+                }
+            } else {
                 delete &x->root();
             }
-        } else {
-            delete &x->root();
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
         }
         return 0;
     }

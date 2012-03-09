@@ -24,9 +24,9 @@ extern "C" {
 
     int func_new(int type, size_t n, size_t lenp, double* params)
     {
-        func_t* r=0;
-        size_t m = lenp;
         try {
+            func_t* r=0;
+            size_t m = lenp;
             if (type == SinFuncType) {
                 r = new Sin1(params[0]);
             } else if (type == CosFuncType) {
@@ -95,37 +95,61 @@ extern "C" {
 
     int func_del(int i)
     {
-        FuncCabinet::del(i);
-        return 0;
+        try {
+            FuncCabinet::del(i);
+            return 0;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
     }
 
     int func_copy(int i)
     {
-        return FuncCabinet::newCopy(i);
+        try {
+            return FuncCabinet::newCopy(i);
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
     }
 
     int func_assign(int i, int j)
     {
-        return FuncCabinet::assign(i,j);
+        try {
+            return FuncCabinet::assign(i,j);
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
     }
 
     double func_value(int i, double t)
     {
-        return FuncCabinet::item(i).eval(t);
+        try {
+            return FuncCabinet::item(i).eval(t);
+        } catch (...) {
+            return handleAllExceptions(DERR, DERR);
+        }
     }
 
     int func_derivative(int i)
     {
-        func_t* r = 0;
-        r = &FuncCabinet::item(i).derivative();
-        return FuncCabinet::add(r);
+        try {
+            func_t* r = 0;
+            r = &FuncCabinet::item(i).derivative();
+            return FuncCabinet::add(r);
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
     }
 
     int func_duplicate(int i)
     {
-        func_t* r = 0;
-        r = &FuncCabinet::item(i).duplicate();
-        return FuncCabinet::add(r);
+        try {
+            func_t* r = 0;
+            r = &FuncCabinet::item(i).duplicate();
+            return FuncCabinet::add(r);
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
     }
 
     int func_write(int i, size_t lennm, const char* arg, char* nm)

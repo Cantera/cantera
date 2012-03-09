@@ -21,13 +21,17 @@ extern "C" {
 
     int xml_new(const char* name = 0)
     {
-        XML_Node* x;
-        if (!name) {
-            x = new XML_Node;
-        } else {
-            x = new XML_Node(name);
-        }
-        return XmlCabinet::add(x);
+        try {
+            XML_Node* x;
+            if (!name) {
+                x = new XML_Node;
+            } else {
+                x = new XML_Node(name);
+            }
+            return XmlCabinet::add(x);
+        } catch (...) {
+             return handleAllExceptions(-1, ERR);
+         }
     }
 
     int xml_get_XML_File(const char* file, int debug)
@@ -53,24 +57,40 @@ extern "C" {
 
     int xml_del(int i)
     {
-        XmlCabinet::del(i);
-        return 0;
+        try {
+            XmlCabinet::del(i);
+            return 0;
+        } catch (...) {
+             return handleAllExceptions(-1, ERR);
+         }
     }
 
     int xml_removeChild(int i, int j)
     {
-        XmlCabinet::item(i).removeChild(&XmlCabinet::item(j));
-        return 0;
+        try {
+            XmlCabinet::item(i).removeChild(&XmlCabinet::item(j));
+            return 0;
+        } catch (...) {
+             return handleAllExceptions(-1, ERR);
+         }
     }
 
     int xml_copy(int i)
     {
-        return XmlCabinet::newCopy(i);
+        try {
+            return XmlCabinet::newCopy(i);
+        } catch (...) {
+             return handleAllExceptions(-1, ERR);
+         }
     }
 
     int xml_assign(int i, int j)
     {
-        return XmlCabinet::assign(i,j);
+        try {
+            return XmlCabinet::assign(i,j);
+        } catch (...) {
+             return handleAllExceptions(-1, ERR);
+         }
     }
 
     int xml_build(int i, const char* file)
@@ -100,8 +120,6 @@ extern "C" {
             return handleAllExceptions(-1, ERR);
         }
     }
-
-
 
     int xml_attrib(int i, const char* key, char* value)
     {
@@ -230,10 +248,9 @@ extern "C" {
         try {
             XML_Node& node = XmlCabinet::item(i);
             return (int) node.nChildren();
-        } catch (CanteraError& err) {
-            err.save();
-            return -1;
-        }
+        } catch (...) {
+             return handleAllExceptions(-1, ERR);
+         }
     }
 
     int xml_addChild(int i, const char* name, const char* value)

@@ -59,28 +59,48 @@ extern "C" {
 
     int domain_del(int i)
     {
-        DomainCabinet::del(i);
-        return 0;
+        try {
+            DomainCabinet::del(i);
+            return 0;
+        } catch (...) {
+            return handleAllExceptions(-1 , ERR);
+        }
     }
 
     int domain_type(int i)
     {
-        return DomainCabinet::item(i).domainType();
+        try {
+            return DomainCabinet::item(i).domainType();
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
     }
 
     size_t domain_index(int i)
     {
-        return DomainCabinet::item(i).domainIndex();
+        try {
+            return DomainCabinet::item(i).domainIndex();
+        } catch (...) {
+            return handleAllExceptions(npos, npos);
+        }
     }
 
     size_t domain_nComponents(int i)
     {
-        return DomainCabinet::item(i).nComponents();
+        try {
+            return DomainCabinet::item(i).nComponents();
+        } catch (...) {
+            return handleAllExceptions(npos, npos);
+        }
     }
 
     size_t domain_nPoints(int i)
     {
-        return DomainCabinet::item(i).nPoints();
+        try {
+            return DomainCabinet::item(i).nPoints();
+        } catch (...) {
+            return handleAllExceptions(npos, npos);
+        }
     }
 
     int domain_componentName(int i, int n, int sz, char* buf)
@@ -386,11 +406,11 @@ extern "C" {
 
     int stflow_setTransport(int i, int itr, int iSoret)
     {
-        bool withSoret = false;
-        if (iSoret > 0) {
-            withSoret = true;
-        }
         try {
+            bool withSoret = false;
+            if (iSoret > 0) {
+                withSoret = true;
+            }
             _stflow(i)->setTransport(TransportCabinet::item(itr), withSoret);
             return 0;
         } catch (...) {
@@ -400,11 +420,11 @@ extern "C" {
 
     int stflow_enableSoret(int i, int iSoret)
     {
-        bool withSoret = false;
-        if (iSoret > 0) {
-            withSoret = true;
-        }
         try {
+            bool withSoret = false;
+            if (iSoret > 0) {
+                withSoret = true;
+            }
             _stflow(i)->enableSoret(withSoret);
             return 0;
         } catch (...) {
@@ -473,17 +493,12 @@ extern "C" {
 
     int sim1D_new(size_t nd, int* domains)
     {
-        vector<Domain1D*> d;
         try {
-            //  cout << "nd = " << nd << endl;
+            vector<Domain1D*> d;
             for (size_t n = 0; n < nd; n++) {
-                //writelog("n = "+int2str(n)+"\n");
-                //writelog("dom = "+int2str(domains[n])+"\n");
                 d.push_back(&DomainCabinet::item(domains[n]));
             }
-            //writelog("in sim1D_new, calling new Sim1D\n");
             Sim1D* s = new Sim1D(d);
-            //writelog("in sim1D_new, ret Sim1D\n");
             return SimCabinet::add(s);
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -502,8 +517,12 @@ extern "C" {
 
     int sim1D_del(int i)
     {
-        SimCabinet::del(i);
-        return 0;
+        try {
+            SimCabinet::del(i);
+            return 0;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
     }
 
     int sim1D_setValue(int i, int dom, int comp,
@@ -545,15 +564,19 @@ extern "C" {
 
     int sim1D_showSolution(int i, char* fname)
     {
-        string fn = string(fname);
-        if (fn == "-") {
-            SimCabinet::item(i).showSolution();
-        } else {
-            ofstream fout(fname);
-            SimCabinet::item(i).showSolution(fout);
-            fout.close();
+        try {
+            string fn = string(fname);
+            if (fn == "-") {
+                SimCabinet::item(i).showSolution();
+            } else {
+                ofstream fout(fname);
+                SimCabinet::item(i).showSolution(fout);
+                fout.close();
+            }
+            return 0;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
         }
-        return 0;
     }
 
     int sim1D_setTimeStep(int i, double stepsize, size_t ns, integer* nsteps)

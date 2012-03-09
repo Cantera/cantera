@@ -38,8 +38,8 @@ namespace Cantera {
 //! Exception handler used at language interface boundaries.
 /*!
  * When called from a "catch (...)" block, this function will attempt to save
- * an error message in global error and return a value indicating the type of
- * exception caught.
+ * an error message in global error stack and return a value indicating the
+ * type of exception caught.
  *
  * @param ctErrorCode Value to return if a CanteraError is caught
  * @param otherErrorCode Value to return if a different exception is caught
