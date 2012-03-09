@@ -10,10 +10,12 @@ os.environ['CANTERA_DATA'] = pjoin(os.getcwd(), '..', 'data', 'inputs')
 testNames = []
 
 class Test(object):
+    _validArgs = set(['arguments', 'options', 'artifacts', 'comparisons',
+                      'tolerance', 'threshold', 'ignoreLines', 'extensions',
+                      'dependencies'])
+
     def __init__(self, testName, subdir, programName, blessedName, **kwargs):
-        assert set(kwargs.keys()) <= set(['arguments', 'options', 'artifacts',
-                                          'comparisons', 'tolerance', 'threshold',
-                                          'ignoreLines', 'extensions']), kwargs.keys()
+        assert set(kwargs.keys()) <= self._validArgs, kwargs.keys()
         self.subdir = subdir
         self.programName = programName
         arguments = kwargs.get('arguments') or []
@@ -44,6 +46,9 @@ class Test(object):
 
         # reset: just delete the ".passed" file so that this test will be re-run
         localenv.Alias('test-reset', self.reset(localenv))
+
+        for dep in kwargs.get('dependencies', []):
+            localenv.Depends(run, dep)
 
     def run(self, env, *args):
         source = list(args)
@@ -299,20 +304,23 @@ CompileAndTest('VPsilane_test', 'VPsilane_test', 'VPsilane_test', 'output_blesse
 
 # Python Tests
 if localenv['python_package'] == 'full':
+    testDeps = [localenv['python_module']]
     Test('python-diamond', 'python', '$python_cmd', None,
          options='../../samples/python/surface_chemistry/diamond_cvd/diamond.py',
          comparisons=[('diamond_blessed.csv', 'diamond.csv')],
-         artifacts=['diamond.xml'])
+         artifacts=['diamond.xml'], dependencies=testDeps)
     Test('python-frac', 'python', '$python_cmd', 'frac_blessed.out',
-         arguments='frac.py', artifacts=['frac.xml'])
+         arguments='frac.py', artifacts=['frac.xml'], dependencies=testDeps)
     Test('python-tut1', pjoin('python','tut1'), '$python_cmd',
-         'output_blessed.txt', arguments='tut1.py', artifacts=['gri30.xml'])
+         'output_blessed.txt', arguments='tut1.py', artifacts=['gri30.xml'],
+         dependencies=testDeps)
     Test('python-tut2', pjoin('python','tut2'), '$python_cmd',
          'output_blessed.txt', arguments='tut2.py',
-         artifacts=['gri30.xml', 'diamond.xml'])
+         dependencies=testDeps, artifacts=['gri30.xml', 'diamond.xml'])
     # Skipping Python Tutorial 3 (documentation only)
     Test('python-tut4', pjoin('python','tut4'), '$python_cmd',
-         'output_blessed.txt', arguments='tut4.py', artifacts=['gri30.xml'])
+         'output_blessed.txt', arguments='tut4.py', artifacts=['gri30.xml'],
+         dependencies=testDeps)
 
 finish_tests = localenv.Command('finish_tests', [], testResults.printReport)
 localenv.Depends(finish_tests, 'test-run')
