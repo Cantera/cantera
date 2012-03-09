@@ -1,8 +1,6 @@
 /**
  *  @file Phase.cpp
- *   Definition file for class, Phase, which contains functions for setting the
- *   state of a phase, and for referencing species by name
- *   (see \ref phases and class \link Cantera::Phase Phase\endlink).
+ *   Definition file for class Phase.
  */
 
 // Copyright 2001  California Institute of Technology
@@ -33,16 +31,10 @@ Phase::Phase() :
     m_Elements->subscribe();
 }
 
-/*
- * Copy Constructor
- *
- * This function just does the default initialization, and
- * then calls the assignment operator.
- */
 Phase::Phase(const Phase& right) :
     m_kk(0),
     m_ndim(3),
-    m_xml(new XML_Node("phase")),
+    m_xml(0),
     m_id("<phase>"),
     m_name(""),
     m_temp(0.0),
@@ -52,9 +44,7 @@ Phase::Phase(const Phase& right) :
     m_speciesFrozen(false) ,
     m_Elements(0)
 {
-    /*
-     * Call the assignment operator.
-     */
+    // Use the assignment operator to do the actual copying
     *this = operator=(right);
 }
 
@@ -66,18 +56,17 @@ Phase& Phase::operator=(const Phase& right)
     }
 
     // Handle our own data
-    m_kk    = right.m_kk;
-    m_ndim  = right.m_ndim;
-    m_data  = right.m_data;
-    m_temp           = right.m_temp;
-    m_dens           = right.m_dens;
-    m_mmw            = right.m_mmw;
-    m_ym             = right.m_ym;
-    m_y              = right.m_y;
-    m_molwts         = right.m_molwts;
-    m_rmolwts        = right.m_rmolwts;
+    m_kk = right.m_kk;
+    m_ndim = right.m_ndim;
+    m_temp = right.m_temp;
+    m_dens = right.m_dens;
+    m_mmw = right.m_mmw;
+    m_ym = right.m_ym;
+    m_y = right.m_y;
+    m_molwts = right.m_molwts;
+    m_rmolwts = right.m_rmolwts;
     m_stateNum = -1;
-    m_speciesFrozen  = right.m_speciesFrozen;
+    m_speciesFrozen = right.m_speciesFrozen;
     if (m_Elements) {
         int nleft = m_Elements->unsubscribe();
         if (nleft <= 0) {
@@ -92,14 +81,14 @@ Phase& Phase::operator=(const Phase& right)
             delete m_Elements;
         }
     }
-    m_Elements       = right.m_Elements;
+    m_Elements = right.m_Elements;
     if (m_Elements) {
         m_Elements->subscribe();
     }
-    m_speciesNames   = right.m_speciesNames;
-    m_speciesComp    = right.m_speciesComp;
-    m_speciesCharge  = right.m_speciesCharge;
-    m_speciesSize    = right.m_speciesSize;
+    m_speciesNames = right.m_speciesNames;
+    m_speciesComp = right.m_speciesComp;
+    m_speciesCharge = right.m_speciesCharge;
+    m_speciesSize = right.m_speciesSize;
 
     /*
      * This is a little complicated. -> Because we delete m_xml
@@ -112,7 +101,7 @@ Phase& Phase::operator=(const Phase& right)
         m_xml = 0;
     }
     if (right.m_xml) {
-        m_xml   = new XML_Node();
+        m_xml = new XML_Node();
         (right.m_xml)->copy(m_xml);
     }
     m_id    = right.m_id;
@@ -248,27 +237,6 @@ void Phase::getAtoms(size_t k, double* atomArray) const
     }
 }
 
-// Returns the index of a species named 'name' within the Phase object
-/*
- * The first species in the phase will have an index 0, and the last one in the
- * phase will have an index of nSpecies() - 1.
- *
- *
- *  A species name may be referred to via three methods:
- *
- *    -   "speciesName"
- *    -   "PhaseId:speciesName"
- *    -   "phaseName:speciesName"
- *    .
- *
- *  The first two methods of naming may not yield a unique species within
- *  complicated assemblies of Cantera Phases.
- *
- * @param nameStr String name of the species. It may also be the phase name
- *                species name combination, separated by a colon.
- * @return     Returns the index of the species. If the name is not found,
- *             the value of -1 is returned.
- */
 size_t Phase::speciesIndex(std::string nameStr) const
 {
     std::string pn;
@@ -438,79 +406,65 @@ void Phase::setMassFractionsByName(const std::string& y)
     setMassFractionsByName(yy);
 }
 
-/** Set the temperature (K), density (kg/m^3), and mole fractions. */
-void Phase::setState_TRX(doublereal t, doublereal dens,
-                         const doublereal* x)
+void Phase::setState_TRX(doublereal t, doublereal dens, const doublereal* x)
 {
     setMoleFractions(x);
     setTemperature(t);
     setDensity(dens);
 }
 
-void Phase::setState_TNX(doublereal t, doublereal n,
-                         const doublereal* x)
+void Phase::setState_TNX(doublereal t, doublereal n, const doublereal* x)
 {
     setMoleFractions(x);
     setTemperature(t);
     setMolarDensity(n);
 }
 
-/** Set the temperature (K), density (kg/m^3), and mole fractions. */
-void Phase::setState_TRX(doublereal t, doublereal dens,
-                         compositionMap& x)
+void Phase::setState_TRX(doublereal t, doublereal dens, compositionMap& x)
 {
     setMoleFractionsByName(x);
     setTemperature(t);
     setDensity(dens);
 }
 
-/** Set the temperature (K), density (kg/m^3), and mass fractions. */
-void Phase::setState_TRY(doublereal t, doublereal dens,
-                         const doublereal* y)
+void Phase::setState_TRY(doublereal t, doublereal dens, const doublereal* y)
 {
     setMassFractions(y);
     setTemperature(t);
     setDensity(dens);
 }
 
-/** Set the temperature (K), density (kg/m^3), and mass fractions. */
-void Phase::setState_TRY(doublereal t, doublereal dens,
-                         compositionMap& y)
+void Phase::setState_TRY(doublereal t, doublereal dens, compositionMap& y)
 {
     setMassFractionsByName(y);
     setTemperature(t);
     setDensity(dens);
 }
 
-/** Set the temperature (K) and density (kg/m^3) */
 void Phase::setState_TR(doublereal t, doublereal rho)
 {
     setTemperature(t);
     setDensity(rho);
 }
 
-/** Set the temperature (K) and mole fractions.  */
 void Phase::setState_TX(doublereal t, doublereal* x)
 {
     setTemperature(t);
     setMoleFractions(x);
 }
 
-/** Set the temperature (K) and mass fractions.  */
 void Phase::setState_TY(doublereal t, doublereal* y)
 {
     setTemperature(t);
     setMassFractions(y);
 }
 
-/** Set the density (kg/m^3) and mole fractions.  */
 void Phase::setState_RX(doublereal rho, doublereal* x)
 {
     setMoleFractions(x);
     setDensity(rho);
 }
 
-/** Set the density (kg/m^3) and mass fractions.  */
 void Phase::setState_RY(doublereal rho, doublereal* y)
 {
     setMassFractions(y);
@@ -525,9 +479,6 @@ doublereal Phase::molecularWeight(size_t k) const
     return m_molwts[k];
 }
 
-/*
- * Copy the vector of molecular weights into vector weights.
- */
 void Phase::getMolecularWeights(vector_fp& weights) const
 {
     const vector_fp& mw = molecularWeights();
@@ -537,10 +488,6 @@ void Phase::getMolecularWeights(vector_fp& weights) const
     copy(mw.begin(), mw.end(), weights.begin());
 }
 
-/*
- * Copy the vector of molecular weights into array weights.
- * @deprecated
- */
 void Phase::getMolecularWeights(int iwt, doublereal* weights) const
 {
     const vector_fp& mw = molecularWeights();
@@ -558,9 +505,6 @@ const vector_fp& Phase::molecularWeights() const
     return m_molwts;
 }
 
-/**
- * Get the mole fractions by name.
- */
 void Phase::getMoleFractionsByName(compositionMap& x) const
 {
     x.clear();
@@ -720,9 +664,11 @@ void Phase::addElement(const XML_Node& e)
 }
 
 void Phase::addUniqueElement(const std::string& symbol, doublereal weight,
-                             int atomicNumber, doublereal entropy298, int elem_type)
+                             int atomicNumber, doublereal entropy298,
+                             int elem_type)
 {
-    m_Elements->addUniqueElement(symbol, weight, atomicNumber, entropy298, elem_type);
+    m_Elements->addUniqueElement(symbol, weight, atomicNumber,
+                                 entropy298, elem_type);
 }
 
 void Phase::addUniqueElement(const XML_Node& e)
@@ -745,7 +691,8 @@ bool Phase::elementsFrozen()
     return m_Elements->elementsFrozen();
 }
 
-size_t Phase::addUniqueElementAfterFreeze(const std::string& symbol, doublereal weight, int atomicNumber,
+size_t Phase::addUniqueElementAfterFreeze(const std::string& symbol,
+        doublereal weight, int atomicNumber,
         doublereal entropy298, int elem_type)
 {
     size_t ii = elementIndex(symbol);
@@ -783,7 +730,8 @@ void Phase::addSpecies(const std::string& name, const doublereal* comp,
     m_speciesCharge.push_back(charge);
     m_speciesSize.push_back(size);
     size_t ne = m_Elements->nElements();
-    // Create a changeable copy of the element composition. We now change the charge potentially
+    // Create a changeable copy of the element composition. We now change
+    // the charge potentially
     vector_fp compNew(ne);
     for (size_t m = 0; m < ne; m++) {
         compNew[m] = comp[m];
@@ -797,14 +745,17 @@ void Phase::addSpecies(const std::string& name, const doublereal* comp,
             if (fabs(charge + ecomp) > 0.001) {
                 if (ecomp != 0.0) {
                     throw CanteraError("Phase::addSpecies",
-                                       "Input charge and element E compositions differ for species " + name);
+                        "Input charge and element E compositions differ "
+                        "for species " + name);
                 } else {
-                    // Just fix up the element E composition based on the input species charge
+                    // Just fix up the element E composition based on the input
+                    // species charge
                     compNew[eindex] = -charge;
                 }
             }
         } else {
-            addUniqueElementAfterFreeze("E", 0.000545, 0, 0.0, CT_ELEM_TYPE_ELECTRONCHARGE);
+            addUniqueElementAfterFreeze("E", 0.000545, 0, 0.0,
+                                        CT_ELEM_TYPE_ELECTRONCHARGE);
             ne = m_Elements->nElements();
             eindex = m_Elements->elementIndex("E");
             compNew.resize(ne);
@@ -825,11 +776,9 @@ void Phase::addUniqueSpecies(const std::string& name, const doublereal* comp,
     vector<string>::const_iterator it = m_speciesNames.begin();
     for (size_t k = 0; k < m_kk; k++) {
         if (*it == name) {
-            /*
-             * We have found a match. At this point we could do some
-             * compatibility checks. However, let's just return for the
-             * moment without specifying any error.
-             */
+            // We have found a match. At this point we could do some
+            // compatibility checks. However, let's just return for the moment
+            // without specifying any error.
             size_t m_mm = m_Elements->nElements();
             for (size_t i = 0; i < m_mm; i++) {
                 if (comp[i] != m_speciesComp[m_kk * m_mm + i]) {
@@ -861,10 +810,6 @@ void Phase::freezeSpecies()
     init(molecularWeights());
     size_t kk = nSpecies();
     size_t nv = kk + 2;
-    m_data.resize(nv,0.0);
-    m_data[0] = 300.0;
-    m_data[1] = 0.001;
-    m_data[2] = 1.0;
     m_kk = nSpecies();
 }
 
@@ -881,25 +826,21 @@ void Phase::init(const vector_fp& mw)
                                "negative molecular weight for species number "
                                + int2str(k));
         }
-        /*
-         * Some surface phases may define species representing
-         * empty sites that have zero molecular weight. Give them
-         * a very small molecular weight to avoid dividing by
-         * zero.
-         */
+
+        // Some surface phases may define species representing empty sites
+        // hat have zero molecular weight. Give them a very small molecular
+        // weight to avoid dividing by zero.
         if (m_molwts[k] < Tiny) {
             m_molwts[k] = Tiny;
         }
         m_rmolwts[k] = 1.0/m_molwts[k];
     }
 
-    /*
-     * Now that we have resized the State object, let's fill it with
-     * a valid mass fraction vector that sums to one. The State object
-     * should never have a mass fraction vector that doesn't sum to one.
-     * We will assume that species 0 has a mass fraction of 1.0 and
-     * mass fraction of all other species is 0.0.
-     */
+    // Now that we have resized the State object, let's fill it with a valid
+    // mass fraction vector that sums to one. The Phase object should never
+    // have a mass fraction vector that doesn't sum to one. We will assume that
+    // species 0 has a mass fraction of 1.0 and mass fraction of all other
+    // species is 0.0.
     m_y[0] = 1.0;
     m_ym[0] = m_y[0] * m_rmolwts[0];
     m_mmw = 1.0 / m_ym[0];
