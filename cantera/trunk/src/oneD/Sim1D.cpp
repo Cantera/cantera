@@ -248,45 +248,42 @@ void Sim1D::setTimeStep(doublereal stepsize, size_t n, integer* tsteps)
 }
 
 
-void Sim1D::newtonSolve(int loglevel)
+int Sim1D::newtonSolve(int loglevel)
 {
     int m = OneDim::solve(DATA_PTR(m_x), DATA_PTR(m_xnew), loglevel);
     if (m >= 0) {
         copy(m_xnew.begin(), m_xnew.end(), m_x.begin());
+        return 0;
     } else if (m > -10) {
-        throw CanteraError("Sim1D::newtonSolve","no solution found");
+        return -1;
     } else {
-        writelog(string("ERROR: solve returned m = ") + int2str(m) + "\n");
-        exit(EXIT_FAILURE);
+        throw CanteraError("Sim1D::newtonSolve",
+            "ERROR: OneDim::solve returned m = " + int2str(m) + "\n");
     }
 }
 
 
 void Sim1D::solve(int loglevel, bool refine_grid)
 {
-
     int new_points = 1;
-    int istep, nsteps;
+    int nsteps;
     doublereal dt = m_tstep;
     int soln_number = -1;
-
     finalize();
 
     while (new_points > 0) {
-
-        istep = 0;
+        size_t istep = 0;
         nsteps = m_steps[istep];
 
         bool ok = false;
         while (!ok) {
+            if (loglevel > 0) {
+                sim1D_drawline();
+                writelog("\nAttempt Newton solution of steady-state problem...");
+            }
+            int status = newtonSolve(loglevel-1);
 
-            try {
-                if (loglevel > 0) {
-                    sim1D_drawline();
-                    writelog("\nAttempt Newton solution of steady-state problem...");
-                }
-                newtonSolve(loglevel-1);
-
+            if (status == 0) {
                 if (loglevel > 0) {
                     writelog("    success.\n\n");
                     writelog("Problem solved on [");
@@ -301,20 +298,12 @@ void Sim1D::solve(int loglevel, bool refine_grid)
                 }
                 ok = true;
                 soln_number++;
-
-            }
-
-            catch (CanteraError& err) {
-                err.save();
-                popError();
+            } else {
                 char buf[100];
                 if (loglevel > 0) {
                     writelog("    failure. \n\n");
                     sim1D_drawline();
-                    //                    }
-                    //if (loglevel == 1)
-                    writelog("Take "+int2str(nsteps)+
-                             " timesteps   ");
+                    writelog("Take "+int2str(nsteps)+" timesteps   ");
                 }
                 dt = timeStep(nsteps, dt, DATA_PTR(m_x), DATA_PTR(m_xnew),
                               loglevel-1);
@@ -324,7 +313,7 @@ void Sim1D::solve(int loglevel, bool refine_grid)
                     writelog(buf);
                 }
                 istep++;
-                if (istep >= int(m_steps.size())) {
+                if (istep >= m_steps.size()) {
                     nsteps = m_steps.back();
                 } else {
                     nsteps = m_steps[istep];

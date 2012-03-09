@@ -132,7 +132,10 @@ private:
     /// Calls method _finalize in each domain.
     void finalize();
 
-    void newtonSolve(int loglevel);
+    /*! Wrapper around the Newton solver.
+     * @return 0 if successful, -1 on failure
+     */
+    int newtonSolve(int loglevel);
 
 
 };
