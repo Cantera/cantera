@@ -376,21 +376,6 @@ public:
     //! Static function that destroys the application class's data
     static void ApplicationDestroy();
 
-    //! Set the directory where temporary files may be written.
-    /*!
-     * @param tmp Name of the directory
-     */
-    void setTmpDir(std::string tmp) ;
-
-    //! get the name of a directory where temporary files may be written.
-    std::string getTmpDir() ;
-
-    //! Pause the application for a certain amount
-    /*!
-     * This has been needed in the past for some network file systems.
-     */
-    std::string sleep() ;
-
     //! Set an error condition in the application class without
     //! throwing an exception.
     /*!
@@ -756,8 +741,6 @@ protected:
     std::string tmp_dir;
     //! Current vector of xml file trees that have been previously parsed
     std::map<std::string, XML_Node*> xmlfiles;
-    //! Current sleep command.
-    std::string m_sleep;
     //! Current pointer to the logwriter
     //Logger* logwriter;
 #ifdef WITH_HTML_LOGS
