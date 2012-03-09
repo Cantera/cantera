@@ -1679,9 +1679,9 @@ typedef ThermoPhase thermo_t;
  *                    of the phase should be written out
  *
  * @return  Returns a string containing the report
+ * @deprecated use "th.report(show_thermo)" instead
  */
-
-std::string report(const ThermoPhase& th, const bool show_thermo = true);
+DEPRECATED(std::string report(const ThermoPhase& th, const bool show_thermo = true));
 
 
 }

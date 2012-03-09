@@ -25,7 +25,7 @@ int main(int argc, char** argv)
         //g.setState_TPX(1500.0, 1.0132E5, "SIH4:0.01, H2:0.99");
         Cantera::ChemEquil_print_lvl = 40;
         equilibrate(*g, "TP");
-        std::string r = Cantera::report(*g, true);
+        std::string r = g->report(true);
         cout << r;
         cout << endl;
         return 0;

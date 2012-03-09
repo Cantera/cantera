@@ -732,7 +732,7 @@ inline std::ostream& operator<<(std::ostream& s, Cantera::MultiPhase& x)
         }
         s << "Moles: " << x.phaseMoles(ip) << std::endl;
 
-        s << report(x.phase(ip)) << std::endl;
+        s << x.phase(ip).report() << std::endl;
     }
     return s;
 }
