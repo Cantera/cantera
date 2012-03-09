@@ -6,6 +6,8 @@
 #ifndef CT_LOGGER_H
 #define CT_LOGGER_H
 
+#include "ct_defs.h"
+
 #include <iostream>
 #include <string>
 #include <cstdlib>
@@ -87,7 +89,8 @@ public:
     }
 
     /// Return an integer specifying the application environment.
-    virtual int env() {
+    /// @deprecated
+    DEPRECATED(virtual int env()) {
         return 0;
     }
 };

@@ -335,8 +335,9 @@ void error(const std::string& msg);
  *  class logger and inherited classes of logger.
  *
  *   @ingroup textlogs
+ *   @deprecated
  */
-int userInterface();
+DEPRECATED(int userInterface());
 
 //! Install a logger.
 /*!
