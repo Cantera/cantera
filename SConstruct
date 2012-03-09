@@ -112,6 +112,9 @@ env = Environment(tools=toolchain+['textfile', 'subst', 'recursiveInstall', 'wix
                   toolchain=toolchain,
                   **extraEnvArgs)
 
+env['OS'] = platform.system()
+env['OS_BITS'] = int(platform.architecture()[0][:2])
+
 # Fixes a linker error in Windows
 if os.name == 'nt' and 'TMP' in os.environ:
     env['ENV']['TMP'] = os.environ['TMP']
@@ -196,10 +199,13 @@ elif env['CC'] == 'clang':
 else:
     print "WARNING: Unrecognized C compiler '%s'" % env['CC']
 
-defaults.threadFlags = '-pthread' if os.name != 'nt' else ''
-
 # TODO: Once deprecated functions have been removed, remove the
 # compiler options: -Wno-deprecated-declarations and /wd4996
+
+if env['OS'] in ('Windows', 'Darwin'):
+    defaults.threadFlags = ''
+else:
+    defaults.threadFlags = '-pthread'
 
 # **************************************
 # *** Read user-configurable options ***
@@ -602,9 +608,6 @@ of this file is:
 # ********************************************
 # *** Configure system-specific properties ***
 # ********************************************
-env['OS'] = platform.system()
-
-env['OS_BITS'] = int(platform.architecture()[0][:2])
 
 # Copy in external environment variables
 if env['env_vars'] == 'all':

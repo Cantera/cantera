@@ -28,11 +28,13 @@ CANTERA_VERSION=@cantera_version@
 CANTERA_CORE_INCLUDES=-I@ct_incroot@
 
 # Required Cantera libraries
-CANTERA_CORE_LIBS=-L@ct_libdir@ -lcantera
+CANTERA_CORE_LIBS=@mak_threadflags@ -L@ct_libdir@ -lcantera
 
 CANTERA_CORE_FTN=-L@ct_libdir@ -lcantera_fortran -lcantera
 
 CANTERA_FORTRAN_MODS=@ct_incroot@/cantera
+
+CANTERA_FORTRAN_SYSLIBS=@mak_fort_threadflags@ -lstdc++
 
 ###############################################################################
 #            BOOST
@@ -75,7 +77,7 @@ CANTERA_LIBS=$(CANTERA_CORE_LIBS) $(CANTERA_SUNDIALS_LIBS) \
 
 CANTERA_FORTRAN_LIBS=$(CANTERA_CORE_FTN) $(CANTERA_SUNDIALS_LIBS) \
                      $(CANTERA_BLAS_LAPACK_LIBS) $(CANTERA_BOOST_LIBS) \
-                     -lstdc++
+                     $(CANTERA_FORTRAN_SYSLIBS)
 
 ###############################################################################
 #  END
