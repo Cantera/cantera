@@ -376,33 +376,11 @@ Application::Application() :
     inputDirs(0),
     stop_on_error(false),
     options(),
-    tmp_dir("."),
     xmlfiles(),
-    m_sleep("1"),
     pMessenger() {
 #if !defined( THREAD_SAFE_CANTERA )
     pMessenger = std::auto_ptr<Messages>(new Messages());
 #endif
-    // if TMP or TEMP is set, use it for the temporary
-    // directory
-    char* ctmpdir = getenv("CANTERA_TMPDIR");
-    if (ctmpdir != 0) {
-        tmp_dir = std::string(ctmpdir);
-    } else {
-        char* tmpdir = getenv("TMP");
-        if (tmpdir == 0) {
-            tmpdir = getenv("TEMP");
-        }
-        if (tmpdir != 0) {
-            tmp_dir = std::string(tmpdir);
-        }
-    }
-
-    // if SLEEP is set, use it as the sleep time
-    char* sleepstr = getenv("SLEEP");
-    if (sleepstr != 0) {
-        m_sleep = std::string(sleepstr);
-    }
 
     // install a default logwriter that writes to standard
     // output / standard error
@@ -589,24 +567,6 @@ long int Application::readStringRegistryKey(const std::string& keyName, const st
     return error;
 }
 #endif
-
-void Application::setTmpDir(std::string tmp)
-{
-    APP_LOCK();
-    tmp_dir = tmp ;
-}
-
-std::string Application::getTmpDir()
-{
-    APP_LOCK();
-    return tmp_dir ;
-}
-
-std::string Application::sleep()
-{
-    APP_LOCK();
-    return m_sleep ;
-}
 
 void Application::Messages::popError()
 {

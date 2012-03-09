@@ -18,13 +18,6 @@
 #include <cstdlib>
 #include <ctime>
 
-// These defines are needed for the windows Sleep() function
-// - comment them out if you don't want the Sleep function.
-//#ifdef _WIN32
-//#include "Windows.h"
-//#include "Winbase.h"
-//#endif
-
 using namespace Cantera;
 using namespace std;
 

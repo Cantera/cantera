@@ -210,37 +210,6 @@ void thread_complete() ;
  */
 std::string canteraRoot();
 
-//! Sets the temporary file directory.
-/*!
- *  The default is to use the
- *  directory specified by environment variable TMP or TEMP. If neither
- *  of these are defined, then the current working directory will be
- *  used for temporary files. Call this function to specify some other
- *  place to put temporary files.
- *
- * @ingroup inputfiles
- *
- * @param tmp String name for the temporary directory
- */
-void setTmpDir(std::string tmp);
-
-//! Retrieves the  directory name where temporary files are created
-/*!
- * @ingroup inputfiles
- * @return
- *    Returns a string containing the directory name
- */
-std::string tmpDir();
-
-//! Delay time in seconds.
-/*!
- * @return
- *     Returns the length of time in seconds for calls to the
- *     sleep function.
- * @ingroup inputfiles
- */
-std::string sleep();
-
 /*!
  * @defgroup logs Diagnostic Output
  *

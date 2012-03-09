@@ -146,21 +146,6 @@ void close_XML_File(std::string file)
     app()->close_XML_File(file) ;
 }
 
-void setTmpDir(std::string tmp)
-{
-    app()->setTmpDir(tmp);
-}
-
-string tmpDir()
-{
-    return app()->getTmpDir();
-}
-
-string sleep()
-{
-    return app()->sleep();
-}
-
 int nErrors()
 {
     return app()->getErrorCount();
