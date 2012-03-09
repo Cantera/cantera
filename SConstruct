@@ -196,6 +196,8 @@ elif env['CC'] == 'clang':
 else:
     print "WARNING: Unrecognized C compiler '%s'" % env['CC']
 
+defaults.threadFlags = '-pthread' if os.name != 'nt' else ''
+
 # TODO: Once deprecated functions have been removed, remove the
 # compiler options: -Wno-deprecated-declarations and /wd4996
 
@@ -468,6 +470,9 @@ opts.AddVariables(
     ('cc_flags',
      'Compiler flags passed to both the C and C++ compilers, regardless of optimization level',
      defaults.ccFlags),
+    ('thread_flags',
+     'Compiler and linker flags for POSIX multithreading support',
+     defaults.threadFlags),
     BoolVariable(
         'optimize',
         """Enable extra compiler optimizations specified by the "optimize_flags" variable,
@@ -831,11 +836,13 @@ env['inst_mandir'] = pjoin(instRoot, 'man1')
 env['inst_matlab_dir'] = pjoin(instRoot, 'matlab', 'toolbox')
 
 env['CXXFLAGS'] = listify(env['cxx_flags'])
+env['CCFLAGS'] = listify(env['cc_flags']) + listify(env['thread_flags'])
+env['LINKFLAGS'] += listify(env['thread_flags'])
 
 if env['optimize']:
-    env['CCFLAGS'] = listify(env['cc_flags']) + listify(env['optimize_flags'])
+    env['CCFLAGS'] += listify(env['optimize_flags'])
 else:
-    env['CCFLAGS'] = listify(env['cc_flags']) + listify(env['no_optimize_flags'])
+    env['CCFLAGS'] += listify(env['no_optimize_flags'])
 
 if env['debug']:
     env['CCFLAGS'] += listify(env['debug_flags'])
@@ -843,7 +850,6 @@ if env['debug']:
 else:
     env['CCFLAGS'] += listify(env['no_debug_flags'])
     env['LINKFLAGS'] += listify(env['no_debug_linker_flags'])
-
 
 if env['coverage']:
     if  env['CC'] == 'gcc':

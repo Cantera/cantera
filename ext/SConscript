@@ -53,7 +53,7 @@ def prep_gtest(env):
     return localenv
 
 # (subdir, (file extensions), prepfunction)
-libs = []
+libs = [('libexecstream', ['cpp'], prep_default)]
 
 if env['build_with_f2c']:
     libs.append(('f2c_math', ['cpp','c'], prep_f2c))

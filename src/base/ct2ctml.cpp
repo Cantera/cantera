@@ -10,6 +10,7 @@
 #include "cantera/base/ctml.h"
 #include "cantera/base/global.h"
 #include "cantera/base/stringUtils.h"
+#include "../../ext/libexecstream/exec-stream.h"
 
 #include <fstream>
 #include <sstream>
@@ -70,7 +71,6 @@ static string pypath()
  */
 void ct2ctml(const char* file, const int debug)
 {
-
 #ifdef HAS_NO_PYTHON
     /*
      *  Section to bomb out if python is not
@@ -82,107 +82,57 @@ void ct2ctml(const char* file, const int debug)
                        ", but not available in this computational environment");
 #endif
 
-    time_t aclock;
-    time(&aclock);
-    int ia = static_cast<int>(aclock);
-    string path =  tmpDir()+"/.cttmp"+int2str(ia)+".pyw";
-    ofstream f(path.c_str());
-    if (!f) {
-        throw CanteraError("ct2ctml","cannot open "+path+" for writing.");
-    }
-
-    f << "from ctml_writer import *\n"
-      << "import sys, os, os.path\n"
-      << "file = \"" << file << "\"\n"
-      << "base = os.path.basename(file)\n"
-      << "root, ext = os.path.splitext(base)\n"
-      << "dataset(root)\n"
-      << "execfile(file)\n"
-      << "write()\n";
-    f.close();
-    string logfile = tmpDir()+"/ct2ctml.log";
-#ifdef _WIN32
-    string cmd = pypath() + " " + "\"" + path + "\"" + "> " + logfile + " 2>&1";
-#else
-    string cmd = "sleep " + sleep() + "; " + "\"" + pypath() + "\"" +
-                 " " + "\"" + path + "\"" + " &> " + logfile;
-#endif
-    if (debug > 0) {
-        writelog("ct2ctml: executing the command " + cmd + "\n");
-        writelog("ct2ctml: the Python command is: " + pypath() + "\n");
-    }
-
-    int ierr = 0;
+    string python_output;
+    int python_exit_code;
     try {
-        ierr = system(cmd.c_str());
-    } catch (...) {
-        ierr = -10;
-        if (debug > 0) {
-            writelog("ct2ctml: command execution failed.\n");
+        exec_stream_t python;
+        python.set_wait_timeout(exec_stream_t::s_child, 10000);
+        python.start(pypath(), "-i");
+        stringstream output_stream;
+        python.in() <<
+            "if True:\n" << // Use this so that the rest is a single block
+            "    import sys\n" <<
+            "    sys.stderr = sys.stdout\n" <<
+            "    import ctml_writer\n" <<
+            "    ctml_writer.convert(r'" << file << "')\n";
+        python.close_in();
+        std::string line;
+        while (std::getline(python.out(), line).good()) {
+            output_stream << line << std::endl;;
         }
+        python.close();
+        python_exit_code = python.exit_code();
+        python_output = stripws(output_stream.str());
+    } catch (std::exception& err) {
+        // Report failure to execute the python
+        stringstream message;
+        message << "Error executing python while converting input file:\n";
+        message << "Python command was: '" << pypath() << "'\n";
+        message << err.what() << std::endl;
+        throw CanteraError("ct2ctml", message.str());
     }
 
-    /*
-     * This next section may seem a bit weird. However, it is in
-     * response to an issue that arises when running cantera with
-     * cygwin, using cygwin's python intepreter. Basically, the
-     * xml file is written to the local directory by the last
-     * system command. Then, the xml file is read immediately
-     * after by an ifstream() c++ command. Unfortunately, it seems
-     * that the directory info is not being synched fast enough so
-     * that the ifstream() read fails, even though the file is
-     * actually there. Putting in a sleep system call here fixes
-     * this problem. Also, having the xml file pre-existing fixes
-     * the problem as well. There may be more direct ways to fix
-     * this bug; however, I am not aware of them.
-     * HKM -> During the solaris port, I found the same thing.
-     *        It probably has to do with NFS syncing problems.
-     *        3/3/06
-     */
-#ifndef _WIN32
-    string sss = sleep();
-    if (debug > 0) {
-        writelog("sleeping for " + sss + " secs+\n");
-    }
-    cmd = "sleep " + sss;
-    try {
-        ierr = system(cmd.c_str());
-    } catch (...) {
-        ierr = -10;
-        writelog("ct2ctml: command execution failed.\n");
-    }
-#else
-    // This command works on windows machines if Windows.h and Winbase.h are included
-    // Sleep(5000);
-#endif
-
-    if (ierr != 0) {
-        // Generate an error message that includes the contents of the
-        // ct2ctml log file.
+    if (python_exit_code != 0) {
+        // Report a failure in the conversion process
         stringstream message;
         message << "Error converting input file \"" << file << "\" to CTML.\n";
-        message << "Command was:\n\n";
-        message << cmd << "\n\n";
-        ifstream ferr(logfile.c_str());
-        if (ferr) {
-            message << "-------------- start of ct2ctml.log --------------\n";
-            message << ferr.rdbuf();
-            message << "--------------- end of ct2ctml.log ---------------";
-        } else {
-            message << "Additionally, the contents of ct2ctml.log"
-                "could not be read";
+        message << "Python command was: '" << pypath() << "'\n";
+        if (python_output.size() > 0) {
+            message << "-------------- start of converter log --------------\n";
+            message << python_output << std::endl;
+            message << "--------------- end of converter log ---------------";
         }
         throw CanteraError("ct2ctml", message.str());
     }
 
-    // If the conversion succeeded and no debugging information is needed,
-    // clean up by deleting the temporary Python file and the log file.
-    if (debug == 0) {
-        remove(path.c_str());
-        remove(logfile.c_str());
-    } else {
-        writelog("ct2ctml: retaining temporary file "+path+"\n");
-        writelog("ct2ctml: retaining temporary file "+logfile+"\n");
+    if (python_output.size() > 0) {
+        // Warn if there was any output from the conversion process
+        stringstream message;
+        message << "Warning: Unexpected output from CTI converter\n";
+        message << "-------------- start of converter log --------------\n";
+        message << python_output << std::endl;
+        message << "--------------- end of converter log ---------------\n";
+        writelog(message.str());
     }
 }
 
