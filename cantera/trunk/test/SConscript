@@ -62,7 +62,9 @@ def addTestScript(subdir, script, interpreter, dependencies):
     passedFile = File(pjoin(subdir, '%s.passed' % (script)))
     run_program = testenv.Command(passedFile, pjoin(subdir, script), scriptRunner)
     for dep in dependencies:
-        testenv.Depends(run_program, File(pjoin(subdir, dep)))
+        if isinstance(dep, str):
+            dep = File(pjoin(subdir, dep))
+        testenv.Depends(run_program, dep)
     Alias('newtest', run_program)
     if os.path.exists(passedFile.abspath):
         Alias('newtest-reset', testenv.Command('reset-%s%s' % (subdir, script),
@@ -72,4 +74,4 @@ def addTestScript(subdir, script, interpreter, dependencies):
 addTestProgram('thermo', 'nasapoly')
 addTestScript('python', 'runTests.py',
               interpreter=sys.executable,
-              dependencies=['testSolution.py'])
+              dependencies=['testSolution.py', localenv['python_module']])

@@ -61,6 +61,7 @@ if localenv['python_package'] == 'full':
             dest = pjoin('interfaces', 'python', 'Cantera', file.name)
             localenv.AddPreAction(pymodule,Copy(dest, file))
 
+    env['python_module'] = pymodule
 
 elif localenv['python_package'] == 'minimal':
     pymodule = make_setup
