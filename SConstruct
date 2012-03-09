@@ -116,6 +116,10 @@ env = Environment(tools=toolchain+['textfile', 'subst', 'recursiveInstall', 'wix
 if os.name == 'nt' and 'TMP' in os.environ:
     env['ENV']['TMP'] = os.environ['TMP']
 
+# Fixes issues with Python subprocesses. See http://bugs.python.org/issue13524
+if os.name == 'nt':
+    env['ENV']['SystemRoot'] = os.environ['SystemRoot']
+
 # Fix an issue with Unicode sneaking into the environment on Windows
 if os.name == 'nt':
     for key,val in env['ENV'].iteritems():
