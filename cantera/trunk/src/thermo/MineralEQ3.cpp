@@ -554,18 +554,6 @@ void MineralEQ3::setParametersFromXML(const XML_Node& eosdata)
 
 doublereal MineralEQ3::LookupGe(const std::string& elemName)
 {
-#ifdef OLDWAY
-    int num = sizeof(geDataTable) / sizeof(struct GeData);
-    string s3 = elemName.substr(0,3);
-    for (int i = 0; i < num; i++) {
-        //if (!std::strncmp(elemName.c_str(), aWTable[i].name, 3)) {
-        if (s3 == geDataTable[i].name) {
-            return (geDataTable[i].GeValue);
-        }
-    }
-    throw CanteraError("LookupGe", "element " + s + " not found");
-    return -1.0;
-#else
     size_t iE = elementIndex(elemName);
     if (iE == npos) {
         throw CanteraError("PDSS_HKFT::LookupGe", "element " + elemName + " not found");
@@ -577,7 +565,6 @@ doublereal MineralEQ3::LookupGe(const std::string& elemName)
     }
     geValue *= (-298.15);
     return geValue;
-#endif
 }
 
 void MineralEQ3::convertDGFormation()

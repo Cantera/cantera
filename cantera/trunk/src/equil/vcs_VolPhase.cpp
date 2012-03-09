@@ -1004,7 +1004,6 @@ void vcs_VolPhase::_updateLnActCoeffJac()
     if (!m_UpToDate_AC) {
         _updateActCoeff();
     }
-#ifndef NOOLD
     if (!TP_ptr) {
         return;
     }
@@ -1019,8 +1018,6 @@ void vcs_VolPhase::_updateLnActCoeffJac()
             lnActCoeffCol[k] /= moles_j_base;
         }
     }
-#endif
-
 
     double deltaMoles_j = 0.0;
     // Make copies of ActCoeff and Xmol_ for use in taking differences

@@ -195,10 +195,6 @@ public:
     friend int solve(DenseMatrix& A, double* b);
     friend int solve(DenseMatrix& A, DenseMatrix& b);
     friend int invert(DenseMatrix& A, int nn);
-#ifdef INCL_LEAST_SQUARES
-    friend int leastSquares(DenseMatrix& A, double* b);
-#endif
-
 };
 
 //==================================================================================================================
@@ -227,16 +223,6 @@ int solve(DenseMatrix& A, double* b);
  *  @param b   Dense matrix of rhs's. Each column is a rhs
  */
 int solve(DenseMatrix& A, DenseMatrix& b);
-
-#ifdef INCL_LEAST_SQUARES
-//! Solve Ax = b in the least squares sense
-/*!
- *  @param A   Matrix to be inverted in the least squares sense
- *  @param b   Vector b to be solved for
- *   @todo fix lwork
- */
-int leastSquares(DenseMatrix& A, double* b);
-#endif
 
 //! Multiply \c A*b and return the result in \c prod. Uses BLAS routine DGEMV.
 /*!

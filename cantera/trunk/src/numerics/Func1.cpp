@@ -161,11 +161,6 @@ Func1& Sin1::derivative() const
 {
     Func1* c = new Cos1(m_c);
     Func1* r = &newTimesConstFunction(*c, m_c);
-#ifdef DEBUG_FUNC
-    cout << "Sin1::derivative: \n";
-    cout << "function = \'" + write("x") + "\'\n";
-    cout << "derivative = \'" + r->write("x") + "\'\n";
-#endif
     return *r;
 }
 /*****************************************************************************/
@@ -174,11 +169,6 @@ Func1& Cos1::derivative() const
 {
     Func1* s = new Sin1(m_c);
     Func1* r = &newTimesConstFunction(*s, -m_c);
-#ifdef DEBUG_FUNC
-    cout << "Cos1::derivative: \n";
-    cout << "function = \'" + write("x") + "\'\n";
-    cout << "derivative = \'" + r->write("x") + "\'\n";
-#endif
     return *r;
 }
 
@@ -225,11 +215,6 @@ Func1& Pow1::derivative() const
         Func1* f = new Pow1(m_c - 1.0);
         r = &newTimesConstFunction(*f, m_c);
     }
-#ifdef DEBUG_FUNC
-    cout << "Pow1::derivative: \n";
-    cout << "function = \'" + write("x") + "\'\n";
-    cout << "derivative = \'" + r->write("x") + "\'\n";
-#endif
     return *r;
 }
 
@@ -567,11 +552,6 @@ Func1& newRatioFunction(Func1& f1, Func1& f2)
 
 Func1& newCompositeFunction(Func1& f1, Func1& f2)
 {
-    //#ifdef DEBUG_FUNC
-    //cout << "creating new composite function." << endl;
-    //cout << "f1 = " << f1.write("x") << "  " << f1.ID() << endl;
-    //cout << "f2 = " << f2.write("x") << "  " << f2.ID() << endl;
-    //#endif
     if (isZero(f1)) {
         delete &f1;
         delete &f2;

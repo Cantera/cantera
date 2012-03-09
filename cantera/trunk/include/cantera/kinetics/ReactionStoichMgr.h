@@ -239,10 +239,6 @@ protected:
     StoichManagerN*  m_revproducts;
     StoichManagerN*  m_irrevproducts;
     vector_fp m_dummy;
-
-#ifdef INCL_STOICH_WRITER
-    StoichWriter* m_rwriter;
-#endif
 };
 }
 

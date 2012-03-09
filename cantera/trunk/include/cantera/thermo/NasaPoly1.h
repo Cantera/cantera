@@ -252,13 +252,6 @@ public:
         for (int i = 2; i < 7; i++) {
             coeffs[i-2] = m_coeff[i];
         }
-#ifdef WARN_ABOUT_CHANGES_FROM_VERSION_1_6
-        cout << "************************************************\n"
-             cout << "Warning: NasaPoly1::reportParameters now returns \n"
-             << "the coefficient array in the same order as in\n"
-             << "the input file.  See file NasaPoly1.h" << endl;
-        cout << "************************************************\n"
-#endif
     }
 
          //! Modify parameters for the standard state

@@ -236,36 +236,6 @@ int solve(DenseMatrix& A, DenseMatrix& b)
     return info;
 }
 //====================================================================================================================
-
-#ifdef INCL_LEAST_SQUARES
-/** @todo fix lwork */
-int leastSquares(DenseMatrix& A, double* b)
-{
-    int info = 0;
-    int rank = 0;
-    double rcond = -1.0;
-    // fix this!
-    int lwork = 6000; // 2*(3*min(m,n) + max(2*min(m,n), max(m,n)));
-    vector_fp work(lwork);
-    vector_fp s(min(static_cast<int>(A.nRows()),
-                    static_cast<int>(A.nColumns())));
-    ct_dgelss(static_cast<int>(A.nRows()),
-              static_cast<int>(A.nColumns()), 1, A.ptrColumn(0),
-              static_cast<int>(A.nRows()), b,
-              static_cast<int>(A.nColumns()), &s[0], //.begin(),
-              rcond, rank, &work[0], work.size(), info);
-    if (info != 0) {
-        if (A.m_printLevel) {
-            writelogf("leastSquares(): DGELSS returned INFO = %d\n", info);
-        }
-        if (! A.m_useReturnErrorCode) {
-            throw CELapackError("leastSquares()", "DGELSS returned INFO = " + int2str(info));
-        }
-    }
-    return info;
-}
-#endif
-//====================================================================================================================
 void multiply(const DenseMatrix& A, const double* const b, double* const prod)
 {
     ct_dgemv(ctlapack::ColMajor, ctlapack::NoTranspose,

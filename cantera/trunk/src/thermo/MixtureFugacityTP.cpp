@@ -1161,21 +1161,6 @@ doublereal MixtureFugacityTP::calculatePsat(doublereal TKelvin, doublereal& mola
         int stab;
         doublereal presLast = pres;
 
-
-#ifdef DDDD
-        double pVec[100];
-        int n = 0;
-        for (int i = 0; i < 50; i++) {
-            pVec[n++] = 3.40E6 + 0.01E5 * i;
-        }
-
-        for (int i = 0; i < 50; i++) {
-            stab = corr0(TKelvin, pVec[i], RhoLiquid, RhoGas, liqGRT, gasGRT);
-            printf("p = %g, T = %g, stab = %d, Rl = %g Rg = %g, Gl = %g, Gg = %g\n",
-                   pVec[i], TKelvin, stab, RhoLiquid, RhoGas,liqGRT, gasGRT);
-        }
-#endif
-
         /*
          *  First part of the calculation involves finding a pressure at which the
          *  gas and the liquid state coexists.

@@ -383,81 +383,6 @@ static void installNasaThermoFromXML(std::string speciesName,
     sp.install(speciesName, k, NASA, &c[0], tmin, tmax, p0);
 }
 
-#ifdef INCL_NASA96
-
-//!  Install a NASA96 polynomial thermodynamic property parameterization for species k into a SpeciesThermo instance.
-/*!
- * This is called by method installThermoForSpecies if a NASA block is found in the XML input.
- *
- *  @param speciesName        String name of the species
- *  @param sp                 SpeciesThermo object that will receive the nasa polynomial object
- *  @param k                  Species index within the phase
- *  @param f0ptr              Ptr to the first XML_Node for the first NASA polynomial
- *  @param f1ptr              Ptr to the first XML_Node for the first NASA polynomial
- */
-static void installNasa96ThermoFromXML(std::string speciesName, SpeciesThermo& sp, int k,
-                                       const XML_Node* f0ptr, const XML_Node* f1ptr)
-{
-    doublereal tmin0, tmax0, tmin1, tmax1, tmin, tmid, tmax;
-
-    const XML_Node& f0 = *f0ptr;
-    bool dualRange = false;
-    if (f1ptr) {
-        dualRange = true;
-    }
-    tmin0 = fpValue(f0["Tmin"]);
-    tmax0 = fpValue(f0["Tmax"]);
-    tmin1 = tmax0;
-    tmax1 = tmin1 + 0.0001;
-    if (dualRange) {
-        tmin1 = fpValue((*f1ptr)["Tmin"]);
-        tmax1 = fpValue((*f1ptr)["Tmax"]);
-    }
-
-
-    doublereal p0 = OneAtm;
-    if (f0.hasAttrib("P0")) {
-        p0 = fpValue(f0["P0"]);
-    }
-    if (f0.hasAttrib("Pref")) {
-        p0 = fpValue(f0["Pref"]);
-    }
-
-    vector_fp c0, c1;
-    if (fabs(tmax0 - tmin1) < 0.01) {
-        tmin = tmin0;
-        tmid = tmax0;
-        tmax = tmax1;
-        getFloatArray(f0.child("floatArray"), c0, false);
-        if (dualRange) {
-            getFloatArray(f1ptr->child("floatArray"), c1, false);
-        } else {
-            c1.resize(7,0.0);
-            copy(c0.begin(), c0.end(), c1.begin());
-        }
-    } else if (fabs(tmax1 - tmin0) < 0.01) {
-        tmin = tmin1;
-        tmid = tmax1;
-        tmax = tmax0;
-        getFloatArray(f1ptr->child("floatArray"), c0, false);
-        getFloatArray(f0.child("floatArray"), c1, false);
-    } else {
-        throw CanteraError("installNasaThermo",
-                           "non-continuous temperature ranges.");
-    }
-    vector_fp c(15);
-    c[0] = tmid;
-    c[1] = c0[5];
-    c[2] = c0[6];
-    copy(c0.begin(), c0.begin()+5, c.begin() + 3);
-    c[8] = c1[5];
-    c[9] = c1[6];
-    copy(c1.begin(), c1.begin()+5, c.begin() + 10);
-    sp.install(speciesName, k, NASA, &c[0], tmin, tmax, p0);
-}
-
-#endif
-
 //!   Look up the elemental reference state entropies
 /*!
  *  @param elemName String name of the element
@@ -465,18 +390,6 @@ static void installNasa96ThermoFromXML(std::string speciesName, SpeciesThermo& s
  */
 static doublereal LookupGe(const std::string& elemName, ThermoPhase* th_ptr)
 {
-#ifdef OLDWAY
-    int num = sizeof(geDataTable) / sizeof(struct GeData);
-    string s3 = elemName.substr(0,3);
-    for (int i = 0; i < num; i++) {
-        //if (!std::strncmp(elemName.c_str(), aWTable[i].name, 3)) {
-        if (s3 == geDataTable[i].name) {
-            return (geDataTable[i].GeValue);
-        }
-    }
-    throw CanteraError("LookupGe", "element " + s + " not found");
-    return -1.0;
-#else
     size_t iE = th_ptr->elementIndex(elemName);
     if (iE == npos) {
         throw CanteraError("PDSS_HKFT::LookupGe", "element " + elemName + " not found");
@@ -488,7 +401,6 @@ static doublereal LookupGe(const std::string& elemName, ThermoPhase* th_ptr)
     }
     geValue *= (-298.15);
     return geValue;
-#endif
 }
 
 //! Convert delta G formulation

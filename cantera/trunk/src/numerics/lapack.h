@@ -10,7 +10,6 @@
 #if defined(NEEDS_F77_TRANSLATION)
 
 #if defined(F77EXTERNS_UPPERCASE_NOTRAILINGBAR)
-#define dgelss_ DGELSS
 #define dgetrs_ DGETRS
 #define dgetrf_ DGETRF
 #define dgetri_ DGETRI
@@ -19,7 +18,6 @@
 #define simplx_ SIMPLX
 #define splin2_ SPLIN2
 #define splie2_ SPLIE2
-#define dgelss_ DGELSS
 #endif
 
 #endif
