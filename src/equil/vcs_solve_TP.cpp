@@ -172,7 +172,7 @@ int VCS_SOLVE::vcs_solve_TP(int print_lvl, int printDetails, int maxit)
         plogf("VCS CALCULATION METHOD\n\n ");
         plogf("%s\n", m_title.c_str());
         plogf("\n\n%5d SPECIES\n%5d ELEMENTS\n", m_numSpeciesTot, m_numElemConstraints);
-        plogf("%5d COMPONENTS\n%", m_numComponents);
+        plogf("%5d COMPONENTS\n", m_numComponents);
         plogf("%5d PHASES\n", m_numPhases);
 
         plogf(" PRESSURE%22.8g %3s\n", m_pressurePA, "Pa ");
