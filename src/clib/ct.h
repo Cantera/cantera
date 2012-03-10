@@ -55,7 +55,7 @@ extern "C" {
                                       double charge, double weight);
 
     //int newThermo(char* model);
-    CANTERA_CAPI size_t newThermoFromXML(int mxml);
+    CANTERA_CAPI int newThermoFromXML(int mxml);
     CANTERA_CAPI int th_thermoIndex(char* id);
     CANTERA_CAPI int th_phase(int n);
     CANTERA_CAPI size_t th_nSpecies(size_t n);

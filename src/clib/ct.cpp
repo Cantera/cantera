@@ -403,7 +403,7 @@ extern "C" {
 
     //-------------- Thermo --------------------//
 
-    size_t newThermoFromXML(int mxml)
+    int newThermoFromXML(int mxml)
     {
         try {
             XML_Node& x = XmlCabinet::item(mxml);
