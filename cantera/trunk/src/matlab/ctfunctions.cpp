@@ -28,8 +28,8 @@ void ctfunctions(int nlhs, mxArray* plhs[],
     int job = getInt(prhs[1]);
     int iok, dbg, validate;
     char* infile, *dbfile, *trfile, *idtag;
-    int buflen;
-    char* output_buf;
+    int buflen = 0;
+    char* output_buf = 0;
 
     switch (job) {
 
@@ -50,7 +50,7 @@ void ctfunctions(int nlhs, mxArray* plhs[],
 
         // get Cantera error
     case 2:
-        buflen = 300;
+        buflen = getCanteraError(buflen, output_buf) + 1;
         output_buf = (char*)mxCalloc(buflen, sizeof(char));
         iok = getCanteraError(buflen, output_buf);
         plhs[0] = mxCreateString(output_buf);

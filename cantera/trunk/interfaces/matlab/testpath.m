@@ -34,7 +34,8 @@ end
 
 % Set path to Python module
 setenv('PYTHONPATH', fullfile(cantera_root, 'interfaces', 'python'))
-setenv('CANTERA_DATA', fullfile(cantera_root, 'data', 'inputs'))
 
 % A simple test to make sure that the ctmethods.mex file is present and working
 f = Func('polynomial', 3, [1,2,3,4])
+
+adddir(fullfile(cantera_root, 'data', 'inputs'))
