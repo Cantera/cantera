@@ -32,8 +32,8 @@ function s = IdealGasMix(a,b,c)
 %   See also: ck2ctml, Solution
 %
 dotloc = findstr(a,'.');
-if dotloc > 1
-   ext = a(dotloc:end);
+if dotloc(end) > 1
+   ext = a(dotloc(end):end);
    if ~strcmp(ext,'.inp')
      if nargin == 1
        s = Solution(a);
