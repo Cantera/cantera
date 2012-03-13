@@ -33,8 +33,8 @@ elseif nargin == 2
 end
     
 dotloc = findstr(infile,'.');
-if dotloc > 1
-   idtag = infile(1:dotloc-1);
+if dotloc(end) > 1
+   idtag = infile(1:dotloc(end)-1);
    outfile = [idtag '.cti'];
 else
    idtag = infile;
