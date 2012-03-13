@@ -14,16 +14,18 @@ from Cantera.solution import Solution
 import os
 
 def IdealGasMix(src="", id = "", loglevel = 0):
-    """Return a Solution object representing an ideal gas mixture.
+    """Return a :class:`.Solution` object representing an ideal gas mixture.
 
-    src       --- input file
-    id        --- XML id tag for phase
+    :param src:
+        input file
+    :param id:
+        XML id tag for phase
     """
     return Solution(src=src,id=id,loglevel=loglevel)
 
 
 def GRI30(transport = ""):
-    """Return a Solution instance implementing reaction mechanism
+    """Return a :class:`.Solution` instance implementing reaction mechanism
     GRI-Mech 3.0."""
     if transport == "":
         return Solution(src="gri30.cti", id="gri30")
@@ -34,12 +36,12 @@ def GRI30(transport = ""):
 
 
 def Air():
-    """Return a Solution instance implementing the O/N/Ar portion of
+    """Return a :class:`.Solution` instance implementing the O/N/Ar portion of
     reaction mechanism GRI-Mech 3.0. The initial composition is set to
     that of air"""
     return Solution(src="air.cti", id="air")
 
 
 def Argon():
-    """Return a Solution instance representing pure argon."""
+    """Return a :class:`.Solution` instance representing pure argon."""
     return Solution(src="argon.cti", id="argon")

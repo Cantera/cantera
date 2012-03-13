@@ -8,13 +8,15 @@ class FreeFlame(Stack):
 
     def __init__(self, gas = None, grid = None, tfix = 500.0):
         """
-        gas -- object to use to evaluate all gas properties and reaction
-               rates. Required
-        grid -- array of initial grid points
+        :param gas:
+            object to use to evaluate all gas properties and reaction
+            rates. Required
+        :param grid:
+            array of initial grid points
 
         A domain of type FreeFlame named 'flame' will be created to
         represent the flame. The three domains comprising the stack
-        are stored as self.inlet, self.flame, and self.outlet.
+        are stored as ``self.inlet``, ``self.flame``, and ``self.outlet``.
         """
 
         self.inlet = Inlet('burner')
@@ -68,14 +70,14 @@ class FreeFlame(Stack):
 
 
     def solve(self, loglevel = 1, refine_grid = 1):
-        """Solve the flame. See Stack.solve"""
+        """Solve the flame. See :meth:`.Stack.solve`"""
         if not self._initialized: self.init()
         Stack.solve(self, loglevel = loglevel, refine_grid = refine_grid)
 
 
     def setRefineCriteria(self, ratio = 10.0, slope = 0.8,
                           curve = 0.8, prune = 0.0):
-        """See Stack.setRefineCriteria"""
+        """See :meth:`.Stack.setRefineCriteria`"""
         Stack.setRefineCriteria(self, domain = self.flame,
                                 ratio = ratio, slope = slope, curve = curve,
                                 prune = prune)
@@ -90,9 +92,12 @@ class FreeFlame(Stack):
 
     def set(self, tol = None, energy = '', tol_time = None):
         """Set parameters.
-        tol -- (rtol, atol) for steady-state
-        tol_time -- (rtol, atol) for time stepping
-        energy -- 'on' or 'off' to enable or disable the energy equation
+        :param tol:
+            (rtol, atol) for steady-state
+        :param tol_time:
+            (rtol, atol) for time stepping
+        :param energy:
+            'on' or 'off' to enable or disable the energy equation
         """
         if tol:
             self.flame.setTolerances(default = tol)

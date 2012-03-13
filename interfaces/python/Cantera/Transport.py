@@ -23,7 +23,6 @@ from Cantera.num import asarray
 import exceptions
 
 class Transport:
-
     """Transport properties.
 
     This class provides the Python interface to the family of
@@ -34,8 +33,8 @@ class Transport:
 
     In the C++ kernel, a transport manager implements a single
     transport model, and is an instance of a subclass of the base
-    class 'Transport'.  The structure in Python is a little
-    different. A single class 'Transport' represents any kernel-level
+    class ``Transport``.  The structure in Python is a little
+    different. A single class ``Transport`` represents any kernel-level
     transport manager. In addition, multiple kernel-kevel transport
     managers may be installed in one Python transport manager,
     although only one is active at any one time. This feature allows
@@ -45,13 +44,16 @@ class Transport:
                  phase=None, model = "", loglevel=0):
         """Create a transport property manager.
 
-        xml_phase --- XML phase element
-        phase     --- ThermoPhase instance representing the phase that the
-                      transport properties are for
-        model     --- string specifying transport model. If omitted or
-                      set to 'Default', the model will be read from the
-                      input file.
-        loglevel  --- controls the amount of diagnostic output
+        :param xml_phase:
+            XML phase element
+        :param phase:
+            :class:`.ThermoPhase` instance representing the phase that the
+            transport properties are for
+        :param model:
+            String specifying transport model. If omitted or set to ``Default``,
+            the model will be read from the input file.
+        :param loglevel:
+            controls the amount of diagnostic output
         """
 
         # if the transport model is not specified, look for attribute
@@ -84,7 +86,7 @@ class Transport:
                     pass
 
     def addTransportModel(self, model, loglevel=1):
-        """Add a new transport model.  Note that if 'model' is the
+        """Add a new transport model.  Note that if *model* is the
         name of an already-installed transport model, the new
         transport manager will take the place of the old one, which
         will no longer be accessible. This method does not change the

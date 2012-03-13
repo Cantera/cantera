@@ -54,13 +54,13 @@ class Domain1D:
 
         The argument list should consist of keyword/value pairs, with
         component names as keywords and (lower_bound, upper_bound)
-        tuples as the values.  The keyword 'default' may be used to
+        tuples as the values.  The keyword *default* may be used to
         specify default bounds for all unspecified components. The
-        keyword 'Y' can be used to stand for all species mass
+        keyword *Y* can be used to stand for all species mass
         fractions in flow domains.
 
-        >>> d.setBounds(default = (0, 1),
-        ...             Y = (-1.0e-5, 2.0))
+        >>> d.setBounds(default=(0, 1),
+        ...             Y=(-1.0e-5, 2.0))
         """
 
         d = {}
@@ -85,6 +85,7 @@ class Domain1D:
 
     def bounds(self, component):
         """Return the (lower, upper) bounds for a solution component.
+
         >>> d.bounds('T')
         (200.0, 5000.0)
         """
@@ -98,8 +99,7 @@ class Domain1D:
         """Return the (relative, absolute) error tolerances for
         a solution component.
 
-        (r, a) = d.tolerances('u')
-
+        >>> (r, a) = d.tolerances('u')
         """
         ic = self.componentIndex(component)
         r = _cantera.domain_rtol(self._hndl, ic)
@@ -107,20 +107,20 @@ class Domain1D:
         return (r, a)
 
     def setTolerances(self, **tol):
-        """Set the error tolerances. If 'time' is present and
+        """Set the error tolerances. If *time* is present and
         non-zero, then the values entered will apply to the transient
         problem. Otherwise, they will apply to the steady-state
         problem.
 
         The argument list should consist of keyword/value pairs, with
         component names as keywords and (rtol, atol) tuples as the
-        values.  The keyword 'default' may be used to specify default
-        bounds for all unspecified components. The keyword 'Y' can be
+        values.  The keyword *default* may be used to specify default
+        bounds for all unspecified components. The keyword *Y* can be
         used to stand for all species mass fractions in flow domains.
 
-        d.setTolerances(Y = (1.0e-5, 1.0e-9),
-                        default = (1.0e-7, 1.0e-12),
-                        time = 1)
+        >>> d.setTolerances(Y=(1.0e-5, 1.0e-9),
+        ...                 default=(1.0e-7, 1.0e-12),
+        ...                 time=1)
         """
 
         d = {}
@@ -151,7 +151,7 @@ class Domain1D:
     def setupGrid(self, grid):
         """Specify the grid.
 
-        d.setupGrid([0.0, 0.1, 0.2])
+        >>> d.setupGrid([0.0, 0.1, 0.2])
 
         """
         return _cantera.domain_setupGrid(self._hndl, asarray(grid))
@@ -164,12 +164,12 @@ class Domain1D:
         return _cantera.domain_setDesc(self._hndl, desc)
 
     def grid(self, n = -1):
-        """ If n >= 0, return the value of the nth grid point
+        """ If *n* >= 0, return the value of the nth grid point
         from the left in this domain. If n is not supplied, return
         the entire grid.
 
-        z4 = d.grid(4)
-        z_array = d.grid()
+        >>> z4 = d.grid(4)
+        >>> z_array = d.grid()
 
         """
         if n >= 0:
@@ -187,7 +187,7 @@ class Domain1D:
 
         grid, name, desc
 
-        d.set(name = 'flame', grid = z)
+        >>> d.set(name='flame', grid=z)
         """
         self._set(options)
 
@@ -267,7 +267,6 @@ class Bdry1D(Domain1D):
         mdot or massflux
         temperature or T
         mole_fractions or X
-
         """
         for opt in options.keys():
             v = options[opt]
@@ -354,11 +353,17 @@ class AxisymmetricFlow(Domain1D):
     In an axisymmetric flow domain, the equations solved are the
     similarity equations for the flow in a finite-height gap of
     infinite radial extent. The solution variables are
-      u       -- axial velocity
-      V       -- radial velocity divided by radius
-      T       -- temperature
-      lambda  -- (1/r)(dP/dr)
-      Y_k     -- species mass fractions
+
+    *u*
+        axial velocity
+    *V*
+        radial velocity divided by radius
+    *T*
+        temperature
+    *lambda*
+        (1/r)(dP/dr)
+    *Y_k*
+        species mass fractions
 
     It may be shown that if the boundary conditions on these variables
     are independent of radius, then a similarity solution to the exact
@@ -409,12 +414,13 @@ class AxisymmetricFlow(Domain1D):
         """Set the fixed temperature profile.  This profile is used
         whenever the energy equation is disabled.
 
-        pos - arrray of relative positions from 0 to 1
-        temp - array of temperature values
+        :param pos:
+            arrray of relative positions from 0 to 1
+        :param temp:
+            array of temperature values
 
         >>> d.setFixedTempProfile(array([0.0, 0.5, 1.0]),
         ...                       array([500.0, 1500.0, 2000.0])
-
         """
         return _cantera.stflow_setFixedTempProfile(self._hndl, pos, temp)
 
@@ -432,7 +438,7 @@ class AxisymmetricFlow(Domain1D):
         with no arguments or with a non-zero argument, the energy
         equations will be solved. If invoked with a zero argument,
         it will not be, and instead the temperature profiles will be
-        held to the one specified by the call to setFixedTempProfile.
+        held to the one specified by the call to :meth:`.setFixedTempProfile`.
         Default: energy equation enabled."""
         return _cantera.stflow_solveEnergyEqn(self._hndl, _onoff[flag])
 
@@ -441,8 +447,7 @@ class AxisymmetricFlow(Domain1D):
         In addition to the parameters that may be set by Domain1D.set,
         this method can be used to set the pressure and energy flag
 
-        >>> d.set(pressure = OneAtm, energy = 'on')
-
+        >>> d.set(pressure=OneAtm, energy='on')
         """
         for o in opt.keys():
             v = opt[o]
@@ -456,7 +461,6 @@ class AxisymmetricFlow(Domain1D):
 
 
 class Stack:
-
     """ Class Stack is a container for one-dimensional domains. It
     also holds the multi-domain solution vector, and controls the
     process of finding the solution.
@@ -480,32 +484,36 @@ class Stack:
     def setValue(self, dom, comp, localPoint, value):
         """Set the value of one component in one domain at one point
         to 'value'.
-        dom -- domain object
-        comp -- component number
-        localPoint -- grid point number within domain 'dom', starting with
-        zero on the left
-        value -- numerical value
+
+        :param dom:
+            domain object
+        :param comp:
+            component number
+        :param localPoint:
+            grid point number within domain *dom* starting with zero on the left
+        :param value:
+            numerical value
 
         >>> s.set(d, 3, 5, 6.7)
-
         """
         idom = dom.domain_hndl()
         _cantera.sim1D_setValue(self._hndl, idom,
                                 comp, localPoint, value)
 
     def setProfile(self, dom, comp, pos, v):
-
         """Set an initial estimate for a profile of one component in
         one domain.
 
-        dom -- domain object
-        comp -- component name
-        pos -- sequence of relative positions, from 0 on the
-               left to 1 on the right
-        v -- sequence of values at the relative positions specified in 'pos'
+        :param dom:
+            domain object
+        :param comp:
+            component name
+        :param pos:
+            sequence of relative positions, from 0 on the left to 1 on the right
+        :param v:
+            sequence of values at the relative positions specified in 'pos'
 
         >>> s.setProfile(d, 'T', [0.0, 0.2, 1.0], [400.0, 800.0, 1500.0])
-
         """
 
         idom = dom.index()
@@ -515,12 +523,15 @@ class Stack:
 
     def setFlatProfile(self, dom, comp, v):
         """Set a flat profile for one component in one domain.
-        dom -- domain object
-        comp -- component name
-        v -- value
+
+        :param dom:
+            domain object
+        :param comp:
+            component name
+        :param v:
+            value
 
         >>> s.setFlatProfile(d, 'u', -3.0)
-
         """
         idom = dom.index()
         icomp = dom.componentIndex(comp)
@@ -533,18 +544,18 @@ class Stack:
 
         >>> s.showSolution()
         >>> s.showSolution('soln.txt')
-
         """
         _cantera.sim1D_showSolution(self._hndl, fname)
 
     def setTimeStep(self, stepsize, nsteps):
         """Set the sequence of time steps to try when Newton fails.
 
-        stepsize -- initial time step size [s]
-        nsteps - sequence of integer step numbers
+        :param stepsize:
+            initial time step size [s]
+        :param nsteps:
+            sequence of integer step numbers
 
         >>> s.setTimeStep(1.0e-5, [1, 2, 5, 10])
-
         """
         # 3/20/09
         # The use of asarray seems to set the nsteps array to be of
@@ -559,10 +570,12 @@ class Stack:
 
     def solve(self, loglevel=1, refine_grid=1):
         """Solve the problem.
-        loglevel -- integer flag controlling the amount of
-                    diagnostic output. Zero suppresses all output, and
-                    5 produces very verbose output. Default: 1
-        refine_grid -- if non-zero, enable grid refinement."""
+
+        :param loglevel:
+            integer flag controlling the amount of diagnostic output. Zero
+            suppresses all output, and 5 produces very verbose output. Default: 1
+        :param refine_grid:
+            if non-zero, enable grid refinement."""
 
         return _cantera.sim1D_solve(self._hndl, loglevel, refine_grid)
 
@@ -574,33 +587,38 @@ class Stack:
     def setRefineCriteria(self, domain = None, ratio = 10.0, slope = 0.8,
                           curve = 0.8, prune = 0.05):
         """Set the criteria used to refine one domain.
-        domain -- domain object
-        ratio --  additional points will be added if the ratio of the spacing
-                  on either side of a grid point exceeds this value
-        slope --  maximum difference in value between two adjacent points,
-                  scaled by the maximum difference in the profile
-                  (0.0 < slope < 1.0). Adds points in regions of high slope.
-        curve --  maximum difference in slope between two adjacent intervals,
-                  scaled by the maximum difference in the profile
-                  (0.0 < curve < 1.0). Adds points in regions of high
-                  curvature.
-        prune --  if the slope or curve criteria are satisfied to the level of
-                  'prune', the grid point is assumed not to be needed and is
-                  removed. Set prune significantly smaller than
-                  'slope' and 'curve'. Set to zero to disable pruning
-                  the grid.
 
-        >>> s.setRefineCriteria(d, ratio = 5.0, slope = 0.2, curve = 0.3,
-        ...                     prune = 0.03)
+        :param domain:
+            domain object
+        :param ratio:
+            additional points will be added if the ratio of the spacing
+            on either side of a grid point exceeds this value
+        :param slope:
+            maximum difference in value between two adjacent points, scaled by
+            the maximum difference in the profile (0.0 < slope < 1.0). Adds
+            points in regions of high slope.
+        :param curve:
+            maximum difference in slope between two adjacent intervals, scaled
+            by the maximum difference in the profile (0.0 < curve < 1.0). Adds
+            points in regions of high curvature.
+        :param prune:
+            if the slope or curve criteria are satisfied to the level of
+            'prune', the grid point is assumed not to be needed and is removed.
+            Set prune significantly smaller than 'slope' and 'curve'. Set to
+            zero to disable pruning the grid.
+
+        >>> s.setRefineCriteria(d, ratio=5.0, slope=0.2, curve=0.3,
+        ...                     prune=0.03)
         """
         idom = domain.index()
         return _cantera.sim1D_setRefineCriteria(self._hndl,
                                                 idom, ratio, slope, curve, prune)
+
     def save(self, file = 'soln.xml', id = 'solution', desc = 'none'):
         """Save the solution in XML format.
 
-        >>> s.save(file = 'save.xml', id = 'energy_off',
-        ...        desc = 'solution with energy eqn. disabled')
+        >>> s.save(file='save.xml', id='energy_off',
+        ...        desc='solution with energy eqn. disabled')
 
         """
         return _cantera.sim1D_save(self._hndl, file, id, desc)
@@ -608,8 +626,10 @@ class Stack:
     def restore(self, file = 'soln.xml', id = 'solution'):
         """Set the solution vector to a previously-saved solution.
 
-        file -- solution file
-        id  -- solution name within the file
+        :param file:
+            solution file
+        :param id:
+            solution name within the file
 
         >>> s.restore(file = 'save.xml', id = 'energy_off')
         """
@@ -630,13 +650,15 @@ class Stack:
 
     def value(self, domain, component, localPoint):
         """Solution value at one point.
-        domain -- domain object
-        component -- component name
-        localPoint -- grid point number in the domain, starting with
-                      zero at the left
+
+        :param domain:
+            domain object
+        :param component:
+            component name
+        :param localPoint:
+            grid point number in the domain, starting with zero at the left
 
         >>> t = s.value(flow, 'T', 6)
-
         """
         icomp = domain.componentIndex(component)
         idom = domain.index()
@@ -644,6 +666,7 @@ class Stack:
 
     def profile(self, domain, component):
         """Spatial profile of one component in one domain.
+
         >>> print s.profile(flow, 'T')
         """
         np = domain.nPoints()
@@ -655,13 +678,15 @@ class Stack:
     def workValue(self, dom, icomp, localPoint):
         """Internal work array value at one point. After calling eval,
         this array contains the values of the residual function.
-        domain -- domain object
-        component -- component name
-        localPoint -- grid point number in the domain, starting with
-                      zero at the left
+
+        :param domain:
+            domain object
+        :param component:
+            component name
+        :param localPoint:
+            grid point number in the domain, starting with zero at the left
 
         >>> t = s.value(flow, 'T', 6)
-
         """
         idom = dom.index()
         return _cantera.sim1D_workValue(self._hndl, idom, icomp, localPoint)
@@ -674,8 +699,11 @@ class Stack:
     def setMaxJacAge(self, ss_age, ts_age):
         """Set the maximum number of times the Jacobian will be used
         before it must be re-evaluated.
-        ss_age -- age criterion during steady-state mode
-        ts_age -- age criterion during time-stepping mode
+
+        :param ss_age:
+            age criterion during steady-state mode
+        :param ts_age:
+            age criterion during time-stepping mode
         """
         return _cantera.sim1D_setMaxJacAge(self._hndl, ss_age, ts_age)
 
@@ -683,7 +711,7 @@ class Stack:
         """Set the factor by which the time step will be increased
         after a successful step, or decreased after an unsuccessful one.
 
-        s.timeStepFactor(3.0)
+        >>> s.timeStepFactor(3.0)
         """
         return _cantera.sim1D_timeStepFactor(self._hndl, tfactor)
 

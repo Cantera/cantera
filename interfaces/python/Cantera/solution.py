@@ -17,12 +17,12 @@ class Solution(ThermoPhase, Kinetics, Transport):
     mixture of gases, a liquid solution, or a solid solution, for
     example.
 
-    Class Solution derives from classes ThermoPhase, Kinetics, and
-    Transport.  It defines very few methods of its own, and is
+    Class Solution derives from classes :class:`.ThermoPhase`, :class:`.Kinetics`,
+    and :class:`.Transport`.  It defines very few methods of its own, and is
     provided largely for convenience, so that a single object can be
     used to compute thermodynamic, kinetic, and transport properties
-    of a solution. Functions like IdealGasMix and others defined in
-    module gases return objects of class Solution.
+    of a solution. Functions like :func:`.IdealGasMix` and others defined in
+    module gases return objects of class :class:`.Solution`.
 
     """
 
@@ -70,16 +70,28 @@ class Solution(ThermoPhase, Kinetics, Transport):
 
     def set(self, **options):
         """Set various properties.
-        T       --- temperature [K]
-        P       --- pressure [Pa]
-        Rho     --- density [kg/m3]
-        V       --- specific volume [m3/kg]
-        H       --- specific enthalpy [J/kg]
-        U       --- specific internal energy [J/kg]
-        S       --- specific entropy [J/kg/K]
-        X       --- mole fractions (string or array)
-        Y       --- mass fractions (string or array)
-        Vapor   --- saturated vapor fraction
-        Liquid  --- saturated liquid fraction
+
+        :param T:
+            temperature [K]
+        :param P:
+            pressure [Pa]
+        :param Rho:
+            density [kg/m3]
+        :param V:
+            specific volume [m3/kg]
+        :param H:
+            specific enthalpy [J/kg]
+        :param U:
+            specific internal energy [J/kg]
+        :param S:
+            specific entropy [J/kg/K]
+        :param X:
+            mole fractions (string or array)
+        :param Y:
+            mass fractions (string or array)
+        :param Vapor:
+            saturated vapor fraction
+        :param Liquid:
+            saturated liquid fraction
         """
         setByName(self, options)

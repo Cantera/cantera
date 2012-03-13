@@ -13,19 +13,18 @@ class Kinetics:
     Kinetics managers. Instances of class Kinetics are responsible for
     evaluating reaction rates of progress, species production rates,
     and other quantities pertaining to a reaction mechanism.
-
-    parameters -
-    kintype    - integer specifying the type of kinetics manager to create.
-
     """
 
     def __init__(self, kintype=-1, thrm=0, xml_phase=None, id=None, phases=[]):
-        """Build a kinetics manager from an XML specification.
-
-        root     -- root of a CTML tree
-
-        id       -- id of the 'kinetics' node within the tree that contains
-                    the specification of the parameters.
+        """
+        Build a kinetics manager from an XML specification.
+        :param kintype:
+            Integer specifying the type of kinetics manager to create.
+        :param root:
+            Root of a CTML tree
+        :param id:
+            id of the 'kinetics' node within the tree that contains the
+            specification of the parameters.
         """
         np = len(phases)
         self._sp = []
@@ -82,8 +81,11 @@ class Kinetics:
 
     def kineticsSpeciesIndex(self, name, phase):
         """The index of a species.
-        name  -- species name
-        phase -- phase name
+
+        :param name:
+            species name
+        :param phase:
+            phase name
 
         Kinetics managers for heterogeneous reaction mechanisms
         maintain a list of all species in all phases. The order of the
@@ -118,13 +120,13 @@ class Kinetics:
 
     def isReversible(self,i):
         """
-        True (1) if reaction number 'i' is reversible,
+        True (1) if reaction number *i* is reversible,
         and false (0) otherwise.
         """
         return _cantera.kin_isreversible(self.ckin,i)
 
     def reactionType(self,i):
-        """Type of reaction 'i'"""
+        """Type of reaction *i*"""
         return _cantera.kin_rxntype(self.ckin,i)
 
     def reactionEqn(self,i):
@@ -139,7 +141,7 @@ class Kinetics:
             return self.reactionString(i)
 
     def reactionString(self, i):
-        """Reaction string for reaction number 'i'"""
+        """Reaction string for reaction number *i*"""
         s = ''
         nsp = _cantera.kin_nspecies(self.ckin)
         for k in range(nsp):
@@ -169,7 +171,7 @@ class Kinetics:
         return s
 
     def reactantStoichCoeff(self,k,i):
-        """The stoichiometric coefficient of species k as a reactant in reaction i."""
+        """The stoichiometric coefficient of species *k* as a reactant in reaction *i*."""
         return _cantera.kin_rstoichcoeff(self.ckin,k,i)
 
     def reactantStoichCoeffs(self):
@@ -185,13 +187,13 @@ class Kinetics:
         return nu
 
     def productStoichCoeff(self,k,i):
-        """The stoichiometric coefficient of species k as a product in reaction i."""
+        """The stoichiometric coefficient of species *k* as a product in reaction *i*."""
         return _cantera.kin_pstoichcoeff(self.ckin,k,i)
 
     def productStoichCoeffs(self):
         """The array of product stoichiometric coefficients. Element
         [k,i] of this array is the product stoichiometric
-        coefficient of species k in reaction i."""
+        coefficient of species *k* in reaction *i*."""
         nsp = _cantera.kin_nspecies(self.ckin)
         nr = _cantera.kin_nreactions(self.ckin)
         nu = zeros((nsp,nr),'d')

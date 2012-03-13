@@ -12,28 +12,27 @@ class Interface(SurfacePhase, Kinetics):
 
     Instances of class Interface represent reacting 2D interfaces
     between bulk 3D phases. Class Interface defines no methods of its
-    own. All of its methods derive from either SurfacePhase or Kinetics.
+    own. All of its methods derive from either :class:`.SurfacePhase` or
+    :class:`.Kinetics`.
 
-    Function importInterface should usually be used to build an
+    Function :func:`.importInterface` should usually be used to build an
     Interface object from a CTI file definition, rather than calling
     the Interface constructor directly.
-
-    See: SurfacePhase, Kinetics, importInterface
     """
     def __init__(self, src="", root=None, phases=[], debug = 0):
         """
-        src - CTML or CTI input file name. If more than one phase is
-        defined in the file, src should be specified as 'filename\#id'
-        If the file is not CTML, it will be run through the CTI -> CTML
-        preprocessor first.
-
-        root - If a CTML tree has already been read in that contains
-        the definition of this interface, the root of this tree can be
-        specified instead of specifying 'src'.
-
-        phases - A list of all objects representing the neighboring phases
-        which participate in the reaction mechanism.
-
+        :param src:
+            CTML or CTI input file name. If more than one phase is
+            defined in the file, src should be specified as ``filename#id``
+            If the file is not CTML, it will be run through the CTI -> CTML
+            preprocessor first.
+        :param root:
+            If a CTML tree has already been read in that contains the
+            definition of this interface, the root of this tree can be
+            specified instead of specifying *src*.
+        :param phases:
+            A list of all objects representing the neighboring phases which
+            participate in the reaction mechanism.
         """
         self.ckin = 0
         self._owner = 0

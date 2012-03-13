@@ -22,7 +22,7 @@ if not os.getenv('PYTHON_CMD'):
 
 def writeCSV(f, list):
     """
-    Write list items to file 'f' in
+    Write list items to file *f* in
     comma-separated-value format.  Strings will be written as-is, and
     other types of objects will be converted to strings and then
     written. Each call to writeCSV writes one line of the file.

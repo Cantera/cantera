@@ -1,4 +1,4 @@
 Transport Properties
 ====================
 
-.. autoclass:: Cantera.Transport.Transport
+.. automodule:: Cantera.Transport

@@ -1,11 +1,8 @@
-
 """
-
 The classes in this module are designed to allow constructing
 user-defined functions of one variable in Python that can be used with the
 Cantera C++ kernel. These classes are mostly shadow classes for
 corresponding classes in the C++ kernel.
-
 """
 
 from Cantera.num import array, asarray, ravel, shape, transpose
@@ -14,31 +11,33 @@ import types
 
 
 class Func1:
-    """Functors of one variable.
+    """
+    Functors of one variable.
 
-    A Functor is an object that behaves like a function. Class 'Func1'
+    A Functor is an object that behaves like a function. :class:`Func1`
     is the base class from which several functor classes derive. These
     classes are designed to allow specifying functions of time from Python
     that can be used by the C++ kernel.
 
     Functors can be added, multiplied, and divided to yield new functors.
+
     >>> f1 = Polynomial([1.0, 0.0, 3.0])  # 3*t*t + 1
     >>> f1(2.0)
-    ___13
+    13
     >>> f2 = Polynomial([-1.0, 2.0])      # 2*t - 1
     >>> f2(2.0)
-    ___5
+    5
     >>> f3 = f1/f2                        # (3*t*t + 1)/(2*t - 1)
     >>> f3(2.0)
-    ___4.3333333
+    4.3333333
     """
 
     def __init__(self, typ, n, coeffs=[]):
         """
-        The constructor is
-        meant to be called from constructors of subclasses of Func1.
-        See: Polynomial, Gaussian, Arrhenius, Fourier, Const,
-        PeriodicFunction """
+        The constructor is meant to be called from constructors of subclasses
+        of Func1: :class:`Polynomial`, :class:`Gaussian`, :class:`Arrhenius`,
+        :class:`Fourier`, :class:`Const`, :class:`PeriodicFunction`.
+        """
         self.n = n
         self._own = 1
         self._func_id = 0
@@ -166,13 +165,14 @@ class Pow(Func1):
         Func1.__init__(self,106,1,n)
 
 class Polynomial(Func1):
-    """A polynomial.
+    r"""
+    A polynomial.
     Instances of class 'Polynomial' evaluate
-    \f[
-    f(t) = \sum_{n = 0}^N a_n t^n.
-    \f]
-    The coefficients are supplied as a list, beginning with
-    \f$a_N\f$ and ending with \f$a_0\f$.
+
+    .. math:: f(t) = \sum_{n = 0}^N a_n t^n .
+
+    The coefficients are supplied as a list, beginning with :math:`a_N` and
+    ending with :math:`a_0`.
 
     >>> p1 = Polynomial([1.0, -2.0, 3.0])   #    3t^2 - 2t + 1
     >>> p2 = Polynomial([6.0, 8.0])         #    8t + 6
@@ -187,26 +187,26 @@ class Polynomial(Func1):
 
 
 class Gaussian(Func1):
-    """A Gaussian pulse. Instances of class 'Gaussian' evaluate
-    \f[
-    f(t) = A \exp[-(t - t_0) / \tau]
-    \f]
+    r"""A Gaussian pulse. Instances of class 'Gaussian' evaluate
+
+    .. math::  f(t) = A \exp[-(t - t_0) / \tau]
+
     where
-    \f[
-    \tau = \frac{\mbox{FWHM}}{2.0\sqrt{\ln(2.0)}}
-    \f]
+
+    .. math:: \tau = \frac{\mbox{FWHM}}{2.0\sqrt{\ln(2.0)}}
+
     'FWHM' denotes the full width at half maximum.
 
-    As an example, here is how to create
-    a Gaussian pulse with peak amplitude 10.0, centered at time 2.0,
-    with full-width at half max = 0.2:
+    As an example, here is how to create a Gaussian pulse with peak amplitude
+    10.0, centered at time 2.0, with full-width at half max = 0.2:
+
     >>> f = Gaussian(A = 10.0, t0 = 2.0, FWHM = 0.2)
     >>> f(2.0)
-    ___10
+    10
     >>> f(1.9)
-    ___5
+    5
     >>> f(2.1)
-    ___5
+    5
     """
     def __init__(self, A, t0, FWHM):
         coeffs = array([A, t0, FWHM], 'd')
@@ -214,35 +214,41 @@ class Gaussian(Func1):
 
 
 class Fourier(Func1):
-    """Fourier series. Instances of class 'Fourier' evaluate the Fourier series
-    \f[
-    f(t) = \frac{a_0}{2} + \sum_{n=1}^N [a_n \cos(n\omega t) + b_n \sin(n \omega t)]
-    \f]
+    r"""
+    Fourier series. Instances of class 'Fourier' evaluate the Fourier series
+
+    .. math::
+
+        f(t) = \frac{a_0}{2} +
+            \sum_{n=1}^N [a_n \cos(n\omega t) + b_n \sin(n \omega t)]
+
     where
-    \f[
-    a_n = \frac{\omega}{\pi}
-    \int_{-\pi/\omega}^{\pi/\omega} f(t) \cos(n \omega t) dt
-    \f]
-    and
-    \f[
-    b_n = \frac{\omega}{\pi}
-    \int_{-\pi/\omega}^{\pi/\omega} f(t) \sin(n \omega t) dt.
-    \f]
-    The function \f$ f(t) \f$ is periodic, with period \f$ T = 2\pi/\omega \f$.
+
+    .. math::
+
+        a_n = \frac{\omega}{\pi}
+        \int_{-\pi/\omega}^{\pi/\omega} f(t) \cos(n \omega t) dt
+
+        b_n = \frac{\omega}{\pi}
+        \int_{-\pi/\omega}^{\pi/\omega} f(t) \sin(n \omega t) dt.
+
+    The function :math:`f(t)` is periodic, with period :math:`T = 2\pi/\omega`.
 
     As an example, a function with Fourier components up to the second harmonic
     is constructed as follows:
+
     >>> coeffs = [(a0, b0), (a1, b1), (a2, b2)]
     >>> f = Fourier(omega, coeffs)
-    Note that 'b0' must be specified, but is not
-    used. The value of 'b0' is arbitrary.
+
+    Note that ``b0`` must be specified, but is not used. The value of ``b0``
+    is arbitrary.
     """
     def __init__(self, omega, coefficients):
         """
-        omega - fundamental frequency [radians/sec].
-
-        coefficients - List of (a,b) pairs, beginning with \f$n = 0\f$.
-
+        :param omega:
+            fundamental frequency [radians/sec].
+        :param coefficients:
+            List of (a,b) pairs, beginning with n = 0.
         """
         cc = asarray(coefficients,'d')
         n, m = cc.shape
@@ -252,30 +258,19 @@ class Fourier(Func1):
         Func1.__init__(self, 1, n-1, ravel(transpose(cc)))
 
 
-##Sum of modified Arrhenius terms. Instances of class 'Arrhenius' evaluate
-#    \f[
-#    f(T) = \sum_{n=1}^N A_n T^{b_n}\exp(-E_n/T)
-#    \f]
-#
-#    Example:
-#
-#    >>> f = Arrhenius([(a0, b0, e0), (a1, b1, e1)])
-#
 class Arrhenius(Func1):
-    """Sum of modified Arrhenius terms. Instances of class 'Arrhenius' evaluate
-    \f[
-    f(T) = \sum_{n=1}^N A_n T^{b_n}\exp(-E_n/T)
-    \f]
+    r"""Sum of modified Arrhenius terms. Instances of class 'Arrhenius' evaluate
+
+    .. math::  f(T) = \sum_{n=1}^N A_n T^{b_n}\exp(-E_n/T)
 
     Example:
 
     >>> f = Arrhenius([(a0, b0, e0), (a1, b1, e1)])
-
     """
     def __init__(self, coefficients):
         """
-        coefficients - sequence of \f$(A, b, E)\f$ triplets.
-
+        :param coefficients:
+            sequence of (*A*, *b*, *E*) triplets.
         """
         cc = asarray(coefficients,'d')
         n, m = cc.shape
@@ -284,15 +279,16 @@ class Arrhenius(Func1):
         Func1.__init__(self, 3, n, ravel(cc))
 
 
-
 class Const(Func1):
     """Constant function.
-    Objects created by function Const
-    act as functions that have a constant value.
-    These are used internally whenever a statement like
+    Objects created by function Const act as functions that have a constant
+    value. These are used internally whenever a statement like
+
     >>> f = Gausian(2.0, 1.0, 0.1) + 4.0
-    is encountered. The addition operator of class Func1 is defined
-    so that this is equivalent to
+
+    is encountered. The addition operator of class Func1 is defined so that
+    this is equivalent to
+
     >>> f = SumFunction(Gaussian(2.0, 1.0, 0.1), Const(4.0))
 
     Function Const returns instances of class Polynomial that have
@@ -307,9 +303,10 @@ class PeriodicFunction(Func1):
     """Converts a function into a periodic function with period T."""
     def __init__(self, func, T):
         """
-        func - initial non-periodic function
-
-        T - period [s]
+        :param func:
+            initial non-periodic function
+        :param T:
+            period [s]
         """
         Func1.__init__(self, 50, func.func_id(), array([T],'d'))
         func._own = 0
@@ -323,7 +320,6 @@ class ComboFunc1(Func1):
     This class is the base class for functors that combine two
     other functors in a binary operation.
     """
-
     def __init__(self, typ, f1, f2):
         self._own = 1
         self._func_id = 0
@@ -345,18 +341,21 @@ class SumFunction(ComboFunc1):
     It is not necessary to explicitly create an instance of SumFunction, since
     the addition operator of the base class is overloaded to return a SumFunction
     instance.
+
     >>> f1 = Polynomial([2.0, 1.0])
     >>> f2 = Polynomial([3.0, -5.0])
     >>> f3 = f1 + f2     # functor to evaluate (2t + 1) + (3t - 5)
-    In this example, object 'f3' is a functor of class'SumFunction' that calls f1 and f2
-    and returns their sum.
+
+    In this example, object 'f3' is a functor of class'SumFunction' that calls
+    f1 and f2 and returns their sum.
     """
 
     def __init__(self, f1, f2):
         """
-        f1 - first functor.
-
-        f2 - second functor.
+        :param f1:
+            first functor.
+        :param f2:
+            second functor.
         """
         ComboFunc1.__init__(self, 20, f1, f2)
 
@@ -367,23 +366,25 @@ class DiffFunction(ComboFunc1):
     functors. It is not necessary to explicitly create an instance of
     DiffFunction, since the subtraction operator of the base class is
     overloaded to return a DiffFunction instance.
+
     >>> f1 = Polynomial([2.0, 1.0])
     >>> f2 = Polynomial([3.0, -5.0])
     >>> f3 = f1 - f2     # functor to evaluate (2t + 1) - (3t - 5)
+
     In this example, object 'f3' is a functor of class'DiffFunction' that
     calls f1 and f2 and returns their difference.
     """
 
     def __init__(self, f1, f2):
         """
-        f1 - first functor.
-
-        f2 - second functor.
+        :param f1:
+            first functor.
+        :param f2:
+            second functor.
         """
         ComboFunc1.__init__(self, 25, f1, f2)
 
 class ProdFunction(ComboFunc1):
-
     """Product of two functions.  Instances of class ProdFunction
     evaluate the product of two supplied functors.  It is not
     necessary to explicitly create an instance of 'ProdFunction',
@@ -395,11 +396,14 @@ class ProdFunction(ComboFunc1):
     >>> f3 = f1 * f2     # functor to evaluate (2t + 1)*(3t - 5)
 
     In this example, object 'f3' is a functor of class'ProdFunction'
-    that calls f1 and f2 and returns their product.  """
-
+    that calls f1 and f2 and returns their product.
+    """
     def __init__(self, f1, f2):
-        """ f1 - first functor.
-        f2 - second functor.
+        """
+        :param f1:
+            first functor.
+        :param f2:
+            second functor.
         """
         ComboFunc1.__init__(self, 30, f1, f2)
 
@@ -410,40 +414,45 @@ class RatioFunction(ComboFunc1):
     It  is not necessary to explicitly create an instance of 'RatioFunction', since
     the division operator of the base class is overloaded to return a RatioFunction
     instance.
+
     >>> f1 = Polynomial([2.0, 1.0])
     >>> f2 = Polynomial([3.0, -5.0])
     >>> f3 = f1 / f2     # functor to evaluate (2t + 1)/(3t - 5)
-    In this example, object 'f3' is a functor of class'RatioFunction' that calls f1 and f2
-    and returns their ratio.
+
+    In this example, object 'f3' is a functor of class'RatioFunction' that
+    calls f1 and f2 and returns their ratio.
     """
     def __init__(self, f1, f2):
         """
-        f1 - first functor.
-
-        f2 - second functor.
+        :param f1:
+            first functor.
+        :param f2:
+            second functor.
         """
         ComboFunc1.__init__(self, 40, f1, f2)
 
-##  Function of a function.
-#    Instances of class CompositeFunction evaluate f(g(t)) for two supplied
-#    functors f and g. It  is not necessary to explicitly create an instance
-#    of 'CompositeFunction', since the () operator of the base class is
-#    overloaded to return a CompositeFunction when called with a functor
-#    argument.
-# @example
-#    >>> f1 = Polynomial([2.0, 1.0])
-#    >>> f2 = Polynomial([3.0, -5.0])
-#    >>> f3 = f1(f2)     # functor to evaluate 2(3t - 5) + 1
-#    In this example, object 'f3' is a functor of class'CompositeFunction'
-#    that calls f1 and f2 and returns f1(f2(t)).
-
 class CompositeFunction(ComboFunc1):
+    """
+    Function of a function.
+    Instances of class CompositeFunction evaluate f(g(t)) for two supplied
+    functors f and g. It  is not necessary to explicitly create an instance
+    of 'CompositeFunction', since the () operator of the base class is
+    overloaded to return a CompositeFunction when called with a functor
+    argument.
 
+    >>> f1 = Polynomial([2.0, 1.0])
+    >>> f2 = Polynomial([3.0, -5.0])
+    >>> f3 = f1(f2)     # functor to evaluate 2(3t - 5) + 1
+
+    In this example, object 'f3' is a functor of class'CompositeFunction'
+    that calls f1 and f2 and returns f1(f2(t)).
+    """
     def __init__(self, f1, f2):
         """
-        f1 - first functor.
-
-        f2 - second functor.
+        :param f1:
+            first functor.
+        :param f2:
+            second functor.
         """
         ComboFunc1.__init__(self, 60, f1, f2)
 
@@ -455,8 +464,9 @@ class DerivativeFunction(Func1):
         self._own = 1
         self._func_id = _cantera.func_derivative(f.func_id())
 
-##
-# The derivative of f
-#
+
 def derivative(f):
+    """
+    Take the derivative of a functor *f*
+    """
     return DerivativeFunction(f)

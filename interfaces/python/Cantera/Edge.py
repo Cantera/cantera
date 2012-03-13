@@ -12,28 +12,27 @@ class Edge(EdgePhase, Kinetics):
 
     Instances of class Edge represent reacting 1D edges between
     between 2D surfaces. Class Edge defines no methods of its
-    own. All of its methods derive from either EdgePhase or Kinetics.
+    own. All of its methods derive from either :class:`.EdgePhase` or
+    :class:`.Kinetics`.
 
-    Function importInterface should usually be used to build an
+    Function :func:`.importInterface` should usually be used to build an
     Edge object from a CTI file definition, rather than calling
-    the Interface constructor directly.
-
-    See: EdgePhase, Kinetics, importInterface
+    the :class:`.Edge` constructor directly.
     """
     def __init__(self, src="", root=None, surfaces=[]):
         """
-        src - CTML or CTI input file name. If more than one phase is
-        defined in the file, src should be specified as 'filename\#id'
-        If the file is not CTML, it will be run through the CTI -> CTML
-        preprocessor first.
-
-        root - If a CTML tree has already been read in that contains
-        the definition of this interface, the root of this tree can be
-        specified instead of specifying 'src'.
-
-        phases - A list of all objects representing the neighboring
-        surface phases which participate in the reaction mechanism.
-
+        :param src:
+            CTML or CTI input file name. If more than one phase is
+            defined in the file, src should be specified as ``filename#id``
+            If the file is not CTML, it will be run through the CTI -> CTML
+            preprocessor first.
+        :param root:
+            If a CTML tree has already been read in that contains
+            the definition of this interface, the root of this tree can be
+            specified instead of specifying *src*.
+        :param phases:
+            A list of all objects representing the neighboring
+            surface phases which participate in the reaction mechanism.
         """
         self.ckin = 0
         self._owner = 0
