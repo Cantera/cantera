@@ -72,10 +72,11 @@ class Phase:
         return _cantera.phase_nspecies(self._phase_id)
 
     def nAtoms(self, species = None, element = None):
-        """Number of atoms of element 'element' in species 'species'.
+        """Number of atoms of element *element* in species *species*.
         The  element and species may be specified by name or by number.
+
         >>> ph.nAtoms('CH4','H')
-        ___ 4
+        4
 
         """
         try:
@@ -122,9 +123,9 @@ class Phase:
 
     def moleFractions(self, species = None):
         """Species mole fraction array.
-        If optional argument 'species'
-        is supplied, then only the values for the selected species are
-        returned.
+        If optional argument *species* is supplied, then only the values
+        for the selected species are returned.
+
         >>> x1 = ph.moleFractions()   # all species
         >>> x2 = ph.moleFractions(['OH', 'CH3'. 'O2'])
         """
@@ -132,8 +133,8 @@ class Phase:
         return self.selectSpecies(x, species)
 
     def moleFraction(self, species):
-        """Mole fraction of a species, referenced by name or
-        index number.
+        """Mole fraction of a species, referenced by name or index number.
+
         >>> ph.moleFraction(4)
         >>> ph.moleFraction('CH4')
         """
@@ -143,9 +144,9 @@ class Phase:
 
     def massFractions(self, species = None):
         """Species mass fraction array.
-        If optional argument 'species'
-        is supplied, then only the values for the selected species are
-        returned.
+        If optional argument *species* is supplied, then only the values for
+        the selected species are returned.
+
         >>> y1 = ph.massFractions()   # all species
         >>> y2 = ph.massFractions(['OH', 'CH3'. 'O2'])
         """
@@ -156,6 +157,7 @@ class Phase:
     def massFraction(self, species):
         """Mass fraction of one species, referenced by name or
         index number.
+
         >>> ph.massFraction(4)
         >>> ph.massFraction('CH4')
         """
@@ -164,7 +166,7 @@ class Phase:
 
 
     def elementName(self,m):
-        """Name of the element with index number m."""
+        """Name of the element with index number *m*."""
         return _cantera.phase_getstring(self._phase_id,1,m)
 
     def elementNames(self):
@@ -173,7 +175,7 @@ class Phase:
         return map(self.elementName,range(nel))
 
     def elementIndex(self, element):
-        """The index of element 'element', which may be specified as
+        """The index of element *element*, which may be specified as
         a string or an integer index. In the latter case, the index is
         checked for validity and returned. If no such element is
         present, an exception is thrown."""
@@ -189,9 +191,8 @@ class Phase:
         return m
 
 
-
     def speciesName(self,k):
-        """Name of the species with index k."""
+        """Name of the species with index *k*."""
         return _cantera.phase_getstring(self._phase_id,2,k)
 
 
@@ -202,7 +203,7 @@ class Phase:
 
 
     def speciesIndex(self, species):
-        """The index of species 'species', which may be specified as
+        """The index of species *species*, which may be specified as
         a string or an integer index. In the latter case, the index is
         checked for validity and returned. If no such species is
         present, an exception is thrown."""
@@ -238,16 +239,15 @@ class Phase:
     def setMoleFractions(self, x, norm = 1):
         """Set the mole fractions.
 
-        x - string or array of mole fraction values
-
-        norm - If non-zero (default), array values will be
-        scaled to sum to 1.0.
+        :param x:
+            string or array of mole fraction values
+        :param norm:
+            If non-zero (default), array values will be scaled to sum to 1.0.
 
         >>> ph.setMoleFractions('CO:1, H2:7, H2O:7.8')
         >>> x = [1.0]*ph.nSpecies()
         >>> ph.setMoleFractions(x)
         >>> ph.setMoleFractions(x, norm = 0)  # don't normalize values
-
         """
         if type(x) == types.StringType:
             _cantera.phase_setstring(self._phase_id,1,x)
@@ -259,7 +259,7 @@ class Phase:
 
     def setMassFractions(self, x, norm = 1):
         """Set the mass fractions.
-        See: setMoleFractions
+        See :meth:`~.Phase.setMoleFractions`
         """
         if type(x) == types.StringType:
             _cantera.phase_setstring(self._phase_id,2,x)
@@ -282,6 +282,7 @@ class Phase:
     def setState_TNX(self, t, n, x):
         """Set the temperature, molardensity, and mole fractions. The mole
         fractions may be entered as a string or array,
+
         >>> ph.setState_TNX(600.0, 2.0e-3, 'CH4:0.4, O2:0.6')
         """
 
@@ -306,6 +307,7 @@ class Phase:
         return an array of those values corresponding to species
         listed in 'species'. This method is used internally to implement
         species selection in methods like moleFractions, massFractions, etc.
+
         >>> f = ph.chemPotentials()
         >>> muo2, muh2 = ph.selectSpecies(f, ['O2', 'H2'])
         """
@@ -321,9 +323,10 @@ class Phase:
             return asarray(f)
 
     def selectElements(self, f, elements):
-        """Given an array 'f' of floating-point element properties,
+        """Given an array *f* of floating-point element properties,
         return a nummodule array of those values corresponding to elements
-        listed in 'elements'.
+        listed in *elements*.
+
         >>> f = ph.elementPotentials()
         >>> lam_o, lam_h = ph.selectElements(f, ['O', 'H'])
         """

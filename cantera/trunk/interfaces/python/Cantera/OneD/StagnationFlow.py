@@ -6,17 +6,20 @@ class StagnationFlow(Stack):
 
     def __init__(self, gas = None, surfchem = None, grid = None):
         """
-        gas      -- object to use to evaluate all gas properties and reaction
-                    rates. Required.
-        surfchem -- object used to evaluate surface reaction rates. If
-                    omitted, surface will be treated as inert.
-        grid     -- array of initial grid points
+        :param gas:
+            object to use to evaluate all gas properties and reaction
+            rates. Required.
+        :param surfchem:
+            object used to evaluate surface reaction rates. If omitted,
+            surface will be treated as inert.
+        :param grid:
+            array of initial grid points
 
-        A domain of type AxisymmetricFlow named 'flow' will be created to
-        represent the flow, and one of type Surface named 'surface' will
-        be created to represent the surface.
-        The three domains comprising the stack
-        are stored as self.inlet, self.flow, and self.surface.
+        A domain of type :class:`.AxisymmetricFlow` named ``flow`` will be
+        created to represent the flow, and one of type :class:`.Surface` named
+        ``surface`` will be created to represent the surface. The three domains
+        comprising the stack are stored as ``self.inlet``, ``self.flow``,
+        and ``self.surface``.
         """
         self.inlet = Inlet('inlet')
         self.gas = gas
@@ -74,10 +77,14 @@ class StagnationFlow(Stack):
 
     def solve(self, loglevel = 1, refine_grid = 1):
         """Solve the flame.
-        loglevel -- integer flag controlling the amount of
-                    diagnostic output. Zero suppresses all output, and
-                    5 produces very verbose output. Default: 1
-        refine_grid -- if non-zero, enable grid refinement."""
+
+        :param loglevel:
+            integer flag controlling the amount of diagnostic output.
+            Zero suppresses all output, and 5 produces very verbose output.
+            Default: 1
+        :param refine_grid:
+            if non-zero, enable grid refinement.
+        """
 
         if not self._initialized: self.init()
         Stack.solve(self, loglevel = loglevel, refine_grid = refine_grid)
@@ -85,21 +92,25 @@ class StagnationFlow(Stack):
 
     def setRefineCriteria(self, ratio = 10.0, slope = 0.8,
                           curve = 0.8, prune = 0.0):
-        """Set the criteria used to refine the flame.
-        ratio --  additional points will be added if the ratio of the spacing
-                  on either side of a grid point exceeds this value
-        slope --  maximum difference in value between two adjacent points,
-                  scaled by the maximum difference in the profile
-                  (0.0 < slope < 1.0). Adds points in regions of high slope.
-        curve --  maximum difference in slope between two adjacent intervals,
-                  scaled by the maximum difference in the profile
-                  (0.0 < curve < 1.0). Adds points in regions of high
-                  curvature.
-        prune --  if the slope or curve criteria are satisfied to the level of
-                  'prune', the grid point is assumed not to be needed and is
-                  removed. Set prune significantly smaller than
-                  'slope' and 'curve'. Set to zero to disable pruning
-                  the grid.
+        """
+        Set the criteria used to refine the flame.
+
+        :param ratio:
+            additional points will be added if the ratio of the spacing
+            on either side of a grid point exceeds this value
+        :param slope:
+            maximum difference in value between two adjacent points, scaled by
+            the maximum difference in the profile (0.0 < slope < 1.0). Adds
+            points in regions of high slope.
+        :param curve:
+            maximum difference in slope between two adjacent intervals, scaled
+            by the maximum difference in the profile (0.0 < curve < 1.0). Adds
+            points in regions of high curvature.
+        :param prune:
+            if the slope or curve criteria are satisfied to the level of
+            'prune', the grid point is assumed not to be needed and is removed.
+            Set prune significantly smaller than 'slope' and 'curve'. Set to
+            zero to disable pruning the grid.
 
         >>> f.setRefineCriteria(ratio = 5.0, slope = 0.2, curve = 0.3,
         ...                     prune = 0.03)
@@ -115,9 +126,13 @@ class StagnationFlow(Stack):
 
     def set(self, tol = None, energy = '', tol_time = None):
         """Set parameters.
-        tol -- (rtol, atol) for steady-state
-        tol_time -- (rtol, atol) for time stepping
-        energy -- 'on' or 'off' to enable or disable the energy equation
+
+        :param tol:
+            (rtol, atol) for steady-state
+        :param tol_time:
+            (rtol, atol) for time stepping
+        :param energy:
+            'on' or 'off' to enable or disable the energy equation
         """
         if tol:
             self.flow.setTolerances(default = tol)
@@ -140,7 +155,7 @@ class StagnationFlow(Stack):
 
     def solution(self, component = '', point = -1):
         """The solution for one specified component. If a point number
-        is given, return the value of component 'component' at this
+        is given, return the value of component *component* at this
         point. Otherwise, return the entire profile for this
         component."""
         if point >= 0: return self.value(self.flow, component, point)
@@ -157,7 +172,7 @@ class StagnationFlow(Stack):
 
     def setGasState(self, j):
         """Set the state of the object representing the gas to the
-        current solution at grid point j."""
+        current solution at grid point *j*."""
         nsp = self.gas.nSpecies()
         y = zeros(nsp, 'd')
         for n in range(nsp):

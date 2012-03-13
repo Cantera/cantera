@@ -17,6 +17,7 @@ import sys, os
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 sys.path.insert(0, os.path.abspath('../../interfaces/python'))
+sys.path.append(os.path.abspath('.'))
 
 # -- General configuration -----------------------------------------------------
 
@@ -25,10 +26,19 @@ sys.path.insert(0, os.path.abspath('../../interfaces/python'))
 
 # Add any Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
-extensions = ['sphinx.ext.autodoc', 'sphinx.ext.todo', 'sphinx.ext.pngmath',
-              'sphinx.ext.autosummary']
+extensions = ['sphinx.ext.autodoc',
+              'sphinx.ext.todo',
+              'sphinx.ext.autosummary',
+              'mathjax']
+
+# @todo: Sphinx version 1.1 adds support for MathJax, so we can remove the
+#        custom extension for that once that version becomes more standard
 
 autodoc_default_flags = ['members','show-inheritance','undoc-members']
+
+autoclass_content = 'both'
+
+mathjax_path = 'http://mathjax.connectmv.com/MathJax.js'
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']

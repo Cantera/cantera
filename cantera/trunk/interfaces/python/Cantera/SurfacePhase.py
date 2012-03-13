@@ -19,7 +19,7 @@ class SurfacePhase(ThermoPhase):
         return _cantera.surf_sitedensity(self._phase_id)
 
     def setCoverages(self, theta):
-        """Set the surface coverages to the values in array 'theta'."""
+        """Set the surface coverages to the values in array *theta*."""
         nt = len(theta)
         if nt == self.nSpecies():
             _cantera.surf_setcoverages(self._phase_id,
@@ -34,7 +34,7 @@ class SurfacePhase(ThermoPhase):
 
     def setConcentrations(self, conc):
         """Set the surface concentrations to the values in
-        array 'conc'."""
+        array *conc*."""
         _cantera.surf_setconcentrations(self._phase_id, conc)
 
     def concentrations(self):

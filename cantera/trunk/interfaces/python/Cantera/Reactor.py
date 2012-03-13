@@ -28,9 +28,9 @@ class ReactorBase:
                  volume = 1.0, energy = 'on',
                  type = -1, verbose = 0):
         """
-        See class 'Reactor' for a description of the constructor parameters.
-        The 'type' parameter specifies whether a Reactor (type = 2) or
-        Reservoir (type = 1) will be created.
+        See :class:`.Reactor` for a description of the constructor parameters.
+        The *type* parameter specifies whether a :class:`.Reactor` (type = 2) or
+        :class:`.Reservoir` (type = 1) will be created.
         """
         self.__reactor_id = _cantera.reactor_new(type)
         self._type = type
@@ -84,7 +84,7 @@ class ReactorBase:
 
     def insert(self, contents):
         """
-        Insert 'contents' into the reactor. Sets the objects used to compute
+        Insert *contents* into the reactor. Sets the objects used to compute
         thermodynamic properties and kinetic rates.
         """
         # store a reference to contents so that it will live as long
@@ -108,7 +108,7 @@ class ReactorBase:
 
     def _setEnergy(self, eflag):
         """Turn the energy equation on or off. If the argument is the
-        string 'off' or the number 0, the energy equation is disabled,
+        string ``'off'`` or the number 0, the energy equation is disabled,
         and the reactor temperature is held constant at its initial
         value."""
         ie = 1
@@ -158,26 +158,27 @@ class ReactorBase:
     def advance(self, time):
         """Deprecated.
         Advance the state of the reactor in time from the current
-        time to time 'time'. Note: this method is deprecated. See
-        class ReactorNet."""
+        time to time *time*. Note: this method is deprecated. See
+        :class:`.ReactorNet`."""
         raise "use method advance of class ReactorNet"
         #return _cantera.reactor_advance(self.__reactor_id, time)
 
     def step(self, time):
         """Deprecated.
         Take one internal time step from the current time toward
-        time 'time'. Note: this method is deprecated. See class
-        ReactorNet."""
+        time *time*. Note: this method is deprecated. See class
+        :class:`.ReactorNet`."""
         raise "use method step of class ReactorNet"
         #return _cantera.reactor_step(self.__reactor_id, time)
 
     def massFraction(self, s):
-        """The mass fraction of species s, specified either by name or
+        """The mass fraction of species *s*, specified either by name or
         index number.
+
         >>> y1 = r.massFraction(7)
-        ___0.02
+        0.02
         >>> y2 = r.massFraction('CH3O')
-        ___0.02
+        0.02
         """
         if type(s) == types.StringType:
             kk = self._contents.speciesIndex(s)
@@ -202,10 +203,11 @@ class ReactorBase:
     def moleFraction(self, s):
         """The mole fraction of species s, specified either by name or
         index number.
+
         >>> x1 = r.moleFraction(9)
-        ___0.00012
+        0.00012
         >>> x2 = r.moleFraction('CH3')
-        ___0.00012
+        0.00012
         """
         if type(s) == types.StringType:
             kk = self._contents.speciesIndex(s)
@@ -218,45 +220,53 @@ class ReactorBase:
         """Return the list of flow devices installed on inlets to this reactor.
         This method can be used to access information about the flows entering
         the reactor:
+
         >>> for n in r.inlets():
         ...    print n.name(), n.massFlowRate()
-        See: MassFlowController, Valve, PressureController.
+
+        See: :class:`.MassFlowController`, :class:`.Valve`,
+        :class:`.PressureController`.
         """
         return self._inlets
 
     def outlets(self):
         """Return the list of flow devices installed on outlets
         on this reactor.
+
         >>> for o in r.outlets():
         ...    print o.name(), o.massFlowRate()
-        See: MassFlowController, Valve, PressureController.
+
+        See: :class:`.MassFlowController`, :class:`.Valve`,
+        :class:`.PressureController`.
         """
         return self._outlets
 
     def walls(self):
         """Return the list of walls installed on this reactor.
+
         >>> for w in r.walls():
         ...    print w.name()
-        See: Wall.
+
+        See: :class:`.Wall`.
         """
         return self._walls
 
     def _addInlet(self, inlet, other):
-        """For internal use. Store a reference to 'inlet'
+        """For internal use. Store a reference to *inlet*
         so that it will not be deleted before this object."""
         self._inlets.append(inlet)
         if self._type == 2 and other._type == 1:
             self._reservoirs.append(other)
 
     def _addOutlet(self, outlet, other):
-        """For internal use. Store a reference to 'outlet'
+        """For internal use. Store a reference to *outlet*
         so that it will not be deleted before this object."""
         self._outlets.append(outlet)
         if self._type == 2 and other._type == 1:
             self._reservoirs.append(other)
 
     def _addWall(self, wall, other):
-        """For internal use. Store a reference to 'wall'
+        """For internal use. Store a reference to *wall*
         so that it will not be deleted before this object."""
         self._walls.append(wall)
         if self._type == 2 and other._type == 1:
@@ -265,12 +275,14 @@ class ReactorBase:
     def syncContents(self):
         """Set the state of the object representing the reactor contents
         to the current reactor state.
+
         >>> r = Reactor(gas)
         >>> (statements that change the state of object 'gas')
         >>> r.syncContents()
+
         After this statement, the state of object 'gas' is synchronized
         with the reactor state.
-        See 'contents'.
+        See :meth:`.contents`.
         """
         self._contents.setState_TRY(self.temperature(),
                                    self.density(),
@@ -280,19 +292,21 @@ class ReactorBase:
         """Return an object representing the reactor contents, after first
         synchronizing its state with the current reactor state. This method
         is useful when some property of the fluid in the reactor is
-        needed that is not provided by a method of class Reactor.
+        needed that is not provided by a method of :class:`.Reactor`.
+
         >>> r = Reactor(gas)
         >>> (statements that change the state of object 'gas')
         >>> c = r.contents()
         >>> print c.gibbs_mole(), c.chemPotentials()
 
-        Note that after calling method 'contents', object 'c'
-        references the same underlying kernel object as object 'gas'
-        does. Therefore, all properties of 'c' and 'gas' are
+        Note that after calling :meth:`.contents`, object *c*
+        references the same underlying kernel object as object *gas*
+        does. Therefore, all properties of *c* and *gas* are
         identical. (Remember that Python objects are really C
         pointers; at the C level, both point to the same data
         structure.)
         It is also allowed to write
+
         >>> gas = r.contents()
         """
         self.syncContents()
@@ -328,44 +342,51 @@ _reservoircount = 0
 class Reactor(ReactorBase):
     """
     Zero-dimensional reactors. Instances of class Reactor represent
-    zero-dimensional reactors. By default, they are closed (no inlets
-    or outlets), have fixed volume, and have adiabatic, chemically-intert
-    walls. These properties may all be changed by adding appropriate
-    components.
-    See classes 'Wall', 'MassFlowController', and 'Valve'.
+    zero-dimensional reactors. By default, they are closed (no inlets or
+    outlets), have fixed volume, and have adiabatic, chemically-inert walls.
+    These properties may all be changed by adding appropriate components.
+    See :class:`.Wall`, :class:`.MassFlowController`, and :class:`.Valve`.
     """
     def __init__(self, contents = None, name = '',
                  volume = 1.0, energy = 'on',
                  verbose = 0):
         """
-        contents - Reactor contents. If not specified, the reactor is
-        initially empty. In this case, call method 'insert' to specify
-        the contents.
+        :param contents:
+            Reactor contents. If not specified, the reactor is initially empty.
+            In this case, call :meth:`.insert` to specify the contents.
+        :param name:
+            Used only to identify this reactor in output. If not specified,
+            defaults to ``'Reactor_n'``, where *n* is an integer assigned in
+            the order :class:`.Reactor` objects are created.
+        :param volume:
+            Initial reactor volume. Defaults to 1 m^3.
+        :param energy:
+            Set to ``'on'`` or ``'off'``. If set to ``'off'``, the energy
+            equation is not solved, and the temperature is held at its
+            initial value. The default in ``'on'``.
+        :param verbose:
+            If set to a non-zero value, additional diagnostic information
+            will be printed.
 
-        name - Used only to identify this reactor in output. If not
-        specified, defaults to 'Reactor_n', where n is an integer
-        assigned in the order Reactor objects are created.
+        Some examples showing how to create :class:`Reactor` objects are
+        shown below.
 
-        volume - Initial reactor volume. Defaults to 1 m^3.
-
-        energy - Set to 'on' or 'off'. If set to 'off', the energy
-        equation is not solved, and the temperature is held at its
-        initial value. The default in 'on'.
-
-        verbose - if set to a non-zero value, additional diagnostic
-        information will be printed.
-
-        Some examples showing how to create Reactor objects are shown below.
         >>> gas = GRI30()
         >>> r1 = Reactor(gas)
+
         This is equivalent to:
+
         >>> r1 = Reactor()
         >>> r1.insert(gas)
+
         Arguments may be specified using keywords in any order:
+
         >>> r2 = Reactor(contents = gas, energy = 'off',
         ...              name = 'isothermal_reactor')
         >>> r3 = Reactor(contents = gas, name = 'adiabatic_reactor')
+
         Here's an array of reactors:
+
         >>> reactor_array = [Reactor(), Reactor(gas), Reactor(Air())]
         """
         global _reactorcount
@@ -377,31 +398,28 @@ class Reactor(ReactorBase):
                              verbose = verbose, type = 2)
 
 
-
 class FlowReactor(ReactorBase):
-    """
-    """
     def __init__(self, contents = None, name = '',
                  volume = 1.0, energy = 'on',
                  mdot = -1.0,
                  verbose = 0):
         """
-        contents - Reactor contents. If not specified, the reactor is
-        initially empty. In this case, call method 'insert' to specify
-        the contents.
-
-        name - Used only to identify this reactor in output. If not
-        specified, defaults to 'Reactor_n', where n is an integer
-        assigned in the order Reactor objects are created.
-
-        volume - Initial reactor volume. Defaults to 1 m^3.
-
-        energy - Set to 'on' or 'off'. If set to 'off', the energy
-        equation is not solved, and the temperature is held at its
-        initial value. The default in 'on'.
-
-        verbose - if set to a non-zero value, additional diagnostic
-        information will be printed.
+        :param contents:
+            Reactor contents. If not specified, the reactor is initially empty.
+            In this case, call :meth:`.insert` to specify the contents.
+        :param name:
+            Used only to identify this reactor in output. If not specified,
+            defaults to ``Reactor_n``, where n is an integer assigned in the
+            order Reactor objects are created.
+        :param volume:
+            Initial reactor volume. Defaults to 1 m^3.
+        :param energy:
+            Set to ``'on'`` or ``'off'``. If set to ``'off'``, the energy
+            equation is not solved, and the temperature is held at its
+            initial value. The default in ``'on'``.
+        :param verbose:
+            if set to a non-zero value, additional diagnostic information
+            will be printed.
         """
         global _reactorcount
         if name == '':
@@ -418,28 +436,27 @@ class FlowReactor(ReactorBase):
 
 
 class ConstPressureReactor(ReactorBase):
-    """
-    """
     def __init__(self, contents = None, name = '',
                  volume = 1.0, energy = 'on',
                  verbose = 0):
         """
-        contents - Reactor contents. If not specified, the reactor is
-        initially empty. In this case, call method 'insert' to specify
-        the contents.
-
-        name - Used only to identify this reactor in output. If not
-        specified, defaults to 'Reactor_n', where n is an integer
-        assigned in the order Reactor objects are created.
-
-        volume - Initial reactor volume. Defaults to 1 m^3.
-
-        energy - Set to 'on' or 'off'. If set to 'off', the energy
-        equation is not solved, and the temperature is held at its
-        initial value. The default in 'on'.
-
-        verbose - if set to a non-zero value, additional diagnostic
-        information will be printed.
+        :param contents:
+            Reactor contents. If not specified, the reactor is
+            initially empty. In this case, call :meth:`.insert` to specify
+            the contents.
+        :param name:
+            Used only to identify this reactor in output. If not specified,
+            defaults to ``'Reactor_n'``, where n is an integer assigned in the
+            order :class:`.Reactor` objects are created.
+        :param volume:
+            Initial reactor volume. Defaults to 1 m^3.
+        :param energy:
+            Set to ``'on'`` or ``'off'``. If set to ``'off'``, the energy
+            equation is not solved, and the temperature is held at its
+            initial value. The default in ``'on'``.
+        :param verbose:
+            If set to a non-zero value, additional diagnostic
+            information will be printed.
         """
         global _reactorcount
         if name == '':
@@ -458,27 +475,31 @@ class Reservoir(ReactorBase):
     """
     def __init__(self, contents = None, name = '', verbose = 0):
         """
-        contents - Reservoir contents. If not specified, the reservoir is
-        initially empty. In this case, call method insert to specify
-        the contents.
-
-        name - Used only to identify this reservoir in output. If not
-        specified, defaults to 'Reservoir_n', where n is an integer
-        assigned in the order Reservoir objects are created.
-
-        verbose - if set to a non-zero value, additional diagnostic
-        information will be printed.
+        :param contents:
+            Reservoir contents. If not specified, the reservoir is initially
+            empty. In this case, call :meth:`.insert` to specify the contents.
+        :param name:
+            Used only to identify this reservoir in output. If not specified,
+            defaults to ``'Reservoir_n'``, where n is an integer assigned in
+            the order Reservoir objects are created.
+        :param verbose:
+            if set to a non-zero value, additional diagnostic information will
+            be printed.
 
         Some examples showing how to create Reservoir objects are shown below.
+
         >>> gas = GRI30()
         >>> res1 = Reservoir(gas)
+
         This is equivalent to:
+
         >>> res1 = Reactor()
         >>> res1.insert(gas)
+
         Arguments may be specified using keywords in any order:
-        >>> res2 = Reservoir(contents = Air(),
-        ...                  name = 'environment')
-        >>> res3 = Reservoir(contents = gas, name = 'upstream_state')
+
+        >>> res2 = Reservoir(contents=Air(), name='environment')
+        >>> res3 = Reservoir(contents=gas, name='upstream_state')
         """
         global _reservoircount
         if name == '':
@@ -492,8 +513,6 @@ class Reservoir(ReactorBase):
         pass
 
 
-
-
 #------------------ FlowDevice ---------------------------------
 
 class FlowDevice:
@@ -502,7 +521,7 @@ class FlowDevice:
     """
     def __init__(self, type, name, verbose):
         """
-        Create a new instance of type 'type'
+        Create a new instance of type *type*
         """
         self._name = name
         self._verbose = verbose
@@ -534,7 +553,8 @@ class FlowDevice:
         """
         Install the device between the upstream and downstream
         reactors or reservoirs.
-        >>> f.install(upstream = reactor1, downstream = reservoir2)
+
+        >>> f.install(upstream=reactor1, downstream=reservoir2)
         """
         if self._verbose:
             print
@@ -557,64 +577,62 @@ class FlowDevice:
 _mfccount = 0
 
 class MassFlowController(FlowDevice):
+    r"""
+    Mass flow controllers. A mass flow controller maintains a specified mass
+    flow rate independent of upstream and downstream conditions. The equation
+    used to compute the mass flow rate is
 
-    """Mass flow controllers. A mass flow controller maintains a
-    specified mass flow rate independent of upstream and downstream
-    conditions. The equation used to compute the mass flow rate is
-    \f[
-    \dot m = \max(\dot m_0, 0.0),
-    \f] where \f$ \dot m_0 \f$ is either
-    a constant value or a function of time. Note that if \f$\dot m_0 <
-    0\f$, the mass flow rate will be set to zero, since reversal of
-    the flow direction is not allowed.
+    .. math::
 
-    Unlike a real mass flow controller, a MassFlowController object
-    will maintain the flow even if the downstream pressure is greater
-    than the upstream pressure.  This allows simple implementation of
-    loops, in which exhaust gas from a reactor is fed back into it
-    through an inlet. But note that this capability should be used
-    with caution, since no account is taken of the work required to do
-    this.
+        \dot m = \max(\dot m_0, 0.0),
 
-    A mass flow controller is assumed to be adiabatic, non-reactive,
-    and have negligible volume, so that it is internally always in
-    steady-state even if the upstream and downstream reactors are
-    not. The fluid enthalpy, chemical composition, and mass flow rate
-    are constant across a mass flow controller, and the pressure
-    difference equals the difference in pressure between the upstream
-    and downstream reactors.
+    where :math:`\dot m_0` is either a constant value or a function of time.
+    Note that if :math:`\dot m_0 < 0`, the mass flow rate will be set to zero,
+    since reversal of the flow direction is not allowed.
+
+    Unlike a real mass flow controller, a MassFlowController object will
+    maintain the flow even if the downstream pressure is greater than the
+    upstream pressure.  This allows simple implementation of loops, in which
+    exhaust gas from a reactor is fed back into it through an inlet. But note
+    that this capability should be used with caution, since no account is
+    taken of the work required to do this.
+
+    A mass flow controller is assumed to be adiabatic, non-reactive, and have
+    negligible volume, so that it is internally always in steady-state even if
+    the upstream and downstream reactors are not. The fluid enthalpy, chemical
+    composition, and mass flow rate are constant across a mass flow controller,
+    and the pressure difference equals the difference in pressure between the
+    upstream and downstream reactors.
 
     Examples:
 
-    >>> mfc1 = MassFlowController(upstream = res1, downstream = reactr,
-    ...                           name = 'fuel_mfc', mdot = 0.1)
-    >>> air_mdot = Gaussian(A = 0.1, t0 = 2.0, FWHM = 0.1)
-    >>> mfc2 = MassFlowController(upstream = res2, downstream = reactr,
-    ...                           name = 'air_mfc', mdot = air_mdot)
-
+    >>> mfc1 = MassFlowController(upstream=res1, downstream=reactr,
+    ...                           name='fuel_mfc', mdot = 0.1)
+    >>> air_mdot = Gaussian(A=0.1, t0=2.0, FWHM=0.1)
+    >>> mfc2 = MassFlowController(upstream=res2, downstream=reactr,
+    ...                           name='air_mfc', mdot=air_mdot)
     """
     def __init__(self, upstream=None,
                  downstream=None,
                  name='',
                  verbose=0, mdot = 0.0):
         """
-        upstream - upstream reactor or reservoir.
-
-        downstream - downstream reactor or reservoir.
-
-        name - name used to identify the mass flow controller in output.
-        If no name is specified, it defaults to 'MFC_n', where n is an
-        integer assigned in the order the MassFlowController object
-        was created.
-
-        mdot - Mass flow rate [kg/s]. This mass flow rate, which may
-        be a constant of a function of time, will be maintained,
-        independent of unstream and downstream conditions, unless
-        reset by calling method 'set'.
-
-        verbose - if set to a positive integer, additional diagnostic
-        information will be printed.
-
+        :param upstream:
+            upstream reactor or reservoir.
+        :param downstream:
+            downstream reactor or reservoir.
+        :param name:
+            name used to identify the mass flow controller in output. If no
+            name is specified, it defaults to ``MFC_n``, where n is an integer
+            assigned in the order the MassFlowController object was created.
+        :param mdot:
+            Mass flow rate [kg/s]. This mass flow rate, which may be a constant
+            or a function of time, will be maintained, independent of upstream
+            and downstream conditions, unless reset by calling method
+            :meth:`.set`.
+        :param verbose:
+            if set to a positive integer, additional diagnostic information
+            will be printed.
         """
         global _mfccount
         if name == '':
@@ -650,56 +668,51 @@ class MassFlowController(FlowDevice):
 _valvecount = 0
 
 class Valve(FlowDevice):
-    """Valves. In Cantera, a Valve object is a flow devices with mass
+    r"""Valves. In Cantera, a Valve object is a flow devices with mass
     flow rate that is a function of the pressure drop across it. The default behavior
     is linear:
-    \f[ \dot m = K_v (P_1 - P_2) \f]
-    if \f$ P_1 > P_2. \f$
-    Otherwise,
-    \f$ \dot m = 0 \f$.
-    However, an arbitrary function \f$ F\f$ can also be specified, such that
-    \f[
-    \dot m = F(P_1 - P_2).
-    \f]
-    if \f$ P_1 > P_2, \f$
-    or  \f$ \dot m = 0 \f$ otherwise.
-    It is never possible for the flow to reverse
-    and go from the downstream to the upstream reactor/reservoir through
-    a line containing a Valve object.
 
-    'Valve' objects are often used between an upstream reactor and a
-    downstream reactor or reservoir to maintain them both at nearly the
-    same pressure. By setting the constant \f$ K_v \f$ to a
-    sufficiently large value, very small pressure differences will
-    result in flow between the reactors that counteracts the pressure
-    difference.
+    .. math:: \dot m = K_v (P_1 - P_2)
 
-    A Valve is assumed to be adiabatic, non-reactive, and have
-    negligible internal volume, so that it is internally always in
-    steady-state even if the upstream and downstream reactors are
-    not. The fluid enthalpy, chemical composition, and mass flow rate
-    are constant across a Valve, and the pressure difference equals
-    the difference in pressure between the upstream and downstream
-    reactors.
+    if :math:`P_1 > P_2.` Otherwise, :math:`\dot m = 0`.
+    However, an arbitrary function can also be specified, such that
+
+    .. math:: \dot m = F(P_1 - P_2)
+
+    if :math:`P_1 > P_2`, or :math:`\dot m = 0` otherwise.
+    It is never possible for the flow to reverse and go from the downstream
+    to the upstream reactor/reservoir through a line containing a Valve object.
+
+    :class:`Valve` objects are often used between an upstream reactor and a
+    downstream reactor or reservoir to maintain them both at nearly the same
+    pressure. By setting the constant :math:`K_v` to a sufficiently large
+    value, very small pressure differences will result in flow between the
+    reactors that counteracts the pressure difference.
+
+    A Valve is assumed to be adiabatic, non-reactive, and have negligible
+    internal volume, so that it is internally always in steady-state even if
+    the upstream and downstream reactors are not. The fluid enthalpy, chemical
+    composition, and mass flow rate are constant across a Valve, and the
+    pressure difference equals the difference in pressure between the upstream
+    and downstream reactors.
 
     """
     def __init__(self, upstream=None, downstream=None,
                  name='', Kv = 0.0, mdot0 = 0.0, verbose=0):
         """
-        upstream - upstream reactor or reservoir.
-
-        downstream - downstream reactor or reservoir.
-
-        name - name used to identify the valve in output.
-        If no name is specified, it defaults to 'Valve_n', where n is an
-        integer assigned in the order the Valve object
-        was created.
-
-        Kv - the constant in the mass flow rate equation.
-
-        verbose - if set to a positive integer, additional diagnostic
-        information will be printed.
-
+        :param upstream:
+            upstream reactor or reservoir.
+        :param downstream:
+            downstream reactor or reservoir.
+        :param name:
+            name used to identify the valve in output. If no name is specified,
+            it defaults to ``Valve_n``, where n is an integer assigned in the
+            order the Valve object was created.
+        :param Kv:
+            the constant in the mass flow rate equation.
+        :param verbose:
+            if set to a positive integer, additional diagnostic information
+            will be printed.
         """
         global _valvecount
         if name == '':
@@ -712,7 +725,7 @@ class Valve(FlowDevice):
 
 
     def setValveCoeff(self, Kv = -1.0):
-        """Set or reset the valve coefficient \f$ K_v \f$."""
+        """Set or reset the valve coefficient :math:`K_v`."""
         vv = zeros(1,'d')
         vv[0] = Kv
         if self._verbose:
@@ -729,11 +742,12 @@ class Valve(FlowDevice):
             raise CanteraError("Wrong type for valve characteristic function.")
 
     def set(self, Kv = -1.0, F = None):
-        """Set or reset valve properties. All keywords are optional.
+        r"""Set or reset valve properties. All keywords are optional.
 
-        Kv - constant in linear mass flow rate equation.
-
-        F - function of \f$\Delta P\f$.
+        :param Kv:
+            constant in linear mass flow rate equation.
+        :param F:
+            function of :math:`\Delta P`.
         """
         if F:
             self.setFunction(F)
@@ -745,36 +759,35 @@ class Valve(FlowDevice):
 _pccount = 0
 
 class PressureController(FlowDevice):
+    r"""
+    A PressureController is designed to be used in conjunction with another
+    'master' flow controller, typically a :class:`.MassFlowController`. The
+    master flow controller is installed on the inlet of the reactor, and the
+    corresponding :class:`.PressureController` is installed on on outlet of the
+    reactor. The :class:`.PressureController` mass flow rate is equal to the
+    master mass flow rate, plus a small correction dependent on the pressure
+    difference:
 
-    """ A PressureController is designed to be used in conjunction
-    with another 'master' flow controller, typically a
-    MassFlowController. The master flow controller is installed on the
-    inlet of the reactor, and the corresponding PressureController is
-    installed on on outlet of the reactor. The PressureController mass
-    flow rate is equal to the master mass flow rate, plus a
-    small correction dependent on the pressure difference:
-    \f[
-    \dot m = \dot m_{\rm master} + K_v(P_1 - P_2).
-    \f]
+    .. math:: \dot m = \dot m_{\rm master} + K_v(P_1 - P_2).
     """
 
     def __init__(self, upstream=None, downstream=None,
                  name='', master = None, Kv = 0.0, verbose=0):
         """
-        upstream - upstream reactor or reservoir.
-
-        downstream - downstream reactor or reservoir.
-
-        name - name used to identify the pressure controller in
-        output.  If no name is specified, it defaults to
-        'PressureController_n', where n is an integer assigned in the
-        order the PressureController object was created.
-
-        Kv - the constant in the mass flow rate equation.
-
-        verbose - if set to a positive integer, additional diagnostic
-        information will be printed.
-
+        :param upstream:
+            upstream reactor or reservoir.
+        :param downstream:
+            downstream reactor or reservoir.
+        :param name:
+            name used to identify the pressure controller in output.  If no
+            name is specified, it defaults to ``PressureController_n``, where
+            n is an integer assigned in the order the PressureController
+            object was created.
+        :param Kv:
+            the constant in the mass flow rate equation.
+        :param verbose:
+            if set to a positive integer, additional diagnostic information
+            will be printed.
         """
         global _pccount
         if name == '':
@@ -788,7 +801,7 @@ class PressureController(FlowDevice):
 
 
     def setPressureCoeff(self, Kv):
-        """Set or reset the pressure coefficient \f$ K_v \f$."""
+        """Set or reset the pressure coefficient :math:`K_v`."""
         vv = zeros(1,'d')
         vv[0] = Kv
         if self._verbose:
@@ -814,44 +827,40 @@ class PressureController(FlowDevice):
 _wallcount = 0
 
 class Wall:
-    """
+    r"""
     Reactor walls.
 
-    A Wall separates two reactors, or a reactor and a reservoir. A
-    wall has a finite area, may conduct or radiate heat between the
-    two reactors on either side, and may move like a piston.
+    A Wall separates two reactors, or a reactor and a reservoir. A wall has a
+    finite area, may conduct or radiate heat between the two reactors on either
+    side, and may move like a piston.
 
-    Walls are stateless objects in Cantera, meaning that no
-    differential equation is integrated to determine any wall
-    property. Since it is the wall (piston) velocity that enters the
-    energy equation, this means that it is the velocity, not the
-    acceleration or displacement, that is specified. The wall
-    velocity is computed from
-    \f[
-    v = K(P_{\\rm left} - P_{\\rm right}) + v_0(t),
-    \f]
-    where $K$ is a non-negative constant, and \f$v_0(t)$ is a
+    Walls are stateless objects in Cantera, meaning that no differential
+    equation is integrated to determine any wall property. Since it is the wall
+    (piston) velocity that enters the energy equation, this means that it is
+    the velocity, not the acceleration or displacement, that is specified.
+    The wall velocity is computed from
+
+    .. math:: v = K(P_{\rm left} - P_{\rm right}) + v_0(t),
+
+    where :math:`K` is a non-negative constant, and :math:`v_0(t)` is a
     specified function of time. The velocity is positive if the wall is
     moving to the right.
 
     The heat flux through the wall is computed from
-    \f[
-    q = U(T_{\\rm left} - T_{\\rm right}) + \epsilon\sigma (T_{\\rm left}^4
-    - T_{\\rm right}^4) + q_0(t),
-    \f]
-    where \f$ U \f$ is the overall heat transfer coefficient for
-    conduction/convection, and \f$ \\epsilon \f$ is the emissivity.
-    The function \f$ q_0(t)$ is a specified function of time.
-    The heat flux is positive when heat flows from the reactor on the left
-    to the reactor on the right.
 
-    A heterogeneous reaction mechanism may be specified for one or
-    both of the wall surfaces. The mechanism object (typically an
-    instance of class Interface) must be constructed so that it is
-    properly linked to the object representing the fluid in the
-    reactor the surface in question faces. The surface temperature on
-    each side is taken to be equal to the temperature of the reactor
-    it faces.
+    .. math::  q = U(T_{\rm left} - T_{\rm right}) + \epsilon\sigma (T_{\rm left}^4 - T_{\rm right}^4) + q_0(t),
+
+    where :math:`U` is the overall heat transfer coefficient for
+    conduction/convection, and :math:`\epsilon` is the emissivity. The function
+    :math:`q_0(t)` is a specified function of time. The heat flux is positive
+    when heat flows from the reactor on the left to the reactor on the right.
+
+    A heterogeneous reaction mechanism may be specified for one or both of the
+    wall surfaces. The mechanism object (typically an instance of class
+    :class:`.Interface`) must be constructed so that it is properly linked to
+    the object representing the fluid in the reactor the surface in question
+    faces. The surface temperature on each side is taken to be equal to the
+    temperature of the reactor it faces.
 
     """
     def __init__(self, left, right, name = '',
@@ -859,35 +868,32 @@ class Wall:
                  Q = None, velocity = None,
                  kinetics = [None, None]):
         """
-        Constructor arguments:
-
-        left - Reactor or reservoir on the left. Required.
-
-        right - Reactor or reservoir on the right. Required.
-
-        name - Name string.
-        If omitted, the name is 'Wall_n', where 'n' is an integer
-        assigned in the order walls are created.
-
-        A - Wall area [m^2]. Defaults to 1.0 m^2.
-
-        K - Wall expansion rate parameter [m/s/Pa]. Defaults to 0.0.
-
-        U - Overall heat transfer coefficient [W/m^2]. Defaults to 0.0
-        (adiabbatic wall).
-
-        Q - Heat flux function \f$ q_0(t) \f$ [W/m^2]. Optional. Default:
-        \f$ q_0(t) = 0.0 \f$.
-
-        velocity - Wall velocity function \f$ v_0(t) \f$ [m/s].
-        Default: \f$ v_0(t) = 0.0 \f$.
-
-        kinetics - Surface reaction mechanisms for the left-facing and
-        right-facing surface, respectively. These must be instances of
-        class Kinetics, or of a class derived from Kinetics, such as
-        Interface. If chemistry occurs on only one side, enter 'None'
-        for the non-reactive side.
-
+        :param left:
+            Reactor or reservoir on the left. Required.
+        :param right:
+            Reactor or reservoir on the right. Required.
+        :param name:
+            Name string. If omitted, the name is ``'Wall_n'``, where ``'n'``
+            is an integer assigned in the order walls are created.
+        :param A:
+            Wall area [m^2]. Defaults to 1.0 m^2.
+        :param K:
+            Wall expansion rate parameter [m/s/Pa]. Defaults to 0.0.
+        :param U:
+            Overall heat transfer coefficient [W/m^2]. Defaults to 0.0
+            (adiabbatic wall).
+        :param Q:
+            Heat flux function :math:`q_0(t)` [W/m^2]. Optional. Default:
+            :math:`q_0(t) = 0.0`.
+        :param velocity:
+            Wall velocity function :math:`v_0(t)` [m/s].
+            Default: :math:`v_0(t) = 0.0`.
+        :param kinetics:
+            Surface reaction mechanisms for the left-facing and right-facing
+            surface, respectively. These must be instances of class Kinetics,
+            or of a class derived from Kinetics, such as Interface. If
+            chemistry occurs on only one side, enter ``None`` for the
+            non-reactive side.
         """
         typ = 0
         self.__wall_id = _cantera.wall_new(typ)
@@ -916,7 +922,7 @@ class Wall:
     def __del__(self):
         """ Delete the Wall instance. This method is called
         automatically when no Python object stores a reference to this
-        Wall. Since reactors and reserviors store references to all
+        Wall. Since reactors and reservoirs store references to all
         Walls installed on them, this method will only be called after
         the reactors/reservoirs have been deleted.  """
 
@@ -936,7 +942,8 @@ class Wall:
 
     def setArea(self, a):
         """
-        Set the area (m^2). The wall area may be changed manually at any time during a simulation.
+        Set the area (m^2). The wall area may be changed manually at any time
+        during a simulation.
         """
         _cantera.wall_setArea(self.__wall_id, a)
 
@@ -960,8 +967,7 @@ class Wall:
     def setHeatFlux(self, qfunc):
         """
         Specify the time-dependent heat flux function [W/m2].
-        'qfunc' must be a functor (an instance of a subclass of Cantera.Func1).
-        See: Func1.
+        *qfunc* must be a functor (an instance of :class:`.Func1`).
         """
         n = 0
         if qfunc: n = qfunc.func_id()
@@ -974,9 +980,8 @@ class Wall:
 
     def setVelocity(self, vfunc):
         """
-        Specify the velocity function [m/s]. 'vfunc' must
-        be a functor (an instance of a subclass of Cantera.Func1)
-        See: Func1.
+        Specify the velocity function [m/s]. *vfunc* must
+        be a functor (an instance of :class:`.Func1`)
         """
         n = 0
         if vfunc: n = vfunc.func_id()
@@ -1027,7 +1032,7 @@ class Wall:
             raise CanteraError("side must be 'left' or 'right'")
 
     def set(self, **p):
-        """Set various wall parameters: 'A', 'U', 'K', 'Q'. 'velocity'.
+        """Set various wall parameters: *A*, *U*, *K*, *Q*, *velocity*.
         These have the same meanings as in the constructor.
         """
         for item in p.keys():
@@ -1063,7 +1068,6 @@ class Wall:
 
 
 class ReactorNet:
-
     """Networks of reactors. ReactorNet objects are used to
     simultaneously advance the state of a set of coupled reactors.
 
@@ -1075,10 +1079,7 @@ class ReactorNet:
 
     >>> reactor_network = ReactorNet([r1, r2])
     >>> reactor_network.advance(time)
-
     """
-
-
     def __init__(self, reactorlist = None):
         """
         Create a new ReactorNet instance. If a list of reactors is supplied,
@@ -1134,7 +1135,7 @@ class ReactorNet:
         return _cantera.reactornet_advance(self.__reactornet_id, time)
 
     def step(self, time):
-        """Take a single internal time step toward time 'time'.
+        """Take a single internal time step toward time *time*.
         The time after taking the step is returned."""
         return _cantera.reactornet_step(self.__reactornet_id, time)
 
@@ -1151,22 +1152,20 @@ class ReactorNet:
 
     def sensitivity(self, component = '', parameter = -1, reactor = ''):
 
-        """Sensitivity of solution component 'component' with respect
+        """Sensitivity of solution component *component* with respect
         to one or more parameters.
 
-        component -- name of the species or other variable for which
-        sensitivity information is desired.
-
-        parameter -- single integer or sequence of integers specifying
-        the parameters. The parameters are numbered from zero,
-        beginning with the parameters for the first reactor and
-        continuing through those for the last reactor in the
-        network. If omitted, the sensitivity with respect to all
-        parameters will be returned.
-
-        reactor -- reactor containing the desired component.
-
-
+        :param component:
+            name of the species or other variable for which sensitivity
+            information is desired.
+        :param parameter:
+            single integer or sequence of integers specifying the parameters.
+            The parameters are numbered from zero, beginning with the parameters
+            for the first reactor and continuing through those for the last
+            reactor in the network. If omitted, the sensitivity with respect
+            to all parameters will be returned.
+        :param reactor:
+            reactor containing the desired component.
         """
 
         n = 0

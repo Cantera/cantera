@@ -18,9 +18,8 @@ class ThermoPhase(Phase):
     providing methods that require knowledge of the equation of state.
 
     Class ThermoPhase is not usually instantiated directly. It is used
-    as base class for classes Solution and Interface.
-
-    @see Solution, Interface
+    as base class for classes :class:`~Cantera.Solution` and
+    :class:`~Cantera.Interface.Interface`.
     """
 
     # used in the 'equilibrate' method
@@ -30,12 +29,13 @@ class ThermoPhase(Phase):
 
     def __init__(self, xml_phase=None, index=-1):
         """
-        xml_phase - CTML node specifying the attributes of this phase
-
-        index - optional. If positive, create only a Python wrapper for
-        an existing kernel object, instead of creating a new kernel object.
-        The value of 'index' is the integer index number to reference the
-        existing kernel object.
+        :param xml_phase:
+            CTML node specifying the attributes of this phase
+        :param index:
+            optional. If positive, create only a Python wrapper for an existing
+            kernel object, instead of creating a new kernel object. The value
+            of *index* is the integer index number to reference the existing
+            kernel object.
         """
 
         self._phase_id = 0
@@ -43,8 +43,8 @@ class ThermoPhase(Phase):
         self.idtag = ""
 
         if index >= 0:
-             # create a Python wrapper for an existing kernel
-             # ThermoPhase instance
+            # create a Python wrapper for an existing kernel
+            # ThermoPhase instance
             self._phase_id = index
 
         elif xml_phase:
@@ -280,36 +280,38 @@ class ThermoPhase(Phase):
 
     def equilibrate(self, XY, solver = -1, rtol = 1.0e-9,
                     maxsteps = 1000, maxiter = 100, loglevel = 0):
-        """  Set to a state of chemical equilibrium holding property pair
-            'XY' constant.
+        """
+        Set to a state of chemical equilibrium holding property pair
+        *XY* constant.
 
-            XY ---   A two-letter string, which must be one of the set
-            ['TP','TV','HP','SP','SV','UV','PT','VT','PH','PS','VS','VU'].
+        :param XY:
+            A two-letter string, which must be one of the set::
+
+                ['TP','TV','HP','SP','SV','UV','PT','VT','PH','PS','VS','VU']
+
             If H, U, S, or V is specified, the value must be the specific
             value (per unit mass)
-
-            solver --- Specifies the equilibrium solver to use. If solver =
-            0, a fast solver using the element potential method will be
-            used. If solver > 0, a slower but more robust Gibbs
-            minimization solver will be used. If solver < 0 or
-            unspecified, the fast solver will be tried first, then if it
-            fails the other will be tried.
-
-            rtol -- the relative error tolerance.
-
-            maxsteps -- maximum number of steps in composition to take to
-            find a converged solution.
-
-            maxiter -- for the Gibbs minimization solver only, this
-            specifies the number of 'outer' iterations on T or P when some
-            property pair other than TP is specified.
-
-            loglevel -- set to a value > 0 to write diagnostic output to a
-            file in HTML format. Larger values generate more detailed
-            information. The file will be named 'equilibrate_log.html.'
-            Subsequent files will be named 'equillibrate_log1.html', etc.,
-            so that log files are not overwritten.
-
+        :param solver:
+            Specifies the equilibrium solver to use. If solver = 0, a fast
+            solver using the element potential method will be used. If
+            solver > 0, a slower but more robust Gibbs minimization solver
+            will be used. If solver < 0 or unspecified, the fast solver will
+            be tried first, then if it fails the other will be tried.
+        :param rtol:
+            the relative error tolerance.
+        :param maxsteps:
+            maximum number of steps in composition to take to find a converged
+            solution.
+        :param maxiter:
+            For the Gibbs minimization solver only, this specifies the number
+            of 'outer' iterations on T or P when some property pair other than
+            TP is specified.
+        :param loglevel:
+            Set to a value > 0 to write diagnostic output to a file in HTML
+            format. Larger values generate more detailed information. The file
+            will be named ``equilibrate_log.html.`` Subsequent files will be
+            named ``equilibrate_log1.html``, etc., so that log files are
+            not overwritten.
             """
         _cantera.thermo_equil(self._phase_id, XY, solver,
                               rtol, maxsteps, maxiter, loglevel)

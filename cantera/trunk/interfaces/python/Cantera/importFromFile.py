@@ -34,6 +34,7 @@ def importInterface(file, name = '', phases = []):
     The 'phases' argument is a list of objects representing the other phases
     that participate in the interfacial reactions, for example an object
     representing a gas phase or a solid.
+
     >>> gas1, cryst1 = importPhases('diamond.cti', ['gas', 'solid'])
     >>> diamond_surf = importInterface('diamond.cti', [gas1, cryst1])
 
