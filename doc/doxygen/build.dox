@@ -1,8 +1,8 @@
 /**
 
-\page cantera-build Cantera Compilation Guide
+\page cantera-build %Cantera Compilation Guide
 
-This guide contains instructions for compiling Cantera on the following operating systems:
+This guide contains instructions for compiling %Cantera on the following operating systems:
 
 - Linux
     - Ubuntu 10.04 LTS (Lucid Lynx) or newer
@@ -10,7 +10,7 @@ This guide contains instructions for compiling Cantera on the following operatin
 - Windows Vista or Windows 7 (32-bit or 64-bit versions)
 - OS X 10.6 (Snow Leopard) or newer
 
-In addition to the above operating systems, Cantera should work on any
+In addition to the above operating systems, %Cantera should work on any
 Unix-like system where the necessary prerequisites are available, but some
 additional configuration may be required.
 
@@ -46,7 +46,7 @@ build and what architecture (32-bit or 64-bit) you want to use.
   versions of Python and recompile.
 - If you want to build the Matlab toolbox and you have a 64-bit copy
   of Windows, by default you will be using a 64-bit copy of Matlab,
-  and therefore you need to compile Cantera in 64-bit mode. For
+  and therefore you need to compile %Cantera in 64-bit mode. For
   simplicity, it is highly recommended that you use a 64-bit version
   of Python to handle this automatically.
 - There is no 64-bit installer for SCons under Windows, so you will
@@ -64,12 +64,12 @@ build and what architecture (32-bit or 64-bit) you want to use.
 - Download and install Xcode from the Apple Developer site:
   \verbatim
   https://developer.apple.com/xcode/index.php \endverbatim
-- Cantera can be compiled with the command line tools that ship with either
+- %Cantera can be compiled with the command line tools that ship with either
   Xcode 3.x or Xcode 4.x.
 - If you don't have numpy version >= 1.3, you can install a recent version with:
   \verbatim
   sudo easy_install -U numpy \endverbatim
-- If you want to build Cantera with Fortran 90 support, download gfortran from:
+- If you want to build %Cantera with Fortran 90 support, download gfortran from:
   \verbatim
   http://gcc.gnu.org/wiki/GFortranBinaries#MacOS \endverbatim
 - Download scons-2.1.0.tar.gz from scons.org and extract the contents. Install with either
@@ -79,7 +79,7 @@ build and what architecture (32-bit or 64-bit) you want to use.
   \verbatim
   python setup.py install --user \endverbatim
 
-\section download-cantera Download the Cantera source code
+\section download-cantera Download the %Cantera source code
 
 \subsection download-posix Linux / OS X
 
@@ -100,7 +100,7 @@ build and what architecture (32-bit or 64-bit) you want to use.
 
 \subsection config-general General
 - run \verbatim scons help \endverbatim to see a list all
-  configuration options for Cantera.
+  configuration options for %Cantera.
 - If the prerequisites are installed in standard locations, the
   default values should work.
 - If you installed Sundials to a non-standard location (e.g. the
@@ -108,17 +108,27 @@ build and what architecture (32-bit or 64-bit) you want to use.
   \verbatim
   sundials_include=/path/to/sundials/include
   sundials_libdir=/path/to/sundials/lib \endverbatim
-- If you want to build the Matlab toolbox and the Matlab executable is
-  not on your PATH, you should specify:
+- If you want to build the Matlab toolbox, you will need to specify the path
+  to the Matlab installation, e.g.
   \verbatim
-  matlab_toolbox=y
-  matlab_cmd=/path/to/matlab  \endverbatim
+  matlab_path=/opt/MATLAB/R2011a
+  matlab_path="C:\Program Files\MATLAB/R2011a"
+  matlab_path=/Applications/MATLAB_R2011a.app  \endverbatim
+  The above paths are typical defaults on Linux, Windows, and OS X,
+  respectively.
+- SCons saves configuration options specified on the command line in the file
+  \b cantera.conf in the root directory of the source tree, so generally it is
+  not necessary to respecify configuration options when rebuilding %Cantera.
+  To unset a previously set configuration option, either remove the
+  corresponding line from cantera.conf or use the syntax
+  \verbatim
+  option_name=  \endverbatim
 
 \see \ref configCantera
 
 \subsection Windows (MSVC)
 - In Windows there aren’t any proper default locations for many of the
-  packages that Cantera depends on, so you will need to specify these
+  packages that %Cantera depends on, so you will need to specify these
   paths explicitly.
 - Remember to put double quotes around any paths with spaces in them,
   e.g. "C:\Program Files".
@@ -127,12 +137,6 @@ build and what architecture (32-bit or 64-bit) you want to use.
   Visual Studio 2008 or the equivalent version of the Windows SDK. If
   you aren’t building the Python module, you can override this with
   the configuration options target_arch and msvc_version.
-- If you’re building the Matlab toolbox, you need to specify the path
-  to the architecture-dependent Matlab executable. For example, if
-  you’re building the 64-bit toolbox, the correct option will be
-  something like:
-  \verbatim
-  matlab_cmd="C:/Program Files/MATLAB/R2009a/bin/win64/MATLAB.exe" \endverbatim
 
 \subsection Windows (MinGW)
 - To compile with MinGW, use the SCons command line option:
@@ -140,12 +144,10 @@ build and what architecture (32-bit or 64-bit) you want to use.
   toolchain=mingw \endverbatim
 - The version of MinGW from www.mingw.org is 32-bit only, and therefore
   cannot be used to build a 64-bit Python module.
-- MinGW cannot be used to build the Matlab toolbox because the "mex -setup"
-  command does not recognize MinGW.
 
 \subsection config-osx OS X
 
-- The available compilers to compile Cantera will depend on the version
+- The available compilers to compile %Cantera will depend on the version
   of Xcode that is installed.
   - If Xcode 3 is installed, you can use either GCC by leaving the
     \b CC and \b CXX options unspecified, or setting them to
@@ -159,22 +161,39 @@ build and what architecture (32-bit or 64-bit) you want to use.
     \verbatim
     CC=clang CXX=clang++ \endverbatim
 
+\subsection Intel Compilers
+- Before compiling %Cantera, you may need to set up the appropriate environment
+  variables for the Intel compiler suite, e.g.:
+  \verbatim
+  source /opt/intel/bin/compilervars.sh intel64 \endverbatim
+- For the Intel compiler to work with SCons, these environment variables need
+  to be passed through SCons by using the command line option
+  \verbatim
+  env_vars=all \endverbatim
+  Your final SCons call might then look something like
+  \verbatim
+  scons build env_vars=all CC=icc CXX=icpc F90=ifort F77=ifort \endverbatim
 
-\section compile-test Compile Cantera & Test
+\section compile-test Compile %Cantera & Test
 - Run scons with the list of desired configuration options, e.g.:
   \verbatim
-  scons build debug=y optimize=n prefix=/opt/cantera \endverbatim
-- If Cantera compiles successfully, you should see the message:
+  scons build optimize=n blas_lapack_libs=blas,lapack prefix=/opt/cantera \endverbatim
+- If %Cantera compiles successfully, you should see the message:
   \verbatim
   **************************************************************
   Compilation complete. Type '[sudo] scons install' to install.
   ************************************************************** \endverbatim
 - If you do not see this message, check the output for errors to see
   what went wrong.
-- Cantera has a series of regression tests that can be run with the
-  command
+- %Cantera has a series of regression tests that can be run with the
+  command:
   \verbatim
   scons test \endverbatim
+- In addition, a series of unit tests for the C++, Python, and Matlab
+  interfaces can be run with the command:
+  \verbatim
+  scons newtest \endverbatim
+
 - When the tests finish, you should see a summary indicating the
   number of tests that passed and failed.
 
@@ -197,10 +216,10 @@ build and what architecture (32-bit or 64-bit) you want to use.
 #include_next <float.h>
 #endif \endverbatim
 
-\section software-sources Sources and versions of software used by Cantera:
+\section software-sources Sources and versions of software used by %Cantera:
 
 You must have one of the following C++ compilers installed on your
-system. A Fortran compiler is required only if you plan to use Cantera
+system. A Fortran compiler is required only if you plan to use %Cantera
 from a Fortran program.
 
 - GNU compilers (C/C++/Fortran)
@@ -209,7 +228,7 @@ from a Fortran program.
     - Known to work with version 2.9
     - This is the version included with Apple Xcode 4.x
 - Intel compilers (C/C++/Fortran)
-    - Known to work with version 11.0; Expected to work with versions >= 11.0
+    - Known to work with version 11.0 and 12.1; Expected to work with versions >= 11.0
 - Microsoft compilers (C/C++)
     - Windows SDK: http://www.microsoft.com/download/en/details.aspx?id=3138
       This is equivalent to Visual Studio 2008. It is a free download.
@@ -237,18 +256,18 @@ from a Fortran program.
 \subsection software-optional Optional Programs
 
 - Numpy
-    - Required to build the Cantera Python module.
+    - Required to build the %Cantera Python module.
     - http://sourceforge.net/projects/numpy/
     - Known to work with versions 1.3 and 1.5; Expected to work with version >= 1.1
     - Test suite requires version >= 1.3
 - Matlab
-    - Required to build the Cantera Matlab toolbox.
+    - Required to build the %Cantera Matlab toolbox.
     - Known to work with 2009a, 2010a, and 2011b. Expected to work with versions >= 2009a.
 - Sundials
     - Required to enable some features such as sensitivity analysis.
     - https://computation.llnl.gov/casc/sundials/download/download.html
     - Known to work with version 2.4; Support for versions 2.3 and 2.2 is deprecated.
-    - To use Sundials with Cantera, you may need to compile it with the
+    - To use Sundials with %Cantera, you may need to compile it with the
       <b>-fPIC</b> flag. You can specify this flag when configuring Sundials:
       \verbatim
       configure --with-cflags=-fPIC \endverbatim
