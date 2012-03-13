@@ -87,10 +87,13 @@ void ct2ctml(const char* file, const int debug)
             "    import sys\n" <<
             "    sys.stderr = sys.stdout\n" <<
             "    import ctml_writer\n" <<
-            "    ctml_writer.convert(r'" << file << "')\n";
+            "    ctml_writer.convert(r'" << file << "')\n" <<
+            "    sys.exit(0)\n\n"
+            "sys.exit(7)\n";
         python.close_in();
         std::string line;
-        while (std::getline(python.out(), line).good()) {
+        while (python.out().good()) {
+            std::getline(python.out(), line);
             output_stream << line << std::endl;;
         }
         python.close();
@@ -110,10 +113,13 @@ void ct2ctml(const char* file, const int debug)
         stringstream message;
         message << "Error converting input file \"" << file << "\" to CTML.\n";
         message << "Python command was: '" << pypath() << "'\n";
+        message << "The exit code was: " << python_exit_code << "\n";
         if (python_output.size() > 0) {
             message << "-------------- start of converter log --------------\n";
             message << python_output << std::endl;
             message << "--------------- end of converter log ---------------";
+        } else {
+            message << "The command did not produce any output." << endl;
         }
         throw CanteraError("ct2ctml", message.str());
     }
