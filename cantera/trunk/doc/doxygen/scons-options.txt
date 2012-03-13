@@ -20,6 +20,20 @@ of this file is:
 
         **************************************************
 
+* msvc_version: [ string ]
+    Version of Visual Studio to use. The default is the same version
+    that was used to compile the installed version of Python.
+    - default: '9.0'
+
+* target_arch: [ string ]
+    Target architecture. The default is the same architecture as the
+    installed version of Python
+    - default: 'amd64'
+
+* toolchain: [ msvc | mingw | intel ]
+    The preferred compiler toolchain.
+    - default: 'msvc'
+
 * CXX: [ string ]
     The C++ compiler to use.
     - default: 'g++'
@@ -32,7 +46,6 @@ of this file is:
 * prefix: [ /path/to/prefix ]
     Set this to the directory where Cantera should be installed.
     - default: '/usr/local'
-    - actual: '/opt/cantera-dev'
 
 * python_package: [ full | minimal | none | default ]
     If you plan to work in Python, or you want to use the graphical
@@ -72,17 +85,18 @@ of this file is:
 
 * matlab_toolbox: [ y | n | default ]
     This variable controls whether the Matlab toolbox will be built. If
-    it is set to 'default', the Matlab toolbox will be built if Matlab
-    can be found in the $PATH. Note that you may need to run 'mex
-    -setup' within Matlab to configure it for your C++ compiler before
-    building Cantera.
+    set to 'y', you will also need to set the value of the 'matlab_path'
+    variable. If set to 'default', the Matlab toolbox will be built if
+    'matlab_path' is set.
     - default: 'default'
-    - actual: 'n'
 
-* matlab_cmd: [ /path/to/matlab_cmd ]
-    Path to the Matlab executable. In Windows, this is probably
-    something like "C:/Program Files/MATLAB/R2009a/bin/win64/MATLAB.exe"
-    - default: 'matlab'
+* matlab_path: [ /path/to/matlab_path ]
+    Path to the Matlab install directory. This should be the directory
+    containing the 'extern', 'bin', etc. subdirectories. Typical values
+    are: "C:/Program Files/MATLAB/R2011a" on Windows,
+    "/Applications/MATLAB_R2011a.app" on OS X, or "/opt/MATLAB/R2011a"
+    on Linux.
+    - default: ''
 
 * f90_interface: [ y | n | default ]
     This variable controls whether the Fortran 90/95 interface will be
@@ -90,7 +104,6 @@ of this file is:
     Fortran compiler in the $PATH, and compile the Fortran 90 interface
     if one is found.
     - default: 'default'
-    - actual: 'n'
 
 * F90: [ /path/to/F90 ]
     The Fortran 90 compiler. If unspecified, the builder will look for a
@@ -101,8 +114,9 @@ of this file is:
     Compilation options for the Fortran 90 compiler.
     - default: '-O3'
 
-* debug: [ yes | no ]
-    Enable extra printing code to aid in debugging.
+* debug_verbose: [ yes | no ]
+    Enable extra printing to aid in debugging. This code is marked by
+    the preprocessor macros DEBUG_MODE and DEBUG_MODE_ENABLED.
     - default: 'no'
 
 * coverage: [ yes | no ]
@@ -113,7 +127,6 @@ of this file is:
 * build_docs: [ yes | no ]
     Build HTML documentation using Doxygen
     - default: 'no'
-    - actual: 'yes'
 
 * with_lattice_solid: [ yes | no ]
     Include thermodynamic model for lattice solids in the Cantera
@@ -270,32 +283,62 @@ of this file is:
 * lapack_ftn_string_len_at_end: [ yes | no ]
     - default: 'yes'
 
+* env_vars: [ string ]
+    Environment variables to propagate through to SCons. Either the
+    string "all" or a comma separated list of variable names, e.g.
+    'LD_LIBRARY_PATH,HOME'
+    - default: ''
+
 * cxx_flags: [ string ]
     Compiler flags passed to the C++ compiler only.
     - default: '-ftemplate-depth-128'
-    - actual: '-fbounds-check'
 
 * cc_flags: [ string ]
     Compiler flags passed to both the C and C++ compilers, regardless of
     optimization level
-    - default: '-Wall -g'
+    - default: '-Wall -Wno-deprecated-declarations'
+
+* thread_flags: [ string ]
+    Compiler and linker flags for POSIX multithreading support
+    - default: '-pthread'
 
 * optimize: [ yes | no ]
-    Enable extra compiler optimizations specified by the "release_flags"
-    variable, instead of the flags specified by the "debug_flags"
-    variable
+    Enable extra compiler optimizations specified by the
+    "optimize_flags" variable, instead of the flags specified by the
+    "debug_flags" variable
     - default: 'yes'
-    - actual: 'no'
 
-* release_flags: [ string ]
+* optimize_flags: [ string ]
     Additional compiler flags passed to the C/C++ compiler when
     optimize=yes.
-    - default: '-O3 -finline-functions -Wno-inline -DNDEBUG'
+    - default: '-O3 -DNDEBUG -finline-functions -Wno-inline'
 
-* debug_flags: [ string ]
+* no_optimize_flags: [ string ]
     Additional compiler flags passed to the C/C++ compiler when
     optimize=no.
     - default: '-O0 -fno-inline'
+
+* debug: [ yes | no ]
+    Enable compiler debugging symbols.
+    - default: 'yes'
+
+* debug_flags: [ string ]
+    Additional compiler flags passed to the C/C++ compiler when
+    debug=yes.
+    - default: '-g'
+
+* no_debug_flags: [ string ]
+    Additional compiler flags passed to the C/C++ compiler when
+    debug=no.
+    - default: ''
+
+* debug_linker_flags: [ string ]
+    Additional options passed to the linker when debug=yes
+    - default: ''
+
+* no_debug_linker_flags: [ string ]
+    Additional options passed to the linker when debug=yes
+    - default: ''
 
 * build_thread_safe: [ yes | no ]
     Cantera can be built so that it is thread safe. Doing so requires
@@ -341,7 +384,11 @@ of this file is:
     'scons install' will install files to 'stage_dir/prefix/...' instead
     of installing into the local filesystem.
     - default: ''
-    - actual: 'stage'
+
+* legacy_headers: [ yes | no ]
+    Create symbolic links for headers that were installed to the
+    'kernel' subdirectory in previous versions of Cantera.
+    - default: 'no'
 
 * graphvisdir: [ /path/to/graphvisdir ]
     The directory location of the graphviz program, dot. dot is used for
