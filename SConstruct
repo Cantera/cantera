@@ -308,8 +308,12 @@ opts.AddVariables(
            Available only when compiling with gcc.""",
         False),
     BoolVariable(
-        'build_docs',
-        """Build HTML documentation using Doxygen""",
+        'doxygen_docs',
+        """Build HTML documentation for the C++ interface using Doxygen""",
+        False),
+    BoolVariable(
+        'sphinx_docs',
+        """Build HTML documentation for the Python module using Sphinx""",
         False),
     BoolVariable(
         'with_lattice_solid',
@@ -1072,7 +1076,7 @@ if env['OS'] != 'Windows':
     VariantDir('build/platform', 'platform/posix', duplicate=0)
     SConscript('build/platform/SConscript')
 
-if env['build_docs']:
+if env['doxygen_docs'] or env['sphinx_docs']:
     SConscript('doc/SConscript')
 
 if 'samples' in COMMAND_LINE_TARGETS or 'install' in COMMAND_LINE_TARGETS:
