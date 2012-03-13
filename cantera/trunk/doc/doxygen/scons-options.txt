@@ -124,8 +124,12 @@ of this file is:
     only when compiling with gcc.
     - default: 'no'
 
-* build_docs: [ yes | no ]
-    Build HTML documentation using Doxygen
+* doxygen_docs: [ yes | no ]
+    Build HTML documentation for the C++ interface using Doxygen
+    - default: 'no'
+
+* sphinx_docs: [ yes | no ]
+    Build HTML documentation for the Python module using Sphinx
     - default: 'no'
 
 * with_lattice_solid: [ yes | no ]

@@ -4,8 +4,16 @@ Import('env', 'build', 'install')
 
 localenv = env.Clone()
 
-build(localenv.Command('#build/docs/html/index.html',
-                       'doxygen/Doxyfile', 'doxygen $SOURCE'))
+if localenv['doxygen_docs']:
+    build(localenv.Command('#build/docs/html/index.html',
+                           'doxygen/Doxyfile', 'doxygen $SOURCE'))
+    install(pjoin('$inst_docdir', 'html'),
+            mglob(localenv, '#/build/docs/html', 'html', 'svg', 'css', 'png'))
 
-install(pjoin('$inst_docdir', 'html'),
-        mglob(localenv, '#/build/docs/html', 'html', 'svg', 'css', 'png'))
+if localenv['sphinx_docs']:
+    localenv['SPHINXBUILD'] = Dir('#build/sphinx')
+    localenv['SPHINXSRC'] = Dir('sphinx')
+
+    build(localenv.Command('${SPHINXBUILD}/html/index.html',
+                           'sphinx/conf.py',
+                           'sphinx-build -b html -d ${SPHINXBUILD}/doctrees ${SPHINXSRC} ${SPHINXBUILD}/html'))
