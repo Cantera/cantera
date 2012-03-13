@@ -64,6 +64,8 @@ ctmethods = build(localenv.SharedLibrary('#interfaces/matlab/toolbox/ctmethods',
                                          LIBS=linklibs,
                                          LINKFLAGS=linkflags))
 
+env['matlab_extension'] = ctmethods
+
 ### Install the Matlab toolbox ###
 
 # 'ctpath.m'

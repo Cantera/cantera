@@ -24,20 +24,6 @@ def testRunner(target, source, env):
     return code
 
 
-def scriptRunner(target, source, env):
-    """Scons Action to run a test script using the specified interpreter"""
-    interpreter = env['test_interpreter']
-    workDir = Dir('#test/work').abspath
-    if not os.path.isdir(workDir):
-        os.mkdir(workDir)
-    code = subprocess.call([interpreter, source[0].abspath],
-                           env=env['ENV'],
-                           cwd=workDir)
-    if not code:
-        open(target[0].path, 'w').write(time.asctime()+'\n')
-    return code
-
-
 def addTestProgram(subdir, progName):
     """
     Compile a test program and create a targets for running
@@ -57,8 +43,19 @@ def addTestScript(subdir, script, interpreter, dependencies):
     """
     Create targets for running and resetting a test script.
     """
+    def scriptRunner(target, source, env):
+        """Scons Action to run a test script using the specified interpreter"""
+        workDir = Dir('#test/work').abspath
+        if not os.path.isdir(workDir):
+            os.mkdir(workDir)
+        code = subprocess.call([interpreter, source[0].abspath],
+                               env=env['ENV'],
+                               cwd=workDir)
+        if not code:
+            open(target[0].path, 'w').write(time.asctime()+'\n')
+        return code
+
     testenv = localenv.Clone()
-    testenv['test_interpreter'] = interpreter
     passedFile = File(pjoin(subdir, '%s.passed' % (script)))
     run_program = testenv.Command(passedFile, pjoin(subdir, script), scriptRunner)
     for dep in dependencies:
@@ -70,8 +67,56 @@ def addTestScript(subdir, script, interpreter, dependencies):
         Alias('newtest-reset', testenv.Command('reset-%s%s' % (subdir, script),
                                                [], [Delete(passedFile.abspath)]))
 
+
+def addMatlabTest(script, dependencies=None):
+    def matlabRunner(target, source, env):
+        workDir = Dir('#test/work').abspath
+        if not os.path.isdir(workDir):
+            os.mkdir(workDir)
+        outfile = pjoin(workDir, 'matlab-results.txt')
+        runCommand = "%s('%s'); exit" % (source[0].name[:-2], outfile)
+        if os.name == 'nt':
+            matlabOptions = ['-nojvm','-nosplash','-wait']
+        else:
+            matlabOptions = ['-nojvm','-nodisplay']
+        os.remove(outfile)
+        code = subprocess.call([pjoin(env['matlab_path'], 'bin', 'matlab')] +
+                               matlabOptions + ['-r', runCommand],
+                               env=env['ENV'], cwd=Dir('#test/matlab').abspath)
+        results = open(outfile).read()
+        print '-------- Matlab test results --------'
+        print results
+        print '------ end Matlab test results ------'
+        if 'FAILED' in results:
+            return 1
+        else:
+            open(target[0].path, 'w').write(time.asctime()+'\n')
+
+    testenv = localenv.Clone()
+    passedFile = File(pjoin('matlab', '%s.passed' % (script)))
+
+    run_program = testenv.Command(passedFile, pjoin('matlab', script), matlabRunner)
+
+    dependencies = (dependencies or []) + localenv['matlab_extension']
+    for dep in dependencies:
+        if isinstance(dep, str):
+            dep = File(pjoin('matlab', dep))
+        testenv.Depends(run_program, dep)
+
+    Alias('newtest', run_program)
+    if os.path.exists(passedFile.abspath):
+        Alias('newtest-reset', testenv.Command('reset-%s%s' % ('matlab', script),
+                                               [], [Delete(passedFile.abspath)]))
+
+
 # Instantiate tests
 addTestProgram('thermo', 'nasapoly')
-addTestScript('python', 'runTests.py',
-              interpreter=sys.executable,
-              dependencies=['testSolution.py', localenv['python_module']])
+
+if localenv['python_package'] == 'full':
+    addTestScript('python', 'runTests.py',
+                  interpreter=sys.executable,
+                  dependencies=['testSolution.py', localenv['python_module']])
+
+if localenv['matlab_toolbox'] == 'y':
+    addMatlabTest('runCanteraTests.m',
+                  dependencies=mglob(localenv, 'matlab', 'm'))

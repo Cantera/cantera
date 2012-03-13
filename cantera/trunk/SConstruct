@@ -123,6 +123,10 @@ if os.name == 'nt' and 'TMP' in os.environ:
 if os.name == 'nt':
     env['ENV']['SystemRoot'] = os.environ['SystemRoot']
 
+# Needed for Matlab to source ~/.matlab7rc.sh
+if 'HOME' in os.environ:
+    env['ENV']['HOME'] = os.environ['HOME']
+
 # Fix an issue with Unicode sneaking into the environment on Windows
 if os.name == 'nt':
     for key,val in env['ENV'].iteritems():

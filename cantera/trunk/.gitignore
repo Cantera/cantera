@@ -6,7 +6,9 @@
 *.obj
 *.exe.manifest
 build/
+test/work/
 include/cantera/base/config.h
+interfaces/matlab/ctpath.m
 stage/
 .sconsign.dblite
 .sconf_temp
@@ -23,6 +25,7 @@ config.log
 *.def
 *.msi
 *.mex*
+*.asv
 .cproject
 .project
 .pydevproject
