@@ -167,10 +167,14 @@ void exec_stream_t::start( std::string const & program, std::string const & argu
     ZeroMemory( &si, sizeof( si ) );
     si.cb=sizeof( si );
     si.wShowWindow = SW_HIDE;
-    si.dwFlags = STARTF_USESHOWWINDOW;
+    si.dwFlags = STARTF_USESHOWWINDOW | STARTF_USESTDHANDLES;
+    si.hStdInput = in.r();
+    si.hStdOutput = out.w();
+    si.hStdError = err.w();
+
     PROCESS_INFORMATION pi;
     ZeroMemory( &pi, sizeof( pi ) );
-    if( !CreateProcess( 0, const_cast< char * >( command.c_str() ), 0, 0, TRUE, DETACHED_PROCESS, 0, 0, &si, &pi ) ) {
+    if( !CreateProcess( 0, const_cast< char * >( command.c_str() ), 0, 0, TRUE, 0, 0, 0, &si, &pi ) ) {
         throw os_error_t( "exec_stream_t::start: CreateProcess failed.\n command line was: "+command );
     }
 
