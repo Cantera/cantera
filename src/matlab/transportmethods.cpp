@@ -1,6 +1,6 @@
 #include <fstream>
 
-#include <clib/ct.h>
+#include "clib/ct.h"
 #include "ctmatutils.h"
 
 void reportError();

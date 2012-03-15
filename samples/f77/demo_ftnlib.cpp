@@ -26,7 +26,7 @@
  */
 
 // add any other Cantera header files you need here
-#include <cantera/IdealGasMix.h>
+#include "cantera/IdealGasMix.h"
 
 using namespace Cantera;
 using std::string;
@@ -45,12 +45,12 @@ IdealGasMix* _gasptr()
 #define WITH_TRANSPORT
 
 #ifdef WITH_EQUIL
-#include <cantera/equilibrium.h>
+#include "cantera/equilibrium.h"
 #endif
 
 
 #ifdef WITH_TRANSPORT
-#include <cantera/transport.h>
+#include "cantera/transport.h"
 
 // store a pointer to a transport manager
 static Transport* _trans = 0;

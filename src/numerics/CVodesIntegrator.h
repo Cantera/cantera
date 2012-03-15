@@ -14,9 +14,9 @@
 #include "cantera/base/ct_defs.h"
 
 #ifdef SUNDIALS_VERSION_22
-#include <nvector_serial.h>
+#include "nvector_serial.h"
 #else
-#include <sundials/sundials_nvector.h>
+#include "sundials/sundials_nvector.h"
 #endif
 
 namespace Cantera

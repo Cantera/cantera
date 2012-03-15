@@ -6,8 +6,8 @@
 #ifndef BVP_H
 #define BVP_H
 
-#include <cantera/Cantera.h>
-#include <cantera/onedim.h>
+#include "cantera/Cantera.h"
+#include "cantera/onedim.h"
 
 /// Namespace for the boundary value problem package.
 namespace BVP

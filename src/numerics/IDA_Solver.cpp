@@ -11,13 +11,13 @@
 #include <iostream>
 
 #ifdef SUNDIALS_VERSION_24
-#include <sundials/sundials_types.h>
-#include <sundials/sundials_math.h>
-#include <ida/ida.h>
-#include <ida/ida_dense.h>
-#include <ida/ida_spgmr.h>
-#include <ida/ida_band.h>
-#include <nvector/nvector_serial.h>
+#include "sundials/sundials_types.h"
+#include "sundials/sundials_math.h"
+#include "ida/ida.h"
+#include "ida/ida_dense.h"
+#include "ida/ida_spgmr.h"
+#include "ida/ida_band.h"
+#include "nvector/nvector_serial.h"
 
 using namespace std;
 

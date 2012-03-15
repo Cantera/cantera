@@ -1,5 +1,5 @@
-#include <cantera/equilibrium.h>
-#include <cantera/thermo.h>
+#include "cantera/equilibrium.h"
+#include "cantera/thermo.h"
 
 using namespace Cantera;
 

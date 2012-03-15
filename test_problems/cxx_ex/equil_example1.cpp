@@ -6,9 +6,9 @@
 /////////////////////////////////////////////////////////////
 
 #include "example_utils.h"
-#include <cantera/equilibrium.h>
+#include "cantera/equilibrium.h"
 
-#include <cantera/IdealGasMix.h>
+#include "cantera/IdealGasMix.h"
 
 using namespace Cantera;
 //-------------------------------------------------------------------

@@ -6,8 +6,8 @@
 //
 /////////////////////////////////////////////////////////////
 
-#include <cantera/zerodim.h>
-#include <cantera/IdealGasMix.h>
+#include "cantera/zerodim.h"
+#include "cantera/IdealGasMix.h"
 #include "example_utils.h"
 
 using namespace Cantera;

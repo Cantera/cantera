@@ -1,6 +1,6 @@
 #include "ctmatutils.h"
-#include <clib/ctfunc.h>
-#include <clib/ct.h>
+#include "clib/ctfunc.h"
+#include "clib/ct.h"
 
 void funcmethods(int nlhs, mxArray* plhs[],
                  int nrhs, const mxArray* prhs[])

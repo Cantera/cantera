@@ -6,9 +6,9 @@
 //
 /////////////////////////////////////////////////////////////
 
-#include <cantera/transport.h>
+#include "cantera/transport.h"
 #include "example_utils.h"
-#include <cantera/IdealGasMix.h>
+#include "cantera/IdealGasMix.h"
 
 using namespace Cantera;
 using std::cout;

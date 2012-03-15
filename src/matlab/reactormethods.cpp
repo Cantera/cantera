@@ -2,8 +2,8 @@
  * @file reactormethods.cpp
  */
 
-#include <clib/ctreactor.h>
-#include <clib/ct.h>
+#include "clib/ctreactor.h"
+#include "clib/ct.h"
 #include "ctmatutils.h"
 
 void reactormethods(int nlhs, mxArray* plhs[],

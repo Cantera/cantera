@@ -14,27 +14,27 @@ using namespace std;
 
 #ifdef SUNDIALS_VERSION_22
 
-#include <sundials_types.h>
-#include <sundials_math.h>
-#include <cvodes.h>
-#include <cvodes_dense.h>
-#include <cvodes_diag.h>
-#include <cvodes_spgmr.h>
-#include <cvodes_band.h>
-#include <nvector_serial.h>
+#include "sundials_types.h"
+#include "sundials_math.h"
+#include "cvodes.h"
+#include "cvodes_dense.h"
+#include "cvodes_diag.h"
+#include "cvodes_spgmr.h"
+#include "cvodes_band.h"
+#include "nvector_serial.h"
 
 #else
 
 #if defined(SUNDIALS_VERSION_23) || defined (SUNDIALS_VERSION_24)
-#include <sundials/sundials_types.h>
-#include <sundials/sundials_math.h>
-#include <sundials/sundials_nvector.h>
-#include <nvector/nvector_serial.h>
-#include <cvodes/cvodes.h>
-#include <cvodes/cvodes_dense.h>
-#include <cvodes/cvodes_diag.h>
-#include <cvodes/cvodes_spgmr.h>
-#include <cvodes/cvodes_band.h>
+#include "sundials/sundials_types.h"
+#include "sundials/sundials_math.h"
+#include "sundials/sundials_nvector.h"
+#include "nvector/nvector_serial.h"
+#include "cvodes/cvodes.h"
+#include "cvodes/cvodes_dense.h"
+#include "cvodes/cvodes_diag.h"
+#include "cvodes/cvodes_spgmr.h"
+#include "cvodes/cvodes_band.h"
 
 #else
 
