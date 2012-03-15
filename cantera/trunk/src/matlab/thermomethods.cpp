@@ -8,10 +8,6 @@
 static void thermoset(int nlhs, mxArray* plhs[],
                       int nrhs, const mxArray* prhs[])
 {
-
-    //if (nrhs != 4) {
-    //    mexErrMsgTxt("wrong number of input parameters.");
-    //}
     int ierr = 0;
     int th = getInt(prhs[1]);
     int job = -getInt(prhs[2]);
@@ -76,7 +72,7 @@ static void thermoset(int nlhs, mxArray* plhs[],
 
     // equilibrate
     else if (job == 50) {
-        char* xy = getString(prhs[3]); //int(*ptr);
+        char* xy = getString(prhs[3]);
         int solver = getInt(prhs[4]);
         double rtol = getDouble(prhs[5]);
         int maxsteps = getInt(prhs[6]);
@@ -102,7 +98,6 @@ static void thermoget(int nlhs, mxArray* plhs[],
     int job = getInt(prhs[2]);
 
     if (job < 30) {
-
         bool ok = true;
         switch (job) {
         case 0:
@@ -191,46 +186,42 @@ static void thermoget(int nlhs, mxArray* plhs[],
             if (vv == DERR) {
                 reportError();
             }
-            plhs[0] = mxCreateNumericMatrix(1,1,mxDOUBLE_CLASS,mxREAL);
+            plhs[0] = mxCreateNumericMatrix(1, 1, mxDOUBLE_CLASS, mxREAL);
             double* h = mxGetPr(plhs[0]);
             *h = vv;
             return;
         }
     } else if (job < 50) {
-
         int iok = 0;
         size_t nsp = th_nSpecies(n);
-        double* x = new double[nsp];
+        std::vector<double> x(nsp);
         switch (job) {
         case 32:
-            iok = th_getEnthalpies_RT(n,nsp,x);
+            iok = th_getEnthalpies_RT(n, nsp, &x[0]);
             break;
         case 34:
-            iok = th_chemPotentials(n,nsp,x);
+            iok = th_chemPotentials(n, nsp, &x[0]);
             break;
         case 36:
-            iok = th_getEntropies_R(n,nsp,x);
+            iok = th_getEntropies_R(n, nsp, &x[0]);
             break;
         case 38:
-            iok = th_getCp_R(n,nsp,x);
+            iok = th_getCp_R(n, nsp, &x[0]);
             break;
         default:
             ;
         }
-        plhs[0] = mxCreateNumericMatrix((mwSize) nsp,1,
-                                        mxDOUBLE_CLASS,mxREAL);
+        plhs[0] = mxCreateNumericMatrix((mwSize) nsp, 1, mxDOUBLE_CLASS, mxREAL);
         double* h = mxGetPr(plhs[0]);
         if (iok >= 0) {
             for (size_t i = 0; i < nsp; i++) {
                 h[i] = x[i];
             }
-            delete x;
             return;
         } else {
             for (size_t i = 0; i < nsp; i++) {
                 h[i] = -999.99;
             }
-            delete x;
             mexErrMsgTxt("unknown attribute");
             return;
         }
@@ -242,10 +233,8 @@ static void thermoget(int nlhs, mxArray* plhs[],
 }
 
 
-void thermomethods(int nlhs, mxArray* plhs[],
-                   int nrhs, const mxArray* prhs[])
+void thermomethods(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[])
 {
-
     int job = getInt(prhs[2]);
     if (job < 0) {
         thermoset(nlhs, plhs, nrhs, prhs);

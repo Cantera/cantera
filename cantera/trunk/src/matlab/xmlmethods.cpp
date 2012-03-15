@@ -53,9 +53,7 @@ void xmlmethods(int nlhs, mxArray* plhs[],
         mexErrMsgTxt("Too many output arguments");
     }
 
-
     // options that do not return a value
-
     if (job < 20) {
         switch (job) {
         case 0:
@@ -135,7 +133,6 @@ void xmlmethods(int nlhs, mxArray* plhs[],
     }
 
     // options that return strings
-
     char* v = (char*)mxCalloc(80, sizeof(char));
     switch (job) {
     case 20:

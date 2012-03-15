@@ -61,7 +61,7 @@ std::string ArraySizeError::getMessage() const {
 std::string IndexError::getMessage() const {
     std::stringstream ss;
     ss << "IndexError: " << arrayName_ << "[" << m_ << "]" <<
-        " outside valid range of 0 to " << (mmax_-1) << ".";
+        " outside valid range of 0 to " << (mmax_) << ".";
     return ss.str();
 }
 

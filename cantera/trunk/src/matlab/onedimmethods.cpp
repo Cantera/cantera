@@ -5,12 +5,6 @@
 #include <clib/ctonedim.h>
 
 using namespace std;
-
-
-namespace Cantera
-{
-void writelog(const std::string& s);
-}
 using namespace Cantera;
 
 void onedimmethods(int nlhs, mxArray* plhs[],
@@ -28,12 +22,12 @@ void onedimmethods(int nlhs, mxArray* plhs[],
 
     int idom, icomp, localPoint;
     if (job < 10) {
-        int ph, kin, tr, itype, *ptrs;
+        int ph, kin, tr, itype;
         size_t sz, nd;
 
         switch (job) {
 
-            // construct a new stagnation flow instance
+        // construct a new stagnation flow instance
         case 1:
             checkNArgs(7, nrhs);
             ph = getInt(prhs[3]);
@@ -43,40 +37,39 @@ void onedimmethods(int nlhs, mxArray* plhs[],
             indx = stflow_new(ph, kin, tr, itype);
             break;
 
-            // construct a new Inlet1D instance
+        // construct a new Inlet1D instance
         case 2:
             checkNArgs(3, nrhs);
             indx = inlet_new();
             break;
 
-            // construct a new Surf1D instance
+        // construct a new Surf1D instance
         case 3:
             checkNArgs(3, nrhs);
             indx = surf_new();
             break;
 
-            // construct a new Symm1D instance
+        // construct a new Symm1D instance
         case 4:
             checkNArgs(3, nrhs);
             indx = symm_new();
             break;
 
-            // construct a new Outlet1D instance
+        // construct a new Outlet1D instance
         case 5:
             checkNArgs(3, nrhs);
             indx = outlet_new();
             break;
 
-            // construct a new ReactingSurf1D instance
+        // construct a new ReactingSurf1D instance
         case 6:
             checkNArgs(4, nrhs);
             indx = reactingsurf_new();
             reactingsurf_setkineticsmgr(indx, getInt(prhs[3]));
             break;
 
-            // construct a new Sim1D instance
-        case 8:
-            //writelog("case 8\n");
+        // construct a new Sim1D instance
+        case 8: {
             checkNArgs(5, nrhs);
             nd = getInt(prhs[3]);
             dom_ids = mxGetPr(prhs[4]);
@@ -87,20 +80,15 @@ void onedimmethods(int nlhs, mxArray* plhs[],
                 mexErrMsgTxt("wrong size for domain array");
             }
 
-            ptrs = new int[sz];
-            //writelog("allocated ptrs\n");
+            std::vector<int> ptrs(sz);
             for (size_t k = 0; k < sz; k++) {
-                //  writelog("k = ...\n");
                 ptrs[k] = int(dom_ids[k]);
             }
-            //writelog("calling sim1D_new\n");
-            indx = sim1D_new(sz, ptrs);
-            //writelog("deleting ptrs\n");
-            delete[] ptrs;
-            //writelog("done\n");
+            indx = sim1D_new(sz, &ptrs[0]);
             break;
+        }
 
-            // construct a new OutletRes1D instance
+        // construct a new OutletRes1D instance
         case -2:
             checkNArgs(3,nrhs);
             indx = outletres_new();
@@ -119,15 +107,11 @@ void onedimmethods(int nlhs, mxArray* plhs[],
         return;
     }
 
-
     // methods
-
     else if (job < 40) {
-
         int k;
 
         switch (job) {
-
         case 10:
             checkNArgs(3, nrhs);
             vv = domain_del(dom);
@@ -226,9 +210,7 @@ void onedimmethods(int nlhs, mxArray* plhs[],
         }
     }
 
-
     // set parameters
-
     else {
         int iok = -1;
         double lower, upper, rtol, atol, *grid, *pos, *values,
@@ -236,7 +218,7 @@ void onedimmethods(int nlhs, mxArray* plhs[],
                rdt, prune;
         size_t npts, np, nv;
         int comp, localPoint, idom,
-            loglevel, refine_grid, n, flag, itime, ns, *nsteps, icount,
+            loglevel, refine_grid, n, flag, itime, ns, icount,
             onoff, ss_age, ts_age;
         char* xstr, *fname, *id, *desc, *name;
         switch (job) {
@@ -280,7 +262,6 @@ void onedimmethods(int nlhs, mxArray* plhs[],
             xstr = getString(prhs[3]);
             iok = bdry_setMoleFractions(dom, xstr);
             break;
-
         case 63:
             checkNArgs(4, nrhs);
             p = getDouble(prhs[3]);
@@ -304,7 +285,6 @@ void onedimmethods(int nlhs, mxArray* plhs[],
             flag = getInt(prhs[3]);
             iok = stflow_solveEnergyEqn(dom, flag);
             break;
-
         case 100:
             checkNArgs(7, nrhs);
             idom = getInt(prhs[3]) - 1;
@@ -353,8 +333,7 @@ void onedimmethods(int nlhs, mxArray* plhs[],
             slope = getDouble(prhs[5]);
             curve = getDouble(prhs[6]);
             prune = getDouble(prhs[7]);
-            iok = sim1D_setRefineCriteria(dom, idom,
-                                          ratio, slope, curve, prune);
+            iok = sim1D_setRefineCriteria(dom, idom, ratio, slope, curve, prune);
             break;
         case 107:
             iok = 0;
@@ -387,17 +366,17 @@ void onedimmethods(int nlhs, mxArray* plhs[],
             id = getString(prhs[4]);
             iok = sim1D_restore(dom, fname, id);
             break;
-        case 112:
+        case 112: {
             tstep = getDouble(prhs[3]);
             ns = getInt(prhs[4]);
             dts = mxGetPr(prhs[5]);
-            nsteps = new int[ns];
+            std::vector<int> nsteps(ns);
             for (n = 0; n < ns; n++) {
                 nsteps[n] = int(dts[n]);
             }
-            iok = sim1D_setTimeStep(dom, tstep, ns, nsteps);
-            delete[] nsteps;
+            iok = sim1D_setTimeStep(dom, tstep, ns, &nsteps[0]);
             break;
+        }
         case 113:
             checkNArgs(5, nrhs);
             rdt = getDouble(prhs[3]);
@@ -410,11 +389,6 @@ void onedimmethods(int nlhs, mxArray* plhs[],
             ts_age = getInt(prhs[4]);
             iok = sim1D_setMaxJacAge(dom, ss_age, ts_age);
             break;
-            //case 200:
-            //iok = domain1D_clear();
-            //iok = sim1D_clear();
-            //break;
-
         case 120:
             checkNArgs(4, nrhs);
             onoff = getInt(prhs[3]);

@@ -36,7 +36,6 @@ void reactormethods(int nlhs, mxArray* plhs[],
 
     if (job < 20) {
         switch (job) {
-
         case 1:
             iok = reactor_del(i);
             break;
@@ -117,7 +116,7 @@ void reactormethods(int nlhs, mxArray* plhs[],
         plhs[0] = mxCreateNumericMatrix(1,1,mxDOUBLE_CLASS,mxREAL);
         double* h = mxGetPr(plhs[0]);
         *h = r;
-        if (r == Undef) {
+        if (r == DERR) {
             reportError();
         }
         return;

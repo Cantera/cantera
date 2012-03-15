@@ -153,28 +153,25 @@ void mixturemethods(int nlhs, mxArray* plhs[],
 
         int iok = 0;
         mwSize nsp = (mwSize) mix_nSpecies(i);
-        double* x = new double[nsp];
+        std::vector<double> x(nsp);
         switch (job) {
         case 41:
-            iok = mix_getChemPotentials(i,nsp,x);
+            iok = mix_getChemPotentials(i,nsp, &x[0]);
             break;
         default:
             ;
         }
-        plhs[0] = mxCreateNumericMatrix(nsp,1,
-                                        mxDOUBLE_CLASS,mxREAL);
+        plhs[0] = mxCreateNumericMatrix(nsp,1, mxDOUBLE_CLASS,mxREAL);
         double* h = mxGetPr(plhs[0]);
         if (iok >= 0) {
             for (int i = 0; i < nsp; i++) {
                 h[i] = x[i];
             }
-            delete x;
             return;
         } else {
             for (int i = 0; i < nsp; i++) {
                 h[i] = -999.99;
             }
-            delete x;
             mexErrMsgTxt("unknown attribute");
             return;
         }

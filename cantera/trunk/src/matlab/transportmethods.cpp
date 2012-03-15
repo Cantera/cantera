@@ -33,7 +33,6 @@ void transportmethods(int nlhs, mxArray* plhs[],
 
 
     if (job < 10) {
-
         bool ok = true;
         switch (job) {
         case 0:
