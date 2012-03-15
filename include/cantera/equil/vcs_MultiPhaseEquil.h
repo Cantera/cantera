@@ -270,16 +270,8 @@ int vcs_Cantera_update_vprob(Cantera::MultiPhase* mphase,
 class vcs_MultiPhaseEquil
 {
 public:
-
-    //! Shorthand for the MultiPhase mixture object used by Cantera
-    //! to store information about multiple phases
-    typedef Cantera::MultiPhase mix_t;
-
     //! Typedef for an index variable
     typedef size_t index_t;
-
-    //! Typedef for a dense 2d matrix.
-    typedef Cantera::DenseMatrix matrix_t;
 
     //! Default empty constructor
     vcs_MultiPhaseEquil();
@@ -306,7 +298,7 @@ public:
      *        - 5 Print more than a table for each iteration
      *
      */
-    vcs_MultiPhaseEquil(mix_t* mix, int printLvl);
+    vcs_MultiPhaseEquil(Cantera::MultiPhase* mix, int printLvl);
 
     //! Destructor for the class
     virtual ~vcs_MultiPhaseEquil();
@@ -636,7 +628,7 @@ protected:
     /*!
      *  Equilibrium solutions will be returned via this variable.
      */
-    mix_t* m_mix;
+    Cantera::MultiPhase* m_mix;
 
     //! Print level from the VCSnonlinear package
     /*!
@@ -657,10 +649,7 @@ protected:
     int m_printLvl;
 
     //! Stoichiometric matrix
-    /*!
-     *
-     */
-    matrix_t m_N;
+    Cantera::DenseMatrix m_N;
 
     //! Iteration Count
     int m_iter;

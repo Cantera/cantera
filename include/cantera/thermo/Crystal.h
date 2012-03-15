@@ -15,11 +15,7 @@ namespace Cantera
 
 class Crystal : public MultiPhase
 {
-
 public:
-    typedef LatticePhase lattice_t;
-    typedef vector<LatticePhase*> lattice_list;
-
     /// Constructor. The constructor takes no arguments, since
     /// phases are added using method addPhase.
     Crystal() : MultiPhase() {}
@@ -29,21 +25,21 @@ public:
     /// phase objects.
     virtual ~Crystal() {}
 
-    void addLattices(lattice_list& lattices,
+    void addLattices(std::vector<LatticePhase*>& lattices,
                      const vector_fp& latticeSiteDensity);
 
     /// Add a phase to the mixture.
     /// @param p pointer to the phase object
     /// @param moles total number of moles of all species in this phase
-    void addLattice(lattice_t* lattice, doublereal siteDensity) {
+    void addLattice(LatticePhase* lattice, doublereal siteDensity) {
         MultiPhase::addPhase(lattice, siteDensity);
     }
 
     /// Return a reference to phase n. The state of phase n is
     /// also updated to match the state stored locally in the
     /// mixture object.
-    lattice_t& lattice(index_t n) {
-        return *(lattice_t*)&phase(n);
+    LatticePhase& lattice(index_t n) {
+        return *(LatticePhase*)&phase(n);
     }
 
 protected:

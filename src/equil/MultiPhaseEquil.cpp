@@ -52,7 +52,7 @@ static string coeffString(bool first, doublereal nu, string sym)
 /// @param start If true, the initial composition will be
 /// determined by a linear Gibbs minimization, otherwise the
 /// initial mixture composition will be used.
-MultiPhaseEquil::MultiPhaseEquil(mix_t* mix, bool start, int loglevel) : m_mix(mix)
+MultiPhaseEquil::MultiPhaseEquil(MultiPhase* mix, bool start, int loglevel) : m_mix(mix)
 {
     // the multi-phase mixture
     //        m_mix = mix;
@@ -813,7 +813,7 @@ doublereal MultiPhaseEquil::computeReactionSteps(vector_fp& dxi)
             // sum over solution phases
             doublereal sum = 0.0, psum;
             for (ip = 0; ip < m_np; ip++) {
-                phase_t& p = m_mix->phase(ip);
+                ThermoPhase& p = m_mix->phase(ip);
                 if (p.nSpecies() > 1) {
                     psum = 0.0;
                     for (k = 0; k < m_nsp; k++) {

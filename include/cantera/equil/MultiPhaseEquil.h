@@ -33,12 +33,9 @@ class MultiPhaseEquil
 {
 
 public:
-
-    typedef MultiPhase       mix_t;
     typedef size_t           index_t;
-    typedef DenseMatrix      matrix_t;
 
-    MultiPhaseEquil(mix_t* mix, bool start=true, int loglevel = 0);
+    MultiPhaseEquil(MultiPhase* mix, bool start=true, int loglevel = 0);
 
     virtual ~MultiPhaseEquil() {}
 
@@ -130,10 +127,10 @@ protected:
     index_t m_nel, m_nsp;
     index_t m_eloc;
     int m_iter;
-    mix_t* m_mix;
+    MultiPhase* m_mix;
     doublereal m_press, m_temp;
     std::vector<size_t> m_order;
-    matrix_t m_N, m_A;
+    DenseMatrix m_N, m_A;
     vector_fp m_work, m_work2, m_work3;
     vector_fp m_moles, m_lastmoles, m_dxi;
     vector_fp m_deltaG_RT, m_mu;

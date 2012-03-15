@@ -31,9 +31,6 @@ class Path;
 class SpeciesNode
 {
 public:
-
-    typedef std::vector<Path*> path_list;
-
     /// Default constructor
     SpeciesNode() : number(npos), name(""), value(0.0),
         visible(false), m_in(0.0), m_out(0.0) {}
@@ -89,7 +86,7 @@ public:
 protected:
     doublereal m_in;
     doublereal m_out;
-    path_list m_paths;
+    std::vector<Path*> m_paths;
 };
 
 

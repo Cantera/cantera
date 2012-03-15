@@ -705,7 +705,7 @@ void ReactionPathBuilder::findElements(Kinetics& kin)
         size_t k = 0;
         // iterate over the phases
         for (size_t ip = 0; ip < np; ip++) {
-            phase_t* p = &kin.thermo(ip);
+            ThermoPhase* p = &kin.thermo(ip);
             size_t nsp = p->nSpecies();
             size_t mlocal = p->elementIndex(sym);
             for (size_t kp = 0; kp < nsp; kp++) {

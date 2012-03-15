@@ -127,8 +127,7 @@ size_t Reactor::nSensParams()
 
 void Reactor::updateState(doublereal* y)
 {
-
-    phase_t& mix = *m_thermo;  // define for readability
+    ThermoPhase& mix = *m_thermo;  // define for readability
 
     // The components of y are the total internal energy,
     // the total volume, and the mass of each species.

@@ -109,7 +109,7 @@ public:
      *                    the temperature dependent part of the
      *                    parameterization.
      */
-    virtual void updateTemp(doublereal T, workPtr work) const {
+    virtual void updateTemp(doublereal T, doublereal* work) const {
         doublereal Fcent = (1.0 - m_a) * exp(- T * m_rt3)
                            + m_a * exp(- T * m_rt1);
         *work = log10(std::max(Fcent, SmallNumber));
@@ -120,7 +120,7 @@ public:
      *  @param pr   Value of the reduced pressure for this reaction
      *  @param work Pointer to the previously saved work space
      */
-    virtual doublereal F(doublereal pr, const_workPtr work) const {
+    virtual doublereal F(doublereal pr, const doublereal* work) const {
         doublereal lpr,f1,lgf, cc, nn;
         lpr = log10(std::max(pr,SmallNumber));
         cc = -0.4 - 0.67 * (*work);
@@ -252,7 +252,7 @@ public:
      *                    the temperature dependent part of the
      *                    parameterization.
      */
-    virtual void updateTemp(doublereal T, workPtr work) const {
+    virtual void updateTemp(doublereal T, doublereal* work) const {
         doublereal Fcent = (1.0 - m_a) * exp(- T * m_rt3)
                            + m_a * exp(- T * m_rt1)
                            + exp(- m_t2 / T);
@@ -264,7 +264,7 @@ public:
      *  @param pr   Value of the reduced pressure for this reaction
      *  @param work Pointer to the previously saved work space
      */
-    virtual doublereal F(doublereal pr, const_workPtr work) const {
+    virtual doublereal F(doublereal pr, const doublereal* work) const {
         doublereal lpr,f1,lgf, cc, nn;
         lpr = log10(std::max(pr,SmallNumber));
         cc = -0.4 - 0.67 * (*work);
@@ -364,7 +364,7 @@ public:
      *                    the temperature dependent part of the
      *                    parameterization.
      */
-    virtual void updateTemp(doublereal T, workPtr work) const {
+    virtual void updateTemp(doublereal T, doublereal* work) const {
         *work = m_a * exp(- m_b / T);
         if (m_c != 0.0) {
             *work += exp(- T/m_c);
@@ -376,7 +376,7 @@ public:
      *  @param pr   Value of the reduced pressure for this reaction
      *  @param work Pointer to the previously saved work space
      */
-    virtual doublereal F(doublereal pr, const_workPtr work) const {
+    virtual doublereal F(doublereal pr, const doublereal* work) const {
         doublereal lpr = log10(std::max(pr,SmallNumber));
         doublereal xx = 1.0/(1.0 + lpr*lpr);
         doublereal ff = pow(*work , xx);
@@ -475,7 +475,7 @@ public:
      *                    the temperature dependent part of the
      *                    parameterization.
      */
-    virtual void updateTemp(doublereal T, workPtr work) const {
+    virtual void updateTemp(doublereal T, doublereal* work) const {
         *work = m_a * exp(- m_b / T);
         if (m_c != 0.0) {
             *work += exp(- T/m_c);
@@ -488,7 +488,7 @@ public:
      *  @param pr   Value of the reduced pressure for this reaction
      *  @param work Pointer to the previously saved work space
      */
-    virtual doublereal F(doublereal pr, const_workPtr work) const {
+    virtual doublereal F(doublereal pr, const doublereal* work) const {
         doublereal lpr = log10(std::max(pr,SmallNumber));
         doublereal xx = 1.0/(1.0 + lpr*lpr);
         return pow(*work, xx) * work[1];
@@ -616,7 +616,7 @@ public:
      *                    the temperature dependent part of the
      *                    parameterization.
      */
-    virtual void updateTemp(doublereal T, workPtr work) const {
+    virtual void updateTemp(doublereal T, doublereal* work) const {
         work[0] = m_alpha0 + (m_alpha1 + m_alpha2*T)*T; // alpha
         work[1] = m_sigma0 + (m_sigma1 + m_sigma2*T)*T; // sigma
         doublereal Fcent = (1.0 - m_a) * exp(- T * m_rt3)
@@ -629,7 +629,7 @@ public:
      *  @param pr   Value of the reduced pressure for this reaction
      *  @param work Pointer to the previously saved work space
      */
-    virtual doublereal F(doublereal pr, const_workPtr work) const {
+    virtual doublereal F(doublereal pr, const doublereal* work) const {
         doublereal lpr = log10(std::max(pr, SmallNumber));
         doublereal x = (lpr - work[0])/work[1];
         doublereal flog = work[2]/exp(x*x);

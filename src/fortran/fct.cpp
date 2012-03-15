@@ -1054,7 +1054,7 @@ extern "C" {
             }
 
             thermo_t* t = _fth(ith);
-            kinetics_t* k = _fkin(ikin);
+            Kinetics* k = _fkin(ikin);
 
             Kinetics& kin = *k;
             XML_Node* x, *r=0;

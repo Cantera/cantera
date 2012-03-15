@@ -21,7 +21,7 @@ static void st_drawline()
              "------------------------------------------");
 }
 
-AxiStagnBVP::AxiStagnBVP(igthermo_t* ph, int nsp, int points) :
+AxiStagnBVP::AxiStagnBVP(IdealGasPhase* ph, int nsp, int points) :
     Domain1D(nsp+4, points),
     m_inlet_u(0.0),
     m_inlet_V(0.0),

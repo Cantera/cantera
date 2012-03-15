@@ -3005,7 +3005,7 @@ private:
      * n = m_kk*i + j
      * m_CounterIJ[n] = counterIJ
      */
-    mutable array_int m_CounterIJ;
+    mutable vector_int m_CounterIJ;
 
     /**
      *  This is elambda, MEC

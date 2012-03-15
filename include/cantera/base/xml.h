@@ -151,11 +151,6 @@ public:
 class XML_Node
 {
 public:
-
-    //! Value_type for the lookup multimap m_childindex. This is a convenience definition
-    //! for manipulating the multimap
-    typedef std::pair<const std::string, XML_Node*> CIPair;
-
     //! Default constructor for XML_Node, representing a tree structure
     /*!
      *  Constructor for an XML_Node, which is a node in a tree-like structure
@@ -791,7 +786,6 @@ protected:
      * m_childindex[node.name()] = XML_Node *pointer
      *
      *  This object helps to speed up searches.
-     *  The value_type for this multimap is CIPair.
      */
     std::multimap<std::string, XML_Node*> m_childindex;
 

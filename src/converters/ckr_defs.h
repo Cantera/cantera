@@ -21,7 +21,6 @@ namespace ckr
 
 typedef std::vector<double> vector_fp;
 typedef std::vector<double> vector_int;
-//typedef vector<double> vector_fp;
 
 // exceptions
 class CK_Exception

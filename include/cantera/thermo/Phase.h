@@ -787,8 +787,6 @@ private:
 
 };
 
-//! typedef for the base Phase class
-typedef Phase phase_t;
 }
 
 #endif

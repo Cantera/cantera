@@ -92,7 +92,7 @@ void checkRxnElementBalance(Kinetics& kin,
  *               allowing the calling routine to skip this reaction
  *               and continue.
  */
-bool getReagents(const XML_Node& rxn, kinetics_t& kin, int rp,
+bool getReagents(const XML_Node& rxn, Kinetics& kin, int rp,
                  std::string default_phase,
                  std::vector<size_t>& spnum, vector_fp& stoich,
                  vector_fp& order, int rule);
@@ -113,7 +113,7 @@ bool getReagents(const XML_Node& rxn, kinetics_t& kin, int rp,
  *
  * @ingroup kineticsmgr
  */
-void getRateCoefficient(const XML_Node& kf, kinetics_t& kin,
+void getRateCoefficient(const XML_Node& kf, Kinetics& kin,
                         ReactionData& rdata, int negA);
 
 
