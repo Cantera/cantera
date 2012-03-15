@@ -79,7 +79,8 @@ def addMatlabTest(script, dependencies=None):
             matlabOptions = ['-nojvm','-nosplash','-wait']
         else:
             matlabOptions = ['-nojvm','-nodisplay']
-        os.remove(outfile)
+        if os.path.exists(outfile):
+            os.remove(outfile)
         code = subprocess.call([pjoin(env['matlab_path'], 'bin', 'matlab')] +
                                matlabOptions + ['-r', runCommand],
                                env=env['ENV'], cwd=Dir('#test/matlab').abspath)
