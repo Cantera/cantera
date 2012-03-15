@@ -43,6 +43,8 @@ localenv['mak_blas_lapack_libs'] = ' '.join('-l%s' % s
 localenv['mak_threadflags'] = localenv['thread_flags']
 if '-pthread' in localenv['thread_flags']:
     localenv['mak_fort_threadflags'] = '-lpthread'
+else:
+    localenv['mak_fort_threadflags'] = ''
 
 mak = build(localenv.SubstFile('Cantera.mak', 'Cantera.mak.in'))
 install('$inst_sampledir', mak)
