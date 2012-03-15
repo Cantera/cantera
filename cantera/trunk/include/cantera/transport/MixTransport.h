@@ -346,10 +346,6 @@ private:
 
     // --------- Member Data -------------
 private:
-
-    //! Number of species in the phase
-    size_t m_nsp;
-
     //! Minimum value of the temperature that this transport parameterization is valid
     doublereal m_tmin;
 

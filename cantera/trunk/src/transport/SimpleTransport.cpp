@@ -32,7 +32,6 @@ namespace Cantera
 //================================================================================================
 SimpleTransport::SimpleTransport(thermo_t* thermo, int ndim) :
     Transport(thermo, ndim),
-    m_nsp(0),
     tempDepType_(0),
     compositionDepType_(0),
     useHydroRadius_(false),
@@ -57,7 +56,6 @@ SimpleTransport::SimpleTransport(thermo_t* thermo, int ndim) :
 //================================================================================================
 SimpleTransport::SimpleTransport(const SimpleTransport& right) :
     Transport(),
-    m_nsp(0),
     tempDepType_(0),
     compositionDepType_(0),
     useHydroRadius_(false),
@@ -91,7 +89,6 @@ SimpleTransport& SimpleTransport::operator=(const SimpleTransport& right)
     }
     Transport::operator=(right);
 
-    m_nsp                                 = right.m_nsp;
     tempDepType_                          = right.tempDepType_;
     compositionDepType_                   = right.compositionDepType_;
     useHydroRadius_                       = right.useHydroRadius_;

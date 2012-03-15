@@ -594,10 +594,6 @@ protected:
 
 
 private:
-
-    //! Number of species in the mixture
-    size_t m_nsp;
-
     //! Temperature dependence type
     /*!
      *     The following coefficients are allowed to have simple

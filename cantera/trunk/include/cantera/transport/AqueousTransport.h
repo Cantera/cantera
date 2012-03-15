@@ -373,15 +373,7 @@ public:
     //! Solve the stefan_maxell equations for the diffusive fluxes.
     void stefan_maxwell_solve();
 
-
-
 private:
-
-
-
-    //! Number of species in the mixture
-    size_t m_nsp;
-
     //! Minimum temperature applicable to the transport property eval
     doublereal m_tmin;
 

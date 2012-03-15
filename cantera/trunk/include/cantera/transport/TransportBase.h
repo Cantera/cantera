@@ -841,7 +841,7 @@ protected:
     bool      m_ready;
 
     //! Number of species
-    size_t    m_nmin;
+    size_t m_nsp;
 
     //! Number of dimensions used in flux expresions
     size_t m_nDim;

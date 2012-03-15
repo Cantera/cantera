@@ -32,7 +32,7 @@ namespace Cantera
 Transport::Transport(thermo_t* thermo, size_t ndim) :
     m_thermo(thermo),
     m_ready(false),
-    m_nmin(0),
+    m_nsp(0),
     m_nDim(ndim),
     m_velocityBasis(VB_MASSAVG)
 {
@@ -42,7 +42,7 @@ Transport::Transport(const Transport& right)
 {
     m_thermo        = right.m_thermo;
     m_ready         = right.m_ready;
-    m_nmin          = right.m_nmin;
+    m_nsp          = right.m_nsp;
     m_nDim          = right.m_nDim;
     m_velocityBasis = right.m_velocityBasis;
 }
@@ -55,7 +55,7 @@ Transport& Transport::operator=(const Transport& right)
     }
     m_thermo        = right.m_thermo;
     m_ready         = right.m_ready;
-    m_nmin          = right.m_nmin;
+    m_nsp          = right.m_nsp;
     m_nDim          = right.m_nDim;
     m_velocityBasis = right.m_velocityBasis;
     return *this;
@@ -99,7 +99,7 @@ void Transport::setThermo(thermo_t& thermo)
 {
     if (!ready()) {
         m_thermo = &thermo;
-        m_nmin = m_thermo->nSpecies();
+        m_nsp = m_thermo->nSpecies();
     } else
         throw CanteraError("Transport::setThermo",
                            "the phase object cannot be changed after "
