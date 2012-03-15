@@ -179,9 +179,9 @@ if env['CC'] == 'gcc' or env['CC'] == 'llvm-gcc':
 
 elif env['CC'] == 'cl': # Visual Studio
     defaults.cxxFlags = '/EHsc'
-    defaults.ccFlags = ' '.join(['/nologo', '/Zi', '/W3', '/Zc:wchar_t', '/Zc:forScope',
+    defaults.ccFlags = ' '.join(['/nologo', '/W3', '/Zc:wchar_t', '/Zc:forScope',
                                  '/D_SCL_SECURE_NO_WARNINGS', '/D_CRT_SECURE_NO_WARNINGS', '/wd4996'])
-    defaults.debugCcFlags = '/MD' # note: MDd breaks the Python module
+    defaults.debugCcFlags = '/Zi /Fd${TARGET}.pdb'
     defaults.noOptimizeCcFlags = '/Od /Ob0'
     defaults.optimizeCcFlags = '/O2 /DNDEBUG'
     defaults.debugLinkFlags = '/DEBUG'
