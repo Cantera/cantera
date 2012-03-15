@@ -11,12 +11,10 @@ function kc = equil_Kc(a)
 %
 kc = kinetics_get(a.id,14,0);
 if nargout == 0
-  figure
-  set(gcf,'Name','Equilibrium Constants')
-  bar(log10(kc))
-  xlabel('Reaction Number')
-  ylabel('log_1_0 Kc [kmol, m, s]')
-  title('Equilibrium Constants Kc')
+    figure
+    set(gcf,'Name','Equilibrium Constants')
+    bar(log10(kc))
+    xlabel('Reaction Number')
+    ylabel('log_1_0 Kc [kmol, m, s]')
+    title('Equilibrium Constants Kc')
 end
-
-

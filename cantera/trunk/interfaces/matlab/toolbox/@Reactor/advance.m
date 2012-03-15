@@ -1,5 +1,5 @@
 function advance(r, tout)
-% ADVANCE - Advance the state of the reactor in time. 
+% ADVANCE - Advance the state of the reactor in time.
 %
 %    Method advance integrates the system of ordinary differential
 %    equations that determine the rate of change of the reactor
@@ -7,7 +7,7 @@ function advance(r, tout)
 %    integration is carried out from the current reactor time to time
 %    'tout.' (Note 'tout' is an absolute time, not a time interval.)  The
 %    integrator may take many internal time steps before reaching
-%    tout. 
+%    tout.
 %
 %       for i in 1:10
 %          tout = 0.1*i

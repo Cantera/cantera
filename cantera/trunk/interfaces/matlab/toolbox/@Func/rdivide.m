@@ -1,5 +1,4 @@
 function r = rdivide(a,b)
-% RDIVIDE - 
-%   
+% RDIVIDE -
+%
 r = Func('ratio',a,b);
-

@@ -10,11 +10,10 @@ function q = rop_f(a)
 %
 q = kinetics_get(a.id,11,0);
 if nargout == 0
-  figure
-  set(gcf,'Name','Rates of Progress')
-  bar(q)
-  xlabel('Reaction Number')
-  ylabel('Forward Rate of Progress [kmol/m^3]')
-  title('Forward Rates of Progress')
+    figure
+    set(gcf,'Name','Rates of Progress')
+    bar(q)
+    xlabel('Reaction Number')
+    ylabel('Forward Rate of Progress [kmol/m^3]')
+    title('Forward Rates of Progress')
 end
-

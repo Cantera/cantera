@@ -1,7 +1,7 @@
 function v = thermalDiffCoeffs(a)
 %THERMALDIFFCOEFFS  Thermal diffusion coefficients.
-%  
-%    dt = thermalDiffCoeffs(gas) 
+%
+%    dt = thermalDiffCoeffs(gas)
 %
 %    returns in column vector dt the thermal diffusion
 %    coefficients. Object 'gas' must belong to a class derived from
@@ -10,4 +10,3 @@ function v = thermalDiffCoeffs(a)
 %    all be zero.
 %
 v = trans_get(a.id, 12, nSpecies(a.th));
-

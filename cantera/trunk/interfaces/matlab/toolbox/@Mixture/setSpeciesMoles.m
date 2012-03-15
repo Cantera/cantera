@@ -6,7 +6,5 @@ function setSpeciesMoles(self, moles)
 % phase, and unspecified species are set to zero.
 %
 %     >> setSpeciesMoles(mix, 'C(s):1.0, CH4:2.0, O2:0.2');
-%   
+%
 mixturemethods(8, mix_hndl(self), moles);
-
-

@@ -1,9 +1,8 @@
 function n = componentIndex(d, name)
-% COMPONENTINDEX - 
-%   
+% COMPONENTINDEX -
+%
 if isa(name,'double')
-  n = name;
+    n = name;
 else
-  n = domain_methods(d.dom_id, 18, name);
+    n = domain_methods(d.dom_id, 18, name);
 end
-

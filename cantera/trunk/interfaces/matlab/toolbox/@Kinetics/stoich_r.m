@@ -23,21 +23,21 @@ nr =nReactions(a);
 b = sparse(nsp,nr);
 f = @kinetics_get;
 if nargin == 1
-  kvals = 1:nsp;
-  ivals = 1:nr;
+    kvals = 1:nsp;
+    ivals = 1:nr;
 elseif nargin == 3
-  kvals = species;
-  ivals = rxns;
+    kvals = species;
+    ivals = rxns;
 else
-  error('Syntax error. type ''help stoich_r'' for more information.')
+    error('Syntax error. type ''help stoich_r'' for more information.')
 end
 
 for k = kvals
-  for i = ivals
-    nu = feval(f,a.id,5,i,k);
-    if nu ~= 0.0
-      b(k,i) = nu;
+    for i = ivals
+        nu = feval(f,a.id,5,i,k);
+        if nu ~= 0.0
+            b(k,i) = nu;
+        end
     end
-  end
 end
 nu_r = b;

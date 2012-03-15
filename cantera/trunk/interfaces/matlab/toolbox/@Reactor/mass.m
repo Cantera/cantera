@@ -1,5 +1,4 @@
 function m = mass(r)
-% MASS - 
-%   
+% MASS -
+%
 m = reactormethods(23, reactor_hndl(r));
-

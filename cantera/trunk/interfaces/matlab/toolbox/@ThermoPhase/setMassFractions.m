@@ -1,7 +1,7 @@
 function a = setMassFractions(a, y, norm)
 % SETMASSFRACTIONS  Set the species mass fractions.
 %
-%   setMassFractions(a,y) 
+%   setMassFractions(a,y)
 %
 %      If y is a vector of doubles, this call sets the species mass
 %      fractions to the values in y and then scales them so that they
@@ -30,19 +30,18 @@ function a = setMassFractions(a, y, norm)
 %  instead, or call setPressure after calling setMassFractions.
 %
 if isa(y,'double')
-  if nargin == 3
-    if strcmp(norm,'nonorm')
-      phase_set(a.tp_id,23,y);
+    if nargin == 3
+        if strcmp(norm,'nonorm')
+            phase_set(a.tp_id,23,y);
+        else
+            phase_set(a.tp_id,21,y);
+        end
     else
-      phase_set(a.tp_id,21,y);
+        phase_set(a.tp_id,21,y);
     end
-  else
-    phase_set(a.tp_id,21,y);
-  end
-%
-% string input
-%
+    %
+    % string input
+    %
 elseif isa(y,'char')
-  phase_set(a.tp_id,31,y);
+    phase_set(a.tp_id,31,y);
 end
-

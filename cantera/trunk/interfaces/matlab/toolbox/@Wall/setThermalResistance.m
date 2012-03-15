@@ -1,5 +1,4 @@
 function setThermalResistance(w, r)
-% SETTHERMALRESISTANCE - 
-%   
+% SETTHERMALRESISTANCE -
+%
 wallmethods(6, wall_hndl(w), r)
-

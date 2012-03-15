@@ -1,6 +1,6 @@
 function f = ck2ctml(infile, thermo, transport)
 % CK2CTML - Convert a Chemkin-compatible reaction mechanism file to
-%           CTML. 
+%           CTML.
 %
 %    Cantera uses an XML-based file format (CTML) for specifying input
 %    parameters of any type, including specifying reaction mechanism
@@ -18,28 +18,28 @@ function f = ck2ctml(infile, thermo, transport)
 %    read from file 'therm.dat.' In the third form, the CTML file
 %    created will also contain transport property parameters. The
 %    function return value is a string containing the output file
-%    name. 
+%    name.
 %
 if nargin == 0
-  error('input file name must be supplied')
+    error('input file name must be supplied')
 elseif nargin == 1
-  thermo = '-';
-  transport = '-';
+    thermo = '-';
+    transport = '-';
 elseif nargin == 2
     transport = '-';
 end
-    
+
 dotloc = findstr(infile,'.');
 if dotloc(end) > 1
-   idtag = infile(1:dotloc(end)-1);
-   outfile = [idtag '.xml'];
+    idtag = infile(1:dotloc(end)-1);
+    outfile = [idtag '.xml'];
 else
-   idtag = infile;
-   outfile = [infile '.xml'];
+    idtag = infile;
+    outfile = [infile '.xml'];
 end
 
 iok = ctmethods(0, 1, infile, thermo, transport, outfile, idtag);
 if iok
-  error(geterr);
+    error(geterr);
 end
 f = outfile;

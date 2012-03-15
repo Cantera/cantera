@@ -1,9 +1,8 @@
 function d = display(a)
-% DISPLAY - 
+% DISPLAY -
 %
 disp(' ');
 disp([inputname(1),' = '])
 disp(' ');
 disp(['   ' char(a)])
 disp(' ');
-

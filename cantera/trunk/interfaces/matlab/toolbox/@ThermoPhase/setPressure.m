@@ -5,7 +5,7 @@ function a = setPressure(a,p)
 %    temperature and chemical composition fixed.
 %
 if p <= 0.0
-   error('the pressure must be positive')
+    error('the pressure must be positive')
 end
 
 thermo_set(a.tp_id,1,p);

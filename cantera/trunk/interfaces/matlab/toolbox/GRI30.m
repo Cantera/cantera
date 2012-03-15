@@ -19,13 +19,13 @@ function s = GRI30(tr)
 %     g3 = GRI30('Multi')  % miulticomponent transport properties
 %
 if nargin == 0
-  s = Solution('gri30.cti','gri30');
+    s = Solution('gri30.cti','gri30');
 elseif nargin == 1
-  if strcmp(tr,'Mix')
-    s = Solution('gri30.cti','gri30_mix');
-  elseif strcmp(tr,'Multi')
-    s = Solution('gri30.cti','gri30_multi');
-  end
+    if strcmp(tr,'Mix')
+        s = Solution('gri30.cti','gri30_mix');
+    elseif strcmp(tr,'Multi')
+        s = Solution('gri30.cti','gri30_multi');
+    end
 else
-  error('wrong number of arguments');
+    error('wrong number of arguments');
 end

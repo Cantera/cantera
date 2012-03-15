@@ -1,7 +1,7 @@
 function v = mixDiffCoeffs(a)
 %MIXDIFFCOEFFS  Mixture-averaged diffusion coefficients (m^2/s).
-%  
-%    d = mixDiffCoeffs(gas) 
+%
+%    d = mixDiffCoeffs(gas)
 %
 %    returns in column vector d the mixture-averaged diffusion
 %    coefficients. Object 'gas' must belong to a class derived from
@@ -17,4 +17,3 @@ function v = mixDiffCoeffs(a)
 %        gas = GRI30('Mix')
 %
 v = trans_get(a.id, 11, nSpecies(a.th));
-

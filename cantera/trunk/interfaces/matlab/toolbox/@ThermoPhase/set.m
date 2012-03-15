@@ -6,11 +6,11 @@ while length(property_argin) >= 2,
     val = property_argin{2};
     property_argin = property_argin(3:end);
     switch prop
-    case 'Temperature'
-        phase_set(a.tp_id,1,val);
-    case 'Density'
-        phase_set(a.tp_id,2,val);
-    otherwise
-        error('Phase properties: Temperature, Density')
+        case 'Temperature'
+            phase_set(a.tp_id,1,val);
+        case 'Density'
+            phase_set(a.tp_id,2,val);
+        otherwise
+            error('Phase properties: Temperature, Density')
     end
 end
