@@ -357,7 +357,7 @@ void thread_buffer_t::set_read_buffer_size( std::size_t size )
     if( m_direction!=dir_none ) {
         throw exec_stream_t::error_t( "thread_buffer_t::set_read_buffer_size: thread already started" );
     }
-    m_read_buffer_size=size;
+    m_read_buffer_size= static_cast<DWORD>(size);
 }
 
 void thread_buffer_t::start_reader_thread( HANDLE pipe )
@@ -632,7 +632,7 @@ DWORD WINAPI thread_buffer_t::writer_thread( LPVOID param )
         buffer_list_t::buffer_t buffer;
         buffer.data=0;
         buffer.size=0;
-        std::size_t buffer_offset=0;
+        DWORD buffer_offset=0;
 
         while( true ) {
             // wait for got_data or destruction, ignore timeout errors
@@ -681,7 +681,8 @@ DWORD WINAPI thread_buffer_t::writer_thread( LPVOID param )
             if( buffer.data!=0 ) {
                 // we have buffer - write it
                 DWORD written_size;
-                if( !WriteFile( p->m_pipe, buffer.data+buffer_offset, buffer.size-buffer_offset, &written_size, 0 ) ) {
+                DWORD bytes_to_write = static_cast<DWORD>(buffer.size) - buffer_offset;
+                if( !WriteFile( p->m_pipe, buffer.data+buffer_offset, bytes_to_write, &written_size, 0 ) ) {
                     p->note_thread_error( "thread_buffer_t::writer_thread: WriteFile failed", GetLastError(), "" );
                     break;
                 }

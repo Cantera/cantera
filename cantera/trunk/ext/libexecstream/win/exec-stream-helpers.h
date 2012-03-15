@@ -161,8 +161,8 @@ private:
     char const * m_error_message;  // so setting them anywhere in the thread is safe
 
     DWORD m_wait_timeout;            // parameters used in thread
-    std::size_t m_buffer_limit;           // they are set before the thread is started,
-    std::size_t m_read_buffer_size;   // so accessing them anywhere in the thread is safe
+    std::size_t m_buffer_limit;      // they are set before the thread is started,
+    DWORD m_read_buffer_size;        // so accessing them anywhere in the thread is safe
 
     HANDLE m_thread;
     event_t m_want_data; // for synchronisation between get and reader_thread

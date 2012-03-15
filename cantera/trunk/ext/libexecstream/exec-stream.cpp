@@ -61,7 +61,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endif
 
 // helper classes
-namespace {
+namespace exec_stream_internal {
 
 class buffer_list_t {
 public:
@@ -212,7 +212,7 @@ void buffer_list_t::clear()
 
 // platform-dependent helpers
 
-namespace {
+namespace exec_stream_internal {
 
 #include HELPERS_H
 #include HELPERS_CPP
@@ -220,7 +220,7 @@ namespace {
 }
 
 // stream buffer class
-namespace {
+namespace exec_stream_internal {
 
 class exec_stream_buffer_t : public std::streambuf {
 public:
@@ -270,7 +270,7 @@ exec_stream_buffer_t::int_type exec_stream_buffer_t::underflow()
 {
     if( gptr()==egptr() ) {
         std::size_t read_size=STREAM_BUFFER_SIZE;
-        bool no_more;
+        bool no_more = true;
         m_thread_buffer.get( m_kind, m_stream_buffer, read_size, no_more );
         if( no_more || read_size==0 ) { // there is no way for underflow to return something other than eof when 0 bytes are read
             return traits_type::eof();
@@ -312,11 +312,11 @@ exec_stream_buffer_t::int_type exec_stream_buffer_t::overflow( exec_stream_buffe
     }
     if( c!=traits_type::eof() ) {
         if( pbase()==epptr() ) {
-            if( !send_char( c ) ) {
+            if( !send_char( static_cast<char>(c) ) ) {
                 return traits_type::eof();
             }
         }else {
-            sputc( c );
+            sputc( static_cast<char>(c) );
         }
     }
     return traits_type::not_eof( c );
@@ -411,7 +411,7 @@ void exec_stream_t::exceptions( bool enable )
 }
 
 // exec_stream_t::error_t
-namespace {
+namespace exec_stream_internal {
 
 std::string int2str( unsigned long i, int base, std::size_t width )
 {
