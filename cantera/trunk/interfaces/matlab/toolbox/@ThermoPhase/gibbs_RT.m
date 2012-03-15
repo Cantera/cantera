@@ -4,4 +4,4 @@ function g_RT = gibbs_RT(p)
 %        This method returns an array containing the pure species
 %        standard-state Gibbs free energies.
 %
-g_RT = enthalpies_RT(g) - entropies_R(g);
+g_RT = enthalpies_RT(p) - entropies_R(p);

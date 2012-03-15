@@ -1,4 +1,4 @@
-function saveSoln(s, fname, id, desc)
+function save(s, fname, id, desc)
 % SAVE -
 %
 if nargin == 2

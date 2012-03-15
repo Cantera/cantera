@@ -11,7 +11,7 @@ function setEnergy(f, flag)
 % >>> setEnergy(r, 'on');
 % >>> setEnergy(r, 'off');
 %
-iflag = -1
+iflag = -1;
 if strcmp(flag,{'on'})
     iflag = 1;
 elseif strcmp(flag,{'off'})

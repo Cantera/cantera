@@ -7,9 +7,9 @@ end
 
 ion = -1;
 if isa(onoff,'char')
-    if strcmp(onoff,'on') | strcmp(onoff,'yes')
+    if strcmp(onoff,'on') || strcmp(onoff,'yes')
         ion = 1;
-    elseif strcmp(onoff,'off') | strcmp(onoff,'no')
+    elseif strcmp(onoff,'off') || strcmp(onoff,'no')
         ion = 0;
     else
         error(strcat('unknown option: ',onoff))

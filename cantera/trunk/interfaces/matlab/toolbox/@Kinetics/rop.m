@@ -6,9 +6,9 @@ function rop = rop(k)
 %    and the second column the reverse rates. If this function
 %    is called with no output argument, a bar graph is produced.
 %
-f = rop_f(k)
-r = rop_r(k)
-rop = [f r]
+f = rop_f(k);
+r = rop_r(k);
+rop = [f r];
 if nargout == 0
     figure
     set(gcf,'Name','Rates of Progress');

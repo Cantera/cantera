@@ -9,7 +9,7 @@ function setMultiplier(a,irxn,v)
 if nargin == 2
     v = irxn;
     m = nReactions(a);
-    irxn = [1:m]';
+    irxn = (1:m)';
     n = 1;
 else
     [m, n] = size(irxn);

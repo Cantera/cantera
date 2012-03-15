@@ -27,7 +27,7 @@ end
 
 d = s.domains(n);
 
-if isa(comp,'double') | isa(comp,'cell')
+if isa(comp,'double') || isa(comp,'cell')
     c = comp;
 elseif isa(comp,'char')
     c = {comp};

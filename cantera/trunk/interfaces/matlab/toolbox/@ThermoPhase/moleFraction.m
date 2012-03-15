@@ -10,6 +10,7 @@ if isa(species,'char')
 
 elseif isa(species,'cell')
     n = length(species);
+    x = zeros(1, n);
     for j = 1:n
         k = speciesIndex(s, species{j});
         if k > 0

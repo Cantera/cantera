@@ -6,7 +6,7 @@ function nm = speciesName(a, k)
 %    the same shape containing the name strings.
 %
 [m, n] = size(k);
-nm = {};
+nm = cell(m,n);
 for i = 1:m
     for j = 1:n
         nm{i,j} = phase_get(a.tp_id, 40, k(i,j));

@@ -1,4 +1,4 @@
-function d = display(a)
+function display(a)
 % DISPLAY -
 %
 disp(' ');
