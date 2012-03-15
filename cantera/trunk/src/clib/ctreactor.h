@@ -7,7 +7,6 @@
 #include "clib_defs.h"
 
 extern "C" {
-
     CANTERA_CAPI int reactor_new(int type);
     CANTERA_CAPI int reactor_del(int i);
     CANTERA_CAPI int reactor_copy(int i);

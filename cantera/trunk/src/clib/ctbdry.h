@@ -7,7 +7,6 @@
 #include "clib_defs.h"
 
 extern "C" {
-
     CANTERA_CAPI int bndry_new(int itype);
     CANTERA_CAPI int bndry_del(int i);
     CANTERA_CAPI double bndry_temperature(int i);
@@ -18,6 +17,5 @@ extern "C" {
     CANTERA_CAPI double bndry_mdot(int i);
     CANTERA_CAPI int bndry_setxin(int i, double* xin);
     CANTERA_CAPI int bndry_setxinbyname(int i, char* xin);
-    CANTERA_CAPI int bndry_setkinetics(int i, int j);
 }
 #endif

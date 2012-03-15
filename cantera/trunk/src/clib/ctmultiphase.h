@@ -7,7 +7,6 @@
 #include "clib_defs.h"
 
 extern "C" {
-
     CANTERA_CAPI int mix_new();
     CANTERA_CAPI int mix_del(int i);
     CANTERA_CAPI int mix_copy(int i);
@@ -44,7 +43,6 @@ extern "C" {
     CANTERA_CAPI int mix_getValidChemPotentials(int i, double bad_mu,
                                                 int standard, size_t lenmu,
                                                 double* mu);
-
     CANTERA_CAPI double mix_enthalpy(int i);
     CANTERA_CAPI double mix_entropy(int i);
     CANTERA_CAPI double mix_gibbs(int i);
@@ -53,6 +51,5 @@ extern "C" {
 
     CANTERA_CAPI size_t mix_speciesPhaseIndex(int i, int k);
     CANTERA_CAPI double mix_moleFraction(int i, int k);
-
 }
 #endif
