@@ -70,7 +70,6 @@ InterfaceKineticsData& InterfaceKineticsData::operator=(const InterfaceKineticsD
  */
 InterfaceKinetics::InterfaceKinetics(thermo_t* thermo) :
     Kinetics(),
-    m_kk(0),
     m_redo_rates(false),
     m_nirrev(0),
     m_nrev(0),
@@ -122,7 +121,6 @@ InterfaceKinetics::~InterfaceKinetics()
  */
 InterfaceKinetics::InterfaceKinetics(const InterfaceKinetics& right) :
     Kinetics(),
-    m_kk(0),
     m_redo_rates(false),
     m_nirrev(0),
     m_nrev(0),
@@ -178,7 +176,6 @@ operator=(const InterfaceKinetics& right)
     Kinetics::operator=(right);
 
     m_grt                  = right.m_grt;
-    m_kk                   = right.m_kk;
     m_revindex             = right.m_revindex;
     m_rates                = right.m_rates;
     m_redo_rates           = right.m_redo_rates;
@@ -1324,9 +1321,7 @@ void InterfaceKinetics::finalize()
                            "expected interface dimension = 2, but got dimension = "
                            +int2str(m_surf->nDim()));
 
-
-
-    m_StandardConc.resize(m_nTotalSpecies, 0.0);
+    m_StandardConc.resize(m_kk, 0.0);
     m_deltaG0.resize(m_ii, 0.0);
     m_ProdStanConcReac.resize(m_ii, 0.0);
 

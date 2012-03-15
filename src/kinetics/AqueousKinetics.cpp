@@ -70,7 +70,6 @@ AqueousKineticsData&  AqueousKineticsData::operator=(const AqueousKineticsData& 
  */
 AqueousKinetics::AqueousKinetics(thermo_t* thermo) :
     Kinetics(),
-    m_kk(0),
     m_nfall(0),
     m_nirrev(0),
     m_nrev(0),
@@ -86,7 +85,6 @@ AqueousKinetics::AqueousKinetics(thermo_t* thermo) :
 //====================================================================================================================
 AqueousKinetics::AqueousKinetics(const AqueousKinetics& right) :
     Kinetics(),
-    m_kk(0),
     m_nfall(0),
     m_nirrev(0),
     m_nrev(0),
@@ -109,7 +107,6 @@ AqueousKinetics& AqueousKinetics::operator=(const AqueousKinetics& right)
 
     Kinetics::operator=(right);
 
-    m_kk = right.m_kk;
     m_nfall = right.m_nfall;
     m_rates = right.m_rates;
     m_index = right.m_index;

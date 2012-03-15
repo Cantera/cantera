@@ -372,7 +372,7 @@ public:
 
 protected:
 
-    size_t m_kk, m_nfall;
+    size_t m_nfall;
 
     Rate1<Arrhenius>                    m_rates;
 

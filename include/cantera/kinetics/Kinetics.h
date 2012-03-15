@@ -977,8 +977,9 @@ protected:
     //! Number of reactions in the mechanism
     size_t m_ii;
 
-    //! Number of species in the species vector for this kinetics operator
-    size_t m_nTotalSpecies;
+    //! The number of species in all of the phases
+    //! that participate in this kinetics mechanism.
+    size_t m_kk;
 
     /// Vector of perturbation factors for each reaction's rate of
     /// progress vector. It is initialized to one.

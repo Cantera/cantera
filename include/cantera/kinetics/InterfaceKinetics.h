@@ -646,10 +646,6 @@ protected:
     //! Temporary work vector of length m_kk
     vector_fp m_grt;
 
-    //! m_kk is the number of species in all of the phases
-    //! that participate in this kinetics mechanism.
-    size_t m_kk;
-
     //! List of reactions numbers which are reversible reactions
     /*!
      *  This is a vector of reaction numbers. Each reaction
