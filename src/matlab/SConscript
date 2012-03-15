@@ -30,7 +30,6 @@ elif localenv['OS'] == 'Darwin':
     linklibs += ['mx', 'mex', 'mat'] + env['LIBM']
     mexPlatform = 'maci'
     linkflags.extend(['-Wl,-exported_symbol,_mexFunction'])
-    localenv.Append(FRAMEWORKS=['Accelerate'])
 
     if localenv['OS_BITS'] == 64:
         matlab_libs = pjoin(localenv['matlab_path'], 'bin', 'maci64')

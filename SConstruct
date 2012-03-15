@@ -797,13 +797,16 @@ if env.get('python_array') in ('numarray', 'numeric'):
 # **********************************************
 # *** Set additional configuration variables ***
 # **********************************************
-if env['blas_lapack_libs'] == '':
+if env['blas_lapack_libs'] != '':
+    env['blas_lapack_libs'] = env['blas_lapack_libs'].split(',')
+    env['BUILD_BLAS_LAPACK'] = False
+elif env['OS'] == 'Darwin':
+    env['BUILD_BLAS_LAPACK'] = False
+    env.Append(FRAMEWORKS=['Accelerate'])
+else:
     # External BLAS/LAPACK were not given, so we need to compile them
     env['BUILD_BLAS_LAPACK'] = True
     env['blas_lapack_libs'] = [] # built into libcantera
-else:
-    env['blas_lapack_libs'] = env['blas_lapack_libs'].split(',')
-    env['BUILD_BLAS_LAPACK'] = False
 
 # Directories where things will be after actually being installed
 # These variables are the ones that are used to populate header files,
