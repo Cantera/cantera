@@ -5,13 +5,7 @@
 #define CTC_CT_H
 
 #include "clib_defs.h"
-
-#ifdef CANTERA_USE_INTERNAL
 #include "cantera/base/config.h"
-#else
-#include "cantera/base/config.h"
-#endif
-
 
 extern "C" {
     CANTERA_CAPI int ct_appdelete();
@@ -49,15 +43,8 @@ extern "C" {
     CANTERA_CAPI double phase_nAtoms(int n, size_t k, size_t m);
 
     CANTERA_CAPI int phase_addElement(int n, char* name, double weight);
-    CANTERA_CAPI int phase_addSpecies(int n, char* name, int phase,
-                                      int ncomp, double* comp, int thermoType, int ncoeffs,
-                                      double* coeffs, double minTemp, double maxTemp, double refPressure,
-                                      double charge, double weight);
 
-    //int newThermo(char* model);
     CANTERA_CAPI int newThermoFromXML(int mxml);
-    CANTERA_CAPI int th_thermoIndex(char* id);
-    CANTERA_CAPI int th_phase(int n);
     CANTERA_CAPI size_t th_nSpecies(size_t n);
     CANTERA_CAPI int th_eosType(int n);
     CANTERA_CAPI double th_refPressure(int n);
@@ -84,8 +71,6 @@ extern "C" {
     CANTERA_CAPI int th_getEntropies_R(int n, size_t lenm, double* s_r);
     CANTERA_CAPI int th_getCp_R(int n, size_t lenm, double* cp_r);
     CANTERA_CAPI int th_setElectricPotential(int n, double v);
-    CANTERA_CAPI int get_eos(char* fname, char* phase_id);
-
     CANTERA_CAPI int th_set_HP(int n, double* vals);
     CANTERA_CAPI int th_set_UV(int n, double* vals);
     CANTERA_CAPI int th_set_SV(int n, double* vals);
@@ -156,15 +141,12 @@ extern "C" {
     CANTERA_CAPI int import_phase(int nth, int nxml, char* id);
     CANTERA_CAPI int import_kinetics(int nxml, char* id,
                                            int nphases, int* ith, int nkin);
-    CANTERA_CAPI int import_from_file(int nth, int nkin, char* fname, char* db,
-                                            char* id, int validate, double threshold);
     CANTERA_CAPI int getCanteraError(int buflen, char* buf);
     CANTERA_CAPI int showCanteraErrors();
     CANTERA_CAPI int write_HTML_log(char* file);
     CANTERA_CAPI int setLogWriter(void* logger);
     CANTERA_CAPI int addCanteraDirectory(size_t buflen, char* buf);
     CANTERA_CAPI int clearStorage();
-    CANTERA_CAPI int delPhase(int n);
     CANTERA_CAPI int delThermo(int n);
     CANTERA_CAPI int delKinetics(int n);
     CANTERA_CAPI int delTransport(int n);

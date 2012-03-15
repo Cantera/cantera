@@ -5,15 +5,9 @@
 #define CTC_ONEDIM_H
 
 #include "clib_defs.h"
-
-#ifdef CANTERA_USE_INTERNAL
 #include "cantera/base/config.h"
-#else
-#include "cantera/base/config.h"
-#endif
 
 extern "C" {
-
     CANTERA_CAPI int domain_clear();
     CANTERA_CAPI int domain_del(int i);
     CANTERA_CAPI int domain_type(int i);
@@ -94,6 +88,5 @@ extern "C" {
     CANTERA_CAPI double sim1D_jacobian(int i, int m, int n);
     CANTERA_CAPI size_t sim1D_size(int i);
 }
-
 
 #endif

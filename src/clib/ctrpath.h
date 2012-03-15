@@ -7,7 +7,6 @@
 #include "clib_defs.h"
 
 extern "C" {
-
     CANTERA_CAPI int rdiag_new();
     CANTERA_CAPI int rdiag_del(int i);
     CANTERA_CAPI int rdiag_detailed(int i);
