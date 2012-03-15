@@ -17,42 +17,6 @@ using namespace Cantera;
 typedef Cabinet<MultiPhase> mixCabinet;
 template<> mixCabinet* mixCabinet::__storage = 0;
 
-static bool checkSpecies(int i, size_t k)
-{
-    try {
-        if (k >= mixCabinet::item(i).nSpecies())
-            throw CanteraError("checkSpecies",
-                               "illegal species index ("+int2str(k)+") ");
-        return true;
-    } catch (...) {
-        return Cantera::handleAllExceptions(false, false);
-    }
-}
-
-static bool checkElement(int i, size_t m)
-{
-    try {
-        if (m >= mixCabinet::item(i).nElements())
-            throw CanteraError("checkElement",
-                               "illegal element index ("+int2str(m)+") ");
-        return true;
-    } catch (...) {
-        return Cantera::handleAllExceptions(false, false);
-    }
-}
-
-static bool checkPhase(int i, int n)
-{
-    try {
-        if (n < 0 || n >= int(mixCabinet::item(i).nPhases()))
-            throw CanteraError("checkPhase",
-                               "illegal phase index ("+int2str(n)+") ");
-        return true;
-    } catch (...) {
-        return Cantera::handleAllExceptions(false, false);
-    }
-}
-
 extern "C" {
 
     int mix_new()
@@ -143,7 +107,10 @@ extern "C" {
     size_t mix_speciesIndex(int i, int k, int p)
     {
         try {
-            return mixCabinet::item(i).speciesIndex(k, p);
+            MultiPhase& mix = mixCabinet::item(i);
+            mix.checkPhaseIndex(p);
+            mix.checkSpeciesIndex(k);
+            return mix.speciesIndex(k, p);
         } catch (...) {
             return handleAllExceptions(npos, npos);
         }
@@ -152,12 +119,10 @@ extern "C" {
     doublereal mix_nAtoms(int i, int k, int m)
     {
         try {
-            bool ok = (checkSpecies(i,k) && checkElement(i,m));
-            if (ok) {
-                return mixCabinet::item(i).nAtoms(k,m);
-            } else {
-                return DERR;
-            }
+            MultiPhase& mix = mixCabinet::item(i);
+            mix.checkSpeciesIndex(k);
+            mix.checkElementIndex(m);
+            return mixCabinet::item(i).nAtoms(k,m);
         } catch (...) {
             return handleAllExceptions(DERR, DERR);
         }
@@ -175,10 +140,9 @@ extern "C" {
     doublereal mix_phaseMoles(int i, int n)
     {
         try {
-            if (!checkPhase(i, n)) {
-                return DERR;
-            }
-            return mixCabinet::item(i).phaseMoles(n);
+            MultiPhase& mix = mixCabinet::item(i);
+            mix.checkPhaseIndex(n);
+            return mix.phaseMoles(n);
         } catch (...) {
             return handleAllExceptions(DERR, DERR);
         }
@@ -187,13 +151,12 @@ extern "C" {
     int mix_setPhaseMoles(int i, int n, double v)
     {
         try {
-            if (!checkPhase(i, n)) {
-                return ERR;
-            }
+            MultiPhase& mix = mixCabinet::item(i);
+            mix.checkPhaseIndex(n);
             if (v < 0.0) {
                 return -1;
             }
-            mixCabinet::item(i).setPhaseMoles(n, v);
+            mix.setPhaseMoles(n, v);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -203,10 +166,9 @@ extern "C" {
     int mix_setMoles(int i, size_t nlen, double* n)
     {
         try {
-            if (nlen < mixCabinet::item(i).nSpecies()) {
-                throw CanteraError("setMoles","array size too small.");
-            }
-            mixCabinet::item(i).setMoles(n);
+            MultiPhase& mix = mixCabinet::item(i);
+            mix.checkSpeciesArraySize(nlen);
+            mix.setMoles(n);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -276,10 +238,9 @@ extern "C" {
     doublereal mix_phaseCharge(int i, int p)
     {
         try {
-            if (!checkPhase(i,p)) {
-                return DERR;
-            }
-            return mixCabinet::item(i).phaseCharge(p);
+            MultiPhase& mix = mixCabinet::item(i);
+            mix.checkPhaseIndex(p);
+            return mix.phaseCharge(p);
         } catch (...) {
             return handleAllExceptions(DERR, DERR);
         }
@@ -310,10 +271,9 @@ extern "C" {
     doublereal mix_speciesMoles(int i, int k)
     {
         try {
-            if (!checkSpecies(i,k)) {
-                return DERR;
-            }
-            return mixCabinet::item(i).speciesMoles(k);
+            MultiPhase& mix = mixCabinet::item(i);
+            mix.checkSpeciesIndex(k);
+            return mix.speciesMoles(k);
         } catch (...) {
             return handleAllExceptions(DERR, DERR);
         }
@@ -322,19 +282,16 @@ extern "C" {
     doublereal mix_elementMoles(int i, int m)
     {
         try {
-            if (!checkElement(i,m)) {
-                return DERR;
-            }
-            return mixCabinet::item(i).elementMoles(m);
+            MultiPhase& mix = mixCabinet::item(i);
+            mix.checkElementIndex(m);
+            return mix.elementMoles(m);
         } catch (...) {
             return handleAllExceptions(DERR, DERR);
         }
     }
 
-
-    doublereal mix_equilibrate(int i, char* XY,
-                                          doublereal rtol, int maxsteps,
-                                          int maxiter, int loglevel)
+    doublereal mix_equilibrate(int i, char* XY, doublereal rtol, int maxsteps,
+                               int maxiter, int loglevel)
     {
         try {
             return equilibrate(mixCabinet::item(i), XY,
@@ -344,11 +301,9 @@ extern "C" {
         }
     }
 
-
     doublereal mix_vcs_equilibrate(int i, char* XY, int estimateEquil,
-            int printLvl, int solver,
-            doublereal rtol, int maxsteps,
-            int maxiter, int loglevel)
+                                   int printLvl, int solver, doublereal rtol,
+                                   int maxsteps, int maxiter, int loglevel)
     {
         try {
 #ifdef WITH_VCSNONIDEAL
@@ -369,10 +324,9 @@ extern "C" {
     int mix_getChemPotentials(int i, size_t lenmu, double* mu)
     {
         try {
-            if (lenmu < mixCabinet::item(i).nSpecies()) {
-                throw CanteraError("getChemPotentials","array too small");
-            }
-            mixCabinet::item(i).getChemPotentials(mu);
+            MultiPhase& mix = mixCabinet::item(i);
+            mix.checkSpeciesArraySize(lenmu);
+            mix.getChemPotentials(mu);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -380,13 +334,12 @@ extern "C" {
     }
 
     int mix_getValidChemPotentials(int i, double bad_mu,
-            int standard, size_t lenmu, double* mu)
+                                   int standard, size_t lenmu, double* mu)
     {
         try {
             bool st = (standard == 1);
-            if (lenmu < mixCabinet::item(i).nSpecies()) {
-                throw CanteraError("getChemPotentials","array too small");
-            }
+            MultiPhase& mix = mixCabinet::item(i);
+            mix.checkSpeciesArraySize(lenmu);
             mixCabinet::item(i).getValidChemPotentials(bad_mu, mu, st);
             return 0;
         } catch (...) {
@@ -442,7 +395,9 @@ extern "C" {
     size_t mix_speciesPhaseIndex(int i, int k)
     {
         try {
-            return mixCabinet::item(i).speciesPhaseIndex(k);
+            MultiPhase& mix = mixCabinet::item(i);
+            mix.checkSpeciesIndex(k);
+            return mix.speciesPhaseIndex(k);
         } catch (...) {
             return handleAllExceptions(npos, npos);
         }
@@ -451,7 +406,9 @@ extern "C" {
     double mix_moleFraction(int i, int k)
     {
         try {
-            return mixCabinet::item(i).moleFraction(k);
+            MultiPhase& mix = mixCabinet::item(i);
+            mix.checkSpeciesIndex(k);
+            return mix.moleFraction(k);
         } catch (...) {
             return handleAllExceptions(DERR, DERR);
         }

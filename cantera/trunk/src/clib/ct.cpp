@@ -182,12 +182,9 @@ extern "C" {
     {
         try {
             ThermoPhase& p = ThermoCabinet::item(n);
-            if (lenx >= p.nSpecies()) {
-                p.getMoleFractions(x);
-                return 0;
-            } else {
-                return -1;
-            }
+            p.checkSpeciesArraySize(lenx);
+            p.getMoleFractions(x);
+            return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -206,12 +203,9 @@ extern "C" {
     {
         try {
             ThermoPhase& p = ThermoCabinet::item(n);
-            if (leny >= p.nSpecies()) {
-                p.getMassFractions(y);
-                return 0;
-            } else {
-                return -1;
-            }
+            p.checkSpeciesArraySize(leny);
+            p.getMassFractions(y);
+            return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -230,16 +224,13 @@ extern "C" {
     {
         try {
             ThermoPhase& p = ThermoCabinet::item(n);
-            if (lenx >= p.nSpecies()) {
-                if (norm) {
-                    p.setMoleFractions(x);
-                } else {
-                    p.setMoleFractions_NoNorm(x);
-                }
-                return 0;
+            p.checkSpeciesArraySize(lenx);
+            if (norm) {
+                p.setMoleFractions(x);
             } else {
-                return -1;
+                p.setMoleFractions_NoNorm(x);
             }
+            return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -267,16 +258,13 @@ extern "C" {
     {
         try {
             ThermoPhase& p = ThermoCabinet::item(n);
-            if (leny >= p.nSpecies()) {
-                if (norm) {
-                    p.setMassFractions(y);
-                } else {
-                    p.setMassFractions_NoNorm(y);
-                }
-                return 0;
+            p.checkSpeciesArraySize(leny);
+            if (norm) {
+                p.setMassFractions(y);
             } else {
-                return -10;
+                p.setMassFractions_NoNorm(y);
             }
+            return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -303,13 +291,10 @@ extern "C" {
     {
         try {
             ThermoPhase& p = ThermoCabinet::item(n);
-            if (lenm >= p.nElements()) {
-                const vector_fp& wt = p.atomicWeights();
-                copy(wt.begin(), wt.end(), atw);
-                return 0;
-            } else {
-                return -10;
-            }
+            p.checkElementArraySize(lenm);
+            const vector_fp& wt = p.atomicWeights();
+            copy(wt.begin(), wt.end(), atw);
+            return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -319,13 +304,10 @@ extern "C" {
     {
         try {
             ThermoPhase& p = ThermoCabinet::item(n);
-            if (lenm >= p.nSpecies()) {
-                const vector_fp& wt = p.molecularWeights();
-                copy(wt.begin(), wt.end(), mw);
-                return 0;
-            } else {
-                return -10;
-            }
+            p.checkElementArraySize(lenm);
+            const vector_fp& wt = p.molecularWeights();
+            copy(wt.begin(), wt.end(), mw);
+            return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -562,13 +544,9 @@ extern "C" {
     {
         try {
             ThermoPhase& thrm = ThermoCabinet::item(n);
-            size_t nsp = thrm.nSpecies();
-            if (lenm >= nsp) {
-                thrm.getChemPotentials(murt);
-                return 0;
-            } else {
-                return -10;
-            }
+            thrm.checkSpeciesArraySize(lenm);
+            thrm.getChemPotentials(murt);
+            return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -578,14 +556,10 @@ extern "C" {
     {
         try {
             ThermoPhase& thrm = ThermoCabinet::item(n);
-            size_t nel = thrm.nElements();
-            if (lenm >= nel) {
-                equilibrate(thrm, "TP", 0);
-                thrm.getElementPotentials(lambda);
-                return 0;
-            } else {
-                return -10;
-            }
+            thrm.checkElementArraySize(lenm);
+            equilibrate(thrm, "TP", 0);
+            thrm.getElementPotentials(lambda);
+            return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -679,7 +653,13 @@ extern "C" {
     doublereal th_minTemp(int n, int k)
     {
         try {
-            return ThermoCabinet::item(n).minTemp(k);
+            ThermoPhase& ph = ThermoCabinet::item(n);
+            if (k != -1) {
+                ph.checkSpeciesIndex(k);
+                return ph.minTemp(k);
+            } else {
+                return ph.minTemp();
+            }
         } catch (...) {
             return handleAllExceptions(DERR, DERR);
         }
@@ -688,7 +668,13 @@ extern "C" {
     doublereal th_maxTemp(int n, int k)
     {
         try {
-            return ThermoCabinet::item(n).maxTemp(k);
+            ThermoPhase& ph = ThermoCabinet::item(n);
+            if (k != -1) {
+                ph.checkSpeciesIndex(k);
+                return ph.maxTemp(k);
+            } else {
+                return ph.maxTemp();
+            }
         } catch (...) {
             return handleAllExceptions(DERR, DERR);
         }
@@ -699,13 +685,9 @@ extern "C" {
     {
         try {
             ThermoPhase& thrm = ThermoCabinet::item(n);
-            size_t nsp = thrm.nSpecies();
-            if (lenm >= nsp) {
-                thrm.getEnthalpy_RT_ref(h_rt);
-                return 0;
-            } else {
-                return -10;
-            }
+            thrm.checkSpeciesArraySize(lenm);
+            thrm.getEnthalpy_RT_ref(h_rt);
+            return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -715,13 +697,9 @@ extern "C" {
     {
         try {
             ThermoPhase& thrm = ThermoCabinet::item(n);
-            size_t nsp = thrm.nSpecies();
-            if (lenm >= nsp) {
-                thrm.getEntropy_R_ref(s_r);
-                return 0;
-            } else {
-                return -10;
-            }
+            thrm.checkSpeciesArraySize(lenm);
+            thrm.getEntropy_R_ref(s_r);
+            return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -731,13 +709,9 @@ extern "C" {
     {
         try {
             ThermoPhase& thrm = ThermoCabinet::item(n);
-            size_t nsp = thrm.nSpecies();
-            if (lenm >= nsp) {
-                thrm.getCp_R_ref(cp_r);
-                return 0;
-            } else {
-                return -10;
-            }
+            thrm.checkSpeciesArraySize(lenm);
+            thrm.getCp_R_ref(cp_r);
+            return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -1000,7 +974,10 @@ extern "C" {
     double kin_reactantStoichCoeff(int n, int k, int i)
     {
         try {
-            return KineticsCabinet::item(n).reactantStoichCoeff(k,i);
+            Kinetics& kin = KineticsCabinet::item(n);
+            kin.checkSpeciesIndex(k);
+            kin.checkReactionIndex(i);
+            return kin.reactantStoichCoeff(k,i);
         } catch (...) {
             return handleAllExceptions(DERR, DERR);
         }
@@ -1009,7 +986,10 @@ extern "C" {
     double kin_productStoichCoeff(int n, int k, int i)
     {
         try {
-            return KineticsCabinet::item(n).productStoichCoeff(k,i);
+            Kinetics& kin = KineticsCabinet::item(n);
+            kin.checkSpeciesIndex(k);
+            kin.checkReactionIndex(i);
+            return kin.productStoichCoeff(k,i);
         } catch (...) {
             return handleAllExceptions(DERR, DERR);
         }
@@ -1018,7 +998,9 @@ extern "C" {
     int kin_reactionType(int n, int i)
     {
         try {
-            return KineticsCabinet::item(n).reactionType(i);
+            Kinetics& kin = KineticsCabinet::item(n);
+            kin.checkReactionIndex(i);
+            return kin.reactionType(i);
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -1028,12 +1010,9 @@ extern "C" {
     {
         try {
             Kinetics& k = KineticsCabinet::item(n);
-            if (len >= k.nReactions()) {
-                k.getFwdRatesOfProgress(fwdROP);
-                return 0;
-            } else {
-                return ERR;
-            }
+            k.checkReactionArraySize(len);
+            k.getFwdRatesOfProgress(fwdROP);
+            return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -1043,12 +1022,9 @@ extern "C" {
     {
         try {
             Kinetics& k = KineticsCabinet::item(n);
-            if (len >= k.nReactions()) {
-                k.getRevRatesOfProgress(revROP);
-                return 0;
-            } else {
-                return ERR;
-            }
+            k.checkReactionArraySize(len);
+            k.getRevRatesOfProgress(revROP);
+            return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -1057,7 +1033,9 @@ extern "C" {
     int kin_isReversible(int n, int i)
     {
         try {
-            return (int) KineticsCabinet::item(n).isReversible(i);
+            Kinetics& kin = KineticsCabinet::item(n);
+            kin.checkReactionIndex(i);
+            return (int) kin.isReversible(i);
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -1067,12 +1045,9 @@ extern "C" {
     {
         try {
             Kinetics& k = KineticsCabinet::item(n);
-            if (len >= k.nReactions()) {
-                k.getNetRatesOfProgress(netROP);
-                return 0;
-            } else {
-                return ERR;
-            }
+            k.checkReactionArraySize(len);
+            k.getNetRatesOfProgress(netROP);
+            return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -1082,12 +1057,9 @@ extern "C" {
     {
         try {
             Kinetics& k = KineticsCabinet::item(n);
-            if (len >= k.nReactions()) {
-                k.getFwdRateConstants(kfwd);
-                return 0;
-            } else {
-                return ERR;
-            }
+            k.checkReactionArraySize(len);
+            k.getFwdRateConstants(kfwd);
+            return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -1101,41 +1073,31 @@ extern "C" {
             if (doIrreversible != 0) {
                 doirrev = true;
             }
-            if (len >= k.nReactions()) {
-                k.getRevRateConstants(krev, doirrev);
-                return 0;
-            } else {
-                return ERR;
-            }
+            k.checkReactionArraySize(len);
+            k.getRevRateConstants(krev, doirrev);
+            return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
     }
-
 
     int kin_getActivationEnergies(int n, size_t len, double* E)
     {
         try {
             Kinetics& k = KineticsCabinet::item(n);
-            if (len >= k.nReactions()) {
-                k.getActivationEnergies(E);
-                return 0;
-            } else {
-                return ERR;
-            }
+            k.checkReactionArraySize(len);
+            k.getActivationEnergies(E);
+            return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
     }
 
-
     int kin_getDelta(int n, int job, size_t len, double* delta)
     {
         try {
             Kinetics& k = KineticsCabinet::item(n);
-            if (len < k.nReactions()) {
-                return ERR;
-            }
+            k.checkReactionArraySize(len);
             switch (job) {
             case 0:
                 k.getDeltaEnthalpy(delta);
@@ -1164,33 +1126,25 @@ extern "C" {
         }
     }
 
-
     int kin_getDeltaEntropy(int n, size_t len, double* deltaS)
     {
         try {
             Kinetics& k = KineticsCabinet::item(n);
-            if (len >= k.nReactions()) {
-                k.getDeltaEntropy(deltaS);
-                return 0;
-            } else {
-                return ERR;
-            }
+            k.checkReactionArraySize(len);
+            k.getDeltaEntropy(deltaS);
+            return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
     }
 
-
     int kin_getCreationRates(int n, size_t len, double* cdot)
     {
         try {
             Kinetics& k = KineticsCabinet::item(n);
-            if (len >= k.nTotalSpecies()) {
-                k.getCreationRates(cdot);
-                return 0;
-            } else {
-                return ERR;
-            }
+            k.checkSpeciesArraySize(len);
+            k.getCreationRates(cdot);
+            return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -1200,12 +1154,9 @@ extern "C" {
     {
         try {
             Kinetics& k = KineticsCabinet::item(n);
-            if (len >= k.nTotalSpecies()) {
-                k.getDestructionRates(ddot);
-                return 0;
-            } else {
-                return ERR;
-            }
+            k.checkSpeciesArraySize(len);
+            k.getDestructionRates(ddot);
+            return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -1215,12 +1166,9 @@ extern "C" {
     {
         try {
             Kinetics& k = KineticsCabinet::item(n);
-            if (len >= k.nTotalSpecies()) {
-                k.getNetProductionRates(wdot);
-                return 0;
-            } else {
-                return ERR;
-            }
+            k.checkSpeciesArraySize(len);
+            k.getNetProductionRates(wdot);
+            return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -1229,19 +1177,18 @@ extern "C" {
     int kin_getSourceTerms(int n, size_t len, double* ydot)
     {
         try {
+            // @todo This function only works for single phase kinetics
             Kinetics& k = KineticsCabinet::item(n);
             ThermoPhase& p = k.thermo();
             const vector_fp& mw = p.molecularWeights();
             size_t nsp = mw.size();
             double rrho = 1.0/p.density();
-            if (len >= nsp) {
-                k.getNetProductionRates(ydot);
-                multiply_each(ydot, ydot + nsp, mw.begin());
-                scale(ydot, ydot + nsp, ydot, rrho);
-                return 0;
-            } else {
-                return ERR;
-            }
+            k.checkSpeciesArraySize(len);
+            k.checkSpeciesArraySize(nsp);
+            k.getNetProductionRates(ydot);
+            multiply_each(ydot, ydot + nsp, mw.begin());
+            scale(ydot, ydot + nsp, ydot, rrho);
+            return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -1250,7 +1197,9 @@ extern "C" {
     double kin_multiplier(int n, int i)
     {
         try {
-            return KineticsCabinet::item(n).multiplier(i);
+            Kinetics& kin = KineticsCabinet::item(n);
+            kin.checkReactionIndex(i);
+            return kin.multiplier(i);
         } catch (...) {
             return handleAllExceptions(DERR, DERR);
         }
@@ -1259,7 +1208,9 @@ extern "C" {
     size_t kin_phase(int n, size_t i)
     {
         try {
-            return ThermoCabinet::index(KineticsCabinet::item(n).thermo(i));
+            Kinetics& kin = KineticsCabinet::item(n);
+            kin.checkPhaseIndex(i);
+            return ThermoCabinet::index(kin.thermo(i));
         } catch (...) {
             return handleAllExceptions(npos, npos);
         }
@@ -1269,12 +1220,9 @@ extern "C" {
     {
         try {
             Kinetics& k = KineticsCabinet::item(n);
-            if (len >= k.nReactions()) {
-                k.getEquilibriumConstants(kc);
-                return 0;
-            } else {
-                return ERR;
-            }
+            k.checkReactionArraySize(len);
+            k.getEquilibriumConstants(kc);
+            return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -1284,6 +1232,7 @@ extern "C" {
     {
         try {
             Kinetics& k = KineticsCabinet::item(n);
+            k.checkReactionIndex(i);
             string r = k.reactionString(i);
             int lout = min(len, (int)r.size());
             copy(r.c_str(), r.c_str() + lout, buf);
@@ -1298,7 +1247,9 @@ extern "C" {
     {
         try {
             if (v >= 0.0) {
-                KineticsCabinet::item(n).setMultiplier(i,v);
+                Kinetics& kin = KineticsCabinet::item(n);
+                kin.checkReactionIndex(i);
+                kin.setMultiplier(i,v);
                 return 0;
             } else {
                 return ERR;
@@ -1326,8 +1277,7 @@ extern "C" {
 
     //------------------- Transport ---------------------------
 
-    size_t newTransport(char* model,
-                                   int ith, int loglevel)
+    size_t newTransport(char* model, int ith, int loglevel)
     {
         try {
             string mstr = string(model);
@@ -1360,7 +1310,9 @@ extern "C" {
     int trans_getThermalDiffCoeffs(int n, int ldt, double* dt)
     {
         try {
-            TransportCabinet::item(n).getThermalDiffCoeffs(dt);
+            Transport& tr = TransportCabinet::item(n);
+            tr.checkSpeciesArraySize(ldt);
+            tr.getThermalDiffCoeffs(dt);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -1370,7 +1322,9 @@ extern "C" {
     int trans_getMixDiffCoeffs(int n, int ld, double* d)
     {
         try {
-            TransportCabinet::item(n).getMixDiffCoeffs(d);
+            Transport& tr = TransportCabinet::item(n);
+            tr.checkSpeciesArraySize(ld);
+            tr.getMixDiffCoeffs(d);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -1380,7 +1334,10 @@ extern "C" {
     int trans_getBinDiffCoeffs(int n, int ld, double* d)
     {
         try {
-            TransportCabinet::item(n).getBinaryDiffCoeffs(ld,d);
+            // @todo length of d should be passed for bounds checking
+            Transport& tr = TransportCabinet::item(n);
+            tr.checkSpeciesArraySize(ld);
+            tr.getBinaryDiffCoeffs(ld,d);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -1390,7 +1347,10 @@ extern "C" {
     int trans_getMultiDiffCoeffs(int n, int ld, double* d)
     {
         try {
-            TransportCabinet::item(n).getMultiDiffCoeffs(ld,d);
+            // @todo length of d should be passed for bounds checking
+            Transport& tr = TransportCabinet::item(n);
+            tr.checkSpeciesArraySize(ld);
+            tr.getMultiDiffCoeffs(ld,d);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -1444,8 +1404,7 @@ extern "C" {
         }
     }
 
-    int import_kinetics(int nxml, char* id,
-                                   int nphases, integer* ith, int nkin)
+    int import_kinetics(int nxml, char* id, int nphases, integer* ith, int nkin)
     {
         try {
             vector<thermo_t*> phases;
@@ -1463,8 +1422,7 @@ extern "C" {
     }
 
 
-    int phase_report(int nth,
-                                int ibuf, char* buf, int show_thermo)
+    int phase_report(int nth, int ibuf, char* buf, int show_thermo)
     {
         try {
             bool stherm = (show_thermo != 0);
@@ -1649,8 +1607,8 @@ extern "C" {
         }
     }
 
-    int ck_to_cti(char* in_file, char* db_file,
-                             char* tr_file, char* id_tag, int debug, int validate)
+    int ck_to_cti(char* in_file, char* db_file, char* tr_file,
+                  char* id_tag, int debug, int validate)
     {
         try {
             bool dbg = (debug != 0);

@@ -338,12 +338,12 @@ void Reactor::evalEqs(doublereal time, doublereal* y,
 
 void Reactor::addSensitivityReaction(size_t rxn)
 {
-    m_pnum.push_back(rxn);
-    m_pname.push_back(name()+": "+m_kin->reactionString(rxn));
-    m_mult_save.push_back(1.0);
     if (rxn >= m_kin->nReactions())
         throw CanteraError("Reactor::addSensitivityReaction",
                            "Reaction number out of range ("+int2str(rxn)+")");
+    m_pnum.push_back(rxn);
+    m_pname.push_back(name()+": "+m_kin->reactionString(rxn));
+    m_mult_save.push_back(1.0);
 }
 
 

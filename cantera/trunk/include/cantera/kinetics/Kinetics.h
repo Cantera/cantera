@@ -214,6 +214,23 @@ public:
         return m_ii;
     }
 
+    //! Check that the specified reaction index is in range
+    //! Throws an exception if i is greater than nReactions()
+    void checkReactionIndex(size_t m) const;
+
+    //! Check that an array size is at least nReactions()
+    //! Throws an exception if ii is less than nReactions(). Used before calls
+    //! which take an array pointer.
+    void checkReactionArraySize(size_t ii) const;
+
+    //! Check that the specified species index is in range
+    //! Throws an exception if k is greater than nSpecies()-1
+    void checkSpeciesIndex(size_t k) const;
+
+    //! Check that an array size is at least nSpecies()
+    //! Throws an exception if kk is less than nSpecies(). Used before calls
+    //! which take an array pointer.
+    void checkSpeciesArraySize(size_t mm) const;
     //@}
 
 
@@ -231,6 +248,15 @@ public:
     size_t nPhases() const {
         return m_thermo.size();
     }
+
+    //! Check that the specified phase index is in range
+    //! Throws an exception if m is greater than nPhases()
+    void checkPhaseIndex(size_t m) const;
+
+    //! Check that an array size is at least nPhases()
+    //! Throws an exception if mm is less than nPhases(). Used before calls
+    //! which take an array pointer.
+    void checkPhaseArraySize(size_t mm) const;
 
     /**
      * Return the phase index of a phase in the list of phases

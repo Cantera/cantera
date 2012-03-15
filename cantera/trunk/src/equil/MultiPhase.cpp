@@ -267,6 +267,21 @@ MultiPhase::phase_t& MultiPhase::phase(index_t n)
     m_phase[n]->setPressure(m_press);
     return *m_phase[n];
 }
+
+void MultiPhase::checkPhaseIndex(size_t m) const
+{
+    if (m >= nPhases()) {
+        throw IndexError("checkPhaseIndex", "phase", m, nPhases()-1);
+    }
+}
+
+void MultiPhase::checkPhaseArraySize(size_t mm) const
+{
+    if (nPhases() > mm) {
+        throw ArraySizeError("checkPhaseIndex", mm, nPhases());
+    }
+}
+
 //====================================================================================================================
 /// Moles of species \c k.
 doublereal MultiPhase::speciesMoles(index_t k) const
@@ -1007,6 +1022,21 @@ void MultiPhase::setTemperature(const doublereal T)
     m_temp = T;
     updatePhases();
 }
+
+void MultiPhase::checkElementIndex(size_t m) const
+{
+    if (m >= m_nel) {
+        throw IndexError("checkElementIndex", "elements", m, m_nel-1);
+    }
+}
+
+void MultiPhase::checkElementArraySize(size_t mm) const
+{
+    if (m_nel > mm) {
+        throw ArraySizeError("checkElementArraySize", mm, m_nel);
+    }
+}
+
 //====================================================================================================================
 // Name of element \a m.
 std::string MultiPhase::elementName(size_t m) const
@@ -1024,6 +1054,21 @@ size_t MultiPhase::elementIndex(std::string name) const
     }
     return npos;
 }
+
+void MultiPhase::checkSpeciesIndex(size_t k) const
+{
+    if (k >= m_nsp) {
+        throw IndexError("checkSpeciesIndex", "species", k, m_nsp-1);
+    }
+}
+
+void MultiPhase::checkSpeciesArraySize(size_t kk) const
+{
+    if (m_nsp > kk) {
+        throw ArraySizeError("checkSpeciesArraySize", kk, m_nsp);
+    }
+}
+
 //====================================================================================================================
 // Name of species with global index \a k.
 std::string MultiPhase::speciesName(const size_t k) const

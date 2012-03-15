@@ -152,12 +152,23 @@ size_t Phase::nElements() const
     return m_mm;
 }
 
+void Phase::checkElementIndex(size_t m) const
+{
+    if (m >= m_mm) {
+        throw IndexError("checkElementIndex", "elements", m, m_mm-1);
+    }
+}
+
+void Phase::checkElementArraySize(size_t mm) const
+{
+    if (m_mm > mm) {
+        throw ArraySizeError("checkElementArraySize", mm, m_mm);
+    }
+}
+
 string Phase::elementName(size_t m) const
 {
-    if (m >= nElements()) {
-        throw IndexError("Elements::elementName", "m_elementNames",
-                         m, nElements());
-    }
+    checkElementIndex(m);
     return m_elementNames[m];
 }
 
@@ -214,12 +225,8 @@ int Phase::changeElementType(int m, int elem_type)
 
 doublereal Phase::nAtoms(size_t k, size_t m) const
 {
-    if (m >= m_mm) {
-        throw IndexError("Phase::nAtoms", "", m, nElements());
-    }
-    if (k >= nSpecies()) {
-        throw IndexError("Phase::nAtoms", "", k, nSpecies());
-    }
+    checkElementIndex(m);
+    checkSpeciesIndex(k);
     return m_speciesComp[m_mm * k + m];
 }
 
@@ -249,14 +256,27 @@ size_t Phase::speciesIndex(std::string nameStr) const
 
 string Phase::speciesName(size_t k) const
 {
-    if (k >= nSpecies())
-        throw IndexError("Phase::speciesName", "m_speciesNames", k, nSpecies());
+    checkSpeciesIndex(k);
     return m_speciesNames[k];
 }
 
 const vector<string>& Phase::speciesNames() const
 {
     return m_speciesNames;
+}
+
+void Phase::checkSpeciesIndex(size_t k) const
+{
+    if (k >= m_kk) {
+        throw IndexError("checkSpeciesIndex", "species", k, m_kk-1);
+    }
+}
+
+void Phase::checkSpeciesArraySize(size_t kk) const
+{
+    if (m_kk > kk) {
+        throw ArraySizeError("checkSpeciesArraySize", kk, m_kk);
+    }
 }
 
 std::string Phase::speciesSPName(int k) const
@@ -466,9 +486,7 @@ void Phase::setState_RY(doublereal rho, doublereal* y)
 
 doublereal Phase::molecularWeight(size_t k) const
 {
-    if (k >= nSpecies()) {
-        throw IndexError("Phase::molecularWeight", "m_weight", k, nSpecies());
-    }
+    checkSpeciesIndex(k);
     return m_molwts[k];
 }
 
@@ -514,13 +532,8 @@ void Phase::getMoleFractions(doublereal* const x) const
 
 doublereal Phase::moleFraction(size_t k) const
 {
-    if (k < m_kk) {
-        return m_ym[k] * m_mmw;
-    } else {
-        throw CanteraError("Phase::moleFraction",
-                           "illegal species index number");
-    }
-    return 0.0;
+    checkSpeciesIndex(k);
+    return m_ym[k] * m_mmw;
 }
 
 doublereal Phase::moleFraction(std::string nameSpec) const
@@ -540,11 +553,8 @@ const doublereal* Phase::moleFractdivMMW() const
 
 doublereal Phase::massFraction(size_t k) const
 {
-    if (k < m_kk) {
-        return m_y[k];
-    }
-    throw CanteraError("State:massFraction", "illegal species index number");
-    return 0.0;
+    checkSpeciesIndex(k);
+    return m_y[k];
 }
 
 doublereal Phase::massFraction(std::string nameSpec) const
@@ -564,11 +574,8 @@ void Phase::getMassFractions(doublereal* const y) const
 
 doublereal Phase::concentration(const size_t k) const
 {
-    if (k < m_kk) {
-        return m_y[k] * m_dens * m_rmolwts[k] ;
-    }
-    throw CanteraError("State:massFraction", "illegal species index number");
-    return 0.0;
+    checkSpeciesIndex(k);
+    return m_y[k] * m_dens * m_rmolwts[k] ;
 }
 
 void Phase::getConcentrations(doublereal* const c) const
