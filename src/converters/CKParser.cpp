@@ -370,7 +370,7 @@ void CKParser::getCKLine(std::string& s, std::string& comment)
     string::size_type icom = line.find(commentChar);
 
     // lines that begin with !% are not comments for Cantera
-    if (icom == 0 && line[1] == undoCommentChar) {
+    if (icom == 0 && line.size() > 1 && line[1] == undoCommentChar) {
         line[0] = '%';
         line[1] = ' ';
         icom = line.find(commentChar);
