@@ -28,8 +28,8 @@ namespace Cantera
  * with the same number of grid points as in the old solution.
  */
 void importSolution(size_t points,
-                    doublereal* oldSoln, igthermo_t& oldmech,
-                    size_t size_new, doublereal* newSoln, igthermo_t& newmech)
+                    doublereal* oldSoln, IdealGasPhase& oldmech,
+                    size_t size_new, doublereal* newSoln, IdealGasPhase& newmech)
 {
 
     // Number of components in old and new solutions
@@ -86,7 +86,7 @@ static void st_drawline()
              "------------------------------------------");
 }
 
-StFlow::StFlow(igthermo_t* ph, size_t nsp, size_t points) :
+StFlow::StFlow(IdealGasPhase* ph, size_t nsp, size_t points) :
     Domain1D(nsp+4, points),
     m_inlet_u(0.0),
     m_inlet_V(0.0),

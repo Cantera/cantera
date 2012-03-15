@@ -1667,9 +1667,6 @@ private:
 };
 
 //! typedef for the ThermoPhase class
-typedef ThermoPhase thermophase_t;
-
-//! typedef for the ThermoPhase class
 typedef ThermoPhase thermo_t;
 
 //! Format a summary of the mixture state for output.
@@ -1682,7 +1679,6 @@ typedef ThermoPhase thermo_t;
  * @deprecated use "th.report(show_thermo)" instead
  */
 DEPRECATED(std::string report(const ThermoPhase& th, const bool show_thermo = true));
-
 
 }
 

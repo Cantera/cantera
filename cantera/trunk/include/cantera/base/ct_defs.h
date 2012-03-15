@@ -179,24 +179,10 @@ typedef std::map<std::string, doublereal> compositionMap;
 //! Vector of doubles.
 typedef std::vector<double>        vector_fp;
 //! Vector of ints
-typedef std::vector<int>           array_int;
-//! Vector of ints
 typedef std::vector<int>           vector_int;
-//! typedef for a group of species.
-/*!
- * A group of species is a subset of the species in a phase.
- */
-typedef std::vector<size_t> group_t;
-//! typedef for a vector of groups of species.
-/*!
- * A grouplist of species is a vector of groups.
- */
-typedef std::vector<group_t>    grouplist_t;
 
-//! Typedef for a pointer to temporary work storage
-typedef doublereal* workPtr;
-//! typedef for a pointer to temporary work storage which is treated as constant
-typedef const doublereal* const_workPtr;
+//! A grouplist is a vector of groups of species
+typedef std::vector<std::vector<size_t> > grouplist_t;
 
 //! index returned by functions to indicate "no position"
 const size_t npos = static_cast<size_t>(-1);
@@ -204,6 +190,3 @@ const size_t npos = static_cast<size_t>(-1);
 }  // namespace
 
 #endif
-
-
-

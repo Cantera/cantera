@@ -61,18 +61,8 @@ class MultiPhase
 {
 
 public:
-
     //! Shorthand for an index variable that can't be negative
-    typedef size_t       index_t;
-
-    //! Shorthand for a ThermoPhase
-    typedef ThermoPhase  phase_t;
-
-    //! shorthand for a 2D matrix
-    typedef DenseMatrix  array_t;
-
-    //! Shorthand for a vector of pointers to ThermoPhase's
-    typedef std::vector<phase_t*> phase_list;
+    typedef size_t index_t;
 
     //! Constructor.
     /*!
@@ -108,7 +98,7 @@ public:
      *   @param phases Vector of pointers to phases
      *   @param phaseMoles Vector of mole numbers in each phase (kmol)
      */
-    void addPhases(phase_list& phases, const vector_fp& phaseMoles);
+    void addPhases(std::vector<ThermoPhase*>& phases, const vector_fp& phaseMoles);
 
     //! Add all phases present in 'mix' to this mixture.
     /*!
@@ -125,7 +115,7 @@ public:
      *  @param p pointer to the phase object
      *  @param moles total number of moles of all species in this phase
      */
-    void addPhase(phase_t* p, doublereal moles);
+    void addPhase(ThermoPhase* p, doublereal moles);
 
     /// Number of elements.
     size_t nElements() const {
@@ -238,7 +228,7 @@ public:
      *
      * @return   Reference to the %ThermoPhase object for the phase
      */
-    phase_t& phase(index_t n);
+    ThermoPhase& phase(index_t n);
 
     //! Check that the specified phase index is in range
     //! Throws an exception if m is greater than nPhases()
@@ -624,7 +614,7 @@ private:
     /**
      * Vector of the ThermoPhase Pointers.
      */
-    std::vector<phase_t*> m_phase;
+    std::vector<ThermoPhase*> m_phase;
 
     //! Global Stoichiometric Coefficient array
     /*!
@@ -633,7 +623,7 @@ private:
      *  global species index.
      *  The value is the number of atoms of type m in species k.
      */
-    array_t m_atoms;
+    DenseMatrix m_atoms;
 
     /**
      * Locally stored vector of mole fractions of all species

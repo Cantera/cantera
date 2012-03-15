@@ -11,9 +11,6 @@
 /// Namespace for classes implementing zero-dimensional reactor networks.
 namespace Cantera
 {
-
-//    typedef Thermo   thermo_t;
-
 class FlowDevice;
 class Wall;
 

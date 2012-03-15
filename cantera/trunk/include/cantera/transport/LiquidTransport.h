@@ -90,11 +90,6 @@ class LiquidTransportParams;
 class LiquidTransport : public Transport
 {
 public:
-
-    //! Typedef equating vector_fp with Coeff_T_
-    typedef  vector_fp Coeff_T_;
-
-
     //! Default constructor.
     /*!
      * This requires call to initLiquid(LiquidTransportParams& tr)

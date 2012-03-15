@@ -882,12 +882,6 @@ private:
 
 };
 
-//! General definition for the transport class
-/*!
- * \ingroup tranprops
- */
-typedef Transport transport_t;
-
 }
 
 #endif

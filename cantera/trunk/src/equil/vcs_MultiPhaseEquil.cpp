@@ -50,7 +50,7 @@ vcs_MultiPhaseEquil::vcs_MultiPhaseEquil() :
 {
 }
 //====================================================================================================================
-vcs_MultiPhaseEquil::vcs_MultiPhaseEquil(mix_t* mix, int printLvl) :
+vcs_MultiPhaseEquil::vcs_MultiPhaseEquil(Cantera::MultiPhase* mix, int printLvl) :
     m_vprob(0),
     m_mix(0),
     m_printLvl(printLvl),

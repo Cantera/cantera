@@ -18,11 +18,7 @@
 
 namespace Cantera
 {
-
-typedef IdealGasPhase igthermo_t;
-
 class MultiJac;
-
 
 //------------------------------------------
 //   constants
@@ -39,8 +35,6 @@ const size_t c_offset_Y = 4;    // mass fractions
 const int c_Mixav_Transport = 0;
 const int c_Multi_Transport = 1;
 const int c_Soret = 2;
-
-
 
 //-----------------------------------------------------------
 //  Class StFlow
@@ -66,7 +60,7 @@ public:
     /// will be used to evaluate all thermodynamic, kinetic, and transport
     /// properties.
     /// @param nsp Number of species.
-    StFlow(igthermo_t* ph = 0, size_t nsp = 1, size_t points = 1);
+    StFlow(IdealGasPhase* ph = 0, size_t nsp = 1, size_t points = 1);
 
     /// Destructor.
     virtual ~StFlow() {}
@@ -81,7 +75,7 @@ public:
     thermo_t& phase() {
         return *m_thermo;
     }
-    kinetics_t& kinetics() {
+    Kinetics& kinetics() {
         return *m_kin;
     }
 
@@ -92,12 +86,12 @@ public:
      * Set the thermo manager. Note that the flow equations assume
      * the ideal gas equation.
      */
-    void setThermo(igthermo_t& th) {
+    void setThermo(IdealGasPhase& th) {
         m_thermo = &th;
     }
 
     /// Set the kinetics manager. The kinetics manager must
-    void setKinetics(kinetics_t& kin) {
+    void setKinetics(Kinetics& kin) {
         m_kin = &kin;
     }
 
@@ -474,11 +468,11 @@ protected:
 
     size_t m_nsp;
 
-    igthermo_t*     m_thermo;
-    kinetics_t*     m_kin;
-    Transport*      m_trans;
+    IdealGasPhase* m_thermo;
+    Kinetics* m_kin;
+    Transport* m_trans;
 
-    MultiJac*       m_jac;
+    MultiJac* m_jac;
 
     bool m_ok;
 
@@ -514,7 +508,7 @@ private:
 class AxiStagnFlow : public StFlow
 {
 public:
-    AxiStagnFlow(igthermo_t* ph = 0, size_t nsp = 1, size_t points = 1) :
+    AxiStagnFlow(IdealGasPhase* ph = 0, size_t nsp = 1, size_t points = 1) :
         StFlow(ph, nsp, points) {
         m_dovisc = true;
     }
@@ -532,7 +526,7 @@ public:
 class FreeFlame : public StFlow
 {
 public:
-    FreeFlame(igthermo_t* ph = 0, size_t nsp = 1, size_t points = 1) :
+    FreeFlame(IdealGasPhase* ph = 0, size_t nsp = 1, size_t points = 1) :
         StFlow(ph, nsp, points) {
         m_dovisc = false;
         setID("flame");
@@ -568,8 +562,8 @@ private:
 };
 */
 
-void importSolution(size_t points, doublereal* oldSoln, igthermo_t& oldmech,
-                    size_t size_new, doublereal* newSoln, igthermo_t& newmech);
+void importSolution(size_t points, doublereal* oldSoln, IdealGasPhase& oldmech,
+                    size_t size_new, doublereal* newSoln, IdealGasPhase& newmech);
 
 }
 

@@ -63,7 +63,7 @@ public:
      * @param T Temperature [K].
      * @param work storage space for intermediate results.
      */
-    virtual void updateTemp(doublereal T, workPtr work) const {}
+    virtual void updateTemp(doublereal T, doublereal* work) const {}
 
     /**
      * The falloff function. This is defined so that the
@@ -84,7 +84,7 @@ public:
      *
      * @return Returns the value of the falloff function \f$ F \f$ defined above
      */
-    virtual doublereal F(doublereal pr, const_workPtr work) const =0;
+    virtual doublereal F(doublereal pr, const doublereal* work) const =0;
 
     /**
      * The size of the work array required.

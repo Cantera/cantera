@@ -15,8 +15,6 @@
 #include "WaterPropsIAPWSphi.h"
 #include "cantera/base/config.h"
 
-typedef double doublereal;
-
 namespace Cantera
 {
 /**

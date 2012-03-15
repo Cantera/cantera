@@ -132,10 +132,6 @@ class Kinetics
 {
 
 public:
-
-    //! typedef for ThermoPhase
-    typedef ThermoPhase thermo_t;
-
     /**
      * @name Constructors and General Information about Mechanism
      */
@@ -1104,11 +1100,6 @@ private:
 
 };
 
-//! typedef for the kinetics base class
-typedef Kinetics kinetics_t;
-
 }
-
-
 
 #endif

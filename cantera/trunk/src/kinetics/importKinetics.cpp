@@ -177,7 +177,7 @@ void checkRxnElementBalance(Kinetics& kin,
  *         allowing the calling routine to skip this reaction
  *         and continue.
  */
-bool getReagents(const XML_Node& rxn, kinetics_t& kin, int rp,
+bool getReagents(const XML_Node& rxn, Kinetics& kin, int rp,
                  std::string default_phase, std::vector<size_t>& spnum,
                  vector_fp& stoich, vector_fp& order, int rule)
 {
@@ -489,7 +489,7 @@ static void getFalloff(const node_t& f, ReactionData& rdata)
  * reaction mechanism is homogeneous, so that all species belong
  * to phase(0) of 'kin'.
  */
-static void getEfficiencies(const node_t& eff, kinetics_t& kin, ReactionData& rdata)
+static void getEfficiencies(const node_t& eff, Kinetics& kin, ReactionData& rdata)
 {
 
     // set the default collision efficiency
@@ -514,7 +514,7 @@ static void getEfficiencies(const node_t& eff, kinetics_t& kin, ReactionData& rd
  *
  *  @param kf   Reference to the XML Node named rateCoeff
  */
-void getRateCoefficient(const node_t& kf, kinetics_t& kin,
+void getRateCoefficient(const node_t& kf, Kinetics& kin,
                         ReactionData& rdata, int negA)
 {
     string type = kf.attrib("type");

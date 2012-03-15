@@ -34,7 +34,7 @@ public:
                              enhanced, dflt));
     }
 
-    void update(const vector_fp& conc, doublereal ctot, workPtr work) {
+    void update(const vector_fp& conc, doublereal ctot, doublereal* work) {
         typename std::vector<_E>::const_iterator b = m_concm.begin();
         //doublereal* v = m_values.begin();
         for (; b != m_concm.end(); ++b, ++work) {
@@ -42,7 +42,7 @@ public:
         }
     }
 
-    void multiply(doublereal* output, const_workPtr work) {
+    void multiply(doublereal* output, const doublereal* work) {
         scatter_mult(work, work + m_n,
                      output, m_reaction_index.begin());
     }
