@@ -1353,8 +1353,9 @@ L540:
     }
     i__1 = *ncols;
     for (j = 1; j <= i__1; ++j) {
-        if (bl[j] <= zero && zero <= bu[j] && (d__1 = bu[j], abs(d__1)) < (
-                    d__2 = bl[j], abs(d__2)) || bu[j] < zero) {
+        if ((bl[j] <= zero && zero <= bu[j] &&
+            (d__1 = bu[j], abs(d__1)) < (d__2 = bl[j], abs(d__2))) ||
+            bu[j] < zero) {
             t = bu[j];
             bu[j] = -bl[j];
             bl[j] = -t;

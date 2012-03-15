@@ -1449,7 +1449,7 @@ extern "C" {
         }
     }
 
-    int write_HTML_log(char* file)
+    int write_HTML_log(const char* file)
     {
         try {
             write_logfile(string(file));

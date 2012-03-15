@@ -14,7 +14,7 @@ void surfmethods(int nlhs, mxArray* plhs[],
 {
     double vv;
     int job = getInt(prhs[2]);
-    int iok;
+    int iok = 0;
     double* ptr;
     char* str;
     size_t nsp, n, m;
@@ -66,7 +66,7 @@ void surfmethods(int nlhs, mxArray* plhs[],
     else if (job < 200) {
         nsp = phase_nSpecies(surf);
         std::vector<double> x(nsp);
-
+        iok = -1;
         switch (job) {
         case 101:
             checkNArgs(3,nrhs);

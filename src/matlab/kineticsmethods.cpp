@@ -11,7 +11,7 @@ void checkNArgs(const int n, const int nrhs)
 void kineticsmethods(int nlhs, mxArray* plhs[],
                      int nrhs, const mxArray* prhs[])
 {
-    double vv;
+    double vv = 0.0;
     int job = getInt(prhs[2]);
     int kin, irxn;
 

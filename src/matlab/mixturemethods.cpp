@@ -11,7 +11,7 @@ using namespace std;
 void mixturemethods(int nlhs, mxArray* plhs[],
                     int nrhs, const mxArray* prhs[])
 {
-    int m, iok, n;
+    int m, iok = 0, n;
     int job = getInt(prhs[1]);
     int i = getInt(prhs[2]);
 
@@ -164,12 +164,12 @@ void mixturemethods(int nlhs, mxArray* plhs[],
         plhs[0] = mxCreateNumericMatrix(nsp,1, mxDOUBLE_CLASS,mxREAL);
         double* h = mxGetPr(plhs[0]);
         if (iok >= 0) {
-            for (int i = 0; i < nsp; i++) {
+            for (mwSize i = 0; i < nsp; i++) {
                 h[i] = x[i];
             }
             return;
         } else {
-            for (int i = 0; i < nsp; i++) {
+            for (mwSize i = 0; i < nsp; i++) {
                 h[i] = -999.99;
             }
             mexErrMsgTxt("unknown attribute");

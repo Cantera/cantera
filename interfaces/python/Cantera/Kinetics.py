@@ -18,6 +18,7 @@ class Kinetics:
     def __init__(self, kintype=-1, thrm=0, xml_phase=None, id=None, phases=[]):
         """
         Build a kinetics manager from an XML specification.
+
         :param kintype:
             Integer specifying the type of kinetics manager to create.
         :param root:

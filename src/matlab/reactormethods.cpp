@@ -9,7 +9,7 @@
 void reactormethods(int nlhs, mxArray* plhs[],
                     int nrhs, const mxArray* prhs[])
 {
-    int iok, n;
+    int iok = 0, n;
 
     int job = getInt(prhs[1]);
     int i = getInt(prhs[2]);

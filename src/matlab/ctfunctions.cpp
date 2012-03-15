@@ -26,7 +26,7 @@ void ctfunctions(int nlhs, mxArray* plhs[],
                  int nrhs, const mxArray* prhs[])
 {
     int job = getInt(prhs[1]);
-    int iok, dbg, validate;
+    int iok = 0, dbg, validate;
     char* infile, *dbfile, *trfile, *idtag;
     int buflen = 0;
     char* output_buf = 0;

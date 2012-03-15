@@ -18,8 +18,6 @@ static void thermoset(int nlhs, mxArray* plhs[],
     size_t m = mxGetM(prhs[3]);
     size_t n = mxGetN(prhs[3]);
 
-    bool ok = true;
-
     // scalar attributes
     if (job < 20) {
         if (m != 1 || n != 1) {

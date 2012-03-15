@@ -429,11 +429,8 @@ doublereal RedlichKwongMFTP::isothermalCompressibility() const
 //====================================================================================================================
 void RedlichKwongMFTP::getActivityConcentrations(doublereal* c) const
 {
-
-    int k;
     getPartialMolarVolumes(DATA_PTR(m_partialMolarVolumes));
-
-    for (k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
         c[k] = moleFraction(k) / m_partialMolarVolumes[k];
     }
 }
@@ -442,7 +439,7 @@ void RedlichKwongMFTP::getActivityConcentrations(doublereal* c) const
  * Returns the standard concentration \f$ C^0_k \f$, which is used to normalize
  * the generalized concentration.
  */
-doublereal RedlichKwongMFTP::standardConcentration(int k) const
+doublereal RedlichKwongMFTP::standardConcentration(size_t k) const
 {
 
     getStandardVolumes(DATA_PTR(m_tmpV));
@@ -457,7 +454,7 @@ doublereal RedlichKwongMFTP::standardConcentration(int k) const
  * Returns the natural logarithm of the standard
  * concentration of the kth species
  */
-doublereal RedlichKwongMFTP::logStandardConc(int k) const
+doublereal RedlichKwongMFTP::logStandardConc(size_t k) const
 {
     double c = standardConcentration(k);
     double lc = std::log(c);
@@ -574,7 +571,7 @@ void RedlichKwongMFTP::getChemPotentials_RT(doublereal* muRT) const
 {
     getChemPotentials(muRT);
     doublereal invRT = 1.0 / _RT();
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
         muRT[k] *= invRT;
     }
 }
@@ -1125,7 +1122,7 @@ void RedlichKwongMFTP::readXMLCrossFluid(XML_Node& CrossFluidParam)
         throw CanteraError("RedlichKwongMFTP::readXMLCrossFluid", "no species1 attribute");
     }
     size_t iSpecies = speciesIndex(iName);
-    if (iSpecies < 0) {
+    if (iSpecies == npos) {
         return;
     }
     string jName = CrossFluidParam.attrib("species2");
@@ -1133,7 +1130,7 @@ void RedlichKwongMFTP::readXMLCrossFluid(XML_Node& CrossFluidParam)
         throw CanteraError("RedlichKwongMFTP::readXMLCrossFluid", "no species2 attribute");
     }
     size_t jSpecies = speciesIndex(jName);
-    if (jSpecies < 0) {
+    if (jSpecies == npos) {
         return;
     }
 

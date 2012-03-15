@@ -20,7 +20,7 @@ public:
         mexPrintf("%s", s.c_str());
     }
 
-    virtual void writeendl(const std::string& msg) {
+    virtual void writeendl() {
         mexPrintf("\n");
     }
 

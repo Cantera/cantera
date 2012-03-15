@@ -306,11 +306,11 @@ void XML_Reader::parseTag(std::string tag, std::string& name,
 {
     string::size_type iloc;
     string attr, val;
-    string s = strip(tag);
+    string s = stripws(tag);
     iloc = s.find(' ');
     if (iloc != string::npos) {
         name = s.substr(0, iloc);
-        s = strip(s.substr(iloc+1,s.size()));
+        s = stripws(s.substr(iloc+1,s.size()));
         if (s[s.size()-1] == '/') {
             name += "/";
         }
@@ -321,16 +321,16 @@ void XML_Reader::parseTag(std::string tag, std::string& name,
             if (iloc == string::npos) {
                 break;
             }
-            attr = strip(s.substr(0,iloc));
+            attr = stripws(s.substr(0,iloc));
             if (attr == "") {
                 break;
             }
-            s = strip(s.substr(iloc+1,s.size()));
+            s = stripws(s.substr(iloc+1,s.size()));
             iloc = findQuotedString(s, val);
             attribs[attr] = val;
             if (iloc != string::npos) {
                 if (iloc < s.size()) {
-                    s = strip(s.substr(iloc,s.size()));
+                    s = stripws(s.substr(iloc,s.size()));
                 } else {
                     break;
                 }
@@ -414,7 +414,7 @@ std::string XML_Reader::readValue()
             tag += ch;
         }
     }
-    return strip(tag);
+    return stripws(tag);
 }
 
 
