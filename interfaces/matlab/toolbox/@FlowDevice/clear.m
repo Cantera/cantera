@@ -1,4 +1,4 @@
 function clear(f)
-% CLEAR - 
-%   
+% CLEAR -
+%
 flowdevicemethods(1, f.index)

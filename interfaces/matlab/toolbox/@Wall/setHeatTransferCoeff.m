@@ -1,5 +1,4 @@
 function setHeatTransferCoeff(w, u)
-% SETHEATTRANSFERCOEFF - 
-%   
+% SETHEATTRANSFERCOEFF -
+%
 wallmethods(7, wall_hndl(w), u);
-

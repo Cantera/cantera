@@ -10,4 +10,3 @@ x = solution(s, domain, component);
 plot(z, x);
 xlabel('z (m)');
 ylabel(component);
-

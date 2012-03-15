@@ -4,8 +4,7 @@ function setKineticsMgr(r, k)
 % called by users.
 %
 if ~isa(k,'Kinetics')
-  error('wrong object type');
+    error('wrong object type');
 end
 
 reactormethods(7, reactor_hndl(r), kinetics_hndl(k));
-

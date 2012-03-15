@@ -19,20 +19,20 @@ function flame = npflame_init(gas, left, flow, right, fuel, oxidizer, nuox)
 
 % Check input parameters
 if nargin ~= 7
-  error('wrong number of input arguments.');
+    error('wrong number of input arguments.');
 end
 
 if ~isIdealGas(gas)
-  error('gas object must represent an ideal gas mixture.');
+    error('gas object must represent an ideal gas mixture.');
 end
 if ~isInlet(left)
-  error('left inlet object of wrong type.');
+    error('left inlet object of wrong type.');
 end
 if ~isFlow(flow)
-  error('flow object of wrong type.');
+    error('flow object of wrong type.');
 end
 if ~isInlet(right)
-  error('right inlet object of wrong type.');
+    error('right inlet object of wrong type.');
 end
 
 % create the container object
@@ -60,9 +60,9 @@ tf = temperature(left);
 tox = temperature(right);
 
 for n = 1:nsp
-  yox(n) = massFraction(right,n);
-  yf(n) = massFraction(left,n);
-  ystoich(n) = zst*yf(n) + (1.0 - zst)*yox(n);
+    yox(n) = massFraction(right,n);
+    yf(n) = massFraction(left,n);
+    ystoich(n) = zst*yf(n) + (1.0 - zst)*yox(n);
 end
 
 set(gas,'T',temperature(left),'P',pressure(gas),'Y',ystoich);
@@ -83,23 +83,23 @@ x0 = massFlux(left)*dz/(massFlux(left) + massFlux(right));
 
 nz = nPoints(flow);
 for j = 1:nz
-  x = zz(j);
-  zeta = f*(x - x0);
-  zmix = 0.5*(1.0 - erf(zeta));
-  zm(j) = zmix;
-  u(j) = a*(x0 - zz(j));
-  v(j) = a;
-  if zmix > zst
-    for n = 1:nsp
-      y(j,n) = yeq(n) + (zmix - zst)*(yf(n) - yeq(n))/(1.0 - zst);
+    x = zz(j);
+    zeta = f*(x - x0);
+    zmix = 0.5*(1.0 - erf(zeta));
+    zm(j) = zmix;
+    u(j) = a*(x0 - zz(j));
+    v(j) = a;
+    if zmix > zst
+        for n = 1:nsp
+            y(j,n) = yeq(n) + (zmix - zst)*(yf(n) - yeq(n))/(1.0 - zst);
+        end
+        t(j) = teq + (tf - teq)*(zmix - zst)/(1.0 - zst);
+    else
+        for n = 1:nsp
+            y(j,n) = yox(n) + zmix*(yeq(n) - yox(n))/zst;
+        end
+        t(j) = tox + zmix*(teq - tox)/zst;
     end
-    t(j) = teq + (tf - teq)*(zmix - zst)/(1.0 - zst);
-  else
-    for n = 1:nsp
-      y(j,n) = yox(n) + zmix*(yeq(n) - yox(n))/zst;
-    end
-    t(j) = tox + zmix*(teq - tox)/zst;
-  end
 end
 
 zrel = zz/dz;
@@ -109,9 +109,9 @@ setProfile(flame, 2, {'u', 'V'}, [zrel; u; v]);
 setProfile(flame, 2, 'T', [zrel; t] );
 
 for n = 1:nsp
-  nm = speciesName(gas,n);
-  setProfile(flame, 2, nm, [zrel; transpose(y(:,n))])
+    nm = speciesName(gas,n);
+    setProfile(flame, 2, nm, [zrel; transpose(y(:,n))])
 end
 
-% set minimal grid refinement criteria 
+% set minimal grid refinement criteria
 setRefineCriteria(flame, 2, 10.0, 0.99, 0.99);

@@ -29,9 +29,9 @@ function s = Solution(src, id)
 %
 doc = XML_Node('doc',src);
 if nargin == 1
-  node = findByName(doc,'phase');
+    node = findByName(doc,'phase');
 else
-  node = findByID(doc,id);
+    node = findByID(doc,id);
 end
 t = ThermoPhase(node);
 k = Kinetics(node,t);

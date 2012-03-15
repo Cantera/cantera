@@ -8,9 +8,7 @@ function nm = speciesName(a, k)
 [m, n] = size(k);
 nm = {};
 for i = 1:m
-  for j = 1:n
-    nm{i,j} = phase_get(a.tp_id, 40, k(i,j));
-  end
+    for j = 1:n
+        nm{i,j} = phase_get(a.tp_id, 40, k(i,j));
+    end
 end
-
-

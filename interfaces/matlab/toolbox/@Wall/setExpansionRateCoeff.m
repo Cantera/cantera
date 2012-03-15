@@ -1,5 +1,4 @@
 function setExpansionRateCoeff(w, k)
-% SETEXPANSIONRATECOEFF - 
-%   
+% SETEXPANSIONRATECOEFF -
+%
 wallmethods(9, wall_hndl(w), k);
-

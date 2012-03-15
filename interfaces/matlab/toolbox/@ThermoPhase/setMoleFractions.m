@@ -1,7 +1,7 @@
 function a = setMoleFractions(a,x,norm)
 % SETMOLEFRACTIONS  Set the species mole fractions.
 %
-%   setMoleFractions(a,x) 
+%   setMoleFractions(a,x)
 %
 %      If x is a vector of doubles, this call sets the species mole
 %      fractions to the values in x and then scales them so that they
@@ -30,18 +30,18 @@ function a = setMoleFractions(a,x,norm)
 %  instead, or call setPressure after calling setMoleFractions.
 
 if isa(x,'double')
-  if nargin == 3
-    if strcmp(norm,'nonorm')
-      phase_set(a.tp_id,22,x);
+    if nargin == 3
+        if strcmp(norm,'nonorm')
+            phase_set(a.tp_id,22,x);
+        else
+            phase_set(a.tp_id,20,x);
+        end
     else
-      phase_set(a.tp_id,20,x);
+        phase_set(a.tp_id,20,x);
     end
-  else
-    phase_set(a.tp_id,20,x);
-  end
-%
-% string input
-%
+    %
+    % string input
+    %
 elseif isa(x,'char')
-  phase_set(a.tp_id,30,x);
+    phase_set(a.tp_id,30,x);
 end

@@ -1,5 +1,5 @@
 function r = equilibrate(self, XY, err, maxsteps, maxiter, ...
-			 loglevel)
+    loglevel)
 %
 % EQUILIBRATE - Set the mixture to a state of chemical equilibrium.
 %
@@ -15,29 +15,29 @@ function r = equilibrate(self, XY, err, maxsteps, maxiter, ...
 %       other than "TP" is specified, then an outer iteration loop is
 %       used to adjust T and/or P so that the specified property
 %       values are obtained.
-%          
+%
 %       XY - Two-letter string specifying the two properties to hold
 %       fixed.  Currently, 'TP', 'HP', and 'SP' are
 %       implemented. Default: 'TP'.
-%          
+%
 %       err - Error tolerance. Iteration will continue until (Delta
 %       mu)/RT is less than this value for each reaction. Default:
 %       1.0e-9. Note that this default is very conservative, and good
 %       equilibrium solutions may be obtained with larger error
 %       tolerances.
-%  
+%
 %       maxsteps - Maximum number of steps to take while solving the
 %       equilibrium problem for specified T and P. Default: 1000.
-%  
+%
 %       maxiter - Maximum number of temperature and/or pressure
 %       iterations.  This is only relevant if a property pair other
 %       than (T,P) is specified. Default: 200.
-%  
+%
 %       loglevel - Controls the amount of diagnostic output. If
 %       loglevel = 0, no diagnostic output is written. For values > 0,
 %       more detailed information is written to the log file as
 %       loglevel increases. The default is loglevel = 0.
-%  
+%
 %       The logfile is written in HTML format, and may be viewed with
 %       any web browser. The default log file name is
 %       "equilibrium_log.html", but if this file exists, the log
@@ -47,24 +47,24 @@ function r = equilibrate(self, XY, err, maxsteps, maxiter, ...
 %       times, multiple log files will be written, with names
 %       "equilibrate_log.html", "equilibrate_log1.html",
 %       "equilibrate_log2.html", and so on. Existing log files will
-%       not be overwritten.   
-%  
+%       not be overwritten.
+%
 %          >> equilibrate(mix, 'TP')
 %          >> equilibrate('TP', 1.0e-6, 500)
-%          
+%
 if nargin < 6
-  loglevel = 0;
+    loglevel = 0;
 end
-if nargin < 5 
-  maxiter = 200;
+if nargin < 5
+    maxiter = 200;
 end
 if nargin < 4
-  maxsteps = 1000;
+    maxsteps = 1000;
 end
 if nargin < 3
-  err = 1.0e-9;
+    err = 1.0e-9;
 end
 if nargin < 2
-  XY = 'TP';
+    XY = 'TP';
 end
 r = mixturemethods(31, mix_hndl(self), XY, err, maxsteps, maxiter, loglevel);

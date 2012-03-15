@@ -1,7 +1,7 @@
 function setInitialTime(r, t)
 % SETINITIALTIME - Set the initial time at which to begin the time
-% integration. 
-% 
+% integration.
+%
 % If the time integration has already begun, this restarts the
 % integrator using the current solution as the initial condition,
 % setting the time to 't'.

@@ -1,8 +1,8 @@
 function a = set(a,varargin)
 % SET -  Set properties.
 %
-%   The properties that may be set are 
-%    
+%   The properties that may be set are
+%
 %   Temperature    (T)
 %   Density        (Rho)
 %   Volume         (V)
@@ -13,7 +13,7 @@ function a = set(a,varargin)
 %   MassFractions  (Y)
 %   Vapor Fraction (Vapor)
 %   Liquid Fractio (Liquid)
-% 
+%
 %   Either the full property name or the symbol may be
 %   specified. For the extensive properties (V,H,U,S), the values
 %   must be given per unit mass. H, U, and S must be set in
@@ -39,7 +39,7 @@ function a = set(a,varargin)
 property_argin = varargin;
 tval = -999;
 pval = -999;
-hval = -999; 
+hval = -999;
 uval = -999;
 sval = -999;
 vval = -999;
@@ -56,119 +56,119 @@ nu = 0;
 nq = 0;
 
 while length(property_argin) >= 2,
-  prop = property_argin{1};
-  val = property_argin{2};
-  property_argin = property_argin(3:end);
-  switch prop
-   case 'Temperature'
-    nt = nt + 1;
-    tval = val;
-   case 'T'
-    nt = nt + 1;
-    tval = val;       
-   case 'Density'
-    nv = nv + 1;
-    vval = 1.0/val;
-   case 'Rho'
-    nv = nv + 1;
-    vval = 1.0/val;
-   case 'V'
-    nv = nv + 1;
-    vval = val;
-   case 'MoleFractions'
-    nx = nx + 1;
-    setMoleFractions(a,val);
-   case 'X'
-    nx = nx + 1;
-    setMoleFractions(a,val);       
-   case 'MassFractions'
-    ny = ny + 1;
-    setMassFractions(a,val);       
-   case 'Y'
-    ny = ny + 1;
-    setMassFractions(a,val);              
-   case 'Pressure'
-    pval = val;
-    np = np + 1;
-   case 'P'
-    pval = val; 
-    np = np + 1;       
-   case 'Enthalpy'
-    hval = val;
-    nh = nh + 1;       
-   case 'H'
-    hval = val; 
-    nh = nh + 1;       
-   case 'IntEnergy'
-    uval = val;
-    nu = nu + 1;       
-   case 'U'
-    uval = val; 
-    nu = nu + 1;       
-   case 'Entropy'
-    sval = val;
-    ns = ns + 1;       
-   case 'S'
-    sval = val; 
-    ns = ns + 1;       
-   case 'Sat'
-    qval = val;
-    nq = nq + 1;
-   case 'Vapor'
-    qval = val;
-    nq = nq + 1;
-   case 'Liquid'
-    qval = 1.0 - val;
-    nq = nq + 1;
-   otherwise
-    error(['unknown property ' char(prop)])
-  end
+    prop = property_argin{1};
+    val = property_argin{2};
+    property_argin = property_argin(3:end);
+    switch prop
+        case 'Temperature'
+            nt = nt + 1;
+            tval = val;
+        case 'T'
+            nt = nt + 1;
+            tval = val;
+        case 'Density'
+            nv = nv + 1;
+            vval = 1.0/val;
+        case 'Rho'
+            nv = nv + 1;
+            vval = 1.0/val;
+        case 'V'
+            nv = nv + 1;
+            vval = val;
+        case 'MoleFractions'
+            nx = nx + 1;
+            setMoleFractions(a,val);
+        case 'X'
+            nx = nx + 1;
+            setMoleFractions(a,val);
+        case 'MassFractions'
+            ny = ny + 1;
+            setMassFractions(a,val);
+        case 'Y'
+            ny = ny + 1;
+            setMassFractions(a,val);
+        case 'Pressure'
+            pval = val;
+            np = np + 1;
+        case 'P'
+            pval = val;
+            np = np + 1;
+        case 'Enthalpy'
+            hval = val;
+            nh = nh + 1;
+        case 'H'
+            hval = val;
+            nh = nh + 1;
+        case 'IntEnergy'
+            uval = val;
+            nu = nu + 1;
+        case 'U'
+            uval = val;
+            nu = nu + 1;
+        case 'Entropy'
+            sval = val;
+            ns = ns + 1;
+        case 'S'
+            sval = val;
+            ns = ns + 1;
+        case 'Sat'
+            qval = val;
+            nq = nq + 1;
+        case 'Vapor'
+            qval = val;
+            nq = nq + 1;
+        case 'Liquid'
+            qval = 1.0 - val;
+            nq = nq + 1;
+        otherwise
+            error(['unknown property ' char(prop)])
+    end
 end
 
 if nx + ny > 1
-  error('composition specified multiple times');
+    error('composition specified multiple times');
 end
 
 ntot = nt + np + nv + ns + nh + nu + nq;
 
 if ntot == 1
-  %
-  % set T, v, or P individually
-  %
-  if nt == 1
-    setTemperature(a,tval);   % density held fixed
-  elseif nv == 1
-    setDensity(a,1.0/vval);   % temperature held fixed
-  elseif np == 1
-    setPressure(a, pval);     % temperature held fixed
-  else
-    error('pressure, volume, or density must also be specified');
-  end
-elseif ntot == 2 
-  %
-  % set property pairs
-  %
-  if nt == 1 & nv == 1
-    setTemperature(a,tval);
-    setDensity(a,1.0/vval); 
-  elseif nt == 1 & np == 1
-    setTemperature(a,tval);
-    setPressure(a, pval);
-  elseif nt == 1 & nq == 1
-    setState_Tsat(a, [tval,qval]);
-  elseif np == 1 & nq == 1
-    setState_Psat(a, [pval,qval]);
-  elseif np == 1 & nh == 1
-    setState_HP(a,[hval,pval]);
-  elseif nu == 1 & nv == 1
-    setState_UV(a,[uval,vval]);
-  elseif ns == 1 & np == 1
-    setState_SP(a,[sval,pval]);   
-  elseif ns == 1 & nv == 1
-    setState_SV(a,[sval,vval]);      
-  else
-    error('unimplemented property pair');
-  end
+    %
+    % set T, v, or P individually
+    %
+    if nt == 1
+        setTemperature(a,tval);   % density held fixed
+    elseif nv == 1
+        setDensity(a,1.0/vval);   % temperature held fixed
+    elseif np == 1
+        setPressure(a, pval);     % temperature held fixed
+    else
+        error('pressure, volume, or density must also be specified');
+    end
+elseif ntot == 2
+    %
+    % set property pairs
+    %
+    if nt == 1 & nv == 1
+        setTemperature(a,tval);
+        setDensity(a,1.0/vval);
+    elseif nt == 1 & np == 1
+        setTemperature(a,tval);
+        setPressure(a, pval);
+    elseif nt == 1 & nq == 1
+        setState_Tsat(a, [tval,qval]);
+    elseif np == 1 & nq == 1
+        setState_Psat(a, [pval,qval]);
+    elseif np == 1 & nh == 1
+        setState_HP(a,[hval,pval]);
+    elseif nu == 1 & nv == 1
+        setState_UV(a,[uval,vval]);
+    elseif ns == 1 & np == 1
+        setState_SP(a,[sval,pval]);
+    elseif ns == 1 & nv == 1
+        setState_SV(a,[sval,vval]);
+    else
+        error('unimplemented property pair');
+    end
 elseif ntot > 2
-  error('too many properties specified');
+    error('too many properties specified');
 end

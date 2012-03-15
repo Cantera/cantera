@@ -1,5 +1,4 @@
 function a = area(w)
-% AREA - 
-%   
+% AREA -
+%
 a = wallmethods(23, wall_hndl(w))
-

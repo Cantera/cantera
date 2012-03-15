@@ -1,5 +1,4 @@
 function clear(r)
-% CLEAR - 
-%   
+% CLEAR -
+%
 reactormethods(2, reactor_hndl(r));
-

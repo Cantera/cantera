@@ -5,19 +5,17 @@ doc = XML_Node('doc',src);
 node = findByID(doc,id);
 t = ThermoPhase(node);
 if nargin == 2
-  k = Kinetics(node,t);
+    k = Kinetics(node,t);
 elseif nargin == 3
-  k = Kinetics(node,t,p1);
+    k = Kinetics(node,t,p1);
 elseif nargin == 4
-  k = Kinetics(node,t,p1,p2);
+    k = Kinetics(node,t,p1,p2);
 elseif nargin == 5
-  k = Kinetics(node,t,p1,p2,p3);
+    k = Kinetics(node,t,p1,p2,p3);
 elseif nargin == 6
-  k = Kinetics(node,t,p1,p2,p3,p4);  
+    k = Kinetics(node,t,p1,p2,p3,p4);
 end
 
 s.kin = k;
 s.th = t;
 s = class(s,'Interface',t,k);
-
-

@@ -1,6 +1,6 @@
 function setValue(s, n, comp, localPoint, v)
 % SETVALUE - Set the value of a single entry in the solution vector.
-%   
+%
 %    n           -- domain number
 %    comp        -- component number
 %    localPoint  -- local index of the grid point in the domain
@@ -17,4 +17,3 @@ function setValue(s, n, comp, localPoint, v)
 %    stack.
 %
 stack_methods(s.stack_id, 100, n, comp, localPoint, v);
-

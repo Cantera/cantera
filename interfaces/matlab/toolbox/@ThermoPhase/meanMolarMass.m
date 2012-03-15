@@ -5,4 +5,3 @@ function wtm = meanMolarMass(p)
 %   molar masses of the individual species in the phase.
 %
 wtm = phase_get(p.tp_id,4);
-  

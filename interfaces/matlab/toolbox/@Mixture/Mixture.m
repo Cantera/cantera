@@ -5,7 +5,7 @@ function m = Mixture(phases)
 %    Class Mixture represents
 %    mixtures of one or more phases of matter.  To construct a mixture,
 %    supply a cell array of phases and mole numbers:
-%    
+%
 %    >> gas = importPhase('gas.cti');
 %    >> graphite = importPhase('graphite.cti');
 %    >> mix = Mixture({gas, 1.0; graphite, 0.1});
@@ -29,7 +29,7 @@ function m = Mixture(phases)
 %    objects whenever it requires phase properties.
 %
 if nargin > 1
-  error('Mixture: wrong number of arguments');
+    error('Mixture: wrong number of arguments');
 end
 
 % create an empty mixture
@@ -40,22 +40,19 @@ m = class(m,'Mixture');
 
 % if phases are supplied, add them
 if nargin == 1
-  if ~isa(phases,'cell')
-    error('enter phases as a cell array');
-  end
-  
-  % first column contains the phase objects, and the second column
-  % the mole numbers of each phase
-  [np nc] = size(phases);
-  if nc ~= 2
-    error('wrong size for phases cell array');
-  end
-  for n = 1:np
-    addPhase(m, phases{n,1}, phases{n,2});
-  end
-  setTemperature(m, temperature(phases{n,1}));
-  setPressure(m, pressure(phases{n,1}));
+    if ~isa(phases,'cell')
+        error('enter phases as a cell array');
+    end
+
+    % first column contains the phase objects, and the second column
+    % the mole numbers of each phase
+    [np nc] = size(phases);
+    if nc ~= 2
+        error('wrong size for phases cell array');
+    end
+    for n = 1:np
+        addPhase(m, phases{n,1}, phases{n,2});
+    end
+    setTemperature(m, temperature(phases{n,1}));
+    setPressure(m, pressure(phases{n,1}));
 end
-
-  
-

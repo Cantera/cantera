@@ -12,40 +12,40 @@ function a = equilibrate(a, xy, solver, rtol, maxsteps, maxiter, loglevel)
 %        minimization solver will be used. If solver < 0 or is
 %        unspecified, the fast solver will be tried first, then if it
 %        fails the other will be tried.
-%  
+%
 %        rtol -- the relative error tolerance.
-%  
+%
 %        maxsteps -- maximum number of steps in composition to take to
 %        find a converged solution.
-%  
+%
 %        maxiter -- for the Gibbs minimization solver only, this
 %        specifies the number of 'outer' iterations on T or P when
 %        some property pair other than TP is specified.
-%  
+%
 %        loglevel -- set to a value > 0 to write diagnostic output to
 %        a file in HTML format. Larger values generate more detailed
 %        information. The file will be named 'equilibrate_log.html.'
 %        Subsequent files will be named 'equilibrate_log1.html',
 %        'equilibrate_log2.html', etc., so that log files are not
 %        overwritten.
-%          
+%
 %
 
 % use the ChemEquil solver by default
 if nargin < 3
-  solver = -1;
+    solver = -1;
 end
 if nargin < 4
-  rtol = 1.0e-9;
+    rtol = 1.0e-9;
 end
 if nargin < 5
-  maxsteps = 1000;
+    maxsteps = 1000;
 end
 if nargin < 6
-  maxiter = 100;
+    maxiter = 100;
 end
 if nargin < 7
-  loglevel = 0;
+    loglevel = 0;
 end
 
 iok = 0;
@@ -60,7 +60,7 @@ iok = thermo_set(a.tp_id, 50, xy, solver, rtol, maxsteps, maxiter, loglevel);
 % $$$  case 'SP'
 % $$$   iok = thermo_set(a.tp_id, 50, 102, solver, rtol, maxsteps, loglevel);
 % $$$  case 'SV'
-% $$$   iok = thermo_set(a.tp_id, 50, 107, solver, rtol, maxsteps, loglevel); 
+% $$$   iok = thermo_set(a.tp_id, 50, 107, solver, rtol, maxsteps, loglevel);
 % $$$  case 'UV'
 % $$$   iok = thermo_set(a.tp_id, 50, 105, solver, rtol, maxsteps, loglevel);
 % $$$  case 'PT'
@@ -72,17 +72,17 @@ iok = thermo_set(a.tp_id, 50, xy, solver, rtol, maxsteps, maxiter, loglevel);
 % $$$  case 'PS'
 % $$$   iok = thermo_set(a.tp_id, 50, 102, solver, rtol, maxsteps, loglevel);
 % $$$  case 'VS'
-% $$$   iok = thermo_set(a.tp_id, 50, 107, solver, rtol, maxsteps, loglevel); 
+% $$$   iok = thermo_set(a.tp_id, 50, 107, solver, rtol, maxsteps, loglevel);
 % $$$  case 'VU'
-% $$$   iok = thermo_set(a.tp_id, 50, 105, solver, rtol, maxsteps, loglevel); 
+% $$$   iok = thermo_set(a.tp_id, 50, 105, solver, rtol, maxsteps, loglevel);
 % $$$  otherwise
 % $$$   error('unsupported option')
 % $$$ end
 if iok < 0
-  e = geterr;
-  if e == 0
-    e = 'unknown error';
-  end
-   error(e);
+    e = geterr;
+    if e == 0
+        e = 'unknown error';
+    end
+    error(e);
 end
 

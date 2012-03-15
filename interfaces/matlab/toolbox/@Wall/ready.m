@@ -1,5 +1,4 @@
 function ok = ready(w)
-% READY - 
-%   
+% READY -
+%
 ok = wallmethods(11, wall_hndl(w));
-

@@ -1,10 +1,10 @@
 function saveSoln(s, fname, id, desc)
-% SAVE - 
-%   
+% SAVE -
+%
 if nargin == 2
-  id = 'solution';
-  desc = '-';
+    id = 'solution';
+    desc = '-';
 elseif nargin == 3
-  desc = '-';
+    desc = '-';
 end
 stack_methods(s.stack_id, 107, fname, id, desc);

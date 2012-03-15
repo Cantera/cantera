@@ -9,9 +9,7 @@ function nm = elementName(a, m)
 [mm, nn] = size(m);
 nm = {};
 for i = 1:mm
-  for j = 1:nn
-    nm{i,j} = phase_get(a.tp_id, 41, m(i,j));
-  end
+    for j = 1:nn
+        nm{i,j} = phase_get(a.tp_id, 41, m(i,j));
+    end
 end
-
-

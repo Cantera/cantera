@@ -1,5 +1,5 @@
 function advance(n, tout)
-% ADVANCE - Advance the state of the reactor network in time. 
+% ADVANCE - Advance the state of the reactor network in time.
 %
 %    Method advance integrates the system of ordinary differential
 %    equations that determine the rate of change of the volume, the

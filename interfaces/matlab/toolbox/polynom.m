@@ -1,7 +1,7 @@
 function poly = polynom(coeffs)
 %
 % POLY - create an instance of class 'Func' representing a polynomial.
-%        
+%
 %   The polynomial coefficients are specified by a one-dimensional
 %   array [a0 a1 .... aN].
 %
@@ -10,10 +10,9 @@ function poly = polynom(coeffs)
 %
 [n m] = size(coeffs);
 if n == 1
-  poly = Func('polynomial',m - 1,coeffs);
+    poly = Func('polynomial',m - 1,coeffs);
 elseif m == 1
-  poly = Func('polynomial',n - 1,coeffs);
+    poly = Func('polynomial',n - 1,coeffs);
 else
-  error('wrong shape for coefficient array');
+    error('wrong shape for coefficient array');
 end
-

@@ -1,7 +1,7 @@
 function k = elementIndex(a,name)
 % ELEMENTINDEX -  The element index of the element with name
-% 'name'. 
-% 
+% 'name'.
+%
 %   The index is an integer assigned to each element in sequence as it
 %   is read in from the input file.
 %
@@ -20,13 +20,13 @@ function k = elementIndex(a,name)
 %
 
 if iscell(name)
-  [m, n] = size(name);
-  k = zeros(m,n);
-  for i = 1:m
-    for j = 1:n
-      k(i,j) = phase_get(a.tp_id,13,name{i,j});
+    [m, n] = size(name);
+    k = zeros(m,n);
+    for i = 1:m
+        for j = 1:n
+            k(i,j) = phase_get(a.tp_id,13,name{i,j});
+        end
     end
-  end
 else
-  k = phase_get(a.tp_id,13,name);
+    k = phase_get(a.tp_id,13,name);
 end

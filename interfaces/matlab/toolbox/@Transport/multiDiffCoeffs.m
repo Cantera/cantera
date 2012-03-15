@@ -1,7 +1,7 @@
 function v = multiDiffCoeffs(a)
 %MULTIDIFFCOEFFS  Multicomponent diffusion coefficients (m^2/s).
-%  
-%    d = multiDiffCoeffs(gas) 
+%
+%    d = multiDiffCoeffs(gas)
 %
 %    returns in d the array of multicomponent diffusion
 %    coefficients. Object 'gas' must belong to a class derived from

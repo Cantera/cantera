@@ -8,7 +8,7 @@ function r = Reservoir(contents)
 %    changing the composition or thermodynamic state. Note that even
 %    if the reaction mechanism associated with the fluid in the
 %    reactor defines reactions, they are disabled within
-%    reservoirs. 
+%    reservoirs.
 %
 %        r1 = Reservoir         % an empty reservoir
 %        r2 = Reservoir(gas)    % a reservoir containing a gas
@@ -16,6 +16,6 @@ function r = Reservoir(contents)
 %   See also: Reactor
 %
 if nargin == 0
-  contents = 0;
+    contents = 0;
 end
 r = Reactor(contents, 1);
