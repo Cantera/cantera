@@ -392,7 +392,7 @@ public:
 
 protected:
 
-    size_t m_kk, m_nfall;
+    size_t m_nfall;
 
     std::vector<size_t> m_fallindx;
 

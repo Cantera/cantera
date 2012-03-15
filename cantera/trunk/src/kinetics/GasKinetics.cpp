@@ -78,7 +78,6 @@ GasKineticsData&  GasKineticsData::operator=(const GasKineticsData& right)
 GasKinetics::
 GasKinetics(thermo_t* thermo) :
     Kinetics(),
-    m_kk(0),
     m_nfall(0),
     m_nirrev(0),
     m_nrev(0),
@@ -95,7 +94,6 @@ GasKinetics(thermo_t* thermo) :
 //====================================================================================================================
 GasKinetics::GasKinetics(const GasKinetics& right) :
     Kinetics(),
-    m_kk(0),
     m_nfall(0),
     m_nirrev(0),
     m_nrev(0),
@@ -121,7 +119,6 @@ GasKinetics& GasKinetics::operator=(const GasKinetics& right)
 
     Kinetics::operator=(right);
 
-    m_kk = right.m_kk;
     m_nfall = right.m_nfall;
     m_fallindx = right.m_fallindx;
     m_falloff_low_rates = right.m_falloff_low_rates;

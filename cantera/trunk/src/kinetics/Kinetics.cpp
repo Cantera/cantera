@@ -25,7 +25,7 @@ namespace Cantera
 
 Kinetics::Kinetics() :
     m_ii(0),
-    m_nTotalSpecies(0),
+    m_kk(0),
     m_perturb(0),
     m_reactants(0),
     m_products(0),
@@ -49,7 +49,7 @@ Kinetics::~Kinetics() {}
  */
 Kinetics::Kinetics(const Kinetics& right) :
     m_ii(0),
-    m_nTotalSpecies(0),
+    m_kk(0),
     m_perturb(0),
     m_reactants(0),
     m_products(0),
@@ -85,7 +85,7 @@ operator=(const Kinetics& right)
     }
 
     m_ii                = right.m_ii;
-    m_nTotalSpecies     = right.m_nTotalSpecies;
+    m_kk                = right.m_kk;
     m_perturb           = right.m_perturb;
     m_reactants         = right.m_reactants;
     m_products          = right.m_products;
@@ -355,10 +355,10 @@ void Kinetics::addPhase(thermo_t& thermo)
 
 void Kinetics::finalize()
 {
-    m_nTotalSpecies = 0;
+    m_kk = 0;
     for (size_t n = 0; n < nPhases(); n++) {
         size_t nsp = m_thermo[n]->nSpecies();
-        m_nTotalSpecies += nsp;
+        m_kk += nsp;
     }
 }
 
