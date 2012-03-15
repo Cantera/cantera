@@ -34,10 +34,8 @@ void wallmethods(int nlhs, mxArray* plhs[],
     }
 
     // options that do not return a value
-
     if (job < 20) {
         switch (job) {
-
         case 1:
             iok = wall_del(i);
             break;
@@ -112,7 +110,7 @@ void wallmethods(int nlhs, mxArray* plhs[],
         plhs[0] = mxCreateNumericMatrix(1,1,mxDOUBLE_CLASS,mxREAL);
         double* h = mxGetPr(plhs[0]);
         *h = r;
-        if (r == Undef) {
+        if (r == DERR) {
             reportError();
         }
         return;

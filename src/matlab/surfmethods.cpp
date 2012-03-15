@@ -7,10 +7,6 @@
 
 using namespace std;
 
-namespace Cantera
-{
-void writelog(const std::string& s);
-}
 using namespace Cantera;
 
 void surfmethods(int nlhs, mxArray* plhs[],
@@ -69,15 +65,15 @@ void surfmethods(int nlhs, mxArray* plhs[],
     // return array parameters
     else if (job < 200) {
         nsp = phase_nSpecies(surf);
-        double* x = new double[nsp];
+        std::vector<double> x(nsp);
 
         switch (job) {
         case 101:
             checkNArgs(3,nrhs);
-            iok = surf_getcoverages(surf,x);
+            iok = surf_getcoverages(surf, &x[0]);
             break;
         case 103:
-            iok = surf_getconcentrations(surf,x);
+            iok = surf_getconcentrations(surf, &x[0]);
             break;
         default:
             ;
@@ -89,13 +85,11 @@ void surfmethods(int nlhs, mxArray* plhs[],
             for (size_t i = 0; i < nsp; i++) {
                 h[i] = x[i];
             }
-            delete x;
             return;
         } else {
             for (size_t i = 0; i < nsp; i++) {
                 h[i] = -999.99;
             }
-            delete x;
             reportError();
             return;
         }

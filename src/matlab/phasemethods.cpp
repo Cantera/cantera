@@ -89,8 +89,7 @@ void phasemethods(int nlhs, mxArray* plhs[],
                 input_buf = (char*)mxCalloc(buflen, sizeof(char));
                 status = mxGetString(prhs[3], input_buf, buflen);
                 if (status != 0)
-                    mexWarnMsgTxt("Not enough space. "
-                                  "String is truncated.");
+                    mexWarnMsgTxt("Not enough space. " "String is truncated.");
 
                 switch (mjob) {
                 case 30:
@@ -134,18 +133,18 @@ void phasemethods(int nlhs, mxArray* plhs[],
             vv = 1.0/phase_density(ph);
             break;
         case 10:
-            vv = (double) phase_nElements(ph);
+            vv = static_cast<int>(phase_nElements(ph));
             break;
         case 11:
-            vv = (double) phase_nSpecies(ph);
+            vv = static_cast<int>(phase_nSpecies(ph));
             break;
         case 12:
             input_buf = getString(prhs[3]);
-            vv = (double) phase_speciesIndex(ph, input_buf) + 1;
+            vv = static_cast<int>(phase_speciesIndex(ph, input_buf)) + 1;
             break;
         case 13:
             input_buf = getString(prhs[3]);
-            vv = (double) phase_elementIndex(ph, input_buf) + 1;
+            vv = static_cast<int>(phase_elementIndex(ph, input_buf)) + 1;
             break;
         case 14:
             k = getInt(prhs[3]);
@@ -160,7 +159,7 @@ void phasemethods(int nlhs, mxArray* plhs[],
             ok = false;
         }
         if (ok) {
-            if (vv == DERR) {
+            if (vv == DERR || vv == -1 || vv == ERR) {
                 reportError();
             }
             plhs[0] = mxCreateNumericMatrix(1,1,mxDOUBLE_CLASS,mxREAL);
@@ -169,71 +168,62 @@ void phasemethods(int nlhs, mxArray* plhs[],
             return;
         }
     }
-    //ok = true;
 
     else if (job < 30) {
-
         iok = 0;
         size_t nsp = phase_nSpecies(ph);
-        double* x = new double[nsp];
+        std::vector<double> x(nsp);
         switch (job) {
         case 20:
-            iok = phase_getMoleFractions(ph,nsp,x);
+            iok = phase_getMoleFractions(ph,nsp, &x[0]);
             break;
         case 21:
-            iok = phase_getMassFractions(ph,nsp,x);
+            iok = phase_getMassFractions(ph,nsp, &x[0]);
             break;
         case 22:
-            iok = phase_getMolecularWeights(ph,nsp,x);
+            iok = phase_getMolecularWeights(ph,nsp, &x[0]);
             break;
         default:
             ;
         }
-        plhs[0] = mxCreateNumericMatrix((mwSize) nsp,1,
-                                        mxDOUBLE_CLASS,mxREAL);
+        plhs[0] = mxCreateNumericMatrix((mwSize) nsp, 1, mxDOUBLE_CLASS, mxREAL);
         double* h = mxGetPr(plhs[0]);
         if (iok >= 0) {
             for (size_t i = 0; i < nsp; i++) {
                 h[i] = x[i];
             }
-            delete x;
             return;
         } else {
             for (size_t i = 0; i < nsp; i++) {
                 h[i] = -999.99;
             }
-            delete x;
             mexErrMsgTxt("unknown attribute");
             return;
         }
     }
 
     else if (job < 40) {
-
         iok = 0;
         size_t nel = phase_nElements(ph);
-        double* x = new double[nel];
+        std::vector<double> x(nel);
         switch (job) {
         case 30:
-            iok = phase_getAtomicWeights(ph,nel,x);
+            iok = phase_getAtomicWeights(ph,nel, &x[0]);
             break;
         default:
             ;
         }
-        plhs[0] = mxCreateNumericMatrix((mwSize) nel,1,
-                                        mxDOUBLE_CLASS,mxREAL);
+        plhs[0] = mxCreateNumericMatrix((mwSize) nel, 1, mxDOUBLE_CLASS, mxREAL);
         double* h = mxGetPr(plhs[0]);
         if (iok >= 0) {
             for (size_t i = 0; i < nel; i++) {
                 h[i] = x[i];
             }
-            delete x;
             return;
         } else {
             for (size_t i = 0; i < nel; i++) {
                 h[i] = -999.99;
             }
-            delete x;
             mexErrMsgTxt("unknown attribute");
             return;
         }
@@ -269,7 +259,6 @@ void phasemethods(int nlhs, mxArray* plhs[],
             plhs[0] = mxCreateString(output_buf);
             return;
         } else {
-            mexErrMsgTxt("error or unknown method.");
             reportError();
             return;
         }
