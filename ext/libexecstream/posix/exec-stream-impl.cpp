@@ -27,6 +27,9 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 // exec_stream_t::impl_t
+
+using namespace exec_stream_internal;
+
 struct exec_stream_t::impl_t {
     impl_t();
     ~impl_t();
@@ -244,7 +247,7 @@ void exec_stream_t::impl_t::start( std::string const & program )
             write( status_pipe.w(), msg, len );
             _exit( -1 );
         }catch( ... ) {
-            char * msg="exec_stream_t::start: unknown exception in child process";
+            const char * msg="exec_stream_t::start: unknown exception in child process";
             std::size_t len=strlen( msg );
             write( status_pipe.w(), &len, sizeof( len ) );
             write( status_pipe.w(), msg, len );

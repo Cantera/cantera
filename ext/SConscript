@@ -45,6 +45,13 @@ def prep_sundials(env):
 
     return localenv
 
+def prep_libexecstream(env):
+    localenv = env.Clone()
+    if '-Wall' in localenv['CCFLAGS']:
+        localenv['CCFLAGS'].append('-Wno-unused-result')
+
+    return localenv
+
 def prep_gtest(env):
     localenv = env.Clone()
     localenv.Append(CPPPATH=[Dir('#ext/gtest'),
@@ -53,7 +60,7 @@ def prep_gtest(env):
     return localenv
 
 # (subdir, (file extensions), prepfunction)
-libs = [('libexecstream', ['cpp'], prep_default)]
+libs = [('libexecstream', ['cpp'], prep_libexecstream)]
 
 if env['build_with_f2c']:
     libs.append(('f2c_math', ['cpp','c'], prep_f2c))

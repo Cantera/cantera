@@ -26,6 +26,8 @@ OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
 EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+using namespace exec_stream_internal;
+
 // exec_stream_t::impl_t
 struct exec_stream_t::impl_t {
     impl_t();
