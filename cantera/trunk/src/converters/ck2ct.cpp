@@ -74,7 +74,7 @@ static void getTransportData(string trfile)
          * can't possibly have enough data in them to comprise a
          * properly formatted record.
          */
-        if (rest[0] != '#' && rest[0] != '!' && rest.size() > 5) {
+        if (rest.size() > 5 && rest[0] != '#' && rest[0] != '!') {
             /*
              * copy the string into a stringstream and parse the line
              * into the trdata object
