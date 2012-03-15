@@ -10,11 +10,11 @@ using namespace Cantera;
 void onedimmethods(int nlhs, mxArray* plhs[],
                    int nrhs, const mxArray* prhs[])
 {
-    double vv;
+    double vv = 0.0;
     int job = getInt(prhs[2]);
     size_t n, m;
     double* dom_ids, *h;
-    int indx;
+    int indx = 0;
     char* nm;
 
     int dom;

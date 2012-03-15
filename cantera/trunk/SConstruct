@@ -188,14 +188,14 @@ elif env['CC'] == 'cl': # Visual Studio
 
 elif env['CC'] == 'icc':
     defaults.cxxFlags = '-ftemplate-depth-128'
-    defaults.ccFlags = '-Wcheck -vec-report0'
+    defaults.ccFlags = '-Wcheck -vec-report0 -diag-disable 1478'
     defaults.debugCcFlags = '-g'
     defaults.noOptimizeCcFlags = '-O0 -fno-inline'
     defaults.optimizeCcFlags = '-O3 -finline-functions -DNDEBUG'
 
 elif env['CC'] == 'clang':
     defaults.cxxFlags = ''
-    defaults.ccFlags = '-fcolor-diagnostics'
+    defaults.ccFlags = '-Wall -fcolor-diagnostics -Wno-deprecated-declarations'
     defaults.debugCcFlags = '-g'
     defaults.noOptimizeCcFlags = '-O0'
     defaults.optimizeCcFlags = '-O3 -DNDEBUG'

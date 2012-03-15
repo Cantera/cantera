@@ -38,7 +38,7 @@ void funcmethods(int nlhs, mxArray* plhs[],
     else {
         int nn = 0;
         double t;
-        double v;
+        double v = 0.0;
         int i = getInt(prhs[2]);
         if (job == 1) {
             nn = func_del(i);

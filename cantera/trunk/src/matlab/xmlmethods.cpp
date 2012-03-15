@@ -39,7 +39,7 @@ static bool nargs_ok(int job, int n)
 void xmlmethods(int nlhs, mxArray* plhs[],
                 int nrhs, const mxArray* prhs[])
 {
-    int j, m, iok;
+    int j, m, iok = 0;
     char* file, *key, *val, *nm;
 
     int job = getInt(prhs[1]);

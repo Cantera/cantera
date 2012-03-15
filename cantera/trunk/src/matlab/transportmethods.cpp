@@ -8,7 +8,7 @@ void reportError();
 void transportmethods(int nlhs, mxArray* plhs[],
                       int nrhs, const mxArray* prhs[])
 {
-    double vv;
+    double vv = 0.0;
     int n = getInt(prhs[1]);
     int job = getInt(prhs[2]);
     double* h;
@@ -33,7 +33,6 @@ void transportmethods(int nlhs, mxArray* plhs[],
 
 
     if (job < 10) {
-        bool ok = true;
         switch (job) {
         case 0:
             delTransport(n);

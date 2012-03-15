@@ -931,8 +931,6 @@ void Phase::freezeSpecies()
 {
     m_speciesFrozen = true;
     init(molecularWeights());
-    size_t kk = nSpecies();
-    m_kk = nSpecies();
 }
 
 void Phase::init(const vector_fp& mw)

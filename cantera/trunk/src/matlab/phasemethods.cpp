@@ -8,12 +8,11 @@
 void phasemethods(int nlhs, mxArray* plhs[],
                   int nrhs, const mxArray* prhs[])
 {
-    double vv;
+    double vv = 0.0;
     int iok=0, k;
     int ph  = getInt(prhs[1]);
     int job = getInt(prhs[2]);
 
-    bool ok = true;
     char* input_buf;
     double* ptr = 0;
     size_t nsp, n, m;
@@ -31,7 +30,6 @@ void phasemethods(int nlhs, mxArray* plhs[],
         nsp = phase_nSpecies(ph);
 
         // set scalar attributes
-        bool ok = true;
         if (mjob < 10) {
             if (m != 1 || n != 1) {
                 mexErrMsgTxt("value must be scalar.");
@@ -45,7 +43,7 @@ void phasemethods(int nlhs, mxArray* plhs[],
                 iok = phase_setDensity(ph,*ptr);
                 break;
             default:
-                ok = false;
+                mexErrMsgTxt("Unknown job number");
             }
         }
 
@@ -69,7 +67,7 @@ void phasemethods(int nlhs, mxArray* plhs[],
                     iok = phase_setMassFractions(ph, nsp, ptr, norm);
                     break;
                 default:
-                    ok = false;
+                    mexErrMsgTxt("Unknown job number");
                 }
             } else {
                 mexErrMsgTxt("wrong array size");
@@ -102,7 +100,7 @@ void phasemethods(int nlhs, mxArray* plhs[],
                     iok = phase_setName(ph, input_buf);
                     break;
                 default:
-                    mexErrMsgTxt("what?");
+                    mexErrMsgTxt("Unknown job number");
                 }
             } else {
                 mexErrMsgTxt("expected a string.");
@@ -156,17 +154,15 @@ void phasemethods(int nlhs, mxArray* plhs[],
             vv = write_phase(ph,show_thermo);
             break;
         default:
-            ok = false;
+            mexErrMsgTxt("Unknown job number");
         }
-        if (ok) {
-            if (vv == DERR || vv == -1 || vv == ERR) {
-                reportError();
-            }
-            plhs[0] = mxCreateNumericMatrix(1,1,mxDOUBLE_CLASS,mxREAL);
-            double* h = mxGetPr(plhs[0]);
-            *h = vv;
-            return;
+        if (vv == DERR || vv == -1 || vv == ERR) {
+            reportError();
         }
+        plhs[0] = mxCreateNumericMatrix(1,1,mxDOUBLE_CLASS,mxREAL);
+        double* h = mxGetPr(plhs[0]);
+        *h = vv;
+        return;
     }
 
     else if (job < 30) {
@@ -184,7 +180,7 @@ void phasemethods(int nlhs, mxArray* plhs[],
             iok = phase_getMolecularWeights(ph,nsp, &x[0]);
             break;
         default:
-            ;
+            mexErrMsgTxt("Unknown job number");
         }
         plhs[0] = mxCreateNumericMatrix((mwSize) nsp, 1, mxDOUBLE_CLASS, mxREAL);
         double* h = mxGetPr(plhs[0]);

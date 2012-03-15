@@ -3,10 +3,6 @@
  *   Definitions for dynamic allocation of multidimensional pointer arrays
  */
 /*
- * $Revision$
- * $Date$
- */
-/*
  * Copyright 2004 Sandia Corporation. Under the terms of Contract
  * DE-AC04-94AL85000 with Sandia Corporation, the U.S. Government
  * retains certain rights in this software.
@@ -340,14 +336,7 @@ static double* smalloc(size_t n)
     FILE* file;
 #endif
     double* pntr;
-    if (n < 0) {
-        if (MDP_ALLO_errorOption == 7 ||
-                MDP_ALLO_errorOption == 5 || MDP_ALLO_errorOption == 3  ||
-                MDP_ALLO_errorOption == 1) {
-            (void) fprintf(stderr, "smalloc ERROR: Non-positive argument. (%d)\n", (int) n);
-            return NULL;
-        }
-    } else if (n == 0) {
+    if (n == 0) {
         pntr = NULL;
     } else {
         n = ((n - 1) / 8);

@@ -79,7 +79,7 @@ void initLogger()
     if (!_logger) {
         _logger = new Cantera::ML_Logger;
         // Call the DLL program to set the logger
-        int retn = setLogWriter(_logger);
+        setLogWriter(_logger);
     }
 }
 

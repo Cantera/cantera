@@ -7,7 +7,7 @@
 void flowdevicemethods(int nlhs, mxArray* plhs[],
                        int nrhs, const mxArray* prhs[])
 {
-    int m, iok, n;
+    int m, iok = 0, n;
     int job = getInt(prhs[1]);
     int i = getInt(prhs[2]);
 
