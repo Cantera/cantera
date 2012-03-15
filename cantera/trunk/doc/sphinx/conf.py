@@ -38,7 +38,7 @@ autodoc_default_flags = ['members','show-inheritance','undoc-members']
 
 autoclass_content = 'both'
 
-mathjax_path = 'http://mathjax.connectmv.com/MathJax.js'
+mathjax_path = 'http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=default'
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
