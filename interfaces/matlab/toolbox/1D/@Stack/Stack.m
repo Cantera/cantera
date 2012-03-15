@@ -10,6 +10,7 @@ s.stack_id = -1;
 s.domains = domains;
 if nargin == 1
     nd = length(domains);
+    ids = zeros(1, nd);
     for n=1:nd
         ids(n) = domain_hndl(domains(n));
     end

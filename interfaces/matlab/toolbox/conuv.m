@@ -1,4 +1,4 @@
-function dydt = conuv(t,y,gas,mw)
+function dydt = conuv(t,y,gas,mw) %#ok<INUSL>
 % CONUV ODE system for a constant-volume, adiabatic reactor.
 %
 %    Function CONUV evaluates the system of ordinary differential

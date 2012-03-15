@@ -1,6 +1,6 @@
 function a = setState(a,job,values)
 disp('deprecated')
-if nargin ~= 3 | ~isa(job,'char')
+if nargin ~= 3 || ~isa(job,'char')
     error('Syntax error. Type "help setState" for more information.')
 end
 

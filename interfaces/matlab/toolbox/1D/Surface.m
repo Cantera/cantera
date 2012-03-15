@@ -9,6 +9,6 @@ if nargin < 2
         setID(m,id);
     end
 else
-    m = Domain1D(6, surface_mech)
+    m = Domain1D(6, surface_mech);
     setID(m,id);
 end

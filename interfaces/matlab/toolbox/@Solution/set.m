@@ -148,23 +148,23 @@ elseif ntot == 2
     %
     % set property pairs
     %
-    if nt == 1 & nv == 1
+    if nt == 1 && nv == 1
         setTemperature(a,tval);
         setDensity(a,1.0/vval);
-    elseif nt == 1 & np == 1
+    elseif nt == 1 && np == 1
         setTemperature(a,tval);
         setPressure(a, pval);
-    elseif nt == 1 & nq == 1
+    elseif nt == 1 && nq == 1
         setState_Tsat(a, [tval,qval]);
-    elseif np == 1 & nq == 1
+    elseif np == 1 && nq == 1
         setState_Psat(a, [pval,qval]);
-    elseif np == 1 & nh == 1
+    elseif np == 1 && nh == 1
         setState_HP(a,[hval,pval]);
-    elseif nu == 1 & nv == 1
+    elseif nu == 1 && nv == 1
         setState_UV(a,[uval,vval]);
-    elseif ns == 1 & np == 1
+    elseif ns == 1 && np == 1
         setState_SP(a,[sval,pval]);
-    elseif ns == 1 & nv == 1
+    elseif ns == 1 && nv == 1
         setState_SV(a,[sval,vval]);
     else
         error('unimplemented property pair');

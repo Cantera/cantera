@@ -10,7 +10,7 @@ function tr = Transport(xml_phase, th, model, loglevel)
 tr.id = 0;
 if nargin == 4
     tr.th = th;
-    if model == 'default'
+    if strcmp(model, 'default')
         try
             node = child(xml_phase,'transport');
             tr.model = attrib(node,'model');

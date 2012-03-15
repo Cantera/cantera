@@ -4,7 +4,7 @@ function y = massFractions(r)
 %
 nsp = nSpecies(r.contents);
 ir = reactor_hndl(r);
+y = zeros(1, nsp);
 for k = 1:nsp
-    yy(k) = reactormethods(30, ir, k-1);
+    y(k) = reactormethods(30, ir, k-1);
 end
-y = yy;

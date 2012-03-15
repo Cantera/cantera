@@ -21,7 +21,7 @@ function nu = stoich_net(a,species,rxns)
 %    See also: stoich_r, stoich_p.
 %
 if nargin == 1
-    nu = stoich_p(a) - stoich_r(a)
+    nu = stoich_p(a) - stoich_r(a);
 elseif nargin == 3
     nu = stoich_p(a,species,rxns) - stoich_r(a,species,rxns);
 else

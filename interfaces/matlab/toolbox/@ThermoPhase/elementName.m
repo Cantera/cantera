@@ -7,7 +7,7 @@ function nm = elementName(a, m)
 %    the same shape containing the name strings.
 %
 [mm, nn] = size(m);
-nm = {};
+nm = cell(mm,nn);
 for i = 1:mm
     for j = 1:nn
         nm{i,j} = phase_get(a.tp_id, 41, m(i,j));

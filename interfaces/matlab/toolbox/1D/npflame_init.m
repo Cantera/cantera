@@ -46,7 +46,6 @@ wt = molecularWeights(gas);
 % find the fuel and oxidizer
 ifuel = speciesIndex(gas,fuel);
 ioxidizer = speciesIndex(gas,oxidizer);
-ih = speciesIndex(gas,'H');
 
 s = nuox*wt(ioxidizer)/wt(ifuel);
 y0f = massFraction(left,ifuel);
@@ -59,6 +58,9 @@ nsp = nSpecies(gas);
 tf = temperature(left);
 tox = temperature(right);
 
+yox = zeros(1, nsp);
+yf = zeros(1, nsp);
+ystoich = zeros(1, nsp);
 for n = 1:nsp
     yox(n) = massFraction(right,n);
     yf(n) = massFraction(left,n);
@@ -82,6 +84,11 @@ f = sqrt(a/(2.0*diff(ioxidizer)));
 x0 = massFlux(left)*dz/(massFlux(left) + massFlux(right));
 
 nz = nPoints(flow);
+zm = zeros(1,nz);
+u = zeros(1,nz);
+v = zeros(1,nz);
+y = zeros(nz,nsp);
+t = zeros(1,nz);
 for j = 1:nz
     x = zz(j);
     zeta = f*(x - x0);

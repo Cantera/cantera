@@ -30,7 +30,7 @@ else
                         a = -a;
                     end
                 end
-                if a ~= 1 | d == 0
+                if a ~= 1 || d == 0
                     s = [s num2str(a)];
                     if d > 0
                         s = [s '*'];
@@ -45,7 +45,6 @@ else
             d = d - 1;
         end
     elseif strcmp(p.typ,'gaussian')
-        s = num2str(p.coeffs(1));
         s = ['Gaussian(' num2str(p.coeffs(1)) ',' ...
             num2str(p.coeffs(2)) ',' ...
             num2str(p.coeffs(3)) ')'];
@@ -57,7 +56,7 @@ else
         B = c(2:end,2);
         N = size(c,1)-1;
         if Ao ~= 0
-            s = [num2str(Ao/2)];
+            s = num2str(Ao/2);
         else
             s = '';
         end
