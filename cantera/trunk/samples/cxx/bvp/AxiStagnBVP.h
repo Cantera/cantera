@@ -1,6 +1,6 @@
 /// @file AxiStagnBVP.h
 
-#include <cantera/Cantera.h>
+#include "cantera/Cantera.h"
 #include "BoundaryValueProblem.h"
 
 

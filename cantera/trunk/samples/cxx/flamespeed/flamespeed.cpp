@@ -8,9 +8,9 @@
 #include "cantera/oneD/Sim1D.h"
 #include "cantera/oneD/Inlet1D.h"
 #include "cantera/oneD/StFlow.h"
-#include <cantera/IdealGasMix.h>
-#include <cantera/equilibrium.h>
-#include <cantera/transport.h>
+#include "cantera/IdealGasMix.h"
+#include "cantera/equilibrium.h"
+#include "cantera/transport.h"
 
 using namespace Cantera;
 using std::cout;

@@ -6,8 +6,8 @@
 //
 /////////////////////////////////////////////////////////////
 
-#include <cantera/GRI30.h>
-#include <cantera/zerodim.h>
+#include "cantera/GRI30.h"
+#include "cantera/zerodim.h"
 #include "example_utils.h"
 
 using namespace Cantera;

@@ -1,4 +1,4 @@
-#include <cantera/IdealGasMix.h>    // defines class IdealGasMix
+#include "cantera/IdealGasMix.h"    // defines class IdealGasMix
 
 #include <iostream>
 #include <fstream>

@@ -11,9 +11,9 @@
 // provide a simplified interface to the Cantera header files. If you need
 // to include core headers directly, use the format "cantera/module/*.h".
 
-#include <cantera/IdealGasMix.h>    // defines class IdealGasMix
-#include <cantera/equilibrium.h>    // chemical equilibrium
-#include <cantera/transport.h>      // transport properties
+#include "cantera/IdealGasMix.h"    // defines class IdealGasMix
+#include "cantera/equilibrium.h"    // chemical equilibrium
+#include "cantera/transport.h"      // transport properties
 
 // All Cantera kernel names are in namespace Cantera. You can either
 // reference everything as Cantera::<name>, or include the following

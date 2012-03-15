@@ -1,7 +1,7 @@
 /// @file blasius.cpp
 /// The Blasius boundary layer
 
-#include <cantera/Cantera.h>
+#include "cantera/Cantera.h"
 #include "BoundaryValueProblem.h"
 
 

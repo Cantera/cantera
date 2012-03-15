@@ -24,9 +24,9 @@
 #ifdef HAS_SUNDIALS
 
 #ifdef SUNDIALS_VERSION_22
-#include <nvector_serial.h>
+#include "nvector_serial.h"
 #else
-#include <sundials/sundials_nvector.h>
+#include "sundials/sundials_nvector.h"
 
 // These constants are defined internally in the ida package, ida.c
 #define IDA_NN  0

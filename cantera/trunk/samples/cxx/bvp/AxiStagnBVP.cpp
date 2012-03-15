@@ -1,6 +1,6 @@
 /// @file AxiStagnBVP.cpp
 
-#include <cantera/Cantera.h>
+#include "cantera/Cantera.h"
 #include "AxiStagnBVP.h"
 
 AxiStagnBVP::AxiStagnBVP(int nsp, int np, double L) :

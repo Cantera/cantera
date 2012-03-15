@@ -6,10 +6,10 @@
 //
 /////////////////////////////////////////////////////////////
 
-#include <cantera/zerodim.h>
+#include "cantera/zerodim.h"
 #include "example_utils.h"
-#include <cantera/reactionpaths.h>
-#include <cantera/IdealGasMix.h>
+#include "cantera/reactionpaths.h"
+#include "cantera/IdealGasMix.h"
 
 // #include <iostream>
 
