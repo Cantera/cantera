@@ -880,10 +880,6 @@ protected:
 
 
 private:
-
-    //! Number of species in the phase
-    size_t m_nsp;
-
     //! Number of species squared
     size_t m_nsp2;
 

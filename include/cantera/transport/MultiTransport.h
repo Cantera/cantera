@@ -266,8 +266,6 @@ private:
     doublereal m_visc_tlast;
     doublereal m_thermal_tlast;
 
-    //! Number of species in the phase
-    size_t m_nsp;
     doublereal m_tmin;
     doublereal m_tmax;
     vector_fp  m_mw;

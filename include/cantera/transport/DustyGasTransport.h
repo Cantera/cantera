@@ -285,10 +285,6 @@ private:
      */
     void eval_H_matrix();
 
-
-    //! Number of species in the gas phase
-    size_t m_nsp;
-
     //! Local copy of the species molecular weights
     /*!
      *  units kg /kmol

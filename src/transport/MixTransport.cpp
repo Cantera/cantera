@@ -29,7 +29,6 @@ namespace Cantera
 
 //====================================================================================================================
 MixTransport::MixTransport() :
-    m_nsp(0),
     m_tmin(-1.0),
     m_tmax(100000.),
     m_mw(0),
@@ -73,7 +72,6 @@ MixTransport::MixTransport() :
 }
 //====================================================================================================================
 MixTransport::MixTransport(const MixTransport& right) :
-    m_nsp(0),
     m_tmin(-1.0),
     m_tmax(100000.),
     m_mw(0),
@@ -131,7 +129,6 @@ MixTransport&  MixTransport::operator=(const MixTransport& right)
     }
     Transport::operator=(right);
 
-    m_nsp = right.m_nsp;
     m_tmin = right.m_tmin;
     m_tmax = right.m_tmax;
     m_mw =right.m_mw;

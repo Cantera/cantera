@@ -28,7 +28,6 @@ namespace Cantera
 //====================================================================================================================
 DustyGasTransport::DustyGasTransport(thermo_t* thermo) :
     Transport(thermo),
-    m_nsp(0),
     m_mw(0),
     m_dk(0),
     m_temp(-1.0),
@@ -49,7 +48,6 @@ DustyGasTransport::DustyGasTransport(thermo_t* thermo) :
 //====================================================================================================================
 DustyGasTransport::DustyGasTransport(const DustyGasTransport& right) :
     Transport(),
-    m_nsp(0),
     m_mw(0),
     m_dk(0),
     m_temp(-1.0),
@@ -83,7 +81,6 @@ DustyGasTransport& DustyGasTransport::operator=(const  DustyGasTransport& right)
     }
     Transport::operator=(right);
 
-    m_nsp = right.m_nsp;
     m_mw = right.m_mw;
     m_d = right.m_d;
     m_x = right.m_x;
@@ -182,7 +179,7 @@ void DustyGasTransport::initialize(ThermoPhase* phase, Transport* gastr)
 
     // constant mixture attributes
     m_thermo = phase;
-    m_nsp   = m_thermo->nSpecies();
+    m_nsp = m_thermo->nSpecies();
     if (m_gastran != gastr) {
         if (m_gastran) {
             delete m_gastran;

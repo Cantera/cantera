@@ -29,7 +29,6 @@ namespace Cantera
 
 LiquidTransport::LiquidTransport(thermo_t* thermo, int ndim) :
     Transport(thermo, ndim),
-    m_nsp(0),
     m_nsp2(0),
     m_tmin(-1.0),
     m_tmax(100000.),
@@ -77,7 +76,6 @@ LiquidTransport::LiquidTransport(thermo_t* thermo, int ndim) :
 
 LiquidTransport::LiquidTransport(const LiquidTransport& right) :
     Transport(right.m_thermo, right.m_nDim),
-    m_nsp(0),
     m_nsp2(0),
     m_tmin(-1.0),
     m_tmax(100000.),
@@ -133,8 +131,7 @@ LiquidTransport& LiquidTransport::operator=(const LiquidTransport& right)
         return *this;
     }
     Transport::operator=(right);
-    m_nsp                                 = right.m_nsp;
-    m_nsp2                             = right.m_nsp2;
+    m_nsp2                                = right.m_nsp2;
     m_tmin                                = right.m_tmin;
     m_tmax                                = right.m_tmax;
     m_mw                                  = right.m_mw;
