@@ -130,6 +130,49 @@ int Kinetics::type() const
 {
     return 0;
 }
+
+void Kinetics::checkReactionIndex(size_t i) const
+{
+    if (i >= m_ii) {
+        throw IndexError("checkReactionIndex", "reactions", i, m_ii-1);
+    }
+}
+
+void Kinetics::checkReactionArraySize(size_t ii) const
+{
+    if (m_ii > ii) {
+        throw ArraySizeError("checkReactionArraySize", ii, m_ii);
+    }
+}
+
+void Kinetics::checkPhaseIndex(size_t m) const
+{
+    if (m >= nPhases()) {
+        throw IndexError("checkPhaseIndex", "phase", m, nPhases()-1);
+    }
+}
+
+void Kinetics::checkPhaseArraySize(size_t mm) const
+{
+    if (nPhases() > mm) {
+        throw ArraySizeError("checkPhaseArraySize", mm, nPhases());
+    }
+}
+
+void Kinetics::checkSpeciesIndex(size_t k) const
+{
+    if (k >= m_kk) {
+        throw IndexError("checkSpeciesIndex", "species", k, m_kk-1);
+    }
+}
+
+void Kinetics::checkSpeciesArraySize(size_t kk) const
+{
+    if (m_kk > kk) {
+        throw ArraySizeError("checkSpeciesArraySize", kk, m_kk);
+    }
+}
+
 //====================================================================================================================
 void Kinetics::assignShallowPointers(const std::vector<thermo_t*> & tpVector)
 {

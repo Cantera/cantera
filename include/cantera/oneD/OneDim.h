@@ -60,6 +60,23 @@ public:
 
     size_t domainIndex(std::string name);
 
+    //! Check that the specified domain index is in range
+    //! Throws an exception if n is greater than nDomains()-1
+    void checkDomainIndex(size_t n) const {
+        if (n >= m_nd) {
+            throw IndexError("checkDomainIndex", "domains", n, m_nd-1);
+        }
+    }
+
+    //! Check that an array size is at least nDomains()
+    //! Throws an exception if nn is less than nDomains(). Used before calls
+    //! which take an array pointer.
+    void checkDomainArraySize(size_t nn) const {
+        if (m_nd > nn) {
+            throw ArraySizeError("checkDomainArraySize", nn, m_nd);
+        }
+    }
+
     /// The index of the start of domain i in the solution vector.
     size_t start(size_t i) const {
         return m_dom[i]->loc();

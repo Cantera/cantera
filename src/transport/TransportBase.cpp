@@ -85,6 +85,20 @@ void Transport::setNDim(const int ndim)
     m_nDim = ndim;
 }
 
+void Transport::checkSpeciesIndex(size_t k) const
+{
+    if (k >= m_nsp) {
+        throw IndexError("checkSpeciesIndex", "species", k, m_nsp-1);
+    }
+}
+
+void Transport::checkSpeciesArraySize(size_t kk) const
+{
+    if (m_nsp > kk) {
+        throw ArraySizeError("checkSpeciesArraySize", kk, m_nsp);
+    }
+}
+
 /* Set transport model parameters. This method may be
  * overloaded in subclasses to set model-specific parameters.
  */

@@ -193,6 +193,15 @@ public:
     //! Number of elements.
     size_t nElements() const;
 
+    //! Check that the specified element index is in range
+    //! Throws an exception if m is greater than nElements()-1
+    void checkElementIndex(size_t m) const;
+
+    //! Check that an array size is at least nElements()
+    //! Throws an exception if mm is less than nElements(). Used before calls
+    //! which take an array pointer.
+    void checkElementArraySize(size_t mm) const;
+
     //! Number of atoms of element \c m in species \c k.
     //!     @param k    species index
     //!     @param m    element index
@@ -230,6 +239,17 @@ public:
     size_t nSpecies() const {
         return m_kk;
     }
+
+    //! Check that the specified species index is in range
+    //! Throws an exception if k is greater than nSpecies()-1
+    void checkSpeciesIndex(size_t k) const;
+
+    //! Check that an array size is at least nSpecies()
+    //! Throws an exception if kk is less than nSpecies(). Used before calls
+    //! which take an array pointer.
+    void checkSpeciesArraySize(size_t kk) const;
+
+
     //!@} end group Element and Species Information
 
     //! Save the current internal state of the phase

@@ -106,7 +106,9 @@ extern "C" {
     int domain_componentName(int i, int n, int sz, char* buf)
     {
         try {
-            string nm = DomainCabinet::item(i).componentName(n);
+            Domain1D& dom = DomainCabinet::item(i);
+            dom.checkComponentIndex(n);
+            string nm = dom.componentName(n);
             size_t lout = std::min<size_t>(sz, nm.size());
             copy(nm.c_str(), nm.c_str() + lout, buf);
             buf[lout] = '\0';
@@ -119,8 +121,7 @@ extern "C" {
     size_t domain_componentIndex(int i, char* name)
     {
         try {
-            size_t n = DomainCabinet::item(i).componentIndex(string(name));
-            return n;
+            return DomainCabinet::item(i).componentIndex(string(name));
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -129,7 +130,9 @@ extern "C" {
     double domain_grid(int i, int n)
     {
         try {
-            return DomainCabinet::item(i).grid(n);
+            Domain1D& dom = DomainCabinet::item(i);
+            dom.checkPointIndex(n);
+            return dom.grid(n);
         } catch (...) {
             return handleAllExceptions(DERR, DERR);
         }
@@ -138,7 +141,9 @@ extern "C" {
     int domain_setBounds(int i, int n, double lower, double upper)
     {
         try {
-            DomainCabinet::item(i).setBounds(n, lower, upper);
+            Domain1D& dom = DomainCabinet::item(i);
+            dom.checkComponentIndex(n);
+            dom.setBounds(n, lower, upper);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -148,7 +153,9 @@ extern "C" {
     double domain_upperBound(int i, int n)
     {
         try {
-            return DomainCabinet::item(i).upperBound(n);
+            Domain1D& dom = DomainCabinet::item(i);
+            dom.checkComponentIndex(n);
+            return dom.upperBound(n);
         } catch (...) {
             return handleAllExceptions(DERR, DERR);
         }
@@ -157,7 +164,9 @@ extern "C" {
     double domain_lowerBound(int i, int n)
     {
         try {
-            return DomainCabinet::item(i).lowerBound(n);
+            Domain1D& dom = DomainCabinet::item(i);
+            dom.checkComponentIndex(n);
+            return dom.lowerBound(n);
         } catch (...) {
             return handleAllExceptions(DERR, DERR);
         }
@@ -167,7 +176,9 @@ extern "C" {
                                         double atol, int itime)
     {
         try {
-            DomainCabinet::item(i).setTolerances(n, rtol, atol, itime);
+            Domain1D& dom = DomainCabinet::item(i);
+            dom.checkComponentIndex(n);
+            dom.setTolerances(n, rtol, atol, itime);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -177,7 +188,9 @@ extern "C" {
     double domain_rtol(int i, int n)
     {
         try {
-            return DomainCabinet::item(i).rtol(n);
+            Domain1D& dom = DomainCabinet::item(i);
+            dom.checkComponentIndex(n);
+            return dom.rtol(n);
         } catch (...) {
             return handleAllExceptions(DERR, DERR);
         }
@@ -186,7 +199,9 @@ extern "C" {
     double domain_atol(int i, int n)
     {
         try {
-            return DomainCabinet::item(i).atol(n);
+            Domain1D& dom = DomainCabinet::item(i);
+            dom.checkComponentIndex(n);
+            return dom.atol(n);
         } catch (...) {
             return handleAllExceptions(DERR, DERR);
         }
@@ -195,6 +210,9 @@ extern "C" {
     int domain_setupGrid(int i, size_t npts, double* grid)
     {
         try {
+            Domain1D& dom = DomainCabinet::item(i);
+            dom.checkPointIndex(npts-1);
+            dom.checkPointArraySize(npts);
             DomainCabinet::item(i).setupGrid(npts, grid);
             return 0;
         } catch (...) {
@@ -249,7 +267,6 @@ extern "C" {
     int reactingsurf_new()
     {
         try {
-            //writelog("in reactingsurf_new\n");
             Domain1D* i = new ReactingSurf1D();
             return DomainCabinet::add(i);
         } catch (...) {
@@ -525,8 +542,7 @@ extern "C" {
         }
     }
 
-    int sim1D_setValue(int i, int dom, int comp,
-                                  int localPoint, double value)
+    int sim1D_setValue(int i, int dom, int comp, int localPoint, double value)
     {
         try {
             SimCabinet::item(i).setValue(dom, comp, localPoint, value);
@@ -537,15 +553,18 @@ extern "C" {
     }
 
     int sim1D_setProfile(int i, int dom, int comp,
-                                    size_t np, double* pos, size_t nv, double* v)
+                         size_t np, double* pos, size_t nv, double* v)
     {
         try {
+            Sim1D& sim = SimCabinet::item(i);
+            sim.checkDomainIndex(dom);
+            sim.domain(dom).checkComponentIndex(comp);
             vector_fp vv, pv;
             for (size_t n = 0; n < np; n++) {
                 vv.push_back(v[n]);
                 pv.push_back(pos[n]);
             }
-            SimCabinet::item(i).setProfile(dom, comp, pv, vv);
+            sim.setProfile(dom, comp, pv, vv);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -555,7 +574,10 @@ extern "C" {
     int sim1D_setFlatProfile(int i, int dom, int comp, double v)
     {
         try {
-            SimCabinet::item(i).setFlatProfile(dom, comp, v);
+            Sim1D& sim = SimCabinet::item(i);
+            sim.checkDomainIndex(dom);
+            sim.domain(dom).checkComponentIndex(comp);
+            sim.setFlatProfile(dom, comp, v);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -621,7 +643,7 @@ extern "C" {
     }
 
     int sim1D_setRefineCriteria(int i, int dom, double ratio,
-                                           double slope, double curve, double prune)
+                                double slope, double curve, double prune)
     {
         try {
             SimCabinet::item(i).setRefineCriteria(dom, ratio, slope, curve, prune);
@@ -631,8 +653,7 @@ extern "C" {
         }
     }
 
-    int sim1D_save(int i, char* fname, char* id,
-                              char* desc)
+    int sim1D_save(int i, char* fname, char* id, char* desc)
     {
         try {
             string sname = string(fname);
@@ -679,7 +700,10 @@ extern "C" {
     double sim1D_value(int i, int idom, int icomp, int localPoint)
     {
         try {
-            return SimCabinet::item(i).value(idom, icomp, localPoint);
+            Sim1D& sim = SimCabinet::item(i);
+            sim.checkDomainIndex(idom);
+            sim.domain(idom).checkComponentIndex(icomp);
+            return sim.value(idom, icomp, localPoint);
         } catch (...) {
             return handleAllExceptions(DERR, DERR);
         }
@@ -688,7 +712,10 @@ extern "C" {
     double sim1D_workValue(int i, int idom, int icomp, int localPoint)
     {
         try {
-            return SimCabinet::item(i).workValue(idom, icomp, localPoint);
+            Sim1D& sim = SimCabinet::item(i);
+            sim.checkDomainIndex(idom);
+            sim.domain(idom).checkComponentIndex(icomp);
+            return sim.workValue(idom, icomp, localPoint);
         } catch (...) {
             return handleAllExceptions(DERR, DERR);
         }

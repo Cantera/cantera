@@ -132,6 +132,15 @@ public:
         return m_nel;
     }
 
+    //! Check that the specified element index is in range
+    //! Throws an exception if m is greater than nElements()-1
+    void checkElementIndex(size_t m) const;
+
+    //! Check that an array size is at least nElements()
+    //! Throws an exception if mm is less than nElements(). Used before calls
+    //! which take an array pointer.
+    void checkElementArraySize(size_t mm) const;
+
     //! Returns the string name of the global element \a m.
     /*!
      *  @param m index of the global element
@@ -148,6 +157,15 @@ public:
     size_t nSpecies() const {
         return m_nsp;
     }
+
+    //! Check that the specified species index is in range
+    //! Throws an exception if k is greater than nSpecies()-1
+    void checkSpeciesIndex(size_t k) const;
+
+    //! Check that an array size is at least nSpecies()
+    //! Throws an exception if kk is less than nSpecies(). Used before calls
+    //! which take an array pointer.
+    void checkSpeciesArraySize(size_t kk) const;
 
     //! Name of species with global index \a kGlob
     /*!
@@ -221,6 +239,15 @@ public:
      * @return   Reference to the %ThermoPhase object for the phase
      */
     phase_t& phase(index_t n);
+
+    //! Check that the specified phase index is in range
+    //! Throws an exception if m is greater than nPhases()
+    void checkPhaseIndex(size_t m) const;
+
+    //! Check that an array size is at least nPhases()
+    //! Throws an exception if mm is less than nPhases(). Used before calls
+    //! which take an array pointer.
+    void checkPhaseArraySize(size_t mm) const;
 
     //! Returns the moles of global species \c k.
     /*!
