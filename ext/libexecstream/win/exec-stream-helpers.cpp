@@ -1,28 +1,28 @@
 /*
 Copyright (C)  2004 Artem Khodush
 
-Redistribution and use in source and binary forms, with or without modification, 
+Redistribution and use in source and binary forms, with or without modification,
 are permitted provided that the following conditions are met:
 
-1. Redistributions of source code must retain the above copyright notice, 
+1. Redistributions of source code must retain the above copyright notice,
 this list of conditions and the following disclaimer.
 
-2. Redistributions in binary form must reproduce the above copyright notice, 
-this list of conditions and the following disclaimer in the documentation 
-and/or other materials provided with the distribution. 
+2. Redistributions in binary form must reproduce the above copyright notice,
+this list of conditions and the following disclaimer in the documentation
+and/or other materials provided with the distribution.
 
-3. The name of the author may not be used to endorse or promote products 
-derived from this software without specific prior written permission. 
+3. The name of the author may not be used to endorse or promote products
+derived from this software without specific prior written permission.
 
-THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR IMPLIED 
-WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES 
-OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. 
-IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, 
-SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, 
-PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; 
-OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, 
-WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR 
-OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, 
+THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR IMPLIED
+WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
 EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
@@ -43,12 +43,12 @@ void os_error_t::compose( std::string const & msg, exec_stream_t::error_code_t c
     s+='\n';
     LPVOID buf;
     if( FormatMessage( FORMAT_MESSAGE_ALLOCATE_BUFFER|FORMAT_MESSAGE_FROM_SYSTEM,
-        0, 
-        code, 
-        MAKELANGID( LANG_NEUTRAL, SUBLANG_DEFAULT ), 
+        0,
+        code,
+        MAKELANGID( LANG_NEUTRAL, SUBLANG_DEFAULT ),
         (LPTSTR) &buf,
         0,
-        0 
+        0
         )==0 ) {
         s+="[unable to retrieve error description]";
     }else {
@@ -66,18 +66,18 @@ void os_error_t::compose( std::string const & msg, exec_stream_t::error_code_t c
 }
 
 // pipe_t
-pipe_t::pipe_t() 
-: m_direction( closed ), m_r( INVALID_HANDLE_VALUE ), m_w( INVALID_HANDLE_VALUE ) 
+pipe_t::pipe_t()
+: m_direction( closed ), m_r( INVALID_HANDLE_VALUE ), m_w( INVALID_HANDLE_VALUE )
 {
     open();
 }
 
-pipe_t::~pipe_t() 
+pipe_t::~pipe_t()
 {
     close();
 }
 
-void pipe_t::close_r() 
+void pipe_t::close_r()
 {
     if( m_direction==both || m_direction==read ) {
         if( !CloseHandle( m_r ) ) {
@@ -87,7 +87,7 @@ void pipe_t::close_r()
     }
 }
 
-void pipe_t::close_w() 
+void pipe_t::close_w()
 {
     if( m_direction==both || m_direction==write ) {
         if( !CloseHandle( m_w ) ) {
@@ -97,13 +97,13 @@ void pipe_t::close_w()
     }
 }
 
-void pipe_t::close() 
+void pipe_t::close()
 {
     close_r();
     close_w();
 }
 
-void pipe_t::open() 
+void pipe_t::open()
 {
     close();
     SECURITY_ATTRIBUTES sa;
@@ -115,19 +115,19 @@ void pipe_t::open()
     m_direction=both;
 }
 
-HANDLE pipe_t::r() const 
+HANDLE pipe_t::r() const
 {
     return m_r;
 }
 
-HANDLE pipe_t::w() const 
+HANDLE pipe_t::w() const
 {
     return m_w;
 }
 
 // set_stdhandle_t
 set_stdhandle_t::set_stdhandle_t( DWORD kind, HANDLE handle )
-: m_kind( kind ), m_save_handle( GetStdHandle( kind ) ) 
+: m_kind( kind ), m_save_handle( GetStdHandle( kind ) )
 {
     if( m_save_handle==INVALID_HANDLE_VALUE )
         throw os_error_t( "set_stdhandle_t::set_stdhandle_t: GetStdHandle() failed" );
@@ -135,7 +135,7 @@ set_stdhandle_t::set_stdhandle_t( DWORD kind, HANDLE handle )
         throw os_error_t( "set_stdhandle_t::set_stdhandle_t: SetStdHandle() failed" );
 }
 
-set_stdhandle_t::~set_stdhandle_t() 
+set_stdhandle_t::~set_stdhandle_t()
 {
     SetStdHandle( m_kind, m_save_handle );
 }
@@ -360,7 +360,7 @@ void thread_buffer_t::set_read_buffer_size( std::size_t size )
     m_read_buffer_size=size;
 }
 
-void thread_buffer_t::start_reader_thread( HANDLE pipe ) 
+void thread_buffer_t::start_reader_thread( HANDLE pipe )
 {
     start_thread( pipe, dir_read );
 }
@@ -459,7 +459,7 @@ void thread_buffer_t::get( exec_stream_t::stream_kind_t, char * dst, std::size_t
         }else {
             // thread terminated and we have no more data to return - report errors, if any
             check_error( m_message_prefix, m_error_code, m_error_message );
-            // if terminated without error  - signal eof 
+            // if terminated without error  - signal eof
             no_more=true;
             size=0;
         }
@@ -500,7 +500,7 @@ void thread_buffer_t::get( exec_stream_t::stream_kind_t, char * dst, std::size_t
 DWORD WINAPI thread_buffer_t::reader_thread( LPVOID param )
 {
     thread_buffer_t * p=static_cast< thread_buffer_t * >( param );
-    // accessing p anywhere here is safe because thread_buffer_t destructor 
+    // accessing p anywhere here is safe because thread_buffer_t destructor
     // ensures the thread is terminated before p get destroyed
     char * read_buffer=0;
     try {
@@ -599,7 +599,7 @@ void thread_buffer_t::put( char * const src, std::size_t & size, bool & no_more 
         if( !grab_mutex.ok() ) {
             check_error( "thread_buffer_t::put: wait for mutex failed", grab_mutex.error_code(), grab_mutex.error_message() );
         }
-        
+
         // got them - put data
         no_more=false;
         if( m_translate_crlf ) {
@@ -607,7 +607,7 @@ void thread_buffer_t::put( char * const src, std::size_t & size, bool & no_more 
         }else {
             m_buffer_list.put( src, size );
         }
-        
+
         // if the buffer is too long - make the next put() wait until it shrinks
         if( m_buffer_list.full( m_buffer_limit ) ) {
             if( !m_want_data.reset() ) {
@@ -626,7 +626,7 @@ void thread_buffer_t::put( char * const src, std::size_t & size, bool & no_more 
 DWORD WINAPI thread_buffer_t::writer_thread( LPVOID param )
 {
     thread_buffer_t * p=static_cast< thread_buffer_t * >( param );
-    // accessing p anywhere here is safe because thread_buffer_t destructor 
+    // accessing p anywhere here is safe because thread_buffer_t destructor
     // ensures the thread is terminated before p get destroyed
     try {
         buffer_list_t::buffer_t buffer;
@@ -635,7 +635,7 @@ DWORD WINAPI thread_buffer_t::writer_thread( LPVOID param )
         std::size_t buffer_offset=0;
 
         while( true ) {
-            // wait for got_data or destruction, ignore timeout errors 
+            // wait for got_data or destruction, ignore timeout errors
             // for destruction the timeout is normally expected,
             // for got data the timeout is not normally expected but tolerable (no one wants to write)
             wait_result_t wait_result=wait( p->m_got_data, p->m_stop_thread, p->m_wait_timeout );
@@ -644,9 +644,9 @@ DWORD WINAPI thread_buffer_t::writer_thread( LPVOID param )
                 p->note_thread_error( "thread_buffer_t::writer_thread: wait for got_data, destruction failed", wait_result.error_code(), wait_result.error_message() );
                 break;
             }
-            
+
             // if no data in local buffer to write - get from p->m_buffers
-            if( buffer.data==0 && wait_result.is_signaled( p->m_got_data ) ) { 
+            if( buffer.data==0 && wait_result.is_signaled( p->m_got_data ) ) {
                 grab_mutex_t grab_mutex( p->m_mutex, p->m_wait_timeout );
                 if( !grab_mutex.ok() ) {
                     p->note_thread_error( "thread_buffer_t::writer_thread: wait for mutex failed", grab_mutex.error_code(), grab_mutex.error_message() );
@@ -672,12 +672,12 @@ DWORD WINAPI thread_buffer_t::writer_thread( LPVOID param )
                     }
                 }
             }
-            
+
             // see if they want us to stop, but only when all is written
             if( buffer.data==0 && wait_result.is_signaled( p->m_stop_thread ) ) {
                 break;
             }
-            
+
             if( buffer.data!=0 ) {
                 // we have buffer - write it
                 DWORD written_size;

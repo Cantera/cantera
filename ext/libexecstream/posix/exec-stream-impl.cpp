@@ -1,28 +1,28 @@
 /*
 Copyright (C)  2004 Artem Khodush
 
-Redistribution and use in source and binary forms, with or without modification, 
+Redistribution and use in source and binary forms, with or without modification,
 are permitted provided that the following conditions are met:
 
-1. Redistributions of source code must retain the above copyright notice, 
+1. Redistributions of source code must retain the above copyright notice,
 this list of conditions and the following disclaimer.
 
-2. Redistributions in binary form must reproduce the above copyright notice, 
-this list of conditions and the following disclaimer in the documentation 
-and/or other materials provided with the distribution. 
+2. Redistributions in binary form must reproduce the above copyright notice,
+this list of conditions and the following disclaimer in the documentation
+and/or other materials provided with the distribution.
 
-3. The name of the author may not be used to endorse or promote products 
-derived from this software without specific prior written permission. 
+3. The name of the author may not be used to endorse or promote products
+derived from this software without specific prior written permission.
 
-THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR IMPLIED 
-WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES 
-OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. 
-IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, 
-SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, 
-PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; 
-OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, 
-WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR 
-OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, 
+THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR IMPLIED
+WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
 EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
@@ -30,24 +30,24 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 struct exec_stream_t::impl_t {
     impl_t();
     ~impl_t();
-    
+
     void split_args( std::string const & program, std::string const & arguments );
     void split_args( std::string const & program, exec_stream_t::next_arg_t & next_arg );
     void start( std::string const & program );
-    
+
     pid_t m_child_pid;
     int m_exit_code;
     unsigned long m_child_timeout;
 
     buf_t< char > m_child_args;
     buf_t< char * > m_child_argp;
-    
+
     pipe_t m_in_pipe;
     pipe_t m_out_pipe;
     pipe_t m_err_pipe;
 
     thread_buffer_t m_thread;
-    
+
     exec_stream_buffer_t m_in_buffer;
     exec_stream_buffer_t m_out_buffer;
     exec_stream_buffer_t m_err_buffer;
@@ -86,7 +86,7 @@ void exec_stream_t::impl_t::split_args( std::string const & program, std::string
     *args_end++=0;
 
     std::string whitespace=" \t\r\n\v";
-    
+
     std::string::size_type arg_start=arguments.find_first_not_of( whitespace );
     while( arg_start!=std::string::npos ) {
         ++argc;
@@ -138,16 +138,16 @@ void exec_stream_t::impl_t::split_args( std::string const & program, exec_stream
 {
     typedef std::vector< std::size_t > arg_sizes_t;
     arg_sizes_t arg_sizes;
-    
+
     m_child_args.new_data( program.size()+1 );
     std::string::traits_type::copy( m_child_args.data(), program.c_str(), program.size()+1 );
     arg_sizes.push_back( program.size()+1 );
-    
+
     while( std::string const * s=next_arg.next() ) {
         m_child_args.append_data( s->c_str(), s->size()+1 );
         arg_sizes.push_back( s->size()+1 );
     }
-    
+
     char ** argp_end=m_child_argp.new_data( arg_sizes.size()+1 );
     char * argp=m_child_args.data();
     for( arg_sizes_t::iterator i=arg_sizes.begin(); i!=arg_sizes.end(); ++i ) {
@@ -160,7 +160,7 @@ void exec_stream_t::impl_t::split_args( std::string const & program, exec_stream
 
 void exec_stream_t::set_buffer_limit( int stream_kind, std::size_t size )
 {
-    m_impl->m_thread.set_buffer_limit( stream_kind, size );    
+    m_impl->m_thread.set_buffer_limit( stream_kind, size );
 }
 
 void exec_stream_t::set_wait_timeout( int stream_kind, timeout_t milliseconds )
@@ -176,7 +176,7 @@ void exec_stream_t::start( std::string const & program, std::string const & argu
     if( !close() ) {
         throw exec_stream_t::error_t( "exec_stream_t::start: previous child process has not yet terminated" );
     }
-    
+
     m_impl->split_args( program, arguments );
     m_impl->start( program );
 }
@@ -196,10 +196,10 @@ void exec_stream_t::impl_t::start( std::string const & program )
     m_in_pipe.open();
     m_out_pipe.open();
     m_err_pipe.open();
-    
+
     pipe_t status_pipe;
     status_pipe.open();
-    
+
     pid_t pid=fork();
     if( pid==-1 ) {
         throw os_error_t( "exec_stream_t::start: fork failed" );
@@ -304,7 +304,7 @@ void exec_stream_t::impl_t::start( std::string const & program )
         m_in.clear();
         m_out.clear();
         m_err.clear();
-        
+
         m_thread.set_read_buffer_size( exec_stream_t::s_out, STREAM_BUFFER_SIZE );
         m_thread.set_read_buffer_size( exec_stream_t::s_err, STREAM_BUFFER_SIZE );
         m_thread.start();
@@ -349,7 +349,7 @@ bool exec_stream_t::close()
                 m_impl->m_child_pid=-1;
                 return true;
             }
-                    
+
         }else {
             m_impl->m_child_pid=-1;
             return true;
