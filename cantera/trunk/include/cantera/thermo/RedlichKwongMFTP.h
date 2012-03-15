@@ -11,11 +11,6 @@
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the
  * U.S. Government retains certain rights in this software.
  */
-/*
- *  $Author: hkmoffa $
- *  $Date: 2009-11-09 16:36:49 -0700 (Mon, 09 Nov 2009) $
- *  $Revision: 255 $
- */
 
 #ifndef CT_REDLICHKWONGMFTP_H
 #define CT_REDLICHKWONGMFTP_H
@@ -33,7 +28,7 @@ class PDSS;
   */
 //@{
 
-#ifdef WITH_REAL_GASSES
+#ifdef WITH_REAL_GASES
 
 /**
  * @ingroup thermoprops
@@ -830,13 +825,13 @@ public:
     /*!
      *  this was calculated from a small nonlinear solve
      */
-    static const doublereal omega_a = 4.27480233540E-01;
+    static const doublereal omega_a;
 
     //! Omega constant for b
-    static const doublereal omega_b = 8.66403499650E-02;
+    static const doublereal omega_b;
 
     //! Omega constant for the critical molar volume
-    static const doublereal omega_vc = 3.33333333333333E-01;
+    static const doublereal omega_vc;
 
 
 };

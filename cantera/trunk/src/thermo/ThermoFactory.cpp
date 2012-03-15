@@ -26,7 +26,7 @@
 #include "cantera/thermo/PureFluidPhase.h"
 #endif
 
-#ifdef WITH_REAL_GASSES
+#ifdef WITH_REAL_GASES
 #include "cantera/thermo/RedlichKwongMFTP.h"
 #endif
 
@@ -223,7 +223,7 @@ ThermoPhase* ThermoFactory::newThermoPhase(std::string model)
         break;
 #endif
 
-#ifdef WITH_REAL_GASSES
+#ifdef WITH_REAL_GASES
     case cRedlichKwongMFTP:
         th = new RedlichKwongMFTP;
         break;

@@ -348,6 +348,10 @@ opts.AddVariables(
            oxygen, methane, and HFC-134a.""",
         True),
     BoolVariable(
+        'with_real_gases',
+        """Enable the Redlich-Kwong MFTP real gas model.""",
+        True),
+    BoolVariable(
         'with_ideal_solutions',
         """Include capabilities for working with ideal solutions.""",
         True),
@@ -921,6 +925,7 @@ cdefine('H298MODIFY_CAPABILITY', 'with_n298modify_capability')
 cdefine('WITH_PURE_FLUIDS', 'with_pure_fluids')
 cdefine('WITH_HTML_LOGS', 'with_html_log_files')
 cdefine('WITH_VCSNONIDEAL', 'with_vcsnonideal')
+cdefine('WITH_REAL_GASES', 'with_real_gases')
 
 cdefine('LAPACK_FTN_STRING_LEN_AT_END', 'lapack_ftn_string_len_at_end')
 cdefine('LAPACK_FTN_TRAILING_UNDERSCORE', 'lapack_ftn_trailing_underscore')
