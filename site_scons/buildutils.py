@@ -211,6 +211,7 @@ def compareTextFiles(env, file1, file2):
         if len(floats1) != len(floats2):
             continue
 
+        allMatch = True
         for j in range(len(floats1)):
             if floats1[j] == floats2[j]:
                 # String representations match, so replacement is unnecessary
@@ -219,16 +220,18 @@ def compareTextFiles(env, file1, file2):
             delta = max(getPrecision(floats1[j][1]), getPrecision(floats2[j][1]))
             num1 = float(floats1[j][1])
             num2 = float(floats2[j][1])
-            if num1 - 1.1*delta < num2 < num1 + 1.1*delta:
-                # update the string with a matching string
-                line2 = line2.replace(''.join(floats2[j]),
-                                      ''.join(floats1[j]))
-                text2[i] = line2
+            if not num1 - 1.1*delta < num2 < num1 + 1.1*delta:
+                allMatch = False
+                break
+
+        # All the values are sufficiently close, so replace the string
+        # so that the diff of this line will succeed
+        text2[i] = line1
 
     # Try the comparison again
     diff = list(difflib.unified_diff(text1, text2))
     if diff:
-        'Found differences between %s and %s:' % (file1, file2)
+        print 'Found differences between %s and %s:' % (file1, file2)
         print '>>>'
         print '\n'.join(diff)
         print '<<<'
