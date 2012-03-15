@@ -132,6 +132,7 @@ typedef  int          ftnlen;       // Fortran hidden string length type
 //    Enable expanded thermodynamic capabilities, adding
 //    ideal solid solutions
 %(WITH_IDEAL_SOLUTIONS)s
+%(WITH_REAL_GASES)s
 //    Enable expanded electrochemistry capabilities, include thermo
 //    models for electrolyte solutions.
 %(WITH_ELECTROLYTES)s

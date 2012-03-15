@@ -11,24 +11,24 @@
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the
  * U.S. Government retains certain rights in this software.
  */
-/*
- *  $Author: hkmoffa $
- *  $Date: 2009-11-09 16:36:49 -0700 (Mon, 09 Nov 2009) $
- *  $Revision: 255 $
- */
 
 #include "cantera/thermo/RedlichKwongMFTP.h"
-
 
 #include "cantera/thermo/mix_defs.h"
 #include "cantera/thermo/ThermoFactory.h"
 #include "cantera/numerics/RootFind.h"
+#include "cantera/base/stringUtils.h"
 
 using namespace std;
 
 namespace Cantera
 {
-#ifdef WITH_REAL_GASSES
+#ifdef WITH_REAL_GASES
+
+const doublereal RedlichKwongMFTP::omega_a = 4.27480233540E-01;
+const doublereal RedlichKwongMFTP::omega_b = 8.66403499650E-02;
+const doublereal RedlichKwongMFTP::omega_vc = 3.33333333333333E-01;
+
 //====================================================================================================================
 /*
  * Default constructor
@@ -499,7 +499,7 @@ void RedlichKwongMFTP::getUnitsStandardConc(double* uA, int, int sizeUA) const
             uA[0] = 1.0;
         }
         if (i == 1) {
-            uA[1] = -nDim();
+            uA[1] = -static_cast<int>(nDim());
         }
         if (i == 2) {
             uA[2] = 0.0;
@@ -534,16 +534,16 @@ void RedlichKwongMFTP::getActivityCoefficients(doublereal* ac) const
     doublereal vpb = mv + m_b_current;
     doublereal vmb = mv - m_b_current;
 
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
         m_pp[k] = 0.0;
-        for (int i = 0; i < m_kk; i++) {
-            int counter = k + m_kk*i;
+        for (size_t i = 0; i < m_kk; i++) {
+            size_t counter = k + m_kk*i;
             m_pp[k] += moleFractions_[i] * a_vec_Curr_[counter];
         }
     }
     doublereal pres = pressure();
 
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
         ac[k] = (- rt * log(pres * mv / rt)
                  + rt * log(mv / vmb)
                  + rt * b_vec_Curr_[k] / vmb
@@ -552,7 +552,7 @@ void RedlichKwongMFTP::getActivityCoefficients(doublereal* ac) const
                  - m_a_current / (m_b_current * sqt) * (b_vec_Curr_[k]/vpb)
                 );
     }
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
         ac[k] = exp(ac[k]/rt);
     }
 }
@@ -584,8 +584,8 @@ void RedlichKwongMFTP::getChemPotentials(doublereal* mu) const
     getGibbs_ref(mu);
     doublereal xx;
     doublereal rt = temperature() * GasConstant;
-    for (int k = 0; k < m_kk; k++) {
-        xx = fmaxx(SmallNumber, moleFraction(k));
+    for (size_t k = 0; k < m_kk; k++) {
+        xx = std::max(SmallNumber, moleFraction(k));
         mu[k] += rt*(log(xx));
     }
 
@@ -595,17 +595,17 @@ void RedlichKwongMFTP::getChemPotentials(doublereal* mu) const
     doublereal vpb = mv + m_b_current;
     doublereal vmb = mv - m_b_current;
 
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
         m_pp[k] = 0.0;
-        for (int i = 0; i < m_kk; i++) {
-            int counter = k + m_kk*i;
+        for (size_t i = 0; i < m_kk; i++) {
+            size_t counter = k + m_kk*i;
             m_pp[k] += moleFractions_[i] * a_vec_Curr_[counter];
         }
     }
     doublereal pres = pressure();
     doublereal refP = refPressure();
 
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
         mu[k] += (rt * log(pres/refP) - rt * log(pres * mv / rt)
                   + rt * log(mv / vmb)
                   + rt * b_vec_Curr_[k] / vmb
@@ -635,27 +635,27 @@ void RedlichKwongMFTP::getPartialMolarEnthalpies(doublereal* hbar) const
     doublereal vpb = mv + m_b_current;
     doublereal vmb = mv - m_b_current;
 
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
         m_pp[k] = 0.0;
-        for (int i = 0; i < m_kk; i++) {
-            int counter = k + m_kk*i;
+        for (size_t i = 0; i < m_kk; i++) {
+            size_t counter = k + m_kk*i;
             m_pp[k] += moleFractions_[i] * a_vec_Curr_[counter];
         }
     }
 
 
 
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
         dpdni_[k] = rt/vmb + rt * b_vec_Curr_[k] / (vmb * vmb) - 2.0 * m_pp[k] / (sqt * mv * vpb)
                     + m_a_current * b_vec_Curr_[k]/(sqt * mv * vpb * vpb);
     }
     doublereal dadt = da_dt();
     doublereal fac = TKelvin * dadt - 3.0 * m_a_current / 2.0;
 
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
         m_tmpV[k] = 0.0;
-        for (int i = 0; i < m_kk; i++) {
-            int counter = k + m_kk*i;
+        for (size_t i = 0; i < m_kk; i++) {
+            size_t counter = k + m_kk*i;
             m_tmpV[k] += 2.0 * moleFractions_[i] * TKelvin * a_coeff_vec(1,counter) - 3.0 *  moleFractions_[i] * a_vec_Curr_[counter];
         }
     }
@@ -663,7 +663,7 @@ void RedlichKwongMFTP::getPartialMolarEnthalpies(doublereal* hbar) const
     pressureDerivatives();
     doublereal fac2 = mv + TKelvin * dpdT_ / dpdV_;
 
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
         double hE_v = (mv * dpdni_[k] - rt -  b_vec_Curr_[k]/ (m_b_current * m_b_current * sqt) * log(vpb/mv)*fac
                        + 1.0 / (m_b_current * sqt) * log(vpb/mv) * m_tmpV[k]
                        +  b_vec_Curr_[k] / vpb / (m_b_current * sqt) * fac);
@@ -685,23 +685,23 @@ void RedlichKwongMFTP::getPartialMolarEntropies(doublereal* sbar) const
     doublereal mv = molarVolume();
     doublereal refP = refPressure();
 
-    for (int k = 0; k < m_kk; k++) {
-        doublereal xx = fmaxx(SmallNumber, moleFraction(k));
+    for (size_t k = 0; k < m_kk; k++) {
+        doublereal xx = std::max(SmallNumber, moleFraction(k));
         sbar[k] += r * (- log(xx));
     }
 
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
         m_pp[k] = 0.0;
-        for (int i = 0; i < m_kk; i++) {
-            int counter = k + m_kk*i;
+        for (size_t i = 0; i < m_kk; i++) {
+            size_t counter = k + m_kk*i;
             m_pp[k] += moleFractions_[i] * a_vec_Curr_[counter];
         }
     }
 
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
         m_tmpV[k] = 0.0;
-        for (int i = 0; i < m_kk; i++) {
-            int counter = k + m_kk*i;
+        for (size_t i = 0; i < m_kk; i++) {
+            size_t counter = k + m_kk*i;
             m_tmpV[k] += moleFractions_[i] * a_coeff_vec(1,counter);
         }
     }
@@ -713,7 +713,7 @@ void RedlichKwongMFTP::getPartialMolarEntropies(doublereal* sbar) const
     doublereal vpb = mv + m_b_current;
 
 
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
         sbar[k] -=(GasConstant * log(GasConstant * TKelvin / (refP * mv))
                    + GasConstant
                    + GasConstant * log(mv/vmb)
@@ -727,7 +727,7 @@ void RedlichKwongMFTP::getPartialMolarEntropies(doublereal* sbar) const
 
     pressureDerivatives();
     getPartialMolarVolumes(DATA_PTR(m_partialMolarVolumes));
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
         sbar[k] -= -m_partialMolarVolumes[k] * dpdT_;
     }
 }
@@ -751,18 +751,18 @@ void RedlichKwongMFTP::getPartialMolarVolumes(doublereal* vbar) const
     // getStandardVolumes(vbar);
 
 
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
         m_pp[k] = 0.0;
-        for (int i = 0; i < m_kk; i++) {
-            int counter = k + m_kk*i;
+        for (size_t i = 0; i < m_kk; i++) {
+            size_t counter = k + m_kk*i;
             m_pp[k] += moleFractions_[i] * a_vec_Curr_[counter];
         }
     }
 
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
         m_tmpV[k] = 0.0;
-        for (int i = 0; i < m_kk; i++) {
-            int counter = k + m_kk*i;
+        for (size_t i = 0; i < m_kk; i++) {
+            size_t counter = k + m_kk*i;
             m_tmpV[k] += moleFractions_[i] * a_coeff_vec(1,counter);
         }
     }
@@ -776,7 +776,7 @@ void RedlichKwongMFTP::getPartialMolarVolumes(doublereal* vbar) const
     doublereal vmb = mv - m_b_current;
     doublereal vpb = mv + m_b_current;
 
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
 
         doublereal num = (rt + rt * m_b_current/ vmb + rt * b_vec_Curr_[k] / vmb
                           + rt *  m_b_current * b_vec_Curr_[k] /(vmb * vmb)
@@ -797,9 +797,9 @@ doublereal RedlichKwongMFTP::critTemperature() const
     double pc, tc, vc;
     double a0 = 0.0;
     double aT = 0.0;
-    for (int i = 0; i < m_kk; i++) {
-        for (int j = 0; j <m_kk; j++) {
-            int counter = i + m_kk * j;
+    for (size_t i = 0; i < m_kk; i++) {
+        for (size_t j = 0; j <m_kk; j++) {
+            size_t counter = i + m_kk * j;
             a0 += moleFractions_[i] * moleFractions_[j] * a_coeff_vec(0, counter);
             aT += moleFractions_[i] * moleFractions_[j] * a_coeff_vec(1, counter);
         }
@@ -813,9 +813,9 @@ doublereal RedlichKwongMFTP::critPressure() const
     double pc, tc, vc;
     double a0 = 0.0;
     double aT = 0.0;
-    for (int i = 0; i < m_kk; i++) {
-        for (int j = 0; j <m_kk; j++) {
-            int counter = i + m_kk * j;
+    for (size_t i = 0; i < m_kk; i++) {
+        for (size_t j = 0; j <m_kk; j++) {
+            size_t counter = i + m_kk * j;
             a0 += moleFractions_[i] * moleFractions_[j] * a_coeff_vec(0, counter);
             aT += moleFractions_[i] * moleFractions_[j] * a_coeff_vec(1, counter);
         }
@@ -830,9 +830,9 @@ doublereal RedlichKwongMFTP::critDensity() const
     double pc, tc, vc;
     double a0 = 0.0;
     double aT = 0.0;
-    for (int i = 0; i < m_kk; i++) {
-        for (int j = 0; j <m_kk; j++) {
-            int counter = i + m_kk * j;
+    for (size_t i = 0; i < m_kk; i++) {
+        for (size_t j = 0; j <m_kk; j++) {
+            size_t counter = i + m_kk * j;
             a0 += moleFractions_[i] * moleFractions_[j] *a_coeff_vec(0, counter);
             aT += moleFractions_[i] * moleFractions_[j] *a_coeff_vec(1, counter);
         }
@@ -880,7 +880,7 @@ void RedlichKwongMFTP::setToEquilState(const doublereal* mu_RT)
      */
     doublereal pres = 0.0;
     double m_p0 = refPressure();
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
         tmp = -m_tmpV[k] + mu_RT[k];
         if (tmp < -600.) {
             m_pp[k] = 0.0;
@@ -970,13 +970,13 @@ void RedlichKwongMFTP::initThermoXML(XML_Node& phaseNode, std::string id)
         if (thermoNode.hasChild("activityCoefficients")) {
             XML_Node& acNode = thermoNode.child("activityCoefficients");
             acNodePtr = &acNode;
-            int nC = acNode.nChildren();
+            size_t nC = acNode.nChildren();
 
             /*
              * Loop through the children getting multiple instances of
              * parameters
              */
-            for (int i = 0; i < nC; i++) {
+            for (size_t i = 0; i < nC; i++) {
                 XML_Node& xmlACChild = acNodePtr->child(i);
                 string stemp = xmlACChild.name();
                 string nodeName = lowercase(stemp);
@@ -996,7 +996,7 @@ void RedlichKwongMFTP::initThermoXML(XML_Node& phaseNode, std::string id)
              * Loop through the children getting multiple instances of
              * parameters
              */
-            for (int i = 0; i < nC; i++) {
+            for (size_t i = 0; i < nC; i++) {
                 XML_Node& xmlACChild = acNodePtr->child(i);
                 string stemp = xmlACChild.name();
                 string nodeName = lowercase(stemp);
@@ -1013,7 +1013,7 @@ void RedlichKwongMFTP::initThermoXML(XML_Node& phaseNode, std::string id)
         }
     }
 
-    for (int i = 0; i < m_kk; i++) {
+    for (size_t i = 0; i < m_kk; i++) {
         double a0coeff =  a_coeff_vec(0, i*m_kk + i);
         double aTcoeff =  a_coeff_vec(1, i*m_kk + i);
         double ai =  a0coeff + aTcoeff * 500.;
@@ -1042,14 +1042,14 @@ void RedlichKwongMFTP::readXMLPureFluid(XML_Node& PureFluidParam)
     if (iName == "") {
         throw CanteraError("RedlichKwongMFTP::readXMLPureFluid", "no species attribute");
     }
-    int iSpecies = speciesIndex(iName);
-    if (iSpecies < 0) {
+    size_t iSpecies = speciesIndex(iName);
+    if (iSpecies == npos) {
         return;
     }
-    int counter = iSpecies + m_kk * iSpecies;
-    int nParamsExpected, nParamsFound;
-    int num = PureFluidParam.nChildren();
-    for (int iChild = 0; iChild < num; iChild++) {
+    size_t counter = iSpecies + m_kk * iSpecies;
+    size_t nParamsExpected, nParamsFound;
+    size_t num = PureFluidParam.nChildren();
+    for (size_t iChild = 0; iChild < num; iChild++) {
         XML_Node& xmlChild = PureFluidParam.child(iChild);
         string stemp = xmlChild.name();
         string nodeName = lowercase(stemp);
@@ -1074,7 +1074,7 @@ void RedlichKwongMFTP::readXMLPureFluid(XML_Node& PureFluidParam)
                                    "wrong number of params found");
             }
 
-            for (int i = 0; i < nParamsFound; i++) {
+            for (size_t i = 0; i < nParamsFound; i++) {
                 a_coeff_vec(i, counter) = vParams[i];
             }
         } else if (nodeName == "b_coeff") {
@@ -1092,12 +1092,12 @@ void RedlichKwongMFTP::readXMLPureFluid(XML_Node& PureFluidParam)
 void RedlichKwongMFTP::applyStandardMixingRules()
 {
     int nParam = 2;
-    for (int i = 0; i < m_kk; i++) {
-        int icounter = i + m_kk * i;
-        for (int j = 0; j < m_kk; j++) {
+    for (size_t i = 0; i < m_kk; i++) {
+        size_t icounter = i + m_kk * i;
+        for (size_t j = 0; j < m_kk; j++) {
             if (i != j) {
-                int counter = i + m_kk * j;
-                int jcounter = j + m_kk * j;
+                size_t counter = i + m_kk * j;
+                size_t jcounter = j + m_kk * j;
                 for (int n = 0; n < nParam; n++) {
                     a_coeff_vec(n, counter) = sqrt(a_coeff_vec(n, icounter) * a_coeff_vec(n, jcounter));
                 }
@@ -1124,7 +1124,7 @@ void RedlichKwongMFTP::readXMLCrossFluid(XML_Node& CrossFluidParam)
     if (iName == "") {
         throw CanteraError("RedlichKwongMFTP::readXMLCrossFluid", "no species1 attribute");
     }
-    int iSpecies = speciesIndex(iName);
+    size_t iSpecies = speciesIndex(iName);
     if (iSpecies < 0) {
         return;
     }
@@ -1132,16 +1132,16 @@ void RedlichKwongMFTP::readXMLCrossFluid(XML_Node& CrossFluidParam)
     if (iName == "") {
         throw CanteraError("RedlichKwongMFTP::readXMLCrossFluid", "no species2 attribute");
     }
-    int jSpecies = speciesIndex(jName);
+    size_t jSpecies = speciesIndex(jName);
     if (jSpecies < 0) {
         return;
     }
 
-    int counter = iSpecies + m_kk * jSpecies;
-    int counter0 = jSpecies + m_kk * iSpecies;
-    int nParamsExpected, nParamsFound;
-    int num = CrossFluidParam.nChildren();
-    for (int iChild = 0; iChild < num; iChild++) {
+    size_t counter = iSpecies + m_kk * jSpecies;
+    size_t counter0 = jSpecies + m_kk * iSpecies;
+    size_t nParamsExpected, nParamsFound;
+    size_t num = CrossFluidParam.nChildren();
+    for (size_t iChild = 0; iChild < num; iChild++) {
         XML_Node& xmlChild = CrossFluidParam.child(iChild);
         string stemp = xmlChild.name();
         string nodeName = lowercase(stemp);
@@ -1166,7 +1166,7 @@ void RedlichKwongMFTP::readXMLCrossFluid(XML_Node& CrossFluidParam)
                                    "wrong number of params found");
             }
 
-            for (int i = 0; i < nParamsFound; i++) {
+            for (size_t i = 0; i < nParamsFound; i++) {
                 a_coeff_vec(i, counter) = vParams[i];
                 a_coeff_vec(i, counter0) = vParams[i];
             }
@@ -1561,11 +1561,10 @@ void RedlichKwongMFTP::updateMixingExpressions()
 void RedlichKwongMFTP::updateAB()
 {
     double temp = temperature();
-    int counter;
     if (m_formTempParam == 1) {
-        for (int i = 0; i < m_kk; i++) {
-            for (int j = 0; j < m_kk; j++) {
-                counter = i * m_kk + j;
+        for (size_t i = 0; i < m_kk; i++) {
+            for (size_t j = 0; j < m_kk; j++) {
+                size_t counter = i * m_kk + j;
                 a_vec_Curr_[counter] = a_coeff_vec(0,counter) + a_coeff_vec(1,counter) * temp;
             }
         }
@@ -1573,9 +1572,9 @@ void RedlichKwongMFTP::updateAB()
 
     m_b_current = 0.0;
     m_a_current = 0.0;
-    for (int i = 0; i < m_kk; i++) {
+    for (size_t i = 0; i < m_kk; i++) {
         m_b_current += moleFractions_[i] * b_vec_Curr_[i];
-        for (int j = 0; j < m_kk; j++) {
+        for (size_t j = 0; j < m_kk; j++) {
             m_a_current +=  a_vec_Curr_[i * m_kk + j] * moleFractions_[i] * moleFractions_[j];
         }
     }
@@ -1583,23 +1582,22 @@ void RedlichKwongMFTP::updateAB()
 //====================================================================================================================
 void RedlichKwongMFTP::calculateAB(doublereal temp, doublereal& aCalc, doublereal& bCalc) const
 {
-    int counter;
     bCalc = 0.0;
     aCalc = 0.0;
     if (m_formTempParam == 1) {
-        for (int i = 0; i < m_kk; i++) {
+        for (size_t i = 0; i < m_kk; i++) {
             bCalc += moleFractions_[i] * b_vec_Curr_[i];
-            for (int j = 0; j < m_kk; j++) {
-                counter = i * m_kk + j;
+            for (size_t j = 0; j < m_kk; j++) {
+                size_t counter = i * m_kk + j;
                 doublereal a_vec_Curr = a_coeff_vec(0,counter) + a_coeff_vec(1,counter) * temp;
                 aCalc +=  a_vec_Curr * moleFractions_[i] * moleFractions_[j];
             }
         }
     } else {
-        for (int i = 0; i < m_kk; i++) {
+        for (size_t i = 0; i < m_kk; i++) {
             bCalc += moleFractions_[i] * b_vec_Curr_[i];
-            for (int j = 0; j < m_kk; j++) {
-                counter = i * m_kk + j;
+            for (size_t j = 0; j < m_kk; j++) {
+                size_t counter = i * m_kk + j;
                 doublereal a_vec_Curr = a_coeff_vec(0,counter);
                 aCalc +=  a_vec_Curr * moleFractions_[i] * moleFractions_[j];
             }
@@ -1612,9 +1610,9 @@ doublereal RedlichKwongMFTP::da_dt() const
 
     doublereal dadT = 0.0;
     if (m_formTempParam == 1) {
-        for (int i = 0; i < m_kk; i++) {
-            for (int j = 0; j < m_kk; j++) {
-                int counter = i * m_kk + j;
+        for (size_t i = 0; i < m_kk; i++) {
+            for (size_t j = 0; j < m_kk; j++) {
+                size_t counter = i * m_kk + j;
                 dadT+=  a_coeff_vec(1,counter) * moleFractions_[i] * moleFractions_[j];
             }
         }
