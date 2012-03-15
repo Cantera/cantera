@@ -1,28 +1,28 @@
 /*
 Copyright (C)  2004 Artem Khodush
 
-Redistribution and use in source and binary forms, with or without modification, 
+Redistribution and use in source and binary forms, with or without modification,
 are permitted provided that the following conditions are met:
 
-1. Redistributions of source code must retain the above copyright notice, 
+1. Redistributions of source code must retain the above copyright notice,
 this list of conditions and the following disclaimer.
 
-2. Redistributions in binary form must reproduce the above copyright notice, 
-this list of conditions and the following disclaimer in the documentation 
-and/or other materials provided with the distribution. 
+2. Redistributions in binary form must reproduce the above copyright notice,
+this list of conditions and the following disclaimer in the documentation
+and/or other materials provided with the distribution.
 
-3. The name of the author may not be used to endorse or promote products 
-derived from this software without specific prior written permission. 
+3. The name of the author may not be used to endorse or promote products
+derived from this software without specific prior written permission.
 
-THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR IMPLIED 
-WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES 
-OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. 
-IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, 
-SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, 
-PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; 
-OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, 
-WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR 
-OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, 
+THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR IMPLIED
+WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
 EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
@@ -112,13 +112,13 @@ void pipe_t::open()
     m_direction=both;
 }
 
-    
+
 // mutex_t
 mutex_t::mutex_t()
 {
     if( int code=pthread_mutex_init( &m_mutex, 0 ) ) {
         throw os_error_t( "mutex_t::mutex_t: pthread_mutex_init failed", code );
-    }    
+    }
 }
 
 mutex_t::~mutex_t()
@@ -191,7 +191,7 @@ void mutex_registrator_t::release_all()
         (*i)->release();
     }
 }
-    
+
 // wait_result_t
 wait_result_t::wait_result_t( unsigned signaled_state, int error_code, bool timed_out )
 {
@@ -247,7 +247,7 @@ int event_t::set( unsigned bits, mutex_registrator_t * mutex_registrator )
         m_state|=bits;
         code=pthread_cond_broadcast( &m_cond );
     }
-    
+
     int release_code=grab_mutex.release();
     if( code==0  ) {
         code=release_code;
@@ -261,7 +261,7 @@ int event_t::reset( unsigned bits, mutex_registrator_t * mutex_registrator )
     if( !grab_mutex.ok() ) {
         return grab_mutex.error_code();
     }
-    m_state&=~bits;    
+    m_state&=~bits;
     return grab_mutex.release();
 }
 
@@ -276,7 +276,7 @@ wait_result_t event_t::wait( unsigned any_bits, unsigned long timeout, mutex_reg
     if( !grab_mutex.ok() ) {
         return wait_result_t( 0, grab_mutex.error_code(), false );
     }
-    
+
     struct timeval time_val_limit;
     gettimeofday( &time_val_limit, 0 );
     struct timespec time_limit;
@@ -286,7 +286,7 @@ wait_result_t event_t::wait( unsigned any_bits, unsigned long timeout, mutex_reg
     while( code==0 && (m_state&any_bits)==0 ) {
         code=pthread_cond_timedwait( &m_cond, &m_mutex.m_mutex, &time_limit );
     }
-    
+
     unsigned state=m_state;
     int release_code=grab_mutex.release();
     if( code==0 ) {
@@ -397,7 +397,7 @@ void thread_buffer_t::start()
     if( (code=m_thread_responce.reset( ~0u, 0 )) || (code=m_thread_responce.set( exec_stream_t::s_in, 0 )) ) {
         throw os_error_t( "thread_buffer_t::start: unable to initialize m_thread_responce event", code );
     }
-    
+
     m_error_prefix="";
     m_error_code=0;
 
@@ -469,7 +469,7 @@ void thread_buffer_t::get( exec_stream_t::stream_kind_t kind, char * dst, std::s
     if( !wait_result.ok() ) {
         throw os_error_t( "thread_buffer_t::get: wait for got_data failed", wait_result.error_code() );
     }
-    
+
     if( wait_result.is_signaled( exec_stream_t::s_child ) ) {
         // thread stopped - no need to synchronize
         if( !buffer.empty() ) {
@@ -482,10 +482,10 @@ void thread_buffer_t::get( exec_stream_t::stream_kind_t kind, char * dst, std::s
             if( m_error_code!=0 ) {
                 throw os_error_t( m_error_prefix, m_error_code );
             }
-            // if terminated without error  - signal eof 
+            // if terminated without error  - signal eof
             size=0;
             no_more=true;
-        }        
+        }
     }else if( wait_result.is_signaled( kind|eof_kind ) ) {
         // thread got some data for us - grab them
         grab_mutex_t grab_mutex( m_mutex, 0 );
@@ -505,7 +505,7 @@ void thread_buffer_t::get( exec_stream_t::stream_kind_t kind, char * dst, std::s
             if( int code=m_thread_responce.reset( kind, 0 )  ) {
                 throw os_error_t( "thread_buffer_t::get: unable to reset got_data event", code );
             }
-        }        
+        }
         // if buffer is not too long tell the thread we want more data
         std::size_t buffer_limit= kind==exec_stream_t::s_out ? m_out_buffer_limit : m_err_buffer_limit;
         if( !buffer.full( buffer_limit ) ) {
@@ -521,7 +521,7 @@ void thread_buffer_t::put( char * src, std::size_t & size, bool & no_more )
     if( !m_thread_started ) {
         throw exec_stream_t::error_t( "thread_buffer_t::put: thread was not started" );
     }
-    if( m_in_closed || m_in_bad ) { 
+    if( m_in_closed || m_in_bad ) {
         size=0;
         no_more=true;
         return;
@@ -544,7 +544,7 @@ void thread_buffer_t::put( char * src, std::size_t & size, bool & no_more )
         // thread stopped - check for errors
         if( m_error_code!=0 ) {
             throw os_error_t( m_error_prefix, m_error_code );
-        }        
+        }
         // if terminated without error  - signal eof, since no one will ever write our data
         size=0;
         no_more=true;
@@ -557,7 +557,7 @@ void thread_buffer_t::put( char * src, std::size_t & size, bool & no_more )
 
         no_more=false;
         m_in_buffer.put( src, size );
-        
+
         // if the buffer is too long - make the next put() wait until it shrinks
         if( m_in_buffer.full( m_in_buffer_limit ) ) {
             if( int code=m_thread_responce.reset( exec_stream_t::s_in, 0 ) ) {
@@ -594,7 +594,7 @@ void mutex_cleanup( void * p )
 void * thread_buffer_t::thread_func( void * param )
 {
     thread_buffer_t * p=static_cast< thread_buffer_t * >( param );
-    // accessing p anywhere here is safe because thread_buffer_t destructor 
+    // accessing p anywhere here is safe because thread_buffer_t destructor
     // ensures the thread is terminated before p get destroyed
     char * out_read_buffer=0;
     char * err_read_buffer=0;
@@ -605,11 +605,11 @@ void * thread_buffer_t::thread_func( void * param )
 
     mutex_registrator_t mutex_registrator;
     pthread_cleanup_push( mutex_cleanup, &mutex_registrator );
-        
+
     try {
         out_read_buffer=new char[p->m_out_read_buffer_size];
         err_read_buffer=new char[p->m_err_read_buffer_size];
-        
+
         buffer_list_t::buffer_t write_buffer;
         write_buffer.data=0;
         write_buffer.size=0;
@@ -690,7 +690,7 @@ void * thread_buffer_t::thread_func( void * param )
             if( write_buffer.data==0 && wait_result.is_signaled( exec_stream_t::s_child ) ) {
                 break;
             }
-            
+
             // determine whether we want something
             if( write_buffer.data!=0 ) {
                 FD_SET( p->m_in_pipe.w(), &write_fds );
@@ -720,7 +720,7 @@ void * thread_buffer_t::thread_func( void * param )
                     break;
                 }
             }
-            
+
             // determine what we got
 
             if( FD_ISSET( p->m_in_pipe.w(), &write_fds ) ) {
@@ -777,7 +777,7 @@ void * thread_buffer_t::thread_func( void * param )
                     }
                 }
             }
-            
+
             if( FD_ISSET( p->m_err_pipe.r(), &read_fds ) )  {
                 // it seemds we may read child's stderr
                 int n_err_read=read( p->m_err_pipe.r(), err_read_buffer, p->m_err_read_buffer_size );
@@ -813,15 +813,15 @@ void * thread_buffer_t::thread_func( void * param )
                     }
                 }
             }
-            
+
             if( in_closed && out_eof && err_eof ) {
                 // have nothing more to do
                 break;
             }
         }
-        
+
         delete[] write_buffer.data;
-        
+
     }catch( ... ) {
         // might only be std::bad_alloc
         p->m_error_code=0;
@@ -836,7 +836,7 @@ void * thread_buffer_t::thread_func( void * param )
         p->m_error_code=code;
         p->m_error_prefix="exec_stream_t::thread_func: unable to set thread_stopped event";
     }
-    
+
     pthread_cleanup_pop( 0 );
     return 0;
 }

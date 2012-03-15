@@ -1,28 +1,28 @@
 /*
 Copyright (C)  2004 Artem Khodush
 
-Redistribution and use in source and binary forms, with or without modification, 
+Redistribution and use in source and binary forms, with or without modification,
 are permitted provided that the following conditions are met:
 
-1. Redistributions of source code must retain the above copyright notice, 
+1. Redistributions of source code must retain the above copyright notice,
 this list of conditions and the following disclaimer.
 
-2. Redistributions in binary form must reproduce the above copyright notice, 
-this list of conditions and the following disclaimer in the documentation 
-and/or other materials provided with the distribution. 
+2. Redistributions in binary form must reproduce the above copyright notice,
+this list of conditions and the following disclaimer in the documentation
+and/or other materials provided with the distribution.
 
-3. The name of the author may not be used to endorse or promote products 
-derived from this software without specific prior written permission. 
+3. The name of the author may not be used to endorse or promote products
+derived from this software without specific prior written permission.
 
-THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR IMPLIED 
-WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES 
-OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. 
-IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, 
-SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, 
-PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; 
-OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, 
-WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR 
-OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, 
+THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR IMPLIED
+WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
 EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
@@ -63,7 +63,7 @@ public:
 
     class error_t : public std::exception {
     public:
-        error_t( std::string const & msg ) 
+        error_t( std::string const & msg )
         : m_msg( msg )
         {
         }
@@ -71,16 +71,16 @@ public:
         ~error_t() throw()
         {
         }
-        
+
         virtual char const * what() const throw()
         {
             return m_msg.c_str();
         }
-        
+
     private:
         std::string m_msg;
     };
-    
+
 private:
     struct failure_t {
         std::string assertion;
@@ -93,15 +93,15 @@ private:
         failures_t failures;
     };
     typedef std::vector< result_t > results_t;
-    
+
     static results_t m_results;
     static bool m_printed;
-    
+
     struct force_print_t {
         ~force_print_t();
     };
     friend struct force_print_t;
-    
+
     static force_print_t m_force_print;
 };
 
@@ -199,12 +199,12 @@ bool check_if_english_error_messages()
     std::string s;
     LPVOID buf;
     if( FormatMessage( FORMAT_MESSAGE_ALLOCATE_BUFFER|FORMAT_MESSAGE_FROM_SYSTEM,
-        0, 
-        1, 
-        MAKELANGID( LANG_NEUTRAL, SUBLANG_DEFAULT ), 
+        0,
+        1,
+        MAKELANGID( LANG_NEUTRAL, SUBLANG_DEFAULT ),
         (LPTSTR) &buf,
         0,
-        0 
+        0
         )==0 ) {
         return false;
     }else {
@@ -332,7 +332,7 @@ int pathologic()
     int n=0;
 
     char buf[1002];
-    
+
     while( fgets( buf, sizeof( buf ), stdin )!=0 ) {
         int len=strlen( buf );
 
@@ -372,10 +372,10 @@ int exit_code()
 }
 
 // selection of child functions
-        
+
 typedef int(*child_func_t)();
 
-child_func_t find_child_func( std::string const & name ) 
+child_func_t find_child_func( std::string const & name )
 {
     typedef std::map< std::string, child_func_t > child_funcs_t;
     static child_funcs_t funcs;
@@ -426,7 +426,7 @@ void pathologic_one( exec_stream_t & exec_stream, bool expect_ok=true )
     }
 }
 
-int main( int argc, char ** argv ) 
+int main( int argc, char ** argv )
 {
     if( argc>=3 ) {
         if( std::string( argv[1] )=="child" ) {
@@ -449,12 +449,12 @@ int main( int argc, char ** argv )
 
     // do not test for specific error message text if it is not in english
     bool english_error_messages=check_if_english_error_messages();
-    
+
     std::string program="./exec-stream-test";
     int n_failed=42;
 
     // the tests begin here
-    
+
     try {
 
         {
@@ -465,14 +465,14 @@ int main( int argc, char ** argv )
             TEST( read_all( exec_stream.err() )=="" );
             TEST( exec_stream.close() );
         }
-        
+
         {
             TEST_NAME( "helloworld" );
             exec_stream_t exec_stream( program, "child helloworld" );
             TEST( read_all( exec_stream.out() )=="hello\nworld" );
             TEST( read_all( exec_stream.err() )=="" );
         }
-        
+
         {
             TEST_NAME( "helloworld binary read" );
             exec_stream_t exec_stream;
@@ -485,14 +485,14 @@ int main( int argc, char ** argv )
 #endif
             TEST( read_all( exec_stream.err() )=="" );
         }
-        
+
         {
             TEST_NAME( "hello->out world->err" );
             exec_stream_t exec_stream( program, "child hello-o-world-e" );
             TEST( read_all( exec_stream.out() )=="hello" );
             TEST( read_all( exec_stream.err() )=="world" );
         }
-        
+
         {
             TEST_NAME( "hello->out world->err read reversed" );
             exec_stream_t exec_stream( program, "child hello-o-world-e" );
@@ -512,7 +512,7 @@ int main( int argc, char ** argv )
             // do not read, leave all in buffers
 
             exec_stream.start( program, "child hello-o-world-e" );
-            
+
             TEST( read_all( exec_stream.out() )=="hello" );
             TEST( read_all( exec_stream.err() )=="world" );
 
@@ -524,11 +524,11 @@ int main( int argc, char ** argv )
             TEST( s=="hello" );
 
             exec_stream.start( program, "child hello-o-world-e" );
-            
+
             TEST( read_all( exec_stream.out() )=="hello" );
             TEST( read_all( exec_stream.err() )=="world" );
 
-            TEST( exec_stream.close() ); 
+            TEST( exec_stream.close() );
         }
 
         {
@@ -559,13 +559,13 @@ int main( int argc, char ** argv )
             }
             TEST( !exec_stream.close() );
             exec_stream.kill();
-            
+
             exec_stream.set_wait_timeout( exec_stream_t::s_out, 12000 );
             exec_stream.start( program, "child write-after-pause" );
             std::string s;
             std::getline( exec_stream.out(), s );
             TEST( s=="after pause" );
-            
+
             TEST( exec_stream.close() );
         }
 
@@ -574,7 +574,7 @@ int main( int argc, char ** argv )
             exec_stream_t exec_stream;
             exec_stream.set_wait_timeout( exec_stream_t::s_err, 15000 );
             std::string in_s=random_string( 20000 )+"\n";
-            
+
             exec_stream.start( program, "child read-after-pause" );
             exec_stream.in()<<in_s;
             std::string s;
@@ -595,7 +595,7 @@ int main( int argc, char ** argv )
             }
             TEST( !exec_stream.close() );
             exec_stream.kill();
-            
+
             exec_stream.set_wait_timeout( exec_stream_t::s_in, 15000 );
             exec_stream.start( program, "child read-after-pause" );
             exec_stream.in()<<in_s;
@@ -603,7 +603,7 @@ int main( int argc, char ** argv )
             TEST( s=="OK" );
             TEST( exec_stream.close() );
         }
-        
+
         {
             TEST_NAME( "dont read" );
             exec_stream_t exec_stream;
@@ -615,8 +615,8 @@ int main( int argc, char ** argv )
             }catch( std::exception const & e ) {
                 std::string m=e.what();
                 if( english_error_messages ) {
-                    TEST( m.find( "Broken pipe" )!=std::string::npos 
-                        || m.find( "pipe is being closed" )!=std::string::npos 
+                    TEST( m.find( "Broken pipe" )!=std::string::npos
+                        || m.find( "pipe is being closed" )!=std::string::npos
                         || m.find( "pipe has been ended" )!=std::string::npos );
                 }
             }
@@ -625,10 +625,10 @@ int main( int argc, char ** argv )
         {
             TEST_NAME( "dont stop" );
             exec_stream_t exec_stream;
-            
+
             // on slow machines when child hogs CPU, this may take a while
             exec_stream.set_wait_timeout( exec_stream_t::s_child, 5000 );
-            
+
             exec_stream.start( program, "child dont-stop" );
             exec_stream.in()<<random_string( 20000 );
             TEST( !exec_stream.close() );
@@ -639,7 +639,7 @@ int main( int argc, char ** argv )
             TEST( read_all( exec_stream.err() )=="" );
             TEST( exec_stream.close() );
         }
-        
+
         {
             TEST_NAME( "echo-size" );
             exec_stream_t exec_stream;
@@ -695,57 +695,57 @@ int main( int argc, char ** argv )
         {
             TEST_NAME( "echo-picky" );
             exec_stream_t exec_stream;
-            
+
             // disable exceptions while reading/writing
             exec_stream.in().exceptions( std::ios_base::goodbit );
             exec_stream.out().exceptions( std::ios_base::goodbit );
             exec_stream.err().exceptions( std::ios_base::goodbit );
-            
+
             exec_stream.start( program, "child echo-picky" );
             std::string in_s;
             std::string out_s;
-            
+
             in_s=random_string( 4096 );
             exec_stream.in()<<in_s<<"\n";
             TEST( std::getline( exec_stream.out(), out_s ).good() );
             TEST( in_s==out_s );
-            
+
             in_s="ZZZZZ";
             exec_stream.in()<<in_s<<"\n";
             TEST( std::getline( exec_stream.out(), out_s ).good() );
             TEST( in_s==out_s );
-            
+
             in_s="STOP";
             exec_stream.in()<<in_s<<"\n";
             TEST( !std::getline( exec_stream.out(), out_s ).good() );
             TEST( out_s=="" );
-            
+
             TEST( std::getline( exec_stream.err(), out_s ).good() );
             TEST( out_s=="OK" );
         }
-        
+
         {
             TEST_NAME( "echo-picky with exceptions" );
             exec_stream_t exec_stream;
             exec_stream.start( program, "child echo-picky" );
             std::string in_s;
             std::string out_s;
-            
+
             in_s=random_string( 4096 );
             exec_stream.in()<<in_s<<"\n";
             TEST( std::getline( exec_stream.out(), out_s ).good() );
             TEST( in_s==out_s );
-            
+
             in_s="ZZZZZ";
             exec_stream.in()<<in_s<<"\n";
             TEST( std::getline( exec_stream.out(), out_s ).good() );
             TEST( in_s==out_s );
-            
+
             in_s="STOP";
             exec_stream.in()<<in_s<<"\n";
             TEST( !std::getline( exec_stream.out(), out_s ).good() );
             TEST( out_s=="" );
-            
+
             TEST( std::getline( exec_stream.err(), out_s ).good() );
             TEST( out_s=="OK" );
         }
@@ -756,10 +756,10 @@ int main( int argc, char ** argv )
             exec_stream.start( program, "child echo-picky" );
             std::string in_s;
             std::string out_s;
-            
+
             in_s="STOP";
             exec_stream.in()<<in_s<<"\n";
-            
+
             TEST( std::getline( exec_stream.err(), out_s ).good() );
             TEST( out_s=="OK" );
         }
@@ -773,11 +773,11 @@ int main( int argc, char ** argv )
             exec_stream.err().exceptions( std::ios_base::goodbit );
             // on slow machines this test may take quite a while
             exec_stream.set_wait_timeout( exec_stream_t::s_in|exec_stream_t::s_out|exec_stream_t::s_err, 60000 );
-            
+
             exec_stream.start( program, "child pathologic" );
             pathologic_one( exec_stream );
             TEST( exec_stream.close() );
-            
+
             exec_stream.set_buffer_limit( exec_stream_t::s_in, 500 );
             exec_stream.start( program, "child pathologic" );
             pathologic_one( exec_stream );
@@ -785,7 +785,7 @@ int main( int argc, char ** argv )
         }
 
         if( !skip_long_tests ) {
-        
+
             {
                 TEST_NAME( "pathologic with exceptions" );
                 exec_stream_t exec_stream;
@@ -839,7 +839,7 @@ int main( int argc, char ** argv )
                 }
                 TEST( exec_stream.close() );
             }
-            
+
             {
                 TEST_NAME( "long out line" );
                 exec_stream_t exec_stream;
@@ -857,7 +857,7 @@ int main( int argc, char ** argv )
         {
             TEST_NAME( "exit code" );
             exec_stream_t exec_stream;
-            
+
             exec_stream.start( program, "child exit-code" );
             exec_stream.in()<<"2\n";
             TEST( exec_stream.close() );
@@ -873,14 +873,14 @@ int main( int argc, char ** argv )
             TEST_NAME( "args" );
             exec_stream_t exec_stream;
             std::string s;
-            
+
             exec_stream.start( program, "args \"one two\" three" );
             TEST( std::getline( exec_stream.out(), s ).good() );
             TEST( s=="one two" );
             TEST( std::getline( exec_stream.out(), s ).good() );
             TEST( s=="three" );
             TEST( !std::getline( exec_stream.out(), s ).good() );
-            
+
             exec_stream.start( program, "args -e \"print \\\"hello world\\\";\"" );
             TEST( std::getline( exec_stream.out(), s ).good() );
             TEST( s=="-e" );
@@ -895,7 +895,7 @@ int main( int argc, char ** argv )
             TEST( std::getline( exec_stream.out(), s ).good() );
             TEST( s=="three" );
             TEST( !std::getline( exec_stream.out(), s ).good() );
-            
+
             std::vector< std::string > args2;
             args2.push_back( "args" );
             args2.push_back( "-e" );
@@ -916,7 +916,7 @@ int main( int argc, char ** argv )
             TEST( s=="zzzz" );
             TEST( !std::getline( exec_stream.out(), s ).good() );
         }
-        
+
         {
             TEST_NAME( "run unexistent program" );
             std::string prog="don't know what";
@@ -939,6 +939,6 @@ int main( int argc, char ** argv )
     }catch( ... ) {
         std::cerr<<"unknown exception\n";
     }
-        
+
     return n_failed;
 }

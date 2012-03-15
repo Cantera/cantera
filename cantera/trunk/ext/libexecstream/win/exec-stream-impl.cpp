@@ -1,28 +1,28 @@
 /*
 Copyright (C)  2004 Artem Khodush
 
-Redistribution and use in source and binary forms, with or without modification, 
+Redistribution and use in source and binary forms, with or without modification,
 are permitted provided that the following conditions are met:
 
-1. Redistributions of source code must retain the above copyright notice, 
+1. Redistributions of source code must retain the above copyright notice,
 this list of conditions and the following disclaimer.
 
-2. Redistributions in binary form must reproduce the above copyright notice, 
-this list of conditions and the following disclaimer in the documentation 
-and/or other materials provided with the distribution. 
+2. Redistributions in binary form must reproduce the above copyright notice,
+this list of conditions and the following disclaimer in the documentation
+and/or other materials provided with the distribution.
 
-3. The name of the author may not be used to endorse or promote products 
-derived from this software without specific prior written permission. 
+3. The name of the author may not be used to endorse or promote products
+derived from this software without specific prior written permission.
 
-THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR IMPLIED 
-WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES 
-OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. 
-IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, 
-SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, 
-PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; 
-OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, 
-WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR 
-OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, 
+THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR IMPLIED
+WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
 EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
@@ -54,7 +54,7 @@ struct exec_stream_t::impl_t {
 
 exec_stream_t::impl_t::impl_t()
 : m_in_buffer( exec_stream_t::s_in, m_in_thread ), m_out_buffer( exec_stream_t::s_out, m_out_thread ), m_err_buffer( exec_stream_t::s_err, m_err_thread ),
-  m_in( m_in_buffer ), m_out( m_out_buffer ), m_err( m_err_buffer ) 
+  m_in( m_in_buffer ), m_out( m_out_buffer ), m_err( m_err_buffer )
 {
     m_out.tie( &m_in );
     m_err.tie( &m_in );
@@ -179,7 +179,7 @@ void exec_stream_t::start( std::string const & program, std::string const & argu
     }
 
     m_impl->m_child_process=pi.hProcess;
-    
+
     m_impl->m_in_buffer.clear();
     m_impl->m_out_buffer.clear();
     m_impl->m_err_buffer.clear();
@@ -247,12 +247,12 @@ bool exec_stream_t::close()
     if( !close_in() ) {
         // need to close child's stdin no matter what, because otherwise "usual" child  will run forever
         // And before closing child's stdin the writer thread should be stopped no matter what,
-        // because it may be blocked on Write to m_in_pipe, and in that case closing m_in_pipe may block. 
+        // because it may be blocked on Write to m_in_pipe, and in that case closing m_in_pipe may block.
         if( !m_impl->m_in_thread.abort_thread() ) {
             throw exec_stream_t::error_t( "exec_stream_t::close: waiting till in_thread stops exceeded timeout" );
         }
         // when thread is terminated abnormally, it may left child's stdin open
-        // try to close it here 
+        // try to close it here
         CloseHandle( m_impl->m_in_pipe );
         m_impl->m_in_pipe=0;
     }
@@ -298,7 +298,7 @@ bool exec_stream_t::close()
     return m_impl->m_child_process==0;
 }
 
-void exec_stream_t::kill() 
+void exec_stream_t::kill()
 {
     if( m_impl->m_child_process!=0 ) {
         if( !TerminateProcess( m_impl->m_child_process, 0 ) ) {

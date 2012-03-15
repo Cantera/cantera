@@ -1,28 +1,28 @@
 /*
 Copyright (C)  2004 Artem Khodush
 
-Redistribution and use in source and binary forms, with or without modification, 
+Redistribution and use in source and binary forms, with or without modification,
 are permitted provided that the following conditions are met:
 
-1. Redistributions of source code must retain the above copyright notice, 
+1. Redistributions of source code must retain the above copyright notice,
 this list of conditions and the following disclaimer.
 
-2. Redistributions in binary form must reproduce the above copyright notice, 
-this list of conditions and the following disclaimer in the documentation 
-and/or other materials provided with the distribution. 
+2. Redistributions in binary form must reproduce the above copyright notice,
+this list of conditions and the following disclaimer in the documentation
+and/or other materials provided with the distribution.
 
-3. The name of the author may not be used to endorse or promote products 
-derived from this software without specific prior written permission. 
+3. The name of the author may not be used to endorse or promote products
+derived from this software without specific prior written permission.
 
-THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR IMPLIED 
-WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES 
-OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. 
-IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, 
-SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, 
-PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; 
-OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, 
-WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR 
-OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, 
+THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR IMPLIED
+WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
 EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
@@ -44,7 +44,7 @@ public:
         m_buf=0;
         m_size=0;
     }
-    
+
     ~buf_t()
     {
         delete [] m_buf;
@@ -66,7 +66,7 @@ public:
         std::swap( this->m_buf, new_buf.m_buf );
         std::swap( this->m_size, new_buf.m_size );
     }
-        
+
     data_t * data()
     {
         return m_buf;
@@ -76,7 +76,7 @@ public:
     {
         return m_size;
     }
-    
+
 private:
     buf_t( buf_t const & );
     buf_t & operator=( buf_t const & );
@@ -107,7 +107,7 @@ class mutex_t {
 public:
     mutex_t();
     ~mutex_t();
-    
+
 private:
     pthread_mutex_t m_mutex;
 
@@ -120,11 +120,11 @@ class grab_mutex_t {
 public:
     grab_mutex_t( mutex_t & mutex, class mutex_registrator_t * mutex_registrator );
     ~grab_mutex_t();
-    
+
     int release();
     bool ok();
     int error_code();
-    
+
 private:
     pthread_mutex_t * m_mutex;
     int m_error_code;
@@ -169,13 +169,13 @@ public:
 
     int set( unsigned bits, mutex_registrator_t * mutex_registrator );
     int reset( unsigned bits, mutex_registrator_t * mutex_registrator );
-    
+
     wait_result_t wait( unsigned any_bits, unsigned long timeout, mutex_registrator_t * mutex_registrator );
 
 private:
     mutex_t m_mutex;
     pthread_cond_t m_cond;
-    unsigned volatile m_state;    
+    unsigned volatile m_state;
 };
 
 
@@ -200,9 +200,9 @@ public:
 private:
     static void * thread_func( void * param );
 
-    pthread_t m_thread;    
+    pthread_t m_thread;
     mutex_t m_mutex; // protecting m_in_buffer, m_out_buffer, m_err_buffer
-    
+
     buffer_list_t m_in_buffer;
     buffer_list_t m_out_buffer;
     buffer_list_t m_err_buffer;
@@ -215,17 +215,17 @@ private:
 
     bool m_thread_started; // set in start(), checked in set_xxx(), get() and put()
     bool m_in_closed; // set in close_in(), checked in put()
-    
+
     pipe_t & m_in_pipe;
     pipe_t & m_out_pipe;
     pipe_t & m_err_pipe;
-    
+
     unsigned long m_in_wait_timeout;
     unsigned long m_out_wait_timeout;
     unsigned long m_err_wait_timeout;
-    
+
     unsigned long m_thread_termination_timeout;
-    
+
     std::size_t m_in_buffer_limit;
     std::size_t m_out_buffer_limit;
     std::size_t m_err_buffer_limit;
