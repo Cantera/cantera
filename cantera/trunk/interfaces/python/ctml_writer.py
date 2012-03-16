@@ -1999,11 +1999,28 @@ class Lindemann:
 validate()
 
 def convert(filename):
-    import os
+    import os, sys
     base = os.path.basename(filename)
     root, ext = os.path.splitext(base)
     dataset(root)
-    execfile(filename)
+    try:
+        execfile(filename)
+    except SyntaxError as err:
+        # Show more context than the default SyntaxError message
+        # to help see problems in multi-line statements
+        text = open(filename).readlines()
+        print '%s in "%s" on line %i:\n' % (err.__class__.__name__,
+                                            err.filename,
+                                            err.lineno)
+        print '|  Line |'
+        for i in range(max(err.lineno-6, 0),
+                       min(err.lineno+3, len(text))):
+            print '| % 5i |' % (i+1), text[i].rstrip()
+            if i == err.lineno-1:
+                print ' '* (err.offset+9) + '^'
+        print
+        sys.exit(3)
+
     write()
 
 if __name__ == "__main__":
