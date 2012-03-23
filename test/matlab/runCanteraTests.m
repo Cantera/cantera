@@ -14,3 +14,6 @@ end
 
 % unload the MEX file
 clear ctmethods
+
+% delete global objects created by some of the test
+clear global static*
