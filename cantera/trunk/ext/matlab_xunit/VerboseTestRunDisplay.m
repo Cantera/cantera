@@ -103,7 +103,7 @@ classdef VerboseTestRunDisplay < TestRunDisplay
         end
         
         function str = leaderDots(self, name)
-            num_dots = max(0, 60 - self.numIndentationSpaces() - numel(name));
+            num_dots = max(0, 40 - self.numIndentationSpaces() - numel(name));
             str = repmat('.', 1, num_dots);
         end
         

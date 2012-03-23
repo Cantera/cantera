@@ -1,0 +1,11 @@
+ideal_gas(name = 'simple',
+          elements = 'C O H N',
+          species = 'nasa_gas: CH4 O2 N2 CO2 H2O')
+
+ideal_gas(name = 'full',
+          elements = 'C O H N',
+          species = 'nasa_gas: CH4 H2O O2 CO2 CO H2 N2')
+
+ideal_gas(name = 'syngas',
+          elements = 'C O H N',
+          species = 'nasa_gas: CO H2 O2 N2 CO2 H2O')

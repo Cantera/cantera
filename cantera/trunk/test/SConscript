@@ -81,9 +81,12 @@ def addMatlabTest(script, dependencies=None):
             matlabOptions = ['-nojvm','-nodisplay']
         if os.path.exists(outfile):
             os.remove(outfile)
+
+        environ = dict(os.environ)
+        environ.update(env['ENV'])
         code = subprocess.call([pjoin(env['matlab_path'], 'bin', 'matlab')] +
                                matlabOptions + ['-r', runCommand],
-                               env=env['ENV'], cwd=Dir('#test/matlab').abspath)
+                               env=environ, cwd=Dir('#test/matlab').abspath)
         results = open(outfile).read()
         print '-------- Matlab test results --------'
         print results
