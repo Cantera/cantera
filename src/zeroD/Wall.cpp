@@ -100,7 +100,7 @@ doublereal Wall::Q(doublereal t)
     if (m_emiss > 0.0) {
         double tl = m_left->temperature();
         double tr = m_right->temperature();
-        q1 += m_area * StefanBoltz * (tl*tl*tl*tl - tr*tr*tr*tr);
+        q1 += m_emiss * m_area * StefanBoltz * (tl*tl*tl*tl - tr*tr*tr*tr);
     }
     if (m_qf) {
         q1 += m_area * m_qf->eval(t);
