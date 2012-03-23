@@ -169,7 +169,6 @@ phase_getarray(PyObject* self, PyObject* args)
 #ifdef HAS_NUMPY
         npy_intp nnn = nsp;
         x = (PyArrayObject*)PyArray_SimpleNew(1,  &nnn, PyArray_DOUBLE);
-        Py_INCREF(x);
 #else
         int nnn = int(nsp);
         x = (PyArrayObject*)PyArray_FromDims(1, &nnn, PyArray_DOUBLE);

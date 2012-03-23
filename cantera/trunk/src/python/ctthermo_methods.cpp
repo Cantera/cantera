@@ -239,7 +239,6 @@ thermo_getarray(PyObject* self, PyObject* args)
     npy_intp nnn = xlen;
     PyArrayObject* x =
         (PyArrayObject*)PyArray_SimpleNew(1, &nnn, PyArray_DOUBLE);
-    Py_INCREF(x);
 #else
     int nnn = int(xlen);
     PyArrayObject* x =
