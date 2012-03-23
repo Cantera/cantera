@@ -10,6 +10,8 @@
 #include "cantera/base/ctml.h"
 #include "cantera/oneD/MultiJac.h"
 
+#include <cstdio>
+
 using namespace ctml;
 using namespace std;
 

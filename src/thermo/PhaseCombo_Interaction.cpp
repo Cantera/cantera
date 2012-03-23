@@ -13,6 +13,7 @@
 #include "cantera/base/stringUtils.h"
 
 #include <iomanip>
+#include <fstream>
 
 using namespace std;
 

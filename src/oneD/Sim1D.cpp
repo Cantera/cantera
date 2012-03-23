@@ -5,7 +5,9 @@
 #include "cantera/oneD/Sim1D.h"
 #include "cantera/oneD/MultiJac.h"
 
+#include <fstream>
 #include <cstdlib>
+#include <cstdio>
 
 using namespace std;
 

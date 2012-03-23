@@ -20,6 +20,8 @@
 #include "cantera/base/stringUtils.h"
 
 #include <iomanip>
+#include <cstdio>
+#include <fstream>
 
 using namespace std;
 

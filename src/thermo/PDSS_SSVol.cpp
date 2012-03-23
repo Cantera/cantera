@@ -16,6 +16,8 @@
 
 #include "cantera/thermo/VPStandardStateTP.h"
 
+#include <fstream>
+
 using namespace std;
 
 namespace Cantera

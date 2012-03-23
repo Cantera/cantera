@@ -14,6 +14,7 @@
 #include "cantera/base/stringUtils.h"
 
 #include <iostream>
+#include <fstream>
 
 using namespace std;
 

@@ -9,6 +9,7 @@
 #include "Cabinet.h"
 
 #include <string.h>
+#include <fstream>
 
 using namespace std;
 using namespace Cantera;

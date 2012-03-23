@@ -7,8 +7,10 @@
 #ifndef CT_MMCOLLISIONINT_H
 #define CT_MMCOLLISIONINT_H
 
-#include <vector>
 #include "cantera/base/ct_defs.h"
+
+#include <vector>
+#include <iostream>
 
 namespace Cantera
 {

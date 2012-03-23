@@ -14,6 +14,8 @@
 #include "cantera/base/ct_defs.h"
 #include "cantera/base/ctexceptions.h"
 
+#include <cstdio>
+
 namespace Cantera
 {
 

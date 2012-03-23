@@ -18,6 +18,8 @@
 #include "cantera/base/xml.h"
 #include "cantera/base/ctml.h"
 
+#include <fstream>
+
 using namespace std;
 
 namespace Cantera

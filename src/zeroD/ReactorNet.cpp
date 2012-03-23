@@ -3,6 +3,8 @@
 #include "cantera/zeroD/FlowDevice.h"
 #include "cantera/zeroD/Wall.h"
 
+#include <cstdio>
+
 using namespace std;
 using namespace Cantera;
 

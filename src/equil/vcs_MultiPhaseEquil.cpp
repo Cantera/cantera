@@ -33,6 +33,7 @@
 
 #include <string>
 #include <vector>
+#include <cstdio>
 
 using namespace Cantera;
 using namespace std;

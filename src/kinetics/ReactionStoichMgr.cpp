@@ -10,6 +10,8 @@
 #include "cantera/base/ctexceptions.h"
 #include "ReactionData.h"
 
+#include <fstream>
+
 using namespace std;
 
 namespace Cantera
