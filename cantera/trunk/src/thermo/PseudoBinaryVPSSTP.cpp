@@ -20,6 +20,7 @@
 #include "cantera/base/stringUtils.h"
 
 #include <cmath>
+#include <cstdio>
 
 using namespace std;
 

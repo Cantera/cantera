@@ -26,6 +26,7 @@
 
 #include <cmath>
 #include <cstdlib>
+#include <cstdio>
 
 namespace Cantera
 {

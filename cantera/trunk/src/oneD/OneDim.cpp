@@ -3,6 +3,9 @@
 #include "cantera/oneD/OneDim.h"
 
 #include "cantera/base/ctml.h"
+
+#include <fstream>
+
 using namespace ctml;
 using namespace std;
 

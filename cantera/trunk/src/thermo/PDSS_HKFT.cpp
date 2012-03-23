@@ -18,6 +18,7 @@
 #include "cantera/base/stringUtils.h"
 
 #include <cstdlib>
+#include <fstream>
 
 using namespace std;
 using namespace ctml;

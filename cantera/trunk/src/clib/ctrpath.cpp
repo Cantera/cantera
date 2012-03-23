@@ -8,6 +8,8 @@
 #include "cantera/kinetics/ReactionPath.h"
 #include "Cabinet.h"
 
+#include <fstream>
+
 using namespace Cantera;
 using namespace std;
 

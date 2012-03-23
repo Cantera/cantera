@@ -6,7 +6,7 @@
 #include "application.h"
 #include "units.h"
 
-// RFB:TODO May need OS specifc include to use varargs.h instead
+#include <cstdio>
 #include <stdarg.h>
 
 using namespace std;

@@ -14,17 +14,14 @@
 #ifndef CT_DEFS_H
 #define CT_DEFS_H
 
-#include <cmath>
 #include "config.h"
 
+#include <cmath>
+
 // STL includes
-#include <iostream>
-#include <fstream>
 #include <vector>
 #include <map>
-#include <numeric>
 #include <string>
-#include <algorithm>
 
 // Warn about deprecated functions at compile time
 #ifdef __GNUC__

@@ -18,6 +18,7 @@
 #include "cantera/base/stringUtils.h"
 
 #include <cmath>
+#include <fstream>
 
 namespace Cantera
 {

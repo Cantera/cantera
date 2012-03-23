@@ -9,6 +9,7 @@
 #include "cantera/base/ctml.h"
 
 #include <cstring>
+#include <fstream>
 
 using namespace ctml;
 using namespace std;

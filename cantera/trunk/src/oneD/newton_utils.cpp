@@ -5,6 +5,8 @@
 #include "cantera/base/ct_defs.h"
 #include "cantera/oneD/Domain1D.h"
 
+#include <cstdio>
+
 using namespace std;
 
 namespace Cantera
