@@ -569,6 +569,7 @@ class FlowDevice:
         return _cantera.flowdev_setParameters(self.__fdev_id, n, params)
 
     def setFunction(self, f):
+        self._f = f # Hold on to a reference so it doesn't get deleted
         _cantera.flowdev_setFunction(self.__fdev_id, f.func_id())
 
     def flowdev_id(self):
@@ -969,8 +970,11 @@ class Wall:
         Specify the time-dependent heat flux function [W/m2].
         *qfunc* must be a functor (an instance of :class:`.Func1`).
         """
-        n = 0
-        if qfunc: n = qfunc.func_id()
+        if qfunc:
+            self._qfunc = qfunc # hold on to a reference so it doesn't get deleted
+            n = self.qfunc.func_id()
+        else:
+            n = 0
         return _cantera.wall_setHeatFlux(self.__wall_id, n)
 
     def setExpansionRateCoeff(self, k):
@@ -983,8 +987,11 @@ class Wall:
         Specify the velocity function [m/s]. *vfunc* must
         be a functor (an instance of :class:`.Func1`)
         """
-        n = 0
-        if vfunc: n = vfunc.func_id()
+        if vfunc:
+            self._vfunc = vfunc # hold on to a reference so it doesn't get deleted
+            n = vfunc.func_id()
+        else:
+            n = 0
         _cantera.wall_setVelocity(self.__wall_id, n)
 
     def vdot(self):
