@@ -316,12 +316,22 @@ void Phase::restoreState(size_t lenstate, const doublereal* state)
 
 void Phase::setMoleFractions(const doublereal* const x)
 {
-    doublereal sum = dot(x, x + m_kk, m_molwts.begin());
-    doublereal rsum = 1.0/sum;
-    transform(x, x + m_kk, m_ym.begin(), timesConstant<double>(rsum));
+    // Use m_y as a temporary work vector for the non-negative mole fractions
+    doublereal norm = 0.0;
+    doublereal sum = 0;
+    for (size_t k = 0; k < m_kk; k++) {
+        double xk = std::max(x[k], 0.0); // Ignore negative mole fractions
+        m_y[k] = xk;
+        norm += xk;
+        sum += m_molwts[k] * xk;
+    }
+
+    transform(m_y.begin(), m_y.end(), m_ym.begin(),
+              timesConstant<double>(1.0/sum));
+
+    // Now set m_y to the mass fractions
     transform(m_ym.begin(), m_ym.begin() + m_kk, m_molwts.begin(),
               m_y.begin(), multiplies<double>());
-    doublereal norm = accumulate(x, x + m_kk, 0.0);
     m_mmw = sum/norm;
 
     // Call a routine to determine whether state has changed.
@@ -367,15 +377,15 @@ void Phase::setMoleFractionsByName(const std::string& x)
 
 void Phase::setMassFractions(const doublereal* const y)
 {
-    doublereal norm = 0.0, sum = 0.0;
-    norm = accumulate(y, y + m_kk, 0.0);
-    copy(y, y + m_kk, m_y.begin());
-    scale(y, y + m_kk, m_y.begin(), 1.0/norm);
+    for (size_t k = 0; k < m_kk; k++) {
+        m_y[k] = std::max(y[k], 0.0); // Ignore negative mass fractions
+    }
+    doublereal norm = accumulate(m_y.begin(), m_y.end(), 0.0);
+    scale(m_y.begin(), m_y.end(), m_y.begin(), 1.0/norm);
 
-    transform(m_y.begin(), m_y.begin() + m_kk, m_rmolwts.begin(),
+    transform(m_y.begin(), m_y.end(), m_rmolwts.begin(),
               m_ym.begin(), multiplies<double>());
-    sum = accumulate(m_ym.begin(), m_ym.begin() + m_kk, 0.0);
-    m_mmw = 1.0/sum;
+    m_mmw = 1.0 / accumulate(m_ym.begin(), m_ym.end(), 0.0);
 
     // Call a routine to determine whether state has changed.
     stateMFChangeCalc();
@@ -585,17 +595,20 @@ void Phase::getConcentrations(doublereal* const c) const
 
 void Phase::setConcentrations(const doublereal* const conc)
 {
+    // Use m_y as temporary storage for non-negative concentrations
     doublereal sum = 0.0, norm = 0.0;
     for (size_t k = 0; k != m_kk; ++k) {
-        sum += conc[k]*m_molwts[k];
-        norm += conc[k];
+        double ck = std::max(conc[k], 0.0); // Ignore negative concentrations
+        m_y[k] = ck;
+        sum += ck * m_molwts[k];
+        norm += ck;
     }
     m_mmw = sum/norm;
     setDensity(sum);
     doublereal rsum = 1.0/sum;
     for (size_t k = 0; k != m_kk; ++k) {
-        m_ym[k] = conc[k] * rsum;
-        m_y[k] =  m_ym[k] * m_molwts[k];
+        m_ym[k] = m_y[k] * rsum;
+        m_y[k] = m_ym[k] * m_molwts[k]; // m_y is now the mass fraction
     }
 
     // Call a routine to determine whether state has changed.
