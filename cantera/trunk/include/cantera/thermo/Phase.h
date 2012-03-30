@@ -485,7 +485,7 @@ public:
     //! of the phase. We hold the temperature constant during this operation.
     //! Therefore, we have possibly changed the pressure of the phase by
     //! calling this routine.
-    //!     @param conc[in] Array of concentrations in dimensional units. For
+    //!     @param[in] conc Array of concentrations in dimensional units. For
     //! bulk phases c[k] is the concentration of the kth species in kmol/m3.
     //! For surface phases, c[k] is the concentration in kmol/m2. The length of
     //!  the vector is the numberof species in the phase.
@@ -563,14 +563,14 @@ public:
     //! @name Mean Properties
     //!@{
 
-    //! Evaluate the mole-fraction-weighted mean of an array \ref Q.
+    //! Evaluate the mole-fraction-weighted mean of an array Q.
     //! \f[ \sum_k X_k Q_k. \f]
     //! Q should contain pure-species molar property values.
     //!     @param[in] Q Array of length m_kk that is to be averaged.
     //!     @return mole-fraction-weighted mean of Q
     doublereal mean_X(const doublereal* const Q) const;
 
-    //! Evaluate the mass-fraction-weighted mean of an array \ref Q.
+    //! Evaluate the mass-fraction-weighted mean of an array Q.
     //! \f[ \sum_k Y_k Q_k \f]
     //!     @param[in] Q  Array of species property values in mass units.
     //!     @return The mass-fraction-weighted mean of Q.

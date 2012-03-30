@@ -36,11 +36,11 @@ class ReactionData;
  * - \f$ N_r \f$
  *     Integer reactant stoichiometric coefficient matrix. The (k,i)
  *     element of this matrix is the stoichiometric coefficient of
- *     species \i k as a reactant in reaction \i i.
+ *     species \e k as a reactant in reaction \e i.
  * - \f$ N_p \f$
  *     Integer product stoichiometric coefficient matrix. The (k,i)
  *     element of this matrix is the stoichiometric coefficient of
- *     species \i k as a product in reaction \i i.
+ *     species \e k as a product in reaction \e i.
  * - \f$ Q_{\rm fwd} \f$
  *     Vector of length I of forward rates of progress.
  * - \f$ Q_{\rm rev} \f$
@@ -100,15 +100,7 @@ public:
     /**
      * Add a reaction with specified, possibly non-integral, reaction orders.
      * @param rxn Reaction number
-     * @param reactants vector of integer reactant indices
-     * @param products vector of integer product indices
-     * @param reversible true if the reaction is reversible, false otherwise.
-     * If the reaction is reversible, its reverse rate will be computed from
-     * the reaction stoichiometry.
-     * @param fwdOrder reaction orders for the reactants. This vector must
-     * be the same length as 'reactants,' and the reaction orders are for the
-     * species with index in the corresponding location in 'reactants.'
-     *
+     * @param r Data structure containing reactant and product vectors, etc.
      */
     virtual void add(size_t rxn, const ReactionData& r);
 

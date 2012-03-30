@@ -1,10 +1,6 @@
 /**
  *  @file Elements.cpp
- *  Declaration file for class, Elements, which contains the elements that
- *  make up species (see \ref phases and \link Cantera::Elements Elements\endlink).
- *
- *  This file contains the definitions for functions in the class Elements.
- *  It also contains a database of atomic weights.
+ *  This file contains a database of atomic weights.
  */
 //  Copyright 2003  California Institute of Technology
 
@@ -22,8 +18,7 @@ namespace Cantera
  *  Values are taken from the 1989 Standard Atomic Weights, CRC
  *
  *  awTable[] is a static function with scope limited to this file.
- *  It can only be referenced via the static Elements class function,
- *  LookupWtElements().
+ *  It can only be referenced via the LookupWtElements() function.
  *
  *  units = kg / kg-mol (or equivalently gm / gm-mol)
  *

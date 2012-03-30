@@ -1,5 +1,5 @@
 /**
- *  @file CVodesWrapper.h
+ *  @file CVodesIntegrator.h
  */
 // Copyright 2005  California Institute of Technology
 

@@ -1,5 +1,5 @@
 /**
- * @file LinerBoadener.h
+ * @file LineBroadener.h
  * Header file for class LineBroadener
  * @ingroup spectroscopy
  */

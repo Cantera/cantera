@@ -1,5 +1,5 @@
 /**
- *  @file  IntStarStar.h
+ *  @file  vcs_IntStarStar.h
  *
  *  Header file for class IntStarStar
  */
