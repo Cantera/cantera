@@ -10,7 +10,7 @@
 
 #include "cantera/kinetics/InterfaceKinetics.h"
 #include "cantera/thermo/SurfPhase.h"
-#include "StoichManager.h"
+#include "cantera/kinetics/StoichManager.h"
 #include "cantera/kinetics/RateCoeffMgr.h"
 
 #include "ImplicitSurfChem.h"

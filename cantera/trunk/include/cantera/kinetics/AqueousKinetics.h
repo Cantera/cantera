@@ -220,7 +220,7 @@ public:
         //#ifdef HWMECH
         //get_wdot(&m_kdata->m_ropnet[0], net);
         //#else
-        m_rxnstoich->getNetProductionRates(m_kk, &m_ropnet[0], net);
+        m_rxnstoich.getNetProductionRates(m_kk, &m_ropnet[0], net);
         //#endif
     }
 
@@ -233,7 +233,7 @@ public:
      */
     virtual void getCreationRates(doublereal* cdot) {
         updateROP();
-        m_rxnstoich->getCreationRates(m_kk, &m_ropf[0], &m_ropr[0], cdot);
+        m_rxnstoich.getCreationRates(m_kk, &m_ropf[0], &m_ropr[0], cdot);
     }
 
     /**
@@ -245,7 +245,7 @@ public:
      */
     virtual void getDestructionRates(doublereal* ddot) {
         updateROP();
-        m_rxnstoich->getDestructionRates(m_kk, &m_ropf[0], &m_ropr[0], ddot);
+        m_rxnstoich.getDestructionRates(m_kk, &m_ropf[0], &m_ropr[0], ddot);
     }
 
     //@}
@@ -343,7 +343,7 @@ protected:
 
     std::vector<size_t> m_irrev;
 
-    ReactionStoichMgr*                   m_rxnstoich;
+    ReactionStoichMgr m_rxnstoich;
 
     std::vector<size_t> m_fwdOrder;
 

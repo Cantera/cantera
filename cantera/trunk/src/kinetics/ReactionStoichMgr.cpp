@@ -6,7 +6,6 @@
 //------------------------------------------------
 
 #include "cantera/kinetics/ReactionStoichMgr.h"
-#include "StoichManager.h"
 #include "cantera/base/ctexceptions.h"
 #include "cantera/kinetics/ReactionData.h"
 
@@ -20,52 +19,32 @@ namespace Cantera
 // create stoichiometry managers for the reactants of all reactions,
 // for the products of the reversible reactions, and for the
 // products of the irreversible reactions.
-ReactionStoichMgr::ReactionStoichMgr() :
-    m_reactants(0),
-    m_revproducts(0),
-    m_irrevproducts(0)
+ReactionStoichMgr::ReactionStoichMgr()
 {
-    m_reactants = new StoichManagerN;
-    m_revproducts = new StoichManagerN;
-    m_irrevproducts = new StoichManagerN;
     m_dummy.resize(10,1.0);
 }
 //====================================================================================================================
-// delete the three stoichiometry managers
 ReactionStoichMgr::~ReactionStoichMgr()
 {
-    delete m_reactants;
-    delete m_revproducts;
-    delete m_irrevproducts;
 }
+
 //====================================================================================================================
 ReactionStoichMgr::ReactionStoichMgr(const  ReactionStoichMgr& right) :
-    m_reactants(0),
-    m_revproducts(0),
-    m_irrevproducts(0)
+    m_reactants(right.m_reactants),
+    m_revproducts(right.m_revproducts),
+    m_irrevproducts(right.m_irrevproducts),
+    m_dummy(right.m_dummy)
 {
-    m_reactants = new StoichManagerN(*right.m_reactants);
-    m_revproducts = new StoichManagerN(*right.m_revproducts);
-    m_irrevproducts = new StoichManagerN(*right.m_irrevproducts);
-    m_dummy = right.m_dummy;
 }
+
 //====================================================================================================================
 ReactionStoichMgr& ReactionStoichMgr::operator=(const ReactionStoichMgr& right)
 {
     if (this != &right) {
-        if (m_reactants) {
-            delete(m_reactants);
-        }
-        if (m_revproducts) {
-            delete(m_revproducts);
-        }
-        if (m_irrevproducts) {
-            delete(m_irrevproducts);
-        }
 
-        m_reactants = new StoichManagerN(*right.m_reactants);
-        m_revproducts = new StoichManagerN(*right.m_revproducts);
-        m_irrevproducts = new StoichManagerN(*right.m_irrevproducts);
+        m_reactants = right.m_reactants;
+        m_revproducts = right.m_revproducts;
+        m_irrevproducts = right.m_irrevproducts;
         m_dummy = right.m_dummy;
     }
     return *this;
@@ -77,12 +56,12 @@ add(size_t rxn, const std::vector<size_t>& reactants,
     bool reversible)
 {
 
-    m_reactants->add(rxn, reactants);
+    m_reactants.add(rxn, reactants);
 
     if (reversible) {
-        m_revproducts->add(rxn, products);
+        m_revproducts.add(rxn, products);
     } else {
-        m_irrevproducts->add(rxn, products);
+        m_irrevproducts.add(rxn, products);
     }
 }
 
@@ -108,9 +87,9 @@ add(size_t rxn, const ReactionData& r)
     // if the reaction has fractional stoichiometric coefficients
     // or specified reaction orders, then add it in a general reaction
     if (isfrac || r.global || rk.size() > 3) {
-        m_reactants->add(rxn, r.reactants, r.rorder, r.rstoich);
+        m_reactants.add(rxn, r.reactants, r.rorder, r.rstoich);
     } else {
-        m_reactants->add(rxn, rk);
+        m_reactants.add(rxn, rk);
     }
 
     std::vector<size_t> pk;
@@ -133,14 +112,14 @@ add(size_t rxn, const ReactionData& r)
                                "\nfor irreversible reactions and most reversible reactions");
         }
         if (pk.size() > 3 || r.isReversibleWithFrac) {
-            m_revproducts->add(rxn, r.products, r.porder, r.pstoich);
+            m_revproducts.add(rxn, r.products, r.porder, r.pstoich);
         } else {
-            m_revproducts->add(rxn, pk);
+            m_revproducts.add(rxn, pk);
         }
     } else if (isfrac || pk.size() > 3) {
-        m_irrevproducts->add(rxn, r.products, r.porder,  r.pstoich);
+        m_irrevproducts.add(rxn, r.products, r.porder,  r.pstoich);
     } else {
-        m_irrevproducts->add(rxn, pk);
+        m_irrevproducts.add(rxn, pk);
     }
 }
 
@@ -152,11 +131,11 @@ getCreationRates(size_t nsp, const doublereal* ropf,
     fill(c, c + nsp, 0.0);
 
     // the forward direction creates product species
-    m_revproducts->incrementSpecies(ropf, c);
-    m_irrevproducts->incrementSpecies(ropf, c);
+    m_revproducts.incrementSpecies(ropf, c);
+    m_irrevproducts.incrementSpecies(ropf, c);
 
     // the reverse direction creates reactant species
-    m_reactants->incrementSpecies(ropr, c);
+    m_reactants.incrementSpecies(ropr, c);
 }
 
 void ReactionStoichMgr::
@@ -165,9 +144,9 @@ getDestructionRates(size_t nsp, const doublereal* ropf,
 {
     fill(d, d + nsp, 0.0);
     // the reverse direction destroys products in reversible reactions
-    m_revproducts->incrementSpecies(ropr, d);
+    m_revproducts.incrementSpecies(ropr, d);
     // the forward direction destroys reactants
-    m_reactants->incrementSpecies(ropf, d);
+    m_reactants.incrementSpecies(ropf, d);
 }
 
 void ReactionStoichMgr::
@@ -175,10 +154,10 @@ getNetProductionRates(size_t nsp, const doublereal* ropnet, doublereal* w)
 {
     fill(w, w + nsp, 0.0);
     // products are created for positive net rate of progress
-    m_revproducts->incrementSpecies(ropnet, w);
-    m_irrevproducts->incrementSpecies(ropnet, w);
+    m_revproducts.incrementSpecies(ropnet, w);
+    m_irrevproducts.incrementSpecies(ropnet, w);
     // reactants are destroyed for positive net rate of progress
-    m_reactants->decrementSpecies(ropnet, w);
+    m_reactants.decrementSpecies(ropnet, w);
 }
 
 void ReactionStoichMgr::
@@ -186,30 +165,30 @@ getReactionDelta(size_t nr, const doublereal* g, doublereal* dg)
 {
     fill(dg, dg + nr, 0.0);
     // products add
-    m_revproducts->incrementReactions(g, dg);
-    m_irrevproducts->incrementReactions(g, dg);
+    m_revproducts.incrementReactions(g, dg);
+    m_irrevproducts.incrementReactions(g, dg);
     // reactants subtract
-    m_reactants->decrementReactions(g, dg);
+    m_reactants.decrementReactions(g, dg);
 }
 
 void ReactionStoichMgr::
 getRevReactionDelta(size_t nr, const doublereal* g, doublereal* dg)
 {
     fill(dg, dg + nr, 0.0);
-    m_revproducts->incrementReactions(g, dg);
-    m_reactants->decrementReactions(g, dg);
+    m_revproducts.incrementReactions(g, dg);
+    m_reactants.decrementReactions(g, dg);
 }
 
 void ReactionStoichMgr::
 multiplyReactants(const doublereal* c, doublereal* r)
 {
-    m_reactants->multiply(c, r);
+    m_reactants.multiply(c, r);
 }
 
 void ReactionStoichMgr::
 multiplyRevProducts(const doublereal* c, doublereal* r)
 {
-    m_revproducts->multiply(c, r);
+    m_revproducts.multiply(c, r);
 }
 
 
@@ -233,9 +212,9 @@ writeCreationRates(ostream& f)
     f << "    void getCreationRates(const doublereal* rf, const doublereal* rb," << endl;
     f << "          doublereal* c) {" << endl;
     map<size_t, string> out;
-    m_revproducts->writeIncrementSpecies("rf",out);
-    m_irrevproducts->writeIncrementSpecies("rf",out);
-    m_reactants->writeIncrementSpecies("rb",out);
+    m_revproducts.writeIncrementSpecies("rf",out);
+    m_irrevproducts.writeIncrementSpecies("rf",out);
+    m_reactants.writeIncrementSpecies("rb",out);
     map<size_t, string>::iterator b;
     for (b = out.begin(); b != out.end(); ++b) {
         string rhs = wrapString(b->second);
@@ -251,8 +230,8 @@ writeDestructionRates(ostream& f)
     f << "    void getDestructionRates(const doublereal* rf, const doublereal* rb," << endl;
     f << "          doublereal* d) {" << endl;
     map<size_t, string> out;
-    m_revproducts->writeIncrementSpecies("rb",out);
-    m_reactants->writeIncrementSpecies("rf",out);
+    m_revproducts.writeIncrementSpecies("rb",out);
+    m_reactants.writeIncrementSpecies("rf",out);
     map<size_t, string>::iterator b;
     for (b = out.begin(); b != out.end(); ++b) {
         string rhs = wrapString(b->second);
@@ -267,9 +246,9 @@ writeNetProductionRates(ostream& f)
 {
     f << "    void getNetProductionRates(const doublereal* r, doublereal* w) {" << endl;
     map<size_t, string> out;
-    m_revproducts->writeIncrementSpecies("r",out);
-    m_irrevproducts->writeIncrementSpecies("r",out);
-    m_reactants->writeDecrementSpecies("r",out);
+    m_revproducts.writeIncrementSpecies("r",out);
+    m_irrevproducts.writeIncrementSpecies("r",out);
+    m_reactants.writeDecrementSpecies("r",out);
     map<size_t, string>::iterator b;
     for (b = out.begin(); b != out.end(); ++b) {
         string rhs = wrapString(b->second);
@@ -284,7 +263,7 @@ writeMultiplyReactants(ostream& f)
 {
     f << "    void multiplyReactants(const doublereal* c, doublereal* r) {" << endl;
     map<size_t, string> out;
-    m_reactants->writeMultiply("c",out);
+    m_reactants.writeMultiply("c",out);
     map<size_t, string>::iterator b;
     for (b = out.begin(); b != out.end(); ++b) {
         string rhs = b->second;
@@ -298,7 +277,7 @@ writeMultiplyRevProducts(ostream& f)
 {
     f << "    void multiplyRevProducts(const doublereal* c, doublereal* r) {" << endl;
     map<size_t, string> out;
-    m_revproducts->writeMultiply("c",out);
+    m_revproducts.writeMultiply("c",out);
     map<size_t, string>::iterator b;
     for (b = out.begin(); b != out.end(); ++b) {
         string rhs = b->second;

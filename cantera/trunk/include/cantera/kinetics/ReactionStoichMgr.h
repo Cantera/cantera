@@ -7,11 +7,10 @@
 #define CT_RXN_STOICH
 
 #include "cantera/base/ct_defs.h"
-
+#include "cantera/kinetics/StoichManager.h"
 namespace Cantera
 {
 
-class StoichManagerN;
 class ReactionData;
 
 /**
@@ -235,9 +234,9 @@ protected:
     void writeNetProductionRates(std::ostream& f);
     void writeMultiplyReactants(std::ostream& f);
     void writeMultiplyRevProducts(std::ostream& f);
-    StoichManagerN*  m_reactants;
-    StoichManagerN*  m_revproducts;
-    StoichManagerN*  m_irrevproducts;
+    StoichManagerN m_reactants;
+    StoichManagerN m_revproducts;
+    StoichManagerN m_irrevproducts;
     vector_fp m_dummy;
 };
 }

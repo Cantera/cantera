@@ -41,7 +41,6 @@ GasKinetics(thermo_t* thermo) :
         addPhase(*thermo);
     }
     m_temp = 0.0;
-    m_rxnstoich = new ReactionStoichMgr();
 }
 
 //====================================================================================================================
@@ -58,13 +57,11 @@ GasKinetics::GasKinetics(const GasKinetics& right) :
     m_finalized(false)
 {
     m_temp = 0.0;
-    m_rxnstoich = new ReactionStoichMgr();
     *this = right;
 }
 //====================================================================================================================
 GasKinetics::~GasKinetics()
 {
-    delete m_rxnstoich;
 }
 //====================================================================================================================
 GasKinetics& GasKinetics::operator=(const GasKinetics& right)
@@ -88,7 +85,7 @@ GasKinetics& GasKinetics::operator=(const GasKinetics& right)
     m_plog_rates = right.m_plog_rates;
     m_cheb_rates = right.m_cheb_rates;
 
-    *m_rxnstoich = *(right.m_rxnstoich);
+    m_rxnstoich = right.m_rxnstoich;
 
     m_fwdOrder = right.m_fwdOrder;
     m_nirrev = right.m_nirrev;
@@ -230,7 +227,7 @@ void GasKinetics::updateKc()
     fill(m_rkcn.begin(), m_rkcn.end(), 0.0);
 
     // compute Delta G^0 for all reversible reactions
-    m_rxnstoich->getRevReactionDelta(m_ii, &m_grt[0], &m_rkcn[0]);
+    m_rxnstoich.getRevReactionDelta(m_ii, &m_grt[0], &m_rkcn[0]);
 
     doublereal rrt = 1.0/(GasConstant * thermo().temperature());
     for (size_t i = 0; i < m_nrev; i++) {
@@ -254,7 +251,7 @@ void GasKinetics::getEquilibriumConstants(doublereal* kc)
     fill(m_rkcn.begin(), m_rkcn.end(), 0.0);
 
     // compute Delta G^0 for all reactions
-    m_rxnstoich->getReactionDelta(m_ii, &m_grt[0], &m_rkcn[0]);
+    m_rxnstoich.getReactionDelta(m_ii, &m_grt[0], &m_rkcn[0]);
 
     doublereal rrt = 1.0/(GasConstant * thermo().temperature());
     for (size_t i = 0; i < m_ii; i++) {
@@ -288,7 +285,7 @@ void GasKinetics::getDeltaGibbs(doublereal* deltaG)
      * Use the stoichiometric manager to find deltaG for each
      * reaction.
      */
-    m_rxnstoich->getReactionDelta(m_ii, &m_grt[0], deltaG);
+    m_rxnstoich.getReactionDelta(m_ii, &m_grt[0], deltaG);
 }
 //====================================================================================================================
 /**
@@ -313,7 +310,7 @@ void GasKinetics::getDeltaEnthalpy(doublereal* deltaH)
      * Use the stoichiometric manager to find deltaG for each
      * reaction.
      */
-    m_rxnstoich->getReactionDelta(m_ii, &m_grt[0], deltaH);
+    m_rxnstoich.getReactionDelta(m_ii, &m_grt[0], deltaH);
 }
 //====================================================================================================================
 /*
@@ -338,7 +335,7 @@ void GasKinetics::getDeltaEntropy(doublereal* deltaS)
      * Use the stoichiometric manager to find deltaS for each
      * reaction.
      */
-    m_rxnstoich->getReactionDelta(m_ii, &m_grt[0], deltaS);
+    m_rxnstoich.getReactionDelta(m_ii, &m_grt[0], deltaS);
 }
 //====================================================================================================================
 /**
@@ -365,7 +362,7 @@ void GasKinetics::getDeltaSSGibbs(doublereal* deltaG)
      * Use the stoichiometric manager to find deltaG for each
      * reaction.
      */
-    m_rxnstoich->getReactionDelta(m_ii, &m_grt[0], deltaG);
+    m_rxnstoich.getReactionDelta(m_ii, &m_grt[0], deltaG);
 }
 //====================================================================================================================
 /**
@@ -396,7 +393,7 @@ void GasKinetics::getDeltaSSEnthalpy(doublereal* deltaH)
      * Use the stoichiometric manager to find deltaG for each
      * reaction.
      */
-    m_rxnstoich->getReactionDelta(m_ii, &m_grt[0], deltaH);
+    m_rxnstoich.getReactionDelta(m_ii, &m_grt[0], deltaH);
 }
 //====================================================================================================================
 /*********************************************************************
@@ -426,7 +423,7 @@ void GasKinetics::getDeltaSSEntropy(doublereal* deltaS)
      * Use the stoichiometric manager to find deltaS for each
      * reaction.
      */
-    m_rxnstoich->getReactionDelta(m_ii, &m_grt[0], deltaS);
+    m_rxnstoich.getReactionDelta(m_ii, &m_grt[0], deltaS);
 }
 
 //====================================================================================================================
@@ -443,7 +440,7 @@ void GasKinetics::getDeltaSSEntropy(doublereal* deltaS)
 void GasKinetics::getNetProductionRates(doublereal* net)
 {
     updateROP();
-    m_rxnstoich->getNetProductionRates(m_kk, &m_ropnet[0], net);
+    m_rxnstoich.getNetProductionRates(m_kk, &m_ropnet[0], net);
 }
 //====================================================================================================================
 // Return the species creation rates
@@ -459,7 +456,7 @@ void GasKinetics::getNetProductionRates(doublereal* net)
 void GasKinetics::getCreationRates(doublereal* cdot)
 {
     updateROP();
-    m_rxnstoich->getCreationRates(m_kk, &m_ropf[0], &m_ropr[0], cdot);
+    m_rxnstoich.getCreationRates(m_kk, &m_ropf[0], &m_ropr[0], cdot);
 }
 //====================================================================================================================
 //   Return a vector of the species destruction rates
@@ -477,7 +474,7 @@ void GasKinetics::getCreationRates(doublereal* cdot)
 void GasKinetics::getDestructionRates(doublereal* ddot)
 {
     updateROP();
-    m_rxnstoich->getDestructionRates(m_kk, &m_ropf[0], &m_ropr[0], ddot);
+    m_rxnstoich.getDestructionRates(m_kk, &m_ropf[0], &m_ropr[0], ddot);
 }
 //====================================================================================================================
 void GasKinetics::processFalloffReactions()
@@ -534,12 +531,12 @@ void GasKinetics::updateROP()
     multiply_each(m_ropr.begin(), m_ropr.end(), m_rkcn.begin());
 
     // multiply ropf by concentration products
-    m_rxnstoich->multiplyReactants(&m_conc[0], &m_ropf[0]);
+    m_rxnstoich.multiplyReactants(&m_conc[0], &m_ropf[0]);
     //m_reactantStoich.multiply(m_conc.begin(), ropf.begin());
 
     // for reversible reactions, multiply ropr by concentration
     // products
-    m_rxnstoich->multiplyRevProducts(&m_conc[0], &m_ropr[0]);
+    m_rxnstoich.multiplyRevProducts(&m_conc[0], &m_ropr[0]);
     //m_revProductStoich.multiply(m_conc.begin(), ropr.begin());
 
     for (size_t j = 0; j != m_ii; ++j) {
@@ -798,7 +795,7 @@ void GasKinetics::installReagents(const ReactionData& r)
     }
     m_products.push_back(pk);
     m_rkcn.push_back(0.0);
-    m_rxnstoich->add(reactionNumber(), r);
+    m_rxnstoich.add(reactionNumber(), r);
 
     if (r.reversible) {
         m_dn.push_back(productGlobalOrder - reactantGlobalOrder);
