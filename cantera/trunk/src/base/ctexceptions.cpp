@@ -18,12 +18,16 @@ CanteraError::CanteraError(std::string procedure, std::string msg) :
     msg_(msg),
     saved_(false)
 {
+    // Save the error in the global list of errors so that showError() can work
+    save();
 }
 
 CanteraError::CanteraError(std::string procedure) :
     procedure_(procedure),
     saved_(false)
 {
+    // Save the error in the global list of errors so that showError() can work
+    save();
 }
 
 void CanteraError::save()
