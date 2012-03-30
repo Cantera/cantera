@@ -105,6 +105,11 @@ class XMLnode:
         """The child node with specified name."""
         return self._childmap[name]
 
+    def children(self):
+        """ An iterator over the child nodes """
+        for c in self._children:
+            yield c
+
     def __getitem__(self, key):
         """Get an attribute using the syntax node[key]"""
         return self._attribs[key]
@@ -889,6 +894,13 @@ class reaction:
         self._type = ''
         _reactions.append(self)
 
+    def unit_factor(self):
+        """
+        Conversion factor from given rate constant units to the MKS (+kmol)
+        used internally by Cantera, taking into account the reaction order.
+        """
+        return (math.pow(_length[_ulen], -self.ldim) *
+                math.pow(_moles[_umol], -self.mdim) / _time[_utime])
 
     def build(self, p):
         if self._id:
@@ -905,8 +917,8 @@ class reaction:
             id = nstr
 
 
-        mdim = 0
-        ldim = 0
+        self.mdim = 0
+        self.ldim = 0
         str = ''
 
         rxnph = []
@@ -932,8 +944,8 @@ class reaction:
             if nm == -999:
                 raise CTI_Error("species "+s+" not found")
 
-            mdim += nm*ns
-            ldim += nl*ns
+            self.mdim += nm*ns
+            self.ldim += nl*ns
 
         p.addComment("   reaction "+id+"    ")
         r = p.addChild('reaction')
@@ -964,22 +976,22 @@ class reaction:
         # adjust the moles and length powers based on the dimensions of
         # the rate of progress (moles/length^2 or moles/length^3)
         if self._type == 'surface':
-            mdim += -1
-            ldim += 2
+            self.mdim += -1
+            self.ldim += 2
             p = self._dims[:3]
             if p[0] <> 0 or p[1] <> 0 or p[2] > 1:
                 raise CTI_Error(self._e +'\nA surface reaction may contain at most '+
                                    'one surface phase.')
         elif self._type == 'edge':
-            mdim += -1
-            ldim += 1
+            self.mdim += -1
+            self.ldim += 1
             p = self._dims[:2]
             if p[0] <> 0 or p[1] > 1:
                 raise CTI_Error(self._e+'\nAn edge reaction may contain at most '+
                                    'one edge phase.')
         else:
-            mdim += -1
-            ldim += 3
+            self.mdim += -1
+            self.ldim += 3
 
         # add the reaction type as an attribute if it has been specified.
         if self._type:
@@ -999,8 +1011,10 @@ class reaction:
             self._kf = [self._kf]
         elif self._type == 'threeBody':
             self._kf = [self._kf]
-            mdim += 1
-            ldim -= 3
+            self.mdim += 1
+            self.ldim -= 3
+        elif self._type == 'chebyshev':
+            self._kf = []
 
         if self._type == 'edge':
             if self._beta > 0:
@@ -1008,20 +1022,18 @@ class reaction:
                 electro['beta'] = `self._beta`
 
         for kf in self._kf:
-
-            unit_fctr = (math.pow(_length[_ulen], -ldim) *
-                         math.pow(_moles[_umol], -mdim) / _time[_utime])
             if type(kf) == types.InstanceType:
                 k = kf
             else:
                 k = Arrhenius(A = kf[0], n = kf[1], E = kf[2])
-            k.build(kfnode, unit_fctr, gas_species = self._igspecies,
+            k.build(kfnode, self.unit_factor(), gas_species = self._igspecies,
                     name = nm, rxn_phase = self._rxnphase)
 
-            # set values for low-pressure rate coeff if falloff rxn
-            mdim += 1
-            ldim -= 3
-            nm = 'k0'
+            if self._type == 'falloff':
+                # set values for low-pressure rate coeff if falloff rxn
+                self.mdim += 1
+                self.ldim -= 3
+                nm = 'k0'
 
         str = str[:-1]
         r.addChild('reactants',str)
@@ -1126,6 +1138,68 @@ class falloff_reaction(reaction):
 
         if self._falloff:
             self._falloff.build(kfnode)
+
+
+class pdep_arrhenius(reaction):
+    def __init__(self, equation='', *args, **kwargs):
+        self.pressures = []
+        self.arrhenius = []
+        for p, A, n, Ea in args:
+            self.pressures.append(p)
+            self.arrhenius.append((A, n, Ea))
+
+        reaction.__init__(self, equation, self.arrhenius, **kwargs)
+        self._type = 'plog'
+
+    def build(self, p):
+        r = reaction.build(self, p)
+        kfnode = r.child('rateCoeff')
+        for i,c in enumerate(kfnode.children()):
+            assert c.name() == 'Arrhenius'
+            addFloat(c, 'P', self.pressures[i])
+
+
+class chebyshev_reaction(reaction):
+    def __init__(self, equation='', Tmin=300.0, Tmax=2500.0,
+                 Pmin=(0.001, 'atm'), Pmax=(100.0, 'atm'),
+                 coeffs=[[]], **kwargs):
+        reaction.__init__(self, equation, **kwargs)
+        self._type = 'chebyshev'
+        self.Pmin = Pmin
+        self.Pmax = Pmax
+        self.Tmin = Tmin
+        self.Tmax = Tmax
+        self.coeffs = coeffs
+
+        # clean up reactant and product lists
+        del self._r['(+']
+        del self._p['(+']
+        if self._r.has_key('M)'):
+            del self._r['M)']
+            del self._p['M)']
+        if self._r.has_key('m)'):
+            del self._r['m)']
+            del self._p['m)']
+
+    def build(self, p):
+        r = reaction.build(self, p)
+        kfnode = r.child('rateCoeff')
+        addFloat(kfnode, 'Tmin', self.Tmin)
+        addFloat(kfnode, 'Tmax', self.Tmax)
+        addFloat(kfnode, 'Pmin', self.Pmin)
+        addFloat(kfnode, 'Pmax', self.Pmax)
+
+        self.coeffs[0][0] += math.log10(self.unit_factor());
+
+        lines = []
+        for line in self.coeffs:
+            lines.append(', '.join('{0:12.5e}'.format(val)
+                                   for val in line))
+
+        coeffNode = kfnode.addChild('floatArray', ',\n'.join(lines))
+        coeffNode['name'] = 'coeffs'
+        coeffNode['degreeT'] = str(len(self.coeffs))
+        coeffNode['degreeP'] = str(len(self.coeffs[0]))
 
 
 class surface_reaction(reaction):
