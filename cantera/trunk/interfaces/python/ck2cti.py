@@ -52,6 +52,12 @@ class Species(object):
     def __init__(self, label):
         self.label = label
 
+    def __str__(self):
+        return self.label
+
+    def __repr__(self):
+        return 'Species({0!r})'.format(self.label)
+
 ################################################################################
 
 class ThermoModel:
@@ -644,11 +650,9 @@ class ThirdBody(KineticsModel):
         string += u'    ),\n'
 
         if len(self.efficiencies) > 0:
-            molecules = [(molecule.toSMILES(), molecule) for molecule in self.efficiencies]
-            molecules.sort()
             string += u'    efficiencies = {\n'
-            for smiles, molecule in molecules:
-                string += u'        "{0}": {1:g},\n'.format(smiles, self.efficiencies[molecule])
+            for species in sorted(self.efficiencies):
+                string += u'        "{0}": {1:g},\n'.format(species, self.efficiencies[species])
             string += u'    },\n'
 
         if self.Tmin is not None: string += '    Tmin = {0!r},\n'.format(self.Tmin)
@@ -769,11 +773,9 @@ class Lindemann(ThirdBody):
         string += u'    ),\n'
 
         if len(self.efficiencies) > 0:
-            molecules = [(molecule.toSMILES(), molecule) for molecule in self.efficiencies]
-            molecules.sort()
             string += u'    efficiencies = {\n'
-            for smiles, molecule in molecules:
-                string += u'        "{0}": {1:g},\n'.format(smiles, self.efficiencies[molecule])
+            for species in sorted(self.efficiencies):
+                string += u'        "{0}": {1:g},\n'.format(species, self.efficiencies[species])
             string += u'    },\n'
 
         if self.Tmin is not None: string += '    Tmin = {0!r},\n'.format(self.Tmin)
@@ -880,11 +882,9 @@ class Troe(Lindemann):
         if self.T2 is not None: string += u'    T2 = {0!r},\n'.format(self.T2)
 
         if len(self.efficiencies) > 0:
-            molecules = [(molecule.toSMILES(), molecule) for molecule in self.efficiencies]
-            molecules.sort()
             string += u'    efficiencies = {\n'
-            for smiles, molecule in molecules:
-                string += u'        "{0}": {1:g},\n'.format(smiles, self.efficiencies[molecule])
+            for molecule in sorted(self.efficiencies):
+                string += u'        "{0}": {1:g},\n'.format(molecule, self.efficiencies[molecule])
             string += u'    },\n'
 
         if self.Tmin is not None: string += '    Tmin = {0!r},\n'.format(self.Tmin)
@@ -1144,7 +1144,7 @@ def readKineticsEntry(entry, speciesDict, energyUnits, moleculeUnits):
             else:
                 # Assume a list of collider efficiencies
                 for collider, efficiency in zip(tokens[0::2], tokens[1::2]):
-                    efficiencies[speciesDict[collider.strip()].molecule[0]] = float(efficiency.strip())
+                    efficiencies[collider.strip()] = float(efficiency.strip())
 
         # Decide which kinetics to keep and store them on the reaction object
         # Only one of these should be true at a time!
@@ -1344,4 +1344,10 @@ def loadChemkinFile(path):
 
 if __name__ == '__main__':
     import sys
-    loadChemkinFile(sys.argv[1])
+    species, reactions = loadChemkinFile(sys.argv[1])
+
+    for s in species:
+        print s
+    print
+    for r in reactions:
+        print r
