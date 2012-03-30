@@ -156,6 +156,62 @@ TEST_F(PdepTest, PlogIntermediatePressure3) {
     EXPECT_NEAR(2.224601e+07, ropf[2], 1e+3);
     EXPECT_NEAR(1.007440e+07, ropf[3], 1e+3);
 }
+
+TEST_F(PdepTest, ChebyshevIntermediate1) {
+    // Test Chebyshev rates in the normal interpolation region
+    vector_fp kf(6);
+
+    set_TP(1100.0, 20 * 101325);
+    kin_->getFwdRateConstants(&kf[0]);
+    // Expected rates computed using RMG-py
+    EXPECT_NEAR(3.130698657e+06, kf[4], 1e-1);
+    EXPECT_NEAR(1.187949573e+00, kf[5], 1e-7);
+}
+
+TEST_F(PdepTest, ChebyshevIntermediate2) {
+    // Test Chebyshev rates in the normal interpolation region
+    vector_fp kf(6);
+
+    set_TP(400.0, 0.1 * 101325);
+    kin_->getFwdRateConstants(&kf[0]);
+    // Expected rates computed using RMG-py
+    EXPECT_NEAR(1.713599902e+05, kf[4], 1e-3);
+    EXPECT_NEAR(9.581780687e-24, kf[5], 1e-31);
+}
+
+TEST_F(PdepTest, ChebyshevIntermediateROP) {
+    set_TP(1100.0, 30 * 101325);
+    vector_fp ropf(6);
+    // Expected rates computed using Chemkin
+    kin_->getFwdRatesOfProgress(&ropf[0]);
+    EXPECT_NEAR(4.552930e+03, ropf[4], 1e-1);
+    EXPECT_NEAR(4.877390e-02, ropf[5], 1e-5);
+}
+
+TEST_F(PdepTest, ChebyshevEdgeCases) {
+    vector_fp kf(6);
+
+    // Minimum P
+    set_TP(500.0, 1000.0);
+    kin_->getFwdRateConstants(&kf[0]);
+    EXPECT_NEAR(1.225785655e+06, kf[4], 1e-2);
+
+    // Maximum P
+    set_TP(500.0, 1.0e7);
+    kin_->getFwdRateConstants(&kf[0]);
+    EXPECT_NEAR(1.580981157e+03, kf[4], 1e-5);
+
+    // Minimum T
+    set_TP(300.0, 101325);
+    kin_->getFwdRateConstants(&kf[0]);
+    EXPECT_NEAR(5.405987017e+03, kf[4], 1e-5);
+
+    // Maximum T
+    set_TP(2000.0, 101325);
+    kin_->getFwdRateConstants(&kf[0]);
+    EXPECT_NEAR(3.354054351e+07, kf[4], 1e-1);
+}
+
 } // namespace Cantera
 
 int main(int argc, char** argv)

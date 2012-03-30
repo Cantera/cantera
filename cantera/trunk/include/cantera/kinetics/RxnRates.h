@@ -660,27 +660,61 @@ public:
     ChebyshevRate() {}
 
     //! Constructor from ReactionData.
-    explicit ChebyshevRate(const ReactionData& rdata)
+    explicit ChebyshevRate(const ReactionData& rdata) :
+        nP_(rdata.chebDegreeP),
+        nT_(rdata.chebDegreeT),
+        chebCoeffs_(rdata.chebCoeffs),
+        dotProd_(rdata.chebDegreeT)
     {
+        double logPmin = log10(rdata.chebPmin);
+        double logPmax = log10(rdata.chebPmax);
+        double TminInv = 1.0 / rdata.chebTmin;
+        double TmaxInv = 1.0 / rdata.chebTmax;
+
+        TrNum_ = - TminInv - TmaxInv;
+        TrDen_ = 1.0 / (TmaxInv - TminInv);
+        PrNum_ = - logPmin - logPmax;
+        PrDen_ = 1.0 / (logPmax - logPmin);
     }
 
     //! Update concentration-dependent parts of the rate coefficient.
-    //! @param c natural log of the pressure in Pa
+    //! @param c base-10 logarithm of the pressure in Pa
     void update_C(const doublereal* c)
     {
+        double Pr = (2 * c[0] + PrNum_) * PrDen_;
+        double Cnm1 = 1;
+        double Cn = Pr;
+        double Cnp1;
+        for (size_t j = 0; j < nT_; j++) {
+            dotProd_[j] = chebCoeffs_[nP_*j] + Pr * chebCoeffs_[nP_*j+1];
+        }
+        for (size_t i = 2; i < nP_; i++) {
+            Cnp1 = 2 * Pr * Cn - Cnm1;
+            for (size_t j = 0; j < nT_; j++) {
+                dotProd_[j] += Cnp1 * chebCoeffs_[nP_*j + i];
+            }
+            Cnm1 = Cn;
+            Cn = Cnp1;
+        }
     }
 
     /**
-     * Update the value of the logarithm of the rate constant.
-     *
-     * Note, this function should never be called for negative A values.
-     * If it does then it will produce a negative overflow result, and
-     * a zero net forwards reaction rate, instead of a negative reaction
-     * rate constant that is the expected result.
+     * Update the value of the base-10 logarithm of the rate constant.
      */
     doublereal update(doublereal logT, doublereal recipT) const
     {
-        return 0.0;
+        double Tr = (2 * recipT + TrNum_) * TrDen_;
+        double Cnm1 = 1;
+        double Cn = Tr;
+        double Cnp1;
+        double logk = dotProd_[0] + Tr * dotProd_[1];
+        for (size_t i = 2; i < nT_; i++) {
+            Cnp1 = 2 * Tr * Cn - Cnm1;
+            logk += Cnp1 * dotProd_[i];
+            Cnm1 = Cn;
+            Cn = Cnp1;
+        }
+        return logk;
     }
 
     /**
@@ -689,7 +723,7 @@ public:
      * This function returns the actual value of the rate constant.
      */
     doublereal updateRC(doublereal logT, doublereal recipT) const {
-        return exp(update(logT, recipT));
+        return pow(10, update(logT, recipT));
     }
 
     doublereal activationEnergy_R() const {
@@ -701,6 +735,13 @@ public:
     }
 
 protected:
+    double TrNum_, TrDen_; //!< terms appearing in the reduced temperature
+    double PrNum_, PrDen_; //!< terms appearing in the reduced pressure
+
+    size_t nP_; //!< number of points in the pressure direction
+    size_t nT_; //!< number of points in the temperature direction
+    vector_fp chebCoeffs_; //!< Chebyshev coefficients, length nP * nT
+    vector_fp dotProd_; //!< dot product of chebCoeffs with the reduced pressure polynomial
 };
 
 //     class LandauTeller {
