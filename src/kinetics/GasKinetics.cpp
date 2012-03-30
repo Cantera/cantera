@@ -206,16 +206,16 @@ _update_rates_C()
         m_falloff_concm.update(m_conc, ctot, &concm_falloff_values[0]);
     }
 
-    double logP = log(thermo().pressure());
-
     // P-log reactions
     if (m_plog_rates.nReactions()) {
+        double logP = log(thermo().pressure());
         m_plog_rates.update_C(&logP);
     }
 
     // Chebyshev reactions
     if (m_cheb_rates.nReactions()) {
-        m_cheb_rates.update_C(&logP);
+        double log10P = log10(thermo().pressure());
+        m_cheb_rates.update_C(&log10P);
     }
 
     m_ROP_ok = false;
