@@ -657,13 +657,24 @@ getRevRateConstants(doublereal* krev, bool doIrreversible)
 void GasKinetics::
 addReaction(const ReactionData& r)
 {
-
-    if (r.reactionType == ELEMENTARY_RXN) {
+    switch (r.reactionType) {
+    case ELEMENTARY_RXN:
         addElementaryReaction(r);
-    } else if (r.reactionType == THREE_BODY_RXN) {
+        break;
+    case THREE_BODY_RXN:
         addThreeBodyReaction(r);
-    } else if (r.reactionType == FALLOFF_RXN) {
+        break;
+    case FALLOFF_RXN:
         addFalloffReaction(r);
+        break;
+    case PLOG_RXN:
+        addPlogReaction(r);
+        break;
+    case CHEBYSHEV_RXN:
+        addChebyshevReaction(r);
+        break;
+    default:
+        throw CanteraError("GasKinetics::addReaction", "Invalid reaction type specified");
     }
 
     // operations common to all reaction types
@@ -760,6 +771,16 @@ addThreeBodyReaction(const ReactionData& r)
     registerReaction(reactionNumber(), THREE_BODY_RXN, iloc);
 }
 //====================================================================================================================
+
+void GasKinetics::addPlogReaction(const ReactionData& r)
+{
+    // @todo: Not yet implemented
+}
+
+void GasKinetics::addChebyshevReaction(const ReactionData& r)
+{
+    // @todo: Not yet implemented
+}
 
 void GasKinetics::installReagents(const ReactionData& r)
 {

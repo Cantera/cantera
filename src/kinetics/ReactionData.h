@@ -9,6 +9,7 @@
 #define CT_REACTION_DATA_H
 
 #include "cantera/kinetics/reaction_defs.h"
+#include "cantera/kinetics/RxnRates.h"
 
 namespace Cantera
 {
@@ -71,6 +72,20 @@ public:
     bool global;
     bool isReversibleWithFrac;
     doublereal beta;  // for electrochemical reactions
+
+    //! Arrhenius parameters for P-log reactions.
+    //! The keys are the pressures corresponding to each Arrhenius expression.
+    std::map<double, Arrhenius> plogParameters;
+
+    double chebTmin; //!< Minimum temperature for Chebyshev fit
+    double chebTmax; //!< Maximum temperature for Chebyshev fit
+    double chebPmin; //!< Minimum pressure for Chebyshev fit
+    double chebPmax; //!< Maximum pressure for Chebyshev fit
+    size_t chebDegreeT; //!< Degree of Chebyshev fit in T
+    size_t chebDegreeP; //!< Degree of Chebyshev fit in P
+
+    //! Chebyshev coefficients. length chebDegreeT * chebDegreeP
+    vector_fp chebCoeffs;
 };
 }
 

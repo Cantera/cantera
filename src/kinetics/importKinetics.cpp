@@ -68,19 +68,6 @@ public:
                          bool validate_rxn) ;
 };
 
-
-
-/*
- * First we define a couple of typedefs that will
- * be used throught this file
- */
-//! typedef for a pointer to an XML_Node
-typedef const vector<XML_Node*>    nodeset_t;
-//! typedef for an XML_Node
-typedef XML_Node                   node_t;
-
-
-
 /*
  * Check a reaction to see if the elements balance.
  */
@@ -395,7 +382,7 @@ static void getStick(const XML_Node& node, Kinetics& kin,
     E /= GasConstant;
 }
 
-static void getCoverageDependence(const node_t& node,
+static void getCoverageDependence(const XML_Node& node,
                                   thermo_t& surfphase, ReactionData& rdata)
 {
     vector<XML_Node*> cov;
@@ -428,7 +415,7 @@ static void getCoverageDependence(const node_t& node,
  <falloff type="Troe"> 0.5 73.2 5000. 9999. </falloff>
  @endverbatim
 */
-static void getFalloff(const node_t& f, ReactionData& rdata)
+static void getFalloff(const XML_Node& f, ReactionData& rdata)
 {
     string type = f["type"];
     vector<string> p;
@@ -489,7 +476,7 @@ static void getFalloff(const node_t& f, ReactionData& rdata)
  * reaction mechanism is homogeneous, so that all species belong
  * to phase(0) of 'kin'.
  */
-static void getEfficiencies(const node_t& eff, Kinetics& kin, ReactionData& rdata)
+static void getEfficiencies(const XML_Node& eff, Kinetics& kin, ReactionData& rdata)
 {
 
     // set the default collision efficiency
@@ -514,88 +501,105 @@ static void getEfficiencies(const node_t& eff, Kinetics& kin, ReactionData& rdat
  *
  *  @param kf   Reference to the XML Node named rateCoeff
  */
-void getRateCoefficient(const node_t& kf, Kinetics& kin,
+void getRateCoefficient(const XML_Node& kf, Kinetics& kin,
                         ReactionData& rdata, int negA)
 {
-    string type = kf.attrib("type");
-    if (type == "") {
-        type = "Arrhenius";
-        rdata.rateCoeffType = ARRHENIUS_REACTION_RATECOEFF_TYPE;
-    }
-    if (type == "ExchangeCurrentDensity") {
-        rdata.rateCoeffType = EXCHANGE_CURRENT_REACTION_RATECOEFF_TYPE;
-    } else if (type == "Arrhenius") {
+    if (rdata.reactionType == PLOG_RXN) {
+        rdata.rateCoeffType = PLOG_REACTION_RATECOEFF_TYPE;
+        for (size_t m = 0; m < kf.nChildren(); m++) {
+            const XML_Node& node = kf.child(m);
+            double A = getFloat(node, "A", "toSI");
+            double b = getFloat(node, "b");
+            double E = getFloat(node, "E", "actEnergy") / GasConstant;
+            double p = getFloat(node, "P", "toSI");
+            rdata.plogParameters[p] = Arrhenius(A, b, E);
+        }
+
+    } else if (rdata.reactionType == CHEBYSHEV_RXN) {
+        rdata.rateCoeffType = CHEBYSHEV_REACTION_RATECOEFF_TYPE;
+        rdata.chebTmin = getFloat(kf, "Tmin", "toSI");
+        rdata.chebTmax = getFloat(kf, "Tmax", "toSI");
+        rdata.chebPmin = getFloat(kf, "Pmin", "toSI");
+        rdata.chebPmax = getFloat(kf, "Pmax", "toSI");
+        const XML_Node& coeffs = kf.child("floatArray");
+        rdata.chebDegreeP = atoi(coeffs["degreeP"].c_str());
+        rdata.chebDegreeT = atoi(coeffs["degreeT"].c_str());
+        getFloatArray(kf, rdata.chebCoeffs, false);
 
     } else {
-        throw CanteraError("getRateCoefficient",
-                           "Unknown type: " + type);
-    }
 
-    nodeset_t& kf_children = kf.children();
-    vector_fp clow(3,0.0), chigh(3,0.0);
-    for (size_t m = 0; m < kf.nChildren(); m++) {
-        const node_t& c = *kf_children[m];
-        string nm = c.name();
-        int highlow=0;
+        string type = kf.attrib("type");
+        if (type == "") {
+            type = "Arrhenius";
+            rdata.rateCoeffType = ARRHENIUS_REACTION_RATECOEFF_TYPE;
+        }
+        if (type == "ExchangeCurrentDensity") {
+            rdata.rateCoeffType = EXCHANGE_CURRENT_REACTION_RATECOEFF_TYPE;
+        } else if (type == "Arrhenius") {
 
-        if (nm == "Arrhenius") {
-            vector_fp coeff(3);
-            if (c["type"] == "stick") {
-                getStick(c, kin, rdata, coeff[0], coeff[1], coeff[2]);
-                chigh = coeff;
-            } else {
-                getArrhenius(c, highlow, coeff[0], coeff[1], coeff[2]);
-                if (highlow == 1 || rdata.reactionType == THREE_BODY_RXN
-                        || rdata.reactionType == ELEMENTARY_RXN) {
+        } else {
+            throw CanteraError("getRateCoefficient", "Unknown type: " + type);
+        }
+
+        vector_fp clow(3,0.0), chigh(3,0.0);
+        for (size_t m = 0; m < kf.nChildren(); m++) {
+            const XML_Node& c = kf.child(m);
+            string nm = c.name();
+            int highlow=0;
+
+            if (nm == "Arrhenius") {
+                vector_fp coeff(3);
+                if (c["type"] == "stick") {
+                    getStick(c, kin, rdata, coeff[0], coeff[1], coeff[2]);
                     chigh = coeff;
                 } else {
-                    clow = coeff;
+                    getArrhenius(c, highlow, coeff[0], coeff[1], coeff[2]);
+                    if (highlow == 1 || rdata.reactionType == THREE_BODY_RXN
+                            || rdata.reactionType == ELEMENTARY_RXN) {
+                        chigh = coeff;
+                    } else {
+                        clow = coeff;
+                    }
                 }
-            }
-            if (rdata.reactionType == SURFACE_RXN) {
-                getCoverageDependence(c,
-                                      kin.thermo(kin.surfacePhaseIndex()), rdata);
-            }
+                if (rdata.reactionType == SURFACE_RXN) {
+                    getCoverageDependence(c,
+                                          kin.thermo(kin.surfacePhaseIndex()), rdata);
+                }
 
-            if (coeff[0] <= 0.0 && negA == 0) {
-                throw CanteraError("getRateCoefficient",
-                                   "negative or zero A coefficient for reaction "+int2str(rdata.number));
+                if (coeff[0] <= 0.0 && negA == 0) {
+                    throw CanteraError("getRateCoefficient",
+                                       "negative or zero A coefficient for reaction "+int2str(rdata.number));
+                }
+            } else if (nm == "Arrhenius_ExchangeCurrentDensity") {
+                vector_fp coeff(3);
+                getArrhenius(c, highlow, coeff[0], coeff[1], coeff[2]);
+                chigh = coeff;
+                rdata.rateCoeffType = EXCHANGE_CURRENT_REACTION_RATECOEFF_TYPE;
+            } else if (nm == "falloff") {
+                getFalloff(c, rdata);
+            } else if (nm == "efficiencies") {
+                getEfficiencies(c, kin, rdata);
+            } else if (nm == "electrochem") {
+                rdata.beta = fpValue(c["beta"]);
             }
-        } else if (nm == "Arrhenius_ExchangeCurrentDensity") {
-            vector_fp coeff(3);
-            getArrhenius(c, highlow, coeff[0], coeff[1], coeff[2]);
-            chigh = coeff;
-            rdata.rateCoeffType = EXCHANGE_CURRENT_REACTION_RATECOEFF_TYPE;
-        } else if (nm == "falloff") {
-            getFalloff(c, rdata);
-        } else if (nm == "efficiencies") {
-            getEfficiencies(c, kin, rdata);
-        } else if (nm == "electrochem") {
-            rdata.beta = fpValue(c["beta"]);
+        }
+        /*
+         * Store the coefficients in the ReactionData object for return
+         * from this function.
+         */
+        if (rdata.reactionType == CHEMACT_RXN) {
+            rdata.rateCoeffParameters = clow;
+        } else {
+            rdata.rateCoeffParameters = chigh;
+        }
+
+        if (rdata.reactionType == FALLOFF_RXN) {
+            rdata.auxRateCoeffParameters = clow;
+        } else if (rdata.reactionType == CHEMACT_RXN) {
+            rdata.auxRateCoeffParameters = chigh;
         }
     }
-    /*
-     * Store the coefficients in the ReactionData object for return
-     * from this function.
-     */
-    if (rdata.reactionType == CHEMACT_RXN) {
-        rdata.rateCoeffParameters = clow;
-    } else {
-        rdata.rateCoeffParameters = chigh;
-    }
-
-    if (rdata.reactionType == FALLOFF_RXN) {
-        rdata.auxRateCoeffParameters = clow;
-    } else if (rdata.reactionType == CHEMACT_RXN) {
-        rdata.auxRateCoeffParameters = chigh;
-    }
-
-
-
 }
-
-
-
 
 /*
  * This function returns true if two reactions are duplicates of
@@ -842,6 +846,10 @@ bool rxninfo::installReaction(int i, const XML_Node& r, Kinetics* k,
         rdata.falloffType = SIMPLE_FALLOFF;
     } else if (typ == "threeBody") {
         rdata.reactionType = THREE_BODY_RXN;
+    } else if (typ == "plog") {
+        rdata.reactionType = PLOG_RXN;
+    } else if (typ == "chebyshev") {
+        rdata.reactionType = CHEBYSHEV_RXN;
     } else if (typ == "surface") {
         rdata.reactionType = SURFACE_RXN;
     } else if (typ == "edge") {
@@ -1208,7 +1216,4 @@ bool buildSolutionFromXML(XML_Node& root, std::string id, std::string nm,
     }
 }
 
-
-
 }
-
