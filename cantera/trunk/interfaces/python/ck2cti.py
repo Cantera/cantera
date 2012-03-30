@@ -367,8 +367,6 @@ class Reaction(object):
 
 ################################################################################
 
-################################################################################
-
 class KineticsModel(object):
     """
     A base class for kinetics models, containing several attributes common to
@@ -1146,7 +1144,19 @@ class TransportData(object):
 
 ################################################################################
 
-def readThermoEntry(entry):
+def fortFloat(s):
+    """
+    Convert a string representation of a floating point value to a float,
+    allowing for some of the peculiarities of allowable Fortran representations.
+    """
+    s = s.strip()
+    s = s.replace('D', 'E').replace('d', 'e')
+    s = s.replace('E ', 'E+').replace('e ', 'e+')
+    return float(s)
+
+################################################################################
+
+def readThermoEntry(entry, TintDefault):
     """
     Read a thermodynamics `entry` for one species in a Chemkin file. Returns
     the label of the species, the thermodynamics model as a :class:`MultiNASA`
@@ -1164,27 +1174,30 @@ def readThermoEntry(entry):
     # Extract the NASA polynomial coefficients
     # Remember that the high-T polynomial comes first!
     try:
-        Tmin = float(lines[0][45:55].strip())
-        Tmax = float(lines[0][55:65].strip())
-        Tint = float(lines[0][65:75].strip())
+        Tmin = fortFloat(lines[0][45:55])
+        Tmax = fortFloat(lines[0][55:65])
+        try:
+            Tint = fortFloat(lines[0][65:75])
+        except ValueError:
+            Tint = TintDefault
 
-        a0_high = float(lines[1][0:15].strip())
-        a1_high = float(lines[1][15:30].strip())
-        a2_high = float(lines[1][30:45].strip())
-        a3_high = float(lines[1][45:60].strip())
-        a4_high = float(lines[1][60:75].strip())
+        a0_high = fortFloat(lines[1][0:15])
+        a1_high = fortFloat(lines[1][15:30])
+        a2_high = fortFloat(lines[1][30:45])
+        a3_high = fortFloat(lines[1][45:60])
+        a4_high = fortFloat(lines[1][60:75])
 
-        a5_high = float(lines[2][0:15].strip())
-        a6_high = float(lines[2][15:30].strip())
-        a0_low = float(lines[2][30:45].strip())
-        a1_low = float(lines[2][45:60].strip())
-        a2_low = float(lines[2][60:75].strip())
+        a5_high = fortFloat(lines[2][0:15])
+        a6_high = fortFloat(lines[2][15:30])
+        a0_low = fortFloat(lines[2][30:45])
+        a1_low = fortFloat(lines[2][45:60])
+        a2_low = fortFloat(lines[2][60:75])
 
-        a3_low = float(lines[3][0:15].strip())
-        a4_low = float(lines[3][15:30].strip())
-        a5_low = float(lines[3][30:45].strip())
-        a6_low = float(lines[3][45:60].strip())
-    except (IndexError, ValueError):
+        a3_low = fortFloat(lines[3][0:15])
+        a4_low = fortFloat(lines[3][15:30])
+        a5_low = fortFloat(lines[3][30:45])
+        a6_low = fortFloat(lines[3][45:60])
+    except (IndexError, ValueError) as err:
         raise ChemkinError('Error while reading thermo entry for species {0}'.format(species))
 
     elements = lines[0][24:44]
@@ -1494,6 +1507,7 @@ def loadChemkinFile(path, speciesList=None):
             elif 'THERM' in line:
                 # List of thermodynamics (hopefully one per species!)
                 line = f.readline()
+                TintDefault = float(line.split()[1])
                 thermo = ''
                 while line != '' and 'END' not in line:
                     line = removeCommentFromLine(line)[0]
@@ -1501,7 +1515,7 @@ def loadChemkinFile(path, speciesList=None):
                         if line[79] in ['1', '2', '3', '4']:
                             thermo += line
                             if line[79] == '4':
-                                label, thermo, comp, note = readThermoEntry(thermo)
+                                label, thermo, comp, note = readThermoEntry(thermo, TintDefault)
                                 try:
                                     speciesDict[label].thermo = thermo
                                     speciesDict[label].composition = comp
@@ -1625,6 +1639,8 @@ def parseTransportData(lines, speciesList):
         line = line.strip()
         if not line or line.startswith('!'):
             continue
+        if line.startswith('END'):
+            break
 
         data = line.split()
         if len(data) < 7:
