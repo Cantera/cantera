@@ -979,11 +979,18 @@ def readKineticsEntry(entry, speciesDict, energyUnits, moleculeUnits):
     thirdBody = False
 
     # Split the reaction equation into reactants and products
-    reversible = True
-    reactants, products = reaction.split('=')
-    if '=>' in reaction:
-        products = products[1:]
+    if '<=>' in reaction:
+        reversible = True
+        reactants, products = reaction.split('<=>')
+    elif '=>' in reaction:
         reversible = False
+        reactants, products = reaction.split('=>')
+    elif '=' in reaction:
+        reversible = True
+        reactants, products = reaction.split('=')
+    else:
+        raise ChemkinError("Failed to find reactant/product delimiter in reaction string.")
+
     if '(+M)' in reactants: reactants = reactants.replace('(+M)','')
     if '(+m)' in reactants: reactants = reactants.replace('(+m)','')
     if '(+M)' in products:  products = products.replace('(+M)','')
