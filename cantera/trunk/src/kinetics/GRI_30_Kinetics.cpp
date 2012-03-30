@@ -32,16 +32,15 @@ void GRI_30_Kinetics::
 gri30_update_rates_T()
 {
     doublereal T = thermo().temperature();
-    //if (fabs(T - m_kdata->m_temp) > m_dt_threshold) {
     doublereal logT = log(T);
-    m_kdata->m_logc_ref = m_kdata->m_logp_ref - logT;
-    update_rates(T, logT, &m_kdata->m_rfn[0]);
-    m_falloff_low_rates.update(T, logT, &m_kdata->m_rfn_low[0]);
-    m_falloff_high_rates.update(T, logT, &m_kdata->m_rfn_high[0]);
-    m_falloffn.updateTemp(T, &m_kdata->falloff_work[0]);
-    m_kdata->m_temp = T;
+    m_logc_ref = m_logp_ref - logT;
+    update_rates(T, logT, &m_rfn[0]);
+    m_falloff_low_rates.update(T, logT, &m_rfn_low[0]);
+    m_falloff_high_rates.update(T, logT, &m_rfn_high[0]);
+    m_falloffn.updateTemp(T, &falloff_work[0]);
+    m_temp = T;
     gri30_updateKc();
-    m_kdata->m_ROP_ok = false;
+    m_ROP_ok = false;
     //}
 };
 
@@ -52,11 +51,10 @@ gri30_update_rates_T()
  */
 void GRI_30_Kinetics::gri30_updateKc()
 {
-    doublereal* rkc = &m_kdata->m_rkcn[0];
     const doublereal* a =
         &((IdealGasPhase*)m_thermo[0])->expGibbs_RT_ref()[0];
-    doublereal exp_c_ref = exp(m_kdata->m_logc_ref);
-    update_kc(a, exp_c_ref, rkc);
+    doublereal exp_c_ref = exp(m_logc_ref);
+    update_kc(a, exp_c_ref, &m_rkcn[0]);
 }
 
 
@@ -66,21 +64,21 @@ void GRI_30_Kinetics::gri30_updateROP()
     gri30_update_rates_T();
     _update_rates_C();
 
-    if (m_kdata->m_ROP_ok) {
+    if (m_ROP_ok) {
         return;
     }
 
-    const vector_fp& rf = m_kdata->m_rfn;
-    const vector_fp& rkc = m_kdata->m_rkcn;
-    vector_fp& ropf = m_kdata->m_ropf;
-    vector_fp& ropnet = m_kdata->m_ropnet;
+    const vector_fp& rf = m_rfn;
+    const vector_fp& rkc = m_rkcn;
+    vector_fp& ropf = m_ropf;
+    vector_fp& ropnet = m_ropnet;
 
     copy(rf.begin(), rf.end(), ropf.begin());
-    m_3b_concm.multiply(&ropf[0], &m_kdata->concm_3b_values[0]);
+    m_3b_concm.multiply(&ropf[0], &concm_3b_values[0]);
     processFalloffReactions();
     multiply_each(ropf.begin(), ropf.end(), m_perturb.begin());
     eval_ropnet(&m_conc[0], &ropf[0], &rkc[0], &ropnet[0]);
-    m_kdata->m_ROP_ok = true;
+    m_ROP_ok = true;
 }
 
 

@@ -32,45 +32,8 @@ namespace Cantera
 {
 
 // forward references
-
 class Enhanced3BConc;
 class ReactionData;
-class GasKineticsData;
-class Thermo;
-
-/**
- * Holds mechanism-specific data.
- */
-class GasKineticsData
-{
-public:
-
-    GasKineticsData();
-
-    GasKineticsData(const GasKineticsData& right);
-
-    virtual ~GasKineticsData();
-
-    GasKineticsData& operator=(const GasKineticsData& right);
-
-    doublereal m_logp_ref;
-    doublereal m_logc_ref;
-    doublereal m_logStandConc;
-    vector_fp m_ropf;
-    vector_fp m_ropr;
-    vector_fp m_ropnet;
-    vector_fp m_rfn_low;
-    vector_fp m_rfn_high;
-    bool m_ROP_ok;
-
-    doublereal m_temp;
-    vector_fp m_rfn;
-    vector_fp falloff_work;
-    vector_fp concm_3b_values;
-    vector_fp concm_falloff_values;
-    vector_fp m_rkcn;
-};
-
 
 /**
  * Kinetics manager for elementary gas-phase chemistry. This
@@ -170,7 +133,7 @@ public:
      */
     virtual void getFwdRatesOfProgress(doublereal* fwdROP) {
         updateROP();
-        std::copy(m_kdata->m_ropf.begin(), m_kdata->m_ropf.end(), fwdROP);
+        std::copy(m_ropf.begin(), m_ropf.end(), fwdROP);
     }
 
     /**
@@ -181,7 +144,7 @@ public:
      */
     virtual void getRevRatesOfProgress(doublereal* revROP) {
         updateROP();
-        std::copy(m_kdata->m_ropr.begin(), m_kdata->m_ropr.end(), revROP);
+        std::copy(m_ropr.begin(), m_ropr.end(), revROP);
     }
 
     /**
@@ -192,7 +155,7 @@ public:
      */
     virtual void getNetRatesOfProgress(doublereal* netROP) {
         updateROP();
-        std::copy(m_kdata->m_ropnet.begin(), m_kdata->m_ropnet.end(), netROP);
+        std::copy(m_ropnet.begin(), m_ropnet.end(), netROP);
     }
 
 
@@ -443,7 +406,25 @@ protected:
 
     std::vector<std::string> m_rxneqn;
 
-    GasKineticsData* m_kdata;
+    //! @name Reaction rate data
+    //!@{
+    doublereal m_logp_ref;
+    doublereal m_logc_ref;
+    doublereal m_logStandConc;
+    vector_fp m_ropf;
+    vector_fp m_ropr;
+    vector_fp m_ropnet;
+    vector_fp m_rfn_low;
+    vector_fp m_rfn_high;
+    bool m_ROP_ok;
+
+    doublereal m_temp;
+    vector_fp m_rfn;
+    vector_fp falloff_work;
+    vector_fp concm_3b_values;
+    vector_fp concm_falloff_values;
+    vector_fp m_rkcn;
+    //!@}
 
     vector_fp m_conc;
     void processFalloffReactions();
