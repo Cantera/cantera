@@ -12,6 +12,7 @@ Contents
 
    Compiliation Instructions <compiling>
    python/index
+   C++ Introduction <cxx-intro>
    C++ API Documentation <http://cantera.github.com/docs/index.html>
    Cantera Development Homepage <http://cantera.googlecode.com>
 
