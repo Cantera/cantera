@@ -920,7 +920,6 @@ double MultiPhaseEquil::phaseMoles(index_t iph) const
     return m_mix->phaseMoles(iph);
 }
 
-#include <cstdio>
 void MultiPhaseEquil::reportCSV(const std::string& reportFile)
 {
     size_t k;

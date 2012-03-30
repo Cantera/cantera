@@ -56,7 +56,7 @@ public:
     //--------------------------------
 
     /// Constructor. Create a new flow domain.
-    /// @param gas Object representing the gas phase. This object
+    /// @param ph Object representing the gas phase. This object
     /// will be used to evaluate all thermodynamic, kinetic, and transport
     /// properties.
     /// @param nsp Number of species.

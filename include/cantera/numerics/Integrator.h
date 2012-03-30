@@ -69,7 +69,7 @@ public:
     //!  Set error tolerances.
     /*!
      * @param reltol scalar relative tolerance
-     * @param number of equations
+     * @param n      Number of equations
      * @param abstol array of N absolute tolerance values
      */
     virtual void setTolerances(doublereal reltol, size_t n,

@@ -1,5 +1,5 @@
 /**
- * @file vcs_rearrange.c
+ * @file vcs_rearrange.cpp
  *    implementation file for rearranging species.
  */
 /*
