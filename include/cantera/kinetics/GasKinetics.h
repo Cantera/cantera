@@ -380,7 +380,7 @@ protected:
     Rate1<Plog> m_plog_rates;
     Rate1<ChebyshevRate> m_cheb_rates;
 
-    ReactionStoichMgr*                   m_rxnstoich;
+    ReactionStoichMgr m_rxnstoich;
 
     std::vector<size_t> m_fwdOrder;
 

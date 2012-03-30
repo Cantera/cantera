@@ -9,7 +9,6 @@
 #include "cantera/kinetics/GRI_30_Kinetics.h"
 
 #include "cantera/kinetics/ReactionData.h"
-//#include "StoichManager.h"
 #include "cantera/kinetics/Enhanced3BConc.h"
 #include "cantera/kinetics/ThirdBodyMgr.h"
 #include "cantera/kinetics/RateCoeffMgr.h"

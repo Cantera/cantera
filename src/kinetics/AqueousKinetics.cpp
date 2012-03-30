@@ -37,7 +37,6 @@ AqueousKinetics::AqueousKinetics(thermo_t* thermo) :
     if (thermo != 0) {
         addPhase(*thermo);
     }
-    m_rxnstoich = new ReactionStoichMgr;
 }
 //====================================================================================================================
 AqueousKinetics::AqueousKinetics(const AqueousKinetics& right) :
@@ -54,7 +53,6 @@ AqueousKinetics::AqueousKinetics(const AqueousKinetics& right) :
 //====================================================================================================================
 AqueousKinetics::~AqueousKinetics()
 {
-    delete m_rxnstoich;
 }
 //====================================================================================================================
 AqueousKinetics& AqueousKinetics::operator=(const AqueousKinetics& right)
@@ -70,7 +68,7 @@ AqueousKinetics& AqueousKinetics::operator=(const AqueousKinetics& right)
     m_index = right.m_index;
     m_irrev = right.m_irrev;
 
-    *m_rxnstoich = *(right.m_rxnstoich);
+    m_rxnstoich = right.m_rxnstoich;
 
     m_fwdOrder = right.m_fwdOrder;
     m_nirrev = right.m_nirrev;
@@ -160,7 +158,7 @@ void AqueousKinetics::updateKc()
     }
 
     // compute Delta G^0 for all reversible reactions
-    m_rxnstoich->getRevReactionDelta(m_ii, &m_grt[0], &m_rkcn[0]);
+    m_rxnstoich.getRevReactionDelta(m_ii, &m_grt[0], &m_rkcn[0]);
 
     //doublereal logStandConc = m_kdata->m_logStandConc;
     doublereal rrt = 1.0/(GasConstant * thermo().temperature());
@@ -191,7 +189,7 @@ void AqueousKinetics::getEquilibriumConstants(doublereal* kc)
     }
 
     // compute Delta G^0 for all reactions
-    m_rxnstoich->getReactionDelta(m_ii, &m_grt[0], &m_rkcn[0]);
+    m_rxnstoich.getReactionDelta(m_ii, &m_grt[0], &m_rkcn[0]);
 
     doublereal rrt = 1.0/(GasConstant * thermo().temperature());
     for (size_t i = 0; i < m_ii; i++) {
@@ -225,7 +223,7 @@ void AqueousKinetics::getDeltaGibbs(doublereal* deltaG)
      * Use the stoichiometric manager to find deltaG for each
      * reaction.
      */
-    m_rxnstoich->getReactionDelta(m_ii, &m_grt[0], deltaG);
+    m_rxnstoich.getReactionDelta(m_ii, &m_grt[0], deltaG);
 }
 
 /**
@@ -250,7 +248,7 @@ void AqueousKinetics::getDeltaEnthalpy(doublereal* deltaH)
      * Use the stoichiometric manager to find deltaG for each
      * reaction.
      */
-    m_rxnstoich->getReactionDelta(m_ii, &m_grt[0], deltaH);
+    m_rxnstoich.getReactionDelta(m_ii, &m_grt[0], deltaH);
 }
 
 /*
@@ -275,7 +273,7 @@ void AqueousKinetics::getDeltaEntropy(doublereal* deltaS)
      * Use the stoichiometric manager to find deltaS for each
      * reaction.
      */
-    m_rxnstoich->getReactionDelta(m_ii, &m_grt[0], deltaS);
+    m_rxnstoich.getReactionDelta(m_ii, &m_grt[0], deltaS);
 }
 
 /**
@@ -302,7 +300,7 @@ void AqueousKinetics::getDeltaSSGibbs(doublereal* deltaG)
      * Use the stoichiometric manager to find deltaG for each
      * reaction.
      */
-    m_rxnstoich->getReactionDelta(m_ii, &m_grt[0], deltaG);
+    m_rxnstoich.getReactionDelta(m_ii, &m_grt[0], deltaG);
 }
 
 /**
@@ -333,7 +331,7 @@ void AqueousKinetics::getDeltaSSEnthalpy(doublereal* deltaH)
      * Use the stoichiometric manager to find deltaG for each
      * reaction.
      */
-    m_rxnstoich->getReactionDelta(m_ii, &m_grt[0], deltaH);
+    m_rxnstoich.getReactionDelta(m_ii, &m_grt[0], deltaH);
 }
 
 /*
@@ -363,7 +361,7 @@ void AqueousKinetics::getDeltaSSEntropy(doublereal* deltaS)
      * Use the stoichiometric manager to find deltaS for each
      * reaction.
      */
-    m_rxnstoich->getReactionDelta(m_ii, &m_grt[0], deltaS);
+    m_rxnstoich.getReactionDelta(m_ii, &m_grt[0], deltaS);
 }
 
 
@@ -392,12 +390,12 @@ void AqueousKinetics::updateROP()
     multiply_each(m_ropr.begin(), m_ropr.end(), m_rkcn.begin());
 
     // multiply ropf by concentration products
-    m_rxnstoich->multiplyReactants(&m_conc[0], &m_ropf[0]);
+    m_rxnstoich.multiplyReactants(&m_conc[0], &m_ropf[0]);
     //m_reactantStoich.multiply(m_conc.begin(), ropf.begin());
 
     // for reversible reactions, multiply ropr by concentration
     // products
-    m_rxnstoich->multiplyRevProducts(&m_conc[0], &m_ropr[0]);
+    m_rxnstoich.multiplyRevProducts(&m_conc[0], &m_ropr[0]);
     //m_revProductStoich.multiply(m_conc.begin(), ropr.begin());
 
     for (size_t j = 0; j != m_ii; ++j) {
@@ -557,7 +555,7 @@ void AqueousKinetics::installReagents(const ReactionData& r)
 
     m_rkcn.push_back(0.0);
 
-    m_rxnstoich->add(reactionNumber(), r);
+    m_rxnstoich.add(reactionNumber(), r);
 
     if (r.reversible) {
         m_dn.push_back(productGlobalOrder - reactantGlobalOrder);
