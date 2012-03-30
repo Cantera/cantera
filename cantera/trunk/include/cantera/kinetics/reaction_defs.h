@@ -38,6 +38,20 @@ const int THREE_BODY_RXN = 2;
 const int FALLOFF_RXN    = 4;
 
 /**
+ * A pressure-dependent rate expression consisting of several Arrhenius rate
+ * expressions evaluated at different pressures. The final rate is calculated
+ * by logarithmically interpolating between the two rates that bracket the
+ * current pressure.
+ */
+const int PLOG_RXN = 5;
+
+/**
+ * A general pressure-dependent reaction where k(T,P) is defined in terms of
+ * a bivariate Chebyshev polynomial.
+ */
+const int CHEBYSHEV_RXN = 6;
+
+/**
  * A chemical activation reaction. For these reactions, the rate falls
  * off as the pressure increases, due to collisional stabilization of
  * a reaction intermediate. Example: Si + SiH4 (+M) <-> Si2H2 + H2
@@ -75,12 +89,14 @@ const int GLOBAL_RXN     = 30;
  */
 //@{
 
-const int  ARRHENIUS_REACTION_RATECOEFF_TYPE = 1;
-const int  LANDAUTELLER_REACTION_RATECOEFF_TYPE = 2;
-const int  TSTRATE_REACTION_RATECOEFF_TYPE = 3;
-const int  SURF_ARRHENIUS_REACTION_RATECOEFF_TYPE = 4;
-const int  ARRHENIUS_SUM_REACTION_RATECOEFF_TYPE = 5;
-const int  EXCHANGE_CURRENT_REACTION_RATECOEFF_TYPE = 6;
+const int ARRHENIUS_REACTION_RATECOEFF_TYPE = 1;
+const int LANDAUTELLER_REACTION_RATECOEFF_TYPE = 2;
+const int TSTRATE_REACTION_RATECOEFF_TYPE = 3;
+const int SURF_ARRHENIUS_REACTION_RATECOEFF_TYPE = 4;
+const int ARRHENIUS_SUM_REACTION_RATECOEFF_TYPE = 5;
+const int EXCHANGE_CURRENT_REACTION_RATECOEFF_TYPE = 6;
+const int PLOG_REACTION_RATECOEFF_TYPE = 7;
+const int CHEBYSHEV_REACTION_RATECOEFF_TYPE = 8;
 
 //@}
 

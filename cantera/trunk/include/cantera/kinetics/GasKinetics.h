@@ -452,6 +452,8 @@ private:
     void addElementaryReaction(const ReactionData& r);
     void addThreeBodyReaction(const ReactionData& r);
     void addFalloffReaction(const ReactionData& r);
+    void addPlogReaction(const ReactionData& r);
+    void addChebyshevReaction(const ReactionData& r);
 
     void installReagents(const ReactionData& r);
 
