@@ -14,63 +14,12 @@
 #include "cantera/kinetics/ThirdBodyMgr.h"
 #include "cantera/kinetics/RateCoeffMgr.h"
 
-//#include "../user/grirxnstoich.h"
-
 #include <iostream>
 using namespace std;
-
 
 namespace Cantera
 {
 
-//====================================================================================================================
-GasKineticsData::GasKineticsData() :
-    m_logp_ref(0.0),
-    m_logc_ref(0.0),
-    m_logStandConc(0.0),
-    m_ROP_ok(false),
-    m_temp(0.0)
-{
-}
-//====================================================================================================================
-GasKineticsData::GasKineticsData(const GasKineticsData& right) :
-    m_logp_ref(0.0),
-    m_logc_ref(0.0),
-    m_logStandConc(0.0),
-    m_ROP_ok(false),
-    m_temp(0.0)
-{
-    *this = right;
-}
-//====================================================================================================================
-GasKineticsData::~GasKineticsData()
-{
-}
-//====================================================================================================================
-GasKineticsData&  GasKineticsData::operator=(const GasKineticsData& right)
-{
-    if (this == &right) {
-        return *this;
-    }
-
-    m_logp_ref = right.m_logp_ref;
-    m_logc_ref  = right.m_logc_ref;
-    m_logStandConc = right.m_logStandConc;
-    m_ropf = right.m_ropf;
-    m_ropr = right.m_ropr;
-    m_ropnet = right.m_ropnet;
-    m_rfn_low = right.m_rfn_low;
-    m_rfn_high = right.m_rfn_high;
-    m_ROP_ok  = right.m_ROP_ok;
-    m_temp = right.m_temp;
-    m_rfn  = right.m_rfn;
-    falloff_work = right.falloff_work;
-    concm_3b_values = right.concm_3b_values;
-    concm_falloff_values = right.concm_falloff_values;
-    m_rkcn = right.m_rkcn;
-
-    return *this;
-}
 //====================================================================================================================
 /*
  * Construct an empty reaction mechanism.
@@ -81,13 +30,17 @@ GasKinetics(thermo_t* thermo) :
     m_nfall(0),
     m_nirrev(0),
     m_nrev(0),
+    m_logp_ref(0.0),
+    m_logc_ref(0.0),
+    m_logStandConc(0.0),
+    m_ROP_ok(false),
+    m_temp(0.0),
     m_finalized(false)
 {
     if (thermo != 0) {
         addPhase(*thermo);
     }
-    m_kdata = new GasKineticsData();
-    m_kdata->m_temp = 0.0;
+    m_temp = 0.0;
     m_rxnstoich = new ReactionStoichMgr();
 }
 
@@ -97,17 +50,20 @@ GasKinetics::GasKinetics(const GasKinetics& right) :
     m_nfall(0),
     m_nirrev(0),
     m_nrev(0),
+    m_logp_ref(0.0),
+    m_logc_ref(0.0),
+    m_logStandConc(0.0),
+    m_ROP_ok(false),
+    m_temp(0.0),
     m_finalized(false)
 {
-    m_kdata = new GasKineticsData();
-    m_kdata->m_temp = 0.0;
+    m_temp = 0.0;
     m_rxnstoich = new ReactionStoichMgr();
     *this = right;
 }
 //====================================================================================================================
 GasKinetics::~GasKinetics()
 {
-    delete m_kdata;
     delete m_rxnstoich;
 }
 //====================================================================================================================
@@ -146,7 +102,21 @@ GasKinetics& GasKinetics::operator=(const GasKinetics& right)
     m_revindex = right.m_revindex;
     m_rxneqn = right.m_rxneqn;
 
-    *m_kdata = *(right.m_kdata);
+    m_logp_ref = right.m_logp_ref;
+    m_logc_ref  = right.m_logc_ref;
+    m_logStandConc = right.m_logStandConc;
+    m_ropf = right.m_ropf;
+    m_ropr = right.m_ropr;
+    m_ropnet = right.m_ropnet;
+    m_rfn_low = right.m_rfn_low;
+    m_rfn_high = right.m_rfn_high;
+    m_ROP_ok  = right.m_ROP_ok;
+    m_temp = right.m_temp;
+    m_rfn  = right.m_rfn;
+    falloff_work = right.falloff_work;
+    concm_3b_values = right.concm_3b_values;
+    concm_falloff_values = right.concm_falloff_values;
+    m_rkcn = right.m_rkcn;
 
     m_conc = right.m_conc;
     m_grt = right.m_grt;
@@ -192,30 +162,30 @@ void GasKinetics::
 _update_rates_T()
 {
     doublereal T = thermo().temperature();
-    m_kdata->m_logStandConc = log(thermo().standardConcentration());
+    m_logStandConc = log(thermo().standardConcentration());
     doublereal logT = log(T);
-    if (!m_kdata->m_rfn.empty()) {
-        m_rates.update(T, logT, &m_kdata->m_rfn[0]);
+    if (!m_rfn.empty()) {
+        m_rates.update(T, logT, &m_rfn[0]);
     }
 
-    if (!m_kdata->m_rfn_low.empty()) {
-        m_falloff_low_rates.update(T, logT, &m_kdata->m_rfn_low[0]);
-        m_falloff_high_rates.update(T, logT, &m_kdata->m_rfn_high[0]);
+    if (!m_rfn_low.empty()) {
+        m_falloff_low_rates.update(T, logT, &m_rfn_low[0]);
+        m_falloff_high_rates.update(T, logT, &m_rfn_high[0]);
     }
-    if (!m_kdata->falloff_work.empty()) {
-        m_falloffn.updateTemp(T, &m_kdata->falloff_work[0]);
+    if (!falloff_work.empty()) {
+        m_falloffn.updateTemp(T, &falloff_work[0]);
     }
     if (m_plog_rates.nReactions()) {
-        m_plog_rates.update(T, logT, &m_kdata->m_rfn[0]);
+        m_plog_rates.update(T, logT, &m_rfn[0]);
     }
 
     if (m_cheb_rates.nReactions()) {
-        m_cheb_rates.update(T, logT, &m_kdata->m_rfn[0]);
+        m_cheb_rates.update(T, logT, &m_rfn[0]);
     }
 
-    m_kdata->m_temp = T;
+    m_temp = T;
     updateKc();
-    m_kdata->m_ROP_ok = false;
+    m_ROP_ok = false;
 };
 
 //====================================================================================================================
@@ -227,14 +197,13 @@ _update_rates_C()
     doublereal ctot = thermo().molarDensity();
 
     // 3-body reactions
-    if (!m_kdata->concm_3b_values.empty()) {
-        m_3b_concm.update(m_conc, ctot, &m_kdata->concm_3b_values[0]);
+    if (!concm_3b_values.empty()) {
+        m_3b_concm.update(m_conc, ctot, &concm_3b_values[0]);
     }
 
     // Falloff reactions
-    if (!m_kdata->concm_falloff_values.empty()) {
-        m_falloff_concm.update(m_conc, ctot,
-                               &m_kdata->concm_falloff_values[0]);
+    if (!concm_falloff_values.empty()) {
+        m_falloff_concm.update(m_conc, ctot, &concm_falloff_values[0]);
     }
 
     double logP = log(thermo().pressure());
@@ -249,7 +218,7 @@ _update_rates_C()
         m_cheb_rates.update_C(&logP);
     }
 
-    m_kdata->m_ROP_ok = false;
+    m_ROP_ok = false;
 }
 //====================================================================================================================
 /**
@@ -257,23 +226,20 @@ _update_rates_C()
  */
 void GasKinetics::updateKc()
 {
-    vector_fp& m_rkc = m_kdata->m_rkcn;
-
     thermo().getStandardChemPotentials(&m_grt[0]);
-    fill(m_rkc.begin(), m_rkc.end(), 0.0);
+    fill(m_rkcn.begin(), m_rkcn.end(), 0.0);
 
     // compute Delta G^0 for all reversible reactions
-    m_rxnstoich->getRevReactionDelta(m_ii, &m_grt[0], &m_rkc[0]);
+    m_rxnstoich->getRevReactionDelta(m_ii, &m_grt[0], &m_rkcn[0]);
 
-    doublereal logStandConc = m_kdata->m_logStandConc;
     doublereal rrt = 1.0/(GasConstant * thermo().temperature());
     for (size_t i = 0; i < m_nrev; i++) {
         size_t irxn = m_revindex[i];
-        m_rkc[irxn] = exp(m_rkc[irxn]*rrt - m_dn[irxn]*logStandConc);
+        m_rkcn[irxn] = exp(m_rkcn[irxn]*rrt - m_dn[irxn]*m_logStandConc);
     }
 
     for (size_t i = 0; i != m_nirrev; ++i) {
-        m_rkc[ m_irrev[i] ] = 0.0;
+        m_rkcn[ m_irrev[i] ] = 0.0;
     }
 }
 //====================================================================================================================
@@ -284,23 +250,20 @@ void GasKinetics::updateKc()
 void GasKinetics::getEquilibriumConstants(doublereal* kc)
 {
     _update_rates_T();
-    vector_fp& rkc = m_kdata->m_rkcn;
-    //thermo().getGibbs_RT(m_grt.begin());
     thermo().getStandardChemPotentials(&m_grt[0]);
-    fill(rkc.begin(), rkc.end(), 0.0);
+    fill(m_rkcn.begin(), m_rkcn.end(), 0.0);
 
     // compute Delta G^0 for all reactions
-    m_rxnstoich->getReactionDelta(m_ii, &m_grt[0], &rkc[0]);
+    m_rxnstoich->getReactionDelta(m_ii, &m_grt[0], &m_rkcn[0]);
 
-    doublereal logStandConc = m_kdata->m_logStandConc;
     doublereal rrt = 1.0/(GasConstant * thermo().temperature());
     for (size_t i = 0; i < m_ii; i++) {
-        kc[i] = exp(-rkc[i]*rrt + m_dn[i]*logStandConc);
+        kc[i] = exp(-m_rkcn[i]*rrt + m_dn[i]*m_logStandConc);
     }
 
     // force an update of T-dependent properties, so that m_rkcn will
     // be updated before it is used next.
-    m_kdata->m_temp = 0.0;
+    m_temp = 0.0;
 }
 //====================================================================================================================
 /**
@@ -480,7 +443,7 @@ void GasKinetics::getDeltaSSEntropy(doublereal* deltaS)
 void GasKinetics::getNetProductionRates(doublereal* net)
 {
     updateROP();
-    m_rxnstoich->getNetProductionRates(m_kk, &m_kdata->m_ropnet[0], net);
+    m_rxnstoich->getNetProductionRates(m_kk, &m_ropnet[0], net);
 }
 //====================================================================================================================
 // Return the species creation rates
@@ -496,7 +459,7 @@ void GasKinetics::getNetProductionRates(doublereal* net)
 void GasKinetics::getCreationRates(doublereal* cdot)
 {
     updateROP();
-    m_rxnstoich->getCreationRates(m_kk, &m_kdata->m_ropf[0], &m_kdata->m_ropr[0], cdot);
+    m_rxnstoich->getCreationRates(m_kk, &m_ropf[0], &m_ropr[0], cdot);
 }
 //====================================================================================================================
 //   Return a vector of the species destruction rates
@@ -514,34 +477,27 @@ void GasKinetics::getCreationRates(doublereal* cdot)
 void GasKinetics::getDestructionRates(doublereal* ddot)
 {
     updateROP();
-    m_rxnstoich->getDestructionRates(m_kk, &m_kdata->m_ropf[0], &m_kdata->m_ropr[0], ddot);
+    m_rxnstoich->getDestructionRates(m_kk, &m_ropf[0], &m_ropr[0], ddot);
 }
 //====================================================================================================================
 void GasKinetics::processFalloffReactions()
 {
-    const vector_fp& fc = m_kdata->concm_falloff_values;
-    const vector_fp& m_rf_low = m_kdata->m_rfn_low;
-    const vector_fp& m_rf_high = m_kdata->m_rfn_high;
-
     // use m_ropr for temporary storage of reduced pressure
-    vector_fp& pr = m_kdata->m_ropr;
-
-    vector_fp& ropf = m_kdata->m_ropf;
+    vector_fp& pr = m_ropr;
 
     for (size_t i = 0; i < m_nfall; i++) {
-        pr[i] = fc[i] * m_rf_low[i] / m_rf_high[i];
+        pr[i] = concm_falloff_values[i] * m_rfn_low[i] / m_rfn_high[i];
     }
 
-    double* falloff_work =
-        (m_kdata->falloff_work.empty()) ? 0 : &m_kdata->falloff_work[0];
-    m_falloffn.pr_to_falloff(&pr[0], falloff_work);
+    double* work = (falloff_work.empty()) ? 0 : &falloff_work[0];
+    m_falloffn.pr_to_falloff(&pr[0], work);
 
     for (size_t i = 0; i < m_nfall; i++) {
-        pr[i] *= m_rf_high[i];
+        pr[i] *= m_rfn_high[i];
     }
 
     scatter_copy(pr.begin(), pr.begin() + m_nfall,
-                 ropf.begin(), m_fallindx.begin());
+                 m_ropf.begin(), m_fallindx.begin());
 }
 
 //====================================================================================================================
@@ -550,22 +506,16 @@ void GasKinetics::updateROP()
     _update_rates_C();
     _update_rates_T();
 
-    if (m_kdata->m_ROP_ok) {
+    if (m_ROP_ok) {
         return;
     }
 
-    const vector_fp& rf = m_kdata->m_rfn;
-    const vector_fp& m_rkc = m_kdata->m_rkcn;
-    vector_fp& ropf = m_kdata->m_ropf;
-    vector_fp& ropr = m_kdata->m_ropr;
-    vector_fp& ropnet = m_kdata->m_ropnet;
-
     // copy rate coefficients into ropf
-    copy(rf.begin(), rf.end(), ropf.begin());
+    copy(m_rfn.begin(), m_rfn.end(), m_ropf.begin());
 
     // multiply ropf by enhanced 3b conc for all 3b rxns
-    if (!m_kdata->concm_3b_values.empty()) {
-        m_3b_concm.multiply(&ropf[0], &m_kdata->concm_3b_values[0]);
+    if (!concm_3b_values.empty()) {
+        m_3b_concm.multiply(&m_ropf[0], &concm_3b_values[0]);
     }
 
     if (m_nfall) {
@@ -573,30 +523,30 @@ void GasKinetics::updateROP()
     }
 
     // multiply by perturbation factor
-    multiply_each(ropf.begin(), ropf.end(), m_perturb.begin());
+    multiply_each(m_ropf.begin(), m_ropf.end(), m_perturb.begin());
 
     // copy the forward rates to the reverse rates
-    copy(ropf.begin(), ropf.end(), ropr.begin());
+    copy(m_ropf.begin(), m_ropf.end(), m_ropr.begin());
 
     // for reverse rates computed from thermochemistry, multiply
     // the forward rates copied into m_ropr by the reciprocals of
     // the equilibrium constants
-    multiply_each(ropr.begin(), ropr.end(), m_rkc.begin());
+    multiply_each(m_ropr.begin(), m_ropr.end(), m_rkcn.begin());
 
     // multiply ropf by concentration products
-    m_rxnstoich->multiplyReactants(&m_conc[0], &ropf[0]);
+    m_rxnstoich->multiplyReactants(&m_conc[0], &m_ropf[0]);
     //m_reactantStoich.multiply(m_conc.begin(), ropf.begin());
 
     // for reversible reactions, multiply ropr by concentration
     // products
-    m_rxnstoich->multiplyRevProducts(&m_conc[0], &ropr[0]);
+    m_rxnstoich->multiplyRevProducts(&m_conc[0], &m_ropr[0]);
     //m_revProductStoich.multiply(m_conc.begin(), ropr.begin());
 
     for (size_t j = 0; j != m_ii; ++j) {
-        ropnet[j] = ropf[j] - ropr[j];
+        m_ropnet[j] = m_ropf[j] - m_ropr[j];
     }
 
-    m_kdata->m_ROP_ok = true;
+    m_ROP_ok = true;
 }
 //====================================================================================================================
 /**
@@ -614,13 +564,11 @@ getFwdRateConstants(doublereal* kfwd)
     _update_rates_T();
 
     // copy rate coefficients into ropf
-    const vector_fp& rf = m_kdata->m_rfn;
-    vector_fp& ropf = m_kdata->m_ropf;
-    copy(rf.begin(), rf.end(), ropf.begin());
+    copy(m_rfn.begin(), m_rfn.end(), m_ropf.begin());
 
     // multiply ropf by enhanced 3b conc for all 3b rxns
-    if (!m_kdata->concm_3b_values.empty()) {
-        m_3b_concm.multiply(&ropf[0], &m_kdata->concm_3b_values[0]);
+    if (!concm_3b_values.empty()) {
+        m_3b_concm.multiply(&m_ropf[0], &concm_3b_values[0]);
     }
 
     /*
@@ -632,10 +580,10 @@ getFwdRateConstants(doublereal* kfwd)
     }
 
     // multiply by perturbation factor
-    multiply_each(ropf.begin(), ropf.end(), m_perturb.begin());
+    multiply_each(m_ropf.begin(), m_ropf.end(), m_perturb.begin());
 
     for (size_t i = 0; i < m_ii; i++) {
-        kfwd[i] = ropf[i];
+        kfwd[i] = m_ropf[i];
     }
 }
 //====================================================================================================================
@@ -661,18 +609,14 @@ getRevRateConstants(doublereal* krev, bool doIrreversible)
     getFwdRateConstants(krev);
 
     if (doIrreversible) {
-        doublereal* tmpKc = &m_kdata->m_ropnet[0];
-        getEquilibriumConstants(tmpKc);
+        getEquilibriumConstants(&m_ropnet[0]);
         for (size_t i = 0; i < m_ii; i++) {
-            krev[i] /=  tmpKc[i];
+            krev[i] /=  m_ropnet[i];
         }
     } else {
-        /*
-         * m_rkc[] is zero for irreversibly reactions
-         */
-        const vector_fp& m_rkc = m_kdata->m_rkcn;
+        // m_rkcn[] is zero for irreversible reactions
         for (size_t i = 0; i < m_ii; i++) {
-            krev[i] *= m_rkc[i];
+            krev[i] *= m_rkcn[i];
         }
     }
 }
@@ -714,14 +658,14 @@ addFalloffReaction(ReactionData& r)
     // install high and low rate coeff calculators
     // and add constant terms to high and low rate coeff value vectors
     size_t iloc = m_falloff_high_rates.install(m_nfall, r);
-    m_kdata->m_rfn_high.push_back(r.rateCoeffParameters[0]);
+    m_rfn_high.push_back(r.rateCoeffParameters[0]);
     std::swap(r.rateCoeffParameters, r.auxRateCoeffParameters);
     m_falloff_low_rates.install(m_nfall, r);
-    m_kdata->m_rfn_low.push_back(r.rateCoeffParameters[0]);
+    m_rfn_low.push_back(r.rateCoeffParameters[0]);
 
     // add a dummy entry in m_rf, where computed falloff
     // rate coeff will be put
-    m_kdata->m_rfn.push_back(0.0);
+    m_rfn.push_back(0.0);
 
     // add this reaction number to the list of
     // falloff reactions
@@ -749,13 +693,11 @@ addFalloffReaction(ReactionData& r)
 void GasKinetics::
 addElementaryReaction(ReactionData& r)
 {
-    size_t iloc;
-
     // install rate coeff calculator
-    iloc = m_rates.install(reactionNumber(), r);
+    size_t iloc = m_rates.install(reactionNumber(), r);
 
     // add constant term to rate coeff value vector
-    m_kdata->m_rfn.push_back(r.rateCoeffParameters[0]);
+    m_rfn.push_back(r.rateCoeffParameters[0]);
 
     // forward rxn order equals number of reactants
     m_fwdOrder.push_back(r.reactants.size());
@@ -766,12 +708,11 @@ addElementaryReaction(ReactionData& r)
 void GasKinetics::
 addThreeBodyReaction(ReactionData& r)
 {
-    size_t iloc;
     // install rate coeff calculator
-    iloc = m_rates.install(reactionNumber(), r);
+    size_t iloc = m_rates.install(reactionNumber(), r);
 
     // add constant term to rate coeff value vector
-    m_kdata->m_rfn.push_back(r.rateCoeffParameters[0]);
+    m_rfn.push_back(r.rateCoeffParameters[0]);
 
     // forward rxn order equals number of reactants + 1
     m_fwdOrder.push_back(r.reactants.size() + 1);
@@ -788,7 +729,7 @@ void GasKinetics::addPlogReaction(ReactionData& r)
     size_t iloc = m_plog_rates.install(reactionNumber(), r);
 
     // add a dummy entry in m_rfn, where computed rate coeff will be put
-    m_kdata->m_rfn.push_back(0.0);
+    m_rfn.push_back(0.0);
 
     m_fwdOrder.push_back(r.reactants.size());
     registerReaction(reactionNumber(), PLOG_RXN, iloc);
@@ -800,7 +741,7 @@ void GasKinetics::addChebyshevReaction(ReactionData& r)
     size_t iloc = m_cheb_rates.install(reactionNumber(), r);
 
     // add a dummy entry in m_rfn, where computed rate coeff will be put
-    m_kdata->m_rfn.push_back(0.0);
+    m_rfn.push_back(0.0);
 
     m_fwdOrder.push_back(r.reactants.size());
     registerReaction(reactionNumber(), CHEBYSHEV_RXN, iloc);
@@ -808,9 +749,9 @@ void GasKinetics::addChebyshevReaction(ReactionData& r)
 
 void GasKinetics::installReagents(const ReactionData& r)
 {
-    m_kdata->m_ropf.push_back(0.0);     // extend by one for new rxn
-    m_kdata->m_ropr.push_back(0.0);
-    m_kdata->m_ropnet.push_back(0.0);
+    m_ropf.push_back(0.0);     // extend by one for new rxn
+    m_ropr.push_back(0.0);
+    m_ropnet.push_back(0.0);
     size_t n, ns, m;
     doublereal nsFlt;
     doublereal reactantGlobalOrder = 0.0;
@@ -856,9 +797,7 @@ void GasKinetics::installReagents(const ReactionData& r)
         }
     }
     m_products.push_back(pk);
-
-    m_kdata->m_rkcn.push_back(0.0);
-
+    m_rkcn.push_back(0.0);
     m_rxnstoich->add(reactionNumber(), r);
 
     if (r.reversible) {
@@ -892,31 +831,15 @@ void GasKinetics::init()
     m_prxn.resize(m_kk);
     m_conc.resize(m_kk);
     m_grt.resize(m_kk);
-    m_kdata->m_logp_ref = log(thermo().refPressure()) - log(GasConstant);
+    m_logp_ref = log(thermo().refPressure()) - log(GasConstant);
 }
 //====================================================================================================================
 void GasKinetics::finalize()
 {
     if (!m_finalized) {
-        //            int i, j, nr, np;
-        m_kdata->falloff_work.resize(
-            static_cast<size_t>(m_falloffn.workSize()));
-        m_kdata->concm_3b_values.resize(
-            static_cast<size_t>(m_3b_concm.workSize()));
-        m_kdata->concm_falloff_values.resize(
-            static_cast<size_t>(m_falloff_concm.workSize()));
-
-        //             for (i = 0; i < m_ii; i++) {
-        //                 nr = m_reactants[i].size();
-        //                 for (j = 0; j < nr; j++) {
-        //                     m_rstoich[i][m_reactants[i][j]]++;
-        //                 }
-        //                 np = m_products[i].size();
-        //                 for (j = 0; j < np; j++) {
-        //                     m_pstoich[i][m_products[i][j]]++;
-        //                 }
-        //             }
-        //m_rxnstoich->write("c.cpp");
+        falloff_work.resize(m_falloffn.workSize());
+        concm_3b_values.resize(m_3b_concm.workSize());
+        concm_falloff_values.resize(m_falloff_concm.workSize());
         m_finalized = true;
     }
 }

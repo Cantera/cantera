@@ -44,7 +44,7 @@ public:
 
     virtual void getNetProductionRates(doublereal* net) {
         gri30_updateROP();
-        get_wdot(&m_kdata->m_ropnet[0], net);
+        get_wdot(&m_ropnet[0], net);
     }
 
 private:
