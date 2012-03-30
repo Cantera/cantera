@@ -9,7 +9,7 @@
 
 #include "cantera/kinetics/GasKinetics.h"
 
-#include "ReactionData.h"
+#include "cantera/kinetics/ReactionData.h"
 #include "cantera/kinetics/Enhanced3BConc.h"
 #include "cantera/kinetics/ThirdBodyMgr.h"
 #include "cantera/kinetics/RateCoeffMgr.h"
@@ -655,7 +655,7 @@ getRevRateConstants(doublereal* krev, bool doIrreversible)
 }
 //====================================================================================================================
 void GasKinetics::
-addReaction(const ReactionData& r)
+addReaction(ReactionData& r)
 {
     switch (r.reactionType) {
     case ELEMENTARY_RXN:
@@ -686,24 +686,15 @@ addReaction(const ReactionData& r)
 
 //====================================================================================================================
 void GasKinetics::
-addFalloffReaction(const ReactionData& r)
+addFalloffReaction(ReactionData& r)
 {
-
     // install high and low rate coeff calculators
-
-    size_t iloc = m_falloff_high_rates.install(m_nfall,
-                  r.rateCoeffType,
-                  r.rateCoeffParameters.size(),
-                  &r.rateCoeffParameters[0]);
-
-    m_falloff_low_rates.install(m_nfall,
-                                r.rateCoeffType, r.auxRateCoeffParameters.size(),
-                                DATA_PTR(r.auxRateCoeffParameters));
-
-    // add constant terms to high and low rate
-    // coeff value vectors
+    // and add constant terms to high and low rate coeff value vectors
+    size_t iloc = m_falloff_high_rates.install(m_nfall, r);
     m_kdata->m_rfn_high.push_back(r.rateCoeffParameters[0]);
-    m_kdata->m_rfn_low.push_back(r.auxRateCoeffParameters[0]);
+    std::swap(r.rateCoeffParameters, r.auxRateCoeffParameters);
+    m_falloff_low_rates.install(m_nfall, r);
+    m_kdata->m_rfn_low.push_back(r.rateCoeffParameters[0]);
 
     // add a dummy entry in m_rf, where computed falloff
     // rate coeff will be put
@@ -733,14 +724,12 @@ addFalloffReaction(const ReactionData& r)
 //====================================================================================================================
 
 void GasKinetics::
-addElementaryReaction(const ReactionData& r)
+addElementaryReaction(ReactionData& r)
 {
     size_t iloc;
 
     // install rate coeff calculator
-    iloc = m_rates.install(reactionNumber(),
-                           r.rateCoeffType, r.rateCoeffParameters.size(),
-                           DATA_PTR(r.rateCoeffParameters));
+    iloc = m_rates.install(reactionNumber(), r);
 
     // add constant term to rate coeff value vector
     m_kdata->m_rfn.push_back(r.rateCoeffParameters[0]);
@@ -752,13 +741,11 @@ addElementaryReaction(const ReactionData& r)
 
 //====================================================================================================================
 void GasKinetics::
-addThreeBodyReaction(const ReactionData& r)
+addThreeBodyReaction(ReactionData& r)
 {
     size_t iloc;
     // install rate coeff calculator
-    iloc = m_rates.install(reactionNumber(),
-                           r.rateCoeffType, r.rateCoeffParameters.size(),
-                           DATA_PTR(r.rateCoeffParameters));
+    iloc = m_rates.install(reactionNumber(), r);
 
     // add constant term to rate coeff value vector
     m_kdata->m_rfn.push_back(r.rateCoeffParameters[0]);
@@ -772,12 +759,12 @@ addThreeBodyReaction(const ReactionData& r)
 }
 //====================================================================================================================
 
-void GasKinetics::addPlogReaction(const ReactionData& r)
+void GasKinetics::addPlogReaction(ReactionData& r)
 {
     // @todo: Not yet implemented
 }
 
-void GasKinetics::addChebyshevReaction(const ReactionData& r)
+void GasKinetics::addChebyshevReaction(ReactionData& r)
 {
     // @todo: Not yet implemented
 }

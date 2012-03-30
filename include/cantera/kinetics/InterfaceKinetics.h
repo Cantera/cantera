@@ -460,7 +460,7 @@ public:
      * @param r Reference to a ReactionData object containing all of
      *          the info needed to describe the reaction.
      */
-    virtual void addReaction(const ReactionData& r);
+    virtual void addReaction(ReactionData& r);
 
 
     //! Finish adding reactions and prepare for use.
@@ -557,7 +557,7 @@ public:
         return m_ii;
     }
 
-    void addElementaryReaction(const ReactionData& r);
+    void addElementaryReaction(ReactionData& r);
     void addGlobalReaction(const ReactionData& r);
     void installReagents(const ReactionData& r);
 

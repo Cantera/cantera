@@ -346,7 +346,7 @@ public:
     virtual void init();
 
     ///  Add a reaction to the mechanism.
-    virtual void addReaction(const ReactionData& r);
+    virtual void addReaction(ReactionData& r);
 
     virtual void finalize();
     virtual bool ready() const;
@@ -419,7 +419,7 @@ private:
     }
     std::vector<std::map<int, doublereal> > m_stoich;
 
-    void addElementaryReaction(const ReactionData& r);
+    void addElementaryReaction(ReactionData& r);
 
 
     void installReagents(const ReactionData& r);
