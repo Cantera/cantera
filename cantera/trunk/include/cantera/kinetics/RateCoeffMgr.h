@@ -33,32 +33,23 @@ public:
     /**
      * Install a rate coefficient calculator.
      * @param rxnNumber the reaction number
-     * @param rateType  the rate type
-     * @param m length of coefficient array
-     * @param coefficients
+     * @param rdata rate coefficient specification for the reaction
+     * @param useAux flag to indicate that auxiliary rate information from
+     *        rdata should be used.
      */
-    size_t install(size_t rxnNumber, int rateType, size_t m,
-                   const doublereal* c) {
+    size_t install(size_t rxnNumber, const ReactionData& rdata) {
         /*
-        * Check to see if the current reaction rate type
-        * is the same as the type of this class. If not,
-        * throw an error condition.
+        * Check to see if the current reaction rate type is the same as the
+        * type of this class. If not, throw an error condition.
         */
-        if (rateType != R::type())
+        if (rdata.rateCoeffType != R::type())
             throw CanteraError("Rate1::install",
-                               "incorrect rate coefficient type: "+int2str(rateType));
+                               "incorrect rate coefficient type: "+int2str(rdata.rateCoeffType));
 
-        // if any coefficient other than the first is non-zero, or
-        // if alwaysComputeRate() is true, install a rate
-        // calculator and return the index of the calculator.
-        for (size_t i = 1; i < m; i++) {
-            if (c[i] != 0.0 || R::alwaysComputeRate()) {
-                m_rxn.push_back(rxnNumber);
-                m_rates.push_back(R(m, c));
-                return m_rates.size() - 1;
-            }
-        }
-        return npos;
+        // Install a rate calculator and return the index of the calculator.
+        m_rxn.push_back(rxnNumber);
+        m_rates.push_back(R(rdata));
+        return m_rates.size() - 1;
     }
 
     /**

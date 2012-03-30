@@ -917,7 +917,7 @@ public:
      * @param r      Reference to the ReactionData object for the reaction
      *               to be added.
      */
-    virtual void addReaction(const ReactionData& r) {
+    virtual void addReaction(ReactionData& r) {
         err("addReaction");
     }
 

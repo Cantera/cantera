@@ -9,7 +9,7 @@
 #include "cantera/kinetics/EdgeKinetics.h"
 #include "cantera/thermo/SurfPhase.h"
 
-#include "ReactionData.h"
+#include "cantera/kinetics/ReactionData.h"
 #include "cantera/kinetics/RateCoeffMgr.h"
 
 #include "ImplicitSurfChem.h"
@@ -1049,7 +1049,7 @@ void InterfaceKinetics::getDeltaSSEntropy(doublereal* deltaS)
  * There is no difference between elementary and surface
  * reactions.
  */
-void InterfaceKinetics::addReaction(const ReactionData& r)
+void InterfaceKinetics::addReaction(ReactionData& r)
 {
 
     /*
@@ -1103,10 +1103,10 @@ void InterfaceKinetics::addReaction(const ReactionData& r)
     }
 }
 //====================================================================================================================
-void InterfaceKinetics::addElementaryReaction(const ReactionData& r)
+void InterfaceKinetics::addElementaryReaction(ReactionData& r)
 {
     // install rate coeff calculator
-    vector_fp rp = r.rateCoeffParameters;
+    vector_fp& rp = r.rateCoeffParameters;
     size_t ncov = r.cov.size();
     if (ncov > 3) {
         m_has_coverage_dependence = true;
@@ -1114,7 +1114,7 @@ void InterfaceKinetics::addElementaryReaction(const ReactionData& r)
     for (size_t m = 0; m < ncov; m++) {
         rp.push_back(r.cov[m]);
     }
-    size_t iloc = m_rates.install(reactionNumber(), ARRHENIUS_REACTION_RATECOEFF_TYPE, rp.size(), DATA_PTR(rp));
+    size_t iloc = m_rates.install(reactionNumber(), r);
     // store activation energy
     m_E.push_back(r.rateCoeffParameters[2]);
 

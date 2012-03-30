@@ -10,6 +10,7 @@
 
 #include "reaction_defs.h"
 #include "cantera/base/ctexceptions.h"
+#include "ReactionData.h"
 
 namespace Cantera
 {
@@ -26,7 +27,6 @@ namespace Cantera
 class Arrhenius
 {
 public:
-
     //! return the rate coefficient type.
     static int type() {
         return ARRHENIUS_REACTION_RATECOEFF_TYPE;
@@ -39,11 +39,11 @@ public:
         m_E(0.0),
         m_A(0.0) {}
 
-    //! Constructor with Arrhenius parameters specified with an array.
-    Arrhenius(size_t csize, const doublereal* c) :
-        m_b(c[1]),
-        m_E(c[2]),
-        m_A(c[0]) {
+    //! Constructor from ReactionData.
+    explicit Arrhenius(const ReactionData& rdata) :
+        m_b(rdata.rateCoeffParameters[1]),
+        m_E(rdata.rateCoeffParameters[2]),
+        m_A(rdata.rateCoeffParameters[0]) {
         if (m_A  <= 0.0) {
             m_logA = -1.0E300;
         } else {
@@ -123,7 +123,7 @@ protected:
     doublereal m_logA, m_b, m_E, m_A;
 };
 
-
+//! @deprecated This class is not used.
 class ArrheniusSum
 {
 
@@ -216,24 +216,27 @@ public:
         m_nmcov(0) {
     }
 
-    SurfaceArrhenius(size_t csize, const doublereal* c)  :
-        m_b(c[1]),
-        m_E(c[2]),
-        m_A(c[0]),
+    explicit SurfaceArrhenius(const ReactionData& rdata) :
+        m_b(rdata.rateCoeffParameters[1]),
+        m_E(rdata.rateCoeffParameters[2]),
+        m_A(rdata.rateCoeffParameters[0]),
         m_acov(0.0),
         m_ecov(0.0),
         m_mcov(0.0),
         m_ncov(0),
-        m_nmcov(0) {
+        m_nmcov(0)
+    {
         if (m_A <= 0.0) {
             m_logA = -1.0E300;
         } else {
-            m_logA = log(c[0]);
+            m_logA = log(m_A);
         }
-        if (csize >= 7) {
-            for (size_t n = 3; n < csize-3; n += 4) {
-                addCoverageDependence(size_t(c[n]),
-                                      c[n+1], c[n+2], c[n+3]);
+
+        const vector_fp& data = rdata.auxRateCoeffParameters;
+        if (data.size() >= 7) {
+            for (size_t n = 3; n < data.size()-3; n += 4) {
+                addCoverageDependence(size_t(data[n]), data[n+1],
+                                      data[n+2], data[n+3]);
             }
         }
     }
@@ -381,11 +384,11 @@ public:
         m_E(0.0),
         m_A(0.0) {}
 
-    //! Constructor with Arrhenius parameters specified with an array.
-    ExchangeCurrent(size_t csize, const doublereal* c) :
-        m_b(c[1]),
-        m_E(c[2]),
-        m_A(c[0]) {
+    //! Constructor with Arrhenius parameters from a ReactionData struct.
+    explicit ExchangeCurrent(const ReactionData& rdata) :
+        m_b(rdata.rateCoeffParameters[1]),
+        m_E(rdata.rateCoeffParameters[2]),
+        m_A(rdata.rateCoeffParameters[0]) {
         if (m_A  <= 0.0) {
             m_logA = -1.0E300;
         } else {

@@ -25,7 +25,7 @@
 #include "cantera/thermo/SpeciesThermoFactory.h"
 #include "cantera/kinetics/KineticsFactory.h"
 #include "cantera/kinetics/reaction_defs.h"
-#include "ReactionData.h"
+#include "cantera/kinetics/ReactionData.h"
 #include "cantera/base/global.h"
 #include "cantera/base/stringUtils.h"
 
@@ -508,11 +508,12 @@ void getRateCoefficient(const XML_Node& kf, Kinetics& kin,
         rdata.rateCoeffType = PLOG_REACTION_RATECOEFF_TYPE;
         for (size_t m = 0; m < kf.nChildren(); m++) {
             const XML_Node& node = kf.child(m);
-            double A = getFloat(node, "A", "toSI");
-            double b = getFloat(node, "b");
-            double E = getFloat(node, "E", "actEnergy") / GasConstant;
             double p = getFloat(node, "P", "toSI");
-            rdata.plogParameters[p] = Arrhenius(A, b, E);
+            vector_fp& rate = rdata.plogParameters[p];
+            rate.resize(3);
+            rate[0] = getFloat(node, "A", "toSI");
+            rate[1] = getFloat(node, "b");
+            rate[2] = getFloat(node, "E", "actEnergy") / GasConstant;
         }
 
     } else if (rdata.reactionType == CHEBYSHEV_RXN) {

@@ -12,7 +12,7 @@
  */
 
 #include "cantera/kinetics/AqueousKinetics.h"
-#include "ReactionData.h"
+#include "cantera/kinetics/ReactionData.h"
 #include "cantera/kinetics/RateCoeffMgr.h"
 #include "cantera/base/stringUtils.h"
 
@@ -523,7 +523,7 @@ getRevRateConstants(doublereal* krev, bool doIrreversible)
     }
 }
 
-void AqueousKinetics::addReaction(const ReactionData& r)
+void AqueousKinetics::addReaction(ReactionData& r)
 {
 
     if (r.reactionType == ELEMENTARY_RXN) {
@@ -540,14 +540,12 @@ void AqueousKinetics::addReaction(const ReactionData& r)
 
 
 
-void AqueousKinetics::addElementaryReaction(const ReactionData& r)
+void AqueousKinetics::addElementaryReaction(ReactionData& r)
 {
     size_t iloc;
 
     // install rate coeff calculator
-    iloc = m_rates.install(reactionNumber(),
-                           r.rateCoeffType, r.rateCoeffParameters.size(),
-                           DATA_PTR(r.rateCoeffParameters));
+    iloc = m_rates.install(reactionNumber(), r);
 
     // add constant term to rate coeff value vector
     m_kdata->m_rfn.push_back(r.rateCoeffParameters[0]);

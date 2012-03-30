@@ -8,7 +8,7 @@
 #include "cantera/kinetics/ReactionStoichMgr.h"
 #include "StoichManager.h"
 #include "cantera/base/ctexceptions.h"
-#include "ReactionData.h"
+#include "cantera/kinetics/ReactionData.h"
 
 #include <fstream>
 

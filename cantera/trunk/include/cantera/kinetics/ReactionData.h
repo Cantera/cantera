@@ -9,7 +9,6 @@
 #define CT_REACTION_DATA_H
 
 #include "cantera/kinetics/reaction_defs.h"
-#include "cantera/kinetics/RxnRates.h"
 
 namespace Cantera
 {
@@ -75,7 +74,7 @@ public:
 
     //! Arrhenius parameters for P-log reactions.
     //! The keys are the pressures corresponding to each Arrhenius expression.
-    std::map<double, Arrhenius> plogParameters;
+    std::map<double, vector_fp> plogParameters;
 
     double chebTmin; //!< Minimum temperature for Chebyshev fit
     double chebTmax; //!< Maximum temperature for Chebyshev fit
