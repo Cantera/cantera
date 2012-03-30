@@ -3,8 +3,6 @@
 
 ################################################################################
 #
-#   RMG - Reaction Mechanism Generator
-#
 #   Copyright (c) 2009-2011 by the RMG Team (rmg_dev@mit.edu)
 #
 #   Permission is hereby granted, free of charge, to any person obtaining a
@@ -40,6 +38,34 @@ import numpy as np
 
 ################################################################################
 
+UNIT_OPTIONS = {'CAL/': 'cal/mol',
+                'CAL/MOL': 'cal/mol',
+                'CAL/MOLE': 'cal/mol',
+                'EVOL': 'eV',
+                'EVOLTS': 'eV',
+                'JOUL': 'J/mol',
+                'JOULES/MOL': 'J/mol',
+                'JOULES/MOLE': 'J/mol',
+                'KCAL': 'kcal/mol',
+                'KCAL/MOL': 'kcal/mol',
+                'KCAL/MOLE': 'kcal/mol',
+                'KELV': 'K',
+                'KELVIN': 'K',
+                'KELVINS': 'K',
+                'KJOU': 'kJ/mol',
+                'KJOULES/MOL': 'kJ/mol',
+                'KJOULES/MOLE': 'kJ/mol',
+                'MOL': 'mol',
+                'MOLE': 'mol',
+                'MOLES': 'mol',
+                'MOLEC': 'molec',
+                'MOLECULES': 'molec'}
+
+ENERGY_UNITS = 'cal/mol'
+QUANTITY_UNITS = 'mol'
+
+################################################################################
+
 class ChemkinError(Exception):
     """
     An exception class for exceptional behavior involving Chemkin files. Pass a
@@ -52,12 +78,35 @@ class ChemkinError(Exception):
 class Species(object):
     def __init__(self, label):
         self.label = label
+        self.thermo = None
+        self.transport = None
+        self.note = None
 
     def __str__(self):
         return self.label
 
     def __repr__(self):
         return 'Species({0!r})'.format(self.label)
+
+    def to_cti(self, indent=0):
+        lines = []
+        atoms = ' '.join('{0}:{1}'.format(*a) for a in self.composition.iteritems())
+
+        prefix = ' '*(indent+8)
+
+        lines.append('species(name={0!r},'.format(self.label))
+        lines.append(prefix + 'atoms={0!r},'.format(atoms))
+        if self.thermo:
+            lines.append(prefix + 'thermo={0},'.format(self.thermo.to_cti(15+indent)))
+        if self.transport:
+            lines.append(prefix + 'transport={0},'.format(self.transport.to_cti(14+indent)))
+        if self.note:
+            lines.append(prefix + 'note={0!r},'.format(self.note))
+
+        lines[-1] = lines[-1][:-1] + ')'
+        lines.append('')
+
+        return '\n'.join(lines)
 
 ################################################################################
 
@@ -139,6 +188,17 @@ class NASA(ThermoModel):
         string += ')'
         return string
 
+    def to_cti(self, indent=0):
+        prefix = ' '*indent
+        vals = self.c0, self.c1, self.c2, self.c3, self.c4, self.c5, self.c6
+        vals = ['{0: 15.8E}'.format(i) for i in vals]
+        lines = ['NASA([{0:.2f}, {1:.2f}],'.format(self.Tmin[0], self.Tmax[0]),
+                 prefix+'     [{0}, {1}, {2},'.format(*vals[0:3]),
+                 prefix+'      {0}, {1}, {2},'.format(*vals[3:6]),
+                 prefix+'      {0}]),'.format(vals[6])]
+
+        return '\n'.join(lines)
+
 ################################################################################
 
 class MultiNASA(ThermoModel):
@@ -163,6 +223,19 @@ class MultiNASA(ThermoModel):
         if self.comment != '': string += ', comment="""{0}"""'.format(self.comment)
         string += ')'
         return string
+
+    def to_cti(self, indent=0):
+        prefix = ' '*indent
+        lines = []
+        for i,p in enumerate(self.polynomials):
+            if i == 0:
+                lines.append('({0}'.format(p.to_cti(indent+1)))
+            elif i != len(self.polynomials)-1:
+                lines.append(prefix + ' {0}'.format(p.to_cti(indent+1)))
+            else:
+                lines.append(prefix + ' {0})'.format(p.to_cti(indent+1)[:-1]))
+
+        return '\n'.join(lines)
 
 ################################################################################
 
@@ -249,6 +322,48 @@ class Reaction(object):
             (all([spec in self.products for spec in reactants]) and
             all([spec in self.reactants for spec in products])))
 
+    def to_cti(self, indent=0):
+        arrow = ' <=> ' if self.reversible else ' => '
+        reactantstr = ' + '.join(str(s) for s in self.reactants)
+        productstr= ' + '.join(str(s) for s in self.products)
+
+        kinstr = self.kinetics.to_cti(reactantstr, arrow, productstr, indent)
+
+
+        if self.duplicate:
+            k_indent = ' ' * (kinstr.find('(') + 1)
+            kinstr = kinstr[:-1] + ",\n{0}options='duplicate')".format(k_indent)
+
+        return kinstr
+
+        if self.thirdBody:
+            reactantstr += ' + M'
+            productstr += ' + M'
+            ctiReactionClass = 'three_body_reaction'
+        elif isinstance(self.kinetics, (Lindemann, Troe, Chebyshev)):
+            reactantstr += ' (+ M)'
+            productstr += ' (+ M)'
+            ctiReactionClass = 'falloff_reaction'
+        else:
+            ctiReactionClass = 'reaction'
+
+        prefix = ' '*(indent+len(self.rxnClass+1))
+        reactionstr = reactantstr + arrow + productstr
+
+
+        if isinstance(self.kinetics, (Arrhenius, ThirdBody)):
+            Arates = ' [{0.A}, {0.n}, {0.Ea}]'.format(self.kinetics)
+        else:
+            Arates = ''
+
+        lines = ['{0}({1!r}{2},'.format(ctiReactionClass, reactionstr, Arates)]
+
+        if self.thirdBody:
+            lines.append(prefix + 'efficiencies=')
+
+        lines[-1] = lines[-1][:-1] + ')'
+        return '\n'.join(lines)
+
 ################################################################################
 
 ################################################################################
@@ -321,6 +436,16 @@ class KineticsModel(object):
         derived class.
         """
         raise ChemkinError('Unexpected call to KineticsModel.isPressureDependent(); you should be using a class derived from KineticsModel.')
+
+    def to_cti(self, reactantstr, arrow, productstr):
+        raise ChemkinError('to_cti is not implemented for objects of class {0}'.format(self.__class__.__name__))
+
+    def efficiencyString(self):
+        if hasattr(self, 'efficiencies'):
+            return ' '.join('{0}:{1}'.format(mol, eff)
+                            for mol,eff in self.efficiencies.iteritems())
+        else:
+            return ''
 
 ################################################################################
 
@@ -434,6 +559,13 @@ class Arrhenius(KineticsModel):
         """
         return False
 
+    def rateStr(self):
+        return '[{0.A[0]:e}, {0.n}, {0.Ea[0]}]'.format(self)
+
+    def to_cti(self, reactantstr, arrow, productstr, indent=0):
+        rxnstring = reactantstr + arrow + productstr
+        return 'reaction({0!r}, {1})'.format(rxnstring, self.rateStr())
+
 ################################################################################
 
 class PDepArrhenius(KineticsModel):
@@ -508,6 +640,18 @@ class PDepArrhenius(KineticsModel):
         Returns ``True`` since PDepArrhenius kinetics are pressure-dependent.
         """
         return True
+
+    def to_cti(self, reactantstr, arrow, productstr, indent=0):
+        rxnstring = reactantstr + arrow + productstr
+        lines = ['pdep_arrhenius({0!r},'.format(rxnstring)]
+        prefix = ' '*(indent+15)
+        template = '[({0}, {1!r}), {2.A[0]:e}, {2.n}, {2.Ea[0]}],'
+        for pressure,arrhenius in zip(self.pressures[0], self.arrhenius):
+            lines.append(prefix + template.format(pressure,
+                                                  self.pressures[1],
+                                                  arrhenius))
+        lines[-1] = lines[-1][:-1] + ')'
+        return '\n'.join(lines)
 
 ################################################################################
 
@@ -603,6 +747,22 @@ class Chebyshev(KineticsModel):
         pressure-dependent.
         """
         return True
+
+    def to_cti(self, reactantstr, arrow, productstr, indent=0):
+        rxnstr = reactantstr + ' (+ M)' + arrow + productstr + ' (+ M)'
+        prefix = ' '*(indent+19)
+        lines = ['chebyshev_reaction({0!r},'.format(rxnstr),
+                 prefix + 'Tmin={0.Tmin}, Tmax={0.Tmax},'.format(self),
+                 prefix + 'Pmin={0.Pmin}, Pmax={0.Pmax},'.format(self)]
+        for i in range(self.degreeT):
+            coeffline = ', '.join('{0: 12.5e}'.format(self.coeffs[i,j]) for j in range(self.degreeP))
+            if i == 0:
+                lines.append(prefix + 'coeffs=[[{0}],'.format(coeffline))
+            else:
+                lines.append(prefix + '        [{0}],'.format(coeffline))
+
+        lines[-1] = lines[-1][:-1] + '])'
+        return '\n'.join(lines)
 
 ################################################################################
 
@@ -712,6 +872,16 @@ class ThirdBody(KineticsModel):
 
         return efficiency
 
+    def to_cti(self, reactantstr, arrow, productstr, indent=0):
+        rxnstr = reactantstr + ' + M' + arrow + productstr + ' + M'
+        prefix = ' '*(indent + 20)
+        lines = ['three_body_reaction({0!r}, {1},'.format(rxnstr, self.arrheniusHigh.rateStr())]
+        if self.efficiencies:
+            lines.append(prefix + 'efficiencies={0!r},'.format(self.efficiencyString()))
+
+        lines[-1] = lines[-1][:-1] + ')'
+        return '\n'.join(lines)
+
 ################################################################################
 
 class Lindemann(ThirdBody):
@@ -791,6 +961,18 @@ class Lindemann(ThirdBody):
         A helper function used when pickling a Lindemann object.
         """
         return (Lindemann, (self.arrheniusLow, self.arrheniusHigh, self.efficiencies, self.Tmin, self.Tmax, self.Pmin, self.Pmax, self.comment))
+
+    def to_cti(self, reactantstr, arrow, productstr, indent=0):
+        rxnstr = reactantstr + ' (+ M)' + arrow + productstr + ' (+ M)'
+        prefix = ' '*(indent + 17)
+        lines = ['falloff_reaction({0!r},'.format(rxnstr)]
+        lines.append(prefix + 'kf={0},'.format(self.arrheniusHigh.rateStr()))
+        lines.append(prefix + 'kf0={0},'.format(self.arrheniusLow.rateStr()))
+        if self.efficiencies:
+            lines.append(prefix + 'efficiencies={0!r},'.format(self.efficiencyString()))
+
+        lines[-1] = lines[-1][:-1] + ')'
+        return '\n'.join(lines)
 
 ################################################################################
 
@@ -901,9 +1083,31 @@ class Troe(Lindemann):
         """
         return (Troe, (self.arrheniusLow, self.arrheniusHigh, self.efficiencies, self.alpha, self.T3, self.T1, self.T2, self.Tmin, self.Tmax, self.Pmin, self.Pmax, self.comment))
 
+    def to_cti(self, reactantstr, arrow, productstr, indent=0):
+        rxnstr = reactantstr + ' (+ M)' + arrow + productstr + ' (+ M)'
+        prefix = ' '*17
+        lines = ['falloff_reaction({0!r},'.format(rxnstr),
+                 prefix + 'kf={0},'.format(self.arrheniusHigh.rateStr()),
+                 prefix + 'kf0={0},'.format(self.arrheniusLow.rateStr())]
+
+        if self.T2:
+            troeArgs = 'A={0.alpha[0]}, T3={0.T3[0]}, T1={0.T1[0]}, T2={0.T2[0]}'.format(self)
+        else:
+            troeArgs = 'A={0.alpha[0]}, T3={0.T3[0]}, T1={0.T1[0]}'.format(self)
+        lines.append(prefix + 'falloff=Troe({0}),'.format(troeArgs))
+
+        if self.efficiencies:
+            lines.append(prefix + 'efficiencies={0!r},'.format(self.efficiencyString()))
+
+        # replace trailing comma
+        lines[-1] = lines[-1][:-1] + ')'
+        return '\n'.join(lines)
+
 ################################################################################
 
 class TransportData(object):
+    geometryFlags = ['atom', 'linear', 'nonlinear']
+
     def __init__(self, label, geometry, wellDepth, collisionDiameter,
                  dipoleMoment, polarizability, zRot, comment=None):
 
@@ -911,18 +1115,33 @@ class TransportData(object):
         assert int(geometry) in (0,1,2)
 
         self.label = label
-        self.geometry = int(geometry)
+        self.geometry = self.geometryFlags[int(geometry)]
         self.wellDepth = float(wellDepth)
         self.collisionDiameter = float(collisionDiameter)
         self.dipoleMoment = float(dipoleMoment)
         self.polarizability = float(polarizability)
         self.zRot = float(zRot)
-        self.comment = comment or ''
+        self.comment = comment or '' # @todo: include this in the CTI
 
     def __repr__(self):
         return ('TransportData({label!r}, {geometry!r}, {wellDepth!r}, '
                 '{collisionDiameter!r}, {dipoleMoment!r}, {polarizability!r}, '
                 '{zRot!r}, {comment!r})').format(**self.__dict__)
+
+    def to_cti(self, indent=0):
+        prefix = ' '*(indent+18)
+        lines = ['gas_transport(geom={0!r},'.format(self.geometry),
+                 prefix+'diam={0},'.format(self.collisionDiameter),
+                 prefix+'well_depth={0},'.format(self.wellDepth)]
+        if self.dipoleMoment:
+            lines.append(prefix+'dipole={0},'.format(self.dipoleMoment))
+        if self.polarizability:
+            lines.append(prefix+'polar={0},'.format(self.polarizability))
+        if self.zRot:
+            lines.append(prefix+'rot_relax={0},'.format(self.zRot))
+
+        lines[-1] = lines[-1][:-1] + ')'
+        return '\n'.join(lines)
 
 ################################################################################
 
@@ -933,7 +1152,13 @@ def readThermoEntry(entry):
     object and the elemental composition of the species.
     """
     lines = entry.splitlines()
-    species = str(lines[0][0:24].split()[0].strip())
+    identifier = lines[0][0:24].split()
+    species = identifier[0].strip()
+
+    if len(identifier) > 1:
+        note = ''.join(identifier[1:]).strip()
+    else:
+        note = ''
 
     # Extract the NASA polynomial coefficients
     # Remember that the high-T polynomial comes first!
@@ -985,7 +1210,7 @@ def readThermoEntry(entry):
         Tmax = (Tmax,"K"),
     )
 
-    return species, thermo, composition
+    return species, thermo, composition, note
 
 ################################################################################
 
@@ -996,15 +1221,6 @@ def readKineticsEntry(entry, speciesDict, energyUnits, moleculeUnits):
     be provided. Returns a :class:`Reaction` object with the reaction and its
     associated kinetics.
     """
-
-    if energyUnits.lower() in ['kcal/mole', 'kcal/mol']:
-        energyFactor = 1.0
-    elif energyUnits.lower() in ['cal/mole', 'cal/mol']:
-        energyFactor = 0.001
-    else:
-        raise ChemkinError('Unexpected energy units "{0}" in reaction block.'.format(energyUnits))
-    if moleculeUnits.lower() not in ['moles']:
-        raise ChemkinError('Unexpected molecule units "{0}" in reaction block.'.format(energyUnits))
 
     lines = entry.strip().splitlines()
 
@@ -1089,7 +1305,7 @@ def readKineticsEntry(entry, speciesDict, energyUnits, moleculeUnits):
     arrheniusHigh = Arrhenius(
         A = (A,kunits),
         n = n,
-        Ea = (Ea * energyFactor,"kcal/mol"),
+        Ea = (Ea, energyUnits),
         T0 = (1,"K"),
     )
 
@@ -1119,7 +1335,7 @@ def readKineticsEntry(entry, speciesDict, energyUnits, moleculeUnits):
                 arrheniusLow = Arrhenius(
                     A = (float(tokens[0].strip()),klow_units),
                     n = float(tokens[1].strip()),
-                    Ea = (float(tokens[2].strip()) * energyFactor,"kcal/mol"),
+                    Ea = (float(tokens[2].strip()),"kcal/mol"),
                     T0 = (1,"K"),
                 )
 
@@ -1154,8 +1370,8 @@ def readKineticsEntry(entry, speciesDict, energyUnits, moleculeUnits):
                 if 'PCHEB' in line:
                     index = tokens.index('PCHEB')
                     tokens2 = tokens[index+1].split()
-                    chebyshev.Pmin = float(tokens2[0].strip())
-                    chebyshev.Pmax = float(tokens2[1].strip())
+                    chebyshev.Pmin = (float(tokens2[0].strip()), 'atm')
+                    chebyshev.Pmax = (float(tokens2[1].strip()), 'atm')
                 if 'TCHEB' in line or 'PCHEB' in line:
                     pass
                 elif chebyshev.degreeT == 0 or chebyshev.degreeP == 0:
@@ -1175,7 +1391,7 @@ def readKineticsEntry(entry, speciesDict, energyUnits, moleculeUnits):
                 pdepArrhenius.append([float(tokens[0].strip()), Arrhenius(
                     A = (float(tokens[1].strip()),kunits),
                     n = float(tokens[2].strip()),
-                    Ea = (float(tokens[3].strip()) * energyFactor,"kcal/mol"),
+                    Ea = (float(tokens[3].strip()),"kcal/mol"),
                     T0 = (1,"K"),
                 )])
 
@@ -1279,10 +1495,11 @@ def loadChemkinFile(path):
                         if line[79] in ['1', '2', '3', '4']:
                             thermo += line
                             if line[79] == '4':
-                                label, thermo, comp = readThermoEntry(thermo)
+                                label, thermo, comp, note = readThermoEntry(thermo)
                                 try:
                                     speciesDict[label].thermo = thermo
                                     speciesDict[label].composition = comp
+                                    speciesDict[label].note = note
                                 except KeyError:
                                     logging.warning('Skipping unexpected species "{0}" while reading thermodynamics entry.'.format(label))
                                 thermo = ''
@@ -1297,6 +1514,9 @@ def loadChemkinFile(path):
                     moleculeUnits = tokens[2]
                 except IndexError:
                     pass
+
+                ENERGY_UNITS = UNIT_OPTIONS[energyUnits]
+                QUANTITY_UNITS = UNIT_OPTIONS[moleculeUnits]
 
                 kineticsList = []
                 commentsList = []
@@ -1414,6 +1634,73 @@ def parseTransportData(lines, speciesList):
 
 ################################################################################
 
+def writeCTI(species,
+             reactions=None,
+             header=None,
+             name='gas',
+             transportModel='Mix',
+             outName='mech.cti'):
+
+    delimiterLine = '#' + '-'*79
+    haveTransport = True
+    speciesNameLength = 1
+    elements = set()
+    for s in species:
+        if not s.transport:
+            haveTransport = False
+        elements.update(s.composition)
+        speciesNameLength = max(speciesNameLength, len(s.label))
+
+    speciesNames = ['']
+    for i,s in enumerate(species):
+        if i and not i % 5:
+            speciesNames.append(' '*21)
+        speciesNames[-1] += '{0:{1}s}'.format(s.label, speciesNameLength+2)
+
+    speciesNames = '\n'.join(speciesNames).strip()
+
+    lines = []
+    if header:
+        lines.extend(header)
+
+    # Write the gas definition
+    lines.append("units(length='cm', time='s', quantity={0!r}, act_energy={1!r})".format(QUANTITY_UNITS, ENERGY_UNITS))
+    lines.append('')
+    lines.append('ideal_gas(name={0!r},'.format(name))
+    lines.append('          elements="{0}",'.format(' '.join(elements)))
+    lines.append('          species="""{0}""",'.format(speciesNames))
+    if reactions:
+        lines.append("          reactions='all',")
+    if haveTransport:
+        lines.append("          transport={0!r},".format(transportModel))
+    lines.append('          initial_state=state(temperature=300.0, pressure=OneAtm))')
+    lines.append('')
+
+    # Write the individual species data
+    lines.append(delimiterLine)
+    lines.append('# Species data')
+    lines.append(delimiterLine)
+    lines.append('')
+
+    for s in species:
+        lines.append(s.to_cti())
+
+    # Write the reactions
+    lines.append(delimiterLine)
+    lines.append('# Reaction data')
+    lines.append(delimiterLine)
+
+    for i,r in enumerate(reactions):
+        lines.append('\n# Reaction {0}'.format(i+1))
+        lines.append(r.to_cti())
+
+    lines.append('')
+
+    f = open(outName, 'w')
+    f.write('\n'.join(lines))
+
+################################################################################
+
 if __name__ == '__main__':
     import sys
     species, reactions = loadChemkinFile(sys.argv[1])
@@ -1422,8 +1709,4 @@ if __name__ == '__main__':
         lines = open(sys.argv[2]).readlines()
         parseTransportData(lines, species)
 
-    for s in species:
-        print s
-    print
-    for r in reactions:
-        print r
+    writeCTI(species, reactions)
