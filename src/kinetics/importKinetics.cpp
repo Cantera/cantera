@@ -478,7 +478,6 @@ static void getFalloff(const XML_Node& f, ReactionData& rdata)
  */
 static void getEfficiencies(const XML_Node& eff, Kinetics& kin, ReactionData& rdata)
 {
-
     // set the default collision efficiency
     rdata.default_3b_eff = fpValue(eff["default"]);
 
@@ -489,6 +488,11 @@ static void getEfficiencies(const XML_Node& eff, Kinetics& kin, ReactionData& rd
     for (size_t n = 0; n < key.size(); n++) { // ; bb != ee; ++bb) {
         nm = key[n];// bb->first;
         size_t k = kin.kineticsSpeciesIndex(nm, phse);
+        if (k == npos) {
+            throw CanteraError("getEfficiencies", "Encountered third-body "
+                "efficiency for undefined species \"" + nm + "\"\n"
+                "while adding reaction " + int2str(rdata.number+1) + ".");
+        }
         rdata.thirdBodyEfficiencies[k] = fpValue(val[n]); // bb->second;
     }
 }
@@ -1183,39 +1187,31 @@ bool buildSolutionFromXML(XML_Node& root, std::string id, std::string nm,
                           ThermoPhase* th, Kinetics* k)
 {
     XML_Node* x;
-    try {
-
-        x = get_XML_NameID(nm, string("#")+id, &root);
-        //            x = get_XML_Node(string("#")+id, &root);
-        if (!x) {
-            return false;
-        }
-
-        /*
-         * Fill in the ThermoPhase object by querying the
-         * const XML_Node tree located at x.
-         */
-        importPhase(*x, th);
-        /*
-         * Create a vector of ThermoPhase pointers of length 1
-         * having the current th ThermoPhase as the entry.
-         */
-        vector<ThermoPhase*> phases(1);
-        phases[0] = th;
-        /*
-         * Fill in the kinetics object k, by querying the
-         * const XML_Node tree located by x. The source terms and
-         * eventually the source term vector will be constructed
-         * from the list of ThermoPhases in the vector, phases.
-         */
-        importKinetics(*x, phases, k);
-
-        return true;
-    } catch (CanteraError& err) {
-        err.save();
-        throw CanteraError("buildSolutionFromXML","error encountered");
+    x = get_XML_NameID(nm, string("#")+id, &root);
+    //            x = get_XML_Node(string("#")+id, &root);
+    if (!x) {
         return false;
     }
+
+    /*
+     * Fill in the ThermoPhase object by querying the
+     * const XML_Node tree located at x.
+     */
+    importPhase(*x, th);
+    /*
+     * Create a vector of ThermoPhase pointers of length 1
+     * having the current th ThermoPhase as the entry.
+     */
+    vector<ThermoPhase*> phases(1);
+    phases[0] = th;
+    /*
+     * Fill in the kinetics object k, by querying the
+     * const XML_Node tree located by x. The source terms and
+     * eventually the source term vector will be constructed
+     * from the list of ThermoPhases in the vector, phases.
+     */
+    importKinetics(*x, phases, k);
+    return true;
 }
 
 }

@@ -40,7 +40,8 @@ void CanteraError::save()
 
 const char* CanteraError::what() const throw() {
     try {
-        formattedMessage_ = stars;
+        formattedMessage_ = "\n";
+        formattedMessage_ += stars;
         formattedMessage_ += getClass() + " thrown by " + procedure_ + ":\n" + getMessage();
         if (formattedMessage_.compare(formattedMessage_.size()-1, 1, "\n")) {
             formattedMessage_.append("\n");
