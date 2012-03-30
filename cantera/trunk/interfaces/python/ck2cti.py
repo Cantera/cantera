@@ -1439,13 +1439,18 @@ def readKineticsEntry(entry, speciesDict, energyUnits, moleculeUnits):
 
 ################################################################################
 
-def loadChemkinFile(path):
+def loadChemkinFile(path, speciesList=None):
     """
     Load a Chemkin input file to `path` on disk, returning lists of the species
     and reactions in the Chemkin file.
     """
+    speciesDict = {}
+    if speciesList is None:
+        speciesList = []
+    else:
+        for species in speciesList:
+            speciesDict[species.label] = species
 
-    speciesList = []; speciesDict = {}
     reactionList = []
     transportLines = []
 
@@ -1704,12 +1709,95 @@ def writeCTI(species,
 
 ################################################################################
 
-if __name__ == '__main__':
-    import sys
-    species, reactions = loadChemkinFile(sys.argv[1])
+def showHelp():
+    print """
+ck2cti.py: Convert Chemkin-format mechanisms to Cantera input files (.cti)
 
-    if len(sys.argv) > 2:
-        lines = open(sys.argv[2]).readlines()
+If the output file name is not given, an output file with the same name as the
+input file, with the extension changed to '.cti'.
+
+Usage:
+    ck2cti --input=<filename>
+           [--thermo=<filename>]
+           [--transport=<filename>]
+           [--id=<phase-id>]
+           [--output=<filename>]
+           [-d | --debug]
+
+Example:
+    ck2cti --input=chem.inp --thermo=therm.dat --transport=tran.dat
+
+"""
+
+################################################################################
+
+def convertMech(inputFile, thermoFile=None,
+                transportFile=None, phaseName='gas',
+                outName=None):
+    # Read input mechanism files
+    species, reactions = loadChemkinFile(inputFile)
+
+    if thermoFile:
+        species, _ = loadChemkinFile(thermoFile, species)
+
+    if transportFile:
+        lines = open(transportFile).readlines()
         parseTransportData(lines, species)
 
-    writeCTI(species, reactions)
+    if not outName:
+        outName = os.path.splitext(inputFile)[0] + '.cti'
+
+    # Write output file
+    writeCTI(species, reactions, name=phaseName, outName=outName)
+    print 'Wrote CTI mechanism file to {0!r}.'.format(outName)
+    print 'Mechanism contains {0} species and {1} reactions.'.format(len(species), len(reactions))
+
+################################################################################
+
+if __name__ == '__main__':
+    import getopt
+    import sys
+    import os.path
+
+    longOptions = ['input=', 'thermo=', 'transport=', 'id=', 'output=',
+                   'help', 'debug']
+
+    try:
+        optlist, args = getopt.getopt(sys.argv[1:], 'dh', longOptions)
+        options = dict()
+        for o,a in optlist:
+            options[o] = a
+
+        if args:
+            raise getopt.GetoptError('Unexpected command line option: ' +
+                                     repr(' '.join(args)))
+
+    except getopt.GetoptError as e:
+        print 'ck2cti.py: Error parsing arguments:'
+        print e
+        print 'Run "ck2cti.py --help" to see usage help.'
+        sys.exit(1)
+
+    if not options or '-h' in options or '--help' in options:
+        showHelp()
+        sys.exit(0)
+
+    if '--input' in options:
+        inputFile = options['--input']
+    else:
+        print 'Error: no mechanism input file specified'
+        sys.exit(1)
+
+    if '--output' in options:
+        outName = options['--output']
+        if not outName.endswith('.cti'):
+            outName += '.cti'
+    else:
+        outName = None
+
+    thermoFile = options.get('--thermo')
+    transportFile = options.get('--transport')
+
+    phaseName = options.get('--id', 'gas')
+
+    convertMech(inputFile, thermoFile, transportFile, phaseName, outName)
