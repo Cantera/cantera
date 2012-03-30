@@ -497,7 +497,7 @@ void CVodesIntegrator::integrate(double tout)
     int flag;
     flag = CVode(m_cvode_mem, tout, nv(m_y), &t, CV_NORMAL);
     if (flag != CV_SUCCESS) {
-        throw CVodesErr(" CVodes error encountered.");
+        throw CVodesErr(" CVodes error encountered. Error code: " + int2str(flag));
     }
 #if defined(SUNDIALS_VERSION_22) || defined(SUNDIALS_VERSION_23)
     if (m_np > 0) {
@@ -520,7 +520,7 @@ double CVodesIntegrator::step(double tout)
     int flag;
     flag = CVode(m_cvode_mem, tout, nv(m_y), &t, CV_ONE_STEP);
     if (flag != CV_SUCCESS) {
-        throw CVodesErr(" CVodes error encountered.");
+        throw CVodesErr(" CVodes error encountered. Error code: " + int2str(flag));
     }
     return t;
 }
