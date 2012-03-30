@@ -509,7 +509,8 @@ void getRateCoefficient(const XML_Node& kf, Kinetics& kin,
         for (size_t m = 0; m < kf.nChildren(); m++) {
             const XML_Node& node = kf.child(m);
             double p = getFloat(node, "P", "toSI");
-            vector_fp& rate = rdata.plogParameters[p];
+            vector_fp& rate = rdata.plogParameters.insert(
+                std::make_pair(p, vector_fp()))->second;
             rate.resize(3);
             rate[0] = getFloat(node, "A", "toSI");
             rate[1] = getFloat(node, "b");

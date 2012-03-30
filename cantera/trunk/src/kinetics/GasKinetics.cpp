@@ -129,6 +129,8 @@ GasKinetics& GasKinetics::operator=(const GasKinetics& right)
     m_3b_concm = right.m_3b_concm;
     m_falloff_concm = right.m_falloff_concm;
     m_irrev = right.m_irrev;
+    m_plog_rates = right.m_plog_rates;
+    m_cheb_rates = right.m_cheb_rates;
 
     *m_rxnstoich = *(right.m_rxnstoich);
 
@@ -195,6 +197,7 @@ _update_rates_T()
     if (!m_kdata->m_rfn.empty()) {
         m_rates.update(T, logT, &m_kdata->m_rfn[0]);
     }
+
     if (!m_kdata->m_rfn_low.empty()) {
         m_falloff_low_rates.update(T, logT, &m_kdata->m_rfn_low[0]);
         m_falloff_high_rates.update(T, logT, &m_kdata->m_rfn_high[0]);
@@ -202,29 +205,50 @@ _update_rates_T()
     if (!m_kdata->falloff_work.empty()) {
         m_falloffn.updateTemp(T, &m_kdata->falloff_work[0]);
     }
+    if (m_plog_rates.nReactions()) {
+        m_plog_rates.update(T, logT, &m_kdata->m_rfn[0]);
+    }
+
+    if (m_cheb_rates.nReactions()) {
+        m_cheb_rates.update(T, logT, &m_kdata->m_rfn[0]);
+    }
+
     m_kdata->m_temp = T;
     updateKc();
     m_kdata->m_ROP_ok = false;
-    //}
 };
 
 //====================================================================================================================
-/**
- * Update properties that depend on concentrations. Currently only
- * the enhanced collision partner concentrations are updated here.
- */
+
 void GasKinetics::
 _update_rates_C()
 {
     thermo().getActivityConcentrations(&m_conc[0]);
     doublereal ctot = thermo().molarDensity();
+
+    // 3-body reactions
     if (!m_kdata->concm_3b_values.empty()) {
         m_3b_concm.update(m_conc, ctot, &m_kdata->concm_3b_values[0]);
     }
+
+    // Falloff reactions
     if (!m_kdata->concm_falloff_values.empty()) {
         m_falloff_concm.update(m_conc, ctot,
                                &m_kdata->concm_falloff_values[0]);
     }
+
+    double logP = log(thermo().pressure());
+
+    // P-log reactions
+    if (m_plog_rates.nReactions()) {
+        m_plog_rates.update_C(&logP);
+    }
+
+    // Chebyshev reactions
+    if (m_cheb_rates.nReactions()) {
+        m_cheb_rates.update_C(&logP);
+    }
+
     m_kdata->m_ROP_ok = false;
 }
 //====================================================================================================================
@@ -523,9 +547,8 @@ void GasKinetics::processFalloffReactions()
 //====================================================================================================================
 void GasKinetics::updateROP()
 {
-
-    _update_rates_T();
     _update_rates_C();
+    _update_rates_T();
 
     if (m_kdata->m_ROP_ok) {
         return;
@@ -587,8 +610,8 @@ void GasKinetics::updateROP()
 void GasKinetics::
 getFwdRateConstants(doublereal* kfwd)
 {
-    _update_rates_T();
     _update_rates_C();
+    _update_rates_T();
 
     // copy rate coefficients into ropf
     const vector_fp& rf = m_kdata->m_rfn;
@@ -761,17 +784,30 @@ addThreeBodyReaction(ReactionData& r)
 
 void GasKinetics::addPlogReaction(ReactionData& r)
 {
-    // @todo: Not yet implemented
+    // install rate coefficient calculator
+    size_t iloc = m_plog_rates.install(reactionNumber(), r);
+
+    // add a dummy entry in m_rfn, where computed rate coeff will be put
+    m_kdata->m_rfn.push_back(0.0);
+
+    m_fwdOrder.push_back(r.reactants.size());
+    registerReaction(reactionNumber(), PLOG_RXN, iloc);
 }
 
 void GasKinetics::addChebyshevReaction(ReactionData& r)
 {
-    // @todo: Not yet implemented
+    // install rate coefficient calculator
+    size_t iloc = m_cheb_rates.install(reactionNumber(), r);
+
+    // add a dummy entry in m_rfn, where computed rate coeff will be put
+    m_kdata->m_rfn.push_back(0.0);
+
+    m_fwdOrder.push_back(r.reactants.size());
+    registerReaction(reactionNumber(), CHEBYSHEV_RXN, iloc);
 }
 
 void GasKinetics::installReagents(const ReactionData& r)
 {
-
     m_kdata->m_ropf.push_back(0.0);     // extend by one for new rxn
     m_kdata->m_ropr.push_back(0.0);
     m_kdata->m_ropnet.push_back(0.0);

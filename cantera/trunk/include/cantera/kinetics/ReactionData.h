@@ -74,7 +74,9 @@ public:
 
     //! Arrhenius parameters for P-log reactions.
     //! The keys are the pressures corresponding to each Arrhenius expression.
-    std::map<double, vector_fp> plogParameters;
+    //! Multiple sets of Arrhenius parameters may be specified at a given
+    //! pressure.
+    std::multimap<double, vector_fp> plogParameters;
 
     double chebTmin; //!< Minimum temperature for Chebyshev fit
     double chebTmax; //!< Maximum temperature for Chebyshev fit

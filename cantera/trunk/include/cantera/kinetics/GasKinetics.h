@@ -386,6 +386,11 @@ public:
 
 
     void _update_rates_T();
+
+    //! Update properties that depend on concentrations.
+    //! Currently the enhanced collision partner concentrations are updated
+    //! here, as well as the pressure-dependent portion of P-log and Chebyshev
+    //! reactions.
     void _update_rates_C();
 
     //@}
@@ -408,6 +413,9 @@ protected:
     ThirdBodyMgr<Enhanced3BConc>        m_falloff_concm;
 
     std::vector<size_t> m_irrev;
+
+    Rate1<Plog> m_plog_rates;
+    Rate1<ChebyshevRate> m_cheb_rates;
 
     ReactionStoichMgr*                   m_rxnstoich;
 

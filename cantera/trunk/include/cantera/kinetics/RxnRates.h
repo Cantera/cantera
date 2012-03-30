@@ -468,6 +468,239 @@ protected:
 };
 
 
+class Plog
+{
+public:
+    //! return the rate coefficient type.
+    static int type()
+    {
+        return PLOG_REACTION_RATECOEFF_TYPE;
+    }
+
+    //! Default constructor.
+    Plog() {}
+
+    //! Constructor from ReactionData.
+    explicit Plog(const ReactionData& rdata) :
+        logP1_(1000),
+        logP2_(-1000),
+        maxRates_(1)
+    {
+        typedef std::multimap<double, vector_fp>::const_iterator iter_t;
+
+        size_t j = 0;
+        size_t rateCount = 0;
+        // Insert intermediate pressures
+        for (iter_t iter = rdata.plogParameters.begin();
+             iter != rdata.plogParameters.end();
+             iter++) {
+            double logp = log(iter->first);
+            if (pressures_.empty() || pressures_.rbegin()->first != logp) {
+                // starting a new group
+                pressures_[logp] = std::make_pair(j, j+1);
+                rateCount = 1;
+            } else {
+                // another rate expression at the same pressure
+                pressures_[logp].second = j+1;
+                rateCount++;
+            }
+            maxRates_ = std::max(rateCount, maxRates_);
+
+            j++;
+            A_.push_back(iter->second[0]);
+            n_.push_back(iter->second[1]);
+            Ea_.push_back(iter->second[2]);
+        }
+
+        // For pressures with only one Arrhenius expression, it is more
+        // efficient to work with log(A)
+        for (pressureIter iter = pressures_.begin();
+             iter != pressures_.end();
+             iter++) {
+            if (iter->second.first == iter->second.second - 1) {
+                A_[iter->second.first] = log(A_[iter->second.first]);
+            }
+        }
+
+        // Duplicate the first and last groups to handle P < P_0 and P > P_N
+        pressures_.insert(std::make_pair(-1000.0, pressures_.begin()->second));
+        pressures_.insert(std::make_pair(1000.0, pressures_.rbegin()->second));
+
+        // Resize work arrays
+        A1_.resize(maxRates_);
+        A2_.resize(maxRates_);
+        n1_.resize(maxRates_);
+        n2_.resize(maxRates_);
+        Ea1_.resize(maxRates_);
+        Ea2_.resize(maxRates_);
+    }
+
+    //! Update concentration-dependent parts of the rate coefficient.
+    //! @param c natural log of the pressure in Pa
+    void update_C(const doublereal* c)
+    {
+        logP_ = c[0];
+        if (logP_ > logP1_ && logP_ < logP2_) {
+            return;
+        }
+
+        pressureIter iter = pressures_.upper_bound(c[0]);
+        AssertThrowMsg(iter != pressures_.end(), "Plog::update_C",
+                       "Pressure out of range: " + fp2str(logP));
+        AssertThrowMsg(iter != pressures.begin(), "Plog::update_C",
+                       "Pressure out of range: " + fp2str(logP));
+
+        // upper interpolation pressure
+        logP2_ = iter->first;
+        size_t start = iter->second.first;
+        m2_ = iter->second.second - start;
+        for (size_t m = 0; m < m2_; m++) {
+            A2_[m] = A_[start+m];
+            n2_[m] = n_[start+m];
+            Ea2_[m] = Ea_[start+m];
+        }
+
+        // lower interpolation pressure
+        logP1_ = (--iter)->first;
+        start = iter->second.first;
+        m1_ = iter->second.second - start;
+        for (size_t m = 0; m < m1_; m++) {
+            A1_[m] = A_[start+m];
+            n1_[m] = n_[start+m];
+            Ea1_[m] = Ea_[start+m];
+        }
+
+        rDeltaP_ = 1.0 / (logP2_ - logP1_);
+    }
+
+    /**
+     * Update the value of the logarithm of the rate constant.
+     */
+    doublereal update(doublereal logT, doublereal recipT) const
+    {
+        double log_k1, log_k2;
+        if (m1_ == 1) {
+            log_k1 = A1_[0] + n1_[0] * logT - Ea1_[0] * recipT;
+        } else {
+            double k = 0.0;
+            for (size_t m = 0; m < m1_; m++) {
+                k += A1_[m] * exp(n1_[m] * logT - Ea1_[m] * recipT);
+            }
+            log_k1 = log(k);
+        }
+
+        if (m2_ == 1) {
+            log_k2 = A2_[0] + n2_[0] * logT - Ea2_[0] * recipT;
+        } else {
+            double k = 0.0;
+            for (size_t m = 0; m < m2_; m++) {
+                k += A2_[m] * exp(n2_[m] * logT - Ea2_[m] * recipT);
+            }
+            log_k2 = log(k);
+        }
+
+        return log_k1 + (log_k2 - log_k1) * (logP_ - logP1_) * rDeltaP_;
+    }
+
+    /**
+     * Update the value the rate constant.
+     *
+     * This function returns the actual value of the rate constant.
+     */
+    doublereal updateRC(doublereal logT, doublereal recipT) const {
+        return exp(update(logT, recipT));
+    }
+
+    doublereal activationEnergy_R() const {
+        throw CanteraError("Plog::activationEnergy_R", "Not implemented");
+    }
+
+    static bool alwaysComputeRate() {
+        return false;
+    }
+
+protected:
+    //! log(p) to (index range) in A_, n, Ea vectors
+    std::map<double, std::pair<size_t, size_t> > pressures_;
+    typedef std::map<double, std::pair<size_t, size_t> >::iterator pressureIter;
+
+    vector_fp A_; //!< Pre-exponential factor at each pressure (or log(A))
+    vector_fp n_; //!< Temperature exponent at each pressure [dimensionless]
+    vector_fp Ea_; //!< Activation energy at each pressure [K]
+
+    double logP_; //!< log(p) at the current state
+    double logP1_, logP2_; //!< log(p) at the lower / upper pressure reference
+
+    //! Pre-exponential factors at lower / upper pressure reference.
+    //! Stored as log(A) when there is only one at the corresponding pressure.
+    vector_fp A1_, A2_;
+    vector_fp n1_, n2_; //!< n at lower / upper pressure reference
+    vector_fp Ea1_, Ea2_; //!< Activation energy at lower / upper pressure reference
+
+    //! Number of Arrhenius expressions at lower / upper pressure references
+    size_t m1_, m2_;
+    double rDeltaP_; //!< reciprocal of (logP2 - logP1)
+
+    size_t maxRates_; //!< The maximum number of rates at any given pressure
+};
+
+
+class ChebyshevRate
+{
+public:
+    //! return the rate coefficient type.
+    static int type()
+    {
+        return CHEBYSHEV_REACTION_RATECOEFF_TYPE;
+    }
+
+    //! Default constructor.
+    ChebyshevRate() {}
+
+    //! Constructor from ReactionData.
+    explicit ChebyshevRate(const ReactionData& rdata)
+    {
+    }
+
+    //! Update concentration-dependent parts of the rate coefficient.
+    //! @param c natural log of the pressure in Pa
+    void update_C(const doublereal* c)
+    {
+    }
+
+    /**
+     * Update the value of the logarithm of the rate constant.
+     *
+     * Note, this function should never be called for negative A values.
+     * If it does then it will produce a negative overflow result, and
+     * a zero net forwards reaction rate, instead of a negative reaction
+     * rate constant that is the expected result.
+     */
+    doublereal update(doublereal logT, doublereal recipT) const
+    {
+        return 0.0;
+    }
+
+    /**
+     * Update the value the rate constant.
+     *
+     * This function returns the actual value of the rate constant.
+     */
+    doublereal updateRC(doublereal logT, doublereal recipT) const {
+        return exp(update(logT, recipT));
+    }
+
+    doublereal activationEnergy_R() const {
+        return 0.0;
+    }
+
+    static bool alwaysComputeRate() {
+        return false;
+    }
+
+protected:
+};
+
 //     class LandauTeller {
 
 //     public:
