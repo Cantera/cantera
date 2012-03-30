@@ -18,6 +18,7 @@ import sys, os
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 sys.path.insert(0, os.path.abspath('../../interfaces/python'))
 sys.path.append(os.path.abspath('.'))
+sys.path.append(os.path.abspath('./exts'))
 
 # -- General configuration -----------------------------------------------------
 
@@ -29,7 +30,8 @@ sys.path.append(os.path.abspath('.'))
 extensions = ['sphinx.ext.autodoc',
               'sphinx.ext.todo',
               'sphinx.ext.autosummary',
-              'mathjax']
+              'mathjax',
+              'doxylink']
 
 # @todo: Sphinx version 1.1 adds support for MathJax, so we can remove the
 #        custom extension for that once that version becomes more standard
@@ -39,6 +41,11 @@ autodoc_default_flags = ['members','show-inheritance','undoc-members']
 autoclass_content = 'both'
 
 mathjax_path = 'http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=default'
+
+doxylink = {
+        'ct' : (os.path.abspath('../../build/docs/Cantera.tag'),
+                '../../docs/html/')
+}
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
