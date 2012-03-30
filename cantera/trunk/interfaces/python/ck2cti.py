@@ -929,8 +929,8 @@ class TransportData(object):
 def readThermoEntry(entry):
     """
     Read a thermodynamics `entry` for one species in a Chemkin file. Returns
-    the label of the species and the thermodynamics model as a
-    :class:`MultiNASA` object.
+    the label of the species, the thermodynamics model as a :class:`MultiNASA`
+    object and the elemental composition of the species.
     """
     lines = entry.splitlines()
     species = str(lines[0][0:24].split()[0].strip())
@@ -961,6 +961,20 @@ def readThermoEntry(entry):
     except (IndexError, ValueError):
         raise ChemkinError('Error while reading thermo entry for species {0}'.format(species))
 
+    elements = lines[0][24:44]
+    composition = {}
+    for i in range(4):
+        symbol = elements[5*i:5*i+2].strip()
+        count = elements[5*i+2:5*i+5].strip()
+        if not symbol:
+            continue
+        try:
+            count = int(float(count))
+            if count:
+                composition[symbol.capitalize()] = count
+        except ValueError:
+            pass
+
     # Construct and return the thermodynamics model
     thermo = MultiNASA(
         polynomials = [
@@ -971,7 +985,7 @@ def readThermoEntry(entry):
         Tmax = (Tmax,"K"),
     )
 
-    return species, thermo
+    return species, thermo, composition
 
 ################################################################################
 
@@ -1265,14 +1279,12 @@ def loadChemkinFile(path):
                         if line[79] in ['1', '2', '3', '4']:
                             thermo += line
                             if line[79] == '4':
-                                label, thermo = readThermoEntry(thermo)
+                                label, thermo, comp = readThermoEntry(thermo)
                                 try:
                                     speciesDict[label].thermo = thermo
+                                    speciesDict[label].composition = comp
                                 except KeyError:
-                                    if label in ['Ar', 'N2', 'He', 'Ne']:
-                                        pass
-                                    else:
-                                        logging.warning('Skipping unexpected species "{0}" while reading thermodynamics entry.'.format(label))
+                                    logging.warning('Skipping unexpected species "{0}" while reading thermodynamics entry.'.format(label))
                                 thermo = ''
                     line = f.readline()
 
@@ -1399,15 +1411,6 @@ def parseTransportData(lines, speciesList):
         speciesName = data[0]
         if speciesName in speciesDict:
             speciesDict[speciesName].transport = TransportData(*data)
-
-################################################################################
-
-def writeCTI(species, reactions=None, transport=None, header=None):
-    lines = []
-    if header:
-        lines.extend(header)
-
-
 
 ################################################################################
 
