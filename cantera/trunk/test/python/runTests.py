@@ -17,4 +17,7 @@ if __name__ == '__main__':
     loader = unittest.TestLoader()
     runner = unittest.TextTestRunner(verbosity=2)
     suite = loader.loadTestsFromName('testSolution')
-    runner.run(suite)
+    suite.addTests(loader.loadTestsFromName('testReactors'))
+
+    results = runner.run(suite)
+    sys.exit(len(results.errors) + len(results.failures))

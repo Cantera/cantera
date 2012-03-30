@@ -119,7 +119,8 @@ addTestProgram('thermo', 'nasapoly')
 if localenv['python_package'] == 'full':
     addTestScript('python', 'runTests.py',
                   interpreter=sys.executable,
-                  dependencies=['testSolution.py', localenv['python_module']])
+                  dependencies=['testSolution.py', 'testReactors.py',
+                                localenv['python_module']])
 
 if localenv['matlab_toolbox'] == 'y':
     addMatlabTest('runCanteraTests.m',
