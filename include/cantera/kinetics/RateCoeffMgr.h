@@ -104,6 +104,10 @@ public:
         output1 << key;
     }
 
+    size_t nReactions() const {
+        return m_rates.size();
+    }
+
 protected:
     std::vector<R>             m_rates;
     std::vector<size_t>           m_rxn;
