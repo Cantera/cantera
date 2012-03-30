@@ -34,6 +34,7 @@ Cantera input files (CTI).
 
 import logging
 import re
+import types
 
 import numpy as np
 
@@ -902,6 +903,29 @@ class Troe(Lindemann):
 
 ################################################################################
 
+class TransportData(object):
+    def __init__(self, label, geometry, wellDepth, collisionDiameter,
+                 dipoleMoment, polarizability, zRot, comment=None):
+
+        assert isinstance(label, types.StringTypes)
+        assert int(geometry) in (0,1,2)
+
+        self.label = label
+        self.geometry = int(geometry)
+        self.wellDepth = float(wellDepth)
+        self.collisionDiameter = float(collisionDiameter)
+        self.dipoleMoment = float(dipoleMoment)
+        self.polarizability = float(polarizability)
+        self.zRot = float(zRot)
+        self.comment = comment or ''
+
+    def __repr__(self):
+        return ('TransportData({label!r}, {geometry!r}, {wellDepth!r}, '
+                '{collisionDiameter!r}, {dipoleMoment!r}, {polarizability!r}, '
+                '{zRot!r}, {comment!r})').format(**self.__dict__)
+
+################################################################################
+
 def readThermoEntry(entry):
     """
     Read a thermodynamics `entry` for one species in a Chemkin file. Returns
@@ -1192,6 +1216,7 @@ def loadChemkinFile(path):
 
     speciesList = []; speciesDict = {}
     reactionList = []
+    transportLines = []
 
     def removeCommentFromLine(line):
         if '!' in line:
@@ -1319,6 +1344,11 @@ def loadChemkinFile(path):
                     reaction = readKineticsEntry(kinetics, speciesDict, energyUnits, moleculeUnits)
                     reactionList.append(reaction)
 
+            elif 'TRAN' in line:
+                line = f.readline()
+                while 'END' not in line:
+                    transportLines.append(line)
+
             line = f.readline()
 
     # Check for marked (and unmarked!) duplicate reactions
@@ -1340,11 +1370,54 @@ def loadChemkinFile(path):
         index += 1
         reaction.index = index
 
+    if transportLines:
+        parseTransportData(transportLines, speciesList)
+
     return speciesList, reactionList
+
+################################################################################
+
+def parseTransportData(lines, speciesList):
+    """
+    Parse the Chemkin-format transport data in ``lines`` (a list of strings)
+    and add that transport data to the species in ``speciesList``.
+    """
+    speciesDict = dict((species.label, species) for species in speciesList)
+    for line in lines:
+        line = line.strip()
+        if not line or line.startswith('!'):
+            continue
+
+        data = line.split()
+        if len(data) < 7:
+            raise ChemkinError('Unable to parse transport data: not enough parameters')
+        if len(data) >= 8:
+            # comment may contain spaces. Rejoin into a single field.
+            comment = ''.join(data[7:]).lstrip('!')
+            data = data[:7] + [comment]
+
+        speciesName = data[0]
+        if speciesName in speciesDict:
+            speciesDict[speciesName].transport = TransportData(*data)
+
+################################################################################
+
+def writeCTI(species, reactions=None, transport=None, header=None):
+    lines = []
+    if header:
+        lines.extend(header)
+
+
+
+################################################################################
 
 if __name__ == '__main__':
     import sys
     species, reactions = loadChemkinFile(sys.argv[1])
+
+    if len(sys.argv) > 2:
+        lines = open(sys.argv[2]).readlines()
+        parseTransportData(lines, species)
 
     for s in species:
         print s
