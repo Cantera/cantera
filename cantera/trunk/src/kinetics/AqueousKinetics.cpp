@@ -22,49 +22,6 @@ using namespace std;
 namespace Cantera
 {
 //====================================================================================================================
-AqueousKineticsData::AqueousKineticsData() :
-    m_logp_ref(0.0),
-    m_logc_ref(0.0),
-    m_ROP_ok(false),
-    m_temp(0.0)
-{
-}
-//====================================================================================================================
-AqueousKineticsData::~AqueousKineticsData()
-{
-}
-//====================================================================================================================
-AqueousKineticsData::AqueousKineticsData(const AqueousKineticsData& right) :
-    m_logp_ref(0.0),
-    m_logc_ref(0.0),
-    m_ROP_ok(false),
-    m_temp(0.0)
-{
-    *this=right;
-}
-//====================================================================================================================
-
-AqueousKineticsData&  AqueousKineticsData::operator=(const AqueousKineticsData& right)
-{
-    if (this != &right) {
-        m_logp_ref = right.m_logp_ref;
-        m_logc_ref = right.m_logc_ref;
-        m_ropf = right.m_ropf;
-        m_ropr = right.m_ropr;
-        m_ropnet = right.m_ropnet;
-        m_rfn_low = right.m_rfn_low;
-        m_rfn_high = right.m_rfn_high;
-        m_ROP_ok  = right.m_ROP_ok;
-        m_temp = right.m_temp;
-        m_rfn = right.m_rfn;
-        m_rkcn = right.m_rkcn;
-    }
-    return *this;
-}
-//====================================================================================================================
-
-
-//====================================================================================================================
 /**
  * Construct an empty reaction mechanism.
  */
@@ -73,13 +30,13 @@ AqueousKinetics::AqueousKinetics(thermo_t* thermo) :
     m_nfall(0),
     m_nirrev(0),
     m_nrev(0),
+    m_ROP_ok(false),
+    m_temp(0.0),
     m_finalized(false)
 {
     if (thermo != 0) {
         addPhase(*thermo);
     }
-    m_kdata = new AqueousKineticsData;
-    m_kdata->m_temp = 0.0;
     m_rxnstoich = new ReactionStoichMgr;
 }
 //====================================================================================================================
@@ -88,6 +45,8 @@ AqueousKinetics::AqueousKinetics(const AqueousKinetics& right) :
     m_nfall(0),
     m_nirrev(0),
     m_nrev(0),
+    m_ROP_ok(false),
+    m_temp(0.0),
     m_finalized(false)
 {
     *this = right;
@@ -95,7 +54,6 @@ AqueousKinetics::AqueousKinetics(const AqueousKinetics& right) :
 //====================================================================================================================
 AqueousKinetics::~AqueousKinetics()
 {
-    delete m_kdata;
     delete m_rxnstoich;
 }
 //====================================================================================================================
@@ -126,7 +84,13 @@ AqueousKinetics& AqueousKinetics::operator=(const AqueousKinetics& right)
     m_revindex = right.m_revindex;
     m_rxneqn = right.m_rxneqn;
 
-    *m_kdata = *(right.m_kdata);
+    m_ropf = right.m_ropf;
+    m_ropr = right.m_ropr;
+    m_ropnet = right.m_ropnet;
+    m_ROP_ok  = right.m_ROP_ok;
+    m_temp = right.m_temp;
+    m_rfn = right.m_rfn;
+    m_rkcn = right.m_rkcn;
 
     m_conc = right.m_conc;
     m_grt = right.m_grt;
@@ -160,15 +124,12 @@ update_C() {}
 void AqueousKinetics::_update_rates_T()
 {
     doublereal T = thermo().temperature();
-    // m_kdata->m_logStandConc = log(thermo().standardConcentration());
     doublereal logT = log(T);
-    m_rates.update(T, logT, &m_kdata->m_rfn[0]);
+    m_rates.update(T, logT, &m_rfn[0]);
 
-
-    m_kdata->m_temp = T;
+    m_temp = T;
     updateKc();
-    m_kdata->m_ROP_ok = false;
-
+    m_ROP_ok = false;
 };
 
 
@@ -181,7 +142,7 @@ _update_rates_C()
 {
     thermo().getActivityConcentrations(&m_conc[0]);
 
-    m_kdata->m_ROP_ok = false;
+    m_ROP_ok = false;
 }
 
 /**
@@ -189,28 +150,27 @@ _update_rates_C()
  */
 void AqueousKinetics::updateKc()
 {
-    vector_fp& m_rkc = m_kdata->m_rkcn;
-    doublereal rt = GasConstant*   m_kdata->m_temp;
+    doublereal rt = GasConstant * m_temp;
 
     thermo().getStandardChemPotentials(&m_grt[0]);
-    fill(m_rkc.begin(), m_rkc.end(), 0.0);
+    fill(m_rkcn.begin(), m_rkcn.end(), 0.0);
     for (size_t k = 0; k < thermo().nSpecies(); k++) {
         doublereal logStandConc_k = thermo().logStandardConc(k);
         m_grt[k] -= rt * logStandConc_k;
     }
 
     // compute Delta G^0 for all reversible reactions
-    m_rxnstoich->getRevReactionDelta(m_ii, &m_grt[0], &m_rkc[0]);
+    m_rxnstoich->getRevReactionDelta(m_ii, &m_grt[0], &m_rkcn[0]);
 
     //doublereal logStandConc = m_kdata->m_logStandConc;
     doublereal rrt = 1.0/(GasConstant * thermo().temperature());
     for (size_t i = 0; i < m_nrev; i++) {
         size_t irxn = m_revindex[i];
-        m_rkc[irxn] = exp(m_rkc[irxn]*rrt);
+        m_rkcn[irxn] = exp(m_rkcn[irxn]*rrt);
     }
 
     for (size_t i = 0; i != m_nirrev; ++i) {
-        m_rkc[ m_irrev[i] ] = 0.0;
+        m_rkcn[ m_irrev[i] ] = 0.0;
     }
 }
 
@@ -221,27 +181,26 @@ void AqueousKinetics::updateKc()
 void AqueousKinetics::getEquilibriumConstants(doublereal* kc)
 {
     _update_rates_T();
-    vector_fp& rkc = m_kdata->m_rkcn;
 
     thermo().getStandardChemPotentials(&m_grt[0]);
-    fill(rkc.begin(), rkc.end(), 0.0);
-    doublereal rt = GasConstant * m_kdata->m_temp;
+    fill(m_rkcn.begin(), m_rkcn.end(), 0.0);
+    doublereal rt = GasConstant * m_temp;
     for (size_t k = 0; k < thermo().nSpecies(); k++) {
         doublereal logStandConc_k = thermo().logStandardConc(k);
         m_grt[k] -= rt * logStandConc_k;
     }
 
     // compute Delta G^0 for all reactions
-    m_rxnstoich->getReactionDelta(m_ii, &m_grt[0], &rkc[0]);
+    m_rxnstoich->getReactionDelta(m_ii, &m_grt[0], &m_rkcn[0]);
 
     doublereal rrt = 1.0/(GasConstant * thermo().temperature());
     for (size_t i = 0; i < m_ii; i++) {
-        kc[i] = exp(-rkc[i]*rrt);
+        kc[i] = exp(-m_rkcn[i]*rrt);
     }
 
     // force an update of T-dependent properties, so that m_rkcn will
     // be updated before it is used next.
-    m_kdata->m_temp = 0.0;
+    m_temp = 0.0;
 }
 
 /**
@@ -411,49 +370,41 @@ void AqueousKinetics::getDeltaSSEntropy(doublereal* deltaS)
 
 void AqueousKinetics::updateROP()
 {
-
     _update_rates_T();
     _update_rates_C();
 
-    if (m_kdata->m_ROP_ok) {
+    if (m_ROP_ok) {
         return;
     }
 
-    const vector_fp& rf = m_kdata->m_rfn;
-    const vector_fp& m_rkc = m_kdata->m_rkcn;
-    vector_fp& ropf = m_kdata->m_ropf;
-    vector_fp& ropr = m_kdata->m_ropr;
-    vector_fp& ropnet = m_kdata->m_ropnet;
-
     // copy rate coefficients into ropf
-    copy(rf.begin(), rf.end(), ropf.begin());
-
+    copy(m_rfn.begin(), m_rfn.end(), m_ropf.begin());
 
     // multiply by perturbation factor
-    multiply_each(ropf.begin(), ropf.end(), m_perturb.begin());
+    multiply_each(m_ropf.begin(), m_ropf.end(), m_perturb.begin());
 
     // copy the forward rates to the reverse rates
-    copy(ropf.begin(), ropf.end(), ropr.begin());
+    copy(m_ropf.begin(), m_ropf.end(), m_ropr.begin());
 
     // for reverse rates computed from thermochemistry, multiply
     // the forward rates copied into m_ropr by the reciprocals of
     // the equilibrium constants
-    multiply_each(ropr.begin(), ropr.end(), m_rkc.begin());
+    multiply_each(m_ropr.begin(), m_ropr.end(), m_rkcn.begin());
 
     // multiply ropf by concentration products
-    m_rxnstoich->multiplyReactants(&m_conc[0], &ropf[0]);
+    m_rxnstoich->multiplyReactants(&m_conc[0], &m_ropf[0]);
     //m_reactantStoich.multiply(m_conc.begin(), ropf.begin());
 
     // for reversible reactions, multiply ropr by concentration
     // products
-    m_rxnstoich->multiplyRevProducts(&m_conc[0], &ropr[0]);
+    m_rxnstoich->multiplyRevProducts(&m_conc[0], &m_ropr[0]);
     //m_revProductStoich.multiply(m_conc.begin(), ropr.begin());
 
     for (size_t j = 0; j != m_ii; ++j) {
-        ropnet[j] = ropf[j] - ropr[j];
+        m_ropnet[j] = m_ropf[j] - m_ropr[j];
     }
 
-    m_kdata->m_ROP_ok = true;
+    m_ROP_ok = true;
 }
 
 /**
@@ -471,17 +422,13 @@ getFwdRateConstants(doublereal* kfwd)
     _update_rates_C();
 
     // copy rate coefficients into ropf
-    const vector_fp& rf = m_kdata->m_rfn;
-    vector_fp& ropf = m_kdata->m_ropf;
-    copy(rf.begin(), rf.end(), ropf.begin());
-
-
+    copy(m_rfn.begin(), m_rfn.end(), m_ropf.begin());
 
     // multiply by perturbation factor
-    multiply_each(ropf.begin(), ropf.end(), m_perturb.begin());
+    multiply_each(m_ropf.begin(), m_ropf.end(), m_perturb.begin());
 
     for (size_t i = 0; i < m_ii; i++) {
-        kfwd[i] = ropf[i];
+        kfwd[i] = m_ropf[i];
     }
 }
 
@@ -507,18 +454,16 @@ getRevRateConstants(doublereal* krev, bool doIrreversible)
     getFwdRateConstants(krev);
 
     if (doIrreversible) {
-        doublereal* tmpKc = &m_kdata->m_ropnet[0];
-        getEquilibriumConstants(tmpKc);
+        getEquilibriumConstants(&m_ropnet[0]);
         for (size_t i = 0; i < m_ii; i++) {
-            krev[i] /=  tmpKc[i];
+            krev[i] /=  m_ropnet[i];
         }
     } else {
         /*
-         * m_rkc[] is zero for irreversibly reactions
+         * m_rkcn[] is zero for irreversible reactions
          */
-        const vector_fp& m_rkc = m_kdata->m_rkcn;
         for (size_t i = 0; i < m_ii; i++) {
-            krev[i] *= m_rkc[i];
+            krev[i] *= m_rkcn[i];
         }
     }
 }
@@ -548,7 +493,7 @@ void AqueousKinetics::addElementaryReaction(ReactionData& r)
     iloc = m_rates.install(reactionNumber(), r);
 
     // add constant term to rate coeff value vector
-    m_kdata->m_rfn.push_back(r.rateCoeffParameters[0]);
+    m_rfn.push_back(r.rateCoeffParameters[0]);
 
     // forward rxn order equals number of reactants
     m_fwdOrder.push_back(r.reactants.size());
@@ -561,9 +506,9 @@ void AqueousKinetics::addElementaryReaction(ReactionData& r)
 void AqueousKinetics::installReagents(const ReactionData& r)
 {
 
-    m_kdata->m_ropf.push_back(0.0);     // extend by one for new rxn
-    m_kdata->m_ropr.push_back(0.0);
-    m_kdata->m_ropnet.push_back(0.0);
+    m_ropf.push_back(0.0);     // extend by one for new rxn
+    m_ropr.push_back(0.0);
+    m_ropnet.push_back(0.0);
     size_t n, ns, m;
     doublereal nsFlt;
     doublereal reactantGlobalOrder = 0.0;
@@ -610,7 +555,7 @@ void AqueousKinetics::installReagents(const ReactionData& r)
     }
     m_products.push_back(pk);
 
-    m_kdata->m_rkcn.push_back(0.0);
+    m_rkcn.push_back(0.0);
 
     m_rxnstoich->add(reactionNumber(), r);
 
@@ -645,7 +590,6 @@ void AqueousKinetics::init()
     m_prxn.resize(m_kk);
     m_conc.resize(m_kk);
     m_grt.resize(m_kk);
-    m_kdata->m_logp_ref = log(thermo().refPressure()) - log(GasConstant);
 }
 
 void AqueousKinetics::finalize()

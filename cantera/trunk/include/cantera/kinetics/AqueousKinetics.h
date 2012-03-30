@@ -32,40 +32,7 @@ namespace Cantera
 
 // forward references
 
-
 class ReactionData;
-class AqueousKineticsData;
-class Thermo;
-
-/**
- * Holds mechanism-specific data.
- */
-class AqueousKineticsData
-{
-public:
-    AqueousKineticsData();
-
-    ~AqueousKineticsData();
-
-    AqueousKineticsData(const AqueousKineticsData& right);
-
-    AqueousKineticsData& operator=(const AqueousKineticsData& right);
-
-    doublereal m_logp_ref;
-    doublereal m_logc_ref;
-    vector_fp m_ropf;
-    vector_fp m_ropr;
-    vector_fp m_ropnet;
-    vector_fp m_rfn_low;
-    vector_fp m_rfn_high;
-    bool m_ROP_ok;
-
-    doublereal m_temp;
-    vector_fp  m_rfn;
-
-    vector_fp m_rkcn;
-};
-
 
 /**
  * Kinetics manager for elementary aqueous-phase chemistry. This
@@ -141,7 +108,7 @@ public:
      */
     virtual void getFwdRatesOfProgress(doublereal* fwdROP) {
         updateROP();
-        std::copy(m_kdata->m_ropf.begin(), m_kdata->m_ropf.end(), fwdROP);
+        std::copy(m_ropf.begin(), m_ropf.end(), fwdROP);
     }
 
     /**
@@ -152,7 +119,7 @@ public:
      */
     virtual void getRevRatesOfProgress(doublereal* revROP) {
         updateROP();
-        std::copy(m_kdata->m_ropr.begin(), m_kdata->m_ropr.end(), revROP);
+        std::copy(m_ropr.begin(), m_ropr.end(), revROP);
     }
 
     /**
@@ -163,7 +130,7 @@ public:
      */
     virtual void getNetRatesOfProgress(doublereal* netROP) {
         updateROP();
-        std::copy(m_kdata->m_ropnet.begin(), m_kdata->m_ropnet.end(), netROP);
+        std::copy(m_ropnet.begin(), m_ropnet.end(), netROP);
     }
 
 
@@ -253,8 +220,7 @@ public:
         //#ifdef HWMECH
         //get_wdot(&m_kdata->m_ropnet[0], net);
         //#else
-        m_rxnstoich->getNetProductionRates(m_kk,
-                                           &m_kdata->m_ropnet[0], net);
+        m_rxnstoich->getNetProductionRates(m_kk, &m_ropnet[0], net);
         //#endif
     }
 
@@ -267,8 +233,7 @@ public:
      */
     virtual void getCreationRates(doublereal* cdot) {
         updateROP();
-        m_rxnstoich->getCreationRates(m_kk, &m_kdata->m_ropf[0],
-                                      &m_kdata->m_ropr[0], cdot);
+        m_rxnstoich->getCreationRates(m_kk, &m_ropf[0], &m_ropr[0], cdot);
     }
 
     /**
@@ -280,9 +245,7 @@ public:
      */
     virtual void getDestructionRates(doublereal* ddot) {
         updateROP();
-        m_rxnstoich->getDestructionRates(m_kk, &m_kdata->m_ropf[0],
-                                         &m_kdata->m_ropr[0], ddot);
-
+        m_rxnstoich->getDestructionRates(m_kk, &m_ropf[0], &m_ropr[0], ddot);
     }
 
     //@}
@@ -406,11 +369,21 @@ protected:
 
     std::vector<std::string> m_rxneqn;
 
-    AqueousKineticsData* m_kdata;
-
     vector_fp m_conc;
     vector_fp m_grt;
 
+    //! @name Aqueous kinetics data
+    //!@{
+    vector_fp m_ropf;
+    vector_fp m_ropr;
+    vector_fp m_ropnet;
+    bool m_ROP_ok;
+
+    doublereal m_temp;
+    vector_fp  m_rfn;
+
+    vector_fp m_rkcn;
+    //!@}
 
 private:
 
