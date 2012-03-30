@@ -26,12 +26,11 @@
 ################################################################################
 
 """
-This module contains functions for converting Chemkin input files to
+This module contains functions for converting Chemkin-format input files to
 Cantera input files (CTI).
 """
 
 import logging
-import re
 import types
 
 import numpy as np
@@ -66,10 +65,11 @@ QUANTITY_UNITS = 'mol'
 
 ################################################################################
 
-class ChemkinError(Exception):
+class InputParseError(Exception):
     """
-    An exception class for exceptional behavior involving Chemkin files. Pass a
-    string describing the circumstances that caused the exceptional behavior.
+    An exception class for exceptional behavior involving Chemkin-format
+    mechanism files. Pass a string describing the circumstances that caused
+    the exceptional behavior.
     """
     pass
 
@@ -86,21 +86,21 @@ class Species(object):
     def __str__(self):
         return self.label
 
-    def __repr__(self):
-        return 'Species({0!r})'.format(self.label)
-
     def to_cti(self, indent=0):
         lines = []
-        atoms = ' '.join('{0}:{1}'.format(*a) for a in self.composition.iteritems())
+        atoms = ' '.join('{0}:{1}'.format(*a)
+                         for a in self.composition.iteritems())
 
         prefix = ' '*(indent+8)
 
         lines.append('species(name={0!r},'.format(self.label))
         lines.append(prefix + 'atoms={0!r},'.format(atoms))
         if self.thermo:
-            lines.append(prefix + 'thermo={0},'.format(self.thermo.to_cti(15+indent)))
+            lines.append(prefix +
+                         'thermo={0},'.format(self.thermo.to_cti(15+indent)))
         if self.transport:
-            lines.append(prefix + 'transport={0},'.format(self.transport.to_cti(14+indent)))
+            lines.append(prefix +
+                         'transport={0},'.format(self.transport.to_cti(14+indent)))
         if self.note:
             lines.append(prefix + 'note={0!r},'.format(self.note))
 
@@ -137,13 +137,6 @@ class ThermoModel:
             self.Tmax = None
         self.comment = comment
 
-    def __repr__(self):
-        """
-        Return a string representation that can be used to reconstruct the
-        ThermoModel object.
-        """
-        return 'ThermoModel(Tmin={0!r}, Tmax={1!r}, comment="""{2}""")'.format(self.Tmin, self.Tmax, self.comment)
-
 ################################################################################
 
 class NASA(ThermoModel):
@@ -173,21 +166,8 @@ class NASA(ThermoModel):
         elif len(coeffs) == 9:
             self.cm2, self.cm1, self.c0, self.c1, self.c2, self.c3, self.c4, self.c5, self.c6 = coeffs
         else:
-            raise ChemkinError('Invalid number of NASA polynomial coefficients; should be 7 or 9.')
-
-    def __repr__(self):
-        """
-        Return a string representation that can be used to reconstruct the
-        object.
-        """
-        string = 'NASA(Tmin={0!r}, Tmax={1!r}'.format(self.Tmin, self.Tmax)
-        if self.cm2 == 0 and self.cm1 == 0:
-            string += ', coeffs=[{0:g},{1:g},{2:g},{3:g},{4:g},{5:g},{6:g}]'.format(self.c0, self.c1, self.c2, self.c3, self.c4, self.c5, self.c6)
-        else:
-            string += ', coeffs=[{0:g},{1:g},{2:g},{3:g},{4:g},{5:g},{6:g},{7:g},{8:g}]'.format(self.cm2, self.cm1, self.c0, self.c1, self.c2, self.c3, self.c4, self.c5, self.c6)
-        if self.comment != '': string += ', comment="""{0}"""'.format(self.comment)
-        string += ')'
-        return string
+            raise InputParseError('Invalid number of NASA polynomial coefficients; '
+                                  'should be 7 or 9.')
 
     def to_cti(self, indent=0):
         prefix = ' '*indent
@@ -213,17 +193,6 @@ class MultiNASA(ThermoModel):
     def __init__(self, polynomials=None, Tmin=0.0, Tmax=0.0, comment=''):
         ThermoModel.__init__(self, Tmin=Tmin, Tmax=Tmax, comment=comment)
         self.polynomials = polynomials or []
-
-    def __repr__(self):
-        """
-        Return a string representation that can be used to reconstruct the
-        MultiNASA object.
-        """
-        string = 'MultiNASA(Tmin={0!r}, Tmax={1!r}'.format(self.Tmin, self.Tmax)
-        string += ', polynomials=[{0}]'.format(','.join(['%r' % poly for poly in self.polynomials]))
-        if self.comment != '': string += ', comment="""{0}"""'.format(self.comment)
-        string += ')'
-        return string
 
     def to_cti(self, indent=0):
         prefix = ' '*indent
@@ -252,57 +221,21 @@ class Reaction(object):
     `products`          :class:`list`               The product species (as :class:`Species` objects)
     `kinetics`          :class:`KineticsModel`      The kinetics model to use for the reaction
     `reversible`        ``bool``                    ``True`` if the reaction is reversible, ``False`` if not
-    `transitionState`   :class:`TransitionState`    The transition state
     `thirdBody`         ``bool``                    ``True`` if the reaction if the reaction kinetics imply a third body, ``False`` if not
     `duplicate`         ``bool``                    ``True`` if the reaction is known to be a duplicate, ``False`` if not
-    `degeneracy`        :class:`double`             The reaction path degeneracy for the reaction
-    `pairs`             ``list``                    Reactant-product pairings to use in converting reaction flux to species flux
     =================== =========================== ============================
 
     """
 
-    def __init__(self, index=-1, reactants=None, products=None,
-                 kinetics=None, reversible=True, transitionState=None,
-                 thirdBody=False, duplicate=False, degeneracy=1, pairs=None):
+    def __init__(self, index=-1, reactants=None, products=None, kinetics=None,
+                 reversible=True, thirdBody=False, duplicate=False):
         self.index = index
         self.reactants = reactants
         self.products = products
         self.kinetics = kinetics
         self.reversible = reversible
-        self.transitionState = transitionState
         self.thirdBody = thirdBody
         self.duplicate = duplicate
-        self.degeneracy = degeneracy
-        self.pairs = pairs
-
-    def __repr__(self):
-        """
-        Return a string representation that can be used to reconstruct the
-        object.
-        """
-        string = 'Reaction('
-        if self.index != -1:
-            string += 'index={0:d}, '.format(self.index)
-        if self.reactants is not None:
-            string += 'reactants={0!r}, '.format(self.reactants)
-        if self.products is not None:
-            string += 'products={0!r}, '.format(self.products)
-        if self.kinetics is not None:
-            string += 'kinetics={0!r}, '.format(self.kinetics)
-        if not self.reversible:
-            string += 'reversible={0}, '.format(self.reversible)
-        if self.transitionState is not None:
-            string += 'transitionState={0!r}, '.format(self.transitionState)
-        if self.thirdBody:
-            string += 'thirdBody={0}, '.format(self.thirdBody)
-        if self.duplicate:
-            string += 'duplicate={0}, '.format(self.duplicate)
-        if self.degeneracy != 1:
-            string += 'degeneracy={0:d}, '.format(self.degeneracy)
-        if self.pairs is not None:
-            string += 'pairs={0}, '.format(self.pairs)
-        string = string[:-2] + ')'
-        return string
 
     def __str__(self):
         """
@@ -310,18 +243,8 @@ class Reaction(object):
         """
         arrow = ' <=> '
         if not self.reversible: arrow = ' -> '
-        return arrow.join([' + '.join([str(s) for s in self.reactants]), ' + '.join([str(s) for s in self.products])])
-
-    def hasTemplate(self, reactants, products):
-        """
-        Return ``True`` if the reaction matches the template of `reactants`
-        and `products`, which are both lists of :class:`Species` objects, or
-        ``False`` if not.
-        """
-        return ((all([spec in self.reactants for spec in reactants]) and
-            all([spec in self.products for spec in products])) or
-            (all([spec in self.products for spec in reactants]) and
-            all([spec in self.reactants for spec in products])))
+        return arrow.join([' + '.join([str(s) for s in self.reactants]),
+                           ' + '.join([str(s) for s in self.products])])
 
     def to_cti(self, indent=0):
         arrow = ' <=> ' if self.reversible else ' => '
@@ -329,7 +252,6 @@ class Reaction(object):
         productstr= ' + '.join(str(s) for s in self.products)
 
         kinstr = self.kinetics.to_cti(reactantstr, arrow, productstr, indent)
-
 
         if self.duplicate:
             k_indent = ' ' * (kinstr.find('(') + 1)
@@ -350,7 +272,6 @@ class Reaction(object):
 
         prefix = ' '*(indent+len(self.rxnClass+1))
         reactionstr = reactantstr + arrow + productstr
-
 
         if isinstance(self.kinetics, (Arrhenius, ThirdBody)):
             Arates = ' [{0.A}, {0.n}, {0.Ea}]'.format(self.kinetics)
@@ -385,48 +306,11 @@ class KineticsModel(object):
     """
 
     def __init__(self, Tmin=None, Tmax=None, Pmin=None, Pmax=None, comment=''):
-        if Tmin is not None:
-            self.Tmin = Tmin
-        else:
-            self.Tmin = None
-        if Tmax is not None:
-            self.Tmax = Tmax
-        else:
-            self.Tmax = None
-        if Pmin is not None:
-            self.Pmin = Pmin
-        else:
-            self.Pmin = None
-        if Pmax is not None:
-            self.Pmax = Pmax
-        else:
-            self.Pmax = None
+        self.Tmin = Tmin
+        self.Tmax = Tmax
+        self.Pmin = Pmin
+        self.Pmax = Pmax
         self.comment = comment
-
-    def __repr__(self):
-        """
-        Return a string representation that can be used to reconstruct the
-        KineticsModel object.
-        """
-        string = self.toPrettyRepr()
-        string = re.sub(r'\(\n    ', '(', string)
-        string = re.sub(r',\n    ', ', ', string)
-        string = re.sub(r',\n\)', ')', string)
-        string = re.sub(r' = ', '=', string)
-        return string
-
-    def toPrettyRepr(self):
-        """
-        Return a string representation that can be used to reconstruct the
-        KineticsModel object.
-        """
-        raise NotImplementedError('You must implement this method in your derived class.')
-
-    def __reduce__(self):
-        """
-        A helper function used when pickling a KineticsModel object.
-        """
-        return (KineticsModel, (self.Tmin, self.Tmax, self.Pmin, self.Pmax, self.comment))
 
     def isPressureDependent(self):
         """
@@ -434,10 +318,11 @@ class KineticsModel(object):
         they are pressure-independent. This method must be overloaded in the
         derived class.
         """
-        raise ChemkinError('Unexpected call to KineticsModel.isPressureDependent(); you should be using a class derived from KineticsModel.')
+        raise InputParseError('Unexpected call to KineticsModel.isPressureDependent();'
+                              ' you should be using a class derived from KineticsModel.')
 
     def to_cti(self, reactantstr, arrow, productstr):
-        raise ChemkinError('to_cti is not implemented for objects of class {0}'.format(self.__class__.__name__))
+        raise InputParseError('to_cti is not implemented for objects of class {0}'.format(self.__class__.__name__))
 
     def efficiencyString(self):
         if hasattr(self, 'efficiencies'):
@@ -466,25 +351,6 @@ class KineticsData(KineticsModel):
         KineticsModel.__init__(self, Tmin=Tmin, Tmax=Tmax, comment=comment)
         self.Tdata = Tdata
         self.kdata = kdata
-
-    def toPrettyRepr(self):
-        """
-        Return a string representation of the reference that can be used to
-        reconstruct the object.
-        """
-        string = u'KineticsData(\n'
-        string += u'    Tdata = {0!r},\n'.format(self.Tdata)
-        string += u'    kdata = {0!r},\n'.format(self.kdata)
-        if self.Tmin is not None: string += '    Tmin = {0!r},\n'.format(self.Tmin)
-        if self.Tmax is not None: string += '    Tmax = {0!r},\n'.format(self.Tmax)
-        if self.comment != '': string += '    comment = """{0}""",\n'.format(self.comment)
-        return string + u')'
-
-    def __reduce__(self):
-        """
-        A helper function used when pickling a KineticsData object.
-        """
-        return (KineticsData, (self.Tdata, self.kdata, self.Tmin, self.Tmax, self.comment))
 
     def isPressureDependent(self):
         """
@@ -523,34 +389,6 @@ class Arrhenius(KineticsModel):
         self.T0 = T0
         self.n = n
         self.Ea = Ea
-
-    def toPrettyRepr(self):
-        """
-        Return a string representation of the reference that can be used to
-        reconstruct the object.
-        """
-        string = u'Arrhenius(\n'
-        string += u'    A = {0!r},\n'.format(self.A)
-        string += u'    n = {0!r},\n'.format(self.n)
-        string += u'    Ea = {0!r},\n'.format(self.Ea)
-        string += u'    T0 = {0!r},\n'.format(self.T0)
-        if self.Tmin is not None: string += '    Tmin = {0!r},\n'.format(self.Tmin)
-        if self.Tmax is not None: string += '    Tmax = {0!r},\n'.format(self.Tmax)
-        if self.comment != '': string += '    comment = """{0}""",\n'.format(self.comment)
-        return string + u')'
-
-    def __str__(self):
-        """
-        Return a string representation that is a bit shorter and prettier than __repr__.
-        """
-        string = 'Arrhenius(A={0!r}, n={1!r}, Ea={2!r}, T0={3!r})'.format(self.A, self.n, self.Ea, self.T0)
-        return string
-
-    def __reduce__(self):
-        """
-        A helper function used when pickling an Arrhenius object.
-        """
-        return (Arrhenius, (self.A, self.n, self.Ea, self.T0, self.Tmin, self.Tmax, self.comment))
 
     def isPressureDependent(self):
         """
@@ -593,46 +431,6 @@ class PDepArrhenius(KineticsModel):
         self.pressures = pressures
         self.arrhenius = arrhenius or []
         self.highPlimit = highPlimit or None
-
-    def toPrettyRepr(self):
-        """
-        Return a string representation of the reference that can be used to
-        reconstruct the object.
-        """
-        string = u'MultiKinetics(\n'
-        string += u'    pressures = {0!r},\n'.format(self.pressures)
-        string += u'    arrhenius = [\n'
-        for kinetics in self.arrhenius:
-            for line in kinetics.toPrettyRepr().splitlines():
-                string += u'    {0}\n'.format(line)
-        string += u'    ],\n'
-        if self.Tmin is not None: string += '    Tmin = {0!r},\n'.format(self.Tmin)
-        if self.Tmax is not None: string += '    Tmax = {0!r},\n'.format(self.Tmax)
-        if self.Pmin is not None: string += '    Pmin = {0!r},\n'.format(self.Pmin)
-        if self.Pmax is not None: string += '    Pmax = {0!r},\n'.format(self.Pmax)
-        if self.comment != '': string += '    comment = """{0}""",\n'.format(self.comment)
-        return string + u')'
-
-    def __repr__(self):
-        """
-        Return a string representation that can be used to reconstruct the
-        PDepArrhenius object.
-        """
-        string = 'PDepArrhenius(\n pressures={0!r},\n arrhenius=[\n  {1}]'.format(self.pressures, ',\n  '.join([repr(arrh) for arrh in self.arrhenius]))
-        if self.highPlimit is not None: string += ",\n highPlimit={0!r}".format(self.highPlimit)
-        if self.Tmin is not None: string += ', Tmin={0!r}'.format(self.Tmin)
-        if self.Tmax is not None: string += ', Tmax={0!r}'.format(self.Tmax)
-        if self.Pmin is not None: string += ', Pmin={0!r}'.format(self.Pmin)
-        if self.Pmax is not None: string += ', Pmax={0!r}'.format(self.Pmax)
-        if self.comment != '': string += ',\n comment="""{0}"""'.format(self.comment)
-        string += '\n)'
-        return string
-
-    def __reduce__(self):
-        """
-        A helper function used when pickling a PDepArrhenius object.
-        """
-        return (PDepArrhenius, (self.pressures, self.arrhenius, self.highPlimit, self.Tmin, self.Tmax, self.Pmin, self.Pmax, self.comment))
 
     def isPressureDependent(self):
         """
@@ -696,50 +494,6 @@ class Chebyshev(KineticsModel):
             self.degreeP = 0
         self.kunits = kunits
 
-    def toPrettyRepr(self):
-        """
-        Return a string representation of the reference that can be used to
-        reconstruct the object.
-        """
-        string = u'Chebyshev(\n'
-        string += u'    coeffs = [\n'
-        for i in range(self.degreeT):
-            string += u'        [{0}]'.format(','.join(['{0:g}'.format(self.coeffs[i,j]) for j in range(self.degreeP)]))
-        string += u'    ],\n'
-        if self.Tmin is not None: string += '    Tmin = {0!r},\n'.format(self.Tmin)
-        if self.Tmax is not None: string += '    Tmax = {0!r},\n'.format(self.Tmax)
-        if self.Pmin is not None: string += '    Pmin = {0!r},\n'.format(self.Pmin)
-        if self.Pmax is not None: string += '    Pmax = {0!r},\n'.format(self.Pmax)
-        if self.comment != '': string += '    comment = """{0}""",\n'.format(self.comment)
-        return string + u')'
-
-    def __repr__(self):
-        """
-        Return a string representation that can be used to reconstruct the
-        Chebyshev object.
-        """
-        coeffs = '['
-        for i in range(self.degreeT):
-            if i > 0: coeffs += ', '
-            coeffs += '[{0}]'.format(','.join(['{0:g}'.format(self.coeffs[i,j]) for j in range(self.degreeP)]))
-        coeffs += ']'
-
-        string = 'Chebyshev(coeffs={0}'.format(coeffs)
-        if self.kunits != '': string += ', kunits="{0}"'.format(self.kunits)
-        if self.Tmin is not None: string += ', Tmin={0!r}'.format(self.Tmin)
-        if self.Tmax is not None: string += ', Tmax={0!r}'.format(self.Tmax)
-        if self.Pmin is not None: string += ', Pmin={0!r}'.format(self.Pmin)
-        if self.Pmax is not None: string += ', Pmax={0!r}'.format(self.Pmax)
-        if self.comment != '': string += ', comment="""{0}"""'.format(self.comment)
-        string += ')'
-        return string
-
-    def __reduce__(self):
-        """
-        A helper function used when pickling a Chebyshev object.
-        """
-        return (Chebyshev, (self.coeffs, self.kunits, self.Tmin, self.Tmax, self.Pmin, self.Pmax, self.comment))
-
     def isPressureDependent(self):
         """
         Returns ``True`` since Chebyshev polynomial kinetics are
@@ -796,80 +550,11 @@ class ThirdBody(KineticsModel):
             for mol, eff in efficiencies.iteritems():
                 self.efficiencies[mol] = eff
 
-    def toPrettyRepr(self):
-        """
-        Return a string representation of the reference that can be used to
-        reconstruct the object.
-        """
-        string = u'ThirdBody(\n'
-
-        lines = self.arrheniusHigh.toPrettyRepr().splitlines()
-        string += u'    arrheniusHigh = {0}\n'.format(lines[0])
-        for line in lines[1:-1]:
-            string += u'    {0}\n'.format(line)
-        string += u'    ),\n'
-
-        if len(self.efficiencies) > 0:
-            string += u'    efficiencies = {\n'
-            for species in sorted(self.efficiencies):
-                string += u'        "{0}": {1:g},\n'.format(species, self.efficiencies[species])
-            string += u'    },\n'
-
-        if self.Tmin is not None: string += '    Tmin = {0!r},\n'.format(self.Tmin)
-        if self.Tmax is not None: string += '    Tmax = {0!r},\n'.format(self.Tmax)
-        if self.Pmin is not None: string += '    Pmin = {0!r},\n'.format(self.Pmin)
-        if self.Pmax is not None: string += '    Pmax = {0!r},\n'.format(self.Pmax)
-        if self.comment != '': string += '    comment = """{0}""",\n'.format(self.comment)
-        return string + u')'
-
-    def __reduce__(self):
-        """
-        A helper function used when pickling a ThirdBody object.
-        """
-        return (ThirdBody, (self.arrheniusHigh, self.efficiencies, self.Tmin, self.Tmax, self.Pmin, self.Pmax, self.comment))
-
     def isPressureDependent(self):
         """
         Returns ``True`` since third-body kinetics are pressure-dependent.
         """
         return True
-
-    def getColliderEfficiency(self, collider):
-        """
-        Return the collider efficiency for the specified `collider`, which can
-        take one of two forms:
-
-        * A single collider species. If the collider exists in the in the set
-          of efficiencies, its efficiency will be returned. If not, an
-          efficiency of unity will be returned.
-
-        * A ``dict`` mapping collider species to mole fractions. The overall
-          efficiency will be a weighted sum of the efficiencies of the collider
-          species, using the mole fractions as the weights. Collider species not
-          present in the set of efficiencies will be assumed to have an
-          efficiency of unity.
-
-        If collider is ``None`` or otherwise invalid, an efficiency of unity
-        will be returned.
-        """
-        if isinstance(collider, dict):
-            # Assume collider is a dict mapping species to weights
-            efficiency = 0.0
-            for spec, frac in collider.iteritems():
-                try:
-                    eff = self.efficiencies[spec]
-                except KeyError:
-                    eff = 1.0
-                efficiency += eff * frac
-            efficiency /= sum(collider.values())
-        else:
-            # Assume collider is a single species
-            try:
-                efficiency = self.efficiencies[collider]
-            except KeyError:
-                efficiency = 1.0
-
-        return efficiency
 
     def to_cti(self, reactantstr, arrow, productstr, indent=0):
         rxnstr = reactantstr + ' + M' + arrow + productstr + ' + M'
@@ -919,47 +604,12 @@ class Lindemann(ThirdBody):
 
     """
 
-    def __init__(self, arrheniusLow=None, arrheniusHigh=None, efficiencies=None, Tmin=None, Tmax=None, Pmin=None, Pmax=None, comment=''):
-        ThirdBody.__init__(self, arrheniusHigh=arrheniusHigh, efficiencies=efficiencies, Tmin=Tmin, Tmax=Tmax, Pmin=Pmin, Pmax=Pmax, comment=comment)
+    def __init__(self, arrheniusLow=None, arrheniusHigh=None, efficiencies=None,
+                 Tmin=None, Tmax=None, Pmin=None, Pmax=None, comment=''):
+        ThirdBody.__init__(self, arrheniusHigh=arrheniusHigh,
+                           efficiencies=efficiencies, Tmin=Tmin, Tmax=Tmax,
+                           Pmin=Pmin, Pmax=Pmax, comment=comment)
         self.arrheniusLow = arrheniusLow
-
-    def toPrettyRepr(self):
-        """
-        Return a string representation of the reference that can be used to
-        reconstruct the object.
-        """
-        string = u'Lindemann(\n'
-
-        lines = self.arrheniusHigh.toPrettyRepr().splitlines()
-        string += u'    arrheniusHigh = {0}\n'.format(lines[0])
-        for line in lines[1:-1]:
-            string += u'    {0}\n'.format(line)
-        string += u'    ),\n'
-
-        lines = self.arrheniusLow.toPrettyRepr().splitlines()
-        string += u'    arrheniusLow = {0}\n'.format(lines[0])
-        for line in lines[1:-1]:
-            string += u'    {0}\n'.format(line)
-        string += u'    ),\n'
-
-        if len(self.efficiencies) > 0:
-            string += u'    efficiencies = {\n'
-            for species in sorted(self.efficiencies):
-                string += u'        "{0}": {1:g},\n'.format(species, self.efficiencies[species])
-            string += u'    },\n'
-
-        if self.Tmin is not None: string += '    Tmin = {0!r},\n'.format(self.Tmin)
-        if self.Tmax is not None: string += '    Tmax = {0!r},\n'.format(self.Tmax)
-        if self.Pmin is not None: string += '    Pmin = {0!r},\n'.format(self.Pmin)
-        if self.Pmax is not None: string += '    Pmax = {0!r},\n'.format(self.Pmax)
-        if self.comment != '': string += '    comment = """{0}""",\n'.format(self.comment)
-        return string + u')'
-
-    def __reduce__(self):
-        """
-        A helper function used when pickling a Lindemann object.
-        """
-        return (Lindemann, (self.arrheniusLow, self.arrheniusHigh, self.efficiencies, self.Tmin, self.Tmax, self.Pmin, self.Pmax, self.comment))
 
     def to_cti(self, reactantstr, arrow, productstr, indent=0):
         rxnstr = reactantstr + ' (+ M)' + arrow + productstr + ' (+ M)'
@@ -1029,58 +679,17 @@ class Troe(Lindemann):
 
     """
 
-    def __init__(self, arrheniusLow=None, arrheniusHigh=None, efficiencies=None, alpha=0.0, T3=0.0, T1=0.0, T2=None, Tmin=None, Tmax=None, Pmin=None, Pmax=None, comment=''):
-        Lindemann.__init__(self, arrheniusLow=arrheniusLow, arrheniusHigh=arrheniusHigh, efficiencies=efficiencies, Tmin=Tmin, Tmax=Tmax, Pmin=Pmin, Pmax=Pmax, comment=comment)
+    def __init__(self, arrheniusLow=None, arrheniusHigh=None, efficiencies=None,
+                 alpha=0.0, T3=0.0, T1=0.0, T2=None, Tmin=None, Tmax=None,
+                 Pmin=None, Pmax=None, comment=''):
+        Lindemann.__init__(self, arrheniusLow=arrheniusLow,
+                           arrheniusHigh=arrheniusHigh,
+                           efficiencies=efficiencies, Tmin=Tmin, Tmax=Tmax,
+                           Pmin=Pmin, Pmax=Pmax, comment=comment)
         self.alpha = alpha
         self.T3 = T3
         self.T1 = T1
-        if T2 is not None:
-            self.T2 = T2
-        else:
-            self.T2 = None
-
-    def toPrettyRepr(self):
-        """
-        Return a string representation of the reference that can be used to
-        reconstruct the object.
-        """
-        string = u'Troe(\n'
-
-        lines = self.arrheniusHigh.toPrettyRepr().splitlines()
-        string += u'    arrheniusHigh = {0}\n'.format(lines[0])
-        for line in lines[1:-1]:
-            string += u'    {0}\n'.format(line)
-        string += u'    ),\n'
-
-        lines = self.arrheniusLow.toPrettyRepr().splitlines()
-        string += u'    arrheniusLow = {0}\n'.format(lines[0])
-        for line in lines[1:-1]:
-            string += u'    {0}\n'.format(line)
-        string += u'    ),\n'
-
-        string += u'    alpha = {0!r},\n'.format(self.alpha)
-        string += u'    T3 = {0!r},\n'.format(self.T3)
-        string += u'    T1 = {0!r},\n'.format(self.T1)
-        if self.T2 is not None: string += u'    T2 = {0!r},\n'.format(self.T2)
-
-        if len(self.efficiencies) > 0:
-            string += u'    efficiencies = {\n'
-            for molecule in sorted(self.efficiencies):
-                string += u'        "{0}": {1:g},\n'.format(molecule, self.efficiencies[molecule])
-            string += u'    },\n'
-
-        if self.Tmin is not None: string += '    Tmin = {0!r},\n'.format(self.Tmin)
-        if self.Tmax is not None: string += '    Tmax = {0!r},\n'.format(self.Tmax)
-        if self.Pmin is not None: string += '    Pmin = {0!r},\n'.format(self.Pmin)
-        if self.Pmax is not None: string += '    Pmax = {0!r},\n'.format(self.Pmax)
-        if self.comment != '': string += '    comment = """{0}""",\n'.format(self.comment)
-        return string + u')'
-
-    def __reduce__(self):
-        """
-        A helper function used when pickling a Troe object.
-        """
-        return (Troe, (self.arrheniusLow, self.arrheniusHigh, self.efficiencies, self.alpha, self.T3, self.T1, self.T2, self.Tmin, self.Tmax, self.Pmin, self.Pmax, self.comment))
+        self.T2 = T2
 
     def to_cti(self, reactantstr, arrow, productstr, indent=0):
         rxnstr = reactantstr + ' (+ M)' + arrow + productstr + ' (+ M)'
@@ -1158,9 +767,9 @@ def fortFloat(s):
 
 def readThermoEntry(entry, TintDefault):
     """
-    Read a thermodynamics `entry` for one species in a Chemkin file. Returns
-    the label of the species, the thermodynamics model as a :class:`MultiNASA`
-    object and the elemental composition of the species.
+    Read a thermodynamics `entry` for one species in a Chemkin-format file.
+    Returns the label of the species, the thermodynamics model as a
+    :class:`MultiNASA` object and the elemental composition of the species.
     """
     lines = entry.splitlines()
     identifier = lines[0][0:24].split()
@@ -1198,7 +807,7 @@ def readThermoEntry(entry, TintDefault):
         a5_low = fortFloat(lines[3][30:45])
         a6_low = fortFloat(lines[3][45:60])
     except (IndexError, ValueError) as err:
-        raise ChemkinError('Error while reading thermo entry for species {0}'.format(species))
+        raise InputParseError('Error while reading thermo entry for species {0}'.format(species))
 
     elements = lines[0][24:44]
     composition = {}
@@ -1230,10 +839,10 @@ def readThermoEntry(entry, TintDefault):
 
 def readKineticsEntry(entry, speciesDict, energyUnits, moleculeUnits):
     """
-    Read a kinetics `entry` for a single reaction as loaded from a Chemkin
-    file. The associated mapping of labels to species `speciesDict` should also
-    be provided. Returns a :class:`Reaction` object with the reaction and its
-    associated kinetics.
+    Read a kinetics `entry` for a single reaction as loaded from a
+    Chemkin-format file. The associated mapping of labels to species
+    `speciesDict` should also be provided. Returns a :class:`Reaction` object
+    with the reaction and its associated kinetics.
     """
 
     lines = entry.strip().splitlines()
@@ -1257,7 +866,7 @@ def readKineticsEntry(entry, speciesDict, energyUnits, moleculeUnits):
         reversible = True
         reactants, products = reaction.split('=')
     else:
-        raise ChemkinError("Failed to find reactant/product delimiter in reaction string.")
+        raise InputParseError("Failed to find reactant/product delimiter in reaction string.")
 
     if '(+M)' in reactants: reactants = reactants.replace('(+M)','')
     if '(+m)' in reactants: reactants = reactants.replace('(+m)','')
@@ -1279,9 +888,9 @@ def readKineticsEntry(entry, speciesDict, energyUnits, moleculeUnits):
         if reactant == 'M' or reactant == 'm':
             thirdBody = True
         elif reactant not in speciesDict:
-            raise ChemkinError('Unexpected reactant "{0}" in reaction {1}.'.format(reactant, reaction))
+            raise InputParseError('Unexpected reactant "{0}" in reaction {1}.'.format(reactant, reaction))
         else:
-            for i in range(stoichiometry):
+            for _ in range(stoichiometry):
                 reaction.reactants.append(speciesDict[reactant])
     for product in products.split('+'):
         product = product.strip()
@@ -1294,9 +903,9 @@ def readKineticsEntry(entry, speciesDict, energyUnits, moleculeUnits):
         if product.upper() == 'M' or product == 'm':
             pass
         elif product not in speciesDict:
-            raise ChemkinError('Unexpected product "{0}" in reaction {1}.'.format(product, reaction))
+            raise InputParseError('Unexpected product "{0}" in reaction {1}.'.format(product, reaction))
         else:
-            for i in range(stoichiometry):
+            for _ in range(stoichiometry):
                 reaction.products.append(speciesDict[product])
 
     # Determine the appropriate units for k(T) and k(T,P) based on the number of reactants
@@ -1311,7 +920,7 @@ def readKineticsEntry(entry, speciesDict, energyUnits, moleculeUnits):
         kunits = "s^-1"
         klow_units = "cm^3/(mol*s)"
     else:
-        raise ChemkinError('Invalid number of reactant species for reaction {0}.'.format(reaction))
+        raise InputParseError('Invalid number of reactant species for reaction {0}.'.format(reaction))
 
     # The rest of the first line contains the high-P limit Arrhenius parameters (if available)
     #tokens = lines[0][52:].split()
@@ -1418,9 +1027,9 @@ def readKineticsEntry(entry, speciesDict, energyUnits, moleculeUnits):
         # Only one of these should be true at a time!
         if chebyshev is not None:
             if chebyshev.Tmin is None or chebyshev.Tmax is None:
-                raise ChemkinError('Missing TCHEB line for reaction {0}'.format(reaction))
+                raise InputParseError('Missing TCHEB line for reaction {0}'.format(reaction))
             if chebyshev.Pmin is None or chebyshev.Pmax is None:
-                raise ChemkinError('Missing PCHEB line for reaction {0}'.format(reaction))
+                raise InputParseError('Missing PCHEB line for reaction {0}'.format(reaction))
             index = 0
             for t in range(chebyshev.degreeT):
                 for p in range(chebyshev.degreeP):
@@ -1446,7 +1055,7 @@ def readKineticsEntry(entry, speciesDict, energyUnits, moleculeUnits):
         elif reaction.duplicate:
             reaction.kinetics = arrheniusHigh
         else:
-            raise ChemkinError('Unable to determine pressure-dependent kinetics for reaction {0}.'.format(reaction))
+            raise InputParseError('Unable to determine pressure-dependent kinetics for reaction {0}.'.format(reaction))
 
     return reaction
 
@@ -1454,8 +1063,8 @@ def readKineticsEntry(entry, speciesDict, energyUnits, moleculeUnits):
 
 def loadChemkinFile(path, speciesList=None):
     """
-    Load a Chemkin input file to `path` on disk, returning lists of the species
-    and reactions in the Chemkin file.
+    Load a Chemkin-format input file to `path` on disk, returning lists of
+    the species and reactions in the Chemkin file.
     """
     speciesDict = {}
     if speciesList is None:
@@ -1572,20 +1181,20 @@ def loadChemkinFile(path, speciesList=None):
                     commentsList.append(comments)
 
                 if kineticsList[0] == '' and commentsList[-1] == '':
-                    # True for Chemkin files generated from RMG-Py
+                    # True for mechanism files generated from RMG-Py
                     kineticsList.pop(0)
                     commentsList.pop(-1)
                 elif kineticsList[0] == '' and commentsList[0] == '':
-                    # True for Chemkin files generated from RMG-Java
+                    # True for mechanism files generated from RMG-Java
                     kineticsList.pop(0)
                     commentsList.pop(0)
                 else:
-                    # In reality, comments can occur anywhere in the Chemkin
+                    # In reality, comments can occur anywhere in the mechanism
                     # file (e.g. either or both of before and after the
                     # reaction equation)
                     # If we can't tell what semantics we are using, then just
                     # throw the comments away
-                    # (This is better than failing to load the Chemkin file at
+                    # (This is better than failing to load the mechanism file at
                     # all, which would likely occur otherwise)
                     if kineticsList[0] == '':
                         kineticsList.pop(0)
@@ -1614,8 +1223,8 @@ def loadChemkinFile(path, speciesList=None):
                     pass
                 elif reaction1.kinetics.isPressureDependent() == reaction2.kinetics.isPressureDependent():
                     # If both reactions are pressure-independent or both are pressure-dependent, then they need duplicate tags
-                    # Chemkin treates pdep and non-pdep reactions as different, so those are okay
-                    raise ChemkinError('Encountered unmarked duplicate reaction {0}.'.format(reaction1))
+                    # pdep and non-pdep reactions are treated as different, so those are okay
+                    raise InputParseError('Encountered unmarked duplicate reaction {0}.'.format(reaction1))
 
     index = 0
     for reaction in reactionList:
@@ -1644,7 +1253,7 @@ def parseTransportData(lines, speciesList):
 
         data = line.split()
         if len(data) < 7:
-            raise ChemkinError('Unable to parse transport data: not enough parameters')
+            raise InputParseError('Unable to parse transport data: not enough parameters')
         if len(data) >= 8:
             # comment may contain spaces. Rejoin into a single field.
             comment = ''.join(data[7:]).lstrip('!')
@@ -1671,7 +1280,7 @@ def writeCTI(species,
         if not s.transport:
             haveTransport = False
         if s.composition is None:
-            raise ChemkinError('No thermo data found for species: {0!r}'.format(s.label))
+            raise InputParseError('No thermo data found for species: {0!r}'.format(s.label))
         elements.update(s.composition)
         speciesNameLength = max(speciesNameLength, len(s.label))
 
