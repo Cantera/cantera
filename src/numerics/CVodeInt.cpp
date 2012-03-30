@@ -8,7 +8,6 @@
 #include <iostream>
 using namespace std;
 
-
 // cvode includes
 #include "../../ext/cvode/include/llnltyps.h"
 #include "../../ext/cvode/include/llnlmath.h"
@@ -18,6 +17,8 @@ using namespace std;
 #include "../../ext/cvode/include/cvspgmr.h"
 #include "../../ext/cvode/include/nvector.h"
 #include "../../ext/cvode/include/cvode.h"
+
+#include "cantera/base/stringUtils.h"
 
 inline static N_Vector nv(void* x)
 {
@@ -312,7 +313,7 @@ void CVodeInt::integrate(double tout)
     int flag;
     flag = CVode(m_cvode_mem, tout, nv(m_y), &t, NORMAL);
     if (flag != SUCCESS) {
-        throw CVodeErr(" CVode error encountered.");
+        throw CVodeErr(" CVode error encountered. Error code: " + int2str(flag));
     }
 }
 
@@ -322,7 +323,7 @@ double CVodeInt::step(double tout)
     int flag;
     flag = CVode(m_cvode_mem, tout, nv(m_y), &t, ONE_STEP);
     if (flag != SUCCESS) {
-        throw CVodeErr(" CVode error encountered.");
+        throw CVodeErr(" CVode error encountered. Error code: " + int2str(flag));
     }
     return t;
 }
