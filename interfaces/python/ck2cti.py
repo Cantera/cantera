@@ -81,6 +81,7 @@ class Species(object):
         self.thermo = None
         self.transport = None
         self.note = None
+        self.composition = None
 
     def __str__(self):
         return self.label
@@ -1648,6 +1649,8 @@ def writeCTI(species,
     for s in species:
         if not s.transport:
             haveTransport = False
+        if s.composition is None:
+            raise ChemkinError('No thermo data found for species: {0!r}'.format(s.label))
         elements.update(s.composition)
         speciesNameLength = max(speciesNameLength, len(s.label))
 
