@@ -18,7 +18,10 @@ if 'LD_LIBRARY_PATH' in os.environ:
 def testRunner(target, source, env):
     """SCons Action to run a compiled test program"""
     program = source[0]
-    code = subprocess.call([program.abspath], env=env['ENV'])
+    workDir = Dir('#test/work').abspath
+    if not os.path.isdir(workDir):
+        os.mkdir(workDir)
+    code = subprocess.call([program.abspath], env=env['ENV'], cwd=workDir)
     if not code:
         open(target[0].path, 'w').write(time.asctime()+'\n')
     return code
@@ -115,6 +118,7 @@ def addMatlabTest(script, dependencies=None):
 
 # Instantiate tests
 addTestProgram('thermo', 'nasapoly')
+addTestProgram('kinetics', 'pdep')
 
 if localenv['python_package'] == 'full':
     addTestScript('python', 'runTests.py',
