@@ -354,6 +354,8 @@ namespace Cantera {
    * Update the equilibrium constants in molar units for all
    * reversible reactions. Irreversible reactions have their 
    * equilibrium constant set to zero.
+   * For reactions involving charged species the equilibrium 
+   * constant is adjusted according to the electrostatis potential.
    */
   void InterfaceKinetics::updateKc() {
     int i, irxn;
@@ -474,10 +476,12 @@ namespace Cantera {
 
   void InterfaceKinetics::getExchangeCurrentQuantities() {
     /*
-     * First collect vectors of the standard Gibbs free energies of the
-     * species and the standard concentrations
-     *   - m_mu0
-     *   - m_logStandardConc
+     * Combine vectors of the standard Gibbs free energies of the
+     * species and the standard concentrations to get change in 
+     * standard chemical potential for reaction.
+     * Outputs:
+     *   - m_deltaG0  -- stores standard state chemical potentials
+     *   - m_ProdStanConcReac -- stores products of standard concentrations
      */
     int ik = 0;  
     int np = nPhases();
@@ -490,7 +494,7 @@ namespace Cantera {
         ik++;
       }
     }
-
+    // m_deltaG0 will be used to pass electrochemical potentials
     m_rxnstoich.getReactionDelta(m_ii, DATA_PTR(m_mu0), DATA_PTR(m_deltaG0));
 
     
@@ -629,7 +633,7 @@ namespace Cantera {
       int irxn = m_ctrxn[i];
       int iECDFormulation =  m_ctrxn_ecdf[i];
       if (iECDFormulation) {
-	double tmp = exp(- m_beta[i] * m_deltaG0[irxn] * rrt);
+	double tmp = exp(- m_beta[irxn] * m_deltaG0[irxn] * rrt);
 	double tmp2 = m_ProdStanConcReac[irxn];
 	tmp *= 1.0  / tmp2 / Faraday;
 	kfwd[irxn] *= tmp;
@@ -640,8 +644,7 @@ namespace Cantera {
   }
   //====================================================================================================================
   /**
-   * Update the rates of progress of the reactions in the reaciton
-   * mechanism. This routine operates on internal data.
+   * Compute the forward rate constants.
    */
   void InterfaceKinetics::getFwdRateConstants(doublereal* kfwd) {
 
@@ -659,8 +662,7 @@ namespace Cantera {
   //====================================================================================================================
 
   /**
-   * Update the rates of progress of the reactions in the reaciton
-   * mechanism. This routine operates on internal data.
+   * Compute the reverse rate constants.
    */
   void InterfaceKinetics::getRevRateConstants(doublereal* krev, bool doIrreversible) {
     getFwdRateConstants(krev);
@@ -675,6 +677,39 @@ namespace Cantera {
       const vector_fp& rkc = m_kdata->m_rkcn;
       multiply_each(krev, krev + nReactions(), rkc.begin());
     }
+  }
+  //====================================================================================================================
+  /*
+   * Compute the exchange current densities in A/m^2.
+   * The exchange current density is the quotient of the 
+   * forward rate constant and the equilibrium constant 
+   * to the beta power.  The contribution of the 
+   * concentrations is not included in this computation.
+   * For non electrochemical reactions (those with no beta), 
+   * the geometric mean between the forward and reverse 
+   * reactions is returned in analogy. 
+   */
+  void InterfaceKinetics::getExchangeCurrentDensities(doublereal* i0) {
+
+    updateROP();
+
+    const vector_fp& rf = m_kdata->m_rfn;
+    const vector_fp& rkc= m_kdata->m_rkcn;
+
+    // copy rate coefficients into i0
+    copy(rf.begin(), rf.end(), i0);
+
+    int nct = m_ctrxn.size();
+    for (int i = 0; i < nct; i++) {
+      int irxn = m_ctrxn[i];
+      if ( m_beta[irxn] > 0.0 )
+	i0[irxn] *= pow( rkc[irxn], m_beta[irxn] );
+      else
+	// for non electrochemical reactions, the geometric mean between the forward and reverse reactions is interesting.
+	//i0[irxn] = 0.0;
+	i0[irxn] *= pow( rkc[irxn], 0.5 );
+    }
+    return;
   }
   //====================================================================================================================
 

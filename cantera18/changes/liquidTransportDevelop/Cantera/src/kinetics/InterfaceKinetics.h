@@ -421,6 +421,18 @@ namespace Cantera {
     virtual void getRevRateConstants(doublereal* krev,
 				     bool doIrreversible = false);
 
+    /**
+     * Compute the exchange current densities in A/m^2.
+     *
+     * The exchange current density is the quotient of the 
+     * forward rate constant and the equilibrium constant 
+     * to the beta power.  The contribution of the 
+     * concentrations is not included in this computation.
+     * For non electrochemical reactions (those with no beta), 
+     * the geometric mean between the forward and reverse 
+     * reactions is returned in analogy. 
+     */
+     virtual void getExchangeCurrentDensities(doublereal* i0);
 
     virtual void getActivationEnergies(doublereal *E);
 
