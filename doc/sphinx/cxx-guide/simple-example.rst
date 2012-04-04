@@ -1,10 +1,7 @@
 
-***********************************
-Getting Started with Cantera in C++
-***********************************
-
+*************************
 A Very Simple C++ Program
-=========================
+*************************
 
 A short C++ program that uses Cantera is shown below. This program reads in a
 specification of a gas mixture from an input file, and then builds a new object
@@ -47,7 +44,7 @@ the "Hello, World" program most programming textbooks begin with. But it
 illustrates some important points in writing Cantera C++ programs.
 
 Catching :ct:`CanteraError` exceptions
---------------------------------------
+======================================
 
 The entire body of the program is put inside a function that is invoked within
 a ``try`` block in the main program. In this way, exceptions thrown in the
@@ -58,22 +55,10 @@ the ``catch`` block, function :ct:`showErrors` may be called to print the error
 message associated with the exception.
 
 The ``report`` function
------------------------
+=======================
 
 The :ct:`report` function generates a nicely-formatted report of the properties of
 a phase, including its composition in both mole (X) and mass (Y) units. For
 each species present, the non-dimensional chemical potential is also printed.
 This is handy particularly when doing equilibrium calculations. This function
 is very useful to see at a glance the state of some phase.
-
-More Examples
-=============
-
-The program above is simple, but doesn't do much. The links listed below show
-how to build on this demo program to do some useful things.
-
-.. cxx-equildemo
-.. cxx-thermodemo
-
-cxx-ctnew
-

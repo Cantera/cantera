@@ -13,9 +13,8 @@ Contents
    Compiliation Instructions <compiling>
 
    cti/index
-
    python/index
-   C++ Introduction <cxx-intro>
+   cxx-guide/index
 
    Cantera Development Homepage <http://cantera.googlecode.com>
 
