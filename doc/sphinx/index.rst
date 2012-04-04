@@ -14,6 +14,7 @@ Contents
    language-interfaces
    cti/index
    python/index
+   matlab/index
    cxx-guide/index
 
    Cantera Development Homepage <http://cantera.googlecode.com>
