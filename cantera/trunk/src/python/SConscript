@@ -26,6 +26,7 @@ localenv['spam_source'] = repr(File('#src/python/spam.c').abspath)
 make_setup = localenv.SubstFile('#interfaces/python/setup.py',
                                 '#interfaces/python/setup.py.in')
 
+extraArgs = ''
 if localenv['python_package'] == 'full':
     localenv.Append(CPPPATH=['#src', '#include'])
 
@@ -41,6 +42,7 @@ if localenv['python_package'] == 'full':
 
         # Link statically so we don't have to include a copy of libstdc++
         localenv.Append(LINKFLAGS=['-static-libgcc', '-static-libstdc++'])
+        extraArgs += '--compiler=mingw32'
 
     # OS X requires library dependencies to be specified at link time
     if localenv['OS'] == 'Darwin':
@@ -68,7 +70,8 @@ elif localenv['python_package'] == 'minimal':
 
 moddir = pjoin('interfaces', 'python')
 localenv.AddPostAction(make_setup,
-                       'cd %s && $python_cmd setup.py build' % moddir)
+                       'cd %s && $python_cmd setup.py build %s' % (moddir,
+                                                                   extraArgs))
 
 # Install the Python module
 if localenv['python_prefix']:
