@@ -11,6 +11,9 @@ Contents
    :maxdepth: 2
 
    Compiliation Instructions <compiling>
+
+   defining-phases
+
    python/index
    C++ Introduction <cxx-intro>
    C++ API Documentation <http://cantera.github.com/docs/index.html>

@@ -260,7 +260,24 @@ def standard_pressure(p0):
 
 def units(length = '', quantity = '', mass = '', time = '',
           act_energy = '', energy = '', pressure = ''):
-    """set the default units."""
+    """
+    Set the default units.
+
+    :param length:
+        The default units for length. Default: ``'m'``
+    :param mass:
+        The default units for mass. Default: ``'kg'``
+    :param quantity:
+        The default units to specify number of molecules. Default: ``'kmol'``
+    :param time:
+        The default units for time. Default: ``'s'``
+    :param energy:
+        The default units for energies. Default: ``'J'``
+    :param act_energy:
+        The default units for activation energies. Default: ``'K'``
+    :param pressure:
+        The default units for pressure. Default: ``'Pa'``
+    """
     global _ulen, _umol, _ue, _utime, _umass, _uenergy, _upres
     if length: _ulen = length
     if quantity: _umol = quantity
@@ -395,9 +412,16 @@ def getReactionSpecies(s):
 
 
 class element:
+    """ An atomic element or isotope. """
     def __init__(self, symbol = '',
                  atomic_mass = 0.01,
                  atomic_number = 0):
+        """
+        :param symbol:
+            The symbol for the element or isotope.
+        :param atomic_mass:
+            The atomic mass in amu.
+        """
         self._sym = symbol
         self._atw = atomic_mass
         self._num = atomic_number
@@ -429,7 +453,7 @@ class species_set:
 
 
 class species:
-    """A species."""
+    """A constituent of a phase or interface."""
 
     def __init__(self,
                  name = 'missing name!',
@@ -439,6 +463,35 @@ class species:
                  transport = None,
                  charge = -999,
                  size = 1.0):
+        """
+        :param name:
+            The species name (or formula). The name may be arbitrarily long,
+            although usually a relatively short, abbreviated name is most
+            convenient. Required parameter.
+        :param atoms:
+            The atomic composition, specified by a string containing
+            space-delimited <element>:<atoms> pairs. The number of atoms may be
+            either an integer or a floating-point number.
+        :param thermo:
+            The parameterization to use to compute the reference-state
+            thermodynamic properties. This must be one of the entry types
+            described in ##REFF##. To specify multiple parameterizations, each
+            for a different temperature range, group them in parentheses.
+        :param transport:
+            An entry specifying parameters to compute this species'
+            contribution to the transport properties. This must be one of the
+            entry types described in ##REF##, and must be consistent with the
+            transport model of the phase into which the species is imported.
+            To specify parameters for multiple transport models, group the
+            entries in parentheses.
+        :param size:
+            The species "size". Currently used only for surface species,
+            where it represents the number of sites occupied.
+        :param charge:
+            The charge, in multiples of :math:`|e|`. If not specified, the
+            charge will be calculated from the number of "atoms" of element
+            ``E``, which represents an electron.
+        """
         self._name = name
         self._atoms = getAtomicComp(atoms)
 
@@ -579,10 +632,20 @@ class Mu0_table(thermo):
 
 
 class NASA(thermo):
-    """NASA polynomial parameterization."""
-
-    def __init__(self, Trange = (0.0, 0.0),
-                 coeffs = [], p0 = -1.0):
+    """The 7-coefficient NASA polynomial parameterization."""
+    def __init__(self, Trange = (0.0, 0.0), coeffs = [], p0 = -1.0):
+        r"""
+        :param Trange:
+            The temperature range over which the parameterization is valid.
+            This must be entered as a sequence of two temperature values.
+            Required.
+        :param coeffs:
+            Array of seven coefficients :math:`(a_0, \ldots , a_6)`
+        :param p0:
+            The reference-state pressure, usually 1 atm or 1 bar. If omitted,
+            the default value is used, which is set by the ``standard_pressure``
+            directive.
+        """
         self._t = Trange
         self._pref = p0
         if len(coeffs) != 7:
@@ -662,8 +725,18 @@ class NASA9(thermo):
 class Shomate(thermo):
     """Shomate polynomial parameterization."""
 
-    def __init__(self, Trange = (0.0, 0.0),
-                 coeffs = [], p0 = -1.0):
+    def __init__(self, Trange = (0.0, 0.0), coeffs = [], p0 = -1.0):
+        r"""
+        :param Trange:
+            The temperature range over which the parameterization is valid.
+            This must be entered as a sequence of two temperature values.
+            Required input.
+        :param coeffs:
+            Sequence of seven coefficients :math:`(A, \ldots ,G)`
+        :param p0:
+            The reference-state pressure, usually 1 atm or 1 bar. If omitted,
+            the default value set by the ``standard_pressure`` directive is used.
+        """
         self._t = Trange
         self._pref = p0
         if len(coeffs) != 7:
@@ -731,6 +804,16 @@ class const_cp(thermo):
     def __init__(self,
                  t0 = 298.15, cp0 = 0.0, h0 = 0.0, s0 = 0.0,
                  tmax = 5000.0, tmin = 100.0):
+        """
+        :param t0:
+            Temperature parameter T0. Default: 298.15 K.
+        :param cp0:
+            Reference-state molar heat capacity (constant). Default: 0.0.
+        :param h0:
+            Reference-state molar enthalpy at temperature T0. Default: 0.0.
+        :param s0:
+            Reference-state molar entropy at temperature T0. Default: 0.0.
+        """
         self._t = [tmin, tmax]
         self._c = [t0, h0, s0, cp0]
 
@@ -747,11 +830,28 @@ class const_cp(thermo):
 
 
 class gas_transport:
-    """Transport coefficients for ideal gas transport model."""
-
+    """
+    Species-specific Transport coefficients for ideal gas transport models.
+    """
     def __init__(self, geom = 'nonlin',
                  diam = 0.0, well_depth = 0.0, dipole = 0.0,
                  polar = 0.0, rot_relax = 0.0):
+        """
+        :param geom:
+            A string specifying the molecular geometry. One of ``atom``,
+            ``linear``, or ``nonlin``. Required.
+        :param diam:
+            The Lennard-Jones collision diameter in Angstroms. Required.
+        :param well_depth:
+            The Lennard-Jones well depth in Kelvin. Required.
+        :param dipole:
+            The permanent dipole moment in Debye. Default: 0.0
+        :param polar:
+            The polarizability in A^3. Default: 0.0
+        :param rot_relax:
+            The rotational relaxation collision number at 298 K. Dimensionless.
+            Default: 0.0
+        """
         self._geom = geom
         self._diam = diam
         self._well_depth = well_depth
@@ -779,6 +879,17 @@ class Arrhenius:
                  E = 0.0,
                  coverage = [],
                  rate_type = ''):
+        """
+        :param A:
+            The pre-exponential coefficient. Required input. If entered without
+            units, the units will be computed considering all factors that
+            affect the units. The resulting units string is written to the CTML
+            file individually for each reaction pre-exponential coefficient.
+        :param n:
+            The temperature exponent. Dimensionless. Default: 0.0.
+        :param E:
+            Activation energy. Default: 0.0.
+        """
         self._c = [A, n, E]
         self._type = rate_type
 
@@ -852,14 +963,30 @@ def getPairs(s):
     return m
 
 class reaction:
+    """
+    A homogeneous chemical reaction with pressure-independent rate coefficient
+    and mass-action kinetics.
+    """
     def __init__(self,
                  equation = '',
                  kf = None,
                  ID = '',
                  order = '',
-                 options = []
-                 ):
-
+                 options = []):
+        """
+        :param equation:
+            A string specifying the chemical equation.
+        :param rate_coeff:
+            The rate coefficient for the forward direction. If a sequence of
+            three numbers is given, these will be interpreted as [A, n,E] in
+            the modified Arrhenius function :math:`A T^n exp(-E/\hat{R}T)`.
+        :param ID:
+            An optional identification string. If omitted, it defaults to a
+            four-digit numeric string beginning with 0001 for the first
+            reaction in the file.
+        :param options:
+            Processing options, as described in Section ##REF##
+        """
         self._id = ID
         self._e = equation
         self._order = order
@@ -1052,6 +1179,9 @@ class reaction:
 
 
 class three_body_reaction(reaction):
+    """
+    A three-body reaction.
+    """
     def __init__(self,
                  equation = '',
                  kf = None,
@@ -1059,7 +1189,25 @@ class three_body_reaction(reaction):
                  ID = '',
                  options = []
                  ):
-
+        """
+        :param equation:
+            A string specifying the chemical equation. The reaction can be
+            written in either the association or dissociation directions, and
+            may be reversible or irreversible.
+        :param rate_coeff:
+            The rate coefficient for the forward direction. If a sequence of
+            three numbers is given, these will be interpreted as [A,n,E] in
+            the modified Arrhenius function.
+        :param efficiencies:
+            A string specifying the third-body collision efficiencies.
+            The efficiencies for unspecified species are set to 1.0.
+        :param ID:
+            An optional identification string. If omitted, it defaults to a
+            four-digit numeric string beginning with 0001 for the first
+            reaction in the file.
+        :param options:
+            Processing options, as described in ##REF##.
+        """
         reaction.__init__(self, equation, kf, ID, '', options)
         self._type = 'threeBody'
         self._effm = 1.0
@@ -1072,7 +1220,6 @@ class three_body_reaction(reaction):
         for p in self._p.keys():
             if p == 'M' or p == 'm':
                 del self._p[p]
-
 
     def build(self, p):
         r = reaction.build(self, p)
@@ -1088,16 +1235,33 @@ class three_body_reaction(reaction):
 
 
 class falloff_reaction(reaction):
-    def __init__(self,
-                 equation = '',
-                 kf0 = None,
-                 kf = None,
-                 efficiencies = '',
-                 falloff = None,
-                 ID = '',
-                 options = []
-                 ):
-
+    """ A gas-phase falloff reaction. """
+    def __init__(self, equation, kf0, kf,
+                 efficiencies='', falloff=None, ID='', options=[]):
+        """
+        :param equation:
+            A string specifying the chemical equation.
+        :param rate_coeff_inf:
+            The rate coefficient for the forward direction in the high-pressure
+            limit. If a sequence of three numbers is given, these will be
+            interpreted as [A, n,E] in the modified Arrhenius function.
+        :param rate_coeff_0:
+            The rate coefficient for the forward direction in the low-pressure
+            limit. If a sequence of three numbers is given, these will be
+            interpreted as [A, n,E] in the modified Arrhenius function.
+        :param efficiencies:
+            A string specifying the third-body collision efficiencies. The
+            efficiency for unspecified species is set to 1.0.
+        :param falloff:
+            An embedded entry specifying a falloff function. If omitted, a
+            unity falloff function (Lindemann form) will be used.
+        :param ID:
+            An optional identification string. If omitted, it defaults to a
+            four-digit numeric string beginning with 0001 for the first
+            reaction in the file.
+        :param options:
+            Processing options, as described in ##REF##
+        """
         kf2 = (kf, kf0)
         reaction.__init__(self, equation, kf2, ID, '', options)
         self._type = 'falloff'
@@ -1206,13 +1370,31 @@ class chebyshev_reaction(reaction):
 
 
 class surface_reaction(reaction):
-
-    def __init__(self,
-                 equation = '',
-                 kf = None,
-                 ID = '',
-                 order = '',
-                 options = []):
+    """
+    A heterogeneous chemical reaction with pressure-independent rate
+    coefficient and mass-action kinetics.
+    """
+    def __init__(self, equation='', kf=None, ID='', order='', options=[]):
+        """
+        :param equation:
+            A string specifying the chemical equation.
+        :param rate_coeff:
+            The rate coefficient for the forward direction. If a sequence of
+            three numbers is given, these will be interpreted as [A, n,E] in
+            the modified Arrhenius function.
+        :param sticking_prob:
+            The reactive sticking probability for the forward direction. This
+            can only be specified if there is only one bulk-phase reactant and
+            it belongs to an ideal gas phase. If a sequence of three numbers is
+            given, these will be interpreted as [A, n,E] in the modified
+            Arrhenius function.
+        :param ID:
+            An optional identification string. If omitted, it defaults to a
+            four-digit numeric string beginning with 0001 for the first
+            reaction in the file.
+        :param options:
+            Processing options, as described in ##REF##
+        """
         reaction.__init__(self, equation, kf, ID, order, options)
         self._type = 'surface'
 
@@ -1235,6 +1417,10 @@ class edge_reaction(reaction):
 
 
 class state:
+    """
+    An embedded entry that specifies the thermodynamic state of a phase
+    or interface.
+    """
     def __init__(self,
                  temperature = None,
                  pressure = None,
@@ -1243,6 +1429,23 @@ class state:
                  density = None,
                  coverages = None,
                  solute_molalities = None):
+        """
+        :param temperature:
+            The temperature.
+        :param pressure:
+            The pressure.
+        :param density:
+            The density. Cannot be specified if the phase is incompressible.
+        :param mole_fractions:
+            A string specifying the species mole fractions. Unspecified species
+            are set to zero.
+        :param mass_fractions:
+            A string specifying the species mass fractions. Unspecified species
+            are set to zero.
+        :param coverages:
+            A string specifying the species coverages. Unspecified species are
+            set to zero. Can only be specified for interfaces.
+        """
         self._t = temperature
         self._p = pressure
         self._rho = density
@@ -1273,6 +1476,31 @@ class phase:
                  reactions = 'none',
                  initial_state = None,
                  options = []):
+        """
+        :param name:
+            A string to identify the phase. Must be unique among the phase
+            names within the file.
+        :param elements:
+            The elements. A string of element symbols.
+        :param species:
+            The species. A string or sequence of strings in the format
+            described in ##REF##.
+        :param reactions:
+            The homogeneous reactions. If omitted, no reactions will be
+            included. A string or sequence of strings in the format described
+            in ##REF##. This field is not allowed for stoichiometric_solid
+            and stoichiometric_liquid entries.
+        :param kinetics:
+            The kinetics model. Optional; if omitted, the default model for the
+            phase type will be used.
+        :param transport:
+            The transport property model. Optional. If omitted, transport
+            property calculation will be disabled.
+        :param initial_state:
+            Initial thermodynamic state, specified with an embedded state entry.
+        :param options:
+            Special processing options. Optional.
+        """
 
         self._name = name
         self._dim = dim
@@ -1450,6 +1678,18 @@ class ideal_gas(phase):
                  transport = 'None',
                  initial_state = None,
                  options = []):
+        """
+        The parameters correspond to those of :class:`.phase`, with the
+        following modifications:
+
+        :param kinetics:
+            The kinetics model. Usually this field is omitted, in which case
+            kinetics model GasKinetics, appropriate for reactions in ideal gas
+            mixtures, is used.
+        :param transport:
+            The transport property model. One of the strings ``'none'``,
+            ``'multi'``, or ``'mix'``. Default: ``'none'``.
+        """
 
         phase.__init__(self, name, 3, elements, species, reactions,
                        initial_state, options)
@@ -1479,12 +1719,12 @@ class ideal_gas(phase):
 
 
 class stoichiometric_solid(phase):
-    """A solid compound or pure element.Stoichiometric solid phases
-    contain exactly one species, which always has unit activity. The
-    solid is assumed to have constant density. Therefore the rates of
-    reactions involving these phases do not contain any concentration
-    terms for the (one) species in the phase, since the concentration
-    is always the same.  """
+    """
+    A solid compound or pure element. Stoichiometric solid phases contain
+    exactly one species, which always has unit activity. The solid is assumed
+    to have constant density. Therefore the rates of reactions involving these
+    phases do not contain any concentration terms for the (one) species in the
+    phase, since the concentration is always the same."""
     def __init__(self,
                  name = '',
                  elements = '',
@@ -1493,6 +1733,9 @@ class stoichiometric_solid(phase):
                  transport = 'None',
                  initial_state = None,
                  options = []):
+        """
+        See :class:`.phase` for descriptions of the parameters.
+        """
 
         phase.__init__(self, name, 3, elements, species, 'none',
                        initial_state, options)
@@ -1520,8 +1763,10 @@ class stoichiometric_solid(phase):
 
 
 class stoichiometric_liquid(stoichiometric_solid):
-    """A stoichiometric liquid. Currently, there is no distinction
-    between stoichiometric liquids and solids."""
+    """
+    An incompressible stoichiometric liquid. Currently, there is no
+    distinction between stoichiometric liquids and solids.
+    """
     def __init__(self,
                  name = '',
                  elements = '',
@@ -1530,7 +1775,9 @@ class stoichiometric_liquid(stoichiometric_solid):
                  transport = 'None',
                  initial_state = None,
                  options = []):
-
+        """
+        See :class:`.phase` for descriptions of the parameters.
+        """
         stoichiometric_solid.__init__(self, name, elements,
                                       species, density, transport,
                                       initial_state, options)
@@ -1817,7 +2064,7 @@ class redlich_kwong(phase):
 
 
 class ideal_interface(phase):
-    """An ideal interface."""
+    """A chemically-reacting ideal surface solution of multiple species."""
     def __init__(self,
                  name = '',
                  elements = '',
@@ -1829,7 +2076,20 @@ class ideal_interface(phase):
                  transport = 'None',
                  initial_state = None,
                  options = []):
+        """
+        The parameters correspond to those of :class:`.phase`, with the
+        following modifications:
 
+        :param reactions:
+            The heterogeneous reactions at this interface. If omitted, no
+            reactions will be included. A string or sequence of strings in the
+            format described ##REF##.
+        :param site_density:
+            The number of adsorption sites per unit area.
+        :param phases:
+            A string listing the bulk phases that participate in reactions
+            at this interface.
+        """
         self._type = 'surface'
         phase.__init__(self, name, 2, elements, species, reactions,
                        initial_state, options)
@@ -2034,8 +2294,12 @@ class edge(phase):
 # falloff parameterizations
 
 class Troe:
-
+    """The Troe falloff function."""
     def __init__(self, A = 0.0, T3 = 0.0, T1 = 0.0, T2 = -999.9):
+        """
+        Parameters: *A*, *T3*, *T1*, *T2*. These must be entered as pure
+        numbers with no attached dimensions.
+        """
         if T2 != -999.9:
             self._c = (A, T3, T1, T2)
         else:
@@ -2050,7 +2314,12 @@ class Troe:
 
 
 class SRI:
+    """ The SRI falloff function."""
     def __init__(self, A = 0.0, B = 0.0, C = 0.0, D = -999.9, E=-999.9):
+        """
+        Parameters: *A*, *B*, *C*, *D*, *E*. These must be entered as
+        pure numbers without attached dimensions.
+        """
         if D != -999.9 and E != -999.9:
             self._c = (A, B, C, D, E)
         else:
@@ -2065,7 +2334,9 @@ class SRI:
 
 
 class Lindemann:
+    """The Lindemann falloff function."""
     def __init__(self):
+        """ This falloff function takes no parameters."""
         pass
     def build(self, p):
         f = p.addChild('falloff')
