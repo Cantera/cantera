@@ -1,3 +1,6 @@
+
+.. _sec-defining-phases:
+
 ***************
 Defining Phases
 ***************
