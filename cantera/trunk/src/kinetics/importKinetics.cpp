@@ -44,25 +44,28 @@ namespace Cantera
 class rxninfo
 {
 public:
-    //! rdata
+    //! Net stoichiometric coefficients for each reaction
     std::vector< std::map<int, doublereal> > m_rdata;
-    //! string name
+
+    //! string name (i.e. the reaction equation)
     std::vector<std::string> m_eqn;
-    //! string vector of ints
+
+    //! Indicates whether each reaction is marked "duplicate"
     std::vector<int> m_dup;
-    //! string vector of ints
+
+    //! Number of reactants in each reaction
     std::vector<size_t>  m_nr;
-    //! string vector of ints
+
+    //! Indicates "type" of each reaction (see reaction_defs.h)
     std::vector<int>  m_typ;
-    //! vector of bools.
+
+    //! Indicates whether each reaction is reversible
     std::vector<bool> m_rev;
-    ~rxninfo() {
-        m_eqn.clear();
-        m_dup.clear();
-        m_nr.clear();
-        m_typ.clear();
-        m_rdata.clear();
-    }
+
+    //! Map of (vector indicating participating species) to reaction numbers
+    //! Used to speed up duplicate reaction checks.
+    std::map<std::vector<char>, std::vector<size_t> > m_participants;
+
     bool installReaction(int i, const XML_Node& r, Kinetics* k,
                          std::string default_phase, int rule,
                          bool validate_rxn) ;
@@ -868,20 +871,23 @@ bool rxninfo::installReaction(int i, const XML_Node& r, Kinetics* k,
      * Look for undeclared duplicate reactions.
      */
     if (validate_rxn) {
-        doublereal c = 0.0;
-
         map<int, doublereal> rxnstoich;
-        rxnstoich.clear();
+        vector<char> participants(kin.nTotalSpecies(), 0);
         for (size_t nn = 0; nn < rdata.reactants.size(); nn++) {
             rxnstoich[-1 - int(rdata.reactants[nn])] -= rdata.rstoich[nn];
+            participants[rdata.reactants[nn]] += 1;
         }
         for (size_t nn = 0; nn < rdata.products.size(); nn++) {
             rxnstoich[int(rdata.products[nn])+1] += rdata.pstoich[nn];
+            participants[rdata.products[nn]] += 2;
         }
-        for (size_t nn = 0; nn < m_rdata.size(); nn++) {
+
+        vector<size_t>& related = m_participants[participants];
+        for (size_t mm = 0; mm < related.size(); mm++) {
+            size_t nn = related[mm];
             if ((rdata.reactants.size() == m_nr[nn])
                     && (rdata.reactionType == m_typ[nn])) {
-                c = isDuplicateReaction(rxnstoich, m_rdata[nn]);
+                doublereal c = isDuplicateReaction(rxnstoich, m_rdata[nn]);
                 if (c > 0.0
                         || (c < 0.0 && rdata.reversible)
                         || (c < 0.0 && m_rev[nn])) {
@@ -900,6 +906,7 @@ bool rxninfo::installReaction(int i, const XML_Node& r, Kinetics* k,
         m_nr.push_back(rdata.reactants.size());
         m_typ.push_back(rdata.reactionType);
         m_rdata.push_back(rxnstoich);
+        m_participants[participants].push_back(m_rdata.size() - 1);
     }
 
     rdata.equation = eqn;
