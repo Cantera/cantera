@@ -1,13 +1,6 @@
 /**
-\mainpage Cantera Reference
+\mainpage Cantera C++ Reference
 
-<p>Choose one of the links below for an introduction to %Cantera, or use
-the menu at the top to view detailed documentation of the code.
-</p>
-<ul>
-  <li>\subpage languages</li>
-  <ul><li>\subpage matlab-tutorial</li></ul>
-  <li>\subpage thermopage</li>
-</ul>
+Use the menu at the top to view detailed documentation of the code.
 
 */

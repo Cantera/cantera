@@ -7,6 +7,7 @@ C++ Interface User's Guide
    :maxdepth: 2
   
    compiling
+   headers
+   thermo
    simple-example
-   thermo-example
    equil-example
