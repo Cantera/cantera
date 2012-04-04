@@ -139,7 +139,7 @@ Reactions with Pressure-Independent Rate
 The :class:`reaction` entry is used to represent homogeneous reactions with
 pressure-independent rate coefficients and mass action kinetics.  Examples of
 reaction entries that implement some reactions in the GRI-Mech 3.0 natural gas
-combustion mechanism [Smith et al., 1997] are shown below::
+combustion mechanism [#Smith1997]_ are shown below::
 
     units(length = 'cm', quantity = 'mol', act_energy = 'cal/mol')
     ...
@@ -215,7 +215,7 @@ increases. Dissociation / association reactions of polyatomic molecules often
 exhibit this behavior.
 
 The simplest expression for the rate coefficient for a falloff reaction is the
-Lindemann form [Lindemann, 1922]:
+Lindemann form [#Lindemann1922]_:
 
 .. math::
 
@@ -251,7 +251,8 @@ specified by assigning an embedded entry to the ``falloff`` field.
 The Troe Falloff Function
 -------------------------
 
-A widely-used falloff function is the one proposed by Gilbert et al. [1983]:
+A widely-used falloff function is the one proposed by Gilbert et
+al. [#Gilbert1983]_:
 
 .. math::
 
@@ -272,10 +273,10 @@ The SRI Falloff Function
 ------------------------
 
 This falloff function is based on the one originally due to Stewart et
-al. [1989], which required three parameters :math:`(a, b, c)`. Kee et al. [1989]
-generalized this function slightly by adding two more parameters :math:`(d,
-e)`. (The original form corresponds to :math:`d = 1, e = 0`.) Cantera supports
-the extended 5-parameter form, given by:
+al. [#Stewart1989]_, which required three parameters :math:`(a, b, c)`. Kee et
+al. [#Kee1989]_ generalized this function slightly by adding two more parameters
+:math:`(d, e)`. (The original form corresponds to :math:`d = 1, e = 0`.) Cantera
+supports the extended 5-parameter form, given by:
 
 .. math::
 
@@ -288,3 +289,23 @@ the "SRI" falloff function. It is implemented by the :class:`SRI` directive.
       function, which has a C++ implementation, but doesn't appear to be implemented
       in the CTI or CTML parsers.
 
+
+.. rubric:: References
+
+.. [#Gilbert1983] R. G. Gilbert, K. Luther, and
+   J. Troe. *Ber. Bunsenges. Phys. Chem.*, 87:169, 1983.
+
+.. [#Lindemann1922] F. Lindemann. *Trans. Faraday Soc.*, 17:598, 1922.
+
+.. [#Smith1997] Gregory P. Smith, David M. Golden, Michael Frenklach, Nigel
+   W. Moriarty, Boris Eiteneer, Mikhail Goldenberg, C. Thomas Bowman, Ronald
+   K. Hanson, Soonho Song, William C. Gardiner, Jr., Vitali V. Lissianski, , and
+   Zhiwei Qin. GRI-Mech version 3.0, 1997. see
+   http://www.me.berkeley.edu/gri_mech.
+
+.. [#Stewart1989] P. H. Stewart, C. W. Larson, and D. Golden. 
+   *Combustion and Flame*, 75:25, 1989.
+
+.. [#Kee1989] R. J. Kee, F. M. Rupley, and J. A. Miller. Chemkin-II: A Fortran
+   chemical kinetics package for the analysis of gasphase chemical
+   kinetics. Technical Report SAND89-8009, Sandia National Laboratories, 1989.
