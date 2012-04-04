@@ -179,7 +179,7 @@ if env['CC'] == 'gcc' or env['CC'] == 'llvm-gcc':
 
 elif env['CC'] == 'cl': # Visual Studio
     defaults.cxxFlags = '/EHsc'
-    defaults.ccFlags = ' '.join(['/nologo', '/W3', '/Zc:wchar_t', '/Zc:forScope',
+    defaults.ccFlags = ' '.join(['/MD', '/nologo', '/W3', '/Zc:wchar_t', '/Zc:forScope',
                                  '/D_SCL_SECURE_NO_WARNINGS', '/D_CRT_SECURE_NO_WARNINGS', '/wd4996'])
     defaults.debugCcFlags = '/Zi /Fd${TARGET}.pdb'
     defaults.noOptimizeCcFlags = '/Od /Ob0'
@@ -684,6 +684,34 @@ if env['use_sundials'] in ('y','default'):
 
 conf = Configure(env)
 
+# Set up compiler options before running configuration tests
+env['CXXFLAGS'] = listify(env['cxx_flags'])
+env['CCFLAGS'] = listify(env['cc_flags']) + listify(env['thread_flags'])
+env['LINKFLAGS'] += listify(env['thread_flags'])
+
+if env['optimize']:
+    env['CCFLAGS'] += listify(env['optimize_flags'])
+else:
+    env['CCFLAGS'] += listify(env['no_optimize_flags'])
+
+if env['debug']:
+    env['CCFLAGS'] += listify(env['debug_flags'])
+    env['LINKFLAGS'] += listify(env['debug_linker_flags'])
+else:
+    env['CCFLAGS'] += listify(env['no_debug_flags'])
+    env['LINKFLAGS'] += listify(env['no_debug_linker_flags'])
+
+if env['coverage']:
+    if  env['CC'] == 'gcc':
+        env.Append(CCFLAGS=['-fprofile-arcs', '-ftest-coverage'])
+        env.Append(LINKFLAGS=['-fprofile-arcs', '-ftest-coverage'])
+#        ipdb()
+
+    else:
+        print 'Error: coverage testing is only available with GCC'
+        exit(0)
+
+
 # First, a sanity check:
 if not conf.CheckCXXHeader('cmath', '<>'):
     print 'ERROR: The C++ compiler is not correctly configured.'
@@ -697,7 +725,7 @@ env['HAS_BOOST_MATH'] = conf.CheckCXXHeader('boost/math/special_functions/erf.hp
 env['HAS_SUNDIALS'] = conf.CheckLibWithHeader('sundials_cvodes', 'cvodes/cvodes.h', 'C++',
                                               'CVodeCreate(CV_BDF, CV_NEWTON);', False)
 env['NEED_LIBM'] = not conf.CheckLibWithHeader(None, 'math.h', 'C',
-                                               'double x = 2.0; log(x);', False)
+                                               'double x; log(x);', False)
 if env['NEED_LIBM']:
     env['LIBM'] = ['m']
 else:
@@ -852,32 +880,6 @@ env['inst_sampledir'] = pjoin(instRoot, 'samples')
 env['inst_docdir'] = pjoin(instRoot, 'doc')
 env['inst_mandir'] = pjoin(instRoot, 'man1')
 env['inst_matlab_dir'] = pjoin(instRoot, 'matlab', 'toolbox')
-
-env['CXXFLAGS'] = listify(env['cxx_flags'])
-env['CCFLAGS'] = listify(env['cc_flags']) + listify(env['thread_flags'])
-env['LINKFLAGS'] += listify(env['thread_flags'])
-
-if env['optimize']:
-    env['CCFLAGS'] += listify(env['optimize_flags'])
-else:
-    env['CCFLAGS'] += listify(env['no_optimize_flags'])
-
-if env['debug']:
-    env['CCFLAGS'] += listify(env['debug_flags'])
-    env['LINKFLAGS'] += listify(env['debug_linker_flags'])
-else:
-    env['CCFLAGS'] += listify(env['no_debug_flags'])
-    env['LINKFLAGS'] += listify(env['no_debug_linker_flags'])
-
-if env['coverage']:
-    if  env['CC'] == 'gcc':
-        env.Append(CCFLAGS=['-fprofile-arcs', '-ftest-coverage'])
-        env.Append(LINKFLAGS=['-fprofile-arcs', '-ftest-coverage'])
-#        ipdb()
-
-    else:
-        print 'Error: coverage testing is only available with GCC'
-        exit(0)
 
 env['python_module_loc'] = pjoin(env['prefix'], 'lib',
                                  'python%i.%i' % sys.version_info[:2],

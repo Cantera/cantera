@@ -55,7 +55,8 @@ localenv.Depends(lib, localenv['config_h_target'])
 install('$inst_libdir', lib)
 
 # OS X requires the shared libraries at link time
-if localenv['OS'] == 'Darwin' and localenv['use_sundials'] == 'y':
+if (localenv['use_sundials'] == 'y' and
+    localenv['OS'] in ('Darwin', 'Windows')):
     localenv.Append(LIBS=localenv['sundials_libs'],
                     LIBPATH=localenv['sundials_libdir'])
 
