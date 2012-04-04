@@ -6,7 +6,7 @@
 
 //---------------------------- Version Flags ------------------//
 // Cantera version -> this will be a double-quoted string value
-//                    refering to branch number within svn
+//                    referring to branch number within svn
 %(CANTERA_VERSION)s
 
 //------------------------ Development flags ------------------//
@@ -24,20 +24,20 @@
 
 //------------------------ Fortran settings -------------------//
 
-// define types doublereal, integer, and ftnlen to match the 
+// define types doublereal, integer, and ftnlen to match the
 // corresponding Fortran data types on your system. The defaults
 // are OK for most systems
 
-typedef  double       doublereal;   // Fortran double precision 
+typedef  double       doublereal;   // Fortran double precision
 typedef  int          integer;      // Fortran integer
 typedef  int          ftnlen;       // Fortran hidden string length type
 
 
 // Fortran compilers pass character strings in argument lists by
-// adding a hidden argement with the length of the string. Some
+// adding a hidden argument with the length of the string. Some
 // compilers add the hidden length argument immediately after the
 // CHARACTER variable being passed, while others put all of the hidden
-// length arguments at the end of the argument list. Define this if 
+// length arguments at the end of the argument list. Define this if
 // the lengths are at the end of the argument list. This is usually the
 // case for most unix Fortran compilers, but is (by default) false for
 // Visual Fortran under Windows.
@@ -65,7 +65,7 @@ typedef  int          ftnlen;       // Fortran hidden string length type
 
 //--------- operating system --------------------------------------
 
-// The configure script defines this if the operatiing system is Mac
+// The configure script defines this if the operating system is Mac
 // OS X, This used to add some Mac-specific directories to the default
 // data file search path.
 %(DARWIN)s
@@ -75,8 +75,8 @@ typedef  int          ftnlen;       // Fortran hidden string length type
 // windows, with gcc being used as the compiler.
 %(CYGWIN)s
 
-// Identify whether the operating system is solaris 
-// with a native compiler 
+// Identify whether the operating system is Solaris
+// with a native compiler
 %(SOLARIS)s
 
 //--------- Fonts for reaction path diagrams ----------------------
@@ -86,7 +86,7 @@ typedef  int          ftnlen;       // Fortran hidden string length type
 
 // This define is needed to account for the variability for how
 // static variables in templated classes are defined. Right now
-// this is only turned on for the SunPro compiler on solaris.
+// this is only turned on for the SunPro compiler on Solaris.
 // in that system , you need to declare the static storage variable.
 // with the following line in the include file
 //
@@ -123,7 +123,7 @@ typedef  int          ftnlen;       // Fortran hidden string length type
 //    This define indicates the enabling of the inclusion of
 //    accurate liquid/vapor equations
 //    of state for several fluids, including water, nitrogen, hydrogen,
-//    oxygen, methane, andd HFC-134a.
+//    oxygen, methane, and HFC-134a.
 %(WITH_PURE_FLUIDS)s
 
 %(WITH_LATTICE_SOLID)s

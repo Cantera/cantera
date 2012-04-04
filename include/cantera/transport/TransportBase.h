@@ -305,13 +305,13 @@ public:
     }
 
     /**
-     * The ionic conducitivity in 1/ohm/m.
+     * The ionic conductivity in 1/ohm/m.
      */
     virtual doublereal ionConductivity() {
         return err("ionConductivity");
     }
 
-    //! Returns the pure species ionic conducitivity
+    //! Returns the pure species ionic conductivity
     /*!
      *  The units are 1/ohm/m and the length is the number of species
      *
@@ -852,7 +852,7 @@ protected:
     //! Number of species
     size_t m_nsp;
 
-    //! Number of dimensions used in flux expresions
+    //! Number of dimensions used in flux expressions
     size_t m_nDim;
 
     //!    Velocity basis from which diffusion velocities are computed.

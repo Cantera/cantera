@@ -195,7 +195,7 @@ int flamespeed(int np, void* p)
 
         /* Solve freely propagating flame*/
 
-        /* Linearally interpolate to find location where this
+        /* Linearly interpolate to find location where this
            temperature would exist. The temperature at this
            location will then be fixed for remainder of
            calculation.*/

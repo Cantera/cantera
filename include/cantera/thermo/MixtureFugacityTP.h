@@ -52,7 +52,7 @@ class PDSS;
 /**
  * @ingroup thermoprops
  *
- *  This is a filter class for ThermoPhase that implements some prepatory
+ *  This is a filter class for ThermoPhase that implements some preparatory
  *  steps for efficiently handling mixture of gases that whose standard states
  *  are defined as ideal gases, but which describe also non-ideal solutions.
  *  In addition a multicomponent liquid phase below the critical temperature of the
@@ -74,7 +74,7 @@ class PDSS;
  *  Typically, only one liquid phase is allowed to be formed within these classes.
  *  Additionally, there is an inherent contradiction between three phase models and
  *  the ThermoPhase class. The ThermoPhase class is really only meant to represent a
- *  single instanteation of a phase. The three phase models may be in equilibrium with
+ *  single instantiation of a phase. The three phase models may be in equilibrium with
  *  multiple phases of the fluid in equilibrium with each other. This has yet to be resolved.
  *
  *  This class is usually used for non-ideal gases.
@@ -450,7 +450,7 @@ public:
     /*!
      * This is useful when the normalization
      * condition is being handled by some other means, for example
-     * by a constraint equation as part of a larger set ofequations.
+     * by a constraint equation as part of a larger set of equations.
      *
      * @param x  Input vector of mole fractions.
      *           Length is m_kk.
@@ -786,7 +786,7 @@ public:
      *
      *
      *  @return   We return the density of the fluid at the requested phase. If we have not found any
-     *            acceptable density we return a -1. If we have found an accectable density at a
+     *            acceptable density we return a -1. If we have found an acceptable density at a
      *            different phase, we return a -2.
      */
     virtual doublereal densityCalc(doublereal TKelvin, doublereal pressure, int phaseRequested,
@@ -808,7 +808,7 @@ public:
     //! Returns the Phase State flag for the current state of the object
     /*!
      * @param checkState If true, this function does a complete check to see where
-     *        in paramters space we are
+     *        in parameters space we are
      *
      *  There are three values:
      *     WATER_GAS   below the critical temperature but below the critical density
@@ -894,7 +894,7 @@ protected:
 
 protected:
 
-    //! Current value of the pressurees
+    //! Current value of the pressures
     /*!
      *  Because the pressure is now a calculation, we store the result of the calculation whenever
      *  it is recalculated.

@@ -175,7 +175,7 @@ int main(int argc, char** argv)
             printf("    %15s %13.5g\n", sss.c_str(), thermDiff[k]);
         }
 
-        printf("Viscoscity and thermal Cond vs. T\n");
+        printf("Viscosity and thermal Cond vs. T\n");
         for (k = 0; k < 10; k++) {
             T1 = 400. + 100. * k;
             g.setState_TPX(T1, pres, DATA_PTR(Xset));

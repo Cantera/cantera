@@ -169,7 +169,7 @@ Chemical Potentials:  (J/kmol)
    ---   CO2         (        0) replaces H2          (        0) as component   6
    ---   Total number of components found =   7 (ne = 11)
     -----------------------------------------------------------------------------
-   --- Subroutine elem_rearrange() called to check stoich. coefficent matrix
+   --- Subroutine elem_rearrange() called to check stoich. coefficient matrix
    ---    and to rearrange the element ordering once
    ---   N (        8) replaces Fe(        0) as element   3
    ---   Na(        5) replaces Si(        0) as element   4
@@ -262,7 +262,7 @@ VCS CALCULATION METHOD
    ---  12 OH-       |         0|      -0.00      -0.00      -1.00       0.00       1.00       0.00       0.00
    -----------------------------------------------------------------------------
    --- Subroutine vcs_deltag called for all noncomponents
-  --- Species Status decision is reavaluated: All species are minor except for:
+  --- Species Status decision is reevaluated: All species are minor except for:
   ---      Major Species          : NaCl(S)
   ---      Major Species          : N2
   ---      Major Species          : H2O(L)
@@ -275,7 +275,7 @@ VCS CALCULATION METHOD
   ---      Zeroed Species in an active MS phase (tmp): H2O
   ---      Zeroed Species in an active MS phase (tmp): NaCl
   ---      Zeroed Species in an active MS phase (tmp): Cl-
-   ---   OH is prevented from popping into existance because a needed component to be consumed, O2, has a zero mole number
+   ---   OH is prevented from popping into existence because a needed component to be consumed, O2, has a zero mole number
   ---     Zeroed Species in an active MS phase (Stoich Constraint): OH
   ---      Zeroed Species in an active MS phase (tmp): OH-
   ---
@@ -397,7 +397,7 @@ VCS CALCULATION METHOD
    ---  12 O2        |   5.5e-27|      -0.00      -0.00      -2.00       0.00       0.00       2.00      -0.00
    -----------------------------------------------------------------------------
    --- Subroutine vcs_deltag called for all noncomponents
-  --- Species Status decision is reavaluated: All species are minor except for:
+  --- Species Status decision is reevaluated: All species are minor except for:
   ---      Major Species          : NaCl(S)
   ---      Major Species          : N2
   ---      Major Species          : H2O(L)
@@ -525,7 +525,7 @@ VCS CALCULATION METHOD
    ---  12 O2        |   5.5e-28|      -0.00      -0.00       2.00       0.00       0.00      -4.00       0.00
    -----------------------------------------------------------------------------
    --- Subroutine vcs_deltag called for all noncomponents
-  --- Species Status decision is reavaluated: All species are minor except for:
+  --- Species Status decision is reevaluated: All species are minor except for:
   ---      Major Species          : NaCl(S)
   ---      Major Species          : N2
   ---      Major Species          : H2O(L)

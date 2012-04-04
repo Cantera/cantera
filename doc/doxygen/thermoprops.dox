@@ -44,7 +44,7 @@
  *      Categorizing the Different %ThermoPhase Objects
  *   </H3>
  *
- *   ThermoPhase objects may be catelogged into four general bins.
+ *   ThermoPhase objects may be cataloged into four general bins.
  *
  *   The first type are those whose underlying species have a reference state associated
  *   with them. The reference state describes the thermodynamic functions for a
@@ -97,7 +97,7 @@
  *   SimpleThermo calculators to help in calculating the properties for all of the
  *   species in a phase. However, there are some PDSS objects which do not employ
  *   reference state calculations. An example of this is real equation of state for
- *   liquid water used within the calculation of brine thermodynamcis.
+ *   liquid water used within the calculation of brine thermodynamics.
  *   In general, the independent variables that completely describe the state of the
  *   system  for this class are temperature, the
  *   phase pressure, and N - 1 species mole or mass fractions or molalities.
@@ -252,7 +252,7 @@
  *      <TR>
  *        <TD> \link State::setDensity() setDensity()\endlink     </TD>
  *        <TD>  Set the total density of the phase. The temperature and
- *                         mole fractions are assumed fixed. Note this implicity
+ *                         mole fractions are assumed fixed. Note this implicitly
  *                         sets the pressure of the phase.
  *        </TD>
  *      </TR>
@@ -334,7 +334,7 @@
  *  This equation, when applied to the \f$ \zeta_k \f$ equation described
  *  above, results in a zero net change in the effective Gibbs free
  *  energy of the phase. However, specific charged species in the phase
- *  may increase or decrease their electochemical potentials, which will
+ *  may increase or decrease their electrochemical potentials, which will
  *  have an effect on interfacial reactions involving charged species,
  *  when there is a potential drop between phases. This effect is used
  *  within the Cantera::InterfaceKinetics and Cantera::EdgeKinetics kinetics
@@ -422,7 +422,7 @@
  *   terms of concentrations, i.e., gmol cm-3. In solid phase studies,
  *   however, kinetics is usually expressed in terms of unitless activities,
  *   which most often equate to solid phase mole fractions. In order to
- *   accomodate variability here, %Cantera has come up with the idea
+ *   accommodate variability here, %Cantera has come up with the idea
  *   of activity concentrations, \f$ C^a_k \f$. Activity concentrations are the expressions
  *   used directly in kinetics expressions.
  *   These activity (or generalized) concentrations are used
@@ -439,7 +439,7 @@
  *   \f]
  *
  *  \f$ C^0_k \f$ are called standard concentrations. They serve as multiplicative factors
- *  bewteen the activities and the generalized concentrations. Standard concentrations
+ *  between the activities and the generalized concentrations. Standard concentrations
  *  may be different for each species. They may depend on both the temperature
  *  and the pressure. However, they may not depend
  *  on the composition of the phase. For example, for the IdealGasPhase object

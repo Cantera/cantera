@@ -35,7 +35,7 @@ static boost::mutex  dir_mutex;
 //! Mutex for access to string messages
 static boost::mutex  msg_mutex;
 
-//! Mutex for creating singeltons within the application object
+//! Mutex for creating singletons within the application object
 static boost::mutex  app_mutex;
 
 // Mutex for controlling access to the log file
@@ -297,11 +297,11 @@ void Application::Messages::endLogGroup(std::string title)
     }
     AssertThrowMsg(current, "Application::Messages::endLogGroup",
                    "Error while ending a LogGroup. This is probably due to an unmatched"
-                   " beginnning and ending group");
+                   " beginning and ending group");
     current = current->parent();
     AssertThrowMsg(current, "Application::Messages::endLogGroup",
                    "Error while ending a LogGroup. This is probably due to an unmatched"
-                   " beginnning and ending group");
+                   " beginning and ending group");
     current = current->parent();
     // Get the loglevel of the previous level and get rid of
     // vector entry in loglevels.

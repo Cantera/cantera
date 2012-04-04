@@ -455,7 +455,7 @@ doublereal MixedSolventElectrolyte::cv_mole() const
  *
  * For this phase, the partial molar enthalpies are equal to the
  * standard state enthalpies modified by the derivative of the
- * molality-based activity coefficent wrt temperature
+ * molality-based activity coefficient wrt temperature
  *
  *  \f[
  * \bar h_k(T,P) = h^o_k(T,P) - R T^2 \frac{d \ln(\gamma_k)}{dT}
@@ -495,7 +495,7 @@ void MixedSolventElectrolyte::getPartialMolarEnthalpies(doublereal* hbar) const
  *
  * For this phase, the partial molar enthalpies are equal to the
  * standard state enthalpies modified by the derivative of the
- * activity coefficent wrt temperature
+ * activity coefficient wrt temperature
  *
  *  \f[
  * ??????????? \bar s_k(T,P) = s^o_k(T,P) - R T^2 \frac{d \ln(\gamma_k)}{dT}
@@ -534,7 +534,7 @@ void MixedSolventElectrolyte::getPartialMolarCp(doublereal* cpbar) const
  *
  * For this phase, the partial molar enthalpies are equal to the
  * standard state enthalpies modified by the derivative of the
- * activity coefficent wrt temperature
+ * activity coefficient wrt temperature
  *
  *  \f[
  * \bar s_k(T,P) = s^o_k(T,P) - R T^2 \frac{d \ln(\gamma_k)}{dT}

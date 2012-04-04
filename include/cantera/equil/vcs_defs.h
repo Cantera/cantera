@@ -318,7 +318,7 @@ namespace VCSnonideal
  */
 #define VCS_ELEM_TYPE_CHARGENEUTRALITY 2
 
-//! Constraint associated with maintaing a fixed lattice stoichiometry int eh
+//! Constraint associated with maintaining a fixed lattice stoichiometry in the
 //! solids
 /*!
  * The constraint may have positive or negative values. The lattice 0 species will

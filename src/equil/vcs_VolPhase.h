@@ -889,7 +889,7 @@ private:
      *  The phase stability problem requires a global reaction number for each
      *  species in the phase. Usually this is the krxn = kglob - M for species
      *  in the phase that are not components. For component species, the
-     *  choice of the reaction is one which maximimes the chance that the phase
+     *  choice of the reaction is one which maximizes the chance that the phase
      *  pops into (or remains in) existence.
      *   The index here is the local phase species index.
      *   the value of the variable is the global vcs reaction number. Note,
@@ -972,11 +972,11 @@ private:
     //! Value of the potential for the phase (Volts)
     double m_phi;
 
-    //! Boolean indicating whether the object has an uptodate mole number vector
+    //! Boolean indicating whether the object has an up-to-date mole number vector
     //! and potential with respect to the current vcs state calc status
     bool m_UpToDate;
 
-    //! Boolean indicating whether activity coefficients are uptodate.
+    //! Boolean indicating whether activity coefficients are up to date.
     /*!
      * Activity coefficients and volume calculations are lagged. They are only
      * called when they are needed (and when the state has changed so that they
@@ -984,7 +984,7 @@ private:
      */
     mutable bool m_UpToDate_AC;
 
-    //! Boolean indicating whether Star volumes are uptodate.
+    //! Boolean indicating whether Star volumes are up to date.
     /*!
      * Activity coefficients and volume calculations are lagged. They are only
      * called when they are needed (and when the state has changed so that they
@@ -993,7 +993,7 @@ private:
      */
     mutable bool m_UpToDate_VolStar;
 
-    //! Boolean indicating whether partial molar volumes are uptodate.
+    //! Boolean indicating whether partial molar volumes are up to date.
     /*!
      * Activity coefficients and volume calculations are lagged. They are only
      * called when they are needed (and when the state has changed so that they
@@ -1002,14 +1002,14 @@ private:
      */
     mutable bool m_UpToDate_VolPM;
 
-    //! Boolean indicating whether GStar is uptodate.
+    //! Boolean indicating whether GStar is up to date.
     /*!
      * GStar is sensitive to the temperature and the pressure, only
      */
     mutable bool m_UpToDate_GStar;
 
 
-    //! Boolean indicating whether G0 is uptodate.
+    //! Boolean indicating whether G0 is up to date.
     /*!
      * G0 is sensitive to the temperature and the pressure, only
      */

@@ -786,7 +786,7 @@ public:
     //! Set the internally stored density (gm/m^3) of the phase.
     /*!
      * Overwritten setDensity() function is necessary because the
-     * density is not an indendent variable.
+     * density is not an independent variable.
      *
      * This function will now throw an error condition
      *
@@ -813,7 +813,7 @@ public:
     //! Set the internally stored molar density (kmol/m^3) of the phase.
     /**
      * Overwritten setMolarDensity() function is necessary because the
-     * density is not an indendent variable.
+     * density is not an independent variable.
      *
      * This function will now throw an error condition if the input
      * isn't exactly equal to the current molar density.
@@ -1017,7 +1017,7 @@ public:
     /*!
      * For this phase, the partial molar enthalpies are equal to the
      * standard state enthalpies modified by the derivative of the
-     * molality-based activity coefficent wrt temperature
+     * molality-based activity coefficient wrt temperature
      *
      *  \f[
      * \bar h_k(T,P) = h^{\triangle}_k(T,P) - R T^2 \frac{d \ln(\gamma_k^\triangle)}{dT}

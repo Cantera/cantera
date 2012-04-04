@@ -162,7 +162,7 @@ Chemical Potentials:  (J/kmol)
    ---   CO2         (        0) replaces H2          (        0) as component   6
    ---   Total number of components found =   7 (ne = 11)
     -----------------------------------------------------------------------------
-   --- Subroutine elem_rearrange() called to check stoich. coefficent matrix
+   --- Subroutine elem_rearrange() called to check stoich. coefficient matrix
    ---    and to rearrange the element ordering once
    ---   N (        8) replaces Fe(        0) as element   3
    ---   Na(        5) replaces Si(        0) as element   4

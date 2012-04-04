@@ -295,7 +295,7 @@ doublereal IdealSolnGasVPSS::logStandardConc(size_t k) const
  *
  *  For EOS types other than cIdealSolidSolnPhase1, the default
  *  kmol/m3 holds for standard concentration units. For
- *  cIdealSolidSolnPhase0 type, the standard concentrtion is
+ *  cIdealSolidSolnPhase0 type, the standard concentration is
  *  unitless.
  */
 void IdealSolnGasVPSS::getUnitsStandardConc(double* uA, int, int sizeUA) const

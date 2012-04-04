@@ -84,7 +84,7 @@ class WxsGenerator(object):
                                      Compressed='yes',
                                      SummaryCodepage='1252', **fields))
 
-        # Required boilerplate refering to nonexistent installation media
+        # Required boilerplate referring to nonexistent installation media
         media = et.SubElement(product, "Media",
                               dict(Id='1',
                                    Cabinet='cantera.cab',

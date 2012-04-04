@@ -48,7 +48,7 @@
  * again inadvertently nothing happens, and if an attempt is made to
  * reference the object by its index number, the base-class object
  * will be referenced instead, which will throw an exception.  If
- * instead the pointer were stored in the refering code, there would
+ * instead the pointer were stored in the referring code, there would
  * always be the chance that
  *
  * The Cabinet<M> class is implemented as a singlet. The constructor

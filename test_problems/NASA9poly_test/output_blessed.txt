@@ -4,7 +4,7 @@ Comparisons of H2 calculated via several equivalent classes:
   cp/R:      3.8823      3.8823      3.8823
   H/RT:     2.91015     2.91015     2.91015
   S/R:     21.5255     21.5255     21.5255
-Viscoscity and thermal Cond vs. T
+Viscosity and thermal Cond vs. T
               400    1.0869e-05        0.2291
               600    1.4145e-05       0.29844
               800    1.7036e-05       0.36333

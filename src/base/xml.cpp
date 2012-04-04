@@ -1295,7 +1295,7 @@ void XML_Node::build(std::istream& f)
 // into the destination XML_Node tree, doing a union operation as
 // we go
 /*
- *  Note this is a const function becuase the current XML_Node and
+ *  Note this is a const function because the current XML_Node and
  *  its children isn't altered by this operation.
  *
  *  @param node_dest  This is the XML node to receive the information
@@ -1359,7 +1359,7 @@ void XML_Node::copyUnion(XML_Node* const node_dest) const
 // into the destination XML_Node tree, doing a complete copy
 // as we go.
 /*
- *  Note this is a const function becuase the current XML_Node and
+ *  Note this is a const function because the current XML_Node and
  *  its children isn't altered by this operation.
  *
  *  @param node_dest  This is the XML node to receive the information

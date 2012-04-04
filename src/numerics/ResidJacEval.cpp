@@ -255,7 +255,7 @@ doublereal ResidJacEval::filterSolnPrediction(doublereal t, doublereal* const y)
 // Evaluate any stopping criteria other than a final time limit
 /*
  *  If we are to stop the time integration for any reason other than reaching a final time limit, tout,
- *  provide a test here. This call is made at the end of every succesful time step iteration
+ *  provide a test here. This call is made at the end of every successful time step iteration
  *
  *  @return    If true, the the time stepping is stopped. If false, then time stepping is stopped if t >= tout
  *             Defaults to false.

@@ -103,7 +103,7 @@ metal(name = "metal",
 # the chemical potential of the electron is zero, and the
 # electrochemical potential is simply -F * phi, where phi is the
 # electric potential of the metal. Note that this simple model is
-# adequate only because all we require is a reservior for electrons;
+# adequate only because all we require is a reservoir for electrons;
 # if we wanted to do anything more complex, like carry out energy or
 # charge balances on the metal, then we would require a more complex
 # model. Note that there is no work function for this metal.
@@ -216,7 +216,7 @@ species( name = "H2O(m)", atoms = "H:2, O:1",
                            s0 = (123.0, 'J/mol/K')))
 
 
-# Surface reactions on the metal. We assume three dissociave
+# Surface reactions on the metal. We assume three dissociative
 # adsorption reactions, and three reactions on the surface
 # among adsorbates. All reactions are treated as reversible.
 surface_reaction( "H2 + (m) + (m) <=> H(m) + H(m)",
@@ -259,7 +259,7 @@ ideal_interface(name = "oxide_surface",
                 initial_state = state( temperature = tt,
                         coverages = "O''(ox):2.0, (ox):0.0") )
 
-# Note: hox, sox, hhydrox, andd shydrox are defined near the top of
+# Note: hox, sox, hhydrox, and shydrox are defined near the top of
 # this file.
 
 # An oxygen ion at the surface, with charge = -2
@@ -282,7 +282,7 @@ species( name = "H2O(ox)", atoms = "H:2, O:1",
                           s0 = (98.0,'J/mol/K')))
 
 
-# This reaction represents the exhange of a surface oxygen vacancy and
+# This reaction represents the exchange of a surface oxygen vacancy and
 # a subsurface vacancy. The concentration of subsurface vacancies is
 # fixed by the doping level. If this reaction is given a large rate,
 # then the surface vacancies will stay in equilibrium with the bulk

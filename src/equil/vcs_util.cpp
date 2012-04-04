@@ -407,7 +407,7 @@ static void vcsUtil_mlequ_preprocess(double* c, size_t idem, size_t n, double* b
  * The matrix C is destroyed.
  *
  * @return Routine returns an integer representing success:
- *     -   1 : Matrix is singluar
+ *     -   1 : Matrix is singular
  *     -   0 : solution is OK
  *    The solution x[] is returned in the matrix b.
  *
@@ -547,7 +547,7 @@ FOUND_PIVOT:
  * of lots of rhs's.
  *
  * @return Routine returns an integer representing success:
- *     -   1 : Matrix is singluar
+ *     -   1 : Matrix is singular
  *     -   0 : solution is OK
  *    The solution x[] is returned in the matrix b.
  *

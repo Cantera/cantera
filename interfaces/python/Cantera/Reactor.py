@@ -882,7 +882,7 @@ class Wall:
             Wall expansion rate parameter [m/s/Pa]. Defaults to 0.0.
         :param U:
             Overall heat transfer coefficient [W/m^2]. Defaults to 0.0
-            (adiabbatic wall).
+            (adiabatic wall).
         :param Q:
             Heat flux function :math:`q_0(t)` [W/m^2]. Optional. Default:
             :math:`q_0(t) = 0.0`.

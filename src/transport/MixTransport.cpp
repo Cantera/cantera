@@ -307,7 +307,7 @@ doublereal MixTransport::viscosity()
 void MixTransport::getBinaryDiffCoeffs(const size_t ld, doublereal* const d)
 {
     update_T();
-    // if necessary, evaluate the binary diffusion coefficents from the polynomial fits
+    // if necessary, evaluate the binary diffusion coefficients from the polynomial fits
     if (!m_bindiff_ok) {
         updateDiff_T();
     }

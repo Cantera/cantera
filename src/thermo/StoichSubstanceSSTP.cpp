@@ -36,7 +36,7 @@ StoichSubstanceSSTP::StoichSubstanceSSTP():
 }
 
 // Create and initialize a StoichSubstanceSSTP ThermoPhase object
-// from an asci input file
+// from an ASCII input file
 /*
  * @param infile name of the input file
  * @param id     name of the phase id in the file.
@@ -524,7 +524,7 @@ electrodeElectron::electrodeElectron():
 }
 
 // Create and initialize a electrodeElectron ThermoPhase object
-// from an asci input file
+// from an ASCII input file
 /*
  * @param infile name of the input file
  * @param id     name of the phase id in the file.

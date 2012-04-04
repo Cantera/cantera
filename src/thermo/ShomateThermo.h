@@ -577,7 +577,7 @@ protected:
     /*!
      * This map takes as its index, the species index in the phase.
      * It returns the position index within the group, where the
-     * temperature polynomials for that species are storred.
+     * temperature polynomials for that species are stored.
      */
     mutable std::map<size_t, size_t> m_posInGroup_map;
 };

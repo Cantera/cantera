@@ -45,7 +45,7 @@ int main(int argc, char** argv)
         std::auto_ptr<Transport> tran(newTransportMgr("Mix", &g));
         vector_fp Gvalues(nsp, 0.0);
 
-        printf("Viscoscity and thermal Cond vs. T\n");
+        printf("Viscosity and thermal Cond vs. T\n");
         for (int k = 0; k < 40; k++) {
             double T1 = 400. + 200. * k;
             g.setState_TPX(T1, pres, &Xset[0]);

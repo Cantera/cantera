@@ -77,7 +77,7 @@ void runexample()
     m2.setMassFlowRate(air_mdot);
 
 
-    // The igniter will use a Guassiam 'functor' object to specify the
+    // The igniter will use a Gaussian 'functor' object to specify the
     // time-dependent igniter mass flow rate.
     double A = 0.1;
     double FWHM = 0.2;

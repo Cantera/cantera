@@ -18,7 +18,7 @@ namespace Cantera
 {
 
 /*!
- * @name CONSTANTS - Specification of the Molality conventention
+ * @name CONSTANTS - Specification of the Molality convention
  */
 //@{
 //! Standard state uses the molar convention
@@ -28,7 +28,7 @@ const int    cAC_CONVENTION_MOLALITY = 1;
 //@}
 
 /*!
- * @name CONSTANTS - Specification of the SS conventention
+ * @name CONSTANTS - Specification of the SS convention
  */
 //@{
 //! Standard state uses the molar convention
@@ -69,7 +69,7 @@ class XML_Node;
  * To implement a new equation of state, derive a class from
  * ThermoPhase and overload the virtual methods in
  * ThermoPhase. Methods that are not needed can be left
- * unimplimented, which will cause an exception to be thrown if it
+ * unimplemented, which will cause an exception to be thrown if it
  * is called.
  *
  * Relationship with the kinetics operator:
@@ -1215,7 +1215,7 @@ public:
      * dimensionless forms by multiplying by RT.
      * @param lambda Output vector containing the element potentials.
      *        Length = nElements. Units are Joules/kmol.
-     * @return bool indicating whether thare are any valid stored element
+     * @return bool indicating whether there are any valid stored element
      *         potentials. The calling routine should check this
      *         bool. In the case that there aren't any, lambda is not
      *         touched.

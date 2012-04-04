@@ -157,7 +157,7 @@ public:
     //! @deprecated use type() instead
     DEPRECATED(virtual int ID() const);
 
-    //! Retunr the type of the kinetics object
+    //! Return the type of the kinetics object
     virtual int type() const;
 
     //! Set the electric potential in the nth phase
