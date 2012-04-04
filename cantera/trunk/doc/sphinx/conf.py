@@ -44,7 +44,7 @@ mathjax_path = 'http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=default'
 
 doxylink = {
         'ct' : (os.path.abspath('../../build/docs/Cantera.tag'),
-                '../../docs/html/')
+                '../../doxygen/html/')
 }
 
 # Add any paths that contain templates here, relative to this directory.

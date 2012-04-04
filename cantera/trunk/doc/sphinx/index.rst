@@ -16,8 +16,10 @@ Contents
 
    python/index
    C++ Introduction <cxx-intro>
-   C++ API Documentation <http://cantera.github.com/docs/index.html>
+
    Cantera Development Homepage <http://cantera.googlecode.com>
+
+* `C++ API Documentation <../../doxygen/html/index.html>`_
 
 Indexes
 =======

@@ -569,8 +569,8 @@ opts.AddVariables(
         'kernel' subdirectory in previous versions of Cantera.""",
         False),
     PathVariable(
-        'graphvisdir',
-        """The directory location of the graphviz program, dot. dot is
+        'graphvizdir',
+        """The directory location of the graphviz program, "dot". dot is
            used for creating the documentation, and for making
            reaction path diagrams. If "dot" is in your path, you can
            leave this unspecified. NOTE: Matlab comes with a
