@@ -57,7 +57,7 @@ m1 = MassFlowController(upstream = fuel_in,
 m2 = MassFlowController(upstream = air_in,
                         downstream = combustor, mdot = air_mdot)
 
-# The igniter will use a Guassiam 'functor' object to specify the
+# The igniter will use a Gaussian 'functor' object to specify the
 # time-dependent igniter mass flow rate.
 igniter_mdot = Gaussian(t0 = 1.0, FWHM = 0.2, A = 0.1)
 m3 = MassFlowController(upstream = igniter,

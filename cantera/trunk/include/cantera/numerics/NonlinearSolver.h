@@ -741,7 +741,7 @@ public:
      *
      *  @param time_curr   Current time
      *  @param ydot0       INPUT    Current value of the derivative of the solution vector
-     *  @param ydot1       INPUT  Time derivates of solution at the conditions which are evaluated for success
+     *  @param ydot1       INPUT  Time derivatives of solution at the conditions which are evaluated for success
      *  @param numTrials   OUTPUT Counter for the number of residual evaluations
      */
     void descentComparison(doublereal time_curr ,doublereal* ydot0, doublereal* ydot1, int& numTrials);
@@ -840,7 +840,7 @@ public:
      * @param ydot_n_curr INPUT    Current value of the derivative of the solution vector
      * @param step_1     INPUT    Trial step
      * @param y_n_1         OUTPUT   Solution values at the conditions which are evaluated for success
-     * @param ydot_n_1      OUTPUT   Time derivates of solution at the conditions which are evaluated for success
+     * @param ydot_n_1      OUTPUT   Time derivatives of solution at the conditions which are evaluated for success
      * @param trustDeltaOld INPUT Value of the trust length at the old conditions
      *
      *

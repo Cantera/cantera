@@ -1510,7 +1510,7 @@ public:
      *
      *   m_stoichCoeffRxnMatrix[irxn][j] :
      *     j refers to the component number, and irxn refers to the irxn_th non-component species.
-     *     The stoichiometric coefficents multilpled by the Formula coefficients of the
+     *     The stoichiometric coefficients multiplied by the Formula coefficients of the
      *     component species add up to the negative value of the number of elements in
      *     the species kspec.
      *
@@ -1551,7 +1551,7 @@ public:
     std::vector<double> m_feSpecies_old;
 
     //! Dimensionless new free energy for all the species in the mechanism
-    //! at the new tentatite T, P, and mole numbers.
+    //! at the new tentative T, P, and mole numbers.
     /*!
      *   The first NC entries are for components. The following
      *   NR entries are for the current  non-component species in the mechanism.
@@ -1584,7 +1584,7 @@ public:
      *   unknown. The second is the an interfacial
      *   voltage where w[k] refers to the interfacial
      *   voltage in volts.
-     *   These species types correspond to metalic
+     *   These species types correspond to metallic
      *   electrons corresponding to electrodes.
      *   The voltage and other interfacial conditions
      *   sets up an interfacial current, which is

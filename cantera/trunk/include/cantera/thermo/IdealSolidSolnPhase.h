@@ -85,7 +85,7 @@ public:
 
 
     //! Construct and initialize an IdealSolidSolnPhase ThermoPhase object
-    //! directly from an asci input file
+    //! directly from an ASCII input file
     /*!
      *
      * This constructor will also fully initialize the object.
@@ -313,7 +313,7 @@ public:
 
     /**
      * Overwritten setDensity() function is necessary because the
-     * density is not an indendent variable.
+     * density is not an independent variable.
      *
      * This function will now throw an error condition
      *
@@ -452,11 +452,11 @@ public:
      *  <TR><TD> 2        </TD><TD> X_k / V_N       </TD><TD> 1.0 / V_N    </TD></TR>
      *                         </TABLE>
      *
-     * HKM Note: We have absorbed the pressure dependence of the pures species
+     * HKM Note: We have absorbed the pressure dependence of the pure species
      *        state into the thermodynamics functions. Therefore the
      *        standard state on which the activities are based depend
      *        on both temperature and pressure. If we hadn't, it would have
-     *        appeared in this function in a very awkwards exp[] format.
+     *        appeared in this function in a very awkward exp[] format.
      *
      * @param c  Pointer to array of doubles of length m_kk, which on exit
      *           will contain the generalized concentrations.
@@ -525,7 +525,7 @@ public:
      *
      *  For EOS types other than cIdealSolidSolnPhase0, the default
      *  kmol/m3 holds for standard concentration units. For
-     *  cIdealSolidSolnPhase0 type, the standard concentrtion is
+     *  cIdealSolidSolnPhase0 type, the standard concentration is
      *  unitless.
      */
     virtual void getUnitsStandardConc(double* uA, int k = 0,

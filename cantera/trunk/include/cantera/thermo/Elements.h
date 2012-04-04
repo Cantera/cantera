@@ -46,7 +46,7 @@ namespace Cantera
  */
 #define CT_ELEM_TYPE_CHARGENEUTRALITY 2
 
-//! Constraint associated with maintaing a fixed lattice stoichiometry in a solid
+//! Constraint associated with maintaining a fixed lattice stoichiometry in a solid
 /*!
  * The constraint may have positive or negative values. The lattice 0 species will
  * have negative values while higher lattices will have positive values

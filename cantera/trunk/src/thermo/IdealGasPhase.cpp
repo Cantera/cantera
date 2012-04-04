@@ -385,7 +385,7 @@ void IdealGasPhase::getStandardVolumes(doublereal* vol) const
 /*
  *  Returns the vector of nondimensional
  *  enthalpies of the reference state at the current temperature
- *  and reference presssure.
+ *  and reference pressure.
  */
 void IdealGasPhase::getEnthalpy_RT_ref(doublereal* hrt) const
 {
@@ -489,7 +489,7 @@ void IdealGasPhase::initThermo()
 /*
  * Set mixture to an equilibrium state consistent with specified
  * chemical potentials and temperature. This method is needed by
- * the ChemEquil equillibrium solver.
+ * the ChemEquil equilibrium solver.
  */
 void IdealGasPhase::setToEquilState(const doublereal* mu_RT)
 {

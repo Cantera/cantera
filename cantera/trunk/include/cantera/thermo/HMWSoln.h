@@ -1251,7 +1251,7 @@ public:
     HMWSoln();
 
     //! Construct and initialize an HMWSoln ThermoPhase object
-    //! directly from an asci input file
+    //! directly from an ASCII input file
     /*!
      * Working constructors
      *
@@ -1782,7 +1782,7 @@ public:
     /*!
      * For this phase, the partial molar enthalpies are equal to the
      * standard state enthalpies modified by the derivative of the
-     * molality-based activity coefficent wrt temperature
+     * molality-based activity coefficient wrt temperature
      *
      *  \f[
      * \bar h_k(T,P) = h^{\triangle}_k(T,P)
@@ -1813,7 +1813,7 @@ public:
      * For this phase, the partial molar entropies are equal to the
      * SS species entropies plus the ideal solution contribution
      * plus complicated functions of the
-     * temperature derivative of the activity coefficents.
+     * temperature derivative of the activity coefficients.
      *
      *  \f[
      *     \bar s_k(T,P) =  s^{\triangle}_k(T,P)
@@ -3019,7 +3019,7 @@ private:
 
     /**
      *  Various temporary arrays used in the calculation of
-     *  the Pitzer activity coefficents.
+     *  the Pitzer activity coefficients.
      *  The subscript, L, denotes the same quantity's derivative
      *  wrt temperature
      */

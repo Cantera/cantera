@@ -72,7 +72,7 @@ int VCS_SOLVE::vcs_elem_rearrange(double* const aw, double* const sa,
         }
         plogf("\n");
         plogf("   --- Subroutine elem_rearrange() called to ");
-        plogf("check stoich. coefficent matrix\n");
+        plogf("check stoich. coefficient matrix\n");
         plogf("   ---    and to rearrange the element ordering once");
         plogendl();
     }

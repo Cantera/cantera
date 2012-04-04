@@ -70,7 +70,7 @@ if env['build_with_f2c']:
                          '$SOURCE > $TARGET')
 
     headerenv = prep_f2c(env)
-    # Possibly system-depenent headers
+    # Possibly system-dependent headers
     headerenv.Command('#ext/f2c_libs/signal1.h', 'f2c_libs/signal1.h0',
                       Copy('$TARGET', '$SOURCE'))
 
@@ -99,7 +99,7 @@ for subdir, extensions, prepFunction in libs:
     objects = localenv.SharedObject(mglob(localenv, subdir, *extensions))
     libraryTargets.extend(objects)
 
-# Google Teset
+# Google Test
 localenv = env.Clone()
 localenv.Append(CPPPATH=[Dir('#ext/gtest'),
                          Dir('#ext/gtest/include')],

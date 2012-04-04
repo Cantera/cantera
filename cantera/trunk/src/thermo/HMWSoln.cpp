@@ -835,7 +835,7 @@ double HMWSoln::density() const
 
 /*
  * Overwritten setDensity() function is necessary because the
- * density is not an indendent variable.
+ * density is not an independent variable.
  *
  * This function will now throw an error condition
  *
@@ -865,7 +865,7 @@ void HMWSoln::setDensity(const doublereal rho)
 
 /*
  * Overwritten setMolarDensity() function is necessary because the
- * density is not an indendent variable.
+ * density is not an independent variable.
  *
  * This function will now throw an error condition.
  *
@@ -1147,7 +1147,7 @@ void HMWSoln::getChemPotentials(doublereal* mu) const
  *
  * For this phase, the partial molar enthalpies are equal to the
  * standard state enthalpies modified by the derivative of the
- * molality-based activity coefficent wrt temperature
+ * molality-based activity coefficient wrt temperature
  *
  *  \f[
  * \bar h_k(T,P) = h^{\triangle}_k(T,P) - R T^2 \frac{d \ln(\gamma_k^\triangle)}{dT}
@@ -1854,7 +1854,7 @@ void HMWSoln::s_update_lnMolalityActCoeff() const
     calcMolalities();
     /*
      *  Calculate a cropped set of molalities that will be used
-     *  in all activity coefficent calculations.
+     *  in all activity coefficient calculations.
      */
     calcMolalitiesCropped();
     /*

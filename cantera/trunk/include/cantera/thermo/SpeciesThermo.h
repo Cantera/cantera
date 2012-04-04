@@ -46,7 +46,7 @@ class SpeciesThermoInterpType;
  * between a minimum temperature and a maximum temperature. The
  * reference state also specifies the molar volume of the species
  * as a function of temperature. The molar volume is a thermodynamic
- * function. By constrast, a full standard state does the same thing
+ * function. By contrast, a full standard state does the same thing
  * as a reference state, but specifies the thermodynamics functions
  * at all pressures.
  *

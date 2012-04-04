@@ -463,7 +463,7 @@ void SimpleTransport::getBinaryDiffCoeffs(size_t ld, doublereal* d)
     double bdiff;
     update_T();
 
-    // if necessary, evaluate the species diffusion coefficents
+    // if necessary, evaluate the species diffusion coefficients
     // from the polynomial fits
     if (!m_diff_temp_ok) {
         updateDiff_T();

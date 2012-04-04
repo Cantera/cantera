@@ -346,9 +346,9 @@ public:
 
     //! The mole fraction of species k.
     /*!
-     *   If k is ouside the valid
+     *   If k is outside the valid
      *   range, an exception will be thrown. Note that it is
-     *   somewhat more efficent to call getMoleFractions if the
+     *   somewhat more efficient to call getMoleFractions if the
      *   mole fractions of all species are desired.
      *   @param k species index
      */
@@ -368,7 +368,7 @@ public:
     //! Mass fraction of species k.
     /*!
      *  If k is outside the valid range, an exception will be thrown. Note that it is
-     *  somewhat more efficent to call getMassFractions if the mass fractions of all species are desired.
+     *  somewhat more efficient to call getMassFractions if the mass fractions of all species are desired.
      *
      * @param k    species index
      */

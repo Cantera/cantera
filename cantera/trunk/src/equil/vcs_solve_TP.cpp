@@ -2104,7 +2104,7 @@ double VCS_SOLVE::vcs_minor_alt_calc(size_t kspec, size_t irxn, bool* do_delete
         }
 
         /*
-         * get the diagonal of the activity coefficent jacobian
+         * get the diagonal of the activity coefficient jacobian
          */
         s = m_dLnActCoeffdMolNum[kspec][kspec];
         // s *= (m_tPhaseMoles_old[iph]);
@@ -3901,7 +3901,7 @@ int VCS_SOLVE::vcs_species_type(const size_t kspec) const
                         if (m_molNumSpecies_old[j] < 1.0E-60) {
 #ifdef DEBUG_MODE
                             if (m_debug_print_lvl >= 2) {
-                                plogf("   ---   %s is prevented from popping into existance because"
+                                plogf("   ---   %s is prevented from popping into existence because"
                                       " a needed component to be consumed, %s, has a zero mole number\n",
                                       m_speciesName[kspec].c_str(),  m_speciesName[j].c_str());
                             }
@@ -4892,9 +4892,9 @@ bool VCS_SOLVE::vcs_evaluate_speciesType()
     m_numRxnMinorZeroed = 0;
 #ifdef DEBUG_MODE
     if (m_debug_print_lvl >= 2) {
-        plogf("  --- Species Status decision is reavaluated: All species are minor except for:\n");
+        plogf("  --- Species Status decision is reevaluated: All species are minor except for:\n");
     } else if (m_debug_print_lvl >= 5) {
-        plogf("  --- Species Status decision is reavaluated");
+        plogf("  --- Species Status decision is reevaluated");
         plogendl();
     }
 #endif

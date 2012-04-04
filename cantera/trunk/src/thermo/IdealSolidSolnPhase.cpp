@@ -295,7 +295,7 @@ void IdealSolidSolnPhase::calcDensity()
 
 /**
  * Overwritten setDensity() function is necessary because the
- * density is not an indendent variable.
+ * density is not an independent variable.
  *
  * This function will now throw an error condition
  *
@@ -347,7 +347,7 @@ void IdealSolidSolnPhase::setPressure(doublereal p)
 /*
  * setMolarDensity()                    (virtual from State)
  * Overwritten setMolarDensity() function is necessary because the
- * density is not an indendent variable.
+ * density is not an independent variable.
  *
  * This function will now throw an error condition.
  *
@@ -591,7 +591,7 @@ logStandardConc(size_t k) const
  *
  *  For EOS types other than cIdealSolidSolnPhase1, the default
  *  kmol/m3 holds for standard concentration units. For
- *  cIdealSolidSolnPhase0 type, the standard concentrtion is
+ *  cIdealSolidSolnPhase0 type, the standard concentration is
  *  unitless.
  */
 void IdealSolidSolnPhase::

@@ -757,7 +757,7 @@ void LiquidTransport::getBinaryDiffCoeffs(size_t ld, doublereal* d)
                            "First argument does not correspond to number of species in model.\nDiff Coeff matrix may be misdimensioned");
     update_T();
 
-    // if necessary, evaluate the binary diffusion coefficents
+    // if necessary, evaluate the binary diffusion coefficients
     // from the polynomial fits
     if (!m_diff_temp_ok) {
         updateDiff_T();

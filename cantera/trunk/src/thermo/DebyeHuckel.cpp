@@ -432,7 +432,7 @@ doublereal DebyeHuckel::thermalExpansionCoeff() const
 
 /*
  * Overwritten setDensity() function is necessary because the
- * density is not an indendent variable.
+ * density is not an independent variable.
  *
  * This function will now throw an error condition
  *
@@ -457,7 +457,7 @@ void DebyeHuckel::setDensity(doublereal rho)
 
 /*
  * Overwritten setMolarDensity() function is necessary because the
- * density is not an indendent variable.
+ * density is not an independent variable.
  *
  * This function will now throw an error condition.
  *

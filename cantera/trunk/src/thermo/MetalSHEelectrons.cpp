@@ -39,7 +39,7 @@ MetalSHEelectrons::MetalSHEelectrons():
 }
 //====================================================================================================================
 // Create and initialize a MetalSHEelectrons ThermoPhase object
-// from an asci input file
+// from an ASCII input file
 /*
  * @param infile name of the input file
  * @param id     name of the phase id in the file.

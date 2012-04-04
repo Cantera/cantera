@@ -53,7 +53,7 @@ public:
     RedlichKwongMFTP();
 
     //! Construct and initialize a RedlichKwongMFTP ThermoPhase object
-    //! directly from an asci input file
+    //! directly from an ASCII input file
     /*!
      * Working constructors
      *
@@ -801,21 +801,21 @@ protected:
 
     //! The derivative of the pressure wrt the volume
     /*!
-     *  Calcualted at the current conditions
+     *  Calculated at the current conditions
      *  temperature and mole number kept constant
      */
     mutable doublereal dpdV_;
 
     //! The derivative of the pressure wrt the temperature
     /*!
-     *  Calcualted at the current conditions
+     *  Calculated at the current conditions
      *  Total volume and mole number kept constant
      */
     mutable doublereal dpdT_;
 
     //! Vector of derivatives of pressure wrt mole number
     /*!
-     *  Calcualted at the current conditions
+     *  Calculated at the current conditions
      *  Total volume, temperature and other mole number kept constant
      */
     mutable vector_fp dpdni_;

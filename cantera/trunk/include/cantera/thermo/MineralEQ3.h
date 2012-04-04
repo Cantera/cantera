@@ -168,7 +168,7 @@ public:
     MineralEQ3();
 
     //! Construct and initialize a StoichSubstanceSSTP ThermoPhase object
-    //! directly from an asci input file
+    //! directly from an ASCII input file
     /*!
      * @param infile name of the input file
      * @param id     name of the phase id in the file.

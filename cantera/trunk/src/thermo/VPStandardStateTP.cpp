@@ -102,13 +102,13 @@ VPStandardStateTP::operator=(const VPStandardStateTP& b)
 
         /*
          *  The VPSSMgr object contains shallow pointers. Whenever you have shallow
-         *  pointers, they have to be fixed up to point to the correct objects refering
+         *  pointers, they have to be fixed up to point to the correct objects referring
          *  back to this ThermoPhase's properties.
          */
         m_VPSS_ptr->initAllPtrs(this, m_spthermo);
         /*
          *  The PDSS objects contains shallow pointers. Whenever you have shallow
-         *  pointers, they have to be fixed up to point to the correct objects refering
+         *  pointers, they have to be fixed up to point to the correct objects referring
          *  back to this ThermoPhase's properties. This function also sets m_VPSS_ptr
          *  so it occurs after m_VPSS_ptr is set.
          */

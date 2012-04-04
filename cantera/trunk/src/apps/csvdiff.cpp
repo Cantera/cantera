@@ -1013,7 +1013,7 @@ int main(int argc, char* argv[])
 
         if (ndiff > 0) {
             printf(
-                "Column variable %s failed comparison test for %d occurances\n",
+                "Column variable %s failed comparison test for %d occurrences\n",
                 ColNames1[i1], ndiff);
             if (jmax >= 0) {
                 printf("  Largest difference was at data row %d ", jmax + 1);

@@ -388,23 +388,20 @@ private:
 
     //! Polynomial coefficients of the viscosity
     /*!
-     * These express the temperature dependendence of the pures
-     * species viscosities.
+     * These express the temperature dependence of the pure species viscosities.
      */
     std::vector<vector_fp>            m_visccoeffs;
 
     //! Polynomial coefficients of the conductivities
     /*!
-     * These express the temperature dependendence of the pures
-     * species conductivities
+     * These express the temperature dependence of the pure species conductivities
      */
     std::vector<vector_fp>            m_condcoeffs;
 
     //! Polynomial coefficients of the binary diffusion coefficients
     /*!
-     * These express the temperature dependendence of the
-     * binary diffusivities. An overall pressure dependence is then
-     * added.
+     * These express the temperature dependence of the binary diffusivities.
+     * An overall pressure dependence is then added.
      */
     std::vector<vector_fp>            m_diffcoeffs;
 

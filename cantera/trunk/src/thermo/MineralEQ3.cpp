@@ -40,7 +40,7 @@ MineralEQ3::MineralEQ3():
 }
 
 // Create and initialize a MineralEQ3 ThermoPhase object
-// from an asci input file
+// from an ASCII input file
 /*
  * @param infile name of the input file
  * @param id     name of the phase id in the file.

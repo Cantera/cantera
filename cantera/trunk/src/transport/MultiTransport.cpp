@@ -269,7 +269,7 @@ doublereal MultiTransport::viscosity()
 
 void MultiTransport::getBinaryDiffCoeffs(size_t ld, doublereal* d)
 {
-    // if necessary, evaluate the binary diffusion coefficents
+    // if necessary, evaluate the binary diffusion coefficients
     // from the polynomial fits
     updateDiff_T();
 
@@ -1038,7 +1038,7 @@ void MultiTransport::_update_thermal_T()
      *  HKM Exploratory comment:
      *       The translational component is 1.5
      *       The rotational component is 1.0 for a linear molecule and 1.5 for a nonlinear molecule
-     *           and zero for a monotomic.
+     *           and zero for a monatomic.
      *       Chemkin has traditionally subtracted 1.5 here (SAND86-8246).
      *       The original Dixon-Lewis paper subtracted 1.5 here.
      */

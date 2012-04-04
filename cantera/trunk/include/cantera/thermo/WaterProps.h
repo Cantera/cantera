@@ -67,7 +67,7 @@ class PDSS_Water;
  *  This equation, when applied to the \f$ \zeta_k \f$ equation described
  *  above, results in a zero net change in the effective Gibbs free
  *  energy of the phase. However, specific charged species in the phase
- *  may increase or decrease their electochemical potentials, which will
+ *  may increase or decrease their electrochemical potentials, which will
  *  have an effect on interfacial reactions involving charged species,
  *  when there is a potential drop between phases. This effect is used
  *  within the Cantera::InterfaceKinetics and Cantera::EdgeKinetics kinetics

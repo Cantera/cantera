@@ -80,7 +80,7 @@ class PDSS;
  *   SimpleThermo calculators to help in calculating the properties for all of the
  *   species in a phase. However, there are some PDSS objects which do not employ
  *   reference state calculations. An example of this is a real equation of state for
- *   liquid water used within the calculation of brine thermodynamcis.
+ *   liquid water used within the calculation of brine thermodynamics.
  *
  *   Typically calls to calculate standard state thermo properties are virtual calls
  *   at the ThermoPhase level. It is left to the child classes of ThermoPhase to

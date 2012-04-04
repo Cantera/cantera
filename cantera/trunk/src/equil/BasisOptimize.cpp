@@ -66,7 +66,7 @@ static size_t amax(double* x, size_t j, size_t n);
  *            (each column is a new rhs)
  *
  *   @return Retuns the value
- *      1 : Matrix is singluar
+ *      1 : Matrix is singular
  *      0 : solution is OK
  *
  *      The solution is returned in the matrix b.
@@ -572,7 +572,7 @@ static size_t amax(double* x, size_t j, size_t n)
  *        idem >= n must be true
  *
  * Return Value
- *      1 : Matrix is singluar
+ *      1 : Matrix is singular
  *      0 : solution is OK
  *
  *      The solution is returned in the matrix b.
@@ -698,7 +698,7 @@ size_t Cantera::ElemRearrange(size_t nComponents, const vector_fp& elementAbunda
         }
         writelog("\n");
         writelog("   --- Subroutine ElemRearrange() called to ");
-        writelog("check stoich. coefficent matrix\n");
+        writelog("check stoich. coefficient matrix\n");
         writelog("   ---    and to rearrange the element ordering once\n");
     }
 #endif

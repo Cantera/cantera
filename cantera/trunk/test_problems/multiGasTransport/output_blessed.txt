@@ -160,7 +160,7 @@
                C3H8             0
              CH2CHO             0
              CH3CHO             0
-Viscoscity and thermal Cond vs. T
+Viscosity and thermal Cond vs. T
               400    1.9759e-05      0.063366
               500    2.3573e-05      0.075886
               600    2.7136e-05      0.087831

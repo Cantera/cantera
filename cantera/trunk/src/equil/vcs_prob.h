@@ -157,7 +157,7 @@ public:
     //! and species amounts
     /*!
      *  All internally stored quantities will have these units. Also, printed
-     *  quantitities will display in these units.
+     *  quantities will display in these units.
      *
      *                           Chem_Pot                 Pres      vol   moles
      * ----------------------------------------------------------------------
