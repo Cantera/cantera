@@ -27,8 +27,8 @@ gas-electrolyte interfaces, and two metal-electrolyte interfaces.
 .. figure:: /_static/images/sofc-phases.png
     :align: center
 
-    Phases entering into a hypothetical microkinetic simulation of an idealized
-    solid-oxide fuel cell.
+    **Phases entering into a hypothetical microkinetic simulation of an
+    idealized solid-oxide fuel cell.**
 
 How to carry out this fuel cell simulation is beyond the scope of this document;
 we introduce it here only to give an example of the types of phases and
