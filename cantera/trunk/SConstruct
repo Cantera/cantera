@@ -676,6 +676,10 @@ if env['CC'] == 'cl':
 if env['boost_inc_dir']:
     env.Append(CPPPATH=env['boost_inc_dir'])
 
+if (env['use_sundials'] == 'default' and
+    (env['sundials_include'] or env['sundials_libdir'])):
+    env['use_sundials'] = 'y'
+
 if env['use_sundials'] in ('y','default'):
     if env['sundials_include']:
         env.Append(CPPPATH=[env['sundials_include']])
@@ -806,7 +810,8 @@ if env['use_sundials'] == 'default':
         print "INFO: Sundials was not found. Building with minimal ODE solver capabilities."
         env['use_sundials'] = 'n'
 elif env['use_sundials'] == 'y' and not env['HAS_SUNDIALS']:
-    print """ERROR: Unable to find Sundials headers"""
+    print "ERROR: Unable to find Sundials headers and / or libraries."
+    print "See config.log for details."
     sys.exit(1)
 elif env['use_sundials'] == 'y' and env['sundials_version'] not in ('2.2','2.3','2.4'):
     print """ERROR: Sundials version %r is not supported."""
