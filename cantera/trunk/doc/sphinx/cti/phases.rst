@@ -338,8 +338,8 @@ Many combustion and CVD simulations make use of reacting ideal gas
 mixtures. These can be defined using the :class:`ideal_gas` entry. The Cantera
 ideal gas model allows any number of species, and any number of reactions among
 them. It supports all of the options in the widely-used model described by Kee
-et al. [1989], plus some additional options for species thermodynamic properties
-and reaction rate expressions.
+et al. [#Kee1989]_, plus some additional options for species thermodynamic
+properties and reaction rate expressions.
 
 An example of an ideal_gas entry is shown below::
 
@@ -365,7 +365,7 @@ Transport Models
 
 Two transport models are available for use with ideal gas mixtures. The first is
 a multicomponent transport model that is based on the model described by
-Dixon-Lewis [1968] (see also Kee et al. [2003]). The second is a model that uses
+Dixon-Lewis [#dl68]_ (see also Kee et al. [#Kee2003]_). The second is a model that uses
 mixture rules. To select the multicomponent model, set the transport field to
 the string ``'multi'``, and to select the mixture-averaged model, set it to the
 string ``'mix'``::
@@ -464,3 +464,16 @@ The :class:`state` entry
 The initial state of either a phase or an interface may be set using an embedded
 :class:`state` entry. Note that only one of (``pressure``, ``density``) may be
 specified, and only one (``mole_fractions``, ``mass_fractions``, ``coverages``).
+
+.. rubric:: References
+
+.. [#Kee1989] R. J. Kee, F. M. Rupley, and J. A. Miller. Chemkin-II: A Fortran
+   chemical kinetics package for the analysis of gasphase chemical
+   kinetics. Technical Report SAND89-8009, Sandia National Laboratories, 1989.
+
+.. [#dl68] G. Dixon-Lewis. Flame structure and flame reaction kinetics,
+   II: Transport phenomena in multicomponent systems. *Proc. Roy. Soc. A*,
+   307:111--135, 1968.
+
+.. [#Kee2003] R. J. Kee, M. E. Coltrin, and P. Glarborg. *Chemically Reacting
+   Flow: Theory and Practice*. John Wiley and Sons, 2003.
