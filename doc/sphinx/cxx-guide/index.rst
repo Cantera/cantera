@@ -9,3 +9,4 @@ C++ Interface User's Guide
    compiling
    simple-example
    thermo-example
+   equil-example
