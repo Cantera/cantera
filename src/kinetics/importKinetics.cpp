@@ -66,7 +66,7 @@ public:
     //! Used to speed up duplicate reaction checks.
     std::map<std::vector<char>, std::vector<size_t> > m_participants;
 
-    bool installReaction(int i, const XML_Node& r, Kinetics* k,
+    bool installReaction(int i, const XML_Node& r, Kinetics& kin,
                          std::string default_phase, int rule,
                          bool validate_rxn) ;
 };
@@ -680,87 +680,51 @@ next:
  *
  * @ingroup kineticsmgr
  */
-bool rxninfo::installReaction(int i, const XML_Node& r, Kinetics* k,
+bool rxninfo::installReaction(int iRxn, const XML_Node& r, Kinetics& kin,
                               string default_phase, int rule,
                               bool validate_rxn)
 {
-
-    Kinetics& kin = *k;
-
-    /* Check to see that we are in fact at a reaction node */
+    // Check to see that we are in fact at a reaction node
     if (r.name() != "reaction") {
         throw CanteraError(" rxninfo::installReaction",
                            " expected xml node reaction, got " + r.name());
     }
-    /*
-     *  We use the ReactionData object to store initial values read
-     *  in from the xml data. Then, when we have collected everything
-     *  we add the reaction to the kinetics object, k, at the end
-     * of the routine. (Someday this may be rewritten to skip building
-     * the ReactionData object).
-     */
+
+    // We use the ReactionData object to store initial values read in from the
+    // xml data. Then, when we have collected everything we add the reaction to
+    // the kinetics object, kin, at the end of the routine.
     ReactionData rdata;
 
-    // Check to see if the reaction is specified to be a duplicate
-    // of another reaction. It's an error if the reaction is a
-    // duplicate and this is not set.
-    int dup = 0;
-    if (r.hasAttrib("duplicate")) {
-        dup = 1;
-    }
+    // Check to see if the reaction is specified to be a duplicate of another
+    // reaction. It's an error if the reaction is a duplicate and this is not
+    // set.
+    int dup = (r.hasAttrib("duplicate")) ? 1 : 0;
 
-    // Check to see if the reaction rate constant can be negative
-    // It's an error if a negative rate constant is found and
-    // this is not set.
-    int negA = 0;
-    if (r.hasAttrib("negative_A")) {
-        negA = 1;
-    }
+    // Check to see if the reaction rate constant can be negative. It's an
+    // error if a negative rate constant is found and this is not set.
+    int negA = (r.hasAttrib("negative_A")) ? 1 : 0;
 
-    /*
-     * This seemingly simple expression goes and finds the child element,
-     * "equation". Then it treats all of the contents of the "equation"
-     * as a string, and returns it the variable eqn. We post process
-     * the string to convert [ and ] characters into < and >, which
-     * cannot be stored in an XML file.
-     * The string eqn is just used for IO purposes. It isn't parsed
-     * for the identities of reactants or products.
-     */
-    string eqn = "<no equation>";
-    if (r.hasChild("equation")) {
-        eqn = r("equation");
-    }
+    // Use the contents of the "equation" child element as the reaction's
+    // string representation. Post-process to convert "[" and "]" characters
+    // back into "<" and ">" which cannot easily be stored in an XML file. This
+    // reaction string is used only for display purposes. It is not parsed for
+    //  the identities of reactants or products.
+    string eqn = (r.hasChild("equation")) ? r("equation") : "<no equation>";
     for (size_t nn = 0; nn < eqn.size(); nn++) {
         if (eqn[nn] == '[') {
             eqn[nn] = '<';
-        }
-        if (eqn[nn] == ']') {
+        } else if (eqn[nn] == ']') {
             eqn[nn] = '>';
         }
     }
 
-
-
     // get the reactants
-
     bool ok = getReagents(r, kin, 1, default_phase, rdata.reactants,
                           rdata.rstoich, rdata.rorder, rule);
-    //cout << "Reactants: " << endl;
-    //int npp = rdata.reactants.size();
-    //int nj;
-    //for (nj = 0; nj < npp; nj++) {
-    //    cout << rdata.reactants[nj] << "   " << rdata.rstoich[nj] << endl;
-    //}
 
-    /*
-     * Get the products. We store the id of products in rdata.products
-     */
+    // Get the products. We store the id of products in rdata.products
     ok = ok && getReagents(r, kin, -1, default_phase, rdata.products,
                            rdata.pstoich, rdata.porder, rule);
-    //cout << "Products: " << endl;npp = rdata.products.size();
-    //for (nj = 0; nj < npp; nj++) {
-    //    cout << rdata.products[nj] << "   " << rdata.pstoich[nj] << endl;
-    //}
 
     // if there was a problem getting either the reactants or the products,
     // then abort.
@@ -770,21 +734,15 @@ bool rxninfo::installReaction(int i, const XML_Node& r, Kinetics* k,
 
     // check whether the reaction is specified to be
     // reversible. Default is irreversible.
-    rdata.reversible = false;
     string isrev = r["reversible"];
-    if (isrev == "yes" || isrev == "true") {
-        rdata.reversible = true;
-    }
+    rdata.reversible = (isrev == "yes" || isrev == "true");
 
-    /*
-     * If reaction orders are specified, then this reaction
-     * does not follow mass-action kinetics, and is not
-     * an elementary reaction. So check that it is not reversible,
-     * since computing the reverse rate from thermochemistry only
-     * works for elementary reactions. Set the type to global,
-     * so that kinetics managers will know to process the reaction
-     * orders.
-     */
+    // If reaction orders are specified, then this reaction does not follow
+    // mass-action kinetics, and is not an elementary reaction. So check that
+    // it is not reversible, since computing the reverse rate from
+    // thermochemistry only works for elementary reactions. Set the type to
+    // global, so that kinetics managers will know to process the reaction
+    // orders.
     if (r.hasChild("order")) {
         if (rdata.reversible == true)
             throw CanteraError("installReaction",
@@ -793,49 +751,38 @@ bool rxninfo::installReaction(int i, const XML_Node& r, Kinetics* k,
         rdata.global = true;
     }
 
-    /*
-     *  Some reactions can be elementary reactions but have fractional
-     *  stoichiometries wrt to some products and reactants. An
-     *  example of these are solid reactions involving phase transformations.
-     *  Species with fractional stoichiometries must be from single-species
-     *  phases with unity activities. For these reactions set
-     *  the bool isReversibleWithFrac to true.
-     */
+    // Some reactions can be elementary reactions but have fractional
+    // stoichiometries wrt to some products and reactants. An example of these
+    // are solid reactions involving phase transformations. Species with
+    // fractional stoichiometries must be from single-species phases with
+    // unity activities. For these reactions set the bool isReversibleWithFrac
+    // to true.
     if (rdata.reversible == true) {
         for (size_t i = 0; i < rdata.products.size(); i++) {
-            size_t k = rdata.products[i];
             doublereal po = rdata.porder[i];
             AssertTrace(po == rdata.pstoich[i]);
             doublereal chk = po - 1.0 * int(po);
             if (chk != 0.0) {
-                /*
-                 *   put in a check here that k is a single species phase.
-                 */
-                thermo_t& thref = kin.speciesPhase(k);
-                if (thref.nSpecies() == 1) {
+                size_t k = rdata.products[i];
+                // Special case when k is a single species phase.
+                if (kin.speciesPhase(k).nSpecies() == 1) {
                     rdata.porder[i] = 0.0;
                 }
 
                 rdata.isReversibleWithFrac = true;
-
             }
         }
         for (size_t i = 0; i < rdata.reactants.size(); i++) {
-            size_t k = rdata.reactants[i];
             doublereal ro = rdata.rorder[i];
             AssertTrace(ro == rdata.rstoich[i]);
             doublereal chk = ro - 1.0 * int(ro);
             if (chk != 0.0) {
-                /*
-                 *   put in a check here that k is a single species phase.
-                 */
-                thermo_t& thref = kin.speciesPhase(k);
-                if (thref.nSpecies() == 1) {
+                size_t k = rdata.reactants[i];
+                // Special case when k is a single species phase.
+                if (kin.speciesPhase(k).nSpecies() == 1) {
                     rdata.rorder[i] = 0.0;
                 }
-
                 rdata.isReversibleWithFrac = true;
-
             }
         }
     }
@@ -864,12 +811,10 @@ bool rxninfo::installReaction(int i, const XML_Node& r, Kinetics* k,
     } else if (typ == "edge") {
         rdata.reactionType = EDGE_RXN;
     } else if (typ != "") {
-        throw CanteraError("installReaction",
-                           "Unknown reaction type: " + typ);
+        throw CanteraError("installReaction", "Unknown reaction type: " + typ);
     }
-    /*
-     * Look for undeclared duplicate reactions.
-     */
+
+    // Look for undeclared duplicate reactions.
     if (validate_rxn) {
         map<int, doublereal> rxnstoich;
         vector<char> participants(kin.nTotalSpecies(), 0);
@@ -894,7 +839,7 @@ bool rxninfo::installReaction(int i, const XML_Node& r, Kinetics* k,
                     if ((!dup || !m_dup[nn])) {
                         string msg = string("Undeclared duplicate reactions detected: \n")
                                      +"Reaction "+int2str(nn+1)+": "+m_eqn[nn]
-                                     +"\nReaction "+int2str(i+1)+": "+eqn+"\n";
+                                     +"\nReaction "+int2str(iRxn+1)+": "+eqn+"\n";
                         throw CanteraError("installReaction", msg);
                     }
                 }
@@ -910,28 +855,21 @@ bool rxninfo::installReaction(int i, const XML_Node& r, Kinetics* k,
     }
 
     rdata.equation = eqn;
-    rdata.number = i;
-    rdata.rxn_number = i;
+    rdata.number = iRxn;
+    rdata.rxn_number = iRxn;
 
-    /*
-     * Read the rate coefficient data from the XML file. Trigger an
-     * exception for negative A unless specifically authorized.
-     */
+     // Read the rate coefficient data from the XML file. Trigger an
+     // exception for negative A unless specifically authorized.
     getRateCoefficient(r.child("rateCoeff"), kin, rdata, negA);
 
-    /*
-     * Check to see that the elements balance in the reaction.
-     * Throw an error if they don't
-     */
+    // Check to see that the elements balance in the reaction.
+    // Throw an error if they don't
     if (validate_rxn) {
         checkRxnElementBalance(kin, rdata);
     }
 
-    /*
-     * Ok we have read everything in about the reaction. Add it
-     * to the kinetics object by calling the Kinetics member function,
-     * addReaction()
-     */
+    // Ok we have read everything in about the reaction. Add it  to the
+    // kinetics object by calling the Kinetics member function addReaction()
     kin.addReaction(rdata);
     return true;
 }
@@ -953,14 +891,7 @@ bool rxninfo::installReaction(int i, const XML_Node& r, Kinetics* k,
 bool installReactionArrays(const XML_Node& p, Kinetics& kin,
                            std::string default_phase, bool check_for_duplicates)
 {
-
-    const std::auto_ptr< rxninfo > _rxns(new rxninfo) ;
-    //_eqn.clear();
-    //_dup.clear();
-    //_nr.clear();
-    //_typ.clear();
-    //_reactiondata.clear();
-    //_rev.clear();
+    const std::auto_ptr<rxninfo> _rxns(new rxninfo);
 
     vector<XML_Node*> rarrays;
     int itot = 0;
@@ -1027,7 +958,7 @@ bool installReactionArrays(const XML_Node& p, Kinetics& kin,
             for (i = 0; i < nrxns; i++) {
                 const XML_Node* r = allrxns[i];
                 if (r) {
-                    if (_rxns->installReaction(itot, *r, &kin,
+                    if (_rxns->installReaction(itot, *r, kin,
                                                default_phase, rxnrule, check_for_duplicates)) {
                         ++itot;
                     }
@@ -1062,7 +993,7 @@ bool installReactionArrays(const XML_Node& p, Kinetics& kin,
                          * sometimes has surprising results.
                          */
                         if ((rxid >= imin) && (rxid <= imax)) {
-                            if (_rxns->installReaction(itot, *r, &kin,
+                            if (_rxns->installReaction(itot, *r, kin,
                                                        default_phase, rxnrule, check_for_duplicates)) {
                                 ++itot;
                             }
