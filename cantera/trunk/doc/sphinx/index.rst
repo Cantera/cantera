@@ -12,7 +12,7 @@ Contents
 
    Compiliation Instructions <compiling>
 
-   defining-phases
+   cti/index
 
    python/index
    C++ Introduction <cxx-intro>

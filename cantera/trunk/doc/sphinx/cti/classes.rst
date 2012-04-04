@@ -1,12 +1,12 @@
-***************
-Defining Phases
-***************
 
-CTI Class Documentation
-=======================
+*******************
+CTI Class Reference
+*******************
+
+.. py:module:: ctml_writer
 
 Basic Classes & Functions
--------------------------
+=========================
 
 .. autofunction:: ctml_writer.units
 
@@ -14,7 +14,7 @@ Basic Classes & Functions
    :no-undoc-members:
 
 Phases of Matter
-----------------
+================
 
 .. autoclass:: ctml_writer.phase
    :no-members:
@@ -56,7 +56,7 @@ Phases of Matter
    :no-undoc-members:
 
 Elements and Species
---------------------
+====================
 
 .. autoclass:: ctml_writer.element
    :no-undoc-members:
@@ -65,7 +65,7 @@ Elements and Species
    :no-undoc-members:
 
 Thermodynamic Properties
-------------------------
+========================
 
 .. autoclass:: ctml_writer.Mu0_table
    :no-undoc-members:
@@ -86,13 +86,13 @@ Thermodynamic Properties
    :no-undoc-members:
 
 Transport Properties
---------------------
+====================
 
 .. autoclass:: ctml_writer.gas_transport
    :no-undoc-members:
 
 Reactions
----------
+=========
 
 .. autoclass:: ctml_writer.reaction
    :no-undoc-members:
@@ -119,7 +119,7 @@ Reactions
    :no-undoc-members:
 
 Falloff Parameterizations
-^^^^^^^^^^^^^^^^^^^^^^^^^
+-------------------------
 
 .. autoclass:: ctml_writer.Troe
    :no-undoc-members:
