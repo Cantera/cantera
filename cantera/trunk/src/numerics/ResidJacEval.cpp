@@ -312,7 +312,7 @@ matrixConditioning(doublereal* const matrix, const int nrows, doublereal* const 
 int ResidJacEval::
 evalResidNJ(const doublereal t, const doublereal deltaT,  const doublereal* y,
             const doublereal* ydot, doublereal* const resid, const ResidEval_Type_Enum evalType,
-            const size_t id_x, const doublereal delta_x)
+            const int id_x, const doublereal delta_x)
 {
     throw CanteraError("ResidJacEval::evalResidNJ()", "Not implemented\n");
     return 1;

@@ -18,6 +18,7 @@ static integer c__1 = 1;
 static integer c__0 = 0;
 static integer c__2 = 2;
 static integer c__4 = 4;
+static long int lc__4 = 4;
 
 /* DECK DBOCLS */
 /* Subroutine */
@@ -67,7 +68,7 @@ int dbocls_(doublereal* w, integer* mdw, integer* mcon,
     extern /* Subroutine */ int dcopy_(integer*, doublereal*, integer*,
                                        doublereal*, integer*);
     static integer liopt;
-    extern doublereal d1mach_(integer*);
+    extern doublereal d1mach_(long int *);
     static integer locacc;
     static logical checkl;
     static integer iscale, locdim;
@@ -717,7 +718,7 @@ int dbocls_(doublereal* w, integer* mdw, integer* mcon,
         /*     PROCEDURE(PROCESS OPTION ARRAY) */
         zero = 0.;
         one = 1.;
-        drelpr = d1mach_(&c__4);
+        drelpr = d1mach_(&lc__4);
         checkl = FALSE_;
         filter = TRUE_;
         /*lenx = (*ncols + *mcon << 1) + 2;*/

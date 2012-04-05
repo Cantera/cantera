@@ -701,7 +701,7 @@ void IonsFromNeutralVPSSTP::calcNeutralMoleculeMoleFractions() const
     }
 #ifdef DEBUG_MODE
     sum = -1.0;
-    for (k = 0; k < m_kk; k++) {
+    for (int k = 0; k < m_kk; k++) {
         sum += moleFractions_[k];
     }
     if (fabs(sum) > 1.0E-11)  {

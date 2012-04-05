@@ -4,8 +4,9 @@
  *  element abundances constraints and the algorithm for fixing violations
  *  of the element abundances constraints.
  */
-#include "vcs_solve.h"
-#include "vcs_internal.h"
+#include "cantera/equil/vcs_solve.h"
+#include "cantera/equil/vcs_internal.h"
+#include "vcs_Exception.h"
 #include "math.h"
 
 namespace VCSnonideal
@@ -217,11 +218,11 @@ int VCS_SOLVE::vcs_elcorr(double aa[], double x[])
         plogf("\n");
     }
 
-    for (i = 0; i < m_numElemConstraints; ++i) {
+    for (size_t i = 0; i < m_numElemConstraints; ++i) {
         x[i] = m_elemAbundances[i] - m_elemAbundancesGoal[i];
     }
     l2before = 0.0;
-    for (i = 0; i < m_numElemConstraints; ++i) {
+    for (size_t i = 0; i < m_numElemConstraints; ++i) {
         l2before += x[i] * x[i];
     }
     l2before = sqrt(l2before/m_numElemConstraints);
@@ -585,14 +586,14 @@ L_CLEANUP:
     vcs_tmoles();
 #ifdef DEBUG_MODE
     l2after = 0.0;
-    for (i = 0; i < m_numElemConstraints; ++i) {
+    for (int i = 0; i < m_numElemConstraints; ++i) {
         l2after += SQUARE(m_elemAbundances[i] - m_elemAbundancesGoal[i]);
     }
     l2after = sqrt(l2after/m_numElemConstraints);
     if (m_debug_print_lvl >= 2) {
         plogf("   ---    Elem_Abund:  Correct             Initial  "
               "              Final\n");
-        for (i = 0; i < m_numElemConstraints; ++i) {
+        for (int i = 0; i < m_numElemConstraints; ++i) {
             plogf("   ---       ");
             plogf("%-2.2s", m_elementName[i].c_str());
             plogf(" %20.12E %20.12E %20.12E\n", m_elemAbundancesGoal[i], ga_save[i], m_elemAbundances[i]);

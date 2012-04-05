@@ -3744,11 +3744,12 @@ int NonlinearSolver::beuler_jac(GeneralMatrix& J, doublereal* const f,
              */
             doublereal* dyVector = mdp::mdp_alloc_dbl_1((int) neq_, MDP_DBL_NOINIT);
             retn = m_func->calcDeltaSolnVariables(time_curr, y, ydot, dyVector, DATA_PTR(m_ewt));
-
-
-
             if (s_print_NumJac) {
                 if (m_print_flag >= 7) {
+                    if (retn != 1) {
+                      printf("\t\tbeuler_jac ERROR: calcDeltaSolnVariables() returned an error condition.\n");
+                      printf("\t\t                  We will bail after calculating the Jacobian\n");
+                    }
                     if (neq_ < 20) {
                         printf("\t\tUnk            m_ewt              y                dyVector            ResN\n");
                         for (size_t iii = 0; iii < neq_; iii++) {
@@ -3841,6 +3842,10 @@ int NonlinearSolver::beuler_jac(GeneralMatrix& J, doublereal* const f,
             retn = m_func->calcDeltaSolnVariables(time_curr, y, ydot, dyVector, DATA_PTR(m_ewt));
             if (s_print_NumJac) {
                 if (m_print_flag >= 7) {
+                    if (retn != 1) {
+                      printf("\t\tbeuler_jac ERROR: calcDeltaSolnVariables() returned an error condition.\n");
+                      printf("\t\t                  We will bail after calculating the Jacobian\n");
+                    }
                     if (neq_ < 20) {
                         printf("\t\tUnk            m_ewt              y                dyVector            ResN\n");
                         for (size_t iii = 0; iii < neq_; iii++) {

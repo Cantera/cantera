@@ -7,6 +7,7 @@
 
 /* Table of constant values */
 
+static long int lc__4 = 4;
 static integer c__49 = 49;
 static integer c__201 = 201;
 static integer c__0 = 0;
@@ -164,7 +165,7 @@ static integer c__926 = 926;
     integer lenwp, lenrw, mxord, nwarn;
     doublereal rtoli;
     integer lsavr;
-    extern doublereal d1mach_(integer *);
+    extern doublereal d1mach_(long int *);
     doublereal tdist, tnext, fmaxl;
     extern /* Subroutine */ int ddstp_(doublereal *, doublereal *, doublereal 
 	    *, integer *, U_fp, U_fp, U_fp, doublereal *, doublereal *, 
@@ -2016,8 +2017,8 @@ L200:
     }
 
 /*     Compute unit roundoff and HMIN. */
-
-    uround = d1mach_(&c__4);
+    
+    uround = d1mach_(&lc__4);
     rwork[9] = uround;
 /* Computing MAX */
     d__1 = abs(*t), d__2 = abs(*tout);

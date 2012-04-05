@@ -8,7 +8,9 @@
  */
 // Copyright 2001-2004  California Institute of Technology
 
-#include "cantera/kinetics/InterfaceKinetics.h"
+// Why InterfaceKinetics.h and not Kinetics.h ??
+
+#include "cantera/kinetics/Kinetics.h"
 #include "cantera/thermo/SurfPhase.h"
 #include "cantera/kinetics/StoichManager.h"
 #include "cantera/kinetics/RateCoeffMgr.h"

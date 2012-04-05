@@ -8,7 +8,7 @@
 #include "cantera/thermo/ThermoPhase.h"
 #include "cantera/equil/MultiPhase.h"
 
-#include <string.h>
+#include <cstring>
 
 using namespace Cantera;
 using namespace std;

@@ -9,6 +9,7 @@
 #define VCS_SPECIES_THERMO_H
 
 //#include <vector>
+#include <cstdlib>
 
 namespace VCSnonideal
 {

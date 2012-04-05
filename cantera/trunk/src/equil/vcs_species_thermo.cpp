@@ -10,13 +10,13 @@
 
 
 
-#include "vcs_solve.h"
+#include "cantera/equil/vcs_solve.h"
 #include "vcs_species_thermo.h"
 #include "cantera/equil/vcs_defs.h"
-#include "vcs_VolPhase.h"
+#include "cantera/equil/vcs_VolPhase.h"
 
 #include "vcs_Exception.h"
-#include "vcs_internal.h"
+#include "cantera/equil/vcs_internal.h"
 
 #include <cstdio>
 #include <cstdlib>

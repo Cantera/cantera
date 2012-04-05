@@ -548,9 +548,9 @@ public:
 
         pressureIter iter = pressures_.upper_bound(c[0]);
         AssertThrowMsg(iter != pressures_.end(), "Plog::update_C",
-                       "Pressure out of range: " + fp2str(logP));
-        AssertThrowMsg(iter != pressures.begin(), "Plog::update_C",
-                       "Pressure out of range: " + fp2str(logP));
+                       "Pressure out of range: " + fp2str(logP_));
+        AssertThrowMsg(iter != pressures_.begin(), "Plog::update_C",
+                       "Pressure out of range: " + fp2str(logP_));
 
         // upper interpolation pressure
         logP2_ = iter->first;

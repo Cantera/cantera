@@ -17,8 +17,10 @@
 static integer c__1 = 1;
 static integer c__0 = 0;
 static integer c__2 = 2;
+static long int lc__2 = 2;
 static integer c_n4 = -4;
 static integer c__4 = 4;
+static long int lc__4 = 4;
 
 /* DECK DBOLSM */
 
@@ -74,7 +76,7 @@ int dbolsm_(doublereal* w, integer* mdw, integer* minput,
     extern /* Subroutine */ int dmout_(integer*, integer*, integer*,
                                        doublereal*, char*, integer*, ftnlen);
     static integer jdrop;
-    extern doublereal d1mach_(integer*);
+    extern doublereal d1mach_(long int*);
     extern /* Subroutine */ int dvout_(integer*, doublereal*, char*,
                                        integer*, ftnlen), ivout_(integer*, integer*, char*, integer *
                                                , ftnlen);
@@ -1315,7 +1317,7 @@ L470:
     /*     PROGRAM UNIT. */
     /*     THE COL. SCALING IS DEFINED IN THE CALLING PROGRAM UNIT. */
     /*    'BIG' IS PLUS INFINITY ON THIS MACHINE. */
-    big = d1mach_(&c__2);
+    big = d1mach_(&lc__2);
     i__1 = *ncols;
     for (j = 1; j <= i__1; ++j) {
         icase = ind[j];
@@ -1388,8 +1390,8 @@ L580:
     fac = .75;
     one = 1.;
     two = 2.;
-    tolind = sqrt(d1mach_(&c__4));
-    tolsze = sqrt(d1mach_(&c__4));
+    tolind = sqrt(d1mach_(&lc__4));
+    tolsze = sqrt(d1mach_(&lc__4));
     itmax = max(mrows,*ncols) * 5;
     wt = one;
     mval = 0;
@@ -1437,12 +1439,12 @@ L590:
                 goto L610;
             }
             tolind = x[*ncols + ioff];
-            if (tolind < d1mach_(&c__4)) {
+            if (tolind < d1mach_(&lc__4)) {
                 nerr = 25;
                 nlevel = 0;
                 nchar = 88;
                 rdum2 = (real) tolind;
-                rdum = (real) d1mach_(&c__4);
+                rdum = (real) d1mach_(&lc__4);
                 xerrwv_("DBOLSM(). THE TOLERANCE FOR RANK DETERMINATION=(R1)"
                         " IS LESS THAN MACHINE PRECISION=(R2).", &nchar, &nerr,
                         &nlevel, &c__0, &idum, &idum, &c__2, &rdum2, &rdum, (

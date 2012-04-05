@@ -8,10 +8,11 @@
  * U.S. Government retains certain rights in this software.
  */
 
-#include "vcs_solve.h"
-#include "vcs_internal.h"
-#include "vcs_VolPhase.h"
+#include "cantera/equil/vcs_solve.h"
+#include "cantera/equil/vcs_internal.h"
+#include "cantera/equil/vcs_VolPhase.h"
 #include "cantera/base/stringUtils.h"
+#include "vcs_Exception.h"
 
 #include <cstdio>
 #include <cstdlib>

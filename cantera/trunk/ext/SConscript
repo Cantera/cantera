@@ -96,13 +96,57 @@ if env['use_sundials'] == 'n':
 
 for subdir, extensions, prepFunction in libs:
     localenv = prepFunction(env)
-    objects = localenv.SharedObject(mglob(localenv, subdir, *extensions))
-    libraryTargets.extend(objects)
+    # objects = localenv.SharedObject(mglob(localenv, subdir, *extensions))
+    # libraryTargets.extend(objects)
+    libName = 'ct' + subdir
+    if libName == 'ctf2c_blas':
+        libName = 'ctblas'
+    if libName == 'ctf2c_lapack':
+        libName = 'ctlapack'
+    if libName == 'ctf2c_math' :
+        libName = 'ctmath'
+    if libName == 'ctcvode/source' :
+        libName = 'cvode'
+    if libName == 'ctlibexecstream' :
+        libName = 'execstream'
+    if libName == 'ctf2c_libs':
+        libName = 'ctf2c'
 
-# Google Test
+
+    if localenv['renamed_shared_libraries'] :
+        sharedLibName = libName + '_shared'
+    else:
+        sharedLibName = libName
+
+    #
+    # Build the static library
+    #
+    slTargets = []
+
+    objects = localenv.SharedObject(mglob(localenv, subdir, *extensions))
+    slTargets.extend(objects)
+    # ttarget =  pjoin('..', 'lib', libName)
+    ss =  pjoin('..', 'lib', libName)
+    lib = build(localenv.StaticLibrary(ss, slTargets, SPAWN=getSpawn(localenv)))
+    #lib = build(localenv.StaticLibrary('../lib/cantera', libraryTargets,
+    #                                   SPAWN=getSpawn(localenv)))
+
+    install('$inst_libdir', lib)
+    #
+    # Build the shared library
+    #
+    liby = build(localenv.SharedLibrary(target = pjoin('..', 'lib', sharedLibName), source = mglob(localenv, subdir, *extensions)))
+    #liby = build(localenv.SharedLibrary(target = pjoin('..', 'lib', sharedLibName), source = mglob(localenv, subdir, *extensions),
+    #                                   SPAWN=getSpawn(localenv)))
+    install('$inst_libdir', liby)
+
+
 localenv = env.Clone()
 localenv.Append(CPPPATH=[Dir('#ext/gtest'),
                          Dir('#ext/gtest/include')],
                 CPPDEFINES={'GTEST_HAS_PTHREAD': 0})
 build(localenv.Library(pjoin('../lib', 'gtest'),
                        source=['gtest/src/gtest-all.cc']))
+
+
+

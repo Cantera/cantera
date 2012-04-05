@@ -10,8 +10,7 @@
  * See file License.txt for licensing information.
  */
 
-#include "BEulerInt.h"
-
+#include "cantera/numerics/BEulerInt.h"
 
 #include "cantera/base/mdp_allo.h"
 #include <iostream>

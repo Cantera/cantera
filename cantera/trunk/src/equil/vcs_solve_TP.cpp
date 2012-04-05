@@ -13,15 +13,20 @@
 #include <cmath>
 #include <cassert>
 
-#include "vcs_solve.h"
-#include "vcs_internal.h"
-#include "vcs_VolPhase.h"
+#include "cantera/equil/vcs_solve.h"
+#include "cantera/equil/vcs_internal.h"
+#include "cantera/equil/vcs_VolPhase.h"
 #include "vcs_species_thermo.h"
+#include "vcs_Exception.h"
 
 #include "cantera/base/clockWC.h"
 #include "cantera/base/stringUtils.h"
 
 using namespace std;
+
+#ifndef MAX
+#define MAX(x,y) (( (x) > (y) ) ? (x) : (y))
+#endif
 
 namespace VCSnonideal
 {
@@ -112,7 +117,6 @@ int VCS_SOLVE::vcs_solve_TP(int print_lvl, int printDetails, int maxit)
     bool justDeletedMultiPhase = false;
     bool usedZeroedSpecies; /* return flag from basopt indicating that
                   one of the components had a zero concentration */
-    size_t doPhaseDeleteIph = npos;
     vcs_VolPhase* Vphase;
     double*     sc_irxn = NULL;  /* Stoichiometric coefficients for cur rxn  */
     double* dnPhase_irxn;
@@ -121,6 +125,9 @@ int VCS_SOLVE::vcs_solve_TP(int print_lvl, int printDetails, int maxit)
     int forceComponentCalc = 1;
     size_t iphaseDelete;  /* integer that determines which phase is being deleted */
     std::vector<size_t> phasePopPhaseIDs(0);
+    int doPhaseDeleteIph = -1;
+    int doPhaseDeleteKspec = -1;
+
 #ifdef DEBUG_MODE
     char ANOTE[128];
     /*
@@ -158,7 +165,9 @@ int VCS_SOLVE::vcs_solve_TP(int print_lvl, int printDetails, int maxit)
 
     solveFail = false;
 
-
+#if DEBUG_MODE
+    int ll;
+#endif
     /* ****************************************************** */
     /* **** Evaluate the elemental composition         ****** */
     /* ****************************************************** */
@@ -454,7 +463,8 @@ L_MAINLOOP_ALL_SPECIES:
     }
 #endif
     lec = false;
-    doPhaseDeleteIph = npos;
+    doPhaseDeleteIph = -1;
+    doPhaseDeleteKspec = -1;
     /*
      *    Zero out the net change in moles of multispecies phases
      */
@@ -901,6 +911,7 @@ L_MAINLOOP_ALL_SPECIES:
                                  */
                                 m_molNumSpecies_new[kspec] = 0.0;
                                 doPhaseDeleteIph = iph;
+                                doPhaseDeleteKspec = kspec;
 
 #ifdef DEBUG_MODE
                                 if (m_debug_print_lvl >= 2) {
@@ -1016,7 +1027,7 @@ L_MAIN_LOOP_END:
 L_MAIN_LOOP_END_NO_PRINT:
             ;
 #endif
-            if (doPhaseDeleteIph != npos) {
+            if (doPhaseDeleteIph != -1) {
 #ifdef DEBUG_MODE
                 if (m_debug_print_lvl >= 2) {
                     plogf("   --- ");
@@ -3670,7 +3681,7 @@ L_END_LOOP:
         double sumMax = -1.0;
         int iMax = -1;
         int jMax = -1;
-        int n;
+        size_t n;
         for (i = 0; i < m_numRxnTot; ++i) {
             k = m_indexRxnToSpecies[i];
             for (j = 0; j < ncTrial; ++j) {
@@ -4336,7 +4347,7 @@ void VCS_SOLVE::vcs_dfe(const int stateCalc,
         tPhMoles_ptr = VCS_DATA_PTR(m_tPhaseMoles_old);
         actCoeff_ptr = VCS_DATA_PTR(m_actCoeffSpecies_old);
         molNum = VCS_DATA_PTR(m_molNumSpecies_old);
-    } else { // stateCalc == VCS_STATECALC_NEW
+    } else if (stateCalc == VCS_STATECALC_NEW) {
         feSpecies = VCS_DATA_PTR(m_feSpecies_new);
         tPhMoles_ptr = VCS_DATA_PTR(m_tPhaseMoles_new);
         actCoeff_ptr = VCS_DATA_PTR(m_actCoeffSpecies_new);
@@ -4680,12 +4691,12 @@ void  VCS_SOLVE::vcs_printSpeciesChemPot(const int stateCalc) const
 //! Print out and check the elemental abundance vector
 void VCS_SOLVE::prneav() const
 {
-    int j;
+    size_t j;
     bool kerr;
     std::vector<double> eav(m_numElemConstraints, 0.0);
 
     for (j = 0; j < m_numElemConstraints; ++j) {
-        for (int i = 0; i < m_numSpeciesTot; ++i) {
+        for (size_t i = 0; i < m_numSpeciesTot; ++i) {
             if (m_speciesUnknownType[i] == VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
                 eav[j] += m_formulaMatrix[j][i] * m_molNumSpecies_old[i];
             }
@@ -4781,7 +4792,7 @@ double VCS_SOLVE::vcs_tmoles()
 #ifdef DEBUG_MODE
 void VCS_SOLVE::check_tmoles() const
 {
-    int i;
+    size_t i;
     double sum = 0.0;
     for (i = 0; i < m_numPhases; i++) {
         double m_tPhaseMoles_old_a = TPhInertMoles[i];
@@ -5400,7 +5411,7 @@ void VCS_SOLVE::vcs_deltag_Phase(const size_t iphase, const bool doDeleted,
         feSpecies = VCS_DATA_PTR(m_feSpecies_new);
         deltaGRxn = VCS_DATA_PTR(m_deltaGRxn_new);
         actCoeffSpecies = VCS_DATA_PTR(m_actCoeffSpecies_new);
-    } else { // stateCalc == VCS_STATECALC_OLD
+    } else if (stateCalc == VCS_STATECALC_OLD) {
         feSpecies = VCS_DATA_PTR(m_feSpecies_old);
         deltaGRxn = VCS_DATA_PTR(m_deltaGRxn_old);
         actCoeffSpecies = VCS_DATA_PTR(m_actCoeffSpecies_old);

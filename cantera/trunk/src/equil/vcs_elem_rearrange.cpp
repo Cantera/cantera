@@ -9,9 +9,9 @@
  * U.S. Government retains certain rights in this software.
  */
 
-#include "vcs_solve.h"
-#include "vcs_internal.h"
-#include "vcs_VolPhase.h"
+#include "cantera/equil/vcs_solve.h"
+#include "cantera/equil/vcs_internal.h"
+#include "cantera/equil/vcs_VolPhase.h"
 
 #include <cstdio>
 #include <cstdlib>
@@ -258,7 +258,7 @@ void VCS_SOLVE::vcs_switch_elem_pos(size_t ipos, size_t jpos)
         }
     }
     std::swap(m_elemAbundancesGoal[ipos], m_elemAbundancesGoal[jpos]);
-    std::swap(m_elemAbundances[ipos], m_elemAbundancesGoal[jpos]);
+    std::swap(m_elemAbundances[ipos], m_elemAbundances[jpos]);
     std::swap(m_elementMapIndex[ipos], m_elementMapIndex[jpos]);
     std::swap(m_elType[ipos], m_elType[jpos]);
     std::swap(m_elementActive[ipos], m_elementActive[jpos]);

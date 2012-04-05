@@ -21,7 +21,7 @@
  */
 
 #include <stdio.h>
-#include <stdlib.h>
+#include <cstdlib>
 #include <string.h>
 #include <math.h>
 #include <float.h>
@@ -38,8 +38,16 @@ using namespace std;
 #include <getopt.h>
 #endif
 
-#include "cantera/base/mdp_allo.h"
+#include "mdp_allo.h"
+//#include "cantera/base/mdp_allo.h"
 #include "tok_input_util.h"
+#ifndef MAX
+#  define MAX(x,y)    (( (x) > (y) ) ? (x) : (y))
+#endif
+#ifndef MIN
+#  define MIN(x,y)    (( (x) < (y) ) ? (x) : (y))
+#endif
+
 
 int Debug_Flag = true;
 double grtol = 1.0E-3;
@@ -790,8 +798,8 @@ int main(int argc, char* argv[])
      * Right now, if the number of data rows differ, we will punt.
      * Maybe later we can do something more significant
      */
-    int nDataRowsMIN = std::min(nDataRows1, nDataRows2);
-    int nDataRowsMAX = std::max(nDataRows1, nDataRows2);
+    int nDataRowsMIN = MIN(nDataRows1, nDataRows2);
+    int nDataRowsMAX = MAX(nDataRows1, nDataRows2);
     if (nDataRows1 != nDataRows2) {
         printf("Number of Data rows in file1, %d, is different than file2, %d\n",
                nDataRows1, nDataRows2);
@@ -805,7 +813,7 @@ int main(int argc, char* argv[])
     read_title(fp2, &title2, nTitleLines2);
 
     if (nTitleLines1 > 0 || nTitleLines2 > 0) {
-        int n = std::min(nTitleLines1, nTitleLines2);
+        int n = MIN(nTitleLines1, nTitleLines2);
         for (i = 0; i < n; i++) {
             if (strcmp(title1[i], title2[i]) != 0) {
                 printf("Title Line %d differ:\n\t\"%s\"\n\t\"%s\"\n", i, title1[i], title2[i]);
@@ -858,7 +866,7 @@ int main(int argc, char* argv[])
      * Do a Comparison of the names to find the maximum number
      * of matches.
      */
-    nColMAX = std::max(nCol1, nCol2);
+    nColMAX = MAX(nCol1, nCol2);
 
     compColList = mdp_alloc_int_2(nColMAX, 2, -1);
     nColcomparisons = 0;
@@ -939,7 +947,7 @@ int main(int argc, char* argv[])
             curVarValues1 = NVValues1[i1];
             curVarValues2 = NVValues2[i2];
             atol_j =             get_atol(curVarValues1, nDataRows1, gatol);
-            atol_j = std::min(atol_j, get_atol(curVarValues2, nDataRows2, gatol));
+            atol_j = MIN(atol_j, get_atol(curVarValues2, nDataRows2, gatol));
             for (j = 0; j < nDataRowsMIN; j++) {
 
                 slope1 = 0.0;
