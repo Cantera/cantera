@@ -44,7 +44,7 @@ public:
         */
         if (rdata.rateCoeffType != R::type())
             throw CanteraError("Rate1::install",
-                               "incorrect rate coefficient type: "+int2str(rdata.rateCoeffType));
+                               "incorrect rate coefficient type: "+int2str(rdata.rateCoeffType) + ". Was Expecting type: "+ int2str(R::type()));
 
         // Install a rate calculator and return the index of the calculator.
         m_rxn.push_back(rxnNumber);
