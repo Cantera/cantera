@@ -9,8 +9,7 @@ matlab_include = pjoin(localenv['matlab_path'], 'extern', 'include')
 
 if localenv['OS'] == 'Windows':
     mexPlatform = 'w'
-    linklibs = []
-    linkLibs += env['cantera_shared_libs']
+    linklibs = list(env['cantera_shared_libs'])
     linklibs += ['libmx', 'libmex', 'libmat']
     if localenv['OS_BITS'] == 32:
         matlab_libs = pjoin(localenv['matlab_path'], 'extern',
@@ -27,8 +26,7 @@ if localenv['OS'] == 'Windows':
         linkflags.extend(['-static-libgcc', '-static-libstdc++'])
 
 elif localenv['OS'] == 'Darwin':
-    linklibs = []
-    linkLibs += env['cantera_libs']
+    linklibs = list(env['cantera_libs'])
     linklibs += ['mx', 'mex', 'mat'] + env['LIBM']
     mexPlatform = 'maci'
     linkflags.extend(['-Wl,-exported_symbol,_mexFunction'])
@@ -39,8 +37,7 @@ elif localenv['OS'] == 'Darwin':
         matlab_libs = pjoin(localenv['matlab_path'], 'bin', 'macx86')
 
 elif os.name == 'posix':
-    linklibs = []
-    linklibs += env['cantera_libs']
+    linklibs = list(env['cantera_libs'])
     linklibs += ['mx', 'mex', 'mat'] + env['LIBM']
     mexPlatform = 'a'
 

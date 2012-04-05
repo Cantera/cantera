@@ -7,7 +7,7 @@ Basic usage:
     'scons build' - Compile Cantera and the language interfaces using
                     default options.
 
-    'cons clean' - Delete files created while building Cantera.
+    'scons clean' - Delete files created while building Cantera.
 
     '[sudo] scons install' - Install Cantera.
 
@@ -115,7 +115,7 @@ env = Environment(tools=toolchain+['textfile', 'subst', 'recursiveInstall', 'wix
 #
 # To print the current environment
 #
-# print env.Dump() 
+# print env.Dump()
 
 
 env['OS'] = platform.system()
@@ -216,8 +216,10 @@ else:
 
 if env['OS'] in ('Windows', 'Darwin'):
     defaults.threadFlags = ''
+    defaults.singleLibrary = True
 else:
     defaults.threadFlags = '-pthread'
+    defaults.singleLibrary = False
 
 # **************************************
 # *** Read user-configurable options ***
@@ -581,10 +583,15 @@ opts.AddVariables(
         """If this option is turned on, which is the default, the shared libraries that are created
         will be renamed to have a "_shared" extension added to their base name.
         If not, the base names will be the same as the static libraries.
-        In some cases this simplifies subsequent linking environments with 
-        static libaries and avoids a bug with using valgrind with 
+        In some cases this simplifies subsequent linking environments with
+        static libaries and avoids a bug with using valgrind with
         the -static linking flag.""",
         True),
+    BoolVariable(
+        'single_library',
+        """If set, include code from the 'ext' folder in the cantera library
+        rather than creating separate libraries for ctlapack, ctf2c, etc.""",
+        defaults.singleLibrary),
     PathVariable(
         'graphvizdir',
         """The directory location of the graphviz program, "dot". dot is
@@ -1076,37 +1083,39 @@ if env['use_sundials'] == 'y':
     linkSharedLibs.extend(('sundials_cvodes', 'sundials_ida', 'sundials_nvecserial'))
 else:
     env['sundials_libs'] = []
-    linkLibs.extend(['cvode'])
-    linkSharedLibs.extend(['cvode_shared'])
+    if not env['single_library']:
+        linkLibs.extend(['cvode'])
+        linkSharedLibs.extend(['cvode_shared'])
     #print 'linkLibs = ', linkLibs
 
-linkLibs.append('ctmath')
-linkSharedLibs.append('ctmath_shared')
-    
+if not env['single_library']:
+    linkLibs.append('ctmath')
+    linkSharedLibs.append('ctmath_shared')
+
+    # Add execstream to the link line
+    linkLibs.append('execstream')
+    linkSharedLibs.append('execstream_shared')
+
 #
 #  Add lapack and blas to the link line
 #
-if env['blas_lapack_libs'] == []:
+if env['blas_lapack_libs']:
+    linkLibs.extend(env['blas_lapack_libs'])
+elif not env['single_library']:
     linkLibs.extend(('ctlapack', 'ctblas'))
     linkSharedLibs.extend(('ctlapack_shared', 'ctblas_shared'))
-else:
-    linkLibs.extend(env['blas_lapack_libs'])
-#
-# Add execstream to the link line
-#
-linkLibs.append('execstream')
-linkSharedLibs.append('execstream_shared')
+
 
 #
 # Add the f2c library if it is necessary to link fortran libraries
 #
 if not env['build_with_f2c']:
-    #  
+    #
     #  Early gcc compilers will fail on this line as they use g77 and not gfortran
     #
     linkLibs.append('gfortran')
     linkSharedLibs.append('gfortran')
-else:
+elif not env['single_library']:
     # Add the f2c library when f2c is requested
     #
     linkLibs.append('ctf2c')
