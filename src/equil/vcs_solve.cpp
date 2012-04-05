@@ -9,12 +9,12 @@
  */
 
 
-#include "vcs_solve.h"
+#include "cantera/equil/vcs_solve.h"
 #include "vcs_Exception.h"
-#include "vcs_internal.h"
-#include "vcs_prob.h"
+#include "cantera/equil/vcs_internal.h"
+#include "cantera/equil/vcs_prob.h"
 
-#include "vcs_VolPhase.h"
+#include "cantera/equil/vcs_VolPhase.h"
 #include "vcs_SpeciesProperties.h"
 #include "vcs_species_thermo.h"
 
@@ -39,6 +39,7 @@ VCS_SOLVE::VCS_SOLVE() :
     m_numComponents(0),
     m_numRxnTot(0),
     m_numSpeciesRdc(0),
+    m_numRxnRdc(0),
     m_numRxnMinorZeroed(0),
     m_numPhases(0),
     m_doEstimateEquil(0),
@@ -485,19 +486,26 @@ int VCS_SOLVE::vcs_prob_specifyFully(const VCS_PROB* pub)
     /*
      * OK, We have room. Now, transfer the integer numbers
      */
-    m_numElemConstraints     = nelements;
+    m_numElemConstraints = nelements;
     m_numSpeciesTot = nspecies;
     m_numSpeciesRdc = m_numSpeciesTot;
     /*
      *  nc = number of components -> will be determined later.
      *       but set it to its maximum possible value here.
      */
-    m_numComponents     = nelements;
+    m_numComponents = nelements;
     /*
      *   m_numRxnTot = number of noncomponents, also equal to the
      *                 number of reactions
+     *                 Note, it's possible that the number of elements is greater than
+     *                 the number of species. In that case set the number of reactions
+     *                 to zero.
      */
-    m_numRxnTot = std::max<size_t>(nspecies - nelements, 0);
+    if (nelements > nspecies) {
+        m_numRxnTot = 0;
+    } else {
+        m_numRxnTot = nspecies - nelements;
+    }
     m_numRxnRdc = m_numRxnTot;
     /*
      *  number of minor species rxn -> all species rxn are major at the start.

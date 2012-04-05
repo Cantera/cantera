@@ -8,10 +8,10 @@
  * U.S. Government retains certain rights in this software.
  */
 
-#include "vcs_internal.h"
-#include "vcs_VolPhase.h"
+#include "cantera/equil/vcs_internal.h"
+#include "cantera/equil/vcs_VolPhase.h"
 #include "vcs_species_thermo.h"
-#include "vcs_solve.h"
+#include "cantera/equil/vcs_solve.h"
 
 #include <cstdio>
 #include <cstdlib>
@@ -24,6 +24,10 @@
 #ifdef DEBUG_MODE
 //extern int vcs_debug_print_lvl;
 #endif
+#ifndef  MAX
+#define  MAX(x,y) (( (x) > (y) ) ? (x) : (y))
+#endif
+
 
 extern "C" void dbocls_(double* W, int* MDW, int* MCON, int* MROWS,
                         int* NCOLS,

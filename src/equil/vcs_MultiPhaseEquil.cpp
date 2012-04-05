@@ -9,14 +9,13 @@
  */
 
 #include "cantera/equil/vcs_MultiPhaseEquil.h"
-#include "vcs_prob.h"
-#include "vcs_internal.h"
-#include "vcs_VolPhase.h"
+#include "cantera/equil/vcs_prob.h"
+#include "cantera/equil/vcs_internal.h"
+#include "cantera/equil/vcs_VolPhase.h"
 #include "vcs_species_thermo.h"
 #include "vcs_SpeciesProperties.h"
-#include "vcs_VolPhase.h"
 
-#include "vcs_solve.h"
+#include "cantera/equil/vcs_solve.h"
 
 #include "cantera/base/ct_defs.h"
 #include "cantera/thermo/mix_defs.h"

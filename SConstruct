@@ -7,7 +7,7 @@ Basic usage:
     'scons build' - Compile Cantera and the language interfaces using
                     default options.
 
-    'scons clean' - Delete files created while building Cantera.
+    'cons clean' - Delete files created while building Cantera.
 
     '[sudo] scons install' - Install Cantera.
 
@@ -112,6 +112,12 @@ env = Environment(tools=toolchain+['textfile', 'subst', 'recursiveInstall', 'wix
                   toolchain=toolchain,
                   **extraEnvArgs)
 
+#
+# To print the current environment
+#
+# print env.Dump() 
+
+
 env['OS'] = platform.system()
 env['OS_BITS'] = int(platform.architecture()[0][:2])
 
@@ -138,8 +144,10 @@ class defaults: pass
 
 if os.name == 'posix':
     defaults.prefix = '/usr/local'
-    defaults.boostIncDir = '/usr/include'
-    defaults.boostLibDir = '/usr/lib'
+    #    defaults.boostIncDir = '/usr/include'
+    #    defaults.boostLibDir = '/usr/lib'
+    defaults.boostIncDir = ''
+    defaults.boostLibDir = ''
     env['INSTALL_MANPAGES'] = True
 elif os.name == 'nt':
     defaults.prefix = pjoin(os.environ['ProgramFiles'], 'Cantera')
@@ -568,6 +576,15 @@ opts.AddVariables(
         """Create symbolic links for headers that were installed to the
         'kernel' subdirectory in previous versions of Cantera.""",
         False),
+    BoolVariable(
+        'renamed_shared_libraries',
+        """If this option is turned on, which is the default, the shared libraries that are created
+        will be renamed to have a "_shared" extension added to their base name.
+        If not, the base names will be the same as the static libraries.
+        In some cases this simplifies subsequent linking environments with 
+        static libaries and avoids a bug with using valgrind with 
+        the -static linking flag.""",
+        True),
     PathVariable(
         'graphvizdir',
         """The directory location of the graphviz program, "dot". dot is
@@ -931,7 +948,7 @@ cdefine('WITH_METAL', 'with_metal')
 cdefine('WITH_STOICH_SUBSTANCE', 'with_stoich_substance')
 cdefine('WITH_SEMICONDUCTOR', 'with_semiconductor')
 cdefine('WITH_PRIME', 'with_prime')
-cdefine('H298MODIFY_CAPABILITY', 'with_n298modify_capability')
+cdefine('H298MODIFY_CAPABILITY', 'with_h298modify_capability')
 cdefine('WITH_PURE_FLUIDS', 'with_pure_fluids')
 cdefine('WITH_HTML_LOGS', 'with_html_log_files')
 cdefine('WITH_VCSNONIDEAL', 'with_vcsnonideal')
@@ -1018,7 +1035,7 @@ if 'install' in COMMAND_LINE_TARGETS:
     # Make symlinks to replicate old header directory structure
     if env['legacy_headers']:
         install(env.Command, pjoin('$inst_incdir', 'kernel'), [], Mkdir("$TARGET"))
-        install('$inst_incdir', 'platform/legacy/Cantera.h')
+        install('$inst_incdir', 'platform/legacy/Cantera_legacy.h')
 
         if env['OS'] == 'Windows':
             cmd = Copy("$TARGET", "$SOURCE")
@@ -1050,19 +1067,60 @@ if 'install' in COMMAND_LINE_TARGETS:
 
 ### List of libraries needed to link to Cantera ###
 linkLibs = ['cantera']
+linkSharedLibs = ['cantera_shared']
+
 
 if env['use_sundials'] == 'y':
     env['sundials_libs'] = ['sundials_cvodes', 'sundials_ida', 'sundials_nvecserial']
     linkLibs.extend(('sundials_cvodes', 'sundials_ida', 'sundials_nvecserial'))
+    linkSharedLibs.extend(('sundials_cvodes', 'sundials_ida', 'sundials_nvecserial'))
 else:
     env['sundials_libs'] = []
+    linkLibs.extend(['cvode'])
+    linkSharedLibs.extend(['cvode_shared'])
+    #print 'linkLibs = ', linkLibs
 
-linkLibs.extend(env['blas_lapack_libs'])
+linkLibs.append('ctmath')
+linkSharedLibs.append('ctmath_shared')
+    
+#
+#  Add lapack and blas to the link line
+#
+if env['blas_lapack_libs'] == []:
+    linkLibs.extend(('ctlapack', 'ctblas'))
+    linkSharedLibs.extend(('ctlapack_shared', 'ctblas_shared'))
+else:
+    linkLibs.extend(env['blas_lapack_libs'])
+#
+# Add execstream to the link line
+#
+linkLibs.append('execstream')
+linkSharedLibs.append('execstream_shared')
 
+#
+# Add the f2c library if it is necessary to link fortran libraries
+#
 if not env['build_with_f2c']:
+    #  
+    #  Early gcc compilers will fail on this line as they use g77 and not gfortran
+    #
     linkLibs.append('gfortran')
+    linkSharedLibs.append('gfortran')
+else:
+    # Add the f2c library when f2c is requested
+    #
+    linkLibs.append('ctf2c')
+    linkSharedLibs.append('ctf2c_shared')
 
+#
+# Store the list of needed static link libraries in the environment
+#
 env['cantera_libs'] = linkLibs
+env['cantera_shared_libs'] = linkSharedLibs
+if env['renamed_shared_libraries'] == False :
+    env['cantera_shared_libs'] = linkLibs
+
+
 
 # Add targets from the SConscript files in the various subdirectories
 Export('env', 'build', 'libraryTargets', 'install', 'buildSample')
@@ -1082,14 +1140,14 @@ SConscript('build/src/SConscript')
 if env['python_package'] in ('full','minimal'):
     SConscript('src/python/SConscript')
 
-if env['matlab_toolbox'] == 'y':
-    SConscript('build/src/matlab/SConscript')
-
 SConscript('build/src/apps/SConscript')
 
 if env['OS'] != 'Windows':
     VariantDir('build/platform', 'platform/posix', duplicate=0)
     SConscript('build/platform/SConscript')
+
+if env['matlab_toolbox'] == 'y':
+    SConscript('build/src/matlab/SConscript')
 
 if env['doxygen_docs'] or env['sphinx_docs']:
     SConscript('doc/SConscript')

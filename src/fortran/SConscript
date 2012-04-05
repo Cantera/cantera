@@ -17,3 +17,6 @@ lib = build(localenv.Library(target=pjoin('..','..','lib','cantera_fortran'),
 
 install('$inst_libdir', lib)
 install('$inst_incdir', mods)
+#
+#  We are only building the static fortran library here. This is probably ok
+#

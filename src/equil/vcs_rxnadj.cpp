@@ -8,9 +8,9 @@
  * U.S. Government retains certain rights in this software.
  */
 
-#include "vcs_solve.h"
-#include "vcs_internal.h"
-#include "vcs_VolPhase.h"
+#include "cantera/equil/vcs_solve.h"
+#include "cantera/equil/vcs_internal.h"
+#include "cantera/equil/vcs_VolPhase.h"
 
 #include <cstdio>
 #include <cstdlib>
@@ -53,13 +53,13 @@ size_t VCS_SOLVE::vcs_RxnStepSizes(int& forceComponentCalc, size_t& kSpecial)
     char ANOTE[128];
     if (m_debug_print_lvl >= 2) {
         plogf("   ");
-        for (j = 0; j < 82; j++) {
+        for (int j = 0; j < 82; j++) {
             plogf("-");
         }
         plogf("\n");
         plogf("   --- Subroutine vcs_RxnStepSizes called - Details:\n");
         plogf("   ");
-        for (j = 0; j < 82; j++) {
+        for (int j = 0; j < 82; j++) {
             plogf("-");
         }
         plogf("\n");

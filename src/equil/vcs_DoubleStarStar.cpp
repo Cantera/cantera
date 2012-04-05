@@ -3,7 +3,7 @@
  *
  *  Header file for class DoubleStarStar
  */
-#include "vcs_DoubleStarStar.h"
+#include "cantera/equil/vcs_DoubleStarStar.h"
 
 namespace VCSnonideal
 {

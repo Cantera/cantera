@@ -122,7 +122,7 @@ public:
                             const doublereal* const ydot,
                             doublereal* const resid,
                             const ResidEval_Type_Enum evalType = Base_ResidEval,
-                            const size_t id_x = npos,
+                            const int id_x = -1,
                             const doublereal delta_x = 0.0);
 
 

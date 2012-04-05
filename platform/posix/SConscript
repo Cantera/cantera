@@ -21,11 +21,20 @@ inst = install('$inst_bindir', target)
 install(localenv.AddPostAction, inst, Chmod('$TARGET', 0755))
 
 # Cantera.mak include file for Makefile projects
-localenv['mak_sundials_libs'] = ' '.join('-l%s' % s
+
+if env['use_sundials'] == 'n':
+    localenv['mak_sundials_libs'] = '-lcvode'
+    localenv['mak_sundials_libdir'] = ''
+    localenv['mak_sundials_include'] = ''
+else:
+    #
+    # Add links to the sundials environment
+    #
+    localenv['mak_sundials_libs'] = ' '.join('-l%s' % s
                                          for s in localenv['sundials_libs'])
-localenv['mak_sundials_libdir'] = ('-L' + localenv['sundials_libdir']
+    localenv['mak_sundials_libdir'] = ('-L' + localenv['sundials_libdir']
                                    if localenv['sundials_libdir'] else '')
-localenv['mak_sundials_include'] = ('-I' + localenv['sundials_include']
+    localenv['mak_sundials_include'] = ('-I' + localenv['sundials_include']
                                    if localenv['sundials_include'] else '')
 
 localenv['mak_boost_include'] = ('-I' + localenv['boost_inc_dir']
@@ -36,15 +45,29 @@ localenv['mak_boost_libdir'] = ('-L' + localenv['boost_lib_dir']
 localenv['mak_boost_libs'] = ' '.join('-l%s' % s
                                       for s in localenv['boost_libs'])
 
-
+#
+# Handle blas lapack linkage
+#
 localenv['mak_have_blas_lapack_dir'] = '1' if localenv['blas_lapack_dir'] else '0'
-localenv['mak_blas_lapack_libs'] = ' '.join('-l%s' % s
-                                        for s in localenv['blas_lapack_libs'])
+if localenv['blas_lapack_dir']:
+    localenv['mak_blas_lapack_libs'] = ' '.join('-l%s' % s
+                                                for s in localenv['blas_lapack_libs'])
+else:
+    localenv['mak_blas_lapack_libs'] = ('-L' + '$inst_libdir' + ' -lctlapack -lctblas')
+
 localenv['mak_threadflags'] = localenv['thread_flags']
 if '-pthread' in localenv['thread_flags']:
     localenv['mak_fort_threadflags'] = '-lpthread'
 else:
     localenv['mak_fort_threadflags'] = ''
 
+#
+#  Handle f2c Linkage
+#
+localenv['mak_have_f2c_lib'] = '1' if localenv['build_with_f2c'] else '0'
+# print 'make_have-f2c_lib = ', localenv['mak_have_f2c_lib']
+
 mak = build(localenv.SubstFile('Cantera.mak', 'Cantera.mak.in'))
-install('$inst_sampledir', mak)
+install('$inst_incdir', mak)
+
+install('$inst_bindir', '#platform/posix/bin/install_tsc')

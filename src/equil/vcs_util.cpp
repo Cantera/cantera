@@ -11,8 +11,8 @@
 #include <cmath>
 #include <cassert>
 
-#include "vcs_internal.h"
-#include <string.h>
+#include "cantera/equil/vcs_internal.h"
+#include <cstring>
 #include <cstdlib>
 
 using namespace std;

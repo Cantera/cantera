@@ -9,7 +9,7 @@
  */
 
 
-#include "vcs_internal.h"
+#include "cantera/equil/vcs_internal.h"
 
 #include <cstdio>
 #include <cstdlib>

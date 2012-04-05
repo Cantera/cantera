@@ -1112,7 +1112,7 @@ int ChemEquil::dampStep(thermo_t& mix, vector_fp& oldx,
     if (ChemEquil_print_lvl > 0) {
         writelogf("Solution Unknowns: damp = %g\n", damp);
         writelog("            X_new      X_old       Step\n");
-        for (m = 0; m < nvar; m++) {
+        for (size_t m = 0; m < m_mm; m++) {
             writelogf("     % -10.5g   % -10.5g    % -10.5g\n", x[m], oldx[m], step[m]);
         }
     }
@@ -1165,7 +1165,7 @@ void ChemEquil::equilResidual(thermo_t& s, const vector_fp& x,
     if (ChemEquil_print_lvl > 0 && !m_doResPerturb) {
         PrintCtrl pc(std::cout, -14, PrintCtrl::CT_OFF_GLOBALOBEY);
         writelog("Residual:      ElFracGoal     ElFracCurrent     Resid\n");
-        for (n = 0; n < m_mm; n++) {
+        for (int n = 0; n < m_mm; n++) {
             double rrr = pc.cropAbs10(resid[n], -14);
             writelogf("               % -14.7E % -14.7E    % -10.5E\n",
                       elmFracGoal[n], elmFrac[n], rrr);

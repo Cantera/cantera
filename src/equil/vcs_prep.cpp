@@ -9,10 +9,10 @@
  * U.S. Government retains certain rights in this software.
  */
 
-#include "vcs_solve.h"
-#include "vcs_internal.h"
-#include "vcs_prob.h"
-#include "vcs_VolPhase.h"
+#include "cantera/equil/vcs_solve.h"
+#include "cantera/equil/vcs_internal.h"
+#include "cantera/equil/vcs_prob.h"
+#include "cantera/equil/vcs_VolPhase.h"
 #include "vcs_SpeciesProperties.h"
 
 #include <cstdio>
@@ -125,7 +125,11 @@ int VCS_SOLVE::vcs_prep_oneTime(int printLvl)
      *      Set an initial estimate for the number of noncomponent species
      *      equal to nspecies - nelements. This may be changed below
      */
-    m_numRxnTot = m_numSpeciesTot - m_numElemConstraints;
+    if (m_numElemConstraints > m_numSpeciesTot) {
+      m_numRxnTot = 0;
+    } else {
+      m_numRxnTot = m_numSpeciesTot - m_numElemConstraints;
+    }
     m_numRxnRdc = m_numRxnTot;
     m_numSpeciesRdc = m_numSpeciesTot;
     for (i = 0; i < m_numRxnRdc; ++i) {
@@ -218,11 +222,13 @@ int VCS_SOLVE::vcs_prep_oneTime(int printLvl)
         return retn;
     }
 
-    if (m_numElemConstraints != m_numComponents) {
+    if (m_numSpeciesTot >= m_numComponents) {
         m_numRxnTot = m_numRxnRdc = m_numSpeciesTot - m_numComponents;
         for (i = 0; i < m_numRxnRdc; ++i) {
             m_indexRxnToSpecies[i] = m_numComponents + i;
         }
+    } else {
+        m_numRxnTot = m_numRxnRdc = 0;
     }
 
     /*

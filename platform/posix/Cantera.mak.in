@@ -28,7 +28,9 @@ CANTERA_VERSION=@cantera_version@
 CANTERA_CORE_INCLUDES=-I@ct_incroot@
 
 # Required Cantera libraries
-CANTERA_CORE_LIBS=@mak_threadflags@ -L@ct_libdir@ -lcantera
+CANTERA_CORE_LIBS=@mak_threadflags@ -L@ct_libdir@ -lcantera -lctmath -lexecstream
+
+CANTERA_CORE_LIBS_DEP = @ct_libdir@/libcantera.a
 
 CANTERA_CORE_FTN=-L@ct_libdir@ -lcantera_fortran -lcantera
 
@@ -63,17 +65,40 @@ CANTERA_BLAS_LAPACK_LIBS=@mak_blas_lapack_libs@
 endif
 
 ###############################################################################
+#       F2C USAGE 
+###############################################################################
+
+CANTERA_mak_have_f2c_lib=@mak_have_f2c_lib@
+
+ifeq ($(CANTERA_mak_have_f2c_lib), 1)
+  CANTERA_F2C_LIBS= -lctf2c
+else
+  CANTERA_F2C_LIBS= 
+endif
+
+
+###############################################################################
 #      COMBINATIONS OF INCLUDES AND LIBS
 ###############################################################################
 
 CANTERA_INCLUDES=$(CANTERA_CORE_INCLUDES) $(CANTERA_SUNDIALS_INCLUDE) \
                  $(CANTERA_BOOST_INCLUDES)
 
+CANTERA_TOTAL_INCLUDES = $(CANTERA_INCLUDES)
+
 # Add this into the compilation environment to identify the version number
 CANTERA_DEFINES = -DCANTERA_VERSION=@cantera_version@
 
 CANTERA_LIBS=$(CANTERA_CORE_LIBS) $(CANTERA_SUNDIALS_LIBS) \
-             $(CANTERA_BLAS_LAPACK_LIBS) $(CANTERA_BOOST_LIBS)
+             $(CANTERA_BLAS_LAPACK_LIBS) $(CANTERA_BOOST_LIBS) \
+	     $(CANTERA_F2C_LIBS)
+
+CANTERA_TOTAL_LIBS=$(CANTERA_LIBS)
+
+CANTERA_TOTAL_LIBS_DEP= $(CANTERA_CORE_LIBS_DEP) \
+                        $(CANTERA_SUNDIALS_LIBS_DEP) \
+                        $(CANTERA_BLAS_LAPACK_LIBS_DEP)
+
 
 CANTERA_FORTRAN_LIBS=$(CANTERA_CORE_FTN) $(CANTERA_SUNDIALS_LIBS) \
                      $(CANTERA_BLAS_LAPACK_LIBS) $(CANTERA_BOOST_LIBS) \

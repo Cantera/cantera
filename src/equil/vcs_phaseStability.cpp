@@ -3,10 +3,11 @@
  *  Implementation class for functions associated with determining the stability of a phase
  *   (see Class \link Cantera::VCS_SOLVE VCS_SOLVE\endlink and \ref equilfunctions ).
  */
-#include "vcs_solve.h"
-#include "vcs_internal.h"
+#include "cantera/equil/vcs_solve.h"
+#include "cantera/equil/vcs_internal.h"
 #include "vcs_species_thermo.h"
-#include "vcs_VolPhase.h"
+#include "cantera/equil/vcs_VolPhase.h"
+#include "vcs_Exception.h"
 
 #include <cstdio>
 #include <cstdlib>
@@ -58,7 +59,7 @@ bool VCS_SOLVE::vcs_popPhasePossible(const size_t iphasePop) const
         size_t kspec = Vphase->spGlobalIndexVCS(k);
 #ifdef DEBUG_MODE
         if (m_molNumSpecies_old[kspec] > 0.0) {
-            printf("ERROR vcs_popPhasePossible we shouldn't be here %d %g > 0.0",
+            printf("ERROR vcs_popPhasePossible we shouldn't be here %lu %g > 0.0",
                    kspec, m_molNumSpecies_old[kspec]);
             exit(-1);
         }
@@ -505,14 +506,14 @@ int VCS_SOLVE::vcs_popPhaseRxnStepSizes(const size_t iphasePop)
                         if (m_molNumSpecies_old[j] > 0.0) {
 #ifdef DEBUG_MODE
                             sprintf(anote, "Delta damped from %g "
-                                    "to %g due to component %d (%10s) going neg", m_deltaMolNumSpecies[kspec],
+                                    "to %g due to component %lu (%10s) going neg", m_deltaMolNumSpecies[kspec],
                                     -m_molNumSpecies_old[j]/stoicC, j,  m_speciesName[j].c_str());
 #endif
                             m_deltaMolNumSpecies[kspec] = - 0.5 * m_molNumSpecies_old[j] / stoicC;
                         } else {
 #ifdef DEBUG_MODE
                             sprintf(anote, "Delta damped from %g "
-                                    "to %g due to component %d (%10s) zero", m_deltaMolNumSpecies[kspec],
+                                    "to %g due to component %lu (%10s) zero", m_deltaMolNumSpecies[kspec],
                                     -m_molNumSpecies_old[j]/stoicC, j,  m_speciesName[j].c_str());
 #endif
                             m_deltaMolNumSpecies[kspec] = 0.0;
