@@ -4,7 +4,7 @@
 
 #include "cantera/equilibrium.h"
 #include "cantera/equil/vcs_MultiPhaseEquil.h"
-#include "equil/vcs_internal.h"
+#include "cantera/equil/vcs_internal.h"
 
 #include "cantera/thermo/ThermoFactory.h"
 #include "cantera/thermo/IdealGasPhase.h"

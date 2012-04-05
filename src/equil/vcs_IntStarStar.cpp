@@ -3,12 +3,12 @@
  *
  *  Header file for class IntStarStar
  */
-#include "vcs_IntStarStar.h"
+#include "cantera/equil/vcs_IntStarStar.h"
 
 namespace VCSnonideal
 {
 
-//!Default constructor. Create an empty array.
+//Default constructor. Create an empty array.
 IntStarStar::IntStarStar() :
     m_nrows(0),
     m_ncols(0)
