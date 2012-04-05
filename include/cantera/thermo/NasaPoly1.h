@@ -55,7 +55,7 @@ public:
     //! Empty constructor
     NasaPoly1()
         : m_lowT(0.0), m_highT(0.0),
-          m_Pref(0.0), m_index(0), m_coeff(vector_fp(7)) {}
+          m_Pref(0.0), m_index(0), m_coeff(7, 0.0) {}
 
 
     //! constructor used in templated instantiations
