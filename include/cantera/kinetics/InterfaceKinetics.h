@@ -654,7 +654,13 @@ protected:
      */
     std::vector<size_t> m_revindex;
 
-    Rate1<SurfaceArrhenius>                    m_rates;
+    //! Templated class containing the vector of reactions for this interface
+    /*!
+     *  The templated class is described in RateCoeffMgr.h
+     *  The class SurfaceArrhenius is described in RxnRates.h
+     */
+    Rate1<SurfaceArrhenius> m_rates;
+
     bool                                m_redo_rates;
 
     /**

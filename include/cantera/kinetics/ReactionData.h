@@ -16,6 +16,7 @@ namespace Cantera
 class ReactionData
 {
 public:
+    //! Default constructor
     ReactionData() {
         reactionType = ELEMENTARY_RXN;
         number = 0;
@@ -30,6 +31,8 @@ public:
         isReversibleWithFrac = false;
         beta = 0.0;
     }
+
+    //! Destructor
     virtual ~ReactionData() {}
 
     //! type of the reaction
@@ -53,15 +56,19 @@ public:
     //! True if the current reaction is reversible. False otherwise
     bool reversible;
 
-    //! type of the rate coefficient for the forward rate constant
+    //! Type of the rate coefficient for the forward rate constant
     /*!
      *  The valid types are listed in the file, reaction_defs.h and they
      *  all end in RATECOEFF_TYPE
      */
     int rateCoeffType;
 
+    //! Vector of rate coefficient parameters
     vector_fp rateCoeffParameters;
+
+    //! Vector of auxillary rate coefficient parameters
     vector_fp auxRateCoeffParameters;
+
     int falloffType;
     vector_fp falloffParameters;
     int error;

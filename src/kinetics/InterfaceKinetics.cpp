@@ -1114,7 +1114,28 @@ void InterfaceKinetics::addElementaryReaction(ReactionData& r)
     for (size_t m = 0; m < ncov; m++) {
         rp.push_back(r.cov[m]);
     }
+
+    /*
+     * Temporarily change the reaction rate coefficient type to surface arrhenius.
+     * This is what is expected. We'll handle exchange current types below by hand.
+     */
+    int reactionRateCoeffType_orig = r.rateCoeffType;
+    if (r.rateCoeffType == EXCHANGE_CURRENT_REACTION_RATECOEFF_TYPE) {
+       r.rateCoeffType = SURF_ARRHENIUS_REACTION_RATECOEFF_TYPE;
+    }
+    if (r.rateCoeffType == ARRHENIUS_REACTION_RATECOEFF_TYPE) {
+       r.rateCoeffType = SURF_ARRHENIUS_REACTION_RATECOEFF_TYPE;
+    }
+    /*
+     * Install the reaction rate into the vector of reactions handled by this class
+     */
     size_t iloc = m_rates.install(reactionNumber(), r);
+
+    /*
+     * Change the reaction rate coefficient type back to its original value
+     */
+    r.rateCoeffType = reactionRateCoeffType_orig;
+
     // store activation energy
     m_E.push_back(r.rateCoeffParameters[2]);
 

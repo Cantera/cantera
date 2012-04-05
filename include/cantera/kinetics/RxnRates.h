@@ -203,7 +203,7 @@ class SurfaceArrhenius
 
 public:
     static int type() {
-        return ARRHENIUS_REACTION_RATECOEFF_TYPE;
+        return SURF_ARRHENIUS_REACTION_RATECOEFF_TYPE;
     }
 
     SurfaceArrhenius() :
