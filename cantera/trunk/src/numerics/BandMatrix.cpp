@@ -160,7 +160,9 @@ doublereal BandMatrix::value(size_t i, size_t j) const
 //====================================================================================================================
 size_t BandMatrix::index(size_t i, size_t j) const
 {
-    size_t rw = m_kl + m_ku + i - j;
+    int jj = j;
+    int ii = i;
+    size_t rw = (int) m_kl + (int) m_ku + (int) ii - jj;
     return (2*m_kl + m_ku + 1)*j + rw;
 }
 //====================================================================================================================
@@ -218,12 +220,14 @@ vector_int&   BandMatrix::ipiv()
  */
 void BandMatrix::mult(const doublereal* b, doublereal* prod) const
 {
-    size_t nr = nRows();
+    int kl = m_kl;
+    int ku = m_ku;
+    int nr = nRows();
     doublereal sum = 0.0;
-    for (size_t m = 0; m < nr; m++) {
+    for (int m = 0; m < nr; m++) {
         sum = 0.0;
-        for (size_t j = m - m_kl; j <= m + m_ku; j++) {
-            if (j < m_n) {
+        for (int j = m - kl; j <= m + ku; j++) {
+            if (j >= 0 && j < (int) m_n) {
                 sum += _value(m,j) * b[j];
             }
         }
@@ -236,13 +240,16 @@ void BandMatrix::mult(const doublereal* b, doublereal* prod) const
  */
 void BandMatrix::leftMult(const doublereal* const b, doublereal* const prod) const
 {
-    size_t nc = nColumns();
+    int kl = m_kl;
+    int ku = m_ku;
+    int nc = nColumns();
     doublereal sum = 0.0;
-    for (size_t n = 0; n < nc; n++) {
+    for (int n = 0; n < nc; n++) {
         sum = 0.0;
-        for (size_t i = n - m_ku; i <= n + m_kl; i++) {
-            if (i < m_n) {
-                sum += _value(i,n) * b[i];
+        for (int i = n - ku; i <= n + kl; i++) {
+            if (i >= 0 && i < (int) m_n) {
+                size_t ii = i;
+                sum += _value(ii,n) * b[ii];
             }
         }
         prod[n] = sum;
@@ -421,12 +428,14 @@ int BandMatrix::factorAlgorithm() const
 // Returns the one norm of the matrix
 doublereal BandMatrix::oneNorm() const
 {
+    int ku = m_ku;
+    int kl = m_kl;
     doublereal value = 0.0;
-    for (size_t j = 0; j < m_n; j++) {
+    for (int j = 0; j < (int) m_n; j++) {
         doublereal sum = 0.0;
         doublereal* colP =  m_colPtrs[j];
-        for (size_t i = j - m_ku; i <= j + m_kl; i++) {
-            sum += fabs(colP[m_kl + m_ku + i - j]);
+        for (int i = j - ku; i <= j + kl; i++) {
+            sum += fabs(colP[kl + ku + i - j]);
         }
         if (sum > value) {
             value = sum;
@@ -440,10 +449,10 @@ size_t BandMatrix::checkRows(doublereal& valueSmall) const
     valueSmall = 1.0E300;
     size_t iSmall = npos;
     double vv;
-    for (size_t i = 0; i < m_n; i++) {
+    for (int i = 0; i < (int) m_n; i++) {
         double valueS = 0.0;
-        for (size_t j = i - m_kl; j <= i + m_ku; j++) {
-            if (j < m_n) {
+        for (int j = i - (int) m_kl; j <= i + (int) m_ku; j++) {
+            if (j >= 0 && j < (int) m_n) {
                 vv = fabs(value(i,j));
                 if (vv > valueS) {
                     valueS = vv;
@@ -466,10 +475,10 @@ size_t BandMatrix::checkColumns(doublereal& valueSmall) const
     valueSmall = 1.0E300;
     size_t jSmall = npos;
     double vv;
-    for (size_t j = 0; j < m_n; j++) {
+    for (int j = 0; j < (int) m_n; j++) {
         double valueS = 0.0;
-        for (size_t i = j - m_ku; i <= j + m_kl; i++) {
-            if (i < m_n) {
+        for (int i = j - (int) m_ku; i <= j + (int) m_kl; i++) {
+            if (i >= 0 && i < (int) m_n) {
                 vv = fabs(value(i,j));
                 if (vv > valueS) {
                     valueS = vv;

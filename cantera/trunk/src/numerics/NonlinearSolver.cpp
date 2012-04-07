@@ -754,7 +754,6 @@ void NonlinearSolver::scaleMatrix(GeneralMatrix& jac, doublereal* const y_comm, 
                                   doublereal time_curr, int num_newt_its)
 {
     size_t irow, jcol;
-    size_t ku, kl;
     size_t ivec[2];
     jac.nRowsAndStruct(ivec);
     double* colP_j;
@@ -783,12 +782,12 @@ void NonlinearSolver::scaleMatrix(GeneralMatrix& jac, doublereal* const y_comm, 
                     }
                 }
             } else if (jac.matrixType_ == 1) {
-                kl = ivec[0];
-                ku = ivec[1];
-                for (jcol = 0; jcol < neq_; jcol++) {
+                int kl = ivec[0];
+                int ku = ivec[1];
+                for (int jcol = 0; jcol < (int) neq_; jcol++) {
                     colP_j = (doublereal*) jac.ptrColumn(jcol);
-                    for (irow = jcol - ku; irow <= jcol + kl; irow++) {
-                        if (irow < neq_) {
+                    for (int irow = jcol - ku; irow <= jcol + kl; irow++) {
+                        if (irow >= 0 && irow < (int) neq_) {
                             colP_j[kl + ku + irow - jcol] *= m_colScales[jcol];
                         }
                     }
@@ -828,12 +827,12 @@ void NonlinearSolver::scaleMatrix(GeneralMatrix& jac, doublereal* const y_comm, 
                 }
             }
         } else if (jac.matrixType_ == 1) {
-            kl = ivec[0];
-            ku = ivec[1];
-            for (jcol = 0; jcol < neq_; jcol++) {
+            int kl = ivec[0];
+            int ku = ivec[1];
+            for (int jcol = 0; jcol < (int) neq_; jcol++) {
                 colP_j = (doublereal*) jac.ptrColumn(jcol);
-                for (irow = jcol - ku; irow <= jcol + kl; irow++) {
-                    if (irow < neq_) {
+                for (int irow = jcol - ku; irow <= jcol + kl; irow++) {
+                    if (irow >= 0 && irow < (int) neq_) {
                         double vv = fabs(colP_j[kl + ku + irow - jcol]);
                         if (m_rowScaling) {
                             m_rowScales[irow] += vv;
@@ -871,12 +870,12 @@ void NonlinearSolver::scaleMatrix(GeneralMatrix& jac, doublereal* const y_comm, 
                     }
                 }
             } else if (jac.matrixType_ == 1) {
-                kl = ivec[0];
-                ku = ivec[1];
-                for (jcol = 0; jcol < neq_; jcol++) {
+                int kl = ivec[0];
+                int ku = ivec[1];
+                for (int jcol = 0; jcol < (int) neq_; jcol++) {
                     colP_j = (doublereal*) jac.ptrColumn(jcol);
-                    for (irow = jcol - ku; irow <= jcol + kl; irow++) {
-                        if (irow < neq_) {
+                    for (int irow = jcol - ku; irow <= jcol + kl; irow++) {
+                        if (irow >= 0 && irow < (int) neq_) {
                             colP_j[kl + ku + irow - jcol] *= m_rowScales[irow];
                         }
                     }
@@ -3881,14 +3880,24 @@ int NonlinearSolver::beuler_jac(GeneralMatrix& J, doublereal* const f,
 
                 doublereal diff;
 
-
-
+                int ileft =  (int) j - (int) ku;
+                int iright=   j + kl;
+                for (int i = ileft; i <= iright; i++) {
+                    if (i >= 0 &&  i < (int) neq_) {
+                        size_t ii = i;
+                        size_t index = (int) kl + (int) ku + i - (int) j; 
+                        diff = subtractRD(m_wksp[ii], f[ii]);
+                        col_j[index] = diff / dy;
+                    }
+                }
+/*
                 for (size_t i = j - ku; i <= j + kl; i++) {
                     if (i < neq_) {
                         diff = subtractRD(m_wksp[i], f[i]);
                         col_j[kl + ku + i - j] = diff / dy;
                     }
                 }
+*/
                 y[j] = ysave;
                 if (solnType_ != NSOLN_TYPE_STEADY_STATE) {
                     ydot[j] = ydotsave;
