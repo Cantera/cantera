@@ -9,7 +9,7 @@
 
 #include "cantera/base/vec_functions.h"
 #include "cantera/base/ctml.h"
-#include "Elements.h"
+#include "cantera/thermo/Elements.h"
 
 namespace Cantera
 {

@@ -318,6 +318,9 @@ void Phase::setMoleFractions(const doublereal* const x)
 {
     // Use m_y as a temporary work vector for the non-negative mole fractions
     doublereal norm = 0.0;
+    /*
+     * sum is calculated below as the unnormalized molecular weight
+     */
     doublereal sum = 0;
     for (size_t k = 0; k < m_kk; k++) {
         double xk = std::max(x[k], 0.0); // Ignore negative mole fractions
@@ -325,13 +328,19 @@ void Phase::setMoleFractions(const doublereal* const x)
         norm += xk;
         sum += m_molwts[k] * xk;
     }
-
-    transform(m_y.begin(), m_y.end(), m_ym.begin(),
-              timesConstant<double>(1.0/sum));
-
-    // Now set m_y to the mass fractions
-    transform(m_ym.begin(), m_ym.begin() + m_kk, m_molwts.begin(),
-              m_y.begin(), multiplies<double>());
+    /*
+     * Set m_ym_ to the normalized mole fractions divided by the normalized mean molecular weight:
+     *         m_ym_k = X_k / (sum_k X_k M_k)
+     */
+    transform(m_y.begin(), m_y.end(), m_ym.begin(), timesConstant<double>(1.0/sum));
+    /*
+     * Now set m_y to the normalized mass fractions
+     *          m_y =  X_k M_k / (sum_k X_k M_k)
+     */
+    transform(m_ym.begin(), m_ym.begin() + m_kk, m_molwts.begin(), m_y.begin(), multiplies<double>());
+    /*
+     * Calculate the normalized molecular weight
+     */
     m_mmw = sum/norm;
 
     // Call a routine to determine whether state has changed.
@@ -961,7 +970,7 @@ void Phase::init(const vector_fp& mw)
         }
 
         // Some surface phases may define species representing empty sites
-        // hat have zero molecular weight. Give them a very small molecular
+        // that have zero molecular weight. Give them a very small molecular
         // weight to avoid dividing by zero.
         if (m_molwts[k] < Tiny) {
             m_molwts[k] = Tiny;
