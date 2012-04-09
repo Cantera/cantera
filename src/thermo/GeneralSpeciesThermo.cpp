@@ -11,7 +11,7 @@
 #include "NasaPoly2.h"
 #include "ShomatePoly.h"
 #include "ConstCpPoly.h"
-#include "Mu0Poly.h"
+#include "cantera/thermo/Mu0Poly.h"
 #ifdef WITH_ADSORBATE
 #include "cantera/thermo/AdsorbateThermo.h"
 #endif
