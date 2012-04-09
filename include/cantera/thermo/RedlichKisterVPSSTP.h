@@ -17,7 +17,7 @@
  * U.S. Government retains certain rights in this software.
  */
 /*
- *  $Id: MargulesVPSSTP.h 782 2011-10-19 20:45:06Z hkmoffa $
+ *  $Id$
  */
 
 #ifndef CT_REDLICHKISTERVPSSTP_H

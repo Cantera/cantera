@@ -17,7 +17,7 @@
 #ifdef WITH_IDEAL_SOLUTIONS
 #include "cantera/thermo/IdealSolidSolnPhase.h"
 #include "cantera/thermo/MargulesVPSSTP.h"
-#include "RedlichKisterVPSSTP.h"
+#include "cantera/thermo/RedlichKisterVPSSTP.h"
 #include "cantera/thermo/IonsFromNeutralVPSSTP.h"
 #include "cantera/thermo/PhaseCombo_Interaction.h"
 #endif

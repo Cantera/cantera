@@ -12,7 +12,7 @@
  * U.S. Government retains certain rights in this software.
  */
 
-#include "RedlichKisterVPSSTP.h"
+#include "cantera/thermo/RedlichKisterVPSSTP.h"
 #include "cantera/thermo/ThermoFactory.h"
 #include "cantera/base/stringUtils.h"
 
