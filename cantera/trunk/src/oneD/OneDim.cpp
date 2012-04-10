@@ -358,6 +358,13 @@ void OneDim::setSteadyMode()
 {
     m_rdt = 0.0;
     m_jac->updateTransient(m_rdt, DATA_PTR(m_mask));
+
+    // iterate over all domains, preparing them for steady-state solution
+    Domain1D* d = left();
+    while (d) {
+        d->setSteadyMode();
+        d = d->right();
+    }
 }
 
 /**
