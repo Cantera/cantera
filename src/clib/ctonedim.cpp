@@ -210,9 +210,6 @@ extern "C" {
     int domain_setupGrid(int i, size_t npts, double* grid)
     {
         try {
-            Domain1D& dom = DomainCabinet::item(i);
-            dom.checkPointIndex(npts-1);
-            dom.checkPointArraySize(npts);
             DomainCabinet::item(i).setupGrid(npts, grid);
             return 0;
         } catch (...) {
