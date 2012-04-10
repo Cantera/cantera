@@ -81,11 +81,15 @@ int Refiner::analyze(size_t n, const doublereal* z,
      * find locations where cell size ratio is too large.
      */
     size_t j;
-    vector_fp dz(n-1, 0.0);
     string name;
     doublereal vmin, vmax, smin, smax, aa, ss;
     doublereal dmax, r;
     vector_fp v(n), s(n-1);
+
+    vector_fp dz(n-1);
+    for (j = 0; j < n-1; j++) {
+        dz[j] = z[j+1] - z[j];
+    }
 
     for (size_t i = 0; i < m_nv; i++) {
         if (m_active[i]) {
@@ -178,9 +182,7 @@ int Refiner::analyze(size_t n, const doublereal* z,
         }
     }
 
-    dz[0] = z[1] - z[0];
     for (j = 1; j < n-1; j++) {
-        dz[j] = z[j+1] - z[j];
         if (dz[j] > m_ratio*dz[j-1]) {
             m_loc[j] = 1;
             m_c["point "+int2str(j)] = 1;
