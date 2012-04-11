@@ -14,7 +14,7 @@
 #include <numeric>
 #include <functional>
 #include <algorithm>
-
+#include <iostream>
 #include <cstring>
 
 namespace Cantera
@@ -179,6 +179,20 @@ inline T absmax(const std::vector<T>& v)
         }
     }
     return maxval;
+}
+
+//! Write a vector to a stream
+template <class T>
+inline std::ostream& operator<<(std::ostream& os, const std::vector<T>& v)
+{
+    size_t n = v.size();
+    for (size_t i = 0; i < n; i++) {
+        os << v[i];
+        if (i != n-1) {
+            os << ", ";
+        }
+    }
+    return os;
 }
 
 }
