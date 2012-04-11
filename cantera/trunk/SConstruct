@@ -879,6 +879,7 @@ env['ct_matlab_dir'] = pjoin(env['prefix'], 'matlab', 'toolbox')
 
 # Always set the stage directory before building an MSI installer
 if 'msi' in COMMAND_LINE_TARGETS:
+    COMMAND_LINE_TARGETS.append('install')
     env['stage_dir'] = 'stage'
     env['prefix'] = '.'
     env['PYTHON_INSTALLER'] = 'binary'
