@@ -46,6 +46,9 @@ elif os.name == 'posix':
     else:
         matlab_libs = pjoin(localenv['matlab_path'], 'bin', 'glnx86')
 
+    linkflags.extend(['-Wl,--no-undefined',
+                      '-Wl,--version-script,src/matlab/mexFunction.map'])
+
 mexSuffix = '.mex%s%i' % (mexPlatform, localenv['OS_BITS'])
 
 localenv.Append(CPPPATH=['#include', '#src', matlab_include],
