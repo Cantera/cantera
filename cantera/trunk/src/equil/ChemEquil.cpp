@@ -396,11 +396,8 @@ int ChemEquil::estimateElementPotentials(thermo_t& s, vector_fp& lambda_RT,
         b[m] = mu_RT[m_component[m]];
     }
 
-    int info;
-    try {
-        info = solve(aa, DATA_PTR(b));
-    } catch (CanteraError& err) {
-        err.save();
+    int info = solve(aa, DATA_PTR(b));
+    if (info) {
         if (loglevel > 0) {
             addLogEntry("failed to estimate initial element potentials.");
         }

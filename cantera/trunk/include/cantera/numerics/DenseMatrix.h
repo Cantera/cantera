@@ -177,7 +177,7 @@ public:
      *  The default is to set this to 0. In this case, if a factorization is requested and can't be achieved,
      *  a CESingularMatrix exception is triggered. No return code is used, because an exception is thrown.
      *  If this is set to 1, then an exception is not thrown. Routines return with an error code, that is up
-     *  to the calling routine to handle correctly
+     *  to the calling routine to handle correctly. Negative return codes always throw an exception.
      */
     int m_useReturnErrorCode;
 
