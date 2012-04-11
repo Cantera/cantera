@@ -50,7 +50,8 @@ mexSuffix = '.mex%s%i' % (mexPlatform, localenv['OS_BITS'])
 
 localenv.Append(CPPPATH=['#include', '#src', matlab_include],
                 CPPDEFINES=['MATLAB_MEX_FILE'],
-                LIBPATH=[matlab_libs])
+                LIBPATH=[matlab_libs],
+                LINKFLAGS=linkflags)
 
 linklibs += localenv['sundials_libs']
 linklibs += localenv['blas_lapack_libs']
@@ -60,8 +61,12 @@ ctmethods = build(localenv.SharedLibrary('#interfaces/matlab/toolbox/ctmethods',
                                          LIBPREFIX='',
                                          SHLIBPREFIX='',
                                          SHLIBSUFFIX=mexSuffix,
-                                         LIBS=linklibs,
-                                         LINKFLAGS=linkflags))
+                                         LIBS=linklibs))
+
+if localenv['OS'] in ('Windows', 'Darwin'):
+    localenv.Depends(ctmethods, localenv['cantera_shlib'])
+else:
+    localenv.Depends(ctmethods, localenv['cantera_staticlib'])
 
 env['matlab_extension'] = ctmethods
 
