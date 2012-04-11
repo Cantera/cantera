@@ -1073,6 +1073,10 @@ if 'install' in COMMAND_LINE_TARGETS:
     # Data files
     install('$inst_datadir', mglob(env, pjoin('data','inputs'), 'cti', 'xml'))
 
+    # Converter scripts
+    install('$inst_bindir', 'interfaces/python/ck2cti.py')
+    install('$inst_bindir', 'interfaces/python/ctml_writer.py')
+
 ### List of libraries needed to link to Cantera ###
 linkLibs = ['cantera']
 linkSharedLibs = ['cantera_shared']
