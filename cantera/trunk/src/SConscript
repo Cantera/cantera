@@ -53,6 +53,7 @@ lib = build(localenv.StaticLibrary('../lib/cantera', libraryTargets,
                                    SPAWN=getSpawn(localenv)))
 localenv.Depends(lib, localenv['config_h_target'])
 install('$inst_libdir', lib)
+env['cantera_staticlib'] = lib
 
 # OS X requires the shared libraries at link time
 if (localenv['use_sundials'] == 'y' and
