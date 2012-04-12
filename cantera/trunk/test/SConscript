@@ -130,11 +130,11 @@ if localenv['python_package'] == 'full':
                           interpreter=sys.executable,
                           dependencies=['testSolution.py', 'testReactors.py',
                                         localenv['python_module']])
-    localenv.Alias('python', pyTest)
+    localenv.Alias('test-python', pyTest)
     env['testNames'].append('python')
 
 if localenv['matlab_toolbox'] == 'y':
     matlabTest = addMatlabTest('runCanteraTests.m',
                                dependencies=mglob(localenv, 'matlab', 'm'))
-    localenv.Alias('matlab', matlabTest)
+    localenv.Alias('test-matlab', matlabTest)
     env['testNames'].append('matlab')
