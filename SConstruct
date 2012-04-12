@@ -11,14 +11,13 @@ Basic usage:
 
     '[sudo] scons install' - Install Cantera.
 
-    'scons test' - Run full regression test suite.
+    'scons test' - Run full test suite.
 
-    'scons test-clean' - Delete files created while running the
-                         regression tests.
+    'scons test-clean' - Delete files created while running the tests.
 
-    'scons test-help' - List available regression tests.
+    'scons test-help' - List available tests.
 
-    'scons test-NAME' - Run the regression test named "FOO".
+    'scons test-NAME' - Run the test named "NAME".
 
     'scons samples' - Compile the C++ and Fortran samples
 
@@ -1273,9 +1272,18 @@ if 'msi' in COMMAND_LINE_TARGETS:
 
 ### Tests ###
 if any(target.startswith('test') for target in COMMAND_LINE_TARGETS):
-    SConscript('test_problems/SConscript')
+    env['testNames'] = []
 
-# Tests written using the gtest framework
-if any(target.startswith('newtest') for target in COMMAND_LINE_TARGETS):
+    # Tests written using the gtest framework, the Python unittest module,
+    # or the Matlab xunit package.
     VariantDir('build/test', 'test', duplicate=0)
     SConscript('build/test/SConscript')
+
+    # Regression tests
+    SConscript('test_problems/SConscript')
+
+    if 'test-help' in COMMAND_LINE_TARGETS:
+        print '\n*** Available tests ***\n'
+        for name in env['testNames']:
+            print 'test-%s' % name
+        sys.exit(0)

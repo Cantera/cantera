@@ -36,10 +36,12 @@ def addTestProgram(subdir, progName):
                                pjoin(subdir, '%s.cpp' % progName))
     passedFile = File(pjoin(str(program[0].dir), '%s.passed' % program[0].name))
     run_program = localenv.Command(passedFile, program, testRunner)
-    Alias('newtest', run_program)
+    Alias('test', run_program)
+    Alias('test-%s' % progName, run_program)
+    env['testNames'].append(progName)
     if os.path.exists(passedFile.abspath):
-        Alias('newtest-reset', localenv.Command('reset-%s%s' % (subdir, progName),
-                                                [], [Delete(passedFile.abspath)]))
+        Alias('test-reset', localenv.Command('reset-%s%s' % (subdir, progName),
+                                             [], [Delete(passedFile.abspath)]))
 
 
 def addTestScript(subdir, script, interpreter, dependencies):
@@ -65,10 +67,12 @@ def addTestScript(subdir, script, interpreter, dependencies):
         if isinstance(dep, str):
             dep = File(pjoin(subdir, dep))
         testenv.Depends(run_program, dep)
-    Alias('newtest', run_program)
+    Alias('test', run_program)
     if os.path.exists(passedFile.abspath):
-        Alias('newtest-reset', testenv.Command('reset-%s%s' % (subdir, script),
-                                               [], [Delete(passedFile.abspath)]))
+        Alias('test-reset', testenv.Command('reset-%s%s' % (subdir, script),
+                                            [], [Delete(passedFile.abspath)]))
+
+    return run_program
 
 
 def addMatlabTest(script, dependencies=None):
@@ -110,22 +114,27 @@ def addMatlabTest(script, dependencies=None):
             dep = File(pjoin('matlab', dep))
         testenv.Depends(run_program, dep)
 
-    Alias('newtest', run_program)
+    Alias('test', run_program)
     if os.path.exists(passedFile.abspath):
-        Alias('newtest-reset', testenv.Command('reset-%s%s' % ('matlab', script),
-                                               [], [Delete(passedFile.abspath)]))
+        Alias('test-reset', testenv.Command('reset-%s%s' % ('matlab', script),
+                                            [], [Delete(passedFile.abspath)]))
 
+    return run_program
 
 # Instantiate tests
 addTestProgram('thermo', 'nasapoly')
 addTestProgram('kinetics', 'pdep')
 
 if localenv['python_package'] == 'full':
-    addTestScript('python', 'runTests.py',
-                  interpreter=sys.executable,
-                  dependencies=['testSolution.py', 'testReactors.py',
-                                localenv['python_module']])
+    pyTest= addTestScript('python', 'runTests.py',
+                          interpreter=sys.executable,
+                          dependencies=['testSolution.py', 'testReactors.py',
+                                        localenv['python_module']])
+    localenv.Alias('python', pyTest)
+    env['testNames'].append('python')
 
 if localenv['matlab_toolbox'] == 'y':
-    addMatlabTest('runCanteraTests.m',
-                  dependencies=mglob(localenv, 'matlab', 'm'))
+    matlabTest = addMatlabTest('runCanteraTests.m',
+                               dependencies=mglob(localenv, 'matlab', 'm'))
+    localenv.Alias('matlab', matlabTest)
+    env['testNames'].append('matlab')
