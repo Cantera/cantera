@@ -103,10 +103,6 @@ void ChemEquil::initialize(thermo_t& s)
     m_kk = s.nSpecies();
     m_mm = s.nElements();
     m_nComponents = m_mm;
-    //if (m_kk < m_mm) {
-    //throw CanteraError("ChemEquil::initialize",
-    //     "number of species cannot be less than the number of elements.");
-    //}
 
     // allocate space in internal work arrays within the ChemEquil object
     m_molefractions.resize(m_kk);
