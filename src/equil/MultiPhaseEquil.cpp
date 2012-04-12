@@ -66,6 +66,7 @@ MultiPhaseEquil::MultiPhaseEquil(MultiPhase* mix, bool start, int loglevel) : m_
     m_temp = mix->temperature();
 
     index_t m, k;
+    m_force = true;
     m_nel = 0;
     m_nsp = 0;
     m_eloc = 1000;
