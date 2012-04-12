@@ -9,6 +9,10 @@
 #ifndef SPECIES_THERMO_TYPES_H
 #define SPECIES_THERMO_TYPES_H
 
+#include "cantera/base/ct_defs.h"
+#include "cantera/base/global.h"
+#include "cantera/base/stringUtils.h"
+
 //! Constant Cp
 #define CONSTANT_CP 1
 
@@ -67,11 +71,6 @@
 //! standard state object. Basically, the reference state pressure isn't special.
 //! A general object is called with the pressure set at the reference state.
 #define PDSS_TYPE 37
-
-#include "cantera/base/ct_defs.h"
-
-#include "cantera/base/stringUtils.h"
-#include "cantera/base/global.h"
 
 namespace Cantera
 {
