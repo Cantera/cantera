@@ -61,6 +61,18 @@ class EquilTestCases(object):
         gas.equilibrate('TP', self.solver)
         self.check(gas, CH4=0, O2=1, H2O=2, CO2=1)
 
+    def test_equil_overconstrained1(self):
+        gas = ct.importPhase('equilibrium.cti', 'overconstrained-1')
+        gas.set(X='CH4:1.0, O2:1.0', T=301, P=100000)
+        gas.equilibrate('TP', self.solver)
+        self.check(gas, CH4=1, O2=1)
+
+    def test_equil_overconstrained2(self):
+        gas = ct.importPhase('equilibrium.cti', 'overconstrained-2')
+        gas.set(X='CH4:1.0, O2:1.0', T=301, P=100000)
+        gas.equilibrate('TP', self.solver)
+        self.check(gas, CH4=1, O2=1)
+
 
 class ChemEquilTest(EquilTestCases, unittest.TestCase):
     def __init__(self, *args, **kwargs):
