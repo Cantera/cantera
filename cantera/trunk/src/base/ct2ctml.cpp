@@ -79,7 +79,7 @@ void ct2ctml(const char* file, const int debug)
     int python_exit_code;
     try {
         exec_stream_t python;
-        python.set_wait_timeout(exec_stream_t::s_child, 10000);
+        python.set_wait_timeout(exec_stream_t::s_child, 1800000); // 30 minutes
         python.start(pypath(), "-i");
         stringstream output_stream;
         python.in() <<
@@ -100,7 +100,7 @@ void ct2ctml(const char* file, const int debug)
         python_exit_code = python.exit_code();
         python_output = stripws(output_stream.str());
     } catch (std::exception& err) {
-        // Report failure to execute the python
+        // Report failure to execute Python
         stringstream message;
         message << "Error executing python while converting input file:\n";
         message << "Python command was: '" << pypath() << "'\n";
