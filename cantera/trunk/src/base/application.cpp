@@ -62,7 +62,6 @@ static boost::mutex  xml_mutex;
 #endif
 
 #if defined(BOOST_HAS_WINTHREADS)
-#include <windows.h>
 typedef unsigned int cthreadId_t ;
 class thread_equal
 {
