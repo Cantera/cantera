@@ -5,9 +5,12 @@ This script gathers all the tests defined in all of the test<foo>.py
 files, runs them, and prints a report.
 """
 import sys
+import os
 import unittest
 
 import Cantera
+
+Cantera.addDirectory(os.path.join(os.path.split(os.getcwd())[0], 'data'))
 
 if __name__ == '__main__':
     print '\n* INFO: using Cantera module found at this location:'
@@ -17,6 +20,7 @@ if __name__ == '__main__':
     loader = unittest.TestLoader()
     runner = unittest.TextTestRunner(verbosity=2)
     suite = loader.loadTestsFromName('testSolution')
+    suite.addTests(loader.loadTestsFromName('testEquilibrium'))
     suite.addTests(loader.loadTestsFromName('testReactors'))
 
     results = runner.run(suite)
