@@ -413,8 +413,6 @@ void MultiPhaseEquil::getComponents(const std::vector<size_t>& order)
             m_order[k] = order[k];
         }
     }
-    doublereal tmp;
-    index_t itmp;
 
     index_t nRows = m_nel;
     index_t nColumns = m_nsp;
@@ -427,15 +425,47 @@ void MultiPhaseEquil::getComponents(const std::vector<size_t>& order)
         }
     }
 
-    // Do Gauss elimination
+    // Do Gaussian elimination
     for (m = 0; m < nRows; m++) {
+        // Check for rows that are zero
+        bool isZeroRow = true;
+        for (k = m; k < nColumns; k++) {
+            if (fabs(m_A(m,k)) > sqrt(TINY)) {
+                isZeroRow = false;
+                break;
+            }
+        }
+        if (isZeroRow) {
+            // Find the last non-zero row
+            index_t n = nRows - 1;
+            bool foundSwapCandidate = false;
+            for (; n > m; n--) {
+                for (k = m; k < nColumns; k++) {
+                    if (fabs(m_A(n,k)) > sqrt(TINY)) {
+                        foundSwapCandidate = true;
+                        break;
+                    }
+                }
+                if (foundSwapCandidate) {
+                    break;
+                }
+            }
+            if (m != n) {
+                // Swap this row with the last non-zero row
+                for (k = 0; k < nColumns; k++) {
+                    std::swap(m_A(n,k), m_A(m,k));
+                }
+            } else {
+                // All remaining rows are zero. Elimination is complete.
+                break;
+            }
+        }
 
         // If a pivot is zero, exchange columns.  This occurs when
         // a species has an elemental composition that is not
         // linearly independent of the component species that have
         // already been assigned
-        if (m_A(m,m) == 0.0) {
-
+        if (m < nColumns && m_A(m,m) == 0.0) {
             // First, we need to find a good candidate for a
             // component species to swap in for the one that has
             // zero pivot. It must contain element m, be linearly
@@ -457,16 +487,11 @@ void MultiPhaseEquil::getComponents(const std::vector<size_t>& order)
             // Now exchange the column with zero pivot with the
             // column for this major species
             for (size_t n = 0; n < nRows; n++) {
-                tmp = m_A(n,m);
-                m_A(n, m) = m_A(n, kmax);
-                m_A(n, kmax) = tmp;
+                std::swap(m_A(n, m), m_A(n, kmax));
             }
 
             // exchange the species labels on the columns
-            itmp = m_order[m];
-            m_order[m] = m_order[kmax];
-            m_order[kmax] = itmp;
-
+            std::swap(m_order[m], m_order[kmax]);
         }
 
         // scale row m so that the diagonal element is unity
@@ -485,7 +510,6 @@ void MultiPhaseEquil::getComponents(const std::vector<size_t>& order)
         }
     }
 
-
     // The left m_nel columns of A are now upper-diagonal.  Now
     // reduce the m_nel columns to diagonal form by back-solving
     for (m = nRows-1; m > 0; m--) {
@@ -499,7 +523,7 @@ void MultiPhaseEquil::getComponents(const std::vector<size_t>& order)
         }
     }
 
-    // create stoichometric coefficient matrix.
+    // create stoichiometric coefficient matrix.
     for (size_t n = 0; n < m_nsp; n++) {
         if (n < m_nel)
             for (k = 0; k < nFree(); k++) {
