@@ -156,7 +156,7 @@ MultiPhaseEquil::MultiPhaseEquil(MultiPhase* mix, bool start, int loglevel) : m_
     // number of moles of each species
     m_moles.resize(m_nsp);
     m_lastmoles.resize(m_nsp);
-    m_dxi.resize(m_nsp - m_nel);
+    m_dxi.resize(nFree());
 
     // initialize the mole numbers to the mixture composition
     index_t ik;
@@ -165,15 +165,15 @@ MultiPhaseEquil::MultiPhaseEquil(MultiPhase* mix, bool start, int loglevel) : m_
     }
 
     // Delta G / RT for each reaction
-    m_deltaG_RT.resize(m_nsp - m_nel, 0.0);
+    m_deltaG_RT.resize(nFree(), 0.0);
 
     m_majorsp.resize(m_nsp);
     m_sortindex.resize(m_nsp,0);
     m_lastsort.resize(m_nel);
-    m_solnrxn.resize(m_nsp - m_nel);
+    m_solnrxn.resize(nFree());
     m_A.resize(m_nel, m_nsp, 0.0);
-    m_N.resize(m_nsp, m_nsp - m_nel);
-    m_order.resize(m_nsp, 0);
+    m_N.resize(m_nsp, nFree());
+    m_order.resize(std::max(m_nsp, m_nel), 0);
     for (k = 0; k < m_nsp; k++) {
         m_order[k] = k;
     }
@@ -189,7 +189,7 @@ MultiPhaseEquil::MultiPhaseEquil(MultiPhase* mix, bool start, int loglevel) : m_
 
     // Take a very small step in composition space, so that no
     // species has precisely zero moles.
-    vector_fp dxi(m_nsp - m_nel, 1.0e-20);
+    vector_fp dxi(nFree(), 1.0e-20);
     if (!dxi.empty()) {
         multiply(m_N, DATA_PTR(dxi), DATA_PTR(m_work));
         unsort(m_work);
@@ -325,7 +325,7 @@ int MultiPhaseEquil::setInitialMoles(int loglevel)
         }
 
         // loop over all reactions
-        for (j = 0; j < m_nsp - m_nel; j++) {
+        for (j = 0; j < nFree(); j++) {
             dg_rt = 0.0;
             dxi_min = 1.0e10;
             for (ik = 0; ik < m_nsp; ik++) {
@@ -502,11 +502,11 @@ void MultiPhaseEquil::getComponents(const std::vector<size_t>& order)
     // create stoichometric coefficient matrix.
     for (size_t n = 0; n < m_nsp; n++) {
         if (n < m_nel)
-            for (k = 0; k < m_nsp - m_nel; k++) {
+            for (k = 0; k < nFree(); k++) {
                 m_N(n, k) = -m_A(n, k + m_nel);
             }
         else {
-            for (k = 0; k < m_nsp - m_nel; k++) {
+            for (k = 0; k < nFree(); k++) {
                 m_N(n, k) = 0.0;
             }
             m_N(n, n - m_nel) = 1.0;
@@ -514,7 +514,7 @@ void MultiPhaseEquil::getComponents(const std::vector<size_t>& order)
     }
 
     // find reactions involving solution phase species
-    for (j = 0; j < m_nsp - m_nel; j++) {
+    for (j = 0; j < nFree(); j++) {
         m_solnrxn[j] = false;
         for (k = 0; k < m_nsp; k++) {
             if (m_N(k, j) != 0)
@@ -570,7 +570,7 @@ void MultiPhaseEquil::printInfo(int loglevel)
         addLogEntry("Error",fp2str(error()));
         beginLogGroup("Delta G / RT");
     }
-    for (k = 0; k < m_nsp - m_nel; k++) {
+    for (k = 0; k < nFree(); k++) {
         if (loglevel > 0) {
             addLogEntry(reactionString(k), fp2str(m_deltaG_RT[k]));
         }
@@ -764,12 +764,12 @@ doublereal MultiPhaseEquil::computeReactionSteps(vector_fp& dxi)
     const doublereal TINY = 1.0e-20;
     doublereal grad = 0.0;
 
-    dxi.resize(m_nsp - m_nel);
+    dxi.resize(nFree());
     computeN();
     doublereal not_mu = 1.0e12;
     m_mix->getValidChemPotentials(not_mu, DATA_PTR(m_mu));
 
-    for (j = 0; j < m_nsp - m_nel; j++) {
+    for (j = 0; j < nFree(); j++) {
 
         // get stoichiometric vector
         getStoichVector(j, nu);
@@ -892,7 +892,7 @@ doublereal MultiPhaseEquil::error()
     doublereal err, maxerr = 0.0;
 
     // examine every reaction
-    for (size_t j = 0; j < m_nsp - m_nel; j++) {
+    for (size_t j = 0; j < nFree(); j++) {
         size_t ik = j + m_nel;
 
         // don't require formation reactions for solution species

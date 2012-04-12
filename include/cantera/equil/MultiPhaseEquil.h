@@ -50,7 +50,7 @@ public:
     void getStoichVector(index_t rxn, vector_fp& nu) {
         index_t k;
         nu.resize(m_nsp, 0.0);
-        if (rxn > m_nsp - m_nel) {
+        if (rxn > nFree()) {
             return;
         }
         for (k = 0; k < m_nsp; k++) {
@@ -121,6 +121,11 @@ protected:
     std::string speciesName(size_t n) const {
         return
             m_mix->speciesName(m_species[m_order[n]]);
+    }
+
+    //! Number of degrees of freedom
+    index_t nFree() const {
+        return (m_nsp > m_nel) ? m_nsp - m_nel : 0;
     }
 
     index_t m_nel_mix, m_nsp_mix, m_np;
