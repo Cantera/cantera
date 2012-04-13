@@ -99,8 +99,6 @@ namespace Cantera {
   void VPSSMgr_ConstVol::getGibbs_RT_ref(doublereal *grt) const {
     if (m_useTmpRefStateStorage) {
       std::copy(m_g0_RT.begin(), m_g0_RT.end(), grt);
-      doublereal _rt = GasConstant * m_tlast;
-      scale(grt, grt + m_kk, grt, _rt);
     } else {
       throw CanteraError("VPSSMgr_ConstVol::getGibbs_RT_ref",
 			 "unimplemented without m_useTmpRefStateStorage");
