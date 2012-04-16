@@ -709,6 +709,22 @@ if env['use_sundials'] in ('y','default'):
     if env['sundials_libdir']:
         env.Append(LIBPATH=[env['sundials_libdir']])
 
+# BLAS / LAPACK configuration
+if env['blas_lapack_libs'] != '':
+    env['blas_lapack_libs'] = env['blas_lapack_libs'].split(',')
+    env['BUILD_BLAS_LAPACK'] = False
+elif env['OS'] == 'Darwin':
+    env['BUILD_BLAS_LAPACK'] = False
+    env.Append(FRAMEWORKS=['Accelerate'])
+else:
+    # External BLAS/LAPACK were not given, so we need to compile them
+    env['BUILD_BLAS_LAPACK'] = True
+    env['blas_lapack_libs'] = [] # built into libcantera
+
+# ************************************
+# *** Compiler Configuration Tests ***
+# ************************************
+
 conf = Configure(env)
 
 # Set up compiler options before running configuration tests
@@ -749,8 +765,16 @@ env['HAS_TIMES_H'] = conf.CheckCHeader('sys/times.h', '""')
 env['HAS_UNISTD_H'] = conf.CheckCHeader('unistd.h', '""')
 env['HAS_MATH_H_ERF'] = conf.CheckDeclaration('erf', '#include <math.h>', 'C++')
 env['HAS_BOOST_MATH'] = conf.CheckCXXHeader('boost/math/special_functions/erf.hpp', '<>')
-env['HAS_SUNDIALS'] = conf.CheckLibWithHeader('sundials_cvodes', 'cvodes/cvodes.h', 'C++',
-                                              'CVodeCreate(CV_BDF, CV_NEWTON);', False)
+
+import SCons.Conftest, SCons.SConf
+ret = SCons.Conftest.CheckLib(SCons.SConf.CheckContext(conf),
+                              ['sundials_cvodes'],
+                              header='#include "cvodes/cvodes.h"',
+                              language='C++',
+                              call='CVodeCreate(CV_BDF, CV_NEWTON);',
+                              autoadd=False,
+                              extra_libs=env['blas_lapack_libs'])
+env['HAS_SUNDIALS'] = not ret # CheckLib returns False to indicate success
 env['NEED_LIBM'] = not conf.CheckLibWithHeader(None, 'math.h', 'C',
                                                'double x; log(x);', False)
 if env['NEED_LIBM']:
@@ -853,16 +877,6 @@ if env.get('python_array') in ('numarray', 'numeric'):
 # **********************************************
 # *** Set additional configuration variables ***
 # **********************************************
-if env['blas_lapack_libs'] != '':
-    env['blas_lapack_libs'] = env['blas_lapack_libs'].split(',')
-    env['BUILD_BLAS_LAPACK'] = False
-elif env['OS'] == 'Darwin':
-    env['BUILD_BLAS_LAPACK'] = False
-    env.Append(FRAMEWORKS=['Accelerate'])
-else:
-    # External BLAS/LAPACK were not given, so we need to compile them
-    env['BUILD_BLAS_LAPACK'] = True
-    env['blas_lapack_libs'] = [] # built into libcantera
 
 # Directories where things will be after actually being installed
 # These variables are the ones that are used to populate header files,
