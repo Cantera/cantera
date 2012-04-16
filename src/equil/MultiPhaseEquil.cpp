@@ -512,7 +512,7 @@ void MultiPhaseEquil::getComponents(const std::vector<size_t>& order)
 
     // The left m_nel columns of A are now upper-diagonal.  Now
     // reduce the m_nel columns to diagonal form by back-solving
-    for (m = nRows-1; m > 0; m--) {
+    for (m = std::min(nRows,nColumns)-1; m > 0; m--) {
         for (size_t n = m-1; n != npos; n--) {
             if (m_A(n,m) != 0.0) {
                 fctr = m_A(n,m);
@@ -683,7 +683,9 @@ stepComposition(int loglevel)
     doublereal grad0 = computeReactionSteps(m_dxi);
 
     // compute the mole fraction changes.
-    multiply(m_N, DATA_PTR(m_dxi), DATA_PTR(m_work));
+    if (nFree()) {
+        multiply(m_N, DATA_PTR(m_dxi), DATA_PTR(m_work));
+    }
 
     // change to sequential form
     unsort(m_work);
