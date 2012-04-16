@@ -649,21 +649,20 @@ void Application::setDefaultDirectories()
     std::string installDir;
     readStringRegistryKey("SOFTWARE\\Cantera\\Cantera 2.0",
                           "InstallDir", installDir, "");
-    if (installDir == "") {
-        return;
-    }
-    dirs.push_back(installDir + "data");
-    dirs.push_back(installDir + "templates");
+    if (installDir != "") {
+        dirs.push_back(installDir + "data");
+        dirs.push_back(installDir + "templates");
 
-    // Scripts for converting mechanisms to CTI and CMTL formats are installed
-    // In the 'bin' subdirectory. Add that directory to the PYTHONPATH.
-    const char* old_pythonpath = getenv("PYTHONPATH");
-    std::string pythonpath = "PYTHONPATH=" + installDir + "\\bin";
-    if (old_pythonpath) {
-        pythonpath += ";";
-        pythonpath.append(old_pythonpath);
+        // Scripts for converting mechanisms to CTI and CMTL are installed in
+        // the 'bin' subdirectory. Add that directory to the PYTHONPATH.
+        const char* old_pythonpath = getenv("PYTHONPATH");
+        std::string pythonpath = "PYTHONPATH=" + installDir + "\\bin";
+        if (old_pythonpath) {
+            pythonpath += ";";
+            pythonpath.append(old_pythonpath);
+        }
+        putenv(pythonpath.c_str());
     }
-    putenv(pythonpath.c_str());
 
 #endif
 
