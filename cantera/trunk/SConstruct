@@ -714,6 +714,7 @@ if env['blas_lapack_libs'] != '':
     env['blas_lapack_libs'] = env['blas_lapack_libs'].split(',')
     env['BUILD_BLAS_LAPACK'] = False
 elif env['OS'] == 'Darwin':
+    env['blas_lapack_libs'] = []
     env['BUILD_BLAS_LAPACK'] = False
     env.Append(FRAMEWORKS=['Accelerate'])
 else:
