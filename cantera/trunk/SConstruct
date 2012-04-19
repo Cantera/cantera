@@ -1205,9 +1205,15 @@ if 'samples' in COMMAND_LINE_TARGETS or 'install' in COMMAND_LINE_TARGETS:
 build_samples = Alias('samples', sampleTargets)
 
 def postBuildMessage(target, source, env):
-    print "**************************************************************"
-    print "Compiliation complete. Type '[sudo] scons install' to install."
-    print "**************************************************************"
+    print "*******************************************************"
+    print "Compilation completed successfully.\n"
+    print "- To run the test suite, type 'scons test'."
+    if os.name == 'nt':
+        print "- To install, type 'scons install'."
+        print "- To create a Windows MSI installer, type 'scons msi'"
+    else:
+        print "- To install, type '[sudo] scons install'."
+    print "*******************************************************"
 
 finish_build = env.Command('finish_build', [], postBuildMessage)
 env.Depends(finish_build, buildTargets)
