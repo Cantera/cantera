@@ -129,7 +129,7 @@ General
 * If the prerequisites are installed in standard locations, the default values
   should work.
 * If you installed Sundials to a non-standard location (e.g. the libraries
-  aren’t in /usr/lib), you will need to specify the options::
+  aren't in /usr/lib), you will need to specify the options::
 
     sundials_include=/path/to/sundials/include
     sundials_libdir=/path/to/sundials/lib
@@ -138,7 +138,7 @@ General
   to the Matlab installation, e.g.::
 
     matlab_path=/opt/MATLAB/R2011a
-    matlab_path="C:\Program Files\MATLAB/R2011a"
+    matlab_path="C:\Program Files\MATLAB\R2011a"
     matlab_path=/Applications/MATLAB_R2011a.app
 
   The above paths are typical defaults on Linux, Windows, and OS X,
@@ -155,15 +155,24 @@ General
 Windows (MSVC)
 --------------
 
-* In Windows there aren’t any proper default locations for many of the packages
+* In Windows there aren't any proper default locations for many of the packages
   that Cantera depends on, so you will need to specify these paths explicitly.
 * Remember to put double quotes around any paths with spaces in them, e.g.
   "C:\Program Files".
 * By default, SCons attempts to use the same architecture and version of the
   Microsoft compiler as was used to compile Python, typically Visual Studio
-  2008 or the equivalent version of the Windows SDK. If you aren’t building the
+  2008 or the equivalent version of the Windows SDK. If you aren't building the
   Python module, you can override this with the configuration options
   ``target_arch`` and ``msvc_version``.
+
+.. note::
+
+    The ``cantera.conf`` file uses the backslash character ``\`` as an escape
+    character. When modifying this file, backslashes in paths need to be escaped
+    like this: ``boost_inc_dir = 'C:\\Program Files (x86)\\boost\\include'``
+    This does not apply to paths specified on the command line. Alternatively,
+    you can use forward slashes in paths.
+
 
 Windows (MinGW)
 ---------------
@@ -172,8 +181,8 @@ Windows (MinGW)
 
     toolchain=mingw
 
-* The version of MinGW from www.mingw.org is 32-bit only, and therefore cannot
-  be used to build a 64-bit Python module.
+* The version of MinGW from http://www.mingw.org is 32-bit only, and therefore
+  cannot be used to build a 64-bit Python module.
 
 OS X
 ----
@@ -218,22 +227,20 @@ Compile Cantera & Test
 
     scons build optimize=n blas_lapack_libs=blas,lapack prefix=/opt/cantera
 
-* If Cantera compiles successfully, you should see the message::
+* If Cantera compiles successfully, you should see a message that looks like::
 
-    **************************************************************
-    Compilation complete. Type '[sudo] scons install' to install.
-    **************************************************************
+    *******************************************************
+    Compilation completed successfully.
+
+    - To run the test suite, type 'scons test'.
+    - To install, type '[sudo] scons install'.
+    *******************************************************
 
 * If you do not see this message, check the output for errors to see what went
   wrong.
-* Cantera has a series of regression tests that can be run with the command::
+* Cantera has a series of tests that can be run with the command::
 
     scons test
-
-* In addition, a series of unit tests for the C++, Python, and Matlab
-  interfaces can be run with the command::
-
-    scons newtest
 
 * When the tests finish, you should see a summary indicating the number of
   tests that passed and failed.
@@ -326,6 +333,8 @@ Other Required Software
 
   * http://www.boost.org/users/download/
   * Known to work with version 1.46; Expected to work with versions >= 1.40
+  * Only the "header-only" portions of Boost are required. Cantera does not
+    currently depend on any of the compiled Boost libraries.
 
 Optional Programs
 -----------------
@@ -348,9 +357,25 @@ Optional Programs
   * Required to enable some features such as sensitivity analysis.
   * https://computation.llnl.gov/casc/sundials/download/download.html
   * Known to work with version 2.4; Support for versions 2.3 and 2.2 is deprecated.
+  * Does not yet work with version 2.5.
   * To use Sundials with Cantera, you may need to compile it with the
     ``-fPIC`` flag. You can specify this flag when configuring Sundials::
 
           configure --with-cflags=-fPIC
+
+* `Distribute <http://pypi.python.org/pypi/distribute>`_ (Python)
+
+  * Provides the ``easy_install`` command which can be used to install most of
+    the other Python modules
+
+* Packages required for building Sphinx documentation
+
+  * `Sphinx <http://sphinx.pocoo.org/>`_ (install with ``easy_install -U Sphinx``)
+  * `Pygments <http://pygments.org/>`_ (install with ``easy_install -U pygments``)
+  * `pyparsing <http://sourceforge.net/projects/pyparsing/>`_ (install with ``easy_install -U pyparsing``)
+
+* `Doxygen <http://www.stack.nl/~dimitri/doxygen/>`_
+
+  * Required for building the C++ API Documentation
 
 .. \see \ref cxx-ctnew
