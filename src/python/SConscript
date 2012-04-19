@@ -85,16 +85,13 @@ else:
     # Install Python module in the default location
     extra = ''
 
-if 'MSSdk' in os.environ:
-    localenv['ENV']['DISTUTILS_USE_SDK'] = '1'
-    localenv['ENV']['MSSdk'] = os.environ['MSSdk']
-
 if localenv['PYTHON_INSTALLER'] == 'direct':
     install(localenv.Command, 'dummy', pymodule,
                                 'cd %s && $python_cmd setup.py install %s' % (moddir,extra))
 elif localenv['PYTHON_INSTALLER'] == 'binary':
     install(localenv.Command, 'dummy', pymodule,
-            'cd %s && $python_cmd setup.py bdist_msi --dist-dir=../..' % moddir)
+            'cd %s && $python_cmd setup.py bdist_msi --dist-dir=../..' % moddir +
+            ' --target-version=' + distutils.sysconfig.get_python_version())
 
 if localenv['python_package'] == 'full':
     install(localenv.RecursiveInstall, pjoin('$inst_sampledir', 'python'),

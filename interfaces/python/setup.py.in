@@ -17,8 +17,7 @@ if '@python_package@' == 'full':
           url="http://code.google.com/p/cantera",
           packages = ["","Cantera","Cantera.OneD",
                       "MixMaster","MixMaster.Units"],
-          package_data = {'Cantera': dataFiles},
-          ext_modules=[Extension('_spam', [@spam_source@])])
+          package_data = {'Cantera': dataFiles})
 
 elif '@python_package@' == 'minimal':
     setup(name="Cantera CTI File Processor",
@@ -28,5 +27,5 @@ elif '@python_package@' == 'minimal':
               """,
           author="Prof. D. G. Goodwin, Caltech",
           author_email="dgoodwin@caltech.edu",
-          url="http://www.cantera.org",
+          url="http://code.google.com/p/cantera",
           py_modules = ["ctml_writer"])
