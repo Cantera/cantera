@@ -9,6 +9,7 @@ c
      $     ratio(NPTS)
       
       call newIdealGasMix('gri30.cti','gri30','')
+
       temp = 1200.d0
       pres = 10.d0*oneatm
       call setState_TPX_String(temp, pres,'H2:1, N2:0.1')

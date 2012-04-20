@@ -13,4 +13,5 @@
 #include "DustyGasTransport.h"
 #include "MultiTransport.h"
 #include "MixTransport.h"
+#include "PecosTransport.h"
 #endif

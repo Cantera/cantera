@@ -21,6 +21,7 @@
 #include "SolidTransport.h"
 #include "DustyGasTransport.h"
 #include "SimpleTransport.h"
+#include "PecosTransport.h"
 
 #ifdef WITH_IDEAL_SOLUTIONS
 #include "LiquidTransport.h"
@@ -257,6 +258,7 @@ namespace Cantera {
     m_models["Aqueous"] = cAqueousTransport;
     m_models["Simple"] = cSimpleTransport;
     m_models["User"] = cUserTransport;
+    m_models["Pecos"] = cPecosTransport;
     m_models["None"] = None;
     //m_models["Radiative"] = cRadiative;
 
@@ -319,6 +321,11 @@ namespace Cantera {
       break;
     case cMixtureAveraged:
       tr = new MixTransport;
+      initTransport(tr, phase, 0, log_level);
+      break;
+      // adding pecos transport model 2/13/12
+    case cPecosTransport:
+      tr = new PecosTransport;
       initTransport(tr, phase, 0, log_level);
       break;
     case CK_MixtureAveraged:

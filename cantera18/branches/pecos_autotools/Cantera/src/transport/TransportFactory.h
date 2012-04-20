@@ -28,8 +28,6 @@
 #include <iostream>
 #include <new>
 
-
-
 // Cantera includes
 #include "ct_defs.h"
 #include "TransportBase.h"

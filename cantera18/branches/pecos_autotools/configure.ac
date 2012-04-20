@@ -90,6 +90,7 @@ DX_INIT_DOXYGEN(cantera, doxygen/cantera.dox, docs)
 # Generate Output Files
 AC_OUTPUT(Makefile                                                         \
                    test_problems/Makefile                                  \
+                   test_problems/f77test/Makefile                          \
                    test_problems/mixGasTransport/Makefile                  \
                    test_problems/ChemEquil_gri_matrix/Makefile             \
                    test_problems/ChemEquil_gri_pairs/Makefile              \
@@ -135,6 +136,7 @@ AC_OUTPUT(Makefile                                                         \
                    test_problems/cathermo/testWaterTP/Makefile             \
                    test_problems/cathermo/VPissp/Makefile                  \
                    test_problems/cathermo/wtWater/Makefile                 \
+                   test_problems/PecosTransport/Makefile                   \
 		   doxygen/Makefile                                        \
 		   tools/Makefile                                          \
 		   tools/testtools/Makefile                                \
@@ -147,9 +149,11 @@ AC_OUTPUT(Makefile                                                         \
 		   Cantera/ext/f2c_math/Makefile                           \
 		   Cantera/Makefile                                        \
                    Cantera/user/Makefile                                   \
-                   Cantera/src/Makefile                                    \
+                   Cantera/fortran/Makefile                                \
+                   Cantera/fortran/src/Makefile                            \
                    Cantera/cxx/Makefile                                    \
                    Cantera/cxx/src/Makefile                                \
+                   Cantera/src/Makefile                                    \
                    Cantera/src/base/Makefile                               \
                    Cantera/src/converters/Makefile                         \
 		   Cantera/src/kinetics/Makefile                           \
