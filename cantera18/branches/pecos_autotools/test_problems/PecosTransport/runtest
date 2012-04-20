@@ -11,7 +11,7 @@ tname="PecosTransport"
 CANTERA_DATA=${CANTERA_DATA:=../../data/inputs}; export CANTERA_DATA
 
 CANTERA_BIN=${CANTERA_BIN:=../../bin}
-./PecosTransport &> output.txt
+./PecosTransport > output.txt
 retnStat=$?
 if [ $retnStat != "0" ]
 then

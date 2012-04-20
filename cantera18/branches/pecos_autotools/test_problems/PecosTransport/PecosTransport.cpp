@@ -146,11 +146,9 @@ int main(int argc, char** argv) {
     int log_level = 0;
     Transport * tran = newTransportMgr("Pecos", &g, log_level=0);
 
-    MixTransport * tranMix = dynamic_cast<MixTransport *>(tran);
-
+    PecosTransport * tranMix = dynamic_cast<PecosTransport *>(tran);
 
     g.setState_TPX(1500.0, pres, DATA_PTR(Xset));
- 
     
     vector_fp mixDiffs(nsp, 0.0);
     
@@ -161,7 +159,6 @@ int main(int argc, char** argv) {
       printf("    %15s %13.5g\n", sss.c_str(), mixDiffs[k]);
     }
   
-
     vector_fp specVisc(nsp, 0.0);
     
     tranMix->getSpeciesViscosities(DATA_PTR(specVisc));
