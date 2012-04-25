@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.61)
-AC_INIT([cantera], [1.8.0], [nick@ices.utexas.edu])
+AC_INIT([cantera], [2.0.0], [nick@ices.utexas.edu])
 AC_CONFIG_HEADER(config.h)
 AC_CONFIG_AUX_DIR([build-aux])
 #AX_ENABLE_BUILDDIR
@@ -113,10 +113,6 @@ AC_OUTPUT(Makefile                                                         \
                    test_problems/VCSnonideal/Makefile                      \
                    test_problems/cathermo/Makefile                         \
                    test_problems/cathermo/DH_graph_1/Makefile              \
-                   test_problems/cathermo/DH_graph_acommon/Makefile        \
-                   test_problems/cathermo/DH_graph_bdotak/Makefile         \
-                   test_problems/cathermo/DH_graph_NM/Makefile             \
-                   test_problems/cathermo/DH_graph_Pitzer/Makefile         \
                    test_problems/cathermo/HMW_dupl_test/Makefile           \
                    test_problems/cathermo/HMW_graph_CpvT/Makefile          \
                    test_problems/cathermo/HMW_graph_HvT/Makefile           \
