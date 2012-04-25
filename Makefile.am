@@ -1,11 +1,11 @@
 include $(top_srcdir)/doxygen/aminclude.am
 
 # Build in these directories:
-SUBDIRS  = Cantera tools test_problems
-SUBDIRS += doxygen examples 
+SUBDIRS  = ext src test_problems
+SUBDIRS += doxygen
 
 # Distribute these directories:
-DISTDIRS = Cantera examples 
+DISTDIRS = src
 
 # generated documentation will be included in distributed archive
 EXTRA_DIST  = bootstrap $(DX_CONFIG)
@@ -15,3 +15,6 @@ EXTRA_DIST += AUTHORS README
 pkgconfigdir   = $(libdir)/pkgconfig
 pkgconfig_DATA = cantera.pc
 
+#all:
+#	@echo copying config.h
+#	cp -p config.h $(top_builddir)/include/cantera/base

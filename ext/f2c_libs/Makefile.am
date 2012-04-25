@@ -6,7 +6,7 @@ cc_sources              = abort_.c c_log.c d_atn2.c dfe.c d_prod.c \
                           d_cnjg.c d_imag.c d_sign.c ef1asc_.c     \
                           f77_aloc.c h_abs.c hl_lt.c i_dnnt.c      \
                           i_sign.c lwrite.c r_asin.c               \
-                          rewind.c rsfe.c r_tanh.c s_paus.c util.c \
+                          rewind.c rsfe.c r_tanh.c util.c \
                           z_cos.c backspac.c c_sin.c d_cos.c       \
                           d_int.c d_sin.c ef1cmc_.c f77vers.c      \
                           h_dim.c h_mod.c i_indx.c lbitbits.c      \
@@ -17,15 +17,15 @@ cc_sources              = abort_.c c_log.c d_atn2.c dfe.c d_prod.c \
                           lbitshft.c open.c pow_zi.c r_atn2.c      \
                           r_imag.c r_sin.c s_cmp.c s_stop.c        \
                           wrtfmt.c z_exp.c cabs.c d_abs.c d_dim.c  \
-                          d_log.c d_sqrt.c erf_.c fmtlib.c h_indx.c\
+                          d_log.c d_sqrt.c fmtlib.c h_indx.c\
                           h_sign.c i_len.c l_ge.c pow_ci.c pow_zz.c\
                           r_cnjg.c r_int.c r_sinh.c s_copy.c sue.c \
-                          wsfe.c z_log.c c_cos.c d_acos.c derf_.c  \
-                          d_mod.c d_tan.c erfc_.c                  \
+                          wsfe.c z_log.c c_cos.c d_acos.c \
+                          d_mod.c d_tan.c                   \
                           h_len.c i77vers.c ilnw.c l_gt.c pow_dd.c \
                           r_cos.c r_lg10.c rsli.c sfe.c \
                           system_.c wsle.c z_sin.c c_div.c d_asin.c\
-                          derfc_.c d_nint.c d_tanh.c err.c ftell_.c\
+                          d_nint.c d_tanh.c err.c ftell_.c\
                           hl_ge.c i_abs.c i_mod.c l_le.c pow_di.c  \
                           r_cosh.c r_log.c rsne.c                  \
                           sig_die.c typesize.c wsne.c z_sqrt.c     \
@@ -34,8 +34,6 @@ cc_sources              = abort_.c c_log.c d_atn2.c dfe.c d_prod.c \
                           i_nint.c l_lt.c pow_hh.c r_abs.c rdfmt.c \
                           r_mod.c r_sqrt.c signal_.c uio.c xwsne.c 
 
-# arithchk.c getarg_.c iargc_.c 
-
 h_sources               = f2c.h sysdep1.h fio.h fmt.h fp.h lio.h rawio.h
 
 AM_CPPFLAGS             = -I.
@@ -43,7 +41,7 @@ AM_CXXFLAGS             = $(AM_CPPFLAGS)
 AM_FCFLAGS              = $(AM_CPPFLAGS)
 
 lib_LTLIBRARIES         = $(top_builddir)/build/lib/libctf2c.la
-library_includedir      = $(top_builddir)/build/include
+library_includedir      = $(top_builddir)/include
 library_include_HEADERS = $(h_sources)
 
 #-----------------------
@@ -55,7 +53,7 @@ all:
 	@echo copying headers $<
 	cp -p sysdep1.h0 sysdep1.h
 	cp -p signal1.h0 signal1.h
-	cp -p $(h_sources) $(top_builddir)/build/include/
+	cp -p $(h_sources) $(top_builddir)/include/
 
 __top_builddir__build_lib_libctf2c_la_LDFLAGS      = $(all_libraries) -release $(GENERIC_RELEASE)
 __top_builddir__build_lib_libctf2c_la_SOURCES      = $(cc_sources) $(h_sources)
