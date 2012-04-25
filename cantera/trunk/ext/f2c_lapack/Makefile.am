@@ -14,7 +14,7 @@ AM_CXXFLAGS             = $(AM_CPPFLAGS)
 AM_FCFLAGS              = $(AM_CPPFLAGS)
 
 lib_LTLIBRARIES         = $(top_builddir)/build/lib/libctlapack.la
-library_includedir      = $(top_builddir)/build/include
+library_includedir      = $(top_builddir)/include
 library_include_HEADERS = $(h_sources)
 
 #-----------------------
@@ -31,6 +31,6 @@ __top_builddir__build_lib_libctlapack_includedir = $(prefix)/include
 CLEANFILES = *.o
 
 # header file accumulation
-all:
-	@echo copying headers $<
-	cp -p *.h $(top_builddir)/build/include/
+#all:
+#	@echo copying headers $<
+#	cp -p *.h $(top_builddir)/build/include/

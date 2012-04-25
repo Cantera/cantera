@@ -90,7 +90,6 @@ DX_INIT_DOXYGEN(cantera, doxygen/cantera.dox, docs)
 # Generate Output Files
 AC_OUTPUT(Makefile                                                         \
                    test_problems/Makefile                                  \
-                   test_problems/f77test/Makefile                          \
                    test_problems/mixGasTransport/Makefile                  \
                    test_problems/ChemEquil_gri_matrix/Makefile             \
                    test_problems/ChemEquil_gri_pairs/Makefile              \
@@ -136,33 +135,26 @@ AC_OUTPUT(Makefile                                                         \
                    test_problems/cathermo/testWaterTP/Makefile             \
                    test_problems/cathermo/VPissp/Makefile                  \
                    test_problems/cathermo/wtWater/Makefile                 \
+                   test_problems/PecosTransport/Makefile                   \
 		   doxygen/Makefile                                        \
-		   tools/Makefile                                          \
-		   tools/testtools/Makefile                                \
-		   ext/Makefile                                            \
-		   ext/tpx/Makefile                                        \
-		   ext/cvode/Makefile                                      \
-		   ext/f2c_blas/Makefile                                   \
-   		   ext/f2c_lapack/Makefile                                 \
-                   ext/f2c_libs/Makefile                                   \
-		   ext/f2c_math/Makefile                                   \
-                   user/Makefile                                           \
-                   fortran/Makefile                                        \
-                   fortran/src/Makefile                                    \
-                   cxx/Makefile                                            \
-                   cxx/src/Makefile                                        \
-                   src/Makefile                                            \
-                   src/base/Makefile                                       \
-                   src/converters/Makefile                                 \
-		   src/kinetics/Makefile                                   \
-                   src/numerics/Makefile src/oneD/Makefile                 \
-                   src/thermo/Makefile                                     \
-		   src/transport/Makefile                                  \
-                   src/spectra/Makefile src/zeroD/Makefile                 \
-                   src/equil/Makefile                                      \
-                   examples/Makefile                                       \
-                   build/Makefile                                          \
-		   examples/cxx/Makefile                                   \
+		   ext/Makefile                                    \
+		   src/tpx/Makefile                                \
+		   ext/cvode/Makefile                              \
+		   ext/cvode/source/Makefile                       \
+		   ext/f2c_blas/Makefile                           \
+   		   ext/f2c_lapack/Makefile                         \
+                   ext/f2c_libs/Makefile                           \
+		   ext/f2c_math/Makefile                           \
+		   src/fortran/Makefile                            \
+                   src/Makefile                                    \
+                   src/base/Makefile                               \
+                   src/converters/Makefile                         \
+		   src/kinetics/Makefile                           \
+                   src/numerics/Makefile src/oneD/Makefile \
+                   src/thermo/Makefile                             \
+		   src/transport/Makefile                          \
+                   src/spectra/Makefile src/zeroD/Makefile \
+                   src/equil/Makefile                              \
 		   cantera.pc)                                   
 
 # skipped tests

@@ -22,14 +22,14 @@ xersve.c \
 xgetua.c \
 printstring.c
 
-h_sources               = cblas.h gmres.h mkl_cblas.h
+h_sources               = cblas.h gmres.h
 
 AM_CPPFLAGS             = -I../f2c_libs
 AM_CXXFLAGS             = $(AM_CPPFLAGS)
 AM_FCFLAGS              = $(AM_CPPFLAGS)
 
 lib_LTLIBRARIES         = $(top_builddir)/build/lib/libctmath.la
-library_includedir      = $(top_builddir)/build/include
+library_includedir      = $(top_builddir)/include
 library_include_HEADERS = $(h_sources)
 
 #-----------------------
@@ -46,6 +46,6 @@ __top_builddir__build_lib_libctmath_includedir = $(prefix)/include
 CLEANFILES = *.o
 
 # header file accumulation
-all:
-	@echo copying headers $<
-	cp -p *.h $(top_builddir)/build/include/
+#all:
+#	@echo copying headers $<
+#	cp -p *.h $(top_builddir)/build/include/
