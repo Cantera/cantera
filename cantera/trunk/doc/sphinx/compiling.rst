@@ -363,6 +363,11 @@ Optional Programs
 
           configure --with-cflags=-fPIC
 
+* `Windows Installer XML (WiX) toolset <http://wix.sourceforge.net/>`_
+
+  * Required to build MSI installers on Windows
+  * Known to work with version 3.5.
+
 * `Distribute <http://pypi.python.org/pypi/distribute>`_ (Python)
 
   * Provides the ``easy_install`` command which can be used to install most of
