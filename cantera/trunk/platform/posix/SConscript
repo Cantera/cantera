@@ -9,7 +9,8 @@ localenv = env.Clone()
 
 # 'setup_cantera'
 v = sys.version_info
-localenv['python_module_loc'] = pjoin(localenv['prefix'], 'lib', 'python%i.%i' % v[:2], 'site-packages')
+localenv['python_module_loc'] = pjoin(localenv['python_prefix'], 'lib',
+                                      'python%i.%i' % v[:2], 'site-packages')
 target = build(localenv.SubstFile('setup_cantera', 'setup_cantera.in'))
 install('$inst_bindir', target)
 
