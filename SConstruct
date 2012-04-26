@@ -925,7 +925,7 @@ env['inst_docdir'] = pjoin(instRoot, 'doc')
 env['inst_mandir'] = pjoin(instRoot, 'man1')
 env['inst_matlab_dir'] = pjoin(instRoot, 'matlab', 'toolbox')
 
-env['python_module_loc'] = pjoin(env['prefix'], 'lib',
+env['python_module_loc'] = pjoin(env['python_prefix'], 'lib',
                                  'python%i.%i' % sys.version_info[:2],
                                  'site-packages')
 
