@@ -5,10 +5,6 @@
 
 //  Copyright 2003  California Institute of Technology
 
-#ifdef WIN32
-#pragma warning(disable:4786)
-#endif
-
 #include "cantera/thermo/Elements.h"
 #include "cantera/base/xml.h"
 #include "cantera/base/ctml.h"
@@ -18,9 +14,6 @@
 using namespace ctml;
 using namespace std;
 
-#ifdef USE_DGG_CODE
-#include <map>
-#endif
 #include <cstdlib>
 
 namespace Cantera
@@ -280,20 +273,6 @@ void Elements::freezeElements()
     m_elementsFrozen = true;
 }
 
-#ifdef INCL_DEPRECATED_METHODS
-/*
- *
- *   Returns an ElementData struct that contains the parameters
- *   for element index m.
- */
-ElementData Elements::element(int m) const
-{
-    ElementData e;
-    e.name = m_elementNames[m];
-    e.atomicWeight = m_atomicWeights[m];
-    return e;
-}
-#endif
 /*
  * elementIndex():
  *
@@ -304,17 +283,6 @@ ElementData Elements::element(int m) const
  * returned.
  *
  */
-#ifdef USE_DGG_CODE
-int Elements::elementIndex(std::string name) const
-{
-    map<string, int>::const_iterator it;
-    it = m_definedElements.find(name);
-    if (it != m_definedElements.end()) {
-        return it->second;
-    }
-    return -1;
-}
-#else
 int Elements::elementIndex(std::string name) const
 {
     for (int i = 0; i < m_mm; i++) {
@@ -324,7 +292,6 @@ int Elements::elementIndex(std::string name) const
     }
     return -1;
 }
-#endif
 
 /*
  *
@@ -413,9 +380,6 @@ addElement(const std::string& symbol, doublereal weight)
     }
     m_atomicWeights.push_back(weight);
     m_elementNames.push_back(symbol);
-#ifdef USE_DGG_CODE
-    m_definedElements[symbol] = nElements() + 1;
-#endif
     if (symbol == "E") {
         m_elem_type.push_back(CT_ELEM_TYPE_ELECTRONCHARGE);
     } else {
@@ -446,45 +410,6 @@ addElement(const XML_Node& e)
  *  The default weight is a special value, which will cause the
  *  routine to look up the actual weight via a string lookup.
  */
-#ifdef USE_DGG_CODE
-void Elements::
-addUniqueElement(const std::string& symbol, doublereal weight, int atomicNumber,
-                 doublereal entropy298, int elem_type)
-{
-    if (m_elementsFrozen) {
-        throw ElementsFrozen("addElement");
-    }
-
-    if (weight == -12345.0) {
-        weight =  LookupWtElements(symbol);
-    }
-
-    /*
-     * First decide if this element has been previously added.
-     * If it unique, add it to the list.
-     */
-
-    int i = m_definedElements[symbol] - 1;
-    if (i < 0) {
-        m_atomicWeights.push_back(weight);
-        m_elementNames.push_back(symbol);
-        m_atomicNumbers.push_back(atomicNumber);
-        m_entropy298.push_back(entropy298);
-        if (symbol == "E") {
-            m_elem_type.push_back(CT_ELEM_TYPE_ELECTRONCHARGE);
-        } else {
-            m_elem_type.push_back(elem_type);
-        }
-        m_mm++;
-    } else {
-        if (m_atomicWeights[i] != weight) {
-            throw CanteraError("AddUniqueElement",
-                               "Duplicate Elements (" + symbol + ") have different weights");
-        }
-    }
-}
-
-#else
 void Elements::
 addUniqueElement(const std::string& symbol,
                  doublereal weight, int atomicNumber, doublereal entropy298,
@@ -532,8 +457,6 @@ addUniqueElement(const std::string& symbol,
         }
     }
 }
-#endif
-
 
 /*
  * @todo call addUniqueElement(symbol, weight) instead of

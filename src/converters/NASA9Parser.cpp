@@ -208,39 +208,6 @@ bool CKParser::readNASA9ThermoSection(std::vector<string>& names,
     // Comment string
     string comment;
 
-
-    // if "THERMO ALL" specified, or if optionFlag is set to HasTempRange,
-    // then the next line must be the default temperatures for the database.
-    //
-    //  This line will have nreg+2 tokens on it
-    //    The last token is a date.
-    if (0) {
-        if (optionFlag == NoThermoDatabase || optionFlag == HasTempRange) {
-            getCKLine(s, comment);
-            getTokens(s, static_cast<int>(s.size()), toks);
-            size_t nreg = toks.size();
-            if (nreg >= 1) {
-                temp.resize(nreg+1);
-                for (size_t i = 0; i <= nreg; i++) {
-                    temp[i] = de_atof(toks[i]);
-                }
-                defaultDate = toks[nreg+1];
-            }
-
-            if (verbose) {
-                log.flags(ios::showpoint | ios::fixed);
-                log.precision(2);
-                log << endl << " Default # of temperature regions: " << nreg << endl;
-                log << "          ";
-                for (size_t i = 0; i <= nreg; i++) {
-                    log << temp[i] << "  ";
-                }
-                log << endl;
-            }
-            checkNASA9Temps(log, temp);
-        }
-    }
-
     // Check to see that we expect to be reading a NASA9 formatted file
     if (!m_nasa9fmt) {
         throw CK_SyntaxError(log,

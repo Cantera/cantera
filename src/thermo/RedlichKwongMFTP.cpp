@@ -1242,7 +1242,6 @@ doublereal RedlichKwongMFTP::hresid() const
  */
 doublereal RedlichKwongMFTP::liquidVolEst(doublereal TKelvin, doublereal& presGuess) const
 {
-
     double v = m_b_current * 1.1;
     double atmp;
     double btmp;
@@ -1254,21 +1253,6 @@ doublereal RedlichKwongMFTP::liquidVolEst(doublereal TKelvin, doublereal& presGu
         pres = pp;
     }
     double Vroot[3];
-
-#ifdef NNN
-    if (TKelvin == 308.) {
-        double pVec[100];
-        int n = 0;
-        for (int i = 0; i < 100; i++) {
-            pVec[n++] = 6.8E6 + 2.0E5 * i;
-        }
-
-        for (int i = 0; i < 100; i++) {
-            int nsol =  NicholsSolve(TKelvin, pVec[i], atmp, btmp, Vroot);
-            printf("nsol = %d, p = %g, T = %g, v[0] = %g, v[1] %g, v[2] = %g\n", nsol, pVec[i], TKelvin, Vroot[0], Vroot[1], Vroot[2]);
-        }
-    }
-#endif
 
     bool foundLiq = false;
     int m = 0;
@@ -1291,42 +1275,12 @@ doublereal RedlichKwongMFTP::liquidVolEst(doublereal TKelvin, doublereal& presGu
         }
     } while ((m < 100) && (!foundLiq));
 
-#ifdef DONTUSE
-    int i;
-    double c;
-    double vnew;
-    double deltav;
-    double sqt = sqrt(TKelvin);
-    for (i = 0; i < 200; i++) {
-        c = bCalc * bCalc + bCalc * GasConstant * TKelvin / pres - atmp / (pres * sqt);
-        vnew = (1.0/c)*(v*v*v - GasConstant * TKelvin *v*v/pp - atmp * bCalc / (pres * sqt));
-        deltav = vnew - v;
-        if (deltav > v*0.2) {
-            deltav = v * 0.2;
-        } else if (deltav < - (v * 0.2)) {
-            deltav = - v * 0.2;
-        }
-        v += deltav;
-        if (fabs(deltav) < 1.0E-6 * v) {
-            break;
-        }
-    }
-    if (i > 30) {
-        printf("liquidVolEst problem solve: T = %g , p = %g, a = %g, b = %g\n", TKelvin, pres, atmp, bCalc);
-        printf("                                v final = %g\n", v);
-    }
-    if (fabs(deltav) > 1.0E-5 * v) {
-        throw CanteraError("RedlichKwongMFTP::liquidVolEst(T = " + fp2str(TKelvin) + ", " + fp2str(pres) + ")",
-                           "failed to converge");
-    }
-#else
     if (foundLiq) {
         v = Vroot[0];
         presGuess = pres;
     } else {
         v = -1.0;
     }
-#endif
     //printf ("     RedlichKwongMFTP::liquidVolEst %g %g converged in %d its\n", TKelvin, pres, i);
     return v;
 }

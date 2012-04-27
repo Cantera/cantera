@@ -31,15 +31,6 @@ namespace Cantera
 static doublereal calc_damping(doublereal* x, doublereal* dx, size_t dim, int*);
 static doublereal calcWeightedNorm(const doublereal [], const doublereal dx[], size_t);
 
-/***************************************************************************
- *                    LAPACK PROTOTYPES
- ***************************************************************************/
-//#define FSUB_TYPE void
-// extern "C" {
-//  extern FSUB_TYPE dgetrf_(int *, int *, doublereal *, int *, int [], int *);
-// extern FSUB_TYPE dgetrs_(char *, int *, int *, doublereal *, int *, int [],
-//                          doublereal [], int *, int *, unsigned int);
-// }
 
 /***************************************************************************
  *  solveSP Class Definitinos
@@ -92,25 +83,7 @@ solveSP::solveSP(ImplicitSurfChem* surfChemPtr, int bulkFunc) :
     /*
      * We rely on ordering to figure things out
      */
-    if (1) {
-        //m_numBulkPhases = m_kin0->nPhases() - 1 - m_numSurfPhases;
-        // Disable the capability until we figure out what is going on
-        m_numBulkPhasesSS = 0;
-        //if (m_numBulkPhasesSS > 0) {
-        //m_numBulkSpecies.resize(m_numBulkPhasesSS, 0);
-        //m_bulkPhasePtrs.resize(m_numBulkPhasesSS, 0);
-        //m_bulkIndex = 1;
-        //if (m_bulkIndex == surfPhaseIndex) {
-        // m_bulkIndex += m_numSurfPhases;
-        //}
-
-        //for (i = 0; i < m_numBulkPhasesSS; i++) {
-        //  m_bulkPhasePtrs[i] = &(m_kin0->thermo(m_bulkIndex + i));
-        // m_numBulkSpecies[i] =  m_bulkPhasePtrs[i]->nSpecies();
-        // m_numTotBulkSpeciesSS += m_numBulkSpecies[i];
-        //}
-        //}
-    }
+    m_numBulkPhasesSS = 0;
 
     if (bulkFunc == BULK_DEPOSITION) {
         m_neq = m_numTotSurfSpecies + m_numTotBulkSpeciesSS;
@@ -151,20 +124,6 @@ solveSP::solveSP(ImplicitSurfChem* surfChemPtr, int bulkFunc) :
             m_kinSpecIndex[kindexSP] = kstart + k;
             m_kinObjIndex[kindexSP] = isp;
         }
-    }
-    if (0) {
-        //for (isp = 0; isp < m_numBulkPhasesSS; isp++) {
-        //nt iKinObject = m_bulkKinObjID[isp];
-        //InterfaceKinetics *m_kin = m_objects[iKinObject];
-        //int bulkIndex = m_bulkKinObjPhaseID[isp];
-        //kstart = m_kin->kineticsSpeciesIndex(0, bulkIndex);
-        //nsp =  m_numBulkSpecies[isp];
-        //m_eqnIndexStartSolnPhase[isp] = kindexSP;
-        //for (k = 0; k < nsp; k++, kindexSP++) {
-        //  m_kinSpecIndex[kindexSP] = kstart + k;
-        //  m_kinObjIndex[kindexSP] = m_numSurfPhases + isp;
-        //}
-        //}
     }
 
     // Dimension solution vector
@@ -247,17 +206,6 @@ int solveSP::solveSurfProb(int ifunc, doublereal time_scale, doublereal TKelvin,
         }
     }
 
-    if (m_bulkFunc == BULK_DEPOSITION) {
-        //for (isp = 0; isp < m_numBulkPhasesSS; isp++) {
-        //ThermoPhase *bf_ptr =  m_bulkPhasePtrs[isp];
-        //bf_ptr->getConcentrations(DATA_PTR(m_numEqn1));
-        //int nsp = m_numBulkSpecies[isp];
-        //for (k = 0; k < nsp; k++, kindex++) {
-        //  m_CSolnSP[loc] = m_numEqn1[k];
-        // loc++;
-        //}
-        //}
-    }
     std::copy(m_CSolnSP.begin(), m_CSolnSP.end(), m_CSolnSPInit.begin());
 
     // Calculate the largest species in each phase
@@ -362,8 +310,6 @@ int solveSP::solveSurfProb(int ifunc, doublereal time_scale, doublereal TKelvin,
         /*
          *  Solve Linear system (with LAPACK).  The solution is in resid[]
          */
-        // (void) dgetrf_(&m_neq, &m_neq, m_JacCol[0], &m_neq,
-        //                DATA_PTR(m_ipiv), &info);
         ct_dgetrf(m_neq, m_neq, m_JacCol[0], m_neq, DATA_PTR(m_ipiv), info);
         if (info==0) {
             ct_dgetrs(ctlapack::NoTranspose, m_neq, nrhs, m_JacCol[0],
@@ -508,12 +454,6 @@ void solveSP::updateState(const doublereal* CSolnSP)
         m_ptrsSurfPhase[n]->setConcentrations(CSolnSP + loc);
         loc += m_nSpeciesSurfPhase[n];
     }
-    //if (m_bulkFunc == BULK_DEPOSITION) {
-    //  for (int n = 0; n < m_numBulkPhasesSS; n++) {
-    //    m_bulkPhasePtrs[n]->setConcentrations(CSolnSP + loc);
-    //    loc += m_numBulkSpecies[n];
-    //  }
-    //}
 }
 
 /*
@@ -525,12 +465,6 @@ void solveSP::updateMFSolnSP(doublereal* XMolSolnSP)
         size_t keqnStart = m_eqnIndexStartSolnPhase[isp];
         m_ptrsSurfPhase[isp]->getMoleFractions(XMolSolnSP + keqnStart);
     }
-    //if (m_bulkFunc == BULK_DEPOSITION) {
-    //  for (int isp = 0; isp < m_numBulkPhasesSS; isp++) {
-    //    int keqnStart = m_eqnIndexStartSolnPhase[isp + m_numSurfPhases];
-    //    m_bulkPhasePtrs[isp]->getMoleFractions(XMolSolnSP + keqnStart);
-    //  }
-    //}
 }
 
 /*
