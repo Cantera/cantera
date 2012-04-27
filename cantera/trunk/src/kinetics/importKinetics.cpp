@@ -431,23 +431,8 @@ static void getFalloff(const XML_Node& f, ReactionData& rdata)
     if (type == "Troe") {
         if (np == 4) {
             rdata.falloffType = TROE4_FALLOFF;
-            if (c[1] < 0.0) {
-                throw CanteraError("getFalloff()", "Troe4 T3 parameter is less than zero: " + fp2str(c[1]));
-            }
-            if (c[2] < 0.0) {
-                throw CanteraError("getFalloff()", "Troe4 T1 parameter is less than zero: " + fp2str(c[2]));
-            }
-            if (c[3] < 0.0) {
-                throw CanteraError("getFalloff()", "Troe4 T2 parameter is less than zero: " + fp2str(c[3]));
-            }
         } else if (np == 3) {
             rdata.falloffType = TROE3_FALLOFF;
-            if (c[1] < 0.0) {
-                throw CanteraError("getFalloff()", "Troe3 T3 parameter is less than zero: " + fp2str(c[1]));
-            }
-            if (c[2] < 0.0) {
-                throw CanteraError("getFalloff()", "Troe3 T1 parameter is less than zero: " + fp2str(c[2]));
-            }
         } else {
             throw CanteraError("getFalloff()", "Troe parameterization is specified by number of pararameters, "
                                + int2str(np) + ", is not equal to 3 or 4");
