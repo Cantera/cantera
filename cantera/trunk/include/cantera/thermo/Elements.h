@@ -95,25 +95,26 @@ namespace Cantera
 //!     @exception CanteraError If a match is not found, throws a CanteraError
 double LookupWtElements(const std::string& ename);
 
- class XML_Node;
+class XML_Node;
 
- //! Object containing the elements that make up species in a phase.
-  /*!
-   * Class %Elements manages the elements that are part of a
-   * chemistry specification.  This class may support calculations
-   * employing Multiple phases. In this case, a single Elements object may
-   * be shared by more than one Constituents class. Reactions between
-   * the phases may then be described using stoichiometry base on the
-   * same Elements class object.
-   * 
-   * The member functions return information about the elements described
-   * in a particular instantiation of the class.
-   * 
-   * @ingroup phases
-   */
-  class Elements {
+//! Object containing the elements that make up species in a phase.
+/*!
+ * Class %Elements manages the elements that are part of a
+ * chemistry specification.  This class may support calculations
+ * employing Multiple phases. In this case, a single Elements object may
+ * be shared by more than one Constituents class. Reactions between
+ * the phases may then be described using stoichiometry base on the
+ * same Elements class object.
+ *
+ * The member functions return information about the elements described
+ * in a particular instantiation of the class.
+ *
+ * @ingroup phases
+ */
+class Elements
+{
 
-  public:
+public:
 
     //! Default constructor for the elements class
     Elements();
@@ -134,7 +135,7 @@ double LookupWtElements(const std::string& ename);
     //! Assigntment operator
     /*!
      *   This is the assignment operator for the Elements class.
-     *   Right now we pretty much do a straight uncomplicated 
+     *   Right now we pretty much do a straight uncomplicated
      *   assignment. However, subscribers are not mucked with, as they
      *   have to do with the address of the object to be subscribed to
      *
@@ -143,13 +144,13 @@ double LookupWtElements(const std::string& ename);
     Elements& operator=(const Elements& right);
 
 
-    //!  Static function to look up an atomic weight 
+    //!  Static function to look up an atomic weight
     /*!
      *   This static function looks up the argument string in the
      *   database above and returns the associated molecular weight.
      *   The data are from the periodic table.
      *
-     *  Note: The idea behind this function is to provide a unified 
+     *  Note: The idea behind this function is to provide a unified
      *        source for the element atomic weights. This helps to
      *        ensure that mass is conserved.
      *
@@ -160,21 +161,25 @@ double LookupWtElements(const std::string& ename);
      *    If a match for the string is not found, a value of -1.0 is
      *    returned.
      *
-     *  @exception CanteraError 
-     *    If a match is not found, a CanteraError is thrown as well  
+     *  @exception CanteraError
+     *    If a match is not found, a CanteraError is thrown as well
      */
-    static double LookupWtElements(const std::string &ename);
+    static double LookupWtElements(const std::string& ename);
     /// Atomic weight of element m.
     /*!
      *  @param m element index
      */
-    doublereal atomicWeight(int m) const { return m_atomicWeights[m]; }
+    doublereal atomicWeight(int m) const {
+        return m_atomicWeights[m];
+    }
 
     /// Atomic number of element m.
     /*!
      *  @param m element index
      */
-    int atomicNumber(int m) const { return m_atomicNumbers[m]; }
+    int atomicNumber(int m) const {
+        return m_atomicNumbers[m];
+    }
 
     //! Entropy at 298.15 K and 1 bar of stable state
     //! of the element
@@ -197,34 +202,38 @@ double LookupWtElements(const std::string& ename);
      * CT_ELEM_TYPE_SURFACECONSTRAINT 5
      * CT_ELEM_TYPE_OTHERCONSTRAINT  6
      *
-     * The default is  CT_ELEM_TYPE_ABSPOS  
+     * The default is  CT_ELEM_TYPE_ABSPOS
      *
      *  @param m  Element index
-     * 
+     *
      *  @return Returns the element type
      */
     int elementType(int m) const;
 
     //! Change the element type of the mth constraint
-    /*! 
+    /*!
      *  Reassigns an element type
      *
      *  @param m  Element index
-     *  @param elem_type New elem type to be assigned 
-     * 
+     *  @param elem_type New elem type to be assigned
+     *
      *  @return Returns the old element type
      */
     int changeElementType(int m, int elem_type);
 
     /// vector of element atomic weights
-    const vector_fp& atomicWeights() const { return m_atomicWeights; }
-    /** 
+    const vector_fp& atomicWeights() const {
+        return m_atomicWeights;
+    }
+    /**
      * Inline function that returns the number of elements in the object.
-     * 
-     *  @return 
+     *
+     *  @return
      *    \c int: The number of elements in the object.
      */
-    int nElements() const { return m_mm; }
+    int nElements() const {
+        return m_mm;
+    }
 
     //! Function that returns the index of an element.
     /*!
@@ -238,20 +247,20 @@ double LookupWtElements(const std::string& ename);
      */
     int elementIndex(std::string name) const;
 
-    //! Name of the element with index \c m. 
+    //! Name of the element with index \c m.
     /*!
      * @param m Element index. If m < 0 or m >= nElements() an exception is thrown.
      */
     std::string elementName(int m) const;
 
-    //!   Returns a string vector containing the element names  
+    //!   Returns a string vector containing the element names
     /*!
      * Returns a read-only reference to the vector of element names.
      * @return <tt> const vector<string>& </tt>: The vector contains
      *         the element names in their indexed order.
      */
     const std::vector<std::string>& elementNames() const {
-      return m_elementNames;
+        return m_elementNames;
     }
 
     //! Add an element to the current set of elements in the current object.
@@ -269,7 +278,7 @@ double LookupWtElements(const std::string& ename);
      */
     void addElement(const std::string& symbol,
                     doublereal weight = -12345.0);
-   //! Add an element to the current set of elements in the current object.
+    //! Add an element to the current set of elements in the current object.
     /*!
      * @param   e   Reference to the XML_Node containing the element information
      *              The node name is the element symbol and the atomWt attribute
@@ -290,7 +299,7 @@ double LookupWtElements(const std::string& ename);
      *                    The default is to specify an ENTROPY298_UNKNOWN value,
      *                    which will cause a throw error if its ever
      *                    needed.
-     *  @param elem_type  New elem type to be assigned. 
+     *  @param elem_type  New elem type to be assigned.
      *                    The default is a regular element, CT_ELEM_TYPE_ABSPOS
      */
     void addUniqueElement(const std::string& symbol,
@@ -338,7 +347,7 @@ double LookupWtElements(const std::string& ename);
     //! report the number of subscriptions
     int reportSubscriptions() const;
 
-  protected:
+protected:
 
     /******************************************************************/
     /*      Description of DATA in the Object                         */
@@ -369,7 +378,7 @@ double LookupWtElements(const std::string& ename);
     vector_int                      m_atomicNumbers;
 
     /** Vector of strings containing the names of the elements
-     *        
+     *
      *  Note, a string search is the primary way to identify elements.
      */
     std::vector<std::string>                 m_elementNames;
@@ -394,14 +403,14 @@ double LookupWtElements(const std::string& ename);
 
     /********* GLOBAL STATIC SECTION *************/
 
-  public:
+public:
     /** Vector of pointers to Elements Objects
      *
      */
-    static std::vector<Elements *> Global_Elements_List;
+    static std::vector<Elements*> Global_Elements_List;
 
     friend class Constituents;
-  };
+};
 
 
 }  // namespace
