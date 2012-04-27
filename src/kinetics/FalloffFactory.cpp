@@ -5,6 +5,7 @@
 
 #include "cantera/kinetics/FalloffFactory.h"
 #include "cantera/base/ctexceptions.h"
+#include "cantera/base/stringUtils.h"
 
 #include <cmath>
 
@@ -350,6 +351,10 @@ public:
      *          a, b, and c of the SRI parameterization
      */
     virtual void init(const vector_fp& c) {
+        if (c[2] < 0.0) {
+            throw CanteraError("SRI3::init()",
+                               "m_c parameter is less than zero: " + fp2str(c[2]));
+        }
         m_a = c[0];
         m_b = c[1];
         m_c = c[2];
@@ -459,6 +464,14 @@ public:
      *          a, b, c, d, and e of the SRI parameterization
      */
     virtual void init(const vector_fp& c) {
+        if (c[2] < 0.0) {
+            throw CanteraError("SRI5::init()",
+                               "m_c parameter is less than zero: " + fp2str(c[2]));
+        }
+        if (c[3] < 0.0) {
+            throw CanteraError("SRI5::init()",
+                               "m_d parameter is less than zero: " + fp2str(c[3]));
+        }
         m_a = c[0];
         m_b = c[1];
         m_c = c[2];
