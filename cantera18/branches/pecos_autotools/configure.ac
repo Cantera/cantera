@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.61)
-AC_INIT([cantera], [1.8.0], [nick@ices.utexas.edu])
+AC_INIT([cantera], [2.0.0], [nick@ices.utexas.edu])
 AC_CONFIG_HEADER(config.h)
 AC_CONFIG_AUX_DIR([build-aux])
 #AX_ENABLE_BUILDDIR
@@ -90,7 +90,6 @@ DX_INIT_DOXYGEN(cantera, doxygen/cantera.dox, docs)
 # Generate Output Files
 AC_OUTPUT(Makefile                                                         \
                    test_problems/Makefile                                  \
-                   test_problems/f77test/Makefile                          \
                    test_problems/mixGasTransport/Makefile                  \
                    test_problems/ChemEquil_gri_matrix/Makefile             \
                    test_problems/ChemEquil_gri_pairs/Makefile              \
