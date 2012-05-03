@@ -13,7 +13,7 @@ LIBS                 =  $(LINK)
 
 bin_PROGRAMS         = HMW_graph_CpvT
 library_includedir   = $(INC)
-library_include_HEADERS = $(h_sources)
+#library_include_HEADERS = $(h_sources)
 
 #-----------------------
 # Cantera DH graph test

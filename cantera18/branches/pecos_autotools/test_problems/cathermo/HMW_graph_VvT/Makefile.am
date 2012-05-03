@@ -13,7 +13,7 @@ AM_LDFLAGS           = -L$(top_builddir)/build/lib/
 
 bin_PROGRAMS         = HMW_graph_VvT
 library_includedir   = $(INC)
-library_include_HEADERS = $(h_sources)
+#library_include_HEADERS = $(h_sources)
 
 #-----------------------
 # Cantera DH graph test
