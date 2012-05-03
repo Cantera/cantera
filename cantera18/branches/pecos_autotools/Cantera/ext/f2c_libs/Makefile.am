@@ -34,7 +34,7 @@ cc_sources              = abort_.c c_log.c d_atn2.c dfe.c d_prod.c \
                           i_nint.c l_lt.c pow_hh.c r_abs.c rdfmt.c \
                           r_mod.c r_sqrt.c signal_.c uio.c xwsne.c 
 
-h_sources               = f2c.h sysdep1.h fio.h fmt.h fp.h lio.h rawio.h arith.h signal1.h sysdep1.h
+h_sources               = f2c.h sysdep1.h fio.h fmt.h fp.h lio.h rawio.h arith.h signal1.h
 
 AM_CPPFLAGS             = -I.
 AM_CXXFLAGS             = $(AM_CPPFLAGS)
@@ -52,7 +52,7 @@ library_include_HEADERS = $(h_sources)
 #-----------------------
 
 # header file accumulation
-all:
+all-local:
 	@echo copying headers $<
 	cp -p sysdep1.h0 sysdep1.h
 	cp -p signal1.h0 signal1.h
