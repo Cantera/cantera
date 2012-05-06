@@ -41,18 +41,6 @@ module_DATA        = cantera_funcs.mod cantera_iface.mod cantera_kinetics.mod \
                      cantera.mod cantera_thermo.mod cantera_transport.mod     \
                      cantera_xml.mod fct.mod fctxml.mod
 
-
-# install-data-local: $(top_builddir)/build/lib/libfct.la
-# 	@echo installing .mod files
-# 	$(INSTALL_DATA) $(top_builddir)/Cantera/fortran/src/cantera.mod $(top_builddir)/build/include/cantera.mod
-# 	$(INSTALL_DATA) $(top_builddir)/Cantera/fortran/src/cantera_kinetics.mod $(top_builddir)/build/include/cantera_kinetics.mod
-# 	$(INSTALL_DATA) $(top_builddir)/Cantera/fortran/src/cantera_funcs.mod $(top_builddir)/build/include/cantera_funcs.mod
-# 	$(INSTALL_DATA) $(top_builddir)/Cantera/fortran/src/cantera_iface.mod $(top_builddir)/build/include/cantera_iface.mod
-# 	$(INSTALL_DATA) $(top_builddir)/Cantera/fortran/src/cantera_thermo.mod $(top_builddir)/build/include/cantera_thermo.mod
-# 	$(INSTALL_DATA) $(top_builddir)/Cantera/fortran/src/cantera_transport.mod $(top_builddir)/build/include/cantera_transport.mod
-# 	$(INSTALL_DATA) $(top_builddir)/Cantera/fortran/src/cantera_xml.mod $(top_builddir)/build/include/cantera_xml.mod
-# 	$(INSTALL_DATA) $(top_builddir)/Cantera/fortran/src/fctxml.mod $(top_builddir)/build/include/fctxml.mod
-
 CLEANFILES = *.o
 
 # header file accumulation

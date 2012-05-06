@@ -30,11 +30,6 @@
 
 #include "flib_defs.h"
 
-// Assert that there is storage 
-// for the templated classes' static member
-// (needed to compile on solaris)
-//template<> Cabinet<XML_Node> * Cabinet<XML_Node>::__storage;
-
 inline XML_Node* _xml(const integer* n) {
     return Cabinet<XML_Node>::cabinet()->item(*n);
 }

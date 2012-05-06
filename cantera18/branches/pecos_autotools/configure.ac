@@ -139,6 +139,8 @@ AC_OUTPUT(Makefile                                                         \
 		   doxygen/Makefile                                        \
 		   tools/Makefile                                          \
 		   tools/testtools/Makefile                                \
+		   Cantera/clib/Makefile                                   \
+		   Cantera/clib/src/Makefile                               \
 		   Cantera/ext/Makefile                                    \
 		   Cantera/ext/tpx/Makefile                                \
 		   Cantera/ext/cvode/Makefile                              \
