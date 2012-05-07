@@ -18,8 +18,8 @@ Tt = 13.8,
 Pt = 7042.09,
 R =  4124.299539,
 Gamma = 1.008854772e-3,
-u0 = 308901.4703,
-s0 = 7759.186436,
+u0 = 3.9275114e5,
+s0 = 2.3900333e4,
 T1 = 35,
 T2 = 400,
 alpha = 1.5814454428,     //to be used with psat
@@ -50,6 +50,7 @@ static const double Ghydro[]= {
     -7.1519411e4, 1.2971743e4, -9.8533014e2, 1.0434776e4,
     -3.9144179e2, 5.8277696e2, 6.5409163e2, -1.8728847e2
 };
+
 
 double hydrogen::C(int i, double rt, double rt2)
 {
@@ -150,42 +151,27 @@ double hydrogen::up()
     double rt2 = rt*rt;
     double rt3 = rt*rt2;
     double egrho = exp(-Gamma*Rho*Rho);
-    double x, xlg;
     double sum = u0;
-    double sum2, sum3;
     for (int i=0; i<14; i++) {
         sum += (C(i, rt, rt2) - T*Cprime(i, rt, rt2, rt3))*I(i, egrho);
     }
 
     //   add \int c_{v,0} term
-
-    if (T <= T1) {
-        sum2 = Ghydro[0]*T;
-    } else {
-        if (T < T2) {
-            x = T/T1;
-        } else {
-            x = T2/T1;
-        }
-        xlg = log(x);
-        int i;
-        for (i=0, sum2=0.0; i<12; i++) {
-            sum2 += Ghydro[i]*icv(i, x, xlg);
-        }
-        sum2 *= T1;
-        sum2 += Ghydro[0]*T1;
-        if (T > T2) {
-            x = T/T2;
-            xlg = log(x);
-            for (i=0, sum3=0.0; i<5; i++) {
-                sum3 += Ghydro[i+12]*icv(i, x, xlg);
-            }
-            sum3 *= T2;
-            sum2 += sum3;
+    sum += Ghydro[0] * (std::min(T, T1) - To);
+    if (T > T1) {
+        double x = std::min(T, T2) / T1;
+        for (int i = 0; i < 12; i++) {
+            sum += Ghydro[i] * T1 * icv(i, x, log(x));
         }
     }
-    sum += sum2 + m_energy_offset;
-    return sum;
+    if (T > T2) {
+        double x = T/T2;
+        for (int i = 0; i < 5; i++) {
+            sum += Ghydro[i+12] * T2 * icv(i, x, log(x));
+        }
+    }
+
+    return sum + m_energy_offset;
 }
 
 double hydrogen::sp()
@@ -194,40 +180,27 @@ double hydrogen::sp()
     double rt2 = rt*rt;
     double rt3 = rt*rt2;
     double egrho = exp(-Gamma*Rho*Rho);
-    double x, xlg;
     double sum = s0 - R*log(Rho);
-    double sum2, sum3;
     for (int i=0; i<14; i++) {
         sum -= Cprime(i, rt, rt2, rt3)*I(i, egrho);
     }
 
     //   add \int c_{v,0}/T term
-
-    if (T <= T1) {
-        sum2 = Ghydro[0]*log(T);
-    } else {
-        if (T < T2) {
-            x = T/T1;
-        } else {
-            x = T2/T1;
-        }
-        xlg = log(x);
-        int i;
-        for (i=0, sum2 = 0.0; i<12; i++) {
-            sum2 += Ghydro[i]*pow(xlg, i+1)/(i+1);
-        }
-        sum2 += Ghydro[0]*log(T1);
-        if (T > T2) {
-            x = T/T2;
-            xlg = log(x);
-            for (i=0, sum3=0.0; i<5; i++) {
-                sum3 += Ghydro[i+12]*pow(xlg,i+1)/(i+1);
-            }
-            sum2 += sum3;
+    sum += Ghydro[0] * log(std::min(T, T1)/ To);
+    if (T > T1) {
+        double xlg = log(std::min(T, T2)/T1);
+        for (int i = 0; i < 12; i++) {
+            sum += Ghydro[i] / (i + 1) * pow(xlg, i+1);
         }
     }
-    sum += sum2 + m_entropy_offset;
-    return sum;
+    if (T > T2) {
+        double xlg = log(T/T2);
+        for (int i = 0; i < 5; i++) {
+            sum += Ghydro[i+12] / (i + 1) * pow(xlg, i+1);
+        }
+    }
+
+    return sum + m_entropy_offset;
 }
 
 double hydrogen::Pp()
