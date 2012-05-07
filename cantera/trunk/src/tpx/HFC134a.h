@@ -27,7 +27,7 @@ public:
     double fp();
     double up();
     double sp() {
-        return (up() - fp())/T + m_entropy_offset;
+        return ((up() - m_energy_offset) - fp())/T + m_entropy_offset;
     }
     double Psat();
     //    double dPsatdT();
