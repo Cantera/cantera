@@ -33,7 +33,7 @@ def addTestProgram(subdir, progName):
     and resetting the test.
     """
     program = localenv.Program(pjoin(subdir, progName),
-                               pjoin(subdir, '%s.cpp' % progName))
+                               mglob(localenv, subdir, 'cpp'))
     passedFile = File(pjoin(str(program[0].dir), '%s.passed' % program[0].name))
     run_program = localenv.Command(passedFile, program, testRunner)
     Alias('test', run_program)
@@ -122,8 +122,8 @@ def addMatlabTest(script, dependencies=None):
     return run_program
 
 # Instantiate tests
-addTestProgram('thermo', 'nasapoly')
-addTestProgram('kinetics', 'pdep')
+addTestProgram('thermo', 'thermo')
+addTestProgram('kinetics', 'kinetics')
 
 if localenv['python_package'] == 'full':
     pyTest= addTestScript('python', 'runTests.py',

@@ -20,6 +20,7 @@ if __name__ == '__main__':
     loader = unittest.TestLoader()
     runner = unittest.TextTestRunner(verbosity=2)
     suite = loader.loadTestsFromName('testSolution')
+    suite.addTests(loader.loadTestsFromName('testPureFluid'))
     suite.addTests(loader.loadTestsFromName('testEquilibrium'))
     suite.addTests(loader.loadTestsFromName('testReactors'))
 
