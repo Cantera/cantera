@@ -8,7 +8,6 @@ localenv = env.Clone()
 gcv = distutils.sysconfig.get_config_var
 
 localenv.Append(CPPPATH=[gcv('INCLUDEPY'), env['python_array_include']],
-                SHLINKFLAGS=gcv('LDFLAGS'),
                 CPPFLAGS=((gcv('BASECFLAGS') or '').split() +
                           (gcv('OPT') or '').split()))
 
