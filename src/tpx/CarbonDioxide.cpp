@@ -24,11 +24,10 @@ static const double Roc=464.00;        // [kg/m^3] critical density
 static const double To=216.54;        // [K] reference Temperature
 static const double R=188.918;        // [] gas constant for CO2 J/kg/K
 static const double Gamma=5.0E-6;    // [??]
-static const double u0=3.217405E5;    // [] internal energy at To
+static const double u0=3.2174105E5;    // [] internal energy at To
 static const double s0=2.1396056E3;    // [] entropy at To
 static const double Tp=250;            // [K] ??
-//static const double Pc=7.38350E6;    // [Pa] critical pressure
-static const double Pc=7.3817589E6;   // Adjusted to fit the actual functional form
+static const double Pc=7.38350E6;    // [Pa] critical pressure
 static const double M=44.01;        // [kg/kmol] molar density
 
 /*
@@ -95,9 +94,6 @@ static const double G[]= {
     -1.667825E-3,
     7.305950E-7,
     -1.255290E-10,
-    3.2174105E5,
-    2.1396056E3
-
 };
 
 /*
@@ -279,7 +275,7 @@ double CarbonDioxide::sp()
     }
 
     sum += G[1]*log(T/To);
-    sum -= G[0]*(1.0/To - 1.0/T);
+    sum -= G[0]*(1.0/T - 1.0/To);
 
 
     for (int i=0; i<=6; i++) {
