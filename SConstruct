@@ -680,11 +680,11 @@ if env['f90_interface'] in ('y','default'):
     else:
         print "INFO: Skipping compilation of the Fortran 90 interface."
 
-if env['F90'] == 'gfortran':
+if 'gfortran' in env['F90']:
     env['FORTRANMODDIRPREFIX'] = '-J'
-elif env['F90'] == 'g95':
+elif 'g95' in env['F90']:
     env['FORTRANMODDIRPREFIX'] = '-fmod='
-elif env['F90'] == 'ifort':
+elif 'ifort' in env['F90']:
     env['FORTRANMODDIRPREFIX'] = '-module '
 
 env['FORTRANMODDIR'] = '${TARGET.dir}'
