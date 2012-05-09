@@ -1,10 +1,8 @@
 cc_sources = fct.cpp fctxml.cpp
 
-fc_sources = cantera_xml.f90 cantera_thermo.f90 \
+fc_sources = cantera_xml.f90 cantera_thermo.f90 fct_interface.f90 fctxml_interface.f90 \
 	     cantera_kinetics.f90 cantera_transport.f90 cantera_iface.f90              \
-	     cantera_funcs.f90 cantera.f90
-
-#fct_interface.f90 fctxml_interface.f90 
+	     cantera_funcs.f90 cantera.f90 
 
 h_sources               = flib_defs.h
 
