@@ -32,9 +32,9 @@ __top_builddir__build_lib_libfct_include_HEADERS = $(h_sources)
 __top_builddir__build_lib_libfct_includedir      = $(prefix)/include
 
 
-#------------------------                                                                                
-# install fo'tran modules                                                                                
-#------------------------                                                                                
+#------------------------                                                                       
+# install fo'tran modules                                                                            
+#------------------------                                                                 
 
 moduledir          = @libdir@
 module_DATA        = cantera_funcs.mod cantera_iface.mod cantera_kinetics.mod \
