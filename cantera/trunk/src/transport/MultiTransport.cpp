@@ -29,22 +29,12 @@ using namespace std;
  * Mole fractions below MIN_X will be set to MIN_X when computing
  * transport properties.
  */
-
 #define MIN_X 1.e-20
-
 
 namespace Cantera
 {
 
-
-/////////////////////////// constants //////////////////////////
-
-//    const doublereal ThreeSixteenths = 3.0/16.0;
-
-
-
 ///////////////////// helper functions /////////////////////////
-
 
 /**
  *  @internal
@@ -92,33 +82,15 @@ void L_Matrix::mult(const doublereal* b, doublereal* prod) const
 
 //////////////////// class MultiTransport methods //////////////
 
-
 MultiTransport::MultiTransport(thermo_t* thermo)
-    : Transport(thermo),
-      m_temp(-1.0)
+    : GasTransport(thermo)
 {
 }
 
-
-MultiTransport::~MultiTransport()
-{
-
-}
 //====================================================================================================================
 bool MultiTransport::initGas(GasTransportParams& tr)
 {
-
-    // constant mixture attributes
-    //m_phase = tr.mix;
-    m_thermo = tr.thermo;
-    m_nsp   = m_thermo->nSpecies();
-    m_tmin  = m_thermo->minTemp();
-    m_tmax  = m_thermo->maxTemp();
-
-    // make a local copy of the molecular weights
-    m_mw.resize(m_nsp);
-    copy(m_thermo->molecularWeights().begin(),
-         m_thermo->molecularWeights().end(), m_mw.begin());
+    GasTransport::initGas(tr);
 
     // copy polynomials and parameters into local storage
     m_poly       = tr.poly;
@@ -149,21 +121,8 @@ bool MultiTransport::initGas(GasTransportParams& tr)
     m_frot_298.resize(m_nsp);
     m_rotrelax.resize(m_nsp);
 
-    m_phi.resize(m_nsp, m_nsp, 0.0);
-    m_wratjk.resize(m_nsp, m_nsp, 0.0);
-    m_wratkj1.resize(m_nsp, m_nsp, 0.0);
-    for (size_t j = 0; j < m_nsp; j++)
-        for (size_t k = j; k < m_nsp; k++) {
-            m_wratjk(j,k) = sqrt(m_mw[j]/m_mw[k]);
-            m_wratjk(k,j) = sqrt(m_wratjk(j,k));
-            m_wratkj1(j,k) = sqrt(1.0 + m_mw[k]/m_mw[j]);
-        }
-
     m_cinternal.resize(m_nsp);
 
-    m_polytempvec.resize(5);
-    m_visc.resize(m_nsp);
-    m_sqvisc.resize(m_nsp);
     m_bdiff.resize(m_nsp, m_nsp);
 
     //m_poly.resize(m_nsp);
@@ -172,19 +131,13 @@ bool MultiTransport::initGas(GasTransportParams& tr)
     m_bstar.resize(m_nsp, m_nsp);
     m_cstar.resize(m_nsp, m_nsp);
 
-    m_molefracs.resize(m_nsp);
-
     // set flags all false
-    m_visc_ok = false;
-    m_spvisc_ok = false;
     m_diff_ok = false;
     m_abc_ok = false;
     m_l0000_ok = false;
     m_lmatrix_soln_ok = false;
 
     m_diff_tlast = 0.0;
-    m_spvisc_tlast = 0.0;
-    m_visc_tlast = 0.0;
     m_thermal_tlast = 0.0;
 
     // use LU decomposition by default
@@ -195,11 +148,9 @@ bool MultiTransport::initGas(GasTransportParams& tr)
     m_eps_gmres = 1.e-4;
 
     // some work space
-    m_spwork.resize(m_nsp);
     m_spwork1.resize(m_nsp);
     m_spwork2.resize(m_nsp);
     m_spwork3.resize(m_nsp);
-
 
     // precompute and store log(epsilon_ij/k_B)
     m_log_eps_k.resize(m_nsp, m_nsp);
@@ -210,7 +161,6 @@ bool MultiTransport::initGas(GasTransportParams& tr)
             m_log_eps_k(j,i) = m_log_eps_k(i,j);
         }
     }
-
 
     // precompute and store constant parts of the Parker rotational
     // collision number temperature correction
@@ -223,44 +173,7 @@ bool MultiTransport::initGas(GasTransportParams& tr)
                              m_sqrt_eps_k[k]/sq298);
     }
 
-    //         // install updaters
-    //         m_update_transport_T = m_thermo->installUpdater_T(
-    //             new UpdateTransport_T<MultiTransport>(*this));
-    //         m_update_transport_C = m_thermo->installUpdater_C(
-    //             new UpdateTransport_C<MultiTransport>(*this));
-    //         m_update_spvisc_T = m_thermo->installUpdater_T(
-    //             new UpdateSpeciesVisc<MultiTransport>(*this));
-    //         m_update_visc_T = m_thermo->installUpdater_T(
-    //             new UpdateVisc_T<MultiTransport>(*this));
-    //         m_update_diff_T = m_thermo->installUpdater_T(
-    //             new UpdateDiff_T<MultiTransport>(*this));
-    //         m_update_thermal_T = m_thermo->installUpdater_T(
-    //             new UpdateThermal_T<MultiTransport>(*this));
-
     return true;
-}
-
-
-/******************  viscosity ******************************/
-
-doublereal MultiTransport::viscosity()
-{
-    doublereal vismix = 0.0, denom;
-
-    // update m_visc if necessary
-    updateViscosity_T();
-
-    // update the mole fractions
-    updateTransport_C();
-
-    for (size_t k = 0; k < m_nsp; k++) {
-        denom = 0.0;
-        for (size_t j = 0; j < m_nsp; j++) {
-            denom += m_phi(k,j) * m_molefracs[j];
-        }
-        vismix += m_molefracs[k] * m_visc[k]/denom;
-    }
-    return vismix;
 }
 
 //====================================================================================================================
@@ -280,7 +193,6 @@ void MultiTransport::getBinaryDiffCoeffs(size_t ld, doublereal* d)
             d[ld*j + i] = rp * m_bdiff(i,j);
         }
 }
-
 
 
 /****************** thermal conductivity **********************/
@@ -324,7 +236,7 @@ void MultiTransport::solveLMatrixEquation()
     // properties.
 
     updateThermal_T();
-    updateTransport_C();
+    update_C();
 
     // Copy the mole fractions twice into the last two blocks of
     // the right-hand-side vector m_b. The first block of m_b was
@@ -700,7 +612,7 @@ void MultiTransport::getMultiDiffCoeffs(const size_t ld, doublereal* const d)
     doublereal p = pressure_ig();
 
     // update the mole fractions
-    updateTransport_C();
+    update_C();
 
     // update the binary diffusion coefficients
     updateDiff_T();
@@ -736,9 +648,8 @@ void MultiTransport::getMultiDiffCoeffs(const size_t ld, doublereal* const d)
 
 void MultiTransport::getMixDiffCoeffs(doublereal* const d)
 {
-
     // update the mole fractions
-    updateTransport_C();
+    update_C();
 
     // update the binary diffusion coefficients if necessary
     updateDiff_T();
@@ -768,39 +679,23 @@ void MultiTransport::getMixDiffCoeffs(doublereal* const d)
     }
 }
 
-
-void MultiTransport::updateTransport_T()
+void MultiTransport::update_T()
 {
     if (m_temp == m_thermo->temperature()) {
         return;
     }
 
-    m_temp = m_thermo->temperature();
-    m_logt = log(m_temp);
-    m_kbt = Boltzmann * m_temp;
-    m_sqrt_t = sqrt(m_temp);
-    m_t14 = sqrt(m_sqrt_t);
-    m_t32 = m_temp * m_sqrt_t;
-    m_sqrt_kbt = sqrt(Boltzmann*m_temp);
-
-    // compute powers of log(T)
-    m_polytempvec[0] = 1.0;
-    m_polytempvec[1] = m_logt;
-    m_polytempvec[2] = m_logt*m_logt;
-    m_polytempvec[3] = m_logt*m_logt*m_logt;
-    m_polytempvec[4] = m_logt*m_logt*m_logt*m_logt;
+    GasTransport::update_T();
 
     // temperature has changed, so polynomial fits will need to be
     // redone, and the L matrix reevaluated.
-    m_visc_ok = false;
-    m_spvisc_ok = false;
     m_diff_ok = false;
     m_abc_ok  = false;
     m_lmatrix_soln_ok = false;
     m_l0000_ok = false;
 }
 
-void MultiTransport::updateTransport_C()
+void MultiTransport::update_C()
 {
     // signal that concentration-dependent quantities will need to
     // be recomputed before use, and update the local mole
@@ -828,7 +723,7 @@ void MultiTransport::updateDiff_T()
     if (m_diff_tlast == m_thermo->temperature()) {
         return;
     }
-    updateTransport_T();
+    update_T();
 
     // evaluate binary diffusion coefficients at unit pressure
     size_t ic = 0;
@@ -854,68 +749,13 @@ void MultiTransport::updateDiff_T()
     m_diff_tlast = m_thermo->temperature();
 }
 
-void MultiTransport::updateSpeciesViscosities_T()
-{
-    if (m_spvisc_tlast == m_thermo->temperature()) {
-        return;
-    }
-    updateTransport_T();
-
-    if (m_mode == CK_Mode) {
-        for (size_t k = 0; k < m_nsp; k++) {
-            m_visc[k] = exp(dot4(m_polytempvec, m_visccoeffs[k]));
-            m_sqvisc[k] = sqrt(m_visc[k]);
-        }
-    } else {
-        for (size_t k = 0; k < m_nsp; k++) {
-            //m_visc[k] = m_sqrt_t*dot5(m_polytempvec, m_visccoeffs[k]);
-            // the polynomial fit is done for sqrt(visc/sqrt(T))
-            m_sqvisc[k] = m_t14*dot5(m_polytempvec, m_visccoeffs[k]);
-            m_visc[k] = (m_sqvisc[k]*m_sqvisc[k]);
-        }
-    }
-    m_spvisc_ok = true;
-    m_spvisc_tlast = m_thermo->temperature();
-}
-
-void MultiTransport::updateViscosity_T()
-{
-    if (m_visc_tlast == m_thermo->temperature()) {
-        return;
-    }
-    doublereal vratiokj, wratiojk, factor1;
-    updateSpeciesViscosities_T();
-
-    // see Eq. (9-5.15) of Reid, Prausnitz, and Poling
-    for (size_t j = 0; j < m_nsp; j++) {
-        for (size_t k = j; k < m_nsp; k++) {
-            vratiokj = m_visc[k]/m_visc[j];
-            wratiojk = m_mw[j]/m_mw[k];
-            //rootwjk = sqrt(wratiojk);
-            //factor1 = 1.0 + sqrt(vratiokj * rootwjk);
-            //m_phi(k,j) = factor1*factor1 /
-            //             (SqrtEight * sqrt(1.0 + m_mw[k]/m_mw[j]));
-            //m_phi(j,k) = m_phi(k,j)/(vratiokj * wratiojk);
-
-            // Note that m_wratjk(k,j) holds the square root of
-            // m_wratjk(j,k)!
-            factor1 = 1.0 + (m_sqvisc[k]/m_sqvisc[j]) * m_wratjk(k,j);
-            m_phi(k,j) = factor1*factor1 /
-                         (SqrtEight * m_wratkj1(j,k));
-            m_phi(j,k) = m_phi(k,j)/(vratiokj * wratiojk);
-        }
-    }
-    m_visc_ok = true;
-    m_visc_tlast = m_thermo->temperature();
-}
-
 void MultiTransport::updateThermal_T()
 {
     if (m_thermal_tlast == m_thermo->temperature()) {
         return;
     }
     // we need species viscosities and binary diffusion coefficients
-    updateSpeciesViscosities_T();
+    updateSpeciesViscosities();
     updateDiff_T();
 
     // evaluate polynomial fits for A*, B*, C*
