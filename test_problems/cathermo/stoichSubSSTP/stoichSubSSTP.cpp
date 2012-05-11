@@ -52,16 +52,6 @@ int main(int argc, char** argv)
         if (nsp != 1) {
             throw CanteraError("","Should just be one species");
         }
-        double acMol[100];
-        double act[100];
-        double mf[100];
-        double moll[100];
-        for (i = 0; i < 100; i++) {
-            acMol[i] = 1.0;
-            act[i] = 1.0;
-            mf[i] = 0.0;
-            moll[i] = 0.0;
-        }
         string sName;
 
         TemperatureTable TTable(8, true, 300, 100., 0, 0);
@@ -80,7 +70,7 @@ int main(int argc, char** argv)
         double enth_RT[20];
         double entrop_RT[20], intE_RT[20];
         double mu_NaCl, enth_NaCl, entrop_NaCl;
-        double mu0_NaCl, molarGibbs, intE_NaCl, cp_NaCl;
+        double cp_NaCl;
         /*
          * Create a Table of NaCl  Properties as a Function
          * of the Temperature
@@ -116,7 +106,6 @@ int main(int argc, char** argv)
             * Get the Standard State DeltaH
             */
             solid->getGibbs_RT(mu0_RT);
-            mu0_NaCl = mu0_RT[0] * RT * 1.0E-6;
 
             solid->getEnthalpy_RT(enth_RT);
             enth_NaCl = enth_RT[0] * RT * 1.0E-6;
@@ -128,10 +117,7 @@ int main(int argc, char** argv)
             solid->getEntropy_R(entrop_RT);
             entrop_NaCl = entrop_RT[0] * GasConstant * 1.0E-3;
 
-            molarGibbs = solid->gibbs_mole() * 1.0E-6;
-
             solid->getIntEnergy_RT(intE_RT);
-            intE_NaCl = intE_RT[0] * RT * 1.0E-6;
 
             solid->getCp_R(cp_r);
             cp_NaCl = cp_r[0] * GasConstant * 1.0E-3;

@@ -73,7 +73,6 @@ int main(int argc, char** argv)
         }
         HMW->setMolalities(moll);
 
-        double ISQRT;
         double Is = 0.0;
 
         /*
@@ -85,7 +84,6 @@ int main(int argc, char** argv)
          * Fix the molality using the setState_TPM() function.
          */
         Is = 6.146;
-        ISQRT = sqrt(Is);
         moll[i1] = Is;
         moll[i2] = Is;
         HMW->setState_TPM(298.15, pres, moll);
