@@ -1,11 +1,12 @@
 from __future__ import division
 
+import itertools
 import utilities
 import numpy as np
 import Cantera as ct
 import Cantera.liquidvapor as lv
 
-# To minimize data when transcribing tabulated data, the input units here are:
+# To minimize errors when transcribing tabulated data, the input units here are:
 # T: K, P: MPa, rho: kg/m3, v: m3/kg, (u,h): kJ/kg, s: kJ/kg-K
 # Which are then converted to SI
 class StateData(object):
@@ -294,3 +295,67 @@ class Water(PureFluidTestCases, utilities.CanteraTest):
         tols = Tolerances(2e-3, 2e-3, 2e-3)
         PureFluidTestCases.__init__(self, 'water', refState, tols)
         utilities.CanteraTest.__init__(self, *args, **kwargs)
+
+
+class Convergence(utilities.CanteraTest):
+    def setUp(self):
+        self.fluid = lv.Water()
+
+    def test_TP(self):
+        # Focus on the region near the critical point
+        TT = [273.161, 300.0, 350.0, 400.0, 500.0,
+              600.0, 640.0, 645.0, 646.0, 647.0,
+              647.1, 647.2, 647.22, 647.23, 647.25,
+              647.26, 647.27, 647.28, 647.282, 647.284,
+              647.285, 647.286, 647.287, 650.0, 800.0]
+        PP = [1234.0, 101325.0, 5e5, 22.0e6, 22.08e6, 22.09e6, 10001000.0]
+
+        errors = ''
+        nErrors = 0
+        for T,P in itertools.product(TT,PP):
+            try:
+                self.fluid.set(T=T, P=P)
+                self.assertNear(self.fluid.temperature(), T, 1e-6)
+                self.assertNear(self.fluid.pressure(), P, 1e-6)
+            except Exception as e:
+                errors += 'Error at T=%r, P=%r:\n%s\n\n' % (T,P,e)
+                nErrors += 1
+        if errors:
+            errors += 'Total error count:%s\n' % nErrors
+            raise AssertionError(errors)
+
+    def test_UV(self):
+        u0 = -1.58581e7
+        UU = np.array([0, 100, 200, 500, 1000, 1500, 2000]) * 1000 + u0
+        VV = [0.001, 0.002, 0.005, 0.010, 0.10, 0.5, 1.0, 1.5, 2.0]
+        errors = ''
+        nErrors = 0
+        for u,v in itertools.product(UU,VV):
+            try:
+                self.fluid.set(U=u, V=v)
+                self.assertNear(self.fluid.intEnergy_mass(), u, 1e-6)
+                self.assertNear(self.fluid.volume_mass(), v, 1e-6)
+            except Exception as e:
+                errors += 'Error at u=%r, v=%r:\n%s\n\n' % (u,v,e)
+                nErrors += 1
+        if errors:
+            errors += 'Total error count:%s\n' % nErrors
+            raise AssertionError(errors)
+
+    def test_HP(self):
+        h0 = -1.58581e7
+        HH = np.array([0, 100, 200, 500, 1000, 1500, 2000]) * 1000 + h0
+        PP = [1234.0, 101325.0, 5e5, 22.0e6, 22.08e6, 22.09e6, 10001000.0]
+        errors = ''
+        nErrors = 0
+        for h,P in itertools.product(HH,PP):
+            try:
+                self.fluid.set(H=h, P=P)
+                self.assertNear(self.fluid.enthalpy_mass(), h, 1e-6)
+                self.assertNear(self.fluid.pressure(), P, 1e-6)
+            except Exception as e:
+                errors += 'Error at h=%r, P=%r:\n%s\n\n' % (h,P,e)
+                nErrors += 1
+        if errors:
+            errors += 'Total error count:%s\n' % nErrors
+            raise AssertionError(errors)
