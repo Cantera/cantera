@@ -13,7 +13,7 @@
 //#undef CHEMKIN_COMPATIBILITY_MODE
 
 // Cantera includes
-#include "TransportBase.h"
+#include "GasTransport.h"
 #include "cantera/numerics/DenseMatrix.h"
 
 namespace Cantera
@@ -78,7 +78,7 @@ public:
  *
  * @ingroup transportProps
  */
-class MultiTransport : public Transport
+class MultiTransport : public GasTransport
 {
 
 protected:
@@ -92,7 +92,7 @@ protected:
 public:
 
     //! Destructor
-    virtual ~MultiTransport();
+    virtual ~MultiTransport() {}
 
     // overloaded base class methods
     virtual int model() const {
@@ -102,14 +102,6 @@ public:
             return cMulticomponent;
         }
     }
-
-    virtual doublereal viscosity();
-
-    virtual void getSpeciesViscosities(doublereal* const visc) {
-        updateViscosity_T();
-        std::copy(m_visc.begin(), m_visc.end(), visc);
-    }
-
 
     //! Return the thermal diffusion coefficients (kg/m/s)
     /*!
@@ -211,10 +203,6 @@ public:
      */
     DEPRECATED(virtual void setOptions_GMRES(int m, doublereal eps));
 
-    /**
-     * @internal
-     */
-
     //! Initialize the transport operator with parameters from GasTransportParams object
     /*!
      *  @param tr  input GasTransportParams object
@@ -233,23 +221,14 @@ public:
 protected:
 
     //! Update basic temperature-dependent quantities if the temperature has changed.
-    void updateTransport_T();
+    void update_T();
 
     //! Update basic concentration-dependent quantities if the concentrations have changed.
-    void updateTransport_C();
+    void update_C();
 
     //! Update the temperature-dependent terms needed to compute the thermal
     //! conductivity and thermal diffusion coefficients.
     void updateThermal_T();
-
-    //! Update the temperature-dependent viscosity terms
-    void updateViscosity_T();
-
-    //! Update the temperature-dependent viscosity terms.
-    //! Updates the array of pure species viscosities and the weighting
-    //! functions in the viscosity mixture rule.
-    //! The flag m_visc_ok is set to true.
-    void updateSpeciesViscosities_T();
 
     //! Update the binary diffusion coefficients.
     //! These are evaluated from the polynomial fits at unit pressure (1 Pa).
@@ -258,26 +237,16 @@ protected:
 private:
 
     doublereal m_diff_tlast;
-    doublereal m_spvisc_tlast;
-    doublereal m_visc_tlast;
     doublereal m_thermal_tlast;
 
     doublereal m_tmin;
     doublereal m_tmax;
-    vector_fp  m_mw;
 
     // polynomial fits
-    std::vector<vector_fp>            m_visccoeffs;
-    std::vector<vector_fp>            m_diffcoeffs;
-    vector_fp                    m_polytempvec;
+    std::vector<vector_fp> m_diffcoeffs;
 
     // property values
     DenseMatrix                  m_bdiff;
-    vector_fp                    m_visc;
-    vector_fp                    m_sqvisc;
-
-    vector_fp                    m_molefracs;
-
 
     std::vector<std::vector<int> > m_poly;
     std::vector<vector_fp>   m_astar_poly;
@@ -297,18 +266,12 @@ private:
     //! Dense matrix for omega22
     DenseMatrix          m_om22;
 
-    DenseMatrix m_phi;            // viscosity weighting functions
-    DenseMatrix m_wratjk, m_wratkj1;
-
     vector_fp   m_zrot;
     vector_fp   m_crot;
     vector_fp   m_cinternal;
     vector_fp   m_eps;
     vector_fp   m_alpha;
     vector_fp   m_dipoleDiag;
-
-    doublereal m_temp, m_logt, m_kbt, m_t14, m_t32;
-    doublereal m_sqrt_kbt, m_sqrt_t;
 
     vector_fp  m_sqrt_eps_k;
     DenseMatrix m_log_eps_k;
@@ -329,18 +292,15 @@ private:
     doublereal m_eps_gmres; //!< @deprecated
 
     // work space
-    vector_fp  m_spwork, m_spwork1, m_spwork2, m_spwork3;
+    vector_fp m_spwork1, m_spwork2, m_spwork3;
 
     void correctBinDiffCoeffs();
 
     //! Boolean indicating viscosity is up to date
-    bool m_visc_ok;
-    bool m_spvisc_ok;
     bool m_diff_ok;
     bool m_abc_ok;
     bool m_l0000_ok;
     bool m_lmatrix_soln_ok;
-    int m_mode;
 
     //! Evaluate the L0000 matrices
     /*!
@@ -356,9 +316,6 @@ private:
     void eval_L0010(const doublereal* const x);
 
     //! Evaluate the L1000 matrices
-    /*!
-     *
-     */
     void eval_L1000();
 
     void eval_L0100();

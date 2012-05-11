@@ -18,15 +18,13 @@
 #include <algorithm>
 
 // Cantera includes
-#include "TransportBase.h"
+#include "GasTransport.h"
 #include "cantera/numerics/DenseMatrix.h"
 
 namespace Cantera
 {
 
-
 class GasTransportParams;
-
 
 //! Class MixTransport implements mixture-averaged transport properties for ideal gas mixtures.
 /*!
@@ -66,15 +64,12 @@ class GasTransportParams;
  *
  *
  */
-class MixTransport : public Transport
+class MixTransport : public GasTransport
 {
 
 protected:
 
     //! Default constructor.
-    /*!
-     *
-     */
     MixTransport();
 
 public:
@@ -106,9 +101,8 @@ public:
      */
     virtual Transport* duplMyselfAsTransport() const;
 
-
     //! Destructor
-    virtual ~MixTransport();
+    virtual ~MixTransport() {}
 
     //! Return the model id for transport
     /*!
@@ -116,38 +110,6 @@ public:
      */
     virtual int model() const {
         return cMixtureAveraged;
-    }
-
-    //! Viscosity of the mixture  (kg /m /s)
-    /*!
-     * The viscosity is computed using the Wilke mixture rule (kg /m /s)
-     *
-     *    \f[
-     *        \mu = \sum_k \frac{\mu_k X_k}{\sum_j \Phi_{k,j} X_j}.
-     *    \f]
-     *
-     *     Here \f$ \mu_k \f$ is the viscosity of pure species \e k, and
-     *
-     *    \f[
-     *        \Phi_{k,j} = \frac{\left[1
-     *                     + \sqrt{\left(\frac{\mu_k}{\mu_j}\sqrt{\frac{M_j}{M_k}}\right)}\right]^2}
-     *                     {\sqrt{8}\sqrt{1 + M_k/M_j}}
-     *    \f]
-     *
-     *  @return   Returns the viscosity of the mixture  ( units =  Pa s  = kg /m /s)
-     *
-     * @see updateViscosity_T();
-     */
-    virtual doublereal viscosity();
-
-    //! returns the vector of species viscosities
-    /*!
-     *   @param visc  Vector of species viscosities
-     */
-    virtual void getSpeciesViscosities(doublereal* const visc) {
-        update_T();
-        updateViscosity_T();
-        copy(m_visc.begin(), m_visc.end(), visc);
     }
 
     //! Return the thermal diffusion coefficients
@@ -285,7 +247,6 @@ public:
 
     friend class TransportFactory;
 
-
     //! Return a structure containing all of the pertinent parameters about a species that was
     //! used to construct the Transport properties in this object.
     /*!
@@ -295,8 +256,6 @@ public:
      */
     struct GasTransportData getGasTransportData(int kspec) const;
 
-
-
 private:
 
     //! Calculate the pressure from the ideal gas law
@@ -305,35 +264,12 @@ private:
                 m_thermo->temperature());
     }
 
-    //! Update the temperature-dependent viscosity terms.
-    /*!
-     * Updates the array of pure species viscosities, and the weighting functions in the viscosity mixture rule.
-     * The flag m_visc_ok is set to true.
-     *
-     * The formula for the weighting function is from Poling and Prausnitz.
-     * See Eq. (9-5.14) of  Poling, Prausnitz, and O'Connell. The equation for the weighting function
-     * \f$ \phi_{ij} \f$ is reproduced below.
-     *
-     *  \f[
-     *        \phi_{ij} = \frac{ \left[ 1 + \left( \mu_i / \mu_j \right)^{1/2} \left( M_j / M_i \right)^{1/4} \right]^2 }
-     *                    {\left[ 8 \left( 1 + M_i / M_j \right) \right]^{1/2}}
-     *  \f]
-     */
-    void updateViscosity_T();
-
     //! Update the temperature dependent parts of the species thermal conductivities
     /*!
      * These are evaluated from the polynomial fits of the temperature and are assumed to be
      * independent of pressure
      */
     void updateCond_T();
-
-    //! Update the species viscosities
-    /*!
-     * These are evaluated from the polynomial fits of the temperature and are assumed to be
-     * independent of pressure
-     */
-    void updateSpeciesViscosities();
 
     //! Update the binary diffusion coefficients
     /*!
@@ -344,21 +280,6 @@ private:
 
     // --------- Member Data -------------
 private:
-    //! Minimum value of the temperature that this transport parameterization is valid
-    doublereal m_tmin;
-
-    //! Maximum value of the temperature that this transport parameterization is valid
-    doublereal m_tmax;
-
-    //! Local copy of the species molecular weights.
-    vector_fp  m_mw;
-
-    //! Polynomial fits to the viscosity of each species
-    /*!
-     *  m_visccoeffs[k] is vector of polynomial coefficients for species k
-     *  that fits the viscosity as a function of temperature
-     */
-    std::vector<vector_fp>            m_visccoeffs;
 
     //! Polynomial fits to the thermal conductivity of each species
     /*!
@@ -383,31 +304,11 @@ private:
      */
     std::vector<vector_fp>            m_diffcoeffs;
 
-    //! Powers of the ln temperature
-    /*!
-     *  up to fourth order
-     */
-    vector_fp                    m_polytempvec;
-
     //! Matrix of binary diffusion coefficients at the reference pressure and the current temperature
     /*!
      *   Size is nsp x nsp
      */
     DenseMatrix m_bdiff;
-
-    //! vector of species viscosities (kg /m /s)
-    /*!
-     *  These are used in wilke's rule to calculate the viscosity of the solution
-     *  length = m_kk
-     */
-    vector_fp m_visc;
-
-    //! vector of square root of species viscosities sqrt(kg /m /s)
-    /*!
-     *  These are used in wilke's rule to calculate the viscosity of the solution
-     *  length = m_kk
-     */
-    vector_fp m_sqvisc;
 
     //! vector of species thermal conductivities (W/m /K)
     /*!
@@ -417,77 +318,11 @@ private:
      */
     vector_fp m_cond;
 
-    //! Vector of species molefractions
-    /*!
-     *  These are processed so that all mole fractions are >= MIN_X
-     *  Length = m_kk
-     */
-    vector_fp m_molefracs;
-
-    //! m_phi is a Viscosity Weighting Function
-    /*!
-     *  size = m_nsp * n_nsp
-     */
-    DenseMatrix m_phi;
-
-    //! Holds square roots or molecular weight ratios
-    /*!
-     *   m_wratjk(j,k)  = sqrt(mw[j]/mw[k])        j < k
-     *   m_wratjk(k,j)  = sqrt(sqrt(mw[j]/mw[k]))  j < k
-     */
-    DenseMatrix m_wratjk;
-
-    //! Holds square roots of molecular weight ratios
-    /*!
-     *   m_wratjk1(j,k)  = sqrt(1.0 + mw[k]/mw[j])        j < k
-     */
-    DenseMatrix m_wratkj1;
-
-
-
-
-
-    //! Current value of the temperature at which the properties in this object are calculated (Kelvin)
-    doublereal m_temp;
-
-    //! Current value of the log of the temperature
-    doublereal m_logt;
-
-    //! Current value of Boltzman's constant times the temperature (Joules)
-    doublereal m_kbt;
-
-    //! Current value of temperature to 1/4 power
-    doublereal m_t14;
-
-    //! Current value of temperature to the 3/2 power
-    doublereal m_t32;
-
-    //! current value of  Boltzman's constant times the temperature (Joules) to 1/2 power
-    doublereal m_sqrt_kbt;
-
-    //! current value of temperature to 1/2 power
-    doublereal m_sqrt_t;
-
     //! Internal storage for the calculated mixture thermal conductivity
     /*!
      *  Units = W /m /K
      */
     doublereal m_lambda;
-
-    //! Internal storage for the viscosity of the mixture  (kg /m /s)
-    doublereal m_viscmix;
-
-    //! work space length = m_kk
-    vector_fp  m_spwork;
-
-    //! Update boolean for mixture rule for the mixture viscosity
-    bool m_viscmix_ok;
-
-    //! Update boolean for the weighting factors for the mixture viscosity
-    bool m_viscwt_ok;
-
-    //! Update boolean for the species viscosities
-    bool m_spvisc_ok;
 
     //! Update boolean for the binary diffusivities at unit pressure
     bool m_bindiff_ok;
@@ -497,13 +332,6 @@ private:
 
     //! Update boolean for the mixture rule for the mixture thermal conductivity
     bool m_condmix_ok;
-
-    //! Type of the polynomial fits to temperature
-    /*!
-     * CK_Mode means chemkin mode. Currently CA_Mode is used which are different types
-     * of fits to temperature.
-     */
-    int m_mode;
 
     //! Lennard-Jones well-depth of the species in the current phase
     /*!

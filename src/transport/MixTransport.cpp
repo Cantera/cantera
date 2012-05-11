@@ -29,38 +29,14 @@ namespace Cantera
 
 //====================================================================================================================
 MixTransport::MixTransport() :
-    m_tmin(-1.0),
-    m_tmax(100000.),
-    m_mw(0),
-    m_visccoeffs(0),
     m_condcoeffs(0),
     m_diffcoeffs(0),
-    m_polytempvec(0),
     m_bdiff(0, 0),
-    m_visc(0),
-    m_sqvisc(0),
     m_cond(0),
-    m_molefracs(0),
-    m_phi(0,0),
-    m_wratjk(0,0),
-    m_wratkj1(0,0),
-    m_temp(-1.0),
-    m_logt(0.0),
-    m_kbt(0.0),
-    m_t14(0.0),
-    m_t32(0.0),
-    m_sqrt_kbt(0.0),
-    m_sqrt_t(0.0),
     m_lambda(0.0),
-    m_viscmix(0.0),
-    m_spwork(0),
-    m_viscmix_ok(false),
-    m_viscwt_ok(false),
-    m_spvisc_ok(false),
     m_bindiff_ok(false),
     m_spcond_ok(false),
     m_condmix_ok(false),
-    m_mode(0),
     m_eps(0),
     m_diam(0, 0),
     m_dipoleDiag(0),
@@ -72,38 +48,15 @@ MixTransport::MixTransport() :
 }
 //====================================================================================================================
 MixTransport::MixTransport(const MixTransport& right) :
-    m_tmin(-1.0),
-    m_tmax(100000.),
-    m_mw(0),
-    m_visccoeffs(0),
+    GasTransport(right),
     m_condcoeffs(0),
     m_diffcoeffs(0),
-    m_polytempvec(0),
     m_bdiff(0, 0),
-    m_visc(0),
-    m_sqvisc(0),
     m_cond(0),
-    m_molefracs(0),
-    m_phi(0,0),
-    m_wratjk(0,0),
-    m_wratkj1(0,0),
-    m_temp(-1.0),
-    m_logt(0.0),
-    m_kbt(0.0),
-    m_t14(0.0),
-    m_t32(0.0),
-    m_sqrt_kbt(0.0),
-    m_sqrt_t(0.0),
     m_lambda(0.0),
-    m_viscmix(0.0),
-    m_spwork(0),
-    m_viscmix_ok(false),
-    m_viscwt_ok(false),
-    m_spvisc_ok(false),
     m_bindiff_ok(false),
     m_spcond_ok(false),
     m_condmix_ok(false),
-    m_mode(0),
     m_eps(0),
     m_diam(0, 0),
     m_dipoleDiag(0),
@@ -127,40 +80,16 @@ MixTransport&  MixTransport::operator=(const MixTransport& right)
     if (&right == this) {
         return *this;
     }
-    Transport::operator=(right);
+    GasTransport::operator=(right);
 
-    m_tmin = right.m_tmin;
-    m_tmax = right.m_tmax;
-    m_mw =right.m_mw;
-    m_visccoeffs = right.m_visccoeffs;
     m_condcoeffs = right.m_condcoeffs;
     m_diffcoeffs = right.m_diffcoeffs;
-    m_polytempvec = right.m_polytempvec;
     m_bdiff = right.m_bdiff;
-    m_visc = right.m_visc;
-    m_sqvisc = right.m_sqvisc;
     m_cond = right.m_cond;
-    m_molefracs = right.m_molefracs;
-    m_phi = right.m_phi;
-    m_wratjk = right.m_wratjk;
-    m_wratkj1 = right.m_wratkj1;
-    m_temp = right.m_temp;
-    m_logt = right.m_logt;
-    m_kbt = right.m_kbt;
-    m_t14 = right.m_t14;
-    m_t32 = right.m_t32;
-    m_sqrt_kbt = right.m_sqrt_kbt;
-    m_sqrt_t = right.m_sqrt_t;
     m_lambda = right.m_lambda;
-    m_viscmix = right.m_viscmix;
-    m_spwork = right.m_spwork;
-    m_viscmix_ok = right.m_viscmix_ok;
-    m_viscwt_ok = right.m_viscwt_ok;
-    m_spvisc_ok = right.m_spvisc_ok;
     m_bindiff_ok = right.m_bindiff_ok;
     m_spcond_ok = right.m_spcond_ok;
     m_condmix_ok = right.m_condmix_ok;
-    m_mode = right.m_mode;
     m_eps = right.m_eps;
     m_diam = right.m_diam;
     m_dipoleDiag = right.m_dipoleDiag;
@@ -186,24 +115,11 @@ Transport* MixTransport::duplMyselfAsTransport() const
     MixTransport* tr = new MixTransport(*this);
     return (dynamic_cast<Transport*>(tr));
 }
-//====================================================================================================================
-MixTransport::~MixTransport()
-{
-}
+
 //====================================================================================================================
 bool MixTransport::initGas(GasTransportParams& tr)
 {
-
-    // constant substance attributes
-    m_thermo = tr.thermo;
-    m_nsp   = m_thermo->nSpecies();
-    m_tmin  = m_thermo->minTemp();
-    m_tmax  = m_thermo->maxTemp();
-
-    // make a local copy of the molecular weights
-    m_mw.resize(m_nsp);
-    copy(m_thermo->molecularWeights().begin(),
-         m_thermo->molecularWeights().end(), m_mw.begin());
+    GasTransport::initGas(tr);
 
     // copy polynomials and parameters into local storage
     m_visccoeffs = tr.visccoeffs;
@@ -221,78 +137,16 @@ bool MixTransport::initGas(GasTransportParams& tr)
         m_dipoleDiag[i] = tr.dipole(i,i);
     }
 
-    m_phi.resize(m_nsp, m_nsp, 0.0);
-    m_wratjk.resize(m_nsp, m_nsp, 0.0);
-    m_wratkj1.resize(m_nsp, m_nsp, 0.0);
-    size_t j, k;
-    for (j = 0; j < m_nsp; j++)
-        for (k = j; k < m_nsp; k++) {
-            m_wratjk(j,k) = sqrt(m_mw[j]/m_mw[k]);
-            m_wratjk(k,j) = sqrt(m_wratjk(j,k));
-            m_wratkj1(j,k) = sqrt(1.0 + m_mw[k]/m_mw[j]);
-        }
-
-    m_polytempvec.resize(5);
-    m_visc.resize(m_nsp);
-    m_sqvisc.resize(m_nsp);
     m_cond.resize(m_nsp);
     m_bdiff.resize(m_nsp, m_nsp);
 
-    m_molefracs.resize(m_nsp);
-    m_spwork.resize(m_nsp);
-
     // set flags all false
-    m_viscmix_ok = false;
-    m_viscwt_ok = false;
-    m_spvisc_ok = false;
     m_spcond_ok = false;
     m_condmix_ok = false;
 
     return true;
 }
-//====================================================================================================================
-// Viscosity of the mixture
-/*
- *
- * The viscosity is computed using the Wilke mixture rule.
- *
- *    \f[
- *        \mu = \sum_k \frac{\mu_k X_k}{\sum_j \Phi_{k,j} X_j}.
- *    \f]
- *
- *     Here \f$ \mu_k \f$ is the viscosity of pure species \e k, and
- *
- *    \f[
- *        \Phi_{k,j} = \frac{\left[1
- *                     + \sqrt{\left(\frac{\mu_k}{\mu_j}\sqrt{\frac{M_j}{M_k}}\right)}\right]^2}
- *                     {\sqrt{8}\sqrt{1 + M_k/M_j}}
- *    \f]
- *
- * @see updateViscosity_T();
- */
-doublereal MixTransport::viscosity()
-{
-    update_T();
-    update_C();
 
-    if (m_viscmix_ok) {
-        return m_viscmix;
-    }
-
-    doublereal vismix = 0.0;
-    // update m_visc and m_phi if necessary
-    if (!m_viscwt_ok) {
-        updateViscosity_T();
-    }
-
-    multiply(m_phi, DATA_PTR(m_molefracs), DATA_PTR(m_spwork));
-
-    for (size_t k = 0; k < m_nsp; k++) {
-        vismix += m_molefracs[k] * m_visc[k]/m_spwork[k]; //denom;
-    }
-    m_viscmix = vismix;
-    return vismix;
-}
 //====================================================================================================================
 // Returns the matrix of binary diffusion coefficients.
 /*
@@ -498,26 +352,8 @@ void MixTransport::update_T()
         throw CanteraError("MixTransport::update_T",
                            "negative temperature "+fp2str(t));
     }
-    m_temp = t;
-    m_logt = log(m_temp);
-    m_kbt = Boltzmann * m_temp;
-    m_sqrt_t = sqrt(m_temp);
-    m_t14 = sqrt(m_sqrt_t);
-    m_t32 = m_temp * m_sqrt_t;
-    m_sqrt_kbt = sqrt(Boltzmann*m_temp);
-
-    // compute powers of log(T)
-    m_polytempvec[0] = 1.0;
-    m_polytempvec[1] = m_logt;
-    m_polytempvec[2] = m_logt*m_logt;
-    m_polytempvec[3] = m_logt*m_logt*m_logt;
-    m_polytempvec[4] = m_logt*m_logt*m_logt*m_logt;
-
-    // temperature has changed, so polynomial fits will need to be
-    // redone.
-    m_viscmix_ok = false;
-    m_spvisc_ok = false;
-    m_viscwt_ok = false;
+    GasTransport::update_T();
+    // temperature has changed, so polynomial fits will need to be redone.
     m_spcond_ok = false;
     m_bindiff_ok = false;
     m_condmix_ok = false;
@@ -534,7 +370,7 @@ void MixTransport::update_C()
     // be recomputed before use, and update the local mole
     // fractions.
 
-    m_viscmix_ok = false;
+    m_visc_ok = false;
     m_condmix_ok = false;
 
     m_thermo->getMoleFractions(DATA_PTR(m_molefracs));
@@ -597,60 +433,8 @@ void MixTransport::updateDiff_T()
 /*
  * Update the pure-species viscosities.
  */
-void MixTransport::updateSpeciesViscosities()
-{
-    if (m_mode == CK_Mode) {
-        for (size_t k = 0; k < m_nsp; k++) {
-            m_visc[k] = exp(dot4(m_polytempvec, m_visccoeffs[k]));
-            m_sqvisc[k] = sqrt(m_visc[k]);
-        }
-    } else {
-        for (size_t k = 0; k < m_nsp; k++) {
-            // the polynomial fit is done for sqrt(visc/sqrt(T))
-            m_sqvisc[k] = m_t14 * dot5(m_polytempvec, m_visccoeffs[k]);
-            m_visc[k] = (m_sqvisc[k] * m_sqvisc[k]);
-        }
-    }
-    m_spvisc_ok = true;
-}
-//====================================================================================================================
-// Update the temperature-dependent viscosity terms.
-/*
- * Updates the array of pure species viscosities, and the weighting functions in the viscosity mixture rule.
- * The flag m_visc_ok is set to true.
- *
- * The formula for the weighting function is from Poling and Prausnitz.
- * See Eq. (9-5.14) of  Poling, Prausnitz, and O'Connell. The equation for the weighting function
- * \f$ \phi_{ij} \f$ is reproduced below.
- *
- *  \f[
- *        \phi_{ij} = \frac{ \left[ 1 + \left( \mu_i / \mu_j \right)^{1/2} \left( M_j / M_i \right)^{1/4} \right]^2 }
- *                    {\left[ 8 \left( 1 + M_i / M_j \right) \right]^{1/2}}
- *  \f]
- */
-void MixTransport::updateViscosity_T()
-{
-    doublereal vratiokj, wratiojk, factor1;
 
-    if (!m_spvisc_ok) {
-        updateSpeciesViscosities();
-    }
 
-    // see Eq. (9-5.15) of Reid, Prausnitz, and Poling
-    for (size_t j = 0; j < m_nsp; j++) {
-        for (size_t k = j; k < m_nsp; k++) {
-            vratiokj = m_visc[k]/m_visc[j];
-            wratiojk = m_mw[j]/m_mw[k];
-
-            // Note that m_wratjk(k,j) holds the square root of
-            // m_wratjk(j,k)!
-            factor1 = 1.0 + (m_sqvisc[k]/m_sqvisc[j]) * m_wratjk(k,j);
-            m_phi(k,j) = factor1*factor1 / (SqrtEight * m_wratkj1(j,k));
-            m_phi(j,k) = m_phi(k,j)/(vratiokj * wratiojk);
-        }
-    }
-    m_viscwt_ok = true;
-}
 //====================================================================================================================
 /*
  * This function returns a Transport data object for a given species.
