@@ -116,17 +116,7 @@ public:
 
     virtual doublereal thermalConductivity();
 
-    virtual void getBinaryDiffCoeffs(const size_t ld, doublereal* const d);
     virtual void getMultiDiffCoeffs(const size_t ld, doublereal* const d);
-
-    //! Although this class implements a multicomponent diffusion
-    //! model, it is convenient to be able to compute
-    //! mixture-averaged diffusion coefficients too.
-    /*!
-     * @param d Mixture averaged diffusion coefficients
-     *          Length = m_msp, units = m2/sec
-     */
-    virtual void getMixDiffCoeffs(doublereal* const d);
 
     //! Get the species diffusive mass fluxes wrt to  the mass averaged velocity,
     //! given the gradients in mole fraction and temperature
@@ -230,24 +220,14 @@ protected:
     //! conductivity and thermal diffusion coefficients.
     void updateThermal_T();
 
-    //! Update the binary diffusion coefficients.
-    //! These are evaluated from the polynomial fits at unit pressure (1 Pa).
-    void updateDiff_T();
-
 private:
 
-    doublereal m_diff_tlast;
     doublereal m_thermal_tlast;
 
     doublereal m_tmin;
     doublereal m_tmax;
 
-    // polynomial fits
-    std::vector<vector_fp> m_diffcoeffs;
-
     // property values
-    DenseMatrix                  m_bdiff;
-
     std::vector<std::vector<int> > m_poly;
     std::vector<vector_fp>   m_astar_poly;
     std::vector<vector_fp>   m_bstar_poly;
@@ -297,7 +277,6 @@ private:
     void correctBinDiffCoeffs();
 
     //! Boolean indicating viscosity is up to date
-    bool m_diff_ok;
     bool m_abc_ok;
     bool m_l0000_ok;
     bool m_lmatrix_soln_ok;

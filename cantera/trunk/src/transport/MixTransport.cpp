@@ -26,15 +26,11 @@ using namespace std;
 namespace Cantera
 {
 
-
 //====================================================================================================================
 MixTransport::MixTransport() :
     m_condcoeffs(0),
-    m_diffcoeffs(0),
-    m_bdiff(0, 0),
     m_cond(0),
     m_lambda(0.0),
-    m_bindiff_ok(false),
     m_spcond_ok(false),
     m_condmix_ok(false),
     m_eps(0),
@@ -50,11 +46,8 @@ MixTransport::MixTransport() :
 MixTransport::MixTransport(const MixTransport& right) :
     GasTransport(right),
     m_condcoeffs(0),
-    m_diffcoeffs(0),
-    m_bdiff(0, 0),
     m_cond(0),
     m_lambda(0.0),
-    m_bindiff_ok(false),
     m_spcond_ok(false),
     m_condmix_ok(false),
     m_eps(0),
@@ -83,11 +76,8 @@ MixTransport&  MixTransport::operator=(const MixTransport& right)
     GasTransport::operator=(right);
 
     m_condcoeffs = right.m_condcoeffs;
-    m_diffcoeffs = right.m_diffcoeffs;
-    m_bdiff = right.m_bdiff;
     m_cond = right.m_cond;
     m_lambda = right.m_lambda;
-    m_bindiff_ok = right.m_bindiff_ok;
     m_spcond_ok = right.m_spcond_ok;
     m_condmix_ok = right.m_condmix_ok;
     m_eps = right.m_eps;
@@ -122,13 +112,10 @@ bool MixTransport::initGas(GasTransportParams& tr)
     GasTransport::initGas(tr);
 
     // copy polynomials and parameters into local storage
-    m_visccoeffs = tr.visccoeffs;
     m_condcoeffs = tr.condcoeffs;
-    m_diffcoeffs = tr.diffcoeffs;
 
     m_zrot       = tr.zrot;
     m_crot       = tr.crot;
-    m_mode       = tr.mode_;
     m_diam       = tr.diam;
     m_eps        = tr.eps;
     m_alpha      = tr.alpha;
@@ -138,7 +125,6 @@ bool MixTransport::initGas(GasTransportParams& tr)
     }
 
     m_cond.resize(m_nsp);
-    m_bdiff.resize(m_nsp, m_nsp);
 
     // set flags all false
     m_spcond_ok = false;
@@ -147,33 +133,6 @@ bool MixTransport::initGas(GasTransportParams& tr)
     return true;
 }
 
-//====================================================================================================================
-// Returns the matrix of binary diffusion coefficients.
-/*
- *
- *        d[ld*j + i] = rp * m_bdiff(i,j);
- *
- *  units of m**2 / s
- *
- * @param ld   offset of rows in the storage
- * @param d    output vector of diffusion coefficients
- */
-void MixTransport::getBinaryDiffCoeffs(const size_t ld, doublereal* const d)
-{
-    update_T();
-    // if necessary, evaluate the binary diffusion coefficients from the polynomial fits
-    if (!m_bindiff_ok) {
-        updateDiff_T();
-    }
-    if (ld < m_nsp) {
-        throw CanteraError(" MixTransport::getBinaryDiffCoeffs()", "ld is too small");
-    }
-    doublereal rp = 1.0/pressure_ig();
-    for (size_t i = 0; i < m_nsp; i++)
-        for (size_t j = 0; j < m_nsp; j++) {
-            d[ld*j + i] = rp * m_bdiff(i,j);
-        }
-}
 //===================================================================================================================
 void MixTransport::getMobilities(doublereal* const mobil)
 {
@@ -290,51 +249,6 @@ void MixTransport::getSpeciesFluxes(size_t ndim,
         }
     }
 }
-//===========================================================================================================
-// Mixture-averaged diffusion coefficients [m^2/s].
-/*
- * Returns the mixture averaged diffusion coefficients for a gas.
- * Note, for the single species case or the pure fluid case the routine returns the self-diffusion coefficient.
- * This is need to avoid a Nan result in the formula
- * below.
- *
- *  @param d  Output Vector of diffusion coefficients for each species (m^2/s)
- *            length m_nsp
- */
-void MixTransport::getMixDiffCoeffs(doublereal* const d)
-{
-    update_T();
-    update_C();
-
-    // update the binary diffusion coefficients if necessary
-    if (!m_bindiff_ok) {
-        updateDiff_T();
-    }
-
-    doublereal mmw = m_thermo->meanMolecularWeight();
-    doublereal sumxw = 0.0, sum2;
-    doublereal p = pressure_ig();
-    if (m_nsp == 1) {
-        d[0] = m_bdiff(0,0) / p;
-    } else {
-        for (size_t k = 0; k < m_nsp; k++) {
-            sumxw += m_molefracs[k] * m_mw[k];
-        }
-        for (size_t k = 0; k < m_nsp; k++) {
-            sum2 = 0.0;
-            for (size_t j = 0; j < m_nsp; j++) {
-                if (j != k) {
-                    sum2 += m_molefracs[j] / m_bdiff(j,k);
-                }
-            }
-            if (sum2 <= 0.0) {
-                d[k] = m_bdiff(k,k) / p;
-            } else {
-                d[k] = (sumxw - m_molefracs[k] * m_mw[k])/(p * mmw * sum2);
-            }
-        }
-    }
-}
 
 //===========================================================================================================
 /*
@@ -399,41 +313,6 @@ void MixTransport::updateCond_T()
     m_spcond_ok = true;
     m_condmix_ok = false;
 }
-//====================================================================================================================
-/*
- * Update the binary diffusion coefficients. These are evaluated
- * from the polynomial fits at unit pressure (1 Pa).
- */
-void MixTransport::updateDiff_T()
-{
-
-    // evaluate binary diffusion coefficients at unit pressure
-    size_t ic = 0;
-    if (m_mode == CK_Mode) {
-        for (size_t i = 0; i < m_nsp; i++) {
-            for (size_t j = i; j < m_nsp; j++) {
-                m_bdiff(i,j) = exp(dot4(m_polytempvec, m_diffcoeffs[ic]));
-                m_bdiff(j,i) = m_bdiff(i,j);
-                ic++;
-            }
-        }
-    } else {
-        for (size_t i = 0; i < m_nsp; i++) {
-            for (size_t j = i; j < m_nsp; j++) {
-                m_bdiff(i,j) = m_temp * m_sqrt_t*dot5(m_polytempvec,
-                                                      m_diffcoeffs[ic]);
-                m_bdiff(j,i) = m_bdiff(i,j);
-                ic++;
-            }
-        }
-    }
-    m_bindiff_ok = true;
-}
-//====================================================================================================================
-/*
- * Update the pure-species viscosities.
- */
-
 
 //====================================================================================================================
 /*
@@ -461,4 +340,3 @@ struct GasTransportData MixTransport::getGasTransportData(int kSpecies) const {
 }
 //====================================================================================================================
 }
-
