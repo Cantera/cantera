@@ -63,10 +63,6 @@ int main(int argc, char** argv)
         }
         HMW->setMolalities(moll);
 
-
-        double ISQRT;
-        double Is = 0.0;
-
         /*
          * Set the Pressure
          */
@@ -75,8 +71,7 @@ int main(int argc, char** argv)
         /*
          * Fix the molality
          */
-        Is = 6.146;
-        ISQRT = sqrt(Is);
+        double Is = 6.146;
         moll[i1] = Is;
         moll[i2] = Is;
         HMW->setState_TPM(298.15, pres, moll);
