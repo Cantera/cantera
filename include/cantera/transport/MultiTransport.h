@@ -221,36 +221,7 @@ public:
      */
     virtual bool initGas(GasTransportParams& tr);
 
-
-    /**
-     * @name Property Updating This methods are used to update
-     * temperature- or concentration-dependent quantities. The
-     * methods of the first group (with names that do not begin
-     * with an underscore) invoke the 'update' method of the
-     * relevant property updater. These methods are the ones that
-     * are called by other methods of the class to update
-     * properties.  The methods that actually perform the updates
-     * are the ones with names beginning with an underscore. These
-     * are only called by the property updaters.
-     */
-    void updateTransport_T();
-    void updateTransport_C();
-
-    void updateThermal_T();
-    void updateViscosity_T();
-    void updateSpeciesViscosities_T();
-    void updateDiff_T();
-
-
-    void _update_transport_T();
-    void _update_transport_C();
-    void _update_species_visc_T();
-    void _update_visc_T();
-    void _update_diff_T();
-    void _update_thermal_T();
-
     friend class TransportFactory;
-
 
     //! Return a structure containing all of the pertinent parameters
     //! about a species that was used to construct the Transport properties in this object
@@ -258,6 +229,31 @@ public:
      * @param k        Species index
      */
     struct GasTransportData getGasTransportData(int k);
+
+protected:
+
+    //! Update basic temperature-dependent quantities if the temperature has changed.
+    void updateTransport_T();
+
+    //! Update basic concentration-dependent quantities if the concentrations have changed.
+    void updateTransport_C();
+
+    //! Update the temperature-dependent terms needed to compute the thermal
+    //! conductivity and thermal diffusion coefficients.
+    void updateThermal_T();
+
+    //! Update the temperature-dependent viscosity terms
+    void updateViscosity_T();
+
+    //! Update the temperature-dependent viscosity terms.
+    //! Updates the array of pure species viscosities and the weighting
+    //! functions in the viscosity mixture rule.
+    //! The flag m_visc_ok is set to true.
+    void updateSpeciesViscosities_T();
+
+    //! Update the binary diffusion coefficients.
+    //! These are evaluated from the polynomial fits at unit pressure (1 Pa).
+    void updateDiff_T();
 
 private:
 
