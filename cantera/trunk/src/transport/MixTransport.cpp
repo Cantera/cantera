@@ -481,6 +481,7 @@ void MixTransport::getMixDiffCoeffs(doublereal* const d)
         }
     }
 }
+
 //===========================================================================================================
 /*
  *  @internal This is called whenever a transport property is

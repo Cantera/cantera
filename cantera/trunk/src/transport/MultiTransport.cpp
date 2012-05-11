@@ -771,23 +771,6 @@ void MultiTransport::getMixDiffCoeffs(doublereal* const d)
 
 void MultiTransport::updateTransport_T()
 {
-    //m_thermo->update_T(m_update_transport_T);
-    _update_transport_T();
-}
-
-void MultiTransport::updateTransport_C()
-{
-    // {m_thermo->update_C(m_update_transport_C);
-    _update_transport_C();
-}
-
-
-/**
- *  Update temperature-dependent quantities. This method is called
- *  by the temperature property updater.
- */
-void MultiTransport::_update_transport_T()
-{
     if (m_temp == m_thermo->temperature()) {
         return;
     }
@@ -817,12 +800,7 @@ void MultiTransport::_update_transport_T()
     m_l0000_ok = false;
 }
 
-/**
- *  This is called the first time any transport property
- *  is requested from ThermoSubstance after the concentrations
- *  have changed.
- */
-void MultiTransport::_update_transport_C()
+void MultiTransport::updateTransport_C()
 {
     // signal that concentration-dependent quantities will need to
     // be recomputed before use, and update the local mole
@@ -839,30 +817,17 @@ void MultiTransport::_update_transport_C()
     }
 }
 
-
 /*************************************************************************
  *
  *    methods to update temperature-dependent properties
  *
  *************************************************************************/
 
-/**
- * @internal
- * Update the binary diffusion coefficients. These are evaluated
- * from the polynomial fits at unit pressure (1 Pa).
- */
 void MultiTransport::updateDiff_T()
 {
     if (m_diff_tlast == m_thermo->temperature()) {
         return;
     }
-    _update_diff_T();
-    m_diff_tlast = m_thermo->temperature();
-    //m_thermo->update_T(m_update_diff_T);
-}
-
-void MultiTransport::_update_diff_T()
-{
     updateTransport_T();
 
     // evaluate binary diffusion coefficients at unit pressure
@@ -886,29 +851,14 @@ void MultiTransport::_update_diff_T()
         }
     }
     m_diff_ok = true;
+    m_diff_tlast = m_thermo->temperature();
 }
 
-
-/**
- * @internal
- * Update the temperature-dependent viscosity terms.
- * Updates the array of pure species viscosities, and the
- * weighting functions in the viscosity mixture rule.
- * The flag m_visc_ok is set to true.
- */
 void MultiTransport::updateSpeciesViscosities_T()
 {
     if (m_spvisc_tlast == m_thermo->temperature()) {
         return;
     }
-    _update_species_visc_T();
-    //m_thermo->update_T(m_update_spvisc_T);
-    m_spvisc_tlast = m_thermo->temperature();
-}
-
-
-void MultiTransport::_update_species_visc_T()
-{
     updateTransport_T();
 
     if (m_mode == CK_Mode) {
@@ -925,24 +875,15 @@ void MultiTransport::_update_species_visc_T()
         }
     }
     m_spvisc_ok = true;
+    m_spvisc_tlast = m_thermo->temperature();
 }
 
-/**
- * @internal
- */
 void MultiTransport::updateViscosity_T()
 {
     if (m_visc_tlast == m_thermo->temperature()) {
         return;
     }
-    _update_visc_T();
-    m_visc_tlast = m_thermo->temperature();
-}
-
-void MultiTransport::_update_visc_T()
-{
     doublereal vratiokj, wratiojk, factor1;
-
     updateSpeciesViscosities_T();
 
     // see Eq. (9-5.15) of Reid, Prausnitz, and Poling
@@ -965,28 +906,15 @@ void MultiTransport::_update_visc_T()
         }
     }
     m_visc_ok = true;
+    m_visc_tlast = m_thermo->temperature();
 }
 
-
-/**
- * @internal
- * Update the temperature-dependent terms needed to compute the
- * thermal conductivity and thermal diffusion coefficients.
- */
 void MultiTransport::updateThermal_T()
 {
     if (m_thermal_tlast == m_thermo->temperature()) {
         return;
     }
-    _update_thermal_T();
-    // m_thermo->update_T(m_update_thermal_T);
-    m_thermal_tlast = m_thermo->temperature();
-}
-
-void MultiTransport::_update_thermal_T()
-{
-    // we need species viscosities and binary diffusion
-    // coefficients
+    // we need species viscosities and binary diffusion coefficients
     updateSpeciesViscosities_T();
     updateDiff_T();
 
@@ -1046,7 +974,11 @@ void MultiTransport::_update_thermal_T()
     for (size_t k = 0; k < m_nsp; k++) {
         m_cinternal[k] = cp[k] - 2.5;
     }
+
+    // m_thermo->update_T(m_update_thermal_T);
+    m_thermal_tlast = m_thermo->temperature();
 }
+
 //====================================================================================================================
 /*
  * This function returns a Transport data object for a given species.
