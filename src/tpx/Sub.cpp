@@ -374,19 +374,32 @@ void Substance::update_sat()
         int i;
 
         for (i = 0; i<20; i++) {
-            Rho = ldens();                // trial value = liquid density
+            if (i==0) {
+                Rho = ldens();                // trial value = liquid density
+            } else {
+                Rho = Rhf;
+            }
             set_TPp(T,pp);
             Rhf = Rho;                    // sat liquid density
 
             gf = hp() - T*sp();
-            Rho = pp*MolWt()/(8314.0*T);  // trial value = ideal gas
+            if (i==0) {
+                Rho = pp*MolWt()/(8314.0*T);  // trial value = ideal gas
+            } else {
+                Rho = Rhv;
+            }
             set_TPp(T,pp);
 
             Rhv = Rho;                    // sat vapor density
             gv = hp() - T*sp();
             dg = gv - gf;
 
-            if (fabs(dg) < 0.001) {
+            if (Rhv > Rhf) {
+                std::swap(Rhv, Rhf);
+                dg = - dg;
+            }
+
+            if (fabs(dg) < 0.001 && Rhf > Rhv) {
                 break;
             }
             dp = dg/(1.0/Rhv - 1.0/Rhf);
@@ -398,14 +411,14 @@ void Substance::update_sat()
                 pp = exp(lps);
             } else {
                 pp -= dp;
-                lps = log(pp); // added 10/5/04
+                lps = log(pp);
             }
             if (pp > Pcrit()) {
                 pp = psold + 0.5*(Pcrit() - psold);
-                lps = log(pp); // added 10/5/04
+                lps = log(pp);
             } else if (pp < 0.0) {
                 pp = psold/2.0;
-                lps = log(pp); // added 10/5/04
+                lps = log(pp);
             }
         }
         if (Rhf <= Rhv) {
@@ -673,8 +686,8 @@ void Substance::set_TPp(double Temp, double Pressure)
     v_here = vp();
 
     // loop
-
-    while (P_here = Pp(), fabs(Pressure - P_here) >= ErrP*Pressure) {
+    while (P_here = Pp(),
+           fabs(Pressure - P_here) >= ErrP*Pressure || LoopCount == 0) {
         if (P_here < 0.0) {
             BracketSlope(Pressure);
         } else {
