@@ -10,6 +10,7 @@ GasTransport::GasTransport(ThermoPhase* thermo) :
     m_visc_ok(false),
     m_viscwt_ok(false),
     m_spvisc_ok(false),
+    m_bindiff_ok(false),
     m_mode(0),
     m_phi(0,0),
     m_spwork(0),
@@ -26,7 +27,9 @@ GasTransport::GasTransport(ThermoPhase* thermo) :
     m_sqrt_t(0.0),
     m_logt(0.0),
     m_t14(0.0),
-    m_t32(0.0)
+    m_t32(0.0),
+    m_diffcoeffs(0),
+    m_bdiff(0, 0)
 {
 }
 
@@ -36,6 +39,7 @@ GasTransport::GasTransport(const GasTransport& right) :
     m_visc_ok(false),
     m_viscwt_ok(false),
     m_spvisc_ok(false),
+    m_bindiff_ok(false),
     m_mode(0),
     m_phi(0,0),
     m_spwork(0),
@@ -52,7 +56,9 @@ GasTransport::GasTransport(const GasTransport& right) :
     m_sqrt_t(0.0),
     m_logt(0.0),
     m_t14(0.0),
-    m_t32(0.0)
+    m_t32(0.0),
+    m_diffcoeffs(0),
+    m_bdiff(0, 0)
 {
 }
 
@@ -63,6 +69,7 @@ GasTransport& GasTransport::operator=(const GasTransport& right)
     m_visc_ok = right.m_visc_ok;
     m_viscwt_ok = right.m_viscwt_ok;
     m_spvisc_ok = right.m_spvisc_ok;
+    m_bindiff_ok = right.m_bindiff_ok;
     m_mode = right.m_mode;
     m_phi = right.m_phi;
     m_spwork = right.m_spwork;
@@ -79,6 +86,8 @@ GasTransport& GasTransport::operator=(const GasTransport& right)
     m_logt = right.m_logt;
     m_t14 = right.m_t14;
     m_t32 = right.m_t32;
+    m_diffcoeffs = right.m_diffcoeffs;
+    m_bdiff = right.m_bdiff;
 
     return *this;
 }
@@ -89,10 +98,16 @@ bool GasTransport::initGas(GasTransportParams& tr)
     m_thermo = tr.thermo;
     m_nsp   = m_thermo->nSpecies();
 
+    // copy polynomials and parameters into local storage
+    m_visccoeffs = tr.visccoeffs;
+    m_diffcoeffs = tr.diffcoeffs;
+    m_mode = tr.mode_;
+
     m_molefracs.resize(m_nsp);
     m_spwork.resize(m_nsp);
     m_visc.resize(m_nsp);
     m_phi.resize(m_nsp, m_nsp, 0.0);
+    m_bdiff.resize(m_nsp, m_nsp);
 
     // make a local copy of the molecular weights
     m_mw.resize(m_nsp);
@@ -115,6 +130,7 @@ bool GasTransport::initGas(GasTransportParams& tr)
     m_visc_ok = false;
     m_viscwt_ok = false;
     m_spvisc_ok = false;
+    m_bindiff_ok = false;
 }
 
 void GasTransport::update_T(void) {
@@ -137,6 +153,7 @@ void GasTransport::update_T(void) {
     m_visc_ok = false;
     m_spvisc_ok = false;
     m_viscwt_ok = false;
+    m_bindiff_ok = false;
 }
 
 doublereal GasTransport::viscosity()
@@ -201,6 +218,83 @@ void GasTransport::updateSpeciesViscosities()
         }
     }
     m_spvisc_ok = true;
+}
+
+void GasTransport::updateDiff_T()
+{
+    // evaluate binary diffusion coefficients at unit pressure
+    size_t ic = 0;
+    if (m_mode == CK_Mode) {
+        for (size_t i = 0; i < m_nsp; i++) {
+            for (size_t j = i; j < m_nsp; j++) {
+                m_bdiff(i,j) = exp(dot4(m_polytempvec, m_diffcoeffs[ic]));
+                m_bdiff(j,i) = m_bdiff(i,j);
+                ic++;
+            }
+        }
+    } else {
+        for (size_t i = 0; i < m_nsp; i++) {
+            for (size_t j = i; j < m_nsp; j++) {
+                m_bdiff(i,j) = m_temp * m_sqrt_t*dot5(m_polytempvec,
+                                                      m_diffcoeffs[ic]);
+                m_bdiff(j,i) = m_bdiff(i,j);
+                ic++;
+            }
+        }
+    }
+    m_bindiff_ok = true;
+}
+
+void GasTransport::getBinaryDiffCoeffs(const size_t ld, doublereal* const d)
+{
+    update_T();
+    // if necessary, evaluate the binary diffusion coefficients from the polynomial fits
+    if (!m_bindiff_ok) {
+        updateDiff_T();
+    }
+    if (ld < m_nsp) {
+        throw CanteraError(" MixTransport::getBinaryDiffCoeffs()", "ld is too small");
+    }
+    doublereal rp = 1.0/m_thermo->pressure();
+    for (size_t i = 0; i < m_nsp; i++)
+        for (size_t j = 0; j < m_nsp; j++) {
+            d[ld*j + i] = rp * m_bdiff(i,j);
+        }
+}
+
+void GasTransport::getMixDiffCoeffs(doublereal* const d)
+{
+    update_T();
+    update_C();
+
+    // update the binary diffusion coefficients if necessary
+    if (!m_bindiff_ok) {
+        updateDiff_T();
+    }
+
+    doublereal mmw = m_thermo->meanMolecularWeight();
+    doublereal sumxw = 0.0, sum2;
+    doublereal p = m_thermo->pressure();
+    if (m_nsp == 1) {
+        d[0] = m_bdiff(0,0) / p;
+    } else {
+        for (size_t k = 0; k < m_nsp; k++) {
+            sumxw += m_molefracs[k] * m_mw[k];
+        }
+        for (size_t k = 0; k < m_nsp; k++) {
+            sum2 = 0.0;
+            for (size_t j = 0; j < m_nsp; j++) {
+                if (j != k) {
+                    sum2 += m_molefracs[j] / m_bdiff(j,k);
+                }
+            }
+            if (sum2 <= 0.0) {
+                d[k] = m_bdiff(k,k) / p;
+            } else {
+                d[k] = (sumxw - m_molefracs[k] * m_mw[k])/(p * mmw * sum2);
+            }
+        }
+    }
 }
 
 }

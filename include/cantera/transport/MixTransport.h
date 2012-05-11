@@ -143,37 +143,6 @@ public:
      */
     virtual doublereal thermalConductivity();
 
-    //! Returns the matrix of binary diffusion coefficients.
-    /*!
-     *
-     *        d[ld*j + i] = rp * m_bdiff(i,j);
-     *
-     *  units of m**2 / s
-     *
-     * @param ld   offset of rows in the storage
-     * @param d    output vector of diffusion coefficients
-     */
-    virtual void getBinaryDiffCoeffs(const size_t ld, doublereal* const d);
-
-    //! Returns the Mixture-averaged diffusion coefficients [m^2/s].
-    /*!
-     * Returns the mixture averaged diffusion coefficients for a gas, appropriate for calculating the
-     * mass averaged diffusive flux with respect to the mass averaged velocity using gradients of the
-     * mole fraction.
-     * Note, for the single species case or the pure fluid case the routine returns the self-diffusion coefficient.
-     * This is need to avoid a Nan result in the formula below.
-     *
-     *  This is Eqn. 12.180 from "Chemically Reacting Flow"
-     *
-     *   \f[
-     *       D_{km}' = \frac{\left( \bar{M} - X_k M_k \right)}{ \bar{\qquad M \qquad } }  {\left( \sum_{j \ne k} \frac{X_j}{D_{kj}} \right) }^{-1}
-     *   \f]
-     *
-     *  @param d  Output Vector of mixture diffusion coefficients, \f$  D_{km}'  \f$  ,  for each species (m^2/s).
-     *            length m_nsp
-     */
-    virtual void getMixDiffCoeffs(doublereal* const d);
-
     //! Get the Electrical mobilities (m^2/V/s).
     /*!
      *   This function returns the mobilities. In some formulations
@@ -271,13 +240,6 @@ private:
      */
     void updateCond_T();
 
-    //! Update the binary diffusion coefficients
-    /*!
-     * These are evaluated from the polynomial fits of the temperature at the unit pressure of 1 Pa.
-     */
-    void updateDiff_T();
-
-
     // --------- Member Data -------------
 private:
 
@@ -287,28 +249,6 @@ private:
      *  that fits the thermal conductivity
      */
     std::vector<vector_fp>            m_condcoeffs;
-
-    //! Polynomial fits to the binary diffusivity of each species
-    /*!
-     *  m_diffcoeff[ic] is vector of polynomial coefficients for species  i species  j
-     *  that fits the binary diffusion coefficient. The relationship between i
-     *  j and ic is determined from the following algorithm:
-     *
-     *     int ic = 0;
-     *     for (i = 0; i < m_nsp; i++) {
-     *        for (j = i; j < m_nsp; j++) {
-     *          ic++;
-     *        }
-     *     }
-     *
-     */
-    std::vector<vector_fp>            m_diffcoeffs;
-
-    //! Matrix of binary diffusion coefficients at the reference pressure and the current temperature
-    /*!
-     *   Size is nsp x nsp
-     */
-    DenseMatrix m_bdiff;
 
     //! vector of species thermal conductivities (W/m /K)
     /*!
@@ -323,9 +263,6 @@ private:
      *  Units = W /m /K
      */
     doublereal m_lambda;
-
-    //! Update boolean for the binary diffusivities at unit pressure
-    bool m_bindiff_ok;
 
     //! Update boolean for the species thermal conductivities
     bool m_spcond_ok;
@@ -394,7 +331,6 @@ private:
      * units are dimensionless
      */
     vector_fp m_zrot;
-
 
     //! Debug flag - turns on more printing
     bool m_debug;
