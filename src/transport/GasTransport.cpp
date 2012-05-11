@@ -273,7 +273,7 @@ void GasTransport::getMixDiffCoeffs(doublereal* const d)
     }
 
     doublereal mmw = m_thermo->meanMolecularWeight();
-    doublereal sumxw = 0.0, sum2;
+    doublereal sumxw = 0.0;
     doublereal p = m_thermo->pressure();
     if (m_nsp == 1) {
         d[0] = m_bdiff(0,0) / p;
@@ -282,7 +282,7 @@ void GasTransport::getMixDiffCoeffs(doublereal* const d)
             sumxw += m_molefracs[k] * m_mw[k];
         }
         for (size_t k = 0; k < m_nsp; k++) {
-            sum2 = 0.0;
+            double sum2 = 0.0;
             for (size_t j = 0; j < m_nsp; j++) {
                 if (j != k) {
                     sum2 += m_molefracs[j] / m_bdiff(j,k);
@@ -293,6 +293,69 @@ void GasTransport::getMixDiffCoeffs(doublereal* const d)
             } else {
                 d[k] = (sumxw - m_molefracs[k] * m_mw[k])/(p * mmw * sum2);
             }
+        }
+    }
+}
+
+void GasTransport::getMixDiffCoeffsMole(doublereal* const d)
+{
+    update_T();
+    update_C();
+
+    // update the binary diffusion coefficients if necessary
+    if (!m_bindiff_ok) {
+        updateDiff_T();
+    }
+
+    doublereal p = m_thermo->pressure();
+    if (m_nsp == 1) {
+        d[0] = m_bdiff(0,0) / p;
+    } else {
+        for (size_t k = 0; k < m_nsp; k++) {
+            double sum2 = 0.0;
+            for (size_t j = 0; j < m_nsp; j++) {
+                if (j != k) {
+                    sum2 += m_molefracs[j] / m_bdiff(j,k);
+                }
+            }
+            if (sum2 <= 0.0) {
+                d[k] = m_bdiff(k,k) / p;
+            } else {
+                d[k] = (1 - m_molefracs[k]) / (p * sum2);
+            }
+        }
+    }
+}
+
+void GasTransport::getMixDiffCoeffsMass(doublereal* const d)
+{
+    update_T();
+    update_C();
+
+    // update the binary diffusion coefficients if necessary
+    if (!m_bindiff_ok) {
+        updateDiff_T();
+    }
+
+    doublereal mmw = m_thermo->meanMolecularWeight();
+    doublereal p = m_thermo->pressure();
+
+    if (m_nsp == 1) {
+        d[0] = m_bdiff(0,0) / p;
+    } else {
+        for (size_t k=0; k<m_nsp; k++) {
+            double sum1 = 0.0;
+            double sum2 = 0.0;
+            for (size_t i=0; i<m_nsp; i++) {
+                if (i==k) {
+                    continue;
+                }
+                sum1 += m_molefracs[i] / m_bdiff(k,i);
+                sum2 += m_molefracs[i] * m_mw[i] / m_bdiff(k,i);
+            }
+            sum1 *= p;
+            sum2 *= p * m_molefracs[k] / (mmw - m_mw[k]*m_molefracs[k]);
+            d[k] = 1.0 / (sum1 +  sum2);
         }
     }
 }

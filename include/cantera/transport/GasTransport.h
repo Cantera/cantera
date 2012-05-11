@@ -76,6 +76,29 @@ public:
      */
     virtual void getMixDiffCoeffs(doublereal* const d);
 
+    //! Returns the mixture-averaged diffusion coefficients [m^2/s].
+    //! These are the coefficients for calculating the molar diffusive fluxes
+    //! from the species mole fraction gradients, computed according to
+    //! Eq. 12.176 in "Chemically Reacting Flow":
+    //!
+    //! \f[  D_{km}^* = \frac{1-X_k}{\Sum_{j \ne k}^K X_j/\mathcal{D}_{kj}} \f]
+    //!
+    //! @param[out] d vector of mixture-averaged diffusion coefficients for
+    //!     each species, length m_nsp.
+    virtual void getMixDiffCoeffsMole(doublereal* const d);
+
+    //! Returns the mixture-averaged diffusion coefficients [m^2/s].
+    //! These are the coefficients for calculating the diffusive mass fluxes
+    //! from the species mass fraction gradients, computed according to
+    //! Eq. 12.178 in "Chemically Reacting Flow":
+    //!
+    //! \f[  \frac{1}{D_{km}} = \Sum_{j \ne k}^K \frac{X_j}{\mathcal{D}_{kj}} +
+    //!     \frac{X_k}{1-Y_k} \Sum_{j \ne k}^K \frac{Y_j}{\mathcal{D}_{kj}} \f]
+    //!
+    //! @param[out] d vector of mixture-averaged diffusion coefficients for
+    //!     each species, length m_nsp.
+    virtual void getMixDiffCoeffsMass(doublereal* const d);
+
 protected:
     GasTransport(ThermoPhase* thermo=0);
 
