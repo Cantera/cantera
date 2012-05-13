@@ -131,6 +131,8 @@ bool GasTransport::initGas(GasTransportParams& tr)
     m_viscwt_ok = false;
     m_spvisc_ok = false;
     m_bindiff_ok = false;
+
+    return true;
 }
 
 void GasTransport::update_T(void) {
