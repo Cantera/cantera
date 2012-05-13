@@ -970,7 +970,7 @@ class reaction:
     def __init__(self,
                  equation = '',
                  kf = None,
-                 ID = '',
+                 id = '',
                  order = '',
                  options = []):
         """
@@ -980,14 +980,14 @@ class reaction:
             The rate coefficient for the forward direction. If a sequence of
             three numbers is given, these will be interpreted as [A, n,E] in
             the modified Arrhenius function :math:`A T^n exp(-E/\hat{R}T)`.
-        :param ID:
+        :param id:
             An optional identification string. If omitted, it defaults to a
             four-digit numeric string beginning with 0001 for the first
             reaction in the file.
         :param options:
             Processing options, as described in Section ##REF##
         """
-        self._id = ID
+        self._id = id
         self._e = equation
         self._order = order
 
@@ -1034,7 +1034,7 @@ class reaction:
 
     def build(self, p):
         if self._id:
-            ID = self._id
+            id = self._id
         else:
             if self._num < 10:
                 nstr = '000'+str(self._num)
@@ -1044,7 +1044,7 @@ class reaction:
                 nstr = '0'+str(self._num)
             else:
                 nstr = str(self._num)
-            ID = nstr
+            id = nstr
 
 
         self.mdim = 0
@@ -1077,9 +1077,9 @@ class reaction:
             self.mdim += nm*ns
             self.ldim += nl*ns
 
-        p.addComment("   reaction "+ID+"    ")
+        p.addComment("   reaction "+id+"    ")
         r = p.addChild('reaction')
-        r['id'] = ID
+        r['id'] = id
         if self.rev:
             r['reversible'] = 'yes'
         else:
@@ -1186,7 +1186,7 @@ class three_body_reaction(reaction):
                  equation = '',
                  kf = None,
                  efficiencies = '',
-                 ID = '',
+                 id = '',
                  options = []
                  ):
         """
@@ -1201,14 +1201,14 @@ class three_body_reaction(reaction):
         :param efficiencies:
             A string specifying the third-body collision efficiencies.
             The efficiencies for unspecified species are set to 1.0.
-        :param ID:
+        :param id:
             An optional identification string. If omitted, it defaults to a
             four-digit numeric string beginning with 0001 for the first
             reaction in the file.
         :param options:
             Processing options, as described in ##REF##.
         """
-        reaction.__init__(self, equation, kf, ID, '', options)
+        reaction.__init__(self, equation, kf, id, '', options)
         self._type = 'threeBody'
         self._effm = 1.0
         self._eff = efficiencies
@@ -1237,7 +1237,7 @@ class three_body_reaction(reaction):
 class falloff_reaction(reaction):
     """ A gas-phase falloff reaction. """
     def __init__(self, equation, kf0, kf,
-                 efficiencies='', falloff=None, ID='', options=[]):
+                 efficiencies='', falloff=None, id='', options=[]):
         """
         :param equation:
             A string specifying the chemical equation.
@@ -1255,7 +1255,7 @@ class falloff_reaction(reaction):
         :param falloff:
             An embedded entry specifying a falloff function. If omitted, a
             unity falloff function (Lindemann form) will be used.
-        :param ID:
+        :param id:
             An optional identification string. If omitted, it defaults to a
             four-digit numeric string beginning with 0001 for the first
             reaction in the file.
@@ -1263,7 +1263,7 @@ class falloff_reaction(reaction):
             Processing options, as described in ##REF##
         """
         kf2 = (kf, kf0)
-        reaction.__init__(self, equation, kf2, ID, '', options)
+        reaction.__init__(self, equation, kf2, id, '', options)
         self._type = 'falloff'
         # use a Lindemann falloff function by default
         self._falloff = falloff
@@ -1374,7 +1374,7 @@ class surface_reaction(reaction):
     A heterogeneous chemical reaction with pressure-independent rate
     coefficient and mass-action kinetics.
     """
-    def __init__(self, equation='', kf=None, ID='', order='', options=[]):
+    def __init__(self, equation='', kf=None, id='', order='', options=[]):
         """
         :param equation:
             A string specifying the chemical equation.
@@ -1388,14 +1388,14 @@ class surface_reaction(reaction):
             it belongs to an ideal gas phase. If a sequence of three numbers is
             given, these will be interpreted as [A, n,E] in the modified
             Arrhenius function.
-        :param ID:
+        :param id:
             An optional identification string. If omitted, it defaults to a
             four-digit numeric string beginning with 0001 for the first
             reaction in the file.
         :param options:
             Processing options, as described in ##REF##
         """
-        reaction.__init__(self, equation, kf, ID, order, options)
+        reaction.__init__(self, equation, kf, id, order, options)
         self._type = 'surface'
 
 
@@ -1404,11 +1404,11 @@ class edge_reaction(reaction):
     def __init__(self,
                  equation = '',
                  kf = None,
-                 ID = '',
+                 id = '',
                  order = '',
                  beta = 0.0,
                  options = []):
-        reaction.__init__(self, equation, kf, ID, order, options)
+        reaction.__init__(self, equation, kf, id, order, options)
         self._type = 'edge'
         self._beta = beta
 
