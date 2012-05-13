@@ -129,7 +129,7 @@ protected:
     /*!
      * These are evaluated from the polynomial fits of the temperature at the unit pressure of 1 Pa.
      */
-    void updateDiff_T();
+    virtual void updateDiff_T();
 
     //! Vector of species mole fractions. These are processed so that all mole
     //! fractions are >= MIN_X. Length = m_kk.
