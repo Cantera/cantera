@@ -8,7 +8,7 @@ SUBDIRS += doxygen examples build
 DISTDIRS = Cantera examples build
 
 # generated documentation will be included in distributed archive
-EXTRA_DIST  = bootstrap $(DX_CONFIG) config.h.in cantera.pc
+EXTRA_DIST  = bootstrap $(DX_CONFIG) config.h.in cantera.pc.in
 EXTRA_DIST += AUTHORS README
 
 # Support for pkgconfig
