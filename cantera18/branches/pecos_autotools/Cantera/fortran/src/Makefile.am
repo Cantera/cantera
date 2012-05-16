@@ -1,12 +1,12 @@
 cc_sources = fct.cpp fctxml.cpp
 
-fc_sources = cantera_xml.f90 cantera_thermo.f90 fct_interface.f90 fctxml_interface.f90 \
+fc_sources = fctxml_interface.f90 cantera_xml.f90 fct_interface.f90 cantera_thermo.f90 \
 	     cantera_kinetics.f90 cantera_transport.f90 cantera_iface.f90              \
 	     cantera_funcs.f90 cantera.f90 
 
 h_sources               = flib_defs.h
 
-INC                     = -I./ -I$(top_builddir)/build/include/ -Wall
+INC                     = -I./ -I$(top_builddir)/build/include/
 AM_CPPFLAGS             = $(INC)
 AM_CXXFLAGS             = $(AM_CPPFLAGS)
 AM_FCFLAGS              = $(AM_CPPFLAGS)
@@ -37,9 +37,9 @@ __top_builddir__build_lib_libfct_includedir      = $(prefix)/include
 #------------------------                                                                 
 
 moduledir          = @libdir@
-module_DATA        = cantera_funcs.mod cantera_iface.mod cantera_kinetics.mod \
+module_DATA        = cantera_funcs.mod fct.mod cantera_iface.mod cantera_kinetics.mod \
                      cantera.mod cantera_thermo.mod cantera_transport.mod     \
-                     cantera_xml.mod fct.mod fctxml.mod
+                     cantera_xml.mod fctxml.mod
 
 CLEANFILES = *.o
 
