@@ -22,6 +22,7 @@
 #include "speciesThermoTypes.h"
 #include "SpeciesThermoFactory.h"
 #include "IdealGasPhase.h"
+#include "PerfectGasPhase.h"
 #include "VPSSMgr.h"
 #include "VPSSMgrFactory.h"
 
@@ -95,7 +96,7 @@ namespace Cantera {
                               "HMW", "IdealSolidSolution", "DebyeHuckel", 
                               "IdealMolalSolution", "IdealGasVPSS",
 			      "MineralEQ3", "MetalSHEelectrons", "Margules",
-                              "IonsFromNeutralMolecule"
+                              "IonsFromNeutralMolecule","PerfectGas"
     };
 
     static int _itypes[]   = {cIdealGas, cIncompressible, 
@@ -104,7 +105,8 @@ namespace Cantera {
                               cHMW, cIdealSolidSolnPhase, cDebyeHuckel,
                               cIdealMolalSoln, cVPSS_IdealGas,
 			      cMineralEQ3, cMetalSHEelectrons,
-			      cMargulesVPSSTP, cIonsFromNeutral
+			      cMargulesVPSSTP, cIonsFromNeutral, 
+			      cPerfectGas
     };
 
   /*
@@ -123,6 +125,11 @@ namespace Cantera {
 
     case cIdealGas:
       th = new IdealGasPhase;
+      break;
+
+      // adding perfect gas
+    case cPerfectGas:
+      th = new PerfectGasPhase;
       break;
 
     case cIncompressible:
