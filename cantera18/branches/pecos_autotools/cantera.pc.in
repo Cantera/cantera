@@ -1,22 +1,24 @@
-# @PACKAGE_NAME@ installation details
-prefix=@prefix@
-exec_prefix=@exec_prefix@
-libdir=@libdir@
-includedir=@includedir@
+# cantera installation details
+prefix=/h2/topalian/workspace/cantera/install
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
 # Fortran compilation and linking information
-# Retrieve these using `pkg-config --variable=name @PACKAGE_NAME@`
-fflags=-I@libdir@
-flibs=-L@libdir@ -lf@PACKAGE_NAME@ -l@PACKAGE_NAME@
+# Retrieve these using `pkg-config --variable=name cantera`
+#fflags=-I${exec_prefix}/lib
+#flibs=-L${exec_prefix}/lib -lfcantera -lcantera
 
-Name: @PACKAGE_NAME@
-Description: @PACKAGE_DESCRIPTION@
-URL: @PACKAGE_URL@
+Name: cantera
+Description: An object-oriented software toolkit for chemical kinetics, thermodynamics, and transport processes.
+URL: http://code.google.com/p/cantera/
 Requires:
-Version: @VERSION@
+Version: 2.0.0
 
-LINK  = -lctcxx -luser -loneD -lzeroD -lequil -lkinetics -ltransport -lthermo 
-LINK += -lctnumerics -lctmath -ltpx -lctspectra -lconverters -lctbase -lcvode 
-LINK += -lctlapack -lctblas -lctf2c -lm -lstdc++
+LINK  = -lctcxx -luser -loneD -lzeroD -lequil -lkinetics -ltransport -lthermo  -lctnumerics -lctmath -ltpx -lctspectra -lconverters -lctbase -lcvode -lctlapack -lctblas -lctf2c -lm -lstdc++
 
-Libs: -L${libdir} ${LINK}
-Cflags: -I${includedir}
+#Libs: -L${libdir} ${LINK}
+#Cflags: -I${includedir}
+
+fflags=-I${exec_prefix}/lib -I${includedir}
+#fflags=-I${exec_prefix}/lib
+flibs=-L${exec_prefix}/lib ${LINK}
