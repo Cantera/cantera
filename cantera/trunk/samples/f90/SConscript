@@ -8,8 +8,8 @@ samples = [('demo', ['demo.f90'])]
 
 for programName, sources in samples:
     buildSample(localenv.Program, programName, sources,
-                CPPPATH=['#build/src/fortran', '#include'],
-                LIBS=env['cantera_libs']+['cantera_fortran']+['stdc++'],
+                F90PATH='#build/src/fortran',
+                LIBS=['cantera_fortran']+env['cantera_libs']+['stdc++'],
                 LIBPATH=[env['sundials_libdir'], '#build/lib'])
 
     # Generate SConstruct files to be installed
