@@ -33,10 +33,7 @@ class XML_Node;
 typedef unsigned int cthreadId_t;
 #elif defined(BOOST_HAS_PTHREADS)
 typedef pthread_t cthreadId_t;
-#elif defined(BOOST_HAS_MPTASKS)
-typedef MPTaskID cthreadId_t;
 #endif
-
 #endif
 
 //!  Class to hold global data.

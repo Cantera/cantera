@@ -89,26 +89,12 @@ cthreadId_t getThisThreadId()
 {
     return pthread_self() ;
 }
-#elif defined(BOOST_HAS_MPTASKS)
-typedef MPTaskID  cthreadId_t ;
-class thread_equal
-{
-public:
-    bool operator()(cthreadId_t L, cthreadId_t R) {
-        return L == R ;
-    }
-} ;
-cthreadId_t getThisThreadId()
-{
-    return MPCurrentTaskID() ;
-}
 #endif
 
 #else
 #define DIR_LOCK()
 #define MSG_LOCK()
 #define APP_LOCK()
-//#define LOG_LOCK()
 #define XML_LOCK()
 
 #ifdef WITH_HTML_LOGS
