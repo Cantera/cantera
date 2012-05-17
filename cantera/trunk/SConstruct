@@ -699,6 +699,9 @@ if env['CC'] == 'cl':
 if env['boost_inc_dir']:
     env.Append(CPPPATH=env['boost_inc_dir'])
 
+if env['boost_lib_dir']:
+    env.Append(LIBPATH=env['boost_lib_dir'])
+
 if (env['use_sundials'] == 'default' and
     (env['sundials_include'] or env['sundials_libdir'])):
     env['use_sundials'] = 'y'
@@ -1002,7 +1005,7 @@ env['config_h_target'] = config_h
 
 if env['build_thread_safe']:
     env['use_boost_libs'] = True
-    env['boost_libs'] = env['boost_thread_lib']
+    env['boost_libs'] = [env['boost_thread_lib']]
 else:
     env['use_boost_libs'] = False
     env['boost_libs'] = []
