@@ -200,8 +200,6 @@ void Application::Messages::logerror(const std::string& msg)
     logwriter->error(msg) ;
 }
 
-#ifdef WITH_HTML_LOGS
-
 // Write a message to the screen
 void Application::Messages::writelog(const char* pszmsg)
 {
@@ -219,6 +217,8 @@ void Application::Messages::writelogendl()
 {
     logwriter->writeendl();
 }
+
+#ifdef WITH_HTML_LOGS
 
 void Application::Messages::beginLogGroup(std::string title, int _loglevel /*=-99*/)
 {
