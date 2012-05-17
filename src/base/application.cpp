@@ -4,6 +4,7 @@
 #include "cantera/base/ctml.h"
 #include "cantera/base/stringUtils.h"
 #include "cantera/base/xml.h"
+#include "units.h"
 
 #include <map>
 #include <string>
@@ -20,6 +21,8 @@ using std::endl;
 #pragma comment(lib, "advapi32")
 #endif
 
+namespace Cantera {
+
 // If running multiple threads in a cpp application, the Application class
 // is the only internal object that is single instance with static data.
 // Synchronize access to those data structures Using macros to avoid
@@ -27,8 +30,6 @@ using std::endl;
 
 #ifdef THREAD_SAFE_CANTERA
 
-#include <boost/shared_ptr.hpp>
-#include <boost/thread/mutex.hpp>
 //! Mutex for input directory access
 static boost::mutex  dir_mutex;
 
@@ -62,7 +63,7 @@ static boost::mutex  xml_mutex;
 #endif
 
 #if defined(BOOST_HAS_WINTHREADS)
-typedef unsigned int cthreadId_t ;
+
 class thread_equal
 {
 public:
@@ -115,8 +116,6 @@ cthreadId_t getThisThreadId()
 #endif
 
 #endif
-
-namespace Cantera {
 
 Application::Messages::Messages() :
     errorMessage(0),
@@ -370,6 +369,31 @@ void Application::Messages::write_logfile(std::string file)
 }
 
 #endif // WITH_HTML_LOGS
+
+#ifdef THREAD_SAFE_CANTERA
+Application::Messages* Application::ThreadMessages::operator ->()
+{
+    MSG_LOCK() ;
+    cthreadId_t curId = getThisThreadId() ;
+    threadMsgMap_t::iterator iter = m_threadMsgMap.find(curId) ;
+    if (iter != m_threadMsgMap.end()) {
+        return (iter->second.get()) ;
+    }
+    pMessages_t pMsgs(new Messages()) ;
+    m_threadMsgMap.insert(std::pair< cthreadId_t, pMessages_t >(curId, pMsgs)) ;
+    return pMsgs.get() ;
+}
+
+void Application::ThreadMessages::removeThreadMessages()
+{
+    MSG_LOCK() ;
+    cthreadId_t curId = getThisThreadId() ;
+    threadMsgMap_t::iterator iter = m_threadMsgMap.find(curId) ;
+    if (iter != m_threadMsgMap.end()) {
+        m_threadMsgMap.erase(iter) ;
+    }
+}
+#endif // THREAD_SAFE_CANTERA
 
 Application::Application() :
     inputDirs(0),

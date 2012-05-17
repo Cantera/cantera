@@ -4,6 +4,11 @@
 #include "cantera/base/config.h"
 #include "cantera/base/logger.h"
 
+#ifdef THREAD_SAFE_CANTERA
+#include <boost/shared_ptr.hpp>
+#include <boost/thread/mutex.hpp>
+#endif
+
 #include <map>
 #include <memory>
 #include <string>
@@ -23,6 +28,16 @@ class XML_Node;
  * data is stored in the class Application.
  */
 
+#ifdef THREAD_SAFE_CANTERA
+#if defined(BOOST_HAS_WINTHREADS)
+typedef unsigned int cthreadId_t;
+#elif defined(BOOST_HAS_PTHREADS)
+typedef pthread_t cthreadId_t;
+#elif defined(BOOST_HAS_MPTASKS)
+typedef MPTaskID cthreadId_t;
+#endif
+
+#endif
 
 //!  Class to hold global data.
 /*!
@@ -309,43 +324,25 @@ protected:
     //! Typedef for thread specific messages
     typedef boost::shared_ptr< Messages >   pMessages_t ;
 
-    //! Typedef for map between a thread and the message
-    typedef std::map< cthreadId_t, pMessages_t > threadMsgMap_t ;
-
     //! Class that stores thread messages for each thread, and retrieves them
     //! based on the thread id.
     class ThreadMessages
     {
     public:
         //! Constructor
-        ThreadMessages() {
-        }
+        ThreadMessages() {}
 
         //! Provide a pointer deferencing overloaded operator
         /*!
          * @return  returns a pointer to Messages
          */
-        Messages* operator->() {
-            MSG_LOCK() ;
-            cthreadId_t curId = getThisThreadId() ;
-            threadMsgMap_t::iterator iter = m_threadMsgMap.find(curId) ;
-            if (iter != m_threadMsgMap.end()) {
-                return (iter->second.get()) ;
-            }
-            pMessages_t pMsgs(new Messages()) ;
-            m_threadMsgMap.insert(std::pair< cthreadId_t, pMessages_t >(curId, pMsgs)) ;
-            return pMsgs.get() ;
-        }
+        Messages* operator->();
 
         //! Remove a local thread message
-        void removeThreadMessages() {
-            MSG_LOCK() ;
-            cthreadId_t curId = getThisThreadId() ;
-            threadMsgMap_t::iterator iter = m_threadMsgMap.find(curId) ;
-            if (iter != m_threadMsgMap.end()) {
-                m_threadMsgMap.erase(iter) ;
-            }
-        }
+        void removeThreadMessages();
+
+        //! Typedef for map between a thread and the message
+        typedef std::map< cthreadId_t, pMessages_t > threadMsgMap_t ;
 
     private:
         //! Thread Msg Map
