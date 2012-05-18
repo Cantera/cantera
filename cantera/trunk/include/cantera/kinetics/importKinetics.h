@@ -27,6 +27,14 @@ class Kinetics;
 class SpeciesThermoFactory;
 class XML_Node;
 
+//! Rules for parsing and installing reactions
+struct ReactionRules
+{
+    ReactionRules();
+    bool skipUndeclaredSpecies;
+    bool skipUndeclaredThirdBodies;
+    bool allowNegativeA;
+};
 
 //!This function returns a ratio if two reactions are duplicates of
 //!one another, and 0.0 otherwise.
@@ -85,17 +93,15 @@ void checkRxnElementBalance(Kinetics& kin,
  *          Length is number of reactants or products.
  *  stoich = stoichiometric coefficient of the reactant or product
  *          Length is number of reactants or products.
- *  order = Order of the reactant and product in the reaction
- *          rate expression
- *  @param rule  If we fail to find a species, we will throw an error
- *               if rule != 1. If rule = 1, we simply return false,
- *               allowing the calling routine to skip this reaction
- *               and continue.
+ *  order = Order of the reactant and product in the reaction rate expression
+ *  @param rules If rules.skipUndeclaredSpecies is set and we fail to find a
+ *      species we simply return false, allowing the calling routine to skip
+ *      this reaction and continue. Otherwise, we will throw an error.
  */
 bool getReagents(const XML_Node& rxn, Kinetics& kin, int rp,
                  std::string default_phase,
                  std::vector<size_t>& spnum, vector_fp& stoich,
-                 vector_fp& order, int rule);
+                 vector_fp& order, const ReactionRules& rule);
 
 //! Read the rate coefficient data from the XML file.
 /*!
@@ -113,8 +119,8 @@ bool getReagents(const XML_Node& rxn, Kinetics& kin, int rp,
  *
  * @ingroup kineticsmgr
  */
-void getRateCoefficient(const XML_Node& kf, Kinetics& kin,
-                        ReactionData& rdata, int negA);
+void getRateCoefficient(const XML_Node& kf, Kinetics& kin, ReactionData& rdata,
+                        const ReactionRules& rules);
 
 
 //! Create a new ThermoPhase object and initializes it according to the XML tree database.

@@ -252,17 +252,20 @@ The options field is used to indicate how certain conditions should be handled
 when importing the phase definition.  The options field may be assigned a string
 or a sequence of strings from the table below.
 
-==============================   ================
-Option String                    Meaning
-==============================   ================
-``'no_validation'``              Turn off all validation. Use when the definition
-                                 has been previously validated to speed up importing
-                                 the definition into an application. Use with caution!
-``'skip_undeclared_elements'``   When importing species, skip any containing undeclared
-                                 elements, rather than flagging them as an error.
-``'skip_undeclared_species'``    When importing reactions, skip any containing undeclared
-                                 species, rather than flagging them as an error.
-==============================   ================
+==================================  ================
+Option String                       Meaning
+==================================  ================
+``'no_validation'``                 Turn off all validation. Use when the definition
+                                    has been previously validated to speed up importing
+                                    the definition into an application. Use with caution!
+``'skip_undeclared_elements'``      When importing species, skip any containing undeclared
+                                    elements, rather than flagging them as an error.
+``'skip_undeclared_species'``       When importing reactions, skip any containing undeclared
+                                    species, rather than flagging them as an error.
+``'skip_undeclared_third_bodies'``  When importing reactions with third body efficiencies,
+                                    ignore any efficiencies for undeclared species, rather
+                                    than flagging them as an error.
+==================================  ================
 
 Using the ``options`` field, it is possible to extract a sub-mechanism from a large
 reaction mechanism, as follows::
