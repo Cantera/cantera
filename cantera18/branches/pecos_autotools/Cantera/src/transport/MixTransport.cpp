@@ -406,8 +406,9 @@ namespace Cantera {
 
 
   /**
-   * Update the binary diffusion coefficients. These are evaluated
-   * from the polynomial fits at unit pressure (1 Pa).
+   *
+   * Update the binary diffusion coefficients. 
+   *
    */
   void MixTransport::updateDiff_T() {
 

@@ -28,6 +28,14 @@
 #include <numeric>
 #include <algorithm>
 
+#include <iostream>
+#include <cstdlib>
+#include <fstream>
+#include <sstream>
+#include <stdlib.h>
+#include <math.h>
+#include <stdio.h>
+
 using namespace std;
 
 // Cantera includes
@@ -40,10 +48,10 @@ namespace Cantera {
   class GasTransportParams;
 
   /**
+   *
    * Class PecosTransport implements mixture-averaged transport
-   * properties for ideal gas mixtures. The model is based on that
-   * described by Kee, Coltrin, and Glarborg, "Theoretical and
-   * Practical Aspects of Chemically Reacting Flow Modeling."
+   * properties for ideal gas mixtures. 
+   *
    */
   class PecosTransport : public Transport {
 
@@ -68,7 +76,22 @@ namespace Cantera {
      */
     virtual void getThermalDiffCoeffs(doublereal* const dt);
 
-    //! returns the mixture thermal conductivity
+    /*! returns the mixture thermal conductivity
+     *
+     * This is computed using the lumped model,
+     * \f[
+     *    k = k^{tr} + k^{ve} 
+     * \f]
+     * where, 
+     * \f[
+     *    k^{tr}= 5/2 \mu_s C_{v,s}^{trans} + \mu_s C_{v,s}^{rot}
+     * \f]
+     * and,
+     * \f[
+     *    k^{ve}= \mu_s C_{v,s}^{vib} + \mu_s C_{v,s}^{elec}
+     * \f]
+     * 
+     */
     virtual doublereal thermalConductivity();
 
     virtual void getBinaryDiffCoeffs(const int ld, doublereal* const d);
@@ -114,13 +137,26 @@ namespace Cantera {
 
     //! Initialize the transport object
     /*!
+     *
      * Here we change all of the internal dimensions to be sufficient.
      * We get the object ready to do property evaluations.
      *
      * @param tr  Transport parameters for all of the species
      *            in the phase.
+     * 
      */
     virtual bool initGas( GasTransportParams& tr );
+
+
+    /**         
+     *
+     * Reads the transport table specified (currently defaults to internal file)
+     * 
+     * Reads the user-specified transport table, appending new species                            
+     * data and/or replacing default species data.   
+     *
+     */
+    void read_blottner_transport_table ();
 
     friend class TransportFactory;
 
@@ -156,6 +192,10 @@ namespace Cantera {
     vector<vector_fp>            m_condcoeffs;
     vector<vector_fp>            m_diffcoeffs;
     vector_fp                    m_polytempvec;
+
+    // blottner fits
+    //int species = 20;
+    double a[20], b[20], c[20];
 
     // property values
     DenseMatrix                  m_bdiff;

@@ -75,7 +75,6 @@ int transport_example1(int job) {
 
         int nsp = gas.nSpecies();
 
-
         // create a 2D array to hold the outputs
         int ntemps = 20;
         Array2D output(nsp+3, ntemps);

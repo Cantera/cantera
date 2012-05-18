@@ -1,6 +1,7 @@
 /**
  *  @file PecosTransport.cpp
  *  Mixture-averaged transport properties.
+ *  
  */
 
 /* $Author$
@@ -27,7 +28,6 @@ using namespace std;
 namespace Cantera {
 
   //////////////////// class PecosTransport methods //////////////
-
 
   PecosTransport::PecosTransport() :
     m_nsp(0),
@@ -101,6 +101,9 @@ namespace Cantera {
     m_diffmix_ok = false;
     m_abc_ok = false;
 
+    // read blottner fit parameters (A,B,C)
+    read_blottner_transport_table();
+
     return true;
   }
 
@@ -149,9 +152,13 @@ namespace Cantera {
     return vismix;
   }
 
-
   /******************* binary diffusion coefficients **************/
-
+  /*
+   *
+   *  Using Ramshaw's self-consistent Effective Binary Diffusion 
+   *  (1990, J. Non-Equilib. Thermo)
+   *  Adding more doxygen would be good here
+   */
 
   void PecosTransport::getBinaryDiffCoeffs(const int ld, doublereal* const d) {
     int i,j;
@@ -162,10 +169,10 @@ namespace Cantera {
     // from the polynomial fits
     if (!m_bindiff_ok) updateDiff_T();
 
-    doublereal rp = 1.0/pressure_ig();
+
     for (i = 0; i < m_nsp; i++) 
       for (j = 0; j < m_nsp; j++) {
-	d[ld*j + i] = rp * m_bdiff(i,j);
+	d[ld*j + i] = m_bdiff(i,j);
       }
   }
 
@@ -183,35 +190,47 @@ namespace Cantera {
   /****************** thermal conductivity **********************/
 
   /**
-   * The thermal conductivity is computed from the following mixture rule:
-   * \[
-   * \lambda = 0.5 \left( \sum_k X_k \lambda_k 
-   * + \frac{1}{\sum_k X_k/\lambda_k}\right)
-   * \]
-   */
+   * The thermal conductivity is computed using the Wilke mixture rule.
+   * \f[
+   * \k = \sum_s \frac{k_s X_s}{\sum_j \Phi_{s,j} X_j}.
+   * \f]
+   * Here \f$ \k_s \f$ is the conductivity of pure species \e s,
+   * and 
+   * \f[
+   * \Phi_{s,j} = \frac{\left[1 
+   * + \sqrt{\left(\frac{\mu_k}{\mu_j}\sqrt{\frac{M_j}{M_s}}\right)}\right]^2}
+   * {\sqrt{8}\sqrt{1 + M_s/M_j}}
+   * \f] 
+   * @see updateCond_T();
+   */ 
   doublereal PecosTransport::thermalConductivity() {
     int k;
+    doublereal lambda = 0.0;
 
     update_T();
     update_C();
 
+    // update m_cond and m_phi if necessary
     if (!m_spcond_ok)  updateCond_T(); 
     if (!m_condmix_ok) {
-      doublereal sum1 = 0.0, sum2 = 0.0;
+
+      multiply(m_phi, DATA_PTR(m_molefracs), DATA_PTR(m_spwork));
+      
       for (k = 0; k < m_nsp; k++) {
-	sum1 += m_molefracs[k] * m_cond[k];
-	sum2 += m_molefracs[k] / m_cond[k];
+	lambda += m_molefracs[k] * m_cond[k]/m_spwork[k]; //denom;
       }
-      m_lambda = 0.5*(sum1 + 1.0/sum2);
+
     }
+    m_lambda = lambda;
     return m_lambda;
+
   }
 
 
   /****************** thermal diffusion coefficients ************/
 
   /**
-   * Thermal diffusion is not considered in this mixture-averaged
+   * Thermal diffusion is not considered in this pecos 
    * model. To include thermal diffusion, use transport manager
    * MultiTransport instead. This methods fills out array dt with
    * zeros.
@@ -229,8 +248,11 @@ namespace Cantera {
    * @param ldx  Leading dimension of the grad_X array.
    * The diffusive mass flux of species \e k is computed from
    * \f[
-   * \vec{j}_k = -n M_k D_k \nabla X_k.
+   * \vec{j}_k = -n M_k D_k \nabla X_k + \frac{\rho_k}{\rho} \sum_r n M_r D_r \nabla X_r
    * \f]
+   *
+   * This is neglective pressure, forced and thermal diffusion. 
+   *
    */
   void PecosTransport::getSpeciesFluxes(int ndim, 
 				      const doublereal* grad_T, int ldx, const doublereal* grad_X, 
@@ -247,9 +269,17 @@ namespace Cantera {
     doublereal rhon = m_thermo->molarDensity();
 
     vector_fp sum(ndim,0.0);
+
+    doublereal correction=0.0;
+    // grab 2nd (summation) term -- still need to multiply by mass fraction (\rho_s / \rho)
+    for (k = 0; k < m_nsp; k++) 
+      {
+	correction += rhon * mw[k] * m_spwork[k] * grad_X[n*ldx + k];
+      }
+
     for (n = 0; n < ndim; n++) {
       for (k = 0; k < m_nsp; k++) {
-	fluxes[n*ldf + k] = -rhon * mw[k] * m_spwork[k] * grad_X[n*ldx + k];
+	fluxes[n*ldf + k] = -rhon * mw[k] * m_spwork[k] * grad_X[n*ldx + k] + y[k]*correction;
 	sum[n] += fluxes[n*ldf + k];
       }
     }
@@ -366,7 +396,6 @@ namespace Cantera {
     }
   }
 
-
   /*************************************************************************
    *
    *    methods to update temperature-dependent properties
@@ -374,21 +403,25 @@ namespace Cantera {
    *************************************************************************/
 
   /**
+   *
    * Update the temperature-dependent parts of the mixture-averaged 
    * thermal conductivity. 
+   * 
+   * Calculated as,
+   * \f[
+   *    k= \mu_s (5/2 * C_{v,s}^{trans} + C_{v,s}^{rot} + C_{v,s}^{vib} 
+   * \f]   
+   *
+   *
    */
   void PecosTransport::updateCond_T() {
 
     int k;
-    if (m_mode == CK_Mode) {
-      for (k = 0; k < m_nsp; k++) {
-	m_cond[k] = exp(dot4(m_polytempvec, m_condcoeffs[k]));
-      }
-    }
-    else {
-      for (k = 0; k < m_nsp; k++) {
-	m_cond[k] = m_sqrt_t*dot5(m_polytempvec, m_condcoeffs[k]);
-      }
+    doublereal fivehalves = 5/2;
+    for (k = 0; k < m_nsp; k++) {
+      // need to add cv_elec in the future
+      //m_cond[k] = m_visc[k] * ( fivehalves * m_thermo->cv_trans() + m_thermo->cv_rot() + m_thermo->cv_vib() ); 
+      m_cond[k] = m_visc[k] * ( fivehalves * m_thermo->cv_mass());
     }
     m_spcond_ok = true;
     m_condmix_ok = false;
@@ -430,33 +463,124 @@ namespace Cantera {
 
 
   /**
-   * Update the pure-species viscosities.
+   *
+   * Update the pure-species viscosities. (Pa-s) = (kg/m/sec)
+   * 
+   * Using Blottner fit for viscosity. Defines kinematic viscosity
+   * of the form                                                                                                 
+   * \f[                                                                                                         
+   *   \mu_s\left(T\right) = 0.10 \exp\left(A_s\left(\log T\right)^2 + B_s\log T + C_s\right)                    
+   * \f]                                                                                                         
+   * where \f$ A_s \f$, \f$ B_s \f$, and \f$ C_s \f$ are constants.   
+   *
    */
   void PecosTransport::updateSpeciesViscosities() {
 
+    // blottner
+    // return 0.10*std::exp(_a*(logT*logT) + _b*logT + _c);
+
     int k;
-    if (m_mode == CK_Mode) {
-      for (k = 0; k < m_nsp; k++) {
-	m_visc[k] = exp(dot4(m_polytempvec, m_visccoeffs[k]));
-	m_sqvisc[k] = sqrt(m_visc[k]);
-      }
+    // iterate over species, update pure-species viscosity
+    for (k = 0; k < m_nsp; k++) {
+      m_visc[k] = 0.10*std::exp(a[k]*(m_logt*m_logt) + b[k]*m_logt + c[k]);
+      m_sqvisc[k] = sqrt(m_visc[k]);
     }
-    else {
-      for (k = 0; k < m_nsp; k++) {
-	// the polynomial fit is done for sqrt(visc/sqrt(T))
-	m_sqvisc[k] = m_t14*dot5(m_polytempvec, m_visccoeffs[k]);
-	m_visc[k] = (m_sqvisc[k]*m_sqvisc[k]);
-      }
-    }
+
+    // time to update mixing
     m_spvisc_ok = true;
   }
 
+  /*
+   * read_blottner_transport_table()
+   *  loads up A B and C for blottner fits
+   *  hardcoded for air, will need to generalize later
+   */ 
+
+  void PecosTransport::read_blottner_transport_table()
+  {
+    // istringstream blot
+    //   ("Air 2.68142000000e-02  3.17783800000e-01 -1.13155513000e+01\n"
+    //    "CPAir   2.68142000000e-02  3.17783800000e-01 -1.13155513000e+01\n"
+    //    "N       1.15572000000e-02  6.03167900000e-01 -1.24327495000e+01\n"
+    //    "N2      2.68142000000e-02  3.17783800000e-01 -1.13155513000e+01\n"
+    //    "CPN2    2.68142000000e-02  3.17783800000e-01 -1.13155513000e+01\n"
+    //    "NO      4.36378000000e-02 -3.35511000000e-02 -9.57674300000e+00\n"
+    //    "O       2.03144000000e-02  4.29440400000e-01 -1.16031403000e+01\n"
+    //    "O2      4.49290000000e-02 -8.26158000000e-02 -9.20194750000e+00\n"
+    //    "C       -8.3285e-3         0.7703240         -12.7378000\n"
+    //    "C2      -8.4311e-3         0.7876060         -13.0268000\n"
+    //    "C3      -8.4312e-3         0.7876090         -12.8240000\n"
+    //    "C2H     -2.4241e-2         1.0946550         -14.5835500\n"
+    //    "CN      -8.3811e-3         0.7860330         -12.9406000\n"
+    //    "CO      -0.019527394       1.013295          -13.97873\n"
+    //    "CO2     -0.019527387       1.047818          -14.32212\n"
+    //    "HCN     -2.4241e-2         1.0946550         -14.5835500\n"
+    //    "H       -8.3912e-3         0.7743270         -13.6653000\n"
+    //    "H2      -8.3346e-3         0.7815380         -13.5351000\n"
+    //    "e       0.00000000000e+00  0.00000000000e+00 -1.16031403000e+01\n");
+
+    istringstream blot
+      ("Air 2.68142000000e-02 3.17783800000e-01 -1.13155513000e+01\n"
+       "CPAir 2.68142000000e-02 3.17783800000e-01 -1.13155513000e+01\n"
+       "N 1.15572000000e-02 6.03167900000e-01 -1.24327495000e+01\n"
+       "N2 2.68142000000e-02 3.17783800000e-01 -1.13155513000e+01\n"
+       "CPN2 2.68142000000e-02 3.17783800000e-01 -1.13155513000e+01\n"
+       "NO 4.36378000000e-02 -3.35511000000e-02 -9.57674300000e+00\n"
+       "O 2.03144000000e-02 4.29440400000e-01 -1.16031403000e+01\n"
+       "O2 4.49290000000e-02 -8.26158000000e-02 -9.20194750000e+00\n"
+       "C -8.3285e-3 0.7703240 -12.7378000\n"
+       "C2 -8.4311e-3 0.7876060 -13.0268000\n"
+       "C3 -8.4312e-3 0.7876090 -12.8240000\n"
+       "C2H -2.4241e-2 1.0946550 -14.5835500\n"
+       "CN -8.3811e-3 0.7860330 -12.9406000\n"
+       "CO -0.019527394 1.013295 -13.97873\n"
+       "CO2 -0.019527387 1.047818 -14.32212\n"
+       "HCN -2.4241e-2 1.0946550 -14.5835500\n"
+       "H -8.3912e-3 0.7743270 -13.6653000\n"
+       "H2 -8.3346e-3 0.7815380 -13.5351000\n"
+       "e 0.00000000000e+00 0.00000000000e+00 -1.16031403000e+01\n");
+
+    string line;
+    string name;
+    string ss1; 
+
+    int i = 0;
+
+    while (std::getline(blot, line)) {
+
+      // welcome to hack-town, enjoy your stay
+      istringstream ss(line);      
+      std::getline(ss, ss1, ' ');
+      name = ss1;
+
+      std::getline(ss, ss1, ' ');
+      a[i] = atof(ss1.c_str());
+
+      std::getline(ss, ss1, ' ');       
+      b[i] = atof(ss1.c_str());
+
+      std::getline(ss, ss1, ' ');       
+      c[i] = atof(ss1.c_str());
+    
+      // index
+      i++;
+    }
+
+    // simple sanity check
+    // if(i != m_nsp-1)
+    //   {
+    // 	std::cout << "error\n" << i << std::endl;
+    //   }
+
+  }
 
   /**
+   *
    * Update the temperature-dependent viscosity terms.
    * Updates the array of pure species viscosities, and the 
    * weighting functions in the viscosity mixture rule.
    * The flag m_visc_ok is set to true.
+   * 
    */
   void PecosTransport::updateViscosity_T() {
     doublereal vratiokj, wratiojk, factor1;
@@ -482,6 +606,7 @@ namespace Cantera {
   }
 
   /**
+   *
    * This function returns a Transport data object for a given species.
    *
    */

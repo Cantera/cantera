@@ -1,7 +1,7 @@
 /**
  *
  *  @file IdealGasPhase.cpp
- *   ThermoPhase object for the ideal gas equation of
+ * ThermoPhase object for the ideal gas equation of
  * state - workhorse for %Cantera (see \ref thermoprops 
  * and class \link Cantera::IdealGasPhase IdealGasPhase\endlink).
  *
@@ -157,6 +157,37 @@ namespace Cantera {
   doublereal IdealGasPhase::cv_mole() const {
     return cp_mole() - GasConstant;
   }
+
+  /**
+   * @returns species translational/rotational specific heat at
+   * constant volume. 
+   */
+  doublereal IdealGasPhase::cv_tr () const
+  { return 5/2 * GasConstant; }
+      
+  /**
+   * @returns species translational specific heat at constant volume.
+   */
+  doublereal IdealGasPhase::cv_trans () const
+  { return 1.5*GasConstant; }
+
+  /**
+   * @returns species rotational specific heat at constant volume.
+   *
+   */
+  doublereal IdealGasPhase::cv_rot () const
+  { return std::max(cv_tr() - cv_trans(), 0.); }
+     
+  /**
+   * @returns species vibrational specific heat at
+   * constant volume.
+   */
+  doublereal IdealGasPhase::cv_vib (const doublereal T) const
+  {
+    double cv_vib = 0.0;
+    return cv_vib;
+  }
+
 
   // Mechanical Equation of State ----------------------------
   // Chemical Potentials and Activities ----------------------
