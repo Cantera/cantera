@@ -1621,9 +1621,15 @@ class phase:
             datasrc = r[0]
             ra = p.addChild('reactionArray')
             ra['datasrc'] = datasrc+'#reaction_data'
+            rk = None
             if 'skip_undeclared_species' in self._options:
                 rk = ra.addChild('skip')
                 rk['species'] = 'undeclared'
+
+            if 'skip_undeclared_third_bodies' in self._options:
+                if not rk:
+                    rk = ra.addChild('skip')
+                rk['third_bodies'] = 'undeclared'
 
             rtoks = r[1].split()
             if rtoks[0] != 'all':

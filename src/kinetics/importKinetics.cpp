@@ -40,6 +40,13 @@ using namespace std;
 namespace Cantera
 {
 
+ReactionRules::ReactionRules() :
+    skipUndeclaredSpecies(false),
+    skipUndeclaredThirdBodies(false),
+    allowNegativeA(false)
+{
+}
+
 //! these are all used to check for duplicate reactions
 class rxninfo
 {
@@ -67,7 +74,7 @@ public:
     std::map<std::vector<char>, std::vector<size_t> > m_participants;
 
     bool installReaction(int i, const XML_Node& r, Kinetics& kin,
-                         std::string default_phase, int rule,
+                         std::string default_phase, ReactionRules& rule,
                          bool validate_rxn) ;
 };
 
@@ -162,14 +169,15 @@ void checkRxnElementBalance(Kinetics& kin,
  *          Length is number of reactants or products.
  *  order = Order of the reactant and product in the reaction
  *          rate expression
- *  rule = If we fail to find a species, we will throw an error
+ *  rules = If we fail to find a species, we will throw an error
  *         if rule != 1. If rule = 1, we simply return false,
  *         allowing the calling routine to skip this reaction
  *         and continue.
  */
 bool getReagents(const XML_Node& rxn, Kinetics& kin, int rp,
                  std::string default_phase, std::vector<size_t>& spnum,
-                 vector_fp& stoich, vector_fp& order, int rule)
+                 vector_fp& stoich, vector_fp& order,
+                 const ReactionRules& rules)
 {
 
     string rptype;
@@ -211,7 +219,7 @@ bool getReagents(const XML_Node& rxn, Kinetics& kin, int rp,
          */
         size_t isp = kin.kineticsSpeciesIndex(sp);
         if (isp == npos) {
-            if (rule == 1) {
+            if (rules.skipUndeclaredSpecies) {
                 return false;
             } else {
                 throw CanteraError("getReagents",
@@ -464,7 +472,8 @@ static void getFalloff(const XML_Node& f, ReactionData& rdata)
  * reaction mechanism is homogeneous, so that all species belong
  * to phase(0) of 'kin'.
  */
-static void getEfficiencies(const XML_Node& eff, Kinetics& kin, ReactionData& rdata)
+static void getEfficiencies(const XML_Node& eff, Kinetics& kin,
+                            ReactionData& rdata, const ReactionRules& rules)
 {
     // set the default collision efficiency
     rdata.default_3b_eff = fpValue(eff["default"]);
@@ -476,12 +485,13 @@ static void getEfficiencies(const XML_Node& eff, Kinetics& kin, ReactionData& rd
     for (size_t n = 0; n < key.size(); n++) { // ; bb != ee; ++bb) {
         nm = key[n];// bb->first;
         size_t k = kin.kineticsSpeciesIndex(nm, phse);
-        if (k == npos) {
+        if (k != npos) {
+            rdata.thirdBodyEfficiencies[k] = fpValue(val[n]); // bb->second;
+        } else if (!rules.skipUndeclaredThirdBodies) {
             throw CanteraError("getEfficiencies", "Encountered third-body "
                 "efficiency for undefined species \"" + nm + "\"\n"
                 "while adding reaction " + int2str(rdata.number+1) + ".");
         }
-        rdata.thirdBodyEfficiencies[k] = fpValue(val[n]); // bb->second;
     }
 }
 
@@ -494,7 +504,7 @@ static void getEfficiencies(const XML_Node& eff, Kinetics& kin, ReactionData& rd
  *  @param kf   Reference to the XML Node named rateCoeff
  */
 void getRateCoefficient(const XML_Node& kf, Kinetics& kin,
-                        ReactionData& rdata, int negA)
+                        ReactionData& rdata, const ReactionRules& rules)
 {
     if (rdata.reactionType == PLOG_RXN) {
         rdata.rateCoeffType = PLOG_REACTION_RATECOEFF_TYPE;
@@ -560,7 +570,7 @@ void getRateCoefficient(const XML_Node& kf, Kinetics& kin,
                                           kin.thermo(kin.surfacePhaseIndex()), rdata);
                 }
 
-                if (coeff[0] <= 0.0 && negA == 0) {
+                if (coeff[0] <= 0.0 && !rules.allowNegativeA) {
                     throw CanteraError("getRateCoefficient",
                                        "negative or zero A coefficient for reaction "+int2str(rdata.number));
                 }
@@ -572,7 +582,7 @@ void getRateCoefficient(const XML_Node& kf, Kinetics& kin,
             } else if (nm == "falloff") {
                 getFalloff(c, rdata);
             } else if (nm == "efficiencies") {
-                getEfficiencies(c, kin, rdata);
+                getEfficiencies(c, kin, rdata, rules);
             } else if (nm == "electrochem") {
                 rdata.beta = fpValue(c["beta"]);
             }
@@ -666,7 +676,7 @@ next:
  * @ingroup kineticsmgr
  */
 bool rxninfo::installReaction(int iRxn, const XML_Node& r, Kinetics& kin,
-                              string default_phase, int rule,
+                              string default_phase, ReactionRules& rules,
                               bool validate_rxn)
 {
     // Check to see that we are in fact at a reaction node
@@ -687,7 +697,7 @@ bool rxninfo::installReaction(int iRxn, const XML_Node& r, Kinetics& kin,
 
     // Check to see if the reaction rate constant can be negative. It's an
     // error if a negative rate constant is found and this is not set.
-    int negA = (r.hasAttrib("negative_A")) ? 1 : 0;
+    rules.allowNegativeA = (r.hasAttrib("negative_A")) ? 1 : 0;
 
     // Use the contents of the "equation" child element as the reaction's
     // string representation. Post-process to convert "[" and "]" characters
@@ -705,11 +715,11 @@ bool rxninfo::installReaction(int iRxn, const XML_Node& r, Kinetics& kin,
 
     // get the reactants
     bool ok = getReagents(r, kin, 1, default_phase, rdata.reactants,
-                          rdata.rstoich, rdata.rorder, rule);
+                          rdata.rstoich, rdata.rorder, rules);
 
     // Get the products. We store the id of products in rdata.products
     ok = ok && getReagents(r, kin, -1, default_phase, rdata.products,
-                           rdata.pstoich, rdata.porder, rule);
+                           rdata.pstoich, rdata.porder, rules);
 
     // if there was a problem getting either the reactants or the products,
     // then abort.
@@ -845,7 +855,7 @@ bool rxninfo::installReaction(int iRxn, const XML_Node& r, Kinetics& kin,
 
      // Read the rate coefficient data from the XML file. Trigger an
      // exception for negative A unless specifically authorized.
-    getRateCoefficient(r.child("rateCoeff"), kin, rdata, negA);
+    getRateCoefficient(r.child("rateCoeff"), kin, rdata, rules);
 
     // Check to see that the elements balance in the reaction.
     // Throw an error if they don't
@@ -909,20 +919,26 @@ bool installReactionArrays(const XML_Node& p, Kinetics& kin,
          */
         const XML_Node* rdata = get_XML_Node(rxns["datasrc"], &rxns.root());
         /*
-         * If the reactionArray element has a child element named
-         * "skip", and if the attribute of skip called "species" has
-         * a value of "undeclared", we will set rxnrule = 1.
-         * rxnrule is passed to the routine that parses each individual
-         * reaction. I believe what this means is that the parser will
-         * skip all reactions containing an undefined species without
-         * throwing an error condition.
+         * If the reactionArray element has a child element named "skip", and
+         * if the attribute of skip called "species" has a value of "undeclared",
+         * we will set rxnrule.skipUndeclaredSpecies to 'true'. rxnrule is
+         * passed to the routine that parses each individual reaction so that
+         * the parser will skip all reactions containing an undefined species
+         * without throwing an error.
+         *
+         * Similarly, an attribute named "third_bodies" with the value of
+         * "undeclared" will skip undeclared third body efficiencies (while
+         * retaining the reaction and any other efficiencies).
          */
-        int rxnrule = 0;
+        ReactionRules rxnrule;
         if (rxns.hasChild("skip")) {
             const XML_Node& sk = rxns.child("skip");
             string sskip = sk["species"];
             if (sskip == "undeclared") {
-                rxnrule = 1;
+                rxnrule.skipUndeclaredSpecies = true;
+            }
+            if (sk["third_bodies"] == "undeclared") {
+                rxnrule.skipUndeclaredThirdBodies = true;
             }
         }
         int i, nrxns = 0;
