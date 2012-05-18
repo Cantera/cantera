@@ -109,6 +109,8 @@ to synchronize the elements among multiple phases, so that each phase contains
 the same elements with the same ordering. In such cases, simply use the same
 string in the elements field for all phases.
 
+.. _sec-defining-species:
+
 Defining the Species
 ^^^^^^^^^^^^^^^^^^^^
 
@@ -159,6 +161,8 @@ definitions with imported ones, by specifying a sequence of strings::
 
 Note that the strings must be separated by commas, and enclosed in square
 brackets or parentheses.
+
+.. _sec-declaring-reactions:
 
 Declaring the Reactions
 ^^^^^^^^^^^^^^^^^^^^^^^
@@ -223,7 +227,7 @@ The Transport Model
 ^^^^^^^^^^^^^^^^^^^
 
 A *transport model* is a set of equations used to compute transport
-properties. For one :class:`ideal_gas` phases, multiple transport models are
+properties. For :class:`ideal_gas` phases, multiple transport models are
 available; the one desired can be selected by assiging a string to this
 field. See :ref:`sec-gas-transport-models` for more details.
 

@@ -475,15 +475,16 @@ class species:
         :param thermo:
             The parameterization to use to compute the reference-state
             thermodynamic properties. This must be one of the entry types
-            described in ##REFF##. To specify multiple parameterizations, each
-            for a different temperature range, group them in parentheses.
+            described in :ref:`sec-thermo-models`. To specify multiple
+            parameterizations, each for a different temperature range,
+            group them in parentheses.
         :param transport:
             An entry specifying parameters to compute this species'
             contribution to the transport properties. This must be one of the
-            entry types described in ##REF##, and must be consistent with the
-            transport model of the phase into which the species is imported.
-            To specify parameters for multiple transport models, group the
-            entries in parentheses.
+            entry types described in :ref:`sec-species-transport-models`, and
+            must be consistent with the transport model of the phase into which
+            the species is imported. To specify parameters for multiple
+            transport models, group the entries in parentheses.
         :param size:
             The species "size". Currently used only for surface species,
             where it represents the number of sites occupied.
@@ -985,7 +986,7 @@ class reaction:
             four-digit numeric string beginning with 0001 for the first
             reaction in the file.
         :param options:
-            Processing options, as described in Section ##REF##
+            Processing options, as described in :ref:`sec-phase-options`.
         """
         self._id = id
         self._e = equation
@@ -1206,7 +1207,7 @@ class three_body_reaction(reaction):
             four-digit numeric string beginning with 0001 for the first
             reaction in the file.
         :param options:
-            Processing options, as described in ##REF##.
+            Processing options, as described in :ref:`sec-phase-options`.
         """
         reaction.__init__(self, equation, kf, id, '', options)
         self._type = 'threeBody'
@@ -1260,7 +1261,7 @@ class falloff_reaction(reaction):
             four-digit numeric string beginning with 0001 for the first
             reaction in the file.
         :param options:
-            Processing options, as described in ##REF##
+            Processing options, as described in :ref:`sec-phase-options`.
         """
         kf2 = (kf, kf0)
         reaction.__init__(self, equation, kf2, id, '', options)
@@ -1393,7 +1394,7 @@ class surface_reaction(reaction):
             four-digit numeric string beginning with 0001 for the first
             reaction in the file.
         :param options:
-            Processing options, as described in ##REF##
+            Processing options, as described in :ref:`sec-phase-options`.
         """
         reaction.__init__(self, equation, kf, id, order, options)
         self._type = 'surface'
@@ -1484,12 +1485,12 @@ class phase:
             The elements. A string of element symbols.
         :param species:
             The species. A string or sequence of strings in the format
-            described in ##REF##.
+            described in :ref:`sec-defining-species`.
         :param reactions:
             The homogeneous reactions. If omitted, no reactions will be
             included. A string or sequence of strings in the format described
-            in ##REF##. This field is not allowed for stoichiometric_solid
-            and stoichiometric_liquid entries.
+            in :ref:`sec-declaring-reactions`. This field is not allowed for
+            stoichiometric_solid and stoichiometric_liquid entries.
         :param kinetics:
             The kinetics model. Optional; if omitted, the default model for the
             phase type will be used.
@@ -2089,7 +2090,7 @@ class ideal_interface(phase):
         :param reactions:
             The heterogeneous reactions at this interface. If omitted, no
             reactions will be included. A string or sequence of strings in the
-            format described ##REF##.
+            format described in :ref:`sec-declaring-reactions`.
         :param site_density:
             The number of adsorption sites per unit area.
         :param phases:
