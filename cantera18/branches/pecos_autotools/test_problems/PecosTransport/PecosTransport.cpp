@@ -188,7 +188,7 @@ int main(int argc, char** argv) {
     g.setState_TPX(T1, pres, DATA_PTR(Xset));
 
     Array2D Bdiff(nsp, nsp, 0.0);
-    printf("Binary Diffusion Coefficients H2 vs species\n");
+    printf("Effective Binary Diffusion Coefficients H2 vs species\n");
 
     tranMix->getBinaryDiffCoeffs(nsp, Bdiff.ptrColumn(0));
     for (k = 0; k < nsp; k++) {
@@ -241,6 +241,9 @@ int main(int argc, char** argv) {
       printf("sum in y direction = 0\n");
     }
  
+    std::cout << "Sum of Diffusive Mass Fluxes: " << sum1 << std::endl;
+    std::cout << "Sum of Diffusive Mass Fluxes: " << sum2 << std::endl;
+
 
   }
   catch (CanteraError) {
