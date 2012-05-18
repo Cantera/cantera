@@ -254,7 +254,11 @@ int main(int argc, char** argv) {
     } else {
       printf("sum in y direction = 0\n");
     }
- 
+
+    std::cout << "Sum of Diffusive Mass Fluxes: " << sum1 << std::endl;
+    std::cout << "Sum of Diffusive Mass Fluxes: " << sum2 << std::endl;
+    
+
 
   }
   catch (CanteraError) {

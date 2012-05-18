@@ -453,7 +453,7 @@ namespace Cantera {
    * \f]
    * for atoms.
    */
-    virtual doublereal cv_tr() const;
+    virtual doublereal cv_tr(doublereal ) const;
  
   /**
    * @returns species translational specific heat at constant volume.
@@ -476,7 +476,7 @@ namespace Cantera {
    *   C^{rot}_{v,s} \equiv C^{tr}_{v,s} - C^{trans}_{v,s}
    * \f]
    */
-    virtual doublereal cv_rot() const;
+    virtual doublereal cv_rot(double atomicity) const;
 
   /**
    * @returns species vibrational specific heat at
@@ -485,7 +485,7 @@ namespace Cantera {
    *   C^{vib}_{v,s} \equiv \frac{\partial e^{vib}_s}{\partial T_V} = \frac{R_s \theta_{vs}^2 \exp\left(\theta_{vs}/T_V\right)}{\left[\left(\exp\left(\theta_{vs}/T_V\right)-1\right)T_V\right]^2}
    * \f]
    */
-    virtual doublereal cv_vib(doublereal T) const;
+    virtual doublereal cv_vib(doublereal atom, doublereal T) const;
 
     //@}
 

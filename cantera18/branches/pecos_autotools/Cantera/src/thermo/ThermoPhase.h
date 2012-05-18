@@ -882,6 +882,16 @@ namespace Cantera {
       return err("cv_mole");
     }
 
+  /**
+   * @returns species vibrational specific heat at
+   * constant volume.
+   *
+   */
+    /// Molar heat capacity at constant volume. Units: J/kmol/K. 
+    virtual doublereal cv_vib(double, double) const {
+      return err("cv_vib");
+    }
+    
 
     //! Get the change in activity coefficients w.r.t. change in state 
     //! (temp, mole fraction, etc.)

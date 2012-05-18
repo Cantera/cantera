@@ -161,9 +161,21 @@ namespace Cantera {
   /**
    * @returns species translational/rotational specific heat at
    * constant volume. 
+   *
+   * Either: $5/2 R_s$ or $3/2 R_s$ for molecules/atoms.
+   *
    */
-  doublereal IdealGasPhase::cv_tr () const
-  { return 5/2 * GasConstant; }
+  doublereal IdealGasPhase::cv_tr (doublereal atomicity) const
+  { 
+    if(atomicity < 1.0) // atom
+      {
+	return 3/2 * GasConstant; 
+      }
+    else  // molecule
+      {
+	return 5/2 * GasConstant; 
+      }
+  }
       
   /**
    * @returns species translational specific heat at constant volume.
@@ -175,17 +187,44 @@ namespace Cantera {
    * @returns species rotational specific heat at constant volume.
    *
    */
-  doublereal IdealGasPhase::cv_rot () const
-  { return std::max(cv_tr() - cv_trans(), 0.); }
+  doublereal IdealGasPhase::cv_rot (double atom) const
+  { return std::max(cv_tr(atom) - cv_trans(), 0.); }
      
   /**
    * @returns species vibrational specific heat at
    * constant volume.
+   *
+   * C^{vib}_{v,s} = \frac{\partial e^{vib}_{v,s} }{\partial T}
+   *
+   * The species vibration energy ($e^{vib}_{v,s}$) is:
+   * 
+   * 0: atom
+   *
+   * Diatomic:
+   * \f[
+   * \frac{R_s \theta_{v,s}}{e^{\theta_{v,s}/T}-1}
+   * \f]
+   *
+   * General Molecules:
+   * \f[
+   * \sum_i \frac{R_s \theta_{v,s,i}}{e^{\theta_{v,s,i}/T}-1}
+   * \f]
+   *
    */
-  doublereal IdealGasPhase::cv_vib (const doublereal T) const
+  doublereal IdealGasPhase::cv_vib (const doublereal atom,const doublereal T) const
   {
-    double cv_vib = 0.0;
-    return cv_vib;
+
+    if(atom < 1.0) // atom
+      {
+	return 0.0;
+      }
+    else  // molecule
+      {	
+	doublereal theta = 1.0;
+	doublereal cv_vib = GasConstant * theta* ( theta* exp(theta/T)/(T*T))/((exp(theta/T)-1) * (exp(theta/T)-1));
+	return cv_vib;
+      }
+
   }
 
 

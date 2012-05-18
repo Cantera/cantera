@@ -15,6 +15,7 @@
 #include "utilities.h"
 #include "TransportParams.h"
 #include "TransportFactory.h"
+#include "IdealGasPhase.h"
 
 #include <iostream>
 using namespace std;
@@ -104,6 +105,16 @@ namespace Cantera {
     // read blottner fit parameters (A,B,C)
     read_blottner_transport_table();
 
+    // set specific heats
+    cv_rot.resize(m_nsp);
+      cp_R.resize(m_nsp);
+    cv_int.resize(m_nsp);
+
+    for (k = j; k < m_nsp; k++) {
+      cv_rot[k] = tr.crot[k];
+      cp_R[k] = ((IdealGasPhase*)tr.thermo)->cp_R_ref()[k];
+      cv_int[k] = cp_R[k] - 2.5 - cv_rot[k];
+    }
     return true;
   }
 
@@ -420,8 +431,7 @@ namespace Cantera {
     doublereal fivehalves = 5/2;
     for (k = 0; k < m_nsp; k++) {
       // need to add cv_elec in the future
-      //m_cond[k] = m_visc[k] * ( fivehalves * m_thermo->cv_trans() + m_thermo->cv_rot() + m_thermo->cv_vib() ); 
-      m_cond[k] = m_visc[k] * ( fivehalves * m_thermo->cv_mass());
+      m_cond[k] = m_visc[k] * ( fivehalves * cv_int[k]  + cv_rot[k] + m_thermo->cv_vib(cv_rot[k],m_temp) ); 
     }
     m_spcond_ok = true;
     m_condmix_ok = false;

@@ -72,9 +72,6 @@ namespace Cantera {
 
   const int cMargulesVPSSTP = 301;
 
-  // perfect gas -- companion of PecosTransport for high speed flows
-  const int cPerfectGas = 666;
-
   const int cIonsFromNeutral = 2000;
 
   //! Variable Pressure Standard State ThermoPhase objects

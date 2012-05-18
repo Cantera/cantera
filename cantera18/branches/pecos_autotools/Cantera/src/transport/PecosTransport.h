@@ -260,6 +260,12 @@ namespace Cantera {
     DenseMatrix m_diam;
     DenseMatrix incl;
     bool m_debug;
+
+    // specific heats
+    vector_fp            cv_rot;
+    vector_fp            cp_R;
+    vector_fp            cv_int;
+
   };
 }
 #endif
