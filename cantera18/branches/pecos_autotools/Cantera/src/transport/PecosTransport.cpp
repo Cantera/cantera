@@ -177,13 +177,12 @@ namespace Cantera {
     update_T();
 
     // if necessary, evaluate the binary diffusion coefficents
-    // from the polynomial fits
     if (!m_bindiff_ok) updateDiff_T();
 
-
+    doublereal rp = 1.0/pressure_ig();
     for (i = 0; i < m_nsp; i++) 
       for (j = 0; j < m_nsp; j++) {
-	d[ld*j + i] = m_bdiff(i,j);
+	d[ld*j + i] = rp * m_bdiff(i,j);
       }
   }
 
