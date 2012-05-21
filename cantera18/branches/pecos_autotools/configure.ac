@@ -27,7 +27,7 @@ AC_SUBST([PACKAGE_DESCRIPTION])
 PACKAGE_URL="http://code.google.com/p/cantera/"
 AC_SUBST([PACKAGE_URL])
 
-# add trailing underscore(s)
+# add various Defines
 AC_DEFINE([LAPACK_FTN_TRAILING_UNDERSCORE],1,[Define to add underscore after fortran functions])
 LAPACK_FTN_TRAILING_UNDERSCORE=1
 AC_DEFINE([FTN_TRAILING_UNDERSCORE],1,[Define to add underscore after fortran functions])
