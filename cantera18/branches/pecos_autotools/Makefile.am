@@ -5,7 +5,7 @@ SUBDIRS  = Cantera tools test_problems
 SUBDIRS += doxygen examples build
 
 # Distribute these directories:
-DISTDIRS = Cantera examples build
+DISTDIRS = Cantera examples build data
 
 # generated documentation will be included in distributed archive
 EXTRA_DIST  = bootstrap $(DX_CONFIG) config.h.in cantera.pc.in
