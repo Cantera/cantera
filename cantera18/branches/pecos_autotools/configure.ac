@@ -36,6 +36,23 @@ AC_DEFINE([LAPACK_NAMES_LOWERCASE],1,[Define to make lapack functions lowercase]
 LAPACK_NAMES_LOWERCASE=1
 AC_DEFINE([LAPACK_FTN_STRING_LEN_AT_END],1,[Define to add string to end of lapack functions])
 LAPACK_FTN_STRING_LEN_AT_END=1
+AC_DEFINE([INCL_PURE_FLUIDS],1,[Define to include pure fluids])
+INCL_PURE_FLUIDS=1
+AC_DEFINE([WITH_PURE_FLUIDS],1,[Define to include pure fluids])
+WITH_PURE_FLUIDS=1
+AC_DEFINE([WITH_LATTICE_SOLID],1,[Define to include Lattice Solids])
+WITH_LATTICE_SOLID=1
+AC_DEFINE([WITH_METAL],1,[Define to include metals])
+WITH_METAL=1
+AC_DEFINE([WITH_STOICH_SUBSTANCE],1,[Define to include stoichiometric substances])
+WITH_STOICH_SUBSTANCE=1
+AC_DEFINE([WITH_IDEAL_SOLUTIONS],1,[Define to include ideal solutions])
+WITH_IDEAL_SOLUTIONS=1
+AC_DEFINE([HAS_SSTREAM],1,[Define to include sstream])
+HAS_SSTREAM=1
+
+AC_DEFINE_UNQUOTED([CANTERA_DATA], ["$prefix/data"],
+            [Default data directory])
 
 AC_CHECK_TYPES([uint8_t, uint16_t, uint32_t, int32_t, uint64_t, int64_t])
 AH_BOTTOM([
@@ -45,18 +62,6 @@ typedef  int          ftnlen;       // Fortran hidden string length type
 
 #define STRING_LEN_AT_END
 #define STORE_MOLE_FRACTIONS
-
-#define INCL_PURE_FLUIDS 1
-#define WITH_PURE_FLUIDS 1
-
-#define WITH_LATTICE_SOLID 1
-#define WITH_METAL 1
-#define WITH_STOICH_SUBSTANCE 1
-#define WITH_IDEAL_SOLUTIONS 1
-#define WITH_ELECTROLYTES 1
-#define HAS_SSTREAM 1
-
-#define CANTERA_DATA "/usr/local/cantera/data"
 
 ])
 
