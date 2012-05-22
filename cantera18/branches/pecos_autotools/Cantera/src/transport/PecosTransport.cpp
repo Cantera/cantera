@@ -527,6 +527,28 @@ namespace Cantera {
     //    "H       -8.3912e-3         0.7743270         -13.6653000\n"
     //    "H2      -8.3346e-3         0.7815380         -13.5351000\n"
     //    "e       0.00000000000e+00  0.00000000000e+00 -1.16031403000e+01\n");
+    
+    //
+    // from: AIAA-1997-2474 and Sandia Report SC-RR-70-754
+    // 
+    //   # Air  -- Identical to N2 fit
+    //   # N    -- Sandia Report SC-RR-70-754
+    //   # N2   -- Sandia Report SC-RR-70-754
+    //   # CPN2 -- Identical to N2 fit 
+    //   # NO   -- Sandia Report SC-RR-70-754
+    //   # O    -- Sandia Report SC-RR-70-754
+    //   # O2   -- Sandia Report SC-RR-70-754
+    //   # C    -- AIAA-1997-2474
+    //   # C2   -- AIAA-1997-2474
+    //   # C3   -- AIAA-1997-2474
+    //   # C2H  -- wild-ass guess: identical to HCN fit
+    //   # CN   -- AIAA-1997-2474
+    //   # CO   -- AIAA-1997-2474
+    //   # CO2  -- AIAA-1997-2474
+    //   # HCN  -- AIAA-1997-2474
+    //   # H    -- AIAA-1997-2474
+    //   # H2   -- AIAA-1997-2474
+    //   # e    -- Sandia Report SC-RR-70-754
 
     istringstream blot
       ("Air 2.68142000000e-02 3.17783800000e-01 -1.13155513000e+01\n"
@@ -551,29 +573,54 @@ namespace Cantera {
 
     string line;
     string name;
-    string ss1; 
-
+    string ss1,ss2,ss3,ss4,sss; 
+    int k;
     int i = 0;
 
-    while (std::getline(blot, line)) {
+    while (std::getline(blot, line)) 
+      {
 
-      // welcome to hack-town, enjoy your stay
-      istringstream ss(line);      
-      std::getline(ss, ss1, ' ');
-      name = ss1;
+	istringstream ss(line);      
+	std::getline(ss, ss1, ' ');
+	std::getline(ss, ss2, ' ');
+	std::getline(ss, ss3, ' ');       
+	std::getline(ss, ss4, ' ');       
+	name = ss1;
 
-      std::getline(ss, ss1, ' ');
-      a[i] = atof(ss1.c_str());
-
-      std::getline(ss, ss1, ' ');       
-      b[i] = atof(ss1.c_str());
-
-      std::getline(ss, ss1, ' ');       
-      c[i] = atof(ss1.c_str());
+	// now put coefficients in correct species
+	for (k = 0; k < m_nsp; k++) 
+	  {
+	    string sss = m_thermo->speciesName(k);
+	    // this is the right species index
+	    if(sss.compare(ss1) == 0)
+	      {
+		a[k] = atof(ss2.c_str());
+		b[k] = atof(ss3.c_str());
+		c[k] = atof(ss4.c_str());
     
-      // index
-      i++;
-    }
+		// index
+		i++;
+	      }
+	    else // default to air
+	      {
+		
+		a[k] = 0.026;
+		b[k] = 0.3;
+		c[k] = -11.3;
+    	      }
+	    
+	  } // done with for loop
+      }
+
+
+	// for (k = 0; k < m_nsp; k++) 
+	//   {
+	//     string sss = m_thermo->speciesName(k);
+	//     cout << sss  << endl;
+	//     cout << a[k] << endl;
+	//     cout << b[k] << endl;
+	//     cout << c[k] << endl;	    
+	//   }
 
     // simple sanity check
     // if(i != m_nsp-1)

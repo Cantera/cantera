@@ -300,9 +300,13 @@ namespace Cantera {
   Transport* TransportFactory::newTransport(std::string transportModel,
 					    thermo_t* phase, int log_level) {
 
+    if(transportModel.empty()) {      throw CanteraError("PecosTransport::newTransport",
+							 "bad string ");}
+
     if (transportModel == "") return new Transport;
 
-  
+    cout << transportModel << endl;
+
     vector_fp state;
     Transport *tr = 0, *gastr = 0;
     DustyGasTransport* dtr = 0;

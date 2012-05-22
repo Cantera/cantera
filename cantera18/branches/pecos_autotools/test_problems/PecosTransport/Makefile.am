@@ -1,6 +1,6 @@
 cc_sources = PecosTransport.cpp
 
-INC                  = -I. -I$(top_builddir)/build/include/ -g
+INC                  = -I. -I$(top_builddir)/build/include/ -g -finit-character='a'
 AM_CPPFLAGS          = $(INC)
 AM_CXXFLAGS          = $(AM_CPPFLAGS)
 
