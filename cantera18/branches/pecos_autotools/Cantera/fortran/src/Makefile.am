@@ -41,7 +41,7 @@ module_DATA        = cantera_funcs.mod fct.mod cantera_iface.mod cantera_kinetic
                      cantera.mod cantera_thermo.mod cantera_transport.mod     \
                      cantera_xml.mod fctxml.mod
 
-CLEANFILES = *.o
+CLEANFILES = *.o *.mod
 
 # header file accumulation
 all-local:
