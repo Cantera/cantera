@@ -20,7 +20,8 @@ using namespace Cantera;
 Storage::Storage() {
     addThermo(new ThermoPhase);
     addKinetics(new Kinetics);
-    addTransport(newTransportMgr());
+    //addTransport(newTransportMgr());
+    addTransport(new Transport);
 }
 
 Storage::~Storage() { clear(); }
