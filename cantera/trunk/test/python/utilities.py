@@ -46,8 +46,8 @@ def compareTimeSeries(reference, sample, rtol=1e-5, atol=1e-12):
     for i in range(1, nVars):
         comp = np.interp(reference[0], sample[0], sample[i])
         for j in range(nTimes):
-            a = comp[j]
-            b = reference[i,j]
+            a = reference[i,j]
+            b = comp[j]
             abserr = abs(a-b)
             relerr = 2 * abs(a-b) / (abs(a) + abs(b) + atol)
             if abserr > atol and relerr > rtol:
