@@ -182,25 +182,18 @@ void Reactor::updateState(doublereal* y)
 void Reactor::evalEqs(doublereal time, doublereal* y,
                       doublereal* ydot, doublereal* params)
 {
-    size_t i, k, nk;
     m_time = time;
     m_thermo->restoreState(m_state);
 
-    Kinetics* kin;
-    size_t m, n, npar, ploc;
-    double mult;
     // process sensitivity parameters
     if (params) {
-
-        npar = m_pnum.size();
-        for (n = 0; n < npar; n++) {
-            //m_mult_save[n] = m_kin->multiplier(m_pnum[n]);
-            mult = m_kin->multiplier(m_pnum[n]);
+        size_t npar = m_pnum.size();
+        for (size_t n = 0; n < npar; n++) {
+            double mult = m_kin->multiplier(m_pnum[n]);
             m_kin->setMultiplier(m_pnum[n], mult*params[n]);
-            //                m_kin->setMultiplier(m_pnum[n], m_mult_save[n]*params[n]);
         }
-        ploc = npar;
-        for (m = 0; m < m_nwalls; m++) {
+        size_t ploc = npar;
+        for (size_t m = 0; m < m_nwalls; m++) {
             if (m_nsens_wall[m] > 0) {
                 m_wall[m]->setSensitivityParameters(m_lr[m], params + ploc);
                 ploc += m_nsens_wall[m];
@@ -208,42 +201,37 @@ void Reactor::evalEqs(doublereal time, doublereal* y,
         }
     }
 
-    //        updateState(y);          // synchronize the reactor state with y
-
     m_vdot = 0.0;
     m_Q    = 0.0;
 
     // compute wall terms
-    doublereal vdot, rs0, sum, wallarea;
-    //        Kinetics* kin;
-    SurfPhase* surf;
-    size_t lr, ns, loc = m_nsp+2, surfloc;
+    size_t loc = m_nsp+2;
     fill(m_sdot.begin(), m_sdot.end(), 0.0);
-    for (i = 0; i < m_nwalls; i++) {
-        lr = 1 - 2*m_lr[i];
-        vdot = lr*m_wall[i]->vdot(time);
+    for (size_t i = 0; i < m_nwalls; i++) {
+        int lr = 1 - 2*m_lr[i];
+        double vdot = lr*m_wall[i]->vdot(time);
         m_vdot += vdot;
         m_Q += lr*m_wall[i]->Q(time);
-        kin = m_wall[i]->kinetics(m_lr[i]);
-        surf = m_wall[i]->surface(m_lr[i]);
+        Kinetics* kin = m_wall[i]->kinetics(m_lr[i]);
+        SurfPhase* surf = m_wall[i]->surface(m_lr[i]);
         if (surf && kin) {
-            rs0 = 1.0/surf->siteDensity();
-            nk = surf->nSpecies();
-            sum = 0.0;
+            double rs0 = 1.0/surf->siteDensity();
+            size_t nk = surf->nSpecies();
+            double sum = 0.0;
             surf->setTemperature(m_state[0]);
             m_wall[i]->syncCoverages(m_lr[i]);
             kin->getNetProductionRates(DATA_PTR(m_work));
-            ns = kin->surfacePhaseIndex();
-            surfloc = kin->kineticsSpeciesIndex(0,ns);
-            for (k = 1; k < nk; k++) {
+            size_t ns = kin->surfacePhaseIndex();
+            size_t surfloc = kin->kineticsSpeciesIndex(0,ns);
+            for (size_t k = 1; k < nk; k++) {
                 ydot[loc + k] = m_work[surfloc+k]*rs0*surf->size(k);
                 sum -= ydot[loc + k];
             }
             ydot[loc] = sum;
             loc += nk;
 
-            wallarea = m_wall[i]->area();
-            for (k = 0; k < m_nsp; k++) {
+            double wallarea = m_wall[i]->area();
+            for (size_t k = 0; k < m_nsp; k++) {
                 m_sdot[k] += m_work[k]*wallarea;
             }
         }
@@ -257,18 +245,17 @@ void Reactor::evalEqs(doublereal time, doublereal* y,
      *  \dot M_k = \hat W_k \dot\omega_k + \dot m_{in} Y_{k,in}
      *             - \dot m_{out} Y_{k} + A \dot s_k.
      */
-    const doublereal* mw = DATA_PTR(m_thermo->molecularWeights());
+    const vector_fp& mw = m_thermo->molecularWeights();
     if (m_chem) {
         m_kin->getNetProductionRates(ydot+2);   // "omega dot"
     } else {
         fill(ydot + 2, ydot + 2 + m_nsp, 0.0);
     }
-    for (n = 0; n < m_nsp; n++) {
+    for (size_t n = 0; n < m_nsp; n++) {
         ydot[n+2] *= m_vol;     //           moles/s/m^3 -> moles/s
         ydot[n+2] += m_sdot[n];
         ydot[n+2] *= mw[n];
     }
-
 
     /*
      *  Energy equation.
@@ -285,15 +272,12 @@ void Reactor::evalEqs(doublereal time, doublereal* y,
 
     // add terms for open system
     if (m_open) {
-
         const doublereal* mf = m_thermo->massFractions();
         doublereal enthalpy = m_thermo->enthalpy_mass();
 
         // outlets
-
-        doublereal mdot_out;
-        for (i = 0; i < m_nOutlets; i++) {
-            mdot_out = m_outlet[i]->massFlowRate(time);
+        for (size_t i = 0; i < m_nOutlets; i++) {
+            double mdot_out = m_outlet[i]->massFlowRate(time);
             for (size_t n = 0; n < m_nsp; n++) {
                 ydot[2+n] -= mdot_out * mf[n];
             }
@@ -302,13 +286,10 @@ void Reactor::evalEqs(doublereal time, doublereal* y,
             }
         }
 
-
         // inlets
-
-        doublereal mdot_in;
-        for (i = 0; i < m_nInlets; i++) {
-            mdot_in = m_inlet[i]->massFlowRate(time);
-            for (n = 0; n < m_nsp; n++) {
+        for (size_t i = 0; i < m_nInlets; i++) {
+            double mdot_in = m_inlet[i]->massFlowRate(time);
+            for (size_t n = 0; n < m_nsp; n++) {
                 ydot[2+n] += m_inlet[i]->outletSpeciesMassFlowRate(n);
             }
             if (m_energy) {
@@ -319,14 +300,13 @@ void Reactor::evalEqs(doublereal time, doublereal* y,
 
     // reset sensitivity parameters
     if (params) {
-        npar = m_pnum.size();
-        for (n = 0; n < npar; n++) {
-            mult = m_kin->multiplier(m_pnum[n]);
+        size_t npar = m_pnum.size();
+        for (size_t n = 0; n < npar; n++) {
+            double mult = m_kin->multiplier(m_pnum[n]);
             m_kin->setMultiplier(m_pnum[n], mult/params[n]);
-            //m_kin->setMultiplier(m_pnum[n], m_mult_save[n]);
         }
-        ploc = npar;
-        for (m = 0; m < m_nwalls; m++) {
+        size_t ploc = npar;
+        for (size_t m = 0; m < m_nwalls; m++) {
             if (m_nsens_wall[m] > 0) {
                 m_wall[m]->resetSensitivityParameters(m_lr[m]);
                 ploc += m_nsens_wall[m];
