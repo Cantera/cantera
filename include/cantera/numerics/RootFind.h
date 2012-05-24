@@ -3,9 +3,7 @@
  *       Header file for implicit nonlinear solver of a one dimensional function
  *  (see \ref numerics and class \link Cantera::RootFind RootFind\endlink).
  */
-/*
- * $Id$
- */
+
 /*
  * Copyright 2004 Sandia Corporation. Under the terms of Contract
  * DE-AC04-94AL85000 with Sandia Corporation, the U.S. Government

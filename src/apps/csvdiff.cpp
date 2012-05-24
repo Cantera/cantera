@@ -727,7 +727,6 @@ int main(int argc, char* argv[])
     printf("\n");
     printf("----------------------------------------------------------\n");
     printf("csvdiff: CSVFile comparison utility program\n");
-    printf("         Version $Revision$\n");
     printf("         Harry K. Moffat Div. 9114 Sandia National Labs\n");
     printf("         \n");
     printf("         First  CSV File = %s\n", fileName1);

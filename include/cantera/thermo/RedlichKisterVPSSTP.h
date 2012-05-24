@@ -16,9 +16,6 @@
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the
  * U.S. Government retains certain rights in this software.
  */
-/*
- *  $Id$
- */
 
 #ifndef CT_REDLICHKISTERVPSSTP_H
 #define CT_REDLICHKISTERVPSSTP_H
@@ -32,7 +29,6 @@ namespace Cantera
 /**
  * @ingroup thermoprops
  */
-
 
 //!  RedlichKisterVPSSTP is a derived class of GibbsExcessVPSSTP that employs
 //!  the Redlich-Kister approximation for the excess gibbs free energy

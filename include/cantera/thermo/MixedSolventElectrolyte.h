@@ -16,9 +16,6 @@
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the
  * U.S. Government retains certain rights in this software.
  */
-/*
- *  $Id: MargulesVPSSTP.h 713 2011-04-14 18:24:13Z hkmoffa $
- */
 
 #ifndef CT_MIXEDSOLVENTELECTROLYTEVPSSTP_H
 #define CT_MIXEDSOLVENTELECTROLYTEVPSSTP_H

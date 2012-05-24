@@ -2,12 +2,6 @@
  *  @file LTPspecies.h
  *  Header file defining class LTPspecies and its child classes
  */
-/*
- *  $Author$
- *  $Date$
- *  $Revision$
-
- */
 
 #ifndef CT_LTPSPECIES_H
 #define CT_LTPSPECIES_H
@@ -20,7 +14,6 @@
 // STL includes
 #include <vector>
 #include <string>
-
 
 namespace Cantera
 {

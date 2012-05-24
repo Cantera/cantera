@@ -2,11 +2,6 @@
  *  @file LiquidTransportData.cpp
  *  Source code for liquid transport property evaluations.
  */
-/*
- *  $Author$
- *  $Date$
- *  $Revision$
- */
 
 #include "cantera/transport/LiquidTransportData.h"
 using namespace std;

@@ -1,17 +1,9 @@
 /**
- *
  *  @file IDA_Solver.h
- *
  *  Header file for class IDA_Solver
  */
 
-/*  $Author$
- *  $Date$
- *  $Revision$
- *
- *  Copyright 2006 California Institute of Technology
- *
- */
+// Copyright 2006 California Institute of Technology
 
 #ifndef CT_IDA_SOLVER_H
 #define CT_IDA_SOLVER_H

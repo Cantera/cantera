@@ -1,17 +1,10 @@
 /**
- *
  *  @file DAE_Solver.h
- *
  *  Header file for class DAE_Solver
  */
 
-/*
- *  $Date$
- *  $Revision$
- *
- *  Copyright 2006 California Institute of Technology
- *
- */
+// Copyright 2006 California Institute of Technology
+
 #ifndef CT_DAE_Solver_H
 #define CT_DAE_Solver_H
 

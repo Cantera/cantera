@@ -2,12 +2,6 @@
  *  @file LiquidTransportParams.cpp
  *  Source code for liquid mixture transport property evaluations.
  */
-/*
- * Latest Checkin:
- *  $Author$
- *  $Date$
- *  $Revision$
- */
 
 #include "cantera/transport/LiquidTransportParams.h"
 #include <iostream>
@@ -15,7 +9,6 @@
 #include "cantera/thermo/MargulesVPSSTP.h"
 #include <stdlib.h>
 using namespace std;
-
 
 namespace Cantera
 {

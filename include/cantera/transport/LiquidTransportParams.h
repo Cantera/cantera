@@ -2,14 +2,7 @@
  *  @file LiquidTransportParams.h
  *  Header file defining class LiquidTransportParams
  */
-/*
- *  $Author$
- *  $Date$
- *  $Revision$
- *
- *
- *
- */
+
 #ifndef CT_LIQUIDTRANSPORTPARAMS_H
 #define CT_LIQUIDTRANSPORTPARAMS_H
 
@@ -21,15 +14,10 @@
 #include "cantera/base/xml.h"
 #include "cantera/base/XML_Writer.h"
 
-
 #include <vector>
-
 
 namespace Cantera
 {
-
-
-
 //! Composition dependence type for liquid mixture transport properties
 /*!
  *  Types of temperature dependencies:

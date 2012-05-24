@@ -1,11 +1,7 @@
 /**
  *  @file ResidEval.h
- *
  */
-/*
- *  $Date$
- *  $Revision$
- */
+
 // Copyright 2006  California Institute of Technology
 
 #ifndef CT_RESIDEVAL_H
@@ -36,9 +32,7 @@ const int c_LT_ZERO = -2;
  */
 class ResidEval
 {
-
 public:
-
     ResidEval() {}
     virtual ~ResidEval() {}
 

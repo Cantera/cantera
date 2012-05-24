@@ -3,12 +3,7 @@
  *  Header file defining the class LiquidTranInteraction and classes which
  *  derive from  LiquidTranInteraction.
  */
-/*
- *  $Author: christopher.lueth@gmail.com $
- *  $Date: 2010-03-30 12:30:39 -0600 (Tue, 30 Mar 2010) $
- *  $Revision: 427 $
- *
- */
+
 #ifndef CT_LIQUIDTRANINTERACTION_H
 #define CT_LIQUIDTRANINTERACTION_H
 
@@ -21,8 +16,6 @@
 
 namespace Cantera
 {
-
-
 //! Composition dependence type for liquid mixture transport properties
 /*!
  *  Types of temperature dependencies:

@@ -5,21 +5,15 @@
  *  (see \ref thermoprops
  *    and class \link Cantera::PhaseCombo_Interaction PhaseCombo_Interaction\endlink).
  */
+
 /*
  * Copyright (2011) Sandia Corporation. Under the terms of
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the
  * U.S. Government retains certain rights in this software.
  */
 
-/*
- *  $Author: hkmoffa $
- *  $Date: 2009-11-09 16:36:49 -0700 (Mon, 09 Nov 2009) $
- *  $Revision: 255 $
- */
-
 #ifndef CT_PHASECOMBO_INTERACTION_H
 #define CT_PHASECOMBO_INTERACTION_H
-
 
 #include "GibbsExcessVPSSTP.h"
 
@@ -29,8 +23,6 @@ namespace Cantera
 /**
  * @ingroup thermoprops
  */
-
-
 
 //!  PhaseCombo_Interaction is a derived class of GibbsExcessVPSSTP that employs
 //!  the Margules approximation for the excess gibbs free energy while eliminating

@@ -11,11 +11,6 @@
  * U.S. Government retains certain rights in this software.
  */
 
-/*
- *  $Date: 2009-11-09 16:36:49 -0700 (Mon, 09 Nov 2009) $
- *  $Revision: 255 $
- */
-
 #ifndef CT_FIXEDCHEMPOTSSTP_H
 #define CT_FIXEDCHEMPOTSSTP_H
 

@@ -10,25 +10,16 @@
  * U.S. Government retains certain rights in this software.
  */
 
-/*
- * $Revision: 572 $
- * $Date: 2010-08-13 20:21:57 -0600 (Fri, 13 Aug 2010) $
- */
 #ifndef CT_TORTUOSITYPERCOLATION_H
 #define CT_TORTUOSITYPERCOLATION_H
 
 #include "TortuosityBase.h"
-
 
 namespace Cantera
 {
 
 //!  This class implements transport coefficient corrections
 //! appropriate for porous media where percollation theory applies.
-/*!
- *
- *
- */
 class TortuosityPercolation : public TortuosityBase
 {
 

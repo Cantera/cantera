@@ -4,12 +4,6 @@
  *  processing of the transport object
  *  (see \ref tranprops and \link Cantera::TransportParams TransportParams \endlink).
  */
-/*
- * Latest Checkin:
- *  $Author$
- *  $Date$
- *  $Revision$
- */
 
 #include "cantera/transport/TransportParams.h"
 
@@ -17,7 +11,6 @@
 #include "cantera/base/XML_Writer.h"
 #endif
 using namespace std;
-
 
 namespace Cantera
 {
