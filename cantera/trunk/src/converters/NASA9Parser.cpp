@@ -155,28 +155,6 @@ static int de_atoi(std::ostream& log, std::string s, int line = -1)
     return ival;
 }
 
-
-/**
- *  Check validity of the temperatures defining the
- *  temperature ranges for the NASA9 polynomial species thermodynamic
- *  property fits.
- *  @param log     log file output stream
- *  @param temp    Vector of temperatures
- */
-static void checkNASA9Temps(std::ostream& log, vector_fp& temp)
-{
-    int i;
-    for (i = 1; i <= (int) temp.size(); i++) {
-        double tlow = temp[i-1];
-        double thigh = temp[i];
-        if (thigh <= tlow) {
-            string sss =  "error reading temperature";
-            throw CK_SyntaxError(log, sss);
-        }
-    }
-}
-
-
 /**
  *
  * Read species data from THERMO section records.
