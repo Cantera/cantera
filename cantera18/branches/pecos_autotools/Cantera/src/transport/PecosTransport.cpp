@@ -335,7 +335,7 @@ namespace Cantera {
 	if (sum2 <= 0.0) {
 	  d[k] = m_bdiff(k,k) / p;
 	} else {
-	  d[k] = (sumxw - m_molefracs[k] * m_mw[k])/(p * mmw * sum2);
+	  d[k] = (1 - m_molefracs[k] )/(p * sum2);
 	}
       }
     }
