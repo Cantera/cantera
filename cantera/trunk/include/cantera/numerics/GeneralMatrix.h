@@ -5,10 +5,6 @@
  */
 
 /*
- *  $Date: 2011-10-13 15:16:06 -0600 (Thu, 13 Oct 2011) $
- *  $Revision: 776 $
- */
-/*
  * Copyright 2004 Sandia Corporation. Under the terms of Contract
  * DE-AC04-94AL85000 with Sandia Corporation, the U.S. Government
  * retains certain rights in this software.
@@ -26,10 +22,7 @@ namespace Cantera
 //! Generic matrix
 class GeneralMatrix
 {
-
-
 public:
-
     //! Base Constructor
     /*!
      *  @param matType  Matrix type

@@ -10,15 +10,10 @@
  * U.S. Government retains certain rights in this software.
  */
 
-/*
- * $Revision: 572 $
- * $Date: 2010-08-13 20:21:57 -0600 (Fri, 13 Aug 2010) $
- */
 #ifndef CT_TORTUOSITYBASE_H
 #define CT_TORTUOSITYBASE_H
 
 #include "cantera/base/ct_defs.h"
-
 
 namespace Cantera
 {

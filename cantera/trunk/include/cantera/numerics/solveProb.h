@@ -3,9 +3,7 @@
  *       Header file for implicit nonlinear solver with the option of a pseudotransient
  *  (see \ref numerics and class \link Cantera::solveProb solveProb\endlink).
  */
-/*
- * $Id$
- */
+
 /*
  * Copyright 2004 Sandia Corporation. Under the terms of Contract
  * DE-AC04-94AL85000 with Sandia Corporation, the U.S. Government
@@ -18,7 +16,6 @@
 /**
  * @defgroup solverGroup Solvers for Equation Systems
  */
-
 
 #include <vector>
 #include "cantera/base/Array.h"

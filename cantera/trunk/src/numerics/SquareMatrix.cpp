@@ -1,11 +1,7 @@
 /**
  *  @file DenseMatrix.cpp
- *
  */
-/*
- * $Revision$
- * $Date$
- */
+
 /*
  * Copyright 2004 Sandia Corporation. Under the terms of Contract
  * DE-AC04-94AL85000 with Sandia Corporation, the U.S. Government
@@ -21,14 +17,12 @@
 
 #include <iostream>
 #include <vector>
-
 #include <cstring>
 
 using namespace std;
 
 namespace Cantera
 {
-
 
 //====================================================================================================================
 SquareMatrix::SquareMatrix() :

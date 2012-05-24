@@ -2,9 +2,7 @@
  * @file vcs_solve_TP.cpp Implementation file that contains the
  *     main algorithm for finding an equilibrium
  */
-/*
- * $Id: vcs_solve_TP.cpp 626 2010-10-28 01:33:54Z hkmoffa $
- */
+
 /*
  * Copyright (2005) Sandia Corporation. Under the terms of
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the

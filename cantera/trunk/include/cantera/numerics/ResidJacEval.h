@@ -5,17 +5,11 @@
  */
 
 /*
- *  $Date$
- *  $Revision$
- *
- */
-/*
  * Copyright 2004 Sandia Corporation. Under the terms of Contract
  * DE-AC04-94AL85000 with Sandia Corporation, the U.S. Government
  * retains certain rights in this software.
  * See file License.txt for licensing information.
  */
-
 
 #ifndef CT_RESIDJACEVAL_H
 #define CT_RESIDJACEVAL_H

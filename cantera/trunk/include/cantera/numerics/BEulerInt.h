@@ -2,10 +2,6 @@
  *  @file BEulerInt.h
  */
 
-/* $Author: hkmoffa $
- * $Date: 2009/01/27 16:50:53 $
- * $Revision: 1.19 $
- */
 /*
  * Copyright 2004 Sandia Corporation. Under the terms of Contract
  * DE-AC04-94AL85000 with Sandia Corporation, the U.S. Government

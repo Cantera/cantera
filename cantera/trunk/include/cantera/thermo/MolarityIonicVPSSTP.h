@@ -16,9 +16,6 @@
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the
  * U.S. Government retains certain rights in this software.
  */
-/*
- *  $Id: MolarityIonicVPSSTP.h 255 2009-11-09 23:36:49Z hkmoffa $
- */
 
 #ifndef CT_MOLARITYIONICVPSSTP_H
 #define CT_MOLARITYIONICVPSSTP_H

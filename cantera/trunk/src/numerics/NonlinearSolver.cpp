@@ -6,10 +6,6 @@
  */
 
 /*
- *  $Date$
- *  $Revision$
- */
-/*
  * Copyright 2004 Sandia Corporation. Under the terms of Contract
  * DE-AC04-94AL85000 with Sandia Corporation, the U.S. Government
  * retains certain rights in this software.
@@ -35,18 +31,14 @@
 #include <cmath>
 
 //@{
-
 #ifndef CONSTD_DATA_PTR
 #define CONSTD_DATA_PTR(x) (( const doublereal *) (&x[0]))
 #endif
-
 //@}
 using namespace std;
 
 namespace Cantera
 {
-
-
 //====================================================================================================================
 //-----------------------------------------------------------
 //                 Constants
@@ -3885,7 +3877,7 @@ int NonlinearSolver::beuler_jac(GeneralMatrix& J, doublereal* const f,
                 for (int i = ileft; i <= iright; i++) {
                     if (i >= 0 &&  i < (int) neq_) {
                         size_t ii = i;
-                        size_t index = (int) kl + (int) ku + i - (int) j; 
+                        size_t index = (int) kl + (int) ku + i - (int) j;
                         diff = subtractRD(m_wksp[ii], f[ii]);
                         col_j[index] = diff / dy;
                     }

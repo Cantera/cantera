@@ -10,10 +10,6 @@
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the
  * U.S. Government retains certain rights in this software.
  */
-/*
- *  $Date: 2010-08-04 10:06:14 -0600 (Wed, 04 Aug 2010) $
- *  $Revision: 547 $
- */
 
 #ifndef CT_MIXTUREFUGACITYTP_H
 #define CT_MIXTUREFUGACITYTP_H
@@ -27,7 +23,6 @@ namespace Cantera
 
 class XML_Node;
 class PDSS;
-
 
 //! Various states of the Fugacity object. In general there can be multiple liquid
 //! objects for a single phase identified with each species.
@@ -46,8 +41,6 @@ class PDSS;
 #define FLUID_LIQUID_7   7
 #define FLUID_LIQUID_8   8
 #define FLUID_LIQUID_9   9
-
-
 
 /**
  * @ingroup thermoprops

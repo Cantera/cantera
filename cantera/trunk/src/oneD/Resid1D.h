@@ -1,12 +1,7 @@
 /**
  *  @file Resid1D.h
  *
- *  $Author$
- *  $Date$
- *  $Revision$
- *
  *  Copyright 2002 California Institute of Technology
- *
  */
 
 #ifndef CT_RESID1D_H
@@ -18,7 +13,6 @@
 #include "cantera/base/ctexceptions.h"
 #include "cantera/base/xml.h"
 #include "cantera/oneD/refine.h"
-
 
 namespace Cantera
 {

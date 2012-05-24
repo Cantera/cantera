@@ -1,9 +1,7 @@
 /*
  * @file: solveSP.cpp Implicit solver for nonlinear problems
  */
-/*
- * $Id$
- */
+
 /*
  * Copyright 2004 Sandia Corporation. Under the terms of Contract
  * DE-AC04-94AL85000 with Sandia Corporation, the U.S. Government
@@ -17,11 +15,9 @@
 #include "cantera/base/stringUtils.h"
 
 /* Standard include files */
-
 #include <cstdio>
 #include <cstdlib>
 #include <cmath>
-
 #include <vector>
 
 using namespace std;
@@ -33,11 +29,6 @@ namespace Cantera
  ***************************************************************************/
 
 static doublereal calcWeightedNorm(const doublereal [], const doublereal dx[], size_t);
-
-/***************************************************************************
- *                    LAPACK PROTOTYPES
- ***************************************************************************/
-
 
 /***************************************************************************
  *  solveSP Class Definitinos

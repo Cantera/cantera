@@ -3,14 +3,8 @@
  *     definitions for the  LTPspecies objects and its children, which is the virtual base class
  *     for describing temperature dependence of submodels for transport parameters
  *    (see \ref tranprops and \link Cantera::LTPspecies LTPspecies \endlink) .
- *
  */
-/*
- *  $Author$
- *  $Date$
- *  $Revision$
- *
- */
+
 #include "cantera/transport/LTPspecies.h"
 using namespace std;
 using namespace ctml;

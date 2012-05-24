@@ -4,10 +4,6 @@
  */
 
 /*
- *  $Date$
- *  $Revision$
- */
-/*
  * Copyright 2004 Sandia Corporation. Under the terms of Contract
  * DE-AC04-94AL85000 with Sandia Corporation, the U.S. Government
  * retains certain rights in this software.
@@ -29,10 +25,7 @@ namespace Cantera
  */
 class SquareMatrix: public DenseMatrix, public GeneralMatrix
 {
-
 public:
-
-
     //! Base Constructor.
     /*!
      * Create an \c 0 by \c 0 matrix, and initialize all elements to \c 0.

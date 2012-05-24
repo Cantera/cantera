@@ -1,6 +1,5 @@
 #!/bin/sh
-# $Id: runtest.in,v 1.1 2007/09/13 15:12:46 hkmoffa Exp $
-#
+
 echo " "
 echo "***************************************************"
 echo "    Testing CK2CTI on NASA9 Thermodynamics : using the build/bin version of ck2cti"
@@ -10,7 +9,7 @@ BINDIR=@buildbin@
 CK2CTI=$BINDIR/ck2cti
 /bin/rm  -f sample.cti
 echo "...Test 1: Converting file sample.inp..."
-$CK2CTI -i ./sample.inp -id sample -t sampleData.inp  
+$CK2CTI -i ./sample.inp -id sample -t sampleData.inp
 #
 # strip out variably dated stuff
 #

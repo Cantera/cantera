@@ -1,18 +1,6 @@
 /**
  *  @file cti2ctml.cpp
- *
  */
-
-/*
- *  $Id$
- */
-
-//  Example
-//
-//  Read a mechanism and a thermodynamics file for the
-//  class IdealSolidSolnPhase in order to test that it's
-//  working correctly
-//
 
 #include <iostream>
 #include <string>
