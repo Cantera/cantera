@@ -75,7 +75,6 @@ void writeRxnPathDiagram(double time, ReactionPathBuilder& b,
 
 int rxnpath_example1(int job)
 {
-
     try {
 
         cout << "Reaction path diagram movies with file gri30.cti." << endl;
@@ -145,15 +144,12 @@ int rxnpath_example1(int job)
         cout << "To generate the diagrams in Postscript, execute the command" << endl << endl
              << "dot -Tps rp1.dot > rp1.ps" << endl << endl
              << "Get dot for Windows here: http://blue.caltech.edu/dot.exe" << endl;
-
-        return 0;
-    }
-
-    // handle exceptions thrown by Cantera
-    catch (CanteraError& err) {
+    } catch (CanteraError& err) {
+        // handle exceptions thrown by Cantera
         std::cout << err.what() << std::endl;
         cout << " terminating... " << endl;
         appdelete();
         return -1;
     }
+    return 0;
 }

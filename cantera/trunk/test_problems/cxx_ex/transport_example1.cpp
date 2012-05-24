@@ -40,9 +40,7 @@ void plotTransportSoln(std::string fname, std::string fmt, std::string title,
 
 int transport_example1(int job)
 {
-
     try {
-
         cout << "Mixture-averaged transport properties." << endl;
         if (job > 0) {
             cout << "Viscosity, thermal conductivity, and mixture-averaged\n"
@@ -92,15 +90,12 @@ int transport_example1(int job)
         cout << "Output files:" << endl
              << "  tr1.csv    (Excel CSV file)" << endl
              << "  tr1.dat    (Tecplot data file)" << endl;
-
-        return 0;
-    }
-
-    // handle exceptions thrown by Cantera
-    catch (CanteraError& err) {
+    } catch (CanteraError& err) {
+        // handle exceptions thrown by Cantera
         std::cout << err.what() << std::endl;
         cout << " terminating... " << endl;
         appdelete();
         return -1;
     }
+    return 0;
 }

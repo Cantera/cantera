@@ -21,9 +21,7 @@ using namespace Cantera;
 
 int kinetics_example2(int job)
 {
-
     try {
-
         std::cout << "Ignition simulation using class GRI30." << std::endl;
 
         if (job >= 1) {
@@ -95,15 +93,12 @@ int kinetics_example2(int job)
         std::cout << "Output files:" << std::endl
                   << "  kin2.csv    (Excel CSV file)" << std::endl
                   << "  kin2.dat    (Tecplot data file)" << std::endl;
-
-        return 0;
-    }
-
-    // handle exceptions thrown by Cantera
-    catch (CanteraError& err) {
+    } catch (CanteraError& err) {
+        // handle exceptions thrown by Cantera
         std::cout << err.what() << std::endl;
         std::cout << " terminating... " << std::endl;
         appdelete();
         return -1;
     }
+    return 0;
 }
