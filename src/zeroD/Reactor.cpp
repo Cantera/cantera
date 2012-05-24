@@ -17,9 +17,6 @@ using namespace std;
 
 namespace Cantera
 {
-
-doublereal quadInterp(doublereal x0, doublereal* x, doublereal* y);
-
 Reactor::Reactor() : ReactorBase(),
     m_kin(0),
     m_temp_atol(1.e-11),
@@ -28,7 +25,8 @@ Reactor::Reactor() : ReactorBase(),
     m_Q(0.0),
     m_rtol(1.e-9),
     m_chem(true),
-    m_energy(true), m_nsens(npos)
+    m_energy(true),
+    m_nsens(npos)
 {}
 
 // overloaded method of FuncEval. Called by the integrator to
