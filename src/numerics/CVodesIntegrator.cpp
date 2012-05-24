@@ -131,7 +131,9 @@ CVodesIntegrator::CVodesIntegrator() :
     m_abstolsens(1.0e-4),
     m_nabs(0),
     m_hmax(0.0),
-    m_maxsteps(20000), m_np(0),
+    m_maxsteps(20000),
+    m_fdata(0),
+    m_np(0),
     m_mupper(0), m_mlower(0)
 {
     //m_ropt.resize(OPT_SIZE,0.0);
