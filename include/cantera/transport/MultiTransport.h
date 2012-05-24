@@ -205,8 +205,9 @@ public:
     //! about a species that was used to construct the Transport properties in this object
     /*!
      * @param k        Species index
+     * @deprecated
      */
-    struct GasTransportData getGasTransportData(int k);
+    DEPRECATED(struct GasTransportData getGasTransportData(int k));
 
 protected:
 

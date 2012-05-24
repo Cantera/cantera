@@ -222,8 +222,9 @@ public:
      * @param kspec Species number to obtain the properties from.
      *
      * @return GasTransportData  returned structure.
+     * @deprecated
      */
-    struct GasTransportData getGasTransportData(int kspec) const;
+    DEPRECATED(struct GasTransportData getGasTransportData(int kspec) const);
 
 private:
 
