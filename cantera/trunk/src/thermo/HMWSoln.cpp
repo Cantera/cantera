@@ -2327,6 +2327,7 @@ void HMWSoln::s_updatePitzer_CoeffWRTemp(int doDerivs) const
                     m_Lambda_nj(i,j)      = Lambda_coeff[0] + Lambda_coeff[1]*tlin;
                     m_Lambda_nj_L(i,j)    = Lambda_coeff[1];
                     m_Lambda_nj_LL(i,j)   = 0.0;
+                    break;
                 case PITZER_TEMP_COMPLEX1:
                     m_Lambda_nj(i,j) = Lambda_coeff[0]
                                        + Lambda_coeff[1]*tlin
@@ -2355,6 +2356,7 @@ void HMWSoln::s_updatePitzer_CoeffWRTemp(int doDerivs) const
                         m_Mu_nnn[i]      = Mu_coeff[0] + Mu_coeff[1]*tlin;
                         m_Mu_nnn_L[i]    = Mu_coeff[1];
                         m_Mu_nnn_LL[i]   = 0.0;
+                        break;
                     case PITZER_TEMP_COMPLEX1:
                         m_Mu_nnn[i] = Mu_coeff[0]
                                       + Mu_coeff[1]*tlin
@@ -2391,6 +2393,7 @@ void HMWSoln::s_updatePitzer_CoeffWRTemp(int doDerivs) const
                     m_Psi_ijk[n]      = Psi_coeff[0] + Psi_coeff[1]*tlin;
                     m_Psi_ijk_L[n]    = Psi_coeff[1];
                     m_Psi_ijk_LL[n]   = 0.0;
+                    break;
                 case PITZER_TEMP_COMPLEX1:
                     m_Psi_ijk[n] = Psi_coeff[0]
                                    + Psi_coeff[1]*tlin
