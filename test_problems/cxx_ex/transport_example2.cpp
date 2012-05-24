@@ -41,9 +41,7 @@ void plotTransportSoln(std::string fname, std::string fmt, std::string title,
 
 int transport_example2(int job)
 {
-
     try {
-
         cout << "Multicomponent transport properties." << endl;
         if (job > 0) {
             cout << "Viscosity, thermal conductivity, and thermal diffusion\n"
@@ -62,13 +60,11 @@ int transport_example2(int job)
         gas.setState_TPX(temp, pres, "H2:1.0, O2:0.5, CH4:0.1, N2:0.2");
         equilibrate(gas,"TP");
 
-
         // create a transport manager that implements
         // multicomponent transport properties
 
         Transport* tr = newTransportMgr("Multi",  &gas);
         int nsp = gas.nSpecies();
-
 
         // create a 2D array to hold the outputs
         int ntemps = 20;
@@ -94,15 +90,12 @@ int transport_example2(int job)
         cout << "Output files:" << endl
              << "  tr2.csv    (Excel CSV file)" << endl
              << "  tr2.dat    (Tecplot data file)" << endl;
-
-        return 0;
-    }
-
-    // handle exceptions thrown by Cantera
-    catch (CanteraError& err) {
+    } catch (CanteraError& err) {
+        // handle exceptions thrown by Cantera
         std::cout << err.what() << std::endl;
         cout << " terminating... " << endl;
         appdelete();
         return -1;
     }
+    return 0;
 }

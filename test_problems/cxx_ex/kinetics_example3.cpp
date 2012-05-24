@@ -27,7 +27,6 @@ using std::endl;
 
 int kinetics_example3(int job)
 {
-
     try {
 
         cout << "Ignition simulation using class IdealGasMix "
@@ -104,14 +103,12 @@ int kinetics_example3(int job)
              << "  kin3.dat    (Tecplot data file)" << endl;
 
         delete gg;
-        return 0;
-    }
-
-    // handle exceptions thrown by Cantera
-    catch (CanteraError& err) {
+    } catch (CanteraError& err) {
+        // handle exceptions thrown by Cantera
         std::cout << err.what() << std::endl;
         cout << " terminating... " << endl;
         appdelete();
         return -1;
     }
+    return 0;
 }

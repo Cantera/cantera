@@ -258,13 +258,12 @@ int flamespeed(int np, void* p)
                     flow.grid(n), Tvec[n], Uvec[n], COvec[n], CO2vec[n]);
         }
         fclose(FP);
-
-        return 0;
     } catch (CanteraError& err) {
         std::cerr << err.what() << std::endl;
         std::cerr << "program terminating." << endl;
         return -1;
     }
+    return 0;
 }
 
 #ifndef CXX_DEMO
