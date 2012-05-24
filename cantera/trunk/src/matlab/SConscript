@@ -20,7 +20,8 @@ if localenv['OS'] == 'Windows':
 
     if localenv['CC'] == 'cl':
         linkflags.append('/export:mexFunction')
-        linkflags.append('/MACHINE:X%i' % localenv['OS_BITS'])
+        machtype = 'X64' if localenv['OS_BITS'] == 64 else 'X86'
+        linkflags.append('/MACHINE:' + machtype)
     elif localenv['CC'] == 'gcc':
         linkflags.append('-Wl,--export-all-symbols')
         linkflags.extend(['-static-libgcc', '-static-libstdc++'])
