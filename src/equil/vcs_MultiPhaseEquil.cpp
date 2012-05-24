@@ -373,7 +373,6 @@ int vcs_MultiPhaseEquil::equilibrate_SP(doublereal Starget,
                                         int maxsteps, int loglevel)
 {
     int maxiter = 100;
-    int iSuccess;
     int strt = estimateEquil;
 
     // Lower bound on T. This will change as we progress in the calculation
@@ -409,7 +408,7 @@ int vcs_MultiPhaseEquil::equilibrate_SP(doublereal Starget,
 
         try {
             Tnow = m_mix->temperature();
-            iSuccess = equilibrate_TP(strt, printLvlSub, err, maxsteps, loglevel);
+            int iSuccess = equilibrate_TP(strt, printLvlSub, err, maxsteps, loglevel);
             strt = 0;
             Snow = m_mix->entropy();
             double pmoles[10];
@@ -418,7 +417,6 @@ int vcs_MultiPhaseEquil::equilibrate_SP(doublereal Starget,
             double SperMole = Snow/Tmoles;
             plogf("T = %g, Snow = %g ,Tmoles = %g,  SperMole = %g\n",
                   Tnow, Snow, Tmoles, SperMole);
-
 
             // the equilibrium entropy monotonically increases with T;
             // if the current value is below the target, then we know the
@@ -493,7 +491,7 @@ int vcs_MultiPhaseEquil::equilibrate_SP(doublereal Starget,
                     plogf("                   S rel error = %g, cp = %g, HConvErr = %g\n",
                           Serr, cpb, SConvErr);
                 }
-                goto done;
+                return iSuccess;
             }
             Tnew = Tnow + dT;
             if (Tnew < 0.0) {
@@ -523,9 +521,6 @@ int vcs_MultiPhaseEquil::equilibrate_SP(doublereal Starget,
     endLogGroup();
     throw CanteraError("MultiPhase::equilibrate_SP",
                        "No convergence for T");
-done:
-    ;
-    return iSuccess;
 }
 //====================================================================================================================
 
