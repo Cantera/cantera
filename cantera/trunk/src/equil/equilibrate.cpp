@@ -12,7 +12,6 @@
 namespace Cantera
 {
 
-
 /*
  * Set a multiphase mixture to a state of chemical equilibrium.
  * This is the top-level driver for multiphase equilibrium. It
@@ -26,7 +25,6 @@ doublereal equilibrate(MultiPhase& s, const char* XY,
                        doublereal tol, int maxsteps, int maxiter,
                        int loglevel)
 {
-
     if (loglevel > 0) {
         beginLogGroup("equilibrate",loglevel);
         addLogEntry("multiphase equilibrate function");
@@ -130,25 +128,23 @@ int equilibrate(thermo_t& s, const char* XY, int solver,
 #ifdef WITH_VCSNONIDEAL
             int printLvlSub = 0;
             int estimateEquil = 0;
-            m = new MultiPhase;
             try {
-                m->addPhase(&s, 1.0);
-                m->init();
+                MultiPhase m;
+                m.addPhase(&s, 1.0);
+                m.init();
                 nAttempts++;
-                vcs_equilibrate(*m, XY, estimateEquil, printLvlSub, solver,
+                vcs_equilibrate(m, XY, estimateEquil, printLvlSub, solver,
                                 rtol, maxsteps, maxiter, loglevel-1);
                 redo = false;
                 if (loglevel > 0) {
                     addLogEntry("VCSnonideal solver succeeded.");
                 }
-                delete m;
                 retn = nAttempts;
             } catch (CanteraError& err) {
                 err.save();
                 if (loglevel > 0) {
                     addLogEntry("VCSnonideal solver failed.");
                 }
-                delete m;
                 if (nAttempts < 2) {
                     if (loglevel > 0) {
                         addLogEntry("Trying single phase ChemEquil solver.");
@@ -166,24 +162,22 @@ int equilibrate(thermo_t& s, const char* XY, int solver,
                                "VCSNonIdeal solver called, but not compiled");
 #endif
         } else if (solver == 1) {
-            m = new MultiPhase;
             try {
-                m->addPhase(&s, 1.0);
-                m->init();
+                MultiPhase m;
+                m.addPhase(&s, 1.0);
+                m.init();
                 nAttempts++;
-                (void) equilibrate(*m, XY, rtol, maxsteps, maxiter, loglevel-1);
+                equilibrate(m, XY, rtol, maxsteps, maxiter, loglevel-1);
                 redo = false;
                 if (loglevel > 0) {
                     addLogEntry("MultiPhaseEquil solver succeeded.");
                 }
-                delete m;
                 retn = nAttempts;
             } catch (CanteraError& err) {
                 err.save();
                 if (loglevel > 0) {
                     addLogEntry("MultiPhaseEquil solver failed.");
                 }
-                delete m;
                 if (nAttempts < 2) {
                     if (loglevel > 0) {
                         addLogEntry("Trying single phase ChemEquil solver.");
@@ -200,14 +194,14 @@ int equilibrate(thermo_t& s, const char* XY, int solver,
             /*
              * Call the element potential solver
              */
-            e = new ChemEquil;
             try {
-                e->options.maxIterations = maxsteps;
-                e->options.relTolerance = rtol;
+                ChemEquil e;
+                e.options.maxIterations = maxsteps;
+                e.options.relTolerance = rtol;
                 nAttempts++;
                 bool useThermoPhaseElementPotentials = true;
-                retnSub = e->equilibrate(s,XY,
-                                         useThermoPhaseElementPotentials, loglevel-1);
+                retnSub = e.equilibrate(s, XY, useThermoPhaseElementPotentials,
+                                        loglevel-1);
                 if (retnSub < 0) {
                     if (loglevel > 0) {
                         addLogEntry("ChemEquil solver failed.");
@@ -223,9 +217,8 @@ int equilibrate(thermo_t& s, const char* XY, int solver,
                     }
                 }
                 retn = nAttempts;
-                s.setElementPotentials(e->elementPotentials());
+                s.setElementPotentials(e.elementPotentials());
                 redo = false;
-                delete e;
                 if (loglevel > 0) {
                     addLogEntry("ChemEquil solver succeeded.");
                 }
@@ -233,7 +226,6 @@ int equilibrate(thermo_t& s, const char* XY, int solver,
 
             catch (CanteraError& err) {
                 err.save();
-                delete e;
                 if (loglevel > 0) {
                     addLogEntry("ChemEquil solver failed.");
                 }
