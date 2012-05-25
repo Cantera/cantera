@@ -222,9 +222,9 @@ void MixTransport::getThermalDiffCoeffs(doublereal* const dt)
  *             Flat vector with the m_nsp in the inner loop.
  *             length = ldx * ndim
  */
-void MixTransport::getSpeciesFluxes(size_t ndim,
-                                    const doublereal* const grad_T, int ldx, const doublereal* const grad_X,
-                                    int ldf, doublereal* const fluxes)
+void MixTransport::getSpeciesFluxes(size_t ndim, const doublereal* const grad_T,
+                                    size_t ldx, const doublereal* const grad_X,
+                                    size_t ldf, doublereal* const fluxes)
 {
     update_T();
     update_C();

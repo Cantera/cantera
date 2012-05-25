@@ -125,8 +125,8 @@ int VCS_SOLVE::vcs_solve_TP(int print_lvl, int printDetails, int maxit)
     int forceComponentCalc = 1;
     size_t iphaseDelete;  /* integer that determines which phase is being deleted */
     std::vector<size_t> phasePopPhaseIDs(0);
-    int doPhaseDeleteIph = -1;
-    int doPhaseDeleteKspec = -1;
+    size_t doPhaseDeleteIph = npos;
+    size_t doPhaseDeleteKspec = npos;
 
 #ifdef DEBUG_MODE
     char ANOTE[128];
@@ -463,8 +463,8 @@ L_MAINLOOP_ALL_SPECIES:
     }
 #endif
     lec = false;
-    doPhaseDeleteIph = -1;
-    doPhaseDeleteKspec = -1;
+    doPhaseDeleteIph = npos;
+    doPhaseDeleteKspec = npos;
     /*
      *    Zero out the net change in moles of multispecies phases
      */
@@ -1027,7 +1027,7 @@ L_MAIN_LOOP_END:
 L_MAIN_LOOP_END_NO_PRINT:
             ;
 #endif
-            if (doPhaseDeleteIph != -1) {
+            if (doPhaseDeleteIph != npos) {
 #ifdef DEBUG_MODE
                 if (m_debug_print_lvl >= 2) {
                     plogf("   --- ");

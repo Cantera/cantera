@@ -160,8 +160,8 @@ doublereal BandMatrix::value(size_t i, size_t j) const
 //====================================================================================================================
 size_t BandMatrix::index(size_t i, size_t j) const
 {
-    int jj = j;
-    int ii = i;
+    int jj = static_cast<int>(j);
+    int ii = static_cast<int>(i);
     size_t rw = (int) m_kl + (int) m_ku + (int) ii - jj;
     return (2*m_kl + m_ku + 1)*j + rw;
 }
@@ -220,9 +220,9 @@ vector_int&   BandMatrix::ipiv()
  */
 void BandMatrix::mult(const doublereal* b, doublereal* prod) const
 {
-    int kl = m_kl;
-    int ku = m_ku;
-    int nr = nRows();
+    int kl = static_cast<int>(m_kl);
+    int ku = static_cast<int>(m_ku);
+    int nr = static_cast<int>(nRows());
     doublereal sum = 0.0;
     for (int m = 0; m < nr; m++) {
         sum = 0.0;
@@ -240,9 +240,9 @@ void BandMatrix::mult(const doublereal* b, doublereal* prod) const
  */
 void BandMatrix::leftMult(const doublereal* const b, doublereal* const prod) const
 {
-    int kl = m_kl;
-    int ku = m_ku;
-    int nc = nColumns();
+    int kl = static_cast<int>(m_kl);
+    int ku = static_cast<int>(m_ku);
+    int nc = static_cast<int>(nColumns());
     doublereal sum = 0.0;
     for (int n = 0; n < nc; n++) {
         sum = 0.0;
@@ -428,8 +428,8 @@ int BandMatrix::factorAlgorithm() const
 // Returns the one norm of the matrix
 doublereal BandMatrix::oneNorm() const
 {
-    int ku = m_ku;
-    int kl = m_kl;
+    int ku = static_cast<int>(m_ku);
+    int kl = static_cast<int>(m_kl);
     doublereal value = 0.0;
     for (int j = 0; j < (int) m_n; j++) {
         doublereal sum = 0.0;

@@ -774,8 +774,8 @@ void NonlinearSolver::scaleMatrix(GeneralMatrix& jac, doublereal* const y_comm, 
                     }
                 }
             } else if (jac.matrixType_ == 1) {
-                int kl = ivec[0];
-                int ku = ivec[1];
+                int kl = static_cast<int>(ivec[0]);
+                int ku = static_cast<int>(ivec[1]);
                 for (int jcol = 0; jcol < (int) neq_; jcol++) {
                     colP_j = (doublereal*) jac.ptrColumn(jcol);
                     for (int irow = jcol - ku; irow <= jcol + kl; irow++) {
@@ -819,8 +819,8 @@ void NonlinearSolver::scaleMatrix(GeneralMatrix& jac, doublereal* const y_comm, 
                 }
             }
         } else if (jac.matrixType_ == 1) {
-            int kl = ivec[0];
-            int ku = ivec[1];
+            int kl = static_cast<int>(ivec[0]);
+            int ku = static_cast<int>(ivec[1]);
             for (int jcol = 0; jcol < (int) neq_; jcol++) {
                 colP_j = (doublereal*) jac.ptrColumn(jcol);
                 for (int irow = jcol - ku; irow <= jcol + kl; irow++) {
@@ -862,8 +862,8 @@ void NonlinearSolver::scaleMatrix(GeneralMatrix& jac, doublereal* const y_comm, 
                     }
                 }
             } else if (jac.matrixType_ == 1) {
-                int kl = ivec[0];
-                int ku = ivec[1];
+                int kl = static_cast<int>(ivec[0]);
+                int ku = static_cast<int>(ivec[1]);
                 for (int jcol = 0; jcol < (int) neq_; jcol++) {
                     colP_j = (doublereal*) jac.ptrColumn(jcol);
                     for (int irow = jcol - ku; irow <= jcol + kl; irow++) {
@@ -3787,7 +3787,8 @@ int NonlinearSolver::beuler_jac(GeneralMatrix& J, doublereal* const f,
 
 
                 info =  m_func->evalResidNJ(time_curr, delta_t_n, y, ydot, DATA_PTR(m_wksp),
-                                            JacDelta_ResidEval, j, dy);
+                                            JacDelta_ResidEval,
+                                            static_cast<int>(j), dy);
                 m_nfe++;
                 if (info != 1) {
                     mdp::mdp_safe_free((void**) &dyVector);
@@ -3863,7 +3864,9 @@ int NonlinearSolver::beuler_jac(GeneralMatrix& J, doublereal* const f,
                     ydot[j] += dy * CJ;
                 }
 
-                info =  m_func->evalResidNJ(time_curr, delta_t_n, y, ydot, DATA_PTR(m_wksp), JacDelta_ResidEval, j, dy);
+                info =  m_func->evalResidNJ(time_curr, delta_t_n, y, ydot,
+                        DATA_PTR(m_wksp), JacDelta_ResidEval,
+                        static_cast<int>(j), dy);
                 m_nfe++;
                 if (info != 1) {
                     mdp::mdp_safe_free((void**) &dyVector);
@@ -3873,7 +3876,7 @@ int NonlinearSolver::beuler_jac(GeneralMatrix& J, doublereal* const f,
                 doublereal diff;
 
                 int ileft =  (int) j - (int) ku;
-                int iright=   j + kl;
+                int iright = static_cast<int>(j + kl);
                 for (int i = ileft; i <= iright; i++) {
                     if (i >= 0 &&  i < (int) neq_) {
                         size_t ii = i;
