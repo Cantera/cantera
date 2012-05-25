@@ -34,7 +34,6 @@ int main(int argc, char** argv)
 #ifdef _MSC_VER
     _set_output_format(_TWO_DIGIT_EXPONENT);
 #endif
-    int i, k;
     string infile = "frac.xml";
     double x[10], kc[10];
     double cdot[10], ddot[10];
@@ -46,26 +45,23 @@ int main(int argc, char** argv)
 
         XML_Node* const xg = xc->findNameID("phase", "gas");
         ThermoPhase* gasTP = newPhase(*xg);
-        int nsp = gasTP->nSpecies();
+        size_t nsp = gasTP->nSpecies();
         cout << "Number of species = " << nsp << endl;
-
-
 
         vector<ThermoPhase*> phaseList;
         phaseList.push_back(gasTP);
         GasKinetics* iKin_ptr = new GasKinetics();
         importKinetics(*xg, phaseList, iKin_ptr);
-        int nr = iKin_ptr->nReactions();
+        size_t nr = iKin_ptr->nReactions();
         cout << "Number of reactions = " << nr << endl;
 
-        int iH2 = gasTP->speciesIndex("H2");
-        int iH = gasTP->speciesIndex("H");
-        int iO2 = gasTP->speciesIndex("O2");
-        int iOH = gasTP->speciesIndex("OH");
-        int iH2O = gasTP->speciesIndex("H2O");
+        size_t iH2 = gasTP->speciesIndex("H2");
+        size_t iH = gasTP->speciesIndex("H");
+        size_t iO2 = gasTP->speciesIndex("O2");
+        size_t iOH = gasTP->speciesIndex("OH");
+        size_t iH2O = gasTP->speciesIndex("H2O");
 
-
-        for (i = 0; i < nsp; i++) {
+        for (size_t i = 0; i < nsp; i++) {
             x[i] = 0.0;
         }
         x[iH2O] = 1.0/2.0;
@@ -80,7 +76,7 @@ int main(int argc, char** argv)
 
 
         double src[20];
-        for (i = 0; i < 20; i++) {
+        for (size_t i = 0; i < 20; i++) {
             src[i] = 0.0;
         }
         iKin_ptr->getNetProductionRates(src);
@@ -93,7 +89,7 @@ int main(int argc, char** argv)
         iKin_ptr->getCreationRates(cdot);
         iKin_ptr->getDestructionRates(ddot);
 
-        for (k = 0; k < nsp; k++) {
+        for (size_t k = 0; k < nsp; k++) {
             string sss = gasTP->speciesName(k);
             cout << k << "  " << sss << "  ";
             printDbl(src[k]);
@@ -101,7 +97,7 @@ int main(int argc, char** argv)
         }
 
         printf("Creation Rates: \n");
-        for (k = 0; k < nsp - 1; k++) {
+        for (size_t k = 0; k < nsp - 1; k++) {
             string sss = gasTP->speciesName(k);
             cout << k << "  " << sss << "  ";
             cout << cdot[k] << "  ";
@@ -116,7 +112,7 @@ int main(int argc, char** argv)
 
 
         printf("Destruction Rates: \n");
-        for (k = 0; k < nsp-1; k++) {
+        for (size_t k = 0; k < nsp-1; k++) {
             string sss = gasTP->speciesName(k);
             cout << k << "  " << sss << "  ";
             cout << ddot[k] << "  ";
@@ -154,7 +150,6 @@ int main(int argc, char** argv)
         printf("Equilibrium constants for irreversible fractional rxns:\n");
         printf("Kc[0] = %g\n", kc[0]);
         printf("Kc[1] = %g\n", kc[1]);
-
 
         delete(iKin_ptr);
         iKin_ptr = 0;

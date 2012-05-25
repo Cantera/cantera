@@ -90,9 +90,9 @@ int main(int argc, char** argv)
         // Initialize the individual phases
 
         HMWSoln hmw(inputFile, "");
-        int kk = hmw.nSpecies();
+        size_t kk = hmw.nSpecies();
         vector_fp Xmol(kk, 0.0);
-        int iH2OL = hmw.speciesIndex("H2O(L)");
+        size_t iH2OL = hmw.speciesIndex("H2O(L)");
         Xmol[iH2OL] = 1.0;
         hmw.setState_TPX(T, pres, DATA_PTR(Xmol));
 
@@ -100,10 +100,10 @@ int main(int argc, char** argv)
 
         kk = gas->nSpecies();
         Xmol.resize(kk, 0.0);
-        for (int i = 0; i < kk; i++) {
+        for (size_t i = 0; i < kk; i++) {
             Xmol[i] = 0.0;
         }
-        int iN2 = gas->speciesIndex("N2");
+        size_t iN2 = gas->speciesIndex("N2");
         Xmol[iN2] = 1.0;
         gas->setState_TPX(T, pres, DATA_PTR(Xmol));
 

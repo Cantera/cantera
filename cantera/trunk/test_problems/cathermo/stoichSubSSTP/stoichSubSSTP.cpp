@@ -23,10 +23,6 @@ void printUsage()
 
 int main(int argc, char** argv)
 {
-
-    int retn = 0;
-    int i;
-
     try {
         //Cantera::ThermoPhase *tp = 0;
         char iFile[80], file_ID[80];
@@ -39,7 +35,6 @@ int main(int argc, char** argv)
         XML_Node* xm = get_XML_NameID("phase", file_ID, 0);
         StoichSubstanceSSTP* solid = new StoichSubstanceSSTP(*xm);
 
-
         /*
          * Load in and initialize the
          */
@@ -47,8 +42,7 @@ int main(int argc, char** argv)
         //string id = "NaCl(S)";
         //Cantera::ThermoPhase *solid = Cantera::newPhase(nacl_s, id);
 
-
-        int nsp = solid->nSpecies();
+        size_t nsp = solid->nSpecies();
         if (nsp != 1) {
             throw CanteraError("","Should just be one species");
         }
@@ -83,7 +77,6 @@ int main(int argc, char** argv)
         printf(" Data from http://webbook.nist.gov\n");
         printf("\n");
 
-
         printf("           T,    Pres,    molarGibbs0,    Enthalpy,      Entropy,         Cp  ,"
                "  -(G-H298)/T,     H-H298 ");
         printf("\n");
@@ -92,14 +85,12 @@ int main(int argc, char** argv)
                "      J/gmolK,     J/gmol");
         printf("\n");
 
-        for (i = 0; i < TTable.NPoints; i++) {
+        for (size_t i = 0; i < TTable.NPoints; i++) {
             T = TTable.T[i];
 
             // GasConstant is in J/kmol
             RT = GasConstant * T;
-
             pres = OneAtm;
-
 
             solid->setState_TP(T, pres);
             /*
@@ -109,7 +100,6 @@ int main(int argc, char** argv)
 
             solid->getEnthalpy_RT(enth_RT);
             enth_NaCl = enth_RT[0] * RT * 1.0E-6;
-
 
             solid->getChemPotentials(mu);
             mu_NaCl = mu[0] * 1.0E-6;
@@ -122,11 +112,6 @@ int main(int argc, char** argv)
             solid->getCp_R(cp_r);
             cp_NaCl = cp_r[0] * GasConstant * 1.0E-3;
 
-            /*
-            * Need the gas constant in kJ/gmolK
-            */
-            //       double rgas = 8.314472 * 1.0E-3;
-
             double pbar = pres * 1.0E-5;
 
             printf("%10g, %10g, %12g, %12g, %12g, %12g, %12g, %12g",
@@ -134,14 +119,9 @@ int main(int argc, char** argv)
             printf("\n");
         }
 
-
-
         delete solid;
         solid = 0;
         Cantera::appdelete();
-
-        return retn;
-
     } catch (CanteraError& err) {
         std::cout << err.what() << std::endl;
         Cantera::appdelete();

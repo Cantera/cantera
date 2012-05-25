@@ -53,7 +53,7 @@ void printGas(ostream& oooo, ThermoPhase* gasTP, InterfaceKinetics* iKin_ptr, do
     double p = gasTP->pressure();
     oooo << "Gas Temperature = " << Temp << endl;
     oooo << "Gas Pressure    = " << p << endl;
-    int kstart = iKin_ptr->kineticsSpeciesIndex(0, 0);
+    size_t kstart = iKin_ptr->kineticsSpeciesIndex(0, 0);
     oooo << "Gas Phase:  " << gasPhaseName << "   "
          << "(" << kstart << ")" << endl;
     oooo << "                       Name      "
@@ -61,11 +61,11 @@ void printGas(ostream& oooo, ThermoPhase* gasTP, InterfaceKinetics* iKin_ptr, do
     oooo << "                                 "
          << "   (kmol/m^3)                   (kmol/m^2/s) " << endl;
     double sum = 0.0;
-    int nspGas = gasTP->nSpecies();
-    for (int k = 0; k < nspGas; k++) {
+    size_t nspGas = gasTP->nSpecies();
+    for (size_t k = 0; k < nspGas; k++) {
         kstart = iKin_ptr->kineticsSpeciesIndex(k, 0);
         sprintf(buf, "%4d %24s   %14g %14g  %14e\n",
-                k, gasTP->speciesName(k).c_str(),
+                (int) k, gasTP->speciesName(k).c_str(),
                 C[k], x[k], src[kstart]);
         oooo << buf;
         sum += x[k];
@@ -85,7 +85,7 @@ void printBulk(ostream& oooo,ThermoPhase* bulkPhaseTP, InterfaceKinetics* iKin_p
     string bulkParticlePhaseName = bulkPhaseTP->id();
     bulkPhaseTP->getMoleFractions(x);
     bulkPhaseTP->getConcentrations(C);
-    int kstart = iKin_ptr->kineticsSpeciesIndex(0, 1);
+    size_t kstart = iKin_ptr->kineticsSpeciesIndex(0, 1);
     double dens = bulkPhaseTP->density();
     oooo << "Bulk Phase:  " << bulkParticlePhaseName << "   "
          << "(" << kstart << ")" << endl;
@@ -100,11 +100,11 @@ void printBulk(ostream& oooo,ThermoPhase* bulkPhaseTP, InterfaceKinetics* iKin_p
     double sum = 0.0;
     double Wsum = 0.0;
     const vector_fp& molecW = bulkPhaseTP->molecularWeights();
-    int nspBulk = bulkPhaseTP->nSpecies();
-    for (int k = 0; k < nspBulk; k++) {
+    size_t nspBulk = bulkPhaseTP->nSpecies();
+    for (size_t k = 0; k < nspBulk; k++) {
         kstart = iKin_ptr->kineticsSpeciesIndex(k, 1);
         sprintf(buf, "%4d %24s   %14g %14g  %14e\n",
-                k, bulkPhaseTP->speciesName(k).c_str(),
+                (int) k, bulkPhaseTP->speciesName(k).c_str(),
                 C[k], x[k], src[kstart]);
         oooo << buf;
         sum += x[k];
@@ -130,7 +130,7 @@ void printSurf(ostream& oooo, ThermoPhase* surfPhaseTP,
     oooo.precision(3);
     string surfParticlePhaseName = surfPhaseTP->id();
     surfPhaseTP->getMoleFractions(x);
-    int kstart = iKin_ptr->kineticsSpeciesIndex(0, 2);
+    size_t kstart = iKin_ptr->kineticsSpeciesIndex(0, 2);
     oooo << "Surface Phase:  " << surfParticlePhaseName
          << " (" << kstart << ")" << endl;
     double Temp = surfPhaseTP->temperature();
@@ -140,15 +140,15 @@ void printSurf(ostream& oooo, ThermoPhase* surfPhaseTP,
     oooo << "                       Name      "
          << "   Coverage         SrcRate " << endl;
     double sum = 0.0;
-    int nspSurf = surfPhaseTP->nSpecies();
-    for (int k = 0; k < nspSurf; k++) {
+    size_t nspSurf = surfPhaseTP->nSpecies();
+    for (size_t k = 0; k < nspSurf; k++) {
         kstart = iKin_ptr->kineticsSpeciesIndex(0, 2);
         double srcK = src[kstart];
         if (fabs(srcK) < 1.0E-8) {
             srcK = 0.0;
         }
         sprintf(buf, "%4d %24s   %14g   %14e\n",
-                k, surfPhaseTP->speciesName(k).c_str(),
+                (int) k, surfPhaseTP->speciesName(k).c_str(),
                 x[k], srcK);
         oooo << buf;
         sum += x[k];
@@ -232,7 +232,7 @@ int main(int argc, char** argv)
             exit(-1);
         }
         ThermoPhase* gasTP = newPhase(*xg);
-        int nspGas = gasTP->nSpecies();
+        size_t nspGas = gasTP->nSpecies();
         cout << "Number of species = " << nspGas << endl;
 
         XML_Node* const xd =
@@ -243,7 +243,7 @@ int main(int argc, char** argv)
             exit(-1);
         }
         ThermoPhase* bulkPhaseTP = newPhase(*xd);
-        int nspBulk = bulkPhaseTP->nSpecies();
+        size_t nspBulk = bulkPhaseTP->nSpecies();
         cout << "Number of species in bulk phase named " <<
              bulkParticlePhaseName << " = " << nspBulk << endl;
 
@@ -257,7 +257,7 @@ int main(int argc, char** argv)
             exit(-1);
         }
         ThermoPhase* surfPhaseTP = newPhase(*xs);
-        int nsp_d100 = surfPhaseTP->nSpecies();
+        size_t nsp_d100 = surfPhaseTP->nSpecies();
         cout << "Number of species in surface phase, " << surfParticlePhaseName
              << " = " << nsp_d100 << endl;
 
@@ -270,7 +270,7 @@ int main(int argc, char** argv)
 
         InterfaceKinetics* iKin_ptr = new InterfaceKinetics();
         importKinetics(*xs, phaseList, iKin_ptr);
-        int nr = iKin_ptr->nReactions();
+        size_t nr = iKin_ptr->nReactions();
         cout << "Number of reactions = " << nr << endl;
 
         ofstream ofile("results2.txt");
@@ -279,7 +279,7 @@ int main(int argc, char** argv)
         // create a second copy of the same surface phase
         // (this is a made up problem btw to check the software capability)
         ThermoPhase* surfPhaseTP2 = newPhase(*xs);
-        int nsp2 = surfPhaseTP2->nSpecies();
+        size_t nsp2 = surfPhaseTP2->nSpecies();
         string pname = surfPhaseTP2->id();
         cout << "Number of species in 2nd surface phase, " << pname
              << " = " << nsp2 << endl;
@@ -322,12 +322,12 @@ int main(int argc, char** argv)
             x[i] = 0.0;
         }
         if (ProblemNumber == 0) {
-            int i0 = surfPhaseTP->speciesIndex("c6H*");
-            if (i0 >= 0) {
+            size_t i0 = surfPhaseTP->speciesIndex("c6H*");
+            if (i0 != npos) {
                 x[i0] = 0.1;
             }
-            int i1 = surfPhaseTP->speciesIndex("c6HH");
-            if (i1 >= 0) {
+            size_t i1 = surfPhaseTP->speciesIndex("c6HH");
+            if (i1 != npos) {
                 x[i1] = 0.9;
             }
             surfPhaseTP->setState_TX(1200., x);

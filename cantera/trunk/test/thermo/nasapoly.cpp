@@ -49,8 +49,8 @@ protected:
         EXPECT_DOUBLE_EQ(s_R1, s_R2);
     }
 
-    std::vector<double> tpow_;
     NasaPoly1 poly;
+    std::vector<double> tpow_;
 };
 
 TEST_F(NasaPoly1Test, Initialization)
@@ -58,7 +58,7 @@ TEST_F(NasaPoly1Test, Initialization)
     EXPECT_EQ(poly.minTemp(), 200.0);
     EXPECT_EQ(poly.maxTemp(), 1000.0);
     EXPECT_EQ(poly.refPressure(), 101325.0);
-    EXPECT_EQ(poly.speciesIndex(), 0);
+    EXPECT_EQ(poly.speciesIndex(), (size_t) 0);
 }
 
 TEST_F(NasaPoly1Test, Copy)

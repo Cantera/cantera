@@ -48,7 +48,7 @@ int kinetics_example1(int job)
 
         // set the state
         gas.setState_TPX(1001.0, OneAtm, "H2:2.0, O2:1.0, N2:4.0");
-        int kk = gas.nSpecies();
+        size_t kk = gas.nSpecies();
 
         // create a reactor
         Reactor r;

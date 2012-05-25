@@ -50,8 +50,8 @@ int main(int argc, char** argv)
         for (int j = 1; j < argc; j++) {
             tok = string(argv[j]);
             if (tok[0] == '-') {
-                int nopt = tok.size();
-                for (int n = 1; n < nopt; n++) {
+                size_t nopt = tok.size();
+                for (size_t n = 1; n < nopt; n++) {
                     if (tok[n] == 'h') {
                         printUsage();
                         exit(0);
@@ -99,7 +99,7 @@ int main(int argc, char** argv)
         double mmw = ims.meanMolecularWeight();
         printf("mean molecular weight = %13.5g kg kmol-1\n", mmw);
 
-        int n = ims.nSpecies();
+        size_t n = ims.nSpecies();
 
         double HiSS[20], muiSS[20],SiSS[20], CpiSS[20], VoliSS[20];
         double RT = GasConstant * Tkelvin;
@@ -110,7 +110,7 @@ int main(int argc, char** argv)
         ims.getStandardVolumes(VoliSS);
 
 
-        for (int i = 0; i < n; i++) {
+        for (size_t i = 0; i < n; i++) {
             HiSS[i] *= RT;
             SiSS[i] *= RT;
             CpiSS[i] *= GasConstant;
@@ -119,7 +119,7 @@ int main(int argc, char** argv)
         printf(" Printout of standard state properties\n");
         printf("            Name         mu_i       H_i_SS   "
                "    S_i_SS      Cp_i_SS     Vol_i_SS\n");
-        for (int i = 0; i < n; i++) {
+        for (size_t i = 0; i < n; i++) {
             string sn = ims.speciesName(i);
             printf(" %15s %12.5g %12.5g %12.5g %12.5g %12.5g\n", sn.c_str(), muiSS[i],
                    HiSS[i], SiSS[i], CpiSS[i], VoliSS[i]);
@@ -137,7 +137,7 @@ int main(int argc, char** argv)
         printf(" Printout of Partial molar properties\n");
         printf("            Name         mu_i       H_i_PM   "
                "    S_i_PM      Cp_i_PM     Vol_i_PM\n");
-        for (int i = 0; i < n; i++) {
+        for (size_t i = 0; i < n; i++) {
             string sn = ims.speciesName(i);
             printf(" %15s %12.5g %12.5g %12.5g %12.5g %12.5g\n", sn.c_str(), mui[i],
                    HiPM[i], SiPM[i], CpiPM[i], VoliPM[i]);

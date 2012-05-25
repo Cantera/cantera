@@ -32,10 +32,10 @@ int main(int argc, char** argv)
         bool doFormMatrix = true;
         vector_fp formRxnMatrix;
 
-        int nc = BasisOptimize(&usedZeroedSpecies, doFormMatrix,
-                               &mphase, orderVectorSpecies,
-                               orderVectorElements,
-                               formRxnMatrix);
+        size_t nc = BasisOptimize(&usedZeroedSpecies, doFormMatrix,
+                                  &mphase, orderVectorSpecies,
+                                  orderVectorElements,
+                                  formRxnMatrix);
 
         cout << "number of components = " << nc << endl;
 

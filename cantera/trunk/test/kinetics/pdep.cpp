@@ -56,7 +56,7 @@ ThermoPhase* PdepTest::thermo_ = NULL;
 Kinetics* PdepTest::kin_ = NULL;
 
 TEST_F(PdepTest, reactionCounts) {
-    EXPECT_EQ(6, kin_->nReactions());
+    EXPECT_EQ((size_t) 6, kin_->nReactions());
 }
 
 TEST_F(PdepTest, PlogLowPressure) {

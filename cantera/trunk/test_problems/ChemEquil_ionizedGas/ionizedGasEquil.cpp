@@ -35,11 +35,11 @@ int main(int argc, char** argv)
         int nj = 6;
         int ni = 7;
         FILE* FF = fopen("table.csv","w");
-        int kk = gas->nSpecies();
+        size_t kk = gas->nSpecies();
         std::vector<double> Xmol(kk, 0.0);
         const std::vector<string> &snames = gas->speciesNames();
         fprintf(FF,"Temperature,  Pressure,");
-        for (int k = 0; k < kk; k++) {
+        for (size_t k = 0; k < kk; k++) {
             fprintf(FF, "%11s", snames[k].c_str());
             if (k < kk-1) {
                 fprintf(FF,",");
@@ -64,7 +64,7 @@ int main(int argc, char** argv)
                 printf("Final T = %g, pres = %g atm\n", tkelvin, pres/OneAtm);
                 gas->getMoleFractions(DATA_PTR(Xmol));
                 fprintf(FF,"%10.4g, %10.4g,", tkelvin, pres);
-                for (int k = 0; k < kk; k++) {
+                for (size_t k = 0; k < kk; k++) {
                     if (fabs(Xmol[k]) < 1.0E-130) {
                         fprintf(FF," %10.4g", 0.0);
                     } else {

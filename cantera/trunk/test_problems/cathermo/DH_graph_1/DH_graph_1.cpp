@@ -21,7 +21,7 @@ int main(int argc, char** argv)
 {
 
     int retn = 0;
-    int i;
+    size_t i;
     string fName = "DH_graph_1.log";
     fileLog* fl = new fileLog(fName);
     try {
@@ -35,7 +35,7 @@ int main(int argc, char** argv)
 
         DebyeHuckel* DH = new DebyeHuckel(iFile, "NaCl_electrolyte");
 
-        int nsp = DH->nSpecies();
+        size_t nsp = DH->nSpecies();
         double acMol[100];
         double mf[100];
         double moll[100];
@@ -44,9 +44,9 @@ int main(int argc, char** argv)
 
         DH->setState_TP(298.15, 1.01325E5);
 
-        int i1 = DH->speciesIndex("Na+");
-        int i2 = DH->speciesIndex("Cl-");
-        int i3 = DH->speciesIndex("H2O(L)");
+        size_t i1 = DH->speciesIndex("Na+");
+        size_t i2 = DH->speciesIndex("Cl-");
+        size_t i3 = DH->speciesIndex("H2O(L)");
         for (i = 1; i < nsp; i++) {
             moll[i] = 0.0;
         }
@@ -57,7 +57,7 @@ int main(int argc, char** argv)
         double ISQRTbot = sqrt(Ibot);
         double ISQRT;
         double Is = 0.0;
-        int its = 100;
+        size_t its = 100;
         printf("              Is,     sqrtIs,     meanAc,"
                "  log10(meanAC),     acMol_Na+,"
                ",     acMol_Cl-,   ac_Water\n");
