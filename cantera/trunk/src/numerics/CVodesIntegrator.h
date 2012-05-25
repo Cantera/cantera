@@ -13,7 +13,7 @@
 #include "cantera/base/ctexceptions.h"
 #include "cantera/base/ct_defs.h"
 
-#ifdef SUNDIALS_VERSION_22
+#if SUNDIALS_VERSION == 22
 #include "nvector_serial.h"
 #else
 #include "sundials/sundials_nvector.h"

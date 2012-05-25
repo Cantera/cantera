@@ -12,7 +12,7 @@
 #include <iostream>
 using namespace std;
 
-#ifdef SUNDIALS_VERSION_22
+#if SUNDIALS_VERSION == 22
 
 #include "sundials_types.h"
 #include "sundials_math.h"
@@ -25,7 +25,7 @@ using namespace std;
 
 #else
 
-#if defined(SUNDIALS_VERSION_23) || defined (SUNDIALS_VERSION_24)
+#if SUNDIALS_VERSION >= 23
 #include "sundials/sundials_types.h"
 #include "sundials/sundials_math.h"
 #include "sundials/sundials_nvector.h"
@@ -37,15 +37,12 @@ using namespace std;
 #include "cvodes/cvodes_band.h"
 
 #else
-
-unsupported sundials version!
-
+#error unsupported Sundials version!
 #endif
 
-#if defined (SUNDIALS_VERSION_24)
+#if SUNDIALS_VERSION >= 24
 #define CV_SS 1
 #define CV_SV 2
-
 #endif
 
 #endif
@@ -270,7 +267,7 @@ void CVodesIntegrator::sensInit(double t0, FuncEval& func)
 
     int flag;
 
-#if defined(SUNDIALS_VERSION_22) || defined(SUNDIALS_VERSION_23)
+#if SUNDIALS_VERSION <= 23
     flag = CVodeSensMalloc(m_cvode_mem, m_np, CV_STAGGERED, m_yS);
     if (flag != CV_SUCCESS) {
         throw CVodesErr("Error in CVodeSensMalloc");
@@ -278,7 +275,7 @@ void CVodesIntegrator::sensInit(double t0, FuncEval& func)
     vector_fp atol(m_np, m_abstolsens);
     double rtol = m_reltolsens;
     flag = CVodeSetSensTolerances(m_cvode_mem, CV_SS, rtol, DATA_PTR(atol));
-#elif defined(SUNDIALS_VERSION_24)
+#elif SUNDIALS_VERSION >= 24
     flag = CVodeSensInit(m_cvode_mem, m_np, CV_STAGGERED,
                          CVSensRhsFn(0), m_yS);
 
@@ -288,7 +285,6 @@ void CVodesIntegrator::sensInit(double t0, FuncEval& func)
     vector_fp atol(m_np, m_abstolsens);
     double rtol = m_reltolsens;
     flag = CVodeSensSStolerances(m_cvode_mem, rtol, DATA_PTR(atol));
-
 #endif
 
 }
@@ -328,7 +324,7 @@ void CVodesIntegrator::initialize(double t0, FuncEval& func)
     }
 
     int flag = 0;
-#if defined(SUNDIALS_VERSION_22) || defined(SUNDIALS_VERSION_23)
+#if SUNDIALS_VERSION <= 23
     if (m_itol == CV_SV) {
         // vector atol
         flag = CVodeMalloc(m_cvode_mem, cvodes_rhs, m_t0, nv(m_y), m_itol,
@@ -347,7 +343,7 @@ void CVodesIntegrator::initialize(double t0, FuncEval& func)
             throw CVodesErr("CVodeMalloc failed.");
         }
     }
-#elif defined(SUNDIALS_VERSION_24)
+#elif SUNDIALS_VERSION >= 24
 
     flag = CVodeInit(m_cvode_mem, cvodes_rhs, m_t0, nv(m_y));
     if (flag != CV_SUCCESS) {
@@ -374,12 +370,7 @@ void CVodesIntegrator::initialize(double t0, FuncEval& func)
             throw CVodesErr("CVodeInit failed.");
         }
     }
-#else
-    printf("unknown sundials verson\n");
-    exit(-1);
 #endif
-
-
 
     if (m_type == DENSE + NOJAC) {
         long int N = m_neq;
@@ -401,12 +392,12 @@ void CVodesIntegrator::initialize(double t0, FuncEval& func)
     m_fdata = new FuncData(&func, func.nparams());
 
     //m_data = (void*)&func;
-#if defined(SUNDIALS_VERSION_22) || defined(SUNDIALS_VERSION_23)
+#if SUNDIALS_VERSION <= 23
     flag = CVodeSetFdata(m_cvode_mem, (void*)m_fdata);
     if (flag != CV_SUCCESS) {
         throw CVodesErr("CVodeSetFdata failed.");
     }
-#elif defined(SUNDIALS_VERSION_24)
+#elif SUNDIALS_VERSION >= 24
     flag = CVodeSetUserData(m_cvode_mem, (void*)m_fdata);
     if (flag != CV_SUCCESS) {
         throw CVodesErr("CVodeSetUserData failed.");
@@ -444,7 +435,7 @@ void CVodesIntegrator::reinitialize(double t0, FuncEval& func)
 
     int result;
 
-#if defined(SUNDIALS_VERSION_22) || defined(SUNDIALS_VERSION_23)
+#if SUNDIALS_VERSION <= 23
     if (m_itol == CV_SV) {
         result = CVodeReInit(m_cvode_mem, cvodes_rhs, m_t0, nv(m_y),
                              m_itol, m_reltol,
@@ -457,7 +448,7 @@ void CVodesIntegrator::reinitialize(double t0, FuncEval& func)
     if (result != CV_SUCCESS) {
         throw CVodesErr("CVodeReInit failed. result = "+int2str(result));
     }
-#elif defined(SUNDIALS_VERSION_24)
+#elif SUNDIALS_VERSION >= 24
     result = CVodeReInit(m_cvode_mem, m_t0, nv(m_y));
     if (result != CV_SUCCESS) {
         throw CVodesErr("CVodeReInit failed. result = "+int2str(result));
@@ -501,11 +492,11 @@ void CVodesIntegrator::integrate(double tout)
     if (flag != CV_SUCCESS) {
         throw CVodesErr(" CVodes error encountered. Error code: " + int2str(flag));
     }
-#if defined(SUNDIALS_VERSION_22) || defined(SUNDIALS_VERSION_23)
+#if SUNDIALS_VERSION <= 23
     if (m_np > 0) {
         CVodeGetSens(m_cvode_mem, tout, m_yS);
     }
-#elif defined(SUNDIALS_VERSION_24)
+#elif SUNDIALS_VERSION >= 24
     double tretn;
     if (m_np > 0) {
         CVodeGetSens(m_cvode_mem, &tretn, m_yS);
