@@ -531,8 +531,8 @@ public:
      *                        length = ldx * ndim
      */
     virtual void getSpeciesFluxes(size_t ndim, const doublereal* const grad_T,
-                                  int ldx, const doublereal* const grad_X,
-                                  int ldf, doublereal* const fluxes);
+                                  size_t ldx, const doublereal* const grad_X,
+                                  size_t ldf, doublereal* const fluxes);
 
     //! Get the species diffusive mass fluxes wrt to
     //! the mass averaged velocity,
@@ -559,9 +559,9 @@ public:
      */
     virtual void getSpeciesFluxesES(size_t ndim,
                                     const doublereal* grad_T,
-                                    int ldx,
+                                    size_t ldx,
                                     const doublereal* grad_X,
-                                    int ldf,
+                                    size_t ldf,
                                     const doublereal* grad_Phi,
                                     doublereal* fluxes) {
         getSpeciesFluxes(ndim, grad_T, ldx, grad_X, ldf, fluxes);

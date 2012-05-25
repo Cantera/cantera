@@ -201,8 +201,8 @@ public:
      *                       length = ldx * ndim
      */
     virtual void getSpeciesFluxes(size_t ndim, const doublereal* const grad_T,
-                                  int ldx, const doublereal* const grad_X,
-                                  int ldf, doublereal* const fluxes);
+                                  size_t ldx, const doublereal* const grad_X,
+                                  size_t ldf, doublereal* const fluxes);
 
     //! Initialize the transport object
     /*!

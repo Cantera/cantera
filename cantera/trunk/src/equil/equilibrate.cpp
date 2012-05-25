@@ -100,13 +100,10 @@ doublereal equilibrate(MultiPhase& s, const char* XY,
 int equilibrate(thermo_t& s, const char* XY, int solver,
                 doublereal rtol, int maxsteps, int maxiter, int loglevel)
 {
-    MultiPhase* m = 0;
-    ChemEquil* e = 0;
     bool redo = true;
     int retn = -1;
     int nAttempts = 0;
     int retnSub = 0;
-
 
     if (loglevel > 0) {
         beginLogGroup("equilibrate", loglevel);

@@ -738,8 +738,8 @@ void SimpleTransport::getSpeciesVdiffES(size_t ndim, const doublereal* grad_T,
  * @param fluxes   Output fluxes of species.
  */
 void SimpleTransport::getSpeciesFluxes(size_t ndim,  const doublereal* const grad_T,
-                                       int ldx, const doublereal* const grad_X,
-                                       int ldf, doublereal* const fluxes)
+                                       size_t ldx, const doublereal* const grad_X,
+                                       size_t ldf, doublereal* const fluxes)
 {
     set_Grad_T(grad_T);
     set_Grad_X(grad_X);

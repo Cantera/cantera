@@ -501,8 +501,8 @@ public:
      * @param fluxes   Output fluxes of species.
      */
     virtual void getSpeciesFluxes(size_t ndim, const doublereal* const grad_T,
-                                  int ldx, const doublereal* const grad_X,
-                                  int ldf, doublereal* const fluxes);
+                                  size_t ldx, const doublereal* const grad_X,
+                                  size_t ldf, doublereal* const fluxes);
 
     //!  Return the species diffusive mass fluxes wrt to
     //!  the mass averaged velocity,
