@@ -23,11 +23,11 @@ int main(int argc, char** argv)
         IdealGasMix g("gri30.xml", "gri30_mix");
         double pres = OneAtm;
 
-        int kk = g.nSpecies();
+        size_t kk = g.nSpecies();
         vector_fp Xmol(kk, 0.0);
-        int iCH4 = g.speciesIndex("CH4");
-        int iO2 = g.speciesIndex("O2");
-        int iN2 = g.speciesIndex("N2");
+        size_t iCH4 = g.speciesIndex("CH4");
+        size_t iO2 = g.speciesIndex("O2");
+        size_t iN2 = g.speciesIndex("N2");
 
         /*
          * Do an initial calculation that can be debugged

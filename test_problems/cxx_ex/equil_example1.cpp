@@ -18,12 +18,11 @@ using namespace Cantera;
 template<class G, class V>
 void makeEquilDataLabels(const G& gas, V& names)
 {
-    int nsp = gas.nSpecies();
+    size_t nsp = gas.nSpecies();
     names.resize(nsp + 2);
     names[0]  = "Temperature (K)";
     names[1]  = "Pressure (Pa)";
-    int k;
-    for (k = 0; k < nsp; k++) {
+    for (size_t k = 0; k < nsp; k++) {
         names[2+k] = gas.speciesName(k);
     }
 }
@@ -63,7 +62,7 @@ int equil_example1(int job)
 
     //IdealGasMix gas("silane.cti", "silane");
     IdealGasMix gas("silane.xml", "silane");
-    int nsp = gas.nSpecies();
+    size_t nsp = gas.nSpecies();
 
     int ntemps = 50;   // number of temperatures
     Array2D output(nsp+2, ntemps);

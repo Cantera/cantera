@@ -23,7 +23,7 @@ int main(int argc, char** argv)
 {
 
     int retn = 0;
-    int i;
+    size_t i;
 
     try {
 
@@ -43,7 +43,7 @@ int main(int argc, char** argv)
         Cantera::ThermoPhase* solid = newPhase("NaCl_Solid.xml","NaCl(S)");
 
 
-        int nsp = HMW->nSpecies();
+        size_t nsp = HMW->nSpecies();
         double mf[100];
         double moll[100];
         for (i = 0; i < 100; i++) {
@@ -58,8 +58,8 @@ int main(int argc, char** argv)
 
         HMW->setState_TP(298.15, 1.01325E5);
 
-        int i1 = HMW->speciesIndex("Na+");
-        int i2 = HMW->speciesIndex("Cl-");
+        size_t i1 = HMW->speciesIndex("Na+");
+        size_t i2 = HMW->speciesIndex("Cl-");
         //int i3 = HMW->speciesIndex("H2O(L)");
         for (i = 0; i < nsp; i++) {
             moll[i] = 0.0;
@@ -223,14 +223,12 @@ int main(int argc, char** argv)
             //double AL = HMW->ADebye_L(T,pres);
             double AJ = HMW->ADebye_J(T, pres);
 
-
-
-            for (int k = 0; k < nsp; k++) {
+            for (size_t k = 0; k < nsp; k++) {
                 Cp0_R[k] *= GasConstant * 1.0E-6;
             }
 
             molarCp0 = 0.0;
-            for (int k = 0; k < nsp; k++) {
+            for (size_t k = 0; k < nsp; k++) {
                 molarCp0 += Xmol[k] * Cp0_R[k];
             }
 

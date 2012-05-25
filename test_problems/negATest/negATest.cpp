@@ -18,7 +18,7 @@ int main(int argc, char** argv)
         }
         std::string infile(argv[1]);
 
-        int i;
+        size_t i;
         double x[20];
         double cdot[20], ddot[20];
 
@@ -28,7 +28,7 @@ int main(int argc, char** argv)
 
         XML_Node* const xg = xc->findNameID("phase", "air");
         ThermoPhase* gasTP = newPhase(*xg);
-        int nsp = gasTP->nSpecies();
+        size_t nsp = gasTP->nSpecies();
         cout << "Number of species = " << nsp << endl;
 
 
@@ -36,15 +36,15 @@ int main(int argc, char** argv)
         phaseList.push_back(gasTP);
         GasKinetics* iKin_ptr = new GasKinetics();
         importKinetics(*xg, phaseList, iKin_ptr);
-        int nr = iKin_ptr->nReactions();
+        size_t nr = iKin_ptr->nReactions();
         cout << "Number of reactions = " << nr << endl;
 
-        int iH = gasTP->speciesIndex("H");
-        int iO2 = gasTP->speciesIndex("O2");
-        int iH2O = gasTP->speciesIndex("H2O");
-        int iNH = gasTP->speciesIndex("NH");
-        int iNO = gasTP->speciesIndex("NO");
-        int iN2O = gasTP->speciesIndex("N2O");
+        size_t iH = gasTP->speciesIndex("H");
+        size_t iO2 = gasTP->speciesIndex("O2");
+        size_t iH2O = gasTP->speciesIndex("H2O");
+        size_t iNH = gasTP->speciesIndex("NH");
+        size_t iNO = gasTP->speciesIndex("NO");
+        size_t iN2O = gasTP->speciesIndex("N2O");
 
         for (i = 0; i < nsp; i++) {
             x[i] = 0.0;
@@ -69,10 +69,10 @@ int main(int argc, char** argv)
 
         for (i = 0; i < nsp; i++) {
             string sSt = gasTP->speciesName(i);
-            printf("rop [ %d:%s ] = %g \n", i, sSt.c_str(), src[i]);
+            printf("rop [ %d:%s ] = %g \n", (int) i, sSt.c_str(), src[i]);
         }
 
-        int nReactions = iKin_ptr->nReactions();
+        size_t nReactions = iKin_ptr->nReactions();
         cout << "number of reactions = " << nReactions << endl;
 
         double fwd_rop[20];
@@ -80,8 +80,8 @@ int main(int argc, char** argv)
         iKin_ptr->getFwdRatesOfProgress(fwd_rop);
         iKin_ptr->getRevRatesOfProgress(rev_rop);
         for (i = 0; i < nReactions; i++) {
-            printf("fwd_rop[%3d] = %13g    rev_rop[%3d] = %13g\n", i, fwd_rop[i],
-                   i, rev_rop[i]);
+            printf("fwd_rop[%3d] = %13g    rev_rop[%3d] = %13g\n", (int) i,
+                   fwd_rop[i], (int) i, rev_rop[i]);
         }
 
 

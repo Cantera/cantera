@@ -21,7 +21,7 @@ int main(int argc, char** argv)
 {
 
     int retn = 0;
-    int i;
+    size_t i;
     string commandFile;
     try {
 
@@ -43,7 +43,7 @@ int main(int argc, char** argv)
 
         HMWSoln* HMW = new HMWSoln(iFile, "NaCl_electrolyte");
 
-        int nsp = HMW->nSpecies();
+        size_t nsp = HMW->nSpecies();
         double acMol[100];
         double act[100];
         double mf[100];
@@ -68,9 +68,9 @@ int main(int argc, char** argv)
             ff = fopen(fname, "w");
             HMW->setState_TP(Temp, 1.01325E5);
             printf("   Temperature = %g K\n", Temp);
-            int i1 = HMW->speciesIndex("Na+");
-            int i2 = HMW->speciesIndex("Cl-");
-            int i3 = HMW->speciesIndex("H2O(L)");
+            size_t i1 = HMW->speciesIndex("Na+");
+            size_t i2 = HMW->speciesIndex("Cl-");
+            size_t i3 = HMW->speciesIndex("H2O(L)");
             for (i = 1; i < nsp; i++) {
                 moll[i] = 0.0;
             }
@@ -81,7 +81,7 @@ int main(int argc, char** argv)
             double ISQRTbot = sqrt(Ibot);
             double ISQRT;
             double Is = 0.0;
-            int its = 100;
+            size_t its = 100;
             bool doneSp = false;
             fprintf(ff,"              Is,     sqrtIs,     meanAc,"
                     "  log10(meanAC),     acMol_Na+,"

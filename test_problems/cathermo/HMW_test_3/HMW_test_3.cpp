@@ -15,7 +15,7 @@ void printUsage()
 
 void pAtable(HMWSoln* HMW)
 {
-    int nsp = HMW->nSpecies();
+    size_t nsp = HMW->nSpecies();
     double acMol[100];
     double mf[100];
     double activities[100];
@@ -28,7 +28,7 @@ void pAtable(HMWSoln* HMW)
     string sName;
     printf("            Name      Activity  ActCoeffMolal "
            "   MoleFract      Molality\n");
-    for (int k = 0; k < nsp; k++) {
+    for (size_t k = 0; k < nsp; k++) {
         sName = HMW->speciesName(k);
         printf("%16s %13g %13g %13g %13g\n",
                sName.c_str(), activities[k], acMol[k], mf[k], moll[k]);
@@ -47,7 +47,7 @@ int main(int argc, char** argv)
 
         HMWSoln* HMW = new HMWSoln("HMW_NaCl_tc.xml");
 
-        int nsp = HMW->nSpecies();
+        size_t nsp = HMW->nSpecies();
 
         double a1 = HMW->AionicRadius(1);
         printf("a1 = %g\n", a1);
@@ -91,24 +91,21 @@ int main(int argc, char** argv)
         HMW->setState_TP(Temp, 1.01325E5);
         HMW->getStandardChemPotentials(mu0);
         // translate from J/kmol to kJ/gmol
-        int k;
-        for (k = 0; k < nsp; k++) {
+        for (size_t k = 0; k < nsp; k++) {
             mu0[k] *= 1.0E-6;
         }
 
         printf("           Species   Standard chemical potentials (kJ/gmol) \n");
         printf("------------------------------------------------------------\n");
-        for (k = 0; k < nsp; k++) {
+        for (size_t k = 0; k < nsp; k++) {
             sName = HMW->speciesName(k);
             printf("%16s %16.9g\n", sName.c_str(), mu0[k]);
         }
         printf("------------------------------------------------------------\n");
         printf(" Some DeltaSS values:               Delta(mu_0)\n");
         double deltaG;
-        int i1, i2, j1;
+        size_t i1, i2, j1;
         double RT = 8.314472E-3 * 298.15;
-
-
 
         i1 = HMW->speciesIndex("Na+");
         i2 = HMW->speciesIndex("Cl-");
@@ -123,7 +120,7 @@ int main(int argc, char** argv)
         i1 = HMW->speciesIndex("H+");
         i2 = HMW->speciesIndex("H2O(L)");
         j1 = HMW->speciesIndex("OH-");
-        if (i1 < 0 || i2 < 0 || j1 < 0) {
+        if (i1 == npos || i2 == npos || j1 == npos) {
             printf("problems\n");
             exit(-1);
         }

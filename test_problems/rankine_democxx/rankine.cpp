@@ -28,11 +28,9 @@ void saveState(F& fluid, string name)
 
 void printStates()
 {
-    string name;
-    int n;
-    int nStates = states.size();
-    for (n = 0; n < nStates; n++) {
-        name = states[n];
+    size_t nStates = states.size();
+    for (size_t n = 0; n < nStates; n++) {
+        string name = states[n];
         printf(" %5s %10.6g %10.6g  %12.6g %12.6g %5.2g \n",
                name.c_str(), T[name], P[name], h[name], s[name], x[name]);
     }

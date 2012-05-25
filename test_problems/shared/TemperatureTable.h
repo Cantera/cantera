@@ -23,23 +23,23 @@ class TemperatureTable
 {
 
 public:
-    int    NPoints;
+    size_t NPoints;
     bool   Include298;
     double Tlow;                 //!<   Min temperature for thermo data fit
     double Thigh;                //!<   Max temperature for thermo table
     double DeltaT;
     vector<double> T;
-    int numAddedTs;
+    size_t numAddedTs;
     vector<double> AddedTempVector;
 public:
     /*
      * Default constructor for TemperatureTable()
      */
-    TemperatureTable(const int nPts = 14,
+    TemperatureTable(const size_t nPts = 14,
                      const bool inc298 = true,
                      const double tlow = 300.,
                      const double deltaT = 100.,
-                     const int numAdded = 0,
+                     const size_t numAdded = 0,
                      const double* addedTempVector = 0) :
         NPoints(nPts),
         Include298(inc298),
@@ -48,14 +48,13 @@ public:
         T(0),
         numAddedTs(numAdded) {
         /****************************/
-        int i;
         AddedTempVector.resize(numAdded, 0.0);
-        for (int i = 0; i < numAdded; i++) {
+        for (size_t i = 0; i < numAdded; i++) {
             AddedTempVector[i] = addedTempVector[i];
         }
         T.resize(NPoints, 0.0);
         double TCurrent = Tlow;
-        for (i = 0; i < NPoints; i++) {
+        for (size_t i = 0; i < NPoints; i++) {
             T[i] = TCurrent;
             TCurrent += DeltaT;
         }
@@ -65,7 +64,7 @@ public:
         }
         if (numAdded > 0) {
             T.resize(NPoints+numAdded, 0.0);
-            for (i = 0; i < numAdded; i++) {
+            for (size_t i = 0; i < numAdded; i++) {
                 T[i+NPoints] = addedTempVector[i];
             }
             NPoints += numAdded;
@@ -97,7 +96,7 @@ public:
     /*
      *  size()
      */
-    int size() {
+    size_t size() {
         return NPoints;
     }
     /***********************************************************************/

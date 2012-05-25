@@ -50,18 +50,18 @@ int main(int argc, char** argv)
 
         XML_Node* const xg = xc->findNameID("phase", "gas");
         ThermoPhase* gasTP = newPhase(*xg);
-        int nsp = gasTP->nSpecies();
+        size_t nsp = gasTP->nSpecies();
         cout << "Number of species = " << nsp << endl;
 
         XML_Node* const xd = xc->findNameID("phase", "diamond");
         ThermoPhase* diamondTP = newPhase(*xd);
-        int nsp_diamond = diamondTP->nSpecies();
+        size_t nsp_diamond = diamondTP->nSpecies();
         cout << "Number of species in diamond = " << nsp_diamond << endl;
 
 
         XML_Node* const xs = xc->findNameID("phase", "diamond_100");
         ThermoPhase* diamond100TP = newPhase(*xs);
-        int nsp_d100 = diamond100TP->nSpecies();
+        size_t nsp_d100 = diamond100TP->nSpecies();
         cout << "Number of species in diamond_100 = " << nsp_d100 << endl;
 
         vector<ThermoPhase*> phaseList;
@@ -70,7 +70,7 @@ int main(int argc, char** argv)
         phaseList.push_back(diamond100TP);
         InterfaceKinetics* iKin_ptr = new InterfaceKinetics();
         importKinetics(*xs, phaseList, iKin_ptr);
-        int nr = iKin_ptr->nReactions();
+        size_t nr = iKin_ptr->nReactions();
         cout << "Number of reactions = " << nr << endl;
 
         double x[20];
@@ -88,9 +88,9 @@ int main(int argc, char** argv)
         for (i = 0; i < 20; i++) {
             x[i] = 0.0;
         }
-        int i0 = diamond100TP->speciesIndex("c6H*");
+        size_t i0 = diamond100TP->speciesIndex("c6H*");
         x[i0] = 0.1;
-        int i1 = diamond100TP->speciesIndex("c6HH");
+        size_t i1 = diamond100TP->speciesIndex("c6HH");
         x[i1] = 0.9;
         diamond100TP->setState_TX(1200., x);
 

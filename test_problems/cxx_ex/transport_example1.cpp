@@ -17,13 +17,12 @@ using std::endl;
 template<class G, class V>
 void makeTransportDataLabels(const G& gas, V& names)
 {
-    int nsp = gas.nSpecies();
+    size_t nsp = gas.nSpecies();
     names.resize(nsp + 3);
     names[0]  = "Temperature (K)";
     names[1]  = "Viscosity ()";
     names[2]  = "Thermal Conductivity (W/m-K)";
-    int k;
-    for (k = 0; k < nsp; k++) {
+    for (size_t k = 0; k < nsp; k++) {
         names[3+k] = gas.speciesName(k);
     }
 }
@@ -63,7 +62,7 @@ int transport_example1(int job)
 
         Transport* tr = newTransportMgr("Mix", &gas);
 
-        int nsp = gas.nSpecies();
+        size_t nsp = gas.nSpecies();
 
 
         // create a 2D array to hold the outputs

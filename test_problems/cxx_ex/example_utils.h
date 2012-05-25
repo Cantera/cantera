@@ -26,8 +26,8 @@ void saveSoln(double time, const G& gas, A& soln)
     soln(1,back) = gas.temperature();
     soln(2,back) = gas.density();
     soln(3,back) = gas.pressure();
-    int nsp = gas.nSpecies();
-    for (int k = 0; k < nsp; k++) {
+    size_t nsp = gas.nSpecies();
+    for (size_t k = 0; k < nsp; k++) {
         soln(4+k,back) = gas.moleFraction(k);
     }
 }
@@ -35,14 +35,13 @@ void saveSoln(double time, const G& gas, A& soln)
 template<class G, class V>
 void makeDataLabels(const G& gas, V& names)
 {
-    int nsp = gas.nSpecies();
+    size_t nsp = gas.nSpecies();
     names.resize(nsp + 4);
     names[0] = "time (s)";
     names[1]  = "Temperature (K)";
     names[2]  = "Density (kg/m3)";
     names[3]  = "Pressure (Pa)";
-    int k;
-    for (k = 0; k < nsp; k++) {
+    for (size_t k = 0; k < nsp; k++) {
         names[4+k] = gas.speciesName(k);
     }
 }
