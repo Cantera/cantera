@@ -864,14 +864,14 @@ elif env['use_sundials'] == 'y' and not env['HAS_SUNDIALS']:
     print "ERROR: Unable to find Sundials headers and / or libraries."
     print "See config.log for details."
     sys.exit(1)
-elif env['use_sundials'] == 'y' and env['sundials_version'] not in ('2.2','2.3','2.4'):
-    print """ERROR: Sundials version %r is not supported."""
+elif env['use_sundials'] == 'y' and env['sundials_version'] not in ('2.2','2.3','2.4','2.5'):
+    print """ERROR: Sundials version %r is not supported.""" % env['sundials_version']
     sys.exit(1)
 
 # Deprecation warnings for old Sundials versions
 if env.get('sundials_version') in ('2.2', '2.3'):
     print 'WARNING: Support for Sundials %s is deprecated and will be removed.' % env['sundials_version']
-    print 'WARNING: Upgrading to Sundials 2.4 is strongly recommended.'
+    print 'WARNING: Upgrading to Sundials 2.5 is strongly recommended.'
 
 # Deprecation warnings for numarray and numeric
 if env.get('python_array') in ('numarray', 'numeric'):
@@ -961,10 +961,10 @@ cdefine('HAS_NUMERIC', 'python_array', 'numeric')
 cdefine('HAS_NO_PYTHON', 'python_package', 'none')
 
 cdefine('HAS_SUNDIALS', 'use_sundials', 'y')
-if env['use_sundials']:
-    cdefine('SUNDIALS_VERSION_22', 'sundials_version', '2.2')
-    cdefine('SUNDIALS_VERSION_23', 'sundials_version', '2.3')
-    cdefine('SUNDIALS_VERSION_24', 'sundials_version', '2.4')
+if env['use_sundials'] == 'y':
+    configh['SUNDIALS_VERSION'] = env['sundials_version'].replace('.','')
+else:
+    configh['SUNDIALS_VERSION'] = 0
 
 cdefine('WITH_ELECTROLYTES', 'with_electrolytes')
 cdefine('WITH_IDEAL_SOLUTIONS', 'with_ideal_solutions')

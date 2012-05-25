@@ -50,9 +50,7 @@ typedef  int          ftnlen;       // Fortran hidden string length type
 
 
 %(HAS_SUNDIALS)s
-%(SUNDIALS_VERSION_22)s
-%(SUNDIALS_VERSION_23)s
-%(SUNDIALS_VERSION_24)s
+%(SUNDIALS_VERSION)s
 
 //-------- LAPACK / BLAS ---------
 

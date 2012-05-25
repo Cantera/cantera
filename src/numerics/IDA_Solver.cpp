@@ -10,7 +10,7 @@
 
 #include <iostream>
 
-#ifdef SUNDIALS_VERSION_24
+#if SUNDIALS_VERSION >= 24
 #include "sundials/sundials_types.h"
 #include "sundials/sundials_math.h"
 #include "ida/ida.h"
@@ -21,6 +21,11 @@
 
 using namespace std;
 
+#if SUNDIALS_VERSION < 25
+typedef int sd_size_t;
+#else
+typedef long int sd_size_t;
+#endif
 
 
 inline static N_Vector nv(void* x)
@@ -93,7 +98,7 @@ extern "C" {
     /*!
      *
      *
-     * typedef int (*IDADlsDenseJacFn)(int N, realtype t, realtype c_j,
+     * typedef int (*IDADlsDenseJacFn)(sd_size_t N, realtype t, realtype c_j,
      *                             N_Vector y, N_Vector yp, N_Vector r,
      *                             DlsMat Jac, void *user_data,
      *                             N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
@@ -105,7 +110,7 @@ extern "C" {
      * In the case of a recoverable error return, the integrator will
      * attempt to recover by reducing the stepsize (which changes cj).
      */
-    static int ida_jacobian(int nrows, realtype t, realtype c_j,  N_Vector y, N_Vector ydot, N_Vector r,
+    static int ida_jacobian(sd_size_t nrows, realtype t, realtype c_j,  N_Vector y, N_Vector ydot, N_Vector r,
                             DlsMat Jac,  void* f_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
     {
         doublereal* ydata    = NV_DATA_S(y);
@@ -367,7 +372,7 @@ void IDA_Solver::init(doublereal t0)
 
 
     if (m_itol == IDA_SV) {
-#if defined(SUNDIALS_VERSION_22) || defined(SUNDIALS_VERSION_23)
+#if SUNDIALS_VERSION <= 23
         // vector atol
         flag = IDAMalloc(m_ida_mem, ida_resid, m_t0, nv(m_y), nv(m_ydot),
                          m_itol, m_reltol, nv(m_abstol));
@@ -381,7 +386,7 @@ void IDA_Solver::init(doublereal t0)
             }
         }
 
-#elif defined(SUNDIALS_VERSION_24)
+#elif SUNDIALS_VERSION >= 24
         flag = IDAInit(m_ida_mem, ida_resid, m_t0, nv(m_y), nv(m_ydot));
         if (flag != IDA_SUCCESS) {
             if (flag == IDA_MEM_FAIL) {
@@ -398,7 +403,7 @@ void IDA_Solver::init(doublereal t0)
         }
 #endif
     } else {
-#if defined(SUNDIALS_VERSION_22) || defined(SUNDIALS_VERSION_23)
+#if SUNDIALS_VERSION <= 23
         // scalar atol
         flag = IDAMalloc(m_ida_mem, ida_resid, m_t0, nv(m_y), nv(m_ydot),
                          m_itol, m_reltol, &m_abstols);
@@ -412,7 +417,7 @@ void IDA_Solver::init(doublereal t0)
             }
         }
 
-#elif defined(SUNDIALS_VERSION_24)
+#elif SUNDIALS_VERSION >= 24
         flag = IDAInit(m_ida_mem, ida_resid, m_t0, nv(m_y), nv(m_ydot));
         if (flag != IDA_SUCCESS) {
             if (flag == IDA_MEM_FAIL) {
@@ -458,12 +463,12 @@ void IDA_Solver::init(doublereal t0)
 
     // pass a pointer to func in m_data
     m_fdata = new ResidData(&m_resid, this, m_resid.nparams());
-#if defined(SUNDIALS_VERSION_22) || defined(SUNDIALS_VERSION_23)
+#if SUNDIALS_VERSION <= 23
     flag = IDASetRdata(m_ida_mem, (void*)m_fdata);
     if (flag != IDA_SUCCESS) {
         throw IDA_Err("IDASetRdata failed.");
     }
-#elif defined(SUNDIALS_VERSION_24)
+#elif SUNDIALS_VERSION >= 24
     flag = IDASetUserData(m_ida_mem, (void*)m_fdata);
     if (flag != IDA_SUCCESS) {
         throw IDA_Err("IDASetUserData failed.");
@@ -549,7 +554,7 @@ void IDA_Solver::correctInitial_Y_given_Yp(doublereal* y, doublereal* yp,  doubl
     }
 
 
-    flag = IDAGetSolution(m_ida_mem, tout1, nv(m_y), nv(m_ydot));
+    flag = IDAGetConsistentIC(m_ida_mem, nv(m_y), nv(m_ydot));
     if (flag != IDA_SUCCESS) {
         throw IDA_Err("IDAGetSolution failed: error = " + int2str(flag));
     }
@@ -595,7 +600,7 @@ void IDA_Solver::correctInitial_YaYp_given_Yd(doublereal* y, doublereal* yp, dou
     }
 
 
-    flag = IDAGetSolution(m_ida_mem, tout1, nv(m_y), nv(m_ydot));
+    flag = IDAGetConsistentIC(m_ida_mem, nv(m_y), nv(m_ydot));
     if (flag != IDA_SUCCESS) {
         throw IDA_Err("IDAGetSolution failed: error = " + int2str(flag));
     }

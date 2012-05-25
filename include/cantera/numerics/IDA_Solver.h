@@ -13,9 +13,9 @@
 #include "DAE_Solver.h"
 #include "cantera/base/ctexceptions.h"
 
-#ifdef HAS_SUNDIALS
+#if HAS_SUNDIALS
 
-#ifdef SUNDIALS_VERSION_22
+#if SUNDIALS_VERSION == 22
 #include "nvector_serial.h"
 #else
 #include "sundials/sundials_nvector.h"
@@ -27,7 +27,7 @@
 #define IDA_WF  3
 
 #endif
-#if defined(SUNDIALS_VERSION_24)
+#if SUNDIALS_VERSION >= 24
 #define REAL_WORKSPACE_SIZE 0
 #endif
 
