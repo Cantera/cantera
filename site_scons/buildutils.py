@@ -278,6 +278,7 @@ def compareCsvFiles(env, file1, file2):
     """
     try:
         import numpy as np
+        hasSkipHeader = tuple(np.version.version.split('.')[:2]) >= ('1','4')
     except ImportError:
         print 'WARNING: skipping .csv diff because numpy is not installed'
         return 0
@@ -293,8 +294,12 @@ def compareCsvFiles(env, file1, file2):
             break
 
     try:
-        data1 = np.genfromtxt(file1, skiprows=headerRows, delimiter=',')
-        data2 = np.genfromtxt(file2, skiprows=headerRows, delimiter=',')
+        if hasSkipHeader:
+            data1 = np.genfromtxt(file1, skip_header=headerRows, delimiter=',')
+            data2 = np.genfromtxt(file2, skip_header=headerRows, delimiter=',')
+        else:
+            data1 = np.genfromtxt(file1, skiprows=headerRows, delimiter=',')
+            data2 = np.genfromtxt(file2, skiprows=headerRows, delimiter=',')
     except (IOError, StopIteration) as e:
         print e
         return 1
