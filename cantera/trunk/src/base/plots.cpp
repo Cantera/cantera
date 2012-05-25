@@ -97,16 +97,21 @@ void outputExcel(std::ostream& s, const std::string& title,
     int nv = static_cast<int>(data.nRows());
     s << title + "," << endl;
     for (i = 0; i < nv; i++) {
-        s << names[i] << ",";
+        s << names[i];
+        if (i != nv-1) {
+            s << ",";
+        }
     }
-    s << endl;
+     s << endl;
     for (i = 0; i < npts; i++) {
         for (j = 0; j < nv; j++) {
-            s << data(j,i) << ",";
+            s << data(j,i);
+            if (j != nv-1) {
+                s << ",";
+            }
         }
         s << endl;
     }
 }
-
 
 }

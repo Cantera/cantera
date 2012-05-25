@@ -20,18 +20,20 @@ if not os.getenv('PYTHON_CMD'):
     # in cases where the python interpreter isn't in the system path.
     os.environ['PYTHON_CMD'] = _sys.executable
 
-def writeCSV(f, list):
+def writeCSV(f, lst):
     """
     Write list items to file *f* in
     comma-separated-value format.  Strings will be written as-is, and
     other types of objects will be converted to strings and then
     written. Each call to writeCSV writes one line of the file.
     """
-    for item in list:
+    for i,item in enumerate(lst):
         if type(item) == types.StringType:
-            f.write(item+', ')
+            f.write(item)
         else:
-            f.write(`item`+', ')
+            f.write(repr(item))
+        if i != len(lst)-1:
+            f.write(',')
 
     f.write('\n')
 
