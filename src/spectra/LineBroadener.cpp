@@ -14,7 +14,7 @@ using namespace Cantera;
 namespace Cantera
 {
 
-Lorentzian::Lorentzian(doublereal gamma)
+LorentzianProfile::LorentzianProfile(doublereal gamma)
 {
     m_hwhm = gamma;
     m_hwhm2 = m_hwhm*m_hwhm;
@@ -28,7 +28,7 @@ Lorentzian::Lorentzian(doublereal gamma)
  *\f]
  * Units: 1/wavenumber (or cm).
  */
-doublereal Lorentzian::profile(doublereal deltaFreq)
+doublereal LorentzianProfile::profile(doublereal deltaFreq)
 {
     return (1.0/Cantera::Pi) *m_hwhm/(deltaFreq*deltaFreq + m_hwhm2);
 }
@@ -40,23 +40,23 @@ doublereal Lorentzian::profile(doublereal deltaFreq)
  * \frac{1}{\pi} \tan^{-1}\left(\frac{\Delta\nu}{gamma}\right) + 0.5
  * \f]
  */
-doublereal Lorentzian::cumulative(doublereal deltaFreq)
+doublereal LorentzianProfile::cumulative(doublereal deltaFreq)
 {
     return (1.0/Pi) * atan(deltaFreq/m_hwhm) + 0.5;
 }
 
-doublereal Lorentzian::width()
+doublereal LorentzianProfile::width()
 {
     return 2.0*m_hwhm;
 }
 
-Gaussian::Gaussian(doublereal sigma)
+GaussianProfile::GaussianProfile(doublereal sigma)
 {
     m_sigma = sigma;
     m_sigma2 = m_sigma*m_sigma;
 }
 
-doublereal Gaussian::profile(doublereal deltaFreq)
+doublereal GaussianProfile::profile(doublereal deltaFreq)
 {
     //cout << "entered Gaussian::profile" << endl;
     //cout << "deltaFreq = " << deltaFreq << endl;
@@ -65,12 +65,12 @@ doublereal Gaussian::profile(doublereal deltaFreq)
            exp(-deltaFreq*deltaFreq/(2.0*m_sigma2));
 }
 
-doublereal Gaussian::cumulative(doublereal deltaFreq)
+doublereal GaussianProfile::cumulative(doublereal deltaFreq)
 {
     return 0.5*(1.0 + erf(deltaFreq/(m_sigma*SqrtTwo)));
 }
 
-doublereal Gaussian::width()
+doublereal GaussianProfile::width()
 {
     return 2.0*m_sigma*sqrt(log(4.0));
 }
