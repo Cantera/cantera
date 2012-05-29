@@ -216,9 +216,26 @@ Intel Compilers
 
     env_vars=all
 
+* If you want to use the Intel MKL versions of BLAS and LAPACK, you will need
+  to provide additional options. The following are typically correct on
+  64-bit Linux systems::
+
+    blas_lapack_libs=mkl_rt blas_lapack_dir=$(MKLROOT)/lib/intel64
+
   Your final SCons call might then look something like::
 
-    scons build env_vars=all CC=icc CXX=icpc F90=ifort F77=ifort
+    scons build env_vars=all CC=icc CXX=icpc F90=ifort F77=ifort blas_lapack_libs=mkl_rt blas_lapack_dir=$(MKLROOT)/lib/intel64
+
+  When installing Cantera after building with the Intel compiler, the normal
+  method of using ``sudo`` to install Cantera will not work because ``sudo``
+  does not pass the environment variables needed by the Intel compiler.
+  Instead, you will need to do something like::
+
+    scons build ...
+    sudo -s
+    source /path/to/compilervars.sh intel64
+    scons install
+    exit
 
 Compile Cantera & Test
 ======================
