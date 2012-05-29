@@ -33,6 +33,7 @@ namespace Cantera {
    *  routines. 
    */
   const int cIdealGas = 1;       //  IdealGasPhase in IdealGasPhase.h
+  const int cPecosGas = 666;     //  PecosGasPhase in PecosGasPhase.h
   const int cIncompressible = 2; //  ConstDensityThermo in ConstDensityThermo.h
   /// A surface phase. Used by class SurfPhase.
   const int cSurf = 3;           

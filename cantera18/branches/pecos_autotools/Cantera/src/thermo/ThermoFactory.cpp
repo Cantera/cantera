@@ -22,6 +22,7 @@
 #include "speciesThermoTypes.h"
 #include "SpeciesThermoFactory.h"
 #include "IdealGasPhase.h"
+#include "PecosGasPhase.h"
 #include "VPSSMgr.h"
 #include "VPSSMgrFactory.h"
 
@@ -88,14 +89,14 @@ namespace Cantera {
     boost::mutex ThermoFactory::thermo_mutex;
 #endif
 
-    static int ntypes = 18;
+    static int ntypes = 19;
     static string _types[] = {"IdealGas", "Incompressible", 
                               "Surface", "Edge", "Metal", "StoichSubstance",
                               "PureFluid", "LatticeSolid", "Lattice",
                               "HMW", "IdealSolidSolution", "DebyeHuckel", 
                               "IdealMolalSolution", "IdealGasVPSS",
 			      "MineralEQ3", "MetalSHEelectrons", "Margules",
-                              "IonsFromNeutralMolecule"
+                              "IonsFromNeutralMolecule", "PecosGas"
     };
 
     static int _itypes[]   = {cIdealGas, cIncompressible, 
@@ -104,7 +105,7 @@ namespace Cantera {
                               cHMW, cIdealSolidSolnPhase, cDebyeHuckel,
                               cIdealMolalSoln, cVPSS_IdealGas,
 			      cMineralEQ3, cMetalSHEelectrons,
-			      cMargulesVPSSTP, cIonsFromNeutral, 
+			      cMargulesVPSSTP, cIonsFromNeutral, cPecosGas
     };
 
   /*
@@ -123,6 +124,10 @@ namespace Cantera {
 
     case cIdealGas:
       th = new IdealGasPhase;
+      break;
+
+    case cPecosGas:
+      th = new PecosGasPhase;
       break;
 
     case cIncompressible:
