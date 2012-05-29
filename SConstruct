@@ -702,6 +702,9 @@ if env['boost_inc_dir']:
 if env['boost_lib_dir']:
     env.Append(LIBPATH=env['boost_lib_dir'])
 
+if env['blas_lapack_dir']:
+    env.Append(LIBPATH=env['blas_lapack_dir'])
+
 if (env['use_sundials'] == 'default' and
     (env['sundials_include'] or env['sundials_libdir'])):
     env['use_sundials'] = 'y'
