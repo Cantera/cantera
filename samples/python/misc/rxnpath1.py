@@ -1,32 +1,17 @@
 """
+Viewing a reaction path diagram.
 
-Viewing a reaction path diagram in a web browser.
-
-This script uses the public webdot server at webdot.graphviz.org to
-perform the rendering of the graph. You don't need to get the 'dot'
-program to use this script, but you do need to be able to put your
-output file where it can be served by your web server. You can either
-run a local server, or mount the remote directory where your web files
-are located. You could also modify this script to write the file
-locally, and then upload it to your web server.
-
+This script uses Graphviz to generate an image. You must have Graphviz installed
+and the program 'dot' must be on your path for this example to work.
+Graphviz can be obtained from http://www.graphviz.org/ or (possibly) installed
+using your operating system's package manager.
 """
 
-from os.path import join
+import os
+import sys
+
 from Cantera import *
 from Cantera import rxnpath
-
-import sys
-opts = sys.argv
-
-#------------ site-specific configuration -----------------------------
-
-# to view the diagram in a browser, set 'output_dir' to a directory that
-# is within the document tree of your web server, and set output_url to
-# the URL that accesses this directory.
-
-output_dir = 'd:/www/docs'
-output_urldir = 'http://your.http.server/'
 
 #-----------------------------------------------------------------------
 # these lines can be replaced by any commands that generate
@@ -43,12 +28,15 @@ d = rxnpath.PathDiagram(title = 'reaction path diagram following N',
                         bold_color = 'green')
 
 element = 'N'
-output_file = 'rxnpath2.dot'
-url = output_urldir+'/'+output_file
+dot_file = 'rxnpath2.dot'
+img_file = 'rxnpath2.png'
+img_path = os.path.join(os.getcwd(), img_file)
 
-rxnpath.write(gas, element, join(output_dir, output_file), d)
+rxnpath.write(gas, element, dot_file, d)
+print "Wrote graphviz input file to '%s'." % os.path.join(os.getcwd(), dot_file)
 
-if len(opts) > 1 and opts[1] == "-view":
-    # graphics format. Must be one of png, svg, gif, or jpg
-    fmt = 'svg'
-    rxnpath.view(url, fmt)
+os.system('dot %s -Tpng -o%s -Gdpi=200' % (dot_file, img_file))
+print "Wrote graphviz output file to '%s'." % img_path
+
+if len(sys.argv) > 1 and sys.argv[1] == "-view":
+    rxnpath.view('file:///' + img_path)
