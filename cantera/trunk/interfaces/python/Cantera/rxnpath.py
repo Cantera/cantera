@@ -150,12 +150,9 @@ def write(g, el, file, d=None, format="dot"):
     b.build(element = el, diagram = d, dotfile = file, format = format)
 
 
-def view(url, ext = 'png'):
-    if not ext in ['pdf', 'png', 'gif', 'jpg', 'svg']:
-        raise 'fmt must be svg, pdf, png, gif, or jpg'
+def view(url):
     import webbrowser
-    dot_server = 'http://webdot.graphviz.org/cgi-bin/webdot/'
-    webbrowser.open(dot_server+url+'.dot.'+ext)
+    webbrowser.open(url)
 
 
 if __name__ == "__main__":
