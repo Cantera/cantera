@@ -79,7 +79,7 @@ void ct2ctml(const char* file, const int debug)
     int python_exit_code;
     try {
         exec_stream_t python;
-        python.set_wait_timeout(exec_stream_t::s_child, 1800000); // 30 minutes
+        python.set_wait_timeout(exec_stream_t::s_all, 1800000); // 30 minutes
         python.start(pypath(), "-i");
         stringstream output_stream;
         python.in() <<
