@@ -151,7 +151,7 @@ class PDSS_Water;
  * of pressure. The solute standard state gibbs free energy is obtained
  * from the enthalpy and entropy functions.
  *
- * The vector Constituents::m_speciesSize[] is used to hold the
+ * The vector Phase::m_speciesSize[] is used to hold the
  * base values of species sizes. These are defined as the
  * molar volumes of species at infinite dilution at 300 K and 1 atm
  * of water. m_speciesSize are calculated during the initialization of the

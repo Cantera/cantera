@@ -243,21 +243,21 @@
  *        </TD>
  *      </TR>
  *      <TR>
- *        <TD> \link State::setConcentrations() setConcentrations()\endlink     </TD>
+ *        <TD> \link Phase::setConcentrations() setConcentrations()\endlink     </TD>
  *        <TD> Set the concentrations of all the species in the
  *                         phase. Note this implicitly specifies the pressure and
  *                         density of the phase. The temperature is assumed fixed.
  *        </TD>
  *      </TR>
  *      <TR>
- *        <TD> \link State::setDensity() setDensity()\endlink     </TD>
+ *        <TD> \link Phase::setDensity() setDensity()\endlink     </TD>
  *        <TD>  Set the total density of the phase. The temperature and
  *                         mole fractions are assumed fixed. Note this implicitly
  *                         sets the pressure of the phase.
  *        </TD>
  *      </TR>
  *      <TR>
- *        <TD> \link State::setTemperature() setTemperature()\endlink     </TD>
+ *        <TD> \link Phase::setTemperature() setTemperature()\endlink     </TD>
  *        <TD> Set the temperature of the phase. The density and
  *                         the mole fractions of the phase are fixed.
  *        </TD>

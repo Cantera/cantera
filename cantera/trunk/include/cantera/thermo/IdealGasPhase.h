@@ -31,10 +31,10 @@ namespace Cantera
  * The independent unknowns are density, mass fraction, and temperature.
  * the #setPressure() function will calculate the density consistent with
  * the current mass fraction vector and temperature and the desired pressure,
- * and then set the density in the derived State object.
+ * and then set the density.
  *
  * <HR>
- * <H2> Specification of Species Standard %State Properties </H2>
+ * <H2> Specification of Species Standard State Properties </H2>
  * <HR>
  *
  *  It is assumed that the reference state thermodynamics may be

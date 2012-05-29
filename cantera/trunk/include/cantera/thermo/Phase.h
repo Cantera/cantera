@@ -15,6 +15,18 @@ namespace Cantera
 {
 class SpeciesThermo;
 
+/**
+ * @defgroup phases Models of Phases of Matter
+ *
+ * These classes are used to represent the composition and state of a single
+ * phase of matter. Together these classes form the basis for describing the
+ * species and element compositions of a phase as well as the stoichiometry
+ * of each species, and for describing the current state of the phase. They do
+ * not in themselves contain Thermodynamic equation of state information.
+ * However, they do comprise all of the necessary background functionality to
+ * support thermodynamic calculations (see \ref thermoprops).
+ */
+
 //!  Exception class to indicate a fixed set of elements.
 /*!
  *   This class is used to warn the user when the number of elements
@@ -31,6 +43,7 @@ public:
 
 //! Base class for phases of matter
 /*!
+ *
  * Class Phase manages the species and elements in a phase, as well as the
  * independent variables of temperature, mass density, and species mass/mole
  * fraction that define the thermodynamic state.
