@@ -329,7 +329,7 @@ protected:
         //! Constructor
         ThreadMessages() {}
 
-        //! Provide a pointer deferencing overloaded operator
+        //! Provide a pointer dereferencing overloaded operator
         /*!
          * @return  returns a pointer to Messages
          */

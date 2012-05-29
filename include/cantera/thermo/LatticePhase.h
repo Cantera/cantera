@@ -23,7 +23,7 @@
 namespace Cantera
 {
 
-//!  A simple thermoydnamics model for a bulk phase,
+//!  A simple thermodynamic model for a bulk phase,
 //!  assuming a lattice of solid atoms
 /*!
  *  The bulk consists of a matrix of equivalent sites whose molar density

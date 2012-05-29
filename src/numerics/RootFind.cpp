@@ -185,7 +185,7 @@ doublereal RootFind::delXMeaningful(doublereal x1) const
     return del;
 }
 //================================================================================================
-// Calcuated a controlled, nonzero delta between two numbers
+// Calculate a controlled, nonzero delta between two numbers
 /*
  *  The delta is designed to be greater than or equal to delXNonzero(x) defined above
  *  with the same sign as the original delta. Therefore if you subtract it from either
@@ -622,7 +622,7 @@ int RootFind::solve(doublereal xmin, doublereal xmax, int itmax, doublereal& fun
         } else {
             /*
              *   If we are venturing into new ground, only allow the step jump
-             *   to increase by 50% at each interation, unless the step jump is less than
+             *   to increase by 50% at each iteration, unless the step jump is less than
              *   the user has said that it is ok to take
              */
             doublereal xDelMax = 1.5 * fabs(x2 - x1);

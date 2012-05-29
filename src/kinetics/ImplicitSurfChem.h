@@ -125,7 +125,7 @@ public:
      *                    4  SFLUX_TRANSIENT
      *         The default is -1, which means that the program
      *         will decide.
-     * @param timeScaleOverride When a psuedo transient is
+     * @param timeScaleOverride When a pseudo transient is
      *             selected this value can be used to override
      *             the default time scale for integration which
      *             is one.

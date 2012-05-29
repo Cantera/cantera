@@ -84,7 +84,7 @@ VPSSMgr* VPSSMgr_General::duplMyselfAsVPSSMgr() const
  * them. This function is called like an onion.
  *
  *  @param vp_ptr   Pointer to the VPStandardStateTP standard state
- *  @param sp_ptr   Poitner to the SpeciesThermo standard state
+ *  @param sp_ptr   Pointer to the SpeciesThermo standard state
  */
 void VPSSMgr_General::initAllPtrs(VPStandardStateTP* vp_ptr, SpeciesThermo* sp_ptr)
 {

@@ -22,7 +22,7 @@ class WaterProps;
 //!  Class for single-component water. This is designed to cover just the
 //!  liquid part of water.
 /*!
- *  The reference is W. Wagner, A. Prub, "The IAPWS Formulation 1995 for the Themodynamic
+ *  The reference is W. Wagner, A. Prub, "The IAPWS Formulation 1995 for the Thermodynamic
  *  Properties of Ordinary Water Substance for General and Scientific Use,"
  *  J. Phys. Chem. Ref. Dat, 31, 387, 2002.
  *

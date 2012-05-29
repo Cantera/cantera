@@ -30,9 +30,6 @@ namespace Cantera
 
 static doublereal calcWeightedNorm(const doublereal [], const doublereal dx[], size_t);
 
-/***************************************************************************
- *  solveSP Class Definitinos
- ***************************************************************************/
 //================================================================================================
 // Main constructor
 solveProb::solveProb(ResidEval* resid) :
@@ -467,7 +464,7 @@ void solveProb::resjac_eval(std::vector<doublereal*> &JacCol,
 //================================================================================================
 #define APPROACH 0.50
 //  This function calculates a damping factor for the Newton iteration update
-//  vector, dxneg, to insure that all solution components stay within perscribed bounds
+//  vector, dxneg, to insure that all solution components stay within prescribed bounds
 /*
  *  The default for this class is that all solution components are bounded between zero and one.
  *  this is because the original unknowns were mole fractions and surface site fractions.

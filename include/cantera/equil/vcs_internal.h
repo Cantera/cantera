@@ -137,7 +137,7 @@ double vcsUtil_gasConstant(int mu_units);
  *
  * @return  The solution x[] is returned in the matrix <I>B</I>.
  *          Routine returns an integer representing success:
- *     -   1 : Matrix is singluar
+ *     -   1 : Matrix is singular
  *     -   0 : solution is OK
  *
  *
@@ -174,7 +174,7 @@ int  vcsUtil_mlequ(double* c, size_t idem, size_t n, double* b, size_t m);
  *
  * @return  The solution x[] is returned in the matrix <I>B</I>.
  *          Routine returns an integer representing success:
- *     -   1 : Matrix is singluar
+ *     -   1 : Matrix is singular
  *     -   0 : solution is OK
  *
  *  @param c  Matrix to be inverted. c is in fortran format, i.e., rows
@@ -233,7 +233,7 @@ typedef double(*VCS_FUNC_PTR)(double xval, double Vtarget,
  *    f(xval).
  *
  *  @param xmin  Minimum permissible value of the x variable
- *  @param xmax  Maximum permissible value of the x paramerer
+ *  @param xmax  Maximum permissible value of the x parameter
  *  @param itmax Maximum number of iterations
  *  @param func  function pointer, pointing to the function to be
  *               minimized
@@ -476,7 +476,7 @@ size_t vcs_optMax(const double* x, const double* xSize, size_t j, size_t n);
  */
 int vcs_max_int(const int* vector, int length);
 
-//! Prints a line consisting of mutliple occurances of the same string
+//! Prints a line consisting of multiple occurrences of the same string
 /*!
  *  This prints a string num times, and then terminate with a
  *  end of line character

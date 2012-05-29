@@ -24,8 +24,8 @@ namespace Cantera
  * Class to compute the increase in diffusive path length associated with
  * tortuous path diffusion through, for example, porous media.
  * This base class implementation relates tortuosity to volume fraction
- * through a power-law relationship that goes back to Bruggemann.  The
- * exponent is referred to as the Bruggemann exponent.
+ * through a power-law relationship that goes back to Bruggeman.  The
+ * exponent is referred to as the Bruggeman exponent.
  *
  * Note that the total diffusional flux is generally written as
  *
@@ -45,7 +45,7 @@ class TortuosityBase
 {
 
 public:
-    //! Default constructor uses Bruggemann exponent of 1.5
+    //! Default constructor uses Bruggeman exponent of 1.5
     TortuosityBase();
 
     //! Copy Constructor
@@ -84,7 +84,7 @@ public:
     //! The McMillan number is the ratio of the flux-like
     //! variable to the value it would have without porous flow.
     /**
-     * The McMillan number combines the effect of toruosity
+     * The McMillan number combines the effect of tortuosity
      * and volume fraction of the transported phase.  The net flux
      * observed is then the product of the McMillan number and the
      * non-porous transport rate.  For a conductivity in a non-porous

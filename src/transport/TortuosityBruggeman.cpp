@@ -85,7 +85,7 @@ doublereal TortuosityBruggeman::tortuosityFactor(doublereal porosity)
 //====================================================================================================================
 // The McMillan number is the ratio of the flux-like variable to the value it would have without porous flow.
 /*
- * The McMillan number combines the effect of toruosity
+ * The McMillan number combines the effect of tortuosity
  * and volume fraction of the transported phase.  The net flux
  * observed is then the product of the McMillan number and the
  * non-porous transport rate.  For a conductivity in a non-porous

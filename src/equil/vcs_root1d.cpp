@@ -309,7 +309,7 @@ QUAD_BAIL:
         if ((xnew > x1 && xnew < x2) || (xnew < x1 && xnew > x2)) {
             /*
             *
-            *   If we are doing a jump inbetween two points, make sure
+            *   If we are doing a jump in between two points, make sure
             *   the new trial is between 10% and 90% of the distance
             *   between the old points.
             */
@@ -333,7 +333,7 @@ QUAD_BAIL:
         } else {
             /*
             *   If we are venturing into new ground, only allow the step jump
-            *   to increase by 100% at each interation
+            *   to increase by 100% at each iteration
             */
             slope = 2.0 * fabs(x2 - x1);
             if (fabs(slope) < fabs(xnew - x2)) {

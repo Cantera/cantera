@@ -1,7 +1,7 @@
 /**
  *  @file SpeciesThermoInterpType.h
  * Pure Virtual Base class for individual species reference state
- * themodynamic managers and text for the spthermo module
+ * thermodynamic managers and text for the spthermo module
  * (see \ref spthermo and class \link Cantera::SpeciesThermoInterpType SpeciesThermoInterpType \endlink).
  */
 
@@ -132,7 +132,7 @@ class VPSSMgr;
   * @ingroup thermoprops
   */
 
-//!  Pure Virtual Base class for the thermoydnamic manager for
+//!  Pure Virtual Base class for the thermodynamic manager for
 //!  an individual species' reference state
 /*!
  * This differs from the SpeciesThermo virtual
@@ -288,8 +288,8 @@ public:
 #endif
 };
 
-//!  Class for the thermoydnamic manager for an individual species' reference state
-//!  which usess the PDSS base class to satisfy the requests.
+//!  Class for the thermodynamic manager for an individual species' reference state
+//!  which uses the PDSS base class to satisfy the requests.
 /*!
  *
  *  This class is a pass-through class for handling thermodynamics calls

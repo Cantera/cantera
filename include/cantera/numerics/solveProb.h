@@ -45,7 +45,7 @@
  *                          initial guess, and accuracy is needed.
  *  4:  SOLVEPROB_TRANSIENT   = The transient calculation is performed here for an
  *                          amount of time specified by "time_scale".  It is
- *                          not garraunted to be time-accurate - just stable
+ *                          not guaranteed to be time-accurate - just stable
  *                          and fairly fast. The solution after del_t time is
  *                          returned, whether it's converged to a steady
  *                          state or not.
@@ -113,13 +113,13 @@ namespace Cantera
  *
  *  4: SOLVEPROB_TRANSIENT   = The transient calculation is performed here for an
  *                          amount of time specified by "time_scale".  It is
- *                          not garraunted to be time-accurate - just stable
+ *                          not guaranteed to be time-accurate - just stable
  *                          and fairly fast. The solution after del_t time is
  *                          returned, whether it's converged to a steady
  *                          state or not. This is a poor man's time stepping
  *                          algorithm.
  *
- * Psuedo time stepping algorithm:
+ * Pseudo time stepping algorithm:
  *  The time step is determined from sdot[],  so that the time step
  *   doesn't ever change the value of a variable by more than 100%.
  *
@@ -302,7 +302,7 @@ private:
      *  @param damp   lvl of damping
      *  @param inv_t  Inverse of the value of delta T
      *  @param t_real Value of the time
-     *  @param iter   Interation number
+     *  @param iter   Iteration number
      *  @param do_time boolean indicating whether time stepping is taking
      *                 place
      */
@@ -311,7 +311,7 @@ private:
                                       bool do_time);
 #endif
 
-    //! Main Function evalulation
+    //! Main Function evaluation
     /*!
      *
      *  @param resid output Vector of residuals, length = m_neq
@@ -344,7 +344,7 @@ private:
                              const doublereal deltaT);
 
     //!  This function calculates a damping factor for the Newton iteration update
-    //!  vector, dxneg, to insure that all solution components stay within perscribed bounds
+    //!  vector, dxneg, to insure that all solution components stay within prescribed bounds
     /*!
      *  The default for this class is that all solution components are bounded between zero and one.
      *  this is because the original unknowns were mole fractions and surface site fractions.

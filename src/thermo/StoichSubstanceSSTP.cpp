@@ -215,7 +215,7 @@ doublereal StoichSubstanceSSTP::thermalExpansionCoeff() const
 
 /*
  * This method returns the array of generalized
- * concentrations.  For a stoichiomeetric substance, there is
+ * concentrations.  For a stoichiometric substance, there is
  * only one species, and the generalized concentration is 1.0.
  */
 void StoichSubstanceSSTP::

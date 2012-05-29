@@ -221,7 +221,7 @@ public:
      *  @param typeCalc     Type of the calculation
      *  @param y_curr       Current value of the solution vector
      *  @param ydot_curr    Current value of the time derivative of the solution vector
-     *  @param evalType     Base evalulation type
+     *  @param evalType     Base evaluation type
      *                        Defaults to Base_ResidEval
      *
      * @return Returns a flag to indicate that operation is successful.

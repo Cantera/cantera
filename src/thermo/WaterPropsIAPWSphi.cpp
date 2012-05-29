@@ -652,7 +652,7 @@ doublereal  WaterPropsIAPWSphi::phi_d(doublereal  tau, doublereal  delta)
  *
  *       p/(rhoRT) = delta * phi_d()
  *
- * note: this is done so much, we have a seperate routine.
+ * note: this is done so much, we have a separate routine.
  */
 doublereal  WaterPropsIAPWSphi::pressureM_rhoRT(doublereal  tau, doublereal  delta)
 {

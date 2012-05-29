@@ -299,7 +299,7 @@ int XML_Reader::findQuotedString(const std::string& s, std::string& rstring) con
 
 /*
  * parseTag parses XML tags, i.e., the XML elements that are
- * inbetween angle brackets.
+ * in between angle brackets.
  */
 void XML_Reader::parseTag(std::string tag, std::string& name,
                           std::map<std::string, std::string>& attribs) const

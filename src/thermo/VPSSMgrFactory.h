@@ -158,7 +158,7 @@ private:
 
 #if defined(THREAD_SAFE_CANTERA)
     //! Decl of the static mutex variable that locks the
-    //! %VPSSMgr factory singelton
+    //! %VPSSMgr factory singleton
     static boost::mutex vpss_species_thermo_mutex;
 #endif
 

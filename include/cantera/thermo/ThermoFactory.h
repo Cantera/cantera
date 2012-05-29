@@ -116,7 +116,7 @@ private:
 
 
 #if defined(THREAD_SAFE_CANTERA)
-    //! Decl for locking mutex for thermo factory singelton
+    //! Decl for locking mutex for thermo factory singleton
     static boost::mutex thermo_mutex;
 #endif
 
@@ -196,7 +196,7 @@ ThermoPhase* newPhase(std::string infile, std::string id);
  *   be ready to be used within applications. This routine contains
  *   some key routines that are used as pass back routines so that
  *   the phase (and the contents of the XML file) may contain
- *   variable paramerizations for the specification of the
+ *   variable parameterizations for the specification of the
  *   species standard states, the equation of state, and the
  *   specification of other nonidealities. Below, a description
  *   is presented of the main algorithm for bringing up a %ThermoPhase
@@ -207,7 +207,7 @@ ThermoPhase* newPhase(std::string infile, std::string id);
  *   are called or direct constructor routines are called that
  *   instantiate an inherited ThermoPhase object. This object is input
  *   to this routine, and therefore contains inherited routines that
- *   drive the custimation of the initialization process.
+ *   drive the customization of the initialization process.
  *
  *   At the start of the routine, we import descriptions of the elements
  *   that make up the species in a phase.

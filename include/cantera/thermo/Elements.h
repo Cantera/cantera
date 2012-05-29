@@ -132,7 +132,7 @@ public:
      */
     Elements(const Elements& right);
 
-    //! Assigntment operator
+    //! Assignment operator
     /*!
      *   This is the assignment operator for the Elements class.
      *   Right now we pretty much do a straight uncomplicated

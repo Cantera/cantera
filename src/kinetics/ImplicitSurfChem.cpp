@@ -273,7 +273,7 @@ void ImplicitSurfChem::solvePseudoSteadyStateProblem(int ifuncOverride,
 
     /*
      * Install a filter for negative concentrations. One of the
-     * few ways solvess can fail is if concentrations on input
+     * few ways solveSS can fail is if concentrations on input
      * are below zero.
      */
     bool rset = false;

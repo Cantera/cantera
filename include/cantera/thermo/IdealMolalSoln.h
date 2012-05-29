@@ -36,7 +36,7 @@ namespace Cantera
  * all molality-based activity coefficients are equal
  * to one.
  *
- * This is a full instanteation of a ThermoPhase object.
+ * This is a full instantiation of a ThermoPhase object.
  * The assumption is that the molality-based activity
  * coefficient is equal to one. This also implies that
  * the osmotic coefficient is equal to one.
@@ -946,7 +946,7 @@ public:
     //! gamma_o value for the cutoff process at the zero solvent point
     doublereal IMS_gamma_o_min_;
 
-    //! gamma_k minimun for the cutoff process at the zero solvent point
+    //! gamma_k minimum for the cutoff process at the zero solvent point
     doublereal IMS_gamma_k_min_;
 
     //! Parameter in the polyExp cutoff treatment having to do with rate of exp decay

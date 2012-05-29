@@ -208,7 +208,7 @@ doublereal LTPspecies_Const::getSpeciesTransProp()
  *  \verbatim <transport> \endverbatim node and specifies a type of  transport property (like viscosity)
  *
  *
- *   @param   propNode      Referenc to the XML node that contains the property information.This class
+ *   @param   propNode      Reference to the XML node that contains the property information.This class
  *                          is assumed to be parameterized by reading XML_Node information.
  *   @param   name          String containing the species name
  *   @param   tp_ind        enum TransportPropertyType containing the property id that this object
@@ -321,7 +321,7 @@ doublereal LTPspecies_Arrhenius::getSpeciesTransProp()
  *  \verbatim <transport> \endverbatim node and specifies a type of transport property (like viscosity).
  *
  *
- *   @param   propNode      Referenc to the XML node that contains the property information. This class
+ *   @param   propNode      Reference to the XML node that contains the property information. This class
  *                          must be parameterized by reading XML_Node information.
  *   @param   name          String containing the species name
  *   @param   tp_ind        enum TransportPropertyType containing the property id that this object
@@ -394,7 +394,7 @@ doublereal LTPspecies_Poly::getSpeciesTransProp()
  *  \verbatim <transport> \endverbatim node and specifies a type of transport property (like viscosity).
  *
  *
- *   @param   propNode      Referenc to the XML node that contains the property information. This class
+ *   @param   propNode      Reference to the XML node that contains the property information. This class
  *                          must be parameterized by reading XML_Node information.
  *   @param   name          String containing the species name
  *   @param   tp_ind        enum TransportPropertyType containing the property id that this object

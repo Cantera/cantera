@@ -169,10 +169,10 @@ void DustyGasTransport::setParameters(const int type, const int k, const doubler
  *  The DustyGas model is a subordinate model to the gas phase transport model. Here we
  *  set the gas phase models.
  *
- *  This is a protected routine, so that initialiation of the Model must occur within Cantera's setup
+ *  This is a protected routine, so that initialization of the Model must occur within Cantera's setup
  *
  *   @param  phase           Pointer to the underlying ThermoPhase model for the gas phase
- *   @param  gastr           Pointer to the underlying Transport model for transport in the gas phse.
+ *   @param  gastr           Pointer to the underlying Transport model for transport in the gas phase.
  */
 void DustyGasTransport::initialize(ThermoPhase* phase, Transport* gastr)
 {
@@ -489,7 +489,7 @@ void  DustyGasTransport::setPermeability(doublereal B)
 }
 //====================================================================================================================
 //   Return a reference to the transport manager used to compute the gas
-//   binary diffusion coefficients and the visdcosity.
+//   binary diffusion coefficients and the viscosity.
 /*
  *   @return  Returns a reference to the gas transport object
  */

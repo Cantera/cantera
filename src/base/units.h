@@ -173,7 +173,7 @@ private:
     std::map<std::string, doublereal> m_act_u;
 
 #if defined(THREAD_SAFE_CANTERA)
-    //! Decl for static locker for Units singelton
+    //! Decl for static locker for Units singleton
     static boost::mutex units_mutex;
 #endif
 

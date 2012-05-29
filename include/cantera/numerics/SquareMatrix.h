@@ -78,14 +78,14 @@ public:
 
     //! Multiply A*b and write result to prod.
     /*!
-     *  @param b    Vector to do the rh multiplcation
+     *  @param b    Vector to do the rh multiplication
      *  @param prod OUTPUT vector to receive the result
      */
     virtual void mult(const doublereal* b, doublereal* prod) const;
 
     //! Multiply b*A and write result to prod.
     /*!
-     *  @param b    Vector to do the lh multiplcation
+     *  @param b    Vector to do the lh multiplication
      *  @param prod OUTPUT vector to receive the result
      */
     virtual void leftMult(const doublereal* const b, doublereal* const prod) const;

@@ -207,11 +207,11 @@ class PDSS_Water;
  *                                        It may or may not be charged.  These may or
  *                                        may not be be included in the
  *                                        species solution vector.
- *  -  <B>cEST_strongAcidAssociated</B>   Species which always breaksapart into charged species.
+ *  -  <B>cEST_strongAcidAssociated</B>   Species which always breaks apart into charged species.
  *                                        It may or may not be charged. Normally, these aren't included
  *                                        in the speciation vector.
  *  -  <B>cEST_polarNeutral </B>          Polar neutral species
- *  -  <B>cEST_nonpolarNeutral</B>        Non poloar neutral species
+ *  -  <B>cEST_nonpolarNeutral</B>        Non polar neutral species
  *
  *  Polar and non-polar neutral species are differentiated, because some additions
  *  to the activity
@@ -236,7 +236,7 @@ class PDSS_Water;
  *         </electrolyteSpeciesType>
  * @endcode
  *
- *  Much of the species electrolyte type information is infered from other information in the
+ *  Much of the species electrolyte type information is inferred from other information in the
  *  input file. For example, as species which is charged is given the "chargedSpecies" default
  *  category. A neutral solute species is put into the "nonpolarNeutral" category by default.
  *
@@ -428,12 +428,12 @@ class PDSS_Water;
  *            Units = sqrt(kg/gmol)
  *
  *     where
- *      - \f$ N_a \f$ is Avrogadro's number
+ *      - \f$ N_a \f$ is Avogadro's number
  *      - \f$ \rho_w \f$ is the density of water
  *      - \f$ e \f$ is the electronic charge
- *      - \f$ \epsilon = K \epsilon_o \f$ is the permitivity of water
- *           where \f$ K \f$ is the dielectric condstant of water,
- *           and  \f$ \epsilon_o \f$ is the permitivity of free space.
+ *      - \f$ \epsilon = K \epsilon_o \f$ is the permittivity of water
+ *           where \f$ K \f$ is the dielectric constant of water,
+ *           and  \f$ \epsilon_o \f$ is the permittivity of free space.
  *      - \f$ \rho_o \f$ is the density of the solvent in its standard state.
  *
  *            Nominal value at 298 K and 1 atm = 1.172576 (kg/gmol)<SUP>1/2</SUP>
@@ -1215,7 +1215,7 @@ public:
     //! Get the saturation pressure for a given temperature.
     /*!
      * Note the limitations of this function. Stability considerations
-     * concernting multiphase equilibrium are ignored in this
+     * concerning multiphase equilibrium are ignored in this
      * calculation. Therefore, the call is made directly to the SS of
      * water underneath. The object is put back into its original
      * state at the end of the call.
@@ -1360,12 +1360,12 @@ public:
      *            Units = sqrt(kg/gmol)
      *
      *     where
-     *      - \f$ N_a \f$ is Avrogadro's number
+     *      - \f$ N_a \f$ is Avogadro's number
      *      - \f$ \rho_w \f$ is the density of water
      *      - \f$ e \f$ is the electronic charge
-     *      - \f$ \epsilon = K \epsilon_o \f$ is the permitivity of water
-     *           where \f$ K \f$ is the dielectric condstant of water,
-     *           and  \f$ \epsilon_o \f$ is the permitivity of free space.
+     *      - \f$ \epsilon = K \epsilon_o \f$ is the permittivity of water
+     *           where \f$ K \f$ is the dielectric constant of water,
+     *           and  \f$ \epsilon_o \f$ is the permittivity of free space.
      *      = \f$ \rho_o \f$ is the density of the solvent in its standard state.
      *
      *            Nominal value at 298 K and 1 atm = 1.172576 (kg/gmol)<SUP>1/2</SUP>
@@ -1570,7 +1570,7 @@ public:
 
     /**
      * If true, then the fixed for of Helgeson's activity
-     * for water is used instead of the rigoruous form
+     * for water is used instead of the rigorous form
      * obtained from Gibbs-Duhem relation. This should be
      * used with caution, and is really only included as a
      * validation exercise.
@@ -1652,7 +1652,7 @@ protected:
      */
     double m_B_Debye;
 
-    //! Array of B_Dot valyes
+    //! Array of B_Dot values
     /**
      *  B_Dot ->  This expression is an extension of the
      *            Debye-Huckel expression used in some formulations

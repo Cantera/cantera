@@ -22,8 +22,8 @@ namespace Cantera
  * Class to compute the increase in diffusive path length associated with
  * tortuous path diffusion through, for example, porous media.
  * This base class implementation relates tortuosity to volume fraction
- * through a power-law relationship that goes back to Bruggemann.  The
- * exponent is referred to as the Bruggemann exponent.
+ * through a power-law relationship that goes back to Bruggeman.  The
+ * exponent is referred to as the Bruggeman exponent.
  *
  * Note that the total diffusional flux is generally written as
  *
@@ -43,7 +43,7 @@ class Tortuosity
 {
 
 public:
-    //! Default constructor uses Bruggemann exponent of 1.5
+    //! Default constructor uses Bruggeman exponent of 1.5
     Tortuosity(double setPower = 1.5) : expBrug_(setPower) {
     }
 
@@ -53,14 +53,14 @@ public:
      * This method returns \f$ 1/\tau^2 \f$ in the description of the
      * flux \f$ \phi C_T D_i \nabla X_i / \tau^2 \f$.
      */
-    virtual double toruosityFactor(double porosity) {
+    virtual double tortuosityFactor(double porosity) {
         return pow(porosity, expBrug_ - 1.0);
     }
 
     //! The McMillan number is the ratio of the flux-like
     //! variable to the value it would have without porous flow.
     /**
-     * The McMillan number combines the effect of toruosity
+     * The McMillan number combines the effect of tortuosity
      * and volume fraction of the transported phase.  The net flux
      * observed is then the product of the McMillan number and the
      * non-porous transport rate.  For a conductivity in a non-porous
@@ -72,7 +72,7 @@ public:
     }
 
 protected:
-    //! Bruggemann exponent: power to which the tortuosity depends on the volume fraction
+    //! Bruggeman exponent: power to which the tortuosity depends on the volume fraction
     double expBrug_ ;
 
 };
@@ -80,14 +80,14 @@ protected:
 
 
 /** This class implements transport coefficient corrections
- * appropriate for porous media where percollation theory applies.
+ * appropriate for porous media where percolation theory applies.
  * It is derived from the Tortuosity class.
  */
 class TortuosityPercolation : public  Tortuosity
 {
 
 public:
-    //! Default constructor uses Bruggemann exponent of 1.5
+    //! Default constructor uses Bruggeman exponent of 1.5
     TortuosityPercolation(double percolationThreshold = 0.4, double conductivityExponent = 2.0) : percolationThreshold_(percolationThreshold), conductivityExponent_(conductivityExponent)  {
     }
 
@@ -97,14 +97,14 @@ public:
      * This method returns \f$ 1/\tau^2 \f$ in the description of the
      * flux \f$ \phi C_T D_i \nabla X_i / \tau^2 \f$.
      */
-    double toruosityFactor(double porosity) {
+    double tortuosityFactor(double porosity) {
         return McMillan(porosity) / porosity;
     }
 
     //! The McMillan number is the ratio of the flux-like
     //! variable to the value it would have without porous flow.
     /**
-     * The McMillan number combines the effect of toruosity
+     * The McMillan number combines the effect of tortuosity
      * and volume fraction of the transported phase.  The net flux
      * observed is then the product of the McMillan number and the
      * non-porous transport rate.  For a conductivity in a non-porous
@@ -152,7 +152,7 @@ class TortuosityMaxwell : public Tortuosity
 {
 
 public:
-    //! Default constructor uses Bruggemann exponent of 1.5
+    //! Default constructor uses Bruggeman exponent of 1.5
     TortuosityMaxwell(double relativeConductivites = 0.0) : relativeConductivites_(relativeConductivites)  {
     }
 
@@ -162,14 +162,14 @@ public:
      * This method returns \f$ 1/\tau^2 \f$ in the description of the
      * flux \f$ \phi C_T D_i \nabla X_i / \tau^2 \f$.
      */
-    double toruosityFactor(double porosity) {
+    double tortuosityFactor(double porosity) {
         return McMillan(porosity) / porosity;
     }
 
     //! The McMillan number is the ratio of the flux-like
     //! variable to the value it would have without porous flow.
     /**
-     * The McMillan number combines the effect of toruosity
+     * The McMillan number combines the effect of tortuosity
      * and volume fraction of the transported phase.  The net flux
      * observed is then the product of the McMillan number and the
      * non-porous transport rate.  For a conductivity in a non-porous

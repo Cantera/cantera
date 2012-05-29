@@ -832,7 +832,7 @@ doublereal ThermoPhase::err(std::string msg) const
  * of the standard concentrations and generalized concentrations
  * for the kth species.
  *
- * The base %ThermoPhase class assigns thedefault quantities
+ * The base %ThermoPhase class assigns the default quantities
  * of (kmol/m3).
  * Inherited classes are responsible for overriding the default
  * values if necessary.

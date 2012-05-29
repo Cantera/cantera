@@ -189,7 +189,7 @@ class PDSS_Water;
  * The redundancy issue is resolved by setting the standard state chemical potential
  * enthalpy, entropy, and volume for the hydrogen ion, H+, to zero, for every temperature
  * and pressure. After this convention is applied, all other standard state
- * properties of ionic species contain meaningfull information.
+ * properties of ionic species contain meaningful information.
  *
  *
  *  <H3> Ionic Strength </H3>
@@ -265,11 +265,11 @@ class PDSS_Water;
  *                                        It may or may not be charged.  These may or
  *                                        may not be be included in the
  *                                        species solution vector.
- *  -  <B>cEST_strongAcidAssociated</B>   Species which always breaksapart into charged species.
+ *  -  <B>cEST_strongAcidAssociated</B>   Species which always breaks apart into charged species.
  *                                        It may or may not be charged. Normally, these
  *                                        aren't included in the speciation vector.
  *  -  <B>cEST_polarNeutral </B>          Polar neutral species
- *  -  <B>cEST_nonpolarNeutral</B>        Non poloar neutral species
+ *  -  <B>cEST_nonpolarNeutral</B>        Non polar neutral species
  *
  *  Polar and non-polar neutral species are differentiated, because some additions
  *  to the activity
@@ -295,7 +295,7 @@ class PDSS_Water;
  * @endcode
  *
  *
- *  Much of the species electrolyte type information is infered from other information in the
+ *  Much of the species electrolyte type information is inferred from other information in the
  *  input file. For example, as species which is charged is given the "chargedSpecies" default
  *  category. A neutral solute species is put into the "nonpolarNeutral" category by default.
  *
@@ -319,7 +319,7 @@ class PDSS_Water;
  *
  *  From the excess Gibbs free energy formulation, the activity coefficient expression
  *  and the osmotic coefficient expression for the solvent may be defined, by
- *  taking the appropriate derivatives. Using this approach garranties that the
+ *  taking the appropriate derivatives. Using this approach guarantees that the
  *  entire system will obey the Gibbs-Duhem relations.
  *
  *  Pitzer employs the following general expression for the excess Gibbs free energy
@@ -348,7 +348,7 @@ class PDSS_Water;
  *  and anions affect anions or cation/anion pairs. Note part of the coefficients,
  *  \f$ \Phi_{c{c'}} \f$ and  \f$ \Phi_{a{a'}} \f$  stem from the theory
  *  of unsymmetrical mixing of electrolytes with different charges. This
- *  theory depends on the total ionic stregnth of the solution, and therefore,
+ *  theory depends on the total ionic strength of the solution, and therefore,
  *  \f$ \Phi_{c{c'}} \f$ and  \f$ \Phi_{a{a'}} \f$  will depend on <I>I</I>, the
  *  ionic strength.  \f$ B_{ca}\f$ is a strong function of the
  *  total ionic strength,  <I>I</I>,
@@ -580,7 +580,7 @@ class PDSS_Water;
  *  HMWSoln has an implementation described by Silverter and Pitzer (1977),
  *  which was used to fit experimental data for NaCl over an extensive range,
  *  below the critical temperature of water.
- *  They found a temperature funcdtional form for fitting the 3 following
+ *  They found a temperature functional form for fitting the 3 following
  *  coefficients that describe the Pitzer parameterization for a single salt
  *  to be adequate to describe how the excess gibbs free energy values for
  *  the binary salt changes with respect to temperature.
@@ -653,7 +653,7 @@ class PDSS_Water;
  *  \f$\alpha^{(2)}_{MX} \f$.
  *  \f$ C_{MX}\f$ is calculated from \f$C^{\phi}_{MX} \f$
  *  from the formula above.
- *  All of the underlying coeficients are specified in the
+ *  All of the underlying coefficients are specified in the
  *  XML element block <TT> binarySaltParameters </TT>, which
  *  has the attribute <TT> cation </TT> and <TT> anion </TT>
  *  to identify the interaction. XML elements named
@@ -907,12 +907,12 @@ class PDSS_Water;
  *            Units = sqrt(kg/gmol)
  *
  *     where
- *      - \f$ N_a \f$ is Avrogadro's number
+ *      - \f$ N_a \f$ is Avogadro's number
  *      - \f$ \rho_w \f$ is the density of water
  *      - \f$ e \f$ is the electronic charge
- *      - \f$ \epsilon = K \epsilon_o \f$ is the permitivity of water
+ *      - \f$ \epsilon = K \epsilon_o \f$ is the permittivity of water
  *           where \f$ K \f$ is the dielectric constant of water,
- *           and  \f$ \epsilon_o \f$ is the permitivity of free space.
+ *           and  \f$ \epsilon_o \f$ is thepermittivityy of free space.
  *      - \f$ \rho_o \f$ is the density of the solvent in its standard state.
  *
  *            Nominal value at 298 K and 1 atm = 1.172576 (kg/gmol)<SUP>1/2</SUP>
@@ -2019,7 +2019,7 @@ public:
     //! Get the saturation pressure for a given temperature.
     /*!
      * Note the limitations of this function. Stability considerations
-     * concernting multiphase equilibrium are ignored in this
+     * concerning multiphase equilibrium are ignored in this
      * calculation. Therefore, the call is made directly to the SS of
      * water underneath. The object is put back into its original
      * state at the end of the call.
@@ -2156,7 +2156,7 @@ public:
      * @param temperature  Temperature of the derivative calculation
      *                     or -1 to indicate the current temperature
      *
-     * @param pressure    Pressure of the derivative calcualtion
+     * @param pressure    Pressure of the derivative calculation
      *                    or -1 to indicate the current pressure
      */
     virtual double A_Debye_TP(double temperature = -1.0,
@@ -2174,7 +2174,7 @@ public:
      * @param temperature  Temperature of the derivative calculation
      *                     or -1 to indicate the current temperature
      *
-     * @param pressure    Pressure of the derivative calcualtion
+     * @param pressure    Pressure of the derivative calculation
      *                    or -1 to indicate the current pressure
      */
     virtual double dA_DebyedT_TP(double temperature = -1.0,
@@ -2192,7 +2192,7 @@ public:
      * @param temperature  Temperature of the derivative calculation
      *                     or -1 to indicate the current temperature
      *
-     * @param pressure    Pressure of the derivative calcualtion
+     * @param pressure    Pressure of the derivative calculation
      *                    or -1 to indicate the current pressure
      */
     virtual double dA_DebyedP_TP(double temperature = -1.0,
@@ -2212,7 +2212,7 @@ public:
      * @param temperature  Temperature of the derivative calculation
      *                     or -1 to indicate the current temperature
      *
-     * @param pressure    Pressure of the derivative calcualtion
+     * @param pressure    Pressure of the derivative calculation
      *                    or -1 to indicate the current pressure
      */
     double ADebye_L(double temperature = -1.0,
@@ -2232,7 +2232,7 @@ public:
      * @param temperature  Temperature of the derivative calculation
      *                     or -1 to indicate the current temperature
      *
-     * @param pressure    Pressure of the derivative calcualtion
+     * @param pressure    Pressure of the derivative calculation
      *                    or -1 to indicate the current pressure
      */
     double ADebye_J(double temperature = -1.0,
@@ -2250,7 +2250,7 @@ public:
      * @param temperature  Temperature of the derivative calculation
      *                     or -1 to indicate the current temperature
      *
-     * @param pressure    Pressure of the derivative calcualtion
+     * @param pressure    Pressure of the derivative calculation
      *                    or -1 to indicate the current pressure
      *
      */
@@ -2269,7 +2269,7 @@ public:
      * @param temperature  Temperature of the derivative calculation
      *                     or -1 to indicate the current temperature
      *
-     * @param pressure    Pressure of the derivative calcualtion
+     * @param pressure    Pressure of the derivative calculation
      *                    or -1 to indicate the current pressure
      */
     virtual double d2A_DebyedT2_TP(double temperature = -1.0,
@@ -2809,19 +2809,19 @@ private:
      */
     mutable vector_fp m_Psi_ijk;
 
-    //! Derivitive of Psi_ijk[n] wrt T
+    //! Derivative of Psi_ijk[n] wrt T
     /*!
      *  see m_Psi_ijk for reference on the indexing into this variable.
      */
     mutable vector_fp m_Psi_ijk_L;
 
-    //! Derivitive of Psi_ijk[n] wrt TT
+    //! Derivative of Psi_ijk[n] wrt TT
     /*!
      *  see m_Psi_ijk for reference on the indexing into this variable.
      */
     mutable vector_fp m_Psi_ijk_LL;
 
-    //! Derivitive of Psi_ijk[n] wrt P
+    //! Derivative of Psi_ijk[n] wrt P
     /*!
      *  see m_Psi_ijk for reference on the indexing into this variable.
      */
@@ -3223,7 +3223,7 @@ private:
     //! gamma_o value for the cutoff process at the zero solvent point
     doublereal IMS_gamma_o_min_;
 
-    //! gamma_k minimun for the cutoff process at the zero solvent point
+    //! gamma_k minimum for the cutoff process at the zero solvent point
     doublereal IMS_gamma_k_min_;
 
     //! Parameter in the polyExp cutoff treatment having to do with rate of exp decay
@@ -3464,7 +3464,7 @@ private:
                      double* etheta, double* etheta_prime) const;
 
     //! Set up a counter variable for keeping track of symmetric binary
-    //! interactactions amongst the solute species.
+    //! interactions amongst the solute species.
     /*!
      * The purpose of this is to squeeze the ij parameters into a
      * compressed single counter.
