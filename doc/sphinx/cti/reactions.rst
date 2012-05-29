@@ -53,7 +53,7 @@ Arrhenius function
 
     k_f(T) = A T^n \exp(-E/\hat{R}T)
 
-whish is defined with an :class:`Arrhenius` entry::
+which is defined with an :class:`Arrhenius` entry::
 
     rate_coeff = Arrhenius(A=1.0e13, n=0, E=(7.3, 'kcal/mol'))
     rate_coeff = Arrhenius(1.0e13, 0, (7.3, 'kcal/mol'))
@@ -93,7 +93,7 @@ Options
 -------
 
 Certain conditions are normally flagged as errors by Cantera. In some cases,
-theey may not be errors, and the options field can be used to specify how they
+they may not be errors, and the options field can be used to specify how they
 should be handled.
 
 ``skip``
@@ -267,7 +267,7 @@ al. [#Gilbert1983]_:
     N = 0.75 - 1.27\; \log_{10} F_{cent}
 
 The :class:`Troe` directive requires specifying the first three parameters
-:math:`(A, T_3, T_1)`. The fourth paramteter, :math:`T_2`, is optional, defaulting to 0.0.
+:math:`(A, T_3, T_1)`. The fourth parameter, :math:`T_2`, is optional, defaulting to 0.0.
 
 The SRI Falloff Function
 ------------------------
@@ -289,6 +289,88 @@ the "SRI" falloff function. It is implemented by the :class:`SRI` directive.
       function, which has a C++ implementation, but doesn't appear to be implemented
       in the CTI or CTML parsers.
 
+Pressure-Dependent Arrhenius Rate Expressions (P-Log)
+=====================================================
+
+The :class:`pdep_arrhenius` class represents pressure-dependent reaction rates
+by logarithmically interpolating between Arrhenius rate expressions at various
+pressures. Given two rate expressions at two specific pressures:
+
+.. math::
+
+    P_1: k_1(T) = A_1 T^{b_1} e^{E_1 / RT}
+
+    P_2: k_2(T) = A_2 T^{b_2} e^{E_2 / RT}
+
+The rate at an intermediate pressure :math:`P_1 < P < P_2` is computed as
+
+.. math::
+
+    \log k(T,P) = \log k_1(T) + \bigl(\log k_2(T) - \log k_1(T)\bigr)
+        \frac{\log P - \log P_1}{\log P_2 - \log P_1}
+
+Multiple rate expressions may be given at the same pressure, in which case the
+rate used in the interpolation formula is the sum of all the rates given at that
+pressure. For pressures outside the given range, the rate expression at the nearest
+pressure is used.
+
+An example of a reaction specified in this format::
+
+    pdep_arrhenius('R1 + R2 <=> P1 + P2',
+                   [(0.001315789, 'atm'), 2.440000e+10, 1.04, 3980.0],
+                   [(0.039473684, 'atm'), 3.890000e+10, 0.989, 4114.0],
+                   [(1.0, 'atm'), 3.460000e+12, 0.442, 5463.0],
+                   [(10.0, 'atm'), 1.720000e+14, -0.01, 7134.0],
+                   [(100.0, 'atm'), -7.410000e+30, -5.54, 12108.0],
+                   [(100.0, 'atm'), 1.900000e+15, -0.29, 8306.0])
+
+The first argument is the reaction equation. Each subsequent argument is a
+sequence of four elements specifying a pressure and the Arrhenius parameters at
+that pressure.
+
+Chebyshev Reaction Rate Expressions
+===================================
+
+Class :class:`chebyshev` represents a phenomenological rate coefficient
+:math:`k(T,P)` in terms of a bivariate Chebyshev polynomial. The rate constant
+can be written as:
+
+.. math:: \log k(T,P) = \sum_{t=1}^{N_T} \sum_{p=1}^{N_P} \alpha_{tp}
+                            \phi_t(\tilde{T}) \phi_p(\tilde{P})
+
+where :math:`\alpha_{tp}` are the constants defining the rate, :math:`\phi_n(x)`
+is the Chebyshev polynomial of the first kind of degree :math:`n` evaluated at
+:math:`x`, and
+
+.. math::
+
+    \tilde{T} \equiv \frac{2T^{-1} - T_\mathrm{min}^{-1} - T_\mathrm{max}^{-1}}
+                          {T_\mathrm{max}^{-1} - T_\mathrm{min}^{-1}}
+
+    \tilde{P} \equiv \frac{2 \log P - \log P_\mathrm{min} - \log P_\mathrm{max}}
+                          {\log P_\mathrm{max} - \log P_\mathrm{min}}
+
+are reduced temperature and reduced pressures which map the ranges
+:math:`(T_\mathrm{min}, T_\mathrm{max})` and :math:`(P_\mathrm{min},
+P_\mathrm{max})` to :math:`(-1, 1)`.
+
+A Chebyshev rate expression is specified in terms of the coefficient matrix
+:math:`\alpha` and the temperature and pressure ranges. An example of a
+Chebyshev rate expression where :math:`N_T = 6` and :math:`N_P = 4` is::
+
+    chebyshev_reaction('R1 + R2 <=> P1 + P2',
+                       Tmin=290.0, Tmax=3000.0,
+                       Pmin=(0.001, 'atm'), Pmax=(100.0, 'atm'),
+                       coeffs=[[-1.44280e+01,  2.59970e-01, -2.24320e-02, -2.78700e-03],
+                               [ 2.20630e+01,  4.88090e-01, -3.96430e-02, -5.48110e-03],
+                               [-2.32940e-01,  4.01900e-01, -2.60730e-02, -5.04860e-03],
+                               [-2.93660e-01,  2.85680e-01, -9.33730e-03, -4.01020e-03],
+                               [-2.26210e-01,  1.69190e-01,  4.85810e-03, -2.38030e-03],
+                               [-1.43220e-01,  7.71110e-02,  1.27080e-02, -6.41540e-04]])
+
+Note that the Chebyshev polynomials are not defined outside the interval
+:math:`(-1,1)`, and therefore extrapolation of rates outside the range of
+temperatures and pressure for which they are defined is strongly discouraged.
 
 .. rubric:: References
 
@@ -307,5 +389,5 @@ the "SRI" falloff function. It is implemented by the :class:`SRI` directive.
    *Combustion and Flame*, 75:25, 1989.
 
 .. [#Kee1989] R. J. Kee, F. M. Rupley, and J. A. Miller. Chemkin-II: A Fortran
-   chemical kinetics package for the analysis of gasphase chemical
+   chemical kinetics package for the analysis of gas-phase chemical
    kinetics. Technical Report SAND89-8009, Sandia National Laboratories, 1989.

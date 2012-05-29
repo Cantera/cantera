@@ -1309,6 +1309,16 @@ class falloff_reaction(reaction):
 
 
 class pdep_arrhenius(reaction):
+    """
+    Pressure-dependent rate calculated by interpolating between Arrhenius
+    expressions at different pressures.
+
+    :param equation:
+        A string specifying the chemical equation.
+    :param args:
+        Each additiona argument is a sequence of four elements specifying the
+        pressure and the Arrhenius parameters at that pressure.
+    """
     def __init__(self, equation='', *args, **kwargs):
         self.pressures = []
         self.arrhenius = []
@@ -1328,6 +1338,25 @@ class pdep_arrhenius(reaction):
 
 
 class chebyshev_reaction(reaction):
+    """
+    Pressure-dependent rate calculated in terms of a bivariate Chebyshev
+    polynomial.
+
+    :param equation:
+        A string specifying the chemical equation.
+    :param Tmin:
+        The minimum temperature at which the rate expression is defined
+    :param Tmax:
+        the maximum temperature at which the rate expression is defined
+    :param Pmin:
+        The minimum pressure at which the rate expression is defined
+    :param Pmax:
+        The maximum pressure at which the rate expression is defined
+    :param coeffs:
+        A 2D array of the coefficients defining the rate expression. For a
+        polynomial with M points in temperature and N points in pressure, this
+        should be a list of M lists each with N elements.
+    """
     def __init__(self, equation='', Tmin=300.0, Tmax=2500.0,
                  Pmin=(0.001, 'atm'), Pmax=(100.0, 'atm'),
                  coeffs=[[]], **kwargs):
