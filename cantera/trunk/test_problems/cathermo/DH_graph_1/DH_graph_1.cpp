@@ -10,13 +10,6 @@
 using namespace std;
 using namespace Cantera;
 
-void printUsage()
-{
-    cout << "usage: DH_test " <<  endl;
-    cout <<"                -> Everything is hardwired" << endl;
-}
-
-
 int main(int argc, char** argv)
 {
 
