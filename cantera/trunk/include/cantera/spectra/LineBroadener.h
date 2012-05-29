@@ -71,10 +71,10 @@ public:
  * \f]
  * where \f$ \gamma = {\mbox{FWHM}/2} \f$.
  */
-class Lorentzian : public LineBroadener
+class LorentzianProfile : public LineBroadener
 {
 public:
-    Lorentzian(doublereal FWHM);
+    LorentzianProfile(doublereal FWHM);
     virtual doublereal profile(doublereal deltaFreq);
     virtual doublereal cumulative(doublereal deltaFreq);
     virtual double width();
@@ -88,7 +88,7 @@ protected:
  * A Gaussian line profile. This profile results when Doppler
  * broadening is dominant.
  */
-class Gaussian : public LineBroadener
+class GaussianProfile : public LineBroadener
 {
 public:
 
@@ -96,7 +96,7 @@ public:
      * Constructor.
      * @param FWHM Full width at half-maximum.
      */
-    Gaussian(doublereal sigma);
+    GaussianProfile(doublereal sigma);
     virtual doublereal profile(doublereal deltaFreq);
     virtual doublereal cumulative(doublereal deltaFreq);
     virtual doublereal width();

@@ -20,8 +20,8 @@ int main()
     double gam = 2.0e0;
     double sigma = 5.0;
 
-    LineBroadener* lor = new Lorentzian(gam);
-    LineBroadener* gaus = new Gaussian(sigma);
+    LineBroadener* lor = new LorentzianProfile(gam);
+    LineBroadener* gaus = new GaussianProfile(sigma);
     Voigt* voig = new Voigt(sigma, gam);
     //voig->testv();
 
