@@ -24,20 +24,6 @@
 #include <cstdio>
 
 using namespace std;
-
-#ifdef DEBUG_HKM
-int iDebug_HKM = 0;
-#endif
-
-/*****************************************************************/
-/*****************************************************************/
-/*****************************************************************/
-static void printUsage()
-{
-
-}
-
-
 using namespace Cantera;
 
 int main(int argc, char** argv)
@@ -45,31 +31,6 @@ int main(int argc, char** argv)
 #ifdef _MSC_VER
     _set_output_format(_TWO_DIGIT_EXPONENT);
 #endif
-    string infile;
-    // look for command-line options
-    if (argc > 1) {
-        string tok;
-        for (int j = 1; j < argc; j++) {
-            tok = string(argv[j]);
-            if (tok[0] == '-') {
-                size_t nopt = tok.size();
-                for (size_t n = 1; n < nopt; n++) {
-                    if (tok[n] == 'h') {
-                        printUsage();
-                        exit(0);
-                    } else {
-                        printUsage();
-                        exit(1);
-                    }
-                }
-            } else if (infile == "") {
-                infile = tok;
-            } else {
-                printUsage();
-                exit(1);
-            }
-        }
-    }
 
     try {
         double Tkelvin = 1200.;

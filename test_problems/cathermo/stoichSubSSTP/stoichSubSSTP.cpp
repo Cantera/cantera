@@ -13,14 +13,6 @@
 using namespace std;
 using namespace Cantera;
 
-void printUsage()
-{
-    cout << "usage: stoichSubSSTP " <<  endl;
-    cout <<"                -> Everything is hardwired" << endl;
-}
-
-
-
 int main(int argc, char** argv)
 {
     try {

@@ -7,12 +7,6 @@ using namespace Cantera;
 
 int CHECK_DEBUG_MODE = 0;
 
-void printUsage()
-{
-    cout << "usage: HMW_test_1 " <<  endl;
-    cout <<"                -> Everything is hardwired" << endl;
-}
-
 void pAtable(HMWSoln* HMW)
 {
     size_t nsp = HMW->nSpecies();
