@@ -32,9 +32,9 @@ if localenv['python_package'] == 'full':
     cantera_libname = 'cantera_shared' if os.name=='nt' else 'cantera'
     #pylinklibs = [cantera_libname, 'cvode', 'ctmath', 'ctlapack', 'ctblas', 'ctf2c', 'execstream']
     if os.name == 'nt':
-      pylinklibs = env['cantera_shared_libs']
+      pylinklibs = list(env['cantera_shared_libs'])
     else:
-      pylinklibs = env['cantera_libs']
+      pylinklibs = list(env['cantera_libs'])
 
     if localenv['toolchain'] == 'mingw':
         # On Windows, we need to link against the Python "import" library.
