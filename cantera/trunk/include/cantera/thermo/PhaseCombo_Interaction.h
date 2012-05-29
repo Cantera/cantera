@@ -52,7 +52,7 @@ namespace Cantera
  *
  *  This class is introduced to represent specific conditions observed in thermal batteries.
  *  HOwever, it may be physically motivated to represent conditions where there may
- *  be a mixture of componds that are not "mixed" at the molecular level. Therefore, there
+ *  be a mixture of compounds that are not "mixed" at the molecular level. Therefore, there
  *  is no mixing term.
  *
  *  The lack of a mixing term has profound effects. First, the mole fraction of a species
@@ -68,7 +68,7 @@ namespace Cantera
  *  All species are defined to have standard states that depend upon both
  *  the temperature and the pressure. The Margules approximation assumes
  *  symmetric standard states, where all of the standard state assume
- *  that the species are in pure component states at the temperatue
+ *  that the species are in pure component states at the temperature
  *  and pressure of the solution.  I don't think it prevents, however,
  *  some species from being dilute in the solution.
  *
@@ -951,7 +951,7 @@ protected:
      */
     int formMargules_;
 
-    //! form of the temperatuer dependence of the Margules interaction expression
+    //! form of the temperature dependence of the Margules interaction expression
     /*!
      *  Currently there is only one form -> constant wrt temperature.
      */

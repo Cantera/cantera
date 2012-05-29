@@ -582,8 +582,8 @@ void InterfaceKinetics::applyButlerVolmerCorrection(doublereal* const kf)
     // we print out a warning message about this.
     /*
      *   NOTE, there is some discussion about this point.
-     *   Should we decrease the activiation energy below zero?
-     *   I don't think this has been decided in any definative way.
+     *   Should we decrease the activation energy below zero?
+     *   I don't think this has been decided in any definitive way.
      *   The treatment below is numerically more stable, however.
      */
     doublereal eamod;
@@ -635,7 +635,7 @@ void InterfaceKinetics::applyExchangeCurrentDensityFormulation(doublereal* const
 }
 //====================================================================================================================
 /**
- * Update the rates of progress of the reactions in the reaciton
+ * Update the rates of progress of the reactions in the reaction
  * mechanism. This routine operates on internal data.
  */
 void InterfaceKinetics::getFwdRateConstants(doublereal* kfwd)
@@ -655,7 +655,7 @@ void InterfaceKinetics::getFwdRateConstants(doublereal* kfwd)
 //====================================================================================================================
 
 /**
- * Update the rates of progress of the reactions in the reaciton
+ * Update the rates of progress of the reactions in the reaction
  * mechanism. This routine operates on internal data.
  */
 void InterfaceKinetics::getRevRateConstants(doublereal* krev, bool doIrreversible)
@@ -1396,7 +1396,7 @@ advanceCoverages(doublereal tstep)
  * Note, a direct solve is carried out under the hood here,
  * to reduce the computational time.
  *
- * the integrator object is saved inbetween calls to
+ * the integrator object is saved between calls to
  * reduce the computational cost of repeated calls.
  */
 void InterfaceKinetics::

@@ -1034,7 +1034,7 @@ int MixtureFugacityTP::corr0(doublereal TKelvin, doublereal pres, doublereal& de
 // Returns the Phase State flag for the current state of the object
 /*
  * @param checkState If true, this function does a complete check to see where
- *        in paramters space we are
+ *        in parameter space we are
  *
  *  There are three values:
  *     WATER_GAS   below the critical temperature but below the critical density

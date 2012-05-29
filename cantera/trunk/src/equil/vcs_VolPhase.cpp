@@ -953,7 +953,7 @@ double vcs_VolPhase::VolStar_calc_one(size_t kspec) const
 // Calculate the partial molar volumes of all species and return the
 // total volume
 /*
- *  Calculates these quantitites internally and then stores them
+ *  Calculates these quantities internally and then stores them
  *
  * @return total volume  (m**3)
  */

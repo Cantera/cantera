@@ -33,7 +33,7 @@ static doublereal calcWeightedNorm(const doublereal [], const doublereal dx[], s
 
 
 /***************************************************************************
- *  solveSP Class Definitinos
+ *  solveSP Class Definitions
  ***************************************************************************/
 
 // Main constructor
@@ -851,7 +851,7 @@ calc_t(doublereal netProdRateSolnSP[], doublereal XMolSolnSP[],
         // Get the interface kinetics associated with this surface
         InterfaceKinetics* m_kin = m_objects[isp];
 
-        // Calcuate the start of the species index for surfaces within
+        // Calculate the start of the species index for surfaces within
         // the InterfaceKinetics object
         size_t surfIndex = m_kin->surfacePhaseIndex();
         kstart = m_kin->kineticsSpeciesIndex(0, surfIndex);

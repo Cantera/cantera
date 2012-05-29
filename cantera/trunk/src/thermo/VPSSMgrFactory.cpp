@@ -47,7 +47,7 @@ VPSSMgrFactory* VPSSMgrFactory::s_factory = 0;
 
 #if defined(THREAD_SAFE_CANTERA)
 // Defn of the static mutex variable that locks the
-// %VPSSMgr factory singelton
+// %VPSSMgr factory singleton
 boost::mutex VPSSMgrFactory::vpss_species_thermo_mutex;
 #endif
 

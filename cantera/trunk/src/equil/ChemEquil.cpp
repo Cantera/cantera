@@ -684,7 +684,7 @@ int ChemEquil::equilibrate(thermo_t& s, const char* XYstr,
                 plow = pval;
             }
 
-            // Determine the new T estimate by linearly intepolation
+            // Determine the new T estimate by linearly interpolating
             // between the upper and lower bounds
             slope = (phigh - plow)/(tmax - tmin);
             dt = (xval - pval)/slope;
@@ -773,7 +773,7 @@ int ChemEquil::equilibrate(thermo_t& s, const char* XYstr,
     int info = estimateEP_Brinkley(s, x, elMolesGoal);
     if (info != 0) {
         if (info == 1) {
-            addLogEntry("estimateEP_Brinkley didn't converge in given max interations");
+            addLogEntry("estimateEP_Brinkley didn't converge in given max iterations");
         } else if (info == -3) {
             addLogEntry("estimateEP_Brinkley had a singular Jacobian. Continuing anyway");
         }

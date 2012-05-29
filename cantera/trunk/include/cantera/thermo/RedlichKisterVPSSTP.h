@@ -64,7 +64,7 @@ namespace Cantera
  *  All species are defined to have standard states that depend upon both
  *  the temperature and the pressure. The Redlich-Kister approximation assumes
  *  symmetric standard states, where all of the standard state assume
- *  that the species are in pure component states at the temperatue
+ *  that the species are in pure component states at the temperature
  *  and pressure of the solution.  I don't think it prevents, however,
  *  some species from being dilute in the solution.
  *
@@ -885,7 +885,7 @@ protected:
 
     //! vector of species indices representing species B in the interaction
     /*!
-     *  Each Redlich-Kisterexcess Gibbs free energy term involves two species, A and B.
+     *  Each Redlich-Kister excess Gibbs free energy term involves two species, A and B.
      *  This vector identifies species B.
      */
     std::vector<size_t> m_pSpecies_B_ij;
@@ -910,7 +910,7 @@ protected:
      */
     int formRedlichKister_;
 
-    //! form of the temperatuer dependence of the Redlich-Kister interaction expression
+    //! form of the temperature dependence of the Redlich-Kister interaction expression
     /*!
      *  Currently there is only one form -> constant wrt temperature.
      */

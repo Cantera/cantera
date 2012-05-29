@@ -3,7 +3,7 @@
  *  Header for Lowest level of the classes which support a real water model
  *  (see class \link Cantera::WaterPropsIAPWS WaterPropsIAPWS\endlink and  class \link WaterPropsIAPWSphi WaterPropsIAPWSphi\endlink).
  *
- *   This class calculates dimensionless quantitites.
+ *   This class calculates dimensionless quantities.
  */
 /*
  * Copyright (2006) Sandia Corporation. Under the terms of
@@ -19,7 +19,7 @@
  * the WaterPropsIAPSWSphi class support low level calls for
  * the real description of water.
  *
- *  The reference is W. Wagner, A. Prub, "The IAPWS Formulation 1995 for the Themodynamic
+ *  The reference is W. Wagner, A. Prub, "The IAPWS Formulation 1995 for the Thermodynamic
  *  Properties of Ordinary Water Substance for General and Scientific Use,"
  *  J. Phys. Chem. Ref. Dat, 31, 387, 2002.
  *
@@ -35,7 +35,7 @@ public:
 
     //! Calculate the Phi function, which is the base function
     /*!
-     * The phi functino  is basically the helmholtz free energy
+     * The phi function is basically the helmholtz free energy
      * Eqn. (6.4)
      * All internal polynomials are recalculated.
      *
@@ -86,7 +86,7 @@ public:
      * @param tau     Dimensionless temperature = T_c/T
      * @param delta   Dimensionless density =  delta = rho / Rho_c
      *
-     * note: this is done so much, we have a seperate routine.
+     * note: this is done so much, we have a separate routine.
      */
     doublereal pressureM_rhoRT(doublereal tau, doublereal delta);
 

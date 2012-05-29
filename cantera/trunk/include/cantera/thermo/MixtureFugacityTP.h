@@ -379,7 +379,7 @@ protected:
 public:
     //! Set the temperature and pressure at the same time
     /*!
-     *  Note this function triggers a reevalulation of the standard
+     *  Note this function triggers a reevaluation of the standard
      *  state quantities.
      *
      *  @param T  temperature (kelvin)

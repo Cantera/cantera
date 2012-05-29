@@ -27,7 +27,7 @@ class VCS_SPECIES_THERMO;
 //! which generally describes the problem to be solved.
 /*!
  *  HKM add:
- *    HaveEstimate -> 0 no estimate, or estimate that doesn' satisfy elem
+ *    HaveEstimate -> 0 no estimate, or estimate that doesn't satisfy elem
  *                      abundances
  *                    1 have an estimate that satisfies elem_abund.
  *                    2 Have an estimate that minimizes a subproblem
@@ -116,7 +116,7 @@ public:
      *   unknown. The second is the an interfacial
      *   voltage where w[k] refers to the interfacial
      *   voltage in volts.
-     *   These species types correspond to metalic
+     *   These species types correspond to metallic
      *   electrons corresponding to electrodes.
      *   The voltage and other interfacial conditions
      *   sets up an interfacial current, which is
@@ -157,7 +157,7 @@ public:
     //! and species amounts
     /*!
      *  All internally stored quantities will have these units. Also, printed
-     *  quantitities will display in these units.
+     *  quantities will display in these units.
      *
      *                           Chem_Pot                 Pres      vol   moles
      * ----------------------------------------------------------------------

@@ -40,7 +40,7 @@ namespace Cantera
 //! Class for calculating the equation of state of water.
 /*!
  *
- *  The reference is W. Wagner, A. Prub, "The IAPWS Formulation 1995 for the Themodynamic
+ *  The reference is W. Wagner, A. Prub, "The IAPWS Formulation 1995 for the Thermodynamic
  *  Properties of Ordinary Water Substance for General and Scientific Use,"
  *  J. Phys. Chem. Ref. Dat, 31, 387, 2002.
  *
@@ -357,7 +357,7 @@ public:
      *  Note this function will return the saturation pressure, given the temperature.
      *  It will then set the state of the system to the saturation condition. The input
      *  parameter waterState is used to either specify the liquid state or the
-     *  gas state at the desired temperatue and saturated pressure.
+     *  gas state at the desired temperature and saturated pressure.
      *
      *  If the input temperature, T, is above T_c, this routine will set the internal
      *  state to T and the pressure to P_c. Then, return P_c.
@@ -387,7 +387,7 @@ public:
     //! Returns the Phase State flag for the current state of the object
     /*!
      * @param checkState If true, this function does a complete check to see where
-     *        in paramters space we are
+     *        in parameters space we are
      *
      *  There are three values:
      *     WATER_GAS   below the critical temperature but below the critical density

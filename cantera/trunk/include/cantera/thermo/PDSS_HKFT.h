@@ -36,11 +36,11 @@ class WaterProps;
  * species in their standard states at a range of temperatures
  * and pressures. The independent variables for this object
  * are temperature and pressure.
- * The class may mave a reference to a SpeciesThermo object
+ * The class may have a reference to a SpeciesThermo object
  * which handles the calculation of the reference state temperature
  * behavior of a subset of species.
  *
- * This class is analagous to the SpeciesThermoInterpType
+ * This class is analogous to the SpeciesThermoInterpType
  * class, except that the standard state inherently incorporates
  * the pressure dependence.
  *

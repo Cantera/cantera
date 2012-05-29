@@ -1,6 +1,6 @@
 /**
  *  @file thermoFunctions.cpp
- *  File containing thermo evalulation functions for NASA polynomials,
+ *  File containing thermo evaluation functions for NASA polynomials,
  *  which are used in testing the interpolations.
  */
 

@@ -188,7 +188,7 @@ private:
      */
     doublereal delXMeaningful(doublereal x1) const;
 
-    //! Calcuated a controlled, nonzero delta between two numbers
+    //! Calculate a controlled, nonzero delta between two numbers
     /*!
      *  The delta is designed to be greater than or equal to delXMeaningful(x) defined above
      *  with the same sign as the original delta. Therefore if you subtract it from either

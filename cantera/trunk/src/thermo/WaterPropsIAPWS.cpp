@@ -518,7 +518,7 @@ corr1(doublereal temperature, doublereal pressure, doublereal& densLiq,
  *  Note this function will return the saturation pressure, given the temperature.
  *  It will then set the state of the system to the saturation condition. The input
  *  parameter waterState is used to either specify the liquid state or the
- *  gas state at the desired temperatue and saturated pressure.
+ *  gas state at the desired temperature and saturated pressure.
  *
  *  If the input temperature, T, is above T_c, this routine will set the internal
  *  state to T and the pressure to P_c. Then, return P_c.
@@ -574,7 +574,7 @@ doublereal WaterPropsIAPWS::psat(doublereal temperature, int waterState)
 // Returns the Phase State flag for the current state of the object
 /*
  * @param checkState If true, this function does a complete check to see where
- *        in paramters space we are
+ *        in parameter space we are
  *
  *  There are three values:
  *     WATER_GAS   below the critical temperature but below the critical density

@@ -31,7 +31,7 @@ class LiquidTransportParams;
 //! properties for liquid phases.
 /*!
  *  Liquid Transport is set up with some flexibility in
- *  this class.  Transport properties like viscostiy
+ *  this class.  Transport properties like viscosity
  *  and thermal conductivity are allowed flexibility within
  *  the constraints of the LiquidTransportProperty and
  *  LiquidTransportInteractions classes. For species

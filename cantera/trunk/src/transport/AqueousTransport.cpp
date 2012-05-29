@@ -81,7 +81,7 @@ bool AqueousTransport::initLiquid(LiquidTransportParams& tr)
     //m_condcoeffs = tr.condcoeffs;
     //m_diffcoeffs = tr.diffcoeffs;
     cout << "In AqueousTransport::initLiquid we need to replace" << endl
-         << "LiquidTransportParams polyniomial coefficients with" << endl
+         << "LiquidTransportParams polynomial coefficients with" << endl
          <<  "those in LiquidTransportData as in SimpleTransport." << endl;
 
     m_mode       = tr.mode_;
@@ -758,7 +758,7 @@ void AqueousTransport::stefan_maxwell_solve()
 
         break;
     default:
-        printf("uninmplemetnd\n");
+        printf("unimplemented\n");
         throw CanteraError("routine", "not done");
         break;
     }

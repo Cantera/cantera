@@ -239,7 +239,7 @@ TransportFactory::TransportFactory() :
     m_models["None"] = None;
     //m_models["Radiative"] = cRadiative;
 
-    m_tranPropMap["viscostiy"] = TP_VISCOSITY;
+    m_tranPropMap["viscosity"] = TP_VISCOSITY;
     m_tranPropMap["ionConductivity"] = TP_IONCONDUCTIVITY;
     m_tranPropMap["mobilityRatio"] = TP_MOBILITYRATIO;
     m_tranPropMap["selfDiffusion"] = TP_SELFDIFFUSION;

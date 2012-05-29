@@ -17,7 +17,7 @@
 namespace Cantera
 {
 
-//!  A simple thermoydnamics model for a surface phase,
+//!  A simple thermodynamic model for a surface phase,
 //!  assuming an ideal solution model.
 /*!
  * The surface consists of a grid of equivalent sites.

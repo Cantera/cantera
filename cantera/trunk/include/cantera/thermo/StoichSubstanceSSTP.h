@@ -92,7 +92,7 @@ namespace Cantera
  * appear in the rate constant expression, since it's a stoichiometric
  * phase and the activity is always equal to 1.0.
  *
- * <b> Instanteation of the Class </b>
+ * <b> Instantiation of the Class </b>
  *
  * The constructor for this phase is NOT located in the default ThermoFactory
  * for %Cantera. However, a new %StoichSubstanceSSTP may be created by
@@ -290,7 +290,7 @@ public:
      * by kinetics manager classes to compute the forward and
      * reverse rates of elementary reactions.
      *
-     *  For a stoichiomeetric substance, there is
+     *  For a stoichiometric substance, there is
      *  only one species, and the generalized concentration is 1.0.
      *
      * @param c Output array of generalized concentrations. The
@@ -347,7 +347,7 @@ public:
      * units are needed. Usually, MKS units are assumed throughout
      * the program and in the XML input files.
      *
-     * The base %ThermoPhase class assigns thedefault quantities
+     * The base %ThermoPhase class assigns the default quantities
      * of (kmol/m3) for all species.
      * Inherited classes are responsible for overriding the default
      * values if necessary.

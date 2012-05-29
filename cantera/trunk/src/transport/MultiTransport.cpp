@@ -458,7 +458,7 @@ void MultiTransport::getMassFluxes(const doublereal* state1, const doublereal* s
     // update the binary diffusion coefficients if necessary
     updateDiff_T();
 
-    // If there is a temperature gadient, then get the
+    // If there is a temperature gradient, then get the
     // thermal diffusion coefficients
 
     bool addThermalDiffusion = false;

@@ -72,7 +72,7 @@ class VCS_SOLVE;
  *  with it. This object helps to coordinate property evaluations for
  *  species within the phase. Usually these evaluations must be carried
  *  out on a per phase basis. However, vcs frequently needs per species
- *  quantitites. Therefore, we need an interface layer between vcs
+ *  quantities. Therefore, we need an interface layer between vcs
  *  and Cantera's ThermoPhase.
  *
  *  The species stay in the same ordering within this structure.
@@ -87,19 +87,19 @@ class VCS_SOLVE;
  *
  * This object contains an idea of the temperature and pressure.
  * It checks to see if if the temperature and pressure has changed before calling
- * underlying property evalulation routines.
+ * underlying property evaluation routines.
  *
  * The object contains values for the electric potential of a phase.
- * It coordinates the evalulation of properties wrt when the electric
+ * It coordinates the evaluation of properties wrt when the electric
  * potential of a phase has changed.
  *
  * The object knows about the mole fractions of the phase. It controls
- * the values of mole fractions, and coordinates the property evalulation
+ * the values of mole fractions, and coordinates the property evaluation
  * wrt to changes in the mole fractions. It also will keep track of the
  * likely values of mole fractions in multicomponent phases even when
  * the phase doesn't actually exist within the thermo program.
  *
- * The object knows about the total moles of a phase. It checkes to
+ * The object knows about the total moles of a phase. It checks to
  * see if the phase currently exists or not, and modifies its behavior
  * accordingly.
  *
@@ -629,7 +629,7 @@ private:
     //! Calculate the partial molar volumes of all species and return the
     //! total volume
     /*!
-     *  Calculates these quantitites internally
+     *  Calculates these quantities internally
      *
      * @return total volume
      */
@@ -650,7 +650,7 @@ private:
      */
     void _updateLnActCoeffJac();
 
-    //! Updates the mole fraction depenpencies
+    //! Updates the mole fraction dependencies
     /*!
      *  Whenever the mole fractions change, this routine
      *  should be called.
@@ -717,7 +717,7 @@ public:
     //! and species amounts
     /*!
      *  All internally stored quantities will have these units. Also, printed
-     *  quantitities will display in these units. Input quantities are expected
+     *  quantities will display in these units. Input quantities are expected
      *  in these units.
      *
      *                           Chem_Pot                 Pres      vol   moles
@@ -889,7 +889,7 @@ private:
      *  The phase stability problem requires a global reaction number for each
      *  species in the phase. Usually this is the krxn = kglob - M for species
      *  in the phase that are not components. For component species, the
-     *  choice of the reaction is one which maximimes the chance that the phase
+     *  choice of the reaction is one which maximizes the chance that the phase
      *  pops into (or remains in) existence.
      *   The index here is the local phase species index.
      *   the value of the variable is the global vcs reaction number. Note,
@@ -972,11 +972,11 @@ private:
     //! Value of the potential for the phase (Volts)
     double m_phi;
 
-    //! Boolean indicating whether the object has an uptodate mole number vector
+    //! Boolean indicating whether the object has an up-to-date mole number vector
     //! and potential with respect to the current vcs state calc status
     bool m_UpToDate;
 
-    //! Boolean indicating whether activity coefficients are uptodate.
+    //! Boolean indicating whether activity coefficients are up to date.
     /*!
      * Activity coefficients and volume calculations are lagged. They are only
      * called when they are needed (and when the state has changed so that they
@@ -984,7 +984,7 @@ private:
      */
     mutable bool m_UpToDate_AC;
 
-    //! Boolean indicating whether Star volumes are uptodate.
+    //! Boolean indicating whether Star volumes are up to date.
     /*!
      * Activity coefficients and volume calculations are lagged. They are only
      * called when they are needed (and when the state has changed so that they
@@ -993,7 +993,7 @@ private:
      */
     mutable bool m_UpToDate_VolStar;
 
-    //! Boolean indicating whether partial molar volumes are uptodate.
+    //! Boolean indicating whether partial molar volumes are up to date.
     /*!
      * Activity coefficients and volume calculations are lagged. They are only
      * called when they are needed (and when the state has changed so that they
@@ -1002,14 +1002,14 @@ private:
      */
     mutable bool m_UpToDate_VolPM;
 
-    //! Boolean indicating whether GStar is uptodate.
+    //! Boolean indicating whether GStar is up to date.
     /*!
      * GStar is sensitive to the temperature and the pressure, only
      */
     mutable bool m_UpToDate_GStar;
 
 
-    //! Boolean indicating whether G0 is uptodate.
+    //! Boolean indicating whether G0 is up to date.
     /*!
      * G0 is sensitive to the temperature and the pressure, only
      */

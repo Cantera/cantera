@@ -1824,7 +1824,7 @@ void LiquidTransport::stefan_maxwell_solve()
 
         break;
     default:
-        printf("uninmplemetnd\n");
+        printf("unimplemented\n");
         throw CanteraError("routine", "not done");
         break;
     }

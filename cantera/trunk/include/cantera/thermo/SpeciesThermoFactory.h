@@ -57,7 +57,7 @@ public:
  *  It queries the database of species to understand what
  *  the requirements are for the submodels for all of the
  *  species in the phase. Then, it picks the SpeciesThermo
- *  object to use, and passies it back to the calling routine.
+ *  object to use, and passes it back to the calling routine.
  *  It doesn't load any of the data into the derived
  *  SpeciesThermo object.
  *
@@ -211,7 +211,7 @@ private:
     static SpeciesThermoFactory* s_factory;
 
 #if defined(THREAD_SAFE_CANTERA)
-    //! Decl of the static mutex variable that locks the %SpeciesThermo factory singelton
+    //! Decl of the static mutex variable that locks the %SpeciesThermo factory singleton
     static boost::mutex species_thermo_mutex;
 #endif
 

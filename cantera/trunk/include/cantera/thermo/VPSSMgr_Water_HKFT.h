@@ -211,7 +211,7 @@ public:
      *   - _updateRefStateThermo()
      *   - _updateStandardStateThermo()
      *
-     *  An important point to note is that inbetween calls the assumption
+     *  An important point to note is that between calls the assumption
      *  that the underlying PDSS objects will retain their set Temperatures
      *  and Pressure CAN NOT BE MADE. For efficiency reasons, we may twiddle
      *  these to get derivatives.

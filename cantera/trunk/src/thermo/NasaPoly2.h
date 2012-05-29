@@ -88,7 +88,7 @@ public:
 
     //! Copy Constructor
     /*!
-     * @param b objecto to be copied.
+     * @param b object to be copied.
      */
     NasaPoly2(const NasaPoly2& b) :
         m_lowT(b.m_lowT),
@@ -103,7 +103,7 @@ public:
 
     //! Assignment operator
     /*!
-     * @param b objecto to be copied.
+     * @param b object to be copied.
      */
     NasaPoly2& operator=(const NasaPoly2& b) {
         if (&b != this) {

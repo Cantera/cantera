@@ -1408,7 +1408,7 @@ void HMWSoln::setParametersFromXML(const XML_Node& eosdata)
 /*
  * Get the saturation pressure for a given temperature.
  * Note the limitations of this function. Stability considerations
- * concernting multiphase equilibrium are ignored in this
+ * concerning multiphase equilibrium are ignored in this
  * calculation. Therefore, the call is made directly to the SS of
  * water underneath. The object is put back into its original
  * state at the end of the call.
@@ -1839,7 +1839,7 @@ void HMWSoln::initLengths()
 }
 
 /**
- * Calcuate the natural log of the molality-based
+ * Calculate the natural log of the molality-based
  * activity coefficients.
  *
  */

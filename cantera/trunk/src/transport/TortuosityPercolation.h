@@ -19,12 +19,12 @@ namespace Cantera
 {
 
 //!  This class implements transport coefficient corrections
-//! appropriate for porous media where percollation theory applies.
+//! appropriate for porous media where percolation theory applies.
 class TortuosityPercolation : public TortuosityBase
 {
 
 public:
-    //! Default constructor uses Percolationn exponent of 1.5
+    //! Default constructor uses Percolation exponent of 1.5
     /*!
      *  @param setPower       Exponent in the Percolation factor. The default is 1.5
      */
@@ -66,7 +66,7 @@ public:
     //! The McMillan number is the ratio of the flux-like
     //! variable to the value it would have without porous flow.
     /*!
-     * The McMillan number combines the effect of toruosity
+     * The McMillan number combines the effect of tortuosity
      * and volume fraction of the transported phase.  The net flux
      * observed is then the product of the McMillan number and the
      * non-porous transport rate.  For a conductivity in a non-porous

@@ -313,7 +313,7 @@ public:
      *
      * @param t             Time                    (input)
      * @param delta_t       The current value of the time step (input)
-     * @param cj            Coefficient of yprime used in the evalulation of the jacobian
+     * @param cj            Coefficient of yprime used in the evaluation of the jacobian
      * @param y             Solution vector (input, do not modify)
      * @param ydot          Rate of change of solution vector. (input, do not modify)
      * @param J             Reference to the SquareMatrix object to be calculated (output)
@@ -334,7 +334,7 @@ public:
      *
      * @param t             Time                    (input)
      * @param delta_t       The current value of the time step (input)
-     * @param cj            Coefficient of yprime used in the evalulation of the jacobian
+     * @param cj            Coefficient of yprime used in the evaluation of the jacobian
      * @param y             Solution vector (input, do not modify)
      * @param ydot          Rate of change of solution vector. (input, do not modify)
      * @param jacobianColPts   Pointer  to the vector of pts to columns of the SquareMatrix

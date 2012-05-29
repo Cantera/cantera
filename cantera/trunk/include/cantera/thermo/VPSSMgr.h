@@ -156,7 +156,7 @@ class PDSS;
  *   - VPSSMgr_General
  *      - standardState model = "General"
  *      - This model is completely general. Nothing is assumed at this
- *        level. Calls consist of loops to PDSS property evalulations.
+ *        level. Calls consist of loops to PDSS property evaluations.
  *      .
  *   .
  *
@@ -520,7 +520,7 @@ public:
      *   - _updateRefStateThermo()
      *   - _updateStandardStateThermo()
      *
-     *  An important point to note is that inbetween calls the assumption
+     *  An important point to note is that between calls the assumption
      *  that the underlying PDSS objects will retain their set Temperatures
      *  and Pressure CAN NOT BE MADE. For efficiency reasons, we may twiddle
      *  these to get derivatives.
@@ -549,7 +549,7 @@ public:
      */
     virtual void setState_P(doublereal P);
 
-    //! Return the temperatue stored in the object
+    //! Return the temperature stored in the object
     doublereal temperature() const {
         return m_tlast;
     }
@@ -775,7 +775,7 @@ public:
      * them. This function is called like an onion.
      *
      *  @param vp_ptr   Pointer to the VPStandardStateTP standard state
-     *  @param sp_ptr   Poitner to the SpeciesThermo standard state
+     *  @param sp_ptr   Pointer to the SpeciesThermo standard state
      */
     virtual void initAllPtrs(VPStandardStateTP* vp_ptr, SpeciesThermo* sp_ptr);
 
@@ -843,7 +843,7 @@ protected:
      */
     mutable vector_fp      m_s0_R;
 
-    //! Vector containing the species referenc molar volumes
+    //! Vector containing the species reference molar volumes
     mutable vector_fp      m_V0;
 
     /*!

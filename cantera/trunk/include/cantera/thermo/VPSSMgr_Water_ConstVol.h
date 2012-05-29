@@ -49,7 +49,7 @@ public:
      * Initialize the object.
      *
      *  @param vp_ptr   Pointer to the VPStandardStateTP standard state
-     *  @param sp_ptr   Poitner to the SpeciesThermo standard state
+     *  @param sp_ptr   Pointer to the SpeciesThermo standard state
      */
     VPSSMgr_Water_ConstVol(VPStandardStateTP* vp_ptr, SpeciesThermo* sp_ptr);
 

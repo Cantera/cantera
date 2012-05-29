@@ -922,7 +922,7 @@ static void print_char(const char letter, const int num)
 /*
  *
  *
- * HKM -> Work on transfering the current value of the voltages into the
+ * HKM -> Work on transferring the current value of the voltages into the
  *        equilibrium problem.
  */
 int  vcs_Cantera_to_vprob(Cantera::MultiPhase* mphase,
@@ -956,7 +956,7 @@ int  vcs_Cantera_to_vprob(Cantera::MultiPhase* mphase,
     int printLvl = vprob->m_printLvl;
 
     /*
-     * Loop over the phases, transfering pertinent information
+     * Loop over the phases, transferring pertinent information
      */
     int kT = 0;
     for (size_t iphase = 0; iphase < totNumPhases; iphase++) {

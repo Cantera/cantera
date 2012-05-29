@@ -594,7 +594,7 @@ class WF93 : public Falloff
 
 public:
 
-    //! Default constructpr
+    //! Default constructor
     WF93() {}
 
     //! Destructor

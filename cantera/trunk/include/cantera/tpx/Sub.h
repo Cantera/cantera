@@ -131,7 +131,7 @@ public:
     double s() {                       // entropy, J/kg/K
         return prop(EvalS);
     }
-    double f() {                       // Helmholz function, J/kg
+    double f() {                       // Helmholtz function, J/kg
         return u() - T*s();
     }
     double g() {                       // Gibbs function, J/kg

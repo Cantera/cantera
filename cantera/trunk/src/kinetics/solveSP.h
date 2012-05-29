@@ -43,7 +43,7 @@
  *                          initial guess, and accuracy is needed.
  *  4:  SFLUX_TRANSIENT   = The transient calculation is performed here for an
  *                          amount of time specified by "time_scale".  It is
- *                          not garraunted to be time-accurate - just stable
+ *                          not guaranteed to be time-accurate - just stable
  *                          and fairly fast. The solution after del_t time is
  *                          returned, whether it's converged to a steady
  *                          state or not.
@@ -164,13 +164,13 @@ class InterfaceKinetics;
  *
  *  4:  SFLUX_TRANSIENT   = The transient calculation is performed here for an
  *                          amount of time specified by "time_scale".  It is
- *                          not garraunted to be time-accurate - just stable
+ *                          not guaranteed to be time-accurate - just stable
  *                          and fairly fast. The solution after del_t time is
  *                          returned, whether it's converged to a steady
  *                          state or not. This is a poor man's time stepping
  *                          algorithm.
  *
- * Psuedo time stepping algorithm:
+ * Pseudo time stepping algorithm:
  *  The time step is determined from sdot[], so  so that the time step
  *   doesn't ever change the value of a variable by more than 100%.
  *
@@ -364,7 +364,7 @@ private:
      */
     void evalSurfLarge(const doublereal* CSolnSP);
 
-    //! Main Function evalulation
+    //! Main Function evaluation
     /*!
      *
      *  @param resid output Vector of residuals, length = m_neq
@@ -541,7 +541,7 @@ private:
      */
     std::vector<size_t> m_kinObjIndex;
 
-    //! Vector containing the indecies of the largest species
+    //! Vector containing the indices of the largest species
     //! in each surface phase
     /*!
      *           k = m_spSurfLarge[i]

@@ -1059,7 +1059,7 @@ public:
     int vcs_inest_TP();
 
 #ifdef ALTLINPROG
-    //! Extimate the initial mole numbers by constrained linear programming
+    //! Estimate the initial mole numbers by constrained linear programming
     /*!
      *   This is done by running
      *   each reaction as far forward or backward as possible, subject
@@ -1497,7 +1497,7 @@ public:
     /*!
      *  FormulaMatrix[j][kspec] =  Number of elements, j, in the kspec species
      *
-     *  Both element and species indecies are swapped.
+     *  Both element and species indices are swapped.
      */
     DoubleStarStar m_formulaMatrix;
 
@@ -1511,7 +1511,7 @@ public:
      *
      *   m_stoichCoeffRxnMatrix[irxn][j] :
      *     j refers to the component number, and irxn refers to the irxn_th non-component species.
-     *     The stoichiometric coefficents multilpled by the Formula coefficients of the
+     *     The stoichiometric coefficients multilplied by the Formula coefficients of the
      *     component species add up to the negative value of the number of elements in
      *     the species kspec.
      *
@@ -1585,7 +1585,7 @@ public:
      *   unknown. The second is the an interfacial
      *   voltage where w[k] refers to the interfacial
      *   voltage in volts.
-     *   These species types correspond to metalic
+     *   These species types correspond to metallic
      *   electrons corresponding to electrodes.
      *   The voltage and other interfacial conditions
      *   sets up an interfacial current, which is

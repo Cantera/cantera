@@ -283,7 +283,7 @@ void MultiPhaseEquil::finish()
 }
 
 
-/// Extimate the initial mole numbers. This is done by running
+/// Estimate the initial mole numbers. This is done by running
 /// each reaction as far forward or backward as possible, subject
 /// to the constraint that all mole numbers remain
 /// non-negative. Reactions for which \f$ \Delta \mu^0 \f$ are
