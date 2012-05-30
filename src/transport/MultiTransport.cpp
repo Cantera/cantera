@@ -307,6 +307,7 @@ void MultiTransport::getSpeciesFluxes(size_t ndim, const doublereal* const grad_
                                       size_t ldf, doublereal* const fluxes)
 {
     // update the binary diffusion coefficients if necessary
+    update_T();
     updateDiff_T();
 
     // If any component of grad_T is non-zero, then get the
@@ -456,6 +457,7 @@ void MultiTransport::getMassFluxes(const doublereal* state1, const doublereal* s
     m_thermo->getMoleFractions(DATA_PTR(m_molefracs));
 
     // update the binary diffusion coefficients if necessary
+    update_T();
     updateDiff_T();
 
     // If there is a temperature gradient, then get the
@@ -576,6 +578,7 @@ void MultiTransport::getMultiDiffCoeffs(const size_t ld, doublereal* const d)
     update_C();
 
     // update the binary diffusion coefficients
+    update_T();
     updateDiff_T();
 
     // evaluate L0000 if the temperature or concentrations have
@@ -652,6 +655,7 @@ void MultiTransport::updateThermal_T()
     }
     // we need species viscosities and binary diffusion coefficients
     updateSpeciesViscosities();
+    update_T();
     updateDiff_T();
 
     // evaluate polynomial fits for A*, B*, C*

@@ -136,7 +136,12 @@ bool GasTransport::initGas(GasTransportParams& tr)
 }
 
 void GasTransport::update_T(void) {
-    m_temp = m_thermo->temperature();
+    double T = m_thermo->temperature();
+    if (T == m_temp) {
+        return;
+    }
+
+    m_temp = T;
     m_kbt = Boltzmann * m_temp;
     m_sqrt_kbt = sqrt(Boltzmann*m_temp);
     m_logt = log(m_temp);
