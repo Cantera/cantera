@@ -7,7 +7,6 @@
 #define CT_CTLAPACK_H
 
 #ifdef DARWIN
-#undef USE_CBLAS
 #undef NO_FTN_STRING_LEN_AT_END
 #endif
 
@@ -26,9 +25,7 @@
 #define _DGBTRS_  dgbtrs
 #define _DGECON_  dgecon
 #define _DLANGE_  dlange
-
 #define _DSCAL_   dscal
-
 #define _DGEQRF_  dgeqrf
 #define _DORMQR_  dormqr
 #define _DTRTRS_  dtrtrs
@@ -48,14 +45,11 @@
 #define _DGBTRS_  dgbtrs_
 #define _DGECON_  dgecon_
 #define _DLANGE_  dlange_
-
 #define _DSCAL_   dscal_
-
 #define _DGEQRF_  dgeqrf_
 #define _DORMQR_  dormqr_
 #define _DTRTRS_  dtrtrs_
 #define _DTRCON_  dtrcon_
-
 #define _DPOTRF_  dpotrf_
 #define _DPOTRS_  dpotrs_
 
@@ -72,13 +66,6 @@ typedef enum {Left = 0, Right = 1} side_t;
 const char no_yes[2] = {'N', 'T'};
 const char upper_lower[2] = {'U', 'L'};
 const char left_right[2] = {'L', 'R'};
-
-#ifdef USE_CBLAS
-#include <Accelerate.h>
-const CBLAS_ORDER cblasOrder[2] = { CblasRowMajor, CblasColMajor };
-const CBLAS_TRANSPOSE cblasTrans[2] = { CblasNoTrans, CblasTrans };
-#endif
-
 
 // C interfaces for Fortran Lapack routines
 extern "C" {
@@ -139,8 +126,6 @@ extern "C" {
 #endif
 
     int _DSCAL_(integer* n, doublereal* da, doublereal* dx, integer* incx);
-    void cblas_dscal(const int N, const double alpha, double* X, const int incX);
-
 
     int _DGEQRF_(const integer* m, const integer* n, doublereal* a, const integer* lda,
                  doublereal* tau, doublereal* work,  const integer* lwork, integer* info);
@@ -226,10 +211,7 @@ extern "C" {
     doublereal _DLANGE_(const char* norm, ftnlen nosize, const integer* m, const integer* n, doublereal* a, const integer* lda,
                         doublereal* work);
 #endif
-
-
 }
-//#endif
 
 namespace Cantera
 {
@@ -240,10 +222,6 @@ inline void ct_dgemv(ctlapack::storage_t storage,
                      const doublereal* x, int incX, doublereal beta,
                      doublereal* y, int incY)
 {
-#ifdef USE_CBLAS
-    cblas_dgemv(cblasOrder[storage], cblasTrans[trans], m, n, alpha,
-                a, lda, x, incX, beta, y, incY);
-#else
     integer f_m = m, f_n = n, f_lda = lda, f_incX = incX, f_incY = incY;
     doublereal f_alpha = alpha, f_beta = beta;
     ftnlen trsize = 1;
@@ -259,8 +237,6 @@ inline void ct_dgemv(ctlapack::storage_t storage,
             &f_lda, x, &f_incX, &f_beta, y, &f_incY);
 #endif
 #endif
-#endif
-
 }
 
 //====================================================================================================================
@@ -361,9 +337,8 @@ inline void ct_dgetri(int n, doublereal* a, int lda, integer* ipiv,
 
 inline void ct_dscal(int n, doublereal da, doublereal* dx, int incx)
 {
-    //integer f_n = n, f_incx = incx;
-    //_DSCAL_(&f_n, &da, dx, &f_incx);
-    cblas_dscal(n, da, dx, incx);
+    integer f_n = n, f_incx = incx;
+    _DSCAL_(&f_n, &da, dx, &f_incx);
 }
 //====================================================================================================================
 inline void ct_dgeqrf(size_t m, size_t n, doublereal* a, size_t lda, doublereal* tau,
