@@ -31,7 +31,6 @@ class FreeFlame(Stack):
         self.flame.setupGrid(grid)
         Stack.__init__(self, [self.inlet, self.flame, self.outlet])
         self.setRefineCriteria()
-        self._initialized = 0
         self.tfix = tfix
 
 

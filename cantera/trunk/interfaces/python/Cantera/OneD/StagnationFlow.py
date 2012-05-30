@@ -31,7 +31,7 @@ class StagnationFlow(Stack):
         self.flow.setupGrid(grid)
         Stack.__init__(self, [self.inlet, self.flow, self.surface])
         self.setRefineCriteria()
-        self._initialized = 0
+
 
     def init(self, products = 'inlet'):
         """Set the initial guess for the solution. If products = 'equil',

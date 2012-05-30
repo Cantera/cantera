@@ -477,6 +477,7 @@ class Stack:
             hndls[n] = domains[n].domain_hndl()
         self._hndl = _cantera.sim1D_new(hndls)
         self._domains = domains
+        self._initialized = False
 
     def __del__(self):
         _cantera.sim1D_del(self._hndl)
@@ -633,6 +634,7 @@ class Stack:
 
         >>> s.restore(file = 'save.xml', id = 'energy_off')
         """
+        self._initialized = True
         return _cantera.sim1D_restore(self._hndl, file, id)
 
     def showStats(self, printTime = 1):
