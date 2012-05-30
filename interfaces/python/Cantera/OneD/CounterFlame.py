@@ -52,7 +52,6 @@ class CounterFlame(Stack):
         Stack.__init__(self, [self.fuel_inlet, self.flame,
                               self.oxidizer_inlet])
         self.setRefineCriteria()
-        self._initialized = 0
 
 
     def init(self, fuel = '', oxidizer = 'O2', stoich = -1.0):

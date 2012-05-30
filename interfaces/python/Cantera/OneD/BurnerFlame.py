@@ -38,7 +38,6 @@ class BurnerFlame(Stack):
         self.flame.setupGrid(grid)
         Stack.__init__(self, [self.burner, self.flame, self.outlet])
         self.setRefineCriteria()
-        self._initialized = 0
 
 
     def init(self):
