@@ -124,7 +124,6 @@ public:
         return s_factory;
     }
 
-
     //! Deletes the statically malloced instance.
     virtual void deleteFactory();
 
@@ -133,12 +132,9 @@ public:
      *
      * We do not delete statically created single instance of this
      * class here, because it would create an infinite loop if
-     * destructor is called for that single instance.  However, we do
-     * have a pointer to m_integrals that does need to be
-     * explicitly deleted.
+     * destructor is called for that single instance.
      */
-    virtual ~TransportFactory();
-
+    virtual ~TransportFactory() {}
 
     //! Make one of several transport models, and return a base class pointer to it.
     /*!
@@ -323,17 +319,20 @@ private:
      *  @param tr       Reference to the GasTransportParams object that will contain the results.
      *  @param logfile  Reference to an ostream that will contain log information when in
      *                  DEBUG_MODE
-     *
+     *  @param integrals interpolator for the collision integrals
      */
-    void fitProperties(GasTransportParams& tr, std::ostream& logfile);
+    void fitProperties(GasTransportParams& tr, MMCollisionInt& integrals,
+                       std::ostream& logfile);
 
     //! Generate polynomial fits to collision integrals
     /*!
      *     @param logfile  Reference to an ostream that will contain log information when in
      *                     DEBUG_MODE
      *     @param tr       Reference to the GasTransportParams object that will contain the results.
+     *     @param integrals interpolator for the collision integrals
      */
-    void fitCollisionIntegrals(std::ostream& logfile, GasTransportParams& tr);
+    void fitCollisionIntegrals(std::ostream& logfile, GasTransportParams& tr,
+                               MMCollisionInt& integrals);
 
 
     //! Prepare to build a new kinetic-theory-based transport manager for low-density gases
@@ -380,6 +379,7 @@ private:
      *
      * @param t   Temperature (K)
      * @param tr  Transport parameters
+     * @param integrals interpolator for the collision integrals
      * @param k   index of first species
      * @param j   index of second species
      * @param xk  Mole fraction of species k
@@ -389,8 +389,9 @@ private:
      *
      * @note This method is not used currently.
      */
-    void getBinDiffCorrection(doublereal t, const GasTransportParams& tr, size_t k, size_t j,
-                              doublereal xk, doublereal xj,
+    void getBinDiffCorrection(doublereal t, const GasTransportParams& tr,
+                              MMCollisionInt& integrals, size_t k,
+                              size_t j, doublereal xk, doublereal xj,
                               doublereal& fkj, doublereal& fjk);
 
     //! Corrections for polar-nonpolar binary diffusion coefficients
@@ -413,9 +414,6 @@ private:
 
     //! Boolean indicating whether to turn on verbose printing
     bool m_verbose;
-
-    //! Pointer to the collision integrals
-    MMCollisionInt* m_integrals;
 
     //! Mapping between between the string name
     //!   for a transport model and the integer name.

@@ -75,36 +75,12 @@ public:
 
 //////////////////// class TransportFactory methods //////////////
 
-//====================================================================================================================
-// Second-order correction to the binary diffusion coefficients
-/*
- *    Calculate second-order corrections to binary diffusion
- * coefficient pair (dkj, djk). At first order, the binary
- * diffusion coefficients are independent of composition, and
- * d(k,j) = d(j,k). But at second order, there is a weak
- * dependence on composition, with the result that d(k,j) !=
- * d(j,k). This method computes the multiplier by which the
- * first-order binary diffusion coefficient should be multiplied
- * to produce the value correct to second order. The expressions
- * here are taken from Marerro and Mason,
- * J. Phys. Chem. Ref. Data, vol. 1, p. 3 (1972).
- *
- *  @param t   Temperature (K)
- *   @param tr  Transport parameters
- *   @param k   index of first species
- *  @param j   index of second species
- *  @param xmk mole fraction of species k
- *  @param xmj mole fraction of species j
- *  @param fkj multiplier for d(k,j)
- *  @param fjk multiplier for d(j,k)
- *
- *  @note This method is not used currently.
- */
-void TransportFactory::getBinDiffCorrection(doublereal t, const GasTransportParams& tr,
+
+void TransportFactory::getBinDiffCorrection(doublereal t,
+        const GasTransportParams& tr, MMCollisionInt& integrals,
         size_t k, size_t j, doublereal xk, doublereal xj,
         doublereal& fkj, doublereal& fjk)
 {
-
     doublereal w1, w2, wsum, sig1, sig2, sig12, sigratio, sigratio2,
                sigratio3, tstar1, tstar2, tstar12,
                om22_1, om22_2, om11_12, astar_12, bstar_12, cstar_12,
@@ -127,12 +103,12 @@ void TransportFactory::getBinDiffCorrection(doublereal t, const GasTransportPara
     tstar2 = Boltzmann * t / tr.eps[j];
     tstar12 = Boltzmann * t / sqrt(tr.eps[k] * tr.eps[j]);
 
-    om22_1 = m_integrals->omega22(tstar1, tr.delta(k,k));
-    om22_2 = m_integrals->omega22(tstar2, tr.delta(j,j));
-    om11_12 = m_integrals->omega11(tstar12, tr.delta(k,j));
-    astar_12 = m_integrals->astar(tstar12, tr.delta(k,j));
-    bstar_12 = m_integrals->bstar(tstar12, tr.delta(k,j));
-    cstar_12 = m_integrals->cstar(tstar12, tr.delta(k,j));
+    om22_1 = integrals.omega22(tstar1, tr.delta(k,k));
+    om22_2 = integrals.omega22(tstar2, tr.delta(j,j));
+    om11_12 = integrals.omega11(tstar12, tr.delta(k,j));
+    astar_12 = integrals.astar(tstar12, tr.delta(k,j));
+    bstar_12 = integrals.bstar(tstar12, tr.delta(k,j));
+    cstar_12 = integrals.cstar(tstar12, tr.delta(k,j));
 
     cnst = sigratio * sqrt(2.0*w2/wsum) * 2.0 *
            w1*w1/(wsum * w2);
@@ -214,8 +190,7 @@ void TransportFactory::makePolarCorrections(size_t i, size_t j,
   for a transport model and the integer name.
 */
 TransportFactory::TransportFactory() :
-    m_verbose(false),
-    m_integrals(0)
+    m_verbose(false)
 {
     m_models["Mix"] = cMixtureAveraged;
     m_models["Multi"] = cMulticomponent;
@@ -256,22 +231,6 @@ TransportFactory::TransportFactory() :
     m_LTImodelMap["moleFractionsExpT"] = LTI_MODEL_MOLEFRACS_EXPT;
 }
 
-/*
-  Destructor
-
-  We do not delete statically created single instance of this
-  class here, because it would create an infinite loop if
-  destructor is called for that single instance.  However, we do
-  have a pointer to m_integrals that does need to be
-  explicitly deleted.
-*/
-TransportFactory::~TransportFactory()
-{
-    if (m_integrals) {
-        delete m_integrals;
-        m_integrals = 0;
-    }
-}
 
 // This static function deletes the statically allocated instance.
 void TransportFactory::deleteFactory()
@@ -586,9 +545,9 @@ void TransportFactory::setupMM(std::ostream& flog, const std::vector<const XML_N
         tr.xml->XML_open(flog, "collision_integrals");
     }
 #endif
-    m_integrals = new MMCollisionInt;
-    m_integrals->init(tr.xml, tstar_min, tstar_max, log_level);
-    fitCollisionIntegrals(flog, tr);
+    MMCollisionInt integrals;
+    integrals.init(tr.xml, tstar_min, tstar_max, log_level);
+    fitCollisionIntegrals(flog, tr, integrals);
 #ifdef DEBUG_MODE
     if (m_verbose) {
         tr.xml->XML_close(flog, "collision_integrals");
@@ -600,7 +559,7 @@ void TransportFactory::setupMM(std::ostream& flog, const std::vector<const XML_N
         tr.xml->XML_open(flog, "property fits");
     }
 #endif
-    fitProperties(tr, flog);
+    fitProperties(tr, integrals, flog);
 #ifdef DEBUG_MODE
     if (m_verbose) {
         tr.xml->XML_close(flog, "property fits");
@@ -680,6 +639,7 @@ void TransportFactory::setupLiquidTransport(std::ostream& flog, thermo_t* thermo
 void TransportFactory::initTransport(Transport* tran,
                                      thermo_t* thermo, int mode, int log_level)
 {
+    ScopedLock transportLock(transport_mutex);
     const std::vector<const XML_Node*> & transport_database = thermo->speciesData();
 
     GasTransportParams trParam;
@@ -743,16 +703,11 @@ void  TransportFactory::initLiquidTransport(Transport* tran,
     return;
 
 }
-//====================================================================================================================
-// Generate polynomial fits to collision integrals
-/*
- *     @param logfile  Reference to an ostream that will contain log information when in
- *                     DEBUG_MODE
- *     @param tr       Reference to the GasTransportParams object that will contain the results.
- */
-void TransportFactory::fitCollisionIntegrals(ostream& logfile, GasTransportParams& tr)
-{
 
+void TransportFactory::fitCollisionIntegrals(ostream& logfile,
+                                             GasTransportParams& tr,
+                                             MMCollisionInt& integrals)
+{
     vector_fp::iterator dptr;
     doublereal dstar;
     size_t nsp = tr.nsp_;
@@ -790,10 +745,10 @@ void TransportFactory::fitCollisionIntegrals(ostream& logfile, GasTransportParam
             if (dptr == tr.fitlist.end()) {
                 vector_fp ca(degree+1), cb(degree+1), cc(degree+1);
                 vector_fp co22(degree+1);
-                m_integrals->fit(logfile, degree, dstar,
-                                 DATA_PTR(ca), DATA_PTR(cb), DATA_PTR(cc));
-                m_integrals->fit_omega22(logfile, degree, dstar,
-                                         DATA_PTR(co22));
+                integrals.fit(logfile, degree, dstar,
+                              DATA_PTR(ca), DATA_PTR(cb), DATA_PTR(cc));
+                integrals.fit_omega22(logfile, degree, dstar,
+                                      DATA_PTR(co22));
                 tr.omega22_poly.push_back(co22);
                 tr.astar_poly.push_back(ca);
                 tr.bstar_poly.push_back(cb);
@@ -1217,35 +1172,9 @@ void TransportFactory::getLiquidInteractionsTransportData(const XML_Node& transp
  *
  *********************************************************/
 
-
-//====================================================================================================================
-// Generate polynomial fits to the viscosity, conductivity, and
-// the binary diffusion coefficients
-/*
- * If CK_mode, then the fits are of the form
- *     \f[
- *          \log(\eta(i)) = \sum_{n = 0}^3 a_n(i) (\log T)^n
- *     \f]
- *  and
- *     \f[
- *          \log(D(i,j)) = \sum_{n = 0}^3 a_n(i,j) (\log T)^n
- *     \f]
- *  Otherwise the fits are of the form
- *     \f[
- *          \eta(i)/sqrt(k_BT) = \sum_{n = 0}^4 a_n(i) (\log T)^n
- *     \f]
- *  and
- *     \f[
- *          D(i,j)/sqrt(k_BT)) = \sum_{n = 0}^4 a_n(i,j) (\log T)^n
- *     \f]
- *
- *  @param tr       Reference to the GasTransportParams object that will contain the results.
- *  @param logfile  Reference to an ostream that will contain log information when in
- *                  DEBUG_MODE
- */
-void TransportFactory::fitProperties(GasTransportParams& tr, std::ostream& logfile)
+void TransportFactory::fitProperties(GasTransportParams& tr,
+        MMCollisionInt& integrals, std::ostream& logfile)
 {
-
     doublereal tstar;
     int ndeg = 0;
 #ifdef DEBUG_MODE
@@ -1313,8 +1242,8 @@ void TransportFactory::fitProperties(GasTransportParams& tr, std::ostream& logfi
 
             tstar = Boltzmann * t/ tr.eps[k];
             sqrt_T = sqrt(t);
-            om22 = m_integrals->omega22(tstar, tr.delta(k,k));
-            om11 = m_integrals->omega11(tstar, tr.delta(k,k));
+            om22 = integrals.omega22(tstar, tr.delta(k,k));
+            om11 = integrals.omega11(tstar, tr.delta(k,k));
 
             // self-diffusion coefficient, without polar
             // corrections
@@ -1482,7 +1411,7 @@ void TransportFactory::fitProperties(GasTransportParams& tr, std::ostream& logfi
                 eps = tr.epsilon(j,k);
                 tstar = Boltzmann * t/eps;
                 sigma = tr.diam(j,k);
-                om11 = m_integrals->omega11(tstar, tr.delta(j,k));
+                om11 = integrals.omega11(tstar, tr.delta(j,k));
 
                 diffcoeff = ThreeSixteenths *
                             sqrt(2.0 * Pi/tr.reducedMass(k,j)) *
@@ -1493,7 +1422,7 @@ void TransportFactory::fitProperties(GasTransportParams& tr, std::ostream& logfi
                 // 2nd order correction
                 // NOTE: THIS CORRECTION IS NOT APPLIED
                 doublereal fkj, fjk;
-                getBinDiffCorrection(t, tr, k, j, 1.0, 1.0, fkj, fjk);
+                getBinDiffCorrection(t, tr, integrals, k, j, 1.0, 1.0, fkj, fjk);
                 //diffcoeff *= fkj;
 
 
