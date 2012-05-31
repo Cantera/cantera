@@ -325,10 +325,6 @@ opts.AddVariables(
         """Build HTML documentation for the Python module using Sphinx""",
         False),
     BoolVariable(
-        'with_adsorbate',
-        """Include thermodynamic model for adsorbates in the Cantera kernel""",
-        True),
-    BoolVariable(
         'with_h298modify_capability',
         """Enable changing the 298K heats of formation directly via
            the C++ layer.""",

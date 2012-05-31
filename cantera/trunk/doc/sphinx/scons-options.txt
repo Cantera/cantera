@@ -137,10 +137,6 @@ of this file is:
     kernel.
     - default: 'yes'
 
-* with_adsorbate: [ yes | no ]
-    Include thermodynamic model for adsorbates in the Cantera kernel
-    - default: 'yes'
-
 * with_h298modify_capability: [ yes | no ]
     Enable changing the 298K heats of formation directly via the C++
     layer.

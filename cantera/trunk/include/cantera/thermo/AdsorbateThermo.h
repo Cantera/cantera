@@ -120,7 +120,7 @@ public:
     }
 
     //! Returns an integer representing the species index
-    virtual int speciesIndex() const {
+    virtual size_t speciesIndex() const {
         return m_index;
     }
 
@@ -165,7 +165,7 @@ public:
      * @param coeffs    Vector of coefficients used to set the
      *                  parameters for the standard state.
      */
-    void reportParameters(int& n, int& type,
+    void reportParameters(size_t& n, int& type,
                           doublereal& tlow, doublereal& thigh,
                           doublereal& pref,
                           doublereal* const coeffs) const {
@@ -176,7 +176,7 @@ public:
         pref = m_Pref;
         coeffs[0] = m_nFreqs;
         coeffs[1] = m_be;
-        for (int i = 2; i < m_nFreqs+2; i++) {
+        for (size_t i = 2; i < m_nFreqs+2; i++) {
             coeffs[i] = m_freq[i-2];
         }
     }

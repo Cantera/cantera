@@ -12,10 +12,7 @@
 #include "ShomatePoly.h"
 #include "ConstCpPoly.h"
 #include "cantera/thermo/Mu0Poly.h"
-#ifdef WITH_ADSORBATE
 #include "cantera/thermo/AdsorbateThermo.h"
-#endif
-
 #include "cantera/thermo/SpeciesThermoFactory.h"
 #include <iostream>
 
@@ -157,12 +154,10 @@ void GeneralSpeciesThermo::install(std::string name,
         m_sp[index] = new NasaPoly2(index, minTemp, maxTemp,
                                     refPressure, c);
         break;
-#ifdef WITH_ADSORBATE
     case ADSORBATE:
         m_sp[index] = new Adsorbate(index, minTemp, maxTemp,
                                     refPressure, c);
         break;
-#endif
     default:
         throw UnknownSpeciesThermoModel(
             "GeneralSpeciesThermo::install",
