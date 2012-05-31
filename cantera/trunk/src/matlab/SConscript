@@ -8,15 +8,16 @@ linkflags = []
 matlab_include = pjoin(localenv['matlab_path'], 'extern', 'include')
 
 if localenv['OS'] == 'Windows':
-    mexPlatform = 'w'
     linklibs = list(env['cantera_shared_libs'])
     linklibs += ['libmx', 'libmex', 'libmat']
     if localenv['OS_BITS'] == 32:
         matlab_libs = pjoin(localenv['matlab_path'], 'extern',
                             'lib' ,'win32', 'microsoft')
+        mexSuffix = '.mexw32'
     else:
         matlab_libs = pjoin(localenv['matlab_path'], 'extern',
                     'lib' ,'win64', 'microsoft')
+        mexSuffix = '.mexw64'
 
     if localenv['CC'] == 'cl':
         linkflags.append('/export:mexFunction')
@@ -29,28 +30,28 @@ if localenv['OS'] == 'Windows':
 elif localenv['OS'] == 'Darwin':
     linklibs = list(env['cantera_libs'])
     linklibs += ['mx', 'mex', 'mat'] + env['LIBM']
-    mexPlatform = 'maci'
     linkflags.extend(['-Wl,-exported_symbol,_mexFunction'])
 
     if localenv['OS_BITS'] == 64:
         matlab_libs = pjoin(localenv['matlab_path'], 'bin', 'maci64')
+        mexSuffix = '.mexmaci64'
     else:
         matlab_libs = pjoin(localenv['matlab_path'], 'bin', 'macx86')
+        mexSuffix = '.mexmaci'
 
 elif os.name == 'posix':
     linklibs = list(env['cantera_libs'])
     linklibs += ['mx', 'mex', 'mat'] + env['LIBM']
-    mexPlatform = 'a'
 
     if localenv['OS_BITS'] == 64:
         matlab_libs = pjoin(localenv['matlab_path'], 'bin', 'glnxa64')
+        mexSuffix = '.mexa64'
     else:
         matlab_libs = pjoin(localenv['matlab_path'], 'bin', 'glnx86')
+        mexSuffix = '.mexglx'
 
     linkflags.extend(['-Wl,--no-undefined',
                       '-Wl,--version-script,src/matlab/mexFunction.map'])
-
-mexSuffix = '.mex%s%i' % (mexPlatform, localenv['OS_BITS'])
 
 localenv.Append(CPPPATH=['#include', '#src', matlab_include],
                 CPPDEFINES=['MATLAB_MEX_FILE'],
