@@ -30,11 +30,6 @@ const int Elementary = 2000;  ///< elementary, pressure-independent reaction
 const int ThreeBody = 2001;   ///< three-body reaction
 const int Falloff = 2002;     ///< falloff reaction
 const int ChemAct = 2003;     ///< chemical activation reaction
-
-#ifdef ENABLE_PLASMA_REACTIONS
-const int CrossSection = 2004;   ///< momentum transfer cross section
-const int CollisionFreq = 2005;  ///< momentum transfer collision frequency
-#endif
 //@}
 
 /**

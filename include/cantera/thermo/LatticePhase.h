@@ -12,8 +12,6 @@
 
 #include "cantera/base/config.h"
 
-#ifdef WITH_LATTICE_SOLID
-
 #include "cantera/base/ct_defs.h"
 #include "mix_defs.h"
 #include "ThermoPhase.h"
@@ -1033,5 +1031,4 @@ private:
 };
 }
 
-#endif
 #endif

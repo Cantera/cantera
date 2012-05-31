@@ -3,9 +3,7 @@
  */
 #include "cantera/equil/MultiPhaseEquil.h"
 #include "cantera/equil/MultiPhase.h"
-#ifdef WITH_ELECTROLYTES
 #include "cantera/thermo/MolalityVPSSTP.h"
-#endif
 #include "cantera/base/global.h"
 #include "cantera/base/stringUtils.h"
 
@@ -1034,10 +1032,8 @@ void MultiPhaseEquil::reportCSV(const std::string& reportFile)
         VolPhaseVolumes *= TMolesPhase;
         vol += VolPhaseVolumes;
         if (actConvention == 1) {
-#ifdef WITH_ELECTROLYTES
             MolalityVPSSTP* mTP = static_cast<MolalityVPSSTP*>(tp);
             mTP->getMolalities(DATA_PTR(molalities));
-#endif
             tp->getChemPotentials(DATA_PTR(mu));
 
             if (iphase == 0) {

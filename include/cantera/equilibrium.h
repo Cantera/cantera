@@ -8,9 +8,7 @@
 #include "equil/equil.h"
 #include "equil/ChemEquil.h"
 #include "equil/MultiPhaseEquil.h"
-#ifdef WITH_VCSNONIDEAL
 #include "equil/vcs_MultiPhaseEquil.h"
-#endif
 #endif
 
 

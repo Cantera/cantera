@@ -8,8 +8,6 @@
 #include "cantera/base/xml.h"
 #include "cantera/thermo/PureFluidPhase.h"
 
-#ifdef WITH_PURE_FLUIDS
-
 #include "cantera/tpx/Sub.h"
 #include "cantera/tpx/utils.h"
 
@@ -813,5 +811,3 @@ void PureFluidPhase::reportCSV(std::ofstream& csvFile) const
     }
 }
 }
-
-#endif  // WITH_PURE_FLUIDS

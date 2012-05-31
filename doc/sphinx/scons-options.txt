@@ -137,20 +137,6 @@ of this file is:
     kernel.
     - default: 'yes'
 
-* with_metal: [ yes | no ]
-    Include thermodynamic model for metals in the Cantera kernel.
-    - default: 'yes'
-
-* with_stoich_substance: [ yes | no ]
-    Include thermodynamic model for stoichiometric substances in the
-    Cantera kernel.
-    - default: 'yes'
-
-* with_semiconductor: [ yes | no ]
-    Include thermodynamic model for semiconductors in the Cantera
-    kernel.
-    - default: 'yes'
-
 * with_adsorbate: [ yes | no ]
     Include thermodynamic model for adsorbates in the Cantera kernel
     - default: 'yes'
@@ -158,26 +144,6 @@ of this file is:
 * with_spectra: [ yes | no ]
     Include spectroscopy capability in the Cantera kernel.
     - default: 'yes'
-
-* with_pure_fluids: [ yes | no ]
-    Include accurate liquid/vapor equations of state for several fluids,
-    including water, nitrogen, hydrogen, oxygen, methane, and HFC-134a.
-    - default: 'yes'
-
-* with_ideal_solutions: [ yes | no ]
-    Include capabilities for working with ideal solutions.
-    - default: 'yes'
-
-* with_electrolytes: [ yes | no ]
-    Enable expanded electrochemistry capabilities, including
-    thermodynamic models for electrolyte solutions.
-    - default: 'yes'
-
-* with_prime: [ yes | no ]
-    Enable generating phase models from PrIMe models. For more
-    information about PrIME, see http://www.primekinetics.org WARNING:
-    Support for PrIMe is experimental!
-    - default: 'no'
 
 * with_h298modify_capability: [ yes | no ]
     Enable changing the 298K heats of formation directly via the C++
@@ -201,10 +167,6 @@ of this file is:
 
 * with_reaction_paths: [ yes | no ]
     Enable reaction path analysis
-    - default: 'yes'
-
-* with_vcsnonideal: [ yes | no ]
-    Enable vcs equilibrium package for nonideal phases
     - default: 'yes'
 
 * enable_transport: [ yes | no ]

@@ -325,24 +325,6 @@ opts.AddVariables(
         """Build HTML documentation for the Python module using Sphinx""",
         False),
     BoolVariable(
-        'with_lattice_solid',
-        """Include thermodynamic model for lattice solids in the
-           Cantera kernel.""",
-        True),
-    BoolVariable(
-        'with_metal',
-        """Include thermodynamic model for metals in the Cantera kernel.""",
-        True),
-    BoolVariable(
-        'with_stoich_substance',
-        """Include thermodynamic model for stoichiometric substances
-           in the Cantera kernel.""",
-        True),
-    BoolVariable(
-        'with_semiconductor',
-        """Include thermodynamic model for semiconductors in the Cantera kernel.""",
-        True),
-    BoolVariable(
         'with_adsorbate',
         """Include thermodynamic model for adsorbates in the Cantera kernel""",
         True),
@@ -350,31 +332,6 @@ opts.AddVariables(
         'with_spectra',
         """Include spectroscopy capability in the Cantera kernel.""",
         True),
-    BoolVariable(
-        'with_pure_fluids',
-        """Include accurate liquid/vapor equations of state for
-           several fluids, including water, nitrogen, hydrogen,
-           oxygen, methane, and HFC-134a.""",
-        True),
-    BoolVariable(
-        'with_real_gases',
-        """Enable the Redlich-Kwong MFTP real gas model.""",
-        True),
-    BoolVariable(
-        'with_ideal_solutions',
-        """Include capabilities for working with ideal solutions.""",
-        True),
-    BoolVariable(
-        'with_electrolytes',
-        """Enable expanded electrochemistry capabilities, including
-           thermodynamic models for electrolyte solutions.""",
-        True),
-    BoolVariable(
-        'with_prime',
-        """Enable generating phase models from PrIMe models. For more
-           information about PrIME, see http://www.primekinetics.org
-           WARNING: Support for PrIMe is experimental!""",
-        False),
     BoolVariable(
         'with_h298modify_capability',
         """Enable changing the 298K heats of formation directly via
@@ -400,10 +357,6 @@ opts.AddVariables(
     BoolVariable(
         'with_reaction_paths',
         """Enable reaction path analysis""",
-        True),
-    BoolVariable(
-        'with_vcsnonideal',
-        """Enable vcs equilibrium package for nonideal phases""",
         True),
     BoolVariable(
         'enable_transport',
@@ -969,18 +922,8 @@ if env['use_sundials'] == 'y':
 else:
     configh['SUNDIALS_VERSION'] = 0
 
-cdefine('WITH_ELECTROLYTES', 'with_electrolytes')
-cdefine('WITH_IDEAL_SOLUTIONS', 'with_ideal_solutions')
-cdefine('WITH_LATTICE_SOLID', 'with_lattice_solid')
-cdefine('WITH_METAL', 'with_metal')
-cdefine('WITH_STOICH_SUBSTANCE', 'with_stoich_substance')
-cdefine('WITH_SEMICONDUCTOR', 'with_semiconductor')
-cdefine('WITH_PRIME', 'with_prime')
 cdefine('H298MODIFY_CAPABILITY', 'with_h298modify_capability')
-cdefine('WITH_PURE_FLUIDS', 'with_pure_fluids')
 cdefine('WITH_HTML_LOGS', 'with_html_log_files')
-cdefine('WITH_VCSNONIDEAL', 'with_vcsnonideal')
-cdefine('WITH_REAL_GASES', 'with_real_gases')
 
 cdefine('LAPACK_FTN_STRING_LEN_AT_END', 'lapack_ftn_string_len_at_end')
 cdefine('LAPACK_FTN_TRAILING_UNDERSCORE', 'lapack_ftn_trailing_underscore')

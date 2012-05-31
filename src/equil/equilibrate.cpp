@@ -122,7 +122,6 @@ int equilibrate(thermo_t& s, const char* XY, int solver,
     }
     while (redo) {
         if (solver >= 2) {
-#ifdef WITH_VCSNONIDEAL
             int printLvlSub = 0;
             int estimateEquil = 0;
             try {
@@ -154,10 +153,6 @@ int equilibrate(thermo_t& s, const char* XY, int solver,
                     throw err;
                 }
             }
-#else
-            throw CanteraError("equilibrate",
-                               "VCSNonIdeal solver called, but not compiled");
-#endif
         } else if (solver == 1) {
             try {
                 MultiPhase m;

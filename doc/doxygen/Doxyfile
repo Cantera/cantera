@@ -1329,9 +1329,7 @@ INCLUDE_FILE_PATTERNS  =
 # instead of the = operator.
 
 PREDEFINED             = WITH_HTML_LOGS \
-                         WITH_PURE_FLUIDS \
                          THREAD_SAFE_CANTERA \
-                         WITH_LATTICE_SOLID \
                          HAVE_CONFIG_H \
                          DEPRECATED(x)=x
 

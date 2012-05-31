@@ -306,15 +306,8 @@ extern "C" {
                                    int maxsteps, int maxiter, int loglevel)
     {
         try {
-#ifdef WITH_VCSNONIDEAL
             int retn = vcs_equilibrate(mixCabinet::item(i), XY, estimateEquil, printLvl, solver,
                                        rtol, maxsteps, maxiter, loglevel);
-#else
-            int retn = -1;
-            throw CanteraError("mix_vcs_equilibrate",
-                               "The VCS NonIdeal equilibrium solver isn't compiled in\n"
-                               " To use this feature add export WITH_VCS_NONIDEAL='y' to the preconfig file");
-#endif
             return (double) retn;
         } catch (...) {
             return handleAllExceptions(-1, ERR);

@@ -39,7 +39,6 @@ template<> ThermoCabinet* ThermoCabinet::__storage = 0;
 template<> KineticsCabinet* KineticsCabinet::__storage = 0;
 template<> TransportCabinet* TransportCabinet::__storage = 0;
 
-#ifdef WITH_PURE_FLUIDS
 static PureFluidPhase* purefluid(int n)
 {
     PureFluidPhase* p = dynamic_cast<PureFluidPhase*>(&ThermoCabinet::item(n));
@@ -49,7 +48,6 @@ static PureFluidPhase* purefluid(int n)
         throw CanteraError("purefluid","object is not a PureFluidPhase object");
     }
 }
-#endif
 
 /**
  * Exported functions.
@@ -728,7 +726,6 @@ extern "C" {
     }
 
     //-------------- pure fluids ---------------//
-#ifdef WITH_PURE_FLUIDS
 
     double th_critTemperature(int n)
     {
@@ -803,50 +800,6 @@ extern "C" {
             return handleAllExceptions(-1, ERR);
         }
     }
-#else
-
-    double th_critTemperature(int n)
-    {
-        return DERR;
-    }
-
-    double th_critPressure(int n)
-    {
-        return DERR;
-    }
-
-    double th_critDensity(int n)
-    {
-        return DERR;
-    }
-
-    double th_vaporFraction(int n)
-    {
-        return DERR;
-    }
-
-    double th_satTemperature(int n, double p)
-    {
-        return DERR;
-    }
-
-    double th_satPressure(int n, double t)
-    {
-        return DERR;
-    }
-
-    int th_setState_Psat(int n, double p, double x)
-    {
-        return DERR;
-    }
-
-    int th_setState_Tsat(int n, double t, double x)
-    {
-        return DERR;
-    }
-#endif
-
-
 
     //-------------- Kinetics ------------------//
 
