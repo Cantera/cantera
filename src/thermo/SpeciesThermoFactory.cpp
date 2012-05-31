@@ -18,10 +18,7 @@ using namespace std;
 #include "Nasa9PolyMultiTempRegion.h"
 #include "cantera/thermo/Nasa9Poly1.h"
 
-#ifdef WITH_ADSORBATE
 #include "cantera/thermo/AdsorbateThermo.h"
-#endif
-
 #include "cantera/thermo/SpeciesThermoMgr.h"
 #include "cantera/thermo/speciesThermoTypes.h"
 #include "cantera/thermo/VPSSMgr.h"
@@ -677,7 +674,6 @@ static void installNasa9ThermoFromXML(std::string speciesName,
 }
 
 
-#ifdef WITH_ADSORBATE
 //! Install a Adsorbate polynomial thermodynamic property parameterization for species k into a SpeciesThermo instance.
 /*!
  * This is called by method installThermoForSpecies if a Adsorbate block is found in the XML input.
@@ -719,7 +715,6 @@ static void installAdsorbateThermoFromXML(std::string speciesName,
     copy(freqs.begin(), freqs.end(), coeffs.begin() + 2);
     (&sp)->install(speciesName, k, ADSORBATE, &coeffs[0], tmin, tmax, pref);
 }
-#endif
 
 //================================================================================================
 // Install a species thermodynamic property parameterization
@@ -782,11 +777,9 @@ void SpeciesThermoFactory::installThermoForSpecies
             } else if (f->name() == "NASA9") {
                 installNasa9ThermoFromXML(speciesNode["name"], spthermo, k, tp);
             }
-#ifdef WITH_ADSORBATE
             else if (f->name() == "adsorbate") {
                 installAdsorbateThermoFromXML(speciesNode["name"], spthermo, k, *f);
             }
-#endif
             else {
                 throw UnknownSpeciesThermoModel("installThermoForSpecies",
                                                 speciesNode["name"], f->name());
