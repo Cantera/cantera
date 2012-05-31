@@ -18,13 +18,19 @@ if 'LD_LIBRARY_PATH' in os.environ:
 def testRunner(target, source, env):
     """SCons Action to run a compiled test program"""
     program = source[0]
+    passedFile = target[0]
     workDir = Dir('#test/work').abspath
+
+    del testResults.tests[passedFile.name]
     if not os.path.isdir(workDir):
         os.mkdir(workDir)
     code = subprocess.call([program.abspath], env=env['ENV'], cwd=workDir)
     if not code:
-        open(target[0].path, 'w').write(time.asctime()+'\n')
-    return code
+        # Test was successful
+        open(passedFile.path, 'w').write(time.asctime()+'\n')
+        testResults.passed[passedFile.name] = program
+    else:
+        testResults.failed[passedFile.name] = program
 
 
 def addTestProgram(subdir, progName):
@@ -35,6 +41,7 @@ def addTestProgram(subdir, progName):
     program = localenv.Program(pjoin(subdir, progName),
                                mglob(localenv, subdir, 'cpp'))
     passedFile = File(pjoin(str(program[0].dir), '%s.passed' % program[0].name))
+    testResults.tests[passedFile.name] = program
     run_program = localenv.Command(passedFile, program, testRunner)
     Alias('test', run_program)
     Alias('test-%s' % progName, run_program)
@@ -51,17 +58,25 @@ def addTestScript(subdir, script, interpreter, dependencies):
     def scriptRunner(target, source, env):
         """Scons Action to run a test script using the specified interpreter"""
         workDir = Dir('#test/work').abspath
+        passedFile = target[0]
+        del testResults.tests[passedFile.name]
         if not os.path.isdir(workDir):
             os.mkdir(workDir)
+
         code = subprocess.call([interpreter, source[0].abspath],
                                env=env['ENV'],
                                cwd=workDir)
         if not code:
+            # Test was successful
             open(target[0].path, 'w').write(time.asctime()+'\n')
-        return code
+            testResults.passed[passedFile.name] = True
+        else:
+            testResults.failed[passedFile.name] = True
+
 
     testenv = localenv.Clone()
     passedFile = File(pjoin(subdir, '%s.passed' % (script)))
+    testResults.tests[passedFile.name] = True
     run_program = testenv.Command(passedFile, pjoin(subdir, script), scriptRunner)
     for dep in dependencies:
         if isinstance(dep, str):
@@ -77,6 +92,8 @@ def addTestScript(subdir, script, interpreter, dependencies):
 
 def addMatlabTest(script, dependencies=None):
     def matlabRunner(target, source, env):
+        passedFile = target[0]
+        del testResults.tests[passedFile.name]
         workDir = Dir('#test/work').abspath
         if not os.path.isdir(workDir):
             os.mkdir(workDir)
@@ -99,13 +116,14 @@ def addMatlabTest(script, dependencies=None):
         print results
         print '------ end Matlab test results ------'
         if 'FAILED' in results:
-            return 1
+            testResults.failed[passedFile.name] = True
         else:
+            testResults.passed[passedFile.name] = True
             open(target[0].path, 'w').write(time.asctime()+'\n')
 
     testenv = localenv.Clone()
     passedFile = File(pjoin('matlab', '%s.passed' % (script)))
-
+    testResults.tests[passedFile.name] = True
     run_program = testenv.Command(passedFile, pjoin('matlab', script), matlabRunner)
 
     dependencies = (dependencies or []) + localenv['matlab_extension']

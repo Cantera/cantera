@@ -74,15 +74,15 @@ class TestResults(object):
     def printReport(self, target, source, env):
         total = len(self.passed) + len(self.failed)
         print """
-**********************************
-*** Regression Testing Summary ***
-**********************************
+*****************************
+***    Testing Summary    ***
+*****************************
 
 Tests passed: %(passed)s
 Tests failed: %(failed)s
 Up-to-date tests skipped: %(skipped)s
 
-**********************************""" % dict(
+*****************************""" % dict(
             passed=len(self.passed),
             failed=len(self.failed),
             skipped=len(self.tests))
