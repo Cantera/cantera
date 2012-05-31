@@ -61,9 +61,8 @@ namespace Cantera
 {
 
 ThermoFactory* ThermoFactory::s_factory = 0;
-#if defined(THREAD_SAFE_CANTERA)
-boost::mutex ThermoFactory::thermo_mutex;
-#endif
+mutex_t ThermoFactory::thermo_mutex;
+
 //! Define the number of %ThermoPhase types for use in this factory routine
 /*!
  *  @deprecated This entire structure could be replaced with a std::map

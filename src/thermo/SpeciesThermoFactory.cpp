@@ -35,10 +35,7 @@ namespace Cantera
 {
 
 SpeciesThermoFactory* SpeciesThermoFactory::s_factory = 0;
-
-#if defined(THREAD_SAFE_CANTERA)
-boost::mutex SpeciesThermoFactory::species_thermo_mutex ;
-#endif
+mutex_t SpeciesThermoFactory::species_thermo_mutex;
 
 //! Examine the types of species thermo parameterizations,
 //! and return a flag indicating the type of reference state thermo manager
@@ -115,9 +112,7 @@ static void getSpeciesThermoTypes(std::vector<XML_Node*> & spDataNodeList,
  */
 SpeciesThermoFactory* SpeciesThermoFactory::factory()
 {
-#if defined(THREAD_SAFE_CANTERA)
-    boost::mutex::scoped_lock lock(species_thermo_mutex);
-#endif
+    ScopedLock lock(species_thermo_mutex);
     if (!s_factory) {
         s_factory = new SpeciesThermoFactory;
     }
@@ -132,9 +127,7 @@ SpeciesThermoFactory* SpeciesThermoFactory::factory()
  */
 void SpeciesThermoFactory::deleteFactory()
 {
-#if defined(THREAD_SAFE_CANTERA)
-    boost::mutex::scoped_lock lock(species_thermo_mutex);
-#endif
+    ScopedLock lock(species_thermo_mutex);
     if (s_factory) {
         delete s_factory;
         s_factory = 0;

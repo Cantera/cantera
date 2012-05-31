@@ -16,14 +16,12 @@
 
 // Cantera includes
 #include "cantera/base/ct_defs.h"
+#include "cantera/base/ct_thread.h"
 #include "TransportBase.h"
 #include "cantera/base/FactoryBase.h"
 //#include "LiquidTransportData.h"
 #include "LiquidTransportParams.h"
 
-#if defined(THREAD_SAFE_CANTERA)
-#include <boost/thread/mutex.hpp>
-#endif
 //======================================================================================================================
 namespace Cantera
 {
@@ -119,9 +117,7 @@ public:
      * @endcode
      */
     static TransportFactory* factory() {
-#if defined(THREAD_SAFE_CANTERA)
-        boost::mutex::scoped_lock   lock(transport_mutex) ;
-#endif
+        ScopedLock transportLock(transport_mutex);
         if (!s_factory) {
             s_factory = new TransportFactory();
         }
@@ -232,10 +228,8 @@ private:
     //! object allowed
     static TransportFactory* s_factory;
 
-#if defined(THREAD_SAFE_CANTERA)
     //! Static instance of the mutex used to ensure the proper reading of the transport database
-    static boost::mutex transport_mutex;
-#endif
+    static mutex_t transport_mutex;
 
     //! The constructor is private; use static method factory() to
     //! get a pointer to a factory instance

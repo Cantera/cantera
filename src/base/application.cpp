@@ -25,83 +25,30 @@ namespace Cantera {
 
 // If running multiple threads in a cpp application, the Application class
 // is the only internal object that is single instance with static data.
-// Synchronize access to those data structures Using macros to avoid
-// polluting code with a lot of ifdef's
 
 #ifdef THREAD_SAFE_CANTERA
+cthreadId_t getThisThreadId()
+{
+#if defined(BOOST_HAS_WINTHREADS)
+    return ::GetCurrentThreadId();
+#elif defined(BOOST_HAS_PTHREADS)
+    return pthread_self();
+#endif
+}
+#endif
 
 //! Mutex for input directory access
-static boost::mutex  dir_mutex;
+static mutex_t dir_mutex;
 
 //! Mutex for access to string messages
-static boost::mutex  msg_mutex;
+static mutex_t msg_mutex;
 
 //! Mutex for creating singletons within the application object
-static boost::mutex  app_mutex;
-
-// Mutex for controlling access to the log file
-//static boost::mutex  log_mutex;
+static mutex_t app_mutex;
 
 //! Mutex for controlling access to XML file storage
-static boost::mutex  xml_mutex;
+static mutex_t xml_mutex;
 
-//! Macro for locking input directory access
-#define DIR_LOCK() boost::mutex::scoped_lock   d_lock(dir_mutex)
-
-//! Macro for locking access to string messages
-#define MSG_LOCK() boost::mutex::scoped_lock   m_lock(msg_mutex)
-
-//! Macro for locking creating singletons in the application state
-#define APP_LOCK() boost::mutex::scoped_lock   a_lock(app_mutex)
-
-//! Macro for locking XML file writing
-#define XML_LOCK() boost::mutex::scoped_lock   x_lock(xml_mutex)
-
-#ifdef WITH_HTML_LOGS
-//static boost::mutex  html_mutex; // html logs
-//#define HTML_LOCK() boost::mutex::scoped_lock   h_lock(html_mutex)
-#endif
-
-#if defined(BOOST_HAS_WINTHREADS)
-
-class thread_equal
-{
-public:
-    bool operator()(cthreadId_t L, cthreadId_t R) {
-        return L == R ;
-    }
-} ;
-cthreadId_t getThisThreadId()
-{
-    return ::GetCurrentThreadId() ;
-}
-#elif defined(BOOST_HAS_PTHREADS)
-
-typedef pthread_t cthreadId_t ;
-class thread_equal
-{
-public:
-    bool operator()(cthreadId_t L, cthreadId_t R) {
-        return pthread_equal(L, R) ;
-    }
-} ;
-cthreadId_t getThisThreadId()
-{
-    return pthread_self() ;
-}
-#endif
-
-#else
-#define DIR_LOCK()
-#define MSG_LOCK()
-#define APP_LOCK()
-#define XML_LOCK()
-
-#ifdef WITH_HTML_LOGS
-//#define HTML_LOCK()
-#endif
-
-#endif
 
 Application::Messages::Messages() :
     errorMessage(0),
@@ -359,7 +306,7 @@ void Application::Messages::write_logfile(std::string file)
 #ifdef THREAD_SAFE_CANTERA
 Application::Messages* Application::ThreadMessages::operator ->()
 {
-    MSG_LOCK() ;
+    ScopedLock msgLock(msg_mutex);
     cthreadId_t curId = getThisThreadId() ;
     threadMsgMap_t::iterator iter = m_threadMsgMap.find(curId) ;
     if (iter != m_threadMsgMap.end()) {
@@ -372,7 +319,7 @@ Application::Messages* Application::ThreadMessages::operator ->()
 
 void Application::ThreadMessages::removeThreadMessages()
 {
-    MSG_LOCK() ;
+    ScopedLock msgLock(msg_mutex);
     cthreadId_t curId = getThisThreadId() ;
     threadMsgMap_t::iterator iter = m_threadMsgMap.find(curId) ;
     if (iter != m_threadMsgMap.end()) {
@@ -407,7 +354,7 @@ Application::Application() :
 }
 
 Application* Application::Instance() {
-    APP_LOCK();
+    ScopedLock appLock(app_mutex);
     if (Application::s_app == 0) {
         Application::s_app = new Application();
     }
@@ -425,7 +372,7 @@ Application::~Application()
 }
 
 void Application::ApplicationDestroy() {
-    APP_LOCK();
+    ScopedLock appLock(app_mutex);
     if (Application::s_app != 0) {
         delete Application::s_app;
         Application::s_app = 0;
@@ -442,7 +389,7 @@ void Application::thread_complete()
 
 XML_Node* Application::get_XML_File(std::string file, int debug)
 {
-    XML_LOCK();
+    ScopedLock xmlLock(xml_mutex);
     std::string path = "";
     path = findInputFile(file);
 #ifdef _WIN32
@@ -537,7 +484,7 @@ XML_Node* Application::get_XML_File(std::string file, int debug)
 
 void Application::close_XML_File(std::string file)
 {
-    XML_LOCK();
+    ScopedLock xmlLock(xml_mutex);
     if (file == "all") {
         std::map<string, XML_Node*>::iterator
         b = xmlfiles.begin(),
@@ -704,7 +651,7 @@ void Application::setDefaultDirectories()
 
 void Application::addDataDirectory(std::string dir)
 {
-    DIR_LOCK() ;
+    ScopedLock dirLock(dir_mutex);
     if (inputDirs.size() == 0) {
         setDefaultDirectories();
     }
@@ -723,7 +670,7 @@ void Application::addDataDirectory(std::string dir)
 
 std::string Application::findInputFile(std::string name)
 {
-    DIR_LOCK() ;
+    ScopedLock dirLock(dir_mutex);
     string::size_type islash = name.find('/');
     string::size_type ibslash = name.find('\\');
     string inname;

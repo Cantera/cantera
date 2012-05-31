@@ -7,13 +7,8 @@
 
 #include <vector>
 
-#if defined(THREAD_SAFE_CANTERA)
-#include <boost/thread/mutex.hpp>
-#endif
-
 namespace Cantera
 {
-
 
 //! Base class for factories.
 /*!   This class maintains a registry of

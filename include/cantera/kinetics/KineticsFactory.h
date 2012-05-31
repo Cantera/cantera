@@ -10,10 +10,7 @@
 #include "Kinetics.h"
 #include "cantera/base/xml.h"
 #include "cantera/base/FactoryBase.h"
-
-#if defined(THREAD_SAFE_CANTERA)
-#include <boost/thread/mutex.hpp>
-#endif
+#include "cantera/base/ct_thread.h"
 
 namespace Cantera
 {
@@ -39,9 +36,7 @@ class KineticsFactory : public FactoryBase
 public:
 
     static KineticsFactory* factory() {
-#if defined(THREAD_SAFE_CANTERA)
-        boost::mutex::scoped_lock   lock(kinetics_mutex) ;
-#endif
+        ScopedLock lock(kinetics_mutex);
         if (!s_factory) {
             s_factory = new KineticsFactory;
         }
@@ -54,9 +49,7 @@ public:
     }
 
     virtual void deleteFactory() {
-#if defined(THREAD_SAFE_CANTERA)
-        boost::mutex::scoped_lock   lock(kinetics_mutex) ;
-#endif
+        ScopedLock lock(kinetics_mutex);
         if (s_factory) {
             delete s_factory ;
             s_factory = 0 ;
@@ -75,9 +68,7 @@ private:
 
     static KineticsFactory* s_factory;
     KineticsFactory() {}
-#if defined(THREAD_SAFE_CANTERA)
-    static boost::mutex kinetics_mutex ;
-#endif
+    static mutex_t kinetics_mutex;
 };
 
 

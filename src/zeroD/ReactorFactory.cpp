@@ -15,9 +15,7 @@ namespace Cantera
 {
 
 ReactorFactory* ReactorFactory::s_factory = 0;
-#ifdef THREAD_SAFE_CANTERA
-boost::mutex ReactorFactory::reactor_mutex ;
-#endif
+mutex_t ReactorFactory::reactor_mutex;
 
 static int ntypes = 4;
 static string _types[] = {"Reservoir", "Reactor", "ConstPressureReactor",

@@ -13,12 +13,9 @@
 
 #include "cantera/base/ct_defs.h"
 #include "cantera/base/ctexceptions.h"
+#include "cantera/base/ct_thread.h"
 
 #include <string>
-
-#if defined(THREAD_SAFE_CANTERA)
-#include <boost/thread/mutex.hpp>
-#endif
 
 namespace Cantera
 {
@@ -34,9 +31,7 @@ public:
 
     //! Initialize the static Unit class.
     static Unit* units() {
-#if defined(THREAD_SAFE_CANTERA)
-        boost::mutex::scoped_lock   lock(units_mutex) ;
-#endif
+        ScopedLock lock(units_mutex);
         if (!s_u) {
             s_u = new Unit;
         }
@@ -48,9 +43,7 @@ public:
      * Note this can't be done in a destructor.
      */
     static void deleteUnit() {
-#if defined(THREAD_SAFE_CANTERA)
-        boost::mutex::scoped_lock   lock(units_mutex) ;
-#endif
+        ScopedLock lock(units_mutex);
         if (s_u) {
             delete s_u;
             s_u = 0;
@@ -172,11 +165,8 @@ private:
      */
     std::map<std::string, doublereal> m_act_u;
 
-#if defined(THREAD_SAFE_CANTERA)
     //! Decl for static locker for Units singleton
-    static boost::mutex units_mutex;
-#endif
-
+    static mutex_t units_mutex;
 
     //! Units class constructor, containing the default mappings between
     //! strings and units.
