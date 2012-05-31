@@ -23,7 +23,6 @@ using namespace std;
 
 namespace Cantera
 {
-#ifdef WITH_REAL_GASES
 
 const doublereal RedlichKwongMFTP::omega_a = 4.27480233540E-01;
 const doublereal RedlichKwongMFTP::omega_b = 8.66403499650E-02;
@@ -1906,8 +1905,4 @@ int RedlichKwongMFTP::NicholsSolve(double TKelvin, double pres, doublereal a, do
     return nSolnValues;
 }
 
-
-#endif
 }
-
-

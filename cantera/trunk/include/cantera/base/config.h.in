@@ -117,30 +117,6 @@ typedef  int          ftnlen;       // Fortran hidden string length type
 //--------------------- compile options ----------------------------
 %(THREAD_SAFE_CANTERA)s
 
-//--------------------- optional phase models ----------------------
-//    This define indicates the enabling of the inclusion of
-//    accurate liquid/vapor equations
-//    of state for several fluids, including water, nitrogen, hydrogen,
-//    oxygen, methane, and HFC-134a.
-%(WITH_PURE_FLUIDS)s
-
-%(WITH_LATTICE_SOLID)s
-%(WITH_METAL)s
-%(WITH_STOICH_SUBSTANCE)s
-//    Enable expanded thermodynamic capabilities, adding
-//    ideal solid solutions
-%(WITH_IDEAL_SOLUTIONS)s
-%(WITH_REAL_GASES)s
-//    Enable expanded electrochemistry capabilities, include thermo
-//    models for electrolyte solutions.
-%(WITH_ELECTROLYTES)s
-
-%(WITH_PRIME)s
-
-//    Enable the VCS NonIdeal equilibrium solver. This is
-//    accessed by specifying the solver=2 option
-%(WITH_VCSNONIDEAL)s
-
 //-------------- Optional Cantera Capabilities ----------------------
 
 //    Enable sensitivity analysis via changing H298 directly

@@ -28,8 +28,6 @@ class PDSS;
   */
 //@{
 
-#ifdef WITH_REAL_GASES
-
 /**
  * @ingroup thermoprops
  *
@@ -835,7 +833,6 @@ public:
 
 
 };
-#endif
 }
 
 #endif

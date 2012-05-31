@@ -14,63 +14,41 @@
 #include "cantera/thermo/VPSSMgr.h"
 #include "VPSSMgrFactory.h"
 
-#ifdef WITH_IDEAL_SOLUTIONS
 #include "cantera/thermo/IdealSolidSolnPhase.h"
 #include "cantera/thermo/MargulesVPSSTP.h"
 #include "cantera/thermo/RedlichKisterVPSSTP.h"
 #include "cantera/thermo/IonsFromNeutralVPSSTP.h"
 #include "cantera/thermo/PhaseCombo_Interaction.h"
-#endif
 
-#ifdef WITH_PURE_FLUIDS
 #include "cantera/thermo/PureFluidPhase.h"
-#endif
-
-#ifdef WITH_REAL_GASES
 #include "cantera/thermo/RedlichKwongMFTP.h"
-#endif
 
 #include "cantera/thermo/ConstDensityThermo.h"
 #include "cantera/thermo/SurfPhase.h"
 #include "cantera/thermo/EdgePhase.h"
 
-#ifdef WITH_METAL
 #include "cantera/thermo/MetalPhase.h"
-#endif
-
-#ifdef WITH_SEMICONDUCTOR
 #include "cantera/thermo/SemiconductorPhase.h"
-#endif
 
 #undef USE_SSTP
-#ifdef WITH_STOICH_SUBSTANCE
 #ifdef USE_SSTP
 #include "cantera/thermo/StoichSubstanceSSTP.h"
 #else
 #include "cantera/thermo/StoichSubstance.h"
 #endif
-#endif
 
-#ifdef WITH_STOICH_SUBSTANCE
 #include "cantera/thermo/MineralEQ3.h"
 #include "cantera/thermo/MetalSHEelectrons.h"
 #include "cantera/thermo/FixedChemPotSSTP.h"
-#endif
 
-//#include "importCTML.h"
-
-#ifdef WITH_LATTICE_SOLID
 #include "cantera/thermo/LatticeSolidPhase.h"
 #include "cantera/thermo/LatticePhase.h"
-#endif
 
-#ifdef WITH_ELECTROLYTES
 #include "cantera/thermo/HMWSoln.h"
 #include "cantera/thermo/DebyeHuckel.h"
 #include "cantera/thermo/IdealMolalSoln.h"
 #include "cantera/thermo/MolarityIonicVPSSTP.h"
 #include "cantera/thermo/MixedSolventElectrolyte.h"
-#endif
 
 #include "cantera/thermo/IdealSolnGasVPSS.h"
 
@@ -147,7 +125,6 @@ ThermoPhase* ThermoFactory::newThermoPhase(std::string model)
         th = new EdgePhase;
         break;
 
-#ifdef WITH_IDEAL_SOLUTIONS
     case cIdealSolidSolnPhase:
         th = new IdealSolidSolnPhase();
         break;
@@ -171,15 +148,11 @@ ThermoPhase* ThermoFactory::newThermoPhase(std::string model)
     case cIonsFromNeutral:
         th = new IonsFromNeutralVPSSTP();
         break;
-#endif
 
-#ifdef WITH_METAL
     case cMetal:
         th = new MetalPhase;
         break;
-#endif
 
-#ifdef WITH_STOICH_SUBSTANCE
     case cStoichSubstance:
 #ifdef USE_SSTP
         th = new StoichSubstanceSSTP;
@@ -187,27 +160,19 @@ ThermoPhase* ThermoFactory::newThermoPhase(std::string model)
         th = new StoichSubstance;
 #endif
         break;
-#endif
 
-#ifdef WITH_STOICH_SUBSTANCE
     case cFixedChemPot:
         th = new FixedChemPotSSTP;
         break;
-#endif
 
-#ifdef WITH_STOICH_SUBSTANCE
     case cMineralEQ3:
         th = new MineralEQ3();
         break;
-#endif
 
-#ifdef WITH_STOICH_SUBSTANCE
     case cMetalSHEelectrons:
         th = new MetalSHEelectrons();
         break;
-#endif
 
-#ifdef WITH_LATTICE_SOLID
     case cLatticeSolid:
         th = new LatticeSolidPhase;
         break;
@@ -215,21 +180,15 @@ ThermoPhase* ThermoFactory::newThermoPhase(std::string model)
     case cLattice:
         th = new LatticePhase;
         break;
-#endif
 
-#ifdef WITH_PURE_FLUIDS
     case cPureFluid:
         th = new PureFluidPhase;
         break;
-#endif
 
-#ifdef WITH_REAL_GASES
     case cRedlichKwongMFTP:
         th = new RedlichKwongMFTP;
         break;
-#endif
 
-#ifdef WITH_ELECTROLYTES
     case cHMW:
         th = new HMWSoln;
         break;
@@ -241,7 +200,6 @@ ThermoPhase* ThermoFactory::newThermoPhase(std::string model)
     case cIdealMolalSoln:
         th = new IdealMolalSoln;
         break;
-#endif
 
     case cVPSS_IdealGas:
         th = new IdealSolnGasVPSS;
@@ -295,18 +253,14 @@ ThermoPhase* newPhase(XML_Node& xmlphase)
     if (model == "singing cows") {
         throw CanteraError(" newPhase", "Cows don't sing");
     }
-#ifdef WITH_ELECTROLYTES
     else if (model == "HMW") {
         HMWSoln* p = dynamic_cast<HMWSoln*>(t);
         p->constructPhaseXML(xmlphase,"");
     }
-#endif
-#ifdef WITH_IDEAL_SOLUTIONS
     else if (model == "IonsFromNeutralMolecule") {
         IonsFromNeutralVPSSTP* p = dynamic_cast<IonsFromNeutralVPSSTP*>(t);
         p->constructPhaseXML(xmlphase,"");
     }
-#endif
     else {
         importPhase(xmlphase, t);
     }

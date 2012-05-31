@@ -13,33 +13,12 @@
 #include "thermo/SurfPhase.h"
 #include "thermo/EdgePhase.h"
 
-
-#ifdef WITH_IDEAL_SOLUTIONS
-
 #include "thermo/GibbsExcessVPSSTP.h"
 #include "thermo/MargulesVPSSTP.h"
 
-#endif
-
-#ifdef WITH_ELECTROLYTES
-
 #include "electrolyteThermo.h"
-
-#endif
-
-
-#ifdef WITH_LATTICE_SOLID
 
 #include "thermo/LatticePhase.h"
 #include "thermo/LatticeSolidPhase.h"
-
-#endif
-
-#ifdef WITH_PURE_FLUIDS
-
-
-#endif
-
-
 
 #endif

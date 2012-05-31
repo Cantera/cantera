@@ -22,12 +22,8 @@
 #include "cantera/base/clockWC.h"
 #include "cantera/thermo/ThermoPhase.h"
 #include "cantera/thermo/speciesThermoTypes.h"
-#ifdef WITH_IDEAL_SOLUTIONS
 #include "cantera/thermo/IdealSolidSolnPhase.h"
-#endif
-#ifdef WITH_ELECTROLYTES
 #include "cantera/thermo/IdealMolalSoln.h"
-#endif
 #include "cantera/equil/ChemEquil.h"
 
 #include <string>
@@ -835,10 +831,8 @@ void vcs_MultiPhaseEquil::reportCSV(const std::string& reportFile)
 
 
         if (actConvention == 1) {
-#ifdef WITH_ELECTROLYTES
             MolalityVPSSTP* mTP = static_cast<MolalityVPSSTP*>(tp);
             mTP->getMolalities(VCS_DATA_PTR(molalities));
-#endif
             tp->getChemPotentials(VCS_DATA_PTR(mu));
 
             if (iphase == 0) {

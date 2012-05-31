@@ -12,18 +12,12 @@
 #define CT_LATTICESOLID_H
 
 #include "cantera/base/config.h"
-
-#ifdef WITH_LATTICE_SOLID
-
 #include "cantera/base/ct_defs.h"
-
 #include "mix_defs.h"
 #include "ThermoPhase.h"
 #include "SpeciesThermo.h"
 #include "LatticePhase.h"
 #include "cantera/base/utilities.h"
-
-
 
 namespace Cantera
 {
@@ -723,7 +717,5 @@ private:
     void _updateThermo() const;
 };
 }
-
-#endif // #ifdef WITH_LATTICE_SOLID
 
 #endif

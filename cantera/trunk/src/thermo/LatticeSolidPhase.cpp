@@ -7,8 +7,6 @@
  */
 
 #include "cantera/base/ct_defs.h"
-#ifdef WITH_LATTICE_SOLID
-
 #include "cantera/thermo/mix_defs.h"
 #include "cantera/thermo/LatticeSolidPhase.h"
 #include "cantera/thermo/LatticePhase.h"
@@ -728,6 +726,4 @@ doublereal LatticeSolidPhase::err(std::string msg) const
 }
 
 } // End namespace Cantera
-//======================================================================================================================
-#endif  // End #define WITH_LATTICE_SOLID
 //======================================================================================================================

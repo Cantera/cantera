@@ -20,12 +20,8 @@
 #include "cantera/base/ct_defs.h"
 #include "cantera/thermo/mix_defs.h"
 #include "cantera/thermo/speciesThermoTypes.h"
-#ifdef WITH_IDEAL_SOLUTIONS
 #include "cantera/thermo/IdealSolidSolnPhase.h"
-#endif
-#ifdef WITH_ELECTROLYTES
 #include "cantera/thermo/IdealMolalSoln.h"
-#endif
 #include "cantera/equil/ChemEquil.h"
 
 #include <string>

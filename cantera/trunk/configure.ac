@@ -46,14 +46,6 @@ typedef  int          ftnlen;       // Fortran hidden string length type
 #define STRING_LEN_AT_END
 #define STORE_MOLE_FRACTIONS
 
-#define INCL_PURE_FLUIDS 1
-#define WITH_PURE_FLUIDS 1
-
-#define WITH_LATTICE_SOLID 1
-#define WITH_METAL 1
-#define WITH_STOICH_SUBSTANCE 1
-#define WITH_IDEAL_SOLUTIONS 1
-#define WITH_ELECTROLYTES 1
 #define HAS_SSTREAM 1
 
 #define CANTERA_DATA "/usr/local/cantera/data"
@@ -73,8 +65,8 @@ AC_PROG_LIBTOOL
 AM_SANITY_CHECK
 
 # ----------------
-# Doxygen support 
-# ---------------- 
+# Doxygen support
+# ----------------
 
 DX_HTML_FEATURE(ON)
 DX_CHM_FEATURE(OFF)
@@ -85,7 +77,7 @@ DX_RTF_FEATURE(OFF)
 DX_XML_FEATURE(OFF)
 DX_PDF_FEATURE(ON)
 DX_PS_FEATURE(OFF)
-DX_INIT_DOXYGEN(cantera, doxygen/cantera.dox, docs) 
+DX_INIT_DOXYGEN(cantera, doxygen/cantera.dox, docs)
 
 # Generate Output Files
 AC_OUTPUT(Makefile                                                         \
@@ -151,15 +143,15 @@ AC_OUTPUT(Makefile                                                         \
 		   src/transport/Makefile                          \
                    src/spectra/Makefile src/zeroD/Makefile \
                    src/equil/Makefile                              \
-		   cantera.pc)                                   
+		   cantera.pc)
 
 # skipped tests
-#                   test_problems/ck2cti/Makefile                         
-#                   test_problems/nasa9_reader/Makefile                     
-#                   test_problems/rankine_democxx/Makefile                  
-#                   test_problems/VCSnonideal/NaCl_equil/Makefile           
+#                   test_problems/ck2cti/Makefile
+#                   test_problems/nasa9_reader/Makefile
+#                   test_problems/rankine_democxx/Makefile
+#                   test_problems/VCSnonideal/NaCl_equil/Makefile
 
 
 # FINAL SUMMARY
-AX_SUMMARIZE_CONFIG 
+AX_SUMMARIZE_CONFIG
 

@@ -5,8 +5,6 @@
  *   gas, liquid, mixed-gas-liquid and supercrit fluid (see \ref thermoprops
  *   and class \link Cantera::PureFluidPhase PureFluidPhase\endlink).
  *
- * This class is only available if the WITH_PURE_FLUIDS optional compile
- * capability has been turned on in Cantera's makefile system.
  * It inherits from ThermoPhase, but is built on top of the tpx package.
  */
 
@@ -16,16 +14,6 @@
 #define CT_EOS_TPX_H
 
 #include "ThermoPhase.h"
-/*
- * For doxygen to recognize the ifdef below, it seems necessary to
- * include a specific include reference.
- */
-/**
- * This object is only available if the WITH_PURE_FLUIDS optional compile
- * capability has been turned on in Cantera's makefile system.
- */
-#ifdef WITH_PURE_FLUIDS
-
 #include "mix_defs.h"
 
 namespace tpx
@@ -603,5 +591,3 @@ private:
 }
 
 #endif
-#endif
-

@@ -40,16 +40,7 @@ IdealGasMix* _gasptr()
     return _gas;
 }
 
-// comment these out to produce a smaller executable if not needed
-#define WITH_EQUIL
-#define WITH_TRANSPORT
-
-#ifdef WITH_EQUIL
 #include "cantera/equilibrium.h"
-#endif
-
-
-#ifdef WITH_TRANSPORT
 #include "cantera/transport.h"
 
 // store a pointer to a transport manager
@@ -58,7 +49,6 @@ Transport* _transptr()
 {
     return _trans;
 }
-#endif
 
 // error handler
 void handleError(CanteraError& err)
@@ -99,7 +89,6 @@ extern "C" {
         } catch (CanteraError& err) {
             handleError(err);
         }
-#ifdef WITH_TRANSPORT
         try {
             if (_trans) {
                 delete _trans;
@@ -108,7 +97,6 @@ extern "C" {
         } catch (CanteraError& err) {
             _trans =  newTransportMgr("",_gas,1);
         }
-#endif
     }
 
     ///   integer function nElements()
@@ -285,7 +273,6 @@ extern "C" {
         _gas->getMassFractions(y);
     }
 
-#ifdef WITH_EQUIL
     void equilibrate_(char* opt, ftnlen lenopt)
     {
         try {
@@ -299,7 +286,6 @@ extern "C" {
             handleError(err);
         }
     }
-#endif
 
     //---------------- kinetics -------------------------
 
@@ -345,7 +331,6 @@ extern "C" {
 
     //-------------------- transport properties --------------------
 
-#ifdef WITH_TRANSPORT
     double viscosity_()
     {
         try {
@@ -383,7 +368,6 @@ extern "C" {
             handleError(err);
         }
     }
-#endif
 
 }
 

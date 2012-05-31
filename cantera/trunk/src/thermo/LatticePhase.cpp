@@ -8,8 +8,6 @@
  *
  */
 #include "cantera/base/config.h"
-#ifdef WITH_LATTICE_SOLID
-
 #include "cantera/base/ct_defs.h"
 #include "cantera/thermo/mix_defs.h"
 #include "cantera/thermo/LatticePhase.h"
@@ -590,5 +588,3 @@ void LatticePhase::setParametersFromXML(const XML_Node& eosdata)
 //=====================================================================================================
 }
 //=======================================================================================================
-#endif
-

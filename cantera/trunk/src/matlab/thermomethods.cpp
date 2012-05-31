@@ -152,7 +152,6 @@ static void thermoget(int nlhs, mxArray* plhs[],
         case 18:
             vv = double(th_eosType(n));
             break;
-#ifdef WITH_PURE_FLUIDS
         case 19:
             vv  = th_critTemperature(n);
             break;
@@ -173,7 +172,6 @@ static void thermoget(int nlhs, mxArray* plhs[],
             tsat = getDouble(prhs[3]);
             vv = th_satPressure(n, tsat);
             break;
-#endif
         case 25:
             vv = th_electricPotential(n);
             break;

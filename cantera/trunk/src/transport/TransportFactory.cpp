@@ -12,14 +12,8 @@
 #include "cantera/transport/SolidTransport.h"
 #include "cantera/transport/DustyGasTransport.h"
 #include "cantera/transport/SimpleTransport.h"
-
-#ifdef WITH_IDEAL_SOLUTIONS
 #include "cantera/transport/LiquidTransport.h"
-#endif
-#ifdef WITH_ELECTROLYTES
 #include "cantera/transport/AqueousTransport.h"
-#endif
-
 #include "cantera/transport/TransportFactory.h"
 
 #include "cantera/numerics/polyfit.h"
@@ -439,20 +433,16 @@ Transport* TransportFactory::newTransport(std::string transportModel,
         initLiquidTransport(tr, phase, log_level);
         tr->setThermo(*phase);
         break;
-#ifdef WITH_IDEAL_SOLUTIONS
     case cLiquidTransport:
         tr = new LiquidTransport;
         initLiquidTransport(tr, phase, log_level);
         tr->setThermo(*phase);
         break;
-#endif
-#ifdef WITH_ELECTROLYTES
     case cAqueousTransport:
         tr = new AqueousTransport;
         initLiquidTransport(tr, phase, log_level);
         tr->setThermo(*phase);
         break;
-#endif
     default:
         throw CanteraError("newTransport","unknown transport model: " + transportModel);
     }
