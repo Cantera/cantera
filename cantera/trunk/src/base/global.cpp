@@ -117,10 +117,7 @@ void write_logfile(std::string file)
 // **************** Global Data ****************
 
 Unit* Unit::s_u = 0;
-
-#if defined(THREAD_SAFE_CANTERA)
-boost::mutex Unit::units_mutex ;
-#endif
+mutex_t Unit::units_mutex;
 
 void appdelete()
 {

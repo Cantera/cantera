@@ -52,11 +52,8 @@ const doublereal FiveThirds      = 5.0/3.0;
 //====================================================================================================================
 TransportFactory* TransportFactory::s_factory = 0;
 
-#if defined(THREAD_SAFE_CANTERA)
 // declaration of static storage for the mutex
-boost::mutex  TransportFactory::transport_mutex;
-#endif
-
+mutex_t TransportFactory::transport_mutex;
 
 ////////////////////////// exceptions /////////////////////////
 
@@ -279,9 +276,7 @@ TransportFactory::~TransportFactory()
 // This static function deletes the statically allocated instance.
 void TransportFactory::deleteFactory()
 {
-#if defined(THREAD_SAFE_CANTERA)
-    boost::mutex::scoped_lock   lock(transport_mutex) ;
-#endif
+    ScopedLock transportLock(transport_mutex);
     if (s_factory) {
         delete s_factory;
         s_factory = 0;
@@ -685,7 +680,6 @@ void TransportFactory::setupLiquidTransport(std::ostream& flog, thermo_t* thermo
 void TransportFactory::initTransport(Transport* tran,
                                      thermo_t* thermo, int mode, int log_level)
 {
-
     const std::vector<const XML_Node*> & transport_database = thermo->speciesData();
 
     GasTransportParams trParam;

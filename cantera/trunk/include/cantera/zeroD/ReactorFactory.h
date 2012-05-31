@@ -9,10 +9,7 @@
 
 #include "ReactorBase.h"
 #include "cantera/base/FactoryBase.h"
-
-#if defined(THREAD_SAFE_CANTERA)
-#include <boost/thread/mutex.hpp>
-#endif
+#include "cantera/base/ct_thread.h"
 
 namespace Cantera
 {
@@ -23,9 +20,7 @@ class ReactorFactory : Cantera::FactoryBase
 public:
 
     static ReactorFactory* factory() {
-#if defined(THREAD_SAFE_CANTERA)
-        boost::mutex::scoped_lock   lock(reactor_mutex) ;
-#endif
+        ScopedLock lock(reactor_mutex);
         if (!s_factory) {
             s_factory = new ReactorFactory;
         }
@@ -33,9 +28,7 @@ public:
     }
 
     virtual void deleteFactory() {
-#if defined(THREAD_SAFE_CANTERA)
-        boost::mutex::scoped_lock   lock(reactor_mutex) ;
-#endif
+        ScopedLock lock(reactor_mutex);
         if (s_factory) {
             delete s_factory;
             s_factory = 0;
@@ -55,11 +48,8 @@ public:
     virtual ReactorBase* newReactor(std::string reactorType);
 
 private:
-
     static ReactorFactory* s_factory;
-#if defined(THREAD_SAFE_CANTERA)
-    static boost::mutex reactor_mutex ;
-#endif
+    static mutex_t reactor_mutex;
     ReactorFactory() {}
 };
 

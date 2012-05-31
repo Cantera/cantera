@@ -2,12 +2,8 @@
 #define CT_BASE_APPLICATION_H
 
 #include "cantera/base/config.h"
+#include "cantera/base/ct_thread.h"
 #include "cantera/base/logger.h"
-
-#ifdef THREAD_SAFE_CANTERA
-#include <boost/shared_ptr.hpp>
-#include <boost/thread/mutex.hpp>
-#endif
 
 #include <map>
 #include <memory>
@@ -28,13 +24,6 @@ class XML_Node;
  * data is stored in the class Application.
  */
 
-#ifdef THREAD_SAFE_CANTERA
-#if defined(BOOST_HAS_WINTHREADS)
-typedef unsigned int cthreadId_t;
-#elif defined(BOOST_HAS_PTHREADS)
-typedef pthread_t cthreadId_t;
-#endif
-#endif
 
 //!  Class to hold global data.
 /*!

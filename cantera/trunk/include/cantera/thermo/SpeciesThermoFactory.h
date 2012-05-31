@@ -13,7 +13,7 @@
 #include "SpeciesThermo.h"
 #include "cantera/base/ctexceptions.h"
 #include "cantera/base/FactoryBase.h"
-
+#include "cantera/base/ct_thread.h"
 
 namespace Cantera
 {
@@ -210,10 +210,8 @@ private:
     //! Pointer to the sole instance of this class, which is static
     static SpeciesThermoFactory* s_factory;
 
-#if defined(THREAD_SAFE_CANTERA)
     //! Decl of the static mutex variable that locks the %SpeciesThermo factory singleton
-    static boost::mutex species_thermo_mutex;
-#endif
+    static mutex_t species_thermo_mutex;
 
     //! Constructor. This is made private, so that only the static
     //! method factory() can instantiate the class.

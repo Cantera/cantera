@@ -12,10 +12,7 @@
 #include "cantera/base/ct_defs.h"
 #include "reaction_defs.h"
 #include "cantera/base/FactoryBase.h"
-
-#if defined(THREAD_SAFE_CANTERA)
-#include <boost/thread/mutex.hpp>
-#endif
+#include "cantera/base/ct_thread.h"
 
 namespace Cantera
 {
@@ -118,9 +115,7 @@ public:
      * to the existing factory is returned.
      */
     static FalloffFactory* factory() {
-#if defined(THREAD_SAFE_CANTERA)
-        boost::mutex::scoped_lock   lock(falloff_mutex) ;
-#endif
+        ScopedLock lock(falloff_mutex) ;
         if (!s_factory) {
             s_factory = new FalloffFactory;
         }
@@ -128,9 +123,7 @@ public:
     }
 
     virtual void deleteFactory() {
-#if defined(THREAD_SAFE_CANTERA)
-        boost::mutex::scoped_lock   lock(falloff_mutex) ;
-#endif
+        ScopedLock lock(falloff_mutex);
         if (s_factory) {
             delete s_factory;
             s_factory = 0;
@@ -169,10 +162,8 @@ private:
     //! default constructor, which is defined as private
     FalloffFactory() {}
 
-#if defined(THREAD_SAFE_CANTERA)
     //!  Mutex for use when calling the factory
-    static boost::mutex falloff_mutex ;
-#endif
+    static mutex_t falloff_mutex ;
 };
 
 }

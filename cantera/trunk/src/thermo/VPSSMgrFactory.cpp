@@ -45,12 +45,8 @@ namespace Cantera
 
 VPSSMgrFactory* VPSSMgrFactory::s_factory = 0;
 
-#if defined(THREAD_SAFE_CANTERA)
-// Defn of the static mutex variable that locks the
-// %VPSSMgr factory singleton
-boost::mutex VPSSMgrFactory::vpss_species_thermo_mutex;
-#endif
-
+// Defn of the static mutex variable that locks the %VPSSMgr factory singleton
+mutex_t VPSSMgrFactory::vpss_species_thermo_mutex;
 
 //! Examine the types of species thermo parameterizations, and return a flag indicating the type of parameterization
 //! needed by the species.
@@ -201,10 +197,7 @@ static void getVPSSMgrTypes(std::vector<XML_Node*> & spDataNodeList,
  */
 void VPSSMgrFactory::deleteFactory()
 {
-
-#if defined(THREAD_SAFE_CANTERA)
-    boost::mutex::scoped_lock lock(vpss_species_thermo_mutex);
-#endif
+    ScopedLock lock(vpss_species_thermo_mutex);
     if (s_factory) {
         delete s_factory;
         s_factory = 0;

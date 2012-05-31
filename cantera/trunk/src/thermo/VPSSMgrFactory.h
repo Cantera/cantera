@@ -16,6 +16,7 @@
 #include "cantera/thermo/SpeciesThermo.h"
 #include "cantera/base/ctexceptions.h"
 #include "cantera/base/FactoryBase.h"
+#include "cantera/base/ct_thread.h"
 #include "cantera/thermo/VPSSMgr.h"
 
 namespace Cantera
@@ -87,9 +88,7 @@ public:
      * instance.
      */
     static VPSSMgrFactory* factory() {
-#if defined(THREAD_SAFE_CANTERA)
-        boost::mutex::scoped_lock lock(vpss_species_thermo_mutex);
-#endif
+        ScopedLock lock(vpss_species_thermo_mutex);
         if (!s_factory) {
             s_factory = new VPSSMgrFactory;
         }
@@ -156,11 +155,9 @@ private:
     //! pointer to the sole instance of this class
     static VPSSMgrFactory* s_factory;
 
-#if defined(THREAD_SAFE_CANTERA)
     //! Decl of the static mutex variable that locks the
     //! %VPSSMgr factory singleton
-    static boost::mutex vpss_species_thermo_mutex;
-#endif
+    static mutex_t vpss_species_thermo_mutex;
 
     //! Constructor. This is made private, so that only the static
     //! method factory() can instantiate the class.

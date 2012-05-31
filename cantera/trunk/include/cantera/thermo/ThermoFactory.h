@@ -12,11 +12,7 @@
 
 #include "ThermoPhase.h"
 #include "cantera/base/xml.h"
-
-#if defined(THREAD_SAFE_CANTERA)
-#include <boost/thread/mutex.hpp>
-#endif
-
+#include "cantera/base/ct_thread.h"
 #include "cantera/base/FactoryBase.h"
 
 namespace Cantera
@@ -67,9 +63,7 @@ public:
 
     //! Static function that creates a static instance of the factory.
     static ThermoFactory* factory() {
-#if defined(THREAD_SAFE_CANTERA)
-        boost::mutex::scoped_lock lock(thermo_mutex);
-#endif
+        ScopedLock lock(thermo_mutex);
         if (!s_factory) {
             s_factory = new ThermoFactory;
         }
@@ -78,9 +72,7 @@ public:
 
     //! delete the static instance of this factory
     virtual void deleteFactory() {
-#if defined(THREAD_SAFE_CANTERA)
-        boost::mutex::scoped_lock lock(thermo_mutex);
-#endif
+        ScopedLock lock(thermo_mutex);
         if (s_factory) {
             delete s_factory;
             s_factory = 0;
@@ -114,12 +106,8 @@ private:
     //! Private constructors prevents usage
     ThermoFactory() {};
 
-
-#if defined(THREAD_SAFE_CANTERA)
     //! Decl for locking mutex for thermo factory singleton
-    static boost::mutex thermo_mutex;
-#endif
-
+    static mutex_t thermo_mutex;
 };
 
 //!  Create a new thermo manager instance.

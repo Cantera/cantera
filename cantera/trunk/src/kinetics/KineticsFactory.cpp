@@ -18,9 +18,7 @@ namespace Cantera
 {
 
 KineticsFactory* KineticsFactory::s_factory = 0;
-#if defined(THREAD_SAFE_CANTERA)
-boost::mutex KineticsFactory::kinetics_mutex ;
-#endif
+mutex_t KineticsFactory::kinetics_mutex;
 
 static int ntypes = 6;
 static string _types[] = {"none", "GasKinetics", "GRI30", "Interface", "Edge", "AqueousKinetics"};
