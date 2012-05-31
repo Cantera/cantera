@@ -329,55 +329,10 @@ opts.AddVariables(
         """Include thermodynamic model for adsorbates in the Cantera kernel""",
         True),
     BoolVariable(
-        'with_spectra',
-        """Include spectroscopy capability in the Cantera kernel.""",
-        True),
-    BoolVariable(
         'with_h298modify_capability',
         """Enable changing the 298K heats of formation directly via
            the C++ layer.""",
         False),
-    BoolVariable(
-        'enable_ck',
-        """Build the ck2cti program that converts Chemkin input files
-           to Cantera format (.cti). If you don't use Chemkin format
-           files, or if you run ck2cti on some other machine, you can
-           set this to 'n'.""",
-        True),
-    BoolVariable(
-        'with_kinetics',
-        """Enable homogeneous kinetics.""",
-        True),
-    BoolVariable(
-        'with_hetero_kinetics',
-        """Enable heterogeneous kinetics (surface chemistry). This
-           also enables charge transfer reactions for
-           electrochemistry.""",
-        True),
-    BoolVariable(
-        'with_reaction_paths',
-        """Enable reaction path analysis""",
-        True),
-    BoolVariable(
-        'enable_transport',
-        'Enable transport property calculations.',
-        True),
-    BoolVariable(
-        'enable_equil',
-        'Enable chemical equilibrium calculations',
-        True),
-    BoolVariable(
-        'enable_reactors',
-        'Enable stirred reactor models',
-        True),
-    BoolVariable(
-        'enable_flow1d',
-        'Enable one-dimensional flow models',
-        True),
-    BoolVariable(
-        'enable_solvers',
-        'Enable ODE integrators and DAE solvers',
-        True),
     BoolVariable(
         'with_html_log_files',
         """write HTML log files. Some multiphase equilibrium
