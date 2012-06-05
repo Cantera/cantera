@@ -10,12 +10,27 @@ Package: cantera-common
 Architecture: any
 Depends: python, python-numpy, ${shlibs:Depends}, ${misc:Depends}
 Description: Common files needed for all Cantera interfaces
- This includes mechanism converters, basic mechanism files, and samples.
+ Cantera is a suite of object-oriented software tools for solving problems
+ involving chemical kinetics, thermodynamics, and/or transport processes.
+ Cantera can be used for simulating time-dependent or steady reactor
+ networks and one-dimensional reacting flows. Thermodynamic models for
+ ideal gases, aqueeous electrolytes, plasmas, and multiphase substances
+ are provided.
+ .
+ This package includes programs for parsing and converting chemical
+ mechanisms, a set of common mechanism files, and several sample problems.
 
 Package: cantera-python
 Architecture: any
 Depends: cantera-common, python, python-numpy, ${shlibs:Depends}, ${misc:Depends}
-Description: Python interface to Cantera
+Description: Python user interface for Cantera
+ Cantera is a suite of object-oriented software tools for solving problems
+ involving chemical kinetics, thermodynamics, and/or transport processes.
+ Cantera can be used for simulating time-dependent or steady reactor
+ networks and one-dimensional reacting flows. Thermodynamic models for
+ ideal gases, aqueeous electrolytes, plasmas, and multiphase substances
+ are provided.
+ .
  This package includes the Cantera Python module, as well as the
  graphical MixMaster application.
 
@@ -23,14 +38,21 @@ Package: cantera-dev
 Architecture: any
 Depends: cantera-common, libsundials-serial-dev, liblapack-dev, libblas-dev, libboost-thread-dev, ${misc:Depends}
 Description: Header files and static libraries for Cantera
+ Cantera is a suite of object-oriented software tools for solving problems
+ involving chemical kinetics, thermodynamics, and/or transport processes.
+ Cantera can be used for simulating time-dependent or steady reactor
+ networks and one-dimensional reacting flows. Thermodynamic models for
+ ideal gases, aqueeous electrolytes, plasmas, and multiphase substances
+ are provided.
+ .
  These files are used for developing applications that use Cantera's
  C++ and Fortran interfaces.
 
 Package: cantera
 Architecture: any
 Depends: cantera-common, cantera-python, ${misc:Depends}
-Description: Chemical kinetics, thermodynamics and transport properties
- Cantera is a suite of object-oriented software tools for problems
+Description: Tools for chemical kinetics, thermodynamics and transport properties
+ Cantera is a suite of object-oriented software tools for solving problems
  involving chemical kinetics, thermodynamics, and/or transport processes.
  Cantera can be used for simulating time-dependent or steady reactor
  networks and one-dimensional reacting flows. Thermodynamic models for
