@@ -848,8 +848,6 @@ else:
 if env['layout'] == 'debian':
     base = pjoin(os.getcwd(), 'debian')
 
-    env['inst_sharedlibdir'] = pjoin(base, 'libcantera2', 'usr', 'lib')
-
     env['inst_libdir'] = pjoin(base, 'cantera-dev', 'usr', 'lib')
     env['inst_incdir'] = pjoin(base, 'cantera-dev', 'usr', 'include', 'cantera')
     env['inst_incroot'] = pjoin(base, 'cantera-dev', 'usr' 'include')
@@ -871,7 +869,6 @@ if env['layout'] == 'debian':
     env['ct_datadir'] = '/usr/share/cantera/data'
 else:
     env['inst_libdir'] = pjoin(instRoot, 'lib')
-    env['inst_sharedlibdir'] = pjoin(instRoot, 'lib')
     env['inst_bindir'] = pjoin(instRoot, 'bin')
     env['inst_python_bindir'] = pjoin(instRoot, 'bin')
     env['inst_incdir'] = pjoin(instRoot, 'include', 'cantera')

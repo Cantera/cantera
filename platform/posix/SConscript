@@ -8,11 +8,12 @@ localenv = env.Clone()
 ### Generate customized scripts ###
 
 # 'setup_cantera'
-v = sys.version_info
-localenv['python_module_loc'] = pjoin(localenv['python_prefix'], 'lib',
-                                      'python%i.%i' % v[:2], 'site-packages')
-target = build(localenv.SubstFile('setup_cantera', 'setup_cantera.in'))
-install('$inst_bindir', target)
+if localenv['layout'] != 'debian':
+    v = sys.version_info
+    localenv['python_module_loc'] = pjoin(localenv['python_prefix'], 'lib',
+                                          'python%i.%i' % v[:2], 'site-packages')
+    target = build(localenv.SubstFile('setup_cantera', 'setup_cantera.in'))
+    install('$inst_bindir', target)
 
 # 'mixmaster'
 if env['python_package'] == 'full':
@@ -70,4 +71,6 @@ localenv['mak_have_f2c_lib'] = '1' if localenv['build_with_f2c'] else '0'
 mak = build(localenv.SubstFile('Cantera.mak', 'Cantera.mak.in'))
 install('$inst_incdir', mak)
 
-install('$inst_bindir', '#platform/posix/bin/install_tsc')
+# @deprecated The install_tsc script is unused and should be removed
+if localenv['layout'] != 'debian':
+    install('$inst_bindir', '#platform/posix/bin/install_tsc')

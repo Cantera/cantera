@@ -2,24 +2,19 @@ from buildutils import *
 
 Import('env', 'build', 'install')
 localenv = env.Clone()
-
-programs = [('cti2ctml', ['cti2ctml.cpp']),
-            ('ck2cti', ['ck2cti.cpp']),
-            ('csvdiff', ['csvdiff.cpp', 'tok_input_util.cpp', 'mdp_allo.cpp'])]
-
 localenv.Append(CPPPATH=['#src', '#include', '#src/apps'])
 
-llibs = env['cantera_libs']
-print 'llibs = ', llibs
-
-for name, src in programs:
+def buildProgram(name, src):
     prog = build(localenv.Program(target=pjoin('#build/bin', name),
                                   source=src,
-                                  LIBS=llibs))
-    #prog = build(localenv.Program(target=pjoin('#build/bin', name),
-    #                              source=src,
-    #                              LIBS=['cantera']))
+                                  LIBS=env['cantera_libs']))
     install('$inst_bindir', prog)
+
+buildProgram('cti2ctml', ['cti2ctml.cpp'])
+buildProgram('ck2cti', ['ck2cti.cpp'])
+
+if env['layout'] != 'debian':
+    buildProgram('csvdiff', ['csvdiff.cpp', 'tok_input_util.cpp', 'mdp_allo.cpp'])
 
 # Copy man pages
 if env['INSTALL_MANPAGES']:
