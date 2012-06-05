@@ -1,28 +1,4 @@
-#!/bin/env python
-#
-#--------------------------------------------------------------------------
-#
-# $License$
-#
-#--------------------------------------------------------------------------
-
-# $Log: SI.py,v $
-# Revision 1.1.1.1  2003/04/14 17:57:49  dggoodwin
-# Initial import.
-#
-# Revision 1.1  2002/12/20 13:23:41  dgg
-# first commit
-#
-# Revision 1.1.1.1  2000/01/21 22:59:51  dgg
-# dgg Cantera
-#
-# Revision 1.1  1999/11/27 17:27:35  dgg
-# initial import to Cantera repository
-#
-# Revision 1.1  1999/11/25 19:50:58  aivazis
-# Original source
-#
-
+#!/usr/bin/env python
 from unit import unit, dimensionless
 
 #
@@ -127,7 +103,7 @@ if __name__ == "__main__":
     print "             tesla: %s" % tesla
     print "             henry: %s" % henry
 
-    print "    degree Celcius: %s" % celcius
+    print "    degree Celsius: %s" % celsius
 
     print "             lumen: %s" % lumen
     print "               lux: %s" % lux
@@ -135,6 +111,3 @@ if __name__ == "__main__":
     print "         becquerel: %s" % becquerel
     print "              gray: %s" % gray
     print "           sievert: %s" % sievert
-
-#
-# End of file
