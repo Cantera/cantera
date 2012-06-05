@@ -1,0 +1,23 @@
+.TH "cti2ctml" 1 "4 Jun 2012" "cti2ctml" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+cti2ctml \- process Cantera .cti input files
+
+.SH SYNOPSIS
+.B cti2ctml
+.I input-file.cti
+
+.SH DESCRIPTION
+
+.I cti2ctml
+processes a Cantera .cti file and produces a CTML (.xml) file. The
+output file name is based on the input file name, with the extension
+changed to .xml.
+
+.SH EXAMPLE
+.TP
+cti2ctml infile.cti
+
+This will produce the CTML file
+.I infile.xml
