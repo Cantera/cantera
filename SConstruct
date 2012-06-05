@@ -504,6 +504,13 @@ opts.AddVariables(
         """If set, include code from the 'ext' folder in the cantera library
         rather than creating separate libraries for ctlapack, ctf2c, etc.""",
         defaults.singleLibrary),
+    EnumVariable(
+        'layout',
+        """The layout of the directory structure. 'standard' puts all installed
+           files in the subdirectory define by 'prefix'. 'debian' installs to
+           the stage directory in a layout consistent with the Filesystem
+           Hierarchy Standard, and is used for generating Debian packages.""",
+     'standard', ('standard','debian')),
     PathVariable(
         'graphvizdir',
         """The directory location of the graphviz program, "dot". dot is
@@ -798,9 +805,8 @@ if env.get('python_array') in ('numarray', 'numeric'):
 # *** Set additional configuration variables ***
 # **********************************************
 
-# Directories where things will be after actually being installed
-# These variables are the ones that are used to populate header files,
-# scripts, etc.
+# Directories where things will be after actually being installed. These
+# variables are the ones that are used to populate header files, scripts, etc.
 env['ct_libdir'] = pjoin(env['prefix'], 'lib')
 env['ct_bindir'] = pjoin(env['prefix'], 'bin')
 env['ct_incdir'] = pjoin(env['prefix'], 'include', 'cantera')
@@ -816,6 +822,12 @@ if 'msi' in COMMAND_LINE_TARGETS:
     env['stage_dir'] = 'stage'
     env['prefix'] = '.'
     env['PYTHON_INSTALLER'] = 'binary'
+elif env['layout'] == 'debian':
+    COMMAND_LINE_TARGETS.append('install')
+    env['stage_dir'] = 'stage/cantera'
+    env['PYTHON_INSTALLER'] = 'debian'
+    env['prefix'] = '/usr/share/cantera'
+    env['INSTALL_MANPAGES'] = False
 else:
     env['PYTHON_INSTALLER'] = 'direct'
 
@@ -830,31 +842,55 @@ if env['stage_dir']:
                                      stripDrive(env['python_prefix']).strip('/\\'))
     else:
         env['python_prefix'] = pjoin(os.getcwd(), env['stage_dir'])
-
 else:
     instRoot = env['prefix']
 
-env['inst_libdir'] = pjoin(instRoot, 'lib')
-env['inst_bindir'] = pjoin(instRoot, 'bin')
-env['inst_incdir'] = pjoin(instRoot, 'include', 'cantera')
-env['inst_incroot'] = pjoin(instRoot, 'include')
-env['inst_datadir'] = pjoin(instRoot, 'data')
-env['inst_sampledir'] = pjoin(instRoot, 'samples')
-env['inst_docdir'] = pjoin(instRoot, 'doc')
-env['inst_mandir'] = pjoin(instRoot, 'man1')
-env['inst_matlab_dir'] = pjoin(instRoot, 'matlab', 'toolbox')
+if env['layout'] == 'debian':
+    base = pjoin(os.getcwd(), 'debian')
 
-env['python_module_loc'] = pjoin(env['python_prefix'], 'lib',
-                                 'python%i.%i' % sys.version_info[:2],
-                                 'site-packages')
+    env['inst_sharedlibdir'] = pjoin(base, 'libcantera2', 'usr', 'lib')
+
+    env['inst_libdir'] = pjoin(base, 'cantera-dev', 'usr', 'lib')
+    env['inst_incdir'] = pjoin(base, 'cantera-dev', 'usr', 'include', 'cantera')
+    env['inst_incroot'] = pjoin(base, 'cantera-dev', 'usr' 'include')
+
+    env['inst_bindir'] = pjoin(base, 'cantera-common', 'usr', 'bin')
+    env['inst_datadir'] = pjoin(base, 'cantera-common', 'usr', 'share', 'cantera', 'data')
+    env['inst_docdir'] = pjoin(base, 'cantera-common', 'usr', 'share', 'cantera', 'doc')
+    env['inst_sampledir'] = pjoin(base, 'cantera-common', 'usr', 'share', 'cantera', 'samples')
+    env['inst_mandir'] = pjoin(base, 'cantera-common', 'usr', 'share', 'man', 'man1')
+
+    env['inst_matlab_dir'] = pjoin(base, 'cantera-matlab',
+                                   'usr', 'share', 'cantera', 'matlab', 'toolbox')
+
+    env['inst_python_bindir'] = pjoin(base, 'cantera-python', 'usr', 'bin')
+    env['python_prefix'] = pjoin(base, 'cantera-python', 'usr')
+    env['python_module_loc'] = pjoin(env['python_prefix'],
+                                     'python%i.%i' % sys.version_info[:2],
+                                     'dist-packages')
+    env['ct_datadir'] = '/usr/share/cantera/data'
+else:
+    env['inst_libdir'] = pjoin(instRoot, 'lib')
+    env['inst_sharedlibdir'] = pjoin(instRoot, 'lib')
+    env['inst_bindir'] = pjoin(instRoot, 'bin')
+    env['inst_python_bindir'] = pjoin(instRoot, 'bin')
+    env['inst_incdir'] = pjoin(instRoot, 'include', 'cantera')
+    env['inst_incroot'] = pjoin(instRoot, 'include')
+    env['inst_matlab_dir'] = pjoin(instRoot, 'matlab', 'toolbox')
+    env['inst_datadir'] = pjoin(instRoot, 'data')
+    env['inst_sampledir'] = pjoin(instRoot, 'samples')
+    env['inst_docdir'] = pjoin(instRoot, 'doc')
+    env['inst_mandir'] = pjoin(instRoot, 'man1')
+    env['python_module_loc'] = pjoin(env['python_prefix'], 'lib',
+                                     'python%i.%i' % sys.version_info[:2],
+                                     'site-packages')
 
 
 # **************************************
 # *** Set options needed in config.h ***
 # **************************************
 
-configh = {'CANTERA_VERSION': quoted(env['cantera_version']),
-           }
+configh = {'CANTERA_VERSION': quoted(env['cantera_version'])}
 
 # Conditional defines
 def cdefine(definevar, configvar, comp=True, value=1):
@@ -1184,7 +1220,7 @@ finish_install = env.Command('finish_install', [], postInstallMessage)
 env.Depends(finish_install, installTargets)
 install_cantera = Alias('install', finish_install)
 
-
+### Windows MSI Installer ###
 if 'msi' in COMMAND_LINE_TARGETS:
     def build_wxs(target, source, env):
         import wxsgen
@@ -1203,7 +1239,6 @@ if 'msi' in COMMAND_LINE_TARGETS:
     env.Depends(wxs_target, installTargets)
     env.Depends(msi_target, wxs_target)
     build_msi = Alias('msi', msi_target)
-
 
 ### Tests ###
 if any(target.startswith('test') for target in COMMAND_LINE_TARGETS):
