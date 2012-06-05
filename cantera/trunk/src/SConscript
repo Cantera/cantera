@@ -64,21 +64,16 @@ if (localenv['use_sundials'] == 'y' and
 if localenv['toolchain'] == 'mingw':
     localenv.Append(LINKFLAGS=['-static-libgcc', '-static-libstdc++'])
 
-#
-# Define the name according to the environmental variable
-#
-if localenv['renamed_shared_libraries'] == True :
-    sharedName = '../lib/cantera_shared'
-else:
-    sharedName = '../lib/cantera' 
-
 # Build the Cantera shared library using the correct name
-lib = build(localenv.SharedLibrary(sharedName, libraryTargets, SPAWN=getSpawn(localenv)))
+if localenv['layout'] != 'debian':
+    # Define the name according to the environmental variable
+    if localenv['renamed_shared_libraries'] == True:
+        sharedName = '../lib/cantera_shared'
+    else:
+        sharedName = '../lib/cantera'
 
-env['cantera_shlib'] = lib
-localenv.Depends(lib, localenv['config_h_target'])
-#
-# Create an install rule for the shared library
-#
-install('$inst_sharedlibdir', lib)
-
+    lib = build(localenv.SharedLibrary(sharedName, libraryTargets,
+                                       SPAWN=getSpawn(localenv)))
+    install('$inst_libdir', lib)
+    env['cantera_shlib'] = lib
+    localenv.Depends(lib, localenv['config_h_target'])
