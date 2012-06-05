@@ -677,12 +677,12 @@ static void installNasa9ThermoFromXML(std::string speciesName,
  *  @param tp                 Vector of XML Nodes that make up the parameterization
  */
 static void installAdsorbateThermoFromXML(std::string speciesName,
-        SpeciesThermo& sp, int k,
+        SpeciesThermo& sp, size_t k,
         const XML_Node& f)
 {
     vector_fp freqs;
     doublereal tmin, tmax, pref = OneAtm;
-    int nfreq = 0;
+    size_t nfreq = 0;
     tmin = fpValue(f["Tmin"]);
     tmax = fpValue(f["Tmax"]);
     if (f.hasAttrib("P0")) {
@@ -699,11 +699,11 @@ static void installAdsorbateThermoFromXML(std::string speciesName,
         getFloatArray(f.child("floatArray"), freqs, false);
         nfreq = freqs.size();
     }
-    for (int n = 0; n < nfreq; n++) {
+    for (size_t n = 0; n < nfreq; n++) {
         freqs[n] *= 3.0e10;
     }
     vector_fp coeffs(nfreq + 2);
-    coeffs[0] = nfreq;
+    coeffs[0] = static_cast<double>(nfreq);
     coeffs[1] = getFloat(f, "binding_energy", "toSI");
     copy(freqs.begin(), freqs.end(), coeffs.begin() + 2);
     (&sp)->install(speciesName, k, ADSORBATE, &coeffs[0], tmin, tmax, pref);
