@@ -1,0 +1,11 @@
+#!/bin/sh
+
+if [ "$1" = "remove" ]; then
+    MODDIR=`python -c "from distutils.sysconfig import *; print get_python_lib()"`
+    rm -f $MODDIR/Cantera/*.py[c,o]
+    rm -f $MODDIR/Cantera/OneD/*.py[c,o]
+    rm -f $MODDIR/MixMaster/*.py[c,o]
+    rm -f $MODDIR/MixMaster/Units/*.py[c,o]
+    rm -f $MODDIR/ck2cti.py[c,o]
+    rm -f $MODDIR/ctml_writer.py[c,o]
+fi

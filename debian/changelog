@@ -1,0 +1,6 @@
+cantera (2.0.0~b2-1) oneiric; urgency=low
+
+  * First packaged beta Release
+  * Let's pretend this closes: #99999
+
+ -- Raymond Speth <speth@mit.edu>  Sat, 02 Jun 2012 19:12:59 -0400

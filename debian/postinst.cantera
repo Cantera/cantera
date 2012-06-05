@@ -1,0 +1,10 @@
+#!/usr/bin/env python
+
+import compileall
+from distutils import sysconfig
+
+moddir = sysconfig.get_python_lib() + '/'
+compileall.compile_dir(moddir + 'Cantera')
+compileall.compile_dir(moddir + 'MixMaster')
+compileall.compile_file(moddir + 'ck2cti.py')
+compileall.compile_file(moddir + 'ctml_writer.py')

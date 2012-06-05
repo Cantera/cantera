@@ -1,0 +1,58 @@
+#!/usr/bin/make -f
+
+export DH_OPTIONS
+export DH_VERBOSE
+
+clean:
+	scons clean
+	rm -f site_scons/*.pyc
+	rm -f site_scons/site_tools/*.pyc
+	rm -f cantera.conf
+	rm -f config.log
+	rm -f debian/substvars
+	dh_clean
+
+binary: build
+	dh_prep
+
+	dh_installdeb
+	dh_installdocs
+	dh_installchangelogs
+	dh_installman platform/posix/man/*
+
+	scons install layout=debian
+
+#	mkdir -p debian/cantera/DEBIAN
+#	mkdir -p debian/cantera/usr/share/doc/cantera
+#	cp License.txt debian/cantera/usr/share/doc/cantera/copyright
+#	gzip -c debian/changelog > debian/cantera/usr/share/doc/cantera/changelog.Debian.gz
+
+#	cp debian/prerm.cantera debian/cantera/DEBIAN/prerm
+#	cp debian/postinst.cantera debian/cantera/DEBIAN/postinst
+
+	dh_strip
+#	strip --strip-unneeded debian/cantera/usr/bin/ck2cti
+#	strip --strip-unneeded debian/cantera/usr/bin/cti2ctml
+#	strip --strip-unneeded debian/cantera/usr/bin/csvdiff
+#	strip --strip-unneeded debian/libcantera2/usr/lib/libcantera_shared.so
+
+#	dpkg-shlibdeps debian/cantera/usr/bin/ck2cti debian/cantera/usr/bin/cti2ctml \
+#		debian/cantera/usr/lib/*.so \
+
+	dh_shlibdeps
+	dh_compress
+	dh_gencontrol
+	dh_fixperms
+	dh_builddeb
+
+binary-arch: binary
+
+binary-indep: binary
+	/bin/true
+
+build:
+	scons build -j6 blas_lapack_libs=lapack,blas debug=n use_sundials=y single_library=y f90_interface=y build_thread_safe=y rename_shared_libraries=n
+
+build-arch: build
+
+build-indep: build
