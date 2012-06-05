@@ -49,7 +49,7 @@ public:
      * @param thigh     output - Maximum temperature
      * @param pref      output - reference pressure (Pa).
      */
-    Adsorbate(int n, doublereal tlow, doublereal thigh, doublereal pref,
+    Adsorbate(size_t n, doublereal tlow, doublereal thigh, doublereal pref,
               const doublereal* coeffs) : m_lowT(tlow),
         m_highT(thigh),
         m_index(n) {
@@ -81,7 +81,7 @@ public:
         return (SpeciesThermoInterpType*) np;
     }
 
-    virtual void install(std::string name, int index, int type,
+    virtual void install(std::string name, size_t index, int type,
                          const doublereal* c, doublereal minTemp, doublereal maxTemp,
                          doublereal refPressure) {
         m_be = c[1];
@@ -174,7 +174,7 @@ public:
         tlow = m_lowT;
         thigh = m_highT;
         pref = m_Pref;
-        coeffs[0] = m_nFreqs;
+        coeffs[0] = static_cast<double>(m_nFreqs);
         coeffs[1] = m_be;
         for (size_t i = 2; i < m_nFreqs+2; i++) {
             coeffs[i] = m_freq[i-2];
@@ -189,7 +189,7 @@ protected:
     //! Reference state pressure
     doublereal m_Pref;
     //! species index
-    int m_index;
+    size_t m_index;
     size_t m_nFreqs;
     //! array of vib frequencies
     vector_fp m_freq;
