@@ -35,13 +35,11 @@ cthreadId_t getThisThreadId()
     return pthread_self();
 #endif
 }
+
 #endif
 
 //! Mutex for input directory access
 static mutex_t dir_mutex;
-
-//! Mutex for access to string messages
-static mutex_t msg_mutex;
 
 //! Mutex for creating singletons within the application object
 static mutex_t app_mutex;
@@ -304,6 +302,10 @@ void Application::Messages::write_logfile(std::string file)
 #endif // WITH_HTML_LOGS
 
 #ifdef THREAD_SAFE_CANTERA
+
+//! Mutex for access to string messages
+static mutex_t msg_mutex;
+
 Application::Messages* Application::ThreadMessages::operator ->()
 {
     ScopedLock msgLock(msg_mutex);
