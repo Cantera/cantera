@@ -1,6 +1,12 @@
+cantera (2.0.0~b3-1) oneiric; urgency=low
+
+  * Fixed location of CANTERA_DATA
+  * Fixed installation location of Python module
+
+ -- Raymond Speth <speth@mit.edu>  Tue, 05 Jun 2012 11:01:25 -0400
+
 cantera (2.0.0~b2-1) oneiric; urgency=low
 
-  * First packaged beta Release
-  * Let's pretend this closes: #99999
+  * First packaged beta of Cantera 2.0
 
  -- Raymond Speth <speth@mit.edu>  Sat, 02 Jun 2012 19:12:59 -0400
