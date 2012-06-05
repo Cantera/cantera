@@ -80,5 +80,5 @@ localenv.Depends(lib, localenv['config_h_target'])
 #
 # Create an install rule for the shared library
 #
-install('$inst_libdir', lib)
+install('$inst_sharedlibdir', lib)
 

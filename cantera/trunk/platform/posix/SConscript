@@ -17,9 +17,8 @@ install('$inst_bindir', target)
 # 'mixmaster'
 if env['python_package'] == 'full':
     target = build(localenv.SubstFile('mixmaster', 'mixmaster.in'))
-
-inst = install('$inst_bindir', target)
-install(localenv.AddPostAction, inst, Chmod('$TARGET', 0755))
+    inst = install('$inst_python_bindir', target)
+    install(localenv.AddPostAction, inst, Chmod('$TARGET', 0755))
 
 # Cantera.mak include file for Makefile projects
 

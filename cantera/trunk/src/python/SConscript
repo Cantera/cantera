@@ -90,6 +90,9 @@ else:
 if localenv['PYTHON_INSTALLER'] == 'direct':
     install(localenv.Command, 'dummy', pymodule,
                                 'cd %s && $python_cmd setup.py install %s' % (moddir,extra))
+elif localenv['PYTHON_INSTALLER'] == 'debian':
+    install(localenv.Command, 'dummy', pymodule,
+                                'cd %s && $python_cmd setup.py install %s --install-layout=deb --no-compile' % (moddir,extra))
 elif localenv['PYTHON_INSTALLER'] == 'binary':
     install(localenv.Command, 'dummy', pymodule,
             'cd %s && $python_cmd setup.py bdist_msi --dist-dir=../..' % moddir +
