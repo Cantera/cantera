@@ -36,11 +36,20 @@ extraEnvArgs = {}
 if 'clean' in COMMAND_LINE_TARGETS:
     removeDirectory('build')
     removeDirectory('stage')
+    removeDirectory('interfaces/python/build')
     removeDirectory('.sconf_temp')
     removeFile('.sconsign.dblite')
+    removeFile('include/cantera/base/config.h')
+    removeFile('interfaces/python/setup.py')
+    removeFile('ext/f2c_libs/arith.h')
+    removeFile('ext/f2c_libs/signal1.h')
+    removeFile('ext/f2c_libs/sysdep1.h')
     for name in os.listdir('.'):
         if name.endswith('.msi'):
             removeFile(name)
+    for name in os.listdir('interfaces/python/Cantera'):
+        if name.startswith('_cantera'):
+            removeFile('interfaces/python/Cantera/' + name)
     print 'Done removing output files.'
     sys.exit(0)
 
@@ -1066,7 +1075,8 @@ VariantDir('build/src', 'src', duplicate=0)
 SConscript('build/src/SConscript')
 
 if env['python_package'] in ('full','minimal'):
-    SConscript('src/python/SConscript')
+    VariantDir('build/src/python', 'src/python', duplicate=0)
+    SConscript('build/src/python/SConscript')
 
 SConscript('build/src/apps/SConscript')
 
