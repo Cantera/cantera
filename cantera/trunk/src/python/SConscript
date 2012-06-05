@@ -14,6 +14,9 @@ localenv.Append(CPPPATH=[gcv('INCLUDEPY'), env['python_array_include']],
 if '-Wstrict-prototypes' in localenv['CPPFLAGS']:
     localenv['CPPFLAGS'].remove('-Wstrict-prototypes')
 
+if '-g' in localenv['CPPFLAGS'] and not env['debug']:
+    localenv['CPPFLAGS'].remove('-g')
+
 if localenv['OS'] == 'Windows':
     localenv.Append(LIBPATH=pjoin(gcv('prefix'), 'libs'))
 
