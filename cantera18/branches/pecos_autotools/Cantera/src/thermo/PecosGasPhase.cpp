@@ -371,34 +371,6 @@ namespace Cantera {
   }
 
   /*
-   * Get the nondimensional gibbs function for the species
-   * standard states at the current T and P of the solution.
-   */
-  void PecosGasPhase::getGibbs_RT(doublereal* grt) const {
-    const array_fp& gibbsrt = gibbs_RT_ref();
-    copy(gibbsrt.begin(), gibbsrt.end(), grt);
-    double tmp = log (pressure() /m_spthermo->refPressure());
-    for (int k = 0; k < m_kk; k++) {
-      grt[k] += tmp;
-    }
-  }
-
-  /*
-   * get the pure Gibbs free energies of each species assuming
-   * it is in its standard state. This is the same as 
-   * getStandardChemPotentials().
-   */
-  void PecosGasPhase::getPureGibbs(doublereal* gpure) const {
-    const array_fp& gibbsrt = gibbs_RT_ref();
-    scale(gibbsrt.begin(), gibbsrt.end(), gpure, _RT());
-    double tmp = log (pressure() /m_spthermo->refPressure());
-    tmp *= _RT();
-    for (int k = 0; k < m_kk; k++) {
-      gpure[k] += tmp;
-    }
-  }
-
-  /*
    *  Returns the vector of nondimensional
    *  internal Energies of the standard state at the current temperature
    *  and pressure of the solution for each species.
