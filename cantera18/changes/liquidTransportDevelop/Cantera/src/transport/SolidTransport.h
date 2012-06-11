@@ -188,11 +188,11 @@ namespace Cantera {
      */
     LTPspecies* m_electConductivity;
    
-    //! Model type for the speciesDiffusivity -- or more like a defect diffusivity in the context of the solid phase.
+    //! Model type for the defectDiffusivity -- or more like a defect diffusivity in the context of the solid phase.
     /*!
      *  shallow pointer that should be zero during destructor
      */
-    LTPspecies* m_speciesDiffusivity;
+    LTPspecies* m_defectDiffusivity;
 
 
     //! number of mobile species

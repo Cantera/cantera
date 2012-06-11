@@ -22,7 +22,7 @@ namespace Cantera {
     ionConductivity(0),
     thermalConductivity(0),
     electConductivity(0),
-    speciesDiffusivity(0)
+    defectDiffusivity(0)
   {
 
   }
@@ -33,7 +33,7 @@ namespace Cantera {
     ionConductivity(0),
     thermalConductivity(0),
     electConductivity(0),
-    speciesDiffusivity(0)
+    defectDiffusivity(0)
   {
     *this = right; //use assignment operator to do other work
   }
@@ -54,8 +54,8 @@ namespace Cantera {
       if (right.electConductivity) {
 	electConductivity = (right.electConductivity)->duplMyselfAsLTPspecies();
       }
-      if (right.speciesDiffusivity) {
-	speciesDiffusivity = (right.speciesDiffusivity)->duplMyselfAsLTPspecies();
+      if (right.defectDiffusivity) {
+	defectDiffusivity = (right.defectDiffusivity)->duplMyselfAsLTPspecies();
       }
     }
     return *this;
@@ -66,7 +66,7 @@ namespace Cantera {
     SAFE_DELETE(ionConductivity);
     SAFE_DELETE(thermalConductivity);
     SAFE_DELETE(electConductivity);
-    SAFE_DELETE(speciesDiffusivity);
+    SAFE_DELETE(defectDiffusivity);
 
   }
  //====================================================================================================================

@@ -255,6 +255,7 @@ namespace Cantera {
     m_tranPropMap["speciesDiffusivity"] = TP_DIFFUSIVITY;
     m_tranPropMap["hydrodynamicRadius"] = TP_HYDRORADIUS;
     m_tranPropMap["electricalConductivity"] = TP_ELECTCOND;
+    m_tranPropMap["defectDiffusivity"] = TP_DEFECTDIFF;
 
     m_LTRmodelMap[""] = LTP_TD_CONSTANT;
     m_LTRmodelMap["constant"] = LTP_TD_CONSTANT;
@@ -1348,8 +1349,8 @@ namespace Cantera {
 				       m_tranPropMap[nodeName],
 				       temp_thermo);
 	  break;
-	case TP_DIFFUSIVITY:
-	  trParam.speciesDiffusivity = newLTP(compDepNode, phaseName,
+	case TP_DEFECTDIFF:
+	  trParam.defectDiffusivity = newLTP(compDepNode, phaseName,
 					      m_tranPropMap[nodeName],
 					      temp_thermo);
 	  break;

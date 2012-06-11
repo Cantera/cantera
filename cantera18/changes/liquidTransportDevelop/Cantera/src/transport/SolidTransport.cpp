@@ -121,8 +121,8 @@ namespace Cantera {
     tr.electConductivity = 0;
     m_thermalConductivity = tr.thermalConductivity;
     tr.thermalConductivity = 0;
-    m_speciesDiffusivity = tr.speciesDiffusivity;
-    tr.speciesDiffusivity = 0;
+    m_defectDiffusivity = tr.defectDiffusivity;
+    tr.defectDiffusivity = 0;
 
     return true;
   }
@@ -240,7 +240,7 @@ namespace Cantera {
    */ 
   doublereal SolidTransport::defectDiffusivity() {        
     // LTPspecies method
-    return m_speciesDiffusivity->getSpeciesTransProp();
+    return m_defectDiffusivity->getSpeciesTransProp();
   }
 
 

@@ -84,11 +84,11 @@ namespace Cantera {
      */
     LTPspecies* electConductivity;
    
-    //! Model type for the speciesDiffusivity -- or more like a defect diffusivity in the context of the solid phase.
+    //! Model type for the defectDiffusivity -- or more like a defect diffusivity in the context of the solid phase.
     /*!
      *  shallow pointer that should be zero during destructor
      */
-    LTPspecies* speciesDiffusivity;
+    LTPspecies* defectDiffusivity;
 
   protected:
     //protected members of SolidTransportData are analogous to those found in TransportParams
