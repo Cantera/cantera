@@ -42,6 +42,7 @@
 #include "TransportParams.h"
 #include "LiquidTransportParams.h"
 #include "LiquidTranInteraction.h"
+#include "SolidTransportData.h"
 #include "global.h"
 #include "IdealGasPhase.h"
 #include "ctml.h"
@@ -305,7 +306,7 @@ namespace Cantera {
     single transport property as a function of temperature 
     and possibly composition.
   */
-  LTPspecies* TransportFactory::newLTP(const XML_Node &trNode, std::string &name, 
+  LTPspecies* TransportFactory::newLTP(const XML_Node &trNode, const std::string &name, 
 				       TransportPropertyType tp_ind, thermo_t* thermo)
   {
     LTPspecies* ltps = 0;
@@ -425,6 +426,7 @@ namespace Cantera {
       break;
     case cSolidTransport:
       tr = new SolidTransport;
+      initSolidTransport(tr, phase, log_level);
       tr->setThermo(*phase);
       break;
     case cDustyGasTransport:
@@ -668,6 +670,52 @@ namespace Cantera {
       getLiquidInteractionsTransportData(transportNode, log, trParam.thermo->speciesNames(), trParam);   
     }
   }
+
+
+  //====================================================================================================================
+  // Prepare to build a new transport manager for solids
+  /*
+   *  @param flog                 Reference to the ostream for writing log info
+   *  @param thermo               Pointer to the %ThermoPhase object
+   *  @param log_level            log level
+   *  @param trParam              SolidTransportParams structure to be filled up with information
+   */
+  void TransportFactory::setupSolidTransport(std::ostream &flog, thermo_t* thermo, int log_level, 
+					      SolidTransportData& trParam) {
+        
+    const XML_Node* phase_database = &thermo->xml();
+
+    // constant mixture attributes
+    trParam.thermo = thermo;
+    trParam.nsp_ = trParam.thermo->nSpecies();
+    int nsp = trParam.nsp_;
+
+    trParam.tmin = thermo->minTemp();
+    trParam.tmax = thermo->maxTemp();
+    trParam.log_level = log_level;
+
+    // Get the molecular weights and load them into trParam
+    trParam.mw.resize(nsp);
+    copy(trParam.thermo->molecularWeights().begin(), 
+	 trParam.thermo->molecularWeights().end(), trParam.mw.begin());
+
+    // Resize all other vectors in trParam
+    //trParam.LTData.resize(nsp);
+
+    XML_Node root, log;
+
+    // Note that getSolidSpeciesTransportData just populates the pure species transport data.  
+    //    const std::vector<const XML_Node*> & species_database = thermo->speciesData();
+    //    getSolidSpeciesTransportData(species_database, log, trParam.thermo->speciesNames(), trParam);   
+
+    // getSolidTransportData() populates the 
+    // phase transport models like electronic conductivity
+    // thermal conductivity, interstitial diffusion
+    if (phase_database->hasChild("transport")) {
+      XML_Node& transportNode = phase_database->child("transport");
+      getSolidTransportData(transportNode, log, thermo->name(), trParam);   
+    }
+  }
   //====================================================================================================================
   // Initialize an existing transport manager
   /*
@@ -748,6 +796,44 @@ namespace Cantera {
 #endif
     return;
 
+  }
+  //====================================================================================================================
+
+  /* Similar to initTransport except uses SolidTransportParams
+     class and calls setupSolidTransport().
+  */
+  void  TransportFactory::initSolidTransport(Transport* tran, 
+					      thermo_t* thermo, 
+					      int log_level) { 
+
+    SolidTransportData trParam;
+
+    //setup output
+#ifdef DEBUG_MODE
+    ofstream flog("transport_log.xml");
+    trParam.xml = new XML_Writer(flog);
+    if (m_verbose) {
+      trParam.xml->XML_open(flog, "transport");
+    }
+#else
+    // create the object, but don't associate it with a file
+    std::ostream &flog(std::cout);
+#endif
+
+    //real work next two statements
+    setupSolidTransport(flog, thermo, log_level, trParam );
+    // do model-specific initialization
+    tran->initSolid( trParam );
+
+   
+#ifdef DEBUG_MODE
+    if (m_verbose) {
+      trParam.xml->XML_close(flog, "transport");
+    }
+    // finished with log file
+    flog.close();
+#endif
+    return;
   }
   //====================================================================================================================
   // Generate polynomial fits to collision integrals
@@ -1207,6 +1293,74 @@ namespace Cantera {
 	    int linenum = __LINE__;
 	    throw TransportDBError(linenum, "Unknown attribute \"" + velocityBasis + "\" for <velocityBasis> node. ");
 	  }
+	}
+      }
+    }
+    catch (CanteraError) {
+        showErrors(std::cout);
+    }
+    //catch(CanteraError) {
+    //  ;
+    //}
+    return;
+  }
+
+
+
+
+
+
+  /*
+   * Given a phase XML data base, this method constructs the 
+   * SolidTransportData object containing the transport data for the phase.
+   *
+   * @param db   Reference to a vector of XML_Node pointers containing the species XML 
+   *             nodes.
+   * @param log  Reference to an XML log file. (currently unused)
+   * @param tr   Reference to the SolidTransportData object that will contain the results.
+   *    NOTE: For now we are using the LTPspecies class to describe the solid transport models.
+  */
+  void TransportFactory::getSolidTransportData(const XML_Node &transportNode,  
+					       XML_Node& log, 
+					       const std::string phaseName, 
+					       SolidTransportData& trParam)
+  { 
+    try {
+      
+      int num = transportNode.nChildren();
+      for (int iChild = 0; iChild < num; iChild++) {
+	//tranTypeNode is a type of transport property like viscosity
+	XML_Node &tranTypeNode = transportNode.child(iChild);
+	std::string nodeName = tranTypeNode.name();
+
+	ThermoPhase *temp_thermo = trParam.thermo;
+
+	//compDepNode contains the interaction model
+	XML_Node &compDepNode = tranTypeNode.child("compositionDependence");
+	switch (m_tranPropMap[nodeName]) {
+	case TP_IONCONDUCTIVITY:
+	  trParam.ionConductivity = newLTP(compDepNode, phaseName,
+					   m_tranPropMap[nodeName],
+					   temp_thermo);
+	  break;
+	case TP_THERMALCOND:
+	  trParam.thermalConductivity = newLTP(compDepNode, phaseName,
+				       m_tranPropMap[nodeName],
+				       temp_thermo);
+	  break;
+	case TP_DIFFUSIVITY:
+	  trParam.speciesDiffusivity = newLTP(compDepNode, phaseName,
+					      m_tranPropMap[nodeName],
+					      temp_thermo);
+	  break;
+	case TP_ELECTCOND:
+	  trParam.electConductivity = newLTP(compDepNode, phaseName,
+				     m_tranPropMap[nodeName],
+				     temp_thermo);
+	  break;
+	default:
+	  throw CanteraError("getSolidTransportData","unknown transport property: " + nodeName);
+	  
 	}
       }
     }

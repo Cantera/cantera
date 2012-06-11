@@ -102,7 +102,7 @@ namespace Cantera {
      *                          is creating a parameterization for (e.g., viscosity)
      *   @param   thermo        const pointer to the ThermoPhase object, which is used to find the temperature.
      */ 
-    LTPspecies(const XML_Node * const propNode = 0,  std::string name = "-", 
+    LTPspecies(const XML_Node * const propNode = 0,  const std::string name = "-", 
 	       TransportPropertyType tp_ind = TP_UNKNOWN, const thermo_t* thermo = 0);
     
     //! Copy constructor
@@ -229,7 +229,7 @@ namespace Cantera {
      *                          is creating a parameterization for (e.g., viscosity)
      *   @param   thermo        const pointer to the ThermoPhase object, which is used to find the temperature.
      */ 
-    LTPspecies_Const(const XML_Node &propNode,  std::string name, 
+    LTPspecies_Const(const XML_Node &propNode, const std::string name, 
 		     TransportPropertyType tp_ind,  const thermo_t * const thermo);
     
     //! Copy constructor
@@ -312,7 +312,7 @@ namespace Cantera {
      *   @param   thermo        const pointer to the ThermoPhase object, which is used to find the temperature.
      *
      */ 
-    LTPspecies_Arrhenius(const XML_Node &propNode, std::string name, 
+    LTPspecies_Arrhenius(const XML_Node &propNode, const std::string name, 
 			  TransportPropertyType tp_ind, const thermo_t * thermo); 
     
     //! Copy constructor
@@ -418,7 +418,7 @@ namespace Cantera {
      *   @param   thermo        const pointer to the ThermoPhase object, which is used to find the temperature.
      *
      */ 
-    LTPspecies_Poly(const XML_Node &propNode, std::string name, TransportPropertyType tp_ind, const thermo_t * thermo);
+    LTPspecies_Poly(const XML_Node &propNode, const std::string name, TransportPropertyType tp_ind, const thermo_t * thermo);
     
     //! Copy constructor
     /*!
@@ -505,7 +505,7 @@ namespace Cantera {
      *   @param   thermo        const pointer to the ThermoPhase object, which is used to find the temperature.
      *
      */ 
-    LTPspecies_ExpT(const XML_Node &propNode,  std::string name, 
+    LTPspecies_ExpT(const XML_Node &propNode, const std::string name, 
 		    TransportPropertyType tp_ind,  const thermo_t* thermo); 
     
     //! Copy constructor

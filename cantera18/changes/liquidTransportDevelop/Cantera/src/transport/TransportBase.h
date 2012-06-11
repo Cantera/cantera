@@ -35,6 +35,7 @@ namespace Cantera {
   class TransportParams;
   class GasTransportParams;
   class LiquidTransportParams;
+  class SolidTransportData;
 
   /*!
    * \addtogroup tranprops 
@@ -828,6 +829,20 @@ namespace Cantera {
     virtual bool initLiquid(LiquidTransportParams& tr)
     { 
       err("initLiquid"); 
+      return false; 
+    }
+    
+    //! Called by TransportFactory to set parameters.
+    /*!
+     *  This is called by classes that use the solid phase parameter
+     *  list to initialize themselves.
+     *
+     *   @param tr Reference to the parameter list that will be used
+     *             to initialize the class
+     */
+    virtual bool initSolid(SolidTransportData& tr)
+    { 
+      err("initSolid"); 
       return false; 
     }
     

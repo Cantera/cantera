@@ -19,6 +19,7 @@
 #endif
 
 #include "ThermoPhase.h"
+#include "SolidTransportData.h"
 #include "SolidTransport.h"
 
 #include "utilities.h"
@@ -36,7 +37,7 @@ namespace Cantera {
     m_Ndiff(0),
     m_Ediff(0),
     m_sp(0),
-    m_Alam(0),
+    m_Alam(-1.0),
     m_Nlam(0),
     m_Elam(0)
   {
@@ -53,7 +54,7 @@ namespace Cantera {
     m_Ndiff(0),
     m_Ediff(0),
     m_sp(0),
-    m_Alam(0),
+    m_Alam(-1.0),
     m_Nlam(0),
     m_Elam(0)
   {
@@ -88,6 +89,47 @@ namespace Cantera {
     SolidTransport* tr = new SolidTransport(*this); 
     return (dynamic_cast<Transport *>(tr));
   }
+
+
+  //====================================================================================================================
+  // Initialize the transport object
+  /*
+   * Here we change all of the internal dimensions to be sufficient.
+   * We get the object ready to do property evaluations.
+   * A lot of the input required to do property evaluations is 
+   * contained in the SolidTransportData class that is 
+   * filled in TransportFactory. 
+   *
+   * @param tr  Transport parameters for the phase
+   */
+  bool SolidTransport::initSolid(SolidTransportData& tr) {
+
+    m_thermo = tr.thermo;
+    tr.thermo = 0;
+    //m_nsp   = m_thermo->nSpecies();
+    //m_tmin  = m_thermo->minTemp();
+    //m_tmax  = m_thermo->maxTemp();
+
+    // make a local copy of the molecular weights
+    //m_mw.resize(m_nsp, 0.0);
+    //copy(m_thermo->molecularWeights().begin(), 
+    //     m_thermo->molecularWeights().end(), m_mw.begin());
+
+    m_ionConductivity =  tr.ionConductivity;
+    tr.ionConductivity = 0;
+    m_electConductivity =  tr.electConductivity;
+    tr.electConductivity = 0;
+    m_thermalConductivity = tr.thermalConductivity;
+    tr.thermalConductivity = 0;
+    m_speciesDiffusivity = tr.speciesDiffusivity;
+    tr.speciesDiffusivity = 0;
+
+    return true;
+  }
+
+
+
+
   //====================================================================================================================
   void SolidTransport::setParameters(const int n, const int k, const doublereal * const p) {
     switch (n) {
@@ -115,6 +157,93 @@ namespace Cantera {
 
     m_work.resize(m_thermo->nSpecies());
   }
+
+
+  /******************  ionConductivity ******************************/
+
+  // Returns the ionic conductivity of the phase
+  /*
+   *  The thermo phase needs to be updated (temperature) prior to calling this.
+   *  The ionConductivity calculation is handled by subclasses of 
+   *  LTPspecies as specified in the input file. 
+   *   
+   */ 
+  doublereal SolidTransport::ionConductivity() {        
+    // LTPspecies method
+    return m_ionConductivity->getSpeciesTransProp();
+  }
+
+
+
+  /******************  electron Conductivity ******************************/
+
+  // Returns the electron conductivity of the phase
+  /*
+   *  The thermo phase needs to be updated (temperature) prior to calling this.
+   *  The ionConductivity calculation is handled by subclasses of 
+   *  LTPspecies as specified in the input file. 
+   *
+   * There is also a legacy multicomponent diffusion approach to electrical conductivity.
+   *   
+   */ 
+  doublereal SolidTransport::electricalConductivity() {        
+    if ( m_nmobile == 0 ) {
+      // LTPspecies method
+      return m_electConductivity->getSpeciesTransProp();
+    } else {
+      getMobilities(&m_work[0]);
+      int nsp = m_thermo->nSpecies();
+      doublereal sum = 0.0;
+      for (int k = 0; k < nsp; k++) {
+	sum += m_thermo->charge(k) * m_thermo->moleFraction(k) * m_work[k];
+      }
+      return sum * m_thermo->molarDensity();
+    } 
+  }
+  
+
+
+  /******************  thermalConductivity ******************************/
+
+  // Returns the thermal conductivity of the phase
+  /*
+   *  The thermo phase needs to be updated (temperature) prior to calling this.
+   *  The thermalConductivity calculation is handled by subclasses of 
+   *  LTPspecies as specified in the input file. 
+   *   
+   *  There is also a legacy method to evaluate 
+   * \f[
+   * \lambda = A T^n \exp(-E/RT)
+   * \f]
+   */ 
+  doublereal SolidTransport::thermalConductivity() {        
+    if ( m_Alam > 0.0 ) {
+      //legacy test case?
+      doublereal t = m_thermo->temperature();
+      return m_Alam * pow(t, m_Nlam) * exp(-m_Elam/t);
+    } else {
+      // LTPspecies method
+      return m_thermalConductivity->getSpeciesTransProp();
+    } 
+  }
+
+
+
+  /******************  defectDiffusivity ******************************/
+
+  // Returns the diffusivity of the phase
+  /*
+   *  The thermo phase needs to be updated (temperature) prior to calling this.
+   *  The defectDiffusivity calculation is handled by subclasses of 
+   *  LTPspecies as specified in the input file. 
+   *   
+   */ 
+  doublereal SolidTransport::defectDiffusivity() {        
+    // LTPspecies method
+    return m_speciesDiffusivity->getSpeciesTransProp();
+  }
+
+
   //====================================================================================================================
   /*
    * Compute the mobilities of the species from the diffusion coefficients, 
@@ -130,17 +259,6 @@ namespace Cantera {
       mobil[k] *= c1;
     }
   } 
-  //====================================================================================================================
-  /*
-   * Thermal Conductivity.
-   * \f[
-   * \lambda = A T^n \exp(-E/RT)
-   * \f]
-   */
-  doublereal SolidTransport::thermalConductivity() {
-    doublereal t = m_thermo->temperature();
-    return m_Alam * pow(t, m_Nlam) * exp(-m_Elam/t);
-  }
   //====================================================================================================================
   /*
    * The diffusion coefficients are computed from 
@@ -163,16 +281,4 @@ namespace Cantera {
 	m_Adiff[k] * pow(temp, m_Ndiff[k]) * exp(-m_Ediff[k]/temp);
     }
   }
-  //====================================================================================================================
-  doublereal SolidTransport::electricalConductivity()
-  {
-    getMobilities(&m_work[0]);
-    int nsp = m_thermo->nSpecies();
-    doublereal sum = 0.0;
-    for (int k = 0; k < nsp; k++) {
-      sum += m_thermo->charge(k) * m_thermo->moleFraction(k) * m_work[k];
-    }
-    return sum * m_thermo->molarDensity();
-  }
-  //====================================================================================================================
 }

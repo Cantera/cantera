@@ -38,11 +38,13 @@ TRAN_OBJ    = TransportFactory.o MultiTransport.o MixTransport.o MMCollisionInt.
               SolidTransport.o DustyGasTransport.o TransportBase.o WaterTransport.o \
               SimpleTransport.o LiquidTransportData.o LiquidTransportParams.o LiquidTranInteraction.o \
               TransportParams.o \
+	      SolidTransportData.o  \
 	      TortuosityBase.o  TortuosityBruggeman.o TortuosityPercolation.o  TortuosityMaxwell.o   
 
 TRAN_H  =  TransportFactory.h MultiTransport.h MixTransport.h \
            MMCollisionInt.h  SolidTransport.h DustyGasTransport.h \
            TransportBase.h L_matrix.h TransportParams.h WaterTransport.h \
+	   SolidTransportData.h  \
            SimpleTransport.h LiquidTranInteraction.h Tortuosity.h \
 	   TortuosityBase.h  TortuosityBruggeman.h  TortuosityPercolation.h   TortuosityMaxwell.h 	
 

@@ -66,7 +66,7 @@ namespace Cantera {
    *                          is creating a parameterization for (e.g., viscosity)
    *   @param   thermo        const pointer to the ThermoPhase object, which is used to find the temperature.
    */ 
-  LTPspecies::LTPspecies(const XML_Node * const propNode, std::string name, 
+  LTPspecies::LTPspecies(const XML_Node * const propNode, const std::string name, 
                          TransportPropertyType tp_ind, const thermo_t * thermo) :
      m_speciesName(name), 
      m_model(LTP_TD_NOTSET),
@@ -155,7 +155,7 @@ namespace Cantera {
    *  \verbatim <transport> \endverbatim node and specifies a type of
    *  transport property (like viscosity)
    */ 
-  LTPspecies_Const::LTPspecies_Const(const XML_Node &propNode, std::string name, 
+  LTPspecies_Const::LTPspecies_Const(const XML_Node &propNode, const std::string name, 
 				     TransportPropertyType tp_ind, const thermo_t * const thermo) : 
     LTPspecies(&propNode, name, tp_ind, thermo) 
   {
@@ -219,7 +219,7 @@ namespace Cantera {
    *   @param   thermo        const pointer to the ThermoPhase object, which is used to find the temperature.
    *
    */ 
-  LTPspecies_Arrhenius::LTPspecies_Arrhenius(const XML_Node &propNode,  std::string name, 
+  LTPspecies_Arrhenius::LTPspecies_Arrhenius(const XML_Node &propNode, const std::string name, 
 					     TransportPropertyType tp_ind,  const thermo_t* thermo) : 
     LTPspecies(&propNode, name, tp_ind, thermo) 
   {
@@ -330,7 +330,7 @@ namespace Cantera {
    *   @param   thermo        const pointer to the ThermoPhase object, which is used to find the temperature.
    *
    */ 
-  LTPspecies_Poly::LTPspecies_Poly(const XML_Node &propNode,  std::string name, 
+  LTPspecies_Poly::LTPspecies_Poly(const XML_Node &propNode, const std::string name, 
 				   TransportPropertyType tp_ind, const thermo_t* thermo) : 
     LTPspecies(&propNode, name, tp_ind, thermo),
     m_temp(-1.0),
@@ -402,7 +402,7 @@ namespace Cantera {
    *   @param   thermo        const pointer to the ThermoPhase object, which is used to find the temperature.
    *
    */ 
-  LTPspecies_ExpT::LTPspecies_ExpT(const XML_Node &propNode, std::string name, TransportPropertyType tp_ind, 
+  LTPspecies_ExpT::LTPspecies_ExpT(const XML_Node &propNode, const std::string name, TransportPropertyType tp_ind, 
 				   const thermo_t* thermo) : 
     LTPspecies(&propNode, name, tp_ind, thermo),
     m_temp(-1.0),
