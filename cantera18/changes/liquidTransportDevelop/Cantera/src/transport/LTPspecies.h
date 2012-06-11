@@ -52,6 +52,7 @@ namespace Cantera {
     TP_DIFFUSIVITY,
     TP_HYDRORADIUS,
     TP_ELECTCOND,
+    TP_DEFECTCONC,
     TP_DEFECTDIFF
   }; 
 

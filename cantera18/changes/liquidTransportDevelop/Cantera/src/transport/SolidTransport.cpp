@@ -123,6 +123,8 @@ namespace Cantera {
     tr.thermalConductivity = 0;
     m_defectDiffusivity = tr.defectDiffusivity;
     tr.defectDiffusivity = 0;
+    m_defectActivity = tr.defectActivity;
+    tr.defectActivity = 0;
 
     return true;
   }
@@ -241,6 +243,21 @@ namespace Cantera {
   doublereal SolidTransport::defectDiffusivity() {        
     // LTPspecies method
     return m_defectDiffusivity->getSpeciesTransProp();
+  }
+
+
+  /******************  defectActivity ******************************/
+
+  // Returns the diffusivity of the phase
+  /*
+   *  The thermo phase needs to be updated (temperature) prior to calling this.
+   *  The defectActivity calculation is handled by subclasses of 
+   *  LTPspecies as specified in the input file. 
+   *   
+   */ 
+  doublereal SolidTransport::defectActivity() {        
+    // LTPspecies method
+    return m_defectActivity->getSpeciesTransProp();
   }
 
 

@@ -90,6 +90,12 @@ namespace Cantera {
      */
     LTPspecies* defectDiffusivity;
 
+    //! Model type for the defectActivity
+    /*!
+     *  shallow pointer that should be zero during destructor
+     */
+    LTPspecies* defectActivity;
+
   protected:
     //protected members of SolidTransportData are analogous to those found in TransportParams
 

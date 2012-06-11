@@ -256,6 +256,7 @@ namespace Cantera {
     m_tranPropMap["hydrodynamicRadius"] = TP_HYDRORADIUS;
     m_tranPropMap["electricalConductivity"] = TP_ELECTCOND;
     m_tranPropMap["defectDiffusivity"] = TP_DEFECTDIFF;
+    m_tranPropMap["defectActivity"] = TP_DEFECTCONC;
 
     m_LTRmodelMap[""] = LTP_TD_CONSTANT;
     m_LTRmodelMap["constant"] = LTP_TD_CONSTANT;
@@ -1336,26 +1337,31 @@ namespace Cantera {
 
 	ThermoPhase *temp_thermo = trParam.thermo;
 
-	//compDepNode contains the interaction model
-	XML_Node &compDepNode = tranTypeNode.child("compositionDependence");
+	//tranTypeNode contains the interaction model
+	//	XML_Node &compDepNode = tranTypeNode.child("compositionDependence");
 	switch (m_tranPropMap[nodeName]) {
 	case TP_IONCONDUCTIVITY:
-	  trParam.ionConductivity = newLTP(compDepNode, phaseName,
+	  trParam.ionConductivity = newLTP(tranTypeNode, phaseName,
 					   m_tranPropMap[nodeName],
 					   temp_thermo);
 	  break;
 	case TP_THERMALCOND:
-	  trParam.thermalConductivity = newLTP(compDepNode, phaseName,
+	  trParam.thermalConductivity = newLTP(tranTypeNode, phaseName,
 				       m_tranPropMap[nodeName],
 				       temp_thermo);
 	  break;
 	case TP_DEFECTDIFF:
-	  trParam.defectDiffusivity = newLTP(compDepNode, phaseName,
+	  trParam.defectDiffusivity = newLTP(tranTypeNode, phaseName,
+					      m_tranPropMap[nodeName],
+					      temp_thermo);
+	  break;
+	case TP_DEFECTCONC:
+	  trParam.defectActivity = newLTP(tranTypeNode, phaseName,
 					      m_tranPropMap[nodeName],
 					      temp_thermo);
 	  break;
 	case TP_ELECTCOND:
-	  trParam.electConductivity = newLTP(compDepNode, phaseName,
+	  trParam.electConductivity = newLTP(tranTypeNode, phaseName,
 				     m_tranPropMap[nodeName],
 				     temp_thermo);
 	  break;

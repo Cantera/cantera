@@ -109,6 +109,12 @@ namespace Cantera {
      */
     virtual doublereal defectDiffusivity();
 
+    /**
+     * The activity of defects in the solid.
+     * At some point this should be variable and the diffusion coefficient should depend on it...
+     */
+    virtual doublereal defectActivity();
+
 
 
 
@@ -193,6 +199,12 @@ namespace Cantera {
      *  shallow pointer that should be zero during destructor
      */
     LTPspecies* m_defectDiffusivity;
+
+    //! Model type for the defectActivity
+    /*!
+     *  shallow pointer that should be zero during destructor
+     */
+    LTPspecies* m_defectActivity;
 
 
     //! number of mobile species
