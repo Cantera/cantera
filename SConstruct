@@ -1234,6 +1234,14 @@ def getParentDirs(path, top=True):
     else:
         return getParentDirs(head, False) + [path]
 
+# Files installed by SCons
+allfiles = FindInstalledFiles()
+
+# Files installed by the Python installer
+pyFiles = 'build/python-installed-files.txt'
+if os.path.exists(pyFiles):
+    allfiles.extend([File(f.strip()) for f in open(pyFiles).readlines()])
+
 # After removing files (which SCons keeps track of),
 # remove any empty directories (which SCons doesn't track)
 def removeDirectories(target, source, env):
@@ -1250,14 +1258,13 @@ def removeDirectories(target, source, env):
     # Don't remove directories that probably existed before installation,
     # even if they are empty
     keepDirs = ['local/share', 'local/lib', 'local/include', 'local/bin',
-                'man/man1']
+                'man/man1', 'dist-packages', 'site-packages']
     for d in alldirs:
         if any(d.endswith(k) for k in keepDirs):
             continue
         if os.path.isdir(d) and not os.listdir(d):
             os.rmdir(d)
 
-allfiles = FindInstalledFiles()
 uninstall = env.Command("uninstall", None, Delete(allfiles))
 env.AddPostAction(uninstall, Action(removeDirectories))
 
