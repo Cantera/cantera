@@ -152,8 +152,6 @@ class defaults: pass
 
 if os.name == 'posix':
     defaults.prefix = '/usr/local'
-    #    defaults.boostIncDir = '/usr/include'
-    #    defaults.boostLibDir = '/usr/lib'
     defaults.boostIncDir = ''
     defaults.boostLibDir = ''
     env['INSTALL_MANPAGES'] = True
@@ -259,17 +257,16 @@ opts.AddVariables(
         'default', ('full', 'minimal', 'none','default')),
     PathVariable(
         'python_cmd',
-        """Cantera needs to know where to find the Python
-           interpreter. If PYTHON_CMD is not set, then the
-           configuration process will use the same Python interpreter
-           being used by SCons.""",
+        """Cantera needs to know where to find the Python interpreter. If
+           PYTHON_CMD is not set, then the configuration process will use the
+           same Python interpreter being used by SCons.""",
         sys.executable),
     EnumVariable(
         'python_array',
-        """The Cantera Python interface requires one of the Python
-           array packages listed. Support for the legacy 'numeric' and
-           'numarray' packages is deprecated, and will be removed in a
-           future version of Cantera.""",
+        """The Cantera Python interface requires one of the Python array
+           packages listed. Support for the legacy 'numeric' and 'numarray'
+           packages is deprecated, and will be removed in a future version
+           of Cantera.""",
         'numpy', ('numpy', 'numarray', 'numeric')),
     PathVariable(
         'python_array_home',
@@ -278,18 +275,17 @@ opts.AddVariables(
         '', PathVariable.PathAccept),
     PathVariable(
         'python_prefix',
-        """If you want to install the Cantera Python package somewhere
-           other than the default 'site-packages' directory within the
-           Python library directory, then set this to the desired
-           directory. This is useful when you do not have write access
-           to the Python library directory.""",
+        """If you want to install the Cantera Python package somewhere other
+           than the default 'site-packages' directory within the Python library
+           directory, then set this to the desired directory. This is useful
+           when you do not have write access to the Python library directory.""",
         '', PathVariable.PathAccept),
     EnumVariable(
         'matlab_toolbox',
-        """This variable controls whether the Matlab toolbox will be
-           built. If set to 'y', you will also need to set the value
-           of the 'matlab_path' variable. If set to 'default', the Matlab
-           toolbox will be built if 'matlab_path' is set.""",
+        """This variable controls whether the Matlab toolbox will be built. If
+           set to 'y', you will also need to set the value of the 'matlab_path'
+           variable. If set to 'default', the Matlab toolbox will be built if
+           'matlab_path' is set.""",
         'default', ('y', 'n', 'default')),
     PathVariable(
         'matlab_path',
@@ -301,16 +297,15 @@ opts.AddVariables(
         '', PathVariable.PathAccept),
     EnumVariable(
         'f90_interface',
-        """This variable controls whether the Fortran 90/95 interface
-           will be built. If set to 'default', the builder will look
-           for a compatible Fortran compiler in the $PATH, and compile
-           the Fortran 90 interface if one is found.""",
+        """This variable controls whether the Fortran 90/95 interface will be
+           built. If set to 'default', the builder will look for a compatible
+           Fortran compiler in the $PATH, and compile the Fortran 90 interface
+           if one is found.""",
         'default', ('y', 'n', 'default')),
     PathVariable(
         'F90',
-        """The Fortran 90 compiler. If unspecified, the builder will
-           look for a compatible compiler (gfortran, ifort, g95) in
-           the $PATH.""",
+        """The Fortran 90 compiler. If unspecified, the builder will look for a
+           compatible compiler (gfortran, ifort, g95) in the $PATH.""",
         '', PathVariable.PathAccept),
     ('F90FLAGS',
      'Compilation options for the Fortran 90 compiler.',
@@ -340,60 +335,54 @@ opts.AddVariables(
         False),
     BoolVariable(
         'with_html_log_files',
-        """write HTML log files. Some multiphase equilibrium
-           procedures can write copious diagnostic log messages. Set
-           this to 'n' to disable this capability. (results in
-           slightly faster equilibrium  calculations)""",
+        """write HTML log files. Some multiphase equilibrium procedures can
+           write copious diagnostic log messages. Set this to 'n' to disable
+           this capability. (results in slightly faster equilibrium calculations)""",
         True),
     EnumVariable(
         'use_sundials',
-        """Cantera uses the CVODE or CVODES ODE integrator to
-           time-integrate reactor network ODE's and for various other
-           purposes. An older version of CVODE comes with Cantera, but
-           it is possible to use the latest version as well, which now
-           supports sensitivity analysis (CVODES). CVODES is a part of
-           the 'sundials' package from Lawrence Livermore National
-           Laboratory. Sundials is not distributed with Cantera, but
-           it is free software that may be downloaded and installed
-           separately. If you leave USE_SUNDIALS = 'default', then it
-           will be used if you have it, and if not the older CVODE
-           will be used. Or set USE_SUNDIALS to 'y' or 'n' to force
-           using it or not. Note that sensitivity analysis with
-           Cantera requires use of sundials. See:
-           http://www.llnl.gov/CASC/sundials""",
+        """Cantera uses the CVODE or CVODES ODE integrator to time-integrate
+           reactor network ODE's and for various other purposes. An older
+           version of CVODE comes with Cantera, but it is possible to use the
+           latest version as well, which now supports sensitivity analysis
+           (CVODES). CVODES is a part of the 'sundials' package from Lawrence
+           Livermore National Laboratory. Sundials is not distributed with
+           Cantera, but it is free software that may be downloaded and
+           installed separately. If you leave USE_SUNDIALS = 'default', then it
+           will be used if you have it, and if not the older CVODE will be
+           used. Or set USE_SUNDIALS to 'y' or 'n' to force using it or not.
+           Note that sensitivity analysis with Cantera requires use of
+           sundials. See: http://www.llnl.gov/CASC/sundials""",
         'default', ('default', 'y', 'n')),
     PathVariable(
         'sundials_include',
-        """The directory where the Sundials header files are
-           installed. This should be the directory that contains the
-           "cvodes", "nvector", etc. subdirectories. Not needed if the
-           headers are installed in a standard location,
-           e.g. /usr/include.""",
+        """The directory where the Sundials header files are installed. This
+           should be the directory that contains the "cvodes", "nvector", etc.
+           subdirectories. Not needed if the headers are installed in a
+           standard location, e.g. /usr/include.""",
         '', PathVariable.PathAccept),
     PathVariable(
         'sundials_libdir',
-        """The directory where the sundials static libraries are
-           installed.  Not needed if the libraries are installed in a
-           standard location, e.g. /usr/lib.""",
+        """The directory where the sundials static libraries are installed.
+           Not needed if the libraries are installed in a standard location,
+           e.g. /usr/lib.""",
         '', PathVariable.PathAccept),
     ('blas_lapack_libs',
-     """Cantera comes with Fortran (or C) versions of those parts of
-        BLAS and LAPACK it requires. But performance may be better if
-        you use a version of these libraries optimized for your
-        machine hardware. If you want to use your own libraries, set
-        blas_lapack_libs to the the list of libraries that should be
-        passed to the linker, separated by commas, e.g. "lapack,blas"
-        or "lapack,f77blas,cblas,atlas". """,
+     """Cantera comes with Fortran (or C) versions of those parts of BLAS and
+        LAPACK it requires. But performance may be better if you use a version
+        of these libraries optimized for your machine hardware. If you want to
+        use your own libraries, set blas_lapack_libs to the the list of
+        libraries that should be passed to the linker, separated by commas,
+        e.g. "lapack,blas" or "lapack,f77blas,cblas,atlas". """,
      ''),
     PathVariable('blas_lapack_dir',
-     """Directory containing the libraries specified by 'blas_lapack_libs'.""",
-     '', PathVariable.PathAccept),
+        """Directory containing the libraries specified by 'blas_lapack_libs'.""",
+        '', PathVariable.PathAccept),
     EnumVariable(
         'lapack_names',
-        """Set depending on whether the procedure names in the
-           specified libraries are lowercase or uppercase. If you
-           don't know, run 'nm' on the library file (e.g. 'nm
-           libblas.a').""",
+        """Set depending on whether the procedure names in the specified
+           libraries are lowercase or uppercase. If you don't know, run 'nm' on
+           the library file (e.g. 'nm libblas.a').""",
         'lower', ('lower','upper')),
     BoolVariable(
         'lapack_ftn_trailing_underscore', '', True),
@@ -415,8 +404,9 @@ opts.AddVariables(
      defaults.threadFlags),
     BoolVariable(
         'optimize',
-        """Enable extra compiler optimizations specified by the "optimize_flags" variable,
-           instead of the flags specified by the "debug_flags" variable""",
+        """Enable extra compiler optimizations specified by the
+           "optimize_flags" variable, instead of the flags specified by the
+           "debug_flags" variable""",
         True),
     ('optimize_flags',
      'Additional compiler flags passed to the C/C++ compiler when optimize=yes.',
@@ -442,12 +432,11 @@ opts.AddVariables(
      defaults.noDebugLinkFlags),
     BoolVariable(
         'build_thread_safe',
-        """Cantera can be built so that it is thread safe. Doing so
-           requires using procedures from the Boost library, so if you
-           want thread safety then you need to get and install Boost
-           (http://www.boost.org) if you don't have it.  This is
-           turned off by default, in which case Boost is not required
-           to build Cantera.""",
+        """Cantera can be built so that it is thread safe. Doing so requires
+           using procedures from the Boost library, so if you want thread
+           safety then you need to get and install Boost (http://www.boost.org)
+           if you don't have it.  This is turned off by default, in which case
+           Boost is not required to build Cantera.""",
         False),
     PathVariable(
         'boost_inc_dir',
@@ -492,7 +481,7 @@ opts.AddVariables(
         False),
     BoolVariable(
         'renamed_shared_libraries',
-        """If this option is turned on, which is the default, the shared libraries that are created
+        """If this option is turned on, the shared libraries that are created
         will be renamed to have a "_shared" extension added to their base name.
         If not, the base names will be the same as the static libraries.
         In some cases this simplifies subsequent linking environments with
@@ -513,19 +502,18 @@ opts.AddVariables(
      'standard', ('standard','debian')),
     PathVariable(
         'graphvizdir',
-        """The directory location of the graphviz program, "dot". dot is
-           used for creating the documentation, and for making
-           reaction path diagrams. If "dot" is in your path, you can
-           leave this unspecified. NOTE: Matlab comes with a
-           stripped-down version of 'dot'. If 'dot' is on your path,
-           make sure it is not the Matlab version!""",
+        """The directory location of the graphviz program, "dot". dot is used
+           for creating the documentation, and for making reaction path
+           diagrams. If "dot" is in your path, you can leave this unspecified.
+           NOTE: Matlab comes with a stripped-down version of 'dot'. If 'dot'
+           is on your path, make sure it is not the Matlab version!""",
         '', PathVariable.PathAccept),
     ('rpfont',
      """The font to use in reaction path diagrams. This must be a font
         name recognized by the 'dot' program. On linux systems, this
         should be lowercase 'helvetica'.""",
      'Helvetica'),
-    ('cantera_version', '', '2.0.0b3')
+    ('cantera_version', '', '2.0.0b4')
     )
 
 opts.Update(env)
@@ -544,11 +532,10 @@ build process. They should be given in the form:
 
     scons build option1=value1 option2=value2
 
-Variables set in this way will be stored in the 'cantera.conf' file
-and reused automatically on subsequent invocations of
-scons. Alternatively, the configuration options can be entered
-directly into 'cantera.conf' before running 'scons build'. The format
-of this file is:
+Variables set in this way will be stored in the 'cantera.conf' file and reused
+automatically on subsequent invocations of scons. Alternatively, the
+configuration options can be entered directly into 'cantera.conf' before
+running 'scons build'. The format of this file is:
 
     option1 = 'value1'
     option2 = 'value2'
@@ -675,7 +662,6 @@ if env['coverage']:
     if  env['CC'] == 'gcc':
         env.Append(CCFLAGS=['-fprofile-arcs', '-ftest-coverage'])
         env.Append(LINKFLAGS=['-fprofile-arcs', '-ftest-coverage'])
-#        ipdb()
 
     else:
         print 'Error: coverage testing is only available with GCC'
@@ -704,10 +690,7 @@ ret = SCons.Conftest.CheckLib(SCons.SConf.CheckContext(conf),
 env['HAS_SUNDIALS'] = not ret # CheckLib returns False to indicate success
 env['NEED_LIBM'] = not conf.CheckLibWithHeader(None, 'math.h', 'C',
                                                'double x; log(x);', False)
-if env['NEED_LIBM']:
-    env['LIBM'] = ['m']
-else:
-    env['LIBM'] = []
+env['LIBM'] = ['m'] if env['NEED_LIBM'] else []
 
 if env['HAS_SUNDIALS'] and env['use_sundials'] != 'n':
     # Determine Sundials version
@@ -1061,40 +1044,28 @@ if not env['single_library']:
     linkLibs.append('execstream')
     linkSharedLibs.append('execstream_shared')
 
-#
 #  Add lapack and blas to the link line
-#
 if env['blas_lapack_libs']:
     linkLibs.extend(env['blas_lapack_libs'])
 elif not env['single_library']:
     linkLibs.extend(('ctlapack', 'ctblas'))
     linkSharedLibs.extend(('ctlapack_shared', 'ctblas_shared'))
 
-
-#
-# Add the f2c library if it is necessary to link fortran libraries
-#
 if not env['build_with_f2c']:
-    #
-    #  Early gcc compilers will fail on this line as they use g77 and not gfortran
-    #
+    # TODO: This is not the correct library to link if the fortran sources
+    #       are compiled with a different fortran compiler.
     linkLibs.append('gfortran')
     linkSharedLibs.append('gfortran')
 elif not env['single_library']:
     # Add the f2c library when f2c is requested
-    #
     linkLibs.append('ctf2c')
     linkSharedLibs.append('ctf2c_shared')
 
-#
 # Store the list of needed static link libraries in the environment
-#
 env['cantera_libs'] = linkLibs
 env['cantera_shared_libs'] = linkSharedLibs
 if env['renamed_shared_libraries'] == False :
     env['cantera_shared_libs'] = linkLibs
-
-
 
 # Add targets from the SConscript files in the various subdirectories
 Export('env', 'build', 'libraryTargets', 'install', 'buildSample')
