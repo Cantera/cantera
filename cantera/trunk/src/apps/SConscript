@@ -18,4 +18,4 @@ if env['layout'] != 'debian':
 
 # Copy man pages
 if env['INSTALL_MANPAGES']:
-    install('$inst_mandir', mglob(localenv, 'man', '*'))
+    install('$inst_mandir', mglob(localenv, '#platform/posix/man', '*'))
