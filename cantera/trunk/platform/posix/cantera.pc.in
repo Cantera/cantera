@@ -1,22 +1,12 @@
-# @PACKAGE_NAME@ installation details
-prefix=@prefix@
-exec_prefix=@exec_prefix@
-libdir=@libdir@
-includedir=@includedir@
-# Fortran compilation and linking information
-# Retrieve these using `pkg-config --variable=name @PACKAGE_NAME@`
-fflags=-I@libdir@
-flibs=-L@libdir@ -lf@PACKAGE_NAME@ -l@PACKAGE_NAME@
+prefix=@pc_prefix@
+exec_prefix=${prefix}/bin
+libdir=${prefix}/lib
+includedir=${prefix}/include
 
-Name: @PACKAGE_NAME@
-Description: @PACKAGE_DESCRIPTION@
-URL: @PACKAGE_URL@
-Requires:
-Version: @VERSION@
+Name: Cantera
+Description: Cantera library
+URL: http://cantera.googlecode.com
+Version: @cantera_version@
 
-LINK  = -lctcxx -luser -loneD -lzeroD -lequil -lkinetics -ltransport -lthermo 
-LINK += -lctnumerics -lctmath -ltpx -lctspectra -lconverters -lctbase -lcvode 
-LINK += -lctlapack -lctblas -lctf2c -lm -lstdc++
-
-Libs: -L${libdir} ${LINK}
-Cflags: -I${includedir}
+Libs: -L${libdir} @pc_libdirs@ -lcantera @pc_libs@
+Cflags: @pc_cflags@ -I${includedir} @pc_incdirs@
