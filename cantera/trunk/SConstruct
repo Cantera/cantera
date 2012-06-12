@@ -11,6 +11,8 @@ Basic usage:
 
     '[sudo] scons install' - Install Cantera.
 
+    '[sudo] scons uninstall' - Uninstall Cantera.
+
     'scons test' - Run full test suite.
 
     'scons test-clean' - Delete files created while running the tests.
@@ -814,6 +816,9 @@ elif env['layout'] == 'debian':
 else:
     env['PYTHON_INSTALLER'] = 'direct'
 
+addInstallActions = ('install' in COMMAND_LINE_TARGETS or
+                     'uninstall' in COMMAND_LINE_TARGETS)
+
 # Directories where things will be staged for package creation. These
 # variables should always be used by the Install(...) targets
 if env['stage_dir']:
@@ -958,7 +963,7 @@ def buildSample(*args, **kwargs):
 
 def install(*args, **kwargs):
     """ Wrapper to add target to list of install targets """
-    if 'install' not in COMMAND_LINE_TARGETS:
+    if not addInstallActions:
         return
     if len(args) == 2:
         inst = env.Install(*args, **kwargs)
@@ -974,7 +979,7 @@ env.SConsignFile()
 env.Append(CPPPATH=[],
            LIBPATH=[Dir('build/lib')])
 
-if 'install' in COMMAND_LINE_TARGETS:
+if addInstallActions:
     # Put headers in place
     headerBase = 'include/cantera'
     install(env.RecursiveInstall, '$inst_incdir', 'include/cantera')
@@ -1098,7 +1103,7 @@ if env['matlab_toolbox'] == 'y':
 if env['doxygen_docs'] or env['sphinx_docs']:
     SConscript('doc/SConscript')
 
-if 'samples' in COMMAND_LINE_TARGETS or 'install' in COMMAND_LINE_TARGETS:
+if 'samples' in COMMAND_LINE_TARGETS or addInstallActions:
     VariantDir('build/samples', 'samples', duplicate=0)
     sampledir_excludes = ['ct2ctml', '\\.o$', '^~$', 'xml$', '\\.in',
                           'SConscript', 'Makefile.am']
@@ -1117,7 +1122,6 @@ if 'samples' in COMMAND_LINE_TARGETS or 'install' in COMMAND_LINE_TARGETS:
                 'samples/f77', sampledir_excludes)
         install(env.RecursiveInstall, pjoin('$inst_sampledir', 'f90'),
                 'samples/f90', sampledir_excludes)
-
 
 ### Meta-targets ###
 build_samples = Alias('samples', sampleTargets)
@@ -1187,6 +1191,48 @@ File locations:
 finish_install = env.Command('finish_install', [], postInstallMessage)
 env.Depends(finish_install, installTargets)
 install_cantera = Alias('install', finish_install)
+
+### Uninstallation
+def getParentDirs(path, top=True):
+    head,tail = os.path.split(path)
+    if head == os.path.abspath(env['prefix']):
+        return [path]
+    elif not tail:
+        if head.endswith(os.sep):
+            return []
+        else:
+            return [head]
+    elif top:
+        return getParentDirs(head, False)
+    else:
+        return getParentDirs(head, False) + [path]
+
+# After removing files (which SCons keeps track of),
+# remove any empty directories (which SCons doesn't track)
+def removeDirectories(target, source, env):
+    # Get all directories where files are installed
+    alldirs = set()
+    for f in allfiles:
+        alldirs.update(getParentDirs(f.path))
+    if env['layout'] == 'compact':
+        alldirs.add(os.path.abspath(env['prefix']))
+    # Sort in order of decreasing directory length so that empty subdirectories
+    # will be removed before their parents are checked.
+    alldirs = sorted(alldirs, key=lambda x: -len(x))
+
+    # Don't remove directories that probably existed before installation,
+    # even if they are empty
+    keepDirs = ['local/share', 'local/lib', 'local/include', 'local/bin',
+                'man/man1']
+    for d in alldirs:
+        if any(d.endswith(k) for k in keepDirs):
+            continue
+        if os.path.isdir(d) and not os.listdir(d):
+            os.rmdir(d)
+
+allfiles = FindInstalledFiles()
+uninstall = env.Command("uninstall", None, Delete(allfiles))
+env.AddPostAction(uninstall, Action(removeDirectories))
 
 ### Windows MSI Installer ###
 if 'msi' in COMMAND_LINE_TARGETS:
