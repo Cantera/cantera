@@ -40,13 +40,14 @@ double VCS_SOLVE::vcs_nondim_Farad(int mu_units, double TKelvin) const
     case VCS_UNITS_MKS:
     case VCS_UNITS_KJMOL:
     case VCS_UNITS_KCALMOL:
-        Farad = 1.602E-19 * 6.022136736e26/ (TKelvin * 8.314472E3);
+        Farad = Cantera::ElectronCharge * Cantera::Avogadro /
+                (TKelvin * Cantera::GasConstant);
         break;
     case VCS_UNITS_UNITLESS:
-        Farad = 1.602E-19 * 6.022136736e26;
+        Farad = Cantera::ElectronCharge * Cantera::Avogadro;
         break;
     case VCS_UNITS_KELVIN:
-        Farad = 1.602E-19 * 6.022136736e26/ (TKelvin);
+        Farad = Cantera::ElectronCharge * Cantera::Avogadro/ TKelvin;
         break;
     default:
         plogf("vcs_nondim_Farad error: unknown units: %d\n", mu_units);
@@ -73,19 +74,19 @@ double VCS_SOLVE::vcs_nondimMult_TP(int mu_units, double TKelvin) const
     }
     switch (mu_units) {
     case VCS_UNITS_KCALMOL:
-        rt = TKelvin * 8.314472E-3 / 4.184;
+        rt = TKelvin * Cantera::GasConst_cal_mol_K * 1e-3;
         break;
     case VCS_UNITS_UNITLESS:
         rt = 1.0;
         break;
     case VCS_UNITS_KJMOL:
-        rt = TKelvin * 0.008314472;
+        rt = TKelvin * Cantera::GasConstant * 1e-6;
         break;
     case VCS_UNITS_KELVIN:
         rt = TKelvin;
         break;
     case VCS_UNITS_MKS:
-        rt = TKelvin * 8.314472E3;
+        rt = TKelvin * Cantera::GasConstant;
         break;
     default:
         plogf("vcs_nondimMult_TP error: unknown units: %d\n", mu_units);

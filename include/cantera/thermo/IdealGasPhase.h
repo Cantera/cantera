@@ -103,8 +103,8 @@ namespace Cantera
  *            V^o_k(T,P) = \frac{R T}{P} \mbox{\quad where}
  *       \f]
  *
- *  R = 8314.47215 Joules kmol<SUP>-1</SUP> K<SUP>-1</SUP>, from the 1999 CODATA convention.
- *  For a complete list of physical constants used within %Cantera, see \ref physConstants .
+ *  R is the molar gas constant. For a complete list of physical constants
+ *  used within %Cantera, see \ref physConstants .
  *
  * <HR>
  * <H2> Specification of Solution Thermodynamic Properties </H2>

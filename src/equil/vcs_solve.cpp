@@ -54,7 +54,7 @@ VCS_SOLVE::VCS_SOLVE() :
     m_totalMoleScale(1.0),
     m_useActCoeffJac(0),
     m_totalVol(0.0),
-    m_Faraday_dim(1.602e-19 * 6.022136736e26),
+    m_Faraday_dim(Cantera::ElectronCharge * Cantera::Avogadro),
     m_VCount(0),
     m_debug_print_lvl(0),
     m_timing_print_lvl(1),

@@ -231,8 +231,7 @@ VolStar_calc(size_t kglob, double TKelvin, double presPA)
             vol = SSStar_Vol0;
             break;
         case VCS_SSVOL_IDEALGAS:
-            // R J/kmol/K (2006 CODATA value)
-            vol= 8314.47215  * T / presPA;
+            vol= Cantera::GasConstant * T / presPA;
             break;
         default:
             plogf("%sERROR: unknown SSVol model\n", yo);

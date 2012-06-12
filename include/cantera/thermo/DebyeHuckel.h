@@ -440,13 +440,8 @@ class PDSS_Water;
  *                  based on:
  *                 -   \f$ \epsilon / \epsilon_0 \f$ = 78.54
  *                           (water at 25C)
- *                 -   \f$ \epsilon_0 \f$= 8.854187817E-12 C<SUP>2</SUP> N<SUP>-1</SUP> m<SUP>-2</SUP>
- *                 -   e = 1.60217653E-19 C
- *                 -   F = 9.6485309E7 C kmol<SUP>-1</SUP>
- *                 -   R = 8.314472E3 kg m<SUP>2</SUP> s<SUP>-2</SUP> kmol<SUP>-1</SUP> K<SUP>-1</SUP>
  *                 -   T = 298.15 K
  *                 -   B_Debye = 3.28640E9 (kg/gmol)<SUP>1/2</SUP> m<SUP>-1</SUP>
- *                 -   \f$N_a\f$ = 6.0221415E26 kmol<SUP>-1</SUP>
  *
  * An example of a fixed value implementation is given below.
  * @code
@@ -1372,13 +1367,8 @@ public:
      *                  based on:
      *                 -   \f$ \epsilon / \epsilon_0 \f$ = 78.54
      *                           (water at 25C)
-     *                 -   \f$ \epsilon_0 \f$= 8.854187817E-12 C<SUP>2</SUP> N<SUP>-1</SUP> m<SUP>-2</SUP>
-     *                 -   e = 1.60217653E-19 C
-     *                 -   F = 9.6485309E7 C kmol<SUP>-1</SUP>
-     *                 -   R = 8.314472E3 kg m<SUP>2</SUP> s<SUP>-2</SUP> kmol<SUP>-1</SUP> K<SUP>-1</SUP>
      *                 -   T = 298.15 K
      *                 -   B_Debye = 3.28640E9 (kg/gmol)<SUP>1/2</SUP> m<SUP>-1</SUP>
-     *                 -   \f$N_a\f$ = 6.0221415E26 kmol<SUP>-1</SUP>
      *
      * @param temperature Temperature in kelvin. Defaults to -1, in which
      *                    case the   temperature of the phase is assumed.
@@ -1618,10 +1608,6 @@ protected:
      *                  based on:
      *                    epsilon/epsilon_0 = 78.54
      *                           (water at 25C)
-     *                    epsilon_0 = 8.854187817E12 C2 N-1 m-2
-     *                    e = 8.314472E3 kg m2 s-2 kmol-1 K-1
-     *                    F = 9.6485309E7 C kmol-1
-     *                    R = 8.314472E3 kg m2 s-2 kmol-1 K-1
      *                    T = 298.15 K
      *                    B_Debye = 3.28640E9 sqrt(kg/gmol)/m
      *
@@ -1644,10 +1630,6 @@ protected:
      *                  based on:
      *                    epsilon/epsilon_0 = 78.54
      *                           (water at 25C)
-     *                    epsilon_0 = 8.854187817E12 C2 N-1 m-2
-     *                    e = 8.314472E3 kg m2 s-2 kmol-1 K-1
-     *                    F = 9.6485309E7 C kmol-1
-     *                    R = 8.314472E3 kg m2 s-2 kmol-1 K-1
      *                    T = 298.15 K
      */
     double m_B_Debye;
