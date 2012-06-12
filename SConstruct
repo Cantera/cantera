@@ -229,6 +229,8 @@ else:
     defaults.threadFlags = '-pthread'
     defaults.singleLibrary = False
 
+defaults.fsLayout = 'compact' if env['OS'] == 'Windows' else 'standard'
+
 # **************************************
 # *** Read user-configurable options ***
 # **************************************
@@ -497,11 +499,14 @@ opts.AddVariables(
         defaults.singleLibrary),
     EnumVariable(
         'layout',
-        """The layout of the directory structure. 'standard' puts all installed
-           files in the subdirectory define by 'prefix'. 'debian' installs to
-           the stage directory in a layout consistent with the Filesystem
-           Hierarchy Standard, and is used for generating Debian packages.""",
-     'standard', ('standard','debian')),
+        """The layout of the directory structure. 'standard' installs files to
+           several subdirectories under 'prefix', e.g. $prefix/bin,
+           $prefix/include/cantera, $prefix/lib. This layout is best used in
+           conjunction with 'prefix'='/usr/local'. 'compact' puts all installed
+           files in the subdirectory define by 'prefix'. This layout is best for
+           with a prefix like '/opt/cantera'. 'debian' installs to the stage
+           directory in a layout used for generating Debian packages.""",
+     defaults.fsLayout, ('standard','compact','debian')),
     PathVariable(
         'graphvizdir',
         """The directory location of the graphviz program, "dot". dot is used
@@ -796,10 +801,17 @@ env['ct_libdir'] = pjoin(env['prefix'], 'lib')
 env['ct_bindir'] = pjoin(env['prefix'], 'bin')
 env['ct_incdir'] = pjoin(env['prefix'], 'include', 'cantera')
 env['ct_incroot'] = pjoin(env['prefix'], 'include')
-env['ct_datadir'] = pjoin(env['prefix'], 'data')
-env['ct_sampledir'] = pjoin(env['prefix'], 'samples')
-env['ct_mandir'] = pjoin(env['prefix'], 'man1')
-env['ct_matlab_dir'] = pjoin(env['prefix'], 'matlab', 'toolbox')
+
+if env['layout'] == 'compact':
+    env['ct_datadir'] = pjoin(env['prefix'], 'data')
+    env['ct_sampledir'] = pjoin(env['prefix'], 'samples')
+    env['ct_mandir'] = pjoin(env['prefix'], 'man1')
+    env['ct_matlab_dir'] = pjoin(env['prefix'], 'matlab', 'toolbox')
+else:
+    env['ct_datadir'] = pjoin(env['prefix'], 'share', 'cantera', 'data')
+    env['ct_sampledir'] = pjoin(env['prefix'], 'share', 'cantera', 'samples')
+    env['ct_mandir'] = pjoin(env['prefix'], 'man', 'man1')
+    env['ct_matlab_dir'] = pjoin(env['prefix'], 'lib', 'cantera', 'matlab', 'toolbox')
 
 # Always set the stage directory before building an MSI installer
 if 'msi' in COMMAND_LINE_TARGETS:
@@ -825,9 +837,9 @@ if env['stage_dir']:
     pp = env['python_prefix']
     instRoot = pjoin(os.getcwd(), env['stage_dir'],
                      stripDrive(env['prefix']).strip('/\\'))
-    if env['python_prefix']:
+    if pp:
         env['python_prefix'] = pjoin(os.getcwd(), env['stage_dir'],
-                                     stripDrive(env['python_prefix']).strip('/\\'))
+                                     stripDrive(pp).strip('/\\'))
     else:
         env['python_prefix'] = pjoin(os.getcwd(), env['stage_dir'])
 else:
@@ -847,7 +859,7 @@ if env['layout'] == 'debian':
     env['inst_mandir'] = pjoin(base, 'cantera-common', 'usr', 'share', 'man', 'man1')
 
     env['inst_matlab_dir'] = pjoin(base, 'cantera-matlab',
-                                   'usr', 'share', 'cantera', 'matlab', 'toolbox')
+                                   'usr', 'lib', 'cantera', 'matlab', 'toolbox')
 
     env['inst_python_bindir'] = pjoin(base, 'cantera-python', 'usr', 'bin')
     env['python_prefix'] = pjoin(base, 'cantera-python', 'usr')
@@ -855,7 +867,7 @@ if env['layout'] == 'debian':
                                      'python%i.%i' % sys.version_info[:2],
                                      'dist-packages')
     env['ct_datadir'] = '/usr/share/cantera/data'
-else:
+elif env['layout'] == 'compact':
     env['inst_libdir'] = pjoin(instRoot, 'lib')
     env['inst_bindir'] = pjoin(instRoot, 'bin')
     env['inst_python_bindir'] = pjoin(instRoot, 'bin')
@@ -866,6 +878,20 @@ else:
     env['inst_sampledir'] = pjoin(instRoot, 'samples')
     env['inst_docdir'] = pjoin(instRoot, 'doc')
     env['inst_mandir'] = pjoin(instRoot, 'man1')
+    env['python_module_loc'] = pjoin(env['python_prefix'], 'lib',
+                                     'python%i.%i' % sys.version_info[:2],
+                                     'site-packages')
+else: # env['layout'] == 'standard'
+    env['inst_libdir'] = pjoin(instRoot, 'lib')
+    env['inst_bindir'] = pjoin(instRoot, 'bin')
+    env['inst_python_bindir'] = pjoin(instRoot, 'bin')
+    env['inst_incdir'] = pjoin(instRoot, 'include', 'cantera')
+    env['inst_incroot'] = pjoin(instRoot, 'include')
+    env['inst_matlab_dir'] = pjoin(instRoot, 'lib', 'cantera', 'matlab', 'toolbox')
+    env['inst_datadir'] = pjoin(instRoot, 'share', 'cantera', 'data')
+    env['inst_sampledir'] = pjoin(instRoot, 'share', 'cantera', 'samples')
+    env['inst_docdir'] = pjoin(instRoot, 'share', 'cantera', 'doc')
+    env['inst_mandir'] = pjoin(instRoot, 'man', 'man1')
     env['python_module_loc'] = pjoin(env['python_prefix'], 'lib',
                                      'python%i.%i' % sys.version_info[:2],
                                      'site-packages')
