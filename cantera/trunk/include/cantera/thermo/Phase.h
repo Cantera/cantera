@@ -513,7 +513,6 @@ public:
 
     //! Dimensionless electrical charge of a single molecule of species k
     //! The charge is normalized by the the magnitude of the electron charge
-    //! ( \f$ e = 1.602\times 10^{-19}\f$ Coulombs).
     //!     @param k species index
     doublereal charge(size_t k) const;
 

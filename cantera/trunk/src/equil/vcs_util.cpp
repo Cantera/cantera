@@ -679,20 +679,20 @@ double vcsUtil_gasConstant(int mu_units)
     double r;
     switch (mu_units) {
     case VCS_UNITS_KCALMOL:
-        r =  0.008314472/4.184;
+        r = Cantera::GasConst_cal_mol_K * 1e-3;
         break;
     case VCS_UNITS_UNITLESS:
         r = 1.0;
         break;
     case VCS_UNITS_KJMOL:
-        r = 0.008314472;
+        r = Cantera::GasConstant * 1e-6;
         break;
     case VCS_UNITS_KELVIN:
         r = 1.0;
         break;
     case VCS_UNITS_MKS:
         /* joules / kg-mol K = kg m2 / s2 kg-mol K */
-        r = 8.314472E3;
+        r = Cantera::GasConstant;
         break;
     default:
         plogf("vcs_gasConstant error: uknown units: %d\n",

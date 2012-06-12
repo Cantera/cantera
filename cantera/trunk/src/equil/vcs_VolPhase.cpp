@@ -981,7 +981,7 @@ double vcs_VolPhase::_updateVolPM() const
 
     if (m_totalMolesInert > 0.0) {
         if (m_gasPhase) {
-            double volI = m_totalMolesInert * 8314.47215 * Temp_ / Pres_;
+            double volI = m_totalMolesInert * Cantera::GasConstant * Temp_ / Pres_;
             m_totalVol += volI;
         } else {
             printf("unknown situation\n");

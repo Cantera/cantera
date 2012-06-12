@@ -274,54 +274,9 @@ doublereal WaterProps::relEpsilon(doublereal T, doublereal P_pascal,
     return epsRel;
 }
 
-/*
- * ADebye calculates the value of A_Debye as a function
- * of temperature and pressure according to relations
- * that take into account the temperature and pressure
- * dependence of the water density and dieletric constant.
- *
- * A_Debye -> this expression appears on the top of the
- *            ln actCoeff term in the general Debye-Huckel
- *            expression
- *            It depends on temperature. And, therefore,
- *            most be recalculated whenever T or P changes.
- *
- *            A_Debye = (1/(8 Pi)) sqrt(2 Na dw / 1000)
- *                          (e e/(epsilon R T))^3/2
- *
- *            Units = sqrt(kg/gmol) ~ sqrt(1/I)
- *
- *            Nominal value = 1.172576 sqrt(kg/gmol)
- *                  based on:
- *                    epsilon/epsilon_0 = 78.54
- *                           (water at 25C)
- *                    epsilon_0 = 8.854187817E-12 C2 N-1 m-2
- *                    e = 1.60217653E-19 C
- *                    F = 9.6485309E7 C kmol-1
- *                    R = 8.314472E3 kg m2 s-2 kmol-1 K-1
- *                    T = 298.15 K
- *                    B_Debye = 3.28640E9 sqrt(kg/gmol)/m
- *                    Na = 6.0221415E26
- *
- * ifunc = 0 return value
- * ifunc = 1 return temperature derivative
- * ifunc = 2 return temperature second derivative
- * ifunc = 3 return pressure first derivative
- *
- *  Verification:
- *    With the epsRelWater value from the BP relation,
- *    and the water density from the WaterDens function,
- *    The A_Debye computed with this function agrees with
- *    the Pitzer table p. 99 to 4 significant digits at 25C.
- *    and 20C. (Aphi = ADebye/3)
- *
- * (statically defined within the object)
- */
+
 doublereal WaterProps::ADebye(doublereal T, doublereal P_input, int ifunc)
 {
-    const doublereal e =  1.60217653E-19;
-    const doublereal epsilon0 =  8.854187817E-12;
-    const doublereal R = 8.314472E3;
     doublereal psat = satPressure(T);
     doublereal P;
     if (psat > P_input) {
@@ -334,12 +289,12 @@ doublereal WaterProps::ADebye(doublereal T, doublereal P_input, int ifunc)
     doublereal epsRelWater = relEpsilon(T, P, 0);
     //printf("releps calc = %g, compare to 78.38\n", epsRelWater);
     //doublereal B_Debye = 3.28640E9;
-    const doublereal Na = 6.0221415E26;
 
-    doublereal epsilon = epsilon0 * epsRelWater;
+    doublereal epsilon = epsilon_0 * epsRelWater;
     doublereal dw = density_IAPWS(T, P);
-    doublereal tmp = sqrt(2.0 * Na * dw / 1000.);
-    doublereal tmp2 = e * e * Na / (epsilon * R * T);
+    doublereal tmp = sqrt(2.0 * Avogadro * dw / 1000.);
+    doublereal tmp2 = ElectronCharge * ElectronCharge * Avogadro /
+        (epsilon * GasConstant * T);
     doublereal tmp3 = tmp2 * sqrt(tmp2);
     doublereal A_Debye = tmp * tmp3 / (8.0 * Pi);
 

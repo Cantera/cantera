@@ -919,13 +919,8 @@ class PDSS_Water;
  *                  based on:
  *                 -   \f$ \epsilon / \epsilon_0 \f$ = 78.54
  *                           (water at 25C)
- *                 -   \f$ \epsilon_0 \f$= 8.854187817E-12 C<SUP>2</SUP> N<SUP>-1</SUP> m<SUP>-2</SUP>
- *                 -   e = 1.60217653E-19 C
- *                 -   F = 9.6485309E7 C kmol<SUP>-1</SUP>
- *                 -   R = 8.314472E3 kg m<SUP>2</SUP> s<SUP>-2</SUP> kmol<SUP>-1</SUP> K<SUP>-1</SUP>
  *                 -   T = 298.15 K
  *                 -   B_Debye = 3.28640E9 (kg/gmol)<SUP>1/2</SUP> m<SUP>-1</SUP>
- *                 -   \f$N_a\f$ = 6.0221415E26 kmol<SUP>-1</SUP>
  *
  * An example of a fixed value implementation is given below.
  * @code

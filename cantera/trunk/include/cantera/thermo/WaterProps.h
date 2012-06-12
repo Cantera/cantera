@@ -223,15 +223,9 @@ public:
      *   Nominal value at 25C and 1atm = 1.172576 sqrt(kg/gmol).
      *
      *                Based on:
-     *                    epsilon/epsilon_0 = 78.54
-     *                           (water at 25C)
-     *                    epsilon_0 = 8.854187817E-12 C2 N-1 m-2
-     *                    e = 1.60217653E-19 C
-     *                    F = 9.6485309E7 C kmol-1
-     *                    R = 8.314472E3 kg m2 s-2 kmol-1 K-1
+     *                    epsilon/epsilon_0 = 78.54 (water at 25C)
      *                    T = 298.15 K
      *                    B_Debye = 3.28640E9 sqrt(kg/gmol)/m
-     *                    Na = 6.0221415E26
      *
      *  @param T  Temperature (kelvin)
      *  @param P  pressure (pascal)

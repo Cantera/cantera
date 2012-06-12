@@ -590,7 +590,7 @@ int WaterPropsIAPWS::phaseState(bool checkState) const
             doublereal T = T_c / tau;
             doublereal rho = delta * Rho_c;
             //doublereal psatTable = psat_est(T);
-            doublereal rhoMidAtm = 0.5 * (1.01E5 * M_water / (8314.472 * 373.15) + 1.0E3);
+            doublereal rhoMidAtm = 0.5 * (OneAtm * M_water / (Rgas * 373.15) + 1.0E3);
             doublereal rhoMid = Rho_c + (T - T_c) * (Rho_c - rhoMidAtm) / (T_c - 373.15);
             int iStateGuess = WATER_LIQUID;
             if (rho < rhoMid) {

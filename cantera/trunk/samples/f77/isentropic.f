@@ -7,7 +7,7 @@ c
       parameter (oneatm = 1.01325d5, NPTS = 200)
       double precision a(NPTS), dmach(NPTS), t(NPTS),
      $     ratio(NPTS)
-      
+
       call newIdealGasMix('gri30.cti','gri30','')
       temp = 1200.d0
       pres = 10.d0*oneatm
@@ -52,12 +52,12 @@ c     stagnation state properties
       double precision function soundspeed()
       implicit double precision (a-h,o-z)
       double precision meanMolarMass
-      parameter (R = 8314.3d0)
+      parameter (R = 8314.4621d0)
       gamma = cp_mass()/cv_mass()
       soundspeed = sqrt(gamma * R * temperature()
      $     / meanMolarMass())
       return
       end
 
-     
- 
+
+
