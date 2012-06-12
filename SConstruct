@@ -1044,11 +1044,12 @@ if addInstallActions:
     install('$inst_datadir', mglob(env, pjoin('data','inputs'), 'cti', 'xml'))
 
     # Converter scripts
+    pyExt = '.py' if env['OS'] == 'Windows' else ''
     install(env.InstallAs,
-            pjoin('$inst_bindir','ck2cti2'),
+            pjoin('$inst_bindir','ck2cti2%s' % pyExt),
             'interfaces/python/ck2cti.py')
     install(env.InstallAs,
-            pjoin('$inst_bindir','ctml_writer'),
+            pjoin('$inst_bindir','ctml_writer%s' % pyExt),
             'interfaces/python/ctml_writer.py')
 
 ### List of libraries needed to link to Cantera ###
