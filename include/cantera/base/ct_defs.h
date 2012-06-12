@@ -53,15 +53,15 @@ namespace Cantera
  * @defgroup physConstants Physical Constants
  * %Cantera uses the MKS system of units. The unit for moles
  * is defined to be the kmol. All values of physical constants
- * are consistent with the 2006 CODATA recommendations.
+ * are consistent with the 2010 CODATA recommendations.
  * @ingroup globalData
  * @{
  */
+
 //! Pi
-const doublereal Pi = 3.1415926;
+const doublereal Pi = 3.14159265358979323846;
 //! sqrt(Pi)
 const doublereal SqrtPi = std::sqrt(Pi);
-
 
 /*!
  *   @name Variations of the Gas Constant
@@ -70,61 +70,52 @@ const doublereal SqrtPi = std::sqrt(Pi);
  */
 //@{
 
-//! Avogadro's Number
-/*!
- *  Units are number/kmol
- */
-const doublereal Avogadro = 6.02214179e26;
+//! Avogadro's Number [number/kmol]
+const doublereal Avogadro = 6.02214129e26;
 
-/// Universal Gas Constant. 2006 CODATA value.
-const doublereal GasConstant = 8314.47215; // J/kmol/K
+/// Universal Gas Constant. [J/kmol/K]
+const doublereal GasConstant = 8314.4621;
 
-const doublereal logGasConstant = 9.025752908;
+const doublereal logGasConstant = std::log(GasConstant);
 
-//! One atmosphere
-/*!
- *  Units are Pa
- */
+//! One atmosphere [Pa]
 const doublereal OneAtm = 1.01325e5;
 
 //! Universal gas constant in cal/mol/K
-const doublereal GasConst_cal_mol_K = 1.987;
+const doublereal GasConst_cal_mol_K = GasConstant / 4184.0;
 
-//! Boltzmann's constant
-/*!
- *  Units are J/K
- */
+//! Boltzmann's constant [J/K]
 const doublereal Boltzmann = GasConstant / Avogadro;
 
-/// Planck's constant. Units of J-s
-const doublereal Planck = 6.62606896e-34;           // J-s
-const doublereal Planck_bar = 1.05457162853e-34;    // m2-kg/s
+/// Planck's constant. [J-s]
+const doublereal Planck = 6.62607009e-34; // J-s
+const doublereal Planck_bar = Planck / (2 * Pi); // m2-kg/s
 
 /// log(k/h)
-const doublereal logBoltz_Planck = 23.7599032;  // ln(k_B/h)
+const doublereal logBoltz_Planck = std::log(Boltzmann / Planck);  // ln(k_B/h)
 /// Stefan-Boltzmann constant
-const doublereal StefanBoltz = 5.6704004e-8;
+const doublereal StefanBoltz = 5.670373e-8;
 
 //@}
 /// @name Electron Properties
 //@{
-const doublereal ElectronCharge = 1.60217648740e-19; // C
-const doublereal ElectronMass = 9.1093821545e-31; // kg
-const doublereal Faraday = ElectronCharge* Avogadro;
+const doublereal ElectronCharge = 1.602176565e-19; // C
+const doublereal ElectronMass = 9.10938291e-31; // kg
+const doublereal Faraday = ElectronCharge * Avogadro;
 //@}
 
 /// @name Electromagnetism
 /// %Cantera uses the MKS unit system.
 //@{
 
-/// Permittivity of free space \f$ \epsilon_0 \f$ in F/m.
-const doublereal epsilon_0 = 8.85417817e-12;  // Farads/m = C^2/N/m^2
+/// Speed of Light (m/s).
+const doublereal lightSpeed = 299792458.0;
 
 /// Permeability of free space \f$ \mu_0 \f$ in N/A^2.
-const doublereal permeability_0 = 4.0e-7*Pi; // N/A^2
+const doublereal permeability_0 = 4.0e-7*Pi;
 
-/// Speed of Light (m/s).
-const doublereal lightSpeed = 1.0/std::sqrt(epsilon_0* permeability_0);
+/// Permittivity of free space \f$ \epsilon_0 \f$ in F/m.
+const doublereal epsilon_0 = 1.0 / (lightSpeed*lightSpeed*permeability_0);
 
 //@}
 //@}
