@@ -463,7 +463,7 @@ opts.AddVariables(
     ('F77',
      """Compiler used to build the external Fortran 77 procedures from
         the Fortran source code""",
-     env['F77']),
+     env.get('F77')),
     ('F77FLAGS',
      """Fortran 77 Compiler flags. Note that the Fortran compiler
       flags must be set to produce object code compatible with the
