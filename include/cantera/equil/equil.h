@@ -63,9 +63,7 @@ namespace Cantera
  * Return variable is equal to the number of subroutine attempts
  * it took to equilibrate the system.
  *
- *
  *      @ingroup equilfunctions
- *      @ingroup equil
  */
 int equilibrate(thermo_t& s, const char* XY,
                 int solver = -1, doublereal rtol = 1.0e-9, int maxsteps = VCS_MAXSTEPS,
@@ -94,7 +92,6 @@ int equilibrate(thermo_t& s, const char* XY,
  * it took to equilibrate the system.
  *
  *      @ingroup equilfunctions
- *      @ingroup equil
  */
 doublereal equilibrate(MultiPhase& s, const char* XY,
                        doublereal rtol = 1.0e-9, int maxsteps = 5000, int maxiter = 100,

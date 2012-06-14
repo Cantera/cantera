@@ -29,8 +29,8 @@ public:
                      const vector_fp& latticeSiteDensity);
 
     /// Add a phase to the mixture.
-    /// @param p pointer to the phase object
-    /// @param moles total number of moles of all species in this phase
+    /// @param lattice pointer to the phase object
+    /// @param siteDensity total density of sites in this phase
     void addLattice(LatticePhase* lattice, doublereal siteDensity) {
         MultiPhase::addPhase(lattice, siteDensity);
     }

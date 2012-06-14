@@ -277,7 +277,7 @@ public:
     //! Get the pure Gibbs free energies of each species.
     //! Species are assumed to be in their standard states. This is the same
     //! as getStandardChemPotentials().
-    //! @param gpure[out] Array of standard state Gibbs free energies.
+    //! @param[out] gpure Array of standard state Gibbs free energies.
     //!        length = m_kk. units are J/kmol.
     void getPureGibbs(doublereal* gpure) const;
 
@@ -389,7 +389,7 @@ public:
 
     //! Set the internally stored temperature (K) and density (kg/m^3)
     /*!
-     * @param t     Temperature in kelvin
+     * @param T     Temperature in kelvin
      * @param rho   Density (kg/m^3)
      */
     virtual void setState_TR(doublereal T, doublereal rho);
@@ -793,10 +793,10 @@ protected:
      * @param pres           pressure (Pascal)
      * @param densLiq        Output density of liquid
      * @param densGas        output density of gas
-     * @param delGRT         output delGRT
+     * @param gasGRT         output delGRT
      */
-    int corr0(doublereal TKelvin, doublereal pre, doublereal& densLiq,
-              doublereal& densGas, doublereal& liqGRT,  doublereal& gasGRT);
+    int corr0(doublereal TKelvin, doublereal pres, doublereal& densLiq,
+              doublereal& densGas, doublereal& liqGRT, doublereal& gasGRT);
 public:
     //! Returns the Phase State flag for the current state of the object
     /*!

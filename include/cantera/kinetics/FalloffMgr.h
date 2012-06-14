@@ -21,12 +21,7 @@ class FalloffMgr
 {
 public:
 
-    /**
-     * Constructor.
-     * @param f If supplied, this factory will be used to construct
-     * falloff function calculators. If omitted, the standard factory
-     * will be used.
-     */
+    //! Constructor.
     FalloffMgr(/*FalloffFactory* f = 0*/) :
         m_n(0), m_n0(0), m_worksize(0) {
         //if (f == 0)

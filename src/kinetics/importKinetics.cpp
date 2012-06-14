@@ -663,11 +663,11 @@ next:
  *  points directly to a ctml element named "reaction". i refers
  *  to the number id of the reaction in the kinetics object.
  *
- * @param i Reaction number.
+ * @param iRxn Reaction number.
  * @param r XML_Node containing reaction data.
- * @param k Kinetics manager to which reaction will be added.
+ * @param kin Kinetics manager to which reaction will be added.
  * @param default_phase Default phase for locating a species
- * @param rule Rule for handling reactions with missing species
+ * @param rules Rule for handling reactions with missing species
  *             (skip or flag as error)
  * @param validate_rxn If true, check that this reaction is not a
  *                     duplicate of one already entered, and check that the reaction

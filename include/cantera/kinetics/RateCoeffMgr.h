@@ -34,8 +34,6 @@ public:
      * Install a rate coefficient calculator.
      * @param rxnNumber the reaction number
      * @param rdata rate coefficient specification for the reaction
-     * @param useAux flag to indicate that auxiliary rate information from
-     *        rdata should be used.
      */
     size_t install(size_t rxnNumber, const ReactionData& rdata) {
         /*

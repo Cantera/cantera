@@ -290,11 +290,7 @@ void MolarityIonicVPSSTP::constructPhaseXML(XML_Node& phaseNode, std::string id)
  * - Activities, Standard States, Activity Concentrations -----------
  */
 //====================================================================================================================
-// Get the array of non-dimensional molar-based activity coefficients at
-// the current solution temperature, pressure, and solution concentration.
-/*
- * @param ac Output vector of activity coefficients. Length: m_kk.
- */
+
 void MolarityIonicVPSSTP::getLnActivityCoefficients(doublereal* lnac) const
 {
     /*

@@ -103,24 +103,6 @@ static double de_atof(std::string s)
     return rval;
 }
 
-/**
- *  Check validity of the three temperatures defining the two
- *  temperature ranges for the NASA polynomial species thermodynamic
- *  property fits.
- *  @param log     log file output stream
- *  @param tmin    minimum temperature
- *  @param tmid    intermediate temperature
- *  @param tmax    maximum temperature
- */
-// static void checkTemps(std::ostream& log, double tmin,
-//                        double tmid, double tmax)
-// {
-//  if (tmin == 0.0 || tmid == 0.0 || tmax == 0.0) {
-//   throw CK_SyntaxError(log,
-//       "error reading Tmin, Tmid, or Tmax");
-//     }
-//}
-
 static double getNumberFromString(std::string s)
 {
     bool inexp = false;
@@ -165,8 +147,6 @@ static int de_atoi(std::ostream& log, std::string s, int line = -1)
  * @param temp         Devault vector of temperature region boundaries
  *                     There are one more temperatures than there are
  *                     temperature regions.
- * @param allowExtThermoData   True if 'THERMO' specified, false if
- *                             'THERMO ALL' specified.
  *
  * @return            True, if the THERMO section exists and the species
  *                    have all been successfully processed. False, if
@@ -249,7 +229,6 @@ bool CKParser::readNASA9ThermoSection(std::vector<string>& names,
                     << " of " << m_ckfilename;
                 writeSpeciesData(log, spec);
             }
-            //checkTemps(log, spec.tlow, spec.tmid, spec.thigh);
             if (getAllSpecies) {
                 names.push_back(spec.name);
                 nsp = static_cast<int>(names.size());

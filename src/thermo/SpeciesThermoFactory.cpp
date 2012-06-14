@@ -674,7 +674,7 @@ static void installNasa9ThermoFromXML(std::string speciesName,
  *  @param speciesName        String name of the species
  *  @param sp                 SpeciesThermo object that will receive the nasa polynomial object
  *  @param k                  Species index within the phase
- *  @param tp                 Vector of XML Nodes that make up the parameterization
+ *  @param f                  XML Node that contains the parameterization
  */
 static void installAdsorbateThermoFromXML(std::string speciesName,
         SpeciesThermo& sp, size_t k,

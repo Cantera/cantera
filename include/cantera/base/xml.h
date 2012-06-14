@@ -746,10 +746,9 @@ private:
      * on. This is fixed up in the public method. A method to only write out a limited
      * amount of the xml tree has been added.
      *
-     *
      *  @param s       ostream to write to
      *  @param level   Indentation level to work from
-     *  @param numRecurvivesAllowed Number of recursive calls allowed
+     *  @param numRecursivesAllowed Number of recursive calls allowed
      */
     void write_int(std::ostream& s, int level = 0, int numRecursivesAllowed = 60000) const;
 

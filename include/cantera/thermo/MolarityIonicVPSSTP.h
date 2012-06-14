@@ -232,7 +232,7 @@ public:
     /*!
      * @param lnac Output vector of ln activity coefficients. Length: m_kk.
      */
-    virtual void getLnActivityCoefficients(doublereal* ac) const;
+    virtual void getLnActivityCoefficients(doublereal* lnac) const;
 
     //@}
     /// @name  Partial Molar Properties of the Solution

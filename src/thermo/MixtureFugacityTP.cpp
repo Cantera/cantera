@@ -981,19 +981,7 @@ int MixtureFugacityTP::spinodalFunc::evalSS(const doublereal t, const doublereal
     return status;
 }
 //====================================================================================================================
-// Utility routine in the calculation of the saturation pressure
-/*
- *  Private routine
- *
- * @param TKelvin        temperature (kelvin)
- * @param pres           pressure (Pascal)
- * @param densLiq        Output density of liquid
- * @param densGas        output density of gas
- * @param delGRT         output delGRT
- *
- * @return  Returns zero if both the gas and the liquid states are found for a given pressure.
 
- */
 int MixtureFugacityTP::corr0(doublereal TKelvin, doublereal pres, doublereal& densLiqGuess,
                              doublereal& densGasGuess, doublereal& liqGRT,  doublereal& gasGRT)
 {

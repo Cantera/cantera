@@ -171,7 +171,7 @@ public:
      *
      * Input
      * ---------
-     * @param doJustCompoents   If true, the m_stoichCoeffRxnMatrix[][] and
+     * @param doJustComponents  If true, the m_stoichCoeffRxnMatrix[][] and
      *                          m_deltaMolNumPhase[]  are not calculated.
      *
      * @param aw         Vector of mole fractions which will be used to construct an
@@ -219,8 +219,8 @@ public:
      *                This is 1 if the phase, iphase,  participates in the
      *                formation reaction, irxn, and zero otherwise.
      *
-     * @return        Returns VCS_SUCCESS if everything went ok. Returns something else if
-     *                there is a problem.
+     * @return        Returns VCS_SUCCESS if everything went ok. Returns
+     *     VCS_FAILED_CONVERGENCE if there is a problem.
      */
     int vcs_basopt(const bool doJustComponents, double aw[], double sa[], double sm[],
                    double ss[], double test, bool* const usedZeroedSpecies);
@@ -497,7 +497,7 @@ public:
 
     //! Print out a table of chemical potentials
     /*!
-     *    @param vcsState Determines where to get the mole numbers from.
+     *    @param stateCalc Determines where to get the mole numbers from.
      *                -  VCS_STATECALC_OLD -> from m_molNumSpecies_old
      *                -  VCS_STATECALC_NEW -> from m_molNumSpecies_new
      */
@@ -506,7 +506,7 @@ public:
     //!  This routine uploads the state of the system into all of the
     //!  vcs_VolumePhase objects in the current problem.
     /*!
-     *  @param vcsState Determines where to get the mole numbers from.
+     *  @param stateCalc Determines where to get the mole numbers from.
      *                -  VCS_STATECALC_OLD -> from m_molNumSpecies_old
      *                -  VCS_STATECALC_NEW -> from m_molNumSpecies_new
      */
@@ -574,7 +574,7 @@ public:
      * Special branching occurs sometimes. This causes the component basis
      * to be reevaluated
      *
-     * @param forceComponentRecalc  integer flagging whether a component recalculation needs
+     * @param forceComponentCalc  integer flagging whether a component recalculation needs
      *                              to be carried out.
      * @param kSpecial              species number of phase being zeroed.
      *
@@ -1256,7 +1256,7 @@ private:
      *       2) Vphase->IndSpecies is up to date
      *       3) m_deltaGRxn_old[irxn] is up to date
      */
-    bool recheck_deleted_phase(const int iph);
+    bool recheck_deleted_phase(const int iphase);
 
     //!  Minor species alternative calculation
     /*!
@@ -1298,8 +1298,6 @@ private:
      *     @param do_delete:  BOOLEAN which if true on return, then we branch
      *                        to the section that deletes a species from the
      *                        current set of active species.
-     *
-     *     @param dx          The change in mole number
      */
     double vcs_minor_alt_calc(size_t kspec, size_t irxn, bool* do_delete
 #ifdef DEBUG_MODE
@@ -1349,7 +1347,7 @@ private:
     /*!
      *   Positive DG for species which don't exist are ignored.
      *
-     * @param dgLocal  Vector of local delta G's.
+     * @param dg Vector of local delta G's.
      */
     double l2normdg(double dg[]) const;
 

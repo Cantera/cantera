@@ -441,11 +441,7 @@ inline doublereal ct_dtrcon(const char* norm, ctlapack::upperlower_t uplot,  con
     return rcond;
 }
 //====================================================================================================================
-//!
-/*!
- *  @param work   Must be dimensioned equal to greater than 3N
- *  @param iwork  Must be dimensioned equal to or greater than N
- */
+
 inline void ct_dpotrf(ctlapack::upperlower_t uplot, size_t n, doublereal* a, size_t lda, int& info)
 {
     char uplo = upper_lower[uplot];

@@ -29,7 +29,7 @@ public:
     /*!
      *   Construct an Interface instance from a specification in an input file.
      *
-     *   @param infile.          Cantera input file in CTI or CTML format.
+     *   @param infile           Cantera input file in CTI or CTML format.
      *   @param id               Identification string to distinguish between
      *                           multiple definitions within one input file.
      *   @param otherPhases      Neighboring phases that may participate in the

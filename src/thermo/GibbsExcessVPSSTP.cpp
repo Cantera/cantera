@@ -248,12 +248,6 @@ void GibbsExcessVPSSTP::getActivities(doublereal* ac) const
     }
 }
 
-//====================================================================================================================
-//  Get the array of non-dimensional molar-based activity coefficients at
-//  the current solution temperature, pressure, and solution concentration.
-/*
- * @param ac Output vector of activity coefficients. Length: m_kk.
- */
 void GibbsExcessVPSSTP::getActivityCoefficients(doublereal* const ac) const
 {
 
