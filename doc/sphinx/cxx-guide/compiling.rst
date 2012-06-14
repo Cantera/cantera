@@ -8,6 +8,33 @@ specifying the appropriate header and library paths, and specifying the required
 libraries when linking. It is also necessary to specify the paths for libraries
 used by Cantera, e.g. Sundials, BLAS, and LAPACK.
 
+pkg-config
+==========
+
+On systems where the ``pkg-config`` program is installed, it can be used to
+determine the correct compiler and linker flags for use with Cantera. For
+example:
+
+.. code-block:: bash
+
+   g++ myProgram.cpp -o myProgram $(pkg-config --cflags --libs cantera)
+
+It can also be used to populate variables in a Makefile:
+
+.. code-block:: make
+
+    CFLAGS += $(shell pkg-config --cflags cantera)
+    LIBS += $(shell pkg-config --libs cantera)
+
+Or in an SConstruct file::
+
+    env.ParseConfig("pkg-config --cflags --libs cantera")
+
+Note that ``pkg-config`` will work only if it can find the ``cantera.pc``
+file. If Cantera's libraries are not installed in a standard location such as
+``/usr/lib`` or ``/usr/local/lib``, you may need to set the ``PKG_CONFIG_PATH``
+environment variable appropriately before using ``pkg-config``.
+
 SCons
 =====
 
