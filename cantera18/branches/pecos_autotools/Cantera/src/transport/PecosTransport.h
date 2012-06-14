@@ -219,7 +219,7 @@ namespace Cantera {
 
     // blottner fits
     //int species = 20;
-    double a[20], b[20], c[20];
+    double a[500], b[500], c[500];
 
     // property values
     DenseMatrix                  m_bdiff;

@@ -103,8 +103,10 @@ namespace Cantera {
     m_abc_ok = false;
 
     // read blottner fit parameters (A,B,C)
-    //read_blottner_transport_table();
-
+    cout << "reading blottner";
+    read_blottner_transport_table();
+    cout << "done with blottner";
+ 
     // set specific heats
     cv_rot.resize(m_nsp);
       cp_R.resize(m_nsp);
@@ -654,22 +656,23 @@ namespace Cantera {
 	for (k = 0; k < m_nsp; k++) 
 	  {
 	    string sss = m_thermo->speciesName(k);
+
 	    // this is the right species index
 	    if(sss.compare(ss1) == 0)
 	      {
-		a[k] = atof(ss2.c_str());
-		b[k] = atof(ss3.c_str());
-		c[k] = atof(ss4.c_str());
+	    	a[k] = atof(ss2.c_str());
+	    	b[k] = atof(ss3.c_str());
+	    	c[k] = atof(ss4.c_str());
     
-		// index
-		i++;
+	    	// index
+	    	i++;
 	      }
 	    else // default to air
 	      {
 		
-		a[k] = 0.026;
-		b[k] = 0.3;
-		c[k] = -11.3;
+	    	a[k] = 0.026;
+	    	b[k] = 0.3;
+	    	c[k] = -11.3;
     	      }
 	    
 	  } // done with for loop
