@@ -47,7 +47,8 @@ Windows
 
 There are a number of requirements for the versions of software to install
 depending on which interfaces (Python, Matlab) you want to build and what
-architecture (32-bit or 64-bit) you want to use.
+architecture (32-bit or 64-bit) you want to use. See :ref:`sec-dependencies` for
+the full list of dependencies.
 
 * If you want to build the Python module, you must use the same version of the
   Microsoft compiler as was used to compile Python. For current versions of
@@ -70,7 +71,7 @@ architecture (32-bit or 64-bit) you want to use.
 
 * It is generally helpful to have SCons and Python in your PATH. This can
   usually be accomplished by adding the top-level Python directory
-  (e.g. C:\Python27) to your PATH. This is accessible from::
+  (e.g. ``C:\Python27``) to your PATH. This is accessible from::
 
       Control Panel > System and Security > System > Advanced System Settings > Environment Variables
 
@@ -97,26 +98,22 @@ OS X
 
      python setup.py install --user
 
+  to install to a location in your home directory.
+
 Downloading the Cantera source code
 ===================================
 
-Linux / OS X
-------------
+* Option 1: Download the most recent source tarball from the `Cantera Google
+  Code Site <http://code.google.com/p/cantera/downloads/list>`_ and extract the
+  contents.
 
-* Option 1: Check out the code using Subversion::
+* Option 2: Check out the code using Subversion::
 
     svn checkout http://cantera.googlecode.com/svn/cantera/trunk/ cantera
 
-* Option 2: Check out the code using Git::
+* Option 3: Check out the code using Git::
 
     git svn clone --std-layout http://cantera.googlecode.com/svn/cantera cantera
-
-Windows
--------
-
-Use your Subversion client to check out the code from::
-
-    http://cantera.googlecode.com/svn/cantera/trunk/
 
 Determine configuration options
 ===============================
@@ -286,6 +283,8 @@ MinGW Compilation problems
       #include_next <float.h>
       #endif
 
+.. _sec-dependencies:
+
 Software used by Cantera
 ========================
 
@@ -372,9 +371,10 @@ Optional Programs
 * Sundials
 
   * Required to enable some features such as sensitivity analysis.
+  * Strongly recommended if using reactor network or 1D simulation capabilities.
   * https://computation.llnl.gov/casc/sundials/download/download.html
-  * Known to work with version 2.4; Support for versions 2.3 and 2.2 is deprecated.
-  * Does not yet work with version 2.5.
+  * Known to work with versions 2.4 and 2.5; Support for versions 2.3
+    and 2.2 is deprecated.
   * To use Sundials with Cantera, you may need to compile it with the
     ``-fPIC`` flag. You can specify this flag when configuring Sundials::
 
@@ -382,13 +382,13 @@ Optional Programs
 
 * `Windows Installer XML (WiX) toolset <http://wix.sourceforge.net/>`_
 
-  * Required to build MSI installers on Windows
+  * Required to build MSI installers on Windows.
   * Known to work with version 3.5.
 
 * `Distribute <http://pypi.python.org/pypi/distribute>`_ (Python)
 
   * Provides the ``easy_install`` command which can be used to install most of
-    the other Python modules
+    the other Python modules.
 
 * Packages required for building Sphinx documentation
 
@@ -399,5 +399,3 @@ Optional Programs
 * `Doxygen <http://www.stack.nl/~dimitri/doxygen/>`_
 
   * Required for building the C++ API Documentation
-
-.. \see \ref cxx-ctnew
