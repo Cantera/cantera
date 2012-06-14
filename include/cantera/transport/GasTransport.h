@@ -81,7 +81,7 @@ public:
     //! from the species mole fraction gradients, computed according to
     //! Eq. 12.176 in "Chemically Reacting Flow":
     //!
-    //! \f[  D_{km}^* = \frac{1-X_k}{\Sum_{j \ne k}^K X_j/\mathcal{D}_{kj}} \f]
+    //! \f[  D_{km}^* = \frac{1-X_k}{\sum_{j \ne k}^K X_j/\mathcal{D}_{kj}} \f]
     //!
     //! @param[out] d vector of mixture-averaged diffusion coefficients for
     //!     each species, length m_nsp.
@@ -92,8 +92,8 @@ public:
     //! from the species mass fraction gradients, computed according to
     //! Eq. 12.178 in "Chemically Reacting Flow":
     //!
-    //! \f[  \frac{1}{D_{km}} = \Sum_{j \ne k}^K \frac{X_j}{\mathcal{D}_{kj}} +
-    //!     \frac{X_k}{1-Y_k} \Sum_{j \ne k}^K \frac{Y_j}{\mathcal{D}_{kj}} \f]
+    //! \f[  \frac{1}{D_{km}} = \sum_{j \ne k}^K \frac{X_j}{\mathcal{D}_{kj}} +
+    //!     \frac{X_k}{1-Y_k} \sum_{j \ne k}^K \frac{Y_j}{\mathcal{D}_{kj}} \f]
     //!
     //! @param[out] d vector of mixture-averaged diffusion coefficients for
     //!     each species, length m_nsp.
