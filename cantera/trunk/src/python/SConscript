@@ -9,7 +9,8 @@ gcv = distutils.sysconfig.get_config_var
 
 localenv.Append(CPPPATH=[gcv('INCLUDEPY'), env['python_array_include']],
                 CPPFLAGS=((gcv('BASECFLAGS') or '').split() +
-                          (gcv('OPT') or '').split()))
+                          (gcv('OPT') or '').split()),
+                LIBPATH=(gcv('LIBDIR') or ''))
 
 if '-Wstrict-prototypes' in localenv['CPPFLAGS']:
     localenv['CPPFLAGS'].remove('-Wstrict-prototypes')
