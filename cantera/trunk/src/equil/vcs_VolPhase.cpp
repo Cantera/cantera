@@ -405,14 +405,6 @@ void vcs_VolPhase::_updateG0() const
 }
 /***************************************************************************/
 
-// Gibbs free energy calculation at a temperature for the reference state
-// of a species, return a value for one species
-/*
- *  @param kspec   species index
- *  @param TKelvin temperature
- *
- *  @return return value of the gibbs free energy
- */
 double vcs_VolPhase::G0_calc_one(size_t kspec) const
 {
     if (!m_UpToDate_G0) {
@@ -422,14 +414,6 @@ double vcs_VolPhase::G0_calc_one(size_t kspec) const
 }
 /***************************************************************************/
 
-// Gibbs free energy calculation for standard states
-/*
- * Calculate the Gibbs free energies for the standard states
- * The results are held internally within the object.
- *
- * @param TKelvin Current temperature
- * @param pres    Current pressure (pascal)
- */
 void vcs_VolPhase::_updateGStar() const
 {
     if (m_useCanteraCalls) {
@@ -448,18 +432,6 @@ void vcs_VolPhase::_updateGStar() const
 }
 /***************************************************************************/
 
-// Gibbs free energy calculation for standard state of one species
-/*
- * Calculate the Gibbs free energies for the standard state
- * of the kth species.
- * The results are held internally within the object.
- * The kth species standard state G is returned
- *
- * @param kspec   Species number (within the phase)
- *
- * @return Gstar[kspec] returns the gibbs free energy for the
- *         standard state of the kspec species.
- */
 double vcs_VolPhase::GStar_calc_one(size_t kspec) const
 {
     if (!m_UpToDate_GStar) {
@@ -704,22 +676,6 @@ void vcs_VolPhase::setMolesFromVCS(const int stateCalc,
 }
 /***************************************************************************/
 
-// Set the moles within the phase
-/*
- *  This function takes as input the mole numbers in vcs format, and
- *  then updates this object with their values. This is essentially
- *  a gather routine.
- *
- *     @param vcsStateStatus  State calc value either VCS_STATECALC_OLD
- *                         or  VCS_STATECALC_NEW. With any other value
- *                         nothing is done.
- *
- *  @param molesSpeciesVCS  array of mole numbers. Note,
- *                          the indices for species in
- *            this array may not be contiguous. IndSpecies[] is needed
- *            to gather the species into the local contiguous vector
- *            format.
- */
 void vcs_VolPhase::setMolesFromVCSCheck(const int vcsStateStatus,
                                         const double* molesSpeciesVCS,
                                         const double* const TPhMoles)
@@ -813,16 +769,6 @@ double vcs_VolPhase::sendToVCS_VolPM(double* const VolPM) const
 }
 /***************************************************************************/
 
-// Fill in the partial molar volume vector for VCS
-/*
- *  This routine will calculate the partial molar volumes for the
- *  current phase (if needed), and fill in the corresponding entries in the
- *  VCS partial molar volumes vector.
- *
- * @param VolPM  vector of partial molar volumes for all of the species
- *            in all of the phases in a VCS problem. Only the
- *            entries for the current phase are filled in.
- */
 void vcs_VolPhase::sendToVCS_GStar(double* const gstar) const
 {
     if (!m_UpToDate_GStar) {
@@ -902,16 +848,6 @@ void vcs_VolPhase::setState_T(const double temp)
 }
 /***************************************************************************/
 
-// Molar volume calculation for standard states
-/*
- * Calculate the molar volume for the standard states
- * The results are held internally within the object.
- *
- * @param TKelvin Current temperature
- * @param pres    Current pressure (pascal)
- *
- *  Calculations are in m**3 / kmol
- */
 void vcs_VolPhase::_updateVolStar() const
 {
     if (m_useCanteraCalls) {
@@ -928,19 +864,6 @@ void vcs_VolPhase::_updateVolStar() const
 }
 /***************************************************************************/
 
-// Molar volume calculation for standard state of one species
-/*
- * Calculate the molar volume for the standard states
- * The results are held internally within the object.
- * Return the molar volume for one species
- *
- * @param kspec   Species number (within the phase)
- * @param TKelvin Current temperature
- * @param pres    Current pressure (pascal)
- *
- * @return molar volume of the kspec species's standard
- *         state
- */
 double vcs_VolPhase::VolStar_calc_one(size_t kspec) const
 {
     if (!m_UpToDate_VolStar) {
@@ -993,10 +916,6 @@ double vcs_VolPhase::_updateVolPM() const
 }
 /***************************************************************************/
 
-/*
- * _updateLnActCoeffJac():
- *
- */
 void vcs_VolPhase::_updateLnActCoeffJac()
 {
     /*

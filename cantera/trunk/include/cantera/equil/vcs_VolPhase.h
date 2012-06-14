@@ -190,22 +190,20 @@ public:
      *  This function takes as input the mole numbers in vcs format, and
      *  then updates this object with their values. This is essentially
      *  a gather routine.
+     *
      *  Additionally it checks to see that the total moles value in
      *  TPhMoles[iplace] is equal to the internally computed value.
      *  If this isn't the case, an error exit is carried out.
      *
-     *
+     *  @param vcsStateStatus  State calc value either VCS_STATECALC_OLD
+     *      or VCS_STATECALC_NEW. With any other value nothing is done.
      *  @param molesSpeciesVCS  array of mole numbers. Note, the indices
-     *            for species in
-     *            this array may not be contiguous. IndSpecies[] is needed
-     *            to gather the species into the local contiguous vector
-     *            format.
-     *  @param TPhMoles   VCS's array containing the number of moles
-     *                    in each phase.
-     *  @param iphase     index of the current phase.
-     *
+     *      for species in this array may not be contiguous. IndSpecies[] is
+     *      needed to gather the species into the local contiguous vector
+     *      format.
+     *  @param TPhMoles  VCS's array containing the number of moles in each phase.
      */
-    void setMolesFromVCSCheck(const int stateCalc,
+    void setMolesFromVCSCheck(const int vcsStateStatus,
                               const double* molesSpeciesVCS,
                               const double* const TPhMoles);
 
@@ -252,12 +250,8 @@ public:
      * Calculate the Gibbs free energies for the standard state
      * of the kth species.
      * The results are held internally within the object.
-     * The kth species standard state G is returned
      *
      * @param kspec   Species number (within the phase)
-     * @param TKelvin Current temperature
-     * @param pres    Current pressure
-     *
      * @return Gstar[kspec] returns the gibbs free energy for the
      *         standard state of the kth species.
      */
@@ -267,26 +261,19 @@ public:
     //! of a species, return a value for one species
     /*!
      *  @param kspec   species index
-     *  @param TKelvin temperature
-     *
      *  @return return value of the gibbs free energy
      */
     double G0_calc_one(size_t kspec) const;
 
     //! Molar volume calculation for standard state of one species
     /*!
-     * Calculate the molar volume for the standard states
-     * The results are held internally within the object.
-     * Return the molar volume for one species
+     * Calculate the molar volume for the standard states. The results are held
+     * internally within the object. Return the molar volume for one species.
      *
      * @param kspec Species number (within the phase)
-     * @param TKelvin Current temperature
-     * @param pres    Current pressure
-     *
-     * @return molar volume of the kspec species's standard
-     *         state (m**3/kmol)
+     * @return molar volume of the kspec species's standard state (m**3/kmol)
      */
-    double VolStar_calc_one(size_t kglob) const;
+    double VolStar_calc_one(size_t kspec) const;
 
     //! Fill in the partial molar volume vector for VCS
     /*!
@@ -309,6 +296,8 @@ public:
      * @param VolPM  vector of partial molar volumes for all of the species
      *            in all of the phases in a VCS problem. Only the
      *            entries for the current phase are filled in.
+     *
+     * @todo This function's documentation is incorrect.
      */
     void sendToVCS_GStar(double* const gstar) const;
 
@@ -601,28 +590,17 @@ private:
     /*!
      * Calculate the Gibbs free energies for the standard states
      * The results are held internally within the object.
-     *
-     * @param TKelvin Current temperature
-     * @param pres    Current pressure
      */
     void _updateGStar() const;
 
     //! Gibbs free energy calculation at a temperature for the reference state
     //! of each species
-    /*!
-     *
-     */
     void _updateG0() const;
 
     //! Molar volume calculation for standard states
     /*!
-     * Calculate the molar volume for the standard states
-     * The results are held internally within the object.
-     *
-     * @param TKelvin Current temperature
-     * @param pres    Current pressure
-     *
-     *  Units are in m**3/kmol
+     * Calculate the molar volume for the standard states. The results are held
+     * internally within the object. Units are in m**3/kmol.
      */
     void _updateVolStar() const;
 
@@ -641,12 +619,9 @@ private:
      *  with respect to mole number of jth species.
      *  (temp, pressure, and other mole numbers held constant)
      *
-     *  We employ a finite difference derivative approach here.
-     *  Because we have to change the mole numbers, this is not
-     *  a const function, even though the paradigm would say that
-     *  it should be.
-     *
-     *  @param moleNumbers Mole numbers are input.
+     *  We employ a finite difference derivative approach here. Because we have
+     *  to change the mole numbers, this is not a const function, even though
+     *  the paradigm would say that it should be.
      */
     void _updateLnActCoeffJac();
 

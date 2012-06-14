@@ -583,9 +583,6 @@ next:
  * @param names List of species names (input).
  * @param species  Table of species objects holding data from records
  * in THERMO section (output).
- * @param allowExtThermoData True if 'THERMO' specified, false if
- * 'THERMO ALL' specified.
- *
  */
 
 bool CKParser::readThermoSection(std::vector<std::string>& names,

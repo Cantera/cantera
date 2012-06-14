@@ -94,7 +94,6 @@ public:
 
     /**
      * Constructor.
-     * @param FWHM Full width at half-maximum.
      */
     GaussianProfile(doublereal sigma);
     virtual doublereal profile(doublereal deltaFreq);

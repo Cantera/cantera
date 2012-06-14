@@ -616,7 +616,7 @@ public:
      *    which are observed.
      *
      *  @param iphase  Index of the phase. This is the order within the internal thermo vector object
-     *  @param exists  Boolean indicating whether the phase exists or not
+     *  @param isStable Flag indicating whether the phase is stable or not
      */
     void setPhaseStability(const int iphase, const int isStable);
 

@@ -1021,10 +1021,10 @@ void RedlichKwongMFTP::initThermoXML(XML_Node& phaseNode, std::string id)
 }
 //====================================================================================================================
 
-void RedlichKwongMFTP::readXMLPureFluid(XML_Node& PureFluidParam)
+void RedlichKwongMFTP::readXMLPureFluid(XML_Node& pureFluidParam)
 {
     vector_fp vParams;
-    string xname = PureFluidParam.name();
+    string xname = pureFluidParam.name();
     if (xname != "pureFluidParameters") {
         throw CanteraError("RedlichKwongMFTP::readXMLPureFluid",
                            "Incorrect name for processing this routine: " + xname);
@@ -1034,7 +1034,7 @@ void RedlichKwongMFTP::readXMLPureFluid(XML_Node& PureFluidParam)
      *  Read the species
      *  Find the index of the species in the current phase. It's not an error to not find the species
      */
-    string iName = PureFluidParam.attrib("species");
+    string iName = pureFluidParam.attrib("species");
     if (iName == "") {
         throw CanteraError("RedlichKwongMFTP::readXMLPureFluid", "no species attribute");
     }
@@ -1044,9 +1044,9 @@ void RedlichKwongMFTP::readXMLPureFluid(XML_Node& PureFluidParam)
     }
     size_t counter = iSpecies + m_kk * iSpecies;
     size_t nParamsExpected, nParamsFound;
-    size_t num = PureFluidParam.nChildren();
+    size_t num = pureFluidParam.nChildren();
     for (size_t iChild = 0; iChild < num; iChild++) {
-        XML_Node& xmlChild = PureFluidParam.child(iChild);
+        XML_Node& xmlChild = pureFluidParam.child(iChild);
         string stemp = xmlChild.name();
         string nodeName = lowercase(stemp);
 

@@ -1,5 +1,5 @@
 /**
- *  @file  IntStarStar.h
+ *  @file  vcs_IntStarStar.h
  *
  *  Header file for class IntStarStar
  */
@@ -44,13 +44,13 @@ public:
     //! Copy constructor
     /*!
      *  @param y  Object to be copied
-     */ 
+     */
     IntStarStar(const IntStarStar& y);
 
     //! Assignment operator
     /*!
      *  @param y  Object to be copied
-     */ 
+     */
     IntStarStar& operator=(const IntStarStar& y);
 
     //! Resize the array, and fill the new entries with 'v'
@@ -91,13 +91,13 @@ private:
     //! Storage area for the matrix, layed out in Fortran style, row-inner, column outer format
     /*!
      * Length = m_nrows * m_ncols
-     */ 
+     */
     std::vector<int> m_data;
 
     //! Vector of column addresses
     /*!
      * Length = number of columns = m_ncols
-     */ 
+     */
     std::vector<int*> m_colAddr;
 
     //! number of rows

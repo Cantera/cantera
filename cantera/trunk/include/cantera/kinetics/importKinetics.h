@@ -113,7 +113,7 @@ bool getReagents(const XML_Node& rxn, Kinetics& kin, int rp,
  *  @param kf      XML_Node containing information about the rate coefficients.
  *  @param kin     kinetics manager
  *  @param rdata   ReactionData reference
- *  @param negA    Boolean indicating whether negative A's are ok.
+ *  @param rules   Rules for parsing and installing reactions
  *
  *   Trigger an exception for negative A unless specifically authorized.
  *

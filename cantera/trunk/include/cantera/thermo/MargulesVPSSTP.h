@@ -495,7 +495,7 @@ public:
     //! Get the array of non-dimensional molar-based ln activity coefficients at
     //! the current solution temperature, pressure, and solution concentration.
     /*!
-     * @param ac Output vector of ln activity coefficients. Length: m_kk.
+     * @param lnac Output vector of ln activity coefficients. Length: m_kk.
      */
     virtual void getLnActivityCoefficients(doublereal* lnac) const;
 

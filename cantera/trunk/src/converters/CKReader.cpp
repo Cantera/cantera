@@ -28,15 +28,13 @@ using namespace std;
 namespace ckr
 {
 
-
 /**
  *  read and optionally validate an input file in Chemkin format.
  *  @param inputFile   path to the input file
  *  @param thermoDatabase  path to the species database file
- *  @param log  path to the file where log messages should be written
+ *  @param logfile  path to the file where log messages should be written
  *  @return true if no errors were encountered, false otherwise
  */
-
 bool CKReader::read(const std::string& inputFile, const std::string& thermoDatabase,
                     const std::string& logfile)
 {

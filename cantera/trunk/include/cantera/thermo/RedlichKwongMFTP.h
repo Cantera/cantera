@@ -59,7 +59,7 @@ public:
      *  the routine initThermo(), with a reference to the
      *  XML database to get the info for the phase.
      *
-     * @param inputFile Name of the input file containing the phase XML data
+     * @param infile    Name of the input file containing the phase XML data
      *                  to set up the object
      * @param id        ID of the phase in the input file. Defaults to the empty string.
      */
@@ -558,7 +558,7 @@ private:
     /*!
      *  @param pureFluidParam   XML_Node for the pure fluid parameters
      */
-    void readXMLPureFluid(XML_Node& PureFluidParam);
+    void readXMLPureFluid(XML_Node& pureFluidParam);
 
 
     //! Apply mixing rules for a coefficients
@@ -569,7 +569,7 @@ private:
     /*!
      *  @param pureFluidParam   XML_Node for the cross fluid parameters
      */
-    void readXMLCrossFluid(XML_Node& PureFluidParam);
+    void readXMLCrossFluid(XML_Node& pureFluidParam);
 
 
 
