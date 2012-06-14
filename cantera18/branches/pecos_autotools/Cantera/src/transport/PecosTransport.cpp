@@ -103,7 +103,7 @@ namespace Cantera {
     m_abc_ok = false;
 
     // read blottner fit parameters (A,B,C)
-    read_blottner_transport_table();
+    //read_blottner_transport_table();
 
     // set specific heats
     cv_rot.resize(m_nsp);
@@ -335,12 +335,75 @@ namespace Cantera {
 	if (sum2 <= 0.0) {
 	  d[k] = m_bdiff(k,k) / p;
 	} else {
-	  d[k] = (1 - m_molefracs[k] )/(p * sum2);
+	  d[k] = (sumxw - m_molefracs[k] * m_mw[k])/(p * mmw * sum2);
+	  //d[k] = (1 - m_molefracs[k] )/(p * sum2);
 	}
       }
     }
   }
 
+  void PecosTransport::getMixDiffCoeffsMole(doublereal* const d)
+  {
+    update_T();
+    update_C();
+
+    // update the binary diffusion coefficients if necessary
+    if (!m_bindiff_ok) {
+      updateDiff_T();
+    }
+
+    doublereal p = m_thermo->pressure();
+    if (m_nsp == 1) {
+      d[0] = m_bdiff(0,0) / p;
+    } else {
+      for (size_t k = 0; k < m_nsp; k++) {
+	double sum2 = 0.0;
+	for (size_t j = 0; j < m_nsp; j++) {
+	  if (j != k) {
+	    sum2 += m_molefracs[j] / m_bdiff(j,k);
+	  }
+	}
+	if (sum2 <= 0.0) {
+	  d[k] = m_bdiff(k,k) / p;
+	} else {
+	  d[k] = (1 - m_molefracs[k]) / (p * sum2);
+	}
+      }
+    }
+  }
+
+  void PecosTransport::getMixDiffCoeffsMass(doublereal* const d)
+  {
+    update_T();
+    update_C();
+
+    // update the binary diffusion coefficients if necessary
+    if (!m_bindiff_ok) {
+      updateDiff_T();
+    }
+
+    doublereal mmw = m_thermo->meanMolecularWeight();
+    doublereal p = m_thermo->pressure();
+
+    if (m_nsp == 1) {
+      d[0] = m_bdiff(0,0) / p;
+    } else {
+      for (size_t k=0; k<m_nsp; k++) {
+	double sum1 = 0.0;
+	double sum2 = 0.0;
+	for (size_t i=0; i<m_nsp; i++) {
+	  if (i==k) {
+	    continue;
+	  }
+	  sum1 += m_molefracs[i] / m_bdiff(k,i);
+	  sum2 += m_molefracs[i] * m_mw[i] / m_bdiff(k,i);
+	}
+	sum1 *= p;
+	sum2 *= p * m_molefracs[k] / (mmw - m_mw[k]*m_molefracs[k]);
+	d[k] = 1.0 / (sum1 +  sum2);
+      }
+    }
+  }
                  
   /**
    *  @internal This is called whenever a transport property is
@@ -476,10 +539,10 @@ namespace Cantera {
    * Update the pure-species viscosities. (Pa-s) = (kg/m/sec)
    * 
    * Using Blottner fit for viscosity. Defines kinematic viscosity
-   * of the form                                                                                                 
-   * \f[                                                                                                         
-   *   \mu_s\left(T\right) = 0.10 \exp\left(A_s\left(\log T\right)^2 + B_s\log T + C_s\right)                    
-   * \f]                                                                                                         
+   * of the form     
+   * \f[     
+   *   \mu_s\left(T\right) = 0.10 \exp\left(A_s\left(\log T\right)^2 + B_s\log T + C_s\right) 
+   * \f] 
    * where \f$ A_s \f$, \f$ B_s \f$, and \f$ C_s \f$ are constants.   
    *
    */

@@ -375,6 +375,11 @@ namespace Cantera {
     virtual void getMixDiffCoeffs(doublereal* const d) 
     { err("getMixDiffCoeffs"); }
 
+    virtual void getMixDiffCoeffsMole(doublereal* const d) 
+    { err("getMixDiffCoeffsMole"); }
+
+    virtual void getMixDiffCoeffsMass(doublereal* const d) 
+    { err("getMixDiffCoeffsMass"); }
 
     /**
      * Set transport model parameters. This method may be
