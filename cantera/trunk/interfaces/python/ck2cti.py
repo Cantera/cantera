@@ -910,6 +910,7 @@ def readKineticsEntry(entry, speciesDict, energyUnits, moleculeUnits):
     n = float(tokens[-2])
     Ea = float(tokens[-1])
     reaction = ''.join(tokens[:-3])
+    revReaction = None
     thirdBody = False
 
     # Split the reaction equation into reactants and products
@@ -1001,10 +1002,10 @@ def readKineticsEntry(entry, speciesDict, energyUnits, moleculeUnits):
         pdepArrhenius = None
         efficiencies = {}
         chebyshevCoeffs = []
+        explicitReverseRate = False
 
         # Note that the subsequent lines could be in any order
         for line in lines[1:]:
-
             tokens = line.split('/')
             if 'DUP' in line or 'dup' in line:
                 # Duplicate reaction
@@ -1014,6 +1015,22 @@ def readKineticsEntry(entry, speciesDict, energyUnits, moleculeUnits):
                 # Low-pressure-limit Arrhenius parameters
                 tokens = tokens[1].split()
                 arrheniusLow = Arrhenius(
+                    A = (float(tokens[0].strip()),klow_units),
+                    n = float(tokens[1].strip()),
+                    Ea = (float(tokens[2].strip()),"kcal/mol"),
+                    T0 = (1,"K"),
+                )
+
+            elif 'rev' in line.lower():
+                reaction.reversible = False
+                explicitReverseRate = True
+
+                # Create a reaction proceeding in the opposite direction
+                revReaction = Reaction(reactants=reaction.products,
+                                       products=reaction.reactants,
+                                       reversible=False)
+                tokens = tokens[1].split()
+                revReaction.kinetics = Arrhenius(
                     A = (float(tokens[0].strip()),klow_units),
                     n = float(tokens[1].strip()),
                     Ea = (float(tokens[2].strip()),"kcal/mol"),
@@ -1132,12 +1149,12 @@ def readKineticsEntry(entry, speciesDict, energyUnits, moleculeUnits):
         elif thirdBody:
             reaction.kinetics = ThirdBody(arrheniusHigh=arrheniusHigh)
             reaction.kinetics.efficiencies = efficiencies
-        elif reaction.duplicate:
+        elif reaction.duplicate or explicitReverseRate:
             reaction.kinetics = arrheniusHigh
         else:
             raise InputParseError('Unable to determine pressure-dependent kinetics for reaction {0}.'.format(reaction))
 
-    return reaction
+    return reaction, revReaction
 
 ################################################################################
 
@@ -1239,10 +1256,6 @@ def loadChemkinFile(path, speciesList=None):
                     line, comment = removeCommentFromLine(line)
                     line = line.strip(); comment = comment.strip()
 
-                    if 'rev' in line or 'REV' in line:
-                        # can no longer name reactants rev...
-                        line = f.readline()
-
                     if '=' in line and not lineStartsWithComment:
                         # Finish previous record
                         kineticsList.append(kinetics)
@@ -1282,8 +1295,10 @@ def loadChemkinFile(path, speciesList=None):
                         commentsList = ['' for kinetics in kineticsList]
 
                 for kinetics, comments in zip(kineticsList, commentsList):
-                    reaction = readKineticsEntry(kinetics, speciesDict, energyUnits, moleculeUnits)
+                    reaction,revReaction = readKineticsEntry(kinetics, speciesDict, energyUnits, moleculeUnits)
                     reactionList.append(reaction)
+                    if revReaction is not None:
+                        reactionList.append(revReaction)
 
             elif 'TRAN' in line:
                 line = f.readline()
