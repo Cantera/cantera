@@ -221,21 +221,21 @@ class Reaction(object):
     `products`          :class:`list`               The product species (as :class:`Species` objects)
     `kinetics`          :class:`KineticsModel`      The kinetics model to use for the reaction
     `reversible`        ``bool``                    ``True`` if the reaction is reversible, ``False`` if not
-    `thirdBody`         ``bool``                    ``True`` if the reaction if the reaction kinetics imply a third body, ``False`` if not
     `duplicate`         ``bool``                    ``True`` if the reaction is known to be a duplicate, ``False`` if not
+    `fwdOrders`         ``dict``                    Reaction order (value) for each specified species (key)
     =================== =========================== ============================
 
     """
 
     def __init__(self, index=-1, reactants=None, products=None, kinetics=None,
-                 reversible=True, thirdBody=False, duplicate=False):
+                 reversible=True, duplicate=False, fwdOrders=None):
         self.index = index
         self.reactants = reactants
         self.products = products
         self.kinetics = kinetics
         self.reversible = reversible
-        self.thirdBody = thirdBody
         self.duplicate = duplicate
+        self.fwdOrders = fwdOrders if fwdOrders is not None else {}
 
     def __str__(self):
         """
@@ -253,38 +253,17 @@ class Reaction(object):
 
         kinstr = self.kinetics.to_cti(reactantstr, arrow, productstr, indent)
 
+        k_indent = ' ' * (kinstr.find('(') + 1)
+
         if self.duplicate:
-            k_indent = ' ' * (kinstr.find('(') + 1)
             kinstr = kinstr[:-1] + ",\n{0}options='duplicate')".format(k_indent)
 
+        if self.fwdOrders:
+            order = ' '.join('{0}:{1}'.format(k,v)
+                             for (k,v) in self.fwdOrders.items())
+            kinstr = kinstr[:-1] + ",\n{0}order='{1}')".format(k_indent, order)
+
         return kinstr
-
-        if self.thirdBody:
-            reactantstr += ' + M'
-            productstr += ' + M'
-            ctiReactionClass = 'three_body_reaction'
-        elif isinstance(self.kinetics, (Lindemann, Troe, Chebyshev)):
-            reactantstr += ' (+ M)'
-            productstr += ' (+ M)'
-            ctiReactionClass = 'falloff_reaction'
-        else:
-            ctiReactionClass = 'reaction'
-
-        prefix = ' '*(indent+len(self.rxnClass+1))
-        reactionstr = reactantstr + arrow + productstr
-
-        if isinstance(self.kinetics, (Arrhenius, ThirdBody)):
-            Arates = ' [{0.A}, {0.n}, {0.Ea}]'.format(self.kinetics)
-        else:
-            Arates = ''
-
-        lines = ['{0}({1!r}{2},'.format(ctiReactionClass, reactionstr, Arates)]
-
-        if self.thirdBody:
-            lines.append(prefix + 'efficiencies=')
-
-        lines[-1] = lines[-1][:-1] + ')'
-        return '\n'.join(lines)
 
 ################################################################################
 
@@ -1002,7 +981,6 @@ def readKineticsEntry(entry, speciesDict, energyUnits, moleculeUnits):
         pdepArrhenius = None
         efficiencies = {}
         chebyshevCoeffs = []
-        explicitReverseRate = False
 
         # Note that the subsequent lines could be in any order
         for line in lines[1:]:
@@ -1023,7 +1001,6 @@ def readKineticsEntry(entry, speciesDict, energyUnits, moleculeUnits):
 
             elif 'rev' in line.lower():
                 reaction.reversible = False
-                explicitReverseRate = True
 
                 # Create a reaction proceeding in the opposite direction
                 revReaction = Reaction(reactants=reaction.products,
@@ -1036,6 +1013,10 @@ def readKineticsEntry(entry, speciesDict, energyUnits, moleculeUnits):
                     Ea = (float(tokens[2].strip()),"kcal/mol"),
                     T0 = (1,"K"),
                 )
+
+            elif 'ford' in line.lower():
+                tokens = tokens[1].split()
+                reaction.fwdOrders[tokens[0].strip()] = tokens[1].strip()
 
             elif 'TROE' in line or 'troe' in line:
                 # Troe falloff parameters
@@ -1149,10 +1130,8 @@ def readKineticsEntry(entry, speciesDict, energyUnits, moleculeUnits):
         elif thirdBody:
             reaction.kinetics = ThirdBody(arrheniusHigh=arrheniusHigh)
             reaction.kinetics.efficiencies = efficiencies
-        elif reaction.duplicate or explicitReverseRate:
-            reaction.kinetics = arrheniusHigh
         else:
-            raise InputParseError('Unable to determine pressure-dependent kinetics for reaction {0}.'.format(reaction))
+            reaction.kinetics = arrheniusHigh
 
     return reaction, revReaction
 
