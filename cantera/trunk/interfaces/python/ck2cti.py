@@ -111,7 +111,7 @@ class Species(object):
 
 ################################################################################
 
-class ThermoModel:
+class ThermoModel(object):
     """
     A base class for thermodynamics models, containing several attributes
     common to all models:
@@ -713,6 +713,63 @@ class Troe(Lindemann):
 
 ################################################################################
 
+class Sri(Lindemann):
+    """
+    A kinetic model of a phenomenological rate coefficient k(T, P) using the
+    "SRI" formulation of the blending function :math:`F` using either 3 or
+    5 parameters. See :ref:`sec-sri-falloff`.
+
+    The attributes are:
+
+    =============== ======================= ====================================
+    Attribute       Type                    Description
+    =============== ======================= ====================================
+    `arrheniusLow`  :class:`Arrhenius`      The Arrhenius kinetics at the low-pressure limit
+    `arrheniusHigh` :class:`Arrhenius`      The Arrhenius kinetics at the high-pressure limit
+    `efficiencies`  ``dict``                A mapping of species to collider efficiencies
+    `A`            ``float``                The :math:`a` parameter
+    `B`            ``float``                The :math:`b` parameter
+    `C`            ``float``                The :math:`c` parameter
+    `D`            ``float``                The :math:`d` parameter
+    `E`            ``float``                The :math:`e` parameter
+    =============== ======================= ====================================
+    """
+
+    def __init__(self, arrheniusLow=None, arrheniusHigh=None, efficiencies=None,
+                 A=0.0, B=0.0, C=0.0, D=1.0, E=0.0,
+                 Tmin=None, Tmax=None, Pmin=None, Pmax=None, comment=''):
+        Lindemann.__init__(self, arrheniusLow=arrheniusLow,
+                           arrheniusHigh=arrheniusHigh,
+                           efficiencies=efficiencies, Tmin=Tmin, Tmax=Tmax,
+                           Pmin=Pmin, Pmax=Pmax, comment=comment)
+        self.A = A
+        self.B = B
+        self.C = C
+        self.D = D
+        self.E = E
+
+    def to_cti(self, reactantstr, arrow, productstr, indent=0):
+        rxnstr = reactantstr + ' (+ M)' + arrow + productstr + ' (+ M)'
+        prefix = ' '*17
+        lines = ['falloff_reaction({0!r},'.format(rxnstr),
+                 prefix + 'kf={0},'.format(self.arrheniusHigh.rateStr()),
+                 prefix + 'kf0={0},'.format(self.arrheniusLow.rateStr())]
+
+        if self.D == 1.0 and self.E == 0.0:
+            sriArgs = 'A={0.A}, B={0.B}, C={0.C}'.format(self)
+        else:
+            sriArgs = 'A={0.A}, B={0.B}, C={0.C}, D={0.D}, E={0.E}'.format(self)
+        lines.append(prefix + 'falloff=SRI({0}),'.format(sriArgs))
+
+        if self.efficiencies:
+            lines.append(prefix + 'efficiencies={0!r},'.format(self.efficiencyString()))
+
+        # replace trailing comma
+        lines[-1] = lines[-1][:-1] + ')'
+        return '\n'.join(lines)
+
+################################################################################
+
 class TransportData(object):
     geometryFlags = ['atom', 'linear', 'nonlinear']
 
@@ -939,6 +996,7 @@ def readKineticsEntry(entry, speciesDict, energyUnits, moleculeUnits):
         # There's more kinetics information to be read
         arrheniusLow = None
         troe = None
+        sri = None
         chebyshev = None
         pdepArrhenius = None
         efficiencies = {}
@@ -979,6 +1037,23 @@ def readKineticsEntry(entry, speciesDict, energyUnits, moleculeUnits):
                     T1 = (T1,"K"),
                     T2 = (T2,"K") if T2 is not None else None,
                 )
+            elif 'sri' in line.lower():
+                # SRI falloff parameters
+                tokens = tokens[1].split()
+                A = float(tokens[0].strip())
+                B = float(tokens[1].strip())
+                C = float(tokens[2].strip())
+                try:
+                    D = float(tokens[3].strip())
+                    E = float(tokens[4].strip())
+                except (IndexError, ValueError):
+                    D = None
+                    E = None
+
+                if D is None or E is None:
+                    sri = Sri(A=A, B=B, C=C)
+                else:
+                    sri = Sri(A=A, B=B, C=C, D=D, E=E)
 
             elif 'CHEB' in line or 'cheb' in line:
                 # Chebyshev parameters
@@ -1046,6 +1121,11 @@ def readKineticsEntry(entry, speciesDict, energyUnits, moleculeUnits):
             troe.arrheniusLow = arrheniusLow
             troe.efficiencies = efficiencies
             reaction.kinetics = troe
+        elif sri is not None:
+            sri.arrheniusHigh = arrheniusHigh
+            sri.arrheniusLow = arrheniusLow
+            sri.efficiencies = efficiencies
+            reaction.kinetics = sri
         elif arrheniusLow is not None:
             reaction.kinetics = Lindemann(arrheniusHigh=arrheniusHigh, arrheniusLow=arrheniusLow)
             reaction.kinetics.efficiencies = efficiencies

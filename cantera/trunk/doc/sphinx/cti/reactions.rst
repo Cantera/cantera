@@ -269,6 +269,8 @@ al. [#Gilbert1983]_:
 The :class:`Troe` directive requires specifying the first three parameters
 :math:`(A, T_3, T_1)`. The fourth parameter, :math:`T_2`, is optional, defaulting to 0.0.
 
+.. _sec-sri-falloff:
+
 The SRI Falloff Function
 ------------------------
 
@@ -385,7 +387,7 @@ temperatures and pressure for which they are defined is strongly discouraged.
    Zhiwei Qin. GRI-Mech version 3.0, 1997. see
    http://www.me.berkeley.edu/gri_mech.
 
-.. [#Stewart1989] P. H. Stewart, C. W. Larson, and D. Golden. 
+.. [#Stewart1989] P. H. Stewart, C. W. Larson, and D. Golden.
    *Combustion and Flame*, 75:25, 1989.
 
 .. [#Kee1989] R. J. Kee, F. M. Rupley, and J. A. Miller. Chemkin-II: A Fortran
