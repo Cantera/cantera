@@ -681,6 +681,9 @@ namespace Cantera {
      *    The factor,  m_ScaleSolnNormToResNorm, is computed periodically to ensure that the solution norms
      *    and the residual norms are converging at the same time and thus accounts for some-illconditioning issues
      *    but not all.
+     *
+     *    With this routine the user can override or add to the residual weighting norm evaluation by specifying
+     *    their own vector of residual absolute and relative tolerances.
      *    
      *   The user specified tolerance for the residual is given by the following quantity
      *

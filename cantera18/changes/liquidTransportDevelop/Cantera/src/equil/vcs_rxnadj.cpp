@@ -92,9 +92,11 @@ namespace VCSnonideal {
 	  /******* MULTISPECIES PHASE WITH total moles equal to zero *********/
 	  /*******************************************************************/
 	  /* 
-	   *   If dg[irxn] is negative, then the multispecies phase should
+	   *   If dg[irxn] is negative, then species in a multispecies phase should
 	   *   come alive again. Add a small positive step size to 
 	   *   make it come alive. 
+	   *
+	   *  HKM CHANGE - no phase pops from this section of code!
 	   */
 	  if (m_deltaGRxn_new[irxn] < -1.0e-4) {
 	    /*
@@ -104,8 +106,9 @@ namespace VCSnonideal {
 	    iph = m_phaseID[kspec];
 	    double tphmoles = m_tPhaseMoles_old[iph];
 	    double trphmoles = tphmoles / m_totalMolNum;
-	    if (trphmoles > VCS_DELETE_PHASE_CUTOFF) {
-	      m_deltaMolNumSpecies[kspec] = m_totalMolNum * VCS_SMALL_MULTIPHASE_SPECIES;
+	    Vphase = m_VolPhaseList[iph];
+	    if (Vphase->exists() > 0 && trphmoles > VCS_DELETE_PHASE_CUTOFF) {
+	      m_deltaMolNumSpecies[kspec] = m_totalMolNum * VCS_SMALL_MULTIPHASE_SPECIES * 10.;
 	      if (m_speciesStatus[kspec] == VCS_SPECIES_STOICHZERO) {
 		m_deltaMolNumSpecies[kspec] = 0.0;
 #ifdef DEBUG_MODE	   
@@ -115,7 +118,7 @@ namespace VCSnonideal {
 			m_deltaGRxn_new[irxn]);
 #endif
 	      } else {
-		m_deltaMolNumSpecies[kspec] = m_totalMolNum * VCS_SMALL_MULTIPHASE_SPECIES;
+		m_deltaMolNumSpecies[kspec] = m_totalMolNum * VCS_SMALL_MULTIPHASE_SPECIES * 10.;
 #ifdef DEBUG_MODE	   
 	      sprintf(ANOTE,
 		      "MultSpec (%s): small species born again DG = %11.3E", 
@@ -123,16 +126,22 @@ namespace VCSnonideal {
 		      m_deltaGRxn_new[irxn]);
 #endif
 	      }
-	    } else {
+	    }
+            else {
 #ifdef DEBUG_MODE
-	      sprintf(ANOTE, "MultSpec (%s): phase come alive DG = %11.3E", 
+	      sprintf(ANOTE, "MultSpec (%s):still dead, no phase pop, even though DG = %11.3E",
 		      vcs_speciesType_string(m_speciesStatus[kspec], 15),
 		      m_deltaGRxn_new[irxn]);   
 #endif
-	      Vphase = m_VolPhaseList[iph];
-	      int numSpPhase = Vphase->nSpecies();
-	      m_deltaMolNumSpecies[kspec] = 
-		m_totalMolNum * 10.0 * VCS_DELETE_PHASE_CUTOFF / numSpPhase;
+	      m_deltaMolNumSpecies[kspec] = 0.0;
+	      if (Vphase->exists() > 0 && trphmoles > 0.0) {
+		m_deltaMolNumSpecies[kspec] = m_totalMolNum * VCS_SMALL_MULTIPHASE_SPECIES * 10.;
+#ifdef DEBUG_MODE
+		sprintf(ANOTE, "MultSpec (%s): birthed species because it was zero in a small existing phase with DG = %11.3E",
+			  vcs_speciesType_string(m_speciesStatus[kspec], 15),
+			  m_deltaGRxn_new[irxn]); 	
+#endif
+	      }
 	    }
 
 	  } else {

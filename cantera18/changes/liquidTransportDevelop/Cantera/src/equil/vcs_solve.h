@@ -705,6 +705,9 @@ public:
    */
   double vcs_phaseStabilityTest(const int iph);
 
+  double vcs_phaseStabilityFE_value(const int iph);
+
+
   //! Solve an equilibrium problem at a particular fixed temperature 
   //! and pressure
   /*!
@@ -1450,6 +1453,12 @@ private:
    */
   void vcs_updateMolNumVolPhases(const int stateCalc);
 
+
+  int  vcs_popPhase_calcDeleteDelta(const int iph);
+
+public:
+  int vcs_rank(const double * awtmp, int numSpecies, const double * matrix,  int numElemConstraints, 
+	       std::vector<int> &compRes, std::vector<int> &elemComp, int * const usedZeroedSpecies) const; 
 
 public:
   //! value of the number of species  used to malloc data structures

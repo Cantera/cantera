@@ -702,8 +702,8 @@ namespace Cantera {
     int nct = m_ctrxn.size();
     for (int i = 0; i < nct; i++) {
       int irxn = m_ctrxn[i];
-      if ( m_beta[irxn] > 0.0 )
-	i0[irxn] *= pow( rkc[irxn], m_beta[irxn] );
+      if (m_beta[irxn] > 0.0)
+	i0[irxn] *= pow(rkc[irxn], m_beta[irxn]);
       else
 	// for non electrochemical reactions, the geometric mean between the forward and reverse reactions is interesting.
 	//i0[irxn] = 0.0;
@@ -1437,6 +1437,9 @@ namespace Cantera {
     if (exists) {
       if (!m_phaseExists[iphase]) {
 	m_phaseExistsCheck--;
+        if (m_phaseExistsCheck < 0) {
+           m_phaseExistsCheck = 0;
+        }
 	m_phaseExists[iphase] = true;
       }
       m_phaseIsStable[iphase] = true;

@@ -1,6 +1,6 @@
 /**
  * @file MultiPhase.h
- * Headers for the \link Cantera::MultiPhase MultiPhase\endlink 
+ * Headers for the \link Cantera::se/MultiPhase MultiPhase\endlink 
  * object that is used to set up multiphase equilibrium problems (see \ref equilfunctions).
  */
 
@@ -426,7 +426,7 @@ namespace Cantera {
     doublereal cp() const;
 
     /// Number of phases.
-    index_t nPhases() const {
+    int nPhases() const {
       return m_np;
     }
 
@@ -717,7 +717,7 @@ namespace Cantera {
    */
   inline std::ostream& operator<<(std::ostream& s, Cantera::MultiPhase& x) {
     size_t ip;
-    for (ip = 0; ip < x.nPhases(); ip++) {
+    for (ip = 0; ip < (size_t) x.nPhases(); ip++) {
       if (x.phase(ip).name() != "") {
 	s << "*************** " << x.phase(ip).name() << " *****************" << std::endl;
       }

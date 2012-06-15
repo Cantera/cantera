@@ -3738,11 +3738,12 @@ namespace Cantera {
 	 */
 	doublereal *dyVector = mdp::mdp_alloc_dbl_1(neq_, MDP_DBL_NOINIT);
 	retn = m_func->calcDeltaSolnVariables(time_curr, y, ydot, dyVector, DATA_PTR(m_ewt));
-      
-
-
 	if (s_print_NumJac) {
 	  if (m_print_flag >= 7) {
+	    if (retn != 1) {
+	      printf("\t\t  beuler_jac ERROR! calcDeltaSolnVariables() returned an error flag\n");
+	      printf("\t\t                    We will bail from the nonlinear solver after calculating the jacobian");
+	    }
 	    if (neq_ < 20) {
 	      printf("\t\tUnk            m_ewt              y                dyVector            ResN\n");
 	      for (int iii = 0; iii < neq_; iii++){
@@ -3834,6 +3835,10 @@ namespace Cantera {
 	retn = m_func->calcDeltaSolnVariables(time_curr, y, ydot, dyVector, DATA_PTR(m_ewt));
       	if (s_print_NumJac) {
 	  if (m_print_flag >= 7) {
+	    if (retn != 1) {
+	      printf("\t\t  beuler_jac ERROR! calcDeltaSolnVariables() returned an error flag\n");
+	      printf("\t\t                    We will bail from the nonlinear solver after calculating the jacobian");
+	    }
 	    if (neq_ < 20) {
 	      printf("\t\tUnk            m_ewt              y                dyVector            ResN\n");
 	      for (int iii = 0; iii < neq_; iii++){
@@ -4151,7 +4156,7 @@ namespace Cantera {
    *                          norms are roughly 1 when the residual norm is roughly 1.
    *                          This is the default if this routine is not called.
    *                      1   Use the user residual norm specified by the parameters in this routine
-   *                      2   Use the minimum value of the residual weights calculcated by method 1 and 2.
+   *                      2   Use the minimum value of the residual weights calculcated by method 0 and 1.
    *                          This is the default if this routine is called and this parameter isn't specified.
    */
   void  NonlinearSolver::setResidualTols(double residRtol, double * residATol, int residNormHandling)

@@ -1226,11 +1226,11 @@ namespace VCSnonideal {
       if (m_singleSpecies && (m_phiVarIndex == 0)) {
 	m_existence =  VCS_PHASE_EXIST_ALWAYS;
       } else {
-      if (totalMols > 0.0) {
-	m_existence = VCS_PHASE_EXIST_YES;
-      } else {
-	m_existence = VCS_PHASE_EXIST_NO;
-      }
+	if (totalMols > 0.0) {
+	  m_existence = VCS_PHASE_EXIST_YES;
+	} else {
+	  m_existence = VCS_PHASE_EXIST_NO;
+	}
       }
     }
   }

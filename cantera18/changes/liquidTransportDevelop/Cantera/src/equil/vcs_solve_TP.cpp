@@ -106,7 +106,7 @@ namespace VCSnonideal {
     int forced, iph;
     double dx, xx, par;
     int dofast, soldel, ll = 0, it1 = 0;
-    int lec, npb, iti, i, lnospec;
+    int lec, npb, iti, i, lnospec, ipRes;
     int rangeErrorFound = 0;
     bool giveUpOnElemAbund = false;
     int finalElemAbundAttempts = 0;
@@ -123,7 +123,8 @@ namespace VCSnonideal {
     double atomComp;
     int iphasePop;
     int forceComponentCalc = 1;
-    int iphaseDelete;  /* integer that determines which phase is being deleted */
+    //! integer that determines which phase is being deleted during the main routine.
+    int iphaseDelete;
     std::vector<int> phasePopPhaseIDs(0);
 #ifdef DEBUG_MODE
     char ANOTE[128];
@@ -279,8 +280,7 @@ namespace VCSnonideal {
      */
   L_COMPONENT_CALC: ;
     test = -1.0e-10;
-    retn = vcs_basopt(FALSE, VCS_DATA_PTR(aw), VCS_DATA_PTR(sa),
-		      VCS_DATA_PTR(sm), VCS_DATA_PTR(ss), 
+    retn = vcs_basopt(FALSE, VCS_DATA_PTR(aw), VCS_DATA_PTR(sa), VCS_DATA_PTR(sm), VCS_DATA_PTR(ss), 
 		      test, &usedZeroedSpecies);
     if (retn != VCS_SUCCESS) return retn;
 
@@ -401,28 +401,86 @@ namespace VCSnonideal {
     vcs_dzero(VCS_DATA_PTR(m_deltaMolNumSpecies), m_numSpeciesTot);
 
     /*************************************************************************/
-    /************** DETERMINE IF DEAD PHASES POP INTO EXISTENCE **************/
+    /************** DETERMINE IF LIVE PHASES DIE  *****************************/
+    /*************************************************************************/   
+
+    iphaseDelete = -1;
+    double pValue;
+    ipRes = 0;
+    if (m_numPhases > 1) {
+      if ((m_VCount->Its) % 15 == 11) {
+	for (int iph = 0; iph < m_numPhases; iph++) {
+	  Vphase  = m_VolPhaseList[iph];
+	  int exist = Vphase->exists(); 
+	  if (exist && (Vphase->nSpecies() > 1)) {
+	    pValue = vcs_phaseStabilityFE_value(iph);
+#ifdef DEBUG_MODE
+	    if (m_debug_print_lvl >= 2) {
+	      if (pValue < 0.0) {
+		plogf("   --- vcs_phaseStabilityFE_value(%d) is less than zero: %g\n", iph, pValue);
+	      } else {
+		plogf("   --- vcs_phaseStabilityFE_value(%d) has a value: %g\n", iph, pValue);
+	      }
+	    }
+
+#endif
+	    if (pValue < -1.0E-9) {
+	      ipRes = vcs_popPhase_calcDeleteDelta(iph);
+	      if (ipRes == 1) {
+		iphaseDelete = iph;
+#ifdef DEBUG_MODE
+		if (m_debug_print_lvl >= 2) {
+		  plogf("   --- vcs_phasePop_calcDeleteDelta: Possible to delete phase %d\n", iph);
+		}
+#endif
+		break;
+	      } else { 
+#ifdef DEBUG_MODE
+		if (m_debug_print_lvl >= 2) {
+		  plogf("   --- vcs_phasePop_calcDeleteDelta: Not Possible to delete phase %d\n", iph);  
+		}
+#endif
+		vcs_dcopy(VCS_DATA_PTR(m_molNumSpecies_new), VCS_DATA_PTR(m_molNumSpecies_old), m_numSpeciesTot);
+		vcs_dzero(VCS_DATA_PTR(m_deltaMolNumSpecies), m_numSpeciesTot);
+		vcs_dcopy(VCS_DATA_PTR(m_feSpecies_new), VCS_DATA_PTR(m_feSpecies_old), m_numSpeciesRdc);
+		vcs_dcopy(VCS_DATA_PTR(m_actCoeffSpecies_new), VCS_DATA_PTR(m_actCoeffSpecies_old), m_numSpeciesRdc);
+		vcs_dcopy(VCS_DATA_PTR(m_deltaGRxn_new), VCS_DATA_PTR(m_deltaGRxn_old), m_numRxnRdc);
+		vcs_dcopy(VCS_DATA_PTR(m_deltaGRxn_Deficient), VCS_DATA_PTR(m_deltaGRxn_old), m_numRxnRdc);
+		vcs_dcopy(VCS_DATA_PTR(m_tPhaseMoles_new), VCS_DATA_PTR(m_tPhaseMoles_old), m_numPhases);
+	      }
+	    }
+	  }
+	}
+      }
+    }
+
+    /*************************************************************************/
+    /************** DETERMINE IF LIVE PHASES DIE  *****************************/
     /*************************************************************************/   
     /*
      * First step is a major branch in the algorithm. 
      * We first determine if a phase pops into existence.
      */
     phasePopPhaseIDs.clear();
-    iphasePop = vcs_popPhaseID(phasePopPhaseIDs);
-    /*
-     *
-     */
-    soldel = -1;
-    if (iphasePop >= 0) {
-      soldel = vcs_popPhaseRxnStepSizes(iphasePop);
-      if (soldel == 3) {
-	iphasePop = -1;
+    iphasePop = -1;
+    if (iphaseDelete < 0) {
+      iphasePop = vcs_popPhaseID(phasePopPhaseIDs);
+
+      /*
+       *
+       */
+      soldel = -1;
+      if (iphasePop >= 0) {
+	soldel = vcs_popPhaseRxnStepSizes(iphasePop);
+	if (soldel == 3) {
 #ifdef DEBUG_MODE
-	if (m_debug_print_lvl >= 2) {
-	  plogf("   --- vcs_popPhaseRxnStepSizes() was called but stoich "
-		"prevented phase %d popping\n");
-	}
+	  if (m_debug_print_lvl >= 2) {
+	    plogf("   --- vcs_popPhaseRxnStepSizes() was called but stoich "
+		  "prevented phase %d popping\n", iphasePop);
+	  }
 #endif
+	  iphasePop = -1;
+	}
       }
     }
 
@@ -430,15 +488,15 @@ namespace VCSnonideal {
     /* DETERMINE THE REACTION STEP SIZES FOR MAIN STEP AND IF PHASES DIE *****/
     /*************************************************************************/
     /*
-     * Don't do this step if there is a phase pop
+     * Don't do this step if there is a phase pop just found
      */
-    iphaseDelete = -1;
-    if (iphasePop < 0) {
+    kspec = -1;
+    if ((iphasePop < 0) && (iphaseDelete < 0)) {
       /*
        * Figure out the new reaction step sizes
        * for the major species (do minor species in the future too)  
        */
-      kspec = -1;
+   
       iphaseDelete = vcs_RxnStepSizes(forceComponentCalc, kspec);
     }
    #ifdef DEBUG_MODE
@@ -472,22 +530,10 @@ namespace VCSnonideal {
     /* ***************** LOOP OVER IRXN TO DETERMINE STEP SIZE ************** */
     /* ********************************************************************** */
     /*
-     *   Loop through all of the reactions, irxn, pertaining to the
-     *   formation reaction for species kspec in canonical form.
-     *
-     *   At the end of this loop, we will have a new estimate for the
-     *   mole numbers for all species consistent with an extent
-     *   of reaction for all noncomponent species formation
-     *   reactions. We will have also ensured that all predicted
-     *   non-component mole numbers are greater than zero.
-     *
-     *         Old_Solution               New_Solution             Description
-     * -----------------------------------------------------------------------------
-     *  m_molNumSpecies_old[kspec]   m_molNumSpecies_new[kspec]   Species Mole Numbers
-     *                               m_deltaMolNumSpecies[kspec]  Delta in the Species Mole Numbers
-     *
-     *
-     *
+     *  ALTERNATIVE TO MAIN LOOP 
+     *          Single species phase deletion operation
+     *          phase ID of the phase to be delete =   iphaseDelete
+     *          species index of the phase = kspec
      */    
     if (iphaseDelete >= 0) {
 #ifdef DEBUG_MODE
@@ -496,23 +542,21 @@ namespace VCSnonideal {
 	plogendl();
       }
 #endif
-
+      vcs_dcopy(VCS_DATA_PTR(m_tPhaseMoles_new), VCS_DATA_PTR(m_tPhaseMoles_old), m_numPhases);
       for (k = 0; k < m_numSpeciesTot; k++) { 
 	m_molNumSpecies_new[k] = m_molNumSpecies_old[k] +  m_deltaMolNumSpecies[k];
 	iph = m_phaseID[k];
 	m_tPhaseMoles_new[iph] += m_deltaMolNumSpecies[k];
       }
-      if (kspec >= m_numComponents) {
-	if (m_molNumSpecies_new[k] != 0.0) {
-	  printf("vcs_solve_tp:: we shouldn't be here!\n");
-	  exit(EXIT_FAILURE);
-	}
+     
+      if (kspec >= 0) {
 	if (m_SSPhase[kspec] == 1) {
 	  m_speciesStatus[kspec] = VCS_SPECIES_ZEROEDSS;
 	} else {
 	  printf("vcs_solve_tp:: we shouldn't be here!\n");
 	  exit(EXIT_FAILURE);
 	}
+      
 	++m_numRxnMinorZeroed;
 	allMinorZeroedSpecies = (m_numRxnMinorZeroed == m_numRxnRdc);
       }
@@ -534,7 +578,30 @@ namespace VCSnonideal {
        *         major components only if ITI NE 0 
        */ 
       vcs_deltag(0, false, VCS_STATECALC_NEW);
-    } else {
+    } 
+    /* ********************************************************************** */
+    /* *************MAIN LOOP OVER IRXN TO DETERMINE STEP SIZE ************** */
+    /* ********************************************************************** */
+    /*
+     *   Loop through all of the reactions, irxn, pertaining to the
+     *   formation reaction for species kspec in canonical form.
+     *
+     *   At the end of this loop, we will have a new estimate for the
+     *   mole numbers for all species consistent with an extent
+     *   of reaction for all noncomponent species formation
+     *   reactions. We will have also ensured that all predicted
+     *   non-component mole numbers are greater than zero.
+     *
+     *         Old_Solution               New_Solution             Description
+     * -----------------------------------------------------------------------------
+     *  m_molNumSpecies_old[kspec]   m_molNumSpecies_new[kspec]   Species Mole Numbers
+     *                               m_deltaMolNumSpecies[kspec]  Delta in the Species Mole Numbers
+     *
+     *
+     */    
+    else {
+
+
 #ifdef DEBUG_MODE
       if (m_debug_print_lvl >= 2) {
 	plogf("   --- Main Loop Treatment of each non-component species ");
@@ -1263,8 +1330,7 @@ namespace VCSnonideal {
      *
      *   Accept the step. -> the tentative solution now becomes 
      *                the real solution. If FORCED is true, then 
-     *                we have already done this inside the FORCED 
-     *                loop. 
+     *                we have already done this inside the FORCED loop. 
      */
     vcs_updateMolNumVolPhases(VCS_STATECALC_NEW);
     vcs_dcopy(VCS_DATA_PTR(m_tPhaseMoles_old), VCS_DATA_PTR(m_tPhaseMoles_new), m_numPhases);
@@ -1299,41 +1365,35 @@ namespace VCSnonideal {
      *   absolute zero.
      */
     justDeletedMultiPhase = FALSE;
+    if (iphaseDelete >= 0) {
+      Vphase = m_VolPhaseList[iphaseDelete];
+      if (!(Vphase->m_singleSpecies)) {
+	justDeletedMultiPhase = true;
+	vcs_delete_multiphase(iphaseDelete);
+      }
+    }
     for (iph = 0; iph < m_numPhases; iph++) {
       Vphase = m_VolPhaseList[iph];
       if (!(Vphase->m_singleSpecies)) {
 	if (m_tPhaseMoles_old[iph] != 0.0 &&
 	    m_tPhaseMoles_old[iph]/m_totalMolNum <= VCS_DELETE_PHASE_CUTOFF) {
-	  soldel = 1;
-
-	  for (kspec = 0; kspec < m_numSpeciesRdc; kspec++) {
-	    if (m_phaseID[kspec] == iph && m_molNumSpecies_old[kspec] > 0.0) {
-	      irxn = kspec - m_numComponents;
-	    }
-	  }
-	  if (soldel) {
 #ifdef DEBUG_MODE
-	    if (m_debug_print_lvl >= 1) {
-	      plogf("   --- Setting microscopic phase %d to zero", iph);
-	      plogendl();
-	    }
-#endif
-	    justDeletedMultiPhase = TRUE;
-	    vcs_delete_multiphase(iph);
+	  if (m_debug_print_lvl >= 1) {
+	    plogf("   --- Setting microscopic phase %d to zero", iph);
+	    plogendl();
 	  }
+#endif
+	  justDeletedMultiPhase = TRUE;
+	  vcs_delete_multiphase(iph);
 	} 
       }
     }
     /*
-     *       If we have deleted a multispecies phase because the
-     *       equilibrium moles decreased, then we will update all
-     *       the component basis calculation, and therefore all
-     *       of the thermo functions just to be safe.
+     *  If we have deleted a multispecies phase because the equilibrium moles decreased, then we will update all
+     *  the component basis calculation, and therefore all of the thermo functions just to be safe.
      */
     if (justDeletedMultiPhase) {
-      justDeletedMultiPhase = FALSE;
-      retn = vcs_basopt(FALSE, VCS_DATA_PTR(aw), VCS_DATA_PTR(sa),
-			VCS_DATA_PTR(sm), VCS_DATA_PTR(ss), test, 
+      retn = vcs_basopt(FALSE, VCS_DATA_PTR(aw), VCS_DATA_PTR(sa),VCS_DATA_PTR(sm), VCS_DATA_PTR(ss), test, 
 			&usedZeroedSpecies);
       if (retn != VCS_SUCCESS) {
 #ifdef DEBUG_MODE
@@ -1343,11 +1403,8 @@ namespace VCSnonideal {
       }
       vcs_setFlagsVolPhases(false, VCS_STATECALC_OLD);
       vcs_dfe(VCS_STATECALC_OLD, 0, 0, m_numSpeciesRdc);
-
       vcs_deltag(0, true, VCS_STATECALC_OLD);
       iti = 0;
-      goto  L_MAINLOOP_ALL_SPECIES ;
-    
     }
     /*************************************************************************/
     /***************** CHECK FOR ELEMENT ABUNDANCE****************************/
@@ -1378,7 +1435,11 @@ namespace VCSnonideal {
 	plogendl();
       }
     }
-#endif
+#endif  
+    if (justDeletedMultiPhase) {
+      justDeletedMultiPhase = FALSE;
+      goto  L_MAINLOOP_ALL_SPECIES;
+    }
     /*************************************************************************/
     /***************** CHECK FOR OPTIMUM BASIS *******************************/
     /*************************************************************************/
@@ -2176,7 +2237,7 @@ namespace VCSnonideal {
   }
   /*****************************************************************************/
 
-  //  Change the concentration of a species by delta moles. 
+  //  Change the concentration of a species by delta moles in its formation reaction
   /*
    *  Make sure to conserve elements and keep track of the total kmoles in all phases.
    *
@@ -2382,8 +2443,8 @@ namespace VCSnonideal {
      */
     return (m_numRxnRdc == 0);
   } 
-  /***************************************************************************/
 
+ //====================================================================================================================
   /*
    *  
    *  reinsert_deleted():
@@ -2465,29 +2526,41 @@ namespace VCSnonideal {
       vcs_switch_pos(TRUE, (m_numSpeciesRdc - 1), kspec);
     }
   } 
-  /****************************************************************************/
+  //====================================================================================================================
 
-  // This routine handles the bookkeepking involved with the
-  //  deletion of multiphase phases from the problem. 
+  // This routine handles the bookkeepking involved with the deletion of multiphase phases from the problem. 
   /*
+   *   This routine is called outside of the main interation loop. Therefore,
+   *   deltaMolNumSpecies and old and new molNumSpecies are not important.
+   *
    *   When they are deleted, all of their species become active
    *   species, even though their mole numbers are set to zero.
    *   This routine does not make the decision to eliminate multiphases.
    *
    *   Note, species in phases with zero mole numbers are still
    *   considered active. Whether the phase pops back into
-   *   existence or not is checked as part of the main iteration
-   *   loop.
+   *   existence or not is checked as part of the main iteration loop.
+   *
+   *   -> extended to working with single species phases.
    *
    * @param iph Phase to be deleted
+   *
+   * @return Returns a boolean, indicating whether the phase was deleted with elements being placed in
+   *         alternative places. If true, then element conservation was achieved during the process.
+   *         If false, then the phase was still deleted. However, element conservation during the deletion
+   *         process wasn't achieved.
    */
   bool VCS_SOLVE::vcs_delete_multiphase(const int iph) {
     int kspec, irxn;
     double dx;
     vcs_VolPhase *Vphase = m_VolPhaseList[iph];
+    vcs_VolPhase *Vkphase = 0;
+
     bool successful = true;
+
+    bool isSingleSpeciesPhase = Vphase->m_singleSpecies;      
     /*
-     * set the phase existence flag to dead
+     * set the phase existence flag to dead and set the total moles in the VolPhase class
      */
     Vphase->setTotalMoles(0.0);
 #ifdef DEBUG_MODE
@@ -2497,7 +2570,7 @@ namespace VCSnonideal {
 #endif
   
     /*
-     * Loop over all of the species in the phase.
+     * Loop over all of the non-component species in the phase.
      */
     for (kspec = m_numComponents; kspec < m_numSpeciesRdc; ++kspec) {
       if (m_phaseID[kspec] == iph) {
@@ -2533,56 +2606,84 @@ namespace VCSnonideal {
 	    m_deltaMolNumSpecies[kspec] = 0.0;
 	  }
 	  /*
-	   * Change the status flag of the species to that of an
-	   * zeroed phase
+	   * Change the status flag of the species to that of a species in a zeroed phase
 	   */
-	  m_speciesStatus[kspec] = VCS_SPECIES_ZEROEDMS;
+	  
+	  m_speciesStatus[kspec] = VCS_SPECIES_ZEROEDMS; 
+	  if (isSingleSpeciesPhase) {
+	    m_speciesStatus[kspec] = VCS_SPECIES_ZEROEDSS;
+	  }
 	}
       }
     }
+    /*
+     * Loop over all of the component species in the phase.
+     *       - we try to find species that can absorb the moles of the component species we are trying to zero out
+     *       - don't zero out a species in the process.
+     */
     int jcomp;
     double deltaLarge, dj, dxWant, dxPerm = 0.0, dxPerm2 = 0.0;
-    for (int kcomp = 0; kcomp < m_numComponents; ++kcomp) {
-      if (m_phaseID[kcomp] == iph) {
+    for (int its = 0; its < 3; its++) {
+      for (int kcomp = 0; kcomp < m_numComponents; ++kcomp) {
+	if (m_phaseID[kcomp] == iph) {
 #ifdef DEBUG_MODE
-	if (m_debug_print_lvl >= 2) {
-	  plogf("   --- delete_multiphase   One of the species is a component %d - %s with mole number %g\n",
-		kcomp, m_speciesName[kcomp].c_str(),   m_molNumSpecies_old[kcomp]);
-	}
+	  if (m_debug_print_lvl >= 2) {
+	    plogf("   --- delete_multiphase   One of the species is a component %d - %s with mole number %g\n",
+		  kcomp, m_speciesName[kcomp].c_str(),   m_molNumSpecies_old[kcomp]);
+	  }
 #endif
-	if (m_molNumSpecies_old[kcomp] != 0.0) {
-	  deltaLarge = 0.0;
-	  for (kspec = m_numComponents; kspec < m_numSpeciesRdc; ++kspec) {
-	    irxn = kspec - m_numComponents;
-	    if (m_phaseID[kspec] != iph) {
-	      if (m_stoichCoeffRxnMatrix[irxn][kcomp] != 0.0) {
-		dxWant = -m_molNumSpecies_old[kcomp] / m_stoichCoeffRxnMatrix[irxn][kcomp];
-		if (dxWant + m_molNumSpecies_old[kspec]  < 0.0) {
-		  dxPerm = -m_molNumSpecies_old[kspec];
-		}
-		for (jcomp = 0;  kcomp < m_numComponents; ++kcomp) {
-		  if (jcomp != kcomp) {
-		    if (m_phaseID[jcomp] == iph) {
-		      dxPerm = 0.0;
-		    } else {
-		      dj = dxWant * m_stoichCoeffRxnMatrix[irxn][jcomp];
-		      if (dj + m_molNumSpecies_old[kcomp]  < 0.0) {
-			dxPerm2 = -m_molNumSpecies_old[kcomp] / m_stoichCoeffRxnMatrix[irxn][jcomp];
+	  if (m_molNumSpecies_old[kcomp] != 0.0) {
+	    deltaLarge = 0.0;
+	    for (kspec = m_numComponents; kspec < m_numSpeciesRdc; ++kspec) {
+	      irxn = kspec - m_numComponents;
+	      int kph = m_phaseID[kspec];
+	      if (kph != iph) {
+		if (m_stoichCoeffRxnMatrix[irxn][kcomp] != 0.0) {
+		  Vkphase = m_VolPhaseList[kph];
+		  if (Vkphase->exists() > 0) {
+		    dxWant = -m_molNumSpecies_old[kcomp] / m_stoichCoeffRxnMatrix[irxn][kcomp];
+		    dxPerm = dxWant;
+		    dxPerm2 = dxWant;
+		    if (dxWant + m_molNumSpecies_old[kspec]  < 0.5 * m_molNumSpecies_old[kspec]) {
+		      dxPerm = - 0.5 * m_molNumSpecies_old[kspec];
+		    }
+		    for (jcomp = 0; jcomp < m_numComponents; ++jcomp) {
+		      if (jcomp != kcomp) {
+			if (m_phaseID[jcomp] == iph) {
+			  dxPerm = 0.0;
+			} else {
+			  kph = m_phaseID[jcomp];
+			  Vkphase = m_VolPhaseList[kph];
+			  if (Vkphase->exists() <= 0) {
+			    dxPerm = 0.0;
+			  } else {
+			    dj = dxWant * m_stoichCoeffRxnMatrix[irxn][jcomp];
+			    if (dj + m_molNumSpecies_old[kcomp]  < 0.5 * m_molNumSpecies_old[kcomp]) {
+			      dxPerm2 = - 0.5 * m_molNumSpecies_old[kcomp] / m_stoichCoeffRxnMatrix[irxn][jcomp];
+			    }
+			    if (fabs(dxPerm2) < fabs(dxPerm)) {
+			      dxPerm = dxPerm2;
+			    }
+			  }
+			}
 		      }
-		      if (fabs(dxPerm2) < fabs(dxPerm)) {
-			dxPerm = dxPerm2;
+		    }		
+		    if (dxPerm != 0.0) {
+		      delta_species(kspec, &dxPerm);
+		      if (m_molNumSpecies_old[kcomp] == 0.0) {
+			break;
 		      }
 		    }
 		  }
 		}
 	      }
-	      if (dxPerm != 0.0) {
-		delta_species(kspec, &dxPerm);
-	      }
 	    }
-	  }
-
+	  }  
 	}
+      }
+    }
+    for (int kcomp = 0; kcomp < m_numComponents; ++kcomp) {
+      if (m_phaseID[kcomp] == iph) {
 	if (m_molNumSpecies_old[kcomp] != 0.0) {
 #ifdef DEBUG_MODE
 	  if (m_debug_print_lvl >= 2) {
@@ -2591,13 +2692,18 @@ namespace VCSnonideal {
 	    plogf("   ---                     zeroing it \n");
 	  }
 #endif
+	  successful = false;
 	  m_molNumSpecies_old[kcomp] = 0.0;
 	}
+	m_molNumSpecies_new[kcomp]  = 0.0;
+	m_deltaMolNumSpecies[kcomp] = 0.0;
 	m_speciesStatus[kcomp] = VCS_SPECIES_ZEROEDMS;
+	if (isSingleSpeciesPhase) {
+	  m_speciesStatus[kspec] = VCS_SPECIES_ZEROEDSS;
+	}
       }
     }
   
-
     /*
      *   Loop over all of the inactive species in the phase:
      *   Right now we reinstate all species in a deleted multiphase.
@@ -2639,10 +2745,6 @@ namespace VCSnonideal {
     m_tPhaseMoles_old[iph] = 0.0;
     m_tPhaseMoles_new[iph] = 0.0;
     m_deltaPhaseMoles[iph] = 0.0;
-    /*
-     * Upload the state to the VP object
-     */
-    Vphase->setTotalMoles(0.0);
     
     return successful;
   } 
@@ -5161,6 +5263,10 @@ namespace VCSnonideal {
 	   *      Calculate deltaGRxn[] for each species in a zeroed multispecies phase.
 	   *      All of the m_deltaGRxn_new[]'s will be equal. If deltaGRxn[] is 
 	   *      negative, then the phase will come back into existence.
+	   *
+	   *  HKM -> WORKING TO GET RID OF THIS MULTIPLE USE OF deltaGRxn. In futre
+	   *         deltaGRxn will indicate the deltaG for the species. Phases pops
+	   *         will be handled by logic.
 	   */
 	  for (k = 0; k < Vphase->nSpecies(); k++) {
 	    kspec = Vphase->spGlobalIndexVCS(k);

@@ -18,8 +18,8 @@
  *
  *====================================================================*/
 
-#ifndef TOK_INPUT_UTIL_H
-#define TOK_INPUT_UTIL_H
+#ifndef CKTOOLS_TOK_INPUT_UTIL_H
+#define CKTOOLS_TOK_INPUT_UTIL_H
 
 #include "stdio.h"
 

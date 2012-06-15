@@ -1351,6 +1351,7 @@ C
       DIMENSION RPAR(*),IPAR(*)
       CHARACTER MSG*80
       EXTERNAL  RES, JAC, PSOL, DDASID, DDASIK, DNEDD, DNEDK
+      INTEGER*8 FFFOUR
 C
 C     Set pointers into IWORK.
 C
@@ -1695,7 +1696,8 @@ C
 C
 C     Compute unit roundoff and HMIN.
 C
-      UROUND = D1MACH(4)
+      FFFOUR = 4
+      UROUND = D1MACH(FFOUR)
       RWORK(LROUND) = UROUND
       HMIN = 4.0D0*UROUND*MAX(ABS(T),ABS(TOUT))
 C

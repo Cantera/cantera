@@ -338,7 +338,9 @@ namespace Cantera {
    
     int posStraddle = 0;
     int retn = ROOTFIND_FAILEDCONVERGENCE;
+    // True if we have found a function value with a positive value above fnoise
     int foundPosF = 0;
+    // True if we have found a function value with a negative value above fnoise
     int foundNegF = 0;
     int foundStraddle = 0;
     doublereal xPosF = 0.0;
@@ -577,6 +579,8 @@ namespace Cantera {
       }
 #endif
       deltaXnew = xnew - x2;
+
+
       /*
        * If the suggested step size is too big, throw out step
        */
@@ -585,11 +589,16 @@ namespace Cantera {
 	  useNextStrat = true;
 	  rfT.reasoning += "Too large change in xnew from slope. ";
 	}
-	if (fabs(deltaXnew) < fabs(deltaX2)) {
+	/*
+	 * If we haven't found a straddle, boost the step size by 20% so that we will tend to overshoot.
+	 * This also prevents the step from ping-ponging back and forth between the same points
+	 */
+	if (fabs(deltaXnew) <1.2 * fabs(deltaX2)) {
 	  deltaXnew = 1.2 * deltaXnew;
 	  xnew = x2 + deltaXnew;
 	}
       }
+
       /*
        * If the slope can't be trusted using a different strategy for picking the next point
        */
@@ -670,15 +679,15 @@ namespace Cantera {
 	 */
 	xDelMin = fabs(x2 - x1) / 10.;
 	if (fabs(xnew - x1) < xDelMin) {
-	  xnew = x1 + DSIGN(xnew-x1) * xDelMin;
+	  xnew = x1 + DSIGN(x2-x1) * xDelMin;
 #ifdef DEBUG_MODE
 	  if (printLvl >= 3 && writeLogAllowed_) {
-	    fprintf(fp, " | x10%% = %-11.5E", xnew);
+	    fprintf(fp, " | x10%% = %-21.15E", xnew);
 	  }
 #endif
 	}
 	if (fabs(xnew - x2) < 0.1 * xDelMin) {
-	  xnew = x2 + DSIGN(xnew-x2) * 0.1 *  xDelMin; 
+	  xnew = x2 + DSIGN(x1-x2) * 0.1 *  xDelMin; 
 #ifdef DEBUG_MODE
 	  if (printLvl >= 3 && writeLogAllowed_) {
 	    fprintf(fp, " | x10%% = %-11.5E", xnew);
@@ -712,7 +721,7 @@ namespace Cantera {
 	 */
 	xDelMin = 0.1 * fabs(x2 - x1);
 	if (fabs(xnew - x2) < xDelMin) {
-	  xnew = x2 + DSIGN(xnew - x2) * xDelMin;
+	  xnew = x2 + DSIGN(x2 - x1) * xDelMin;
 #ifdef DEBUG_MODE
 	  if (printLvl >= 3 && writeLogAllowed_) {
 	    fprintf(fp, " | x10%% = %-11.5E", xnew);
@@ -720,7 +729,7 @@ namespace Cantera {
 #endif
 	}
 	if (fabs(xnew - x1) < xDelMin) {
-	  xnew = x1 + DSIGN(xnew - x1) * xDelMin;
+	  xnew = x1 + DSIGN(x1 - x2) * xDelMin;
 #ifdef DEBUG_MODE
 	  if (printLvl >= 3 && writeLogAllowed_) {
 	    fprintf(fp, " | x10%% = %-11.5E", xnew);
@@ -768,6 +777,7 @@ namespace Cantera {
 	    }
 	  }
 	}
+	deltaXnew = xnew - x2;
 #ifdef DEBUG_MODE
 	if (printLvl >= 3 && writeLogAllowed_) {
 	  if (xorig != xnew) {
@@ -778,16 +788,31 @@ namespace Cantera {
       }
 
       /*
-       *  Enforce a minimum stepsize if we haven't found a straddle.
+       *  Enforce a minimum stepsize that would produce roundoff issues if we haven't found a straddle.
        */
       deltaXnew = xnew - x2;
       if (fabs(deltaXnew) < 1.2 * delXMeaningful(xnew)) {
 	if (!foundStraddle) {
-	  sgn = 1.0;
-	  if (x2 > xnew) {
-	    sgn = -1.0;
+
+	  if (FuncIsGenerallyIncreasing_) {
+	    if (foundPosF) {
+	      sgn = -1.0;
+	    } else {
+	      sgn = 1.0;
+	    }
+	  } else if (FuncIsGenerallyDecreasing_) {
+	    if (foundPosF) {
+	      sgn = 1.0;
+	    } else {
+	      sgn = -1.0;
+	    }
+	  } else {
+	    sgn = 1.0;
+	    if (x2 > xnew) {
+	      sgn = -1.0;
+	    }
 	  }
-	  deltaXnew = 1.2 * delXMeaningful(xnew) * sgn;
+	  deltaXnew = 1.25 * delXMeaningful(xnew) * sgn;
 	  rfT.reasoning += "Enforcing minimum stepsize from " + fp2str(xnew - x2) + 
 	    " to " + fp2str(deltaXnew);
 	  xnew = x2 + deltaXnew;
@@ -844,7 +869,7 @@ namespace Cantera {
 	}
 #ifdef DEBUG_MODE
 	if (printLvl >= 3 && writeLogAllowed_) {
-	  fprintf(fp, " | xlimitmin = %-11.5E", xnew);
+	  fprintf(fp, " | xlimitmin = %-21.15E", xnew);
 	}
 #endif
       }
@@ -1372,18 +1397,18 @@ namespace Cantera {
 
   //====================================================================================================================
   void RootFind::printTable() {
-    printf("\t----------------------------------------------------------------------------------------------------------------------------------------\n");
+    printf("\t--------------------------------------------------------------------------------------------------------------------------------------------\n");
     printf("\t  RootFinder Summary table: \n");
     printf("\t         FTarget = %g\n", m_funcTargetValue);
-    printf("\t Iter |       xval             delX        deltaXConv    |    slope    | foundP foundN|   F - F_targ  deltaFConv  |   Reasoning\n");
-    printf("\t----------------------------------------------------------------------------------------------------------------------------------------\n");
+    printf("\t Iter |          xval              delX        deltaXConv    |    slope    | foundP foundN|   F - F_targ  deltaFConv  |   Reasoning\n");
+    printf("\t--------------------------------------------------------------------------------------------------------------------------------------------\n");
     for (int i = 0; i < (int) rfHistory_.size(); i++) {
       struct rfTable rfT = rfHistory_[i]; 
-      printf("\t  %3d |%- 17.11E %- 13.7E  %- 13.7E |%- 13.5E|   %3d   %3d  | %- 12.5E %- 12.5E | %s \n",
+      printf("\t  %3d |%- 21.15E %- 13.7E  %- 13.7E |%- 13.5E|   %3d   %3d  | %- 12.5E %- 12.5E | %s \n",
 	     rfT.its, rfT.xval, rfT.delX, rfT.deltaXConverged, rfT.slope, rfT.foundPos, rfT.foundNeg, rfT.fval,
 	     rfT.deltaFConverged, (rfT.reasoning).c_str());
     }
-    printf("\t----------------------------------------------------------------------------------------------------------------------------------------\n");
+    printf("\t--------------------------------------------------------------------------------------------------------------------------------------------\n");
   }
   //====================================================================================================================
  
