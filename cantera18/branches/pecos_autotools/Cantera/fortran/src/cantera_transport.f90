@@ -46,6 +46,20 @@ contains
       self%err = trans_getMixDiffCoeffs(self%tran_id, d)
     end subroutine ctrans_getMixDiffCoeffs
 
+    subroutine ctrans_getMixDiffCoeffsMass(self, d)
+      implicit none
+      type(phase_t), intent(inout) :: self
+      double precision, intent(out) :: d(*)
+      self%err = trans_getMixDiffCoeffsMass(self%tran_id, d)
+    end subroutine ctrans_getMixDiffCoeffsMass
+    
+    subroutine ctrans_getMixDiffCoeffsMole(self, d)
+      implicit none
+      type(phase_t), intent(inout) :: self
+      double precision, intent(out) :: d(*)
+      self%err = trans_getMixDiffCoeffsMole(self%tran_id, d)
+    end subroutine ctrans_getMixDiffCoeffsMole
+
     subroutine ctrans_getBinDiffCoeffs(self, ld, d)
       implicit none
       type(phase_t), intent(inout) :: self
