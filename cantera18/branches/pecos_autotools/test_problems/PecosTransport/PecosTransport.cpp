@@ -159,8 +159,7 @@ int main(int argc, char** argv) {
     PecosTransport * tranMix = dynamic_cast<PecosTransport *>(tran);
 
     g.setState_TPX(1500.0, pres, DATA_PTR(Xset));
- 
-    
+     
     vector_fp mixDiffs(nsp, 0.0);
     
     tranMix->getMixDiffCoeffsMass(DATA_PTR(mixDiffs));

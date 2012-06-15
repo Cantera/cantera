@@ -62,7 +62,7 @@ namespace Cantera {
    *  state thermo functions by calling the SpeciesThermo object. 
    *
    *  Functions for the calculation of standard state properties for species
-   *  at arbitray pressure are provided in %PecosGasPhase. However, they
+   *  at arbitrary pressure are provided in %IdealGasPhase. However, they
    *  are all derived from their reference state conterparts.
    *  
    *  The standard state enthalpy is independent of pressure:

@@ -1,7 +1,7 @@
 /**
  *
  *  @file PecosGasPhase.cpp
- * ThermoPhase object for the ideal gas equation of
+ * ThermoPhase object for the modified ideal gas equation of
  * state - workhorse for %Cantera (see \ref thermoprops 
  * and class \link Cantera::PecosGasPhase PecosGasPhase\endlink).
  *
