@@ -965,6 +965,26 @@ extern "C" {
         }
     }
 
+    status_t trans_getmixdiffcoeffsmass_(const integer* n, doublereal* d)
+    {
+        try {
+            _ftrans(n)->getMixDiffCoeffsMass(d);
+            return 0;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
+    status_t trans_getmixdiffcoeffsmole_(const integer* n, doublereal* d)
+    {
+        try {
+            _ftrans(n)->getMixDiffCoeffsMole(d);
+            return 0;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
     status_t trans_getbindiffcoeffs_(const integer* n, integer* ld, doublereal* d)
     {
         try {

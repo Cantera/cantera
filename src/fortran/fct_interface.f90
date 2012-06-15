@@ -393,6 +393,16 @@ interface
         double precision, intent(out) :: d(*)
     end function trans_getMixDiffCoeffs
 
+    integer function trans_getMixDiffCoeffsMass(n, d)
+        integer, intent(in) :: n
+        double precision, intent(out) :: d(*)
+    end function trans_getMixDiffCoeffsMass
+
+    integer function trans_getMixDiffCoeffsMole(n, d)
+        integer, intent(in) :: n
+        double precision, intent(out) :: d(*)
+    end function trans_getMixDiffCoeffsMole
+
     integer function trans_getBinDiffCoeffs(n, ld, d)
         integer, intent(in) :: n
         integer, intent(in) :: ld

@@ -740,6 +740,16 @@ public:
     }
 
 
+    //! Returns a vector of mixture averaged diffusion coefficients
+    virtual void getMixDiffCoeffsMole(doublereal* const d) {
+        err("getMixDiffCoeffsMole");
+    }
+
+    //! Returns a vector of mixture averaged diffusion coefficients
+    virtual void getMixDiffCoeffsMass(doublereal* const d) {
+        err("getMixDiffCoeffsMass");
+    }
+
     //! Set model parameters for derived classes
     /*!
      *   This method may be derived in subclasses to set model-specific parameters.
