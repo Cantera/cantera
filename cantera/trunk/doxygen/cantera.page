@@ -1,0 +1,16 @@
+/*! \mainpage The CANTERA Library
+
+<b>Version \version</b>, Build Date: \builddate
+
+Built by: \builduser on \buildhost
+<hr>
+
+\section overview Overview
+
+Cantera is a suite of object-oriented software tools for problems involving chemical kinetics, thermodynamics, and/or transport processes.
+
+With Cantera's object technology, you assemble your architectural masterpiece (i.e application program) from a set of very special bricks you pick up at the Cantera quarry! Each "brick" (or object) represents some well-defined small component of the global structure.
+
+Cantera 2.0 is now in beta. It includes a new build system based on scons, a python build environment, with an alternative autotool system. Cantera includes several new thermodynamics and transport classes, including a large database of aqueous thermodynamics. It may be downloaded as the trunk version of cantera. Documentation for Cantera 2.0 is available at the following link.
+
+*/
