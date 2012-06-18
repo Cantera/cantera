@@ -1,4 +1,4 @@
-h_sources               = LogPrintCtrl.h
+h_sources               = LogPrintCtrl.h application.h units.h
 
 cc_sources              = ct2ctml.cpp ctml.cpp plots.cpp                   \
 			  stringUtils.cpp xml.cpp clockWC.cpp              \
@@ -6,7 +6,10 @@ cc_sources              = ct2ctml.cpp ctml.cpp plots.cpp                   \
 			  checkFinite.cpp application.cpp ctexceptions.cpp \
 	                  global.cpp
 
-AM_CPPFLAGS             = -I$(top_builddir) -I$(top_builddir)/include
+AM_LDFLAGS              = -L$(top_builddir)/build/lib/ 
+LIBS                    = -lexecstream
+
+AM_CPPFLAGS             = -I$(top_builddir) -I$(top_builddir)/include -I$(top_builddir)/ext/libexecstream
 AM_CXXFLAGS             = $(AM_CPPFLAGS)
 
 lib_LTLIBRARIES         = $(top_builddir)/build/lib/libctbase.la
