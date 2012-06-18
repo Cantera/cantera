@@ -1,9 +1,10 @@
 h_sources               = LogPrintCtrl.h
 
-cc_sources              = ct2ctml.cpp ctml.cpp plots.cpp     \
-			  stringUtils.cpp xml.cpp clockWC.cpp         \
-	                  PrintCtrl.cpp LogPrintCtrl.cpp mdp_allo.cpp \
-			  checkFinite.cpp	
+cc_sources              = ct2ctml.cpp ctml.cpp plots.cpp                   \
+			  stringUtils.cpp xml.cpp clockWC.cpp              \
+	                  PrintCtrl.cpp LogPrintCtrl.cpp mdp_allo.cpp      \
+			  checkFinite.cpp application.cpp ctexceptions.cpp \
+	                  global.cpp
 
 AM_CPPFLAGS             = -I$(top_builddir) -I$(top_builddir)/include
 AM_CXXFLAGS             = $(AM_CPPFLAGS)
