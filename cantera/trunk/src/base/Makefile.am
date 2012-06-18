@@ -1,6 +1,5 @@
 h_sources               = LogPrintCtrl.h
 
-
 cc_sources              = ct2ctml.cpp ctml.cpp plots.cpp     \
 			  stringUtils.cpp xml.cpp clockWC.cpp         \
 	                  PrintCtrl.cpp LogPrintCtrl.cpp mdp_allo.cpp \
@@ -24,10 +23,5 @@ __top_builddir__build_lib_libctbase_la_SOURCES      = $(cc_sources) $(h_sources)
 
 __top_builddir__build_lib_libctbase_include_HEADERS = $(h_sources)
 __top_builddir__build_lib_libctbase_includedir = $(prefix)/include
-
-# header file accumulation -- only copy if file updated!
-#all:
-#	@echo copying headers $<
-#	cp -p *.h $(top_builddir)/build/include/
 
 CLEANFILES = *.o
