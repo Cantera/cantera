@@ -1,12 +1,12 @@
 cc_sources = testIAPWSphi.cpp
 
-INC                  = -I$(top_builddir)/build/include/
+INC                  = -I$(top_builddir)/include/
 AM_CPPFLAGS          = $(INC)
 AM_CXXFLAGS          = $(AM_CPPFLAGS)
 
-LINK                 = -lctcxx -luser -loneD -lzeroD -lequil -lkinetics -ltransport -lthermo 
+LINK                 = -loneD -lzeroD -lequil -lkinetics -ltransport -lthermo 
 LINK                += -lctnumerics -lctmath -ltpx -lctspectra -lconverters -lctbase -lcvode 
-LINK                += -lctlapack -lctblas -lctf2c -lm -lstdc++
+LINK                += -lctlapack -lctblas -lctf2c -lm -lstdc++ -pthread
 AM_LDFLAGS           = -L$(top_builddir)/build/lib/ 
 LIBS                 =  $(LINK)
 
