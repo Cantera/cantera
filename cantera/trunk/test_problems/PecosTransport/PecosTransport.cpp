@@ -22,10 +22,12 @@ using namespace std;
 /*****************************************************************/
 /*****************************************************************/
 
-#include "Cantera.h"
-#include "transport.h"
-#include "IdealGasMix.h"
-#include "TransportFactory.h"
+
+#include "cantera/transport.h"
+#include "cantera/IdealGasMix.h"
+#include "cantera/transport/TransportFactory.h"
+
+#include "cantera/Cantera.h"
 
 using namespace Cantera;
 using namespace Cantera_CXX;
@@ -144,9 +146,9 @@ int main(int argc, char** argv) {
     grad_T[1] = (T3 - T1) / dist;
 
     int log_level = 0;
-    Transport * tran = newTransportMgr("Pecos", &g, log_level=0);
+    Transport * tran = newTransportMgr("Mix", &g, log_level=0);
 
-    PecosTransport * tranMix = dynamic_cast<PecosTransport *>(tran);
+    MixTransport * tranMix = dynamic_cast<MixTransport *>(tran);
 
     g.setState_TPX(1500.0, pres, DATA_PTR(Xset));
     
