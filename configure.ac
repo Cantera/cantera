@@ -152,6 +152,7 @@ AC_OUTPUT(Makefile                                                         \
 		   ext/f2c_libs/Makefile      \
 		   ext/f2c_blas/Makefile      \
 		   ext/f2c_lapack/Makefile    \
+		   ext/libexecstream/Makefile    \
 		   ext/cvode/Makefile         \
 		   cantera.pc)                                   
 
