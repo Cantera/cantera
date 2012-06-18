@@ -152,7 +152,6 @@ AC_OUTPUT(Makefile                                                         \
 		   ext/f2c_libs/Makefile      \
 		   ext/f2c_blas/Makefile      \
 		   ext/f2c_lapack/Makefile    \
-		   ext/f2c_math/Makefile      \
 		   ext/cvode/Makefile         \
 		   cantera.pc)                                   
 
@@ -161,7 +160,7 @@ AC_OUTPUT(Makefile                                                         \
 #                   test_problems/nasa9_reader/Makefile                     
 #                   test_problems/rankine_democxx/Makefile                  
 #                   test_problems/VCSnonideal/NaCl_equil/Makefile           
-
+#                   ext/f2c_math/Makefile      \
 
 # FINAL SUMMARY
 AX_SUMMARIZE_CONFIG 

@@ -1,5 +1,5 @@
 h_sources  = 
-cc_sources = atomicWeightDB.cpp CKReader.cpp \
+cc_sources = atomicWeightDB.cpp CKReader.cpp  \
 	     Reaction.cpp thermoFunctions.cpp ck2ct.cpp CKParser.cpp \
 	     ckr_utils.cpp NASA9Parser.cpp Species.cpp writelog.cpp
 
