@@ -1,5 +1,30 @@
 h_sources  = 
-cc_sources = Elements.cpp Phase.cpp RedlichKisterVPSSTP.cpp                \
+cc_sources = ConstCpPoly.cpp ConstDensityThermo.cpp DebyeHuckel.cpp        \
+             Elements.cpp FixedChemPotSSTP.cpp GeneralSpeciesThermo.cpp    \
+             GibbsExcessVPSSTP.cpp HMWSoln.cpp HMWSoln_input.cpp           \
+             IdealGasPhase.cpp IdealMolalSoln.cpp IdealSolidSolnPhase.cpp  \
+	     IdealSolnGasVPSS.cpp IonsFromNeutralVPSSTP.cpp                \
+             LatticePhase.cpp LatticeSolidPhase.cpp MargulesVPSSTP.cpp     \
+	     MetalSHEelectrons.cpp MineralEQ3.cpp                          \
+	     MixedSolventElectrolyte.cpp MixtureFugacityTP.cpp             \
+	     MolalityVPSSTP.cpp MolarityIonicVPSSTP.cpp Mu0Poly.cpp        \
+	     Nasa9Poly1.cpp Nasa9PolyMultiTempRegion.cpp PDSS.cpp          \
+             PDSS_ConstVol.cpp PDSS_HKFT.cpp PDSS_IdealGas.cpp             \
+	     PDSS_IonsFromNeutral.cpp PDSS_SSVol.cpp PDSS_Water.cpp        \
+	     Phase.cpp PhaseCombo_Interaction.cpp PseudoBinaryVPSSTP.cpp   \
+             PureFluidPhase.cpp RedlichKisterVPSSTP.cpp                    \
+             RedlichKwongMFTP.cpp SemiconductorPhase.cpp SingleSpeciesTP.cpp \
+	     SpeciesThermoFactory.cpp SpeciesThermoInterpType.cpp          \
+	     StoichSubstance.cpp SurfPhase.cpp ThermoPhase.cpp             \
+	     StoichSubstanceSSTP.cpp ThermoFactory.cpp VPSSMgr.cpp         \
+             VPSSMgrFactory.cpp VPSSMgr_ConstVol.cpp VPSSMgr_General.cpp   \
+             VPSSMgr_IdealGas.cpp VPSSMgr_Water_ConstVol.cpp               \
+             VPSSMgr_Water_HKFT.cpp VPStandardStateTP.cpp WaterProps.cpp   \
+             WaterPropsIAPWS.cpp WaterPropsIAPWSphi.cpp WaterSSTP.cpp
+
+
+
+#Elements.cpp Phase.cpp RedlichKisterVPSSTP.cpp                \
              ThermoPhase.cpp IdealGasPhase.cpp ConstDensityThermo.cpp      \
              SpeciesThermoFactory.cpp ConstCpPoly.cpp Nasa9Poly1.cpp       \
 	     Nasa9PolyMultiTempRegion.cpp PDSS_Water.cpp PDSS_HKFT.cpp     \

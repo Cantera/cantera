@@ -6,7 +6,8 @@ cc_sources = AqueousTransport.cpp LiquidTransport.cpp MMCollisionInt.cpp \
 	     LiquidTranInteraction.cpp LiquidTransportData.cpp           \
              LiquidTransportParams.cpp TortuosityBase.cpp                \
              TortuosityBruggeman.cpp TortuosityMaxwell.cpp               \
-             TortuosityPercolation.cpp TransportParams.cpp
+             TortuosityPercolation.cpp TransportParams.cpp GasTransport.cpp
+
 
 AM_CPPFLAGS             = -I$(top_builddir)/include
 AM_CXXFLAGS             = $(AM_CPPFLAGS)
