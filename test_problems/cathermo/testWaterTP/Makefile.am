@@ -1,10 +1,10 @@
 cc_sources = testWaterSSTP.cpp
 
-INC                  = -I$(top_builddir)/build/include/
+INC                  = -I$(top_builddir)/include/
 AM_CPPFLAGS          = $(INC)
 AM_CXXFLAGS          = $(AM_CPPFLAGS)
 
-LINK                 = -lctcxx -luser -loneD -lzeroD -lequil -lkinetics -ltransport -lthermo 
+LINK                 = -loneD -lzeroD -lequil -lkinetics -ltransport -lthermo 
 LINK                += -lctnumerics -lctmath -ltpx -lctspectra -lconverters -lctbase -lcvode 
 LINK                += -lctlapack -lctblas -lctf2c -lm -lstdc++
 AM_LDFLAGS           = -L$(top_builddir)/build/lib/ 
@@ -14,7 +14,7 @@ bin_PROGRAMS         = testWaterSSTP
 library_includedir   = $(INC)
 
 #-----------------------
-# Cantera DH graph test
+# Cantera test
 #-----------------------
 
 testWaterSSTP_SOURCES = $(cc_sources)
