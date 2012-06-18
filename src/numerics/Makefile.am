@@ -2,7 +2,8 @@ h_sources  =
 cc_sources = BEulerInt.cpp DenseMatrix.cpp funcs.cpp Func1.cpp ODE_integrators.cpp \
 	     BandMatrix.cpp DAE_solvers.cpp CVodeInt.cpp GeneralMatrix.cpp   \
 	     SquareMatrix.cpp ResidJacEval.cpp NonlinearSolver.cpp IDA_Solver.cpp \
-	     RootFind.cpp solveProb.cpp
+	     RootFind.cpp solveProb.cpp 
+#CVodesIntegrator.cpp  
 
 AM_CPPFLAGS             = -I$(top_builddir)/include/ -I$(top_builddir)
 AM_CXXFLAGS             = $(AM_CPPFLAGS)
