@@ -1,5 +1,5 @@
-cc_sources              = exec-stream.h
-h_sources               = 
+cc_sources              = exec-stream.cpp
+h_sources               = exec-stream.h
 
 AM_CPPFLAGS             = -I.
 AM_CXXFLAGS             = $(AM_CPPFLAGS)
