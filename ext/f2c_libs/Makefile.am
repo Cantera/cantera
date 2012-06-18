@@ -1,7 +1,7 @@
 cc_sources              = abort_.c c_log.c d_atn2.c dfe.c d_prod.c \
                           due.c exit_.c getenv_.c hl_le.c i_dim.c  \
                           inquire.c lread.c pow_ii.c r_acos.c      \
-                          r_dim.c r_nint.c r_tan.c signbit.c       \
+                          r_dim.c r_nint.c r_tan.c                 \
                           uninit.c z_abs.c close.c                 \
                           d_cnjg.c d_imag.c d_sign.c ef1asc_.c     \
                           f77_aloc.c h_abs.c hl_lt.c i_dnnt.c      \
