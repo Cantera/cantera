@@ -7,7 +7,7 @@ cc_sources              = ct2ctml.cpp ctml.cpp plots.cpp                   \
 	                  global.cpp
 
 AM_LDFLAGS              = -L$(top_builddir)/build/lib/ 
-LIBS                    = -lexecstream
+LIBS                    = -L$(top_builddir)/build/lib/ -lexecstream
 
 AM_CPPFLAGS             = -I$(top_builddir) -I$(top_builddir)/include -I$(top_builddir)/ext/libexecstream
 AM_CXXFLAGS             = $(AM_CPPFLAGS)

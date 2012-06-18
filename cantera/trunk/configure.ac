@@ -94,6 +94,13 @@ DX_INIT_DOXYGEN(cantera, doxygen/cantera.dox, docs)
 
 # Generate Output Files
 AC_OUTPUT(Makefile                                                         \
+		   ext/Makefile              \
+		   ext/libexecstream/Makefile    \
+                   ext/f2c_math/Makefile      \
+		   ext/f2c_libs/Makefile      \
+		   ext/f2c_blas/Makefile      \
+		   ext/f2c_lapack/Makefile    \
+		   ext/cvode/Makefile         \
                    test_problems/Makefile                                  \
                    test_problems/mixGasTransport/Makefile                  \
                    test_problems/ChemEquil_gri_matrix/Makefile             \
@@ -148,12 +155,6 @@ AC_OUTPUT(Makefile                                                         \
 		   src/transport/Makefile                          \
                    src/spectra/Makefile src/zeroD/Makefile         \
                    src/equil/Makefile                                     \
-		   ext/Makefile              \
-		   ext/f2c_libs/Makefile      \
-		   ext/f2c_blas/Makefile      \
-		   ext/f2c_lapack/Makefile    \
-		   ext/libexecstream/Makefile    \
-		   ext/cvode/Makefile         \
 		   cantera.pc)                                   
 
 # skipped tests
@@ -161,7 +162,6 @@ AC_OUTPUT(Makefile                                                         \
 #                   test_problems/nasa9_reader/Makefile                     
 #                   test_problems/rankine_democxx/Makefile                  
 #                   test_problems/VCSnonideal/NaCl_equil/Makefile           
-#                   ext/f2c_math/Makefile      \
 
 # FINAL SUMMARY
 AX_SUMMARIZE_CONFIG 
