@@ -1,4 +1,4 @@
-INC                  = -I. -I$(top_builddir)/include/cantera -I$(top_builddir)/test_problems/shared
+INC                  = -I. -I$(top_builddir)/include -I$(top_builddir)/test_problems/shared
 AM_CPPFLAGS          = $(INC)
 AM_CXXFLAGS          = $(AM_CPPFLAGS)
 
