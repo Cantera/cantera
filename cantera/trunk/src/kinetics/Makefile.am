@@ -5,7 +5,7 @@ cc_sources = importKinetics.cpp GRI_30_Kinetics.cpp KineticsFactory.cpp  \
 	     ReactionPath.cpp InterfaceKinetics.cpp ImplicitSurfChem.cpp \
              Group.cpp
 
-AM_CPPFLAGS             = -I$(top_builddir)/include/cantera
+AM_CPPFLAGS             = -I$(top_builddir)/include/
 AM_CXXFLAGS             = $(AM_CPPFLAGS)
 
 lib_LTLIBRARIES         = $(top_builddir)/build/lib/libkinetics.la
