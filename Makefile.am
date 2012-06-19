@@ -2,7 +2,7 @@ include $(top_srcdir)/doxygen/aminclude.am
 
 # Build in these directories:
 SUBDIRS  = ext src test_problems
-SUBDIRS += doxygen
+SUBDIRS += doc
 
 # Distribute these directories:
 DISTDIRS = src

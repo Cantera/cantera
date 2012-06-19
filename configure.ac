@@ -90,7 +90,7 @@ DX_RTF_FEATURE(OFF)
 DX_XML_FEATURE(OFF)
 DX_PDF_FEATURE(ON)
 DX_PS_FEATURE(OFF)
-DX_INIT_DOXYGEN(cantera, doxygen/cantera.dox, docs) 
+DX_INIT_DOXYGEN(cantera, doc/doxygen/cantera.dox, docs) 
 
 # Generate Output Files
 AC_OUTPUT(Makefile                                                         \
@@ -146,7 +146,8 @@ AC_OUTPUT(Makefile                                                         \
                    test_problems/cathermo/VPissp/Makefile                  \
                    test_problems/cathermo/wtWater/Makefile                 \
                    test_problems/PecosTransport/Makefile                   \
-		   doxygen/Makefile                                        \
+		   docs/Makefile                                           \
+		   docs/doxygen/Makefile                                   \
 		   src/Makefile                                            \
                    src/fortran/Makefile                                    \
                    src/base/Makefile                                       \
