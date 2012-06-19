@@ -17,6 +17,7 @@
 // Copyright 2007  Sandia National Laboratories
 
 #include "Nasa9Poly1.h"
+#include "Constituents.h"
 
 namespace Cantera {
 
@@ -68,8 +69,9 @@ namespace Cantera {
   //! Empty constructor
   Nasa9Poly1::Nasa9Poly1() 
     : m_lowT(0.0), m_highT (0.0),
-      m_Pref(1.0E5), m_index (0), m_coeff(array_fp(9)) {}
-
+      m_Pref(1.0E5), m_index (0), m_coeff(array_fp(9)) 
+  {}
+  
 
   // constructor used in templated instantiations
   /*
@@ -87,7 +89,15 @@ namespace Cantera {
     m_highT     (thigh),
     m_Pref      (pref),
     m_index     (n),
-    m_coeff     (array_fp(9)) {
+    m_coeff     (array_fp(9)) 
+  {
+
+    // should error on zero -- cannot take ln(0)
+    if(m_lowT <= 0.0){
+      throw CanteraError("NASA9Poly1 Class",
+			 " Cannot take 0 tmin as input. \n\n");
+    }
+    
     std::copy(coeffs, coeffs + 9, m_coeff.begin());
   }
 
@@ -101,6 +111,13 @@ namespace Cantera {
     m_Pref      (b.m_Pref),
     m_index     (b.m_index),
     m_coeff     (array_fp(9)) {
+
+    // should error on zero -- cannot take ln(0)
+    if(m_lowT <= 0.0){
+      throw CanteraError("NASA9Poly1 Class",
+			 " Cannot take 0 tmin as input. \n\n");
+    }
+    
     std::copy(b.m_coeff.begin(),
 	      b.m_coeff.begin() + 9,
 	      m_coeff.begin());

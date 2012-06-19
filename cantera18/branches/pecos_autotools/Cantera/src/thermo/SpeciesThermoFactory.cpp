@@ -15,7 +15,6 @@
 #pragma warning(disable:4786)
 #endif
 
-
 #include "SpeciesThermoFactory.h"
 using namespace std;
 

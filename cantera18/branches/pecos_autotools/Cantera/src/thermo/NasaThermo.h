@@ -179,6 +179,12 @@ namespace Cantera {
       doublereal thigh = maxTemp;
       const doublereal* clow = c + 1;
 
+      // should error on zero -- cannot take ln(0)
+      if(tlow <= 0.0){
+	throw CanteraError("NASA polynomial Class",
+			   " Cannot take 0 tmin as input. \n\n");
+      }
+
       vector_fp chigh(7);
       copy(c + 8, c + 15, chigh.begin());
 
