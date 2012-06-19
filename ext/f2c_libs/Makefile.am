@@ -1,3 +1,5 @@
+SUBDIRS = arithchk
+
 cc_sources              = abort_.c c_log.c d_atn2.c dfe.c d_prod.c \
                           due.c exit_.c getenv_.c hl_le.c i_dim.c  \
                           inquire.c lread.c pow_ii.c r_acos.c      \
