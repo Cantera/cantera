@@ -107,21 +107,18 @@ namespace Cantera {
     return m_index;
   }
 
-  // Update the properties for this species, given a temperature polynomial
-  /*
-   * This method is called with a pointer to an array containing the functions of
-   * temperature needed by this  parameterization, and three pointers to arrays where the
-   * computed property values should be written. This method updates only one value in
-   * each array.
+  // Update the properties for this species
+  /**
    *
-   * Temperature Polynomial:
-   *  tt[0] = t;
-   *  tt[1] = t*t;
-   *  tt[2] = t*t*t;
-   *  tt[3] = t*t*t*t;
-   *  tt[4] = 1.0/t;
-   *  tt[5] = 1.0/(t*t);
-   *  tt[6] = std::log(t);
+   * \f[
+   * \frac{C_p^0(T)}{R} = \frac{C_v^0(T)}{R} + 1 
+   * \f]
+   *
+   * Where,
+   * \f[
+   * \frac{C_v^0(T)}{R} = \frac{C_v^{tr}(T)}{R} + \frac{C_v^{vib}(T)}{R}
+   * \f]
+   *
    *
    * @param tt      vector of temperature polynomials
    * @param cp_R    Vector of Dimensionless heat capacities.
@@ -134,9 +131,25 @@ namespace Cantera {
   void StatMech::updateProperties(const doublereal* tt, 
 				    doublereal* cp_R, doublereal* h_RT,
 				    doublereal* s_R) const {
-          
+    
+    // translational + rotational specific heat
+    doublereal ctr = 0.0;
+    double atomicity = 0.0;
 
-    doublereal cpdivR = 0.0;
+    // 5/2 * R for molecules, 3/2 * R for atoms
+    if(atomicity < 1.0) // atom
+      {
+	ctr += 3/2 * GasConstant; 
+      }
+    else  // molecule
+      {
+	ctr += 5/2 * GasConstant; 
+	doublereal theta = 1.0;
+	ctr += GasConstant * theta* ( theta* exp(theta/tt[0])/(tt[0]*tt[0]))/((exp(theta/tt[0])-1) * (exp(theta/tt[0])-1));
+      }   
+    doublereal cpdivR = ctr/GasConstant + 1;
+
+    // ACTUNG: fix enthalpy and entropy 
     doublereal hdivRT = 0.0;
     doublereal sdivR  = 0.0;
 
