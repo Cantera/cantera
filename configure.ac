@@ -163,6 +163,7 @@ AC_OUTPUT(Makefile                                                         \
 		   src/transport/Makefile                                  \
                    src/spectra/Makefile src/zeroD/Makefile                 \
                    src/equil/Makefile                                      \
+                   src/tpx/Makefile                                        \
 		   cantera.pc)                                   
 
 # skipped tests
