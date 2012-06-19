@@ -5,6 +5,7 @@
 
 PECOS_extra_dependencies = doxygen/cantera.page \
 			   doxygen/txt_common/about.page \
+			   doxygen/txt_common/gpl.page \
 			   doxygen/txt_common/acknowledgment.page
 
 ## --------------------------------- ##
