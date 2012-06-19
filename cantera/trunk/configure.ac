@@ -62,7 +62,12 @@ typedef  int          ftnlen;       // Fortran hidden string length type
 
 #define STRING_LEN_AT_END
 #define STORE_MOLE_FRACTIONS
-
+                                                                                                                                                            
+#ifdef DEBUG_MODE
+#define DEBUG_MODE_ENABLED 1
+#else
+#define DEBUG_MODE_ENABLED 0
+#endif
 ])
 
 # ------------------------------
