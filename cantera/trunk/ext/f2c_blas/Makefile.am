@@ -60,10 +60,4 @@ __top_builddir__build_lib_libctblas_la_SOURCES      = $(cc_sources) $(h_sources)
 __top_builddir__build_lib_libctblas_include_HEADERS = $(h_sources)
 __top_builddir__build_lib_libctblas_includedir = $(prefix)/include
 
-
 CLEANFILES = *.o
-
-# header file accumulation
-#all:
-#	@echo copying headers $<
-#	cp -p *.h $(top_builddir)/include/
