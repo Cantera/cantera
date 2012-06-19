@@ -1,4 +1,4 @@
-include $(top_srcdir)/doxygen/aminclude.am
+include $(top_srcdir)/doc/doxygen/aminclude.am
 
 # Build in these directories:
 SUBDIRS  = ext src test_problems
