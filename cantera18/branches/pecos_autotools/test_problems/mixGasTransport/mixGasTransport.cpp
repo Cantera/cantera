@@ -158,12 +158,8 @@ int main(int argc, char** argv) {
     Transport * tran = newTransportMgr("Mix", &g, log_level=0);
 
     MixTransport * tranMix = dynamic_cast<MixTransport *>(tran);
-
-
     g.setState_TPX(1500.0, pres, DATA_PTR(Xset));
- 
-    
-    vector_fp mixDiffs(nsp, 0.0);
+     vector_fp mixDiffs(nsp, 0.0);
     
     tranMix->getMixDiffCoeffs(DATA_PTR(mixDiffs));
     printf(" Dump of the mixture Diffusivities:\n");
@@ -255,11 +251,9 @@ int main(int argc, char** argv) {
       printf("sum in y direction = 0\n");
     }
 
-    std::cout << "Sum of Diffusive Mass Fluxes: " << sum1 << std::endl;
-    std::cout << "Sum of Diffusive Mass Fluxes: " << sum2 << std::endl;
+    //std::cout << "Sum of Diffusive Mass Fluxes: " << sum1 << std::endl;
+    //std::cout << "Sum of Diffusive Mass Fluxes: " << sum2 << std::endl;
     
-
-
   }
   catch (CanteraError) {
     showErrors(cout);
