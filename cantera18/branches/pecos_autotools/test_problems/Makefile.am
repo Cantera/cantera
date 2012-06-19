@@ -1,5 +1,5 @@
 
-SUBDIRS  = cathermo mixGasTransport ChemEquil_gri_matrix ChemEquil_gri_pairs
+SUBDIRS  = statmech cathermo mixGasTransport ChemEquil_gri_matrix ChemEquil_gri_pairs
 SUBDIRS += ChemEquil_ionizedGas ChemEquil_red1 CpJump cxx_ex diamondSurf 
 SUBDIRS += diamondSurf_dupl fracCoeff multiGasTransport NASA9poly_test
 SUBDIRS += negATest printUtilUnitTest pureFluidTest silane_equil 

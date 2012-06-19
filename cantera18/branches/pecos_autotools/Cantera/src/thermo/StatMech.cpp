@@ -14,7 +14,7 @@
 namespace Cantera {
 
  
-  // The NASA 9 polynomial parameterization for one temperature range.
+  // Statistical mechanics 
   /*
    * @ingroup spthermo
    */
@@ -23,7 +23,7 @@ namespace Cantera {
   //! Empty constructor
   StatMech::StatMech() 
     : m_lowT(0.0), m_highT (0.0),
-      m_Pref(1.0E5), m_index (0), m_coeff(array_fp(9)) {}
+      m_Pref(1.0E5), m_index (0) {}
 
 
   // constructor used in templated instantiations
@@ -41,9 +41,9 @@ namespace Cantera {
     m_lowT      (tlow),
     m_highT     (thigh),
     m_Pref      (pref),
-    m_index     (n),
-    m_coeff     (array_fp(9)) {
-    std::copy(coeffs, coeffs + 9, m_coeff.begin());
+    m_index     (n)
+  {
+
   }
 
   // copy constructor
@@ -54,11 +54,9 @@ namespace Cantera {
     m_lowT      (b.m_lowT),
     m_highT     (b.m_highT),
     m_Pref      (b.m_Pref),
-    m_index     (b.m_index),
-    m_coeff     (array_fp(9)) {
-    std::copy(b.m_coeff.begin(),
-	      b.m_coeff.begin() + 9,
-	      m_coeff.begin());
+    m_index     (b.m_index)
+  {
+
   }
 
   // assignment operator
@@ -71,9 +69,6 @@ namespace Cantera {
       m_highT  = b.m_highT;
       m_Pref   = b.m_Pref;
       m_index  = b.m_index;
-      std::copy(b.m_coeff.begin(),
-		b.m_coeff.begin() + 9,
-		m_coeff.begin());
     }
     return *this;
   }
@@ -140,26 +135,16 @@ namespace Cantera {
 				    doublereal* cp_R, doublereal* h_RT,
 				    doublereal* s_R) const {
           
-    doublereal ct0 = m_coeff[0] * tt[5];   // a0 / (T^2)
-    doublereal ct1 = m_coeff[1] * tt[4];   // a1 / T
-    doublereal ct2 = m_coeff[2];           // a2
-    doublereal ct3 = m_coeff[3] * tt[0];   // a3 * T
-    doublereal ct4 = m_coeff[4] * tt[1];   // a4 * T^2
-    doublereal ct5 = m_coeff[5] * tt[2];   // a5 * T^3
-    doublereal ct6 = m_coeff[6] * tt[3];   // a6 * T^4
- 
 
-    doublereal cpdivR = ct0 + ct1 + ct2 + ct3 + ct4 + ct5 + ct6;
-    doublereal hdivRT = -ct0 + tt[6]*ct1  + ct2 + 0.5*ct3 + OneThird*ct4  
-      + 0.25*ct5  + 0.2*ct6 + m_coeff[7] * tt[4]; 
-    doublereal sdivR  = -0.5*ct0  - ct1 + tt[6]*ct2  + ct3  + 0.5*ct4 
-      + OneThird*ct5 + 0.25*ct6 + m_coeff[8]; 
+    doublereal cpdivR = 0.0;
+    doublereal hdivRT = 0.0;
+    doublereal sdivR  = 0.0;
 
     // return the computed properties in the location in the output 
     // arrays for this species
     cp_R[m_index] = cpdivR;
     h_RT[m_index] = hdivRT;
-    s_R[m_index] = sdivR;
+    s_R[m_index]  = sdivR;
     //writelog("NASA9poly1: for species "+int2str(m_index)+", h_RT = "+
     //    fp2str(h)+"\n");
   }
@@ -231,7 +216,7 @@ namespace Cantera {
     coeffs[1] = m_lowT;
     coeffs[2] = m_highT;
     for (int i = 0; i < 9; i++) {
-      coeffs[i+3] = m_coeff[i];
+      coeffs[i+3] = 0.0;
     }
 
   }
@@ -241,10 +226,11 @@ namespace Cantera {
    * @param coeffs   Vector of coefficients used to set the
    *                 parameters for the standard state.
    */
-  void StatMech::modifyParameters(doublereal* coeffs) {
-    for (int i = 0; i < 9; i++) {
-      m_coeff[i] = coeffs[i];
-    }            
+  void StatMech::modifyParameters(doublereal* coeffs) 
+  {
+
+    
+
   }
 
 

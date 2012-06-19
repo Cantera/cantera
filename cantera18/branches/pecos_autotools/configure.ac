@@ -95,6 +95,7 @@ DX_INIT_DOXYGEN(cantera, doxygen/cantera.dox, docs)
 # Generate Output Files
 AC_OUTPUT(Makefile                                                         \
                    test_problems/Makefile                                  \
+                   test_problems/statmech/Makefile                         \
                    test_problems/mixGasTransport/Makefile                  \
                    test_problems/ChemEquil_gri_matrix/Makefile             \
                    test_problems/ChemEquil_gri_pairs/Makefile              \
