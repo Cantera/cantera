@@ -102,6 +102,7 @@ AC_OUTPUT(Makefile                                                         \
 		   ext/f2c_blas/Makefile                                   \
 		   ext/f2c_lapack/Makefile                                 \
 		   ext/cvode/Makefile                                      \
+		   ext/cvode/source/Makefile                               \
                    test_problems/Makefile                                  \
                    test_problems/mixGasTransport/Makefile                  \
                    test_problems/ChemEquil_gri_matrix/Makefile             \

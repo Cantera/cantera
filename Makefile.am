@@ -14,7 +14,3 @@ EXTRA_DIST += AUTHORS README
 # Support for pkgconfig
 pkgconfigdir   = $(libdir)/pkgconfig
 pkgconfig_DATA = cantera.pc
-
-#all:
-#	@echo copying config.h
-#	cp -p config.h $(top_builddir)/include/cantera/base
