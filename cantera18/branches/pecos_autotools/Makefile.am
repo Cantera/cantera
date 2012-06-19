@@ -15,5 +15,3 @@ EXTRA_DIST += AUTHORS README
 pkgconfigdir   = $(libdir)/pkgconfig
 pkgconfig_DATA = cantera.pc
 
-
-

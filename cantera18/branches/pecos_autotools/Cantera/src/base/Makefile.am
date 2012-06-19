@@ -29,6 +29,8 @@ __top_builddir__build_lib_libctbase_la_SOURCES      = $(cc_sources) $(h_sources)
 __top_builddir__build_lib_libctbase_include_HEADERS = $(h_sources)
 __top_builddir__build_lib_libctbase_includedir = $(prefix)/include
 
+nodist___top_builddir__build_lib_libctbase_include_HEADERS = $(top_srcdir)/config.h
+
 # header file accumulation -- only copy if file updated!
 all:
 	@echo copying headers $<

@@ -737,9 +737,9 @@ namespace Cantera {
 	    }
 
 	    getFloatArray(fptr->child("floatArray"), cPoly, false);
-	    if (cPoly.size() != 9) {
+	    if (cPoly.size() != 0) {
 	      throw CanteraError("installStatMechThermoFromXML",
-				 "Expected 9 coeff polynomial");
+				 "Expected no coeff: this is not a polynomial representation");
 	    }
 	    np_ptr = new StatMech(k, tmin, tmax, pref,
 				    DATA_PTR(cPoly));
