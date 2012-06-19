@@ -720,6 +720,7 @@ namespace Cantera {
     StatMech *np_ptr = 0; 
     std::vector<StatMech *> regionPtrs;
     doublereal tmin, tmax, pref = OneAtm;
+
     // Loop over all of the possible temperature regions
     for (int i = 0; i < nRegTmp; i++) {
       fptr = tp[i];
@@ -741,10 +742,6 @@ namespace Cantera {
 	      throw CanteraError("installStatMechThermoFromXML",
 				 "Expected no coeff: this is not a polynomial representation");
 	    }
-	    np_ptr = new StatMech(k, tmin, tmax, pref,
-				    DATA_PTR(cPoly));
-	    regionPtrs.push_back(np_ptr);
-	    nRegions++;
 	  } 
 	}
       }
