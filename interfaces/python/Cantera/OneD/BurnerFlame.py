@@ -73,20 +73,17 @@ class BurnerFlame(Stack):
 
 
     def solve(self, loglevel = 1, refine_grid = 1):
-        """Solve the flame. See :meth:`.Stack.solve`"""
         if not self._initialized: self.init()
         Stack.solve(self, loglevel = loglevel, refine_grid = refine_grid)
 
 
     def setRefineCriteria(self, ratio = 10.0, slope = 0.8,
                           curve = 0.8, prune = 0.0):
-        """See :meth:`.Stack.setRefineCriteria`"""
         Stack.setRefineCriteria(self, domain = self.flame,
                                 ratio = ratio, slope = slope, curve = curve,
                                 prune = prune)
 
     def setProfile(self, component, locs, vals):
-        """Set a profile in the flame"""
         self._initialized = 1
         Stack.setProfile(self, self.flame, component, locs, vals)
 
@@ -134,3 +131,5 @@ class BurnerFlame(Stack):
             nm = self.gas.speciesName(n)
             y[n] = self.solution(nm, j)
         self.gas.setState_TPY(self.T(j), self.pressure, y)
+
+fix_docs(BurnerFlame)
