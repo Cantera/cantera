@@ -68,6 +68,21 @@ def reset():
     starting a fresh session."""
     _cantera.ct_appdelete()
 
+def fix_docs(cls):
+    """
+    Inherit method docstrings from parent class if none is specified on the
+    child. Usable as a decorator in Python >= 2.6.
+    """
+    for name, func in vars(cls).items():
+        if not func.__doc__:
+            for parent in cls.__bases__:
+                parfunc = getattr(parent, name)
+                if parfunc and getattr(parfunc, '__doc__', None):
+                    func.__doc__ = parfunc.__doc__
+                    break
+    return cls
+
+
 # workaround for case problems in CVS repository file Mixture.py. On some
 # systems it appears as mixture.py, and on others as Mixture.py
 try:
