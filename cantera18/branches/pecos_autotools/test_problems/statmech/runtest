@@ -11,4 +11,5 @@ CANTERA_DATA=${CANTERA_DATA:=../../data/inputs}; export CANTERA_DATA
 
 CANTERA_BIN=${CANTERA_BIN:=../../bin}
 ./statmech_test > output.txt
-exit 0
+
+exit $?
