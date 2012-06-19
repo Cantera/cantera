@@ -1,8 +1,10 @@
-AM_CPPFLAGS             = -I. -I$(top_builddir)/ext/f2c_libs/
-AM_CXXFLAGS             = $(AM_CPPFLAGS)
+AM_CPPFLAGS             = -I. -I../
+AM_CXXFLAGS             = $(AM_CPPFLAGS) -Wno-deprecated-declarations -pthread
+AM_CFLAGS               = $(AM_CPPFLAGS) -Wno-deprecated-declarations -pthread -finline-functions -Wno-inline -g -Wno-format-security -DNO_FPINIT -DNDEBUG
 AM_FCFLAGS              = $(AM_CPPFLAGS)
+AM_LDFLAGS              = -L$(top_builddir)/build/lib/ -lm
 
-lib_LTLIBRARIES         = 
+lib_LTLIBRARIES         =
 library_includedir      = 
 library_include_HEADERS = $(h_sources)
 
