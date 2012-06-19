@@ -27,6 +27,7 @@ using namespace std;
 #include "Mu0Poly.h"
 #include "Nasa9PolyMultiTempRegion.h"
 #include "Nasa9Poly1.h"
+#include "StatMech.h"
 
 #ifdef WITH_ADSORBATE
 #include "AdsorbateThermo.h"
@@ -704,6 +705,52 @@ namespace Cantera {
     }
   }
 
+  /** 
+   * Install a stat mech based property solver
+   * for species k into a SpeciesThermo instance.
+   */
+  static void installStatMechThermoFromXML(std::string speciesName,
+					SpeciesThermo& sp, int k, 
+					const std::vector<XML_Node*>& tp)
+  { 				
+    const XML_Node * fptr = tp[0];
+    int nRegTmp = tp.size();
+    int nRegions = 0;
+    vector_fp cPoly;
+    StatMech *np_ptr = 0; 
+    std::vector<StatMech *> regionPtrs;
+    doublereal tmin, tmax, pref = OneAtm;
+    // Loop over all of the possible temperature regions
+    for (int i = 0; i < nRegTmp; i++) {
+      fptr = tp[i];
+      if (fptr) {
+	if (fptr->name() == "StatMech") {
+	  if (fptr->hasChild("floatArray")) {
+
+	    tmin = fpValue((*fptr)["Tmin"]);
+	    tmax = fpValue((*fptr)["Tmax"]);
+	    if ((*fptr).hasAttrib("P0")) {
+	      pref = fpValue((*fptr)["P0"]);
+	    }
+	    if ((*fptr).hasAttrib("Pref")) {
+	      pref = fpValue((*fptr)["Pref"]);
+	    }
+
+	    getFloatArray(fptr->child("floatArray"), cPoly, false);
+	    if (cPoly.size() != 9) {
+	      throw CanteraError("installStatMechThermoFromXML",
+				 "Expected 9 coeff polynomial");
+	    }
+	    np_ptr = new StatMech(k, tmin, tmax, pref,
+				    DATA_PTR(cPoly));
+	    regionPtrs.push_back(np_ptr);
+	    nRegions++;
+	  } 
+	}
+      }
+    }
+
+  }
 
   /** 
    * Install an Adsorbate thermodynamic property
@@ -799,6 +846,9 @@ namespace Cantera {
 	}
 	else if (f->name() == "NASA9") {
 	  installNasa9ThermoFromXML(speciesNode["name"], spthermo, k, tp);
+	}
+	else if (f->name() == "StatMech") {
+	  installStatMechThermoFromXML(speciesNode["name"], spthermo, k, tp);
 	}
 	// else if (f->name() == "HKFT") {
 	//	installHKFTThermoFromXML(s["name"], spthermo, k, tp);

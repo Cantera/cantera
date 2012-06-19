@@ -20,7 +20,6 @@
 #include "SpeciesThermoMgr.h"
 #include "NasaPoly1.h"
 #include "speciesThermoTypes.h"
-//#include "polyfit.h"
 #include "global.h"
 
 namespace Cantera {
