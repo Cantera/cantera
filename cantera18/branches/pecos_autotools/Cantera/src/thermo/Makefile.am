@@ -43,7 +43,7 @@ cc_sources = State.cpp Elements.cpp Constituents.cpp Phase.cpp             \
              SingleSpeciesTP.cpp MineralEQ3.cpp                            \
              PseudoBinaryVPSSTP.cpp MargulesVPSSTP.cpp                     \
 	     StoichSubstanceSSTP.cpp PureFluidPhase.cpp StatMech.cpp       \
-	     StoichSubstance.cpp PecosGasPhase.cpp StatMech.cpp
+	     StoichSubstance.cpp PecosGasPhase.cpp
 
 AM_CPPFLAGS             = -I../base
 AM_CXXFLAGS             = $(AM_CPPFLAGS)
