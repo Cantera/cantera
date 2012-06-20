@@ -3,13 +3,13 @@
 <ctml>
   <validate reactions="yes" species="yes"/>
                    
- <!-- phase NaCl(S)    -->
-  <phase dim="3" id="NaCl(S)">
+ <!-- phase Na    -->
+  <phase dim="3" id="Na">
     <elementArray datasrc="elements.xml">
         O H C Fe Ca N Na Cl
     </elementArray>
-    <speciesArray datasrc="#species_NaCl(S)"> NaCl(S) </speciesArray>
-    <thermo model="StoichSubstance">
+    <speciesArray datasrc="#species_test"> Na </speciesArray>
+    <thermo model="IdealGas">
       <density units="g/cm3">2.165</density>
     </thermo>
     <transport model="None"/>
@@ -17,10 +17,10 @@
   </phase>
 
  <!-- species definitions     -->
-  <speciesData id="species_NaCl(S)">
+  <speciesData id="species_test">
 
-    <!-- species NaCl(S)   -->
-    <species name="NaCl(S)">
+    <!-- species Na   -->
+    <species name="Na">
       <atomArray> Na:1 Cl:1 </atomArray>
       <thermo>
         <NASA P0="100000.0" Tmax="1000.0" Tmin="10.0">
