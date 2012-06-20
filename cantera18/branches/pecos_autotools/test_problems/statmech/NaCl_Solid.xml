@@ -4,11 +4,11 @@
   <validate reactions="yes" species="yes"/>
                    
  <!-- phase Na    -->
-  <phase dim="3" id="Na">
+  <phase dim="3" id="H">
     <elementArray datasrc="elements.xml">
         O H C Fe Ca N Na Cl
     </elementArray>
-    <speciesArray datasrc="#species_test"> Na </speciesArray>
+    <speciesArray datasrc="#species_test"> H </speciesArray>
     <thermo model="IdealGas">
       <density units="g/cm3">2.165</density>
     </thermo>
@@ -19,9 +19,9 @@
  <!-- species definitions     -->
   <speciesData id="species_test">
 
-    <!-- species Na   -->
-    <species name="Na">
-      <atomArray> Na:1 Cl:1 </atomArray>
+    <!-- species H   -->
+    <species name="H">
+      <atomArray> H:1 </atomArray>
       <thermo>
         <NASA P0="100000.0" Tmax="1000.0" Tmin="10.0">
           <floatArray name="coeffs" size="7">
