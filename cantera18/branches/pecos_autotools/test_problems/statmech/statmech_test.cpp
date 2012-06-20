@@ -32,7 +32,7 @@ int main(int argc, char** argv)
 {
   int k;
   //IdealGasMix g("gri30.xml", "gri30_mix");
-  IdealGasMix g("NaCl_Solid.xml");
+  IdealGasMix g("test.xml");
   //int nsp = g.nSpecies();
   //double pres = 1.0E5;
   
