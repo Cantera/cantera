@@ -31,13 +31,14 @@ using namespace Cantera_CXX;
 int main(int argc, char** argv) 
 {
   int k;
-  IdealGasMix g("gri30.xml", "gri30_mix");
-  int nsp = g.nSpecies();
-  double pres = 1.0E5;
+  //IdealGasMix g("gri30.xml", "gri30_mix");
+  IdealGasMix g("NaCl_Solid.xml");
+  //int nsp = g.nSpecies();
+  //double pres = 1.0E5;
   
   // transport
-  int log_level = 0;
-  Transport * tran = newTransportMgr("Mix", &g, log_level=0);
+  //int log_level = 0;
+  //Transport * tran = newTransportMgr("Mix", &g, log_level=0);
   
   
 }
