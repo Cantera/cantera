@@ -49,10 +49,19 @@ int main(int argc, char** argv)
     {
       std::cout << cp_R[i] << std::endl;
     }  
+
+  // error check
+  if(cp_R[0] != 0)
+    {
+      std::cout << "Error for monotomic Species!\n";
+      return 1;
+    }
   
   //vector_fp S_R(nsp, 0.0);
   //g.getEntropy_R(DATA_PTR(S_R));
   //printf("  S/R: %11.6g %11.6g %11.6g\n", S_R[0], S_R[1], S_R[2]);
 
+  // Mark it zero!
+  return 0;
 
 }
