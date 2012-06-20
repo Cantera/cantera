@@ -44,6 +44,11 @@ int main(int argc, char** argv)
 
   vector_fp cp_R(nsp, 0.0);
   g.getCp_R(DATA_PTR(cp_R));
+
+  for(int i=0;i<nsp;i++)
+    {
+      std::cout << cp_R[i] << std::endl;
+    }  
   
   //vector_fp S_R(nsp, 0.0);
   //g.getEntropy_R(DATA_PTR(S_R));
