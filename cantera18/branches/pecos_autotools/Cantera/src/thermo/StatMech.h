@@ -21,9 +21,9 @@
 
 #include "global.h"
 #include "SpeciesThermoInterpType.h"
+#include "SpeciesThermoMgr.h"
 
 namespace Cantera {
-
  
   //! 
   /*!

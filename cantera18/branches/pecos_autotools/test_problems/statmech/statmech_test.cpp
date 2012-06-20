@@ -31,7 +31,7 @@ using namespace Cantera_CXX;
 int main(int argc, char** argv) 
 {
   int k;
-  IdealGasMix g("test.xml");
+  IdealGasMix g("test_stat.xml");
   int nsp = g.nSpecies();
   double pres = 1.0E5;
 

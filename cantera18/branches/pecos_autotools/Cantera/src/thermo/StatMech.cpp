@@ -43,6 +43,11 @@ namespace Cantera {
     m_Pref      (pref),
     m_index     (n)
   {
+    // should error on zero -- cannot take ln(0)
+    if(tlow <= 0.0){
+      throw CanteraError("Error in StatMech.cpp",
+			 " Cannot take 0 tmin as input. \n\n");
+    }    
 
   }
 
@@ -86,7 +91,10 @@ namespace Cantera {
 
   // Returns the minimum temperature that the thermo
   // parameterization is valid
-  doublereal StatMech::minTemp() const     { return m_lowT;}
+  doublereal StatMech::minTemp() const     
+  { 
+    return m_lowT;    
+  }
 
   // Returns the maximum temperature that the thermo
   // parameterization is valid
@@ -106,6 +114,141 @@ namespace Cantera {
   int StatMech::speciesIndex() const { 
     return m_index;
   }
+
+
+  // void StatMech::read_species_vibrational_table ()
+  // {
+  //   // ("#===========================================================================\n"
+  //   //  "# LEGEND\n"
+  //   //  "#===========================================================================\n"
+  //   //  "#\n"
+  //   //  "# Species 	-- Species name\n"
+  //   //  "# Theta_v	-- Characteristic vibrational temperature (K)\n"
+  //   //  "# degeneracy   -- degeneracy of the mode\n"
+  //   //  "#\n"
+  //   //  "# Characteristic Temperatures for Simple Harmonic Oscillator Model\n"
+  //   //  "#\n"
+  //   //  "# Species     Theta_v  degeneracy\n"
+
+    
+
+    
+  //   istringstream default_species_vib_data(
+  //      "C2      2.66870e+03   1\n"
+  //      "C2H     5.20100e+03   1\n"
+  //      "C2H     7.20000e+02   2\n"
+  //      "C2H     2.66100e+03   1\n"
+  //      "C2H2    4.85290e+03   1\n"
+  //      "C2H2    2.84000e+03   1\n"
+  //      "C2H2    4.72490e+03   1\n"
+  //      "C2H2    8.81830e+02   2\n"
+  //      "C2H2    1.05080e+03   2\n"
+  //      "C3      1.84500e+03   1\n"
+  //      "C3      7.78700e+02   2\n"
+  //      "C3      3.11760e+03   1\n"
+  //      "CF      1.88214e+03   1\n"
+  //      "CF2     1.76120e+03   1\n"
+  //      "CF2     9.56820e+02   1\n"
+  //      "CF2     1.60000e+03   1\n"
+  //      "CF3     1.56800e+03   1\n"
+  //      "CF3     1.00900e+03   1\n"
+  //      "CF3     1.81150e+03   2\n"
+  //      "CF3     7.36680e+02   2\n"
+  //      "CF4     1.30720e+03   1\n"
+  //      "CF4     6.25892e+02   2\n"
+  //      "CF4     1.84540e+03   3\n"
+  //      "CF4     9.08950e+02   3\n"
+  //      "CH      4.11290e+03   1\n"
+  //      "CH2     4.31650e+03   1\n"
+  //      "CH2     1.95972e+03   1\n"
+  //      "CH2     4.60432e+03   1\n"
+  //      "CH3     4.31650e+03   1\n"
+  //      "CH3     8.73370e+02   1\n"
+  //      "CH3     4.54960e+03   2\n"
+  //      "CH3     2.01150e+03   2\n"
+  //      "CH4     4.19660e+03   1\n"
+  //      "CH4     2.20620e+03   2\n"
+  //      "CH4     4.34450e+03   3\n"
+  //      "CH4     1.88600e+03   3\n"
+  //      "Cl2     8.05355e+02   1\n"
+  //      "CN      2.97610e+03   1\n"
+  //      "CN+     2.92520e+03   1\n"
+  //      "CO      3.12200e+03   1\n"
+  //      "CO+     3.18800e+03   1\n"
+  //      "CO2     1.91870e+03   1\n"
+  //      "CO2     9.59660e+02   2\n"
+  //      "CO2     3.38210e+03   1\n"
+  //      "F2      1.32020e+03   1\n"
+  //      "H2      6.33140e+03   1\n"
+  //      "H2+     3.34280e+03   1\n"
+  //      "H2O     5.26130e+03   1\n"
+  //      "H2O     2.29460e+03   1\n"
+  //      "H2O     5.40395e+03   1\n"
+  //      "HCl     4.30330e+03   1\n"
+  //      "HCN     3.01620e+03   1\n"
+  //      "HCN     1.02660e+03   2\n"
+  //      "HCN     4.76450e+03   1\n"
+  //      "N2      3.39500e+03   1\n"
+  //      "N2+     3.17580e+03   1\n"
+  //      "NCO     1.83600e+03   1\n"
+  //      "NCO     7.67100e+02   2\n"
+  //      "NCO     2.76800e+03   1\n"
+  //      "NH      4.72240e+03   1\n"
+  //      "NH3     4.78100e+03   1\n"
+  //      "NH3     1.47040e+03   1\n"
+  //      "NH3     4.95440e+03   2\n"
+  //      "NH3     2.34070e+03   2\n"
+  //      "NO      2.81700e+03   1\n"
+  //      "NO+     3.42100e+03   1\n"
+  //      "NO2     1.07900e+03   1\n"
+  //      "NO2     1.90000e+03   1\n"
+  //      "NO2     2.32700e+03   1\n"
+  //      "O2      2.23900e+03   1\n"
+  //      "O2+     2.74120e+03   1\n"
+  //      "OH      5.37820e+03   1\n"
+  //      "SiO     1.78640e+03   1\n");
+    
+  //   string line;
+  //   string name;
+  //   string ss1,ss2,ss3,ss4,sss; 
+  //   int k;
+  //   int i = 0;
+
+  //   while (std::getline(default_species_vib_data, line)) 
+  //     {
+
+  // 	istringstream ss(line);      
+  // 	std::getline(ss, ss1, ' ');
+  // 	std::getline(ss, ss2, ' ');
+  // 	std::getline(ss, ss3, ' ');       
+  // 	std::getline(ss, ss4, ' ');       
+  // 	name = ss1;
+
+  // 	// now put coefficients in correct species
+  // 	for (k = 0; k < m_nsp; k++) 
+  // 	  {
+  // 	    string sss = m_thermo->speciesName(k);
+
+  // 	    // this is the right species index
+  // 	    if(sss.compare(ss1) == 0)
+  // 	      {
+  // 	    	a[k] = atof(ss2.c_str());
+  // 	    	b[k] = atof(ss3.c_str());
+  // 	    	c[k] = atof(ss4.c_str());
+    
+  // 	    	// index
+  // 	    	i++;
+  // 	      }
+  // 	    else // default to air
+  // 	      {
+  // 		throw CanteraError("StatMech Class",
+  // 				   " Missing vibrational species data. \n\n");
+  //   	      }
+	    
+  // 	  } // done with for loop
+  //     }
+
+  // }
 
   // Update the properties for this species
   /**

@@ -23,7 +23,7 @@
     <species name="H">
       <atomArray> H:1 </atomArray>
       <thermo>
-        <StatMech P0="100000.0" Tmax="1000.0" Tmin="10.0">
+        <StatMech P0="100000.0" Tmax="1000.0" Tmin="0.0">
         </StatMech>
       </thermo>
       <density units="g/cm3">2.165</density>

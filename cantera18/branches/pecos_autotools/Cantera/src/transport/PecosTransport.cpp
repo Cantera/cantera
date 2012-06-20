@@ -416,7 +416,7 @@ namespace Cantera {
   {
     doublereal t = m_thermo->temperature();
     if (t == m_temp) return;
-    if (t < 0.0) {
+    if (t <= 0.0) {
       throw CanteraError("PecosTransport::update_T",
 			 "negative temperature "+fp2str(t));
     }
