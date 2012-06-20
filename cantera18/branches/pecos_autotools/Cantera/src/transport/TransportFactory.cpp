@@ -305,8 +305,6 @@ namespace Cantera {
 
     if (transportModel == "") return new Transport;
 
-    cout << transportModel << endl;
-
     vector_fp state;
     Transport *tr = 0, *gastr = 0;
     DustyGasTransport* dtr = 0;
