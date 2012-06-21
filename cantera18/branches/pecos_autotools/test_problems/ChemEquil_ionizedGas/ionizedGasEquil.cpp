@@ -17,7 +17,6 @@
 #include "equilibrium.h"
 #endif
 
-
 using namespace std;
 using namespace Cantera;
 using namespace Cantera_CXX;

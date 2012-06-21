@@ -115,6 +115,94 @@ namespace Cantera {
     return m_index;
   }
 
+  int StatMech::buildmap()
+  {
+
+    // build map
+    name_map["Air"  ] = 1; 
+    name_map["CPAir"] = 2; 
+    name_map["Ar"   ] = 3;   
+    name_map["Ar+"  ] = 4;  
+    name_map["C"    ] = 5;    
+    name_map["C+"   ] = 6;   
+    name_map["C2"   ] = 7;   
+    name_map["C2H"  ] = 8;
+    name_map["C2H2" ] = 9;
+    name_map["C3"   ] =10; 
+    name_map["CF"   ] =11; 
+    name_map["CF2"  ] =12; 
+    name_map["CF3"  ] =13; 
+    name_map["CF4"  ] =14; 
+    name_map["CH"   ] =15; 
+    name_map["CH2"  ] =16; 
+    name_map["CH3"  ] =17; 
+    name_map["CH4"  ] =18; 
+    name_map["Cl"   ] =19; 
+    name_map["Cl2"  ] =20; 
+    name_map["CN"   ] =21; 
+    name_map["CN+"  ] =22; 
+    name_map["CO"   ] =23; 
+    name_map["CO+"  ] =24; 
+    name_map["CO2"  ] =25; 
+    name_map["F"    ] =26;
+    name_map["F2"   ] =27; 
+    name_map["H"    ] =28; 
+    name_map["H+"   ] =29; 
+    name_map["H2"   ] =30; 
+    name_map["H2+"  ] =31; 
+    name_map["H2O"  ] =32; 
+    name_map["HCl"  ] =33; 
+    name_map["HCN"  ] =34; 
+    name_map["He"   ] =35; 
+    name_map["He+"  ] =36; 
+    name_map["N"    ] =37; 
+    name_map["N+"   ] =38; 
+    name_map["N2"   ] =39; 
+    name_map["CPN2" ] =40; 
+    name_map["N2+"  ] =41; 
+    name_map["Ne"   ] =42; 
+    name_map["NCO"  ] =43; 
+    name_map["NH"   ] =44; 
+    name_map["NH+"  ] =45; 
+    name_map["NH2"  ] =46; 
+    name_map["NH3"  ] =47; 
+    name_map["NO"   ] =48; 
+    name_map["NO+"  ] =49; 
+    name_map["NO2"  ] =50; 
+    name_map["O"    ] =51; 
+    name_map["O+"   ] =52; 
+    name_map["O2"   ] =53; 
+    name_map["O2+"  ] =54; 
+    name_map["OH"   ] =55; 
+    name_map["Si"   ] =56; 
+    name_map["SiO"  ] =57; 
+    name_map["e"    ] =58; 
+ 
+    // build species struct data
+    Air.cfs = 10;
+    Air.mol_weight=28.96;
+    Air.species_name="Air";
+    Air.nvib=0;
+  
+    // C2
+    C2.cfs=7;
+    C2.mol_weight=24.022;
+    C2.species_name="C2";
+    C2.nvib=1;
+    C2.theta=2.6687e3;
+
+    // H2
+    H2.cfs  = 20;
+
+    // build vector
+    svec[1]=Air;
+    svec[2]=H2;
+    svec[3]=C2;
+
+
+  return 0;
+  }
+
 
   // void StatMech::read_species_vibrational_table ()
   // {

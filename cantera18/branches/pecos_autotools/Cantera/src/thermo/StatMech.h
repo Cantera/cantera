@@ -22,6 +22,8 @@
 #include "global.h"
 #include "SpeciesThermoInterpType.h"
 #include "SpeciesThermoMgr.h"
+#include <string>
+#include <map>
 
 namespace Cantera {
  
@@ -85,6 +87,9 @@ namespace Cantera {
     //! Returns an integer representing the species index
     virtual int speciesIndex() const;
 
+    //! Build a series of maps for the properties needed for species
+    int buildmap();
+   
     //! Update the properties for this species, given a temperature polynomial
     /*!
      * This method is called with a pointer to an array containing the functions of
@@ -185,6 +190,35 @@ namespace Cantera {
     int m_index;  
     //! array of polynomial coefficients       
     array_fp m_coeff;
+
+    //*generic species struct that contains everything we need here
+    // achtung: add doxygen markup here
+    // achtung: convert doubles to realdoubles
+    struct species
+    {
+      //Nominal T-R Degrees of freedom (cv = cfs*k*T)
+      int cfs;
+    
+      // Species name
+      std::string species_name;
+    
+      // Mol. Wt. Molecular weight (kg/kmol)
+      double mol_weight;
+    
+      // number of vibrational temperatures necessary
+      int nvib;
+    
+      // Theta_v Characteristic vibrational temperature(s) (K)
+      double theta;
+    };
+
+    //species information 
+    std::map<string,double> name_map;
+    species svec[3];
+    species Air;
+    species H2;
+    species C2;
+
   };
 
 }
