@@ -18,6 +18,7 @@ namespace Cantera {
   /*
    * @ingroup spthermo
    */
+  std::map<std::string,double> name_map;
  
 
   //! Empty constructor

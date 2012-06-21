@@ -213,7 +213,6 @@ namespace Cantera {
     };
 
     //species information 
-    std::map<string,double> name_map;
     species svec[3];
     species Air;
     species H2;
