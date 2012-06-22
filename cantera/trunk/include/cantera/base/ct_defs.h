@@ -159,7 +159,7 @@ const doublereal Undef = -999.1234;
 //! Small number to compare differences of mole fractions against.
 /*!
  *   This number is used for the interconversion of mole fraction and mass fraction quantities
- *   when the molecuar weight of a species is zero. It's also used for the matrix inversion
+ *   when the molecular weight of a species is zero. It's also used for the matrix inversion
  *   of transport properties when mole fractions must be positive.
  */
 const doublereal Tiny = 1.e-20;

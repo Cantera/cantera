@@ -283,7 +283,7 @@ protected:
     doublereal m_lowT;
     //! Midrange temperature
     doublereal m_midT;
-    //! Highest valid temperatre
+    //! Highest valid temperature
     doublereal m_highT;
     //! Reference state pressure
     doublereal m_Pref;

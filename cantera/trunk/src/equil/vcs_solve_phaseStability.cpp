@@ -190,7 +190,7 @@ int VCS_SOLVE::vcs_PS(VCS_PROB* vprob, int iphase, int printLvl, double& feStabl
  *               1 = Range space error encountered. The element abundance criteria are
  *                   only partially satisfied. Specifically, the first NC= (number of
  *                   components) conditions are satisfied. However, the full NE
- *                   (number of elements) conditions are not satisfied. The equilibrirum
+ *                   (number of elements) conditions are not satisfied. The equilibrium
  *                   condition is returned.
  *              -1 = Maximum number of iterations is exceeded. Convergence was not
  *                   found.

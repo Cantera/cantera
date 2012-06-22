@@ -737,7 +737,7 @@ void SpeciesThermoFactory::installThermoForSpecies
     const XML_Node& thermo = speciesNode.child("thermo");
 
     // Get the children of the thermo XML node. In the next bit of code we take out the comments that
-    // may have been childrent of the thermo XML node by doing a selective copy.
+    // may have been children of the thermo XML node by doing a selective copy.
     // These shouldn't interfere with the algorithm at any point.
     const std::vector<XML_Node*>& tpWC = thermo.children();
     std::vector<XML_Node*> tp;

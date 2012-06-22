@@ -35,7 +35,7 @@ namespace Cantera
  *  variable pressure standard state methods for calculating
  *  thermodynamic properties that are further based on
  *  expressing the Excess Gibbs free energy as a function of
- *  the mole fractions (or pseudo mole fractions) of the consitituents.
+ *  the mole fractions (or pseudo mole fractions) of the constituents.
  *  This category is the workhorse for describing ionic systems which are not on the molality scale.
  *
  *  This class adds additional functions onto the %ThermoPhase interface

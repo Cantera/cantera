@@ -189,7 +189,7 @@ doublereal WaterProps::density_T(doublereal T, doublereal P, int ifunc)
  *  and its derivatives.
  *
  *  ifunc = 0 value
- *  ifunc = 1 Temperature deriviative
+ *  ifunc = 1 Temperature derivative
  *  ifunc = 2 second temperature derivative
  *  ifunc = 3 return pressure first derivative
  *

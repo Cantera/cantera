@@ -140,7 +140,7 @@ public:
      *               1 = Range space error encountered. The element abundance criteria are
      *                   only partially satisfied. Specifically, the first NC= (number of
      *                   components) conditions are satisfied. However, the full NE
-     *                   (number of elements) conditions are not satisfied. The equilibrirum
+     *                   (number of elements) conditions are not satisfied. The equilibrium
      *                   condition is returned.
      *              -1 = Maximum number of iterations is exceeded. Convergence was not
      *                   found.
@@ -177,8 +177,8 @@ public:
      * @param aw         Vector of mole fractions which will be used to construct an
      *                   optimal basis from.
      *
-     * @param  sa        Gramm-Schmidt orthog work space (nc in length) sa[j]
-     * @param  ss        Gramm-Schmidt orthog work space (nc in length) ss[j]
+     * @param  sa        Gram-Schmidt orthog work space (nc in length) sa[j]
+     * @param  ss        Gram-Schmidt orthog work space (nc in length) ss[j]
      * @param  sm        QR matrix work space (nc*ne in length)         sm[i+j*ne]
      * @param test       This is a small negative number dependent upon whether
      *                   an estimate is supplied or not.
@@ -727,7 +727,7 @@ public:
      *   1 = Range space error encountered. The element abundance criteria are
      *       only partially satisfied. Specifically, the first NC= (number of
      *       components) conditions are satisfied. However, the full NE
-     *       (number of elements) conditions are not satisfied. The equilibrirum
+     *       (number of elements) conditions are not satisfied. The equilibrium
      *       condition is returned.
      * -1 = Maximum number of iterations is exceeded. Convergence was not
      *      found.
@@ -755,7 +755,7 @@ public:
      * ---------------
      *    @param tkelvin   Temperature in kelvin()
      *    @param pres      Pressure in Pascal
-     *    @param w         w[] is thevector containing the current mole numbers
+     *    @param w         w[] is the vector containing the current mole numbers
      *                     in units of kmol.
      *
      * Output
@@ -870,9 +870,9 @@ public:
      *
      * Other Variables
      *  @param aw   aw[i[  Mole fraction work space        (ne in length)
-     *  @param sa   sa[j] = Gramm-Schmidt orthog work space (ne in length)
+     *  @param sa   sa[j] = Gram-Schmidt orthog work space (ne in length)
      *  @param sm   sm[i+j*ne] = QR matrix work space (ne*ne in length)
-     *  @param ss   ss[j] = Gramm-Schmidt orthog work space (ne in length)
+     *  @param ss   ss[j] = Gram-Schmidt orthog work space (ne in length)
      *
      */
     int vcs_elem_rearrange(double* const aw, double* const sa,
@@ -1367,9 +1367,9 @@ private:
      *  Linear programming module is based on using dbolm.
      *
      *  @param aw   aw[i[  Mole fraction work space        (ne in length)
-     *  @param sa   sa[j] = Gramm-Schmidt orthog work space (ne in length)
+     *  @param sa   sa[j] = Gram-Schmidt orthog work space (ne in length)
      *  @param sm   sm[i+j*ne] = QR matrix work space (ne*ne in length)
-     *  @param ss   ss[j] = Gramm-Schmidt orthog work space (ne in length)
+     *  @param ss   ss[j] = Gram-Schmidt orthog work space (ne in length)
      *  @param test This is a small negative number.
      */
     void vcs_inest(double* const aw, double* const sa, double* const sm,
@@ -1399,7 +1399,7 @@ private:
      * @param ac      output Activity coefficients   (length = totalNumSpecies)
      *                 Note this is only partially formed. Only species in
      *                 phases that participate in the reaction will be updated
-     * @param mu_i    diemsionless chemical potentials (length - totalNumSpecies
+     * @param mu_i    dimensionless chemical potentials (length - totalNumSpecies
      *                 Note this is only partially formed. Only species in
      *                 phases that participate in the reaction will be updated
      *

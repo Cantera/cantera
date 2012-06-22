@@ -166,7 +166,7 @@ doublereal WaterPropsIAPWS::density(doublereal temperature, doublereal pressure,
                 } else if (phase == WATER_LIQUID) {
                     /*
                      * Provide a guess about the liquid density that is
-                     * relatively high -> convergnce from above seems robust.
+                     * relatively high -> convergence from above seems robust.
                      */
                     rhoguess = 1000.;
                 } else if (phase == WATER_UNSTABLELIQUID || phase == WATER_UNSTABLEGAS) {
@@ -253,7 +253,7 @@ doublereal WaterPropsIAPWS::density_const(doublereal pressure,
                 } else if (phase == WATER_LIQUID) {
                     /*
                      * Provide a guess about the liquid density that is
-                     * relatively high -> convergnce from above seems robust.
+                     * relatively high -> convergence from above seems robust.
                      */
                     rhoguess = 1000.;
                 } else if (phase == WATER_UNSTABLELIQUID || phase == WATER_UNSTABLEGAS) {

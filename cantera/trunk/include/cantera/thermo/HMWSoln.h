@@ -912,7 +912,7 @@ class PDSS_Water;
  *      - \f$ e \f$ is the electronic charge
  *      - \f$ \epsilon = K \epsilon_o \f$ is the permittivity of water
  *           where \f$ K \f$ is the dielectric constant of water,
- *           and  \f$ \epsilon_o \f$ is thepermittivityy of free space.
+ *           and  \f$ \epsilon_o \f$ is the permittivity of free space.
  *      - \f$ \rho_o \f$ is the density of the solvent in its standard state.
  *
  *            Nominal value at 298 K and 1 atm = 1.172576 (kg/gmol)<SUP>1/2</SUP>

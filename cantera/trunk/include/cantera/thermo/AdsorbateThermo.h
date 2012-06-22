@@ -184,7 +184,7 @@ public:
 protected:
     //!  lowest valid temperature
     doublereal m_lowT;
-    //! Highest valid temperatre
+    //! Highest valid temperature
     doublereal m_highT;
     //! Reference state pressure
     doublereal m_Pref;

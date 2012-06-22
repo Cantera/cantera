@@ -769,7 +769,7 @@ void VCS_SOLVE::vcs_CalcLnActCoeffJac(const double* const moleSpeciesVCS)
  * @param ac      output Activity coefficients   (length = totalNumSpecies)
  *                 Note this is only partially formed. Only species in
  *                 phases that participate in the reaction will be updated
- * @param mu_i    diemsionless chemical potentials (length - totalNumSpecies
+ * @param mu_i    dimensionless chemical potentials (length - totalNumSpecies
  *                 Note this is only partially formed. Only species in
  *                 phases that participate in the reaction will be updated
  *

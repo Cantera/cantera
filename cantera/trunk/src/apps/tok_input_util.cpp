@@ -273,7 +273,7 @@ int tok_to_int(const TOKEN* tokPtr, const int maxVal, const int minVal,
  *                  default or ""         defaultVal
  *
  *      A default may be specified on the command line. The absence of a
- *      default may also be specified by setting devault_value to
+ *      default may also be specified by setting default_value to
  *      NO_DEFAULT_INT.
  *
  *      If there is an error, *error is set to true. *error isn't touched
@@ -310,7 +310,7 @@ int str_to_int(const char* int_string, const int maxVal, const int minVal,
  *                  default               default_value
  *
  *      A default may be specified on the command line. The absence of a
- *      default may also be specified by setting devault_value to
+ *      default may also be specified by setting default_value to
  *      NO_DEFAULT_INT.
  *
  *      If there is an error, *error is set to true. *error isn't touched
@@ -569,7 +569,7 @@ char* tok_to_string(const TOKEN* tokPtr,  const int maxTok,
  *                 default or ""        defaultVal
  *
  *      A default may be specified on the command line. The absence of a
- *      default may also be specified by setting devault_value to
+ *      default may also be specified by setting default_value to
  *      NO_DEFAULT_INT.
  *
  *      If there is an error, *error is set to true. *error isn't touched
@@ -608,7 +608,7 @@ char* str_to_string(const char* str, const char* defaultVal,
  *                 default            defaultVal
  *
  *      A default may be specified on the command line. The absence of a
- *      default may also be specified by setting devault_value to
+ *      default may also be specified by setting default_value to
  *      NO_DEFAULT_INT.
  *
  *      If there is an error, *error is set to true. *error isn't touched
