@@ -303,16 +303,21 @@ class Phase:
         self.setDensity(rho)
 
     def selectSpecies(self, f, species):
-        """Given an array 'f' of floating-point species properties,
-        return an array of those values corresponding to species
-        listed in 'species'. This method is used internally to implement
-        species selection in methods like moleFractions, massFractions, etc.
+        """Given an array *f* of floating-point species properties, return
+        those values corresponding to species listed in *species*. Returns an
+        array if *species* is a sequence, or a scalar if *species* is a
+        scalar. This method is used internally to implement species selection
+        in methods like moleFractions, massFractions, etc.
 
         >>> f = ph.chemPotentials()
         >>> muo2, muh2 = ph.selectSpecies(f, ['O2', 'H2'])
+        >>> muh2 = ph.selectSpecies(f, 'H2')
         """
 
-        if species:
+        if isinstance(species, types.StringTypes):
+            k = self.speciesIndex(species)
+            return f[k]
+        elif species:
             fs = []
             k = 0
             for s in species:
@@ -323,13 +328,18 @@ class Phase:
             return asarray(f)
 
     def selectElements(self, f, elements):
-        """Given an array *f* of floating-point element properties,
-        return a nummodule array of those values corresponding to elements
-        listed in *elements*.
+        """Given an array *f* of floating-point element properties, return a
+        those values corresponding to elements listed in *elements*. Returns an
+        array if *elements* is a sequence, or a scalar if *elements* is a
+        scalar.
 
         >>> f = ph.elementPotentials()
         >>> lam_o, lam_h = ph.selectElements(f, ['O', 'H'])
+        >>> lam_h = ph.selectElements(f, 'H')
         """
+        if isinstance(elements, types.StringTypes):
+            m = self.elementIndex(elements)
+            return f[m]
         if elements:
             fs = []
             k = 0
