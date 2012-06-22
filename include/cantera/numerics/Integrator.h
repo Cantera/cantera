@@ -86,7 +86,7 @@ public:
         warn("setTolerances");
     }
 
-    //!  Set the sensitvity error tolerances
+    //!  Set the sensitivity error tolerances
     /*!
      * @param reltol scalar relative tolerance
      * @param abstol scalar absolute tolerance

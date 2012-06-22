@@ -144,7 +144,7 @@ static int de_atoi(std::ostream& log, std::string s, int line = -1)
  * @param names        List of species names (input).
  * @param species      Table of species objects holding data from records
  *                     in THERMO section (output).
- * @param temp         Devault vector of temperature region boundaries
+ * @param temp         Default vector of temperature region boundaries
  *                     There are one more temperatures than there are
  *                     temperature regions.
  *
@@ -213,7 +213,7 @@ bool CKParser::readNASA9ThermoSection(std::vector<string>& names,
         // next time.
         dup[spec.name] = 2;
 
-        // Check to see whether we need this particlar species name
+        // Check to see whether we need this particular species name
         if (!already_read && (getAllSpecies
                               || (find(names.begin(), names.end(), spec.name)
                                   < names.end()))) {

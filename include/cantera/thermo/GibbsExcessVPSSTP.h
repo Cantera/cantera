@@ -33,14 +33,14 @@ namespace Cantera
  * variable pressure standard state methods for calculating
  * thermodynamic properties that are further based on
  * expressing the Excess Gibbs free energy as a function of
- * the mole fractions (or pseudo mole fractions) of consitituents.
+ * the mole fractions (or pseudo mole fractions) of constituents.
  * This category is the workhorse for describing molten salts,
  * solid-phase mixtures of semiconductors, and mixtures of miscible
  * and semi-miscible compounds.
  *
  * It includes
  *   . regular solutions
- *   . Margueles expansions
+ *   . Margules expansions
  *   . NTRL equation
  *   . Wilson's equation
  *   . UNIQUAC equation of state.
@@ -621,7 +621,7 @@ protected:
 
     //! Storage for the current derivative values of the
     //! gradients with respect to logarithm of the mole fraction of the
-    //! log of theactivity coefficients of the species  @deprecated
+    //! log of the activity coefficients of the species  @deprecated
     mutable std::vector<doublereal> dlnActCoeffdlnX_diag_;
 
     //! Storage for the current derivative values of the  gradients with respect to logarithm of the species mole number of the

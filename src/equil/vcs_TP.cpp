@@ -36,7 +36,7 @@ int VCS_SOLVE::vcs_TP(int ipr, int ip1, int maxit, double T_arg, double pres_arg
  *   1 = Range space error encountered. The element abundance criteria are
  *       only partially satisfied. Specifically, the first NC= (number of
  *       components) conditions are satisfied. However, the full NE
- *       (number of elements) conditions are not satisfied. The equilibrirum
+ *       (number of elements) conditions are not satisfied. The equilibrium
  *       condition is returned.
  * -1 = Maximum number of iterations is exceeded. Convergence was not
  *      found.
@@ -125,7 +125,7 @@ int VCS_SOLVE::vcs_evalSS_TP(int ipr, int ip1, double Temp, double pres)
      *      cpc_ts_GStar_calc() returns units of Kelvin. Also, the temperature
      *      comes into play in calculating the ideal equation of state
      *      contributions, and other equations of state also. Therefore,
-     *      we will emulate the VCS_UNITS_KELVIN case, here by chaning
+     *      we will emulate the VCS_UNITS_KELVIN case, here by changing
      *      the initial gibbs free energy units to Kelvin before feeding
      *      them to the cpc_ts_GStar_calc() routine. Then, we will revert
      *      them back to unitless at the end of this routine.

@@ -80,7 +80,7 @@ class PDSS_Water;
  *
  * The following classes are used to compute the electrical and electrothermochemical properties of
  * phases of matter. The main property currently is the dielectric
- * constant, which is an important parameter for electolyte solutions.
+ * constant, which is an important parameter for electrolyte solutions.
  * The class WaterProps calculate the dielectric constant of water as a function of
  * temperature and pressure.
  *
@@ -205,7 +205,7 @@ public:
     //! ADebye calculates the value of A_Debye as a function
     //! of temperature and pressure according to relations
     //! that take into account the temperature and pressure
-    //! dependence of the water density and dieletric constant.
+    //! dependence of the water density and dielectric constant.
     /*!
      *  The A_Debye expression appears on the top of the
      *  ln actCoeff term in the general Debye-Huckel expression
