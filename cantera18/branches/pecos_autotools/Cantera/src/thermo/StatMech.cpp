@@ -49,7 +49,7 @@ namespace Cantera {
       throw CanteraError("Error in StatMech.cpp",
 			 " Cannot take 0 tmin as input. \n\n");
     }    
-
+    buildmap();
   }
 
   // copy constructor
