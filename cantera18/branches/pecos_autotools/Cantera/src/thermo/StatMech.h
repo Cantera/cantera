@@ -209,14 +209,71 @@ namespace Cantera {
       int nvib;
     
       // Theta_v Characteristic vibrational temperature(s) (K)
-      double theta;
+      double theta[5];
     };
 
     //species information 
-    species svec[3];
+    species svec[58];
+
+    // p implies +, or ionization
     species Air;
-    species H2;
+    species CPAir;
+    species Ar;
+    species Arp;
+    species C;
+    species Cp;
     species C2;
+    species C2H;
+    species C2H2;
+    species C3;
+    species CF;
+    species CF2;
+    species CF3;
+    species CF4;
+    species CH;
+    species CH2;
+    species CH3;
+    species CH4;
+    species Cl;
+    species Cl2;
+    species CN;
+    species CNp;
+    species CO;
+    species COp;
+    species CO2;
+    species F;
+    species F2;
+    species H;
+    species Hp;
+    species H2;
+    species H2p;
+    species H2O;
+    species HCl;
+    species HCN;
+    species He;
+    species Hep;
+    species N;
+    species Np;
+    species N2;
+    species CPN2;
+    species N2p;
+    species Ne;
+    species NCO;
+    species NH;
+    species NHp;
+    species NH2;
+    species NH3;
+    species NO;
+    species NOp;
+    species NO2;
+    species O;
+    species Op;
+    species O2;
+    species O2p;
+    species OH;
+    species Si;
+    species SiO;
+    species e;
 
   };
 
