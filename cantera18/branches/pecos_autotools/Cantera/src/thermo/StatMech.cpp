@@ -18,9 +18,8 @@ namespace Cantera {
   /*
    * @ingroup spthermo
    */
-  std::map<std::string,double> name_map;
+  std::map<std::string,species*> name_map;
  
-
   //! Empty constructor
   StatMech::StatMech() 
     : m_lowT(0.0), m_highT (0.0),
@@ -194,138 +193,310 @@ namespace Cantera {
     // now set all species information
 
     // build Air
-    name_map["Air"].cfs = 2.5;
-    name_map["Air"].mol_weight=28.96;
-    name_map["Air"].nvib=0;
+    name_map["Air"]->cfs = 2.5;
+    name_map["Air"]->mol_weight=28.96;
+    name_map["Air"]->nvib=0;
 
     // build CPAir
-    name_map["CPAir"].cfs = 2.5;
-    name_map["CPAir"].mol_weight=28.96;
-    name_map["CPAir"].nvib=0;
+    name_map["CPAir"]->cfs = 2.5;
+    name_map["CPAir"]->mol_weight=28.96;
+    name_map["CPAir"]->nvib=0;
 
     // build Ar
-    name_map["Ar"].cfs = 1.5;
-    name_map["Ar"].mol_weight=39.944;
-    name_map["Ar"].nvib=0;
+    name_map["Ar"]->cfs = 1.5;
+    name_map["Ar"]->mol_weight=39.944;
+    name_map["Ar"]->nvib=0;
   
     // build Ar+
-    name_map["Ar+"].cfs = 1.5;
-    name_map["Ar+"].mol_weight=39.94345;
-    name_map["Ar+"].nvib=0;
+    name_map["Ar+"]->cfs = 1.5;
+    name_map["Ar+"]->mol_weight=39.94345;
+    name_map["Ar+"]->nvib=0;
   
     // build C
-    name_map["C"].cfs = 1.5;
-    name_map["C"].mol_weight=12.011;
-    name_map["C"].nvib=0;
+    name_map["C"]->cfs = 1.5;
+    name_map["C"]->mol_weight=12.011;
+    name_map["C"]->nvib=0;
 
     // build C+
-    name_map["C+"].cfs = 1.5;
-    name_map["C+"].mol_weight=12.01045;
-    name_map["C+"].nvib=0;
+    name_map["C+"]->cfs = 1.5;
+    name_map["C+"]->mol_weight=12.01045;
+    name_map["C+"]->nvib=0;
   
     // C2
-    name_map["C2"].cfs=2.5;
-    name_map["C2"].mol_weight=24.022;
-    name_map["C2"].nvib=1;
-    name_map["C2"].theta[0]=2.6687e3;
+    name_map["C2"]->cfs=2.5;
+    name_map["C2"]->mol_weight=24.022;
+    name_map["C2"]->nvib=1;
+    name_map["C2"]->theta[0]=2.6687e3;
 
     // C2H
-    name_map["C2H"].cfs=2.5;
-    name_map["C2H"].mol_weight=25.03;
-    name_map["C2H"].nvib=3;
-    name_map["C2H"].theta[0]=5.20100e+03;
-    name_map["C2H"].theta[1]=7.20000e+03;
-    name_map["C2H"].theta[2]=2.66100e+03;
+    name_map["C2H"]->cfs=2.5;
+    name_map["C2H"]->mol_weight=25.03;
+    name_map["C2H"]->nvib=3;
+    name_map["C2H"]->theta[0]=5.20100e+03;
+    name_map["C2H"]->theta[1]=7.20000e+03;
+    name_map["C2H"]->theta[2]=2.66100e+03;
 
     // C2H2
-    name_map["C2H2"].cfs=2.5;
-    name_map["C2H2"].mol_weight=26.038;
-    name_map["C2H2"].nvib=5;
-    name_map["C2H2"].theta[0]=4.85290e+03;
-    name_map["C2H2"].theta[1]=2.84000e+03;
-    name_map["C2H2"].theta[2]=4.72490e+03;
-    name_map["C2H2"].theta[3]=8.81830e+02;
-    name_map["C2H2"].theta[4]=1.05080e+03;
+    name_map["C2H2"]->cfs=2.5;
+    name_map["C2H2"]->mol_weight=26.038;
+    name_map["C2H2"]->nvib=5;
+    name_map["C2H2"]->theta[0]=4.85290e+03;
+    name_map["C2H2"]->theta[1]=2.84000e+03;
+    name_map["C2H2"]->theta[2]=4.72490e+03;
+    name_map["C2H2"]->theta[3]=8.81830e+02;
+    name_map["C2H2"]->theta[4]=1.05080e+03;
 
     // C3
-    name_map["C3"].cfs=2.5;
-    name_map["C3"].mol_weight=36.033;
-    name_map["C3"].nvib=3;
-    name_map["C3"].theta[0]=1.84500e+03;
-    name_map["C3"].theta[1]=7.78700e+02;
-    name_map["C3"].theta[2]=3.11760e+03;
+    name_map["C3"]->cfs=2.5;
+    name_map["C3"]->mol_weight=36.033;
+    name_map["C3"]->nvib=3;
+    name_map["C3"]->theta[0]=1.84500e+03;
+    name_map["C3"]->theta[1]=7.78700e+02;
+    name_map["C3"]->theta[2]=3.11760e+03;
 
     // CF
-    name_map["CF"].cfs=2.5;
-    name_map["CF"].mol_weight=31.00940;
-    name_map["CF"].nvib=1;
-    name_map["CF"].theta[0]=1.88214e+03;
+    name_map["CF"]->cfs=2.5;
+    name_map["CF"]->mol_weight=31.00940;
+    name_map["CF"]->nvib=1;
+    name_map["CF"]->theta[0]=1.88214e+03;
 
     // CF2
-    name_map["CF2"].cfs=3;
-    name_map["CF2"].mol_weight=50.00780;
-    name_map["CF2"].nvib=3;
-    name_map["CF2"].theta[0]=1.76120e+03;
-    name_map["CF2"].theta[1]=9.56820e+02;
-    name_map["CF2"].theta[2]=1.60000e+03;
+    name_map["CF2"]->cfs=3;
+    name_map["CF2"]->mol_weight=50.00780;
+    name_map["CF2"]->nvib=3;
+    name_map["CF2"]->theta[0]=1.76120e+03;
+    name_map["CF2"]->theta[1]=9.56820e+02;
+    name_map["CF2"]->theta[2]=1.60000e+03;
 
     // CF3
-    name_map["CF3"].cfs=3;
-    name_map["CF3"].mol_weight=69.00620;
-    name_map["CF3"].nvib=4;
-    name_map["CF3"].theta[0]=1.56800e+03;
-    name_map["CF3"].theta[1]=1.00900e+03;
-    name_map["CF3"].theta[2]=1.81150e+03;
-    name_map["CF3"].theta[3]=7.36680e+02;
+    name_map["CF3"]->cfs=3;
+    name_map["CF3"]->mol_weight=69.00620;
+    name_map["CF3"]->nvib=4;
+    name_map["CF3"]->theta[0]=1.56800e+03;
+    name_map["CF3"]->theta[1]=1.00900e+03;
+    name_map["CF3"]->theta[2]=1.81150e+03;
+    name_map["CF3"]->theta[3]=7.36680e+02;
 
     // CF4
-    name_map["CF4"].cfs=3;
-    name_map["CF4"].mol_weight=88.00460;
-    name_map["CF4"].nvib=4;
-    name_map["CF4"].theta[0]=1.30720e+03;
-    name_map["CF4"].theta[1]=6.25892e+02;
-    name_map["CF4"].theta[2]=1.84540e+03;
-    name_map["CF4"].theta[3]=9.08950e+02;
+    name_map["CF4"]->cfs=3;
+    name_map["CF4"]->mol_weight=88.00460;
+    name_map["CF4"]->nvib=4;
+    name_map["CF4"]->theta[0]=1.30720e+03;
+    name_map["CF4"]->theta[1]=6.25892e+02;
+    name_map["CF4"]->theta[2]=1.84540e+03;
+    name_map["CF4"]->theta[3]=9.08950e+02;
 
     // CH
-    name_map["CH"].cfs=2.5;
-    name_map["CH"].mol_weight=13.01900;
-    name_map["CH"].nvib=1;
-    name_map["CH"].theta[0]=4.11290e+03;
+    name_map["CH"]->cfs=2.5;
+    name_map["CH"]->mol_weight=13.01900;
+    name_map["CH"]->nvib=1;
+    name_map["CH"]->theta[0]=4.11290e+03;
 
     // CH2
-    name_map["CH2"].cfs=3;
-    name_map["CH2"].mol_weight=14.02700;
-    name_map["CH2"].nvib=3;
-    name_map["CH2"].theta[0]=4.31650e+03;
-    name_map["CH2"].theta[1]=1.95972e+03;
-    name_map["CH2"].theta[2]=4.60432e+03;
+    name_map["CH2"]->cfs=3;
+    name_map["CH2"]->mol_weight=14.02700;
+    name_map["CH2"]->nvib=3;
+    name_map["CH2"]->theta[0]=4.31650e+03;
+    name_map["CH2"]->theta[1]=1.95972e+03;
+    name_map["CH2"]->theta[2]=4.60432e+03;
 
     // CH3
-    name_map["CH3"].cfs=3;
-    name_map["CH3"].mol_weight=15.03500;
-    name_map["CH3"].nvib=4;
-    name_map["CH3"].theta[0]=4.31650e+03;
-    name_map["CH3"].theta[1]=8.73370e+02
-    name_map["CH3"].theta[2]=4.54960e+03
-    name_map["CH3"].theta[3]=2.01150e+03
+    name_map["CH3"]->cfs=3;
+    name_map["CH3"]->mol_weight=15.03500;
+    name_map["CH3"]->nvib=4;
+    name_map["CH3"]->theta[0]=4.31650e+03;
+    name_map["CH3"]->theta[1]=8.73370e+02
+    name_map["CH3"]->theta[2]=4.54960e+03
+    name_map["CH3"]->theta[3]=2.01150e+03
    
     // CH4
-    name_map["CH4"].cfs=3;
-    name_map["CH4"].mol_weight=16.04300;
-    name_map["CH4"].nvib=4;
-    name_map["CH4"].theta[0]=4.19660e+03;
-    name_map["CH4"].theta[1]=2.20620e+03;
-    name_map["CH4"].theta[2]=4.34450e+03;
-    name_map["CH4"].theta[3]=1.88600e+03;
+    name_map["CH4"]->cfs=3;
+    name_map["CH4"]->mol_weight=16.04300;
+    name_map["CH4"]->nvib=4;
+    name_map["CH4"]->theta[0]=4.19660e+03;
+    name_map["CH4"]->theta[1]=2.20620e+03;
+    name_map["CH4"]->theta[2]=4.34450e+03;
+    name_map["CH4"]->theta[3]=1.88600e+03;
 
     // Cl
-    name_map["Cl"].cfs=3;
-    name_map["Cl"].mol_weight=35.45300;
-    name_map["Cl"].nvib=0;
-    name_map["Cl"].theta[0]=4.19660e+03;
-   
+    name_map["Cl"]->cfs=1.5;
+    name_map["Cl"]->mol_weight=35.45300;
+    name_map["Cl"]->nvib=0;
 
+    // Cl2
+    name_map["Cl2"]->cfs=2.5;
+    name_map["Cl2"]->mol_weight=70.96;
+    name_map["Cl2"]->nvib=1;
+    name_map["CH4"]->theta[0]=8.05355e+02;
+
+    // CN
+    name_map["CN"]->cfs=2.5;
+    name_map["CN"]->mol_weight=26.01900;
+    name_map["CN"]->nvib=1;
+    name_map["CN"]->theta[0]=2.97610e+03;
+
+    // CN+
+    name_map["CN+"]->cfs=2.5;
+    name_map["CN+"]->mol_weight=26.01845;
+    name_map["CN+"]->nvib=1;
+    name_map["CN+"]->theta[0]=2.92520e+03;
+
+    // CO
+    name_map["CO"]->cfs=2.5;
+    name_map["CO"]->mol_weight=28.01100;
+    name_map["CO"]->nvib=1;
+    name_map["CO"]->theta[0]=3.12200e+03;
+
+    // CO+
+    name_map["CO+"]->cfs=2.5;
+    name_map["CO+"]->mol_weight=28.01045;
+    name_map["CO+"]->nvib=1;
+    name_map["CO+"]->theta[0]=3.18800e+03;
+
+    // CO2
+    name_map["CO2"]->cfs=2.5;
+    name_map["CO2"]->mol_weight=44.01100;
+    name_map["CO2"]->nvib=3;
+    name_map["CO2"]->theta[0]=1.91870e+03;
+    name_map["CO2"]->theta[1]=9.59660e+02;
+    name_map["CO2"]->theta[2]=3.38210e+03;
+
+    // F
+    name_map["F"]->cfs=1.5;
+    name_map["F"]->mol_weight=18.99840;
+    name_map["F"]->nvib=0;
+
+    // F2
+    name_map["F2"]->cfs=2.5;
+    name_map["F2"]->mol_weight=37.99680;
+    name_map["F2"]->nvib=1;
+    name_map["F2"]->theta[0]=1.32020e+03;
+
+    // H
+    name_map["H"]->cfs=1.5;
+    name_map["H"]->mol_weight=1;
+    name_map["H"]->nvib=0;
+
+    // H+
+    name_map["H+"]->cfs=1.5;
+    name_map["H+"]->mol_weight=1.00745;
+    name_map["H+"]->nvib=0;
+
+    // H2
+    name_map["H2"]->cfs=2.5;
+    name_map["H2"]->mol_weight=2.01600;
+    name_map["H2"]->nvib=1;
+    name_map["H2"]->theta[0]=6.33140e+03;
+
+    // H2+
+    name_map["H2+"]->cfs=2.5;
+    name_map["H2+"]->mol_weight=2.01545;
+    name_map["H2+"]->nvib=1;
+    name_map["H2+"]->theta[0]=3.34280e+03;
+
+    // H2O
+    name_map["H2O"]->cfs=3.0;
+    name_map["H2O"]->mol_weight=18.01600;
+    name_map["H2O"]->nvib=3;
+    name_map["H2O"]->theta[0]=5.26130e+03;
+    name_map["H2O"]->theta[1]=2.29460e+03;
+    name_map["H2O"]->theta[2]=5.40395e+03;
+
+    // HCl
+    name_map["HCl"]->cfs=2.5;
+    name_map["HCl"]->mol_weight=36.46100;
+    name_map["HCl"]->nvib=1;
+    name_map["HCl"]->theta[0]=4.30330e+03;
+
+    // HCN
+    name_map["HCN"]->cfs=2.5;
+    name_map["HCN"]->mol_weight=27.02700;
+    name_map["HCN"]->nvib=3;
+    name_map["HCN"]->theta[0]=3.01620e+03;
+    name_map["HCN"]->theta[1]=1.02660e+03;
+    name_map["HCN"]->theta[2]=4.76450e+03;
+
+    // He
+    name_map["HCN"]->cfs=1.5;
+    name_map["HCN"]->mol_weight=4.00300;
+    name_map["HCN"]->nvib=0;
+
+    // He+
+    name_map["HCN"]->cfs=1.5;
+    name_map["HCN"]->mol_weight=4.00245;
+    name_map["HCN"]->nvib=0;
+
+    // N
+    name_map["N"]->cfs=1.5;
+    name_map["N"]->mol_weight=14.008;
+    name_map["N"]->nvib=0;
+
+    // Ne
+    name_map["Ne"]->cfs=1.5;
+    name_map["Ne"]->mol_weight=20.17900;
+    name_map["Ne"]->nvib=0;
+
+    // N+
+    name_map["N+"]->cfs=1.5;
+    name_map["N+"]->mol_weight=14.00745;
+    name_map["N+"]->nvib=0;
+
+    // N2
+    name_map["N2"]->cfs=2.5;
+    name_map["N2"]->mol_weight=28.01600;
+    name_map["N2"]->nvib=1;
+    name_map["N2"]->theta[0]=3.39500e+03;
+
+    // N2+
+    name_map["N2+"]->cfs=2.5;
+    name_map["N2+"]->mol_weight=28.01545;
+    name_map["N2+"]->nvib=1;
+    name_map["N2+"]->theta[0]=3.17580e+03;
+
+    // CPN2
+    name_map["CPN2"]->cfs=2.5;
+    name_map["CPN2"]->mol_weight=28.01600;
+    name_map["CPN2"]->nvib=0;
+
+    // NCO
+    name_map["NCO"]->cfs=2.5;
+    name_map["NCO"]->mol_weight=42.01900;
+    name_map["NCO"]->nvib=3;
+    name_map["NCO"]->theta[0]=1.83600e+03;
+    name_map["NCO"]->theta[1]=7.67100e+02;
+    name_map["NCO"]->theta[2]=2.76800e+03;
+
+    // NH
+    name_map["NH"]->cfs=2.5;
+    name_map["NH"]->mol_weight=15.01600;
+    name_map["NH"]->nvib=1;
+    name_map["NH"]->theta[0]=4.72240e+03;
+
+    // NH+
+    name_map["NH+"]->cfs=2.5;
+    name_map["NH+"]->mol_weight=15.01545;
+    name_map["NH+"]->nvib=0;
+
+    // NH2!!
+    name_map["NH2"]->cfs=2.5;
+    name_map["NH2"]->mol_weight=16.02400;
+    name_map["NH2"]->nvib=0;
+
+    // NH3
+    name_map["NH3"]->cfs=2.5;
+    name_map["NH3"]->mol_weight=;
+    name_map["NH3"]->nvib=4;
+    name_map["NH3"]->theta[0]=4.78100e+03;
+    name_map["NH3"]->theta[1]=1.47040e+03;
+    name_map["NH3"]->theta[2]=4.95440e+03;
+    name_map["NH3"]->theta[3]=2.34070e+03;
+
+
+
+    // run simple sanity error check: check that no non-zero theta exist
+    // for any theta larger than nvib!
+
+    // also check that nvib is not -1, cfs not -1, mol weight not -1, etc.
 
     return 0;
   }
@@ -375,7 +546,6 @@ namespace Cantera {
 //        "CH2	14.02700	  2.7803520000e7 	3.0 	 0\n"
 //        "CH3	15.03500	  9.9559030000e6 	3.0 	 0\n"
 //        "CH4	16.04300	 -4.1532130000e6 	3.0 	 0\n"
-
 //        "Cl      35.45300	  3.3740400000e6 	1.5 	 0\n"
 //        "Cl2     70.90600	  0.000000000000 	2.5 	 0\n"
 //        "CN	26.01900	  1.6795420000e7 	2.5 	 0\n"
@@ -398,13 +568,14 @@ namespace Cantera {
 //        "Ne	20.17900	  0.000000000000 	1.5 	 0\n"
 //        "N+	14.00745	  1.3400000000e8 	1.5 	 1\n"
 //        "N2	28.01600	  0.000000000000 	2.5 	 0\n"
-//        "CPN2	28.01600	  0.000000000000 	2.5 	 0\n"
 //        "N2+	28.01545	  5.3700000000e7 	2.5 	 1\n"
+//        "CPN2	28.01600	  0.000000000000 	2.5 	 0\n"
 //        "NCO	42.01900	  4.2124000000e6 	2.5 	 0\n"
 //        "NH	15.01600	  2.3867900000e7 	2.5 	 0\n"
-//        "NH+	15.01545	  1.1050000000e8 	2.5 	 1\n"
+//        "NH+	15.01545	  1.1050000000e8 	2.5 	 1\n"a
 //        "NH2	16.02400	  1.2036000000e7 	3.0 	 0\n"
 //        "NH3	17.03200	 -2.2866370000e6 	3.0 	 0\n"
+
 //        "NO	30.00800	  2.9961230000e6 	2.5 	 0\n"
 //        "NO+	30.00745	  3.2834800000e7 	2.5 	 1\n"
 //        "NO2	46.00800	  8.0420800000e5 	3.0 	 0\n"
@@ -451,12 +622,10 @@ namespace Cantera {
   //      "CH3     8.73370e+02   1\n"
   //      "CH3     4.54960e+03   2\n"
   //      "CH3     2.01150e+03   2\n"
-
   //      "CH4     4.19660e+03   1\n"
   //      "CH4     2.20620e+03   2\n"
   //      "CH4     4.34450e+03   3\n"
   //      "CH4     1.88600e+03   3\n"
-
   //      "Cl2     8.05355e+02   1\n"
   //      "CN      2.97610e+03   1\n"
   //      "CN+     2.92520e+03   1\n"
@@ -485,6 +654,7 @@ namespace Cantera {
   //      "NH3     1.47040e+03   1\n"
   //      "NH3     4.95440e+03   2\n"
   //      "NH3     2.34070e+03   2\n"
+
   //      "NO      2.81700e+03   1\n"
   //      "NO+     3.42100e+03   1\n"
   //      "NO2     1.07900e+03   1\n"
