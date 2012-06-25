@@ -10,6 +10,8 @@
 // Copyright 2007  Sandia National Laboratories
 
 #include "StatMech.h"
+#include <vector>
+#include <map>
 
 namespace Cantera {
 
@@ -18,7 +20,6 @@ namespace Cantera {
   /*
    * @ingroup spthermo
    */
-  std::map<std::string,species*> name_map;
  
   //! Empty constructor
   StatMech::StatMech() 
@@ -119,8 +120,8 @@ namespace Cantera {
   {
 
     // build vector of strings
-    vector<string> SS;
-
+    std::vector<std::string> SS;
+    
     // now just iterate over name map to place each
     // string in a key
 
@@ -187,7 +188,18 @@ namespace Cantera {
     int ii;
     for(ii=0; ii < SS.size(); ii++)
       {
-	name_map[SS[ii]]=new species;
+	name_map[SS[ii]]=(new species);
+
+	// init to crazy defaults
+	name_map[SS[ii]]->nvib       = -1;
+	name_map[SS[ii]]->cfs        = -1;
+	name_map[SS[ii]]->mol_weight = -1;
+
+	name_map[SS[ii]]->theta[0]   =0.0;
+	name_map[SS[ii]]->theta[1]   =0.0;
+	name_map[SS[ii]]->theta[2]   =0.0;
+	name_map[SS[ii]]->theta[3]   =0.0;
+	name_map[SS[ii]]->theta[4]   =0.0;
       }
 
     // now set all species information
@@ -305,9 +317,9 @@ namespace Cantera {
     name_map["CH3"]->mol_weight=15.03500;
     name_map["CH3"]->nvib=4;
     name_map["CH3"]->theta[0]=4.31650e+03;
-    name_map["CH3"]->theta[1]=8.73370e+02
-    name_map["CH3"]->theta[2]=4.54960e+03
-    name_map["CH3"]->theta[3]=2.01150e+03
+    name_map["CH3"]->theta[1]=8.73370e+02;
+    name_map["CH3"]->theta[2]=4.54960e+03;
+    name_map["CH3"]->theta[3]=2.01150e+03;
    
     // CH4
     name_map["CH4"]->cfs=3;
@@ -327,7 +339,7 @@ namespace Cantera {
     name_map["Cl2"]->cfs=2.5;
     name_map["Cl2"]->mol_weight=70.96;
     name_map["Cl2"]->nvib=1;
-    name_map["CH4"]->theta[0]=8.05355e+02;
+    name_map["Cl2"]->theta[0]=8.05355e+02;
 
     // CN
     name_map["CN"]->cfs=2.5;
@@ -477,27 +489,139 @@ namespace Cantera {
     name_map["NH+"]->mol_weight=15.01545;
     name_map["NH+"]->nvib=0;
 
-    // NH2!!
+    // NH2
     name_map["NH2"]->cfs=2.5;
     name_map["NH2"]->mol_weight=16.02400;
     name_map["NH2"]->nvib=0;
 
     // NH3
     name_map["NH3"]->cfs=2.5;
-    name_map["NH3"]->mol_weight=;
+    name_map["NH3"]->mol_weight=17.03200;
     name_map["NH3"]->nvib=4;
     name_map["NH3"]->theta[0]=4.78100e+03;
     name_map["NH3"]->theta[1]=1.47040e+03;
     name_map["NH3"]->theta[2]=4.95440e+03;
     name_map["NH3"]->theta[3]=2.34070e+03;
 
+    // NO
+    name_map["NO"]->cfs=2.5;
+    name_map["NO"]->mol_weight=30.00800;
+    name_map["NO"]->nvib=1;
+    name_map["NO"]->theta[0]=2.81700e+03;
 
+    // NO+
+    name_map["NO+"]->cfs=2.5;
+    name_map["NO+"]->mol_weight=30.00745;
+    name_map["NO+"]->nvib=1;
+    name_map["NO+"]->theta[0]=3.42100e+03;
 
-    // run simple sanity error check: check that no non-zero theta exist
-    // for any theta larger than nvib!
+    // NO2
+    name_map["NO2"]->cfs=3;
+    name_map["NO2"]->mol_weight=46.00800;
+    name_map["NO2"]->nvib=3;
+    name_map["NO2"]->theta[0]=1.07900e+03;
+    name_map["NO2"]->theta[1]=1.90000e+03;
+    name_map["NO2"]->theta[2]=2.32700e+03;
 
-    // also check that nvib is not -1, cfs not -1, mol weight not -1, etc.
+    // O
+    name_map["O"]->cfs=1.5;
+    name_map["O"]->mol_weight=16.000;
+    name_map["O"]->nvib=0;
 
+    // O+
+    name_map["O+"]->cfs=1.5;
+    name_map["O+"]->mol_weight=15.99945;
+    name_map["O+"]->nvib=0;
+
+    // O2
+    name_map["O2"]->cfs=2.5;
+    name_map["O2"]->mol_weight=32.00000;
+    name_map["O2"]->nvib=1;
+    name_map["O2"]->theta[0]=2.23900e+03;
+
+    // O2
+    name_map["O2+"]->cfs=2.5;
+    name_map["O2+"]->mol_weight=31.99945;
+    name_map["O2+"]->nvib=1;
+    name_map["O2+"]->theta[0]=2.74120e+03;
+
+    // OH
+    name_map["OH"]->cfs=2.5;
+    name_map["OH"]->mol_weight=17.00800;
+    name_map["OH"]->nvib=1;
+    name_map["OH"]->theta[0]=5.37820e+03;
+
+    // Si
+    name_map["Si"]->cfs=1.5;
+    name_map["Si"]->mol_weight=28.08550;
+    name_map["Si"]->nvib=0;
+
+    // SiO
+    name_map["SiO"]->cfs=2.5;
+    name_map["SiO"]->mol_weight=44.08550;
+    name_map["SiO"]->nvib=1;
+    name_map["SiO"]->theta[0]=1.78640e+03;
+
+    // electron
+    name_map["e"]->cfs=1.5;
+    name_map["e"]->mol_weight=0.00055;
+    name_map["e"]->nvib=0;
+
+    int dum = 0;
+    for(ii=0; ii < SS.size(); ii++)
+      {
+	// check nvib was initalized for all species
+	if(name_map[SS[ii]]->nvib == -1)
+	  {
+	    std::cout << name_map[SS[ii]]->nvib << std::endl;
+	    throw CanteraError("Error in StatMech.cpp",
+			       "nvib not initialized!. \n\n");
+
+	  }
+	else
+	  {
+	    // check that theta is initalized
+	    for(int i=0;i<name_map[SS[ii]]->nvib;i++)
+	      {
+		if(name_map[SS[ii]]->theta[i] <= 0.0)
+		  {
+		    throw CanteraError("Error in StatMech.cpp",
+				       "theta not initalized!. \n\n");
+		  }
+	      } // done with for
+	    // check that no non-zero theta exist
+	    // for any theta larger than nvib!
+	    for(int i=name_map[SS[ii]]->nvib;i<5;i++)
+	      {
+		if(name_map[SS[ii]]->theta[i] != 0.0)
+		  {
+		    throw CanteraError("Error in StatMech.cpp",
+				       "bad theta value!. \n\n");
+		  }
+	      } // done with for loop
+	  }
+
+	// check mol weight was initialized for all species
+	if(name_map[SS[ii]]->mol_weight == -1)
+	  {
+	    std::cout << name_map[SS[ii]]->mol_weight << std::endl;
+	    throw CanteraError("Error in StatMech.cpp",
+			       "mol_weight not initialized!. \n\n");
+
+	  }
+
+	// cfs was initialized for all species
+	if(name_map[SS[ii]]->cfs == -1)
+	  {
+	    std::cout << name_map[SS[ii]]->cfs << std::endl;
+	    throw CanteraError("Error in StatMech.cpp",
+			       "cfs not initialized!. \n\n");
+
+	  }
+       
+      } // done with sanity checks
+    
+    // mark it zero, dude
     return 0;
   }
 
@@ -575,7 +699,6 @@ namespace Cantera {
 //        "NH+	15.01545	  1.1050000000e8 	2.5 	 1\n"a
 //        "NH2	16.02400	  1.2036000000e7 	3.0 	 0\n"
 //        "NH3	17.03200	 -2.2866370000e6 	3.0 	 0\n"
-
 //        "NO	30.00800	  2.9961230000e6 	2.5 	 0\n"
 //        "NO+	30.00745	  3.2834800000e7 	2.5 	 1\n"
 //        "NO2	46.00800	  8.0420800000e5 	3.0 	 0\n"
@@ -584,6 +707,7 @@ namespace Cantera {
 //        "O2	32.00000	  0.000000000000 	2.5 	 0\n"
 //        "O2+	31.99945	  3.6370000000e7 	2.5 	 1\n"
 //        "OH	17.00800	  2.2995060000e6 	2.5 	 0\n"
+
 //        "Si	28.08550	  1.5868220000e7 	1.5 	 0\n"
 //        "SiO	44.08550	 -2.2683200000e6 	2.5 	 0\n"
 //        "e	 0.00055	  0.000000000000 	1.5 	-1\n");
@@ -654,7 +778,6 @@ namespace Cantera {
   //      "NH3     1.47040e+03   1\n"
   //      "NH3     4.95440e+03   2\n"
   //      "NH3     2.34070e+03   2\n"
-
   //      "NO      2.81700e+03   1\n"
   //      "NO+     3.42100e+03   1\n"
   //      "NO2     1.07900e+03   1\n"
@@ -690,20 +813,20 @@ namespace Cantera {
 				    doublereal* cp_R, doublereal* h_RT,
 				    doublereal* s_R) const {
     
+    // well shit, how do we determine what species it is?!?
+    std::string str = "Air";
+    double theta = 0.0;
+
     // translational + rotational specific heat
     doublereal ctr = 0.0;
-    double atomicity = 0.0;
 
     // 5/2 * R for molecules, 3/2 * R for atoms
-    if(atomicity < 1.0) // atom
+    ctr += GasConstant * name_map[str]->cfs;
+    for(int i=0; i<name_map[str]->nvib; i++)
       {
-	ctr += 3/2 * GasConstant; 
+	theta = name_map[str]->theta[i];
+	ctr += GasConstant * theta * (theta* exp(theta/tt[0])/(tt[0]*tt[0]))/((exp(theta/tt[0])-1) * (exp(theta/tt[0])-1));
       }
-    else  // molecule
-      {
-	ctr += 5/2 * GasConstant; 
-	ctr += GasConstant * theta* ( theta* exp(theta/tt[0])/(tt[0]*tt[0]))/((exp(theta/tt[0])-1) * (exp(theta/tt[0])-1));
-      }   
     doublereal cpdivR = ctr/GasConstant + 1;
 
     // ACTUNG: fix enthalpy and entropy 
@@ -805,63 +928,4 @@ namespace Cantera {
 
 
 }
-
-    //     name_map["Air"  ] = 1; 
-    //     name_map["CPAir"] = 2; 
-    //     name_map["Ar"   ] = 3;   
-    //     name_map["Ar+"  ] = 4;  
-    //     name_map["C"    ] = 5;    
-    //     name_map["C+"   ] = 6;   
-    //     name_map["C2"   ] = 7;   
-    //     name_map["C2H"  ] = 8;
-    //     name_map["C2H2" ] = 9;
-    //     name_map["C3"   ] =10; 
-    //     name_map["CF"   ] =11; 
-    //     name_map["CF2"  ] =12; 
-    //     name_map["CF3"  ] =13; 
-    //     name_map["CF4"  ] =14; 
-    //     name_map["CH"   ] =15; 
-    //     name_map["CH2"  ] =16; 
-    //     name_map["CH3"  ] =17; 
-    //     name_map["CH4"  ] =18; 
-    //     name_map["Cl"   ] =19; 
-    //     name_map["Cl2"  ] =20; 
-    //     name_map["CN"   ] =21; 
-    //     name_map["CN+"  ] =22; 
-    //     name_map["CO"   ] =23; 
-    //     name_map["CO+"  ] =24; 
-    //     name_map["CO2"  ] =25; 
-    //     name_map["F"    ] =26;
-    //     name_map["F2"   ] =27; 
-    //     name_map["H"    ] =28; 
-    //     name_map["H+"   ] =29; 
-    //     name_map["H2"   ] =30; 
-    //     name_map["H2+"  ] =31; 
-    //     name_map["H2O"  ] =32; 
-    //     name_map["HCl"  ] =33; 
-    //     name_map["HCN"  ] =34; 
-    //     name_map["He"   ] =35; 
-    //     name_map["He+"  ] =36; 
-    //     name_map["N"    ] =37; 
-    //     name_map["N+"   ] =38; 
-    //     name_map["N2"   ] =39; 
-    //     name_map["CPN2" ] =40; 
-    //     name_map["N2+"  ] =41; 
-    //     name_map["Ne"   ] =42; 
-    //     name_map["NCO"  ] =43; 
-    //     name_map["NH"   ] =44; 
-    //     name_map["NH+"  ] =45; 
-    //     name_map["NH2"  ] =46; 
-    //     name_map["NH3"  ] =47; 
-    //     name_map["NO"   ] =48; 
-    //     name_map["NO+"  ] =49; 
-    //     name_map["NO2"  ] =50; 
-    //     name_map["O"    ] =51; 
-    //     name_map["O+"   ] =52; 
-    //     name_map["O2"   ] =53; 
-    //     name_map["O2+"  ] =54; 
-    //     name_map["OH"   ] =55; 
-    //     name_map["Si"   ] =56; 
-    //     name_map["SiO"  ] =57; 
-    //     name_map["e"    ] =58; 
  
