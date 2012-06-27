@@ -3040,6 +3040,9 @@ namespace Cantera {
     int convRes = 0;
     solnType_ = SolnType;
     int info = 0;
+    if (neq_ <= 0) {
+      return 1;
+    }
 
     bool m_residCurrent = false;
     num_linear_solves -= m_numTotalLinearSolves;
