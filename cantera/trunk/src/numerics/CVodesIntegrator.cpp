@@ -389,6 +389,7 @@ void CVodesIntegrator::initialize(double t0, FuncEval& func)
     }
 
     // pass a pointer to func in m_data
+    delete m_fdata;
     m_fdata = new FuncData(&func, func.nparams());
 
     //m_data = (void*)&func;
