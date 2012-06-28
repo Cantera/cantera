@@ -51,7 +51,7 @@ namespace Cantera {
 	m_press(OneAtm),
 	m_p0(OneAtm),
 	m_tlast(-1.0)  { 
-    *this = operator=(right);
+    operator=(right);
   }
 
   // Asignment operator

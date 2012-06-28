@@ -100,14 +100,14 @@ namespace Cantera {
     /*!
      *  @deprecated This entire structure could be replaced with a std::map
      */
-    static int ntypes = 23;
+    static int ntypes = 24;
 
     //! Define the string name of the %ThermoPhase types that are handled by this factory routine
     static string _types[] = {"IdealGas", "Incompressible", 
                               "Surface", "Edge", "Metal", "StoichSubstance",
                               "PureFluid", "LatticeSolid", "Lattice",
                               "HMW", "IdealSolidSolution", "DebyeHuckel", 
-                              "IdealMolalSolution", "IdealGasVPSS",
+                              "IdealMolalSolution", "IdealGasVPSS", "IdealSolnVPSS",
 			      "MineralEQ3", "MetalSHEelectrons", "Margules", "PhaseCombo_Interaction",
                               "IonsFromNeutralMolecule", "FixedChemPot", "MolarityIonicVPSSTP",
                               "MixedSolventElectrolyte", "Redlich-Kister"
@@ -118,7 +118,7 @@ namespace Cantera {
                               cSurf, cEdge, cMetal, cStoichSubstance,
                               cPureFluid, cLatticeSolid, cLattice,
                               cHMW, cIdealSolidSolnPhase, cDebyeHuckel,
-                              cIdealMolalSoln, cVPSS_IdealGas,
+                              cIdealMolalSoln, cVPSS_IdealGas, cIdealSolnGasVPSS_iscv,
 			      cMineralEQ3, cMetalSHEelectrons,
 			      cMargulesVPSSTP,  cPhaseCombo_Interaction, cIonsFromNeutral, cFixedChemPot,
                               cMolarityIonicVPSSTP, cMixedSolventElectrolyte, cRedlichKisterVPSSTP
@@ -253,6 +253,11 @@ namespace Cantera {
     case cVPSS_IdealGas:
       th = new IdealSolnGasVPSS;
       break;
+
+    case cIdealSolnGasVPSS_iscv:
+      th = new IdealSolnGasVPSS;
+      break;
+
 
     default: 
       throw UnknownThermoPhaseModel("ThermoFactory::newThermoPhase",

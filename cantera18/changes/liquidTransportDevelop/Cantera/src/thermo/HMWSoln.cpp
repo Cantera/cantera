@@ -333,15 +333,25 @@ namespace Cantera {
       m_Lambda_nj_LL        = b.m_Lambda_nj_LL;
       m_Lambda_nj_P         = b.m_Lambda_nj_P;
       m_Lambda_nj_coeff     = b.m_Lambda_nj_coeff;
+
+      m_Mu_nnn              = b.m_Mu_nnn;
+      m_Mu_nnn_L            = b.m_Mu_nnn_L;
+      m_Mu_nnn_LL           = b.m_Mu_nnn_LL;
+      m_Mu_nnn_P            = b.m_Mu_nnn_P;
+      m_Mu_nnn_coeff        = b.m_Mu_nnn_coeff;
+
       m_lnActCoeffMolal_Scaled       = b.m_lnActCoeffMolal_Scaled;
       m_lnActCoeffMolal_Unscaled     = b.m_lnActCoeffMolal_Unscaled;
+      m_dlnActCoeffMolaldT_Scaled    = b.m_dlnActCoeffMolaldT_Scaled;
       m_dlnActCoeffMolaldT_Unscaled  = b.m_dlnActCoeffMolaldT_Unscaled;
+      m_d2lnActCoeffMolaldT2_Scaled  = b.m_d2lnActCoeffMolaldT2_Scaled;
       m_d2lnActCoeffMolaldT2_Unscaled= b.m_d2lnActCoeffMolaldT2_Unscaled;
+      m_dlnActCoeffMolaldP_Scaled    = b.m_dlnActCoeffMolaldP_Scaled;
       m_dlnActCoeffMolaldP_Unscaled  = b.m_dlnActCoeffMolaldP_Unscaled;
-      m_dlnActCoeffMolaldT_Scaled    = b.m_dlnActCoeffMolaldT_Unscaled;
-      m_d2lnActCoeffMolaldT2_Scaled  = b.m_d2lnActCoeffMolaldT2_Unscaled;
-      m_dlnActCoeffMolaldP_Scaled    = b.m_dlnActCoeffMolaldP_Unscaled;
 
+      m_molalitiesCropped   = b.m_molalitiesCropped;
+      m_molalitiesAreCropped = b.m_molalitiesAreCropped;
+      m_CounterIJ           = b.m_CounterIJ;
       m_gfunc_IJ            = b.m_gfunc_IJ;
       m_g2func_IJ           = b.m_g2func_IJ;
       m_hfunc_IJ            = b.m_hfunc_IJ;
@@ -402,9 +412,6 @@ namespace Cantera {
       CROP_ln_gamma_k_min   = b.CROP_ln_gamma_k_min;
       CROP_ln_gamma_k_max   = b.CROP_ln_gamma_k_max;
       CROP_speciesCropped_  = b.CROP_speciesCropped_;
-      m_CounterIJ           = b.m_CounterIJ;
-      m_molalitiesCropped   = b.m_molalitiesCropped;
-      m_molalitiesAreCropped= b.m_molalitiesAreCropped;
       m_debugCalc           = b.m_debugCalc;
     }
     return *this;

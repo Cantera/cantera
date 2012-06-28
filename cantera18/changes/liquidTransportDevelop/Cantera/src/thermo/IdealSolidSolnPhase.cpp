@@ -39,7 +39,7 @@ namespace Cantera {
 			 " Illegal value of formGC");
     }
   }
-
+  //===================================================================================================================
   IdealSolidSolnPhase::IdealSolidSolnPhase(std::string inputFile, std::string id,
 					   int formGC) :
     ThermoPhase(),
@@ -76,7 +76,15 @@ namespace Cantera {
     constructPhaseXML(root, id);
   }
   //====================================================================================================================
-  IdealSolidSolnPhase::IdealSolidSolnPhase(const IdealSolidSolnPhase &b) 
+  IdealSolidSolnPhase::IdealSolidSolnPhase(const IdealSolidSolnPhase &b) :
+    ThermoPhase(),
+    m_formGC(b.m_formGC),
+    m_mm(b.m_mm),
+    m_tmin(b.m_tmin),
+    m_tmax(b.m_tmax),
+    m_Pref(b.m_Pref),
+    m_Pcurrent(b.m_Pcurrent),
+    m_tlast(0.0)
   {
     *this = b;
   }
@@ -85,8 +93,7 @@ namespace Cantera {
   IdealSolidSolnPhase& IdealSolidSolnPhase::
   operator=(const IdealSolidSolnPhase &b) {
     if (this != &b) {
-      //ThermoPhase::operator=(b);
-      // m_spthermo   = dupMyselfAsSpeciesThermo(b.m_spthermo);
+      ThermoPhase::operator=(b);
       m_formGC     = b.m_formGC;
       m_mm         = b.m_mm;
       m_tmin       = b.m_tmin;
@@ -105,7 +112,7 @@ namespace Cantera {
     }
     return *this;
   }
-
+  //====================================================================================================================
   /*
    * Base Class Duplication Function
    *  -> given a pointer to ThermoPhase, this function can
