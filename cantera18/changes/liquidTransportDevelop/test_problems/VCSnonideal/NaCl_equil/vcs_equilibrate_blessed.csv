@@ -3,7 +3,7 @@ Temperature  =      298.15 kelvin
 Pressure     =  1.0132e+05 Pascal
 Total Volume =      100.41 m**3
 Number Basis optimizations = 3
-Number VCS iterations = 31
+Number VCS iterations = 30
         Name,      Phase,  PhaseMoles,  Mole_Fract, Molalities,  ActCoeff,   Activity,ChemPot_SS0,   ChemPot,   mole_num,       PMVol, Phase_Volume
             ,           ,      (kmol),            ,           ,          ,           ,   (J/kmol),  (J/kmol),     (kmol), (m**3/kmol),     (m**3)
       H2O(L), NaCl_electrolyte,   2.327e+00,   8.176e-01,   5.551e+01,   9.173e-01,   7.500e-01, -3.067e+02,  -3.074e+02,   1.903e+00,   1.800e-02,   3.838e-02
