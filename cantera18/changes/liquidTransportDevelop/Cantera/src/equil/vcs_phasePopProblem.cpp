@@ -13,6 +13,7 @@
 #include "vcs_internal.h"
 #include "vcs_SpeciesProperties.h"
 #include "vcs_species_thermo.h"
+#include "vcs_phasePopProblem.h"
 #include "vcs_solve.h"
 
 #include "ThermoPhase.h"
@@ -25,7 +26,7 @@
 namespace VCSnonideal {
 
   //! Base constructor for the class
-  vcs_phasePopProblem::vcs_phasePopProblem(VCS_SOLVE * owningSolverObject = 0)
+  vcs_phasePopProblem::vcs_phasePopProblem(VCS_SOLVE * owningSolverObject)
   {
 
   }
