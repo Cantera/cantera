@@ -1,0 +1,216 @@
+Number of species = 10
+Number of species in bulk phase named soot = 1
+Number of species in surface phase, soot_interface = 2
+Number of reactions = 8
+
+================================ SOLVESP CALL SETUP ========================================
+
+  SOLVESP Called with Initialization turned on
+     Time scale input = 1.000e+00
+     Bulk Phases have fixed compositions
+     Damping is ON   
+     Reltol = 1.000e-06, Abstol = 1.000e-20
+
+
+	 Iter    Time       Del_t      Damp      DelX        Resid    Name-Time    Name-Damp
+	 -----------------------------------------------------------------------------------
+	     1 6.3033e-07 6.3033e-07            3.1954e+05 2.9368e+05 Csoot-*         
+	     2 1.7900e-06 1.1597e-06            1.8053e+05 1.3190e+05 Csoot-*         
+	     3 4.8454e-06 3.0554e-06            6.8484e+04 4.0505e+04 Csoot-*         
+	     4 2.6364e-05 2.1519e-05            1.1250e+04 5.8320e+03 Csoot-*         
+	     5 1.3012e-03 1.2749e-03            1.4427e+03 7.3573e+02 Csoot-*         
+	     6 4.7372e+00 4.7359e+00            5.8160e-01 2.9647e-01 Csoot-*         
+	     7                                  6.4112e-08 3.2378e-08                
+	FIN  7                                  6.4112e-08 3.6822e-12                 -- success
+Gas Temperature = 1.4e+03
+Gas Pressure    = 1.01e+05
+Gas Phase:  gas   (0)
+                       Name           Conc              MoleF       SrcRate 
+                                    (kmol/m^3)                   (kmol/m^2/s) 
+   0                        H          8.7e-05        0.00999      -2.366e-03
+   1                       N2          0.00774          0.889       0.000e+00
+   2                      CH3                0              0       0.000e+00
+   3                      CH4          8.7e-05        0.00999       0.000e+00
+   4                     C2H2          8.7e-05        0.00999      -1.008e-04
+   5                       H2         0.000348           0.04       1.283e-03
+   6                       OH          8.7e-07       9.99e-05      -7.542e-05
+   7                      H2O         0.000348           0.04       3.880e-05
+   8                       CO                0              0       3.843e-05
+   9                       O2          8.7e-06       0.000999      -9.061e-07
+Sum of gas mole fractions= 1
+
+Bulk Phase:  soot   (10)
+Bulk Temperature = 1.4e+03
+Bulk Pressure    = 1.01e+05
+                       Name           Conc              MoleF       SrcRate 
+                                    (kmol/m^3)                   (kmol/m^2/s) 
+   0                   CB-CB3              293              1       1.631e-04
+Bulk Weight Growth Rate = 0.00196 kg/m^2/s
+Bulk Growth Rate = 5.57e-07 m/s
+Bulk Growth Rate = 2e+03 microns / hour
+Density of bulk phase = 3.52e+03 kg / m^3 
+                      = 3.52 gm / cm^3 
+Sum of bulk mole fractions= 1
+
+Surface Phase:  soot_interface (11)
+Surface Temperature = 1.4e+03
+Surface Pressure    = 1.01e+05
+                       Name         Coverage         SrcRate 
+   0                  Csoot-*           0.0185        0.000e+00
+   1                  Csoot-H            0.982        0.000e+00
+Sum of coverages = 1
+
+================================ SOLVESP CALL SETUP ========================================
+
+   SOLVESP Called to calculate steady state residual
+           from a good initial guess
+     Bulk Phases have fixed compositions
+     Damping is ON   
+     Reltol = 1.000e-06, Abstol = 1.000e-20
+
+
+	 Iter    Time       Del_t      Damp      DelX        Resid    Name-Time    Name-Damp
+	 -----------------------------------------------------------------------------------
+	     1                                  5.3218e+03 2.7005e+03                
+	     2                                  8.8765e-06 4.0574e-06                
+	FIN  2                                  8.8765e-06 8.4527e-11                 -- success
+Gas Temperature = 1.4e+03
+Gas Pressure    = 1.01e+05
+Gas Phase:  gas   (0)
+                       Name           Conc              MoleF       SrcRate 
+                                    (kmol/m^3)                   (kmol/m^2/s) 
+   0                        H         0.000113          0.013      -3.122e-03
+   1                       N2          0.00771          0.886       0.000e+00
+   2                      CH3                0              0       0.000e+00
+   3                      CH4          8.7e-05        0.00999       0.000e+00
+   4                     C2H2          8.7e-05        0.00999      -1.015e-04
+   5                       H2         0.000348           0.04       1.661e-03
+   6                       OH          8.7e-07       9.99e-05      -7.541e-05
+   7                      H2O         0.000348           0.04       3.879e-05
+   8                       CO                0              0       3.844e-05
+   9                       O2          8.7e-06       0.000999      -9.129e-07
+Sum of gas mole fractions= 1
+
+Bulk Phase:  soot   (10)
+Bulk Temperature = 1.4e+03
+Bulk Pressure    = 1.01e+05
+                       Name           Conc              MoleF       SrcRate 
+                                    (kmol/m^3)                   (kmol/m^2/s) 
+   0                   CB-CB3              293              1       1.646e-04
+Bulk Weight Growth Rate = 0.00198 kg/m^2/s
+Bulk Growth Rate = 5.62e-07 m/s
+Bulk Growth Rate = 2.02e+03 microns / hour
+Density of bulk phase = 3.52e+03 kg / m^3 
+                      = 3.52 gm / cm^3 
+Sum of bulk mole fractions= 1
+
+Surface Phase:  soot_interface (11)
+Surface Temperature = 1.4e+03
+Surface Pressure    = 1.01e+05
+                       Name         Coverage         SrcRate 
+   0                  Csoot-*           0.0186        0.000e+00
+   1                  Csoot-H            0.981        0.000e+00
+Sum of coverages = 1
+
+================================ SOLVESP CALL SETUP ========================================
+
+   SOLVESP Called to calculate steady state residual
+           from a good initial guess
+     Bulk Phases have fixed compositions
+     Damping is ON   
+     Reltol = 1.000e-06, Abstol = 1.000e-20
+
+
+	 Iter    Time       Del_t      Damp      DelX        Resid    Name-Time    Name-Damp
+	 -----------------------------------------------------------------------------------
+	     1                                  2.1569e+05 9.5571e+04                
+	     2                                  7.8671e-04 4.6185e-04                
+	FIN  2                                  7.8671e-04 1.5306e-10                 -- success
+Gas Temperature = 1.5e+03
+Gas Pressure    = 1.01e+05
+Gas Phase:  gas   (0)
+                       Name           Conc              MoleF       SrcRate 
+                                    (kmol/m^3)                   (kmol/m^2/s) 
+   0                        H         0.000106          0.013      -3.833e-03
+   1                       N2          0.00722          0.886       0.000e+00
+   2                      CH3                0              0       0.000e+00
+   3                      CH4         8.14e-05        0.00999       0.000e+00
+   4                     C2H2         8.14e-05        0.00999      -1.499e-04
+   5                       H2         0.000326           0.04       2.065e-03
+   6                       OH         8.14e-07       9.99e-05      -7.369e-05
+   7                      H2O         0.000326           0.04       3.846e-05
+   8                       CO                0              0       3.788e-05
+   9                       O2         8.14e-06       0.000999      -1.324e-06
+Sum of gas mole fractions= 1
+
+Bulk Phase:  soot   (10)
+Bulk Temperature = 1.5e+03
+Bulk Pressure    = 1.01e+05
+                       Name           Conc              MoleF       SrcRate 
+                                    (kmol/m^3)                   (kmol/m^2/s) 
+   0                   CB-CB3              293              1       2.620e-04
+Bulk Weight Growth Rate = 0.00315 kg/m^2/s
+Bulk Growth Rate = 8.94e-07 m/s
+Bulk Growth Rate = 3.22e+03 microns / hour
+Density of bulk phase = 3.52e+03 kg / m^3 
+                      = 3.52 gm / cm^3 
+Sum of bulk mole fractions= 1
+
+Surface Phase:  soot_interface (11)
+Surface Temperature = 1.5e+03
+Surface Pressure    = 1.01e+05
+                       Name         Coverage         SrcRate 
+   0                  Csoot-*           0.0243        0.000e+00
+   1                  Csoot-H            0.976        0.000e+00
+Sum of coverages = 1
+
+================================ SOLVESP CALL SETUP ========================================
+
+   SOLVESP Called to calculate steady state residual
+           from a good initial guess
+     Bulk Phases have fixed compositions
+     Damping is ON   
+     Reltol = 1.000e-06, Abstol = 1.000e-20
+
+
+	 Iter    Time       Del_t      Damp      DelX        Resid    Name-Time    Name-Damp
+	 -----------------------------------------------------------------------------------
+	     1                                  3.0635e-10 1.5694e-10                
+	FIN  1                                  3.0635e-10 1.2314e-10                 -- success
+Gas Temperature = 1.5e+03
+Gas Pressure    = 1.01e+05
+Gas Phase:  gas   (0)
+                       Name           Conc              MoleF       SrcRate 
+                                    (kmol/m^3)                   (kmol/m^2/s) 
+   0                        H         0.000106          0.013      -3.833e-03
+   1                       N2          0.00722          0.886       0.000e+00
+   2                      CH3                0              0       0.000e+00
+   3                      CH4         8.14e-05        0.00999       0.000e+00
+   4                     C2H2         8.14e-05        0.00999      -1.499e-04
+   5                       H2         0.000326           0.04       2.065e-03
+   6                       OH         8.14e-07       9.99e-05      -7.369e-05
+   7                      H2O         0.000326           0.04       3.846e-05
+   8                       CO                0              0       3.788e-05
+   9                       O2         8.14e-06       0.000999      -1.324e-06
+Sum of gas mole fractions= 1
+
+Bulk Phase:  soot   (10)
+Bulk Temperature = 1.5e+03
+Bulk Pressure    = 1.01e+05
+                       Name           Conc              MoleF       SrcRate 
+                                    (kmol/m^3)                   (kmol/m^2/s) 
+   0                   CB-CB3              293              1       2.620e-04
+Bulk Weight Growth Rate = 0.00315 kg/m^2/s
+Bulk Growth Rate = 8.94e-07 m/s
+Bulk Growth Rate = 3.22e+03 microns / hour
+Density of bulk phase = 3.52e+03 kg / m^3 
+                      = 3.52 gm / cm^3 
+Sum of bulk mole fractions= 1
+
+Surface Phase:  soot_interface (11)
+Surface Temperature = 1.5e+03
+Surface Pressure    = 1.01e+05
+                       Name         Coverage         SrcRate 
+   0                  Csoot-*           0.0243        0.000e+00
+   1                  Csoot-H            0.976        0.000e+00
+Sum of coverages = 1

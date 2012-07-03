@@ -1,0 +1,36 @@
+#!/bin/sh
+#
+#
+temp_success="1"
+/bin/rm  -f output.txt outputa.txt
+testName="rankine"
+
+#################################################################
+#
+#################################################################
+CANTERA_DATA=${CANTERA_DATA:="../../data/inputs"}
+export CANTERA_DATA
+
+CANTERA_BIN=${CANTERA_BIN:=../../bin}
+./rankine > output.txt
+retnStat=$?
+if test $retnStat != "0" 
+then
+  temp_success="0"
+  echo "$testName returned with bad status, $retnStat, check output"
+  exit 1
+fi
+
+diff -w output.txt output_blessed.txt > diff_test.out
+retnStat=$?
+if test $retnStat = "0" 
+then
+  echo "successful diff comparison on $testName test"
+  return 0
+else
+  echo "unsuccessful diff comparison on $testName test"
+  echo "FAILED" > csvCode.txt
+  temp_success="0"
+  return 1
+fi
+

@@ -1,0 +1,9 @@
+Critical State Properties
+               Fluid      Tc [K]     Pc [Pa]          Zc
+       carbondioxide        304.2    7.384E+06      0.2769
+              oxygen        154.6    5.043E+06      0.2879
+               water        647.3    2.209E+07      0.2333
+            nitrogen        126.2      3.4E+06      0.2891
+             heptane        537.7     2.62E+06      0.2972
+            hydrogen        32.94    1.284E+06      0.3013
+             methane        190.6    4.599E+06      0.2904

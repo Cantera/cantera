@@ -1,0 +1,10 @@
+env = Environment()
+
+env.Append(CCFLAGS='-g',
+           CPPPATH=@tmpl_cantera_incdirs@,
+           LIBS=@tmpl_cantera_libs@,
+           LIBPATH=@tmpl_cantera_libdirs@,
+           LINKFLAGS=@tmpl_cantera_linkflags@)
+
+program = env.Program('@tmpl_progname@', '@tmpl_sourcename@')
+Default(program)

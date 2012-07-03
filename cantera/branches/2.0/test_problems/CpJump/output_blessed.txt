@@ -1,0 +1,68 @@
+
+
+**** WARNING ****
+For species O2, discontinuity in cp/R detected at Tmid = 1000
+	Value computed using low-temperature polynomial:  3.19546.
+	Value computed using high-temperature polynomial: 4.19546.
+
+
+**** WARNING ****
+For species O2, discontinuity in s/R detected at Tmid = 1000
+	Value computed using low-temperature polynomial:  28.2967.
+	Value computed using high-temperature polynomial: 29.2967.
+ 
+  air:
+ 
+       temperature          1000.1  K
+          pressure          100000  Pa
+           density        0.356062  kg/m^3
+  mean mol. weight         29.6076  amu
+ 
+                          1 kg            1 kmol
+                       -----------      ------------
+          enthalpy          742093        2.197e+07     J
+   internal energy          461243        1.366e+07     J
+           entropy         8106.04          2.4e+05     J/K
+    Gibbs function    -7.36476e+06       -2.181e+08     J
+ heat capacity c_p         1135.21        3.361e+04     J/K
+ heat capacity c_v          854.39         2.53e+04     J/K
+ 
+                           X                 Y          Chem. Pot. / RT    
+                     -------------     ------------     ------------
+                 O    1.00395e-10      5.42517e-11         -13.7477
+                O2       0.399979         0.432282         -27.4955
+                 N    2.33301e-22      1.10369e-22         -12.6874
+                NO    3.79282e-05      3.84387e-05         -26.4351
+               NO2    2.80497e-06      4.35848e-06         -40.1829
+               N2O    2.71909e-09      4.04202e-09         -39.1225
+                N2        0.59998         0.567676         -25.3748
+                AR              0                0     
+ enth = 742093
+attempted equil at (H,P) = 7.4189e+05,      1e+05
+ 
+  air:
+ 
+       temperature         999.965  K
+          pressure          100000  Pa
+           density        0.356111  kg/m^3
+  mean mol. weight         29.6077  amu
+ 
+                          1 kg            1 kmol
+                       -----------      ------------
+          enthalpy          685818        2.031e+07     J
+   internal energy          405006        1.199e+07     J
+           entropy          7993.6        2.367e+05     J/K
+    Gibbs function     -7.3075e+06       -2.164e+08     J
+ heat capacity c_p         1022.87        3.028e+04     J/K
+ heat capacity c_v         742.051        2.197e+04     J/K
+ 
+                           X                 Y          Chem. Pot. / RT    
+                     -------------     ------------     ------------
+                 O    1.28379e-10      6.93734e-11         -13.4976
+                O2       0.399972         0.432274         -26.9952
+                 N    2.31497e-22      1.09516e-22         -12.6872
+                NO    4.86274e-05      4.92818e-05         -26.1848
+               NO2    4.62192e-06      7.18171e-06         -39.6824
+               N2O    3.48658e-09      5.18293e-09          -38.872
+                N2       0.599975          0.56767         -25.3745
+                AR              0                0     
