@@ -588,6 +588,7 @@ if env['f90_interface'] in ('y','default'):
 
     if foundF90:
         env['f90_interface'] = 'y'
+        env['FORTRAN'] = env['F90']
     elif env['f90_interface'] == 'y':
         print "ERROR: Couldn't find a suitable Fortran compiler to build the Fortran 90 interface"
         sys.exit(1)
