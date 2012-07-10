@@ -956,12 +956,13 @@ config_h = env.Command('include/cantera/base/config.h',
 env.AlwaysBuild(config_h)
 env['config_h_target'] = config_h
 
+env['boost_libs'] = []
 if env['build_thread_safe']:
     env['use_boost_libs'] = True
-    env['boost_libs'] = [env['boost_thread_lib']]
+    if env['CC'] != 'cl':
+        env['boost_libs'].append(env['boost_thread_lib'])
 else:
     env['use_boost_libs'] = False
-    env['boost_libs'] = []
 
 # *********************
 # *** Build Cantera ***
