@@ -520,7 +520,7 @@ opts.AddVariables(
         name recognized by the 'dot' program. On linux systems, this
         should be lowercase 'helvetica'.""",
      'Helvetica'),
-    ('cantera_version', '', '2.0.0b4')
+    ('cantera_version', '', '2.1a1')
     )
 
 opts.Update(env)
