@@ -212,6 +212,7 @@ void GasTransport::updateViscosity_T()
 
 void GasTransport::updateSpeciesViscosities()
 {
+    update_T();
     if (m_mode == CK_Mode) {
         for (size_t k = 0; k < m_nsp; k++) {
             m_visc[k] = exp(dot4(m_polytempvec, m_visccoeffs[k]));
@@ -229,6 +230,7 @@ void GasTransport::updateSpeciesViscosities()
 
 void GasTransport::updateDiff_T()
 {
+    update_T();
     // evaluate binary diffusion coefficients at unit pressure
     size_t ic = 0;
     if (m_mode == CK_Mode) {
