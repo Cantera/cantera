@@ -819,7 +819,7 @@ namespace Cantera {
 
     // pointer to map location of particular species
     species* s = name_map.find(str)->second;
-    double theta = s->theta[i];
+    double theta = 0.0;
 
     // translational + rotational specific heat
     doublereal ctr = 0.0;
@@ -828,6 +828,7 @@ namespace Cantera {
     ctr += GasConstant * s->cfs;
     for(int i=0; i< s->nvib; i++)
       {
+	theta = s->theta[i];
 	ctr += GasConstant * theta * (theta* exp(theta/tt[0])/(tt[0]*tt[0]))/((exp(theta/tt[0])-1) * (exp(theta/tt[0])-1));
       }
     doublereal cpdivR = ctr/GasConstant + 1;
