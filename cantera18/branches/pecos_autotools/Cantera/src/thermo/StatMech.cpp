@@ -812,19 +812,23 @@ namespace Cantera {
   void StatMech::updateProperties(const doublereal* tt, 
 				    doublereal* cp_R, doublereal* h_RT,
 				    doublereal* s_R) const {
-    
+
     // well shit, how do we determine what species it is?!?
+    // int2str(m_index)
     std::string str = "Air";
+
+    // pointer to map location of particular species
+    species* s = name_map.find(str)->second;
     double theta = 0.0;
 
     // translational + rotational specific heat
     doublereal ctr = 0.0;
 
     // 5/2 * R for molecules, 3/2 * R for atoms
-    ctr += GasConstant * name_map[str]->cfs;
-    for(int i=0; i<name_map[str]->nvib; i++)
+    ctr += GasConstant * s->cfs;
+    for(int i=0; i< s->nvib; i++)
       {
-	theta = name_map[str]->theta[i];
+	theta = s->theta[i];
 	ctr += GasConstant * theta * (theta* exp(theta/tt[0])/(tt[0]*tt[0]))/((exp(theta/tt[0])-1) * (exp(theta/tt[0])-1));
       }
     doublereal cpdivR = ctr/GasConstant + 1;
