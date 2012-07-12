@@ -1,5 +1,3 @@
-cc_sources = statmech_test.cpp
-
 INC                  = -I. -I$(top_builddir)/build/include/ -g
 AM_CPPFLAGS          = $(INC)
 AM_CXXFLAGS          = $(AM_CPPFLAGS)
@@ -10,17 +8,20 @@ LINK                += -lctlapack -lctblas -lctf2c -lm -lstdc++
 AM_LDFLAGS           = -L$(top_builddir)/build/lib/ 
 LIBS                 =  $(LINK)
 
-bin_PROGRAMS         = statmech_test
+check_PROGRAMS         = statmech_test \
+                         statmech_test_poly
+
 library_includedir   = $(INC)
 
 #-----------------------
 # Cantera DH graph test
 #-----------------------
 
-statmech_test_SOURCES = $(cc_sources)
+statmech_test_SOURCES      = statmech_test.cpp
+statmech_test_poly_SOURCES = statmech_test_poly.cpp
 
+TESTS_ENVIRONMENT = 	
+TESTS             = runtest_stat \
+                    statmech_test_poly
 
-TESTS_ENVIRONMENT = 
-TESTS             = runtest_stat
-
-EXTRA_DIST = runtest_stat  
+EXTRA_DIST = runtest_stat 
