@@ -588,15 +588,16 @@ namespace Cantera {
 		    throw CanteraError("Error in StatMech.cpp",
 				       "theta not initalized!. \n\n");
 		  }
-	      } // done with for
+	      } 
+
 	    // check that no non-zero theta exist
 	    // for any theta larger than nvib!
 	    for(int i=name_map[SS[ii]]->nvib;i<5;i++)
 	      {
 		if(name_map[SS[ii]]->theta[i] != 0.0)
 		  {
-		    throw CanteraError("Error in StatMech.cpp",
-				       "bad theta value!. \n\n");
+		    std::string err = "bad theta value for "+SS[ii]+"\n";
+		    throw CanteraError("StatMech.cpp",err);
 		  }
 	      } // done with for loop
 	  }
