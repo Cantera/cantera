@@ -429,14 +429,14 @@ namespace Cantera {
     name_map["HCN"]->theta[2]=4.76450e+03;
 
     // He
-    name_map["HCN"]->cfs=1.5;
-    name_map["HCN"]->mol_weight=4.00300;
-    name_map["HCN"]->nvib=0;
+    name_map["He"]->cfs=1.5;
+    name_map["He"]->mol_weight=4.00300;
+    name_map["He"]->nvib=0;
 
     // He+
-    name_map["HCN"]->cfs=1.5;
-    name_map["HCN"]->mol_weight=4.00245;
-    name_map["HCN"]->nvib=0;
+    name_map["He+"]->cfs=1.5;
+    name_map["He+"]->mol_weight=4.00245;
+    name_map["He+"]->nvib=0;
 
     // N
     name_map["N"]->cfs=1.5;
