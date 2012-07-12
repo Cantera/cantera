@@ -8,7 +8,7 @@
     <elementArray datasrc="elements.xml">
         O H C N Na Cl Fe
     </elementArray>
-    <speciesArray datasrc="#species_test"> H O</speciesArray>
+    <speciesArray datasrc="#species_test"> H Fe</speciesArray>
     <thermo model="IdealGas">
       <density units="g/cm3">2.165</density>
     </thermo>
@@ -31,12 +31,9 @@
 
     <!-- species Fe   -->
     <species name="Fe">
-      <atomArray> O:1 </atomArray>
+      <atomArray> Fe:1 </atomArray>
       <thermo>
         <StatMech P0="100000.0" Tmax="1000.0" Tmin="0.0">
-          <floatArray name="coeffs" size="7">
-            2.344331120E+00,   7.980520750E-03,  -1.947815100E-05,   2.015720940E-08, 
-           -7.376117610E-12,  -9.179351730E+02,   6.830102380E-01</floatArray>
         </StatMech>
       </thermo>
       <density units="g/cm3">2.165</density>
