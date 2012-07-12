@@ -22,6 +22,7 @@ using namespace std;
 #include "Cantera.h"
 #include "transport.h"
 #include "IdealGasMix.h"
+#include "equil.h"
 
 #include "TransportFactory.h"
 
@@ -40,6 +41,7 @@ int main(int argc, char** argv)
   Xset[1] =  0.5;
   
   g.setState_TPX(1500.0, pres, DATA_PTR(Xset));
+  equilibrate(g, "TP", -1);
 
   vector_fp cp_R(nsp, 0.0);
   g.getCp_R(DATA_PTR(cp_R));

@@ -3,12 +3,12 @@
 <ctml>
   <validate reactions="yes" species="yes"/>
                    
- <!-- phase Na    -->
+ <!-- phase H    -->
   <phase dim="3" id="H">
     <elementArray datasrc="elements.xml">
         O H C N Na Cl Fe
     </elementArray>
-    <speciesArray datasrc="#species_test"> H Fe </speciesArray>
+    <speciesArray datasrc="#species_test"> H Fe</speciesArray>
     <thermo model="IdealGas">
       <density units="g/cm3">2.165</density>
     </thermo>
