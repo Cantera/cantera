@@ -64,6 +64,7 @@ int main(int argc, char** argv)
     catch (CanteraError) 
       {
 	showErrors(cout);
+	return 1;
       }
 
   // Mark it zero!
