@@ -108,7 +108,7 @@ namespace Cantera {
 
   // Returns an integer representing the type of parameterization
   int StatMech::reportType() const {
-    return NASA9;
+    return STAT;
   }
       
   // Returns an integer representing the species index
@@ -914,7 +914,7 @@ namespace Cantera {
 				    doublereal &pref,
 				    doublereal* const coeffs) const {
     n = m_index;
-    type = NASA9;
+    type = STAT;
     tlow = m_lowT;
     thigh = m_highT;
     pref = m_Pref;

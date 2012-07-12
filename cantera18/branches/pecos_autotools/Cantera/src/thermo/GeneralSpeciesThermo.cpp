@@ -15,6 +15,7 @@
 #include "ShomatePoly.h"
 #include "ConstCpPoly.h"
 #include "Mu0Poly.h"
+#include "StatMech.h"
 #ifdef WITH_ADSORBATE
 #include "AdsorbateThermo.h"
 #endif
@@ -155,6 +156,12 @@ namespace Cantera {
 	    m_sp[index] = new NasaPoly2(index, minTemp, maxTemp,
 					refPressure, c);
 	    break;
+
+	case STAT:
+	    m_sp[index] = new StatMech(index, minTemp, maxTemp,
+					refPressure, c);
+	    break;
+
 #ifdef WITH_ADSORBATE
         case ADSORBATE:
 	   m_sp[index] = new Adsorbate(index, minTemp, maxTemp,

@@ -57,9 +57,13 @@
 //! This is implemented in the class NasaPoly1 in NasaPoly1.h
 #define NASA1  256
 
-//! 9 coefficient NASA Polynomials
+//! Properties derived from theoretical considerations
 //! This is implemented in the class Nasa9Poly1 in Nasa9Poly1.h
 #define NASA9  512
+
+//! 9 coefficient NASA Polynomials
+//! This is implemented in the class statmech in StatMech.h
+#define STAT  111
 
 //! 9 coefficient NASA Polynomials in multiple temperature regions
 //! This is implemented in the class Nasa9PolyMultiTempRegion in Nasa9Poly1MultiTempRegion
