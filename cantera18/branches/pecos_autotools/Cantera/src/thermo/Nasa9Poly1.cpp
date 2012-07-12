@@ -201,7 +201,7 @@ namespace Cantera {
   void Nasa9Poly1::updateProperties(const doublereal* tt, 
 				    doublereal* cp_R, doublereal* h_RT,
 				    doublereal* s_R) const {
-          
+
     doublereal ct0 = m_coeff[0] * tt[5];   // a0 / (T^2)
     doublereal ct1 = m_coeff[1] * tt[4];   // a1 / T
     doublereal ct2 = m_coeff[2];           // a2

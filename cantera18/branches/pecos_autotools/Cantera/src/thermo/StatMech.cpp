@@ -814,8 +814,8 @@ namespace Cantera {
 				    doublereal* s_R) const {
 
     // get species name, to gather species properties
-    //std::string str = "Air";
-    std::string str = int2str(m_index);
+    std::string str = "Air";
+    //std::string str = int2str(m_index);
     species* s;
 
     try
@@ -853,8 +853,6 @@ namespace Cantera {
     cp_R[m_index] = cpdivR;
     h_RT[m_index] = hdivRT;
     s_R[m_index]  = sdivR;
-    //writelog("NASA9poly1: for species "+int2str(m_index)+", h_RT = "+
-    //    fp2str(h)+"\n");
   }
 
  

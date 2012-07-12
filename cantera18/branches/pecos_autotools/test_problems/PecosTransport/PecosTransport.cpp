@@ -168,7 +168,6 @@ int main(int argc, char** argv) {
       string sss = g.speciesName(k);
       printf("    %15s %13.5g\n", sss.c_str(), mixDiffs[k]);
     }
-  
 
     vector_fp specVisc(nsp, 0.0);
     
