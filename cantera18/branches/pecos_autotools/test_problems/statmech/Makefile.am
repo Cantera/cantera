@@ -21,6 +21,6 @@ statmech_test_SOURCES = $(cc_sources)
 
 
 TESTS_ENVIRONMENT = 
-TESTS             = runtest
+TESTS             = runtest_stat
 
-EXTRA_DIST = runtest
+EXTRA_DIST = runtest_stat  
