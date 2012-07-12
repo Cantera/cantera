@@ -828,7 +828,7 @@ namespace Cantera {
       }
     else
       {
-	std::cout << sp_name << std::endl;
+	//std::cout << sp_name << std::endl;
 	throw CanteraError("StatMech.cpp",
 			   "species properties not found!. \n\n");		
       }

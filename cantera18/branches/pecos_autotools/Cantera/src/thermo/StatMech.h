@@ -199,16 +199,16 @@ namespace Cantera {
     struct species
     {
       //Nominal T-R Degrees of freedom (cv = cfs*k*T)
-      int cfs;
+      doublereal cfs;
     
       // Mol. Wt. Molecular weight (kg/kmol)
-      double mol_weight;
+      doublereal mol_weight;
     
       // number of vibrational temperatures necessary
       int nvib;
     
       // Theta_v Characteristic vibrational temperature(s) (K)
-      double theta[5];
+      doublereal theta[5];
     };
 
     std::map<std::string,species*> name_map;

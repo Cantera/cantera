@@ -54,8 +54,8 @@ int main(int argc, char** argv)
 	  std::cout << cp_R[i] << std::endl;
 	}  
 
-      // error check
-      if(cp_R[0] != 0)
+      // error check-- exact for atoms
+      if(cp_R[0] != 2.5)
 	{
 	  std::cout << "Error for monotomic Species!\n";
 	  return 1;

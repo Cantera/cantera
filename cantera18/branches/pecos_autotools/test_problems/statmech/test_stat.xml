@@ -6,7 +6,7 @@
  <!-- phase H    -->
   <phase dim="3" id="H">
     <elementArray datasrc="elements.xml">
-        O H C N Na Cl Fe
+        O H C N Na Cl
     </elementArray>
     <speciesArray datasrc="#species_test"> H</speciesArray>
     <thermo model="IdealGas">
@@ -23,7 +23,7 @@
     <species name="H">
       <atomArray> H:1 </atomArray>
       <thermo>
-        <StatMech P0="100000.0" Tmax="1000.0" Tmin="1.0">
+        <StatMech P0="100000.0" Tmax="2000.0" Tmin="1.0">
         </StatMech>
       </thermo>
       <density units="g/cm3">2.165</density>
