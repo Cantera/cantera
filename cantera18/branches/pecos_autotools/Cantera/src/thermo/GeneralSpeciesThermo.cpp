@@ -118,6 +118,12 @@ namespace Cantera {
 	 * Resize the arrays if necessary, filling the empty
 	 * slots with the zero pointer.
 	 */
+      if(minTemp <= 0.0)
+	{
+	  throw CanteraError("Error in GeneralSpeciesThermo.cpp",
+			     " Cannot take 0 tmin as input. \n\n");
+	}
+
 	if (index > m_kk - 1) {
 	  m_sp.resize(index+1, 0);
           m_kk = index+1;
@@ -253,6 +259,7 @@ namespace Cantera {
     for (; _begin != _end; ++_begin) {
       sp_ptr = *(_begin);
       if (sp_ptr) {
+	//std::cout << "I am here\n\n";
 	sp_ptr->updatePropertiesTemp(t, cp_R, h_RT, s_R);
       }
       // else {

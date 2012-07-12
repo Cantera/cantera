@@ -745,7 +745,11 @@ namespace Cantera {
 	}
       }
     }
-
+    // set properties
+    tmin = 0.1;
+    vector_fp coeffs(1);
+    coeffs[0] = 0.0;
+    (&sp)->install(speciesName, k, STAT, &coeffs[0], tmin, tmax, pref);
   }
 
   /** 

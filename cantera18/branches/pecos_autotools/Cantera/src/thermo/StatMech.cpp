@@ -23,7 +23,7 @@ namespace Cantera {
  
   //! Empty constructor
   StatMech::StatMech() 
-    : m_lowT(0.0), m_highT (0.0),
+    : m_lowT(0.1), m_highT (1.0),
       m_Pref(1.0E5), m_index (0) {}
 
 
@@ -45,9 +45,9 @@ namespace Cantera {
     m_index     (n)
   {
     // should error on zero -- cannot take ln(0)
-    if(tlow <= 0.0){
+    if(m_lowT <= 0.0){
       throw CanteraError("Error in StatMech.cpp",
-			 " Cannot take 0 tmin as input. \n\n");
+      		 " Cannot take 0 tmin as input. \n\n");
     }    
     buildmap();
   }
