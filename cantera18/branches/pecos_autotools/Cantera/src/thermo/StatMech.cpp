@@ -813,16 +813,27 @@ namespace Cantera {
 				    doublereal* cp_R, doublereal* h_RT,
 				    doublereal* s_R) const {
 
-    // well shit, how do we determine what species it is?!?
-    // int2str(m_index)
-    std::string str = "Air";
+    // get species name, to gather species properties
+    //std::string str = "Air";
+    std::string str = int2str(m_index);
+    species* s;
 
-    // pointer to map location of particular species
-    species* s = name_map.find(str)->second;
-    double theta = 0.0;
+    try
+      {
+	// pointer to map location of particular species
+	s = name_map.find(str)->second;
+      }
+    catch(int err)
+      {
+	std::cout << str << std::endl;
+	throw CanteraError("Error in StatMech.cpp",
+			   "species properties not found!. \n\n");	
+      }
 
     // translational + rotational specific heat
     doublereal ctr = 0.0;
+    double theta = 0.0;
+    
 
     // 5/2 * R for molecules, 3/2 * R for atoms
     ctr += GasConstant * s->cfs;
