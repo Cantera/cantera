@@ -854,7 +854,7 @@ namespace Cantera {
     // arrays for this species
     cp_R[m_index] = cpdivR;
     h_RT[m_index] = hdivRT;
-    s_R[m_index]  = sdivR;
+    s_R [m_index] = sdivR;
   }
 
  

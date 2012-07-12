@@ -54,12 +54,27 @@ int main(int argc, char** argv)
 	  std::cout << cp_R[i] << std::endl;
 	}  
 
-      // error check-- exact for atoms
+      // error check-- exactly 2.5 for atoms
       if(cp_R[0] != 2.5)
 	{
 	  std::cout << "Error for monotomic Species!\n";
 	  return 1;
 	}
+
+
+      // error check: analytical result is more complicated for 
+      // molecules. One species should suffice, lets try NO2, with
+      // three vibrational modes:
+      /// theta[0]: 1.07900e3
+      /// theta[1]: 1.9000003
+      /// theta[2]: 2.32700e3
+      // at T = 2000
+      if(cp_R[0] != 2.5)
+	{
+	  std::cout << "Error for Species NO2!\n";
+	  return 1;
+	}
+
     }
     catch (CanteraError) 
       {
