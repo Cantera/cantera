@@ -118,6 +118,7 @@ namespace Cantera {
 	 * Resize the arrays if necessary, filling the empty
 	 * slots with the zero pointer.
 	 */
+      
       if(minTemp <= 0.0)
 	{
 	  throw CanteraError("Error in GeneralSpeciesThermo.cpp",
@@ -164,9 +165,9 @@ namespace Cantera {
 	    break;
 
 	case STAT:
-	    m_sp[index] = new StatMech(index, minTemp, maxTemp,
-					refPressure, c);
-	    break;
+	  m_sp[index] = new StatMech(index, minTemp, maxTemp,
+				     refPressure, c, name);
+	  break;
 
 #ifdef WITH_ADSORBATE
         case ADSORBATE:

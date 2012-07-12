@@ -1,5 +1,5 @@
 /**
- *  @file Nasa9Poly1.h
+ *  @file StatMech.h
  *  Header for a single-species standard state object derived
  *  from 
  */
@@ -49,7 +49,7 @@ namespace Cantera {
      *                     parameters for the standard state.
      */
     StatMech(int n, doublereal tlow, doublereal thigh, doublereal pref,
-	       const doublereal* coeffs);
+	     const doublereal* coeffs, std::string my_name);
 
     //! copy constructor
     /*!
@@ -190,6 +190,8 @@ namespace Cantera {
     int m_index;  
     //! array of polynomial coefficients       
     array_fp m_coeff;
+
+    std::string sp_name;
 
     //*generic species struct that contains everything we need here
     // achtung: add doxygen markup here

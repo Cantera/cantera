@@ -37,12 +37,14 @@ namespace Cantera {
    *                     parameters for the standard state.
    */
   StatMech::StatMech(int n, doublereal tlow, doublereal thigh, 
-			 doublereal pref,
-			 const doublereal* coeffs) :
+		     doublereal pref,
+		     const doublereal* coeffs, 
+		     std::string my_name) :
     m_lowT      (tlow),
     m_highT     (thigh),
     m_Pref      (pref),
-    m_index     (n)
+    m_index     (n),
+    sp_name     (my_name)
   {
     // should error on zero -- cannot take ln(0)
     if(m_lowT <= 0.0){
@@ -814,28 +816,27 @@ namespace Cantera {
 				    doublereal* cp_R, doublereal* h_RT,
 				    doublereal* s_R) const {
 
+    std::map<std::string,species*>::iterator it;
+
     // get species name, to gather species properties
-    std::string str = "Air";
-    //std::string str = int2str(m_index);
     species* s;
 
-    try
+    // pointer to map location of particular species
+    if(name_map.find(sp_name)  != name_map.end())
       {
-	// pointer to map location of particular species
-	s = name_map.find(str)->second;
+	s = name_map.find(sp_name)->second;
       }
-    catch(int err)
+    else
       {
-	std::cout << str << std::endl;
-	throw CanteraError("Error in StatMech.cpp",
-			   "species properties not found!. \n\n");	
+	std::cout << sp_name << std::endl;
+	throw CanteraError("StatMech.cpp",
+			   "species properties not found!. \n\n");		
       }
 
     // translational + rotational specific heat
     doublereal ctr = 0.0;
     double theta = 0.0;
     
-
     // 5/2 * R for molecules, 3/2 * R for atoms
     ctr += GasConstant * s->cfs;
     for(int i=0; i< s->nvib; i++)

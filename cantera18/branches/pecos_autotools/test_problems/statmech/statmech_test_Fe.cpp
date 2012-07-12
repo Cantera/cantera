@@ -35,7 +35,7 @@ int main(int argc, char** argv)
   try
     {
       int k;
-      IdealGasMix g("test_stat.xml");
+      IdealGasMix g("test_stat_Fe.xml");
       int nsp = g.nSpecies();
       double pres = 1.0E5;
 
@@ -64,9 +64,8 @@ int main(int argc, char** argv)
     catch (CanteraError) 
       {
 	// need to get error here because of loading Fe in input file, when
-	// no Fe exists in the species information table, in statmech.cpp
-	
-	showErrors(cout);
+	// no Fe exists in the species information table, in statmech.cpp	
+	//showErrors(cout);
 	return 0;
       }
 
