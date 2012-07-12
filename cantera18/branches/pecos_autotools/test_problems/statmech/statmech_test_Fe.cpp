@@ -63,11 +63,14 @@ int main(int argc, char** argv)
     }
     catch (CanteraError) 
       {
+	// need to get error here because of loading Fe in input file, when
+	// no Fe exists in the species information table, in statmech.cpp
+	
 	showErrors(cout);
-	return 1;
+	return 0;
       }
 
   // Mark it zero!
-  return 0;
+  return 1;
 
 }
