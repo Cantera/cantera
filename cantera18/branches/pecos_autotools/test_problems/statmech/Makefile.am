@@ -9,7 +9,8 @@ AM_LDFLAGS           = -L$(top_builddir)/build/lib/
 LIBS                 =  $(LINK)
 
 check_PROGRAMS         = statmech_test \
-                         statmech_test_poly
+                         statmech_test_poly \
+                         statmech_test_Fe
 
 library_includedir   = $(INC)
 
@@ -19,9 +20,11 @@ library_includedir   = $(INC)
 
 statmech_test_SOURCES      = statmech_test.cpp
 statmech_test_poly_SOURCES = statmech_test_poly.cpp
+statmech_test_Fe_SOURCES   = statmech_test_Fe.cpp
 
 TESTS_ENVIRONMENT = 	
 TESTS             = runtest_stat \
-                    statmech_test_poly
+                    statmech_test_poly \
+                    statmech_test_Fe
 
 EXTRA_DIST = runtest_stat 
