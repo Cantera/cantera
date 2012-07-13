@@ -23,7 +23,7 @@ statmech_test_poly_SOURCES = statmech_test_poly.cpp
 statmech_test_Fe_SOURCES   = statmech_test_Fe.cpp
 
 TESTS_ENVIRONMENT = 	
-TESTS             = runtest_stat \
+TESTS             = statmech_test \
                     statmech_test_poly \
                     statmech_test_Fe
 

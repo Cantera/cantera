@@ -49,10 +49,11 @@ int main(int argc, char** argv)
       vector_fp cp_R(nsp, 0.0);
       g.getCp_R(DATA_PTR(cp_R));
 
-      for(int i=0;i<nsp;i++)
-	{
-	  std::cout << cp_R[i] << std::endl;
-	}  
+      //for(int i=0;i<nsp;i++)
+      //{
+      //  std::cout.precision(10);
+      //  std::cout << cp_R[i] << std::endl;
+      //	}  
 
       // error check-- exactly 2.5 for atoms
       if(cp_R[0] != 2.5)
@@ -61,7 +62,6 @@ int main(int argc, char** argv)
 	  return 1;
 	}
 
-
       // error check: analytical result is more complicated for 
       // molecules. One species should suffice, lets try NO2, with
       // three vibrational modes:
@@ -69,9 +69,17 @@ int main(int argc, char** argv)
       /// theta[1]: 1.9000003
       /// theta[2]: 2.32700e3
       // at T = 2000
-      if(cp_R[0] != 2.5)
+      //
+      // This is precisely: 6.655804161 (e.g. 5/2 + 1 + 3.1558..)
+      //
+      double sol = 6.655804161; 
+      double tol = 1e-10;
+
+      if(cp_R[3] - sol >= tol )
 	{
+	  double diff = cp_R[3]-6.655804161;
 	  std::cout << "Error for Species NO2!\n";
+	  std::cout << "Diff was: " << diff << "\n";
 	  return 1;
 	}
 
