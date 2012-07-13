@@ -872,6 +872,10 @@ namespace Cantera {
 	else if (f0->name() == "Shomate" && f1->name() == "Shomate") {
 	  installShomateThermoFromXML(speciesNode["name"], spthermo, k, f0, f1);
 	} 
+	else if (f0->name() == "StatMech") {
+	  installStatMechThermoFromXML(speciesNode["name"], spthermo, k, tp);
+	}
+
 	else if (f0->name() == "NASA9" && f1->name() == "NASA9") {
 	  installNasa9ThermoFromXML(speciesNode["name"], spthermo, k, tp);
 	} else {
@@ -883,7 +887,12 @@ namespace Cantera {
 	const XML_Node* f0 = tp[0];
 	if (f0->name() == "NASA9") {
 	  installNasa9ThermoFromXML(speciesNode["name"], spthermo, k, tp);
-	} else {
+	} 
+	else if (f0->name() == "StatMech") {
+	  installStatMechThermoFromXML(speciesNode["name"], spthermo, k, tp);
+	}
+
+	else {
 	  throw UnknownSpeciesThermoModel("installThermoForSpecies", speciesNode["name"], 
 					  "multiple");
 	}

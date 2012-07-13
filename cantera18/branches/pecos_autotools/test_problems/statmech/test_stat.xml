@@ -6,9 +6,9 @@
  <!-- phase H    -->
   <phase dim="3" id="H">
     <elementArray datasrc="elements.xml">
-        O H C N Na NO2
+        O H C N Na
     </elementArray>
-    <speciesArray datasrc="#species_test"> H NO2</speciesArray>
+    <speciesArray datasrc="#species_test"> H O N NO2</speciesArray>
     <thermo model="IdealGas">
       <density units="g/cm3">2.165</density>
     </thermo>
@@ -29,10 +29,32 @@
       <density units="g/cm3">2.165</density>
     </species>
 
+    <!-- species O   -->
+    <species name="O">
+      <atomArray>O:1</atomArray>
+      <thermo>
+        <StatMech P0="100000.0" Tmax="3000.0" Tmin="1.0">
+        </StatMech>
+      </thermo>
+      <density units="g/cm3">2.165</density>
+    </species>
+
+    <!-- species N   -->
+    <species name="N">
+      <atomArray>N:1</atomArray>
+      <thermo>
+        <StatMech P0="100000.0" Tmax="3000.0" Tmin="1.0">
+        </StatMech>
+      </thermo>
+      <density units="g/cm3">2.165</density>
+    </species>
+
     <!-- species NO2   -->
     <species name="NO2">
-      <atomArray> N:1 O:2 </atomArray>
+      <atomArray>O:2 N:1</atomArray>
       <thermo>
+        <StatMech P0="100000.0" Tmax="3000.0" Tmin="1.0">
+        </StatMech>
         <StatMech P0="100000.0" Tmax="3000.0" Tmin="1.0">
         </StatMech>
       </thermo>
