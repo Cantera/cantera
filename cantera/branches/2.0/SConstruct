@@ -230,6 +230,7 @@ else:
     defaults.singleLibrary = False
 
 defaults.fsLayout = 'compact' if env['OS'] == 'Windows' else 'standard'
+defaults.env_vars = 'LD_LIBRARY_PATH' if 'LD_LIBRARY_PATH' in os.environ else ''
 
 # **************************************
 # *** Read user-configurable options ***
@@ -396,7 +397,7 @@ opts.AddVariables(
      """Environment variables to propagate through to SCons. Either the
         string "all" or a comma separated list of variable names, e.g.
         'LD_LIBRARY_PATH,HOME'""",
-     ''),
+     defaults.env_vars),
     ('cxx_flags',
      'Compiler flags passed to the C++ compiler only.',
      defaults.cxxFlags),
