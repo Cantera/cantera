@@ -73,14 +73,7 @@ bool MultiTransport::initGas(GasTransportParams& tr)
     m_om22_poly  = tr.omega22_poly;
     m_zrot       = tr.zrot;
     m_crot       = tr.crot;
-    m_epsilon    = tr.epsilon;
-    m_diam       = tr.diam;
     m_eps        = tr.eps;
-    m_alpha      = tr.alpha;
-    m_dipoleDiag.resize(m_nsp);
-    for (size_t i = 0; i < m_nsp; i++) {
-        m_dipoleDiag[i] = tr.dipole(i,i);
-    }
 
     // the L matrix
     m_Lmatrix.resize(3*m_nsp, 3*m_nsp);
@@ -660,29 +653,4 @@ void MultiTransport::updateThermal_T()
     m_thermal_tlast = m_thermo->temperature();
 }
 
-//====================================================================================================================
-/*
- * This function returns a Transport data object for a given species.
- *
- */
-struct GasTransportData MultiTransport::
-getGasTransportData(int kSpecies) {
-    struct GasTransportData td;
-    td.speciesName = m_thermo->speciesName(kSpecies);
-
-    td.geometry = 2;
-    if (m_crot[kSpecies] == 0.0) {
-        td.geometry = 0;
-    } else if (m_crot[kSpecies] == 1.0) {
-        td.geometry = 1;
-    }
-    td.wellDepth = m_eps[kSpecies] / Boltzmann;
-    td.dipoleMoment = m_dipoleDiag[kSpecies] * 1.0E25 / SqrtTen;
-    td.diameter = m_diam(kSpecies, kSpecies) * 1.0E10;
-    td.polarizability = m_alpha[kSpecies] * 1.0E30;
-    td.rotRelaxNumber = m_zrot[kSpecies];
-
-    return td;
-}
-//====================================================================================================================
 }

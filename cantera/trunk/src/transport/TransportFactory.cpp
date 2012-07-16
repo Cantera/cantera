@@ -791,119 +791,84 @@ void TransportFactory::fitCollisionIntegrals(ostream& logfile,
 void TransportFactory::getTransportData(const std::vector<const XML_Node*> &xspecies,
                                         XML_Node& log, const std::vector<std::string> &names, GasTransportParams& tr)
 {
-    std::string name;
-    int geom;
-    std::map<std::string, GasTransportData> datatable;
-    doublereal welldepth, diam, dipole, polar, rot;
-
-    size_t nsp = xspecies.size();
-
-    // read all entries in database into 'datatable' and check for
-    // errors. Note that this procedure validates all entries, not
-    // only those for the species listed in 'names'.
-
-    std::string val, type;
-    map<std::string, int> gindx;
-    gindx["atom"] = 100;
-    gindx["linear"] = 101;
-    gindx["nonlinear"] = 102;
-    int linenum = 0;
-    for (size_t i = 0; i < nsp; i++) {
-        const XML_Node& sp = *xspecies[i];
-        name = sp["name"];
-        // std::cout << "Processing node for " << name << std::endl;
-
-        // put in a try block so that species with no 'transport'
-        // child are skipped, instead of throwing an exception.
-        try {
-            XML_Node& tr = sp.child("transport");
-            ctml::getString(tr, "geometry", val, type);
-            geom = gindx[val] - 100;
-            map<std::string, doublereal> fv;
-
-            welldepth = ctml::getFloat(tr, "LJ_welldepth");
-            diam = ctml::getFloat(tr, "LJ_diameter");
-            dipole = ctml::getFloat(tr, "dipoleMoment");
-            polar = ctml::getFloat(tr, "polarizability");
-            rot = ctml::getFloat(tr, "rotRelax");
-
-            GasTransportData data;
-            data.speciesName = name;
-            data.geometry = geom;
-            if (welldepth >= 0.0) {
-                data.wellDepth = welldepth;
-            } else throw TransportDBError(linenum,
-                                              "negative well depth");
-
-            if (diam > 0.0) {
-                data.diameter = diam;
-            } else throw TransportDBError(linenum,
-                                              "negative or zero diameter");
-
-            if (dipole >= 0.0) {
-                data.dipoleMoment = dipole;
-            } else throw TransportDBError(linenum,
-                                              "negative dipole moment");
-
-            if (polar >= 0.0) {
-                data.polarizability = polar;
-            } else throw TransportDBError(linenum,
-                                              "negative polarizability");
-
-            if (rot >= 0.0) {
-                data.rotRelaxNumber = rot;
-            } else throw TransportDBError(linenum,
-                                              "negative rotation relaxation number");
-
-            datatable[name] = data;
-        } catch (CanteraError& err) {
-            err.save();
-        }
+    std::map<std::string, size_t> speciesIndices;
+    for (size_t i = 0; i < names.size(); i++) {
+        speciesIndices[names[i]] = i;
     }
 
-    for (size_t i = 0; i < tr.nsp_; i++) {
+    for (size_t i = 0; i < xspecies.size(); i++) {
+        const XML_Node& sp = *xspecies[i];
 
-        GasTransportData& trdat = datatable[names[i]];
-
-        // 'datatable' returns a default TransportData object if
-        // the species name is not one in the transport database.
-        // This can be detected by examining 'geometry'.
-        if (trdat.geometry < 0) {
-            throw TransportDBError(0,"no transport data found for species "
-                                   + names[i]);
+        // Find the index for this species in 'names'
+        std::map<std::string, size_t>::const_iterator iter =
+            speciesIndices.find(sp["name"]);
+        size_t j;
+        if (iter != speciesIndices.end()) {
+            j = iter->second;
+        } else {
+            // Don't need transport data for this species
+            continue;
         }
+
+        XML_Node& node = sp.child("transport");
 
         // parameters are converted to SI units before storing
 
-        // rotational heat capacity / R
-        switch (trdat.geometry) {
-        case 0:
-            tr.crot[i] = 0.0;     // monatomic
-            break;
-        case 1:
-            tr.crot[i] = 1.0;     // linear
-            break;
-        default:
-            tr.crot[i] = 1.5;     // nonlinear
-        }
-
-
-        tr.dipole(i,i) = 1.e-25 * SqrtTen * trdat.dipoleMoment;
-
-        if (trdat.dipoleMoment > 0.0) {
-            tr.polar[i] = true;
+        // Molecular geometry; rotational heat capacity / R
+        std::string geom, type;
+        ctml::getString(node, "geometry", geom, type);
+        if (geom == "atom") {
+            tr.crot[j] = 0.0;
+        } else if (geom == "linear") {
+            tr.crot[j] = 1.0;
+        } else if (geom == "nonlinear") {
+            tr.crot[j] = 1.5;
         } else {
-            tr.polar[i] = false;
+            throw TransportDBError(i, "invalid geometry");
         }
 
-        // A^3 -> m^3
-        tr.alpha[i] = 1.e-30 * trdat.polarizability;
+        // Well-depth parameter in Kelvin (converted to Joules)
+        double welldepth = ctml::getFloat(node, "LJ_welldepth");
+        if (welldepth >= 0.0) {
+            tr.eps[j] = Boltzmann * welldepth;
+        } else {
+            throw TransportDBError(i, "negative well depth");
+        }
 
-        tr.sigma[i] = 1.e-10 * trdat.diameter;
+        // Lennard-Jones diameter of the molecule, given in Angstroms.
+        double diam = ctml::getFloat(node, "LJ_diameter");
+        if (diam > 0.0) {
+            tr.sigma[j] = 1.e-10 * diam; // A -> m
+        } else {
+            throw TransportDBError(i, "negative or zero diameter");
+        }
 
-        tr.eps[i] = Boltzmann * trdat.wellDepth;
-        tr.zrot[i]  = std::max(1.0, trdat.rotRelaxNumber);
+        // Dipole moment of the molecule.
+        // Given in Debye (a debye is 10-18 cm3/2 erg1/2)
+        double dipole = ctml::getFloat(node, "dipoleMoment");
+        if (dipole >= 0.0) {
+            tr.dipole(j,j) = 1.e-25 * SqrtTen * dipole;
+            tr.polar[j] = (dipole > 0.0);
+        } else {
+            throw TransportDBError(i, "negative dipole moment");
+        }
 
+        // Polarizability of the molecule, given in cubic Angstroms.
+        double polar = ctml::getFloat(node, "polarizability");
+        if (polar >= 0.0) {
+            tr.alpha[j] = 1.e-30 * polar; // A^3 -> m^3
+        } else {
+            throw TransportDBError(i, "negative polarizability");
+        }
+
+        // Rotational relaxation number. (Number of collisions it takes to
+        // equilibrate the rotational dofs with the temperature)
+        double rot = ctml::getFloat(node, "rotRelax");
+        if (rot >= 0.0) {
+            tr.zrot[j]  = std::max(1.0, rot);
+        } else {
+            throw TransportDBError(i, "negative rotation relaxation number");
+        }
     }
 }
 
