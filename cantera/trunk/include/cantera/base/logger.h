@@ -87,12 +87,6 @@ public:
         std::cerr << msg << std::endl;
         exit(EXIT_FAILURE);
     }
-
-    /// Return an integer specifying the application environment.
-    /// @deprecated
-    DEPRECATED(virtual int env()) {
-        return 0;
-    }
 };
 
 }

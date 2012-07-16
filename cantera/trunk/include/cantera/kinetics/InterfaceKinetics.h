@@ -153,10 +153,6 @@ public:
      */
     virtual Kinetics* duplMyselfAsKinetics(const std::vector<thermo_t*> & tpVector) const;
 
-    //! Return the ID of the kinetics object
-    //! @deprecated use type() instead
-    DEPRECATED(virtual int ID() const);
-
     //! Return the type of the kinetics object
     virtual int type() const;
 
@@ -166,7 +162,6 @@ public:
      * @param V Electric potential (volts)
      */
     void setElectricPotential(int n, doublereal V);
-
 
     ///
     ///  @name Reaction Rates Of Progress

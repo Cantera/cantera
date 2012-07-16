@@ -39,46 +39,7 @@ static doublereal fpValue(std::string val)
 {
     return atof(stripws(val).c_str());
 }
-//====================================================================================================================
-//  This function adds a child node with the name, "bool", with a value
-//  consisting of a single bool
-/*
- *   This function will add a child node to the current XML node, with the
- *   name "bool". It will have a title attribute, and the body
- *   of the XML node will be filled out with a single bool
- *
- *  Example:
- *
- * Code snippet:
- *       @verbatim
-   const XML_Node &node;
-   std::string titleString = "doSpecialOp";
-   bool value = true;
-   addBool(node, titleString, value);
-   @endverbatim
- *
- *  Creates the following the snippet in the XML file:
- *  @verbatim
-   <parentNode>
-     <bool title="doSpecialOp" type="optional">
-        true
-     <\integer>
-   <\parentNode>
- @endverbatim
- *
- *   @param node          reference to the XML_Node object of the parent XML element
- *   @param titleString   String name of the title attribute
- *   @param value         Value - single bool
- *
- * @todo I don't think this is used. Figure out what is used for writing bools,
- *       and codify that.
- */
-void addBool(Cantera::XML_Node& node, const std::string& title, const bool val)
-{
-    std::string v = (val ? "true" : "false");
-    XML_Node& f = node.addChild("bool", v);
-    f.addAttribute("title", title);
-}
+
 //====================================================================================================================
 //  This function adds a child node with the name, "integer", with a value
 //  consisting of a single integer
@@ -133,97 +94,7 @@ void addInteger(Cantera::XML_Node& node, const std::string& title, const int val
         f.addAttribute("units",units);
     }
 }
-//====================================================================================================================
-//  This function adds a child node with the name, "intArray", with a value
-//  consisting of a comma separated list of integers
-/*
- *   This function will add a child node to the current XML node, with the
- *   name "intArray". It will have a title attribute, and the body
- *   of the XML node will be filled out with a comma separated list of
- *   integers
- *
- *  Example:
- *
- *       @verbatim
-   const XML_Node &node;
-   std::string titleString = "additionalCases";
-   int  n = 3;
-   int cases[3] = [3, 6, 10];
-   std::string typeString = "optional";
-   std::string units = "";
-   addIntegerArray(node, titleString, n, &cases[0], typeString, units);
-   @endverbatim
- *
- *  Creates the following the snippet in the XML file:
- *  @verbatim
-   <parentNode>
-     <intArray title="additionalCases" type="optional">
-        3, 6, 10
-     <\intArray>
-   <\parentNode>
- @endverbatim
- *
- *
- *   @param node          reference to the XML_Node object of the parent XML element
- *   @param titleString   String name of the title attribute
- *   @param n             Length of the integer vector.
- *   @param values        Pointer to a vector of integers
- *   @param unitsString   String name of the Units attribute. This is an optional
- *                        parameter. The default is to
- *                        have an empty string.
- *   @param typeString    String type. This is an optional parameter. The default
- *                        is to have an empty string.
- *   @param minval        Minimum allowed value of the int. This is an optional
- *                        parameter. The default is the
- *                        special double, Cantera::Undef, which means to ignore the
- *                        entry.
- *   @param maxval        Maximum allowed value of the int. This is an optional
- *                        parameter. The default is the
- *                        special double, Cantera::Undef, which means to ignore the
- *                        entry.
- *
- * @todo I don't think this is used. Figure out what is used for writing integers,
- *       and codify that. unitsString shouldn't be here, since it's an int.
- *       typeString should be codified as to its usage.
- */
-void addIntegerArray(Cantera::XML_Node& node, const std::string& title, const size_t n,
-                     const int* const vals, const std::string units, const std::string type,
-                     const doublereal minval, const doublereal maxval)
-{
-    std::string v = "";
-    for (size_t i = 0; i < n; i++) {
-        v += int2str(vals[i],INT_Format);
-        if (i == n-1) {
-            v += "\n";
-        } else if (i > 0 && (i+1) % 3 == 0) {
-            v += ",\n";
-        } else {
-            v += ", ";
-        }
-    }
-#ifdef CTML_VERSION_1_4
-    XML_Node& f = node.addChild("intArray",v);
-    f.addAttribute("title",title);
-#else
-    XML_Node& f = node.addChild(title, v);
-#endif
-    if (type != "") {
-        f.addAttribute("type",type);
-    }
-    f.addAttribute("size", static_cast<double>(n));
-#ifndef CTML_VERSION_1_4
-    f.addAttribute("vtype", "intArray");
-#endif
-    if (units != "") {
-        f.addAttribute("units",units);
-    }
-    if (minval != Undef) {
-        f.addAttribute("min",minval);
-    }
-    if (maxval != Undef) {
-        f.addAttribute("max",maxval);
-    }
-}
+
 //====================================================================================================================
 //  This function adds a child node with the name, "float", with a value
 //  consisting of a single floating point number

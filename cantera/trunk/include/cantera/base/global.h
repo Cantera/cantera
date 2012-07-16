@@ -297,17 +297,6 @@ void writelogendl();
  */
 void error(const std::string& msg);
 
-//! returns 1 for MATLAB, 2 for Python, and 0 for C++ or Fortran.
-/*!
- *  This routine is part of the interface suite whose behavior changes
- *  with the interface. The interface suite has been moved to the
- *  class logger and inherited classes of logger.
- *
- *   @ingroup textlogs
- *   @deprecated
- */
-DEPRECATED(int userInterface());
-
 //! Install a logger.
 /*!
  *  Called by the language interfaces to install an appropriate logger.
@@ -350,7 +339,6 @@ XML_Node* get_XML_File(std::string file, int debug = 0);
  * @param file String containing the relative or absolute file name
  */
 void close_XML_File(std::string file);
-
 
 #ifdef WITH_HTML_LOGS
 

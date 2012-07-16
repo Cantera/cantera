@@ -24,8 +24,6 @@
 #include "cantera/thermo/VPSSMgr_Water_HKFT.h"
 #include "cantera/thermo/VPSSMgr_General.h"
 
-#include "cantera/thermo/VPSSMgr_types.h"
-
 #include "cantera/thermo/SpeciesThermoMgr.h"
 #include "cantera/thermo/speciesThermoTypes.h"
 #include "cantera/thermo/SpeciesThermo.h"

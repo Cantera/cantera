@@ -226,13 +226,7 @@ operator=(const InterfaceKinetics& right)
 
     return *this;
 }
-//====================================================================================================================
-// Return the ID of the kinetics object
-int  InterfaceKinetics::ID() const
-{
-    return cInterfaceKinetics;
-}
-//====================================================================================================================
+
 int InterfaceKinetics::type() const
 {
     return cInterfaceKinetics;

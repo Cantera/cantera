@@ -77,12 +77,6 @@ public:
      */
     virtual Kinetics* duplMyselfAsKinetics(const std::vector<thermo_t*> & tpVector) const;
 
-    /**
-     * @deprecated use type() instead
-     */
-    DEPRECATED(virtual int ID() const) {
-        return cAqueousKinetics;
-    }
     virtual int type() const {
         return cAqueousKinetics;
     }

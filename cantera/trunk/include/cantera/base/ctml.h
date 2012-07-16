@@ -32,41 +32,6 @@ extern std::string FP_Format;
 
 extern std::string INT_Format;
 
-//!  This function adds a child node with the name, "bool", with a value
-//!  consisting of a single bool
-/*!
- *   This function will add a child node to the current XML node, with the
- *   name "bool". It will have a title attribute, and the body
- *   of the XML node will be filled out with a single bool.
- *
- *  Example:
- *
- * Code snippet:
- *       @verbatim
-   const XML_Node &node;
-   std::string titleString = "doSpecialOp";
-   bool value = true;
-   addBool(node, titleString, value);
-   @endverbatim
- *
- *  Creates the following the snippet in the XML file:
- *  @verbatim
-   <parentNode>
-     <bool title="doSpecialOp" type="optional">
-        true
-     <\integer>
-   <\parentNode>
- @endverbatim
- *
- *   @param node          reference to the XML_Node object of the parent XML element
- *   @param titleString   String name of the title attribute
- *   @param value         Value - single bool
- *
- * @deprecated never used
- */
-DEPRECATED(void addBool(Cantera::XML_Node& node, const std::string& titleString,
-             const bool value));
-
 //!  This function adds a child node with the name, "integer", with a value
 //!  consisting of a single integer
 /*!
@@ -163,65 +128,6 @@ void addFloat(Cantera::XML_Node& node, const std::string& titleString,
               const doublereal value, const std::string unitsString="",
               const std::string typeString="", const doublereal minval = Cantera::Undef,
               const doublereal maxval = Cantera::Undef);
-
-//!  This function adds a child node with the name, "intArray", with a value
-//!  consisting of a comma separated list of integers
-/*!
- *   This function will add a child node to the current XML node, with the
- *   name "intArray". It will have a title attribute, and the body
- *   of the XML node will be filled out with a comma separated list of
- *   integers
- *
- *  Example:
- *
- * Code snippet:
- *       @verbatim
-   const XML_Node &node;
-   std::string titleString = "additionalCases";
-   int  n = 3;
-   int cases[3] = [3, 6, 10];
-   std::string typeString = "optional";
-   std::string units = "";
-   addIntegerArray(node, titleString, n, &cases[0], typeString, units);
-   @endverbatim
- *
- *  Creates the following the snippet in the XML file:
- *  @verbatim
-   <parentNode>
-     <intArray title="additionalCases" type="optional">
-        3, 6, 10
-     <\intArray>
-   <\parentNode>
- @endverbatim
- *
- *   @param node          reference to the XML_Node object of the parent XML element
- *   @param titleString   String name of the title attribute
- *   @param n             Length of the integer vector.
- *   @param values        Pointer to a vector of integers
- *   @param unitsString   String name of the Units attribute. This is an optional
- *                        parameter. The default is to
- *                        have an empty string.
- *   @param typeString    String type. This is an optional parameter. The default
- *                        is to have an empty string.
- *   @param minval        Minimum allowed value of the int. This is an optional
- *                        parameter. The default is the
- *                        special double, Cantera::Undef, which means to ignore the
- *                        entry.
- *   @param maxval        Maximum allowed value of the int. This is an optional
- *                        parameter. The default is the
- *                        special double, Cantera::Undef, which means to ignore the
- *                        entry.
- *
- * @todo unitsString shouldn't be here, since it's an int. typeString should
- *       be codified as to its usage.
- *
- * @deprecated Not currently used.
- */
-DEPRECATED(void addIntegerArray(Cantera::XML_Node& node, const std::string& titleString,
-                     const size_t n, const int* const values,
-                     const std::string unitsString="", const std::string typeString="",
-                     const doublereal minval=Cantera::Undef,
-                     const doublereal maxval=Cantera::Undef));
 
 //!  This function adds a child node with the name, "floatArray", with a value
 //!  consisting of a comma separated list of floats

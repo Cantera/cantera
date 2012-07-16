@@ -65,15 +65,6 @@ public:
     /**
      * Identifies the subclass of the Kinetics manager type.
      * These are listed in mix_defs.h.
-     * @deprecated use type() instead.
-     */
-    DEPRECATED(virtual int ID() const) {
-        return cEdgeKinetics;
-    }
-
-    /**
-     * Identifies the subclass of the Kinetics manager type.
-     * These are listed in mix_defs.h.
      */
     virtual int type() const {
         return cEdgeKinetics;
