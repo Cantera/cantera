@@ -130,7 +130,6 @@ operator=(const SurfPhase& right)
         m_cp0        = right.m_cp0;
         m_mu0        = right.m_mu0;
         m_work       = right.m_work;
-        m_pe         = right.m_pe;
         m_logsize    = right.m_logsize;
     }
     return *this;
@@ -338,7 +337,6 @@ void SurfPhase::initThermo()
     m_cp0.resize(m_kk);
     m_mu0.resize(m_kk);
     m_work.resize(m_kk);
-    m_pe.resize(m_kk, 0.0);
     vector_fp cov(m_kk, 0.0);
     cov[0] = 1.0;
     setCoverages(DATA_PTR(cov));
@@ -348,26 +346,11 @@ void SurfPhase::initThermo()
     }
 }
 
-void SurfPhase::setPotentialEnergy(int k, doublereal pe)
-{
-    m_pe[k] = pe;
-    _updateThermo(true);
-}
-
 void SurfPhase::setSiteDensity(doublereal n0)
 {
     doublereal x = n0;
     setParameters(1, &x);
 }
-
-//void SurfPhase::
-//setElectricPotential(doublereal V) {
-//    for (int k = 0; k < m_kk; k++) {
-//        m_pe[k] = charge(k)*Faraday*V;
-//    }
-//    _updateThermo(true);
-//}
-
 
 /**
  * Set the coverage fractions to a specified

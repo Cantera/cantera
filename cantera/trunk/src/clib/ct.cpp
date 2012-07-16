@@ -1079,18 +1079,6 @@ extern "C" {
         }
     }
 
-    int kin_getDeltaEntropy(int n, size_t len, double* deltaS)
-    {
-        try {
-            Kinetics& k = KineticsCabinet::item(n);
-            k.checkReactionArraySize(len);
-            k.getDeltaEntropy(deltaS);
-            return 0;
-        } catch (...) {
-            return handleAllExceptions(-1, ERR);
-        }
-    }
-
     int kin_getCreationRates(int n, size_t len, double* cdot)
     {
         try {

@@ -557,22 +557,6 @@ public:
     //! Update the locally-stored composition within this object
     //! to match the current compositions of the phase objects.
     /*!
-     *
-     *  @deprecated  'update' is confusing within this context.
-     *               Switching to the terminology 'uploadFrom'
-     *               and 'downloadTo'. uploadFrom means to
-     *               query the underlying ThermoPhase objects and
-     *               fill in the resulting information within
-     *               this object. downloadTo means to take information
-     *               from this object and put it into the underlying
-     *               ThermoPhase objects.
-     *               switch to uploadMoleFractionsFromPhases();
-     */
-    DEPRECATED(void updateMoleFractions());
-
-    //! Update the locally-stored composition within this object
-    //! to match the current compositions of the phase objects.
-    /*!
      *    Query the underlying ThermoPhase objects for their mole
      *    fractions and fill in the mole fraction vector of this
      *    current object. Adjust element compositions within this

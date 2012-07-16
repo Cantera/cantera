@@ -49,32 +49,6 @@ public:
      */
     void getchr(char& ch);
 
-    //! Returns string 'aline' stripped of leading and trailing white
-    //! space.
-    /*!
-     *  White space is defined by the ISO C function isspace(), and
-     *  includes tabs, spaces, \\n. \\r, \\v, and \\f.
-     *
-     * @param aline  Input line to be stripped
-     *
-     * @return Returns a string stripped of leading and trailing white
-     *         space.
-     *
-     * @deprecated Use stripws (in stringUtils.h)
-     */
-    DEPRECATED(std::string strip(const std::string& aline) const);
-
-    //! Looks for a substring within 'aline' enclosed in double
-    //! quotes, and returns this substring (without the quotes) if
-    //! found.  If not, an empty string is returned.
-    /*!
-     *
-     *  @param aline This is the input string to be searched
-     *
-     *  @deprecated why is this a class method?
-     */
-    DEPRECATED(std::string inquotes(const std::string& aline) const);
-
     //!  Searches a string for the first occurrence of a valid
     //!  quoted string.
     /*!

@@ -337,7 +337,7 @@ public:
      *
      *    The size of mobRat must be at least equal to  nsp*nsp
      */
-    DEPRECATED(virtual void mobilityRatio(double* mobRat)) {
+    virtual void mobilityRatio(double* mobRat) {
         err("mobilityRatio");
     }
 

@@ -173,55 +173,6 @@ void XML_Reader::getchr(char& ch)
     }
 }
 
-
-// Returns string 'aline' stripped of leading and trailing white
-// space.
-// @todo why is this a class method?
-std::string XML_Reader::strip(const std::string& aline) const
-{
-    int len = static_cast<int>(aline.size());
-    int i, j, ll;
-    for (i = len-1; i >= 0; i--) {
-        ll = aline[i];
-        if (! isspace(ll)) {
-            break;
-        }
-    }
-    for (j = 0;  j < i; j++) {
-        ll = aline[j];
-        if (! isspace(ll)) {
-            break;
-        }
-    }
-    //  if (aline[j] != ' ' && aline[j] != '\n') break;
-    return aline.substr(j, i - j + 1);
-}
-
-
-/// Looks for a substring within 'aline' enclosed in double
-/// quotes, and returns this substring (without the quotes) if
-/// found.  If not, an empty string is returned.
-/// @todo why is this a class method?
-std::string XML_Reader::inquotes(const std::string& aline) const
-{
-    int len = static_cast<int>(aline.size());
-    int i, j;
-    for (i = len-1; i >= 0; i--)
-        if (aline[i] == '"') {
-            break;
-        }
-    for (j = 0;  j < i; j++)
-        if (aline[j] == '"') {
-            break;
-        }
-    if (j == i) {
-        return "";
-    } else {
-        return aline.substr(j+1, i - j - 1);
-    }
-}
-
-
 //! Find the first position of a character, q, in string, s, which is not immediately preceded by the backslash character
 /*!
  * @param s        Input string

@@ -1670,17 +1670,6 @@ protected:
     WaterProps* m_waterProps;
 
     /**
-     * Vector containing the species reference exp(-G/RT) functions
-     * at T = m_tlast
-     */
-    mutable vector_fp      m_expg0_RT;
-
-    /**
-     * Vector of potential energies for the species.
-     */
-    mutable vector_fp      m_pe;
-
-    /**
      * Temporary array used in equilibrium calculations
      */
     mutable vector_fp      m_pp;

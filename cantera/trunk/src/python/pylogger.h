@@ -38,10 +38,6 @@ public:
         std::string err = "raise \""+msg+"\"";
         PyRun_SimpleString((char*)err.c_str());
     }
-
-    DEPRECATED(virtual int env()) {
-        return 2;
-    }
 };
 }
 

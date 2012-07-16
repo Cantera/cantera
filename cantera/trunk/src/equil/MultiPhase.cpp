@@ -1130,12 +1130,7 @@ bool MultiPhase::tempOK(const index_t p) const
 {
     return m_temp_OK[p];
 }
-//====================================================================================================================
-/// Update the locally-stored species mole fractions.
-void MultiPhase::updateMoleFractions()
-{
-    uploadMoleFractionsFromPhases();
-}
+
 //====================================================================================================================
 /// Update the locally-stored species mole fractions.
 void MultiPhase::uploadMoleFractionsFromPhases()
