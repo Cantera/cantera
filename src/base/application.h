@@ -174,10 +174,6 @@ protected:
          */
         void logerror(const std::string& msg) ;
 
-        //! Returns an integer specifying the application environment
-        //! @deprecated
-        DEPRECATED(int getUserEnv()) ;
-
         //! Install a logger.
         /*!
          *  Called by the language interfaces to install an appropriate logger.
@@ -547,12 +543,6 @@ public:
      */
     void logerror(const std::string& msg) {
         pMessenger->logerror(msg);
-    }
-
-    //! Returns an integer specifying the application environment.
-    //! @deprecated
-    DEPRECATED(int getUserEnv()) {
-        return pMessenger->getUserEnv() ;
     }
 
     //!  Install a logger -  Called by the language interfaces to install an

@@ -190,13 +190,6 @@ public:
      */
     virtual void assignShallowPointers(const std::vector<thermo_t*> & tpVector);
 
-    //! Identifies the subclass of the Kinetics manager type.
-    /*!
-     * These are listed in mix_defs.h.
-     * @deprecated use type() instead
-     */
-    DEPRECATED(virtual int ID() const);
-
     //!  Identifies the kinetics manager type.
     /*!
      *   Each class derived from Kinetics should overload this method to
@@ -295,7 +288,6 @@ public:
         return m_rxnphase;
     }
 
-
     /**
      * This method returns a reference to the nth ThermoPhase
      * object defined in this kinetics mechanism.  It is typically
@@ -310,31 +302,6 @@ public:
         return *m_thermo[n];
     }
     const thermo_t& thermo(size_t n=0) const {
-        return *m_thermo[n];
-    }
-
-    /**
-     * This method returns a reference to the nth ThermoPhase
-     * defined in this kinetics mechanism.
-     * It is typically used so that member functions of the
-     * ThermoPhase may be called. @deprecated This method is redundant.
-     *
-     * @param n Index of the ThermoPhase being sought.
-     */
-    DEPRECATED(thermo_t& phase(size_t n=0)) {
-        deprecatedMethod("Kinetics","phase","thermo");
-        return *m_thermo[n];
-    }
-    /**
-     * This method returns a reference to the nth ThermoPhase
-     * defined in this kinetics mechanism.
-     * It is typically used so that member functions of the
-     * ThermoPhase may be called. @deprecated This method is redundant.
-     *
-     * @param n Index of the ThermoPhase being sought.
-     */
-    DEPRECATED(const thermo_t& phase(size_t n=0) const) {
-        deprecatedMethod("Kinetics","phase","thermo");
         return *m_thermo[n];
     }
 

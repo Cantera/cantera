@@ -133,12 +133,6 @@ void Application::Messages::setLogger(Logger* _logwriter)
     logwriter = _logwriter;
 }
 
-// Return an integer specifying the application environment.
-int Application::Messages::getUserEnv()
-{
-    return logwriter->env() ;
-}
-
 // Write an error message and terminate execution
 void Application::Messages::logerror(const std::string& msg)
 {

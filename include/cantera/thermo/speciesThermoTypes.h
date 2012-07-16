@@ -90,26 +90,6 @@ struct UnknownThermoParam {
     }
 };
 
-
-//! holds parameterization-dependent index information
-/*!
- * These are all integers.
- * @deprecated This struct is unused.
- */
-struct ThermoIndexData {
-    DEPRECATED(ThermoIndexData()) {}
-    //! param
-    int param;
-    //! number of coefficients
-    int nCoefficients;
-    //! coefficient for Tmin
-    int Tmin_coeff;
-    //! coefficient for Tmax
-    int Tmax_coeff;
-    //! reference pressure coefficient
-    int Pref_coeff;
-};
-
 }
 
 #endif

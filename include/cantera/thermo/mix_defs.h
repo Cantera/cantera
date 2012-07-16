@@ -127,14 +127,24 @@ enum PDSS_enumType {
 };
 
 
-//! enum for VPSSMgr types
+//! enum for VPSSMgr types that are responsible for calculating the species
+//! standard state and reference-state thermodynamic properties.
 enum VPSSMgr_enumType {
     cVPSSMGR_UNDEF = 1000,
+    //! Variable pressures SS calculator for ideal gas phases
     cVPSSMGR_IDEALGAS,
-    cVPSSMGR_CONSTVOL ,
+    //! Variable pressure SS calculate for phases consisting all species having
+    //! a constant molar volume property. This fits most solids.
+    cVPSSMGR_CONSTVOL,
     cVPSSMGR_PUREFLUID,
+    //! Variable pressure SS calculate for phases consisting of real water
+    //! as the first species and species having a constant molar volume property
     cVPSSMGR_WATER_CONSTVOL,
+    //! Variable pressure SS calculate for phases consisting of real water
+    //! as the first species and species obeying the HKFT standard state
     cVPSSMGR_WATER_HKFT,
+    //! Variable pressure SS calculate for phases consisting of completing
+    //! general representations
     cVPSSMGR_GENERAL
 };
 

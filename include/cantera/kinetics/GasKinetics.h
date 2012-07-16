@@ -92,16 +92,6 @@ public:
      */
     virtual Kinetics* duplMyselfAsKinetics(const std::vector<thermo_t*> & tpVector) const;
 
-
-    //! Identifies the subclass of the Kinetics manager type.
-    /*!
-     * These are listed in mix_defs.h.
-     * @deprecated use type() instead
-     */
-    DEPRECATED(virtual int ID() const) {
-        return cGasKinetics;
-    }
-
     //!  Identifies the kinetics manager type.
     /*!
      *   Each class derived from Kinetics should overload this method to

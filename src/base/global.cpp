@@ -68,11 +68,6 @@ void error(const std::string& msg)
     app()->logerror(msg);
 }
 
-int userInterface()
-{
-    return app()->getUserEnv();
-}
-
 // **************** HTML Logging ****************
 
 #ifdef WITH_HTML_LOGS

@@ -122,12 +122,7 @@ Kinetics* Kinetics::duplMyselfAsKinetics(const std::vector<thermo_t*> & tpVector
     ko->assignShallowPointers(tpVector);
     return ko;
 }
-//====================================================================================================================
-int Kinetics::ID() const
-{
-    return 0;
-}
-//====================================================================================================================
+
 int Kinetics::type() const
 {
     return 0;
