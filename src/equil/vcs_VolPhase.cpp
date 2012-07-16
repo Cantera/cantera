@@ -33,7 +33,6 @@ namespace VCSnonideal
 vcs_VolPhase::vcs_VolPhase(VCS_SOLVE* owningSolverObject) :
     m_owningSolverObject(0),
     VP_ID_(npos),
-    Domain_ID(-1),
     m_singleSpecies(true),
     m_gasPhase(false),
     m_eqnState(VCS_EOS_CONSTANT),
@@ -97,7 +96,6 @@ vcs_VolPhase::~vcs_VolPhase()
 vcs_VolPhase::vcs_VolPhase(const vcs_VolPhase& b) :
     m_owningSolverObject(b.m_owningSolverObject),
     VP_ID_(b.VP_ID_),
-    Domain_ID(b.Domain_ID),
     m_singleSpecies(b.m_singleSpecies),
     m_gasPhase(b.m_gasPhase),
     m_eqnState(b.m_eqnState),
@@ -152,7 +150,6 @@ vcs_VolPhase& vcs_VolPhase::operator=(const vcs_VolPhase& b)
         // m_owningSolverObject = b.m_owningSolverObject;
 
         VP_ID_               = b.VP_ID_;
-        Domain_ID           = b.Domain_ID;
         m_singleSpecies     = b.m_singleSpecies;
         m_gasPhase            = b.m_gasPhase;
         m_eqnState            = b.m_eqnState;

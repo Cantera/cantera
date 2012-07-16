@@ -9,10 +9,6 @@
 #ifndef SPECIES_THERMO_TYPES_H
 #define SPECIES_THERMO_TYPES_H
 
-#include "cantera/base/ct_defs.h"
-#include "cantera/base/global.h"
-#include "cantera/base/stringUtils.h"
-
 //! Constant Cp
 #define CONSTANT_CP 1
 
@@ -71,26 +67,6 @@
 //! standard state object. Basically, the reference state pressure isn't special.
 //! A general object is called with the pressure set at the reference state.
 #define PDSS_TYPE 37
-
-namespace Cantera
-{
-
-//! Error for unknown thermo parameterization
-struct UnknownThermoParam {
-    //! Constructor
-    /*!
-     * @param thermotype  Integer specifying the thermo parameterization
-     *
-     * @deprecated This class is unused?
-     */
-    DEPRECATED(UnknownThermoParam(int thermotype)) {
-        writelog(std::string("\n ### ERROR ### \n") +
-                 "Unknown species thermo parameterization ("
-                 + int2str(thermotype) + ")\n\n");
-    }
-};
-
-}
 
 #endif
 

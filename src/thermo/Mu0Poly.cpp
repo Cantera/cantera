@@ -11,6 +11,7 @@
 #include "cantera/thermo/SpeciesThermo.h"
 #include "cantera/base/xml.h"
 #include "cantera/base/ctml.h"
+#include "cantera/base/stringUtils.h"
 
 using namespace std;
 using namespace ctml;

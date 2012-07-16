@@ -348,31 +348,6 @@ public:
         }
     }
 
-    //! Modify parameters for the standard state
-    /*!
-     * The thermo parameterization for a single species is overwritten.
-     *
-     * @param index Species index
-     * @param c     Vector of coefficients used to set the
-     *              parameters for the standard state.
-     *              Must be length >= 4.
-     * @deprecated
-     */
-    DEPRECATED(virtual void modifyParams(size_t index, doublereal* c)) {
-        size_t loc = m_loc[index];
-        if (loc == npos) {
-            throw CanteraError("SimpleThermo::modifyParams",
-                               "modifying parameters for species which hasn't been set yet");
-        }
-        /*
-         * Change the data
-         */
-        m_t0[loc]    = c[0];
-        m_h0_R[loc]  = c[1] / GasConstant;
-        m_s0_R[loc]  = c[2] / GasConstant;
-        m_cp0_R[loc] = c[3] / GasConstant;
-    }
-
 #ifdef H298MODIFY_CAPABILITY
 
     virtual doublereal reportOneHf298(int k) const {

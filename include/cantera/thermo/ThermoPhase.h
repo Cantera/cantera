@@ -362,11 +362,6 @@ public:
         return -1.0;
     }
 
-    /// @deprecated
-    virtual void updateDensity() {
-        deprecatedMethod("ThermoPhase","updateDensity","");
-    }
-
     /**
      * @}
      * @name Electric Potential
@@ -1668,17 +1663,6 @@ private:
 
 //! typedef for the ThermoPhase class
 typedef ThermoPhase thermo_t;
-
-//! Format a summary of the mixture state for output.
-/*!
- * @param th  ThermoPhase object to create a report about
- * @param show_thermo Boolean indicating whether the thermo functions
- *                    of the phase should be written out
- *
- * @return  Returns a string containing the report
- * @deprecated use "th.report(show_thermo)" instead
- */
-DEPRECATED(std::string report(const ThermoPhase& th, const bool show_thermo = true));
 
 }
 

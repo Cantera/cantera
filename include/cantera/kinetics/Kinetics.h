@@ -1043,9 +1043,8 @@ protected:
 
     //! Phase Index where reactions are assumed to be taking place
     /*!
-     *  We calculate this by assuming that the phase with the lowest dimensionality is the phase where reactions
-     *  are taking place
-     * @deprecated
+     *  We calculate this by assuming that the phase with the lowest
+     *  dimensionality is the phase where reactions are taking place.
      */
     size_t m_rxnphase;
 

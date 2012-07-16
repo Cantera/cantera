@@ -147,22 +147,6 @@ public:
      */
     SpeciesThermo* newSpeciesThermo(std::vector<XML_Node*> & spDataNodeList) const;
 
-    //! Create a new species property manager for the reference state
-    /*!
-     * This routine will look through species nodes. It will discover what
-     * each species needs for its species property managers. Then,
-     * it will malloc and return the proper species property manager to use.
-     *
-     *
-     *   @param spDataNodeList This vector contains a list
-     *                         of species XML nodes that will be in the phase
-     *
-     *  @return                 Returns the pointer to the newly malloced
-     *                          species property manager for the reference state
-     *  @deprecated Essentially never used
-     */
-    DEPRECATED(SpeciesThermo* newSpeciesThermoOpt(std::vector<XML_Node*> & spDataNodeList) const);
-
     //! Install a species thermodynamic property parameterization
     //! for the reference state for one species into a species thermo manager.
     /*!
@@ -274,10 +258,9 @@ SpeciesThermo* newSpeciesThermoMgr(std::string& stype,
  *
  * @param f            Pointer to a SpeciesThermoFactory. optional parameter.
  *                    Defaults to NULL.
- * @param opt         Boolean defaults to false.
  */
 SpeciesThermo* newSpeciesThermoMgr(std::vector<XML_Node*> spDataNodeList,
-                                   SpeciesThermoFactory* f=0, bool opt=false);
+                                   SpeciesThermoFactory* f=0);
 
 }
 

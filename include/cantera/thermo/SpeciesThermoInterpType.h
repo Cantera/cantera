@@ -7,6 +7,7 @@
 
 // Copyright 2001  California Institute of Technology
 
+#include "cantera/base/ct_defs.h"
 #include "speciesThermoTypes.h"
 
 #ifndef CT_SPECIESTHERMOINTERPTYPE_H

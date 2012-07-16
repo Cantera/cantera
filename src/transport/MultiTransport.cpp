@@ -53,33 +53,6 @@ inline doublereal Frot(doublereal tr, doublereal sqtr)
     return 1.0 + c1*sqtr + c2*tr + c3*sqtr*tr;
 }
 
-
-/**
- * This method is used by GMRES to multiply the L matrix by a
- * vector b.  The L matrix has a 3x3 block structure, where each
- * block is a K x K matrix.  The elements of the upper-right and
- * lower-left blocks are all zero.  This method is defined so
- * that the multiplication only involves the seven non-zero
- * blocks.
- */
-void L_Matrix::mult(const doublereal* b, doublereal* prod) const
-{
-    integer n = static_cast<int>(nRows())/3;
-    integer n2 = 2*n;
-    integer n3 = 3*n;
-    ct_dgemv(ctlapack::ColMajor, ctlapack::NoTranspose, n, n2, 1.0,
-             DATA_PTR(data()), static_cast<int>(nRows()), b, 1, 0.0, prod, 1);
-    ct_dgemv(ctlapack::ColMajor, ctlapack::NoTranspose, n, n3, 1.0,
-             DATA_PTR(data()) + n, static_cast<int>(nRows()),
-             b, 1, 0.0, prod+n, 1);
-    ct_dgemv(ctlapack::ColMajor, ctlapack::NoTranspose, n, n, 1.0,
-             DATA_PTR(data()) + n*n3 + n2, static_cast<int>(nRows()),
-             b + n, 1, 0.0, prod+n2, 1);
-    for (int i = 0; i < n; i++) {
-        prod[i + n2] += b[i + n2] * value(i + n2, i + n2);
-    }
-}
-
 //////////////////// class MultiTransport methods //////////////
 
 MultiTransport::MultiTransport(thermo_t* thermo)
@@ -131,13 +104,6 @@ bool MultiTransport::initGas(GasTransportParams& tr)
     m_lmatrix_soln_ok = false;
 
     m_thermal_tlast = 0.0;
-
-    // use LU decomposition by default
-    m_gmres = false;
-
-    // default GMRES parameters
-    m_mgmres = 100;
-    m_eps_gmres = 1.e-4;
 
     // some work space
     m_spwork1.resize(m_nsp);
@@ -546,30 +512,7 @@ void MultiTransport::getMolarFluxes(const doublereal* const state1,
         fluxes[k] /= m_mw[k];
     }
 }
-//====================================================================================================================
-// Set the solution method for inverting the L matrix
-/*
- *      @param method enum TRANSOLVE_TYPE Either use direct or TRANSOLVE_GMRES
- */
-void MultiTransport::setSolutionMethod(TRANSOLVE_TYPE method)
-{
-    if (method == TRANSOLVE_GMRES) {
-        m_gmres = true;
-    } else {
-        m_gmres = false;
-    }
-}
-//====================================================================================================================
-void MultiTransport::setOptions_GMRES(int m, doublereal eps)
-{
-    if (m > 0) {
-        m_mgmres = m;
-    }
-    if (eps > 0.0) {
-        m_eps_gmres = eps;
-    }
-}
-//====================================================================================================================
+
 void MultiTransport::getMultiDiffCoeffs(const size_t ld, doublereal* const d)
 {
     doublereal p = pressure_ig();

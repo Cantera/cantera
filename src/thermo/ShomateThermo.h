@@ -425,35 +425,6 @@ public:
         }
     }
 
-    //! Modify parameters for the standard state
-    /*!
-     * @param index Species index
-     * @param c     Vector of coefficients used to set the
-     *              parameters for the standard state.
-     */
-    virtual void modifyParams(size_t index, doublereal* c) {
-        int type = reportType(index);
-        if (type == SHOMATE) {
-            size_t grp = m_group_map[index];
-            size_t pos = m_posInGroup_map[index];
-            std::vector<ShomatePoly> &mlg = m_low[grp-1];
-            std::vector<ShomatePoly> &mhg = m_high[grp-1];
-            ShomatePoly* lowPoly  = &(mlg[pos]);
-            ShomatePoly* highPoly = &(mhg[pos]);
-            doublereal tmid = lowPoly->maxTemp();
-            if (fabs(c[0] - tmid) > 0.001) {
-                throw CanteraError("modifyParams", "can't change mid temp");
-            }
-
-            lowPoly->modifyParameters(c + 1);
-
-            highPoly->modifyParameters(c + 8);
-
-        } else {
-            throw CanteraError(" ", "confused");
-        }
-    }
-
 #ifdef H298MODIFY_CAPABILITY
 
     virtual doublereal reportOneHf298(int k) const {

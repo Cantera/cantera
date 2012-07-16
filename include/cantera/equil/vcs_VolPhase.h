@@ -654,16 +654,6 @@ public:
      */
     size_t VP_ID_;
 
-    //! ID of the surface or volume domain in which the
-    //!  this phase exists
-    /*!
-     * This ventures into the idea of installing a physical location
-     * into a thermodynamics program. This unknown is currently not
-     * being used.
-     * @deprecated
-     */
-    int Domain_ID;
-
     //! If true, this phase consists of a single species
     bool m_singleSpecies;
 

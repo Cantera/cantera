@@ -282,17 +282,6 @@ public:
         return m_g0_RT;
     }
 
-    //!  Returns a reference to the vector of exponentials of the nondimensional
-    //!  Gibbs Free Energies of the reference state at the current temperature
-    //!  of the solution and the reference pressure for the species.
-    const vector_fp& expGibbs_RT() const {
-        _updateThermo();
-        for (size_t k = 0; k != m_kk; k++) {
-            m_expg0_RT[k] = std::exp(m_g0_RT[k]);
-        }
-        return m_expg0_RT;
-    }
-
     //!  Returns a reference to the vector of nondimensional
     //!  entropies of the reference state at the current temperature
     //!  of the solution and the reference pressure for each species.
@@ -443,12 +432,6 @@ protected:
 
     //! Temporary storage for dimensionless reference state entropies
     mutable vector_fp      m_s0_R;
-
-    //! currently unsed
-    /*!
-     * @deprecated
-     */
-    mutable vector_fp      m_expg0_RT;
 
     //! Currently unused
     /*

@@ -380,24 +380,9 @@ public:
     //!     @return    Returns the molecular weight of species \c k.
     doublereal molecularWeight(size_t k) const;
 
-    //! Return the Molar mass of species \c k
-    //! Alternate name for molecular weight.
-    //!     @param k  index for species
-    //!     @return   Return the molar mass of species k kg/kmol.
-    //! @deprecated use molecularWeight instead
-    doublereal molarMass(size_t k) const {
-        return molecularWeight(k);
-    }
-
     //! Copy the vector of molecular weights into vector weights.
     //!     @param weights Output vector of molecular weights (kg/kmol)
     void getMolecularWeights(vector_fp& weights) const;
-
-    //! Copy the vector of molecular weights into array weights.
-    //!     @param iwt      Unused.
-    //!     @param weights  Output array of molecular weights (kg/kmol)
-    //! @deprecated
-    DEPRECATED(void getMolecularWeights(int iwt, doublereal* weights) const);
 
     //! Copy the vector of molecular weights into array weights.
     //!     @param weights  Output array of molecular weights (kg/kmol)
@@ -698,16 +683,9 @@ public:
     virtual bool ready() const;
 
     //! Return the State Mole Fraction Number
-    DEPRECATED(int stateMFNumber() const) {
+    int stateMFNumber() const {
         return m_stateNum;
     }
-
-    //! Every time the mole fractions have changed, this routine will increment
-    //! the stateMFNumber
-    //!     @param forceChange If this is true then the stateMFNumber always
-    //! changes. This defaults to false.
-    //!     @deprecated
-    DEPRECATED(void stateMFChangeCalc(bool forceChange = false));
 
 protected:
     //! @internal Initialize.
@@ -740,8 +718,8 @@ protected:
     vector_fp m_speciesSize;
 
     vector_fp m_speciesCharge; //!< Vector of species charges. length m_kk.
-private:
 
+private:
     XML_Node* m_xml; //!< XML node containing the XML info for this phase
 
     //! ID of the phase. This is the value of the ID attribute of the XML
@@ -774,7 +752,6 @@ private:
 
     //! State Change variable. Whenever the mole fraction vector changes,
     //! this int is incremented.
-    //! @deprecated
     int m_stateNum;
 
     //! Boolean indicating whether the number of species has been frozen.

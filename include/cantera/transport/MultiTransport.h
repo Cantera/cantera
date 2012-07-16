@@ -19,52 +19,7 @@
 namespace Cantera
 {
 
-//====================================================================================================================
-//! Transport solve options
-//! @deprecated GMRES option is unimplemented.
-enum TRANSOLVE_TYPE {
-    //!  Solve the dense matrix via a gmres iteration
-    TRANSOLVE_GMRES = 1,
-    //!  Solve the dense matrix via an LU gauss elimination
-    TRANSOLVE_LU
-};
-//====================================================================================================================
 class GasTransportParams;
-//====================================================================================================================
-//!   Class L_Matrix is used to represent the "L" matrix.
-/*!
- *  This class is used instead of DenseMatrix so that a version of mult can be
- * used that knows about the structure of the L matrix,
- * specifically that the upper-right and lower-left blocks are
- * zero.
- * @ingroup transportProps
- */
-class L_Matrix : public DenseMatrix
-{
-public:
-
-    //! default constructor
-    L_Matrix() {}
-
-    //! destructor
-    virtual ~L_Matrix() {}
-
-    //! Conduct a multiply with the Dense matrix
-    /*!
-     * This method is used by GMRES to multiply the L matrix by a
-     * vector b.  The L matrix has a 3x3 block structure, where each
-     * block is a K x K matrix.  The elements of the upper-right and
-     * lower-left blocks are all zero.  This method is defined so
-     * that the multiplication only involves the seven non-zero
-     * blocks.
-     *
-     *   @param b
-     *   @param prod
-     *   @deprecated GMRES method is not implemented
-     */
-    DEPRECATED(virtual void mult(const doublereal* b, doublereal* prod) const);
-};
-
 
 //====================================================================================================================
 //! Class MultiTransport implements multicomponent transport
@@ -178,21 +133,6 @@ public:
                                const doublereal* state2, doublereal delta,
                                doublereal* fluxes);
 
-    //! Set the solution method for inverting the L matrix
-    /*!
-     *      @param method enum TRANSOLVE_TYPE Either use direct or TRANSOLVE_GMRES
-     *      @deprecated GMRES option is unimplemented.
-     */
-    DEPRECATED(virtual void setSolutionMethod(TRANSOLVE_TYPE method));
-
-    //! Set the options for the GMRES solution
-    /*!
-     *      @param m    set the mgmres param
-     *      @param eps  Set the eps parameter
-     *      @deprecated GMRES option is unimplemented.
-     */
-    DEPRECATED(virtual void setOptions_GMRES(int m, doublereal eps));
-
     //! Initialize the transport operator with parameters from GasTransportParams object
     /*!
      *  @param tr  input GasTransportParams object
@@ -262,15 +202,11 @@ private:
     doublereal m_lambda;
 
     // L matrix quantities
-    L_Matrix  m_Lmatrix;
+    DenseMatrix  m_Lmatrix;
     DenseMatrix m_aa;
     //DenseMatrix m_Lmatrix;
     vector_fp m_a;
     vector_fp m_b;
-
-    bool m_gmres; //!< @deprecated
-    int  m_mgmres; //!< @deprecated
-    doublereal m_eps_gmres; //!< @deprecated
 
     // work space
     vector_fp m_spwork1, m_spwork2, m_spwork3;

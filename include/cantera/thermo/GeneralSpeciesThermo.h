@@ -205,15 +205,6 @@ public:
                               doublereal& maxTemp,
                               doublereal& refPressure) const;
 
-    //! Modify parameters for the standard state
-    /*!
-     * @param index Species index
-     * @param c     Vector of coefficients used to set the
-     *              parameters for the standard state.
-     * @deprecated
-     */
-    DEPRECATED(virtual void modifyParams(size_t index, doublereal* c));
-
 #ifdef H298MODIFY_CAPABILITY
 
     virtual doublereal reportOneHf298(int k) const;

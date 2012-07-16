@@ -20,6 +20,7 @@
 #include "cantera/base/ct_defs.h"
 #include "cantera/thermo/mix_defs.h"
 #include "cantera/base/clockWC.h"
+#include "cantera/base/stringUtils.h"
 #include "cantera/thermo/ThermoPhase.h"
 #include "cantera/thermo/speciesThermoTypes.h"
 #include "cantera/thermo/IdealSolidSolnPhase.h"
