@@ -43,7 +43,7 @@ int main()
         w->setState_TP(T, pres);
         double visc = wtTran->viscosity();
         lambda = wtTran->thermalConductivity();
-        printf("%8g %10.3g  L  %13.6g      890.5    %13.6g     607.2\n",
+        printf("%8g %10.3g  L  %13.4g      890.5    %13.4g     607.2\n",
                T - 273.15, pres * 1.0E-6, visc * 1.0E6, lambda * 1.0E3);
 
 
@@ -52,7 +52,7 @@ int main()
         w->setState_TP(T, pres);
         visc = wtTran->viscosity();
         lambda = wtTran->thermalConductivity();
-        printf("%8g %10.3g  L  %13.6g      281.9    %13.6g     679.1\n",
+        printf("%8g %10.3g  L  %13.4g      281.9    %13.4g     679.1\n",
                T - 273.15, pres * 1.0E-6, visc * 1.0E6, lambda * 1.0E3);
 
 

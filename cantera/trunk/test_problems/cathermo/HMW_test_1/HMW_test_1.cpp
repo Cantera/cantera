@@ -28,7 +28,7 @@ void pAtable(HMWSoln* HMW)
            "   MoleFract      Molality\n");
     for (size_t k = 0; k < nsp; k++) {
         sName = HMW->speciesName(k);
-        printf("%16s %13g %13g %13g %13g\n",
+        printf("%16s %13.4f %13.4f %13.4f %13.4f\n",
                sName.c_str(), activities[k], acMol[k], mf[k], moll[k]);
     }
 
