@@ -21,29 +21,6 @@ namespace Cantera
 {
 ///////////////////////  Exceptions //////////////////////////////
 
-//! Exception thrown if species reference pressures don't match.
-/*!
- * @ingroup mgrsrefcalc
- * @deprecated unused
- */
-class RefPressureMismatch : public CanteraError
-{
-public:
-    //! constructor
-    /*!
-     * @param proc   name of the procecdure
-     * @param prnew   reference pressure
-     * @param prold   old reference pressure
-     */
-    RefPressureMismatch(std::string proc, doublereal prnew,
-                        doublereal prold) : CanteraError(proc,
-                                    "Species reference pressure ("
-                                    + fp2str(prnew) + ") does not match previously-defined "
-                                    + "reference pressure (" + fp2str(prold) + ")") {}
-    //! destructor
-    virtual ~RefPressureMismatch() throw() {}
-};
-
 //! Unknown species thermo manager string error
 /*!
  * @ingroup mgrsrefcalc
@@ -250,15 +227,6 @@ public:
                               doublereal& maxTemp,
                               doublereal& refPressure) const;
 
-    //! Modify parameters for the standard state
-    /*!
-     * @param index Species index
-     * @param c     Vector of coefficients used to set the
-     *              parameters for the standard state.
-     * @deprecated
-     */
-    DEPRECATED(virtual void modifyParams(size_t index, doublereal* c));
-
 #ifdef H298MODIFY_CAPABILITY
 
     virtual doublereal reportOneHf298(int k) const {
@@ -371,20 +339,6 @@ SpeciesThermoDuo<T1, T2>::reportParams(size_t index, int& type,
                                refPressure);
     } else {
         throw CanteraError("  ", "confused");
-    }
-}
-
-template<class T1, class T2>
-void
-SpeciesThermoDuo<T1, T2>::modifyParams(size_t index, doublereal* c)
-{
-    int ctype = reportType(index);
-    if (ctype == m_thermo1.ID) {
-        m_thermo1.modifyParams(index, c);
-    } else if (ctype == m_thermo2.ID) {
-        m_thermo2.modifyParams(index,  c);
-    } else {
-        throw CanteraError("modifyParams", "confused");
     }
 }
 

@@ -2128,19 +2128,6 @@ public:
      */
     virtual void initThermoXML(XML_Node& phaseNode, std::string id);
 
-    //!  Report the molar volume of species k
-    /*!
-     *
-     * units - \f$ m^3 kmol^-1 \f$
-     *
-     * @param k species index
-     *
-     * @deprecated
-     *   The getPartialMolarVolumes() expression is more precise.
-     */
-    DEPRECATED(double speciesMolarVolume(int k) const);
-
-
     //! Value of the Debye Huckel constant as a function of temperature
     //! and pressure.
     /*!

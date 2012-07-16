@@ -166,28 +166,6 @@ SpeciesThermo* SpeciesThermoFactory::newSpeciesThermo(std::vector<XML_Node*> & s
                             + SHOMATE*ishomate + SIMPLE*isimple);
 }
 
-
-/*
- * @todo is this used?
- */
-SpeciesThermo* SpeciesThermoFactory::
-newSpeciesThermoOpt(std::vector<XML_Node*> & spDataNodeList) const
-{
-    int inasa = 0, ishomate = 0, isimple = 0, iother = 0;
-    try {
-        getSpeciesThermoTypes(spDataNodeList, inasa, ishomate, isimple, iother);
-    } catch (UnknownSpeciesThermoModel) {
-        iother = 1;
-        popError();
-    }
-
-    if (iother) {
-        return new GeneralSpeciesThermo();
-    }
-    return newSpeciesThermo(NASA*inasa
-                            + SHOMATE*ishomate + SIMPLE*isimple);
-}
-
 SpeciesThermo* SpeciesThermoFactory::newSpeciesThermo(int type) const
 {
     switch (type) {
@@ -908,18 +886,12 @@ SpeciesThermo* newSpeciesThermoMgr(std::string& stype,
  * @param opt          Boolean defaults to false.
  */
 SpeciesThermo* newSpeciesThermoMgr(std::vector<XML_Node*> spData_nodes,
-                                   SpeciesThermoFactory* f, bool opt)
+                                   SpeciesThermoFactory* f)
 {
     if (f == 0) {
         f = SpeciesThermoFactory::factory();
     }
-    SpeciesThermo* sptherm;
-    if (opt) {
-        sptherm = f->newSpeciesThermoOpt(spData_nodes);
-    } else {
-        sptherm = f->newSpeciesThermo(spData_nodes);
-    }
-    return sptherm;
+    return f->newSpeciesThermo(spData_nodes);
 }
 
 }

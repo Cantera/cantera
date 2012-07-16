@@ -336,8 +336,6 @@ public:
      *        k = j * nsp + i
      *
      *    The size of mobRat must be at least equal to  nsp*nsp
-     *
-     * @deprecated This doesn't seem to be the essential input; it should just be the mobility.
      */
     DEPRECATED(virtual void mobilityRatio(double* mobRat)) {
         err("mobilityRatio");

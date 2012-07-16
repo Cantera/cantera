@@ -49,8 +49,9 @@
 #include "cantera/thermo/IdealMolalSoln.h"
 #include "cantera/thermo/MolarityIonicVPSSTP.h"
 #include "cantera/thermo/MixedSolventElectrolyte.h"
-
 #include "cantera/thermo/IdealSolnGasVPSS.h"
+
+#include "cantera/base/stringUtils.h"
 
 #include <cstdlib>
 
@@ -64,9 +65,6 @@ ThermoFactory* ThermoFactory::s_factory = 0;
 mutex_t ThermoFactory::thermo_mutex;
 
 //! Define the number of %ThermoPhase types for use in this factory routine
-/*!
- *  @deprecated This entire structure could be replaced with a std::map
- */
 static int ntypes = 23;
 
 //! Define the string name of the %ThermoPhase types that are handled by this factory routine

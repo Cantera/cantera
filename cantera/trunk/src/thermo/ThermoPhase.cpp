@@ -1501,9 +1501,4 @@ void ThermoPhase::reportCSV(std::ofstream& csvFile) const
     }
 }
 
-std::string report(const ThermoPhase& th, const bool show_thermo)
-{
-    return th.report(show_thermo);
-}
-
 }

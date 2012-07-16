@@ -1426,21 +1426,6 @@ doublereal HMWSoln::satPressure(doublereal t) const
 }
 
 /*
- * Report the molar volume of species k
- *
- * units - \f$ m^3 kmol^-1 \f$
- */
-double HMWSoln::speciesMolarVolume(int k) const
-{
-    double vol = m_speciesSize[k];
-    if (k == 0) {
-        double dd = m_waterSS->density();
-        vol = molecularWeight(0)/dd;
-    }
-    return vol;
-}
-
-/*
  * A_Debye_TP()                              (virtual)
  *
  *   Returns the A_Debye parameter as a function of temperature

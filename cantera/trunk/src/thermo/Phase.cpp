@@ -112,16 +112,6 @@ Phase::~Phase()
     }
 }
 
-inline void Phase::stateMFChangeCalc(bool forcerChange)
-{
-    // Right now we assume that the mole fractions have changed every time
-    // the function is called
-    m_stateNum++;
-    if (m_stateNum > 1000000) {
-        m_stateNum = -10000000;
-    }
-}
-
 XML_Node& Phase::xml()
 {
     return *m_xml;
@@ -342,9 +332,7 @@ void Phase::setMoleFractions(const doublereal* const x)
      * Calculate the normalized molecular weight
      */
     m_mmw = sum/norm;
-
-    // Call a routine to determine whether state has changed.
-    stateMFChangeCalc();
+    m_stateNum++;
 }
 
 void Phase::setMoleFractions_NoNorm(const doublereal* const x)
@@ -354,9 +342,7 @@ void Phase::setMoleFractions_NoNorm(const doublereal* const x)
     transform(x, x + m_kk, m_ym.begin(), timesConstant<double>(rmmw));
     transform(m_ym.begin(), m_ym.begin() + m_kk, m_molwts.begin(),
               m_y.begin(), multiplies<double>());
-
-    // Call a routine to determine whether state has changed.
-    stateMFChangeCalc();
+    m_stateNum++;
 }
 
 void Phase::setMoleFractionsByName(compositionMap& xMap)
@@ -395,9 +381,7 @@ void Phase::setMassFractions(const doublereal* const y)
     transform(m_y.begin(), m_y.end(), m_rmolwts.begin(),
               m_ym.begin(), multiplies<double>());
     m_mmw = 1.0 / accumulate(m_ym.begin(), m_ym.end(), 0.0);
-
-    // Call a routine to determine whether state has changed.
-    stateMFChangeCalc();
+    m_stateNum++;
 }
 
 void Phase::setMassFractions_NoNorm(const doublereal* const y)
@@ -408,9 +392,7 @@ void Phase::setMassFractions_NoNorm(const doublereal* const y)
               multiplies<double>());
     sum = accumulate(m_ym.begin(), m_ym.end(), 0.0);
     m_mmw = 1.0/sum;
-
-    // Call a routine to determine whether state has changed.
-    stateMFChangeCalc();
+    m_stateNum++;
 }
 
 void Phase::setMassFractionsByName(compositionMap& yMap)
@@ -518,12 +500,6 @@ void Phase::getMolecularWeights(vector_fp& weights) const
     copy(mw.begin(), mw.end(), weights.begin());
 }
 
-void Phase::getMolecularWeights(int iwt, doublereal* weights) const
-{
-    const vector_fp& mw = molecularWeights();
-    copy(mw.begin(), mw.end(), weights);
-}
-
 void Phase::getMolecularWeights(doublereal* weights) const
 {
     const vector_fp& mw = molecularWeights();
@@ -619,9 +595,7 @@ void Phase::setConcentrations(const doublereal* const conc)
         m_ym[k] = m_y[k] * rsum;
         m_y[k] = m_ym[k] * m_molwts[k]; // m_y is now the mass fraction
     }
-
-    // Call a routine to determine whether state has changed.
-    stateMFChangeCalc();
+    m_stateNum++;
 }
 
 doublereal Phase::molarDensity() const

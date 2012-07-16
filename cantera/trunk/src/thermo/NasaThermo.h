@@ -426,40 +426,6 @@ public:
         }
     }
 
-    //! Modify parameters for the standard state
-    /*!
-     * This utility function modifies the array of coefficients.
-     * The array is the same as that returned by reportParams, so
-     * a call can first be made to reportParams to populate the
-     * array, and then modifyParams can be called to alter
-     * selected values.  For the NASA object, there are 15
-     * coefficients.
-
-     * @param index Species index
-     * @param c     Vector of coefficients used to set the
-     *              parameters for the standard state.
-     */
-    virtual void modifyParams(size_t index, doublereal* c) {
-        int type = reportType(index);
-        if (type == NASA) {
-            size_t grp = m_group_map[index];
-            size_t pos = m_posInGroup_map[index];
-            std::vector<NasaPoly1> &mlg = m_low[grp-1];
-            std::vector<NasaPoly1> &mhg = m_high[grp-1];
-            NasaPoly1* lowPoly  = &(mlg[pos]);
-            NasaPoly1* highPoly = &(mhg[pos]);
-            doublereal tmid = lowPoly->maxTemp();
-            if (c[0] != tmid) {
-                throw CanteraError(" ", "Tmid cannot be changed");
-            }
-            lowPoly->modifyParameters(c + 1);
-            highPoly->modifyParameters(c + 8);
-            checkContinuity(m_name[index], c[0], c + 1, c + 8);
-        } else {
-            throw CanteraError(" ", "confused");
-        }
-    }
-
 #ifdef H298MODIFY_CAPABILITY
     virtual doublereal reportOneHf298(const int k) const {
 
