@@ -167,14 +167,25 @@ namespace Cantera {
    */
   doublereal IdealGasPhase::cv_tr (doublereal atomicity) const
   { 
-    if(atomicity < 1.0) // atom
+    // k is the species number
+    int dum  = 0;
+    int type = 0;
+    doublereal c[12];
+    doublereal minTemp;
+    doublereal maxTemp;
+    doublereal refPressure;
+
+    m_spthermo->reportParams(dum,type,c,minTemp,maxTemp,refPressure);
+    
+    if(type != 111)
       {
-	return 3/2 * GasConstant; 
+	throw CanteraError("Error in IdealGasPhase.cpp",
+			   "cv_vib only supported for IdealGasPhase!. \n\n");
+	
       }
-    else  // molecule
-      {
-	return 5/2 * GasConstant; 
-      }
+    
+    // see reportParameters for specific details
+    return c[3];
   }
       
   /**
@@ -211,19 +222,29 @@ namespace Cantera {
    * \f]
    *
    */
-  doublereal IdealGasPhase::cv_vib (const doublereal atom,const doublereal T) const
+  doublereal IdealGasPhase::cv_vib (const int k, const doublereal T) const
   {
 
-    if(atom < 1.0) // atom
+    // k is the species number
+    int dum  = 0;
+    int type = 0;
+    doublereal c[12];
+    doublereal minTemp;
+    doublereal maxTemp;
+    doublereal refPressure;
+
+    c[0] = temperature();
+
+    m_spthermo->reportParams(dum,type,c,minTemp,maxTemp,refPressure);
+
+    if(type != 111)
       {
-	return 0.0;
+	throw CanteraError("Error in IdealGasPhase.cpp",
+			   "cv_vib only supported for IdealGasPhase!. \n\n");
+
       }
-    else  // molecule
-      {	
-	doublereal theta = 1.0;
-	doublereal cv_vib = GasConstant * theta* ( theta* exp(theta/T)/(T*T))/((exp(theta/T)-1) * (exp(theta/T)-1));
-	return cv_vib;
-      }
+
+    return c[4];
 
   }
 

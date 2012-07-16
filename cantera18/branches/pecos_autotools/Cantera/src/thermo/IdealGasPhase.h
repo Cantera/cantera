@@ -485,7 +485,7 @@ namespace Cantera {
    *   C^{vib}_{v,s} \equiv \frac{\partial e^{vib}_s}{\partial T_V} = \frac{R_s \theta_{vs}^2 \exp\left(\theta_{vs}/T_V\right)}{\left[\left(\exp\left(\theta_{vs}/T_V\right)-1\right)T_V\right]^2}
    * \f]
    */
-    virtual doublereal cv_vib(doublereal atom, doublereal T) const;
+    virtual doublereal cv_vib(int k, doublereal T) const;
 
     //@}
 

@@ -495,7 +495,7 @@ namespace Cantera {
     doublereal fivehalves = 5/2;
     for (k = 0; k < m_nsp; k++) {
       // need to add cv_elec in the future
-      m_cond[k] = m_visc[k] * ( fivehalves * cv_int[k]  + cv_rot[k] + m_thermo->cv_vib(cv_rot[k],m_temp) ); 
+      m_cond[k] = m_visc[k] * ( fivehalves * cv_int[k]  + cv_rot[k] + m_thermo->cv_vib(k,m_temp) ); 
     }
     m_spcond_ok = true;
     m_condmix_ok = false;
