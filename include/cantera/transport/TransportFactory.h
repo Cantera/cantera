@@ -25,69 +25,13 @@
 //======================================================================================================================
 namespace Cantera
 {
-//====================================================================================================================
-//! Struct to hold data read from a transport property database file for gas-phase species
-struct GasTransportData {
-    //! Default constructor
-    GasTransportData() :
-        speciesName("-"),
-        geometry(-1),
-        wellDepth(-1.0),
-        diameter(-1.0),
-        dipoleMoment(-1.0),
-        polarizability(-1.0),
-        rotRelaxNumber(-1.0) {
-    }
 
-    //! gas phase species name
-    std::string speciesName;
-    //! Geometry of the molecule
-    /*!
-     *  0  - single atom
-     *  1  - linear atom
-     *  2  - non-linear geom
-     */
-    int geometry;
-
-    //! well-depth parameter
-    /*!
-     *  units - temperature (CHECK)
-     */
-    doublereal wellDepth;
-
-    //! Lennard-Jones diameter of the molecule
-    /*!
-     *  units - Angstroms
-     */
-    doublereal diameter;
-
-    //! dipole Moment of the molecule
-    /*!
-     *  units = Debye  (a debye is 10-18 cm3/2 erg1/2)
-     */
-    doublereal dipoleMoment;
-
-    //! Polarizability of the molecule
-    /*!
-     *  units = A**3
-     */
-    doublereal polarizability;
-
-    //! Rotational relaxation number
-    /*!
-     *  Number of collisions it takes to equilibrate the rotational dofs with the temperature
-     */
-    doublereal rotRelaxNumber;
-};
-
-//====================================================================================================================
 // forward references
 class MMCollisionInt;
 class GasTransportParams;
 class LiquidTransportParams;
 class XML_Node;
 
-//====================================================================================================================
 //! The purpose of the TransportFactory class is to create new instances of
 //! 'transport managers', which are classes that provide transport
 //! properties and which are derived from the base class, %Transport.
@@ -255,7 +199,6 @@ private:
     void getTransportData(const std::vector<const XML_Node*> &xspecies,
                           XML_Node& log, const std::vector<std::string>& names,
                           GasTransportParams& tr);
-
 
     //! Read transport property data from a file for a list of species that comprise
     //! the phase.

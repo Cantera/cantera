@@ -216,16 +216,6 @@ public:
 
     friend class TransportFactory;
 
-    //! Return a structure containing all of the pertinent parameters about a species that was
-    //! used to construct the Transport properties in this object.
-    /*!
-     * @param kspec Species number to obtain the properties from.
-     *
-     * @return GasTransportData  returned structure.
-     * @deprecated
-     */
-    DEPRECATED(struct GasTransportData getGasTransportData(int kspec) const);
-
 private:
 
     //! Calculate the pressure from the ideal gas law
@@ -270,68 +260,6 @@ private:
 
     //! Update boolean for the mixture rule for the mixture thermal conductivity
     bool m_condmix_ok;
-
-    //! Lennard-Jones well-depth of the species in the current phase
-    /*!
-     *  Not used in this routine -> just a passthrough
-     *
-     * length is the number of species in the phase
-     * Units are Joules (Note this is not Joules/kmol) (note, no kmol -> this is a per molecule amount)
-     */
-    vector_fp m_eps;
-
-    //! hard-sphere diameter for (i,j) collision
-    /*!
-     *  Not used in this routine -> just a passthrough
-     *
-     *  diam(i,j) = 0.5*(tr.sigma[i] + tr.sigma[j]);
-     *  Units are m (note, no kmol -> this is a per molecule amount)
-     *
-     *  Length nsp * nsp. This is a symmetric matrix.
-     */
-    DenseMatrix m_diam;
-
-    //! The effective dipole moment for (i,j) collisions
-    /*!
-     *  tr.dipoleMoment has units of Debye's. A Debye is 10-18 cm3/2 erg1/2
-     *
-     *  Not used in this routine -> just a passthrough
-     *
-     *    tr.dipole(i,i) = 1.e-25 * SqrtTen * trdat.dipoleMoment;
-     *    tr.dipole(i,j) = sqrt(tr.dipole(i,i)*tr.dipole(j,j));
-     *  Units are  in Debye  (note, no kmol -> this is a per molecule amount)
-     *
-     *  Length nsp. We store only the diagonal component here.
-     */
-    vector_fp m_dipoleDiag;
-
-    //! Polarizability of each species in the phase
-    /*!
-     *  Not used in this routine -> just a passthrough
-     *
-     *  Length = nsp
-     *  Units = m^3
-     */
-    vector_fp m_alpha;
-
-    //! Dimensionless rotational heat capacity of the species in the current phase
-    /*!
-     *  Not used in this routine -> just a passthrough
-     *
-     *  These values are 0, 1 and 1.5 for single-molecule, linear, and nonlinear species respectively
-     *  length is the number of species in the phase
-     *  units are dimensionless  (Cr / R)
-     */
-    vector_fp m_crot;
-
-    //! Rotational relaxation number for the species in the current phase
-    /*!
-     *  Not used in this routine -> just a passthrough
-     *
-     * length is the number of species in the phase
-     * units are dimensionless
-     */
-    vector_fp m_zrot;
 
     //! Debug flag - turns on more printing
     bool m_debug;

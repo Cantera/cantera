@@ -141,14 +141,6 @@ public:
 
     friend class TransportFactory;
 
-    //! Return a structure containing all of the pertinent parameters
-    //! about a species that was used to construct the Transport properties in this object
-    /*!
-     * @param k        Species index
-     * @deprecated
-     */
-    DEPRECATED(struct GasTransportData getGasTransportData(int k));
-
 protected:
 
     //! Update basic temperature-dependent quantities if the temperature has changed.
@@ -191,8 +183,6 @@ private:
     vector_fp   m_crot;
     vector_fp   m_cinternal;
     vector_fp   m_eps;
-    vector_fp   m_alpha;
-    vector_fp   m_dipoleDiag;
 
     vector_fp  m_sqrt_eps_k;
     DenseMatrix m_log_eps_k;
@@ -247,8 +237,6 @@ private:
     }
 
     void solveLMatrixEquation();
-    DenseMatrix m_epsilon;
-    DenseMatrix m_diam;
     DenseMatrix incl;
     bool m_debug;
 };

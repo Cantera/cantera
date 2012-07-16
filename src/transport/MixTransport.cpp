@@ -33,12 +33,6 @@ MixTransport::MixTransport() :
     m_lambda(0.0),
     m_spcond_ok(false),
     m_condmix_ok(false),
-    m_eps(0),
-    m_diam(0, 0),
-    m_dipoleDiag(0),
-    m_alpha(0),
-    m_crot(0),
-    m_zrot(0),
     m_debug(false)
 {
 }
@@ -50,12 +44,6 @@ MixTransport::MixTransport(const MixTransport& right) :
     m_lambda(0.0),
     m_spcond_ok(false),
     m_condmix_ok(false),
-    m_eps(0),
-    m_diam(0, 0),
-    m_dipoleDiag(0),
-    m_alpha(0),
-    m_crot(0),
-    m_zrot(0),
     m_debug(false)
 {
     *this = right;
@@ -80,12 +68,6 @@ MixTransport&  MixTransport::operator=(const MixTransport& right)
     m_lambda = right.m_lambda;
     m_spcond_ok = right.m_spcond_ok;
     m_condmix_ok = right.m_condmix_ok;
-    m_eps = right.m_eps;
-    m_diam = right.m_diam;
-    m_dipoleDiag = right.m_dipoleDiag;
-    m_alpha = right.m_alpha;
-    m_crot = right.m_crot;
-    m_zrot = right.m_zrot;
     m_debug = right.m_debug;
 
     return *this;
@@ -113,16 +95,6 @@ bool MixTransport::initGas(GasTransportParams& tr)
 
     // copy polynomials and parameters into local storage
     m_condcoeffs = tr.condcoeffs;
-
-    m_zrot       = tr.zrot;
-    m_crot       = tr.crot;
-    m_diam       = tr.diam;
-    m_eps        = tr.eps;
-    m_alpha      = tr.alpha;
-    m_dipoleDiag.resize(m_nsp);
-    for (size_t i = 0; i < m_nsp; i++) {
-        m_dipoleDiag[i] = tr.dipole(i,i);
-    }
 
     m_cond.resize(m_nsp);
 
@@ -314,29 +286,4 @@ void MixTransport::updateCond_T()
     m_condmix_ok = false;
 }
 
-//====================================================================================================================
-/*
- * This function returns a Transport data object for a given species.
- *
- */
-struct GasTransportData MixTransport::getGasTransportData(int kSpecies) const {
-
-    struct GasTransportData td;
-    td.speciesName = m_thermo->speciesName(kSpecies);
-
-    td.geometry = 2;
-    if (m_crot[kSpecies] == 0.0) {
-        td.geometry = 0;
-    } else if (m_crot[kSpecies] == 1.0) {
-        td.geometry = 1;
-    }
-    td.wellDepth = m_eps[kSpecies] / Boltzmann;
-    td.dipoleMoment = m_dipoleDiag[kSpecies] * 1.0E25 / SqrtTen;
-    td.diameter = m_diam(kSpecies, kSpecies) * 1.0E10;
-    td.polarizability = m_alpha[kSpecies] * 1.0E30;
-    td.rotRelaxNumber = m_zrot[kSpecies];
-
-    return td;
-}
-//====================================================================================================================
 }
