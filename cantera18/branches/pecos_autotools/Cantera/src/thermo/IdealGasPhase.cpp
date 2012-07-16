@@ -237,6 +237,7 @@ namespace Cantera {
 
     m_spthermo->reportParams(dum,type,c,minTemp,maxTemp,refPressure);
 
+    // basic sanity check 
     if(type != 111)
       {
 	throw CanteraError("Error in IdealGasPhase.cpp",
@@ -244,6 +245,7 @@ namespace Cantera {
 
       }
 
+    // see reportParameters for specific details
     return c[4];
 
   }
