@@ -213,8 +213,8 @@ int main(int argc, char** argv)
             }
 
             if (i != TTable.NPoints+1) {
-                printf("%13g, %13g, %13g, %13g, %13g, %13g, %13g, "
-                       "%13g, %13g, %13g, %13g\n",
+                printf("%13.4f, %13.4f, %13.4f, %13.4f, %13.4f, %13.4f, %13.4f, "
+                       "%13.4f, %13.4f, %13.4f, %13.4f\n",
                        T, pres*1.0E-5,  Aphi, AL/RT, Delta_H0s, Delta_Hs,
                        L, phiL,
                        LrelMol,
@@ -233,12 +233,12 @@ int main(int argc, char** argv)
         printf(" Species     MoleFrac        Molal          H0      "
                "    partH     (partH - H0)\n");
         printf("  H2O(L)");
-        printf("%13g %13g %13g %13g %13g\n", Xmol[0], moll[0], H0_H2O , H_H2O,  H_H2O-H0_H2O);
+        printf("%13.4f %13.4f %13.4f %13.4f %13.4f\n", Xmol[0], moll[0], H0_H2O , H_H2O,  H_H2O-H0_H2O);
         printf("  Na+   ");
-        printf("%13g %13g %13g %13g %13g\n", Xmol[i1], moll[i1],
+        printf("%13.4f %13.4f %13.4f %13.4f %13.4f\n", Xmol[i1], moll[i1],
                H0_Naplus , H_Naplus,  H_Naplus -H0_Naplus);
         printf("  Cl-   ");
-        printf("%13g %13g %13g %13g %13g\n", Xmol[i2], moll[i2],
+        printf("%13.4f %13.4f %13.4f %13.4f %13.4f\n", Xmol[i2], moll[i2],
                H0_Clminus , H_Clminus,  H_Clminus - H0_Clminus);
 
 

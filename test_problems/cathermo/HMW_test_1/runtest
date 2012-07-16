@@ -1,0 +1,53 @@
+#!/bin/sh
+#
+#
+temp_success="1"
+
+##########################################################################
+prog=HMW_test_1
+if test ! -x $prog ; then
+   echo $prog ' does not exist'
+   exit 1
+fi
+##########################################################################
+/bin/rm  -f output.txt outputa.txt 
+/bin/rm -f test.out test.diff   output.txt diff_test.out
+/bin/rm -f CheckDebug.txt output_bc.txt
+
+#################################################################
+#
+CANTERA_DATA=${CANTERA_DATA:=../../../data/inputs}; export CANTERA_DATA
+CANTERA_BIN=${CANTERA_BIN:=../../../bin}
+
+#################################################################
+
+./$prog  > output.txt
+retnStat=$?
+if [ $retnStat != "0" ]
+then
+  temp_success="0"
+  echo "$prog returned with bad status, $retnStat, check output"
+  exit 1
+fi
+
+$CANTERA_BIN/exp3to2.sh output.txt > outputa.txt
+if [ -f CheckDebug.txt ]
+then
+  cp output_blessed.txt output_bc.txt
+else
+  cp output_noD_blessed.txt output_bc.txt
+fi
+
+diff -w outputa.txt output_bc.txt > diff_test.out
+retnStat=$?
+if [ $retnStat = "0" ]
+then
+  echo "successful diff comparison on $prog test"
+  exit 0
+else
+  echo "unsuccessful diff comparison on $prog test"
+  echo "FAILED" > csvCode.txt
+  temp_success="0"
+  exit 1
+fi
+
