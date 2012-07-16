@@ -1055,22 +1055,6 @@ const vector_fp& IdealSolidSolnPhase::enthalpy_RT_ref() const
  *  to see if a recalculation of the reference thermodynamics
  *  functions needs to be done.
  */
-const vector_fp& IdealSolidSolnPhase::expGibbs_RT_ref() const
-{
-    _updateThermo();
-    for (size_t k = 0; k != m_kk; k++) {
-        m_expg0_RT[k] = exp(m_g0_RT[k]);
-    }
-    return m_expg0_RT;
-}
-
-/*
- *  Returns a reference to the vector of nondimensional
- *  enthalpies of the reference state at the current temperature.
- *  Real reason for its existence is that it also checks
- *  to see if a recalculation of the reference thermodynamics
- *  functions needs to be done.
- */
 const vector_fp& IdealSolidSolnPhase::entropy_R_ref() const
 {
     _updateThermo();

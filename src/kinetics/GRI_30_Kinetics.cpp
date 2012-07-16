@@ -46,14 +46,16 @@ gri30_update_rates_T()
 
 /**
  * Update the equilibrium constants in molar units.
- * @todo This formulation assumes an ideal gas.
  */
 void GRI_30_Kinetics::gri30_updateKc()
 {
-    const doublereal* a =
-        &((IdealGasPhase*)m_thermo[0])->expGibbs_RT_ref()[0];
+    vector_fp a(m_kk);
+    m_thermo[0]->getGibbs_RT_ref(&a[0]);
+    for (size_t k = 0; k < m_kk; k++) {
+        a[k] = exp(a[k]);
+    }
     doublereal exp_c_ref = exp(m_logc_ref);
-    update_kc(a, exp_c_ref, &m_rkcn[0]);
+    update_kc(&a[0], exp_c_ref, &m_rkcn[0]);
 }
 
 

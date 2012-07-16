@@ -803,19 +803,6 @@ public:
         return m_g0_RT;
     }
 
-    //! Returns a reference to the exponent of the dimensionless reference state Gibbs Free energy vector.
-    /*!
-     * This function is part of the layer that checks/recalculates the reference
-     * state thermo functions.
-     */
-    const vector_fp& expGibbs_RT_ref() const {
-        _updateThermo();
-        for (size_t k = 0; k != m_kk; k++) {
-            m_expg0_RT[k] = std::exp(m_g0_RT[k]);
-        }
-        return m_expg0_RT;
-    }
-
     //! Returns a reference to the dimensionless reference state Entropy vector.
     /*!
      * This function is part of the layer that checks/recalculates the reference
@@ -923,17 +910,7 @@ protected:
     //! Temporary storage for dimensionless reference state entropies
     mutable vector_fp      m_s0_R;
 
-    //! currently unsed
-    /*!
-     * @deprecated
-     */
     mutable vector_fp      m_expg0_RT;
-
-    //! Currently unused
-    /*
-     * @deprecated
-     */
-    mutable vector_fp      m_pe;
 
     //! Temporary array containing internally calculated partial pressures
     mutable vector_fp      m_pp;

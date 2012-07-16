@@ -27,10 +27,6 @@ public:
     virtual void error(const std::string& msg) {
         mexErrMsgTxt(msg.c_str());
     }
-
-    DEPRECATED(virtual int env()) {
-        return 1;
-    }
 };
 
 }

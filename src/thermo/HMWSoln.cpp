@@ -288,8 +288,6 @@ operator=(const HMWSoln& b)
             m_waterProps = new WaterProps(dynamic_cast<PDSS_Water*>(m_waterSS));
         }
 
-        m_expg0_RT            = b.m_expg0_RT;
-        m_pe                  = b.m_pe;
         m_pp                  = b.m_pp;
         m_tmpV                = b.m_tmpV;
         m_speciesCharge_Stoich= b.m_speciesCharge_Stoich;
@@ -1703,8 +1701,6 @@ void HMWSoln::initLengths()
     m_speciesCharge_Stoich.resize(m_kk, 0.0);
     m_Aionic.resize(m_kk, 0.0);
 
-    m_expg0_RT.resize(m_kk, 0.0);
-    m_pe.resize(m_kk, 0.0);
     m_pp.resize(m_kk, 0.0);
     m_tmpV.resize(m_kk, 0.0);
     m_molalitiesCropped.resize(m_kk, 0.0);

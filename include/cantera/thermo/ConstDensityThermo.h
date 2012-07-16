@@ -299,23 +299,6 @@ public:
         return m_cp0_R;
     }
 
-    //! Set the potential energy of species k
-    /*!
-     * @param k species index
-     * @param pe Potential energy (J kmol-1).
-     */
-    virtual void setPotentialEnergy(int k, doublereal pe) {
-        m_pe[k] = pe;
-    }
-
-    //! Returns the potential energy of species k
-    /*!
-     * @param k species index
-     */
-    virtual doublereal potentialEnergy(int k) const {
-        return m_pe[k];
-    }
-
     //! Initialize the ThermoPhase object after all species have been set up
     /*!
      * @internal Initialize.
@@ -432,12 +415,6 @@ protected:
 
     //! Temporary storage for dimensionless reference state entropies
     mutable vector_fp      m_s0_R;
-
-    //! Currently unused
-    /*
-     * @deprecated
-     */
-    mutable vector_fp      m_pe;
 
     //! Temporary array containing internally calculated partial pressures
     mutable vector_fp      m_pp;

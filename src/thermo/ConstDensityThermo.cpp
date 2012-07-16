@@ -44,7 +44,6 @@ ConstDensityThermo& ConstDensityThermo::operator=(const ConstDensityThermo& righ
     m_cp0_R         = right.m_cp0_R;
     m_g0_RT         = right.m_g0_RT;
     m_s0_R          = right.m_s0_R;
-    m_pe            = right.m_pe;
     m_pp            = right.m_pp;
 
     return *this;
@@ -168,7 +167,6 @@ void ConstDensityThermo::initThermo()
     m_g0_RT.resize(m_kk);
     m_cp0_R.resize(m_kk);
     m_s0_R.resize(m_kk);
-    m_pe.resize(m_kk, 0.0);
     m_pp.resize(m_kk);
 }
 

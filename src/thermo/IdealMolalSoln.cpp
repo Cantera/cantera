@@ -99,8 +99,6 @@ operator=(const IdealMolalSoln& b)
         IMS_egCut_            = b.IMS_egCut_;
         IMS_agCut_            = b.IMS_agCut_;
         IMS_bgCut_            = b.IMS_bgCut_;
-        m_expg0_RT            = b.m_expg0_RT;
-        m_pe                  = b.m_pe;
         m_pp                  = b.m_pp;
         m_tmpV                = b.m_tmpV;
         IMS_lnActCoeffMolal_  = b.IMS_lnActCoeffMolal_;
@@ -1299,8 +1297,6 @@ void IdealMolalSoln::initLengths()
      * Obtain the limits of the temperature from the species
      * thermo handler's limits.
      */
-    m_expg0_RT.resize(m_kk);
-    m_pe.resize(m_kk, 0.0);
     m_pp.resize(m_kk);
     m_speciesMolarVolume.resize(m_kk);
     m_tmpV.resize(m_kk);

@@ -862,15 +862,6 @@ public:
      *  to see if a recalculation of the reference thermodynamics
      *  functions needs to be done.
      */
-    const vector_fp& expGibbs_RT_ref() const;
-
-    /**
-     *  Returns a reference to the vector of nondimensional
-     *  enthalpies of the reference state at the current temperature.
-     *  Real reason for its existence is that it also checks
-     *  to see if a recalculation of the reference thermodynamics
-     *  functions needs to be done.
-     */
     const vector_fp& entropy_R_ref() const;
 
     /**

@@ -430,25 +430,6 @@ public:
         return m_n0;
     }
 
-    //! Sets the potential energy of species k.
-    /*!
-     *
-     * @param k    Species index
-     * @param pe   Value of the potential energy (J kmol-1)
-     */
-    void setPotentialEnergy(int k, doublereal pe);
-
-    //! Return the potential energy of species k.
-    /*!
-     * Returns the potential energy of species, k,
-     * J kmol-1
-     *
-     * @param k  Species index
-     */
-    doublereal potentialEnergy(int k) {
-        return m_pe[k];
-    }
-
     //! Set the site density of the surface phase (kmol m-2)
     /*!
      *  @param n0 Site density of the surface phase (kmol m-2)
@@ -674,17 +655,6 @@ protected:
 
     //! Temporary work array
     mutable vector_fp      m_work;
-
-    //! Potential energy of each species in the surface phase
-    /*!
-     * @todo Fix potential energy
-     * Note, the potential energy terms seem to be orphaned at the moment.
-     * They are not connected to the Gibbs free energy calculation in
-     * this object
-     *
-     * @deprecated
-     */
-    mutable vector_fp      m_pe;
 
     //! vector storing the log of the size of each species.
     /*!
