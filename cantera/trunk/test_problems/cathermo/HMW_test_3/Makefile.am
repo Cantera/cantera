@@ -19,5 +19,5 @@ library_includedir   = $(INC)
 
 HMW_test_3_SOURCES = $(cc_sources)
 
-TESTS_ENVIRONMENT = 
-TESTS             = runtest
+#TESTS_ENVIRONMENT = 
+#TESTS             = runtest
