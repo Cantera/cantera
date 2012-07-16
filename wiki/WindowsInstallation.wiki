@@ -1,28 +1,31 @@
 #summary Installation Instructions for Windows
 #labels Phase-Deploy,Featured
 
-= Installing Cantera for Windows =
+These installation are for Cantera 2.0.0.
+
+= Installing Cantera 2.0 for Windows =
 
   # *Install Python*
-    * Go to [http://www.python.org/download/releases/2.6.6/ python.org].
-    * *32-bit*: Download the most recent "Windows x86 MSI Installer" for Python 2.6.
-    * *64-bit*: Download the most recent "Windows X86-64 MSI Installer" for Python 2.6.
+    * Go to [http://python.org/download/ python.org].
+    * *32-bit*: Download the most recent "Windows Installer" for Python 2.7.
+    * *64-bit*: Download the most recent "Windows X86-64 Installer" for Python 2.7.
     * Run the installer. The default installation options should be fine.
+    * Python is required in order to work with `.cti` input files even if you are not using the Python interface to Cantera.
   # *Install Numpy*
     * *32-bit*: Go to the [http://sourceforge.net/projects/numpy/files/ NumPy download page].
     * *64-bit*: Go to the [http://www.lfd.uci.edu/~gohlke/pythonlibs/ Unofficial Windows Binaries for Python Extension Packages] page.
-    * Download the most recent release of the 1.x series for Python 2.6.
+    * Download the most recent release of the 1.x series for Python 2.7.
     * Run the installer.
   # *Install Cantera*
-    * *32-bit*: Download [http://code.google.com/p/cantera/downloads/list Cantera-1.8.r444-x86.msi].
-    * *64-bit*: Download [http://code.google.com/p/cantera/downloads/list Cantera-1.8.r444-amd64.msi].
-    * Run the installer.
-    * Be sure to complete the installation of the Cantera Python module as well.
+    * Go to the [http://code.google.com/p/cantera/downloads/list Cantera Downloads] page.
+    * *32-bit*: Download *`Cantera-2.0.0-x86.msi`* and (optionally) *`Cantera-2.0.0-x86-py2.7.msi`*.
+    * *64-bit*: Download *`Cantera-2.0.0-x64.msi`* and (optionally) *`Cantera-2.0.0-x64-py2.7.msi`*.
+    * Run the installer(s).
   # *Configure Matlab* (optional)
     * Launch Matlab
     * Go to _File->Set Path..._
     * Select _Add with Subfolders_
-    * Browse to the folder `c:\Program Files\Cantera\MATLAB\toolbox\cantera`
+    * Browse to the folder `c:\Program Files\Cantera\matlab\toolbox`
     * Select _Save_, then _Close_.
     * Set the environment variable `PYTHON_CMD`
       * This step is not necessary if you are using only the Python module.
@@ -30,20 +33,7 @@
       * Go to the _Advanced_ tab.
       * Select _Environment Variables_.
       * Add a _New_ variable with `PYTHON_CMD` as the _name_ and the full path to the Python executable (e.g. `c:\python26\python.exe`) as the _value_.
-    * Create the `nasa_gas.xml` file
-      * Option 0: At a Python prompt, type:
-{{{
-import Cantera, os
-os.chdir('c:/Program Files/cantera/data')
-Cantera.Solution('nasa_gas.cti')
-}}}
-      * Option 1: At the Matlab prompt, type:
-{{{
-cd 'c:\Program Files\cantera\data'
-Solution('nasa_gas.cti')
-}}}
-      * This will give an error `(Procedure: xml_findByName; Error: name phase not found)`, but it should produce the file `nasa_gas.xml` in the current directory.
-      * This allows you to use any of the species specified in `nasa_gas.cti` in any of your `.cti` files.
+      * Setting `PYTHON_CMD` is not necessary if the path to `python.exe` is in your `PATH` (which can be set from the same configuration dialog).
   * *Test the installation*
     * Python:
 {{{
