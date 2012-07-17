@@ -105,9 +105,7 @@ namespace Cantera {
     m_abc_ok = false;
 
     // read blottner fit parameters (A,B,C)
-    cout << "reading blottner";
     read_blottner_transport_table();
-    cout << "done with blottner";
  
     // set specific heats
     cv_rot.resize(m_nsp);
@@ -727,32 +725,6 @@ namespace Cantera {
     }
     m_viscwt_ok = true;
   }
-
-  // /**
-  //  *
-  //  * This function returns a Transport data object for a given species.
-  //  *
-  //  */
-  // struct GasTransportData PecosTransport::
-  //   getGasTransportData(int kSpecies) 
-  // {
-  //   struct GasTransportData td;
-  //   td.speciesName = m_thermo->speciesName(kSpecies);
-
-  //   td.geometry = 2;
-  //   if (m_crot[kSpecies] == 0.0) {
-  //     td.geometry = 0;
-  //   } else if (m_crot[kSpecies] == 1.0) {
-  //     td.geometry = 1;
-  //   }
-  //   td.wellDepth = m_eps[kSpecies] / Boltzmann;
-  //   td.dipoleMoment = m_dipoleDiag[kSpecies] * 1.0E25 / SqrtTen;
-  //   td.diameter = m_diam(kSpecies, kSpecies) * 1.0E10;
-  //   td.polarizability = m_alpha[kSpecies] * 1.0E30;
-  //   td.rotRelaxNumber = m_zrot[kSpecies];
-
-  //   return td;
-  // }
 
 }
 
