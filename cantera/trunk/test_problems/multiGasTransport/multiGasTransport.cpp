@@ -152,7 +152,7 @@ int main(int argc, char** argv)
         printf(" Dump of the mixture Diffusivities:\n");
         for (size_t k = 0; k < nsp; k++) {
             string sss = g.speciesName(k);
-            printf("    %15s %13.5g\n", sss.c_str(), mixDiffs[k]);
+            printf("    %15s %13.2g\n", sss.c_str(), mixDiffs[k]);
         }
 
         vector_fp specVisc(nsp, 0.0);
@@ -160,7 +160,7 @@ int main(int argc, char** argv)
         printf(" Dump of the species viscosities:\n");
         for (size_t k = 0; k < nsp; k++) {
             string sss = g.speciesName(k);
-            printf("    %15s %13.5g\n", sss.c_str(), specVisc[k]);
+            printf("    %15s %13.4g\n", sss.c_str(), specVisc[k]);
         }
 
         vector_fp thermDiff(nsp, 0.0);
@@ -169,7 +169,7 @@ int main(int argc, char** argv)
         for (size_t k = 0; k < nsp; k++) {
             string sss = g.speciesName(k);
             double ddd = cutoff(thermDiff[k]);
-            printf("    %15s %13.5g\n", sss.c_str(), ddd);
+            printf("    %15s %13.4g\n", sss.c_str(), ddd);
         }
 
         printf("Viscosity and thermal Cond vs. T\n");
@@ -178,7 +178,7 @@ int main(int argc, char** argv)
             g.setState_TPX(T1, pres, DATA_PTR(Xset));
             double visc = tran->viscosity();
             double cond = tran->thermalConductivity();
-            printf("    %13g %13.5g %13.5g\n", T1, visc, cond);
+            printf("    %13g %13.4g %13.4g\n", T1, visc, cond);
         }
 
         g.setState_TPX(T1, pres, DATA_PTR(Xset));
@@ -189,7 +189,7 @@ int main(int argc, char** argv)
         tranMix->getBinaryDiffCoeffs(nsp, Bdiff.ptrColumn(0));
         for (size_t k = 0; k < nsp; k++) {
             string sss = g.speciesName(k);
-            printf(" H2 -   %15s %13.5g %13.5g\n", sss.c_str(), Bdiff(0,k), Bdiff(k,0));
+            printf(" H2 -   %15s %13.4g %13.4g\n", sss.c_str(), Bdiff(0,k), Bdiff(k,0));
         }
 
         vector_fp specMob(nsp, 0.0);
@@ -198,7 +198,7 @@ int main(int argc, char** argv)
         printf(" Dump of the species mobilities:\n");
         for (size_t k = 0; k < nsp; k++) {
             string sss = g.speciesName(k);
-            printf("    %15s %13.5g\n", sss.c_str(), specMob[k]);
+            printf("    %15s %13.4g\n", sss.c_str(), specMob[k]);
         }
 
         Array2D fluxes(nsp, 2, 0.0);
@@ -227,12 +227,12 @@ int main(int argc, char** argv)
         // Make sure roundoff error doesn't interfere with the printout.
         // these should be zero.
         if (fabs(sum1) * 1.0E14 > max1) {
-            printf("sum in x direction = %13.5g\n", sum1);
+            printf("sum in x direction = %13.4g\n", sum1);
         } else {
             printf("sum in x direction = 0\n");
         }
         if (fabs(sum2) * 1.0E14 > max2) {
-            printf("sum in y direction = %13.5g\n", sum1);
+            printf("sum in y direction = %13.4g\n", sum1);
         } else {
             printf("sum in y direction = 0\n");
         }
@@ -243,7 +243,7 @@ int main(int argc, char** argv)
         tranMix->getMultiDiffCoeffs(nsp, MDdiff.ptrColumn(0));
         for (size_t k = 0; k < nsp; k++) {
             string sss = g.speciesName(k);
-            printf(" H2 -   %15s %13.5g %13.5g\n", sss.c_str(), MDdiff(0,k), MDdiff(k,0));
+            printf(" H2 -   %15s %13.4g %13.4g\n", sss.c_str(), MDdiff(0,k), MDdiff(k,0));
         }
 
     } catch (CanteraError& err) {

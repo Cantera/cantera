@@ -19,5 +19,5 @@ library_includedir   = $(INC)
 
 runDiamond_SOURCES = $(cc_sources)
 
-TESTS_ENVIRONMENT = 
-TESTS             = runtest
+#TESTS_ENVIRONMENT = 
+#TESTS             = runtest

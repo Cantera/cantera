@@ -1,1 +1,1 @@
-TESTS = runtest
+#TESTS = runtest
