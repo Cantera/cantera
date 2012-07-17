@@ -21,7 +21,7 @@ For species SI2, discontinuity in s/R detected at Tmid = 1000
  
        temperature            1500  K
           pressure             100  Pa
-           density      1.8314e-05  kg/m^3
+           density     1.83141e-05  kg/m^3
   mean mol. weight         2.28407  amu
  
                           1 kg            1 kmol
