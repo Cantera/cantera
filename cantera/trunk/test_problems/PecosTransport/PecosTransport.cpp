@@ -32,14 +32,18 @@ using namespace std;
 /*****************************************************************/
 /*****************************************************************/
 
-#include "cantera/Cantera.h"
 #include "cantera/transport.h"
 #include "cantera/IdealGasMix.h"
-
 #include "cantera/transport/TransportFactory.h"
 
+//#include "Cantera.h"
+//#include "transport.h"
+//#include "IdealGasMix.h"
+
+//#include "TransportFactory.h"
+
 using namespace Cantera;
-using namespace Cantera_CXX;
+//using namespace Cantera_CXX;
 
 void printDbl(double val) {
   if (fabs(val) < 5.0E-17) {

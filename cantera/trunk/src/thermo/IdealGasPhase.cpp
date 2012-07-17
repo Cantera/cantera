@@ -155,6 +155,98 @@ doublereal IdealGasPhase::cv_mole() const
     return cp_mole() - GasConstant;
 }
 
+  /**
+   * @returns species translational/rotational specific heat at
+   * constant volume. 
+   *
+   * Either: $5/2 R_s$ or $3/2 R_s$ for molecules/atoms.
+   *
+   */
+  doublereal IdealGasPhase::cv_tr (doublereal atomicity) const
+  { 
+    // k is the species number
+    int dum  = 0;
+    int type = 0;
+    doublereal c[12];
+    doublereal minTemp;
+    doublereal maxTemp;
+    doublereal refPressure;
+
+    m_spthermo->reportParams(dum,type,c,minTemp,maxTemp,refPressure);
+    
+    if(type != 111)
+      {
+	throw CanteraError("Error in IdealGasPhase.cpp",
+			   "cv_tr only supported for StatMech!. \n\n");
+	
+      }
+    
+    // see reportParameters for specific details
+    return c[3];
+  }
+      
+  /**
+   * @returns species translational specific heat at constant volume.
+   */
+  doublereal IdealGasPhase::cv_trans () const
+  { return 1.5*GasConstant; }
+
+  /**
+   * @returns species rotational specific heat at constant volume.
+   *
+   */
+  doublereal IdealGasPhase::cv_rot (double atom) const
+  { return std::max(cv_tr(atom) - cv_trans(), 0.); }
+     
+  /**
+   * @returns species vibrational specific heat at
+   * constant volume.
+   *
+   * C^{vib}_{v,s} = \frac{\partial e^{vib}_{v,s} }{\partial T}
+   *
+   * The species vibration energy ($e^{vib}_{v,s}$) is:
+   * 
+   * 0: atom
+   *
+   * Diatomic:
+   * \f[
+   * \frac{R_s \theta_{v,s}}{e^{\theta_{v,s}/T}-1}
+   * \f]
+   *
+   * General Molecules:
+   * \f[
+   * \sum_i \frac{R_s \theta_{v,s,i}}{e^{\theta_{v,s,i}/T}-1}
+   * \f]
+   *
+   */
+  doublereal IdealGasPhase::cv_vib (const int k, const doublereal T) const
+  {
+
+    // k is the species number
+    int dum  = 0;
+    int type = 0;
+    doublereal c[12];
+    doublereal minTemp;
+    doublereal maxTemp;
+    doublereal refPressure;
+
+    c[0] = temperature();
+
+    m_spthermo->reportParams(dum,type,c,minTemp,maxTemp,refPressure);
+
+    // basic sanity check 
+    if(type != 111)
+      {
+	throw CanteraError("Error in IdealGasPhase.cpp",
+			   "cv_vib only supported for StatMech!. \n\n");
+
+      }
+
+    // see reportParameters for specific details
+    return c[4];
+
+  }
+
 // Mechanical Equation of State ----------------------------
 // Chemical Potentials and Activities ----------------------
 

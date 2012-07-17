@@ -8,6 +8,7 @@
 
 // known transport models
 #include "cantera/transport/MultiTransport.h"
+#include "cantera/transport/PecosTransport.h"
 #include "cantera/transport/MixTransport.h"
 #include "cantera/transport/SolidTransport.h"
 #include "cantera/transport/DustyGasTransport.h"
@@ -202,6 +203,7 @@ TransportFactory::TransportFactory() :
     m_models["Aqueous"] = cAqueousTransport;
     m_models["Simple"] = cSimpleTransport;
     m_models["User"] = cUserTransport;
+    m_models["Pecos"] = cPecosTransport;
     m_models["None"] = None;
     //m_models["Radiative"] = cRadiative;
 
@@ -370,6 +372,11 @@ Transport* TransportFactory::newTransport(std::string transportModel,
     case CK_MixtureAveraged:
         tr = new MixTransport;
         initTransport(tr, phase, CK_Mode, log_level);
+        break;
+	// adding pecos transport model 2/13/12
+    case cPecosTransport:
+        tr = new PecosTransport;
+        initTransport(tr, phase, 0, log_level);
         break;
     case cSolidTransport:
         tr = new SolidTransport;
