@@ -151,6 +151,7 @@ AC_OUTPUT(Makefile                                                         \
                    test_problems/cathermo/VPissp/Makefile                  \
                    test_problems/cathermo/wtWater/Makefile                 \
                    test_problems/PecosTransport/Makefile                   \
+                   test_problems/statmech/Makefile                         \
 		   doc/Makefile                                            \
 		   doc/doxygen/Makefile                                    \
 		   src/Makefile                                            \
