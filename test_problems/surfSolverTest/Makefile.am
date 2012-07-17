@@ -21,5 +21,5 @@ library_includedir   = $(INC)
 surfaceSolver_SOURCES  = $(cc_sources)
 surfaceSolver2_SOURCES = $(cc2_sources)
 
-TESTS_ENVIRONMENT = 
-TESTS             = runtest runtest2
+#TESTS_ENVIRONMENT = 
+#TESTS             = runtest runtest2

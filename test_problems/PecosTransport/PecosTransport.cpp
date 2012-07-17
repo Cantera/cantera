@@ -1,13 +1,22 @@
 /**
- *  @file PecosTransport.cpp
- *       test problem for pecos transport
- *       e.g. high speed reentry flows
- *       with reaction chemistry
+ *  @file mixGasTransport.cpp
+ *       test problem for mixture transport
  */
 
 //  Example 
 //
+// Test case for mixture transport in a gas
+// The basic idea is to set up a gradient of some kind.
+// Then the resulting transport coefficients out.
+// Essentially all of the interface routines should be
+// exercised and the results dumped out.
 //
+// A blessed solution test will make sure that the actual
+// solution doesn't change as a function of time or 
+// further development. 
+
+// perhaps, later, an analytical solution could be added
+
 
 #include <iostream>
 #include <string>
@@ -17,17 +26,17 @@
 
 using namespace std;
 
+
 #define MAX(x,y) (( (x) > (y) ) ? (x) : (y))    
 
 /*****************************************************************/
 /*****************************************************************/
 
-
+#include "cantera/Cantera.h"
 #include "cantera/transport.h"
 #include "cantera/IdealGasMix.h"
-#include "cantera/transport/TransportFactory.h"
 
-#include "cantera/Cantera.h"
+#include "cantera/transport/TransportFactory.h"
 
 using namespace Cantera;
 using namespace Cantera_CXX;
@@ -146,21 +155,20 @@ int main(int argc, char** argv) {
     grad_T[1] = (T3 - T1) / dist;
 
     int log_level = 0;
-    Transport * tran = newTransportMgr("Mix", &g, log_level=0);
-
-    MixTransport * tranMix = dynamic_cast<MixTransport *>(tran);
+    Transport * tran = newTransportMgr("Pecos", &g, log_level=0);
+    PecosTransport * tranMix = dynamic_cast<PecosTransport *>(tran);
 
     g.setState_TPX(1500.0, pres, DATA_PTR(Xset));
-    
+     
     vector_fp mixDiffs(nsp, 0.0);
     
-    tranMix->getMixDiffCoeffs(DATA_PTR(mixDiffs));
+    tranMix->getMixDiffCoeffsMass(DATA_PTR(mixDiffs));
     printf(" Dump of the mixture Diffusivities:\n");
     for (k = 0; k < nsp; k++) {
       string sss = g.speciesName(k);
       printf("    %15s %13.5g\n", sss.c_str(), mixDiffs[k]);
     }
-  
+
     vector_fp specVisc(nsp, 0.0);
     
     tranMix->getSpeciesViscosities(DATA_PTR(specVisc));
@@ -242,7 +250,11 @@ int main(int argc, char** argv) {
     } else {
       printf("sum in y direction = 0\n");
     }
- 
+
+    std::cout << "Sum of Diffusive Mass Fluxes: " << sum1 << std::endl;
+    std::cout << "Sum of Diffusive Mass Fluxes: " << sum2 << std::endl;
+    
+
 
   }
   catch (CanteraError) {
