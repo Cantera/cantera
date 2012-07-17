@@ -1,0 +1,317 @@
+<?xml version="1.0"?>
+<ctml>
+  <validate reactions="yes" species="yes"/>
+
+  <!-- phase airNASA9     -->
+  <phase dim="3" id="airNASA9">
+    <elementArray datasrc="elements.xml">O  N  E </elementArray>
+    <speciesArray datasrc="#species_data">
+      N2  O2  NO  N  O  N2+  O2+  NO+  N+  O+ 
+      e- </speciesArray>
+    <reactionArray datasrc="#reaction_data"/>
+    <state>
+      <temperature units="K">300.0</temperature>
+      <pressure units="Pa">101325.0</pressure>
+    </state>
+    <thermo model="IdealGas"/>
+    <kinetics model="GasKinetics"/>
+    <transport model="None"/>
+  </phase>
+
+  <!-- species definitions     -->
+  <speciesData id="species_data">
+
+    <!-- species N2    -->
+    <species name="N2">
+      <atomArray>N:2 </atomArray>
+      <note>Ref-Elm. Gurvich,1978 pt1 p280 pt2 p207.                      </note>
+      <thermo>
+        <NASA9 Tmax="1000.0" Tmin="200.0" P0="100000.0">
+           <floatArray name="coeffs" size="9">
+             2.210371497E+04,  -3.818461820E+02,   6.082738360E+00,  -8.530914410E-03, 
+             1.384646189E-05,  -9.625793620E-09,   2.519705809E-12,   7.108460860E+02,
+             -1.076003744E+01</floatArray>
+        </NASA9>
+        <NASA9 Tmax="6000.0" Tmin="1000.0" P0="100000.0">
+           <floatArray name="coeffs" size="9">
+             5.877124060E+05,  -2.239249073E+03,   6.066949220E+00,  -6.139685500E-04, 
+             1.491806679E-07,  -1.923105485E-11,   1.061954386E-15,   1.283210415E+04,
+             -1.586640027E+01</floatArray>
+        </NASA9>
+        <NASA9 Tmax="20000.0" Tmin="6000.0" P0="100000.0">
+           <floatArray name="coeffs" size="9">
+             8.310139160E+08,  -6.420733540E+05,   2.020264635E+02,  -3.065092046E-02, 
+             2.486903333E-06,  -9.705954110E-11,   1.437538881E-15,   4.938707040E+06,
+             -1.672099740E+03</floatArray>
+        </NASA9>
+      </thermo>
+    </species>
+
+    <!-- species O2    -->
+    <species name="O2">
+      <atomArray>O:2 </atomArray>
+      <note>Ref-Elm. Gurvich,1989 pt1 p94 pt2 p9.                         </note>
+      <thermo>
+        <NASA9 Tmax="1000.0" Tmin="200.0" P0="100000.0">
+           <floatArray name="coeffs" size="9">
+             -3.425563420E+04,   4.847000970E+02,   1.119010961E+00,   4.293889240E-03, 
+             -6.836300520E-07,  -2.023372700E-09,   1.039040018E-12,  -3.391454870E+03,
+             1.849699470E+01</floatArray>
+        </NASA9>
+        <NASA9 Tmax="6000.0" Tmin="1000.0" P0="100000.0">
+           <floatArray name="coeffs" size="9">
+             -1.037939022E+06,   2.344830282E+03,   1.819732036E+00,   1.267847582E-03, 
+             -2.188067988E-07,   2.053719572E-11,  -8.193467050E-16,  -1.689010929E+04,
+             1.738716506E+01</floatArray>
+        </NASA9>
+        <NASA9 Tmax="20000.0" Tmin="6000.0" P0="100000.0">
+           <floatArray name="coeffs" size="9">
+             4.975294300E+08,  -2.866106874E+05,   6.690352250E+01,  -6.169959020E-03, 
+             3.016396027E-07,  -7.421416600E-12,   7.278175770E-17,   2.293554027E+06,
+             -5.530621610E+02</floatArray>
+        </NASA9>
+      </thermo>
+    </species>
+
+    <!-- species NO    -->
+    <species name="NO">
+      <atomArray>O:1 N:1 </atomArray>
+      <note>Gurvich,1978,1989 pt1 p326 pt2 p203.                          </note>
+      <thermo>
+        <NASA9 Tmax="1000.0" Tmin="200.0" P0="100000.0">
+           <floatArray name="coeffs" size="9">
+             -1.143916503E+04,   1.536467592E+02,   3.431468730E+00,  -2.668592368E-03, 
+             8.481399120E-06,  -7.685111050E-09,   2.386797655E-12,   9.098214410E+03,
+             6.728725490E+00</floatArray>
+        </NASA9>
+        <NASA9 Tmax="6000.0" Tmin="1000.0" P0="100000.0">
+           <floatArray name="coeffs" size="9">
+             2.239018716E+05,  -1.289651623E+03,   5.433936030E+00,  -3.656034900E-04, 
+             9.880966450E-08,  -1.416076856E-11,   9.380184620E-16,   1.750317656E+04,
+             -8.501669090E+00</floatArray>
+        </NASA9>
+        <NASA9 Tmax="20000.0" Tmin="6000.0" P0="100000.0">
+           <floatArray name="coeffs" size="9">
+             -9.575303540E+08,   5.912434480E+05,  -1.384566826E+02,   1.694339403E-02, 
+             -1.007351096E-06,   2.912584076E-11,  -3.295109350E-16,  -4.677501240E+06,
+             1.242081216E+03</floatArray>
+        </NASA9>
+      </thermo>
+    </species>
+
+    <!-- species N    -->
+    <species name="N">
+      <atomArray>N:1 </atomArray>
+      <note>Hf:Cox,1989. Moore,1975. Gordon,1999.                         </note>
+      <thermo>
+        <NASA9 Tmax="1000.0" Tmin="200.0" P0="100000.0">
+           <floatArray name="coeffs" size="9">
+             0.000000000E+00,   0.000000000E+00,   2.500000000E+00,   0.000000000E+00, 
+             0.000000000E+00,   0.000000000E+00,   0.000000000E+00,   5.610463780E+04,
+             4.193905036E+00</floatArray>
+        </NASA9>
+        <NASA9 Tmax="6000.0" Tmin="1000.0" P0="100000.0">
+           <floatArray name="coeffs" size="9">
+             8.876501380E+04,  -1.071231500E+02,   2.362188287E+00,   2.916720081E-04, 
+             -1.729515100E-07,   4.012657880E-11,  -2.677227571E-15,   5.697351330E+04,
+             4.865231506E+00</floatArray>
+        </NASA9>
+        <NASA9 Tmax="20000.0" Tmin="6000.0" P0="100000.0">
+           <floatArray name="coeffs" size="9">
+             5.475181050E+08,  -3.107574980E+05,   6.916782740E+01,  -6.847988130E-03, 
+             3.827572400E-07,  -1.098367709E-11,   1.277986024E-16,   2.550585618E+06,
+             -5.848769753E+02</floatArray>
+        </NASA9>
+      </thermo>
+    </species>
+
+    <!-- species O    -->
+    <species name="O">
+      <atomArray>O:1 </atomArray>
+      <note>D0(O2):Brix,1954. Moore,1976. Gordon,1999.                    </note>
+      <thermo>
+        <NASA9 Tmax="1000.0" Tmin="200.0" P0="100000.0">
+           <floatArray name="coeffs" size="9">
+             -7.953611300E+03,   1.607177787E+02,   1.966226438E+00,   1.013670310E-03, 
+             -1.110415423E-06,   6.517507500E-10,  -1.584779251E-13,   2.840362437E+04,
+             8.404241820E+00</floatArray>
+        </NASA9>
+        <NASA9 Tmax="6000.0" Tmin="1000.0" P0="100000.0">
+           <floatArray name="coeffs" size="9">
+             2.619020262E+05,  -7.298722030E+02,   3.317177270E+00,  -4.281334360E-04, 
+             1.036104594E-07,  -9.438304330E-12,   2.725038297E-16,   3.392428060E+04,
+             -6.679585350E-01</floatArray>
+        </NASA9>
+        <NASA9 Tmax="20000.0" Tmin="6000.0" P0="100000.0">
+           <floatArray name="coeffs" size="9">
+             1.779004264E+08,  -1.082328257E+05,   2.810778365E+01,  -2.975232262E-03, 
+             1.854997534E-07,  -5.796231540E-12,   7.191720164E-17,   8.890942630E+05,
+             -2.181728151E+02</floatArray>
+        </NASA9>
+      </thermo>
+    </species>
+
+    <!-- species N2+    -->
+    <species name="N2+">
+      <atomArray>E:-1 N:2 </atomArray>
+      <note>Gurvich,1989 pt1 p323 pt2 p200.                               </note>
+      <charge>1</charge>
+      <thermo>
+        <NASA9 Tmax="1000.0" Tmin="298.14999999999998" P0="100000.0">
+           <floatArray name="coeffs" size="9">
+             -3.474047470E+04,   2.696222703E+02,   3.164916370E+00,  -2.132239781E-03, 
+             6.730476400E-06,  -5.637304970E-09,   1.621756000E-12,   1.790004424E+05,
+             6.832974166E+00</floatArray>
+        </NASA9>
+        <NASA9 Tmax="6000.0" Tmin="1000.0" P0="100000.0">
+           <floatArray name="coeffs" size="9">
+             -2.845599002E+06,   7.058893030E+03,  -2.884886385E+00,   3.068677059E-03, 
+             -4.361652310E-07,   2.102514545E-11,   5.411996470E-16,   1.340388483E+05,
+             5.090897022E+01</floatArray>
+        </NASA9>
+        <NASA9 Tmax="20000.0" Tmin="6000.0" P0="100000.0">
+           <floatArray name="coeffs" size="9">
+             -3.712829770E+08,   3.139287234E+05,  -9.603518050E+01,   1.571193286E-02, 
+             -1.175065525E-06,   4.144441230E-11,  -5.621893090E-16,  -2.217361867E+06,
+             8.436270947E+02</floatArray>
+        </NASA9>
+      </thermo>
+    </species>
+
+    <!-- species O2+    -->
+    <species name="O2+">
+      <atomArray>E:-1 O:2 </atomArray>
+      <note>Gurvich,1989 pt1 p98 pt2 p11.                                 </note>
+      <charge>1</charge>
+      <thermo>
+        <NASA9 Tmax="1000.0" Tmin="298.14999999999998" P0="100000.0">
+           <floatArray name="coeffs" size="9">
+             -8.607205450E+04,   1.051875934E+03,  -5.432380470E-01,   6.571166540E-03, 
+             -3.274263750E-06,   5.940645340E-11,   3.238784790E-13,   1.345544668E+05,
+             2.902709750E+01</floatArray>
+        </NASA9>
+        <NASA9 Tmax="6000.0" Tmin="1000.0" P0="100000.0">
+           <floatArray name="coeffs" size="9">
+             7.384654880E+04,  -8.459559540E+02,   4.985164160E+00,  -1.611010890E-04, 
+             6.427083990E-08,  -1.504939874E-11,   1.578465409E-15,   1.446321044E+05,
+             -5.811230650E+00</floatArray>
+        </NASA9>
+        <NASA9 Tmax="20000.0" Tmin="6000.0" P0="100000.0">
+           <floatArray name="coeffs" size="9">
+             -1.562125524E+09,   1.161406778E+06,  -3.302504720E+02,   4.710937520E-02, 
+             -3.354461380E-06,   1.167968599E-10,  -1.589754791E-15,  -8.857866270E+06,
+             2.852035602E+03</floatArray>
+        </NASA9>
+      </thermo>
+    </species>
+
+    <!-- species NO+    -->
+    <species name="NO+">
+      <atomArray>E:-1 O:1 N:1 </atomArray>
+      <note>Cp,S,IP(NO): Gurvich,1989 pt1 p330 pt2 p205.                  </note>
+      <charge>1</charge>
+      <thermo>
+        <NASA9 Tmax="1000.0" Tmin="298.14999999999998" P0="100000.0">
+           <floatArray name="coeffs" size="9">
+             1.398106635E+03,  -1.590446941E+02,   5.122895400E+00,  -6.394388620E-03, 
+             1.123918342E-05,  -7.988581260E-09,   2.107383677E-12,   1.187495132E+05,
+             -4.398433810E+00</floatArray>
+        </NASA9>
+        <NASA9 Tmax="6000.0" Tmin="1000.0" P0="100000.0">
+           <floatArray name="coeffs" size="9">
+             6.069876900E+05,  -2.278395427E+03,   6.080324670E+00,  -6.066847580E-04, 
+             1.432002611E-07,  -1.747990522E-11,   8.935014060E-16,   1.322709615E+05,
+             -1.519880037E+01</floatArray>
+        </NASA9>
+        <NASA9 Tmax="20000.0" Tmin="6000.0" P0="100000.0">
+           <floatArray name="coeffs" size="9">
+             2.676400347E+09,  -1.832948690E+06,   5.099249390E+02,  -7.113819280E-02, 
+             5.317659880E-06,  -1.963208212E-10,   2.805268230E-15,   1.443308939E+07,
+             -4.324044462E+03</floatArray>
+        </NASA9>
+      </thermo>
+    </species>
+
+    <!-- species N+    -->
+    <species name="N+">
+      <atomArray>E:-1 N:1 </atomArray>
+      <note>Moore,1975. Gordon,1999.                                      </note>
+      <charge>1</charge>
+      <thermo>
+        <NASA9 Tmax="1000.0" Tmin="298.14999999999998" P0="100000.0">
+           <floatArray name="coeffs" size="9">
+             5.237079210E+03,   2.299958315E+00,   2.487488821E+00,   2.737490756E-05, 
+             -3.134447576E-08,   1.850111332E-11,  -4.447350984E-15,   2.256284738E+05,
+             5.076830786E+00</floatArray>
+        </NASA9>
+        <NASA9 Tmax="6000.0" Tmin="1000.0" P0="100000.0">
+           <floatArray name="coeffs" size="9">
+             2.904970374E+05,  -8.557908610E+02,   3.477389290E+00,  -5.288267190E-04, 
+             1.352350307E-07,  -1.389834122E-11,   5.046166279E-16,   2.310809984E+05,
+             -1.994146545E+00</floatArray>
+        </NASA9>
+        <NASA9 Tmax="20000.0" Tmin="6000.0" P0="100000.0">
+           <floatArray name="coeffs" size="9">
+             1.646092148E+07,  -1.113165218E+04,   4.976986640E+00,  -2.005393583E-04, 
+             1.022481356E-08,  -2.691430863E-13,   3.539931593E-18,   3.136284696E+05,
+             -1.706646380E+01</floatArray>
+        </NASA9>
+      </thermo>
+    </species>
+
+    <!-- species O+    -->
+    <species name="O+">
+      <atomArray>E:-1 O:1 </atomArray>
+      <note>Martin,W.C.,1993. Gordon,1999.                                </note>
+      <charge>1</charge>
+      <thermo>
+        <NASA9 Tmax="1000.0" Tmin="298.14999999999998" P0="100000.0">
+           <floatArray name="coeffs" size="9">
+             0.000000000E+00,   0.000000000E+00,   2.500000000E+00,   0.000000000E+00, 
+             0.000000000E+00,   0.000000000E+00,   0.000000000E+00,   1.879352842E+05,
+             4.393376760E+00</floatArray>
+        </NASA9>
+        <NASA9 Tmax="6000.0" Tmin="1000.0" P0="100000.0">
+           <floatArray name="coeffs" size="9">
+             -2.166513208E+05,   6.665456150E+02,   1.702064364E+00,   4.714992810E-04, 
+             -1.427131823E-07,   2.016595903E-11,  -9.107157762E-16,   1.837191966E+05,
+             1.005690382E+01</floatArray>
+        </NASA9>
+        <NASA9 Tmax="20000.0" Tmin="6000.0" P0="100000.0">
+           <floatArray name="coeffs" size="9">
+             -2.143835383E+08,   1.469518523E+05,  -3.680864540E+01,   5.036164540E-03, 
+             -3.087873854E-07,   9.186834870E-12,  -1.074163268E-16,  -9.614208960E+05,
+             3.426193080E+02</floatArray>
+        </NASA9>
+      </thermo>
+    </species>
+
+    <!-- species e-    -->
+    <species name="e-">
+      <atomArray>E:1 </atomArray>
+      <note>Ref-Species. Chase,1998 3/82.                                 </note>
+      <charge>-1</charge>
+      <thermo>
+        <NASA9 Tmax="1000.0" Tmin="298.14999999999998" P0="100000.0">
+           <floatArray name="coeffs" size="9">
+             0.000000000E+00,   0.000000000E+00,   2.500000000E+00,   0.000000000E+00, 
+             0.000000000E+00,   0.000000000E+00,   0.000000000E+00,  -7.453750000E+02,
+             -1.172081224E+01</floatArray>
+        </NASA9>
+        <NASA9 Tmax="6000.0" Tmin="1000.0" P0="100000.0">
+           <floatArray name="coeffs" size="9">
+             0.000000000E+00,   0.000000000E+00,   2.500000000E+00,   0.000000000E+00, 
+             0.000000000E+00,   0.000000000E+00,   0.000000000E+00,  -7.453750000E+02,
+             -1.172081224E+01</floatArray>
+        </NASA9>
+        <NASA9 Tmax="20000.0" Tmin="6000.0" P0="100000.0">
+           <floatArray name="coeffs" size="9">
+             0.000000000E+00,   0.000000000E+00,   2.500000000E+00,   0.000000000E+00, 
+             0.000000000E+00,   0.000000000E+00,   0.000000000E+00,  -7.453750000E+02,
+             -1.172081224E+01</floatArray>
+        </NASA9>
+      </thermo>
+    </species>
+  </speciesData>
+  <reactionData id="reaction_data"/>
+</ctml>
