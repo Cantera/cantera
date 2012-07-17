@@ -2,11 +2,11 @@ Number of species = 4
 Number of species in diamond = 1
 Number of species in diamond_100 = 8
 Number of reactions = 20
-0  1  -8.95751e-05
-1  2  4.48403e-05
-2  3  -3.51539e-08
+0  1  -8.96e-05
+1  2  4.48e-05
+2  3  -3.52e-08
 3  4   nil
-4  0  3.51539e-08
+4  0  3.52e-08
 5  2   nil
 6  1   nil
 7  1   nil
@@ -16,22 +16,22 @@ Number of reactions = 20
 11  3   nil
 12  2   nil
 sum =  nil
-growth rate = 0.43183 microns per hour
+growth rate = 0.432 microns per hour
 Coverages:
-0   c6HH   0.462262
-1   c6H*   0.037052
-2   c6*H   0.474283
-3   c6**   0.0219445
-4   c6HM   0.00174648
-5   c6HM*   2.56272e-05
-6   c6*M   0.00264858
-7   c6B   3.8171e-05
+0   c6HH   0.462
+1   c6H*   0.0371
+2   c6*H   0.474
+3   c6**   0.0219
+4   c6HM   0.00175
+5   c6HM*   2.56e-05
+6   c6*M   0.00265
+7   c6B   3.82e-05
 Number of reactions = 20
-0  1  -8.95751e-05
-1  2  4.48403e-05
-2  3  -3.51539e-08
+0  1  -8.96e-05
+1  2  4.48e-05
+2  3  -3.52e-08
 3  4   nil
-4  0  3.51539e-08
+4  0  3.52e-08
 5  2   nil
 6  1   nil
 7  1   nil
@@ -41,13 +41,13 @@ Number of reactions = 20
 11  3   nil
 12  2   nil
 sum =  nil
-growth rate = 0.43183 microns per hour
+growth rate = 0.432 microns per hour
 Coverages:
-0   c6HH   0.462262
-1   c6H*   0.037052
-2   c6*H   0.474283
-3   c6**   0.0219445
-4   c6HM   0.00174648
-5   c6HM*   2.56272e-05
-6   c6*M   0.00264858
-7   c6B   3.8171e-05
+0   c6HH   0.462
+1   c6H*   0.0371
+2   c6*H   0.474
+3   c6**   0.0219
+4   c6HM   0.00175
+5   c6HM*   2.56e-05
+6   c6*M   0.00265
+7   c6B   3.82e-05
