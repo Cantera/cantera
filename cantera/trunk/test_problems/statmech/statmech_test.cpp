@@ -14,20 +14,19 @@
 #include <string>
 #include <iomanip>
 
+/*****************************************************************/
+/*****************************************************************/
+
+#include "cantera/Cantera.h"
+#include "cantera/transport.h"
+#include "cantera/IdealGasMix.h"
+#include "cantera/equil/equil.h"
+
+#include "cantera/transport/TransportFactory.h"
+
 using namespace std;
-
-/*****************************************************************/
-/*****************************************************************/
-
-#include "Cantera.h"
-#include "transport.h"
-#include "IdealGasMix.h"
-#include "equil.h"
-
-#include "TransportFactory.h"
-
 using namespace Cantera;
-using namespace Cantera_CXX;
+//using namespace Cantera_CXX;
 
 int main(int argc, char** argv) 
 {

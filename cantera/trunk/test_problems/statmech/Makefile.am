@@ -1,10 +1,10 @@
-INC                  = -I. -I$(top_builddir)/build/include/ -g
+INC                  = -I. -I$(top_builddir)/include/
 AM_CPPFLAGS          = $(INC)
 AM_CXXFLAGS          = $(AM_CPPFLAGS)
 
-LINK                 = -lctcxx -luser -loneD -lzeroD -lequil -lkinetics -ltransport -lthermo 
+LINK                 = -loneD -lzeroD -lequil -lkinetics -ltransport -lthermo 
 LINK                += -lctnumerics -lctmath -ltpx -lctspectra -lconverters -lctbase -lcvode 
-LINK                += -lctlapack -lctblas -lctf2c -lm -lstdc++
+LINK                += -lctlapack -lctblas -lctf2c -lm  -lctf2c -lstdc++ -lexecstream -pthread
 AM_LDFLAGS           = -L$(top_builddir)/build/lib/ 
 LIBS                 =  $(LINK)
 
@@ -24,7 +24,7 @@ statmech_test_Fe_SOURCES   = statmech_test_Fe.cpp
 
 TESTS_ENVIRONMENT = 	
 TESTS             = statmech_test \
-                    statmech_test_poly \
                     statmech_test_Fe
+#                    statmech_test_poly
 
 EXTRA_DIST = runtest_stat 
