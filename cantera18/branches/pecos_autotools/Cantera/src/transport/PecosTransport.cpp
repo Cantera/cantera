@@ -103,9 +103,7 @@ namespace Cantera {
     m_abc_ok = false;
 
     // read blottner fit parameters (A,B,C)
-    cout << "reading blottner";
     read_blottner_transport_table();
-    cout << "done with blottner";
  
     // set specific heats
     cv_rot.resize(m_nsp);
