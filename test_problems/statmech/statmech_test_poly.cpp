@@ -19,15 +19,14 @@ using namespace std;
 /*****************************************************************/
 /*****************************************************************/
 
-#include "Cantera.h"
-#include "transport.h"
-#include "IdealGasMix.h"
-#include "equil.h"
+#include "cantera/Cantera.h"
+#include "cantera/transport.h"
+#include "cantera/IdealGasMix.h"
+#include "cantera/equil/equil.h"
 
-#include "TransportFactory.h"
+#include "cantera/transport/TransportFactory.h"
 
 using namespace Cantera;
-using namespace Cantera_CXX;
 
 int main(int argc, char** argv) 
 {
@@ -49,17 +48,6 @@ int main(int argc, char** argv)
       vector_fp cp_R(nsp, 0.0);
       g.getCp_R(DATA_PTR(cp_R));
 
-      for(int i=0;i<nsp;i++)
-	{
-	  std::cout << cp_R[i] << std::endl;
-	}  
-
-      // error check
-      if(cp_R[0] != 0)
-	{
-	  std::cout << "Error for monotomic Species!\n";
-	  return 1;
-	}
     }
     catch (CanteraError) 
       {
