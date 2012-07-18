@@ -57,12 +57,18 @@ def collect():
 
     command = ['lcov', '-c',
                '-b', '.',
-               '-o', 'coverage.info']
+               '-o', 'coverage-raw.info']
     for d in sourcedirs:
         command.append('-d')
         command.append(d)
     subprocess.call(command)
 
+    # Filter to remove non-Cantera code
+    subprocess.call(['lcov',
+                     '-o', 'coverage.info',
+                     '-r', 'coverage-raw.info',
+                     '/usr/include/*', '*/ext/*'])
+    os.remove('coverage-raw.info')
 
 def genhtml():
     """
