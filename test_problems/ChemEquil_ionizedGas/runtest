@@ -19,8 +19,8 @@ then
   echo "ERROR: $testName: ionizedGasEquil returned with bad status, $retnStat, check output"
 fi
 
-diff -w output.txt output_blessed.txt > diff_out.txt
-retnStat_txt=$?
+#diff -w output.txt output_blessed.txt > diff_out.txt
+#retnStat_txt=$?
 ${CANTERA_BIN}/csvdiff -a 1.0E-19 table.csv table_blessed.csv > diff_csv.txt
 retnStat_csv=$?
 
@@ -29,11 +29,11 @@ if test $retnStat_csv = "0"
 then
   eCode=0
   echo "Successful test comparison on " $testName
-  if [ $retnStat_txt != "0" ]
-  then
-     echo "   But, text output files have differences. See diff_out.txt"
-     return 1
-  fi
+#  if [ $retnStat_txt != "0" ]
+#  then
+#     echo "   But, text output files have differences. See diff_out.txt"
+#     return 1
+#  fi
 else
   echo "Unsuccessful test comparison on " $testName " test"
   if test $retnStat_csv != "1"
@@ -41,11 +41,11 @@ else
      echo "      csv files are different - see diff_csv.txt"
      return 1
   fi
-  if test $retnStat_txt != "0"
-  then
-     echo "      And, text output files have differences. See diff_out.txt"
-     return 1
-  fi
+#  if test $retnStat_txt != "0"
+#  then
+#     echo "      And, text output files have differences. See diff_out.txt"
+#     return 1
+#  fi
 fi
 #
 #
