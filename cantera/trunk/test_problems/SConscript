@@ -277,6 +277,7 @@ Test('negA-cti', 'negATest', negA, 'negATest_blessed.out',
      options='noxNeg.cti', artifacts=negA_name,
      comparisons=[('noxNeg_blessed.xml', 'noxNeg.xml')])
 
+CompileAndTest('pecosTransport', 'PecosTransport', 'pecosTransport', 'output_blessed.txt')
 CompileAndTest('printUtil', 'printUtilUnitTest', 'pUtest', 'output_blessed.txt')
 CompileAndTest('pureFluid', 'pureFluidTest', 'testPureWater', 'output_blessed.txt')
 CompileAndTest('rankine_democxx', 'rankine_democxx', 'rankine', 'output_blessed.txt',
