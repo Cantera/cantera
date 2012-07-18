@@ -60,6 +60,7 @@ int main(int argc, char** argv) {
       string path = findInputFile(infile);
       ctml::get_CTML_Tree(xc, path);
 
+      cout.precision(4);
       XML_Node * const xg = xc->findNameID("phase", "gas");
       ThermoPhase *gasTP = newPhase(*xg);
       int nsp = gasTP->nSpecies();

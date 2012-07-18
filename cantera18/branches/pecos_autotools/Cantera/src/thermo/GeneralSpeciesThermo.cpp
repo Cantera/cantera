@@ -28,26 +28,49 @@ using namespace std;
 namespace Cantera {
 
 
-    /*
-     * Constructors
-     */
-    GeneralSpeciesThermo::GeneralSpeciesThermo() :
-	SpeciesThermo(),
-	m_tlow_max(0.0), 
-	m_thigh_min(1.0E30),
-	m_p0(OneAtm),
-        m_kk(0) 
-    {
-	m_tlow_max = 0.0;
-	m_thigh_min = 1.0E30;
-    }
+  /*
+   * Constructors
+   */
+  GeneralSpeciesThermo::GeneralSpeciesThermo() :
+    SpeciesThermo(),
+    m_tlow_max(0.0), 
+    m_thigh_min(1.0E30),
+    m_p0(OneAtm),
+    m_kk(0) 
+  {
+    m_tlow_max = 0.0;
+    m_thigh_min = 1.0E30;
+  }
  
-    GeneralSpeciesThermo::
-    GeneralSpeciesThermo(const GeneralSpeciesThermo &b) :
-	m_tlow_max(b.m_tlow_max), 
-	m_thigh_min(b.m_thigh_min),
-	m_kk(b.m_kk) 
-    {
+  GeneralSpeciesThermo::
+  GeneralSpeciesThermo(const GeneralSpeciesThermo &b) :
+    m_tlow_max(b.m_tlow_max), 
+    m_thigh_min(b.m_thigh_min),
+    m_kk(b.m_kk) 
+  {
+    m_sp.resize(m_kk, 0);
+    for (int k = 0; k < m_kk; k++) {
+      SpeciesThermoInterpType *bk = b.m_sp[k];
+      if (bk) {
+	m_sp[k] = bk->duplMyselfAsSpeciesThermoInterpType();
+      }
+    }
+  }
+
+  GeneralSpeciesThermo& 
+  GeneralSpeciesThermo::operator=(const GeneralSpeciesThermo &b) {
+    if (&b != this) {
+      m_tlow_max = b.m_tlow_max;
+      m_thigh_min = b.m_thigh_min;
+	
+      for (int k = 0; k < m_kk; k++) {
+	SpeciesThermoInterpType *sp = m_sp[k];
+	if (sp) {
+	  delete sp;
+	  m_sp[k] = 0;
+	}
+      }
+      m_kk = b.m_kk;
       m_sp.resize(m_kk, 0);
       for (int k = 0; k < m_kk; k++) {
 	SpeciesThermoInterpType *bk = b.m_sp[k];
@@ -56,138 +79,114 @@ namespace Cantera {
 	}
       }
     }
+    return *this;
+  }
 
-    GeneralSpeciesThermo& 
-    GeneralSpeciesThermo::operator=(const GeneralSpeciesThermo &b) {
-	if (&b != this) {
-	  m_tlow_max = b.m_tlow_max;
-	  m_thigh_min = b.m_thigh_min;
-	
-	  for (int k = 0; k < m_kk; k++) {
-	    SpeciesThermoInterpType *sp = m_sp[k];
-	    if (sp) {
-	      delete sp;
-	      m_sp[k] = 0;
-	    }
-	  }
-	  m_kk = b.m_kk;
-	  m_sp.resize(m_kk, 0);
-	  for (int k = 0; k < m_kk; k++) {
-	    SpeciesThermoInterpType *bk = b.m_sp[k];
-	    if (bk) {
-	      m_sp[k] = bk->duplMyselfAsSpeciesThermoInterpType();
-	    }
-	  }
-	}
-	return *this;
+  GeneralSpeciesThermo::~GeneralSpeciesThermo() {
+    for (int k = 0; k < m_kk; k++) {
+      SpeciesThermoInterpType *sp = m_sp[k];
+      if (sp) {
+	delete sp;
+	m_sp[k] = 0;
+      }
     }
-
-    GeneralSpeciesThermo::~GeneralSpeciesThermo() {
-	for (int k = 0; k < m_kk; k++) {
-	  SpeciesThermoInterpType *sp = m_sp[k];
-	  if (sp) {
-	    delete sp;
-	    m_sp[k] = 0;
-	  }
-	}
-    }
+  }
 
 
-    SpeciesThermo *
-    GeneralSpeciesThermo::duplMyselfAsSpeciesThermo() const {
-	GeneralSpeciesThermo *gsth = new GeneralSpeciesThermo(*this);
-	return (SpeciesThermo *) gsth;
-    }
+  SpeciesThermo *
+  GeneralSpeciesThermo::duplMyselfAsSpeciesThermo() const {
+    GeneralSpeciesThermo *gsth = new GeneralSpeciesThermo(*this);
+    return (SpeciesThermo *) gsth;
+  }
 
     
+  /*
+   * Install parameterization for a species.
+   * @param index    Species index
+   * @param type     parameterization type
+   * @param c        coefficients. The meaning of these depends on 
+   *                 the parameterization.
+   */
+  void GeneralSpeciesThermo::install(std::string name,
+				     int index,
+				     int type, 
+				     const doublereal* c, 
+				     doublereal minTemp,
+				     doublereal maxTemp,
+				     doublereal refPressure) 
+  {
     /*
-     * Install parameterization for a species.
-     * @param index    Species index
-     * @param type     parameterization type
-     * @param c        coefficients. The meaning of these depends on 
-     *                 the parameterization.
+     * Resize the arrays if necessary, filling the empty
+     * slots with the zero pointer.
      */
-    void GeneralSpeciesThermo::install(std::string name,
-				       int index,
-				       int type, 
-				       const doublereal* c, 
-				       doublereal minTemp,
-				       doublereal maxTemp,
-				       doublereal refPressure) {
-	/*
-	 * Resize the arrays if necessary, filling the empty
-	 * slots with the zero pointer.
-	 */
       
-      if(minTemp <= 0.0)
-	{
-	  throw CanteraError("Error in GeneralSpeciesThermo.cpp",
-			     " Cannot take 0 tmin as input. \n\n");
-	}
+    if(minTemp <= 0.0)
+      {
+	throw CanteraError("Error in GeneralSpeciesThermo.cpp",
+			   " Cannot take 0 tmin as input. \n\n");
+      }
 
-	if (index > m_kk - 1) {
-	  m_sp.resize(index+1, 0);
-          m_kk = index+1;
-	}
-	//AssertThrow(m_sp[index] == 0, 
-        //		    "Index position isn't null, duplication of assignment: " + int2str(index));
+    if (index > m_kk - 1) {
+      m_sp.resize(index+1, 0);
+      m_kk = index+1;
+    }
 
-        //int nfreq = 3;
-	/*
-	 * Create the necessary object
-	 */
+    //int nfreq = 3;
+    /*
+     * Create the necessary object
+     */
 
-	switch (type) {
-	case NASA1:
-	    m_sp[index] = new NasaPoly1(index, minTemp, maxTemp,
-					refPressure, c);
-	    break;
-	case SHOMATE1:
-	    m_sp[index] = new ShomatePoly(index, minTemp, maxTemp,
-					  refPressure, c);
-	    break;
-        case CONSTANT_CP:
-        case SIMPLE:
-	    m_sp[index] = new ConstCpPoly(index, minTemp, maxTemp,
-					  refPressure, c);
-	    break;
-	case MU0_INTERP:
-	    m_sp[index] = new Mu0Poly(index, minTemp, maxTemp,
-				      refPressure, c);
-	    break;
-        case SHOMATE2:
-	    m_sp[index] = new ShomatePoly2(index, minTemp, maxTemp,
-                                           refPressure, c);
-	    break;
-	case NASA2:
-	    m_sp[index] = new NasaPoly2(index, minTemp, maxTemp,
-					refPressure, c);
-	    break;
+    switch (type) {
+    case NASA1:
+      m_sp[index] = new NasaPoly1(index, minTemp, maxTemp,
+				  refPressure, c);
+      break;
+    case SHOMATE1:
+      m_sp[index] = new ShomatePoly(index, minTemp, maxTemp,
+				    refPressure, c);
+      break;
+    case CONSTANT_CP:
+    case SIMPLE:
+      m_sp[index] = new ConstCpPoly(index, minTemp, maxTemp,
+				    refPressure, c);
+      break;
+    case MU0_INTERP:
+      m_sp[index] = new Mu0Poly(index, minTemp, maxTemp,
+				refPressure, c);
+      break;
+    case SHOMATE2:
+      m_sp[index] = new ShomatePoly2(index, minTemp, maxTemp,
+				     refPressure, c);
+      break;
+    case NASA2:
+      m_sp[index] = new NasaPoly2(index, minTemp, maxTemp,
+				  refPressure, c);
+      break;
 
-	case STAT:
-	  m_sp[index] = new StatMech(index, minTemp, maxTemp,
-				     refPressure, c, name);
-	  break;
+    case STAT:
+      m_sp[index] = new StatMech(index, minTemp, maxTemp,
+				 refPressure, c, name);
+      break;
 
 #ifdef WITH_ADSORBATE
-        case ADSORBATE:
-	   m_sp[index] = new Adsorbate(index, minTemp, maxTemp,
-                                        refPressure, c);
-	    break;
+    case ADSORBATE:
+      m_sp[index] = new Adsorbate(index, minTemp, maxTemp,
+				  refPressure, c);
+      break;
 #endif
-	default:
-	    throw UnknownSpeciesThermoModel(
-                "GeneralSpeciesThermo::install",
-		"unknown species type", int2str(type));
-            break;
-	}
-        if (!m_sp[index]) {
-            cout << "Null m_sp... index = " << index << endl;
-            cout << "type = " << type << endl;
-        }
-	m_tlow_max = max(minTemp, m_tlow_max);
-	m_thigh_min = min(maxTemp, m_thigh_min);
+    default:
+      throw UnknownSpeciesThermoModel(
+				      "GeneralSpeciesThermo::install",
+				      "unknown species type", int2str(type));
+      break;
     }
+    if (!m_sp[index]) {
+      cout << "Null m_sp... index = " << index << endl;
+      cout << "type = " << type << endl;
+    }
+    m_tlow_max = max(minTemp, m_tlow_max);
+    m_thigh_min = min(maxTemp, m_thigh_min);
+  }
 
   // Install a new species thermodynamic property
   // parameterization for one species.

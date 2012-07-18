@@ -180,7 +180,7 @@ namespace Cantera {
     if(type != 111)
       {
 	throw CanteraError("Error in IdealGasPhase.cpp",
-			   "cv_vib only supported for IdealGasPhase!. \n\n");
+			   "cv_tr only supported for StatMech!. \n\n");
 	
       }
     
@@ -241,7 +241,7 @@ namespace Cantera {
     if(type != 111)
       {
 	throw CanteraError("Error in IdealGasPhase.cpp",
-			   "cv_vib only supported for IdealGasPhase!. \n\n");
+			   "cv_vib only supported for StatMech!. \n\n");
 
       }
 
