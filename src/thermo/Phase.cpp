@@ -893,32 +893,28 @@ void Phase::addSpecies(const std::string& name, const doublereal* comp,
 void Phase::addUniqueSpecies(const std::string& name, const doublereal* comp,
                              doublereal charge, doublereal size)
 {
-    vector<string>::const_iterator it = m_speciesNames.begin();
     for (size_t k = 0; k < m_kk; k++) {
-        if (*it == name) {
-            // We have found a match. At this point we could do some
-            // compatibility checks. However, let's just return for the moment
-            // without specifying any error.
+        if (m_speciesNames[k] == name) {
+            // We have found a match. Do some compatibility checks.
             for (size_t i = 0; i < m_mm; i++) {
-                if (comp[i] != m_speciesComp[m_kk * m_mm + i]) {
+                if (comp[i] != m_speciesComp[k * m_mm + i]) {
                     throw CanteraError("addUniqueSpecies",
                                        "Duplicate species have different "
-                                       "compositions: " + *it);
+                                       "compositions: " + name);
                 }
             }
-            if (charge != m_speciesCharge[m_kk]) {
+            if (charge != m_speciesCharge[k]) {
                 throw CanteraError("addUniqueSpecies",
                                    "Duplicate species have different "
-                                   "charges: " + *it);
+                                   "charges: " + name);
             }
-            if (size != m_speciesSize[m_kk]) {
+            if (size != m_speciesSize[k]) {
                 throw CanteraError("addUniqueSpecies",
                                    "Duplicate species have different "
-                                   "sizes: " + *it);
+                                   "sizes: " + name);
             }
             return;
         }
-        ++it;
     }
     addSpecies(name, comp, charge, size);
 }
