@@ -5,7 +5,7 @@ SUBDIRS  = ext src test_problems
 SUBDIRS += doc
 
 # Distribute these directories:
-DISTDIRS = ext src test_problems doc
+DISTDIRS = ext src test_problems doc include
 
 # generated documentation will be included in distributed archive
 EXTRA_DIST  = bootstrap $(DX_CONFIG)
