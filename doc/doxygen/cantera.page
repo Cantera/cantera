@@ -1,4 +1,4 @@
-/*! \mainpage The CORE Library
+/*! \mainpage The cantera Library
 
 <b>Version \version</b>, Build Date: \builddate
 
@@ -7,13 +7,13 @@ Built by: \builduser on \buildhost
 
 \section overview Overview
 
-Thank you for your interest in CORE. To aid in usage, this manual is
+Thank you for your interest in cantera. To aid in usage, this manual is
 further divided into the following subsections:
 
 <ul>
   <li> \subpage model "Library Overview" </li>
   <li> \subpage install "Installation/Linkage" </li>
-  <li> \link core.h C/C++ Interface \endlink </li>
+  <li> \link cantera.h C/C++ Interface \endlink </li>
   <li> \subpage apif "Fortran Interface" </li>
   <li> \link tut "Tutorial" </li>
 </ul>
