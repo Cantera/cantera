@@ -3,23 +3,11 @@
  *   Header file defining class PecosTransport
  */
 
-/* $Author$
- * $Revision$
- * $Date$
- */
-
 // Copyright 2001  California Institute of Technology
 
 
 #ifndef CT_PECOSTRAN_H
 #define CT_PECOSTRAN_H
-
-
-// turn off warnings under Windows
-#ifdef WIN32
-#pragma warning(disable:4786)
-#pragma warning(disable:4503)
-#endif
 
 // STL includes
 #include <vector>
@@ -42,24 +30,28 @@ using namespace std;
 #include "TransportBase.h"
 #include "cantera/numerics/DenseMatrix.h"
 
-namespace Cantera {
+namespace Cantera
+{
 
 
-  class GasTransportParams;
+class GasTransportParams;
 
-  /**
-   *
-   * Class PecosTransport implements mixture-averaged transport
-   * properties for ideal gas mixtures. 
-   *
-   */
-  class PecosTransport : public Transport {
+/**
+ *
+ * Class PecosTransport implements mixture-averaged transport
+ * properties for ideal gas mixtures.
+ *
+ */
+class PecosTransport : public Transport
+{
 
-  public:
+public:
 
     virtual ~PecosTransport() {}
 
-    virtual int model() const { return cPecosTransport; }
+    virtual int model() const {
+        return cPecosTransport;
+    }
 
     //! Viscosity of the mixture
     /*!
@@ -67,8 +59,11 @@ namespace Cantera {
      */
     virtual doublereal viscosity();
 
-    virtual void getSpeciesViscosities(doublereal* visc)
-    { update_T();  updateViscosity_T(); copy(m_visc.begin(), m_visc.end(), visc); }
+    virtual void getSpeciesViscosities(doublereal* visc) {
+        update_T();
+        updateViscosity_T();
+        copy(m_visc.begin(), m_visc.end(), visc);
+    }
 
     //! Return the thermal diffusion coefficients
     /*!
@@ -80,9 +75,9 @@ namespace Cantera {
      *
      * This is computed using the lumped model,
      * \f[
-     *    k = k^{tr} + k^{ve} 
+     *    k = k^{tr} + k^{ve}
      * \f]
-     * where, 
+     * where,
      * \f[
      *    k^{tr}= 5/2 \mu_s C_{v,s}^{trans} + \mu_s C_{v,s}^{rot}
      * \f]
@@ -90,14 +85,14 @@ namespace Cantera {
      * \f[
      *    k^{ve}= \mu_s C_{v,s}^{vib} + \mu_s C_{v,s}^{elec}
      * \f]
-     * 
+     *
      */
     virtual doublereal thermalConductivity();
 
     virtual void getBinaryDiffCoeffs(const int ld, doublereal* const d);
 
-    
-    //! Mixture-averaged diffusion coefficients [m^2/s]. 
+
+    //! Mixture-averaged diffusion coefficients [m^2/s].
     /*!
     * For the single species case or the pure fluid case
     * the routine returns the self-diffusion coefficient.
@@ -133,31 +128,31 @@ namespace Cantera {
     virtual void update_T();
     virtual void update_C();
 
-    //! Get the species diffusive mass fluxes wrt to 
-    //! the mass averaged velocity, 
+    //! Get the species diffusive mass fluxes wrt to
+    //! the mass averaged velocity,
     //! given the gradients in mole fraction and temperature
     /*!
      *  Units for the returned fluxes are kg m-2 s-1.
-     * 
+     *
      *  @param ndim Number of dimensions in the flux expressions
      *  @param grad_T Gradient of the temperature
      *                 (length = ndim)
-     * @param ldx  Leading dimension of the grad_X array 
+     * @param ldx  Leading dimension of the grad_X array
      *              (usually equal to m_nsp but not always)
      * @param grad_X Gradients of the mole fraction
      *             Flat vector with the m_nsp in the inner loop.
      *             length = ldx * ndim
-     * @param ldf  Leading dimension of the fluxes array 
+     * @param ldf  Leading dimension of the fluxes array
      *              (usually equal to m_nsp but not always)
      * @param fluxes  Output of the diffusive mass fluxes
      *             Flat vector with the m_nsp in the inner loop.
      *             length = ldx * ndim
      */
-    virtual void getSpeciesFluxes(int ndim, 
-				  const doublereal* grad_T,
-				  int ldx,
-				  const doublereal* grad_X, 
-				  int ldf, doublereal* fluxes);
+    virtual void getSpeciesFluxes(int ndim,
+                                  const doublereal* grad_T,
+                                  int ldx,
+                                  const doublereal* grad_X,
+                                  int ldf, doublereal* fluxes);
 
     //! Initialize the transport object
     /*!
@@ -167,20 +162,20 @@ namespace Cantera {
      *
      * @param tr  Transport parameters for all of the species
      *            in the phase.
-     * 
+     *
      */
-    virtual bool initGas( GasTransportParams& tr );
+    virtual bool initGas(GasTransportParams& tr);
 
 
-    /**         
+    /**
      *
      * Reads the transport table specified (currently defaults to internal file)
-     * 
-     * Reads the user-specified transport table, appending new species                            
-     * data and/or replacing default species data.   
+     *
+     * Reads the user-specified transport table, appending new species
+     * data and/or replacing default species data.
      *
      */
-    void read_blottner_transport_table ();
+    void read_blottner_transport_table();
 
     friend class TransportFactory;
 
@@ -193,17 +188,17 @@ namespace Cantera {
      */
     struct GasTransportData getGasTransportData(int);
 
-  protected:
+protected:
 
     /// default constructor
     PecosTransport();
 
-  private:
+private:
 
     //! Calculate the pressure from the ideal gas law
     doublereal pressure_ig() const {
-      return (m_thermo->molarDensity() * GasConstant *
-	      m_thermo->temperature());
+        return (m_thermo->molarDensity() * GasConstant *
+                m_thermo->temperature());
     }
 
     // mixture attributes
@@ -290,6 +285,6 @@ namespace Cantera {
     vector_fp            cp_R;
     vector_fp            cv_int;
 
-  };
+};
 }
 #endif

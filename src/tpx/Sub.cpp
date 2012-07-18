@@ -687,7 +687,7 @@ void Substance::set_TPp(double Temp, double Pressure)
 
     // loop
     while (P_here = Pp(),
-           fabs(Pressure - P_here) >= ErrP*Pressure || LoopCount == 0) {
+            fabs(Pressure - P_here) >= ErrP* Pressure || LoopCount == 0) {
         if (P_here < 0.0) {
             BracketSlope(Pressure);
         } else {

@@ -21,7 +21,8 @@ using std::endl;
 #pragma comment(lib, "advapi32")
 #endif
 
-namespace Cantera {
+namespace Cantera
+{
 
 // If running multiple threads in a cpp application, the Application class
 // is the only internal object that is single instance with static data.
@@ -82,7 +83,8 @@ Application::Messages::Messages(const Messages& r) :
     logwriter = new Logger(*(r.logwriter));
 }
 
-Application::Messages& Application::Messages::operator=(const Messages& r) {
+Application::Messages& Application::Messages::operator=(const Messages& r)
+{
     if (this == &r) {
         return *this;
     }
@@ -99,7 +101,8 @@ Application::Messages& Application::Messages::operator=(const Messages& r) {
     return *this;
 }
 
-Application::Messages::~Messages() {
+Application::Messages::~Messages()
+{
     delete logwriter;
 #ifdef WITH_HTML_LOGS
     if (xmllog) {
@@ -329,7 +332,8 @@ Application::Application() :
     stop_on_error(false),
     options(),
     xmlfiles(),
-    pMessenger() {
+    pMessenger()
+{
 #if !defined( THREAD_SAFE_CANTERA )
     pMessenger = std::auto_ptr<Messages>(new Messages());
 #endif
@@ -349,7 +353,8 @@ Application::Application() :
 #endif
 }
 
-Application* Application::Instance() {
+Application* Application::Instance()
+{
     ScopedLock appLock(app_mutex);
     if (Application::s_app == 0) {
         Application::s_app = new Application();
@@ -367,7 +372,8 @@ Application::~Application()
     }
 }
 
-void Application::ApplicationDestroy() {
+void Application::ApplicationDestroy()
+{
     ScopedLock appLock(app_mutex);
     if (Application::s_app != 0) {
         delete Application::s_app;
@@ -435,11 +441,11 @@ XML_Node* Application::get_XML_File(std::string file, int debug)
              * the processed xml tree.
              */
             if (xmlfiles.find(ff) != xmlfiles.end()) {
-            if (debug > 0) {
-                writelog("get_XML_File(): File, " + ff +
-                         ", was previously read." +
-                         " Retrieving the stored xml tree.\n");
-            }
+                if (debug > 0) {
+                    writelog("get_XML_File(): File, " + ff +
+                             ", was previously read." +
+                             " Retrieving the stored xml tree.\n");
+                }
                 return xmlfiles[ff];
             }
             /*

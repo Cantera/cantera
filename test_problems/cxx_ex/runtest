@@ -1,7 +1,5 @@
 #!/bin/sh
 #
-# $Id: runtest,v 1.8 2006/08/14 19:32:55 hkmoffa Exp $
-#
 temp_success="1"
 /bin/rm  -f eq1.csv  tr1.csv tr2.csv  kin1.csv  kin2.csv \
             kin1_blessed_tmp.csv kin2_blessed_tmp.csv
@@ -115,7 +113,7 @@ fi
 #
 cp  kin1_blessed.csv  kin1_blessed_tmp.csv
 if test x"$machType" = "xcygwin" ; then
-  /bin/cp  kin1_blessed_win.csv   kin1_blessed_tmp.csv 
+  /bin/cp  kin1_blessed_win.csv   kin1_blessed_tmp.csv
 fi
 
 $CANTERA_BIN/csvdiff -r 3.0E-3 kin1.csv kin1_blessed_tmp.csv > kin1_test.out
@@ -150,7 +148,7 @@ fi
 #
 cp  kin2_blessed.csv  kin2_blessed_tmp.csv
 if test x"$machType" = "xcygwin" ; then
-  /bin/cp  kin2_blessed_win.csv   kin2_blessed_tmp.csv 
+  /bin/cp  kin2_blessed_win.csv   kin2_blessed_tmp.csv
 fi
 
 $CANTERA_BIN/csvdiff kin2.csv kin2_blessed_tmp.csv > kin2_test.out

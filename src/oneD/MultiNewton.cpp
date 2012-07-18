@@ -176,8 +176,8 @@ doublereal MultiNewton::boundStep(const doublereal* x0,
     doublereal fbound = 1.0;
     for (size_t i = 0; i < r.nDomains(); i++) {
         fbound = std::min(fbound,
-                       bound_step(x0 + r.start(i), step0 + r.start(i),
-                                  r.domain(i), loglevel));
+                          bound_step(x0 + r.start(i), step0 + r.start(i),
+                                     r.domain(i), loglevel));
     }
     return fbound;
 }

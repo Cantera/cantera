@@ -41,8 +41,8 @@ extern "C" {
                                             int maxiter, int loglevel);
     CANTERA_CAPI int mix_getChemPotentials(int i, size_t lenmu, double* mu);
     CANTERA_CAPI int mix_getValidChemPotentials(int i, double bad_mu,
-                                                int standard, size_t lenmu,
-                                                double* mu);
+            int standard, size_t lenmu,
+            double* mu);
     CANTERA_CAPI double mix_enthalpy(int i);
     CANTERA_CAPI double mix_entropy(int i);
     CANTERA_CAPI double mix_gibbs(int i);

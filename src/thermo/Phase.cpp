@@ -721,7 +721,7 @@ void Phase::addUniqueElement(const std::string& symbol, doublereal weight,
     } else {
         if (m_atomicWeights[i] != weight) {
             throw CanteraError("AddUniqueElement",
-                "Duplicate Elements (" + symbol + ") have different weights");
+                               "Duplicate Elements (" + symbol + ") have different weights");
         }
     }
 }
@@ -756,7 +756,7 @@ void Phase::addElementsFromXML(const XML_Node& phase)
     // get the declared element names
     if (! phase.hasChild("elementArray")) {
         throw CanteraError("Elements::addElementsFromXML",
-            "phase xml node doesn't have \"elementArray\" XML Node");
+                           "phase xml node doesn't have \"elementArray\" XML Node");
     }
     XML_Node& elements = phase.child("elementArray");
     vector<string> enames;
@@ -865,8 +865,8 @@ void Phase::addSpecies(const std::string& name, const doublereal* comp,
             if (fabs(charge + ecomp) > 0.001) {
                 if (ecomp != 0.0) {
                     throw CanteraError("Phase::addSpecies",
-                        "Input charge and element E compositions differ "
-                        "for species " + name);
+                                       "Input charge and element E compositions differ "
+                                       "for species " + name);
                 } else {
                     // Just fix up the element E composition based on the input
                     // species charge

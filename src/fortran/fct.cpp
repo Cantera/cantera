@@ -88,7 +88,7 @@ extern "C" {
     //--------------- Phase ---------------------//
 
     status_t phase_getname_(const integer* n, char* nm,
-                                       ftnlen lennm)
+                            ftnlen lennm)
     {
         try {
             std::string pnm = _fph(n)->name();
@@ -108,7 +108,7 @@ extern "C" {
         try {
             return _fph(n)->nElements();
         } catch (...) {
-             return handleAllExceptions(-1, ERR);
+            return handleAllExceptions(-1, ERR);
         }
     }
 
@@ -225,7 +225,7 @@ extern "C" {
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
-            return 0;
+        return 0;
     }
 
     doublereal phase_massfraction_(const integer* n, integer* k)
@@ -649,8 +649,8 @@ extern "C" {
     //-------------- Kinetics ------------------//
 
     integer newkineticsfromxml_(integer* mxml, integer* iphase,
-                                           const integer* neighbor1, const integer* neighbor2, const integer* neighbor3,
-                                           const integer* neighbor4)
+                                const integer* neighbor1, const integer* neighbor2, const integer* neighbor3,
+                                const integer* neighbor4)
     {
         try {
             XML_Node* x = _xml(mxml);
@@ -700,7 +700,7 @@ extern "C" {
     }
 
     integer kin_speciesindex_(const integer* n, const char* nm, const char* ph,
-                                         ftnlen lennm, ftnlen lenph)
+                              ftnlen lennm, ftnlen lenph)
     {
         try {
             return _fkin(n)->kineticsSpeciesIndex(f2string(nm, lennm),
@@ -1018,7 +1018,7 @@ extern "C" {
     //-------------------- Functions ---------------------------
 
     status_t ctphase_report_(const integer* nth,
-                                        char* buf, integer* show_thermo, ftnlen buflen)
+                             char* buf, integer* show_thermo, ftnlen buflen)
     {
         try {
             bool stherm = (*show_thermo != 0);
@@ -1065,7 +1065,7 @@ extern "C" {
 
 
     status_t ctbuildsolutionfromxml(char* src, integer* ixml, char* id,
-            integer* ith, integer* ikin, ftnlen lensrc, ftnlen lenid)
+                                    integer* ith, integer* ikin, ftnlen lensrc, ftnlen lenid)
     {
         try {
             XML_Node* root = 0;

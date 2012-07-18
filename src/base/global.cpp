@@ -11,7 +11,8 @@
 
 using namespace std;
 
-namespace Cantera {
+namespace Cantera
+{
 
 //! Return a pointer to the application object
 static Application* app()

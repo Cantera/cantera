@@ -83,13 +83,13 @@ void ct2ctml(const char* file, const int debug)
         python.start(pypath(), "-i");
         stringstream output_stream;
         python.in() <<
-            "if True:\n" << // Use this so that the rest is a single block
-            "    import sys\n" <<
-            "    sys.stderr = sys.stdout\n" <<
-            "    import ctml_writer\n" <<
-            "    ctml_writer.convert(r'" << file << "')\n" <<
-            "    sys.exit(0)\n\n"
-            "sys.exit(7)\n";
+                    "if True:\n" << // Use this so that the rest is a single block
+                    "    import sys\n" <<
+                    "    sys.stderr = sys.stdout\n" <<
+                    "    import ctml_writer\n" <<
+                    "    ctml_writer.convert(r'" << file << "')\n" <<
+                    "    sys.exit(0)\n\n"
+                    "sys.exit(7)\n";
         python.close_in();
         std::string line;
         while (python.out().good()) {

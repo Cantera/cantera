@@ -260,7 +260,7 @@ int Sim1D::newtonSolve(int loglevel)
         return -1;
     } else {
         throw CanteraError("Sim1D::newtonSolve",
-            "ERROR: OneDim::solve returned m = " + int2str(m) + "\n");
+                           "ERROR: OneDim::solve returned m = " + int2str(m) + "\n");
     }
 }
 

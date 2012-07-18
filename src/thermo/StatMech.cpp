@@ -1,208 +1,212 @@
 /**
  *  @file StatMech.cpp
- *  \link Cantera::SpeciesThermoInterpType SpeciesThermoInterpType\endlink 
+ *  \link Cantera::SpeciesThermoInterpType SpeciesThermoInterpType\endlink
  */
 
-/* $Author: hkmoffa $
- * $Revision: 279 $
- * $Date: 2009-12-05 13:08:43 -0600 (Sat, 05 Dec 2009) $
- */
 // Copyright 2007  Sandia National Laboratories
 
 #include "cantera/thermo/StatMech.h"
 #include <vector>
 #include <map>
 
-namespace Cantera 
+namespace Cantera
 {
 
-  // Statistical mechanics 
-  /*
-   * @ingroup spthermo
-   */
- 
-  //! Empty constructor
-  StatMech::StatMech() 
-    : m_lowT(0.1), m_highT (1.0),
-      m_Pref(1.0E5), m_index (0) {}
+// Statistical mechanics
+/*
+ * @ingroup spthermo
+ */
+
+//! Empty constructor
+StatMech::StatMech()
+    : m_lowT(0.1), m_highT(1.0),
+      m_Pref(1.0E5), m_index(0) {}
 
 
-  // constructor used in templated instantiations
-  /*
-   * @param n            Species index
-   * @param tlow         Minimum temperature
-   * @param thigh        Maximum temperature
-   * @param pref         reference pressure (Pa).
-   * @param coeffs       Vector of coefficients used to set the
-   *                     parameters for the standard state.
-   */
-  StatMech::StatMech(int n, doublereal tlow, doublereal thigh, 
-		     doublereal pref,
-		     const doublereal* coeffs, 
-		     std::string my_name) :
-    m_lowT      (tlow),
-    m_highT     (thigh),
-    m_Pref      (pref),
-    m_index     (n),
-    sp_name     (my_name)
-  {
+// constructor used in templated instantiations
+/*
+ * @param n            Species index
+ * @param tlow         Minimum temperature
+ * @param thigh        Maximum temperature
+ * @param pref         reference pressure (Pa).
+ * @param coeffs       Vector of coefficients used to set the
+ *                     parameters for the standard state.
+ */
+StatMech::StatMech(int n, doublereal tlow, doublereal thigh,
+                   doublereal pref,
+                   const doublereal* coeffs,
+                   std::string my_name) :
+    m_lowT(tlow),
+    m_highT(thigh),
+    m_Pref(pref),
+    m_index(n),
+    sp_name(my_name)
+{
     // should error on zero -- cannot take ln(0)
-    if(m_lowT <= 0.0){
-      throw CanteraError("Error in StatMech.cpp",
-      		 " Cannot take 0 tmin as input. \n\n");
-    }    
+    if (m_lowT <= 0.0) {
+        throw CanteraError("Error in StatMech.cpp",
+                           " Cannot take 0 tmin as input. \n\n");
+    }
     buildmap();
-  }
+}
 
-  // copy constructor
-  /*
-   * @param b object to be copied
-   */
-  StatMech::StatMech(const StatMech& b) :
-    m_lowT      (b.m_lowT),
-    m_highT     (b.m_highT),
-    m_Pref      (b.m_Pref),
-    m_index     (b.m_index)
-  {
+// copy constructor
+/*
+ * @param b object to be copied
+ */
+StatMech::StatMech(const StatMech& b) :
+    m_lowT(b.m_lowT),
+    m_highT(b.m_highT),
+    m_Pref(b.m_Pref),
+    m_index(b.m_index)
+{
 
-  }
+}
 
-  // assignment operator
-  /*
-   * @param b object to be copied
-   */
-  StatMech& StatMech::operator=(const StatMech& b) {
+// assignment operator
+/*
+ * @param b object to be copied
+ */
+StatMech& StatMech::operator=(const StatMech& b)
+{
     if (&b != this) {
-      m_lowT   = b.m_lowT;
-      m_highT  = b.m_highT;
-      m_Pref   = b.m_Pref;
-      m_index  = b.m_index;
+        m_lowT   = b.m_lowT;
+        m_highT  = b.m_highT;
+        m_Pref   = b.m_Pref;
+        m_index  = b.m_index;
     }
     return *this;
-  }
+}
 
-  // Destructor
-  StatMech::~StatMech() {
-  }
+// Destructor
+StatMech::~StatMech()
+{
+}
 
-  // duplicator
-  SpeciesThermoInterpType *
-  StatMech::duplMyselfAsSpeciesThermoInterpType() const {
+// duplicator
+SpeciesThermoInterpType*
+StatMech::duplMyselfAsSpeciesThermoInterpType() const
+{
     StatMech* np = new StatMech(*this);
-    return (SpeciesThermoInterpType *) np;
-  }
+    return (SpeciesThermoInterpType*) np;
+}
 
-  // Returns the minimum temperature that the thermo
-  // parameterization is valid
-  doublereal StatMech::minTemp() const     
-  { 
-    return m_lowT;    
-  }
+// Returns the minimum temperature that the thermo
+// parameterization is valid
+doublereal StatMech::minTemp() const
+{
+    return m_lowT;
+}
 
-  // Returns the maximum temperature that the thermo
-  // parameterization is valid
-  doublereal StatMech::maxTemp() const  { 
+// Returns the maximum temperature that the thermo
+// parameterization is valid
+doublereal StatMech::maxTemp() const
+{
     return m_highT;
-  }
+}
 
-  // Returns the reference pressure (Pa)
-  doublereal StatMech::refPressure() const { return m_Pref; }
+// Returns the reference pressure (Pa)
+doublereal StatMech::refPressure() const
+{
+    return m_Pref;
+}
 
-  // Returns an integer representing the type of parameterization
-  int StatMech::reportType() const {
+// Returns an integer representing the type of parameterization
+int StatMech::reportType() const
+{
     return STAT;
-  }
-      
-  // Returns an integer representing the species index
-  size_t StatMech::speciesIndex() const { 
-    return m_index;
-  }
+}
 
-  int StatMech::buildmap()
-  {
+// Returns an integer representing the species index
+size_t StatMech::speciesIndex() const
+{
+    return m_index;
+}
+
+int StatMech::buildmap()
+{
 
     // build vector of strings
     std::vector<std::string> SS;
-    
+
     // now just iterate over name map to place each
     // string in a key
 
     SS.push_back("Air");
     SS.push_back("CPAir");
-    SS.push_back("Ar"   );
-    SS.push_back("Ar+"  );
-    SS.push_back("C"    );
-    SS.push_back("C+"   );
-    SS.push_back("C2"   );
-    SS.push_back("C2H"  );
-    SS.push_back("C2H2" );
-    SS.push_back("C3"   );
-    SS.push_back("CF"   );
-    SS.push_back("CF2"  );
-    SS.push_back("CF3"  );
-    SS.push_back("CF4"  );
-    SS.push_back("CH"   );
-    SS.push_back("CH2"  );
-    SS.push_back("CH3"  );
-    SS.push_back("CH4"  );
-    SS.push_back("Cl"   );
-    SS.push_back("Cl2"  );
-    SS.push_back("CN"   );
-    SS.push_back("CN+"  );
-    SS.push_back("CO"   );
-    SS.push_back("CO+"  );
-    SS.push_back("CO2"  );
-    SS.push_back("F"    );
-    SS.push_back("F2"   );
-    SS.push_back("H"    );
-    SS.push_back("H+"   );
-    SS.push_back("H2"   );
-    SS.push_back("H2+"  );
-    SS.push_back("H2O"  );
-    SS.push_back("HCl"  );
-    SS.push_back("HCN"  );
-    SS.push_back("He"   );
-    SS.push_back("He+"  );
-    SS.push_back("N"    );
-    SS.push_back("N+"   );
-    SS.push_back("N2"   );
-    SS.push_back("CPN2" );
-    SS.push_back("N2+"  );
-    SS.push_back("Ne"   );
-    SS.push_back("NCO"  );
-    SS.push_back("NH"   );
-    SS.push_back("NH+"  );
-    SS.push_back("NH2"  );
-    SS.push_back("NH3"  );
-    SS.push_back("NO"   );
-    SS.push_back("NO+"  );
-    SS.push_back("NO2"  );
-    SS.push_back("O"    );
-    SS.push_back("O+"   );
-    SS.push_back("O2"   );
-    SS.push_back("O2+"  );
-    SS.push_back("OH"   );
-    SS.push_back("Si"   );
-    SS.push_back("SiO"  );
-    SS.push_back("e");    
+    SS.push_back("Ar");
+    SS.push_back("Ar+");
+    SS.push_back("C");
+    SS.push_back("C+");
+    SS.push_back("C2");
+    SS.push_back("C2H");
+    SS.push_back("C2H2");
+    SS.push_back("C3");
+    SS.push_back("CF");
+    SS.push_back("CF2");
+    SS.push_back("CF3");
+    SS.push_back("CF4");
+    SS.push_back("CH");
+    SS.push_back("CH2");
+    SS.push_back("CH3");
+    SS.push_back("CH4");
+    SS.push_back("Cl");
+    SS.push_back("Cl2");
+    SS.push_back("CN");
+    SS.push_back("CN+");
+    SS.push_back("CO");
+    SS.push_back("CO+");
+    SS.push_back("CO2");
+    SS.push_back("F");
+    SS.push_back("F2");
+    SS.push_back("H");
+    SS.push_back("H+");
+    SS.push_back("H2");
+    SS.push_back("H2+");
+    SS.push_back("H2O");
+    SS.push_back("HCl");
+    SS.push_back("HCN");
+    SS.push_back("He");
+    SS.push_back("He+");
+    SS.push_back("N");
+    SS.push_back("N+");
+    SS.push_back("N2");
+    SS.push_back("CPN2");
+    SS.push_back("N2+");
+    SS.push_back("Ne");
+    SS.push_back("NCO");
+    SS.push_back("NH");
+    SS.push_back("NH+");
+    SS.push_back("NH2");
+    SS.push_back("NH3");
+    SS.push_back("NO");
+    SS.push_back("NO+");
+    SS.push_back("NO2");
+    SS.push_back("O");
+    SS.push_back("O+");
+    SS.push_back("O2");
+    SS.push_back("O2+");
+    SS.push_back("OH");
+    SS.push_back("Si");
+    SS.push_back("SiO");
+    SS.push_back("e");
 
     // now place each species in a map
     int ii;
-    for(ii=0; ii < SS.size(); ii++)
-      {
-	name_map[SS[ii]]=(new species);
+    for (ii=0; ii < SS.size(); ii++) {
+        name_map[SS[ii]]=(new species);
 
-	// init to crazy defaults
-	name_map[SS[ii]]->nvib       = -1;
-	name_map[SS[ii]]->cfs        = -1;
-	name_map[SS[ii]]->mol_weight = -1;
+        // init to crazy defaults
+        name_map[SS[ii]]->nvib       = -1;
+        name_map[SS[ii]]->cfs        = -1;
+        name_map[SS[ii]]->mol_weight = -1;
 
-	name_map[SS[ii]]->theta[0]   =0.0;
-	name_map[SS[ii]]->theta[1]   =0.0;
-	name_map[SS[ii]]->theta[2]   =0.0;
-	name_map[SS[ii]]->theta[3]   =0.0;
-	name_map[SS[ii]]->theta[4]   =0.0;
-      }
+        name_map[SS[ii]]->theta[0]   =0.0;
+        name_map[SS[ii]]->theta[1]   =0.0;
+        name_map[SS[ii]]->theta[2]   =0.0;
+        name_map[SS[ii]]->theta[3]   =0.0;
+        name_map[SS[ii]]->theta[4]   =0.0;
+    }
 
     // now set all species information
 
@@ -220,12 +224,12 @@ namespace Cantera
     name_map["Ar"]->cfs = 1.5;
     name_map["Ar"]->mol_weight=39.944;
     name_map["Ar"]->nvib=0;
-  
+
     // build Ar+
     name_map["Ar+"]->cfs = 1.5;
     name_map["Ar+"]->mol_weight=39.94345;
     name_map["Ar+"]->nvib=0;
-  
+
     // build C
     name_map["C"]->cfs = 1.5;
     name_map["C"]->mol_weight=12.011;
@@ -235,7 +239,7 @@ namespace Cantera
     name_map["C+"]->cfs = 1.5;
     name_map["C+"]->mol_weight=12.01045;
     name_map["C+"]->nvib=0;
-  
+
     // C2
     name_map["C2"]->cfs=2.5;
     name_map["C2"]->mol_weight=24.022;
@@ -322,7 +326,7 @@ namespace Cantera
     name_map["CH3"]->theta[1]=8.73370e+02;
     name_map["CH3"]->theta[2]=4.54960e+03;
     name_map["CH3"]->theta[3]=2.01150e+03;
-   
+
     // CH4
     name_map["CH4"]->cfs=3;
     name_map["CH4"]->mol_weight=16.04300;
@@ -570,88 +574,79 @@ namespace Cantera
     name_map["e"]->nvib=0;
 
     int dum = 0;
-    for(ii=0; ii < SS.size(); ii++)
-      {
-	// check nvib was initalized for all species
-	if(name_map[SS[ii]]->nvib == -1)
-	  {
-	    std::cout << name_map[SS[ii]]->nvib << std::endl;
-	    throw CanteraError("Error in StatMech.cpp",
-			       "nvib not initialized!. \n\n");
+    for (ii=0; ii < SS.size(); ii++) {
+        // check nvib was initalized for all species
+        if (name_map[SS[ii]]->nvib == -1) {
+            std::cout << name_map[SS[ii]]->nvib << std::endl;
+            throw CanteraError("Error in StatMech.cpp",
+                               "nvib not initialized!. \n\n");
 
-	  }
-	else
-	  {
-	    // check that theta is initalized
-	    for(int i=0;i<name_map[SS[ii]]->nvib;i++)
-	      {
-		if(name_map[SS[ii]]->theta[i] <= 0.0)
-		  {
-		    throw CanteraError("Error in StatMech.cpp",
-				       "theta not initalized!. \n\n");
-		  }
-	      } 
+        } else {
+            // check that theta is initalized
+            for (int i=0; i<name_map[SS[ii]]->nvib; i++) {
+                if (name_map[SS[ii]]->theta[i] <= 0.0) {
+                    throw CanteraError("Error in StatMech.cpp",
+                                       "theta not initalized!. \n\n");
+                }
+            }
 
-	    // check that no non-zero theta exist
-	    // for any theta larger than nvib!
-	    for(int i=name_map[SS[ii]]->nvib;i<5;i++)
-	      {
-		if(name_map[SS[ii]]->theta[i] != 0.0)
-		  {
-		    std::string err = "bad theta value for "+SS[ii]+"\n";
-		    throw CanteraError("StatMech.cpp",err);
-		  }
-	      } // done with for loop
-	  }
+            // check that no non-zero theta exist
+            // for any theta larger than nvib!
+            for (int i=name_map[SS[ii]]->nvib; i<5; i++) {
+                if (name_map[SS[ii]]->theta[i] != 0.0) {
+                    std::string err = "bad theta value for "+SS[ii]+"\n";
+                    throw CanteraError("StatMech.cpp",err);
+                }
+            } // done with for loop
+        }
 
-	// check mol weight was initialized for all species
-	if(name_map[SS[ii]]->mol_weight == -1)
-	  {
-	    std::cout << name_map[SS[ii]]->mol_weight << std::endl;
-	    throw CanteraError("Error in StatMech.cpp",
-			       "mol_weight not initialized!. \n\n");
+        // check mol weight was initialized for all species
+        if (name_map[SS[ii]]->mol_weight == -1) {
+            std::cout << name_map[SS[ii]]->mol_weight << std::endl;
+            throw CanteraError("Error in StatMech.cpp",
+                               "mol_weight not initialized!. \n\n");
 
-	  }
+        }
 
-	// cfs was initialized for all species
-	if(name_map[SS[ii]]->cfs == -1)
-	  {
-	    std::cout << name_map[SS[ii]]->cfs << std::endl;
-	    throw CanteraError("Error in StatMech.cpp",
-			       "cfs not initialized!. \n\n");
+        // cfs was initialized for all species
+        if (name_map[SS[ii]]->cfs == -1) {
+            std::cout << name_map[SS[ii]]->cfs << std::endl;
+            throw CanteraError("Error in StatMech.cpp",
+                               "cfs not initialized!. \n\n");
 
-	  }
-       
-      } // done with sanity checks
-    
+        }
+
+    } // done with sanity checks
+
     // mark it zero, dude
     return 0;
-  }
+}
 
-  // Update the properties for this species
-  /**
-   *
-   * \f[
-   * \frac{C_p^0(T)}{R} = \frac{C_v^0(T)}{R} + 1 
-   * \f]
-   *
-   * Where,
-   * \f[
-   * \frac{C_v^0(T)}{R} = \frac{C_v^{tr}(T)}{R} + \frac{C_v^{vib}(T)}{R}
-   * \f]
-   *
-   *
-   * @param tt      vector of temperature polynomials
-   * @param cp_R    Vector of Dimensionless heat capacities.
-   *                (length m_kk).
-   * @param h_RT    Vector of Dimensionless enthalpies.
-   *                (length m_kk).
-   * @param s_R     Vector of Dimensionless entropies.
-   *                (length m_kk).
-   */
-  void StatMech::updateProperties(const doublereal* tt, 
-				    doublereal* cp_R, doublereal* h_RT,
-				    doublereal* s_R) const {
+// Update the properties for this species
+/**
+ *
+ * \f[
+ * \frac{C_p^0(T)}{R} = \frac{C_v^0(T)}{R} + 1
+ * \f]
+ *
+ * Where,
+ * \f[
+ * \frac{C_v^0(T)}{R} = \frac{C_v^{tr}(T)}{R} + \frac{C_v^{vib}(T)}{R}
+ * \f]
+ *
+ *
+ * @param tt      vector of temperature polynomials
+ * @param cp_R    Vector of Dimensionless heat capacities.
+ *                (length m_kk).
+ * @param h_RT    Vector of Dimensionless enthalpies.
+ *                (length m_kk).
+ * @param s_R     Vector of Dimensionless entropies.
+ *                (length m_kk).
+ */
+void StatMech::updateProperties(const doublereal* tt,
+                                doublereal* cp_R, doublereal* h_RT,
+                                doublereal* s_R) const
+{
 
     std::map<std::string,species*>::iterator it;
 
@@ -659,97 +654,94 @@ namespace Cantera
     species* s;
 
     // pointer to map location of particular species
-    if(name_map.find(sp_name)  != name_map.end())
-      {
-	s = name_map.find(sp_name)->second;
-      }
-    else
-      {
-	//std::cout << sp_name << std::endl;
-	throw CanteraError("StatMech.cpp",
-			   "species properties not found!. \n\n");		
-      }
+    if (name_map.find(sp_name)  != name_map.end()) {
+        s = name_map.find(sp_name)->second;
+    } else {
+        //std::cout << sp_name << std::endl;
+        throw CanteraError("StatMech.cpp",
+                           "species properties not found!. \n\n");
+    }
 
     // translational + rotational specific heat
     doublereal ctr = 0.0;
     double theta = 0.0;
-    
+
     // 5/2 * R for molecules, 3/2 * R for atoms
     ctr += GasConstant * s->cfs;
 
     // vibrational energy
-    for(int i=0; i< s->nvib; i++)
-      {
-	theta = s->theta[i];
-	ctr += GasConstant * theta * (theta* exp(theta/tt[0])/(tt[0]*tt[0]))/((exp(theta/tt[0])-1) * (exp(theta/tt[0])-1));
-      }
+    for (int i=0; i< s->nvib; i++) {
+        theta = s->theta[i];
+        ctr += GasConstant * theta * (theta* exp(theta/tt[0])/(tt[0]*tt[0]))/((exp(theta/tt[0])-1) * (exp(theta/tt[0])-1));
+    }
 
     // Cp = Cv + R
     doublereal cpdivR = ctr/GasConstant + 1;
 
-    // ACTUNG: fix enthalpy and entropy 
+    // ACTUNG: fix enthalpy and entropy
     doublereal hdivRT = 0.0;
     doublereal sdivR  = 0.0;
 
-    // return the computed properties in the location in the output 
+    // return the computed properties in the location in the output
     // arrays for this species
     cp_R[m_index] = cpdivR;
     h_RT[m_index] = hdivRT;
     s_R [m_index] = sdivR;
-  }
+}
 
- 
-  // Compute the reference-state property of one species
-  /*
-   * Given temperature T in K, this method updates the values of
-   * the non-dimensional heat capacity at constant pressure,
-   * enthalpy, and entropy, at the reference pressure, Pref
-   * of one of the species. The species index is used
-   * to reference into the cp_R, h_RT, and s_R arrays.
-   *
-   * Temperature Polynomial:
-   *  tt[0] = t;
-   *  tt[1] = t*t;
-   *  tt[2] = t*t*t;
-   *  tt[3] = t*t*t*t;
-   *  tt[4] = 1.0/t;
-   *  tt[5] = 1.0/(t*t);
-   *  tt[6] = std::log(t);
-   *
-   * @param temp    Temperature (Kelvin)
-   * @param cp_R    Vector of Dimensionless heat capacities.
-   *                (length m_kk).
-   * @param h_RT    Vector of Dimensionless enthalpies.
-   *                (length m_kk).
-   * @param s_R     Vector of Dimensionless entropies.
-   *                (length m_kk).
-   */
-  void StatMech::updatePropertiesTemp(const doublereal temp, 
-					doublereal* cp_R, doublereal* h_RT, 
-					doublereal* s_R) const {
+
+// Compute the reference-state property of one species
+/*
+ * Given temperature T in K, this method updates the values of
+ * the non-dimensional heat capacity at constant pressure,
+ * enthalpy, and entropy, at the reference pressure, Pref
+ * of one of the species. The species index is used
+ * to reference into the cp_R, h_RT, and s_R arrays.
+ *
+ * Temperature Polynomial:
+ *  tt[0] = t;
+ *  tt[1] = t*t;
+ *  tt[2] = t*t*t;
+ *  tt[3] = t*t*t*t;
+ *  tt[4] = 1.0/t;
+ *  tt[5] = 1.0/(t*t);
+ *  tt[6] = std::log(t);
+ *
+ * @param temp    Temperature (Kelvin)
+ * @param cp_R    Vector of Dimensionless heat capacities.
+ *                (length m_kk).
+ * @param h_RT    Vector of Dimensionless enthalpies.
+ *                (length m_kk).
+ * @param s_R     Vector of Dimensionless entropies.
+ *                (length m_kk).
+ */
+void StatMech::updatePropertiesTemp(const doublereal temp,
+                                    doublereal* cp_R, doublereal* h_RT,
+                                    doublereal* s_R) const
+{
     double tPoly[1];
     tPoly[0]  = temp;
     updateProperties(tPoly, cp_R, h_RT, s_R);
-  }
+}
 
-  //This utility function reports back the type of 
-  // parameterization and all of the parameters for the 
-  // species, index.
-  /*
-   * All parameters are output variables
-   *
-   * @param n         Species index
-   * @param type      Integer type of the standard type
-   * @param tlow      output - Minimum temperature
-   * @param thigh     output - Maximum temperature
-   * @param pref      output - reference pressure (Pa).
-   * @param coeffs    Vector of species state data 
-   */
-  void StatMech::reportParameters(size_t &n, int &type,
-				    doublereal &tlow, doublereal &thigh,
-				    doublereal &pref,
-				    doublereal* const coeffs) const 
-  {
+//This utility function reports back the type of
+// parameterization and all of the parameters for the
+// species, index.
+/*
+ * All parameters are output variables
+ *
+ * @param n         Species index
+ * @param type      Integer type of the standard type
+ * @param tlow      output - Minimum temperature
+ * @param thigh     output - Maximum temperature
+ * @param pref      output - reference pressure (Pa).
+ * @param coeffs    Vector of species state data
+ */
+void StatMech::reportParameters(size_t& n, int& type,
+                                doublereal& tlow, doublereal& thigh,
+                                doublereal& pref,
+                                doublereal* const coeffs) const
+{
     species* s;
 
     n = m_index;
@@ -757,55 +749,50 @@ namespace Cantera
     tlow = m_lowT;
     thigh = m_highT;
     pref = m_Pref;
-    for (int i = 0; i < 9; i++) 
-      {
-	coeffs[i] = 0.0;
-      }
+    for (int i = 0; i < 9; i++) {
+        coeffs[i] = 0.0;
+    }
     doublereal temp = coeffs[0];
     coeffs[1] = m_lowT;
     coeffs[2] = m_highT;
 
     // get species name, to gather species properties
     // pointer to map location of particular species
-    if(name_map.find(sp_name)  != name_map.end())
-      {
-	s = name_map.find(sp_name)->second;
-      }
-    else
-      {
-	//std::cout << sp_name << std::endl;
-	throw CanteraError("StatMech.cpp",
-			   "species properties not found!. \n\n");		
-      }
+    if (name_map.find(sp_name)  != name_map.end()) {
+        s = name_map.find(sp_name)->second;
+    } else {
+        //std::cout << sp_name << std::endl;
+        throw CanteraError("StatMech.cpp",
+                           "species properties not found!. \n\n");
+    }
 
     double theta = 0.0;
     doublereal cvib = 0;
-    
+
     // vibrational energy
-    for(int i=0; i< s->nvib; i++)
-      {
-	theta = s->theta[i];
-	cvib += GasConstant * theta * (theta* exp(theta/temp)/(temp*temp))/((exp(theta/temp)-1) * (exp(theta/temp)-1));
-      }
+    for (int i=0; i< s->nvib; i++) {
+        theta = s->theta[i];
+        cvib += GasConstant * theta * (theta* exp(theta/temp)/(temp*temp))/((exp(theta/temp)-1) * (exp(theta/temp)-1));
+    }
 
     // load vibrational energy
     coeffs[3] = GasConstant * s->cfs;
     coeffs[4] = cvib;
 
-  }
+}
 
-  // Modify parameters for the standard state
-  /*
-   * @param coeffs   Vector of coefficients used to set the
-   *                 parameters for the standard state.
-   */
-  void StatMech::modifyParameters(doublereal* coeffs) 
-  {
+// Modify parameters for the standard state
+/*
+ * @param coeffs   Vector of coefficients used to set the
+ *                 parameters for the standard state.
+ */
+void StatMech::modifyParameters(doublereal* coeffs)
+{
 
-    
-
-  }
 
 
 }
- 
+
+
+}
+

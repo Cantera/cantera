@@ -225,7 +225,7 @@ extern "C" {
     }
 
     int rdiag_findMajor(int i, double threshold,
-                                   size_t lda, double* a)
+                        size_t lda, double* a)
     {
         try {
             DiagramCabinet::item(i).findMajorPaths(threshold, lda, a);
@@ -293,7 +293,7 @@ extern "C" {
     }
 
     int rbuild_build(int i, int k, char* el, char* dotfile,
-                                int idiag, int iquiet)
+                     int idiag, int iquiet)
     {
         try {
             ofstream fdot(dotfile);

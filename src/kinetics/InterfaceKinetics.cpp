@@ -1115,10 +1115,10 @@ void InterfaceKinetics::addElementaryReaction(ReactionData& r)
      */
     int reactionRateCoeffType_orig = r.rateCoeffType;
     if (r.rateCoeffType == EXCHANGE_CURRENT_REACTION_RATECOEFF_TYPE) {
-       r.rateCoeffType = SURF_ARRHENIUS_REACTION_RATECOEFF_TYPE;
+        r.rateCoeffType = SURF_ARRHENIUS_REACTION_RATECOEFF_TYPE;
     }
     if (r.rateCoeffType == ARRHENIUS_REACTION_RATECOEFF_TYPE) {
-       r.rateCoeffType = SURF_ARRHENIUS_REACTION_RATECOEFF_TYPE;
+        r.rateCoeffType = SURF_ARRHENIUS_REACTION_RATECOEFF_TYPE;
     }
     /*
      * Install the reaction rate into the vector of reactions handled by this class

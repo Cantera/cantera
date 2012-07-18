@@ -31,8 +31,8 @@ extern "C" {
             }
             return XmlCabinet::add(x);
         } catch (...) {
-             return handleAllExceptions(-1, ERR);
-         }
+            return handleAllExceptions(-1, ERR);
+        }
     }
 
     int xml_get_XML_File(const char* file, int debug)
@@ -62,8 +62,8 @@ extern "C" {
             XmlCabinet::del(i);
             return 0;
         } catch (...) {
-             return handleAllExceptions(-1, ERR);
-         }
+            return handleAllExceptions(-1, ERR);
+        }
     }
 
     int xml_removeChild(int i, int j)
@@ -72,8 +72,8 @@ extern "C" {
             XmlCabinet::item(i).removeChild(&XmlCabinet::item(j));
             return 0;
         } catch (...) {
-             return handleAllExceptions(-1, ERR);
-         }
+            return handleAllExceptions(-1, ERR);
+        }
     }
 
     int xml_copy(int i)
@@ -81,8 +81,8 @@ extern "C" {
         try {
             return XmlCabinet::newCopy(i);
         } catch (...) {
-             return handleAllExceptions(-1, ERR);
-         }
+            return handleAllExceptions(-1, ERR);
+        }
     }
 
     int xml_assign(int i, int j)
@@ -90,8 +90,8 @@ extern "C" {
         try {
             return XmlCabinet::assign(i,j);
         } catch (...) {
-             return handleAllExceptions(-1, ERR);
-         }
+            return handleAllExceptions(-1, ERR);
+        }
     }
 
     int xml_build(int i, const char* file)
@@ -250,8 +250,8 @@ extern "C" {
             XML_Node& node = XmlCabinet::item(i);
             return (int) node.nChildren();
         } catch (...) {
-             return handleAllExceptions(-1, ERR);
-         }
+            return handleAllExceptions(-1, ERR);
+        }
     }
 
     int xml_addChild(int i, const char* name, const char* value)

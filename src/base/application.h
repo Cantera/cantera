@@ -10,7 +10,8 @@
 #include <string>
 #include <vector>
 
-namespace Cantera {
+namespace Cantera
+{
 
 class XML_Node;
 

@@ -76,7 +76,7 @@ extern "C" {
     CANTERA_CAPI int th_set_SV(int n, double* vals);
     CANTERA_CAPI int th_set_SP(int n, double* vals);
     CANTERA_CAPI int th_equil(int n, char* XY, int solver,
-                                    double rtol, int maxsteps, int maxiter, int loglevel);
+                              double rtol, int maxsteps, int maxiter, int loglevel);
 
     CANTERA_CAPI double th_critTemperature(int n);
     CANTERA_CAPI double th_critPressure(int n);
@@ -88,10 +88,10 @@ extern "C" {
     CANTERA_CAPI int th_setState_Tsat(int n, double t, double x);
 
     CANTERA_CAPI size_t newKineticsFromXML(int mxml, int iphase,
-            int neighbor1=-1, int neighbor2=-1, int neighbor3=-1,
-            int neighbor4=-1);
+                                           int neighbor1=-1, int neighbor2=-1, int neighbor3=-1,
+                                           int neighbor4=-1);
     CANTERA_CAPI int installRxnArrays(int pxml, int ikin,
-                                            char* default_phase);
+                                      char* default_phase);
     CANTERA_CAPI size_t kin_nSpecies(int n);
     CANTERA_CAPI size_t kin_nReactions(int n);
     CANTERA_CAPI size_t kin_nPhases(int n);
@@ -125,7 +125,7 @@ extern "C" {
     CANTERA_CAPI size_t kin_phase(int n, size_t i);
 
     CANTERA_CAPI size_t newTransport(char* model,
-                                           int th, int loglevel);
+                                     int th, int loglevel);
     CANTERA_CAPI double trans_viscosity(int n);
     CANTERA_CAPI double trans_thermalConductivity(int n);
     CANTERA_CAPI int trans_getThermalDiffCoeffs(int n, int ldt, double* dt);
@@ -134,13 +134,13 @@ extern "C" {
     CANTERA_CAPI int trans_getMultiDiffCoeffs(int n, int ld, double* d);
     CANTERA_CAPI int trans_setParameters(int n, int type, int k, double* d);
     CANTERA_CAPI int trans_getMolarFluxes(int n, const double* state1,
-            const double* state2, double delta, double* fluxes);
+                                          const double* state2, double delta, double* fluxes);
     CANTERA_CAPI int trans_getMassFluxes(int n, const double* state1,
-            const double* state2, double delta, double* fluxes);
+                                         const double* state2, double delta, double* fluxes);
 
     CANTERA_CAPI int import_phase(int nth, int nxml, char* id);
     CANTERA_CAPI int import_kinetics(int nxml, char* id,
-                                           int nphases, int* ith, int nkin);
+                                     int nphases, int* ith, int nkin);
     CANTERA_CAPI int getCanteraError(int buflen, char* buf);
     CANTERA_CAPI int showCanteraErrors();
     CANTERA_CAPI int write_HTML_log(const char* file);
@@ -152,10 +152,10 @@ extern "C" {
     CANTERA_CAPI int delTransport(int n);
     CANTERA_CAPI int readlog(int n, char* buf);
     CANTERA_CAPI int buildSolutionFromXML(char* src, int ixml, char* id,
-            int ith, int ikin);
+                                          int ith, int ikin);
 
     CANTERA_CAPI int ck_to_cti(char* in_file, char* db_file,
-                                     char* tr_file, char* id_tag, int debug, int validate);
+                               char* tr_file, char* id_tag, int debug, int validate);
     CANTERA_CAPI int writelogfile(char* logfile);
 }
 

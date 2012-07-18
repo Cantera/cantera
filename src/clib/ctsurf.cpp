@@ -61,17 +61,17 @@ extern "C" {
             _surfphase(i).setCoveragesByName(string(c));
             return 0;
         } catch (...) {
-             return handleAllExceptions(-1, ERR);
+            return handleAllExceptions(-1, ERR);
         }
     }
 
     int surf_getcoverages(int i, double* c)
     {
         try {
-        _surfphase(i).getCoverages(c);
-        return 0;
+            _surfphase(i).getCoverages(c);
+            return 0;
         } catch (...) {
-             return handleAllExceptions(-1, ERR);
+            return handleAllExceptions(-1, ERR);
         }
     }
 
@@ -81,7 +81,7 @@ extern "C" {
             _surfphase(i).setConcentrations(c);
             return 0;
         } catch (...) {
-             return handleAllExceptions(-1, ERR);
+            return handleAllExceptions(-1, ERR);
         }
     }
 
@@ -91,7 +91,7 @@ extern "C" {
             _surfphase(i).getConcentrations(c);
             return 0;
         } catch (...) {
-             return handleAllExceptions(-1, ERR);
+            return handleAllExceptions(-1, ERR);
         }
     }
 }
