@@ -1,5 +1,4 @@
-EXTRA_DIST  = cantera.dox cantera.page txt_common fig_common
-EXTRA_DIST += install.page tutorial.page
+SUBDIR = doxygen
 
 dist-hook:
 	rm -rf `find $(distdir)/ -name .svn`

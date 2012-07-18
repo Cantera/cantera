@@ -1,6 +1,4 @@
-#txt_common fig_common
-EXTRA_DIST  = Cantera.txt
-#EXTRA_DIST += install.page tutorial.page
+EXTRA_DIST  = Cantera.txt cantera.page cantera.doc
 
 dist-hook:
 	rm -rf `find $(distdir)/ -name .svn`
