@@ -1,7 +1,8 @@
 #include "cantera/transport/GasTransport.h"
 #include "cantera/transport/TransportParams.h"
 
-namespace Cantera {
+namespace Cantera
+{
 
 GasTransport::GasTransport(ThermoPhase* thermo) :
     Transport(thermo),
@@ -135,7 +136,8 @@ bool GasTransport::initGas(GasTransportParams& tr)
     return true;
 }
 
-void GasTransport::update_T(void) {
+void GasTransport::update_T(void)
+{
     double T = m_thermo->temperature();
     if (T == m_temp) {
         return;

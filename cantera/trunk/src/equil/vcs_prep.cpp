@@ -126,9 +126,9 @@ int VCS_SOLVE::vcs_prep_oneTime(int printLvl)
      *      equal to nspecies - nelements. This may be changed below
      */
     if (m_numElemConstraints > m_numSpeciesTot) {
-      m_numRxnTot = 0;
+        m_numRxnTot = 0;
     } else {
-      m_numRxnTot = m_numSpeciesTot - m_numElemConstraints;
+        m_numRxnTot = m_numSpeciesTot - m_numElemConstraints;
     }
     m_numRxnRdc = m_numRxnTot;
     m_numSpeciesRdc = m_numSpeciesTot;

@@ -1132,7 +1132,7 @@ size_t getFloatArray(const Cantera::XML_Node& node, std::vector<doublereal> & v,
 }
 //====================================================================================================================
 size_t getNamedFloatArray(const Cantera::XML_Node& parentNode, const std::string& nodeName, std::vector<doublereal> & v,
-                        const bool convert, const std::string unitsString)
+                          const bool convert, const std::string unitsString)
 {
     std::string::size_type icom;
     std::string numstr;

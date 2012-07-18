@@ -489,8 +489,8 @@ static void getEfficiencies(const XML_Node& eff, Kinetics& kin,
             rdata.thirdBodyEfficiencies[k] = fpValue(val[n]); // bb->second;
         } else if (!rules.skipUndeclaredThirdBodies) {
             throw CanteraError("getEfficiencies", "Encountered third-body "
-                "efficiency for undefined species \"" + nm + "\"\n"
-                "while adding reaction " + int2str(rdata.number+1) + ".");
+                               "efficiency for undefined species \"" + nm + "\"\n"
+                               "while adding reaction " + int2str(rdata.number+1) + ".");
         }
     }
 }
@@ -512,7 +512,7 @@ void getRateCoefficient(const XML_Node& kf, Kinetics& kin,
             const XML_Node& node = kf.child(m);
             double p = getFloat(node, "P", "toSI");
             vector_fp& rate = rdata.plogParameters.insert(
-                std::make_pair(p, vector_fp()))->second;
+                                  std::make_pair(p, vector_fp()))->second;
             rate.resize(3);
             rate[0] = getFloat(node, "A", "toSI");
             rate[1] = getFloat(node, "b");
@@ -853,8 +853,8 @@ bool rxninfo::installReaction(int iRxn, const XML_Node& r, Kinetics& kin,
     rdata.number = iRxn;
     rdata.rxn_number = iRxn;
 
-     // Read the rate coefficient data from the XML file. Trigger an
-     // exception for negative A unless specifically authorized.
+    // Read the rate coefficient data from the XML file. Trigger an
+    // exception for negative A unless specifically authorized.
     getRateCoefficient(r.child("rateCoeff"), kin, rdata, rules);
 
     // Check to see that the elements balance in the reaction.

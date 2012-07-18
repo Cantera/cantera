@@ -3738,8 +3738,8 @@ int NonlinearSolver::beuler_jac(GeneralMatrix& J, doublereal* const f,
             if (s_print_NumJac) {
                 if (m_print_flag >= 7) {
                     if (retn != 1) {
-                      printf("\t\tbeuler_jac ERROR: calcDeltaSolnVariables() returned an error condition.\n");
-                      printf("\t\t                  We will bail after calculating the Jacobian\n");
+                        printf("\t\tbeuler_jac ERROR: calcDeltaSolnVariables() returned an error condition.\n");
+                        printf("\t\t                  We will bail after calculating the Jacobian\n");
                     }
                     if (neq_ < 20) {
                         printf("\t\tUnk            m_ewt              y                dyVector            ResN\n");
@@ -3835,8 +3835,8 @@ int NonlinearSolver::beuler_jac(GeneralMatrix& J, doublereal* const f,
             if (s_print_NumJac) {
                 if (m_print_flag >= 7) {
                     if (retn != 1) {
-                      printf("\t\tbeuler_jac ERROR: calcDeltaSolnVariables() returned an error condition.\n");
-                      printf("\t\t                  We will bail after calculating the Jacobian\n");
+                        printf("\t\tbeuler_jac ERROR: calcDeltaSolnVariables() returned an error condition.\n");
+                        printf("\t\t                  We will bail after calculating the Jacobian\n");
                     }
                     if (neq_ < 20) {
                         printf("\t\tUnk            m_ewt              y                dyVector            ResN\n");
@@ -3865,8 +3865,8 @@ int NonlinearSolver::beuler_jac(GeneralMatrix& J, doublereal* const f,
                 }
 
                 info =  m_func->evalResidNJ(time_curr, delta_t_n, y, ydot,
-                        DATA_PTR(m_wksp), JacDelta_ResidEval,
-                        static_cast<int>(j), dy);
+                                            DATA_PTR(m_wksp), JacDelta_ResidEval,
+                                            static_cast<int>(j), dy);
                 m_nfe++;
                 if (info != 1) {
                     mdp::mdp_safe_free((void**) &dyVector);
@@ -3875,7 +3875,7 @@ int NonlinearSolver::beuler_jac(GeneralMatrix& J, doublereal* const f,
 
                 doublereal diff;
 
-                int ileft =  (int) j - (int) ku;
+                int ileft = (int) j - (int) ku;
                 int iright = static_cast<int>(j + kl);
                 for (int i = ileft; i <= iright; i++) {
                     if (i >= 0 &&  i < (int) neq_) {
@@ -3885,14 +3885,14 @@ int NonlinearSolver::beuler_jac(GeneralMatrix& J, doublereal* const f,
                         col_j[index] = diff / dy;
                     }
                 }
-/*
-                for (size_t i = j - ku; i <= j + kl; i++) {
-                    if (i < neq_) {
-                        diff = subtractRD(m_wksp[i], f[i]);
-                        col_j[kl + ku + i - j] = diff / dy;
-                    }
-                }
-*/
+                /*
+                                for (size_t i = j - ku; i <= j + kl; i++) {
+                                    if (i < neq_) {
+                                        diff = subtractRD(m_wksp[i], f[i]);
+                                        col_j[kl + ku + i - j] = diff / dy;
+                                    }
+                                }
+                */
                 y[j] = ysave;
                 if (solnType_ != NSOLN_TYPE_STEADY_STATE) {
                     ydot[j] = ydotsave;

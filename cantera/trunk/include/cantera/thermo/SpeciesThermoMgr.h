@@ -74,8 +74,7 @@ public:
     /*!
      * @param right Object to be copied
      */
-    SpeciesThermoDuo(const SpeciesThermoDuo& right)
-    {
+    SpeciesThermoDuo(const SpeciesThermoDuo& right) {
         *this = operator=(right);
     }
 
@@ -128,8 +127,7 @@ public:
      * @param stit_ptr Pointer to the SpeciesThermoInterpType object
      *          This will set up the thermo for one species
      */
-    virtual void install_STIT(SpeciesThermoInterpType* stit_ptr)
-    {
+    virtual void install_STIT(SpeciesThermoInterpType* stit_ptr) {
         throw CanteraError("install_STIT", "not implemented");
     }
 
@@ -161,8 +159,7 @@ public:
      *
      * @param k    Species index
      */
-    virtual doublereal minTemp(size_t k = npos) const
-    {
+    virtual doublereal minTemp(size_t k = npos) const {
         return std::max(m_thermo1.minTemp(),m_thermo2.minTemp());
     }
 
@@ -176,8 +173,7 @@ public:
      *
      * @param k index for parameterization k
      */
-    virtual doublereal maxTemp(size_t k = npos) const
-    {
+    virtual doublereal maxTemp(size_t k = npos) const {
         return std::min(m_thermo1.maxTemp(), m_thermo2.maxTemp());
     }
 
@@ -194,8 +190,7 @@ public:
      *
      * @param k index for parameterization k
      */
-    virtual doublereal refPressure(size_t k = npos) const
-    {
+    virtual doublereal refPressure(size_t k = npos) const {
         return m_p0;
     }
 

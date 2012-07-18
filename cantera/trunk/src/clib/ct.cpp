@@ -252,7 +252,7 @@ extern "C" {
     }
 
     int phase_setMassFractions(int n, size_t leny,
-                                          double* y, int norm)
+                               double* y, int norm)
     {
         try {
             ThermoPhase& p = ThermoCabinet::item(n);
@@ -628,7 +628,7 @@ extern "C" {
     }
 
     int th_equil(int n, char* XY, int solver,
-                            double rtol, int maxsteps, int maxiter, int loglevel)
+                 double rtol, int maxsteps, int maxiter, int loglevel)
     {
         try {
             equilibrate(ThermoCabinet::item(n), XY, solver, rtol, maxsteps,
@@ -804,8 +804,8 @@ extern "C" {
     //-------------- Kinetics ------------------//
 
     size_t newKineticsFromXML(int mxml, int iphase,
-                                         int neighbor1, int neighbor2, int neighbor3,
-                                         int neighbor4)
+                              int neighbor1, int neighbor2, int neighbor3,
+                              int neighbor4)
     {
         try {
             XML_Node& x = XmlCabinet::item(mxml);
@@ -835,7 +835,7 @@ extern "C" {
     }
 
     int installRxnArrays(int pxml, int ikin,
-                                    char* default_phase)
+                         char* default_phase)
     {
         try {
             XML_Node& p = XmlCabinet::item(pxml);
@@ -871,7 +871,7 @@ extern "C" {
     {
         try {
             return KineticsCabinet::item(n).kineticsSpeciesIndex(string(nm),
-                                                                 string(ph));
+                    string(ph));
         } catch (...) {
             return handleAllExceptions(npos, npos);
         }
@@ -1309,7 +1309,7 @@ extern "C" {
     }
 
     int trans_getMolarFluxes(int n, const double* state1,
-                                        const double* state2, double delta, double* fluxes)
+                             const double* state2, double delta, double* fluxes)
     {
         try {
             TransportCabinet::item(n).getMolarFluxes(state1, state2, delta, fluxes);
@@ -1320,7 +1320,7 @@ extern "C" {
     }
 
     int trans_getMassFluxes(int n, const double* state1,
-                                       const double* state2, double delta, double* fluxes)
+                            const double* state2, double delta, double* fluxes)
     {
         try {
             TransportCabinet::item(n).getMassFluxes(state1, state2, delta, fluxes);
@@ -1511,7 +1511,7 @@ extern "C" {
     }
 
     int buildSolutionFromXML(char* src, int ixml, char* id,
-                                        int ith, int ikin)
+                             int ith, int ikin)
     {
         try {
             XML_Node* root = 0;

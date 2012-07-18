@@ -20,20 +20,20 @@
 namespace Cantera
 {
 
-  //! A species thermodynamic property manager for a phase.
-  /*!
-   * This is a general manager that can handle a wide variety
-   * of species thermodynamic polynomials for individual species.
-   * It is slow, however, because it recomputes the functions of
-   * temperature needed for each species. What it does is to create
-   * a vector of SpeciesThermoInterpType objects.
-   *
-   * @ingroup mgrsrefcalc
-   */
-  class GeneralSpeciesThermo : public SpeciesThermo
-  {
+//! A species thermodynamic property manager for a phase.
+/*!
+ * This is a general manager that can handle a wide variety
+ * of species thermodynamic polynomials for individual species.
+ * It is slow, however, because it recomputes the functions of
+ * temperature needed for each species. What it does is to create
+ * a vector of SpeciesThermoInterpType objects.
+ *
+ * @ingroup mgrsrefcalc
+ */
+class GeneralSpeciesThermo : public SpeciesThermo
+{
 
-  public:
+public:
 
     //! Constructor
     GeneralSpeciesThermo();
@@ -214,7 +214,7 @@ namespace Cantera
 
 #endif
 
-  private:
+private:
     //! Provide the SpeciesthermoInterpType object
     /*!
      *  provide access to the SpeciesThermoInterpType object.
@@ -226,7 +226,7 @@ namespace Cantera
      */
     SpeciesThermoInterpType* provideSTIT(size_t k);
 
-  protected:
+protected:
 
     /**
      * This is the main unknown in the object. It is
@@ -261,7 +261,7 @@ namespace Cantera
     friend class VPSSMgr;
 
 
-  };
+};
 
 }
 

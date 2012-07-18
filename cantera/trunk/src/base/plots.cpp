@@ -102,7 +102,7 @@ void outputExcel(std::ostream& s, const std::string& title,
             s << ",";
         }
     }
-     s << endl;
+    s << endl;
     for (i = 0; i < npts; i++) {
         for (j = 0; j < nv; j++) {
             s << data(j,i);

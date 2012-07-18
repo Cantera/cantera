@@ -899,7 +899,7 @@ const std::vector<XML_Node*>& XML_Node::children() const
 size_t XML_Node::nChildren(const bool discardComments) const
 {
     if (discardComments) {
-    size_t count = 0;
+        size_t count = 0;
         for (size_t i = 0; i < m_nchildren; i++) {
             XML_Node* xc = m_children[i];
             if (!(xc->isComment())) {

@@ -1,10 +1,10 @@
 /**
  *  @file StatMech.h
  *  Header for a single-species standard state object derived
- *  from 
+ *  from
  */
 /*
- * Copywrite (2006) Sandia Corporation. Under the terms of 
+ * Copyright(2006) Sandia Corporation. Under the terms of
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the
  * U.S. Government retains certain rights in this software.
  */
@@ -12,28 +12,23 @@
 #ifndef CT_STATMECH_H
 #define CT_STATMECH_H
 
-/* 
- * $Revision: 279 $
- * $Date: 2009-12-05 13:08:43 -0600 (Sat, 05 Dec 2009) $
- */
-
-
-
 #include "cantera/base/global.h"
 #include "SpeciesThermoInterpType.h"
 #include "SpeciesThermoMgr.h"
 #include <string>
 #include <map>
 
-namespace Cantera {
- 
-  //! 
-  /*!
-   * @ingroup spthermo
-   */
-  class StatMech : public SpeciesThermoInterpType {
+namespace Cantera
+{
 
-  public:
+//!
+/*!
+ * @ingroup spthermo
+ */
+class StatMech : public SpeciesThermoInterpType
+{
+
+public:
 
     //! Empty constructor
     StatMech();
@@ -49,7 +44,7 @@ namespace Cantera {
      *                     parameters for the standard state.
      */
     StatMech(int n, doublereal tlow, doublereal thigh, doublereal pref,
-	     const doublereal* coeffs, std::string my_name);
+             const doublereal* coeffs, std::string my_name);
 
     //! copy constructor
     /*!
@@ -67,7 +62,7 @@ namespace Cantera {
     virtual ~StatMech();
 
     //! duplicator
-    virtual SpeciesThermoInterpType *
+    virtual SpeciesThermoInterpType*
     duplMyselfAsSpeciesThermoInterpType() const;
 
     //! Returns the minimum temperature that the thermo
@@ -89,7 +84,7 @@ namespace Cantera {
 
     //! Build a series of maps for the properties needed for species
     int buildmap();
-   
+
     //! Update the properties for this species, given a temperature polynomial
     /*!
      * This method is called with a pointer to an array containing the functions of
@@ -114,10 +109,10 @@ namespace Cantera {
      * @param s_R     Vector of Dimensionless entropies.
      *                (length m_kk).
      */
-    virtual void updateProperties(const doublereal* tt, 
-				  doublereal* cp_R, doublereal* h_RT, doublereal* s_R) const;
+    virtual void updateProperties(const doublereal* tt,
+                                  doublereal* cp_R, doublereal* h_RT, doublereal* s_R) const;
 
- 
+
     //! Compute the reference-state property of one species
     /*!
      * Given temperature T in K, this method updates the values of
@@ -143,12 +138,12 @@ namespace Cantera {
      * @param s_R     Vector of Dimensionless entropies.
      *                (length m_kk).
      */
-    virtual void updatePropertiesTemp(const doublereal temp, 
-				      doublereal* cp_R, doublereal* h_RT, 
-				      doublereal* s_R) const;
+    virtual void updatePropertiesTemp(const doublereal temp,
+                                      doublereal* cp_R, doublereal* h_RT,
+                                      doublereal* s_R) const;
 
-    //!This utility function reports back the type of 
-    //! parameterization and all of the parameters for the 
+    //!This utility function reports back the type of
+    //! parameterization and all of the parameters for the
     //! species, index.
     /*!
      * All parameters are output variables
@@ -167,10 +162,10 @@ namespace Cantera {
      *      coeffs[2] is max temperature
      *      coeffs[3+i] from i =0,9 are the coefficients themselves
      */
-    virtual void reportParameters(size_t& n, int &type,
-				  doublereal &tlow, doublereal &thigh,
-				  doublereal &pref,
-				  doublereal* const coeffs) const;
+    virtual void reportParameters(size_t& n, int& type,
+                                  doublereal& tlow, doublereal& thigh,
+                                  doublereal& pref,
+                                  doublereal* const coeffs) const;
 
     //! Modify parameters for the standard state
     /*!
@@ -179,16 +174,16 @@ namespace Cantera {
      */
     virtual void modifyParameters(doublereal* coeffs);
 
-  protected:
+protected:
     //! lowest valid temperature
-    doublereal m_lowT;    
+    doublereal m_lowT;
     //! highest valid temperature
-    doublereal m_highT;   
+    doublereal m_highT;
     //! standard-state pressure
-    doublereal m_Pref;     
+    doublereal m_Pref;
     //! species index
-    int m_index;  
-    //! array of polynomial coefficients       
+    int m_index;
+    //! array of polynomial coefficients
     vector_fp m_coeff;
 
     std::string sp_name;
@@ -196,24 +191,23 @@ namespace Cantera {
     //*generic species struct that contains everything we need here
     // achtung: add doxygen markup here
     // achtung: convert doubles to realdoubles
-    struct species
-    {
-      //Nominal T-R Degrees of freedom (cv = cfs*k*T)
-      doublereal cfs;
-    
-      // Mol. Wt. Molecular weight (kg/kmol)
-      doublereal mol_weight;
-    
-      // number of vibrational temperatures necessary
-      int nvib;
-    
-      // Theta_v Characteristic vibrational temperature(s) (K)
-      doublereal theta[5];
+    struct species {
+        //Nominal T-R Degrees of freedom (cv = cfs*k*T)
+        doublereal cfs;
+
+        // Mol. Wt. Molecular weight (kg/kmol)
+        doublereal mol_weight;
+
+        // number of vibrational temperatures necessary
+        int nvib;
+
+        // Theta_v Characteristic vibrational temperature(s) (K)
+        doublereal theta[5];
     };
 
     std::map<std::string,species*> name_map;
 
-  };
+};
 
 }
 #endif

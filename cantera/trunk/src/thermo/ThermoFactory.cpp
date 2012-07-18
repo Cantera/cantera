@@ -249,16 +249,13 @@ ThermoPhase* newPhase(XML_Node& xmlphase)
     ThermoPhase* t = newThermoPhase(model);
     if (model == "singing cows") {
         throw CanteraError(" newPhase", "Cows don't sing");
-    }
-    else if (model == "HMW") {
+    } else if (model == "HMW") {
         HMWSoln* p = dynamic_cast<HMWSoln*>(t);
         p->constructPhaseXML(xmlphase,"");
-    }
-    else if (model == "IonsFromNeutralMolecule") {
+    } else if (model == "IonsFromNeutralMolecule") {
         IonsFromNeutralVPSSTP* p = dynamic_cast<IonsFromNeutralVPSSTP*>(t);
         p->constructPhaseXML(xmlphase,"");
-    }
-    else {
+    } else {
         importPhase(xmlphase, t);
     }
     return t;

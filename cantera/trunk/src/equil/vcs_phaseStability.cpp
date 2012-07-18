@@ -887,7 +887,7 @@ double VCS_SOLVE::vcs_phaseStabilityTest(const size_t iph)
             for (k = 0; k < Vphase->nSpecies(); k++) {
                 if (fabs(damp * delFrac[k]) > 0.3*fabs(fracDelta_old[k])) {
                     damp = std::max(0.3*fabs(fracDelta_old[k]) / fabs(delFrac[k]),
-                               1.0E-8/fabs(delFrac[k]));
+                                    1.0E-8/fabs(delFrac[k]));
                 }
                 if (delFrac[k] < 0.0) {
                     if (2.0 * damp * (-delFrac[k]) > fracDelta_old[k]) {

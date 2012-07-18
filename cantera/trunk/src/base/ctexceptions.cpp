@@ -7,7 +7,8 @@
 #include <sstream>
 #include <typeinfo>
 
-namespace Cantera {
+namespace Cantera
+{
 
 // *** Exceptions ***
 
@@ -38,7 +39,8 @@ void CanteraError::save()
     }
 }
 
-const char* CanteraError::what() const throw() {
+const char* CanteraError::what() const throw()
+{
     try {
         formattedMessage_ = "\n";
         formattedMessage_ += stars;
@@ -51,22 +53,25 @@ const char* CanteraError::what() const throw() {
         // Something went terribly wrong and we couldn't even format the message.
     }
     return formattedMessage_.c_str();
-    }
+}
 
-std::string CanteraError::getMessage() const {
+std::string CanteraError::getMessage() const
+{
     return msg_;
 }
 
-std::string ArraySizeError::getMessage() const {
+std::string ArraySizeError::getMessage() const
+{
     std::stringstream ss;
     ss << "Array size (" << sz_ << ") too small. Must be at least " << reqd_ << ".";
     return ss.str();
 }
 
-std::string IndexError::getMessage() const {
+std::string IndexError::getMessage() const
+{
     std::stringstream ss;
     ss << "IndexError: " << arrayName_ << "[" << m_ << "]" <<
-        " outside valid range of 0 to " << (mmax_) << ".";
+       " outside valid range of 0 to " << (mmax_) << ".";
     return ss.str();
 }
 

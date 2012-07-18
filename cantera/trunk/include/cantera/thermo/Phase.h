@@ -106,8 +106,8 @@ public:
     //!     @param right Reference to the class to be used in the copy
     Phase(const Phase& right);
 
-     //! Assignment operator
-     //!     @param right Reference to the class to be used in the copy
+    //! Assignment operator
+    //!     @param right Reference to the class to be used in the copy
     Phase& operator=(const Phase& right);
 
     //! Returns a reference to the XML_Node stored for the phase.

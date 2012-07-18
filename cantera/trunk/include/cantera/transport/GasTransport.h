@@ -7,7 +7,8 @@
 
 #include "TransportBase.h"
 
-namespace Cantera {
+namespace Cantera
+{
 
 //! Class GasTransport implements some functions and properties that are
 //! shared by the MixTransport and MultiTransport classes.

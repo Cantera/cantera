@@ -373,7 +373,7 @@ Transport* TransportFactory::newTransport(std::string transportModel,
         tr = new MixTransport;
         initTransport(tr, phase, CK_Mode, log_level);
         break;
-	// adding pecos transport model 2/13/12
+        // adding pecos transport model 2/13/12
     case cPecosTransport:
         tr = new PecosTransport;
         initTransport(tr, phase, 0, log_level);
@@ -712,8 +712,8 @@ void  TransportFactory::initLiquidTransport(Transport* tran,
 }
 
 void TransportFactory::fitCollisionIntegrals(ostream& logfile,
-                                             GasTransportParams& tr,
-                                             MMCollisionInt& integrals)
+        GasTransportParams& tr,
+        MMCollisionInt& integrals)
 {
     vector_fp::iterator dptr;
     doublereal dstar;
@@ -1145,7 +1145,7 @@ void TransportFactory::getLiquidInteractionsTransportData(const XML_Node& transp
  *********************************************************/
 
 void TransportFactory::fitProperties(GasTransportParams& tr,
-        MMCollisionInt& integrals, std::ostream& logfile)
+                                     MMCollisionInt& integrals, std::ostream& logfile)
 {
     doublereal tstar;
     int ndeg = 0;

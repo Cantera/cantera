@@ -86,8 +86,9 @@ void phasemethods(int nlhs, mxArray* plhs[],
                 buflen = (mwSize)(mxGetM(prhs[3]) * mxGetN(prhs[3])) + 1;
                 input_buf = (char*)mxCalloc(buflen, sizeof(char));
                 status = mxGetString(prhs[3], input_buf, buflen);
-                if (status != 0)
+                if (status != 0) {
                     mexWarnMsgTxt("Not enough space. " "String is truncated.");
+                }
 
                 switch (mjob) {
                 case 30:

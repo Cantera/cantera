@@ -28,8 +28,7 @@ class SpeciesThermoFactory;
 class XML_Node;
 
 //! Rules for parsing and installing reactions
-struct ReactionRules
-{
+struct ReactionRules {
     ReactionRules();
     bool skipUndeclaredSpecies;
     bool skipUndeclaredThirdBodies;

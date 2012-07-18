@@ -467,7 +467,7 @@ extern "C" {
     {
         try {
             bool ok = FlowDeviceCabinet::item(i).install(ReactorCabinet::item(n),
-                                                         ReactorCabinet::item(m));
+                      ReactorCabinet::item(m));
             if (!ok) {
                 throw CanteraError("install","Could not install flow device.");
             }

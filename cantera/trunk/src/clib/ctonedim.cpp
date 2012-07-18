@@ -173,7 +173,7 @@ extern "C" {
     }
 
     int domain_setTolerances(int i, int n, double rtol,
-                                        double atol, int itime)
+                             double atol, int itime)
     {
         try {
             Domain1D& dom = DomainCabinet::item(i);
@@ -457,7 +457,7 @@ extern "C" {
     }
 
     int stflow_setFixedTempProfile(int i, size_t n, double* pos,
-            size_t m, double* temp)
+                                   size_t m, double* temp)
     {
         try {
             vector_fp vpos(n), vtemp(n);

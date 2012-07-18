@@ -94,7 +94,9 @@ public:
     virtual std::string getMessage() const;
 
     //! Method overridden by derived classes to indicate their type
-    virtual std::string getClass() const { return "CanteraError"; }
+    virtual std::string getClass() const {
+        return "CanteraError";
+    }
 
 protected:
     //! Protected default constructor discourages throwing errors containing no information.
@@ -137,7 +139,9 @@ public:
         CanteraError(procedure), sz_(sz), reqd_(reqd) {}
 
     virtual std::string getMessage() const;
-    virtual std::string getClass() const { return "ArraySizeError"; }
+    virtual std::string getClass() const {
+        return "ArraySizeError";
+    }
 
 private:
     size_t sz_, reqd_;
@@ -166,7 +170,9 @@ public:
 
     virtual ~IndexError() throw() {};
     virtual std::string getMessage() const;
-    virtual std::string getClass() const { return "IndexError"; }
+    virtual std::string getClass() const {
+        return "IndexError";
+    }
 
 private:
     std::string arrayName_;

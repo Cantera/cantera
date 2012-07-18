@@ -294,7 +294,7 @@ doublereal WaterProps::ADebye(doublereal T, doublereal P_input, int ifunc)
     doublereal dw = density_IAPWS(T, P);
     doublereal tmp = sqrt(2.0 * Avogadro * dw / 1000.);
     doublereal tmp2 = ElectronCharge * ElectronCharge * Avogadro /
-        (epsilon * GasConstant * T);
+                      (epsilon * GasConstant * T);
     doublereal tmp3 = tmp2 * sqrt(tmp2);
     doublereal A_Debye = tmp * tmp3 / (8.0 * Pi);
 

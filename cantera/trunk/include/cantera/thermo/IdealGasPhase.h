@@ -424,64 +424,64 @@ public:
      * property manager.
      * @see SpeciesThermo
      */
-  virtual doublereal cp_mole() const;
+    virtual doublereal cp_mole() const;
 
-  /**
-   * Molar heat capacity at constant volume. Units: J/kmol/K.
-   * For an ideal gas mixture,
-   * \f[ \hat c_v = \hat c_p - \hat R. \f]
-   */
-  virtual doublereal cv_mole() const;
+    /**
+     * Molar heat capacity at constant volume. Units: J/kmol/K.
+     * For an ideal gas mixture,
+     * \f[ \hat c_v = \hat c_p - \hat R. \f]
+     */
+    virtual doublereal cv_mole() const;
 
-  /**
-   * @returns species translational/rotational specific heat at
-   * constant volume.  Inferred from the species gas
-   * constant and number of translational/rotational
-   * degrees of freedom.  The translational/rotational
-   * modes are assumed to be fully populated, and are
-   * given by 
-   * \f[
-   *   C^{tr}_{v,s} \equiv \frac{\partial e^{tr}_s}{\partial T} = \frac{5}{2} R_s
-   * \f]
-   * for diatomic molecules and
-   * \f[
-   *   C^{tr}_{v,s} \equiv \frac{\partial e^{tr}_s}{\partial T} = \frac{3}{2} R_s
-   * \f]
-   * for atoms.
-   */
-  virtual doublereal cv_tr(doublereal ) const;
- 
-  /**
-   * @returns species translational specific heat at constant volume.
-   * Since the translational modes are assumed to be fully populated
-   * this is simply 
-   * \f[
-   *   C^{trans}_{v,s} \equiv \frac{\partial e^{trans}_s}{\partial T} = \frac{3}{2} R_s
-   * \f]
-   */
-  virtual doublereal cv_trans() const;
+    /**
+     * @returns species translational/rotational specific heat at
+     * constant volume.  Inferred from the species gas
+     * constant and number of translational/rotational
+     * degrees of freedom.  The translational/rotational
+     * modes are assumed to be fully populated, and are
+     * given by
+     * \f[
+     *   C^{tr}_{v,s} \equiv \frac{\partial e^{tr}_s}{\partial T} = \frac{5}{2} R_s
+     * \f]
+     * for diatomic molecules and
+     * \f[
+     *   C^{tr}_{v,s} \equiv \frac{\partial e^{tr}_s}{\partial T} = \frac{3}{2} R_s
+     * \f]
+     * for atoms.
+     */
+    virtual doublereal cv_tr(doublereal) const;
 
-  /**
-   * @returns species rotational specific heat at constant volume.
-   * By convention, we lump the translational/rotational components 
-   * \f[
-   *   C^{tr}_{v,s} \equiv C^{trans}_{v,s} + C^{rot}_{v,s}
-   * \f]
-   * so then
-   * \f[
-   *   C^{rot}_{v,s} \equiv C^{tr}_{v,s} - C^{trans}_{v,s}
-   * \f]
-   */
-  virtual doublereal cv_rot(double atomicity) const;
+    /**
+     * @returns species translational specific heat at constant volume.
+     * Since the translational modes are assumed to be fully populated
+     * this is simply
+     * \f[
+     *   C^{trans}_{v,s} \equiv \frac{\partial e^{trans}_s}{\partial T} = \frac{3}{2} R_s
+     * \f]
+     */
+    virtual doublereal cv_trans() const;
 
-  /**
-   * @returns species vibrational specific heat at
-   * constant volume.  This is defined as
-   * \f[
-   *   C^{vib}_{v,s} \equiv \frac{\partial e^{vib}_s}{\partial T_V} = \frac{R_s \theta_{vs}^2 \exp\left(\theta_{vs}/T_V\right)}{\left[\left(\exp\left(\theta_{vs}/T_V\right)-1\right)T_V\right]^2}
-   * \f]
-   */
-  virtual doublereal cv_vib(int k, doublereal T) const;
+    /**
+     * @returns species rotational specific heat at constant volume.
+     * By convention, we lump the translational/rotational components
+     * \f[
+     *   C^{tr}_{v,s} \equiv C^{trans}_{v,s} + C^{rot}_{v,s}
+     * \f]
+     * so then
+     * \f[
+     *   C^{rot}_{v,s} \equiv C^{tr}_{v,s} - C^{trans}_{v,s}
+     * \f]
+     */
+    virtual doublereal cv_rot(double atomicity) const;
+
+    /**
+     * @returns species vibrational specific heat at
+     * constant volume.  This is defined as
+     * \f[
+     *   C^{vib}_{v,s} \equiv \frac{\partial e^{vib}_s}{\partial T_V} = \frac{R_s \theta_{vs}^2 \exp\left(\theta_{vs}/T_V\right)}{\left[\left(\exp\left(\theta_{vs}/T_V\right)-1\right)T_V\right]^2}
+     * \f]
+     */
+    virtual doublereal cv_vib(int k, doublereal T) const;
 
     //@}
 
