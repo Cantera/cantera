@@ -1,4 +1,20 @@
-h_sources               = LogPrintCtrl.h application.h units.h
+h_sources               = $(top_builddir)/include/cantera/base/utilities.h \
+                          $(top_builddir)/include/cantera/base/ct_defs.h \
+                          $(top_builddir)/include/cantera/base/ctexceptions.h \
+                          $(top_builddir)/include/cantera/base/logger.h  \
+                          $(top_builddir)/include/cantera/base/ctml.h \
+                          $(top_builddir)/include/cantera/base/plots.h \
+                          $(top_builddir)/include/cantera/base/stringUtils.h \
+                          $(top_builddir)/include/cantera/base/xml.h  \
+			  $(top_builddir)/include/cantera/base/Array.h \
+                          $(top_builddir)/include/cantera/base/vec_functions.h \
+                          $(top_builddir)/include/cantera/base/global.h \
+                          $(top_builddir)/include/cantera/base/XML_Writer.h  \
+                          $(top_builddir)/include/cantera/base/FactoryBase.h \
+                          $(top_builddir)/include/cantera/base/clockWC.h \
+                          $(top_builddir)/include/cantera/base/mdp_allo.h \
+	                  $(top_builddir)/include/cantera/base/PrintCtrl.h \
+			  LogPrintCtrl.h units.h application.h
 
 cc_sources              = ct2ctml.cpp ctml.cpp plots.cpp                   \
 			  stringUtils.cpp xml.cpp clockWC.cpp              \
@@ -26,6 +42,6 @@ __top_builddir__build_lib_libctbase_la_LDFLAGS      = $(all_libraries) -release 
 __top_builddir__build_lib_libctbase_la_SOURCES      = $(cc_sources) $(h_sources)
 
 __top_builddir__build_lib_libctbase_include_HEADERS = $(h_sources)
-__top_builddir__build_lib_libctbase_includedir = $(prefix)/include
+__top_builddir__build_lib_libctbase_includedir = $(prefix)/include/cantera/base
 
 CLEANFILES = *.o
