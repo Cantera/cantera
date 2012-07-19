@@ -1,4 +1,4 @@
-EXTRA_DIST  = Cantera.txt cantera.page cantera.doc cantera.sty cantera.dox
+EXTRA_DIST  = Cantera.txt cantera.page cantera.doc cantera.sty cantera.dox Makefile.am
 
 DISTDIRS=txt_common
 
