@@ -1,22 +1,13 @@
-#include <map>
-#include <algorithm>
+#include "cantera/oneD/refine.h"
 #include "cantera/oneD/Domain1D.h"
 
-#include "cantera/oneD/refine.h"
+#include <algorithm>
+#include <limits>
 
 using namespace std;
 
 namespace Cantera
 {
-
-template<class M>
-bool has_key(const M& m, size_t j)
-{
-    if (m.find(j) != m.end()) {
-        return true;
-    }
-    return false;
-}
 
 static void r_drawline()
 {
@@ -25,26 +16,13 @@ static void r_drawline()
     writelog(s.c_str());
 }
 
-/**
- * Return the square root of machine precision.
- */
-static doublereal eps()
-{
-    doublereal e = 1.0;
-    while (1.0 + e != 1.0) {
-        e *= 0.5;
-    }
-    return sqrt(e);
-}
-
-
 Refiner::Refiner(Domain1D& domain) :
     m_ratio(10.0), m_slope(0.8), m_curve(0.8), m_prune(-0.001),
     m_min_range(0.01), m_domain(&domain), m_npmax(3000)
 {
     m_nv = m_domain->nComponents();
     m_active.resize(m_nv, true);
-    m_thresh = eps();
+    m_thresh = std::sqrt(std::numeric_limits<double>::epsilon());
 }
 
 
@@ -252,7 +230,7 @@ int Refiner::getNewGrid(int n, const doublereal* z,
     for (j = 0; j < n - 1; j++) {
         zn[jn] = z[j];
         jn++;
-        if (has_key(m_loc, j)) {
+        if (m_loc.count(j)) {
             zn[jn] = 0.5*(z[j] + z[j+1]);
             jn++;
         }
