@@ -887,7 +887,7 @@ protected:
      *      m_rxnPhaseIsReactant[j][p] indicates whether a species in phase p
      *               participates in reaction j as a reactant.
      */
-    std::vector<bool*> m_rxnPhaseIsReactant;
+    std::vector<std::vector<bool> > m_rxnPhaseIsReactant;
 
     //!  Vector of vector of booleans indicating whether a phase participates in a
     //!  reaction as a product
@@ -895,7 +895,7 @@ protected:
      *      m_rxnPhaseIsReactant[j][p] indicates whether a species in phase p
      *               participates in reaction j as a product.
      */
-    std::vector<bool*> m_rxnPhaseIsProduct;
+    std::vector<std::vector<bool> > m_rxnPhaseIsProduct;
 
 #ifdef KINETICS_WITH_INTERMEDIATE_ZEROED_PHASES
     //!   Vector of ints indicating whether zeroed phase is an intermediate for
