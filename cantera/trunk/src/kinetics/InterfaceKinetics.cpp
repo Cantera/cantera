@@ -108,10 +108,6 @@ InterfaceKinetics::~InterfaceKinetics()
     if (m_integrator) {
         delete m_integrator;
     }
-    for (size_t i = 0; i < m_ii; i++) {
-        delete [] m_rxnPhaseIsReactant[i];
-        delete [] m_rxnPhaseIsProduct[i];
-    }
 }
 //====================================================================================================================
 //  Copy Constructor for the %InterfaceKinetics object.
@@ -168,11 +164,6 @@ operator=(const InterfaceKinetics& right)
         return *this;
     }
 
-    for (size_t i = 0; i < m_ii; i++) {
-        delete [] m_rxnPhaseIsReactant[i];
-        delete [] m_rxnPhaseIsProduct[i];
-    }
-
     Kinetics::operator=(right);
 
     m_grt                  = right.m_grt;
@@ -209,19 +200,8 @@ operator=(const InterfaceKinetics& right)
     m_phaseExistsCheck     = right.m_phaseExistsCheck;
     m_phaseExists          = right.m_phaseExists;
     m_phaseIsStable        = right.m_phaseIsStable;
-
-    m_rxnPhaseIsReactant.resize(m_ii, 0);
-    m_rxnPhaseIsProduct.resize(m_ii, 0);
-    size_t np = nPhases();
-    for (size_t i = 0; i < m_ii; i++) {
-        m_rxnPhaseIsReactant[i] = new bool[np];
-        m_rxnPhaseIsProduct[i] = new bool[np];
-        for (size_t p = 0; p < np; p++) {
-            m_rxnPhaseIsReactant[i][p] = right.m_rxnPhaseIsReactant[i][p];
-            m_rxnPhaseIsProduct[i][p] = right.m_rxnPhaseIsProduct[i][p];
-        }
-    }
-
+    m_rxnPhaseIsReactant   = right.m_rxnPhaseIsReactant;
+    m_rxnPhaseIsProduct    = right.m_rxnPhaseIsProduct;
     m_ioFlag               = right.m_ioFlag;
 
     return *this;
@@ -1070,19 +1050,10 @@ void InterfaceKinetics::addReaction(ReactionData& r)
     incrementRxnCount();
     m_rxneqn.push_back(r.equation);
 
-    m_rxnPhaseIsReactant.resize(m_ii, 0);
-    m_rxnPhaseIsProduct.resize(m_ii, 0);
+    m_rxnPhaseIsReactant.push_back(std::vector<bool>(nPhases(), false));
+    m_rxnPhaseIsProduct.push_back(std::vector<bool>(nPhases(), false));
 
-    size_t np = nPhases();
     size_t i = m_ii - 1;
-    m_rxnPhaseIsReactant[i] = new bool[np];
-    m_rxnPhaseIsProduct[i] = new bool[np];
-
-    for (size_t p = 0; p < np; p++) {
-        m_rxnPhaseIsReactant[i][p] = false;
-        m_rxnPhaseIsProduct[i][p] = false;
-    }
-
     const std::vector<size_t>& vr = reactants(i);
     for (size_t ik = 0; ik < vr.size(); ik++) {
         size_t k = vr[ik];
