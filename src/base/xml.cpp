@@ -7,9 +7,7 @@
 // Copyright 2001  California Institute of Technology
 
 #include "cantera/base/config.h"
-#ifdef HAS_SSTREAM
 #include <sstream>
-#endif
 
 #include <algorithm>
 using namespace std;
@@ -110,11 +108,9 @@ public:
                  "\", does not contain a required\n" +
                  "           XML child node named \""
                  + child + "\".\n";
-#ifdef HAS_SSTREAM
         ostringstream ss(ostringstream::out);
         p->write(ss,1);
         m_msg += ss.str() + "\n";
-#endif
         setError("XML_NoChild", m_msg);
     }
 
