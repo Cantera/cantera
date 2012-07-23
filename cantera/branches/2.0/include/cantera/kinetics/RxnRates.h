@@ -234,7 +234,7 @@ public:
             m_logA = log(m_A);
         }
 
-        const vector_fp& data = rdata.auxRateCoeffParameters;
+        const vector_fp& data = rdata.rateCoeffParameters;
         if (data.size() >= 7) {
             for (size_t n = 3; n < data.size()-3; n += 4) {
                 addCoverageDependence(size_t(data[n]), data[n+1],
