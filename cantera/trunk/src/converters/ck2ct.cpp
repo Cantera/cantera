@@ -8,9 +8,7 @@
 
 #include "cantera/base/config.h"
 
-#ifdef HAS_SSTREAM
 #include <sstream>
-#endif
 using namespace std;
 
 #include "CKReader.h"
@@ -53,13 +51,6 @@ static void getTransportData(string trfile)
     string rest;
     while (! s.eof()) {
         /*
-         * HKM Note: the USE_STRINGSTREAM block works for files
-         * with comments in them. The other block gets hung up
-         * somehow. Should probably default to the USE_STRINGSTREAM
-         * option.
-         */
-#ifdef HAS_SSTREAM
-        /*
          * Read a line from the file
              *
              *  SOLARIS 10 NOTES: Optimized version of solaris seg faults
@@ -92,21 +83,6 @@ static void getTransportData(string trfile)
                 _trmap[nm] = t; // t.name] = t;
             }
         }
-#else
-        trdata t;
-        string nm;
-        s >> nm;
-        if (nm[0] != '!' && !s.eof()) {
-            s >> t.geom >> t.welldepth >> t.diam
-              >> t.dipole >> t.polar >> t.rot;
-
-            // get the rest of the line, in case there are comments
-            getline(s, rest, '\n');
-            if (nm != "") {
-                _trmap[nm] = t; // t.name] = t;
-            }
-        }
-#endif
     }
 }
 

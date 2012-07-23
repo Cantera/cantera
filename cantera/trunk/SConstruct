@@ -680,7 +680,6 @@ if not conf.CheckCXXHeader('cmath', '<>'):
     print 'ERROR: The C++ compiler is not correctly configured.'
     sys.exit(0)
 
-env['HAS_SSTREAM'] = conf.CheckCXXHeader('sstream', '<>')
 env['HAS_TIMES_H'] = conf.CheckCHeader('sys/times.h', '""')
 env['HAS_UNISTD_H'] = conf.CheckCHeader('unistd.h', '""')
 env['HAS_MATH_H_ERF'] = conf.CheckDeclaration('erf', '#include <math.h>', 'C++')
@@ -939,7 +938,6 @@ cdefine('LAPACK_NAMES_LOWERCASE', 'lapack_names', 'lower')
 
 configh['RXNPATH_FONT'] = quoted(env['rpfont'])
 cdefine('THREAD_SAFE_CANTERA', 'build_thread_safe')
-cdefine('HAS_SSTREAM', 'HAS_SSTREAM')
 
 if not env['HAS_MATH_H_ERF']:
     if env['HAS_BOOST_MATH']:

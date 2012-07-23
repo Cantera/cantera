@@ -48,8 +48,6 @@ AC_DEFINE([WITH_STOICH_SUBSTANCE],1,[Define to include stoichiometric substances
 WITH_STOICH_SUBSTANCE=1
 AC_DEFINE([WITH_IDEAL_SOLUTIONS],1,[Define to include ideal solutions])
 WITH_IDEAL_SOLUTIONS=1
-AC_DEFINE([HAS_SSTREAM],1,[Define to include sstream])
-HAS_SSTREAM=1
 
 AC_DEFINE_UNQUOTED([CANTERA_DATA], ["$prefix/data"],
             [Default data directory])
