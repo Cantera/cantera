@@ -1,6 +1,8 @@
 #ifndef CT_REFINE_H
 #define CT_REFINE_H
 
+#include "cantera/base/ct_defs.h"
+
 namespace Cantera
 {
 
