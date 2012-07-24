@@ -535,6 +535,10 @@ public:
         n2_.resize(maxRates_);
         Ea1_.resize(maxRates_);
         Ea2_.resize(maxRates_);
+
+        if (rdata.validate) {
+            validate();
+        }
     }
 
     //! Update concentration-dependent parts of the rate coefficient.
@@ -584,7 +588,7 @@ public:
         if (m1_ == 1) {
             log_k1 = A1_[0] + n1_[0] * logT - Ea1_[0] * recipT;
         } else {
-            double k = 0.0;
+            double k = 1e-300; // non-zero to make log(k) finite
             for (size_t m = 0; m < m1_; m++) {
                 k += A1_[m] * exp(n1_[m] * logT - Ea1_[m] * recipT);
             }
@@ -594,7 +598,7 @@ public:
         if (m2_ == 1) {
             log_k2 = A2_[0] + n2_[0] * logT - Ea2_[0] * recipT;
         } else {
-            double k = 0.0;
+            double k = 1e-300; // non-zero to make log(k) finite
             for (size_t m = 0; m < m2_; m++) {
                 k += A2_[m] * exp(n2_[m] * logT - Ea2_[m] * recipT);
             }
@@ -619,6 +623,32 @@ public:
 
     static bool alwaysComputeRate() {
         return false;
+    }
+
+    //! Check to make sure that the rate expression is finite over a range of
+    //! temperatures at each interpolation pressure. This is potentially an
+    //! issue when one of the Arrhenius expressions at a particular pressure
+    //! has a negative pre-exponential factor.
+    void validate() {
+        double T[] = {1.0, 10.0, 100.0, 1000.0, 10000.0};
+        for (pressureIter iter = pressures_.begin();
+             iter->first < 1000;
+             iter++)
+        {
+            update_C(&iter->first);
+            for (size_t i=0; i < 5; i++) {
+                double k = updateRC(log(T[i]), 1.0/T[i]);
+                if (!(k >= 0)) {
+                    // k is NaN. Increment the iterator so that the error
+                    // message will correctly indicate that the problematic rate
+                    // expression is at the higher of the adjacent pressures.
+                    throw CanteraError("Plog::validate",
+                                       "Invalid rate coefficient at P = " +
+                                       fp2str(exp((++iter)->first)) +
+                                       ", T = " + fp2str(T[i]));
+                }
+            }
+        }
     }
 
 protected:
