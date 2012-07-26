@@ -1142,6 +1142,7 @@ def loadChemkinFile(path, speciesList=None):
     Load a Chemkin-format input file to `path` on disk, returning lists of
     the species and reactions in the Chemkin file.
     """
+    elementList = []
     speciesDict = {}
     if speciesList is None:
         speciesList = []
@@ -1169,7 +1170,21 @@ def loadChemkinFile(path, speciesList=None):
             line = line.strip()
             tokens = line.split()
 
-            if 'SPECIES' in line:
+            if 'ELEMENTS' in line:
+                index = tokens.index('ELEMENTS')
+                tokens = tokens[index+1:]
+                while 'END' not in tokens:
+                    line = f.readline()
+                    line = removeCommentFromLine(line)[0]
+                    line = line.strip()
+                    tokens.extend(line.split())
+
+                for token in tokens:
+                    if token == 'END':
+                        break
+                    elementList.append(token.capitalize())
+
+            elif 'SPECIES' in line:
                 # List of species identifiers
                 index = tokens.index('SPECIES')
                 tokens = tokens[index+1:]
@@ -1308,7 +1323,7 @@ def loadChemkinFile(path, speciesList=None):
     if transportLines:
         parseTransportData(transportLines, speciesList)
 
-    return speciesList, reactionList
+    return elementList, speciesList, reactionList
 
 ################################################################################
 
@@ -1339,7 +1354,8 @@ def parseTransportData(lines, speciesList):
 
 ################################################################################
 
-def writeCTI(species,
+def writeCTI(elements,
+             species,
              reactions=None,
              header=None,
              name='gas',
@@ -1349,13 +1365,13 @@ def writeCTI(species,
     delimiterLine = '#' + '-'*79
     haveTransport = True
     speciesNameLength = 1
-    elements = set()
+    elementsFromSpecies = set()
     for s in species:
         if not s.transport:
             haveTransport = False
         if s.composition is None:
             raise InputParseError('No thermo data found for species: {0!r}'.format(s.label))
-        elements.update(s.composition)
+        elementsFromSpecies.update(s.composition)
         speciesNameLength = max(speciesNameLength, len(s.label))
 
     speciesNames = ['']
@@ -1434,7 +1450,7 @@ def convertMech(inputFile, thermoFile=None,
                 transportFile=None, phaseName='gas',
                 outName=None):
     # Read input mechanism files
-    species, reactions = loadChemkinFile(inputFile)
+    elements, species, reactions = loadChemkinFile(inputFile)
 
     if thermoFile:
         species, _ = loadChemkinFile(thermoFile, species)
@@ -1447,7 +1463,7 @@ def convertMech(inputFile, thermoFile=None,
         outName = os.path.splitext(inputFile)[0] + '.cti'
 
     # Write output file
-    writeCTI(species, reactions, name=phaseName, outName=outName)
+    writeCTI(elements, species, reactions, name=phaseName, outName=outName)
     print 'Wrote CTI mechanism file to {0!r}.'.format(outName)
     print 'Mechanism contains {0} species and {1} reactions.'.format(len(species), len(reactions))
 
