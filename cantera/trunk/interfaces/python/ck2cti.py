@@ -885,6 +885,13 @@ def readThermoEntry(entry, TintDefault):
     elements = lines[0][24:44]
     composition = parseComposition(elements, 4, 5)
 
+    # Non-standard extended elemental composition data may be located beyond
+    # column 80 on the first line of the thermo entry
+    if len(lines[0]) > 80:
+        elements = lines[0][80:]
+        composition2 = parseComposition(elements, len(elements)/10, 10)
+        composition.update(composition2)
+
     # Construct and return the thermodynamics model
     thermo = MultiNASA(
         polynomials = [
