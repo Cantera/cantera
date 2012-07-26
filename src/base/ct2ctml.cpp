@@ -135,6 +135,90 @@ void ct2ctml(const char* file, const int debug)
     }
 }
 
+void ck2cti(const std::string& in_file, const std::string& thermo_file,
+            const std::string& transport_file, const std::string& id_tag)
+{
+#ifdef HAS_NO_PYTHON
+    /*
+     *  Section to bomb out if python is not
+     *  present in the computation environment.
+     */
+    string ppath = file;
+    throw CanteraError("ct2ctml",
+                       "python ck to cti conversion requested for file, " + ppath +
+                       ", but not available in this computational environment");
+#endif
+
+    string python_output;
+    int python_exit_code;
+    try {
+        exec_stream_t python;
+        python.set_wait_timeout(exec_stream_t::s_all, 1800000); // 30 minutes
+        python.start(pypath(), "-i");
+        stringstream output_stream;
+
+        ostream& pyin = python.in();
+        pyin << "if True:\n"; // Use this so that the rest is a single block
+        pyin << "    import sys\n";
+        pyin << "    sys.stderr = sys.stdout\n";
+        pyin << "    import ck2cti\n";
+        pyin << "    ck2cti.convertMech(r'" << in_file << "',";
+        if (thermo_file != "" && thermo_file != "-") {
+            pyin << " thermoFile=r'" << thermo_file << "',";
+        }
+        if (transport_file != "" && transport_file != "-") {
+            pyin << " transportFile=r'" << transport_file << "',";
+        }
+        pyin << " phaseName='" << id_tag << "',";
+        pyin << " quiet=True)\n";
+        pyin << "    sys.exit(0)\n\n";
+        pyin << "sys.exit(7)\n";
+        python.close_in();
+
+        std::string line;
+        while (python.out().good()) {
+            std::getline(python.out(), line);
+            output_stream << line << std::endl;;
+        }
+        python.close();
+        python_exit_code = python.exit_code();
+        python_output = stripws(output_stream.str());
+    } catch (std::exception& err) {
+        // Report failure to execute Python
+        stringstream message;
+        message << "Error executing python while converting input file:\n";
+        message << "Python command was: '" << pypath() << "'\n";
+        message << err.what() << std::endl;
+        throw CanteraError("ct2ctml", message.str());
+    }
+
+    if (python_exit_code != 0) {
+        // Report a failure in the conversion process
+        stringstream message;
+        message << "Error converting input file \"" << in_file << "\" to CTI.\n";
+        message << "Python command was: '" << pypath() << "'\n";
+        message << "The exit code was: " << python_exit_code << "\n";
+        if (python_output.size() > 0) {
+            message << "-------------- start of converter log --------------\n";
+            message << python_output << std::endl;
+            message << "--------------- end of converter log ---------------";
+        } else {
+            message << "The command did not produce any output." << endl;
+        }
+        throw CanteraError("ck2cti", message.str());
+    }
+
+    if (python_output.size() > 0) {
+        // Warn if there was any output from the conversion process
+        stringstream message;
+        message << "Warning: Unexpected output from CTI converter\n";
+        message << "-------------- start of converter log --------------\n";
+        message << python_output << std::endl;
+        message << "--------------- end of converter log ---------------\n";
+        writelog(message.str());
+    }
+}
+
 
 // Read an ctml file from a file and fill up an XML tree
 /*

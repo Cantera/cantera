@@ -18,7 +18,6 @@
 #include "cantera/base/ctml.h"
 #include "cantera/kinetics/importKinetics.h"
 #include "cantera/thermo/ThermoFactory.h"
-#include "converters/ck2ct.h"
 #include "Cabinet.h"
 #include "cantera/kinetics/InterfaceKinetics.h"
 #include "cantera/thermo/PureFluidPhase.h"
@@ -1552,9 +1551,8 @@ extern "C" {
                   char* id_tag, int debug, int validate)
     {
         try {
-            bool dbg = (debug != 0);
-            bool val = (validate != 0);
-            return pip::convert_ck(in_file, db_file, tr_file, id_tag, dbg, val);
+            ctml::ck2cti(in_file, db_file, tr_file, id_tag);
+            return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }

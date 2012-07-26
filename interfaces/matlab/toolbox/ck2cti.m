@@ -13,15 +13,6 @@ function f = ck2cti(infile, thermo, transport)
 %    created will also contain transport property parameters. The
 %    function return value is a string containing the output file
 %    name.
-%
-%prog = [ctbin,'/ck2cti'];
-
-% set this to zero to turn off mechanism validation
-validate = 1;
-
-% set this to one to turn on debugging.  Use only if ck2cti
-% fails, and you want to see how the parser is parsing the input file.
-debug = 0;
 
 if nargin == 0
     error('input file name must be supplied')
@@ -41,18 +32,6 @@ else
     outfile = [infile '.cti'];
 end
 
-iok = ctmethods(0,1, infile, thermo, transport, idtag, debug, validate);
+iok = ctmethods(0,1, infile, thermo, transport, idtag, 0, 0);
 
-%iok = system([prog,' -i ',infile,' -t ',thermo,' -tr ',transport, ...
-%	      ' -id ',idtag,' > ',outfile]);
-if iok
-    %ierr2 = system([prog,' > log'])
-    %if ierr2
-    %  error(['Program ck2cti is not found at ',prog,['. Edit file' ...
-    %		    [' ctbin.m to point to the Cantera bin directory.']]])
-    % else
-    error(['Error occurred while running ck2cti. Check file ck2cti.log' ...
-        ' for error messages.']);
-    %end
-end
 f = outfile;
