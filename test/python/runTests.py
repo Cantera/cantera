@@ -23,6 +23,7 @@ if __name__ == '__main__':
     suite.addTests(loader.loadTestsFromName('testPureFluid'))
     suite.addTests(loader.loadTestsFromName('testEquilibrium'))
     suite.addTests(loader.loadTestsFromName('testReactors'))
+    suite.addTests(loader.loadTestsFromName('testConvert'))
 
     results = runner.run(suite)
     sys.exit(len(results.errors) + len(results.failures))
