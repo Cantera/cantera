@@ -144,10 +144,10 @@ addTestProgram('thermo', 'thermo')
 addTestProgram('kinetics', 'kinetics')
 
 if localenv['python_package'] == 'full':
-    pyTest= addTestScript('python', 'runTests.py',
-                          interpreter=sys.executable,
-                          dependencies=['testSolution.py', 'testReactors.py',
-                                        localenv['python_module']])
+    pyTest = addTestScript('python', 'runTests.py',
+                           interpreter=sys.executable,
+                           dependencies=(mglob(localenv, 'python', 'py') +
+                                         localenv['python_module']))
     localenv.Alias('test-python', pyTest)
     env['testNames'].append('python')
 

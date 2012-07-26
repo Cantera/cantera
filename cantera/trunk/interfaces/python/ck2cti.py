@@ -1588,7 +1588,10 @@ Example:
 
 def convertMech(inputFile, thermoFile=None,
                 transportFile=None, phaseName='gas',
-                outName=None):
+                outName=None, quiet=False):
+    if quiet:
+        logging.basicConfig(level=logging.ERROR)
+
     # Read input mechanism files
     elements, species, reactions = loadChemkinFile(inputFile)
 
@@ -1604,8 +1607,9 @@ def convertMech(inputFile, thermoFile=None,
 
     # Write output file
     writeCTI(elements, species, reactions, name=phaseName, outName=outName)
-    print 'Wrote CTI mechanism file to {0!r}.'.format(outName)
-    print 'Mechanism contains {0} species and {1} reactions.'.format(len(species), len(reactions))
+    if not quiet:
+        print 'Wrote CTI mechanism file to {0!r}.'.format(outName)
+        print 'Mechanism contains {0} species and {1} reactions.'.format(len(species), len(reactions))
 
 ################################################################################
 
