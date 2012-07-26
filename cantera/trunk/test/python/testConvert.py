@@ -74,6 +74,17 @@ class chemkinConverterTest(utilities.CanteraTest):
         self.checkThermo(ref, gas, [300, 1100])
         self.checkKinetics(ref, gas, [300, 1100])
 
+    def test_pdep(self):
+        if os.path.exists('pdep_test.cti'):
+            os.remove('pdep_test.cti')
+
+        ck2cti.convertMech('../data/pdep-test.inp',
+                           outName='pdep_test.cti', quiet=True)
+
+        ref, gas = self.checkConversion('../data/pdep-test.xml', 'pdep_test.cti')
+        self.checkKinetics(ref, gas, [300, 800, 1450, 2800])
+
+
     def test_missingElement(self):
         if os.path.exists('h2o2_missingElement.cti'):
             os.remove('h2o2_missingElement.cti')
