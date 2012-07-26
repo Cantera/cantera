@@ -4,7 +4,7 @@ AM_CPPFLAGS          = $(INC)
 AM_CXXFLAGS          = $(AM_CPPFLAGS)
 
 LINK                 = -loneD -lzeroD -lequil -lkinetics -ltransport -lthermo 
-LINK                += -lctnumerics -lctmath -ltpx -lctspectra -lconverters -lctbase -lcvode 
+LINK                += -lctnumerics -lctmath -ltpx -lctspectra -lctbase -lcvode 
 LINK                += -lctlapack -lctblas -lctf2c -lm -lstdc++ -lexecstream -pthread
 #-lctcxx -luser 
 AM_LDFLAGS           = -L$(top_builddir)/build/lib/ 

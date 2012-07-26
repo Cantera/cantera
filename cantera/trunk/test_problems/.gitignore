@@ -2,7 +2,6 @@
 *_output.txt
 *_output.csv
 *_output.out
-ck2cti.log
 ChemEquil_gri_matrix/gri_matrix
 ChemEquil_gri_pairs/gri_pairs
 ChemEquil_ionizedGas/ionizedGasEquil
@@ -39,8 +38,6 @@ cathermo/testIAPWSTripP/testIAPWSTripP
 cathermo/testWaterPDSS/testWaterPDSS
 cathermo/testWaterTP/testWaterSSTP
 cathermo/wtWater/wtWater
-ck2cti_test/gri30.cti
-ck2cti_test/soot.cti
 cxx_ex/cxx_examples
 cxx_ex/eq1.csv
 cxx_ex/eq1.dat
@@ -59,7 +56,6 @@ diamondSurf/runDiamond
 fracCoeff/fracCoeff
 mixGasTransport/mixGasTransport
 multiGasTransport/multiGasTransport
-nasa9_reader/sample.cti
 negATest/negATest
 negATest/noxNeg.xml
 printUtilUnitTest/pUtest

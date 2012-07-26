@@ -595,7 +595,6 @@ WARN_LOGFILE           =
 
 INPUT                  = src/apps \
                          src/base \
-                         src/converters \
                          src/equil \
                          src/kinetics \
                          src/numerics \
