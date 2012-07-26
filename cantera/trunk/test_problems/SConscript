@@ -221,18 +221,6 @@ CompileAndTest('ChemEquil_ionizedGas',
                comparisons=[('table_blessed.csv', 'table.csv')])
 CompileAndTest('ChemEquil_red1',
                'ChemEquil_red1', 'basopt_red1', 'output_blessed.txt')
-Test('ck2cti-gri30',
-     'ck2cti_test', '#build/bin/ck2cti$PROGSUFFIX', None,
-     options='-i gri30.inp -id gri30 -tr gri30_tran.dat',
-     comparisons=[('gri30a_blessed.cti','gri30.cti')],
-     ignoreLines=['#'],
-     artifacts=['ck2cti.log'])
-Test('ck2cti-soot',
-     'ck2cti_test', '#build/bin/ck2cti$PROGSUFFIX', None,
-     options='-i soot.inp -id soot -t therm_soot.dat',
-     comparisons=[('soot_blessed.cti', 'soot.cti')],
-     ignoreLines=['#'],
-     artifacts=['ck2cti.log'])
 CompileAndTest('CpJump', 'CpJump', 'CpJump', 'output_blessed.txt')
 CompileAndTest('cxx_ex', 'cxx_ex', 'cxx_examples', 'output_blessed.txt',
                comparisons=[('eq1_blessed.csv', 'eq1.csv'),
