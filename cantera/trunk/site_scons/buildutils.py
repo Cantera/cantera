@@ -304,10 +304,15 @@ def compareCsvFiles(env, file1, file2):
         print e
         return 1
 
-    relerror = (np.abs(data2-data1) /
-                (np.maximum(np.abs(data2), np.abs(data1)) +
-                 env['test_csv_threshold']))
-    maxerror = np.nanmax(relerror.flat)
+    try:
+        relerror = (np.abs(data2-data1) /
+                    (np.maximum(np.abs(data2), np.abs(data1)) +
+                     env['test_csv_threshold']))
+        maxerror = np.nanmax(relerror.flat)
+    except ValueError as e:
+        print e
+        return 1
+
     tol = env['test_csv_tolerance']
     if maxerror > tol: # Threshold based on printing 6 digits in the CSV file
         print ("Files differ. %i / %i elements above specified tolerance" %
