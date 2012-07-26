@@ -153,30 +153,29 @@ class NASA(ThermoModel):
 
     .. math:: \\frac{S(T)}{R} = -\\frac{1}{2} a_{-2} T^{-2} - a_{-1} T^{-1} + a_0 \\ln T + a_1 T + \\frac{1}{2} a_2 T^2 + \\frac{1}{3} a_3 T^3 + \\frac{1}{4} a_4 T^4 + a_6
 
-    The coefficients are stored internally in the nine-coefficient format, even
-    when only seven coefficients are provided.
+    For the 7 coefficient form, the first two coefficients are taken to be zero.
     """
 
     def __init__(self, coeffs, Tmin=None, Tmax=None, comment=''):
         ThermoModel.__init__(self, Tmin=Tmin, Tmax=Tmax, comment=comment)
-        coeffs = coeffs or (0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
-        if len(coeffs) == 7:
-            self.cm2 = 0.0; self.cm1 = 0.0
-            self.c0, self.c1, self.c2, self.c3, self.c4, self.c5, self.c6 = coeffs
-        elif len(coeffs) == 9:
-            self.cm2, self.cm1, self.c0, self.c1, self.c2, self.c3, self.c4, self.c5, self.c6 = coeffs
-        else:
+        if len(coeffs) not in (7,9):
             raise InputParseError('Invalid number of NASA polynomial coefficients; '
                                   'should be 7 or 9.')
+        self.coeffs = coeffs
 
     def to_cti(self, indent=0):
         prefix = ' '*indent
-        vals = self.c0, self.c1, self.c2, self.c3, self.c4, self.c5, self.c6
-        vals = ['{0: 15.8E}'.format(i) for i in vals]
-        lines = ['NASA([{0:.2f}, {1:.2f}],'.format(self.Tmin[0], self.Tmax[0]),
-                 prefix+'     [{0}, {1}, {2},'.format(*vals[0:3]),
-                 prefix+'      {0}, {1}, {2},'.format(*vals[3:6]),
-                 prefix+'      {0}]),'.format(vals[6])]
+        vals = ['{0: 15.8E}'.format(i) for i in self.coeffs]
+        if len(self.coeffs) == 7:
+            lines = ['NASA([{0:.2f}, {1:.2f}],'.format(self.Tmin[0], self.Tmax[0]),
+                     prefix+'     [{0}, {1}, {2},'.format(*vals[0:3]),
+                     prefix+'      {0}, {1}, {2},'.format(*vals[3:6]),
+                     prefix+'      {0}]),'.format(vals[6])]
+        else:
+            lines = ['NASA9([{0:.2f}, {1:.2f}],'.format(self.Tmin[0], self.Tmax[0]),
+                     prefix+'      [{0}, {1}, {2},'.format(*vals[0:3]),
+                     prefix+'       {0}, {1}, {2},'.format(*vals[3:6]),
+                     prefix+'       {0}, {1}, {2}]),'.format(*vals[6:9])]
 
         return '\n'.join(lines)
 
@@ -801,11 +800,32 @@ def fortFloat(s):
 
 ################################################################################
 
+def parseComposition(elements, nElements, width):
+    """
+    Parse the elemental composition from a 7 or 9 coefficient NASA polynomial
+    entry.
+    """
+    composition = {}
+    for i in range(nElements):
+        symbol = elements[width*i:width*i+2].strip()
+        count = elements[width*i+2:width*i+width].strip()
+        if not symbol:
+            continue
+        try:
+            count = int(float(count))
+            if count:
+                composition[symbol.capitalize()] = count
+        except ValueError:
+            pass
+    return composition
+
 def readThermoEntry(entry, TintDefault):
     """
-    Read a thermodynamics `entry` for one species in a Chemkin-format file.
-    Returns the label of the species, the thermodynamics model as a
-    :class:`MultiNASA` object and the elemental composition of the species.
+    Read a thermodynamics `entry` for one species in a Chemkin-format file
+    (consisting of two 7-coefficient NASA polynomials). Returns the label of
+    the species, the thermodynamics model as a :class:`MultiNASA` object, the
+    elemental composition of the species, and the comment/note associated with
+    the thermo entry.
     """
     lines = entry.splitlines()
     identifier = lines[0][0:24].split()
@@ -846,18 +866,7 @@ def readThermoEntry(entry, TintDefault):
         raise InputParseError('Error while reading thermo entry for species {0}'.format(species))
 
     elements = lines[0][24:44]
-    composition = {}
-    for i in range(4):
-        symbol = elements[5*i:5*i+2].strip()
-        count = elements[5*i+2:5*i+5].strip()
-        if not symbol:
-            continue
-        try:
-            count = int(float(count))
-            if count:
-                composition[symbol.capitalize()] = count
-        except ValueError:
-            pass
+    composition = parseComposition(elements, 4, 5)
 
     # Construct and return the thermodynamics model
     thermo = MultiNASA(
@@ -871,6 +880,51 @@ def readThermoEntry(entry, TintDefault):
 
     return species, thermo, composition, note
 
+def readNasa9Entry(entry):
+    """
+    Read a thermodynamics `entry` for one species given as one or more
+    9-coefficient NASA polynomials, written in the format described in
+    Appendix A of NASA Reference Publication 1311 (McBride and Gordon, 1996).
+    Returns the label of the species, the thermodynamics model as a
+    :class:`MultiNASA` object, the elemental composition of the species, and
+    the comment/note associated with the thermo entry.
+    """
+    tokens = entry[0].split()
+    species = tokens[0]
+    note = ' '.join(tokens[1:])
+    N = int(entry[1][:2])
+    note2 = entry[1][3:9].strip()
+    if note and note2:
+        note = '{0} [{1}]'.format(note, note2)
+    elif note2:
+        note = note2
+
+    composition = parseComposition(entry[1][10:50], 5, 8)
+
+    polys = []
+    totalTmin = 1e100
+    totalTmax = -1e100
+    try:
+        for i in range(N):
+            A,B,C = entry[2+3*i:2+3*(i+1)]
+            Tmin = fortFloat(A[1:11])
+            Tmax = fortFloat(A[11:21])
+            coeffs = [fortFloat(B[0:16]), fortFloat(B[16:32]),
+                      fortFloat(B[32:48]), fortFloat(B[48:64]),
+                      fortFloat(B[64:80]), fortFloat(C[0:16]),
+                      fortFloat(C[16:32]), fortFloat(C[48:64]),
+                      fortFloat(C[64:80])]
+            polys.append(NASA(Tmin=(Tmin,"K"), Tmax=(Tmax,"K"), coeffs=coeffs))
+            totalTmin = min(Tmin, totalTmin)
+            totalTmax = max(Tmax, totalTmax)
+    except (IndexError, ValueError) as err:
+        raise InputParseError('Error while reading thermo entry for species {0}'.format(species))
+
+    thermo = MultiNASA(polynomials=polys,
+                       Tmin=(totalTmin,"K"),
+                       Tmax=(totalTmax,"K"))
+
+    return species, thermo, composition, note
 ################################################################################
 
 def readKineticsEntry(entry, speciesDict, energyUnits, moleculeUnits):
@@ -1204,6 +1258,50 @@ def loadChemkinFile(path, speciesList=None):
                         speciesDict[token] = species
                     speciesList.append(species)
 
+            elif 'THERM' in line.upper() and 'NASA9' in line:
+                entryPosition = 0
+                entryLength = None
+                entry = []
+                while not line.startswith('END'):
+                    line = f.readline()
+                    line = removeCommentFromLine(line)[0]
+                    if not line:
+                        continue
+
+                    if entryLength is None:
+                        entryLength = 0
+                        # special case if (redundant) temperature ranges are
+                        # given as the first line
+                        try:
+                            s = line.split()
+                            float(s[0]), float(s[1]), float(s[2])
+                            continue
+                        except IndexError, ValueError:
+                            pass
+
+                    if entryPosition == 0:
+                        entry.append(line)
+                    elif entryPosition == 1:
+                        entryLength = 2 + 3 * int(line.split()[0])
+                        entry.append(line)
+                    elif entryPosition < entryLength:
+                        entry.append(line)
+
+                    if entryPosition == entryLength-1:
+                        label, thermo, comp, note = readNasa9Entry(entry)
+                        try:
+                            speciesDict[label].thermo = thermo
+                            speciesDict[label].composition = comp
+                            speciesDict[label].note = note
+                        except KeyError:
+                            logging.warning('Skipping unexpected species "{0}" while reading thermodynamics entry.'.format(label))
+
+                        entryPosition = -1
+                        entry = []
+
+                    entryPosition += 1
+
+
             elif 'THERM' in line:
                 # List of thermodynamics (hopefully one per species!)
                 line = f.readline()
@@ -1459,7 +1557,7 @@ def convertMech(inputFile, thermoFile=None,
     elements, species, reactions = loadChemkinFile(inputFile)
 
     if thermoFile:
-        species, _ = loadChemkinFile(thermoFile, species)
+        _, species, _ = loadChemkinFile(thermoFile, species)
 
     if transportFile:
         lines = open(transportFile).readlines()
