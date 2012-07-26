@@ -21,6 +21,36 @@ class chemkinConverterTest(utilities.CanteraTest):
                         for i in range(gas.nSpecies())]
         self.assertEqual(compositionA, compositionB)
 
+        return ref, gas
+
+    def checkThermo(self, ref, gas, temperatures):
+        for T in temperatures:
+            ref.set(T=T, P=ct.OneAtm)
+            gas.set(T=T, P=ct.OneAtm)
+            ref_cp = ref.cp_R()
+            gas_cp = gas.cp_R()
+            ref_h = ref.enthalpies_RT()
+            gas_h = gas.enthalpies_RT()
+            ref_s = ref.entropies_R()
+            gas_s = gas.entropies_R()
+            for i in range(gas.nSpecies()):
+                self.assertNear(ref_cp[i], gas_cp[i], 1e-7)
+                self.assertNear(ref_h[i], gas_h[i], 1e-7)
+                self.assertNear(ref_s[i], gas_s[i], 1e-7)
+
+    def checkKinetics(self, ref, gas, temperatures):
+        for T in temperatures:
+            ref.set(T=T, P=ct.OneAtm)
+            gas.set(T=T, P=ct.OneAtm)
+            ref_kf = ref.fwdRateConstants()
+            ref_kr = ref.revRateConstants()
+            gas_kf = gas.fwdRateConstants()
+            gas_kr = gas.revRateConstants()
+            for i in range(gas.nReactions()):
+                self.assertNear(ref_kf[i], gas_kf[i])
+                self.assertNear(ref_kr[i], gas_kr[i])
+
+
     def test_gri30(self):
         if os.path.exists('gri30_test.cti'):
             os.remove('gri30_test.cti')
@@ -29,7 +59,8 @@ class chemkinConverterTest(utilities.CanteraTest):
                            transportFile='../../data/transport/gri30_tran.dat',
                            outName='gri30_test.cti', quiet=True)
 
-        self.checkConversion('gri30.xml', 'gri30_test.cti')
+        ref, gas = self.checkConversion('gri30.xml', 'gri30_test.cti')
+        self.checkKinetics(ref, gas, [300, 1500])
 
     def test_soot(self):
         if os.path.exists('soot_test.cti'):
@@ -39,7 +70,9 @@ class chemkinConverterTest(utilities.CanteraTest):
                            thermoFile='../data/soot-therm.dat',
                            outName='soot_test.cti', quiet=True)
 
-        self.checkConversion('../data/soot.xml', 'soot_test.cti')
+        ref, gas = self.checkConversion('../data/soot.xml', 'soot_test.cti')
+        self.checkThermo(ref, gas, [300, 1100])
+        self.checkKinetics(ref, gas, [300, 1100])
 
     def test_missingElement(self):
         if os.path.exists('h2o2_missingElement.cti'):
@@ -64,19 +97,6 @@ class chemkinConverterTest(utilities.CanteraTest):
                            thermoFile='../data/nasa9-test-therm.dat',
                            outName='nasa9_test.cti', quiet=True)
 
-        self.checkConversion('../data/nasa9-test.xml', 'nasa9_test.cti')
-
-        ref = ct.IdealGasMix('../data/nasa9-test.xml')
-        gas = ct.IdealGasMix('nasa9_test.cti')
-
-        for T in [300, 500, 1200, 5000]:
-            ref_cp = ref.cp_R()
-            gas_cp = gas.cp_R()
-            ref_h = ref.enthalpies_RT()
-            gas_h = gas.enthalpies_RT()
-            ref_s = ref.entropies_R()
-            gas_s = gas.entropies_R()
-            for i in range(gas.nSpecies()):
-                self.assertNear(ref_cp[i], gas_cp[i], 1e-7)
-                self.assertNear(ref_h[i], gas_h[i], 1e-7)
-                self.assertNear(ref_s[i], gas_s[i], 1e-7)
+        ref, gas = self.checkConversion('../data/nasa9-test.xml',
+                                        'nasa9_test.cti')
+        self.checkThermo(ref, gas, [300, 500, 1200, 5000])
