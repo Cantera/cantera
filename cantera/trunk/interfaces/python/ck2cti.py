@@ -229,12 +229,31 @@ class Reaction(object):
     def __init__(self, index=-1, reactants=None, products=None, kinetics=None,
                  reversible=True, duplicate=False, fwdOrders=None):
         self.index = index
-        self.reactants = reactants
-        self.products = products
+        self.reactants = reactants # list of (stoichiometry, species) tuples
+        self.products = products # list of (stoichiometry, specis) tuples
         self.kinetics = kinetics
         self.reversible = reversible
         self.duplicate = duplicate
         self.fwdOrders = fwdOrders if fwdOrders is not None else {}
+
+    def _coeff_string(self, coeffs):
+        L = []
+        for stoichiometry,species in coeffs:
+            if stoichiometry != 1:
+                L.append('{0} {1}'.format(stoichiometry, species))
+            else:
+                L.append(str(species))
+
+        return ' + '.join(L)
+
+    @property
+    def reactantString(self):
+        return self._coeff_string(self.reactants)
+
+    @property
+    def productString(self):
+        return self._coeff_string(self.products)
+
 
     def __str__(self):
         """
@@ -242,15 +261,13 @@ class Reaction(object):
         """
         arrow = ' <=> '
         if not self.reversible: arrow = ' -> '
-        return arrow.join([' + '.join([str(s) for s in self.reactants]),
-                           ' + '.join([str(s) for s in self.products])])
+        return arrow.join([self.reactantString, self.productString])
 
     def to_cti(self, indent=0):
         arrow = ' <=> ' if self.reversible else ' => '
-        reactantstr = ' + '.join(str(s) for s in self.reactants)
-        productstr= ' + '.join(str(s) for s in self.products)
 
-        kinstr = self.kinetics.to_cti(reactantstr, arrow, productstr, indent)
+        kinstr = self.kinetics.to_cti(self.reactantString, arrow,
+                                      self.productString, indent)
 
         k_indent = ' ' * (kinstr.find('(') + 1)
 
@@ -970,48 +987,60 @@ def readKineticsEntry(entry, speciesDict, energyUnits, moleculeUnits):
     # Convert the reactants and products to Species objects using the speciesDict
     for reactant in reactants.split('+'):
         reactant = reactant.strip()
-        stoichiometry = 1
-        if reactant[0].isdigit():
-            # This allows for reactions to be of the form 2A=B+C instead of A+A=B+C
-            # The implementation below assumes an integer between 0 and 9, inclusive
-            stoichiometry = int(reactant[0])
-            reactant = reactant[1:]
+        if not reactant[0].isalpha():
+            # This allows for for non-unity stoichiometric coefficients, e.g.
+            # 2A=B+C or .85A+.15B=>C
+            j = [i for i,c in enumerate(reactant) if c.isalpha()][0]
+            if reactant[:j].isdigit():
+                stoichiometry = int(reactant[:j])
+            else:
+                stoichiometry = float(reactant[:j])
+            reactant = reactant[j:]
+        else:
+            stoichiometry = 1
+
         if reactant == 'M' or reactant == 'm':
             thirdBody = True
         elif reactant not in speciesDict:
             raise InputParseError('Unexpected reactant "{0}" in reaction {1}.'.format(reactant, reaction))
         else:
-            for _ in range(stoichiometry):
-                reaction.reactants.append(speciesDict[reactant])
+            reaction.reactants.append((stoichiometry, speciesDict[reactant]))
+
     for product in products.split('+'):
         product = product.strip()
-        stoichiometry = 1
-        if product[0].isdigit():
-            # This allows for reactions to be of the form A+B=2C instead of A+B=C+C
-            # The implementation below assumes an integer between 0 and 9, inclusive
-            stoichiometry = int(product[0])
-            product = product[1:]
+        if not product[0].isalpha():
+            # This allows for for non-unity stoichiometric coefficients, e.g.
+            # 2A=B+C or .85A+.15B=>C
+            j = [i for i,c in enumerate(product) if c.isalpha()][0]
+            if product[:j].isdigit():
+                stoichiometry = int(product[:j])
+            else:
+                stoichiometry = float(product[:j])
+            product = product[j:]
+        else:
+            stoichiometry = 1
+
         if product.upper() == 'M' or product == 'm':
             pass
         elif product not in speciesDict:
             raise InputParseError('Unexpected product "{0}" in reaction {1}.'.format(product, reaction))
         else:
-            for _ in range(stoichiometry):
-                reaction.products.append(speciesDict[product])
+            reaction.products.append((stoichiometry, speciesDict[product]))
 
     # Determine the appropriate units for k(T) and k(T,P) based on the number of reactants
     # This assumes elementary kinetics for all reactions
-    if len(reaction.reactants) + (1 if thirdBody else 0) == 3:
+    rStoich = sum(r[0] for r in reaction.reactants) + (1 if thirdBody else 0)
+    if rStoich == 3:
         kunits = "cm^6/(mol^2*s)"
         klow_units = "cm^9/(mol^3*s)"
-    elif len(reaction.reactants) + (1 if thirdBody else 0) == 2:
+    elif rStoich == 2:
         kunits = "cm^3/(mol*s)"
         klow_units = "cm^6/(mol^2*s)"
-    elif len(reaction.reactants) + (1 if thirdBody else 0) == 1:
+    elif rStoich == 1:
         kunits = "s^-1"
         klow_units = "cm^3/(mol*s)"
     else:
-        raise InputParseError('Invalid number of reactant species for reaction {0}.'.format(reaction))
+        raise InputParseError('Invalid number of reactant species ({0}) for reaction {1}.'.format(rStoich, reaction))
 
     # The rest of the first line contains the high-P limit Arrhenius parameters (if available)
     #tokens = lines[0][52:].split()
