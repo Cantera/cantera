@@ -254,7 +254,6 @@ class Reaction(object):
     def productString(self):
         return self._coeff_string(self.products)
 
-
     def __str__(self):
         """
         Return a string representation of the reaction, in the form 'A + B <=> C + D'.
@@ -863,27 +862,17 @@ def readThermoEntry(entry, TintDefault):
         except ValueError:
             Tint = TintDefault
 
-        a0_high = fortFloat(lines[1][0:15])
-        a1_high = fortFloat(lines[1][15:30])
-        a2_high = fortFloat(lines[1][30:45])
-        a3_high = fortFloat(lines[1][45:60])
-        a4_high = fortFloat(lines[1][60:75])
+        coeffs_high = [fortFloat(lines[i][j:k])
+                       for i,j,k in [(1,0,15), (1,15,30), (1,30,45), (1,45,60),
+                                     (1,60,75), (2,0,15), (2,15,30)]]
+        coeffs_low = [fortFloat(lines[i][j:k])
+                       for i,j,k in [(2,30,45), (2,45,60), (2,60,75), (3,0,15),
+                                     (3,15,30), (3,30,45), (3,45,60)]]
 
-        a5_high = fortFloat(lines[2][0:15])
-        a6_high = fortFloat(lines[2][15:30])
-        a0_low = fortFloat(lines[2][30:45])
-        a1_low = fortFloat(lines[2][45:60])
-        a2_low = fortFloat(lines[2][60:75])
-
-        a3_low = fortFloat(lines[3][0:15])
-        a4_low = fortFloat(lines[3][15:30])
-        a5_low = fortFloat(lines[3][30:45])
-        a6_low = fortFloat(lines[3][45:60])
-    except (IndexError, ValueError) as err:
+    except (IndexError, ValueError):
         raise InputParseError('Error while reading thermo entry for species {0}'.format(species))
 
-    elements = lines[0][24:44]
-    composition = parseComposition(elements, 4, 5)
+    composition = parseComposition(lines[0][24:44], 4, 5)
 
     # Non-standard extended elemental composition data may be located beyond
     # column 80 on the first line of the thermo entry
@@ -895,8 +884,8 @@ def readThermoEntry(entry, TintDefault):
     # Construct and return the thermodynamics model
     thermo = MultiNASA(
         polynomials = [
-            NASA(Tmin=(Tmin,"K"), Tmax=(Tint,"K"), coeffs=[a0_low, a1_low, a2_low, a3_low, a4_low, a5_low, a6_low]),
-            NASA(Tmin=(Tint,"K"), Tmax=(Tmax,"K"), coeffs=[a0_high, a1_high, a2_high, a3_high, a4_high, a5_high, a6_high])
+            NASA(Tmin=(Tmin,"K"), Tmax=(Tint,"K"), coeffs=coeffs_low),
+            NASA(Tmin=(Tint,"K"), Tmax=(Tmax,"K"), coeffs=coeffs_high)
         ],
         Tmin = (Tmin,"K"),
         Tmax = (Tmax,"K"),
@@ -968,7 +957,6 @@ def readKineticsEntry(entry, speciesDict, energyUnits, moleculeUnits):
     Ea = float(tokens[-1])
     reaction = ''.join(tokens[:-3])
     revReaction = None
-    thirdBody = False
 
     # Split the reaction equation into reactants and products
     if '<=>' in reaction:
@@ -991,48 +979,34 @@ def readKineticsEntry(entry, speciesDict, energyUnits, moleculeUnits):
     # Create a new Reaction object for this reaction
     reaction = Reaction(reactants=[], products=[], reversible=reversible)
 
-    # Convert the reactants and products to Species objects using the speciesDict
-    for reactant in reactants.split('+'):
-        reactant = reactant.strip()
-        if not reactant[0].isalpha():
-            # This allows for for non-unity stoichiometric coefficients, e.g.
-            # 2A=B+C or .85A+.15B=>C
-            j = [i for i,c in enumerate(reactant) if c.isalpha()][0]
-            if reactant[:j].isdigit():
-                stoichiometry = int(reactant[:j])
+    def parseExpression(expression, dest):
+        thirdBody = False
+        for term in expression.split('+'):
+            term = term.strip()
+            if not term[0].isalpha():
+                # This allows for for non-unity stoichiometric coefficients, e.g.
+                # 2A=B+C or .85A+.15B=>C
+                j = [i for i,c in enumerate(term) if c.isalpha()][0]
+                if term[:j].isdigit():
+                    stoichiometry = int(term[:j])
+                else:
+                    stoichiometry = float(term[:j])
+                species = term[j:]
             else:
-                stoichiometry = float(reactant[:j])
-            reactant = reactant[j:]
-        else:
-            stoichiometry = 1
+                species = term
+                stoichiometry = 1
 
-        if reactant == 'M' or reactant == 'm':
-            thirdBody = True
-        elif reactant not in speciesDict:
-            raise InputParseError('Unexpected reactant "{0}" in reaction {1}.'.format(reactant, reaction))
-        else:
-            reaction.reactants.append((stoichiometry, speciesDict[reactant]))
-
-    for product in products.split('+'):
-        product = product.strip()
-        if not product[0].isalpha():
-            # This allows for for non-unity stoichiometric coefficients, e.g.
-            # 2A=B+C or .85A+.15B=>C
-            j = [i for i,c in enumerate(product) if c.isalpha()][0]
-            if product[:j].isdigit():
-                stoichiometry = int(product[:j])
+            if species == 'M' or species == 'm':
+                thirdBody = True
+            elif species not in speciesDict:
+                raise InputParseError('Unexpected species "{0}" in reaction {1}.'.format(reactant, reaction))
             else:
-                stoichiometry = float(product[:j])
-            product = product[j:]
-        else:
-            stoichiometry = 1
+                dest.append((stoichiometry, speciesDict[species]))
 
-        if product.upper() == 'M' or product == 'm':
-            pass
-        elif product not in speciesDict:
-            raise InputParseError('Unexpected product "{0}" in reaction {1}.'.format(product, reaction))
-        else:
-            reaction.products.append((stoichiometry, speciesDict[product]))
+        return thirdBody
+
+    thirdBody = parseExpression(reactants, reaction.reactants)
+    parseExpression(products, reaction.products)
 
     # Determine the appropriate units for k(T) and k(T,P) based on the number of reactants
     # This assumes elementary kinetics for all reactions
@@ -1075,11 +1049,11 @@ def readKineticsEntry(entry, speciesDict, energyUnits, moleculeUnits):
         # Note that the subsequent lines could be in any order
         for line in lines[1:]:
             tokens = line.split('/')
-            if 'DUP' in line or 'dup' in line:
+            if 'dup' in line.lower():
                 # Duplicate reaction
                 reaction.duplicate = True
 
-            elif 'LOW' in line or 'low' in line:
+            elif 'low' in line.lower():
                 # Low-pressure-limit Arrhenius parameters
                 tokens = tokens[1].split()
                 arrheniusLow = Arrhenius(
@@ -1108,7 +1082,7 @@ def readKineticsEntry(entry, speciesDict, energyUnits, moleculeUnits):
                 tokens = tokens[1].split()
                 reaction.fwdOrders[tokens[0].strip()] = tokens[1].strip()
 
-            elif 'TROE' in line or 'troe' in line:
+            elif 'troe' in line.lower():
                 # Troe falloff parameters
                 tokens = tokens[1].split()
                 alpha = float(tokens[0].strip())
@@ -1143,7 +1117,7 @@ def readKineticsEntry(entry, speciesDict, energyUnits, moleculeUnits):
                 else:
                     sri = Sri(A=A, B=B, C=C, D=D, E=E)
 
-            elif 'CHEB' in line or 'cheb' in line:
+            elif 'cheb' in line.lower():
                 # Chebyshev parameters
                 if chebyshev is None:
                     chebyshev = Chebyshev()
@@ -1169,7 +1143,7 @@ def readKineticsEntry(entry, speciesDict, energyUnits, moleculeUnits):
                     tokens2 = tokens[1].split()
                     chebyshevCoeffs.extend([float(t.strip()) for t in tokens2])
 
-            elif 'PLOG' in line or 'plog' in line:
+            elif 'plog' in line.lower():
                 # Pressure-dependent Arrhenius parameters
                 if pdepArrhenius is None:
                     pdepArrhenius = []
@@ -1345,18 +1319,17 @@ def loadChemkinFile(path, speciesList=None):
                 thermo = ''
                 while line != '' and 'END' not in line:
                     line = removeCommentFromLine(line)[0]
-                    if len(line) >= 80:
-                        if line[79] in ['1', '2', '3', '4']:
-                            thermo += line
-                            if line[79] == '4':
-                                label, thermo, comp, note = readThermoEntry(thermo, TintDefault)
-                                try:
-                                    speciesDict[label].thermo = thermo
-                                    speciesDict[label].composition = comp
-                                    speciesDict[label].note = note
-                                except KeyError:
-                                    logging.warning('Skipping unexpected species "{0}" while reading thermodynamics entry.'.format(label))
-                                thermo = ''
+                    if len(line) >= 80 and line[79] in ['1', '2', '3', '4']:
+                        thermo += line
+                        if line[79] == '4':
+                            label, thermo, comp, note = readThermoEntry(thermo, TintDefault)
+                            try:
+                                speciesDict[label].thermo = thermo
+                                speciesDict[label].composition = comp
+                                speciesDict[label].note = note
+                            except KeyError:
+                                logging.warning('Skipping unexpected species "{0}" while reading thermodynamics entry.'.format(label))
+                            thermo = ''
                     line = f.readline()
 
             elif 'REACTIONS' in line:
@@ -1512,7 +1485,6 @@ def writeCTI(elements,
     missingElements = elementsFromSpecies - set(elements)
     if missingElements:
         raise InputParseError('Undefined elements: ' + str(missingElements))
-
 
     speciesNames = ['']
     for i,s in enumerate(species):
