@@ -249,11 +249,6 @@ CompileAndTest('mixGasTransport',
 CompileAndTest('multiGasTransport',
                'multiGasTransport', 'multiGasTransport', 'output_blessed.txt')
 CompileAndTest('NASA9poly', 'NASA9poly_test', 'NASA9poly_test', 'output_blessed.txt')
-Test('nasa9_reader', 'nasa9_reader', '#build/bin/ck2cti$PROGSUFFIX', None,
-     options='-i sample.inp -id sample -t sampleData.inp',
-     comparisons=[('sample_blessed.cti', 'sample.cti')],
-     ignoreLines=['#'],
-     artifacts=['ck2cti.log'])
 
 negA = localenv.Program('negATest/negATest',
                            mglob(env, 'negATest', 'cpp'),
