@@ -20,3 +20,18 @@ class chemkinConverterTest(unittest.TestCase):
         self.assertEqual(ref.speciesNames(), gas.speciesNames())
         self.assertTrue((ref.reactantStoichCoeffs() == gas.reactantStoichCoeffs()).all())
 
+    def test_missingElement(self):
+        if os.path.exists('h2o2_missingElement.cti'):
+            os.remove('h2o2_missingElement.cti')
+
+        self.assertRaises(ck2cti.InputParseError,
+                          lambda: ck2cti.convertMech('../data/h2o2_missingElement.inp',
+                                                    quiet=True))
+
+    def test_missingThermo(self):
+        if os.path.exists('h2o2_missingThermo.cti'):
+            os.remove('h2o2_missingThermo.cti')
+
+        self.assertRaises(ck2cti.InputParseError,
+                          lambda: ck2cti.convertMech('../data/h2o2_missingThermo.inp',
+                                                    quiet=True))
