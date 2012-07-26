@@ -1,0 +1,290 @@
+<?xml version="1.0"?>
+<ctml>
+  <validate reactions="yes" species="yes"/>
+
+  <!-- phase soot     -->
+  <phase dim="3" id="soot">
+    <elementArray datasrc="elements.xml">H  O  C </elementArray>
+    <speciesArray datasrc="#species_data">
+      H  H2  C6H5  A1C2HJ2  C10H7J1  C10H7J2  A2CH2-1  A2CH2-2  BIN5  BIN6 
+      </speciesArray>
+    <reactionArray datasrc="#reaction_data"/>
+    <state>
+      <temperature units="K">300.0</temperature>
+      <pressure units="Pa">101325.0</pressure>
+    </state>
+    <thermo model="IdealGas"/>
+    <kinetics model="GasKinetics"/>
+    <transport model="None"/>
+  </phase>
+
+  <!-- species definitions     -->
+  <speciesData id="species_data">
+
+    <!-- species H    -->
+    <species name="H">
+      <atomArray>H:1 </atomArray>
+      <note>120186</note>
+      <thermo>
+        <NASA Tmax="1000.0" Tmin="300.0" P0="100000.0">
+           <floatArray name="coeffs" size="7">
+             2.500000000E+00,   0.000000000E+00,   0.000000000E+00,   0.000000000E+00, 
+             0.000000000E+00,   2.547162000E+04,  -4.601176000E-01</floatArray>
+        </NASA>
+        <NASA Tmax="5000.0" Tmin="1000.0" P0="100000.0">
+           <floatArray name="coeffs" size="7">
+             2.500000000E+00,   0.000000000E+00,   0.000000000E+00,   0.000000000E+00, 
+             0.000000000E+00,   2.547162000E+04,  -4.601176000E-01</floatArray>
+        </NASA>
+      </thermo>
+    </species>
+
+    <!-- species H2    -->
+    <species name="H2">
+      <atomArray>H:2 </atomArray>
+      <note>121286</note>
+      <thermo>
+        <NASA Tmax="1000.0" Tmin="300.0" P0="100000.0">
+           <floatArray name="coeffs" size="7">
+             3.298124000E+00,   8.249441000E-04,  -8.143015000E-07,  -9.475434000E-11, 
+             4.134872000E-13,  -1.012520900E+03,  -3.294094000E+00</floatArray>
+        </NASA>
+        <NASA Tmax="5000.0" Tmin="1000.0" P0="100000.0">
+           <floatArray name="coeffs" size="7">
+             2.991423000E+00,   7.000644000E-04,  -5.633828000E-08,  -9.231578000E-12, 
+             1.582751900E-15,  -8.350340000E+02,  -1.355110100E+00</floatArray>
+        </NASA>
+      </thermo>
+    </species>
+
+    <!-- species C6H5    -->
+    <species name="C6H5">
+      <atomArray>H:5 C:6 </atomArray>
+      <note>HR 4/99 BLYP00</note>
+      <thermo>
+        <NASA Tmax="1401.0" Tmin="300.0" P0="100000.0">
+           <floatArray name="coeffs" size="7">
+             -4.793638380E+00,   6.412562610E-02,  -5.630883460E-05,   2.506284170E-08, 
+             -4.436807660E-12,   3.979406320E+04,   4.470408790E+01</floatArray>
+        </NASA>
+        <NASA Tmax="5000.0" Tmin="1401.0" P0="100000.0">
+           <floatArray name="coeffs" size="7">
+             1.391132310E+01,   1.445104770E-02,  -4.976431430E-06,   7.763502000E-10, 
+             -4.520096990E-14,   3.393708880E+04,  -5.356390960E+01</floatArray>
+        </NASA>
+      </thermo>
+    </species>
+
+    <!-- species A1C2HJ2    -->
+    <species name="A1C2HJ2">
+      <atomArray>H:5 C:8 </atomArray>
+      <note>HR 6/99 BLYP00</note>
+      <thermo>
+        <NASA Tmax="1403.0" Tmin="300.0" P0="100000.0">
+           <floatArray name="coeffs" size="7">
+             -1.499297380E+00,   7.018914960E-02,  -6.294299100E-05,   2.850738270E-08, 
+             -5.111373130E-12,   6.594948230E+04,   3.158383590E+01</floatArray>
+        </NASA>
+        <NASA Tmax="5000.0" Tmin="1403.0" P0="100000.0">
+           <floatArray name="coeffs" size="7">
+             1.883703820E+01,   1.524455220E-02,  -5.224695960E-06,   8.125188740E-10, 
+             -4.720451780E-14,   5.968219960E+04,  -7.491075920E+01</floatArray>
+        </NASA>
+      </thermo>
+    </species>
+
+    <!-- species C10H7J1    -->
+    <species name="C10H7J1">
+      <atomArray>H:7 C:10 </atomArray>
+      <note>TB 1/99 BLYP00</note>
+      <thermo>
+        <NASA Tmax="1401.0" Tmin="300.0" P0="100000.0">
+           <floatArray name="coeffs" size="7">
+             -7.742694270E+00,   1.042209410E-01,  -9.250768990E-05,   4.124035440E-08, 
+             -7.281996430E-12,   4.720571550E+04,   5.864848150E+01</floatArray>
+        </NASA>
+        <NASA Tmax="5000.0" Tmin="1401.0" P0="100000.0">
+           <floatArray name="coeffs" size="7">
+             2.321348370E+01,   2.192451320E-02,  -7.578010310E-06,   1.185265640E-09, 
+             -6.913694060E-14,   3.754562740E+04,  -1.039113780E+02</floatArray>
+        </NASA>
+      </thermo>
+    </species>
+
+    <!-- species C10H7J2    -->
+    <species name="C10H7J2">
+      <atomArray>H:7 C:10 </atomArray>
+      <note>TB 1/99 BLYP00</note>
+      <thermo>
+        <NASA Tmax="1401.0" Tmin="300.0" P0="100000.0">
+           <floatArray name="coeffs" size="7">
+             -7.718983950E+00,   1.042758540E-01,  -9.267416540E-05,   4.137673460E-08, 
+             -7.317379310E-12,   4.732258710E+04,   5.845969820E+01</floatArray>
+        </NASA>
+        <NASA Tmax="5000.0" Tmin="1401.0" P0="100000.0">
+           <floatArray name="coeffs" size="7">
+             2.323565500E+01,   2.191685750E-02,  -7.577776120E-06,   1.185474560E-09, 
+             -6.915887670E-14,   3.766623060E+04,  -1.040742000E+02</floatArray>
+        </NASA>
+      </thermo>
+    </species>
+
+    <!-- species A2CH2-1    -->
+    <species name="A2CH2-1">
+      <atomArray>H:9 C:11 </atomArray>
+      <note>HR 6/99 BLYP  </note>
+      <thermo>
+        <NASA Tmax="1393.0" Tmin="300.0" P0="100000.0">
+           <floatArray name="coeffs" size="7">
+             -9.425613210E+00,   1.269562970E-01,  -1.192532180E-04,   5.698891640E-08, 
+             -1.078178480E-11,   2.903418510E+04,   6.567505200E+01</floatArray>
+        </NASA>
+        <NASA Tmax="5000.0" Tmin="1393.0" P0="100000.0">
+           <floatArray name="coeffs" size="7">
+             2.675911430E+01,   2.669443660E-02,  -9.346725120E-06,   1.474113010E-09, 
+             -8.646945730E-14,   1.791637080E+04,  -1.232913720E+02</floatArray>
+        </NASA>
+      </thermo>
+    </species>
+
+    <!-- species A2CH2-2    -->
+    <species name="A2CH2-2">
+      <atomArray>H:9 C:11 </atomArray>
+      <note>HR 6/99 BLYP  </note>
+      <thermo>
+        <NASA Tmax="1393.0" Tmin="300.0" P0="100000.0">
+           <floatArray name="coeffs" size="7">
+             -9.371639160E+00,   1.273376200E-01,  -1.203193190E-04,   5.786705340E-08, 
+             -1.101076650E-11,   2.912242350E+04,   6.530015800E+01</floatArray>
+        </NASA>
+        <NASA Tmax="5000.0" Tmin="1393.0" P0="100000.0">
+           <floatArray name="coeffs" size="7">
+             2.678379930E+01,   2.670917350E-02,  -9.359728130E-06,   1.476968370E-09, 
+             -8.666913390E-14,   1.803615800E+04,  -1.233920420E+02</floatArray>
+        </NASA>
+      </thermo>
+    </species>
+
+    <!-- species BIN5    -->
+    <species name="BIN5">
+      <atomArray>H:144 C:388 </atomArray>
+      <note>PYRENE</note>
+      <thermo>
+        <NASA Tmax="1401.0" Tmin="300.0" P0="100000.0">
+           <floatArray name="coeffs" size="7">
+             -1.297589800E+01,   1.637900640E-01,  -1.438511660E-04,   6.310579150E-08, 
+             -1.095680470E-11,   2.488663990E+04,   7.949504740E+01</floatArray>
+        </NASA>
+        <NASA Tmax="5000.0" Tmin="1401.0" P0="100000.0">
+           <floatArray name="coeffs" size="7">
+             3.658396770E+01,   3.367641020E-02,  -1.167839380E-05,   1.830774660E-09, 
+             -1.069637770E-13,   9.298094830E+03,  -1.812720700E+02</floatArray>
+        </NASA>
+      </thermo>
+    </species>
+
+    <!-- species BIN6    -->
+    <species name="BIN6">
+      <atomArray>H:264 C:778 </atomArray>
+      <note>PYRENE</note>
+      <thermo>
+        <NASA Tmax="1401.0" Tmin="300.0" P0="100000.0">
+           <floatArray name="coeffs" size="7">
+             -1.297589800E+01,   1.637900640E-01,  -1.438511660E-04,   6.310579150E-08, 
+             -1.095680470E-11,   2.488663990E+04,   7.949504740E+01</floatArray>
+        </NASA>
+        <NASA Tmax="5000.0" Tmin="1401.0" P0="100000.0">
+           <floatArray name="coeffs" size="7">
+             3.658396770E+01,   3.367641020E-02,  -1.167839380E-05,   1.830774660E-09, 
+             -1.069637770E-13,   9.298094830E+03,  -1.812720700E+02</floatArray>
+        </NASA>
+      </thermo>
+    </species>
+  </speciesData>
+  <reactionData id="reaction_data">
+
+    <!-- reaction 0001    -->
+    <reaction reversible="no" id="0001">
+      <equation>C6H5 + BIN5 =] 0.984615 BIN5 + 0.0153846 BIN6 + 1.0769 H2 + H</equation>
+      <rateCoeff>
+        <Arrhenius>
+           <A>5.620000E+09</A>
+           <b>0.5</b>
+           <E units="cal/mol">0.000000</E>
+        </Arrhenius>
+      </rateCoeff>
+      <reactants>BIN5:1 C6H5:1.0</reactants>
+      <products>BIN5:0.984615 H2:1.0769 BIN6:0.0153846 H:1</products>
+    </reaction>
+
+    <!-- reaction 0002    -->
+    <reaction reversible="no" id="0002">
+      <equation>A1C2HJ2 + BIN5 =] 0.979487 BIN5 + 0.0205128 BIN6 + 0.7692 H2 + H</equation>
+      <rateCoeff>
+        <Arrhenius>
+           <A>5.100000E+09</A>
+           <b>0.5</b>
+           <E units="cal/mol">0.000000</E>
+        </Arrhenius>
+      </rateCoeff>
+      <reactants>A1C2HJ2:1.0 BIN5:1</reactants>
+      <products>BIN5:0.979487 H2:0.7692 BIN6:0.0205128 H:1</products>
+    </reaction>
+
+    <!-- reaction 0003    -->
+    <reaction reversible="no" id="0003">
+      <equation>C10H7J1 + BIN5 =] 0.974359 BIN5 + 0.025641 BIN6 + 1.4615 H2 + H</equation>
+      <rateCoeff>
+        <Arrhenius>
+           <A>4.720000E+09</A>
+           <b>0.5</b>
+           <E units="cal/mol">0.000000</E>
+        </Arrhenius>
+      </rateCoeff>
+      <reactants>BIN5:1 C10H7J1:1.0</reactants>
+      <products>BIN5:0.974359 H2:1.4615 BIN6:0.025641 H:1</products>
+    </reaction>
+
+    <!-- reaction 0004    -->
+    <reaction reversible="no" id="0004">
+      <equation>C10H7J2 + BIN5 =] 0.974359 BIN5 + 0.025641 BIN6 + 1.4615 H2 + H</equation>
+      <rateCoeff>
+        <Arrhenius>
+           <A>4.720000E+09</A>
+           <b>0.5</b>
+           <E units="cal/mol">0.000000</E>
+        </Arrhenius>
+      </rateCoeff>
+      <reactants>C10H7J2:1.0 BIN5:1</reactants>
+      <products>BIN5:0.974359 H2:1.4615 BIN6:0.025641 H:1</products>
+    </reaction>
+
+    <!-- reaction 0005    -->
+    <reaction reversible="no" id="0005">
+      <equation>A2CH2-1 + BIN5 =] 0.971795 BIN5 + 0.0282051 BIN6 + 2.3077 H2 + H</equation>
+      <rateCoeff>
+        <Arrhenius>
+           <A>4.560000E+09</A>
+           <b>0.5</b>
+           <E units="cal/mol">0.000000</E>
+        </Arrhenius>
+      </rateCoeff>
+      <reactants>BIN5:1 A2CH2-1:1.0</reactants>
+      <products>BIN5:0.971795 H2:2.3077 BIN6:0.0282051 H:1</products>
+    </reaction>
+
+    <!-- reaction 0006    -->
+    <reaction reversible="no" id="0006">
+      <equation>A2CH2-2 + BIN5 =] 0.971795 BIN5 + 0.0282051 BIN6 + 2.3077 H2 + H</equation>
+      <rateCoeff>
+        <Arrhenius>
+           <A>4.560000E+09</A>
+           <b>0.5</b>
+           <E units="cal/mol">0.000000</E>
+        </Arrhenius>
+      </rateCoeff>
+      <reactants>BIN5:1 A2CH2-2:1.0</reactants>
+      <products>BIN5:0.971795 H2:2.3077 BIN6:0.0282051 H:1</products>
+    </reaction>
+  </reactionData>
+</ctml>
