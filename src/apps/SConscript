@@ -11,7 +11,6 @@ def buildProgram(name, src):
     install('$inst_bindir', prog)
 
 buildProgram('cti2ctml', ['cti2ctml.cpp'])
-buildProgram('ck2cti', ['ck2cti.cpp'])
 
 if env['layout'] != 'debian':
     buildProgram('csvdiff', ['csvdiff.cpp', 'tok_input_util.cpp', 'mdp_allo.cpp'])

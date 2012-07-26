@@ -1044,7 +1044,7 @@ if addInstallActions:
     # Converter scripts
     pyExt = '.py' if env['OS'] == 'Windows' else ''
     install(env.InstallAs,
-            pjoin('$inst_bindir','ck2cti2%s' % pyExt),
+            pjoin('$inst_bindir','ck2cti%s' % pyExt),
             'interfaces/python/ck2cti.py')
     install(env.InstallAs,
             pjoin('$inst_bindir','ctml_writer%s' % pyExt),

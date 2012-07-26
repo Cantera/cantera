@@ -155,7 +155,6 @@ AC_OUTPUT(Makefile                                                         \
 		   src/Makefile                                            \
                    src/fortran/Makefile                                    \
                    src/base/Makefile                                       \
-                   src/converters/Makefile                                 \
 		   src/kinetics/Makefile                                   \
                    src/numerics/Makefile src/oneD/Makefile                 \
                    src/thermo/Makefile                                     \
@@ -166,8 +165,6 @@ AC_OUTPUT(Makefile                                                         \
 		   cantera.pc)                                   
 
 # skipped tests
-#                   test_problems/ck2cti/Makefile                         
-#                   test_problems/nasa9_reader/Makefile                     
 #                   test_problems/rankine_democxx/Makefile                  
 #                   test_problems/VCSnonideal/NaCl_equil/Makefile           
 

@@ -9,8 +9,6 @@ SUBDIRS += VCSnonideal PecosTransport
 #f77test
 
 # skipped (uses ck2cti or python):
-# ck2cti_test
-# nasa9_reader (uses ck2cti)
 # python
 # rankine_democxx
 # VCSnonideal (unsure of problem)

@@ -14,7 +14,7 @@ URL: http://code.google.com/p/cantera/
 Requires:
 Version: 2.0.0
 
-LINK  = -lctcxx -luser -loneD -lzeroD -lequil -lkinetics -ltransport -lthermo  -lctnumerics -lctmath -ltpx -lctspectra -lconverters -lctbase -lcvode -lctlapack -lctblas -lctf2c -lm -lstdc++
+LINK  = -lctcxx -luser -loneD -lzeroD -lequil -lkinetics -ltransport -lthermo  -lctnumerics -lctmath -ltpx -lctspectra -lctbase -lcvode -lctlapack -lctblas -lctf2c -lm -lstdc++
 
 #Libs: -L${libdir} ${LINK}
 #Cflags: -I${includedir}
