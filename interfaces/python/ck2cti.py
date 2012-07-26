@@ -32,7 +32,7 @@ Cantera input files (CTI).
 
 import logging
 import types
-
+import os.path
 import numpy as np
 
 ################################################################################
@@ -1374,6 +1374,12 @@ def writeCTI(elements,
         elementsFromSpecies.update(s.composition)
         speciesNameLength = max(speciesNameLength, len(s.label))
 
+    # validate list of elements
+    missingElements = elementsFromSpecies - set(elements)
+    if missingElements:
+        raise InputParseError('Undefined elements: ' + str(missingElements))
+
+
     speciesNames = ['']
     for i,s in enumerate(species):
         if i and not i % 5:
@@ -1472,7 +1478,6 @@ def convertMech(inputFile, thermoFile=None,
 if __name__ == '__main__':
     import getopt
     import sys
-    import os.path
 
     longOptions = ['input=', 'thermo=', 'transport=', 'id=', 'output=',
                    'help', 'debug']
