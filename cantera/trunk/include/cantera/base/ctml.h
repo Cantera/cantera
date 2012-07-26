@@ -895,6 +895,17 @@ void get_CTML_Tree(Cantera::XML_Node* node, const std::string file,
  *  @ingroup inputfiles
  */
 void ct2ctml(const char* file, const int debug = 0);
+
+//! Convert a Chemkin-format mechanism into a CTI file.
+/*!
+ * @param in_file         input file containing species and reactions
+ * @param thermo_file     optional input file containing thermo data
+ * @param transport_file  optional input file containing transport parameters
+ * @param id_tag          id of the phase
+ */
+void ck2cti(const std::string& in_file, const std::string& thermo_file="",
+            const std::string& transport_file="",
+            const std::string& id_tag="gas");
 }
 
 #endif
