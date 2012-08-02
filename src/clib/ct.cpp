@@ -301,10 +301,7 @@ extern "C" {
     int phase_getName(int n, size_t lennm, char* nm)
     {
         try {
-            string name = ThermoCabinet::item(n).name();
-            size_t lout = min(lennm, name.size());
-            copy(name.c_str(), name.c_str() + lout, nm);
-            nm[lout] = '\0';
+            copyString(ThermoCabinet::item(n).name(), nm, lennm);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -324,10 +321,7 @@ extern "C" {
     int phase_getSpeciesName(int n, size_t k, size_t lennm, char* nm)
     {
         try {
-            string spnm = ThermoCabinet::item(n).speciesName(k);
-            size_t lout = min(lennm, spnm.size());
-            copy(spnm.c_str(), spnm.c_str() + lout, nm);
-            nm[lout] = '\0';
+            copyString(ThermoCabinet::item(n).speciesName(k), nm, lennm);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -337,10 +331,7 @@ extern "C" {
     int phase_getElementName(int n, size_t m, size_t lennm, char* nm)
     {
         try {
-            string elnm = ThermoCabinet::item(n).elementName(m);
-            size_t lout = min(lennm, elnm.size());
-            copy(elnm.c_str(), elnm.c_str() + lout, nm);
-            nm[lout] = '\0';
+            copyString(ThermoCabinet::item(n).elementName(m), nm, lennm);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -1152,10 +1143,7 @@ extern "C" {
         try {
             Kinetics& k = KineticsCabinet::item(n);
             k.checkReactionIndex(i);
-            string r = k.reactionString(i);
-            int lout = min(len, (int)r.size());
-            copy(r.c_str(), r.c_str() + lout, buf);
-            buf[lout] = '\0';
+            copyString(k.reactionString(i), buf, len);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -1340,8 +1328,7 @@ extern "C" {
             if (int(s.size()) > ibuf - 1) {
                 return -(static_cast<int>(s.size()) + 1);
             }
-            copy(s.begin(), s.end(), buf);
-            buf[s.size() - 1] = '\0';
+            copyString(s, buf, ibuf);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -1373,11 +1360,7 @@ extern "C" {
     {
         try {
             string e = lastErrorMessage();
-            if (buflen > 0) {
-                int n = min(static_cast<int>(e.size()), buflen-1);
-                copy(e.begin(), e.begin() + n, buf);
-                buf[min(n, buflen-1)] = '\0';
-            }
+            copyString(e, buf, buflen);
             return int(e.size());
         } catch (...) {
             return handleAllExceptions(-1, ERR);

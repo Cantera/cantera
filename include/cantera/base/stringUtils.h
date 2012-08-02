@@ -284,6 +284,9 @@ doublereal strSItoDbl(const std::string& strSI);
 void tokenizeString(const std::string& oval,
                     std::vector<std::string>& v);
 
+//! Copy the contents of a std::string into a char array of a given length
+void copyString(const std::string& source, char* dest, size_t length);
+
 }
 
 #endif

@@ -89,9 +89,7 @@ extern "C" {
             Domain1D& dom = DomainCabinet::item(i);
             dom.checkComponentIndex(n);
             string nm = dom.componentName(n);
-            size_t lout = std::min<size_t>(sz, nm.size());
-            copy(nm.c_str(), nm.c_str() + lout, buf);
-            buf[lout] = '\0';
+            copyString(nm, buf, sz);
             return static_cast<int>(nm.size());
         } catch (...) {
             return handleAllExceptions(-1, ERR);
