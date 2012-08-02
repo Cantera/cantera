@@ -230,6 +230,8 @@ else:
     defaults.singleLibrary = False
 
 defaults.fsLayout = 'compact' if env['OS'] == 'Windows' else 'standard'
+defaults.env_vars = 'LD_LIBRARY_PATH' if 'LD_LIBRARY_PATH' in os.environ else ''
+defaults.python_prefix = '$prefix' if env['OS'] != 'Windows' else ''
 
 # **************************************
 # *** Read user-configurable options ***
@@ -279,11 +281,12 @@ opts.AddVariables(
         '', PathVariable.PathAccept),
     PathVariable(
         'python_prefix',
-        """If you want to install the Cantera Python package somewhere other
-           than the default 'site-packages' directory within the Python library
-           directory, then set this to the desired directory. This is useful
-           when you do not have write access to the Python library directory.""",
-        '', PathVariable.PathAccept),
+        """Use this option if you want to install the Cantera Python package to
+           an alternate location. On Unix-like systems, the default is the same
+           as the $prefix option. If this option is set to the empty string (the
+           default on Windows), then the Package will be installed to the system
+           default 'site-packages' directory.""",
+        defaults.python_prefix, PathVariable.PathAccept),
     EnumVariable(
         'matlab_toolbox',
         """This variable controls whether the Matlab toolbox will be built. If
@@ -396,7 +399,7 @@ opts.AddVariables(
      """Environment variables to propagate through to SCons. Either the
         string "all" or a comma separated list of variable names, e.g.
         'LD_LIBRARY_PATH,HOME'""",
-     ''),
+     defaults.env_vars),
     ('cxx_flags',
      'Compiler flags passed to the C++ compiler only.',
      defaults.cxxFlags),
@@ -1186,6 +1189,7 @@ build_cantera = Alias('build', finish_build)
 Default('build')
 
 def postInstallMessage(target, source, env):
+    env['python_module_loc'] = env.subst(env['python_module_loc'])
     print """
 Cantera has been successfully installed.
 

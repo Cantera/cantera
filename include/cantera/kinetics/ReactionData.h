@@ -19,6 +19,7 @@ public:
     //! Default constructor
     ReactionData() {
         reactionType = ELEMENTARY_RXN;
+        validate = false;
         number = 0;
         rxn_number = 0;
         reversible = true;
@@ -41,6 +42,7 @@ public:
      */
     int reactionType;
 
+    bool validate;
     int number;
     int rxn_number;
     std::vector<size_t> reactants;
