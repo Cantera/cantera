@@ -242,7 +242,8 @@ Test('diamondSurf-xml', 'diamondSurf', diamond, 'runDiamond_blessed.out',
 Test('diamondSurf-cti', 'diamondSurf', diamond, 'runDiamond_blessed.out',
      options='diamond.cti', artifacts=diamond_name,
      comparisons=[('diamond_blessed.xml', 'diamond.xml')])
-
+CompileAndTest('dustyGasTransport', 'dustyGasTransport', 'dustyGasTransport',
+               'output_blessed.txt')
 CompileAndTest('fracCoeff', 'fracCoeff', 'fracCoeff', 'frac_blessed.out')
 CompileAndTest('mixGasTransport',
                'mixGasTransport', 'mixGasTransport', 'output_blessed.txt')
