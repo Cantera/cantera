@@ -1,0 +1,96 @@
+*** StoichSolidKinetics Test ***
+Tests for the proper behavior of heterogeneous reactions
+when phases may or may not exist:
+        CaCO3(s) =   CO2(g) +  CaO(s)  
+
+   deltaGSS      =     1.729E+07
+   deltaG        =     3.908E+06
+   mu_CO2(g)     =    -4.094E+08
+   mu_cao(s)     =    -5.292E+08
+   mu_caco3      =    -9.424E+08
+   deltaG_calc   =     3.908E+06
+   act_CO2       =     2.000E-01
+   act_cao(s)    =     1.000E+00
+   act_caco3(s)  =     1.000E+00
+*** Base problem assuming that all phases exist:
+ROP_net       =    -5.414E-07
+ROP_forward   =     9.023E-07
+ROP_reverse   =     1.444E-06
+    kfwd      =     9.023E-07
+    krev      =     5.923E-04
+*** Setting CaO(S) phase to nonexistent:
+ROP_net       =     0.000E+00
+ROP_forward   =     9.023E-07
+ROP_reverse   =     9.023E-07
+    kfwd      =     9.023E-07
+    krev      =     5.923E-04
+*** Setting CaCO3(S) phase to nonexistent:
+ROP_net       =     0.000E+00
+ROP_forward   =     0.000E+00
+ROP_reverse   =     0.000E+00
+    kfwd      =     9.023E-07
+    krev      =     5.923E-04
+*** OK Setting CaO(S) phase to existent, CaCO3 nonexistent:
+ROP_net       =    -5.414E-07
+ROP_forward   =     9.023E-07
+ROP_reverse   =     1.444E-06
+    kfwd      =     9.023E-07
+    krev      =     5.923E-04
+*** Setting Gas phase to nonexistent, CaCO3 nonexistent:
+ROP_net       =     0.000E+00
+ROP_forward   =     0.000E+00
+ROP_reverse   =     0.000E+00
+    kfwd      =     9.023E-07
+    krev      =     5.923E-04
+*** Setting to all phases existing:
+ROP_net       =    -5.414E-07
+ROP_forward   =     9.023E-07
+ROP_reverse   =     1.444E-06
+    kfwd      =     9.023E-07
+    krev      =     5.923E-04
+*** Setting so that forward rate if faster:
+   deltaGSS      =     1.729E+07
+   deltaG        =    -3.438E+07
+   mu_CO2(g)     =    -4.476E+08
+   mu_cao(s)     =    -5.292E+08
+   mu_caco3      =    -9.424E+08
+   deltaG_calc   =    -3.438E+07
+   act_CO2       =     2.000E-03
+   act_cao(s)    =     1.000E+00
+   act_caco3(s)  =     1.000E+00
+*** Base problem assuming that all phases exist:
+ROP_net       =     8.878E-07
+ROP_forward   =     9.023E-07
+ROP_reverse   =     1.444E-08
+    kfwd      =     9.023E-07
+    krev      =     5.923E-04
+*** Setting CaO(S) phase to nonexistent:
+ROP_net       =     8.878E-07
+ROP_forward   =     9.023E-07
+ROP_reverse   =     1.444E-08
+    kfwd      =     9.023E-07
+    krev      =     5.923E-04
+*** Setting CaCO3(S) phase to nonexistent:
+ROP_net       =     0.000E+00
+ROP_forward   =     0.000E+00
+ROP_reverse   =     0.000E+00
+    kfwd      =     9.023E-07
+    krev      =     5.923E-04
+*** OK Setting CaO(S) phase to existent, CaCO3 nonexistent:
+ROP_net       =     0.000E+00
+ROP_forward   =     1.444E-08
+ROP_reverse   =     1.444E-08
+    kfwd      =     9.023E-07
+    krev      =     5.923E-04
+*** Setting Gas phase to nonexistent, CaCO3 nonexistent:
+ROP_net       =     0.000E+00
+ROP_forward   =     0.000E+00
+ROP_reverse   =     0.000E+00
+    kfwd      =     9.023E-07
+    krev      =     5.923E-04
+*** Setting to all phases existing:
+ROP_net       =     8.878E-07
+ROP_forward   =     9.023E-07
+ROP_reverse   =     1.444E-08
+    kfwd      =     9.023E-07
+    krev      =     5.923E-04
