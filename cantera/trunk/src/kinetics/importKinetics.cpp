@@ -689,6 +689,7 @@ bool rxninfo::installReaction(int iRxn, const XML_Node& r, Kinetics& kin,
     // xml data. Then, when we have collected everything we add the reaction to
     // the kinetics object, kin, at the end of the routine.
     ReactionData rdata;
+    rdata.validate = validate_rxn;
 
     // Check to see if the reaction is specified to be a duplicate of another
     // reaction. It's an error if the reaction is a duplicate and this is not
