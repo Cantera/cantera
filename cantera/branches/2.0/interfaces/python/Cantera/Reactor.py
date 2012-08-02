@@ -432,7 +432,7 @@ class FlowReactor(ReactorBase):
             self.setMassFlowRate(mdot)
 
     def setMassFlowRate(self, mdot):
-        _cantera.flowReactor_setMassFlowRate(self.__reactor_id, mdot)
+        _cantera.flowReactor_setMassFlowRate(self.reactor_id(), mdot)
 
 
 class ConstPressureReactor(ReactorBase):
