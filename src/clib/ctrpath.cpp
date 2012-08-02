@@ -93,7 +93,7 @@ extern "C" {
     int rdiag_setBoldColor(int i, char* color)
     {
         try {
-            DiagramCabinet::item(i).bold_color = string(color);
+            DiagramCabinet::item(i).bold_color = color;
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -103,7 +103,7 @@ extern "C" {
     int rdiag_setNormalColor(int i, char* color)
     {
         try {
-            DiagramCabinet::item(i).normal_color = string(color);
+            DiagramCabinet::item(i).normal_color = color;
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -113,7 +113,7 @@ extern "C" {
     int rdiag_setDashedColor(int i, char* color)
     {
         try {
-            DiagramCabinet::item(i).dashed_color = string(color);
+            DiagramCabinet::item(i).dashed_color = color;
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -123,7 +123,7 @@ extern "C" {
     int rdiag_setDotOptions(int i, char* opt)
     {
         try {
-            DiagramCabinet::item(i).dot_options = string(opt);
+            DiagramCabinet::item(i).dot_options = opt;
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -133,7 +133,7 @@ extern "C" {
     int rdiag_setFont(int i, char* font)
     {
         try {
-            DiagramCabinet::item(i).setFont(string(font));
+            DiagramCabinet::item(i).setFont(font);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -207,7 +207,7 @@ extern "C" {
     int rdiag_setTitle(int i, char* title)
     {
         try {
-            DiagramCabinet::item(i).title = string(title);
+            DiagramCabinet::item(i).title = title;
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -301,7 +301,7 @@ extern "C" {
             if (iquiet > 0) {
                 quiet = true;
             }
-            BuilderCabinet::item(i).build(KineticsCabinet::item(k), string(el), fdot,
+            BuilderCabinet::item(i).build(KineticsCabinet::item(k), el, fdot,
                                           DiagramCabinet::item(idiag), quiet);
             return 0;
         } catch (...) {

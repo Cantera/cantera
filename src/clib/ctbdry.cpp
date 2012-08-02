@@ -126,7 +126,7 @@ extern "C" {
     int bndry_setxinbyname(int i, char* xin)
     {
         try {
-            BoundaryCabinet::item(i).setMoleFractions(string(xin));
+            BoundaryCabinet::item(i).setMoleFractions(xin);
         } catch (...) {
             return Cantera::handleAllExceptions(-1, ERR);
         }

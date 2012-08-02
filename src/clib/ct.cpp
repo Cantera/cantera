@@ -148,8 +148,7 @@ extern "C" {
     size_t phase_elementIndex(int n, char* nm)
     {
         try {
-            string elnm = string(nm);
-            return ThermoCabinet::item(n).elementIndex(elnm);
+            return ThermoCabinet::item(n).elementIndex(nm);
         } catch (...) {
             return handleAllExceptions(npos, npos);
         }
@@ -158,8 +157,7 @@ extern "C" {
     size_t phase_speciesIndex(int n, char* nm)
     {
         try {
-            string spnm = string(nm);
-            return ThermoCabinet::item(n).speciesIndex(spnm);
+            return ThermoCabinet::item(n).speciesIndex(nm);
         } catch (...) {
             return handleAllExceptions(npos, npos);
         }
@@ -232,7 +230,7 @@ extern "C" {
             for (size_t n = 0; n < nsp; n++) {
                 xx[p.speciesName(n)] = -1;
             }
-            parseCompString(string(x), xx);
+            parseCompString(x, xx);
             p.setMoleFractionsByName(xx);
             return 0;
         } catch (...) {
@@ -266,7 +264,7 @@ extern "C" {
             for (size_t n = 0; n < nsp; n++) {
                 yy[p.speciesName(n)] = -1;
             }
-            parseCompString(string(y), yy);
+            parseCompString(y, yy);
             p.setMassFractionsByName(yy);
             return 0;
         } catch (...) {
@@ -316,8 +314,7 @@ extern "C" {
     int phase_setName(int n, const char* nm)
     {
         try {
-            string name = string(nm);
-            ThermoCabinet::item(n).setName(name);
+            ThermoCabinet::item(n).setName(nm);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -363,7 +360,7 @@ extern "C" {
     int phase_addElement(int n, char* name, doublereal weight)
     {
         try {
-            ThermoCabinet::item(n).addElement(string(name),weight);
+            ThermoCabinet::item(n).addElement(name, weight);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -829,8 +826,7 @@ extern "C" {
         try {
             XML_Node& p = XmlCabinet::item(pxml);
             Kinetics& k = KineticsCabinet::item(ikin);
-            string defphase = string(default_phase);
-            installReactionArrays(p, k, defphase);
+            installReactionArrays(p, k, default_phase);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -859,8 +855,7 @@ extern "C" {
     size_t kin_speciesIndex(int n, const char* nm, const char* ph)
     {
         try {
-            return KineticsCabinet::item(n).kineticsSpeciesIndex(string(nm),
-                    string(ph));
+            return KineticsCabinet::item(n).kineticsSpeciesIndex(nm, ph);
         } catch (...) {
             return handleAllExceptions(npos, npos);
         }
@@ -898,7 +893,7 @@ extern "C" {
     size_t kin_phaseIndex(int n, char* ph)
     {
         try {
-            return KineticsCabinet::item(n).phaseIndex(string(ph));
+            return KineticsCabinet::item(n).phaseIndex(ph);
         } catch (...) {
             return handleAllExceptions(npos, npos);
         }
@@ -1011,12 +1006,8 @@ extern "C" {
     {
         try {
             Kinetics& k = KineticsCabinet::item(n);
-            bool doirrev = false;
-            if (doIrreversible != 0) {
-                doirrev = true;
-            }
             k.checkReactionArraySize(len);
-            k.getRevRateConstants(krev, doirrev);
+            k.getRevRateConstants(krev, doIrreversible != 0);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -1110,14 +1101,12 @@ extern "C" {
             // @todo This function only works for single phase kinetics
             Kinetics& k = KineticsCabinet::item(n);
             ThermoPhase& p = k.thermo();
-            const vector_fp& mw = p.molecularWeights();
-            size_t nsp = mw.size();
-            double rrho = 1.0/p.density();
+            size_t nsp = p.nSpecies();
             k.checkSpeciesArraySize(len);
             k.checkSpeciesArraySize(nsp);
             k.getNetProductionRates(ydot);
-            multiply_each(ydot, ydot + nsp, mw.begin());
-            scale(ydot, ydot + nsp, ydot, rrho);
+            multiply_each(ydot, ydot + nsp, p.molecularWeights().begin());
+            scale(ydot, ydot + nsp, ydot, 1.0/p.density());
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -1204,9 +1193,8 @@ extern "C" {
     size_t newTransport(char* model, int ith, int loglevel)
     {
         try {
-            string mstr = string(model);
-            ThermoPhase& t = ThermoCabinet::item(ith);
-            Transport* tr = newTransportMgr(mstr, &t, loglevel);
+            Transport* tr = newTransportMgr(model, &ThermoCabinet::item(ith),
+                                            loglevel);
             return TransportCabinet::add(tr);
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -1320,7 +1308,6 @@ extern "C" {
         try {
             ThermoPhase& thrm = ThermoCabinet::item(nth);
             XML_Node& node = XmlCabinet::item(nxml);
-            string idstr = string(id);
             importPhase(node, &thrm);
             return 0;
         } catch (...) {
@@ -1337,7 +1324,6 @@ extern "C" {
             }
             XML_Node& node = XmlCabinet::item(nxml);
             Kinetics& k = KineticsCabinet::item(nkin);
-            string idstr = string(id);
             importKinetics(node, phases, &k);
             return 0;
         } catch (...) {
@@ -1376,7 +1362,7 @@ extern "C" {
     int write_HTML_log(const char* file)
     {
         try {
-            write_logfile(string(file));
+            write_logfile(file);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -1386,8 +1372,7 @@ extern "C" {
     int getCanteraError(int buflen, char* buf)
     {
         try {
-            string e;
-            e = lastErrorMessage();
+            string e = lastErrorMessage();
             if (buflen > 0) {
                 int n = min(static_cast<int>(e.size()), buflen-1);
                 copy(e.begin(), e.begin() + n, buf);
@@ -1412,7 +1397,7 @@ extern "C" {
     int addCanteraDirectory(size_t buflen, char* buf)
     {
         try {
-            addDirectory(string(buf));
+            addDirectory(buf);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -1504,12 +1489,11 @@ extern "C" {
 
             ThermoPhase& t = ThermoCabinet::item(ith);
             Kinetics& kin = KineticsCabinet::item(ikin);
-            XML_Node* x, *r=0;
+            XML_Node* r = 0;
             if (root) {
                 r = &root->root();
             }
-            x = get_XML_Node(string(src), r);
-            //x = find_XML(string(src), r, string(id), "", "phase");
+            XML_Node* x = get_XML_Node(src, r);
             if (!x) {
                 return false;
             }
@@ -1545,7 +1529,7 @@ extern "C" {
     int writelogfile(char* logfile)
     {
         try {
-            write_logfile(string(logfile));
+            write_logfile(logfile);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
