@@ -38,16 +38,6 @@ template<> ThermoCabinet* ThermoCabinet::__storage = 0;
 template<> KineticsCabinet* KineticsCabinet::__storage = 0;
 template<> TransportCabinet* TransportCabinet::__storage = 0;
 
-static PureFluidPhase* purefluid(int n)
-{
-    PureFluidPhase* p = dynamic_cast<PureFluidPhase*>(&ThermoCabinet::item(n));
-    if (p) {
-        return p;
-    } else {
-        throw CanteraError("purefluid","object is not a PureFluidPhase object");
-    }
-}
-
 /**
  * Exported functions.
  */
@@ -729,7 +719,7 @@ extern "C" {
     double th_critTemperature(int n)
     {
         try {
-            return purefluid(n)->critTemperature();
+            return ThermoCabinet::get<PureFluidPhase>(n).critTemperature();
         } catch (...) {
             return handleAllExceptions(DERR, DERR);
         }
@@ -738,7 +728,7 @@ extern "C" {
     double th_critPressure(int n)
     {
         try {
-            return purefluid(n)->critPressure();
+            return ThermoCabinet::get<PureFluidPhase>(n).critPressure();
         } catch (...) {
             return handleAllExceptions(DERR, DERR);
         }
@@ -747,7 +737,7 @@ extern "C" {
     double th_critDensity(int n)
     {
         try {
-            return purefluid(n)->critDensity();
+            return ThermoCabinet::get<PureFluidPhase>(n).critDensity();
         } catch (...) {
             return handleAllExceptions(DERR, DERR);
         }
@@ -756,7 +746,7 @@ extern "C" {
     double th_vaporFraction(int n)
     {
         try {
-            return purefluid(n)->vaporFraction();
+            return ThermoCabinet::get<PureFluidPhase>(n).vaporFraction();
         } catch (...) {
             return handleAllExceptions(DERR, DERR);
         }
@@ -765,7 +755,7 @@ extern "C" {
     double th_satTemperature(int n, double p)
     {
         try {
-            return purefluid(n)->satTemperature(p);
+            return ThermoCabinet::get<PureFluidPhase>(n).satTemperature(p);
         } catch (...) {
             return handleAllExceptions(DERR, DERR);
         }
@@ -774,7 +764,7 @@ extern "C" {
     double th_satPressure(int n, double t)
     {
         try {
-            return purefluid(n)->satPressure(t);
+            return ThermoCabinet::get<PureFluidPhase>(n).satPressure(t);
         } catch (...) {
             return handleAllExceptions(DERR, DERR);
         }
@@ -783,7 +773,7 @@ extern "C" {
     int th_setState_Psat(int n, double p, double x)
     {
         try {
-            purefluid(n)->setState_Psat(p, x);
+            ThermoCabinet::get<PureFluidPhase>(n).setState_Psat(p, x);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -793,7 +783,7 @@ extern "C" {
     int th_setState_Tsat(int n, double t, double x)
     {
         try {
-            purefluid(n)->setState_Tsat(t, x);
+            ThermoCabinet::get<PureFluidPhase>(n).setState_Tsat(t, x);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -1202,13 +1192,7 @@ extern "C" {
     int kin_advanceCoverages(int n, double tstep)
     {
         try {
-            Kinetics& k = KineticsCabinet::item(n);
-            if (k.type() == cInterfaceKinetics) {
-                dynamic_cast<InterfaceKinetics*>(&k)->advanceCoverages(tstep);
-            } else {
-                throw CanteraError("kin_advanceCoverages",
-                                   "wrong kinetics manager type");
-            }
+            KineticsCabinet::get<InterfaceKinetics>(n).advanceCoverages(tstep);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
