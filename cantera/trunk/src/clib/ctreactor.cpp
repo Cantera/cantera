@@ -116,9 +116,9 @@ extern "C" {
     int reactor_setKineticsMgr(int i, int n)
     {
         try {
-            ReactorBase* r = &ReactorCabinet::item(i);
-            if (r->type() >= ReactorType) {
-                ((Reactor*)r)->setKineticsMgr(KineticsCabinet::item(n));
+            // @todo This should not fail silently
+            if (ReactorCabinet::item(i).type() >= ReactorType) {
+                ReactorCabinet::get<Reactor>(i).setKineticsMgr(KineticsCabinet::item(n));
             }
             return 0;
         } catch (...) {
@@ -233,9 +233,9 @@ extern "C" {
     int reactor_setEnergy(int i, int eflag)
     {
         try {
-            ReactorBase* r = &ReactorCabinet::item(i);
-            if (r->type() >= ReactorType) {
-                ((Reactor*)r)->setEnergy(eflag);
+            // @todo This should not fail silently
+            if (ReactorCabinet::item(i).type() >= ReactorType) {
+                ReactorCabinet::get<Reactor>(i).setEnergy(eflag);
             }
             return 0;
         } catch (...) {
@@ -246,10 +246,7 @@ extern "C" {
     int flowReactor_setMassFlowRate(int i, double mdot)
     {
         try {
-            ReactorBase* r = &ReactorCabinet::item(i);
-            if (r->type() >= ReactorType) {
-                ((FlowReactor*)r)->setMassFlowRate(mdot);
-            }
+            ReactorCabinet::get<FlowReactor>(i).setMassFlowRate(mdot);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -259,13 +256,7 @@ extern "C" {
     size_t reactor_nSensParams(int i)
     {
         try {
-            ReactorBase* r = &ReactorCabinet::item(i);
-            if (r->type() >= ReactorType) {
-                return ((Reactor*)r)->nSensParams();
-            } else {
-                std::cout << "type problem..." << r->type() << std::endl;
-                return 0;
-            }
+            return ReactorCabinet::get<Reactor>(i).nSensParams();
         } catch (...) {
             return handleAllExceptions(npos, npos);
         }
@@ -274,8 +265,7 @@ extern "C" {
     int reactor_addSensitivityReaction(int i, int rxn)
     {
         try {
-            ReactorBase* r = &ReactorCabinet::item(i);
-            ((Reactor*)r)->addSensitivityReaction(rxn);
+            ReactorCabinet::get<Reactor>(i).addSensitivityReaction(rxn);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -480,10 +470,8 @@ extern "C" {
     int flowdev_setMaster(int i, int n)
     {
         try {
-            if (FlowDeviceCabinet::item(i).type() == PressureController_Type) {
-                dynamic_cast<PressureController&>(FlowDeviceCabinet::item(i)).setMaster(
-                    &FlowDeviceCabinet::item(n));
-            }
+            ReactorCabinet::get<PressureController>(i).setMaster(
+                &FlowDeviceCabinet::item(n));
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
