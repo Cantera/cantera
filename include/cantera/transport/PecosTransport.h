@@ -24,8 +24,6 @@
 #include <math.h>
 #include <stdio.h>
 
-using namespace std;
-
 // Cantera includes
 #include "TransportBase.h"
 #include "cantera/numerics/DenseMatrix.h"
@@ -207,10 +205,10 @@ private:
     vector_fp  m_mw;
 
     // polynomial fits
-    vector<vector_fp>            m_visccoeffs;
-    vector<vector_fp>            m_condcoeffs;
-    vector<vector_fp>            m_diffcoeffs;
-    vector_fp                    m_polytempvec;
+    std::vector<vector_fp> m_visccoeffs;
+    std::vector<vector_fp> m_condcoeffs;
+    std::vector<vector_fp> m_diffcoeffs;
+    vector_fp  m_polytempvec;
 
     // blottner fits
     //int species = 20;
@@ -224,11 +222,11 @@ private:
 
     vector_fp                    m_molefracs;
 
-    vector<vector<int> > m_poly;
-    vector<vector_fp >   m_astar_poly;
-    vector<vector_fp >   m_bstar_poly;
-    vector<vector_fp >   m_cstar_poly;
-    vector<vector_fp >   m_om22_poly;
+    std::vector<std::vector<int> > m_poly;
+    std::vector<vector_fp> m_astar_poly;
+    std::vector<vector_fp> m_bstar_poly;
+    std::vector<vector_fp> m_cstar_poly;
+    std::vector<vector_fp> m_om22_poly;
     DenseMatrix          m_astar;
     DenseMatrix          m_bstar;
     DenseMatrix          m_cstar;
