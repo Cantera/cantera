@@ -9,7 +9,7 @@ localenv.Append(CPPPATH=['#ext/gtest/include', '#include'],
                 LIBS=['gtest'] + localenv['cantera_libs'])
 
 localenv['ENV']['PYTHONPATH'] = Dir('#interfaces/python').abspath
-localenv['ENV']['CANTERA_DATA'] = Dir('#data/inputs').abspath
+localenv['ENV']['CANTERA_DATA'] = Dir('#build/data').abspath
 
 # Needed for Intel runtime libraries when compiling with ICC
 if 'LD_LIBRARY_PATH' in os.environ:
