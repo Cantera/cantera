@@ -89,7 +89,7 @@ extern "C" {
     size_t mix_elementIndex(int i, char* name)
     {
         try {
-            return mixCabinet::item(i).elementIndex(string(name));
+            return mixCabinet::item(i).elementIndex(name);
         } catch (...) {
             return handleAllExceptions(npos, npos);
         }
@@ -179,7 +179,7 @@ extern "C" {
     int mix_setMolesByName(int i, char* n)
     {
         try {
-            mixCabinet::item(i).setMolesByName(string(n));
+            mixCabinet::item(i).setMolesByName(n);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);

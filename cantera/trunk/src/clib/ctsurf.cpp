@@ -50,7 +50,7 @@ extern "C" {
     int surf_setcoveragesbyname(int i, char* c)
     {
         try {
-            ThermoCabinet::get<SurfPhase>(i).setCoveragesByName(string(c));
+            ThermoCabinet::get<SurfPhase>(i).setCoveragesByName(c);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);

@@ -101,7 +101,7 @@ extern "C" {
     size_t domain_componentIndex(int i, char* name)
     {
         try {
-            return DomainCabinet::item(i).componentIndex(string(name));
+            return DomainCabinet::item(i).componentIndex(name);
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -200,8 +200,7 @@ extern "C" {
     int domain_setID(int i, char* id)
     {
         try {
-            string s = string(id);
-            DomainCabinet::item(i).setID(s);
+            DomainCabinet::item(i).setID(id);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -212,8 +211,7 @@ extern "C" {
     int domain_setDesc(int i, char* desc)
     {
         try {
-            string s = string(desc);
-            DomainCabinet::item(i).setDesc(s);
+            DomainCabinet::item(i).setDesc(desc);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -224,8 +222,7 @@ extern "C" {
     int inlet_new()
     {
         try {
-            Inlet1D* i = new Inlet1D();
-            return DomainCabinet::add(i);
+            return DomainCabinet::add(new Inlet1D());
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -234,8 +231,7 @@ extern "C" {
     int surf_new()
     {
         try {
-            Surf1D* i = new Surf1D();
-            return DomainCabinet::add(i);
+            return DomainCabinet::add(new Surf1D());
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -244,8 +240,7 @@ extern "C" {
     int reactingsurf_new()
     {
         try {
-            Domain1D* i = new ReactingSurf1D();
-            return DomainCabinet::add(i);
+            return DomainCabinet::add(new ReactingSurf1D());
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -254,8 +249,7 @@ extern "C" {
     int symm_new()
     {
         try {
-            Symm1D* i = new Symm1D();
-            return DomainCabinet::add(i);
+            return DomainCabinet::add(new Symm1D());
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -264,8 +258,7 @@ extern "C" {
     int outlet_new()
     {
         try {
-            Outlet1D* i = new Outlet1D();
-            return DomainCabinet::add(i);
+            return DomainCabinet::add(new Outlet1D());
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -274,8 +267,7 @@ extern "C" {
     int outletres_new()
     {
         try {
-            OutletRes1D* i = new OutletRes1D();
-            return DomainCabinet::add(i);
+            return DomainCabinet::add(new OutletRes1D());
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -304,7 +296,7 @@ extern "C" {
     int bdry_setMoleFractions(int i, char* x)
     {
         try {
-            DomainCabinet::get<Bdry1D>(i).setMoleFractions(string(x));
+            DomainCabinet::get<Bdry1D>(i).setMoleFractions(x);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -341,8 +333,7 @@ extern "C" {
     int reactingsurf_setkineticsmgr(int i, int j)
     {
         try {
-            InterfaceKinetics& k =
-                dynamic_cast<InterfaceKinetics&>(Cabinet<Kinetics>::item(j));
+            InterfaceKinetics& k = Cabinet<Kinetics>::get<InterfaceKinetics>(j);
             DomainCabinet::get<ReactingSurf1D>(i).setKineticsMgr(&k);
             return 0;
         } catch (...) {
@@ -375,7 +366,7 @@ extern "C" {
     int stflow_new(int iph, int ikin, int itr, int itype)
     {
         try {
-            IdealGasPhase& ph = dynamic_cast<IdealGasPhase&>(ThermoCabinet::item(iph));
+            IdealGasPhase& ph = ThermoCabinet::get<IdealGasPhase>(iph);
             if (itype == 1) {
                 AxiStagnFlow* x = new AxiStagnFlow(&ph, ph.nSpecies(), 2);
                 x->setKinetics(KineticsCabinet::item(ikin));
@@ -398,10 +389,7 @@ extern "C" {
     int stflow_setTransport(int i, int itr, int iSoret)
     {
         try {
-            bool withSoret = false;
-            if (iSoret > 0) {
-                withSoret = true;
-            }
+            bool withSoret = (iSoret > 0);
             DomainCabinet::get<StFlow>(i).setTransport(TransportCabinet::item(itr), withSoret);
             return 0;
         } catch (...) {
@@ -412,10 +400,7 @@ extern "C" {
     int stflow_enableSoret(int i, int iSoret)
     {
         try {
-            bool withSoret = false;
-            if (iSoret > 0) {
-                withSoret = true;
-            }
+            bool withSoret = (iSoret > 0);
             DomainCabinet::get<StFlow>(i).enableSoret(withSoret);
             return 0;
         } catch (...) {
@@ -489,8 +474,7 @@ extern "C" {
             for (size_t n = 0; n < nd; n++) {
                 d.push_back(&DomainCabinet::item(domains[n]));
             }
-            Sim1D* s = new Sim1D(d);
-            return SimCabinet::add(s);
+            return SimCabinet::add(new Sim1D(d));
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -630,10 +614,7 @@ extern "C" {
     int sim1D_save(int i, char* fname, char* id, char* desc)
     {
         try {
-            string sname = string(fname);
-            string sid = string(id);
-            string sdesc = string(desc);
-            SimCabinet::item(i).save(sname, sid, sdesc);
+            SimCabinet::item(i).save(fname, id, desc);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -643,9 +624,7 @@ extern "C" {
     int sim1D_restore(int i, char* fname, char* id)
     {
         try {
-            string sname = string(fname);
-            string sid = string(id);
-            SimCabinet::item(i).restore(sname, sid);
+            SimCabinet::item(i).restore(fname, id);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -665,7 +644,7 @@ extern "C" {
     int sim1D_domainIndex(int i, char* name)
     {
         try {
-            return (int) SimCabinet::item(i).domainIndex(string(name));
+            return (int) SimCabinet::item(i).domainIndex(name);
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }

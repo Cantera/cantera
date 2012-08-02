@@ -129,12 +129,8 @@ extern "C" {
     int reactor_advance(int i, double t)
     {
         try {
-            try {
-                ReactorCabinet::item(i).advance(t);
-                return 0;
-            } catch (...) {
-                return handleAllExceptions(-1, ERR);
-            }
+            ReactorCabinet::item(i).advance(t);
+            return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -278,8 +274,7 @@ extern "C" {
     int reactornet_new()
     {
         try {
-            ReactorNet* r = new ReactorNet();
-            return NetworkCabinet::add(r);
+            return NetworkCabinet::add(new ReactorNet());
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -520,11 +515,7 @@ extern "C" {
     int flowdev_ready(int i)
     {
         try {
-            bool ok = FlowDeviceCabinet::item(i).ready();
-            if (ok) {
-                return 1;
-            }
-            return 0;
+            return int(FlowDeviceCabinet::item(i).ready());
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -537,9 +528,7 @@ extern "C" {
     int wall_new(int type)
     {
         try {
-            Wall* r;
-            r = new Wall();
-            return WallCabinet::add(r);
+            return WallCabinet::add(new Wall());
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -588,14 +577,12 @@ extern "C" {
     {
         try {
             Kinetics* left=0, *right=0;
-            if (n > 0)
-                if (KineticsCabinet::item(n).type() == cInterfaceKinetics) {
-                    left = &KineticsCabinet::item(n);
-                }
-            if (m > 0)
-                if (KineticsCabinet::item(m).type() == cInterfaceKinetics) {
-                    right = &KineticsCabinet::item(m);
-                }
+            if (n > 0 && KineticsCabinet::item(n).type() == cInterfaceKinetics) {
+                left = &KineticsCabinet::item(n);
+            }
+            if (m > 0 && KineticsCabinet::item(m).type() == cInterfaceKinetics) {
+                right = &KineticsCabinet::item(m);
+            }
             WallCabinet::item(i).setKinetics(left, right);
             return 0;
         } catch (...) {
@@ -703,11 +690,7 @@ extern "C" {
     int wall_ready(int i)
     {
         try {
-            if (WallCabinet::item(i).ready()) {
-                return 1;
-            } else {
-                return 0;
-            }
+            return int(WallCabinet::item(i).ready());
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
