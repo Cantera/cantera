@@ -25,26 +25,6 @@ typedef Cabinet<ThermoPhase> ThermoCabinet;
 typedef Cabinet<Kinetics> KineticsCabinet;
 typedef Cabinet<Transport> TransportCabinet;
 
-static StFlow* _stflow(int i)
-{
-    Domain1D* d = &DomainCabinet::item(i);
-    if (d->domainType() == cFlowType) {
-        return dynamic_cast<StFlow*>(d);
-    } else {
-        throw CanteraError("_stflow","wrong domain type");
-    }
-    return 0;
-}
-
-static Bdry1D* _bdry(int i)
-{
-    Domain1D* d = &DomainCabinet::item(i);
-    if (! d->isConnector()) {
-        throw CanteraError("_bdry","wrong domain type: " +int2str(d->domainType()));
-    }
-    return dynamic_cast<Bdry1D*>(d);
-}
-
 extern "C" {
 
     int domain_clear()
@@ -304,7 +284,7 @@ extern "C" {
     int bdry_setMdot(int i, double mdot)
     {
         try {
-            _bdry(i)->setMdot(mdot);
+            DomainCabinet::get<Bdry1D>(i).setMdot(mdot);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -314,7 +294,7 @@ extern "C" {
     int bdry_setTemperature(int i, double t)
     {
         try {
-            _bdry(i)->setTemperature(t);
+            DomainCabinet::get<Bdry1D>(i).setTemperature(t);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -324,7 +304,7 @@ extern "C" {
     int bdry_setMoleFractions(int i, char* x)
     {
         try {
-            _bdry(i)->setMoleFractions(string(x));
+            DomainCabinet::get<Bdry1D>(i).setMoleFractions(string(x));
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -334,7 +314,7 @@ extern "C" {
     double bdry_temperature(int i)
     {
         try {
-            return _bdry(i)->temperature();
+            return DomainCabinet::get<Bdry1D>(i).temperature();
         } catch (...) {
             return handleAllExceptions(DERR, DERR);
         }
@@ -343,7 +323,7 @@ extern "C" {
     double bdry_massFraction(int i, int k)
     {
         try {
-            return _bdry(i)->massFraction(k);
+            return DomainCabinet::get<Bdry1D>(i).massFraction(k);
         } catch (...) {
             return handleAllExceptions(DERR, DERR);
         }
@@ -352,7 +332,7 @@ extern "C" {
     double bdry_mdot(int i)
     {
         try {
-            return _bdry(i)->mdot();
+            return DomainCabinet::get<Bdry1D>(i).mdot();
         } catch (...) {
             return handleAllExceptions(DERR, DERR);
         }
@@ -361,10 +341,9 @@ extern "C" {
     int reactingsurf_setkineticsmgr(int i, int j)
     {
         try {
-            ReactingSurf1D* srf = (ReactingSurf1D*)_bdry(i);
-            InterfaceKinetics* k =
-                dynamic_cast<InterfaceKinetics*>(&Cabinet<Kinetics>::item(j));
-            srf->setKineticsMgr(k);
+            InterfaceKinetics& k =
+                dynamic_cast<InterfaceKinetics&>(Cabinet<Kinetics>::item(j));
+            DomainCabinet::get<ReactingSurf1D>(i).setKineticsMgr(&k);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -374,8 +353,7 @@ extern "C" {
     int reactingsurf_enableCoverageEqs(int i, int onoff)
     {
         try {
-            ReactingSurf1D* srf = (ReactingSurf1D*)_bdry(i);
-            srf->enableCoverageEquations(onoff != 0);
+            DomainCabinet::get<ReactingSurf1D>(i).enableCoverageEquations(onoff != 0);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -385,8 +363,7 @@ extern "C" {
     int inlet_setSpreadRate(int i, double v)
     {
         try {
-            Inlet1D* inlt = (Inlet1D*)_bdry(i);
-            inlt->setSpreadRate(v);
+            DomainCabinet::get<Inlet1D>(i).setSpreadRate(v);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -398,14 +375,14 @@ extern "C" {
     int stflow_new(int iph, int ikin, int itr, int itype)
     {
         try {
-            IdealGasPhase* ph = dynamic_cast<IdealGasPhase*>(&ThermoCabinet::item(iph));
+            IdealGasPhase& ph = dynamic_cast<IdealGasPhase&>(ThermoCabinet::item(iph));
             if (itype == 1) {
-                AxiStagnFlow* x = new AxiStagnFlow(ph, ph->nSpecies(), 2);
+                AxiStagnFlow* x = new AxiStagnFlow(&ph, ph.nSpecies(), 2);
                 x->setKinetics(KineticsCabinet::item(ikin));
                 x->setTransport(TransportCabinet::item(itr));
                 return DomainCabinet::add(x);
             } else if (itype == 2) {
-                FreeFlame* x = new FreeFlame(ph, ph->nSpecies(), 2);
+                FreeFlame* x = new FreeFlame(&ph, ph.nSpecies(), 2);
                 x->setKinetics(KineticsCabinet::item(ikin));
                 x->setTransport(TransportCabinet::item(itr));
                 return DomainCabinet::add(x);
@@ -425,7 +402,7 @@ extern "C" {
             if (iSoret > 0) {
                 withSoret = true;
             }
-            _stflow(i)->setTransport(TransportCabinet::item(itr), withSoret);
+            DomainCabinet::get<StFlow>(i).setTransport(TransportCabinet::item(itr), withSoret);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -439,7 +416,7 @@ extern "C" {
             if (iSoret > 0) {
                 withSoret = true;
             }
-            _stflow(i)->enableSoret(withSoret);
+            DomainCabinet::get<StFlow>(i).enableSoret(withSoret);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -449,7 +426,7 @@ extern "C" {
     int stflow_setPressure(int i, double p)
     {
         try {
-            _stflow(i)->setPressure(p);
+            DomainCabinet::get<StFlow>(i).setPressure(p);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -465,7 +442,7 @@ extern "C" {
                 vpos[j] = pos[j];
                 vtemp[j] = temp[j];
             }
-            _stflow(i)->setFixedTempProfile(vpos, vtemp);
+            DomainCabinet::get<StFlow>(i).setFixedTempProfile(vpos, vtemp);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -477,9 +454,9 @@ extern "C" {
     {
         try {
             if (flag > 0) {
-                _stflow(i)->solveSpecies(npos);
+                DomainCabinet::get<StFlow>(i).solveSpecies(npos);
             } else {
-                _stflow(i)->fixSpecies(npos);
+                DomainCabinet::get<StFlow>(i).fixSpecies(npos);
             }
             return 0;
         } catch (...) {
@@ -492,9 +469,9 @@ extern "C" {
     {
         try {
             if (flag > 0) {
-                _stflow(i)->solveEnergyEqn(npos);
+                DomainCabinet::get<StFlow>(i).solveEnergyEqn(npos);
             } else {
-                _stflow(i)->fixTemperature(npos);
+                DomainCabinet::get<StFlow>(i).fixTemperature(npos);
             }
             return 0;
         } catch (...) {
