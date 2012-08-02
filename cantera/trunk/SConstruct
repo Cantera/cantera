@@ -1003,6 +1003,23 @@ env.SConsignFile()
 env.Append(CPPPATH=[],
            LIBPATH=[Dir('build/lib')])
 
+# preprocess input files (cti -> xml)
+convertedInputFiles = set()
+for cti in mglob(env, 'data/inputs', 'cti'):
+    build(env.Command('build/data/%s' % cti.name, cti.path,
+                      Copy('$TARGET', '$SOURCE')))
+    outName = os.path.splitext(cti.name)[0] + '.xml'
+    convertedInputFiles.add(outName)
+    build(env.Command('build/data/%s' % outName, cti.path,
+                      '$python_cmd interfaces/python/ctml_writer.py $SOURCE $TARGET'))
+
+
+# Copy input files which are not present as cti:
+for xml in mglob(env, 'data/inputs', 'xml'):
+    dest = pjoin('build','data',xml.name)
+    if xml.name not in convertedInputFiles:
+        build(env.Command(dest, xml.path, Copy('$TARGET', '$SOURCE')))
+
 if addInstallActions:
     # Put headers in place
     headerBase = 'include/cantera'
@@ -1039,7 +1056,7 @@ if addInstallActions:
                         pjoin(headerdir, name, filename), cmd)
 
     # Data files
-    install('$inst_datadir', mglob(env, pjoin('data','inputs'), 'cti', 'xml'))
+    install('$inst_datadir', mglob(env, pjoin('build','data'), 'cti', 'xml'))
 
     # Converter scripts
     pyExt = '.py' if env['OS'] == 'Windows' else ''

@@ -297,7 +297,7 @@ def ufmt(base, n):
     if n > 0: return '-'+base+str(n)
     if n < 0: return '/'+base+str(-n)
 
-def write():
+def write(outName=None):
     """write the CTML file."""
     x = XMLnode("ctml")
     v = x.addChild("validate")
@@ -319,7 +319,9 @@ def write():
     for rx in _reactions:
         rx.build(r)
 
-    if _name != 'noname':
+    if outName is not None:
+        x.write(outName)
+    elif _name != 'noname':
         x.write(_name+'.xml')
     else:
         print x
@@ -2384,7 +2386,7 @@ class Lindemann:
 #get_atomic_wts()
 validate()
 
-def convert(filename):
+def convert(filename, outName=None):
     import os, sys
     base = os.path.basename(filename)
     root, _ = os.path.splitext(base)
@@ -2426,8 +2428,10 @@ def convert(filename):
 
         sys.exit(4)
 
-    write()
+    write(outName)
 
 if __name__ == "__main__":
     import sys
-    convert(sys.argv[1])
+    if len(sys.argv) not in (2,3):
+        raise ValueError('Incorrect number of command line arguments.')
+    convert(*sys.argv[1:])
