@@ -658,4 +658,14 @@ void tokenizeString(const std::string& oval,
 }
 //================================================================================================
 
+void copyString(const std::string& source, char* dest, size_t length)
+{
+    const char* c_src = source.c_str();
+    size_t N = std::min(length, source.length()+1);
+    std::copy(c_src, c_src + N, dest);
+    if (length != 0) {
+        dest[length-1] = '\0';
+    }
+}
+
 }
