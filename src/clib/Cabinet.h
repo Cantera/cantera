@@ -166,6 +166,19 @@ public:
     }
 
     /**
+     * Return a reference to object n, cast to a reference of the specified type.
+     */
+    template <class T>
+    static T& get(size_t n) {
+        T* x = dynamic_cast<T*>(&item(n));
+        if (x == 0) {
+            throw Cantera::CanteraError("Cabinet::get",
+                                        "Item is not of the correct type.");
+        }
+        return *x;
+    }
+
+    /**
      * Return the index in the Cabinet to the specified object, or -1
      * if the object is not in the cabinet.
      */
