@@ -278,10 +278,13 @@ CompileAndTest('surfSolver2', 'surfSolverTest', 'surfaceSolver2', None,
                comparisons=[('results2_blessed.txt', 'results2.txt')],
                artifacts=['results2.txt', 'diamond.xml'],
                extensions=['^surfaceSolver2.cpp'])
-CompileAndTest('VCSnonideal', pjoin('VCSnonideal', 'NaCl_equil'),
+CompileAndTest('VCS-NaCl', pjoin('VCSnonideal', 'NaCl_equil'),
                'nacl_equil', 'good_out.txt',
                options='-d 3',
                artifacts=['vcs_equilibrate_res.csv']), # not testing this file because it's not really csv
+CompileAndTest('VCS-LiSi', pjoin('VCSnonideal', 'LatticeSolid_LiSi'),
+               'latticeSolid_LiSi', 'output_blessed.txt',
+               artifacts=['vcs_equilibrate_res.csv'])
 CompileAndTest('VPsilane_test', 'VPsilane_test', 'VPsilane_test', 'output_blessed.txt')
 
 # Python Tests
