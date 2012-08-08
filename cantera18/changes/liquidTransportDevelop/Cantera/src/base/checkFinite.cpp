@@ -22,6 +22,7 @@
 #include <cmath>
 #include <cstdlib>
 #include <cstdio>
+#include "mdp_allo.h"
 
 // We expect that there will be special casing based on the computer 
 // system here
