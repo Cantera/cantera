@@ -26,7 +26,6 @@ using namespace std;
 #include "TransportFactory.h"
 
 using namespace Cantera;
-using namespace Cantera_CXX;
 
 int main(int argc, char** argv) 
 {
