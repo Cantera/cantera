@@ -418,35 +418,6 @@ public:
      */
     virtual void setDensity(const doublereal dens);
 
-
-    //! Initialization of a pure water phase using an
-    //! xml file.
-    /*!
-     * This routine is a precursor to constructPhaseXML(XML_Node*)
-     * routine, which does most of the work.
-     *
-     * @param inputFile String name of the file.
-     *
-     * @param id  Optional parameter identifying the name of the
-     *            phase. If none is given, the first XML
-     *            phase element will be used.
-     */
-    void constructPhaseFile(std::string inputFile, std::string id);
-
-
-    //! Initialization of a pure water phase using an  xml file.
-    /*!
-     * This calls importPhase() to do the work.
-     *
-     * @param phaseNode XML file containing the description of the
-     *                  phase
-     *
-     * @param id  Optional parameter identifying the name of the
-     *            phase. If none is given, the first XML
-     *            phase element will be used.
-     */
-    void constructPhaseXML(XML_Node& phaseNode, std::string id);
-
     //!Import and initialize a ThermoPhase object  using an XML tree.
     /*!
      * @internal

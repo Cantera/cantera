@@ -37,7 +37,6 @@ WaterSSTP::WaterSSTP() :
     m_ready(false),
     m_allowGasPhase(false)
 {
-    //constructPhase();
 }
 
 
@@ -51,7 +50,7 @@ WaterSSTP::WaterSSTP(std::string inputFile, std::string id) :
     m_ready(false),
     m_allowGasPhase(false)
 {
-    constructPhaseFile(inputFile, id);
+    initThermoFile(inputFile, id);
 }
 
 
@@ -65,9 +64,8 @@ WaterSSTP::WaterSSTP(XML_Node& phaseRoot, std::string id) :
     m_ready(false),
     m_allowGasPhase(false)
 {
-    constructPhaseXML(phaseRoot, id) ;
+    importPhase(*findXMLPhase(&phaseRoot, id), this);
 }
-
 
 
 WaterSSTP::WaterSSTP(const WaterSSTP& b) :
@@ -124,79 +122,6 @@ WaterSSTP::~WaterSSTP()
     delete m_sub;
     delete m_waterProps;
 }
-
-
-
-
-/*
- * @param infile XML file containing the description of the
- *        phase
- *
- * @param id  Optional parameter identifying the name of the
- *            phase. If none is given, the first XML
- *            phase element will be used.
- */
-void WaterSSTP::constructPhaseXML(XML_Node& phaseNode, std::string id)
-{
-
-    /*
-     * Call the Cantera importPhase() function. This will import
-     * all of the species into the phase. This will also handle
-     * all of the solvent and solute standard states.
-     */
-    bool m_ok = importPhase(phaseNode, this);
-    if (!m_ok) {
-        throw CanteraError("initThermo","importPhase failed ");
-    }
-
-}
-
-/*
- * constructPhaseFile
- *
- *
- * This routine is a precursor to constructPhaseXML(XML_Node*)
- * routine, which does most of the work.
- *
- * @param inputFile XML file containing the description of the
- *        phase
- *
- * @param id  Optional parameter identifying the name of the
- *            phase. If none is given, the first XML
- *            phase element will be used.
- */
-void WaterSSTP::constructPhaseFile(std::string inputFile, std::string id)
-{
-
-    if (inputFile.size() == 0) {
-        throw CanteraError("WaterSSTP::constructPhaseFile",
-                           "input file is null");
-    }
-    std::string path = findInputFile(inputFile);
-    std::ifstream fin(path.c_str());
-    if (!fin) {
-        throw CanteraError("WaterSSTP::constructPhaseFile","could not open "
-                           +path+" for reading.");
-    }
-    /*
-     * The phase object automatically constructs an XML object.
-     * Use this object to store information.
-     */
-    XML_Node& phaseNode_XML = xml();
-    XML_Node* fxml = new XML_Node();
-    fxml->build(fin);
-    XML_Node* fxml_phase = findXMLPhase(fxml, id);
-    if (!fxml_phase) {
-        throw CanteraError("WaterSSTP::constructPhaseFile",
-                           "ERROR: Can not find phase named " +
-                           id + " in file named " + inputFile);
-    }
-    fxml_phase->copy(&phaseNode_XML);
-    constructPhaseXML(*fxml_phase, id);
-    delete fxml;
-}
-
-
 
 void WaterSSTP::initThermo()
 {
