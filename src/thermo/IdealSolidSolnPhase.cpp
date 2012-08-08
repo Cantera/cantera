@@ -57,7 +57,7 @@ IdealSolidSolnPhase::IdealSolidSolnPhase(std::string inputFile, std::string id,
         throw CanteraError(" IdealSolidSolnPhase Constructor",
                            " Illegal value of formGC");
     }
-    constructPhaseFile(inputFile, id);
+    initThermoFile(inputFile, id);
 }
 //====================================================================================================================
 IdealSolidSolnPhase::IdealSolidSolnPhase(XML_Node& root, std::string id,
@@ -75,7 +75,7 @@ IdealSolidSolnPhase::IdealSolidSolnPhase(XML_Node& root, std::string id,
         throw CanteraError(" IdealSolidSolnPhase Constructor",
                            " Illegal value of formGC");
     }
-    constructPhaseXML(root, id);
+    importPhase(*findXMLPhase(&root, id), this);
 }
 //====================================================================================================================
 IdealSolidSolnPhase::IdealSolidSolnPhase(const IdealSolidSolnPhase& b)
@@ -1074,18 +1074,19 @@ void IdealSolidSolnPhase::initThermo()
 }
 
 /*
- *   Import and initialize an IdealSolidSolnPhase phase
- *   specification in an XML tree into the current object.
- *   Here we read an XML description of the phase.
- *   We import descriptions of the elements that make up the
- *   species in a phase.
- *   We import information about the species, including their
- *   reference state thermodynamic polynomials. We then freeze
- *   the state of the species.
- *
- *   This routine calls importPhase() to do most of its work.
- *   Then, importPhase() calls initThermoXML() to finish
- *   off the work.
+ * @internal
+ *   Import and initialize a ThermoPhase object
+ *   using an XML tree.
+ *   Here we read extra information about the XML description
+ *   of a phase. Regular information about elements and species
+ *   and their reference state thermodynamic information
+ *   have already been read at this point.
+ *   For example, we do not need to call this function for
+ *   ideal gas equations of state.
+ *   This function is called from importPhase()
+ *   after the elements and the
+ *   species are initialized with default ideal solution
+ *   level data.
  *
  * @param phaseNode This object must be the phase node of a
  *             complete XML tree
@@ -1098,10 +1099,9 @@ void IdealSolidSolnPhase::initThermo()
  *             to see if phaseNode is pointing to the phase
  *             with the correct id.
  */
-void IdealSolidSolnPhase::
-constructPhaseXML(XML_Node& phaseNode, std::string id)
+void IdealSolidSolnPhase::initThermoXML(XML_Node& phaseNode, std::string id)
 {
-    string subname = "IdealSolidSolnPhase::constructPhaseXML";
+    string subname = "IdealSolidSolnPhase::initThermoXML";
     if (id.size() > 0) {
         string idp = phaseNode.id();
         if (idp != id) {
@@ -1151,129 +1151,6 @@ constructPhaseXML(XML_Node& phaseNode, std::string id)
     } else {
         throw CanteraError(subname.c_str(),
                            "Unspecified standardConc model");
-    }
-
-    bool m_ok = importPhase(phaseNode, this);
-    if (!m_ok) {
-        throw CanteraError(subname.c_str(),"importPhase failed ");
-    }
-}
-
-/*
- * Initialization of an IdealSolidSolnPhase phase using an
- * xml file
- *
- * This routine is a precursor to constructPhaseFile(XML_Node*)
- * routine, which does most of the work.
- *
- * @param infile XML file containing the description of the
- *        phase
- *
- * @param id  Optional parameter identifying the name of the
- *            phase. If none is given, the first XML
- *            phase element will be used.
- */
-void IdealSolidSolnPhase::
-constructPhaseFile(std::string inputFile, std::string id)
-{
-    if (inputFile.size() == 0) {
-        throw CanteraError("IdealSolidSolnPhase::constructPhaseFile",
-                           "input file is null");
-    }
-    string path = findInputFile(inputFile);
-    ifstream fin(path.c_str());
-    if (!fin) {
-        throw CanteraError("IdealSolidSolnPhase::constructPhaseFile","could not open "
-                           +path+" for reading.");
-    }
-    /*
-     * The phase object automatically constructs an XML object.
-     * Use this object to store information.
-     */
-    XML_Node& phaseNode_XML = xml();
-    XML_Node* fxml = new XML_Node();
-    fxml->build(fin);
-    XML_Node* fxml_phase = findXMLPhase(fxml, id);
-    if (!fxml_phase) {
-        throw CanteraError("IdealSolidSolnPhase::constructPhaseFile",
-                           "ERROR: Can not find phase named " +
-                           id + " in file named " + inputFile);
-    }
-    fxml_phase->copy(&phaseNode_XML);
-
-    constructPhaseXML(*fxml_phase, id);
-    delete fxml;
-}
-
-/*
- * @internal
- *   Import and initialize a ThermoPhase object
- *   using an XML tree.
- *   Here we read extra information about the XML description
- *   of a phase. Regular information about elements and species
- *   and their reference state thermodynamic information
- *   have already been read at this point.
- *   For example, we do not need to call this function for
- *   ideal gas equations of state.
- *   This function is called from importPhase()
- *   after the elements and the
- *   species are initialized with default ideal solution
- *   level data.
- *
- * @param phaseNode This object must be the phase node of a
- *             complete XML tree
- *             description of the phase, including all of the
- *             species data. In other words while "phase" must
- *             point to an XML phase object, it must have
- *             sibling nodes "speciesData" that describe
- *             the species in the phase.
- * @param id   ID of the phase. If nonnull, a check is done
- *             to see if phaseNode is pointing to the phase
- *             with the correct id.
- */
-void IdealSolidSolnPhase::initThermoXML(XML_Node& phaseNode, std::string id)
-{
-    string subname = "IdealSolidSolnPhase::initThermoXML";
-    /*
-     * Check on the thermo field. Must have:
-     * <thermo model="IdealSolidSolution" />
-     */
-    if (phaseNode.hasChild("thermo")) {
-        XML_Node& thNode = phaseNode.child("thermo");
-        string mStringa = thNode.attrib("model");
-        string mString = lowercase(mStringa);
-        if (mString != "idealsolidsolution") {
-            throw CanteraError(subname.c_str(),
-                               "Unknown thermo model: " + mStringa);
-        }
-    } else {
-        throw CanteraError(subname.c_str(),
-                           "Unspecified thermo model");
-    }
-
-    /*
-     * Form of the standard concentrations. Must have one of:
-     *
-     *     <standardConc model="unity" />
-     *     <standardConc model="molar_volume" />
-     *     <standardConc model="solvent_volume" />
-     */
-    if (phaseNode.hasChild("standardConc")) {
-        XML_Node& scNode = phaseNode.child("standardConc");
-        string formStringa = scNode.attrib("model");
-        string formString = lowercase(formStringa);
-        if (formString == "unity") {
-            m_formGC = 0;
-        } else if (formString == "molar_volume") {
-            m_formGC = 1;
-        } else if (formString == "solvent_volume") {
-            m_formGC = 2;
-        } else {
-            throw CanteraError(subname.c_str(),
-                               "Unknown standardConc model: " + formStringa);
-        }
-    } else {
-        throw CanteraError(subname.c_str(), "Unspecified standardConc model");
     }
 
     /*
