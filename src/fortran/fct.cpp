@@ -693,7 +693,7 @@ extern "C" {
     integer kin_start_(const integer* n, integer* p)
     {
         try {
-            return _fkin(n)->start(*p)+1;
+            return _fkin(n)->kineticsSpeciesIndex(0, *p)+1;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }

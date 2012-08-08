@@ -75,22 +75,4 @@ std::string IndexError::getMessage() const
     return ss.str();
 }
 
-// *** Warnings ***
-
-void deprecatedMethod(std::string classnm, std::string oldnm, std::string newnm)
-{
-    writelog(">>>> WARNING: method "+oldnm+" of class "+classnm
-             +" is deprecated.\n");
-    writelog("         Use method "+newnm+" instead.\n");
-    writelog("         (If you want to rescue this method from deprecated\n");
-    writelog("         status, see http://www.cantera.org/deprecated.html)");
-}
-
-void removeAtVersion(std::string func, std::string version)
-{
-    writelog("Removed procedure: "+func+"\n");
-    writelog("Removed in version: "+version+"\n");
-    throw CanteraError("removeAtVersion: "+ func,"procedure has been removed.");
-}
-
 } // namespace Cantera
