@@ -74,7 +74,7 @@ VCSNONIDEAL_OBJ = vcs_solve_TP.o vcs_VolPhase.o vcs_solve.o vcs_prob.o \
                   vcs_root1d.o vcs_rxnadj.o \
                   vcs_SpeciesProperties.o vcs_equilibrate.o \
                   vcs_prep.o vcs_species_thermo.o vcs_Gibbs.o vcs_phaseStability.o \
-                  vcs_solve_phaseStability.o vcs_rank.o vcs_phasePopProblem.o (DALT_OBJ)
+                  vcs_solve_phaseStability.o vcs_rank.o vcs_phasePopProblem.o $(DALT_OBJ)
 
 VCSNONIDEAL_H =   vcs_internal.h vcs_VolPhase.h vcs_solve.h vcs_prob.h \
                   vcs_IntStarStar.h    vcs_DoubleStarStar.h vcs_defs.h \
