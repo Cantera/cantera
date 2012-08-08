@@ -89,7 +89,7 @@ LatticePhase::~LatticePhase()
  */
 LatticePhase::LatticePhase(std::string inputFile, std::string id)
 {
-    constructPhaseFile(inputFile, id);
+    initThermoFile(inputFile, id);
 }
 
 // Full constructor for a water phase
@@ -99,7 +99,7 @@ LatticePhase::LatticePhase(std::string inputFile, std::string id)
  */
 LatticePhase::LatticePhase(XML_Node& phaseRef, std::string id)
 {
-    constructPhaseXML(phaseRef, id);
+    importPhase(*findXMLPhase(&phaseRef, id), this);
 }
 
 
@@ -117,80 +117,7 @@ ThermoPhase* LatticePhase::duplMyselfAsThermoPhase() const
     return (ThermoPhase*) igp;
 }
 
-/*
- * @param infile XML file containing the description of the
- *        phase
- *
- * @param id  Optional parameter identifying the name of the
- *            phase. If none is given, the first XML
- *            phase element will be used.
- */
-void LatticePhase::constructPhaseXML(XML_Node& phaseNode, std::string idTarget)
-{
-    std::string idattrib = phaseNode.id();
-    if (idTarget != idattrib) {
-        throw CanteraError("LatticePhase::constructPhaseXML","ids don't match");
-    }
-
-    /*
-     * Call the Cantera importPhase() function. This will import
-     * all of the species into the phase. This will also handle
-     * all of the solvent and solute standard states.
-     */
-    bool m_ok = importPhase(phaseNode, this);
-    if (!m_ok) {
-        throw CanteraError("LatticePhase::constructPhaseXML","importPhase failed ");
-    }
-}
-
-/*
- * constructPhaseFile
- *
- *
- * This routine is a precursor to constructPhaseXML(XML_Node*)
- * routine, which does most of the work.
- *
- * @param inputFile XML file containing the description of the
- *        phase
- *
- * @param id  Optional parameter identifying the name of the
- *            phase. If none is given, the first XML
- *            phase element will be used.
- */
-void LatticePhase::constructPhaseFile(std::string inputFile, std::string id)
-{
-
-    if (inputFile.size() == 0) {
-        throw CanteraError("LatticePhase::constructPhaseFile",
-                           "input file is null");
-    }
-    std::string path = findInputFile(inputFile);
-    std::ifstream fin(path.c_str());
-    if (!fin) {
-        throw CanteraError("LatticePhase::constructPhaseFile","could not open "
-                           +path+" for reading.");
-    }
-    /*
-     * The phase object automatically constructs an XML object.
-     * Use this object to store information.
-     */
-    XML_Node& phaseNode_XML = xml();
-    XML_Node* fxml = new XML_Node();
-    fxml->build(fin);
-    XML_Node* fxml_phase = findXMLPhase(fxml, id);
-    if (!fxml_phase) {
-        throw CanteraError("LatticePhase::constructPhaseFile",
-                           "ERROR: Can not find phase named " +
-                           id + " in file named " + inputFile);
-    }
-    fxml_phase->copy(&phaseNode_XML);
-    constructPhaseXML(*fxml_phase, id);
-    delete fxml;
-}
-
-
-doublereal LatticePhase::
-enthalpy_mole() const
+doublereal LatticePhase::enthalpy_mole() const
 {
     doublereal p0 = m_spthermo->refPressure();
     return GasConstant * temperature() *
@@ -503,6 +430,12 @@ void LatticePhase::initThermo()
 //====================================================================================================================
 void LatticePhase::initThermoXML(XML_Node& phaseNode, std::string id)
 {
+    std::string idattrib = phaseNode.id();
+    if (!id.empty() && id != idattrib) {
+        throw CanteraError("LatticePhase::initThermoXML",
+                           "ids don't match");
+    }
+
     std::string subname = "LatticePhase::initThermoXML";
     /*
      * Check on the thermo field. Must have:

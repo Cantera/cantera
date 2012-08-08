@@ -294,29 +294,6 @@ public:
      */
     ThermoPhase* duplMyselfAsThermoPhase() const;
 
-    //! Import and initialize a %LatticePhase phase specification from an XML tree into the current object.
-    /*!
-     * @param phaseNode  XML file containing the description of the phase
-     *
-     * @param idTarget   Optional parameter identifying the name of the
-     *                   phase. If none is given, the first XML  phase element is used.
-     */
-    void constructPhaseXML(XML_Node& phaseNode, std::string idTarget);
-
-    //! Initialization of a %LatticePhase phase using an xml file
-    /*!
-     *
-     * This routine is a precursor to constructPhaseXML(XML_Node*)
-     * routine, which does most of the work.
-     *
-     * @param inputFile XML file containing the description of the phase
-     *
-     * @param id        Optional parameter identifying the name of the
-     *                  phase. If none is given, the first XML
-     *                  phase element will be used.
-     */
-    void constructPhaseFile(std::string inputFile, std::string id);
-
     //! Equation of state flag. Returns the value cLattice
     virtual int eosType() const {
         return cLattice;
