@@ -187,15 +187,6 @@ void addFloatArray(Cantera::XML_Node& node,  const std::string& titleString,
                    const doublereal minval = Cantera::Undef,
                    const doublereal maxval = Cantera::Undef);
 
-void addNamedFloatArray(Cantera::XML_Node& parentNode, const std::string& name, const int n,
-                        const doublereal* const vals, const std::string units = "",
-                        const std::string type = "",
-                        const doublereal minval = Cantera::Undef,
-                        const doublereal maxval = Cantera::Undef);
-
-
-
-
 //!  This function adds a child node with the name string with a string value
 //!  to the current node
 /*!
@@ -699,59 +690,6 @@ doublereal getFloatDefaultUnits(const Cantera::XML_Node& parent, std::string nam
 bool getOptionalModel(const Cantera::XML_Node& parent, const std::string nodeName,
                       std::string& modelName);
 
-//!  This function reads a child node with the default name, "floatArray", with a value
-//!  consisting of a comma separated list of floats
-/*!
- *   This function will read a child node to the current XML node, with the
- *   name "floatArray". It will have a title attribute, and the body
- *   of the XML node will be filled out with a comma separated list of
- *   doublereals.
- *     Get an array of floats from the XML Node. The argument field
- *   is assumed to consist of an arbitrary number of comma
- *   separated floats, with an arbitrary amount of white space
- *   separating each field.
- *      If the node array has an units attribute field, then
- *   the units are used to convert the floats, iff convert is true.
- *      This function is a wrapper around the function getFloatArray().
- *
- *  Example:
- *
- * Code snippet:
- *       @verbatim
-   const XML_Node &State_XMLNode;
-   vector_fp v;
-   bool convert = true;
-   unitsString = "";
-   nodeName="floatArray";
-   getFloatArray(State_XMLNode, v, convert, unitsString, nodeName);
- @endverbatim
- *
- *  reads the corresponding XML file:
- *
- *  @verbatim
- <state>
-   <floatArray  units="m3">   32.4, 1, 100. <\floatArray>
- <\state>
- @endverbatim
- *
- *  Will produce the vector
- *
- *         v[0] = 32.4
- *         v[1] = 1.0
- *         v[2] = 100.
- *
- *
- *   @param  node         XML parent node of the floatArray
- *   @param  typeString   Returns the type attribute of the current node.
- *   @param  xmin         Returns the minimum value attribute of the
- *                        current node.
- *   @param  xmax         Returns the maximum value attribute of the
- *                        current node.
- *   @param  coeffs       Output vector of floats containing the floatArray information.
- */
-void getFunction(const Cantera::XML_Node& node, std::string& typeString,
-                 doublereal& xmin, doublereal& xmax, std::vector<doublereal> & coeffs);
-
 //! Search the child nodes of the current node for an XML Node with a Title
 //! attribute of a given name.
 /*!
@@ -762,40 +700,6 @@ void getFunction(const Cantera::XML_Node& node, std::string& typeString,
  *            found.
  */
 Cantera::XML_Node* getByTitle(const Cantera::XML_Node& node, const std::string& title);
-
-//!  This function reads a child node with the name string with a specific
-//!  title attribute named titleString
-/*!
- *   This function will read a child node to the current XML node with the name "string".
- *   It must have a title attribute, named titleString, and the body
- *   of the XML node will be read into the valueString output argument.
- *
- *   If the child node is not found then the empty string is returned.
- *
- *  Example:
- *
- * Code snippet:
- *       @verbatim
-   const XML_Node &node;
-   getString(XML_Node& node, std::string titleString, std::string valueString,
-   std::string typeString);
- @endverbatim
- *
- *  Reads the following the snippet in the XML file:
- *  @verbatim
-   <string title="titleString" type="typeString">
-     valueString
-   <\string>
- @endverbatim
- *
- *   @param node          Reference to the XML_Node object of the parent XML element
- *   @param titleString   String name of the title attribute of the child node
- *   @param valueString   Value string that is found in the child node. output variable
- *   @param typeString    String type. This is an optional output variable. It is filled
- *                        with the attribute "type" of the XML entry.
- */
-void getString(const Cantera::XML_Node& node, const std::string& titleString,
-               std::string& valueString, std::string& typeString);
 
 //!  This function attempts to read a named child node and returns with the contents in the value string.
 //!  title attribute named "titleString"

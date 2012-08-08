@@ -822,8 +822,8 @@ void TransportFactory::getTransportData(const std::vector<const XML_Node*> &xspe
         // parameters are converted to SI units before storing
 
         // Molecular geometry; rotational heat capacity / R
-        std::string geom, type;
-        ctml::getString(node, "geometry", geom, type);
+        XML_Node* geomNode = ctml::getByTitle(node, "geometry");
+        std::string geom = (geomNode) ? geomNode->value() : "";
         if (geom == "atom") {
             tr.crot[j] = 0.0;
         } else if (geom == "linear") {
