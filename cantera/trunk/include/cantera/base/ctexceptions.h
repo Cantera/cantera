@@ -178,32 +178,6 @@ private:
     size_t m_, mmax_;
 };
 
-
-//! Print a warning when a deprecated method is called.
-/*!
- * These methods are slated to go away in future releases of Cantera.
- * The developer should work towards eliminating the use of these
- * methods in the near future.
- *
- * @param classnm Class the method belongs to
- * @param oldnm Name of the deprecated method
- * @param newnm Name of the method users should use instead
- *
- * @ingroup errorhandling
- */
-void deprecatedMethod(std::string classnm, std::string oldnm, std::string newnm);
-
-//! Throw an error condition for a procedure that has been removed.
-/*!
- *
- * @param func String name for the function within which the error was
- *             generated.
- * @param version Version of Cantera that first removed this function.
- *
- * @ingroup errorhandling
- */
-void removeAtVersion(std::string func, std::string version);
-
 //! Provides a line number
 #define XSTR_TRACE_LINE(s) STR_TRACE_LINE(s)
 

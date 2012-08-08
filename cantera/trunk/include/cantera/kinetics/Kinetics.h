@@ -321,19 +321,6 @@ public:
     }
 
     /**
-     * Returns the starting index of the species in the nth phase
-     * associated with the reaction mechanism.
-     *
-     * @param n Return the index of first species in the nth phase
-     *          associated with the reaction mechanism.
-     */
-    size_t start(size_t n) {
-        deprecatedMethod("Kinetics","start","kineticsSpeciesIndex(0,n)");
-        return m_start[n];
-    }
-
-
-    /**
      * The location of species k of phase n in species arrays.
      * Kinetics manager classes return species production rates in
      * flat arrays, with the species of each phases following one
