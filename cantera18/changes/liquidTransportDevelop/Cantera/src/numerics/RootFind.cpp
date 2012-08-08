@@ -15,9 +15,7 @@
 #include "RootFind.h"
 
 #include "global.h"
-#ifdef DEBUG_MODE
 #include "mdp_allo.h"
-#endif
 #include "stringUtils.h"
 /* Standard include files */
 
