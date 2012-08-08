@@ -100,7 +100,6 @@ namespace Cantera {
 
 
 
-
   /* Set transport model parameters. This method may be
    * overloaded in subclasses to set model-specific parameters.
    */
@@ -116,10 +115,25 @@ namespace Cantera {
       m_thermo = &thermo;
       m_nmin = m_thermo->nSpecies();
     }
-    else 
-      throw CanteraError("Transport::setThermo",
-			 "the phase object cannot be changed after "
-			 "the transport manager has been constructed.");
+    else  {
+      int newNum = thermo.nSpecies();
+      int oldNum = m_thermo->nSpecies();
+      if (newNum != oldNum) { 
+        throw CanteraError("Transport::setThermo",
+                           "base object cannot be changed after "
+			   "the transport manager has been constructed because num species isn't the same.");
+      }
+      for (int i = 0; i < newNum; i++) {
+        std::string newS0 = thermo.speciesName(i);
+        std::string oldS0 = m_thermo->speciesName(i);
+        if (newNum != oldNum) {
+          throw CanteraError("Transport::setThermo",
+                           "base object cannot be changed after "
+                           "the transport manager has been constructed because species names are not the same");
+        }
+      }
+      m_thermo = &thermo;
+    }
   }
 
 

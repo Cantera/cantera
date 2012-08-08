@@ -846,14 +846,24 @@ namespace Cantera {
       return false; 
     }
     
+  public:
     //! Specifies the %ThermPhase object. 
     /*!
+     *  We have relaxed this operation so that it will succeed when 
+     *  the underlying old and new ThermoPhase objects have the same
+     *  number of species and the same names of the species in the
+     *  same order. The idea here is to allow copy constructors and duplicators
+     *  to work. In order for them to work, we need a method to switch the
+     *  internal pointer within the Transport object after the duplication
+     *  takes place.  Also, different thermodynamic instanteations of the same
+     *  species should also work.
+     *
      *   @param   thermo  Reference to the ThermoPhase object that
      *                    the transport object will use
      */ 
-    void setThermo(thermo_t& thermo);
+    virtual void setThermo(thermo_t& thermo);
 
-    
+  protected: 
     //! Enable the transport object for use.
     /*!
      * Once finalize() has been called, the
