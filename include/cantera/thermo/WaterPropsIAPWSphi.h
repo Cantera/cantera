@@ -15,6 +15,9 @@
 
 #include "cantera/base/config.h"
 
+namespace Cantera
+{
+
 /*!
  * the WaterPropsIAPSWSphi class support low level calls for
  * the real description of water.
@@ -221,4 +224,6 @@ private:
     //! Last delta that was used to calculate polynomials
     doublereal DELTAsave;
 };
+
+} // namespace Cantera
 #endif

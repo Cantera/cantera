@@ -13,6 +13,9 @@
 #include <cstdio>
 #include <cmath>
 
+namespace Cantera
+{
+
 using std::printf;
 using std::sqrt;
 using std::log;
@@ -1308,3 +1311,4 @@ doublereal  WaterPropsIAPWSphi::cp_R() const
     return cpR;
 }
 
+} // namespace Cantera
