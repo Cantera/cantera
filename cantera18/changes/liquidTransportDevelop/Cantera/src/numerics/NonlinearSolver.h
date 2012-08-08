@@ -1072,8 +1072,10 @@ namespace Cantera {
     //! Total number of newton iterations
     int m_numTotalNewtIts;
 
+ public:
     //! Minimum number of newton iterations to use
     int m_min_newt_its;
+ private:
 
     //! Maximum number of newton iterations
     int maxNewtIts_;
