@@ -596,6 +596,7 @@ namespace Cantera {
      *   The treatment below is numerically more stable, however.
      */
     doublereal eamod;
+    doublereal ecoeff;
 #ifdef DEBUG_KIN_MODE
     doublereal ea;
 #endif
@@ -619,7 +620,20 @@ namespace Cantera {
 	  }
 	}
 #endif
-	kf[irxn] *= exp(-eamod*rrt);
+        /*
+         *  Commonly, during electrochemistry problems the voltage may get out of sorts.
+         *  Here, we seek to avoid producing inf results within Cantera by tempering the
+         *  resulting rates of progress to ~10^150 or so. The ln calculation produces a
+         *  small gradient pointing in the correct direction.
+         *      (this would be a good place to pop a warning flag)
+         */
+        ecoeff = -eamod*rrt;
+        if (ecoeff > 345.) {
+          ecoeff = 339.1565 + log(ecoeff);
+        } else if (ecoeff < -345.) {
+          ecoeff = -339.1565 - log(-ecoeff);
+        }
+	kf[irxn] *= exp(ecoeff);
       }
     }
   }
