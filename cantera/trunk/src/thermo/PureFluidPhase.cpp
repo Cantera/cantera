@@ -557,109 +557,57 @@ std::string PureFluidPhase::report(bool show_thermo) const
 {
     char p[800];
     string s = "";
-    try {
-        if (name() != "") {
-            sprintf(p, " \n  %s:\n", name().c_str());
-            s += p;
-        }
-        sprintf(p, " \n       temperature    %12.6g  K\n", temperature());
+    if (name() != "") {
+        sprintf(p, " \n  %s:\n", name().c_str());
         s += p;
-        sprintf(p, "          pressure    %12.6g  Pa\n", pressure());
-        s += p;
-        sprintf(p, "           density    %12.6g  kg/m^3\n", density());
-        s += p;
-        sprintf(p, "  mean mol. weight    %12.6g  amu\n", meanMolecularWeight());
-        s += p;
-
-        if (eosType() == cPureFluid) {
-            double xx = ((PureFluidPhase*)(this))->vaporFraction();
-            sprintf(p, "    vapor fraction    %12.6g \n",
-                    xx); //th.vaporFraction());
-            s += p;
-        }
-
-        doublereal phi = electricPotential();
-        if (phi != 0.0) {
-            sprintf(p, "         potential    %12.6g  V\n", phi);
-            s += p;
-        }
-        if (show_thermo) {
-            sprintf(p, " \n");
-            s += p;
-            sprintf(p, "                          1 kg            1 kmol\n");
-            s += p;
-            sprintf(p, "                       -----------      ------------\n");
-            s += p;
-            sprintf(p, "          enthalpy    %12.6g     %12.4g     J\n",
-                    enthalpy_mass(), enthalpy_mole());
-            s += p;
-            sprintf(p, "   internal energy    %12.6g     %12.4g     J\n",
-                    intEnergy_mass(), intEnergy_mole());
-            s += p;
-            sprintf(p, "           entropy    %12.6g     %12.4g     J/K\n",
-                    entropy_mass(), entropy_mole());
-            s += p;
-            sprintf(p, "    Gibbs function    %12.6g     %12.4g     J\n",
-                    gibbs_mass(), gibbs_mole());
-            s += p;
-            sprintf(p, " heat capacity c_p    %12.6g     %12.4g     J/K\n",
-                    cp_mass(), cp_mole());
-            s += p;
-            try {
-                sprintf(p, " heat capacity c_v    %12.6g     %12.4g     J/K\n",
-                        cv_mass(), cv_mole());
-                s += p;
-            } catch (CanteraError& err) {
-                err.save();
-                sprintf(p, " heat capacity c_v    <not implemented>       \n");
-                s += p;
-            }
-        }
-
-        size_t kk = nSpecies();
-        vector_fp x(kk);
-        vector_fp y(kk);
-        vector_fp mu(kk);
-        getMoleFractions(&x[0]);
-        getMassFractions(&y[0]);
-        getChemPotentials(&mu[0]);
-        doublereal rt = GasConstant * temperature();
-        //if (th.nSpecies() > 1) {
-
-        if (show_thermo) {
-            sprintf(p, " \n                           X     "
-                    "            Y          Chem. Pot. / RT    \n");
-            s += p;
-            sprintf(p, "                     -------------     "
-                    "------------     ------------\n");
-            s += p;
-            for (size_t k = 0; k < kk; k++) {
-                if (x[k] > SmallNumber) {
-                    sprintf(p, "%18s   %12.6g     %12.6g     %12.6g\n",
-                            speciesName(k).c_str(), x[k], y[k], mu[k]/rt);
-                } else {
-                    sprintf(p, "%18s   %12.6g     %12.6g     \n",
-                            speciesName(k).c_str(), x[k], y[k]);
-                }
-                s += p;
-            }
-        } else {
-            sprintf(p, " \n                           X"
-                    "Y\n");
-            s += p;
-            sprintf(p, "                     -------------"
-                    "     ------------\n");
-            s += p;
-            for (size_t k = 0; k < kk; k++) {
-                sprintf(p, "%18s   %12.6g     %12.6g\n",
-                        speciesName(k).c_str(), x[k], y[k]);
-                s += p;
-            }
-        }
     }
-    //}
-    catch (CanteraError& err) {
-        err.save();
+    sprintf(p, " \n       temperature    %12.6g  K\n", temperature());
+    s += p;
+    sprintf(p, "          pressure    %12.6g  Pa\n", pressure());
+    s += p;
+    sprintf(p, "           density    %12.6g  kg/m^3\n", density());
+    s += p;
+    sprintf(p, "  mean mol. weight    %12.6g  amu\n", meanMolecularWeight());
+    s += p;
+    sprintf(p, "    vapor fraction    %12.6g \n", vaporFraction());
+    s += p;
+
+    doublereal phi = electricPotential();
+    if (phi != 0.0) {
+        sprintf(p, "         potential    %12.6g  V\n", phi);
+        s += p;
+    }
+    if (show_thermo) {
+        sprintf(p, " \n");
+        s += p;
+        sprintf(p, "                          1 kg            1 kmol\n");
+        s += p;
+        sprintf(p, "                       -----------      ------------\n");
+        s += p;
+        sprintf(p, "          enthalpy    %12.6g     %12.4g     J\n",
+                enthalpy_mass(), enthalpy_mole());
+        s += p;
+        sprintf(p, "   internal energy    %12.6g     %12.4g     J\n",
+                intEnergy_mass(), intEnergy_mole());
+        s += p;
+        sprintf(p, "           entropy    %12.6g     %12.4g     J/K\n",
+                entropy_mass(), entropy_mole());
+        s += p;
+        sprintf(p, "    Gibbs function    %12.6g     %12.4g     J\n",
+                gibbs_mass(), gibbs_mole());
+        s += p;
+        sprintf(p, " heat capacity c_p    %12.6g     %12.4g     J/K\n",
+                cp_mass(), cp_mole());
+        s += p;
+        try {
+            sprintf(p, " heat capacity c_v    %12.6g     %12.4g     J/K\n",
+                    cv_mass(), cv_mole());
+            s += p;
+        } catch (CanteraError& err) {
+            err.save();
+            sprintf(p, " heat capacity c_v    <not implemented>       \n");
+            s += p;
+        }
     }
     return s;
 }
