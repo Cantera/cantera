@@ -18,47 +18,7 @@ using namespace std;
 
 namespace Cantera
 {
-//====================================================================================================================
-InterfaceKineticsData::InterfaceKineticsData() :
-    m_logp0(0.0),
-    m_logc0(0.0),
-    m_ROP_ok(false),
-    m_temp(0.0),
-    m_logtemp(0.0)
-{
-}
-//====================================================================================================================
-InterfaceKineticsData:: InterfaceKineticsData(const InterfaceKineticsData& right) :
-    m_logp0(0.0),
-    m_logc0(0.0),
-    m_ROP_ok(false),
-    m_temp(0.0),
-    m_logtemp(0.0)
-{
-    *this = right;
-}
-//====================================================================================================================
-InterfaceKineticsData::~InterfaceKineticsData()
-{
-}
-//====================================================================================================================
-InterfaceKineticsData& InterfaceKineticsData::operator=(const InterfaceKineticsData& right)
-{
-    if (this == &right) {
-        return *this;
-    }
-    m_logp0 = right.m_logp0;
-    m_logc0 = right.m_logc0;
-    m_ropf = right.m_ropf;
-    m_ropr = right.m_ropr;
-    m_ropnet = right.m_ropnet;
-    m_ROP_ok = right.m_ROP_ok;
-    m_temp = right.m_temp;
-    m_logtemp = right.m_logtemp;
-    m_rfn = right.m_rfn;
-    m_rkcn = right.m_rkcn;
-    return *this;
-}
+
 //====================================================================================================================
 /*
  * Construct an empty InterfaceKinetics reaction mechanism.
@@ -81,6 +41,11 @@ InterfaceKinetics::InterfaceKinetics(thermo_t* thermo) :
     m_StandardConc(0),
     m_deltaG0(0),
     m_ProdStanConcReac(0),
+    m_logp0(0.0),
+    m_logc0(0.0),
+    m_ROP_ok(false),
+    m_temp(0.0),
+    m_logtemp(0.0),
     m_finalized(false),
     m_has_coverage_dependence(false),
     m_has_electrochem_rxns(false),
@@ -95,8 +60,6 @@ InterfaceKinetics::InterfaceKinetics(thermo_t* thermo) :
     if (thermo != 0) {
         addPhase(*thermo);
     }
-    m_kdata = new InterfaceKineticsData;
-    m_kdata->m_temp = 0.0;
 }
 //====================================================================================================================
 /*
@@ -104,7 +67,6 @@ InterfaceKinetics::InterfaceKinetics(thermo_t* thermo) :
  */
 InterfaceKinetics::~InterfaceKinetics()
 {
-    delete m_kdata;
     if (m_integrator) {
         delete m_integrator;
     }
@@ -128,6 +90,11 @@ InterfaceKinetics::InterfaceKinetics(const InterfaceKinetics& right) :
     m_StandardConc(0),
     m_deltaG0(0),
     m_ProdStanConcReac(0),
+    m_logp0(0.0),
+    m_logc0(0.0),
+    m_ROP_ok(false),
+    m_temp(0.0),
+    m_logtemp(0.0),
     m_finalized(false),
     m_has_coverage_dependence(false),
     m_has_electrochem_rxns(false),
@@ -139,8 +106,6 @@ InterfaceKinetics::InterfaceKinetics(const InterfaceKinetics& right) :
     m_rxnPhaseIsProduct(0),
     m_ioFlag(0)
 {
-    m_kdata = new InterfaceKineticsData;
-    m_kdata->m_temp = 0.0;
     /*
      * Call the assignment operator
      */
@@ -178,7 +143,6 @@ operator=(const InterfaceKinetics& right)
     m_rrxn                 = right.m_rrxn;
     m_prxn                 = right.m_prxn;
     m_rxneqn               = right.m_rxneqn;
-    *m_kdata               = *right.m_kdata;
     m_conc                 = right.m_conc;
     m_mu0                  = right.m_mu0;
     m_phi                  = right.m_phi;
@@ -193,6 +157,16 @@ operator=(const InterfaceKinetics& right)
     m_StandardConc         = right.m_StandardConc;
     m_deltaG0              = right.m_deltaG0;
     m_ProdStanConcReac     = right.m_ProdStanConcReac;
+    m_logp0                = right.m_logp0;
+    m_logc0                = right.m_logc0;
+    m_ropf                 = right.m_ropf;
+    m_ropr                 = right.m_ropr;
+    m_ropnet               = right.m_ropnet;
+    m_ROP_ok               = right.m_ROP_ok;
+    m_temp                 = right.m_temp;
+    m_logtemp              = right.m_logtemp;
+    m_rfn                  = right.m_rfn;
+    m_rkcn                 = right.m_rkcn;
     m_finalized            = right.m_finalized;
     m_has_coverage_dependence = right.m_has_coverage_dependence;
     m_has_electrochem_rxns = right.m_has_electrochem_rxns;
@@ -247,8 +221,8 @@ void InterfaceKinetics::setElectricPotential(int n, doublereal V)
  *  This is called to update all of the properties that depend on temperature
  *
  *  Current objects that this function updates
- *       m_kdata->m_logtemp
- *       m_kdata->m_rfn
+ *       m_logtemp
+ *       m_rfn
  *       m_rates.
  *       updateKc();
  */
@@ -262,18 +236,18 @@ void InterfaceKinetics::_update_rates_T()
     }
     doublereal T = thermo(surfacePhaseIndex()).temperature();
     m_redo_rates = true;
-    if (T != m_kdata->m_temp || m_redo_rates) {
-        m_kdata->m_logtemp = log(T);
-        m_rates.update(T, m_kdata->m_logtemp, DATA_PTR(m_kdata->m_rfn));
+    if (T != m_temp || m_redo_rates) {
+        m_logtemp = log(T);
+        m_rates.update(T, m_logtemp, DATA_PTR(m_rfn));
         if (m_has_exchange_current_density_formulation) {
-            applyExchangeCurrentDensityFormulation(DATA_PTR(m_kdata->m_rfn));
+            applyExchangeCurrentDensityFormulation(DATA_PTR(m_rfn));
         }
         if (m_has_electrochem_rxns) {
-            applyButlerVolmerCorrection(DATA_PTR(m_kdata->m_rfn));
+            applyButlerVolmerCorrection(DATA_PTR(m_rfn));
         }
-        m_kdata->m_temp = T;
+        m_temp = T;
         updateKc();
-        m_kdata->m_ROP_ok = false;
+        m_ROP_ok = false;
         m_redo_rates = false;
     }
 }
@@ -310,7 +284,7 @@ void InterfaceKinetics::_update_rates_C()
          */
         thermo(n).getActivityConcentrations(DATA_PTR(m_conc) + m_start[n]);
     }
-    m_kdata->m_ROP_ok = false;
+    m_ROP_ok = false;
 }
 
 
@@ -333,8 +307,7 @@ void InterfaceKinetics::getActivityConcentrations(doublereal* const conc)
  */
 void InterfaceKinetics::updateKc()
 {
-    vector_fp& m_rkc = m_kdata->m_rkcn;
-    fill(m_rkc.begin(), m_rkc.end(), 0.0);
+    fill(m_rkcn.begin(), m_rkcn.end(), 0.0);
 
     //static vector_fp mu(nTotalSpecies());
     if (m_nrev > 0) {
@@ -355,7 +328,7 @@ void InterfaceKinetics::updateKc()
 
         // compute Delta mu^0 for all reversible reactions
         m_rxnstoich.getRevReactionDelta(m_ii, DATA_PTR(m_mu0),
-                                        DATA_PTR(m_rkc));
+                                        DATA_PTR(m_rkcn));
 
         for (size_t i = 0; i < m_nrev; i++) {
             size_t irxn = m_revindex[i];
@@ -363,10 +336,10 @@ void InterfaceKinetics::updateKc()
                 throw CanteraError("InterfaceKinetics",
                                    "illegal value: irxn = "+int2str(irxn));
             }
-            m_rkc[irxn] = exp(m_rkc[irxn]*rrt);
+            m_rkcn[irxn] = exp(m_rkcn[irxn]*rrt);
         }
         for (size_t i = 0; i != m_nirrev; ++i) {
-            m_rkc[ m_irrev[i] ] = 0.0;
+            m_rkcn[ m_irrev[i] ] = 0.0;
         }
     }
 }
@@ -487,8 +460,7 @@ void InterfaceKinetics::getExchangeCurrentQuantities()
 void InterfaceKinetics::getCreationRates(doublereal* cdot)
 {
     updateROP();
-    m_rxnstoich.getCreationRates(m_kk, &m_kdata->m_ropf[0],
-                                 &m_kdata->m_ropr[0], cdot);
+    m_rxnstoich.getCreationRates(m_kk, &m_ropf[0], &m_ropr[0], cdot);
 }
 
 //  Return the Species destruction rates [kmol/m^2/s].
@@ -500,8 +472,7 @@ void InterfaceKinetics::getCreationRates(doublereal* cdot)
 void InterfaceKinetics::getDestructionRates(doublereal* ddot)
 {
     updateROP();
-    m_rxnstoich.getDestructionRates(m_kk, &m_kdata->m_ropf[0],
-                                    &m_kdata->m_ropr[0], ddot);
+    m_rxnstoich.getDestructionRates(m_kk, &m_ropf[0], &m_ropr[0], ddot);
 }
 
 // Return the species net production rates
@@ -518,9 +489,7 @@ void InterfaceKinetics::getDestructionRates(doublereal* ddot)
 void InterfaceKinetics::getNetProductionRates(doublereal* net)
 {
     updateROP();
-    m_rxnstoich.getNetProductionRates(m_kk,
-                                      &m_kdata->m_ropnet[0],
-                                      net);
+    m_rxnstoich.getNetProductionRates(m_kk, &m_ropnet[0], net);
 }
 
 //====================================================================================================================
@@ -617,10 +586,8 @@ void InterfaceKinetics::getFwdRateConstants(doublereal* kfwd)
 
     updateROP();
 
-    const vector_fp& rf = m_kdata->m_rfn;
-
     // copy rate coefficients into kfwd
-    copy(rf.begin(), rf.end(), kfwd);
+    copy(m_rfn.begin(), m_rfn.end(), kfwd);
 
     // multiply by perturbation factor
     multiply_each(kfwd, kfwd + nReactions(), m_perturb.begin());
@@ -636,14 +603,12 @@ void InterfaceKinetics::getRevRateConstants(doublereal* krev, bool doIrreversibl
 {
     getFwdRateConstants(krev);
     if (doIrreversible) {
-        doublereal* tmpKc = DATA_PTR(m_kdata->m_ropnet);
-        getEquilibriumConstants(tmpKc);
+        getEquilibriumConstants(&m_ropnet[0]);
         for (size_t i = 0; i < m_ii; i++) {
-            krev[i] /=  tmpKc[i];
+            krev[i] /= m_ropnet[i];
         }
     } else {
-        const vector_fp& rkc = m_kdata->m_rkcn;
-        multiply_each(krev, krev + nReactions(), rkc.begin());
+        multiply_each(krev, krev + nReactions(), m_rkcn.begin());
     }
 }
 //====================================================================================================================
@@ -659,51 +624,43 @@ void InterfaceKinetics::getActivationEnergies(doublereal* E)
  */
 void InterfaceKinetics::updateROP()
 {
-
     _update_rates_T();
     _update_rates_C();
 
-    if (m_kdata->m_ROP_ok) {
+    if (m_ROP_ok) {
         return;
     }
 
-    const vector_fp& rf = m_kdata->m_rfn;
-    const vector_fp& m_rkc = m_kdata->m_rkcn;
-    vector_fp& ropf = m_kdata->m_ropf;
-    vector_fp& ropr = m_kdata->m_ropr;
-    vector_fp& ropnet = m_kdata->m_ropnet;
-
     // copy rate coefficients into ropf
-    copy(rf.begin(), rf.end(), ropf.begin());
+    copy(m_rfn.begin(), m_rfn.end(), m_ropf.begin());
 
     // multiply by perturbation factor
-    multiply_each(ropf.begin(), ropf.end(), m_perturb.begin());
+    multiply_each(m_ropf.begin(), m_ropf.end(), m_perturb.begin());
 
     // copy the forward rates to the reverse rates
-    copy(ropf.begin(), ropf.end(), ropr.begin());
+    copy(m_ropf.begin(), m_ropf.end(), m_ropr.begin());
 
     // for reverse rates computed from thermochemistry, multiply
     // the forward rates copied into m_ropr by the reciprocals of
     // the equilibrium constants
-    multiply_each(ropr.begin(), ropr.end(), m_rkc.begin());
+    multiply_each(m_ropr.begin(), m_ropr.end(), m_rkcn.begin());
 
     // multiply ropf by concentration products
-    m_rxnstoich.multiplyReactants(DATA_PTR(m_conc), DATA_PTR(ropf));
+    m_rxnstoich.multiplyReactants(DATA_PTR(m_conc), DATA_PTR(m_ropf));
     //m_reactantStoich.multiply(m_conc.begin(), ropf.begin());
 
     // for reversible reactions, multiply ropr by concentration
     // products
     m_rxnstoich.multiplyRevProducts(DATA_PTR(m_conc),
-                                    DATA_PTR(ropr));
+                                    DATA_PTR(m_ropr));
     //m_revProductStoich.multiply(m_conc.begin(), ropr.begin());
 
     // do global reactions
     //m_globalReactantStoich.power(m_conc.begin(), ropf.begin());
 
     for (size_t j = 0; j != m_ii; ++j) {
-        ropnet[j] = ropf[j] - ropr[j];
+        m_ropnet[j] = m_ropf[j] - m_ropr[j];
     }
-
 
     /*
      *  For reactions involving multiple phases, we must check that the phase
@@ -712,18 +669,18 @@ void InterfaceKinetics::updateROP()
      */
     if (m_phaseExistsCheck) {
         for (size_t j = 0; j != m_ii; ++j) {
-            if ((ropr[j] >  ropf[j]) && (ropr[j] > 0.0)) {
+            if ((m_ropr[j] >  m_ropf[j]) && (m_ropr[j] > 0.0)) {
                 for (size_t p = 0; p < nPhases(); p++) {
                     if (m_rxnPhaseIsProduct[j][p]) {
                         if (! m_phaseExists[p]) {
-                            ropnet[j] = 0.0;
-                            ropr[j] = ropf[j];
-                            if (ropf[j] > 0.0) {
+                            m_ropnet[j] = 0.0;
+                            m_ropr[j] = m_ropf[j];
+                            if (m_ropf[j] > 0.0) {
                                 for (size_t rp = 0; rp < nPhases(); rp++) {
                                     if (m_rxnPhaseIsReactant[j][rp]) {
                                         if (! m_phaseExists[rp]) {
-                                            ropnet[j] = 0.0;
-                                            ropr[j] = ropf[j] = 0.0;
+                                            m_ropnet[j] = 0.0;
+                                            m_ropr[j] = m_ropr[j] = 0.0;
                                         }
                                     }
                                 }
@@ -732,23 +689,23 @@ void InterfaceKinetics::updateROP()
                     }
                     if (m_rxnPhaseIsReactant[j][p]) {
                         if (! m_phaseIsStable[p]) {
-                            ropnet[j] = 0.0;
-                            ropr[j] = ropf[j];
+                            m_ropnet[j] = 0.0;
+                            m_ropr[j] = m_ropf[j];
                         }
                     }
                 }
-            } else if ((ropf[j] > ropr[j]) && (ropf[j] > 0.0)) {
+            } else if ((m_ropf[j] > m_ropr[j]) && (m_ropf[j] > 0.0)) {
                 for (size_t p = 0; p < nPhases(); p++) {
                     if (m_rxnPhaseIsReactant[j][p]) {
                         if (! m_phaseExists[p]) {
-                            ropnet[j] = 0.0;
-                            ropf[j] = ropr[j];
-                            if (ropf[j] > 0.0) {
+                            m_ropnet[j] = 0.0;
+                            m_ropf[j] = m_ropr[j];
+                            if (m_ropf[j] > 0.0) {
                                 for (size_t rp = 0; rp < nPhases(); rp++) {
                                     if (m_rxnPhaseIsProduct[j][rp]) {
                                         if (! m_phaseExists[rp]) {
-                                            ropnet[j] = 0.0;
-                                            ropf[j] = ropr[j] = 0.0;
+                                            m_ropnet[j] = 0.0;
+                                            m_ropf[j] = m_ropr[j] = 0.0;
                                         }
                                     }
                                 }
@@ -757,8 +714,8 @@ void InterfaceKinetics::updateROP()
                     }
                     if (m_rxnPhaseIsProduct[j][p]) {
                         if (! m_phaseIsStable[p]) {
-                            ropnet[j] = 0.0;
-                            ropf[j] = ropr[j];
+                            m_ropnet[j] = 0.0;
+                            m_ropf[j] = m_ropr[j];
                         }
                     }
                 }
@@ -766,7 +723,7 @@ void InterfaceKinetics::updateROP()
         }
     }
 
-    m_kdata->m_ROP_ok = true;
+    m_ROP_ok = true;
 }
 
 #ifdef KINETICS_WITH_INTERMEDIATE_ZEROED_PHASES
@@ -774,10 +731,6 @@ void InterfaceKinetics::updateROP()
 InterfaceKinetics::adjustRatesForIntermediatePhases()
 {
     doublereal sFac = 1.0;
-
-    vector_fp& ropf = m_kdata->m_ropf;
-    vector_fp& ropr = m_kdata->m_ropr;
-    vector_fp& ropnet = m_kdata->m_ropnet;
 
     getCreatingRates(DATA_PTR(m_speciestmpP));
     getDestructionRates(DATA_PTR(m_speciestmpD));
@@ -1117,7 +1070,7 @@ void InterfaceKinetics::addElementaryReaction(ReactionData& r)
     }
 
     // add constant term to rate coeff value vector
-    m_kdata->m_rfn.push_back(r.rateCoeffParameters[0]);
+    m_rfn.push_back(r.rateCoeffParameters[0]);
     registerReaction(reactionNumber(), ELEMENTARY_RXN, iloc);
 }
 //====================================================================================================================
@@ -1144,7 +1097,7 @@ void InterfaceKinetics::setIOFlag(int ioFlag)
 //         // store activation energy
 //         m_E.push_back(r.rateCoeffParameters[2]);
 //         // add constant term to rate coeff value vector
-//         m_kdata->m_rfn.push_back(r.rateCoeffParameters[0]);
+//         m_rfn.push_back(r.rateCoeffParameters[0]);
 
 //         int nr = r.order.size();
 //         vector_fp ordr(nr);
@@ -1166,10 +1119,10 @@ void InterfaceKinetics::installReagents(const ReactionData& r)
     /*
      * extend temporary storage by one for this rxn.
      */
-    m_kdata->m_ropf.push_back(0.0);
-    m_kdata->m_ropr.push_back(0.0);
-    m_kdata->m_ropnet.push_back(0.0);
-    m_kdata->m_rkcn.push_back(0.0);
+    m_ropf.push_back(0.0);
+    m_ropr.push_back(0.0);
+    m_ropnet.push_back(0.0);
+    m_rkcn.push_back(0.0);
 
     /*
      * Obtain the current reaction index for the reaction that we

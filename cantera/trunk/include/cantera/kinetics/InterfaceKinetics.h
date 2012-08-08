@@ -25,50 +25,10 @@ namespace Cantera
 {
 
 // forward references
-
 class ReactionData;
-class InterfaceKineticsData;
 class ThermoPhase;
 class SurfPhase;
 class ImplicitSurfChem;
-
-
-//! This class holds mechanism-specific data.
-/*!
- *
- */
-class InterfaceKineticsData
-{
-public:
-    InterfaceKineticsData();
-
-    InterfaceKineticsData(const InterfaceKineticsData& right);
-
-    InterfaceKineticsData& operator=(const InterfaceKineticsData& right);
-
-    //! Virtual destructor
-    /*!
-     * todo - why is this virtual
-     */
-    virtual ~InterfaceKineticsData();
-
-    doublereal m_logp0;
-    doublereal m_logc0;
-    vector_fp m_ropf;
-    vector_fp m_ropr;
-    vector_fp m_ropnet;
-
-    bool m_ROP_ok;
-
-    //! Current temperature of the data
-    doublereal m_temp;
-    //! Current log of the temperature
-    doublereal m_logtemp;
-    vector_fp m_rfn;
-    vector_fp m_rkcn;
-};
-
-
 
 //!  A kinetics manager for heterogeneous reaction mechanisms. The
 //!  reactions are assumed to occur at a 2D interface between two 3D phases.
@@ -175,7 +135,7 @@ public:
      */
     virtual void getFwdRatesOfProgress(doublereal* fwdROP) {
         updateROP();
-        std::copy(m_kdata->m_ropf.begin(), m_kdata->m_ropf.end(), fwdROP);
+        std::copy(m_ropf.begin(), m_ropf.end(), fwdROP);
     }
 
     //! Return the reverse rates of progress for each reaction
@@ -185,7 +145,7 @@ public:
      */
     virtual void getRevRatesOfProgress(doublereal* revROP) {
         updateROP();
-        std::copy(m_kdata->m_ropr.begin(), m_kdata->m_ropr.end(), revROP);
+        std::copy(m_ropr.begin(), m_ropr.end(), revROP);
     }
 
     //! Return the net rates of progress for each reaction
@@ -195,7 +155,7 @@ public:
      */
     virtual void getNetRatesOfProgress(doublereal* netROP) {
         updateROP();
-        std::copy(m_kdata->m_ropnet.begin(), m_kdata->m_ropnet.end(), netROP);
+        std::copy(m_ropnet.begin(), m_ropnet.end(), netROP);
     }
 
 
@@ -723,12 +683,6 @@ protected:
      */
     std::vector<std::string> m_rxneqn;
 
-    /**
-     * Temporary data storage used in calculating the rates of
-     * of reactions.
-     */
-    InterfaceKineticsData* m_kdata;
-
     //! an array of generalized concentrations for each species
     /*!
      * An array of generalized concentrations
@@ -819,7 +773,20 @@ protected:
     vector_fp m_deltaG0;
     vector_fp m_ProdStanConcReac;
 
+    doublereal m_logp0;
+    doublereal m_logc0;
+    vector_fp m_ropf;
+    vector_fp m_ropr;
+    vector_fp m_ropnet;
 
+    bool m_ROP_ok;
+
+    //! Current temperature of the data
+    doublereal m_temp;
+    //! Current log of the temperature
+    doublereal m_logtemp;
+    vector_fp m_rfn;
+    vector_fp m_rkcn;
 
     //! boolean indicating whether mechanism has been finalized
     bool m_finalized;
