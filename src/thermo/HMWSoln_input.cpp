@@ -1047,66 +1047,12 @@ void HMWSoln::initThermo()
     initLengths();
 }
 
-/*
- *   Import, construct, and initialize a HMWSoln phase
- *   specification from an XML tree into the current object.
+/**
+ * Process the XML file after species are set up.
  *
- * This routine is a precursor to constructPhaseXML(XML_Node*)
- * routine, which does most of the work.
- *
- * @param infile XML file containing the description of the
- *        phase
- *
- * @param id  Optional parameter identifying the name of the
- *            phase. If none is given, the first XML
- *            phase element will be used.
- */
-void HMWSoln::constructPhaseFile(std::string inputFile, std::string id)
-{
-
-    if (inputFile.size() == 0) {
-        throw CanteraError("HMWSoln:constructPhaseFile",
-                           "input file is null");
-    }
-    string path = findInputFile(inputFile);
-    std::ifstream fin(path.c_str());
-    if (!fin) {
-        throw CanteraError("HMWSoln:constructPhaseFile","could not open "
-                           +path+" for reading.");
-    }
-    /*
-     * The phase object automatically constructs an XML object.
-     * Use this object to store information.
-     */
-    XML_Node& phaseNode_XML = xml();
-    XML_Node* fxml = new XML_Node();
-    fxml->build(fin);
-    XML_Node* fxml_phase = findXMLPhase(fxml, id);
-    if (!fxml_phase) {
-        throw CanteraError("HMWSoln:constructPhaseFile",
-                           "ERROR: Can not find phase named " +
-                           id + " in file named " + inputFile);
-    }
-    fxml_phase->copy(&phaseNode_XML);
-    constructPhaseXML(*fxml_phase, id);
-    delete fxml;
-}
-
-/*
- *   Import, construct, and initialize a HMWSoln phase
- *   specification from an XML tree into the current object.
- *
- *   Most of the work is carried out by the cantera base
- *   routine, importPhase(). That routine imports all of the
- *   species and element data, including the standard states
- *   of the species.
- *
- *   Then, In this routine, we read the information
- *   particular to the specification of the activity
- *   coefficient model for the Pitzer parameterization.
- *
- *   We also read information about the molar volumes of the
- *   standard states if present in the XML file.
+ *  This gets called from importPhase(). It processes the XML file
+ *  after the species are set up. This is the main routine for
+ *  reading in activity coefficient parameters.
  *
  * @param phaseNode This object must be the phase node of a
  *             complete XML tree
@@ -1119,13 +1065,14 @@ void HMWSoln::constructPhaseFile(std::string inputFile, std::string id)
  *             to see if phaseNode is pointing to the phase
  *             with the correct id.
  */
-void HMWSoln::constructPhaseXML(XML_Node& phaseNode, std::string id)
+void HMWSoln::
+initThermoXML(XML_Node& phaseNode, std::string id)
 {
     string stemp;
     if (id.size() > 0) {
         string idp = phaseNode.id();
         if (idp != id) {
-            throw CanteraError("HMWSoln::constructPhaseXML",
+            throw CanteraError("HMWSoln::initThermoXML",
                                "phasenode and Id are incompatible");
         }
     }
@@ -1134,7 +1081,7 @@ void HMWSoln::constructPhaseXML(XML_Node& phaseNode, std::string id)
      * Find the Thermo XML node
      */
     if (!phaseNode.hasChild("thermo")) {
-        throw CanteraError("HMWSoln::constructPhaseXML",
+        throw CanteraError("HMWSoln::initThermoXML",
                            "no thermo XML node");
     }
     XML_Node& thermoNode = phaseNode.child("thermo");
@@ -1159,26 +1106,10 @@ void HMWSoln::constructPhaseXML(XML_Node& phaseNode, std::string id)
             } else if (formString == "solvent_volume") {
                 m_formGC = 2;
             } else {
-                throw CanteraError("HMWSoln::constructPhaseXML",
+                throw CanteraError("HMWSoln::initThermoXML",
                                    "Unknown standardConc model: " + formString);
             }
         }
-    }
-    /*
-     * Get the Name of the Solvent:
-     *      <solvent> solventName </solvent>
-     */
-    string solventName = "";
-    if (thermoNode.hasChild("solvent")) {
-        XML_Node& scNode = thermoNode.child("solvent");
-        vector<string> nameSolventa;
-        getStringArray(scNode, nameSolventa);
-        int nsp = static_cast<int>(nameSolventa.size());
-        if (nsp != 1) {
-            throw CanteraError("HMWSoln::constructPhaseXML",
-                               "badly formed solvent XML node");
-        }
-        solventName = nameSolventa[0];
     }
 
     /*
@@ -1195,7 +1126,7 @@ void HMWSoln::constructPhaseXML(XML_Node& phaseNode, std::string id)
             } else if (formString == "base") {
                 m_formPitzer = PITZERFORM_BASE;
             } else {
-                throw CanteraError("HMWSoln::constructPhaseXML",
+                throw CanteraError("HMWSoln::initThermoXML",
                                    "Unknown Pitzer ActivityCoeff model: "
                                    + formString);
             }
@@ -1215,7 +1146,7 @@ void HMWSoln::constructPhaseXML(XML_Node& phaseNode, std::string id)
             } else if (formString == "complex" || formString == "complex1") {
                 m_formPitzerTemp = PITZER_TEMP_COMPLEX1;
             } else {
-                throw CanteraError("HMWSoln::constructPhaseXML",
+                throw CanteraError("HMWSoln::initThermoXML",
                                    "Unknown Pitzer ActivityCoeff Temp model: "
                                    + formString);
             }
@@ -1235,49 +1166,6 @@ void HMWSoln::constructPhaseXML(XML_Node& phaseNode, std::string id)
         }
 
     }
-
-    /*
-     * Call the Cantera importPhase() function. This will import
-     * all of the species into the phase. This will also handle
-     * all of the solvent and solute standard states
-     */
-    bool m_ok = importPhase(phaseNode, this);
-    if (!m_ok) {
-        throw CanteraError("HMWSoln::constructPhaseXML","importPhase failed ");
-    }
-
-}
-
-/**
- * Process the XML file after species are set up.
- *
- *  This gets called from importPhase(). It processes the XML file
- *  after the species are set up. This is the main routine for
- *  reading in activity coefficient parameters.
- *
- * @param phaseNode This object must be the phase node of a
- *             complete XML tree
- *             description of the phase, including all of the
- *             species data. In other words while "phase" must
- *             point to an XML phase object, it must have
- *             sibling nodes "speciesData" that describe
- *             the species in the phase.
- * @param id   ID of the phase. If nonnull, a check is done
- *             to see if phaseNode is pointing to the phase
- *             with the correct id.
- */
-void HMWSoln::
-initThermoXML(XML_Node& phaseNode, std::string id)
-{
-    string stemp;
-    /*
-     * Find the Thermo XML node
-     */
-    if (!phaseNode.hasChild("thermo")) {
-        throw CanteraError("HMWSoln::initThermoXML",
-                           "no thermo XML node");
-    }
-    XML_Node& thermoNode = phaseNode.child("thermo");
 
     /*
      * Get the Name of the Solvent:

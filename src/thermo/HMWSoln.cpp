@@ -139,7 +139,7 @@ HMWSoln::HMWSoln(std::string inputFile, std::string id) :
         elambda[i] = 0.0;
         elambda1[i] = 0.0;
     }
-    constructPhaseFile(inputFile, id);
+    initThermoFile(inputFile, id);
 }
 
 HMWSoln::HMWSoln(XML_Node& phaseRoot, std::string id) :
@@ -190,7 +190,7 @@ HMWSoln::HMWSoln(XML_Node& phaseRoot, std::string id) :
         elambda[i] = 0.0;
         elambda1[i] = 0.0;
     }
-    constructPhaseXML(phaseRoot, id);
+    importPhase(*findXMLPhase(&phaseRoot, id), this);
 }
 
 /*
@@ -481,7 +481,7 @@ HMWSoln::HMWSoln(int testProb) :
         exit(EXIT_FAILURE);
     }
 
-    constructPhaseFile("HMW_NaCl.xml", "");
+    initThermoFile("HMW_NaCl.xml", "");
 
     size_t i = speciesIndex("Cl-");
     size_t j = speciesIndex("H+");
