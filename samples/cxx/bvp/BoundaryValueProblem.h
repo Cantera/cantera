@@ -42,23 +42,6 @@ public:
         refine(true), name("") {}
 };
 
-
-/**
- * Exception thrown for illegal parameter values when setting up
- * the problem.
- */
-class BVP_Error
-{
-public:
-    /**
-     * Constructor. Write an error message.
-     */
-    BVP_Error(string msg) {
-        writelog("BVP Error: "+msg+"\n");
-    }
-};
-
-
 /**
  * Base class for boundary value problems. This class is designed
  * to provide a simplified interface to the capabilities Cantera
@@ -137,7 +120,8 @@ public:
             start();
         }
         if (n < 0 || n >= m_nv) {
-            throw BVP_Error("Illegal solution component number");
+            throw Cantera::CanteraError("BoundaryValueProblem::setComponent",
+                                        "Illegal solution component number");
         }
         // set the upper and lower bounds for this component
         setBounds(n, c.lower, c.upper);

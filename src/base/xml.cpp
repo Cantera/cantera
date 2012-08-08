@@ -118,34 +118,6 @@ public:
     virtual ~XML_NoChild() throw() {}
 };
 
-//! Class representing a specific type of XML file formatting error
-/*!
- * An XML_Node's units attribute has the wrong type of units.
- */
-class XML_IllegalUnits : public XML_Error
-{
-public:
-
-    //! Constructor
-    /*!
-     *  Wrong units string.
-     *
-     *  @param  name        Name of the current XML node
-     *  @param  units       Units string in the "units" attribute
-     *  @param  line        Line number where the error occurred.
-     */
-    XML_IllegalUnits(std::string name, std::string units, int line=0) :
-        XML_Error(line) {
-        m_msg += "Illegal units (" + units +
-                 ") specified for node " + name + ".\n";
-        setError("XML_IllegalUnits", m_msg);
-    }
-
-    //! Destructor
-    virtual ~XML_IllegalUnits() throw() {}
-};
-
-
 
 //////////////////// XML_Reader methods ///////////////////////
 

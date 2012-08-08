@@ -17,31 +17,6 @@ namespace Cantera
 
 class XML_Writer;
 
-
-//! Error handler class for collision integrals
-/*!
- * This class doesn't
- */
-class MMCollisionIntError
-{
-public:
-
-    //! Constructor
-    /*!
-     *  @param logfile    ostream reference for writing out errors
-     *  @param  msg       error message
-     */
-    MMCollisionIntError(std::ostream& logfile, std::string msg) {
-        logfile << "#### ERROR ####" << std::endl;
-        logfile << "MMCollisionInt: " << msg << std::endl;
-        std::cerr << "Error in fitting collision integrals. "
-                  << "Execution terminated." << std::endl
-                  << "See transport log file for more information." << std::endl;
-    }
-};
-
-
-
 //! Calculation of Collision integrals
 /*!
  * This class provides functions that
