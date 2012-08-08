@@ -20,6 +20,8 @@
 
 #include <algorithm>
 
+namespace Cantera
+{
 //! Unary operator to multiply the argument by a constant.
 /*!
  *  The form of this operator is designed for use by std::transform.
@@ -50,9 +52,6 @@ template<class T> struct timesConstant : public std::unary_function<T, double> {
     T m_c;
 };
 
-
-namespace Cantera
-{
 //!  Templated Inner product of two vectors of length 4.
 /*!
  * If either \a x
