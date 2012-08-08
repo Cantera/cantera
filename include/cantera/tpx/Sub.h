@@ -19,22 +19,18 @@
 #ifndef TPX_SUB_H
 #define TPX_SUB_H
 
+#include "cantera/base/ctexceptions.h"
+
 #include <iostream>
 #include <string>
 
 namespace tpx
 {
 
-class TPX_Error
+class TPX_Error : public Cantera::CanteraError
 {
 public:
-    TPX_Error(std::string p, std::string e) {
-        ErrorMessage = e;
-        ErrorProcedure = p;
-    }
-    virtual ~TPX_Error() {}
-    static std::string ErrorMessage;
-    static std::string ErrorProcedure;
+    TPX_Error(std::string p, std::string e) : CanteraError(p, e) { }
 };
 
 
@@ -49,14 +45,6 @@ const int TV = 12, HP = 34, SP = 54, PV = 42, TP = 14, UV = 62,
 const int VT = -12, PH = -34, PS = -54, VP = -42, PT = -14, VU = -62,
           TS = -51, VS = -52, PU = -64, HV = -23, HT = -13, HS = -53,
           XP = -47, XT = -17;
-
-const int NoConverge = -900;
-const int GenError = -901;
-const int InvalidInput = -902;
-const int TempError = -800;
-const int PresError = -801;
-const int CKError = -802;
-
 
 const int Pgiven = 0, Tgiven = 1;
 
@@ -81,8 +69,6 @@ const int EvalTchem = 18;
 const int EvalRgas = 19;
 
 const double Undef = 999.1234;
-
-std::string errorMsg(int flag);
 
 class Substance
 {
@@ -205,17 +191,11 @@ public:
     void Set(int XY, double x0, double y0);
     void Set_meta(double phase, double pp);
 
-    int Error() {
-        return Err;
-    }
-
-
 protected:
 
     double T, Rho;
     double Tslast, Rhf, Rhv;
     double Pst;
-    int Err;
     double m_energy_offset;
     double m_entropy_offset;
     std::string m_name;
@@ -237,17 +217,6 @@ protected:
     int Lever(int itp, double sat, double val, int ifunc);
     void update_sat();
 
-    void set_Err(int ErrFlag) {
-        if (!Err) {
-            Err = ErrFlag;
-            //throw TPX_Error(""errorMsg(Err));
-        }
-    }
-    void clear_Err() {
-        Err = 0;
-    }
-
-
 private:
     void set_Rho(double r0);
     void set_T(double t0);
@@ -264,9 +233,6 @@ private:
     double dvbf, dv;
     double v_here, P_here;
 };
-
-void Error(char* message, int flag, double val=Undef);
-void Mess(char* message);
 
 }
 

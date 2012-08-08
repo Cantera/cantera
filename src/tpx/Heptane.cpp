@@ -8,8 +8,11 @@
  */
 
 #include "Heptane.h"
+#include "cantera/base/stringUtils.h"
 #include <math.h>
 #include <string.h>
+
+using namespace Cantera;
 
 namespace tpx
 {
@@ -277,8 +280,8 @@ double Heptane::Psat()
 {
     double log, sum=0,P;
     if ((T < Tmn) || (T > Tc)) {
-
-        set_Err(TempError); // Error("Heptane::Psat",TempError,T);
+        throw TPX_Error("Heptane::Psat",
+                        "Temperature out of range. T = " + fp2str(T));
     }
     for (int i=1; i<=8; i++) {
         sum += F[i-1] * pow((T/Tp -1),double(i-1));
@@ -299,7 +302,8 @@ double Heptane::ldens()
 {
     double xx=1-(T/Tc), sum=0;
     if ((T < Tmn) || (T > Tc)) {
-        set_Err(TempError);
+        throw TPX_Error("Heptane::ldens",
+                        "Temperature out of range. T = " + fp2str(T));
     }
     for (int i=1; i<=6; i++) {
         sum+=D[i-1]*pow(xx,double(i-1)/3.0);

@@ -134,63 +134,49 @@ doublereal PureFluidPhase::
 enthalpy_mole() const
 {
     setTPXState();
-    doublereal h = m_sub->h() * m_mw;
-    check(h);
-    return h;
+    return m_sub->h() * m_mw;
 }
 
 doublereal PureFluidPhase::
 intEnergy_mole() const
 {
     setTPXState();
-    doublereal u = m_sub->u() * m_mw;
-    check(u);
-    return u;
+    return m_sub->u() * m_mw;
 }
 
 doublereal PureFluidPhase::
 entropy_mole() const
 {
     setTPXState();
-    doublereal s = m_sub->s() * m_mw;
-    check(s);
-    return s;
+    return m_sub->s() * m_mw;
 }
 
 doublereal PureFluidPhase::
 gibbs_mole() const
 {
     setTPXState();
-    doublereal g = m_sub->g() * m_mw;
-    check(g);
-    return g;
+    return m_sub->g() * m_mw;
 }
 
 doublereal PureFluidPhase::
 cp_mole() const
 {
     setTPXState();
-    doublereal cp = m_sub->cp() * m_mw;
-    check(cp);
-    return cp;
+    return m_sub->cp() * m_mw;
 }
 
 doublereal PureFluidPhase::
 cv_mole() const
 {
     setTPXState();
-    doublereal cv = m_sub->cv() * m_mw;
-    check(cv);
-    return cv;
+    return m_sub->cv() * m_mw;
 }
 
 doublereal PureFluidPhase::
 pressure() const
 {
     setTPXState();
-    doublereal p = m_sub->P();
-    check(p);
-    return p;
+    return m_sub->P();
 }
 //====================================================================================================================
 void PureFluidPhase::
@@ -198,36 +184,16 @@ setPressure(doublereal p)
 {
     Set(tpx::TP, temperature(), p);
     setDensity(1.0/m_sub->v());
-    check();
 }
 //====================================================================================================================
 void PureFluidPhase::Set(int n, double x, double y) const
 {
-    try {
-        m_sub->Set(n, x, y);
-    } catch (tpx::TPX_Error) {
-        reportTPXError();
-    }
+    m_sub->Set(n, x, y);
 }
 //====================================================================================================================
 void PureFluidPhase::setTPXState() const
 {
     Set(tpx::TV, temperature(), 1.0/density());
-}
-//====================================================================================================================
-void PureFluidPhase::check(doublereal v) const
-{
-    if (m_sub->Error() || v == tpx::Undef) {
-        throw CanteraError("PureFluidPhase",string(tpx::errorMsg(
-                               m_sub->Error())));
-    }
-}
-//====================================================================================================================
-void PureFluidPhase::reportTPXError() const
-{
-    string msg = tpx::TPX_Error::ErrorMessage;
-    string proc = "tpx::"+tpx::TPX_Error::ErrorProcedure;
-    throw CanteraError(proc,msg);
 }
 //====================================================================================================================
 
@@ -468,13 +434,8 @@ doublereal PureFluidPhase::critDensity() const
 /// saturation temperature
 doublereal PureFluidPhase::satTemperature(doublereal p) const
 {
-    try {
-        doublereal ts = m_sub->Tsat(p);
-        return ts;
-    } catch (tpx::TPX_Error) {
-        reportTPXError();
-        return -1.0;
-    }
+    doublereal ts = m_sub->Tsat(p);
+    return ts;
 }
 //====================================================================================================================
 void PureFluidPhase::setState_HP(doublereal h, doublereal p,
@@ -482,7 +443,6 @@ void PureFluidPhase::setState_HP(doublereal h, doublereal p,
 {
     Set(tpx::HP, h, p);
     setState_TR(m_sub->Temp(), 1.0/m_sub->v());
-    check();
 }
 //====================================================================================================================
 void PureFluidPhase::setState_UV(doublereal u, doublereal v,
@@ -490,7 +450,6 @@ void PureFluidPhase::setState_UV(doublereal u, doublereal v,
 {
     Set(tpx::UV, u, v);
     setState_TR(m_sub->Temp(), 1.0/m_sub->v());
-    check();
 }
 //====================================================================================================================
 void PureFluidPhase::setState_SV(doublereal s, doublereal v,
@@ -498,7 +457,6 @@ void PureFluidPhase::setState_SV(doublereal s, doublereal v,
 {
     Set(tpx::SV, s, v);
     setState_TR(m_sub->Temp(), 1.0/m_sub->v());
-    check();
 }
 //====================================================================================================================
 void PureFluidPhase::setState_SP(doublereal s, doublereal p,
@@ -506,29 +464,21 @@ void PureFluidPhase::setState_SP(doublereal s, doublereal p,
 {
     Set(tpx::SP, s, p);
     setState_TR(m_sub->Temp(), 1.0/m_sub->v());
-    check();
 }
 //====================================================================================================================
 // saturation pressure
 doublereal PureFluidPhase::satPressure(doublereal t) const
 {
     doublereal vsv = m_sub->v();
-    try {
-        Set(tpx::TV,t,vsv);
-        doublereal ps = m_sub->Ps();
-        return ps;
-    } catch (tpx::TPX_Error) {
-        reportTPXError();
-        return -1.0;
-    }
+    Set(tpx::TV,t,vsv);
+    doublereal ps = m_sub->Ps();
+    return ps;
 }
 //====================================================================================================================
 doublereal PureFluidPhase::vaporFraction() const
 {
     setTPXState();
-    doublereal x = m_sub->x();
-    check(x);
-    return x;
+    return m_sub->x();
 }
 //====================================================================================================================
 void PureFluidPhase::setState_Tsat(doublereal t, doublereal x)
@@ -537,7 +487,6 @@ void PureFluidPhase::setState_Tsat(doublereal t, doublereal x)
     setTPXState();
     Set(tpx::TX, t, x);
     setDensity(1.0/m_sub->v());
-    check();
 }
 //====================================================================================================================
 void PureFluidPhase::setState_Psat(doublereal p, doublereal x)
@@ -546,7 +495,6 @@ void PureFluidPhase::setState_Psat(doublereal p, doublereal x)
     Set(tpx::PX, p, x);
     setTemperature(m_sub->Temp());
     setDensity(1.0/m_sub->v());
-    check();
 }
 
 //====================================================================================================================

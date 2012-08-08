@@ -1,9 +1,11 @@
 // Nitrogen
 
 #include "Nitrogen.h"
+#include "cantera/base/stringUtils.h"
 #include <math.h>
 #include <iostream>
 using namespace std;
+using namespace Cantera;
 
 namespace tpx
 {
@@ -209,7 +211,8 @@ double nitrogen::Psat()
     double lnp;
     int i;
     if ((T < Tmn) || (T > Tc)) {
-        set_Err(TempError);
+        throw TPX_Error("nitrogen::Psat",
+                        "Temperature out of range. T = " + fp2str(T));
     }
     for (i=0, lnp=0; i<=7; i++) {
         if (i==3) {
@@ -227,7 +230,8 @@ double nitrogen::ldens()
 {
     double xx=1-T/Tc, sum=0;
     if ((T < Tmn) || (T > Tc)) {
-        set_Err(TempError);
+        throw TPX_Error("nitrogen::ldens",
+                        "Temperature out of range. T = " + fp2str(T));
     }
     for (int i=0; i<=5; i++) {
         sum+=Dnn[i]*pow(xx,double(i)/3.0);

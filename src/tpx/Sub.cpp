@@ -3,51 +3,16 @@
  * D. Goodwin, Caltech Nov. 1996
  */
 #include "cantera/tpx/Sub.h"
+#include "cantera/base/stringUtils.h"
 #include <math.h>
 #include <fstream>
 #include <stdio.h>
 
 using std::string;
+using namespace Cantera;
 
 namespace tpx
 {
-
-static string fp2str(double x, string fmt="%g")
-{
-    char buf[30];
-    sprintf(buf, fmt.c_str(), x);
-    return string(buf);
-}
-
-/*
-    static string int2str(int n, string fmt="%d") {
-        char buf[30];
-        sprintf(buf, fmt.c_str(), n);
-        return string(buf);
-    }
-*/
-
-string TPX_Error::ErrorMessage = "";
-string TPX_Error::ErrorProcedure = "";
-
-string errorMsg(int flag)
-{
-    switch (flag) {
-    case NoConverge:
-        return "no convergence";
-    case GenError:
-        return "general error";
-    case InvalidInput:
-        return "invalid input";
-    case TempError:
-        return "temperature error";
-    case PresError:
-        return "pressure error";
-    default:
-        return "(unknown error)";
-    }
-}
-
 //-------------- Public Member Functions --------------
 
 Substance::Substance() :
@@ -57,7 +22,6 @@ Substance::Substance() :
     Rhf(Undef),
     Rhv(Undef),
     Pst(Undef),
-    Err(0),
     m_energy_offset(0.0),
     m_entropy_offset(0.0),
     kbr(0)
@@ -69,8 +33,7 @@ Substance::Substance() :
 /// computed directly from the underlying eos.
 double Substance::P()
 {
-    double ppp = (TwoPhase() ? Ps() : Pp());
-    return (Err ? Undef : ppp);
+    return TwoPhase() ? Ps() : Pp();
 }
 
 const double DeltaT = 0.000001;
@@ -85,7 +48,7 @@ double Substance::dPsdT()
     set_T(T + DeltaT);
     dpdt = (Ps() - ps1)/DeltaT;
     set_T(tsave);
-    return (Err ? Undef : dpdt);
+    return dpdt;
 }
 
 /// true if a liquid/vapor mixture, false otherwise
@@ -103,21 +66,20 @@ int Substance::TwoPhase()
 /// returned if v > Vcrit.
 double Substance::x()
 {
-    double xx, vv, vl;
+    double vv, vl;
     if (T >= Tcrit()) {
         return (1.0/Rho < Vcrit() ? 0.0 : 1.0);
     } else {
         update_sat();
         if (Rho <= Rhv) {
-            xx = 1.0;
+            return 1.0;
         } else if (Rho >= Rhf) {
-            xx = 0.0;
+            return 0.0;
         } else {
             vv = 1.0/Rhv;
             vl = 1.0/Rhf;
-            xx = (1.0/Rho - vl)/(vv - vl);
+            return (1.0/Rho - vl)/(vv - vl);
         }
-        return (Err ? Undef : xx);
     }
 }
 
@@ -126,10 +88,8 @@ double Substance::Tsat(double p)
 {
     double Tsave, p_here, dp, dt, dpdt, dta,
            dtm, tsat;
-    if (Err || (p <= 0.0) || (p > Pcrit())) {
-        throw TPX_Error("Substance::Tsat","illegal pressure value");
-        set_Err(PresError);
-        return Undef;
+    if (p <= 0.0 || p > Pcrit()) {
+        throw TPX_Error("Substance::Tsat", "illegal pressure value");
     }
     int LoopCount = 0;
     double tol = 1.e-6*p;
@@ -141,9 +101,6 @@ double Substance::Tsat(double p)
         T = 0.5*(Tcrit() - Tmin());
     }
     do {
-        if (Err) {
-            break;
-        }
         if (T > Tcrit()) {
             T = Tcrit() - 0.001;
         }
@@ -163,13 +120,12 @@ double Substance::Tsat(double p)
         LoopCount++;
         if (LoopCount > 100) {
             T = Tsave;
-            set_Err(NoConverge);
-            return Undef;
+            throw TPX_Error("Substance::Tsat", "No convergence");
         }
     } while (fabs(dp) > tol);
     tsat = T;
     T = Tsave;
-    return (Err ? Undef : tsat);
+    return tsat;
 }
 
 
@@ -186,8 +142,6 @@ static const double TolRel = 3.e-8;
 void Substance::Set(int XY, double x0, double y0)
 {
     double temp;
-
-    clear_Err();  // clear error flag
 
     /* if inverted (PT) switch order and change sign of XY (TP = -PT) */
     if (XY < 0) {
@@ -274,34 +228,35 @@ void Substance::Set(int XY, double x0, double y0)
 
     case PX:
         temp = Tsat(x0);
-        if ((y0 >= 0.0) && (y0 <= 1.0) && (temp < Tcrit())) {
+        if (y0 > 1.0 || y0 < 0.0) {
+            throw TPX_Error("Substance::Set",
+                            "Invalid vapor fraction, " + fp2str(y0));
+        } else if (temp >= Tcrit()) {
+            throw TPX_Error("Substance::Set",
+                            "Can't set vapor fraction above the critical point");
+        } else {
             set_T(temp);
             update_sat();
             Rho = 1.0/((1.0 - y0)/Rhf + y0/Rhv);
-        } else {
-            set_Err(InvalidInput);
         }
         break;
 
     case TX:
-        if ((y0 >= 0.0) && (y0 <= 1.0) && (x0 < Tcrit())) {
+        if (y0 > 1.0 || y0 < 0.0) {
+            throw TPX_Error("Substance::Set",
+                            "Invalid vapor fraction, " + fp2str(y0));
+        } else if (x0 >= Tcrit()) {
+            throw TPX_Error("Substance::Set",
+                            "Can't set vapor fraction above the critical point");
+        } else {
             set_T(x0);
             update_sat();
             Rho = 1.0/((1.0 - y0)/Rhf + y0/Rhv);
-        } else {
-            set_Err(InvalidInput);
         }
         break;
 
     default:
-        set_Err(InvalidInput);
-    }
-    if (Err) {
-        T = Undef;
-        Rho = Undef;
-        Tslast = Undef;
-        Rhf = Undef;
-        Rhv = Undef;
+        throw TPX_Error("Substance::Set", "Invalid input.");
     }
 }
 
@@ -312,7 +267,7 @@ void Substance::set_Rho(double r0)
     if (r0 > 0.0) {
         Rho = r0;
     } else {
-        set_Err(InvalidInput);
+        throw TPX_Error("Substance::set_Rho", "Invalid density: " + fp2str(r0));
     }
 }
 
@@ -321,9 +276,7 @@ void Substance::set_T(double t0)
     if ((t0 >= Tmin()) && (t0 <= Tmax())) {
         T = t0;
     } else {
-        throw TPX_Error("Substance::set_T",
-                        "illegal temperature value "+fp2str(t0));
-        set_Err(TempError);
+        throw TPX_Error("Substance::set_T", "illegal temperature: " + fp2str(t0));
     }
 }
 
@@ -334,7 +287,6 @@ void Substance::set_v(double v0)
     } else {
         throw TPX_Error("Substance::set_v",
                         "negative specific volume: "+fp2str(v0));
-        set_Err(InvalidInput);
     }
 }
 
@@ -343,8 +295,6 @@ double Substance::Ps()
     if (T < Tmin() || T > Tcrit()) {
         throw TPX_Error("Substance::Ps",
                         "illegal temperature value "+fp2str(T));
-        set_Err(TempError);
-        return Undef;
     }
     update_sat();
     return Pst;
@@ -427,12 +377,7 @@ void Substance::update_sat()
         }
 
         if (i >= 20) {
-            Pst = Undef;
-            Rhv = Undef;
-            Rhf = Undef;
-            Tslast = Undef;
             throw TPX_Error("substance::update_sat","no convergence");
-            set_Err(NoConverge);
         } else {
             Pst = pp;
             Tslast = T;
@@ -455,7 +400,7 @@ double Substance::vprop(int ijob)
     case EvalP:
         return Pp();
     default:
-        return Undef;
+        throw TPX_Error("Substance::vprop", "invalid job index");
     }
 }
 
@@ -479,25 +424,22 @@ int Substance::Lever(int itp, double sat, double val, int ifunc)
             return 0;
         }
         psat = sat;
-        T = Tsat(psat);
-        if (T == Undef) {
-            Err = 0;
+        try {
+            T = Tsat(psat);
+        } catch (TPX_Error&) {
+            // Failure to converge here is not an error
             T = Tsave;
             Rho = Rhosave;
             return 0;
         }
     } else {
         throw TPX_Error("Substance::Lever","general error");
-        set_Err(GenError);
-        return GenError;
     }
     Set(TX, T, Vapor);
     Valg = vprop(ifunc);
     Set(TX, T, Liquid);
     Valf = vprop(ifunc);
-    if (Err) {
-        return Err;
-    } else if ((val >= Valf) && (val <= Valg)) {
+    if (val >= Valf && val <= Valg) {
         xx = (val - Valf)/(Valg - Valf);
         vv = (1.0 - xx)/Rhf + xx/Rhv;
         set_v(vv);
@@ -525,10 +467,6 @@ void Substance::set_xy(int ifx, int ify, double X, double Y,
     double v_save = 1.0/Rho;
     double t_save = T;
 
-    if (Err) {
-        return;
-    }
-
     if ((T == Undef) && (Rho == Undef)) {  // new object, try to pick
         Set(TV,Tcrit()*1.1,Vcrit()*1.1);   // "reasonable" starting point
         t_here = T;
@@ -545,12 +483,8 @@ void Substance::set_xy(int ifx, int ify, double X, double Y,
     Xa = fabs(X);
     Ya = fabs(Y);
 
-
     // loop
     do {
-        if (Err) {
-            break;
-        }
         x_here = prop(ifx);
         y_here = prop(ify);
         err_x = fabs(X - x_here);
@@ -616,8 +550,6 @@ void Substance::set_xy(int ifx, int ify, double X, double Y,
         LoopCount++;
         if (LoopCount > 200) {
             throw TPX_Error("Substance::set_xy","no convergence");
-            set_Err(NoConverge);
-            break;
         }
     } while (1);
 }
@@ -713,7 +645,6 @@ void Substance::set_TPp(double Temp, double Pressure)
                 }
                 if (Vmin >= Vmax) {
                     throw TPX_Error("Substance::set_TPp","Vmin >= Vmax");
-                    set_Err(GenError);
                 } else if ((Vmin > 0.0) && (Vmax < Big)) {
                     kbr = 1;
                 }
@@ -746,8 +677,6 @@ void Substance::set_TPp(double Temp, double Pressure)
         v_here += dv;
         if (dv == 0.0) {
             throw TPX_Error("Substance::set_TPp","dv = 0 and no convergence");
-            set_Err(NoConverge);
-            return;
         }
         Set(TV, Temp, v_here);
         LoopCount++;
@@ -756,8 +685,6 @@ void Substance::set_TPp(double Temp, double Pressure)
             throw TPX_Error("Substance::set_TPp",string("no convergence for ")
                             +"P* = "+fp2str(Pressure/Pcrit())+". V* = "
                             +fp2str(v_save/Vcrit()));
-            set_Err(NoConverge);
-            return;
         }
     }
     Set(TV, Temp,v_here);
