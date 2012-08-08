@@ -65,7 +65,7 @@ RedlichKisterVPSSTP::RedlichKisterVPSSTP(std::string inputFile, std::string id) 
     formTempModel_(0),
     dlnActCoeff_dX_()
 {
-    constructPhaseFile(inputFile, id);
+    initThermoFile(inputFile, id);
 }
 //====================================================================================================================
 RedlichKisterVPSSTP::RedlichKisterVPSSTP(XML_Node& phaseRoot, std::string id) :
@@ -80,7 +80,7 @@ RedlichKisterVPSSTP::RedlichKisterVPSSTP(XML_Node& phaseRoot, std::string id) :
     formTempModel_(0),
     dlnActCoeff_dX_()
 {
-    constructPhaseXML(phaseRoot, id);
+    importPhase(*findXMLPhase(&phaseRoot, id), this);
 }
 //====================================================================================================================
 // Special constructor for a hard-coded problem
@@ -102,7 +102,7 @@ RedlichKisterVPSSTP::RedlichKisterVPSSTP(int testProb)  :
     formTempModel_(0),
     dlnActCoeff_dX_()
 {
-    constructPhaseFile("LiKCl_liquid.xml", "");
+    initThermoFile("LiKCl_liquid.xml", "");
     numBinaryInteractions_ = 1;
 
     m_HE_m_ij.resize(0);
@@ -223,121 +223,7 @@ int RedlichKisterVPSSTP::eosType() const
 {
     return 0;
 }
-//====================================================================================================================
-/*
- *   Import, construct, and initialize a phase
- *   specification from an XML tree into the current object.
- *
- * This routine is a precursor to constructPhaseXML(XML_Node*)
- * routine, which does most of the work.
- *
- * @param infile XML file containing the description of the
- *        phase
- *
- * @param id  Optional parameter identifying the name of the
- *            phase. If none is given, the first XML
- *            phase element will be used.
- */
-void RedlichKisterVPSSTP::constructPhaseFile(std::string inputFile, std::string id)
-{
 
-    if ((int) inputFile.size() == 0) {
-        throw CanteraError("RedlichKisterVPSSTP:constructPhaseFile",
-                           "input file is null");
-    }
-    string path = findInputFile(inputFile);
-    std::ifstream fin(path.c_str());
-    if (!fin) {
-        throw CanteraError("RedlichKisterVPSSTP:constructPhaseFile","could not open "
-                           +path+" for reading.");
-    }
-    /*
-     * The phase object automatically constructs an XML object.
-     * Use this object to store information.
-     */
-    XML_Node& phaseNode_XML = xml();
-    XML_Node* fxml = new XML_Node();
-    fxml->build(fin);
-    XML_Node* fxml_phase = findXMLPhase(fxml, id);
-    if (!fxml_phase) {
-        throw CanteraError("RedlichKisterVPSSTP:constructPhaseFile",
-                           "ERROR: Can not find phase named " +
-                           id + " in file named " + inputFile);
-    }
-    fxml_phase->copy(&phaseNode_XML);
-    constructPhaseXML(*fxml_phase, id);
-    delete fxml;
-}
-//====================================================================================================================
-/*
- *   Import, construct, and initialize a HMWSoln phase
- *   specification from an XML tree into the current object.
- *
- *   Most of the work is carried out by the cantera base
- *   routine, importPhase(). That routine imports all of the
- *   species and element data, including the standard states
- *   of the species.
- *
- *   Then, In this routine, we read the information
- *   particular to the specification of the activity
- *   coefficient model for the Pitzer parameterization.
- *
- *   We also read information about the molar volumes of the
- *   standard states if present in the XML file.
- *
- * @param phaseNode This object must be the phase node of a
- *             complete XML tree
- *             description of the phase, including all of the
- *             species data. In other words while "phase" must
- *             point to an XML phase object, it must have
- *             sibling nodes "speciesData" that describe
- *             the species in the phase.
- * @param id   ID of the phase. If nonnull, a check is done
- *             to see if phaseNode is pointing to the phase
- *             with the correct id.
- */
-void RedlichKisterVPSSTP::constructPhaseXML(XML_Node& phaseNode, std::string id)
-{
-    string stemp;
-    if ((int) id.size() > 0) {
-        string idp = phaseNode.id();
-        if (idp != id) {
-            throw CanteraError("RedlichKisterVPSSTP::constructPhaseXML",
-                               "phasenode and Id are incompatible");
-        }
-    }
-
-    /*
-     * Find the Thermo XML node
-     */
-    if (!phaseNode.hasChild("thermo")) {
-        throw CanteraError("RedlichKisterVPSSTP::constructPhaseXML",
-                           "no thermo XML node");
-    }
-    XML_Node& thermoNode = phaseNode.child("thermo");
-
-    /*
-     * Make sure that the thermo model is RedlichKister
-     */
-    stemp = thermoNode.attrib("model");
-    string formString = lowercase(stemp);
-    if (formString != "redlich-kister") {
-        throw CanteraError("RedlichKisterVPSSTP::constructPhaseXML",
-                           "model name isn't Redlich-Kister: " + formString);
-
-    }
-
-    /*
-     * Call the Cantera importPhase() function. This will import
-     * all of the species into the phase. This will also handle
-     * all of the solvent and solute standard states
-     */
-    bool m_ok = importPhase(phaseNode, this);
-    if (!m_ok) {
-        throw CanteraError("RedlichKisterVPSSTP::constructPhaseXML","importPhase failed ");
-    }
-
-}
 //====================================================================================================================
 /*
  * ------------ Molar Thermodynamic Properties ----------------------
@@ -640,12 +526,21 @@ void RedlichKisterVPSSTP::initThermoXML(XML_Node& phaseNode, std::string id)
 {
     std::string subname = "RedlichKisterVPSSTP::initThermoXML";
     std::string stemp;
+    if ((int) id.size() > 0) {
+        string idp = phaseNode.id();
+        if (idp != id) {
+            throw CanteraError(subname,
+                               "phasenode and Id are incompatible");
+        }
+    }
 
     /*
      * Check on the thermo field. Must have:
-     * <thermo model="IdealSolidSolution" />
+     * <thermo model="Redlich-Kister" />
      */
-
+    if (!phaseNode.hasChild("thermo")) {
+        throw CanteraError(subname, "no thermo XML node");
+    }
     XML_Node& thermoNode = phaseNode.child("thermo");
     std::string mStringa = thermoNode.attrib("model");
     std::string mString = lowercase(mStringa);
@@ -654,10 +549,6 @@ void RedlichKisterVPSSTP::initThermoXML(XML_Node& phaseNode, std::string id)
                            "Unknown thermo model: " + mStringa + " - This object only knows \"Redlich-Kister\" ");
     }
 
-    /*
-     * Go get all of the coefficients and factors in the
-     * activityCoefficients XML block
-     */
     /*
      * Go get all of the coefficients and factors in the
      * activityCoefficients XML block
