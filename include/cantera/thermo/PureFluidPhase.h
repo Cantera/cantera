@@ -15,11 +15,7 @@
 
 #include "ThermoPhase.h"
 #include "mix_defs.h"
-
-namespace tpx
-{
-class Substance;
-}
+#include "cantera/tpx/Sub.h"
 
 namespace Cantera
 {
@@ -548,7 +544,7 @@ protected:
      * @param x  Value of the first component
      * @param y  Value of the second component
      */
-    void Set(int n, double x, double y) const;
+    void Set(tpx::PropertyPair::type n, double x, double y) const;
 
     //! Sets the state using a TPX::TV call
     void setTPXState() const;
