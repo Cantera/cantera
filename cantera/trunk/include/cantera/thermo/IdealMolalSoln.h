@@ -789,65 +789,6 @@ public:
      */
     virtual void initThermo();
 
-    //!   Import and initialize an IdealMolalSoln phase
-    //!   specification in an XML tree into the current object.
-    /*!
-     *   Here we read an XML description of the phase.
-     *   We import descriptions of the elements that make up the
-     *   species in a phase.
-     *   We import information about the species, including their
-     *   reference state thermodynamic polynomials. We then freeze
-     *   the state of the species.
-     *
-     *   Then, we read the species molar volumes from the xml
-     *   tree to finish the initialization.
-     *
-     *   This routine is a precursor to constructPhaseXML(XML_Node*)
-     *   routine, which does most of the work.
-     *
-     *   This is a virtual routine, first used here.
-     *
-     * @param infile XML file containing the description of the
-     *        phase
-     *
-     * @param id  Optional parameter identifying the name of the
-     *            phase. If none is given, the first XML
-     *            phase element will be used.
-     */
-    void constructPhaseFile(std::string infile, std::string id="");
-
-    //!   Import and initialize an IdealMolalSoln phase
-    //!  specification in an XML tree into the current object.
-    /*!
-     * This is the main routine for constructing the phase.
-     * It processes the XML file, and then it calls importPhase().
-     * Then, initThermoXML() is called after importPhase().
-     *
-     *   Here we read an XML description of the phase.
-     *   We import descriptions of the elements that make up the
-     *   species in a phase.
-     *   We import information about the species, including their
-     *   reference state thermodynamic polynomials. We then freeze
-     *   the state of the species.
-     *
-     *   Then, we read the species molar volumes from the xml
-     *   tree to finish the initialization.
-     *
-     * This is a virtual routine, first used in this class.
-     *
-     * @param phaseNode This object must be the phase node of a
-     *             complete XML tree
-     *             description of the phase, including all of the
-     *             species data. In other words while "phase" must
-     *             point to an XML phase object, it must have
-     *             sibling nodes "speciesData" that describe
-     *             the species in the phase.
-     * @param id   ID of the phase. If nonnull, a check is done
-     *             to see if phaseNode is pointing to the phase
-     *             with the correct id.
-     */
-    void constructPhaseXML(XML_Node& phaseNode, std::string id);
-
     //!  Import and initialize an IdealMolalSoln phase
     //!  specification in an XML tree into the current object.
     /*!

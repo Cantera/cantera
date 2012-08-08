@@ -125,7 +125,7 @@ IdealMolalSoln::IdealMolalSoln(std::string inputFile, std::string id) :
     IMS_agCut_(0.0),
     IMS_bgCut_(0.0)
 {
-    constructPhaseFile(inputFile, id);
+    initThermoFile(inputFile, id);
 }
 
 IdealMolalSoln::IdealMolalSoln(XML_Node& root, std::string id) :
@@ -147,7 +147,7 @@ IdealMolalSoln::IdealMolalSoln(XML_Node& root, std::string id) :
     IMS_agCut_(0.0),
     IMS_bgCut_(0.0)
 {
-    constructPhaseXML(root, id);
+    importPhase(*findXMLPhase(&root, id), this);
 }
 
 /*
@@ -824,107 +824,6 @@ void IdealMolalSoln::initThermo()
 }
 
 /*
- * Initialization of an IdealMolalSoln phase using an
- * xml file
- *
- * This routine is a precursor to constructPhaseFile(XML_Node*)
- * routine, which does most of the work.
- *
- * @param inputFile XML file containing the description of the
- *        phase
- *
- * @param id  Optional parameter identifying the name of the
- *            phase. If none is given, the first XML
- *            phase element will be used.
- */
-void IdealMolalSoln::constructPhaseFile(std::string inputFile,
-                                        std::string id)
-{
-
-    if (inputFile.size() == 0) {
-        throw CanteraError("IdealMolalSoln::constructPhaseFile",
-                           "input file is null");
-    }
-    std::string path = findInputFile(inputFile);
-    std::ifstream fin(path.c_str());
-    if (!fin) {
-        throw CanteraError("IdealMolalSoln::constructPhaseFile",
-                           "could not open "
-                           +path+" for reading.");
-    }
-    /*
-     * The phase object automatically constructs an XML object.
-     * Use this object to store information.
-     */
-    XML_Node& phaseNode_XML = xml();
-    XML_Node* fxml = new XML_Node();
-    fxml->build(fin);
-    XML_Node* fxml_phase = findXMLPhase(fxml, id);
-    if (!fxml_phase) {
-        throw CanteraError("IdealMolalSoln::constructPhaseFile",
-                           "ERROR: Can not find phase named " +
-                           id + " in file named " + inputFile);
-    }
-    fxml_phase->copy(&phaseNode_XML);
-    constructPhaseXML(*fxml_phase, id);
-    delete fxml;
-}
-
-/*
- *   Import and initialize an IdealMolalSoln phase
- *   specification in an XML tree into the current object.
- *   Here we read an XML description of the phase.
- *   We import descriptions of the elements that make up the
- *   species in a phase.
- *   We import information about the species, including their
- *   reference state thermodynamic polynomials. We then freeze
- *   the state of the species.
- *
- *   Then, we read the species molar volumes from the xml
- *   tree to finish the initialization.
- *
- * @param phaseNode This object must be the phase node of a
- *             complete XML tree
- *             description of the phase, including all of the
- *             species data. In other words while "phase" must
- *             point to an XML phase object, it must have
- *             sibling nodes "speciesData" that describe
- *             the species in the phase.
- * @param id   ID of the phase. If nonnull, a check is done
- *             to see if phaseNode is pointing to the phase
- *             with the correct id.
- */
-void IdealMolalSoln::constructPhaseXML(XML_Node& phaseNode,
-                                       std::string id)
-{
-    if (id.size() > 0) {
-        std::string idp = phaseNode.id();
-        if (idp != id) {
-            throw CanteraError("IdealMolalSoln::constructPhaseXML",
-                               "phasenode and Id are incompatible");
-        }
-    }
-
-    /*
-     * Find the Thermo XML node
-     */
-    if (!phaseNode.hasChild("thermo")) {
-        throw CanteraError("IdealMolalSoln::constructPhaseXML",
-                           "no thermo XML node");
-    }
-
-    /*
-     * Call the Cantera importPhase() function. This will import
-     * all of the species into the phase. Then, it will call
-     * initThermoXML() below.
-     */
-    bool m_ok = importPhase(phaseNode, this);
-    if (!m_ok) {
-        throw CanteraError("IdealMolalSoln::constructPhaseXML","importPhase failed ");
-    }
-}
-
-/*
  *   Import and initialize an IdealMolalSoln phase
  *   specification in an XML tree into the current object.
  *
@@ -945,6 +844,13 @@ void IdealMolalSoln::constructPhaseXML(XML_Node& phaseNode,
  */
 void IdealMolalSoln::initThermoXML(XML_Node& phaseNode, std::string id)
 {
+    /*
+     * Find the Thermo XML node
+     */
+    if (!phaseNode.hasChild("thermo")) {
+        throw CanteraError("IdealMolalSoln::initThermoXML",
+                           "no thermo XML node");
+    }
 
     /*
      * Initialize the whole thermo object, using a virtual function.
