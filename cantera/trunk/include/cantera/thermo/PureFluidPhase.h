@@ -540,14 +540,6 @@ public:
      */
     virtual std::string report(bool show_thermo = true) const;
 
-    //! returns a summary of the state of the phase to specified
-    //! comma separated files
-    /*!
-     * @param csvFile     ofstream file to print comma separated data for
-     *                    the phase
-     */
-    virtual void reportCSV(std::ofstream& csvFile) const;
-
 protected:
 
     //! Main call to the tpx level to set the state of the system

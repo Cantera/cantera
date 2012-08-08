@@ -821,15 +821,11 @@ public:
      */
     virtual std::string report(bool show_thermo = true) const;
 
-    //! returns a summary of the state of the phase to specified
-    //! comma separated files
-    /*!
-     * @param csvFile     ofstream file to print comma separated data for
-     *                    the phase
-     */
-    virtual void reportCSV(std::ofstream& csvFile) const;
 
 protected:
+
+    virtual void getCsvReportData(std::vector<std::string>& names,
+                                  std::vector<vector_fp>& data) const;
 
     //! Get the array of unscaled non-dimensional molality based
     //!  activity coefficients at the current solution temperature,
