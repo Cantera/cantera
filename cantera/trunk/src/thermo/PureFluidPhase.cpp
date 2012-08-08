@@ -102,13 +102,13 @@ initThermo()
     double cp0_R, h0_RT, s0_R, T0, p;
     T0 = 298.15;
     if (T0 < m_sub->Tcrit()) {
-        m_sub->Set(tpx::TX, T0, 1.0);
+        m_sub->Set(tpx::PropertyPair::TX, T0, 1.0);
         p = 0.01*m_sub->P();
     } else {
         p = 0.001*m_sub->Pcrit();
     }
     p = 0.001 * p;
-    m_sub->Set(tpx::TP, T0, p);
+    m_sub->Set(tpx::PropertyPair::TP, T0, p);
 
     m_spthermo->update_one(0, T0, &cp0_R, &h0_RT, &s0_R);
     double s_R = s0_R - log(p/refPressure());
@@ -182,18 +182,18 @@ pressure() const
 void PureFluidPhase::
 setPressure(doublereal p)
 {
-    Set(tpx::TP, temperature(), p);
+    Set(tpx::PropertyPair::TP, temperature(), p);
     setDensity(1.0/m_sub->v());
 }
 //====================================================================================================================
-void PureFluidPhase::Set(int n, double x, double y) const
+void PureFluidPhase::Set(tpx::PropertyPair::type n, double x, double y) const
 {
     m_sub->Set(n, x, y);
 }
 //====================================================================================================================
 void PureFluidPhase::setTPXState() const
 {
-    Set(tpx::TV, temperature(), 1.0/density());
+    Set(tpx::PropertyPair::TV, temperature(), 1.0/density());
 }
 //====================================================================================================================
 
@@ -356,9 +356,9 @@ void PureFluidPhase::getEnthalpy_RT_ref(doublereal* hrt) const
     double t = temperature();
     //double pref = m_spthermo->refPressure();
     double plow = 1.0E-8;
-    Set(tpx::TP, t, plow);
+    Set(tpx::PropertyPair::TP, t, plow);
     getEnthalpy_RT(hrt);
-    Set(tpx::TP, t, psave);
+    Set(tpx::PropertyPair::TP, t, psave);
 
 }
 //====================================================================================================================
@@ -374,10 +374,10 @@ void  PureFluidPhase::getGibbs_RT_ref(doublereal* grt) const
     double t = temperature();
     double pref = m_spthermo->refPressure();
     double plow = 1.0E-8;
-    Set(tpx::TP, t, plow);
+    Set(tpx::PropertyPair::TP, t, plow);
     getGibbs_RT(grt);
     grt[0] += log(pref/plow);
-    Set(tpx::TP, t, psave);
+    Set(tpx::PropertyPair::TP, t, psave);
 }
 //====================================================================================================================
 //  Returns the vector of the gibbs function of the reference state at the current temperature
@@ -406,10 +406,10 @@ void PureFluidPhase::getEntropy_R_ref(doublereal* er) const
     double t = temperature();
     double pref = m_spthermo->refPressure();
     double plow = 1.0E-8;
-    Set(tpx::TP, t, plow);
+    Set(tpx::PropertyPair::TP, t, plow);
     getEntropy_R(er);
     er[0] -= log(pref/plow);
-    Set(tpx::TP, t, psave);
+    Set(tpx::PropertyPair::TP, t, psave);
 }
 //====================================================================================================================
 // critical temperature
@@ -441,28 +441,28 @@ doublereal PureFluidPhase::satTemperature(doublereal p) const
 void PureFluidPhase::setState_HP(doublereal h, doublereal p,
                                  doublereal tol)
 {
-    Set(tpx::HP, h, p);
+    Set(tpx::PropertyPair::HP, h, p);
     setState_TR(m_sub->Temp(), 1.0/m_sub->v());
 }
 //====================================================================================================================
 void PureFluidPhase::setState_UV(doublereal u, doublereal v,
                                  doublereal tol)
 {
-    Set(tpx::UV, u, v);
+    Set(tpx::PropertyPair::UV, u, v);
     setState_TR(m_sub->Temp(), 1.0/m_sub->v());
 }
 //====================================================================================================================
 void PureFluidPhase::setState_SV(doublereal s, doublereal v,
                                  doublereal tol)
 {
-    Set(tpx::SV, s, v);
+    Set(tpx::PropertyPair::SV, s, v);
     setState_TR(m_sub->Temp(), 1.0/m_sub->v());
 }
 //====================================================================================================================
 void PureFluidPhase::setState_SP(doublereal s, doublereal p,
                                  doublereal tol)
 {
-    Set(tpx::SP, s, p);
+    Set(tpx::PropertyPair::SP, s, p);
     setState_TR(m_sub->Temp(), 1.0/m_sub->v());
 }
 //====================================================================================================================
@@ -470,7 +470,7 @@ void PureFluidPhase::setState_SP(doublereal s, doublereal p,
 doublereal PureFluidPhase::satPressure(doublereal t) const
 {
     doublereal vsv = m_sub->v();
-    Set(tpx::TV,t,vsv);
+    Set(tpx::PropertyPair::TV,t,vsv);
     doublereal ps = m_sub->Ps();
     return ps;
 }
@@ -485,14 +485,14 @@ void PureFluidPhase::setState_Tsat(doublereal t, doublereal x)
 {
     setTemperature(t);
     setTPXState();
-    Set(tpx::TX, t, x);
+    Set(tpx::PropertyPair::TX, t, x);
     setDensity(1.0/m_sub->v());
 }
 //====================================================================================================================
 void PureFluidPhase::setState_Psat(doublereal p, doublereal x)
 {
     setTPXState();
-    Set(tpx::PX, p, x);
+    Set(tpx::PropertyPair::PX, p, x);
     setTemperature(m_sub->Temp());
     setDensity(1.0/m_sub->v());
 }

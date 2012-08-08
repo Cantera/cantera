@@ -33,40 +33,22 @@ public:
     TPX_Error(std::string p, std::string e) : CanteraError(p, e) { }
 };
 
-
-const double OneAtm = 1.01325e5;
-const double Liquid = 0.0;
-const double Vapor = 1.0;
-
-const int TV = 12, HP = 34, SP = 54, PV = 42, TP = 14, UV = 62,
-          ST = 51, SV = 52, UP = 64, VH = 23, TH = 13, SH = 53,
-          PX = 47, TX = 17;
-
-const int VT = -12, PH = -34, PS = -54, VP = -42, PT = -14, VU = -62,
-          TS = -51, VS = -52, PU = -64, HV = -23, HT = -13, HS = -53,
-          XP = -47, XT = -17;
+namespace PropertyPair
+{
+enum type {
+    TV = 12, HP = 34, SP = 54, PV = 42, TP = 14, UV = 62, ST = 51,
+    SV = 52, UP = 64, VH = 23, TH = 13, SH = 53, PX = 47, TX = 17,
+    VT = -12, PH = -34, PS = -54, VP = -42, PT = -14, VU = -62, TS = -51,
+    VS = -52, PU = -64, HV = -23, HT = -13, HS = -53, XP = -47, XT = -17
+};
+}
 
 const int Pgiven = 0, Tgiven = 1;
 
-const int EvalH = 3;
-const int EvalS = 5;
-const int EvalU = 6;
-const int EvalV = 2;
-const int EvalP = 4;
-const int EvalT = 1;
-const int EvalX = 7;
-const int EvalF = 8;
-const int EvalG = 9;
-const int EvalC = 10;
-const int EvalM = 11;
-const int EvalN = 12;
-const int EvalMW = 13;
-const int EvalEA = 14;
-const int EvalCdot = 15;
-const int EvalDdot = 16;
-const int EvalWdot = 17;
-const int EvalTchem = 18;
-const int EvalRgas = 19;
+namespace propertyFlag
+{
+enum type { H, S, U, V, P, T };
+}
 
 const double Undef = 999.1234;
 
@@ -79,7 +61,7 @@ public:
 
     void setStdState(double h0 = 0.0, double s0 = 0.0,
                      double t0 = 298.15, double p0 = 1.01325e5) {
-        Set(TP, t0, p0);
+        Set(PropertyPair::TP, t0, p0);
         double hh = h();
         double ss = s();
         double hoff = h0 - hh;
@@ -106,16 +88,16 @@ public:
         return T;   // temperature, K
     }
     double v() {                       // specific vol, m^3/kg
-        return prop(EvalV);
+        return prop(propertyFlag::V);
     }
     double u() {                       // int. energy, J/kg
-        return prop(EvalU);
+        return prop(propertyFlag::U);
     }
     double h() {                       // enthalpy, J/kg
-        return prop(EvalH);
+        return prop(propertyFlag::H);
     }
     double s() {                       // entropy, J/kg/K
-        return prop(EvalS);
+        return prop(propertyFlag::S);
     }
     double f() {                       // Helmholtz function, J/kg
         return u() - T*s();
@@ -137,35 +119,34 @@ public:
     virtual double cp() {
         double Tsave = T, dt = 1.e-4*T;
         double p0 = P();
-        Set(TP, Tsave - dt, p0);
+        Set(PropertyPair::TP, Tsave - dt, p0);
         double s1 = s();
-        Set(TP, Tsave + dt, p0);
+        Set(PropertyPair::TP, Tsave + dt, p0);
         double s2 = s();
-        Set(TP, Tsave, p0);
+        Set(PropertyPair::TP, Tsave, p0);
         return T*(s2 - s1)/(2.0*dt);
     }
 
     virtual double thermalExpansionCoeff() {
         double Tsave = T, dt = 1.e-4*T;
         double p0 = P();
-        Set(TP, Tsave - dt, p0);
+        Set(PropertyPair::TP, Tsave - dt, p0);
         double v1 = v();
-        Set(TP, Tsave + dt, p0);
+        Set(PropertyPair::TP, Tsave + dt, p0);
         double v2 = v();
-        Set(TP, Tsave, p0);
+        Set(PropertyPair::TP, Tsave, p0);
         return (v2 - v1)/((v2 + v1)*dt);
     }
 
     virtual double isothermalCompressibility() {
         double Psave = P(), dp = 1.e-4*Psave;
-        Set(TP, T, Psave - dp);
+        Set(PropertyPair::TP, T, Psave - dp);
         double v1 = v();
-        Set(TP, T, Psave + dp);
+        Set(PropertyPair::TP, T, Psave + dp);
         double v2 = v();
-        Set(TP, T, Psave);
+        Set(PropertyPair::TP, T, Psave);
         return -(v2 - v1)/((v2 + v1)*dp);
     }
-
 
     // saturation properties
 
@@ -182,14 +163,12 @@ public:
         return hp() - T*sp();
     }
 
-    double prop(int ijob);
+    double prop(propertyFlag::type ijob);
     void set_TPp(double t0, double p0);    // set T and P
 
 
     // functions to set or change state:
-
-    void Set(int XY, double x0, double y0);
-    void Set_meta(double phase, double pp);
+    void Set(PropertyPair::type XY, double x0, double y0);
 
 protected:
 
@@ -214,7 +193,7 @@ protected:
     double vp() {
         return 1.0/Rho;
     }
-    int Lever(int itp, double sat, double val, int ifunc);
+    int Lever(int itp, double sat, double val, propertyFlag::type ifunc);
     void update_sat();
 
 private:
@@ -222,9 +201,9 @@ private:
     void set_T(double t0);
     void set_v(double v0);
     void BracketSlope(double p);
-    double lprop(int ijob);
-    double vprop(int ijob);
-    void set_xy(int if1, int if2, double X, double Y,
+    double vprop(propertyFlag::type ijob);
+    void set_xy(propertyFlag::type if1, propertyFlag::type if2,
+                double X, double Y,
                 double atx, double aty, double rtx, double rty);
 
     int kbr;
