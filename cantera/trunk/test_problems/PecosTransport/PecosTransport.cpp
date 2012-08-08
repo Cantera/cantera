@@ -36,7 +36,6 @@ using namespace std;
 #include "cantera/IdealGasMix.h"
 #include "cantera/transport/TransportFactory.h"
 
-//#include "Cantera.h"
 //#include "transport.h"
 //#include "IdealGasMix.h"
 
