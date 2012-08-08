@@ -553,15 +553,6 @@ protected:
     //! Sets the state using a TPX::TV call
     void setTPXState() const;
 
-    //! Carry out a internal check on tpx, it may have thrown an error.
-    /*!
-     * @param v Defaults to zero
-     */
-    void check(doublereal v = 0.0) const;
-
-    //! Report errors in the TPX level
-    void reportTPXError() const;
-
 private:
 
     //! Pointer to the underlying tpx object Substance that does the work

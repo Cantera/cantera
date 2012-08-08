@@ -2,6 +2,9 @@
 
 #include "Hydrogen.h"
 #include <math.h>
+#include "cantera/base/stringUtils.h"
+
+using namespace Cantera;
 
 namespace tpx
 {
@@ -221,7 +224,8 @@ double hydrogen::Pp()
 double hydrogen::ldens()
 {
     if ((T < Tmn) || (T > Tc)) {
-        set_Err(TempError);
+        throw TPX_Error("hydrogen::ldens",
+                        "Temperature out of range. T = " + fp2str(T));
     }
     double x=1-T/Tc;
     double sum, term;
@@ -240,7 +244,8 @@ double hydrogen::Psat()
     double x = (1.0 - Tt/T)/(1.0 - Tt/Tc);
     double result;
     if ((T < Tmn) || (T > Tc)) {
-        set_Err(TempError);
+        throw TPX_Error("hydrogen::Psat",
+                        "Temperature out of range. T = " + fp2str(T));
     }
     result = Fhydro[0]*x + Fhydro[1]*x*x + Fhydro[2]*x*x*x +
              Fhydro[3]*x*pow(1-x, alpha);
