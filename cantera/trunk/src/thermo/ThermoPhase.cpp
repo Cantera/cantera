@@ -10,6 +10,7 @@
 #include "cantera/thermo/ThermoPhase.h"
 #include "cantera/base/mdp_allo.h"
 #include "cantera/base/stringUtils.h"
+#include "cantera/thermo/ThermoFactory.h"
 
 #include <iomanip>
 #include <fstream>
@@ -942,7 +943,7 @@ void ThermoPhase::initThermoFile(std::string inputFile, std::string id)
      * The phase object automatically constructs an XML object.
      * Use this object to store information.
      */
-    XML_Node& phaseNode_XML = xml();
+    //XML_Node& phaseNode_XML = xml();
     XML_Node* fxml = new XML_Node();
     fxml->build(fin);
     XML_Node* fxml_phase = findXMLPhase(fxml, id);
@@ -951,8 +952,12 @@ void ThermoPhase::initThermoFile(std::string inputFile, std::string id)
                            "ERROR: Can not find phase named " +
                            id + " in file named " + inputFile);
     }
-    fxml_phase->copy(&phaseNode_XML);
-    initThermoXML(*fxml_phase, id);
+    //fxml_phase->copy(&phaseNode_XML);
+    //initThermoXML(*fxml_phase, id);
+    bool m_ok = importPhase(*fxml_phase, this);
+    if (!m_ok) {
+        throw CanteraError("ThermoPhase::initThermoFile","importPhase failed ");
+    }
     delete fxml;
 }
 //=================================================================================================================
