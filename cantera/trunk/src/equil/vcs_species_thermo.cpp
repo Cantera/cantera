@@ -15,7 +15,7 @@
 #include "cantera/equil/vcs_defs.h"
 #include "cantera/equil/vcs_VolPhase.h"
 
-#include "vcs_Exception.h"
+#include "cantera/base/ctexceptions.h"
 #include "cantera/equil/vcs_internal.h"
 
 #include <cstdio>
@@ -178,7 +178,10 @@ double VCS_SPECIES_THERMO::GStar_R_calc(size_t kglob, double TKelvin,
     fe = G0_R_calc(kglob, TKelvin);
     T = TKelvin;
     if (UseCanteraCalls) {
-        AssertThrowVCS(m_VCS_UnitsFormat == VCS_UNITS_MKS, "Possible inconsistency");
+        if (m_VCS_UnitsFormat != VCS_UNITS_MKS) {
+            throw Cantera::CanteraError("VCS_SPECIES_THERMO::GStar_R_calc",
+                                        "Possible inconsistency");
+        }
         size_t kspec = IndexSpeciesPhase;
         OwningPhase->setState_TP(TKelvin, pres);
         fe = OwningPhase->GStar_calc_one(kspec);
@@ -221,7 +224,10 @@ VolStar_calc(size_t kglob, double TKelvin, double presPA)
 
     T = TKelvin;
     if (UseCanteraCalls) {
-        AssertThrowVCS(m_VCS_UnitsFormat == VCS_UNITS_MKS, "Possible inconsistency");
+        if (m_VCS_UnitsFormat != VCS_UNITS_MKS) {
+            throw Cantera::CanteraError("VCS_SPECIES_THERMO::VolStar_calc",
+                                        "Possible inconsistency");
+        }
         size_t kspec = IndexSpeciesPhase;
         OwningPhase->setState_TP(TKelvin, presPA);
         vol = OwningPhase->VolStar_calc_one(kspec);
@@ -270,7 +276,10 @@ double VCS_SPECIES_THERMO::G0_R_calc(size_t kglob, double TKelvin)
         return fe;
     }
     if (UseCanteraCalls) {
-        AssertThrowVCS(m_VCS_UnitsFormat == VCS_UNITS_MKS, "Possible inconsistency");
+        if (m_VCS_UnitsFormat != VCS_UNITS_MKS) {
+            throw Cantera::CanteraError("VCS_SPECIES_THERMO::G0_R_calc",
+                                        "Possible inconsistency");
+        }
         size_t kspec = IndexSpeciesPhase;
         OwningPhase->setState_T(TKelvin);
         fe = OwningPhase->G0_calc_one(kspec);

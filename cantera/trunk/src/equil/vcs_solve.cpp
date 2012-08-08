@@ -10,7 +10,7 @@
 
 
 #include "cantera/equil/vcs_solve.h"
-#include "vcs_Exception.h"
+#include "cantera/base/ctexceptions.h"
 #include "cantera/equil/vcs_internal.h"
 #include "cantera/equil/vcs_prob.h"
 
@@ -100,21 +100,18 @@ void VCS_SOLVE::vcs_initSizes(const size_t nspecies0, const size_t nelements,
     string ser = "VCS_SOLVE: ERROR:\n\t";
     if (nspecies0 <= 0) {
         plogf("%s Number of species is nonpositive\n", ser.c_str());
-        throw vcsError("VCS_SOLVE()",
-                       ser + " Number of species is nonpositive\n",
-                       VCS_PUB_BAD);
+        throw Cantera::CanteraError("VCS_SOLVE()", ser +
+                                    " Number of species is nonpositive\n");
     }
     if (nelements <= 0) {
         plogf("%s Number of elements is nonpositive\n", ser.c_str());
-        throw vcsError("VCS_SOLVE()",
-                       ser + " Number of species is nonpositive\n",
-                       VCS_PUB_BAD);
+        throw Cantera::CanteraError("VCS_SOLVE()", ser +
+                                    " Number of species is nonpositive\n");
     }
     if (nphase0 <= 0) {
         plogf("%s Number of phases is nonpositive\n", ser.c_str());
-        throw vcsError("VCS_SOLVE()",
-                       ser + " Number of species is nonpositive\n",
-                       VCS_PUB_BAD);
+        throw Cantera::CanteraError("VCS_SOLVE()", ser +
+                                    " Number of species is nonpositive\n");
     }
 
     //vcs_priv_init(this);

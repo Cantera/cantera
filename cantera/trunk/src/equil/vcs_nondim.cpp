@@ -12,7 +12,7 @@
 #include "cantera/equil/vcs_internal.h"
 #include "cantera/equil/vcs_VolPhase.h"
 #include "cantera/base/stringUtils.h"
-#include "vcs_Exception.h"
+#include "cantera/base/ctexceptions.h"
 
 #include <cstdio>
 #include <cstdlib>
@@ -159,8 +159,9 @@ void VCS_SOLVE::vcs_nondim_TP()
             plogf(" VCS_SOLVE::vcs_nondim_TP ERROR: Total input moles , %g,  is outside the range handled by vcs. exit",
                   tmole_orig);
             plogendl();
-            throw vcsError("VCS_SOLVE::vcs_nondim_TP", " Total input moles ," + Cantera::fp2str(tmole_orig) +
-                           "is outside the range handled by vcs.\n");
+            throw Cantera::CanteraError("VCS_SOLVE::vcs_nondim_TP",
+                    " Total input moles ," + Cantera::fp2str(tmole_orig) +
+                    "is outside the range handled by vcs.\n");
         }
 
         // Determine the scale of the problem

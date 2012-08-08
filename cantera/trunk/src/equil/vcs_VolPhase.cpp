@@ -14,7 +14,6 @@
 
 #include "cantera/thermo/ThermoPhase.h"
 #include "cantera/thermo/mix_defs.h"
-#include "vcs_Exception.h"
 
 #include <string>
 #include <sstream>
@@ -1404,7 +1403,7 @@ double vcs_VolPhase::totalMolesInert() const
 // Returns the global index of the local element index for the phase
 size_t vcs_VolPhase::elemGlobalIndex(const size_t e) const
 {
-    DebugAssertThrowVCS(e < m_numElemConstraints, " vcs_VolPhase::elemGlobalIndex") ;
+    AssertThrow(e < m_numElemConstraints, " vcs_VolPhase::elemGlobalIndex");
     return m_elemGlobalIndex[e];
 }
 /**********************************************************************/
@@ -1412,8 +1411,8 @@ size_t vcs_VolPhase::elemGlobalIndex(const size_t e) const
 // Returns the global index of the local element index for the phase
 void vcs_VolPhase::setElemGlobalIndex(const size_t eLocal, const size_t eGlobal)
 {
-    DebugAssertThrowVCS(eLocal < m_numElemConstraints,
-                        "vcs_VolPhase::setElemGlobalIndex");
+    AssertThrow(eLocal < m_numElemConstraints,
+                "vcs_VolPhase::setElemGlobalIndex");
     m_elemGlobalIndex[eLocal] = eGlobal;
 }
 /**********************************************************************/

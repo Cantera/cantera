@@ -6,7 +6,7 @@
  */
 #include "cantera/equil/vcs_solve.h"
 #include "cantera/equil/vcs_internal.h"
-#include "vcs_Exception.h"
+#include "cantera/base/ctexceptions.h"
 #include "math.h"
 
 namespace VCSnonideal
@@ -78,8 +78,10 @@ bool VCS_SOLVE::vcs_elabcheck(int ibound)
                 /*
                  * This logic is for charge neutrality condition
                  */
-                if (m_elType[i] == VCS_ELEM_TYPE_CHARGENEUTRALITY) {
-                    AssertThrowVCS(m_elemAbundancesGoal[i] == 0.0, "vcs_elabcheck");
+                if (m_elType[i] == VCS_ELEM_TYPE_CHARGENEUTRALITY &&
+                    m_elemAbundancesGoal[i] != 0.0) {
+                    throw Cantera::CanteraError("VCS_SOLVE::vcs_elabcheck",
+                                                "Problem with charge neutrality condition");
                 }
                 if (m_elemAbundancesGoal[i] == 0.0 || (m_elType[i] == VCS_ELEM_TYPE_ELECTRONCHARGE)) {
                     scale = VCS_DELETE_MINORSPECIES_CUTOFF;
