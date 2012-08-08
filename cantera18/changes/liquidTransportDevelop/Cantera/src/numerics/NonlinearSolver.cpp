@@ -438,6 +438,11 @@ namespace Cantera {
   void NonlinearSolver::createSolnWeights(const doublereal * const y) {
     for (int i = 0; i < neq_; i++) {
       m_ewt[i] = rtol_ * fabs(y[i]) + atolk_[i];
+#ifdef DEBUG_MODE
+      if (m_ewt[i] <= 0.0) {
+	throw CanteraError(" NonlinearSolver::createSolnWeights()", "ewts <= 0.0");
+      }
+#endif
     }
   }
   //====================================================================================================================
@@ -571,17 +576,17 @@ namespace Cantera {
     doublereal sum_norm = 0.0, error;
 
     for (i = 0; i < neq_; i++) {
-#ifdef DEBUG_HKM
+#ifdef DEBUG_MODE
       mdp::checkFinite(resid[i]);
 #endif
       error     = resid[i] / m_residWts[i];
-#ifdef DEBUG_HKM
+#ifdef DEBUG_MODE
       mdp::checkFinite(error);
 #endif
       sum_norm += (error * error);
     }
     sum_norm = sqrt(sum_norm / neq_); 
-#ifdef DEBUG_HKM
+#ifdef DEBUG_MODE
     mdp::checkFinite(sum_norm);
 #endif
     if (printLargest) {
@@ -813,6 +818,9 @@ namespace Cantera {
 	    } else {
 	      m_rowWtScales[irow] += fabs(*jptr) * m_ewt[jcol];
 	    }
+#ifdef DEBUG_MODE
+            mdp::checkFinite(m_rowWtScales[irow]);
+#endif
 	    jptr++;
 	  }
 	}	
@@ -834,6 +842,9 @@ namespace Cantera {
 	      } else {
 		m_rowWtScales[irow] += vv * m_ewt[jcol];
 	      }	      
+#ifdef DEBUG_MODE
+              mdp::checkFinite(m_rowWtScales[irow]);
+#endif
 	    }
 	  }
 	}
@@ -3733,6 +3744,11 @@ namespace Cantera {
 	  return info;
 	}
 	m_nJacEval++;
+#ifdef DEBUG_MODE
+	for (int ii = 0; ii < neq_; ii++) {
+	  mdp::checkFinite(f[ii]);
+	}
+#endif
 
 	/*
 	 * Malloc a vector and call the function object to return a set of
@@ -3795,6 +3811,16 @@ namespace Cantera {
 	  info =  m_func->evalResidNJ(time_curr, delta_t_n, y, ydot, DATA_PTR(m_wksp),
 				      JacDelta_ResidEval, j, dy);
 	  m_nfe++;
+	   
+#ifdef DEBUG_MODE
+	  if (fabs(dy) < 1.0E-300) {
+	    throw CanteraError("NonlinearSolver::beuler_jac", "dy is equal to zero");
+	  }
+	  for (int ii = 0; ii < neq_; ii++) {
+	    mdp::checkFinite(m_wksp[ii]);
+	  }
+#endif
+      
 	  if (info != 1) {
 	    mdp::mdp_safe_free((void **) &dyVector);
 	    return info;
@@ -3870,6 +3896,14 @@ namespace Cantera {
 
 	  info =  m_func->evalResidNJ(time_curr, delta_t_n, y, ydot, DATA_PTR(m_wksp), JacDelta_ResidEval, j, dy);
 	  m_nfe++;
+#ifdef DEBUG_MODE
+	  if (fabs(dy) < 1.0E-300) {
+	    throw CanteraError("NonlinearSolver::beuler_jac", "dy is equal to zero");
+	  }
+	  for (int ii = 0; ii < neq_; ii++) {
+	    mdp::checkFinite(m_wksp[ii]);
+	  }
+#endif
 	  if (info != 1) {
 	    mdp::mdp_safe_free((void **) &dyVector);
 	    return info;
@@ -4032,11 +4066,17 @@ namespace Cantera {
     if (checkUserResidualTols_ == 1) {
       for (int i = 0; i < neq_; i++) {
 	m_residWts[i] = userResidAtol_[i] + userResidRtol_ * m_rowWtScales[i] / neq_;
+#ifdef DEBUG_MODE
+        mdp::checkFinite(m_residWts[i]);
+#endif
       }
     } else {
       doublereal sum = 0.0;  
       for (int i = 0; i < neq_; i++) {
 	m_residWts[i] = m_rowWtScales[i] / neq_;
+#ifdef DEBUG_MODE
+        mdp::checkFinite(m_residWts[i]);
+#endif
 	sum += m_residWts[i];
       }
       sum /= neq_;
@@ -4134,6 +4174,10 @@ namespace Cantera {
   void NonlinearSolver::setAtol(const doublereal * const atol)
   {
     for (int i = 0; i < neq_; i++) {
+      if (atol[i] <= 0.0) {
+	throw CanteraError("NonlinearSolver::setAtol()",
+			   "Atol is less than or equal to zero");
+      }
       atolk_[i]= atol[i];
     }
   }
@@ -4146,6 +4190,10 @@ namespace Cantera {
    */
   void NonlinearSolver::setRtol(const doublereal rtol)
   {
+    if (rtol <= 0.0) {
+      throw CanteraError( "NonlinearSolver::setRtol()",
+			  "Rtol is <= zero");
+    }
     rtol_ = rtol;
   }
   //=====================================================================================================================
