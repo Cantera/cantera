@@ -1595,7 +1595,9 @@ public:
      */
     virtual std::string report(bool show_thermo = true) const;
 
-    //! returns a summary of the state of the phase to a comma separated file
+    //! returns a summary of the state of the phase to a comma separated file.
+    //! To customize the data included in the report, derived classes should
+    //! override the getCsvReportData method.
     /*!
      * @param csvFile     ofstream file to print comma separated data for
      *                    the phase
@@ -1605,6 +1607,11 @@ public:
     //@}
 
 protected:
+
+    //! Fills `names` and `data` with the column names and species thermo
+    //! properties to be included in the output of the reportCSV method.
+    virtual void getCsvReportData(std::vector<std::string>& names,
+                                  std::vector<vector_fp>& data) const;
 
     //! Pointer to the calculation manager for species
     //! reference-state thermodynamic properties
