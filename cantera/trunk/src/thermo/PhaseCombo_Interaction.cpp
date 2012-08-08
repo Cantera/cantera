@@ -51,7 +51,7 @@ PhaseCombo_Interaction::PhaseCombo_Interaction(std::string inputFile, std::strin
     formMargules_(0),
     formTempModel_(0)
 {
-    constructPhaseFile(inputFile, id);
+    initThermoFile(inputFile, id);
 }
 //====================================================================================================================
 //
@@ -65,7 +65,7 @@ PhaseCombo_Interaction::PhaseCombo_Interaction(XML_Node& phaseRoot, std::string 
     formMargules_(0),
     formTempModel_(0)
 {
-    constructPhaseXML(phaseRoot, id);
+    importPhase(*findXMLPhase(&phaseRoot, id), this);
 }
 
 //====================================================================================================================
@@ -160,7 +160,7 @@ PhaseCombo_Interaction::PhaseCombo_Interaction(int testProb)  :
 {
 
 
-    constructPhaseFile("PhaseCombo_Interaction.xml", "");
+    initThermoFile("PhaseCombo_Interaction.xml", "");
 
 
     numBinaryInteractions_ = 1;
@@ -230,122 +230,7 @@ int PhaseCombo_Interaction::eosType() const
 {
     return cPhaseCombo_Interaction;
 }
-//====================================================================================================================
-/*
- *   Import, construct, and initialize a phase
- *   specification from an XML tree into the current object.
- *
- * This routine is a precursor to constructPhaseXML(XML_Node*)
- * routine, which does most of the work.
- *
- * @param infile XML file containing the description of the
- *        phase
- *
- * @param id  Optional parameter identifying the name of the
- *            phase. If none is given, the first XML
- *            phase element will be used.
- *
- * HKM - Checked for Transition
- */
-void PhaseCombo_Interaction::constructPhaseFile(std::string inputFile, std::string id)
-{
 
-    if ((int) inputFile.size() == 0) {
-        throw CanteraError("PhaseCombo_Interaction:constructPhaseFile",
-                           "input file is null");
-    }
-    string path = findInputFile(inputFile);
-    std::ifstream fin(path.c_str());
-    if (!fin) {
-        throw CanteraError("PhaseCombo_Interaction:constructPhaseFile",
-                           "Could not open " +path+" for reading.");
-    }
-    /*
-     * The phase object automatically constructs an XML object.
-     * Use this object to store information.
-     */
-    XML_Node& phaseNode_XML = xml();
-    XML_Node* fxml = new XML_Node();
-    fxml->build(fin);
-    XML_Node* fxml_phase = findXMLPhase(fxml, id);
-    if (!fxml_phase) {
-        throw CanteraError("PhaseCombo_Interaction:constructPhaseFile",
-                           "ERROR: Can not find phase named " + id + " in file named " + inputFile);
-    }
-    fxml_phase->copy(&phaseNode_XML);
-    constructPhaseXML(*fxml_phase, id);
-    delete fxml;
-}
-//====================================================================================================================
-/*
- *   Import, construct, and initialize a HMWSoln phase
- *   specification from an XML tree into the current object.
- *
- *   Most of the work is carried out by the cantera base
- *   routine, importPhase(). That routine imports all of the
- *   species and element data, including the standard states
- *   of the species.
- *
- *   Then, In this routine, we read the information
- *   particular to the specification of the activity
- *   coefficient model for the Pitzer parameterization.
- *
- *   We also read information about the molar volumes of the
- *   standard states if present in the XML file.
- *
- * @param phaseNode This object must be the phase node of a
- *             complete XML tree
- *             description of the phase, including all of the
- *             species data. In other words while "phase" must
- *             point to an XML phase object, it must have
- *             sibling nodes "speciesData" that describe
- *             the species in the phase.
- * @param id   ID of the phase. If nonnull, a check is done
- *             to see if phaseNode is pointing to the phase
- *             with the correct id.
- *
- * HKM - Checked for Transition
- */
-void PhaseCombo_Interaction::constructPhaseXML(XML_Node& phaseNode, std::string id)
-{
-    string stemp;
-    if ((int) id.size() > 0) {
-        string idp = phaseNode.id();
-        if (idp != id) {
-            throw CanteraError("PhaseCombo_Interaction::constructPhaseXML",
-                               "phasenode and Id are incompatible");
-        }
-    }
-
-    /*
-     * Find the Thermo XML node
-     */
-    if (!phaseNode.hasChild("thermo")) {
-        throw CanteraError("PhaseCombo_Interaction::constructPhaseXML",
-                           "no thermo XML node");
-    }
-    XML_Node& thermoNode = phaseNode.child("thermo");
-
-    /*
-     * Make sure that the thermo model is PhaseCombo_Interaction
-     */
-    stemp = thermoNode.attrib("model");
-    string formString = lowercase(stemp);
-    if (formString != "phasecombo_interaction") {
-        throw CanteraError("PhaseCombo_Interaction::constructPhaseXML",
-                           "model name isn't PhaseCombo_Interaction: " + formString);
-    }
-
-    /*
-     * Call the Cantera importPhase() function. This will import
-     * all of the species into the phase. This will also handle
-     * all of the species standard states
-     */
-    bool m_ok = importPhase(phaseNode, this);
-    if (!m_ok) {
-        throw CanteraError("PhaseCombo_Interaction::constructPhaseXML","importPhase failed ");
-    }
-}
 //====================================================================================================================
 /*
  * ------------ Molar Thermodynamic Properties ----------------------
@@ -683,24 +568,30 @@ void PhaseCombo_Interaction::initThermoXML(XML_Node& phaseNode, std::string id)
 {
     string subname = "PhaseCombo_Interaction::initThermoXML";
     string stemp;
+    if ((int) id.size() > 0) {
+        string idp = phaseNode.id();
+        if (idp != id) {
+            throw CanteraError(subname,
+                               "phasenode and Id are incompatible");
+        }
+    }
 
     /*
      * Check on the thermo field. Must have:
-     * <thermo model="IdealSolidSolution" />
+     * <thermo model="PhaseCombo_Interaction" />
      */
-
+    if (!phaseNode.hasChild("thermo")) {
+        throw CanteraError(subname,
+                           "no thermo XML node");
+    }
     XML_Node& thermoNode = phaseNode.child("thermo");
-    string mStringa = thermoNode.attrib("model");
-    string mString = lowercase(mStringa);
-    if (mString != "phasecombo_interaction") {
-        throw CanteraError(subname.c_str(), "Unknown thermo model: " + mStringa);
+    stemp = thermoNode.attrib("model");
+    string formString = lowercase(stemp);
+    if (formString != "phasecombo_interaction") {
+        throw CanteraError(subname,
+                           "model name isn't PhaseCombo_Interaction: " + formString);
     }
 
-
-    /*
-     * Go get all of the coefficients and factors in the
-     * activityCoefficients XML block
-     */
     /*
      * Go get all of the coefficients and factors in the
      * activityCoefficients XML block
