@@ -19,7 +19,6 @@ using namespace std;
 /*****************************************************************/
 /*****************************************************************/
 
-#include "Cantera.h"
 #include "transport.h"
 #include "IdealGasMix.h"
 #include "equil.h"
