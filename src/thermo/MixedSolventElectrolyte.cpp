@@ -52,7 +52,7 @@ MixedSolventElectrolyte::MixedSolventElectrolyte(std::string inputFile, std::str
     formMargules_(0),
     formTempModel_(0)
 {
-    constructPhaseFile(inputFile, id);
+    initThermoFile(inputFile, id);
 }
 
 MixedSolventElectrolyte::MixedSolventElectrolyte(XML_Node& phaseRoot, std::string id) :
@@ -61,7 +61,7 @@ MixedSolventElectrolyte::MixedSolventElectrolyte(XML_Node& phaseRoot, std::strin
     formMargules_(0),
     formTempModel_(0)
 {
-    constructPhaseXML(phaseRoot, id);
+    importPhase(*findXMLPhase(&phaseRoot, id), this);
 }
 
 
@@ -150,7 +150,7 @@ MixedSolventElectrolyte::MixedSolventElectrolyte(int testProb)  :
 {
 
 
-    constructPhaseFile("LiKCl_liquid.xml", "");
+    initThermoFile("LiKCl_liquid.xml", "");
 
 
     numBinaryInteractions_ = 1;
@@ -220,120 +220,6 @@ int MixedSolventElectrolyte::eosType() const
     return 0;
 }
 
-/*
- *   Import, construct, and initialize a phase
- *   specification from an XML tree into the current object.
- *
- * This routine is a precursor to constructPhaseXML(XML_Node*)
- * routine, which does most of the work.
- *
- * @param infile XML file containing the description of the
- *        phase
- *
- * @param id  Optional parameter identifying the name of the
- *            phase. If none is given, the first XML
- *            phase element will be used.
- */
-void MixedSolventElectrolyte::constructPhaseFile(std::string inputFile, std::string id)
-{
-
-    if ((int) inputFile.size() == 0) {
-        throw CanteraError("MixedSolventElectrolyte:constructPhaseFile",
-                           "input file is null");
-    }
-    string path = findInputFile(inputFile);
-    std::ifstream fin(path.c_str());
-    if (!fin) {
-        throw CanteraError("MixedSolventElectrolyte:constructPhaseFile","could not open "
-                           +path+" for reading.");
-    }
-    /*
-     * The phase object automatically constructs an XML object.
-     * Use this object to store information.
-     */
-    XML_Node& phaseNode_XML = xml();
-    XML_Node* fxml = new XML_Node();
-    fxml->build(fin);
-    XML_Node* fxml_phase = findXMLPhase(fxml, id);
-    if (!fxml_phase) {
-        throw CanteraError("MixedSolventElectrolyte:constructPhaseFile",
-                           "ERROR: Can not find phase named " +
-                           id + " in file named " + inputFile);
-    }
-    fxml_phase->copy(&phaseNode_XML);
-    constructPhaseXML(*fxml_phase, id);
-    delete fxml;
-}
-
-/*
- *   Import, construct, and initialize a HMWSoln phase
- *   specification from an XML tree into the current object.
- *
- *   Most of the work is carried out by the cantera base
- *   routine, importPhase(). That routine imports all of the
- *   species and element data, including the standard states
- *   of the species.
- *
- *   Then, In this routine, we read the information
- *   particular to the specification of the activity
- *   coefficient model for the Pitzer parameterization.
- *
- *   We also read information about the molar volumes of the
- *   standard states if present in the XML file.
- *
- * @param phaseNode This object must be the phase node of a
- *             complete XML tree
- *             description of the phase, including all of the
- *             species data. In other words while "phase" must
- *             point to an XML phase object, it must have
- *             sibling nodes "speciesData" that describe
- *             the species in the phase.
- * @param id   ID of the phase. If nonnull, a check is done
- *             to see if phaseNode is pointing to the phase
- *             with the correct id.
- */
-void MixedSolventElectrolyte::constructPhaseXML(XML_Node& phaseNode, std::string id)
-{
-    string stemp;
-    if ((int) id.size() > 0) {
-        string idp = phaseNode.id();
-        if (idp != id) {
-            throw CanteraError("MixedSolventElectrolyte::constructPhaseXML",
-                               "phasenode and Id are incompatible");
-        }
-    }
-
-    /*
-     * Find the Thermo XML node
-     */
-    if (!phaseNode.hasChild("thermo")) {
-        throw CanteraError("MixedSolventElectrolyte::constructPhaseXML",
-                           "no thermo XML node");
-    }
-    XML_Node& thermoNode = phaseNode.child("thermo");
-
-    /*
-     * Make sure that the thermo model is Margules
-     */
-    stemp = thermoNode.attrib("model");
-    string formString = lowercase(stemp);
-    if (formString != "margules") {
-        throw CanteraError("MixedSolventElectrolyte::constructPhaseXML",
-                           "model name isn't Margules: " + formString);
-
-    }
-
-    /*
-     * Call the Cantera importPhase() function. This will import
-     * all of the species into the phase. This will also handle
-     * all of the solvent and solute standard states
-     */
-    bool m_ok = importPhase(phaseNode, this);
-    if (!m_ok) {
-        throw CanteraError("MixedSolventElectrolyte::constructPhaseXML","importPhase failed ");
-    }
-
-}
 //====================================================================================================================
 /*
  * ------------ Molar Thermodynamic Properties ----------------------
@@ -673,24 +559,27 @@ void MixedSolventElectrolyte::initThermoXML(XML_Node& phaseNode, std::string id)
     string subname = "MixedSolventElectrolyte::initThermoXML";
     string stemp;
 
+    if ((int) id.size() > 0) {
+        string idp = phaseNode.id();
+        if (idp != id) {
+            throw CanteraError(subname, "phasenode and Id are incompatible");
+        }
+    }
+
     /*
      * Check on the thermo field. Must have:
-     * <thermo model="IdealSolidSolution" />
+     * <thermo model="MixedSolventElectrolyte" />
      */
-
+    if (!phaseNode.hasChild("thermo")) {
+        throw CanteraError(subname, "no thermo XML node");
+    }
     XML_Node& thermoNode = phaseNode.child("thermo");
     string mStringa = thermoNode.attrib("model");
     string mString = lowercase(mStringa);
-    if (mString != "margules") {
-        throw CanteraError(subname.c_str(),
-                           "Unknown thermo model: " + mStringa);
+    if (mString != "MixedSolventElectrolyte") {
+        throw CanteraError(subname, "Unknown thermo model: " + mStringa);
     }
 
-
-    /*
-     * Go get all of the coefficients and factors in the
-     * activityCoefficients XML block
-     */
     /*
      * Go get all of the coefficients and factors in the
      * activityCoefficients XML block
