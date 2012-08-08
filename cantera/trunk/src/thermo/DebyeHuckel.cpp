@@ -82,7 +82,7 @@ DebyeHuckel::DebyeHuckel(std::string inputFile, std::string id) :
     m_npActCoeff[0] = 0.1127;
     m_npActCoeff[1] = -0.01049;
     m_npActCoeff[2] = 1.545E-3;
-    constructPhaseFile(inputFile, id);
+    initThermoFile(inputFile, id);
 }
 
 DebyeHuckel::DebyeHuckel(XML_Node& phaseRoot, std::string id) :
@@ -104,7 +104,7 @@ DebyeHuckel::DebyeHuckel(XML_Node& phaseRoot, std::string id) :
     m_npActCoeff[0] = 0.1127;
     m_npActCoeff[1] = -0.01049;
     m_npActCoeff[2] = 1.545E-3;
-    constructPhaseXML(phaseRoot, id);
+    importPhase(*findXMLPhase(&phaseRoot, id), this);
 }
 
 /*
@@ -906,53 +906,6 @@ void DebyeHuckel::initThermo()
     initLengths();
 }
 
-/*
- * constructPhaseFile
- *
- * Initialization of a Debye-Huckel phase using an
- * xml file.
- *
- * This routine is a precursor to initThermo(XML_Node*)
- * routine, which does most of the work.
- *
- * @param infile XML file containing the description of the
- *        phase
- *
- * @param id  Optional parameter identifying the name of the
- *            phase. If none is given, the first XML
- *            phase element will be used.
- */
-void DebyeHuckel::constructPhaseFile(std::string inputFile, std::string id)
-{
-
-    if (inputFile.size() == 0) {
-        throw CanteraError("DebyeHuckel::initThermo",
-                           "input file is null");
-    }
-    std::string path = findInputFile(inputFile);
-    ifstream fin(path.c_str());
-    if (!fin) {
-        throw CanteraError("DebyeHuckel::initThermo","could not open "
-                           +path+" for reading.");
-    }
-    /*
-     * The phase object automatically constructs an XML object.
-     * Use this object to store information.
-     */
-    XML_Node& phaseNode_XML = xml();
-    XML_Node* fxml = new XML_Node();
-    fxml->build(fin);
-    XML_Node* fxml_phase = findXMLPhase(fxml, id);
-    if (!fxml_phase) {
-        throw CanteraError("DebyeHuckel::initThermo",
-                           "ERROR: Can not find phase named " +
-                           id + " in file named " + inputFile);
-    }
-    fxml_phase->copy(&phaseNode_XML);
-    constructPhaseXML(*fxml_phase, id);
-    delete fxml;
-}
-
 //! Utility function to assign an integer value from a string for the ElectrolyteSpeciesType field.
 /*!
  *  @param estString  input string that will be interpreted
@@ -983,17 +936,11 @@ static int interp_est(std::string estString)
 }
 
 /*
- *   Import and initialize a DebyeHuckel phase
- *   specification in an XML tree into the current object.
- *   Here we read an XML description of the phase.
- *   We import descriptions of the elements that make up the
- *   species in a phase.
- *   We import information about the species, including their
- *   reference state thermodynamic polynomials. We then freeze
- *   the state of the species.
+ * Process the XML file after species are set up.
  *
- *   Then, we read the species molar volumes from the xml
- *   tree to finish the initialization.
+ *  This gets called from importPhase(). It processes the XML file
+ *  after the species are set up. This is the main routine for
+ *  reading in activity coefficient parameters.
  *
  * @param phaseNode This object must be the phase node of a
  *             complete XML tree
@@ -1006,13 +953,13 @@ static int interp_est(std::string estString)
  *             to see if phaseNode is pointing to the phase
  *             with the correct id.
  */
-void DebyeHuckel::constructPhaseXML(XML_Node& phaseNode, std::string id)
+void DebyeHuckel::
+initThermoXML(XML_Node& phaseNode, std::string id)
 {
-
     if (id.size() > 0) {
         std::string idp = phaseNode.id();
         if (idp != id) {
-            throw CanteraError("DebyeHuckel::constructPhaseXML",
+            throw CanteraError("DebyeHuckel::initThermoXML",
                                "phasenode and Id are incompatible");
         }
     }
@@ -1021,51 +968,10 @@ void DebyeHuckel::constructPhaseXML(XML_Node& phaseNode, std::string id)
      * Find the Thermo XML node
      */
     if (!phaseNode.hasChild("thermo")) {
-        throw CanteraError("DebyeHuckel::constructPhaseXML",
+        throw CanteraError("DebyeHuckel::initThermoXML",
                            "no thermo XML node");
     }
     XML_Node& thermoNode = phaseNode.child("thermo");
-
-    /*
-     * Possibly change the form of the standard concentrations
-     */
-    if (thermoNode.hasChild("standardConc")) {
-        XML_Node& scNode = thermoNode.child("standardConc");
-        m_formGC = 2;
-        std::string formString = scNode.attrib("model");
-        if (formString != "") {
-            if (formString == "unity") {
-                m_formGC = 0;
-                printf("exit standardConc = unity not done\n");
-                exit(EXIT_FAILURE);
-            } else if (formString == "molar_volume") {
-                m_formGC = 1;
-                printf("exit standardConc = molar_volume not done\n");
-                exit(EXIT_FAILURE);
-            } else if (formString == "solvent_volume") {
-                m_formGC = 2;
-            } else {
-                throw CanteraError("DebyeHuckel::constructPhaseXML",
-                                   "Unknown standardConc model: " + formString);
-            }
-        }
-    }
-    /*
-     * Get the Name of the Solvent:
-     *      <solvent> solventName </solvent>
-     */
-    std::string solventName = "";
-    if (thermoNode.hasChild("solvent")) {
-        XML_Node& scNode = thermoNode.child("solvent");
-        vector<std::string> nameSolventa;
-        getStringArray(scNode, nameSolventa);
-        int nsp = static_cast<int>(nameSolventa.size());
-        if (nsp != 1) {
-            throw CanteraError("DebyeHuckel::constructPhaseXML",
-                               "badly formed solvent XML node");
-        }
-        solventName = nameSolventa[0];
-    }
 
     /*
      * Determine the form of the Debye-Huckel model,
@@ -1087,7 +993,7 @@ void DebyeHuckel::constructPhaseXML(XML_Node& phaseNode, std::string id)
             } else if (formString == "Pitzer_with_Beta_ij") {
                 m_formDH = DHFORM_PITZER_BETAIJ;
             } else {
-                throw CanteraError("DebyeHuckel::constructPhaseXML",
+                throw CanteraError("DebyeHuckel::initThermoXML",
                                    "Unknown standardConc model: " + formString);
             }
         }
@@ -1099,48 +1005,7 @@ void DebyeHuckel::constructPhaseXML(XML_Node& phaseNode, std::string id)
         m_formDH = DHFORM_DILUTE_LIMIT;
     }
 
-    /*
-     * Call the Cantera importPhase() function. This will import
-     * all of the species into the phase. This will also handle
-     * all of the solvent and solute standard states
-     */
-    bool m_ok = importPhase(phaseNode, this);
-    if (!m_ok) {
-        throw CanteraError("DebyeHuckel::constructPhaseXML",
-                           "importPhase failed ");
-    }
-}
-
-/*
- * Process the XML file after species are set up.
- *
- *  This gets called from importPhase(). It processes the XML file
- *  after the species are set up. This is the main routine for
- *  reading in activity coefficient parameters.
- *
- * @param phaseNode This object must be the phase node of a
- *             complete XML tree
- *             description of the phase, including all of the
- *             species data. In other words while "phase" must
- *             point to an XML phase object, it must have
- *             sibling nodes "speciesData" that describe
- *             the species in the phase.
- * @param id   ID of the phase. If nonnull, a check is done
- *             to see if phaseNode is pointing to the phase
- *             with the correct id.
- */
-void DebyeHuckel::
-initThermoXML(XML_Node& phaseNode, std::string id)
-{
     std::string stemp;
-    /*
-     * Find the Thermo XML node
-     */
-    if (!phaseNode.hasChild("thermo")) {
-        throw CanteraError("HMWSoln::initThermoXML",
-                           "no thermo XML node");
-    }
-    XML_Node& thermoNode = phaseNode.child("thermo");
 
     /*
      * Possibly change the form of the standard concentrations
@@ -1161,13 +1026,11 @@ initThermoXML(XML_Node& phaseNode, std::string id)
             } else if (formString == "solvent_volume") {
                 m_formGC = 2;
             } else {
-                throw CanteraError("DebyeHuckel::constructPhaseXML",
+                throw CanteraError("DebyeHuckel::initThermoXML",
                                    "Unknown standardConc model: " + formString);
             }
         }
     }
-
-
 
     /*
      * Reconcile the solvent name and index.
@@ -1205,38 +1068,6 @@ initThermoXML(XML_Node& phaseNode, std::string id)
         throw CanteraError("DebyeHuckel::initThermoXML",
                            "Solvent " + solventName +
                            " should be first species");
-    }
-
-    /*
-     * Determine the form of the Debye-Huckel model,
-     * m_formDH.  We will use this information to size arrays below.
-     */
-    if (thermoNode.hasChild("activityCoefficients")) {
-        XML_Node& scNode = thermoNode.child("activityCoefficients");
-        m_formDH = DHFORM_DILUTE_LIMIT;
-        std::string formString = scNode.attrib("model");
-        if (formString != "") {
-            if (formString == "Dilute_limit") {
-                m_formDH = DHFORM_DILUTE_LIMIT;
-            } else if (formString == "Bdot_with_variable_a") {
-                m_formDH = DHFORM_BDOT_AK  ;
-            } else if (formString == "Bdot_with_common_a") {
-                m_formDH = DHFORM_BDOT_ACOMMON;
-            } else if (formString == "Beta_ij") {
-                m_formDH = DHFORM_BETAIJ;
-            } else if (formString == "Pitzer_with_Beta_ij") {
-                m_formDH = DHFORM_PITZER_BETAIJ;
-            } else {
-                throw CanteraError("DebyeHuckel::constructPhaseXML",
-                                   "Unknown standardConc model: " + formString);
-            }
-        }
-    } else {
-        /*
-         * If there is no XML node named "activityCoefficients", assume
-         * that we are doing the extreme dilute limit assumption
-         */
-        m_formDH = DHFORM_DILUTE_LIMIT;
     }
 
     /*
