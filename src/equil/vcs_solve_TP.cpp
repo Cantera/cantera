@@ -17,12 +17,13 @@
 #include "cantera/equil/vcs_internal.h"
 #include "cantera/equil/vcs_VolPhase.h"
 #include "vcs_species_thermo.h"
-#include "vcs_Exception.h"
+#include "cantera/base/ctexceptions.h"
 
 #include "cantera/base/clockWC.h"
 #include "cantera/base/stringUtils.h"
 
 using namespace std;
+using namespace Cantera;
 
 #ifndef MAX
 #define MAX(x,y) (( (x) > (y) ) ? (x) : (y))
@@ -3648,9 +3649,15 @@ size_t VCS_SOLVE::vcs_basisOptMax(const double* const molNum, const size_t j,
 {
     size_t largest = j;
     double big = molNum[j] * m_spSize[j] * 1.01;
-    AssertThrowVCS(m_spSize[j] > 0.0, "spsize is nonpos");
+    if (m_spSize[j] <= 0.0) {
+        throw CanteraError("VCS_SOLVE::vcs_basisOptMax",
+                                    "spSize is nonpositive");
+    }
     for (size_t i = j + 1; i < n; ++i) {
-        AssertThrowVCS(m_spSize[i] > 0.0, "spsize is nonpos");
+        if (m_spSize[i] <= 0.0) {
+            throw CanteraError("VCS_SOLVE::vcs_basisOptMax",
+                                        "spSize is nonpositive");
+        }
         bool doSwap = false;
         if (m_SSPhase[j]) {
             doSwap = (molNum[i] * m_spSize[i]) > (big);

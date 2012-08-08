@@ -52,9 +52,8 @@ namespace Cantera
  *
  *  Their first argument is a boolean. If the boolean is not true, a
  *  CanteraError is thrown, with descriptive information indicating
- *  where the error occurred. These functions may be eliminated from
- *  the source code, if the -DNDEBUG option is specified to the
- *  compiler.
+ *  where the error occurred. The Assert* checks are skipped if the NDEBUG
+ *  preprocessor symbol is defined, e.g. with the compiler option -DNDEBUG.
  */
 
 
