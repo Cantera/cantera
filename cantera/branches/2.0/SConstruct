@@ -1007,7 +1007,7 @@ def install(*args, **kwargs):
 
 env.SConsignFile()
 
-env.Append(CPPPATH=[],
+env.Prepend(CPPPATH=[],
            LIBPATH=[Dir('build/lib')])
 
 if addInstallActions:
