@@ -79,6 +79,12 @@ public:
     }
     virtual double sensitivity(size_t k, size_t p);
 
+    //! Returns a string listing the weighted error estimates associated
+    //! with each solution component.
+    //! This information can be used to identify which variables are
+    //! responsible for integrator failures or unexpected small timesteps.
+    virtual std::string getErrorInfo(int N);
+
 private:
 
     void sensInit(double t0, FuncEval& func);

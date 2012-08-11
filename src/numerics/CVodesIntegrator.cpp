@@ -47,6 +47,9 @@ using namespace std;
 
 #endif
 
+#include <sstream>
+#include <algorithm>
+
 inline static N_Vector nv(void* x)
 {
     return reinterpret_cast<N_Vector>(x);
@@ -492,7 +495,8 @@ void CVodesIntegrator::integrate(double tout)
     int flag;
     flag = CVode(m_cvode_mem, tout, nv(m_y), &t, CV_NORMAL);
     if (flag != CV_SUCCESS) {
-        throw CVodesErr(" CVodes error encountered. Error code: " + int2str(flag));
+        throw CVodesErr(" CVodes error encountered. Error code: " + int2str(flag) +
+                        "\nComponents with largest weighted error estimates:\n" + getErrorInfo(10));
     }
 #if SUNDIALS_VERSION <= 23
     if (m_np > 0) {
@@ -515,7 +519,9 @@ double CVodesIntegrator::step(double tout)
     int flag;
     flag = CVode(m_cvode_mem, tout, nv(m_y), &t, CV_ONE_STEP);
     if (flag != CV_SUCCESS) {
-        throw CVodesErr(" CVodes error encountered. Error code: " + int2str(flag));
+        throw CVodesErr(" CVodes error encountered. Error code: " + int2str(flag) +
+                        "\nComponents with largest weighted error estimates:\n" + getErrorInfo(10));
+
     }
     return t;
 }
@@ -538,6 +544,30 @@ double CVodesIntegrator::sensitivity(size_t k, size_t p)
     }
     return NV_Ith_S(m_yS[p],k);
 }
+
+string CVodesIntegrator::getErrorInfo(int N) {
+    N_Vector errs = N_VNew_Serial(m_neq);
+    N_Vector errw = N_VNew_Serial(m_neq);
+    CVodeGetErrWeights(m_cvode_mem, errw);
+    CVodeGetEstLocalErrors(m_cvode_mem, errs);
+
+    vector<pair<pair<double, double>, size_t> > weightedErrors;
+    for (size_t i=0; i<m_neq; i++) {
+        double err = NV_Ith_S(errs, i) * NV_Ith_S(errw, i);
+        weightedErrors.push_back(make_pair(make_pair(-abs(err), err), i));
+    }
+    N_VDestroy(errs);
+    N_VDestroy(errw);
+
+    sort(weightedErrors.begin(), weightedErrors.end());
+    stringstream s;
+    for (int i=0; i<N; i++) {
+        s << weightedErrors[i].second << ": "
+          << weightedErrors[i].first.second << endl;
+    }
+    return s.str();
+}
+
 }
 
 
