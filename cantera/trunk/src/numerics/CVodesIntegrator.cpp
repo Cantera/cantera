@@ -83,24 +83,25 @@ extern "C" {
     static int cvodes_rhs(realtype t, N_Vector y, N_Vector ydot,
                           void* f_data)
     {
-        double* ydata = NV_DATA_S(y); //N_VDATA(y);
-        double* ydotdata = NV_DATA_S(ydot); //N_VDATA(ydot);
-        Cantera::FuncData* d = (Cantera::FuncData*)f_data;
-        Cantera::FuncEval* f = d->m_func;
-        //try {
-        if (d->m_pars.size() == 0) {
-            f->eval(t, ydata, ydotdata, NULL);
-        } else {
-            f->eval(t, ydata, ydotdata, DATA_PTR(d->m_pars));
+        try {
+            double* ydata = NV_DATA_S(y); //N_VDATA(y);
+            double* ydotdata = NV_DATA_S(ydot); //N_VDATA(ydot);
+            Cantera::FuncData* d = (Cantera::FuncData*)f_data;
+            Cantera::FuncEval* f = d->m_func;
+            if (d->m_pars.size() == 0) {
+                f->eval(t, ydata, ydotdata, NULL);
+            } else {
+                f->eval(t, ydata, ydotdata, DATA_PTR(d->m_pars));
+            }
+        } catch (Cantera::CanteraError& err) {
+            std::cerr << err.what() << std::endl;
+            return 1; // possibly recoverable error
+        } catch (...) {
+            std::cerr << "cvodes_rhs: unhandled exception" << std::endl;
+            return -1; // unrecoverable error
         }
-        //}
-        //catch (...) {
-        //Cantera::showErrors();
-        //Cantera::error("Teminating execution");
-        //}
-        return 0;
+        return 0; // successful evaluation
     }
-
 }
 
 namespace Cantera
