@@ -739,7 +739,11 @@ py_reactornet_step(PyObject* self, PyObject* args)
     if (!PyArg_ParseTuple(args, "id:reactornet_step", &n, &t)) {
         return NULL;
     }
-    return Py_BuildValue("d",reactornet_step(n, t));
+    double ret = reactornet_step(n, t);
+    if (ret == DERR) {
+        return reportCanteraError();
+    }
+    return Py_BuildValue("d", ret);
 }
 
 
