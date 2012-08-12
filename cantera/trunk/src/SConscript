@@ -54,11 +54,12 @@ localenv.Depends(lib, localenv['config_h_target'])
 install('$inst_libdir', lib)
 env['cantera_staticlib'] = lib
 
-# OS X requires the shared libraries at link time
-if (localenv['use_sundials'] == 'y' and
-    localenv['OS'] in ('Darwin', 'Windows')):
-    localenv.Append(LIBS=localenv['sundials_libs'],
-                    LIBPATH=localenv['sundials_libdir'])
+# Windows and OS X require shared libraries at link time
+if localenv['OS'] in ('Darwin', 'Windows'):
+    localenv.Append(LIBS=localenv['FORTRANSYSLIBS'])
+    if (localenv['use_sundials'] == 'y'):
+        localenv.Append(LIBS=localenv['sundials_libs'],
+                        LIBPATH=localenv['sundials_libdir'])
 
 if localenv['toolchain'] == 'mingw':
     localenv.Append(LINKFLAGS=['-static-libgcc', '-static-libstdc++'])

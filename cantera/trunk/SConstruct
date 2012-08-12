@@ -437,6 +437,12 @@ opts.AddVariables(
     ('no_debug_linker_flags',
      'Additional options passed to the linker when debug=yes',
      defaults.noDebugLinkFlags),
+    ('extra_inc_dirs',
+     'Additional directories to search for header files (colon-separated list)',
+     ''),
+    ('extra_lib_dirs',
+     'Additional directories to search for libraries (colon-separated list)',
+     ''),
     BoolVariable(
         'build_thread_safe',
         """Cantera can be built so that it is thread safe. Doing so requires
@@ -571,6 +577,9 @@ elif env['env_vars']:
         else:
             print 'WARNING: failed to propagate environment variable', name
 
+env.Append(CPPPATH=env['extra_inc_dirs'].split(':'),
+           LIBPATH=env['extra_lib_dirs'].split(':'))
+
 # Try to find a Fortran compiler:
 if env['f90_interface'] in ('y','default'):
     foundF90 = False
@@ -599,10 +608,15 @@ if env['f90_interface'] in ('y','default'):
 
 if 'gfortran' in env['F90']:
     env['FORTRANMODDIRPREFIX'] = '-J'
+    env['FORTRANSYSLIBS'] = ['gfortran']
 elif 'g95' in env['F90']:
     env['FORTRANMODDIRPREFIX'] = '-fmod='
+    env['FORTRANSYSLIBS'] = ['f95']
 elif 'ifort' in env['F90']:
     env['FORTRANMODDIRPREFIX'] = '-module '
+    env['FORTRANSYSLIBS'] = []
+else:
+    env['FORTRANSYSLIBS'] = []
 
 env['FORTRANMODDIR'] = '${TARGET.dir}'
 
@@ -1102,10 +1116,8 @@ elif not env['single_library']:
     linkSharedLibs.extend(('ctlapack_shared', 'ctblas_shared'))
 
 if not env['build_with_f2c']:
-    # TODO: This is not the correct library to link if the fortran sources
-    #       are compiled with a different fortran compiler.
-    linkLibs.append('gfortran')
-    linkSharedLibs.append('gfortran')
+    linkLibs.extend(env['FORTRANSYSLIBS'])
+    linkSharedLibs.append(env['FORTRANSYSLIBS'])
 elif not env['single_library']:
     # Add the f2c library when f2c is requested
     linkLibs.append('ctf2c')
