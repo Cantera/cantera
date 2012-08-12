@@ -201,6 +201,9 @@ OS X
 
       CC=clang CXX=clang++
 
+* The Accelerate framework provides optimized versions of BLAS and LAPACK, so
+  the ``blas_lapack_libs`` option should generally be left unspecified.
+
 Intel Compilers
 ---------------
 * Before compiling Cantera, you may need to set up the appropriate environment
