@@ -17,10 +17,6 @@
 
 #include "cantera/base/global.h"
 
-#ifndef ALTLINPROG
-#define ALTLINPROG
-#endif
-
 namespace VCSnonideal
 {
 using Cantera::npos;

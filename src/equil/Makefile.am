@@ -26,8 +26,7 @@ cc_sources = BasisOptimize.cpp vcs_Gibbs.cpp vcs_root1d.cpp \
              vcs_elem_rearrange.cpp  vcs_prob.cpp vcs_inest.cpp \
              vcs_equilibrate.cpp vcs_rearrange.cpp vcs_util.cpp \
              vcs_Exception.cpp vcs_report.cpp vcs_VolPhase.cpp \
-             vcs_dbocls.c vcs_dbolsm.c vcs_dbols.c vcs_dvout.c \
-             vcs_ivout.c vcs_dmout.c vcs_xerror.c vcs_solve_phaseStability.cpp 
+             vcs_solve_phaseStability.cpp
 
 AM_CPPFLAGS = -I$(top_builddir)/include -I$(top_builddir)/ext/f2c_libs/
 AM_CXXFLAGS = $(AM_CPPFLAGS)
