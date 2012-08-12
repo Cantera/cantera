@@ -62,35 +62,7 @@ void VCS_SOLVE::vcs_inest(double* const aw, double* const sa, double* const sm,
      *
      *   Note, both of these programs do this.
      */
-#ifdef ALTLINPROG
     vcs_setMolesLinProg();
-#else
-    std::vector<double> ax(m_numElemConstraints*nspecies, 0.0);
-    std::vector<double> bb(m_numElemConstraints, 0.0);
-    std::vector<double> cc(nspecies, 0.0);
-
-    int neActive = 0;
-    size_t jj = 0;
-    for (size_t j = 0; j < m_numElemConstraints; j++) {
-        if (m_elementActive[j]) {
-            neActive++;
-            bb[jj] = m_elemAbundancesGoal[j];
-            jj++;
-        }
-    }
-    for (kspec = 0; kspec < nspecies; ++kspec) {
-        cc[kspec] = -m_SSfeSpecies[kspec];
-        jj = 0;
-        for (size_t j = 0; j < m_numElemConstraints; ++j) {
-            if (m_elementActive[j]) {
-                ax[jj + kspec * neActive] = m_formulaMatrix[j][kspec];
-                jj++;
-            }
-        }
-    }
-    linprogmax(VCS_DATA_PTR(m_molNumSpecies_old), VCS_DATA_PTR(cc), VCS_DATA_PTR(ax),
-               VCS_DATA_PTR(bb), neActive, nspecies, neActive);
-#endif
 
 #ifdef DEBUG_MODE
     if (m_debug_print_lvl >= 2) {

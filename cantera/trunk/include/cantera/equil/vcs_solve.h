@@ -1058,7 +1058,6 @@ public:
      */
     int vcs_inest_TP();
 
-#ifdef ALTLINPROG
     //! Estimate the initial mole numbers by constrained linear programming
     /*!
      *   This is done by running
@@ -1072,7 +1071,6 @@ public:
      *   non-negativity constraints.
      */
     int vcs_setMolesLinProg();
-#endif
 
     double vcs_Total_Gibbs(double* w, double* fe, double* tPhMoles);
 
@@ -2071,11 +2069,6 @@ public:
     friend class vcs_phaseStabilitySolve;
 
 };
-
-#ifdef ALTLINPROG
-#else
-int linprogmax(double*, double*, double*, double*, size_t, size_t, size_t);
-#endif
 
 }
 #endif
