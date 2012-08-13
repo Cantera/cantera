@@ -35,11 +35,13 @@ for subdir, name, extensions in samples:
 
     ## Generate SConstruct files to be installed
     incdirs = (localenv['ct_incroot'], localenv['sundials_include'],
-               localenv['boost_inc_dir'])
-    libdirs = (localenv['ct_libdir'], localenv['sundials_libdir'],
-               localenv['blas_lapack_dir'], localenv['boost_lib_dir'])
+               localenv['boost_inc_dir']) + tuple(localenv['extra_inc_dirs'])
+    libdirs = ((localenv['ct_libdir'], localenv['sundials_libdir'],
+               localenv['blas_lapack_dir'], localenv['boost_lib_dir']) +
+               tuple(localenv['extra_lib_dirs']))
     linkflags = (debug_link_flag, localenv['thread_flags'])
     localenv['tmpl_compiler_flags'] = repr(compilerFlags)
+    localenv['tmpl_cantera_frameworks'] = repr(localenv['FRAMEWORKS'])
     localenv['tmpl_cantera_incdirs'] = repr([x for x in incdirs if x])
     localenv['tmpl_cantera_libs'] = repr(localenv['cantera_libs'])
     localenv['tmpl_cantera_libdirs'] = repr([x for x in libdirs if x])
