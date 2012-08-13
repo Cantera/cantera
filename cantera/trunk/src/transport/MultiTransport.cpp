@@ -591,7 +591,6 @@ void MultiTransport::updateThermal_T()
     }
     // we need species viscosities and binary diffusion coefficients
     updateSpeciesViscosities();
-    update_T();
     updateDiff_T();
 
     // evaluate polynomial fits for A*, B*, C*
