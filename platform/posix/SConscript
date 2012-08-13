@@ -29,6 +29,10 @@ pc_libdirs = []
 pc_incdirs = []
 pc_cflags = []
 
+localenv['mak_corelibs'] = '-lcantera'
+if not env['single_library']:
+    localenv['mak_corelibs'] += ' -lctmath -lexecstream'
+
 if env['use_sundials'] == 'n':
     localenv['mak_sundials_libs'] = '-lcvode'
     localenv['mak_sundials_libdir'] = ''
@@ -71,8 +75,10 @@ localenv['mak_have_blas_lapack_dir'] = '1' if localenv['blas_lapack_dir'] else '
 if localenv['blas_lapack_dir']:
     localenv['mak_blas_lapack_libs'] = ' '.join('-l%s' % s for s in localenv['blas_lapack_libs'])
     pc_libs += localenv['blas_lapack_libs']
-else:
+elif not env['single_library']:
     localenv['mak_blas_lapack_libs'] = ('-L' + '$inst_libdir' + ' -lctlapack -lctblas')
+else:
+    localenv['mak_blas_lapack_libs'] = ''
 
 localenv['mak_threadflags'] = localenv['thread_flags']
 if '-pthread' in localenv['thread_flags']:
@@ -83,7 +89,7 @@ else:
     localenv['mak_fort_threadflags'] = ''
 
 #  Handle f2c Linkage
-localenv['mak_have_f2c_lib'] = '1' if localenv['build_with_f2c'] else '0'
+localenv['mak_f2c_lib'] = '-lctf2c' if localenv['build_with_f2c'] and not env['single_library'] else ''
 
 mak = build(localenv.SubstFile('Cantera.mak', 'Cantera.mak.in'))
 install('$inst_incdir', mak)
