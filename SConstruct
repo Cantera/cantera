@@ -577,8 +577,11 @@ elif env['env_vars']:
         else:
             print 'WARNING: failed to propagate environment variable', name
 
-env.Append(CPPPATH=env['extra_inc_dirs'].split(':'),
-           LIBPATH=env['extra_lib_dirs'].split(':'))
+env['extra_inc_dirs'] = [d for d in env['extra_inc_dirs'].split(':') if d]
+env['extra_lib_dirs'] = [d for d in env['extra_lib_dirs'].split(':') if d]
+
+env.Append(CPPPATH=env['extra_inc_dirs'],
+           LIBPATH=env['extra_lib_dirs'])
 
 # Try to find a Fortran compiler:
 if env['f90_interface'] in ('y','default'):
