@@ -9,6 +9,14 @@ samples = [('combustor', 'combustor', ['cpp']),
            ('NASA_coeffs', 'NASA_coeffs', ['cpp']),
            ('rankine', 'rankine', ['cpp'])]
 
+if env['CC'] == 'cl':
+    debug_link_flag = '/DEBUG'
+    compilerFlags = ['/EHsc', '/MD', '/nologo', '/W3',
+                     '/D_SCL_SECURE_NO_WARNINGS', '/D_CRT_SECURE_NO_WARNINGS']
+else:
+    debug_link_flag = '-g'
+    compilerFlags = ['-g', '-Wall']
+
 for subdir, name, extensions in samples:
     localenv = env.Clone()
     buildSample(localenv.Program, pjoin(subdir, name),
@@ -30,7 +38,8 @@ for subdir, name, extensions in samples:
                localenv['boost_inc_dir'])
     libdirs = (localenv['ct_libdir'], localenv['sundials_libdir'],
                localenv['blas_lapack_dir'], localenv['boost_lib_dir'])
-    linkflags = ('-g', localenv['thread_flags'])
+    linkflags = (debug_link_flag, localenv['thread_flags'])
+    localenv['tmpl_compiler_flags'] = repr(compilerFlags)
     localenv['tmpl_cantera_incdirs'] = repr([x for x in incdirs if x])
     localenv['tmpl_cantera_libs'] = repr(localenv['cantera_libs'])
     localenv['tmpl_cantera_libdirs'] = repr([x for x in libdirs if x])
