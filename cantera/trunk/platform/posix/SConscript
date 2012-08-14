@@ -104,6 +104,8 @@ localenv['mak_f2c_lib'] = '-lctf2c' if localenv['build_with_f2c'] and not env['s
 if not localenv['build_with_f2c']:
     localenv['mak_syslibs'] = ' '.join('-l%s' % s for s in localenv['FORTRANSYSLIBS'])
     pc_libs.extend(localenv['FORTRANSYSLIBS'])
+else:
+    localenv['mak_syslibs'] = ''
 
 mak = build(localenv.SubstFile('Cantera.mak', 'Cantera.mak.in'))
 install('$inst_incdir', mak)
