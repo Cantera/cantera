@@ -2,7 +2,7 @@ from buildutils import *
 
 Import('env','build','install')
 localenv = env.Clone()
-localenv.Append(CPPPATH=['#include', '#src', 'shared'])
+localenv.Prepend(CPPPATH=['#include', '#src', 'shared'])
 
 os.environ['PYTHONPATH'] = pjoin(os.getcwd(), '..', 'interfaces', 'python')
 os.environ['CANTERA_DATA'] = pjoin(os.getcwd(), '..', 'build', 'data')

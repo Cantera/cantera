@@ -38,8 +38,8 @@ libs = [('base', ['cpp'], baseSetup),
 
 for subdir, extensions, setup in libs:
     localenv = env.Clone()
-    localenv.Append(CPPPATH=Dir('#include'))
-    localenv.Append(CPPPATH=Dir('#src')) # todo: remove when not needed
+    localenv.Prepend(CPPPATH=Dir('#include'))
+    localenv.Prepend(CPPPATH=Dir('#src')) # todo: remove when not needed
     source = setup(localenv, subdir, extensions)
     objects = localenv.SharedObject(source)
     localenv.Depends(objects, localenv['config_h_target'])

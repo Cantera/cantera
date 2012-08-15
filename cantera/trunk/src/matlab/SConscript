@@ -53,8 +53,8 @@ elif os.name == 'posix':
     linkflags.extend(['-Wl,--no-undefined',
                       '-Wl,--version-script,src/matlab/mexFunction.map'])
 
-localenv.Append(CPPPATH=['#include', '#src', matlab_include],
-                CPPDEFINES=['MATLAB_MEX_FILE'],
+localenv.Prepend(CPPPATH=['#include', '#src', matlab_include])
+localenv.Append(CPPDEFINES=['MATLAB_MEX_FILE'],
                 LIBPATH=[matlab_libs],
                 LINKFLAGS=linkflags)
 

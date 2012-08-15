@@ -1022,7 +1022,7 @@ def install(*args, **kwargs):
 
 env.SConsignFile()
 
-env.Append(CPPPATH=[],
+env.Prepend(CPPPATH=[],
            LIBPATH=[Dir('build/lib')])
 
 # preprocess input files (cti -> xml)
