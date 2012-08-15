@@ -1221,7 +1221,7 @@ def loadChemkinFile(path, speciesList=None):
                 except IndexError:
                     pass
 
-                global PROCESSED_UNITS, ENERGY_UNITS, UNIT_OPTIONS
+                global PROCESSED_UNITS, ENERGY_UNITS, QUANTITY_UNITS
                 if not PROCESSED_UNITS:
                     PROCESSED_UNITS = True
                     ENERGY_UNITS = UNIT_OPTIONS[energyUnits]
