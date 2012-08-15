@@ -999,7 +999,7 @@ def readKineticsEntry(entry, speciesDict, energyUnits, moleculeUnits):
             if species == 'M' or species == 'm':
                 thirdBody = True
             elif species not in speciesDict:
-                raise InputParseError('Unexpected species "{0}" in reaction {1}.'.format(reactant, reaction))
+                raise InputParseError('Unexpected species "{0}" in reaction {1}.'.format(species, reaction))
             else:
                 dest.append((stoichiometry, speciesDict[species]))
 
