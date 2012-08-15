@@ -60,6 +60,7 @@ UNIT_OPTIONS = {'CAL/': 'cal/mol',
                 'MOLEC': 'molec',
                 'MOLECULES': 'molec'}
 
+PROCESSED_UNITS = False
 ENERGY_UNITS = 'cal/mol'
 QUANTITY_UNITS = 'mol'
 
@@ -1220,8 +1221,16 @@ def loadChemkinFile(path, speciesList=None):
                 except IndexError:
                     pass
 
-                ENERGY_UNITS = UNIT_OPTIONS[energyUnits]
-                QUANTITY_UNITS = UNIT_OPTIONS[moleculeUnits]
+                global PROCESSED_UNITS, ENERGY_UNITS, UNIT_OPTIONS
+                if not PROCESSED_UNITS:
+                    PROCESSED_UNITS = True
+                    ENERGY_UNITS = UNIT_OPTIONS[energyUnits]
+                    QUANTITY_UNITS = UNIT_OPTIONS[moleculeUnits]
+                else:
+                    if (ENERGY_UNITS != UNIT_OPTIONS[energyUnits] or
+                        QUANTITY_UNITS != UNIT_OPTIONS[moleculeUnits]):
+                        raise InputParseError("Multiple REACTIONS sections with "
+                                              "different units are not supported.")
 
                 kineticsList = []
                 commentsList = []
