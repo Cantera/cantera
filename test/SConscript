@@ -4,9 +4,9 @@ import subprocess
 Import('env','build','install')
 localenv = env.Clone()
 
-localenv.Append(CPPPATH=['#ext/gtest/include', '#include'],
-                LIBPATH='#build/lib',
-                LIBS=['gtest'] + localenv['cantera_libs'])
+localenv.Prepend(CPPPATH=['#ext/gtest/include', '#include'],
+                 LIBPATH='#build/lib')
+localenv.Append(LIBS=['gtest'] + localenv['cantera_libs'])
 
 localenv['ENV']['PYTHONPATH'] = Dir('#interfaces/python').abspath
 localenv['ENV']['CANTERA_DATA'] = Dir('#build/data').abspath

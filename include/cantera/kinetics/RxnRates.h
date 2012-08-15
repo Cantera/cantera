@@ -422,7 +422,7 @@ public:
         Ea2_.resize(maxRates_);
 
         if (rdata.validate) {
-            validate();
+            validate(rdata);
         }
     }
 
@@ -514,7 +514,7 @@ public:
     //! temperatures at each interpolation pressure. This is potentially an
     //! issue when one of the Arrhenius expressions at a particular pressure
     //! has a negative pre-exponential factor.
-    void validate() {
+    void validate(const ReactionData& rdata) {
         double T[] = {1.0, 10.0, 100.0, 1000.0, 10000.0};
         for (pressureIter iter = pressures_.begin();
              iter->first < 1000;
@@ -528,9 +528,10 @@ public:
                     // message will correctly indicate that the problematic rate
                     // expression is at the higher of the adjacent pressures.
                     throw CanteraError("Plog::validate",
-                                       "Invalid rate coefficient at P = " +
-                                       fp2str(exp((++iter)->first)) +
-                                       ", T = " + fp2str(T[i]));
+                        "Invalid rate coefficient for reaction #" +
+                        int2str(rdata.number) + ":\n" + rdata.equation + "\n" +
+                        "at P = " + fp2str(exp((++iter)->first)) +
+                        ", T = " + fp2str(T[i]));
                 }
             }
         }
