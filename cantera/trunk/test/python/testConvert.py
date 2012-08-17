@@ -1,6 +1,7 @@
 import os
 import unittest
 import numpy as np
+import itertools
 import ck2cti
 
 import utilities
@@ -38,10 +39,10 @@ class chemkinConverterTest(utilities.CanteraTest):
                 self.assertNear(ref_h[i], gas_h[i], 1e-7)
                 self.assertNear(ref_s[i], gas_s[i], 1e-7)
 
-    def checkKinetics(self, ref, gas, temperatures):
-        for T in temperatures:
-            ref.set(T=T, P=ct.OneAtm)
-            gas.set(T=T, P=ct.OneAtm)
+    def checkKinetics(self, ref, gas, temperatures, pressures):
+        for T,P in itertools.product(temperatures, pressures):
+            ref.set(T=T, P=P)
+            gas.set(T=T, P=P)
             ref_kf = ref.fwdRateConstants()
             ref_kr = ref.revRateConstants()
             gas_kf = gas.fwdRateConstants()
@@ -60,7 +61,7 @@ class chemkinConverterTest(utilities.CanteraTest):
                            outName='gri30_test.cti', quiet=True)
 
         ref, gas = self.checkConversion('gri30.xml', 'gri30_test.cti')
-        self.checkKinetics(ref, gas, [300, 1500])
+        self.checkKinetics(ref, gas, [300, 1500], [5e3, 1e5, 2e6])
 
     def test_soot(self):
         if os.path.exists('soot_test.cti'):
@@ -72,7 +73,7 @@ class chemkinConverterTest(utilities.CanteraTest):
 
         ref, gas = self.checkConversion('../data/soot.xml', 'soot_test.cti')
         self.checkThermo(ref, gas, [300, 1100])
-        self.checkKinetics(ref, gas, [300, 1100])
+        self.checkKinetics(ref, gas, [300, 1100], [5e3, 1e5, 2e6])
 
     def test_pdep(self):
         if os.path.exists('pdep_test.cti'):
@@ -82,7 +83,7 @@ class chemkinConverterTest(utilities.CanteraTest):
                            outName='pdep_test.cti', quiet=True)
 
         ref, gas = self.checkConversion('../data/pdep-test.xml', 'pdep_test.cti')
-        self.checkKinetics(ref, gas, [300, 800, 1450, 2800])
+        self.checkKinetics(ref, gas, [300, 800, 1450, 2800], [5e3, 1e5, 2e6])
 
 
     def test_missingElement(self):
@@ -111,3 +112,14 @@ class chemkinConverterTest(utilities.CanteraTest):
         ref, gas = self.checkConversion('../data/nasa9-test.xml',
                                         'nasa9_test.cti')
         self.checkThermo(ref, gas, [300, 500, 1200, 5000])
+
+    def test_sri_falloff(self):
+        if os.path.exists('sri-falloff.cti'):
+            os.remove('sri-falloff.cti')
+        ck2cti.convertMech('../data/sri-falloff.inp',
+                           thermoFile='../data/dummy-thermo.dat',
+                           outName='sri-falloff.cti', quiet=True)
+
+        ref, gas = self.checkConversion('../data/sri-falloff.xml',
+                                        'sri-falloff.cti')
+        self.checkKinetics(ref, gas, [300, 800, 1450, 2800], [5e3, 1e5, 2e6])
