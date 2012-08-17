@@ -598,7 +598,7 @@ void PDSS_HKFT::initThermo()
 
     doublereal DHjmol = m_deltaH_formation_tr_pr * 1.0E3 * 4.184;
 
-    // If the discrepency is greater than 100 cal gmol-1, print
+    // If the discrepancy is greater than 100 cal gmol-1, print
     // an error and exit.
     if (fabs(Hcalc -DHjmol) > 100.* 1.0E3 * 4.184) {
         throw CanteraError(" PDSS_HKFT::initThermo()",
@@ -1218,7 +1218,7 @@ doublereal PDSS_HKFT::LookupGe(const std::string& elemName)
     doublereal geValue = m_tp->entropyElement298(iE);
     if (geValue == ENTROPY298_UNKNOWN) {
         throw CanteraError("PDSS_HKFT::LookupGe",
-                           "element " + elemName + " doesn not have a supplied entropy298");
+                           "element " + elemName + " does not have a supplied entropy298");
     }
     geValue *= (-298.15);
     return geValue;

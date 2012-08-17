@@ -271,7 +271,7 @@ void NasaThermo::checkContinuity(std::string name, double tmid, const doublereal
  * This is called by method installThermoForSpecies if a NASA block is found in the XML input.
  *
  *  @param speciesName        String name of the species
- *  @param sp                 SpeciesThermo object that will receive the nasa polynomial object
+ *  @param sp                 SpeciesThermo object that will receive the NASA polynomial object
  *  @param k                  Species index within the phase
  *  @param f0ptr              Ptr to the first XML_Node for the first NASA polynomial
  *  @param f1ptr              Ptr to the first XML_Node for the first NASA polynomial
@@ -366,7 +366,7 @@ static doublereal LookupGe(const std::string& elemName, ThermoPhase* th_ptr)
     doublereal geValue = th_ptr->entropyElement298(iE);
     if (geValue == ENTROPY298_UNKNOWN) {
         throw CanteraError("PDSS_HKFT::LookupGe",
-                           "element " + elemName + " doesn not have a supplied entropy298");
+                           "element " + elemName + " does not have a supplied entropy298");
     }
     geValue *= (-298.15);
     return geValue;
@@ -408,7 +408,7 @@ static doublereal convertDGFormation(size_t k, ThermoPhase* th_ptr)
  *
  *  @param speciesName        String name of the species
  *  @param th_ptr             Pointer to the %ThermoPhase object
- *  @param sp                 SpeciesThermo object that will receive the nasa polynomial object
+ *  @param sp                 SpeciesThermo object that will receive the NASA polynomial object
  *  @param k                  Species index within the phase
  *  @param MinEQ3node         Ptr to the first XML_Node for the first MinEQ3 parameterization
  */
@@ -441,7 +441,7 @@ static void installMinEQ3asShomateThermoFromXML(std::string speciesName,
     doublereal Hcalc = Mu0_tr_pr + 298.15 * e;
     doublereal DHjmol = deltaH_formation_pr_tr * 1.0E3 * 4.184;
 
-    // If the discrepency is greater than 100 cal gmol-1, print
+    // If the discrepancy is greater than 100 cal gmol-1, print
     // an error and exit.
     if (fabs(Hcalc -DHjmol) > 10.* 1.0E6 * 4.184) {
         throw CanteraError("installMinEQ3asShomateThermoFromXML()",
@@ -494,7 +494,7 @@ static void installMinEQ3asShomateThermoFromXML(std::string speciesName,
  * This is called by method installThermoForSpecies if a Shomate block is found in the XML input.
  *
  *  @param speciesName        String name of the species
- *  @param sp                 SpeciesThermo object that will receive the nasa polynomial object
+ *  @param sp                 SpeciesThermo object that will receive the NASA polynomial object
  *  @param k                  Species index within the phase
  *  @param f0ptr              Ptr to the first XML_Node for the first NASA polynomial
  *  @param f1ptr              Ptr to the first XML_Node for the first NASA polynomial
@@ -561,7 +561,7 @@ static void installShomateThermoFromXML(std::string speciesName, SpeciesThermo& 
  * This is called by method installThermoForSpecies if a SimpleThermo block is found
  *
  *  @param speciesName        String name of the species
- *  @param sp                 SpeciesThermo object that will receive the nasa polynomial object
+ *  @param sp                 SpeciesThermo object that will receive the NASA polynomial object
  *  @param k                  Species index within the phase
  *  @param f                  XML_Node for the SimpleThermo block
  */
@@ -591,7 +591,7 @@ static void installSimpleThermoFromXML(std::string speciesName,
  * This is called by method installThermoForSpecies if a NASA9 block is found in the XML input.
  *
  *  @param speciesName        String name of the species
- *  @param sp                 SpeciesThermo object that will receive the nasa polynomial object
+ *  @param sp                 SpeciesThermo object that will receive the NASA polynomial object
  *  @param k                  Species index within the phase
  *  @param tp                 Vector of XML Nodes that make up the parameterization
  */
@@ -698,7 +698,7 @@ static void installStatMechThermoFromXML(std::string speciesName,
  * This is called by method installThermoForSpecies if a Adsorbate block is found in the XML input.
  *
  *  @param speciesName        String name of the species
- *  @param sp                 SpeciesThermo object that will receive the nasa polynomial object
+ *  @param sp                 SpeciesThermo object that will receive the NASA polynomial object
  *  @param k                  Species index within the phase
  *  @param f                  XML Node that contains the parameterization
  */

@@ -424,7 +424,7 @@ public:
      * concentration divided by the standard concentration is also
      * equal to the activity of species.
      *
-     * For this implentation the activity is defined to be the
+     * For this implementation the activity is defined to be the
      * mole fraction of the species. The generalized concentration
      * is defined to be equal to the mole fraction divided by
      * the partial molar volume. The generalized concentrations

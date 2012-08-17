@@ -974,7 +974,7 @@ protected:
     mutable vector_fp m_s0_R;
 
 
-    //! String name for the species which represents a vacency
+    //! String name for the species which represents a vacancy
     //! in the lattice
     /*!
      *  This string is currently unused

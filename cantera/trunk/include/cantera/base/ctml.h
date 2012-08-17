@@ -316,7 +316,7 @@ void getMap(const Cantera::XML_Node& node, std::map<std::string, std::string>& m
 //! This function interprets the value portion of an XML element
 //! as a series of "Pairs" separated by white space.
 /*!
- * Each pair consists of nonwhite-space characters.
+ * Each pair consists of non-whitespace characters.
  * The first ":" found in the pair string is used to separate
  * the string into two parts. The first part is called the "key"
  * The second part is called the "val".
@@ -351,7 +351,7 @@ int getPairs(const Cantera::XML_Node& node, std::vector<std::string>& key,
 //! This function interprets the value portion of an XML element
 //! as a series of "Matrix ids and entries" separated by white space.
 /*!
- * Each pair consists of nonwhite-space characters.
+ * Each pair consists of non-whitespace characters.
  * The first two ":" found in the pair string is used to separate
  * the string into three parts. The first part is called the first
  * key. The second part is the second key. Both parts must match
@@ -384,7 +384,7 @@ int getPairs(const Cantera::XML_Node& node, std::vector<std::string>& key,
  *  @param keyStringCol  Key string for the column entries
  *  @param returnValues  Return Matrix.
  *  @param convert       If this is true, and if the node has a units
- *                       attribute, then conversion to si units is carried
+ *                       attribute, then conversion to SI units is carried
  *                       out. Default is true.
  *  @param matrixSymmetric  If true entries are made so that the matrix
  *                       is always symmetric. Default is false.
@@ -755,7 +755,7 @@ void getNamedStringValue(const Cantera::XML_Node& node, const std::string& nameS
  * Code snippet:
  *       @verbatim
  const XML_Node &parent;
- string nameString = "vacency_species";
+ string nameString = "vacancy_species";
  string valueString = getChildValue(parent, nameString
  std::string typeString);
  @endverbatim
@@ -765,9 +765,9 @@ void getNamedStringValue(const Cantera::XML_Node& node, const std::string& nameS
  *  from the following the snippet in the XML file:
  *
  *  @verbatim
- <vacencySpecies>
+ <vacancySpecies>
    O(V)
- <\vancencySpecies>
+ <\vacancySpecies>
  @endverbatim
  *
  *   @param parent     parent reference to the XML_Node object of the parent XML element

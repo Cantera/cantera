@@ -1439,7 +1439,7 @@ doublereal HMWSoln::satPressure(doublereal t) const
  *
  *                    where epsilon = e_rel * e_naught
  *
- * Note, this is si units. Frequently, gaussian units are
+ * Note, this is SI units. Frequently, gaussian units are
  * used in Pitzer's papers where D is used, D = epsilon/(4 Pi)
  * units = A_Debye has units of sqrt(gmol kg-1).
  */
@@ -1543,7 +1543,7 @@ double HMWSoln::dA_DebyedP_TP(double tempArg, double presArg) const
 
 
 /*
- *  Calculate the DH Parameter used for the Enthalpy calcalations
+ *  Calculate the DH Parameter used for the Enthalpy calculations
  *
  *      ADebye_L = 4 R T**2 d(Aphi) / dT
  *
@@ -1565,7 +1565,7 @@ double HMWSoln::ADebye_L(double tempArg, double presArg) const
 }
 
 /*
- *  Calculate the DH Parameter used for the Volume calcalations
+ *  Calculate the DH Parameter used for the Volume calculations
  *
  *      ADebye_V = - 4 R T d(Aphi) / dP
  *

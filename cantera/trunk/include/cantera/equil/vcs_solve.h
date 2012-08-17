@@ -120,7 +120,7 @@ public:
     //! Main routine that solves for equilibrium at constant T and P
     //! using a variant of the VCS method
     /*!
-     * This is the main routine  taht solves for equilibrium at constant T and P
+     * This is the main routine that solves for equilibrium at constant T and P
      * using a variant of the VCS method. Nonideal phases can be accommodated
      * as well.
      *
@@ -232,7 +232,7 @@ public:
      *
      *    @param molNum  Mole number vector
      *    @param j       index into molNum[] that indicates where the search will start from
-     *                   Previous successful components are swapped into the fronto of
+     *                   Previous successful components are swapped into the front of
      *                   molNum[].
      *    @param n       Length of molNum[]
      */
@@ -633,7 +633,7 @@ public:
     /*!
      *     Calculate deltag of formation for all species in a single
      *     phase. It is assumed that the fe[] is up to date for all species.
-     *     Howevever, if the phase is currently zereoed out, a subproblem
+     *     However, if the phase is currently zeroed out, a subproblem
      *     is calculated to solve for AC[i] and pseudo-X[i] for that
      *     phase.
      *
@@ -1151,7 +1151,7 @@ private:
      */
     int vcs_delete_species(const size_t kspec);
 
-    //! This routine handles the bookkeepking involved with the
+    //! This routine handles the bookkeeping involved with the
     //!  deletion of multiphase phases from the problem.
     /*!
      *   When they are deleted, all of their species become active
@@ -1314,7 +1314,7 @@ private:
      *
      *  along the current direction m_deltaMolNumSpecies[], by choosing a value, al: (0<al<1)
      *  such that the a parabola approximation to Gibbs(al) fit to the
-     *  end points al = 0 and al = 1 is minimizied.
+     *  end points al = 0 and al = 1 is minimized.
      *      s1 = slope of Gibbs function at al = 0, which is the previous
      *           solution = d(Gibbs)/d(al).
      *      s2 = slope of Gibbs function at al = 1, which is the current
@@ -1326,7 +1326,7 @@ private:
      */
     bool vcs_globStepDamp();
 
-    //! Switch rows and columns of a sqare matrix
+    //! Switch rows and columns of a square matrix
     /*!
      *  Switches the row and column of a matrix.
      *  So that after
@@ -1334,7 +1334,7 @@ private:
      *     J[k1][j] = J_old[k2][j]  and J[j][k1] = J_old[j][k2]
      *     J[k2][j] = J_old[k1][j]  and J[j][k2] = J_old[j][k1]
      *
-     *  @param Jac         Double pointer to the jacobiam
+     *  @param Jac         Double pointer to the Jacobian
      *  @param k1          first row/column value to be switched
      *  @param k2          second row/column value to be switched
      */
@@ -1407,7 +1407,7 @@ private:
                              const size_t irxn, const double* const molNum,
                              double* const ac, double* const mu_i);
 
-    //! Delete memory that isn't just resizeable STL containers
+    //! Delete memory that isn't just resizable STL containers
     /*!
      * This gets called by the destructor or by InitSizes().
      */
@@ -1814,8 +1814,8 @@ public:
      *                                   Its concentration is currently zero.
      *                                   -  VCS_SPECIES_ZEROEDMS
      *                             -3 -> Species lies in a single-species phase which
-     *                                   is currently zereod out.
-     *                                   - VCS_SPECIES_ZEREODSS
+     *                                   is currently zeroed out.
+     *                                   - VCS_SPECIES_ZEROEDSS
      *                             -4 -> Species has such a small mole fraction it is
      *                                   deleted even though its phase may possibly exist.
      *                                   The species is believed to have such a small
@@ -1826,7 +1826,7 @@ public:
      *                             -5 ->  Species refers to an electron in the metal
      *                                    The unknown is equal to the interfacial voltage
      *                                    drop across the interface on the SHE (standard
-     *                                    hydroogen electrode) scale (volts).
+     *                                    hydrogen electrode) scale (volts).
      *                                     - VCS_SPECIES_INTERFACIALVOLTAGE
      *                             -6 ->  Species lies in a multicomponent phase that
      *                                    is zeroed atm  and will stay deleted due to a

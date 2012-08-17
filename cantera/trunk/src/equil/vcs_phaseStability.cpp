@@ -192,7 +192,7 @@ int  VCS_SOLVE::vcs_phasePopDeterminePossibleList()
     }
     /*
      *   This is a vector over each zeroed phase
-     *   For zeroed phases, it lists the components, which are currently zereoed,
+     *   For zeroed phases, it lists the components, which are currently zeroed,
      *     which have a species with a negative stoichiometric value wrt one or more species in the phase.
      *     Cut out components which have a pos stoichiometric value with another species in the phase.
      */

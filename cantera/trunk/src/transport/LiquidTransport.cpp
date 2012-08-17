@@ -704,7 +704,7 @@ void LiquidTransport::getSpeciesHydrodynamicRadius(doublereal* const radius)
  *  The thermal conductivity calculation is handled by subclasses of
  *  LiquidTranInteraction as specified in the input file.
  *  These in turn employ subclasses of LTPspecies to
- *  determine the individual species thermal condictivities.
+ *  determine the individual species thermal conductivities.
  */
 doublereal LiquidTransport::thermalConductivity()
 {
@@ -725,7 +725,7 @@ doublereal LiquidTransport::thermalConductivity()
 
 // Return the thermal diffusion coefficients
 /*
- *  These are all zero for this simple implementaion
+ *  These are all zero for this simple implementation
  *
  *  @param dt thermal diffusion coefficients
  */
@@ -1642,7 +1642,7 @@ void LiquidTransport::stefan_maxwell_solve()
      *  the molar based values. This may change.
      *
      *  Note, we have broken the symmetry of the matrix here, due to
-     *  consideratins involving species concentrations going to zero.
+     *  considerations involving species concentrations going to zero.
      *
      */
     for (size_t i = 0; i < m_nsp; i++) {

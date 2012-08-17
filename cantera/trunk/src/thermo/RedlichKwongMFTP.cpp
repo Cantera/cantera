@@ -1305,7 +1305,7 @@ doublereal RedlichKwongMFTP::liquidVolEst(doublereal TKelvin, doublereal& presGu
  *
  *
  *  @return   We return the density of the fluid at the requested phase. If we have not found any
- *            acceptable density we return a -1. If we have found an accectable density at a
+ *            acceptable density we return a -1. If we have found an acceptable density at a
  *            different phase, we return a -2.
  */
 doublereal RedlichKwongMFTP::densityCalc(doublereal TKelvin, doublereal presPa, int phaseRequested, doublereal rhoguess)

@@ -917,7 +917,7 @@ protected:
 
     //! Number of Elements in the phase
     /*!
-     * This member is defined here, from a call to the Elements ojbect, for speed.
+     * This member is defined here, from a call to the Elements object, for speed.
      */
     size_t m_mm;
 

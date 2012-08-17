@@ -188,7 +188,7 @@ public:
      * only computes 'dg' for the reversible reactions, and the
      * entries of 'dg' for the irreversible reactions are
      * unaltered. This is primarily designed for use in
-     * calculating reveerse rate coefficients from thermochemistry
+     * calculating reverse rate coefficients from thermochemistry
      * for reversible reactions.
      */
     virtual void getRevReactionDelta(size_t nr, const doublereal* g, doublereal* dg);

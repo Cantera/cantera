@@ -557,7 +557,7 @@ public:
      *  effect of ensuring that all delta variables will have the same order of magnitude at convergence
      *  end.
      *
-     *  The second way is the explicity set the column factors in the second argument of this function call.
+     *  The second way is the explicitly set the column factors in the second argument of this function call.
      *
      *  The final way to input the scales is to override the ResidJacEval member function call,
      *
