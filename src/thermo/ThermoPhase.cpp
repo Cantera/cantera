@@ -188,17 +188,7 @@ void ThermoPhase::setState_TPX(doublereal t, doublereal p, compositionMap& x)
 //=================================================================================================================
 void ThermoPhase::setState_TPX(doublereal t, doublereal p, const std::string& x)
 {
-    compositionMap xx;
-    for (size_t k = 0; k < nSpecies(); k++) {
-        xx[speciesName(k)] = -1.0;
-    }
-    try {
-        parseCompString(x, xx);
-    } catch (CanteraError& err) {
-        err.save();
-        throw CanteraError("setState_TPX",
-                           "Unknown species in composition map: "+ x);
-    }
+    compositionMap xx = parseCompString(x, speciesNames());
     setMoleFractionsByName(xx);
     setTemperature(t);
     setPressure(p);
@@ -223,17 +213,7 @@ void ThermoPhase::setState_TPY(doublereal t, doublereal p,
 void ThermoPhase::setState_TPY(doublereal t, doublereal p,
                                const std::string& y)
 {
-    compositionMap yy;
-    for (size_t k = 0; k < nSpecies(); k++) {
-        yy[speciesName(k)] = -1.0;
-    }
-    try {
-        parseCompString(y, yy);
-    } catch (CanteraError& err) {
-        err.save();
-        throw CanteraError("setState_TPY",
-                           "Unknown species in composition map: "+ y);
-    }
+    compositionMap yy = parseCompString(y, speciesNames());
     setMassFractionsByName(yy);
     setTemperature(t);
     setPressure(p);

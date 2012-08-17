@@ -225,12 +225,7 @@ extern "C" {
     {
         try {
             ThermoPhase& p = ThermoCabinet::item(n);
-            compositionMap xx;
-            size_t nsp = p.nSpecies();
-            for (size_t n = 0; n < nsp; n++) {
-                xx[p.speciesName(n)] = -1;
-            }
-            parseCompString(x, xx);
+            compositionMap xx = parseCompString(x, p.speciesNames());
             p.setMoleFractionsByName(xx);
             return 0;
         } catch (...) {
@@ -259,12 +254,7 @@ extern "C" {
     {
         try {
             ThermoPhase& p = ThermoCabinet::item(n);
-            compositionMap yy;
-            size_t nsp = p.nSpecies();
-            for (size_t n = 0; n < nsp; n++) {
-                yy[p.speciesName(n)] = -1;
-            }
-            parseCompString(y, yy);
+            compositionMap yy = parseCompString(y, p.speciesNames());
             p.setMassFractionsByName(yy);
             return 0;
         } catch (...) {

@@ -411,11 +411,7 @@ void SurfPhase::
 setCoveragesByName(std::string cov)
 {
     size_t kk = nSpecies();
-    compositionMap cc;
-    for (size_t k = 0; k < kk; k++) {
-        cc[speciesName(k)] = -1.0;
-    }
-    parseCompString(cov, cc);
+    compositionMap cc = parseCompString(cov, speciesNames());
     doublereal c;
     vector_fp cv(kk, 0.0);
     bool ifound = false;

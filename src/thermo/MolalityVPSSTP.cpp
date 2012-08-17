@@ -404,11 +404,7 @@ void MolalityVPSSTP::setMolalitiesByName(compositionMap& mMap)
  */
 void MolalityVPSSTP::setMolalitiesByName(const std::string& x)
 {
-    compositionMap xx;
-    for (size_t k = 0; k < nSpecies(); k++) {
-        xx[speciesName(k)] = -1.0;
-    }
-    parseCompString(x, xx);
+    compositionMap xx = parseCompString(x, speciesNames());
     setMolalitiesByName(xx);
 }
 

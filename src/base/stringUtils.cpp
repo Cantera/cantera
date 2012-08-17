@@ -184,41 +184,25 @@ std::string stripnonprint(const std::string& s)
     }
     return ss;
 }
-//================================================================================================
-// Parse a composition string into a map consisting of individual key:composition
-// pairs.
-/*
- *  The composition is a double.
- * Example
- *
- *  Input is
- *
- *    "fire:0   ice:1   snow:2"
- *
- *  Output is
- *             x["fire"] = 0
- *             x["ice"]  = 1
- *             x["snow"] = 2
- *
- *     @param ss   original string consisting of multiple key:composition
- *                 pairs on multiple lines
- *     @param x    Output map consisting of a composition
- *                 map, which is a string to double map
- */
-void parseCompString(const std::string& ss, Cantera::compositionMap& x)
+
+compositionMap parseCompString(const std::string& ss,
+                               const std::vector<std::string>& names)
 {
+    compositionMap x;
+    for (size_t k = 0; k < names.size(); k++) {
+        x[names[k]] = 0.0;
+    }
     std::string s = ss;
-    std::string::size_type icolon, ibegin, iend;
-    std::string name, num, nm;
+    std::string num;
     do {
-        ibegin = s.find_first_not_of(", ;\n\t");
+        size_t ibegin = s.find_first_not_of(", ;\n\t");
         if (ibegin != std::string::npos) {
             s = s.substr(ibegin,s.size());
-            icolon = s.find(':');
-            iend = s.find_first_of(", ;\n\t");
+            size_t icolon = s.find(':');
+            size_t iend = s.find_first_of(", ;\n\t");
             //icomma = s.find(',');
             if (icolon != std::string::npos) {
-                name = s.substr(0, icolon);
+                std::string name = stripws(s.substr(0, icolon));
                 if (iend != std::string::npos) {
                     num = s.substr(icolon+1, iend-icolon);
                     s = s.substr(iend+1, s.size());
@@ -226,17 +210,17 @@ void parseCompString(const std::string& ss, Cantera::compositionMap& x)
                     num = s.substr(icolon+1, s.size());
                     s = "";
                 }
-                nm = stripws(name);
-                if (x.find(nm) == x.end()) {
+                if (x.find(name) == x.end()) {
                     throw CanteraError("parseCompString",
-                                       "unknown species " + nm);
+                                       "unknown species " + name);
                 }
-                x[nm] = atof(num.c_str());
+                x[name] = atof(num.c_str());
             } else {
                 s = "";
             }
         }
     } while (s != "");
+    return x;
 }
 //================================================================================================
 //   Parse a composition string into individual key:composition

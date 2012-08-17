@@ -87,25 +87,27 @@ std::string lowercase(const std::string& s);
 //! Parse a composition string into a map consisting of individual key:composition
 //! pairs.
 /*!
- *  The composition is a double.
- * Example
+ *  Elements present in *names* but not in the composition string will have
+ *  a value of 0. Elements present in the composition string but not in *names*
+ *  will generate an exception. The composition is a double. Example:
  *
  *  Input is
  *
- *    "fire:0   ice:1   snow:2"
+ *    "ice:1   snow:2"
+ *    names = ["fire", "ice", "snow"]
  *
  *  Output is
  *             x["fire"] = 0
  *             x["ice"]  = 1
  *             x["snow"] = 2
  *
- *     @param ss   original string consisting of multiple key:composition
- *                 pairs on multiple lines
- *     @param x    Output map consisting of a composition
- *                 map, which is a string to double map
+ *     @param ss    original string consisting of multiple key:composition
+ *                  pairs on multiple lines
+ *     @param names valid names for elements in the composition map
+ *     @return     map of names to values
  */
-void parseCompString(const std::string& ss, Cantera::compositionMap& x);
-
+compositionMap parseCompString(const std::string& ss,
+                               const std::vector<std::string>& names);
 
 //! Parse a composition string into individual key:composition
 //! pairs
