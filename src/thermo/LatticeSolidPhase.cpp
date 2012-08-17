@@ -668,31 +668,6 @@ void LatticeSolidPhase::setParametersFromXML(const XML_Node& eosdata)
 
 }
 //====================================================================================================================
-// Return a changeable reference to the calculation manager
-// for species reference-state thermodynamic properties
-/*
- *
- * @param k   Species id. The default is -1, meaning return the default
- *
- * @internal
- */
-SpeciesThermo& LatticeSolidPhase::speciesThermo(int k)
-{
-    return *m_spthermo;
-    /*
-    int kk;
-    if (k >= 0) {
-      for (int n = 0; n < m_nlattice; n++) {
-    if (lkstart_[n+1] < k) {
-      kk = k - lkstart_[n];
-      return m_lattice[n]->speciesThermo(kk);
-    }
-      }
-    }
-    return m_lattice[0]->speciesThermo(-1);
-    */
-}
-//====================================================================================================================
 
 #ifdef H298MODIFY_CAPABILITY
 

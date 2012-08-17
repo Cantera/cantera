@@ -643,17 +643,6 @@ public:
      */
     void setLatticeMoleFractionsByName(int n, std::string x);
 
-    //! Return a changeable reference to the calculation manager
-    //! for species reference-state thermodynamic properties
-    /*!
-     *  This routine returns the calculation manager for the sublattice
-     *
-     * @param k   Species id. The default is -1, meaning return the default
-     *
-     * @internal
-     */
-    virtual SpeciesThermo& speciesThermo(int k = -1);
-
 #ifdef H298MODIFY_CAPABILITY
 
     //! Modify the value of the 298 K Heat of Formation of one species in the phase (J kmol-1)
