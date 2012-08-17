@@ -85,20 +85,14 @@ class WaterProps;
  * or
  *
  * @code
- *    char iFile[80], file_ID[80];
- *    strcpy(iFile, "waterSSTPphase.xml");
- *    sprintf(file_ID,"%s#water", iFile);
- *    XML_Node *xm = get_XML_NameID("phase", file_ID, 0);
+ *    XML_Node *xm = get_XML_NameID("phase", "waterSSTPphase.xml#water", 0);
  *    WaterSSTP *w = new WaterSSTP(*xm);
  * @endcode
  *
  * or by the following call to importPhase():
  *
  * @code
- *    char iFile[80], file_ID[80];
- *    strcpy(iFile, "waterSSTPphase.xml");
- *    sprintf(file_ID,"%s#water", iFile);
- *    XML_Node *xm = get_XML_NameID("phase", file_ID, 0);
+ *    XML_Node *xm = get_XML_NameID("phase", "waterSSTPphase.xml#water", 0);
  *    WaterSSTP water;
  *    importPhase(*xm, &water);
  * @endcode

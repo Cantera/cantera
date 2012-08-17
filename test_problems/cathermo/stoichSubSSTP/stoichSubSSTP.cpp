@@ -16,14 +16,8 @@ using namespace Cantera;
 int main(int argc, char** argv)
 {
     try {
-        //Cantera::ThermoPhase *tp = 0;
-        char iFile[80], file_ID[80];
-        strcpy(iFile, "NaCl_Solid.xml");
-        if (argc > 1) {
-            strcpy(iFile, argv[1]);
-        }
-
-        sprintf(file_ID,"%s#NaCl(S)", iFile);
+        std::string iFile = (argc > 1) ? argv[1] : "NaCl_Solid.xml";
+        std::string file_ID = iFile + "#NaCl(S)";
         XML_Node* xm = get_XML_NameID("phase", file_ID, 0);
         StoichSubstanceSSTP* solid = new StoichSubstanceSSTP(*xm);
 

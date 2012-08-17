@@ -22,13 +22,7 @@ int main(int argc, char** argv)
     int extraCols = 1;
 
     try {
-        //Cantera::ThermoPhase *tp = 0;
-        char iFile[80];
-        strcpy(iFile, "HMW_NaCl.xml");
-        if (argc > 1) {
-            strcpy(iFile, argv[1]);
-        }
-
+        std::string iFile = (argc > 1) ? argv[1] : "HMW_NaCl.xml";
         HMWSoln* HMW = new HMWSoln(iFile, "NaCl_electrolyte");
 
 

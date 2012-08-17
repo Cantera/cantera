@@ -23,22 +23,7 @@ int main()
 #endif
     double pres;
     try {
-        WaterSSTP* w = new WaterSSTP("waterTPphase.xml","");
-        delete w;
-
-        char iFile[80], file_ID[80];
-        strcpy(iFile, "waterTPphase.xml");
-        sprintf(file_ID,"%s#water", iFile);
-        XML_Node* xm = get_XML_NameID("phase", file_ID, 0);
-        w = new WaterSSTP(*xm);
-        delete w;
-
-        strcpy(iFile, "waterTPphase.xml");
-        sprintf(file_ID,"%s#water", iFile);
-        xm = get_XML_NameID("phase", file_ID, 0);
-        w = new WaterSSTP();
-        importPhase(*xm, w);
-
+        WaterSSTP* w = new WaterSSTP("waterTPphase.xml", "water");
 
         /*
          * Print out the triple point conditions
