@@ -201,7 +201,7 @@ void Kinetics::assignShallowPointers(const std::vector<thermo_t*> & tpVector)
 //====================================================================================================================
 /**
  * Takes as input an array of properties for all species in the
- * mechanism and copies those values beloning to a particular
+ * mechanism and copies those values belonging to a particular
  * phase to the output array.
  * @param data Input data array.
  * @param phase Pointer to one of the phase objects participating

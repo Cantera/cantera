@@ -388,7 +388,7 @@ L_END_LOOP:
      * However, this might not be the case. For example, assume
      * that the first element in FormulaMatrix[] is argon. Assume that
      * no species in the matrix problem actually includes argon.
-     * Then, the first row in sm[], below will be indentically
+     * Then, the first row in sm[], below will be identically
      * zero. bleh.
      *    What needs to be done is to perform a rearrangement
      * of the ELEMENTS -> i.e. rearrange, FormulaMatrix, sp, and gai, such
@@ -397,7 +397,7 @@ L_END_LOOP:
      * project, but very doable.
      *    An alternative would be to turn the matrix problem
      * below into an ne x nc problem, and do QR elimination instead
-     * of Gauss-Jordon elimination.
+     * of Gauss-Jordan elimination.
      *    Note the rearrangement of elements need only be done once
      * in the problem. It's actually very similar to the top of
      * this program with ne being the species and nc being the
@@ -420,7 +420,7 @@ L_END_LOOP:
         }
     }
     /*
-     *     Use Gauss-Jordon block elimination to calculate
+     *     Use Gauss-Jordan block elimination to calculate
      *     the reaction matrix
      */
     int ierr = mlequ(DATA_PTR(sm), ne, nComponents, DATA_PTR(formRxnMatrix), nNonComponents);

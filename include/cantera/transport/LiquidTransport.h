@@ -323,7 +323,7 @@ public:
 
     //! Return the thermal diffusion coefficients
     /*!
-     *  These are all zero for this simple implementaion
+     *  These are all zero for this simple implementation
      *
      *  @param dt thermal diffusion coefficients
      */
@@ -334,7 +334,7 @@ public:
      *  The thermal conductivity calculation is handled by subclasses of
      *  LiquidTranInteraction as specified in the input file.
      *  These in turn employ subclasses of LTPspecies to
-     *  determine the individual species thermal condictivities.
+     *  determine the individual species thermal conductivities.
      */
     virtual doublereal thermalConductivity();
 

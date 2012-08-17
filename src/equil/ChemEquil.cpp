@@ -1568,7 +1568,7 @@ int ChemEquil::estimateEP_Brinkley(thermo_t& s, vector_fp& x,
          * its stability properties, i.e., it heads in the right direction,
          * albeit with lousy convergence rates.
          *
-         * NOTE: This probably should be extended to a full blown Gauss-Jordon
+         * NOTE: This probably should be extended to a full blown Gauss-Jordan
          *       factorization scheme in the future. For Example
          *       the scheme below would fail for the set: HCl  NH4Cl, NH3.
          *       Hopefully, it's caught by the equal rows logic below.

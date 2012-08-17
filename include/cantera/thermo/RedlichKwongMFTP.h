@@ -642,7 +642,7 @@ public:
      *
      *
      *  @return   We return the density of the fluid at the requested phase. If we have not found any
-     *            acceptable density we return a -1. If we have found an accectable density at a
+     *            acceptable density we return a -1. If we have found an acceptable density at a
      *            different phase, we return a -2.
      */
     virtual doublereal densityCalc(doublereal TKelvin, doublereal pressure, int phase, doublereal rhoguess);
@@ -743,7 +743,7 @@ protected:
     //! boolean indicating whether standard mixing rules are applied
     /*!
      *  - 1 = Yes, there are standard cross terms in the a coefficient matrices.
-     *  - 0 = No, there are nonstaandard cross terms in the a coefficient matrices.
+     *  - 0 = No, there are nonstandard cross terms in the a coefficient matrices.
      */
     int m_standardMixingRules;
 

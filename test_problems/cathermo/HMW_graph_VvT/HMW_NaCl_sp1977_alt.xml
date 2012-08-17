@@ -150,11 +150,11 @@
     <species name="Cl-">
       <!-- Cl- (aq) standard state based on the unity molality convention
            The shomate polynomial was created from the SUPCRT92
-           J. Phys Chem Ref article, and the codata recommended
+           J. Phys Chem Ref article, and the CODATA recommended
            values. DelHf(298.15) = -167.08 kJ/gmol
                        S(298.15) = 56.60 J/gmolK
-           There was a slight discrepency between those two, which was 
-           resolved in favor of codata.
+           There was a slight discrepancy between those two, which was
+           resolved in favor of CODATA.
            Notes: the order of the polynomials can be decreased by
                   dropping terms from the complete Shomate poly.
        -->
@@ -207,11 +207,11 @@
     <species name="OH-">
       <!-- OH- (aq) standard state based on the unity molality convention
            The shomate polynomial was created with data from the SUPCRT92
-           J. Phys Chem Ref article, and from the codata recommended
+           J. Phys Chem Ref article, and from the CODATA recommended
            values. DelHf(298.15) = -230.015 kJ/gmol
                        S(298.15) = -10.90 J/gmolK
-           There was a slight discrepency between those two, which was 
-           resolved in favor of codata.
+           There was a slight discrepancy between those two, which was
+           resolved in favor of CODATA.
            Notes: the order of the polynomials can be decreased by
                   dropping terms from the complete Shomate poly.
        -->

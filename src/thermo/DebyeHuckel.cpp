@@ -1392,7 +1392,7 @@ initThermoXML(XML_Node& phaseNode, std::string id)
      * Fill in the vector specifying the electrolyte species
      * type
      *
-     *   First fill in default values. Everthing is either
+     *   First fill in default values. Everything is either
      *   a charge species, a nonpolar neutral, or the solvent.
      */
     for (size_t k = 0; k < m_kk; k++) {
@@ -1845,7 +1845,7 @@ void DebyeHuckel::s_update_lnMolalityActCoeff() const
      * Debye-Huckel parameter A_Debye
      * This parameter appears on the top of the activity
      * coefficient expression.
-     * It depends on T (and P), as it depends explicity
+     * It depends on T (and P), as it depends explicitly
      * on the temperature. Also, the dielectric constant
      * is usually a fairly strong function of T, also.
      */

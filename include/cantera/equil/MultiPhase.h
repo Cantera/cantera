@@ -419,7 +419,7 @@ public:
 
     /// Volume [m^3].
     /*!
-     * Returns the cummulative sum of the volumes of all the
+     * Returns the cumulative sum of the volumes of all the
      * phases in the %MultiPhase.
      */
     doublereal volume() const;

@@ -1473,7 +1473,7 @@ initThermoXML(XML_Node& phaseNode, std::string id)
      * Fill in the vector specifying the electrolyte species
      * type
      *
-     *   First fill in default values. Everthing is either
+     *   First fill in default values. Everything is either
      *   a charge species, a nonpolar neutral, or the solvent.
      */
     for (size_t k = 0; k < m_kk; k++) {

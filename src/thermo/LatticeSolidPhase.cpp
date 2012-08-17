@@ -672,7 +672,7 @@ void LatticeSolidPhase::setParametersFromXML(const XML_Node& eosdata)
 // for species reference-state thermodynamic properties
 /*
  *
- * @param k   Speices id. The default is -1, meaning return the default
+ * @param k   Species id. The default is -1, meaning return the default
  *
  * @internal
  */

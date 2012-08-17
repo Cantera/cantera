@@ -561,7 +561,7 @@ doublereal MineralEQ3::LookupGe(const std::string& elemName)
     doublereal geValue = entropyElement298(iE);
     if (geValue == ENTROPY298_UNKNOWN) {
         throw CanteraError("PDSS_HKFT::LookupGe",
-                           "element " + elemName + " doesn not have a supplied entropy298");
+                           "element " + elemName + " does not have a supplied entropy298");
     }
     geValue *= (-298.15);
     return geValue;

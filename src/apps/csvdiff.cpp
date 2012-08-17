@@ -189,8 +189,7 @@ static double calc_rdiff(double d1, double d2, double rtol, double atol)
  *    characters.
  *
  *    Argument:
- *      str => original string. On exit, this string will have beent
- *             altered.
+ *      str => original string. On exit, this string will have been altered.
  *      strlets -> Vector of pointers to char *.  The vector has a size
  *                 larger than or equal to maxPieces.
  *      maxPieces -> largest number of pieces to divide the string into.
@@ -243,7 +242,7 @@ static int breakStrCommas(char* str, char** strlets, int maxPieces)
  *    nTitleLines = Number of title lines
  *    nColTitleLines = Number of column title lines
  *    nCol        = Number of columns -> basically equal to the
- *                  number of variabless
+ *                  number of variables
  *    nDataRows   = Number of rows of data in the file
  *
  */

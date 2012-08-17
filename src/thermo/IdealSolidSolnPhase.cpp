@@ -427,10 +427,10 @@ void IdealSolidSolnPhase::setConcentrations(const doublereal* const c)
  * concentrations. The generalized concentrations are used
  * in the evaluation of the rates of progress for reactions
  * involving species in this phase. The generalized
- * concentration dividied by the standard concentration is also
+ * concentration divided by the standard concentration is also
  * equal to the activity of species.
  *
- * For this implentation the activity is defined to be the
+ * For this implementation the activity is defined to be the
  * mole fraction of the species. The generalized concentration
  * is defined to be equal to the mole fraction divided by
  * the partial molar volume. The generalized concentrations
@@ -462,7 +462,7 @@ void IdealSolidSolnPhase::setConcentrations(const doublereal* const c)
  *        state into the thermodynamics functions. Therefore the
  *        standard state on which the activities are based depend
  *        on both temperature and pressure. If we hadn't, it would have
- *        appeared in this function in a very awkwards exp[] format.
+ *        appeared in this function in a very awkward exp[] format.
  *
  * @param c[] Pointer to array of doubles of length m_kk, which on exit
  *          will contain the generalized concentrations.
@@ -1067,7 +1067,7 @@ const vector_fp& IdealSolidSolnPhase::entropy_R_ref() const
 /*
  * initThermo() function initializes the object for use.
  *
- * Before its invokation, the class isn't ready for calculation.
+ * Before its invocation, the class isn't ready for calculation.
  */
 void IdealSolidSolnPhase::initThermo()
 {
@@ -1203,7 +1203,7 @@ initLengths()
 
     /*
      * Obtain the reference pressure by calling the ThermoPhase
-     * function refPressure, which in turm calls the
+     * function refPressure, which in turn calls the
      * species thermo reference pressure function of the
      * same name.
      */

@@ -40,7 +40,7 @@ static int _itypes[]   = {0, cGasKinetics, cGRI30, cInterfaceKinetics, cEdgeKine
  *              The element has one attribute called "model",
  *              with a string value. The value of this string
  *              is used to decide which kinetics manager is used
- *              to calculate the reacton mechanism.
+ *              to calculate the reaction mechanism.
  *
  * Return
  * ---------

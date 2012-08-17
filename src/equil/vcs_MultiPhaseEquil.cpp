@@ -656,7 +656,7 @@ int vcs_MultiPhaseEquil::equilibrate_TP(int estimateEquil,
      * Transfer the information back to the MultiPhase object.
      * Note we don't just call setMoles, because some multispecies
      * solution phases may be zeroed out, and that would cause a problem
-     * for that routine. Also, the mole fractions of such zereod out
+     * for that routine. Also, the mole fractions of such zeroed out
      * phases actually contain information about likely reemergent
      * states.
      */
@@ -1586,7 +1586,7 @@ int vcs_MultiPhaseEquil::determine_PhaseStability(int iph, double& funcStab, int
      * Transfer the information back to the MultiPhase object.
      * Note we don't just call setMoles, because some multispecies
      * solution phases may be zeroed out, and that would cause a problem
-     * for that routine. Also, the mole fractions of such zereod out
+     * for that routine. Also, the mole fractions of such zeroed out
      * phases actually contain information about likely reemergent
      * states.
      */

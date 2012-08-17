@@ -317,7 +317,7 @@ public:
 
     //! Return the thermal diffusion coefficients
     /*!
-     *  These are all zero for this simple implementaion
+     *  These are all zero for this simple implementation
      *
      *  @param dt thermal diffusion coefficients
      */

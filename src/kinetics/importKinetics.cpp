@@ -442,7 +442,7 @@ static void getFalloff(const XML_Node& f, ReactionData& rdata)
         } else if (np == 3) {
             rdata.falloffType = TROE3_FALLOFF;
         } else {
-            throw CanteraError("getFalloff()", "Troe parameterization is specified by number of pararameters, "
+            throw CanteraError("getFalloff()", "Troe parameterization is specified by number of parameters, "
                                + int2str(np) + ", is not equal to 3 or 4");
         }
     } else if (type == "SRI") {
@@ -460,7 +460,7 @@ static void getFalloff(const XML_Node& f, ReactionData& rdata)
                 throw CanteraError("getFalloff()", "SRI3 m_c parameter is less than zero: " + fp2str(c[2]));
             }
         } else {
-            throw CanteraError("getFalloff()", "SRI parameterization is specified by number of pararameters, "
+            throw CanteraError("getFalloff()", "SRI parameterization is specified by number of parameters, "
                                + int2str(np) + ", is not equal to 3 or 5");
         }
     }

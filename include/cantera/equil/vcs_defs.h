@@ -168,7 +168,7 @@ namespace VCSnonideal
 //! Species is a SS phase, that is currently zeroed out.
 /*!
  *  The species lies in a single-species phase which
- *  is currently zereod out.
+ *  is currently zeroed out.
  */
 #define VCS_SPECIES_ZEROEDSS      -3
 
@@ -185,7 +185,7 @@ namespace VCSnonideal
 /*!
  *  The unknown is equal to the interfacial voltage
  *  drop across the interface on the SHE (standard
- *  hyrdogen electrode) scale (volts).
+ *  hydrogen electrode) scale (volts).
  */
 #define VCS_SPECIES_INTERFACIALVOLTAGE  -5
 
@@ -363,7 +363,7 @@ namespace VCSnonideal
 /*!
  * Typically, these species are electrons in metals. There is an
  * infinite supply of them. However, their electrical potential
- * is ddefined by the interface voltage.
+ * is defined by the interface voltage.
  */
 #define VCS_SPECIES_TYPE_INTERFACIALVOLTAGE -5
 //@}

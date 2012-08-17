@@ -115,7 +115,7 @@ bool VCS_SOLVE::vcs_elabcheck(int ibound)
                 } else {
                     /*
                      * For normal element balances, we require absolute compliance
-                     * even for rediculously small numbers.
+                     * even for ridiculously small numbers.
                      */
                     if (m_elType[i] == VCS_ELEM_TYPE_ABSPOS) {
                         return false;
@@ -168,7 +168,7 @@ int VCS_SOLVE::vcs_elcorr(double aa[], double x[])
  * vcs_elcorr:
  *
  * This subroutine corrects for element abundances. At the end of the
- * surbroutine, the total moles in all phases are recalculated again,
+ * subroutine, the total moles in all phases are recalculated again,
  * because we have changed the number of moles in this routine.
  *
  * Input

@@ -68,7 +68,7 @@ public:
     //! Vector of rate coefficient parameters
     vector_fp rateCoeffParameters;
 
-    //! Vector of auxillary rate coefficient parameters
+    //! Vector of auxiliary rate coefficient parameters
     vector_fp auxRateCoeffParameters;
 
     int falloffType;

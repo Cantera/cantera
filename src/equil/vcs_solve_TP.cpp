@@ -75,7 +75,7 @@ void VCS_SOLVE::checkDelta1(double* const dsLocal,
 // Main routine that solves for equilibrium at constant T and P
 // using a variant of the VCS method
 /*
- * This is the main routine  taht solves for equilibrium at constant T and P
+ * This is the main routine that solves for equilibrium at constant T and P
  * using a variant of the VCS method. Nonideal phases can be accommodated
  * as well.
  *
@@ -360,7 +360,7 @@ L_MAINLOOP_ALL_SPECIES:
     ;
     if (iti == 0) {
         /*
-         *          Evaluate the minor non-componenent species chemical
+         *          Evaluate the minor non-component species chemical
          *          potentials and delta G for their formation reactions
          *          We have already evaluated the major non-components
          */
@@ -811,7 +811,7 @@ L_MAINLOOP_ALL_SPECIES:
                      *      Set the initial step size, dx, equal to the value produced
                      *      by the routine, vcs_RxnStepSize().
                      *
-                     *          Note the multiplition logic is to make sure that
+                     *          Note the multiplication logic is to make sure that
                      *          dg[] didn't change sign due to w[] changing in the
                      *          middle of the iteration. (it can if a single species
                      *          phase goes out of existence).
@@ -2449,7 +2449,7 @@ void VCS_SOLVE::vcs_reinsert_deleted(size_t kspec)
 }
 /****************************************************************************/
 
-// This routine handles the bookkeepking involved with the
+// This routine handles the bookkeeping involved with the
 //  deletion of multiphase phases from the problem.
 /*
  *   When they are deleted, all of their species become active
@@ -2905,7 +2905,7 @@ size_t VCS_SOLVE::vcs_add_all_deleted()
  *
  *  along the current direction m_deltaMolNumSpecies[], by choosing a value, al: (0<al<1)
  *  such that the a parabola approximation to Gibbs(al) fit to the
- *  end points al = 0 and al = 1 is minimizied.
+ *  end points al = 0 and al = 1 is minimized.
  *      s1 = slope of Gibbs function at al = 0, which is the previous
  *           solution = d(Gibbs)/d(al).
  *      s2 = slope of Gibbs function at al = 1, which is the current
@@ -3381,7 +3381,7 @@ L_END_LOOP:
      * However, this might not be the case. For example, assume
      * that the first element in m_formulaMatrix[] is argon. Assume that
      * no species in the matrix problem actually includes argon.
-     * Then, the first row in sm[], below will be indentically
+     * Then, the first row in sm[], below will be identically
      * zero. bleh.
      *    What needs to be done is to perform a rearrangement
      * of the ELEMENTS -> i.e. rearrange, m_formulaMatrix, sp,
@@ -3391,7 +3391,7 @@ L_END_LOOP:
      * project, but very doable.
      *    An alternative would be to turn the matrix problem
      * below into an ne x nc problem, and do QR elimination instead
-     * of Gauss-Jordon elimination.
+     * of Gauss-Jordan elimination.
      *    Note the rearrangement of elements need only be done once
      * in the problem. It's actually very similar to the top of
      * this program with ne being the species and nc being the
@@ -3409,7 +3409,7 @@ L_END_LOOP:
         }
     }
     /*
-     *     Use Gauss-Jordon block elimination to calculate
+     *     Use Gauss-Jordan block elimination to calculate
      *     the reaction matrix, m_stoichCoeffRxnMatrix[][].
      */
 
@@ -3636,11 +3636,11 @@ L_CLEANUP:
  *
  *  Mole numbers are frequently equal to each other in equilibrium problems
  *  due to constraints. Swaps are only done if there are a 1% difference in the
- *  mole numbers. Of course this logic isn't fullproof.
+ *  mole numbers. Of course this logic isn't foolproof.
  *
  * @param molNum  Mole number vector
  * @param j       index into molNum[] that indicates where the search will start from
- *                Previous successful components are swapped into the fronto of
+ *                Previous successful components are swapped into the front of
  *                molNum[].
  * @param n       Length of molNum[]
  */
@@ -4697,8 +4697,8 @@ void VCS_SOLVE::vcs_updateVP(const int vcsState)
  *                                   Its concentration is currently zero.
  *                                   -  VCS_SPECIES_ZEROEDMS
  *                             -3 -> Species lies in a single-species phase which
- *                                   is currently zereod out.
- *                                   - VCS_SPECIES_ZEREODSS
+ *                                   is currently zeroed out.
+ *                                   - VCS_SPECIES_ZEROEDSS
  *                             -4 -> Species has such a small mole fraction it is
  *                                   deleted even though its phase may possibly exist.
  *                                   The species is believed to have such a small
@@ -4709,7 +4709,7 @@ void VCS_SOLVE::vcs_updateVP(const int vcsState)
  *                             -5 ->  Species refers to an electron in the metal
  *                                    The unknown is equal to the interfacial voltage
  *                                    drop across the interface on the SHE (standard
- *                                    hydroogen electrode) scale (volts).
+ *                                    hydrogen electrode) scale (volts).
  *                                     - VCS_SPECIES_INTERFACIALVOLTAGE
  *                             -6 ->  Species lies in a multicomponent phase that
  *                                    is zeroed atm  and will stay deleted due to a
@@ -4817,7 +4817,7 @@ bool VCS_SOLVE::vcs_evaluate_speciesType()
 }
 /*****************************************************************************/
 
-//    Switch rows and columns of a sqare matrix
+//    Switch rows and columns of a square matrix
 /*
  *  Switches the row and column of a matrix.
  *  So that after
@@ -4825,7 +4825,7 @@ bool VCS_SOLVE::vcs_evaluate_speciesType()
  *     J[k1][j] = J_old[k2][j]  and J[j][k1] = J_old[j][k2]
  *     J[k2][j] = J_old[k1][j]  and J[j][k2] = J_old[j][k1]
  *
- *  @param Jac         Double pointer to the jacobiam
+ *  @param Jac         Double pointer to the Jacobian
  *  @param k1          first row/column value to be switched
  *  @param k2          second row/column value to be switched
  */
@@ -4928,7 +4928,7 @@ void VCS_SOLVE::vcs_deltag(const int l, const bool doDeleted,
     }
 #endif
     /* ************************************************* */
-    /* **** MAJORS and ZEREOD SPECIES ONLY ************* */
+    /* **** MAJORS and ZEROED SPECIES ONLY ************* */
     /* ************************************************* */
     if (l < 0) {
         for (irxn = 0; irxn < m_numRxnRdc; ++irxn) {
@@ -5221,7 +5221,7 @@ void  VCS_SOLVE::vcs_printDeltaG(const int stateCalc)
 /*
  *     Calculate deltag of formation for all species in a single
  *     phase. It is assumed that the fe[] is up to date for all species.
- *     Howevever, if the phase is currently zereoed out, a subproblem
+ *     However, if the phase is currently zeroed out, a subproblem
  *     is calculated to solve for AC[i] and pseudo-X[i] for that
  *     phase.
  *

@@ -136,7 +136,7 @@ void OneDim::writeStats(int printTime)
 //==============================================================================================================
 
 /**
- * Save statistics on function and Jacobiab evaulation, and reset
+ * Save statistics on function and Jacobian evaluation, and reset
  * the counters. Statistics are saved only if the number of
  * Jacobian evaluations is greater than zero. The statistics saved
  * are

@@ -638,7 +638,7 @@ public:
     /*!
      *
      *  @param n     Integer value of the lattice whose mole fractions are being set
-     *  @param x     string comtaining Name:value pairs that will specify the mole fractions
+     *  @param x     string containing Name:value pairs that will specify the mole fractions
      *               of species on a particular lattice
      */
     void setLatticeMoleFractionsByName(int n, std::string x);
@@ -648,7 +648,7 @@ public:
     /*!
      *  This routine returns the calculation manager for the sublattice
      *
-     * @param k   Speices id. The default is -1, meaning return the default
+     * @param k   Species id. The default is -1, meaning return the default
      *
      * @internal
      */
