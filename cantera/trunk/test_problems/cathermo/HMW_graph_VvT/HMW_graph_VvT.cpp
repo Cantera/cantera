@@ -18,12 +18,7 @@ int main(int argc, char** argv)
     size_t i;
 
     try {
-
-        char iFile[80];
-        strcpy(iFile, "HMW_NaCl.xml");
-        if (argc > 1) {
-            strcpy(iFile, argv[1]);
-        }
+        std::string iFile = (argc > 1) ? argv[1] : "HMW_NaCl.xml";
         double V0[20], pmV[20];
 
         HMWSoln* HMW = new HMWSoln(iFile, "NaCl_electrolyte");

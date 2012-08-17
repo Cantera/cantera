@@ -533,20 +533,14 @@ class PDSS_Water;
  * or
  *
  * @code
- *    char iFile[80], file_ID[80];
- *    strcpy(iFile, "DH_NaCl.xml");
- *    sprintf(file_ID,"%s#NaCl_electrolyte", iFile);
- *    XML_Node *xm = get_XML_NameID("phase", file_ID, 0);
+ *    XML_Node *xm = get_XML_NameID("phase", "DH_NaCl.xml#NaCl_electrolyte", 0);
  *    DebyeHuckel *dh = new DebyeHuckel(*xm);
  * @endcode
  *
  * or by the following call to importPhase():
  *
  * @code
- *    char iFile[80], file_ID[80];
- *    strcpy(iFile, "DH_NaCl.xml");
- *    sprintf(file_ID,"%s#NaCl_electrolyte", iFile);
- *    XML_Node *xm = get_XML_NameID("phase", file_ID, 0);
+ *    XML_Node *xm = get_XML_NameID("phase", "DH_NaCl.xml#NaCl_electrolyte", 0);
  *    DebyeHuckel dhphase;
  *    importPhase(*xm, &dhphase);
  * @endcode

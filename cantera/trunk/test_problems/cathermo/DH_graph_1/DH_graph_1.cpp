@@ -18,12 +18,7 @@ int main(int argc, char** argv)
     string fName = "DH_graph_1.log";
     fileLog* fl = new fileLog(fName);
     try {
-
-        char iFile[80];
-        strcpy(iFile, "DH_NaCl.xml");
-        if (argc > 1) {
-            strcpy(iFile, argv[1]);
-        }
+        std::string iFile = (argc > 1) ? argv[1] : "DH_NaCl.xml";
         setLogger(fl);
 
         DebyeHuckel* DH = new DebyeHuckel(iFile, "NaCl_electrolyte");

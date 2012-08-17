@@ -1119,20 +1119,14 @@ class PDSS_Water;
  * or
  *
  * @code
- *    char iFile[80], file_ID[80];
- *    strcpy(iFile, "HMW_NaCl.xml");
- *    sprintf(file_ID,"%s#NaCl_electrolyte", iFile);
- *    XML_Node *xm = get_XML_NameID("phase", file_ID, 0);
+ *    XML_Node *xm = get_XML_NameID("phase", "HMW_NaCl.xml#NaCl_electrolyte", 0);
  *    HMWSoln *dh = new HMWSoln(*xm);
  * @endcode
  *
  * or by the following call to importPhase():
  *
  * @code
- *    char iFile[80], file_ID[80];
- *    strcpy(iFile, "HMW_NaCl.xml");
- *    sprintf(file_ID,"%s#NaCl_electrolyte", iFile);
- *    XML_Node *xm = get_XML_NameID("phase", file_ID, 0);
+ *    XML_Node *xm = get_XML_NameID("phase", "HMW_NaCl.xml#NaCl_electrolyte", 0);
  *    HMWSoln dhphase;
  *    importPhase(*xm, &dhphase);
  * @endcode
