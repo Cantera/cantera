@@ -275,6 +275,14 @@ void ThermoPhase::setState_UV(doublereal u, doublereal v,
 }
 //=================================================================================================================
 
+void ThermoPhase::setState_conditional_TP(doublereal t, doublereal p, bool set_p)
+{
+    setTemperature(t);
+    if (set_p) {
+        setPressure(p);
+    }
+}
+
 // Do the convergence work
 /*
  *  We assume here that H at constant P is a monotonically increasing
@@ -316,29 +324,15 @@ void ThermoPhase::setState_HPorUV(doublereal Htarget, doublereal p,
     double Tinit = Tnew;
     if (Tnew > Tmax) {
         Tnew = Tmax - 1.0;
-        if (doUV) {
-            setTemperature(Tnew);
-        } else {
-            setState_TP(Tnew, p);
-        }
     } else if (Tnew < Tmin) {
         Tnew = Tmin + 1.0;
-        if (doUV) {
-            setTemperature(Tnew);
-        } else {
-            setState_TP(Tnew, p);
-        }
+    }
+    if (Tnew != Tinit) {
+        setState_conditional_TP(Tnew, p, !doUV);
     }
 
-    double Hnew = 0.0;
-    double Cpnew = 0.0;
-    if (doUV) {
-        Hnew = intEnergy_mass();
-        Cpnew = cv_mass();
-    } else {
-        Hnew = enthalpy_mass();
-        Cpnew = cp_mass();
-    }
+    double Hnew = (doUV) ? intEnergy_mass() : enthalpy_mass();
+    double Cpnew = (doUV) ? cv_mass() : cp_mass();
     double Htop = Hnew;
     double Ttop = Tnew;
     double Hbot = Hnew;
@@ -386,13 +380,8 @@ void ThermoPhase::setState_HPorUV(doublereal Htarget, doublereal p,
 
         // Check Max and Min values
         if (Tnew > Tmax && !ignoreBounds) {
-            if (doUV) {
-                setTemperature(Tmax);
-                Hmax = intEnergy_mass();
-            } else {
-                setState_TP(Tmax, p);
-                Hmax = enthalpy_mass();
-            }
+            setState_conditional_TP(Tmax, p, !doUV);
+            Hmax = (doUV) ? intEnergy_mass() : enthalpy_mass();
             if (Hmax >= Htarget) {
                 if (Htop < Htarget) {
                     Ttop = Tmax;
@@ -404,13 +393,8 @@ void ThermoPhase::setState_HPorUV(doublereal Htarget, doublereal p,
             }
         }
         if (Tnew < Tmin && !ignoreBounds) {
-            if (doUV) {
-                setTemperature(Tmin);
-                Hmin = intEnergy_mass();
-            } else {
-                setState_TP(Tmin, p);
-                Hmin = enthalpy_mass();
-            }
+            setState_conditional_TP(Tmin, p, !doUV);
+            Hmin = (doUV) ? intEnergy_mass() : enthalpy_mass();
             if (Hmin <= Htarget) {
                 if (Hbot > Htarget) {
                     Tbot = Tmin;
@@ -427,12 +411,11 @@ void ThermoPhase::setState_HPorUV(doublereal Htarget, doublereal p,
         //    spinodal value of H.
         for (int its = 0; its < 10; its++) {
             Tnew = Told + dt;
+            setState_conditional_TP(Tnew, p, !doUV);
             if (doUV) {
-                setTemperature(Tnew);
                 Hnew = intEnergy_mass();
                 Cpnew = cv_mass();
             } else {
-                setState_TP(Tnew, p);
                 Hnew = enthalpy_mass();
                 Cpnew = cp_mass();
             }
@@ -551,19 +534,11 @@ void ThermoPhase::setState_SPorSV(doublereal Starget, doublereal p,
     double Tinit = Tnew;
     if (Tnew > Tmax) {
         Tnew = Tmax - 1.0;
-        if (doSV) {
-            setTemperature(Tnew);
-        } else {
-            setState_TP(Tnew, p);
-        }
-    }
-    if (Tnew < Tmin) {
+    } else if (Tnew < Tmin) {
         Tnew = Tmin + 1.0;
-        if (doSV) {
-            setTemperature(Tnew);
-        } else {
-            setState_TP(Tnew, p);
-        }
+    }
+    if (Tnew != Tinit) {
+        setState_conditional_TP(Tnew, p, !doSV);
     }
 
     double Snew = entropy_mass();
@@ -610,11 +585,7 @@ void ThermoPhase::setState_SPorSV(doublereal Starget, doublereal p,
 
         // Check Max and Min values
         if (Tnew > Tmax && !ignoreBounds) {
-            if (doSV) {
-                setTemperature(Tmax);
-            } else {
-                setState_TP(Tmax, p);
-            }
+            setState_conditional_TP(Tmax, p, !doSV);
             double Smax = entropy_mass();
             if (Smax >= Starget) {
                 if (Stop < Starget) {
@@ -626,11 +597,7 @@ void ThermoPhase::setState_SPorSV(doublereal Starget, doublereal p,
                 ignoreBounds = true;
             }
         } else if (Tnew < Tmin && !ignoreBounds) {
-            if (doSV) {
-                setTemperature(Tmin);
-            } else {
-                setState_TP(Tmin, p);
-            }
+            setState_conditional_TP(Tmin, p, !doSV);
             double Smin = enthalpy_mass();
             if (Smin <= Starget) {
                 if (Sbot > Starget) {
@@ -648,13 +615,8 @@ void ThermoPhase::setState_SPorSV(doublereal Starget, doublereal p,
         //    spinodal value of H.
         for (int its = 0; its < 10; its++) {
             Tnew = Told + dt;
-            if (doSV) {
-                setTemperature(Tnew);
-                Cpnew = cv_mass();
-            } else {
-                setState_TP(Tnew, p);
-                Cpnew = cp_mass();
-            }
+            setState_conditional_TP(Tnew, p, !doSV);
+            Cpnew = (doSV) ? cv_mass() : cp_mass();
             Snew = entropy_mass();
             if (Cpnew < 0.0) {
                 unstablePhaseNew = true;
