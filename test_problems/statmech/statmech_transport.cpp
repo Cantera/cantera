@@ -33,14 +33,9 @@ int main(int argc, char** argv)
   try
     {
       int k;
-      IdealGasMix g("test_stat_trans.xml");
+      IdealGasMix g("test_stat_trans.xml", "example");
       int nsp = g.nSpecies();
       double pres = 1.0E5;
-
-      // init pecos transport
-      int log_level = 0;
-      Transport * tran = newTransportMgr("Pecos", &g, log_level=0);
-      PecosTransport * tranMix = dynamic_cast<PecosTransport *>(tran);
 
       vector_fp Xset(nsp, 0.0);
       Xset[0] =  0.5 ;
@@ -48,6 +43,14 @@ int main(int argc, char** argv)
   
       g.setState_TPX(1500.0, pres, DATA_PTR(Xset));
       equilibrate(g, "TP", -1);
+
+      // init pecos transport
+      int log_level = 0;
+      Transport * tran = newTransportMgr("Pecos", &g, log_level=0);
+      PecosTransport * tranMix = dynamic_cast<PecosTransport *>(tran);
+
+      cout << "here";
+
 
       vector_fp cp_R(nsp, 0.0);
       g.getCp_R(DATA_PTR(cp_R));
