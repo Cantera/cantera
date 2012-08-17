@@ -520,6 +520,13 @@ XML_Node* get_XML_Node(const std::string& file_ID, XML_Node* root);
 XML_Node* get_XML_NameID(const std::string& nameTarget,
                          const std::string& file_ID,
                          XML_Node* root);
+
+//! Clip *value* such that lower <= value <= upper
+template <class T>
+inline T clip(const T& value, const T& lower, const T& upper) {
+    return std::max(lower, std::min(upper, value));
+}
+
 }
 
 #endif

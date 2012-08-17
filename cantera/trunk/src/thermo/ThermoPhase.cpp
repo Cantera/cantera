@@ -321,8 +321,7 @@ void ThermoPhase::setState_HPorUV(doublereal Htarget, doublereal p,
         } else {
             setState_TP(Tnew, p);
         }
-    }
-    if (Tnew < Tmin) {
+    } else if (Tnew < Tmin) {
         Tnew = Tmin + 1.0;
         if (doUV) {
             setTemperature(Tnew);
@@ -357,7 +356,6 @@ void ThermoPhase::setState_HPorUV(doublereal Htarget, doublereal p,
     double Tunstable = -1.0;
     bool unstablePhaseNew = false;
 
-
     // Newton iteration
     for (int n = 0; n < 500; n++) {
         Told = Tnew;
@@ -367,14 +365,8 @@ void ThermoPhase::setState_HPorUV(doublereal Htarget, doublereal p,
             unstablePhase = true;
             Tunstable = Tnew;
         }
-        dt = (Htarget - Hold)/cpd;
-
         // limit step size to 100 K
-        if (dt > 100.0) {
-            dt =  100.0;
-        } else if (dt < -100.0) {
-            dt = -100.0;
-        }
+        dt = clip((Htarget - Hold)/cpd, -100.0, 100.0);
 
         // Calculate the new T
         Tnew = Told + dt;
@@ -382,78 +374,51 @@ void ThermoPhase::setState_HPorUV(doublereal Htarget, doublereal p,
         // Limit the step size so that we are convergent
         // This is the step that makes it different from a
         // Newton's algorithm
-        if (dt > 0.0) {
-            if (!unstablePhase) {
-                if (Htop > Htarget) {
-                    if (Tnew > (0.75 * Ttop + 0.25 * Told)) {
-                        dt = 0.75 * (Ttop - Told);
-                        Tnew = Told + dt;
-                    }
-                }
-            } else {
-                if (Hbot < Htarget) {
-                    if (Tnew < (0.75 * Tbot + 0.25 * Told)) {
-                        dt = 0.75 * (Tbot - Told);
-                        Tnew = Told + dt;
-                    }
-                }
+        if ((dt > 0.0 && unstablePhase) || (dt <= 0.0 && !unstablePhase)) {
+            if (Hbot < Htarget && Tnew < (0.75 * Tbot + 0.25 * Told)) {
+                dt = 0.75 * (Tbot - Told);
+                Tnew = Told + dt;
             }
-        } else {
-            if (!unstablePhase) {
-                if (Hbot < Htarget) {
-                    if (Tnew < (0.75 * Tbot + 0.25 * Told)) {
-                        dt = 0.75 * (Tbot - Told);
-                        Tnew = Told + dt;
-                    }
-                }
-            } else {
-                if (Htop > Htarget) {
-                    if (Tnew > (0.75 * Ttop + 0.25 * Told)) {
-                        dt = 0.75 * (Ttop - Told);
-                        Tnew = Told + dt;
-                    }
-                }
-            }
+        } else if (Htop > Htarget && Tnew > (0.75 * Ttop + 0.25 * Told)) {
+            dt = 0.75 * (Ttop - Told);
+            Tnew = Told + dt;
         }
+
         // Check Max and Min values
-        if (Tnew > Tmax) {
-            if (!ignoreBounds) {
-                if (doUV) {
-                    setTemperature(Tmax);
-                    Hmax = intEnergy_mass();
-                } else {
-                    setState_TP(Tmax, p);
-                    Hmax = enthalpy_mass();
+        if (Tnew > Tmax && !ignoreBounds) {
+            if (doUV) {
+                setTemperature(Tmax);
+                Hmax = intEnergy_mass();
+            } else {
+                setState_TP(Tmax, p);
+                Hmax = enthalpy_mass();
+            }
+            if (Hmax >= Htarget) {
+                if (Htop < Htarget) {
+                    Ttop = Tmax;
+                    Htop = Hmax;
                 }
-                if (Hmax >= Htarget) {
-                    if (Htop < Htarget) {
-                        Ttop = Tmax;
-                        Htop = Hmax;
-                    }
-                } else {
-                    Tnew = Tmax + 1.0;
-                    ignoreBounds = true;
-                }
+            } else {
+                Tnew = Tmax + 1.0;
+                ignoreBounds = true;
             }
         }
-        if (Tnew < Tmin) {
-            if (!ignoreBounds) {
-                if (doUV) {
-                    setTemperature(Tmin);
-                    Hmin = intEnergy_mass();
-                } else {
-                    setState_TP(Tmin, p);
-                    Hmin = enthalpy_mass();
+        if (Tnew < Tmin && !ignoreBounds) {
+            if (doUV) {
+                setTemperature(Tmin);
+                Hmin = intEnergy_mass();
+            } else {
+                setState_TP(Tmin, p);
+                Hmin = enthalpy_mass();
+            }
+            if (Hmin <= Htarget) {
+                if (Hbot > Htarget) {
+                    Tbot = Tmin;
+                    Hbot = Hmin;
                 }
-                if (Hmin <= Htarget) {
-                    if (Hbot > Htarget) {
-                        Tbot = Tmin;
-                        Hbot = Hmin;
-                    }
-                } else {
-                    Tnew = Tmin - 1.0;
-                    ignoreBounds = true;
-                }
+            } else {
+                Tnew = Tmin - 1.0;
+                ignoreBounds = true;
             }
         }
 
@@ -478,38 +443,28 @@ void ThermoPhase::setState_HPorUV(doublereal Htarget, doublereal p,
                 unstablePhaseNew = false;
                 break;
             }
-            if (unstablePhase == false) {
-                if (unstablePhaseNew == true) {
-                    dt *= 0.25;
-                }
+            if (unstablePhase == false && unstablePhaseNew == true) {
+                dt *= 0.25;
             }
         }
 
         if (Hnew == Htarget) {
             return;
-        } else if (Hnew > Htarget) {
-            if ((Htop < Htarget) || (Hnew < Htop)) {
-                Htop = Hnew;
-                Ttop = Tnew;
-            }
-        } else if (Hnew < Htarget) {
-            if ((Hbot > Htarget) || (Hnew > Hbot)) {
-                Hbot = Hnew;
-                Tbot = Tnew;
-            }
+        } else if (Hnew > Htarget && (Htop < Htarget || Hnew < Htop)) {
+            Htop = Hnew;
+            Ttop = Tnew;
+        } else if (Hnew < Htarget && (Hbot > Htarget || Hnew > Hbot)) {
+            Hbot = Hnew;
+            Tbot = Tnew;
         }
         // Convergence in H
         double Herr = Htarget - Hnew;
         double acpd = std::max(fabs(cpd), 1.0E-5);
         double denom = std::max(fabs(Htarget), acpd * dTtol);
         double HConvErr = fabs((Herr)/denom);
-        if (HConvErr < 0.00001 *dTtol) {
+        if (HConvErr < 0.00001 *dTtol || fabs(dt) < dTtol) {
             return;
         }
-        if (fabs(dt) < dTtol) {
-            return;
-        }
-
     }
     // We are here when there hasn't been convergence
     /*
@@ -612,12 +567,7 @@ void ThermoPhase::setState_SPorSV(doublereal Starget, doublereal p,
     }
 
     double Snew = entropy_mass();
-    double Cpnew = 0.0;
-    if (doSV) {
-        Cpnew = cv_mass();
-    } else {
-        Cpnew = cp_mass();
-    }
+    double Cpnew = (doSV) ? cv_mass() : cp_mass();
 
     double Stop = Snew;
     double Ttop = Tnew;
@@ -634,7 +584,6 @@ void ThermoPhase::setState_SPorSV(doublereal Starget, doublereal p,
     double Tunstable = -1.0;
     bool unstablePhaseNew = false;
 
-
     // Newton iteration
     for (int n = 0; n < 500; n++) {
         Told = Tnew;
@@ -644,86 +593,53 @@ void ThermoPhase::setState_SPorSV(doublereal Starget, doublereal p,
             unstablePhase = true;
             Tunstable = Tnew;
         }
-        dt = (Starget - Sold)*Told/cpd;
-
-        // limit step size to 200 K
-        if (dt > 100.0) {
-            dt =  100.0;
-        } else if (dt < -100.0) {
-            dt = -100.0;
-        }
+        // limit step size to 100 K
+        dt = clip((Starget - Sold)*Told/cpd, -100.0, 100.0);
         Tnew = Told + dt;
+
         // Limit the step size so that we are convergent
-        if (dt > 0.0) {
-            if (!unstablePhase) {
-                if (Stop > Starget) {
-                    if (Tnew > Ttop) {
-                        dt = 0.75 * (Ttop - Told);
-                        Tnew = Told + dt;
-                    }
-                }
-            } else {
-                if (Sbot < Starget) {
-                    if (Tnew < Tbot) {
-                        dt = 0.75 * (Tbot - Told);
-                        Tnew = Told + dt;
-                    }
-                }
+        if ((dt > 0.0 && unstablePhase) || (dt <= 0.0 && !unstablePhase)) {
+            if (Sbot < Starget && Tnew < Tbot) {
+                dt = 0.75 * (Tbot - Told);
+                Tnew = Told + dt;
             }
-        } else {
-            if (!unstablePhase) {
-                if (Sbot < Starget) {
-                    if (Tnew < Tbot) {
-                        dt = 0.75 * (Tbot - Told);
-                        Tnew = Told + dt;
-                    }
-                }
-            } else {
-                if (Stop > Starget) {
-                    if (Tnew > Ttop) {
-                        dt = 0.75 * (Ttop - Told);
-                        Tnew = Told + dt;
-                    }
-                }
-            }
+        } else if (Stop > Starget && Tnew > Ttop) {
+            dt = 0.75 * (Ttop - Told);
+            Tnew = Told + dt;
         }
+
         // Check Max and Min values
-        if (Tnew > Tmax) {
-            if (!ignoreBounds) {
-                if (doSV) {
-                    setTemperature(Tmax);
-                } else {
-                    setState_TP(Tmax, p);
-                }
-                double Smax = entropy_mass();
-                if (Smax >= Starget) {
-                    if (Stop < Starget) {
-                        Ttop = Tmax;
-                        Stop = Smax;
-                    }
-                } else {
-                    Tnew = Tmax + 1.0;
-                    ignoreBounds = true;
-                }
+        if (Tnew > Tmax && !ignoreBounds) {
+            if (doSV) {
+                setTemperature(Tmax);
+            } else {
+                setState_TP(Tmax, p);
             }
-        }
-        if (Tnew < Tmin) {
-            if (!ignoreBounds) {
-                if (doSV) {
-                    setTemperature(Tmin);
-                } else {
-                    setState_TP(Tmin, p);
+            double Smax = entropy_mass();
+            if (Smax >= Starget) {
+                if (Stop < Starget) {
+                    Ttop = Tmax;
+                    Stop = Smax;
                 }
-                double Smin = enthalpy_mass();
-                if (Smin <= Starget) {
-                    if (Sbot > Starget) {
-                        Sbot = Tmin;
-                        Sbot = Smin;
-                    }
-                } else {
-                    Tnew = Tmin - 1.0;
-                    ignoreBounds = true;
+            } else {
+                Tnew = Tmax + 1.0;
+                ignoreBounds = true;
+            }
+        } else if (Tnew < Tmin && !ignoreBounds) {
+            if (doSV) {
+                setTemperature(Tmin);
+            } else {
+                setState_TP(Tmin, p);
+            }
+            double Smin = enthalpy_mass();
+            if (Smin <= Starget) {
+                if (Sbot > Starget) {
+                    Sbot = Tmin;
+                    Sbot = Smin;
                 }
+            } else {
+                Tnew = Tmin - 1.0;
+                ignoreBounds = true;
             }
         }
 
@@ -747,35 +663,26 @@ void ThermoPhase::setState_SPorSV(doublereal Starget, doublereal p,
                 unstablePhaseNew = false;
                 break;
             }
-            if (unstablePhase == false) {
-                if (unstablePhaseNew == true) {
-                    dt *= 0.25;
-                }
+            if (unstablePhase == false && unstablePhaseNew == true) {
+                dt *= 0.25;
             }
         }
 
         if (Snew == Starget) {
             return;
-        } else if (Snew > Starget) {
-            if ((Stop < Starget) || (Snew < Stop)) {
-                Stop = Snew;
-                Ttop = Tnew;
-            }
-        } else if (Snew < Starget) {
-            if ((Sbot > Starget) || (Snew > Sbot)) {
-                Sbot = Snew;
-                Tbot = Tnew;
-            }
+        } else if (Snew > Starget && (Stop < Starget || Snew < Stop)) {
+            Stop = Snew;
+            Ttop = Tnew;
+        } else if (Snew < Starget && (Sbot > Starget || Snew > Sbot)) {
+            Sbot = Snew;
+            Tbot = Tnew;
         }
         // Convergence in S
         double Serr = Starget - Snew;
         double acpd = std::max(fabs(cpd), 1.0E-5);
         double denom = std::max(fabs(Starget), acpd * dTtol);
         double SConvErr = fabs((Serr * Tnew)/denom);
-        if (SConvErr < 0.00001 *dTtol) {
-            return;
-        }
-        if (fabs(dt) < dTtol) {
+        if (SConvErr < 0.00001 *dTtol || fabs(dt) < dTtol) {
             return;
         }
     }
