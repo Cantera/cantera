@@ -123,3 +123,23 @@ class chemkinConverterTest(utilities.CanteraTest):
         ref, gas = self.checkConversion('../data/sri-falloff.xml',
                                         'sri-falloff.cti')
         self.checkKinetics(ref, gas, [300, 800, 1450, 2800], [5e3, 1e5, 2e6])
+
+    def test_explicit_reverse_rate(self):
+        if os.path.exists('explicit-reverse-rate.cti'):
+            os.remove('explicit-reverse-rate.cti')
+        ck2cti.convertMech('../data/explicit-reverse-rate.inp',
+                           thermoFile='../data/dummy-thermo.dat',
+                           outName='explicit-reverse-rate.cti', quiet=True)
+        ref, gas = self.checkConversion('../data/explicit-reverse-rate.xml',
+                                        'explicit-reverse-rate.cti')
+        self.checkKinetics(ref, gas, [300, 800, 1450, 2800], [5e3, 1e5, 2e6])
+
+        # Reactions with explicit reverse rate constants are transformed into
+        # two irreversible reactions with reactants and products swapped.
+        Rr = gas.revRateConstants()
+        self.assertEqual(Rr[0], 0.0)
+        self.assertEqual(Rr[1], 0.0)
+        Rstoich = gas.reactantStoichCoeffs()
+        Pstoich = gas.productStoichCoeffs()
+        self.assertEqual(list(Rstoich[:,0]), list(Pstoich[:,1]))
+        self.assertEqual(list(Rstoich[:,1]), list(Pstoich[:,0]))
