@@ -143,3 +143,13 @@ class chemkinConverterTest(utilities.CanteraTest):
         Pstoich = gas.productStoichCoeffs()
         self.assertEqual(list(Rstoich[:,0]), list(Pstoich[:,1]))
         self.assertEqual(list(Rstoich[:,1]), list(Pstoich[:,0]))
+
+    def test_explicit_forward_order(self):
+        if os.path.exists('explicit-forward-order.cti'):
+            os.remove('explicit-forward-order.cti')
+        ck2cti.convertMech('../data/explicit-forward-order.inp',
+                           thermoFile='../data/dummy-thermo.dat',
+                           outName='explicit-forward-order.cti', quiet=True)
+        ref, gas = self.checkConversion('../data/explicit-forward-order.xml',
+                                        'explicit-forward-order.cti')
+        self.checkKinetics(ref, gas, [300, 800, 1450, 2800], [5e3, 1e5, 2e6])
