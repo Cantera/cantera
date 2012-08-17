@@ -532,18 +532,8 @@ void MultiPhase::setMolesByName(compositionMap& xMap)
 // set to zero.
 void MultiPhase::setMolesByName(const std::string& x)
 {
-    compositionMap xx;
-
-    // add an entry in the map for every species, with value -1.0.
-    // Function parseCompString (stringUtils.cpp) uses the names
-    // in the map to specify the allowed species.
-    for (size_t k = 0; k < nSpecies(); k++) {
-        xx[speciesName(k)] = -1.0;
-    }
-
-    // build the composition map from the string, and then set the
-    // moles.
-    parseCompString(x, xx);
+    // build the composition map from the string, and then set the moles.
+    compositionMap xx = parseCompString(x, m_snames);
     setMolesByName(xx);
 }
 //====================================================================================================================

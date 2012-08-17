@@ -256,12 +256,7 @@ extern "C" {
     {
         try {
             ThermoPhase* p = _fph(n);
-            compositionMap xx;
-            int nsp = p->nSpecies();
-            for (int nn = 0; nn < nsp; nn++) {
-                xx[p->speciesName(nn)] = -1;
-            }
-            parseCompString(f2string(x, lx), xx);
+            compositionMap xx = parseCompString(f2string(x, lx), p->speciesNames());
             p->setMoleFractionsByName(xx);
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -288,12 +283,7 @@ extern "C" {
     {
         try {
             ThermoPhase* p = _fph(n);
-            compositionMap yy;
-            int nsp = p->nSpecies();
-            for (int nn = 0; nn < nsp; nn++) {
-                yy[p->speciesName(nn)] = -1;
-            }
-            parseCompString(f2string(y, leny), yy);
+            compositionMap yy = parseCompString(f2string(y, leny), p->speciesNames());
             p->setMassFractionsByName(yy);
         } catch (...) {
             return handleAllExceptions(-1, ERR);

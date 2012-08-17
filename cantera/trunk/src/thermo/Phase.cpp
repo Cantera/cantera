@@ -361,13 +361,8 @@ void Phase::setMoleFractionsByName(compositionMap& xMap)
 
 void Phase::setMoleFractionsByName(const std::string& x)
 {
-    size_t kk = nSpecies();
-    compositionMap xx;
-    for (size_t k = 0; k < kk; k++) {
-        xx[speciesName(k)] = -1.0;
-    }
-    parseCompString(x, xx);
-    setMoleFractionsByName(xx);
+    compositionMap c = parseCompString(x, speciesNames());
+    setMoleFractionsByName(c);
 }
 
 void Phase::setMassFractions(const doublereal* const y)
@@ -411,13 +406,8 @@ void Phase::setMassFractionsByName(compositionMap& yMap)
 
 void Phase::setMassFractionsByName(const std::string& y)
 {
-    size_t kk = nSpecies();
-    compositionMap yy;
-    for (size_t k = 0; k < kk; k++) {
-        yy[speciesName(k)] = -1.0;
-    }
-    parseCompString(y, yy);
-    setMassFractionsByName(yy);
+    compositionMap c = parseCompString(y, speciesNames());
+    setMassFractionsByName(c);
 }
 
 void Phase::setState_TRX(doublereal t, doublereal dens, const doublereal* x)
