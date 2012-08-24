@@ -254,6 +254,32 @@ namespace Cantera {
     setState_HPorUV(u, v, dTtol, true);
   }
   //=================================================================================================================
+  void ThermoPhase::setState_HPX(doublereal Htarget, doublereal p,
+				doublereal* x, 
+				doublereal dTtol) {
+    setMoleFractions(x); setState_HPorUV(Htarget, p, dTtol, false);
+  }
+  //=================================================================================================================
+
+  void ThermoPhase::setState_UVX(doublereal u, doublereal v, 
+				doublereal* x, 
+				doublereal dTtol) {
+    setMoleFractions(x); setState_HPorUV(u, v, dTtol, true);
+  }
+  //=================================================================================================================
+  void ThermoPhase::setState_HPY(doublereal Htarget, doublereal p,
+				doublereal* y, 
+				doublereal dTtol) {
+    setMassFractions(y); setState_HPorUV(Htarget, p, dTtol, false);
+  }
+  //=================================================================================================================
+
+  void ThermoPhase::setState_UVY(doublereal u, doublereal v, 
+				doublereal* y, 
+				doublereal dTtol) {
+    setMassFractions(y); setState_HPorUV(u, v, dTtol, true);
+  }
+  //=================================================================================================================
 
   // Do the convergence work
   /*

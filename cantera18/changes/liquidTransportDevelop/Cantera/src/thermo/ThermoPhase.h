@@ -284,9 +284,16 @@ namespace Cantera {
    *        </TD>
    *      </TR>
    *      <TR>
-   *        <TD> \link ThermoPhase::setState_SV() setState_SV()\endlink     </TD>
-   *        <TD> Set the total specific entropy and the total specific
-   *                         molar volume of the phase using an iterative process.
+   *        <TD> \link ThermoPhase::setState_HPX() setState_HP()\endlink     </TD>
+   *        <TD> Set the total specific enthalpy and the pressure
+   *                         of the phase using an iterative process.
+   *                         The mole fractions are assumed fixed
+   *        </TD>
+   *      </TR>
+   *      <TR>
+   *        <TD> \link ThermoPhase::setState_UVX() setState_UV()\endlink     </TD>
+   *        <TD>  Set the total specific internal energy and the pressure
+   *                         of the phase using an iterative process.
    *                         The mole fractions are assumed fixed.
    *        </TD>
    *      </TR>
@@ -1707,6 +1714,56 @@ namespace Cantera {
      *             calculation. Defaults to 1.0E-4
      */
     virtual void setState_UV(doublereal u, doublereal v, doublereal tol = 1.e-4);
+
+    //! Set the internally stored mole fraction, specific enthalpy (J/kg) and pressure (Pa) of the phase.
+    /*!
+     * @param h     Specific enthalpy (J/kg)
+     * @param p     Pressure (Pa)
+     * @param x    Vector of mole fractions.
+     *             Length is equal to m_kk.
+     * @param tol   Optional parameter setting the tolerance of the
+     *              calculation. Defaults to 1.0E-4
+     */
+    virtual void setState_HPX(doublereal h, doublereal p, doublereal* x, doublereal tol = 1.e-4);
+
+    //! Set the specific mole fraction, internal energy (J/kg) and specific volume (m^3/kg).
+    /*!
+     * This function fixes the internal state of the phase so that
+     * the specific internal energy and specific volume have the value of the input parameters.
+     *
+     * @param u    specific internal energy (J/kg)
+     * @param v    specific volume (m^3/kg).
+     * @param x    Vector of mole fractions.
+     *             Length is equal to m_kk.
+     * @param tol  Optional parameter setting the tolerance of the
+     *             calculation. Defaults to 1.0E-4
+     */
+    virtual void setState_UVX(doublereal u, doublereal v, doublereal* x, doublereal tol = 1.e-4);
+
+    //! Set the internally stored mass fraction, specific enthalpy (J/kg) and pressure (Pa) of the phase.
+    /*!
+     * @param h     Specific enthalpy (J/kg)
+     * @param p     Pressure (Pa)
+     * @param y    Vector of mass fractions.
+     *             Length is equal to m_kk.
+     * @param tol   Optional parameter setting the tolerance of the
+     *              calculation. Defaults to 1.0E-4
+     */
+    virtual void setState_HPY(doublereal h, doublereal p, doublereal* y, doublereal tol = 1.e-4);
+
+    //! Set the specific mass fraction, internal energy (J/kg) and specific volume (m^3/kg).
+    /*!
+     * This function fixes the internal state of the phase so that
+     * the specific internal energy and specific volume have the value of the input parameters.
+     *
+     * @param u    specific internal energy (J/kg)
+     * @param v    specific volume (m^3/kg).
+     * @param y    Vector of mass fractions.
+     *             Length is equal to m_kk.
+     * @param tol  Optional parameter setting the tolerance of the
+     *             calculation. Defaults to 1.0E-4
+     */
+    virtual void setState_UVY(doublereal u, doublereal v, doublereal* y, doublereal tol = 1.e-4);
 
   private:
 
