@@ -1282,15 +1282,16 @@ class falloff_reaction(reaction):
         if 'M)' in self._r:
             del self._r['M)']
             del self._p['M)']
-        if 'm)' in self._r:
+        elif 'm)' in self._r:
             del self._r['m)']
             del self._p['m)']
         else:
             for r in self._r.keys():
                 if r[-1] == ')' and r.find('(') < 0:
+                    species = r[:-1]
                     if self._eff:
-                        raise CTI_Error('(+ '+mspecies+') and '+self._eff+' cannot both be specified')
-                    self._eff = r[-1]+':1.0'
+                        raise CTI_Error('(+ '+species+') and '+self._eff+' cannot both be specified')
+                    self._eff = species+':1.0'
                     self._effm = 0.0
 
                     del self._r[r]
