@@ -153,3 +153,51 @@ class chemkinConverterTest(utilities.CanteraTest):
         ref, gas = self.checkConversion('../data/explicit-forward-order.xml',
                                         'explicit-forward-order.cti')
         self.checkKinetics(ref, gas, [300, 800, 1450, 2800], [5e3, 1e5, 2e6])
+
+    def test_transport_normal(self):
+        if os.path.exists('h2o2_transport_normal.cti'):
+            os.remove('h2o2_transport_normal.cti')
+
+        ck2cti.convertMech('../../data/inputs/h2o2.inp',
+                           transportFile='../../data/transport/gri30_tran.dat',
+                           outName='h2o2_transport_normal.cti', quiet=True)
+
+        gas = ct.IdealGasMix('h2o2_transport_normal.cti')
+        gas.set(X='H2:1.0, O2:1.0', T=300, P=101325)
+        self.assertAlmostEqual(gas.thermalConductivity(), 0.07663, 4)
+
+    def test_transport_missing_species(self):
+        if os.path.exists('h2o2_transport_missing_species.cti'):
+            os.remove('h2o2_transport_missing_species.cti')
+
+        def convert():
+            ck2cti.convertMech('../../data/inputs/h2o2.inp',
+                               transportFile='../data/h2o2-missing-species-tran.dat',
+                               outName='h2o2_transport_missing_species.cti',
+                               quiet=True)
+
+        self.assertRaises(ck2cti.InputParseError, convert)
+
+    def test_transport_duplicate_species(self):
+        if os.path.exists('h2o2_transport_duplicate_species.cti'):
+            os.remove('h2o2_transport_duplicate_species.cti')
+
+        def convert():
+            ck2cti.convertMech('../../data/inputs/h2o2.inp',
+                               transportFile='../data/h2o2-duplicate-species-tran.dat',
+                               outName='h2o2_transport_duplicate_species.cti',
+                               quiet=True)
+
+        self.assertRaises(ck2cti.InputParseError, convert)
+
+    def test_transport_bad_geometry(self):
+        if os.path.exists('h2o2_transport_bad_geometry.cti'):
+            os.remove('h2o2_transport_bad_geometry.cti')
+
+        def convert():
+            ck2cti.convertMech('../../data/inputs/h2o2.inp',
+                               transportFile='../data/h2o2-bad-geometry-tran.dat',
+                               outName='h2o2_transport_bad_geometry.cti',
+                               quiet=True)
+
+        self.assertRaises(ck2cti.InputParseError, convert)
