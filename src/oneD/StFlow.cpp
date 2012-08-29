@@ -504,7 +504,8 @@ void AxiStagnFlow::eval(size_t jg, doublereal* xg,
             //------------------------------------------------
             //    Radial momentum equation
             //
-            //    \rho u dV/dz + \rho V^2 = d(\mu dV/dz)/dz - lambda
+            //    \rho dV/dt + \rho u dV/dz + \rho V^2
+            //       = d(\mu dV/dz)/dz - lambda
             //
             //-------------------------------------------------
             rsd[index(c_offset_V,j)]
@@ -517,7 +518,8 @@ void AxiStagnFlow::eval(size_t jg, doublereal* xg,
             //-------------------------------------------------
             //    Species equations
             //
-            //   \rho u dY_k/dz + dJ_k/dz + M_k\omega_k
+            //   \rho dY_k/dt + \rho u dY_k/dz + dJ_k/dz
+            //   = M_k\omega_k
             //
             //-------------------------------------------------
             getWdot(x,j);
@@ -537,6 +539,11 @@ void AxiStagnFlow::eval(size_t jg, doublereal* xg,
 
             //-----------------------------------------------
             //    energy equation
+            //
+            //    \rho c_p dT/dt + \rho c_p u dT/dz
+            //    = d(k dT/dz)/dz
+            //      - sum_k(\omega_k h_k_ref)
+            //      - sum_k(J_k c_p_k / M_k) dT/dz
             //-----------------------------------------------
 
             if (m_do_energy[j]) {
@@ -782,6 +789,9 @@ void FreeFlame::eval(size_t jg, doublereal* xg,
 
             //----------------------------------------------
             //    Continuity equation
+            //
+            //    d(\rho u)/dz + 2\rho V = 0
+            //
             //----------------------------------------------
 
             if (grid(j) > m_zfixed) {
@@ -808,7 +818,8 @@ void FreeFlame::eval(size_t jg, doublereal* xg,
             //------------------------------------------------
             //    Radial momentum equation
             //
-            //    \rho u dV/dz + \rho V^2 = d(\mu dV/dz)/dz - lambda
+            //    \rho dV/dt + \rho u dV/dz + \rho V^2
+            //       = d(\mu dV/dz)/dz - lambda
             //
             //-------------------------------------------------
             rsd[index(c_offset_V,j)]
@@ -821,7 +832,8 @@ void FreeFlame::eval(size_t jg, doublereal* xg,
             //-------------------------------------------------
             //    Species equations
             //
-            //   \rho u dY_k/dz + dJ_k/dz + M_k\omega_k
+            //   \rho dY_k/dt + \rho u dY_k/dz + dJ_k/dz
+            //   = M_k\omega_k
             //
             //-------------------------------------------------
             getWdot(x,j);
@@ -841,6 +853,11 @@ void FreeFlame::eval(size_t jg, doublereal* xg,
 
             //-----------------------------------------------
             //    energy equation
+            //
+            //    \rho c_p dT/dt + \rho c_p u dT/dz
+            //    = d(k dT/dz)/dz
+            //      - sum_k(\omega_k h_k_ref)
+            //      - sum_k(J_k c_p_k / M_k) dT/dz
             //-----------------------------------------------
 
             if (m_do_energy[j]) {
