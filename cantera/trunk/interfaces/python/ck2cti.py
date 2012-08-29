@@ -1585,6 +1585,11 @@ def convertMech(inputFile, thermoFile=None,
         lines = open(transportFile).readlines()
         parseTransportData(lines, species)
 
+        # Transport validation: make sure all species have transport data
+        for s in species:
+            if s.transport is None:
+                raise InputParseError("No transport data for species '{0}'.".format(s))
+
     if not outName:
         outName = os.path.splitext(inputFile)[0] + '.cti'
 
