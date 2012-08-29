@@ -51,16 +51,6 @@ public:
     }
 
     /**
-     * Return a reference to the nth rate coefficient calculator.
-     * Note that this is not the same as the calculator for
-     * reaction n, since reactions with constant rate coefficients
-     * do not have a calculator.
-     */
-    const R& rateCoeff(int loc) const {
-        return m_rates[loc];
-    }
-
-    /**
      * Update the concentration-dependent parts of the rate
      * coefficient, if any. Used by class SurfaceArrhenius to
      * compute coverage-dependent * modifications to the Arrhenius
@@ -91,10 +81,6 @@ public:
         }
     }
 
-    void writeUpdate(std::ostream& output1, std::string key) {
-        output1 << key;
-    }
-
     size_t nReactions() const {
         return m_rates.size();
     }
@@ -102,44 +88,6 @@ public:
 protected:
     std::vector<R>             m_rates;
     std::vector<size_t>           m_rxn;
-};
-
-
-
-/**
- * This rate coefficient manager supports two parameterizations of
- * any type.
- */
-template<class R1, class R2>
-class Rate2
-{
-public:
-
-    Rate2() {}
-    virtual ~Rate2() {}
-
-    int install(size_t rxnNumber, int rateType, size_t m,
-                const doublereal* c) {
-        if (rateType == R1::type()) {
-            return m_r1.install(rxnNumber, rateType, m, c);
-        } else if (rateType == R2::type()) {
-            return m_r2.install(rxnNumber, rateType, m, c);
-        } else
-            throw CanteraError("Rate2::install",
-                               "unknown rate coefficient type");
-        return -1;
-    }
-
-    void update(doublereal T, doublereal logT,
-                doublereal* values) {
-        m_r1.update(T, logT, values);
-        m_r2.update(T, logT, values);
-    }
-
-protected:
-
-    Rate1<R1> m_r1;
-    Rate1<R2> m_r2;
 };
 
 }
