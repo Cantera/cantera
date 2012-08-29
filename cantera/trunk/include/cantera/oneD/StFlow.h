@@ -492,7 +492,6 @@ protected:
     vector_fp m_zfix;
     vector_fp m_tfix;
 
-    doublereal m_efctr;
     bool m_dovisc;
     void updateTransport(doublereal* x, size_t j0, size_t j1);
 

@@ -102,8 +102,7 @@ StFlow::StFlow(IdealGasPhase* ph, size_t nsp, size_t points) :
     m_jac(0),
     m_ok(false),
     m_do_soret(false),
-    m_transport_option(-1),
-    m_efctr(0.0)
+    m_transport_option(-1)
 {
     m_type = cFlowType;
 
@@ -571,9 +570,6 @@ void AxiStagnFlow::eval(size_t jg, doublereal* xg,
                     - divHeatFlux(x,j) - sum - sum2;
                 rsd[index(c_offset_T, j)] /= (m_rho[j]*m_cp[j]);
 
-                rsd[index(c_offset_T, j)] =
-                    rsd[index(c_offset_T, j)] + m_efctr*(T_fixed(j) - T(x,j));
-
                 rsd[index(c_offset_T, j)] -= rdt*(T(x,j) - T_prev(j));
                 diag[index(c_offset_T, j)] = 1;
             }
@@ -884,9 +880,6 @@ void FreeFlame::eval(size_t jg, doublereal* xg,
                     - m_cp[j]*rho_u(x,j)*dtdzj
                     - divHeatFlux(x,j) - sum - sum2;
                 rsd[index(c_offset_T, j)] /= (m_rho[j]*m_cp[j]);
-
-                rsd[index(c_offset_T, j)] =
-                    rsd[index(c_offset_T, j)] + m_efctr*(T_fixed(j) - T(x,j));
 
                 rsd[index(c_offset_T, j)] -= rdt*(T(x,j) - T_prev(j));
                 diag[index(c_offset_T, j)] = 1;
