@@ -1466,6 +1466,8 @@ def parseTransportData(lines, speciesList):
 
         speciesName = data[0]
         if speciesName in speciesDict:
+            if speciesDict[speciesName].transport is not None:
+                raise InputParseError('Duplicate transport data given for species "{0}".'.format(speciesName))
             speciesDict[speciesName].transport = TransportData(*data)
 
 ################################################################################
