@@ -71,11 +71,8 @@ public:
      * the call to update_C.
      */
     void update_C(const doublereal* c) {
-        typename std::vector<R>::iterator b = m_rates.begin();
-        typename std::vector<R>::iterator e = m_rates.end();
-        int i = 0;
-        for (; b != e; ++b, ++i) {
-            b->update_C(c);
+        for (size_t i = 0; i != m_rates.size(); i++) {
+            m_rates[i].update_C(c);
         }
     }
 
@@ -88,13 +85,9 @@ public:
      * preloaded with the constant rate coefficients.
      */
     void update(doublereal T, doublereal logT, doublereal* values) {
-        typename std::vector<R>::const_iterator b = m_rates.begin();
-        typename std::vector<R>::const_iterator e = m_rates.end();
         doublereal recipT = 1.0/T;
-        int i = 0;
-        for (; b != e; ++b, ++i) {
-            // values[m_rxn[i]] = exp(b->update(logT, recipT));
-            values[m_rxn[i]] = b->updateRC(logT, recipT);
+        for (size_t i = 0; i != m_rates.size(); i++) {
+            values[m_rxn[i]] = m_rates[i].updateRC(logT, recipT);
         }
     }
 
