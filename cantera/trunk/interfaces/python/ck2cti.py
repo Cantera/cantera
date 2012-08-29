@@ -771,8 +771,10 @@ class TransportData(object):
     def __init__(self, label, geometry, wellDepth, collisionDiameter,
                  dipoleMoment, polarizability, zRot, comment=None):
 
-        assert isinstance(label, types.StringTypes)
-        assert int(geometry) in (0,1,2)
+        if not isinstance(label, types.StringTypes):
+            raise InputParseError("Bad label for transport data: " + repr(label))
+        if int(geometry) not in (0,1,2):
+            raise InputParseError("Bad geometry flag '{0}' for species '{1}'".format(geometry, label))
 
         self.label = label
         self.geometry = self.geometryFlags[int(geometry)]
