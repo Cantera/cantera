@@ -30,11 +30,12 @@ cdef class _SolutionBase:
         else:
             self.kinetics = NULL
 
-        # Transport
+        # Initialization of transport is deferred to Transport.__init__
+        self.transport = NULL
+
+    def __init__(self, *args, **kwargs):
         if isinstance(self, Transport):
-            self.transport = newDefaultTransportMgr(self.thermo)
-        else:
-            self.transport = NULL
+            assert self.transport is not NULL
 
     def __dealloc__(self):
         del self.thermo

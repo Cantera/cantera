@@ -1,6 +1,8 @@
 class Solution(ThermoPhase, Kinetics, Transport):
-    def __init__(self, *args, **kwars):
-        pass
+    pass
 
 class Interface(InterfacePhase, Kinetics):
+    pass
+
+class DustyGas(ThermoPhase, Kinetics, DustyGasTransport):
     pass

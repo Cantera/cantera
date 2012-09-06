@@ -61,7 +61,6 @@ cdef extern from "cantera/transport/DustyGasTransport.h" namespace "Cantera":
     cdef cppclass CxxDustyGasTransport "Cantera::DustyGasTransport":
         void setPorosity(double) except +
 
-
 cdef extern from "cantera/equil/MultiPhase.h" namespace "Cantera":
     cdef cppclass CxxMultiPhase "Cantera::MultiPhase":
         CxxMultiPhase()
