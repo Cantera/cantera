@@ -1116,6 +1116,7 @@ if not env['single_library']:
 #  Add lapack and blas to the link line
 if env['blas_lapack_libs']:
     linkLibs.extend(env['blas_lapack_libs'])
+    linkSharedLibs.extend(env['blas_lapack_libs'])
 elif not env['single_library']:
     linkLibs.extend(('ctlapack', 'ctblas'))
     linkSharedLibs.extend(('ctlapack_shared', 'ctblas_shared'))

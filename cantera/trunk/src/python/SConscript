@@ -3,9 +3,13 @@ import distutils.sysconfig
 
 Import('env', 'build', 'install')
 
-localenv = env.Clone()
-
 gcv = distutils.sysconfig.get_config_var
+
+####################################
+### Old Python Module: Raw C API ###
+####################################
+
+localenv = env.Clone()
 
 localenv.Append(CPPPATH=[gcv('INCLUDEPY'), env['python_array_include']],
                 CPPFLAGS=((gcv('BASECFLAGS') or '').split() +
@@ -25,7 +29,6 @@ for var in ('VS80COMNTOOLS', 'VS90COMNTOOLS', 'VS100COMNTOOLS'):
     if var in os.environ:
         localenv['ENV'][var] = os.environ[var]
 
-localenv['spam_source'] = repr(File('#src/python/spam.c').abspath)
 make_setup = localenv.SubstFile('#interfaces/python/setup.py',
                                 '#interfaces/python/setup.py.in')
 
@@ -102,3 +105,26 @@ elif localenv['PYTHON_INSTALLER'] == 'binary':
 if localenv['python_package'] == 'full':
     install(localenv.RecursiveInstall, pjoin('$inst_sampledir', 'python'),
             '#samples/python')
+
+#################################
+### New Python Module: Cython ###
+#################################
+
+localenv = env.Clone()
+incDirs = (".", "../../include", localenv['python_array_include'],
+           localenv['sundials_include'], localenv['boost_inc_dir'])
+libDirs = ('../../build/lib', localenv['sundials_libdir'],
+           localenv['boost_lib_dir'])
+
+localenv['py_include_dirs'] = repr([x for x in incDirs if x])
+localenv['py_cantera_libs'] = repr(localenv['cantera_shared_libs'])
+localenv['py_libdirs'] = repr([x for x in libDirs if x])
+
+if localenv['CC'] == 'cl':
+    localenv['py_extra_link_args'] = repr([])
+else:
+    localenv['py_extra_link_args'] = repr(['-Wl,-rpath=$$ORIGIN'])
+
+make_setup = localenv.SubstFile('#interfaces/cython/setup.py',
+                                '#interfaces/cython/setup.py.in')
+build(make_setup)
