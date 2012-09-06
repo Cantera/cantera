@@ -121,10 +121,8 @@ localenv['py_cantera_libs'] = repr(localenv['cantera_libs'])
 localenv['py_libdirs'] = repr([x for x in libDirs if x])
 
 if localenv['CC'] == 'cl':
-    localenv['py_extra_link_args'] = repr([])
     localenv['py_extra_compiler_args'] = repr(['/EHsc'])
 else:
-    localenv['py_extra_link_args'] = repr(['-Wl,-rpath=$$ORIGIN'])
     localenv['py_extra_compiler_args'] = repr([])
 
 dataFiles = localenv.RecursiveInstall('#interfaces/cython/cantera/data',
