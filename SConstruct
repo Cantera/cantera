@@ -65,26 +65,25 @@ if os.name == 'nt':
     # On Windows, use the same version of Visual Studio that was used
     # to compile Python, and target the same architecture, unless
     # the user specified another option
-    pycomp = platform.python_compiler()
-    if pycomp.startswith('MSC v.1400'):
+
+    if 'MSC v.1400' in sys.version:
         msvc_version = '8.0' # Visual Studio 2005
-    elif pycomp.startswith('MSC v.1500'):
+    elif 'MSC v.1500' in sys.version:
         msvc_version = '9.0' # Visual Studio 2008
-    elif pycomp.startswith('MSC v.1600'):
+    elif 'MSC v.1600' in sys.version:
         msvc_version = '10.0' # Visual Studio 2010
     else:
         msvc_version = None
 
-    if '64 bit' in pycomp:
+    if '64 bit' in sys.version:
         target_arch = 'amd64'
     else:
         target_arch = 'x86'
 
     opts.AddVariables(
         ('msvc_version',
-         """Version of Visual Studio to use. The default
-            is the same version that was used to compile
-            the installed version of Python.""",
+         """Version of Visual Studio to use. The default is the same version
+            that was used to compile the installed version of Python.""",
          msvc_version),
         ('target_arch',
          """Target architecture. The default is the same
