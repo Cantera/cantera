@@ -2,4 +2,5 @@ cantera/*.cpp
 cantera/*.c
 cantera/data/*.cti
 cantera/data/*.xml
-setup.py
+setup2.py
+setup3.py

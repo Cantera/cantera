@@ -260,7 +260,7 @@ opts.AddVariables(
            (actually, only one file). The default behavior is to build
            the Python package if the required prerequisites (numpy) are
            installed.""",
-        'default', ('full', 'minimal', 'none','default')),
+        'default', ('new', 'full', 'minimal', 'none', 'default')),
     PathVariable(
         'python_cmd',
         """Cantera needs to know where to find the Python interpreter. If
@@ -769,7 +769,7 @@ env = conf.Finish()
 
 
 # Python 2 Package Settings
-if env['python_package'] in ('full','default'):
+if env['python_package'] in ('full','default','new'):
     # Test to see if we can import the specified array module
     warnNoPython = False
     if env['python_array_home']:
@@ -783,9 +783,10 @@ if env['python_package'] in ('full','default'):
             env['python_array_include'] = ''
 
         print """INFO: Building the full Python package using %s.""" % env['python_array']
-        env['python_package'] = 'full'
+        if env['python_package'] == 'default':
+            env['python_package'] = 'full'
     except ImportError:
-        if env['python_package'] == 'full':
+        if env['python_package'] in ('full', 'new'):
             print ("""ERROR: Unable to find the array package """
                    """'%s' required by the full Python package.""" % env['python_array'])
             sys.exit(1)
@@ -1205,9 +1206,8 @@ if env['python_package'] in ('full','minimal'):
     VariantDir('build/src/python', 'src/python', duplicate=0)
     SConscript('build/src/python/SConscript')
 
-if env['python3_package'] == 'y':
-    VariantDir('build/python3', 'interfaces/cython', duplicate=0)
-    SConscript('build/cython/SConscript')
+if env['python3_package'] == 'y' or env['python_package'] == 'new':
+    SConscript('interfaces/cython/SConscript')
 
 SConscript('build/src/apps/SConscript')
 
