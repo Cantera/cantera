@@ -5,6 +5,7 @@ cdef extern from "cantera/thermo/ThermoPhase.h" namespace "Cantera":
     cdef cppclass CxxThermoPhase "Cantera::ThermoPhase":
         CxxThermoPhase()
         double pressure() except +
+        double temperature() except +
         void setMoleFractions(double*) except +
         void getMassFractions(double*) except +
         int nSpecies()

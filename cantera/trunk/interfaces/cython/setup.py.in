@@ -21,6 +21,7 @@ def addExtension(name):
                           extra_link_args=@py_extra_link_args@))
 
 addExtension('solution')
+addExtension('mixture')
 addExtension('utils')
 addExtension('constants')
 

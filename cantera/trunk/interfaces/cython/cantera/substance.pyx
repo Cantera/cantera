@@ -54,6 +54,10 @@ cdef class ThermoPhase(_SolutionBase):
         def __get__(self):
             return self.thermo.pressure()
 
+    property temperature:
+        def __get__(self):
+            return self.thermo.temperature()
+
     def setMoleFractions(self, X):
         if len(X) != self.nSpecies:
             raise ValueError("Mole fraction array has incorrect length")
