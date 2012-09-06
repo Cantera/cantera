@@ -1,6 +1,10 @@
 from libcpp.vector cimport vector
 from libcpp.string cimport string
 from libcpp cimport bool as cbool
+from cpython cimport bool as pybool
+
+import numpy as np
+cimport numpy as np
 
 cdef extern from "cantera/base/xml.h" namespace "Cantera":
     cdef cppclass XML_Node:
@@ -271,6 +275,8 @@ cdef class _SolutionBase:
     cdef CxxKinetics* kinetics
     cdef CxxTransport* transport
     cdef int thermoBasis
+    cdef np.ndarray _selectedSpecies
+    cdef object parent
 
 cdef class Mixture:
     cdef CxxMultiPhase* mix

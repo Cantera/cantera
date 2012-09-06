@@ -7,7 +7,8 @@ ctypedef void (*thermoMethod1d)(CxxThermoPhase*, double*) except +
 cdef class ThermoPhase(_SolutionBase):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.thermoBasis = massBasis
+        if 'source' not in kwargs:
+            self.thermoBasis = massBasis
 
     def report(self, show_thermo=True):
         return pystr(self.thermo.report(bool(show_thermo)))
@@ -85,7 +86,11 @@ cdef class ThermoPhase(_SolutionBase):
 
     property speciesNames:
         def __get__(self):
-            return [self.speciesName(k) for k in range(self.nSpecies)]
+            if self._selectedSpecies.size:
+                indices = self._selectedSpecies
+            else:
+                indices = range(self.nSpecies)
+            return [self.speciesName(k) for k in indices]
 
     cpdef int speciesIndex(self, species) except *:
         if isinstance(species, str):
@@ -107,7 +112,10 @@ cdef class ThermoPhase(_SolutionBase):
     cdef np.ndarray _getArray1(self, thermoMethod1d method):
         cdef np.ndarray[np.double_t, ndim=1] data = np.empty(self.nSpecies)
         method(self.thermo, &data[0])
-        return data
+        if self._selectedSpecies.size:
+            return data[self._selectedSpecies]
+        else:
+            return data
 
     cdef void _setArray1(self, thermoMethod1d method, values) except *:
         if len(values) != self.nSpecies:
@@ -120,9 +128,6 @@ cdef class ThermoPhase(_SolutionBase):
     property molecularWeights:
         def __get__(self):
             return self._getArray1(thermo_getMolecularWeights)
-
-    def molecularWeight(self, species):
-        return self.thermo.molecularWeight(self.speciesIndex(species))
 
     property meanMolecularWeight:
         def __get__(self):
@@ -137,9 +142,6 @@ cdef class ThermoPhase(_SolutionBase):
             else:
                 self._setArray1(thermo_setMassFractions, Y)
 
-    def massFraction(self, species):
-        return self.thermo.massFraction(self.speciesIndex(species))
-
     property X:
         def __get__(self):
             return self._getArray1(thermo_getMoleFractions)
@@ -149,17 +151,11 @@ cdef class ThermoPhase(_SolutionBase):
             else:
                 self._setArray1(thermo_setMoleFractions, X)
 
-    def moleFraction(self, species):
-        return self.thermo.moleFraction(self.speciesIndex(species))
-
     property concentrations:
         def __get__(self):
             return self._getArray1(thermo_getConcentrations)
         def __set__(self, C):
             self._setArray1(thermo_setConcentrations, C)
-
-    def concentration(self, species):
-        return self.thermo.concentration(self.speciesIndex(species))
 
     ######## Read-only thermodynamic properties ########
 
