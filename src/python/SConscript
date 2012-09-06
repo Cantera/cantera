@@ -105,30 +105,3 @@ elif localenv['PYTHON_INSTALLER'] == 'binary':
 if localenv['python_package'] == 'full':
     install(localenv.RecursiveInstall, pjoin('$inst_sampledir', 'python'),
             '#samples/python')
-
-#################################
-### New Python Module: Cython ###
-#################################
-
-localenv = env.Clone()
-incDirs = (".", "../../include", localenv['python_array_include'],
-           localenv['sundials_include'], localenv['boost_inc_dir'])
-libDirs = ('../../build/lib', localenv['sundials_libdir'],
-           localenv['boost_lib_dir'])
-
-localenv['py_include_dirs'] = repr([x for x in incDirs if x])
-localenv['py_cantera_libs'] = repr(localenv['cantera_libs'])
-localenv['py_libdirs'] = repr([x for x in libDirs if x])
-
-if localenv['CC'] == 'cl':
-    localenv['py_extra_compiler_args'] = repr(['/EHsc'])
-else:
-    localenv['py_extra_compiler_args'] = repr([])
-
-dataFiles = localenv.RecursiveInstall('#interfaces/cython/cantera/data',
-                                      '#data/inputs', ['\\.inp$', '\\.in$'])
-build(dataFiles)
-
-make_setup = localenv.SubstFile('#interfaces/cython/setup.py',
-                                '#interfaces/cython/setup.py.in')
-build(make_setup)
