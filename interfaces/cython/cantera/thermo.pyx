@@ -1,27 +1,91 @@
+cdef enum ThermoBasis:
+    mass = 0
+    molar = 1
+
+ctypedef void (*thermoMethod1d)(CxxThermoPhase*, double*) except +
+
 cdef class ThermoPhase(_SolutionBase):
+    def report(self, show_thermo=True):
+        return pystr(self.thermo.report(bool(show_thermo)))
+
+    property nElements:
+        def __get__(self):
+            return self.thermo.nElements()
+
+    def elementIndex(self, name):
+        return self.thermo.elementIndex(stringify(name))
+
+    def elementName(self, m):
+        return pystr(self.thermo.elementName(m))
+
     property nSpecies:
         def __get__(self):
             return self.thermo.nSpecies()
 
-    property pressure:
+    def speciesName(self, k):
+        return pystr(self.thermo.speciesName(k))
+
+    def speciesIndex(self, name):
+        return self.thermo.speciesIndex(stringify(name))
+
+    property P:
         def __get__(self):
             return self.thermo.pressure()
 
-    property temperature:
+    property T:
         def __get__(self):
             return self.thermo.temperature()
 
-    def setMoleFractions(self, X):
-        if len(X) != self.nSpecies:
-            raise ValueError("Mole fraction array has incorrect length")
-        cdef np.ndarray[np.double_t, ndim=1] X_c = np.ascontiguousarray(X, dtype=np.double)
-        self.thermo.setMoleFractions(&X_c[0])
-
-    property massFractions:
+    property rho:
         def __get__(self):
-            cdef np.ndarray[np.double_t, ndim=1] X_c = np.empty(self.nSpecies)
-            self.thermo.getMassFractions(&X_c[0])
-            return X_c
+            return self.thermo.density()
+
+    cdef np.ndarray _getArray1(self, thermoMethod1d method):
+        cdef np.ndarray[np.double_t, ndim=1] data = np.empty(self.nSpecies)
+        method(self.thermo, &data[0])
+        return data
+
+    cdef void _setArray1(self, thermoMethod1d method, values) except *:
+        if len(values) != self.nSpecies:
+            raise ValueError("Array has incorrect length")
+
+        cdef np.ndarray[np.double_t, ndim=1] data = \
+            np.ascontiguousarray(values, dtype=np.double)
+        method(self.thermo, &data[0])
+
+    property molecularWeights:
+        def __get__(self):
+            return self._getArray1(thermo_getMolecularWeights)
+
+    property Y:
+        def __get__(self):
+            return self._getArray1(thermo_getMassFractions)
+        def __set__(self, Y):
+            if isinstance(Y, str):
+                self.thermo.setMassFractionsByName(stringify(Y))
+            else:
+                self._setArray1(thermo_setMassFractions, Y)
+
+    def massFraction(self, int k):
+        return self.thermo.massFraction(k)
+
+    property X:
+        def __get__(self):
+            return self._getArray1(thermo_getMoleFractions)
+        def __set__(self, X):
+            if isinstance(X, str):
+                self.thermo.setMoleFractionsByName(stringify(X))
+            else:
+                self._setArray1(thermo_setMoleFractions, X)
+
+    def moleFraction(self, int k):
+        return self.thermo.moleFraction(k)
+
+    property concentrations:
+        def __get__(self):
+            return self._getArray1(thermo_getConcentrations)
+        def __set__(self, C):
+            self._setArray1(thermo_setConcentrations, C)
 
 
 cdef class InterfacePhase(ThermoPhase):
