@@ -5,6 +5,7 @@
     { object->FUNC_NAME(data); }
 
 #define THERMO_1D(FUNC_NAME) ARRAY_FUNC(thermo, ThermoPhase, FUNC_NAME)
+#define KIN_1D(FUNC_NAME) ARRAY_FUNC(kin, Kinetics, FUNC_NAME)
 
 THERMO_1D(getMassFractions)
 THERMO_1D(setMassFractions)
@@ -26,3 +27,23 @@ THERMO_1D(getEntropy_R)
 THERMO_1D(getIntEnergy_RT)
 THERMO_1D(getGibbs_RT)
 THERMO_1D(getCp_R)
+
+KIN_1D(getFwdRatesOfProgress)
+KIN_1D(getRevRatesOfProgress)
+KIN_1D(getNetRatesOfProgress)
+
+KIN_1D(getEquilibriumConstants)
+KIN_1D(getActivationEnergies)
+KIN_1D(getFwdRateConstants)
+KIN_1D(getRevRateConstants)
+
+KIN_1D(getDeltaEnthalpy)
+KIN_1D(getDeltaGibbs)
+KIN_1D(getDeltaEntropy)
+KIN_1D(getDeltaSSEnthalpy)
+KIN_1D(getDeltaSSGibbs)
+KIN_1D(getDeltaSSEntropy)
+
+KIN_1D(getCreationRates)
+KIN_1D(getDestructionRates)
+KIN_1D(getNetProductionRates)
