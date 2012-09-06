@@ -206,6 +206,11 @@ TransportFactory::TransportFactory() :
     m_models["Pecos"] = cPecosTransport;
     m_models["None"] = None;
     //m_models["Radiative"] = cRadiative;
+    for (map<string, int>::iterator iter = m_models.begin();
+         iter != m_models.end();
+         iter++) {
+        m_modelNames[iter->second] = iter->first;
+    }
 
     m_tranPropMap["viscosity"] = TP_VISCOSITY;
     m_tranPropMap["ionConductivity"] = TP_IONCONDUCTIVITY;
@@ -241,6 +246,17 @@ void TransportFactory::deleteFactory()
     if (s_factory) {
         delete s_factory;
         s_factory = 0;
+    }
+}
+
+std::string TransportFactory::modelName(int model)
+{
+    TransportFactory& f = *factory();
+    map<int, string>::iterator iter = f.m_modelNames.find(model);
+    if (iter != f.m_modelNames.end()) {
+        return iter->second;
+    } else {
+        return "";
     }
 }
 

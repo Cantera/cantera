@@ -80,6 +80,9 @@ public:
      */
     virtual ~TransportFactory() {}
 
+    //! Get the name of the transport model corresponding to the specified constant.
+    static std::string modelName(int model);
+
     //! Make one of several transport models, and return a base class pointer to it.
     /*!
      *  This method operates at the level of a  single transport property as a function of temperature
@@ -160,7 +163,6 @@ public:
      *                     and write informative information to it.
      */
     virtual void initLiquidTransport(Transport* tr, thermo_t* thermo, int log_level=0);
-
 
 private:
 
@@ -361,6 +363,9 @@ private:
     //! Mapping between between the string name
     //!   for a transport model and the integer name.
     std::map<std::string, int> m_models;
+
+    //! Inverse mapping of transport models, from integer constant to string
+    std::map<int, std::string> m_modelNames;
 
     //! Mapping between between the string name
     //! for a transport property and the integer name.

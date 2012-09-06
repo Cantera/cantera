@@ -25,6 +25,15 @@ cdef class Transport(_SolutionBase):
             self.transport = newDefaultTransportMgr(self.thermo)
         super().__init__(*args, **kwargs)
 
+    property transportModel:
+        def __get__(self):
+            return pystr(transportModelName(self.transport.model()))
+
+        def __set__(self, model):
+            cdef CxxTransport* old = self.transport
+            self.transport = newTransportMgr(stringify(model), self.thermo)
+            del old # only if the new transport manager was successfully created
+
     property viscosity:
         def __get__(self):
             return self.transport.viscosity()
