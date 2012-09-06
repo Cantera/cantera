@@ -36,3 +36,27 @@ cdef class InterfacePhase(ThermoPhase):
             return self.surf.siteDensity()
         def __set__(self, double value):
             self.surf.setSiteDensity(value)
+
+
+cdef class PureFluid(ThermoPhase):
+    property critTemperature:
+        def __get__(self):
+            return self.thermo.critTemperature()
+
+    property critPressure:
+        def __get__(self):
+            return self.thermo.critPressure()
+
+    property critDensity:
+        def __get__(self):
+            return self.thermo.critDensity()
+
+    property vaporFraction:
+        def __get__(self):
+            return self.thermo.vaporFraction()
+
+    def _setState_Psat(self, double P, double x):
+        self.thermo.setState_Psat(P, x)
+
+    def _setState_Tsat(self, double T, double x):
+        self.thermo.setState_Tsat(T, x)
