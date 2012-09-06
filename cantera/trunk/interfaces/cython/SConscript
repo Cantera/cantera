@@ -41,21 +41,32 @@ if localenv['python3_package'] == 'y':
                                     '#interfaces/cython/setup.py.in')
     build(make_setup)
 
-    build_cmd = ('cd interfaces/cython &&'
-                 ' $python3_cmd setup3.py build'
+    build_base = ('cd interfaces/cython &&'
+                 ' $python3_cmd setup3.py %s'
                  ' --build-lib=../../build/python3'
                  ' --build-temp=../../build/temp-py3')
-    mod = build(localenv.Command('#build/python3/cantera/_cantera%s' % module_ext,
+
+    build_cmd = build_base % 'build'
+    build_ext_cmd = build_base % 'build_ext'
+
+    ext = build(localenv.Command('#build/python3/cantera/_cantera%s' % module_ext,
+                                 'setup3.py',
+                                 build_ext_cmd))
+    mod = build(localenv.Command('#build/python3/cantera/__init__.py',
                                  'setup3.py',
                                  build_cmd))
     env['python3_module'] = mod
 
-    localenv.AddPreAction(mod, Delete('interfaces/cython/cantera/_cantera.cpp'))
 
-    localenv.Depends(mod, localenv['cantera_staticlib'])
+    localenv.AddPreAction(ext, Delete('interfaces/cython/cantera/_cantera.cpp'))
+
+    localenv.Depends(mod, ext)
+    localenv.Depends(ext, localenv['cantera_staticlib'])
     localenv.Depends(mod, dataFiles + testFiles)
-    for f in (mglob(localenv, 'cantera', 'pyx', 'pxd') +
-              mglob(localenv, 'cantera/test', 'py')):
+    for f in mglob(localenv, 'cantera', 'pyx', 'pxd'):
+        localenv.Depends(ext, f)
+
+    for f in mglob(localenv, 'cantera/test', 'py'):
         localenv.Depends(mod, f)
 
     # Install the Python module
@@ -96,23 +107,31 @@ if localenv['python_package'] == 'new':
                                     '#interfaces/cython/setup.py.in')
     build(make_setup)
 
-    build_cmd = ('cd interfaces/cython &&'
-                 ' $python_cmd setup2.py build'
+    build_base = ('cd interfaces/cython &&'
+                 ' $python_cmd setup2.py %s'
                  ' --build-lib=../../build/python2'
                  ' --build-temp=../../build/temp-py2')
+    build_cmd = build_base % 'build'
+    build_ext_cmd = build_base % 'build_ext'
 
-    mod = build(localenv.Command('#build/python2/cantera/_cantera%s' % module_ext,
+    ext = build(localenv.Command('#build/python2/cantera/_cantera%s' % module_ext,
+                                 'setup2.py',
+                                 build_ext_cmd))
+    mod = build(localenv.Command('#build/python2/cantera/__init__.py',
                                  'setup2.py',
                                  build_cmd))
     env['python2_module'] = mod
 
-    localenv.AddPreAction(mod, Delete('interfaces/cython/cantera/_cantera.cpp'))
+    localenv.AddPreAction(ext, Delete('interfaces/cython/cantera/_cantera.cpp'))
 
-    localenv.Depends(mod, localenv['cantera_staticlib'])
+    localenv.Depends(mod, ext)
+    localenv.Depends(ext, localenv['cantera_staticlib'])
     localenv.Depends(mod, dataFiles + testFiles)
-    for f in (mglob(localenv, 'cantera', 'pyx', 'pxd') +
-              mglob(localenv, 'cantera/test', 'py')):
-        localenv.Depends(mod, f)
+    for f in mglob(localenv, 'cantera', 'pyx', 'pxd'):
+        localenv.Depends(ext, f)
+
+    for f in mglob(localenv, 'cantera/test', 'py'):
+        localenv.Depends(mod ,f)
 
     # Install the Python module
     if localenv['python_prefix']:
