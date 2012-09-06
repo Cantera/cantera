@@ -50,8 +50,18 @@ cdef class ThermoPhase(_SolutionBase):
         def __get__(self):
             return self.thermo.nElements()
 
-    def elementIndex(self, name):
-        return self.thermo.elementIndex(stringify(name))
+    cpdef int elementIndex(self, element) except *:
+        if isinstance(element, str):
+            index = self.thermo.elementIndex(stringify(element))
+        elif isinstance(element, (int, float)):
+            index = <int>element
+        else:
+            raise TypeError("'element' must be a string or a number")
+
+        if not 0 <= index < self.nElements:
+            raise ValueError('No such element.')
+
+        return index
 
     def elementName(self, m):
         return pystr(self.thermo.elementName(m))
@@ -63,15 +73,22 @@ cdef class ThermoPhase(_SolutionBase):
     def speciesName(self, k):
         return pystr(self.thermo.speciesName(k))
 
-    def speciesIndex(self, name):
-        return self.thermo.speciesIndex(stringify(name))
+    cpdef int speciesIndex(self, species) except *:
+        if isinstance(species, str):
+            index = self.thermo.speciesIndex(stringify(species))
+        elif isinstance(species, (int, float)):
+            index = <int>species
+        else:
+            raise TypeError("'species' must be a string or a number")
+
+        if not 0 <= index < self.nSpecies:
+            raise ValueError('No such species.')
+
+        return index
 
     def nAtoms(self, species, element):
-        if isinstance(element, str):
-            element = self.elementIndex(element)
-        if isinstance(species, str):
-            species = self.speciesIndex(species)
-        return self.thermo.nAtoms(species, element)
+        return self.thermo.nAtoms(self.speciesIndex(species),
+                                  self.elementIndex(element))
 
     cdef np.ndarray _getArray1(self, thermoMethod1d method):
         cdef np.ndarray[np.double_t, ndim=1] data = np.empty(self.nSpecies)
@@ -90,8 +107,8 @@ cdef class ThermoPhase(_SolutionBase):
         def __get__(self):
             return self._getArray1(thermo_getMolecularWeights)
 
-    def molecularWeight(self, int k):
-        return self.thermo.molecularWeight(k)
+    def molecularWeight(self, species):
+        return self.thermo.molecularWeight(self.speciesIndex(species))
 
     property Y:
         def __get__(self):
@@ -103,10 +120,7 @@ cdef class ThermoPhase(_SolutionBase):
                 self._setArray1(thermo_setMassFractions, Y)
 
     def massFraction(self, species):
-        if isinstance(species, str):
-            return self.thermo.massFraction(stringify(species))
-        else:
-            return self.thermo.massFraction(<int?>species)
+        return self.thermo.massFraction(self.speciesIndex(species))
 
     property X:
         def __get__(self):
@@ -118,16 +132,16 @@ cdef class ThermoPhase(_SolutionBase):
                 self._setArray1(thermo_setMoleFractions, X)
 
     def moleFraction(self, species):
-        if isinstance(species, str):
-            return self.thermo.moleFraction(stringify(species))
-        else:
-            return self.thermo.moleFraction(<int?>species)
+        return self.thermo.moleFraction(self.speciesIndex(species))
 
     property concentrations:
         def __get__(self):
             return self._getArray1(thermo_getConcentrations)
         def __set__(self, C):
             self._setArray1(thermo_setConcentrations, C)
+
+    def concentration(self, species):
+        return self.thermo.concentration(self.speciesIndex(species))
 
     ######## Read-only thermodynamic properties ########
 
