@@ -27,3 +27,15 @@ class TestThermoPhase(utilities.CanteraTest):
     def test_getState(self):
         self.assertNear(self.phase.pressure, ct.OneAtm)
         self.assertNear(self.phase.temperature, 300)
+
+
+class TestInterfacePhase(utilities.CanteraTest):
+    def setUp(self):
+        self.gas = ct.Solution('diamond.xml', 'gas')
+        self.solid = ct.Solution('diamond.xml', 'diamond')
+        self.interface = ct.Solution('diamond.xml', 'diamond_100',
+                                      (self.gas, self.solid))
+
+    def test_properties(self):
+        self.interface.siteDensity = 100
+        self.assertEqual(self.interface.siteDensity, 100)
