@@ -9,22 +9,22 @@ if os.name == 'nt':
 else:
     dataFiles.append('libcantera_shared.so')
 
-canteraExtensions = []
+exts = []
 
 def addExtension(name):
-    canteraExtensions.append(Extension("cantera.%s" % name,
-                                       ["cantera/%s.pyx" % name],
-                                       include_dirs=[".", "../../include"],
-                                       language="c++",
-                                       libraries=['cantera_shared','sundials_cvodes','sundials_idas','sundials_nvecserial','lapack','blas'],
-                                       library_dirs=['../../build/lib'],
-                                       extra_link_args=['-Wl,-rpath=$ORIGIN']))
+    exts.append(Extension("cantera.%s" % name,
+                          ["cantera/%s.pyx" % name],
+                          include_dirs=@py_include_dirs@,
+                          language="c++",
+                          libraries=@py_cantera_libs@,
+                          library_dirs=@py_libdirs@,
+                          extra_link_args=@py_extra_link_args@))
 
 addExtension('solution')
 addExtension('utils')
 
 setup(name="Cantera",
-      version="2.1a1",
+      version="@cantera_version@",
       description="The Cantera Python Interface",
       long_description="""
               """,
@@ -33,5 +33,5 @@ setup(name="Cantera",
       url="http://code.google.com/p/cantera",
       packages = ["cantera"],
       cmdclass = {'build_ext': build_ext},
-      ext_modules = canteraExtensions,
+      ext_modules = exts,
       package_data = {'cantera': dataFiles})
