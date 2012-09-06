@@ -51,6 +51,12 @@ cdef class ThermoPhase(_SolutionBase):
         else:
             return 1.0
 
+    def equilibrate(self, XY, int solver=-1, double rtol=1e-9,
+                    int maxsteps=1000, int maxiter=100, int loglevel=0):
+        XY = XY.upper()
+        equilibrate(deref(self.thermo), stringify(XY).c_str(),
+                    solver, rtol, maxsteps, maxiter, loglevel)
+
     ####### Composition, species, and elements ########
 
     property nElements:
