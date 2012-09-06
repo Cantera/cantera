@@ -365,6 +365,12 @@ Optional Programs
   * Known to work with versions 1.3 and 1.5; Expected to work with version >= 1.1
   * Test suite requires version >= 1.3
 
+* `Cython <http://cython.org/>`_
+
+  * Required to build the new Python module
+  * Known to work with version 0.16; Expected to work with version >= 0.15
+  * Supports Python 2.6, 2.7, and 3.2
+
 * Matlab
 
   * Required to build the Cantera Matlab toolbox.
@@ -398,6 +404,7 @@ Optional Programs
   * `Sphinx <http://sphinx.pocoo.org/>`_ (install with ``easy_install -U Sphinx``)
   * `Pygments <http://pygments.org/>`_ (install with ``easy_install -U pygments``)
   * `pyparsing <http://sourceforge.net/projects/pyparsing/>`_ (install with ``easy_install -U pyparsing``)
+  * `doxylink <http://pypi.python.org/pypi/sphinxcontrib-doxylink/>`_ (install with ``easy_install sphinxcontrib-doxylink``)
 
 * `Doxygen <http://www.stack.nl/~dimitri/doxygen/>`_
 

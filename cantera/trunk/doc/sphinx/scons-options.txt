@@ -47,7 +47,7 @@ of this file is:
     Set this to the directory where Cantera should be installed.
     - default: '/usr/local'
 
-* python_package: [ full | minimal | none | default ]
+* python_package: [ new | full | minimal | none | default ]
     If you plan to work in Python, or you want to use the graphical
     MixMaster application, then you need the 'full' Cantera Python
     Package. If, on the other hand, you will only use Cantera from some
@@ -77,11 +77,36 @@ of this file is:
     - default: ''
 
 * python_prefix: [ /path/to/python_prefix ]
-    If you want to install the Cantera Python package somewhere other
-    than the default 'site-packages' directory within the Python library
-    directory, then set this to the desired directory. This is useful
-    when you do not have write access to the Python library directory.
+    Use this option if you want to install the Cantera Python package to
+    an alternate location. On Unix-like systems, the default is the same
+    as the $prefix option. If this option is set to the empty string
+    (the default on Windows), then the Package will be installed to the
+    system default 'site-packages' directory.
+    - default: '$prefix'
+
+* python3_package: [ y | n | default ]
+    Controls whether or not the Python 3 module will be built. By
+    default, the module will be built if the Python 3 interpreter can be
+    found
+    - default: 'default'
+
+* python3_cmd: [ /path/to/python3_cmd ]
+     The name (full path if necessary) of the Python 3 interpreter.
+    Required to build the Python 3 module.
+    - default: 'python3'
+
+* python3_array_home: [ /path/to/python3_array_home ]
+    "If numpy was installed to a custom location (e.g. using the --home
+    option, set this to the directory for numpy
     - default: ''
+
+* python3_prefix: [ /path/to/python3_prefix ]
+    Use this option if you want to install the Cantera Python 3 package
+    to an alternate location. On Unix-like systems, the default is the
+    same as the $prefix option. If this option is set to the empty
+    string (the default on Windows), then the Package will be installed
+    to the system default 'site-packages' directory.
+    - default: '$prefix'
 
 * matlab_toolbox: [ y | n | default ]
     This variable controls whether the Matlab toolbox will be built. If
@@ -136,6 +161,9 @@ of this file is:
     Include thermodynamic model for lattice solids in the Cantera
     kernel.
     - default: 'yes'
+* sphinx_cmd: [ /path/to/sphinx_cmd ]
+    Command to use for building the Sphinx documentation
+    - default: 'sphinx-build'
 
 * with_h298modify_capability: [ yes | no ]
     Enable changing the 298K heats of formation directly via the C++
