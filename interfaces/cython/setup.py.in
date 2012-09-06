@@ -1,0 +1,37 @@
+import os
+from distutils.core import setup, Extension
+from distutils.sysconfig import get_config_var
+from Cython.Distutils import build_ext
+
+dataFiles = ['_cantera%s' % get_config_var('SO')]
+if os.name == 'nt':
+    dataFiles.append('cantera_shared.dll')
+else:
+    dataFiles.append('libcantera_shared.so')
+
+canteraExtensions = []
+
+def addExtension(name):
+    canteraExtensions.append(Extension("cantera.%s" % name,
+                                       ["cantera/%s.pyx" % name],
+                                       include_dirs=[".", "../../include"],
+                                       language="c++",
+                                       libraries=['cantera_shared','sundials_cvodes','sundials_idas','sundials_nvecserial','lapack','blas'],
+                                       library_dirs=['../../build/lib'],
+                                       extra_link_args=['-Wl,-rpath=$ORIGIN']))
+
+addExtension('solution')
+addExtension('utils')
+
+setup(name="Cantera",
+      version="2.1a1",
+      description="The Cantera Python Interface",
+      long_description="""
+              """,
+      author="Raymond Speth",
+      author_email="speth@mit.edu",
+      url="http://code.google.com/p/cantera",
+      packages = ["cantera"],
+      cmdclass = {'build_ext': build_ext},
+      ext_modules = canteraExtensions,
+      package_data = {'cantera': dataFiles})
