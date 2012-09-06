@@ -22,6 +22,7 @@ def addExtension(name):
 
 addExtension('solution')
 addExtension('utils')
+addExtension('constants')
 
 setup(name="Cantera",
       version="@cantera_version@",
