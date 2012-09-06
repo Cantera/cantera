@@ -31,7 +31,7 @@ if localenv['python3_package'] == 'y':
                                        "print(get_python_version())",
                                        "print(numpy.get_include())")))
 
-    module_ext, py3_version, numpy_include = info.split('\n')
+    module_ext, py3_version, numpy_include = info.splitlines()
 
     incDirs = (".", "../../include", numpy_include,
                localenv['sundials_include'], localenv['boost_inc_dir'])
@@ -97,7 +97,8 @@ if localenv['python_package'] == 'new':
                                        "print get_python_version()",
                                        "print numpy.get_include()")))
 
-    module_ext, py2_version, numpy_include = info.split('\n')
+
+    module_ext, py2_version, numpy_include = info.splitlines()
 
     incDirs = (".", "../../include", numpy_include,
                localenv['sundials_include'], localenv['boost_inc_dir'])
