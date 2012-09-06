@@ -1,5 +1,6 @@
 from libcpp.vector cimport vector
 from libcpp.string cimport string
+from libcpp cimport bool as cbool
 
 cdef extern from "cantera/base/xml.h" namespace "Cantera":
     cdef cppclass XML_Node:
@@ -55,6 +56,34 @@ cdef extern from "cantera/numerics/Func1.h":
     cdef cppclass CxxSin1 "Cantera::Sin1":
         CxxSin1(double)
 
+cdef extern from "cantera/zeroD/ReactorBase.h" namespace "Cantera":
+    cdef cppclass CxxWall "Cantera::Wall"
+    cdef cppclass CxxReactorBase "Cantera::ReactorBase":
+        CxxReactorBase()
+        void setThermoMgr(CxxThermoPhase&)
+        double volume()
+
+cdef extern from "cantera/zeroD/Reactor.h":
+    cdef cppclass CxxReactor "Cantera::Reactor":
+        CxxReactor()
+        void setKineticsMgr(CxxKinetics&)
+
+cdef extern from "cantera/zeroD/Wall.h":
+    cdef cppclass CxxWall "Cantera::Wall":
+        CxxWall()
+        cbool install(CxxReactorBase&, CxxReactorBase&)
+        void setExpansionRateCoeff(double)
+        double area()
+        void setArea(double)
+
+cdef extern from "cantera/zeroD/ReactorNet.h":
+    cdef cppclass CxxReactorNet "Cantera::ReactorNet":
+        CxxReactorNet()
+        void addReactor(CxxReactorBase*)
+        void initialize(double)
+        void advance(double)
+        double step(double)
+
 cdef extern from "cantera/thermo/ThermoFactory.h" namespace "Cantera":
     cdef CxxThermoPhase* newPhase(string, string) except +
     cdef CxxThermoPhase* newPhase(XML_Node&) except +
@@ -65,6 +94,9 @@ cdef extern from "cantera/kinetics/KineticsFactory.h" namespace "Cantera":
 cdef extern from "cantera/transport/TransportFactory.h" namespace "Cantera":
     cdef CxxTransport* newDefaultTransportMgr(CxxThermoPhase*) except +
     cdef CxxTransport* newTransportMgr(string, CxxThermoPhase*) except +
+
+cdef extern from "cantera/zeroD/ReactorFactory.h" namespace "Cantera":
+    cdef CxxReactorBase* newReactor(string) except +
 
 cdef string stringify(x)
 
@@ -79,3 +111,10 @@ cdef class Mixture:
 
 cdef class Func1:
     cdef CxxFunc1* func
+
+cdef class ReactorBase:
+    cdef CxxReactorBase* rbase
+
+cdef class Wall:
+    cdef CxxWall* wall
+    cdef double _expansionRateCoeff
