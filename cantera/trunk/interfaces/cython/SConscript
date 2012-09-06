@@ -26,24 +26,53 @@ if localenv['python3_package'] == 'y':
                                        "print(get_config_var('SO'))",
                                        "print(numpy.get_include())")))
 
-    module_extension, localenv['python3_array_include'] = info.split('\n')
+    module_ext, numpy_include = info.split('\n')
 
-    incDirs = (".", "../../include", localenv['python3_array_include'],
+    incDirs = (".", "../../include", numpy_include,
                localenv['sundials_include'], localenv['boost_inc_dir'])
     localenv['py_include_dirs'] = repr([x for x in incDirs if x])
 
-
-    make_setup = localenv.SubstFile('#interfaces/cython/setup.py',
+    make_setup = localenv.SubstFile('#interfaces/cython/setup3.py',
                                     '#interfaces/cython/setup.py.in')
     build(make_setup)
 
     opts = '--build-lib=../../build/python3 --build-temp=../../build/temp'
-    mod = build(localenv.Command('cantera/_cantera%s' % module_extension,
-                                 'setup.py',
+    mod = build(localenv.Command('#build/python3/cantera/_cantera%s' % module_ext,
+                                 'setup3.py',
                                  'cd interfaces/cython && '
                                  '$python3_cmd $SOURCE.name build %s' % opts))
 
     localenv.AddPreAction(mod, Delete('interfaces/cython/cantera/_cantera.cpp'))
 
+    localenv.Depends(mod, localenv['cantera_staticlib'])
+    for f in mglob(localenv, 'cantera', 'pyx', 'pxd'):
+        localenv.Depends(mod, f)
+
+if localenv['python_package'] == 'new':
+    info = getCommandOutput(localenv['python_cmd'], '-c',
+                            '\n'.join(("from distutils.sysconfig import *",
+                                       "import numpy",
+                                       "print get_config_var('SO')",
+                                       "print numpy.get_include()")))
+
+    module_ext, numpy_include = info.split('\n')
+
+    incDirs = (".", "../../include", numpy_include,
+               localenv['sundials_include'], localenv['boost_inc_dir'])
+    localenv['py_include_dirs'] = repr([x for x in incDirs if x])
+
+    make_setup = localenv.SubstFile('#interfaces/cython/setup2.py',
+                                    '#interfaces/cython/setup.py.in')
+    build(make_setup)
+
+    opts = '--build-lib=../../build/python2 --build-temp=../../build/temp'
+    mod = build(localenv.Command('#build/python2/cantera/_cantera%s' % module_ext,
+                                 'setup2.py',
+                                 'cd interfaces/cython && '
+                                 '$python_cmd $SOURCE.name build %s' % opts))
+
+    localenv.AddPreAction(mod, Delete('interfaces/cython/cantera/_cantera.cpp'))
+
+    localenv.Depends(mod, localenv['cantera_staticlib'])
     for f in mglob(localenv, 'cantera', 'pyx', 'pxd'):
         localenv.Depends(mod, f)
