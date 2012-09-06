@@ -1,3 +1,8 @@
+import os
+import cantera
+
+cantera.addDirectory(os.path.dirname(__file__))
+
 from .test_thermo import *
 from .test_purefluid import *
 from .test_kinetics import *
