@@ -27,12 +27,67 @@ cdef extern from "cantera/thermo/ThermoPhase.h" namespace "Cantera":
     cdef cppclass CxxThermoPhase "Cantera::ThermoPhase":
         CxxThermoPhase()
         int eosType()
-        double pressure() except +
-        double temperature() except +
-        void setMoleFractions(double*) except +
-        void getMassFractions(double*) except +
-        int nSpecies()
         XML_Node& xml()
+        string report(cbool) except +
+
+        # basic thermodynamic properties
+        double temperature() except +
+        double pressure() except +
+        double density() except +
+        double molarDensity() except +
+        double molarVolume() except +
+        double isothermalCompressibility() except +
+        double thermalExpansionCoeff() except +
+
+        # element properties
+        size_t nElements()
+        size_t elementIndex(string)
+        string elementName(size_t) except +
+
+        # species properties
+        size_t nSpecies()
+        size_t speciesIndex(string)
+        string speciesName(size_t) except +
+        double nAtoms(size_t, size_t) except +
+        void getAtoms(size_t, double*) except +
+
+        double molecularWeight(size_t) except +
+        double meanMolecularWeight()
+
+        # composition
+        void setMassFractionsByName(string) except +
+        double massFraction(size_t) except +
+        double massFraction(string) except +
+
+        void setMoleFractionsByName(string) except +
+        void getMoleFractions(double*) except +
+        double moleFraction(size_t) except +
+        double moleFraction(string) except +
+
+        double concentration(size_t) except +
+
+        # state setters
+        void setState_TR(double, double) except +
+        void setState_TP(double, double) except +
+        void setState_HP(double, double) except +
+        void setState_UV(double, double) except +
+        void setState_SP(double, double) except +
+
+        # molar thermodynamic properties:
+        double enthalpy_mole() except +
+        double intEnergy_mole() except +
+        double entropy_mole() except +
+        double gibbs_mole() except +
+        double cp_mole() except +
+        double cv_mole() except +
+
+        # specific (mass) properties:
+        double enthalpy_mass() except +
+        double intEnergy_mass() except +
+        double entropy_mass() except +
+        double gibbs_mass() except +
+        double cp_mass() except +
+        double cv_mass() except +
 
         # PureFluid properties
         double critTemperature() except +
@@ -45,6 +100,28 @@ cdef extern from "cantera/thermo/ThermoPhase.h" namespace "Cantera":
 
         void setState_Tsat(double T, double x) except +
         void setState_Psat(double P, double x) except +
+
+
+cdef extern from "wrappers.h":
+    # ThermoPhase composition
+    cdef void thermo_getMassFractions(CxxThermoPhase*, double*) except +
+    cdef void thermo_setMassFractions(CxxThermoPhase*, double*) except +
+    cdef void thermo_getMoleFractions(CxxThermoPhase*, double*) except +
+    cdef void thermo_setMoleFractions(CxxThermoPhase*, double*) except +
+    cdef void thermo_getConcentrations(CxxThermoPhase*, double*) except +
+    cdef void thermo_setConcentrations(CxxThermoPhase*, double*) except +
+
+    # ThermoPhase partial molar properties
+    cdef void thermo_getChemPotentials(CxxThermoPhase*, double*) except +
+    cdef void thermo_getElectrochemPotentials(CxxThermoPhase*, double*) except +
+    cdef void thermo_getPartialMolarEnthalpies(CxxThermoPhase*, double*) except +
+    cdef void thermo_getPartialMolarEntropies(CxxThermoPhase*, double*) except +
+    cdef void thermo_getPartialMolarIntEnergies(CxxThermoPhase*, double*) except +
+    cdef void thermo_getPartialMolarCp(CxxThermoPhase*, double*) except +
+    cdef void thermo_getPartialMolarVolumes(CxxThermoPhase*, double*) except +
+
+    # other ThermoPhase methods
+    cdef void thermo_getMolecularWeights(CxxThermoPhase*, double*) except +
 
 
 cdef extern from "cantera/thermo/IdealGasPhase.h":
