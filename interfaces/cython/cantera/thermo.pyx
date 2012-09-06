@@ -15,6 +15,12 @@ cdef class ThermoPhase(_SolutionBase):
     def __call__(self):
         print(self.report())
 
+    property name:
+        def __get__(self):
+            return pystr(self.thermo.name())
+        def __set__(self, name):
+            self.thermo.setName(stringify(name))
+
     property basis:
         def __get__(self):
             if self.thermoBasis == massBasis:
@@ -66,12 +72,20 @@ cdef class ThermoPhase(_SolutionBase):
     def elementName(self, m):
         return pystr(self.thermo.elementName(m))
 
+    property elementNames:
+        def __get__(self):
+            return [self.elementName(m) for m in range(self.nElements)]
+
     property nSpecies:
         def __get__(self):
             return self.thermo.nSpecies()
 
     def speciesName(self, k):
         return pystr(self.thermo.speciesName(k))
+
+    property speciesNames:
+        def __get__(self):
+            return [self.speciesName(k) for k in range(self.nSpecies)]
 
     cpdef int speciesIndex(self, species) except *:
         if isinstance(species, str):
@@ -109,6 +123,10 @@ cdef class ThermoPhase(_SolutionBase):
 
     def molecularWeight(self, species):
         return self.thermo.molecularWeight(self.speciesIndex(species))
+
+    property meanMolecularWeight:
+        def __get__(self):
+            return self.thermo.meanMolecularWeight()
 
     property Y:
         def __get__(self):
@@ -385,6 +403,39 @@ cdef class ThermoPhase(_SolutionBase):
     property standard_cp_R:
         def __get__(self):
             return self._getArray1(thermo_getCp_R)
+
+    ######## Miscellaneous properties ########
+    property isothermalCompressibility:
+        def __get__(self):
+            return self.thermo.isothermalCompressibility()
+
+    property thermalExpansionCoeff:
+        def __get__(self):
+            return self.thermo.thermalExpansionCoeff()
+
+    property minTemp:
+        def __get__(self):
+            return self.thermo.minTemp()
+
+    property maxTemp:
+        def __get__(self):
+            return self.thermo.maxTemp()
+
+    property refPressure:
+        def __get__(self):
+            return self.thermo.refPressure()
+
+    property electricPotential:
+        def __get__(self):
+            return self.thermo.electricPotential()
+        def __set__(self, double value):
+            self.thermo.setElectricPotential(value)
+
+    property elementPotentials:
+        def __get__(self):
+            cdef np.ndarray[np.double_t, ndim=1] data = np.zeros(self.nElements)
+            self.thermo.getElementPotentials(&data[0])
+            return data
 
 
 cdef class InterfacePhase(ThermoPhase):

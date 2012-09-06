@@ -26,9 +26,16 @@ cdef extern from "cantera/thermo/mix_defs.h":
 cdef extern from "cantera/thermo/ThermoPhase.h" namespace "Cantera":
     cdef cppclass CxxThermoPhase "Cantera::ThermoPhase":
         CxxThermoPhase()
+
+        # miscellaneous
         int eosType()
-        XML_Node& xml()
         string report(cbool) except +
+        string name()
+        void setName(string)
+        double minTemp() except +
+        double maxTemp() except +
+        double refPressure() except +
+        cbool getElementPotentials(double*) except +
 
         # basic thermodynamic properties
         double temperature() except +
@@ -38,6 +45,8 @@ cdef extern from "cantera/thermo/ThermoPhase.h" namespace "Cantera":
         double molarVolume() except +
         double isothermalCompressibility() except +
         double thermalExpansionCoeff() except +
+        double electricPotential() except +
+        void setElectricPotential(double) except +
 
         # element properties
         size_t nElements()
