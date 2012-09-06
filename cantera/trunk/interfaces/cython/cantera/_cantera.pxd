@@ -34,6 +34,19 @@ cdef extern from "cantera/thermo/ThermoPhase.h" namespace "Cantera":
         int nSpecies()
         XML_Node& xml()
 
+        # PureFluid properties
+        double critTemperature() except +
+        double critPressure() except +
+        double critDensity() except +
+
+        double satTemperature(double P) except +
+        double satPressure(double T) except +
+        double vaporFraction() except +
+
+        void setState_Tsat(double T, double x) except +
+        void setState_Psat(double P, double x) except +
+
+
 cdef extern from "cantera/thermo/IdealGasPhase.h":
     cdef cppclass CxxIdealGasPhase "Cantera::IdealGasPhase"
 
