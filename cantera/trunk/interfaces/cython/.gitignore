@@ -1,0 +1,3 @@
+cantera/*.cpp
+cantera/*.c
+setup.py

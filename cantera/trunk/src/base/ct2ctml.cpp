@@ -279,4 +279,12 @@ void get_CTML_Tree(Cantera::XML_Node* rootPtr, const std::string file, const int
     rootPtr->build(fin);
     fin.close();
 }
+
+Cantera::XML_Node getCtmlTree(const std::string file)
+{
+    Cantera::XML_Node root;
+    get_CTML_Tree(&root, file);
+    return root;
+}
+
 }

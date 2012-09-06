@@ -790,6 +790,11 @@ std::string getChildValue(const Cantera::XML_Node& parent,
 void get_CTML_Tree(Cantera::XML_Node* node, const std::string file,
                    const int debug = 0);
 
+//! Read an ctml file from a file and fill up an XML tree.
+//!   @param file    Name of the file
+//!   @return        Root of the tree
+Cantera::XML_Node getCtmlTree(const std::string file);
+
 //! Convert a cti file into a ctml file
 /*!
  *
