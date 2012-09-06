@@ -16,7 +16,12 @@ import sys, os
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
-sys.path.insert(0, os.path.abspath('../../interfaces/python'))
+if sys.version_info.major == 3:
+    sys.path.insert(0, os.path.abspath('../../build/python3'))
+else:
+    sys.path.insert(0, os.path.abspath('../../build/python2'))
+    sys.path.insert(0, os.path.abspath('../../interfaces/python'))
+
 sys.path.append(os.path.abspath('.'))
 sys.path.append(os.path.abspath('./exts'))
 
@@ -31,7 +36,7 @@ extensions = ['sphinx.ext.autodoc',
               'sphinx.ext.todo',
               'sphinx.ext.autosummary',
               'mathjax',
-              'doxylink']
+              'sphinxcontrib.doxylink']
 
 # @todo: Sphinx version 1.1 adds support for MathJax, so we can remove the
 #        custom extension for that once that version becomes more standard
@@ -85,6 +90,9 @@ release = '2.1a1'
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 exclude_patterns = []
+if sys.version_info.major == 3:
+    exclude_patterns.append('python/*')
+
 
 # The reST default role (used for this markup: `text`) to use for all documents.
 #default_role = None

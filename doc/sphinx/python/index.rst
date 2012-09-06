@@ -1,8 +1,8 @@
 .. Cantera documentation master file, created by
    sphinx-quickstart on Mon Mar 12 11:43:09 2012.
 
-Python Module Documentation
-===========================
+Python Module Documentation (Legacy)
+====================================
 
 Contents:
 

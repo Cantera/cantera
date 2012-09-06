@@ -19,6 +19,6 @@ if localenv['sphinx_docs']:
 
     sphinxdocs = build(localenv.Command('${SPHINXBUILD}/html/index.html',
         'sphinx/conf.py',
-        'sphinx-build -b html -d ${SPHINXBUILD}/doctrees ${SPHINXSRC} ${SPHINXBUILD}/html'))
+        '${sphinx_cmd} -b html -d ${SPHINXBUILD}/doctrees ${SPHINXSRC} ${SPHINXBUILD}/html'))
 
     localenv.AlwaysBuild(sphinxdocs)

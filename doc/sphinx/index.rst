@@ -27,6 +27,7 @@ Documentation
    language-interfaces
    cti/index
    python/index
+   cython/index
    matlab/index
    cxx-guide/index
 

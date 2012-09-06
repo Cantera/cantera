@@ -359,6 +359,10 @@ opts.AddVariables(
         'sphinx_docs',
         """Build HTML documentation for the Python module using Sphinx""",
         False),
+    PathVariable(
+        'sphinx_cmd',
+        """Command to use for building the Sphinx documentation""",
+        'sphinx-build', PathVariable.PathAccept),
     BoolVariable(
         'with_h298modify_capability',
         """Enable changing the 298K heats of formation directly via
