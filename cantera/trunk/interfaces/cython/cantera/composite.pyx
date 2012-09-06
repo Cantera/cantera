@@ -1,7 +1,7 @@
 class Solution(ThermoPhase, Kinetics, Transport):
     pass
 
-class Interface(InterfacePhase, Kinetics):
+class Interface(InterfacePhase, InterfaceKinetics):
     pass
 
 class DustyGas(ThermoPhase, Kinetics, DustyGasTransport):
