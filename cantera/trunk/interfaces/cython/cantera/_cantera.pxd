@@ -12,8 +12,13 @@ cdef extern from "cantera/base/ctml.h" namespace "ctml":
     XML_Node getCtmlTree(string) except +
 
 cdef extern from "cantera/thermo/mix_defs.h":
+    cdef int thermo_type_ideal_gas "Cantera::cIdealGas"
     cdef int thermo_type_surf "Cantera::cSurf"
     cdef int thermo_type_edge "Cantera::cEdge"
+
+    cdef int kinetics_type_gas "Cantera::cGasKinetics"
+    cdef int kinetics_type_interface "Cantera::cInterfaceKinetics"
+    cdef int kinetics_type_edge "Cantera::cEdgeKinetics"
 
 cdef extern from "cantera/thermo/ThermoPhase.h" namespace "Cantera":
     cdef cppclass CxxThermoPhase "Cantera::ThermoPhase":
@@ -26,6 +31,9 @@ cdef extern from "cantera/thermo/ThermoPhase.h" namespace "Cantera":
         int nSpecies()
         XML_Node& xml()
 
+cdef extern from "cantera/thermo/IdealGasPhase.h":
+    cdef cppclass CxxIdealGasPhase "Cantera::IdealGasPhase"
+
 cdef extern from "cantera/thermo/SurfPhase.h":
     cdef cppclass CxxSurfPhase "Cantera::SurfPhase":
         CxxSurfPhase()
@@ -35,7 +43,11 @@ cdef extern from "cantera/thermo/SurfPhase.h":
 cdef extern from "cantera/kinetics/Kinetics.h" namespace "Cantera":
     cdef cppclass CxxKinetics "Cantera::Kinetics":
         CxxKinetics()
+        int type()
         int nReactions()
+
+cdef extern from "cantera/kinetics/InterfaceKinetics.h":
+    cdef cppclass CxxInterfaceKinetics "Cantera::InterfaceKinetics"
 
 cdef extern from "cantera/transport/TransportBase.h" namespace "Cantera":
     cdef cppclass CxxTransport "Cantera::Transport":
@@ -108,6 +120,41 @@ cdef extern from "cantera/transport/TransportFactory.h" namespace "Cantera":
 
 cdef extern from "cantera/zeroD/ReactorFactory.h" namespace "Cantera":
     cdef CxxReactorBase* newReactor(string) except +
+
+cdef extern from "cantera/oneD/Domain1D.h":
+    cdef cppclass CxxDomain1D "Cantera::Domain1D":
+        int nPoints()
+        void setupGrid(size_t, double)
+
+cdef extern from "cantera/oneD/Inlet1D.h":
+    cdef cppclass CxxBdry1D "Cantera::Bdry1D":
+        void setTemperature(double)
+    cdef cppclass CxxInlet1D "Cantera::Inlet1D":
+        CxxInlet1D()
+    cdef cppclass CxxOutlet1D "Cantera::Outlet1D":
+        CxxOutlet1D()
+    cdef cppclass CxxOutletRes1D "Cantera::OutletRes1D":
+        CxxOutletRes1D()
+    cdef cppclass CxxSymm1D "Cantera::Symm1D":
+        CxxSymm1D()
+    cdef cppclass CxxSurf1D "Cantera::Surf1D":
+        CxxSurf1D()
+    cdef cppclass CxxReactingSurf1D "Cantera::ReactingSurf1D":
+        CxxRreactingSurf1D()
+        void setKineticsMgr(CxxInterfaceKinetics*)
+
+cdef extern from "cantera/oneD/StFlow.h":
+    cdef cppclass CxxStFlow "Cantera::StFlow":
+        CxxStFlow(CxxIdealGasPhase*, int, int)
+        void setKinetics(CxxKinetics&)
+    cdef cppclass CxxFreeFlame "Cantera::FreeFlame":
+        CxxFreeFlame(CxxIdealGasPhase*, int, int)
+    cdef cppclass CxxAxiStagnFlow "Cantera::AxiStagnFlow":
+        CxxAxiStagnFlow(CxxIdealGasPhase*, int, int)
+
+cdef extern from "cantera/oneD/Sim1D.h":
+    cdef cppclass CxxSim1D "Cantera::Sim1D":
+        CxxSim1D(vector[CxxDomain1D*]&)
 
 cdef string stringify(x)
 
