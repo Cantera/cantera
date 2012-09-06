@@ -120,6 +120,13 @@ cdef extern from "wrappers.h":
     cdef void thermo_getPartialMolarCp(CxxThermoPhase*, double*) except +
     cdef void thermo_getPartialMolarVolumes(CxxThermoPhase*, double*) except +
 
+    # ThermoPhase partial non-dimensional properties
+    void thermo_getEnthalpy_RT(CxxThermoPhase*, double*) except +
+    void thermo_getEntropy_R(CxxThermoPhase*, double*) except +
+    void thermo_getIntEnergy_RT(CxxThermoPhase*, double*) except +
+    void thermo_getGibbs_RT(CxxThermoPhase*, double*) except +
+    void thermo_getCp_R(CxxThermoPhase*, double*) except +
+
     # other ThermoPhase methods
     cdef void thermo_getMolecularWeights(CxxThermoPhase*, double*) except +
 
