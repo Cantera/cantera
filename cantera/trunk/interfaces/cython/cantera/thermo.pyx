@@ -323,6 +323,55 @@ cdef class ThermoPhase(_SolutionBase):
             self.Y = values[2]
             self.SP = values[:2]
 
+    # partial molar / non-dimensional properties
+    property partial_molar_enthalpies:
+        def __get__(self):
+            return self._getArray1(thermo_getPartialMolarEnthalpies)
+
+    property partial_molar_entropies:
+        def __get__(self):
+            return self._getArray1(thermo_getPartialMolarEntropies)
+
+    property partial_molar_int_energies:
+        def __get__(self):
+            return self._getArray1(thermo_getPartialMolarIntEnergies)
+
+    property chem_potentials:
+        def __get__(self):
+            return self._getArray1(thermo_getChemPotentials)
+
+    property electrochem_potentials:
+        def __get__(self):
+            return self._getArray1(thermo_getElectrochemPotentials)
+
+    property partial_molar_cp:
+        def __get__(self):
+            return self._getArray1(thermo_getPartialMolarCp)
+
+    property partial_molar_volumes:
+        def __get__(self):
+            return self._getArray1(thermo_getPartialMolarVolumes)
+
+    property standard_enthalpies_RT:
+        def __get__(self):
+            return self._getArray1(thermo_getEnthalpy_RT)
+
+    property standard_entropies_R:
+        def __get__(self):
+            return self._getArray1(thermo_getEntropy_R)
+
+    property standard_intEnergies_RT:
+        def __get__(self):
+            return self._getArray1(thermo_getIntEnergy_RT)
+
+    property standard_gibbs_RT:
+        def __get__(self):
+            return self._getArray1(thermo_getGibbs_RT)
+
+    property standard_cp_R:
+        def __get__(self):
+            return self._getArray1(thermo_getCp_R)
+
 
 cdef class InterfacePhase(ThermoPhase):
     cdef CxxSurfPhase* surf
