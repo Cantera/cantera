@@ -16,8 +16,12 @@ else:
     localenv['py_extra_compiler_args'] = repr([])
 
 dataFiles = localenv.RecursiveInstall('#interfaces/cython/cantera/data',
-                                      '#data/inputs', ['\\.inp$', '\\.in$'])
+                                      '#build/data')
 build(dataFiles)
+
+testFiles = localenv.RecursiveInstall('#interfaces/cython/cantera/test/data',
+                                      '#test/data')
+build(testFiles)
 
 if localenv['python3_package'] == 'y':
     info = getCommandOutput(localenv['python3_cmd'], '-c',
@@ -44,11 +48,14 @@ if localenv['python3_package'] == 'y':
     mod = build(localenv.Command('#build/python3/cantera/_cantera%s' % module_ext,
                                  'setup3.py',
                                  build_cmd))
+    env['python3_module'] = mod
 
     localenv.AddPreAction(mod, Delete('interfaces/cython/cantera/_cantera.cpp'))
 
     localenv.Depends(mod, localenv['cantera_staticlib'])
-    for f in mglob(localenv, 'cantera', 'pyx', 'pxd'):
+    localenv.Depends(mod, dataFiles + testFiles)
+    for f in (mglob(localenv, 'cantera', 'pyx', 'pxd') +
+              mglob(localenv, 'cantera/test', 'py')):
         localenv.Depends(mod, f)
 
     # Install the Python module
@@ -97,11 +104,14 @@ if localenv['python_package'] == 'new':
     mod = build(localenv.Command('#build/python2/cantera/_cantera%s' % module_ext,
                                  'setup2.py',
                                  build_cmd))
+    env['python2_module'] = mod
 
     localenv.AddPreAction(mod, Delete('interfaces/cython/cantera/_cantera.cpp'))
 
     localenv.Depends(mod, localenv['cantera_staticlib'])
-    for f in mglob(localenv, 'cantera', 'pyx', 'pxd'):
+    localenv.Depends(mod, dataFiles + testFiles)
+    for f in (mglob(localenv, 'cantera', 'pyx', 'pxd') +
+              mglob(localenv, 'cantera/test', 'py')):
         localenv.Depends(mod, f)
 
     # Install the Python module

@@ -51,7 +51,7 @@ def addTestProgram(subdir, progName):
                                              [], [Delete(passedFile.abspath)]))
 
 
-def addTestScript(subdir, script, interpreter, dependencies):
+def addTestScript(testname, subdir, script, interpreter, dependencies=(), env_vars={}):
     """
     Create targets for running and resetting a test script.
     """
@@ -63,8 +63,12 @@ def addTestScript(subdir, script, interpreter, dependencies):
         if not os.path.isdir(workDir):
             os.mkdir(workDir)
 
-        code = subprocess.call([interpreter, source[0].abspath],
-                               env=env['ENV'],
+        environ = dict(env['ENV'])
+        for k,v in env_vars.iteritems():
+            print k,v
+            environ[k] = v
+        code = subprocess.call([env.subst(interpreter), source[0].abspath],
+                               env=environ,
                                cwd=workDir)
         if not code:
             # Test was successful
@@ -75,7 +79,7 @@ def addTestScript(subdir, script, interpreter, dependencies):
 
 
     testenv = localenv.Clone()
-    passedFile = File(pjoin(subdir, '%s.passed' % (script)))
+    passedFile = File(pjoin(subdir, '%s.passed' % testname))
     testResults.tests[passedFile.name] = True
     run_program = testenv.Command(passedFile, pjoin(subdir, script), scriptRunner)
     for dep in dependencies:
@@ -84,7 +88,7 @@ def addTestScript(subdir, script, interpreter, dependencies):
         testenv.Depends(run_program, dep)
     Alias('test', run_program)
     if os.path.exists(passedFile.abspath):
-        Alias('test-reset', testenv.Command('reset-%s%s' % (subdir, script),
+        Alias('test-reset', testenv.Command('reset-%s%s' % (subdir, testname),
                                             [], [Delete(passedFile.abspath)]))
 
     return run_program
@@ -144,12 +148,30 @@ addTestProgram('thermo', 'thermo')
 addTestProgram('kinetics', 'kinetics')
 
 if localenv['python_package'] == 'full':
-    pyTest = addTestScript('python', 'runTests.py',
-                           interpreter=sys.executable,
+    pyTest = addTestScript('python2-old', 'python', 'runTests.py',
+                           interpreter='$python_cmd',
                            dependencies=(mglob(localenv, 'python', 'py') +
                                          localenv['python_module']))
     localenv.Alias('test-python', pyTest)
     env['testNames'].append('python')
+elif localenv['python_package'] == 'new':
+    pyTest = addTestScript('python2-new', 'python', 'runCythonTests.py',
+                           interpreter='$python_cmd',
+                           dependencies=(localenv['python2_module'] +
+                                         mglob(localenv, '#interfaces/cython/cantera/test', 'py')),
+                           env_vars={'PYTHONPATH':Dir('#build/python2').abspath})
+    localenv.Alias('test-cython2', pyTest)
+    env['testNames'].append('cython2')
+
+if localenv['python3_package'] == 'y':
+    pyTest = addTestScript('python3-new', 'python', 'runCythonTests.py',
+                           interpreter='$python3_cmd',
+                           dependencies=(localenv['python3_module'] +
+                                         mglob(localenv, '#interfaces/cython/cantera/test', 'py')),
+                           env_vars={'PYTHONPATH':Dir('#build/python3').abspath})
+    localenv.Alias('test-cython3', pyTest)
+    env['testNames'].append('cython3')
+
 
 if localenv['matlab_toolbox'] == 'y':
     matlabTest = addMatlabTest('runCanteraTests.m',

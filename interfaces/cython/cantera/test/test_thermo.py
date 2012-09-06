@@ -14,19 +14,20 @@ class TestThermoPhase(utilities.CanteraTest):
     def test_setComposition(self):
         X = np.zeros(self.phase.nSpecies)
         X[2] = 1.0
-        self.phase.setMoleFractions(X)
-        Y = self.phase.massFractions
+        self.phase.X = X
+        Y = self.phase.Y
 
         self.assertEqual(list(X), list(Y))
 
     def test_badLength(self):
         X = np.zeros(5)
         with self.assertRaises(ValueError):
-            self.phase.setMoleFractions(X)
+            self.phase.X = X
+
 
     def test_getState(self):
-        self.assertNear(self.phase.pressure, ct.OneAtm)
-        self.assertNear(self.phase.temperature, 300)
+        self.assertNear(self.phase.P, ct.OneAtm)
+        self.assertNear(self.phase.T, 300)
 
 
 class TestInterfacePhase(utilities.CanteraTest):

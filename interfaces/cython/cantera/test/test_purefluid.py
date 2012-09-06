@@ -11,10 +11,10 @@ class TestPureFluid(utilities.CanteraTest):
         self.assertNear(self.water.critDensity, 317.0)
 
     def test_setState(self):
-        self.water._setState_Psat(101325, 0.5)
-        self.assertNear(self.water.pressure, 101325)
-        self.assertNear(self.water.vaporFraction, 0.5)
+        self.water.PX = 101325, 0.5
+        self.assertNear(self.water.P, 101325)
+        self.assertNear(self.water.X, 0.5)
 
-        self.water._setState_Tsat(500, 0.8)
-        self.assertNear(self.water.temperature, 500)
-        self.assertNear(self.water.vaporFraction, 0.8)
+        self.water.TX = 500, 0.8
+        self.assertNear(self.water.T, 500)
+        self.assertNear(self.water.X, 0.8)

@@ -22,4 +22,5 @@ setup(name="Cantera",
       packages = find_packages(),
       cmdclass = {'build_ext': build_ext},
       ext_modules = exts,
-      package_data = {'cantera.data': ['*.xml', '*.cti']})
+      package_data = {'cantera.data': ['*.*'],
+                      'cantera.test.data': ['*.*']})
