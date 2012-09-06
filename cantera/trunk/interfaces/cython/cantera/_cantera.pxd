@@ -11,6 +11,9 @@ cdef extern from "cantera/base/xml.h" namespace "Cantera":
 cdef extern from "cantera/base/ctml.h" namespace "ctml":
     XML_Node getCtmlTree(string) except +
 
+cdef extern from "cantera/base/global.h" namespace "Cantera":
+    cdef void CxxAddDirectory "Cantera::addDirectory" (string)
+
 cdef extern from "cantera/thermo/mix_defs.h":
     cdef int thermo_type_ideal_gas "Cantera::cIdealGas"
     cdef int thermo_type_surf "Cantera::cSurf"

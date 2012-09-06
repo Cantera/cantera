@@ -127,6 +127,10 @@ else:
     localenv['py_extra_link_args'] = repr(['-Wl,-rpath=$$ORIGIN'])
     localenv['py_extra_compiler_args'] = repr([])
 
+dataFiles = localenv.RecursiveInstall('#interfaces/cython/cantera/data',
+                                      '#data/inputs', ['\\.inp$', '\\.in$'])
+build(dataFiles)
+
 make_setup = localenv.SubstFile('#interfaces/cython/setup.py',
                                 '#interfaces/cython/setup.py.in')
 build(make_setup)
