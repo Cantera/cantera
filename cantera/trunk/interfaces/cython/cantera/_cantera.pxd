@@ -11,15 +11,26 @@ cdef extern from "cantera/base/xml.h" namespace "Cantera":
 cdef extern from "cantera/base/ctml.h" namespace "ctml":
     XML_Node getCtmlTree(string) except +
 
+cdef extern from "cantera/thermo/mix_defs.h":
+    cdef int thermo_type_surf "Cantera::cSurf"
+    cdef int thermo_type_edge "Cantera::cEdge"
+
 cdef extern from "cantera/thermo/ThermoPhase.h" namespace "Cantera":
     cdef cppclass CxxThermoPhase "Cantera::ThermoPhase":
         CxxThermoPhase()
+        int eosType()
         double pressure() except +
         double temperature() except +
         void setMoleFractions(double*) except +
         void getMassFractions(double*) except +
         int nSpecies()
         XML_Node& xml()
+
+cdef extern from "cantera/thermo/SurfPhase.h":
+    cdef cppclass CxxSurfPhase "Cantera::SurfPhase":
+        CxxSurfPhase()
+        double siteDensity()
+        void setSiteDensity(double)
 
 cdef extern from "cantera/kinetics/Kinetics.h" namespace "Cantera":
     cdef cppclass CxxKinetics "Cantera::Kinetics":
