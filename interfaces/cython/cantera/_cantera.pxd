@@ -115,35 +115,6 @@ cdef extern from "cantera/thermo/ThermoPhase.h" namespace "Cantera":
         void setState_Psat(double P, double x) except +
 
 
-cdef extern from "wrappers.h":
-    # ThermoPhase composition
-    cdef void thermo_getMassFractions(CxxThermoPhase*, double*) except +
-    cdef void thermo_setMassFractions(CxxThermoPhase*, double*) except +
-    cdef void thermo_getMoleFractions(CxxThermoPhase*, double*) except +
-    cdef void thermo_setMoleFractions(CxxThermoPhase*, double*) except +
-    cdef void thermo_getConcentrations(CxxThermoPhase*, double*) except +
-    cdef void thermo_setConcentrations(CxxThermoPhase*, double*) except +
-
-    # ThermoPhase partial molar properties
-    cdef void thermo_getChemPotentials(CxxThermoPhase*, double*) except +
-    cdef void thermo_getElectrochemPotentials(CxxThermoPhase*, double*) except +
-    cdef void thermo_getPartialMolarEnthalpies(CxxThermoPhase*, double*) except +
-    cdef void thermo_getPartialMolarEntropies(CxxThermoPhase*, double*) except +
-    cdef void thermo_getPartialMolarIntEnergies(CxxThermoPhase*, double*) except +
-    cdef void thermo_getPartialMolarCp(CxxThermoPhase*, double*) except +
-    cdef void thermo_getPartialMolarVolumes(CxxThermoPhase*, double*) except +
-
-    # ThermoPhase partial non-dimensional properties
-    void thermo_getEnthalpy_RT(CxxThermoPhase*, double*) except +
-    void thermo_getEntropy_R(CxxThermoPhase*, double*) except +
-    void thermo_getIntEnergy_RT(CxxThermoPhase*, double*) except +
-    void thermo_getGibbs_RT(CxxThermoPhase*, double*) except +
-    void thermo_getCp_R(CxxThermoPhase*, double*) except +
-
-    # other ThermoPhase methods
-    cdef void thermo_getMolecularWeights(CxxThermoPhase*, double*) except +
-
-
 cdef extern from "cantera/thermo/IdealGasPhase.h":
     cdef cppclass CxxIdealGasPhase "Cantera::IdealGasPhase"
 
@@ -160,10 +131,27 @@ cdef extern from "cantera/kinetics/Kinetics.h" namespace "Cantera":
     cdef cppclass CxxKinetics "Cantera::Kinetics":
         CxxKinetics()
         int type()
+        int nTotalSpecies()
         int nReactions()
+        int nPhases()
+        int reactionPhaseIndex()
+        int kineticsSpeciesIndex(int, int)
+
+        CxxThermoPhase& thermo(int)
+
+        cbool isReversible(int) except +
+        int reactionType(int) except +
+        string reactionString(int) except +
+        double reactantStoichCoeff(int, int) except +
+        double productStoichCoeff(int, int) except +
+
+        double multiplier(int)
+        void setMultiplier(int, double)
+
 
 cdef extern from "cantera/kinetics/InterfaceKinetics.h":
-    cdef cppclass CxxInterfaceKinetics "Cantera::InterfaceKinetics"
+    cdef cppclass CxxInterfaceKinetics "Cantera::InterfaceKinetics":
+        void advanceCoverages(double) except +
 
 cdef extern from "cantera/transport/TransportBase.h" namespace "Cantera":
     cdef cppclass CxxTransport "Cantera::Transport":
@@ -276,6 +264,57 @@ cdef extern from "cantera/oneD/StFlow.h":
 cdef extern from "cantera/oneD/Sim1D.h":
     cdef cppclass CxxSim1D "Cantera::Sim1D":
         CxxSim1D(vector[CxxDomain1D*]&)
+
+cdef extern from "wrappers.h":
+    # ThermoPhase composition
+    cdef void thermo_getMassFractions(CxxThermoPhase*, double*) except +
+    cdef void thermo_setMassFractions(CxxThermoPhase*, double*) except +
+    cdef void thermo_getMoleFractions(CxxThermoPhase*, double*) except +
+    cdef void thermo_setMoleFractions(CxxThermoPhase*, double*) except +
+    cdef void thermo_getConcentrations(CxxThermoPhase*, double*) except +
+    cdef void thermo_setConcentrations(CxxThermoPhase*, double*) except +
+
+    # ThermoPhase partial molar properties
+    cdef void thermo_getChemPotentials(CxxThermoPhase*, double*) except +
+    cdef void thermo_getElectrochemPotentials(CxxThermoPhase*, double*) except +
+    cdef void thermo_getPartialMolarEnthalpies(CxxThermoPhase*, double*) except +
+    cdef void thermo_getPartialMolarEntropies(CxxThermoPhase*, double*) except +
+    cdef void thermo_getPartialMolarIntEnergies(CxxThermoPhase*, double*) except +
+    cdef void thermo_getPartialMolarCp(CxxThermoPhase*, double*) except +
+    cdef void thermo_getPartialMolarVolumes(CxxThermoPhase*, double*) except +
+
+    # ThermoPhase partial non-dimensional properties
+    void thermo_getEnthalpy_RT(CxxThermoPhase*, double*) except +
+    void thermo_getEntropy_R(CxxThermoPhase*, double*) except +
+    void thermo_getIntEnergy_RT(CxxThermoPhase*, double*) except +
+    void thermo_getGibbs_RT(CxxThermoPhase*, double*) except +
+    void thermo_getCp_R(CxxThermoPhase*, double*) except +
+
+    # other ThermoPhase methods
+    cdef void thermo_getMolecularWeights(CxxThermoPhase*, double*) except +
+
+    # Kinetics per-reaction properties
+    cdef void kin_getFwdRatesOfProgress(CxxKinetics*, double*) except +
+    cdef void kin_getRevRatesOfProgress(CxxKinetics*, double*) except +
+    cdef void kin_getNetRatesOfProgress(CxxKinetics*, double*) except +
+
+    cdef void kin_getEquilibriumConstants(CxxKinetics*, double*) except +
+    cdef void kin_getActivationEnergies(CxxKinetics*, double*) except +
+    cdef void kin_getFwdRateConstants(CxxKinetics*, double*) except +
+    cdef void kin_getRevRateConstants(CxxKinetics*, double*) except +
+
+    cdef void kin_getDeltaEnthalpy(CxxKinetics*, double*) except +
+    cdef void kin_getDeltaGibbs(CxxKinetics*, double*) except +
+    cdef void kin_getDeltaEntropy(CxxKinetics*, double*) except +
+    cdef void kin_getDeltaSSEnthalpy(CxxKinetics*, double*) except +
+    cdef void kin_getDeltaSSGibbs(CxxKinetics*, double*) except +
+    cdef void kin_getDeltaSSEntropy(CxxKinetics*, double*) except +
+
+    # Kinetics per-species properties
+    cdef void kin_getCreationRates(CxxKinetics*, double*) except +
+    cdef void kin_getDestructionRates(CxxKinetics*, double*) except +
+    cdef void kin_getNetProductionRates(CxxKinetics*, double*) except +
+
 
 cdef string stringify(x)
 
