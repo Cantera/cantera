@@ -721,37 +721,49 @@ cdef class InterfacePhase(ThermoPhase):
 
 
 cdef class PureFluid(ThermoPhase):
+    """
+    A pure substance that can  be a gas, a liquid, a mixed gas-liquid fluid,
+    or a fluid beyond its critical point.
+    """
     property critTemperature:
+        """Critical temperature [K]"""
         def __get__(self):
             return self.thermo.critTemperature()
 
     property critPressure:
+        """Critical pressure [Pa]"""
         def __get__(self):
             return self.thermo.critPressure()
 
     property critDensity:
+        """Critical density [kg/m^3 or kmol/m^3] depending on `basis`."""
         def __get__(self):
             return self.thermo.critDensity() / self._massFactor()
 
     property Psat:
+        """Saturation pressure [Pa] at the current temperature"""
         def __get__(self):
             return self.thermo.satPressure(self.T)
 
     property Tsat:
+        """Saturation temperature [K] at the current pressure"""
         def __get__(self):
             return self.thermo.satTemperature(self.P)
 
     property X:
+        """Vapor fraction (quality)"""
         def __get__(self):
             return self.thermo.vaporFraction()
 
     property TX:
+        """Get/Set the temperature and vapor fraction of a two-phase state."""
         def __get__(self):
             return self.T, self.X
         def __set__(self, values):
             self.thermo.setState_Tsat(values[0], values[1])
 
     property PX:
+        """Get/Set the pressure and vapor fraction of a two-phase state."""
         def __get__(self):
             return self.P, self.X
         def __set__(self, values):
