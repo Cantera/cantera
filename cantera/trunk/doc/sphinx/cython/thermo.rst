@@ -1,8 +1,10 @@
+.. py:currentmodule:: cantera
+
 Thermodynamic Properties
 ========================
 
 These classes are used to describe the thermodynamic state of a system.
 
-.. autoclass:: cantera.ThermoPhase
-.. autoclass:: cantera.InterfacePhase
-.. autoclass:: cantera.PureFluid
+.. autoclass:: ThermoPhase
+.. autoclass:: InterfacePhase
+.. autoclass:: PureFluid
