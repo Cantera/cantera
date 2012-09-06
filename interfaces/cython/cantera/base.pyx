@@ -1,5 +1,5 @@
 cdef class _SolutionBase:
-    def __cinit__(self, infile, phaseid=''):
+    def __cinit__(self, infile, phaseid='', phases=()):
         rootNode = getCtmlTree(stringify(infile))
 
         # Get XML data
@@ -19,9 +19,13 @@ cdef class _SolutionBase:
 
         # Kinetics
         cdef vector[CxxThermoPhase*] v
+        cdef _SolutionBase phase
 
         if isinstance(self, Kinetics):
             v.push_back(self.thermo)
+            for phase in phases:
+                # adjacent bulk phases for a surface phase
+                v.push_back(phase.thermo)
             self.kinetics = newKineticsMgr(deref(phaseNode), v)
         else:
             self.kinetics = NULL
