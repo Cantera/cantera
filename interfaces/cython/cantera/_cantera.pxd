@@ -46,6 +46,15 @@ cdef extern from "cantera/equil/MultiPhase.h" namespace "Cantera":
         void setPressure(double)
         double pressure()
 
+cdef extern from "cantera/numerics/Func1.h":
+    cdef cppclass CxxFunc1 "Cantera::Func1":
+        CxxFunc1()
+        double eval(double)
+        string write(string)
+
+    cdef cppclass CxxSin1 "Cantera::Sin1":
+        CxxSin1(double)
+
 cdef extern from "cantera/thermo/ThermoFactory.h" namespace "Cantera":
     cdef CxxThermoPhase* newPhase(string, string) except +
     cdef CxxThermoPhase* newPhase(XML_Node&) except +
@@ -67,3 +76,6 @@ cdef class _SolutionBase:
 cdef class Mixture:
     cdef CxxMultiPhase* mix
     cdef list _phases
+
+cdef class Func1:
+    cdef CxxFunc1* func

@@ -7,6 +7,7 @@ from _cantera cimport *
 
 include "utils.pyx"
 include "constants.pyx"
+include "func1.pyx"
 
 include "base.pyx"
 include "thermo.pyx"
