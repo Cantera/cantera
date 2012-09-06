@@ -10,14 +10,22 @@ cdef class Mixture:
 
         self.mix.init()
         if self._phases:
-            self.pressure = self._phases[0].pressure
-            self.temperature = self._phases[0].temperature
+            self.pressure = self._phases[0].P
+            self.temperature = self._phases[0].T
 
     def __dealloc__(self):
         del self.mix
 
     def phase(self, n):
         return self._phases[n]
+
+    def equilibrate(self, XY, solver=1, int estimateEquil=0, double err=1e-9,
+                    int maxsteps=1000,
+                    int maxiter=200, int loglevel=0, printlevel=0):
+        XY = XY.upper()
+        vcs_equilibrate(deref(self.mix), stringify(XY).c_str(),
+                        estimateEquil, printlevel, solver, err,
+                        maxsteps, maxiter, loglevel)
 
     property nSpecies:
         def __get__(self):

@@ -182,6 +182,12 @@ cdef extern from "cantera/equil/MultiPhase.h" namespace "Cantera":
         void setPressure(double)
         double pressure()
 
+cdef extern from "cantera/equil/equil.h" namespace "Cantera":
+    int equilibrate(CxxThermoPhase&, char*, int, double, int, int, int) except +
+
+cdef extern from "cantera/equil/vcs_MultiPhaseEquil.h" namespace "Cantera":
+    int vcs_equilibrate(CxxMultiPhase&, char*, int, int, int, double, int, int, int)
+
 cdef extern from "cantera/numerics/Func1.h":
     cdef cppclass CxxFunc1 "Cantera::Func1":
         CxxFunc1()
