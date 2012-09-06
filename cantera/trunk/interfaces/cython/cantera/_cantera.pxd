@@ -152,6 +152,9 @@ cdef extern from "cantera/thermo/SurfPhase.h":
         CxxSurfPhase()
         double siteDensity()
         void setSiteDensity(double)
+        void setCoverages(double*) except +
+        void getCoverages(double*) except +
+
 
 cdef extern from "cantera/kinetics/Kinetics.h" namespace "Cantera":
     cdef cppclass CxxKinetics "Cantera::Kinetics":

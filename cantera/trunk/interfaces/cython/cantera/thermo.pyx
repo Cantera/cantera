@@ -685,6 +685,7 @@ cdef class ThermoPhase(_SolutionBase):
 
 
 cdef class InterfacePhase(ThermoPhase):
+    """ A class representing a surface or edge phase"""
     cdef CxxSurfPhase* surf
     def __cinit__(self, *args, **kwargs):
         if self.thermo.eosType() not in (thermo_type_surf, thermo_type_edge):
@@ -692,10 +693,31 @@ cdef class InterfacePhase(ThermoPhase):
         self.surf = <CxxSurfPhase*>(self.thermo)
 
     property siteDensity:
+        """
+        Get/Set the site density. [kmol/m^2] for surface phases; [kmol/m] for
+        edge phases.
+        """
         def __get__(self):
             return self.surf.siteDensity()
         def __set__(self, double value):
             self.surf.setSiteDensity(value)
+
+    property coverages:
+        """Get/Set the fraction of sites covered by each species."""
+        def __get__(self):
+            cdef np.ndarray[np.double_t, ndim=1] data = np.empty(self.nSpecies)
+            self.surf.getCoverages(&data[0])
+            if self._selectedSpecies.size:
+                return data[self._selectedSpecies]
+            else:
+                return data
+
+        def __set__(self, theta):
+            if len(theta) != self.nSpecies:
+                raise ValueError("Array has incorrect length")
+            cdef np.ndarray[np.double_t, ndim=1] data = \
+                np.ascontiguousarray(theta, dtype=np.double)
+            self.surf.setCoverages(&data[0])
 
 
 cdef class PureFluid(ThermoPhase):
