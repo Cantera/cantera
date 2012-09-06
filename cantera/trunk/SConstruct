@@ -288,6 +288,30 @@ opts.AddVariables(
            default 'site-packages' directory.""",
         defaults.python_prefix, PathVariable.PathAccept),
     EnumVariable(
+        'python3_package',
+        """Controls whether or not the Python 3 module will be built. By
+            default, the module will be built if the Python 3 interpreter can
+            be found""",
+        'default', ('y','n','default')),
+    PathVariable(
+        'python3_cmd',
+        """ The name (full path if necessary) of the Python 3 interpreter.
+        Required to build the Python 3 module.""",
+        'python3', PathVariable.PathAccept),
+    PathVariable(
+        'python3_array_home',
+        """"If numpy was installed to a custom location (e.g. using the --home
+            option, set this to the directory for numpy""",
+        '', PathVariable.PathAccept),
+    PathVariable(
+        'python3_prefix',
+        """Use this option if you want to install the Cantera Python 3 package to
+           an alternate location. On Unix-like systems, the default is the same
+           as the $prefix option. If this option is set to the empty string (the
+           default on Windows), then the Package will be installed to the system
+           default 'site-packages' directory.""",
+        defaults.python_prefix, PathVariable.PathAccept),
+    EnumVariable(
         'matlab_toolbox',
         """This variable controls whether the Matlab toolbox will be built. If
            set to 'y', you will also need to set the value of the 'matlab_path'
@@ -739,6 +763,8 @@ int main(int argc, char** argv) {
 
 env = conf.Finish()
 
+
+# Python 2 Package Settings
 if env['python_package'] in ('full','default'):
     # Test to see if we can import the specified array module
     warnNoPython = False
@@ -767,6 +793,27 @@ if env['python_package'] in ('full','default'):
 else:
     warnNoPython = False
     env['python_array_include'] = ''
+
+
+# Python 3 Package Settings
+if env['python3_package'] in ('y', 'default'):
+    # See if we can execute the Python 3 interpreter
+    try:
+        ret = subprocess.check_call([env['python3_cmd'],'-c','""'])
+    except OSError:
+        ret = -1
+
+    if ret:
+        if env['python3_package'] == 'default':
+            print ('INFO: Not building the Python 3 package because the Python '
+                   '3 interpreter %r could not be found' % env['python3_cmd'])
+            env['python3_package'] = 'n'
+        else:
+            print ('ERROR: Could not execute the Python 3 interpreter %r' %
+                   env['python3_cmd'])
+            sys.exit(1)
+    else:
+        env['python3_package'] = 'y'
 
 
 # Matlab Toolbox settings
@@ -1153,6 +1200,10 @@ SConscript('build/src/SConscript')
 if env['python_package'] in ('full','minimal'):
     VariantDir('build/src/python', 'src/python', duplicate=0)
     SConscript('build/src/python/SConscript')
+
+if env['python3_package'] == 'y':
+    VariantDir('build/python3', 'interfaces/cython', duplicate=0)
+    SConscript('build/cython/SConscript')
 
 SConscript('build/src/apps/SConscript')
 

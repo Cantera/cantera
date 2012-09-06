@@ -545,3 +545,18 @@ def getSpawn(env):
         return rv
 
     return ourSpawn
+
+def getCommandOutput(cmd, *args):
+    """
+    Run a command with arguments and return its output.
+    Substitute for subprocess.check_output which is only available
+    in Python >= 2.7
+    """
+    proc = subprocess.Popen([cmd] + list(args),
+                            stdout=subprocess.PIPE,
+                            stderr=subprocess.PIPE)
+    data, err = proc.communicate()
+    if proc.returncode:
+        raise OSError(err)
+
+    return data.strip()
