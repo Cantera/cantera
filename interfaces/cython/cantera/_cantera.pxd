@@ -157,10 +157,17 @@ cdef extern from "cantera/transport/TransportBase.h" namespace "Cantera":
     cdef cppclass CxxTransport "Cantera::Transport":
         CxxTransport(CxxThermoPhase*)
         double viscosity() except +
+        double thermalConductivity() except +
+
 
 cdef extern from "cantera/transport/DustyGasTransport.h" namespace "Cantera":
     cdef cppclass CxxDustyGasTransport "Cantera::DustyGasTransport":
         void setPorosity(double) except +
+        void setTortuosity(double) except +
+        void setMeanPoreRadius(double) except +
+        void setMeanParticleDiameter(double) except +
+        void setPermeability(double) except +
+
 
 cdef extern from "cantera/equil/MultiPhase.h" namespace "Cantera":
     cdef cppclass CxxMultiPhase "Cantera::MultiPhase":
@@ -314,6 +321,15 @@ cdef extern from "wrappers.h":
     cdef void kin_getCreationRates(CxxKinetics*, double*) except +
     cdef void kin_getDestructionRates(CxxKinetics*, double*) except +
     cdef void kin_getNetProductionRates(CxxKinetics*, double*) except +
+
+    # Transport properties
+    cdef void tran_getMixDiffCoeffs(CxxTransport*, double*) except +
+    cdef void tran_getMixDiffCoeffsMass(CxxTransport*, double*) except +
+    cdef void tran_getMixDiffCoeffsMole(CxxTransport*, double*) except +
+    cdef void tran_getThermalDiffCoeffs(CxxTransport*, double*) except +
+
+    cdef void tran_getMultiDiffCoeffs(CxxTransport*, size_t, double*) except +
+    cdef void tran_getBinaryDiffCoeffs(CxxTransport*, size_t, double*) except +
 
 
 cdef string stringify(x)

@@ -1,11 +1,21 @@
 #include "cantera/thermo/ThermoPhase.h"
+#include "cantera/transport/TransportBase.h"
 
+// Function which populates a 1D array
 #define ARRAY_FUNC(PREFIX, CLASS_NAME, FUNC_NAME) \
     void PREFIX ## _ ## FUNC_NAME(Cantera::CLASS_NAME* object, double* data) \
     { object->FUNC_NAME(data); }
 
+// function which takes a stride as the first argument and populates a 2D array
+#define ARRAY_FUNC2(PREFIX, CLASS_NAME, FUNC_NAME) \
+    void PREFIX ## _ ## FUNC_NAME(Cantera::CLASS_NAME* object, size_t dim, double* data) \
+    { object->FUNC_NAME(dim, data); }
+
+
 #define THERMO_1D(FUNC_NAME) ARRAY_FUNC(thermo, ThermoPhase, FUNC_NAME)
 #define KIN_1D(FUNC_NAME) ARRAY_FUNC(kin, Kinetics, FUNC_NAME)
+#define TRANSPORT_1D(FUNC_NAME) ARRAY_FUNC(tran, Transport, FUNC_NAME)
+#define TRANSPORT_2D(FUNC_NAME) ARRAY_FUNC2(tran, Transport, FUNC_NAME)
 
 THERMO_1D(getMassFractions)
 THERMO_1D(setMassFractions)
@@ -47,3 +57,11 @@ KIN_1D(getDeltaSSEntropy)
 KIN_1D(getCreationRates)
 KIN_1D(getDestructionRates)
 KIN_1D(getNetProductionRates)
+
+TRANSPORT_1D(getMixDiffCoeffs)
+TRANSPORT_1D(getMixDiffCoeffsMass)
+TRANSPORT_1D(getMixDiffCoeffsMole)
+TRANSPORT_1D(getThermalDiffCoeffs)
+
+TRANSPORT_2D(getMultiDiffCoeffs)
+TRANSPORT_2D(getBinaryDiffCoeffs)
