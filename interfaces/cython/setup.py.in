@@ -9,21 +9,14 @@ if os.name == 'nt':
 else:
     dataFiles.append('libcantera_shared.so')
 
-exts = []
-
-def addExtension(name):
-    exts.append(Extension("cantera.%s" % name,
-                          ["cantera/%s.pyx" % name],
-                          include_dirs=@py_include_dirs@,
-                          language="c++",
-                          libraries=@py_cantera_libs@,
-                          library_dirs=@py_libdirs@,
-                          extra_link_args=@py_extra_link_args@))
-
-addExtension('solution')
-addExtension('mixture')
-addExtension('utils')
-addExtension('constants')
+exts = [Extension("cantera._cantera",
+                  ["cantera/_cantera.pyx"],
+                  include_dirs=@py_include_dirs@,
+                  language="c++",
+                  libraries=@py_cantera_libs@,
+                  library_dirs=@py_libdirs@,
+                  extra_compile_args=@py_extra_compiler_args@,
+                  extra_link_args=@py_extra_link_args@)]
 
 setup(name="Cantera",
       version="@cantera_version@",

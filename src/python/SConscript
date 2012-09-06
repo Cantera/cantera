@@ -117,13 +117,15 @@ libDirs = ('../../build/lib', localenv['sundials_libdir'],
            localenv['boost_lib_dir'])
 
 localenv['py_include_dirs'] = repr([x for x in incDirs if x])
-localenv['py_cantera_libs'] = repr(localenv['cantera_shared_libs'])
+localenv['py_cantera_libs'] = repr(localenv['cantera_libs'])
 localenv['py_libdirs'] = repr([x for x in libDirs if x])
 
 if localenv['CC'] == 'cl':
     localenv['py_extra_link_args'] = repr([])
+    localenv['py_extra_compiler_args'] = repr(['/EHsc'])
 else:
     localenv['py_extra_link_args'] = repr(['-Wl,-rpath=$$ORIGIN'])
+    localenv['py_extra_compiler_args'] = repr([])
 
 make_setup = localenv.SubstFile('#interfaces/cython/setup.py',
                                 '#interfaces/cython/setup.py.in')
