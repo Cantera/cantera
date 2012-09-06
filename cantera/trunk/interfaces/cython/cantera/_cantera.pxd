@@ -254,6 +254,7 @@ cdef class _SolutionBase:
     cdef CxxThermoPhase* thermo
     cdef CxxKinetics* kinetics
     cdef CxxTransport* transport
+    cdef int thermoBasis
 
 cdef class Mixture:
     cdef CxxMultiPhase* mix
