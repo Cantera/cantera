@@ -1,5 +1,3 @@
-from mixture cimport *
-
 cdef class Mixture:
     def __cinit__(self, phases):
         self.mix = new CxxMultiPhase()
