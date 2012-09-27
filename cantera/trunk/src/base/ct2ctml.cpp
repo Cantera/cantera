@@ -143,7 +143,7 @@ void ck2cti(const std::string& in_file, const std::string& thermo_file,
      *  Section to bomb out if python is not
      *  present in the computation environment.
      */
-    string ppath = file;
+    string ppath = in_file;
     throw CanteraError("ct2ctml",
                        "python ck to cti conversion requested for file, " + ppath +
                        ", but not available in this computational environment");
