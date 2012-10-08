@@ -1,0 +1,125 @@
+#!/bin/bash
+#
+#  This is currently the test base. Meaning that the blessed versions
+#  of all test problems are created from this configuration.
+#
+CANTERA_CONFIG_PREFIX=/home/hkmoffa/arch/mac/sierra-gcc-mp-4.4/cantera-liquidTransportDevelop_python271_numpy
+export CANTERA_CONFIG_PREFIX
+
+SET_PYTHON_SITE_PACKAGE_TOPDIR=y
+export SET_PYTHON_SITE_PACKAGE_TOPDIR
+
+PYTHON_SITE_PACKAGE_TOPDIR=$CANTERA_CONFIG_PREFIX
+export PYTHON_SITE_PACKAGE_TOPDIR
+
+PYTHON_CMD=/usr/bin/python
+export PYTHON_CMD
+
+#PYTHON_PACKAGE='full'
+PYTHON_PACKAGE='minimal'
+export PYTHON_PACKAGE
+
+DEBUG_MODE='y'
+export DEBUG_MODE
+
+WITH_IDEAL_SOLUTIONS="y"
+export WITH_IDEAL_SOLUTIONS
+
+WITH_ELECTROLYTES="y"
+export WITH_ELECTROLYTES
+
+WITH_VCSNONIDEAL="y"
+export WITH_VCSNONIDEAL
+
+WITH_H298MODIFY_CAPABILITY='y'
+export WITH_H298MODIFY_CAPABILITY
+
+
+BUILD_MATLAB_TOOLBOX="n"
+export BUILD_MATLAB_TOOLBOX
+
+INSTALL_BIN=config/install-sh
+export INSTALL_BIN
+
+TuseMPICOMPILE=0
+if /bin/test ${TuseMPICOMPILE} = "1"
+then
+  TOOLBASE=/projects/openmpi/1.4.2/gcc-4.4/bin
+else
+  TOOLBASE="/opt/local/var/macports/software/gcc44/4.4.4_1+darwin_10/opt/local/bin"
+fi
+
+
+# MATLAB_CMD="/usr/local/matlab/7.4/x86-64/bin/matlab"
+# export MATLAB_CMD
+
+BUILD_F90_INTERFACE="n"
+export BUILD_F90_INTERFACE
+
+USE_NUMPY='y'
+export USE_NUMPY
+
+NUMPY_INC_DIR="/home/hkmoffa/arch/mac/lib/python2.7/site-packages/numpy/core/include" 
+export NUMPY_INC_DIR
+
+#GRAPHVIZDIR=/home/hkmoffa/arch/linux/bin
+#export GRAPHVIZDIR
+
+#
+#
+USE_NUMERIC="n"
+export USE_NUMERIC
+
+BUILD_WITH_F2C="y"
+export BUILD_WITH_F2C
+
+BITCOMPILE="64"
+export BITCOMPILE
+
+AFLAGS='DEBUG'
+
+if test $TuseMPICOMPILE = "1"
+then
+  CXX='mpic++'
+  CC='mpicc'
+  F77='mpif77'
+  CXX_DEPENDS='mpic++ -MM'
+else
+  CXX='g++-mp-4.4'
+  CC='gcc-mp-4.4'
+  F77='gfortran-mp-4.4'
+  CXX_DEPENDS='g++-mp-4.4 -MM'
+fi
+
+export CXX
+export CXX_DEPENDS
+export CC
+export F77
+
+CFLAGS="-g -Wall"
+export CFLAGS
+
+CXXFLAGS="-g  -Wall -DDEBUG_HKM -DDEBUG_HKM_EPEQUIL"
+export CXXFLAGS
+
+FFLAGS="-g -DDEBUG_HKM  -fno-second-underscore"
+export FFLAGS
+
+LDFLAGS=' '
+export LDFLAGS
+
+LCXX_END_LIBS=" -lm -lstdc++"
+export LCXX_END_LIBS
+
+EXTRA_LINK=" "
+export EXTRA_LINK
+
+MAKE=make
+export MAKE
+
+USE_SUNDIALS='y'
+export USE_SUNDIALS
+SUNDIALS_HOME='/home/hkmoffa/arch/mac/sierra-gcc-mp-4.4/sundials-2.4.0'
+export SUNDIALS_HOME
+
+./preconfig
