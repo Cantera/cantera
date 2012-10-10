@@ -44,7 +44,7 @@ ReactorNet::~ReactorNet()
     deleteIntegrator(m_integ);
 }
 
-void ReactorNet::initialize(doublereal t0)
+void ReactorNet::initialize()
 {
     size_t n, nv;
     char buf[100];
@@ -59,7 +59,7 @@ void ReactorNet::initialize(doublereal t0)
                            "no reactors in network!");
     for (n = 0; n < m_nr; n++) {
         if (m_r[n]->type() >= ReactorType) {
-            m_r[n]->initialize(t0);
+            m_r[n]->initialize(m_time);
             Reactor* r = (Reactor*)m_r[n];
             m_reactors.push_back(r);
             nv = r->neq();
@@ -132,7 +132,7 @@ void ReactorNet::initialize(doublereal t0)
         sprintf(buf, "Maximum time step:   %14.6g\n", m_maxstep);
         writelog(buf);
     }
-    m_integ->initialize(t0, *this);
+    m_integ->initialize(m_time, *this);
     m_init = true;
 }
 

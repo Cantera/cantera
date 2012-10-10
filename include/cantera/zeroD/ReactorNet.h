@@ -80,11 +80,6 @@ public:
     }
 
     /**
-     * Initialize the reactor network.
-     */
-    void initialize(doublereal t0 = 0.0);
-
-    /**
      * Advance the state of all reactors in time.
      * @param time Time to advance to (s).
      */
@@ -152,6 +147,11 @@ public:
     }
 
 protected:
+    /**
+     * Initialize the reactor network. Called automatically the first time
+     * advance or step is called.
+     */
+    void initialize();
 
     std::vector<ReactorBase*> m_r;
     std::vector<Reactor*> m_reactors;
