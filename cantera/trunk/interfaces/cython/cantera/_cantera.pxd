@@ -27,6 +27,16 @@ cdef extern from "cantera/thermo/mix_defs.h":
     cdef int kinetics_type_interface "Cantera::cInterfaceKinetics"
     cdef int kinetics_type_edge "Cantera::cEdgeKinetics"
 
+
+cdef extern from "funcWrapper.h":
+    ctypedef double (*callback_wrapper)(double, void*, void**)
+    cdef int translate_exception()
+
+    cdef cppclass CxxFunc1 "Func1Py":
+        CxxFunc1(callback_wrapper, void*)
+        double eval(double) except +translate_exception
+
+
 cdef extern from "cantera/thermo/ThermoPhase.h" namespace "Cantera":
     cdef cppclass CxxThermoPhase "Cantera::ThermoPhase":
         CxxThermoPhase()
@@ -118,6 +128,7 @@ cdef extern from "cantera/thermo/ThermoPhase.h" namespace "Cantera":
 cdef extern from "cantera/thermo/IdealGasPhase.h":
     cdef cppclass CxxIdealGasPhase "Cantera::IdealGasPhase"
 
+
 cdef extern from "cantera/thermo/SurfPhase.h":
     cdef cppclass CxxSurfPhase "Cantera::SurfPhase":
         CxxSurfPhase()
@@ -192,17 +203,10 @@ cdef extern from "cantera/equil/equil.h" namespace "Cantera":
 cdef extern from "cantera/equil/vcs_MultiPhaseEquil.h" namespace "Cantera":
     int vcs_equilibrate(CxxMultiPhase&, char*, int, int, int, double, int, int, int)
 
-cdef extern from "cantera/numerics/Func1.h":
-    cdef cppclass CxxFunc1 "Cantera::Func1":
-        CxxFunc1()
-        double eval(double)
-        string write(string)
-
-    cdef cppclass CxxSin1 "Cantera::Sin1":
-        CxxSin1(double)
 
 cdef extern from "cantera/zeroD/ReactorBase.h" namespace "Cantera":
     cdef cppclass CxxWall "Cantera::Wall"
+
     cdef cppclass CxxReactorBase "Cantera::ReactorBase":
         CxxReactorBase()
         void setThermoMgr(CxxThermoPhase&)
@@ -354,6 +358,8 @@ cdef class Mixture:
 
 cdef class Func1:
     cdef CxxFunc1* func
+    cdef object callable
+    cdef object exception
 
 cdef class ReactorBase:
     cdef CxxReactorBase* rbase

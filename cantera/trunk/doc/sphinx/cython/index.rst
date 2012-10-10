@@ -9,3 +9,4 @@ Contents:
    thermo
    kinetics
    transport
+   zerodim
