@@ -119,7 +119,14 @@ public:
 
     //@}
 
-    void resetState();
+    //! Set the state of the Phase object associated with this reactor to the
+    //! reactor's current state.
+    void restoreState() {
+        if (!m_thermo) {
+            throw CanteraError("ReactorBase::restoreState", "No phase defined.");
+        }
+        m_thermo->restoreState(m_state);
+    }
 
     /// return a reference to the contents.
     thermo_t& contents() {

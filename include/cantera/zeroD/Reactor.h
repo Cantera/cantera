@@ -97,6 +97,11 @@ public:
         }
     }
 
+    /// Returns 'true' if solution of the energy equation is enabled.
+    bool energyEnabled() const {
+        return m_energy;
+    }
+
     // overloaded methods of class FuncEval
     virtual size_t neq() {
         return m_nv;

@@ -51,6 +51,11 @@ public:
         m_area = a;
     }
 
+    //! Get the area [m^2]
+    double getArea() const {
+        return m_area;
+    }
+
     void setThermalResistance(doublereal Rth) {
         m_rrth = 1.0/Rth;
     }
@@ -60,12 +65,21 @@ public:
         m_rrth = U;
     }
 
+    //! Get the overall heat transfer coefficient [W/m^2/K].
+    double getHeatTransferCoeff() const {
+        return m_rrth;
+    }
+
     /// Set the emissivity.
     void setEmissivity(doublereal epsilon) {
         if (epsilon > 1.0 || epsilon < 0.0)
             throw Cantera::CanteraError("Wall::setEmissivity",
                                         "emissivity must be between 0.0 and 1.0");
         m_emiss = epsilon;
+    }
+
+    double getEmissivity() const {
+        return m_emiss;
     }
 
     /** Set the piston velocity to a specified function. */
@@ -82,6 +96,10 @@ public:
         m_k = k;
     }
 
+    //! Get the expansion rate coefficient
+    double getExpansionRateCoeff() const {
+        return m_k;
+    }
 
     /// Specify the heat flux function \f$ q_0(t) \f$.
     void setHeatFlux(Cantera::Func1* q) {
