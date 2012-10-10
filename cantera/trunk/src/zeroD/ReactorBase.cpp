@@ -29,14 +29,6 @@ ReactorBase::ReactorBase(string name) : m_nsp(0),
     m_name = name;
 }
 
-//     void ReactorBase::resetState() {
-//         m_thermo->saveState(m_state);
-//         m_enthalpy = m_thermo->enthalpy_mass();
-//         m_intEnergy = m_thermo->intEnergy_mass();
-//         m_pressure = m_thermo->pressure();
-//         m_init = false;
-//     }
-
 void ReactorBase::setThermoMgr(thermo_t& thermo)
 {
     m_thermo = &thermo;

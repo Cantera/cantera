@@ -206,32 +206,90 @@ cdef extern from "cantera/equil/vcs_MultiPhaseEquil.h" namespace "Cantera":
 
 cdef extern from "cantera/zeroD/ReactorBase.h" namespace "Cantera":
     cdef cppclass CxxWall "Cantera::Wall"
+    cdef cppclass CxxFlowDevice "Cantera::FlowDevice"
 
     cdef cppclass CxxReactorBase "Cantera::ReactorBase":
         CxxReactorBase()
-        void setThermoMgr(CxxThermoPhase&)
+        void setThermoMgr(CxxThermoPhase&) except +
+        void restoreState() except +
         double volume()
+        string name()
+        void setName(string)
+        void setInitialVolume(double)
+
 
 cdef extern from "cantera/zeroD/Reactor.h":
-    cdef cppclass CxxReactor "Cantera::Reactor":
+    cdef cppclass CxxReactor "Cantera::Reactor" (CxxReactorBase):
         CxxReactor()
         void setKineticsMgr(CxxKinetics&)
+        void setEnergy(int)
+        cbool energyEnabled()
+
+
+cdef extern from "cantera/zeroD/FlowReactor.h":
+    cdef cppclass CxxFlowReactor "Cantera::FlowReactor" (CxxReactor):
+        CxxFlowReactor()
+        void setMassFlowRate(double) except +
+        double speed()
+        double distance()
+
 
 cdef extern from "cantera/zeroD/Wall.h":
     cdef cppclass CxxWall "Cantera::Wall":
         CxxWall()
         cbool install(CxxReactorBase&, CxxReactorBase&)
         void setExpansionRateCoeff(double)
+        double getExpansionRateCoeff()
         double area()
         void setArea(double)
+        double getArea()
+        void setHeatTransferCoeff(double)
+        double getHeatTransferCoeff()
+        void setEmissivity(double) except +
+        double getEmissivity()
+        void setVelocity(CxxFunc1*)
+        void setHeatFlux(CxxFunc1*)
+        void setKinetics(CxxKinetics*, CxxKinetics*)
+        void setCoverages(int, double*)
+        void syncCoverages(int)
+        double vdot(double)
+        double Q(double)
+
+
+cdef extern from "cantera/zeroD/flowControllers.h":
+    cdef cppclass CxxFlowDevice "Cantera::FlowDevice":
+        CxxFlowDevice()
+        double massFlowRate(double)
+        cbool install(CxxReactorBase&, CxxReactorBase&)
+        void setFunction(CxxFunc1*)
+        void setParameters(int, double*)
+
+    cdef cppclass CxxMassFlowController "Cantera::MassFlowController" (CxxFlowDevice):
+        CxxMassFlowController()
+
+    cdef cppclass CxxValve "Cantera::Valve" (CxxFlowDevice):
+        CxxValve()
+
+    cdef cppclass CxxPressureController "Cantera::PressureController" (CxxFlowDevice):
+        CxxPressureController()
+        void setMaster(CxxFlowDevice*)
+
 
 cdef extern from "cantera/zeroD/ReactorNet.h":
     cdef cppclass CxxReactorNet "Cantera::ReactorNet":
         CxxReactorNet()
         void addReactor(CxxReactorBase*)
-        void initialize(double)
-        void advance(double)
-        double step(double)
+        void advance(double) except +
+        double step(double) except +
+        double time()
+        void setInitialTime(double)
+        void setTolerances(double, double)
+        double rtol()
+        double atol()
+        void setMaxTimeStep(double)
+        cbool verbose()
+        void setVerbose(cbool)
+
 
 cdef extern from "cantera/thermo/ThermoFactory.h" namespace "Cantera":
     cdef CxxThermoPhase* newPhase(string, string) except +
@@ -356,6 +414,9 @@ cdef class Mixture:
     cdef CxxMultiPhase* mix
     cdef list _phases
 
+cdef class Kinetics(_SolutionBase):
+    pass
+
 cdef class Func1:
     cdef CxxFunc1* func
     cdef object callable
@@ -363,7 +424,24 @@ cdef class Func1:
 
 cdef class ReactorBase:
     cdef CxxReactorBase* rbase
+    cdef object _thermo
+    cdef list _inlets
+    cdef list _outlets
+    cdef list _walls
+
+cdef class Reactor(ReactorBase):
+    cdef CxxReactor* reactor
+    cdef object _kinetics
 
 cdef class Wall:
     cdef CxxWall* wall
-    cdef double _expansionRateCoeff
+    cdef object _velocityFunc
+    cdef object _heatFluxFunc
+    cdef str name
+    cdef Kinetics _leftKinetics
+    cdef Kinetics _rightKinetics
+
+cdef class FlowDevice:
+    cdef CxxFlowDevice* dev
+    cdef Func1 _rateFunc
+    cdef str name
