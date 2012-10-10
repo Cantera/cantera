@@ -313,7 +313,7 @@ namespace Cantera {
      *
      * For this phase, the partial molar enthalpies are equal to the
      * standard state enthalpies modified by the derivative of the
-     * activity coefficent wrt temperature
+     * activity coefficent wrt temperature.
      *
      *  \f[
      *   \bar s_k(T,P) = s^o_k(T,P) - R T^2 \frac{d \ln(\gamma_k)}{dT}
@@ -326,6 +326,17 @@ namespace Cantera {
      *               Length: m_kk. Units: J/kmol/K
      */
     virtual void getPartialMolarEntropies(doublereal* sbar) const;
+
+    //! Return an array of partial molar volumes for the
+    //! species in the mixture. Units: m^3/kmol.
+    /*!
+     * Units (m^3/sec)
+     *
+     *  @param vbar   Output vector of speciar partial molar volumes.
+     *                Length = m_kk. units are m^3/kmol.
+     */
+    virtual void getPartialMolarVolumes(doublereal* vbar) const;
+
 
 
     //! Get the change in activity coefficients w.r.t. change in state (temp, mole fraction, etc.) along
@@ -496,6 +507,7 @@ namespace Cantera {
      */
     virtual void setState_TP(doublereal t, doublereal p);
 
+    virtual void setState_TPX(doublereal t, doublereal p, const doublereal *x);
 
     //! Calculate ion mole fractions from neutral molecule 
     //! mole fractions.
@@ -872,6 +884,9 @@ namespace Cantera {
      *  Length =  numNeutralMoleculeSpecies_
      */
     mutable std::vector<doublereal> lnActCoeff_NeutralMolecule_;
+
+
+    mutable std::vector<doublereal> partMolarVols_NeutralMolecule_;
 
     //! Storage vector for the neutral molecule d ln activity coefficients dT
     /*!

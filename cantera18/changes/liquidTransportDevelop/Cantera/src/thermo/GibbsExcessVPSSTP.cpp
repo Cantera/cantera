@@ -118,27 +118,32 @@ namespace Cantera {
   void GibbsExcessVPSSTP::setMassFractions(const doublereal* const y) {
     State::setMassFractions(y);
     getMoleFractions(DATA_PTR(moleFractions_));
+    calcDensity();
   }
 
   void GibbsExcessVPSSTP::setMassFractions_NoNorm(const doublereal* const y) {
     State::setMassFractions_NoNorm(y);
     getMoleFractions(DATA_PTR(moleFractions_));
+    calcDensity();
   }
 
  void GibbsExcessVPSSTP::setMoleFractions(const doublereal* const x) {
     State::setMoleFractions(x);
     getMoleFractions(DATA_PTR(moleFractions_));
+    calcDensity();
   }
 
   void GibbsExcessVPSSTP::setMoleFractions_NoNorm(const doublereal* const x) {
     State::setMoleFractions_NoNorm(x);
     getMoleFractions(DATA_PTR(moleFractions_));
+    calcDensity();
   }
 
 
   void GibbsExcessVPSSTP::setConcentrations(const doublereal* const c) {
     State::setConcentrations(c);
     getMoleFractions(DATA_PTR(moleFractions_));
+    calcDensity();
   }
 
 
@@ -207,7 +212,13 @@ namespace Cantera {
      */
     calcDensity();
   }
- 
+
+
+  void GibbsExcessVPSSTP::setState_TPX(doublereal t, doublereal p, const doublereal* x) {
+    State::setMoleFractions(x);
+    getMoleFractions(DATA_PTR(moleFractions_));
+    setState_TP(t, p);
+  }
 
 
   /*

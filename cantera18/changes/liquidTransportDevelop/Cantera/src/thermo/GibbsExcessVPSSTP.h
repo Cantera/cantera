@@ -469,6 +469,8 @@ namespace Cantera {
      */
     virtual void setState_TP(doublereal t, doublereal p);
 
+    virtual void setState_TPX(doublereal t, doublereal p, const doublereal *x);
+
     //@}
 
     /**

@@ -1139,8 +1139,10 @@ namespace Cantera {
      *   2 -> short description, points of interest: Table of nonlinear solve - one line per iteration
      *   3 -> Table is included -> More printing per nonlinear iteration (default) that occurs during the table
      *   4 -> Summaries of the nonlinear solve iteration as they are occurring -> table no longer printed
+     *        Base_ShowSolution Residual called for residual printing at the end of convergence.
      *   5 -> Algorithm information on the nonlinear iterates are printed out
      *   6 -> Additional info on the nonlinear iterates are printed out
+     *        Base_ShowSolution Residual called for residual printing at the end of each step.
      *   7 -> Additional info on the linear solve is printed out.
      *   8 -> Info on a per iterate of the linear solve is printed out.
      */

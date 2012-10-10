@@ -3514,6 +3514,24 @@ namespace Cantera {
 	  }
 	}
       }
+
+      /*
+       *  Do a full residual calculation with the unlagged solution components calling ShowSolution to perhaps print out the solution.
+       */
+      if (m_print_flag >= 4) {
+	if (convRes > 0 || m_print_flag >= 6) {
+	  info = doResidualCalc(time_curr, NSOLN_TYPE_STEADY_STATE, DATA_PTR(m_y_n_curr), DATA_PTR(m_ydot_n_curr), Base_ShowSolution);
+	  if (info != 1) {
+	    if (m_print_flag > 0) {
+	      printf("\t   solve_nonlinear_problem(): Final ShowSolution residual eval returned an error! "
+		     "ERROR %d. Bailing\n", info);
+	    }
+	    retnDamp = NSOLN_RETN_RESIDUALFORMATIONERROR;
+	    goto done;
+	  }
+	}
+      }
+
       // convergence
       if (convRes) {
 	goto done;
@@ -4065,7 +4083,7 @@ namespace Cantera {
     ResidWtsReevaluated_ = true;
     if (checkUserResidualTols_ == 1) {
       for (int i = 0; i < neq_; i++) {
-	m_residWts[i] = userResidAtol_[i] + userResidRtol_ * m_rowWtScales[i] / neq_;
+	m_residWts[i] = userResidAtol_[i] + userResidRtol_ * m_rowWtScales[i] / rtol_;
 #ifdef DEBUG_MODE
         mdp::checkFinite(m_residWts[i]);
 #endif
@@ -4073,7 +4091,7 @@ namespace Cantera {
     } else {
       doublereal sum = 0.0;  
       for (int i = 0; i < neq_; i++) {
-	m_residWts[i] = m_rowWtScales[i] / neq_;
+	m_residWts[i] = m_rowWtScales[i];
 #ifdef DEBUG_MODE
         mdp::checkFinite(m_residWts[i]);
 #endif
@@ -4085,7 +4103,7 @@ namespace Cantera {
       }
       if (checkUserResidualTols_ == 2) {
 	for (int i = 0; i < neq_; i++) {
-	  double uR = userResidAtol_[i] + userResidRtol_ * m_rowWtScales[i] / neq_;
+	  double uR = userResidAtol_[i] + userResidRtol_ * m_rowWtScales[i] / rtol_;
 	  m_residWts[i] = MIN(m_residWts[i], uR);
 	}
       }
@@ -4132,19 +4150,21 @@ namespace Cantera {
     }
     if (dampCode == 3) {
       if (s1 < 1.0E-2) {
-	if (m_normResidTrial < 1.0E-6) {
+	if (m_normResid_full < 1.0E-1) {
 	  return 3;
 	}
       }
       if (s1 < 0.8) {
 	if (m_normDeltaSoln_Newton < 1.0) {
-	  return 2;
+	  if (m_normResid_full < 1.0E-1) {
+	    return 2;
+	  }
 	}
       }
     }
     if (dampCode == 4) {
       if (s1 < 1.0E-2) {
-	if (m_normResidTrial < 1.0E-6) {
+	if (m_normResid_full < 1.0E-1) {
 	  return 3;
 	}
       }
@@ -4152,12 +4172,14 @@ namespace Cantera {
 
     if (s1 < 0.8) {
       if (m_normDeltaSoln_Newton < 1.0) {
-	return 2;
+	if (m_normResid_full < 1.0E-1) {
+	  return 2;
+	}
       }
     }
     if (dampCode == 1 || dampCode == 2) {
       if (s1 < 1.0) {
-	if (m_normResidTrial < 1.0) {
+	if (m_normResid_full < 1.0E-1) {
 	  return 1;
 	}
       }

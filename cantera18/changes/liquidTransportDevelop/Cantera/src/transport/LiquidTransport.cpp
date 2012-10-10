@@ -877,7 +877,7 @@ namespace Cantera {
     set_Grad_X(gradX);
     set_Grad_V(gradV);
 
-    doublereal *fluxes = new doublereal( m_nsp * m_nDim );
+    doublereal *fluxes = new doublereal[m_nsp * m_nDim];
     doublereal current;
 
     getSpeciesFluxesExt(m_nDim, fluxes);
@@ -891,7 +891,7 @@ namespace Cantera {
       //divide by unit potential gradient
       current /= - gradV[i];
     }
-    delete fluxes;
+    delete [] fluxes;
     return current;
 
   }
@@ -929,7 +929,7 @@ namespace Cantera {
     set_Grad_X(grad_X);
     set_Grad_V(grad_V);
 
-    doublereal *fluxes = new doublereal(m_nsp * m_nDim);
+    doublereal *fluxes = new doublereal[m_nsp * m_nDim];
 
     getSpeciesFluxesExt(ldf, fluxes);
 
@@ -940,7 +940,7 @@ namespace Cantera {
 	current[i] += m_chargeSpecies[k] * Faraday * fluxes[k] / m_mw[k];
       //divide by unit potential gradient
     }
-    delete fluxes;
+    delete [] fluxes;
 
   }
 

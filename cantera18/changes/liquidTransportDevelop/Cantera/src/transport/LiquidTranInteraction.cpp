@@ -788,8 +788,8 @@ namespace Cantera {
     int nsp = m_thermo->nSpecies();
     doublereal temp = m_thermo->temperature();
 
-    double *viscSpec = new double(nsp);
-    double *radiusSpec = new double(nsp);
+    double *viscSpec   = new double[nsp];
+    double *radiusSpec = new double[nsp];
 
     for (int k = 0; k < nsp; k++) {
       viscSpec[k] = m_viscosity[k]->getSpeciesTransProp() ;
@@ -801,8 +801,8 @@ namespace Cantera {
       for (int j = 0; j < nsp; j++) {
 	mat(i,j) = (6.0 * Pi * radiusSpec[i] * viscSpec[j] ) / GasConstant / temp;
       }
-    delete radiusSpec;
-    delete viscSpec;
+    delete [] radiusSpec;
+    delete [] viscSpec;
   }
 
   doublereal LTI_MoleFracs_ExpT::getMixTransProp(doublereal *speciesValues, doublereal *speciesWeight ) {

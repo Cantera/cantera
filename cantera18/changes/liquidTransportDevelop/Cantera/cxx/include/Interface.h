@@ -133,7 +133,7 @@ namespace Cantera_CXX {
   /*!
    *  This is the preferred method to create an Interface instance.
    */
-  Interface* importInterface(std::string infile, std::string id, std::vector<Cantera::ThermoPhase*> phases) {
+  inline Interface* importInterface(std::string infile, std::string id, std::vector<Cantera::ThermoPhase*> phases) {
     return new Interface(infile, id, phases);
   }
 

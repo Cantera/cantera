@@ -213,6 +213,7 @@ namespace Cantera {
     muNeutralMolecule_          = b.muNeutralMolecule_;
     //  gammaNeutralMolecule_       = b.gammaNeutralMolecule_;
     lnActCoeff_NeutralMolecule_ = b.lnActCoeff_NeutralMolecule_;
+    partMolarVols_NeutralMolecule_ = b.partMolarVols_NeutralMolecule_;
     dlnActCoeffdT_NeutralMolecule_ = b.dlnActCoeffdT_NeutralMolecule_;
     dlnActCoeffdlnX_diag_NeutralMolecule_ = b.dlnActCoeffdlnX_diag_NeutralMolecule_;
     dlnActCoeffdlnN_diag_NeutralMolecule_ = b.dlnActCoeffdlnN_diag_NeutralMolecule_;
@@ -437,7 +438,7 @@ namespace Cantera {
       break;
     }
   }
-
+  //=====================================================================================================
 
   // Returns an array of partial molar enthalpies for the species
   // in the mixture.
@@ -517,8 +518,72 @@ namespace Cantera {
       sbar[k] *= GasConstant;
     }
   }
+  //====================================================================================================================
 
+  // Return an array of partial molar volumes for the
+  // species in the mixture. Units: m^3/kmol.
+  /*
+   * Units (m^3/sec)
+   *
+   *  @param vbar   Output vector of speciar partial molar volumes.
+   *                Length = m_kk. units are m^3/kmol.
+   */
+  void IonsFromNeutralVPSSTP::getPartialMolarVolumes(doublereal* vbar) const
+  {
+    int k, icat, jNeut;
+    doublereal fmij;
+    /*
+     * Get the standard state values in m^3 kmol-1
+     */
+    getStandardVolumes(vbar);
+    
 
+  
+
+    switch (ionSolnType_) {
+    case cIonSolnType_PASSTHROUGH:
+      neutralMoleculePhase_->getPartialMolarVolumes(vbar);
+      break;
+    case cIonSolnType_SINGLEANION:
+
+ 
+      neutralMoleculePhase_->getPartialMolarVolumes(DATA_PTR(partMolarVols_NeutralMolecule_));
+
+      // Do the cation list
+      for (k = 0; k < (int) cationList_.size(); k++) {
+	//! Get the id for the next cation
+        icat = cationList_[k];
+	jNeut = fm_invert_ionForNeutral[icat];
+	fmij =  fm_neutralMolec_ions_[icat + jNeut * m_kk];
+       	vbar[icat] = partMolarVols_NeutralMolecule_[jNeut] / fmij;
+      }
+
+      // Do the anion list
+      icat = anionList_[0];
+      jNeut = fm_invert_ionForNeutral[icat];
+      vbar[icat] = 0.0;
+
+      // Do the list of neutral molecules
+      for (k = 0; k <  numPassThroughSpecies_; k++) {
+	icat = passThroughList_[k];
+	jNeut = fm_invert_ionForNeutral[icat];
+	vbar[icat] = partMolarVols_NeutralMolecule_[jNeut];
+      }
+      break;
+ 
+    case cIonSolnType_SINGLECATION:
+      throw CanteraError("eosType", "Unknown type");
+      break;
+    case cIonSolnType_MULTICATIONANION:
+      throw CanteraError("eosType", "Unknown type");
+      break;
+    default:
+      throw CanteraError("eosType", "Unknown type");
+      break;
+    }
+
+  }
+  //====================================================================================================================
     // Get the array of log concentration-like derivatives of the 
     // log activity coefficients
     /*
@@ -619,7 +684,7 @@ namespace Cantera {
     double dd = neutralMoleculePhase_->density();
     State::setDensity(dd);
   }
-  
+  //====================================================================================================================
   // Calculate ion mole fractions from neutral molecule 
   // mole fractions.
   /*
@@ -911,36 +976,55 @@ namespace Cantera {
     } 
   }
 
+  void IonsFromNeutralVPSSTP::setState_TPX(doublereal t, doublereal p, const doublereal* x) {
+    State::setMoleFractions(x);
+    getMoleFractions(DATA_PTR(moleFractions_));
+    calcNeutralMoleculeMoleFractions();
+
+    neutralMoleculePhase_->setMoleFractions(DATA_PTR(NeutralMolecMoleFractions_));
+    setState_TP(t, p);
+  }
+
+
 
   void IonsFromNeutralVPSSTP::setMassFractions(const doublereal* const y) {
-    GibbsExcessVPSSTP::setMassFractions(y);
+    State::setMassFractions(y);
+    getMoleFractions(DATA_PTR(moleFractions_));
     calcNeutralMoleculeMoleFractions();
     neutralMoleculePhase_->setMoleFractions(DATA_PTR(NeutralMolecMoleFractions_));
+    calcDensity();
   }
 
   void IonsFromNeutralVPSSTP::setMassFractions_NoNorm(const doublereal* const y) {
-    GibbsExcessVPSSTP::setMassFractions_NoNorm(y);
+    State::setMassFractions_NoNorm(y);
+    getMoleFractions(DATA_PTR(moleFractions_));
     calcNeutralMoleculeMoleFractions();
-   neutralMoleculePhase_->setMoleFractions(DATA_PTR(NeutralMolecMoleFractions_));
+    neutralMoleculePhase_->setMoleFractions(DATA_PTR(NeutralMolecMoleFractions_));
+    calcDensity();
   }
 
   void IonsFromNeutralVPSSTP::setMoleFractions(const doublereal* const x) {
-    GibbsExcessVPSSTP::setMoleFractions(x);
+    State::setMoleFractions(x);
+    getMoleFractions(DATA_PTR(moleFractions_));
     calcNeutralMoleculeMoleFractions();
     neutralMoleculePhase_->setMoleFractions(DATA_PTR(NeutralMolecMoleFractions_));
+    calcDensity();
   }
 
   void IonsFromNeutralVPSSTP::setMoleFractions_NoNorm(const doublereal* const x) {
-    GibbsExcessVPSSTP::setMoleFractions_NoNorm(x);
+    State::setMoleFractions_NoNorm(x);
+    getMoleFractions(DATA_PTR(moleFractions_));
     calcNeutralMoleculeMoleFractions();
     neutralMoleculePhase_->setMoleFractions_NoNorm(DATA_PTR(NeutralMolecMoleFractions_));
+    calcDensity();
   }
 
 
   void IonsFromNeutralVPSSTP::setConcentrations(const doublereal* const c) {
-    GibbsExcessVPSSTP::setConcentrations(c);
+    State::setConcentrations(c);
     calcNeutralMoleculeMoleFractions();
     neutralMoleculePhase_->setMoleFractions(DATA_PTR(NeutralMolecMoleFractions_));
+    calcDensity();
   }
 
   /*
@@ -1126,6 +1210,7 @@ namespace Cantera {
     moleFractionsTmp_.resize(m_kk);
     muNeutralMolecule_.resize(numNeutralMoleculeSpecies_);
     lnActCoeff_NeutralMolecule_.resize(numNeutralMoleculeSpecies_);
+    partMolarVols_NeutralMolecule_.resize(numNeutralMoleculeSpecies_);
     dlnActCoeffdT_NeutralMolecule_.resize(numNeutralMoleculeSpecies_);
     dlnActCoeffdlnX_diag_NeutralMolecule_.resize(numNeutralMoleculeSpecies_);
     dlnActCoeffdlnN_diag_NeutralMolecule_.resize(numNeutralMoleculeSpecies_);
