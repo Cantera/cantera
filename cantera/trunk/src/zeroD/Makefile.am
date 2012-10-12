@@ -4,7 +4,6 @@ h_sources  = $(top_builddir)/include/cantera/zeroD/Reactor.h \
              $(top_builddir)/include/cantera/zeroD/Wall.h \
              $(top_builddir)/include/cantera/zeroD/ReactorNet.h \
              $(top_builddir)/include/cantera/zeroD/flowControllers.h \
-             $(top_builddir)/include/cantera/zeroD/PID_Controller.h \
              $(top_builddir)/include/cantera/zeroD/Reservoir.h \
              $(top_builddir)/include/cantera/zeroD/FlowReactor.h \
              $(top_builddir)/include/cantera/zeroD/ConstPressureReactor.h \
