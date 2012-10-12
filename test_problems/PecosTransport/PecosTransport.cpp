@@ -36,11 +36,6 @@ using namespace std;
 #include "cantera/IdealGasMix.h"
 #include "cantera/transport/TransportFactory.h"
 
-//#include "transport.h"
-//#include "IdealGasMix.h"
-
-//#include "TransportFactory.h"
-
 using namespace Cantera;
 
 void printDbl(double val) {

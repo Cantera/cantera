@@ -14,7 +14,6 @@
 #include "cantera/thermo/SpeciesThermoMgr.h"
 #include "cantera/thermo/NasaPoly1.h"
 #include "cantera/thermo/speciesThermoTypes.h"
-//#include "cantera/numerics/polyfit.h"
 #include "cantera/base/global.h"
 
 namespace Cantera

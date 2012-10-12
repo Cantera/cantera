@@ -3,6 +3,5 @@
 
 #include "spectra/rotor.h"
 #include "spectra/LineBroadener.h"
-//#include "kernel/AbsorptionLine.h"
 
 #endif

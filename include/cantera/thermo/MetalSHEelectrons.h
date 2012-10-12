@@ -16,7 +16,6 @@
 
 #include "mix_defs.h"
 #include "SingleSpeciesTP.h"
-//#include "SpeciesThermo.h"
 
 namespace Cantera
 {

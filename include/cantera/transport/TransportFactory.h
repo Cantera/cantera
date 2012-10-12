@@ -9,8 +9,6 @@
 #define CT_TRANSPORTFACTORY_H
 
 // STL includes
-#include <vector>
-#include <string>
 #include <iostream>
 #include <new>
 
@@ -19,7 +17,6 @@
 #include "cantera/base/ct_thread.h"
 #include "TransportBase.h"
 #include "cantera/base/FactoryBase.h"
-//#include "LiquidTransportData.h"
 #include "LiquidTransportParams.h"
 
 //======================================================================================================================
