@@ -276,7 +276,7 @@ void ConstPressureReactor::evalEqs(doublereal time, doublereal* y,
     }
 }
 
-size_t ConstPressureReactor::componentIndex(string nm) const
+size_t ConstPressureReactor::componentIndex(const string& nm) const
 {
     if (nm == "H") {
         return 0;

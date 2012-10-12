@@ -125,7 +125,7 @@ void FlowReactor::evalEqs(doublereal time, doublereal* y,
 }
 
 
-size_t FlowReactor::componentIndex(string nm) const
+size_t FlowReactor::componentIndex(const string& nm) const
 {
     if (nm == "X") {
         return 0;

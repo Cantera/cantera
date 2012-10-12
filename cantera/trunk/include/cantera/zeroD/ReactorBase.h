@@ -30,7 +30,7 @@ class ReactorBase
 
 public:
 
-    ReactorBase(std::string name = "(none)");
+    explicit ReactorBase(const std::string& name = "(none)");
     virtual ~ReactorBase() {}
 
     //-----------------------------------------------------
@@ -41,7 +41,7 @@ public:
     std::string name() const {
         return m_name;
     }
-    void setName(std::string name) {
+    void setName(const std::string& name) {
         m_name = name;
     }
 
@@ -157,7 +157,7 @@ public:
 
     //@}
 
-    int error(std::string msg) const {
+    int error(const std::string& msg) const {
         writelog("Error: "+msg);
         return 1;
     }
@@ -185,7 +185,7 @@ protected:
 
 private:
 
-    void tilt(std::string method="") const {
+    void tilt(const std::string& method="") const {
         throw CanteraError("ReactorBase::"+method,
                            "ReactorBase method called!");
     }

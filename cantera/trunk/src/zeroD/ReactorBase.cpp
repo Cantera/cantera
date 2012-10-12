@@ -12,7 +12,7 @@ using namespace std;
 namespace Cantera
 {
 
-ReactorBase::ReactorBase(string name) : m_nsp(0),
+ReactorBase::ReactorBase(const string& name) : m_nsp(0),
     m_thermo(0),
     m_vol(1.0),
     m_vol0(1.0),

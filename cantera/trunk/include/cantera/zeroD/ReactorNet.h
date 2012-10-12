@@ -113,7 +113,7 @@ public:
         return m_integ->sensitivity(k, p)/m_integ->solution(k);
     }
 
-    double sensitivity(std::string species, size_t p, int reactor=0) {
+    double sensitivity(const std::string& species, size_t p, int reactor=0) {
         size_t k = globalComponentIndex(species, reactor);
         return sensitivity(k, p);
     }
@@ -135,7 +135,7 @@ public:
         return m_ntotpar;
     }
 
-    size_t globalComponentIndex(std::string species, size_t reactor=0);
+    size_t globalComponentIndex(const std::string& species, size_t reactor=0);
 
     void connect(size_t i, size_t j) {
         m_connect[j*m_nr + i] = 1;

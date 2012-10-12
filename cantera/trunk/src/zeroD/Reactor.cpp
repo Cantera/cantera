@@ -318,7 +318,7 @@ void Reactor::addSensitivityReaction(size_t rxn)
 }
 
 
-size_t Reactor::componentIndex(string nm) const
+size_t Reactor::componentIndex(const string& nm) const
 {
     if (nm == "U") {
         return 0;

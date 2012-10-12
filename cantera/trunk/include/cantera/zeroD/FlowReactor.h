@@ -69,7 +69,7 @@ public:
     double distance() const {
         return m_dist;
     }
-    virtual size_t componentIndex(std::string nm) const;
+    virtual size_t componentIndex(const std::string& nm) const;
 
 protected:
 
