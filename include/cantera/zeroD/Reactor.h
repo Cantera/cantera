@@ -127,8 +127,7 @@ public:
         return m_pname[p];
     }
 
-    //        virtual std::string component(int k) const;
-    virtual size_t componentIndex(std::string nm) const;
+    virtual size_t componentIndex(const std::string& nm) const;
 
 protected:
     //! Pointer to the homogeneous Kinetics object that handles the reactions
