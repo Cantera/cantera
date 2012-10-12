@@ -48,17 +48,11 @@ void reactormethods(int nlhs, mxArray* plhs[],
         case 4:
             iok = reactor_setInitialVolume(i, v);
             break;
-        case 5:
-            iok = reactor_setInitialTime(i, v);
-            break;
         case 6:
             iok = reactor_setThermoMgr(i, int(v));
             break;
         case 7:
             iok = reactor_setKineticsMgr(i, int(v));
-            break;
-        case 8:
-            iok = reactor_advance(i, v);
             break;
         case 9:
             iok = reactor_setEnergy(i, int(v));
@@ -80,12 +74,6 @@ void reactormethods(int nlhs, mxArray* plhs[],
 
     else if (job < 40) {
         switch (job) {
-        case 21:
-            r = reactor_step(i, v);
-            break;
-        case 22:
-            r = reactor_time(i);
-            break;
         case 23:
             r = reactor_mass(i);
             break;

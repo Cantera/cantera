@@ -59,16 +59,6 @@ public:
     }
 
     /**
-     * Set initial time. Default = 0.0 s. Restarts integration
-     * from this time using the current mixture state as the
-     * initial condition.
-     */
-    void setInitialTime(doublereal time) {
-        m_time = time;
-        m_init = false;
-    }
-
-    /**
      * Specify the mixture contained in the reactor. Note that
      * a pointer to this substance is stored, and as the integration
      * proceeds, the state of the substance is modified.
@@ -102,19 +92,6 @@ public:
         tilt();
     }
 
-    /**
-     * Advance the state of the reactor in time.
-     * @param time Time to advance to (s).
-     * Note that this method
-     * changes the state of the mixture object.
-     */
-    virtual void advance(doublereal time) {
-        tilt();
-    }
-    virtual double step(doublereal time) {
-        tilt();
-        return 0.0;
-    }
     virtual void start() {}
 
     //@}
@@ -139,19 +116,12 @@ public:
 
     doublereal residenceTime();
 
-
     /**
      * @name Solution components.
      * The values returned are those after the last call to advance
      * or step.
      */
     //@{
-
-    /// the current time (s).
-    doublereal time() const {
-        return m_time;
-    }
-
 
     //! Returns the current volume of the reactor
     /*!
@@ -198,7 +168,6 @@ protected:
     size_t m_nsp;
 
     thermo_t*  m_thermo;
-    doublereal m_time;
     doublereal m_vol, m_vol0;
     bool m_init;
     size_t m_nInlets, m_nOutlets;

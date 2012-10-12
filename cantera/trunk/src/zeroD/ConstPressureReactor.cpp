@@ -27,7 +27,6 @@ getInitialConditions(double t0, size_t leny, double* y)
         throw CanteraError("getInitialConditions",
                            "Error: reactor is empty.");
     }
-    m_time = t0;
     m_thermo->restoreState(m_state);
 
     // total mass
@@ -132,7 +131,6 @@ void ConstPressureReactor::evalEqs(doublereal time, doublereal* y,
                                    doublereal* ydot, doublereal* params)
 {
     size_t nk;
-    m_time = time;
     m_thermo->restoreState(m_state);
 
     Kinetics* kin;

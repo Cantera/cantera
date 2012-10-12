@@ -135,11 +135,7 @@ protected:
     Kinetics*   m_kin;
 
     //! Tolerance on the temperature
-    doublereal m_temp_atol;
-    doublereal m_maxstep;        // max step size
     doublereal m_vdot, m_Q;
-    vector_fp m_atol;
-    doublereal m_rtol;
     vector_fp m_work;
     vector_fp m_sdot;            // surface production rates
     bool m_chem;

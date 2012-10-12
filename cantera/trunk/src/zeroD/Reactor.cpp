@@ -7,7 +7,6 @@
 // Copyright 2001  California Institute of Technology
 
 #include "cantera/zeroD/Reactor.h"
-//#include "../CVode.h"
 #include "cantera/zeroD/FlowDevice.h"
 #include "cantera/zeroD/Wall.h"
 #include "cantera/kinetics/InterfaceKinetics.h"
@@ -19,11 +18,8 @@ namespace Cantera
 {
 Reactor::Reactor() : ReactorBase(),
     m_kin(0),
-    m_temp_atol(1.e-11),
-    m_maxstep(0.0),
     m_vdot(0.0),
     m_Q(0.0),
-    m_rtol(1.e-9),
     m_chem(true),
     m_energy(true),
     m_nsens(npos)
@@ -38,7 +34,6 @@ void Reactor::getInitialConditions(double t0, size_t leny, double* y)
         cout << "Error: reactor is empty." << endl;
         return;
     }
-    m_time = t0;
     m_thermo->restoreState(m_state);
 
     // total mass
@@ -180,7 +175,6 @@ void Reactor::updateState(doublereal* y)
 void Reactor::evalEqs(doublereal time, doublereal* y,
                       doublereal* ydot, doublereal* params)
 {
-    m_time = time;
     m_thermo->restoreState(m_state);
 
     // process sensitivity parameters

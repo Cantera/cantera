@@ -94,14 +94,6 @@ class ReactorBase:
             _cantera.reactor_setThermoMgr(self.__reactor_id, contents._phase_id)
             _cantera.reactor_setKineticsMgr(self.__reactor_id, contents.ckin)
 
-
-    def setInitialTime(self, T0):
-        """Deprecated.
-        Set the initial time. Restarts integration from this time
-        using the current state as the initial condition. Default: 0.0 s"""
-        raise "use method setInitialTime of class ReactorNet"
-        #_cantera.reactor_setInitialTime(self.__reactor_id, T0)
-
     def _setInitialVolume(self, V0):
         """Set the initial reactor volume. """
         _cantera.reactor_setInitialVolume(self.__reactor_id, V0)
@@ -134,11 +126,6 @@ class ReactorBase:
         if non-rigid walls are installed on the reactor."""
         return _cantera.reactor_volume(self.__reactor_id)
 
-    def time(self):
-        """Deprecated. The current time [s]."""
-        raise "use method time of class ReactorNet"
-        #return _cantera.reactor_time(self.__reactor_id)
-
     def mass(self):
         """The total mass of fluid in the reactor [kg]."""
         return _cantera.reactor_mass(self.__reactor_id)
@@ -154,22 +141,6 @@ class ReactorBase:
     def pressure(self):
         """The pressure in the reactor [Pa]."""
         return _cantera.reactor_pressure(self.__reactor_id)
-
-    def advance(self, time):
-        """Deprecated.
-        Advance the state of the reactor in time from the current
-        time to time *time*. Note: this method is deprecated. See
-        :class:`.ReactorNet`."""
-        raise "use method advance of class ReactorNet"
-        #return _cantera.reactor_advance(self.__reactor_id, time)
-
-    def step(self, time):
-        """Deprecated.
-        Take one internal time step from the current time toward
-        time *time*. Note: this method is deprecated. See class
-        :class:`.ReactorNet`."""
-        raise "use method step of class ReactorNet"
-        #return _cantera.reactor_step(self.__reactor_id, time)
 
     def massFraction(self, s):
         """The mass fraction of species *s*, specified either by name or
