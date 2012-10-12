@@ -39,18 +39,6 @@ py_reactor_setInitialVolume(PyObject* self, PyObject* args)
     return Py_BuildValue("i",0);
 }
 
-// static PyObject*
-// py_reactor_setInitialTime(PyObject *self, PyObject *args)
-// {
-//     int n;
-//     double t;
-//     if (!PyArg_ParseTuple(args, "id:reactor_setInitialTime", &n, &t))
-//         return NULL;
-//     int iok = reactor_setInitialTime(n, t);
-//     if (iok < 0) return reportError(iok);
-//     return Py_BuildValue("i",0);
-// }
-
 static PyObject*
 py_reactor_setEnergy(PyObject* self, PyObject* args)
 {
@@ -142,39 +130,6 @@ py_flowReactor_setMassFlowRate(PyObject* self, PyObject* args)
     }
     return Py_BuildValue("i",_val);
 }
-
-
-// static PyObject*
-// py_reactor_advance(PyObject *self, PyObject *args)
-// {
-//     int n;
-//     double t;
-//     if (!PyArg_ParseTuple(args, "id:reactor_advance", &n, &t))
-//         return NULL;
-//     int iok = reactor_advance(n, t);
-//     if (iok < 0) return reportError(iok);
-//     return Py_BuildValue("i",0);
-// }
-
-// static PyObject*
-// py_reactor_step(PyObject *self, PyObject *args)
-// {
-//     int n;
-//     double t;
-//     if (!PyArg_ParseTuple(args, "id:reactor_step", &n, &t))
-//         return NULL;
-//     return Py_BuildValue("d",reactor_step(n, t));
-// }
-
-// static PyObject*
-// py_reactor_time(PyObject *self, PyObject *args)
-// {
-//     int n;
-//     if (!PyArg_ParseTuple(args, "i:reactor_time", &n))
-//         return NULL;
-//     double t = reactor_time(n);
-//     return Py_BuildValue("d",t);
-// }
 
 static PyObject*
 py_reactor_mass(PyObject* self, PyObject* args)

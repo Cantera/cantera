@@ -202,7 +202,6 @@ static PyMethodDef ct_methods[] = {
     //     {"bndry_setmdot", py_bndry_setmdot, METH_VARARGS},
 
     {"flowdev_ready", py_flowdev_ready, METH_VARARGS},
-    //{"reactor_setInitialTime", py_reactor_setInitialTime, METH_VARARGS},
     {"reactornet_setInitialTime", py_reactornet_setInitialTime, METH_VARARGS},
     {"reactornet_setTolerances", py_reactornet_setTolerances, METH_VARARGS},
     {"reactornet_setSensitivityTolerances", py_reactornet_setSensitivityTolerances, METH_VARARGS},
@@ -217,10 +216,7 @@ static PyMethodDef ct_methods[] = {
     {"reactor_setThermoMgr", py_reactor_setThermoMgr, METH_VARARGS},
     {"reactor_setEnergy", py_reactor_setEnergy, METH_VARARGS},
     {"reactor_volume", py_reactor_volume, METH_VARARGS},
-    //{"reactor_time", py_reactor_time, METH_VARARGS},
     {"reactornet_time", py_reactornet_time, METH_VARARGS},
-    //    {"reactor_advance", py_reactor_advance, METH_VARARGS},
-    //{"reactor_step", py_reactor_step, METH_VARARGS},
     {"reactornet_addreactor", py_reactornet_addreactor, METH_VARARGS},
     {"reactornet_advance", py_reactornet_advance, METH_VARARGS},
     {"reactornet_step", py_reactornet_step, METH_VARARGS},

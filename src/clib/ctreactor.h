@@ -12,13 +12,9 @@ extern "C" {
     CANTERA_CAPI int reactor_copy(int i);
     CANTERA_CAPI int reactor_assign(int i, int j);
     CANTERA_CAPI int reactor_setInitialVolume(int i, double v);
-    CANTERA_CAPI int reactor_setInitialTime(int i, double t);
     CANTERA_CAPI int reactor_setEnergy(int i, int eflag);
     CANTERA_CAPI int reactor_setThermoMgr(int i, int n);
     CANTERA_CAPI int reactor_setKineticsMgr(int i, int n);
-    CANTERA_CAPI int reactor_advance(int i, double t);
-    CANTERA_CAPI double reactor_step(int i, double t);
-    CANTERA_CAPI double reactor_time(int i);
     CANTERA_CAPI double reactor_mass(int i);
     CANTERA_CAPI double reactor_volume(int i);
     CANTERA_CAPI double reactor_density(int i);

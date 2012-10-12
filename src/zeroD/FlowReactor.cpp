@@ -25,7 +25,6 @@ void FlowReactor::getInitialConditions(double t0, size_t leny, double* y)
         writelog("Error: reactor is empty.\n");
         return;
     }
-    m_time = t0;
     m_thermo->restoreState(m_state);
 
     m_thermo->getMassFractions(y+2);
@@ -79,7 +78,6 @@ void FlowReactor::updateState(doublereal* y)
 void FlowReactor::evalEqs(doublereal time, doublereal* y,
                           doublereal* ydot, doublereal* params)
 {
-    m_time = time;
     m_thermo->restoreState(m_state);
 
     double mult;

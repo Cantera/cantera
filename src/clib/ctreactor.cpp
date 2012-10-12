@@ -93,16 +93,6 @@ extern "C" {
         }
     }
 
-    int reactor_setInitialTime(int i, double t)
-    {
-        try {
-            ReactorCabinet::item(i).setInitialTime(t);
-            return 0;
-        } catch (...) {
-            return handleAllExceptions(-1, ERR);
-        }
-    }
-
     int reactor_setThermoMgr(int i, int n)
     {
         try {
@@ -123,34 +113,6 @@ extern "C" {
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
-        }
-    }
-
-    int reactor_advance(int i, double t)
-    {
-        try {
-            ReactorCabinet::item(i).advance(t);
-            return 0;
-        } catch (...) {
-            return handleAllExceptions(-1, ERR);
-        }
-    }
-
-    double reactor_step(int i, double t)
-    {
-        try {
-            return ReactorCabinet::item(i).step(t);
-        } catch (...) {
-            return handleAllExceptions(DERR, DERR);
-        }
-    }
-
-    double reactor_time(int i)
-    {
-        try {
-            return ReactorCabinet::item(i).time();
-        } catch (...) {
-            return handleAllExceptions(DERR, DERR);
         }
     }
 
