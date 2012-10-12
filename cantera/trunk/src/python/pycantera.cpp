@@ -62,7 +62,7 @@ pyct_appdelete(PyObject* self, PyObject* args)
 
 #include "methods.h"
 #include "pylogger.h"
-//#include "cantera/base/global.h"
+
 extern "C" {
 
     /* Initialization function for the module */

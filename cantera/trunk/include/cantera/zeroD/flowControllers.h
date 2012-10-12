@@ -11,7 +11,6 @@
 
 #include "FlowDevice.h"
 #include "ReactorBase.h"
-//#include "PID_Controller.h"
 #include "cantera/numerics/Func1.h"
 
 namespace Cantera

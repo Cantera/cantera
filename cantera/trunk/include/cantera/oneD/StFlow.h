@@ -13,8 +13,6 @@
 #include "cantera/thermo/IdealGasPhase.h"
 #include "cantera/kinetics/Kinetics.h"
 #include "cantera/numerics/funcs.h"
-//#include "../flowBoundaries.h"
-
 
 namespace Cantera
 {

@@ -17,7 +17,6 @@
 /*****************************************************************/
 /*****************************************************************/
 
-//#include "cantera/Cantera.h"
 #include "cantera/transport.h"
 #include "cantera/IdealGasMix.h"
 #include "cantera/equil/equil.h"

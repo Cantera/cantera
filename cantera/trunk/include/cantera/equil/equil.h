@@ -11,7 +11,6 @@
 #ifndef CT_KERNEL_EQUIL_H
 #define CT_KERNEL_EQUIL_H
 
-//#include "ChemEquil.h"
 #include "MultiPhase.h"
 #include "vcs_defs.h"
 

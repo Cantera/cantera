@@ -10,7 +10,6 @@
 #ifndef CT_IDEALGASPHASE_H
 #define CT_IDEALGASPHASE_H
 
-//#include "cantera/base/ct_defs.h"
 #include "mix_defs.h"
 #include "ThermoPhase.h"
 #include "SpeciesThermo.h"

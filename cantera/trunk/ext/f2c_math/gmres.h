@@ -29,8 +29,6 @@ gmres( int m, int N, const Matrix &A, const doublereal *b, doublereal *x, double
 
 // ============================================================================
 
-// #include "../../Cantera/src/blas.h"
-
 #include "cblas.h"
 #include "../../Cantera/src/ctlapack.h"
 
