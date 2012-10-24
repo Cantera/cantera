@@ -498,8 +498,7 @@ size_t BandMatrix::checkColumns(doublereal& valueSmall) const
 //====================================================================================================================
 GeneralMatrix* BandMatrix::duplMyselfAsGeneralMatrix() const
 {
-    BandMatrix* dd = new BandMatrix(*this);
-    return static_cast<GeneralMatrix*>(dd);
+    return new BandMatrix(*this);
 }
 //====================================================================================================================
 bool BandMatrix::factored() const

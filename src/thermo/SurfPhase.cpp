@@ -145,8 +145,7 @@ operator=(const SurfPhase& right)
  */
 ThermoPhase* SurfPhase::duplMyselfAsThermoPhase() const
 {
-    SurfPhase* igp = new SurfPhase(*this);
-    return (ThermoPhase*) igp;
+    return new SurfPhase(*this);
 }
 
 doublereal SurfPhase::
@@ -516,8 +515,7 @@ EdgePhase& EdgePhase::operator=(const EdgePhase& right)
  */
 ThermoPhase* EdgePhase::duplMyselfAsThermoPhase() const
 {
-    EdgePhase* igp = new EdgePhase(*this);
-    return (ThermoPhase*) igp;
+    return new EdgePhase(*this);
 }
 
 void EdgePhase::

@@ -133,8 +133,7 @@ MixedSolventElectrolyte::~MixedSolventElectrolyte()
 ThermoPhase*
 MixedSolventElectrolyte::duplMyselfAsThermoPhase() const
 {
-    MixedSolventElectrolyte* mtp = new MixedSolventElectrolyte(*this);
-    return (ThermoPhase*) mtp;
+    return new MixedSolventElectrolyte(*this);
 }
 
 // Special constructor for a hard-coded problem

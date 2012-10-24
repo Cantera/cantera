@@ -159,8 +159,7 @@ SimpleTransport& SimpleTransport::operator=(const SimpleTransport& right)
 //================================================================================================
 Transport* SimpleTransport::duplMyselfAsTransport() const
 {
-    SimpleTransport* tr = new SimpleTransport(*this);
-    return (dynamic_cast<Transport*>(tr));
+    return new SimpleTransport(*this);
 }
 //================================================================================================
 SimpleTransport::~SimpleTransport()

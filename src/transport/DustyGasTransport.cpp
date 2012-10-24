@@ -125,8 +125,7 @@ DustyGasTransport::~DustyGasTransport()
  */
 Transport* DustyGasTransport::duplMyselfAsTransport() const
 {
-    DustyGasTransport* tr = new DustyGasTransport(*this);
-    return (dynamic_cast<Transport*>(tr));
+    return new DustyGasTransport(*this);
 }
 //====================================================================================================================
 //   Set the Parameters in the model

@@ -72,8 +72,7 @@ PureFluidPhase& PureFluidPhase::operator=(const PureFluidPhase& right)
  */
 ThermoPhase* PureFluidPhase::duplMyselfAsThermoPhase() const
 {
-    PureFluidPhase* igp = new PureFluidPhase(*this);
-    return (ThermoPhase*) igp;
+    return new PureFluidPhase(*this);
 }
 
 

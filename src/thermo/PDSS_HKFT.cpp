@@ -213,8 +213,7 @@ PDSS_HKFT::~PDSS_HKFT()
 // Duplicator
 PDSS* PDSS_HKFT::duplMyselfAsPDSS() const
 {
-    PDSS_HKFT* idg = new PDSS_HKFT(*this);
-    return (PDSS*) idg;
+    return new PDSS_HKFT(*this);
 }
 
 /*

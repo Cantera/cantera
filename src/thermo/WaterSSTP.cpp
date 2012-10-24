@@ -113,8 +113,7 @@ WaterSSTP& WaterSSTP::operator=(const WaterSSTP& b)
 
 ThermoPhase* WaterSSTP::duplMyselfAsThermoPhase() const
 {
-    WaterSSTP* wtp = new WaterSSTP(*this);
-    return (ThermoPhase*) wtp;
+    return new WaterSSTP(*this);
 }
 
 WaterSSTP::~WaterSSTP()

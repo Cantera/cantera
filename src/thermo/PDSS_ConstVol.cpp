@@ -82,8 +82,7 @@ PDSS_ConstVol::~PDSS_ConstVol()
 // Duplicator
 PDSS* PDSS_ConstVol::duplMyselfAsPDSS() const
 {
-    PDSS_ConstVol* idg = new PDSS_ConstVol(*this);
-    return (PDSS*) idg;
+    return new PDSS_ConstVol(*this);
 }
 
 /*

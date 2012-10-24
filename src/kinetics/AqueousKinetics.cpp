@@ -105,7 +105,7 @@ Kinetics* AqueousKinetics::duplMyselfAsKinetics(const std::vector<thermo_t*> & t
 {
     AqueousKinetics* gK = new AqueousKinetics(*this);
     gK->assignShallowPointers(tpVector);
-    return dynamic_cast<Kinetics*>(gK);
+    return gK;
 }
 
 //====================================================================================================================

@@ -60,8 +60,7 @@ VPSSMgr_Water_ConstVol::operator=(const VPSSMgr_Water_ConstVol& b)
 VPSSMgr*
 VPSSMgr_Water_ConstVol::duplMyselfAsVPSSMgr() const
 {
-    VPSSMgr_Water_ConstVol* vpm = new VPSSMgr_Water_ConstVol(*this);
-    return (VPSSMgr*) vpm;
+    return new VPSSMgr_Water_ConstVol(*this);
 }
 
 void

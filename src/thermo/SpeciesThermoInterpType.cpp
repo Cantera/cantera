@@ -75,8 +75,7 @@ STITbyPDSS::~STITbyPDSS()
 SpeciesThermoInterpType*
 STITbyPDSS::duplMyselfAsSpeciesThermoInterpType() const
 {
-    STITbyPDSS* np = new STITbyPDSS(*this);
-    return (SpeciesThermoInterpType*) np;
+    return new STITbyPDSS(*this);
 }
 
 

@@ -212,8 +212,7 @@ LiquidTransport& LiquidTransport::operator=(const LiquidTransport& right)
 
 Transport* LiquidTransport::duplMyselfAsTransport() const
 {
-    LiquidTransport* tr = new LiquidTransport(*this);
-    return (dynamic_cast<Transport*>(tr));
+    return new LiquidTransport(*this);
 }
 
 LiquidTransport::~LiquidTransport()

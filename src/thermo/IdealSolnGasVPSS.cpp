@@ -107,8 +107,7 @@ IdealSolnGasVPSS::~IdealSolnGasVPSS()
  */
 ThermoPhase* IdealSolnGasVPSS::duplMyselfAsThermoPhase() const
 {
-    IdealSolnGasVPSS* vptp = new IdealSolnGasVPSS(*this);
-    return (ThermoPhase*) vptp;
+    return new IdealSolnGasVPSS(*this);
 }
 
 int IdealSolnGasVPSS::eosType() const

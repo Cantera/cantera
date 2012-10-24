@@ -144,8 +144,7 @@ VPStandardStateTP::~VPStandardStateTP()
  */
 ThermoPhase* VPStandardStateTP::duplMyselfAsThermoPhase() const
 {
-    VPStandardStateTP* vptp = new VPStandardStateTP(*this);
-    return (ThermoPhase*) vptp;
+    return new VPStandardStateTP(*this);
 }
 
 // This method returns the convention used in specification

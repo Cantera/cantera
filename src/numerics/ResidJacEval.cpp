@@ -66,8 +66,7 @@ ResidJacEval& ResidJacEval::operator=(const ResidJacEval& right)
  */
 ResidJacEval* ResidJacEval::duplMyselfAsResidJacEval() const
 {
-    ResidJacEval* ff = new ResidJacEval(*this);
-    return ff;
+    return new ResidJacEval(*this);
 }
 //====================================================================================================================
 int ResidJacEval::nEquations() const

@@ -104,8 +104,7 @@ Mu0Poly::~Mu0Poly()
 SpeciesThermoInterpType*
 Mu0Poly::duplMyselfAsSpeciesThermoInterpType() const
 {
-    Mu0Poly* mp = new Mu0Poly(*this);
-    return (SpeciesThermoInterpType*) mp;
+    return new Mu0Poly(*this);
 }
 
 doublereal Mu0Poly::minTemp() const

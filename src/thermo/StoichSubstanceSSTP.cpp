@@ -129,8 +129,7 @@ StoichSubstanceSSTP::~StoichSubstanceSSTP()
  */
 ThermoPhase* StoichSubstanceSSTP::duplMyselfAsThermoPhase() const
 {
-    StoichSubstanceSSTP* stp = new StoichSubstanceSSTP(*this);
-    return (ThermoPhase*) stp;
+    return new StoichSubstanceSSTP(*this);
 }
 
 

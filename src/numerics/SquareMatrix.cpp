@@ -402,8 +402,7 @@ size_t SquareMatrix::nRowsAndStruct(size_t* const iStruct) const
 //=====================================================================================================================
 GeneralMatrix* SquareMatrix::duplMyselfAsGeneralMatrix() const
 {
-    SquareMatrix* dd = new SquareMatrix(*this);
-    return static_cast<GeneralMatrix*>(dd);
+    return new SquareMatrix(*this);
 }
 //=====================================================================================================================
 // Return an iterator pointing to the first element

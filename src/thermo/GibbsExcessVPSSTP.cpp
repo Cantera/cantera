@@ -108,8 +108,7 @@ GibbsExcessVPSSTP::~GibbsExcessVPSSTP()
 ThermoPhase*
 GibbsExcessVPSSTP::duplMyselfAsThermoPhase() const
 {
-    GibbsExcessVPSSTP* mtp = new GibbsExcessVPSSTP(*this);
-    return (ThermoPhase*) mtp;
+    return new GibbsExcessVPSSTP(*this);
 }
 
 /*

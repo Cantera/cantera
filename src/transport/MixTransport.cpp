@@ -84,8 +84,7 @@ MixTransport&  MixTransport::operator=(const MixTransport& right)
  */
 Transport* MixTransport::duplMyselfAsTransport() const
 {
-    MixTransport* tr = new MixTransport(*this);
-    return (dynamic_cast<Transport*>(tr));
+    return new MixTransport(*this);
 }
 
 //====================================================================================================================

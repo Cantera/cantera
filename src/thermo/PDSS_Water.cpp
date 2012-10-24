@@ -175,8 +175,7 @@ PDSS_Water::~PDSS_Water()
 
 PDSS* PDSS_Water::duplMyselfAsPDSS() const
 {
-    PDSS_Water* kPDSS = new PDSS_Water(*this);
-    return (PDSS*) kPDSS;
+    return new PDSS_Water(*this);
 }
 
 /*

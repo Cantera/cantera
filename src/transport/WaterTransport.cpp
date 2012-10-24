@@ -65,8 +65,7 @@ WaterTransport&  WaterTransport::operator=(const  WaterTransport& right)
  */
 Transport*   WaterTransport::duplMyselfAsTransport() const
 {
-    WaterTransport* tr = new WaterTransport(*this);
-    return dynamic_cast<Transport*>(tr);
+    return new WaterTransport(*this);
 }
 
 

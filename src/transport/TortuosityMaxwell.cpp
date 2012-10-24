@@ -66,8 +66,7 @@ TortuosityMaxwell&   TortuosityMaxwell::operator=(const TortuosityMaxwell& right
  */
 TortuosityBase* TortuosityMaxwell::duplMyselfAsTortuosityBase() const
 {
-    TortuosityMaxwell* tb = new TortuosityMaxwell(*this);
-    return dynamic_cast<TortuosityBase*>(tb);
+    return new TortuosityMaxwell(*this);
 }
 //====================================================================================================================
 // The tortuosity factor models the effective increase in the diffusive transport length.

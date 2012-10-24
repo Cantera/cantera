@@ -147,8 +147,7 @@ MetalSHEelectrons::operator=(const MetalSHEelectrons& right)
  */
 ThermoPhase* MetalSHEelectrons::duplMyselfAsThermoPhase() const
 {
-    MetalSHEelectrons* stp = new MetalSHEelectrons(*this);
-    return (ThermoPhase*) stp;
+    return new MetalSHEelectrons(*this);
 }
 //====================================================================================================================
 

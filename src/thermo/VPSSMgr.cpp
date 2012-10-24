@@ -125,8 +125,7 @@ VPSSMgr::operator=(const VPSSMgr& right)
 //====================================================================================================================
 VPSSMgr* VPSSMgr::duplMyselfAsVPSSMgr() const
 {
-    VPSSMgr* vp = new VPSSMgr(*this);
-    return vp;
+    return new VPSSMgr(*this);
 }
 //====================================================================================================================
 void VPSSMgr::initAllPtrs(VPStandardStateTP* vp_ptr,

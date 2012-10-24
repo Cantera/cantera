@@ -183,8 +183,7 @@ PDSS::~PDSS()
  */
 PDSS* PDSS::duplMyselfAsPDSS() const
 {
-    PDSS* ip = new PDSS(*this);
-    return ip;
+    return new PDSS(*this);
 }
 
 // Returns the type of the standard state parameterization

@@ -66,8 +66,7 @@ VPSSMgr_Water_HKFT::operator=(const VPSSMgr_Water_HKFT& b)
 VPSSMgr*
 VPSSMgr_Water_HKFT::duplMyselfAsVPSSMgr() const
 {
-    VPSSMgr_Water_HKFT* vpm = new VPSSMgr_Water_HKFT(*this);
-    return (VPSSMgr*) vpm;
+    return new VPSSMgr_Water_HKFT(*this);
 }
 
 void

@@ -92,8 +92,7 @@ SingleSpeciesTP::~SingleSpeciesTP()
  */
 ThermoPhase* SingleSpeciesTP::duplMyselfAsThermoPhase() const
 {
-    SingleSpeciesTP* stp = new SingleSpeciesTP(*this);
-    return (ThermoPhase*) stp;
+    return new SingleSpeciesTP(*this);
 }
 
 /**

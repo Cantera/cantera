@@ -55,8 +55,7 @@ VPSSMgr_ConstVol& VPSSMgr_ConstVol::operator=(const VPSSMgr_ConstVol& b)
 
 VPSSMgr* VPSSMgr_ConstVol::duplMyselfAsVPSSMgr() const
 {
-    VPSSMgr_ConstVol* vpm = new VPSSMgr_ConstVol(*this);
-    return (VPSSMgr*) vpm;
+    return new VPSSMgr_ConstVol(*this);
 }
 
 /*

@@ -80,8 +80,7 @@ operator=(const IdealGasPhase& right)
  */
 ThermoPhase* IdealGasPhase::duplMyselfAsThermoPhase() const
 {
-    ThermoPhase* igp = new IdealGasPhase(*this);
-    return (ThermoPhase*) igp;
+    return new IdealGasPhase(*this);
 }
 
 // Molar Thermodynamic Properties of the Solution ------------------
