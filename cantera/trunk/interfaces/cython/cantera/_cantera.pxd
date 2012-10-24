@@ -201,7 +201,7 @@ cdef extern from "cantera/equil/equil.h" namespace "Cantera":
     int equilibrate(CxxThermoPhase&, char*, int, double, int, int, int) except +
 
 cdef extern from "cantera/equil/vcs_MultiPhaseEquil.h" namespace "Cantera":
-    int vcs_equilibrate(CxxMultiPhase&, char*, int, int, int, double, int, int, int)
+    int vcs_equilibrate(CxxMultiPhase&, char*, int, int, int, double, int, int, int) except +
 
 
 cdef extern from "cantera/zeroD/ReactorBase.h" namespace "Cantera":
