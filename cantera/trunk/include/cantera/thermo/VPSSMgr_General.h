@@ -283,15 +283,6 @@ private:
      * This object doesn't own these pointers.
      */
     std::vector<PDSS*> m_PDSS_ptrs;
-
-
-    //! VPStandardStateTP has its own err routine
-    /*!
-     * @param msg  Error message string
-     */
-    doublereal err(std::string msg) const;
-
-
 };
 //@}
 }
