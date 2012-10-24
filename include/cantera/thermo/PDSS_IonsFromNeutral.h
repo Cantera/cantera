@@ -455,14 +455,6 @@ public:
 
 
 protected:
-
-    //! Maximum temperature the standard states are good for
-    doublereal m_tmin;
-
-    //! Minimum temperature the standard states are good for
-    doublereal m_tmax;
-
-
     //! Pointer to the Neutral Molecule ThermoPhase object
     /*!
      *  This is a shallow pointer.

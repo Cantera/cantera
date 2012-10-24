@@ -419,21 +419,7 @@ public:
     virtual void initThermo();
 
     //@}
-
-
-
-protected:
-
-    //! Maximum temperature the standard states are good for
-    doublereal m_tmin;
-
-    //! Minimum temperature the standard states are good for
-    doublereal m_tmax;
-
 };
 }
 
 #endif
-
-
-
