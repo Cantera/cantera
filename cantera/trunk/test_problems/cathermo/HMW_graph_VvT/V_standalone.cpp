@@ -1,11 +1,8 @@
-
 #include <cstdio>
 #include <cstdlib>
 #include <cmath>
 
 using namespace std;
-
-
 
 /*
  *  Values of A_V : tabular form
@@ -102,23 +99,12 @@ double Cphi(double temp, int ifunc)
     return retn;
 }
 
-double calc(double temp, double Iionic)
+void calc(double temp, double Iionic)
 {
     /*
      * Gas Constant in J gmol-1 K-1
      */
     double GasConst = 8.314472;
-
-    double Aphi = 0.0;
-    if (temp == 323.15) {
-        Aphi = 0.4102995331359;
-    } else if (temp == 473.15) {
-        Aphi = 0.622777;
-    } else {
-        printf("ERROR: unknown temp\n");
-        exit(-1);
-    }
-
 
     /*
      * Calculate A_V in sqrt(kg/gmol)cm3/gmol
@@ -162,12 +148,10 @@ double calc(double temp, double Iionic)
     //double RT = GasConst * temp * 1.0E-3;
     double xo = 1.0 / (molecWeight/1000. * 2 * m + 1.0);
     printf(" no = %g\n", xo);
-    return phiV;
 }
 
 int main()
 {
-
     printf("Standalone test of the apparent relative molal excess volume, phiV:\n");
     printf(" (Check against simple formula in \n");
     printf("    Activity Coefficients in Eletrolyte Solutions, 2nd Ed K. S. Pitzer, "
@@ -176,10 +160,10 @@ int main()
     double Iionic = 6.146;
     printf("Ionic Strength = %g\n", Iionic);
 
-    double res = calc(273.15 + 50., Iionic);
+    calc(273.15 + 50., Iionic);
     printf("T = 200C\n");
     printf("Ionic Strength = %g\n", Iionic);
 
-    res = calc(273.15 + 200., Iionic);
+    calc(273.15 + 200., Iionic);
     return 0;
 }
