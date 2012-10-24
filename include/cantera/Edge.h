@@ -3,7 +3,7 @@
 
 #include <string>
 
-#include "thermo/EdgePhase.h"
+#include "thermo.h"
 #include "kinetics/EdgeKinetics.h"
 #include "kinetics/importKinetics.h"
 

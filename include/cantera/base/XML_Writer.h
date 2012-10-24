@@ -4,6 +4,8 @@
 // Note: this class is only used by TransportFactory, and is likely to
 // go away a a future date.
 
+#include <iostream>
+
 namespace Cantera
 {
 
