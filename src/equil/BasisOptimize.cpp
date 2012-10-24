@@ -891,4 +891,3 @@ size_t Cantera::ElemRearrange(size_t nComponents, const vector_fp& elementAbunda
     } while (jr < (nComponents-1));
     return nComponents;
 } /* vcs_elem_rearrange() ****************************************************/
-

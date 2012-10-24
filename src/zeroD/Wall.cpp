@@ -1,12 +1,8 @@
-
 #include "cantera/zeroD/Wall.h"
 #include "cantera/zeroD/ReactorBase.h"
 #include "cantera/numerics/Func1.h"
 #include "cantera/kinetics/InterfaceKinetics.h"
 #include "cantera/thermo/SurfPhase.h"
-
-using namespace std;
-using namespace Cantera;
 
 namespace Cantera
 {

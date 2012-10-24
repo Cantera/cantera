@@ -8,9 +8,6 @@ using boost::math::erf;
 
 #include "cantera/spectra/LineBroadener.h"
 
-using namespace std;
-using namespace Cantera;
-
 namespace Cantera
 {
 
@@ -94,11 +91,11 @@ Voigt::Voigt(doublereal sigma, doublereal gamma)
 void Voigt::testv()
 {
     m_gamma = 1.0e1;
-    cout << F(1.0) << endl;
+    std::cout << F(1.0) << std::endl;
     m_gamma = 0.5;
-    cout << F(1.0) << endl;
+    std::cout << F(1.0) << std::endl;
     m_gamma = 0.0001;
-    cout << F(10.0) << endl;
+    std::cout << F(10.0) << std::endl;
 }
 /**
  * This method evaluates the function

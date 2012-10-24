@@ -3,9 +3,6 @@
 #include "cantera/zeroD/ReactorBase.h"
 #include "cantera/numerics/Func1.h"
 
-using namespace std;
-using namespace Cantera;
-
 namespace Cantera
 {
 
@@ -28,7 +25,7 @@ bool FlowDevice::install(ReactorBase& in, ReactorBase& out)
 
     m_nspin = mixin->nSpecies();
     m_nspout = mixout->nSpecies();
-    string nm;
+    std::string nm;
     size_t ki, ko;
     for (ki = 0; ki < m_nspin; ki++) {
         nm = mixin->speciesName(ki);

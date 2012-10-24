@@ -8,7 +8,6 @@
 #include <string>
 #include <algorithm>
 
-using namespace std;
 using namespace Cantera;
 
 // The program is put into a function so that error handling code can
