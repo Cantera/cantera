@@ -50,11 +50,6 @@ using namespace std;
 #include <sstream>
 #include <algorithm>
 
-inline static N_Vector nv(void* x)
-{
-    return reinterpret_cast<N_Vector>(x);
-}
-
 namespace Cantera
 {
 
@@ -154,10 +149,10 @@ CVodesIntegrator::~CVodesIntegrator()
         CVodeFree(&m_cvode_mem);
     }
     if (m_y) {
-        N_VDestroy_Serial(nv(m_y));
+        N_VDestroy_Serial(m_y);
     }
     if (m_abstol) {
-        N_VDestroy_Serial(nv(m_abstol));
+        N_VDestroy_Serial(m_abstol);
     }
     delete m_fdata;
 
@@ -166,12 +161,12 @@ CVodesIntegrator::~CVodesIntegrator()
 
 double& CVodesIntegrator::solution(size_t k)
 {
-    return NV_Ith_S(nv(m_y),k);
+    return NV_Ith_S(m_y, k);
 }
 
 double* CVodesIntegrator::solution()
 {
-    return NV_DATA_S(nv(m_y));
+    return NV_DATA_S(m_y);
 }
 
 void CVodesIntegrator::setTolerances(double reltol, size_t n, double* abstol)
@@ -180,12 +175,12 @@ void CVodesIntegrator::setTolerances(double reltol, size_t n, double* abstol)
     m_nabs = n;
     if (n != m_neq) {
         if (m_abstol) {
-            N_VDestroy_Serial(nv(m_abstol));
+            N_VDestroy_Serial(m_abstol);
         }
-        m_abstol = reinterpret_cast<void*>(N_VNew_Serial(n));
+        m_abstol = N_VNew_Serial(n);
     }
     for (size_t i=0; i<n; i++) {
-        NV_Ith_S(nv(m_abstol), i) = abstol[i];
+        NV_Ith_S(m_abstol, i) = abstol[i];
     }
     m_reltol = reltol;
 }
@@ -302,18 +297,18 @@ void CVodesIntegrator::initialize(double t0, FuncEval& func)
     m_time = t0;
 
     if (m_y) {
-        N_VDestroy_Serial(nv(m_y));    // free solution vector if already allocated
+        N_VDestroy_Serial(m_y); // free solution vector if already allocated
     }
-    m_y = reinterpret_cast<void*>(N_VNew_Serial(m_neq));   // allocate solution vector
+    m_y = N_VNew_Serial(m_neq); // allocate solution vector
     for (size_t i = 0; i < m_neq; i++) {
-        NV_Ith_S(nv(m_y), i) = 0.0;
+        NV_Ith_S(m_y, i) = 0.0;
     }
     // check abs tolerance array size
     if (m_itol == CV_SV && m_nabs < m_neq) {
         throw CVodesErr("not enough absolute tolerance values specified.");
     }
 
-    func.getInitialConditions(m_t0, m_neq, NV_DATA_S(nv(m_y)));
+    func.getInitialConditions(m_t0, m_neq, NV_DATA_S(m_y));
 
     if (m_cvode_mem) {
         CVodeFree(&m_cvode_mem);
@@ -352,7 +347,7 @@ void CVodesIntegrator::initialize(double t0, FuncEval& func)
     }
 #elif SUNDIALS_VERSION >= 24
 
-    flag = CVodeInit(m_cvode_mem, cvodes_rhs, m_t0, nv(m_y));
+    flag = CVodeInit(m_cvode_mem, cvodes_rhs, m_t0, m_y);
     if (flag != CV_SUCCESS) {
         if (flag == CV_MEM_FAIL) {
             throw CVodesErr("Memory allocation failed.");
@@ -364,7 +359,7 @@ void CVodesIntegrator::initialize(double t0, FuncEval& func)
     }
 
     if (m_itol == CV_SV) {
-        flag = CVodeSVtolerances(m_cvode_mem, m_reltol, nv(m_abstol));
+        flag = CVodeSVtolerances(m_cvode_mem, m_reltol, m_abstol);
     } else {
         flag = CVodeSStolerances(m_cvode_mem, m_reltol, m_abstols);
     }
@@ -435,7 +430,7 @@ void CVodesIntegrator::reinitialize(double t0, FuncEval& func)
     m_t0  = t0;
     m_time = t0;
     //try {
-    func.getInitialConditions(m_t0, m_neq, NV_DATA_S(nv(m_y)));
+    func.getInitialConditions(m_t0, m_neq, NV_DATA_S(m_y));
     //}
     //catch (CanteraError) {
     //showErrors();
@@ -458,7 +453,7 @@ void CVodesIntegrator::reinitialize(double t0, FuncEval& func)
         throw CVodesErr("CVodeReInit failed. result = "+int2str(result));
     }
 #elif SUNDIALS_VERSION >= 24
-    result = CVodeReInit(m_cvode_mem, m_t0, nv(m_y));
+    result = CVodeReInit(m_cvode_mem, m_t0, m_y);
     if (result != CV_SUCCESS) {
         throw CVodesErr("CVodeReInit failed. result = "+int2str(result));
     }
@@ -495,7 +490,7 @@ void CVodesIntegrator::reinitialize(double t0, FuncEval& func)
 
 void CVodesIntegrator::integrate(double tout)
 {
-    int flag = CVode(m_cvode_mem, tout, nv(m_y), &m_time, CV_NORMAL);
+    int flag = CVode(m_cvode_mem, tout, m_y, &m_time, CV_NORMAL);
     if (flag != CV_SUCCESS) {
         throw CVodesErr(" CVodes error encountered. Error code: " + int2str(flag) +
                         "\nComponents with largest weighted error estimates:\n" + getErrorInfo(10));
@@ -505,7 +500,7 @@ void CVodesIntegrator::integrate(double tout)
 
 double CVodesIntegrator::step(double tout)
 {
-    int flag = CVode(m_cvode_mem, tout, nv(m_y), &m_time, CV_ONE_STEP);
+    int flag = CVode(m_cvode_mem, tout, m_y, &m_time, CV_ONE_STEP);
     if (flag != CV_SUCCESS) {
         throw CVodesErr(" CVodes error encountered. Error code: " + int2str(flag) +
                         "\nComponents with largest weighted error estimates:\n" + getErrorInfo(10));
@@ -570,5 +565,3 @@ string CVodesIntegrator::getErrorInfo(int N) {
 }
 
 }
-
-
