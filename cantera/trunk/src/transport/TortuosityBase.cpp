@@ -18,7 +18,7 @@
 namespace Cantera
 {
 //====================================================================================================================
-static void err(const std::string r)
+static void err(const std::string& r)
 {
     throw Cantera::CanteraError("TortuosityBase", "Error calling base class " + r);
 }

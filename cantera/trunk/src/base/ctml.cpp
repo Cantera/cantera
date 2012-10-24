@@ -78,7 +78,7 @@ static doublereal fpValue(std::string val)
  *                        is to have an empty string.
  */
 void addInteger(Cantera::XML_Node& node, const std::string& title, const int val,
-                const std::string units, const std::string type)
+                const std::string& units, const std::string& type)
 {
 #ifdef CTML_VERSION_1_4
     XML_Node& f = node.addChild("integer", val);
@@ -138,8 +138,8 @@ void addInteger(Cantera::XML_Node& node, const std::string& title, const int val
  *       as to its usage.
  */
 void addFloat(Cantera::XML_Node& node, const std::string& title,
-              const doublereal val, const std::string units,
-              const std::string type, const doublereal minval,
+              const doublereal val, const std::string& units,
+              const std::string& type, const doublereal minval,
               const doublereal maxval)
 {
 #ifdef CTML_VERSION_1_4
@@ -214,8 +214,8 @@ void addFloat(Cantera::XML_Node& node, const std::string& title,
  * @todo typeString should be codified as to its usage.
  */
 void addFloatArray(Cantera::XML_Node& node, const std::string& title, const size_t n,
-                   const doublereal* const vals, const std::string units,
-                   const std::string type,
+                   const doublereal* const vals, const std::string& units,
+                   const std::string& type,
                    const doublereal minval, const doublereal maxval)
 {
     size_t i;
@@ -278,7 +278,7 @@ void addFloatArray(Cantera::XML_Node& node, const std::string& title, const size
  */
 void addString(Cantera::XML_Node& node, const std::string& titleString,
                const std::string& valueString,
-               const std::string typeString)
+               const std::string& typeString)
 {
     XML_Node& f = node.addChild("string", valueString);
     f.addAttribute("title", titleString);
@@ -511,7 +511,7 @@ void getFloats(const Cantera::XML_Node& node, std::map<std::string, double>& v,
  */
 doublereal getFloat(const Cantera::XML_Node& parent,
                     const std::string& name,
-                    const std::string type)
+                    const std::string& type)
 {
     if (!parent.hasChild(name))
         throw CanteraError("getFloat (called from XML Node \"" +
@@ -555,7 +555,7 @@ doublereal getFloat(const Cantera::XML_Node& parent,
  *                 which implies that no conversion is allowed.
  */
 doublereal getFloatCurrent(const Cantera::XML_Node& node,
-                           const std::string type)
+                           const std::string& type)
 {
     doublereal x, x0, x1, fctr = 1.0;
     string units, vmin, vmax;
@@ -614,7 +614,7 @@ doublereal getFloatCurrent(const Cantera::XML_Node& node,
 bool getOptionalFloat(const Cantera::XML_Node& parent,
                       const std::string& name,
                       doublereal& fltRtn,
-                      const std::string type)
+                      const std::string& type)
 {
     if (parent.hasChild(name)) {
         fltRtn= getFloat(parent, name, type);
@@ -719,7 +719,7 @@ doublereal getFloatDefaultUnits(const Cantera::XML_Node& parent,
  *
  *   @return True if the nodeName XML node exists. False otherwise.
  */
-bool getOptionalModel(const Cantera::XML_Node& parent, const std::string nodeName,
+bool getOptionalModel(const Cantera::XML_Node& parent, const std::string& nodeName,
                       std::string& modelName)
 {
     if (parent.hasChild(nodeName)) {
@@ -849,8 +849,8 @@ int getInteger(const Cantera::XML_Node& parent, const std::string& name)
  *  @note change the v to a std::vector to eliminate a doxygen error. No idea why doxygen needs this.
  */
 size_t getFloatArray(const Cantera::XML_Node& node, std::vector<doublereal> & v,
-                     const bool convert, const std::string unitsString,
-                     const std::string nodeName)
+                     const bool convert, const std::string& unitsString,
+                     const std::string& nodeName)
 {
     std::string::size_type icom;
     string numstr;
