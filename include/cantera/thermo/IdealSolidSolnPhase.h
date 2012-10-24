@@ -965,23 +965,7 @@ protected:
      *  2 = C_k = X_k / V_N
      */
     int m_formGC;
-    /**
-     * m_mm = Number of distinct elements defined in species in this
-     *        phase
-     */
-    size_t m_mm;
 
-    /**
-     * Maximum temperature that this phase can accurately describe
-     * the thermodynamics.
-     */
-    doublereal m_tmin;
-
-    /**
-     * Minimum temperature that this phase can accurately describe
-     * the thermodynamics.
-     */
-    doublereal m_tmax;
     /**
      * Value of the reference pressure for all species in this phase.
      * The T dependent polynomials are evaluated at the reference

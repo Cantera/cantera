@@ -913,27 +913,6 @@ public:
     //@}
 
 protected:
-
-    //! Number of Elements in the phase
-    /*!
-     * This member is defined here, from a call to the Elements object, for speed.
-     */
-    size_t m_mm;
-
-    //! Minimum temperature for valid species standard state thermo props
-    /*!
-     * This is the minimum temperature at which all species have valid standard
-     * state thermo props defined.
-     */
-    doublereal m_tmin;
-
-    //! Maximum temperature for valid species standard state thermo props
-    /*!
-     * This is the maximum temperature at which all species have valid standard
-     * state thermo props defined.
-     */
-    doublereal m_tmax;
-
     //! Reference state pressure
     /*!
      *  Value of the reference state pressure in Pascals.

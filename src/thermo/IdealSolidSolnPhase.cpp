@@ -29,9 +29,6 @@ namespace Cantera
 IdealSolidSolnPhase::IdealSolidSolnPhase(int formGC) :
     ThermoPhase(),
     m_formGC(formGC),
-    m_mm(0),
-    m_tmin(0.0),
-    m_tmax(1000000.),
     m_Pref(OneAtm),
     m_Pcurrent(OneAtm),
     m_tlast(0.0)
@@ -47,9 +44,6 @@ IdealSolidSolnPhase::IdealSolidSolnPhase(const std::string& inputFile,
                                          int formGC) :
     ThermoPhase(),
     m_formGC(formGC),
-    m_mm(0),
-    m_tmin(0.0),
-    m_tmax(1000000.),
     m_Pref(OneAtm),
     m_Pcurrent(OneAtm),
     m_tlast(0.0)
@@ -65,9 +59,6 @@ IdealSolidSolnPhase::IdealSolidSolnPhase(XML_Node& root, const std::string& id,
         int formGC) :
     ThermoPhase(),
     m_formGC(formGC),
-    m_mm(0),
-    m_tmin(0.0),
-    m_tmax(1000000.),
     m_Pref(OneAtm),
     m_Pcurrent(OneAtm),
     m_tlast(0.0)
@@ -92,9 +83,6 @@ operator=(const IdealSolidSolnPhase& b)
         //ThermoPhase::operator=(b);
         // m_spthermo   = dupMyselfAsSpeciesThermo(b.m_spthermo);
         m_formGC     = b.m_formGC;
-        m_mm         = b.m_mm;
-        m_tmin       = b.m_tmin;
-        m_tmax       = b.m_tmax;
         m_Pref       = b.m_Pref;
         m_Pcurrent   = b.m_Pcurrent;
         m_speciesMolarVolume = b.m_speciesMolarVolume;
@@ -1185,22 +1173,6 @@ void IdealSolidSolnPhase::initThermoXML(XML_Node& phaseNode, const std::string& 
 void IdealSolidSolnPhase::
 initLengths()
 {
-    m_kk = nSpecies();
-    m_mm = nElements();
-
-    /*
-     * Obtain the limits of the temperature from the species
-     * thermo handler's limits.
-     */
-    doublereal tmin = m_spthermo->minTemp();
-    doublereal tmax = m_spthermo->maxTemp();
-    if (tmin > 0.0) {
-        m_tmin = tmin;
-    }
-    if (tmax > 0.0) {
-        m_tmax = tmax;
-    }
-
     /*
      * Obtain the reference pressure by calling the ThermoPhase
      * function refPressure, which in turn calls the
@@ -1237,7 +1209,7 @@ setToEquilState(const doublereal* lambda_RT)
     doublereal pres = 0.0;
     for (size_t k = 0; k < m_kk; k++) {
         m_pp[k] = -grt[k];
-        for (size_t m = 0; m < m_mm; m++) {
+        for (size_t m = 0; m < nElements(); m++) {
             m_pp[k] += nAtoms(k,m)*lambda_RT[m];
         }
         m_pp[k] = m_Pref * exp(m_pp[k]);

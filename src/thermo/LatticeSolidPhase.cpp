@@ -25,7 +25,6 @@ namespace Cantera
 //====================================================================================================================
 // Base empty constructor
 LatticeSolidPhase::LatticeSolidPhase() :
-    m_mm(0),
     m_tlast(0.0),
     m_press(-1.0),
     m_molar_density(0.0),
@@ -42,7 +41,6 @@ LatticeSolidPhase::LatticeSolidPhase() :
  * @param right Object to be copied
  */
 LatticeSolidPhase::LatticeSolidPhase(const LatticeSolidPhase& right) :
-    m_mm(0),
     m_tlast(0.0),
     m_press(-1.0),
     m_molar_density(0.0),
@@ -64,7 +62,6 @@ LatticeSolidPhase::operator=(const LatticeSolidPhase& right)
 {
     if (&right != this) {
         ThermoPhase::operator=(right);
-        m_mm = right.m_mm;
         m_tlast = right.m_tlast;
         m_press = right.m_press;
         m_molar_density = right.m_molar_density;
@@ -526,15 +523,15 @@ void LatticeSolidPhase::installSlavePhases(Cantera::XML_Node* phaseNode)
             econ += int2str(n);
             econ += "_" + id();
             size_t m = addUniqueElementAfterFreeze(econ, 0.0, 0, 0.0, CT_ELEM_TYPE_LATTICERATIO);
-            m_mm = nElements();
+            size_t mm = nElements();
             LatticePhase* lp0 = m_lattice[0];
             size_t nsp0 =  lp0->nSpecies();
             for (size_t k = 0; k < nsp0; k++) {
-                m_speciesComp[k * m_mm + m] = -theta_[0];
+                m_speciesComp[k * mm + m] = -theta_[0];
             }
             for (size_t k = 0; k < nsp; k++) {
                 size_t ks = kstart + k;
-                m_speciesComp[ks * m_mm + m] = theta_[n];
+                m_speciesComp[ks * mm + m] = theta_[n];
             }
         }
     }
@@ -558,8 +555,6 @@ void LatticeSolidPhase::installSlavePhases(Cantera::XML_Node* phaseNode)
  */
 void LatticeSolidPhase::initThermo()
 {
-    m_kk = nSpecies();
-    m_mm = nElements();
     initLengths();
     size_t nsp, loc = 0;
     for (size_t n = 0; n < m_nlattice; n++) {

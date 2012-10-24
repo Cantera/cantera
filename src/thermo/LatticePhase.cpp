@@ -23,9 +23,6 @@ namespace Cantera
 
 // Base Empty constructor
 LatticePhase::LatticePhase() :
-    m_mm(0),
-    m_tmin(0.0),
-    m_tmax(0.0),
     m_Pref(OneAtm),
     m_Pcurrent(OneAtm),
     m_tlast(0.0),
@@ -39,9 +36,6 @@ LatticePhase::LatticePhase() :
  * @param right Object to be copied
  */
 LatticePhase::LatticePhase(const LatticePhase& right) :
-    m_mm(0),
-    m_tmin(0.0),
-    m_tmax(0.0),
     m_Pref(OneAtm),
     m_Pcurrent(OneAtm),
     m_tlast(0.0),
@@ -59,9 +53,6 @@ LatticePhase& LatticePhase::operator=(const LatticePhase& right)
 {
     if (&right != this) {
         ThermoPhase::operator=(right);
-        m_mm         = right.m_mm;
-        m_tmin       = right.m_tmin;
-        m_tmax       = right.m_tmax;
         m_Pref       = right.m_Pref;
         m_Pcurrent     = right.m_Pcurrent;
         m_tlast      = right.m_tlast;
@@ -405,18 +396,7 @@ const vector_fp& LatticePhase::cp_R_ref() const
  */
 void LatticePhase::initThermo()
 {
-    m_kk = nSpecies();
-    m_mm = nElements();
-    doublereal tmin = m_spthermo->minTemp();
-    doublereal tmax = m_spthermo->maxTemp();
-    if (tmin > 0.0) {
-        m_tmin = tmin;
-    }
-    if (tmax > 0.0) {
-        m_tmax = tmax;
-    }
     m_Pref = refPressure();
-
     size_t leng = m_kk;
     m_h0_RT.resize(leng);
     m_g0_RT.resize(leng);

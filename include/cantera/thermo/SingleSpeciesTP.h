@@ -717,12 +717,6 @@ public:
 
 
 protected:
-
-    //! Lower value of the temperature for which reference thermo is valid
-    doublereal m_tmin;
-    //! Upper value of the temperature for which reference thermo is valid
-    doublereal m_tmax;
-
     //! The current pressure of the solution (Pa)
     /*!
      * It gets initialized to 1 atm.

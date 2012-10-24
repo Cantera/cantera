@@ -16,9 +16,6 @@ namespace Cantera
 {
 // Default empty Constructor
 IdealGasPhase::IdealGasPhase():
-    m_mm(0),
-    m_tmin(0.0),
-    m_tmax(0.0),
     m_p0(-1.0),
     m_tlast(0.0),
     m_logc0(0.0)
@@ -27,9 +24,6 @@ IdealGasPhase::IdealGasPhase():
 
 // Copy Constructor
 IdealGasPhase::IdealGasPhase(const IdealGasPhase& right):
-    m_mm(right.m_mm),
-    m_tmin(right.m_tmin),
-    m_tmax(right.m_tmax),
     m_p0(right.m_p0),
     m_tlast(right.m_tlast),
     m_logc0(right.m_logc0)
@@ -54,9 +48,6 @@ operator=(const IdealGasPhase& right)
 {
     if (&right != this) {
         ThermoPhase::operator=(right);
-        m_mm      = right.m_mm;
-        m_tmin    = right.m_tmin;
-        m_tmax    = right.m_tmax;
         m_p0      = right.m_p0;
         m_tlast   = right.m_tlast;
         m_logc0   = right.m_logc0;
@@ -557,18 +548,7 @@ void IdealGasPhase::getStandardVolumes_ref(doublereal* vol) const
 
 void IdealGasPhase::initThermo()
 {
-
-    m_mm = nElements();
-    doublereal tmin = m_spthermo->minTemp();
-    doublereal tmax = m_spthermo->maxTemp();
-    if (tmin > 0.0) {
-        m_tmin = tmin;
-    }
-    if (tmax > 0.0) {
-        m_tmax = tmax;
-    }
     m_p0 = refPressure();
-
     m_h0_RT.resize(m_kk);
     m_g0_RT.resize(m_kk);
     m_expg0_RT.resize(m_kk);

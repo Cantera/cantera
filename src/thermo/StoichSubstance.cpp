@@ -16,9 +16,6 @@ namespace Cantera
 
 // Default empty constructor
 StoichSubstance::StoichSubstance() :
-    m_kk(0),
-    m_tmin(0.0),
-    m_tmax(0.0),
     m_press(OneAtm),
     m_p0(OneAtm),
     m_tlast(-1.0)
@@ -35,9 +32,6 @@ StoichSubstance::StoichSubstance() :
  * @param right Object to be copied.
  */
 StoichSubstance::StoichSubstance(const StoichSubstance& right) :
-    m_kk(0),
-    m_tmin(0.0),
-    m_tmax(0.0),
     m_press(OneAtm),
     m_p0(OneAtm),
     m_tlast(-1.0)
@@ -58,9 +52,6 @@ operator=(const StoichSubstance& right)
 {
     if (&right != this) {
         ThermoPhase::operator=(right);
-        m_kk      = right.m_kk;
-        m_tmin    = right.m_tmin;
-        m_tmax    = right.m_tmax;
         m_press   = right.m_press;
         m_p0      = right.m_p0;
         m_tlast   = right.m_tlast;
@@ -126,19 +117,12 @@ doublereal StoichSubstance::cv_mole() const
 
 void StoichSubstance::initThermo()
 {
-    m_kk = nSpecies();
     if (m_kk > 1) {
         throw CanteraError("initThermo",
                            "stoichiometric substances may only contain one species.");
     }
     doublereal tmin = m_spthermo->minTemp();
     doublereal tmax = m_spthermo->maxTemp();
-    if (tmin > 0.0) {
-        m_tmin = tmin;
-    }
-    if (tmax > 0.0) {
-        m_tmax = tmax;
-    }
     m_p0 = refPressure();
 
     m_h0_RT.resize(m_kk);
