@@ -926,28 +926,8 @@ public:
     //@}
 
 protected:
-
-
-    //! Number of elements
-    size_t m_mm;
-
-    //! Minimum temperature for valid species standard state thermo props
-    /*!
-     * This is the minimum temperature at which all species have valid standard
-     * state thermo props defined.
-     */
-    doublereal m_tmin;
-
-    //! Maximum temperature for valid species standard state thermo props
-    /*!
-     * This is the maximum temperature at which all species have valid standard
-     * state thermo props defined.
-     */
-    doublereal m_tmax;
-
     //! Reference state pressure
     doublereal m_Pref;
-
 
     //! The current pressure
     /*!

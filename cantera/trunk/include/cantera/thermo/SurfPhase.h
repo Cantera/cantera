@@ -621,20 +621,6 @@ protected:
     //! log of the surface site density
     doublereal m_logn0;
 
-    //! Minimum temperature for valid species standard state thermo props
-    /*!
-     * This is the minimum temperature at which all species have valid standard
-     * state thermo props defined.
-     */
-    doublereal m_tmin;
-
-    //! Maximum temperature for valid species standard state thermo props
-    /*!
-     * This is the maximum temperature at which all species have valid standard
-     * state thermo props defined.
-     */
-    doublereal m_tmax;
-
     //! Current value of the pressure (Pa)
     doublereal m_press;
 

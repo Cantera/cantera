@@ -30,8 +30,6 @@ namespace Cantera
  */
 SingleSpeciesTP::SingleSpeciesTP() :
     ThermoPhase(),
-    m_tmin(0.0),
-    m_tmax(0.0),
     m_press(OneAtm),
     m_p0(OneAtm),
     m_tlast(-1.0)
@@ -45,8 +43,6 @@ SingleSpeciesTP::SingleSpeciesTP() :
  */
 SingleSpeciesTP::SingleSpeciesTP(const SingleSpeciesTP& right):
     ThermoPhase(),
-    m_tmin(0.0),
-    m_tmax(0.0),
     m_press(OneAtm),
     m_p0(OneAtm),
     m_tlast(-1.0)
@@ -62,8 +58,6 @@ SingleSpeciesTP& SingleSpeciesTP::operator=(const SingleSpeciesTP& right)
 {
     if (&right != this) {
         ThermoPhase::operator=(right);
-        m_tmin       = right.m_tmin;
-        m_tmax       = right.m_tmax;
         m_press      = right.m_press;
         m_p0         = right.m_p0;
         m_tlast      = right.m_tlast;
@@ -651,24 +645,10 @@ void SingleSpeciesTP::initThermo()
     /*
      * Make sure there is one and only one species in this phase.
      */
-    m_kk = nSpecies();
-    if (m_kk != 1) {
+    if (nSpecies() != 1) {
         throw CanteraError("initThermo",
                            "stoichiometric substances may only contain one species.");
     }
-    doublereal tmin = m_spthermo->minTemp();
-    doublereal tmax = m_spthermo->maxTemp();
-    if (tmin > 0.0) {
-        m_tmin = tmin;
-    }
-    if (tmax > 0.0) {
-        m_tmax = tmax;
-    }
-
-    /*
-     * Store the reference pressure in the variables for the class.
-     */
-    m_p0 = refPressure();
 
     /*
      * Resize temporary arrays.

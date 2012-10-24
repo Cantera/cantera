@@ -389,10 +389,6 @@ public:
     virtual void setParametersFromXML(const XML_Node& eosdata);
 
 protected:
-
-    size_t m_kk;
-    doublereal m_tmin;
-    doublereal m_tmax;
     doublereal m_press;
     doublereal m_p0;
 

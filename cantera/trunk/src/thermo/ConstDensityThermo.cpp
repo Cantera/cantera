@@ -35,10 +35,6 @@ ConstDensityThermo& ConstDensityThermo::operator=(const ConstDensityThermo& righ
         return *this;
     }
 
-    m_mm            = right.m_mm;
-    m_tmin          = right.m_tmin;
-    m_tmax          = right.m_tmax;
-    m_p0            = right.m_p0;
     m_tlast         = right.m_tlast;
     m_h0_RT         = right.m_h0_RT;
     m_cp0_R         = right.m_cp0_R;
@@ -152,17 +148,6 @@ void ConstDensityThermo::getStandardChemPotentials(doublereal* mu0) const
 void ConstDensityThermo::initThermo()
 {
     m_kk = nSpecies();
-    m_mm = nElements();
-    doublereal tmin = m_spthermo->minTemp();
-    doublereal tmax = m_spthermo->maxTemp();
-    if (tmin > 0.0) {
-        m_tmin = tmin;
-    }
-    if (tmax > 0.0) {
-        m_tmax = tmax;
-    }
-    m_p0 = refPressure();
-
     m_h0_RT.resize(m_kk);
     m_g0_RT.resize(m_kk);
     m_cp0_R.resize(m_kk);

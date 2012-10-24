@@ -666,10 +666,6 @@ private:
     doublereal err(const std::string& msg) const;
 
 protected:
-
-    //! Number of elements
-    size_t m_mm;
-
     //! Last temperature at which the reference thermo was calculated
     mutable doublereal  m_tlast;
 

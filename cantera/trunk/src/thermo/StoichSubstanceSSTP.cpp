@@ -418,14 +418,6 @@ void StoichSubstanceSSTP::initThermo()
         throw CanteraError("initThermo",
                            "stoichiometric substances may only contain one species.");
     }
-    doublereal tmin = m_spthermo->minTemp();
-    doublereal tmax = m_spthermo->maxTemp();
-    if (tmin > 0.0) {
-        m_tmin = tmin;
-    }
-    if (tmax > 0.0) {
-        m_tmax = tmax;
-    }
     /*
      * Store the reference pressure in the variables for the class.
      */

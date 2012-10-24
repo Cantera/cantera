@@ -48,9 +48,6 @@ class ConstDensityThermo : public ThermoPhase
 public:
 
     //! Constructor.
-    /*!
-     *
-     */
     ConstDensityThermo();
 
     //! Destructor
@@ -79,17 +76,11 @@ public:
     //! overloaded methods of class ThermoPhase
     virtual int eosType() const;
 
-    //! Return the Molar Enthalpy. Units: J/kmol.
-    /*!
-     *
-     */
-
     /// Molar enthalpy. Units: J/kmol.
     virtual doublereal enthalpy_mole() const;
 
     /// Molar internal energy. Units: J/kmol.
     virtual doublereal intEnergy_mole() const;
-
 
     /// Molar entropy. Units: J/kmol/K.
     virtual doublereal entropy_mole() const;
@@ -371,32 +362,6 @@ public:
     virtual void setParametersFromXML(const XML_Node& eosdata);
 
 protected:
-
-    //! number of elements
-    size_t m_mm;
-
-
-    //! Minimum temperature for valid species standard state thermo props
-    /*!
-     * This is the minimum temperature at which all species have valid standard
-     * state thermo props defined.
-     */
-    doublereal m_tmin;
-
-    //! Maximum temperature for valid species standard state thermo props
-    /*!
-     * This is the maximum temperature at which all species have valid standard
-     * state thermo props defined.
-     */
-    doublereal m_tmax;
-
-    //! Reference state pressure
-    /*!
-     *  Value of the reference state pressure in Pascals.
-     *  All species must have the same reference state pressure.
-     */
-    doublereal m_p0;
-
     //! last value of the temperature processed by reference state
     mutable doublereal     m_tlast;
 

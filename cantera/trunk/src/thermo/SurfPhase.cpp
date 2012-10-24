@@ -28,8 +28,6 @@ SurfPhase::SurfPhase(doublereal n0):
     ThermoPhase(),
     m_n0(n0),
     m_logn0(0.0),
-    m_tmin(0.0),
-    m_tmax(0.0),
     m_press(OneAtm),
     m_tlast(0.0)
 {
@@ -43,8 +41,6 @@ SurfPhase::SurfPhase(const std::string& infile, std::string id) :
     ThermoPhase(),
     m_n0(0.0),
     m_logn0(0.0),
-    m_tmin(0.0),
-    m_tmax(0.0),
     m_press(OneAtm),
     m_tlast(0.0)
 {
@@ -72,8 +68,6 @@ SurfPhase::SurfPhase(XML_Node& xmlphase) :
     ThermoPhase(),
     m_n0(0.0),
     m_logn0(0.0),
-    m_tmin(0.0),
-    m_tmax(0.0),
     m_press(OneAtm),
     m_tlast(0.0)
 {
@@ -98,8 +92,6 @@ SurfPhase::SurfPhase(XML_Node& xmlphase) :
 SurfPhase::SurfPhase(const SurfPhase& right) :
     m_n0(right.m_n0),
     m_logn0(right.m_logn0),
-    m_tmin(right.m_tmin),
-    m_tmax(right.m_tmax),
     m_press(right.m_press),
     m_tlast(right.m_tlast)
 {
@@ -121,8 +113,6 @@ operator=(const SurfPhase& right)
         ThermoPhase::operator=(right);
         m_n0         = right.m_n0;
         m_logn0      = right.m_logn0;
-        m_tmin       = right.m_tmin;
-        m_tmax       = right.m_tmax;
         m_press      = right.m_press;
         m_tlast      = right.m_tlast;
         m_h0         = right.m_h0;
