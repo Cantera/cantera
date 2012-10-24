@@ -201,7 +201,6 @@ private:
 
     // mixture attributes
     int m_nsp;
-    doublereal m_tmin, m_tmax;
     vector_fp  m_mw;
 
     // polynomial fits

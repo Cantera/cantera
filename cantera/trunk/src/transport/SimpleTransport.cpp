@@ -36,9 +36,6 @@ SimpleTransport::SimpleTransport(thermo_t* thermo, int ndim) :
     compositionDepType_(0),
     useHydroRadius_(false),
     doMigration_(0),
-    m_tmin(-1.0),
-    m_tmax(100000.),
-    m_iStateMF(-1),
     concTot_(0.0),
     m_temp(-1.0),
     m_press(-1.0),
@@ -60,8 +57,6 @@ SimpleTransport::SimpleTransport(const SimpleTransport& right) :
     compositionDepType_(0),
     useHydroRadius_(false),
     doMigration_(0),
-    m_tmin(-1.0),
-    m_tmax(100000.),
     m_iStateMF(-1),
     m_temp(-1.0),
     m_press(-1.0),
@@ -93,8 +88,6 @@ SimpleTransport& SimpleTransport::operator=(const SimpleTransport& right)
     compositionDepType_                   = right.compositionDepType_;
     useHydroRadius_                       = right.useHydroRadius_;
     doMigration_                          = right.doMigration_;
-    m_tmin                                = right.m_tmin;
-    m_tmax                                = right.m_tmax;
     m_mw                                  = right.m_mw;
 
     m_coeffVisc_Ns = right.m_coeffVisc_Ns;
@@ -187,8 +180,6 @@ bool SimpleTransport::initLiquid(LiquidTransportParams& tr)
     // constant substance attributes
     m_thermo = tr.thermo;
     m_nsp   = m_thermo->nSpecies();
-    m_tmin  = m_thermo->minTemp();
-    m_tmax  = m_thermo->maxTemp();
 
     /*
      * Read the transport block in the phase XML Node

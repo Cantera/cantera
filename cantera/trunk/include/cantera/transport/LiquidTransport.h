@@ -878,12 +878,6 @@ private:
     //! Number of species squared
     size_t m_nsp2;
 
-    //! Minimum temperature applicable to the transport property eval
-    doublereal m_tmin;
-
-    //! Maximum temperature applicable to the transport property evaluator
-    doublereal m_tmax;
-
     //! Local copy of the molecular weights of the species
     /*!
      *  Length is equal to the number of species in the phase
