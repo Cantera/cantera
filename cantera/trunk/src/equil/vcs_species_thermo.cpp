@@ -147,8 +147,7 @@ VCS_SPECIES_THERMO::operator=(const VCS_SPECIES_THERMO& b)
 
 VCS_SPECIES_THERMO* VCS_SPECIES_THERMO::duplMyselfAsVCS_SPECIES_THERMO()
 {
-    VCS_SPECIES_THERMO* ptr = new VCS_SPECIES_THERMO(*this);
-    return  ptr;
+    return new VCS_SPECIES_THERMO(*this);
 }
 
 

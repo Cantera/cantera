@@ -130,8 +130,7 @@ MixtureFugacityTP::~MixtureFugacityTP()
  */
 ThermoPhase* MixtureFugacityTP::duplMyselfAsThermoPhase() const
 {
-    MixtureFugacityTP* vptp = new MixtureFugacityTP(*this);
-    return (ThermoPhase*) vptp;
+    return new MixtureFugacityTP(*this);
 }
 //====================================================================================================================
 // This method returns the convention used in specification

@@ -59,7 +59,7 @@ public:
     virtual Kinetics* duplMyselfAsKinetics(const std::vector<thermo_t*> & tpVector) const {
         EdgeKinetics* iK = new EdgeKinetics(*this);
         iK->assignShallowPointers(tpVector);
-        return dynamic_cast<Kinetics*>(iK);
+        return iK;
     }
 
     /**

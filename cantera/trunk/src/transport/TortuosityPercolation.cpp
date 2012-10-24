@@ -70,8 +70,7 @@ TortuosityPercolation& TortuosityPercolation::operator=(const TortuosityPercolat
  */
 TortuosityBase* TortuosityPercolation::duplMyselfAsTortuosityBase() const
 {
-    TortuosityPercolation* tb = new TortuosityPercolation(*this);
-    return dynamic_cast<TortuosityBase*>(tb);
+    return new TortuosityPercolation(*this);
 }
 //====================================================================================================================
 // The tortuosity factor models the effective increase in the diffusive transport length.

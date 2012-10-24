@@ -208,8 +208,7 @@ RedlichKisterVPSSTP::~RedlichKisterVPSSTP()
 ThermoPhase*
 RedlichKisterVPSSTP::duplMyselfAsThermoPhase() const
 {
-    RedlichKisterVPSSTP* mtp = new RedlichKisterVPSSTP(*this);
-    return (ThermoPhase*) mtp;
+    return new RedlichKisterVPSSTP(*this);
 }
 
 //====================================================================================================================

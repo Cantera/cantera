@@ -66,8 +66,7 @@ TortuosityBruggeman&   TortuosityBruggeman::operator=(const TortuosityBruggeman&
  */
 TortuosityBase* TortuosityBruggeman::duplMyselfAsTortuosityBase() const
 {
-    TortuosityBruggeman* tb = new TortuosityBruggeman(*this);
-    return dynamic_cast<TortuosityBase*>(tb);
+    return new TortuosityBruggeman(*this);
 }
 //====================================================================================================================
 // The tortuosity factor models the effective increase in the diffusive transport length.

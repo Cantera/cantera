@@ -595,8 +595,7 @@ HMWSoln::~HMWSoln()
  */
 ThermoPhase* HMWSoln::duplMyselfAsThermoPhase() const
 {
-    HMWSoln* mtp = new HMWSoln(*this);
-    return (ThermoPhase*) mtp;
+    return new HMWSoln(*this);
 }
 
 /*

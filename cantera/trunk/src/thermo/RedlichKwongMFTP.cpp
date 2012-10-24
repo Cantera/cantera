@@ -252,8 +252,7 @@ RedlichKwongMFTP::~RedlichKwongMFTP()
  */
 ThermoPhase* RedlichKwongMFTP::duplMyselfAsThermoPhase() const
 {
-    RedlichKwongMFTP* vptp = new RedlichKwongMFTP(*this);
-    return (ThermoPhase*) vptp;
+    return new RedlichKwongMFTP(*this);
 }
 //====================================================================================================================
 int RedlichKwongMFTP::eosType() const

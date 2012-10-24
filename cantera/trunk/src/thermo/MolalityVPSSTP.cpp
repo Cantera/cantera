@@ -113,8 +113,7 @@ MolalityVPSSTP::~MolalityVPSSTP()
 ThermoPhase*
 MolalityVPSSTP::duplMyselfAsThermoPhase() const
 {
-    MolalityVPSSTP* mtp = new MolalityVPSSTP(*this);
-    return (ThermoPhase*) mtp;
+    return new MolalityVPSSTP(*this);
 }
 
 /*

@@ -113,8 +113,7 @@ LatticePhase::LatticePhase(XML_Node& phaseRef, const std::string& id)
  */
 ThermoPhase* LatticePhase::duplMyselfAsThermoPhase() const
 {
-    LatticePhase* igp = new LatticePhase(*this);
-    return (ThermoPhase*) igp;
+    return new LatticePhase(*this);
 }
 
 doublereal LatticePhase::enthalpy_mole() const

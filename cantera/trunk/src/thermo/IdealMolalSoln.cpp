@@ -167,8 +167,7 @@ IdealMolalSoln::~IdealMolalSoln()
  */
 ThermoPhase* IdealMolalSoln::duplMyselfAsThermoPhase() const
 {
-    IdealMolalSoln* mtp = new IdealMolalSoln(*this);
-    return (ThermoPhase*) mtp;
+    return new IdealMolalSoln(*this);
 }
 
 //

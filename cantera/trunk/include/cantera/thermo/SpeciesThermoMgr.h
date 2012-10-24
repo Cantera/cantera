@@ -271,8 +271,7 @@ template<class T1, class T2>
 SpeciesThermo*
 SpeciesThermoDuo<T1, T2>::duplMyselfAsSpeciesThermo() const
 {
-    SpeciesThermoDuo<T1,T2> *nt = new SpeciesThermoDuo<T1,T2>(*this);
-    return (SpeciesThermo*) nt;
+    return new SpeciesThermoDuo<T1,T2>(*this);
 }
 
 template<class T1, class T2>

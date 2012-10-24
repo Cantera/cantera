@@ -115,8 +115,7 @@ PseudoBinaryVPSSTP::~PseudoBinaryVPSSTP()
 ThermoPhase*
 PseudoBinaryVPSSTP::duplMyselfAsThermoPhase() const
 {
-    PseudoBinaryVPSSTP* mtp = new PseudoBinaryVPSSTP(*this);
-    return (ThermoPhase*) mtp;
+    return new PseudoBinaryVPSSTP(*this);
 }
 
 /*

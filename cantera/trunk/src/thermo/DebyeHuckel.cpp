@@ -211,8 +211,7 @@ DebyeHuckel::~DebyeHuckel()
  */
 ThermoPhase* DebyeHuckel::duplMyselfAsThermoPhase() const
 {
-    DebyeHuckel* mtp = new DebyeHuckel(*this);
-    return (ThermoPhase*) mtp;
+    return new DebyeHuckel(*this);
 }
 
 /*

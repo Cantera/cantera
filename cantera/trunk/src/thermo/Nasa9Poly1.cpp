@@ -131,8 +131,7 @@ Nasa9Poly1::~Nasa9Poly1()
 SpeciesThermoInterpType*
 Nasa9Poly1::duplMyselfAsSpeciesThermoInterpType() const
 {
-    Nasa9Poly1* np = new Nasa9Poly1(*this);
-    return (SpeciesThermoInterpType*) np;
+    return new Nasa9Poly1(*this);
 }
 
 // Returns the minimum temperature that the thermo

@@ -190,8 +190,7 @@ FixedChemPotSSTP::~FixedChemPotSSTP()
  */
 ThermoPhase* FixedChemPotSSTP::duplMyselfAsThermoPhase() const
 {
-    FixedChemPotSSTP* stp = new FixedChemPotSSTP(*this);
-    return (ThermoPhase*) stp;
+    return new FixedChemPotSSTP(*this);
 }
 //====================================================================================================================
 

@@ -141,7 +141,7 @@ Kinetics* GasKinetics::duplMyselfAsKinetics(const std::vector<thermo_t*> & tpVec
 {
     GasKinetics* gK = new GasKinetics(*this);
     gK->assignShallowPointers(tpVector);
-    return dynamic_cast<Kinetics*>(gK);
+    return gK;
 }
 //====================================================================================================================
 /**

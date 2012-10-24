@@ -143,8 +143,7 @@ MineralEQ3::~MineralEQ3()
  */
 ThermoPhase* MineralEQ3::duplMyselfAsThermoPhase() const
 {
-    MineralEQ3* stp = new MineralEQ3(*this);
-    return (ThermoPhase*) stp;
+    return new MineralEQ3(*this);
 }
 
 

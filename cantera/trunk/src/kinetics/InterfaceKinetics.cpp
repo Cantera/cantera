@@ -202,7 +202,7 @@ Kinetics* InterfaceKinetics::duplMyselfAsKinetics(const std::vector<thermo_t*> &
 {
     InterfaceKinetics* iK = new InterfaceKinetics(*this);
     iK->assignShallowPointers(tpVector);
-    return dynamic_cast<Kinetics*>(iK);
+    return iK;
 }
 //====================================================================================================================
 // Set the electric potential in the nth phase

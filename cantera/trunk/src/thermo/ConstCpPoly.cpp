@@ -77,8 +77,7 @@ ConstCpPoly::~ConstCpPoly() {}
 SpeciesThermoInterpType*
 ConstCpPoly::duplMyselfAsSpeciesThermoInterpType() const
 {
-    ConstCpPoly* newCCP = new ConstCpPoly(*this);
-    return (SpeciesThermoInterpType*) newCCP;
+    return new ConstCpPoly(*this);
 }
 
 doublereal ConstCpPoly::minTemp() const

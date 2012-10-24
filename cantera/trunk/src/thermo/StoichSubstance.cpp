@@ -81,8 +81,7 @@ operator=(const StoichSubstance& right)
  */
 ThermoPhase* StoichSubstance::duplMyselfAsThermoPhase() const
 {
-    ThermoPhase* igp = new StoichSubstance(*this);
-    return (ThermoPhase*) igp;
+    return new StoichSubstance(*this);
 }
 
 // Destructor

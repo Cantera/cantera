@@ -114,8 +114,7 @@ PDSS_IonsFromNeutral::~PDSS_IonsFromNeutral()
 //! Duplicator
 PDSS* PDSS_IonsFromNeutral::duplMyselfAsPDSS() const
 {
-    PDSS_IonsFromNeutral* idg = new PDSS_IonsFromNeutral(*this);
-    return (PDSS*) idg;
+    return new PDSS_IonsFromNeutral(*this);
 }
 //====================================================================================================================
 void PDSS_IonsFromNeutral::initAllPtrs(VPStandardStateTP* tp, VPSSMgr* vpssmgr_ptr,

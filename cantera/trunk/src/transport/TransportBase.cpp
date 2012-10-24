@@ -63,8 +63,7 @@ Transport& Transport::operator=(const Transport& right)
 
 Transport* Transport::duplMyselfAsTransport() const
 {
-    Transport* tr = new Transport(*this);
-    return tr;
+    return new Transport(*this);
 }
 
 

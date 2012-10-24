@@ -192,8 +192,7 @@ Nasa9PolyMultiTempRegion::~Nasa9PolyMultiTempRegion()
 SpeciesThermoInterpType*
 Nasa9PolyMultiTempRegion::duplMyselfAsSpeciesThermoInterpType() const
 {
-    Nasa9PolyMultiTempRegion* np = new Nasa9PolyMultiTempRegion(*this);
-    return (SpeciesThermoInterpType*) np;
+    return new Nasa9PolyMultiTempRegion(*this);
 }
 
 // Returns the minimum temperature that the thermo

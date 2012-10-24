@@ -97,8 +97,7 @@ LatticeSolidPhase::~LatticeSolidPhase()
  */
 ThermoPhase* LatticeSolidPhase::duplMyselfAsThermoPhase() const
 {
-    LatticeSolidPhase* igp = new LatticeSolidPhase(*this);
-    return (ThermoPhase*) igp;
+    return new LatticeSolidPhase(*this);
 }
 
 //====================================================================================================================

@@ -119,8 +119,7 @@ operator=(const IdealSolidSolnPhase& b)
  */
 ThermoPhase* IdealSolidSolnPhase::duplMyselfAsThermoPhase() const
 {
-    IdealSolidSolnPhase* ii = new IdealSolidSolnPhase(*this);
-    return (ThermoPhase*) ii;
+    return new IdealSolidSolnPhase(*this);
 }
 //====================================================================================================================
 /**

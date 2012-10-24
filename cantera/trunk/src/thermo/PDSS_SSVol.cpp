@@ -96,8 +96,7 @@ PDSS_SSVol::~PDSS_SSVol()
 //! Duplicator
 PDSS* PDSS_SSVol::duplMyselfAsPDSS() const
 {
-    PDSS_SSVol* idg = new PDSS_SSVol(*this);
-    return (PDSS*) idg;
+    return new PDSS_SSVol(*this);
 }
 
 /*

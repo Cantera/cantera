@@ -103,8 +103,7 @@ LTPspecies& LTPspecies::operator=(const LTPspecies& right)
  */
 LTPspecies* LTPspecies::duplMyselfAsLTPspecies() const
 {
-    LTPspecies* prp = new LTPspecies(*this);
-    return prp;
+    return new LTPspecies(*this);
 }
 //====================================================================================================================
 LTPspecies::~LTPspecies()
@@ -190,8 +189,7 @@ LTPspecies_Const::~LTPspecies_Const()
  */
 LTPspecies* LTPspecies_Const::duplMyselfAsLTPspecies() const
 {
-    LTPspecies_Const* prp = new LTPspecies_Const(*this);
-    return (dynamic_cast<LTPspecies*>(prp));
+    return new LTPspecies_Const(*this);
 }
 //====================================================================================================================
 // Return the (constant) value for this transport property
@@ -266,8 +264,7 @@ LTPspecies_Arrhenius::~LTPspecies_Arrhenius()
  */
 LTPspecies* LTPspecies_Arrhenius::duplMyselfAsLTPspecies() const
 {
-    LTPspecies_Arrhenius* prp = new LTPspecies_Arrhenius(*this);
-    return (dynamic_cast<LTPspecies*>(prp));
+    return new LTPspecies_Arrhenius(*this);
 }
 //===================================================================================================================
 // Return the pure species value for this transport property evaluated
@@ -367,8 +364,7 @@ LTPspecies_Poly::~LTPspecies_Poly()
  */
 LTPspecies* LTPspecies_Poly::duplMyselfAsLTPspecies() const
 {
-    LTPspecies_Poly* prp = new LTPspecies_Poly(*this);
-    return (dynamic_cast<LTPspecies*>(prp));
+    return new LTPspecies_Poly(*this);
 }
 //====================================================================================================================
 // Return the value for this transport property evaluated from the polynomial expression
@@ -440,8 +436,7 @@ LTPspecies_ExpT::~LTPspecies_ExpT()
  */
 LTPspecies* LTPspecies_ExpT::duplMyselfAsLTPspecies() const
 {
-    LTPspecies_ExpT* prp = new LTPspecies_ExpT(*this);
-    return (dynamic_cast<LTPspecies*>(prp));
+    return new LTPspecies_ExpT(*this);
 }
 //====================================================================================================================
 // Return the value for this transport property evaluated

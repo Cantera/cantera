@@ -56,8 +56,7 @@ VPSSMgr_IdealGas& VPSSMgr_IdealGas::operator=(const VPSSMgr_IdealGas& b)
 
 VPSSMgr* VPSSMgr_IdealGas::duplMyselfAsVPSSMgr() const
 {
-    VPSSMgr_IdealGas* vpm = new VPSSMgr_IdealGas(*this);
-    return (VPSSMgr*) vpm;
+    return new VPSSMgr_IdealGas(*this);
 }
 
 

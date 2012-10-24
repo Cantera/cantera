@@ -92,8 +92,7 @@ GeneralSpeciesThermo::~GeneralSpeciesThermo()
 SpeciesThermo*
 GeneralSpeciesThermo::duplMyselfAsSpeciesThermo() const
 {
-    GeneralSpeciesThermo* gsth = new GeneralSpeciesThermo(*this);
-    return (SpeciesThermo*) gsth;
+    return new GeneralSpeciesThermo(*this);
 }
 
 

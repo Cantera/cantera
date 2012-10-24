@@ -143,8 +143,7 @@ PhaseCombo_Interaction::~PhaseCombo_Interaction()
 ThermoPhase*
 PhaseCombo_Interaction::duplMyselfAsThermoPhase() const
 {
-    PhaseCombo_Interaction* mtp = new PhaseCombo_Interaction(*this);
-    return (ThermoPhase*) mtp;
+    return new PhaseCombo_Interaction(*this);
 }
 //====================================================================================================================
 // Special constructor for a hard-coded problem

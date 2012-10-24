@@ -87,8 +87,7 @@ StatMech::~StatMech()
 SpeciesThermoInterpType*
 StatMech::duplMyselfAsSpeciesThermoInterpType() const
 {
-    StatMech* np = new StatMech(*this);
-    return (SpeciesThermoInterpType*) np;
+    return new StatMech(*this);
 }
 
 // Returns the minimum temperature that the thermo

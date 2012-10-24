@@ -73,8 +73,7 @@ VPSSMgr_General& VPSSMgr_General::operator=(const VPSSMgr_General& b)
 
 VPSSMgr* VPSSMgr_General::duplMyselfAsVPSSMgr() const
 {
-    VPSSMgr_General* vpm = new VPSSMgr_General(*this);
-    return (VPSSMgr*) vpm;
+    return new VPSSMgr_General(*this);
 }
 //====================================================================================================================
 // Initialize the internal shallow pointers in this object

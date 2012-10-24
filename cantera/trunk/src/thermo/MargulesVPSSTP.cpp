@@ -130,8 +130,7 @@ MargulesVPSSTP::~MargulesVPSSTP()
 ThermoPhase*
 MargulesVPSSTP::duplMyselfAsThermoPhase() const
 {
-    MargulesVPSSTP* mtp = new MargulesVPSSTP(*this);
-    return (ThermoPhase*) mtp;
+    return new MargulesVPSSTP(*this);
 }
 
 // Special constructor for a hard-coded problem

@@ -137,8 +137,7 @@ operator=(const ThermoPhase& right)
  */
 ThermoPhase* ThermoPhase::duplMyselfAsThermoPhase() const
 {
-    ThermoPhase* tp = new ThermoPhase(*this);
-    return tp;
+    return new ThermoPhase(*this);
 }
 //====================================================================================================================
 int ThermoPhase::activityConvention() const

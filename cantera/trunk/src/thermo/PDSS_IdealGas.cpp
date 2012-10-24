@@ -90,8 +90,7 @@ PDSS_IdealGas::~PDSS_IdealGas()
 // Duplicator
 PDSS* PDSS_IdealGas::duplMyselfAsPDSS() const
 {
-    PDSS_IdealGas* idg = new PDSS_IdealGas(*this);
-    return (PDSS*) idg;
+    return new PDSS_IdealGas(*this);
 }
 
 
