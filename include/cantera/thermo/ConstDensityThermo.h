@@ -68,17 +68,13 @@ public:
      */
     ConstDensityThermo& operator=(const ConstDensityThermo& right);
 
-
-    //! Duplication routine for objects which inherit from
-    //! %SpeciesThermo
+    //! Duplication routine for objects which inherit from %ThermoPhase
     /*!
-     *  This virtual routine can be used to duplicate %SpeciesThermo  objects
-     *  inherited from %SpeciesThermo even if the application only has
-     *  a pointer to %SpeciesThermo to work with.
-     *  ->commented out because we first need to add copy constructors
-     *   and assignment operators to all of the derived classes.
+     *  This virtual routine can be used to duplicate %ThermoPhase objects
+     *  inherited from %ThermoPhase even if the application only has
+     *  a pointer to %ThermoPhase to work with.
      */
-    virtual SpeciesThermo* duplMyselfAsSpeciesThermo() const;
+    virtual ThermoPhase* duplMyselfAsThermoPhase() const;
 
     //! overloaded methods of class ThermoPhase
     virtual int eosType() const;
