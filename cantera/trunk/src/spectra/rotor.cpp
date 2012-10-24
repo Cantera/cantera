@@ -5,9 +5,6 @@
 #include "cantera/base/ct_defs.h"
 #include "cantera/spectra/rotor.h"
 
-using namespace std;
-using namespace Cantera;
-
 namespace Cantera
 {
 
@@ -110,7 +107,3 @@ doublereal Rotor::intensity(int J_lower, int J_upper, doublereal T)
 }
 
 }
-
-
-
-

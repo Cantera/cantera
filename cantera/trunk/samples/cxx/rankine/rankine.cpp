@@ -6,17 +6,12 @@
 #include "cantera/PureFluid.h"    // defines class Water
 
 using namespace Cantera;
-using namespace std;
 
-map<string,double> h;
-map<string,double> s;
-map<string,double> T;
-map<string,double> P;
-map<string,double> x;
-vector<string> states;
+std::map<std::string,double> h, s, T, P, x;
+std::vector<std::string> states;
 
 template<class F>
-void saveState(F& fluid, string name)
+void saveState(F& fluid, std::string name)
 {
     h[name] = fluid.enthalpy_mass();
     s[name] = fluid.entropy_mass();
@@ -28,7 +23,7 @@ void saveState(F& fluid, string name)
 
 void printStates()
 {
-    string name;
+    std::string name;
     int n;
     int nStates = states.size();
     for (n = 0; n < nStates; n++) {
@@ -75,7 +70,7 @@ int openRankine(int np, void* p)
     double heat_in = h["3"] - h["2"];
     double efficiency = work/heat_in;
 
-    cout << "efficiency = " << efficiency << endl;
+    std::cout << "efficiency = " << efficiency << std::endl;
     return 0;
 }
 
@@ -92,4 +87,3 @@ int main()
     }
 }
 #endif
-
