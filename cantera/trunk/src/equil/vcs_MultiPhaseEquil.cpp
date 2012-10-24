@@ -732,9 +732,7 @@ int vcs_MultiPhaseEquil::equilibrate_TP(int estimateEquil,
             }
         }
     }
-    if (loglevel > 0) {
-        endLogGroup();
-    }
+    endLogGroup();
     return iSuccess;
 }
 
@@ -1656,9 +1654,8 @@ int vcs_MultiPhaseEquil::determine_PhaseStability(int iph, double& funcStab, int
             }
         }
     }
-    if (loglevel > 0) {
-        endLogGroup();
-    }
+    endLogGroup("vcs_MultiPhaseEquil::determine_PhaseStability");
+
     return iStable;
 }
 //====================================================================================================================
