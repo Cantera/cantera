@@ -147,7 +147,7 @@ public:
      *  @param parent   Pointer to the parent for this node in the tree.
      *                  A value of 0 indicates this is the top of the tree.
      */
-    XML_Node(const std::string nm, XML_Node* const parent);
+    XML_Node(const std::string& nm, XML_Node* const parent);
 
     //! Copy constructor
     /*!
@@ -247,7 +247,7 @@ public:
      *   @return  Returns a reference to the created child XML_Node object
      */
     XML_Node& addChild(const std::string& name, const doublereal value,
-                       const std::string fmt="%g");
+                       const std::string& fmt="%g");
 
     //! Remove a child from this node's list of children
     /*!
@@ -275,7 +275,7 @@ public:
      * @param fmt  Format of the printf string conversion of the double.
      *             Default is "%g". Must be less than 63 chars
      */
-    void addValue(const doublereal val, const std::string fmt="%g");
+    void addValue(const doublereal val, const std::string& fmt="%g");
 
     //! Return the value of an XML node as a string
     /*!
@@ -339,7 +339,7 @@ public:
      *                Default is "%g".
      */
     void addAttribute(const std::string& attrib, const doublereal value,
-                      const std::string fmt="%g");
+                      const std::string& fmt="%g");
 
     //! The operator[] is overloaded to provide a lookup capability
     //!  on attributes for the current XML element.

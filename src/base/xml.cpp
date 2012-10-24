@@ -368,7 +368,7 @@ XML_Node::XML_Node(const char* cnm)  :
  *  @param parent   Pointer to the parent for this node in the tree.
  *                  A value of zero 0 indicates this is the top of the tree.
  */
-XML_Node::XML_Node(const std::string nm, XML_Node* const parent) :
+XML_Node::XML_Node(const std::string& nm, XML_Node* const parent) :
     m_name(nm),
     m_value(""),
     m_parent(parent),
@@ -577,7 +577,7 @@ XML_Node& XML_Node::addChild(const std::string& name, const std::string& value)
  *   @return  Returns a reference to the created child XML_Node object
  */
 XML_Node& XML_Node::addChild(const std::string& name, const doublereal value,
-                             const std::string fmt)
+                             const std::string& fmt)
 {
     XML_Node& c = addChild(name);
     c.addValue(value, fmt);
@@ -631,7 +631,7 @@ void XML_Node::addValue(const std::string& val)
  * @param fmt  Format of the printf string conversion of the double.
  *             Default is "%g" Must be less than 63 chars
  */
-void XML_Node::addValue(const doublereal val, const std::string fmt)
+void XML_Node::addValue(const doublereal val, const std::string& fmt)
 {
     m_value = stripws(fp2str(val, fmt));
 }
@@ -719,7 +719,7 @@ void XML_Node::addAttribute(const std::string& attrib, const std::string& value)
  *                Default is "%g".
  */
 void XML_Node::addAttribute(const std::string& attrib,
-                            const doublereal value, const std::string fmt)
+                            const doublereal value, const std::string& fmt)
 {
     m_attribs[attrib] = fp2str(value, fmt);
 }

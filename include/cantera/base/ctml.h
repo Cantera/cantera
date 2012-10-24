@@ -73,8 +73,8 @@ extern std::string INT_Format;
  *       typeString should be codified as to its usage.
  */
 void addInteger(Cantera::XML_Node& node, const std::string& titleString,
-                const int value, const std::string unitsString="",
-                const std::string typeString="");
+                const int value, const std::string& unitsString="",
+                const std::string& typeString="");
 
 //!  This function adds a child node with the name, "float", with a value
 //!  consisting of a single floating point number
@@ -125,8 +125,8 @@ void addInteger(Cantera::XML_Node& node, const std::string& titleString,
  *       typeString should be codified as to its usage.
  */
 void addFloat(Cantera::XML_Node& node, const std::string& titleString,
-              const doublereal value, const std::string unitsString="",
-              const std::string typeString="", const doublereal minval = Cantera::Undef,
+              const doublereal value, const std::string& unitsString="",
+              const std::string& typeString="", const doublereal minval = Cantera::Undef,
               const doublereal maxval = Cantera::Undef);
 
 //!  This function adds a child node with the name, "floatArray", with a value
@@ -183,7 +183,7 @@ void addFloat(Cantera::XML_Node& node, const std::string& titleString,
  */
 void addFloatArray(Cantera::XML_Node& node,  const std::string& titleString,
                    const size_t n,  const doublereal* const values,
-                   const std::string unitsString="", const std::string typeString="",
+                   const std::string& unitsString="", const std::string& typeString="",
                    const doublereal minval = Cantera::Undef,
                    const doublereal maxval = Cantera::Undef);
 
@@ -216,7 +216,7 @@ void addFloatArray(Cantera::XML_Node& node,  const std::string& titleString,
  *   @param typeString    String type. This is an optional parameter.
  */
 void addString(Cantera::XML_Node& node,  const std::string& titleString,
-               const std::string& valueString, const std::string typeString="");
+               const std::string& valueString, const std::string& typeString="");
 
 
 //!  This function reads the current node or a  child node of the current node
@@ -276,8 +276,8 @@ void addString(Cantera::XML_Node& node,  const std::string& titleString,
  *   @return              Returns the number of floats read into v.
  */
 size_t getFloatArray(const Cantera::XML_Node& node, std::vector<doublereal> & v,
-                     const bool convert=true, const std::string unitsString="",
-                     const std::string nodeName = "floatArray");
+                     const bool convert=true, const std::string& unitsString="",
+                     const std::string& nodeName = "floatArray");
 
 //! This function interprets the value portion of an XML element
 //! as a string. It then separates the string up into tokens
@@ -472,7 +472,7 @@ void getIntegers(const Cantera::XML_Node& node, std::map<std::string,int>& v);
  *                 which implies that no conversion is allowed.
  */
 doublereal getFloat(const Cantera::XML_Node& parent, const std::string& name,
-                    const std::string type="");
+                    const std::string& type="");
 
 //!  Get a floating-point value from the current XML element
 /*!
@@ -506,7 +506,7 @@ doublereal getFloat(const Cantera::XML_Node& parent, const std::string& name,
  *                 and "" , for no conversion. The default value is "",
  *                 which implies that no conversion is allowed.
  */
-doublereal getFloatCurrent(const Cantera::XML_Node& currXML, const std::string type="");
+doublereal getFloatCurrent(const Cantera::XML_Node& currXML, const std::string& type="");
 
 //!  Get an optional floating-point value from a child element.
 /*!
@@ -545,7 +545,7 @@ doublereal getFloatCurrent(const Cantera::XML_Node& currXML, const std::string t
  * @return returns true if the child element named "name" exists
  */
 bool getOptionalFloat(const Cantera::XML_Node& parent, const std::string& name,
-                      doublereal& fltRtn, const std::string type="");
+                      doublereal& fltRtn, const std::string& type="");
 
 
 //!  Get a vector of floating-point values from a child element.
@@ -689,7 +689,7 @@ doublereal getFloatDefaultUnits(const Cantera::XML_Node& parent,
  *
  *   @return True if the nodeName XML node exists. False otherwise.
  */
-bool getOptionalModel(const Cantera::XML_Node& parent, const std::string nodeName,
+bool getOptionalModel(const Cantera::XML_Node& parent, const std::string& nodeName,
                       std::string& modelName);
 
 //! Search the child nodes of the current node for an XML Node with a Title
@@ -789,13 +789,13 @@ std::string getChildValue(const Cantera::XML_Node& parent,
  *  @param file    Name of the file
  *  @param debug   Turn on debugging printing
  */
-void get_CTML_Tree(Cantera::XML_Node* node, const std::string file,
+void get_CTML_Tree(Cantera::XML_Node* node, const std::string& file,
                    const int debug = 0);
 
 //! Read an ctml file from a file and fill up an XML tree.
 //!   @param file    Name of the file
 //!   @return        Root of the tree
-Cantera::XML_Node getCtmlTree(const std::string file);
+Cantera::XML_Node getCtmlTree(const std::string& file);
 
 //! Convert a cti file into a ctml file
 /*!

@@ -229,7 +229,7 @@ void ck2cti(const std::string& in_file, const std::string& thermo_file,
  *  @param file    Name of the file
  *  @param debug   Turn on debugging printing
  */
-void get_CTML_Tree(Cantera::XML_Node* rootPtr, const std::string file, const int debug)
+void get_CTML_Tree(Cantera::XML_Node* rootPtr, const std::string& file, const int debug)
 {
     std::string ff, ext = "";
 
@@ -280,7 +280,7 @@ void get_CTML_Tree(Cantera::XML_Node* rootPtr, const std::string file, const int
     fin.close();
 }
 
-Cantera::XML_Node getCtmlTree(const std::string file)
+Cantera::XML_Node getCtmlTree(const std::string& file)
 {
     Cantera::XML_Node root;
     get_CTML_Tree(&root, file);

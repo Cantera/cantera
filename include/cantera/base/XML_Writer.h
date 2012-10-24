@@ -58,7 +58,7 @@ public:
         s << "<!--" << comment << "-->" << std::endl;
     }
 
-    inline void XML_open(std::ostream& s, const std::string& tag, const std::string p = "") {
+    inline void XML_open(std::ostream& s, const std::string& tag, const std::string& p = "") {
         for (int n = 0; n < _level; n++) {
             s << _indent;
         }
