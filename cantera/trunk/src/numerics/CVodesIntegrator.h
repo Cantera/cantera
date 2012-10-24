@@ -93,7 +93,7 @@ private:
     void* m_cvode_mem;
     double m_t0;
     double m_time; //!< The current integrator time
-    void* m_y, *m_abstol;
+    N_Vector m_y, m_abstol;
     int m_type;
     int m_itol;
     int m_method;
