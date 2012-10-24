@@ -94,9 +94,9 @@ cdef class ThermoPhase(_SolutionBase):
             Specifies the equilibrium solver to use. May be one of the following:
 
             * ''element_potential'' - a fast solver using the element potential
-              method will be used.
-            * 'gibbs' - a slower but more robust Gibbs minimization solver will
-              be used.
+              method
+            * 'gibbs' - a slower but more robust Gibbs minimization solver
+            * 'vcs' - the VCS non-ideal equilibrium solver
             * "auto" - The element potential solver will be tried first, then
               if it fails the gibbs solver will be tried.
         :param rtol:
@@ -121,8 +121,10 @@ cdef class ThermoPhase(_SolutionBase):
         elif solver == 'auto':
             iSolver = -1
         elif solver == 'element_potential':
-            iSolver = 1
+            iSolver = 0
         elif solver == 'gibbs':
+            iSolver = 1
+        elif solver == 'vcs':
             iSolver = 2
         else:
             raise ValueError('Invalid equilibrium solver specified')
