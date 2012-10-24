@@ -53,7 +53,8 @@ MolarityIonicVPSSTP::MolarityIonicVPSSTP() :
  *  the routine initThermo(), with a reference to the
  *  XML database to get the info for the phase.
  */
-MolarityIonicVPSSTP::MolarityIonicVPSSTP(std::string inputFile, std::string id) :
+MolarityIonicVPSSTP::MolarityIonicVPSSTP(const std::string& inputFile,
+                                         const std::string& id) :
     GibbsExcessVPSSTP(),
     PBType_(PBTYPE_PASSTHROUGH),
     numPBSpecies_(m_kk),
@@ -66,7 +67,8 @@ MolarityIonicVPSSTP::MolarityIonicVPSSTP(std::string inputFile, std::string id) 
     initThermoFile(inputFile, id);
 }
 //====================================================================================================================
-MolarityIonicVPSSTP::MolarityIonicVPSSTP(XML_Node& phaseRoot, std::string id) :
+MolarityIonicVPSSTP::MolarityIonicVPSSTP(XML_Node& phaseRoot,
+                                         const std::string& id) :
     GibbsExcessVPSSTP(),
     PBType_(PBTYPE_PASSTHROUGH),
     numPBSpecies_(m_kk),
@@ -486,7 +488,7 @@ void  MolarityIonicVPSSTP::s_update_dlnActCoeff_dX_() const
  * ------------ Partial Molar Properties of the Solution ------------
  */
 //====================================================================================================================
-doublereal MolarityIonicVPSSTP::err(std::string msg) const
+doublereal MolarityIonicVPSSTP::err(const std::string& msg) const
 {
     throw CanteraError("MolarityIonicVPSSTP","Base class method "
                        +msg+" called. Equation of state type: "+int2str(eosType()));
@@ -566,7 +568,7 @@ void  MolarityIonicVPSSTP::initLengths()
  *             to see if phaseNode is pointing to the phase
  *             with the correct id.
  */
-void MolarityIonicVPSSTP::initThermoXML(XML_Node& phaseNode, std::string id)
+void MolarityIonicVPSSTP::initThermoXML(XML_Node& phaseNode, const std::string& id)
 {
     std::string subname = "MolarityIonicVPSSTP::initThermoXML";
     std::string stemp;

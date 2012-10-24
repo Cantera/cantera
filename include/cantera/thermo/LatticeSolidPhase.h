@@ -641,7 +641,7 @@ public:
      *  @param x     string containing Name:value pairs that will specify the mole fractions
      *               of species on a particular lattice
      */
-    void setLatticeMoleFractionsByName(int n, std::string x);
+    void setLatticeMoleFractionsByName(int n, const std::string& x);
 
 #ifdef H298MODIFY_CAPABILITY
 
@@ -663,7 +663,7 @@ private:
      *
      *  @return nothing
      */
-    doublereal err(std::string msg) const;
+    doublereal err(const std::string& msg) const;
 
 protected:
 

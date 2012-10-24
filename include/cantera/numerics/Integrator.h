@@ -205,7 +205,7 @@ public:
 private:
 
     doublereal m_dummy;
-    void warn(std::string msg) const {
+    void warn(const std::string& msg) const {
         writelog(">>>> Warning: method "+msg+" of base class "
                  +"Integrator called. Nothing done.\n");
     }
@@ -213,7 +213,7 @@ private:
 };
 
 // defined in ODE_integrators.cpp
-Integrator* newIntegrator(std::string itype);
+Integrator* newIntegrator(const std::string& itype);
 
 // defined in ODE_integrators.cpp
 void deleteIntegrator(Integrator* cv);

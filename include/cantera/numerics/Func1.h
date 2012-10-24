@@ -89,7 +89,7 @@ public:
     virtual doublereal isProportional(TimesConstant1& other);
     virtual doublereal isProportional(Func1& other);
 
-    virtual std::string write(std::string arg) const;
+    virtual std::string write(const std::string& arg) const;
 
 
     //! accessor function for the stored constant
@@ -166,7 +166,7 @@ public:
         return (Func1&) *nfunc;
     }
 
-    virtual std::string write(std::string arg) const;
+    virtual std::string write(const std::string& arg) const;
 
     virtual int ID() const {
         return SinFuncType;
@@ -204,7 +204,7 @@ public:
         Cos1* nfunc = new Cos1(*this);
         return (Func1&) *nfunc;
     }
-    virtual std::string write(std::string arg) const;
+    virtual std::string write(const std::string& arg) const;
     virtual int ID() const {
         return CosFuncType;
     }
@@ -236,7 +236,7 @@ public:
         Func1::operator=(right);
         return *this;
     }
-    virtual std::string write(std::string arg) const;
+    virtual std::string write(const std::string& arg) const;
     virtual int ID() const {
         return ExpFuncType;
     }
@@ -272,7 +272,7 @@ public:
         Func1::operator=(right);
         return *this;
     }
-    virtual std::string write(std::string arg) const;
+    virtual std::string write(const std::string& arg) const;
     virtual int ID() const {
         return PowFuncType;
     }
@@ -313,7 +313,7 @@ public:
         return *this;
     }
 
-    virtual std::string write(std::string arg) const;
+    virtual std::string write(const std::string& arg) const;
     virtual int ID() const {
         return ConstFuncType;
     }
@@ -394,7 +394,7 @@ public:
         return 0;
     }
 
-    virtual std::string write(std::string arg) const;
+    virtual std::string write(const std::string& arg) const;
 };
 
 
@@ -456,7 +456,7 @@ public:
         return 0;
     }
 
-    virtual std::string write(std::string arg) const;
+    virtual std::string write(const std::string& arg) const;
 
 };
 
@@ -509,7 +509,7 @@ public:
         return dup;
     }
 
-    virtual std::string write(std::string arg) const;
+    virtual std::string write(const std::string& arg) const;
 
     virtual doublereal eval(doublereal t) const {
         return m_f1->eval(t) * m_f2->eval(t);
@@ -596,7 +596,7 @@ public:
         return *d;
     }
 
-    virtual std::string write(std::string arg) const;
+    virtual std::string write(const std::string& arg) const;
 
     virtual int order() const {
         return 0;
@@ -654,7 +654,7 @@ public:
         Func1& f1d = m_f1->derivative();
         return f1d;
     }
-    virtual std::string write(std::string arg) const;
+    virtual std::string write(const std::string& arg) const;
 
     virtual int order() const {
         return 0;
@@ -725,7 +725,7 @@ public:
         return r;
     }
 
-    virtual std::string write(std::string arg) const;
+    virtual std::string write(const std::string& arg) const;
 
     virtual int order() const {
         return 1;
@@ -795,7 +795,7 @@ public:
         return *p;
     }
 
-    virtual std::string write(std::string arg) const;
+    virtual std::string write(const std::string& arg) const;
 
     virtual int order() const {
         return 2;

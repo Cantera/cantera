@@ -90,7 +90,7 @@ void VPSSMgr_IdealGas::_updateStandardStateThermo()
 }
 
 void
-VPSSMgr_IdealGas::initThermoXML(XML_Node& phaseNode, std::string id)
+VPSSMgr_IdealGas::initThermoXML(XML_Node& phaseNode, const std::string& id)
 {
     VPSSMgr::initThermoXML(phaseNode, id);
 }

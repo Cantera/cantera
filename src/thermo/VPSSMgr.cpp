@@ -390,7 +390,7 @@ VPSSMgr::initLengths()
     mPDSS_Vss.resize(m_kk, 0.0);
 }
 
-void VPSSMgr::initThermoXML(XML_Node& phaseNode, std::string id)
+void VPSSMgr::initThermoXML(XML_Node& phaseNode, const std::string& id)
 {
     const PDSS* kPDSS = m_vptp_ptr->providePDSS(0);
     m_p0 = kPDSS->refPressure();
@@ -499,7 +499,7 @@ VPSSMgr_enumType VPSSMgr::reportVPSSMgrType() const
 
 /*****************************************************************/
 
-void VPSSMgr::err(std::string msg) const
+void VPSSMgr::err(const std::string& msg) const
 {
     throw CanteraError("VPSSMgr::" + msg, "unimplemented");
 }

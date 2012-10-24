@@ -106,7 +106,8 @@ operator=(const IdealMolalSoln& b)
     return *this;
 }
 
-IdealMolalSoln::IdealMolalSoln(std::string inputFile, std::string id) :
+IdealMolalSoln::IdealMolalSoln(const std::string& inputFile,
+                               const std::string& id) :
     MolalityVPSSTP(),
     m_formGC(2),
     IMS_typeCutoff_(0),
@@ -128,7 +129,7 @@ IdealMolalSoln::IdealMolalSoln(std::string inputFile, std::string id) :
     initThermoFile(inputFile, id);
 }
 
-IdealMolalSoln::IdealMolalSoln(XML_Node& root, std::string id) :
+IdealMolalSoln::IdealMolalSoln(XML_Node& root, const std::string& id) :
     MolalityVPSSTP(),
     m_formGC(2),
     IMS_typeCutoff_(0),
@@ -842,7 +843,7 @@ void IdealMolalSoln::initThermo()
  *             to see if phaseNode is pointing to the phase
  *             with the correct id.
  */
-void IdealMolalSoln::initThermoXML(XML_Node& phaseNode, std::string id)
+void IdealMolalSoln::initThermoXML(XML_Node& phaseNode, const std::string& id)
 {
     /*
      * Find the Thermo XML node
@@ -1060,7 +1061,7 @@ void IdealMolalSoln::setParametersFromXML(const XML_Node& eosdata)
  * Bail out of functions with an error exit if they are not
  * implemented.
  */
-doublereal IdealMolalSoln::err(std::string msg) const
+doublereal IdealMolalSoln::err(const std::string& msg) const
 {
     throw CanteraError("IdealMolalSoln",
                        "Unfinished func called: " + msg);

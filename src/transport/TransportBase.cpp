@@ -121,7 +121,7 @@ void Transport::setThermo(thermo_t& thermo)
 }
 
 
-doublereal Transport::err(std::string msg) const
+doublereal Transport::err(const std::string& msg) const
 {
 
     throw CanteraError("Transport Base Class",

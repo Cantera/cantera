@@ -307,7 +307,7 @@ size_t Kinetics::kineticsSpeciesIndex(const std::string& nm,
  * phase where the species resides.
  * Will throw an error if the species string doesn't match.
  */
-thermo_t& Kinetics::speciesPhase(std::string nm)
+thermo_t& Kinetics::speciesPhase(const std::string& nm)
 {
     size_t np = m_thermo.size();
     size_t k;
@@ -407,7 +407,7 @@ void Kinetics::finalize()
 /*
  * @param m String message
  */
-void Kinetics::err(std::string m) const
+void Kinetics::err(const std::string& m) const
 {
     throw CanteraError("Kinetics::" + m,
                        "The default Base class method was called, when "

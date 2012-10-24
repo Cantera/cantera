@@ -283,7 +283,7 @@ void Elements::freezeElements()
  * returned.
  *
  */
-int Elements::elementIndex(std::string name) const
+int Elements::elementIndex(const std::string& name) const
 {
     for (int i = 0; i < m_mm; i++) {
         if (m_elementNames[i] == name) {

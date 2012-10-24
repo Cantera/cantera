@@ -46,7 +46,7 @@ MineralEQ3::MineralEQ3():
  * @param id     name of the phase id in the file.
  *               If this is blank, the first phase in the file is used.
  */
-MineralEQ3::MineralEQ3(std::string infile, std::string id) :
+MineralEQ3::MineralEQ3(const std::string& infile, std::string id) :
     StoichSubstanceSSTP()
 {
     XML_Node* root = get_XML_File(infile);
@@ -73,7 +73,7 @@ MineralEQ3::MineralEQ3(std::string infile, std::string id) :
  *  @param phaseRef XML node pointing to a MineralEQ3 description
  *  @param id       Id of the phase.
  */
-MineralEQ3::MineralEQ3(XML_Node& xmlphase, std::string id) :
+MineralEQ3::MineralEQ3(XML_Node& xmlphase, const std::string& id) :
     StoichSubstanceSSTP()
 {
     if (id != "") {
@@ -479,7 +479,7 @@ void MineralEQ3::getParameters(int& n, doublereal* const c) const
  *             to see if phaseNode is pointing to the phase
  *             with the correct id.
  */
-void MineralEQ3::initThermoXML(XML_Node& phaseNode, std::string id)
+void MineralEQ3::initThermoXML(XML_Node& phaseNode, const std::string& id)
 {
     /*
      * Find the Thermo XML node

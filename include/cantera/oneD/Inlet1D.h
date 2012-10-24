@@ -59,7 +59,7 @@ public:
     }
 
     /// Set the mole fractions by specifying a std::string.
-    virtual void setMoleFractions(std::string xin) {
+    virtual void setMoleFractions(const std::string& xin) {
         err("setMoleFractions");
     }
 
@@ -105,7 +105,7 @@ protected:
     doublereal m_temp, m_mdot;
 
 private:
-    void err(std::string method) {
+    void err(const std::string& method) {
         throw CanteraError("Bdry1D::"+method,
                            "attempt to call base class method "+method);
     }
@@ -169,7 +169,7 @@ public:
 
     virtual void _finalize(const doublereal* x) {}
 
-    virtual void setMoleFractions(std::string xin);
+    virtual void setMoleFractions(const std::string& xin);
     virtual void setMoleFractions(doublereal* xin);
     virtual doublereal massFraction(size_t k) {
         return m_yin[k];
@@ -319,7 +319,7 @@ public:
         ;
     }
 
-    virtual void setMoleFractions(std::string xin);
+    virtual void setMoleFractions(const std::string& xin);
     virtual void setMoleFractions(doublereal* xin);
     virtual doublereal massFraction(size_t k) {
         return m_yres[k];

@@ -299,7 +299,7 @@ void GibbsExcessVPSSTP::getPartialMolarVolumes(doublereal* vbar) const
 
 
 
-doublereal GibbsExcessVPSSTP::err(std::string msg) const
+doublereal GibbsExcessVPSSTP::err(const std::string& msg) const
 {
     throw CanteraError("GibbsExcessVPSSTP","Base class method "
                        +msg+" called. Equation of state type: "+int2str(eosType()));

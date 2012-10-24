@@ -559,7 +559,7 @@ void MolalityVPSSTP::getElectrochemPotentials(doublereal* mu) const
  */
 
 
-doublereal MolalityVPSSTP::err(std::string msg) const
+doublereal MolalityVPSSTP::err(const std::string& msg) const
 {
     throw CanteraError("MolalityVPSSTP","Base class method "
                        +msg+" called. Equation of state type: "+int2str(eosType()));
@@ -814,7 +814,7 @@ void  MolalityVPSSTP::initLengths()
  *             to see if phaseNode is pointing to the phase
  *             with the correct id.
  */
-void MolalityVPSSTP::initThermoXML(XML_Node& phaseNode, std::string id)
+void MolalityVPSSTP::initThermoXML(XML_Node& phaseNode, const std::string& id)
 {
 
     initLengths();

@@ -57,7 +57,7 @@ RedlichKwongMFTP::RedlichKwongMFTP() :
     Vroot_[2] = 0.0;
 }
 //====================================================================================================================
-RedlichKwongMFTP::RedlichKwongMFTP(std::string infile, std::string id) :
+RedlichKwongMFTP::RedlichKwongMFTP(const std::string& infile, std::string id) :
     MixtureFugacityTP(),
     m_standardMixingRules(0),
     m_formTempParam(0),
@@ -92,7 +92,7 @@ RedlichKwongMFTP::RedlichKwongMFTP(std::string infile, std::string id) :
     importPhase(*xphase, this);
 }
 //====================================================================================================================
-RedlichKwongMFTP::RedlichKwongMFTP(XML_Node& phaseRefRoot, std::string id) :
+RedlichKwongMFTP::RedlichKwongMFTP(XML_Node& phaseRefRoot, const std::string& id) :
     MixtureFugacityTP(),
     m_standardMixingRules(0),
     m_formTempParam(0),
@@ -935,7 +935,7 @@ void RedlichKwongMFTP::initLengths()
  * This routine initializes the lengths in the current object and
  * then calls the parent routine.
  */
-void RedlichKwongMFTP::initThermoXML(XML_Node& phaseNode, std::string id)
+void RedlichKwongMFTP::initThermoXML(XML_Node& phaseNode, const std::string& id)
 {
     RedlichKwongMFTP::initLengths();
 

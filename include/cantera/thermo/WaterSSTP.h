@@ -142,14 +142,14 @@ public:
      * @param inputFile String name of the input file
      * @param id        string id of the phase name
      */
-    WaterSSTP(std::string inputFile, std::string id = "");
+    explicit WaterSSTP(const std::string& inputFile, const std::string& id = "");
 
     //! Full constructor for a water phase
     /*!
      * @param phaseRef  XML node referencing the water phase.
      * @param id        string id of the phase name
      */
-    WaterSSTP(XML_Node& phaseRef, std::string id = "");
+    explicit WaterSSTP(XML_Node& phaseRef, const std::string& id = "");
 
     //! Destructor
     virtual ~WaterSSTP();
@@ -442,7 +442,7 @@ public:
      *             to see if phaseNode is pointing to the phase
      *             with the correct id.
      */
-    virtual void initThermoXML(XML_Node& phaseNode, std::string id);
+    virtual void initThermoXML(XML_Node& phaseNode, const std::string& id);
 
     //! Initialize the ThermoPhase object after all species have been set up
     /*!

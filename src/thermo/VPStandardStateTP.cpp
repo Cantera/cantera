@@ -171,7 +171,7 @@ int VPStandardStateTP::standardStateConvention() const
  */
 
 
-doublereal VPStandardStateTP::err(std::string msg) const
+doublereal VPStandardStateTP::err(const std::string& msg) const
 {
     throw CanteraError("VPStandardStateTP","Base class method "
                        +msg+" called. Equation of state type: "+int2str(eosType()));
@@ -478,7 +478,7 @@ VPStandardStateTP::providePDSS(size_t k) const
  * This routine initializes the lengths in the current object and
  * then calls the parent routine.
  */
-void VPStandardStateTP::initThermoXML(XML_Node& phaseNode, std::string id)
+void VPStandardStateTP::initThermoXML(XML_Node& phaseNode, const std::string& id)
 {
     VPStandardStateTP::initLengths();
 

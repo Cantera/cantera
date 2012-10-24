@@ -340,7 +340,7 @@ ostream& operator<<(ostream& s, const BandMatrix& m)
     return s;
 }
 //====================================================================================================================
-void BandMatrix::err(std::string msg) const
+void BandMatrix::err(const std::string& msg) const
 {
     throw CanteraError("BandMatrix() unimplemented function", msg);
 }

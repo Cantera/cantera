@@ -47,7 +47,8 @@ void makeDataLabels(const G& gas, V& names)
 }
 
 template<class G, class A>
-void plotSoln(std::string fname, std::string fmt, std::string title, const G& gas, const A& soln)
+void plotSoln(const std::string& fname, const std::string& fmt,
+              const std::string& title, const G& gas, const A& soln)
 {
     std::vector<std::string> names;
     makeDataLabels(gas, names);

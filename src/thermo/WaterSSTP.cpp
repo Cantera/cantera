@@ -40,7 +40,7 @@ WaterSSTP::WaterSSTP() :
 }
 
 
-WaterSSTP::WaterSSTP(std::string inputFile, std::string id) :
+WaterSSTP::WaterSSTP(const std::string& inputFile, const std::string& id) :
     SingleSpeciesTP(),
     m_sub(0),
     m_waterProps(0),
@@ -54,7 +54,7 @@ WaterSSTP::WaterSSTP(std::string inputFile, std::string id) :
 }
 
 
-WaterSSTP::WaterSSTP(XML_Node& phaseRoot, std::string id) :
+WaterSSTP::WaterSSTP(XML_Node& phaseRoot, const std::string& id) :
     SingleSpeciesTP(),
     m_sub(0),
     m_waterProps(0),
@@ -129,7 +129,7 @@ void WaterSSTP::initThermo()
 }
 
 void WaterSSTP::
-initThermoXML(XML_Node& phaseNode, std::string id)
+initThermoXML(XML_Node& phaseNode, const std::string& id)
 {
 
     /*

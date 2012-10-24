@@ -256,7 +256,7 @@ public:
      * If a -1 is returned, then the phase is not defined in
      * the Kinetics object.
      */
-    size_t phaseIndex(std::string ph) {
+    size_t phaseIndex(const std::string& ph) {
         if (m_phaseindex.find(ph) == m_phaseindex.end()) {
             return npos;
         } else {
@@ -396,7 +396,7 @@ public:
      *
      * @param nm   String containing the name of the species.
      */
-    thermo_t& speciesPhase(std::string nm);
+    thermo_t& speciesPhase(const std::string& nm);
 
     /**
      * This function takes as an argument the kineticsSpecies index
@@ -1049,7 +1049,7 @@ private:
     /*!
      * @param m String message
      */
-    void err(std::string m) const;
+    void err(const std::string& m) const;
 
 };
 

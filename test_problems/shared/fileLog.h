@@ -6,7 +6,7 @@
 class fileLog: public Cantera::Logger
 {
 public:
-    fileLog(std::string fName) {
+    explicit fileLog(const std::string& fName) {
         m_fName = fName;
         m_fs.open(fName.c_str());
     }

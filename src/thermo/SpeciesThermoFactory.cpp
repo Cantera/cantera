@@ -219,8 +219,8 @@ SpeciesThermo* SpeciesThermoFactory::newSpeciesThermoManager(std::string& stype)
  * Check the continuity of properties at the midpoint
  * temperature.
  */
-void NasaThermo::checkContinuity(std::string name, double tmid, const doublereal* clow,
-                                 doublereal* chigh)
+void NasaThermo::checkContinuity(const std::string& name, double tmid,
+                                 const doublereal* clow, doublereal* chigh)
 {
     // heat capacity
     doublereal cplow = poly4(tmid, clow);
@@ -276,7 +276,7 @@ void NasaThermo::checkContinuity(std::string name, double tmid, const doublereal
  *  @param f0ptr              Ptr to the first XML_Node for the first NASA polynomial
  *  @param f1ptr              Ptr to the first XML_Node for the first NASA polynomial
  */
-static void installNasaThermoFromXML(std::string speciesName,
+static void installNasaThermoFromXML(const std::string& speciesName,
                                      SpeciesThermo& sp, size_t k,
                                      const XML_Node* f0ptr, const XML_Node* f1ptr)
 {
@@ -412,7 +412,7 @@ static doublereal convertDGFormation(size_t k, ThermoPhase* th_ptr)
  *  @param k                  Species index within the phase
  *  @param MinEQ3node         Ptr to the first XML_Node for the first MinEQ3 parameterization
  */
-static void installMinEQ3asShomateThermoFromXML(std::string speciesName,
+static void installMinEQ3asShomateThermoFromXML(const std::string& speciesName,
         ThermoPhase* th_ptr,
         SpeciesThermo& sp, size_t k,
         const XML_Node* MinEQ3node)
@@ -499,7 +499,7 @@ static void installMinEQ3asShomateThermoFromXML(std::string speciesName,
  *  @param f0ptr              Ptr to the first XML_Node for the first NASA polynomial
  *  @param f1ptr              Ptr to the first XML_Node for the first NASA polynomial
  */
-static void installShomateThermoFromXML(std::string speciesName, SpeciesThermo& sp, size_t k,
+static void installShomateThermoFromXML(const std::string& speciesName, SpeciesThermo& sp, size_t k,
                                         const XML_Node* f0ptr, const XML_Node* f1ptr)
 {
     doublereal tmin0, tmax0, tmin1, tmax1, tmin, tmid, tmax;
@@ -565,7 +565,7 @@ static void installShomateThermoFromXML(std::string speciesName, SpeciesThermo& 
  *  @param k                  Species index within the phase
  *  @param f                  XML_Node for the SimpleThermo block
  */
-static void installSimpleThermoFromXML(std::string speciesName,
+static void installSimpleThermoFromXML(const std::string& speciesName,
                                        SpeciesThermo& sp, size_t k,
                                        const XML_Node& f)
 {
@@ -595,7 +595,7 @@ static void installSimpleThermoFromXML(std::string speciesName,
  *  @param k                  Species index within the phase
  *  @param tp                 Vector of XML Nodes that make up the parameterization
  */
-static void installNasa9ThermoFromXML(std::string speciesName,
+static void installNasa9ThermoFromXML(const std::string& speciesName,
                                       SpeciesThermo& sp, size_t k,
                                       const std::vector<XML_Node*>& tp)
 {
@@ -649,7 +649,7 @@ static void installNasa9ThermoFromXML(std::string speciesName,
  * Install a stat mech based property solver
  * for species k into a SpeciesThermo instance.
  */
-static void installStatMechThermoFromXML(std::string speciesName,
+static void installStatMechThermoFromXML(const std::string& speciesName,
         SpeciesThermo& sp, int k,
         const std::vector<XML_Node*>& tp)
 {
@@ -702,7 +702,7 @@ static void installStatMechThermoFromXML(std::string speciesName,
  *  @param k                  Species index within the phase
  *  @param f                  XML Node that contains the parameterization
  */
-static void installAdsorbateThermoFromXML(std::string speciesName,
+static void installAdsorbateThermoFromXML(const std::string& speciesName,
         SpeciesThermo& sp, size_t k,
         const XML_Node& f)
 {

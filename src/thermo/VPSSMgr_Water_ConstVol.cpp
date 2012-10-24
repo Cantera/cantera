@@ -216,7 +216,7 @@ void VPSSMgr_Water_ConstVol::initThermo()
 }
 
 void
-VPSSMgr_Water_ConstVol::initThermoXML(XML_Node& phaseNode, std::string id)
+VPSSMgr_Water_ConstVol::initThermoXML(XML_Node& phaseNode, const std::string& id)
 {
     VPSSMgr::initThermoXML(phaseNode, id);
 

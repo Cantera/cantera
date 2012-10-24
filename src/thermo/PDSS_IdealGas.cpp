@@ -34,7 +34,7 @@ PDSS_IdealGas::PDSS_IdealGas(VPStandardStateTP* tp, int spindex) :
 
 
 PDSS_IdealGas::PDSS_IdealGas(VPStandardStateTP* tp, int spindex,
-                             std::string inputFile, std::string id) :
+                             const std::string& inputFile, const std::string& id) :
     PDSS(tp, spindex)
 {
     m_pdssType = cPDSS_IDEALGAS;
@@ -113,7 +113,7 @@ PDSS* PDSS_IdealGas::duplMyselfAsPDSS() const
  *            phase element will be used.
  */
 void PDSS_IdealGas::constructPDSSXML(VPStandardStateTP* tp, size_t spindex,
-                                     const XML_Node& phaseNode, std::string id)
+                                     const XML_Node& phaseNode, const std::string& id)
 {
     //initThermo();
     //initThermoXML(phaseNode, id);
@@ -121,7 +121,8 @@ void PDSS_IdealGas::constructPDSSXML(VPStandardStateTP* tp, size_t spindex,
 
 
 void PDSS_IdealGas::constructPDSSFile(VPStandardStateTP* tp, size_t spindex,
-                                      std::string inputFile, std::string id)
+                                      const std::string& inputFile,
+                                      const std::string& id)
 {
 
     if (inputFile.size() == 0) {

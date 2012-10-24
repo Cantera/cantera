@@ -661,7 +661,7 @@ void ThermoPhase::setState_SPorSV(doublereal Starget, doublereal p,
 }
 //=================================================================================================================
 
-doublereal ThermoPhase::err(std::string msg) const
+doublereal ThermoPhase::err(const std::string& msg) const
 {
     throw CanteraError("ThermoPhase","Base class method "
                        +msg+" called. Equation of state type: "+int2str(eosType()));
@@ -775,7 +775,8 @@ SpeciesThermo& ThermoPhase::speciesThermo(int k)
  *            phase. If none is given, the first XML
  *            phase element will be used.
  */
-void ThermoPhase::initThermoFile(std::string inputFile, std::string id)
+void ThermoPhase::initThermoFile(const std::string& inputFile,
+                                 const std::string& id)
 {
 
     if (inputFile.size() == 0) {
@@ -830,7 +831,7 @@ void ThermoPhase::initThermoFile(std::string inputFile, std::string id)
  *             to see if phaseNode is pointing to the phase
  *             with the correct id.
  */
-void ThermoPhase::initThermoXML(XML_Node& phaseNode, std::string id)
+void ThermoPhase::initThermoXML(XML_Node& phaseNode, const std::string& id)
 {
 
     /*

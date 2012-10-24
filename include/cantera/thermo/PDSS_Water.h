@@ -106,7 +106,7 @@ public:
      *                   file is used.
      */
     PDSS_Water(VPStandardStateTP* tp, int spindex,
-               std::string inputFile, std::string id = "");
+               const std::string& inputFile, const std::string& id = "");
 
     //! Constructor that initializes the object by examining the input file
     //! of the variable pressure ThermoPhase object
@@ -430,7 +430,7 @@ public:
      *                    phase element will be used.
      */
     void constructPDSSFile(VPStandardStateTP* vptp_ptr, int spindex,
-                           std::string inputFile, std::string id);
+                           const std::string& inputFile, const std::string& id);
 
     //!Initialization of a PDSS object using an xml tree
     /*!
@@ -455,7 +455,7 @@ public:
      *                   phase element will be used.
      */
     void constructPDSSXML(VPStandardStateTP* vptp_ptr, int spindex,
-                          const XML_Node& phaseNode, std::string id);
+                          const XML_Node& phaseNode, const std::string& id);
 
     //! Initialization routine for all of the shallow pointers
     /*!

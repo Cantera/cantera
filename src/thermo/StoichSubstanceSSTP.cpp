@@ -42,7 +42,7 @@ StoichSubstanceSSTP::StoichSubstanceSSTP():
  * @param id     name of the phase id in the file.
  *               If this is blank, the first phase in the file is used.
  */
-StoichSubstanceSSTP::StoichSubstanceSSTP(std::string infile, std::string id) :
+StoichSubstanceSSTP::StoichSubstanceSSTP(const std::string& infile, std::string id) :
     SingleSpeciesTP()
 {
     XML_Node* root = get_XML_File(infile);
@@ -69,7 +69,7 @@ StoichSubstanceSSTP::StoichSubstanceSSTP(std::string infile, std::string id) :
  *  @param phaseRef XML node pointing to a StoichSubstanceSSTP description
  *  @param id       Id of the phase.
  */
-StoichSubstanceSSTP::StoichSubstanceSSTP(XML_Node& xmlphase, std::string id) :
+StoichSubstanceSSTP::StoichSubstanceSSTP(XML_Node& xmlphase, const std::string& id) :
     SingleSpeciesTP()
 {
     if (id != "") {
@@ -446,7 +446,7 @@ void StoichSubstanceSSTP::initThermo()
 }
 
 
-void StoichSubstanceSSTP::initThermoXML(XML_Node& phaseNode, std::string id)
+void StoichSubstanceSSTP::initThermoXML(XML_Node& phaseNode, const std::string& id)
 {
     /*
      * Find the Thermo XML node
@@ -530,7 +530,7 @@ electrodeElectron::electrodeElectron():
  * @param id     name of the phase id in the file.
  *               If this is blank, the first phase in the file is used.
  */
-electrodeElectron::electrodeElectron(std::string infile, std::string id) :
+electrodeElectron::electrodeElectron(const std::string& infile, std::string id) :
     StoichSubstanceSSTP()
 {
     XML_Node* root = get_XML_File(infile);
@@ -557,7 +557,7 @@ electrodeElectron::electrodeElectron(std::string infile, std::string id) :
  *  @param phaseRef XML node pointing to a electrodeElectron description
  *  @param id       Id of the phase.
  */
-electrodeElectron::electrodeElectron(XML_Node& xmlphase, std::string id) :
+electrodeElectron::electrodeElectron(XML_Node& xmlphase, const std::string& id) :
     StoichSubstanceSSTP()
 {
     if (id != "") {
@@ -616,7 +616,7 @@ void electrodeElectron::setParametersFromXML(const XML_Node& eosdata)
     }
 }
 
-void electrodeElectron::initThermoXML(XML_Node& phaseNode, std::string id)
+void electrodeElectron::initThermoXML(XML_Node& phaseNode, const std::string& id)
 {
     doublereal rho = 10.0;
     setDensity(rho);

@@ -26,7 +26,7 @@ public:
         return m_s;
     }
 
-    inline std::string XML_filter(std::string name) {
+    inline std::string XML_filter(const std::string& name) {
         int ns = static_cast<int>(name.size());
         std::string nm(name);
         for (int m = 0; m < ns; m++)

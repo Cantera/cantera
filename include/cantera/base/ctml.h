@@ -619,7 +619,7 @@ void getFloats(const Cantera::XML_Node& node, std::map<std::string, double>& v,
  *   @param parent reference to the XML_Node object of the parent XML element
  *   @param name   Name of the XML child element
  */
-int getInteger(const Cantera::XML_Node& parent, std::string name);
+int getInteger(const Cantera::XML_Node& parent, const std::string& name);
 
 //!  Get a floating-point value from a child element with a defined units field
 /*!
@@ -655,8 +655,10 @@ int getInteger(const Cantera::XML_Node& parent, std::string name);
  *                 and "" , for no conversion. The default value is "",
  *                 which implies that no conversion is allowed.
  */
-doublereal getFloatDefaultUnits(const Cantera::XML_Node& parent, std::string name,
-                                std::string defaultUnits, std::string type="toSI");
+doublereal getFloatDefaultUnits(const Cantera::XML_Node& parent,
+                                const std::string& name,
+                                const std::string& defaultUnits,
+                                const std::string& type="toSI");
 
 //!  Get an optional model name from a named child node.
 /*!

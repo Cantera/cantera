@@ -299,17 +299,17 @@ std::string getBaseName(const std::string& path)
     return file;
 }
 //================================================================================================
-int intValue(std::string val)
+int intValue(const std::string& val)
 {
     return std::atoi(stripws(val).c_str());
 }
 //================================================================================================
-doublereal fpValue(std::string val)
+doublereal fpValue(const std::string& val)
 {
     return std::atof(stripws(val).c_str());
 }
 //================================================================================================
-doublereal fpValueCheck(std::string val)
+doublereal fpValueCheck(const std::string& val)
 {
     return atofCheck(stripws(val).c_str());
 }

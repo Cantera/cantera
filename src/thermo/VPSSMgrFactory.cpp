@@ -207,7 +207,7 @@ VPSSMgrFactory::~VPSSMgrFactory()
 }
 
 VPSSMgr_enumType
-VPSSMgrFactory::VPSSMgr_StringConversion(std::string ssModel) const
+VPSSMgrFactory::VPSSMgr_StringConversion(const std::string& ssModel) const
 {
     std::string lssModel = lowercase(ssModel);
     VPSSMgr_enumType type;

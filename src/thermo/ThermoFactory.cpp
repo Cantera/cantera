@@ -92,7 +92,7 @@ static int _itypes[]   = {cIdealGas, cIncompressible,
 /*
  * This method returns a new instance of a subclass of ThermoPhase
  */
-ThermoPhase* ThermoFactory::newThermoPhase(std::string model)
+ThermoPhase* ThermoFactory::newThermoPhase(const std::string& model)
 {
 
     int ieos=-1;
@@ -251,7 +251,7 @@ ThermoPhase* newPhase(XML_Node& xmlphase)
     return t;
 }
 
-ThermoPhase* newPhase(std::string infile, std::string id)
+ThermoPhase* newPhase(const std::string& infile, std::string id)
 {
     XML_Node* root = get_XML_File(infile);
     if (id == "-") {
@@ -776,7 +776,7 @@ bool installSpecies(size_t k, const XML_Node& s, thermo_t& th,
  *              containing the species data for that phase.
  *
  */
-const XML_Node* speciesXML_Node(std::string kname,
+const XML_Node* speciesXML_Node(const std::string& kname,
                                 const XML_Node* phaseSpeciesData)
 {
     if (!phaseSpeciesData) {

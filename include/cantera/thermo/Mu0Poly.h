@@ -297,7 +297,7 @@ private:
  *
  *  @ingroup spthermo
  */
-void installMu0ThermoFromXML(std::string speciesName,
+void installMu0ThermoFromXML(const std::string& speciesName,
                              SpeciesThermo& sp, size_t k,
                              const XML_Node* Mu0Node_ptr);
 }

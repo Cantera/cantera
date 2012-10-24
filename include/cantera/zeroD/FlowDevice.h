@@ -175,7 +175,7 @@ private:
     ReactorBase* m_out;
     std::vector<size_t> m_in2out, m_out2in;
 
-    void warn(std::string meth) {
+    void warn(const std::string& meth) {
         writelog(std::string("Warning: method ") + meth + " of base class "
                  + " FlowDevice called. Nothing done.\n");
     }

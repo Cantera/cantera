@@ -78,7 +78,7 @@ public:
      *             generated.
      * @param msg  Descriptive string describing the type of error message.
      */
-    CanteraError(std::string procedure, std::string msg);
+    CanteraError(const std::string& procedure, const std::string& msg);
 
     //! Destructor for base class does nothing
     virtual ~CanteraError() throw() {};
@@ -102,7 +102,7 @@ protected:
     CanteraError() : saved_(false) {};
 
     //! Constructor used by derived classes that override getMessage()
-    CanteraError(std::string procedure);
+    explicit CanteraError(const std::string& procedure);
 
     //! The name of the procedure where the exception occurred
     std::string procedure_;
@@ -134,7 +134,7 @@ public:
      * @param sz   This is the length supplied to Cantera.
      * @param reqd This is the required length needed by Cantera
      */
-    ArraySizeError(std::string procedure, size_t sz, size_t reqd) :
+    ArraySizeError(const std::string& procedure, size_t sz, size_t reqd) :
         CanteraError(procedure), sz_(sz), reqd_(reqd) {}
 
     virtual std::string getMessage() const;
@@ -164,7 +164,7 @@ public:
      * @param mmax This is the maximum allowed value of the index. The
      *             minimum allowed value is assumed to be 0.
      */
-    IndexError(std::string func, std::string arrayName, size_t m, size_t mmax) :
+    IndexError(const std::string& func, const std::string& arrayName, size_t m, size_t mmax) :
         CanteraError(func), arrayName_(arrayName), m_(m), mmax_(mmax) {}
 
     virtual ~IndexError() throw() {};

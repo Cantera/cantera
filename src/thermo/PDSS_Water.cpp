@@ -69,7 +69,7 @@ PDSS_Water::PDSS_Water(VPStandardStateTP* tp, int spindex) :
 
 
 PDSS_Water::PDSS_Water(VPStandardStateTP* tp, int spindex,
-                       std::string inputFile, std::string id) :
+                       const std::string& inputFile, const std::string& id) :
     PDSS(tp, spindex),
     m_sub(0),
     m_waterProps(0),
@@ -196,7 +196,7 @@ PDSS* PDSS_Water::duplMyselfAsPDSS() const
  *            phase element will be used.
  */
 void PDSS_Water::constructPDSSXML(VPStandardStateTP* tp, int spindex,
-                                  const XML_Node& phaseNode, std::string id)
+                                  const XML_Node& phaseNode, const std::string& id)
 {
     constructSet();
 }
@@ -218,7 +218,7 @@ void PDSS_Water::constructPDSSXML(VPStandardStateTP* tp, int spindex,
  *            phase element will be used.
  */
 void PDSS_Water::constructPDSSFile(VPStandardStateTP* tp, int spindex,
-                                   std::string inputFile, std::string id)
+                                   const std::string& inputFile, const std::string& id)
 {
 
     if (inputFile.size() == 0) {

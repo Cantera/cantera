@@ -245,7 +245,7 @@ public:
      *
      * @param name String containing the index.
      */
-    int elementIndex(std::string name) const;
+    int elementIndex(const std::string& name) const;
 
     //! Name of the element with index \c m.
     /*!

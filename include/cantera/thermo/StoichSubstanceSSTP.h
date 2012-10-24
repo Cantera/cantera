@@ -173,7 +173,7 @@ public:
      * @param id     name of the phase id in the file.
      *               If this is blank, the first phase in the file is used.
      */
-    StoichSubstanceSSTP(std::string infile, std::string id = "");
+    StoichSubstanceSSTP(const std::string& infile, std::string id = "");
 
     //! Construct and initialize a StoichSubstanceSSTP ThermoPhase object
     //! directly from an XML database
@@ -181,7 +181,7 @@ public:
      *  @param phaseRef XML node pointing to a StoichSubstanceSSTP description
      *  @param id       Id of the phase.
      */
-    StoichSubstanceSSTP(XML_Node& phaseRef, std::string id = "");
+    StoichSubstanceSSTP(XML_Node& phaseRef, const std::string& id = "");
 
     //! Copy constructor
     /*!
@@ -466,7 +466,7 @@ public:
     virtual void initThermo();
 
 
-    virtual void initThermoXML(XML_Node& phaseNode, std::string id);
+    virtual void initThermoXML(XML_Node& phaseNode, const std::string& id);
 
     //! Set the equation of state parameters
     /*!
@@ -544,7 +544,7 @@ public:
      * @param id     name of the phase id in the file.
      *               If this is blank, the first phase in the file is used.
      */
-    electrodeElectron(std::string infile, std::string id = "");
+    electrodeElectron(const std::string& infile, std::string id = "");
 
     //! Construct and initialize a electrodeElectron ThermoPhase object
     //! directly from an XML database
@@ -552,7 +552,7 @@ public:
      *  @param phaseRef XML node pointing to a electrodeElectron description
      *  @param id       Id of the phase.
      */
-    electrodeElectron(XML_Node& phaseRef, std::string id = "");
+    electrodeElectron(XML_Node& phaseRef, const std::string& id = "");
 
     //! Copy constructor
     /*!
@@ -571,7 +571,7 @@ public:
 
     void setParametersFromXML(const XML_Node& eosdata);
 
-    virtual void initThermoXML(XML_Node& phaseNode, std::string id);
+    virtual void initThermoXML(XML_Node& phaseNode, const std::string& id);
 
     void setParameters(int n, doublereal* const c);
 };

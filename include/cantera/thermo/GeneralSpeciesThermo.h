@@ -85,7 +85,7 @@ public:
      * @todo Create a factory method for SpeciesThermoInterpType.
      *       That's basically what we are doing here.
      */
-    virtual void install(std::string name, size_t index, int type,
+    virtual void install(const std::string& name, size_t index, int type,
                          const doublereal* c,
                          doublereal minTemp, doublereal maxTemp,
                          doublereal refPressure);

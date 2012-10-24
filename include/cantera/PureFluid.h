@@ -17,7 +17,7 @@ public:
 
     PureFluid() : m_ok(false), m_r(0) {}
 
-    PureFluid(std::string infile, std::string id="") : m_ok(false), m_r(0) {
+    PureFluid(const std::string& infile, std::string id="") : m_ok(false), m_r(0) {
 
         m_r = get_XML_File(infile);
         if (id == "-") {
@@ -29,7 +29,7 @@ public:
     }
 
 
-    PureFluid(XML_Node& root, std::string id) : m_ok(false), m_r(0) {
+    PureFluid(XML_Node& root, const std::string& id) : m_ok(false), m_r(0) {
         m_ok = buildSolutionFromXML(root, id, "phase", this, 0);
     }
 

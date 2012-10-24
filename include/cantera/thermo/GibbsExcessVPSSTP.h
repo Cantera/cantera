@@ -576,7 +576,7 @@ private:
      *
      * @param msg  Message to be printed
      */
-    doublereal err(std::string msg) const;
+    doublereal err(const std::string& msg) const;
 
 protected:
 

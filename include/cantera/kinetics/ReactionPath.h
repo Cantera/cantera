@@ -107,7 +107,8 @@ public:
     /// Destructor
     virtual ~Path() {}
 
-    void addReaction(size_t rxnNumber, doublereal value, std::string label = "");
+    void addReaction(size_t rxnNumber, doublereal value,
+                     const std::string& label = "");
 
     /// Upstream node.
     const SpeciesNode* begin() const {
@@ -213,7 +214,7 @@ public:
         return m_nodes.size();
     }
 
-    void addNode(size_t k, std::string nm, doublereal x = 0.0);
+    void addNode(size_t k, const std::string& nm, doublereal x = 0.0);
 
     void displayOnly(size_t k=npos) {
         m_local = k;
@@ -222,10 +223,10 @@ public:
     void linkNodes(size_t k1, size_t k2, size_t rxn, doublereal value,
                    std::string legend = "");
 
-    void include(std::string aaname) {
+    void include(const std::string& aaname) {
         m_include.push_back(aaname);
     }
-    void exclude(std::string aaname) {
+    void exclude(const std::string& aaname) {
         m_exclude.push_back(aaname);
     }
     void include(std::vector<std::string>& names) {
@@ -247,7 +248,7 @@ public:
     std::vector<size_t> species();
     vector_int reactions();
     void findMajorPaths(doublereal threshold, size_t lda, doublereal* a);
-    void setFont(std::string font) {
+    void setFont(const std::string& font) {
         m_font = font;
     }
     // public attributes
@@ -292,7 +293,7 @@ public:
 
     int init(std::ostream& logfile, Kinetics& s);
 
-    int build(Kinetics& s, std::string element, std::ostream& output,
+    int build(Kinetics& s, const std::string& element, std::ostream& output,
               ReactionPathDiagram& r, bool quiet=false);
 
     int findGroups(std::ostream& logfile, Kinetics& s);

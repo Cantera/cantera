@@ -244,7 +244,7 @@ protected:
 
 
 private:
-    void warn(std::string msg) const {
+    void warn(const std::string& msg) const {
         writelog(">>>> Warning: method "+msg+" of base class "
                  +"DAE_Solver called. Nothing done.\n");
     }
@@ -260,7 +260,7 @@ private:
  *
  *     @return       Returns a point to the instantiated DAE_Solver object
  */
-DAE_Solver* newDAE_Solver(std::string itype, ResidJacEval& f);
+DAE_Solver* newDAE_Solver(const std::string& itype, ResidJacEval& f);
 
 #endif
 

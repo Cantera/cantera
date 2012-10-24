@@ -35,7 +35,7 @@ StatMech::StatMech()
 StatMech::StatMech(int n, doublereal tlow, doublereal thigh,
                    doublereal pref,
                    const doublereal* coeffs,
-                   std::string my_name) :
+                   const std::string& my_name) :
     m_lowT(tlow),
     m_highT(thigh),
     m_Pref(pref),

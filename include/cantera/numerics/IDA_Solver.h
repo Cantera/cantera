@@ -40,7 +40,7 @@ namespace Cantera
 class IDA_Err : public CanteraError
 {
 public:
-    IDA_Err(std::string msg) : CanteraError("IDA_Solver", msg) {}
+    explicit IDA_Err(const std::string& msg) : CanteraError("IDA_Solver", msg) {}
 };
 
 

@@ -58,7 +58,7 @@ public:
         return *m_dom[i];
     }
 
-    size_t domainIndex(std::string name);
+    size_t domainIndex(const std::string& name);
 
     //! Check that the specified domain index is in range
     //! Throws an exception if n is greater than nDomains()-1
@@ -192,7 +192,8 @@ public:
      */
     void writeStats(int printTime = 1);
 
-    void save(std::string fname, std::string id, std::string desc, doublereal* sol);
+    void save(const std::string& fname, std::string id,
+              const std::string& desc, doublereal* sol);
 
     // options
     void setMinTimeStep(doublereal tmin) {

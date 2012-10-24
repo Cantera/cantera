@@ -122,7 +122,7 @@ std::string Phase::id() const
     return m_id;
 }
 
-void Phase::setID(std::string id)
+void Phase::setID(const std::string& id)
 {
     m_id = id;
 }
@@ -132,7 +132,7 @@ std::string Phase::name() const
     return m_name;
 }
 
-void Phase::setName(std::string nm)
+void Phase::setName(const std::string& nm)
 {
     m_name = nm;
 }
@@ -162,7 +162,7 @@ string Phase::elementName(size_t m) const
     return m_elementNames[m];
 }
 
-size_t Phase::elementIndex(std::string name) const
+size_t Phase::elementIndex(const std::string& name) const
 {
     for (size_t i = 0; i < m_mm; i++) {
         if (m_elementNames[i] == name) {
@@ -227,7 +227,7 @@ void Phase::getAtoms(size_t k, double* atomArray) const
     }
 }
 
-size_t Phase::speciesIndex(std::string nameStr) const
+size_t Phase::speciesIndex(const std::string& nameStr) const
 {
     std::string pn;
     std::string sn = parseSpeciesName(nameStr, pn);
@@ -521,7 +521,7 @@ doublereal Phase::moleFraction(size_t k) const
     return m_ym[k] * m_mmw;
 }
 
-doublereal Phase::moleFraction(std::string nameSpec) const
+doublereal Phase::moleFraction(const std::string& nameSpec) const
 {
     size_t iloc = speciesIndex(nameSpec);
     if (iloc != npos) {
@@ -542,7 +542,7 @@ doublereal Phase::massFraction(size_t k) const
     return m_y[k];
 }
 
-doublereal Phase::massFraction(std::string nameSpec) const
+doublereal Phase::massFraction(const std::string& nameSpec) const
 {
     size_t iloc = speciesIndex(nameSpec);
     if (iloc != npos) {

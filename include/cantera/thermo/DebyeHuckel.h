@@ -625,7 +625,7 @@ public:
      *  @param id     id attribute containing the name of the phase.
      *                (default is the empty string)
      */
-    DebyeHuckel(std::string inputFile, std::string id = "");
+    DebyeHuckel(const std::string& inputFile, const std::string& id = "");
 
     //! Full constructor for creating the phase.
     /*!
@@ -633,7 +633,7 @@ public:
      *  @param id     id attribute containing the name of the phase.
      *                (default is the empty string)
      */
-    DebyeHuckel(XML_Node& phaseRef, std::string id = "");
+    DebyeHuckel(XML_Node& phaseRef, const std::string& id = "");
 
     /// Destructor.
     virtual ~DebyeHuckel();
@@ -1279,7 +1279,7 @@ public:
      *             to see if phaseNode is pointing to the phase
      *             with the correct id.
      */
-    virtual void  initThermoXML(XML_Node& phaseNode, std::string id);
+    virtual void  initThermoXML(XML_Node& phaseNode, const std::string& id);
 
     //! Return  the Debye Huckel constant as a function of temperature
     //! and pressure (Units = sqrt(kg/gmol))
@@ -1670,7 +1670,7 @@ protected:
     mutable vector_fp m_dlnActCoeffMolaldP;
 
 private:
-    doublereal err(std::string msg) const;
+    doublereal err(const std::string& msg) const;
 
     //! Initialize the internal lengths.
     /*!

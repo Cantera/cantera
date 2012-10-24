@@ -87,7 +87,7 @@ LatticePhase::~LatticePhase()
  * @param inputFile String name of the input file
  * @param id        string id of the phase name
  */
-LatticePhase::LatticePhase(std::string inputFile, std::string id)
+LatticePhase::LatticePhase(const std::string& inputFile, const std::string& id)
 {
     initThermoFile(inputFile, id);
 }
@@ -97,7 +97,7 @@ LatticePhase::LatticePhase(std::string inputFile, std::string id)
  * @param phaseRef  XML node referencing the lattice phase.
  * @param id        string id of the phase name
  */
-LatticePhase::LatticePhase(XML_Node& phaseRef, std::string id)
+LatticePhase::LatticePhase(XML_Node& phaseRef, const std::string& id)
 {
     importPhase(*findXMLPhase(&phaseRef, id), this);
 }
@@ -428,7 +428,7 @@ void LatticePhase::initThermo()
     ThermoPhase::initThermo();
 }
 //====================================================================================================================
-void LatticePhase::initThermoXML(XML_Node& phaseNode, std::string id)
+void LatticePhase::initThermoXML(XML_Node& phaseNode, const std::string& id)
 {
     std::string idattrib = phaseNode.id();
     if (!id.empty() && id != idattrib) {

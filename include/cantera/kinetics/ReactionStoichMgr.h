@@ -217,7 +217,7 @@ public:
      */
     virtual void multiplyRevProducts(const doublereal* c, doublereal* r);
 
-    virtual void write(std::string filename);
+    virtual void write(const std::string& filename);
 
 protected:
 

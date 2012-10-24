@@ -33,7 +33,8 @@ PDSS_ConstVol::PDSS_ConstVol(VPStandardStateTP* tp, size_t spindex) :
 }
 
 
-PDSS_ConstVol::PDSS_ConstVol(VPStandardStateTP* tp, size_t spindex, std::string inputFile, std::string id) :
+PDSS_ConstVol::PDSS_ConstVol(VPStandardStateTP* tp, size_t spindex,
+                             const std::string& inputFile, const std::string& id) :
     PDSS(tp, spindex)
 {
     m_pdssType = cPDSS_CONSTVOL;
@@ -148,7 +149,8 @@ void PDSS_ConstVol::constructPDSSXML(VPStandardStateTP* tp, size_t spindex,
  *            phase element will be used.
  */
 void PDSS_ConstVol::constructPDSSFile(VPStandardStateTP* tp, size_t spindex,
-                                      std::string inputFile, std::string id)
+                                      const std::string& inputFile,
+                                      const std::string& id)
 {
 
     if (inputFile.size() == 0) {

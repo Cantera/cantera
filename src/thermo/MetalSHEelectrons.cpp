@@ -45,7 +45,7 @@ MetalSHEelectrons::MetalSHEelectrons():
  * @param id     name of the phase id in the file.
  *               If this is blank, the first phase in the file is used.
  */
-MetalSHEelectrons::MetalSHEelectrons(std::string infile, std::string id) :
+MetalSHEelectrons::MetalSHEelectrons(const std::string& infile, std::string id) :
     SingleSpeciesTP(),
     xdef_(0)
 {
@@ -79,7 +79,7 @@ MetalSHEelectrons::MetalSHEelectrons(std::string infile, std::string id) :
  *  @param phaseRef XML node pointing to a MetalSHEelectrons description
  *  @param id       Id of the phase.
  */
-MetalSHEelectrons::MetalSHEelectrons(XML_Node& xmlphase, std::string id) :
+MetalSHEelectrons::MetalSHEelectrons(XML_Node& xmlphase, const std::string& id) :
     SingleSpeciesTP(),
     xdef_(0)
 {
@@ -438,7 +438,7 @@ void MetalSHEelectrons::initThermo()
 }
 //====================================================================================================================
 
-void MetalSHEelectrons::initThermoXML(XML_Node& phaseNode, std::string id)
+void MetalSHEelectrons::initThermoXML(XML_Node& phaseNode, const std::string& id)
 {
     /*
      * Find the Thermo XML node

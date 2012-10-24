@@ -760,7 +760,7 @@ private:
     /*!
      * @param msg   String message
      */
-    doublereal err(std::string msg) const;
+    doublereal err(const std::string& msg) const;
 };
 
 }

@@ -1123,8 +1123,8 @@ bool importKinetics(const XML_Node& phase, std::vector<ThermoPhase*> th,
  * Build a single-phase ThermoPhase object with associated kinetics
  * mechanism.
  */
-bool buildSolutionFromXML(XML_Node& root, std::string id, std::string nm,
-                          ThermoPhase* th, Kinetics* k)
+bool buildSolutionFromXML(XML_Node& root, const std::string& id,
+                          const std::string& nm, ThermoPhase* th, Kinetics* k)
 {
     XML_Node* x;
     x = get_XML_NameID(nm, string("#")+id, &root);

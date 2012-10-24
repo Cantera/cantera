@@ -1841,7 +1841,7 @@ void LiquidTransport::stefan_maxwell_solve()
 /*
  * @param msg    String with an informative message
  */
-doublereal LiquidTransport::err(std::string msg) const
+doublereal LiquidTransport::err(const std::string& msg) const
 {
     throw CanteraError("LiquidTransport::err()",
                        "\n\n\n**** Method "+ msg +" not implemented in model "

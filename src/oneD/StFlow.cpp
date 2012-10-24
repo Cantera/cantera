@@ -1018,7 +1018,7 @@ string StFlow::componentName(size_t n) const
 }
 
 
-size_t StFlow::componentIndex(string name) const
+size_t StFlow::componentIndex(const std::string& name) const
 {
 
 

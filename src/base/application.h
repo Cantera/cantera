@@ -81,7 +81,7 @@ protected:
          * @param msg  Description of the error
          * @ingroup errorhandling
          */
-        void addError(std::string r, std::string msg);
+        void addError(const std::string& r, const std::string& msg);
 
         //! Return the number of errors that have been encountered so far.
         /*!
@@ -200,7 +200,7 @@ protected:
          *  @param loglevel loglevel of the group.
          *  @ingroup HTML_logs
          */
-        void beginLogGroup(std::string title, int loglevel) ;
+        void beginLogGroup(const std::string& title, int loglevel) ;
 
         //! Add an entry to an HTML log file.
         /*!
@@ -211,7 +211,7 @@ protected:
          *
          * @ingroup HTML_logs
          */
-        void addLogEntry(std::string tag, std::string value) ;
+        void addLogEntry(const std::string& tag, const std::string& value) ;
 
         //! Add an entry to an HTML log file.
         /*!
@@ -222,7 +222,7 @@ protected:
          *
          * @ingroup HTML_logs
          */
-        void addLogEntry(std::string tag, doublereal value) ;
+        void addLogEntry(const std::string& tag, doublereal value) ;
 
         //! Add an entry to an HTML log file.
         /*!
@@ -233,7 +233,7 @@ protected:
          *
          * @ingroup HTML_logs
          */
-        void addLogEntry(std::string tag, int value) ;
+        void addLogEntry(const std::string& tag, int value) ;
 
         //! Add an entry to an HTML log file.
         /*!
@@ -243,7 +243,7 @@ protected:
          *
          * @ingroup HTML_logs
          */
-        void addLogEntry(std::string msg) ;
+        void addLogEntry(const std::string& msg) ;
 
         //! Close the current group of log messages.
         /*!
@@ -257,7 +257,7 @@ protected:
          * @param title Name of the log group. It defaults to the most recent
          *              log group created.
          */
-        void endLogGroup(std::string title) ;
+        void endLogGroup(const std::string& title) ;
 
         //! Write the HTML log file.
         /*!
@@ -273,7 +273,7 @@ protected:
          *
          *  @param  file Name of the file to be written
          */
-        void write_logfile(std::string file);
+        void write_logfile(const std::string& file);
 #endif
 
     protected:
@@ -366,7 +366,7 @@ public:
      * @param msg  Description of the error
      * @ingroup errorhandling
      */
-    void addError(std::string r, std::string msg) {
+    void addError(const std::string& r, const std::string& msg) {
         pMessenger->addError(r, msg) ;
     }
 
@@ -438,7 +438,7 @@ public:
      *
      * @param dir  String name for the directory to be added to the search path
      */
-    void addDataDirectory(std::string dir) ;
+    void addDataDirectory(const std::string& dir) ;
 
     //! Find an input file.
     /*!
@@ -467,7 +467,7 @@ public:
      *
      * @ingroup inputfiles
      */
-    std::string findInputFile(std::string name) ;
+    std::string findInputFile(const std::string& name) ;
 
     //! Return a pointer to the XML tree for a Cantera input file.
     /*!
@@ -479,7 +479,7 @@ public:
      * @param file String containing the relative or absolute file name
      * @param debug Debug flag
      */
-    XML_Node* get_XML_File(std::string file, int debug=0) ;
+    XML_Node* get_XML_File(const std::string& file, int debug=0) ;
 
     //! Close an XML File
     /*!
@@ -487,7 +487,7 @@ public:
      *
      * @param file String containing the relative or absolute file name
      */
-    void close_XML_File(std::string file) ;
+    void close_XML_File(const std::string& file) ;
 
     //!  Write a message to the screen.
     /*!
@@ -573,7 +573,7 @@ public:
      *  @param loglevel loglevel of the group.
      *  @ingroup HTML_logs
      */
-    void beginLogGroup(std::string title, int loglevel) {
+    void beginLogGroup(const std::string& title, int loglevel) {
         pMessenger->beginLogGroup(title,loglevel);
     }
 
@@ -586,7 +586,7 @@ public:
      *
      * @ingroup HTML_logs
      */
-    void addLogEntry(std::string tag, std::string value) {
+    void addLogEntry(const std::string& tag, const std::string& value) {
         pMessenger->addLogEntry(tag, value);
     }
 
@@ -599,7 +599,7 @@ public:
      *
      * @ingroup HTML_logs
      */
-    void addLogEntry(std::string tag, doublereal value) {
+    void addLogEntry(const std::string& tag, doublereal value) {
         pMessenger->addLogEntry(tag, value);
     }
 
@@ -612,7 +612,7 @@ public:
      *
      * @ingroup HTML_logs
      */
-    void addLogEntry(std::string tag, int value) {
+    void addLogEntry(const std::string& tag, int value) {
         pMessenger->addLogEntry(tag, value);
     }
 
@@ -624,7 +624,7 @@ public:
      *
      * @ingroup HTML_logs
      */
-    void addLogEntry(std::string msg) {
+    void addLogEntry(const std::string& msg) {
         pMessenger->addLogEntry(msg);
     }
 
@@ -641,7 +641,7 @@ public:
      *              log group created.
      * @ingroup HTML_logs
      */
-    void endLogGroup(std::string title) {
+    void endLogGroup(const std::string& title) {
         pMessenger->endLogGroup(title) ;
     }
 
@@ -659,7 +659,7 @@ public:
      *
      *  @param  file Name of the file to be written
      */
-    void write_logfile(std::string file) {
+    void write_logfile(const std::string& file) {
         pMessenger->write_logfile(file) ;
     }
 #endif

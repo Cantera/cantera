@@ -196,7 +196,7 @@ PDSS_enumType PDSS::reportPDSSType() const
     return m_pdssType;
 }
 
-void PDSS::initThermoXML(const XML_Node& phaseNode, std::string& id)
+void PDSS::initThermoXML(const XML_Node& phaseNode, const std::string& id)
 {
     AssertThrow(m_tp != 0, "PDSS::initThermoXML()");
     m_p0 =  m_vpssmgr_ptr->refPressure(m_spindex);
@@ -525,7 +525,7 @@ doublereal PDSS::satPressure(doublereal t)
 }
 
 
-void PDSS::err(std::string msg) const
+void PDSS::err(const std::string& msg) const
 {
     throw CanteraError("PDSS::" + msg, "unimplemented");
 }

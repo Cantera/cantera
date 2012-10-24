@@ -19,7 +19,7 @@ namespace Cantera
 class Nucleus
 {
 public:
-    Nucleus(std::string symbol,
+    Nucleus(const std::string& symbol,
             int nP, int nN, doublereal spin) : m_np(nP),
         m_nn(nN), m_spin(spin),
         m_sym(symbol) {}

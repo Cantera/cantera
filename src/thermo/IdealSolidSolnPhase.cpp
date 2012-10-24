@@ -42,8 +42,9 @@ IdealSolidSolnPhase::IdealSolidSolnPhase(int formGC) :
     }
 }
 
-IdealSolidSolnPhase::IdealSolidSolnPhase(std::string inputFile, std::string id,
-        int formGC) :
+IdealSolidSolnPhase::IdealSolidSolnPhase(const std::string& inputFile,
+                                         const std::string& id,
+                                         int formGC) :
     ThermoPhase(),
     m_formGC(formGC),
     m_mm(0),
@@ -60,7 +61,7 @@ IdealSolidSolnPhase::IdealSolidSolnPhase(std::string inputFile, std::string id,
     initThermoFile(inputFile, id);
 }
 //====================================================================================================================
-IdealSolidSolnPhase::IdealSolidSolnPhase(XML_Node& root, std::string id,
+IdealSolidSolnPhase::IdealSolidSolnPhase(XML_Node& root, const std::string& id,
         int formGC) :
     ThermoPhase(),
     m_formGC(formGC),
@@ -1099,7 +1100,7 @@ void IdealSolidSolnPhase::initThermo()
  *             to see if phaseNode is pointing to the phase
  *             with the correct id.
  */
-void IdealSolidSolnPhase::initThermoXML(XML_Node& phaseNode, std::string id)
+void IdealSolidSolnPhase::initThermoXML(XML_Node& phaseNode, const std::string& id)
 {
     string subname = "IdealSolidSolnPhase::initThermoXML";
     if (id.size() > 0) {

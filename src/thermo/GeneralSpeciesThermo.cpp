@@ -104,7 +104,7 @@ GeneralSpeciesThermo::duplMyselfAsSpeciesThermo() const
  * @param c        coefficients. The meaning of these depends on
  *                 the parameterization.
  */
-void GeneralSpeciesThermo::install(std::string name,
+void GeneralSpeciesThermo::install(const std::string& name,
                                    size_t index,
                                    int type,
                                    const doublereal* c,

@@ -23,7 +23,7 @@ namespace Cantera
 class LTPError : public CanteraError
 {
 public:
-    LTPError(std::string msg)
+    explicit LTPError(const std::string& msg)
         : CanteraError("LTPspecies",
                        "error parsing transport data: "
                        + msg + "\n") {}
@@ -36,7 +36,7 @@ public:
 class LTPmodelError : public CanteraError
 {
 public:
-    LTPmodelError(std::string msg)
+    explicit LTPmodelError(const std::string& msg)
         : CanteraError("LTPspecies",
                        "error parsing transport data: "
                        + msg + "\n") {}

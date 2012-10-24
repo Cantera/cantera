@@ -59,7 +59,8 @@ PDSS_HKFT::PDSS_HKFT(VPStandardStateTP* tp, size_t spindex) :
 }
 
 
-PDSS_HKFT::PDSS_HKFT(VPStandardStateTP* tp, size_t spindex, std::string inputFile, std::string id) :
+PDSS_HKFT::PDSS_HKFT(VPStandardStateTP* tp, size_t spindex,
+                     const std::string& inputFile, const std::string& id) :
     PDSS(tp, spindex),
     m_waterSS(0),
     m_densWaterSS(-1.0),
@@ -809,7 +810,8 @@ void PDSS_HKFT::constructPDSSXML(VPStandardStateTP* tp, size_t spindex,
 }
 
 void PDSS_HKFT::constructPDSSFile(VPStandardStateTP* tp, size_t spindex,
-                                  std::string inputFile, std::string id)
+                                  const std::string& inputFile,
+                                  const std::string& id)
 {
 
     if (inputFile.size() == 0) {

@@ -91,7 +91,7 @@ HMWSoln::HMWSoln() :
  *  the routine initThermo(), with a reference to the
  *  XML database to get the info for the phase.
  */
-HMWSoln::HMWSoln(std::string inputFile, std::string id) :
+HMWSoln::HMWSoln(const std::string& inputFile, const std::string& id) :
     MolalityVPSSTP(),
     m_formPitzer(PITZERFORM_BASE),
     m_formPitzerTemp(PITZER_TEMP_CONSTANT),
@@ -142,7 +142,7 @@ HMWSoln::HMWSoln(std::string inputFile, std::string id) :
     initThermoFile(inputFile, id);
 }
 
-HMWSoln::HMWSoln(XML_Node& phaseRoot, std::string id) :
+HMWSoln::HMWSoln(XML_Node& phaseRoot, const std::string& id) :
     MolalityVPSSTP(),
     m_formPitzer(PITZERFORM_BASE),
     m_formPitzerTemp(PITZER_TEMP_CONSTANT),
@@ -1672,7 +1672,7 @@ double HMWSoln::AionicRadius(int k) const
  * Bail out of functions with an error exit if they are not
  * implemented.
  */
-doublereal HMWSoln::err(std::string msg) const
+doublereal HMWSoln::err(const std::string& msg) const
 {
     throw CanteraError("HMWSoln",
                        "Unfinished func called: " + msg);

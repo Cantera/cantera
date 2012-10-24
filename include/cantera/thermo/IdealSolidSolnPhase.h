@@ -107,7 +107,7 @@ public:
      * @param formCG This parameter initializes the m_formGC variable. The default
      *               is a value of 0.
      */
-    IdealSolidSolnPhase(std::string infile, std::string id="", int formCG=0);
+    IdealSolidSolnPhase(const std::string& infile, const std::string& id="", int formCG=0);
 
     //! Construct and initialize an IdealSolidSolnPhase ThermoPhase object
     //! directly from an XML database
@@ -131,7 +131,7 @@ public:
      * @param formCG This parameter initializes the m_formGC variable. The default
      *               is a value of 0.
      */
-    IdealSolidSolnPhase(XML_Node& root, std::string id="", int formCG=0);
+    IdealSolidSolnPhase(XML_Node& root, const std::string& id="", int formCG=0);
 
     /*!
      * Copy Constructor
@@ -921,7 +921,7 @@ public:
       *             to see if phaseNode is pointing to the phase
       *             with the correct id.
       */
-    virtual void initThermoXML(XML_Node& phaseNode, std::string id);
+    virtual void initThermoXML(XML_Node& phaseNode, const std::string& id);
 
 
     /**
