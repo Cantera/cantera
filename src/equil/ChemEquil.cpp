@@ -827,7 +827,7 @@ int ChemEquil::equilibrate(thermo_t& s, const char* XYstr,
 next:
 
     iter++;
-    if (iter > 1) {
+    if (iter > 1 && loglevel > 0) {
         endLogGroup("Iteration "+int2str(iter-1));    // iteration
     }
     if (loglevel > 0) {

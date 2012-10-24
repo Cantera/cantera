@@ -164,19 +164,23 @@ void Application::Messages::writelogendl()
 
 void Application::Messages::beginLogGroup(std::string title, int _loglevel /*=-99*/)
 {
+    // Add the current loglevel to the vector of loglevels
+    loglevels.push_back(loglevel);
+
     // loglevel is a member of the Messages class.
     if (_loglevel != -99) {
         loglevel = _loglevel;
     } else {
         loglevel--;
     }
+
+    // Add the title of the current logLevel to the vector of titles
+    loggroups.push_back(title);
+
     if (loglevel <= 0) {
         return;
     }
-    // Add the current loglevel to the vector of loglevels
-    loglevels.push_back(loglevel);
-    // Add the title of the current logLevel to the vector of titles
-    loggroups.push_back(title);
+
     // If we haven't started an XML tree for the log file, do so here
     if (xmllog == 0) {
         // The top of this tree will have a zero pointer.
@@ -218,33 +222,31 @@ void Application::Messages::addLogEntry(std::string msg)
 
 void Application::Messages::endLogGroup(std::string title)
 {
-    if (loglevel <= 0) {
-        return;
-    }
-    AssertThrowMsg(current, "Application::Messages::endLogGroup",
-                   "Error while ending a LogGroup. This is probably due to an unmatched"
-                   " beginning and ending group");
-    current = current->parent();
-    AssertThrowMsg(current, "Application::Messages::endLogGroup",
-                   "Error while ending a LogGroup. This is probably due to an unmatched"
-                   " beginning and ending group");
-    current = current->parent();
-    // Get the loglevel of the previous level and get rid of
-    // vector entry in loglevels.
-    loglevel = loglevels.back();
-    loglevels.pop_back();
-    if (title != "" && title != loggroups.back()) {
+     if (title != "" && title != loggroups.back()) {
         writelog("Logfile error."
                  "\n   beginLogGroup: "+ loggroups.back()+
                  "\n   endLogGroup:   "+title+"\n");
         write_logfile("logerror");
-    } else if (loggroups.size() == 1) {
-        write_logfile(loggroups.back()+"_log");
-        loggroups.clear();
-        loglevels.clear();
-    } else {
-        loggroups.pop_back();
     }
+
+    if (loggroups.empty()) {
+        write_logfile(loggroups.back()+"_log");
+    } else if (loglevel > 0) {
+        AssertThrowMsg(current, "Application::Messages::endLogGroup",
+                       "Error while ending a LogGroup. This is probably due to an unmatched"
+                       " beginning and ending group");
+        current = current->parent();
+        AssertThrowMsg(current, "Application::Messages::endLogGroup",
+                       "Error while ending a LogGroup. This is probably due to an unmatched"
+                       " beginning and ending group");
+        current = current->parent();
+        // Get the loglevel of the previous level and get rid of
+        // vector entry in loglevels.
+    }
+
+    loggroups.pop_back();
+    loglevel = loglevels.back();
+    loglevels.pop_back();
 }
 
 void Application::Messages::write_logfile(std::string file)
