@@ -87,9 +87,6 @@ PDSS_IonsFromNeutral& PDSS_IonsFromNeutral::operator=(const PDSS_IonsFromNeutral
 
     PDSS::operator=(b);
 
-    m_tmin                  = b.m_tmin;
-    m_tmax                  = b.m_tmax;
-
     /*
      *  The shallow pointer copy in the next step will be insufficient in most cases. However, its
      *  functionally the best we can do for this assignment operator. We fix up the pointer in the

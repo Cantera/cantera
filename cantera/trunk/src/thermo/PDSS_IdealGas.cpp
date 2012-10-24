@@ -76,10 +76,6 @@ PDSS_IdealGas& PDSS_IdealGas::operator=(const PDSS_IdealGas& b)
         return *this;
     }
     PDSS::operator=(b);
-
-    m_tmin       =   b.m_tmin;
-    m_tmax       =   b.m_tmax;
-
     return *this;
 }
 
