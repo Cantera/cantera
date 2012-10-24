@@ -41,7 +41,7 @@ ReactorNet::~ReactorNet()
     }
     m_r.clear();
     m_reactors.clear();
-    deleteIntegrator(m_integ);
+    delete m_integ;
 }
 
 void ReactorNet::initialize()

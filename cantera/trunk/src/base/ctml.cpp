@@ -29,18 +29,6 @@ std::string FP_Format = "%23.15E";
 std::string INT_Format = "%8d";
 
 //====================================================================================================================
-//! Convert a floating point value from a string to a double
-/*!
- *   @param val String value input
- *
- *   @return Returns a double
- */
-static doublereal fpValue(std::string val)
-{
-    return atof(stripws(val).c_str());
-}
-
-//====================================================================================================================
 //  This function adds a child node with the name, "integer", with a value
 //  consisting of a single integer
 /*

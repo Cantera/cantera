@@ -25,8 +25,6 @@
 #include <cmath>
 #include <cstdlib>
 
-void get_wdot(const doublereal* rop, doublereal* wdot);
-
 namespace Cantera
 {
 
@@ -211,11 +209,7 @@ public:
      */
     virtual void getNetProductionRates(doublereal* net) {
         updateROP();
-        //#ifdef HWMECH
-        //get_wdot(&m_kdata->m_ropnet[0], net);
-        //#else
         m_rxnstoich.getNetProductionRates(m_kk, &m_ropnet[0], net);
-        //#endif
     }
 
     /**

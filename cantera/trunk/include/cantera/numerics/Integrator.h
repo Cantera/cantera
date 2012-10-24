@@ -215,9 +215,6 @@ private:
 // defined in ODE_integrators.cpp
 Integrator* newIntegrator(const std::string& itype);
 
-// defined in ODE_integrators.cpp
-void deleteIntegrator(Integrator* cv);
-
 }    // namespace
 
 #endif

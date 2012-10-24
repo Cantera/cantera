@@ -20,8 +20,6 @@ namespace Cantera
 
 enum flow_t   { NetFlow, OneWayFlow };
 
-Group parseGroupString(std::string str, std::vector<std::string>& esyms);
-
 // forward references
 class Path;
 
