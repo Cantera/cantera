@@ -32,8 +32,6 @@ namespace Cantera
 LiquidTransport::LiquidTransport(thermo_t* thermo, int ndim) :
     Transport(thermo, ndim),
     m_nsp2(0),
-    m_tmin(-1.0),
-    m_tmax(100000.),
     m_viscMixModel(0),
     m_ionCondMixModel(0),
     m_lambdaMixModel(0),
@@ -79,8 +77,6 @@ LiquidTransport::LiquidTransport(thermo_t* thermo, int ndim) :
 LiquidTransport::LiquidTransport(const LiquidTransport& right) :
     Transport(right.m_thermo, right.m_nDim),
     m_nsp2(0),
-    m_tmin(-1.0),
-    m_tmax(100000.),
     m_viscMixModel(0),
     m_ionCondMixModel(0),
     m_lambdaMixModel(0),
@@ -134,8 +130,6 @@ LiquidTransport& LiquidTransport::operator=(const LiquidTransport& right)
     }
     Transport::operator=(right);
     m_nsp2                                = right.m_nsp2;
-    m_tmin                                = right.m_tmin;
-    m_tmax                                = right.m_tmax;
     m_mw                                  = right.m_mw;
     m_viscTempDep_Ns                      = right.m_viscTempDep_Ns;
     m_ionCondTempDep_Ns                   = right.m_ionCondTempDep_Ns;
@@ -293,8 +287,6 @@ bool LiquidTransport::initLiquid(LiquidTransportParams& tr)
     m_velocityBasis = tr.velocityBasis_;
     m_nsp   = m_thermo->nSpecies();
     m_nsp2 = m_nsp*m_nsp;
-    m_tmin  = m_thermo->minTemp();
-    m_tmax  = m_thermo->maxTemp();
 
     // make a local copy of the molecular weights
     m_mw.resize(m_nsp, 0.0);

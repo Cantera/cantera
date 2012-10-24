@@ -374,12 +374,6 @@ public:
     void stefan_maxwell_solve();
 
 private:
-    //! Minimum temperature applicable to the transport property eval
-    doublereal m_tmin;
-
-    //! Maximum temperature applicable to the transport property evaluator
-    doublereal m_tmax;
-
     //! Local Copy of the molecular weights of the species
     /*!
      *  Length is Equal to the number of species in the mechanism.

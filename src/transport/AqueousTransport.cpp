@@ -32,8 +32,6 @@ namespace Cantera
 
 //====================================================================================================================
 AqueousTransport::AqueousTransport() :
-    m_tmin(-1.0),
-    m_tmax(100000.),
     m_iStateMF(-1),
     m_temp(-1.0),
     m_logt(0.0),
@@ -68,8 +66,6 @@ bool AqueousTransport::initLiquid(LiquidTransportParams& tr)
     // constant substance attributes
     m_thermo = tr.thermo;
     m_nsp   = m_thermo->nSpecies();
-    m_tmin  = m_thermo->minTemp();
-    m_tmax  = m_thermo->maxTemp();
 
     // make a local copy of the molecular weights
     m_mw.resize(m_nsp);

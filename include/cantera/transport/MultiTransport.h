@@ -157,9 +157,6 @@ private:
 
     doublereal m_thermal_tlast;
 
-    doublereal m_tmin;
-    doublereal m_tmax;
-
     // property values
     std::vector<std::vector<int> > m_poly;
     std::vector<vector_fp>   m_astar_poly;
