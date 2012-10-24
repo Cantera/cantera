@@ -1254,7 +1254,7 @@ public:
      * @param id        ID of the phase in the input file. Defaults to the
      *                  empty string.
      */
-    HMWSoln(std::string inputFile, std::string id = "");
+    HMWSoln(const std::string& inputFile, const std::string& id = "");
 
     //! Construct and initialize an HMWSoln ThermoPhase object
     //! directly from an XML database
@@ -1263,7 +1263,7 @@ public:
      *  @param id     id attribute containing the name of the phase.
      *                (default is the empty string)
      */
-    HMWSoln(XML_Node& phaseRef, std::string id = "");
+    HMWSoln(XML_Node& phaseRef, const std::string& id = "");
 
 
     //! Copy Constructor
@@ -2078,7 +2078,7 @@ public:
      *             to see if phaseNode is pointing to the phase
      *             with the correct id.
      */
-    virtual void initThermoXML(XML_Node& phaseNode, std::string id);
+    virtual void initThermoXML(XML_Node& phaseNode, const std::string& id);
 
     //! Value of the Debye Huckel constant as a function of temperature
     //! and pressure.
@@ -3249,7 +3249,7 @@ private:
     /*!
      * @param msg print out a message and error exit
      */
-    doublereal err(std::string msg) const;
+    doublereal err(const std::string& msg) const;
 
     //!  Initialize all of the species - dependent lengths in the object
     void initLengths();
@@ -3512,7 +3512,7 @@ private:
     /*!
      *  @param estString string name of the electrolyte species type
      */
-    static int interp_est(std::string estString);
+    static int interp_est(const std::string& estString);
 
 public:
     /*!

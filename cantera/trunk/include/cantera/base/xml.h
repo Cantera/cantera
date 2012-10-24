@@ -76,7 +76,7 @@ public:
      *    @param attribs              map of attribute name and
      *                                attribute value - output
      */
-    void parseTag(std::string tag, std::string& name,
+    void parseTag(const std::string& tag, std::string& name,
                   std::map<std::string, std::string>& attribs) const;
 
     //! Reads an XML tag into a string
@@ -302,7 +302,7 @@ public:
      *  @param cname  Name of the child node to the current
      *                node, for which you want the value
      */
-    std::string operator()(std::string cname) const;
+    std::string operator()(const std::string& cname) const;
 
     //! Return the value of an XML node as a single double
     /*!
@@ -427,7 +427,7 @@ public:
      *
      * @return Returns true if the child node exists, false otherwise.
      */
-    bool hasChild(const std::string ch) const;
+    bool hasChild(const std::string& ch) const;
 
     //! Tests whether the current node has an attribute with a particular name
     /*!
@@ -435,7 +435,7 @@ public:
      *
      * @return Returns true if the attribute exists, false otherwise.
      */
-    bool hasAttrib(std::string a) const;
+    bool hasAttrib(const std::string& a) const;
 
     //! Returns the name of the XML node
     /*!
@@ -449,7 +449,7 @@ public:
     /*!
      * @param name The name of the XML node
      */
-    void setName(std::string name) {
+    void setName(const std::string& name) {
         m_name = name;
     }
 

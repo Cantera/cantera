@@ -225,7 +225,7 @@ public:
         }
     }
 
-    void setComponentName(size_t n, std::string name) {
+    void setComponentName(size_t n, const std::string& name) {
         m_name[n] = name;
     }
 
@@ -236,7 +236,7 @@ public:
     }
 
     /// index of component with name \a name.
-    size_t componentIndex(std::string name) const {
+    size_t componentIndex(const std::string& name) const {
         size_t nc = nComponents();
         for (size_t n = 0; n < nc; n++) {
             if (name == componentName(n)) {
@@ -543,7 +543,7 @@ public:
     }
 
 
-    void setProfile(std::string name, doublereal* values, doublereal* soln) {
+    void setProfile(const std::string& name, doublereal* values, doublereal* soln) {
         for (size_t n = 0; n < m_nv; n++) {
             if (name == componentName(n)) {
                 for (size_t j = 0; j < m_points; j++) {

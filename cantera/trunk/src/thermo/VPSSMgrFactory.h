@@ -38,8 +38,8 @@ public:
      * @param proc                    Function name error occurred.
      * @param VPSSMgrModel            Unrecognized species thermo calculator name
      */
-    UnknownVPSSMgrModel(std::string proc,
-                        std::string VPSSMgrModel) :
+    UnknownVPSSMgrModel(const std::string& proc,
+                        const std::string& VPSSMgrModel) :
         CanteraError(proc,  "Specified VPSSMgr model "
                      + VPSSMgrModel +
                      " does not match any known type.") {}
@@ -121,7 +121,7 @@ public:
      * @param ssModel  String representing the VPSSMGr object
      */
     virtual VPSSMgr_enumType
-    VPSSMgr_StringConversion(std::string ssModel) const;
+    VPSSMgr_StringConversion(const std::string& ssModel) const;
 
     //! Create a new species variable pressure standard state calculator
     /*!

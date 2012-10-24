@@ -107,7 +107,8 @@ public:
      *                       If this parameter is zero, then a slave
      *                       neutral phase object is created and used.
      */
-    IonsFromNeutralVPSSTP(std::string inputFile, std::string id = "",
+    IonsFromNeutralVPSSTP(const std::string& inputFile,
+                          const std::string& id = "",
                           ThermoPhase* neutralPhase = 0);
 
     //! Construct and initialize an IonsFromNeutralVPSSTP object
@@ -127,7 +128,7 @@ public:
      *                       If this parameter is zero, then a slave
      *                       neutral phase object is created and used.
      */
-    IonsFromNeutralVPSSTP(XML_Node& phaseRoot,  std::string id = "",
+    IonsFromNeutralVPSSTP(XML_Node& phaseRoot, const std::string& id = "",
                           ThermoPhase* neutralPhase = 0);
 
 
@@ -611,7 +612,7 @@ public:
      *             to see if phaseNode is pointing to the phase
      *             with the correct id.
      */
-    void initThermoXML(XML_Node& phaseNode, std::string id);
+    void initThermoXML(XML_Node& phaseNode, const std::string& id);
 
 
 private:
@@ -678,7 +679,7 @@ private:
      *
      * @param msg  Message to be printed
      */
-    doublereal err(std::string msg) const;
+    doublereal err(const std::string& msg) const;
 
 protected:
 

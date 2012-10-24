@@ -53,7 +53,7 @@ Sim1D::Sim1D(vector<Domain1D*>& domains) :
 }
 //====================================================================================================================
 
-void Sim1D::setInitialGuess(string component, vector_fp& locs, vector_fp& vals)
+void Sim1D::setInitialGuess(const std::string& component, vector_fp& locs, vector_fp& vals)
 {
 
     for (size_t dom=0; dom<m_nd; dom++) {
@@ -143,7 +143,8 @@ void Sim1D::setProfile(size_t dom, size_t comp,
 }
 
 
-void Sim1D::save(string fname, string id, string desc)
+void Sim1D::save(const std::string& fname, const std::string& id,
+                 const std::string& desc)
 {
     OneDim::save(fname, id, desc, DATA_PTR(m_x));
 }
@@ -151,7 +152,7 @@ void Sim1D::save(string fname, string id, string desc)
 /**
  * Initialize the solution with a previously-saved solution.
  */
-void Sim1D::restore(string fname, string id)
+void Sim1D::restore(const std::string& fname, const std::string& id)
 {
     ifstream s(fname.c_str());
     //char buf[100];

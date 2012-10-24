@@ -150,7 +150,7 @@ static doublereal ppow(doublereal x, doublereal order)
     }
 }
 
-inline static std::string fmt(std::string r, size_t n)
+inline static std::string fmt(const std::string& r, size_t n)
 {
     return r + "[" + int2str(n) + "]";
 }
@@ -220,21 +220,21 @@ public:
         return 1;
     }
 
-    void writeMultiply(std::string r, std::map<size_t, std::string>& out) {
+    void writeMultiply(const std::string& r, std::map<size_t, std::string>& out) {
         out[m_rxn] = fmt(r, m_ic0);
     }
 
-    void writeIncrementReaction(std::string r, std::map<size_t, std::string>& out) {
+    void writeIncrementReaction(const std::string& r, std::map<size_t, std::string>& out) {
         out[m_rxn] += " + "+fmt(r, m_ic0);
     }
-    void writeDecrementReaction(std::string r, std::map<size_t, std::string>& out) {
+    void writeDecrementReaction(const std::string& r, std::map<size_t, std::string>& out) {
         out[m_rxn] += " - "+fmt(r, m_ic0);
     }
 
-    void writeIncrementSpecies(std::string r, std::map<size_t, std::string>& out) {
+    void writeIncrementSpecies(const std::string& r, std::map<size_t, std::string>& out) {
         out[m_ic0] += " + "+fmt(r, m_rxn);
     }
-    void writeDecrementSpecies(std::string r, std::map<size_t, std::string>& out) {
+    void writeDecrementSpecies(const std::string& r, std::map<size_t, std::string>& out) {
         out[m_ic0] += " - "+fmt(r, m_rxn);
     }
 
@@ -311,22 +311,22 @@ public:
         return 2;
     }
 
-    void writeMultiply(std::string r, std::map<size_t, std::string>& out) {
+    void writeMultiply(const std::string& r, std::map<size_t, std::string>& out) {
         out[m_rxn] = fmt(r, m_ic0) + " * " + fmt(r, m_ic1);
     }
-    void writeIncrementReaction(std::string r, std::map<size_t, std::string>& out) {
+    void writeIncrementReaction(const std::string& r, std::map<size_t, std::string>& out) {
         out[m_rxn] += " + "+fmt(r, m_ic0)+" + "+fmt(r, m_ic1);
     }
-    void writeDecrementReaction(std::string r, std::map<size_t, std::string>& out) {
+    void writeDecrementReaction(const std::string& r, std::map<size_t, std::string>& out) {
         out[m_rxn] += " - "+fmt(r, m_ic0)+" - "+fmt(r, m_ic1);
     }
 
-    void writeIncrementSpecies(std::string r, std::map<size_t, std::string>& out) {
+    void writeIncrementSpecies(const std::string& r, std::map<size_t, std::string>& out) {
         std::string s = " + "+fmt(r, m_rxn);
         out[m_ic0] += s;
         out[m_ic1] += s;
     }
-    void writeDecrementSpecies(std::string r, std::map<size_t, std::string>& out) {
+    void writeDecrementSpecies(const std::string& r, std::map<size_t, std::string>& out) {
         std::string s = " - "+fmt(r, m_rxn);
         out[m_ic0] += s;
         out[m_ic1] += s;
@@ -416,22 +416,22 @@ public:
         return 3;
     }
 
-    void writeMultiply(std::string r, std::map<size_t, std::string>& out) {
+    void writeMultiply(const std::string& r, std::map<size_t, std::string>& out) {
         out[m_rxn] = fmt(r, m_ic0) + " * " + fmt(r, m_ic1) + " * " + fmt(r, m_ic2);
     }
-    void writeIncrementReaction(std::string r, std::map<size_t, std::string>& out) {
+    void writeIncrementReaction(const std::string& r, std::map<size_t, std::string>& out) {
         out[m_rxn] += " + "+fmt(r, m_ic0)+" + "+fmt(r, m_ic1)+" + "+fmt(r, m_ic2);
     }
-    void writeDecrementReaction(std::string r, std::map<size_t, std::string>& out) {
+    void writeDecrementReaction(const std::string& r, std::map<size_t, std::string>& out) {
         out[m_rxn] += " - "+fmt(r, m_ic0)+" - "+fmt(r, m_ic1)+" - "+fmt(r, m_ic2);
     }
-    void writeIncrementSpecies(std::string r, std::map<size_t, std::string>& out) {
+    void writeIncrementSpecies(const std::string& r, std::map<size_t, std::string>& out) {
         std::string s = " + "+fmt(r, m_rxn);
         out[m_ic0] += s;
         out[m_ic1] += s;
         out[m_ic2] += s;
     }
-    void writeDecrementSpecies(std::string r, std::map<size_t, std::string>& out) {
+    void writeDecrementSpecies(const std::string& r, std::map<size_t, std::string>& out) {
         std::string s = " - "+fmt(r, m_rxn);
         out[m_ic0] += s;
         out[m_ic1] += s;
@@ -548,7 +548,7 @@ public:
             -= m_stoich[n]*input[m_ic[n]];
     }
 
-    void writeMultiply(std::string r, std::map<size_t, std::string>& out) {
+    void writeMultiply(const std::string& r, std::map<size_t, std::string>& out) {
         out[m_rxn] = "";
         for (size_t n = 0; n < m_n; n++) {
             if (m_order[n] == 1.0) {
@@ -561,24 +561,24 @@ public:
             }
         }
     }
-    void writeIncrementReaction(std::string r, std::map<size_t, std::string>& out) {
+    void writeIncrementReaction(const std::string& r, std::map<size_t, std::string>& out) {
         for (size_t n = 0; n < m_n; n++) {
             out[m_rxn] += " + "+fp2str(m_stoich[n]) + "*" + fmt(r, m_ic[n]);
         }
     }
-    void writeDecrementReaction(std::string r, std::map<size_t, std::string>& out) {
+    void writeDecrementReaction(const std::string& r, std::map<size_t, std::string>& out) {
         for (size_t n = 0; n < m_n; n++) {
             out[m_rxn] += " - "+fp2str(m_stoich[n]) + "*" + fmt(r, m_ic[n]);
         }
     }
-    void writeIncrementSpecies(std::string r, std::map<size_t, std::string>& out) {
+    void writeIncrementSpecies(const std::string& r, std::map<size_t, std::string>& out) {
         std::string s = fmt(r, m_rxn);
         for (size_t n = 0; n < m_n; n++) {
             out[m_ic[n]] += " + "+fp2str(m_stoich[n]) + "*" + s;
         }
     }
 
-    void writeDecrementSpecies(std::string r, std::map<size_t, std::string>& out) {
+    void writeDecrementSpecies(const std::string& r, std::map<size_t, std::string>& out) {
         std::string s = fmt(r, m_rxn);
         for (size_t n = 0; n < m_n; n++) {
             out[m_ic[n]] += " - "+fp2str(m_stoich[n]) + "*" + s;
@@ -659,8 +659,8 @@ inline static void _decrementReactions(InputIter begin,
 
 
 template<class InputIter>
-inline static void _writeIncrementSpecies(InputIter begin, InputIter end, std::string r,
-        std::map<size_t, std::string>& out)
+inline static void _writeIncrementSpecies(InputIter begin, InputIter end,
+        const std::string& r, std::map<size_t, std::string>& out)
 {
     for (; begin != end; ++begin) {
         begin->writeIncrementSpecies(r, out);
@@ -668,8 +668,8 @@ inline static void _writeIncrementSpecies(InputIter begin, InputIter end, std::s
 }
 
 template<class InputIter>
-inline static void _writeDecrementSpecies(InputIter begin, InputIter end, std::string r,
-        std::map<size_t, std::string>& out)
+inline static void _writeDecrementSpecies(InputIter begin, InputIter end,
+        const std::string& r, std::map<size_t, std::string>& out)
 {
     for (; begin != end; ++begin) {
         begin->writeDecrementSpecies(r, out);
@@ -677,8 +677,8 @@ inline static void _writeDecrementSpecies(InputIter begin, InputIter end, std::s
 }
 
 template<class InputIter>
-inline static void _writeIncrementReaction(InputIter begin, InputIter end, std::string r,
-        std::map<size_t, std::string>& out)
+inline static void _writeIncrementReaction(InputIter begin, InputIter end,
+        const std::string& r, std::map<size_t, std::string>& out)
 {
     for (; begin != end; ++begin) {
         begin->writeIncrementReaction(r, out);
@@ -686,8 +686,8 @@ inline static void _writeIncrementReaction(InputIter begin, InputIter end, std::
 }
 
 template<class InputIter>
-inline static void _writeDecrementReaction(InputIter begin, InputIter end, std::string r,
-        std::map<size_t, std::string>& out)
+inline static void _writeDecrementReaction(InputIter begin, InputIter end,
+        const std::string& r, std::map<size_t, std::string>& out)
 {
     for (; begin != end; ++begin) {
         begin->writeDecrementReaction(r, out);
@@ -695,8 +695,8 @@ inline static void _writeDecrementReaction(InputIter begin, InputIter end, std::
 }
 
 template<class InputIter>
-inline static void _writeMultiply(InputIter begin, InputIter end, std::string r,
-                                  std::map<size_t, std::string>& out)
+inline static void _writeMultiply(InputIter begin, InputIter end,
+        const std::string& r, std::map<size_t, std::string>& out)
 {
     for (; begin != end; ++begin) {
         begin->writeMultiply(r, out);
@@ -891,35 +891,35 @@ public:
         _decrementReactions(m_cn_list.begin(), m_cn_list.end(), input, output);
     }
 
-    void writeIncrementSpecies(std::string r, std::map<size_t, std::string>& out) {
+    void writeIncrementSpecies(const std::string& r, std::map<size_t, std::string>& out) {
         _writeIncrementSpecies(m_c1_list.begin(), m_c1_list.end(), r, out);
         _writeIncrementSpecies(m_c2_list.begin(), m_c2_list.end(), r, out);
         _writeIncrementSpecies(m_c3_list.begin(), m_c3_list.end(), r, out);
         _writeIncrementSpecies(m_cn_list.begin(), m_cn_list.end(), r, out);
     }
 
-    void writeDecrementSpecies(std::string r, std::map<size_t, std::string>& out) {
+    void writeDecrementSpecies(const std::string& r, std::map<size_t, std::string>& out) {
         _writeDecrementSpecies(m_c1_list.begin(), m_c1_list.end(), r, out);
         _writeDecrementSpecies(m_c2_list.begin(), m_c2_list.end(), r, out);
         _writeDecrementSpecies(m_c3_list.begin(), m_c3_list.end(), r, out);
         _writeDecrementSpecies(m_cn_list.begin(), m_cn_list.end(), r, out);
     }
 
-    void writeIncrementReaction(std::string r, std::map<size_t, std::string>& out) {
+    void writeIncrementReaction(const std::string& r, std::map<size_t, std::string>& out) {
         _writeIncrementReaction(m_c1_list.begin(), m_c1_list.end(), r, out);
         _writeIncrementReaction(m_c2_list.begin(), m_c2_list.end(), r, out);
         _writeIncrementReaction(m_c3_list.begin(), m_c3_list.end(), r, out);
         _writeIncrementReaction(m_cn_list.begin(), m_cn_list.end(), r, out);
     }
 
-    void writeDecrementReaction(std::string r, std::map<size_t, std::string>& out) {
+    void writeDecrementReaction(const std::string& r, std::map<size_t, std::string>& out) {
         _writeDecrementReaction(m_c1_list.begin(), m_c1_list.end(), r, out);
         _writeDecrementReaction(m_c2_list.begin(), m_c2_list.end(), r, out);
         _writeDecrementReaction(m_c3_list.begin(), m_c3_list.end(), r, out);
         _writeDecrementReaction(m_cn_list.begin(), m_cn_list.end(), r, out);
     }
 
-    void writeMultiply(std::string r, std::map<size_t, std::string>& out) {
+    void writeMultiply(const std::string& r, std::map<size_t, std::string>& out) {
         _writeMultiply(m_c1_list.begin(), m_c1_list.end(), r, out);
         _writeMultiply(m_c2_list.begin(), m_c2_list.end(), r, out);
         _writeMultiply(m_c3_list.begin(), m_c3_list.end(), r, out);

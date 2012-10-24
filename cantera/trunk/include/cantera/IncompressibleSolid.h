@@ -12,7 +12,7 @@ namespace Cantera
 class IncompressibleSolid : public ConstDensityThermo
 {
 public:
-    IncompressibleSolid(std::string infile,
+    IncompressibleSolid(const std::string& infile,
                         std::string id="") : m_ok(false), m_r(0) {
 
         m_r = get_XML_File(infile);

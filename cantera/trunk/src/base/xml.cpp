@@ -73,7 +73,7 @@ public:
      *  @param  closetag    String representing the closing of the XML bracket
      *  @param  line        Line number where the error occurred.
      */
-    XML_TagMismatch(std::string opentag, std::string closetag,
+    XML_TagMismatch(const std::string& opentag, const std::string& closetag,
                     int line=0) :
         XML_Error(line) {
         m_msg += "<" + opentag + "> paired with </" + closetag + ">.\n";
@@ -101,7 +101,7 @@ public:
      *  @param  child       Name of the required child node
      *  @param  line        Line number where the error occurred.
      */
-    XML_NoChild(const XML_Node* p, std::string parent,
+    XML_NoChild(const XML_Node* p, const std::string& parent,
                 std::string child, int line=0) :
         XML_Error(line) {
         m_msg += "           The XML Node \"" + parent +
@@ -147,7 +147,7 @@ void XML_Reader::getchr(char& ch)
  * @param q        Search for this character
  * @param istart   Defaults to 0
  */
-static string::size_type findUnbackslashed(std::string s, const char q,
+static string::size_type findUnbackslashed(const std::string& s, const char q,
         std::string::size_type istart = 0)
 {
     string::size_type iloc, icurrent, len;
@@ -220,7 +220,7 @@ int XML_Reader::findQuotedString(const std::string& s, std::string& rstring) con
  * parseTag parses XML tags, i.e., the XML elements that are
  * in between angle brackets.
  */
-void XML_Reader::parseTag(std::string tag, std::string& name,
+void XML_Reader::parseTag(const std::string& tag, std::string& name,
                           std::map<std::string, std::string>& attribs) const
 {
     string::size_type iloc;
@@ -690,7 +690,7 @@ std::string XML_Node::value(const std::string& cname) const
  *  @param cname  Name of the child node to the current
  *                node, for which you want the value
  */
-std::string XML_Node::operator()(std::string loc) const
+std::string XML_Node::operator()(const std::string& loc) const
 {
     return value(loc);
 }
@@ -823,7 +823,7 @@ XML_Node* XML_Node::setParent(XML_Node* const p)
  *
  * @return Returns true if the child node exists, false otherwise.
  */
-bool XML_Node::hasChild(const std::string ch) const
+bool XML_Node::hasChild(const std::string& ch) const
 {
     return (m_childindex.find(ch) != m_childindex.end());
 }
@@ -834,7 +834,7 @@ bool XML_Node::hasChild(const std::string ch) const
  *
  * @return Returns true if the attribute exists, false otherwise.
  */
-bool XML_Node::hasAttrib(std::string a) const
+bool XML_Node::hasAttrib(const std::string& a) const
 {
     return (m_attribs.find(a) != m_attribs.end());
 }

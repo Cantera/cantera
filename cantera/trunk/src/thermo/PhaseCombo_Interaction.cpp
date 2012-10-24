@@ -45,7 +45,8 @@ PhaseCombo_Interaction::PhaseCombo_Interaction() :
  *
  * HKM - Checked for Transition
  */
-PhaseCombo_Interaction::PhaseCombo_Interaction(std::string inputFile, std::string id) :
+PhaseCombo_Interaction::PhaseCombo_Interaction(const std::string& inputFile,
+                                               const std::string& id) :
     GibbsExcessVPSSTP(),
     numBinaryInteractions_(0),
     formMargules_(0),
@@ -59,7 +60,8 @@ PhaseCombo_Interaction::PhaseCombo_Interaction(std::string inputFile, std::strin
  *
  * HKM - Checked for Transition
  */
-PhaseCombo_Interaction::PhaseCombo_Interaction(XML_Node& phaseRoot, std::string id) :
+PhaseCombo_Interaction::PhaseCombo_Interaction(XML_Node& phaseRoot,
+                                               const std::string& id) :
     GibbsExcessVPSSTP(),
     numBinaryInteractions_(0),
     formMargules_(0),
@@ -513,7 +515,7 @@ void PhaseCombo_Interaction::getPartialMolarVolumes(doublereal* vbar) const
     }
 }
 //====================================================================================================================
-doublereal PhaseCombo_Interaction::err(std::string msg) const
+doublereal PhaseCombo_Interaction::err(const std::string& msg) const
 {
     throw CanteraError("PhaseCombo_Interaction","Base class method "
                        +msg+" called. Equation of state type: "+int2str(eosType()));
@@ -564,7 +566,7 @@ void  PhaseCombo_Interaction::initLengths()
  *             to see if phaseNode is pointing to the phase
  *             with the correct id.
  */
-void PhaseCombo_Interaction::initThermoXML(XML_Node& phaseNode, std::string id)
+void PhaseCombo_Interaction::initThermoXML(XML_Node& phaseNode, const std::string& id)
 {
     string subname = "PhaseCombo_Interaction::initThermoXML";
     string stemp;

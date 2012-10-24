@@ -214,7 +214,7 @@ void VPSSMgr_Water_HKFT::initThermo()
 
 
 void
-VPSSMgr_Water_HKFT::initThermoXML(XML_Node& phaseNode, std::string id)
+VPSSMgr_Water_HKFT::initThermoXML(XML_Node& phaseNode, const std::string& id)
 {
     VPSSMgr::initThermoXML(phaseNode, id);
 

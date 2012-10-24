@@ -37,8 +37,8 @@ public:
      * @param spName Species Name that caused the error
      * @param speciesThermoModel Unrecognized species thermo model name
      */
-    UnknownSpeciesThermoModel(std::string proc, std::string spName,
-                              std::string speciesThermoModel) :
+    UnknownSpeciesThermoModel(const std::string& proc, const std::string& spName,
+                              const std::string& speciesThermoModel) :
         CanteraError(proc, "species " + spName +
                      ": Specified speciesThermoPhase model "
                      + speciesThermoModel +

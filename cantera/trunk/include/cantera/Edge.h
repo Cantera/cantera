@@ -14,7 +14,7 @@ class Edge :
     public EdgePhase, public EdgeKinetics
 {
 public:
-    Edge(std::string infile, std::string id, std::vector<ThermoPhase*> phases)
+    Edge(const std::string& infile, std::string id, std::vector<ThermoPhase*> phases)
         : m_ok(false), m_r(0) {
 
         m_r = get_XML_File(infile);

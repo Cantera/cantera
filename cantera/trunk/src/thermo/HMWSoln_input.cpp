@@ -35,7 +35,7 @@ namespace Cantera
 /*!
  *  @param estString string name of the electrolyte species type
  */
-int HMWSoln::interp_est(std::string estString)
+int HMWSoln::interp_est(const std::string& estString)
 {
     const char* cc = estString.c_str();
     string lcs = lowercase(estString);
@@ -1066,7 +1066,7 @@ void HMWSoln::initThermo()
  *             with the correct id.
  */
 void HMWSoln::
-initThermoXML(XML_Node& phaseNode, std::string id)
+initThermoXML(XML_Node& phaseNode, const std::string& id)
 {
     string stemp;
     if (id.size() > 0) {

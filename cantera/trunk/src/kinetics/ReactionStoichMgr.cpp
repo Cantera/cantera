@@ -195,7 +195,7 @@ multiplyRevProducts(const doublereal* c, doublereal* r)
 
 
 void ReactionStoichMgr::
-write(string filename)
+write(const string& filename)
 {
     ofstream f(filename.c_str());
     f << "namespace mech {" << endl;

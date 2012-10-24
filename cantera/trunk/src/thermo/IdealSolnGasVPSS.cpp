@@ -35,7 +35,7 @@ IdealSolnGasVPSS::IdealSolnGasVPSS() :
 }
 
 
-IdealSolnGasVPSS::IdealSolnGasVPSS(std::string infile, std::string id) :
+IdealSolnGasVPSS::IdealSolnGasVPSS(const std::string& infile, std::string id) :
     VPStandardStateTP(),
     m_idealGas(0),
     m_formGC(0)
@@ -489,7 +489,7 @@ void IdealSolnGasVPSS::initLengths()
  * This routine initializes the lengths in the current object and
  * then calls the parent routine.
  */
-void IdealSolnGasVPSS::initThermoXML(XML_Node& phaseNode, std::string id)
+void IdealSolnGasVPSS::initThermoXML(XML_Node& phaseNode, const std::string& id)
 {
     IdealSolnGasVPSS::initLengths();
 

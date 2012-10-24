@@ -55,7 +55,7 @@ public:
     /// Constructor.
     IdealSolnGasVPSS();
 
-    IdealSolnGasVPSS(std::string infile, std::string id="");
+    IdealSolnGasVPSS(const std::string& infile, std::string id="");
 
     /// Copy Constructor.
     IdealSolnGasVPSS(const IdealSolnGasVPSS&);
@@ -410,7 +410,7 @@ public:
      *             to see if phaseNode is pointing to the phase
      *             with the correct id.
      */
-    virtual void initThermoXML(XML_Node& phaseNode, std::string id);
+    virtual void initThermoXML(XML_Node& phaseNode, const std::string& id);
 
 private:
     //!  @internal Initialize the internal lengths in this object.

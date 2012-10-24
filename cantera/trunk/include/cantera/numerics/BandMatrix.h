@@ -423,7 +423,7 @@ private:
     /*!
      * @param msg String containing the message.
      */
-    void err(std::string msg) const;
+    void err(const std::string& msg) const;
 
 
 };

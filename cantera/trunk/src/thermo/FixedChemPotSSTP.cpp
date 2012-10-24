@@ -44,7 +44,7 @@ FixedChemPotSSTP::FixedChemPotSSTP() :
  * @param id     name of the phase id in the file.
  *               If this is blank, the first phase in the file is used.
  */
-FixedChemPotSSTP::FixedChemPotSSTP(std::string infile, std::string id) :
+FixedChemPotSSTP::FixedChemPotSSTP(const std::string& infile, std::string id) :
     SingleSpeciesTP(),
     chemPot_(0.0)
 {
@@ -72,7 +72,7 @@ FixedChemPotSSTP::FixedChemPotSSTP(std::string infile, std::string id) :
  *  @param phaseRef XML node pointing to a FixedChemPotSSTP description
  *  @param id       Id of the phase.
  */
-FixedChemPotSSTP::FixedChemPotSSTP(XML_Node& xmlphase, std::string id) :
+FixedChemPotSSTP::FixedChemPotSSTP(XML_Node& xmlphase, const std::string& id) :
     SingleSpeciesTP(),
     chemPot_(0.0)
 {
@@ -97,7 +97,7 @@ FixedChemPotSSTP::FixedChemPotSSTP(XML_Node& xmlphase, std::string id) :
     }
 }
 //====================================================================================================================
-FixedChemPotSSTP::FixedChemPotSSTP(std::string Ename, doublereal val) :
+FixedChemPotSSTP::FixedChemPotSSTP(const std::string& Ename, doublereal val) :
     SingleSpeciesTP(),
     chemPot_(0.0)
 {
@@ -499,7 +499,7 @@ void FixedChemPotSSTP::initThermo()
 }
 //====================================================================================================================
 
-void FixedChemPotSSTP::initThermoXML(XML_Node& phaseNode, std::string id)
+void FixedChemPotSSTP::initThermoXML(XML_Node& phaseNode, const std::string& id)
 {
     /*
      * Find the Thermo XML node

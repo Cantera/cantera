@@ -11,7 +11,7 @@
 namespace Cantera
 {
 
-Integrator* newIntegrator(std::string itype)
+Integrator* newIntegrator(const std::string& itype)
 {
     if (itype == "CVODE") {
 #ifdef HAS_SUNDIALS

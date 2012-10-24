@@ -19,7 +19,7 @@ public:
 
     IdealGasMix() : m_ok(false), m_r(0) {}
 
-    IdealGasMix(std::string infile, std::string id="") :
+    IdealGasMix(const std::string& infile, std::string id="") :
         m_ok(false), m_r(0) {
 
         m_r = get_XML_File(infile);

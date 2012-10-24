@@ -623,7 +623,7 @@ void SingleSpeciesTP::setState_SV(doublereal s, doublereal v,
  * this class doesn't have an answer for the question given to it,
  *  because the derived class isn't overriding a function.
  */
-doublereal SingleSpeciesTP::err(std::string msg) const
+doublereal SingleSpeciesTP::err(const std::string& msg) const
 {
     throw CanteraError("SingleSpeciesTP","Base class method "
                        +msg+" called. Equation of state type: "

@@ -25,7 +25,7 @@ static void print_space(int num)
     }
 }
 
-static void print_line(std::string schar, size_t num)
+static void print_line(const std::string& schar, size_t num)
 {
     for (size_t j = 0; j < num; j++) {
         plogf("%s", schar.c_str());

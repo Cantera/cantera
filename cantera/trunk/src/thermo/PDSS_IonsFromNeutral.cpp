@@ -37,7 +37,7 @@ PDSS_IonsFromNeutral::PDSS_IonsFromNeutral(VPStandardStateTP* tp, size_t spindex
 }
 //====================================================================================================================
 PDSS_IonsFromNeutral::PDSS_IonsFromNeutral(VPStandardStateTP* tp, size_t spindex,
-        std::string inputFile, std::string id) :
+                                           const std::string& inputFile, const std::string& id) :
     PDSS(tp, spindex),
     neutralMoleculePhase_(0),
     numMult_(0),
@@ -154,7 +154,7 @@ void PDSS_IonsFromNeutral::initAllPtrs(VPStandardStateTP* tp, VPSSMgr* vpssmgr_p
  */
 void PDSS_IonsFromNeutral::constructPDSSXML(VPStandardStateTP* tp, size_t spindex,
         const XML_Node& speciesNode,
-        const XML_Node& phaseNode, std::string id)
+        const XML_Node& phaseNode, const std::string& id)
 {
     const XML_Node* tn = speciesNode.findByName("thermo");
     if (!tn) {
@@ -227,7 +227,7 @@ void PDSS_IonsFromNeutral::constructPDSSXML(VPStandardStateTP* tp, size_t spinde
  *                    phase element will be used.
  */
 void PDSS_IonsFromNeutral::constructPDSSFile(VPStandardStateTP* tp, size_t spindex,
-        std::string inputFile, std::string id)
+                                             const std::string& inputFile, const std::string& id)
 {
 
     if (inputFile.size() == 0) {

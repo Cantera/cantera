@@ -20,7 +20,7 @@ namespace Cantera
 class CVodeErr : public CanteraError
 {
 public:
-    CVodeErr(std::string msg) : CanteraError("CVodeInt", msg) {}
+    explicit CVodeErr(const std::string& msg) : CanteraError("CVodeInt", msg) {}
 };
 
 

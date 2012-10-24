@@ -32,7 +32,7 @@ public:
     /*!
      *  @param method Single string indicating a method that is not implemented
      */
-    NotImplemented(std::string method);
+    NotImplemented(const std::string& method);
 };
 //====================================================================================================================
 //! Base structure to hold transport model parameters.

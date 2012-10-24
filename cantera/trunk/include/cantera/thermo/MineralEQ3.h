@@ -174,7 +174,7 @@ public:
      * @param id     name of the phase id in the file.
      *               If this is blank, the first phase in the file is used.
      */
-    MineralEQ3(std::string infile, std::string id = "");
+    MineralEQ3(const std::string& infile, std::string id = "");
 
     //! Construct and initialize a StoichSubstanceSSTP ThermoPhase object
     //! directly from an XML database
@@ -182,7 +182,7 @@ public:
      *  @param phaseRef XML node pointing to a StoichSubstanceSSTP description
      *  @param id       Id of the phase.
      */
-    MineralEQ3(XML_Node& phaseRef, std::string id = "");
+    MineralEQ3(XML_Node& phaseRef, const std::string& id = "");
 
     //! Copy constructor
     /*!
@@ -487,7 +487,7 @@ public:
      *             to see if phaseNode is pointing to the phase
      *             with the correct id.
      */
-    virtual void initThermoXML(XML_Node& phaseNode, std::string id);
+    virtual void initThermoXML(XML_Node& phaseNode, const std::string& id);
 
     //! Set the equation of state parameters
     /*!

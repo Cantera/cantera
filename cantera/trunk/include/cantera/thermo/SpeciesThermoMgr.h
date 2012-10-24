@@ -34,7 +34,7 @@ public:
      * @param proc   name of the procecdure
      * @param type   unknown type
      */
-    UnknownSpeciesThermo(std::string proc, int type) :
+    UnknownSpeciesThermo(const std::string& proc, int type) :
         CanteraError(proc, "Specified species parameterization type (" + int2str(type)
                      + ") does not match any known type.") {}
 
@@ -43,7 +43,7 @@ public:
      * @param proc   name of the procecdure
      * @param stype   String name for the unknown type
      */
-    UnknownSpeciesThermo(std::string proc, std::string stype) :
+    UnknownSpeciesThermo(const std::string& proc, const std::string& stype) :
         CanteraError(proc, "Specified species parameterization type (" + stype
                      + ") does not match any known type.") {}
     //! destructor
@@ -116,7 +116,7 @@ public:
      *                    parameterization.
      * @see speciesThermoTypes.h
      */
-    virtual void install(std::string name, size_t sp, int type,
+    virtual void install(const std::string& name, size_t sp, int type,
                          const doublereal* c,
                          doublereal minTemp, doublereal maxTemp,
                          doublereal refPressure);
@@ -277,7 +277,7 @@ SpeciesThermoDuo<T1, T2>::duplMyselfAsSpeciesThermo() const
 
 template<class T1, class T2>
 void
-SpeciesThermoDuo<T1, T2>::install(std::string name, size_t sp, int type,
+SpeciesThermoDuo<T1, T2>::install(const std::string& name, size_t sp, int type,
                                   const doublereal* c,
                                   doublereal minTemp,
                                   doublereal maxTemp,

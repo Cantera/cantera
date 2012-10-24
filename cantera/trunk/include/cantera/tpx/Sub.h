@@ -30,7 +30,8 @@ namespace tpx
 class TPX_Error : public Cantera::CanteraError
 {
 public:
-    TPX_Error(std::string p, std::string e) : CanteraError(p, e) { }
+    TPX_Error(const std::string& p, const std::string& e) :
+        CanteraError(p, e) { }
 };
 
 namespace PropertyPair

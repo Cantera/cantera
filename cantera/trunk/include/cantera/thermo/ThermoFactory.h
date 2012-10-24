@@ -42,7 +42,8 @@ public:
      * @param proc Function name where the error occurred.
      * @param thermoModel Sting name of ThermoPhase which didn't match
      */
-    UnknownThermoPhaseModel(std::string proc, std::string thermoModel) :
+    UnknownThermoPhaseModel(const std::string& proc,
+                            const std::string& thermoModel) :
         CanteraError(proc, "Specified ThermoPhase model "
                      + thermoModel +
                      " does not match any known type.") {}
@@ -97,7 +98,7 @@ public:
      *   Throws an exception UnknownThermoPhaseModel if the string
      *   wasn't matched.
      */
-    virtual ThermoPhase* newThermoPhase(std::string model);
+    virtual ThermoPhase* newThermoPhase(const std::string& model);
 
 private:
     //! static member of a single instance
@@ -121,7 +122,7 @@ private:
  *   Throws an exception UnknownThermoPhaseModel if the string
  *   wasn't matched.
  */
-inline ThermoPhase* newThermoPhase(std::string model,
+inline ThermoPhase* newThermoPhase(const std::string& model,
                                    ThermoFactory* f=0)
 {
     if (f == 0) {
@@ -175,7 +176,7 @@ ThermoPhase* newPhase(XML_Node& phase);
  * @return
  *   Returns an initialized ThermoPhase object.
  */
-ThermoPhase* newPhase(std::string infile, std::string id);
+ThermoPhase* newPhase(const std::string& infile, std::string id);
 
 //! Import a phase information into an empty thermophase object
 /*!
@@ -304,7 +305,7 @@ bool installSpecies(size_t k, const XML_Node& s, thermo_t& p,
  *
  *
  */
-const XML_Node* speciesXML_Node(std::string kname,
+const XML_Node* speciesXML_Node(const std::string& kname,
                                 const XML_Node* phaseSpeciesData);
 
 //@}

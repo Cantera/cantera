@@ -192,7 +192,7 @@ public:
      *                   file is used.
      */
     PDSS_SSVol(VPStandardStateTP* tp, size_t spindex,
-               std::string inputFile, std::string id = "");
+               const std::string& inputFile, const std::string& id = "");
 
     //! Constructor that initializes the object by examining the input file
     //! of the ThermoPhase object
@@ -508,7 +508,7 @@ private:
      *                    phase element will be used.
      */
     void constructPDSSFile(VPStandardStateTP* vptp_ptr, size_t spindex,
-                           std::string inputFile, std::string id);
+                           const std::string& inputFile, const std::string& id);
 
     //!  Initialization of a PDSS object using an xml tree
     /*!

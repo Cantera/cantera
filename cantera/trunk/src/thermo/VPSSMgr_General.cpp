@@ -161,7 +161,7 @@ void VPSSMgr_General::getGibbs_ref(doublereal* g) const
 }
 
 void
-VPSSMgr_General::initThermoXML(XML_Node& phaseNode, std::string id)
+VPSSMgr_General::initThermoXML(XML_Node& phaseNode, const std::string& id)
 {
     VPSSMgr::initThermoXML(phaseNode, id);
 }

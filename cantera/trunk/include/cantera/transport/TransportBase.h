@@ -887,7 +887,7 @@ private:
      *
      *  @return  returns a double, though we will never get there
      */
-    doublereal err(std::string msg) const;
+    doublereal err(const std::string& msg) const;
 
 };
 

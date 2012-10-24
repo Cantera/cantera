@@ -190,7 +190,7 @@ int  MixtureFugacityTP::reportSolnBranchActual() const
  */
 //====================================================================================================================
 
-doublereal MixtureFugacityTP::err(std::string msg) const
+doublereal MixtureFugacityTP::err(const std::string& msg) const
 {
     throw CanteraError("MixtureFugacityTP","Base class method "
                        +msg+" called. Equation of state type: "+int2str(eosType()));
@@ -707,7 +707,7 @@ void MixtureFugacityTP::setState_TPX(doublereal t, doublereal p, const doublerea
  * This routine initializes the lengths in the current object and
  * then calls the parent routine.
  */
-void MixtureFugacityTP::initThermoXML(XML_Node& phaseNode, std::string id)
+void MixtureFugacityTP::initThermoXML(XML_Node& phaseNode, const std::string& id)
 {
     MixtureFugacityTP::initLengths();
 

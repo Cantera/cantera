@@ -150,7 +150,7 @@ public:
      *                    parameterization.
      * @see speciesThermoTypes.h
      */
-    virtual void install(std::string name, size_t index, int type,
+    virtual void install(const std::string& name, size_t index, int type,
                          const doublereal* c,
                          doublereal minTemp, doublereal maxTemp,
                          doublereal refPressure) {
@@ -558,8 +558,8 @@ private:
      * @param clow  coefficients for lower temperature region
      * @param chigh coefficients for higher temperature region
      */
-    void checkContinuity(std::string name, double tmid, const doublereal* clow,
-                         doublereal* chigh);
+    void checkContinuity(const std::string& name, double tmid,
+                         const doublereal* clow, doublereal* chigh);
 
     //! for internal use by checkContinuity
     /*!

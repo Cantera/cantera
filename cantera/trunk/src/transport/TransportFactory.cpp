@@ -68,7 +68,7 @@ public:
      *  @param linenum  inputs the line number
      *  @param msg      String message to be sent to the user
      */
-    TransportDBError(int linenum, std::string msg) :
+    TransportDBError(int linenum, const std::string& msg) :
         CanteraError("getTransportData", "error reading transport data: "  + msg + "\n") {
     }
 };
@@ -355,7 +355,7 @@ LiquidTranInteraction* TransportFactory::newLTI(const XML_Node& trNode,
   make one of several transport models, and return a base class
   pointer to it.
 */
-Transport* TransportFactory::newTransport(std::string transportModel,
+Transport* TransportFactory::newTransport(const std::string& transportModel,
         thermo_t* phase, int log_level)
 {
 
@@ -1476,7 +1476,7 @@ void TransportFactory::fitProperties(GasTransportParams& tr,
  *
  * @ingroup transportProps
  */
-Transport* newTransportMgr(std::string transportModel, thermo_t* thermo, int loglevel, TransportFactory* f)
+Transport* newTransportMgr(const std::string& transportModel, thermo_t* thermo, int loglevel, TransportFactory* f)
 {
     if (f == 0) {
         f = TransportFactory::factory();

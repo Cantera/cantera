@@ -44,7 +44,7 @@ public:
      *   the ReactingSurface class. These classes will be migrated into Cantera
      *   soon.
      */
-    Interface(std::string infile, std::string id,
+    Interface(const std::string& infile, std::string id,
               std::vector<Cantera::ThermoPhase*> otherPhases) :
         m_ok(false),
         m_r(0) {
@@ -122,7 +122,8 @@ protected:
 /*!
  *  This is the preferred method to create an Interface instance.
  */
-Interface* importInterface(std::string infile, std::string id, std::vector<Cantera::ThermoPhase*> phases)
+Interface* importInterface(const std::string& infile, const std::string& id,
+                           std::vector<Cantera::ThermoPhase*> phases)
 {
     return new Interface(infile, id, phases);
 }

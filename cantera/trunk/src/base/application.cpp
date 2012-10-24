@@ -112,7 +112,7 @@ Application::Messages::~Messages()
 }
 
 // Set an error condition in the application class without throwing an exception
-void Application::Messages::addError(std::string r, std::string msg)
+void Application::Messages::addError(const std::string& r, const std::string& msg)
 {
     errorMessage.push_back(msg);
     errorRoutine.push_back(r);
@@ -162,7 +162,7 @@ void Application::Messages::writelogendl()
 
 #ifdef WITH_HTML_LOGS
 
-void Application::Messages::beginLogGroup(std::string title, int _loglevel /*=-99*/)
+void Application::Messages::beginLogGroup(const std::string& title, int _loglevel /*=-99*/)
 {
     // Add the current loglevel to the vector of loglevels
     loglevels.push_back(loglevel);
@@ -192,35 +192,35 @@ void Application::Messages::beginLogGroup(std::string title, int _loglevel /*=-9
     current = &current->addChild("ul");
 }
 
-void Application::Messages::addLogEntry(std::string tag, std::string value)
+void Application::Messages::addLogEntry(const std::string& tag, const std::string& value)
 {
     if (loglevel > 0 && current) {
         current->addChild("li",tag+": "+value);
     }
 }
 
-void Application::Messages::addLogEntry(std::string tag, doublereal value)
+void Application::Messages::addLogEntry(const std::string& tag, doublereal value)
 {
     if (loglevel > 0 && current) {
         current->addChild("li",tag+": "+fp2str(value));
     }
 }
 
-void Application::Messages::addLogEntry(std::string tag, int value)
+void Application::Messages::addLogEntry(const std::string& tag, int value)
 {
     if (loglevel > 0 && current) {
         current->addChild("li",tag+": "+int2str(value));
     }
 }
 
-void Application::Messages::addLogEntry(std::string msg)
+void Application::Messages::addLogEntry(const std::string& msg)
 {
     if (loglevel > 0 && current) {
         current->addChild("li",msg);
     }
 }
 
-void Application::Messages::endLogGroup(std::string title)
+void Application::Messages::endLogGroup(const std::string& title)
 {
      if (title != "" && title != loggroups.back()) {
         writelog("Logfile error."
@@ -249,7 +249,7 @@ void Application::Messages::endLogGroup(std::string title)
     loglevels.pop_back();
 }
 
-void Application::Messages::write_logfile(std::string file)
+void Application::Messages::write_logfile(const std::string& file)
 {
     if (!xmllog) {
         return;
@@ -391,7 +391,7 @@ void Application::thread_complete()
 }
 
 
-XML_Node* Application::get_XML_File(std::string file, int debug)
+XML_Node* Application::get_XML_File(const std::string& file, int debug)
 {
     ScopedLock xmlLock(xml_mutex);
     std::string path = "";
@@ -486,7 +486,7 @@ XML_Node* Application::get_XML_File(std::string file, int debug)
 }
 
 
-void Application::close_XML_File(std::string file)
+void Application::close_XML_File(const std::string& file)
 {
     ScopedLock xmlLock(xml_mutex);
     if (file == "all") {
@@ -653,7 +653,7 @@ void Application::setDefaultDirectories()
 #endif
 }
 
-void Application::addDataDirectory(std::string dir)
+void Application::addDataDirectory(const std::string& dir)
 {
     ScopedLock dirLock(dir_mutex);
     if (inputDirs.size() == 0) {
@@ -672,7 +672,7 @@ void Application::addDataDirectory(std::string dir)
     inputDirs.push_back(d);
 }
 
-std::string Application::findInputFile(std::string name)
+std::string Application::findInputFile(const std::string& name)
 {
     ScopedLock dirLock(dir_mutex);
     string::size_type islash = name.find('/');

@@ -15,7 +15,7 @@ using namespace std;
 namespace Cantera
 {
 //====================================================================================================================
-NotImplemented::NotImplemented(std::string method) :
+NotImplemented::NotImplemented(const std::string& method) :
     CanteraError("Transport",
                  "\n\n**** Method " + method + " not implemented. ****\n"
                  "(Did you forget to specify a transport model?)\n\n")

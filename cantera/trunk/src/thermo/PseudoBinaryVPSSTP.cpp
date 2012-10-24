@@ -237,7 +237,7 @@ void PseudoBinaryVPSSTP::calcPseudoBinaryMoleFractions() const
  */
 
 
-doublereal PseudoBinaryVPSSTP::err(std::string msg) const
+doublereal PseudoBinaryVPSSTP::err(const std::string& msg) const
 {
     throw CanteraError("PseudoBinaryVPSSTP","Base class method "
                        +msg+" called. Equation of state type: "+int2str(eosType()));
@@ -288,7 +288,7 @@ void  PseudoBinaryVPSSTP::initLengths()
  *             to see if phaseNode is pointing to the phase
  *             with the correct id.
  */
-void PseudoBinaryVPSSTP::initThermoXML(XML_Node& phaseNode, std::string id)
+void PseudoBinaryVPSSTP::initThermoXML(XML_Node& phaseNode, const std::string& id)
 {
 
 

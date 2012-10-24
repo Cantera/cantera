@@ -202,7 +202,7 @@ void Mu0Poly::modifyParameters(doublereal* coeffs)
  * parameterization for species k into a SpeciesThermo instance,
  * getting the information from an XML database.
  */
-void installMu0ThermoFromXML(std::string speciesName,
+void installMu0ThermoFromXML(const std::string& speciesName,
                              SpeciesThermo& sp, size_t k,
                              const XML_Node* Mu0Node_ptr)
 {

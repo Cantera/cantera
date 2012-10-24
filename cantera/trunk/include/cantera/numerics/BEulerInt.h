@@ -47,7 +47,7 @@ enum BEulerMethodType {
 class BEulerErr : public CanteraError
 {
 public:
-    BEulerErr(std::string msg);
+    explicit BEulerErr(const std::string& msg);
 };
 
 

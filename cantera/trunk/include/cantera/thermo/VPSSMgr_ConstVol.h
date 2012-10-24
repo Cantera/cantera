@@ -178,7 +178,7 @@ public:
      *  @param phaseNode   Reference to the phase node in the XML tree
      *  @param id          string name of the phase
      */
-    virtual void initThermoXML(XML_Node& phaseNode, std::string id);
+    virtual void initThermoXML(XML_Node& phaseNode, const std::string& id);
 
     //!  Create and install a constant volume pressure dependent
     //!  standard state for one species within this object

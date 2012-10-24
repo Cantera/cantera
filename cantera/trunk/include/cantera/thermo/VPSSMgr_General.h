@@ -197,7 +197,7 @@ protected:
      *  @param phaseNode   Reference to the phaseNode XML node.
      *  @param id          ID of the phase.
      */
-    virtual void initThermoXML(XML_Node& phaseNode, std::string id);
+    virtual void initThermoXML(XML_Node& phaseNode, const std::string& id);
 
 private:
     //! Local factory routine for the creation of PDSS objects

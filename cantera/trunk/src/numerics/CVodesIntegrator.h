@@ -30,7 +30,7 @@ class FuncData;
 class CVodesErr : public CanteraError
 {
 public:
-    CVodesErr(std::string msg) : CanteraError("CVodesIntegrator", msg) {}
+    explicit CVodesErr(const std::string& msg) : CanteraError("CVodesIntegrator", msg) {}
 };
 
 

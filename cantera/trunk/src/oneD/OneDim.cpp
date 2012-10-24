@@ -57,7 +57,7 @@ OneDim::OneDim(vector<Domain1D*> domains) :
 }
 
 
-size_t OneDim::domainIndex(string name)
+size_t OneDim::domainIndex(const std::string& name)
 {
     for (size_t n = 0; n < m_nd; n++) {
         if (domain(n).id() == name) {
@@ -473,7 +473,8 @@ doublereal OneDim::timeStep(int nsteps, doublereal dt, doublereal* x,
 }
 
 
-void OneDim::save(string fname, string id, string desc, doublereal* sol)
+void OneDim::save(const std::string& fname, std::string id,
+                  const std::string& desc, doublereal* sol)
 {
 
     struct tm* newtime;

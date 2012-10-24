@@ -84,7 +84,7 @@ _init(size_t n)
 
 
 void Inlet1D::
-setMoleFractions(string xin)
+setMoleFractions(const std::string& xin)
 {
     m_xstr = xin;
     if (m_flow) {
@@ -537,7 +537,7 @@ restore(const XML_Node& dom, doublereal* soln)
 
 
 void OutletRes1D::
-setMoleFractions(string xres)
+setMoleFractions(const std::string& xres)
 {
     m_xstr = xres;
     if (m_flow) {

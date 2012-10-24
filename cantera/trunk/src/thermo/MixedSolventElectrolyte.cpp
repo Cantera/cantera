@@ -46,7 +46,8 @@ MixedSolventElectrolyte::MixedSolventElectrolyte() :
  *  XML database to get the info for the phase.
 
  */
-MixedSolventElectrolyte::MixedSolventElectrolyte(std::string inputFile, std::string id) :
+MixedSolventElectrolyte::MixedSolventElectrolyte(const std::string& inputFile,
+                                                 const std::string& id) :
     MolarityIonicVPSSTP(),
     numBinaryInteractions_(0),
     formMargules_(0),
@@ -55,7 +56,8 @@ MixedSolventElectrolyte::MixedSolventElectrolyte(std::string inputFile, std::str
     initThermoFile(inputFile, id);
 }
 
-MixedSolventElectrolyte::MixedSolventElectrolyte(XML_Node& phaseRoot, std::string id) :
+MixedSolventElectrolyte::MixedSolventElectrolyte(XML_Node& phaseRoot,
+                                                 const std::string& id) :
     MolarityIonicVPSSTP(),
     numBinaryInteractions_(0),
     formMargules_(0),
@@ -503,7 +505,7 @@ void MixedSolventElectrolyte::getPartialMolarVolumes(doublereal* vbar) const
     }
 }
 
-doublereal MixedSolventElectrolyte::err(std::string msg) const
+doublereal MixedSolventElectrolyte::err(const std::string& msg) const
 {
     throw CanteraError("MixedSolventElectrolyte","Base class method "
                        +msg+" called. Equation of state type: "+int2str(eosType()));
@@ -554,7 +556,7 @@ void  MixedSolventElectrolyte::initLengths()
  *             to see if phaseNode is pointing to the phase
  *             with the correct id.
  */
-void MixedSolventElectrolyte::initThermoXML(XML_Node& phaseNode, std::string id)
+void MixedSolventElectrolyte::initThermoXML(XML_Node& phaseNode, const std::string& id)
 {
     string subname = "MixedSolventElectrolyte::initThermoXML";
     string stemp;

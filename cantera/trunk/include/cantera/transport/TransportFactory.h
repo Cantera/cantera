@@ -117,7 +117,7 @@ public:
      *  @param thermo    ThermoPhase object
      *  @param log_level log level
      */
-    virtual Transport* newTransport(std::string model, thermo_t* thermo, int log_level=0);
+    virtual Transport* newTransport(const std::string& model, thermo_t* thermo, int log_level=0);
 
     //! Build a new transport manager using the default transport manager
     //! in the phase description and return a base class pointer to it
@@ -387,7 +387,7 @@ private:
  *
  * @ingroup transportProps
  */
-Transport* newTransportMgr(std::string transportModel = "",  thermo_t* thermo = 0, int loglevel = 0,
+Transport* newTransportMgr(const std::string& transportModel = "",  thermo_t* thermo = 0, int loglevel = 0,
                            TransportFactory* f = 0);
 //====================================================================================================================
 //!  Create a new transport manager instance.

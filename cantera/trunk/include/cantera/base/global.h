@@ -53,7 +53,7 @@ std::string lastErrorMessage();
  *
  * @ingroup errorhandling
  */
-void setError(std::string r, std::string msg);
+void setError(const std::string& r, const std::string& msg);
 
 //!  Prints all of the error messages to an ostream
 /*!
@@ -172,7 +172,7 @@ void popError();
  *
  * @ingroup inputfiles
  */
-std::string findInputFile(std::string name);
+std::string findInputFile(const std::string& name);
 
 //!  Add a directory to the input file search path.
 /*!
@@ -180,7 +180,7 @@ std::string findInputFile(std::string name);
  *
  * @param dir  String name for the directory to be added to the search path
  */
-void addDirectory(std::string dir);
+void addDirectory(const std::string& dir);
 
 //@}
 
@@ -313,14 +313,14 @@ void setLogger(Logger* logwriter);
 /*!
  * @param unit String containing the units
  */
-doublereal toSI(std::string unit);
+doublereal toSI(const std::string& unit);
 
 /// Return the conversion factor to convert activation energy unit
 /// std::string 'unit' to Kelvin.
 /*!
  * @param unit  String containing the activation energy units
  */
-doublereal actEnergyToSI(std::string unit);
+doublereal actEnergyToSI(const std::string& unit);
 
 /// Return a pointer to the XML tree for a Cantera input file.
 /*!
@@ -332,13 +332,13 @@ doublereal actEnergyToSI(std::string unit);
  * @param file String containing the relative or absolute file name
  * @param debug Debug flag
  */
-XML_Node* get_XML_File(std::string file, int debug = 0);
+XML_Node* get_XML_File(const std::string& file, int debug = 0);
 
 /// Close a Cantera input file.
 /*!
  * @param file String containing the relative or absolute file name
  */
-void close_XML_File(std::string file);
+void close_XML_File(const std::string& file);
 
 #ifdef WITH_HTML_LOGS
 
@@ -376,7 +376,7 @@ void close_XML_File(std::string file);
  *  @param loglevel loglevel of the group.
  *  @ingroup HTML_logs
  */
-void beginLogGroup(std::string title, int loglevel=-99);
+void beginLogGroup(const std::string& title, int loglevel=-99);
 
 //! Add an entry to an HTML log file.
 /*!
@@ -387,7 +387,7 @@ void beginLogGroup(std::string title, int loglevel=-99);
  *
  * @ingroup HTML_logs
  */
-void addLogEntry(std::string tag, std::string value);
+void addLogEntry(const std::string& tag, const std::string& value);
 
 //! Add an entry to an HTML log file.
 /*!
@@ -398,7 +398,7 @@ void addLogEntry(std::string tag, std::string value);
  *
  * @ingroup HTML_logs
  */
-void addLogEntry(std::string tag, doublereal value);
+void addLogEntry(const std::string& tag, doublereal value);
 
 //! Add an entry to an HTML log file.
 /*!
@@ -409,7 +409,7 @@ void addLogEntry(std::string tag, doublereal value);
  *
  * @ingroup HTML_logs
  */
-void addLogEntry(std::string tag, int value);
+void addLogEntry(const std::string& tag, int value);
 
 //! Add an entry msg string to an HTML log file.
 /*!
@@ -419,7 +419,7 @@ void addLogEntry(std::string tag, int value);
  *
  * @ingroup HTML_logs
  */
-void addLogEntry(std::string msg);
+void addLogEntry(const std::string& msg);
 
 //! Close the current group of log messages.
 /*!
@@ -434,7 +434,7 @@ void addLogEntry(std::string msg);
  *              log group created.
  * @ingroup HTML_logs
  */
-void endLogGroup(std::string title="");
+void endLogGroup(const std::string& title="");
 
 //! Write the HTML log file.
 /*!
@@ -451,16 +451,16 @@ void endLogGroup(std::string title="");
  *  @param  file Name of the file to be written
  *  @ingroup HTML_logs
  */
-void write_logfile(std::string file = "log.html");
+void write_logfile(const std::string& file = "log.html");
 
 #else
-inline void beginLogGroup(std::string title, int loglevel=-99) {}
-inline void addLogEntry(std::string tag, std::string value) {}
-inline void addLogEntry(std::string tag, doublereal value) {}
-inline void addLogEntry(std::string tag, int value) {}
-inline void addLogEntry(std::string msg) {}
-inline void endLogGroup(std::string title="") {}
-inline void write_logfile(std::string file = "log.html") {}
+inline void beginLogGroup(const std::string& title, int loglevel=-99) {}
+inline void addLogEntry(const std::string& tag, const std::string& value) {}
+inline void addLogEntry(const std::string& tag, doublereal value) {}
+inline void addLogEntry(const std::string& tag, int value) {}
+inline void addLogEntry(const std::string& msg) {}
+inline void endLogGroup(const std::string& title="") {}
+inline void write_logfile(const std::string& file = "log.html") {}
 #endif
 
 //! This routine will locate an XML node in either the input

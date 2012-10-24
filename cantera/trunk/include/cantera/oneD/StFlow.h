@@ -177,7 +177,7 @@ public:
 
     virtual std::string componentName(size_t n) const;
 
-    size_t componentIndex(std::string name) const;
+    size_t componentIndex(const std::string& name) const;
 
 
     virtual void showSolution(const doublereal* x);

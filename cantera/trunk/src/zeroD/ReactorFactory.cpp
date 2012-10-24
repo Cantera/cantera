@@ -30,7 +30,7 @@ static int _itypes[]   = {ReservoirType, ReactorType, ConstPressureReactorType,
 /**
  * This method returns a new instance of a subclass of ThermoPhase
  */
-ReactorBase* ReactorFactory::newReactor(string reactorType)
+ReactorBase* ReactorFactory::newReactor(const std::string& reactorType)
 {
 
     int ir=-1;

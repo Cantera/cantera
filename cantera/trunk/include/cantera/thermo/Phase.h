@@ -37,7 +37,7 @@ class ElementsFrozen : public CanteraError
 public:
     //! Constructor for class
     //! @param func Function where the error occurred.
-    ElementsFrozen(std::string func)
+    ElementsFrozen(const std::string& func)
         : CanteraError(func, "Elements cannot be added after species.") {}
 };
 
@@ -138,14 +138,14 @@ public:
 
     //! Set the string id for the phase.
     //!     @param id String id of the phase
-    void setID(std::string id);
+    void setID(const std::string& id);
 
     //! Return the name of the phase.
     std::string name() const;
 
     //! Sets the string name for the phase.
     //!     @param nm String name of the phase
-    void setName(std::string nm);
+    void setName(const std::string& nm);
     //!@} end group Name and ID
 
     //! @name Element and Species Information
@@ -159,7 +159,7 @@ public:
     //! assigned to each element in the order it was added. Returns \ref npos
     //! if the specified element is not found.
     //!     @param name Name of the element
-    size_t elementIndex(std::string name) const;
+    size_t elementIndex(const std::string& name) const;
 
     //! Return a read-only reference to the vector of element names.
     const std::vector<std::string>& elementNames() const;
@@ -233,7 +233,7 @@ public:
     //!            phaseName:speciesName
     //!     @return The index of the species. If the name is not found,
     //!             the value \ref npos is returned.
-    size_t speciesIndex(std::string name) const;
+    size_t speciesIndex(const std::string& name) const;
 
     //! Name of the species with index k
     //!     @param k index of the species
@@ -414,7 +414,7 @@ public:
     //! Return the mole fraction of a single species
     //!     @param  name  String name of the species
     //!     @return Mole fraction of the species
-    doublereal moleFraction(std::string name) const;
+    doublereal moleFraction(const std::string& name) const;
 
     //! Return the mass fraction of a single species
     //!     @param  k species index
@@ -424,7 +424,7 @@ public:
     //! Return the mass fraction of a single species
     //!     @param  name  String name of the species
     //!     @return Mass Fraction of the species
-    doublereal massFraction(std::string name) const;
+    doublereal massFraction(const std::string& name) const;
 
     //! Get the species mole fraction vector.
     //!     @param x On return, x contains the mole fractions. Must have a

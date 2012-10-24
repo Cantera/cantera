@@ -125,7 +125,7 @@ void VPSSMgr_ConstVol::initThermo()
 }
 
 void
-VPSSMgr_ConstVol::initThermoXML(XML_Node& phaseNode, std::string id)
+VPSSMgr_ConstVol::initThermoXML(XML_Node& phaseNode, const std::string& id)
 {
     VPSSMgr::initThermoXML(phaseNode, id);
 

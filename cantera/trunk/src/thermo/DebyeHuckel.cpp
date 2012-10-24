@@ -63,7 +63,8 @@ DebyeHuckel::DebyeHuckel() :
  *  the routine initThermo(), with a reference to the
  *  XML database to get the info for the phase.
  */
-DebyeHuckel::DebyeHuckel(std::string inputFile, std::string id) :
+DebyeHuckel::DebyeHuckel(const std::string& inputFile,
+                         const std::string& id) :
     MolalityVPSSTP(),
     m_formDH(DHFORM_DILUTE_LIMIT),
     m_formGC(2),
@@ -85,7 +86,7 @@ DebyeHuckel::DebyeHuckel(std::string inputFile, std::string id) :
     initThermoFile(inputFile, id);
 }
 
-DebyeHuckel::DebyeHuckel(XML_Node& phaseRoot, std::string id) :
+DebyeHuckel::DebyeHuckel(XML_Node& phaseRoot, const std::string& id) :
     MolalityVPSSTP(),
     m_formDH(DHFORM_DILUTE_LIMIT),
     m_formGC(2),
@@ -910,7 +911,7 @@ void DebyeHuckel::initThermo()
 /*!
  *  @param estString  input string that will be interpreted
  */
-static int interp_est(std::string estString)
+static int interp_est(const std::string& estString)
 {
     const char* cc = estString.c_str();
     string lc = lowercase(estString);
@@ -954,7 +955,7 @@ static int interp_est(std::string estString)
  *             with the correct id.
  */
 void DebyeHuckel::
-initThermoXML(XML_Node& phaseNode, std::string id)
+initThermoXML(XML_Node& phaseNode, const std::string& id)
 {
     if (id.size() > 0) {
         std::string idp = phaseNode.id();
@@ -1668,7 +1669,7 @@ double DebyeHuckel::AionicRadius(int k) const
  * Bail out of functions with an error exit if they are not
  * implemented.
  */
-doublereal DebyeHuckel::err(std::string msg) const
+doublereal DebyeHuckel::err(const std::string& msg) const
 {
     throw CanteraError("DebyeHuckel",
                        "Unfinished func called: " + msg);

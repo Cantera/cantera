@@ -141,7 +141,7 @@ public:
     /*!
      * @param name   String name of the global element
      */
-    size_t elementIndex(std::string name) const;
+    size_t elementIndex(const std::string& name) const;
 
     //! Number of species, summed over all phases.
     size_t nSpecies() const {
@@ -273,7 +273,7 @@ public:
      *  If the species or phase name is not recognized, this routine throws
      *  a CanteraError.
      */
-    size_t speciesIndex(std::string speciesName, std::string phaseName);
+    size_t speciesIndex(const std::string& speciesName, const std::string& phaseName);
 
     /// Minimum temperature for which all solution phases have
     /// valid thermo data. Stoichiometric phases are not

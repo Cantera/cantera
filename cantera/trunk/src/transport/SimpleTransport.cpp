@@ -1018,7 +1018,7 @@ bool SimpleTransport::update_T()
  * Throw an exception if this method is invoked.
  * This probably indicates something is not yet implemented.
  */
-doublereal SimpleTransport::err(std::string msg) const
+doublereal SimpleTransport::err(const std::string& msg) const
 {
     throw CanteraError("SimpleTransport Class",
                        "\n\n\n**** Method "+ msg +" not implemented in model "

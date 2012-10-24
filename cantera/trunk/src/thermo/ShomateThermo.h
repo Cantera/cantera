@@ -163,7 +163,7 @@ public:
      * @see ShomatePoly
      * @see ShomatePoly2
      */
-    virtual void install(std::string name, size_t index, int type,
+    virtual void install(const std::string& name, size_t index, int type,
                          const doublereal* c,
                          doublereal minTemp, doublereal maxTemp,
                          doublereal refPressure) {

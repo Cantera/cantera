@@ -162,7 +162,7 @@ std::string getBaseName(const std::string& fullPath);
  *
  *  @return      Returns an integer
  */
-int intValue(std::string val);
+int intValue(const std::string& val);
 
 //! Translate a string into one doublereal value
 /*!
@@ -173,7 +173,7 @@ int intValue(std::string val);
  *
  *  @return      Returns a doublereal value
  */
-doublereal fpValue(std::string val);
+doublereal fpValue(const std::string& val);
 
 //! Translate a string into one doublereal value
 /*!
@@ -183,7 +183,7 @@ doublereal fpValue(std::string val);
  *
  *  @return      Returns a doublereal value
  */
-doublereal fpValueCheck(std::string val);
+doublereal fpValueCheck(const std::string& val);
 
 //! Parse a name string, separating out the phase name from the species name
 /*!

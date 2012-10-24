@@ -44,7 +44,7 @@ public:
      *                     parameters for the standard state.
      */
     StatMech(int n, doublereal tlow, doublereal thigh, doublereal pref,
-             const doublereal* coeffs, std::string my_name);
+             const doublereal* coeffs, const std::string& my_name);
 
     //! copy constructor
     /*!

@@ -20,7 +20,7 @@
 
 namespace Cantera
 {
-DAE_Solver* newDAE_Solver(std::string itype, ResidJacEval& f)
+DAE_Solver* newDAE_Solver(const std::string& itype, ResidJacEval& f)
 {
     if (itype == "IDA") {
 #ifdef HAS_SUNDIALS

@@ -52,7 +52,8 @@ public:
     //@{
 
     /// Set initial guess based on equilibrium
-    void setInitialGuess(std::string component, vector_fp& locs, vector_fp& vals);
+    void setInitialGuess(const std::string& component, vector_fp& locs,
+                         vector_fp& vals);
 
     /// Set one entry in the solution vector.
     void setValue(size_t dom, size_t comp, size_t localPoint,  doublereal value);
@@ -71,7 +72,8 @@ public:
 
     //@}
 
-    void save(std::string fname, std::string id, std::string desc);
+    void save(const std::string& fname, const std::string& id,
+              const std::string& desc);
 
     /// Print to stream s the current solution for all domains.
     void showSolution(std::ostream& s);
@@ -102,7 +104,7 @@ public:
                            doublereal slope = 0.8, doublereal curve = 0.8, doublereal prune = -0.1);
     void setMaxGridPoints(int dom = -1, int npoints = 300);
 
-    void restore(std::string fname, std::string id);
+    void restore(const std::string& fname, const std::string& id);
     void getInitialSoln();
 
     void setSolution(const doublereal* soln) {

@@ -1430,7 +1430,7 @@ private:
      *
      * @param msg      Indicates the member function which is not implemented
      */
-    doublereal err(std::string msg) const;
+    doublereal err(const std::string& msg) const;
 
 };
 }

@@ -738,7 +738,7 @@ public:
      *  @param phaseNode   Reference to the phaseNode XML node.
      *  @param id          ID of the phase.
      */
-    virtual void initThermoXML(XML_Node& phaseNode, std::string id);
+    virtual void initThermoXML(XML_Node& phaseNode, const std::string& id);
 
     //! Install specific content for species k in the reference-state
     //! thermodynamic SpeciesManager object
@@ -962,7 +962,7 @@ private:
     /*!
      * @param msg  Error message string
      */
-    void err(std::string msg) const;
+    void err(const std::string& msg) const;
 
 };
 //@}

@@ -118,7 +118,7 @@ newKinetics(XML_Node& phaseData, vector<ThermoPhase*> th)
 /**
  * Return a new, empty kinetics manager.
  */
-Kinetics* KineticsFactory::newKinetics(string model)
+Kinetics* KineticsFactory::newKinetics(const string& model)
 {
 
     int ikin = -1;

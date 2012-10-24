@@ -53,7 +53,8 @@ RedlichKisterVPSSTP::RedlichKisterVPSSTP() :
  *  XML database to get the info for the phase.
 
  */
-RedlichKisterVPSSTP::RedlichKisterVPSSTP(std::string inputFile, std::string id) :
+RedlichKisterVPSSTP::RedlichKisterVPSSTP(const std::string& inputFile,
+                                         const std::string& id) :
     GibbsExcessVPSSTP(),
     numBinaryInteractions_(0),
     m_pSpecies_A_ij(0),
@@ -68,7 +69,8 @@ RedlichKisterVPSSTP::RedlichKisterVPSSTP(std::string inputFile, std::string id) 
     initThermoFile(inputFile, id);
 }
 //====================================================================================================================
-RedlichKisterVPSSTP::RedlichKisterVPSSTP(XML_Node& phaseRoot, std::string id) :
+RedlichKisterVPSSTP::RedlichKisterVPSSTP(XML_Node& phaseRoot,
+                                         const std::string& id) :
     GibbsExcessVPSSTP(),
     numBinaryInteractions_(0),
     m_pSpecies_A_ij(0),
@@ -477,7 +479,7 @@ void RedlichKisterVPSSTP::getPartialMolarVolumes(doublereal* vbar) const
     }
 }
 //====================================================================================================================
-doublereal RedlichKisterVPSSTP::err(std::string msg) const
+doublereal RedlichKisterVPSSTP::err(const std::string& msg) const
 {
     throw CanteraError("RedlichKisterVPSSTP","Base class method "
                        +msg+" called. Equation of state type: "+int2str(eosType()));
@@ -522,7 +524,7 @@ void  RedlichKisterVPSSTP::initLengths()
  * @param id   ID of the phase. If nonnull, a check is done to see if phaseNode is pointing to the phase
  *             with the correct id.
  */
-void RedlichKisterVPSSTP::initThermoXML(XML_Node& phaseNode, std::string id)
+void RedlichKisterVPSSTP::initThermoXML(XML_Node& phaseNode, const std::string& id)
 {
     std::string subname = "RedlichKisterVPSSTP::initThermoXML";
     std::string stemp;

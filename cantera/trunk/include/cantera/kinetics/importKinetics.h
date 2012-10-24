@@ -225,8 +225,8 @@ bool importKinetics(const XML_Node& phase, std::vector<ThermoPhase*> th,
  * @ingroup inputfiles
  * @see importKinetics()
  */
-bool buildSolutionFromXML(XML_Node& root, std::string id, std::string nm,
-                          ThermoPhase* th, Kinetics* k);
+bool buildSolutionFromXML(XML_Node& root, const std::string& id,
+                          const std::string& nm, ThermoPhase* th, Kinetics* k);
 
 //! Search an XML tree for species data.
 /*!

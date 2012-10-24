@@ -608,7 +608,7 @@ void LatticeSolidPhase::_updateThermo() const
     }
 }
 //====================================================================================================================
-void LatticeSolidPhase::setLatticeMoleFractionsByName(int nn, std::string x)
+void LatticeSolidPhase::setLatticeMoleFractionsByName(int nn, const std::string& x)
 {
     m_lattice[nn]->setMoleFractionsByName(x);
     size_t loc = 0;
@@ -694,7 +694,7 @@ void LatticeSolidPhase::modifyOneHf298SS(const int k, const doublereal Hf298New)
 #endif
 //====================================================================================================================
 
-doublereal LatticeSolidPhase::err(std::string msg) const
+doublereal LatticeSolidPhase::err(const std::string& msg) const
 {
     throw CanteraError("LatticeSolidPhase","Unimplemented " + msg);
     return 0.0;

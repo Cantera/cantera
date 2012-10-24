@@ -347,7 +347,7 @@ public:
      *  @param phaseNode   Reference to the phaseNode XML node.
      *  @param id          ID of the phase.
      */
-    virtual void initThermoXML(XML_Node& phaseNode, std::string id);
+    virtual void initThermoXML(XML_Node& phaseNode, const std::string& id);
 
     //! Install specific content for species k in the standard-state
     //! thermodynamic calculator and also create/return a PDSS object

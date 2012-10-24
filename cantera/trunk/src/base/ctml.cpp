@@ -659,8 +659,10 @@ bool getOptionalFloat(const Cantera::XML_Node& parent,
  *
  * @return returns true if the child element named "name" exists
  */
-doublereal getFloatDefaultUnits(const Cantera::XML_Node& parent, std::string name,
-                                std::string defaultUnits, std::string type)
+doublereal getFloatDefaultUnits(const Cantera::XML_Node& parent,
+                                const std::string& name,
+                                const std::string& defaultUnits,
+                                const std::string& type)
 {
 
     doublereal fctr = 1.0;
@@ -755,7 +757,7 @@ bool getOptionalModel(const Cantera::XML_Node& parent, const std::string nodeNam
  *   @param parent reference to the XML_Node object of the parent XML element
  *   @param name   Name of the XML child element
  */
-int getInteger(const Cantera::XML_Node& parent, std::string name)
+int getInteger(const Cantera::XML_Node& parent, const std::string& name)
 {
     if (!parent.hasChild(name)) {
         throw CanteraError("getInteger (called from XML Node \"" +

@@ -39,7 +39,7 @@ SurfPhase::SurfPhase(doublereal n0):
     setNDim(2);
 }
 
-SurfPhase::SurfPhase(std::string infile, std::string id) :
+SurfPhase::SurfPhase(const std::string& infile, std::string id) :
     ThermoPhase(),
     m_n0(0.0),
     m_logn0(0.0),
@@ -408,7 +408,7 @@ getCoverages(doublereal* theta) const
 }
 
 void SurfPhase::
-setCoveragesByName(std::string cov)
+setCoveragesByName(const std::string& cov)
 {
     size_t kk = nSpecies();
     compositionMap cc = parseCompString(cov, speciesNames());

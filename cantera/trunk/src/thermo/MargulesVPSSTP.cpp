@@ -45,7 +45,7 @@ MargulesVPSSTP::MargulesVPSSTP() :
  *  XML database to get the info for the phase.
 
  */
-MargulesVPSSTP::MargulesVPSSTP(std::string inputFile, std::string id) :
+MargulesVPSSTP::MargulesVPSSTP(const std::string& inputFile, const std::string& id) :
     GibbsExcessVPSSTP(),
     numBinaryInteractions_(0),
     formMargules_(0),
@@ -54,7 +54,7 @@ MargulesVPSSTP::MargulesVPSSTP(std::string inputFile, std::string id) :
     initThermoFile(inputFile, id);
 }
 
-MargulesVPSSTP::MargulesVPSSTP(XML_Node& phaseRoot, std::string id) :
+MargulesVPSSTP::MargulesVPSSTP(XML_Node& phaseRoot, const std::string& id) :
     GibbsExcessVPSSTP(),
     numBinaryInteractions_(0),
     formMargules_(0),
@@ -502,7 +502,7 @@ void MargulesVPSSTP::getPartialMolarVolumes(doublereal* vbar) const
     }
 }
 
-doublereal MargulesVPSSTP::err(std::string msg) const
+doublereal MargulesVPSSTP::err(const std::string& msg) const
 {
     throw CanteraError("MargulesVPSSTP","Base class method "
                        +msg+" called. Equation of state type: "+int2str(eosType()));
@@ -553,7 +553,7 @@ void  MargulesVPSSTP::initLengths()
  *             to see if phaseNode is pointing to the phase
  *             with the correct id.
  */
-void MargulesVPSSTP::initThermoXML(XML_Node& phaseNode, std::string id)
+void MargulesVPSSTP::initThermoXML(XML_Node& phaseNode, const std::string& id)
 {
     string stemp;
     string subname = "MargulesVPSSTP::initThermoXML";

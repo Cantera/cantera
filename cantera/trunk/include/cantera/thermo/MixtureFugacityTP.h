@@ -688,7 +688,7 @@ public:
      *             to see if phaseNode is pointing to the phase
      *             with the correct id.
      */
-    virtual void initThermoXML(XML_Node& phaseNode, std::string id);
+    virtual void initThermoXML(XML_Node& phaseNode, const std::string& id);
 
 
 private:
@@ -947,7 +947,7 @@ private:
     /*!
      * @param msg  Error message string
      */
-    doublereal err(std::string msg) const;
+    doublereal err(const std::string& msg) const;
 
 };
 }

@@ -321,7 +321,7 @@ doublereal MultiPhase::charge() const
     return sum;
 }
 //====================================================================================================================
-size_t MultiPhase::speciesIndex(std::string speciesName, std::string phaseName)
+size_t MultiPhase::speciesIndex(const std::string& speciesName, const std::string& phaseName)
 {
     if (!m_init) {
         init();
@@ -1035,7 +1035,7 @@ std::string MultiPhase::elementName(size_t m) const
 }
 //====================================================================================================================
 // Index of element with name \a name.
-size_t MultiPhase::elementIndex(std::string name) const
+size_t MultiPhase::elementIndex(const std::string& name) const
 {
     for (size_t e = 0; e < m_nel; e++) {
         if (m_enames[e] == name) {

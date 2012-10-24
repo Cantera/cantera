@@ -59,7 +59,7 @@ public:
      *                   file is used.
      */
     PDSS_IonsFromNeutral(VPStandardStateTP* tp, size_t spindex,
-                         std::string inputFile, std::string id = "");
+                         const std::string& inputFile, const std::string& id = "");
 
 
     //! Constructor that initializes the object by examining the input file
@@ -393,7 +393,7 @@ public:
      *                    phase element will be used.
      */
     void constructPDSSFile(VPStandardStateTP* vptp_ptr, size_t spindex,
-                           std::string inputFile, std::string id);
+                           const std::string& inputFile, const std::string& id);
 
     //!  Initialization of a PDSS object using an xml tree
     /*!
@@ -421,7 +421,7 @@ public:
      */
     void constructPDSSXML(VPStandardStateTP* vptp_ptr, size_t spindex,
                           const XML_Node& speciesNode,
-                          const XML_Node& phaseNode, std::string id);
+                          const XML_Node& phaseNode, const std::string& id);
 
     //! Initialization routine for the PDSS object based on the phaseNode
     /*!

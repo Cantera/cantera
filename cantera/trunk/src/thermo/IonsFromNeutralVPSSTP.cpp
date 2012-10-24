@@ -80,7 +80,8 @@ IonsFromNeutralVPSSTP::IonsFromNeutralVPSSTP() :
  *                       If this parameter is zero, then a slave
  *                       neutral phase object is created and used.
  */
-IonsFromNeutralVPSSTP::IonsFromNeutralVPSSTP(std::string inputFile, std::string id,
+IonsFromNeutralVPSSTP::IonsFromNeutralVPSSTP(const std::string& inputFile,
+        const std::string& id,
         ThermoPhase* neutralPhase) :
     GibbsExcessVPSSTP(),
     ionSolnType_(cIonSolnType_SINGLEANION),
@@ -102,8 +103,8 @@ IonsFromNeutralVPSSTP::IonsFromNeutralVPSSTP(std::string inputFile, std::string 
     initThermoFile(inputFile, id);
 }
 //====================================================================================================================
-IonsFromNeutralVPSSTP::IonsFromNeutralVPSSTP(XML_Node& phaseRoot, std::string id,
-        ThermoPhase* neutralPhase) :
+IonsFromNeutralVPSSTP::IonsFromNeutralVPSSTP(XML_Node& phaseRoot, 
+        const std::string& id, ThermoPhase* neutralPhase) :
     GibbsExcessVPSSTP(),
     ionSolnType_(cIonSolnType_SINGLEANION),
     numNeutralMoleculeSpecies_(0),
@@ -956,7 +957,7 @@ void IonsFromNeutralVPSSTP::setConcentrations(const doublereal* const c)
  */
 
 
-doublereal IonsFromNeutralVPSSTP::err(std::string msg) const
+doublereal IonsFromNeutralVPSSTP::err(const std::string& msg) const
 {
     throw CanteraError("IonsFromNeutralVPSSTP","Base class method "
                        +msg+" called. Equation of state type: "+int2str(eosType()));
@@ -1057,7 +1058,7 @@ static double factorOverlap(const std::vector<std::string>&  elnamesVN ,
  *             to see if phaseNode is pointing to the phase
  *             with the correct id.
  */
-void IonsFromNeutralVPSSTP::initThermoXML(XML_Node& phaseNode, std::string id)
+void IonsFromNeutralVPSSTP::initThermoXML(XML_Node& phaseNode, const std::string& id)
 {
     string stemp;
     if (id.size() > 0) {

@@ -19,7 +19,7 @@ namespace Cantera
 class UnknownKineticsModel : public CanteraError
 {
 public:
-    UnknownKineticsModel(std::string proc, std::string kineticsModel) :
+    UnknownKineticsModel(const std::string& proc, const std::string& kineticsModel) :
         CanteraError(proc, "Specified Kinetics model "
                      + kineticsModel +
                      " does not match any known type.") {}
@@ -62,7 +62,7 @@ public:
     virtual Kinetics* newKinetics(XML_Node& phase,
                                   std::vector<ThermoPhase*> th);
 
-    virtual Kinetics* newKinetics(std::string model);
+    virtual Kinetics* newKinetics(const std::string& model);
 
 private:
 
@@ -88,7 +88,7 @@ inline Kinetics* newKineticsMgr(XML_Node& phase,
 /**
  *  Create a new kinetics manager.
  */
-inline Kinetics* newKineticsMgr(std::string model, KineticsFactory* f=0)
+inline Kinetics* newKineticsMgr(const std::string& model, KineticsFactory* f=0)
 {
     if (f == 0) {
         f = KineticsFactory::factory();

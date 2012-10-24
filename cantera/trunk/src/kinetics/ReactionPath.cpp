@@ -54,7 +54,7 @@ Path::Path(SpeciesNode* begin, SpeciesNode* end)
  * label.
  */
 void Path::addReaction(size_t rxnNumber, doublereal value,
-                       string label)
+                       const string& label)
 {
     m_rxn[rxnNumber] += value;
     m_total += value;
@@ -463,7 +463,7 @@ void ReactionPathDiagram::exportToDot(ostream& s)
 }
 
 
-void ReactionPathDiagram::addNode(size_t k, string nm, doublereal x)
+void ReactionPathDiagram::addNode(size_t k, const string& nm, doublereal x)
 {
     if (!m_nodes[k]) {
         m_nodes[k] = new SpeciesNode;
@@ -880,8 +880,8 @@ string reactionLabel(size_t i, size_t kr, size_t nr,
 }
 
 
-int ReactionPathBuilder::build(Kinetics& s,
-                               string element, ostream& output, ReactionPathDiagram& r, bool quiet)
+int ReactionPathBuilder::build(Kinetics& s, const string& element,
+                               ostream& output, ReactionPathDiagram& r, bool quiet)
 {
     doublereal f, ropf, ropr, fwd, rev;
     string fwdlabel, revlabel;

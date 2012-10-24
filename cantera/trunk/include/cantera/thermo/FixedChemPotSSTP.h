@@ -172,7 +172,7 @@ public:
      * @param id     name of the phase id in the file.
      *               If this is blank, the first phase in the file is used.
      */
-    FixedChemPotSSTP(std::string infile, std::string id = "");
+    FixedChemPotSSTP(const std::string& infile, std::string id = "");
 
     //! Construct and initialize a FixedChemPotSSTP ThermoPhase object
     //! directly from an XML database
@@ -180,7 +180,7 @@ public:
      *  @param phaseRef XML node pointing to a FixedChemPotSSTP description
      *  @param id       Id of the phase.
      */
-    FixedChemPotSSTP(XML_Node& phaseRef, std::string id = "");
+    FixedChemPotSSTP(XML_Node& phaseRef, const std::string& id = "");
 
     //! Copy constructor
     /*!
@@ -198,7 +198,7 @@ public:
      *  @param Ename String name of the element
      *  @param chemPot  Value of the chemical potential of that element (J/kmol)
      */
-    FixedChemPotSSTP(std::string Ename, doublereal chemPot);
+    FixedChemPotSSTP(const std::string& Ename, doublereal chemPot);
 
     //! Assignment operator
     /*!
@@ -575,7 +575,7 @@ public:
     virtual void initThermo();
 
 
-    virtual void initThermoXML(XML_Node& phaseNode, std::string id);
+    virtual void initThermoXML(XML_Node& phaseNode, const std::string& id);
 
     //! Set the equation of state parameters
     /*!

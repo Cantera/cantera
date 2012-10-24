@@ -198,7 +198,7 @@ public:
      * @param id     name of the phase id in the file.
      *               If this is blank, the first phase in the file is used.
      */
-    MetalSHEelectrons(std::string infile, std::string id = "");
+    MetalSHEelectrons(const std::string& infile, std::string id = "");
 
     //! Construct and initialize a MetalSHEelectrons ThermoPhase object
     //! directly from an XML database
@@ -206,7 +206,7 @@ public:
      *  @param phaseRef XML node pointing to a MetalSHEelectrons description
      *  @param id       Id of the phase.
      */
-    MetalSHEelectrons(XML_Node& phaseRef, std::string id = "");
+    MetalSHEelectrons(XML_Node& phaseRef, const std::string& id = "");
 
     //! Copy constructor
     /*!
@@ -491,7 +491,7 @@ public:
     virtual void initThermo();
 
 
-    virtual void initThermoXML(XML_Node& phaseNode, std::string id);
+    virtual void initThermoXML(XML_Node& phaseNode, const std::string& id);
 
     //! Make the default XML tree
     /*!

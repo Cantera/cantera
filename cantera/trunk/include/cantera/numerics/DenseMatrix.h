@@ -40,7 +40,7 @@ public:
      *  @param routine  Name of calling routine
      *  @param msg      Informative message
      */
-    CELapackError(std::string routine, std::string msg) :
+    CELapackError(const std::string& routine, const std::string& msg) :
         CanteraError(routine + " LAPACK ERROR", msg) {
     }
 

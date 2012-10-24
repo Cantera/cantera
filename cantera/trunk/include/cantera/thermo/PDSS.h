@@ -281,7 +281,7 @@ private:
     /*!
      * @param msg    Message string for this error
      */
-    void err(std::string msg) const;
+    void err(const std::string& msg) const;
 
 public:
 
@@ -605,7 +605,7 @@ public:
      *                   phase. If none is given, the first XML
      *                   phase element will be used.
      */
-    virtual void initThermoXML(const XML_Node& phaseNode, std::string& id);
+    virtual void initThermoXML(const XML_Node& phaseNode, const std::string& id);
 
 
     //! This utility function reports back the type of

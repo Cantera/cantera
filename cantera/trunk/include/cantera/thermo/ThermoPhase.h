@@ -1385,8 +1385,8 @@ public:
      *            phase. If none is given, the first XML
      *            phase element encountered will be used.
      */
-    virtual void initThermoFile(std::string inputFile, std::string id);
-
+    virtual void initThermoFile(const std::string& inputFile,
+                                const std::string& id);
 
     //!Import and initialize a ThermoPhase object  using an XML tree.
     /*!
@@ -1418,7 +1418,7 @@ public:
      *             to see if phaseNode is pointing to the phase
      *             with the correct id.
      */
-    virtual void initThermoXML(XML_Node& phaseNode, std::string id);
+    virtual void initThermoXML(XML_Node& phaseNode, const std::string& id);
 
     //! Initialize the ThermoPhase object after all species have been set up
     /*!
@@ -1676,7 +1676,7 @@ private:
     /*!
      * @param msg String containing the message.
      */
-    doublereal err(std::string msg) const;
+    doublereal err(const std::string& msg) const;
 
 };
 

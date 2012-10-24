@@ -127,7 +127,7 @@ public:
      *  @param inputFile   Name of the Input file that contains information about the phase
      *  @param id          id of the phase within the input file
      */
-    IdealMolalSoln(std::string inputFile, std::string id = "");
+    IdealMolalSoln(const std::string& inputFile, const std::string& id = "");
 
     //! Constructor for phase initialization
     /*!
@@ -138,7 +138,7 @@ public:
      *                     the information necessary to initialize the phase.
      *  @param id          id of the phase within the input file
      */
-    IdealMolalSoln(XML_Node& phaseRef, std::string id = "");
+    IdealMolalSoln(XML_Node& phaseRef, const std::string& id = "");
 
     /// Destructor.
     virtual ~IdealMolalSoln();
@@ -807,7 +807,7 @@ public:
      *             to see if phaseNode is pointing to the phase
      *             with the correct id.
      */
-    virtual void initThermoXML(XML_Node& phaseNode, std::string id="");
+    virtual void initThermoXML(XML_Node& phaseNode, const std::string& id="");
 
     //! Report the molar volume of species k
     /*!
@@ -926,7 +926,7 @@ private:
     /*!
      *  @param          msg message to be printed
      */
-    doublereal err(std::string msg) const;
+    doublereal err(const std::string& msg) const;
 
     //! This function will be called to update the internally stored
     //! natural logarithm of the molality activity coefficients

@@ -35,7 +35,7 @@ namespace Cantera
  * Exception thrown when a BEuler error is encountered. We just call the
  * Cantera Error handler in the initialization list
  */
-BEulerErr::BEulerErr(std::string msg) :
+BEulerErr::BEulerErr(const std::string& msg) :
     CanteraError("BEulerInt", msg)
 {
 }

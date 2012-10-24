@@ -272,14 +272,14 @@ public:
      * @param inputFile String name of the input file
      * @param id        string id of the phase name
      */
-    LatticePhase(std::string inputFile, std::string id = "");
+    LatticePhase(const std::string& inputFile, const std::string& id = "");
 
     //! Full constructor for a water phase
     /*!
      * @param phaseRef  XML node referencing the lattice phase.
      * @param id        string id of the phase name
      */
-    LatticePhase(XML_Node& phaseRef, std::string id = "");
+    LatticePhase(XML_Node& phaseRef, const std::string& id = "");
 
     //! Destructor
     virtual ~LatticePhase();
@@ -869,7 +869,7 @@ public:
      *             to see if phaseNode is pointing to the phase
      *             with the correct id.
      */
-    virtual void initThermoXML(XML_Node& phaseNode, std::string id);
+    virtual void initThermoXML(XML_Node& phaseNode, const std::string& id);
 
     //! Set the equation of state parameters from the argument list
     /*!

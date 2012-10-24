@@ -39,7 +39,7 @@ PDSS_SSVol::PDSS_SSVol(VPStandardStateTP* tp, size_t spindex) :
 
 
 PDSS_SSVol::PDSS_SSVol(VPStandardStateTP* tp,
-                       size_t spindex, std::string inputFile, std::string id) :
+                       size_t spindex, const std::string& inputFile, const std::string& id) :
     PDSS(tp, spindex),
     volumeModel_(cSSVOLUME_CONSTANT),
     m_constMolarVolume(-1.0)
@@ -177,7 +177,7 @@ void PDSS_SSVol::constructPDSSXML(VPStandardStateTP* tp, size_t spindex,
  *            phase element will be used.
  */
 void PDSS_SSVol::constructPDSSFile(VPStandardStateTP* tp, size_t spindex,
-                                   std::string inputFile, std::string id)
+                                   const std::string& inputFile, const std::string& id)
 {
 
     if (inputFile.size() == 0) {
