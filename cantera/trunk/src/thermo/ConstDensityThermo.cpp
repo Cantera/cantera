@@ -50,11 +50,11 @@ ConstDensityThermo& ConstDensityThermo::operator=(const ConstDensityThermo& righ
 
 }
 
-SpeciesThermo* ConstDensityThermo::duplMyselfAsSpeciesThermo() const
+ThermoPhase* ConstDensityThermo::duplMyselfAsThermoPhase() const
 {
-    ConstDensityThermo* cdt = new ConstDensityThermo(*this);
-    return (SpeciesThermo*) cdt;
+    return new ConstDensityThermo(*this);
 }
+
 int ConstDensityThermo::
 eosType() const
 {
