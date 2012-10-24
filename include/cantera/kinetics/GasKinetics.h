@@ -26,8 +26,6 @@
 #include <cmath>
 #include <cstdlib>
 
-void get_wdot(const doublereal* rop, doublereal* wdot);
-
 namespace Cantera
 {
 

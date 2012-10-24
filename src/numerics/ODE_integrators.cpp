@@ -26,8 +26,4 @@ Integrator* newIntegrator(const std::string& itype)
     return 0;
 }
 
-void deleteIntegrator(Integrator* cv)
-{
-    delete cv;
-}
 }
