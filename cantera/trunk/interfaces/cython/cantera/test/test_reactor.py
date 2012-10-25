@@ -470,8 +470,8 @@ class TestFlowReactor(utilities.CanteraTest):
 
         net = ct.ReactorNet()
         net.addReactor(r)
-        net.atol = 1e-22
-        net.rtol = 1e-8
+        net.atol = 1e-16
+        net.rtol = 1e-10
 
         t = 0
         self.assertNear(r.speed, 10 / r.density)
