@@ -12,15 +12,7 @@ gcv = distutils.sysconfig.get_config_var
 localenv = env.Clone()
 
 localenv.Append(CPPPATH=[gcv('INCLUDEPY'), env['python_array_include']],
-                CPPFLAGS=((gcv('BASECFLAGS') or '').split() +
-                          (gcv('OPT') or '').split()),
                 LIBPATH=(gcv('LIBDIR') or ''))
-
-if '-Wstrict-prototypes' in localenv['CPPFLAGS']:
-    localenv['CPPFLAGS'].remove('-Wstrict-prototypes')
-
-if '-g' in localenv['CPPFLAGS'] and not env['debug']:
-    localenv['CPPFLAGS'].remove('-g')
 
 if localenv['OS'] == 'Windows':
     localenv.Append(LIBPATH=pjoin(gcv('prefix'), 'libs'))
