@@ -211,7 +211,7 @@ void MetalSHEelectrons::setPressure(doublereal p)
  */
 doublereal MetalSHEelectrons::isothermalCompressibility() const
 {
-    return -1.0/pressure();
+    return 1.0/pressure();
 }
 //====================================================================================================================
 /*
