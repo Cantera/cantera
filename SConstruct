@@ -148,6 +148,9 @@ if os.name == 'nt':
     for key,val in env['ENV'].iteritems():
         env['ENV'][key] = str(val)
 
+if 'FRAMEWORKS' not in env:
+    env['FRAMEWORKS'] = []
+
 add_RegressionTest(env)
 
 class defaults: pass
