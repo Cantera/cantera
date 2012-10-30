@@ -229,6 +229,46 @@ cdef class FlowReactor(Reactor):
             return (<CxxFlowReactor*>self.reactor).distance()
 
 
+cdef class WallSurface:
+    """
+    Represents a wall surface in contact with the contents of a reactor.
+    """
+    def __cinit__(self, Wall wall, int side):
+        self.wall = wall
+        self.cxxwall = wall.wall
+        self.side = side
+        self._kinetics = None
+
+    property kinetics:
+        """
+        The `InterfaceKinetics` object used for calculating reaction
+        rates on this wall surface.
+        """
+        def __get__(self):
+            return self._kinetics
+        def __set__(self, Kinetics k):
+            self._kinetics = k
+            self.wall._setKinetics()
+
+    property coverages:
+        """
+        The fraction of sites covered by each surface species.
+        """
+        def __get__(self):
+            if self._kinetics is None:
+                raise Exception('No kinetics manager present')
+            self.cxxwall.syncCoverages(self.side)
+            return self._kinetics.coverages
+        def __set__(self, coverages):
+            if self._kinetics is None:
+                raise Exception("Can't set coverages before assigning kinetics manager.")
+            if len(coverages) != self._kinetics.nSpecies:
+                raise ValueError('Incorrect number of site coverages specified')
+            cdef np.ndarray[np.double_t, ndim=1] data = \
+                    np.ascontiguousarray(coverages, dtype=np.double)
+            self.cxxwall.setCoverages(self.side, &data[0])
+
+
 cdef class Wall:
     r"""
     A Wall separates two reactors, or a reactor and a reservoir. A wall has a
@@ -266,6 +306,8 @@ cdef class Wall:
 
     def __cinit__(self, *args, **kwargs):
         self.wall = new CxxWall()
+        self.leftSurface = WallSurface(self, 0)
+        self.rightSurface = WallSurface(self, 1)
 
     def __init__(self, left, right, *, name=None, A=None, K=None, U=None,
                  Q=None, velocity=None, kinetics=(None,None)):
@@ -299,8 +341,6 @@ cdef class Wall:
         """
         self._velocityFunc = None
         self._heatFluxFunc = None
-        self._leftKinetics = None
-        self._rightKinetics = None
 
         self._install(left, right)
         if name is not None:
@@ -321,9 +361,9 @@ cdef class Wall:
         if velocity is not None:
             self.setVelocity(velocity)
         if kinetics[0] is not None:
-            self.leftKinetics = kinetics[0]
+            self.leftSurface.kinetics = kinetics[0]
         if kinetics[1] is not None:
-            self.leftKinetics = kinetics[1]
+            self.rightSurface.kinetics = kinetics[1]
 
     def _install(self, ReactorBase left, ReactorBase right):
         """
@@ -333,6 +373,16 @@ cdef class Wall:
         left._addWall(self)
         right._addWall(self)
         self.wall.install(deref(left.rbase), deref(right.rbase))
+
+    property left:
+        """ The left surface of this wall. """
+        def __get__(self):
+            return self.leftSurface
+
+    property right:
+        """ The right surface of this wall. """
+        def __get__(self):
+            return self.rightSurface
 
     property expansionRateCoeff:
         """
@@ -409,72 +459,12 @@ cdef class Wall:
         """
         return self.wall.Q(t)
 
-    property leftKinetics:
-        """
-        The `InterfaceKinetics` object used for calculating surface reactions
-        at the interface between the wall and the left-hand reactor.
-        """
-        def __get__(self):
-            return self._leftKinetics
-        def __set__(self, Kinetics k):
-            self._leftKinetics = k
-            self._setKinetics()
-
-    property rightKinetics:
-        """
-        The `InterfaceKinetics` object used for calculating surface reactions
-        at the interface between the wall and the right-hand reactor.
-        """
-        def __get__(self):
-            return self._rightKinetics
-        def __set__(self, Kinetics k):
-            self._rightKinetics = k
-            self._setKinetics()
-
     def _setKinetics(self):
-        cdef CxxKinetics* L = (self._leftKinetics.kinetics
-                               if self._leftKinetics else NULL)
-        cdef CxxKinetics* R = (self._rightKinetics.kinetics
-                               if self._rightKinetics else NULL)
+        cdef CxxKinetics* L = (self.leftSurface._kinetics.kinetics
+                               if self.leftSurface._kinetics else NULL)
+        cdef CxxKinetics* R = (self.rightSurface._kinetics.kinetics
+                               if self.rightSurface._kinetics else NULL)
         self.wall.setKinetics(L, R)
-
-    property leftCoverages:
-        """
-        The fraction of sites covered by each surface species on the
-        left-hand interface.
-        """
-        def __get__(self):
-            if self._leftKinetics is None:
-                raise Exception('No kinetics manager present')
-            self.wall.syncCoverages(0)
-            return self.leftKinetics.coverages
-        def __set__(self, coverages):
-            if self._leftKinetics is None:
-                raise Exception("Can't set coverages before assigning kinetics manager.")
-            if len(coverages) != self._leftKinetics.nSpecies:
-                raise ValueError('Incorrect number of site coverages specified')
-            cdef np.ndarray[np.double_t, ndim=1] data = \
-                np.ascontiguousarray(coverages, dtype=np.double)
-            self.wall.setCoverages(0, &data[0])
-
-    property rightCoverages:
-        """
-        The fraction of sites covered by each surface species on the
-        right-hand interface.
-        """
-        def __get__(self):
-            if self._rightKinetics is None:
-                raise Exception('No kinetics manager present')
-            self.wall.syncCoverages(1)
-            return self._rightKinetics.coverages
-        def __set__(self, coverages):
-            if self._rightKinetics is None:
-                raise Exception("Can't set coverages before assigning kinetics manager.")
-            if len(coverages) != self._rightKinetics.nSpecies:
-                raise ValueError('Incorrect number of site coverages specified')
-            cdef np.ndarray[np.double_t, ndim=1] data = \
-                np.ascontiguousarray(coverages, dtype=np.double)
-            self.wall.setCoverages(1, &data[0])
 
 
 cdef class FlowDevice:
