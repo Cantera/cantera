@@ -504,28 +504,28 @@ class TestWallKinetics(utilities.CanteraTest):
 
     def test_coverages(self):
         self.makeReactors()
-        self.w.leftKinetics = self.interface
+        self.w.left.kinetics = self.interface
 
         C = np.zeros(self.interface.nSpecies)
         C[0] = 0.3
         C[4] = 0.7
 
-        self.w.leftCoverages = C
-        self.assertArrayNear(self.w.leftCoverages, C)
+        self.w.left.coverages = C
+        self.assertArrayNear(self.w.left.coverages, C)
         self.net.advance(1e-5)
-        C_left = self.w.leftCoverages
+        C_left = self.w.left.coverages
 
-        self.assertEqual(self.w.rightKinetics, None)
-        self.assertRaises(Exception, lambda: self.w.rightCoverages)
+        self.assertEqual(self.w.right.kinetics, None)
+        self.assertRaises(Exception, lambda: self.w.right.coverages)
 
         self.makeReactors()
-        self.w.rightKinetics = self.interface
-        self.w.rightCoverages = C
-        self.assertArrayNear(self.w.rightCoverages, C)
-        self.assertEqual(self.w.leftKinetics, None)
-        self.assertRaises(Exception, lambda: self.w.leftCoverages)
+        self.w.right.kinetics = self.interface
+        self.w.right.coverages = C
+        self.assertArrayNear(self.w.right.coverages, C)
+        self.assertEqual(self.w.left.kinetics, None)
+        self.assertRaises(Exception, lambda: self.w.left.coverages)
         self.net.advance(1e-5)
-        C_right = self.w.rightCoverages
+        C_right = self.w.right.coverages
 
         self.assertNear(sum(C_left), 1.0)
         self.assertArrayNear(C_left, C_right)

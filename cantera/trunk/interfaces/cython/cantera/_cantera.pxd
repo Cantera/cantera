@@ -433,13 +433,19 @@ cdef class Reactor(ReactorBase):
     cdef CxxReactor* reactor
     cdef object _kinetics
 
+cdef class WallSurface:
+    cdef CxxWall* cxxwall
+    cdef object wall
+    cdef int side
+    cdef Kinetics _kinetics
+
 cdef class Wall:
     cdef CxxWall* wall
+    cdef WallSurface leftSurface
+    cdef WallSurface rightSurface
     cdef object _velocityFunc
     cdef object _heatFluxFunc
     cdef str name
-    cdef Kinetics _leftKinetics
-    cdef Kinetics _rightKinetics
 
 cdef class FlowDevice:
     cdef CxxFlowDevice* dev
