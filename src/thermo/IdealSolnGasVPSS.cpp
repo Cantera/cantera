@@ -203,7 +203,7 @@ void IdealSolnGasVPSS::calcDensity()
 doublereal IdealSolnGasVPSS::isothermalCompressibility() const
 {
     if (m_idealGas) {
-        return -1.0 / m_Pcurrent;
+        return 1.0 / m_Pcurrent;
     } else {
         throw CanteraError("IdealSolnGasVPSS::isothermalCompressibility() ",
                            "not implemented");
