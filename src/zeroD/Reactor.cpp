@@ -12,6 +12,8 @@
 #include "cantera/kinetics/InterfaceKinetics.h"
 #include "cantera/thermo/SurfPhase.h"
 
+#include <cfloat>
+
 using namespace std;
 
 namespace Cantera
@@ -120,42 +122,43 @@ size_t Reactor::nSensParams()
 
 void Reactor::updateState(doublereal* y)
 {
-    ThermoPhase& mix = *m_thermo;  // define for readability
+    // The components of y are [0] the total internal energy,
+    // [1] the total volume, and [2...K+2] the mass of each species.
+    m_vol = y[1];
 
-    // The components of y are the total internal energy,
-    // the total volume, and the mass of each species.
-
-    // Set the mass fractions and  density of the mixture.
-
-
-    doublereal u   = y[0];
-    m_vol          = y[1];
-    doublereal* mss = y + 2;
+    // Set the mass fractions
     doublereal mass = accumulate(y+2, y+2+m_nsp, 0.0);
-    m_thermo->setMassFractions(mss);
-
-    m_thermo->setDensity(mass/m_vol);
-
-    doublereal temp = temperature();
-    mix.setTemperature(temp);
+    m_thermo->setMassFractions(y+2);
 
     if (m_energy) {
-        // Decreased the tolerance on delta_T to 1.0E-7 so that T is
-        // accurate to 9 sig digits, because this is
-        // used in the numerical jacobian routines where relative values
-        // of 1.0E-7 are used in the deltas.
-        m_thermo->setState_UV(u/mass,m_vol/mass, 1.0e-7);
-        temp = mix.temperature(); //mix.setTemperature(temp);
+        // Use Newton's method to determine the mixture temperature. Tight
+        // tolerances are required both for Jacobian evaluation and for
+        // sensitivity analysis to work correctly.
+
+        doublereal U = y[0];
+        doublereal T = temperature();
+        double dT = 100;
+
+        int i = 0;
+        while (abs(dT / T) > 10 * DBL_EPSILON) {
+            m_thermo->setState_TR(T, mass / m_vol);
+            double dUdT = m_thermo->cv_mass() * mass;
+            dT = (m_thermo->intEnergy_mass() * mass - U) / dUdT;
+            T -= dT;
+            i++;
+            if (i > 100) {
+                throw CanteraError("Reactor::updateState", "no convergence");
+            }
+        }
+    } else {
+        m_thermo->setDensity(mass/m_vol);
     }
-    //m_state[0] = temp;
 
     size_t loc = m_nsp + 2;
     SurfPhase* surf;
     for (size_t m = 0; m < m_nwalls; m++) {
         surf = m_wall[m]->surface(m_lr[m]);
         if (surf) {
-            //                surf->setTemperature(temp);
-            //surf->setCoverages(y+loc);
             m_wall[m]->setCoverages(m_lr[m], y+loc);
             loc += surf->nSpecies();
         }

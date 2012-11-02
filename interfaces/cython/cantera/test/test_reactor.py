@@ -139,12 +139,12 @@ class TestReactor(utilities.CanteraTest):
 
             return nSteps
 
-        n_baseline = integrate(1e-6, 1e-10)
-        n_rtol = integrate(1e-10, 1e-10)
-        n_atol = integrate(1e-6, 1e-18)
+        n_baseline = integrate(1e-10, 1e-20)
+        n_rtol = integrate(1e-6, 1e-20)
+        n_atol = integrate(1e-10, 1e-6)
 
-        self.assertTrue(n_baseline < n_rtol)
-        self.assertTrue(n_baseline < n_atol)
+        self.assertTrue(n_baseline > n_rtol)
+        self.assertTrue(n_baseline > n_atol)
 
     def test_heatTransfer1(self):
         # Connected reactors reach thermal equilibrium after some time
