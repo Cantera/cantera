@@ -75,8 +75,20 @@ public:
     doublereal rtol() {
         return m_rtol;
     }
+
+    /// Absolute integration tolerance
     doublereal atol() {
         return m_atols;
+    }
+
+    /// Relative sensitivity tolerance
+    doublereal rtolSensitivity() const {
+        return m_rtolsens;
+    }
+
+    /// Absolute sensitivity tolerance
+    doublereal atolSensitivity() const {
+        return m_atolsens;
     }
 
     /**

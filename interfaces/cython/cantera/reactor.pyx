@@ -187,6 +187,12 @@ cdef class Reactor(ReactorBase):
         def __set__(self, pybool value):
             self.reactor.setEnergy(int(value))
 
+    def addSensitivityReaction(self, m):
+        self.reactor.addSensitivityReaction(m)
+
+    def sensitivityParameterName(self, m):
+        return pystr(self.reactor.sensParamID(m))
+
 
 cdef class Reservoir(ReactorBase):
     """
@@ -267,6 +273,12 @@ cdef class WallSurface:
             cdef np.ndarray[np.double_t, ndim=1] data = \
                     np.ascontiguousarray(coverages, dtype=np.double)
             self.cxxwall.setCoverages(self.side, &data[0])
+
+    def addSensitivityReaction(self, int m):
+        self.cxxwall.addSensitivityReaction(self.side, m)
+
+    def sensitivityParameterName(self, int m):
+        return pystr(self.cxxwall.sensitivityParamID(m, self.side))
 
 
 cdef class Wall:
@@ -737,6 +749,24 @@ cdef class ReactorNet:
         def __set__(self, tol):
             self.net.setTolerances(-1, tol)
 
+    property rtolSensitivity:
+        """
+        The relative error tolerance for sensitivity analysis.
+        """
+        def __get__(self):
+            return self.net.rtolSensitivity()
+        def __set__(self, tol):
+            self.net.setSensitivityTolerances(tol, -1)
+
+    property atolSensitivity:
+        """
+        The absolute error tolerance for sensitivity analysis.
+        """
+        def __get__(self):
+            return self.net.atolSensitivity()
+        def __set__(self, tol):
+            self.net.setSensitivityTolerances(-1, tol)
+
     property verbose:
         """
         If *True*, verbose debug information will be printed during
@@ -746,3 +776,26 @@ cdef class ReactorNet:
             return pybool(self.verbose())
         def __set__(self, pybool v):
             self.net.setVerbose(v)
+
+    def sensitivity(self, species, int p, int r=0):
+        if isinstance(species, int):
+            return self.net.sensitivity(species,p)
+        elif isinstance(species, str):
+            return self.net.sensitivity(stringify(species), p, r)
+
+    def sensitivities(self):
+        cdef np.ndarray[np.double_t, ndim=2] data = \
+                np.empty((self.nVars, self.nSensitivityParams))
+        cdef int p,k
+        for p in range(self.nSensitivityParams):
+            for k in range(self.nVars):
+                data[k,p] = self.net.sensitivity(k,p)
+        return data
+
+    property nSensitivityParams:
+        def __get__(self):
+            return self.net.nparams()
+
+    property nVars:
+        def __get__(self):
+            return self.net.neq()
