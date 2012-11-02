@@ -226,7 +226,6 @@ cdef extern from "cantera/zeroD/Reactor.h":
         cbool energyEnabled()
 
         void addSensitivityReaction(size_t) except +
-        string sensParamID(int)
         size_t nSensParams()
 
 
@@ -260,7 +259,6 @@ cdef extern from "cantera/zeroD/Wall.h":
         double Q(double)
 
         void addSensitivityReaction(int, size_t) except +
-        string sensitivityParamID(int, size_t)
         size_t nSensParams(int)
 
 
@@ -305,6 +303,7 @@ cdef extern from "cantera/zeroD/ReactorNet.h":
         double sensitivity(size_t, size_t) except +
         double sensitivity(string&, size_t, int) except +
         size_t nparams()
+        string sensitivityParameterName(size_t) except +
 
 
 cdef extern from "cantera/thermo/ThermoFactory.h" namespace "Cantera":

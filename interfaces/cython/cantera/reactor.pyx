@@ -190,9 +190,6 @@ cdef class Reactor(ReactorBase):
     def addSensitivityReaction(self, m):
         self.reactor.addSensitivityReaction(m)
 
-    def sensitivityParameterName(self, m):
-        return pystr(self.reactor.sensParamID(m))
-
 
 cdef class Reservoir(ReactorBase):
     """
@@ -276,9 +273,6 @@ cdef class WallSurface:
 
     def addSensitivityReaction(self, int m):
         self.cxxwall.addSensitivityReaction(self.side, m)
-
-    def sensitivityParameterName(self, int m):
-        return pystr(self.cxxwall.sensitivityParamID(m, self.side))
 
 
 cdef class Wall:
@@ -791,6 +785,9 @@ cdef class ReactorNet:
             for k in range(self.nVars):
                 data[k,p] = self.net.sensitivity(k,p)
         return data
+
+    def sensitivityParameterName(self, int p):
+        return pystr(self.net.sensitivityParameterName(p))
 
     property nSensitivityParams:
         def __get__(self):

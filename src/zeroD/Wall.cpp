@@ -1,5 +1,6 @@
 #include "cantera/zeroD/Wall.h"
 #include "cantera/zeroD/ReactorBase.h"
+#include "cantera/zeroD/ReactorNet.h"
 #include "cantera/numerics/Func1.h"
 #include "cantera/kinetics/InterfaceKinetics.h"
 #include "cantera/thermo/SurfPhase.h"
@@ -29,6 +30,12 @@ bool Wall::install(ReactorBase& rleft, ReactorBase& rright)
     m_left->addWall(*this, 0);
     m_right->addWall(*this, 1);
     return true;
+}
+
+void Wall::initialize()
+{
+    std::sort(m_pleft.begin(), m_pleft.end());
+    std::sort(m_pright.begin(), m_pright.end());
 }
 
 /** Specify the kinetics managers for the surface mechanisms on
@@ -137,13 +144,15 @@ void Wall::addSensitivityReaction(int leftright, size_t rxn)
         throw CanteraError("Wall::addSensitivityReaction",
                            "Reaction number out of range ("+int2str(rxn)+")");
     if (leftright == 0) {
+        m_left->network().registerSensitivityReaction(this, rxn,
+                m_chem[0]->reactionString(rxn), leftright);
         m_pleft.push_back(rxn);
         m_leftmult_save.push_back(1.0);
-        m_pname_left.push_back(m_chem[0]->reactionString(rxn));
     } else {
+        m_right->network().registerSensitivityReaction(this, rxn,
+                m_chem[1]->reactionString(rxn), leftright);
         m_pright.push_back(rxn);
         m_rightmult_save.push_back(1.0);
-        m_pname_right.push_back(m_chem[1]->reactionString(rxn));
     }
 }
 

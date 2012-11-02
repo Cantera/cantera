@@ -122,10 +122,7 @@ public:
 
     virtual size_t nSensParams();
     virtual void addSensitivityReaction(size_t rxn);
-
-    virtual std::string sensParamID(int p) {
-        return m_pname[p];
-    }
+    std::vector<std::pair<void*, int> > getSensitivityOrder() const;
 
     virtual size_t componentIndex(const std::string& nm) const;
 
@@ -143,7 +140,6 @@ protected:
 
     size_t m_nsens;
     std::vector<size_t> m_pnum;
-    std::vector<std::string> m_pname;
     std::vector<size_t> m_nsens_wall;
     vector_fp m_mult_save;
 

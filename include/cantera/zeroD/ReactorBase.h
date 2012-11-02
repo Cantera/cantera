@@ -13,6 +13,7 @@ namespace Cantera
 {
 class FlowDevice;
 class Wall;
+class ReactorNet;
 
 const int ReservoirType = 1;
 const int ReactorType = 2;
@@ -162,6 +163,12 @@ public:
         return 1;
     }
 
+    //! The ReactorNet that this reactor belongs to.
+    ReactorNet& network();
+
+    //! Set the ReactorNet that this reactor belongs to.
+    void setNetwork(ReactorNet* net);
+
 protected:
 
     //! Number of homogeneous species in the mixture
@@ -182,6 +189,9 @@ protected:
     size_t m_nwalls;
     std::string m_name;
     double m_rho0;
+
+    //! The ReactorNet that this reactor is part of
+    ReactorNet* m_net;
 
 private:
 

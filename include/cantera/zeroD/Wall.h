@@ -109,6 +109,9 @@ public:
     /// Install the wall between two reactors or reservoirs
     bool install(ReactorBase& leftReactor, ReactorBase& rightReactor);
 
+    /// Called just before the start of integration
+    virtual void initialize();
+
     /// True if the wall is correctly configured and ready to use.
     virtual bool ready() {
         return (m_left != 0 && m_right != 0);
@@ -171,13 +174,6 @@ public:
         }
     }
     void addSensitivityReaction(int leftright, size_t rxn);
-    std::string sensitivityParamID(int leftright, size_t p) {
-        if (leftright == 0) {
-            return m_pname_left[p];
-        } else {
-            return m_pname_right[p];
-        }
-    }
     void setSensitivityParameters(int lr, double* params);
     void resetSensitivityParameters(int lr);
 
@@ -200,7 +196,6 @@ protected:
 
     std::vector<size_t> m_pleft, m_pright;
     Cantera::vector_fp m_leftmult_save, m_rightmult_save;
-    std::vector<std::string> m_pname_left, m_pname_right;
 
 private:
 
