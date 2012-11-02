@@ -122,7 +122,7 @@ public:
     void updateState(doublereal* y);
 
     double sensitivity(size_t k, size_t p) {
-        return m_integ->sensitivity(k, p)/m_integ->solution(k);
+        return m_integ->sensitivity(k, m_sensIndex[p])/m_integ->solution(k);
     }
 
     double sensitivity(const std::string& species, size_t p, int reactor=0) {
@@ -148,6 +148,17 @@ public:
     }
 
     size_t globalComponentIndex(const std::string& species, size_t reactor=0);
+
+    //! Used by Reactor and Wall objects to register the addition of
+    //! sensitivity reactions so that the ReactorNet can keep track of the
+    //! order in which sensitivity parameters are added.
+    void registerSensitivityReaction(void* reactor, size_t reactionIndex,
+                                     const std::string& name, int leftright=0);
+
+    //! The name of the p-th sensitivity parameter added to this ReactorNet.
+    const std::string& sensitivityParameterName(size_t p) {
+        return m_paramNames.at(p);
+    }
 
     void connect(size_t i, size_t j) {
         m_connect[j*m_nr + i] = 1;
@@ -181,6 +192,19 @@ protected:
     bool m_verbose;
     size_t m_ntotpar;
     std::vector<size_t> m_nparams;
+
+    //! Names corresponding to each sensitivity parameter
+    std::vector<std::string> m_paramNames;
+
+    //! Structure used to determine the order of sensitivity parameters
+    //! m_sensOrder[Reactor or Wall, leftright][reaction number] = parameter index
+    std::map<std::pair<void*, int>, std::map<size_t, size_t> > m_sensOrder;
+
+    //! Mapping from the order in which sensitivity parameters were added to
+    //! the ReactorNet to the order in which they occur in the integrator
+    //! output.
+    std::vector<size_t> m_sensIndex;
+
     vector_int m_connect;
     vector_fp m_ydot;
 

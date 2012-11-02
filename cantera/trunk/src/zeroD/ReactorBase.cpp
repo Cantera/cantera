@@ -23,7 +23,8 @@ ReactorBase::ReactorBase(const string& name) : m_nsp(0),
     m_enthalpy(0.0),
     m_intEnergy(0.0),
     m_pressure(0.0),
-    m_nwalls(0)
+    m_nwalls(0),
+    m_net(0)
 {
     m_name = name;
 }
@@ -66,6 +67,21 @@ void ReactorBase::addWall(Wall& w, int lr)
 Wall& ReactorBase::wall(size_t n)
 {
     return *m_wall[n];
+}
+
+ReactorNet& ReactorBase::network()
+{
+    if (m_net) {
+        return *m_net;
+    } else {
+        throw CanteraError("ReactorBase::network",
+                           "Reactor is not part of a ReactorNet");
+    }
+}
+
+void ReactorBase::setNetwork(ReactorNet* net)
+{
+    m_net = net;
 }
 
 doublereal ReactorBase::residenceTime()

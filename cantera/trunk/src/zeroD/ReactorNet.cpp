@@ -56,6 +56,7 @@ void ReactorNet::initialize()
     if (m_nr == 0)
         throw CanteraError("ReactorNet::initialize",
                            "no reactors in network!");
+    size_t sensParamNumber = 0;
     for (n = 0; n < m_nr; n++) {
         if (m_r[n]->type() >= ReactorType) {
             m_r[n]->initialize(m_time);
@@ -64,7 +65,16 @@ void ReactorNet::initialize()
             nv = r->neq();
             m_size.push_back(nv);
             m_nparams.push_back(r->nSensParams());
-            m_ntotpar += r->nSensParams();
+            std::vector<std::pair<void*, int> > sens_objs = r->getSensitivityOrder();
+            for (size_t i = 0; i < sens_objs.size(); i++) {
+                std::map<size_t, size_t>& s = m_sensOrder[sens_objs[i]];
+                for (std::map<size_t, size_t>::iterator iter = s.begin();
+                     iter != s.end();
+                     ++iter) {
+                    m_sensIndex.resize(std::max(iter->second + 1, m_sensIndex.size()));
+                    m_sensIndex[iter->second] = sensParamNumber++;
+                }
+            }
             m_nv += nv;
             m_nreactors++;
 
@@ -164,6 +174,7 @@ double ReactorNet::step(doublereal time)
 
 void ReactorNet::addReactor(ReactorBase* r, bool iown)
 {
+    r->setNetwork(this);
     if (r->type() >= ReactorType) {
         m_r.push_back(r);
         m_iown.push_back(iown);
@@ -275,6 +286,20 @@ size_t ReactorNet::globalComponentIndex(const string& species, size_t reactor)
         start += m_size[n];
     }
     return start + m_reactors[n]->componentIndex(species);
+}
+
+void ReactorNet::registerSensitivityReaction(void* reactor,
+        size_t reactionIndex, const std::string& name, int leftright)
+{
+    std::pair<void*, int> R = std::make_pair(reactor, leftright);
+    if (m_sensOrder.count(R) &&
+        m_sensOrder[R].count(reactionIndex)) {
+            throw CanteraError("ReactorNet::registerSensitivityReaction",
+                               "Attempted to register duplicate sensitivity reaction");
+    }
+    m_paramNames.push_back(name);
+    m_sensOrder[R][reactionIndex] = m_ntotpar;
+    m_ntotpar++;
 }
 
 }

@@ -11,6 +11,7 @@
 #include "cantera/zeroD/Wall.h"
 #include "cantera/kinetics/InterfaceKinetics.h"
 #include "cantera/thermo/SurfPhase.h"
+#include "cantera/zeroD/ReactorNet.h"
 
 #include <cfloat>
 
@@ -86,6 +87,7 @@ void Reactor::initialize(doublereal t0)
 
     size_t nt = 0, maxnt = 0;
     for (size_t m = 0; m < m_nwalls; m++) {
+        m_wall[m]->initialize();
         if (m_wall[m]->kinetics(m_lr[m])) {
             nt = m_wall[m]->kinetics(m_lr[m])->nTotalSpecies();
             if (nt > maxnt) {
@@ -102,6 +104,7 @@ void Reactor::initialize(doublereal t0)
         }
     }
     m_work.resize(maxnt);
+    std::sort(m_pnum.begin(), m_pnum.end());
     m_init = true;
 }
 
@@ -315,9 +318,23 @@ void Reactor::addSensitivityReaction(size_t rxn)
     if (rxn >= m_kin->nReactions())
         throw CanteraError("Reactor::addSensitivityReaction",
                            "Reaction number out of range ("+int2str(rxn)+")");
+
+    network().registerSensitivityReaction(this, rxn,
+            name()+": "+m_kin->reactionString(rxn));
     m_pnum.push_back(rxn);
-    m_pname.push_back(name()+": "+m_kin->reactionString(rxn));
     m_mult_save.push_back(1.0);
+}
+
+std::vector<std::pair<void*, int> > Reactor::getSensitivityOrder() const
+{
+    std::vector<std::pair<void*, int> > order;
+    order.push_back(std::make_pair(const_cast<Reactor*>(this), 0));
+    for (size_t n = 0; n < m_nwalls; n++) {
+        if (m_nsens_wall[n]) {
+            order.push_back(std::make_pair(m_wall[n], m_lr[n]));
+        }
+    }
+    return order;
 }
 
 
