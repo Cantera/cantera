@@ -487,7 +487,6 @@ class TestFlowReactor(utilities.CanteraTest):
 
 class TestWallKinetics(utilities.CanteraTest):
     def makeReactors(self):
-
         self.net = ct.ReactorNet()
 
         self.gas = ct.Solution('diamond.xml', 'gas')
@@ -529,3 +528,243 @@ class TestWallKinetics(utilities.CanteraTest):
 
         self.assertNear(sum(C_left), 1.0)
         self.assertArrayNear(C_left, C_right)
+
+
+class TestReactorSensitivities(utilities.CanteraTest):
+    def test_sensitivities1(self):
+        net = ct.ReactorNet()
+        gas = ct.Solution('gri30.xml')
+        gas.TPX = 1300, 20*101325, 'CO:1.0, H2:0.1, CH4:0.1, H2O:0.5'
+        r1 = ct.Reactor(gas)
+        net.addReactor(r1)
+
+        self.assertEqual(net.nSensitivityParams, 0)
+        r1.addSensitivityReaction(40)
+        r1.addSensitivityReaction(41)
+
+        net.advance(0.1)
+
+        self.assertEqual(net.nSensitivityParams, 2)
+        self.assertEqual(net.nVars, gas.nSpecies + 2)
+        S = net.sensitivities()
+        self.assertEqual(S.shape, (net.nVars, net.nSensitivityParams))
+
+    def test_sensitivities2(self):
+        net = ct.ReactorNet()
+
+        gas1 = ct.Solution('diamond.xml', 'gas')
+        solid = ct.Solution('diamond.xml', 'diamond')
+        interface = ct.Interface('diamond.xml', 'diamond_100',
+                                 (gas1, solid))
+        r1 = ct.Reactor(gas1)
+        net.addReactor(r1)
+
+        gas2 = ct.Solution('h2o2.xml')
+        gas2.TPX = 900, 101325, 'H2:0.1, OH:1e-7, O2:0.1, AR:1e-5'
+        r2 = ct.Reactor(gas2)
+        net.addReactor(r2)
+
+        w = ct.Wall(r1, r2)
+        w.left.kinetics = interface
+
+        C = np.zeros(interface.nSpecies)
+        C[0] = 0.3
+        C[4] = 0.7
+
+        w.left.coverages = C
+        w.left.addSensitivityReaction(2)
+        r2.addSensitivityReaction(18)
+
+        for T in (901, 905, 910, 950, 1500):
+            while r2.T < T:
+                net.step(1.0)
+
+            S = net.sensitivities()
+            K1 = gas1.nSpecies + interface.nSpecies
+
+            # Constant internal energy and volume should generate zero
+            # sensitivity coefficients
+            self.assertArrayNear(S[0:2,:], np.zeros((2,2)))
+            self.assertArrayNear(S[K1+2:K1+4,:], np.zeros((2,2)))
+
+            S11 = np.linalg.norm(S[2:K1+2,0])
+            S21 = np.linalg.norm(S[2:K1+2,1])
+            S12 = np.linalg.norm(S[K1+4:,0])
+            S22 = np.linalg.norm(S[K1+4:,1])
+
+            self.assertTrue(S11 > 1e5 * S12)
+            self.assertTrue(S22 > 1e5 * S21)
+
+    def test_parameter_order1(self):
+        # Single reactor, changing the order in which parameters are added
+        gas = ct.Solution('h2o2.xml')
+
+        def setup():
+            net = ct.ReactorNet()
+            gas.TPX = 900, 101325, 'H2:0.1, OH:1e-7, O2:0.1, AR:1e-5'
+
+            r = ct.Reactor(gas)
+            net.addReactor(r)
+            return r, net
+
+        def integrate(r, net):
+            while r.T < 910:
+                net.step(1.0)
+            return net.sensitivities()
+
+        r1,net1 = setup()
+        params1 = [2,10,18,19]
+        for p in params1:
+            r1.addSensitivityReaction(p)
+        S1 = integrate(r1, net1)
+
+        pname = lambda r,i: '%s: %s' % (r.name, gas.reactionEquation(i))
+        for i,p in enumerate(params1):
+            self.assertEqual(pname(r1,p), net1.sensitivityParameterName(i))
+
+        r2,net2 = setup()
+        params2 = [19,10,2,18]
+        for p in params2:
+            r2.addSensitivityReaction(p)
+        S2 = integrate(r2, net2)
+
+        for i,p in enumerate(params2):
+            self.assertEqual(pname(r2,p), net2.sensitivityParameterName(i))
+
+        for i,j in enumerate((2,1,3,0)):
+            self.assertArrayNear(S1[:,i], S2[:,j])
+
+    def test_parameter_order2(self):
+        # Multiple reactors, changing the order in which parameters are added
+        gas = ct.Solution('h2o2.xml')
+
+        def setup(reverse=False):
+            net = ct.ReactorNet()
+            gas1 = ct.Solution('h2o2.xml')
+            gas1.TPX = 900, 101325, 'H2:0.1, OH:1e-7, O2:0.1, AR:1e-5'
+            rA = ct.Reactor(gas1)
+
+            gas2 = ct.Solution('h2o2.xml')
+            gas2.TPX = 920, 101325, 'H2:0.1, OH:1e-7, O2:0.1, AR:0.5'
+            rB = ct.Reactor(gas2)
+            if reverse:
+                net.addReactor(rB)
+                net.addReactor(rA)
+            else:
+                net.addReactor(rA)
+                net.addReactor(rB)
+
+            return rA, rB, net
+
+        def integrate(r, net):
+            net.advance(1e-4)
+            return net.sensitivities()
+
+        S = []
+
+        for reverse in (True,False):
+            rA1,rB1,net1 = setup(reverse)
+            params1 = [(rA1,2),(rA1,19),(rB1,10),(rB1,18)]
+            for r,p in params1:
+                r.addSensitivityReaction(p)
+            S.append(integrate(rA1, net1))
+
+            pname = lambda r,i: '%s: %s' % (r.name, gas.reactionEquation(i))
+            for i,(r,p) in enumerate(params1):
+                self.assertEqual(pname(r,p), net1.sensitivityParameterName(i))
+
+            rA2,rB2,net2 = setup(reverse)
+            params2 = [(rB2,10),(rA2,19),(rB2,18),(rA2,2)]
+            for r,p in params2:
+                r.addSensitivityReaction(p)
+            S.append(integrate(rA2, net2))
+
+            for i,(r,p) in enumerate(params2):
+                self.assertEqual(pname(r,p), net2.sensitivityParameterName(i))
+
+        # Check that the results reflect the changed parameter ordering
+        for a,b in ((0,1), (2,3)):
+            for i,j in enumerate((3,1,0,2)):
+                self.assertArrayNear(S[a][:,i], S[b][:,j])
+
+        # Check that results are consistent after changing the order that
+        # reactors are added to the network
+        N = gas.nSpecies + 2
+        self.assertArrayNear(S[0][:N], S[2][N:], 1e-5, 1e-5)
+        self.assertArrayNear(S[0][N:], S[2][:N], 1e-5, 1e-5)
+        self.assertArrayNear(S[1][:N], S[3][N:], 1e-5, 1e-5)
+        self.assertArrayNear(S[1][N:], S[3][:N], 1e-5, 1e-5)
+
+    def test_parameter_order3(self):
+        # Test including reacting surfaces
+        gas1 = ct.Solution('diamond.xml', 'gas')
+        solid = ct.Solution('diamond.xml', 'diamond')
+        interface = ct.Interface('diamond.xml', 'diamond_100',
+                                 (gas1, solid))
+
+        gas2 = ct.Solution('h2o2.xml')
+
+        def setup(order):
+            gas1.TPX = 1200, 1e3, 'H:0.002, H2:1, CH4:0.01, CH3:0.0002'
+            gas2.TPX = 900, 101325, 'H2:0.1, OH:1e-7, O2:0.1, AR:1e-5'
+            net = ct.ReactorNet()
+            rA = ct.Reactor(gas1)
+            rB = ct.Reactor(gas2)
+
+            if order % 2 == 0:
+                wA = ct.Wall(rA, rB)
+                wB = ct.Wall(rB, rA)
+            else:
+                wB = ct.Wall(rB, rA)
+                wA = ct.Wall(rA, rB)
+
+            wA.left.kinetics = interface
+            wB.right.kinetics = interface
+
+            wA.area = 0.1
+            wB.area = 10
+
+            C1 = np.zeros(interface.nSpecies)
+            C2 = np.zeros(interface.nSpecies)
+            C1[0] = 0.3
+            C1[4] = 0.7
+
+            C2[0] = 0.9
+            C2[4] = 0.1
+            wA.left.coverages = C1
+            wB.right.coverages = C2
+
+            if order // 2 == 0:
+                net.addReactor(rA)
+                net.addReactor(rB)
+            else:
+                net.addReactor(rB)
+                net.addReactor(rA)
+
+            return rA,rB,wA,wB,net
+
+        def integrate(r, net):
+            net.advance(1e-4)
+            return net.sensitivities()
+
+        S = []
+
+        for order in range(4):
+            rA,rB,wA,wB,net = setup(order)
+            for (obj,k) in [(rB,2), (rB,18), (wA.left,2),
+                            (wA.left,0), (wB.right,2)]:
+                obj.addSensitivityReaction(k)
+            integrate(rB, net)
+            S.append(net.sensitivities())
+
+            rA,rB,wA,wB,net = setup(order)
+            for (obj,k) in [(wB.right,2), (wA.left,2), (rB,18),
+                            (wA.left,0), (rB,2)]:
+                obj.addSensitivityReaction(k)
+
+            integrate(rB, net)
+            S.append(net.sensitivities())
+
+        for a,b in [(0,1),(2,3),(4,5),(6,7)]:
+            for i,j in enumerate((4,2,1,3,0)):
+                self.assertArrayNear(S[a][:,i], S[b][:,j], 1e-2, 1e-3)
