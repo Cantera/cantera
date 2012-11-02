@@ -225,6 +225,10 @@ cdef extern from "cantera/zeroD/Reactor.h":
         void setEnergy(int)
         cbool energyEnabled()
 
+        void addSensitivityReaction(size_t) except +
+        string sensParamID(int)
+        size_t nSensParams()
+
 
 cdef extern from "cantera/zeroD/FlowReactor.h":
     cdef cppclass CxxFlowReactor "Cantera::FlowReactor" (CxxReactor):
@@ -254,6 +258,10 @@ cdef extern from "cantera/zeroD/Wall.h":
         void syncCoverages(int)
         double vdot(double)
         double Q(double)
+
+        void addSensitivityReaction(int, size_t) except +
+        string sensitivityParamID(int, size_t)
+        size_t nSensParams(int)
 
 
 cdef extern from "cantera/zeroD/flowControllers.h":
@@ -289,6 +297,14 @@ cdef extern from "cantera/zeroD/ReactorNet.h":
         void setMaxTimeStep(double)
         cbool verbose()
         void setVerbose(cbool)
+        size_t neq()
+
+        void setSensitivityTolerances(double, double)
+        double rtolSensitivity()
+        double atolSensitivity()
+        double sensitivity(size_t, size_t) except +
+        double sensitivity(string&, size_t, int) except +
+        size_t nparams()
 
 
 cdef extern from "cantera/thermo/ThermoFactory.h" namespace "Cantera":
