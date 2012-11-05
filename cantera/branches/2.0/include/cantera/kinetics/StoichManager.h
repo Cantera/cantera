@@ -827,8 +827,9 @@ public:
         m_n[rxn] = k.size();
         bool frac = false;
         for (size_t n = 0; n < stoich.size(); n++) {
-            if (stoich[n] != 1.0) {
+            if (stoich[n] != 1.0 || order[n] != 1.0) {
                 frac = true;
+                break;
             }
         }
         if (frac) {
