@@ -23,8 +23,8 @@ static string _types[] = {"Reservoir", "Reactor", "ConstPressureReactor",
                          };
 
 // these constants are defined in ReactorBase.h
-static int _itypes[]   = {ReservoirType, ReactorType, FlowReactorType,
-                          ConstPressureReactorType
+static int _itypes[]   = {ReservoirType, ReactorType, ConstPressureReactorType,
+                          FlowReactorType
                          };
 
 /**
