@@ -293,7 +293,7 @@ int vcs_MultiPhaseEquil::equilibrate_HP(doublereal Htarget,
                 Tnew = sqrt(Tlow*Thigh);
                 dT = Tnew - Tnow;
                 if (dT < -200.) {
-                    dT = 200;
+                    dT = -200;
                 }
                 if (dT > 200.) {
                     dT = 200.;
