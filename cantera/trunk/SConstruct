@@ -523,6 +523,10 @@ opts.AddVariables(
         'kernel' subdirectory in previous versions of Cantera.""",
         False),
     BoolVariable(
+        'VERBOSE',
+        """Create verbose output about what scons is doing.""",
+        False),
+    BoolVariable(
         'renamed_shared_libraries',
         """If this option is turned on, the shared libraries that are created
         will be renamed to have a "_shared" extension added to their base name.
@@ -679,6 +683,7 @@ if env['use_sundials'] in ('y','default'):
         env.Append(CPPPATH=[env['sundials_include']])
     if env['sundials_libdir']:
         env.Append(LIBPATH=[env['sundials_libdir']])
+
 
 # BLAS / LAPACK configuration
 if env['blas_lapack_libs'] != '':
@@ -871,6 +876,7 @@ if env.get('python_array') in ('numarray', 'numeric'):
 
 # Directories where things will be after actually being installed. These
 # variables are the ones that are used to populate header files, scripts, etc.
+env['ct_installroot'] = env['prefix']
 env['ct_libdir'] = pjoin(env['prefix'], 'lib')
 env['ct_bindir'] = pjoin(env['prefix'], 'bin')
 env['ct_incdir'] = pjoin(env['prefix'], 'include', 'cantera')
@@ -1097,6 +1103,9 @@ for xml in mglob(env, 'data/inputs', 'xml'):
         build(env.Command(dest, xml.path, Copy('$TARGET', '$SOURCE')))
 
 if addInstallActions:
+    if env['VERBOSE']:
+       print 'INFO 2: addInstallActions script started'
+
     # Put headers in place
     headerBase = 'include/cantera'
     install(env.RecursiveInstall, '$inst_incdir', 'include/cantera')
