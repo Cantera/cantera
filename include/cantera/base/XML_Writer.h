@@ -14,8 +14,8 @@ namespace Cantera
 class XML_Writer
 {
 public:
-    XML_Writer(std::ostream& output) :
-        m_s(output), _indent("   "), _level(0) {}
+    XML_Writer(std::ostream& output_) :
+        m_s(output_), _indent("   "), _level(0) {}
     virtual ~XML_Writer() {}
     std::ostream& m_s;
 

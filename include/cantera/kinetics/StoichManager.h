@@ -459,7 +459,7 @@ public:
         m_rxn(npos) {
     }
 
-    C_AnyN(size_t rxn, const std::vector<size_t>& ic, const vector_fp& order, const vector_fp& stoich) :
+    C_AnyN(size_t rxn, const std::vector<size_t>& ic, const vector_fp& order_, const vector_fp& stoich_) :
         m_n(0),
         m_rxn(rxn) {
         m_n = ic.size();
@@ -468,8 +468,8 @@ public:
         m_stoich.resize(m_n);
         for (size_t n = 0; n < m_n; n++) {
             m_ic[n] = ic[n];
-            m_order[n] = order[n];
-            m_stoich[n] = stoich[n];
+            m_order[n] = order_[n];
+            m_stoich[n] = stoich_[n];
         }
     }
 

@@ -542,12 +542,12 @@ public:
     //! Set the internally stored density (kg/m^3) of the phase
     //! Note the density of a phase is an independent variable.
     //!     @param[in] density density (kg/m^3).
-    virtual void setDensity(const doublereal density) {
-        if (density <= 0) {
+    virtual void setDensity(const doublereal density_) {
+        if (density_ <= 0) {
             throw CanteraError("Phase::setDensity",
                                "density must be positive");
         }
-        m_dens = density;
+        m_dens = density_;
     }
 
     //! Set the internally stored molar density (kmol/m^3) of the phase.

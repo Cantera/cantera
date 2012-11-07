@@ -155,7 +155,7 @@ doublereal ConstCpPoly::reportHf298(doublereal* const h298) const
     return h;
 }
 
-void ConstCpPoly::modifyOneHf298(const int k, const doublereal Hf298New)
+void ConstCpPoly::modifyOneHf298(const size_t &k, const doublereal Hf298New)
 {
     if (k != m_index) {
         return;

@@ -1852,7 +1852,7 @@ int RedlichKwongMFTP::NicholsSolve(double TKelvin, double pres, doublereal a, do
     /*
      * Unfortunately, there is a heavy amount of roundoff error due to bad conditioning in this
      */
-    double res, dresdV;
+    double res, dresdV = 0.0;
     for (int i = 0; i < nSolnValues; i++) {
         for (int n = 0; n < 20; n++) {
             res = an *  Vroot[i] * Vroot[i] * Vroot[i] + bn * Vroot[i] * Vroot[i] + cn  * Vroot[i] + dn;

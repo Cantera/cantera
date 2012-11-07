@@ -19,13 +19,13 @@ public:
 
     IdealGasMix() : m_ok(false), m_r(0) {}
 
-    IdealGasMix(const std::string& infile, std::string id="") :
+    IdealGasMix(const std::string& infile, std::string id_="") :
         m_ok(false), m_r(0) {
 
         m_r = get_XML_File(infile);
-        m_id = id;
-        if (id == "-") {
-            id = "";
+        m_id = id_;
+        if (id_ == "-") {
+            id_ = "";
         }
         m_ok = buildSolutionFromXML(*m_r,
                                     m_id, "phase", this, this);
@@ -35,8 +35,8 @@ public:
 
 
     IdealGasMix(XML_Node& root,
-                std::string id) : m_ok(false), m_r(&root), m_id(id) {
-        m_ok = buildSolutionFromXML(root, id, "phase", this, this);
+                std::string id_) : m_ok(false), m_r(&root), m_id(id_) {
+        m_ok = buildSolutionFromXML(root, id_, "phase", this, this);
     }
 
     IdealGasMix(const IdealGasMix& other) : m_ok(false),

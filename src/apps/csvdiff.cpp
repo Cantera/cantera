@@ -650,7 +650,7 @@ int main(int argc, char* argv[])
     int*    ColIsFloat1 = NULL, *ColIsFloat2 = NULL;
     double* curVarValues1 = NULL, *curVarValues2 = NULL;
     char** curStringValues1 = NULL, **curStringValues2 = NULL;
-    int    i, j, ndiff, jmax, i1, i2, k;
+    int    i, j, ndiff, jmax=0, i1, i2, k;
     bool found;
     double max_diff, rel_diff;
     int    testPassed = RT_PASSED;

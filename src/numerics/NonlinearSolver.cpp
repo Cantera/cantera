@@ -3694,7 +3694,7 @@ int NonlinearSolver::beuler_jac(GeneralMatrix& J, doublereal* const f,
 {
     double* col_j;
     int info;
-    doublereal ysave, ydotsave, dy;
+    doublereal ysave, ydotsave=0., dy;
     int retn = 1;
 
     /*
