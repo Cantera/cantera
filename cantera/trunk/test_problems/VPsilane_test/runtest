@@ -31,11 +31,9 @@ fi
 if [ $retnStat = "0" ]
 then
   echo "successful diff comparison on VPsilane_test test"
-  return 0
 else
   echo "unsuccessful diff comparison on VPsilane_test test"
   echo "FAILED" > csvCode.txt
   temp_success="0"
-  return 1
 fi
 
