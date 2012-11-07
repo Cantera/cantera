@@ -276,7 +276,7 @@ void PecosTransport::getSpeciesFluxes(int ndim,
                                       const doublereal* grad_T, int ldx, const doublereal* grad_X,
                                       int ldf, doublereal* fluxes)
 {
-    int n, k;
+    int n=0, k;
 
     update_T();
     update_C();
@@ -368,9 +368,9 @@ void PecosTransport::getMixDiffCoeffsMole(doublereal* const d)
     if (m_nsp == 1) {
         d[0] = m_bdiff(0,0) / p;
     } else {
-        for (size_t k = 0; k < m_nsp; k++) {
+        for (int k = 0; k < m_nsp; k++) {
             double sum2 = 0.0;
-            for (size_t j = 0; j < m_nsp; j++) {
+            for (int j = 0; j < m_nsp; j++) {
                 if (j != k) {
                     sum2 += m_molefracs[j] / m_bdiff(j,k);
                 }
@@ -400,10 +400,10 @@ void PecosTransport::getMixDiffCoeffsMass(doublereal* const d)
     if (m_nsp == 1) {
         d[0] = m_bdiff(0,0) / p;
     } else {
-        for (size_t k=0; k<m_nsp; k++) {
+        for (int k=0; k<m_nsp; k++) {
             double sum1 = 0.0;
             double sum2 = 0.0;
-            for (size_t i=0; i<m_nsp; i++) {
+            for (int i=0; i<m_nsp; i++) {
                 if (i==k) {
                     continue;
                 }

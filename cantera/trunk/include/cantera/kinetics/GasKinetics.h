@@ -438,8 +438,8 @@ private:
                        const std::vector<grouplist_t>& p);
     void updateKc();
 
-    void registerReaction(size_t rxnNumber, int type, size_t loc) {
-        m_index[rxnNumber] = std::pair<int, size_t>(type, loc);
+    void registerReaction(size_t rxnNumber, int type_, size_t loc) {
+        m_index[rxnNumber] = std::pair<int, size_t>(type_, loc);
     }
     bool m_finalized;
 };

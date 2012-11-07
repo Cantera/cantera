@@ -449,8 +449,8 @@ public:
     /*!
      * @param name The name of the XML node
      */
-    void setName(const std::string& name) {
-        m_name = name;
+    void setName(const std::string& name_) {
+        m_name = name_;
     }
 
     //! Return the id attribute, if present

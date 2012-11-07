@@ -6,7 +6,7 @@ AC_INIT([cantera], [2.1a1], [nick@ices.utexas.edu])
 AC_CONFIG_HEADER(config.h)
 AC_CONFIG_AUX_DIR([build-aux])
 #AX_ENABLE_BUILDDIR
-AM_INIT_AUTOMAKE(-Wall -Werror)
+AM_INIT_AUTOMAKE(-Wall -Werror -Wshadow)
 
 # snarf and provide versioning numbers
 AX_SPLIT_VERSION

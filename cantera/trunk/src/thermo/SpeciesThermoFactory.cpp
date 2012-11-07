@@ -655,11 +655,9 @@ static void installStatMechThermoFromXML(const std::string& speciesName,
 {
     const XML_Node* fptr = tp[0];
     int nRegTmp = tp.size();
-    int nRegions = 0;
     vector_fp cPoly;
-    StatMech* np_ptr = 0;
     std::vector<StatMech*> regionPtrs;
-    doublereal tmin, tmax, pref = OneAtm;
+    doublereal tmin, tmax = 0.0, pref = OneAtm;
 
     // Loop over all of the possible temperature regions
     for (int i = 0; i < nRegTmp; i++) {

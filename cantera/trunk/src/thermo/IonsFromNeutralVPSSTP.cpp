@@ -1580,8 +1580,8 @@ void IonsFromNeutralVPSSTP::s_update_dlnActCoeff_dlnN_diag() const
  */
 void IonsFromNeutralVPSSTP::s_update_dlnActCoeff_dlnN() const
 {
-    size_t kcat, kNeut, mcat, mNeut;
-    doublereal fmij, mfmij;
+    size_t kcat = 0, kNeut = 0, mcat = 0, mNeut = 0;
+    doublereal fmij = 0.0, mfmij;
     dlnActCoeffdlnN_.zero();
     /*
      * Get the activity coefficients of the neutral molecules

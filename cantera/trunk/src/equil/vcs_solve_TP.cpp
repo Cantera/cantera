@@ -4188,13 +4188,13 @@ void VCS_SOLVE::vcs_dfe(const int stateCalc,
 {
     size_t l1, l2, iph, kspec, irxn;
     size_t iphase;
-    double* tPhMoles_ptr;
-    double* actCoeff_ptr;
-    double* tlogMoles;
+    double* tPhMoles_ptr=0;
+    double* actCoeff_ptr=0;
+    double* tlogMoles=0;
     vcs_VolPhase* Vphase;
 
-    double* feSpecies;
-    double* molNum;
+    double* feSpecies=0;
+    double* molNum=0;
     if (stateCalc == VCS_STATECALC_OLD) {
         feSpecies = VCS_DATA_PTR(m_feSpecies_old);
         tPhMoles_ptr = VCS_DATA_PTR(m_tPhaseMoles_old);
@@ -5239,9 +5239,9 @@ void VCS_SOLVE::vcs_deltag_Phase(const size_t iphase, const bool doDeleted,
     size_t  irxn, kspec, kcomp;
     double* dtmp_ptr;
 
-    double* feSpecies;
-    double* deltaGRxn;
-    double* actCoeffSpecies;
+    double* feSpecies=0;
+    double* deltaGRxn=0;
+    double* actCoeffSpecies=0;
     if (stateCalc == VCS_STATECALC_NEW) {
         feSpecies = VCS_DATA_PTR(m_feSpecies_new);
         deltaGRxn = VCS_DATA_PTR(m_deltaGRxn_new);

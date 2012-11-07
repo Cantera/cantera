@@ -191,7 +191,7 @@ int StatMech::buildmap()
     SS.push_back("e");
 
     // now place each species in a map
-    int ii;
+    size_t ii;
     for (ii=0; ii < SS.size(); ii++) {
         name_map[SS[ii]]=(new species);
 
@@ -572,7 +572,6 @@ int StatMech::buildmap()
     name_map["e"]->mol_weight=0.00055;
     name_map["e"]->nvib=0;
 
-    int dum = 0;
     for (ii=0; ii < SS.size(); ii++) {
         // check nvib was initalized for all species
         if (name_map[SS[ii]]->nvib == -1) {

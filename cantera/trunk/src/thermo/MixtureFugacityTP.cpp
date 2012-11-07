@@ -1152,7 +1152,7 @@ doublereal MixtureFugacityTP::calculatePsat(doublereal TKelvin, doublereal& mola
          *  First part of the calculation involves finding a pressure at which the
          *  gas and the liquid state coexists.
          */
-        doublereal presLiquid;
+        doublereal presLiquid = 0.;
         doublereal presGas;
         doublereal  presBase = pres;
         bool foundLiquid = false;
