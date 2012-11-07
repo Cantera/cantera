@@ -322,6 +322,27 @@ std::string getChildValue(const Cantera::XML_Node& parent, const std::string& na
     }
     return parent(nameString);
 }
+ void getNamedStringValue(const Cantera::XML_Node& node, const std::string &nameString, std::string& valueString,
+                           std::string& typeString)
+  {
+    valueString = "";
+    typeString = "";
+    if (node.hasChild(nameString)) {
+      XML_Node &xc = node.child(nameString);
+      valueString = xc.value();
+      typeString = xc["type"];
+    } else {
+      XML_Node* s = getByTitle(node, nameString);
+      if (s) {
+        if (s->name() == "string") {
+          valueString = (*s).value();
+          typeString = (*s)["type"];
+          return;
+        }
+      }
+    }
+  }
+
 
 //====================================================================================================================
 //  Get a vector of integer values from a child element.
