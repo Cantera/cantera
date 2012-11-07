@@ -107,6 +107,9 @@ if not localenv['build_with_f2c']:
 else:
     localenv['mak_syslibs'] = ''
 
+# print localenv.Dump()
+# exit(0)
+
 mak = build(localenv.SubstFile('Cantera.mak', 'Cantera.mak.in'))
 install('$inst_incdir', mak)
 
