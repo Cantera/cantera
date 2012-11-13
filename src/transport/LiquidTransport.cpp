@@ -1143,9 +1143,9 @@ void LiquidTransport::getSpeciesFluxes(size_t ndim,
  */
 void LiquidTransport::getSpeciesFluxesES(size_t ndim,
         const doublereal* grad_T,
-        int ldx,
+        size_t ldx,
         const doublereal* grad_X,
-        int ldf,
+        size_t ldf,
         const doublereal* grad_V,
         doublereal* fluxes)
 {
