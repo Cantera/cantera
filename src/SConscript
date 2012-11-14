@@ -40,6 +40,7 @@ for subdir, extensions, setup in libs:
     localenv = env.Clone()
     localenv.Prepend(CPPPATH=Dir('#include'))
     localenv.Prepend(CPPPATH=Dir('#src')) # todo: remove when not needed
+    localenv.Append(CCFLAGS=env['warning_flags'])
     source = setup(localenv, subdir, extensions)
     objects = localenv.SharedObject(source)
     localenv.Depends(objects, localenv['config_h_target'])

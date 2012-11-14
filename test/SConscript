@@ -6,7 +6,8 @@ localenv = env.Clone()
 
 localenv.Prepend(CPPPATH=['#ext/gtest/include', '#include'],
                  LIBPATH='#build/lib')
-localenv.Append(LIBS=['gtest'] + localenv['cantera_libs'])
+localenv.Append(LIBS=['gtest'] + localenv['cantera_libs'],
+                CCFLAGS=env['warning_flags'])
 
 localenv['ENV']['PYTHONPATH'] = Dir('#interfaces/python').abspath
 localenv['ENV']['CANTERA_DATA'] = Dir('#build/data').abspath

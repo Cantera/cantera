@@ -187,36 +187,40 @@ defaults.debugCcFlags = ''
 defaults.noDebugCcFlags = ''
 defaults.debugLinkFlags = ''
 defaults.noDebugLinkFlags = ''
+defaults.warningFlags = ''
 
 if env['CC'] == 'gcc' or env['CC'] == 'llvm-gcc':
     defaults.cxxFlags = '-ftemplate-depth-128'
-    defaults.ccFlags = '-Wall -Wno-deprecated-declarations'
     defaults.debugCcFlags = '-g'
     defaults.noOptimizeCcFlags = '-O0 -fno-inline'
     defaults.optimizeCcFlags = '-O3 -DNDEBUG -finline-functions -Wno-inline'
+    defaults.warningFlags = '-Wall -Wno-deprecated-declarations'
 
 elif env['CC'] == 'cl': # Visual Studio
     defaults.cxxFlags = '/EHsc'
-    defaults.ccFlags = ' '.join(['/MD', '/nologo', '/W3', '/Zc:wchar_t', '/Zc:forScope',
+    defaults.ccFlags = ' '.join(['/MD', '/nologo', '/Zc:wchar_t', '/Zc:forScope',
                                  '/D_SCL_SECURE_NO_WARNINGS', '/D_CRT_SECURE_NO_WARNINGS', '/wd4996'])
     defaults.debugCcFlags = '/Zi /Fd${TARGET}.pdb'
     defaults.noOptimizeCcFlags = '/Od /Ob0'
     defaults.optimizeCcFlags = '/O2 /DNDEBUG'
     defaults.debugLinkFlags = '/DEBUG'
+    defaults.warningFlags = '/W3'
 
 elif env['CC'] == 'icc':
     defaults.cxxFlags = '-ftemplate-depth-128'
-    defaults.ccFlags = '-Wcheck -vec-report0 -diag-disable 1478'
+    defaults.ccFlags = '-vec-report0 -diag-disable 1478'
     defaults.debugCcFlags = '-g'
     defaults.noOptimizeCcFlags = '-O0 -fno-inline'
     defaults.optimizeCcFlags = '-O3 -finline-functions -DNDEBUG'
+    defaults.warningFlags = '-Wcheck'
 
 elif env['CC'] == 'clang':
     defaults.cxxFlags = ''
-    defaults.ccFlags = '-Wall -fcolor-diagnostics -Wno-deprecated-declarations'
+    defaults.ccFlags = '-fcolor-diagnostics -Wno-deprecated-declarations'
     defaults.debugCcFlags = '-g'
     defaults.noOptimizeCcFlags = '-O0'
     defaults.optimizeCcFlags = '-O3 -DNDEBUG'
+    defaults.warningFlags = '-Wall'
 
 else:
     print "WARNING: Unrecognized C compiler '%s'" % env['CC']
@@ -467,6 +471,11 @@ opts.AddVariables(
     ('no_debug_linker_flags',
      'Additional options passed to the linker when debug=yes',
      defaults.noDebugLinkFlags),
+    ('warning_flags',
+     """Additional compiler flags passed to the C/C++ compiler to enable
+        extra warnings. Used only when compiling source code that part of
+        Cantera (e.g. excluding code in the 'ext' directory).""",
+     defaults.warningFlags),
     ('extra_inc_dirs',
      'Additional directories to search for header files (colon-separated list)',
      ''),
@@ -708,6 +717,8 @@ conf = Configure(env)
 env['CXXFLAGS'] = listify(env['cxx_flags'])
 env['CCFLAGS'] = listify(env['cc_flags']) + listify(env['thread_flags'])
 env['LINKFLAGS'] += listify(env['thread_flags'])
+
+env['warning_flags'] = listify(env['warning_flags'])
 
 if env['optimize']:
     env['CCFLAGS'] += listify(env['optimize_flags'])
