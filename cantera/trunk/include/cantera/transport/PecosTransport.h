@@ -87,7 +87,7 @@ public:
      */
     virtual doublereal thermalConductivity();
 
-    virtual void getBinaryDiffCoeffs(const int ld, doublereal* const d);
+    virtual void getBinaryDiffCoeffs(const size_t ld, doublereal* const d);
 
 
     //! Mixture-averaged diffusion coefficients [m^2/s].
@@ -146,11 +146,11 @@ public:
      *             Flat vector with the m_nsp in the inner loop.
      *             length = ldx * ndim
      */
-    virtual void getSpeciesFluxes(int ndim,
+    virtual void getSpeciesFluxes(size_t ndim,
                                   const doublereal* grad_T,
-                                  int ldx,
+                                  size_t ldx,
                                   const doublereal* grad_X,
-                                  int ldf, doublereal* fluxes);
+                                  size_t ldf, doublereal* fluxes);
 
     //! Initialize the transport object
     /*!

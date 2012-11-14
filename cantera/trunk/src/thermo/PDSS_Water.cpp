@@ -308,7 +308,7 @@ void PDSS_Water::initThermo()
     PDSS::initThermo();
 }
 
-void PDSS_Water::initThermoXML(const XML_Node& phaseNode, std::string& id)
+void PDSS_Water::initThermoXML(const XML_Node& phaseNode, const std::string& id)
 {
     PDSS::initThermoXML(phaseNode, id);
 }

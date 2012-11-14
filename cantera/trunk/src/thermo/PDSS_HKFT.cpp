@@ -631,7 +631,7 @@ void PDSS_HKFT::initThermo()
 }
 
 
-void PDSS_HKFT::initThermoXML(const XML_Node& phaseNode, std::string& id)
+void PDSS_HKFT::initThermoXML(const XML_Node& phaseNode, const std::string& id)
 {
     PDSS::initThermoXML(phaseNode, id);
 }
