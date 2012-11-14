@@ -27,8 +27,8 @@ public:
     }
 
     virtual void error(const std::string& msg) {
-        std::string err = "raise \""+msg+"\"";
-        PyRun_SimpleString((char*)err.c_str());
+        std::string err = "raise Exception(\"\"\""+msg+"\"\"\")";
+        PyRun_SimpleString(err.c_str());
     }
 };
 }
