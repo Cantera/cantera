@@ -546,6 +546,8 @@ class Stack:
         >>> s.showSolution()
         >>> s.showSolution('soln.txt')
         """
+        if not self._initialized:
+            self.init()
         _cantera.sim1D_showSolution(self._hndl, fname)
 
     def setTimeStep(self, stepsize, nsteps):
