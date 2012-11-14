@@ -279,10 +279,13 @@ void Sim1D::solve(int loglevel, bool refine_grid)
         nsteps = m_steps[istep];
 
         bool ok = false;
+        if (loglevel > 0) {
+            writelog("\n");
+            sim1D_drawline();
+        }
         while (!ok) {
             if (loglevel > 0) {
-                sim1D_drawline();
-                writelog("\nAttempt Newton solution of steady-state problem...");
+                writelog("Attempt Newton solution of steady-state problem...");
             }
             int status = newtonSolve(loglevel-1);
 
@@ -297,15 +300,14 @@ void Sim1D::solve(int loglevel, bool refine_grid)
                         }
                     }
                     writelog("]");
-                    writelog(" point grid(s).\n\n");
+                    writelog(" point grid(s).\n");
                 }
                 ok = true;
                 soln_number++;
             } else {
                 char buf[100];
                 if (loglevel > 0) {
-                    writelog("    failure. \n\n");
-                    sim1D_drawline();
+                    writelog("    failure. \n");
                     writelog("Take "+int2str(nsteps)+" timesteps   ");
                 }
                 dt = timeStep(nsteps, dt, DATA_PTR(m_x), DATA_PTR(m_xnew),
@@ -325,6 +327,10 @@ void Sim1D::solve(int loglevel, bool refine_grid)
                     dt = m_tmax;
                 }
             }
+        }
+        if (loglevel > 0) {
+            sim1D_drawline();
+            writelog("\n");
         }
         if (loglevel > 2) {
             showSolution();
