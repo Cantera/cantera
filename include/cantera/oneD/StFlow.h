@@ -117,15 +117,11 @@ public:
         }
     }
 
-
-    /// Write the initial solution estimate into
-    /// array x.
+    /// Write the initial solution estimate into array x.
     virtual void _getInitialSoln(doublereal* x) {
         for (size_t j = 0; j < m_points; j++) {
-            x[index(2,j)] = T_fixed(j);
-            for (size_t k = 0; k < m_nsp; k++) {
-                x[index(4+k,j)] = Y_fixed(k,j);
-            }
+            T(x,j) = m_thermo->temperature();
+            m_thermo->getMassFractions(&Y(x, 0, j));
         }
     }
 
