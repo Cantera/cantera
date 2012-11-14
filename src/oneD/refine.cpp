@@ -201,6 +201,7 @@ void Refiner::show()
             writelog(string(bb->first)+" ");
         }
         writelog("\n");
+        r_drawline();
     } else if (m_domain->nPoints() > 1) {
         writelog("no new points needed in "+m_domain->id()+"\n");
         //writelog("curve = "+fp2str(m_curve)+"\n");
