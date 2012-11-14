@@ -171,7 +171,7 @@ doublereal PecosTransport::viscosity()
  *  Adding more doxygen would be good here
  */
 
-void PecosTransport::getBinaryDiffCoeffs(const int ld, doublereal* const d)
+void PecosTransport::getBinaryDiffCoeffs(const size_t ld, doublereal* const d)
 {
     int i,j;
 
@@ -272,9 +272,9 @@ void PecosTransport::getThermalDiffCoeffs(doublereal* const dt)
  * This is neglective pressure, forced and thermal diffusion.
  *
  */
-void PecosTransport::getSpeciesFluxes(int ndim,
-                                      const doublereal* grad_T, int ldx, const doublereal* grad_X,
-                                      int ldf, doublereal* fluxes)
+void PecosTransport::getSpeciesFluxes(size_t ndim,
+                                      const doublereal* grad_T, size_t ldx, const doublereal* grad_X,
+                                      size_t ldf, doublereal* fluxes)
 {
     int n=0, k;
 

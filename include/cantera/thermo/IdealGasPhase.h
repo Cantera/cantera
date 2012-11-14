@@ -763,7 +763,7 @@ public:
 
 #ifdef H298MODIFY_CAPABILITY
 
-    virtual void modifyOneHf298SS(const int k, const doublereal Hf298New) {
+    virtual void modifyOneHf298SS(const size_t &k, const doublereal Hf298New) {
         m_spthermo->modifyOneHf298(k, Hf298New);
         m_tlast += 0.0001234;
     }
