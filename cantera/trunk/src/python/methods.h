@@ -191,16 +191,6 @@ static PyMethodDef ct_methods[] = {
     {"rdiag_setFlowType", py_rdiag_setFlowType, METH_VARARGS},
     {"rdiag_setLabelThreshold", py_rdiag_setLabelThreshold, METH_VARARGS},
 
-    //     {"bndry_temperature", py_bndry_temperature, METH_VARARGS},
-    //     {"bndry_setxin", py_bndry_setxin, METH_VARARGS},
-    //     {"bndry_setxinbyname", py_bndry_setxinbyname, METH_VARARGS},
-    //     {"bndry_settemperature", py_bndry_settemperature, METH_VARARGS},
-    //     {"bndry_setspreadrate", py_bndry_setspreadrate, METH_VARARGS},
-    //     {"bndry_new", py_bndry_new, METH_VARARGS},
-    //     {"bndry_del", py_bndry_del, METH_VARARGS},
-    //     {"bndry_mdot", py_bndry_mdot, METH_VARARGS},
-    //     {"bndry_setmdot", py_bndry_setmdot, METH_VARARGS},
-
     {"flowdev_ready", py_flowdev_ready, METH_VARARGS},
     {"reactornet_setInitialTime", py_reactornet_setInitialTime, METH_VARARGS},
     {"reactornet_setTolerances", py_reactornet_setTolerances, METH_VARARGS},
