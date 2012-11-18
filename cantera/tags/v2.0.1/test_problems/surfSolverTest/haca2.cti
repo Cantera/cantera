@@ -1,0 +1,99 @@
+
+#
+#    HACA Mechanism - very rough prototype
+#              Reference:
+#     (1)  M. Frenklach, H. Wang,
+#          "Detailed Mechanism and Modeling of Soot Particle Formation"
+#          in Soot Formation in Combustion: Mechanisms and Models"
+#          J. Bockhorn Ed., Springer Verlag, Heidelberg (1994).
+#
+#
+# HKM Notes -> The elements in the element arrays all have to be equal and
+#              in the same order. This is a limitation of cads.
+
+units(length = 'cm', quantity = 'mol', act_energy = 'kcal/mol')
+
+#------------- the gas -------------------------------------
+
+ideal_gas(name = 'gas',
+          elements = 'O H C N Ar',
+          species = 'gri30: H N2 CH3 CH4 C2H2 H2 OH H2O CO O2',
+          initial_state = state(temperature = 1400.0,
+                                pressure = OneAtm,
+                    mole_fractions = 'H:0.01, N2:0.8899, H2:0.04, CH4:0.01 C2H2:0.01 \
+                                      OH:0.0001 H2O:0.04 O2:0.001'))
+
+
+#------------- bulk soot -------------------------------------
+# Taken from Bensen's book. 
+# However, entropy is negative; this is not correct.
+# Group contribution approach needs to be modified. Bensen has a
+# negative value for S here, because the group contribution is usually
+# lumped in with other groups which have positive S contributions.
+# However, for the current mechanism, bulk thermodynamics doesn't
+# matter since all reactions involving bulk growth or etching
+# are irreversible.
+#
+stoichiometric_solid(name = 'soot',
+                     elements = 'O H C N Ar',
+                     density = (3.52, 'g/cm3'),
+                     species = 'CB-CB3')
+
+species(name = 'CB-CB3',
+        atoms = 'C:1',
+        thermo = const_cp(t0  = (1000., 'K'),
+                          h0  = (9.22, 'kcal/mol')  ,
+                          s0  = (-3.02, 'cal/mol/K'),
+                          cp0 = (5.95, 'cal/mol/K') ))
+
+#------------- the diamond surface -------------------------------------
+#
+# Site density taken from Frenklach/Wang p. 179.
+#
+ideal_interface(name = 'soot_interface',
+	        elements = 'O H C N Ar ',
+	        species = 'Csoot-* Csoot-H',
+                reactions = 'all',
+                phases = 'gas soot',
+                site_density = (3.8E-9, 'mol/cm2'),
+                initial_state = state(temperature= 1000.0,
+                                      coverages = 'Csoot-*:0.1, Csoot-H:0.9'))
+
+# HKM -> Note, thermo from the following source:
+# 'S. J. Harris and D. G. Goodwin, 'Growth on
+# the reconstructed diamond (100) surface, 'J. Phys. Chem. vo. 97,
+# 23-28 (1993). reactions a - t are taken directly from Table II,
+# with thermochemistry from Table IV.
+# -> Thermo needs to be reviewed, as deltaG for reactions are 
+#    very important.
+#
+species(name = 'Csoot-*',
+        atoms = 'H:0 C:1',
+        thermo = const_cp(t0  = (1000., 'K'),
+                          h0 = (51.7, 'kcal/mol'),
+                          s0 = (19.5, 'cal/mol/K'),
+                          cp0 = (8.41, 'cal/mol/K') ))
+
+species(name = 'Csoot-H',
+        atoms = 'H:1 C:1',
+        thermo = const_cp(t0  = (1000., 'K'),
+                          h0 = (11.4, 'kcal/mol'),
+                          s0 = (21.0, 'cal/mol/K'),
+                          cp0 = (8.41, 'cal/mol/K')) )	
+#
+# Forward rate constant taken from Frenklach/Wang:
+surface_reaction( 'Csoot-H + H  => Csoot-* + H2',  [4.17E13, 0.0, 13.0])
+surface_reaction( 'Csoot-* + H2 => Csoot-H + H',   [3.9E12, 0.0, 11.0])
+
+surface_reaction( 'Csoot-H + OH  => Csoot-* + H2O',  [1.0E10, 0.734, 1.43])
+surface_reaction( 'Csoot-* + H2O => Csoot-H + OH',   [3.68E8, 1.139, 17.1])
+
+surface_reaction( 'Csoot-* + H => Csoot-H',   [2.0E13, 0.0, 0.0])
+
+surface_reaction( 'Csoot-* + C2H2 => Csoot-H + H + 2 CB-CB3',   [8.0E7, 1.56, 3.8])
+
+surface_reaction( 'Csoot-* + O2 + 2 CB-CB3 => Csoot-* + 2 CO',   [2.2E12, 0.00, 7.5])
+
+#surface_reaction( 'OH + Csoot-H + CB-CB3 => Csoot-* + CO + H2',  [3.01577E10, 0.5, 0.0])
+surface_reaction( 'OH + Csoot-H + CB-CB3 => Csoot-* + CO + H2',  stick(0.13, 0.0, 0.0))
+

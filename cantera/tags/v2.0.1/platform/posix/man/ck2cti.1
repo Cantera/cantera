@@ -1,0 +1,65 @@
+.TH "ck2cti" 1 "16 Nov 2003" "ck2cti" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+ck2cti \- convert a Chemkin-II-format reaction mechanism file to Cantera input format.  
+
+.SH SYNOPSIS
+.br
+ck2cti \fB-i \fIinput \fR[\fB-t \fIthermo\fR] \fR[\fB-tr\fI transport\fR] 
+\fR[\fB-id\fI idtag\fR]
+
+.SH DESCRIPTION
+
+.I ck2cti
+converts a Chemkin-II-format reaction mechanism file to Cantera input
+format.  The resulting Cantera input file contains a definition of one
+.B ideal_gas
+entry that represents an ideal gas mixture corresponding to the
+Chemkin-II reaction mechanism. The file also contains Cantera-format
+definitions for each species and each reaction in the input reaction
+mechanism file.  The Cantera-format text is written to the standard
+output.
+
+The parameters are as follows:
+.TP
+.I input
+Chemkin-II reaction mechanism file to be converted. Required.
+.TP
+.I thermo
+Thermodynamic property database. If the THERMO section of the input
+file is missing or does not have entries for one or more species, this
+file will be searched for the required thermo data. This file may be
+another reaction mechanism file containing a THERMO section, or a
+Chemkin-II-compatible thermodynamic database file.
+.TP
+.I transport
+Transport property database. If this file name is supplied, transport
+property parameters will be taken from this file and included in the
+output Cantera-format file. If this parameter is omitted, no transport
+property parameters will be included in the output.
+.TP
+.I id
+Identification string. The \fBideal_gas\fR entry in the Cantera-format
+output has name \fIid\fR. If this parameter is omitted, it will be set
+to the input file name without the extension. Since only one phase
+definition is present in the \fIck2cti\fR output, this parameter is
+not required.
+
+.SH EXAMPLES
+
+Create a Cantera input file from a self-contained Chemkin-format file 
+without transport parameters:
+.TP
+ck2cti -i mech.inp > mech.cti
+.TP
+Create a Cantera input file from a Chemkin-format file that requires a
+separate thermodynamic database
+without transport parameters:
+.TP
+ck2cti -i mech.inp -t therm.dat > mech.cti
+.TP
+Create a Cantera input file from a Chemkin-format file that requires a
+separate thermodynamic database and include transport parameters:
+.TP
+ck2cti -i mech.inp -t therm.dat -tr tran.dat > mech.cti

@@ -1,0 +1,15 @@
+
+This test is used to make sure that the basic functions in
+the water property routine satisfies the derivative tests
+specified in the paper:
+
+W. Wagner, A. Prub, "The IAPWS Formulation 1995 for the
+Thermodynamic Properties of Ordinary Water Substance
+for General and Scientific Use," J. Phys. Chem.
+Ref. Data, v. 31, 387 - 442, 2002.
+
+On page 436 of that reference, value for phi, the nondimensional
+helmholtz free energy and its first and second derivatives,
+are given at 2 representative points. This test makes sure
+that the values agree with the paper's values.
+

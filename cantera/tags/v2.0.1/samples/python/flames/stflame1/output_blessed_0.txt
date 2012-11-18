@@ -1,0 +1,935 @@
+ 
+
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> inlet <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+    Mass Flux:         0.06 kg/m^2/s 
+    Temperature:        373 K 
+    Mass Fractions: 
+                      H2     0.01151 
+                      O2      0.1015 
+                      AR       0.887 
+
+
+
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> flow <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+    Pressure:        5066 Pa 
+
+-------------------------------------------------------------------------------
+        z             u           V           T      lambda          H2 
+-------------------------------------------------------------------------------
+          0       1.142           0         373           0     0.01151 
+       0.02       1.028           0       966.2           0    0.007795 
+       0.04      0.9134           0        1559           0     0.00408 
+       0.06      0.7992           0        2153           0    0.000365 
+       0.08       0.685           0        2153           0    0.000365 
+        0.1      0.5709           0        2153           0    0.000365 
+       0.15      0.2854           0        1894           0    0.000365 
+        0.2           0           0         600           0    0.000365 
+
+-------------------------------------------------------------------------------
+        z             H           O          O2          OH         H2O 
+-------------------------------------------------------------------------------
+          0           0           0      0.1015           0           0 
+       0.02   1.461e-05    0.000152     0.07153    0.000956     0.03256 
+       0.04   2.922e-05    0.000304     0.04156    0.001912     0.06512 
+       0.06   4.383e-05    0.000456     0.01159    0.002868     0.09769 
+       0.08   4.383e-05    0.000456     0.01159    0.002868     0.09769 
+        0.1   4.383e-05    0.000456     0.01159    0.002868     0.09769 
+       0.15   4.383e-05    0.000456     0.01159    0.002868     0.09769 
+        0.2   4.383e-05    0.000456     0.01159    0.002868     0.09769 
+
+-------------------------------------------------------------------------------
+        z           HO2        H2O2          AR 
+-------------------------------------------------------------------------------
+          0           0           0       0.887 
+       0.02   1.259e-07   4.647e-09       0.887 
+       0.04   2.517e-07   9.293e-09       0.887 
+       0.06   3.776e-07   1.394e-08       0.887 
+       0.08   3.776e-07   1.394e-08       0.887 
+        0.1   3.776e-07   1.394e-08       0.887 
+       0.15   3.776e-07   1.394e-08       0.887 
+        0.2   3.776e-07   1.394e-08       0.887 
+
+
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> surface <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+    Temperature:        600 K 
+
+..............................................................................
+
+Attempt Newton solution of steady-state problem...    failure. 
+
+..............................................................................
+Take 1 timesteps       1.5e-05      6.261 
+..............................................................................
+
+Attempt Newton solution of steady-state problem...    failure. 
+
+..............................................................................
+Take 2 timesteps     1.688e-05      2.914 
+..............................................................................
+
+Attempt Newton solution of steady-state problem...    failure. 
+
+..............................................................................
+Take 5 timesteps     3.204e-05      2.909 
+..............................................................................
+
+Attempt Newton solution of steady-state problem...    failure. 
+
+..............................................................................
+Take 10 timesteps     0.0001155      2.876 
+..............................................................................
+
+Attempt Newton solution of steady-state problem...    failure. 
+
+..............................................................................
+Take 10 timesteps     0.0004161      2.753 
+..............................................................................
+
+Attempt Newton solution of steady-state problem...    success.
+
+Problem solved on [8] point grid(s).
+
+##############################################################################
+Refining grid in flow.
+    New points inserted after grid points 0 1 
+    to resolve H H2 H2O H2O2 HO2 
+..............................................................................
+
+Attempt Newton solution of steady-state problem...    success.
+
+Problem solved on [10] point grid(s).
+
+##############################################################################
+Refining grid in flow.
+    New points inserted after grid points 0 
+    to resolve HO2 
+..............................................................................
+
+Attempt Newton solution of steady-state problem...    success.
+
+Problem solved on [11] point grid(s).
+
+##############################################################################
+Refining grid in flow.
+    New points inserted after grid points 0 1 
+    to resolve H2O2 HO2 
+..............................................................................
+
+Attempt Newton solution of steady-state problem...    success.
+
+Problem solved on [13] point grid(s).
+
+##############################################################################
+Refining grid in flow.
+    New points inserted after grid points 0 
+    to resolve HO2 
+..............................................................................
+
+Attempt Newton solution of steady-state problem...    success.
+
+Problem solved on [14] point grid(s).
+
+no new points needed in flow
+..............................................................................
+
+Attempt Newton solution of steady-state problem...    failure. 
+
+..............................................................................
+Take 1 timesteps     5.859e-08      5.244 
+..............................................................................
+
+Attempt Newton solution of steady-state problem...    failure. 
+
+..............................................................................
+Take 2 timesteps     1.006e-12      5.244 
+..............................................................................
+
+Attempt Newton solution of steady-state problem...    failure. 
+
+..............................................................................
+Take 5 timesteps     3.819e-12      5.244 
+..............................................................................
+
+Attempt Newton solution of steady-state problem...    failure. 
+
+..............................................................................
+Take 10 timesteps     5.506e-11      5.244 
+..............................................................................
+
+Attempt Newton solution of steady-state problem...    failure. 
+
+..............................................................................
+Take 10 timesteps     7.937e-10      5.244 
+..............................................................................
+
+Attempt Newton solution of steady-state problem...    failure. 
+
+..............................................................................
+Take 10 timesteps     1.144e-08      5.244 
+..............................................................................
+
+Attempt Newton solution of steady-state problem...    failure. 
+
+..............................................................................
+Take 10 timesteps      1.65e-07      5.242 
+..............................................................................
+
+Attempt Newton solution of steady-state problem...    failure. 
+
+..............................................................................
+Take 10 timesteps     2.378e-06      5.232 
+..............................................................................
+
+Attempt Newton solution of steady-state problem...    failure. 
+
+..............................................................................
+Take 10 timesteps     3.428e-05       5.22 
+..............................................................................
+
+Attempt Newton solution of steady-state problem...    failure. 
+
+..............................................................................
+Take 10 timesteps     0.0002471      5.135 
+..............................................................................
+
+Attempt Newton solution of steady-state problem...    failure. 
+
+..............................................................................
+Take 10 timesteps     0.0008906      4.705 
+..............................................................................
+
+Attempt Newton solution of steady-state problem...    failure. 
+
+..............................................................................
+Take 10 timesteps       0.00428      4.067 
+..............................................................................
+
+Attempt Newton solution of steady-state problem...    failure. 
+
+..............................................................................
+Take 10 timesteps       0.00457      3.836 
+..............................................................................
+
+Attempt Newton solution of steady-state problem...    failure. 
+
+..............................................................................
+Take 10 timesteps      0.003856      2.504 
+..............................................................................
+
+Attempt Newton solution of steady-state problem...    success.
+
+Problem solved on [14] point grid(s).
+
+##############################################################################
+Refining grid in flow.
+    New points inserted after grid points 0 1 2 3 4 5 6 7 8 9 10 11 12 
+    to resolve H H2 H2O H2O2 HO2 O O2 OH T V u 
+..............................................................................
+
+Attempt Newton solution of steady-state problem...    success.
+
+Problem solved on [27] point grid(s).
+
+##############################################################################
+Refining grid in flow.
+    New points inserted after grid points 0 1 2 3 4 5 6 7 8 9 10 11 22 23 24 25 
+    to resolve H H2 H2O H2O2 HO2 O O2 OH T V u 
+..............................................................................
+
+Attempt Newton solution of steady-state problem...    success.
+
+Problem solved on [43] point grid(s).
+
+##############################################################################
+Refining grid in flow.
+    New points inserted after grid points 0 1 2 3 4 5 6 8 20 37 38 39 40 41 
+    to resolve H2O H2O2 HO2 O O2 OH T V u 
+..............................................................................
+
+Attempt Newton solution of steady-state problem...    success.
+
+Problem solved on [57] point grid(s).
+
+##############################################################################
+Refining grid in flow.
+    New points inserted after grid points 0 1 28 51 52 53 54 55 
+    to resolve H2O2 HO2 O OH T V 
+..............................................................................
+
+Attempt Newton solution of steady-state problem...    success.
+
+Problem solved on [65] point grid(s).
+
+##############################################################################
+Refining grid in flow.
+    New points inserted after grid points 0 58 59 60 61 62 63 
+    to resolve HO2 OH T V 
+..............................................................................
+
+Attempt Newton solution of steady-state problem...    success.
+
+Problem solved on [72] point grid(s).
+
+##############################################################################
+Refining grid in flow.
+    New points inserted after grid points 67 68 69 70 
+    to resolve T V 
+..............................................................................
+
+Attempt Newton solution of steady-state problem...    success.
+
+Problem solved on [76] point grid(s).
+
+##############################################################################
+Refining grid in flow.
+    New points inserted after grid points 74 
+    to resolve V 
+..............................................................................
+
+Attempt Newton solution of steady-state problem...    success.
+
+Problem solved on [77] point grid(s).
+
+no new points needed in flow
+Solution saved to file stflame1.xml as solution mdot1_1.
+solution saved to flame1.csv
+..............................................................................
+
+Attempt Newton solution of steady-state problem...    success.
+
+Problem solved on [77] point grid(s).
+
+##############################################################################
+Refining grid in flow.
+    New points inserted after grid points 20 21 22 23 24 33 34 35 73 
+    to resolve H H2 H2O H2O2 O O2 OH V 
+..............................................................................
+
+Attempt Newton solution of steady-state problem...    success.
+
+Problem solved on [86] point grid(s).
+
+##############################################################################
+Refining grid in flow.
+    New points inserted after grid points 40 41 
+    to resolve H O O2 
+..............................................................................
+
+Attempt Newton solution of steady-state problem...    success.
+
+Problem solved on [88] point grid(s).
+
+no new points needed in flow
+Solution saved to file stflame1.xml as solution mdot2_1.
+solution saved to flame1.csv
+..............................................................................
+
+Attempt Newton solution of steady-state problem...    failure. 
+
+..............................................................................
+Take 1 timesteps       1.5e-05      5.336 
+..............................................................................
+
+Attempt Newton solution of steady-state problem...    failure. 
+
+..............................................................................
+Take 2 timesteps     8.438e-06      4.411 
+..............................................................................
+
+Attempt Newton solution of steady-state problem...    failure. 
+
+..............................................................................
+Take 5 timesteps     1.602e-05      4.406 
+..............................................................................
+
+Attempt Newton solution of steady-state problem...    failure. 
+
+..............................................................................
+Take 10 timesteps     5.773e-05      4.379 
+..............................................................................
+
+Attempt Newton solution of steady-state problem...    failure. 
+
+..............................................................................
+Take 10 timesteps     0.0008323       4.28 
+..............................................................................
+
+Attempt Newton solution of steady-state problem...    failure. 
+
+..............................................................................
+Take 10 timesteps      0.002999      4.102 
+..............................................................................
+
+Attempt Newton solution of steady-state problem...    failure. 
+
+..............................................................................
+Take 10 timesteps      0.003603      4.089 
+..............................................................................
+
+Attempt Newton solution of steady-state problem...    success.
+
+Problem solved on [88] point grid(s).
+
+##############################################################################
+Refining grid in flow.
+    New points inserted after grid points 30 31 32 38 39 40 44 45 46 47 48 49 51 
+    to resolve H H2 H2O H2O2 HO2 O O2 OH T u 
+refine: discarding point at 3.90625e-05
+refine: discarding point at 7.8125e-05
+refine: discarding point at 0.00015625
+refine: discarding point at 0.000234375
+refine: discarding point at 0.0003125
+refine: discarding point at 0.00046875
+refine: discarding point at 0.000625
+refine: discarding point at 0.00078125
+refine: discarding point at 0.0009375
+refine: discarding point at 0.00109375
+refine: discarding point at 0.00125
+refine: discarding point at 0.00140625
+refine: discarding point at 0.0015625
+refine: discarding point at 0.00171875
+refine: discarding point at 0.001875
+refine: discarding point at 0.00203125
+..............................................................................
+
+Attempt Newton solution of steady-state problem...    success.
+
+Problem solved on [85] point grid(s).
+
+##############################################################################
+Refining grid in flow.
+    New points inserted after grid points 0 20 21 22 23 32 33 34 38 39 40 41 42 43 44 
+    to resolve H H2 H2O H2O2 HO2 O O2 point 0 u 
+refine: discarding point at 0.0025
+refine: discarding point at 0.0028125
+refine: discarding point at 0.003125
+refine: discarding point at 0.0034375
+refine: discarding point at 0.00375
+..............................................................................
+
+Attempt Newton solution of steady-state problem...    success.
+
+Problem solved on [95] point grid(s).
+
+##############################################################################
+Refining grid in flow.
+    New points inserted after grid points 2 31 40 41 42 45 46 47 48 50 51 52 53 54 55 56 59 
+    to resolve H H2 H2O H2O2 HO2 O O2 OH point 2 
+refine: discarding point at 0.004375
+refine: discarding point at 0.0046875
+refine: discarding point at 0.005
+refine: discarding point at 0.0053125
+refine: discarding point at 0.005625
+refine: discarding point at 0.0059375
+refine: discarding point at 0.00625
+refine: discarding point at 0.0065625
+refine: discarding point at 0.006875
+refine: discarding point at 0.0071875
+..............................................................................
+
+Attempt Newton solution of steady-state problem...    success.
+
+Problem solved on [102] point grid(s).
+
+##############################################################################
+Refining grid in flow.
+    New points inserted after grid points 4 38 39 40 47 48 52 53 54 55 56 59 60 61 62 63 64 
+    to resolve H H2 H2O H2O2 HO2 O O2 OH T point 4 u 
+refine: discarding point at 0.003125
+refine: discarding point at 0.0078125
+refine: discarding point at 0.008125
+refine: discarding point at 0.0084375
+refine: discarding point at 0.00875
+refine: discarding point at 0.0090625
+refine: discarding point at 0.009375
+refine: discarding point at 0.0096875
+refine: discarding point at 0.01
+refine: discarding point at 0.0103125
+refine: discarding point at 0.010625
+refine: discarding point at 0.01125
+refine: discarding point at 0.0115625
+refine: discarding point at 0.011875
+refine: discarding point at 0.0121875
+refine: discarding point at 0.0125
+refine: discarding point at 0.0128125
+refine: discarding point at 0.013125
+refine: discarding point at 0.0134375
+refine: discarding point at 0.01375
+refine: discarding point at 0.0140625
+..............................................................................
+
+Attempt Newton solution of steady-state problem...    success.
+
+Problem solved on [98] point grid(s).
+
+##############################################################################
+Refining grid in flow.
+    New points inserted after grid points 5 24 25 26 27 35 36 47 48 49 50 53 54 55 56 57 58 63 
+    to resolve H H2 H2O H2O2 HO2 O O2 OH point 5 
+refine: discarding point at 0.0146875
+refine: discarding point at 0.015
+refine: discarding point at 0.0153125
+..............................................................................
+
+Attempt Newton solution of steady-state problem...    success.
+
+Problem solved on [113] point grid(s).
+
+##############################################################################
+Refining grid in flow.
+    New points inserted after grid points 30 31 59 60 69 70 71 72 73 
+    to resolve H H2 H2O H2O2 HO2 O O2 
+refine: discarding point at 0.01625
+refine: discarding point at 0.016875
+refine: discarding point at 0.0171875
+refine: discarding point at 0.0175
+refine: discarding point at 0.0178125
+refine: discarding point at 0.018125
+refine: discarding point at 0.0184375
+..............................................................................
+
+Attempt Newton solution of steady-state problem...    success.
+
+Problem solved on [115] point grid(s).
+
+##############################################################################
+Refining grid in flow.
+    New points inserted after grid points 8 
+    to resolve point 8 
+..............................................................................
+
+Attempt Newton solution of steady-state problem...    success.
+
+Problem solved on [116] point grid(s).
+
+no new points needed in flow
+Solution saved to file stflame1.xml as solution mdot3_1.
+solution saved to flame1.csv
+..............................................................................
+
+Attempt Newton solution of steady-state problem...    failure. 
+
+..............................................................................
+Take 1 timesteps       1.5e-05      5.331 
+..............................................................................
+
+Attempt Newton solution of steady-state problem...    failure. 
+
+..............................................................................
+Take 2 timesteps     1.688e-05       4.34 
+..............................................................................
+
+Attempt Newton solution of steady-state problem...    success.
+
+Problem solved on [116] point grid(s).
+
+##############################################################################
+Refining grid in flow.
+    New points inserted after grid points 59 60 61 62 68 69 70 74 75 76 77 78 79 80 82 
+    to resolve H H2 H2O H2O2 HO2 O O2 OH T u 
+refine: discarding point at 0.0190625
+refine: discarding point at 0.019375
+refine: discarding point at 0.0196875
+refine: discarding point at 0.02
+refine: discarding point at 0.0203125
+refine: discarding point at 0.020625
+refine: discarding point at 0.0209375
+refine: discarding point at 0.02125
+refine: discarding point at 0.0215625
+refine: discarding point at 0.021875
+refine: discarding point at 0.0221875
+refine: discarding point at 0.0225
+refine: discarding point at 0.0228125
+refine: discarding point at 0.023125
+refine: discarding point at 0.0234375
+refine: discarding point at 0.02375
+refine: discarding point at 0.0240625
+refine: discarding point at 0.024375
+refine: discarding point at 0.0246875
+refine: discarding point at 0.025
+refine: discarding point at 0.025625
+refine: discarding point at 0.02625
+refine: discarding point at 0.026875
+refine: discarding point at 0.0271875
+refine: discarding point at 0.0275
+refine: discarding point at 0.0278125
+refine: discarding point at 0.028125
+refine: discarding point at 0.0284375
+refine: discarding point at 0.02875
+refine: discarding point at 0.0290625
+refine: discarding point at 0.029375
+refine: discarding point at 0.0296875
+refine: discarding point at 0.03
+refine: discarding point at 0.0303125
+refine: discarding point at 0.030625
+..............................................................................
+
+Attempt Newton solution of steady-state problem...    success.
+
+Problem solved on [96] point grid(s).
+
+##############################################################################
+Refining grid in flow.
+    New points inserted after grid points 10 32 43 44 48 49 50 51 52 54 55 56 57 
+    to resolve H H2 H2O H2O2 HO2 O O2 OH T point 10 u 
+refine: discarding point at 0.03125
+refine: discarding point at 0.0315625
+..............................................................................
+
+Attempt Newton solution of steady-state problem...    success.
+
+Problem solved on [107] point grid(s).
+
+##############################################################################
+Refining grid in flow.
+    New points inserted after grid points 11 33 34 47 58 59 60 62 63 64 65 66 67 
+    to resolve H H2 H2O H2O2 HO2 O O2 point 11 
+refine: discarding point at 0.031875
+refine: discarding point at 0.0321875
+refine: discarding point at 0.0325
+refine: discarding point at 0.0328125
+..............................................................................
+
+Attempt Newton solution of steady-state problem...    success.
+
+Problem solved on [116] point grid(s).
+
+##############################################################################
+Refining grid in flow.
+    New points inserted after grid points 13 34 35 62 63 64 77 78 
+    to resolve H2O2 HO2 O point 13 
+refine: discarding point at 0.0334375
+refine: discarding point at 0.03375
+refine: discarding point at 0.0340625
+..............................................................................
+
+Attempt Newton solution of steady-state problem...    success.
+
+Problem solved on [121] point grid(s).
+
+##############################################################################
+Refining grid in flow.
+    New points inserted after grid points 66 67 68 82 85 
+    to resolve H2O2 O OH 
+refine: discarding point at 0.0346875
+refine: discarding point at 0.035
+..............................................................................
+
+Attempt Newton solution of steady-state problem...    success.
+
+Problem solved on [124] point grid(s).
+
+##############################################################################
+Refining grid in flow.
+    New points inserted after grid points 70 
+    to resolve H2O2 
+refine: discarding point at 0.035625
+..............................................................................
+
+Attempt Newton solution of steady-state problem...    success.
+
+Problem solved on [124] point grid(s).
+
+no new points needed in flow
+Solution saved to file stflame1.xml as solution mdot4_1.
+solution saved to flame1.csv
+..............................................................................
+
+Attempt Newton solution of steady-state problem...    success.
+
+Problem solved on [124] point grid(s).
+
+##############################################################################
+Refining grid in flow.
+    New points inserted after grid points 73 74 75 76 80 81 82 83 86 87 88 89 90 91 92 
+    to resolve H H2 H2O H2O2 O O2 OH T u 
+refine: discarding point at 0.0353125
+refine: discarding point at 0.0359375
+refine: discarding point at 0.03625
+refine: discarding point at 0.0365625
+refine: discarding point at 0.036875
+refine: discarding point at 0.0371875
+refine: discarding point at 0.0375
+refine: discarding point at 0.0378125
+refine: discarding point at 0.038125
+refine: discarding point at 0.0384375
+refine: discarding point at 0.03875
+refine: discarding point at 0.0390625
+refine: discarding point at 0.039375
+refine: discarding point at 0.0396875
+refine: discarding point at 0.04
+refine: discarding point at 0.0403125
+refine: discarding point at 0.040625
+refine: discarding point at 0.0409375
+refine: discarding point at 0.04125
+refine: discarding point at 0.0415625
+refine: discarding point at 0.041875
+refine: discarding point at 0.0421875
+refine: discarding point at 0.0425
+refine: discarding point at 0.0428125
+refine: discarding point at 0.043125
+refine: discarding point at 0.0434375
+refine: discarding point at 0.04375
+refine: discarding point at 0.0440625
+refine: discarding point at 0.044375
+..............................................................................
+
+Attempt Newton solution of steady-state problem...    success.
+
+Problem solved on [110] point grid(s).
+
+##############################################################################
+Refining grid in flow.
+    New points inserted after grid points 16 52 53 63 64 66 67 68 69 70 71 
+    to resolve H H2 H2O H2O2 O O2 point 16 
+refine: discarding point at 0.045
+refine: discarding point at 0.0453125
+refine: discarding point at 0.045625
+..............................................................................
+
+Attempt Newton solution of steady-state problem...    success.
+
+Problem solved on [118] point grid(s).
+
+##############################################################################
+Refining grid in flow.
+    New points inserted after grid points 40 41 54 65 66 67 78 79 80 
+    to resolve H2O2 HO2 O O2 
+refine: discarding point at 0.04625
+refine: discarding point at 0.0465625
+refine: discarding point at 0.046875
+..............................................................................
+
+Attempt Newton solution of steady-state problem...    success.
+
+Problem solved on [124] point grid(s).
+
+##############################################################################
+Refining grid in flow.
+    New points inserted after grid points 69 70 71 85 
+    to resolve H2O2 O 
+refine: discarding point at 0.0475
+refine: discarding point at 0.0478125
+..............................................................................
+
+Attempt Newton solution of steady-state problem...    success.
+
+Problem solved on [126] point grid(s).
+
+##############################################################################
+Refining grid in flow.
+    New points inserted after grid points 73 
+    to resolve H2O2 
+refine: discarding point at 0.0484375
+..............................................................................
+
+Attempt Newton solution of steady-state problem...    success.
+
+Problem solved on [126] point grid(s).
+
+no new points needed in flow
+Solution saved to file stflame1.xml as solution mdot5_1.
+solution saved to flame1.csv
+..............................................................................
+
+Attempt Newton solution of steady-state problem...    success.
+
+Problem solved on [126] point grid(s).
+
+##############################################################################
+Refining grid in flow.
+    New points inserted after grid points 75 76 77 78 82 83 84 85 88 89 90 91 92 95 
+    to resolve H H2 H2O H2O2 O O2 OH T u 
+refine: discarding point at 0.00109375
+refine: discarding point at 0.0320312
+refine: discarding point at 0.048125
+refine: discarding point at 0.04875
+refine: discarding point at 0.0490625
+refine: discarding point at 0.049375
+refine: discarding point at 0.0496875
+refine: discarding point at 0.05
+refine: discarding point at 0.0503125
+refine: discarding point at 0.050625
+refine: discarding point at 0.0509375
+refine: discarding point at 0.05125
+refine: discarding point at 0.0515625
+refine: discarding point at 0.051875
+refine: discarding point at 0.0521875
+refine: discarding point at 0.0525
+refine: discarding point at 0.0528125
+refine: discarding point at 0.053125
+refine: discarding point at 0.0534375
+refine: discarding point at 0.05375
+refine: discarding point at 0.0540625
+refine: discarding point at 0.054375
+refine: discarding point at 0.0546875
+refine: discarding point at 0.055
+refine: discarding point at 0.0553125
+refine: discarding point at 0.055625
+refine: discarding point at 0.0559375
+refine: discarding point at 0.05625
+..............................................................................
+
+Attempt Newton solution of steady-state problem...    success.
+
+Problem solved on [112] point grid(s).
+
+##############################################################################
+Refining grid in flow.
+    New points inserted after grid points 18 55 56 57 66 67 68 71 72 73 74 75 
+    to resolve H H2 H2O H2O2 O O2 OH point 18 
+refine: discarding point at 0.056875
+refine: discarding point at 0.0571875
+refine: discarding point at 0.0575
+refine: discarding point at 0.0578125
+refine: discarding point at 0.058125
+..............................................................................
+
+Attempt Newton solution of steady-state problem...    success.
+
+Problem solved on [119] point grid(s).
+
+##############################################################################
+Refining grid in flow.
+    New points inserted after grid points 20 71 72 79 80 81 
+    to resolve H H2 H2O H2O2 O O2 point 20 
+refine: discarding point at 0.05875
+..............................................................................
+
+Attempt Newton solution of steady-state problem...    success.
+
+Problem solved on [124] point grid(s).
+
+##############################################################################
+Refining grid in flow.
+    New points inserted after grid points 42 
+    to resolve HO2 
+..............................................................................
+
+Attempt Newton solution of steady-state problem...    success.
+
+Problem solved on [125] point grid(s).
+
+no new points needed in flow
+Solution saved to file stflame1.xml as solution mdot6_1.
+solution saved to flame1.csv
+..............................................................................
+
+Attempt Newton solution of steady-state problem...    success.
+
+Problem solved on [125] point grid(s).
+
+##############################################################################
+Refining grid in flow.
+    New points inserted after grid points 74 75 76 77 81 82 83 84 88 89 90 91 92 93 95 
+    to resolve H H2 H2O H2O2 O O2 OH T u 
+refine: discarding point at 0.0575
+refine: discarding point at 0.0584375
+refine: discarding point at 0.0590625
+refine: discarding point at 0.059375
+refine: discarding point at 0.0596875
+refine: discarding point at 0.06
+refine: discarding point at 0.0603125
+refine: discarding point at 0.060625
+refine: discarding point at 0.0609375
+refine: discarding point at 0.06125
+refine: discarding point at 0.0615625
+refine: discarding point at 0.061875
+refine: discarding point at 0.0621875
+refine: discarding point at 0.0625
+refine: discarding point at 0.0628125
+refine: discarding point at 0.063125
+refine: discarding point at 0.0634375
+refine: discarding point at 0.06375
+refine: discarding point at 0.0640625
+refine: discarding point at 0.064375
+refine: discarding point at 0.0646875
+refine: discarding point at 0.065
+refine: discarding point at 0.0653125
+refine: discarding point at 0.065625
+refine: discarding point at 0.0659375
+..............................................................................
+
+Attempt Newton solution of steady-state problem...    success.
+
+Problem solved on [115] point grid(s).
+
+##############################################################################
+Refining grid in flow.
+    New points inserted after grid points 20 57 58 68 69 73 74 75 76 77 78 
+    to resolve H H2 H2O H2O2 O O2 OH point 20 
+refine: discarding point at 0.0665625
+refine: discarding point at 0.066875
+..............................................................................
+
+Attempt Newton solution of steady-state problem...    success.
+
+Problem solved on [124] point grid(s).
+
+##############################################################################
+Refining grid in flow.
+    New points inserted after grid points 21 60 73 84 85 
+    to resolve H H2O2 O O2 point 21 
+refine: discarding point at 0.0675
+..............................................................................
+
+Attempt Newton solution of steady-state problem...    success.
+
+Problem solved on [128] point grid(s).
+
+no new points needed in flow
+Solution saved to file stflame1.xml as solution mdot7_1.
+solution saved to flame1.csv
+
+Statistics:
+
+ Grid   Functions   Time      Jacobians   Time 
+   10     401       0.1500       21       0.1600 
+   12      16       0.0000        2       0.0200 
+   13      14       0.0000        2       0.0200 
+   15      14       0.0100        2       0.0300 
+   16      10       0.0100        1       0.0100 
+   16    5353       3.1400      140       2.0400 
+   29      35       0.0400        2       0.0400 
+   45      23       0.0200        2       0.0900 
+   59      14       0.0200        2       0.1100 
+   67      14       0.0400        2       0.1200 
+   74       8       0.0200        1       0.0700 
+   78       4       0.0200        1       0.0800 
+   79       4       0.0100        1       0.0800 
+   79      53       0.1500        5       0.4100 
+   88      10       0.0400        1       0.1500 
+   90      12       0.0800        1       0.1500 
+   90    1067       3.5500       58       5.8100 
+   87      25       0.0900        2       0.1800 
+   97      46       0.1500        4       0.4300 
+  104      60       0.2300        6       0.6900 
+  100      59       0.2000        5       0.5500 
+  115      40       0.2000        4       0.5400 
+  117      12       0.0500        1       0.1400 
+  118       2       0.0100        1       0.1300 
+  118     162       0.7100       21       2.9100 
+   98      18       0.0600        2       0.2200 
+  109      22       0.1200        2       0.2400 
+  118      30       0.1100        3       0.4200 
+  123      30       0.1300        3       0.4300 
+  126      26       0.1200        3       0.4500 
+  126      18       0.0700        2       0.3000 
+  126      59       0.2800        8       1.2100 
+  112      26       0.0700        3       0.3900 
+  120      34       0.1400        3       0.4200 
+  126      28       0.1600        3       0.4600 
+  128      24       0.1100        2       0.3000 
+  128      18       0.0900        2       0.3100 
+  128      59       0.2800        7       1.0700 
+  114      38       0.1900        4       0.5200 
+  121      18       0.0800        2       0.2800 
+  126      14       0.0600        2       0.3000 
+  127       4       0.0200        1       0.1500 
+  127      58       0.2600        6       0.9000 
+  117      28       0.1300        3       0.4000 
+  126      26       0.1200        3       0.4500 
+  130      10       0.0500        1       0.1600 
