@@ -12,7 +12,7 @@ Name: cantera
 Description: An object-oriented software toolkit for chemical kinetics, thermodynamics, and transport processes.
 URL: http://code.google.com/p/cantera/
 Requires:
-Version: 2.0.0
+Version: 2.0.1
 
 LINK  = -lctcxx -luser -loneD -lzeroD -lequil -lkinetics -ltransport -lthermo  -lctnumerics -lctmath -ltpx -lctspectra -lconverters -lctbase -lcvode -lctlapack -lctblas -lctf2c -lm -lstdc++
 
