@@ -68,8 +68,7 @@ LiquidTransport::LiquidTransport(thermo_t* thermo, int ndim) :
     m_lambda_temp_ok(false),
     m_lambda_mix_ok(false),
     m_mode(-1000),
-    m_debug(false),
-    m_nDim(1)
+    m_debug(false)
 {
 }
 
@@ -113,8 +112,7 @@ LiquidTransport::LiquidTransport(const LiquidTransport& right) :
     m_lambda_temp_ok(false),
     m_lambda_mix_ok(false),
     m_mode(-1000),
-    m_debug(false),
-    m_nDim(1)
+    m_debug(false)
 {
     /*
      * Use the assignment operator to do the brunt

@@ -356,7 +356,7 @@ LiquidTranInteraction* TransportFactory::newLTI(const XML_Node& trNode,
   pointer to it.
 */
 Transport* TransportFactory::newTransport(const std::string& transportModel,
-        thermo_t* phase, int log_level)
+        thermo_t* phase, int log_level, int ndim)
 {
 
     if (transportModel == "") {
@@ -411,7 +411,7 @@ Transport* TransportFactory::newTransport(const std::string& transportModel,
         tr->setThermo(*phase);
         break;
     case cLiquidTransport:
-        tr = new LiquidTransport;
+        tr = new LiquidTransport(phase, ndim);
         initLiquidTransport(tr, phase, log_level);
         tr->setThermo(*phase);
         break;
@@ -1476,12 +1476,12 @@ void TransportFactory::fitProperties(GasTransportParams& tr,
  *
  * @ingroup transportProps
  */
-Transport* newTransportMgr(const std::string& transportModel, thermo_t* thermo, int loglevel, TransportFactory* f)
+Transport* newTransportMgr(const std::string& transportModel, thermo_t* thermo, int loglevel, TransportFactory* f, int ndim)
 {
     if (f == 0) {
         f = TransportFactory::factory();
     }
-    Transport* ptr = f->newTransport(transportModel, thermo, loglevel);
+    Transport* ptr = f->newTransport(transportModel, thermo, loglevel, ndim);
     /*
      * Note: We delete the static s_factory instance here, instead of in
      *       appdelete() in misc.cpp, to avoid linking problems involving
