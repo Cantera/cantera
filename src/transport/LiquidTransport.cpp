@@ -416,7 +416,7 @@ bool LiquidTransport::initLiquid(LiquidTransportParams& tr)
         m_chargeSpecies[i] = m_thermo->charge(i);
     }
     m_volume_spec.resize(m_nsp, 0.0);
-    m_Grad_lnAC.resize(m_nsp, 0.0);
+    m_Grad_lnAC.resize(m_nDim * m_nsp, 0.0);
     m_spwork.resize(m_nsp, 0.0);
 
     // resize the internal gradient variables
@@ -1692,9 +1692,9 @@ void LiquidTransport::stefan_maxwell_solve()
                     //if ( !( m_bdiff(i,j) > 0.0 ) )
                     //throw CanteraError("LiquidTransport::stefan_maxwell_solve",
                     //    "m_bdiff has zero entry in non-diagonal.");
-                    tmp = m_molefracs_tran[j] * m_bdiff(i,j);
+                    tmp = m_molefracs_tran[i] * m_molefracs_tran[j] * m_bdiff(i,j);
                     m_A(i,i) -=   tmp;
-                    m_A(i,j)  = + tmp;
+                    m_A(i,j)  =   tmp;
                 }
             }
         }
@@ -1756,9 +1756,9 @@ void LiquidTransport::stefan_maxwell_solve()
                     //if ( !( m_bdiff(i,j) > 0.0 ) )
                     //throw CanteraError("LiquidTransport::stefan_maxwell_solve",
                     //    "m_bdiff has zero entry in non-diagonal.");
-                    tmp =  m_molefracs_tran[j] * m_bdiff(i,j);
+                    tmp =  m_molefracs_tran[i] * m_molefracs_tran[j] * m_bdiff(i,j);
                     m_A(i,i) -=   tmp;
-                    m_A(i,j)  = + tmp;
+                    m_A(i,j)  =   tmp;
                 }
             }
         }
@@ -1801,9 +1801,9 @@ void LiquidTransport::stefan_maxwell_solve()
                     //if ( !( m_bdiff(i,j) > 0.0 ) )
                     //throw CanteraError("LiquidTransport::stefan_maxwell_solve",
                     //    "m_bdiff has zero entry in non-diagonal.");
-                    tmp =  m_molefracs_tran[j] * m_bdiff(i,j);
+                    tmp =  m_molefracs_tran[i] * m_molefracs_tran[j] * m_bdiff(i,j);
                     m_A(i,i) -=   tmp;
-                    m_A(i,j)  = + tmp;
+                    m_A(i,j)  = tmp;
                 }
             }
         }
