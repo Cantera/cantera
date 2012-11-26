@@ -116,8 +116,9 @@ public:
      *  @param model     String name for the transport manager
      *  @param thermo    ThermoPhase object
      *  @param log_level log level
+     *  @param ndim      Number of dimensions for fluxes
      */
-    virtual Transport* newTransport(const std::string& model, thermo_t* thermo, int log_level=0);
+    virtual Transport* newTransport(const std::string& model, thermo_t* thermo, int log_level=0, int ndim=1);
 
     //! Build a new transport manager using the default transport manager
     //! in the phase description and return a base class pointer to it
@@ -384,11 +385,12 @@ private:
  *  @param thermo          ThermoPhase object associated with the phase, defaults to null pointer
  *  @param loglevel        int containing the Loglevel, defaults to zero
  *  @param f               ptr to the TransportFactory object if it's been malloced.
+ *  @param ndim            Number of dimensions for transport fluxes
  *
  * @ingroup transportProps
  */
 Transport* newTransportMgr(const std::string& transportModel = "",  thermo_t* thermo = 0, int loglevel = 0,
-                           TransportFactory* f = 0);
+                           TransportFactory* f = 0, int ndim=1);
 //====================================================================================================================
 //!  Create a new transport manager instance.
 /*!

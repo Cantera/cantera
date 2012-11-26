@@ -1412,12 +1412,6 @@ private:
      */
     bool m_debug;
 
-    //! Number of dimensions
-    /*!
-     * Either 1, 2, or 3
-     */
-    size_t m_nDim;
-
     //! Throw an exception if this method is invoked.
     /*!
      * This probably indicates something is not yet implemented.
