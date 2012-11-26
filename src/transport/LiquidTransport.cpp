@@ -1692,7 +1692,7 @@ void LiquidTransport::stefan_maxwell_solve()
                     //if ( !( m_bdiff(i,j) > 0.0 ) )
                     //throw CanteraError("LiquidTransport::stefan_maxwell_solve",
                     //    "m_bdiff has zero entry in non-diagonal.");
-                    tmp = m_molefracs_tran[i] * m_molefracs_tran[j] * m_bdiff(i,j);
+                    tmp = m_molefracs_tran[j] * m_bdiff(i,j);
                     m_A(i,i) -=   tmp;
                     m_A(i,j)  =   tmp;
                 }
@@ -1756,7 +1756,7 @@ void LiquidTransport::stefan_maxwell_solve()
                     //if ( !( m_bdiff(i,j) > 0.0 ) )
                     //throw CanteraError("LiquidTransport::stefan_maxwell_solve",
                     //    "m_bdiff has zero entry in non-diagonal.");
-                    tmp =  m_molefracs_tran[i] * m_molefracs_tran[j] * m_bdiff(i,j);
+                    tmp =  m_molefracs_tran[j] * m_bdiff(i,j);
                     m_A(i,i) -=   tmp;
                     m_A(i,j)  =   tmp;
                 }
@@ -1801,7 +1801,7 @@ void LiquidTransport::stefan_maxwell_solve()
                     //if ( !( m_bdiff(i,j) > 0.0 ) )
                     //throw CanteraError("LiquidTransport::stefan_maxwell_solve",
                     //    "m_bdiff has zero entry in non-diagonal.");
-                    tmp =  m_molefracs_tran[i] * m_molefracs_tran[j] * m_bdiff(i,j);
+                    tmp =  m_molefracs_tran[j] * m_bdiff(i,j);
                     m_A(i,i) -=   tmp;
                     m_A(i,j)  = tmp;
                 }
