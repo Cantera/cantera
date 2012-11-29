@@ -216,7 +216,7 @@ namespace VCSnonideal {
       StarMolarVol = b.StarMolarVol;
       PartialMolarVol = b.PartialMolarVol; 
       ActCoeff = b.ActCoeff;
-      dLnActCoeffdMolNumber = b.dLnActCoeffdMolNumber;
+      np_dLnActCoeffdMolNumber = b.np_dLnActCoeffdMolNumber;
       m_vcsStateStatus      = b.m_vcsStateStatus;
       m_phi               = b.m_phi;
       m_UpToDate            = false;
@@ -313,7 +313,7 @@ namespace VCSnonideal {
     StarMolarVol.resize(nspecies, -1.0);
     PartialMolarVol.resize(nspecies, -1.0);
     ActCoeff.resize(nspecies, 1.0);
-    dLnActCoeffdMolNumber.resize(nspecies, nspecies, 0.0);
+    np_dLnActCoeffdMolNumber.resize(nspecies, nspecies, 0.0);
  
 
     m_speciesUnknownType.resize(nspecies, VCS_SPECIES_TYPE_MOLNUM);
@@ -984,6 +984,10 @@ namespace VCSnonideal {
    */
   void vcs_VolPhase::_updateLnActCoeffJac() {
     int k, j;
+    double phaseTotalMoles = v_totalMoles;
+    if (phaseTotalMoles < 1.0E-14) {
+      phaseTotalMoles = 1.0;
+    }
 
     /*
      * Evaluate the current base activity coefficients if necessary
@@ -993,15 +997,16 @@ namespace VCSnonideal {
     }
 #ifndef NOOLD
     if (!TP_ptr) return;
-    TP_ptr->getdlnActCoeffdlnN(m_numSpecies, &dLnActCoeffdMolNumber[0][0]);
+    TP_ptr->getdlnActCoeffdlnN(m_numSpecies, &np_dLnActCoeffdMolNumber[0][0]);
+    
     for (j = 0; j < m_numSpecies; j++) {
-      double moles_j_base = v_totalMoles * Xmol_[j];
-      double * const lnActCoeffCol = dLnActCoeffdMolNumber[j];
+      double moles_j_base = phaseTotalMoles * Xmol_[j];
+      double * const np_lnActCoeffCol = np_dLnActCoeffdMolNumber[j];
       if (moles_j_base < 1.0E-200) {
-	moles_j_base = 1.0E-7 * moles_j_base + 1.0E-20 * v_totalMoles + 1.0E-150;
+	moles_j_base = 1.0E-7 * moles_j_base + 1.0E-13 * phaseTotalMoles + 1.0E-150;
       }
       for (k = 0; k < m_numSpecies; k++) {
-	lnActCoeffCol[k] /= moles_j_base;
+	 np_lnActCoeffCol[k] = np_lnActCoeffCol[k] * phaseTotalMoles / moles_j_base;
       }
     }
 #endif
@@ -1011,7 +1016,7 @@ namespace VCSnonideal {
     // Make copies of ActCoeff and Xmol_ for use in taking differences
     std::vector<double> ActCoeff_Base(ActCoeff);
     std::vector<double> Xmol_Base(Xmol_);
-    double TMoles_base = v_totalMoles;
+    double TMoles_base = phaseTotalMoles;
 
     /*
      *  Loop over the columns species to be deltad
@@ -1022,17 +1027,17 @@ namespace VCSnonideal {
        * -> NOte Xmol_[] and Tmoles are always positive or zero
        *    quantities.
        */
-      double moles_j_base = v_totalMoles * Xmol_Base[j];
-      deltaMoles_j = 1.0E-7 * moles_j_base + 1.0E-13 * v_totalMoles + 1.0E-150;
+      double moles_j_base = phaseTotalMoles * Xmol_Base[j];
+      deltaMoles_j = 1.0E-7 * moles_j_base + 1.0E-13 * phaseTotalMoles + 1.0E-150;
       /*
        * Now, update the total moles in the phase and all of the
        * mole fractions based on this.
        */
-      v_totalMoles = TMoles_base + deltaMoles_j;      
+      phaseTotalMoles = TMoles_base + deltaMoles_j;      
       for (k = 0; k < m_numSpecies; k++) {
-	Xmol_[k] = Xmol_Base[k] * TMoles_base / v_totalMoles;
+	Xmol_[k] = Xmol_Base[k] * TMoles_base / phaseTotalMoles;
       }
-      Xmol_[j] = (moles_j_base + deltaMoles_j) / v_totalMoles;
+      Xmol_[j] = (moles_j_base + deltaMoles_j) / phaseTotalMoles;
  
       /*
        * Go get new values for the activity coefficients.
@@ -1043,12 +1048,12 @@ namespace VCSnonideal {
       /*
        * Calculate the column of the matrix
        */
-      double * const lnActCoeffCol = dLnActCoeffdMolNumber[j];
+      double * const np_lnActCoeffCol = np_dLnActCoeffdMolNumber[j];
       for (k = 0; k < m_numSpecies; k++) {
 	double tmp;
 	tmp = (ActCoeff[k] - ActCoeff_Base[k]) /
 	  ((ActCoeff[k] + ActCoeff_Base[k]) * 0.5 * deltaMoles_j);
-	if (fabs(tmp - 	lnActCoeffCol[k]) > 1.0E-4 * fabs(tmp) +  fabs(lnActCoeffCol[k])) {
+	if (fabs(tmp - 	np_lnActCoeffCol[k]) > 1.0E-4 * fabs(tmp) +  fabs(np_lnActCoeffCol[k])) {
 	  //  printf(" we have an error\n");
 	
 	}
@@ -1058,7 +1063,6 @@ namespace VCSnonideal {
       /*
        * Revert to the base case Xmol_, v_totalMoles
        */
-      v_totalMoles = TMoles_base;
       vcs_vdcopy(Xmol_, Xmol_Base, m_numSpecies);
     }
     /*
@@ -1080,14 +1084,14 @@ namespace VCSnonideal {
    *
    *   This is essentially a scatter operation.
    *
-   *   The Jacobians are actually d( lnActCoeff) / d (MolNumber);
+   *   The Jacobians are actually PhaseMoleNumber d( lnActCoeff) / d (MolNumber);
    *   dLnActCoeffdMolNumber[j][k]
    * 
    *      j = id of the species mole number
    *      k = id of the species activity coefficient
    */
   void 
-  vcs_VolPhase::sendToVCS_LnActCoeffJac(double * const * const LnACJac_VCS) {
+  vcs_VolPhase::sendToVCS_LnActCoeffJac(double * const * const np_LnACJac_VCS) {
     /*
      * update the Ln Act Coeff jacobian entries with respect to the
      * mole number of species in the phase -> we always assume that
@@ -1101,11 +1105,11 @@ namespace VCSnonideal {
     int j, k, jglob, kglob;
     for (j = 0; j < m_numSpecies; j++) {
       jglob = IndSpecies[j];
-      double * const lnACJacVCS_col = LnACJac_VCS[jglob];
-      const double * const lnACJac_col = dLnActCoeffdMolNumber[j];
+      double * const np_lnACJacVCS_col = np_LnACJac_VCS[jglob];
+      const double * const np_lnACJac_col = np_dLnActCoeffdMolNumber[j];
       for (k = 0; k < m_numSpecies; k++) {
 	kglob = IndSpecies[k];
-	lnACJacVCS_col[kglob] = lnACJac_col[k];
+	np_lnACJacVCS_col[kglob] = np_lnACJac_col[k];
       }
     }
   }

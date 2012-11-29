@@ -2156,7 +2156,7 @@ namespace VCSnonideal {
        * get the diagonal of the activity coefficent jacobian
        */ 
       Vphase = m_VolPhaseList[iph];
-      s = m_dLnActCoeffdMolNum[kspec][kspec];
+      s = m_np_dLnActCoeffdMolNum[kspec][kspec] / m_tPhaseMoles_old[iph];
       // s *= (m_tPhaseMoles_old[iph]);
       /*
        *   We fit it to a power law approximation of the activity coefficient
@@ -5645,7 +5645,7 @@ namespace VCSnonideal {
       SWAP(m_formulaMatrix[j][k1], m_formulaMatrix[j][k2], t1);
     }   
     if (m_useActCoeffJac) {
-      vcs_switch2D(m_dLnActCoeffdMolNum.baseDataAddr(), k1, k2);
+      vcs_switch2D(m_np_dLnActCoeffdMolNum.baseDataAddr(), k1, k2);
     }
     SWAP(m_speciesStatus[k1], m_speciesStatus[k2], j);
     /*

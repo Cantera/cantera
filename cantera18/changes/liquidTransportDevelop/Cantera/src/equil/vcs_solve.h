@@ -1974,16 +1974,16 @@ public:
    */
   std::vector<double> m_actCoeffSpecies_old; 
 
-  //! Change in activity coefficient with mole number
+  //! Change in the log of the activity coefficient with respct to the mole number
+  //! multiplied by the total moles in the phase
   /*!
+   *  We've multiplied by the total moles in the phase here to be able to use this for zero mole phases. 
    * length = [nspecies][nspecies]
    *
-   *               (This is a temporary array that        
-   *                gets regenerated every time it's      
-   *                needed. It is not swapped wrt species 
-   *  (unused atm)
+   *  This is a temporary array that gets regenerated every time it's      
+   *  needed. It is not swapped wrt species.
    */
-  DoubleStarStar m_dLnActCoeffdMolNum;
+  DoubleStarStar m_np_dLnActCoeffdMolNum;
 
   //! Molecular weight of each species
   /*!

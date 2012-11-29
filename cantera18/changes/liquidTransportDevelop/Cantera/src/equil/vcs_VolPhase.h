@@ -348,7 +348,7 @@ namespace VCSnonideal {
      *      j = id of the species mole number
      *      k = id of the species activity coefficient
      */
-    void sendToVCS_LnActCoeffJac(double * const * const LnACJac_VCS);
+    void sendToVCS_LnActCoeffJac(double * const * const np_LnACJac_VCS);
 
     //! Set the pointer for Cantera's ThermoPhase parameter
     /*!
@@ -950,13 +950,13 @@ namespace VCSnonideal {
     mutable std::vector<double> ActCoeff;
 
     //! Vector of the derivatives of the ln activity coefficient wrt to the
-    //! current mole number
+    //! current mole number multiplied by the phase mole number
     /*!
-     * dLnActCoeffdMolNumber[j][k];
+     * PhaseMolNumber dLnActCoeffdMolNumber[j][k];
      *      j = id of the species mole number
      *      k = id of the species activity coefficient
      */
-    mutable DoubleStarStar dLnActCoeffdMolNumber;
+    mutable DoubleStarStar np_dLnActCoeffdMolNumber;
 
     //! Status 
     /*!

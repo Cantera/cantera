@@ -220,7 +220,7 @@ namespace VCSnonideal {
      */
     m_useActCoeffJac = true;
     if (m_useActCoeffJac) {
-      m_dLnActCoeffdMolNum.resize(nspecies0, nspecies0, 0.0);
+      m_np_dLnActCoeffdMolNum.resize(nspecies0, nspecies0, 0.0);
     }
    
     m_PMVolumeSpecies.resize(nspecies0, 0.0);

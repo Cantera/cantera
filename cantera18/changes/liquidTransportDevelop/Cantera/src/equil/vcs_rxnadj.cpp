@@ -691,11 +691,15 @@ namespace VCSnonideal {
     double *sc_irxn;
     kspec = m_indexRxnToSpecies[irxn];
     kph = m_phaseID[kspec];  
+    double np_kspec = m_tPhaseMoles_old[kph];
+    if (np_kspec < 1.0E-13) {
+	np_kspec = 1.0e-13;
+    }
     sc_irxn = m_stoichCoeffRxnMatrix[irxn];
     /*
      *   First the diagonal term of the Jacobian
      */
-    s = m_dLnActCoeffdMolNum[kspec][kspec];
+    s = m_np_dLnActCoeffdMolNum[kspec][kspec] / np_kspec;
     /*
      *    Next, the other terms. Note this only a loop over the components
      *    So, it's not too expensive to calculate.
@@ -703,12 +707,15 @@ namespace VCSnonideal {
     for (l = 0; l < m_numComponents; l++) {
       if (!m_SSPhase[l]) {
 	for (k = 0; k < m_numComponents; ++k) { 
-	  if (m_phaseID[k] == m_phaseID[l]) { 
-	    s += sc_irxn[k] * sc_irxn[l] * m_dLnActCoeffdMolNum[k][l];
+	  if (m_phaseID[k] == m_phaseID[l]) {
+	    double np = m_tPhaseMoles_old[m_phaseID[k]];
+            if (np > 0.0) {
+		s += sc_irxn[k] * sc_irxn[l] * m_np_dLnActCoeffdMolNum[k][l] / np;
+	    }
 	  }
 	}
 	if (kph == m_phaseID[l]) { 
-	  s += sc_irxn[l] * (m_dLnActCoeffdMolNum[kspec][l] + m_dLnActCoeffdMolNum[l][kspec]);
+	  s += sc_irxn[l] * (m_np_dLnActCoeffdMolNum[kspec][l] + m_np_dLnActCoeffdMolNum[l][kspec]) / np_kspec;
 	}
       }
     }
@@ -742,7 +749,7 @@ namespace VCSnonideal {
 	 * -> This scatter calculation is carried out in the 
 	 *    vcs_VolPhase object.
 	 */
-	Vphase->sendToVCS_LnActCoeffJac(m_dLnActCoeffdMolNum.baseDataAddr());
+	Vphase->sendToVCS_LnActCoeffJac(m_np_dLnActCoeffdMolNum.baseDataAddr());
       }
     }
   }

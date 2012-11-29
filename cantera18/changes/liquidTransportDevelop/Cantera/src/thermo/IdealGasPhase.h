@@ -475,10 +475,10 @@ namespace Cantera {
      * \f[
      * \kappa_T = -\frac{1}{v}\left(\frac{\partial v}{\partial P}\right)_T
      * \f]
-     *  For ideal gases it's equal to the negative of the inverse of the pressure
+     *  For ideal gases it's equal to the inverse of the pressure
      */
     virtual doublereal isothermalCompressibility() const {
-      return -1.0/pressure();
+      return 1.0/pressure();
     }
 
     //! Return the volumetric thermal expansion coefficient. Units: 1/K.

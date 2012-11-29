@@ -366,6 +366,9 @@ namespace Cantera {
     //static vector_fp mu(nTotalSpecies());
     if (m_nrev > 0) {
 
+      /*
+       * Get the vector of electrochemical potentials and store it in m_mu0
+       */
       int n, nsp, k, ik = 0;
       doublereal rt = GasConstant*thermo(0).temperature();
       doublereal rrt = 1.0 / rt;
