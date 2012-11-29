@@ -1,23 +1,8 @@
-/**
- *  @file mixGasTransport.cpp
- *       test problem for mixture transport
- */
-
 //  Example 
 //
-// Test case for mixture transport in a gas
-// The basic idea is to set up a gradient of some kind.
-// Then the resulting transport coefficients out.
-// Essentially all of the interface routines should be
-// exercised and the results dumped out.
+// This is an example of a discontinuous function. The root finder should still
+// find the solution given hints at the monotonicity of the solution.
 //
-// A blessed solution test will make sure that the actual
-// solution doesn't change as a function of time or 
-// further development. 
-
-// perhaps, later, an analytical solution could be added
-
-// An open Rankine cycle
 
 #include <string>
 #include <map>
@@ -66,7 +51,6 @@ public:
     } else {
       r[0] = -1.0;
     }
-
     return 1; 
   }
 
@@ -84,8 +68,6 @@ int main(int argc, char** argv) {
   string infile = "diamond.xml";
 
   try {
-
-  
 
 
     // Define a residual. The definition of a residual involves a lot more work than is shown here.
