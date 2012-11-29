@@ -1,0 +1,86 @@
+#!/bin/sh
+#
+#
+temp_success="1"
+/bin/rm  -f output_1.txt output_2.txt \
+            output_3.txt diff_0_test.out diff_1_test.out \
+            diff_2_test.out output_0.txt diff*out
+
+ctv=@ctversion@
+
+##########################################################################
+prog=mixGasTransport
+if test ! -x $prog ; then
+   echo $prog ' does not exist'
+   exit -1
+fi
+##########################################################################
+
+CANTERA_DATA=${CANTERA_DATA:=../../../data/inputs}; export CANTERA_DATA
+CANTERA_BIN=${CANTERA_BIN:=../../../bin}
+
+#################################################################
+realtest="1"
+if test $ctv = "1.8_liquidTransportDevelop"
+then
+  realtest="0"
+  GOODST=output_0_blessed.txt
+else
+  GOODST=output_0_blessed_a.txt
+fi
+
+###########################################################################
+
+$prog > output_0.txt
+retnStat=$?
+if [ $retnStat != "0" ]
+then
+  temp_success="0"
+  echo "$prog returned with bad status, $retnStat, check output"
+fi
+
+diff -w $GOODST  output_0.txt > diff_0_test.out
+retnStat_0=$?
+
+# - - - - - - - - - - - - - - - - - -
+
+
+# - - - - - - - - - - - - - - - - - -
+
+
+# - - - - - - - - - - - - - - - - - -
+
+
+# - - - - - - - - - - - - - - - - - -
+
+retnStat_1=0
+
+# - - - - - - - - - - - - - - - - - -
+
+retnTotal=1
+if test $retnStat_0 = "0"  -a   $retnStat_1 = "0"
+then
+        retnTotal=0
+fi
+
+# - - - - - - - - - - - - - - - - - -
+
+if test $retnTotal = "0"
+then
+  if test $realtest == "0"
+  then
+    echo "Successful test comparison on "`pwd` 
+  else
+   echo "Successful test comparison on "`pwd` " using reduced capability"
+  fi
+else
+  echo "Unsuccessful test comparison on "`pwd` " test"
+  if test $retnTotal != "0"
+  then
+     echo "      files are different - see diff_test*.txt"
+  fi
+fi
+
+
+
+

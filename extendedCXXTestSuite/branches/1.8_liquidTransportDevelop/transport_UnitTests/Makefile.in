@@ -1,0 +1,37 @@
+#!/bin/sh
+###############################################################
+#  $Author$
+#  $Date$
+#  $Revision$
+###############################################################
+#
+
+all: 
+	cd SimpleTransportTest1 ;         @MAKE@ all
+	cd mixGasTransport ;              @MAKE@ all
+	cd multiGasTransportTest1 ;       @MAKE@ all
+	cd DustyGasTransportTest1 ;       @MAKE@ all
+
+depends:
+	cd SimpleTransportTest1 ;         @MAKE@ depends
+	cd mixGasTransport ;              @MAKE@ depends
+	cd multiGasTransportTest1 ;       @MAKE@ depends
+	cd DustyGasTransportTest1 ;       @MAKE@ depends
+
+clean:
+	cd SimpleTransportTest1 ;         @MAKE@ clean
+	cd mixGasTransport ;              @MAKE@ clean
+	cd multiGasTransportTest1 ;       @MAKE@ clean
+	cd DustyGasTransportTest1 ;       @MAKE@ clean
+
+test:
+	cd SimpleTransportTest1 ;         @MAKE@ -s test
+	cd mixGasTransport ;              @MAKE@  -s test
+	cd multiGasTransportTest1 ;       @MAKE@ -s test
+	cd DustyGasTransportTest1 ;       @MAKE@ -s test
+
+rebaseline:
+	cd SimpleTransportTest1 ;         @MAKE@ rebaseline
+	cd mixGasTransport ;              @MAKE@ rebaseline
+	cd multiGasTransportTest1 ;       @MAKE@ rebaseline
+	cd DustyGasTransportTest1 ;       @MAKE@ rebaseline

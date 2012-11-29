@@ -1,0 +1,119 @@
+#!/bin/sh
+###############################################################
+#  $Author: hkmoffa $
+#  $Date: 2010-03-19 18:26:02 -0600 (Fri, 19 Mar 2010) $
+#  $Revision: 420 $
+###############################################################
+#
+#
+RM = /bin/rm -f
+#
+PROGRAM=mixGasTransport
+#
+OBJ=$(PROGRAM).o
+#
+##########################################################################
+#           Setup The Cantera Directory locations
+#########################################################################
+#
+# The directory where Cantera include files may be found.
+#
+CANTERA_INCROOT=@ct_incroot@
+#
+include $(CANTERA_INCROOT)/cantera/Cantera.mak
+#
+#
+# Set up the various local and global defines
+#
+LDEFINES = -DDEBUG  -DDEBUG_TEST
+#
+# Set up the global include directory macro
+#
+INCLUDE_DIRS = $(CANTERA_TOTAL_INCLUDES) 
+#
+# the C++ compiler
+#
+CXX = @CXX@
+CXXFLAGS = @CXXFLAGS@ $(DEBUG_FLAG)
+LCXX_FLAGS = @LCXX_FLAGS@
+LCXX_END_LIBS = @LCXX_END_LIBS@
+CXXLDR = $(CXX)
+#
+# Both the C and C++ compiler predefines
+#
+CCFLAGS =  $(GDEFINES) $(INCLUDE_DIRS) $(LDEFINES)
+#
+debug_mode = 0
+ifeq ($(debug_mode), 1)
+   DEBUG_FLAG=-DDEBUG_MODE
+else
+   DEBUG_FLAG=
+endif
+
+######################################################################
+
+all: .depends $(PROGRAM)
+
+######################################################################
+
+.SUFFIXES: .d .cpp
+
+.cpp.o:
+	$(CXX) $(CXXFLAGS) $(CCFLAGS) -c $<
+
+###########################################################################
+# section to set up depends
+###########################################################################
+
+.cpp.d:
+	@CXX_DEPENDS@ $(CXXFLAGS) $(CCFLAGS) -c $*.cpp > $*.d
+
+DEPENDS = $(PROGRAM).d
+
+.depends: $(DEPENDS)
+	cat *.d > .depends
+
+depends:
+	$(RM) *.d .depends
+	@MAKE@ .depends
+
+$(PROGRAM).d: $(PROGRAM).cpp Makefile
+
+rebaseline:
+	cp output_0.txt output_0_blessed.txt
+
+############################################################################
+#  Section to set up dependence of objects on Makefiles
+############################################################################
+
+$(OBJ): Makefile
+
+############################################################################
+############################################################################
+#
+
+$(PROGRAM): $(OBJ) Makefile $(CANTERA_TOTAL_LIBS_DEP) 
+	$(CXXLDR) $(LCXX_FLAGS) $(FLIB_BSD) -o $(PROGRAM) \
+                  $(OBJ) \
+                  $(CANTERA_TOTAL_LIBS)\
+                  $(LCXX_END_LIBS) 
+
+test:
+	@ ./runtest
+
+clean:
+	$(RM) *.o fort.* *%  core *.trace tmp* *~
+	$(RM) $(PROGRAM) *.d .depends
+
+###########################################################################
+#          INSTALL RULES
+###########################################################################
+
+ifeq ($(wildcard .depends), .depends)
+include .depends
+endif
+
+install:
+
+
+

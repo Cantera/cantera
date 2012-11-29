@@ -1,0 +1,50 @@
+#!/bin/sh
+#
+#
+temp_success="1"
+/bin/rm  -f  out.txt err_out.txt \
+             vcs_Cantera_res.csv \
+             diff_csv.txt  diff_out.txt
+
+
+#################################################################
+#
+#################################################################
+PROGRAM_EXE=${PROGRAM_EXE:=surfkin_dupl}
+CANTERA_BIN=${CANTERA_BIN:=../../bin}
+
+realtest="0"
+GOODST=good_out.txt
+
+
+$PROGRAM_EXE   > out.txt 2>err_out.txt
+retnStat=$?
+if test $retnStat != "0" 
+then
+  temp_success="0"
+  echo "$PROGRAM_EXE returned with bad status, $retnStat, check output"
+fi
+
+
+diff $GOODST out.txt > diff_out.txt
+retnStat_txt=$?
+
+eCode=0
+if test $retnStat_txt = "0"
+then
+  eCode=0
+  if test $realtest == "0"
+  then
+    echo "Successful test comparison on "`pwd` 
+  else
+   echo "Successful test comparison on "`pwd` " using reduced capability"
+  fi
+else
+  echo "Unsuccessful test comparison on "`pwd` " test"
+fi
+
+#
+# return 0 for no errors, 1 for errors
+#
+exit $eCode
+

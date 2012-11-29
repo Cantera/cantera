@@ -1,0 +1,483 @@
+dnl Process this file with autoconf to produce the file configure
+# Autoconf requirements
+
+AC_INIT(README.txt)
+AC_CONFIG_AUX_DIR(.)
+
+
+ac_sys_system=`uname -s`
+ac_sys_release=`uname -r`
+ac_sys_hardware=`uname -i`
+
+##### Information on the package
+#
+# -----------------------------------------------------------------------------
+#        Configure Options
+# -----------------------------------------------------------------------------
+#
+OS_IS_WIN=0
+OS_IS_CYGWIN=0
+OS_IS_SOLARIS=0
+case $ac_sys_system in
+  Darwin*)  OS_IS_DARWIN=1; mex_ext=mexmac;;
+  CYGWIN*) OS_IS_CYGWIN=1; OS_IS_WIN=1; mex_ext=dll;;
+  SunOS*)  OS_IS_SOLARIS=1;;
+esac
+
+#### check for programs
+
+#### check for libraries
+
+#### check for header files
+
+#### check for types
+
+#### check for structures
+#
+# -----------------------------------------------------------------------------
+#        Configuring the ct_prefix and ct_local_inst variable
+# -----------------------------------------------------------------------------
+#
+ct_prefix=${CANTERA_INSTALL_DIR}
+#
+ct_prdef="/usr/local/cantera"
+if test "x$OS_IS_DARWIN" = "x1"; then ct_prdef="/Applications/Cantera"; fi
+#
+ct_local_inst=1
+AC_SUBST(ct_local_inst)
+#
+# -----------------------------------------------------------------------------
+#        Configuring the prefix variable
+# -----------------------------------------------------------------------------
+#
+prefix=${CANTERA_INSTALL_DIR}
+if test ! -d ${prefix}; then
+  echo "Installation directory ${prefix} does not exist. Either create it and"
+  echo "re-run configure, or specify another installation directory 
+  echo "by setting the CANTERA_INSTALL_DIR variable in the environment
+  exit 1
+fi
+#
+# ----------------------------------------------------------------------------
+#       Go Get the Cantera Version String
+# ----------------------------------------------------------------------------
+#
+CANTERA_INC=${CANTERA_INSTALL_DIR}/include/cantera
+CANTERA_MAK=${CANTERA_INC}/Cantera.mak
+CANTERA_VERSION_SED=`/bin/sed -n  '/^CANTERA_VERSION/  s/CANTERA_VERSION=// p' ${CANTERA_MAK}`
+echo 'Cantera Version Number Read from Cantera.mak = "'${CANTERA_VERSION_SED}"\""
+if test ${CANTERA_VERSION} = "default"
+then
+  CANTERA_VERSION=${CANTERA_VERSION_SED}
+else
+  echo 'Cantera Version to be used is Overwritten. Will use the Version ' $CANTERA_VERSION
+fi
+echo 'CANTERA_VERSION = ' $CANTERA_VERSION
+#
+# -----------------------------------------------------------------------------
+#                    PURIFY
+# -----------------------------------------------------------------------------
+#
+AC_SUBST(PURIFY)
+if test "x$PURIFY" != "x"; then
+  AC_DEFINE(PURIFY_MODE)
+fi
+#
+# -----------------------------------------------------------------------------
+#                  Configure MPI
+# -----------------------------------------------------------------------------
+#
+# Determine the default names for the MPI compilers from the MPIHOME variable,
+# unless overwritten.
+if test "x${MPICXX}" = "x"; then
+  MPICXX=${MPIHOME}/bin/mpiCC
+fi
+if test "x${MPICC}" = "x"; then
+  MPICC=${MPIHOME}/bin/mpicc
+fi
+if test "x${MPIF77}" = "x"; then
+  MPIF77=${MPIHOME}/bin/mpif77
+fi
+#
+# If we use MPI, we must replace the compilers in some cases
+#
+MPI_REPLACE_ALL_COMPILERS=${MPI_REPLACE_ALL_COMPILERS:='n'}
+if test $MPI_REPLACE_ALL_COMPILERS = 'y'; then
+  echo 'testing whether to replace all compilers with the MPI compilers ... yes'
+else
+  echo 'testing whether to replace all compilers with the MPI compilers ... no'
+fi
+if test $MPI_REPLACE_ALL_COMPILERS = 'y'
+then
+  if test "x${DO_MPI}" = "xy"
+  then
+    CXX=${MPICXX}
+    CC=${MPICC}
+    F77=${MPIF77}
+  fi
+fi
+if test "x${DO_MPI}" = "xy"
+then
+  echo 'testing whether to turn on the HAVE_MPI flag which triggers compilation with MPI ... yes'
+  AC_DEFINE(HAVE_MPI)
+else
+  echo 'testing whether to turn on the HAVE_MPI flag which triggers compilation with MPI ... no'
+fi
+#
+# -----------------------------------------------------------------------------
+#        Configuring the compilers
+# -----------------------------------------------------------------------------
+#
+# Check a few things about the C++ compiler.
+#  Then, set up a substitution rule for the names @CXX@ and @CXXFLAGS@
+#
+AC_PROG_CXX()
+#
+# Check a few things. Then, set up a substitution rule for the names
+# @CC@ and @CFLAGS@
+#
+AC_PROG_CC()
+#
+# Loader flags for the C++ linking operation
+#
+if test -z "$LCXX_FLAGS"; then 
+  LCXX_FLAGS="$CXXFLAGS"
+fi
+AC_SUBST(LCXX_FLAGS)
+#
+# Ending libraries to tack onto the linking of all C++ programs
+#
+if test -z "$LCXX_END_LIBS"; then
+   LCXX_END_LIBS=' '
+fi
+if test -n "$NEED_CTF2C" ; then
+ LCXX_END_LIBS=$LCXX_END_LIBS' -lctf2c'
+fi
+
+#
+# Check to see if we have a -lm line
+#
+AC_CHECK_LIB(m, printf, [add_stm=1], [add_stm=0], [ ])
+
+#
+# Check to see if we have a -lstdc++ line
+#
+AC_CHECK_LIB(stdc++, printf, [add_stdc=1], [add_stdc=0], [])
+
+if test $add_stm = 1 ; then
+  echo 'Adding -lm to the end of the LCXX_END_LIBS variable'
+  LCXX_END_LIBS="$LCXX_END_LIBS"" -lm"
+  echo 'LCXX_END_LIBS = ' $LCXX_END_LIBS
+fi
+if test $add_stdc = 1 ; then
+  echo 'Adding -lstdc++ to the end of the LCXX_END_LIBS variable'
+  LCXX_END_LIBS="$LCXX_END_LIBS"" -lstdc++ "
+  echo 'LCXX_END_LIBS = ' $LCXX_END_LIBS
+fi
+
+
+AC_SUBST(LCXX_END_LIBS)
+
+#----------- DEPENDS --------------------
+#
+# compilation of depends rules
+#
+if test "x${CXX_DEPENDS}" = "x"; then
+  if test "x${DO_MPI}" = "xy"; then
+    CXX_DEPENDS='mpicxx -MM'
+  else
+    CXX_DEPENDS='g++ -MM'
+  fi
+fi
+AC_SUBST(CXX_DEPENDS)
+
+AC_SUBST(MPICXX)
+AC_SUBST(MPICC)
+
+#
+# ----------------------------------------------------------------------------
+#        Configuring the fortran compiler and fortran programs in C++ programs
+# -----------------------------------------------------------------------------
+#
+# This macro sets the substitution variable, @F77@ and @G77@
+#
+AC_PROG_F77()
+
+#
+# if G77 is defined (this is determined immediately above),
+# then add a flag to turn off adding a second underscore
+# to procedures that have an underscore in the name
+if test -n "$G77"; then
+  FFLAGS=$FFLAGS' -fno-second-underscore'
+fi
+#
+# Configuring what needs to be added to the linker in order that fortran
+# object files or libraries can be successfully linked in with C++ programs
+# -> The key here is the fortran IO. 
+#    The macro below sets up the Makefile substitution variable @FLIBS@
+#    For the current mac os, the results of this macro are overwritten.
+F77LDRCLIBS=
+AC_F77_LIBRARY_LDFLAGS()
+
+echo " Macro returned with FLIBS defined as " $FLIBS
+
+case $ac_sys_system in
+  Darwin*)  FLIBS='-lg2c -lgcc' ; F77LDRCLIBS='-lg2c -lgcc' ;;
+  Linux*)   F77LDRCLIBS=' -lgcc -lstdc++ -lm' ;;
+esac
+AC_SUBST(F77LDRCLIBS)
+#
+AC_PROG_FC()
+#
+AC_FC_LIBRARY_LDFLAGS()
+#
+# -----------------------------------------------------------------------------
+#        Configure Python build process
+# -----------------------------------------------------------------------------
+#     Python Interface
+#
+if test "$BUILD_PYTHON_INTERFACE" = "y"; then
+  BUILD_PYTHON=1
+else
+  BUILD_PYTHON=0
+fi
+#
+#     Python command invokation
+#
+if test -z "$PYTHON_CMD"; then
+  AC_PATH_PROGS([PYTHON_CMD],[python2 python], "none")
+fi
+if test "$PYTHON_CMD" != "none"; then
+  #if test "x$OS_IS_WIN" = "x1"; then
+  #  PYTHON_CMD=`cygpath -a -w "$PYTHON_CMD" | sed 's/\\\/\\//g'`
+  #fi
+  BUILD_PYTHON=0
+else
+  BUILD_PYTHON=0
+fi
+
+
+
+
+#
+# Determination of Python site-package directory location
+#
+local_python_inst=0
+python_prefix=$prefix
+if test "x${SET_PYTHON_SITE_PACKAGE_TOPDIR}" = "xy"; then
+   python_prefix=${PYTHON_SITE_PACKAGE_TOPDIR}
+   local_python_inst=1
+fi
+if test $BUILD_PYTHON == "1"; then
+  echo "Python packages will be installed in ${python_prefix}"
+else 
+  echo "Python Interface will not be installed"
+fi
+#
+#  Add a makefile substitution rule for the variable @local_python_inst@
+#
+AC_SUBST(local_python_inst)
+#
+#  Add a makefile substitution rule for the variable @python_prefix@
+#
+AC_SUBST(python_prefix)
+#
+#  Add a makefile substitution rule for the variable @BUILD_PYTHON@
+#
+AC_SUBST(BUILD_PYTHON)
+#
+#  Add a definition to the config.h file for this package
+#
+AC_DEFINE_UNQUOTED(PYTHON_EXE,"$PYTHON_CMD",[Absolute pathname of the command \
+     that is used to invoke python])
+#
+
+##### check for library functions
+
+
+######  check for system services
+
+
+
+# -----------------------------------------------------------------------------
+#       Configure config.h
+# -----------------------------------------------------------------------------
+#  This is the default macro to add a config.h capability to autoconf
+# 
+AC_CONFIG_HEADER(config.h)
+#
+# Check for the existence of system functions
+#
+AC_CHECK_FUNCS([memset])
+#
+# The AC_DEFINE_UNQUOTED macro creates a capability to substitute defines
+# in config.h files. 
+#   -> You just have to add the line #undef MACRO_NAME to the config.h.in file.
+#      Or, the command autoheader does this for you.
+# 
+#
+#
+
+AC_DEFINE_UNQUOTED(INCL_PURE_FLUIDS_IN_APPS, $INCPUREFLUIDS, Include pure fluids)
+#
+#
+DO_REMOVE_UNREACHABLE=0
+case $ac_sys_system in
+  SunOS*) DO_REMOVE_UNREACHABLE=1;; 
+esac
+if test "$DO_REMOVE_UNREACHABLE" = "1"
+then
+  AC_DEFINE_UNQUOTED(REMOVE_UNREACHABLE, 1, Define for removing some statements)
+fi
+#
+os_solaris=0
+if test "x${OS_IS_SOLARIS}" = "x1"; then
+  AC_DEFINE_UNQUOTED(SOLARIS,$OS_IS_SOLARIS)
+  os_solaris=1
+fi
+AC_SUBST(os_solaris)
+#
+# -----------------------------------------------------------------------------
+#         MAKEFILE SUBSTITUTION VARIABLES
+# 
+#              These may occur in subsections as well
+# -----------------------------------------------------------------------------
+#
+target=`config.guess`
+echo 'target is guessed at ' $target
+builddir=$target
+if test "x${OS_IS_WIN}" = "x1"; then
+  builddir="i686-pc-cygwin"
+fi
+ctb_buildlib=$ctb_root/build/lib/$builddir
+export ctb_buildlib
+#
+# Add in a Makefile substitution rule for the macro @ctb_buildlib@
+#
+AC_SUBST(ctb_buildlib)
+#
+# Note: prefix is defined as the base directory
+#       in Cantera's install path.
+AC_SUBST(prefix)
+
+ctversion=${CANTERA_VERSION}
+AC_SUBST(ctversion)
+#
+# Modifications to distributed installs if this is a
+# compact install!
+#
+ct_libdir=${ct_prefix}/lib
+ct_incroot=${ct_prefix}/include
+ct_incdir=${ct_prefix}/include/cantera
+ct_bindir=${ct_prefix}/bin
+ct_datadir=${ct_prefix}/data
+ct_dir=${ct_prefix}
+
+AC_SUBST(ct_libdir)
+AC_SUBST(ct_incroot)
+AC_SUBST(ct_bindir)
+AC_SUBST(ct_datadir)
+# 
+#
+#     @MAKE@ Substitution -> 
+# 
+#            Check to see if the environmental variable "MAKE" is set.
+#            If it is, set the substitution rule for @MAKE@ to the value
+#            of the environmental variable "MAKE". If there is no environmental
+#            variable named MAKE, default to the substitution value of "MAKE". 
+#
+if test -z "$MAKE"; then MAKE='make'; fi
+AC_SUBST(MAKE)
+
+#
+# Stubout section for f2c versions of lapack:
+#    Define these variables, but turn them off in main version of code
+#
+build_with_f2c=0
+if test -n $BUILD_WITH_F2C ; then
+  if test $BUILD_WITH_F2C = "y" -o $BUILD_WITH_F2C = "Y" ; then
+    build_with_f2c=1
+  elif test $BUILD_WITH_F2C = "n" -o $BUILD_WITH_F2C = "N" ; then
+    build_with_f2c=0
+  elif test $BUILD_WITH_F2C = "default" ; then
+    if test x$OS_IS_WIN = "x1" ; then
+       build_with_f2c=1
+    else
+       build_with_f2c=0
+    fi
+  fi
+fi
+#
+# Determine if you need the f2c library at link time
+# -> Note, Linux systems already have the g2c library
+#          added in, which is the same thing as our
+#          f2c library.
+NEED_CTF2C=
+if test x"$build_with_f2c" = "x1" ; then
+  NEED_CTF2C=1
+  case $ac_sys_system in
+    Linux)    NEED_CTF2C= ;;
+    Darwin*)  NEED_CTF2C= ;;
+  esac
+fi
+echo 'setting the Makefile variable build_with_f2c to '$build_with_f2c
+AC_SUBST(build_with_f2c)
+
+
+##### ac config files section
+
+#
+# Extention for executables. EXE_EXT comes in from the preconfig file. If it
+# is set, then go with it. However, if not, $EXEEXT comes in from the 
+# autoconf stuff, so go with that. The result is put into the variable
+# $EXE_EXT for inclusion in Makefiles.
+#
+if test -z "$EXE_EXT"
+then
+  EXE_EXT=$EXEEXT
+fi
+AC_SUBST(EXE_EXT)
+
+
+####### ac output SECTION
+
+#
+# -----------------------------------------------------------------------------
+#             FILE CREATION PHASE
+# 
+# -----------------------------------------------------------------------------
+
+AC_OUTPUT(Makefile \
+	  numerics_UnitTests/Makefile \
+          numerics_UnitTests/nonlin_first/Makefile \
+          numerics_UnitTests/solveProb_first/Makefile \
+          numerics_UnitTests/idaTest1/Makefile \
+          numerics_UnitTests/rf_xconvOnly/Makefile \
+	  thermo_UnitTests/Makefile \
+	  thermo_UnitTests/CO2_tester/Makefile \
+	  thermo_UnitTests/CO2_fugacity/Makefile \
+	  thermo_UnitTests/LatticeSolid_LiSi/Makefile \
+	  transport_UnitTests/Makefile \
+          transport_UnitTests/SimpleTransportTest1/Makefile \
+          transport_UnitTests/SimpleTransportTest1/runtest \
+          transport_UnitTests/mixGasTransport/Makefile \
+          transport_UnitTests/mixGasTransport/runtest \
+          transport_UnitTests/multiGasTransportTest1/Makefile \
+          transport_UnitTests/multiGasTransportTest1/runtest \
+          transport_UnitTests/DustyGasTransportTest1/Makefile \
+	  kinetics_UnitTests/Makefile \
+          kinetics_UnitTests/StoichSolidKinetics/Makefile \
+          kinetics_UnitTests/StoichSolidKinetics/runtest \
+          kinetics_UnitTests/surfkin_dupl_test/Makefile \
+          )
+#
+chmod +x kinetics_UnitTests/StoichSolidKinetics/runtest
+chmod +x transport_UnitTests/SimpleTransportTest1/runtest
+chmod +x transport_UnitTests/mixGasTransport/runtest
+chmod +x transport_UnitTests/multiGasTransportTest1/runtest
+
+#
+# -----------------------------------------------------------------------------
+#          END
+# 
+# -----------------------------------------------------------------------------

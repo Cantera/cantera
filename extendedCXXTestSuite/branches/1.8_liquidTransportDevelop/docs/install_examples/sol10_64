@@ -1,0 +1,100 @@
+#!/bin/sh
+#
+#  Sierra 64 bit setup:
+#  -xO4 -xtarget=native64 -xarch=native64 -xcode=pic32 -DSUN10 -library=stlport4 
+# 
+#  Sierra warnings setup:
+#  +w2 -errtags -erroff=doubunder,reftotemp,ppextraw,inllargeint,inllargeuse,wnoelseretvalue,truncwarn,diffenumtype,notused,wvarhid enmem,badcastw,hidef -errwarn=%all,no%wunreachable,no%partinit 
+#
+#
+# Program Names:
+#
+MAKE=gmake
+export MAKE
+#
+# Pointers to the 64 bit python built with Sunpro compilers
+PYTHON_DIR=/home/hkmoffa/arch/sol_py64
+export PYTHON_DIR
+PYTHON_CMD=/home/hkmoffa/arch/sol_py64/bin/python
+export PYTHON_CMD
+#
+CANTERA_ROOT=/home/hkmoffa/Cantera/cantera-1.7_sunos64
+export CANTERA_ROOT
+#
+CANTERA_INSTALL_DIR=/home/hkmoffa/arch/sol_py64/cantera-1.7
+export CANTERA_INSTALL_DIR
+#
+CADS_ROOT=/home/hkmoffa/Cantera/cads_sunos64
+export CADS_ROOT
+#
+#
+# Use the CC compiler for C++ code
+CXX=CC
+export CXX
+#
+# Specification of the c compiler
+#
+CC=cc
+export CC
+
+CXX_DEPENDS='CC -xM1'
+export CXX_DEPENDS
+
+USE_NUMERIC='n'
+export USE_NUMERIC
+
+#
+# Compiler Flags
+#
+BITCOMPILE="64"
+export BITCOMPILE
+
+EFLAGS=" +w2 -errtags -erroff=doubunder,reftotemp,ppextraw,inllargeint,inllargeuse,wnoelseretvalue,truncwarn,diffenumtype,notused,wvarhidenmem,badcastw,hidef -errwarn=%all,no%wunreachable,no%partinit" 
+#AFLAGS=" -xtarget=native64 -xarch=native64 -xcode=pic32 -library=stlport4"
+AFLAGS=" -xtarget=native64 -xarch=native64 -xcode=pic32"
+export AFLAGS
+
+F77=f77
+export F77
+
+F90=f95
+export F90
+
+FFLAGS="-g -xtarget=native64 -xarch=native64 -xcode=pic32 "
+export FFLAGS
+
+CFLAGS="-g -xtarget=native64 -xarch=native64 -xcode=pic32 -v "
+export CFLAGS
+
+CXXFLAGS="-g $AFLAGS $EFLAGS -DDEBUG_HKM" 
+export CXXFLAGS
+
+LCXX_END_LIBS="-mt -lfsu -lsunmath -lm "
+export LCXX_END_LIBS
+
+SET_PYTHON_SITE_PACKAGE_TOPDIR="y"
+export SET_PYTHON_SITE_PACKAGE_TOPDIR
+
+PYTHON_SITE_PACKAGE_TOPDIR="/home/hkmoffa/arch/sol_py64"
+export PYTHON_SITE_PACKAGE_TOPDIR
+
+PYTHON_PACKAGE="full"
+#PYTHON_PACKAGE="minimal"
+#PYTHON_PACKAGE="none"
+export PYTHON_PACKAGE
+
+BUILD_WITH_F2C="n"
+export BUILD_WITH_F2C
+
+# 
+# Archive commands
+#
+ARCHIVE="CC -xar -xcode=pic32 -o "
+export ARCHIVE
+
+
+#
+# Invoke the regular configure script 
+#
+./preconfig
+

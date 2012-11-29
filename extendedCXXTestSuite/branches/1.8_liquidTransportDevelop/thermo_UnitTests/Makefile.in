@@ -1,0 +1,35 @@
+#!/bin/sh
+###############################################################
+#  $Author: hkmoffa $
+#  $Date: 2010-03-19 18:26:02 -0600 (Fri, 19 Mar 2010) $
+#  $Revision: 420 $
+###############################################################
+#
+
+all: 
+	cd CO2_tester;     @MAKE@
+	cd CO2_fugacity;   @MAKE@
+	cd LatticeSolid_LiSi;   @MAKE@
+
+depends:
+	cd CO2_tester;     @MAKE@ depends
+	cd CO2_fugacity;   @MAKE@ depends
+	cd LatticeSolid_LiSi;   @MAKE@ depends
+
+clean:
+	cd CO2_tester;     @MAKE@ clean
+	cd CO2_fugacity;   @MAKE@ clean
+	cd LatticeSolid_LiSi;   @MAKE@ clean
+
+test:
+	cd CO2_tester;     @MAKE@ test
+	cd CO2_fugacity;   @MAKE@ test
+	cd LatticeSolid_LiSi;   @MAKE@ test
+
+rebaseline:
+	cd CO2_tester;      @MAKE@ rebaseline
+	cd CO2_fugacity;    @MAKE@ rebaseline
+	cd LatticeSolid_LiSi;   @MAKE@ rebaseline
+
+
+

@@ -1,0 +1,41 @@
+#!/bin/sh
+###############################################################
+#  $Author$
+#  $Date$
+#  $Revision$
+###############################################################
+
+all:
+	cd numerics_UnitTests;          @MAKE@
+	cd thermo_UnitTests;            @MAKE@
+	cd kinetics_UnitTests;          @MAKE@
+	cd transport_UnitTests;         @MAKE@
+
+clean:
+	cd numerics_UnitTests;          @MAKE@ clean
+	cd thermo_UnitTests;            @MAKE@ clean
+	cd kinetics_UnitTests;          @MAKE@ clean
+	cd transport_UnitTests;         @MAKE@ clean
+	/bin/rm -f svn-commit* *~ config.log .*swp .nfs*
+	/bin/rm -rf autom4te.cache
+
+depends:
+	cd numerics_UnitTests;          @MAKE@ depends
+	cd thermo_UnitTests;            @MAKE@ depends
+	cd kinetics_UnitTests;          @MAKE@ depends
+	cd transport_UnitTests;         @MAKE@ depends
+
+test:
+	@ cd numerics_UnitTests;        @MAKE@ -s test
+	@ cd thermo_UnitTests;          @MAKE@ -s test
+	@ cd kinetics_UnitTests;        @MAKE@ -s test
+	@ cd transport_UnitTests;       @MAKE@ -s test
+
+install:
+	cd numerics_UnitTests;          @MAKE@ install
+	cd thermo_UnitTests;            @MAKE@ install
+	cd kinetics_UnitTests;          @MAKE@ install
+	cd transport_UnitTests;         @MAKE@ install
+
+# end of file
+

@@ -1,0 +1,57 @@
+/* ../config.h.in.  Generated from configure.in by autoheader.  */
+
+
+/**
+ * @file config.h.in
+ *
+ */
+/*
+ * $Id$
+ */
+
+/*
+ * Copywrite (2005) Sandia Corporation. Under the terms of 
+ * Contract DE-AC04-94AL85000 with Sandia Corporation, the
+ * U.S. Government retains certain rights in this software.
+ */
+
+#ifndef CANTERA_APPS_CONFIG_H
+#define CANTERA_APPS_CONFIG_H
+
+
+/* Define if we want to use MPI */
+#undef HAVE_MPI
+
+/* Define this to be one if we are to include pure fluids in apps */
+#undef INCL_PURE_FLUIDS_IN_APPS
+
+/* Define for removing unreachable statements */
+#undef REMOVE_UNREACHABLE
+
+/* Define to the address where bug reports for this package should be sent. */
+#undef PACKAGE_BUGREPORT
+
+/* Define to the full name of this package. */
+#undef PACKAGE_NAME
+
+/* Define to the full name and version of this package. */
+#undef PACKAGE_STRING
+
+/* Define to the one symbol short name of this package. */
+#undef PACKAGE_TARNAME
+
+/* Define to the version of this package. */
+#undef PACKAGE_VERSION
+
+/* Absolute pathname of the command that is used to invoke python */
+#undef PYTHON_EXE
+
+// Identify whether the operating system is solaris
+// with a native compiler
+#undef SOLARIS
+
+// Compiling with PURIFY instrumentation
+#undef PURIFY_MODE
+
+
+#endif

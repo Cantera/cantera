@@ -1,0 +1,39 @@
+#!/bin/sh
+###############################################################
+#  $Author: hkmoffa $
+#  $Date: 2010-03-19 18:26:02 -0600 (Fri, 19 Mar 2010) $
+#  $Revision: 420 $
+###############################################################
+#
+
+all: 
+	cd nonlin_first; @MAKE@ all
+	cd solveProb_first; @MAKE@ all
+	cd idaTest1; @MAKE@ all
+	cd rf_xconvOnly; @MAKE@ all
+
+depends:
+	cd nonlin_first; @MAKE@ depends
+	cd solveProb_first; @MAKE@ depends
+	cd idaTest1; @MAKE@  depends
+	cd rf_xconvOnly; @MAKE@  depends
+
+clean:
+	cd nonlin_first; @MAKE@ clean
+	cd solveProb_first; @MAKE@ clean
+	cd idaTest1; @MAKE@ clean
+	cd rf_xconvOnly; @MAKE@  clean
+
+test:
+	cd nonlin_first; @MAKE@ -s test
+	cd solveProb_first; @MAKE@  -s test
+	cd idaTest1; @MAKE@  -s test
+	cd rf_xconvOnly; @MAKE@  -s test
+
+rebaseline:
+	cd nonlin_first; @MAKE@ rebaseline
+	cd solveProb_first; @MAKE@   rebaseline
+	cd idaTest1; @MAKE@ rebaseline
+	cd rf_xconvOnly; @MAKE@ rebaseline
+
+

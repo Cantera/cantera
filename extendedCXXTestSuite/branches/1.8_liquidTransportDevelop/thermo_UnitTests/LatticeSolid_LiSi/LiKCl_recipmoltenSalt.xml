@@ -1,0 +1,81 @@
+
+<?xml version="1.0"?>
+<ctml>
+  <validate reactions="yes" species="yes"/>
+                   
+ <!-- phase KLiCl(L)    -->
+  <!--
+         Ok, the eutectic is measured to be X_b = X_LiCl = 0.595
+         and 355 C = 628.15
+    -->
+  <phase dim="3" id="LiKCl_electrolyte">
+    <elementArray datasrc="elements.xml">
+       Li K Cl
+    </elementArray>
+    <speciesArray datasrc="#species_MoltenSalt"> 
+        Li+ K+ Cl-
+    </speciesArray>
+    <thermo model="IonsFromNeutralMolecule">
+      <standardConc model="constant_volume" />
+      <neutralMoleculePhase datasrc="LiKCl_Margules.xml#LiKCl_Margules" />
+      <activityCoefficients model="IonFromNeutral" TempModel="constant">
+        <specialSpecies> Cl-  </specialSpecies>
+        <secondSpecialSpecies> Li+ </secondSpecialSpecies>
+        <scalingConvention model="constantIonValue">
+          <ion> Cl- </ion>
+          <value> 0.0 </value> 
+          <autoSatisfaction> 1 </autoSatisfaction>
+        </scalingConvention>
+      </activityCoefficients>
+    </thermo>
+    <transport model="None"/>
+    <kinetics model="none"/>
+    <state>
+      <temperature  units="K"> 725.0 </temperature>
+       <pressure units="atm"> 1.0 </pressure>
+       <moleFractions> Li+:0.5 Cl-:0.5 </moleFractions> 
+    </state>
+  </phase>
+
+ <!-- species definitions     -->
+  <speciesData id="species_MoltenSalt">
+
+    <species name="Li+">
+      <atomArray> Li:1 </atomArray>
+      <charge> 1 </charge>
+      <standardState model="IonFromNeutral" />
+
+      <thermo model="IonFromNeutral">
+        <secondSpecialSpecies/>
+        <neutralSpeciesMultipliers> 
+            LiCl(L):1
+        </neutralSpeciesMultipliers>
+      </thermo>
+    </species>
+
+    <species name="K+">
+      <atomArray> K:1 </atomArray>
+      <charge> 1 </charge>
+      <standardState model="IonFromNeutral" />
+      <thermo model="IonFromNeutral">
+        <neutralSpeciesMultipliers> 
+            KCl(L):1
+        </neutralSpeciesMultipliers>
+      </thermo>
+    </species>
+
+    <species name="Cl-">
+      <atomArray> Cl:1 </atomArray>
+      <charge> -1 </charge>
+      <standardState model="IonFromNeutral" />
+      <thermo model="IonFromNeutral">
+        <specialSpecies/>
+        <neutralSpeciesMultipliers> 
+            LiCl(L):0
+        </neutralSpeciesMultipliers>
+      </thermo>
+    </species>
+
+  </speciesData>
+
+</ctml>

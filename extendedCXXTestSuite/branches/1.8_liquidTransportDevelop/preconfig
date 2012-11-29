@@ -1,0 +1,293 @@
+#!/bin/sh
+#
+#######################################################################
+# $Author$
+# $Revision$
+# $Date$
+#######################################################################
+#
+#           Cantera Extended Test Suite Configuration Issues
+#
+#  Edit this file to control how the apps are built. 
+#  Parameters can be set here, or alternatively environment variables 
+#  may be set before calling this script.
+#  
+#  NOTE: if you make changes to this file, save it with another name
+#  so that it will not be overwritten if you update the source
+#  distribution. 
+
+#######################################################################
+#
+#----------------------------------------------------------------------
+#     Cantera Interaction Variables
+#----------------------------------------------------------------------
+#
+# Version number of Cantera. Cantera libraries are storred in 
+# a directory under the installation directory
+# named after the version number.
+CANTERA_VERSION=${CANTERA_VERSION:="default"}
+#
+#  Cantera will be installed in another location called the 
+#  CANTERA_INSTALL_DIR. Most applications will build against
+#  this directory. 
+#
+CANTERA_INSTALL_DIR=${CANTERA_INSTALL_DIR:="c:/cantera"}
+#
+#  On a PC running MS-Windows, Cantera can be built either using
+#  Microsoft Visual Studio, with the Visual C++ and Visual Fortran
+#  compilers, or using the linux-like cygwin environment with the 
+#  g++ and g77 compilers. 
+#
+USE_VISUAL_STUDIO=${USE_VISUAL_STUDIO:="y"}
+
+#
+#----------------------------------------------------------------------
+#         Language Interfaces
+#----------------------------------------------------------------------
+#
+# Cantera provides interfaces for several languages.  Set to 'y' to
+# build the specified interface.
+#
+#
+#------------ Python -------------------------------------------------
+# 
+# Cantera now requires that the Python interface be built, since it
+# uses Python to process input files, even when Cantera is used from
+# another language (e.g. MATLAB or C++). Python 2.0 or greater is
+# required, and the Numeric extensions for Python are needed too. See
+# file INSTALLING for more details.
+#
+# The configure process will attempt to find the Python interpreter on
+# your system. However, if there is more than one and you want a
+# specific interpreter to be used, then define PYTHON_CMD to be the
+# full path to the desired Python interpreter. This allows you, for
+# example, to build your own private Python interpreter and use it
+# instead of the system Python interpreter.
+#
+# PYTHON_CMD=${PYTHON_CMD:="python"}
+#
+#
+#   Use when site packages must be put in system directories
+#   but Cantera tutorials must be put in user space.
+#   (this is pretty much the norm on many multiuser unix systems)
+#
+SET_PYTHON_SITE_PACKAGE_TOPDIR=${SET_PYTHON_SITE_PACKAGE_TOPDIR:="n"}
+#
+PYTHON_SITE_PACKAGE_TOPDIR=${PYTHON_SITE_PACKAGE_TOPDIR:="/usr/local"} 
+#
+#
+# Decide whether to build the python interface. This is set to n
+# as a default, because there is no python interface yet, for
+# any of these apps.
+#
+BUILD_PYTHON_INTERFACE=${BUILD_PYTHON_INTERFACE:="n"}
+#
+#----------------------------------------------------------------- 
+#         BLAS and LAPACK
+#-----------------------------------------------------------------
+#
+# Cantera comes with Fortran versions of those parts of BLAS and
+# LAPACK it requires. But if you have another version of BLAS and/or
+# LAPACK you'd like to use, uncomment one or both of the following
+# lines, and enter here the string that should be added to the link
+# command to link to it.
+#
+# BLAS_LIBRARY=-lblas
+#
+# LAPACK_LIBRARY=-llapack
+#
+# The options below do not need be set if you are using the default libraries.
+#
+# Set to 'lower' or 'upper', depending on whether the procedure names
+# in the libraries are lowercase or uppercase. If you don't know, run
+# 'nm' on the library file (e.g. 'nm libblas.a') Note that the these options
+# apply to both the BLAS and LAPACK libraries. 
+LAPACK_NAMES='lower'
+LAPACK_FTN_TRAILING_UNDERSCORE='y'
+
+# Currently this must be set to 'y'.
+LAPACK_FTN_STRING_LEN_AT_END='y'
+#
+#------------------------------------------------------------------
+#       C++ compiler options
+#------------------------------------------------------------------
+#
+# the C++ compiler to use.
+#
+CXX=${CXX:=g++}
+#
+# C++ compiler flags to use
+#
+CXXFLAGS=${CXXFLAGS:="-O2 -Wall"}
+#
+# Loader flags for the C++ compiler
+#   -> These default to the CXXFLAGS
+#
+LCXX_FLAGS=${LCXX_FLAGS:="$CXXFLAGS"}
+#
+# Ending libraries to tack onto the linking of all C++ programs
+#      -> We try to add libraries in automatically that are reported to be needed.
+#
+LCXX_END_LIBS=${LCXX_END_LIBS:="-lm"}
+#
+# The compiler flag to use to compile code that will be inserted into shared  libraries. 
+#
+PIC=${PIC:=-fPIC}
+#
+# the compiler option to create a shared library from object files
+#
+SHARED=${SHARED:="-shared"}
+#
+# CXX_DEPENDS:  Specify the compiler call that writes out depends
+#               rules to the standard output. Uncomment below and
+#               specify the correct line if the default 'g++ -MM'
+#               isn't correct for your system.
+#
+CXX_DEPENDS=${CXX_DEPENDS:='g++ -MM'}
+# 
+#-------------------------------------------------------------------
+#      Fortran compiler options
+#-------------------------------------------------------------------
+# The default is not to do this on all platforms except vc++.
+# Set this to "n" to never do this on any platform.
+# Note, if set to "y", a fortran compiler is not needed, and
+# all fortran compiler parameters below are irrelevant.
+# Cantera has to be built with F2C, and the library libctf2c.a 
+# created for this to work.
+#                                                                                                                 
+BUILD_WITH_F2C=${BUILD_WITH_F2C:="n"}
+#
+# the Fortran 77 and Fortran 90 compilers. You only need a Fortran 90
+# compiler if you are building the Fortran 90 interface.
+F77=${F77:=g77}
+F90=${F90:=f90}
+#
+# Fortran compiler flags
+FFLAGS=${FFLAGS:='-O2'}
+#
+# the additional Fortran flags required for linking, if any
+#LFORT_FLAGS="-lF77 -lFI77"
+#-------------------------------------------------------------------
+#      MPI compiler options
+#-------------------------------------------------------------------
+#  If MPI is chosen then all of the compilers are overwritten for 
+#  that project
+#
+#  Turn on MPI for packages that need MPI
+#
+DO_MPI=${DO_MPI:='n'}
+#
+#  Home location for MPI. Everything else is located under the home directory
+#    MPI_BIN     = $MPIHOME/bin
+#    MPI_LIB     = $MPIHOME/lib
+#    MPI_INCLUDE = $MPIHOME/include
+#
+MPIHOME=${MPIHOME:=/sierra/Sntools/extras/mpi/mpich-1.2.7p1-gcc-4.2.4-64Bit}
+#
+# If this flag is true, replace all compilers with the mpi compilers
+#
+MPI_REPLACE_ALL_COMPILERS=${MPI_REPLACE_ALL_COMPILERS:=n}
+#
+#---------------------------------------------------------------------
+#          Purify
+#---------------------------------------------------------------------
+#
+#  Add entries here for compiling Cantera with Purify extensions
+#  This command is put in front of every compilation and linking
+#  step
+PURIFY=${PURIFY:=""}
+#
+#-----------------------------------------------------------------------------
+#        Other programs
+#-----------------------------------------------------------------------------
+# the command to create a static library
+ARCHIVE=${ARCHIVE:="ar ruv"}
+#
+# the command to run the 'make' utility. The Cantera Makefiles are
+# compatible with the GNU make utility, so if your make utility
+# doesn't work, try GNU make.
+MAKE=${MAKE:=make}
+#
+#
+# file extensions
+CXX_EXT=${CXX_EXT:=cpp}
+F77_EXT=${F77_EXT:=f}
+F90_EXT=${F90_EXT:=f90}
+#OBJ_EXT=
+#
+# Extensions for executables. The default unix treatment is empty.
+# For windows systems and cygwin, you should put ".exe".
+#
+EXE_EXT=${EXE_EXT:=}
+#
+CT_SHARED_LIB=${CT_SHARED_LIB:=clib}
+#
+# The font to use in reaction path diagrams. This must be a font name
+# recognized by the 'dot' program. On linux systems, this should be
+# lowercase 'helvetica'.
+RPFONT=${RPFONT:="Helvetica"}
+#
+#-----------------------------------------------------------------------
+#------------------- don't change anything below!! ---------------------
+#-----------------------------------------------------------------------
+#
+export CANTERA_VERSION
+export USER_SRC_DIR
+export ARCHIVE
+export BLAS_LIBRARY
+export BUILD_PYTHON_INTERFACE
+export CANTERA_INSTALL_DIR
+export CT_SHARED_LIB
+export CXX
+export CXX_EXT
+export CXXFLAGS
+export CXX_INCLUDES
+export CXX_DEPENDS
+export EXE_EXT
+export F77
+export F77_EXT
+export F90
+export F90_EXT
+export FFLAGS
+export LAPACK_LIBRARY
+export LAPACK_NAMES
+export LCXX_FLAGS
+export LCXX_END_LIBS
+export LFORT_FLAGS
+export LAPACK_FTN_STRING_LEN_AT_END
+export LAPACK_FTN_TRAILING_UNDERSCORE
+export LIB_DIR
+export OBJ_EXT
+export SET_PYTHON_SITE_PACKAGE_DIR
+export PYTHON_SITE_PACKAGE_TOPDIR
+export PIC
+export SHARED
+export SOEXT
+export MAKE
+export RPFONT
+export USE_VISUAL_STUDIO
+export FORTRAN_LIB_DIR
+export BUILD_WITH_F2C
+export DO_MPI
+export MPIHOME
+export MPI_REPLACE_ALL_COMPILERS
+
+chmod +x ./configure 
+chmod +x ./config.guess
+chmod +x ./config.sub
+chmod +x ./install-sh
+
+#
+# Decide whether to add a prefix variable to the configure line
+#
+if test "x$CANTERA_CONFIG_PREFIX" = "x"
+then
+   CCPREFIX=""
+else 
+   CCPREFIX="--prefix="$CANTERA_CONFIG_PREFIX
+fi
+#
+# run the configure command in the config directory
+#
+./configure $CCPREFIX $1 $2 $3 $4
+

@@ -1,0 +1,72 @@
+
+idadenx: Robertson kinetics DAE serial example problem for IDA
+         Three equation chemical kinetics problem.
+
+Linear solver: IDADENSE, with user-supplied Jacobian.
+Tolerance parameters:  rtol = 0.0001   atol = 1e-08 1e-14 1e-06 
+Initial conditions y0 = (1 0 0)
+Constraints and id not used.
+
+-----------------------------------------------------------------------
+  t             y1           y2           y3      | nst  k      h
+-----------------------------------------------------------------------
+4.0000e-01   9.8517e-01   3.3864e-05   1.4795e-02 |  82  2   5.4235e-02
+4.0000e+00   9.0551e-01   2.2404e-05   9.4467e-02 | 100  4   3.7843e-01
+4.0000e+01   7.1581e-01   9.1850e-06   2.8418e-01 | 140  4   1.8891e-01
+4.0000e+02   4.5051e-01   3.2227e-06   5.4949e-01 | 178  4   1.1014e+01
+4.0000e+03   1.8320e-01   8.9423e-07   8.1680e-01 | 222  4   2.1713e+02
+4.0000e+04   3.8980e-02   1.6216e-07   9.6102e-01 | 282  4   2.5803e+02
+4.0000e+05   4.9380e-03   1.9849e-08   9.9506e-01 | 338  3   6.4198e+02
+4.0000e+06   5.1684e-04   2.0684e-09   9.9948e-01 | 390  5   1.1031e+05
+4.0000e+07   5.2043e-05   2.0818e-10   9.9995e-01 | 430  5   2.7310e+06
+4.0000e+08   5.2044e-06   2.0818e-11   9.9999e-01 | 465  4   5.2708e+06
+4.0000e+09   5.2065e-07   2.0826e-12   1.0000e+00 | 497  4   2.3724e+08
+4.0000e+10   5.2671e-08   2.1068e-13   1.0000e+00 | 519  3   1.8380e+09
+
+Final Run Statistics: 
+
+Number of steps                    = 519
+Number of residual evaluations     = 733
+Number of Jacobian evaluations     = 98
+Number of nonlinear iterations     = 733
+Number of error test failures      = 12
+Number of nonlinear conv. failures = 0
+Number of root fn. evaluations     = 0
+
+idadenx: Robertson kinetics DAE serial example problem for IDA
+         Three equation chemical kinetics problem.
+
+Linear solver: IDADENSE, with user-supplied Jacobian.
+Tolerance parameters:  rtol = 0.0001   atol = 1e-08 1e-14 1e-06 
+Initial conditions y0 = (1 0 0)
+Constraints and id not used.
+
+-----------------------------------------------------------------------
+  t             y1           y2           y3      | nst  k      h
+-----------------------------------------------------------------------
+2.6404e-01   9.8997e-01   3.4706e-05   1.0000e-02 |  80  2   6.5324e-02
+    rootsfound[] =   0   1
+4.0000e-01   9.8517e-01   3.3864e-05   1.4795e-02 |  82  2   6.5324e-02
+4.0000e+00   9.0550e-01   2.2403e-05   9.4473e-02 |  97  4   4.1520e-01
+4.0000e+01   7.1584e-01   9.1861e-06   2.8415e-01 | 132  4   1.9421e+00
+4.0000e+02   4.5054e-01   3.2232e-06   5.4946e-01 | 177  4   3.2576e+01
+4.0000e+03   1.8320e-01   8.9421e-07   8.1680e-01 | 220  4   2.0527e+02
+4.0000e+04   3.8984e-02   1.6218e-07   9.6102e-01 | 266  3   1.2965e+03
+4.0000e+05   4.9390e-03   1.9853e-08   9.9506e-01 | 307  5   1.6802e+04
+4.0000e+06   5.1669e-04   2.0678e-09   9.9948e-01 | 364  3   1.8269e+05
+2.0798e+07   1.0000e-04   4.0004e-10   9.9990e-01 | 395  5   1.1839e+06
+    rootsfound[] =  -1   0
+4.0000e+07   5.2043e-05   2.0818e-10   9.9995e-01 | 407  4   2.8429e+06
+4.0000e+08   5.2075e-06   2.0830e-11   9.9999e-01 | 451  5   3.3159e+07
+4.0000e+09   5.2291e-07   2.0916e-12   1.0000e+00 | 483  3   4.5703e+08
+4.0000e+10   5.1012e-08   2.0405e-13   1.0000e+00 | 503  2   6.5812e+09
+
+Final Run Statistics: 
+
+Number of steps                    = 503
+Number of residual evaluations     = 707
+Number of Jacobian evaluations     = 76
+Number of nonlinear iterations     = 707
+Number of error test failures      = 13
+Number of nonlinear conv. failures = 0
+Number of root fn. evaluations     = 532
