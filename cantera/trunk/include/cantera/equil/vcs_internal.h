@@ -521,6 +521,23 @@ void vcs_print_stringTrunc(const char* str, size_t space, int alignment);
  */
 bool vcs_doubleEqual(double d1, double d2);
 
+
+//! Sorts a vector of ints in place from lowest to the highest values
+/*!
+ *  The vector is returned sorted from lowest to highest.
+ *
+ * @param x Reference to a vector of ints.
+ */
+void vcs_heapsort(std::vector<int> &x);
+
+//! Sorts a vector of ints and eliminates duplicates from the resulting list
+/*!
+ * @param xOrderedUnique       Ordered vector of unique ints that were part of the original list
+ * @param x                    Reference to a constant vector of ints.
+ */
+void vcs_orderedUnique(std::vector<int> & xOrderedUnique, const std::vector<int> & x);
+
+
 }
 
 #endif

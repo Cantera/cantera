@@ -487,7 +487,7 @@ QUAD_BAIL:
         }
 #ifdef DEBUG_MODE
         if (printLvl >= 3) {
-            fprintf(fp, "\nvcs_root1d failure in %d its\n", its);
+            fprintf(fp, "\nvcs_root1d failure in %lu its\n", its);
         }
 #endif
     }

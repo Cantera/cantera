@@ -916,13 +916,13 @@ private:
     mutable std::vector<double> ActCoeff;
 
     //! Vector of the derivatives of the ln activity coefficient wrt to the
-    //! current mole number
+    //! current mole number multiplied by the current phase moles
     /*!
-     * dLnActCoeffdMolNumber[j][k];
+     * np_dLnActCoeffdMolNumber[j][k];
      *      j = id of the species mole number
      *      k = id of the species activity coefficient
      */
-    mutable DoubleStarStar dLnActCoeffdMolNumber;
+    mutable DoubleStarStar np_dLnActCoeffdMolNumber;
 
     //! Status
     /*!

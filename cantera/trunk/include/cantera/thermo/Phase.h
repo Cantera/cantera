@@ -543,9 +543,8 @@ public:
     //! Note the density of a phase is an independent variable.
     //!     @param[in] density density (kg/m^3).
     virtual void setDensity(const doublereal density_) {
-        if (density_ <= 0) {
-            throw CanteraError("Phase::setDensity",
-                               "density must be positive");
+        if (density_ <= 0.0) {
+            throw CanteraError("Phase::setDensity()", "density must be positive");
         }
         m_dens = density_;
     }

@@ -304,6 +304,8 @@ void InterfaceKinetics::getActivityConcentrations(doublereal* const conc)
  * Update the equilibrium constants in molar units for all
  * reversible reactions. Irreversible reactions have their
  * equilibrium constant set to zero.
+ * For reactions involving charged species the equilibrium
+ * constant is adjusted according to the electrostatic potential.
  */
 void InterfaceKinetics::updateKc()
 {
@@ -311,7 +313,10 @@ void InterfaceKinetics::updateKc()
 
     //static vector_fp mu(nTotalSpecies());
     if (m_nrev > 0) {
-
+        /*
+         * Get the vector of standard state electrochemical potentials for species in the Interfacial
+         * kinetics object and store it in m_mu0[]
+         */
         size_t nsp, ik = 0;
         doublereal rt = GasConstant*thermo(0).temperature();
         doublereal rrt = 1.0 / rt;
@@ -327,8 +332,7 @@ void InterfaceKinetics::updateKc()
         }
 
         // compute Delta mu^0 for all reversible reactions
-        m_rxnstoich.getRevReactionDelta(m_ii, DATA_PTR(m_mu0),
-                                        DATA_PTR(m_rkcn));
+        m_rxnstoich.getRevReactionDelta(m_ii, DATA_PTR(m_mu0), DATA_PTR(m_rkcn));
 
         for (size_t i = 0; i < m_nrev; i++) {
             size_t irxn = m_revindex[i];
@@ -336,6 +340,7 @@ void InterfaceKinetics::updateKc()
                 throw CanteraError("InterfaceKinetics",
                                    "illegal value: irxn = "+int2str(irxn));
             }
+            // WARNING this may overflow HKM
             m_rkcn[irxn] = exp(m_rkcn[irxn]*rrt);
         }
         for (size_t i = 0; i != m_nirrev; ++i) {
@@ -680,7 +685,7 @@ void InterfaceKinetics::updateROP()
                                     if (m_rxnPhaseIsReactant[j][rp]) {
                                         if (! m_phaseExists[rp]) {
                                             m_ropnet[j] = 0.0;
-                                            m_ropr[j] = m_ropr[j] = 0.0;
+                                            m_ropr[j] = m_ropf[j] = 0.0;
                                         }
                                     }
                                 }
@@ -753,7 +758,7 @@ InterfaceKinetics::adjustRatesForIntermediatePhases()
 }
 #endif
 //=================================================================================================
-//=================================================================================================
+
 /*
  *
  * getDeltaGibbs():
@@ -1335,7 +1340,7 @@ solvePseudoSteadyStateProblem(int ifuncOverride, doublereal timeScaleOverride)
 }
 //================================================================================================
 
-void InterfaceKinetics::setPhaseExistence(const size_t iphase, const bool exists)
+void InterfaceKinetics::setPhaseExistence(const size_t iphase, const int exists)
 {
     if (iphase >= m_thermo.size()) {
         throw CanteraError("InterfaceKinetics:setPhaseExistence", "out of bounds");
@@ -1343,6 +1348,9 @@ void InterfaceKinetics::setPhaseExistence(const size_t iphase, const bool exists
     if (exists) {
         if (!m_phaseExists[iphase]) {
             m_phaseExistsCheck--;
+            if (m_phaseExistsCheck < 0) {
+               m_phaseExistsCheck = 0;
+            }
             m_phaseExists[iphase] = true;
         }
         m_phaseIsStable[iphase] = true;
@@ -1353,6 +1361,7 @@ void InterfaceKinetics::setPhaseExistence(const size_t iphase, const bool exists
         }
         m_phaseIsStable[iphase] = false;
     }
+
 }
 //================================================================================================
 // Gets the phase existence int for the ith phase
