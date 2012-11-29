@@ -1,0 +1,41 @@
+
+
+1)
+Use a runscript, a makefile, and/or file with XML input to direct the test.
+
+2)
+Use blessed files with version numbers
+
+3) 
+Be able to remake executable locally
+Be able to run locally
+
+4) Documentation requirement
+
+Verification Information
+      Blessed files
+      expected code behavior
+      Is there an analytical solution
+      Parts of the code  and the feature set that is being exercised.
+      History of the test 
+      Expected behavior on multiple platforms -> diffs to be expected and at what level.
+      
+Validation information
+      Experiment that the test is based on
+      Original paper that the test is based on.
+      Original data to be fit.
+      Documentation of the model developement process -> link or source of the information
+
+
+5) Interaction with compilation environment
+
+     Get Cantera Version Number
+     Get Compilation properties (DEBUG_MODE, optimization level, machine)
+     Get Branch if there is one.
+
+
+
+
+       
+
+

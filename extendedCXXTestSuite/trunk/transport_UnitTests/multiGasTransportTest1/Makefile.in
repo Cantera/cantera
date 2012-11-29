@@ -80,7 +80,6 @@ depends:
 $(PROGRAM).d: $(PROGRAM).cpp Makefile
 
 rebaseline:
-	@ ./runtest
 	cp output_0.txt output_0_blessed.txt
 
 ############################################################################

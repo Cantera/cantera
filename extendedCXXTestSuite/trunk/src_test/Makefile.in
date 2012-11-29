@@ -1,11 +1,16 @@
-#
-#  Makefile.in: 
-#     Makefile for  latsol
-#
-# $Id: Makefile.in,v 1.1 2011/03/10 23:58:53 hkmoffa Exp $
+#!/bin/sh
+###############################################################
+#  $Author: hkmoffa $
+#  $Date: 2010-03-19 18:26:02 -0600 (Fri, 19 Mar 2010) $
+#  $Revision: 420 $
+###############################################################
 #
 #
 RM = /bin/rm -f
+#
+PROGRAM=ctversion
+#
+OBJ=$(PROGRAM).o
 #
 ##########################################################################
 #           Setup The Cantera Directory locations
@@ -24,12 +29,20 @@ LDEFINES = -DDEBUG  -DDEBUG_TEST
 #
 # Set up the global include directory macro
 #
-INCLUDE_DIRS = -I../../src $(CANTERA_TOTAL_INCLUDES) 
+INCLUDE_DIRS = $(CANTERA_TOTAL_INCLUDES) 
 #
 # the C++ compiler
 #
 CXX = @CXX@
-
+CXXFLAGS = @CXXFLAGS@ $(DEBUG_FLAG)
+LCXX_FLAGS = @LCXX_FLAGS@
+LCXX_END_LIBS = @LCXX_END_LIBS@
+CXXLDR = $(CXX)
+#
+# Both the C and C++ compiler predefines
+#
+CCFLAGS =  $(GDEFINES) $(INCLUDE_DIRS) $(LDEFINES)
+#
 debug_mode = 0
 ifeq ($(debug_mode), 1)
    DEBUG_FLAG=-DDEBUG_MODE
@@ -37,38 +50,25 @@ else
    DEBUG_FLAG=
 endif
 
-CXXFLAGS = @CXXFLAGS@ $(DEBUG_FLAG)
-LCXX_FLAGS = @LCXX_FLAGS@
-LCXX_END_LIBS = @LCXX_END_LIBS@
-CXXLDR = $(CXX)
-CFLAGS=@CXXFLAGS@
-#
-# Both the C and C++ compiler predefines
-#
-CCFLAGS =   $(LDEFINES) $(INCLUDE_DIRS) 
 ######################################################################
 
-all: .depends  latsol
+all: .depends $(PROGRAM)
 
 ######################################################################
 
-.SUFFIXES: .src  .d .cpp
+.SUFFIXES: .d .cpp
 
 .cpp.o:
 	$(CXX) $(CXXFLAGS) $(CCFLAGS) -c $<
-# 
-# These classes compile against the Cantera kernel
-# format
-#
-SRCDIR=../../src
 
 ###########################################################################
 # section to set up depends
 ###########################################################################
-DEPENDS = latsol.d
 
 .cpp.d:
 	@CXX_DEPENDS@ $(CXXFLAGS) $(CCFLAGS) -c $*.cpp > $*.d
+
+DEPENDS = $(PROGRAM).d
 
 .depends: $(DEPENDS)
 	cat *.d > .depends
@@ -77,22 +77,30 @@ depends:
 	$(RM) *.d .depends
 	@MAKE@ .depends
 
-rebaseline:
-	cp output.txt output_blessed.txt
-#
+$(PROGRAM).d: $(PROGRAM).cpp Makefile
+
+############################################################################
+#  Section to set up dependence of objects on Makefiles
+############################################################################
+
+$(OBJ): Makefile
+
 ############################################################################
 ############################################################################
 #
-latsol.d: latsol.cpp
 
-latsol: latsol.o  $(CANTERA_CORE_LIBS_DEP) 
-	$(CXXLDR) $(LCXX_FLAGS) $(FLIB_BSD) -o latsol \
-                  latsol.o \
-                   $(CANTERA_TOTAL_LIBS) $(LCXX_END_LIBS) 
-
+$(PROGRAM): $(OBJ) Makefile $(CANTERA_TOTAL_LIBS_DEP) 
+	$(CXXLDR) $(LCXX_FLAGS) $(FLIB_BSD) -o $(PROGRAM) \
+                  $(OBJ) \
+                  $(CANTERA_TOTAL_LIBS)\
+                  $(LCXX_END_LIBS) 
 
 test:
 	@ ./runtest
+
+clean:
+	$(RM) *.o fort.* *%  core *.trace tmp* *~
+	$(RM) $(PROGRAM) *.d .depends
 
 ###########################################################################
 #          INSTALL RULES
@@ -104,6 +112,5 @@ endif
 
 install:
 
-clean:
-	$(RM) *.o   fort.* *%  core *.trace tmp* *~
-	$(RM) latsol
+
+

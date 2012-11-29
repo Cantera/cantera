@@ -57,9 +57,11 @@ int main () {
 
       double T[20];
       T[0] = 298.15;
-      T[1] = 500.;
-      T[2] = 600.;
-      T[3] = 1000.;
+      T[1] = 300.;
+      T[2] = 400.;
+      T[3] = 500.;
+      T[4] = 600.;
+      T[5] = 1000.;
 
       double Cp0, delh0, delg0, g;
 
@@ -68,7 +70,7 @@ int main () {
 	      " -(G0-H298)/T       H0-H298\n");
       printf ("       (K)   (J/molK)     (J/molK)  "
 	      "   (J/molK)        (kJ/mol)\n");
-      for (int i = 0; i < 4; i++) {
+      for (int i = 0; i < 6; i++) {
 	temp = T[i];
 	w->setState_TP(temp, presLow);
 	h = w->enthalpy_mole();

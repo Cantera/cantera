@@ -1,0 +1,105 @@
+
+-----------------------------------------------------------------
+         Test Name: flux_tri_n_quad2D 
+
+        Created by: srsubia
+
+              Date: 01/12/04
+
+  Sierra Directory: aria
+
+Sierra Executables: aria
+-----------------------------------------------------------------
+
+-----------------------------------------------------------------
+BRIEF DESCRIPTION
+-----------------------------------------------------------------
+
+Steady-state solution for temperature on a rectangular bar with a 
+constant flux boundary condition on one end and a Dirichlet BC
+on the other end.  
+
+-----------------------------------------------------------------
+CAPABILITIES TESTED BY THIS PROBLEM
+-----------------------------------------------------------------
+Implemention of flux boundary condition in two dimensions. Application
+of the flux includes adding a term to the RHS global matrix via a 
+regular workset contribution. Heterogeneous mesh of homogeneous 
+element blocks. Heterogenous sideset.
+
+-----------------------------------------------------------------
+MECHANICS OF PROBLEM
+-----------------------------------------------------------------
+Solve: Laplacian T = 0
+
+subject to:
+
+natural BCs
+
+k dT/dy = 0, along the bar surfaces 0<x<10
+
+Dirichlet BC at x = 0.
+
+T(x=0) = T_o C
+
+and constant flux BC on x = 10
+
+T(x=L) = q_o w/m^2C
+
+Bar mesh is 20 elements, nodeset 4 is the face at x=0,
+sideset 6 is the face at x=10.
+
+Problem is solved on the 2D rectangle of height 2.0m and 10m long
+in the x direction. Bar mesh has 60 elements, 20 quad elements 
+atop 40 triangle elements.
+
+Temperature varies linearly along the length of the bar in the x direction.
+
+-----------------------------------------------------------------
+MATERIAL MODEL
+-----------------------------------------------------------------
+
+Assumed thermal properties for copper
+
+k   = 401W/mC
+rho = 8933  (since steady-state problem rho and Cp are not used)
+Cp  = 385 
+
+-----------------------------------------------------------------
+PROBLEM RESULTS
+-----------------------------------------------------------------
+
+Tier I.  The problem has an exact analytic solution given in terms of
+
+T(x) = (q_o/k) x + T_o
+
+where,       
+T_o = 3C
+q_o = 802 w/m^2
+
+-----------------------------------------------------------------
+COMPARISON OF PROBLEM RESULTS WITH NUMERICAL RESULTS FOR PROBLEM
+-----------------------------------------------------------------
+
+Temperature along the bar
+
+ x   Node   Aria      Analytical
+ 0   14      3.0         3.0
+ 1   23      5.0         5.0
+ 2   22      7.0         7.0
+ 3   21      9.0         9.0
+ 4   20     11.0        11.0
+ 5   19     13.0        13.0
+ 6   18     15.0        15.0
+ 7   17     17.0        17.0
+ 8   16     19.0        19.0
+ 9   15     21.0        21.0
+10   12     23.0        23.0
+
+
+-------------------------------------------------------------------
+FILES
+------------------------------------------------------------------
+Input file: flux_tri_n_quad2D.i
+Mesh file:  flux_tri_n_quad2D..par
+Results file: flux_tri_n_quad2D..e

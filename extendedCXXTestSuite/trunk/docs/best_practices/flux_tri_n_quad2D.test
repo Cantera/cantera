@@ -1,0 +1,44 @@
+#!/usr/bin/env testrun
+<TestGroup>
+  <Owner name="srsubia" />
+  <Product name="aria" />
+
+  <!-- Place a description of the test here -->
+  <Description>
+  The flux_tri_n_quad2D test.
+  </Description>
+
+  <Distribution customer="generic" example="no" export_control_package="none" ouo="none" releasable="no" />
+
+  <!-- A list of keywords that describe the test. -->
+  <Keywords> aria nightly refactor  scontrol</Keywords>
+
+  <!-- Anything different than 0 means that the test is active. -->
+  <Active>1</Active>
+
+  <RequiredFiles>${id}/${gold_outfile1} 2Dlayer_tri_n_quad.par flux_tri_n_quad2D.exodiff flux_tri_n_quad2D.i</RequiredFiles>
+
+  <!-- This script is used to run the tests -->
+  <RunScript>
+    # Run the app as a parallel job, even for NP=1.
+    launch --np ${NumProcs} ${exec} -d `pwd`/ -o sierra.log -i ${input} ${user_aria_args:-}
+
+    # Post-test processing.
+    # No need for sierra-concat
+
+    # Check for sens_check errors.
+    if grep -c "SUMMARY: Sensitivity of Expression" sierra.log ; then test_fail; fi
+
+    exodiff -i -stat -file flux_tri_n_quad2D.exodiff ${gold_outfile1} ${outfile1}  >${outfile1}.diff 2>&1 || test_diff
+
+  </RunScript>
+
+  <!-- This script is used to re-bless the test gold copies -->
+  <BlessScript>
+    cp $(outfile1) ..
+  </BlessScript>
+
+  <!-- These are the test parametizations. $(id) must be unique. -->
+  <Test NumProcs="1" exec="aria" gold_outfile1="flux_tri_n_quad2D.gold.e" id="np1" input="flux_tri_n_quad2D.i" outfile1="flux_tri_n_quad2D.e" />
+
+</TestGroup>

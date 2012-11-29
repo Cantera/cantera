@@ -45,6 +45,16 @@ if test "x$OS_IS_DARWIN" = "x1"; then ct_prdef="/Applications/Cantera"; fi
 #
 ct_local_inst=1
 AC_SUBST(ct_local_inst)
+
+#
+# Define this directory
+#
+ct_cxxTest_dir=`pwd`
+AC_SUBST(ct_cxxTest_dir)
+
+ct_CXXTest_srcdir=$ct_cxxTest_dir/src_test
+AC_SUBST(ct_cxxTest_srcdir)
+
 #
 # -----------------------------------------------------------------------------
 #        Configuring the prefix variable
@@ -469,6 +479,7 @@ AC_OUTPUT(Makefile \
           kinetics_UnitTests/StoichSolidKinetics/Makefile \
           kinetics_UnitTests/StoichSolidKinetics/runtest \
           kinetics_UnitTests/surfkin_dupl_test/Makefile \
+          src_test/Makefile \
           )
 #
 chmod +x kinetics_UnitTests/StoichSolidKinetics/runtest

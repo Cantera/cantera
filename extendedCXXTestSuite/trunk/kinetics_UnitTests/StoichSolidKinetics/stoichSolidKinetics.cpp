@@ -58,8 +58,12 @@ bool ctversionCanHandle(std::string ctv) {
   if (ctv == "1.8.x") {
     return true;
   }
-  if (ctv.substr(0,2) == "1.8") {
+  if (ctv.substr(0,3) == "1.8") {
     return false;
+  }
+  if (ctv.substr(0,3) == "2.1") {
+   
+    return true;
   }
   printf("ctversionCanHandle: error: unknown version: %s\n", ctv.c_str());
   exit(-1);
@@ -73,6 +77,9 @@ int main(int argc, char** argv) {
 
   std::string ctv = CANTERA_VERSION;
   bool canHandle = ctversionCanHandle(ctv);
+  if (!canHandle) {
+    fprintf(stderr, "WARNING: this version of cantera, %s, may or may not be able to handle this test\n", ctv.c_str());
+  }
 
   try {
     string id;
@@ -285,7 +292,7 @@ int main(int argc, char** argv) {
     cout << endl;
 
 
-#if  defined (CANTERA_VERSION_18_LTD) || defined (CANTERA_VERSION_18_XXX)
+#if  defined (CANTERA_VERSION_18_LTD) || defined (CANTERA_VERSION_18_XXX) || 1
 
     printf("==========================================================================\n");
     printf("  OK Changing the problem setting CaO(S) phase to nonexistent:\n");

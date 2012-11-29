@@ -6,12 +6,14 @@
 ###############################################################
 
 all:
+	cd src_test;                    @MAKE@
 	cd numerics_UnitTests;          @MAKE@
 	cd thermo_UnitTests;            @MAKE@
 	cd kinetics_UnitTests;          @MAKE@
 	cd transport_UnitTests;         @MAKE@
 
 clean:
+	cd src_test;                    @MAKE@ clean
 	cd numerics_UnitTests;          @MAKE@ clean
 	cd thermo_UnitTests;            @MAKE@ clean
 	cd kinetics_UnitTests;          @MAKE@ clean
@@ -20,6 +22,7 @@ clean:
 	/bin/rm -rf autom4te.cache
 
 depends:
+	cd src_test;                    @MAKE@ depends
 	cd numerics_UnitTests;          @MAKE@ depends
 	cd thermo_UnitTests;            @MAKE@ depends
 	cd kinetics_UnitTests;          @MAKE@ depends
