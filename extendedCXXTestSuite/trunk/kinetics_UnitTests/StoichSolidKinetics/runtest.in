@@ -16,12 +16,12 @@ CANTERA_BIN=${CANTERA_BIN:=../../bin}
 
 
 realtest="1"
-if test $ctv = "1.8_liquidTransportDevelop" -o $ctv = "1.8.x"
+if test $ctv = "1.8.x"
 then
+  GOODST=good_out_a.txt
+else
   realtest="0"
   GOODST=good_out.txt
-else
-  GOODST=good_out_a.txt
 fi
 
 
