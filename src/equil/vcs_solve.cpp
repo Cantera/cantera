@@ -218,7 +218,7 @@ void VCS_SOLVE::vcs_initSizes(const size_t nspecies0, const size_t nelements,
      */
     m_useActCoeffJac = true;
     if (m_useActCoeffJac) {
-        m_dLnActCoeffdMolNum.resize(nspecies0, nspecies0, 0.0);
+        m_np_dLnActCoeffdMolNum.resize(nspecies0, nspecies0, 0.0);
     }
 
     m_PMVolumeSpecies.resize(nspecies0, 0.0);

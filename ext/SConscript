@@ -26,8 +26,7 @@ def prep_f2c(env):
         if env['VERBOSE'] :
            print "INFO 2:    prep_f2c: adding MSDOS to CPPDEFINES"
 
-    if env['VERBOSE'] :
-           localenv.Append(CPPDEFINES=['added'])
+        if env['VERBOSE'] :
            print "INFO 2:     CPPDEFINES     ", localenv['CPPDEFINES']
            #print "localenv", localenv.Dump()
            #exit(0)

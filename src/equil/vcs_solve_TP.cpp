@@ -2075,7 +2075,7 @@ double VCS_SOLVE::vcs_minor_alt_calc(size_t kspec, size_t irxn, bool* do_delete
         /*
          * get the diagonal of the activity coefficient jacobian
          */
-        s = m_dLnActCoeffdMolNum[kspec][kspec];
+        s = m_np_dLnActCoeffdMolNum[kspec][kspec] / (m_tPhaseMoles_old[iph]);
         // s *= (m_tPhaseMoles_old[iph]);
         /*
          *   We fit it to a power law approximation of the activity coefficient
@@ -5463,7 +5463,7 @@ void VCS_SOLVE::vcs_switch_pos(const bool ifunc, const size_t k1, const size_t k
         std::swap(m_formulaMatrix[j][k1], m_formulaMatrix[j][k2]);
     }
     if (m_useActCoeffJac) {
-        vcs_switch2D(m_dLnActCoeffdMolNum.baseDataAddr(), k1, k2);
+        vcs_switch2D(m_np_dLnActCoeffdMolNum.baseDataAddr(), k1, k2);
     }
     std::swap(m_speciesStatus[k1], m_speciesStatus[k2]);
     /*
