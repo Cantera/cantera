@@ -1,0 +1,121 @@
+<?xml version="1.0"?>
+<ctml>
+
+  <phase id="solidSolutionExample" dim="3">
+    <state>
+      <temperature units="K">500</temperature>
+    </state>
+    <!-- thermo model identifies the inherited class 
+         from ThermoPhase that will handle the thermodynamics.
+      -->
+    <thermo model="IdealSolidSolution" />
+    <elementArray datasrc="elements.xml"> H  C</elementArray>
+    <speciesArray datasrc="#species_solidSolution">
+     C2H2-graph  C-graph H2-solute
+    </speciesArray>
+    <reactionArray datasrc="#reactions_solidSolution">
+    </reactionArray>
+    <kinetics model="SolidKinetics" />
+    <standardConc model="unity" />
+  </phase>
+
+  <!-- species data 
+       Note that these entries are for demonstration only, and the thermo
+       is made up.
+  -->
+
+  <speciesData id="species_solidSolution">
+
+    <species name="C2H2-graph">
+      <note>This corresponds to new soot</note>
+      <atomArray>C:2 H:2 </atomArray>
+      <thermo>
+       <NASA P0="100000.0" Tmax="1000.0" Tmin="200.0">
+         <floatArray size="7" title="low">
+           2.344331120E+000,  7.980520750E-003, -1.947815100E-005,
+           2.015720940E-008, -7.376117610E-012, -9.179351730E+002,
+           6.830102380E-001
+          </floatArray>
+        </NASA>
+        <NASA P0="100000.0" Tmax="3500.0" Tmin="1000.0">
+          <floatArray size="7" title="high">
+           3.337279200E+000, -4.940247310E-005,  4.994567780E-007,
+          -1.795663940E-010,  2.002553760E-014, -9.501589220E+002,
+          -3.205023310E+000
+          </floatArray>
+        </NASA>
+      </thermo>
+      <standardState model="constant_incompressible"> 
+         <molarVolume> 1.5 </molarVolume>
+      </standardState>
+    </species>
+
+    <species name="C-graph">
+      <note>This corresponds to old soot</note>
+      <atomArray> C:1 </atomArray>
+      <thermo>
+       <NASA P0="100000.0" Tmax="1000.0" Tmin="200.0">
+         <floatArray size="7" title="low">
+           2.344331120E+000,  7.980520750E-003, -1.947815100E-005,
+           2.015720940E-008, -7.376117610E-012, -9.179351730E+002,
+           6.830102380E-001
+          </floatArray>
+        </NASA>
+        <NASA P0="100000.0" Tmax="3500.0" Tmin="1000.0">
+          <floatArray size="7" title="high">
+           3.337279200E+000, -4.940247310E-005,  4.994567780E-007,
+          -1.795663940E-010,  2.002553760E-014, -9.501589220E+002,
+          -3.205023310E+000
+          </floatArray>
+        </NASA>
+      </thermo>
+      <standardState model="constant_incompressible"> 
+         <molarVolume> 1.3 </molarVolume>
+      </standardState>
+    </species>
+
+    <species name="H2-solute">
+      <note>This species diffuses back into the gas phase</note>
+      <atomArray> H:2 </atomArray>
+      <thermo>
+       <NASA P0="100000.0" Tmax="1000.0" Tmin="200.0">
+         <floatArray size="7" title="low">
+           2.344331120E+000,  7.980520750E-003, -1.947815100E-005,
+           2.015720940E-008, -7.376117610E-012, -9.179351730E+002,
+           6.830102380E-001
+          </floatArray>
+        </NASA>
+        <NASA P0="100000.0" Tmax="3500.0" Tmin="1000.0">
+          <floatArray size="7" title="high">
+           3.337279200E+000, -4.940247310E-005,  4.994567780E-007,
+          -1.795663940E-010,  2.002553760E-014, -9.501589220E+002,
+          -3.205023310E+000
+          </floatArray>
+        </NASA>
+      </thermo>
+      <standardState model="constant_incompressible"> 
+         <molarVolume> 0.1 </molarVolume>
+      </standardState>
+     </species>
+  </speciesData>
+
+  <!-- reaction data -->
+  <reactionData id="reactions_solidSolution" model="SolidKinetics" submodel="SolidKinetics_0">
+    <standardConc model="unity" />
+
+    <!-- reaction 1 -->
+    <reaction id="bulk_rxn_1" reversible="yes">
+      <equation>C2H2-graph [=] H2-solute + 2 C-graph</equation>
+      <reactants> C2H2-graph:1 </reactants>
+      <products>H2-solute:1 C-graph:2 </products>
+      <rateCoeff>
+        <Arrhenius order="1">
+	 <A> 1.0E10 </A>
+	 <b> 0.0    </b>
+	 <E units="cal/mol"> 10000. </E>
+        </Arrhenius>
+      </rateCoeff>
+    </reaction>
+
+  </reactionData>
+</ctml>

@@ -1,0 +1,31 @@
+Number of species = 6
+Number of reactions = 2
+fwd_rop[0] = 3.047e+10
+fwd_rop[1] = 1.575e-08
+0  H2  -1.103e-08
+1  H  4.265e+10
+2  O   nil
+3  O2  6.093e+09
+4  OH  1.828e+10
+5  H2O  -3.047e+10
+Creation Rates: 
+0  H2  0  0 
+1  H  4.265e+10  1.4 
+2  O  0  0 
+3  O2  6.093e+09  0.2 
+4  OH  1.828e+10  0.6 
+5  H2O  1.575e-08  1 
+Destruction Rates: 
+0  H2  1.103e-08  0.7 
+1  H  0  0 
+2  O  0  0 
+3  O2  3.15e-09  0.2 
+4  OH  9.45e-09  0.6 
+5  H2O  3.047e+10  1 
+kf[0] = 1e+13
+kf[1] = 39810.7
+equal numbers 0: 3.04665e+10 3.04665e+10 
+equal numbers 1: 1.57505e-08 1.57505e-08
+Equilibrium constants for irreversible fractional rxns:
+Kc[0] = 5.60014e-11
+Kc[1] = 62705

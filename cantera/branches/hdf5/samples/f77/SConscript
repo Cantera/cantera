@@ -1,0 +1,40 @@
+from buildutils import *
+
+Import('env', 'install', 'buildSample')
+localenv = env.Clone()
+
+# (program name, [source files])
+samples = [('ctlib', ['ctlib.f']),
+           ('isentropic', ['isentropic.f'])]
+
+ftn_demo = localenv.Object('demo_ftnlib.cpp',
+                           CPPPATH=['#include'])
+for program_name, fortran_sources in samples:
+    buildSample(localenv.Program, program_name,
+                fortran_sources + ftn_demo,
+                CPPPATH=['#build/src/fortran', '#include'],
+                LIBS=env['cantera_libs']+['cantera_fortran']+['stdc++'],
+                LIBPATH=[env['sundials_libdir'], '#build/lib'],
+                LINK='$F77')
+
+# Generate SConstruct file to be installed
+incdirs = (localenv['ct_incroot'], localenv['sundials_include'],
+           localenv['boost_inc_dir']) + tuple(localenv['extra_inc_dirs'])
+libs = ['cantera_fortran'] + localenv['cantera_libs'] + ['stdc++']
+libdirs = ((localenv['ct_libdir'], localenv['sundials_libdir'],
+            localenv['blas_lapack_dir'], localenv['boost_lib_dir']) +
+           tuple(localenv['extra_lib_dirs']))
+linkflags = ('-g', localenv['thread_flags'])
+localenv['tmpl_cantera_incdirs'] = repr([x for x in incdirs if x])
+localenv['tmpl_cantera_libs'] = repr(libs)
+localenv['tmpl_cantera_libdirs'] = repr([x for x in libdirs if x])
+localenv['tmpl_cantera_linkflags'] = repr([x for x in linkflags if x])
+localenv['tmpl_cantera_frameworks'] = repr(localenv['FRAMEWORKS'])
+
+sconstruct = localenv.SubstFile('SConstruct', 'SConstruct.in')
+
+# Generate Makefile to be installed
+makefile = localenv.SubstFile('Makefile', 'Makefile.in')
+
+install(pjoin('$inst_sampledir', 'f77'), makefile)
+install(pjoin('$inst_sampledir', 'f77'), sconstruct)

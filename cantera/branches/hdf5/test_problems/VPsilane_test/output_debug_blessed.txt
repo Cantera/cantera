@@ -1,0 +1,419 @@
+
+
+**** WARNING ****
+For species SI2H6, discontinuity in s/R detected at Tmid = 1000
+	Value computed using low-temperature polynomial:  49.5493.
+	Value computed using high-temperature polynomial: 49.7214.
+
+
+**** WARNING ****
+For species SI3H8, discontinuity in s/R detected at Tmid = 1000
+	Value computed using low-temperature polynomial:  65.9731.
+	Value computed using high-temperature polynomial: 66.2781.
+
+
+**** WARNING ****
+For species SI2, discontinuity in s/R detected at Tmid = 1000
+	Value computed using low-temperature polynomial:  32.8813.
+	Value computed using high-temperature polynomial: 32.9489.
+setInitialMoles:   Estimated Mole Fractions
+  Temperature = 1500
+  Pressure = 100
+         H2            0.99668  
+         H             9.8681e-23
+         HE            0        
+         SIH4          9.8681e-23
+         SI            9.7694e-07
+         SIH           9.6727e-09
+         SIH2          9.6727e-09
+         SIH3          9.7704e-19
+         H3SISIH       9.722e-19
+         SI2H6         4.8847e-15
+         H2SISIH2      4.7885e-07
+         SI3H8         1.3125e-22
+         SI2           9.6727e-05
+         SI3           0.0032242
+      Element_Name   ElementGoal  ElementMF
+      Si            0.0049261 0.0049261
+      H             0.99507   0.99507  
+      He            0         4.9261e-33
+isp = 0, H2
+isp = 13, SI3
+isp = 2, HE
+Pressure = 100
+Temperature = 1500
+  id       Name     MF     mu/RT 
+         0              H2    0.99668    -25.526
+         1               H      1e-20    -51.327
+         2              HE      1e-08    -42.537
+         3            SIH4      1e-20     -80.97
+         4              SI 9.7694e-07     -6.913
+         5             SIH 9.6727e-09    -19.865
+         6            SIH2 9.6727e-09    -32.567
+         7            SIH3 9.7704e-19    -63.745
+         8         H3SISIH  9.722e-19    -66.701
+         9           SI2H6 4.8847e-15    -77.664
+        10        H2SISIH2 4.7885e-07    -43.018
+        11           SI3H8      1e-20    -101.54
+        12             SI2 9.6727e-05  -0.076187
+        13             SI3  0.0032242    0.33867
+ id      CompSpecies      ChemPot       EstChemPot       Diff
+  0               H2     -25.526      -25.526            0
+  1              SI3     0.33867      0.33867            0
+  2               HE     -42.537      -42.537            0
+ id    ElName  Lambda_RT
+   0      Si     0.11289
+   1       H     -12.763
+   2      He     -42.537
+estimateEP_Brinkley::
+
+temp = 1500
+pres = 100
+Initial mole numbers and mu_SS:
+         Name           MoleNum        mu_SS   actCoeff
+             H2        0.99668        -25.523             1
+              H          1e-20        -5.2748             1
+             HE          1e-08        -24.116             1
+           SIH4          1e-20        -34.919             1
+             SI     9.7694e-07         6.9258             1
+            SIH     9.6727e-09        -1.4113             1
+           SIH2     9.6727e-09        -14.113             1
+           SIH3     9.7704e-19        -22.275             1
+        H3SISIH      9.722e-19        -25.226             1
+          SI2H6     4.8847e-15        -44.712             1
+       H2SISIH2     4.7885e-07        -28.466             1
+          SI3H8          1e-20        -55.486             1
+            SI2     9.6727e-05         9.1674             1
+            SI3      0.0032242         6.0757             1
+Initial n_t =     1.0017
+Comparison of Goal Element Abundance with Initial Guess:
+  eName       eCurrent       eGoal
+   Si       0.0098681      0.0049261
+    H          1.9934        0.99507
+   He           1e-08              0
+START ITERATION 0:
+        Species: Calculated_Moles Calculated_Mole_Fraction
+             H2:    0.99839    0.99497
+              H: 0.00056051 0.00055859
+             HE: 4.1247e-77 4.1106e-77
+           SIH4: 1.1034e-07 1.0996e-07
+             SI:  0.0011014  0.0010976
+            SIH: 1.3173e-05 1.3128e-05
+           SIH2: 1.2392e-05  1.235e-05
+           SIH3:  1.244e-07 1.2397e-07
+        H3SISIH: 7.6248e-12 7.5987e-12
+          SI2H6: 1.8148e-14 1.8086e-14
+       H2SISIH2: 1.9469e-10 1.9403e-10
+          SI3H8: 7.9642e-21 7.9369e-21
+            SI2: 0.00013105  0.0001306
+            SI3:  0.0032298  0.0032187
+Total Molar Sum:     1.0034
+(iter 0) element moles bal:   Goal  Calculated
+                    Si:  0.0049261   0.011079 
+                     H:    0.99507     1.9974 
+                    He:          0 4.1247e-77 
+ Lump Sum Elements Calculation: 
+                  Si   0 :     3     13
+                   H   0 :     0      7
+                  He   1 :    -1     -1
+ NOTE: Diagonalizing the analytical Jac row 2
+Matrix:
+       [   0.030719 3.8774e-05          0   0.011079]  =   -0.0061525
+       [ 3.8774e-05     3.9942          0     1.9974]  =      -1.0023
+       [          0          0          1 4.1247e-77]  =           -1
+       [   0.011079     1.9974 4.1247e-77          0]  =   -0.0017203
+(it 0) Convergence = 2.57446
+Row Summed Matrix:
+       [    0.73427  0.0009268          0    0.26481]  =     -0.14706
+       [ 6.4715e-06    0.66663          0    0.33336]  =     -0.16728
+       [          0          0          1 4.1247e-77]  =           -1
+       [   0.005516    0.99448 2.0537e-77          0]  =   -0.00085655
+Lump summing row 2, due to rank deficiency analysis
+Row Summed, MODIFIED Matrix:
+       [    0.73427  0.0009268          0    0.26481]  =     -0.14706
+       [ 6.4715e-06    0.66663          0    0.33336]  =     -0.16728
+       [          0          0          1 4.1247e-77]  =           -1
+       [   0.005516    0.99448 2.0537e-77          0]  =   -0.00085655
+(it 0)    OLD_SOLUTION  NEW SOLUTION    (undamped updated)
+        Si      0.11289      0.09304    -0.019849
+         H      -12.763      -12.764   -0.00075121
+        He         -200         -201           -1
+       n_t        1.0017      0.60739     0.60634 
+START ITERATION 1:
+        Species: Calculated_Moles Calculated_Mole_Fraction
+             H2:    0.60446    0.99517
+              H: 0.00033961 0.00055912
+             HE: 9.2007e-78 1.5148e-77
+           SIH4: 6.5393e-08 1.0766e-07
+             SI: 0.00065468  0.0010779
+            SIH: 7.8247e-06 1.2883e-05
+           SIH2: 7.3553e-06  1.211e-05
+           SIH3: 7.3779e-08 1.2147e-07
+        H3SISIH:   4.43e-12 7.2935e-12
+          SI2H6: 1.0528e-14 1.7333e-14
+       H2SISIH2: 1.1312e-10 1.8623e-10
+          SI3H8: 4.5226e-21  7.446e-21
+            SI2: 7.6368e-05 0.00012573
+            SI3:  0.0018451  0.0030378
+Total Molar Sum:    0.60739
+(iter 1) element moles bal:   Goal  Calculated
+                    Si:  0.0049261  0.0063582 
+                     H:    0.99507     1.2093 
+                    He:          0 9.2007e-78 
+ Lump Sum Elements Calculation: 
+                  Si   0 :     3     13
+                   H   0 :     0      7
+                  He   1 :    -1     -1
+ NOTE: Diagonalizing the analytical Jac row 2
+Matrix:
+       [   0.017582 2.3019e-05          0  0.0063582]  =   -0.0014321
+       [ 2.3019e-05     2.4182          0     1.2093]  =     -0.21421
+       [          0          0          1 9.2007e-78]  =           -1
+       [  0.0063582     1.2093 9.2007e-78          0]  =   -4.2829e-06
+(it 1) Convergence = 0.130851
+Row Summed Matrix:
+       [    0.73371 0.00096062          0    0.26533]  =    -0.059761
+       [ 6.3457e-06    0.66663          0    0.33336]  =     -0.05905
+       [          0          0          1 9.2007e-78]  =           -1
+       [  0.0052303    0.99477 7.5686e-78          0]  =   -3.5232e-06
+Lump summing row 2, due to rank deficiency analysis
+Row Summed, MODIFIED Matrix:
+       [    0.73371 0.00096062          0    0.26533]  =    -0.059761
+       [ 6.3457e-06    0.66663          0    0.33336]  =     -0.05905
+       [          0          0          1 9.2007e-78]  =           -1
+       [  0.0052303    0.99477 7.5686e-78          0]  =   -3.5232e-06
+(it 1)    OLD_SOLUTION  NEW SOLUTION    (undamped updated)
+        Si      0.09304      0.07571     -0.01733
+         H      -12.764      -12.764   8.7576e-05
+        He         -201         -202           -1
+       n_t       0.60739       0.5087     0.83752 
+START ITERATION 2:
+        Species: Calculated_Moles Calculated_Mole_Fraction
+             H2:    0.50633    0.99535
+              H: 0.00028445 0.00055918
+             HE: 2.8348e-78 5.5726e-78
+           SIH4: 5.3846e-08 1.0585e-07
+             SI: 0.00053889  0.0010593
+            SIH: 6.4413e-06 1.2662e-05
+           SIH2: 6.0555e-06 1.1904e-05
+           SIH3: 6.0746e-08 1.1941e-07
+        H3SISIH: 3.5851e-12 7.0475e-12
+          SI2H6: 8.5214e-15 1.6751e-14
+       H2SISIH2: 9.1541e-11 1.7995e-10
+          SI3H8: 3.5984e-21 7.0737e-21
+            SI2: 6.1781e-05 0.00012145
+            SI3:  0.0014671  0.0028839
+Total Molar Sum:     0.5087
+(iter 2) element moles bal:   Goal  Calculated
+                    Si:  0.0049261  0.0050762 
+                     H:    0.99507      1.013 
+                    He:          0 2.8348e-78 
+ Lump Sum Elements Calculation: 
+                  Si   0 :     3     13
+                   H   0 :     0      7
+                  He   1 :    -1     -1
+ NOTE: Diagonalizing the analytical Jac row 2
+Matrix:
+       [   0.014002 1.8951e-05          0  0.0050762]  =   -0.00015012
+       [ 1.8951e-05     2.0257          0      1.013]  =    -0.017899
+       [          0          0          1 2.8348e-78]  =           -1
+       [  0.0050762      1.013 2.8348e-78          0]  =   -2.1823e-06
+(it 2) Convergence = 0.00125221
+Row Summed Matrix:
+       [     0.7332 0.00099232          0    0.26581]  =   -0.0078606
+       [ 6.2365e-06    0.66663          0    0.33336]  =   -0.0058906
+       [          0          0          1 2.8348e-78]  =           -1
+       [  0.0049862    0.99501 2.7845e-78          0]  =   -2.1436e-06
+Lump summing row 2, due to rank deficiency analysis
+Row Summed, MODIFIED Matrix:
+       [     0.7332 0.00099232          0    0.26581]  =   -0.0078606
+       [ 6.2365e-06    0.66663          0    0.33336]  =   -0.0058906
+       [          0          0          1 2.8348e-78]  =           -1
+       [  0.0049862    0.99501 2.7845e-78          0]  =   -2.1436e-06
+(it 2)    OLD_SOLUTION  NEW SOLUTION    (undamped updated)
+        Si      0.07571     0.071409   -0.0043009
+         H      -12.764      -12.764   1.9399e-05
+        He         -202         -203           -1
+       n_t        0.5087      0.49977     0.98245 
+START ITERATION 3:
+        Species: Calculated_Moles Calculated_Mole_Fraction
+             H2:    0.49747    0.99539
+              H: 0.00027946 0.00055919
+             HE: 1.0246e-78 2.0501e-78
+           SIH4: 5.2678e-08  1.054e-07
+             SI: 0.00052715  0.0010548
+            SIH: 6.3012e-06 1.2608e-05
+           SIH2: 5.9239e-06 1.1853e-05
+           SIH3: 5.9427e-08 1.1891e-07
+        H3SISIH: 3.4923e-12 6.9877e-12
+          SI2H6: 8.3011e-15  1.661e-14
+       H2SISIH2: 8.9171e-11 1.7842e-10
+          SI3H8: 3.4905e-21 6.9842e-21
+            SI2: 6.0177e-05 0.00012041
+            SI3:  0.0014228   0.002847
+Total Molar Sum:    0.49977
+(iter 3) element moles bal:   Goal  Calculated
+                    Si:  0.0049261  0.0049283 
+                     H:    0.99507    0.99523 
+                    He:          0 1.0246e-78 
+ Lump Sum Elements Calculation: 
+                  Si   0 :     3     13
+                   H   0 :     0      7
+                  He   1 :    -1     -1
+ NOTE: Diagonalizing the analytical Jac row 2
+Matrix:
+       [   0.013586 1.8539e-05          0  0.0049283]  =   -2.2162e-06
+       [ 1.8539e-05     1.9902          0    0.99523]  =   -0.00015722
+       [          0          0          1 1.0246e-78]  =           -1
+       [  0.0049283    0.99523 1.0246e-78          0]  =   -1.2708e-07
+(it 3) Convergence = 2.27368e-07
+Row Summed Matrix:
+       [    0.73307  0.0010003          0    0.26593]  =   -0.00011959
+       [ 6.2097e-06    0.66663          0    0.33336]  =   -5.2661e-05
+       [          0          0          1 1.0246e-78]  =           -1
+       [  0.0049275    0.99507 1.0244e-78          0]  =   -1.2706e-07
+Lump summing row 2, due to rank deficiency analysis
+Row Summed, MODIFIED Matrix:
+       [    0.73307  0.0010003          0    0.26593]  =   -0.00011959
+       [ 6.2097e-06    0.66663          0    0.33336]  =   -5.2661e-05
+       [          0          0          1 1.0246e-78]  =           -1
+       [  0.0049275    0.99507 1.0244e-78          0]  =   -1.2706e-07
+(it 3)    OLD_SOLUTION  NEW SOLUTION    (undamped updated)
+        Si     0.071409     0.071304   -0.00010554
+         H      -12.764      -12.764   3.9494e-07
+        He         -203         -204           -1
+       n_t       0.49977      0.49969     0.99984 
+START ITERATION 4:
+        Species: Calculated_Moles Calculated_Mole_Fraction
+             H2:    0.49739    0.99539
+              H: 0.00027942 0.00055919
+             HE: 3.7685e-79 7.5418e-79
+           SIH4: 5.2664e-08 1.0539e-07
+             SI: 0.00052702  0.0010547
+            SIH: 6.2996e-06 1.2607e-05
+           SIH2: 5.9223e-06 1.1852e-05
+           SIH3: 5.9411e-08  1.189e-07
+        H3SISIH:  3.491e-12 6.9863e-12
+          SI2H6: 8.2981e-15 1.6606e-14
+       H2SISIH2: 8.9138e-11 1.7839e-10
+          SI3H8: 3.4888e-21  6.982e-21
+            SI2: 6.0155e-05 0.00012038
+            SI3:  0.0014222  0.0028461
+Total Molar Sum:    0.49969
+(iter 4) element moles bal:   Goal  Calculated
+                    Si:  0.0049261  0.0049261 
+                     H:    0.99507    0.99507 
+                    He:          0 3.7685e-79 
+ Lump Sum Elements Calculation: 
+                  Si   0 :     3     13
+                   H   0 :     0      7
+                  He   1 :    -1     -1
+ NOTE: Diagonalizing the analytical Jac row 2
+Matrix:
+       [   0.013579 1.8534e-05          0  0.0049261]  =   -5.093e-10
+       [ 1.8534e-05     1.9899          0    0.99507]  =   -1.2417e-08
+       [          0          0          1 3.7685e-79]  =           -1
+       [  0.0049261    0.99507 3.7685e-79          0]  =   -7.5797e-11
+(it 4) Convergence = 1.08589e-14
+ ChemEquil::estimateEP_Brinkley() SUCCESS: equilibrium found at T = 1500, Pres = 100
+Residual:      ElFracGoal     ElFracCurrent     Resid
+                4.9261084E-03  4.9261088E-03    -4.43440E-10
+                9.9507389E-01  9.9507389E-01     2.23360E-10
+                0.0000000E+00  0.0000000E+00     0.00000E+00
+               Goal           Xvalue          Resid
+      XX   :    1.5000000E+03  1.5000000E+03     0.00000E+00
+      YY(1):    1.0000000E+02  1.0000000E+02     1.51690E-10
+Residual:      ElFracGoal     ElFracCurrent     Resid
+                4.9261084E-03  4.9261088E-03    -4.43440E-10
+                9.9507389E-01  9.9507389E-01     2.23360E-10
+                0.0000000E+00  0.0000000E+00     0.00000E+00
+               Goal           Xvalue          Resid
+      XX   :    1.5000000E+03  1.5000000E+03     0.00000E+00
+      YY(1):    1.0000000E+02  1.0000000E+02     1.51690E-10
+Residual:      ElFracGoal     ElFracCurrent     Resid
+                4.9261084E-03  4.9261088E-03    -4.43440E-10
+                9.9507389E-01  9.9507389E-01     2.23360E-10
+                0.0000000E+00  0.0000000E+00     0.00000E+00
+               Goal           Xvalue          Resid
+      XX   :    1.5000000E+03  1.5000000E+03     0.00000E+00
+      YY(1):    1.0000000E+02  1.0000000E+02     1.51690E-10
+Residual:      ElFracGoal     ElFracCurrent     Resid
+                4.9261084E-03  4.9261089E-03    -5.39310E-10
+                9.9507389E-01  9.9507389E-01     2.71650E-10
+                0.0000000E+00  0.0000000E+00     0.00000E+00
+               Goal           Xvalue          Resid
+      XX   :    1.5000000E+03  1.5000000E+03     0.00000E+00
+      YY(1):    1.0000000E+02  1.0000000E+02     2.21980E-10
+Residual:      ElFracGoal     ElFracCurrent     Resid
+                4.9261084E-03  4.9260963E-03     1.19833E-08
+                9.9507389E-01  9.9507390E-01    -6.03603E-09
+                0.0000000E+00  0.0000000E+00     0.00000E+00
+               Goal           Xvalue          Resid
+      XX   :    1.5000000E+03  1.5000000E+03     0.00000E+00
+      YY(1):    1.0000000E+02  1.0000025E+02     2.54193E-06
+Residual:      ElFracGoal     ElFracCurrent     Resid
+                4.9261084E-03  4.9261088E-03    -4.43440E-10
+                9.9507389E-01  9.9507389E-01     2.23360E-10
+                0.0000000E+00  0.0000000E+00     1.00000E-04
+               Goal           Xvalue          Resid
+      XX   :    1.5000000E+03  1.5000000E+03     0.00000E+00
+      YY(1):    1.0000000E+02  1.0000000E+02     1.51690E-10
+Residual:      ElFracGoal     ElFracCurrent     Resid
+                4.9261084E-03  4.9262942E-03    -1.84911E-07
+                9.9507389E-01  9.9507371E-01     9.31403E-08
+                0.0000000E+00  0.0000000E+00     0.00000E+00
+               Goal           Xvalue          Resid
+      XX   :    1.5000000E+03  1.5000011E+03     7.31322E-07
+      YY(1):    1.0000000E+02  1.0000023E+02     2.27934E-06
+Jacobian matrix 1:
+      [  -0.013446  0.0097359          0   -0.25224  ]x_Si         =  - (-4.4344e-10)
+      [  0.0098584     1.9914          0     3.1165  ]x_YY         =  - (1.5169e-10)
+      [          0          0          1          0  ]x_He         =  - (         0)
+      [          0          0          0          1  ]x_XX         =  - (         0)
+Solution Unknowns: damp = 1
+            X_new      X_old       Step
+      0.071304     0.071304     -3.2916e-08
+     -12.764      -12.764        8.6779e-11
+     -1000        -1000          0        
+      7.3132       7.3132        0        
+Residual:      ElFracGoal     ElFracCurrent     Resid
+                4.9261084E-03  4.9261084E-03     0.00000E+00
+                9.9507389E-01  9.9507389E-01     0.00000E+00
+                0.0000000E+00  0.0000000E+00     0.00000E+00
+               Goal           Xvalue          Resid
+      XX   :    1.5000000E+03  1.5000000E+03     0.00000E+00
+      YY(1):    1.0000000E+02  1.0000000E+02     0.00000E+00
+ 
+  silane:
+ 
+       temperature            1500  K
+          pressure             100  Pa
+           density      1.8314e-05  kg/m^3
+  mean mol. weight         2.28407  amu
+ 
+                          1 kg            1 kmol
+                       -----------      ------------
+          enthalpy     1.70171e+07        3.887e+07     J
+   internal energy     1.15568e+07         2.64e+07     J
+           entropy          103868        2.372e+05     J/K
+    Gibbs function    -1.38785e+08        -3.17e+08     J
+ heat capacity c_p         14161.9        3.235e+04     J/K
+ heat capacity c_v         10521.7        2.403e+04     J/K
+ 
+                           X                 Y          Chem. Pot. / RT    
+                     -------------     ------------     ------------
+                H2       0.995395         0.878516         -25.5277
+                 H    0.000559189      0.000246765         -12.7639
+                HE              0                0     
+              SIH4    1.05394e-07      1.48198e-06         -50.9842
+                SI     0.00105469        0.0129687        0.0713036
+               SIH     1.2607e-05      0.000160581         -12.6926
+              SIH2     1.1852e-05      0.000156195         -25.4564
+              SIH3    1.18896e-07      1.61938e-06         -38.2203
+           H3SISIH    6.98628e-12      1.84142e-10         -50.9129
+             SI2H6    1.66065e-14      4.52364e-13         -76.4406
+          H2SISIH2    1.78387e-10      4.70187e-09         -50.9129
+             SI3H8    6.98199e-21      2.82205e-19         -101.897
+               SI2    0.000120384       0.00296054         0.142607
+               SI3     0.00284607         0.104988         0.213911
+

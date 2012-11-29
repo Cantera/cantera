@@ -1,0 +1,26 @@
+import os
+from setuptools import setup, find_packages, Extension
+from distutils.sysconfig import get_config_var
+from Cython.Distutils import build_ext
+
+exts = [Extension("cantera._cantera",
+                  ["cantera/_cantera.pyx"],
+                  include_dirs=@py_include_dirs@,
+                  language="c++",
+                  libraries=@py_cantera_libs@,
+                  library_dirs=@py_libdirs@,
+                  extra_compile_args=@py_extra_compiler_args@)]
+
+setup(name="Cantera",
+      version="@cantera_version@",
+      description="The Cantera Python Interface",
+      long_description="""
+              """,
+      author="Raymond Speth",
+      author_email="speth@mit.edu",
+      url="http://code.google.com/p/cantera",
+      packages = find_packages(),
+      cmdclass = {'build_ext': build_ext},
+      ext_modules = exts,
+      package_data = {'cantera.data': ['*.*'],
+                      'cantera.test.data': ['*.*']})

@@ -1,0 +1,45 @@
+#
+# Generated from file argon.inp
+# by ck2cti on Mon Aug 25 09:52:59 2003
+#
+# Transport data from file ../transport/gri30_tran.dat.
+
+units(length = "cm", time = "s", quantity = "mol", act_energy = "cal/mol")
+
+
+ideal_gas(name = "argon",
+      elements = " Ar ",
+      species = """ AR """,
+      reactions = "all",
+      transport = "Mix",
+      initial_state = state(temperature = 300.0,
+                        pressure = OneAtm)    )
+
+
+
+#-------------------------------------------------------------------------------
+#  Species data 
+#-------------------------------------------------------------------------------
+
+species(name = "AR",
+    atoms = " Ar:1 ",
+    thermo = (
+       NASA( [  300.00,  1000.00], [  2.500000000E+00,   0.000000000E+00, 
+                0.000000000E+00,   0.000000000E+00,   0.000000000E+00,
+               -7.453750000E+02,   4.366000000E+00] ),
+       NASA( [ 1000.00,  5000.00], [  2.500000000E+00,   0.000000000E+00, 
+                0.000000000E+00,   0.000000000E+00,   0.000000000E+00,
+               -7.453750000E+02,   4.366000000E+00] )
+             ),
+    transport = gas_transport(
+                     geom = "atom",
+                     diam =     3.33,
+                     well_depth =   136.50),
+    note = "120186"
+       )
+
+
+
+#-------------------------------------------------------------------------------
+#  Reaction data 
+#-------------------------------------------------------------------------------

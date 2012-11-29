@@ -1,0 +1,5 @@
+#!/bin/sh
+#
+/bin/rm -rf equilibrate_log*.html
+/bin/rm -rf .cttmp* ct2ctml.log transport_log.xml vcs_equilibrate_res*.csv \
+            stflame1_[1234567].csv output_0.txt diff* h2o2.xml stflame1.xml

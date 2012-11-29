@@ -1,0 +1,176 @@
+ Dump of the mixture Diffusivities:
+                 H2      0.001204
+                  H     0.0022584
+                  O    0.00064032
+                 O2    0.00042264
+                 OH    0.00062946
+                H2O    0.00051533
+                HO2    0.00042019
+               H2O2    0.00041763
+                  C    0.00059188
+                 CH    0.00068026
+                CH2     0.0004608
+             CH2(S)     0.0004608
+                CH3    0.00045156
+                CH4    0.00044985
+                 CO     0.0004216
+                CO2    0.00034577
+                HCO    0.00036192
+               CH2O    0.00035926
+              CH2OH    0.00035027
+               CH3O    0.00035027
+              CH3OH    0.00035149
+                C2H     0.0003524
+               C2H2    0.00034919
+               C2H3    0.00034618
+               C2H4    0.00034633
+               C2H5    0.00031771
+               C2H6    0.00031538
+               HCCO    0.00053082
+              CH2CO    0.00030634
+              HCCOH    0.00030634
+                  N    0.00056491
+                 NH    0.00067404
+                NH2    0.00066041
+                NH3    0.00050222
+                NNH    0.00040495
+                 NO    0.00041226
+                NO2    0.00037026
+                N2O    0.00033509
+                HNO    0.00041903
+                 CN    0.00040648
+                HCN    0.00035852
+               H2CN    0.00035559
+               HCNN    0.00053081
+               HCNO    0.00033642
+               HOCN    0.00033642
+               HNCO    0.00033642
+                NCO    0.00033783
+                 N2    0.00043046
+                 AR    0.00041248
+               C3H7    0.00024676
+               C3H8    0.00024577
+             CH2CHO    0.00030507
+             CH3CHO    0.00030384
+ Dump of the species viscosities:
+                 H2    4.4588e-05
+                  H    4.4588e-05
+                  O    4.4588e-05
+                 O2    4.4588e-05
+                 OH    4.4588e-05
+                H2O    4.4588e-05
+                HO2    4.4588e-05
+               H2O2    4.4588e-05
+                  C    4.4588e-05
+                 CH    4.4588e-05
+                CH2    4.4588e-05
+             CH2(S)    4.4588e-05
+                CH3    4.4588e-05
+                CH4    4.4588e-05
+                 CO    4.4588e-05
+                CO2    4.4588e-05
+                HCO    4.4588e-05
+               CH2O    4.4588e-05
+              CH2OH    4.4588e-05
+               CH3O    4.4588e-05
+              CH3OH    4.4588e-05
+                C2H    4.4588e-05
+               C2H2    4.4588e-05
+               C2H3    4.4588e-05
+               C2H4    4.4588e-05
+               C2H5    4.4588e-05
+               C2H6    4.4588e-05
+               HCCO    4.4588e-05
+              CH2CO    4.4588e-05
+              HCCOH    4.4588e-05
+                  N    4.4588e-05
+                 NH    4.4588e-05
+                NH2    4.4588e-05
+                NH3    4.4588e-05
+                NNH    4.4588e-05
+                 NO    4.4588e-05
+                NO2    4.4588e-05
+                N2O    4.4588e-05
+                HNO    4.4588e-05
+                 CN    4.4588e-05
+                HCN    4.4588e-05
+               H2CN    4.4588e-05
+               HCNN    4.4588e-05
+               HCNO    4.4588e-05
+               HOCN    4.4588e-05
+               HNCO    4.4588e-05
+                NCO    4.4588e-05
+                 N2    4.4588e-05
+                 AR    4.4588e-05
+               C3H7    4.4588e-05
+               C3H8    4.4588e-05
+             CH2CHO    4.4588e-05
+             CH3CHO    4.4588e-05
+ Dump of the Thermal Diffusivities :
+                 H2             0
+                  H             0
+                  O             0
+                 O2             0
+                 OH             0
+                H2O             0
+                HO2             0
+               H2O2             0
+                  C             0
+                 CH             0
+                CH2             0
+             CH2(S)             0
+                CH3             0
+                CH4             0
+                 CO             0
+                CO2             0
+                HCO             0
+               CH2O             0
+              CH2OH             0
+               CH3O             0
+              CH3OH             0
+                C2H             0
+               C2H2             0
+               C2H3             0
+               C2H4             0
+               C2H5             0
+               C2H6             0
+               HCCO             0
+              CH2CO             0
+              HCCOH             0
+                  N             0
+                 NH             0
+                NH2             0
+                NH3             0
+                NNH             0
+                 NO             0
+                NO2             0
+                N2O             0
+                HNO             0
+                 CN             0
+                HCN             0
+               H2CN             0
+               HCNN             0
+               HCNO             0
+               HOCN             0
+               HNCO             0
+                NCO             0
+                 N2             0
+                 AR             0
+               C3H7             0
+               C3H8             0
+             CH2CHO             0
+             CH3CHO             0
+Viscoscity and thermal Cond vs. T
+
+
+************************************************
+                   Cantera Error!                  
+************************************************
+
+
+Procedure: Error in IdealGasPhase.cpp
+Error:     cv_vib only supported for StatMech!. 
+
+
+
+

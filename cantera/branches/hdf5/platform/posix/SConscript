@@ -1,0 +1,128 @@
+import sys
+
+from buildutils import *
+
+Import('env', 'build', 'install')
+localenv = env.Clone()
+
+### Generate customized scripts ###
+
+# 'setup_cantera'
+if localenv['layout'] != 'debian':
+    v = sys.version_info
+    localenv['python_module_loc'] = pjoin(localenv['python_prefix'], 'lib',
+                                          'python%i.%i' % v[:2], 'site-packages')
+    target = build(localenv.SubstFile('setup_cantera', 'setup_cantera.in'))
+    install('$inst_bindir', target)
+
+# 'mixmaster'
+if env['python_package'] == 'full':
+    target = build(localenv.SubstFile('mixmaster', 'mixmaster.in'))
+    inst = install('$inst_python_bindir', target)
+    install(localenv.AddPostAction, inst, Chmod('$TARGET', 0755))
+
+# Cantera.mak include file for Makefile projects
+# cantera.pc for use with pkg-config
+
+pc_libs = []
+pc_libdirs = []
+pc_incdirs = []
+pc_cflags = []
+
+localenv['mak_corelibs'] = '-lcantera'
+if not env['single_library']:
+    localenv['mak_corelibs'] += ' -lctmath -lexecstream'
+
+localenv['mak_extra_includes'] = ['-I%s' % s for s in localenv['extra_inc_dirs']]
+pc_incdirs.extend(localenv['extra_inc_dirs'])
+
+localenv['mak_extra_libdirs'] = ['-L%s' % s for s in localenv['extra_lib_dirs']]
+pc_libdirs.extend(localenv['extra_lib_dirs'])
+
+if env['use_sundials'] == 'n':
+    localenv['mak_sundials_libs'] = '-lcvode'
+    localenv['mak_sundials_libdir'] = ''
+    localenv['mak_sundials_include'] = ''
+else:
+    # Add links to the sundials environment
+    localenv['mak_sundials_libs'] = ' '.join('-l%s' % s
+                                             for s in localenv['sundials_libs'])
+    pc_libs += localenv['sundials_libs']
+    if localenv['sundials_libdir']:
+        localenv['mak_sundials_libdir'] = '-L' + localenv['sundials_libdir']
+        pc_libdirs.append(localenv['sundials_libdir'])
+    else:
+        localenv['mak_sundials_libdir'] = ''
+
+    if localenv['sundials_include']:
+        localenv['mak_sundials_include'] = '-I' + localenv['sundials_include']
+        pc_incdirs.append(localenv['sundials_include'])
+    else:
+        localenv['mak_sundials_include'] = ''
+
+if localenv['boost_inc_dir']:
+    localenv['mak_boost_include'] = '-I' + localenv['boost_inc_dir']
+    pc_incdirs.append(localenv['boost_inc_dir'])
+else:
+    localenv['mak_boost_include'] = ''
+
+if localenv['boost_lib_dir'] and localenv['use_boost_libs']:
+    localenv['mak_boost_libdir'] = '-L' + localenv['boost_lib_dir']
+    pc_libdirs.append(localenv['boost_lib_dir'])
+else:
+    localenv['mak_boost_libdir'] = ''
+
+localenv['mak_boost_libs'] = ' '.join('-l%s' % s for s in localenv['boost_libs'])
+pc_libs += localenv['boost_libs']
+
+# Handle blas/lapack linkage
+localenv['mak_have_blas_lapack_dir'] = '1' if localenv['blas_lapack_dir'] else '0'
+
+if localenv['blas_lapack_dir']:
+    localenv['mak_blas_lapack_libs'] = ' '.join('-l%s' % s for s in localenv['blas_lapack_libs'])
+    pc_libs += localenv['blas_lapack_libs']
+elif not env['single_library']:
+    localenv['mak_blas_lapack_libs'] = ('-L' + '$inst_libdir' + ' -lctlapack -lctblas')
+else:
+    localenv['mak_blas_lapack_libs'] = ''
+
+if 'Accelerate' in localenv['FRAMEWORKS']:
+    localenv['mak_blas_lapack_libs'] += ' -framework Accelerate'
+    pc_cflags.append('-framework Accelerate')
+
+localenv['mak_threadflags'] = localenv['thread_flags']
+if '-pthread' in localenv['thread_flags']:
+    localenv['mak_fort_threadflags'] = '-lpthread'
+    pc_cflags.append('-pthread')
+    pc_libs.append('pthread')
+else:
+    localenv['mak_fort_threadflags'] = ''
+
+#  Handle f2c Linkage
+localenv['mak_f2c_lib'] = '-lctf2c' if localenv['build_with_f2c'] and not env['single_library'] else ''
+
+if not localenv['build_with_f2c']:
+    localenv['mak_syslibs'] = ' '.join('-l%s' % s for s in localenv['FORTRANSYSLIBS'])
+    pc_libs.extend(localenv['FORTRANSYSLIBS'])
+else:
+    localenv['mak_syslibs'] = ''
+
+# print localenv.Dump()
+# exit(0)
+
+mak = build(localenv.SubstFile('Cantera.mak', 'Cantera.mak.in'))
+install('$inst_incdir', mak)
+
+# Generate cantera.pc for use with pkg-config
+localenv['pc_prefix'] = localenv['prefix']
+localenv['pc_libdirs'] = ' '.join('-L' + d for d in pc_libdirs)
+localenv['pc_libs'] = ' '.join('-l' + lib for lib in pc_libs)
+localenv['pc_incdirs'] = ' '.join('-I' + d for d in pc_incdirs)
+localenv['pc_cflags'] = ' '.join(pc_cflags)
+
+pc = build(localenv.SubstFile('cantera.pc', 'cantera.pc.in'))
+install('$inst_libdir/pkgconfig', pc)
+
+# @deprecated The install_tsc script is unused and should be removed
+if localenv['layout'] != 'debian':
+    install('$inst_bindir', '#platform/posix/bin/install_tsc')
