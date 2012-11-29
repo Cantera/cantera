@@ -1,0 +1,1608 @@
+ Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01
+Not adding reactor (none), since type = 1
+Adding reactor (none)
+Not adding reactor (none), since type = 1
+Initializing reactor network.
+Reactor 0: 20 variables.
+            0 sensitivity params.
+Number of equations: 20
+Maximum time step:             0.01

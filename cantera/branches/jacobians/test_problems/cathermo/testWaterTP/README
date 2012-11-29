@@ -1,0 +1,11 @@
+
+This test is used to make sure that the basic functions in
+the water property routine satisfy tests
+specified in the paper:
+
+W. Wagner, A. Prub, "The IAPWS Formulation 1995 for the
+Thermodynamic Properties of Ordinary Water Substance
+for General and Scientific Use," J. Phys. Chem.
+Ref. Data, v. 31, 387 - 442, 2002.
+
+This routine exercises the saturation pressure routine.

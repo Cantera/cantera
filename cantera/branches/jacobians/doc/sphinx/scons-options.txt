@@ -1,0 +1,356 @@
+scons: Reading SConscript files ...
+
+        **************************************************
+        *   Configuration options for building Cantera   *
+        **************************************************
+
+The following options can be passed to SCons to customize the Cantera
+build process. They should be given in the form:
+
+    scons build option1=value1 option2=value2
+
+Variables set in this way will be stored in the 'cantera.conf' file
+and reused automatically on subsequent invocations of
+scons. Alternatively, the configuration options can be entered
+directly into 'cantera.conf' before running 'scons build'. The format
+of this file is:
+
+    option1 = 'value1'
+    option2 = 'value2'
+
+        **************************************************
+
+* msvc_version: [ string ]
+    Version of Visual Studio to use. The default is the same version
+    that was used to compile the installed version of Python.
+    - default: '9.0'
+
+* target_arch: [ string ]
+    Target architecture. The default is the same architecture as the
+    installed version of Python
+    - default: 'amd64'
+
+* toolchain: [ msvc | mingw | intel ]
+    The preferred compiler toolchain.
+    - default: 'msvc'
+
+* CXX: [ string ]
+    The C++ compiler to use.
+    - default: 'g++'
+
+* CC: [ string ]
+    The C compiler to use. This is only used to compile CVODE and the
+    Python extension module.
+    - default: 'gcc'
+
+* prefix: [ /path/to/prefix ]
+    Set this to the directory where Cantera should be installed.
+    - default: '/usr/local'
+
+* python_package: [ new | full | minimal | none | default ]
+    If you plan to work in Python, or you want to use the graphical
+    MixMaster application, then you need the 'full' Cantera Python
+    Package. If, on the other hand, you will only use Cantera from some
+    other language (e.g. MATLAB or Fortran 90/95) and only need Python
+    to process .cti files, then you only need a 'minimal' subset of the
+    package (actually, only one file). The default behavior is to build
+    the Python package if the required prerequisites (numpy) are
+    installed.
+    - default: 'default'
+
+* python_cmd: [ /path/to/python_cmd ]
+    Cantera needs to know where to find the Python interpreter. If
+    PYTHON_CMD is not set, then the configuration process will use the
+    same Python interpreter being used by SCons.
+    - default: '/usr/bin/python'
+
+* python_array: [ numpy | numarray | numeric ]
+    The Cantera Python interface requires one of the Python array
+    packages listed. Support for the legacy 'numeric' and 'numarray'
+    packages is deprecated, and will be removed in a future version of
+    Cantera.
+    - default: 'numpy'
+
+* python_array_home: [ /path/to/python_array_home ]
+    If numpy was installed using the --home option, set this to the home
+    directory for numpy.
+    - default: ''
+
+* python_prefix: [ /path/to/python_prefix ]
+    Use this option if you want to install the Cantera Python package to
+    an alternate location. On Unix-like systems, the default is the same
+    as the $prefix option. If this option is set to the empty string
+    (the default on Windows), then the Package will be installed to the
+    system default 'site-packages' directory.
+    - default: '$prefix'
+
+* python3_package: [ y | n | default ]
+    Controls whether or not the Python 3 module will be built. By
+    default, the module will be built if the Python 3 interpreter can be
+    found
+    - default: 'default'
+
+* python3_cmd: [ /path/to/python3_cmd ]
+     The name (full path if necessary) of the Python 3 interpreter.
+    Required to build the Python 3 module.
+    - default: 'python3'
+
+* python3_array_home: [ /path/to/python3_array_home ]
+    "If numpy was installed to a custom location (e.g. using the --home
+    option, set this to the directory for numpy
+    - default: ''
+
+* python3_prefix: [ /path/to/python3_prefix ]
+    Use this option if you want to install the Cantera Python 3 package
+    to an alternate location. On Unix-like systems, the default is the
+    same as the $prefix option. If this option is set to the empty
+    string (the default on Windows), then the Package will be installed
+    to the system default 'site-packages' directory.
+    - default: '$prefix'
+
+* matlab_toolbox: [ y | n | default ]
+    This variable controls whether the Matlab toolbox will be built. If
+    set to 'y', you will also need to set the value of the 'matlab_path'
+    variable. If set to 'default', the Matlab toolbox will be built if
+    'matlab_path' is set.
+    - default: 'default'
+
+* matlab_path: [ /path/to/matlab_path ]
+    Path to the Matlab install directory. This should be the directory
+    containing the 'extern', 'bin', etc. subdirectories. Typical values
+    are: "C:/Program Files/MATLAB/R2011a" on Windows,
+    "/Applications/MATLAB_R2011a.app" on OS X, or "/opt/MATLAB/R2011a"
+    on Linux.
+    - default: ''
+
+* f90_interface: [ y | n | default ]
+    This variable controls whether the Fortran 90/95 interface will be
+    built. If set to 'default', the builder will look for a compatible
+    Fortran compiler in the $PATH, and compile the Fortran 90 interface
+    if one is found.
+    - default: 'default'
+
+* F90: [ /path/to/F90 ]
+    The Fortran 90 compiler. If unspecified, the builder will look for a
+    compatible compiler (gfortran, ifort, g95) in the $PATH.
+    - default: ''
+
+* F90FLAGS: [ string ]
+    Compilation options for the Fortran 90 compiler.
+    - default: '-O3'
+
+* debug_verbose: [ yes | no ]
+    Enable extra printing to aid in debugging. This code is marked by
+    the preprocessor macros DEBUG_MODE and DEBUG_MODE_ENABLED.
+    - default: 'no'
+
+* coverage: [ yes | no ]
+    Enable collection of code coverage information with gcov. Available
+    only when compiling with gcc.
+    - default: 'no'
+
+* doxygen_docs: [ yes | no ]
+    Build HTML documentation for the C++ interface using Doxygen
+    - default: 'no'
+
+* sphinx_docs: [ yes | no ]
+    Build HTML documentation for the Python module using Sphinx
+    - default: 'no'
+
+* with_lattice_solid: [ yes | no ]
+    Include thermodynamic model for lattice solids in the Cantera
+    kernel.
+    - default: 'yes'
+* sphinx_cmd: [ /path/to/sphinx_cmd ]
+    Command to use for building the Sphinx documentation
+    - default: 'sphinx-build'
+
+* with_h298modify_capability: [ yes | no ]
+    Enable changing the 298K heats of formation directly via the C++
+    layer.
+    - default: 'no'
+
+* with_html_log_files: [ yes | no ]
+    write HTML log files. Some multiphase equilibrium procedures can
+    write copious diagnostic log messages. Set this to 'n' to disable
+    this capability. (results in slightly faster equilibrium
+    calculations)
+    - default: 'yes'
+
+* use_sundials: [ default | y | n ]
+    Cantera uses the CVODE or CVODES ODE integrator to time-integrate
+    reactor network ODE's and for various other purposes. An older
+    version of CVODE comes with Cantera, but it is possible to use the
+    latest version as well, which now supports sensitivity analysis
+    (CVODES). CVODES is a part of the 'sundials' package from Lawrence
+    Livermore National Laboratory. Sundials is not distributed with
+    Cantera, but it is free software that may be downloaded and
+    installed separately. If you leave USE_SUNDIALS = 'default', then it
+    will be used if you have it, and if not the older CVODE will be
+    used. Or set USE_SUNDIALS to 'y' or 'n' to force using it or not.
+    Note that sensitivity analysis with Cantera requires use of
+    sundials. See: http://www.llnl.gov/CASC/sundials
+    - default: 'default'
+
+* sundials_include: [ /path/to/sundials_include ]
+    The directory where the Sundials header files are installed. This
+    should be the directory that contains the "cvodes", "nvector", etc.
+    subdirectories. Not needed if the headers are installed in a
+    standard location, e.g. /usr/include.
+    - default: ''
+
+* sundials_libdir: [ /path/to/sundials_libdir ]
+    The directory where the sundials static libraries are installed. Not
+    needed if the libraries are installed in a standard location, e.g.
+    /usr/lib.
+    - default: ''
+
+* blas_lapack_libs: [ string ]
+    Cantera comes with Fortran (or C) versions of those parts of BLAS
+    and LAPACK it requires. But performance may be better if you use a
+    version of these libraries optimized for your machine hardware. If
+    you want to use your own libraries, set blas_lapack_libs to the the
+    list of libraries that should be passed to the linker, separated by
+    commas, e.g. "lapack,blas" or "lapack,f77blas,cblas,atlas".
+    - default: ''
+
+* blas_lapack_dir: [ /path/to/blas_lapack_dir ]
+    Directory containing the libraries specified by 'blas_lapack_libs'.
+    - default: ''
+
+* lapack_names: [ lower | upper ]
+    Set depending on whether the procedure names in the specified
+    libraries are lowercase or uppercase. If you don't know, run 'nm' on
+    the library file (e.g. 'nm libblas.a').
+    - default: 'lower'
+
+* lapack_ftn_trailing_underscore: [ yes | no ]
+    - default: 'yes'
+
+* lapack_ftn_string_len_at_end: [ yes | no ]
+    - default: 'yes'
+
+* env_vars: [ string ]
+    Environment variables to propagate through to SCons. Either the
+    string "all" or a comma separated list of variable names, e.g.
+    'LD_LIBRARY_PATH,HOME'
+    - default: ''
+
+* cxx_flags: [ string ]
+    Compiler flags passed to the C++ compiler only.
+    - default: '-ftemplate-depth-128'
+
+* cc_flags: [ string ]
+    Compiler flags passed to both the C and C++ compilers, regardless of
+    optimization level
+    - default: '-Wall -Wno-deprecated-declarations'
+
+* thread_flags: [ string ]
+    Compiler and linker flags for POSIX multithreading support
+    - default: '-pthread'
+
+* optimize: [ yes | no ]
+    Enable extra compiler optimizations specified by the
+    "optimize_flags" variable, instead of the flags specified by the
+    "debug_flags" variable
+    - default: 'yes'
+
+* optimize_flags: [ string ]
+    Additional compiler flags passed to the C/C++ compiler when
+    optimize=yes.
+    - default: '-O3 -DNDEBUG -finline-functions -Wno-inline'
+
+* no_optimize_flags: [ string ]
+    Additional compiler flags passed to the C/C++ compiler when
+    optimize=no.
+    - default: '-O0 -fno-inline'
+
+* debug: [ yes | no ]
+    Enable compiler debugging symbols.
+    - default: 'yes'
+
+* debug_flags: [ string ]
+    Additional compiler flags passed to the C/C++ compiler when
+    debug=yes.
+    - default: '-g'
+
+* no_debug_flags: [ string ]
+    Additional compiler flags passed to the C/C++ compiler when
+    debug=no.
+    - default: ''
+
+* debug_linker_flags: [ string ]
+    Additional options passed to the linker when debug=yes
+    - default: ''
+
+* no_debug_linker_flags: [ string ]
+    Additional options passed to the linker when debug=yes
+    - default: ''
+
+* build_thread_safe: [ yes | no ]
+    Cantera can be built so that it is thread safe. Doing so requires
+    using procedures from the Boost library, so if you want thread
+    safety then you need to get and install Boost (http://www.boost.org)
+    if you don't have it. This is turned off by default, in which case
+    Boost is not required to build Cantera.
+    - default: 'no'
+
+* boost_inc_dir: [ /path/to/boost_inc_dir ]
+    Location of the Boost header files
+    - default: '/usr/include'
+
+* boost_lib_dir: [ /path/to/boost_lib_dir ]
+    Directory containing the Boost.Thread library
+    - default: '/usr/lib'
+
+* boost_thread_lib: [ string ]
+    The name of the Boost.Thread library.
+    - default: 'boost_thread'
+
+* build_with_f2c: [ yes | no ]
+    For external procedures written in Fortran 77, both the original F77
+    source code and C source code generated by the 'f2c' program are
+    included. Set this to "n" if you want to build Cantera using the F77
+    sources in the ext directory.
+    - default: 'yes'
+
+* F77: [ string ]
+    Compiler used to build the external Fortran 77 procedures from the
+    Fortran source code
+    - default: 'gfortran'
+
+* F77FLAGS: [ string ]
+    Fortran 77 Compiler flags. Note that the Fortran compiler flags must
+    be set to produce object code compatible with the C/C++ compiler you
+    are using.
+    - default: '-O3'
+
+* stage_dir: [ /path/to/stage_dir ]
+     Directory relative to the Cantera source directory to be used as a
+    staging area for building e.g. a Debian package. If specified,
+    'scons install' will install files to 'stage_dir/prefix/...' instead
+    of installing into the local filesystem.
+    - default: ''
+
+* legacy_headers: [ yes | no ]
+    Create symbolic links for headers that were installed to the
+    'kernel' subdirectory in previous versions of Cantera.
+    - default: 'no'
+
+* graphvisdir: [ /path/to/graphvisdir ]
+    The directory location of the graphviz program, dot. dot is used for
+    creating the documentation, and for making reaction path diagrams.
+    If "dot" is in your path, you can leave this unspecified. NOTE:
+    Matlab comes with a stripped-down version of 'dot'. If 'dot' is on
+    your path, make sure it is not the Matlab version!
+    - default: ''
+
+* rpfont: [ string ]
+    The font to use in reaction path diagrams. This must be a font name
+    recognized by the 'dot' program. On linux systems, this should be
+    lowercase 'helvetica'.
+    - default: 'Helvetica'
+
+* cantera_version: [ string ]
+    - default: '2.0.0b1'
+

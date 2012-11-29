@@ -1,0 +1,23 @@
+.TH "ctml_writer" 1 "4 Jun 2012" "ctml_writer" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+ctml_writer \- process Cantera .cti input files
+
+.SH SYNOPSIS
+.B ctml_writer
+.I input-file.cti
+
+.SH DESCRIPTION
+
+.I ctml_writer
+processes a Cantera .cti file and produces a CTML (.xml) file. It
+can be imported as a module, or used as a script. The output file name
+is based on the input file name, with the extension changed to .xml.
+
+.SH EXAMPLE
+.TP
+ctml_writer infile.cti
+
+This will produce the CTML file
+.I infile.xml

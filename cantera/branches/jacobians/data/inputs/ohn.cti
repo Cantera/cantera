@@ -1,0 +1,15 @@
+#
+# This definition extracts the O/H/N submechanism from GRI-Mech 3.0
+
+ideal_gas(name = "gas",
+          elements = "O H N",
+          species = """gri30: all""",
+          transport = 'Mix',
+          reactions = 'gri30: all',
+          options = ['skip_undeclared_elements',
+                     'skip_undeclared_species',
+                     'skip_undeclared_third_bodies'],
+          initial_state = state(temperature = 300.0, pressure = OneAtm,
+                                mole_fractions = 'H2:2, O2:1, N2:3.76')
+          )
+

@@ -1,0 +1,47 @@
+
+<?xml version="1.0"?>
+<ctml>
+  <validate reactions="yes" species="yes"/>
+                   
+ <!-- phase H    -->
+  <phase dim="3" id="H">
+    <elementArray datasrc="elements.xml">
+        O H C N Na Cl
+    </elementArray>
+    <speciesArray datasrc="#species_test"> H O</speciesArray>
+    <thermo model="IdealGas">
+      <density units="g/cm3">2.165</density>
+    </thermo>
+    <transport model="None"/>
+    <kinetics model="none"/>
+  </phase>
+
+ <!-- species definitions     -->
+  <speciesData id="species_test">
+
+    <!-- species H   -->
+    <species name="H">
+      <atomArray> H:1 </atomArray>
+      <thermo>
+        <StatMech P0="100000.0" Tmax="1000.0" Tmin="0.1">
+        </StatMech>
+      </thermo>
+      <density units="g/cm3">2.165</density>
+    </species>
+
+    <!-- species O   -->
+    <species name="O">
+      <atomArray> O:1 </atomArray>
+      <thermo>
+        <StatMech P0="100000.0" Tmax="1000.0" Tmin="0.1">
+          <floatArray name="coeffs" size="7">
+            2.344331120E+00,   7.980520750E-03,  -1.947815100E-05,   2.015720940E-08, 
+           -7.376117610E-12,  -9.179351730E+02,   6.830102380E-01</floatArray>
+        </StatMech>
+      </thermo>
+      <density units="g/cm3">2.165</density>
+    </species>
+
+  </speciesData>
+
+</ctml>

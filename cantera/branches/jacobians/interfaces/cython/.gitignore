@@ -1,0 +1,13 @@
+cantera/*.cpp
+cantera/*.c
+cantera/data/*.cti
+cantera/data/*.xml
+cantera/test/data/*.cti
+cantera/test/data/*.xml
+cantera/test/data/*.inp
+cantera/test/data/*.dat
+cantera/test/data/*.csv
+setup2.py
+setup3.py
+Cantera.egg-info
+dist
