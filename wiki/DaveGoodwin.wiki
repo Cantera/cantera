@@ -1,0 +1,23 @@
+#summary One-sentence summary of this page.
+#labels Featured
+
+= In Memory of Dave Goodwin =
+
+Dave Goodwin, the original developer of Cantera, recently passed away. We would like to provide a wiki page for his friends and colleagues to salute his efforts at developing an open-source constitutive modeling package. Please add your thoughts and remembrances about Dave to this wiki page.
+
+= The Origin of Cantera =
+
+I know that the development of Cantera was a real passion for Dave, an advocacy for which went way beyond just his normal professional life. I think that whole community owes Dave a debt of gratitude in getting Cantera off of the ground and that the debt is best paid by continuing to develop Cantera along the principles that he so fervently espoused.
+
+Dave started off by with an extensive overhaul of the Chemkin suite of programs for gas-phase thermochemistry and kinetics. Chemkin had originally been developed at Sandia National Laboratories in the 1970s and had quickly gone into worldwide use. Dave became interested in overhauling Chemkin for two primary reasons. The first reason was that, mostly because of its success, Chemkin became a for-profit product whose distribution rights was licensed out during the nineties. Dave was very passionate about the open-source movement and about the necessity of keeping software for academic use as being in the public domain. Dave chose Cantera's licensing approach, Berkeley license, with this in mind.
+
+The second reason was that Dave saw the need to upgrade the modeling software to an object-oriented structure, which could then be extended easily to new constitutive models and situations. Dave had a strong passion for making sure his software kept up with the times, and advocated for the current multi-interface structure that Cantera currently has. Along the way he developed a new formalism for calculating the collision integrals used in the evaluation of transport parameters from dilute ideal gases theory.
+
+I first became aware of Dave's contributions through his groundbreaking work on diamond  CVD. I remember reading his papers on the subject and marveling at how understanding the detailed kinetics of surface processes could directly lead to a real understanding of the performance of diamond growth reactors. That work probably was done with Cantera, and probably helped to direct the structure and content of Dave's original formulation of Cantera. 
+
+
+Best wishes,
+Harry Moffat
+ 
+
+= Please add Contributions here =
