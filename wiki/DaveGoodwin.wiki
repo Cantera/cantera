@@ -3,6 +3,10 @@
 
 = In Memory of Dave Goodwin =
 
+https://docs.google.com/open?id=0Bz0KUVyMyQtcSl96dUxncWpNR3M
+
+
+
 Dave Goodwin, the original developer of Cantera, recently passed away. We would like to provide a wiki page for his friends and colleagues to salute his efforts at developing an open-source constitutive modeling package. Please add your thoughts and remembrances about Dave to this wiki page.
 
 = The Origin of Cantera =
