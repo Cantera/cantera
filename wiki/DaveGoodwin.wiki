@@ -1,10 +1,18 @@
 #summary In honor of Dave Goodwin, please add your remembrances.
 #labels Featured
 
-= In Memory of Dave Goodwin =
+= In Memoriam =
 
-https://docs.google.com/open?id=0Bz0KUVyMyQtcSl96dUxncWpNR3M
+Prof. David Goodwin, Original Developer of Cantera 
 
+_1957 – 2012_
+
+
+https://cantera.googlecode.com/svn/wiki/Goodwin.png
+
+_“Keep on working to make this world a better place. It is important to get your thoughts away from your problems and focused on those who are less fortunate than you are.”_
+
+_“ We can't control the hand of cards we are dealt, but we sure can determine how we play them.”_
 
 
 Dave Goodwin, the original developer of Cantera, recently passed away. We would like to provide a wiki page for his friends and colleagues to salute his efforts at developing an open-source constitutive modeling package. Please add your thoughts and remembrances about Dave to this wiki page.
