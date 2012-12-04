@@ -301,16 +301,27 @@ void Sim1D::solve(int loglevel, bool refine_grid)
                     writelog("]");
                     writelog(" point grid(s).\n");
                 }
+                if (loglevel > 6) {
+                    save("debug_sim1d.xml", "debug",
+                         "After successful Newton solve");
+                }
                 ok = true;
                 soln_number++;
             } else {
                 char buf[100];
                 if (loglevel > 0) {
                     writelog("    failure. \n");
+                    if (loglevel > 6) {
+                        save("debug_sim1d.xml", "debug",
+                             "After unsuccessful Newton solve");
+                    }
                     writelog("Take "+int2str(nsteps)+" timesteps   ");
                 }
                 dt = timeStep(nsteps, dt, DATA_PTR(m_x), DATA_PTR(m_xnew),
                               loglevel-1);
+                if (loglevel > 6) {
+                    save("debug_sim1d.xml", "debug", "After timestepping");
+                }
                 if (loglevel == 1) {
                     sprintf(buf, " %10.4g %10.4g \n", dt,
                             log10(ssnorm(DATA_PTR(m_x), DATA_PTR(m_xnew))));
@@ -337,6 +348,9 @@ void Sim1D::solve(int loglevel, bool refine_grid)
 
         if (refine_grid) {
             new_points = refine(loglevel);
+            if (new_points && loglevel > 6) {
+                save("debug_sim1d.xml", "debug", "After regridding");
+            }
             if (new_points < 0) {
                 writelog("Maximum number of grid points reached.");
                 new_points = 0;
