@@ -58,6 +58,8 @@ public:
         return m_temp;
     }
 
+    virtual size_t nSpecies() { return 0; }
+
     /// Set the mole fractions by specifying a std::string.
     virtual void setMoleFractions(const std::string& xin) {
         err("setMoleFractions");
@@ -168,6 +170,8 @@ public:
     }
 
     virtual void _finalize(const doublereal* x) {}
+
+    virtual size_t nSpecies() { return m_nsp; }
 
     virtual void setMoleFractions(const std::string& xin);
     virtual void setMoleFractions(doublereal* xin);
@@ -318,6 +322,8 @@ public:
     virtual void _finalize(const doublereal* x) {
         ;
     }
+
+    virtual size_t nSpecies() { return m_nsp; }
 
     virtual void setMoleFractions(const std::string& xin);
     virtual void setMoleFractions(doublereal* xin);
