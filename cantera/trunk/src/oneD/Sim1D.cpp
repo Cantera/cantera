@@ -79,6 +79,9 @@ void Sim1D::setInitialGuess(const std::string& component, vector_fp& locs, vecto
 void Sim1D::setValue(size_t dom, size_t comp, size_t localPoint,  doublereal value)
 {
     size_t iloc = domain(dom).loc() + domain(dom).index(comp, localPoint);
+    AssertThrowMsg(iloc < m_x.size(), "Sim1D::setValue",
+                   "Index out of bounds:" + int2str(iloc) + " > " +
+                   int2str(m_x.size()));
     m_x[iloc] = value;
 }
 
@@ -92,22 +95,18 @@ void Sim1D::setValue(size_t dom, size_t comp, size_t localPoint,  doublereal val
 doublereal Sim1D::value(size_t dom, size_t comp, size_t localPoint) const
 {
     size_t iloc = domain(dom).loc() + domain(dom).index(comp, localPoint);
-#ifdef DEBUG_MODE
-    int j = static_cast<int>(iloc);
-    if (j < 0) {
-        throw CanteraError("Sim1D::value", "out of bounds: " + int2str(j));
-    }
-    if (j >= (int) m_x.size()) {
-        throw CanteraError("Sim1D::value", "exceeded top of bounds: " + int2str(j) +
-                           " >= " + int2str(m_x.size()));
-    }
-#endif
+    AssertThrowMsg(iloc < m_x.size(), "Sim1D::value",
+                   "Index out of bounds:" + int2str(iloc) + " > " +
+                   int2str(m_x.size()));
     return m_x[iloc];
 }
 
 doublereal Sim1D::workValue(size_t dom, size_t comp, size_t localPoint) const
 {
     size_t iloc = domain(dom).loc() + domain(dom).index(comp, localPoint);
+    AssertThrowMsg(iloc < m_x.size(), "Sim1D::workValue",
+                   "Index out of bounds:" + int2str(iloc) + " > " +
+                   int2str(m_x.size()));
     return m_xnew[iloc];
 }
 
