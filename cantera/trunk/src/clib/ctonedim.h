@@ -71,6 +71,7 @@ extern "C" {
     CANTERA_CAPI int sim1D_refine(int i, int loglevel);
     CANTERA_CAPI int sim1D_setRefineCriteria(int i, int dom, double ratio,
             double slope, double curve, double prune);
+    CANTERA_CAPI int sim1D_setGridMin(int i, int dom, double gridmin);
     CANTERA_CAPI int sim1D_save(int i, char* fname, char* id,
                                 char* desc);
     CANTERA_CAPI int sim1D_restore(int i, char* fname, char* id);

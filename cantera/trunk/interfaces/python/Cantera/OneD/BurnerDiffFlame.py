@@ -83,6 +83,9 @@ class BurnerDiffFlame(Stack):
                                 ratio = ratio, slope = slope, curve = curve,
                                 prune = prune)
 
+    def setGridMin(self, gridmin):
+        Stack.setGridMin(self, self.flame, gridmin)
+
     def setProfile(self, component, locs, vals):
         self._initialized = 1
         Stack.setProfile(self, self.flame, component, locs, vals)

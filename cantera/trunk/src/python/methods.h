@@ -146,6 +146,7 @@ static PyMethodDef ct_methods[] = {
     {"sim1D_solve", py_sim1D_solve, METH_VARARGS},
     {"sim1D_refine", py_sim1D_refine, METH_VARARGS},
     {"sim1D_setRefineCriteria", py_sim1D_setRefineCriteria, METH_VARARGS},
+    {"sim1D_setGridMin", py_sim1D_setGridMin, METH_VARARGS},
     {"sim1D_save", py_sim1D_save, METH_VARARGS},
     {"sim1D_restore", py_sim1D_restore, METH_VARARGS},
     {"sim1D_writeStats", py_sim1D_writeStats, METH_VARARGS},
