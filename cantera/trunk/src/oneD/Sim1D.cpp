@@ -624,6 +624,20 @@ void Sim1D::setRefineCriteria(int dom, doublereal ratio,
     }
 }
 
+void Sim1D::setGridMin(int dom, double gridmin)
+{
+    if (dom >= 0) {
+        Refiner& r = domain(dom).refiner();
+        r.setGridMin(gridmin);
+    } else {
+        for (size_t n = 0; n < m_nd; n++) {
+            Refiner& r = domain(n).refiner();
+            r.setGridMin(gridmin);
+        }
+    }
+}
+
+
 void Sim1D::setMaxGridPoints(int dom, int npoints)
 {
     if (dom >= 0) {
