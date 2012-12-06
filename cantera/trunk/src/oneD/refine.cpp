@@ -169,6 +169,12 @@ int Refiner::analyze(size_t n, const doublereal* z,
             m_loc[j-1] = 1;
             m_c["point "+int2str(j-1)] = 1;
         }
+        if (j > 1 && z[j+1]-z[j] > m_ratio * dz[j-2]) {
+            m_keep[j] = 1;
+        }
+        if (j < n-2 && z[j+1]-z[j] > m_ratio * dz[j+1]) {
+            m_keep[j] = 1;
+        }
         //if (m_loc.size() + n > m_npmax) goto done;
     }
 
