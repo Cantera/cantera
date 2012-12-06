@@ -148,6 +148,14 @@ void Sim1D::save(const std::string& fname, const std::string& id,
     OneDim::save(fname, id, desc, DATA_PTR(m_x));
 }
 
+void Sim1D::saveResidual(const std::string& fname, const std::string& id,
+                         const std::string& desc)
+{
+    vector_fp res(m_x.size(), -999);
+    OneDim::eval(npos, &m_x[0], &res[0], 0.0);
+    OneDim::save(fname, id, desc, &res[0]);
+}
+
 /**
  * Initialize the solution with a previously-saved solution.
  */
@@ -305,6 +313,10 @@ void Sim1D::solve(int loglevel, bool refine_grid)
                     save("debug_sim1d.xml", "debug",
                          "After successful Newton solve");
                 }
+                if (loglevel > 7) {
+                    saveResidual("debug_sim1d.xml", "residual",
+                                 "After successful Newton solve");
+                }
                 ok = true;
                 soln_number++;
             } else {
@@ -315,6 +327,11 @@ void Sim1D::solve(int loglevel, bool refine_grid)
                         save("debug_sim1d.xml", "debug",
                              "After unsuccessful Newton solve");
                     }
+                    if (loglevel > 7) {
+                        saveResidual("debug_sim1d.xml", "residual",
+                                     "After unsuccessful Newton solve");
+                    }
+
                     writelog("Take "+int2str(nsteps)+" timesteps   ");
                 }
                 dt = timeStep(nsteps, dt, DATA_PTR(m_x), DATA_PTR(m_xnew),
@@ -322,6 +339,11 @@ void Sim1D::solve(int loglevel, bool refine_grid)
                 if (loglevel > 6) {
                     save("debug_sim1d.xml", "debug", "After timestepping");
                 }
+                if (loglevel > 7) {
+                    saveResidual("debug_sim1d.xml", "residual",
+                                 "After timestepping");
+                }
+
                 if (loglevel == 1) {
                     sprintf(buf, " %10.4g %10.4g \n", dt,
                             log10(ssnorm(DATA_PTR(m_x), DATA_PTR(m_xnew))));
@@ -350,6 +372,10 @@ void Sim1D::solve(int loglevel, bool refine_grid)
             new_points = refine(loglevel);
             if (new_points && loglevel > 6) {
                 save("debug_sim1d.xml", "debug", "After regridding");
+            }
+            if (new_points && loglevel > 7) {
+                saveResidual("debug_sim1d.xml", "residual",
+                             "After regridding");
             }
             if (new_points < 0) {
                 writelog("Maximum number of grid points reached.");

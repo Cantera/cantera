@@ -75,6 +75,9 @@ public:
     void save(const std::string& fname, const std::string& id,
               const std::string& desc);
 
+    void saveResidual(const std::string& fname, const std::string& id,
+              const std::string& desc);
+
     /// Print to stream s the current solution for all domains.
     void showSolution(std::ostream& s);
     void showSolution();
