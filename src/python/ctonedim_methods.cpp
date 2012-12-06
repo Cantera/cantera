@@ -957,6 +957,23 @@ py_sim1D_setRefineCriteria(PyObject* self, PyObject* args)
     return Py_BuildValue("i",_val);
 }
 
+static PyObject*
+py_sim1D_setGridMin(PyObject* self, PyObject* args)
+{
+    int _val;
+    int i;
+    int dom;
+    double gridmin;
+    if (!PyArg_ParseTuple(args, "iid:sim1D_setGridMin", &i, &dom, &gridmin)) {
+        return NULL;
+    }
+
+    _val = sim1D_setGridMin(i,dom,gridmin);
+    if (int(_val) == -1) {
+        return reportCanteraError();
+    }
+    return Py_BuildValue("i",_val);
+}
 
 static PyObject*
 py_sim1D_getInitialSoln(PyObject* self, PyObject* args)

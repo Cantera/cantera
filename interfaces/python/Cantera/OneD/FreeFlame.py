@@ -79,6 +79,9 @@ class FreeFlame(Stack):
                                 ratio = ratio, slope = slope, curve = curve,
                                 prune = prune)
 
+    def setGridMin(self, gridmin):
+        Stack.setGridMin(self, self.flame, gridmin)
+
     def setFixedTemperature(self, temp):
         _cantera.sim1D_setFixedTemperature(self._hndl, temp)
 

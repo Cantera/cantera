@@ -86,6 +86,9 @@ class StagnationFlow(Stack):
                                 ratio = ratio, slope = slope, curve = curve,
                                 prune = prune)
 
+    def setGridMin(self, gridmin):
+        Stack.setGridMin(self, self.flow, gridmin)
+
     def setProfile(self, component, locs, vals):
         self._initialized = 1
         Stack.setProfile(self, self.flow, component, locs, vals)

@@ -617,6 +617,18 @@ class Stack:
         return _cantera.sim1D_setRefineCriteria(self._hndl,
                                                 idom, ratio, slope, curve, prune)
 
+    def setGridMin(self, domain, gridmin):
+        """
+        Set the minimum allowable grid spacing in a domain.
+
+        :param domain:
+            domain object
+        :param gridmin:
+            The minimum allowable grid spacing [m] for this domain
+        """
+        idom = domain.index()
+        return _cantera.sim1D_setGridMin(self._hndl, idom, gridmin)
+
     def save(self, file = 'soln.xml', id = 'solution', desc = 'none'):
         """Save the solution in XML format.
 

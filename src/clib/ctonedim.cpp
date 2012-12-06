@@ -609,6 +609,16 @@ extern "C" {
         }
     }
 
+    int sim1D_setGridMin(int i, int dom, double gridmin)
+    {
+        try {
+            SimCabinet::item(i).setGridMin(dom, gridmin);
+            return 0;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
     int sim1D_save(int i, char* fname, char* id, char* desc)
     {
         try {
