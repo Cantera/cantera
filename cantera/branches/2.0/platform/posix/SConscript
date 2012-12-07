@@ -32,6 +32,7 @@ pc_cflags = []
 localenv['mak_corelibs'] = '-lcantera'
 if not env['single_library']:
     localenv['mak_corelibs'] += ' -lctmath -lexecstream'
+    pc_libs.append('execstream')
 
 if env['use_sundials'] == 'n':
     localenv['mak_sundials_libs'] = '-lcvode'
