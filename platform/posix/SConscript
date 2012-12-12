@@ -24,7 +24,7 @@ if env['python_package'] == 'full':
 # Cantera.mak include file for Makefile projects
 # cantera.pc for use with pkg-config
 
-pc_libs = []
+pc_libs = list(localenv['cantera_libs'])
 pc_libdirs = []
 pc_incdirs = []
 pc_cflags = []
@@ -32,7 +32,6 @@ pc_cflags = []
 localenv['mak_corelibs'] = '-lcantera'
 if not env['single_library']:
     localenv['mak_corelibs'] += ' -lctmath -lexecstream'
-    pc_libs.append('execstream')
 
 if env['use_sundials'] == 'n':
     localenv['mak_sundials_libs'] = '-lcvode'
@@ -42,7 +41,6 @@ else:
     # Add links to the sundials environment
     localenv['mak_sundials_libs'] = ' '.join('-l%s' % s
                                              for s in localenv['sundials_libs'])
-    pc_libs += localenv['sundials_libs']
     if localenv['sundials_libdir']:
         localenv['mak_sundials_libdir'] = '-L' + localenv['sundials_libdir']
         pc_libdirs.append(localenv['sundials_libdir'])
@@ -75,7 +73,6 @@ localenv['mak_have_blas_lapack_dir'] = '1' if localenv['blas_lapack_dir'] else '
 
 if localenv['blas_lapack_dir']:
     localenv['mak_blas_lapack_libs'] = ' '.join('-l%s' % s for s in localenv['blas_lapack_libs'])
-    pc_libs += localenv['blas_lapack_libs']
 elif not env['single_library']:
     localenv['mak_blas_lapack_libs'] = ('-L' + '$inst_libdir' + ' -lctlapack -lctblas')
 else:
