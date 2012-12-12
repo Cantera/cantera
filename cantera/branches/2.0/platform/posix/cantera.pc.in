@@ -8,5 +8,5 @@ Description: Cantera library
 URL: http://cantera.googlecode.com
 Version: @cantera_version@
 
-Libs: -L${libdir} @pc_libdirs@ -lcantera @pc_libs@
+Libs: -L${libdir} @pc_libdirs@ @pc_libs@
 Cflags: @pc_cflags@ -I${includedir} @pc_incdirs@
