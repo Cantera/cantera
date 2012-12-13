@@ -479,25 +479,23 @@ void MargulesVPSSTP::getPartialMolarVolumes(doublereal* vbar) const
     for (size_t iK = 0; iK < m_kk; iK++) {
         delAK = 0;
         delBK = 0;
-        for (size_t i = 0; i <  numBinaryInteractions_; i++) {
+    }
+    for (size_t i = 0; i <  numBinaryInteractions_; i++) {
+        iA =  m_pSpecies_A_ij[i];
+        iB =  m_pSpecies_B_ij[i];
+        XA = moleFractions_[iA];
+        XB = moleFractions_[iB];
+        g0 = (m_VHE_b_ij[i] - T * m_VSE_b_ij[i]);
+        g1 = (m_VHE_c_ij[i] - T * m_VSE_c_ij[i]);
+        const doublereal temp1 = g0 + g1 * XB;
+        const doublereal all = -1.0*XA*XB*temp1 - XA*XB*XB*g1;
 
-            iA =  m_pSpecies_A_ij[i];
-            iB =  m_pSpecies_B_ij[i];
-
-            if (iA==iK) {
-                delAK = 1;
-            } else if (iB==iK) {
-                delBK = 1;
-            }
-
-            XA = moleFractions_[iA];
-            XB = moleFractions_[iB];
-
-            g0 = (m_VHE_b_ij[i] - T * m_VSE_b_ij[i]);
-            g1 = (m_VHE_c_ij[i] - T * m_VSE_c_ij[i]);
-
-            vbar[iK] += XA*XB*(g0+g1*XB)+((delAK-XA)*XB+XA*(delBK-XB))*(g0+g1*XB)+XA*XB*(delBK-XB)*g1;
+        for (size_t iK = 0; iK < m_kk; iK++) {
+            vbar[iK] += all;
+//            vbar[iK] += XA*XB*temp1+((delAK-XA)*XB+XA*(delBK-XB))*temp1+XB*XA*(delBK-XB)*g1;
         }
+        vbar[iA] += XB * temp1;
+        vbar[iB] += XA * temp1 + XA*XB*g1;
     }
 }
 
@@ -634,25 +632,26 @@ void MargulesVPSSTP::s_update_lnActCoeff() const
     size_t iA, iB, iK, delAK, delBK;
     double XA, XB, g0 , g1;
     double T = temperature();
-    double RT = GasConstant*T;
-    lnActCoeff_Scaled_.assign(m_kk, 0.0);
+    double invRT = 1.0 / (GasConstant*T);
+    lnActCoeff_Scaled_.resize(m_kk);
     for (iK = 0; iK < m_kk; iK++) {
-        for (size_t i = 0; i <  numBinaryInteractions_; i++) {
-            iA =  m_pSpecies_A_ij[i];
-            iB =  m_pSpecies_B_ij[i];
-            delAK = 0;
-            delBK = 0;
-            if (iA==iK) {
-                delAK = 1;
-            } else if (iB==iK) {
-                delBK = 1;
-            }
-            XA = moleFractions_[iA];
-            XB = moleFractions_[iB];
-            g0 = (m_HE_b_ij[i] - T * m_SE_b_ij[i]) / RT;
-            g1 = (m_HE_c_ij[i] - T * m_SE_c_ij[i]) / RT;
-            lnActCoeff_Scaled_[iK] += (delAK * XB + XA * delBK - XA * XB) * (g0 + g1 * XB) + XA * XB * (delBK - XB) * g1;
+        lnActCoeff_Scaled_[iK] = 0.0;
+    }
+    for (size_t i = 0; i <  numBinaryInteractions_; i++) {
+        iA =  m_pSpecies_A_ij[i];
+        iB =  m_pSpecies_B_ij[i];
+        g0 = (m_HE_b_ij[i] - T * m_SE_b_ij[i]) * invRT;
+        g1 = (m_HE_c_ij[i] - T * m_SE_c_ij[i]) * invRT;
+        XA = moleFractions_[iA];
+        XB = moleFractions_[iB];
+        const doublereal XAXB = XA * XB;
+        const doublereal g0g1XB = (g0 + g1 * XB);
+        const doublereal all = -1.0 * XAXB * g0g1XB - XAXB * XB * g1;
+        for (iK = 0; iK < m_kk; iK++) {
+            lnActCoeff_Scaled_[iK] += all;
         }
+        lnActCoeff_Scaled_[iA] += XB * g0g1XB;
+        lnActCoeff_Scaled_[iB] += XA * g0g1XB + XAXB * g1;
     }
 }
 //===================================================================================================================
@@ -667,29 +666,35 @@ void MargulesVPSSTP::s_update_dlnActCoeff_dT() const
 {
     size_t iA, iB, iK, delAK, delBK;
     doublereal XA, XB, g0, g1;
-    doublereal T = temperature();
-    doublereal RTT = GasConstant*T*T;
-    dlnActCoeffdT_Scaled_.assign(m_kk, 0.0);
-    d2lnActCoeffdT2_Scaled_.assign(m_kk, 0.0);
+    doublereal invT = 1.0 / temperature();
+    doublereal invRTT = 1.0 / (GasConstant)*invT*invT;
+    dlnActCoeffdT_Scaled_.resize(m_kk);
+    d2lnActCoeffdT2_Scaled_.resize(m_kk);
     for (iK = 0; iK < m_kk; iK++) {
-        for (size_t i = 0; i <  numBinaryInteractions_; i++) {
-            iA =  m_pSpecies_A_ij[i];
-            iB =  m_pSpecies_B_ij[i];
-            delAK = 0;
-            delBK = 0;
-            if (iA==iK) {
-                delAK = 1;
-            } else if (iB==iK) {
-                delBK = 1;
-            }
-            XA = moleFractions_[iA];
-            XB = moleFractions_[iB];
-            g0 = -m_HE_b_ij[i] / RTT;
-            g1 = -m_HE_c_ij[i] / RTT;
-            double temp = (delAK * XB + XA * delBK - XA * XB) * (g0 + g1 * XB) + XA * XB * (delBK - XB) * g1;
-            dlnActCoeffdT_Scaled_[iK] += temp;
-            d2lnActCoeffdT2_Scaled_[iK] -= 2.0 * temp / T;
+        dlnActCoeffdT_Scaled_[iK] = 0.0;
+        d2lnActCoeffdT2_Scaled_[iK] = 0.0;
+    }
+    for (size_t i = 0; i <  numBinaryInteractions_; i++) {
+        iA =  m_pSpecies_A_ij[i];
+        iB =  m_pSpecies_B_ij[i];
+        XA = moleFractions_[iA];
+        XB = moleFractions_[iB];
+        g0 = -m_HE_b_ij[i] * invRTT;
+        g1 = -m_HE_c_ij[i] * invRTT;
+        const doublereal XAXB = XA * XB;
+        const doublereal g0g1XB = (g0 + g1 * XB);
+        const doublereal all = -1.0 * XAXB * g0g1XB - XAXB * XB * g1;
+        const doublereal mult = 2.0 * invT;
+        const doublereal dT2all = mult * all;
+        for (iK = 0; iK < m_kk; iK++) {
+//            double temp = (delAK * XB + XA * delBK - XA * XB) * (g0 + g1 * XB) + XA * XB * (delBK - XB) * g1;
+            dlnActCoeffdT_Scaled_[iK] += all;
+            d2lnActCoeffdT2_Scaled_[iK] -= dT2all;
         }
+        dlnActCoeffdT_Scaled_[iA] += XB * g0g1XB;
+        dlnActCoeffdT_Scaled_[iB] += XA * g0g1XB + XAXB * g1;
+        d2lnActCoeffdT2_Scaled_[iA] -= mult * XB * g0g1XB;
+        d2lnActCoeffdT2_Scaled_[iB] -= mult * XA * g0g1XB + XAXB * g1;
     }
 }
 //====================================================================================================================
@@ -736,33 +741,27 @@ void  MargulesVPSSTP::getdlnActCoeffds(const doublereal dTds, const doublereal* 
 
     for (iK = 0; iK < m_kk; iK++) {
         dlnActCoeffds[iK] = 0.0;
+    }
 
-        for (size_t i = 0; i <  numBinaryInteractions_; i++) {
-
-            iA =  m_pSpecies_A_ij[i];
-            iB =  m_pSpecies_B_ij[i];
-
-            delAK = 0;
-            delBK = 0;
-
-            if (iA==iK) {
-                delAK = 1;
-            } else if (iB==iK) {
-                delBK = 1;
-            }
-
-            XA = moleFractions_[iA];
-            XB = moleFractions_[iB];
-
-            dXA = dXds[iA];
-            dXB = dXds[iB];
-
-            g0 = (m_HE_b_ij[i] - T * m_SE_b_ij[i]) / RT;
-            g1 = (m_HE_c_ij[i] - T * m_SE_c_ij[i]) / RT;
-
-            dlnActCoeffds[iK] += ((delBK-XB)*dXA + (delAK-XA)*dXB)*(g0+2*g1*XB) + (delBK-XB)*2*g1*XA*dXB
-                                 + dlnActCoeffdT_Scaled_[iK]*dTds;
+    for (size_t i = 0; i <  numBinaryInteractions_; i++) {
+        iA =  m_pSpecies_A_ij[i];
+        iB =  m_pSpecies_B_ij[i];
+        XA = moleFractions_[iA];
+        XB = moleFractions_[iB];
+        dXA = dXds[iA];
+        dXB = dXds[iB];
+        g0 = (m_HE_b_ij[i] - T * m_SE_b_ij[i]) / RT;
+        g1 = (m_HE_c_ij[i] - T * m_SE_c_ij[i]) / RT;
+        const doublereal g02g1XB = g0 + 2*g1*XB;
+        const doublereal g2XAdXB = 2*g1*XA*dXB;
+        const doublereal all = (-XB * dXA - XA *dXB) * g02g1XB - XB *g2XAdXB;
+        for (iK = 0; iK < m_kk; iK++) {
+//            dlnActCoeffds[iK] += ((delBK-XB)*dXA + (delAK-XA)*dXB)*(g0+2*g1*XB) + (delBK-XB)*2*g1*XA*dXB
+//                                 + dlnActCoeffdT_Scaled_[iK]*dTds;
+            dlnActCoeffds[iK] += all + dlnActCoeffdT_Scaled_[iK]*dTds;
         }
+        dlnActCoeffds[iA] += dXB * g02g1XB;
+        dlnActCoeffds[iB] += dXA * g02g1XB + g2XAdXB;
     }
 }
 //====================================================================================================================
