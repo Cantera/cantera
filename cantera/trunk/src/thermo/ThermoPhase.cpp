@@ -174,39 +174,34 @@ void ThermoPhase::getLnActivityCoefficients(doublereal* lnac) const
 void ThermoPhase::setState_TPX(doublereal t, doublereal p, const doublereal* x)
 {
     setMoleFractions(x);
-    setTemperature(t);
-    setPressure(p);
+    setState_TP(t,p);
 }
 //=================================================================================================================
 void ThermoPhase::setState_TPX(doublereal t, doublereal p, compositionMap& x)
 {
     setMoleFractionsByName(x);
-    setTemperature(t);
-    setPressure(p);
+    setState_TP(t,p);
 }
 //=================================================================================================================
 void ThermoPhase::setState_TPX(doublereal t, doublereal p, const std::string& x)
 {
     compositionMap xx = parseCompString(x, speciesNames());
     setMoleFractionsByName(xx);
-    setTemperature(t);
-    setPressure(p);
+    setState_TP(t,p);
 }
 //=================================================================================================================
 void ThermoPhase::setState_TPY(doublereal t, doublereal p,
                                const doublereal* y)
 {
     setMassFractions(y);
-    setTemperature(t);
-    setPressure(p);
+    setState_TP(t,p);
 }
 //=================================================================================================================
 void ThermoPhase::setState_TPY(doublereal t, doublereal p,
                                compositionMap& y)
 {
     setMassFractionsByName(y);
-    setTemperature(t);
-    setPressure(p);
+    setState_TP(t,p);
 }
 //=================================================================================================================
 void ThermoPhase::setState_TPY(doublereal t, doublereal p,
@@ -214,8 +209,7 @@ void ThermoPhase::setState_TPY(doublereal t, doublereal p,
 {
     compositionMap yy = parseCompString(y, speciesNames());
     setMassFractionsByName(yy);
-    setTemperature(t);
-    setPressure(p);
+    setState_TP(t,p);
 }
 //=================================================================================================================
 
