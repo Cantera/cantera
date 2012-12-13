@@ -7,9 +7,9 @@ function a = setState_SP(a,sp)
 %    entropy (J/kg/K) and pressure (Pa).
 %
 if sp(1) <= 0.0
-    error('the pressure must be positive');
+    error('the specific entropy must be positive');
 end
 if sp(2) <= 0.0
-    error('the specific entropy must be positive');
+    error('the pressure must be positive');
 end
 thermo_set(a.tp_id,23,sp);
