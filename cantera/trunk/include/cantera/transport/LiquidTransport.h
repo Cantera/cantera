@@ -1046,7 +1046,7 @@ private:
      *
      *    m_Grad_X[n*m_nsp + k]
      */
-    const doublereal * m_Grad_X;
+    vector_fp m_Grad_X;
 
     //! Gradient of the logarithm of the activity
     /*!
@@ -1078,7 +1078,7 @@ private:
      *  Gradients are assumed to be freshly updated before
      *  every property call.
      */
-    const doublereal * m_Grad_T;
+    vector_fp m_Grad_T;
 
     //! Internal value of the gradient of the Pressure vector
     /*!
@@ -1090,7 +1090,7 @@ private:
      *  Gradients are assumed to be freshly updated before
      *  every property call.
      */
-//    vector_fp m_Grad_P;
+    vector_fp m_Grad_P;
 
     //! Internal value of the gradient of the Electric Voltage
     /*!
@@ -1102,7 +1102,7 @@ private:
      *  Gradients are assumed to be freshly updated before
      *  every property call.
      */
-    const doublereal * m_Grad_V;
+    vector_fp m_Grad_V;
 
     //! Gradient of the electrochemical potential
     /*!

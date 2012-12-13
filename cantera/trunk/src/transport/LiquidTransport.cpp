@@ -420,9 +420,9 @@ bool LiquidTransport::initLiquid(LiquidTransportParams& tr)
     m_spwork.resize(m_nsp, 0.0);
 
     // resize the internal gradient variables
-//    m_Grad_X.resize(m_nDim * m_nsp, 0.0);
-//    m_Grad_T.resize(m_nDim, 0.0);
-//    m_Grad_V.resize(m_nDim, 0.0);
+    m_Grad_X.resize(m_nDim * m_nsp, 0.0);
+    m_Grad_T.resize(m_nDim, 0.0);
+    m_Grad_V.resize(m_nDim, 0.0);
     m_Grad_mu.resize(m_nDim * m_nsp, 0.0);
 
     m_flux.resize(m_nsp, m_nDim, 0.0);
@@ -845,12 +845,9 @@ void  LiquidTransport::getFluidMobilities(doublereal* const mobil_f)
  */
 void LiquidTransport::set_Grad_T(const doublereal *grad_T)
 {
-    m_Grad_T = grad_T;
-    /*
     for (size_t a = 0; a < m_nDim; a++) {
         m_Grad_T[a] = grad_T[a];
     }
-    */
 }
 //==============================================================
 // Specify the value of the gradient of the voltage
@@ -860,12 +857,9 @@ void LiquidTransport::set_Grad_T(const doublereal *grad_T)
  */
 void LiquidTransport::set_Grad_V(const doublereal *grad_V)
 {
-    m_Grad_V = grad_V;
-  /*
     for (size_t a = 0; a < m_nDim; a++) {
         m_Grad_V[a] = grad_V[a];
     }
-    */
 }
 //==============================================================
 // Specify the value of the gradient of the MoleFractions
@@ -873,15 +867,12 @@ void LiquidTransport::set_Grad_V(const doublereal *grad_V)
  *
  * @param grad_X Gradient of the mole fractions(length nsp * num dimensions);
  */
-void LiquidTransport::set_Grad_X(const doublereal*grad_X)
+void LiquidTransport::set_Grad_X(const doublereal *grad_X)
 {
-    m_Grad_X = grad_X;
-  /*
     size_t itop = m_nDim * m_nsp;
     for (size_t i = 0; i < itop; i++) {
         m_Grad_X[i] = grad_X[i];
     }
-  */
 }
 //==============================================================
 
