@@ -209,6 +209,7 @@ void StFlow::resize(size_t ncomponents, size_t points)
     } else {
         m_multidiff.resize(m_nsp*m_nsp*m_points);
         m_diff.resize(m_nsp*m_points);
+        m_dthermal.resize(m_nsp, m_points, 0.0);
     }
     m_flux.resize(m_nsp,m_points);
     m_wdot.resize(m_nsp,m_points, 0.0);
@@ -988,7 +989,8 @@ void StFlow::updateDiffFluxes(const doublereal* x, size_t j0, size_t j1)
 
     if (m_do_soret) {
         for (m = j0; m < j1; m++) {
-            gradlogT = 2.0*(T(x,m+1) - T(x,m))/(T(x,m+1) + T(x,m));
+            gradlogT = 2.0 * (T(x,m+1) - T(x,m)) /
+                ((T(x,m+1) + T(x,m)) * (z(m+1) - z(m)));
             for (k = 0; k < m_nsp; k++) {
                 m_flux(k,m) -= m_dthermal(k,m)*gradlogT;
             }
