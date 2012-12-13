@@ -210,6 +210,7 @@ void StFlow::resize(size_t ncomponents, size_t points)
     } else {
         m_multidiff.resize(m_nsp*m_nsp*m_points);
         m_diff.resize(m_nsp*m_points);
+        m_dthermal.resize(m_nsp, m_points, 0.0);
     }
     m_flux.resize(m_nsp,m_points);
     m_wdot.resize(m_nsp,m_points, 0.0);
