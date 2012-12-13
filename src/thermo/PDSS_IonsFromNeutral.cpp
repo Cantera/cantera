@@ -491,7 +491,6 @@ doublereal  PDSS_IonsFromNeutral::pressure() const
 void PDSS_IonsFromNeutral::setPressure(doublereal p)
 {
     m_pres = p;
-    neutralMoleculePhase_->setPressure(p);
 }
 
 //====================================================================================================================
@@ -532,7 +531,6 @@ doublereal PDSS_IonsFromNeutral::temperature() const
 void PDSS_IonsFromNeutral::setTemperature(doublereal temp)
 {
     m_temp = temp;
-    neutralMoleculePhase_->setTemperature(temp);
 }
 //====================================================================================================================
 
@@ -540,12 +538,10 @@ void PDSS_IonsFromNeutral::setState_TP(doublereal temp, doublereal pres)
 {
     m_pres = pres;
     m_temp = temp;
-    neutralMoleculePhase_->setState_TP(temp, pres);
 }
 //====================================================================================================================
 void  PDSS_IonsFromNeutral::setState_TR(doublereal temp, doublereal rho)
 {
-    neutralMoleculePhase_->setState_TR(temp, rho);
 }
 //====================================================================================================================
 // saturation pressure
