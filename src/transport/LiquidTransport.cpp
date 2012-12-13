@@ -163,8 +163,8 @@ LiquidTransport& LiquidTransport::operator=(const LiquidTransport& right)
     m_actCoeff                            = right.m_actCoeff;
     m_Grad_lnAC                           = right.m_Grad_lnAC;
     m_chargeSpecies                       = right.m_chargeSpecies;
-    m_B                                   = right.m_B;
-    m_A                                   = right.m_A;
+//    m_B                                   = right.m_B;
+//    m_A                                   = right.m_A;
     m_temp                                = right.m_temp;
     m_press                               = right.m_press;
     m_flux                                = right.m_flux;
@@ -420,9 +420,9 @@ bool LiquidTransport::initLiquid(LiquidTransportParams& tr)
     m_spwork.resize(m_nsp, 0.0);
 
     // resize the internal gradient variables
-    m_Grad_X.resize(m_nDim * m_nsp, 0.0);
-    m_Grad_T.resize(m_nDim, 0.0);
-    m_Grad_V.resize(m_nDim, 0.0);
+//    m_Grad_X.resize(m_nDim * m_nsp, 0.0);
+//    m_Grad_T.resize(m_nDim, 0.0);
+//    m_Grad_V.resize(m_nDim, 0.0);
     m_Grad_mu.resize(m_nDim * m_nsp, 0.0);
 
     m_flux.resize(m_nsp, m_nDim, 0.0);
@@ -843,11 +843,14 @@ void  LiquidTransport::getFluidMobilities(doublereal* const mobil_f)
 /*
  * @param grad_T Gradient of the temperature (length num dimensions);
  */
-void LiquidTransport::set_Grad_T(const doublereal* const grad_T)
+void LiquidTransport::set_Grad_T(const doublereal *grad_T)
 {
+    m_Grad_T = grad_T;
+    /*
     for (size_t a = 0; a < m_nDim; a++) {
         m_Grad_T[a] = grad_T[a];
     }
+    */
 }
 //==============================================================
 // Specify the value of the gradient of the voltage
@@ -855,11 +858,14 @@ void LiquidTransport::set_Grad_T(const doublereal* const grad_T)
  *
  * @param grad_V Gradient of the voltage (length num dimensions);
  */
-void LiquidTransport::set_Grad_V(const doublereal* const grad_V)
+void LiquidTransport::set_Grad_V(const doublereal *grad_V)
 {
+    m_Grad_V = grad_V;
+  /*
     for (size_t a = 0; a < m_nDim; a++) {
         m_Grad_V[a] = grad_V[a];
     }
+    */
 }
 //==============================================================
 // Specify the value of the gradient of the MoleFractions
@@ -867,12 +873,15 @@ void LiquidTransport::set_Grad_V(const doublereal* const grad_V)
  *
  * @param grad_X Gradient of the mole fractions(length nsp * num dimensions);
  */
-void LiquidTransport::set_Grad_X(const doublereal* const grad_X)
+void LiquidTransport::set_Grad_X(const doublereal*grad_X)
 {
+    m_Grad_X = grad_X;
+  /*
     size_t itop = m_nDim * m_nsp;
     for (size_t i = 0; i < itop; i++) {
         m_Grad_X[i] = grad_X[i];
     }
+  */
 }
 //==============================================================
 
@@ -897,7 +906,7 @@ void LiquidTransport::set_Grad_X(const doublereal* const grad_X)
  */
 doublereal LiquidTransport::getElectricConduct()
 {
-    doublereal gradT = 0.0;
+    vector_fp gradT(m_nDim,0.0);
     vector_fp gradX(m_nDim * m_nsp);
     vector_fp gradV(m_nDim);
     for (size_t i = 0; i < m_nDim; i++) {
@@ -907,7 +916,7 @@ doublereal LiquidTransport::getElectricConduct()
         gradV[i] = 1.0;
     }
 
-    set_Grad_T(&gradT);
+    set_Grad_T(&gradT[0]);
     set_Grad_X(&gradX[0]);
     set_Grad_V(&gradV[0]);
 
@@ -1523,7 +1532,7 @@ void LiquidTransport::updateHydrodynamicRadius_T()
 void LiquidTransport::update_Grad_lnAC()
 {
     doublereal grad_T;
-    static vector_fp grad_lnAC(m_nsp), grad_X(m_nsp);
+//    static vector_fp grad_lnAC(m_nsp), grad_X(m_nsp);
     //   IonsFromNeutralVPSSTP * tempIons = dynamic_cast<IonsFromNeutralVPSSTP *> m_thermo;
     //MargulesVPSSTP * tempMarg = dynamic_cast<MargulesVPSSTP *> (tempIons->neutralMoleculePhase_);
 
@@ -1531,15 +1540,14 @@ void LiquidTransport::update_Grad_lnAC()
     //m_thermo->getdlnActCoeffdlnX( DATA_PTR(grad_lnAC) );
     for (size_t k = 0; k < m_nDim; k++) {
         grad_T = m_Grad_T[k];
-        grad_X.assign(m_Grad_X.begin()+m_nsp*k,m_Grad_X.begin()+m_nsp*(k+1));
-        m_thermo->getdlnActCoeffds(grad_T, DATA_PTR(grad_X), DATA_PTR(grad_lnAC));
+        const int start = m_nsp*k;
+        m_thermo->getdlnActCoeffds(grad_T, &(m_Grad_X[start]), &(m_Grad_lnAC[start]));
         for (size_t i = 0; i < m_nsp; i++)
             if (m_molefracs[i] < 1.e-15) {
-                grad_lnAC[i] = 0;
+                m_Grad_lnAC[start+i] = 0;
             } else {
-                grad_lnAC[i] += grad_X[i]/m_molefracs[i];
+                m_Grad_lnAC[start+i] += m_Grad_X[start+i]/m_molefracs[i];
             }
-        copy(grad_lnAC.begin(),grad_lnAC.end(),m_Grad_lnAC.begin()+m_nsp*k);
         //      std::cout << k << " m_Grad_lnAC = " << m_Grad_lnAC[k] << std::endl;
     }
 
@@ -1585,6 +1593,8 @@ void LiquidTransport::update_Grad_lnAC()
 void LiquidTransport::stefan_maxwell_solve()
 {
     doublereal tmp;
+    static DenseMatrix m_A(m_nsp, m_nsp, 0.0);
+    static DenseMatrix m_B(m_nsp, m_nDim, 0.0);
     m_B.resize(m_nsp, m_nDim, 0.0);
     m_A.resize(m_nsp, m_nsp, 0.0);
 
