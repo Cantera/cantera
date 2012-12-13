@@ -1523,7 +1523,7 @@ void LiquidTransport::updateHydrodynamicRadius_T()
 void LiquidTransport::update_Grad_lnAC()
 {
     doublereal grad_T;
-    vector_fp grad_lnAC(m_nsp), grad_X(m_nsp);
+    static vector_fp grad_lnAC(m_nsp), grad_X(m_nsp);
     //   IonsFromNeutralVPSSTP * tempIons = dynamic_cast<IonsFromNeutralVPSSTP *> m_thermo;
     //MargulesVPSSTP * tempMarg = dynamic_cast<MargulesVPSSTP *> (tempIons->neutralMoleculePhase_);
 
@@ -1634,8 +1634,8 @@ void LiquidTransport::stefan_maxwell_solve()
      *  considerations involving species concentrations going to zero.
      *
      */
-    for (size_t i = 0; i < m_nsp; i++) {
-        for (size_t a = 0; a < m_nDim; a++) {
+    for (size_t a = 0; a < m_nDim; a++) {
+        for (size_t i = 0; i < m_nsp; i++) {
             m_Grad_mu[a*m_nsp + i] =
                 m_chargeSpecies[i] *  Faraday * m_Grad_V[a]
                 //+  (m_volume_spec[i] - M[i]/dens_) * m_Grad_P[a]
@@ -1648,8 +1648,8 @@ void LiquidTransport::stefan_maxwell_solve()
         double mwSolvent = m_thermo->molecularWeight(iSolvent);
         double mnaught = mwSolvent/ 1000.;
         double lnmnaught = log(mnaught);
-        for (size_t i = 1; i < m_nsp; i++) {
-            for (size_t a = 0; a < m_nDim; a++) {
+        for (size_t a = 0; a < m_nDim; a++) {
+            for (size_t i = 1; i < m_nsp; i++) {
                 m_Grad_mu[a*m_nsp + i] -=
                     m_molefracs[i] * GasConstant * m_Grad_T[a] * lnmnaught;
             }
@@ -1662,6 +1662,7 @@ void LiquidTransport::stefan_maxwell_solve()
      */
 
     double condSum1;
+    const doublereal invRT = 1.0 / (GasConstant * T);
     switch (m_nDim) {
     case 1:  /* 1-D approximation */
 
@@ -1685,7 +1686,7 @@ void LiquidTransport::stefan_maxwell_solve()
                                    "Unknown reference velocity provided.");
         }
         for (size_t i = 1; i < m_nsp; i++) {
-            m_B(i,0) = m_Grad_mu[i] / (GasConstant * T);
+            m_B(i,0) = m_Grad_mu[i] * invRT;
             m_A(i,i) = 0.0;
             for (size_t j = 0; j < m_nsp; j++) {
                 if (j != i) {
@@ -1748,8 +1749,8 @@ void LiquidTransport::stefan_maxwell_solve()
                                    "Unknown reference velocity provided.");
         }
         for (size_t i = 1; i < m_nsp; i++) {
-            m_B(i,0) =  m_Grad_mu[i]         / (GasConstant * T);
-            m_B(i,1) =  m_Grad_mu[m_nsp + i] / (GasConstant * T);
+            m_B(i,0) =  m_Grad_mu[i]         * invRT;
+            m_B(i,1) =  m_Grad_mu[m_nsp + i] * invRT;
             m_A(i,i) = 0.0;
             for (size_t j = 0; j < m_nsp; j++) {
                 if (j != i) {
@@ -1792,9 +1793,9 @@ void LiquidTransport::stefan_maxwell_solve()
                                    "Unknown reference velocity provided.");
         }
         for (size_t i = 1; i < m_nsp; i++) {
-            m_B(i,0) = m_Grad_mu[i]           / (GasConstant * T);
-            m_B(i,1) = m_Grad_mu[m_nsp + i]   / (GasConstant * T);
-            m_B(i,2) = m_Grad_mu[2*m_nsp + i] / (GasConstant * T);
+            m_B(i,0) = m_Grad_mu[i]           * invRT;
+            m_B(i,1) = m_Grad_mu[m_nsp + i]   * invRT;
+            m_B(i,2) = m_Grad_mu[2*m_nsp + i] * invRT;
             m_A(i,i) = 0.0;
             for (size_t j = 0; j < m_nsp; j++) {
                 if (j != i) {

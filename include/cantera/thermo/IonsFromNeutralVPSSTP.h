@@ -824,6 +824,7 @@ public:
     ThermoPhase* neutralMoleculePhase_;
 
 private:
+    GibbsExcessVPSSTP *geThermo;
 
     //! If true then we own the underlying neutral Molecule Phase
     /*!
