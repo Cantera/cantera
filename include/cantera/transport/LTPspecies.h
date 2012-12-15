@@ -45,7 +45,9 @@ enum TransportPropertyType {
     TP_THERMALCOND,
     TP_DIFFUSIVITY,
     TP_HYDRORADIUS,
-    TP_ELECTCOND
+    TP_ELECTCOND,
+    TP_DEFECTCONC,
+    TP_DEFECTDIFF
 };
 
 //====================================================================================================================
@@ -96,10 +98,10 @@ public:
      *   @param   tp_ind        enum TransportPropertyType containing the property id that this object
      *                          is creating a parameterization for (e.g., viscosity)
      *   @param   thermo        const pointer to the ThermoPhase object, which is used to find the temperature.
-     */
-    LTPspecies(const XML_Node* const propNode = 0,  const std::string& name = "-",
-               TransportPropertyType tp_ind = TP_UNKNOWN, const thermo_t* thermo = 0);
-
+     */ 
+    LTPspecies(const XML_Node * const propNode = 0,  const std::string name = "-", 
+	       TransportPropertyType tp_ind = TP_UNKNOWN, const thermo_t* thermo = 0);
+    
     //! Copy constructor
     /*!
      *  @param   right       Object to be copied
@@ -224,10 +226,10 @@ public:
      *   @param   tp_ind        enum TransportPropertyType containing the property id that this object
      *                          is creating a parameterization for (e.g., viscosity)
      *   @param   thermo        const pointer to the ThermoPhase object, which is used to find the temperature.
-     */
-    LTPspecies_Const(const XML_Node& propNode,  const std::string& name,
-                     TransportPropertyType tp_ind,  const thermo_t* const thermo);
-
+     */ 
+    LTPspecies_Const(const XML_Node &propNode, const std::string name, 
+		     TransportPropertyType tp_ind,  const thermo_t * const thermo);
+    
     //! Copy constructor
     /*!
      *  @param   right       Object to be copied
@@ -308,10 +310,11 @@ public:
      *                          is creating a parameterization for (e.g., viscosity)
      *   @param   thermo        const pointer to the ThermoPhase object, which is used to find the temperature.
      *
-     */
-    LTPspecies_Arrhenius(const XML_Node& propNode, const std::string& name,
-                         TransportPropertyType tp_ind, const thermo_t* thermo);
 
+     */ 
+    LTPspecies_Arrhenius(const XML_Node &propNode, const std::string name, 
+			  TransportPropertyType tp_ind, const thermo_t * thermo); 
+    
     //! Copy constructor
     /*!
      *  @param right     Object to be copied
@@ -415,9 +418,10 @@ public:
      *                          is creating a parameterization for (e.g., viscosity)
      *   @param   thermo        const pointer to the ThermoPhase object, which is used to find the temperature.
      *
-     */
-    LTPspecies_Poly(const XML_Node& propNode, const std::string& name, TransportPropertyType tp_ind, const thermo_t* thermo);
 
+     */ 
+    LTPspecies_Poly(const XML_Node &propNode, const std::string name, TransportPropertyType tp_ind, const thermo_t * thermo);
+    
     //! Copy constructor
     /*!
      *  @param right   Object to be copied
@@ -503,9 +507,10 @@ public:
      *                          is creating a parameterization for (e.g., viscosity)
      *   @param   thermo        const pointer to the ThermoPhase object, which is used to find the temperature.
      *
-     */
-    LTPspecies_ExpT(const XML_Node& propNode, const std::string& name,
-                    TransportPropertyType tp_ind,  const thermo_t* thermo);
+     */ 
+    LTPspecies_ExpT(const XML_Node &propNode, const std::string name, 
+		    TransportPropertyType tp_ind,  const thermo_t* thermo); 
+    
 
     //! Copy constructor
     /*!

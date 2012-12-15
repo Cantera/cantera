@@ -65,14 +65,14 @@ ThermoFactory* ThermoFactory::s_factory = 0;
 mutex_t ThermoFactory::thermo_mutex;
 
 //! Define the number of %ThermoPhase types for use in this factory routine
-static int ntypes = 23;
+static int ntypes = 24;
 
 //! Define the string name of the %ThermoPhase types that are handled by this factory routine
 static string _types[] = {"IdealGas", "Incompressible",
                           "Surface", "Edge", "Metal", "StoichSubstance",
                           "PureFluid", "LatticeSolid", "Lattice",
                           "HMW", "IdealSolidSolution", "DebyeHuckel",
-                          "IdealMolalSolution", "IdealGasVPSS",
+                          "IdealMolalSolution", "IdealGasVPSS", "IdealSolnVPSS",
                           "MineralEQ3", "MetalSHEelectrons", "Margules", "PhaseCombo_Interaction",
                           "IonsFromNeutralMolecule", "FixedChemPot", "MolarityIonicVPSSTP",
                           "MixedSolventElectrolyte", "Redlich-Kister"
@@ -83,7 +83,7 @@ static int _itypes[]   = {cIdealGas, cIncompressible,
                           cSurf, cEdge, cMetal, cStoichSubstance,
                           cPureFluid, cLatticeSolid, cLattice,
                           cHMW, cIdealSolidSolnPhase, cDebyeHuckel,
-                          cIdealMolalSoln, cVPSS_IdealGas,
+                          cIdealMolalSoln, cVPSS_IdealGas, cIdealSolnGasVPSS_iscv,
                           cMineralEQ3, cMetalSHEelectrons,
                           cMargulesVPSSTP,  cPhaseCombo_Interaction, cIonsFromNeutral, cFixedChemPot,
                           cMolarityIonicVPSSTP, cMixedSolventElectrolyte, cRedlichKisterVPSSTP
@@ -199,6 +199,10 @@ ThermoPhase* ThermoFactory::newThermoPhase(const std::string& model)
         break;
 
     case cVPSS_IdealGas:
+        th = new IdealSolnGasVPSS;
+        break;
+
+    case cIdealSolnGasVPSS_iscv:
         th = new IdealSolnGasVPSS;
         break;
 

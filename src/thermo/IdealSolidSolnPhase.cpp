@@ -80,8 +80,8 @@ IdealSolidSolnPhase& IdealSolidSolnPhase::
 operator=(const IdealSolidSolnPhase& b)
 {
     if (this != &b) {
-        //ThermoPhase::operator=(b);
-        // m_spthermo   = dupMyselfAsSpeciesThermo(b.m_spthermo);
+        ThermoPhase::operator=(b);
+
         m_formGC     = b.m_formGC;
         m_Pref       = b.m_Pref;
         m_Pcurrent   = b.m_Pcurrent;

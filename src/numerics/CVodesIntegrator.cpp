@@ -6,7 +6,7 @@
 // Copyright 2001  California Institute of Technology
 #include "cantera/base/config.h"
 
-#include "CVodesIntegrator.h"
+#include "cantera/numerics/CVodesIntegrator.h"
 #include "cantera/base/stringUtils.h"
 
 #include <iostream>

@@ -3,7 +3,7 @@
 
 
 #ifdef HAS_SUNDIALS
-#include "CVodesIntegrator.h"
+#include "cantera/numerics/CVodesIntegrator.h"
 #else
 #include "CVodeInt.h"
 #endif

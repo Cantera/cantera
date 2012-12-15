@@ -12,7 +12,7 @@
 #include "cantera/kinetics/ReactionData.h"
 #include "cantera/kinetics/RateCoeffMgr.h"
 
-#include "ImplicitSurfChem.h"
+#include "cantera/kinetics/ImplicitSurfChem.h"
 
 using namespace std;
 
