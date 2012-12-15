@@ -15,8 +15,8 @@
 #include "cantera/equil/vcs_prob.h"
 
 #include "cantera/equil/vcs_VolPhase.h"
-#include "vcs_SpeciesProperties.h"
-#include "vcs_species_thermo.h"
+#include "cantera/equil/vcs_SpeciesProperties.h"
+#include "cantera/equil/vcs_species_thermo.h"
 
 #include "cantera/base/clockWC.h"
 

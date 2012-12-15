@@ -13,7 +13,7 @@
 #include "cantera/equil/vcs_internal.h"
 #include "cantera/equil/vcs_prob.h"
 #include "cantera/equil/vcs_VolPhase.h"
-#include "vcs_SpeciesProperties.h"
+#include "cantera/equil/vcs_SpeciesProperties.h"
 
 #include <cstdio>
 #include <cstdlib>

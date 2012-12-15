@@ -101,7 +101,7 @@ IonsFromNeutralVPSSTP::IonsFromNeutralVPSSTP(const std::string& inputFile,
     if (neutralPhase) {
         IOwnNThermoPhase_ = false;
     }
-    initThermoFile(inputFile, id);
+    constructPhaseFile(inputFile, id);
     geThermo = dynamic_cast<GibbsExcessVPSSTP*>(neutralMoleculePhase_);
 }
 //====================================================================================================================
@@ -125,7 +125,7 @@ IonsFromNeutralVPSSTP::IonsFromNeutralVPSSTP(XML_Node& phaseRoot,
     if (neutralPhase) {
         IOwnNThermoPhase_ = false;
     }
-    importPhase(*findXMLPhase(&phaseRoot, id), this);
+    constructPhaseXML(phaseRoot, id);
     geThermo = dynamic_cast<GibbsExcessVPSSTP*>(neutralMoleculePhase_);
 }
 
@@ -846,7 +846,7 @@ void IonsFromNeutralVPSSTP::calcNeutralMoleculeMoleFractions() const
     }
 #ifdef DEBUG_MODE
     sum = -1.0;
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
         sum += moleFractions_[k];
     }
     if (fabs(sum) > 1.0E-11)  {

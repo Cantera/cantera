@@ -19,15 +19,18 @@
 
 #include "cantera/numerics/polyfit.h"
 #include "MMCollisionInt.h"
+
 #include "cantera/base/xml.h"
 #include "cantera/base/XML_Writer.h"
 #include "cantera/transport/TransportParams.h"
 #include "cantera/transport/LiquidTransportParams.h"
 #include "cantera/transport/LiquidTranInteraction.h"
+#include "cantera/transport/SolidTransportData.h"
 #include "cantera/base/global.h"
 #include "cantera/thermo/IdealGasPhase.h"
 #include "cantera/base/ctml.h"
 #include "cantera/base/stringUtils.h"
+
 
 #include <cstdio>
 #include <cstring>
@@ -220,6 +223,8 @@ TransportFactory::TransportFactory() :
     m_tranPropMap["speciesDiffusivity"] = TP_DIFFUSIVITY;
     m_tranPropMap["hydrodynamicRadius"] = TP_HYDRORADIUS;
     m_tranPropMap["electricalConductivity"] = TP_ELECTCOND;
+    m_tranPropMap["defectDiffusivity"] = TP_DEFECTDIFF;
+    m_tranPropMap["defectActivity"] = TP_DEFECTCONC;
 
     m_LTRmodelMap[""] = LTP_TD_CONSTANT;
     m_LTRmodelMap["constant"] = LTP_TD_CONSTANT;
@@ -260,15 +265,16 @@ std::string TransportFactory::modelName(int model)
     }
 }
 
-/*
-  make one of several transport models, and return a base class
-  pointer to it.  This method operates at the level of a
-  single transport property as a function of temperature
-  and possibly composition.
-*/
-LTPspecies* TransportFactory::newLTP(const XML_Node& trNode, std::string& name,
-                                     TransportPropertyType tp_ind, thermo_t* thermo)
-{
+
+  /*
+    make one of several transport models, and return a base class
+    pointer to it.  This method operates at the level of a 
+    single transport property as a function of temperature 
+    and possibly composition.
+  */
+  LTPspecies* TransportFactory::newLTP(const XML_Node &trNode, const std::string &name, 
+				       TransportPropertyType tp_ind, thermo_t* thermo)
+  {
     LTPspecies* ltps = 0;
     std::string model = lowercase(trNode["model"]);
     switch (m_LTRmodelMap[model]) {
@@ -395,9 +401,11 @@ Transport* TransportFactory::newTransport(const std::string& transportModel,
         initTransport(tr, phase, 0, log_level);
         break;
     case cSolidTransport:
-        tr = new SolidTransport;
-        tr->setThermo(*phase);
-        break;
+
+      tr = new SolidTransport;
+      initSolidTransport(tr, phase, log_level);
+      tr->setThermo(*phase);
+      break;
     case cDustyGasTransport:
         tr = new DustyGasTransport;
         gastr = new MultiTransport;
@@ -642,27 +650,75 @@ void TransportFactory::setupLiquidTransport(std::ostream& flog, thermo_t* thermo
         XML_Node& transportNode = phase_database->child("transport");
         getLiquidInteractionsTransportData(transportNode, log, trParam.thermo->speciesNames(), trParam);
     }
-}
-//====================================================================================================================
-// Initialize an existing transport manager
-/*
- *  This routine sets up an existing gas-phase transport manager.
- *  It calculates the collision integrals and calls the initGas() function to
- *  populate the species-dependent data structure.
- *
- *  @param tr       Pointer to the Transport manager
- *  @param thermo   Pointer to the ThermoPhase object
- *  @param mode     Chemkin compatible mode or not. This alters the specification of the
- *                  collision integrals. defaults to no.
- *  @param log_level Defaults to zero, no logging
- *
- *                     In DEBUG_MODE, this routine will create the file transport_log.xml
- *                     and write informative information to it.
- */
-void TransportFactory::initTransport(Transport* tran,
-                                     thermo_t* thermo, int mode, int log_level)
-{
+
+  }
+
+
+  //====================================================================================================================
+  // Prepare to build a new transport manager for solids
+  /*
+   *  @param flog                 Reference to the ostream for writing log info
+   *  @param thermo               Pointer to the %ThermoPhase object
+   *  @param log_level            log level
+   *  @param trParam              SolidTransportParams structure to be filled up with information
+   */
+  void TransportFactory::setupSolidTransport(std::ostream &flog, thermo_t* thermo, int log_level, 
+					      SolidTransportData& trParam) {
+        
+    const XML_Node* phase_database = &thermo->xml();
+
+    // constant mixture attributes
+    trParam.thermo = thermo;
+    trParam.nsp_ = trParam.thermo->nSpecies();
+    int nsp = trParam.nsp_;
+
+    trParam.tmin = thermo->minTemp();
+    trParam.tmax = thermo->maxTemp();
+    trParam.log_level = log_level;
+
+    // Get the molecular weights and load them into trParam
+    trParam.mw.resize(nsp);
+    copy(trParam.thermo->molecularWeights().begin(), 
+	 trParam.thermo->molecularWeights().end(), trParam.mw.begin());
+
+    // Resize all other vectors in trParam
+    //trParam.LTData.resize(nsp);
+
+    XML_Node root, log;
+
+    // Note that getSolidSpeciesTransportData just populates the pure species transport data.  
+    //    const std::vector<const XML_Node*> & species_database = thermo->speciesData();
+    //    getSolidSpeciesTransportData(species_database, log, trParam.thermo->speciesNames(), trParam);   
+
+    // getSolidTransportData() populates the 
+    // phase transport models like electronic conductivity
+    // thermal conductivity, interstitial diffusion
+    if (phase_database->hasChild("transport")) {
+      XML_Node& transportNode = phase_database->child("transport");
+      getSolidTransportData(transportNode, log, thermo->name(), trParam);   
+    }
+  }
+  //====================================================================================================================
+  // Initialize an existing transport manager
+  /*
+   *  This routine sets up an existing gas-phase transport manager.
+   *  It calculates the collision integrals and calls the initGas() function to 
+   *  populate the species-dependent data structure.
+   *
+   *  @param tr       Pointer to the Transport manager
+   *  @param thermo   Pointer to the ThermoPhase object
+   *  @param mode     Chemkin compatible mode or not. This alters the specification of the
+   *                  collision integrals. defaults to no.
+   *  @param log_level Defaults to zero, no logging
+   *
+   *                     In DEBUG_MODE, this routine will create the file transport_log.xml
+   *                     and write informative information to it.
+   */
+  void TransportFactory::initTransport(Transport* tran, 
+				       thermo_t* thermo, int mode, int log_level) {
+
     ScopedLock transportLock(transport_mutex);
+
     const std::vector<const XML_Node*> & transport_database = thermo->speciesData();
 
     GasTransportParams trParam;
@@ -725,7 +781,47 @@ void  TransportFactory::initLiquidTransport(Transport* tran,
 #endif
     return;
 
-}
+
+  }
+  //====================================================================================================================
+
+  /* Similar to initTransport except uses SolidTransportParams
+     class and calls setupSolidTransport().
+  */
+  void  TransportFactory::initSolidTransport(Transport* tran, 
+					      thermo_t* thermo, 
+					      int log_level) { 
+
+    SolidTransportData trParam;
+
+    //setup output
+#ifdef DEBUG_MODE
+    ofstream flog("transport_log.xml");
+    trParam.xml = new XML_Writer(flog);
+    if (m_verbose) {
+      trParam.xml->XML_open(flog, "transport");
+    }
+#else
+    // create the object, but don't associate it with a file
+    std::ostream &flog(std::cout);
+#endif
+
+    //real work next two statements
+    setupSolidTransport(flog, thermo, log_level, trParam );
+    // do model-specific initialization
+    tran->initSolid( trParam );
+
+   
+#ifdef DEBUG_MODE
+    if (m_verbose) {
+      trParam.xml->XML_close(flog, "transport");
+    }
+    // finished with log file
+    flog.close();
+#endif
+    return;
+  }
+
 
 void TransportFactory::fitCollisionIntegrals(ostream& logfile,
         GasTransportParams& tr,
@@ -1058,9 +1154,10 @@ void TransportFactory::getLiquidInteractionsTransportData(const XML_Node& transp
             XML_Node& tranTypeNode = transportNode.child(iChild);
             std::string nodeName = tranTypeNode.name();
 
-            trParam.mobilityRatio.resize(nsp*nsp,0);
-            trParam.selfDiffusion.resize(nsp,0);
-            ThermoPhase* temp_thermo = trParam.thermo;
+	    trParam.mobilityRatio.resize(nsp*nsp,0);
+	    trParam.selfDiffusion.resize(nsp,0);
+	    ThermoPhase *temp_thermo = trParam.thermo;
+
 
             if (tranTypeNode.hasChild("compositionDependence")) {
                 //compDepNode contains the interaction model
@@ -1153,6 +1250,85 @@ void TransportFactory::getLiquidInteractionsTransportData(const XML_Node& transp
     }
     return;
 }
+
+
+
+
+
+  /*
+   * Given a phase XML data base, this method constructs the 
+   * SolidTransportData object containing the transport data for the phase.
+   *
+   * @param db   Reference to a vector of XML_Node pointers containing the species XML 
+   *             nodes.
+   * @param log  Reference to an XML log file. (currently unused)
+   * @param tr   Reference to the SolidTransportData object that will contain the results.
+   *    NOTE: For now we are using the LTPspecies class to describe the solid transport models.
+  */
+  void TransportFactory::getSolidTransportData(const XML_Node &transportNode,  
+					       XML_Node& log, 
+					       const std::string phaseName, 
+					       SolidTransportData& trParam)
+  { 
+    try {
+      
+      int num = transportNode.nChildren();
+      for (int iChild = 0; iChild < num; iChild++) {
+	//tranTypeNode is a type of transport property like viscosity
+	XML_Node &tranTypeNode = transportNode.child(iChild);
+	std::string nodeName = tranTypeNode.name();
+
+	ThermoPhase *temp_thermo = trParam.thermo;
+
+	//tranTypeNode contains the interaction model
+	//	XML_Node &compDepNode = tranTypeNode.child("compositionDependence");
+	switch (m_tranPropMap[nodeName]) {
+	case TP_IONCONDUCTIVITY:
+	  trParam.ionConductivity = newLTP(tranTypeNode, phaseName,
+					   m_tranPropMap[nodeName],
+					   temp_thermo);
+	  break;
+	case TP_THERMALCOND:
+	  trParam.thermalConductivity = newLTP(tranTypeNode, phaseName,
+				       m_tranPropMap[nodeName],
+				       temp_thermo);
+	  break;
+	case TP_DEFECTDIFF:
+	  trParam.defectDiffusivity = newLTP(tranTypeNode, phaseName,
+					      m_tranPropMap[nodeName],
+					      temp_thermo);
+	  break;
+	case TP_DEFECTCONC:
+	  trParam.defectActivity = newLTP(tranTypeNode, phaseName,
+					      m_tranPropMap[nodeName],
+					      temp_thermo);
+	  break;
+	case TP_ELECTCOND:
+	  trParam.electConductivity = newLTP(tranTypeNode, phaseName,
+				     m_tranPropMap[nodeName],
+				     temp_thermo);
+	  break;
+	default:
+	  throw CanteraError("getSolidTransportData","unknown transport property: " + nodeName);
+	  
+	}
+      }
+    }
+    catch (CanteraError) {
+        showErrors(std::cout);
+    }
+    //catch(CanteraError) {
+    //  ;
+    //}
+    return;
+  }
+
+  /*********************************************************
+   *
+   *                Polynomial fitting 
+   *
+   *********************************************************/
+
 
 /*********************************************************
  *

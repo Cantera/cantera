@@ -18,6 +18,7 @@
 #include <algorithm>
 
 // Cantera includes
+#include "LTPspecies.h"
 #include "TransportBase.h"
 #include "cantera/numerics/DenseMatrix.h"
 
@@ -62,13 +63,46 @@ public:
      */
     virtual Transport* duplMyselfAsTransport() const;
 
-
     virtual int model() const {
         return cSolidTransport;
     }
 
+    /**
+     * The ionic conducitivity in 1/ohm/m. 
+     */
+    virtual doublereal ionConductivity() ;
+
+
+    //!  Returns the mixture thermal conductivity in W/m/K. 
+    /*!
+     *   Units are in W / m K  or equivalently kg m / s3 K
+     *
+     * @return returns thermal conductivity in W/m/K.
+     */
     virtual doublereal thermalConductivity();
+
+    /**
+     * The electrical conductivity (Siemens/m).
+     */
+    virtual doublereal electricalConductivity();
+
+    /**
+     * The diffusivity of defects in the solid (m^2/s).
+     */
+    virtual doublereal defectDiffusivity();
+
+    /**
+     * The activity of defects in the solid.
+     * At some point this should be variable and the diffusion coefficient should depend on it...
+     */
+    virtual doublereal defectActivity();
+
+
+
+
+    ///////////HEWSON WONDERS IF THE FOLLOWING ARE RELEVANT??
     virtual void getMixDiffCoeffs(doublereal* const d);
+
 
     //!  Compute the electrical mobilities of the species from the diffusion coefficients,
     //!  using the Einstein relation.
@@ -87,17 +121,72 @@ public:
      */
     virtual void getMobilities(doublereal* const mobil);
 
+    //! Set model parameters for derived classes
+    /*!
+     *   This method may be derived in subclasses to set model-specific parameters.
+     *   The primary use of this class is to set parameters while in the middle of a calculation
+     *   without actually having to dynamically cast the base Transport pointer.
+     *
+     *  @param type    Specifies the type of parameters to set
+     *                 0 : Diffusion coefficient
+     *                 1 : Thermal Conductivity
+     *                 The rest are currently unused.
+     *  @param k       Species index to set the parameters on
+     *  @param p       Vector of parameters. The length of the vector
+     *                 varies with the parameterization
+     */
     virtual void setParameters(const int n, const int k, const doublereal* const p);
 
     friend class TransportFactory;
 
-    /**
-     * The electrical conductivity (Siemens/m).
+  protected:
+
+    //! Initialize the transport object
+    /*!
+     * Here we change all of the internal dimensions to be sufficient.
+     * We get the object ready to do property evaluations.
+     * A lot of the input required to do property evaluations is 
+     * contained in the SolidTransportParams class that is 
+     * filled in TransportFactory. 
+     *
+     * @param tr  Transport parameters for all of the species
+     *            in the phase.
      */
-    virtual doublereal electricalConductivity();
+    virtual bool initSolid(SolidTransportData& tr);
 
 
-private:
+  private:
+
+    
+    //! Model type for the ionic conductivity
+    /*!
+     *  shallow pointer that should be zero during destructor
+     */
+    LTPspecies* m_ionConductivity;
+    
+    //! Model type for the thermal conductivity
+    /*!
+     *  shallow pointer that should be zero during destructor
+     */
+    LTPspecies* m_thermalConductivity;
+   
+    //! Model type for the electrical conductivity
+    /*!
+     *  shallow pointer that should be zero during destructor
+     */
+    LTPspecies* m_electConductivity;
+   
+    //! Model type for the defectDiffusivity -- or more like a defect diffusivity in the context of the solid phase.
+    /*!
+     *  shallow pointer that should be zero during destructor
+     */
+    LTPspecies* m_defectDiffusivity;
+
+    //! Model type for the defectActivity
+    /*!
+     *  shallow pointer that should be zero during destructor
+     */
+    LTPspecies* m_defectActivity;
 
     //! number of mobile species
     /*!

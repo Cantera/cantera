@@ -8,7 +8,7 @@
  * See file License.txt for licensing information.
  */
 
-#include "solveSP.h"
+#include "cantera/kinetics/solveSP.h"
 #include "cantera/base/clockWC.h"
 #include "cantera/numerics/ctlapack.h"
 

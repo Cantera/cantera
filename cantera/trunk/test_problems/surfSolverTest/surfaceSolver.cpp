@@ -32,8 +32,8 @@ static void printUsage()
 
 #include "cantera/Interface.h"
 #include "cantera/kinetics.h"
-#include "kinetics/ImplicitSurfChem.h"
-#include "kinetics/solveSP.h"
+#include "cantera/kinetics/ImplicitSurfChem.h"
+#include "cantera/kinetics/solveSP.h"
 
 using namespace Cantera;
 

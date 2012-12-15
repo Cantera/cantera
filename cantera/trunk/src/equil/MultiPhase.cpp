@@ -20,8 +20,8 @@ namespace Cantera
 // Constructor.
 MultiPhase::MultiPhase() :
     m_np(0),
-    m_temp(0.0),
-    m_press(0.0),
+    m_temp(298.15),
+    m_press(OneBar),
     m_nel(0),
     m_nsp(0),
     m_init(false),
@@ -37,8 +37,8 @@ MultiPhase::MultiPhase() :
  */
 MultiPhase::MultiPhase(const MultiPhase& right) :
     m_np(0),
-    m_temp(0.0),
-    m_press(0.0),
+    m_temp(298.15),
+    m_press(OneBar),
     m_nel(0),
     m_nsp(0),
     m_init(false),
@@ -160,8 +160,8 @@ addPhase(ThermoPhase* p, doublereal moles)
 
     // If the mixture temperature hasn't been set, then set the
     // temperature and pressure to the values for the phase being
-    // added.
-    if (m_temp == 0.0 && p->temperature() > 0.0) {
+    // added. There is no good way to do this. However, this will be overridden later. 
+    if (m_temp == 298.15 && p->temperature() > 2.0E-3) {
         m_temp = p->temperature();
         m_press = p->pressure();
     }
