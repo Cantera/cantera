@@ -103,6 +103,10 @@ IonsFromNeutralVPSSTP::IonsFromNeutralVPSSTP(const std::string& inputFile,
     }
     constructPhaseFile(inputFile, id);
     geThermo = dynamic_cast<GibbsExcessVPSSTP*>(neutralMoleculePhase_);
+    y.resize(numNeutralMoleculeSpecies_,0.0);
+    size_t numNeutMolSpec = geThermo->nSpecies();
+    dlnActCoeff_NeutralMolecule.resize(numNeutMolSpec);
+    dX_NeutralMolecule.resize(numNeutMolSpec);
 }
 //====================================================================================================================
 IonsFromNeutralVPSSTP::IonsFromNeutralVPSSTP(XML_Node& phaseRoot, 
@@ -127,6 +131,10 @@ IonsFromNeutralVPSSTP::IonsFromNeutralVPSSTP(XML_Node& phaseRoot,
     }
     constructPhaseXML(phaseRoot, id);
     geThermo = dynamic_cast<GibbsExcessVPSSTP*>(neutralMoleculePhase_);
+    y.resize(numNeutralMoleculeSpecies_,0.0);
+    size_t numNeutMolSpec = geThermo->nSpecies();
+    dlnActCoeff_NeutralMolecule.resize(numNeutMolSpec);
+    dX_NeutralMolecule.resize(numNeutMolSpec);
 }
 
 //====================================================================================================================
@@ -216,6 +224,9 @@ operator=(const IonsFromNeutralVPSSTP& b)
     dlnActCoeffdlnX_diag_NeutralMolecule_ = b.dlnActCoeffdlnX_diag_NeutralMolecule_;
     dlnActCoeffdlnN_diag_NeutralMolecule_ = b.dlnActCoeffdlnN_diag_NeutralMolecule_;
     dlnActCoeffdlnN_NeutralMolecule_ = b.dlnActCoeffdlnN_NeutralMolecule_;
+    y = b.y;
+    dlnActCoeff_NeutralMolecule = b.dlnActCoeff_NeutralMolecule ;
+    dX_NeutralMolecule = b.dX_NeutralMolecule ;
 
     return *this;
 }
@@ -960,8 +971,6 @@ void IonsFromNeutralVPSSTP::calcNeutralMoleculeMoleFractions() const
 void IonsFromNeutralVPSSTP::getNeutralMoleculeMoleGrads(const doublereal* const dx, doublereal* const dy) const
 {
     doublereal fmij;
-    static vector_fp y;
-    y.resize(numNeutralMoleculeSpecies_,0.0);
     doublereal sumy, sumdy;
 
     //check sum dx = 0
@@ -1491,8 +1500,8 @@ void IonsFromNeutralVPSSTP::getdlnActCoeffds(const doublereal dTds, const double
     }
 
     size_t numNeutMolSpec = geThermo->nSpecies();
-    static vector_fp dlnActCoeff_NeutralMolecule(numNeutMolSpec);
-    static vector_fp dX_NeutralMolecule(numNeutMolSpec);
+//    static vector_fp dlnActCoeff_NeutralMolecule(numNeutMolSpec);
+//    static vector_fp dX_NeutralMolecule(numNeutMolSpec);
 
 
     getNeutralMoleculeMoleGrads(DATA_PTR(dXds),DATA_PTR(dX_NeutralMolecule));

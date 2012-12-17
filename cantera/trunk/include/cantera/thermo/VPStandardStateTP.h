@@ -269,6 +269,7 @@ public:
      *            units =  m^3 / kmol
      */
     virtual void getStandardVolumes(doublereal* vol) const;
+    virtual const vector_fp & getStandardVolumes() const;
 
 
     //! Set the temperature of the phase
