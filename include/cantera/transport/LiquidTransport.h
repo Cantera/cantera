@@ -1271,10 +1271,10 @@ private:
     vector_fp m_actCoeff;
 
     //! RHS to the stefan-maxwell equation
-//    DenseMatrix   m_B;
+    DenseMatrix   m_B;
 
     //! Matrix for the stefan maxwell equation.
-//    DenseMatrix m_A;
+    DenseMatrix m_A;
 
     //! Current Temperature -> locally stored
     /*!

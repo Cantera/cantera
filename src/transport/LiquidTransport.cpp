@@ -163,8 +163,8 @@ LiquidTransport& LiquidTransport::operator=(const LiquidTransport& right)
     m_actCoeff                            = right.m_actCoeff;
     m_Grad_lnAC                           = right.m_Grad_lnAC;
     m_chargeSpecies                       = right.m_chargeSpecies;
-//    m_B                                   = right.m_B;
-//    m_A                                   = right.m_A;
+    m_B                                   = right.m_B;
+    m_A                                   = right.m_A;
     m_temp                                = right.m_temp;
     m_press                               = right.m_press;
     m_flux                                = right.m_flux;
@@ -1584,8 +1584,6 @@ void LiquidTransport::update_Grad_lnAC()
 void LiquidTransport::stefan_maxwell_solve()
 {
     doublereal tmp;
-    static DenseMatrix m_A(m_nsp, m_nsp, 0.0);
-    static DenseMatrix m_B(m_nsp, m_nDim, 0.0);
     m_B.resize(m_nsp, m_nDim, 0.0);
     m_A.resize(m_nsp, m_nsp, 0.0);
 

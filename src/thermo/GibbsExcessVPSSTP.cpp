@@ -184,9 +184,9 @@ void GibbsExcessVPSSTP::setPressure(doublereal p)
 
 void GibbsExcessVPSSTP::calcDensity()
 {
-    static vector_fp vbar(m_kk);
+    vector_fp vbar = getPartialMolarVolumes();
     //    double *vbar = &m_pp[0];
-    getPartialMolarVolumes(&vbar[0]);
+//    getPartialMolarVolumes(&vbar[0]);
 
     doublereal vtotal = 0.0;
     for (size_t i = 0; i < m_kk; i++) {
@@ -294,6 +294,10 @@ void GibbsExcessVPSSTP::getPartialMolarVolumes(doublereal* vbar) const
     getStandardVolumes(vbar);
 }
 
+const vector_fp & GibbsExcessVPSSTP::getPartialMolarVolumes() const
+{
+  return getStandardVolumes();
+}
 
 
 doublereal GibbsExcessVPSSTP::err(const std::string& msg) const

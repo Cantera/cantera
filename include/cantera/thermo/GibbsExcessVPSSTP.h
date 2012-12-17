@@ -423,6 +423,7 @@ public:
      *                Length = m_kk. units are m^3/kmol.
      */
     virtual void getPartialMolarVolumes(doublereal* vbar) const;
+    virtual const vector_fp & getPartialMolarVolumes() const;
 
     //@}
     /// @name  Properties of the Standard State of the Species in the Solution
