@@ -1044,7 +1044,7 @@ size_t StFlow::componentIndex(const std::string& name) const
 }
 
 
-void StFlow::restore(const XML_Node& dom, doublereal* soln)
+void StFlow::restore(const XML_Node& dom, doublereal* soln, int loglevel)
 {
 
     vector<string> ignored;
@@ -1079,8 +1079,10 @@ void StFlow::restore(const XML_Node& dom, doublereal* soln)
         if (nm == "z") {
             getFloatArray(fa,x,false);
             np = x.size();
-            writelog("Grid contains "+int2str(np)+
-                     " points.\n");
+            if (loglevel >= 2) {
+                writelog("Grid contains "+int2str(np)+
+                         " points.\n");
+            }
             readgrid = true;
             setupGrid(np, DATA_PTR(x));
         }
@@ -1090,13 +1092,17 @@ void StFlow::restore(const XML_Node& dom, doublereal* soln)
                            "domain contains no grid points.");
     }
 
-    writelog("Importing datasets:\n");
+    if (loglevel >= 2) {
+        writelog("Importing datasets:\n");
+    }
     for (n = 0; n < nd; n++) {
         const XML_Node& fa = *d[n];
         nm = fa["title"];
         getFloatArray(fa,x,false);
         if (nm == "u") {
-            writelog("axial velocity   ");
+            if (loglevel >= 2) {
+                writelog("axial velocity   ");
+            }
             if (x.size() == np) {
                 for (j = 0; j < np; j++) {
                     soln[index(0,j)] = x[j];
@@ -1107,7 +1113,9 @@ void StFlow::restore(const XML_Node& dom, doublereal* soln)
         } else if (nm == "z") {
             ;   // already read grid
         } else if (nm == "V") {
-            writelog("radial velocity   ");
+            if (loglevel >= 2) {
+                writelog("radial velocity   ");
+            }
             if (x.size() == np) {
                 for (j = 0; j < np; j++) {
                     soln[index(1,j)] = x[j];
@@ -1116,7 +1124,9 @@ void StFlow::restore(const XML_Node& dom, doublereal* soln)
                 goto error;
             }
         } else if (nm == "T") {
-            writelog("temperature   ");
+            if (loglevel >= 2) {
+                writelog("temperature   ");
+            }
             if (x.size() == np) {
                 for (j = 0; j < np; j++) {
                     soln[index(2,j)] = x[j];
@@ -1136,7 +1146,9 @@ void StFlow::restore(const XML_Node& dom, doublereal* soln)
                 goto error;
             }
         } else if (nm == "L") {
-            writelog("lambda   ");
+            if (loglevel >=2) {
+                writelog("lambda   ");
+            }
             if (x.size() == np) {
                 for (j = 0; j < np; j++) {
                     soln[index(3,j)] = x[j];
@@ -1145,7 +1157,9 @@ void StFlow::restore(const XML_Node& dom, doublereal* soln)
                 goto error;
             }
         } else if (m_thermo->speciesIndex(nm) != npos) {
-            writelog(nm+"   ");
+            if (loglevel >=2) {
+                writelog(nm+"   ");
+            }
             if (x.size() == np) {
                 k = m_thermo->speciesIndex(nm);
                 did_species[k] = 1;
@@ -1158,7 +1172,7 @@ void StFlow::restore(const XML_Node& dom, doublereal* soln)
         }
     }
 
-    if (ignored.size() != 0) {
+    if (loglevel >=2 && !ignored.empty()) {
         writelog("\n\n");
         writelog("Ignoring datasets:\n");
         size_t nn = ignored.size();
@@ -1167,13 +1181,15 @@ void StFlow::restore(const XML_Node& dom, doublereal* soln)
         }
     }
 
-    for (ks = 0; ks < nsp; ks++) {
-        if (did_species[ks] == 0) {
-            if (!wrote_header) {
-                writelog("Missing data for species:\n");
-                wrote_header = true;
+    if (loglevel >= 1) {
+        for (ks = 0; ks < nsp; ks++) {
+            if (did_species[ks] == 0) {
+                if (!wrote_header) {
+                    writelog("Missing data for species:\n");
+                    wrote_header = true;
+                }
+                writelog(m_thermo->speciesName(ks)+" ");
             }
-            writelog(m_thermo->speciesName(ks)+" ");
         }
     }
 

@@ -188,7 +188,8 @@ public:
      */
     virtual void save(XML_Node& o, const doublereal* const sol);
 
-    virtual void restore(const XML_Node& dom, doublereal* soln);
+    virtual void restore(const XML_Node& dom, doublereal* soln,
+                         int loglevel);
 
     // overloaded in subclasses
     virtual std::string flowType() {

@@ -530,7 +530,7 @@ public:
     virtual void showSolution_s(std::ostream& s, const doublereal* x) {}
     virtual void showSolution(const doublereal* x);
 
-    virtual void restore(const XML_Node& dom, doublereal* soln) {}
+    virtual void restore(const XML_Node& dom, doublereal* soln, int loglevel) {}
 
     doublereal z(size_t jlocal) const {
         return m_z[jlocal];

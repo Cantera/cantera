@@ -73,10 +73,10 @@ public:
     //@}
 
     void save(const std::string& fname, const std::string& id,
-              const std::string& desc);
+              const std::string& desc, int loglevel=1);
 
     void saveResidual(const std::string& fname, const std::string& id,
-              const std::string& desc);
+              const std::string& desc, int loglevel=1);
 
     /// Print to stream s the current solution for all domains.
     void showSolution(std::ostream& s);
@@ -115,7 +115,7 @@ public:
     */
     void setGridMin(int dom, double gridmin);
 
-    void restore(const std::string& fname, const std::string& id);
+    void restore(const std::string& fname, const std::string& id, int loglevel=2);
     void getInitialSoln();
 
     void setSolution(const doublereal* soln) {

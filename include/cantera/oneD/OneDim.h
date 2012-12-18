@@ -193,7 +193,7 @@ public:
     void writeStats(int printTime = 1);
 
     void save(const std::string& fname, std::string id,
-              const std::string& desc, doublereal* sol);
+              const std::string& desc, doublereal* sol, int loglevel);
 
     // options
     void setMinTimeStep(doublereal tmin) {

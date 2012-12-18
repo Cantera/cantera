@@ -143,23 +143,24 @@ void Sim1D::setProfile(size_t dom, size_t comp,
 
 
 void Sim1D::save(const std::string& fname, const std::string& id,
-                 const std::string& desc)
+                 const std::string& desc, int loglevel)
 {
-    OneDim::save(fname, id, desc, DATA_PTR(m_x));
+    OneDim::save(fname, id, desc, DATA_PTR(m_x), loglevel);
 }
 
 void Sim1D::saveResidual(const std::string& fname, const std::string& id,
-                         const std::string& desc)
+                         const std::string& desc, int loglevel)
 {
     vector_fp res(m_x.size(), -999);
     OneDim::eval(npos, &m_x[0], &res[0], 0.0);
-    OneDim::save(fname, id, desc, &res[0]);
+    OneDim::save(fname, id, desc, &res[0], loglevel);
 }
 
 /**
  * Initialize the solution with a previously-saved solution.
  */
-void Sim1D::restore(const std::string& fname, const std::string& id)
+void Sim1D::restore(const std::string& fname, const std::string& id,
+                    int loglevel)
 {
     ifstream s(fname.c_str());
     //char buf[100];
@@ -195,7 +196,7 @@ void Sim1D::restore(const std::string& fname, const std::string& id)
     m_xnew.resize(sz);
     for (m = 0; m < m_nd; m++) {
         if (xd[m]) {
-            domain(m).restore(*xd[m], DATA_PTR(m_x) + domain(m).loc());
+            domain(m).restore(*xd[m], DATA_PTR(m_x) + domain(m).loc(), loglevel);
         }
     }
     resize();

@@ -186,10 +186,10 @@ class TestFreeFlame(utilities.CanteraTest):
         u1 = self.sim.u
         V1 = self.sim.V
 
-        self.sim.save(filename, 'test')
+        self.sim.save(filename, 'test', loglevel=0)
 
         self.create_sim(p, Tin, reactants)
-        self.sim.restore(filename, 'test')
+        self.sim.restore(filename, 'test', loglevel=0)
         Y2 = self.sim.Y
         u2 = self.sim.u
         V2 = self.sim.V
