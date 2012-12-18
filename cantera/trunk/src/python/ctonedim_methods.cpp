@@ -631,6 +631,22 @@ py_stflow_setPressure(PyObject* self, PyObject* args)
     return Py_BuildValue("i",_val);
 }
 
+static PyObject*
+py_stflow_pressure(PyObject* self, PyObject* args)
+{
+    double _val;
+    int i;
+    int n;
+    if (!PyArg_ParseTuple(args, "i:stflow_pressure", &i)) {
+        return NULL;
+    }
+
+    _val = stflow_pressure(i);
+    if (_val == DERR) {
+        return reportCanteraError();
+    }
+    return Py_BuildValue("d",_val);
+}
 
 static PyObject*
 py_stflow_setFixedTempProfile(PyObject* self, PyObject* args)

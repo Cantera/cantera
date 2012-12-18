@@ -416,6 +416,15 @@ extern "C" {
         }
     }
 
+    double stflow_pressure(int i)
+    {
+        try {
+            return DomainCabinet::get<StFlow>(i).pressure();
+        } catch (...) {
+            return handleAllExceptions(DERR, DERR);
+        }
+    }
+
     int stflow_setFixedTempProfile(int i, size_t n, double* pos,
                                    size_t m, double* temp)
     {

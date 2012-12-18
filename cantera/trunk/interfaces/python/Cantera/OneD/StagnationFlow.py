@@ -26,7 +26,6 @@ class StagnationFlow(Stack):
         self.surfchem = surfchem
         self.inlet.set(temperature = gas.temperature())
         self.surface = Surface(id = 'surface', surface_mech = surfchem)
-        self.pressure = gas.pressure()
         self.flow = AxisymmetricFlow('flow',gas = gas)
         self.flow.setupGrid(grid)
         Stack.__init__(self, [self.inlet, self.flow, self.surface])
@@ -44,7 +43,7 @@ class StagnationFlow(Stack):
         yin = zeros(nsp, 'd')
         for k in range(nsp):
             yin[k] = self.inlet.massFraction(k)
-        gas.setState_TPY(self.inlet.temperature(), self.pressure, yin)
+        gas.setState_TPY(self.inlet.temperature(), self.flow.pressure(), yin)
         u0 = self.inlet.mdot()/gas.density()
         t0 = self.inlet.temperature()
         V0 = 0.0
@@ -147,6 +146,6 @@ class StagnationFlow(Stack):
         for n in range(nsp):
             nm = self.gas.speciesName(n)
             y[n] = self.solution(nm, j)
-        self.gas.setState_TPY(self.T(j), self.pressure, y)
+        self.gas.setState_TPY(self.T(j), self.flow.pressure(), y)
 
 fix_docs(StagnationFlow)
