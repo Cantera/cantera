@@ -683,11 +683,29 @@ save(XML_Node& o, const doublereal* const soln)
     outlt.addAttribute("points",1);
     outlt.addAttribute("type","outletres");
     outlt.addAttribute("components", double(nComponents()));
+    ctml::addFloat(outlt, "temperature", m_temp, "K");
+    for (size_t k=0; k < m_nsp; k++) {
+        ctml::addFloat(outlt, "massFraction", m_yres[k], "",
+                       m_flow->phase().speciesName(k));
+    }
 }
 
 void OutletRes1D::
 restore(const XML_Node& dom, doublereal* soln, int loglevel)
 {
+    m_temp = ctml::getFloat(dom, "temperature");
+
+    m_yres.assign(m_nsp, 0.0);
+    for (size_t i = 0; i < dom.nChildren(); i++) {
+        const XML_Node& node = dom.child(i);
+        if (node.name() == "massFraction") {
+            size_t k = m_flow->phase().speciesIndex(node.attrib("type"));
+            if (k != npos) {
+                m_yres[k] = node.fp_value();
+            }
+        }
+    }
+
     resize(1,1);
 }
 
@@ -777,9 +795,7 @@ save(XML_Node& o, const doublereal* const soln)
 void Surf1D::
 restore(const XML_Node& dom, doublereal* soln, int loglevel)
 {
-    map<string, double> x;
-    ctml::getFloats(dom, x);
-    soln[0] = x["temperature"];
+    soln[0] = m_temp = ctml::getFloat(dom, "temperature", "temperature");
     resize(1,1);
 }
 
