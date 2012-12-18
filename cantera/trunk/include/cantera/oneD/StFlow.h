@@ -107,6 +107,10 @@ public:
         m_press = p;
     }
 
+    /// The current pressure [Pa].
+    doublereal pressure() const {
+        return m_press;
+    }
 
     /// @todo remove? may be unused
     virtual void setState(size_t point, const doublereal* state,
