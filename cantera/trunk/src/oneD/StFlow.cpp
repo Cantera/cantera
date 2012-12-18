@@ -109,6 +109,9 @@ StFlow::StFlow(IdealGasPhase* ph, size_t nsp, size_t points) :
     m_points = points;
     m_thermo = ph;
 
+    m_zfixed = Undef;
+    m_tfixed = Undef;
+
     if (ph == 0) {
         return;    // used to create a dummy object
     }
@@ -1064,6 +1067,8 @@ void StFlow::restore(const XML_Node& dom, doublereal* soln, int loglevel)
     pp = getFloat(dom, "pressure", "pressure");
     setPressure(pp);
 
+    getOptionalFloat(dom, "t_fixed", m_tfixed);
+    getOptionalFloat(dom, "z_fixed", m_zfixed);
 
     vector<XML_Node*> d;
     dom.child("grid_data").getChildren("floatArray",d);
@@ -1217,6 +1222,12 @@ void StFlow::save(XML_Node& o, const doublereal* const sol)
     }
     XML_Node& gv = flow.addChild("grid_data");
     addFloat(flow, "pressure", m_press, "Pa", "pressure");
+
+    if (m_zfixed != Undef) {
+        addFloat(flow, "z_fixed", m_zfixed, "m");
+        addFloat(flow, "t_fixed", m_tfixed, "K");
+    }
+
     addFloatArray(gv,"z",m_z.size(),DATA_PTR(m_z),
                   "m","length");
     vector_fp x(soln.nColumns());
