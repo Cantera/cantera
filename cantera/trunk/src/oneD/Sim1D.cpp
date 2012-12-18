@@ -514,17 +514,14 @@ int Sim1D::setFixedTemperature(doublereal t)
         size_t npnow = d.nPoints();
         size_t nstart = znew.size();
         for (m = 0; m < npnow-1; m++) {
-            //cout << "T["<<m<<"]="<<value(n,2,m)<<endl;
             if (value(n,2,m) == t) {
                 zfixed = d.grid(m);
                 //set d.zfixed, d.ztemp
                 d.m_zfixed = zfixed;
                 d.m_tfixed = t;
-                cout << "T already fixed at " << d.grid(m) << endl;
                 addnewpt = false;
                 break;
             } else if ((value(n,2,m)<t) && (value(n,2,m+1)>t)) {
-                cout << "T in between "<<value(n,2,m)<<" and "<<value(n,2,m+1)<<endl;
                 z1 = d.grid(m);
                 m1 = m;
                 z2 = d.grid(m+1);
@@ -532,7 +529,6 @@ int Sim1D::setFixedTemperature(doublereal t)
                 t2 = value(n,2,m+1);
 
                 zfixed = (z1-z2)/(t1-t2)*(t-t2)+z2;
-                //cout << zfixed<<endl;
                 //set d.zfixed, d.ztemp;
                 d.m_zfixed = zfixed;
                 d.m_tfixed = t;
