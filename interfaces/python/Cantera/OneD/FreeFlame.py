@@ -23,7 +23,6 @@ class FreeFlame(Stack):
         self.gas = gas
         self.inlet.set(temperature = gas.temperature())
         self.outlet = Outlet('outlet')
-        self.pressure = gas.pressure()
 
         # type 2 is Cantera C++ class FreeFlame
         self.flame = AxisymmetricFlow('flame',gas = gas,type=2)
@@ -47,7 +46,7 @@ class FreeFlame(Stack):
         yin = zeros(nsp, 'd')
         for k in range(nsp):
             yin[k] = self.inlet.massFraction(k)
-        gas.setState_TPY(self.inlet.temperature(), self.pressure, yin)
+        gas.setState_TPY(self.inlet.temperature(), self.flame.pressure(), yin)
         u0 = self.inlet.mdot()/gas.density()
         t0 = self.inlet.temperature()
 
@@ -131,6 +130,6 @@ class FreeFlame(Stack):
         for n in range(nsp):
             nm = self.gas.speciesName(n)
             y[n] = self.solution(nm, j)
-        self.gas.setState_TPY(self.T(j), self.pressure, y)
+        self.gas.setState_TPY(self.T(j), self.flame.pressure(), y)
 
 fix_docs(FreeFlame)

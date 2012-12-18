@@ -52,6 +52,7 @@ extern "C" {
     CANTERA_CAPI int stflow_setTransport(int i, int itr, int iSoret);
     CANTERA_CAPI int stflow_enableSoret(int i, int iSoret);
     CANTERA_CAPI int stflow_setPressure(int i, double p);
+    CANTERA_CAPI double stflow_pressure(int i);
     CANTERA_CAPI int stflow_setFixedTempProfile(int i, size_t n, double* pos,
             size_t m, double* temp);
     CANTERA_CAPI  int stflow_solveSpeciesEqs(int i, int flag);

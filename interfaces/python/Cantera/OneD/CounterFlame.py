@@ -46,7 +46,6 @@ class CounterFlame(Stack):
         self.gas = gas
         self.fuel_inlet.set(temperature = gas.temperature())
         self.oxidizer_inlet.set(temperature = gas.temperature())
-        self.pressure = gas.pressure()
         self.flame = AxisymmetricFlow('flame',gas = gas)
         self.flame.setupGrid(grid)
         Stack.__init__(self, [self.fuel_inlet, self.flame,
@@ -86,6 +85,7 @@ class CounterFlame(Stack):
         y0ox = self.oxidizer_inlet.massFraction(iox)
         phi = s*y0f/y0ox
         zst = 1.0/(1.0 + phi)
+        pressure = self.flame.pressure()
 
         yin_f = zeros(nsp, 'd')
         yin_o = zeros(nsp, 'd')
@@ -95,20 +95,20 @@ class CounterFlame(Stack):
             yin_o[k] = self.oxidizer_inlet.massFraction(k)
             yst[k] = zst*yin_f[k] + (1.0 - zst)*yin_o[k]
 
-        gas.setState_TPY(self.fuel_inlet.temperature(), self.pressure, yin_f)
+        gas.setState_TPY(self.fuel_inlet.temperature(), pressure, yin_f)
         mdotf = self.fuel_inlet.mdot()
         u0f = mdotf/gas.density()
         t0f = self.fuel_inlet.temperature()
 
         gas.setState_TPY(self.oxidizer_inlet.temperature(),
-                         self.pressure, yin_o)
+                         pressure, yin_o)
         mdoto = self.oxidizer_inlet.mdot()
         u0o = mdoto/gas.density()
         t0o = self.oxidizer_inlet.temperature()
 
         # get adiabatic flame temperature and composition
         tbar = 0.5*(t0o + t0f)
-        gas.setState_TPY(tbar, self.pressure, yst)
+        gas.setState_TPY(tbar, pressure, yst)
         gas.equilibrate('HP')
         teq = gas.temperature()
         yeq = gas.massFractions()
@@ -214,6 +214,6 @@ class CounterFlame(Stack):
         for n in range(nsp):
             nm = self.gas.speciesName(n)
             y[n] = self.solution(nm, j)
-        self.gas.setState_TPY(self.T(j), self.pressure, y)
+        self.gas.setState_TPY(self.T(j), self.flame.pressure(), y)
 
 fix_docs(CounterFlame)
