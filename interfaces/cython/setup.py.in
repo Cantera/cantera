@@ -23,4 +23,5 @@ setup(name="Cantera",
       cmdclass = {'build_ext': build_ext},
       ext_modules = exts,
       package_data = {'cantera.data': ['*.*'],
-                      'cantera.test.data': ['*.*']})
+                      'cantera.test.data': ['*.*'],
+                      'cantera.examples': ['*/*.py']})
