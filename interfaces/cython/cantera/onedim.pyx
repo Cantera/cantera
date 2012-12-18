@@ -301,11 +301,15 @@ cdef class _FlowBase(Domain1D):
         self.gas = thermo
         self.flow.setKinetics(deref(self.gas.kinetics))
         self.flow.setTransport(deref(self.gas.transport))
-        self.flow.setPressure(self.gas.P)
+        self.P = self.gas.P
         self.flow.solveEnergyEqn()
 
-    def setPressure(self, P):
-        self.flow.setPressure(P)
+    property P:
+        """ Pressure [Pa] """
+        def __get__(self):
+            return self.flow.pressure()
+        def __set__(self, P):
+            self.flow.setPressure(P)
 
     def setTransport(self, _SolutionBase phase):
         self.gas = phase
@@ -743,7 +747,6 @@ cdef class Sim1D:
 cdef class FlameBase(Sim1D):
     """ Base class for flames with a single flow domain """
     cdef readonly object gas
-    cdef double pressure
     cdef public object flame
 
     def __init__(self, domains, gas, grid):
@@ -756,8 +759,7 @@ cdef class FlameBase(Sim1D):
         self.flame.grid = grid
         super().__init__(domains)
         self.gas = gas
-        self.pressure = gas.P
-        self.flame.setPressure(self.pressure)
+        self.flame.P = gas.P
 
     def setRefineCriteria(self, ratio=10.0, slope=0.8, curve=0.8, prune=0.0):
         super().setRefineCriteria(self.flame, ratio, slope, curve, prune)
@@ -788,6 +790,12 @@ cdef class FlameBase(Sim1D):
         """ Array of grid point positions along the flame. """
         def __get__(self):
             return self.flame.grid
+
+    property P:
+        def __get__(self):
+            return self.flame.P
+        def __set__(self, P):
+            self.flame.P = P
 
     property T:
         """ Array containing the temperature [K] at each grid point. """
@@ -846,7 +854,7 @@ cdef class FlameBase(Sim1D):
         k0 = self.flame.componentIndex(self.gas.speciesName(0))
         Y = [self.solution(k, point)
              for k in range(k0, k0 + self.gas.nSpecies)]
-        self.gas.TPY = self.value(self.flame, 'T', point), self.pressure, Y
+        self.gas.TPY = self.value(self.flame, 'T', point), self.P, Y
 
 
 cdef class FreeFlame(FlameBase):
@@ -878,7 +886,7 @@ cdef class FreeFlame(FlameBase):
         similarly.
         """
         super().setInitialGuess()
-        self.gas.TPY = self.inlet.T, self.pressure, self.inlet.Y
+        self.gas.TPY = self.inlet.T, self.P, self.inlet.Y
         Y0 = self.inlet.Y
         u0 = self.inlet.mdot/self.gas.density
         T0 = self.inlet.T
@@ -936,7 +944,7 @@ cdef class BurnerFlame(FlameBase):
         """
         super().setInitialGuess()
 
-        self.gas.TPY = self.burner.T, self.pressure, self.burner.Y
+        self.gas.TPY = self.burner.T, self.P, self.burner.Y
         Y0 = self.burner.Y
         u0 = self.burner.mdot/self.gas.density
         T0 = self.burner.T
@@ -1022,19 +1030,19 @@ cdef class CounterflowDiffusionFlame(FlameBase):
         Yin_o = self.oxidizer_inlet.Y
         Yst = zst * Yin_f + (1.0 - zst) * Yin_o
 
-        self.gas.TPY = self.fuel_inlet.T, self.pressure, Yin_f
+        self.gas.TPY = self.fuel_inlet.T, self.P, Yin_f
         mdotf = self.fuel_inlet.mdot
         u0f = mdotf / self.gas.density
         T0f = self.fuel_inlet.T
 
-        self.gas.TPY = self.oxidizer_inlet.T, self.pressure, Yin_o
+        self.gas.TPY = self.oxidizer_inlet.T, self.P, Yin_o
         mdoto = self.oxidizer_inlet.mdot
         u0o = mdoto/self.gas.density
         T0o = self.oxidizer_inlet.T
 
         # get adiabatic flame temperature and composition
         Tbar = 0.5 * (T0f + T0o)
-        self.gas.TPY = Tbar, self.pressure, Yst
+        self.gas.TPY = Tbar, self.P, Yst
         self.gas.equilibrate('HP')
         Teq = self.gas.T
         Yeq = self.gas.Y
