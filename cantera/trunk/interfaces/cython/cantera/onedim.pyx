@@ -699,7 +699,8 @@ cdef class Sim1D:
         """
         self.sim.setFixedTemperature(T)
 
-    def save(self, filename='soln.xml', name='solution', description='none'):
+    def save(self, filename='soln.xml', name='solution', description='none',
+             loglevel=1):
         """
         Save the solution in XML format.
 
@@ -708,19 +709,22 @@ cdef class Sim1D:
 
         """
         self.sim.save(stringify(filename), stringify(name),
-                      stringify(description))
+                      stringify(description), loglevel)
 
-    def restore(self, filename='soln.xml', name='solution'):
+    def restore(self, filename='soln.xml', name='solution', loglevel=2):
         """Set the solution vector to a previously-saved solution.
 
         :param filename:
             solution file
         :param name:
             solution name within the file
+        :param loglevel:
+            Amount of logging information to display while restoring,
+            from 0 (disabled) to 2 (most verbose).
 
         >>> s.restore(filename='save.xml', id='energy_off')
         """
-        self.sim.restore(stringify(filename), stringify(name))
+        self.sim.restore(stringify(filename), stringify(name), loglevel)
         self._initialized = True
 
     def showStats(self, printTime=True):

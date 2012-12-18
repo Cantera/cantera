@@ -408,8 +408,8 @@ cdef extern from "cantera/oneD/Sim1D.h":
         void solve(int, cbool) except +
         void refine(int) except +
         void setRefineCriteria(size_t, double, double, double, double)
-        void save(string, string, string) except +
-        void restore(string, string) except +
+        void save(string, string, string, int) except +
+        void restore(string, string, int) except +
         void writeStats(int) except +
         int domainIndex(string) except +
         double value(size_t, size_t, size_t) except +

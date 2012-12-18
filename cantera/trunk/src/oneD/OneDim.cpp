@@ -474,7 +474,8 @@ doublereal OneDim::timeStep(int nsteps, doublereal dt, doublereal* x,
 
 
 void OneDim::save(const std::string& fname, std::string id,
-                  const std::string& desc, doublereal* sol)
+                  const std::string& desc, doublereal* sol,
+                  int loglevel)
 {
 
     struct tm* newtime;
@@ -519,7 +520,9 @@ void OneDim::save(const std::string& fname, std::string id,
     }
     ct->write(s);
     s.close();
-    writelog("Solution saved to file "+fname+" as solution "+id+".\n");
+    if (loglevel > 0) {
+        writelog("Solution saved to file "+fname+" as solution "+id+".\n");
+    }
 }
 
 

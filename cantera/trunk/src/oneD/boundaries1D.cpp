@@ -253,7 +253,7 @@ save(XML_Node& o, const doublereal* const soln)
 }
 
 void Inlet1D::
-restore(const XML_Node& dom, doublereal* soln)
+restore(const XML_Node& dom, doublereal* soln, int loglevel)
 {
     //map<string, double> x;
     //getFloats(dom, x);
@@ -322,7 +322,7 @@ save(XML_Node& o, const doublereal* const soln)
 }
 
 void Empty1D::
-restore(const XML_Node& dom, doublereal* soln)
+restore(const XML_Node& dom, doublereal* soln, int loglevel)
 {
     resize(1,1);
 }
@@ -413,7 +413,7 @@ save(XML_Node& o, const doublereal* const soln)
 }
 
 void Symm1D::
-restore(const XML_Node& dom, doublereal* soln)
+restore(const XML_Node& dom, doublereal* soln, int loglevel)
 {
     resize(1,1);
 }
@@ -523,7 +523,7 @@ save(XML_Node& o, const doublereal* const soln)
 }
 
 void Outlet1D::
-restore(const XML_Node& dom, doublereal* soln)
+restore(const XML_Node& dom, doublereal* soln, int loglevel)
 {
     resize(1,1);
 }
@@ -672,7 +672,7 @@ save(XML_Node& o, const doublereal* const soln)
 }
 
 void OutletRes1D::
-restore(const XML_Node& dom, doublereal* soln)
+restore(const XML_Node& dom, doublereal* soln, int loglevel)
 {
     resize(1,1);
 }
@@ -761,7 +761,7 @@ save(XML_Node& o, const doublereal* const soln)
 }
 
 void Surf1D::
-restore(const XML_Node& dom, doublereal* soln)
+restore(const XML_Node& dom, doublereal* soln, int loglevel)
 {
     map<string, double> x;
     ctml::getFloats(dom, x);
@@ -924,7 +924,7 @@ save(XML_Node& o, const doublereal* const soln)
 }
 
 void ReactingSurf1D::
-restore(const XML_Node& dom, doublereal* soln)
+restore(const XML_Node& dom, doublereal* soln, int loglevel)
 {
     map<string, double> x;
     ctml::getFloats(dom, x);
