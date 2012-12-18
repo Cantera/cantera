@@ -942,24 +942,36 @@ void ReactingSurf1D::
 save(XML_Node& o, const doublereal* const soln)
 {
     const doublereal* s = soln + loc();
-    //XML_Node& inlt = o.addChild("inlet");
-    XML_Node& inlt = o.addChild("domain");
-    inlt.addAttribute("id",id());
-    inlt.addAttribute("points",1);
-    inlt.addAttribute("type","surface");
-    inlt.addAttribute("components", double(nComponents()));
-    for (size_t k = 0; k < nComponents(); k++) {
-        ctml::addFloat(inlt, componentName(k), s[k], "", "",0.0, 1.0);
+    XML_Node& dom = o.addChild("domain");
+    dom.addAttribute("id",id());
+    dom.addAttribute("points",1);
+    dom.addAttribute("type","surface");
+    dom.addAttribute("components", double(nComponents()));
+    ctml::addFloat(dom, "temperature", s[0], "K");
+    for (size_t k=0; k < m_nsp; k++) {
+        ctml::addFloat(dom, "coverage", s[k+1], "",
+                       m_sphase->speciesName(k));
     }
 }
 
 void ReactingSurf1D::
 restore(const XML_Node& dom, doublereal* soln, int loglevel)
 {
-    map<string, double> x;
-    ctml::getFloats(dom, x);
-    soln[0] = x["temperature"];
-    resize(1,1);
+    soln[0] = m_temp = ctml::getFloat(dom, "temperature");
+
+    m_fixed_cov.assign(m_nsp, 0.0);
+    for (size_t i = 0; i < dom.nChildren(); i++) {
+        const XML_Node& node = dom.child(i);
+        if (node.name() == "coverage") {
+            size_t k = m_sphase->speciesIndex(node.attrib("type"));
+            if (k != npos) {
+                m_fixed_cov[k] = soln[k+1] = node.fp_value();
+            }
+        }
+    }
+    m_sphase->setCoverages(&m_fixed_cov[0]);
+
+    resize(m_nsp+1,1);
 }
 }
 
