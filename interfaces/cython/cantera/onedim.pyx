@@ -178,7 +178,7 @@ cdef class Boundary1D(Domain1D):
         """ Species mole fractions at this boundary. """
         def __set__(self, X):
             cdef np.ndarray[np.double_t, ndim=1] data
-            if isinstance(X, str):
+            if isinstance(X, (str, unicode)):
                 self.boundary.setMoleFractions(stringify(X))
             else:
                 data = np.ascontiguousarray(X, dtype=np.double)
@@ -457,7 +457,7 @@ cdef class Sim1D:
     def _get_indices(self, dom, comp):
         idom = self.domainIndex(dom)
         dom = self.domains[idom]
-        if isinstance(comp, str):
+        if isinstance(comp, (str, unicode)):
             kcomp = dom.componentIndex(comp)
         else:
             kcomp = comp

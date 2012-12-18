@@ -146,7 +146,7 @@ cdef class ThermoPhase(_SolutionBase):
         an integer. In the latter case, the index is checked for validity and
         returned. If no such element is present, an exception is thrown.
         """
-        if isinstance(element, str):
+        if isinstance(element, (str, unicode)):
             index = self.thermo.elementIndex(stringify(element))
         elif isinstance(element, (int, float)):
             index = <int>element
@@ -191,7 +191,7 @@ cdef class ThermoPhase(_SolutionBase):
         an integer. In the latter case, the index is checked for validity and
         returned. If no such species is present, an exception is thrown.
         """
-        if isinstance(species, str):
+        if isinstance(species, (str, unicode)):
             index = self.thermo.speciesIndex(stringify(species))
         elif isinstance(species, (int, float)):
             index = <int>species
@@ -253,7 +253,7 @@ cdef class ThermoPhase(_SolutionBase):
         def __get__(self):
             return self._getArray1(thermo_getMassFractions)
         def __set__(self, Y):
-            if isinstance(Y, str):
+            if isinstance(Y, (str, unicode)):
                 self.thermo.setMassFractionsByName(stringify(Y))
             else:
                 self._setArray1(thermo_setMassFractions, Y)
@@ -272,7 +272,7 @@ cdef class ThermoPhase(_SolutionBase):
         def __get__(self):
             return self._getArray1(thermo_getMoleFractions)
         def __set__(self, X):
-            if isinstance(X, str):
+            if isinstance(X, (str, unicode)):
                 self.thermo.setMoleFractionsByName(stringify(X))
             else:
                 self._setArray1(thermo_setMoleFractions, X)

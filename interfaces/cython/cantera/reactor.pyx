@@ -774,7 +774,7 @@ cdef class ReactorNet:
     def sensitivity(self, species, int p, int r=0):
         if isinstance(species, int):
             return self.net.sensitivity(species,p)
-        elif isinstance(species, str):
+        elif isinstance(species, (str, unicode)):
             return self.net.sensitivity(stringify(species), p, r)
 
     def sensitivities(self):
