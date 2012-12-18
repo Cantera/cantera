@@ -173,8 +173,8 @@ class TestFreeFlame(utilities.CanteraTest):
 
     def test_save_restore(self):
         reactants= 'H2:1.1, O2:1, AR:5'
-        p = ct.OneAtm
-        Tin = 300
+        p = 2 * ct.OneAtm
+        Tin = 400
 
         self.create_sim(p, Tin, reactants)
         self.solve_fixed_T()
@@ -185,11 +185,19 @@ class TestFreeFlame(utilities.CanteraTest):
         Y1 = self.sim.Y
         u1 = self.sim.u
         V1 = self.sim.V
+        P1 = self.sim.P
 
         self.sim.save(filename, 'test', loglevel=0)
 
-        self.create_sim(p, Tin, reactants)
+        self.create_sim(ct.OneAtm, Tin, reactants)
+        self.sim.energyEnabled = False
         self.sim.restore(filename, 'test', loglevel=0)
+
+        P2a = self.sim.P
+
+        self.assertNear(p, P1)
+        self.assertNear(P1, P2a)
+
         Y2 = self.sim.Y
         u2 = self.sim.u
         V2 = self.sim.V
@@ -197,3 +205,12 @@ class TestFreeFlame(utilities.CanteraTest):
         self.assertArrayNear(Y1, Y2)
         self.assertArrayNear(u1, u2)
         self.assertArrayNear(V1, V2)
+
+        self.solve_fixed_T()
+        Y3 = self.sim.Y
+        u3 = self.sim.u
+        V3 = self.sim.V
+
+        self.assertArrayNear(Y1, Y3, 1e-3)
+        self.assertArrayNear(u1, u3, 1e-3)
+        self.assertArrayNear(V1, V3, 1e-3)
