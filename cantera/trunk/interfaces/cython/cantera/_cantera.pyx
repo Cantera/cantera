@@ -2,6 +2,7 @@
 
 import numpy as np
 cimport numpy as np
+import math
 
 from cython.operator cimport dereference as deref
 

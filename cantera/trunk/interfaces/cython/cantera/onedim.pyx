@@ -734,3 +734,335 @@ cdef class Sim1D:
 
     def __dealloc__(self):
         del self.sim
+
+
+cdef class FlameBase(Sim1D):
+    """ Base class for flames with a single flow domain """
+    cdef readonly object gas
+    cdef double pressure
+    cdef public object flame
+
+    def __init__(self, domains, gas, grid):
+        """
+        :param gas:
+            object to use to evaluate all gas properties and reaction rates
+        :param grid:
+            array of initial grid points
+        """
+        self.flame.grid = grid
+        super().__init__(domains)
+        self.gas = gas
+        self.pressure = gas.P
+        self.flame.setPressure(self.pressure)
+
+    def setRefineCriteria(self, ratio=10.0, slope=0.8, curve=0.8, prune=0.0):
+        super().setRefineCriteria(self.flame, ratio, slope, curve, prune)
+
+    def setProfile(self, component, locations, values):
+        super().setProfile(self.flame, component, locations, values)
+
+    property transportModel:
+        def __get__(self):
+            return self.gas.transportModel
+        def __set__(self, model):
+            self.gas.transportModel = model
+            self.flame.setTransport(self.gas)
+
+    property energyEnabled:
+        def __get__(self):
+            return self.flame.energyEnabled
+        def __set__(self, enable):
+            self.flame.energyEnabled = enable
+
+    property soretEnabled:
+        def __get__(self):
+            return self.flame.soretEnabled
+        def __set__(self, enable):
+            self.flame.soretEnabled = enable
+
+    property grid:
+        """ Array of grid point positions along the flame. """
+        def __get__(self):
+            return self.flame.grid
+
+    property T:
+        """ Array containing the temperature [K] at each grid point. """
+        def __get__(self):
+            return self.profile(self.flame, 'T')
+
+    property u:
+        """
+        Array containing the velocity [m/s] normal to the flame at each point.
+        """
+        def __get__(self):
+            return self.profile(self.flame, 'u')
+
+    property V:
+        """
+        Array containing the tangential velocity gradient [1/s] at each point.
+        """
+        def __get__(self):
+            return self.profile(self.flame, 'V')
+
+    property Y:
+        """
+        2D array containing the species mass fractions at each point. Y[k,j]
+        is the mass fraction of species *k* at point *j*.
+        """
+        def __get__(self):
+            cdef np.ndarray[np.double_t, ndim=2] Y = \
+                    np.empty((self.gas.nSpecies, self.flame.nPoints))
+
+            for j in range(self.flame.nPoints):
+                self.setGasState(j)
+                Y[:,j] = self.gas.Y
+            return Y
+
+    property X:
+        """
+        2D array containing the species mole fractions at each point. X[k,j]
+        is the mole fraction of species *k* at point *j*.
+        """
+        def __get__(self):
+            cdef np.ndarray[np.double_t, ndim=2] X = \
+                    np.empty((self.gas.nSpecies, self.flame.nPoints))
+
+            for j in range(self.flame.nPoints):
+                self.setGasState(j)
+                X[:,j] = self.gas.X
+            return X
+
+    def solution(self, component, point=None):
+        if point is None:
+            return self.profile(self.flame, component)
+        else:
+            return self.value(self.flame, component, point)
+
+    def setGasState(self, point):
+        k0 = self.flame.componentIndex(self.gas.speciesName(0))
+        Y = [self.solution(k, point)
+             for k in range(k0, k0 + self.gas.nSpecies)]
+        self.gas.TPY = self.value(self.flame, 'T', point), self.pressure, Y
+
+
+cdef class FreeFlame(FlameBase):
+    """A freely-propagating flat flame."""
+    cdef readonly object inlet
+    cdef readonly object outlet
+
+    def __init__(self, gas, grid):
+        """
+        A domain of type FreeFlow named 'flame' will be created to represent
+        the flame. The three domains comprising the stack are stored as
+        ``self.inlet``, ``self.flame``, and ``self.outlet``.
+        """
+        self.inlet = Inlet1D()
+        self.inlet.name = 'reactants'
+        self.outlet = Outlet1D()
+        self.outlet.name = 'products'
+        self.flame = FreeFlow(gas)
+        self.flame.name = 'flame'
+
+        super().__init__((self.inlet, self.flame, self.outlet), gas, grid)
+
+    def setInitialGuess(self):
+        """
+        Set the initial guess for the solution. The adiabatic flame
+        temperature and equilibrium composition are computed for the inlet gas
+        composition. The temperature profile rises linearly over 20% of the
+        domain width to Tad, then is flat. The mass fraction profiles are set
+        similarly.
+        """
+        super().setInitialGuess()
+        self.gas.TPY = self.inlet.T, self.pressure, self.inlet.Y
+        Y0 = self.inlet.Y
+        u0 = self.inlet.mdot/self.gas.density
+        T0 = self.inlet.T
+
+        # get adiabatic flame temperature and composition
+        self.gas.equilibrate('HP')
+        Teq = self.gas.T
+        Yeq = self.gas.Y
+        u1 = self.inlet.mdot/self.gas.density
+
+        locs = [0.0, 0.3, 0.5, 1.0]
+        self.setProfile('u', locs, [u0, u0, u1, u1])
+        self.setProfile('T', locs, [T0, T0, Teq, Teq])
+        self.setFixedTemperature(0.5 * (T0 + Teq))
+        for n in range(self.gas.nSpecies):
+            self.setProfile(self.gas.speciesName(n),
+                            locs, [Y0[n], Y0[n], Yeq[n], Yeq[n]])
+
+
+cdef class BurnerFlame(FlameBase):
+    """A burner-stabilized flat flame."""
+    cdef readonly object burner
+    cdef readonly object outlet
+
+    def __init__(self, gas, grid):
+        """
+        :param gas:
+            `Solution` (using the IdealGas thermodynamic model) used to
+            evaluate all gas properties and reaction rates.
+        :param grid:
+            Array of initial grid points
+
+        A domain of class `AxisymmetricStagnationFlow` named ``flame`` will
+        be created to represent the flame. The three domains comprising the
+        stack are stored as ``self.burner``, ``self.flame``, and
+        ``self.outlet``.
+        """
+        self.burner = Inlet1D()
+        self.burner.name = 'burner'
+        self.burner.T = gas.T
+        self.outlet = Outlet1D()
+        self.outlet.name = 'outlet'
+        self.flame = AxisymmetricStagnationFlow(gas)
+        self.flame.name = 'flame'
+
+        super().__init__((self.burner, self.flame, self.outlet), gas, grid)
+
+    def setInitialGuess(self):
+        """
+        Set the initial guess for the solution. The adiabatic flame
+        temperature and equilibrium composition are computed for the burner
+        gas composition. The temperature profile rises linearly in the first
+        20% of the flame to Tad, then is flat. The mass fraction profiles are
+        set similarly.
+        """
+        super().setInitialGuess()
+
+        self.gas.TPY = self.burner.T, self.pressure, self.burner.Y
+        Y0 = self.burner.Y
+        u0 = self.burner.mdot/self.gas.density
+        T0 = self.burner.T
+
+        # get adiabatic flame temperature and composition
+        self.gas.equilibrate('HP')
+        Teq = self.gas.T
+        Yeq = self.gas.Y
+        u1 = self.burner.mdot/self.gas.density
+
+        locs = [0.0, 0.2, 1.0]
+        self.setProfile('u', locs, [u0, u1, u1])
+        self.setProfile('T', locs, [T0, Teq, Teq])
+        for n in range(self.gas.nSpecies):
+            self.setProfile(self.gas.speciesName(n),
+                            locs, [Y0[n], Yeq[n], Yeq[n]])
+
+
+cdef class CounterflowDiffusionFlame(FlameBase):
+    """ A counterflow diffusion flame """
+
+    cdef readonly object fuel_inlet
+    cdef readonly object oxidizer_inlet
+
+    def __init__(self, gas, grid):
+        """
+        :param gas:
+            `Solution` (using the IdealGas thermodynamic model) used to
+            evaluate all gas properties and reaction rates.
+        :param grid:
+            Array of initial grid points
+
+        A domain of class `AxisymmetricStagnationFlow` named ``flame`` will
+        be created to represent the flame. The three domains comprising the
+        stack are stored as ``self.fuel_inlet``, ``self.flame``, and
+        ``self.oxidizer_inlet``.
+        """
+        self.fuel_inlet = Inlet1D()
+        self.fuel_inlet.name = 'fuel_inlet'
+        self.fuel_inlet.T = gas.T
+
+        self.oxidizer_inlet = Inlet1D()
+        self.oxidizer_inlet.name = 'oxidizer_inlet'
+        self.oxidizer_inlet.T = gas.T
+
+        self.flame = AxisymmetricStagnationFlow(gas)
+        self.flame.name = 'flame'
+
+        super().__init__((self.fuel_inlet, self.flame, self.oxidizer_inlet),
+                         gas, grid)
+
+    def setInitialGuess(self, fuel, oxidizer='O2', stoich=None):
+        """
+        Set the initial guess for the solution. The fuel species must be
+        specified:
+
+        >>> f.setInitialGuess(fuel='CH4')
+
+        The oxidizer and corresponding stoichiometry must be specified if it
+        is not 'O2'. The initial guess is generated by assuming infinitely-
+        fast chemistry.
+        """
+
+        super().setInitialGuess()
+
+        if stoich is None:
+            if oxidizer == 'O2':
+                nH = self.gas.nAtoms(fuel, 'H')
+                nC = self.gas.nAtoms(fuel, 'C')
+                stoich = 1.0 * nC + 0.25 * nH
+            else:
+                raise Exception('oxidizer/fuel stoichiometric ratio must be '
+                                'specified since the oxidizer is not O2')
+
+        kFuel = self.gas.speciesIndex(fuel)
+        kOx = self.gas.speciesIndex(oxidizer)
+
+        s = stoich * self.gas.molecularWeights[kOx] / self.gas.molecularWeights[kFuel]
+        phi = s * self.fuel_inlet.Y[kFuel] / self.oxidizer_inlet.Y[kOx]
+        zst = 1.0 / (1.0 + phi)
+
+        Yin_f = self.fuel_inlet.Y
+        Yin_o = self.oxidizer_inlet.Y
+        Yst = zst * Yin_f + (1.0 - zst) * Yin_o
+
+        self.gas.TPY = self.fuel_inlet.T, self.pressure, Yin_f
+        mdotf = self.fuel_inlet.mdot
+        u0f = mdotf / self.gas.density
+        T0f = self.fuel_inlet.T
+
+        self.gas.TPY = self.oxidizer_inlet.T, self.pressure, Yin_o
+        mdoto = self.oxidizer_inlet.mdot
+        u0o = mdoto/self.gas.density
+        T0o = self.oxidizer_inlet.T
+
+        # get adiabatic flame temperature and composition
+        Tbar = 0.5 * (T0f + T0o)
+        self.gas.TPY = Tbar, self.pressure, Yst
+        self.gas.equilibrate('HP')
+        Teq = self.gas.T
+        Yeq = self.gas.Y
+
+        # estimate strain rate
+        zz = self.flame.grid
+        dz = zz[-1] - zz[0]
+        a = (u0o + u0f)/dz
+        f = np.sqrt(a / (2.0 * self.gas.mixDiffCoeffs[kOx]))
+
+        x0 = mdotf * dz / (mdotf + mdoto)
+        nz = len(zz)
+
+        Y = np.zeros((nz, self.gas.nSpecies))
+        T = np.zeros(nz)
+        for j in range(nz):
+            x = zz[j]
+            zeta = f * (x - x0)
+            zmix = 0.5 * (1.0 - math.erf(zeta))
+            if zmix > zst:
+                Y[j] = Yeq + (Yin_f - Yeq) * (zmix - zst) / (1.0 - zst)
+                T[j] = Teq + (T0f - Teq) * (zmix - zst) / (1.0 - zst)
+            else:
+                Y[j] = Yin_o + zmix * (Yeq - Yin_o) / zst
+                T[j] = T0o + (Teq - T0o) * zmix / zst
+
+        T[0] = T0f
+        T[-1] = T0o
+        zrel = zz/dz
+
+        self.setProfile('u', [0.0, 1.0], [u0f, -u0o])
+        self.setProfile('V', [0.0, x0/dz, 1.0], [0.0, a, 0.0])
+        self.setProfile('T', zrel, T)
+        for k,spec in enumerate(self.gas.speciesNames):
+            self.setProfile(spec, zrel, Y[:,k])
