@@ -250,15 +250,29 @@ save(XML_Node& o, const doublereal* const soln)
     for (size_t k = 0; k < nComponents(); k++) {
         ctml::addFloat(inlt, componentName(k), s[k], "", "",lowerBound(k), upperBound(k));
     }
+    for (size_t k=0; k < m_nsp; k++) {
+        ctml::addFloat(inlt, "massFraction", m_yin[k], "",
+                       m_flow->phase().speciesName(k));
+    }
 }
 
 void Inlet1D::
 restore(const XML_Node& dom, doublereal* soln, int loglevel)
 {
-    //map<string, double> x;
-    //getFloats(dom, x);
-    soln[0] = ctml::getFloat(dom, "mdot", "massflowrate"); // x["mdot"];
-    soln[1] = ctml::getFloat(dom, "temperature", "temperature"); // x["temperature"];
+    soln[0] = m_mdot = ctml::getFloat(dom, "mdot", "massflowrate");
+    soln[1] = m_temp = ctml::getFloat(dom, "temperature", "temperature");
+
+    m_yin.assign(m_nsp, 0.0);
+
+    for (size_t i = 0; i < dom.nChildren(); i++) {
+        const XML_Node& node = dom.child(i);
+        if (node.name() == "massFraction") {
+            size_t k = m_flow->phase().speciesIndex(node.attrib("type"));
+            if (k != npos) {
+                m_yin[k] = node.fp_value();
+            }
+        }
+    }
     resize(2,1);
 }
 
