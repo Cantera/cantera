@@ -70,7 +70,7 @@ cdef class _SolutionBase:
         def __get__(self):
             return list(self._selectedSpecies)
         def __set__(self, species):
-            if isinstance(species, (str, int)):
+            if isinstance(species, (str, unicode, int)):
                 species = (species,)
             self._selectedSpecies.resize(len(species))
             for i,spec in enumerate(species):
