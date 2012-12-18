@@ -453,8 +453,9 @@ int Sim1D::refine(int loglevel)
                     }
                 }
             } else {
-                writelog(string("refine: discarding point at ")+fp2str(d.grid(m))+"\n");
-                ; // throw CanteraError("refine","keepPoint is false at m = "+int2str(m));
+                if (loglevel > 0) {
+                    writelog(string("refine: discarding point at ")+fp2str(d.grid(m))+"\n");
+                }
             }
         }
         dsize.push_back(znew.size() - nstart);
