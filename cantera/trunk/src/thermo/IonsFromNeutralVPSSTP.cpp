@@ -103,10 +103,10 @@ IonsFromNeutralVPSSTP::IonsFromNeutralVPSSTP(const std::string& inputFile,
     }
     constructPhaseFile(inputFile, id);
     geThermo = dynamic_cast<GibbsExcessVPSSTP*>(neutralMoleculePhase_);
-    y.resize(numNeutralMoleculeSpecies_,0.0);
-    size_t numNeutMolSpec = geThermo->nSpecies();
-    dlnActCoeff_NeutralMolecule.resize(numNeutMolSpec);
-    dX_NeutralMolecule.resize(numNeutMolSpec);
+    //y.resize(numNeutralMoleculeSpecies_,0.0);
+    //size_t numNeutMolSpec = geThermo->nSpecies();
+    //dlnActCoeff_NeutralMolecule.resize(numNeutMolSpec);
+    //dX_NeutralMolecule.resize(numNeutMolSpec);
 }
 //====================================================================================================================
 IonsFromNeutralVPSSTP::IonsFromNeutralVPSSTP(XML_Node& phaseRoot, 
@@ -201,6 +201,7 @@ operator=(const IonsFromNeutralVPSSTP& b)
 
     GibbsExcessVPSSTP::operator=(b);
 
+
     ionSolnType_                = b.ionSolnType_;
     numNeutralMoleculeSpecies_  = b.numNeutralMoleculeSpecies_;
     indexSpecialSpecies_        = b.indexSpecialSpecies_;
@@ -215,6 +216,10 @@ operator=(const IonsFromNeutralVPSSTP& b)
     passThroughList_            = b.passThroughList_;
     numPassThroughSpecies_      = b.numPassThroughSpecies_;
 
+    y                           = b.y;
+    dlnActCoeff_NeutralMolecule = b.dlnActCoeff_NeutralMolecule;
+    dX_NeutralMolecule          = b.dX_NeutralMolecule;
+
     IOwnNThermoPhase_           = b.IOwnNThermoPhase_;
     moleFractionsTmp_           = b.moleFractionsTmp_;
     muNeutralMolecule_          = b.muNeutralMolecule_;
@@ -224,9 +229,6 @@ operator=(const IonsFromNeutralVPSSTP& b)
     dlnActCoeffdlnX_diag_NeutralMolecule_ = b.dlnActCoeffdlnX_diag_NeutralMolecule_;
     dlnActCoeffdlnN_diag_NeutralMolecule_ = b.dlnActCoeffdlnN_diag_NeutralMolecule_;
     dlnActCoeffdlnN_NeutralMolecule_ = b.dlnActCoeffdlnN_NeutralMolecule_;
-    y = b.y;
-    dlnActCoeff_NeutralMolecule = b.dlnActCoeff_NeutralMolecule ;
-    dX_NeutralMolecule = b.dX_NeutralMolecule ;
 
     return *this;
 }
@@ -1162,6 +1164,11 @@ void  IonsFromNeutralVPSSTP::initLengths()
     dlnActCoeffdlnX_diag_NeutralMolecule_.resize(numNeutralMoleculeSpecies_);
     dlnActCoeffdlnN_diag_NeutralMolecule_.resize(numNeutralMoleculeSpecies_);
     dlnActCoeffdlnN_NeutralMolecule_.resize(numNeutralMoleculeSpecies_, numNeutralMoleculeSpecies_, 0.0);
+
+    y.resize(numNeutralMoleculeSpecies_, 0.0);
+    dlnActCoeff_NeutralMolecule.resize(numNeutralMoleculeSpecies_, 0.0);
+    dX_NeutralMolecule.resize(numNeutralMoleculeSpecies_, 0.0);
+
 }
 //====================================================================================================================
 //!  Return the factor overlap
@@ -1499,7 +1506,6 @@ void IonsFromNeutralVPSSTP::getdlnActCoeffds(const doublereal dTds, const double
         return;
     }
 
-    size_t numNeutMolSpec = geThermo->nSpecies();
 //    static vector_fp dlnActCoeff_NeutralMolecule(numNeutMolSpec);
 //    static vector_fp dX_NeutralMolecule(numNeutMolSpec);
 

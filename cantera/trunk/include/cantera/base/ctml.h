@@ -187,6 +187,61 @@ void addFloatArray(Cantera::XML_Node& node,  const std::string& titleString,
                    const doublereal minval = Cantera::Undef,
                    const doublereal maxval = Cantera::Undef);
 
+//!  This function adds a child node with the name given by the first parameter with a value
+//!  consisting of a comma separated list of floats
+/*!
+ *   This function will add a child node to the current XML node, with the
+ *   name given in the list. It will have a title attribute, and the body
+ *   of the XML node will be filled out with a comma separated list of
+ *   integers
+ *
+ *  Example:
+ *
+ * Code snipet:
+ *       @verbatum
+     const XML_Node &node;
+     std::string titleString = "additionalTemperatures";
+     int  n = 3;
+     int Tcases[3] = [273.15, 298.15, 373.15];
+     std::string typeString = "optional";
+     std::string units = "Kelvin";
+     addNamedFloatArray(node, titleString, n, &cases[0], typeString, units);
+     @endverbatum
+     *
+     *  Creates the following the snippet in the XML file:
+     *  @verbatum
+     <parentNode>
+       <additionalTemperatures type="optional" vtype="floatArray" size = "3" units="Kelvin">
+          273.15, 298.15, 373.15
+       <\additionalTemperatures>
+     <\parentNode>
+   @endverbatum
+   *
+   *   @param node          reference to the XML_Node object of the parent XML element
+   *   @param name          Name of the XML node
+   *   @param n             Length of the doubles vector.
+   *   @param values        Pointer to a vector of doubles
+   *   @param unitsString   String name of the Units attribute. This is an optional 
+   *                        parameter. The default is to
+   *                        have an empty string.
+   *   @param type          String type. This is an optional parameter. The default
+   *                        is to have an empty string.
+   *   @param minval        Minimum allowed value of the int. This is an optional
+   *                        parameter. The default is the
+   *                        special double, Cantera::Undef, which means to ignore the
+   *                        entry.
+   *   @param maxval        Maximum allowed value of the int. This is an optional
+   *                        parameter. The default is the
+   *                        special double, Cantera::Undef, which means to ignore the
+   *                        entry.
+   *
+   */
+void addNamedFloatArray(Cantera::XML_Node& parentNode, const std::string &name, const int n,
+                        const doublereal* const vals, const std::string units = "",
+                        const std::string type = "",
+                        const doublereal minval = Cantera::Undef,
+                        const doublereal maxval = Cantera::Undef);
+
 //!  This function adds a child node with the name string with a string value
 //!  to the current node
 /*!
@@ -702,6 +757,41 @@ bool getOptionalModel(const Cantera::XML_Node& parent, const std::string& nodeNa
  *            found.
  */
 Cantera::XML_Node* getByTitle(const Cantera::XML_Node& node, const std::string& title);
+
+//!  This function reads a child node with the name string with a specific
+//!  title attribute named titleString
+/*! 
+   *   This function will read a child node to the current XML node with the name "string". 
+   *   It must have a title attribute, named titleString, and the body
+   *   of the XML node will be read into the valueString output argument.
+   *
+   *   If the child node is not found then the empty string is returned.
+   *
+   *  Example:  
+   *
+   * Code snipet:
+   *       @verbatim
+     const XML_Node &node;
+     getString(XML_Node& node, std::string titleString, std::string valueString, 
+     std::string typeString);
+   @endverbatim
+   *
+   *  Reads the following the snippet in the XML file:
+   *  @verbatim
+     <string title="titleString" type="typeString">
+       valueString
+     <\string>
+   @endverbatim
+   *
+   *   @param node          Reference to the XML_Node object of the parent XML element
+   *   @param titleString   String name of the title attribute of the child node
+   *   @param valueString   Value string that is found in the child node. output variable
+   *   @param typeString    String type. This is an optional output variable. It is filled
+   *                        with the attribute "type" of the XML entry.
+   */
+  void getString(const Cantera::XML_Node& node, const std::string &titleString,
+                 std::string& valueString, std::string& typeString);
+
 
 //!  This function attempts to read a named child node and returns with the contents in the value string.
 //!  title attribute named "titleString"
