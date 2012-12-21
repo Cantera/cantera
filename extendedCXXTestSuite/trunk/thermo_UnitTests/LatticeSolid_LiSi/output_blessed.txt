@@ -490,8 +490,8 @@ Moles: 10
    internal energy    -7.38461e+06       -3.843e+08     J
            entropy         2475.86        1.288e+05     J/K
     Gibbs function    -8.93235e+06       -4.648e+08     J
- heat capacity c_p          1331.6         6.93e+04     J/K
- heat capacity c_v         1171.83        6.098e+04     J/K
+ heat capacity c_p          2393.1        1.245e+05     J/K
+ heat capacity c_v         2233.34        1.162e+05     J/K
  
                            X                 Y          Chem. Pot. / RT    
                      -------------     ------------     ------------
