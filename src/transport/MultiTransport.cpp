@@ -74,6 +74,10 @@ bool MultiTransport::initGas(GasTransportParams& tr)
     m_zrot       = tr.zrot;
     m_crot       = tr.crot;
     m_eps        = tr.eps;
+    m_sigma      = tr.sigma;
+    m_alpha      = tr.alpha;
+    m_dipole     = tr.dipole;
+    m_zrot       = tr.zrot;
 
     // the L matrix
     m_Lmatrix.resize(3*m_nsp, 3*m_nsp);

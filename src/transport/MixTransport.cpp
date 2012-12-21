@@ -91,6 +91,14 @@ Transport* MixTransport::duplMyselfAsTransport() const
 bool MixTransport::initGas(GasTransportParams& tr)
 {
     GasTransport::initGas(tr);
+ 
+
+    m_eps = tr.eps;
+    m_sigma = tr.sigma;
+    m_alpha = tr.alpha;
+    m_dipole = tr.dipole;
+    m_zrot = tr.zrot;
+    m_crot = tr.crot;
 
     // copy polynomials and parameters into local storage
     m_condcoeffs = tr.condcoeffs;

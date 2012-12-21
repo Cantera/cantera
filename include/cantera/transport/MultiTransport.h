@@ -176,10 +176,15 @@ private:
     //! Dense matrix for omega22
     DenseMatrix          m_om22;
 
-    vector_fp   m_zrot;
+ public:
     vector_fp   m_crot;
     vector_fp   m_cinternal;
+    vector_fp   m_zrot;
     vector_fp   m_eps;
+    vector_fp   m_sigma;
+    vector_fp   m_alpha;
+    DenseMatrix   m_dipole;
+ private:
 
     vector_fp  m_sqrt_eps_k;
     DenseMatrix m_log_eps_k;
