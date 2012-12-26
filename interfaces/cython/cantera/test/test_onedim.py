@@ -52,7 +52,7 @@ class TestFreeFlame(utilities.CanteraTest):
 
         self.assertFalse(self.sim.energyEnabled)
 
-    def solve_mix(self, ratio=3.0, slope=0.2, curve=0.1, prune=0.0):
+    def solve_mix(self, ratio=3.0, slope=0.3, curve=0.2, prune=0.0):
         # Solve with the energy equation enabled
 
         self.sim.setRefineCriteria(ratio=ratio, slope=slope, curve=curve, prune=prune)
@@ -84,15 +84,15 @@ class TestFreeFlame(utilities.CanteraTest):
         Tad = self.gas.T
         Xad = self.gas.X
 
-        self.solve_mix(slope=0.2, curve=0.1)
+        self.solve_mix(slope=0.5, curve=0.3)
         T1 = self.sim.T[-1]
         X1 = self.sim.X[:,-1]
 
-        self.solve_mix(slope=0.1, curve=0.05)
+        self.solve_mix(slope=0.2, curve=0.1)
         T2 = self.sim.T[-1]
         X2 = self.sim.X[:,-1]
 
-        self.solve_mix(slope=0.05, curve=0.025)
+        self.solve_mix(slope=0.1, curve=0.05)
         T3 = self.sim.T[-1]
         X3 = self.sim.X[:,-1]
 
@@ -125,13 +125,13 @@ class TestFreeFlame(utilities.CanteraTest):
             self.assertNear(self.gas.density * self.sim.u[j], rhou, 1e-4)
 
     def test_multicomponent(self):
-        reactants= 'H2:1.1, O2:1, AR:5.5'
+        reactants= 'H2:1.1, O2:1, AR:5.3'
         p = ct.OneAtm
         Tin = 300
 
         self.create_sim(p, Tin, reactants)
         self.solve_fixed_T()
-        self.solve_mix(ratio=4, slope=0.4, curve=0.2)
+        self.solve_mix(ratio=5, slope=0.5, curve=0.3)
         Su_mix = self.sim.u[0]
 
         # Multicomponent flame speed should be similar but not identical to
@@ -160,10 +160,10 @@ class TestFreeFlame(utilities.CanteraTest):
 
         self.create_sim(p, Tin, reactants)
         self.solve_fixed_T()
-        self.solve_mix(slope=0.1, curve=0.05, prune=0.0)
+        self.solve_mix(slope=0.2, curve=0.1, prune=0.0)
         N1 = len(self.sim.grid)
 
-        self.solve_mix(slope=0.4, curve=0.2, prune=0.05)
+        self.solve_mix(slope=0.5, curve=0.3, prune=0.1)
         N2 = len(self.sim.grid)
 
         self.assertLess(N2, N1)
