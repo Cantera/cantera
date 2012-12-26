@@ -8,6 +8,11 @@ std::string get_cantera_version()
 	return std::string(CANTERA_VERSION);
 }
 
+int get_sundials_version()
+{
+	return SUNDIALS_VERSION;
+}
+
 // Function which populates a 1D array
 #define ARRAY_FUNC(PREFIX, CLASS_NAME, FUNC_NAME) \
     void PREFIX ## _ ## FUNC_NAME(Cantera::CLASS_NAME* object, double* data) \
