@@ -70,10 +70,16 @@ localenv['py_libdirs'] = repr([x for x in libDirs if x])
 
 # Compile the Python module with the same compiler as the rest of Cantera
 localenv['py_extra_compiler_args'] = repr([])
+localenv['py_extra_link_args'] = repr([])
 if localenv['OS'] == 'Windows':
     if env['CC'] == 'cl':
+        flags = ['/EHsc']
+        if env['debug']:
+            flags.extend(['/Zi', '/Fd_cantera.pdb'])
+            localenv['py_extra_link_args'] = repr(['/DEBUG'])
         compilerOpt = ' --compiler=msvc'
-        localenv['py_extra_compiler_args'] = repr(['/EHsc'])
+        localenv['py_extra_compiler_args'] = repr(flags)
+
     elif env['CC'] == 'gcc':
         compilerOpt = ' --compiler=mingw32'
 else:

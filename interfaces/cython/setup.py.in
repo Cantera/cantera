@@ -9,7 +9,8 @@ exts = [Extension("cantera._cantera",
                   language="c++",
                   libraries=@py_cantera_libs@,
                   library_dirs=@py_libdirs@,
-                  extra_compile_args=@py_extra_compiler_args@)]
+                  extra_compile_args=@py_extra_compiler_args@,
+                  extra_link_args=@py_extra_link_args@)]
 
 setup(name="Cantera",
       version="@cantera_version@",
