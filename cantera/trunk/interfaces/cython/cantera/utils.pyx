@@ -19,4 +19,7 @@ cdef pystr(string x):
 def addDirectory(directory):
     CxxAddDirectory(stringify(directory))
 
+def _have_sundials():
+    return bool(get_sundials_version())
+
 __version__ = pystr(get_cantera_version())

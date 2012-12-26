@@ -1,4 +1,5 @@
 import numpy as np
+import unittest
 import re
 
 import cantera as ct
@@ -530,6 +531,8 @@ class TestWallKinetics(utilities.CanteraTest):
         self.assertArrayNear(C_left, C_right)
 
 
+@unittest.skipUnless(ct._have_sundials(),
+                     "Sensitivity calculations require Sundials")
 class TestReactorSensitivities(utilities.CanteraTest):
     def test_sensitivities1(self):
         net = ct.ReactorNet()
