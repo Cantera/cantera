@@ -273,10 +273,12 @@ void PecosTransport::getThermalDiffCoeffs(doublereal* const dt)
  *
  */
 void PecosTransport::getSpeciesFluxes(size_t ndim,
-                                      const doublereal* grad_T, size_t ldx, const doublereal* grad_X,
-                                      size_t ldf, doublereal* fluxes)
+                                      const doublereal* const grad_T,
+                                      size_t ldx, const doublereal* const grad_X,
+                                      size_t ldf, doublereal* const fluxes)
 {
-    int n=0, k;
+    size_t n = 0;
+    int k;
 
     update_T();
     update_C();
