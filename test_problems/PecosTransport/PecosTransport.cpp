@@ -47,14 +47,14 @@ void printDbl(double val) {
 }
 
 int main(int argc, char** argv) {
-  int k;
+  size_t k;
   string infile = "diamond.xml";
  
   try {
 
    
     IdealGasMix g("gri30.xml", "gri30_mix");
-    int nsp = g.nSpecies();
+    size_t nsp = g.nSpecies();
     double pres = 1.0E5;
     vector_fp Xset(nsp, 0.0);
     Xset[0] =  0.269205 ;
