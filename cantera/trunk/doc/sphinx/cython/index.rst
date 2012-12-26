@@ -10,3 +10,4 @@ Contents:
    kinetics
    transport
    zerodim
+   onedim
