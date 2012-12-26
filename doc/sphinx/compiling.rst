@@ -148,6 +148,41 @@ General
 
     option_name=
 
+Python Module
+-------------
+
+Cantera 2.1 introduces a new Python module implemented using Cython. This new
+module provides support for both Python 2.x and Python 3.x. It also features a
+redesigned API that simplifies many operations and aims to provide a more
+"Pythonic" interface to Cantera.
+
+Building the new Python module requires the Cython package for Python.
+
+For compatibility, the legacy Python module is still available, though it will not
+receive feature updates, and will be removed in a future Cantera release. Users
+are encouraged to switch to the new Python module when possible.
+
+Building for Python 2
+.....................
+
+By default, SCons will build the legacy Python module. To build the new module,
+use the SCons option ``python_package=new``.
+
+Building for Python 3
+.....................
+
+If SCons detects a Python 3 interpreter installed in a default location
+(i.e. ``python3`` is on the path), it will try to build the new Python module
+for Python 3. The following SCons options control how the Python 3 module is
+built::
+
+    python3_package=[y|n]
+    python3_cmd=/path/to/python3/interpreter
+    python3_array_home=/path/to/numpy
+    python3_prefix=/path/to/cantera/module
+
+Note that even when building the Python 3 Cantera module, you should still use
+Python 2 with SCons, as SCons does not currently support Python 3.
 
 Windows (MSVC)
 --------------
