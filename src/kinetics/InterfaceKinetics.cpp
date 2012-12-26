@@ -1371,9 +1371,9 @@ void InterfaceKinetics::setPhaseExistence(const size_t iphase, const int exists)
  * @return Returns the int specifying whether the kinetics object thinks the phase exists
  *         or not. If it exists, then species in that phase can be a reactant in reactions.
  */
-int InterfaceKinetics::phaseExistence(const int iphase) const
+int InterfaceKinetics::phaseExistence(const size_t iphase) const
 {
-    if (iphase < 0 || iphase >= (int) m_thermo.size()) {
+    if (iphase >= m_thermo.size()) {
         throw CanteraError("InterfaceKinetics:phaseExistence()", "out of bounds");
     }
     return m_phaseExists[iphase];
@@ -1388,18 +1388,18 @@ int InterfaceKinetics::phaseExistence(const int iphase) const
  *         If it stable, then the kinetics object will allow for rates of production of
  *         of species in that phase that are positive.
  */
-int InterfaceKinetics::phaseStability(const int iphase) const
+int InterfaceKinetics::phaseStability(const size_t iphase) const
 {
-    if (iphase < 0 || iphase >= (int) m_thermo.size()) {
+    if (iphase >= m_thermo.size()) {
         throw CanteraError("InterfaceKinetics:phaseStability()", "out of bounds");
     }
     return m_phaseIsStable[iphase];
 }
 //================================================================================================
 
-void InterfaceKinetics::setPhaseStability(const int iphase, const int isStable)
+void InterfaceKinetics::setPhaseStability(const size_t iphase, const int isStable)
 {
-    if (iphase < 0 || iphase >= (int) m_thermo.size()) {
+    if (iphase >= m_thermo.size()) {
         throw CanteraError("InterfaceKinetics:setPhaseStability", "out of bounds");
     }
     if (isStable) {

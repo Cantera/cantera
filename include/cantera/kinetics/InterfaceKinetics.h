@@ -573,7 +573,7 @@ public:
      *  @param iphase  Index of the phase. This is the order within the internal thermo vector object
      *  @param isStable Flag indicating whether the phase is stable or not
      */
-    void setPhaseStability(const int iphase, const int isStable);
+    void setPhaseStability(const size_t iphase, const int isStable);
 
     //! Gets the phase existence int for the ith phase
     /*!
@@ -582,7 +582,7 @@ public:
      * @return Returns the int specifying whether the kinetics object thinks the phase exists
      *         or not. If it exists, then species in that phase can be a reactant in reactions.
      */
-    int phaseExistence(const int iphase) const;
+    int phaseExistence(const size_t iphase) const;
 
     //! Gets the phase stability int for the ith phase
     /*!
@@ -593,7 +593,7 @@ public:
      *         If it stable, then the kinetics object will allow for rates of production of
      *         of species in that phase that are positive.
      */
-    int phaseStability(const int iphase) const;
+    int phaseStability(const size_t iphase) const;
 
 
 protected:
