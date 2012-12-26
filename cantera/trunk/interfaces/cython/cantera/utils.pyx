@@ -18,3 +18,5 @@ cdef pystr(string x):
 
 def addDirectory(directory):
     CxxAddDirectory(stringify(directory))
+
+__version__ = pystr(get_cantera_version())

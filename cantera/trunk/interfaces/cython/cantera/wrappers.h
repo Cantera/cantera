@@ -1,6 +1,13 @@
 #include "cantera/thermo/ThermoPhase.h"
 #include "cantera/transport/TransportBase.h"
 
+
+// Wrappers for preprocessor defines
+std::string get_cantera_version()
+{
+	return std::string(CANTERA_VERSION);
+}
+
 // Function which populates a 1D array
 #define ARRAY_FUNC(PREFIX, CLASS_NAME, FUNC_NAME) \
     void PREFIX ## _ ## FUNC_NAME(Cantera::CLASS_NAME* object, double* data) \

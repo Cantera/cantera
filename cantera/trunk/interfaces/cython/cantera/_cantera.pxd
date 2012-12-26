@@ -424,6 +424,8 @@ cdef extern from "cantera/oneD/Sim1D.h":
 
 
 cdef extern from "wrappers.h":
+    # config definitions
+    cdef string get_cantera_version()
     # ThermoPhase composition
     cdef void thermo_getMassFractions(CxxThermoPhase*, double*) except +
     cdef void thermo_setMassFractions(CxxThermoPhase*, double*) except +
