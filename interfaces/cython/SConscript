@@ -15,6 +15,15 @@ if localenv['CC'] == 'cl':
 else:
     localenv['py_extra_compiler_args'] = repr([])
 
+# Compile the Python module with the same compiler as the rest of Cantera
+if localenv['OS'] == 'Windows':
+    if env['CC'] == 'cl':
+        compilerOpt = ' --compiler=msvc'
+    elif env['CC'] == 'gcc':
+        compilerOpt = ' --compiler=mingw32'
+else:
+    compilerOpt = ''
+
 dataFiles = localenv.RecursiveInstall('#interfaces/cython/cantera/data',
                                       '#build/data')
 build(dataFiles)
@@ -55,7 +64,8 @@ if localenv['python3_package'] == 'y':
     build_base = ('cd interfaces/cython &&'
                  ' $python3_cmd setup3.py %s'
                  ' --build-lib=../../build/python3'
-                 ' --build-temp=../../build/temp-py3')
+                 ' --build-temp=../../build/temp-py3'
+                 + compilerOpt)
 
     build_cmd = build_base % 'build'
     build_ext_cmd = build_base % 'build_ext'
@@ -120,7 +130,9 @@ if localenv['python_package'] == 'new':
     build_base = ('cd interfaces/cython &&'
                  ' $python_cmd setup2.py %s'
                  ' --build-lib=../../build/python2'
-                 ' --build-temp=../../build/temp-py2')
+                 ' --build-temp=../../build/temp-py2'
+                 + compilerOpt)
+
     build_cmd = build_base % 'build'
     build_ext_cmd = build_base % 'build_ext'
 
