@@ -478,7 +478,7 @@ int MultiNewton::solve(doublereal* x0, doublereal* x1,
 
         // convergence
         else if (m == 1) {
-            goto done;
+            break;
         }
 
         // If dampStep fails, first try a new Jacobian if an old
@@ -488,19 +488,18 @@ int MultiNewton::solve(doublereal* x0, doublereal* x1,
             if (jac.age() > 1) {
                 forceNewJac = true;
                 if (nJacReeval > 3) {
-                    goto done;
+                    break;
                 }
                 nJacReeval++;
                 if (loglevel > 0)
                     writelog("\nRe-evaluating Jacobian, since no damping "
                              "coefficient\ncould be found with this Jacobian.\n");
             } else {
-                goto done;
+                break;
             }
         }
     }
 
-done:
     if (m < 0) {
         copy(x, x + m_n, x1);
     }
