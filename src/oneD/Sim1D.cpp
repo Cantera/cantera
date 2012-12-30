@@ -292,9 +292,7 @@ void Sim1D::solve(int loglevel, bool refine_grid)
             sim1D_drawline();
         }
         while (!ok) {
-            if (loglevel > 0) {
-                writelog("Attempt Newton solution of steady-state problem...");
-            }
+            writelog("Attempt Newton solution of steady-state problem...", loglevel);
             int status = newtonSolve(loglevel-1);
 
             if (status == 0) {
@@ -307,8 +305,7 @@ void Sim1D::solve(int loglevel, bool refine_grid)
                             writelog(", ");
                         }
                     }
-                    writelog("]");
-                    writelog(" point grid(s).\n");
+                    writelog("] point grid(s).\n");
                 }
                 if (loglevel > 6) {
                     save("debug_sim1d.xml", "debug",
@@ -322,19 +319,16 @@ void Sim1D::solve(int loglevel, bool refine_grid)
                 soln_number++;
             } else {
                 char buf[100];
-                if (loglevel > 0) {
-                    writelog("    failure. \n");
-                    if (loglevel > 6) {
-                        save("debug_sim1d.xml", "debug",
-                             "After unsuccessful Newton solve");
-                    }
-                    if (loglevel > 7) {
-                        saveResidual("debug_sim1d.xml", "residual",
-                                     "After unsuccessful Newton solve");
-                    }
-
-                    writelog("Take "+int2str(nsteps)+" timesteps   ");
+                writelog("    failure. \n", loglevel);
+                if (loglevel > 6) {
+                    save("debug_sim1d.xml", "debug",
+                         "After unsuccessful Newton solve");
                 }
+                if (loglevel > 7) {
+                    saveResidual("debug_sim1d.xml", "residual",
+                                 "After unsuccessful Newton solve");
+                }
+                writelog("Take "+int2str(nsteps)+" timesteps   ", loglevel);
                 dt = timeStep(nsteps, dt, DATA_PTR(m_x), DATA_PTR(m_xnew),
                               loglevel-1);
                 if (loglevel > 6) {
@@ -383,9 +377,7 @@ void Sim1D::solve(int loglevel, bool refine_grid)
                 new_points = 0;
             }
         } else {
-            if (loglevel > 0) {
-                writelog("grid refinement disabled.\n");
-            }
+            writelog("grid refinement disabled.\n", loglevel);
             new_points = 0;
         }
     }
@@ -454,9 +446,7 @@ int Sim1D::refine(int loglevel)
                     }
                 }
             } else {
-                if (loglevel > 0) {
-                    writelog(string("refine: discarding point at ")+fp2str(d.grid(m))+"\n");
-                }
+                writelog("refine: discarding point at "+fp2str(d.grid(m))+"\n", loglevel);
             }
         }
         dsize.push_back(znew.size() - nstart);

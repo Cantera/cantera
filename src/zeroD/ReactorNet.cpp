@@ -50,9 +50,7 @@ void ReactorNet::initialize()
     m_nv = 0;
     m_reactors.clear();
     m_nreactors = 0;
-    if (m_verbose) {
-        writelog("Initializing reactor network.\n");
-    }
+    writelog("Initializing reactor network.\n", m_verbose);
     if (m_nr == 0)
         throw CanteraError("ReactorNet::initialize",
                            "no reactors in network!");
@@ -179,14 +177,10 @@ void ReactorNet::addReactor(ReactorBase* r, bool iown)
         m_r.push_back(r);
         m_iown.push_back(iown);
         m_nr++;
-        if (m_verbose) {
-            writelog("Adding reactor "+r->name()+"\n");
-        }
+        writelog("Adding reactor "+r->name()+"\n", m_verbose);
     } else {
-        if (m_verbose) {
-            writelog("Not adding reactor "+r->name()+
-                     ", since type = "+int2str(r->type())+"\n");
-        }
+        writelog("Not adding reactor "+r->name()+
+                 ", since type = "+int2str(r->type())+"\n", m_verbose);
     }
 }
 

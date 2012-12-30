@@ -235,9 +235,7 @@ void get_CTML_Tree(Cantera::XML_Node* rootPtr, const std::string& file, const in
 
     // find the input file on the Cantera search path
     std::string inname = findInputFile(file);
-    if (debug > 0) {
-        writelog("Found file: "+inname+"\n");
-    }
+    writelog("Found file: "+inname+"\n", debug);
 
     if (inname == "") {
         throw CanteraError("get_CTML_Tree", "file "+file+" not found");
@@ -267,9 +265,7 @@ void get_CTML_Tree(Cantera::XML_Node* rootPtr, const std::string& file, const in
     } else {
         ff = inname;
     }
-    if (debug > 0) {
-        writelog("Attempting to parse xml file " + ff + "\n");
-    }
+    writelog("Attempting to parse xml file " + ff + "\n", debug);
     ifstream fin(ff.c_str());
     if (!fin) {
         throw

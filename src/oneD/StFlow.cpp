@@ -1084,10 +1084,7 @@ void StFlow::restore(const XML_Node& dom, doublereal* soln, int loglevel)
         if (nm == "z") {
             getFloatArray(fa,x,false);
             np = x.size();
-            if (loglevel >= 2) {
-                writelog("Grid contains "+int2str(np)+
-                         " points.\n");
-            }
+            writelog("Grid contains "+int2str(np)+" points.\n", loglevel >= 2);
             readgrid = true;
             setupGrid(np, DATA_PTR(x));
         }
@@ -1097,17 +1094,13 @@ void StFlow::restore(const XML_Node& dom, doublereal* soln, int loglevel)
                            "domain contains no grid points.");
     }
 
-    if (loglevel >= 2) {
-        writelog("Importing datasets:\n");
-    }
+    writelog("Importing datasets:\n", loglevel >= 2);
     for (n = 0; n < nd; n++) {
         const XML_Node& fa = *d[n];
         nm = fa["title"];
         getFloatArray(fa,x,false);
         if (nm == "u") {
-            if (loglevel >= 2) {
-                writelog("axial velocity   ");
-            }
+            writelog("axial velocity   ", loglevel >= 2);
             if (x.size() == np) {
                 for (j = 0; j < np; j++) {
                     soln[index(0,j)] = x[j];
@@ -1118,9 +1111,7 @@ void StFlow::restore(const XML_Node& dom, doublereal* soln, int loglevel)
         } else if (nm == "z") {
             ;   // already read grid
         } else if (nm == "V") {
-            if (loglevel >= 2) {
-                writelog("radial velocity   ");
-            }
+            writelog("radial velocity   ", loglevel >= 2);
             if (x.size() == np) {
                 for (j = 0; j < np; j++) {
                     soln[index(1,j)] = x[j];
@@ -1129,9 +1120,7 @@ void StFlow::restore(const XML_Node& dom, doublereal* soln, int loglevel)
                 goto error;
             }
         } else if (nm == "T") {
-            if (loglevel >= 2) {
-                writelog("temperature   ");
-            }
+            writelog("temperature   ", loglevel >= 2);
             if (x.size() == np) {
                 for (j = 0; j < np; j++) {
                     soln[index(2,j)] = x[j];
@@ -1151,9 +1140,7 @@ void StFlow::restore(const XML_Node& dom, doublereal* soln, int loglevel)
                 goto error;
             }
         } else if (nm == "L") {
-            if (loglevel >=2) {
-                writelog("lambda   ");
-            }
+            writelog("lambda   ", loglevel >= 2);
             if (x.size() == np) {
                 for (j = 0; j < np; j++) {
                     soln[index(3,j)] = x[j];
@@ -1162,9 +1149,7 @@ void StFlow::restore(const XML_Node& dom, doublereal* soln, int loglevel)
                 goto error;
             }
         } else if (m_thermo->speciesIndex(nm) != npos) {
-            if (loglevel >=2) {
-                writelog(nm+"   ");
-            }
+            writelog(nm+"   ", loglevel >= 2);
             if (x.size() == np) {
                 k = m_thermo->speciesIndex(nm);
                 did_species[k] = 1;
