@@ -302,7 +302,7 @@ extern "C" {
     {
         try {
             ThermoPhase& p = ThermoCabinet::item(n);
-            p.checkElementArraySize(lenm);
+            p.checkSpeciesArraySize(lenm);
             const vector_fp& wt = p.molecularWeights();
             copy(wt.begin(), wt.end(), mw);
             return 0;
