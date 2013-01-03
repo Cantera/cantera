@@ -726,6 +726,7 @@ int main(int argc, char** argv) {
 
 env = conf.Finish()
 
+env['python_array_include'] = ''
 if env['python_package'] in ('full','default'):
     # Test to see if we can import the specified array module
     warnNoPython = False
@@ -737,7 +738,6 @@ if env['python_package'] in ('full','default'):
             env['python_array_include'] = np.get_include()
         except AttributeError:
             print """WARNING: Couldn't find include directory for Python array package"""
-            env['python_array_include'] = ''
 
         print """INFO: Building the full Python package using %s.""" % env['python_array']
         env['python_package'] = 'full'
@@ -753,7 +753,6 @@ if env['python_package'] in ('full','default'):
             env['python_package'] = 'minimal'
 else:
     warnNoPython = False
-    env['python_array_include'] = ''
 
 
 # Matlab Toolbox settings
