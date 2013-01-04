@@ -115,14 +115,11 @@ class TestFreeFlame(utilities.CanteraTest):
         self.gas.TPX = Tin, p, reactants
         self.gas.equilibrate('HP')
 
-        self.sim.setGasState(0)
-        rhou = self.gas.density * self.sim.u[0]
+        rhou = self.sim.density[0] * self.sim.u[0]
 
-        for j in range(self.sim.flame.nPoints):
-            self.sim.setGasState(j)
-
-            # Check continuity
-            self.assertNear(self.gas.density * self.sim.u[j], rhou, 1e-4)
+        # Check continuity
+        for rhou_j in self.sim.density * self.sim.u:
+            self.assertNear(rhou_j, rhou, 1e-4)
 
     def test_multicomponent(self):
         reactants= 'H2:1.1, O2:1, AR:5.3'
@@ -214,3 +211,10 @@ class TestFreeFlame(utilities.CanteraTest):
         self.assertArrayNear(Y1, Y3, 1e-3)
         self.assertArrayNear(u1, u3, 1e-3)
         self.assertArrayNear(V1, V3, 1e-3)
+
+    def test_array_properties(self):
+        self.create_sim(ct.OneAtm, 300, 'H2:1.1, O2:1, AR:5')
+
+        for attr in ct.FlameBase.__dict__:
+            if isinstance(ct.FlameBase.__dict__[attr], property):
+                getattr(self.sim, attr)
