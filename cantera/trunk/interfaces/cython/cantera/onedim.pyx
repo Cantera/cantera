@@ -744,10 +744,8 @@ cdef class Sim1D:
         del self.sim
 
 
-cdef class FlameBase(Sim1D):
+class FlameBase(Sim1D):
     """ Base class for flames with a single flow domain """
-    cdef readonly object gas
-    cdef public object flame
 
     def __init__(self, domains, gas, grid):
         """
@@ -767,82 +765,90 @@ cdef class FlameBase(Sim1D):
     def setProfile(self, component, locations, values):
         super().setProfile(self.flame, component, locations, values)
 
-    property transportModel:
-        def __get__(self):
-            return self.gas.transportModel
-        def __set__(self, model):
-            self.gas.transportModel = model
-            self.flame.setTransport(self.gas)
+    @property
+    def transportModel(self):
+        return self.gas.transportModel
 
-    property energyEnabled:
-        def __get__(self):
-            return self.flame.energyEnabled
-        def __set__(self, enable):
-            self.flame.energyEnabled = enable
+    @transportModel.setter
+    def transportModel(self, model):
+        self.gas.transportModel = model
+        self.flame.setTransport(self.gas)
 
-    property soretEnabled:
-        def __get__(self):
-            return self.flame.soretEnabled
-        def __set__(self, enable):
-            self.flame.soretEnabled = enable
+    @property
+    def energyEnabled(self):
+        return self.flame.energyEnabled
 
-    property grid:
+    @energyEnabled.setter
+    def energyEnabled(self, enable):
+        self.flame.energyEnabled = enable
+
+    @property
+    def soretEnabled(self):
+        return self.flame.soretEnabled
+
+    @soretEnabled.setter
+    def soretEnabled(self, enable):
+        self.flame.soretEnabled = enable
+
+    @property
+    def grid(self):
         """ Array of grid point positions along the flame. """
-        def __get__(self):
-            return self.flame.grid
+        return self.flame.grid
 
-    property P:
-        def __get__(self):
-            return self.flame.P
-        def __set__(self, P):
-            self.flame.P = P
+    @property
+    def P(self):
+        return self.flame.P
 
-    property T:
+    @P.setter
+    def P(self, P):
+        self.flame.P = P
+
+    @property
+    def T(self):
         """ Array containing the temperature [K] at each grid point. """
-        def __get__(self):
-            return self.profile(self.flame, 'T')
+        return self.profile(self.flame, 'T')
 
-    property u:
+    @property
+    def u(self):
         """
         Array containing the velocity [m/s] normal to the flame at each point.
         """
-        def __get__(self):
-            return self.profile(self.flame, 'u')
+        return self.profile(self.flame, 'u')
 
-    property V:
+    @property
+    def V(self):
         """
         Array containing the tangential velocity gradient [1/s] at each point.
         """
-        def __get__(self):
-            return self.profile(self.flame, 'V')
+        return self.profile(self.flame, 'V')
 
-    property Y:
+    @property
+    def Y(self):
         """
         2D array containing the species mass fractions at each point. Y[k,j]
         is the mass fraction of species *k* at point *j*.
         """
-        def __get__(self):
-            cdef np.ndarray[np.double_t, ndim=2] Y = \
-                    np.empty((self.gas.nSpecies, self.flame.nPoints))
+        cdef np.ndarray[np.double_t, ndim=2] Y = \
+                np.empty((self.gas.nSpecies, self.flame.nPoints))
 
-            for j in range(self.flame.nPoints):
-                self.setGasState(j)
-                Y[:,j] = self.gas.Y
-            return Y
+        for j in range(self.flame.nPoints):
+            self.setGasState(j)
+            Y[:,j] = self.gas.Y
+        return Y
 
-    property X:
+    @property
+    def X(self):
         """
         2D array containing the species mole fractions at each point. X[k,j]
         is the mole fraction of species *k* at point *j*.
         """
-        def __get__(self):
-            cdef np.ndarray[np.double_t, ndim=2] X = \
-                    np.empty((self.gas.nSpecies, self.flame.nPoints))
+        cdef np.ndarray[np.double_t, ndim=2] X = \
+                np.empty((self.gas.nSpecies, self.flame.nPoints))
 
-            for j in range(self.flame.nPoints):
-                self.setGasState(j)
-                X[:,j] = self.gas.X
-            return X
+        for j in range(self.flame.nPoints):
+            self.setGasState(j)
+            X[:,j] = self.gas.X
+        return X
 
     def solution(self, component, point=None):
         if point is None:
@@ -857,10 +863,8 @@ cdef class FlameBase(Sim1D):
         self.gas.TPY = self.value(self.flame, 'T', point), self.P, Y
 
 
-cdef class FreeFlame(FlameBase):
+class FreeFlame(FlameBase):
     """A freely-propagating flat flame."""
-    cdef readonly object inlet
-    cdef readonly object outlet
 
     def __init__(self, gas, grid):
         """
@@ -906,10 +910,8 @@ cdef class FreeFlame(FlameBase):
                             locs, [Y0[n], Y0[n], Yeq[n], Yeq[n]])
 
 
-cdef class BurnerFlame(FlameBase):
+class BurnerFlame(FlameBase):
     """A burner-stabilized flat flame."""
-    cdef readonly object burner
-    cdef readonly object outlet
 
     def __init__(self, gas, grid):
         """
@@ -963,11 +965,8 @@ cdef class BurnerFlame(FlameBase):
                             locs, [Y0[n], Yeq[n], Yeq[n]])
 
 
-cdef class CounterflowDiffusionFlame(FlameBase):
+class CounterflowDiffusionFlame(FlameBase):
     """ A counterflow diffusion flame """
-
-    cdef readonly object fuel_inlet
-    cdef readonly object oxidizer_inlet
 
     def __init__(self, gas, grid):
         """
