@@ -231,12 +231,12 @@ cdef class ThermoPhase(_SolutionBase):
         method(self.thermo, &data[0])
 
     property molecularWeights:
-        """Array of species molecular weights (molar masses) [kg/kmol]"""
+        """Array of species molecular weights (molar masses) [kg/kmol]."""
         def __get__(self):
             return self._getArray1(thermo_getMolecularWeights)
 
     property meanMolecularWeight:
-        """The mean molecular weight (molar mass) [kg/kmol]"""
+        """The mean molecular weight (molar mass) [kg/kmol]."""
         def __get__(self):
             return self.thermo.meanMolecularWeight()
 
@@ -287,138 +287,138 @@ cdef class ThermoPhase(_SolutionBase):
     ######## Read-only thermodynamic properties ########
 
     property P:
-        """Pressure [Pa]"""
+        """Pressure [Pa]."""
         def __get__(self):
             return self.thermo.pressure()
 
     property T:
-        """Temperature [K]"""
+        """Temperature [K]."""
         def __get__(self):
             return self.thermo.temperature()
 
     property density:
-        """Density [kg/m^3 or kmol/m^3] depending on `basis`"""
+        """Density [kg/m^3 or kmol/m^3] depending on `basis`."""
         def __get__(self):
             return self.thermo.density() / self._massFactor()
 
     property density_mass:
-        """(Mass) density [kg/m^3]"""
+        """(Mass) density [kg/m^3]."""
         def __get__(self):
             return self.thermo.density()
 
     property density_mole:
-        """Molar density [kmol/m^3]"""
+        """Molar density [kmol/m^3]."""
         def __get__(self):
             return self.thermo.molarDensity()
 
     property v:
-        """Specific volume [m^3/kg or m^3/kmol] depending on `basis`"""
+        """Specific volume [m^3/kg or m^3/kmol] depending on `basis`."""
         def __get__(self):
             return self._massFactor() / self.thermo.density()
 
     property volume_mass:
-        """Specific volume [m^3/kg]"""
+        """Specific volume [m^3/kg]."""
         def __get__(self):
             return 1.0 / self.thermo.density()
 
     property volume_mole:
-        """Molar volume [m^3/kmol]"""
+        """Molar volume [m^3/kmol]."""
         def __get__(self):
             return self.thermo.molarVolume()
 
     property u:
-        """Internal energy in [J/kg or J/kmol]"""
+        """Internal energy in [J/kg or J/kmol]."""
         def __get__(self):
             return self.thermo.intEnergy_mole() * self._moleFactor()
 
     property intEnergy_mole:
-        """Molar internal energy [J/kmol]"""
+        """Molar internal energy [J/kmol]."""
         def __get__(self):
             return self.thermo.intEnergy_mole()
 
     property intEnergy_mass:
-        """Specific internal energy [J/kg]"""
+        """Specific internal energy [J/kg]."""
         def __get__(self):
             return self.thermo.intEnergy_mass()
 
     property h:
-        """Enthalpy [J/kg or J/kmol] depending on `basis`"""
+        """Enthalpy [J/kg or J/kmol] depending on `basis`."""
         def __get__(self):
             return self.thermo.enthalpy_mole() * self._moleFactor()
 
     property enthalpy_mole:
-        """Molar enthalpy [J/kmol]"""
+        """Molar enthalpy [J/kmol]."""
         def __get__(self):
             return self.thermo.enthalpy_mole()
 
     property enthalpy_mass:
-        """Specific enthalpy [J/kg]"""
+        """Specific enthalpy [J/kg]."""
         def __get__(self):
             return self.thermo.enthalpy_mass()
 
     property s:
-        """Entropy [J/kg/K or J/kmol/K] depending on `basis`"""
+        """Entropy [J/kg/K or J/kmol/K] depending on `basis`."""
         def __get__(self):
             return self.thermo.entropy_mole() * self._moleFactor()
 
     property entropy_mole:
-        """Molar entropy [J/kmol/K]"""
+        """Molar entropy [J/kmol/K]."""
         def __get__(self):
             return self.thermo.entropy_mole()
 
     property entropy_mass:
-        """Specific entropy [J/kg]"""
+        """Specific entropy [J/kg]."""
         def __get__(self):
             return self.thermo.entropy_mass()
 
     property g:
-        """Gibbs free energy [J/kg or J/kmol] depending on `basis`"""
+        """Gibbs free energy [J/kg or J/kmol] depending on `basis`."""
         def __get__(self):
             return self.thermo.gibbs_mole() * self._moleFactor()
 
     property gibbs_mole:
-        """Molar Gibbs free energy [J/kmol]"""
+        """Molar Gibbs free energy [J/kmol]."""
         def __get__(self):
             return self.thermo.gibbs_mole()
 
     property gibbs_mass:
-        """Specific Gibbs free energy [J/kg]"""
+        """Specific Gibbs free energy [J/kg]."""
         def __get__(self):
             return self.thermo.gibbs_mass()
 
     property cv:
         """
         Heat capacity at constant volume [J/kg/K or J/kmol/K] depending on
-        `basis`
+        `basis`.
         """
         def __get__(self):
             return self.thermo.cv_mole() * self._moleFactor()
 
     property cv_mole:
-        """Molar heat capacity at constant volume [J/kmol/K]"""
+        """Molar heat capacity at constant volume [J/kmol/K]."""
         def __get__(self):
             return self.thermo.cv_mole()
 
     property cv_mass:
-        """Specific heat capacity at constant volume [J/kg/K]"""
+        """Specific heat capacity at constant volume [J/kg/K]."""
         def __get__(self):
             return self.thermo.cv_mass()
 
     property cp:
         """
         Heat capacity at constant pressure [J/kg/K or J/kmol/K] depending
-        on `basis`
+        on `basis`.
         """
         def __get__(self):
             return self.thermo.cp_mole() * self._moleFactor()
 
     property cp_mole:
-        """Molar heat capacity at constant pressure [J/kmol/K]"""
+        """Molar heat capacity at constant pressure [J/kmol/K]."""
         def __get__(self):
             return self.thermo.cp_mole()
 
     property cp_mass:
-        """Specific heat capacity at constant pressure [J/kg/K]"""
+        """Specific heat capacity at constant pressure [J/kg/K]."""
         def __get__(self):
             return self.thermo.cp_mass()
 
@@ -525,7 +525,7 @@ cdef class ThermoPhase(_SolutionBase):
             self.HP = values[:2]
 
     property HPY:
-        """Get/Set enthalpy [J/kg or J/kmol], pressure [Pa] and mass fractions"""
+        """Get/Set enthalpy [J/kg or J/kmol], pressure [Pa] and mass fractions."""
         def __get__(self):
             return self.h, self.P, self.Y
         def __set__(self, values):
@@ -533,14 +533,14 @@ cdef class ThermoPhase(_SolutionBase):
             self.HP = values[:2]
 
     property SP:
-        """Get/Set entropy [J/kg/K or J/kmol/K] and pressure [Pa]"""
+        """Get/Set entropy [J/kg/K or J/kmol/K] and pressure [Pa]."""
         def __get__(self):
             return self.s, self.P
         def __set__(self, values):
             self.thermo.setState_SP(values[0] / self._massFactor(), values[1])
 
     property SPX:
-        """Get/Set entropy [J/kg/K or J/kmol/K], pressure [Pa], and mole fractions"""
+        """Get/Set entropy [J/kg/K or J/kmol/K], pressure [Pa], and mole fractions."""
         def __get__(self):
             return self.s, self.P, self.X
         def __set__(self, values):
@@ -548,7 +548,7 @@ cdef class ThermoPhase(_SolutionBase):
             self.SP = values[:2]
 
     property SPY:
-        """Get/Set entropy [J/kg/K or J/kmol/K], pressure [Pa], and mass fractions"""
+        """Get/Set entropy [J/kg/K or J/kmol/K], pressure [Pa], and mass fractions."""
         def __get__(self):
             return self.s, self.P, self.Y
         def __set__(self, values):
@@ -557,40 +557,40 @@ cdef class ThermoPhase(_SolutionBase):
 
     # partial molar / non-dimensional properties
     property partial_molar_enthalpies:
-        """Array of species partial molar enthalpies [J/kmol]"""
+        """Array of species partial molar enthalpies [J/kmol]."""
         def __get__(self):
             return self._getArray1(thermo_getPartialMolarEnthalpies)
 
     property partial_molar_entropies:
-        """Array of species partial molar entropies [J/kmol/K]"""
+        """Array of species partial molar entropies [J/kmol/K]."""
         def __get__(self):
             return self._getArray1(thermo_getPartialMolarEntropies)
 
     property partial_molar_int_energies:
-        """Array of species partial molar internal energies [J/kmol]"""
+        """Array of species partial molar internal energies [J/kmol]."""
         def __get__(self):
             return self._getArray1(thermo_getPartialMolarIntEnergies)
 
     property chem_potentials:
-        """Array of species chemical potentials [J/kmol]"""
+        """Array of species chemical potentials [J/kmol]."""
         def __get__(self):
             return self._getArray1(thermo_getChemPotentials)
 
     property electrochem_potentials:
-        """Array of species electrochemical potentials [J/kmol]"""
+        """Array of species electrochemical potentials [J/kmol]."""
         def __get__(self):
             return self._getArray1(thermo_getElectrochemPotentials)
 
     property partial_molar_cp:
         """
         Array of species partial molar specific heat capacities at constant
-        pressure [J/kmol/K]
+        pressure [J/kmol/K].
         """
         def __get__(self):
             return self._getArray1(thermo_getPartialMolarCp)
 
     property partial_molar_volumes:
-        """Array of species partial molar volumes [m^3/kmol]"""
+        """Array of species partial molar volumes [m^3/kmol]."""
         def __get__(self):
             return self._getArray1(thermo_getPartialMolarVolumes)
 
@@ -636,12 +636,12 @@ cdef class ThermoPhase(_SolutionBase):
 
     ######## Miscellaneous properties ########
     property isothermalCompressibility:
-        """Isothermal compressibility [1/Pa]"""
+        """Isothermal compressibility [1/Pa]."""
         def __get__(self):
             return self.thermo.isothermalCompressibility()
 
     property thermalExpansionCoeff:
-        """Thermal expansion coefficient [1/K]"""
+        """Thermal expansion coefficient [1/K]."""
         def __get__(self):
             return self.thermo.thermalExpansionCoeff()
 
@@ -662,12 +662,12 @@ cdef class ThermoPhase(_SolutionBase):
             return self.thermo.maxTemp()
 
     property refPressure:
-        """Reference state pressure [Pa]"""
+        """Reference state pressure [Pa]."""
         def __get__(self):
             return self.thermo.refPressure()
 
     property electricPotential:
-        """Get/Set the electric potential [V] for this phase"""
+        """Get/Set the electric potential [V] for this phase."""
         def __get__(self):
             return self.thermo.electricPotential()
         def __set__(self, double value):
@@ -728,12 +728,12 @@ cdef class PureFluid(ThermoPhase):
     or a fluid beyond its critical point.
     """
     property critTemperature:
-        """Critical temperature [K]"""
+        """Critical temperature [K]."""
         def __get__(self):
             return self.thermo.critTemperature()
 
     property critPressure:
-        """Critical pressure [Pa]"""
+        """Critical pressure [Pa]."""
         def __get__(self):
             return self.thermo.critPressure()
 
@@ -743,17 +743,17 @@ cdef class PureFluid(ThermoPhase):
             return self.thermo.critDensity() / self._massFactor()
 
     property Psat:
-        """Saturation pressure [Pa] at the current temperature"""
+        """Saturation pressure [Pa] at the current temperature."""
         def __get__(self):
             return self.thermo.satPressure(self.T)
 
     property Tsat:
-        """Saturation temperature [K] at the current pressure"""
+        """Saturation temperature [K] at the current pressure."""
         def __get__(self):
             return self.thermo.satTemperature(self.P)
 
     property X:
-        """Vapor fraction (quality)"""
+        """Vapor fraction (quality)."""
         def __get__(self):
             return self.thermo.vaporFraction()
 

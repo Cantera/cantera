@@ -46,12 +46,12 @@ cdef class Transport(_SolutionBase):
             del old # only if the new transport manager was successfully created
 
     property viscosity:
-        """Viscosity [Pa-s]"""
+        """Viscosity [Pa-s]."""
         def __get__(self):
             return self.transport.viscosity()
 
     property thermalConductivity:
-        """Thermal conductivity. [W/m/K]"""
+        """Thermal conductivity. [W/m/K]."""
         def __get__(self):
             return self.transport.thermalConductivity()
 
@@ -89,12 +89,12 @@ cdef class Transport(_SolutionBase):
             return get_transport_1d(self, tran_getThermalDiffCoeffs)
 
     property multiDiffCoeffs:
-        """Multicomponent diffusion coefficients [m^2/s]"""
+        """Multicomponent diffusion coefficients [m^2/s]."""
         def __get__(self):
             return get_transport_2d(self, tran_getMultiDiffCoeffs)
 
     property binaryDiffCoeffs:
-        """Binary diffusion coefficients [m^2/s]"""
+        """Binary diffusion coefficients [m^2/s]."""
         def __get__(self):
             return get_transport_2d(self, tran_getBinaryDiffCoeffs)
 
@@ -112,26 +112,26 @@ cdef class DustyGasTransport(Transport):
         super().__init__(*args, **kwargs)
 
     property porosity:
-        """Porosity of the porous medium [dimensionless]"""
+        """Porosity of the porous medium [dimensionless]."""
         def __set__(self, value):
             (<CxxDustyGasTransport*>self.transport).setPorosity(value)
 
     property tortuosity:
-        """Tortuosity of the porous medium [dimensionless]"""
+        """Tortuosity of the porous medium [dimensionless]."""
         def __set__(self, value):
             (<CxxDustyGasTransport*>self.transport).setTortuosity(value)
 
     property meanPoreRadius:
-        """Mean pore radius of the porous medium [m]"""
+        """Mean pore radius of the porous medium [m]."""
         def __set__(self, value):
             (<CxxDustyGasTransport*>self.transport).setMeanPoreRadius(value)
 
     property meanParticleDiameter:
-        """Mean particle diameter of the porous medium [m]"""
+        """Mean particle diameter of the porous medium [m]."""
         def __set__(self, value):
             (<CxxDustyGasTransport*>self.transport).setMeanParticleDiameter(value)
 
     property permeability:
-        """Permeability of the porous medium [m^2]"""
+        """Permeability of the porous medium [m^2]."""
         def __set__(self, value):
             (<CxxDustyGasTransport*>self.transport).setPermeability(value)
