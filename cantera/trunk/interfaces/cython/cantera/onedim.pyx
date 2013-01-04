@@ -822,34 +822,6 @@ class FlameBase(Sim1D):
         """
         return self.profile(self.flame, 'V')
 
-    @property
-    def Y(self):
-        """
-        2D array containing the species mass fractions at each point. Y[k,j]
-        is the mass fraction of species *k* at point *j*.
-        """
-        cdef np.ndarray[np.double_t, ndim=2] Y = \
-                np.empty((self.gas.nSpecies, self.flame.nPoints))
-
-        for j in range(self.flame.nPoints):
-            self.setGasState(j)
-            Y[:,j] = self.gas.Y
-        return Y
-
-    @property
-    def X(self):
-        """
-        2D array containing the species mole fractions at each point. X[k,j]
-        is the mole fraction of species *k* at point *j*.
-        """
-        cdef np.ndarray[np.double_t, ndim=2] X = \
-                np.empty((self.gas.nSpecies, self.flame.nPoints))
-
-        for j in range(self.flame.nPoints):
-            self.setGasState(j)
-            X[:,j] = self.gas.X
-        return X
-
     def solution(self, component, point=None):
         if point is None:
             return self.profile(self.flame, component)
@@ -861,6 +833,86 @@ class FlameBase(Sim1D):
         Y = [self.solution(k, point)
              for k in range(k0, k0 + self.gas.nSpecies)]
         self.gas.TPY = self.value(self.flame, 'T', point), self.P, Y
+
+def _trim(docstring):
+    """Remove block indentation from a docstring."""
+    if not docstring:
+        return ''
+    lines = docstring.splitlines()
+    # Determine minimum indentation (first line doesn't count):
+    indent = 999
+    for line in lines[1:]:
+        stripped = line.lstrip()
+        if stripped:
+            indent = min(indent, len(line) - len(stripped))
+    # Remove indentation (first line is special):
+    trimmed = [lines[0].strip()]
+    if indent < 999:
+        for line in lines[1:]:
+            trimmed.append(line[indent:].rstrip())
+    # Strip off trailing and leading blank lines:
+    trimmed = [t for t in trimmed if t]
+    # Return a single string:
+    return '\n'.join(trimmed)
+
+def _array_property(attr, size=None):
+    """
+    Generate a property that retrieves values at each point in the flame. The
+    'size' argument is the attribute name of the gas object used to set the
+    leading dimension of the resulting array.
+    """
+    def getter(self):
+        if size is None:
+            # 1D array for scalar property
+            vals = np.empty(self.flame.nPoints)
+        else:
+            # 2D array
+            vals = np.empty((getattr(self.gas, size), self.flame.nPoints))
+
+        for i in range(self.flame.nPoints):
+            self.setGasState(i)
+            vals[...,i] = getattr(self.gas, attr)
+
+        return vals
+
+    if size is None:
+        extradoc = "\nReturns an array of length `nPoints`."
+    else:
+        extradoc = "\nReturns an array of size `%s` x `nPoints`." % size
+
+    doc = _trim(getattr(Solution, attr).__doc__) + extradoc
+    return property(getter, doc=doc)
+
+# Add scalar properties to FlameBase
+for attr in ['density', 'density_mass', 'density_mole', 'volume_mass',
+             'volume_mole', 'intEnergy_mole', 'intEnergy_mass', 'h',
+             'enthalpy_mole', 'enthalpy_mass', 's', 'entropy_mole',
+             'entropy_mass', 'g', 'gibbs_mole', 'gibbs_mass', 'cv',
+             'cv_mole', 'cv_mass', 'cp', 'cp_mole', 'cp_mass',
+             'isothermalCompressibility', 'thermalExpansionCoeff',
+             'viscosity', 'thermalConductivity']:
+    setattr(FlameBase, attr, _array_property(attr))
+FlameBase.volume = _array_property('v') # avoid confusion with velocity gradient 'V'
+FlameBase.intEnergy = _array_property('u') # avoid collision with velocity 'u'
+
+# Add properties with values for each species
+for attr in ['X', 'Y', 'concentrations', 'partial_molar_enthalpies',
+             'partial_molar_entropies', 'partial_molar_int_energies',
+             'chem_potentials', 'electrochem_potentials', 'partial_molar_cp',
+             'partial_molar_volumes', 'standard_enthalpies_RT',
+             'standard_entropies_R', 'standard_intEnergies_RT',
+             'standard_gibbs_RT', 'standard_cp_R', 'creationRates',
+             'destructionRates', 'netProductionRates', 'mixDiffCoeffs',
+             'mixDiffCoeffsMass', 'mixDiffCoeffsMole', 'thermalDiffCoeffs']:
+    setattr(FlameBase, attr, _array_property(attr, 'nSpecies'))
+
+# Add properties with values for each reaction
+for attr in ['fwdRatesOfProgress', 'revRatesOfProgress', 'netRatesOfProgress',
+             'equilibriumConstants', 'fwdRateConstants', 'revRateConstants',
+             'deltaEnthalpy', 'deltaGibbs', 'deltaEntropy',
+             'deltaStandardEnthalpy', 'deltaStandardGibbs',
+             'deltaStandardEntropy']:
+    setattr(FlameBase, attr, _array_property(attr, 'nReactions'))
 
 
 class FreeFlame(FlameBase):
