@@ -34,17 +34,17 @@ cdef class Kinetics(_SolutionBase):
             return self.kinetics.nTotalSpecies()
 
     property nReactions:
-        """Number of reactions in the reaction mechanism"""
+        """Number of reactions in the reaction mechanism."""
         def __get__(self):
             return self.kinetics.nReactions()
 
     property nPhases:
-        """Number of phases in the reaction mechanism"""
+        """Number of phases in the reaction mechanism."""
         def __get__(self):
             return self.kinetics.nPhases()
 
     property reactionPhaseIndex:
-        """The index of the phase where the reactions occur"""
+        """The index of the phase where the reactions occur."""
         def __get__(self):
             return self.kinetics.reactionPhaseIndex()
 
@@ -70,7 +70,7 @@ cdef class Kinetics(_SolutionBase):
         return self.kinetics.kineticsSpeciesIndex(species, phase)
 
     def isReversible(self, int iReaction):
-        """True if reaction `iReaction` is reversible"""
+        """True if reaction `iReaction` is reversible."""
         self._checkReactionIndex(iReaction)
         return self.kinetics.isReversible(iReaction)
 
@@ -97,12 +97,12 @@ cdef class Kinetics(_SolutionBase):
             self.kinetics.setMultiplier(iReaction, value)
 
     def reactionType(self, int iReaction):
-        """Type of reaction *iReaction*"""
+        """Type of reaction *iReaction*."""
         self._checkReactionIndex(iReaction)
         return self.kinetics.reactionType(iReaction)
 
     def reactionEquation(self, int iReaction):
-        """The equation for the specified reaction. See also `reactionEquations`"""
+        """The equation for the specified reaction. See also `reactionEquations`."""
         self._checkReactionIndex(iReaction)
         return pystr(self.kinetics.reactionString(iReaction))
 
@@ -200,7 +200,7 @@ cdef class Kinetics(_SolutionBase):
             return get_reaction_array(self, kin_getEquilibriumConstants)
 
     property activationEnergies:
-        """Activation energies for all reactions [K]"""
+        """Activation energies for all reactions [K]."""
         def __get__(self):
             return get_reaction_array(self, kin_getActivationEnergies)
 
@@ -245,24 +245,24 @@ cdef class Kinetics(_SolutionBase):
             return get_species_array(self, kin_getNetProductionRates)
 
     property deltaEnthalpy:
-        """Change in enthalpy for each reaction [J/kmol]"""
+        """Change in enthalpy for each reaction [J/kmol]."""
         def __get__(self):
             return get_reaction_array(self, kin_getDeltaEnthalpy)
 
     property deltaGibbs:
-        """Change in Gibbs free energy for each reaction [J/kmol]"""
+        """Change in Gibbs free energy for each reaction [J/kmol]."""
         def __get__(self):
             return get_reaction_array(self, kin_getDeltaGibbs)
 
     property deltaEntropy:
-        """Change in entropy for each reaction [J/kmol/K]"""
+        """Change in entropy for each reaction [J/kmol/K]."""
         def __get__(self):
             return get_reaction_array(self, kin_getDeltaEntropy)
 
     property deltaStandardEnthalpy:
         """
         Change in standard-state enthalpy (independent of composition) for
-        each reaction [J/kmol]
+        each reaction [J/kmol].
         """
         def __get__(self):
             return get_reaction_array(self, kin_getDeltaSSEnthalpy)
@@ -270,7 +270,7 @@ cdef class Kinetics(_SolutionBase):
     property deltaStandardGibbs:
         """
         Change in standard-state Gibbs free energy (independent of composition)
-        for each reaction [J/kmol]
+        for each reaction [J/kmol].
         """
         def __get__(self):
             return get_reaction_array(self, kin_getDeltaSSGibbs)
@@ -278,7 +278,7 @@ cdef class Kinetics(_SolutionBase):
     property deltaStandardEntropy:
         """
         Change in standard-state entropy (independent of composition) for
-        each reaction [J/kmol/K]
+        each reaction [J/kmol/K].
         """
         def __get__(self):
             return get_reaction_array(self, kin_getDeltaSSEntropy)
