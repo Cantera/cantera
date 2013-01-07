@@ -138,6 +138,14 @@ public:
      */
     virtual void mult(const double* b, double* prod) const;
 
+    //! Multiply A*B and write result to \c prod.
+    /*!
+     *
+     *  @param    b     input      DenseMatrix B of size NxN
+     *  @param    prod  output     output DenseMatrix prod size NxN
+     */
+    virtual void mult(const DenseMatrix &b, DenseMatrix &prod) const;
+
     //! Left-multiply the matrix by transpose(b), and write the result to prod.
     /*!
      *   @param b    left multiply by this vector. The length must be equal to n

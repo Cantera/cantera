@@ -113,6 +113,22 @@ void DenseMatrix::mult(const double* b, double* prod) const
              static_cast<int>(nRows()), b, 1, 0.0, prod, 1);
 }
 //====================================================================================================================
+void DenseMatrix::mult(const DenseMatrix &B, DenseMatrix &prod) const
+{
+  if(m_ncols != B.nColumns() || m_nrows != B.nRows() || m_ncols != m_nrows || m_ncols != prod.nColumns() || m_nrows != prod.nColumns() )
+  {
+    throw CanteraError("mult(const DenseMatrix &B, DenseMatrix &prod)",
+        "Cannot multiply matrices that are not square and/or not the same size.");
+  }
+  const doublereal * const *bcols = B.const_colPts();
+  doublereal * const *prodcols = prod.colPts();
+  for(size_t col=0; col < m_ncols; ++col)
+  {
+    // Loop over ncols multiplying A*column of B and storing in corresponding prod column
+    mult(bcols[col], prodcols[col]);
+  }
+}
+//====================================================================================================================
 void DenseMatrix::leftMult(const double* const b, double* const prod) const
 {
     size_t nc = nColumns();
