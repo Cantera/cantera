@@ -165,7 +165,8 @@ cdef class Reactor(ReactorBase):
     def insert(self, _SolutionBase solution):
         ReactorBase.insert(self, solution)
         self._kinetics = solution
-        self.reactor.setKineticsMgr(deref(solution.kinetics))
+        if solution.kinetics != NULL:
+            self.reactor.setKineticsMgr(deref(solution.kinetics))
 
     property kinetics:
         """
