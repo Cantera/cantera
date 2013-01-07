@@ -368,7 +368,7 @@ If you are interested in seeing the internals of how the preprocessing works,
 take a look at file ``ctml_writer.py`` in the Cantera Python package. Or simply
 start Python, and type::
 
-    >>> from Cantera import ctml_writer
+    >>> import ctml_writer
     >>> help(ctml_writer)
 
 The ``ctml_writer.py`` module can also be run as a script to convert input .cti
