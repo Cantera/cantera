@@ -222,14 +222,14 @@ void Application::Messages::addLogEntry(const std::string& msg)
 
 void Application::Messages::endLogGroup(const std::string& title)
 {
-     if (title != "" && title != loggroups.back()) {
+    if (title != "" && title != loggroups.back()) {
         writelog("Logfile error."
                  "\n   beginLogGroup: "+ loggroups.back()+
                  "\n   endLogGroup:   "+title+"\n");
         write_logfile("logerror");
     }
 
-    if (loggroups.empty()) {
+    if (loggroups.size() == 1) {
         write_logfile(loggroups.back()+"_log");
     } else if (loglevel > 0) {
         AssertThrowMsg(current, "Application::Messages::endLogGroup",
