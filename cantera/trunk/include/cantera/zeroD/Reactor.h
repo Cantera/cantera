@@ -78,6 +78,8 @@ public:
         m_kin = &kin;
         if (m_kin->nReactions() == 0) {
             disableChemistry();
+        } else {
+            enableChemistry();
         }
     }
 

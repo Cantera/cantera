@@ -23,7 +23,7 @@ Reactor::Reactor() : ReactorBase(),
     m_kin(0),
     m_vdot(0.0),
     m_Q(0.0),
-    m_chem(true),
+    m_chem(false),
     m_energy(true),
     m_nsens(npos)
 {}
