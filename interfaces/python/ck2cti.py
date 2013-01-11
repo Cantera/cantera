@@ -34,6 +34,7 @@ import logging
 import types
 import os.path
 import numpy as np
+import re
 
 UNIT_OPTIONS = {'CAL/': 'cal/mol',
                 'CAL/MOL': 'cal/mol',
@@ -228,6 +229,7 @@ class Reaction(object):
         self.reversible = reversible
         self.duplicate = duplicate
         self.fwdOrders = fwdOrders if fwdOrders is not None else {}
+        self.thirdBody = None
 
     def _coeff_string(self, coeffs):
         L = []
@@ -236,8 +238,11 @@ class Reaction(object):
                 L.append('{0} {1}'.format(stoichiometry, species))
             else:
                 L.append(str(species))
+        expression = ' + '.join(L)
+        if self.thirdBody:
+            expression += ' (+ {0})'.format(self.thirdBody)
 
-        return ' + '.join(L)
+        return expression
 
     @property
     def reactantString(self):
@@ -483,7 +488,7 @@ class Chebyshev(KineticsModel):
         return True
 
     def to_cti(self, reactantstr, arrow, productstr, indent=0):
-        rxnstr = reactantstr + ' (+ M)' + arrow + productstr + ' (+ M)'
+        rxnstr = reactantstr + arrow + productstr
         prefix = ' '*(indent+19)
         lines = ['chebyshev_reaction({0!r},'.format(rxnstr),
                  prefix + 'Tmin={0.Tmin}, Tmax={0.Tmax},'.format(self),
@@ -588,7 +593,7 @@ class Lindemann(ThirdBody):
         self.arrheniusLow = arrheniusLow
 
     def to_cti(self, reactantstr, arrow, productstr, indent=0):
-        rxnstr = reactantstr + ' (+ M)' + arrow + productstr + ' (+ M)'
+        rxnstr = reactantstr + arrow + productstr
         prefix = ' '*(indent + 17)
         lines = ['falloff_reaction({0!r},'.format(rxnstr)]
         lines.append(prefix + 'kf={0},'.format(self.arrheniusHigh.rateStr()))
@@ -662,7 +667,7 @@ class Troe(Lindemann):
         self.T2 = T2
 
     def to_cti(self, reactantstr, arrow, productstr, indent=0):
-        rxnstr = reactantstr + ' (+ M)' + arrow + productstr + ' (+ M)'
+        rxnstr = reactantstr + arrow + productstr
         prefix = ' '*17
         lines = ['falloff_reaction({0!r},'.format(rxnstr),
                  prefix + 'kf={0},'.format(self.arrheniusHigh.rateStr()),
@@ -713,7 +718,7 @@ class Sri(Lindemann):
         self.E = E
 
     def to_cti(self, reactantstr, arrow, productstr, indent=0):
-        rxnstr = reactantstr + ' (+ M)' + arrow + productstr + ' (+ M)'
+        rxnstr = reactantstr + arrow + productstr
         prefix = ' '*17
         lines = ['falloff_reaction({0!r},'.format(rxnstr),
                  prefix + 'kf={0},'.format(self.arrheniusHigh.rateStr()),
@@ -942,16 +947,26 @@ def readKineticsEntry(entry, speciesDict, energyUnits, moleculeUnits):
     else:
         raise InputParseError("Failed to find reactant/product delimiter in reaction string.")
 
-    reactants = reactants.replace('(+M)','')
-    reactants = reactants.replace('(+m)','')
-    products = products.replace('(+M)','')
-    products = products.replace('(+m)','')
-
     # Create a new Reaction object for this reaction
     reaction = Reaction(reactants=[], products=[], reversible=reversible)
 
     def parseExpression(expression, dest):
-        thirdBody = False
+        falloff3b = None
+        thirdBody = False  # simple third body reaction (non-falloff)
+
+        # Look for third-body species for falloff reactions
+        if re.search(r'\(\+[Mm]\)', expression):
+            falloff3b = 'M'
+            expression = re.sub(r'(\(\+[Mm]\))', '', expression)
+        elif re.search(r'\(\+.*\)', expression):
+            # See if it matches a known species
+            for species in speciesDict:
+                if re.search(r'\(\+%s\)' % re.escape(species), expression):
+                    falloff3b = species
+                    expression = re.sub(r'(\(\+%s\))' % re.escape(species),
+                                        '', expression)
+                    break
+
         for term in expression.split('+'):
             term = term.strip()
             if not term[0].isalpha():
@@ -970,14 +985,20 @@ def readKineticsEntry(entry, speciesDict, energyUnits, moleculeUnits):
             if species == 'M' or species == 'm':
                 thirdBody = True
             elif species not in speciesDict:
-                raise InputParseError('Unexpected species "{0}" in reaction {1}.'.format(species, reaction))
+                raise InputParseError('Unexpected species "{0}" in reaction expression "{1}".'.format(species, expression))
             else:
                 dest.append((stoichiometry, speciesDict[species]))
 
-        return thirdBody
+        return falloff3b, thirdBody
 
-    thirdBody = parseExpression(reactants, reaction.reactants)
-    parseExpression(products, reaction.products)
+    falloff_3b_r, thirdBody = parseExpression(reactants, reaction.reactants)
+    falloff_3b_p, thirdBody = parseExpression(products, reaction.products)
+
+    if falloff_3b_r != falloff_3b_p:
+        raise InputParseError('Third bodies do not match: "{0}" and "{1}" in'
+            ' reaction entry:\n\n{2}'.format(falloff_3b_r, falloff_3b_p, entry))
+
+    reaction.thirdBody = falloff_3b_r
 
     # Determine the appropriate units for k(T) and k(T,P) based on the number of reactants
     # This assumes elementary kinetics for all reactions

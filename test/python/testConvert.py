@@ -124,6 +124,16 @@ class chemkinConverterTest(utilities.CanteraTest):
                                         'sri-falloff.cti')
         self.checkKinetics(ref, gas, [300, 800, 1450, 2800], [5e3, 1e5, 2e6])
 
+    def test_explicit_third_bodies(self):
+        if os.path.exists('explicit-third-bodies.cti'):
+            os.path.remove('explicit-third-bodies.cti')
+        ck2cti.convertMech('../data/explicit-third-bodies.inp',
+                           thermoFile='../data/dummy-thermo.dat', quiet=True)
+
+        ref, gas = self.checkConversion('explicit-third-bodies.cti',
+                                        '../data/explicit-third-bodies.xml')
+        self.checkKinetics(ref, gas, [300, 800, 1450, 2800], [5e3, 1e5, 2e6])
+
     def test_explicit_reverse_rate(self):
         if os.path.exists('explicit-reverse-rate.cti'):
             os.remove('explicit-reverse-rate.cti')
