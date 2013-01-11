@@ -133,31 +133,21 @@ public:
      * @param fwdROP vector of rates of progress.
      *        length = number of reactions, Units are kmol m-2 s-1.
      */
-    virtual void getFwdRatesOfProgress(doublereal* fwdROP) {
-        updateROP();
-        std::copy(m_ropf.begin(), m_ropf.end(), fwdROP);
-    }
+    virtual void getFwdRatesOfProgress(doublereal* fwdROP);
 
     //! Return the reverse rates of progress for each reaction
     /*!
      * @param revROP vector of rates of progress.
      *        length = number of reactions, Units are kmol m-2 s-1.
      */
-    virtual void getRevRatesOfProgress(doublereal* revROP) {
-        updateROP();
-        std::copy(m_ropr.begin(), m_ropr.end(), revROP);
-    }
+    virtual void getRevRatesOfProgress(doublereal* revROP);
 
     //! Return the net rates of progress for each reaction
     /*!
      * @param netROP vector of rates of progress.
      *        length = number of reactions, Units are kmol m-2 s-1.
      */
-    virtual void getNetRatesOfProgress(doublereal* netROP) {
-        updateROP();
-        std::copy(m_ropnet.begin(), m_ropnet.end(), netROP);
-    }
-
+    virtual void getNetRatesOfProgress(doublereal* netROP);
 
     //! Get the equilibrium constants of all reactions, whether
     //! the reaction is reversible or not.

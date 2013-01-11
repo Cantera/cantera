@@ -215,6 +215,7 @@ void InterfaceKinetics::setElectricPotential(int n, doublereal V)
     thermo(n).setElectricPotential(V);
     m_redo_rates = true;
 }
+
 //====================================================================================================================
 // Update properties that depend on temperature
 /*
@@ -393,6 +394,23 @@ void InterfaceKinetics::checkPartialEquil()
     }
 }
 
+void InterfaceKinetics::getFwdRatesOfProgress(doublereal* fwdROP)
+{
+    updateROP();
+    std::copy(m_ropf.begin(), m_ropf.end(), fwdROP);
+}
+
+void InterfaceKinetics::getRevRatesOfProgress(doublereal* revROP)
+{
+    updateROP();
+    std::copy(m_ropr.begin(), m_ropr.end(), revROP);
+}
+
+void InterfaceKinetics::getNetRatesOfProgress(doublereal* netROP)
+{
+    updateROP();
+    std::copy(m_ropnet.begin(), m_ropnet.end(), netROP);
+}
 
 /**
  * Get the equilibrium constants of all reactions, whether
