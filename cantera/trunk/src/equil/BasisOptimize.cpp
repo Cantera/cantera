@@ -272,7 +272,7 @@ size_t Cantera::BasisOptimize(int* usedZeroedSpecies, bool doFormRxn,
             if (molNum[kk] == USEDBEFORE) {
                 nComponents = jr;
                 nNonComponents = nspecies - nComponents;
-                goto L_END_LOOP;
+                break;
             }
             /*
              *  Assign a small negative number to the component that we have
@@ -354,9 +354,7 @@ size_t Cantera::BasisOptimize(int* usedZeroedSpecies, bool doFormRxn,
 #endif
             std::swap(orderVectorSpecies[jr], orderVectorSpecies[k]);
         }
-        /* - entry point from up above */
-L_END_LOOP:
-        ;
+
         /*
          *      If we haven't found enough components, go back
          *      and find some more. (nc -1 is used below, because
@@ -593,17 +591,21 @@ static int mlequ(double* c, size_t idem, size_t n, double* b, size_t m)
             /*
             *   Do a simple form of row pivoting to find a non-zero pivot
             */
+            bool foundPivot = false;
             for (k = i + 1; k < n; ++k) {
                 if (c[k + i * idem] != 0.0) {
-                    goto FOUND_PIVOT;
+                    foundPivot = true;
+                    break;
                 }
             }
+
+            if (!foundPivot) {
 #ifdef DEBUG_MODE
-            writelogf("vcs_mlequ ERROR: Encountered a zero column: %d\n", i);
+                writelogf("vcs_mlequ ERROR: Encountered a zero column: %d\n", i);
 #endif
-            return 1;
-FOUND_PIVOT:
-            ;
+                return 1;
+            }
+
             for (j = 0; j < n; ++j) {
                 c[i + j * idem] += c[k + j * idem];
             }
