@@ -852,7 +852,6 @@ bool rxninfo::installReaction(int iRxn, const XML_Node& r, Kinetics& kin,
 
     rdata.equation = eqn;
     rdata.number = iRxn;
-    rdata.rxn_number = iRxn;
 
     // Read the rate coefficient data from the XML file. Trigger an
     // exception for negative A unless specifically authorized.
