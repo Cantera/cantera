@@ -8,6 +8,9 @@ localenv.Append(CCFLAGS=env['warning_flags'])
 os.environ['PYTHONPATH'] = pjoin(os.getcwd(), '..', 'interfaces', 'python')
 os.environ['CANTERA_DATA'] = pjoin(os.getcwd(), '..', 'build', 'data')
 
+PASSED_FILES = {}
+
+
 class Test(object):
     _validArgs = set(['arguments', 'options', 'artifacts', 'comparisons',
                       'tolerance', 'threshold', 'ignoreLines', 'extensions',
@@ -35,6 +38,7 @@ class Test(object):
 
         self.testName = testName
         self.passedFile = '.passed-%s' % testName
+        PASSED_FILES[self.testName] = pjoin(self.subdir, self.passedFile)
 
         testResults.tests[self.testName] = self
         run = self.run(localenv)
@@ -316,3 +320,10 @@ if localenv['python_package'] == 'full':
 finish_tests = localenv.Command('finish_tests', [], testResults.printReport)
 localenv.Depends(finish_tests, 'test-run')
 Alias('test', finish_tests)
+
+# Force explicitly-named tests to run even if SCons thinks they're up to date
+for command in COMMAND_LINE_TARGETS:
+    if command.startswith('test-'):
+        name = command[5:]
+        if name in PASSED_FILES and os.path.exists(PASSED_FILES[name]):
+            os.remove(PASSED_FILES[name])

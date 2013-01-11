@@ -12,6 +12,8 @@ localenv.Append(LIBS=['gtest'] + localenv['cantera_libs'],
 localenv['ENV']['PYTHONPATH'] = Dir('#interfaces/python').abspath
 localenv['ENV']['CANTERA_DATA'] = Dir('#build/data').abspath
 
+PASSED_FILES = {}
+
 # Needed for Intel runtime libraries when compiling with ICC
 if 'LD_LIBRARY_PATH' in os.environ:
     localenv['ENV']['LD_LIBRARY_PATH'] = os.environ['LD_LIBRARY_PATH']
@@ -42,6 +44,7 @@ def addTestProgram(subdir, progName):
     program = localenv.Program(pjoin(subdir, progName),
                                mglob(localenv, subdir, 'cpp'))
     passedFile = File(pjoin(str(program[0].dir), '%s.passed' % program[0].name))
+    PASSED_FILES[progName] = str(passedFile)
     testResults.tests[passedFile.name] = program
     run_program = localenv.Command(passedFile, program, testRunner)
     Alias('test', run_program)
@@ -81,6 +84,7 @@ def addTestScript(testname, subdir, script, interpreter, dependencies=(), env_va
 
     testenv = localenv.Clone()
     passedFile = File(pjoin(subdir, '%s.passed' % testname))
+    PASSED_FILES[testname] = str(passedFile)
     testResults.tests[passedFile.name] = True
     run_program = testenv.Command(passedFile, pjoin(subdir, script), scriptRunner)
     for dep in dependencies:
@@ -95,7 +99,7 @@ def addTestScript(testname, subdir, script, interpreter, dependencies=(), env_va
     return run_program
 
 
-def addMatlabTest(script, dependencies=None):
+def addMatlabTest(script, testName, dependencies=None):
     def matlabRunner(target, source, env):
         passedFile = target[0]
         del testResults.tests[passedFile.name]
@@ -128,6 +132,7 @@ def addMatlabTest(script, dependencies=None):
 
     testenv = localenv.Clone()
     passedFile = File(pjoin('matlab', '%s.passed' % (script)))
+    PASSED_FILES[testName] = str(passedFile)
     testResults.tests[passedFile.name] = True
     run_program = testenv.Command(passedFile, pjoin('matlab', script), matlabRunner)
 
@@ -149,14 +154,14 @@ addTestProgram('thermo', 'thermo')
 addTestProgram('kinetics', 'kinetics')
 
 if localenv['python_package'] == 'full':
-    pyTest = addTestScript('python2-old', 'python', 'runTests.py',
+    pyTest = addTestScript('python', 'python', 'runTests.py',
                            interpreter='$python_cmd',
                            dependencies=(mglob(localenv, 'python', 'py') +
                                          localenv['python_module']))
     localenv.Alias('test-python', pyTest)
     env['testNames'].append('python')
 elif localenv['python_package'] == 'new':
-    pyTest = addTestScript('python2-new', 'python', 'runCythonTests.py',
+    pyTest = addTestScript('cython2', 'python', 'runCythonTests.py',
                            interpreter='$python_cmd',
                            dependencies=(localenv['python2_module'] +
                                          mglob(localenv, '#interfaces/cython/cantera/test', 'py')),
@@ -165,7 +170,7 @@ elif localenv['python_package'] == 'new':
     env['testNames'].append('cython2')
 
 if localenv['python3_package'] == 'y':
-    pyTest = addTestScript('python3-new', 'python', 'runCythonTests.py',
+    pyTest = addTestScript('cython3', 'python', 'runCythonTests.py',
                            interpreter='$python3_cmd',
                            dependencies=(localenv['python3_module'] +
                                          mglob(localenv, '#interfaces/cython/cantera/test', 'py')),
@@ -175,7 +180,14 @@ if localenv['python3_package'] == 'y':
 
 
 if localenv['matlab_toolbox'] == 'y':
-    matlabTest = addMatlabTest('runCanteraTests.m',
+    matlabTest = addMatlabTest('runCanteraTests.m', 'matlab',
                                dependencies=mglob(localenv, 'matlab', 'm'))
     localenv.Alias('test-matlab', matlabTest)
     env['testNames'].append('matlab')
+
+# Force explicitly-named tests to run even if SCons thinks they're up to date
+for command in COMMAND_LINE_TARGETS:
+    if command.startswith('test-'):
+        name = command[5:]
+        if name in PASSED_FILES and os.path.exists(PASSED_FILES[name]):
+            os.remove(PASSED_FILES[name])
