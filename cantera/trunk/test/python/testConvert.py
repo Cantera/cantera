@@ -198,7 +198,16 @@ class chemkinConverterTest(utilities.CanteraTest):
                                outName='h2o2_transport_duplicate_species.cti',
                                quiet=True)
 
+        # This should fail
         self.assertRaises(ck2cti.InputParseError, convert)
+
+        # This should succeed
+        ck2cti.convertMech('../../data/inputs/h2o2.inp',
+                           transportFile='../data/h2o2-duplicate-species-tran.dat',
+                           outName='h2o2_transport_duplicate_species.cti',
+                           quiet=True,
+                           permissive=True)
+
 
     def test_transport_bad_geometry(self):
         if os.path.exists('h2o2_transport_bad_geometry.cti'):
