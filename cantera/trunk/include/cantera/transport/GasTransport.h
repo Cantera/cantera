@@ -133,7 +133,7 @@ protected:
     virtual void updateDiff_T();
 
     //! Vector of species mole fractions. These are processed so that all mole
-    //! fractions are >= MIN_X. Length = m_kk.
+    //! fractions are >= *Tiny*. Length = m_kk.
     vector_fp m_molefracs;
 
     //! Internal storage for the viscosity of the mixture  (kg /m /s)

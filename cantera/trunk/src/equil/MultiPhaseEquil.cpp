@@ -16,8 +16,6 @@ using namespace std;
 namespace Cantera
 {
 
-const doublereal TINY = 1.0e-20;
-
 #if defined(WITH_HTML_LOGS)
 /// Used to print reaction equations. Given a stoichiometric
 /// coefficient 'nu' and a chemical symbol 'sym', return a string
@@ -428,7 +426,7 @@ void MultiPhaseEquil::getComponents(const std::vector<size_t>& order)
         // Check for rows that are zero
         bool isZeroRow = true;
         for (k = m; k < nColumns; k++) {
-            if (fabs(m_A(m,k)) > sqrt(TINY)) {
+            if (fabs(m_A(m,k)) > sqrt(Tiny)) {
                 isZeroRow = false;
                 break;
             }
@@ -439,7 +437,7 @@ void MultiPhaseEquil::getComponents(const std::vector<size_t>& order)
             bool foundSwapCandidate = false;
             for (; n > m; n--) {
                 for (k = m; k < nColumns; k++) {
-                    if (fabs(m_A(n,k)) > sqrt(TINY)) {
+                    if (fabs(m_A(n,k)) > sqrt(Tiny)) {
                         foundSwapCandidate = true;
                         break;
                     }
@@ -713,7 +711,7 @@ stepComposition(int loglevel)
                 if (m_moles[k] < MAJOR_THRESHOLD) {
                     m_force = true;
                 }
-                omax = m_moles[k]*FCTR/(fabs(m_work[k]) + TINY);
+                omax = m_moles[k]*FCTR/(fabs(m_work[k]) + Tiny);
                 if (m_work[k] < 0.0 && omax < omegamax) {
                     omegamax = omax;
                     if (omegamax < 1.0e-5) {
@@ -785,7 +783,6 @@ doublereal MultiPhaseEquil::computeReactionSteps(vector_fp& dxi)
     index_t j, k, ik, kc, ip;
     doublereal stoich, nmoles, csum, term1, fctr, rfctr;
     vector_fp nu;
-    const doublereal TINY = 1.0e-20;
     doublereal grad = 0.0;
 
     dxi.resize(nFree());
@@ -827,13 +824,13 @@ doublereal MultiPhaseEquil::computeReactionSteps(vector_fp& dxi)
             for (k = 0; k < m_nel; k++) {
                 kc = m_order[k];
                 stoich = nu[kc];
-                nmoles = fabs(m_mix->speciesMoles(m_species[kc])) + TINY;
+                nmoles = fabs(m_mix->speciesMoles(m_species[kc])) + Tiny;
                 csum += stoich*stoich*m_dsoln[kc]/nmoles;
             }
 
             // noncomponent term
             kc = m_order[j + m_nel];
-            nmoles = fabs(m_mix->speciesMoles(m_species[kc])) + TINY;
+            nmoles = fabs(m_mix->speciesMoles(m_species[kc])) + Tiny;
             term1 = m_dsoln[kc]/nmoles;
 
             // sum over solution phases
@@ -850,11 +847,11 @@ doublereal MultiPhaseEquil::computeReactionSteps(vector_fp& dxi)
                             psum += stoich * stoich;
                         }
                     }
-                    sum -= psum / (fabs(m_mix->phaseMoles(ip)) + TINY);
+                    sum -= psum / (fabs(m_mix->phaseMoles(ip)) + Tiny);
                 }
             }
             rfctr = term1 + csum + sum;
-            if (fabs(rfctr) < TINY) {
+            if (fabs(rfctr) < Tiny) {
                 fctr = 1.0;
             } else {
                 fctr = 1.0/(term1 + csum + sum);

@@ -16,13 +16,6 @@
 
 using namespace std;
 
-/**
- * Mole fractions below MIN_X will be set to MIN_X when computing
- * transport properties.
- */
-#define MIN_X 1.e-14
-
-
 namespace Cantera
 {
 
@@ -1342,8 +1335,8 @@ bool LiquidTransport::update_C()
         concTot_tran_ = 0.0;
         for (size_t k = 0; k < m_nsp; k++) {
             m_molefracs[k] = std::max(0.0, m_molefracs[k]);
-            m_molefracs_tran[k] = std::max(MIN_X, m_molefracs[k]);
-            m_massfracs_tran[k] = std::max(MIN_X, m_massfracs[k]);
+            m_molefracs_tran[k] = std::max(Tiny, m_molefracs[k]);
+            m_massfracs_tran[k] = std::max(Tiny, m_massfracs[k]);
             concTot_tran_ += m_molefracs_tran[k];
             concTot_ += m_concentrations[k];
         }

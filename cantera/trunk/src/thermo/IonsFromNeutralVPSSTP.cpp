@@ -31,7 +31,6 @@ using namespace std;
 namespace Cantera
 {
 
-static  const double xxSmall = 1.0E-150;
 //====================================================================================================================
 /*
  * Default constructor.
@@ -672,7 +671,7 @@ void IonsFromNeutralVPSSTP::getPartialMolarEntropies(doublereal* sbar) const
     s_update_dlnActCoeffdT();
 
     for (size_t k = 0; k < m_kk; k++) {
-        xx = std::max(moleFractions_[k], xxSmall);
+        xx = std::max(moleFractions_[k], SmallNumber);
         sbar[k] += - lnActCoeff_Scaled_[k] -log(xx) - T * dlnActCoeffdT_Scaled_[k];
     }
     /*
