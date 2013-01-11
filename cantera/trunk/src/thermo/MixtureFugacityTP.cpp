@@ -1200,41 +1200,38 @@ doublereal MixtureFugacityTP::calculatePsat(doublereal TKelvin, doublereal& mola
         }
 
         if (foundGas && foundLiquid) {
-            if (presGas == presLiquid) {
-                pres = presGas;
-                goto startIteration;
-            }
-            pres = 0.5 * (presLiquid + presGas);
-            bool goodLiq;
-            bool goodGas;
-            for (int i = 0; i < 50; i++) {
+            if (presGas != presLiquid) {
+                pres = 0.5 * (presLiquid + presGas);
+                bool goodLiq;
+                bool goodGas;
+                for (int i = 0; i < 50; i++) {
 
-                doublereal  densLiquid = densityCalc(TKelvin, pres, FLUID_LIQUID_0, RhoLiquidGood);
-                if (densLiquid <= 0.0) {
-                    goodLiq = false;
-                } else {
-                    goodLiq = true;
-                    RhoLiquidGood = densLiquid;
-                    presLiquid = pres;
+                    doublereal  densLiquid = densityCalc(TKelvin, pres, FLUID_LIQUID_0, RhoLiquidGood);
+                    if (densLiquid <= 0.0) {
+                        goodLiq = false;
+                    } else {
+                        goodLiq = true;
+                        RhoLiquidGood = densLiquid;
+                        presLiquid = pres;
+                    }
+                    doublereal  densGas = densityCalc(TKelvin, pres, FLUID_GAS, RhoGasGood);
+                    if (densGas <= 0.0) {
+                        goodGas = false;
+                    } else {
+                        goodGas = true;
+                        RhoGasGood = densGas;
+                        presGas = pres;
+                    }
+                    if (goodGas && goodLiq) {
+                        break;
+                    }
+                    if (!goodLiq && !goodGas) {
+                        pres = 0.5 * (pres + presLiquid);
+                    }
+                    if (goodLiq || goodGas) {
+                        pres = 0.5 * (presLiquid + presGas);
+                    }
                 }
-                doublereal  densGas = densityCalc(TKelvin, pres, FLUID_GAS, RhoGasGood);
-                if (densGas <= 0.0) {
-                    goodGas = false;
-                } else {
-                    goodGas = true;
-                    RhoGasGood = densGas;
-                    presGas = pres;
-                }
-                if (goodGas && goodLiq) {
-                    break;
-                }
-                if (!goodLiq && !goodGas) {
-                    pres = 0.5 * (pres + presLiquid);
-                }
-                if (goodLiq || goodGas) {
-                    pres = 0.5 * (presLiquid + presGas);
-                }
-
             }
         }
         if (!foundGas || !foundLiquid) {
@@ -1246,7 +1243,6 @@ doublereal MixtureFugacityTP::calculatePsat(doublereal TKelvin, doublereal& mola
             return (0.0);
         }
 
-startIteration:
         pres = presGas;
         presLast = pres;
         RhoGas = RhoGasGood;
