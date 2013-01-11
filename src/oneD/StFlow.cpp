@@ -1101,52 +1101,52 @@ void StFlow::restore(const XML_Node& dom, doublereal* soln, int loglevel)
         getFloatArray(fa,x,false);
         if (nm == "u") {
             writelog("axial velocity   ", loglevel >= 2);
-            if (x.size() == np) {
-                for (j = 0; j < np; j++) {
-                    soln[index(0,j)] = x[j];
-                }
-            } else {
-                goto error;
+            if (x.size() != np) {
+                throw CanteraError("StFlow::restore",
+                                   "axial velocity array size error");
+            }
+            for (j = 0; j < np; j++) {
+                soln[index(0,j)] = x[j];
             }
         } else if (nm == "z") {
             ;   // already read grid
         } else if (nm == "V") {
             writelog("radial velocity   ", loglevel >= 2);
-            if (x.size() == np) {
-                for (j = 0; j < np; j++) {
-                    soln[index(1,j)] = x[j];
-                }
-            } else {
-                goto error;
+            if (x.size() != np) {
+                throw CanteraError("StFlow::restore",
+                                   "radial velocity array size error");
+            }
+            for (j = 0; j < np; j++) {
+                soln[index(1,j)] = x[j];
             }
         } else if (nm == "T") {
             writelog("temperature   ", loglevel >= 2);
-            if (x.size() == np) {
-                for (j = 0; j < np; j++) {
-                    soln[index(2,j)] = x[j];
-                }
-
-                // For fixed-temperature simulations, use the
-                // imported temperature profile by default.  If
-                // this is not desired, call setFixedTempProfile
-                // *after* restoring the solution.
-
-                vector_fp zz(np);
-                for (size_t jj = 0; jj < np; jj++) {
-                    zz[jj] = (grid(jj) - zmin())/(zmax() - zmin());
-                }
-                setFixedTempProfile(zz, x);
-            } else {
-                goto error;
+            if (x.size() != np) {
+                throw CanteraError("StFlow::restore",
+                                   "temperature array size error");
             }
+            for (j = 0; j < np; j++) {
+                soln[index(2,j)] = x[j];
+            }
+
+            // For fixed-temperature simulations, use the
+            // imported temperature profile by default.  If
+            // this is not desired, call setFixedTempProfile
+            // *after* restoring the solution.
+
+            vector_fp zz(np);
+            for (size_t jj = 0; jj < np; jj++) {
+                zz[jj] = (grid(jj) - zmin())/(zmax() - zmin());
+            }
+            setFixedTempProfile(zz, x);
         } else if (nm == "L") {
             writelog("lambda   ", loglevel >= 2);
-            if (x.size() == np) {
-                for (j = 0; j < np; j++) {
-                    soln[index(3,j)] = x[j];
-                }
-            } else {
-                goto error;
+            if (x.size() != np) {
+                throw CanteraError("StFlow::restore",
+                                   "lambda arary size error");
+            }
+            for (j = 0; j < np; j++) {
+                soln[index(3,j)] = x[j];
             }
         } else if (m_thermo->speciesIndex(nm) != npos) {
             writelog(nm+"   ", loglevel >= 2);
@@ -1182,10 +1182,6 @@ void StFlow::restore(const XML_Node& dom, doublereal* soln, int loglevel)
             }
         }
     }
-
-    return;
-error:
-    throw CanteraError("StFlow::restore","Data size error");
 }
 
 
