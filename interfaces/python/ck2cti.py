@@ -35,8 +35,6 @@ import types
 import os.path
 import numpy as np
 
-################################################################################
-
 UNIT_OPTIONS = {'CAL/': 'cal/mol',
                 'CAL/MOL': 'cal/mol',
                 'CAL/MOLE': 'cal/mol',
@@ -64,7 +62,6 @@ PROCESSED_UNITS = False
 ENERGY_UNITS = 'cal/mol'
 QUANTITY_UNITS = 'mol'
 
-################################################################################
 
 class InputParseError(Exception):
     """
@@ -74,7 +71,6 @@ class InputParseError(Exception):
     """
     pass
 
-################################################################################
 
 class Species(object):
     def __init__(self, label):
@@ -110,7 +106,6 @@ class Species(object):
 
         return '\n'.join(lines)
 
-################################################################################
 
 class ThermoModel(object):
     """
@@ -138,7 +133,6 @@ class ThermoModel(object):
             self.Tmax = None
         self.comment = comment
 
-################################################################################
 
 class NASA(ThermoModel):
     """
@@ -180,7 +174,6 @@ class NASA(ThermoModel):
 
         return '\n'.join(lines)
 
-################################################################################
 
 class MultiNASA(ThermoModel):
     """
@@ -207,7 +200,6 @@ class MultiNASA(ThermoModel):
 
         return '\n'.join(lines)
 
-################################################################################
 
 class Reaction(object):
     """
@@ -230,8 +222,8 @@ class Reaction(object):
     def __init__(self, index=-1, reactants=None, products=None, kinetics=None,
                  reversible=True, duplicate=False, fwdOrders=None):
         self.index = index
-        self.reactants = reactants # list of (stoichiometry, species) tuples
-        self.products = products # list of (stoichiometry, specis) tuples
+        self.reactants = reactants  # list of (stoichiometry, species) tuples
+        self.products = products  # list of (stoichiometry, specis) tuples
         self.kinetics = kinetics
         self.reversible = reversible
         self.duplicate = duplicate
@@ -259,8 +251,7 @@ class Reaction(object):
         """
         Return a string representation of the reaction, in the form 'A + B <=> C + D'.
         """
-        arrow = ' <=> '
-        if not self.reversible: arrow = ' -> '
+        arrow = ' <=> ' if self.reversible else ' -> '
         return arrow.join([self.reactantString, self.productString])
 
     def to_cti(self, indent=0):
@@ -281,7 +272,6 @@ class Reaction(object):
 
         return kinstr
 
-################################################################################
 
 class KineticsModel(object):
     """
@@ -326,7 +316,6 @@ class KineticsModel(object):
         else:
             return ''
 
-################################################################################
 
 class KineticsData(KineticsModel):
     """
@@ -354,7 +343,6 @@ class KineticsData(KineticsModel):
         """
         return False
 
-################################################################################
 
 class Arrhenius(KineticsModel):
     """
@@ -398,7 +386,6 @@ class Arrhenius(KineticsModel):
         rxnstring = reactantstr + arrow + productstr
         return 'reaction({0!r}, {1})'.format(rxnstring, self.rateStr())
 
-################################################################################
 
 class PDepArrhenius(KineticsModel):
     """
@@ -445,7 +432,6 @@ class PDepArrhenius(KineticsModel):
         lines[-1] = lines[-1][:-1] + ')'
         return '\n'.join(lines)
 
-################################################################################
 
 class Chebyshev(KineticsModel):
     """
@@ -512,7 +498,6 @@ class Chebyshev(KineticsModel):
         lines[-1] = lines[-1][:-1] + '])'
         return '\n'.join(lines)
 
-################################################################################
 
 class ThirdBody(KineticsModel):
     """
@@ -561,7 +546,6 @@ class ThirdBody(KineticsModel):
         lines[-1] = lines[-1][:-1] + ')'
         return '\n'.join(lines)
 
-################################################################################
 
 class Lindemann(ThirdBody):
     """
@@ -618,7 +602,6 @@ class Lindemann(ThirdBody):
         lines[-1] = lines[-1][:-1] + ')'
         return '\n'.join(lines)
 
-################################################################################
 
 class Troe(Lindemann):
     """
@@ -706,7 +689,6 @@ class Troe(Lindemann):
         lines[-1] = lines[-1][:-1] + ')'
         return '\n'.join(lines)
 
-################################################################################
 
 class Sri(Lindemann):
     """
@@ -763,7 +745,6 @@ class Sri(Lindemann):
         lines[-1] = lines[-1][:-1] + ')'
         return '\n'.join(lines)
 
-################################################################################
 
 class TransportData(object):
     geometryFlags = ['atom', 'linear', 'nonlinear']
@@ -783,7 +764,7 @@ class TransportData(object):
         self.dipoleMoment = float(dipoleMoment)
         self.polarizability = float(polarizability)
         self.zRot = float(zRot)
-        self.comment = comment or '' # @todo: include this in the CTI
+        self.comment = comment or ''  # @todo: include this in the CTI
 
     def __repr__(self):
         return ('TransportData({label!r}, {geometry!r}, {wellDepth!r}, '
@@ -805,7 +786,6 @@ class TransportData(object):
         lines[-1] = lines[-1][:-1] + ')'
         return '\n'.join(lines)
 
-################################################################################
 
 def fortFloat(s):
     """
@@ -817,7 +797,6 @@ def fortFloat(s):
     s = s.replace('E ', 'E+').replace('e ', 'e+')
     return float(s)
 
-################################################################################
 
 def parseComposition(elements, nElements, width):
     """
@@ -837,6 +816,7 @@ def parseComposition(elements, nElements, width):
         except ValueError:
             pass
     return composition
+
 
 def readThermoEntry(entry, TintDefault):
     """
@@ -886,15 +866,16 @@ def readThermoEntry(entry, TintDefault):
 
     # Construct and return the thermodynamics model
     thermo = MultiNASA(
-        polynomials = [
+        polynomials=[
             NASA(Tmin=(Tmin,"K"), Tmax=(Tint,"K"), coeffs=coeffs_low),
             NASA(Tmin=(Tint,"K"), Tmax=(Tmax,"K"), coeffs=coeffs_high)
         ],
-        Tmin = (Tmin,"K"),
-        Tmax = (Tmax,"K"),
+        Tmin=(Tmin,"K"),
+        Tmax=(Tmax,"K"),
     )
 
     return species, thermo, composition, note
+
 
 def readNasa9Entry(entry):
     """
@@ -933,7 +914,7 @@ def readNasa9Entry(entry):
             polys.append(NASA(Tmin=(Tmin,"K"), Tmax=(Tmax,"K"), coeffs=coeffs))
             totalTmin = min(Tmin, totalTmin)
             totalTmax = max(Tmax, totalTmax)
-    except (IndexError, ValueError) as err:
+    except (IndexError, ValueError):
         raise InputParseError('Error while reading thermo entry for species {0}'.format(species))
 
     thermo = MultiNASA(polynomials=polys,
@@ -941,7 +922,7 @@ def readNasa9Entry(entry):
                        Tmax=(totalTmax,"K"))
 
     return species, thermo, composition, note
-################################################################################
+
 
 def readKineticsEntry(entry, speciesDict, energyUnits, moleculeUnits):
     """
@@ -974,10 +955,10 @@ def readKineticsEntry(entry, speciesDict, energyUnits, moleculeUnits):
     else:
         raise InputParseError("Failed to find reactant/product delimiter in reaction string.")
 
-    if '(+M)' in reactants: reactants = reactants.replace('(+M)','')
-    if '(+m)' in reactants: reactants = reactants.replace('(+m)','')
-    if '(+M)' in products:  products = products.replace('(+M)','')
-    if '(+m)' in products:  products = products.replace('(+m)','')
+    reactants = reactants.replace('(+M)','')
+    reactants = reactants.replace('(+m)','')
+    products = products.replace('(+M)','')
+    products = products.replace('(+m)','')
 
     # Create a new Reaction object for this reaction
     reaction = Reaction(reactants=[], products=[], reversible=reversible)
@@ -1030,10 +1011,10 @@ def readKineticsEntry(entry, speciesDict, energyUnits, moleculeUnits):
     #tokens = lines[0][52:].split()
     tokens = lines[0].split()[1:]
     arrheniusHigh = Arrhenius(
-        A = (A,kunits),
-        n = n,
-        Ea = (Ea, energyUnits),
-        T0 = (1,"K"),
+        A=(A,kunits),
+        n=n,
+        Ea=(Ea, energyUnits),
+        T0=(1,"K"),
     )
 
     if len(lines) == 1:
@@ -1060,10 +1041,10 @@ def readKineticsEntry(entry, speciesDict, energyUnits, moleculeUnits):
                 # Low-pressure-limit Arrhenius parameters
                 tokens = tokens[1].split()
                 arrheniusLow = Arrhenius(
-                    A = (float(tokens[0].strip()),klow_units),
-                    n = float(tokens[1].strip()),
-                    Ea = (float(tokens[2].strip()),"kcal/mol"),
-                    T0 = (1,"K"),
+                    A=(float(tokens[0].strip()),klow_units),
+                    n=float(tokens[1].strip()),
+                    Ea=(float(tokens[2].strip()),"kcal/mol"),
+                    T0=(1,"K"),
                 )
 
             elif 'rev' in line.lower():
@@ -1075,10 +1056,10 @@ def readKineticsEntry(entry, speciesDict, energyUnits, moleculeUnits):
                                        reversible=False)
                 tokens = tokens[1].split()
                 revReaction.kinetics = Arrhenius(
-                    A = (float(tokens[0].strip()),klow_units),
-                    n = float(tokens[1].strip()),
-                    Ea = (float(tokens[2].strip()),"kcal/mol"),
-                    T0 = (1,"K"),
+                    A=(float(tokens[0].strip()),klow_units),
+                    n=float(tokens[1].strip()),
+                    Ea=(float(tokens[2].strip()),"kcal/mol"),
+                    T0=(1,"K"),
                 )
 
             elif 'ford' in line.lower():
@@ -1097,10 +1078,10 @@ def readKineticsEntry(entry, speciesDict, energyUnits, moleculeUnits):
                     T2 = None
 
                 troe = Troe(
-                    alpha = (alpha,''),
-                    T3 = (T3,"K"),
-                    T1 = (T1,"K"),
-                    T2 = (T2,"K") if T2 is not None else None,
+                    alpha=(alpha,''),
+                    T3=(T3,"K"),
+                    T1=(T1,"K"),
+                    T2=(T2,"K") if T2 is not None else None,
                 )
             elif 'sri' in line.lower():
                 # SRI falloff parameters
@@ -1152,10 +1133,10 @@ def readKineticsEntry(entry, speciesDict, energyUnits, moleculeUnits):
                     pdepArrhenius = []
                 tokens = tokens[1].split()
                 pdepArrhenius.append([float(tokens[0].strip()), Arrhenius(
-                    A = (float(tokens[1].strip()),kunits),
-                    n = float(tokens[2].strip()),
-                    Ea = (float(tokens[3].strip()),"kcal/mol"),
-                    T0 = (1,"K"),
+                    A=(float(tokens[1].strip()),kunits),
+                    n=float(tokens[2].strip()),
+                    Ea=(float(tokens[3].strip()),"kcal/mol"),
+                    T0=(1,"K"),
                 )])
 
             else:
@@ -1178,8 +1159,8 @@ def readKineticsEntry(entry, speciesDict, energyUnits, moleculeUnits):
             reaction.kinetics = chebyshev
         elif pdepArrhenius is not None:
             reaction.kinetics = PDepArrhenius(
-                pressures = ([P for P, arrh in pdepArrhenius],"atm"),
-                arrhenius = [arrh for P, arrh in pdepArrhenius],
+                pressures=([P for P, arrh in pdepArrhenius],"atm"),
+                arrhenius=[arrh for P, arrh in pdepArrhenius],
             )
         elif troe is not None:
             troe.arrheniusHigh = arrheniusHigh
@@ -1202,7 +1183,6 @@ def readKineticsEntry(entry, speciesDict, energyUnits, moleculeUnits):
 
     return reaction, revReaction
 
-################################################################################
 
 def loadChemkinFile(path, speciesList=None):
     """
@@ -1289,7 +1269,7 @@ def loadChemkinFile(path, speciesList=None):
                             s = line.split()
                             float(s[0]), float(s[1]), float(s[2])
                             continue
-                        except IndexError, ValueError:
+                        except (IndexError, ValueError):
                             pass
 
                     if entryPosition == 0:
@@ -1313,7 +1293,6 @@ def loadChemkinFile(path, speciesList=None):
                         entry = []
 
                     entryPosition += 1
-
 
             elif 'THERM' in line:
                 # List of thermodynamics (hopefully one per species!)
@@ -1366,7 +1345,8 @@ def loadChemkinFile(path, speciesList=None):
 
                     lineStartsWithComment = line.startswith('!')
                     line, comment = removeCommentFromLine(line)
-                    line = line.strip(); comment = comment.strip()
+                    line = line.strip()
+                    comment = comment.strip()
 
                     if '=' in line and not lineStartsWithComment:
                         # Finish previous record
@@ -1375,8 +1355,10 @@ def loadChemkinFile(path, speciesList=None):
                         kinetics = ''
                         comments = ''
 
-                    if line: kinetics += line + '\n'
-                    if comment: comments += comment + '\n'
+                    if line:
+                        kinetics += line + '\n'
+                    if comment:
+                        comments += comment + '\n'
 
                     line = f.readline()
 
@@ -1443,7 +1425,6 @@ def loadChemkinFile(path, speciesList=None):
 
     return elementList, speciesList, reactionList
 
-################################################################################
 
 def parseTransportData(lines, speciesList):
     """
@@ -1472,7 +1453,6 @@ def parseTransportData(lines, speciesList):
                 raise InputParseError('Duplicate transport data given for species "{0}".'.format(speciesName))
             speciesDict[speciesName].transport = TransportData(*data)
 
-################################################################################
 
 def writeCTI(elements,
              species,
@@ -1547,7 +1527,6 @@ def writeCTI(elements,
     f = open(outName, 'w')
     f.write('\n'.join(lines))
 
-################################################################################
 
 def showHelp():
     print """
@@ -1569,7 +1548,6 @@ Example:
 
 """
 
-################################################################################
 
 def convertMech(inputFile, thermoFile=None,
                 transportFile=None, phaseName='gas',
@@ -1601,7 +1579,6 @@ def convertMech(inputFile, thermoFile=None,
         print 'Wrote CTI mechanism file to {0!r}.'.format(outName)
         print 'Mechanism contains {0} species and {1} reactions.'.format(len(species), len(reactions))
 
-################################################################################
 
 if __name__ == '__main__':
     import getopt
