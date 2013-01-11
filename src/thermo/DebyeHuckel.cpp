@@ -657,7 +657,6 @@ getMolalityActivityCoefficients(doublereal* acMolality) const
 void DebyeHuckel::getChemPotentials(doublereal* mu) const
 {
     double xx;
-    const double xxSmall = 1.0E-150;
     /*
      * First get the standard chemical potentials in
      * molar form.
@@ -674,11 +673,11 @@ void DebyeHuckel::getChemPotentials(doublereal* mu) const
     double xmolSolvent = moleFraction(m_indexSolvent);
     for (size_t k = 0; k < m_kk; k++) {
         if (m_indexSolvent != k) {
-            xx = std::max(m_molalities[k], xxSmall);
+            xx = std::max(m_molalities[k], SmallNumber);
             mu[k] += RT * (log(xx) + m_lnActCoeffMolal[k]);
         }
     }
-    xx = std::max(xmolSolvent, xxSmall);
+    xx = std::max(xmolSolvent, SmallNumber);
     mu[m_indexSolvent] +=
         RT * (log(xx) + m_lnActCoeffMolal[m_indexSolvent]);
 }

@@ -25,12 +25,6 @@
 #include <iostream>
 using namespace std;
 
-/**
- * Mole fractions below MIN_X will be set to MIN_X when computing
- * transport properties.
- */
-#define MIN_X 1.e-20
-
 namespace Cantera
 {
 
@@ -578,7 +572,7 @@ void MultiTransport::update_C()
     // add an offset to avoid a pure species condition
     // (check - this may be unnecessary)
     for (size_t k = 0; k < m_nsp; k++) {
-        m_molefracs[k] = std::max(MIN_X, m_molefracs[k]);
+        m_molefracs[k] = std::max(Tiny, m_molefracs[k]);
     }
 }
 

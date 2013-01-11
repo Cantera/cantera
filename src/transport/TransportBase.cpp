@@ -16,13 +16,6 @@
 #include <iostream>
 using namespace std;
 
-/**
- * Mole fractions below MIN_X will be set to MIN_X when computing
- * transport properties.
- */
-#define MIN_X 1.e-20
-
-
 namespace Cantera
 {
 

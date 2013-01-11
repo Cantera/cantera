@@ -20,12 +20,6 @@
 
 using namespace std;
 
-/**
- * Mole fractions below MIN_X will be set to MIN_X when computing
- * transport properties.
- */
-#define MIN_X 1.e-20
-
 namespace Cantera
 {
 
@@ -512,10 +506,10 @@ void AqueousTransport::update_C()
     m_thermo->getMoleFractions(DATA_PTR(m_molefracs));
 
     // add an offset to avoid a pure species condition or
-    // negative mole fractions. MIN_X is 1.0E-20, a value
+    // negative mole fractions. *Tiny* is 1.0E-20, a value
     // which is below the additive machine precision of mole fractions.
     for (size_t k = 0; k < m_nsp; k++) {
-        m_molefracs[k] = std::max(MIN_X, m_molefracs[k]);
+        m_molefracs[k] = std::max(Tiny, m_molefracs[k]);
     }
 }
 //====================================================================================================================
