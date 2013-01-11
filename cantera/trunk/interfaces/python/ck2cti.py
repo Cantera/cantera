@@ -36,7 +36,13 @@ import os.path
 import numpy as np
 import re
 
-UNIT_OPTIONS = {'CAL/': 'cal/mol',
+QUANTITY_UNITS = {'MOL': 'mol',
+                  'MOLE': 'mol',
+                  'MOLES': 'mol',
+                  'MOLEC': 'molec',
+                  'MOLECULES': 'molec'}
+
+ENERGY_UNITS = {'CAL/': 'cal/mol',
                 'CAL/MOL': 'cal/mol',
                 'CAL/MOLE': 'cal/mol',
                 'EVOL': 'eV',
@@ -52,12 +58,16 @@ UNIT_OPTIONS = {'CAL/': 'cal/mol',
                 'KELVINS': 'K',
                 'KJOU': 'kJ/mol',
                 'KJOULES/MOL': 'kJ/mol',
-                'KJOULES/MOLE': 'kJ/mol',
-                'MOL': 'mol',
-                'MOLE': 'mol',
-                'MOLES': 'mol',
-                'MOLEC': 'molec',
-                'MOLECULES': 'molec'}
+                'KJOULES/MOLE': 'kJ/mol'}
+
+
+def compatible_quantities(quantity_basis, units):
+    if quantity_basis == 'mol':
+        return 'molec' not in units
+    elif quantity_basis == 'molec':
+        return 'molec' in units or 'mol' not in units
+    else:
+        raise Exception('Unknown quantity basis: "{0}"'.format(quantity_basis))
 
 
 class InputParseError(Exception):
@@ -291,12 +301,14 @@ class KineticsModel(object):
 
     """
 
-    def __init__(self, Tmin=None, Tmax=None, Pmin=None, Pmax=None, comment=''):
+    def __init__(self, Tmin=None, Tmax=None, Pmin=None, Pmax=None, comment='',
+                 parser=None):
         self.Tmin = Tmin
         self.Tmax = Tmax
         self.Pmin = Pmin
         self.Pmax = Pmax
         self.comment = comment
+        self.parser = parser
 
     def isPressureDependent(self):
         """
@@ -381,7 +393,17 @@ class Arrhenius(KineticsModel):
         return False
 
     def rateStr(self):
-        return '[{0.A[0]:e}, {0.n}, {0.Ea[0]}]'.format(self)
+        if compatible_quantities(self.parser.quantity_units, self.A[1]):
+            A = '{0:e}'.format(self.A[0])
+        else:
+            A = "({0:e}, '{1}')".format(*self.A)
+
+        if self.Ea[1] == self.parser.energy_units:
+            Ea = str(self.Ea[0])
+        else:
+            Ea = "({0}, '{1}')".format(*self.Ea)
+
+        return '[{0}, {1}, {2}]'.format(A, self.n, Ea)
 
     def to_cti(self, reactantstr, arrow, productstr, indent=0):
         rxnstring = reactantstr + arrow + productstr
@@ -823,6 +845,26 @@ class Parser(object):
                 pass
         return composition
 
+    def getRateConstantUnits(self, length_dims, length_units, quantity_dims,
+                             quantity_units, time_dims=1, time_units='s'):
+
+        units = ''
+        if length_dims:
+            units += length_units
+        if length_dims > 1:
+            units += str(length_dims)
+        if quantity_dims:
+            units += '/' + quantity_units
+        if quantity_dims > 1:
+            units += str(quantity_dims)
+        if time_dims:
+            units += '/' + time_units
+        if time_dims > 1:
+            units += str(time_dims)
+        if units.startswith('/'):
+            units = '1' + units
+        return units
+
     def readThermoEntry(self, entry, TintDefault):
         """
         Read a thermodynamics `entry` for one species in a Chemkin-format file
@@ -934,6 +976,28 @@ class Parser(object):
         reaction and its associated kinetics.
         """
 
+        # Handle non-default units which apply to this entry
+        energy_units = self.energy_units
+        quantity_units = self.quantity_units
+        if 'units' in entry.lower():
+            for units in sorted(QUANTITY_UNITS, key=lambda k: -len(k)):
+                m = re.search(r'units *\/ *%s *\/' % re.escape(units),
+                              entry, re.IGNORECASE)
+                if m:
+                    entry = re.sub(r'units *\/ *%s *\/' % re.escape(units), '',
+                                   entry, flags=re.IGNORECASE)
+                    quantity_units = QUANTITY_UNITS[units]
+                    break
+
+            for units in sorted(ENERGY_UNITS, key=lambda k: -len(k)):
+                m = re.search(r'units *\/ *%s *\/' % re.escape(units),
+                              entry, re.IGNORECASE)
+                if m:
+                    entry = re.sub(r'units *\/ *%s *\/' % re.escape(units), '',
+                                   entry, flags=re.IGNORECASE)
+                    energy_units = ENERGY_UNITS[units]
+                    break
+
         lines = entry.strip().splitlines()
 
         # The first line contains the reaction equation and a set of modified Arrhenius parameters
@@ -1013,17 +1077,15 @@ class Parser(object):
         # Determine the appropriate units for k(T) and k(T,P) based on the number of reactants
         # This assumes elementary kinetics for all reactions
         rStoich = sum(r[0] for r in reaction.reactants) + (1 if thirdBody else 0)
-        if rStoich == 3:
-            kunits = "cm^6/(mol^2*s)"
-            klow_units = "cm^9/(mol^3*s)"
-        elif rStoich == 2:
-            kunits = "cm^3/(mol*s)"
-            klow_units = "cm^6/(mol^2*s)"
-        elif rStoich == 1:
-            kunits = "s^-1"
-            klow_units = "cm^3/(mol*s)"
-        else:
+        if rStoich > 3 or rStoich < 1:
             raise InputParseError('Invalid number of reactant species ({0}) for reaction {1}.'.format(rStoich, reaction))
+
+        length_dim = 3 * (rStoich - 1)
+        quantity_dim = rStoich - 1
+        kunits = self.getRateConstantUnits(length_dim, 'cm',
+                                           quantity_dim, quantity_units)
+        klow_units = self.getRateConstantUnits(length_dim + 3, 'cm',
+                                               quantity_dim + 1, quantity_units)
 
         # The rest of the first line contains the high-P limit Arrhenius parameters (if available)
         #tokens = lines[0][52:].split()
@@ -1031,8 +1093,9 @@ class Parser(object):
         arrheniusHigh = Arrhenius(
             A=(A,kunits),
             n=n,
-            Ea=(Ea, self.energy_units),
+            Ea=(Ea, energy_units),
             T0=(1,"K"),
+            parser=self
         )
 
         if len(lines) == 1:
@@ -1061,8 +1124,9 @@ class Parser(object):
                     arrheniusLow = Arrhenius(
                         A=(float(tokens[0].strip()),klow_units),
                         n=float(tokens[1].strip()),
-                        Ea=(float(tokens[2].strip()),"kcal/mol"),
+                        Ea=(float(tokens[2].strip()),energy_units),
                         T0=(1,"K"),
+                        parser=self
                     )
 
                 elif 'rev' in line.lower():
@@ -1076,8 +1140,9 @@ class Parser(object):
                     revReaction.kinetics = Arrhenius(
                         A=(float(tokens[0].strip()),klow_units),
                         n=float(tokens[1].strip()),
-                        Ea=(float(tokens[2].strip()),"kcal/mol"),
+                        Ea=(float(tokens[2].strip()),energy_units),
                         T0=(1,"K"),
+                        parser=self
                     )
 
                 elif 'ford' in line.lower():
@@ -1100,6 +1165,7 @@ class Parser(object):
                         T3=(T3,"K"),
                         T1=(T1,"K"),
                         T2=(T2,"K") if T2 is not None else None,
+                        parser=self
                     )
                 elif 'sri' in line.lower():
                     # SRI falloff parameters
@@ -1115,9 +1181,9 @@ class Parser(object):
                         E = None
 
                     if D is None or E is None:
-                        sri = Sri(A=A, B=B, C=C)
+                        sri = Sri(A=A, B=B, C=C, parser=self)
                     else:
-                        sri = Sri(A=A, B=B, C=C, D=D, E=E)
+                        sri = Sri(A=A, B=B, C=C, D=D, E=E, parser=self)
 
                 elif 'cheb' in line.lower():
                     # Chebyshev parameters
@@ -1153,10 +1219,10 @@ class Parser(object):
                     pdepArrhenius.append([float(tokens[0].strip()), Arrhenius(
                         A=(float(tokens[1].strip()),kunits),
                         n=float(tokens[2].strip()),
-                        Ea=(float(tokens[3].strip()),"kcal/mol"),
+                        Ea=(float(tokens[3].strip()),energy_units),
                         T0=(1,"K"),
+                        parser=self
                     )])
-
                 else:
                     # Assume a list of collider efficiencies
                     for collider, efficiency in zip(tokens[0::2], tokens[1::2]):
@@ -1179,6 +1245,7 @@ class Parser(object):
                 reaction.kinetics = PDepArrhenius(
                     pressures=([P for P, arrh in pdepArrhenius],"atm"),
                     arrhenius=[arrh for P, arrh in pdepArrhenius],
+                    parser=self
                 )
             elif troe is not None:
                 troe.arrheniusHigh = arrheniusHigh
@@ -1191,10 +1258,13 @@ class Parser(object):
                 sri.efficiencies = efficiencies
                 reaction.kinetics = sri
             elif arrheniusLow is not None:
-                reaction.kinetics = Lindemann(arrheniusHigh=arrheniusHigh, arrheniusLow=arrheniusLow)
+                reaction.kinetics = Lindemann(arrheniusHigh=arrheniusHigh,
+                                              arrheniusLow=arrheniusLow,
+                                              parser=self)
                 reaction.kinetics.efficiencies = efficiencies
             elif thirdBody:
-                reaction.kinetics = ThirdBody(arrheniusHigh=arrheniusHigh)
+                reaction.kinetics = ThirdBody(arrheniusHigh=arrheniusHigh,
+                                              parser=self)
                 reaction.kinetics.efficiencies = efficiencies
             else:
                 reaction.kinetics = arrheniusHigh
@@ -1332,14 +1402,13 @@ class Parser(object):
                     except IndexError:
                         pass
 
-                    #global PROCESSED_UNITS, ENERGY_UNITS, QUANTITY_UNITS
                     if not self.processed_units:
                         self.processed_units = True
-                        self.energy_units = UNIT_OPTIONS[energyUnits]
-                        self.quantity_units = UNIT_OPTIONS[moleculeUnits]
+                        self.energy_units = ENERGY_UNITS[energyUnits]
+                        self.quantity_units = QUANTITY_UNITS[moleculeUnits]
                     else:
-                        if (self.energy_units != UNIT_OPTIONS[energyUnits] or
-                            self.quantity_units != UNIT_OPTIONS[moleculeUnits]):
+                        if (self.energy_units != ENERGY_UNITS[energyUnits] or
+                            self.quantity_units != QUANTITY_UNITS[moleculeUnits]):
                             raise InputParseError("Multiple REACTIONS sections with "
                                                   "different units are not supported.")
 

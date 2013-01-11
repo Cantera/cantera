@@ -22,7 +22,10 @@ class chemkinConverterTest(utilities.CanteraTest):
 
         self.assertEqual(ref.elementNames(), gas.elementNames())
         self.assertEqual(ref.speciesNames(), gas.speciesNames())
-        self.assertTrue((ref.reactantStoichCoeffs() == gas.reactantStoichCoeffs()).all())
+        coeffs_ref = ref.reactantStoichCoeffs()
+        coeffs_gas = gas.reactantStoichCoeffs()
+        self.assertEqual(coeffs_gas.shape, coeffs_ref.shape)
+        self.assertTrue((coeffs_gas == coeffs_ref).all())
 
         compositionA = [[ref.nAtoms(i,j) for j in range(ref.nElements())]
                         for i in range(ref.nSpecies())]
@@ -47,7 +50,7 @@ class chemkinConverterTest(utilities.CanteraTest):
                 self.assertNear(ref_h[i], gas_h[i], 1e-7)
                 self.assertNear(ref_s[i], gas_s[i], 1e-7)
 
-    def checkKinetics(self, ref, gas, temperatures, pressures):
+    def checkKinetics(self, ref, gas, temperatures, pressures, tol=1e-8):
         for T,P in itertools.product(temperatures, pressures):
             ref.set(T=T, P=P)
             gas.set(T=T, P=P)
@@ -56,8 +59,8 @@ class chemkinConverterTest(utilities.CanteraTest):
             gas_kf = gas.fwdRateConstants()
             gas_kr = gas.revRateConstants()
             for i in range(gas.nReactions()):
-                self.assertNear(ref_kf[i], gas_kf[i])
-                self.assertNear(ref_kr[i], gas_kr[i])
+                self.assertNear(ref_kf[i], gas_kf[i], rtol=tol)
+                self.assertNear(ref_kr[i], gas_kr[i], rtol=tol)
 
     def test_gri30(self):
         convertMech('../../data/inputs/gri30.inp',
@@ -148,8 +151,20 @@ class chemkinConverterTest(utilities.CanteraTest):
                                         'explicit-forward-order.cti')
         self.checkKinetics(ref, gas, [300, 800, 1450, 2800], [5e3, 1e5, 2e6])
 
-    def test_transport_normal(self):
+    def test_reaction_units(self):
+        convertMech('../data/units-default.inp',
+                    thermoFile='../data/dummy-thermo.dat',
+                    outName='units-default.cti', quiet=True)
+        convertMech('../data/units-custom.inp',
+                    thermoFile='../data/dummy-thermo.dat',
+                    outName='units-custom.cti', quiet=True)
 
+        default, custom = self.checkConversion('units-default.cti',
+                                               'units-custom.cti')
+        self.checkKinetics(default, custom,
+                           [300, 800, 1450, 2800], [5e3, 1e5, 2e6], 1e-7)
+
+    def test_transport_normal(self):
         convertMech('../../data/inputs/h2o2.inp',
                     transportFile='../../data/transport/gri30_tran.dat',
                     outName='h2o2_transport_normal.cti', quiet=True)
