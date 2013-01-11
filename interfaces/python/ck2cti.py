@@ -62,6 +62,7 @@ UNIT_OPTIONS = {'CAL/': 'cal/mol',
 PROCESSED_UNITS = False
 ENERGY_UNITS = 'cal/mol'
 QUANTITY_UNITS = 'mol'
+WARNING_AS_ERROR = True
 
 
 class InputParseError(Exception):
@@ -71,6 +72,13 @@ class InputParseError(Exception):
     the exceptional behavior.
     """
     pass
+
+
+def warn(message):
+    if WARNING_AS_ERROR:
+        raise InputParseError(message)
+    else:
+        logging.warning(message)
 
 
 class Species(object):
@@ -1295,7 +1303,7 @@ def loadChemkinFile(path, speciesList=None):
                             speciesDict[label].composition = comp
                             speciesDict[label].note = note
                         except KeyError:
-                            logging.warning('Skipping unexpected species "{0}" while reading thermodynamics entry.'.format(label))
+                            logging.info('Skipping unexpected species "{0}" while reading thermodynamics entry.'.format(label))
 
                         entryPosition = -1
                         entry = []
@@ -1318,7 +1326,7 @@ def loadChemkinFile(path, speciesList=None):
                                 speciesDict[label].composition = comp
                                 speciesDict[label].note = note
                             except KeyError:
-                                logging.warning('Skipping unexpected species "{0}" while reading thermodynamics entry.'.format(label))
+                                logging.info('Skipping unexpected species "{0}" while reading thermodynamics entry.'.format(label))
                             thermo = ''
                     line = f.readline()
 
@@ -1460,8 +1468,8 @@ def parseTransportData(lines, speciesList):
             if speciesDict[speciesName].transport is None:
                 speciesDict[speciesName].transport = TransportData(*data)
             else:
-                logging.warning('Ignoring duplicate transport data'
-                                ' for species "{0}".'.format(speciesName))
+                warn('Ignoring duplicate transport data'
+                     ' for species "{0}".'.format(speciesName))
 
 
 def writeCTI(elements,
@@ -1542,28 +1550,36 @@ def showHelp():
     print """
 ck2cti.py: Convert Chemkin-format mechanisms to Cantera input files (.cti)
 
-If the output file name is not given, an output file with the same name as the
-input file, with the extension changed to '.cti'.
-
 Usage:
     ck2cti --input=<filename>
            [--thermo=<filename>]
            [--transport=<filename>]
            [--id=<phase-id>]
            [--output=<filename>]
+           [--permissive]
            [-d | --debug]
 
 Example:
     ck2cti --input=chem.inp --thermo=therm.dat --transport=tran.dat
+
+If the output file name is not given, an output file with the same name as the
+input file, with the extension changed to '.cti'.
+
+The '--permissive' option allows certain recoverable parsing errors (e.g.
+duplicate transport data) to be ignored.
 
 """
 
 
 def convertMech(inputFile, thermoFile=None,
                 transportFile=None, phaseName='gas',
-                outName=None, quiet=False):
+                outName=None, quiet=False, permissive=None):
     if quiet:
         logging.basicConfig(level=logging.ERROR)
+
+    if permissive is not None:
+        global WARNING_AS_ERROR
+        WARNING_AS_ERROR = not permissive
 
     # Read input mechanism files
     elements, species, reactions = loadChemkinFile(inputFile)
@@ -1595,7 +1611,7 @@ if __name__ == '__main__':
     import sys
 
     longOptions = ['input=', 'thermo=', 'transport=', 'id=', 'output=',
-                   'help', 'debug']
+                   'permissive', 'help', 'debug']
 
     try:
         optlist, args = getopt.getopt(sys.argv[1:], 'dh', longOptions)
@@ -1629,6 +1645,9 @@ if __name__ == '__main__':
             outName += '.cti'
     else:
         outName = None
+
+    if '--permissive' in options:
+        WARNING_AS_ERROR = False
 
     thermoFile = options.get('--thermo')
     transportFile = options.get('--transport')
