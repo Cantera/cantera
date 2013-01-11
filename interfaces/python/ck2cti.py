@@ -151,8 +151,8 @@ class NASA(ThermoModel):
     For the 7 coefficient form, the first two coefficients are taken to be zero.
     """
 
-    def __init__(self, coeffs, Tmin=None, Tmax=None, comment=''):
-        ThermoModel.__init__(self, Tmin=Tmin, Tmax=Tmax, comment=comment)
+    def __init__(self, coeffs, **kwargs):
+        ThermoModel.__init__(self, **kwargs)
         if len(coeffs) not in (7,9):
             raise InputParseError('Invalid number of NASA polynomial coefficients; '
                                   'should be 7 or 9.')
@@ -183,8 +183,8 @@ class MultiNASA(ThermoModel):
     contains the desired temperature within its valid range will be used.
     """
 
-    def __init__(self, polynomials=None, Tmin=0.0, Tmax=0.0, comment=''):
-        ThermoModel.__init__(self, Tmin=Tmin, Tmax=Tmax, comment=comment)
+    def __init__(self, polynomials=None, **kwargs):
+        ThermoModel.__init__(self, **kwargs)
         self.polynomials = polynomials or []
 
     def to_cti(self, indent=0):
@@ -331,8 +331,8 @@ class KineticsData(KineticsModel):
 
     """
 
-    def __init__(self, Tdata=None, kdata=None, Tmin=None, Tmax=None, comment=''):
-        KineticsModel.__init__(self, Tmin=Tmin, Tmax=Tmax, comment=comment)
+    def __init__(self, Tdata=None, kdata=None, **kwargs):
+        KineticsModel.__init__(self, **kwargs)
         self.Tdata = Tdata
         self.kdata = kdata
 
@@ -366,8 +366,8 @@ class Arrhenius(KineticsModel):
 
     """
 
-    def __init__(self, A=0.0, n=0.0, Ea=0.0, T0=1.0, Tmin=None, Tmax=None, comment=''):
-        KineticsModel.__init__(self, Tmin=Tmin, Tmax=Tmax, comment=comment)
+    def __init__(self, A=0.0, n=0.0, Ea=0.0, T0=1.0, **kwargs):
+        KineticsModel.__init__(self, **kwargs)
         self.A = A
         self.T0 = T0
         self.n = n
@@ -408,8 +408,8 @@ class PDepArrhenius(KineticsModel):
     Note that `highPlimit` is not used in evaluating k(T,P).
     """
 
-    def __init__(self, pressures=None, arrhenius=None, highPlimit=None, Tmin=None, Tmax=None, Pmin=None, Pmax=None, comment=''):
-        KineticsModel.__init__(self, Tmin=Tmin, Tmax=Tmax, Pmin=Pmin, Pmax=Pmax, comment=comment)
+    def __init__(self, pressures=None, arrhenius=None, highPlimit=None, **kwargs):
+        KineticsModel.__init__(self, **kwargs)
         self.pressures = pressures
         self.arrhenius = arrhenius or []
         self.highPlimit = highPlimit or None
@@ -463,8 +463,8 @@ class Chebyshev(KineticsModel):
 
     """
 
-    def __init__(self, coeffs=None, kunits='', Tmin=None, Tmax=None, Pmin=None, Pmax=None, comment=''):
-        KineticsModel.__init__(self, Tmin=Tmin, Tmax=Tmax, Pmin=Pmin, Pmax=Pmax, comment=comment)
+    def __init__(self, coeffs=None, kunits='', **kwargs):
+        KineticsModel.__init__(self, **kwargs)
         if coeffs is not None:
             self.coeffs = np.array(coeffs, np.float64)
             self.degreeT = self.coeffs.shape[0]
@@ -522,8 +522,8 @@ class ThirdBody(KineticsModel):
 
     """
 
-    def __init__(self, arrheniusHigh=None, efficiencies=None, Tmin=None, Tmax=None, Pmin=None, Pmax=None, comment=''):
-        KineticsModel.__init__(self, Tmin=Tmin, Tmax=Tmax, Pmin=Pmin, Pmax=Pmax, comment=comment)
+    def __init__(self, arrheniusHigh=None, efficiencies=None, **kwargs):
+        KineticsModel.__init__(self, **kwargs)
         self.arrheniusHigh = arrheniusHigh
         self.efficiencies = {}
         if efficiencies is not None:
@@ -583,11 +583,8 @@ class Lindemann(ThirdBody):
 
     """
 
-    def __init__(self, arrheniusLow=None, arrheniusHigh=None, efficiencies=None,
-                 Tmin=None, Tmax=None, Pmin=None, Pmax=None, comment=''):
-        ThirdBody.__init__(self, arrheniusHigh=arrheniusHigh,
-                           efficiencies=efficiencies, Tmin=Tmin, Tmax=Tmax,
-                           Pmin=Pmin, Pmax=Pmax, comment=comment)
+    def __init__(self, arrheniusLow=None, **kwargs):
+        ThirdBody.__init__(self, **kwargs)
         self.arrheniusLow = arrheniusLow
 
     def to_cti(self, reactantstr, arrow, productstr, indent=0):
@@ -657,13 +654,8 @@ class Troe(Lindemann):
 
     """
 
-    def __init__(self, arrheniusLow=None, arrheniusHigh=None, efficiencies=None,
-                 alpha=0.0, T3=0.0, T1=0.0, T2=None, Tmin=None, Tmax=None,
-                 Pmin=None, Pmax=None, comment=''):
-        Lindemann.__init__(self, arrheniusLow=arrheniusLow,
-                           arrheniusHigh=arrheniusHigh,
-                           efficiencies=efficiencies, Tmin=Tmin, Tmax=Tmax,
-                           Pmin=Pmin, Pmax=Pmax, comment=comment)
+    def __init__(self, alpha=0.0, T3=0.0, T1=0.0, T2=None, **kwargs):
+        Lindemann.__init__(self, **kwargs)
         self.alpha = alpha
         self.T3 = T3
         self.T1 = T1
@@ -712,13 +704,8 @@ class Sri(Lindemann):
     =============== ======================= ====================================
     """
 
-    def __init__(self, arrheniusLow=None, arrheniusHigh=None, efficiencies=None,
-                 A=0.0, B=0.0, C=0.0, D=1.0, E=0.0,
-                 Tmin=None, Tmax=None, Pmin=None, Pmax=None, comment=''):
-        Lindemann.__init__(self, arrheniusLow=arrheniusLow,
-                           arrheniusHigh=arrheniusHigh,
-                           efficiencies=efficiencies, Tmin=Tmin, Tmax=Tmax,
-                           Pmin=Pmin, Pmax=Pmax, comment=comment)
+    def __init__(self, A=0.0, B=0.0, C=0.0, D=1.0, E=0.0, **kwargs):
+        Lindemann.__init__(self, **kwargs)
         self.A = A
         self.B = B
         self.C = C
