@@ -66,8 +66,9 @@ def collect():
     # Filter to remove non-Cantera code
     subprocess.call(['lcov',
                      '-o', 'coverage.info',
-                     '-r', 'coverage-raw.info',
-                     '/usr/include/*', '*/ext/*'])
+                     '-e', 'coverage-raw.info',
+                     os.getcwd() + '/include/*',
+                     os.getcwd() + '/src/*'])
     os.remove('coverage-raw.info')
 
 def genhtml():

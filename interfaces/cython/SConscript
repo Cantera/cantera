@@ -84,6 +84,9 @@ if localenv['OS'] == 'Windows':
         compilerOpt = ' --compiler=mingw32'
 else:
     compilerOpt = ''
+    if '-fprofile-arcs' in localenv['CCFLAGS']:
+        localenv['py_extra_compiler_args'] = repr(['-fprofile-arcs', '-ftest-coverage'])
+        localenv['py_extra_link_args'] = repr(['-fprofile-arcs', '-ftest-coverage'])
 
 dataFiles = localenv.RecursiveInstall('#interfaces/cython/cantera/data',
                                       '#build/data')
