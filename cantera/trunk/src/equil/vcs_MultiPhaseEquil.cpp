@@ -1451,7 +1451,7 @@ int vcs_Cantera_update_vprob(Cantera::MultiPhase* mphase,
 }
 //====================================================================================================================
 // This routine hasn't been checked yet
-void vcs_MultiPhaseEquil::getStoichVector(index_t rxn, Cantera::vector_fp& nu)
+void vcs_MultiPhaseEquil::getStoichVector(size_t rxn, Cantera::vector_fp& nu)
 {
     size_t nsp = m_vsolvePtr->m_numSpeciesTot;
     nu.resize(nsp, 0.0);

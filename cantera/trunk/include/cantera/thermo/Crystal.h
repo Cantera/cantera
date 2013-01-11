@@ -38,7 +38,7 @@ public:
     /// Return a reference to phase n. The state of phase n is
     /// also updated to match the state stored locally in the
     /// mixture object.
-    LatticePhase& lattice(index_t n) {
+    LatticePhase& lattice(size_t n) {
         return *(LatticePhase*)&phase(n);
     }
 

@@ -270,9 +270,6 @@ int vcs_Cantera_update_vprob(Cantera::MultiPhase* mphase,
 class vcs_MultiPhaseEquil
 {
 public:
-    //! Typedef for an index variable
-    typedef size_t index_t;
-
     //! Default empty constructor
     vcs_MultiPhaseEquil();
 
@@ -330,7 +327,7 @@ public:
      *            Length is equal to the number of species in
      *            the MultiPhase object.
      */
-    void getStoichVector(index_t rxn, Cantera::vector_fp& nu);
+    void getStoichVector(size_t rxn, Cantera::vector_fp& nu);
 
     //! return the number of iterations
     int iterations() const {
