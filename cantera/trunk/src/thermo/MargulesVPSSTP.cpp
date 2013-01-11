@@ -628,7 +628,7 @@ void MargulesVPSSTP::initThermoXML(XML_Node& phaseNode, const std::string& id)
  */
 void MargulesVPSSTP::s_update_lnActCoeff() const
 {
-    size_t iA, iB, iK, delAK, delBK;
+    size_t iA, iB, iK;
     double XA, XB, g0 , g1;
     double T = temperature();
     double invRT = 1.0 / (GasConstant*T);
@@ -663,7 +663,7 @@ void MargulesVPSSTP::s_update_lnActCoeff() const
  */
 void MargulesVPSSTP::s_update_dlnActCoeff_dT() const
 {
-    size_t iA, iB, iK, delAK, delBK;
+    size_t iA, iB, iK;
     doublereal XA, XB, g0, g1;
     doublereal invT = 1.0 / temperature();
     doublereal invRTT = 1.0 / (GasConstant)*invT*invT;
@@ -730,7 +730,7 @@ void  MargulesVPSSTP::getdlnActCoeffds(const doublereal dTds, const doublereal* 
 {
 
 
-    size_t iA, iB, iK, delAK, delBK;
+    size_t iA, iB, iK;
     double XA, XB, g0 , g1, dXA, dXB;
     double T = temperature();
     double RT = GasConstant*T;
