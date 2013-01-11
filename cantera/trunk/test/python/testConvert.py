@@ -7,6 +7,12 @@ import ck2cti
 import utilities
 import Cantera as ct
 
+
+def convertMech(*args, **kwargs):
+    parser = ck2cti.Parser()
+    parser.convertMech(*args, **kwargs)
+
+
 class chemkinConverterTest(utilities.CanteraTest):
     def checkConversion(self, refFile, testFile):
         ref = ct.IdealGasMix(refFile)
@@ -56,9 +62,9 @@ class chemkinConverterTest(utilities.CanteraTest):
         if os.path.exists('gri30_test.cti'):
             os.remove('gri30_test.cti')
 
-        ck2cti.convertMech('../../data/inputs/gri30.inp',
-                           transportFile='../../data/transport/gri30_tran.dat',
-                           outName='gri30_test.cti', quiet=True)
+        convertMech('../../data/inputs/gri30.inp',
+                    transportFile='../../data/transport/gri30_tran.dat',
+                    outName='gri30_test.cti', quiet=True)
 
         ref, gas = self.checkConversion('gri30.xml', 'gri30_test.cti')
         self.checkKinetics(ref, gas, [300, 1500], [5e3, 1e5, 2e6])
@@ -67,9 +73,9 @@ class chemkinConverterTest(utilities.CanteraTest):
         if os.path.exists('soot_test.cti'):
             os.remove('soot_test.cti')
 
-        ck2cti.convertMech('../data/soot.inp',
-                           thermoFile='../data/soot-therm.dat',
-                           outName='soot_test.cti', quiet=True)
+        convertMech('../data/soot.inp',
+                    thermoFile='../data/soot-therm.dat',
+                    outName='soot_test.cti', quiet=True)
 
         ref, gas = self.checkConversion('../data/soot.xml', 'soot_test.cti')
         self.checkThermo(ref, gas, [300, 1100])
@@ -79,8 +85,8 @@ class chemkinConverterTest(utilities.CanteraTest):
         if os.path.exists('pdep_test.cti'):
             os.remove('pdep_test.cti')
 
-        ck2cti.convertMech('../data/pdep-test.inp',
-                           outName='pdep_test.cti', quiet=True)
+        convertMech('../data/pdep-test.inp',
+                    outName='pdep_test.cti', quiet=True)
 
         ref, gas = self.checkConversion('../data/pdep-test.xml', 'pdep_test.cti')
         self.checkKinetics(ref, gas, [300, 800, 1450, 2800], [5e3, 1e5, 2e6])
@@ -91,23 +97,23 @@ class chemkinConverterTest(utilities.CanteraTest):
             os.remove('h2o2_missingElement.cti')
 
         self.assertRaises(ck2cti.InputParseError,
-                          lambda: ck2cti.convertMech('../data/h2o2_missingElement.inp',
-                                                    quiet=True))
+                          lambda: convertMech('../data/h2o2_missingElement.inp',
+                                             quiet=True))
 
     def test_missingThermo(self):
         if os.path.exists('h2o2_missingThermo.cti'):
             os.remove('h2o2_missingThermo.cti')
 
         self.assertRaises(ck2cti.InputParseError,
-                          lambda: ck2cti.convertMech('../data/h2o2_missingThermo.inp',
-                                                    quiet=True))
+                          lambda: convertMech('../data/h2o2_missingThermo.inp',
+                                             quiet=True))
 
     def test_nasa9(self):
         if os.path.exists('nasa9_test.cti'):
             os.remove('nasa9_test.cti')
-        ck2cti.convertMech('../data/nasa9-test.inp',
-                           thermoFile='../data/nasa9-test-therm.dat',
-                           outName='nasa9_test.cti', quiet=True)
+        convertMech('../data/nasa9-test.inp',
+                    thermoFile='../data/nasa9-test-therm.dat',
+                    outName='nasa9_test.cti', quiet=True)
 
         ref, gas = self.checkConversion('../data/nasa9-test.xml',
                                         'nasa9_test.cti')
@@ -116,9 +122,9 @@ class chemkinConverterTest(utilities.CanteraTest):
     def test_sri_falloff(self):
         if os.path.exists('sri-falloff.cti'):
             os.remove('sri-falloff.cti')
-        ck2cti.convertMech('../data/sri-falloff.inp',
-                           thermoFile='../data/dummy-thermo.dat',
-                           outName='sri-falloff.cti', quiet=True)
+        convertMech('../data/sri-falloff.inp',
+                    thermoFile='../data/dummy-thermo.dat',
+                    outName='sri-falloff.cti', quiet=True)
 
         ref, gas = self.checkConversion('../data/sri-falloff.xml',
                                         'sri-falloff.cti')
@@ -127,8 +133,8 @@ class chemkinConverterTest(utilities.CanteraTest):
     def test_explicit_third_bodies(self):
         if os.path.exists('explicit-third-bodies.cti'):
             os.path.remove('explicit-third-bodies.cti')
-        ck2cti.convertMech('../data/explicit-third-bodies.inp',
-                           thermoFile='../data/dummy-thermo.dat', quiet=True)
+        convertMech('../data/explicit-third-bodies.inp',
+                    thermoFile='../data/dummy-thermo.dat', quiet=True)
 
         ref, gas = self.checkConversion('explicit-third-bodies.cti',
                                         '../data/explicit-third-bodies.xml')
@@ -137,9 +143,9 @@ class chemkinConverterTest(utilities.CanteraTest):
     def test_explicit_reverse_rate(self):
         if os.path.exists('explicit-reverse-rate.cti'):
             os.remove('explicit-reverse-rate.cti')
-        ck2cti.convertMech('../data/explicit-reverse-rate.inp',
-                           thermoFile='../data/dummy-thermo.dat',
-                           outName='explicit-reverse-rate.cti', quiet=True)
+        convertMech('../data/explicit-reverse-rate.inp',
+                    thermoFile='../data/dummy-thermo.dat',
+                    outName='explicit-reverse-rate.cti', quiet=True)
         ref, gas = self.checkConversion('../data/explicit-reverse-rate.xml',
                                         'explicit-reverse-rate.cti')
         self.checkKinetics(ref, gas, [300, 800, 1450, 2800], [5e3, 1e5, 2e6])
@@ -157,9 +163,9 @@ class chemkinConverterTest(utilities.CanteraTest):
     def test_explicit_forward_order(self):
         if os.path.exists('explicit-forward-order.cti'):
             os.remove('explicit-forward-order.cti')
-        ck2cti.convertMech('../data/explicit-forward-order.inp',
-                           thermoFile='../data/dummy-thermo.dat',
-                           outName='explicit-forward-order.cti', quiet=True)
+        convertMech('../data/explicit-forward-order.inp',
+                    thermoFile='../data/dummy-thermo.dat',
+                    outName='explicit-forward-order.cti', quiet=True)
         ref, gas = self.checkConversion('../data/explicit-forward-order.xml',
                                         'explicit-forward-order.cti')
         self.checkKinetics(ref, gas, [300, 800, 1450, 2800], [5e3, 1e5, 2e6])
@@ -168,9 +174,9 @@ class chemkinConverterTest(utilities.CanteraTest):
         if os.path.exists('h2o2_transport_normal.cti'):
             os.remove('h2o2_transport_normal.cti')
 
-        ck2cti.convertMech('../../data/inputs/h2o2.inp',
-                           transportFile='../../data/transport/gri30_tran.dat',
-                           outName='h2o2_transport_normal.cti', quiet=True)
+        convertMech('../../data/inputs/h2o2.inp',
+                    transportFile='../../data/transport/gri30_tran.dat',
+                    outName='h2o2_transport_normal.cti', quiet=True)
 
         gas = ct.IdealGasMix('h2o2_transport_normal.cti')
         gas.set(X='H2:1.0, O2:1.0', T=300, P=101325)
@@ -181,10 +187,10 @@ class chemkinConverterTest(utilities.CanteraTest):
             os.remove('h2o2_transport_missing_species.cti')
 
         def convert():
-            ck2cti.convertMech('../../data/inputs/h2o2.inp',
-                               transportFile='../data/h2o2-missing-species-tran.dat',
-                               outName='h2o2_transport_missing_species.cti',
-                               quiet=True)
+            convertMech('../../data/inputs/h2o2.inp',
+                        transportFile='../data/h2o2-missing-species-tran.dat',
+                        outName='h2o2_transport_missing_species.cti',
+                        quiet=True)
 
         self.assertRaises(ck2cti.InputParseError, convert)
 
@@ -193,20 +199,20 @@ class chemkinConverterTest(utilities.CanteraTest):
             os.remove('h2o2_transport_duplicate_species.cti')
 
         def convert():
-            ck2cti.convertMech('../../data/inputs/h2o2.inp',
-                               transportFile='../data/h2o2-duplicate-species-tran.dat',
-                               outName='h2o2_transport_duplicate_species.cti',
-                               quiet=True)
+            convertMech('../../data/inputs/h2o2.inp',
+                        transportFile='../data/h2o2-duplicate-species-tran.dat',
+                        outName='h2o2_transport_duplicate_species.cti',
+                        quiet=True)
 
         # This should fail
         self.assertRaises(ck2cti.InputParseError, convert)
 
         # This should succeed
-        ck2cti.convertMech('../../data/inputs/h2o2.inp',
-                           transportFile='../data/h2o2-duplicate-species-tran.dat',
-                           outName='h2o2_transport_duplicate_species.cti',
-                           quiet=True,
-                           permissive=True)
+        convertMech('../../data/inputs/h2o2.inp',
+                    transportFile='../data/h2o2-duplicate-species-tran.dat',
+                    outName='h2o2_transport_duplicate_species.cti',
+                    quiet=True,
+                    permissive=True)
 
 
     def test_transport_bad_geometry(self):
@@ -214,9 +220,9 @@ class chemkinConverterTest(utilities.CanteraTest):
             os.remove('h2o2_transport_bad_geometry.cti')
 
         def convert():
-            ck2cti.convertMech('../../data/inputs/h2o2.inp',
-                               transportFile='../data/h2o2-bad-geometry-tran.dat',
-                               outName='h2o2_transport_bad_geometry.cti',
-                               quiet=True)
+            convertMech('../../data/inputs/h2o2.inp',
+                        transportFile='../data/h2o2-bad-geometry-tran.dat',
+                        outName='h2o2_transport_bad_geometry.cti',
+                        quiet=True)
 
         self.assertRaises(ck2cti.InputParseError, convert)
