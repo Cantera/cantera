@@ -1,0 +1,49 @@
+<?xml version="1.0"?>
+<ctml>
+  <validate reactions="yes" species="yes"/>
+
+  <phase dim="3" id="LiFixed">
+    <elementArray datasrc="elements.xml">
+      Li
+    </elementArray>
+    <speciesArray datasrc="#species_Li(Fixed)">
+      LiFixed
+    </speciesArray>
+    <thermo model="FixedChemPot">
+      <chemicalPotential units="J/kmol"> -2.3E7  </chemicalPotential>
+    </thermo>
+    <transport model="None"/>
+    <kinetics model="none"/>
+  </phase>
+
+  <phase dim="3" id="mismatch">
+    <elementArray datasrc="elements.xml">
+      Li
+    </elementArray>
+    <speciesArray datasrc="#species_Li(Fixed)">
+      LiFixed
+    </speciesArray>
+    <thermo model="StoichSubstance">
+      <chemicalPotential units="J/kmol"> -2.3E7  </chemicalPotential>
+    </thermo>
+    <transport model="None"/>
+    <kinetics model="none"/>
+  </phase>
+
+  <!-- species definitions     -->
+  <speciesData id="species_Li(Fixed)">
+
+    <species name="LiFixed">
+      <atomArray> Li:1 </atomArray>
+      <thermo>
+        <Shomate Pref="1 bar" Tmax="1075.0" Tmin="250.0">
+          <floatArray size="7">
+            50.72389, 6.672267, -2.517167,
+            10.15934, -0.200675, -427.2115,
+            130.3973
+          </floatArray>
+        </Shomate>
+      </thermo>
+    </species>
+  </speciesData>
+</ctml>
