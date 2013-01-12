@@ -17,8 +17,11 @@
 #define CT_UTILITIES_H
 
 #include "ct_defs.h"
+#include "config.h"
+#include "vec_functions.h"
 
 #include <algorithm>
+#include <numeric>
 
 namespace Cantera
 {
@@ -131,7 +134,7 @@ template<class InputIter, class InputIter2>
 inline doublereal dot(InputIter x_begin, InputIter x_end,
                       InputIter2 y_begin)
 {
-    return inner_product(x_begin, x_end, y_begin, 0.0);
+    return std::inner_product(x_begin, x_end, y_begin, 0.0);
 }
 
 //!   Multiply elements of an array by a scale factor.
@@ -334,7 +337,7 @@ template<class InputIter, class OutputIter>
 inline void normalize(InputIter begin, InputIter end,
                       OutputIter out)
 {
-    doublereal sum = accumulate(begin, end, 0.0);
+    doublereal sum = std::accumulate(begin, end, 0.0);
     for (; begin != end; ++begin, ++out) {
         *out = *begin/sum;
     }

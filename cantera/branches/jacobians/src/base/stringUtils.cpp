@@ -26,6 +26,7 @@
 #include <cstring>
 #include <cstdlib>
 #include <cctype>
+#include <map>
 
 namespace Cantera
 {
