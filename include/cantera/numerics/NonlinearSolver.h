@@ -544,6 +544,17 @@ namespace Cantera {
 				doublereal time_curr, GeneralMatrix & jac, int &num_newt_its,
 				int &num_linear_solves,	int &num_backtracks, int loglevelInput);
 
+    //! Set the values for the previous time step
+    /*!
+     *   We set the values for the previous time step here. These are used in the nonlinear
+     *   solve because they affect the calculation of ydot.
+     *
+     * @param y_nm1     Value of the solution vector at the previous time step
+     * @param ydot_nm1  Value of the solution vector derivative at the previous time step
+     */
+    virtual void
+    setPreviousTimeStep(const std::vector<doublereal>& y_nm1, const std::vector<doublereal>& ydot_nm1);
+
   private:
     //! Set the column scales
     void calcColumnScales();
@@ -954,11 +965,14 @@ namespace Cantera {
     //! Vector containing the solution at the previous time step
     std::vector<doublereal> m_y_nm1;
 
-    //! Vector containing the solution at the previous time step
-    std::vector<doublereal> m_y_n_1;
+    //! Vector containing the solution derivative at the previous time step
+    std::vector<doublereal> m_ydot_nm1;
+
+    //! Vector containing the solution at the new point that is to be considered
+    std::vector<doublereal> m_y_n_trial;
 
     //! Value of the solution time derivative at the new point that is to be considered
-    std::vector<doublereal> m_ydot_n_1;
+    std::vector<doublereal> m_ydot_trial;
 
     //! Value of the step to be taken in the solution
     std::vector<doublereal> m_step_1;
@@ -1108,9 +1122,6 @@ namespace Cantera {
 
     //! Base value of the absolute tolerance
     doublereal atolBase_;
-
-    //! Pointer containing the solution derivative at the previous time step
-    doublereal *m_ydot_nm1;
 
     //! absolute tolerance in the solution unknown
     /*!

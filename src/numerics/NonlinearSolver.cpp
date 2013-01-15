@@ -109,8 +109,8 @@ namespace Cantera {
     m_y_n_curr(0),
     m_ydot_n_curr(0),
     m_y_nm1(0),
-    m_y_n_1(0),
-    m_ydot_n_1(0),
+    m_y_n_trial(0),
+    m_ydot_trial(0),
     m_colScales(0),
     m_rowScales(0),
     m_rowWtScales(0),
@@ -192,8 +192,9 @@ namespace Cantera {
     m_y_n_curr.resize(neq_, 0.0);
     m_ydot_n_curr.resize(neq_, 0.0);
     m_y_nm1.resize(neq_, 0.0);
-    m_y_n_1.resize(neq_, 0.0);
-    m_ydot_n_1.resize(neq_, 0.0);
+    m_ydot_nm1.resize(neq_, 0.0);
+    m_y_n_trial.resize(neq_, 0.0);
+    m_ydot_trial.resize(neq_, 0.0);
     m_colScales.resize(neq_, 1.0);
     m_rowScales.resize(neq_, 1.0);
     m_rowWtScales.resize(neq_, 1.0);
@@ -204,7 +205,7 @@ namespace Cantera {
     atolk_.resize(neq_, atolBase_);
     deltaX_Newton_.resize(neq_, 0.0);
     m_step_1.resize(neq_, 0.0);
-    m_y_n_1.resize(neq_, 0.0);
+    m_y_n_trial.resize(neq_, 0.0);
     doublereal hb = std::numeric_limits<double>::max();
     m_y_high_bounds.resize(neq_, hb);
     m_y_low_bounds.resize(neq_, -hb);    
@@ -232,8 +233,8 @@ namespace Cantera {
     m_y_n_curr(0),
     m_ydot_n_curr(0),
     m_y_nm1(0),
-    m_y_n_1(0),
-    m_ydot_n_1(0),
+    m_y_n_trial(0),
+    m_ydot_trial(0),
     m_step_1(0),
     m_colScales(0),
     m_rowScales(0),
@@ -337,8 +338,9 @@ namespace Cantera {
     m_y_n_curr                 = right.m_y_n_curr;
     m_ydot_n_curr              = right.m_ydot_n_curr;
     m_y_nm1                    = right.m_y_nm1;
-    m_y_n_1                    = right.m_y_n_1;
-    m_ydot_n_1                 = right.m_ydot_n_1;
+    m_ydot_nm1                 = right.m_ydot_nm1;
+    m_y_n_trial                = right.m_y_n_trial;
+    m_ydot_trial               = right.m_ydot_trial;
     m_step_1                   = right.m_step_1;
     m_colScales                = right.m_colScales;
     m_rowScales                = right.m_rowScales;
@@ -3079,7 +3081,7 @@ namespace Cantera {
   
     if (SolnType != NSOLN_TYPE_STEADY_STATE || ydot_comm) {
       mdp::mdp_copy_dbl_1(DATA_PTR(m_ydot_n_curr), ydot_comm, neq_);
-      mdp::mdp_copy_dbl_1(DATA_PTR(m_ydot_n_1), ydot_comm, neq_);
+      mdp::mdp_copy_dbl_1(DATA_PTR(m_ydot_trial), ydot_comm, neq_);
     }
     // Redo the solution weights every time we enter the function
     createSolnWeights(DATA_PTR(m_y_n_curr));
@@ -3326,10 +3328,10 @@ namespace Cantera {
       
       if (s_print_DogLeg && m_print_flag >= 4) {
 	printf("\t   solve_nonlinear_problem(): Compare descent rates for Cauchy and Newton directions\n");
-	descentComparison(time_curr, DATA_PTR(m_ydot_n_curr), DATA_PTR(m_ydot_n_1), i_numTrials);
+	descentComparison(time_curr, DATA_PTR(m_ydot_n_curr), DATA_PTR(m_ydot_trial), i_numTrials);
       } else { 
 	if (doDogLeg_) { 
-	  descentComparison(time_curr, DATA_PTR(m_ydot_n_curr), DATA_PTR(m_ydot_n_1), i_numTrials);
+	  descentComparison(time_curr, DATA_PTR(m_ydot_n_curr), DATA_PTR(m_ydot_trial), i_numTrials);
 	}
       }
 
@@ -3347,7 +3349,7 @@ namespace Cantera {
 	  printf("\t   solve_nonlinear_problem(): Calculate damping along dog-leg path to ensure residual decrease\n");
 	}
 	retnDamp = dampDogLeg(time_curr, DATA_PTR(m_y_n_curr), DATA_PTR(m_ydot_n_curr), 
-			      m_step_1, DATA_PTR(m_y_n_1), DATA_PTR(m_ydot_n_1), stepNorm_1, stepNorm_2, jac, i_numTrials);
+			      m_step_1, DATA_PTR(m_y_n_trial), DATA_PTR(m_ydot_trial), stepNorm_1, stepNorm_2, jac, i_numTrials);
       }
 #ifdef DEBUG_MODE
       else {
@@ -3370,7 +3372,7 @@ namespace Cantera {
        */
       if (!doDogLeg_) {
 	retnDamp = dampStep(time_curr, DATA_PTR(m_y_n_curr), DATA_PTR(m_ydot_n_curr), 
-			    DATA_PTR(m_step_1), DATA_PTR(m_y_n_1), DATA_PTR(m_ydot_n_1), 
+			    DATA_PTR(m_step_1), DATA_PTR(m_y_n_trial), DATA_PTR(m_ydot_trial),
 			    DATA_PTR(m_wksp_2), stepNorm_2, jac, frst, i_numTrials);
 	frst = false;
 	num_backtracks += i_numTrials;
@@ -3406,7 +3408,7 @@ namespace Cantera {
        *  Do a full residual calculation with the unlagged solution components.
        *  Then get the norm of the residual
        */
-      info = doResidualCalc(time_curr, NSOLN_TYPE_STEADY_STATE, DATA_PTR(m_y_n_1), DATA_PTR(m_ydot_n_1));
+      info = doResidualCalc(time_curr, NSOLN_TYPE_STEADY_STATE, DATA_PTR(m_y_n_trial), DATA_PTR(m_ydot_trial));
       if (info != 1) {
 	if (m_print_flag > 0) {
 	  printf("\t   solve_nonlinear_problem(): current trial step and damping led to Residual Calc "
@@ -3416,7 +3418,7 @@ namespace Cantera {
 	goto done;
       }
       if (m_print_flag >= 4) {
-	m_normResid_full  = residErrorNorm(DATA_PTR(m_resid), " Resulting full residual norm", 10, DATA_PTR(m_y_n_1));
+	m_normResid_full  = residErrorNorm(DATA_PTR(m_resid), " Resulting full residual norm", 10, DATA_PTR(m_y_n_trial));
 	if (fabs(m_normResid_full - m_normResid_1) >  1.0E-3 * ( m_normResid_1 + m_normResid_full + 1.0E-4)) {
 	  if (m_print_flag >= 4) {
 	    printf("\t    solve_nonlinear_problem(): Full residual norm changed from %g to %g due to "
@@ -3441,13 +3443,13 @@ namespace Cantera {
       bool m_filterIntermediate = false;
       if (m_filterIntermediate) {
 	if (retnDamp == NSOLN_RETN_CONTINUE) {
-	  (void) filterNewSolution(time_n, DATA_PTR(m_y_n_1), DATA_PTR(m_ydot_n_1));
+	  (void) filterNewSolution(time_n, DATA_PTR(m_y_n_trial), DATA_PTR(m_ydot_trial));
 	}
       }
 
       // Exchange new for curr solutions
       if (retnDamp >= NSOLN_RETN_CONTINUE) {
-	mdp::mdp_copy_dbl_1(DATA_PTR(m_y_n_curr), CONSTD_DATA_PTR(m_y_n_1), neq_);
+	mdp::mdp_copy_dbl_1(DATA_PTR(m_y_n_curr), CONSTD_DATA_PTR(m_y_n_trial), neq_);
 
 	if (solnType_ != NSOLN_TYPE_STEADY_STATE) {
 	  calc_ydot(m_order, DATA_PTR(m_y_n_curr), DATA_PTR(m_ydot_n_curr));
@@ -3607,6 +3609,21 @@ namespace Cantera {
 
 
     return retnCode;
+  }
+  //====================================================================================================================
+  //! Set the values for the previous time step
+  /*!
+   *   We set the values for the previous time step here. These are used in the nonlinear
+   *   solve because they affect the calculation of ydot.
+   *
+   * @param y_nm1     Value of the solution vector at the previous time step
+   * @param ydot_nm1  Value of the solution vector derivative at the previous time step
+   */
+  void NonlinearSolver::
+  setPreviousTimeStep(const std::vector<doublereal>& y_nm1, const std::vector<doublereal>& ydot_nm1)
+  {
+    m_y_nm1 = y_nm1;
+    m_ydot_nm1 = ydot_nm1;
   }
   //====================================================================================================================
   // Print solution norm contribution
