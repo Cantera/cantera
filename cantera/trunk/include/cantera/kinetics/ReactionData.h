@@ -21,6 +21,7 @@ public:
         reactionType = ELEMENTARY_RXN;
         validate = false;
         number = 0;
+        rxn_number = 0;
         reversible = true;
         rateCoeffType = ARRHENIUS_REACTION_RATECOEFF_TYPE;
         falloffType = NONE;
@@ -43,6 +44,7 @@ public:
 
     bool validate;
     int number;
+    int rxn_number;
     std::vector<size_t> reactants;
     std::vector<size_t> products;
     vector_fp rorder;
