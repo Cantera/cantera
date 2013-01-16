@@ -37,9 +37,13 @@ libs = [('base', ['cpp'], baseSetup),
         ]
 
 for subdir, extensions, setup in libs:
+    print "we are here 2"
     localenv = env.Clone()
     localenv.Prepend(CPPPATH=Dir('#include'))
     localenv.Prepend(CPPPATH=Dir('#src')) # todo: remove when not needed
+    localenv.Prepend(CPPPATH=Dir('#ext/sacadoLite'))
+    localenv.Append(CPPPATH=['#ext/sacadoLite'])
+    print " cppath = ", localenv['CPPPATH']
     localenv.Append(CCFLAGS=env['warning_flags'])
     source = setup(localenv, subdir, extensions)
     objects = localenv.SharedObject(source)

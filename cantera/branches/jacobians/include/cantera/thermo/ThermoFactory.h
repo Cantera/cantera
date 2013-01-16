@@ -57,6 +57,7 @@ public:
  * This class keeps a list of the known ThermoPhase classes, and is
  * used to create new instances of these classes.
  */
+template<typename ValAndDerivType = double>
 class ThermoFactory : public FactoryBase
 {
 
@@ -98,7 +99,7 @@ public:
      *   Throws an exception UnknownThermoPhaseModel if the string
      *   wasn't matched.
      */
-    virtual ThermoPhase* newThermoPhase(const std::string& model);
+    virtual ThermoPhase<ValAndDerivType> * newThermoPhase(const std::string& model);
 
 private:
     //! static member of a single instance
@@ -122,11 +123,12 @@ private:
  *   Throws an exception UnknownThermoPhaseModel if the string
  *   wasn't matched.
  */
-inline ThermoPhase* newThermoPhase(const std::string& model,
-                                   ThermoFactory* f=0)
+template<typename ValAndDerivType>
+inline ThermoPhase<ValAndDerivType> * newThermoPhase(const std::string& model,
+                                   ThermoFactory<ValAndDerivType> * f=0)
 {
     if (f == 0) {
-        f = ThermoFactory::factory();
+        f = ThermoFactory<ValAndDerivType>::factory();
     }
     return f->newThermoPhase(model);
 }
@@ -159,8 +161,13 @@ std::string eosTypeString(int ieos, int length = 100);
  *    Returns a pointer to the completed and initialized ThermoPhase object.
  *
  * @ingroup inputfiles
+ * *
+ * * HKM Note -> can't add default function template parameters
+ *             This is not a problem. However, as the context always allows the compiler to deduce the parameters.
+ *             Therefore, the call can leave off the template parameter.
  */
-ThermoPhase* newPhase(XML_Node& phase);
+template<typename ValAndDerivType>
+ThermoPhase<ValAndDerivType> * newPhase(XML_Node& phase);
 
 //! Create and Initialize a ThermoPhase object from an XML input file.
 /*!
@@ -176,7 +183,8 @@ ThermoPhase* newPhase(XML_Node& phase);
  * @return
  *   Returns an initialized ThermoPhase object.
  */
-ThermoPhase* newPhase(const std::string& infile, std::string id);
+template<typename ValAndDerivType>
+ThermoPhase<ValAndDerivType> * newPhase(const std::string& infile, std::string id);
 
 //! Import a phase information into an empty thermophase object
 /*!
@@ -243,7 +251,8 @@ ThermoPhase* newPhase(const std::string& infile, std::string id);
  *
  * @ingroup thermoprops
  */
-bool importPhase(XML_Node& phase, ThermoPhase* th, SpeciesThermoFactory* spfactory = 0);
+template<typename ValAndDerivType>
+bool importPhase(XML_Node& phase, ThermoPhase<ValAndDerivType> * th, SpeciesThermoFactory* spfactory = 0);
 
 //! Install a species into a ThermoPhase object, which defines
 //! the phase thermodynamics and speciation.

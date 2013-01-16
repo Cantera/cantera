@@ -2,7 +2,9 @@ from buildutils import *
 
 Import('env', 'build', 'install')
 
+
 localenv = env.Clone()
+# localenv.Prepend(CPPPATH=['#include', '#src', '#ext/sacadoLite'])
 localenv.Prepend(CPPPATH=['#include', '#src'])
 
 f90_src = mglob(localenv, '.', 'f90', 'cpp')

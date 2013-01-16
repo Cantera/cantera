@@ -2,7 +2,7 @@ from buildutils import *
 
 Import('env', 'build', 'install')
 localenv = env.Clone()
-localenv.Prepend(CPPPATH=['#src', '#include', '#src/apps'])
+localenv.Prepend(CPPPATH=['#src', '#include', '#src/apps', '#ext/sacadoLite'])
 
 def buildProgram(name, src):
     prog = build(localenv.Program(target=pjoin('#build/bin', name),

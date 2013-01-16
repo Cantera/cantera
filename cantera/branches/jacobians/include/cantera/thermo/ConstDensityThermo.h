@@ -42,7 +42,7 @@ namespace Cantera
  *
  * @ingroup thermoprops
  */
-class ConstDensityThermo : public ThermoPhase
+class ConstDensityThermo : public thermo_t
 {
 
 public:
@@ -71,7 +71,7 @@ public:
      *  inherited from %ThermoPhase even if the application only has
      *  a pointer to %ThermoPhase to work with.
      */
-    virtual ThermoPhase* duplMyselfAsThermoPhase() const;
+    virtual thermo_t * duplMyselfAsThermoPhase() const;
 
     //! overloaded methods of class ThermoPhase
     virtual int eosType() const;

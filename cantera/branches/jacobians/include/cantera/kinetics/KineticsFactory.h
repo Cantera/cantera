@@ -60,7 +60,7 @@ public:
      * Create a new kinetics manager.
      */
     virtual Kinetics* newKinetics(XML_Node& phase,
-                                  std::vector<ThermoPhase*> th);
+                                  std::vector<thermo_t *> th);
 
     virtual Kinetics* newKinetics(const std::string& model);
 
@@ -76,7 +76,7 @@ private:
  *  Create a new kinetics manager.
  */
 inline Kinetics* newKineticsMgr(XML_Node& phase,
-                                std::vector<ThermoPhase*> th, KineticsFactory* f=0)
+                                std::vector<thermo_t *> th, KineticsFactory* f=0)
 {
     if (f == 0) {
         f = KineticsFactory::factory();

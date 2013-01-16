@@ -26,7 +26,7 @@ namespace Cantera
 
 // forward references
 class ReactionData;
-class ThermoPhase;
+template <typename ValAndDerivType> class ThermoPhase;
 class SurfPhase;
 class ImplicitSurfChem;
 

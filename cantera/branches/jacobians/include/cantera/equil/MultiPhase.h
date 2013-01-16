@@ -98,7 +98,7 @@ public:
      *   @param phases Vector of pointers to phases
      *   @param phaseMoles Vector of mole numbers in each phase (kmol)
      */
-    void addPhases(std::vector<ThermoPhase*>& phases, const vector_fp& phaseMoles);
+    void addPhases(std::vector<thermo_t *>& phases, const vector_fp& phaseMoles);
 
     //! Add all phases present in 'mix' to this mixture.
     /*!
@@ -115,7 +115,7 @@ public:
      *  @param p pointer to the phase object
      *  @param moles total number of moles of all species in this phase
      */
-    void addPhase(ThermoPhase* p, doublereal moles);
+    void addPhase(thermo_t * p, doublereal moles);
 
     /// Number of elements.
     size_t nElements() const {
@@ -228,7 +228,7 @@ public:
      *
      * @return   Reference to the %ThermoPhase object for the phase
      */
-    ThermoPhase& phase(index_t n);
+    thermo_t& phase(index_t n);
 
     //! Check that the specified phase index is in range
     //! Throws an exception if m is greater than nPhases()
@@ -598,7 +598,7 @@ private:
     /**
      * Vector of the ThermoPhase Pointers.
      */
-    std::vector<ThermoPhase*> m_phase;
+    std::vector<thermo_t *> m_phase;
 
     //! Global Stoichiometric Coefficient array
     /*!

@@ -33,6 +33,12 @@ typedef  int          integer;      // Fortran integer
 typedef  int          ftnlen;       // Fortran hidden string length type
 
 
+
+#define HAS_SACADO 1
+
+#define INDEPENDENT_VARIABLE_DERIVATIVES 1
+
+
 // Fortran compilers pass character strings in argument lists by
 // adding a hidden argument with the length of the string. Some
 // compilers add the hidden length argument immediately after the

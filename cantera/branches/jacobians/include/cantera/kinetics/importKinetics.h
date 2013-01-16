@@ -192,7 +192,7 @@ bool installReactionArrays(const XML_Node& p, Kinetics& kin,
  * @ingroup kineticsmgr
  *
  */
-bool importKinetics(const XML_Node& phase, std::vector<ThermoPhase*> th,
+bool importKinetics(const XML_Node& phase, std::vector<thermo_t *> th,
                     Kinetics* kin);
 
 //!Build a single-phase ThermoPhase object with associated kinetics mechanism.
@@ -226,7 +226,7 @@ bool importKinetics(const XML_Node& phase, std::vector<ThermoPhase*> th,
  * @see importKinetics()
  */
 bool buildSolutionFromXML(XML_Node& root, const std::string& id,
-                          const std::string& nm, ThermoPhase* th, Kinetics* k);
+                          const std::string& nm, thermo_t * th, Kinetics* k);
 
 //! Search an XML tree for species data.
 /*!

@@ -46,7 +46,7 @@ ConstDensityThermo& ConstDensityThermo::operator=(const ConstDensityThermo& righ
 
 }
 
-ThermoPhase* ConstDensityThermo::duplMyselfAsThermoPhase() const
+thermo_t * ConstDensityThermo::duplMyselfAsThermoPhase() const
 {
     return new ConstDensityThermo(*this);
 }

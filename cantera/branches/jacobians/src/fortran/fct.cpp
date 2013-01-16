@@ -22,7 +22,10 @@
 using namespace Cantera;
 
 typedef Cabinet<XML_Node, false> XmlCabinet;
-typedef Cabinet<ThermoPhase> ThermoCabinet;
+
+//! Restricting this to the straight double-type ThermoPhase object
+typedef Cabinet<thermo_t> ThermoCabinet;
+
 typedef Cabinet<Kinetics> KineticsCabinet;
 typedef Cabinet<Transport> TransportCabinet;
 
@@ -33,7 +36,7 @@ inline XML_Node* _xml(const integer* n)
     return &XmlCabinet::item(*n);
 }
 
-inline ThermoPhase* _fph(const integer* n)
+inline thermo_t * _fph(const integer* n)
 {
     return &ThermoCabinet::item(*n);
 }
@@ -48,7 +51,7 @@ static Kinetics* _fkin(const integer* n)
     }
 }
 
-inline ThermoPhase* _fth(const integer* n)
+inline thermo_t * _fth(const integer* n)
 {
     return &ThermoCabinet::item(*n);
 }
@@ -220,7 +223,7 @@ extern "C" {
     status_t phase_getmassfractions_(const integer* n, doublereal* y)
     {
         try {
-            ThermoPhase* p = _fph(n);
+            thermo_t * p = _fph(n);
             p->getMassFractions(y);
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -240,7 +243,7 @@ extern "C" {
     status_t phase_setmolefractions_(const integer* n, double* x, const integer* norm)
     {
         try {
-            ThermoPhase* p = _fph(n);
+            thermo_t * p = _fph(n);
             if (*norm) {
                 p->setMoleFractions(x);
             } else {
@@ -255,7 +258,7 @@ extern "C" {
     status_t phase_setmolefractionsbyname_(const integer* n, char* x, ftnlen lx)
     {
         try {
-            ThermoPhase* p = _fph(n);
+            thermo_t * p = _fph(n);
             compositionMap xx = parseCompString(f2string(x, lx), p->speciesNames());
             p->setMoleFractionsByName(xx);
         } catch (...) {
@@ -267,7 +270,7 @@ extern "C" {
     status_t phase_setmassfractions_(const integer* n, doublereal* y, const integer* norm)
     {
         try {
-            ThermoPhase* p = _fph(n);
+            thermo_t * p = _fph(n);
             if (*norm) {
                 p->setMassFractions(y);
             } else {
@@ -282,7 +285,7 @@ extern "C" {
     status_t phase_setmassfractionsbyname_(const integer* n, char* y, ftnlen leny)
     {
         try {
-            ThermoPhase* p = _fph(n);
+            thermo_t * p = _fph(n);
             compositionMap yy = parseCompString(f2string(y, leny), p->speciesNames());
             p->setMassFractionsByName(yy);
         } catch (...) {
@@ -294,7 +297,7 @@ extern "C" {
     status_t phase_getatomicweights_(const integer* n, doublereal* atw)
     {
         try {
-            ThermoPhase* p = _fph(n);
+            thermo_t * p = _fph(n);
             const vector_fp& wt = p->atomicWeights();
             copy(wt.begin(), wt.end(), atw);
         } catch (...) {
@@ -306,7 +309,7 @@ extern "C" {
     status_t phase_getmolecularweights_(const integer* n, doublereal* mw)
     {
         try {
-            ThermoPhase* p = _fph(n);
+            thermo_t * p = _fph(n);
             const vector_fp& wt = p->molecularWeights();
             copy(wt.begin(), wt.end(), mw);
         } catch (...) {
@@ -361,7 +364,7 @@ extern "C" {
     {
         try {
             XML_Node* x = _xml(mxml);
-            thermo_t* th = newPhase(*x);
+            thermo_t* th = newPhase<doublereal>(*x);
             return ThermoCabinet::add(th);
         } catch (...) {
             return handleAllExceptions(-1, ERR);

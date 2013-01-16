@@ -10,7 +10,6 @@
  */
 // Copyright 2001  California Institute of Technology
 
-
 #ifndef CT_DEFS_H
 #define CT_DEFS_H
 
@@ -23,6 +22,13 @@
 #include <vector>
 #include <map>
 #include <string>
+
+// Bring in the forward derivatives
+#ifdef INDEPENDENT_VARIABLE_DERIVATIVES
+#ifdef HAS_SACADO
+#include "Sacado.hpp"
+#endif
+#endif
 
 // Warn about deprecated functions at compile time
 #ifdef __GNUC__
@@ -37,14 +43,29 @@
 /**
  * Namespace for the Cantera kernel.
  */
-namespace Cantera
-{
+namespace Cantera {
 
 #undef CHEMKIN_COMPATIBILITY_MODE
 
 //! Creates a pointer to the start of the raw data for a vector
 #ifndef DATA_PTR
 #define DATA_PTR(vec) &vec[0]
+#endif
+
+#ifdef INDEPENDENT_VARIABLE_DERIVATIVES
+#ifdef HAS_SACADO
+//! Forward automatic differentiation type that surplants some of the doubles within Cantera
+/*!
+ *  This is actually a structure consisting of the original value and a vector of derivatives
+ *   The derivatives are with respect to the independent unknowns in the problem.
+ */
+typedef Sacado::Fad::DFad<double> doubleFAD;
+
+#else
+typedef double doubleFAD;
+#endif
+#else
+typedef double doubleFAD;
 #endif
 
 /*!
@@ -69,7 +90,6 @@ const doublereal SqrtPi = std::sqrt(Pi);
  * is defined to be the kmol.
  */
 //@{
-
 //! Avogadro's Number [number/kmol]
 const doublereal Avogadro = 6.02214129e26;
 
@@ -92,7 +112,7 @@ const doublereal Planck = 6.62607009e-34; // J-s
 const doublereal Planck_bar = Planck / (2 * Pi); // m2-kg/s
 
 /// log(k/h)
-const doublereal logBoltz_Planck = std::log(Boltzmann / Planck);  // ln(k_B/h)
+const doublereal logBoltz_Planck = std::log(Boltzmann / Planck); // ln(k_B/h)
 /// Stefan-Boltzmann constant
 const doublereal StefanBoltz = 5.670373e-8;
 
@@ -112,10 +132,10 @@ const doublereal Faraday = ElectronCharge * Avogadro;
 const doublereal lightSpeed = 299792458.0;
 
 /// Permeability of free space \f$ \mu_0 \f$ in N/A^2.
-const doublereal permeability_0 = 4.0e-7*Pi;
+const doublereal permeability_0 = 4.0e-7 * Pi;
 
 /// Permittivity of free space \f$ \epsilon_0 \f$ in F/m.
-const doublereal epsilon_0 = 1.0 / (lightSpeed*lightSpeed*permeability_0);
+const doublereal epsilon_0 = 1.0 / (lightSpeed * lightSpeed * permeability_0);
 
 //@}
 //@}
@@ -126,18 +146,16 @@ const doublereal epsilon_0 = 1.0 / (lightSpeed*lightSpeed*permeability_0);
  * which are held constant during equilibration.
  */
 //@{
-const int TV = 100, HP = 101, SP = 102, PV = 103, TP = 104, UV = 105,
-          ST = 106, SV = 107, UP = 108, VH = 109, TH = 110, SH = 111,
-          PX = 112, TX = 113;
-const int VT = -100, PH = -101, PS = -102, VP = -103, PT = -104,
-          VU = -105, TS = -106, VS = -107, PU = -108, HV = -109,
-          HT = -110, HS = -111, XP = -112, XT = -113;
+const int TV = 100, HP = 101, SP = 102, PV = 103, TP = 104, UV = 105, ST = 106, SV = 107, UP = 108, VH = 109, TH = 110, SH = 111,
+        PX = 112, TX = 113;
+const int VT = -100, PH = -101, PS = -102, VP = -103, PT = -104, VU = -105, TS = -106, VS = -107, PU = -108, HV = -109, HT = -110,
+        HS = -111, XP = -112, XT = -113;
 //@}
 
 //! 1/3
-const doublereal OneThird = 1.0/3.0;
+const doublereal OneThird = 1.0 / 3.0;
 //! 5/16
-const doublereal FiveSixteenths = 5.0/16.0;
+const doublereal FiveSixteenths = 5.0 / 16.0;
 //! sqrt(10)
 const doublereal SqrtTen = std::sqrt(10.0);
 //! sqrt(8)
@@ -172,9 +190,9 @@ const doublereal Tiny = 1.e-20;
 typedef std::map<std::string, doublereal> compositionMap;
 //! Turn on the use of stl vectors for the basic array type within cantera
 //! Vector of doubles.
-typedef std::vector<double>        vector_fp;
+typedef std::vector<double> vector_fp;
 //! Vector of ints
-typedef std::vector<int>           vector_int;
+typedef std::vector<int> vector_int;
 
 //! A grouplist is a vector of groups of species
 typedef std::vector<std::vector<size_t> > grouplist_t;
@@ -182,6 +200,6 @@ typedef std::vector<std::vector<size_t> > grouplist_t;
 //! index returned by functions to indicate "no position"
 const size_t npos = static_cast<size_t>(-1);
 
-}  // namespace
+} // namespace
 
 #endif

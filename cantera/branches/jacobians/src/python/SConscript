@@ -26,7 +26,7 @@ make_setup = localenv.SubstFile('#interfaces/python/setup.py',
 
 extraArgs = ''
 if localenv['python_package'] == 'full':
-    localenv.Prepend(CPPPATH=['#src', '#include'])
+    localenv.Prepend(CPPPATH=['#src', '#include', '#ext/sacadoLite'])
 
     cantera_libname = 'cantera_shared' if os.name=='nt' else 'cantera'
     #pylinklibs = [cantera_libname, 'cvode', 'ctmath', 'ctlapack', 'ctblas', 'ctf2c', 'execstream']

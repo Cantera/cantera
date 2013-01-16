@@ -713,10 +713,14 @@ else:
 
 conf = Configure(env)
 
+print "We are here"
+
 # Set up compiler options before running configuration tests
 env['CXXFLAGS'] = listify(env['cxx_flags'])
 env['CCFLAGS'] = listify(env['cc_flags']) + listify(env['thread_flags'])
 env['LINKFLAGS'] += listify(env['thread_flags'])
+
+print "conf = ", env['CXXFLAGS']
 
 env['warning_flags'] = listify(env['warning_flags'])
 
@@ -1167,6 +1171,10 @@ if addInstallActions:
 linkLibs = ['cantera']
 linkSharedLibs = ['cantera_shared']
 
+#
+# Add sacadoLite include path to the list of include paths
+#
+env.Prepend(CPPPATH=['#ext/sacadoLite'])
 
 if env['use_sundials'] == 'y':
     env['sundials_libs'] = ['sundials_cvodes', 'sundials_ida', 'sundials_nvecserial']

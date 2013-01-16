@@ -41,7 +41,8 @@ namespace Cantera
  *
  * @ingroup thermoprops
  */
-class PureFluidPhase  : public ThermoPhase
+
+class PureFluidPhase  : public thermo_t
 {
 
 public:
@@ -72,7 +73,7 @@ public:
      *
      * @return It returns a ThermoPhase pointer.
      */
-    ThermoPhase* duplMyselfAsThermoPhase() const;
+    thermo_t * duplMyselfAsThermoPhase() const;
 
     //! Equation of state type
     virtual int eosType() const {
