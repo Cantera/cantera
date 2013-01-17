@@ -342,7 +342,7 @@ void StFlow::_finalize(const doublereal* x)
  *
  */
 
-void AxiStagnFlow::eval(size_t jg, doublereal* xg,
+void StFlow::eval(size_t jg, doublereal* xg,
                         doublereal* rg, integer* diagg, doublereal rdt)
 {
 
@@ -365,7 +365,6 @@ void AxiStagnFlow::eval(size_t jg, doublereal* xg,
 
     size_t jmin, jmax;
 
-
     if (jg == npos) {      // evaluate all points
         jmin = 0;
         jmax = m_points - 1;
@@ -385,13 +384,10 @@ void AxiStagnFlow::eval(size_t jg, doublereal* xg,
     //              update properties
     //-----------------------------------------------------
 
-    // update thermodynamic properties only if a Jacobian is not
+    // update thermodynamic and transport properties only if a Jacobian is not
     // being evaluated
     if (jg == npos) {
         updateThermo(x, j0, j1);
-
-        // update transport properties only if a Jacobian is not being
-        // evaluated
         updateTransport(x, j0, j1);
     }
 
@@ -417,7 +413,6 @@ void AxiStagnFlow::eval(size_t jg, doublereal* xg,
         if (j == 0) {
 
             // these may be modified by a boundary object
-
 
             // Continuity. This propagates information right-to-left,
             // since rho_u at point 0 is dependent on rho_u at point 1,
@@ -448,61 +443,11 @@ void AxiStagnFlow::eval(size_t jg, doublereal* xg,
         }
 
 
-        //----------------------------------------------
-        //
-        //         right boundary
-        //
-        //----------------------------------------------
-
         else if (j == m_points - 1) {
+            evalRightBoundary(x, rsd, diag, rdt);
 
-            // the boundary object connected to the right of this
-            // one may modify or replace these equations. The
-            // default boundary conditions are zero u, V, and T,
-            // and zero diffusive flux for all species.
-
-            rsd[index(0,j)] = rho_u(x,j);
-            rsd[index(1,j)] = V(x,j);
-            rsd[index(2,j)] = T(x,j);
-            rsd[index(c_offset_L, j)] = lambda(x,j) - lambda(x,j-1);
-            diag[index(c_offset_L, j)] = 0;
-            doublereal sum = 0.0;
-            for (k = 0; k < m_nsp; k++) {
-                sum += Y(x,k,j);
-                rsd[index(k+4,j)] = m_flux(k,j-1) + rho_u(x,j)*Y(x,k,j);
-            }
-            rsd[index(4,j)] = 1.0 - sum;
-            diag[index(4,j)] = 0;
-
-        }
-
-
-        //------------------------------------------
-        //     interior points
-        //------------------------------------------
-
-        else {
-
-            //----------------------------------------------
-            //    Continuity equation
-            //
-            //    Note that this propagates the mass flow rate
-            //    information to the left (j+1 -> j) from the
-            //    value specified at the right boundary. The
-            //    lambda information propagates in the opposite
-            //    direction.
-            //
-            //    d(\rho u)/dz + 2\rho V = 0
-            //
-            //------------------------------------------------
-
-            rsd[index(c_offset_U,j)] =
-                -(rho_u(x,j+1) - rho_u(x,j))/m_dz[j]
-                -(density(j+1)*V(x,j+1) + density(j)*V(x,j));
-
-            //algebraic constraint
-            diag[index(c_offset_U, j)] = 0;
-
+        } else { // interior points
+            evalContinuity(j, x, rsd, diag, rdt);
 
             //------------------------------------------------
             //    Radial momentum equation
@@ -516,7 +461,6 @@ void AxiStagnFlow::eval(size_t jg, doublereal* xg,
                - m_rho[j]*V(x,j)*V(x,j))/m_rho[j]
               - rdt*(V(x,j) - V_prev(j));
             diag[index(c_offset_V, j)] = 1;
-
 
             //-------------------------------------------------
             //    Species equations
@@ -538,7 +482,6 @@ void AxiStagnFlow::eval(size_t jg, doublereal* xg,
                   - rdt*(Y(x,k,j) - Y_prev(k,j));
                 diag[index(c_offset_Y + k, j)] = 1;
             }
-
 
             //-----------------------------------------------
             //    energy equation
@@ -577,10 +520,8 @@ void AxiStagnFlow::eval(size_t jg, doublereal* xg,
                 rsd[index(c_offset_T, j)] -= rdt*(T(x,j) - T_prev(j));
                 diag[index(c_offset_T, j)] = 1;
             }
-
-            // residual equations if the energy equation is disabled
-
-            if (!m_do_energy[j]) {
+            else {
+                // residual equations if the energy equation is disabled
                 rsd[index(c_offset_T, j)] = T(x,j) - T_fixed(j);
                 diag[index(c_offset_T, j)] = 0;
             }
@@ -590,8 +531,6 @@ void AxiStagnFlow::eval(size_t jg, doublereal* xg,
         }
     }
 }
-
-
 
 /**
  * Update the transport properties at grid points in the range
@@ -641,264 +580,7 @@ void StFlow::updateTransport(doublereal* x, size_t j0, size_t j1)
 }
 
 
-//------------------------------------------------------
 
-/**
- *  Evaluate the residual function for axisymmetric stagnation
- *  flow. If jpt is less than zero, the residual function is
- *  evaluated at all grid points. If jpt >= 0, then the residual
- *  function is only evaluated at grid points jpt-1, jpt, and
- *  jpt+1. This option is used to efficiently evaluate the
- *  Jacobian numerically.
- *
- */
-
-void FreeFlame::eval(size_t jg, doublereal* xg,
-                     doublereal* rg, integer* diagg, doublereal rdt)
-{
-
-    // if evaluating a Jacobian, and the global point is outside
-    // the domain of influence for this domain, then skip
-    // evaluating the residual
-    if (jg != npos && (jg + 1 < firstPoint() || jg > lastPoint() + 1)) {
-        return;
-    }
-
-    // if evaluating a Jacobian, compute the steady-state residual
-    if (jg != npos) {
-        rdt = 0.0;
-    }
-
-    // start of local part of global arrays
-    doublereal* x = xg + loc();
-    doublereal* rsd = rg + loc();
-    integer* diag = diagg + loc();
-
-    size_t jmin, jmax;
-
-    if (jg == npos) {      // evaluate all points
-        jmin = 0;
-        jmax = m_points - 1;
-    } else {          // evaluate points for Jacobian
-        size_t jpt = (jg == 0) ? 0 : jg - firstPoint();
-        jmin = std::max<size_t>(jpt, 1) - 1;
-        jmax = std::min(jpt+1,m_points-1);
-    }
-
-    // properties are computed for grid points from j0 to j1
-    size_t j0 = std::max<size_t>(jmin, 1) - 1;
-    size_t j1 = std::min(jmax+1,m_points-1);
-
-    size_t j, k;
-
-    //-----------------------------------------------------
-    //              update properties
-    //-----------------------------------------------------
-
-    // update thermodynamic properties only if a Jacobian is not
-    // being evaluated
-    if (jg == npos) {
-        updateThermo(x, j0, j1);
-        updateTransport(x, j0, j1);
-    }
-
-    // update the species diffusive mass fluxes whether or not a
-    // Jacobian is being evaluated
-    updateDiffFluxes(x, j0, j1);
-
-
-    //----------------------------------------------------
-    // evaluate the residual equations at all required
-    // grid points
-    //----------------------------------------------------
-
-    doublereal sum, sum2, dtdzj;
-
-    for (j = jmin; j <= jmax; j++) {
-
-
-        //----------------------------------------------
-        //         left boundary
-        //----------------------------------------------
-
-        if (j == 0) {
-
-            // these may be modified by a boundary object
-
-            // Continuity. This propagates information right-to-left,
-            // since rho_u at point 0 is dependent on rho_u at point 1,
-            // but not on mdot from the inlet.
-            rsd[index(c_offset_U,0)] =
-                -(rho_u(x,1) - rho_u(x,0))/m_dz[0]
-                -(density(1)*V(x,1) + density(0)*V(x,0));
-
-            // the inlet (or other) object connected to this one
-            // will modify these equations by subtracting its values
-            // for V, T, and mdot. As a result, these residual equations
-            // will force the solution variables to the values for
-            // the boundary object
-            rsd[index(c_offset_V,0)] = V(x,0);
-            rsd[index(c_offset_T,0)] = T(x,0);
-            rsd[index(c_offset_L,0)] = -rho_u(x,0);
-
-            // The default boundary condition for species is zero
-            // flux
-            sum = 0.0;
-            for (k = 0; k < m_nsp; k++) {
-                sum += Y(x,k,0);
-                rsd[index(c_offset_Y + k, 0)] =
-                    -(m_flux(k,0) + rho_u(x,0)* Y(x,k,0));
-            }
-            rsd[index(c_offset_Y, 0)] = 1.0 - sum;
-        }
-
-
-        //----------------------------------------------
-        //
-        //         right boundary
-        //
-        //----------------------------------------------
-
-        else if (j == m_points - 1) {
-
-            // the boundary object connected to the right of this
-            // one may modify or replace these equations. The
-            // default boundary conditions are zero u, V, and T,
-            // and zero diffusive flux for all species.
-
-            // zero gradient
-            rsd[index(0,j)] = rho_u(x,j) - rho_u(x,j-1);
-            rsd[index(1,j)] = V(x,j);
-            rsd[index(2,j)] = T(x,j) - T(x,j-1);
-            doublereal sum = 0.0;
-            rsd[index(c_offset_L, j)] = lambda(x,j) - lambda(x,j-1);
-            diag[index(c_offset_L, j)] = 0;
-            for (k = 0; k < m_nsp; k++) {
-                sum += Y(x,k,j);
-                rsd[index(k+4,j)] = m_flux(k,j-1) + rho_u(x,j)*Y(x,k,j);
-            }
-            rsd[index(4,j)] = 1.0 - sum;
-            diag[index(4,j)] = 0;
-        }
-
-        //------------------------------------------
-        //     interior points
-        //------------------------------------------
-
-        else {
-
-            //----------------------------------------------
-            //    Continuity equation
-            //
-            //    d(\rho u)/dz + 2\rho V = 0
-            //
-            //----------------------------------------------
-
-            if (grid(j) > m_zfixed) {
-                rsd[index(c_offset_U,j)] =
-                    - (rho_u(x,j) - rho_u(x,j-1))/m_dz[j-1]
-                    - (density(j-1)*V(x,j-1) + density(j)*V(x,j));
-            }
-
-            else if (grid(j) == m_zfixed) {
-                if (m_do_energy[j]) {
-                    rsd[index(c_offset_U,j)] = (T(x,j) - m_tfixed);
-                } else {
-                    rsd[index(c_offset_U,j)] = (rho_u(x,j)
-                                                - m_rho[0]*0.3);
-                }
-            } else if (grid(j) < m_zfixed) {
-                rsd[index(c_offset_U,j)] =
-                    - (rho_u(x,j+1) - rho_u(x,j))/m_dz[j]
-                    - (density(j+1)*V(x,j+1) + density(j)*V(x,j));
-            }
-            //algebraic constraint
-            diag[index(c_offset_U, j)] = 0;
-
-            //------------------------------------------------
-            //    Radial momentum equation
-            //
-            //    \rho dV/dt + \rho u dV/dz + \rho V^2
-            //       = d(\mu dV/dz)/dz - lambda
-            //
-            //-------------------------------------------------
-            rsd[index(c_offset_V,j)]
-            = (shear(x,j) - lambda(x,j) - rho_u(x,j)*dVdz(x,j)
-               - m_rho[j]*V(x,j)*V(x,j))/m_rho[j]
-              - rdt*(V(x,j) - V_prev(j));
-            diag[index(c_offset_V, j)] = 1;
-
-
-            //-------------------------------------------------
-            //    Species equations
-            //
-            //   \rho dY_k/dt + \rho u dY_k/dz + dJ_k/dz
-            //   = M_k\omega_k
-            //
-            //-------------------------------------------------
-            getWdot(x,j);
-
-            doublereal convec, diffus;
-            for (k = 0; k < m_nsp; k++) {
-                convec = rho_u(x,j)*dYdz(x,k,j);
-                diffus = 2.0*(m_flux(k,j) - m_flux(k,j-1))
-                         /(z(j+1) - z(j-1));
-                rsd[index(c_offset_Y + k, j)]
-                = (m_wt[k]*(wdot(k,j))
-                   - convec - diffus)/m_rho[j]
-                  - rdt*(Y(x,k,j) - Y_prev(k,j));
-                diag[index(c_offset_Y + k, j)] = 1;
-            }
-
-
-            //-----------------------------------------------
-            //    energy equation
-            //
-            //    \rho c_p dT/dt + \rho c_p u dT/dz
-            //    = d(k dT/dz)/dz
-            //      - sum_k(\omega_k h_k_ref)
-            //      - sum_k(J_k c_p_k / M_k) dT/dz
-            //-----------------------------------------------
-
-            if (m_do_energy[j]) {
-
-                setGas(x,j);
-
-                // heat release term
-                const vector_fp& h_RT = m_thermo->enthalpy_RT_ref();
-                const vector_fp& cp_R = m_thermo->cp_R_ref();
-
-                sum = 0.0;
-                sum2 = 0.0;
-                doublereal flxk;
-                for (k = 0; k < m_nsp; k++) {
-                    flxk = 0.5*(m_flux(k,j-1) + m_flux(k,j));
-                    sum += wdot(k,j)*h_RT[k];
-                    sum2 += flxk*cp_R[k]/m_wt[k];
-                }
-                sum *= GasConstant * T(x,j);
-                dtdzj = dTdz(x,j);
-                sum2 *= GasConstant * dtdzj;
-
-                rsd[index(c_offset_T, j)]   =
-                    - m_cp[j]*rho_u(x,j)*dtdzj
-                    - divHeatFlux(x,j) - sum - sum2;
-                rsd[index(c_offset_T, j)] /= (m_rho[j]*m_cp[j]);
-
-                rsd[index(c_offset_T, j)] -= rdt*(T(x,j) - T_prev(j));
-                diag[index(c_offset_T, j)] = 1;
-            }
-            // residual equations if the energy equation is disabled
-            else {
-                rsd[index(c_offset_T, j)] = T(x,j) - T_fixed(j);
-                diag[index(c_offset_T, j)] = 0;
-            }
-
-            rsd[index(c_offset_L, j)] = lambda(x,j) - lambda(x,j-1);
-            diag[index(c_offset_L, j)] = 0;
-        }
-    }
-}
 
 
 /**
@@ -1233,11 +915,110 @@ void StFlow::save(XML_Node& o, const doublereal* const sol)
     }
 }
 
-
 void StFlow::setJac(MultiJac* jac)
 {
     m_jac = jac;
 }
 
+void AxiStagnFlow::evalRightBoundary(doublereal* x, doublereal* rsd,
+                                   integer* diag, doublereal rdt)
+{
+    size_t j = m_points - 1;
+    // the boundary object connected to the right of this one may modify or
+    // replace these equations. The default boundary conditions are zero u, V,
+    // and T, and zero diffusive flux for all species.
+
+    rsd[index(0,j)] = rho_u(x,j);
+    rsd[index(1,j)] = V(x,j);
+    rsd[index(2,j)] = T(x,j);
+    rsd[index(c_offset_L, j)] = lambda(x,j) - lambda(x,j-1);
+    diag[index(c_offset_L, j)] = 0;
+    doublereal sum = 0.0;
+    for (size_t k = 0; k < m_nsp; k++) {
+        sum += Y(x,k,j);
+        rsd[index(k+4,j)] = m_flux(k,j-1) + rho_u(x,j)*Y(x,k,j);
+    }
+    rsd[index(4,j)] = 1.0 - sum;
+    diag[index(4,j)] = 0;
+}
+
+void AxiStagnFlow::evalContinuity(size_t j, doublereal* x, doublereal* rsd,
+                                integer* diag, doublereal rdt)
+{
+    //----------------------------------------------
+    //    Continuity equation
+    //
+    //    Note that this propagates the mass flow rate information to the left
+    //    (j+1 -> j) from the value specified at the right boundary. The
+    //    lambda information propagates in the opposite direction.
+    //
+    //    d(\rho u)/dz + 2\rho V = 0
+    //
+    //------------------------------------------------
+
+    rsd[index(c_offset_U,j)] =
+        -(rho_u(x,j+1) - rho_u(x,j))/m_dz[j]
+        -(density(j+1)*V(x,j+1) + density(j)*V(x,j));
+
+    //algebraic constraint
+    diag[index(c_offset_U, j)] = 0;
+}
+
+void FreeFlame::evalRightBoundary(doublereal* x, doublereal* rsd,
+                                   integer* diag, doublereal rdt)
+{
+    size_t j = m_points - 1;
+
+    // the boundary object connected to the right of this one may modify or
+    // replace these equations. The default boundary conditions are zero u, V,
+    // and T, and zero diffusive flux for all species.
+
+    // zero gradient
+    rsd[index(0,j)] = rho_u(x,j) - rho_u(x,j-1);
+    rsd[index(1,j)] = V(x,j);
+    rsd[index(2,j)] = T(x,j) - T(x,j-1);
+    doublereal sum = 0.0;
+    rsd[index(c_offset_L, j)] = lambda(x,j) - lambda(x,j-1);
+    diag[index(c_offset_L, j)] = 0;
+    for (size_t k = 0; k < m_nsp; k++) {
+        sum += Y(x,k,j);
+        rsd[index(k+4,j)] = m_flux(k,j-1) + rho_u(x,j)*Y(x,k,j);
+    }
+    rsd[index(4,j)] = 1.0 - sum;
+    diag[index(4,j)] = 0;
+}
+
+
+void FreeFlame::evalContinuity(size_t j, doublereal* x, doublereal* rsd,
+                                integer* diag, doublereal rdt)
+{
+    //----------------------------------------------
+    //    Continuity equation
+    //
+    //    d(\rho u)/dz + 2\rho V = 0
+    //
+    //----------------------------------------------
+
+    if (grid(j) > m_zfixed) {
+        rsd[index(c_offset_U,j)] =
+            - (rho_u(x,j) - rho_u(x,j-1))/m_dz[j-1]
+            - (density(j-1)*V(x,j-1) + density(j)*V(x,j));
+    }
+
+    else if (grid(j) == m_zfixed) {
+        if (m_do_energy[j]) {
+            rsd[index(c_offset_U,j)] = (T(x,j) - m_tfixed);
+        } else {
+            rsd[index(c_offset_U,j)] = (rho_u(x,j)
+                                        - m_rho[0]*0.3);
+        }
+    } else if (grid(j) < m_zfixed) {
+        rsd[index(c_offset_U,j)] =
+            - (rho_u(x,j+1) - rho_u(x,j))/m_dz[j]
+            - (density(j+1)*V(x,j+1) + density(j)*V(x,j));
+    }
+    //algebraic constraint
+    diag[index(c_offset_U, j)] = 0;
+}
 
 }  // namespace
