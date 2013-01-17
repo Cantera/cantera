@@ -279,6 +279,18 @@ public:
         m_dovisc = dovisc;
     }
 
+    virtual void eval(size_t j, doublereal* x, doublereal* r,
+                      integer* mask, doublereal rdt);
+
+    //! Evaluate all residual components at the right boundary.
+    virtual void evalRightBoundary(doublereal* x, doublereal* res,
+                                   integer* diag, doublereal rdt) = 0;
+
+    //! Evaluate the residual corresponding to the continuity equation at all
+    //! interior grid points.
+    virtual void evalContinuity(size_t j, doublereal* x, doublereal* r,
+                                integer* diag, doublereal rdt) = 0;
+
 protected:
 
     doublereal component(const doublereal* x, size_t i, size_t j) const {
@@ -511,8 +523,12 @@ public:
         m_dovisc = true;
     }
     virtual ~AxiStagnFlow() {}
-    virtual void eval(size_t j, doublereal* x, doublereal* r,
-                      integer* mask, doublereal rdt);
+
+    virtual void evalRightBoundary(doublereal* x, doublereal* res,
+                                   integer* diag, doublereal rdt);
+    virtual void evalContinuity(size_t j, doublereal* x, doublereal* r,
+                                integer* diag, doublereal rdt);
+
     virtual std::string flowType() {
         return "Axisymmetric Stagnation";
     }
@@ -530,8 +546,12 @@ public:
         setID("flame");
     }
     virtual ~FreeFlame() {}
-    virtual void eval(size_t j, doublereal* x, doublereal* r,
-                      integer* mask, doublereal rdt);
+
+    virtual void evalRightBoundary(doublereal* x, doublereal* res,
+                                   integer* diag, doublereal rdt);
+    virtual void evalContinuity(size_t j, doublereal* x, doublereal* r,
+                                integer* diag, doublereal rdt);
+
     virtual std::string flowType() {
         return "Free Flame";
     }

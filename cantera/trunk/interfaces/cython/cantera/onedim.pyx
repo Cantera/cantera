@@ -365,12 +365,6 @@ cdef CxxIdealGasPhase* getIdealGasPhase(ThermoPhase phase) except *:
     return <CxxIdealGasPhase*>(phase.thermo)
 
 
-cdef class StagnationFlow(_FlowBase):
-    def __cinit__(self, _SolutionBase thermo, *args, **kwargs):
-        gas = getIdealGasPhase(thermo)
-        self.flow = new CxxStFlow(gas, thermo.nSpecies(), 2)
-
-
 cdef class FreeFlow(_FlowBase):
     def __cinit__(self, _SolutionBase thermo, *args, **kwargs):
         gas = getIdealGasPhase(thermo)
