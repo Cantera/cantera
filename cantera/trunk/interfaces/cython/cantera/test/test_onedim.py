@@ -1,5 +1,6 @@
 import cantera as ct
 from . import utilities
+import numpy as np
 import os
 
 
@@ -121,6 +122,7 @@ class TestFreeFlame(utilities.CanteraTest):
         for rhou_j in self.sim.density * self.sim.u:
             self.assertNear(rhou_j, rhou, 1e-4)
 
+    # @utilities.unittest.skip('sometimes slow')
     def test_multicomponent(self):
         reactants= 'H2:1.1, O2:1, AR:5.3'
         p = ct.OneAtm
@@ -218,3 +220,81 @@ class TestFreeFlame(utilities.CanteraTest):
         for attr in ct.FlameBase.__dict__:
             if isinstance(ct.FlameBase.__dict__[attr], property):
                 getattr(self.sim, attr)
+
+
+class TestDiffusionFlame(utilities.CanteraTest):
+    referenceFile = '../data/DiffusionFlameTest-h2-mix.csv'
+    # Note: to re-create the reference file:
+    # (1) set PYTHONPATH to build/python2 or build/python3.
+    # (2) Start Python in the test/work directory and run:
+    #     >>> import cantera.test
+    #     >>> t = cantera.test.test_onedim.TestDiffusionFlame("test_mixture_averaged")
+    #     >>> t.test_mixture_averaged(True)
+
+    def create_sim(self, p, fuel='H2:1.0, AR:1.0', T_fuel=300, mdot_fuel=0.24,
+                   oxidizer='O2:0.2, AR:0.8', T_ox=300, mdot_ox=0.72):
+
+        initial_grid = initial_grid = np.linspace(0, 0.02, 6)  # m
+        tol_ss = [1.0e-5, 1.0e-12]  # [rtol, atol] for steady-state problem
+        tol_ts = [5.0e-4, 1.0e-9]  # [rtol, atol] for time stepping
+
+        # IdealGasMix object used to compute mixture properties
+        self.gas = ct.Solution('h2o2.xml', 'ohmech')
+        self.gas.TP = T_fuel, p
+
+        # Flame object
+        self.sim = ct.CounterflowDiffusionFlame(self.gas, initial_grid)
+        self.sim.flame.setSteadyTolerances(default=tol_ss)
+        self.sim.flame.setTransientTolerances(default=tol_ts)
+
+        # Set properties of the fuel and oxidizer mixtures
+        self.sim.fuel_inlet.mdot = mdot_fuel
+        self.sim.fuel_inlet.X = fuel
+        self.sim.fuel_inlet.T = T_fuel
+
+        self.sim.oxidizer_inlet.mdot = mdot_ox
+        self.sim.oxidizer_inlet.X = oxidizer
+        self.sim.oxidizer_inlet.T = T_ox
+
+        self.sim.setInitialGuess(fuel='H2')
+
+    def solve_fixed_T(self):
+        # Solve with the energy equation disabled
+        self.sim.energyEnabled = False
+        self.sim.solve(loglevel=0, refine_grid=False)
+
+        self.assertFalse(self.sim.energyEnabled)
+
+    def solve_mix(self, ratio=3.0, slope=0.1, curve=0.12, prune=0.0):
+        # Solve with the energy equation enabled
+
+        self.sim.setRefineCriteria(ratio=ratio, slope=slope, curve=curve, prune=prune)
+        self.sim.energyEnabled = True
+        self.sim.solve(loglevel=0, refine_grid=True)
+
+        self.assertTrue(self.sim.energyEnabled)
+        self.assertEqual(self.sim.transportModel, 'Mix')
+
+    def test_mixture_averaged(self, saveReference=False):
+        self.create_sim(p=ct.OneAtm)
+
+        nPoints = len(self.sim.grid)
+        Tfixed = self.sim.T
+        self.solve_fixed_T()
+        self.assertEqual(nPoints, len(self.sim.grid))
+        self.assertArrayNear(Tfixed, self.sim.T)
+
+        self.solve_mix()
+        data = np.empty((self.sim.flame.nPoints, self.gas.nSpecies + 4))
+        data[:,0] = self.sim.grid
+        data[:,1] = self.sim.u
+        data[:,2] = self.sim.V
+        data[:,3] = self.sim.T
+        data[:,4:] = self.sim.Y.T
+
+        if saveReference:
+            np.savetxt(self.referenceFile, data, '%11.6e', ', ')
+        else:
+            bad = utilities.compareProfiles(self.referenceFile, data,
+                                            rtol=1e-2, atol=1e-8, xtol=1e-2)
+            self.assertFalse(bad, bad)
