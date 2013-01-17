@@ -16,7 +16,7 @@ int main(int argc, char** argv)
         auto_ptr<Transport> tran(newTransportMgr("DustyGas", g.get(), log_level));
         DustyGasTransport* tranDusty = dynamic_cast<DustyGasTransport*>(tran.get());
 
-        int nsp = g->nSpecies();
+        size_t nsp = g->nSpecies();
         vector_fp multiD(nsp*nsp);
 
         double T = 500;
@@ -30,8 +30,8 @@ int main(int argc, char** argv)
 
         tranDusty->getMultiDiffCoeffs(nsp, DATA_PTR(multiD));
         printf("MultiDiffusion coefficients: \n");
-        for (int i = 0; i < nsp; i++) {
-            for (int j = 0; j < nsp; j++) {
+        for (size_t i = 0; i < nsp; i++) {
+            for (size_t j = 0; j < nsp; j++) {
                 printf(" %15.8E,", multiD[nsp*j + i]);
             }
             printf("\n");
@@ -47,12 +47,12 @@ int main(int argc, char** argv)
         fluxes.resize(nsp);
 
         tranDusty->getMolarFluxes(&state1[0], &state1[0], delta, &fluxes[0]);
-        for (int i = 0; i < nsp; i++) {
-            printf(" flux[%d] = %13.8E\n", i, fluxes[i]);
+        for (size_t i = 0; i < nsp; i++) {
+            printf(" flux[%d] = %13.8E\n", int(i), fluxes[i]);
         }
         tranDusty->getMolarFluxes(&state1[0], &state2[0], delta, &fluxes[0]);
-        for (int i = 0; i < nsp; i++) {
-            printf(" flux[%d] = %13.8E\n", i, fluxes[i]);
+        for (size_t i = 0; i < nsp; i++) {
+            printf(" flux[%d] = %13.8E\n", int(i), fluxes[i]);
         }
 
         Cantera::appdelete();

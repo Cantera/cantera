@@ -272,6 +272,11 @@ void VPStandardStateTP::getStandardVolumes(doublereal* vol) const
     updateStandardStateThermo();
     m_VPSS_ptr->getStandardVolumes(vol);
 }
+const vector_fp & VPStandardStateTP::getStandardVolumes() const
+{
+    updateStandardStateThermo();
+    return m_VPSS_ptr->getStandardVolumes();
+}
 
 /*
  * ----- Thermodynamic Values for the Species Reference States ----

@@ -322,40 +322,112 @@ cdef extern from "cantera/zeroD/ReactorFactory.h" namespace "Cantera":
 
 cdef extern from "cantera/oneD/Domain1D.h":
     cdef cppclass CxxDomain1D "Cantera::Domain1D":
-        int nPoints()
-        void setupGrid(size_t, double)
+        size_t domainIndex()
+        size_t nComponents()
+        size_t nPoints()
+        string componentName(size_t) except +
+        size_t componentIndex(string) except +
+        void setBounds(size_t, double, double)
+        double upperBound(size_t)
+        double lowerBound(size_t)
+        void setTolerances(size_t, double, double, int)
+        double rtol(size_t)
+        double atol(size_t)
+        double grid(size_t)
+        void setupGrid(size_t, double*) except +
+        void setID(string)
+        string& id()
+        void setDesc(string)
+        string& desc()
+
 
 cdef extern from "cantera/oneD/Inlet1D.h":
     cdef cppclass CxxBdry1D "Cantera::Bdry1D":
+        double temperature()
         void setTemperature(double)
+        double mdot()
+        void setMdot(double)
+        size_t nSpecies()
+        void setMoleFractions(double*) except +
+        void setMoleFractions(string) except +
+        double massFraction(size_t)
+
     cdef cppclass CxxInlet1D "Cantera::Inlet1D":
         CxxInlet1D()
+        double spreadRate()
+        void setSpreadRate(double)
+
     cdef cppclass CxxOutlet1D "Cantera::Outlet1D":
         CxxOutlet1D()
+
     cdef cppclass CxxOutletRes1D "Cantera::OutletRes1D":
         CxxOutletRes1D()
+
     cdef cppclass CxxSymm1D "Cantera::Symm1D":
         CxxSymm1D()
+
     cdef cppclass CxxSurf1D "Cantera::Surf1D":
         CxxSurf1D()
+
     cdef cppclass CxxReactingSurf1D "Cantera::ReactingSurf1D":
         CxxRreactingSurf1D()
-        void setKineticsMgr(CxxInterfaceKinetics*)
+        void setKineticsMgr(CxxInterfaceKinetics*) except +
+        void enableCoverageEquations(cbool) except +
+
 
 cdef extern from "cantera/oneD/StFlow.h":
     cdef cppclass CxxStFlow "Cantera::StFlow":
         CxxStFlow(CxxIdealGasPhase*, int, int)
-        void setKinetics(CxxKinetics&)
+        void setKinetics(CxxKinetics&) except +
+        void setTransport(CxxTransport&, cbool) except +
+        void setTransport(CxxTransport&) except +
+        void setPressure(double)
+        double pressure()
+        void setFixedTempProfile(vector[double]&, vector[double]&)
+        void solveEnergyEqn()
+        void fixTemperature()
+        cbool doEnergy(size_t)
+        void enableSoret(cbool)
+        cbool withSoret()
+
     cdef cppclass CxxFreeFlame "Cantera::FreeFlame":
         CxxFreeFlame(CxxIdealGasPhase*, int, int)
+
     cdef cppclass CxxAxiStagnFlow "Cantera::AxiStagnFlow":
         CxxAxiStagnFlow(CxxIdealGasPhase*, int, int)
 
+
 cdef extern from "cantera/oneD/Sim1D.h":
     cdef cppclass CxxSim1D "Cantera::Sim1D":
-        CxxSim1D(vector[CxxDomain1D*]&)
+        CxxSim1D(vector[CxxDomain1D*]&) except +
+        void setValue(size_t, size_t, size_t, double) except +
+        void setProfile(size_t, size_t, vector[double]&, vector[double]&) except +
+        void setFlatProfile(size_t, size_t, double) except +
+        void showSolution() except +
+        void setTimeStep(double, size_t, int*) except +
+        void getInitialSoln() except +
+        void solve(int, cbool) except +
+        void refine(int) except +
+        void setRefineCriteria(size_t, double, double, double, double)
+        void save(string, string, string, int) except +
+        void restore(string, string, int) except +
+        void writeStats(int) except +
+        int domainIndex(string) except +
+        double value(size_t, size_t, size_t) except +
+        double workValue(size_t, size_t, size_t) except +
+        void eval(double, int) except +
+        void setJacAge(int, int)
+        void setTimeStepFactor(double)
+        void setMinTimeStep(double)
+        void setMaxTimeStep(double)
+        void setFixedTemperature(double)
+
 
 cdef extern from "wrappers.h":
+    # config definitions
+    cdef string get_cantera_version()
+    cdef int get_sundials_version()
+
     # ThermoPhase composition
     cdef void thermo_getMassFractions(CxxThermoPhase*, double*) except +
     cdef void thermo_setMassFractions(CxxThermoPhase*, double*) except +

@@ -1200,7 +1200,7 @@ private:
     //! Local copy of the mass fractions of the species in the phase
     /**
      * This version of the mass fraction vector is adjusted to a
-     * minimum lower bound of MIN_X for use in transport calculations.
+     * minimum lower bound of *Tiny* for use in transport calculations.
      */
     vector_fp m_massfracs_tran;
 
@@ -1218,7 +1218,7 @@ private:
 
     //! Non-zero mole fraction vector used in transport property calculations
     /*!
-     *  The mole fractions here are assumed to be bounded by MIN_X and 1.0
+     *  The mole fractions here are assumed to be bounded by *Tiny* and 1.0
      *  and they may not be assumed to add up to one. This
      *  mole fraction vector is created from the ThermoPhase object.
      *  Derivative quantities of this use the _tran suffix.

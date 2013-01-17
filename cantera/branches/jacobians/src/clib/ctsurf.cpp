@@ -8,7 +8,7 @@
 // Cantera includes
 #include "cantera/thermo/SurfPhase.h"
 #include "cantera/kinetics/InterfaceKinetics.h"
-#include "kinetics/ImplicitSurfChem.h"
+#include "cantera/kinetics/ImplicitSurfChem.h"
 #include "Cabinet.h"
 
 using namespace std;

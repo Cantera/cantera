@@ -12,7 +12,7 @@
 #include "cantera/kinetics/ReactionData.h"
 #include "cantera/kinetics/RateCoeffMgr.h"
 
-#include "ImplicitSurfChem.h"
+#include "cantera/kinetics/ImplicitSurfChem.h"
 
 using namespace std;
 
@@ -215,6 +215,7 @@ void InterfaceKinetics::setElectricPotential(int n, doublereal V)
     thermo(n).setElectricPotential(V);
     m_redo_rates = true;
 }
+
 //====================================================================================================================
 // Update properties that depend on temperature
 /*
@@ -393,6 +394,23 @@ void InterfaceKinetics::checkPartialEquil()
     }
 }
 
+void InterfaceKinetics::getFwdRatesOfProgress(doublereal* fwdROP)
+{
+    updateROP();
+    std::copy(m_ropf.begin(), m_ropf.end(), fwdROP);
+}
+
+void InterfaceKinetics::getRevRatesOfProgress(doublereal* revROP)
+{
+    updateROP();
+    std::copy(m_ropr.begin(), m_ropr.end(), revROP);
+}
+
+void InterfaceKinetics::getNetRatesOfProgress(doublereal* netROP)
+{
+    updateROP();
+    std::copy(m_ropnet.begin(), m_ropnet.end(), netROP);
+}
 
 /**
  * Get the equilibrium constants of all reactions, whether
@@ -1371,9 +1389,9 @@ void InterfaceKinetics::setPhaseExistence(const size_t iphase, const int exists)
  * @return Returns the int specifying whether the kinetics object thinks the phase exists
  *         or not. If it exists, then species in that phase can be a reactant in reactions.
  */
-int InterfaceKinetics::phaseExistence(const int iphase) const
+int InterfaceKinetics::phaseExistence(const size_t iphase) const
 {
-    if (iphase < 0 || iphase >= (int) m_thermo.size()) {
+    if (iphase >= m_thermo.size()) {
         throw CanteraError("InterfaceKinetics:phaseExistence()", "out of bounds");
     }
     return m_phaseExists[iphase];
@@ -1388,18 +1406,18 @@ int InterfaceKinetics::phaseExistence(const int iphase) const
  *         If it stable, then the kinetics object will allow for rates of production of
  *         of species in that phase that are positive.
  */
-int InterfaceKinetics::phaseStability(const int iphase) const
+int InterfaceKinetics::phaseStability(const size_t iphase) const
 {
-    if (iphase < 0 || iphase >= (int) m_thermo.size()) {
+    if (iphase >= m_thermo.size()) {
         throw CanteraError("InterfaceKinetics:phaseStability()", "out of bounds");
     }
     return m_phaseIsStable[iphase];
 }
 //================================================================================================
 
-void InterfaceKinetics::setPhaseStability(const int iphase, const int isStable)
+void InterfaceKinetics::setPhaseStability(const size_t iphase, const int isStable)
 {
-    if (iphase < 0 || iphase >= (int) m_thermo.size()) {
+    if (iphase >= m_thermo.size()) {
         throw CanteraError("InterfaceKinetics:setPhaseStability", "out of bounds");
     }
     if (isStable) {

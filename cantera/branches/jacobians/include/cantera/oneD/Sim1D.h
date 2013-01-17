@@ -73,7 +73,10 @@ public:
     //@}
 
     void save(const std::string& fname, const std::string& id,
-              const std::string& desc);
+              const std::string& desc, int loglevel=1);
+
+    void saveResidual(const std::string& fname, const std::string& id,
+              const std::string& desc, int loglevel=1);
 
     /// Print to stream s the current solution for all domains.
     void showSolution(std::ostream& s);
@@ -104,7 +107,15 @@ public:
                            doublereal slope = 0.8, doublereal curve = 0.8, doublereal prune = -0.1);
     void setMaxGridPoints(int dom = -1, int npoints = 300);
 
-    void restore(const std::string& fname, const std::string& id);
+    //! Set the minimum grid spacing in the specified domain(s).
+    /*!
+     *  @param dom Domain index. If dom == -1, the specified spacing
+                   is applied to all domains.
+        @param gridmin The minimum allowable grid spacing [m]
+    */
+    void setGridMin(int dom, double gridmin);
+
+    void restore(const std::string& fname, const std::string& id, int loglevel=2);
     void getInitialSoln();
 
     void setSolution(const doublereal* soln) {

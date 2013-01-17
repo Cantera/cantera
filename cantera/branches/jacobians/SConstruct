@@ -817,6 +817,20 @@ if env['python_package'] in ('full','default','new'):
                    """ because the array package '%s' could not be found.""" % env['python_array'])
             warnNoPython = True
             env['python_package'] = 'minimal'
+
+    # Check for 3to2 if we're building the "new" Python module
+    # See http://pypi.python.org/pypi/3to2
+    if env['python_package'] == 'new':
+        try:
+            ret = getCommandOutput('3to2','-l')
+        except OSError:
+            ret = ''
+        if 'print' in ret:
+            env['python_convert_examples'] = True
+        else:
+            env['python_convert_examples'] = False
+            print """WARNING: Couldn't find '3to2'. Python examples will not work correctly."""
+
 else:
     warnNoPython = False
     env['python_array_include'] = ''

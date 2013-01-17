@@ -17,12 +17,6 @@
 #include <iostream>
 using namespace std;
 
-/**
- * Mole fractions below MIN_X will be set to MIN_X when computing
- * transport properties.
- */
-#define MIN_X 1.e-20
-
 namespace Cantera
 {
 
@@ -273,10 +267,12 @@ void PecosTransport::getThermalDiffCoeffs(doublereal* const dt)
  *
  */
 void PecosTransport::getSpeciesFluxes(size_t ndim,
-                                      const doublereal* grad_T, size_t ldx, const doublereal* grad_X,
-                                      size_t ldf, doublereal* fluxes)
+                                      const doublereal* const grad_T,
+                                      size_t ldx, const doublereal* const grad_X,
+                                      size_t ldf, doublereal* const fluxes)
 {
-    int n=0, k;
+    size_t n = 0;
+    int k;
 
     update_T();
     update_C();
@@ -479,7 +475,7 @@ void PecosTransport::update_C()
     // add an offset to avoid a pure species condition
     int k;
     for (k = 0; k < m_nsp; k++) {
-        m_molefracs[k] = std::max(MIN_X, m_molefracs[k]);
+        m_molefracs[k] = std::max(Tiny, m_molefracs[k]);
     }
 }
 

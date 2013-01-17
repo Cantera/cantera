@@ -28,9 +28,6 @@ using namespace ctml;
 namespace Cantera
 {
 
-//!  Small value to be used in cutoff expressions with logs
-static double xxSmall = 1.0E-150;
-
 /*
  * Default constructor
  */
@@ -615,7 +612,6 @@ getMolalityActivityCoefficients(doublereal* acMolality) const
 void IdealMolalSoln::getChemPotentials(doublereal* mu) const
 {
     double xx;
-    //const double xxSmall = 1.0E-150;
 
     // Assertion is made for speed
     AssertThrow(m_indexSolvent == 0, "solvent not the first species");
@@ -641,7 +637,7 @@ void IdealMolalSoln::getChemPotentials(doublereal* mu) const
     if (IMS_typeCutoff_ == 0 || xmolSolvent > 3.* IMS_X_o_cutoff_/2.0) {
 
         for (size_t k = 1; k < m_kk; k++) {
-            xx = std::max(m_molalities[k], xxSmall);
+            xx = std::max(m_molalities[k], SmallNumber);
             mu[k] += RT * log(xx);
         }
         /*
@@ -649,7 +645,7 @@ void IdealMolalSoln::getChemPotentials(doublereal* mu) const
          *  -> see my notes
          */
 
-        xx = std::max(xmolSolvent, xxSmall);
+        xx = std::max(xmolSolvent, SmallNumber);
         mu[m_indexSolvent] +=
             (RT * (xmolSolvent - 1.0) / xx);
     } else {
@@ -661,10 +657,10 @@ void IdealMolalSoln::getChemPotentials(doublereal* mu) const
 
 
         for (size_t k = 1; k < m_kk; k++) {
-            xx = std::max(m_molalities[k], xxSmall);
+            xx = std::max(m_molalities[k], SmallNumber);
             mu[k] += RT * (log(xx) + IMS_lnActCoeffMolal_[k]);
         }
-        xx = std::max(xmolSolvent, xxSmall);
+        xx = std::max(xmolSolvent, SmallNumber);
         mu[m_indexSolvent] +=
             RT * (log(xx) + IMS_lnActCoeffMolal_[m_indexSolvent]);
     }

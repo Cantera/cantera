@@ -260,7 +260,14 @@ private:
 
     //! Update boolean for the mixture rule for the mixture thermal conductivity
     bool m_condmix_ok;
-
+ public:
+    vector_fp m_eps;
+    vector_fp m_sigma;
+    vector_fp m_alpha;
+    DenseMatrix m_dipole;
+    vector_fp m_zrot;
+    vector_fp m_crot;
+ private:
     //! Debug flag - turns on more printing
     bool m_debug;
 };

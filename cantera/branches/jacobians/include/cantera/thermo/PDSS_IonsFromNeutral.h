@@ -459,7 +459,7 @@ protected:
     /*!
      *  This is a shallow pointer.
      */
-    ThermoPhase* neutralMoleculePhase_;
+    const ThermoPhase* neutralMoleculePhase_;
 
 public:
 

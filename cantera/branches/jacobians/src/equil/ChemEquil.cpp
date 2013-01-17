@@ -1579,9 +1579,7 @@ int ChemEquil::estimateEP_Brinkley(thermo_t& s, vector_fp& x,
 
         nCutoff = 1.0E-9 * n_t_calc;
 #ifdef DEBUG_MODE
-        if (ChemEquil_print_lvl > 0) {
-            writelog(" Lump Sum Elements Calculation: \n");
-        }
+        writelog(" Lump Sum Elements Calculation: \n", ChemEquil_print_lvl);
 #endif
         for (m = 0; m < m_mm; m++) {
             size_t kMSp = npos;
@@ -1831,9 +1829,7 @@ int ChemEquil::estimateEP_Brinkley(thermo_t& s, vector_fp& x,
             err.save();
             addLogEntry("estimateEP_Brinkley:Jacobian is singular.");
 #ifdef DEBUG_MODE
-            if (ChemEquil_print_lvl > 0) {
-                writelog("Matrix is SINGULAR.ERROR\n");
-            }
+            writelog("Matrix is SINGULAR.ERROR\n", ChemEquil_print_lvl);
 #endif
             s.restoreState(state);
             throw CanteraError("equilibrate:estimateEP_Brinkley()",

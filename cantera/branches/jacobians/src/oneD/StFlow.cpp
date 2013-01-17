@@ -109,6 +109,9 @@ StFlow::StFlow(IdealGasPhase* ph, size_t nsp, size_t points) :
     m_points = points;
     m_thermo = ph;
 
+    m_zfixed = Undef;
+    m_tfixed = Undef;
+
     if (ph == 0) {
         return;    // used to create a dummy object
     }
@@ -209,6 +212,7 @@ void StFlow::resize(size_t ncomponents, size_t points)
     } else {
         m_multidiff.resize(m_nsp*m_nsp*m_points);
         m_diff.resize(m_nsp*m_points);
+        m_dthermal.resize(m_nsp, m_points, 0.0);
     }
     m_flux.resize(m_nsp,m_points);
     m_wdot.resize(m_nsp,m_points, 0.0);
@@ -988,7 +992,8 @@ void StFlow::updateDiffFluxes(const doublereal* x, size_t j0, size_t j1)
 
     if (m_do_soret) {
         for (m = j0; m < j1; m++) {
-            gradlogT = 2.0*(T(x,m+1) - T(x,m))/(T(x,m+1) + T(x,m));
+            gradlogT = 2.0 * (T(x,m+1) - T(x,m)) /
+                ((T(x,m+1) + T(x,m)) * (z(m+1) - z(m)));
             for (k = 0; k < m_nsp; k++) {
                 m_flux(k,m) -= m_dthermal(k,m)*gradlogT;
             }
@@ -1042,7 +1047,7 @@ size_t StFlow::componentIndex(const std::string& name) const
 }
 
 
-void StFlow::restore(const XML_Node& dom, doublereal* soln)
+void StFlow::restore(const XML_Node& dom, doublereal* soln, int loglevel)
 {
 
     vector<string> ignored;
@@ -1062,6 +1067,8 @@ void StFlow::restore(const XML_Node& dom, doublereal* soln)
     pp = getFloat(dom, "pressure", "pressure");
     setPressure(pp);
 
+    getOptionalFloat(dom, "t_fixed", m_tfixed);
+    getOptionalFloat(dom, "z_fixed", m_zfixed);
 
     vector<XML_Node*> d;
     dom.child("grid_data").getChildren("floatArray",d);
@@ -1077,8 +1084,7 @@ void StFlow::restore(const XML_Node& dom, doublereal* soln)
         if (nm == "z") {
             getFloatArray(fa,x,false);
             np = x.size();
-            writelog("Grid contains "+int2str(np)+
-                     " points.\n");
+            writelog("Grid contains "+int2str(np)+" points.\n", loglevel >= 2);
             readgrid = true;
             setupGrid(np, DATA_PTR(x));
         }
@@ -1088,62 +1094,62 @@ void StFlow::restore(const XML_Node& dom, doublereal* soln)
                            "domain contains no grid points.");
     }
 
-    writelog("Importing datasets:\n");
+    writelog("Importing datasets:\n", loglevel >= 2);
     for (n = 0; n < nd; n++) {
         const XML_Node& fa = *d[n];
         nm = fa["title"];
         getFloatArray(fa,x,false);
         if (nm == "u") {
-            writelog("axial velocity   ");
-            if (x.size() == np) {
-                for (j = 0; j < np; j++) {
-                    soln[index(0,j)] = x[j];
-                }
-            } else {
-                goto error;
+            writelog("axial velocity   ", loglevel >= 2);
+            if (x.size() != np) {
+                throw CanteraError("StFlow::restore",
+                                   "axial velocity array size error");
+            }
+            for (j = 0; j < np; j++) {
+                soln[index(0,j)] = x[j];
             }
         } else if (nm == "z") {
             ;   // already read grid
         } else if (nm == "V") {
-            writelog("radial velocity   ");
-            if (x.size() == np) {
-                for (j = 0; j < np; j++) {
-                    soln[index(1,j)] = x[j];
-                }
-            } else {
-                goto error;
+            writelog("radial velocity   ", loglevel >= 2);
+            if (x.size() != np) {
+                throw CanteraError("StFlow::restore",
+                                   "radial velocity array size error");
+            }
+            for (j = 0; j < np; j++) {
+                soln[index(1,j)] = x[j];
             }
         } else if (nm == "T") {
-            writelog("temperature   ");
-            if (x.size() == np) {
-                for (j = 0; j < np; j++) {
-                    soln[index(2,j)] = x[j];
-                }
-
-                // For fixed-temperature simulations, use the
-                // imported temperature profile by default.  If
-                // this is not desired, call setFixedTempProfile
-                // *after* restoring the solution.
-
-                vector_fp zz(np);
-                for (size_t jj = 0; jj < np; jj++) {
-                    zz[jj] = (grid(jj) - zmin())/(zmax() - zmin());
-                }
-                setFixedTempProfile(zz, x);
-            } else {
-                goto error;
+            writelog("temperature   ", loglevel >= 2);
+            if (x.size() != np) {
+                throw CanteraError("StFlow::restore",
+                                   "temperature array size error");
             }
+            for (j = 0; j < np; j++) {
+                soln[index(2,j)] = x[j];
+            }
+
+            // For fixed-temperature simulations, use the
+            // imported temperature profile by default.  If
+            // this is not desired, call setFixedTempProfile
+            // *after* restoring the solution.
+
+            vector_fp zz(np);
+            for (size_t jj = 0; jj < np; jj++) {
+                zz[jj] = (grid(jj) - zmin())/(zmax() - zmin());
+            }
+            setFixedTempProfile(zz, x);
         } else if (nm == "L") {
-            writelog("lambda   ");
-            if (x.size() == np) {
-                for (j = 0; j < np; j++) {
-                    soln[index(3,j)] = x[j];
-                }
-            } else {
-                goto error;
+            writelog("lambda   ", loglevel >= 2);
+            if (x.size() != np) {
+                throw CanteraError("StFlow::restore",
+                                   "lambda arary size error");
+            }
+            for (j = 0; j < np; j++) {
+                soln[index(3,j)] = x[j];
             }
         } else if (m_thermo->speciesIndex(nm) != npos) {
-            writelog(nm+"   ");
+            writelog(nm+"   ", loglevel >= 2);
             if (x.size() == np) {
                 k = m_thermo->speciesIndex(nm);
                 did_species[k] = 1;
@@ -1156,7 +1162,7 @@ void StFlow::restore(const XML_Node& dom, doublereal* soln)
         }
     }
 
-    if (ignored.size() != 0) {
+    if (loglevel >=2 && !ignored.empty()) {
         writelog("\n\n");
         writelog("Ignoring datasets:\n");
         size_t nn = ignored.size();
@@ -1165,19 +1171,17 @@ void StFlow::restore(const XML_Node& dom, doublereal* soln)
         }
     }
 
-    for (ks = 0; ks < nsp; ks++) {
-        if (did_species[ks] == 0) {
-            if (!wrote_header) {
-                writelog("Missing data for species:\n");
-                wrote_header = true;
+    if (loglevel >= 1) {
+        for (ks = 0; ks < nsp; ks++) {
+            if (did_species[ks] == 0) {
+                if (!wrote_header) {
+                    writelog("Missing data for species:\n");
+                    wrote_header = true;
+                }
+                writelog(m_thermo->speciesName(ks)+" ");
             }
-            writelog(m_thermo->speciesName(ks)+" ");
         }
     }
-
-    return;
-error:
-    throw CanteraError("StFlow::restore","Data size error");
 }
 
 
@@ -1199,6 +1203,12 @@ void StFlow::save(XML_Node& o, const doublereal* const sol)
     }
     XML_Node& gv = flow.addChild("grid_data");
     addFloat(flow, "pressure", m_press, "Pa", "pressure");
+
+    if (m_zfixed != Undef) {
+        addFloat(flow, "z_fixed", m_zfixed, "m");
+        addFloat(flow, "t_fixed", m_tfixed, "K");
+    }
+
     addFloatArray(gv,"z",m_z.size(),DATA_PTR(m_z),
                   "m","length");
     vector_fp x(soln.nColumns());

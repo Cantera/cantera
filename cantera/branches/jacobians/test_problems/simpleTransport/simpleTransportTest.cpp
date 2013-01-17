@@ -18,7 +18,7 @@ int main(int argc, char **argv)
     auto_ptr<Transport> tran(newDefaultTransportMgr(&HMW, log_level));
 
     SimpleTransport& tranSimple = dynamic_cast<SimpleTransport&>(*tran.get());
-    int nsp = HMW.nSpecies();
+    size_t nsp = HMW.nSpecies();
 
     HMW.setState_TP(30+273.13, OneAtm);
 
@@ -28,7 +28,7 @@ int main(int argc, char **argv)
     vector_fp x(nsp, 0.0);
 
     tranSimple.getSpeciesViscosities(&x[0]);
-    for (int k = 0; k < nsp; k++) {
+    for (size_t k = 0; k < nsp; k++) {
       printf("sp visc (%s) = %g\n", HMW.speciesName(k).c_str(), x[k]);
     }
 
@@ -36,12 +36,12 @@ int main(int argc, char **argv)
     printf("cond = %g\n", cond);
 
     tranSimple.getMixDiffCoeffs(&x[0]);
-    for (int k = 0; k < nsp; k++) {
+    for (size_t k = 0; k < nsp; k++) {
       printf("sp diff (%s) = %g\n", HMW.speciesName(k).c_str(), x[k]);
     }
 
     tranSimple.getMobilities(&x[0]);
-    for (int k = 0; k < nsp; k++) {
+    for (size_t k = 0; k < nsp; k++) {
       printf("Mobility (%s) = %g\n", HMW.speciesName(k).c_str(), x[k]);
     }
 
@@ -50,7 +50,7 @@ int main(int argc, char **argv)
     double gradT = 0.0;
 
     tranSimple.getSpeciesFluxes(1, &gradT, 5, &gradX[0], 5, &x[0]);
-    for (int k = 0; k < nsp; k++) {
+    for (size_t k = 0; k < nsp; k++) {
       string spName = HMW.speciesName(k);
       printf("SpeciesFlux (%s) = %g\n", spName.c_str(), x[k]);
     }
@@ -63,7 +63,7 @@ int main(int argc, char **argv)
     tranSimple.set_Grad_X(&gradX[0]);
 
     tranSimple.getSpeciesFluxesExt(5, &x[0]);
-    for (int k = 0; k < nsp; k++) {
+    for (size_t k = 0; k < nsp; k++) {
       printf("SpeciesFlux (%s) = %g\n", HMW.speciesName(k).c_str(), x[k]);
     }
 

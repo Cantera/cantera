@@ -165,7 +165,8 @@ cdef class Reactor(ReactorBase):
     def insert(self, _SolutionBase solution):
         ReactorBase.insert(self, solution)
         self._kinetics = solution
-        self.reactor.setKineticsMgr(deref(solution.kinetics))
+        if solution.kinetics != NULL:
+            self.reactor.setKineticsMgr(deref(solution.kinetics))
 
     property kinetics:
         """
@@ -774,7 +775,7 @@ cdef class ReactorNet:
     def sensitivity(self, species, int p, int r=0):
         if isinstance(species, int):
             return self.net.sensitivity(species,p)
-        elif isinstance(species, str):
+        elif isinstance(species, (str, unicode)):
             return self.net.sensitivity(stringify(species), p, r)
 
     def sensitivities(self):

@@ -16,13 +16,6 @@
 #include <iostream>
 using namespace std;
 
-/**
- * Mole fractions below MIN_X will be set to MIN_X when computing
- * transport properties.
- */
-#define MIN_X 1.e-20
-
-
 namespace Cantera
 {
 
@@ -98,6 +91,7 @@ void Transport::checkSpeciesArraySize(size_t kk) const
     }
 }
 
+
 /* Set transport model parameters. This method may be
  * overloaded in subclasses to set model-specific parameters.
  */
@@ -108,16 +102,31 @@ void Transport::setParameters(const int type, const int k,
 }
 
 
-void Transport::setThermo(thermo_t& thermo)
-{
-    if (!ready()) {
-        m_thermo = &thermo;
-        m_nsp = m_thermo->nSpecies();
-    } else
+  void Transport::setThermo(thermo_t& thermo) { 
+    if (!ready()) { 
+      m_thermo = &thermo;
+      //m_nmin = m_thermo->nSpecies();
+    }
+    else  {
+      int newNum = thermo.nSpecies();
+      int oldNum = m_thermo->nSpecies();
+      if (newNum != oldNum) { 
         throw CanteraError("Transport::setThermo",
-                           "the phase object cannot be changed after "
-                           "the transport manager has been constructed.");
-}
+                           "base object cannot be changed after "
+			   "the transport manager has been constructed because num species isn't the same.");
+      }
+      for (int i = 0; i < newNum; i++) {
+        std::string newS0 = thermo.speciesName(i);
+        std::string oldS0 = m_thermo->speciesName(i);
+        if (newNum != oldNum) {
+          throw CanteraError("Transport::setThermo",
+                           "base object cannot be changed after "
+                           "the transport manager has been constructed because species names are not the same");
+        }
+      }
+      m_thermo = &thermo;
+    }
+  }
 
 
 doublereal Transport::err(const std::string& msg) const

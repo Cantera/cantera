@@ -58,6 +58,8 @@ public:
         return m_temp;
     }
 
+    virtual size_t nSpecies() { return 0; }
+
     /// Set the mole fractions by specifying a std::string.
     virtual void setMoleFractions(const std::string& xin) {
         err("setMoleFractions");
@@ -169,6 +171,8 @@ public:
 
     virtual void _finalize(const doublereal* x) {}
 
+    virtual size_t nSpecies() { return m_nsp; }
+
     virtual void setMoleFractions(const std::string& xin);
     virtual void setMoleFractions(doublereal* xin);
     virtual doublereal massFraction(size_t k) {
@@ -179,7 +183,7 @@ public:
     virtual void eval(size_t jg, doublereal* xg, doublereal* rg,
                       integer* diagg, doublereal rdt);
     virtual void save(XML_Node& o, const doublereal* const soln);
-    virtual void restore(const XML_Node& dom, doublereal* soln);
+    virtual void restore(const XML_Node& dom, doublereal* soln, int loglevel);
 
 protected:
 
@@ -214,7 +218,7 @@ public:
                       integer* diagg, doublereal rdt);
 
     virtual void save(XML_Node& o, const doublereal* const soln);
-    virtual void restore(const XML_Node& dom, doublereal* soln);
+    virtual void restore(const XML_Node& dom, doublereal* soln, int loglevel);
     virtual void _finalize(const doublereal* x) {}
     virtual void _getInitialSoln(doublereal* x) {
         x[0] = 0.0;
@@ -246,7 +250,7 @@ public:
                       integer* diagg, doublereal rdt);
 
     virtual void save(XML_Node& o, const doublereal* const soln);
-    virtual void restore(const XML_Node& dom, doublereal* soln);
+    virtual void restore(const XML_Node& dom, doublereal* soln, int loglevel);
     virtual void _finalize(const doublereal* x) {
         ; //m_temp = x[0];
     }
@@ -279,7 +283,7 @@ public:
                       integer* diagg, doublereal rdt);
 
     virtual void save(XML_Node& o, const doublereal* const soln);
-    virtual void restore(const XML_Node& dom, doublereal* soln);
+    virtual void restore(const XML_Node& dom, doublereal* soln, int loglevel);
     virtual void _finalize(const doublereal* x) {
         ; //m_temp = x[0];
     }
@@ -319,6 +323,8 @@ public:
         ;
     }
 
+    virtual size_t nSpecies() { return m_nsp; }
+
     virtual void setMoleFractions(const std::string& xin);
     virtual void setMoleFractions(doublereal* xin);
     virtual doublereal massFraction(size_t k) {
@@ -329,7 +335,7 @@ public:
     virtual void eval(size_t jg, doublereal* xg, doublereal* rg,
                       integer* diagg, doublereal rdt);
     virtual void save(XML_Node& o, const doublereal* const soln);
-    virtual void restore(const XML_Node& dom, doublereal* soln);
+    virtual void restore(const XML_Node& dom, doublereal* soln, int loglevel);
 
 protected:
 
@@ -364,7 +370,7 @@ public:
                       integer* diagg, doublereal rdt);
 
     virtual void save(XML_Node& o, const doublereal* const soln);
-    virtual void restore(const XML_Node& dom, doublereal* soln);
+    virtual void restore(const XML_Node& dom, doublereal* soln, int loglevel);
 
     virtual void _getInitialSoln(doublereal* x) {
         x[0] = m_temp;
@@ -427,7 +433,7 @@ public:
                       integer* diagg, doublereal rdt);
 
     virtual void save(XML_Node& o, const doublereal* const soln);
-    virtual void restore(const XML_Node& dom, doublereal* soln);
+    virtual void restore(const XML_Node& dom, doublereal* soln, int loglevel);
 
     virtual void _getInitialSoln(doublereal* x) {
         x[0] = m_temp;

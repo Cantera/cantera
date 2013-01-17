@@ -16,13 +16,6 @@
 
 using namespace std;
 
-/**
- * Mole fractions below MIN_X will be set to MIN_X when computing
- * transport properties.
- */
-#define MIN_X 1.e-14
-
-
 namespace Cantera
 {
 
@@ -843,7 +836,7 @@ void  LiquidTransport::getFluidMobilities(doublereal* const mobil_f)
 /*
  * @param grad_T Gradient of the temperature (length num dimensions);
  */
-void LiquidTransport::set_Grad_T(const doublereal* const grad_T)
+void LiquidTransport::set_Grad_T(const doublereal *grad_T)
 {
     for (size_t a = 0; a < m_nDim; a++) {
         m_Grad_T[a] = grad_T[a];
@@ -855,7 +848,7 @@ void LiquidTransport::set_Grad_T(const doublereal* const grad_T)
  *
  * @param grad_V Gradient of the voltage (length num dimensions);
  */
-void LiquidTransport::set_Grad_V(const doublereal* const grad_V)
+void LiquidTransport::set_Grad_V(const doublereal *grad_V)
 {
     for (size_t a = 0; a < m_nDim; a++) {
         m_Grad_V[a] = grad_V[a];
@@ -867,7 +860,7 @@ void LiquidTransport::set_Grad_V(const doublereal* const grad_V)
  *
  * @param grad_X Gradient of the mole fractions(length nsp * num dimensions);
  */
-void LiquidTransport::set_Grad_X(const doublereal* const grad_X)
+void LiquidTransport::set_Grad_X(const doublereal *grad_X)
 {
     size_t itop = m_nDim * m_nsp;
     for (size_t i = 0; i < itop; i++) {
@@ -897,7 +890,7 @@ void LiquidTransport::set_Grad_X(const doublereal* const grad_X)
  */
 doublereal LiquidTransport::getElectricConduct()
 {
-    doublereal gradT = 0.0;
+    vector_fp gradT(m_nDim,0.0);
     vector_fp gradX(m_nDim * m_nsp);
     vector_fp gradV(m_nDim);
     for (size_t i = 0; i < m_nDim; i++) {
@@ -907,7 +900,7 @@ doublereal LiquidTransport::getElectricConduct()
         gradV[i] = 1.0;
     }
 
-    set_Grad_T(&gradT);
+    set_Grad_T(&gradT[0]);
     set_Grad_X(&gradX[0]);
     set_Grad_V(&gradV[0]);
 
@@ -1342,8 +1335,8 @@ bool LiquidTransport::update_C()
         concTot_tran_ = 0.0;
         for (size_t k = 0; k < m_nsp; k++) {
             m_molefracs[k] = std::max(0.0, m_molefracs[k]);
-            m_molefracs_tran[k] = std::max(MIN_X, m_molefracs[k]);
-            m_massfracs_tran[k] = std::max(MIN_X, m_massfracs[k]);
+            m_molefracs_tran[k] = std::max(Tiny, m_molefracs[k]);
+            m_massfracs_tran[k] = std::max(Tiny, m_massfracs[k]);
             concTot_tran_ += m_molefracs_tran[k];
             concTot_ += m_concentrations[k];
         }
@@ -1523,7 +1516,7 @@ void LiquidTransport::updateHydrodynamicRadius_T()
 void LiquidTransport::update_Grad_lnAC()
 {
     doublereal grad_T;
-    vector_fp grad_lnAC(m_nsp), grad_X(m_nsp);
+//    static vector_fp grad_lnAC(m_nsp), grad_X(m_nsp);
     //   IonsFromNeutralVPSSTP * tempIons = dynamic_cast<IonsFromNeutralVPSSTP *> m_thermo;
     //MargulesVPSSTP * tempMarg = dynamic_cast<MargulesVPSSTP *> (tempIons->neutralMoleculePhase_);
 
@@ -1531,15 +1524,14 @@ void LiquidTransport::update_Grad_lnAC()
     //m_thermo->getdlnActCoeffdlnX( DATA_PTR(grad_lnAC) );
     for (size_t k = 0; k < m_nDim; k++) {
         grad_T = m_Grad_T[k];
-        grad_X.assign(m_Grad_X.begin()+m_nsp*k,m_Grad_X.begin()+m_nsp*(k+1));
-        m_thermo->getdlnActCoeffds(grad_T, DATA_PTR(grad_X), DATA_PTR(grad_lnAC));
+        const int start = m_nsp*k;
+        m_thermo->getdlnActCoeffds(grad_T, &(m_Grad_X[start]), &(m_Grad_lnAC[start]));
         for (size_t i = 0; i < m_nsp; i++)
             if (m_molefracs[i] < 1.e-15) {
-                grad_lnAC[i] = 0;
+                m_Grad_lnAC[start+i] = 0;
             } else {
-                grad_lnAC[i] += grad_X[i]/m_molefracs[i];
+                m_Grad_lnAC[start+i] += m_Grad_X[start+i]/m_molefracs[i];
             }
-        copy(grad_lnAC.begin(),grad_lnAC.end(),m_Grad_lnAC.begin()+m_nsp*k);
         //      std::cout << k << " m_Grad_lnAC = " << m_Grad_lnAC[k] << std::endl;
     }
 
@@ -1634,8 +1626,8 @@ void LiquidTransport::stefan_maxwell_solve()
      *  considerations involving species concentrations going to zero.
      *
      */
-    for (size_t i = 0; i < m_nsp; i++) {
-        for (size_t a = 0; a < m_nDim; a++) {
+    for (size_t a = 0; a < m_nDim; a++) {
+        for (size_t i = 0; i < m_nsp; i++) {
             m_Grad_mu[a*m_nsp + i] =
                 m_chargeSpecies[i] *  Faraday * m_Grad_V[a]
                 //+  (m_volume_spec[i] - M[i]/dens_) * m_Grad_P[a]
@@ -1648,8 +1640,8 @@ void LiquidTransport::stefan_maxwell_solve()
         double mwSolvent = m_thermo->molecularWeight(iSolvent);
         double mnaught = mwSolvent/ 1000.;
         double lnmnaught = log(mnaught);
-        for (size_t i = 1; i < m_nsp; i++) {
-            for (size_t a = 0; a < m_nDim; a++) {
+        for (size_t a = 0; a < m_nDim; a++) {
+            for (size_t i = 1; i < m_nsp; i++) {
                 m_Grad_mu[a*m_nsp + i] -=
                     m_molefracs[i] * GasConstant * m_Grad_T[a] * lnmnaught;
             }
@@ -1662,6 +1654,7 @@ void LiquidTransport::stefan_maxwell_solve()
      */
 
     double condSum1;
+    const doublereal invRT = 1.0 / (GasConstant * T);
     switch (m_nDim) {
     case 1:  /* 1-D approximation */
 
@@ -1685,7 +1678,7 @@ void LiquidTransport::stefan_maxwell_solve()
                                    "Unknown reference velocity provided.");
         }
         for (size_t i = 1; i < m_nsp; i++) {
-            m_B(i,0) = m_Grad_mu[i] / (GasConstant * T);
+            m_B(i,0) = m_Grad_mu[i] * invRT;
             m_A(i,i) = 0.0;
             for (size_t j = 0; j < m_nsp; j++) {
                 if (j != i) {
@@ -1748,8 +1741,8 @@ void LiquidTransport::stefan_maxwell_solve()
                                    "Unknown reference velocity provided.");
         }
         for (size_t i = 1; i < m_nsp; i++) {
-            m_B(i,0) =  m_Grad_mu[i]         / (GasConstant * T);
-            m_B(i,1) =  m_Grad_mu[m_nsp + i] / (GasConstant * T);
+            m_B(i,0) =  m_Grad_mu[i]         * invRT;
+            m_B(i,1) =  m_Grad_mu[m_nsp + i] * invRT;
             m_A(i,i) = 0.0;
             for (size_t j = 0; j < m_nsp; j++) {
                 if (j != i) {
@@ -1792,9 +1785,9 @@ void LiquidTransport::stefan_maxwell_solve()
                                    "Unknown reference velocity provided.");
         }
         for (size_t i = 1; i < m_nsp; i++) {
-            m_B(i,0) = m_Grad_mu[i]           / (GasConstant * T);
-            m_B(i,1) = m_Grad_mu[m_nsp + i]   / (GasConstant * T);
-            m_B(i,2) = m_Grad_mu[2*m_nsp + i] / (GasConstant * T);
+            m_B(i,0) = m_Grad_mu[i]           * invRT;
+            m_B(i,1) = m_Grad_mu[m_nsp + i]   * invRT;
+            m_B(i,2) = m_Grad_mu[2*m_nsp + i] * invRT;
             m_A(i,i) = 0.0;
             for (size_t j = 0; j < m_nsp; j++) {
                 if (j != i) {

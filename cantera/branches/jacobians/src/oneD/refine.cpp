@@ -18,7 +18,8 @@ static void r_drawline()
 
 Refiner::Refiner(Domain1D& domain) :
     m_ratio(10.0), m_slope(0.8), m_curve(0.8), m_prune(-0.001),
-    m_min_range(0.01), m_domain(&domain), m_npmax(3000)
+    m_min_range(0.01), m_domain(&domain), m_npmax(3000),
+    m_gridmin(5e-6)
 {
     m_nv = m_domain->nComponents();
     m_active.resize(m_nv, true);
@@ -107,7 +108,7 @@ int Refiner::analyze(size_t n, const doublereal* z,
                 dmax = m_slope*(vmax - vmin) + m_thresh;
                 for (j = 0; j < n-1; j++) {
                     r = fabs(v[j+1] - v[j])/dmax;
-                    if (r > 1.0) {
+                    if (r > 1.0 && dz[j] >= 2 * m_gridmin) {
                         m_loc[j] = 1;
                         m_c[name] = 1;
                         //if (int(m_loc.size()) + n > m_npmax) goto done;
@@ -139,7 +140,8 @@ int Refiner::analyze(size_t n, const doublereal* z,
                 dmax = m_curve*(smax - smin); // + 0.5*m_curve*(smax + smin);
                 for (j = 0; j < n-2; j++) {
                     r = fabs(s[j+1] - s[j]) / (dmax + m_thresh/dz[j]);
-                    if (r > 1.0) {
+                    if (r > 1.0 && dz[j] >= 2 * m_gridmin &&
+                        dz[j+1] >= 2 * m_gridmin) {
                         m_c[name] = 1;
                         m_loc[j] = 1;
                         m_loc[j+1] = 1;
@@ -168,6 +170,12 @@ int Refiner::analyze(size_t n, const doublereal* z,
         if (dz[j] < dz[j-1]/m_ratio) {
             m_loc[j-1] = 1;
             m_c["point "+int2str(j-1)] = 1;
+        }
+        if (j > 1 && z[j+1]-z[j] > m_ratio * dz[j-2]) {
+            m_keep[j] = 1;
+        }
+        if (j < n-2 && z[j+1]-z[j] > m_ratio * dz[j+1]) {
+            m_keep[j] = 1;
         }
         //if (m_loc.size() + n > m_npmax) goto done;
     }

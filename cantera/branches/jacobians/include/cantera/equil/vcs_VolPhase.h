@@ -12,6 +12,7 @@
 #define VCS_VOLPHASE_H
 
 #include "cantera/equil/vcs_DoubleStarStar.h"
+#include "cantera/equil/vcs_SpeciesProperties.h"
 
 #include <vector>
 #include <string>

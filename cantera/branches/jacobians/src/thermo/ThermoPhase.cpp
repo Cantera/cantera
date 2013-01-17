@@ -174,39 +174,34 @@ void ThermoPhase::getLnActivityCoefficients(doublereal* lnac) const
 void ThermoPhase::setState_TPX(doublereal t, doublereal p, const doublereal* x)
 {
     setMoleFractions(x);
-    setTemperature(t);
-    setPressure(p);
+    setState_TP(t,p);
 }
 //=================================================================================================================
 void ThermoPhase::setState_TPX(doublereal t, doublereal p, compositionMap& x)
 {
     setMoleFractionsByName(x);
-    setTemperature(t);
-    setPressure(p);
+    setState_TP(t,p);
 }
 //=================================================================================================================
 void ThermoPhase::setState_TPX(doublereal t, doublereal p, const std::string& x)
 {
     compositionMap xx = parseCompString(x, speciesNames());
     setMoleFractionsByName(xx);
-    setTemperature(t);
-    setPressure(p);
+    setState_TP(t,p);
 }
 //=================================================================================================================
 void ThermoPhase::setState_TPY(doublereal t, doublereal p,
                                const doublereal* y)
 {
     setMassFractions(y);
-    setTemperature(t);
-    setPressure(p);
+    setState_TP(t,p);
 }
 //=================================================================================================================
 void ThermoPhase::setState_TPY(doublereal t, doublereal p,
                                compositionMap& y)
 {
     setMassFractionsByName(y);
-    setTemperature(t);
-    setPressure(p);
+    setState_TP(t,p);
 }
 //=================================================================================================================
 void ThermoPhase::setState_TPY(doublereal t, doublereal p,
@@ -214,8 +209,7 @@ void ThermoPhase::setState_TPY(doublereal t, doublereal p,
 {
     compositionMap yy = parseCompString(y, speciesNames());
     setMassFractionsByName(yy);
-    setTemperature(t);
-    setPressure(p);
+    setState_TP(t,p);
 }
 //=================================================================================================================
 
@@ -390,6 +384,10 @@ void ThermoPhase::setState_HPorUV(doublereal Htarget, doublereal p,
         //    spinodal value of H.
         for (int its = 0; its < 10; its++) {
             Tnew = Told + dt;
+	    if (Tnew < Told / 3.0) {
+		Tnew = Told / 3.0;
+		dt = -2.0 * Told / 3.0;
+	    }
             setState_conditional_TP(Tnew, p, !doUV);
             if (doUV) {
                 Hnew = intEnergy_mass();

@@ -33,13 +33,11 @@ class MultiPhaseEquil
 {
 
 public:
-    typedef size_t           index_t;
-
     MultiPhaseEquil(MultiPhase* mix, bool start=true, int loglevel = 0);
 
     virtual ~MultiPhaseEquil() {}
 
-    size_t constituent(index_t m) {
+    size_t constituent(size_t m) {
         if (m < m_nel) {
             return m_order[m];
         } else {
@@ -47,8 +45,8 @@ public:
         }
     }
 
-    void getStoichVector(index_t rxn, vector_fp& nu) {
-        index_t k;
+    void getStoichVector(size_t rxn, vector_fp& nu) {
+        size_t k;
         nu.resize(m_nsp, 0.0);
         if (rxn > nFree()) {
             return;
@@ -67,10 +65,10 @@ public:
     doublereal error();
 
 #if defined(WITH_HTML_LOGS)
-    std::string reactionString(index_t j);
+    std::string reactionString(size_t j);
     void printInfo(int loglevel);
 #else
-    inline std::string reactionString(index_t j) {
+    inline std::string reactionString(size_t j) {
         return std::string("");
     }
     inline void printInfo(int loglevel) {}
@@ -81,13 +79,13 @@ public:
         finish();
     }
 
-    size_t componentIndex(index_t n) {
+    size_t componentIndex(size_t n) {
         return m_species[m_order[n]];
     }
 
     void reportCSV(const std::string& reportFile);
 
-    double phaseMoles(index_t iph) const;
+    double phaseMoles(size_t iph) const;
 
 protected:
 
@@ -124,13 +122,13 @@ protected:
     }
 
     //! Number of degrees of freedom
-    index_t nFree() const {
+    size_t nFree() const {
         return (m_nsp > m_nel) ? m_nsp - m_nel : 0;
     }
 
-    index_t m_nel_mix, m_nsp_mix, m_np;
-    index_t m_nel, m_nsp;
-    index_t m_eloc;
+    size_t m_nel_mix, m_nsp_mix, m_np;
+    size_t m_nel, m_nsp;
+    size_t m_eloc;
     int m_iter;
     MultiPhase* m_mix;
     doublereal m_press, m_temp;

@@ -33,7 +33,7 @@ class BurnerDiffFlame(Stack):
             self.outlet = outlet
         else:
             self.outlet = OutletRes('outletres')
-        self.pressure = gas.pressure()
+
         self.flame = AxisymmetricFlow('flame',gas = gas)
         self.flame.setupGrid(grid)
         Stack.__init__(self, [self.burner, self.flame, self.outlet])
@@ -53,7 +53,7 @@ class BurnerDiffFlame(Stack):
         yin = zeros(nsp, 'd')
         for k in range(nsp):
             yin[k] = self.burner.massFraction(k)
-        gas.setState_TPY(self.burner.temperature(), self.pressure, yin)
+        gas.setState_TPY(self.burner.temperature(), self.flame.pressure(), yin)
         u0 = self.burner.mdot()/gas.density()
         t0 = self.burner.temperature()
 
@@ -82,6 +82,9 @@ class BurnerDiffFlame(Stack):
         Stack.setRefineCriteria(self, domain = self.flame,
                                 ratio = ratio, slope = slope, curve = curve,
                                 prune = prune)
+
+    def setGridMin(self, gridmin):
+        Stack.setGridMin(self, self.flame, gridmin)
 
     def setProfile(self, component, locs, vals):
         self._initialized = 1
@@ -130,6 +133,6 @@ class BurnerDiffFlame(Stack):
         for n in range(nsp):
             nm = self.gas.speciesName(n)
             y[n] = self.solution(nm, j)
-        self.gas.setState_TPY(self.T(j), self.pressure, y)
+        self.gas.setState_TPY(self.T(j), self.flame.pressure(), y)
 
 fix_docs(BurnerDiffFlame)

@@ -31,7 +31,6 @@ using namespace std;
 namespace Cantera
 {
 
-static  const double xxSmall = 1.0E-150;
 //====================================================================================================================
 /*
  * Default constructor.
@@ -47,6 +46,7 @@ IonsFromNeutralVPSSTP::IonsFromNeutralVPSSTP() :
     numAnionSpecies_(0),
     numPassThroughSpecies_(0),
     neutralMoleculePhase_(0),
+    geThermo(0),
     IOwnNThermoPhase_(true),
     moleFractionsTmp_(0),
     muNeutralMolecule_(0),
@@ -100,7 +100,12 @@ IonsFromNeutralVPSSTP::IonsFromNeutralVPSSTP(const std::string& inputFile,
     if (neutralPhase) {
         IOwnNThermoPhase_ = false;
     }
-    initThermoFile(inputFile, id);
+    constructPhaseFile(inputFile, id);
+    geThermo = dynamic_cast<GibbsExcessVPSSTP*>(neutralMoleculePhase_);
+    //y.resize(numNeutralMoleculeSpecies_,0.0);
+    //size_t numNeutMolSpec = geThermo->nSpecies();
+    //dlnActCoeff_NeutralMolecule.resize(numNeutMolSpec);
+    //dX_NeutralMolecule.resize(numNeutMolSpec);
 }
 //====================================================================================================================
 IonsFromNeutralVPSSTP::IonsFromNeutralVPSSTP(XML_Node& phaseRoot, 
@@ -123,7 +128,12 @@ IonsFromNeutralVPSSTP::IonsFromNeutralVPSSTP(XML_Node& phaseRoot,
     if (neutralPhase) {
         IOwnNThermoPhase_ = false;
     }
-    importPhase(*findXMLPhase(&phaseRoot, id), this);
+    constructPhaseXML(phaseRoot, id);
+    geThermo = dynamic_cast<GibbsExcessVPSSTP*>(neutralMoleculePhase_);
+    y.resize(numNeutralMoleculeSpecies_,0.0);
+    size_t numNeutMolSpec = geThermo->nSpecies();
+    dlnActCoeff_NeutralMolecule.resize(numNeutMolSpec);
+    dX_NeutralMolecule.resize(numNeutMolSpec);
 }
 
 //====================================================================================================================
@@ -144,6 +154,7 @@ IonsFromNeutralVPSSTP::IonsFromNeutralVPSSTP(const IonsFromNeutralVPSSTP& b) :
     numAnionSpecies_(0),
     numPassThroughSpecies_(0),
     neutralMoleculePhase_(0),
+    geThermo(0),
     IOwnNThermoPhase_(true),
     moleFractionsTmp_(0),
     muNeutralMolecule_(0),
@@ -185,8 +196,10 @@ operator=(const IonsFromNeutralVPSSTP& b)
     } else {
         neutralMoleculePhase_     = b.neutralMoleculePhase_;
     }
+    geThermo = dynamic_cast<GibbsExcessVPSSTP*>(neutralMoleculePhase_);
 
     GibbsExcessVPSSTP::operator=(b);
+
 
     ionSolnType_                = b.ionSolnType_;
     numNeutralMoleculeSpecies_  = b.numNeutralMoleculeSpecies_;
@@ -201,6 +214,10 @@ operator=(const IonsFromNeutralVPSSTP& b)
     numAnionSpecies_            = b.numAnionSpecies_;
     passThroughList_            = b.passThroughList_;
     numPassThroughSpecies_      = b.numPassThroughSpecies_;
+
+    y                           = b.y;
+    dlnActCoeff_NeutralMolecule = b.dlnActCoeff_NeutralMolecule;
+    dX_NeutralMolecule          = b.dX_NeutralMolecule;
 
     IOwnNThermoPhase_           = b.IOwnNThermoPhase_;
     moleFractionsTmp_           = b.moleFractionsTmp_;
@@ -654,7 +671,7 @@ void IonsFromNeutralVPSSTP::getPartialMolarEntropies(doublereal* sbar) const
     s_update_dlnActCoeffdT();
 
     for (size_t k = 0; k < m_kk; k++) {
-        xx = std::max(moleFractions_[k], xxSmall);
+        xx = std::max(moleFractions_[k], SmallNumber);
         sbar[k] += - lnActCoeff_Scaled_[k] -log(xx) - T * dlnActCoeffdT_Scaled_[k];
     }
     /*
@@ -841,7 +858,7 @@ void IonsFromNeutralVPSSTP::calcNeutralMoleculeMoleFractions() const
     }
 #ifdef DEBUG_MODE
     sum = -1.0;
-    for (int k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
         sum += moleFractions_[k];
     }
     if (fabs(sum) > 1.0E-11)  {
@@ -955,14 +972,13 @@ void IonsFromNeutralVPSSTP::calcNeutralMoleculeMoleFractions() const
 void IonsFromNeutralVPSSTP::getNeutralMoleculeMoleGrads(const doublereal* const dx, doublereal* const dy) const
 {
     doublereal fmij;
-    vector_fp y;
-    y.resize(numNeutralMoleculeSpecies_,0.0);
     doublereal sumy, sumdy;
 
     //check sum dx = 0
 
     //! Zero the vector we are trying to find.
     for (size_t k = 0; k < numNeutralMoleculeSpecies_; k++) {
+        y[k] = 0.0;
         dy[k] = 0.0;
     }
 
@@ -985,8 +1001,9 @@ void IonsFromNeutralVPSSTP::getNeutralMoleculeMoleGrads(const doublereal* const 
             if (jNeut != npos) {
                 fmij =  fm_neutralMolec_ions_[icat + jNeut * m_kk];
                 AssertTrace(fmij != 0.0);
-                dy[jNeut] += dx[icat] / fmij;
-                y[jNeut] += moleFractions_[icat] / fmij;
+                const doublereal temp = 1.0/fmij;
+                dy[jNeut] += dx[icat] * temp;
+                y[jNeut] += moleFractions_[icat] * temp;
             }
         }
 
@@ -994,8 +1011,9 @@ void IonsFromNeutralVPSSTP::getNeutralMoleculeMoleGrads(const doublereal* const 
             size_t icat = passThroughList_[k];
             size_t jNeut = fm_invert_ionForNeutral[icat];
             fmij = fm_neutralMolec_ions_[ icat + jNeut * m_kk];
-            dy[jNeut] += dx[icat] / fmij;
-            y[jNeut] += moleFractions_[icat] / fmij;
+            const doublereal temp = 1.0/fmij;
+            dy[jNeut] += dx[icat] * temp;
+            y[jNeut] += moleFractions_[icat] * temp;
         }
 #ifdef DEBUG_MODE_NOT
         //check dy sum to zero
@@ -1029,8 +1047,9 @@ void IonsFromNeutralVPSSTP::getNeutralMoleculeMoleGrads(const doublereal* const 
             sumy += y[k];
             sumdy += dy[k];
         }
+        sumy = 1.0 / sumy;
         for (size_t k = 0; k < numNeutralMoleculeSpecies_; k++) {
-            dy[k] = dy[k]/sumy - y[k]*sumdy/sumy/sumy;
+            dy[k] = dy[k] * sumy - y[k]*sumdy*sumy*sumy;
         }
 
         break;
@@ -1144,6 +1163,11 @@ void  IonsFromNeutralVPSSTP::initLengths()
     dlnActCoeffdlnX_diag_NeutralMolecule_.resize(numNeutralMoleculeSpecies_);
     dlnActCoeffdlnN_diag_NeutralMolecule_.resize(numNeutralMoleculeSpecies_);
     dlnActCoeffdlnN_NeutralMolecule_.resize(numNeutralMoleculeSpecies_, numNeutralMoleculeSpecies_, 0.0);
+
+    y.resize(numNeutralMoleculeSpecies_, 0.0);
+    dlnActCoeff_NeutralMolecule.resize(numNeutralMoleculeSpecies_, 0.0);
+    dX_NeutralMolecule.resize(numNeutralMoleculeSpecies_, 0.0);
+
 }
 //====================================================================================================================
 //!  Return the factor overlap
@@ -1474,7 +1498,6 @@ void IonsFromNeutralVPSSTP::getdlnActCoeffds(const doublereal dTds, const double
     /*
      * Get the activity coefficients of the neutral molecules
      */
-    GibbsExcessVPSSTP* geThermo = dynamic_cast<GibbsExcessVPSSTP*>(neutralMoleculePhase_);
     if (!geThermo) {
         for (size_t k = 0; k < m_kk; k++) {
             dlnActCoeffds[k] = dXds[k] / moleFractions_[k];
@@ -1482,9 +1505,8 @@ void IonsFromNeutralVPSSTP::getdlnActCoeffds(const doublereal dTds, const double
         return;
     }
 
-    size_t numNeutMolSpec = geThermo->nSpecies();
-    vector_fp dlnActCoeff_NeutralMolecule(numNeutMolSpec);
-    vector_fp dX_NeutralMolecule(numNeutMolSpec);
+//    static vector_fp dlnActCoeff_NeutralMolecule(numNeutMolSpec);
+//    static vector_fp dX_NeutralMolecule(numNeutMolSpec);
 
 
     getNeutralMoleculeMoleGrads(DATA_PTR(dXds),DATA_PTR(dX_NeutralMolecule));
@@ -1545,7 +1567,6 @@ void IonsFromNeutralVPSSTP::s_update_dlnActCoeffdT() const
     /*
      * Get the activity coefficients of the neutral molecules
      */
-    GibbsExcessVPSSTP* geThermo = dynamic_cast<GibbsExcessVPSSTP*>(neutralMoleculePhase_);
     if (!geThermo) {
         dlnActCoeffdT_Scaled_.assign(m_kk, 0.0);
         return;
@@ -1604,7 +1625,6 @@ void IonsFromNeutralVPSSTP::s_update_dlnActCoeff_dlnX_diag() const
     /*
      * Get the activity coefficients of the neutral molecules
      */
-    GibbsExcessVPSSTP* geThermo = dynamic_cast<GibbsExcessVPSSTP*>(neutralMoleculePhase_);
     if (!geThermo) {
         dlnActCoeffdlnX_diag_.assign(m_kk, 0.0);
         return;
@@ -1663,7 +1683,6 @@ void IonsFromNeutralVPSSTP::s_update_dlnActCoeff_dlnN_diag() const
     /*
      * Get the activity coefficients of the neutral molecules
      */
-    GibbsExcessVPSSTP* geThermo = dynamic_cast<GibbsExcessVPSSTP*>(neutralMoleculePhase_);
     if (!geThermo) {
         dlnActCoeffdlnN_diag_.assign(m_kk, 0.0);
         return;
@@ -1726,7 +1745,6 @@ void IonsFromNeutralVPSSTP::s_update_dlnActCoeff_dlnN() const
     /*
      * Get the activity coefficients of the neutral molecules
      */
-    GibbsExcessVPSSTP* geThermo = dynamic_cast<GibbsExcessVPSSTP*>(neutralMoleculePhase_);
     if (!geThermo) {
         throw CanteraError("IonsFromNeutralVPSSTP::s_update_dlnActCoeff_dlnN()", "dynamic cast failed");
     }

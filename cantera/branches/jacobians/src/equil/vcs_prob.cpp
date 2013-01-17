@@ -11,7 +11,7 @@
 
 #include "cantera/equil/vcs_prob.h"
 #include "cantera/equil/vcs_VolPhase.h"
-#include "vcs_species_thermo.h"
+#include "cantera/equil/vcs_species_thermo.h"
 #include "cantera/equil/vcs_internal.h"
 
 #include "cantera/thermo/ThermoPhase.h"

@@ -1081,7 +1081,7 @@ public:
      * @param x    Composition map of mole fractions. Species not in
      *             the composition map are assumed to have zero mole fraction
      */
-    void setState_TPX(doublereal t, doublereal p, compositionMap& x);
+    virtual void setState_TPX(doublereal t, doublereal p, compositionMap& x);
 
     //! Set the temperature (K), pressure (Pa), and mole fractions.
     /*!
@@ -1093,7 +1093,7 @@ public:
      * @param x    String containing a composition map of the mole fractions. Species not in
      *             the composition map are assumed to have zero mole fraction
      */
-    void setState_TPX(doublereal t, doublereal p, const std::string& x);
+    virtual void setState_TPX(doublereal t, doublereal p, const std::string& x);
 
     //! Set the internally stored temperature (K), pressure (Pa), and mass fractions of the phase.
     /*!
@@ -1105,7 +1105,7 @@ public:
      * @param y    Vector of mass fractions.
      *             Length is equal to m_kk.
      */
-    void setState_TPY(doublereal t, doublereal p, const doublereal* y);
+    virtual void setState_TPY(doublereal t, doublereal p, const doublereal* y);
 
     //! Set the internally stored temperature (K), pressure (Pa), and mass fractions of the phase
     /*!
@@ -1117,7 +1117,7 @@ public:
      * @param y    Composition map of mass fractions. Species not in
      *             the composition map are assumed to have zero mass fraction
      */
-    void setState_TPY(doublereal t, doublereal p, compositionMap& y);
+    virtual void setState_TPY(doublereal t, doublereal p, compositionMap& y);
 
     //! Set the internally stored temperature (K), pressure (Pa), and mass fractions of the phase
     /*!
@@ -1129,7 +1129,7 @@ public:
      * @param y    String containing a composition map of the mass fractions. Species not in
      *             the composition map are assumed to have zero mass fraction
      */
-    void setState_TPY(doublereal t, doublereal p, const std::string& y);
+    virtual void setState_TPY(doublereal t, doublereal p, const std::string& y);
 
     //! Set the temperature (K) and pressure (Pa)
     /*!
@@ -1138,7 +1138,7 @@ public:
      * @param t    Temperature (K)
      * @param p    Pressure (Pa)
      */
-    void setState_TP(doublereal t, doublereal p);
+    virtual void setState_TP(doublereal t, doublereal p);
 
     //! Set the pressure (Pa) and mole fractions.
     /*!
@@ -1149,7 +1149,7 @@ public:
      * @param x    Vector of mole fractions.
      *             Length is equal to m_kk.
      */
-    void setState_PX(doublereal p, doublereal* x);
+    virtual void setState_PX(doublereal p, doublereal* x);
 
     //! Set the internally stored pressure (Pa) and mass fractions.
     /*!
@@ -1161,7 +1161,7 @@ public:
      * @param y    Vector of mass fractions.
      *             Length is equal to m_kk.
      */
-    void setState_PY(doublereal p, doublereal* y);
+    virtual void setState_PY(doublereal p, doublereal* y);
 
     //! Set the internally stored specific enthalpy (J/kg) and pressure (Pa) of the phase.
     /*!

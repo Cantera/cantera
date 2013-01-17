@@ -211,7 +211,6 @@ class TestThermoPhase(utilities.CanteraTest):
         cp = sum(self.phase.standard_cp_R * self.phase.X) * ct.GasConstant
         self.assertNear(cp, self.phase.cp_mole)
 
-    @unittest.skip("needs merge from 2.0 maintenance")
     def test_isothermalCompressibility(self):
         self.assertNear(self.phase.isothermalCompressibility, 1.0/self.phase.P)
 

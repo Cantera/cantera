@@ -20,7 +20,6 @@ using namespace std;
 namespace Cantera
 {
 
-static  const double xxSmall = 1.0E-150;
 //====================================================================================================================
 /*
  * Default constructor.
@@ -296,7 +295,7 @@ void PhaseCombo_Interaction::getChemPotentials(doublereal* mu) const
      */
     doublereal RT = GasConstant * temperature();
     for (size_t k = 0; k < m_kk; k++) {
-        xx = std::max(moleFractions_[k], xxSmall);
+        xx = std::max(moleFractions_[k], SmallNumber);
         mu[k] += RT * (log(xx) + lnActCoeff_Scaled_[k]);
     }
 }
@@ -454,7 +453,7 @@ void PhaseCombo_Interaction::getPartialMolarEntropies(doublereal* sbar) const
     s_update_dlnActCoeff_dT();
 
     for (size_t k = 0; k < m_kk; k++) {
-        xx = std::max(moleFractions_[k], xxSmall);
+        xx = std::max(moleFractions_[k], SmallNumber);
         sbar[k] += - lnActCoeff_Scaled_[k] - log(xx) - T * dlnActCoeffdT_Scaled_[k];
     }
     /*
@@ -654,7 +653,7 @@ void PhaseCombo_Interaction::s_update_lnActCoeff() const
         /*
          *  We never sample the end of the mole fraction domains
          */
-        xx = std::max(moleFractions_[iK], xxSmall);
+        xx = std::max(moleFractions_[iK], SmallNumber);
         /*
          *  First wipe out the ideal solution mixing term
          */
@@ -775,11 +774,11 @@ void  PhaseCombo_Interaction::getdlnActCoeffds(const doublereal dTds, const doub
         /*
          *  We never sample the end of the mole fraction domains
          */
-        xx = std::max(moleFractions_[iK], xxSmall);
+        xx = std::max(moleFractions_[iK], SmallNumber);
         /*
          *  First wipe out the ideal solution mixing term
          */
-        if (xx > xxSmall) {
+        if (xx > SmallNumber) {
             dlnActCoeffds[iK] += - 1.0 / xx;
         }
 
@@ -839,12 +838,12 @@ void PhaseCombo_Interaction::s_update_dlnActCoeff_dlnN_diag() const
         /*
          *  We never sample the end of the mole fraction domains
          */
-        xx = std::max(moleFractions_[iK], xxSmall);
+        xx = std::max(moleFractions_[iK], SmallNumber);
         /*
          *  First wipe out the ideal solution mixing term
          */
         // lnActCoeff_Scaled_[iK] = - log(xx);
-        if (xx > xxSmall) {
+        if (xx > SmallNumber) {
             dlnActCoeffdlnN_diag_[iK] = - 1.0 + xx;
         }
 
@@ -901,12 +900,12 @@ void PhaseCombo_Interaction::s_update_dlnActCoeff_dlnN() const
         /*
          *  We never sample the end of the mole fraction domains
          */
-        xx = std::max(moleFractions_[iK], xxSmall);
+        xx = std::max(moleFractions_[iK], SmallNumber);
 
         for (size_t iM = 0; iM < m_kk; iM++) {
             XM = moleFractions_[iM];
 
-            if (xx > xxSmall) {
+            if (xx > SmallNumber) {
                 delKM = 0.0;
                 if (iK == iM) {
                     delKM = 1.0;

@@ -26,17 +26,133 @@ using namespace std;
 namespace Cantera
 {
 
-//----------------------------------------------------------
-//                  function declarations
-//----------------------------------------------------------
+// unnamed-namespace for local helpers
+namespace {
 
-// declarations for functions in newton_utils.h
-doublereal bound_step(const doublereal* x,
-                      const doublereal* step, Domain1D& r, int loglevel=0);
+class Indx
+{
+public:
+    Indx(size_t nv, size_t np) : m_nv(nv), m_np(np) {}
+    size_t m_nv, m_np;
+    size_t operator()(size_t m, size_t j) {
+        return j*m_nv + m;
+    }
+};
+
+
+/**
+ * Return a damping coefficient that keeps the solution after taking one
+ * Newton step between specified lower and upper bounds. This function only
+ * considers one domain.
+ */
+doublereal bound_step(const doublereal* x, const doublereal* step,
+                      Domain1D& r, int loglevel)
+{
+
+    char buf[100];
+    size_t np = r.nPoints();
+    size_t nv = r.nComponents();
+    Indx index(nv, np);
+    doublereal above, below, val, newval;
+    size_t m, j;
+    doublereal fbound = 1.0;
+    bool wroteTitle = false;
+    for (m = 0; m < nv; m++) {
+        above = r.upperBound(m);
+        below = r.lowerBound(m);
+
+        for (j = 0; j < np; j++) {
+            val = x[index(m,j)];
+            if (loglevel > 0) {
+                if (val > above + 1.0e-12 || val < below - 1.0e-12) {
+                    sprintf(buf, "domain %s: %20s(%s) = %10.3e (%10.3e, %10.3e)\n",
+                            int2str(r.domainIndex()).c_str(),
+                            r.componentName(m).c_str(), int2str(j).c_str(),
+                            val, below, above);
+                    writelog(string("\nERROR: solution out of bounds.\n")+buf);
+                }
+            }
+
+            newval = val + step[index(m,j)];
+
+            if (newval > above) {
+                fbound = std::max(0.0, std::min(fbound,
+                                                (above - val)/(newval - val)));
+            } else if (newval < below) {
+                fbound = std::min(fbound, (val - below)/(val - newval));
+            }
+
+            if (loglevel > 1 && (newval > above || newval < below)) {
+                if (!wroteTitle) {
+                    writelog("\nNewton step takes solution out of bounds.\n\n");
+                    sprintf(buf,"  %12s  %12s  %4s  %10s  %10s  %10s  %10s\n",
+                            "domain","component","pt","value","step","min","max");
+                    wroteTitle = true;
+                    writelog(buf);
+                }
+                sprintf(buf, "          %4s  %12s  %4s  %10.3e  %10.3e  %10.3e  %10.3e\n",
+                        int2str(r.domainIndex()).c_str(),
+                        r.componentName(m).c_str(), int2str(j).c_str(),
+                        val, step[index(m,j)], below, above);
+                writelog(buf);
+            }
+        }
+    }
+    return fbound;
+}
+
+
+/**
+ * This function computes the square of a weighted norm of a step
+ * vector for one domain.
+ *
+ * @param x     Solution vector for this domain.
+ * @param step  Newton step vector for this domain.
+ * @param r     Object representing the domain. Used to get tolerances,
+ *              number of components, and number of points.
+ *
+ * The return value is
+ * \f[
+ *    \sum_{n,j} \left(\frac{s_{n,j}}{w_n}\right)^2
+ * \f]
+ * where the error weight for solution component \f$n\f$ is given by
+ * \f[
+ *     w_n = \epsilon_{r,n} \frac{\sum_j |x_{n,j}|}{J} + \epsilon_{a,n}.
+ * \f]
+ * Here \f$\epsilon_{r,n} \f$ is the relative error tolerance for
+ * component n, and multiplies the average magnitude of
+ * solution component n in the domain. The second term,
+ * \f$\epsilon_{a,n}\f$, is the absolute error tolerance for component
+ * n.
+ *
+ */
 doublereal norm_square(const doublereal* x,
-                       const doublereal* step, Domain1D& r);
+                       const doublereal* step, Domain1D& r)
+{
+    doublereal f, ewt, esum, sum = 0.0;
+    size_t n, j;
+    doublereal f2max = 0.0;
+    size_t nv = r.nComponents();
+    size_t np = r.nPoints();
 
+    for (n = 0; n < nv; n++) {
+        esum = 0.0;
+        for (j = 0; j < np; j++) {
+            esum += fabs(x[nv*j + n]);
+        }
+        ewt = r.rtol(n)*esum/np + r.atol(n);
+        for (j = 0; j < np; j++) {
+            f = step[nv*j + n]/ewt;
+            sum += f*f;
+            if (f*f > f2max) {
+                f2max = f*f;
+            }
+        }
+    }
+    return sum;
+}
 
+} // end unnamed-namespace
 
 //-----------------------------------------------------------
 //                  constants
@@ -219,9 +335,7 @@ int MultiNewton::dampStep(const doublereal* x0, const doublereal* step0,
     // this case, the Newton algorithm fails, so return an error
     // condition.
     if (fbound < 1.e-10) {
-        if (loglevel > 0) {
-            writelog("\nAt limits.\n");
-        }
+        writelog("\nAt limits.\n", loglevel);
         return -3;
     }
 
@@ -312,14 +426,13 @@ int MultiNewton::solve(doublereal* x0, doublereal* x1,
     bool frst = true;
     doublereal rdt = r.rdt();
     int j0 = jac.nEvals();
+    int nJacReeval = 0;
 
     while (1 > 0) {
 
         // Check whether the Jacobian should be re-evaluated.
         if (jac.age() > m_maxAge) {
-            if (loglevel > 0) {
-                writelog("\nMaximum Jacobian age reached ("+int2str(m_maxAge)+")\n");
-            }
+            writelog("\nMaximum Jacobian age reached ("+int2str(m_maxAge)+")\n", loglevel);
             forceNewJac = true;
         }
 
@@ -361,7 +474,7 @@ int MultiNewton::solve(doublereal* x0, doublereal* x1,
 
         // convergence
         else if (m == 1) {
-            goto done;
+            break;
         }
 
         // If dampStep fails, first try a new Jacobian if an old
@@ -370,16 +483,19 @@ int MultiNewton::solve(doublereal* x0, doublereal* x1,
         else if (m < 0) {
             if (jac.age() > 1) {
                 forceNewJac = true;
-                if (loglevel > 0)
-                    writelog("\nRe-evaluating Jacobian, since no damping "
-                             "coefficient\ncould be found with this Jacobian.\n");
+                if (nJacReeval > 3) {
+                    break;
+                }
+                nJacReeval++;
+                writelog("\nRe-evaluating Jacobian, since no damping "
+                         "coefficient\ncould be found with this Jacobian.\n",
+                         loglevel);
             } else {
-                goto done;
+                break;
             }
         }
     }
 
-done:
     if (m < 0) {
         copy(x, x + m_n, x1);
     }
@@ -419,7 +535,5 @@ void MultiNewton::releaseWorkArray(doublereal* work)
 {
     m_workarrays.push_back(work);
 }
-}
 
-
-// $Log: Newton.cpp,v
+} // end namespace Cantera

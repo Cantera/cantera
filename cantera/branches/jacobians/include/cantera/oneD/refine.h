@@ -31,6 +31,18 @@ public:
     void setMaxPoints(int npmax) {
         m_npmax = npmax;
     }
+
+    //! Set the minimum allowable spacing between adjacent grid points [m].
+    void setGridMin(double gridmin) {
+        m_gridmin = gridmin;
+    }
+
+    //! Returns the the minimum allowable spacing between adjacent
+    //! grid points [m].
+    double gridMin() const {
+        return m_gridmin;
+    }
+
     int analyze(size_t n, const doublereal* z, const doublereal* x);
     int getNewGrid(int n, const doublereal* z, int nn, doublereal* znew);
     //int getNewSoln(int n, const doublereal* x, doublereal* xnew);
@@ -69,6 +81,7 @@ protected:
     Domain1D*            m_domain;
     size_t m_nv, m_npmax;
     doublereal          m_thresh;
+    doublereal m_gridmin; //!< minimum grid spacing [m]
 
 };
 

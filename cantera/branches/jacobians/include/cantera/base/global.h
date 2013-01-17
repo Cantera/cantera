@@ -251,6 +251,12 @@ std::string canteraRoot();
 void writelog(const std::string& msg);
 
 
+inline void writelog(const std::string& msg, int loglevel) {
+	if (loglevel > 0) {
+		writelog(msg);
+	}
+}
+
 //!  Write a message to the screen.
 /*!
  * The string may be of any

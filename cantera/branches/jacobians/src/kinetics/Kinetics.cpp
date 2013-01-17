@@ -15,7 +15,7 @@
 #include "cantera/kinetics/StoichManager.h"
 #include "cantera/kinetics/RateCoeffMgr.h"
 
-#include "ImplicitSurfChem.h"
+#include "cantera/kinetics/ImplicitSurfChem.h"
 
 #include <iostream>
 using namespace std;

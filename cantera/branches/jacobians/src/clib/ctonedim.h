@@ -52,6 +52,7 @@ extern "C" {
     CANTERA_CAPI int stflow_setTransport(int i, int itr, int iSoret);
     CANTERA_CAPI int stflow_enableSoret(int i, int iSoret);
     CANTERA_CAPI int stflow_setPressure(int i, double p);
+    CANTERA_CAPI double stflow_pressure(int i);
     CANTERA_CAPI int stflow_setFixedTempProfile(int i, size_t n, double* pos,
             size_t m, double* temp);
     CANTERA_CAPI  int stflow_solveSpeciesEqs(int i, int flag);
@@ -71,6 +72,7 @@ extern "C" {
     CANTERA_CAPI int sim1D_refine(int i, int loglevel);
     CANTERA_CAPI int sim1D_setRefineCriteria(int i, int dom, double ratio,
             double slope, double curve, double prune);
+    CANTERA_CAPI int sim1D_setGridMin(int i, int dom, double gridmin);
     CANTERA_CAPI int sim1D_save(int i, char* fname, char* id,
                                 char* desc);
     CANTERA_CAPI int sim1D_restore(int i, char* fname, char* id);

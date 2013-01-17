@@ -6,7 +6,11 @@
  */
 
 /*
- * Copyright 2004 Sandia Corporation. Under the terms of Contract
+ *  $Date$
+ *  $Revision$
+ */
+/*
+ * Copywrite 2004 Sandia Corporation. Under the terms of Contract
  * DE-AC04-94AL85000 with Sandia Corporation, the U.S. Government
  * retains certain rights in this software.
  * See file License.txt for licensing information.
@@ -15,136 +19,134 @@
 #ifndef CT_NONLINEARSOLVER_H
 #define CT_NONLINEARSOLVER_H
 
-#include "ResidJacEval.h"
-#include "SquareMatrix.h"
+#include "cantera/numerics/ResidJacEval.h"
+#include "cantera/numerics/SquareMatrix.h"
 
-namespace Cantera
-{
-
-//@{
-///  @name  Constant which determines the type of the nonlinear solve
-/*!
- *  I think steady state is the only option I'm gunning for
- */
-//!  The nonlinear problem is part of a pseudo time dependent calculation (NOT TESTED)
+namespace Cantera {
+  
+  //@{
+  ///  @name  Constant which determines the type of the nonlinear solve
+  /*!
+   *  I think steady state is the only option I'm gunning for
+   */
+  //!  The nonlinear problem is part of a pseudo time dependent calculation (NOT TESTED)
 #define  NSOLN_TYPE_PSEUDO_TIME_DEPENDENT 2
-//! The nonlinear problem is part of a time dependent calculation
+  //! The nonlinear problem is part of a time dependent calculation
 #define  NSOLN_TYPE_TIME_DEPENDENT 1
-//!  The nonlinear problem is part of a steady state calculation
+  //!  The nonlinear problem is part of a steady state calculation
 #define  NSOLN_TYPE_STEADY_STATE   0
-//@}
+   //@}
 
-
-//@{
-///  @name  Constant which determines the Return int from the nonlinear solver
-/*!
- *  This int is returned from the nonlinear solver
- */
-//!  The nonlinear solve is successful.
+ 
+  //@{
+  ///  @name  Constant which determines the Return int from the nonlinear solver
+  /*!
+   *  This int is returned from the nonlinear solver
+   */
+  //!  The nonlinear solve is successful.
 #define  NSOLN_RETN_SUCCESS 1
-//! Problem isn't solved yet
-#define   NSOLN_RETN_CONTINUE  0
-//! The nonlinear problem started to take too small an update step. This indicates that either the
-//! Jacobian is bad, or a constraint is being bumped up against.
+  //! Problem isn't solved yet
+#define   NSOLN_RETN_CONTINUE  0 
+  //! The nonlinear problem started to take too small an update step. This indicates that either the 
+  //! Jacobian is bad, or a constraint is being bumped up against.
 #define  NSOLN_RETN_FAIL_STEPTOOSMALL -1
-//! The nonlinear problem didn't solve the problem
+  //! The nonlinear problem didn't solve the problem
 #define  NSOLN_RETN_FAIL_DAMPSTEP  -2
-//!  The nonlinear problem's jacobian is singular
+  //!  The nonlinear problem's jacobian is singular
 #define  NSOLN_RETN_MATRIXINVERSIONERROR   -3
-//!  The nonlinear problem's jacobian formation produced an error
+  //!  The nonlinear problem's jacobian formation produced an error
 #define  NSOLN_RETN_JACOBIANFORMATIONERROR   -4
-//!  The nonlinear problem's base residual produced an error
+  //!  The nonlinear problem's base residual produced an error
 #define  NSOLN_RETN_RESIDUALFORMATIONERROR   -5
-//!  The nonlinear problem's max number of iterations has been exceeded
+  //!  The nonlinear problem's max number of iterations has been exceeded
 #define  NSOLN_RETN_MAXIMUMITERATIONSEXCEEDED   -7
-//@}
-//@}
+   //@}
+   //@}
 
-//@{
-///  @name  Constant which determines the type of the Jacobian
-//! The jacobian will be calculated from a numerical method
+  //@{
+  ///  @name  Constant which determines the type of the Jacobian
+  //! The jacobian will be calculated from a numerical method
 #define NSOLN_JAC_NUM 1
-//! The jacobian is calculated from an analytical function
+  //! The jacobian is calculated from an analytical function
 #define NSOLN_JAC_ANAL 2
-//@}
+  //@}
 
 
-//! Class that calculates the solution to a nonlinear system
-/*!
- *  This is a small nonlinear solver that can solve highly nonlinear problems that
- *  must use a dense matrix to relax the system.
- *
- *  Newton's method is used.
- *
- *  Damping is used extensively when relaxing the system.
- *
- *
- *   The basic idea is that we predict a direction that is parameterized by an overall coordinate
- *   value, beta, from zero to one, This may or may not be the same as the value, damp,
- *   depending upon whether the direction is straight.
- *
- *
- * TIME STEP TYPE
- *
- *   The code solves a nonlinear problem. Frequently the nonlinear problem is created from time-dependent
- *   residual. Whenever you change the solution vector, you are also changing the derivative of the
- *   solution vector. Therefore, the code has the option of altering ydot, a vector of time derivatives
- *   of the solution in tandem with the solution vector and then feeding a residual and Jacobian routine
- *   with the time derivatives as well as the solution. The code has support for a backwards euler method
- *   and a second order  Adams-Bashforth or Trapezoidal Rule.
- *
- *   In order to use these methods, the solver must be initialized with delta_t and m_y_nm1[i] to specify
- *   the conditions at the previous time step. For second order methods, the time derivative at t_nm1 must
- *   also be supplied,  m_ydot_nm1[i]. Then the solution type  NSOLN_TYPE_TIME_DEPENDENT may be used to
- *   solve the problem.
- *
- *   For steady state problem whose residual doesn't have a solution time derivative in it, you should
- *   use the NSOLN_TYPE_STEADY_STATE problem type.
- *
- *   We have a NSOLN_TYPE_PSEUDO_TIME_DEPENDENT defined. However, this is not implemented yet. This would
- *   be a pseudo time dependent calculation, where an optional time derivative could be added in order to
- *   help equilibrate a nonlinear steady state system. The time transient is not important in and of
- *   itself. Many physical systems have a time dependence to them that provides a natural way to relax
- *   the nonlinear system.
- *
- *   MATRIX SCALING
- *
- *
- *
- *
- *  @code
- *
- *
- *  NonlinearSolver *nls = new NonlinearSolver(&r1);
- *
- *  int solnType =       NSOLN_TYPE_STEADY_STATE ;
- *
- *  nls->setDeltaBoundsMagnitudes(deltaBounds);
- *
- *  nls->solve_nonlinear_problem(solnType, y_comm, ydot_comm, CJ, time_curr, jac,
- *                                num_newt_its,  num_linear_solves, numBacktracks,
- *                               loglevelInput);
- *
- *  @endcode
- *
- *
- *  @ingroup numerics
- */
-class NonlinearSolver
-{
+  //! Class that calculates the solution to a nonlinear system
+  /*!
+   *  This is a small nonlinear solver that can solve highly nonlinear problems that
+   *  must use a dense matrix to relax the system.
+   *
+   *  Newton's method is used.
+   *
+   *  Damping is used extensively when relaxing the system.
+   *
+   *
+   *   The basic idea is that we predict a direction that is parameterized by an overall coordinate
+   *   value, beta, from zero to one, This may or may not be the same as the value, damp,
+   *   depending upon whether the direction is straight.
+   *
+   *
+   * TIME STEP TYPE
+   *
+   *   The code solves a nonlinear problem. Frequently the nonlinear problem is created from time-dependent
+   *   residual. Whenever you change the solution vector, you are also changing the derivative of the
+   *   solution vector. Therefore, the code has the option of altering ydot, a vector of time derivatives
+   *   of the solution in tandem with the solution vector and then feeding a residual and Jacobian routine
+   *   with the time derivatives as well as the solution. The code has support for a backwards euler method
+   *   and a second order  Adams-Bashforth or Trapezoidal Rule.
+   *
+   *   In order to use these methods, the solver must be initialized with delta_t and m_y_nm1[i] to specify
+   *   the conditions at the previous time step. For second order methods, the time derivative at t_nm1 must
+   *   also be supplied,  m_ydot_nm1[i]. Then the solution type  NSOLN_TYPE_TIME_DEPENDENT may be used to 
+   *   solve the problem.
+   *   
+   *   For steady state problem whose residual doesn't have a solution time derivative in it, you should
+   *   use the NSOLN_TYPE_STEADY_STATE problem type.
+   *
+   *   We have a NSOLN_TYPE_PSEUDO_TIME_DEPENDENT defined. However, this is not implemented yet. This would
+   *   be a pseudo time dependent calculation, where an optional time derivative could be added in order to 
+   *   help equilibrate a nonlinear steady state system. The time transient is not important in and of
+   *   itself. Many physical systems have a time dependence to them that provides a natural way to relax
+   *   the nonlinear system. 
+   *
+   *   MATRIX SCALING
+   *
+   *
+   *  
+   *
+   *  @code 
+   *
+   *
+   *  NonlinearSolver *nls = new NonlinearSolver(&r1);
+   *  
+   *  int solnType =       NSOLN_TYPE_STEADY_STATE ;
+   *
+   *  nls->setDeltaBoundsMagnitudes(deltaBounds);
+   *
+   *  nls->solve_nonlinear_problem(solnType, y_comm, ydot_comm, CJ, time_curr, jac,
+   *                                num_newt_its,  num_linear_solves, numBacktracks,
+   *                               loglevelInput);
+   *
+   *  @endcode  
+   *
+   *
+   *  @ingroup numerics
+   */
+  class NonlinearSolver {
 
-public:
+  public:
     //! Default constructor
     /*!
      * @param func   Residual and jacobian evaluator function object
      */
-    NonlinearSolver(ResidJacEval* func);
+    NonlinearSolver(ResidJacEval *func);
 
     //!Copy Constructor for the %ThermoPhase object.
     /*!
      * @param right Item to be copied
      */
-    NonlinearSolver(const NonlinearSolver& right);
+    NonlinearSolver(const NonlinearSolver &right);
 
     //! Destructor
     ~NonlinearSolver();
@@ -157,7 +159,7 @@ public:
      *                 copied into the
      *                 current one.
      */
-    NonlinearSolver& operator=(const NonlinearSolver& right);
+    NonlinearSolver& operator=(const NonlinearSolver &right);
 
     //! Create solution weights for convergence criteria
     /*!
@@ -170,7 +172,7 @@ public:
      *
      * @param y  vector of the current solution values
      */
-    void createSolnWeights(const doublereal* const y);
+    void createSolnWeights(const doublereal * const y);
 
     //!  L2 norm of the delta of the solution vector
     /*!
@@ -189,13 +191,13 @@ public:
      *
      *  @return Returns the L2 norm of the delta
      */
-    doublereal solnErrorNorm(const doublereal* const delta_y,  const char* title = 0, int printLargest = 0,
-                             const doublereal dampFactor = 1.0) const;
+    doublereal solnErrorNorm(const doublereal * const delta_y,  const char * title = 0, int printLargest = 0, 
+			     const doublereal dampFactor = 1.0) const;
 
     //! L2 norm of the residual of the equation system
     /*!
      * Calculate the norm of the residual vector. This may
-     * involve using the row sum scaling from the matrix problem.
+     * involve using the row sum scaling from the matrix problem. 
      *
      *  The second argument has a default of false. However,
      *  if true, then a table of the largest values is printed
@@ -209,40 +211,40 @@ public:
      *
      *  @return Returns the L2 norm of the delta
      */
-    doublereal residErrorNorm(const doublereal* const resid, const char* title = 0, const int printLargest = 0,
-                              const doublereal* const y = 0) const;
+    doublereal residErrorNorm(const doublereal * const resid, const char * title = 0, const int printLargest = 0,
+			  const doublereal * const y = 0) const;
 
     //! Compute the current residual
     /*!
-     *  The current value of the residual is stored in the internal work array m_resid, which is defined
+     *  The current value of the residual is storred in the internal work array m_resid, which is defined
      *  as mutable
      *
-     *  @param time_curr    Value of the time
+     *  @param time_curr    Value of the time 
      *  @param typeCalc     Type of the calculation
      *  @param y_curr       Current value of the solution vector
      *  @param ydot_curr    Current value of the time derivative of the solution vector
-     *  @param evalType     Base evaluation type
+     *  @param evalType     Base evalulation type
      *                        Defaults to Base_ResidEval
      *
      * @return Returns a flag to indicate that operation is successful.
      *            1  Means a successful operation
      *           -0 or neg value Means an unsuccessful operation
      */
-    int doResidualCalc(const doublereal time_curr, const int typeCalc, const doublereal* const y_curr,
-                       const doublereal* const ydot_curr,
-                       const ResidEval_Type_Enum evalType = Base_ResidEval) const;
+    int doResidualCalc(const doublereal time_curr, const int typeCalc, const doublereal * const y_curr, 
+		       const doublereal * const ydot_curr,
+		       const ResidEval_Type_Enum evalType = Base_ResidEval) const;
 
     //! Compute the undamped Newton step
     /*!
      *
      * Compute the undamped Newton step.  The residual function is
      * evaluated at the current time, t_n, at the current values of the
-     * solution vector, m_y_n, and the solution time derivative, m_ydot_n.
+     * solution vector, m_y_n, and the solution time derivative, m_ydot_n. 
      * The Jacobian is not recomputed.
      *
      *  A factored jacobian is reused, if available. If a factored jacobian
      *  is not available, then the jacobian is factored. Before factoring,
-     *  the jacobian is row and column-scaled. Column scaling is not
+     *  the jacobian is row and column-scaled. Column scaling is not 
      *  recomputed. The row scales are recomputed here, after column
      *  scaling has been implemented.
      *
@@ -254,10 +256,10 @@ public:
      *
      *  @return Returns the result code from lapack. A zero means success. Anything
      *          else indicates a failure.
-     */
-    int doNewtonSolve(const doublereal time_curr, const doublereal* const y_curr,
-                      const doublereal* const ydot_curr, doublereal* const delta_y,
-                      GeneralMatrix& jac);
+     */ 
+    int doNewtonSolve(const doublereal time_curr, const doublereal * const y_curr,
+		      const doublereal * const ydot_curr, doublereal * const delta_y,
+		      GeneralMatrix& jac);
 
     //! Compute the newton step, either by direct newton's or by solving a close problem that is represented
     //! by a Hessian (
@@ -265,15 +267,15 @@ public:
      * This is algorith A.6.5.1 in Dennis / Schnabel
      *
      * Compute the QR decomposition
-     *
+     * 
      * Compute the undamped Newton step.  The residual function is
      * evaluated at the current time, t_n, at the current values of the
-     * solution vector, m_y_n, and the solution time derivative, m_ydot_n.
+     * solution vector, m_y_n, and the solution time derivative, m_ydot_n. 
      * The Jacobian is not recomputed.
      *
      *  A factored jacobian is reused, if available. If a factored jacobian
      *  is not available, then the jacobian is factored. Before factoring,
-     *  the jacobian is row and column-scaled. Column scaling is not
+     *  the jacobian is row and column-scaled. Column scaling is not 
      *  recomputed. The row scales are recomputed here, after column
      *  scaling has been implemented.
      *
@@ -284,14 +286,14 @@ public:
      *
      *  Internal input
      * ---------------
-     *  internal m_resid      Stored residual is used as input
+     *  internal m_resid      Storred residual is used as input
      *
      *
      *  @return Returns the result code from lapack. A zero means success. Anything
      *          else indicates a failure.
      */
-    int doAffineNewtonSolve(const doublereal* const y_curr, const doublereal* const ydot_curr,
-                            doublereal* const delta_y, GeneralMatrix& jac);
+    int doAffineNewtonSolve(const doublereal * const y_curr, const doublereal * const ydot_curr, 
+			    doublereal * const delta_y, GeneralMatrix& jac);
 
     //! Calculate the length of the current trust region in terms of the solution error norm
     /*!
@@ -314,11 +316,11 @@ public:
 
     //! Set the delta Bounds magnitudes by hand
     /*!
-     *  @param deltaBoundsMagnitudes  set the deltaBoundsMagnitude vector
+     *  @param deltaBoundsMagnitudes  set the deltaBoundsMagnitude vector      
      */
-    void setDeltaBoundsMagnitudes(const doublereal* const deltaBoundsMagnitudes);
-
-protected:
+    void setDeltaBoundsMagnitudes(const doublereal * const deltaBoundsMagnitudes);
+  
+  protected:
 
     //! Readjust the trust region vectors
     /*!
@@ -326,7 +328,7 @@ protected:
      *  We periodically recalculate the trustVector_ values so that they renormalize to the
      *  correct length.  We change the trustDelta_ values regularly
      *
-     *    The trust region calculate is based on
+     *    The trust region calculate is based on 
      *
      *        || delta_x   dot  1/trustDeltaX_ ||   <= trustDelta_
      *
@@ -348,16 +350,16 @@ protected:
     /*!
      *  The trust distance is defined as the length of the step according to the norm wrt to the trust region.
      *  We calculate the trust distance by the following method.
-     *
-     *      trustDist =  || delta_x   dot  1/trustDeltaX_ ||
+     *  
+     *      trustDist =  || delta_x   dot  1/trustDeltaX_ || 
      *
      * @param deltaX  Current value of deltaX
      */
-    doublereal calcTrustDistance(std::vector<doublereal> const& deltaX) const;
+    doublereal calcTrustDistance(std::vector<doublereal> const & deltaX) const;
 
 
 
-public:
+  public:
     //! Bound the step
     /*!
      *
@@ -378,8 +380,8 @@ public:
      * Delta bounds: The idea behind these is that the Jacobian
      *               couldn't possibly be representative if the
      *               variable is changed by a lot. (true for
-     *               nonlinear systems, false for linear systems)
-     *  Maximum increase in variable in any one newton iteration:
+     *               nonlinear systems, false for linear systems) 
+     *  Maximum increase in variable in any one newton iteration: 
      *   factor of 2
      *  Maximum decrease in variable in any one newton iteration:
      *   factor of 5
@@ -389,23 +391,23 @@ public:
      *
      *  @return  Returns the damping factor determined by the bounds calculation
      */
-    doublereal boundStep(const doublereal* const  y, const doublereal* const step0);
+    doublereal boundStep(const doublereal * const  y, const doublereal * const step0);
 
     //! Set bounds constraints for all variables in the problem
     /*!
-     *
+     *  
      *   @param y_low_bounds  Vector of lower bounds
      *   @param y_high_bounds Vector of high bounds
      */
-    void setBoundsConstraints(const doublereal* const y_low_bounds,
-                              const doublereal* const y_high_bounds);
+    void setBoundsConstraints(const doublereal * const y_low_bounds,
+			      const doublereal * const y_high_bounds);
 
     //! Return an editable vector of the low bounds constraints
     std::vector<doublereal> & lowBoundsConstraintVector();
 
     //! Return an editable vector of the high bounds constraints
     std::vector<doublereal> & highBoundsConstraintVector();
-
+ 
     //!   Internal function to calculate the time derivative of the solution at the new step
     /*!
      *  Previously, the user must have supplied information about the previous time step for this routine to
@@ -414,13 +416,13 @@ public:
      *   @param  order of the BDF method
      *   @param   y_curr current value of the solution
      *   @param   ydot_curr  Calculated value of the solution derivative that is consistent with y_curr
-     */
-    void calc_ydot(const int order, const doublereal* const y_curr, doublereal* const ydot_curr) const;
+     */  
+    void calc_ydot(const int order, const doublereal * const y_curr, doublereal * const ydot_curr) const;
 
     //! Function called to evaluate the jacobian matrix and the current
     //! residual vector at the current time step
     /*!
-     *
+     *  
      *
      *  @param J  Jacobian matrix to be filled in
      *  @param f   Right hand side. This routine returns the current
@@ -431,14 +433,14 @@ public:
      *  @param y    value of the solution vector
      *  @param ydot  value of the time derivative of the solution vector
      *  @param num_newt_its Number of newton iterations
-     *
+     *  
      * @return Returns a flag to indicate that operation is successful.
      *            1  Means a successful operation
      *            0  Means an unsuccessful operation
      */
-    int  beuler_jac(GeneralMatrix& J, doublereal* const f,
-                    doublereal time_curr, doublereal CJ, doublereal* const y,
-                    doublereal* const ydot, int num_newt_its);
+    int  beuler_jac(GeneralMatrix &J, doublereal * const f,
+		    doublereal time_curr, doublereal CJ, doublereal * const y,
+		    doublereal * const ydot, int num_newt_its);
 
     //! Apply a filtering process to the step
     /*!
@@ -448,7 +450,7 @@ public:
      *
      *  @return Returns the norm of the value of the amount filtered
      */
-    doublereal filterNewStep(const doublereal timeCurrent, const doublereal* const ybase, doublereal* const step0);
+    doublereal filterNewStep(const doublereal timeCurrent, const doublereal * const ybase, doublereal * const step0);
 
     //! Apply a filter to the solution
     /*!
@@ -458,8 +460,8 @@ public:
      *
      *  @return Returns the norm of the value of the amount filtered
      */
-    doublereal filterNewSolution(const doublereal timeCurrent, doublereal* const y_current,
-                                 doublereal* const ydot_current);
+    doublereal filterNewSolution(const doublereal timeCurrent, doublereal * const y_current, 
+				 doublereal * const ydot_current);
 
     //! Return the factor by which the undamped Newton step 'step0'
     //!  must be multiplied in order to keep the update within the bounds of an accurate jacobian.
@@ -477,8 +479,8 @@ public:
      *
      *  @return returns the damping factor
      */
-    doublereal deltaBoundStep(const doublereal* const y, const doublereal* const step0);
-
+    doublereal deltaBoundStep(const doublereal * const y, const doublereal * const step0);
+			       
     //!  Find a damping coefficient through a look-ahead mechanism
     /*!
      *    On entry, step_1 must contain an undamped Newton step for the
@@ -490,9 +492,9 @@ public:
      *    returned in step_2.
      *
      *    @param time_curr Current physical time
-     *    @param y_n_curr     Base value of the solution before any steps
+     *    @param y_n_curr     Base value of the solution before any steps 
      *                        are taken
-     *    @param ydot_n_curr  Base value of the time derivative of the
+     *    @param ydot_n_curr  Base value of the time derivative of teh
      *                        solution
      *    @param step_1       Initial step suggested.
      *    @param y_n_1        Value of y1, the suggested solution after damping
@@ -505,13 +507,13 @@ public:
      *
      *  @return returns an integer indicating what happened.
      */
-    int dampStep(const doublereal time_curr, const doublereal* const y_n_curr,
-                 const doublereal* const ydot_n_curr, doublereal* const step_1,
-                 doublereal* const y_n_1, doublereal* const ydot_n_1, doublereal* step_2,
-                 doublereal& stepNorm_2, GeneralMatrix& jac, bool writetitle,
-                 int& num_backtracks);
+    int dampStep(const doublereal time_curr, const doublereal * const y_n_curr, 
+		 const doublereal * const ydot_n_curr, doublereal * const step_1, 
+		 doublereal * const y_n_1, doublereal * const ydot_n_1, doublereal * step_2,
+		 doublereal & stepNorm_2, GeneralMatrix& jac, bool writetitle,
+		 int& num_backtracks);
 
-    //! Find the solution to F(X) = 0 by damped Newton iteration.
+    //! Find the solution to F(X) = 0 by damped Newton iteration. 
     /*!
      *  On
      * entry, x0 contains an initial estimate of the solution.  On
@@ -529,7 +531,7 @@ public:
      *  @param CJ        Inverse of the value of deltaT
      *  @param time_curr  Current value of the time
      *  @param jac        Matrix that will be used to store the jacobian
-     *  @param num_newt_its Number of newton iterations taken
+     *  @param num_newt_its Number of newton iterations taken 
      *  @param num_linear_solves Number of linear solves taken
      *  @param num_backtracks Number of backtracking steps taken
      *  @param loglevelInput  Input log level determines the amount of printing.
@@ -538,15 +540,26 @@ public:
      *   @return  A positive value indicates a successful convergence
      *            -1  Failed convergence
      */
-    int solve_nonlinear_problem(int SolnType, doublereal* const y_comm, doublereal* const ydot_comm, doublereal CJ,
-                                doublereal time_curr, GeneralMatrix& jac, int& num_newt_its,
-                                int& num_linear_solves, int& num_backtracks, int loglevelInput);
+    int solve_nonlinear_problem(int SolnType, doublereal * const y_comm, doublereal * const ydot_comm, doublereal CJ,
+				doublereal time_curr, GeneralMatrix & jac, int &num_newt_its,
+				int &num_linear_solves,	int &num_backtracks, int loglevelInput);
 
-private:
+    //! Set the values for the previous time step
+    /*!
+     *   We set the values for the previous time step here. These are used in the nonlinear
+     *   solve because they affect the calculation of ydot.
+     *
+     * @param y_nm1     Value of the solution vector at the previous time step
+     * @param ydot_nm1  Value of the solution vector derivative at the previous time step
+     */
+    virtual void
+    setPreviousTimeStep(const std::vector<doublereal>& y_nm1, const std::vector<doublereal>& ydot_nm1);
+
+  private:
     //! Set the column scales
     void calcColumnScales();
 
-public:
+  public:
 
     //! Set the column scaling that are used for the inversion of the matrix
     /*!
@@ -556,19 +569,19 @@ public:
      *  Then, the column scales will be set to the solution error weighting factors. This has the
      *  effect of ensuring that all delta variables will have the same order of magnitude at convergence
      *  end.
-     *
-     *  The second way is the explicitly set the column factors in the second argument of this function call.
+     *  
+     *  The second way is the explicity set the column factors in the second argument of this function call.
      *
      *  The final way to input the scales is to override the ResidJacEval member function call,
      *
      *     calcSolnScales(double time_n, const double *m_y_n_curr, const double *m_y_nm1, double *m_colScales)
      *
      *  Overriding this function call will trump all other ways to specify the column scaling factors.
-     *
+     *  
      *  @param useColScaling   Turn this on if you want to use column scaling in the calculations
      *  @param scaleFactors    A vector of doubles that specifies the column factors.
      */
-    void setColumnScaling(bool useColScaling, const double* const scaleFactors = 0);
+    void setColumnScaling(bool useColScaling, const double * const scaleFactors = 0);
 
 
     //! Set the rowscaling that are used for the inversion of the matrix
@@ -587,8 +600,8 @@ public:
      *  @param time_curr        current value of the time
      *  @param num_newt_its      Current value of the number of newt its
      */
-    void scaleMatrix(GeneralMatrix& jac, doublereal* const y_comm, doublereal* const ydot_comm,
-                     doublereal time_curr, int num_newt_its);
+    void scaleMatrix(GeneralMatrix& jac, doublereal * const y_comm, doublereal * const ydot_comm, 
+		     doublereal time_curr, int num_newt_its);
 
     //! Print solution norm contribution
     /*!
@@ -605,10 +618,10 @@ public:
      *   @param num_entries            Number of entries to print out
      */
     void
-    print_solnDelta_norm_contrib(const doublereal* const step_1, const char* const stepNorm_1,
-                                 const doublereal* const step_2, const char* const stepNorm_2,
-                                 const char* const title, const doublereal* const y_n_curr,
-                                 const doublereal* const y_n_1,  doublereal damp, size_t num_entries);
+    print_solnDelta_norm_contrib(const doublereal * const step_1, const char * const stepNorm_1,
+				 const doublereal * const step_2, const char * const stepNorm_2,
+				 const char * const title, const doublereal * const y_n_curr,
+				 const doublereal * const y_n_1,  doublereal damp, int num_entries);
 
     //! Compute the Residual Weights
     /*!
@@ -627,9 +640,9 @@ public:
     /*!
      *  @param residWts  Vector of length neq_
      */
-    void getResidWts(doublereal* const residWts) const;
+    void getResidWts(doublereal * const residWts) const;
 
-
+    
 
     //! Check to see if the nonlinear problem has converged
     /*!
@@ -655,7 +668,7 @@ public:
      *
      *  @param atol   Vector of length neq_ that contains the tolerances to be used for the solution variables
      */
-    void setAtol(const doublereal* const atol);
+    void setAtol(const doublereal * const atol);
 
     //! Set the relative tolerances for the solution variables
     /*!
@@ -680,9 +693,12 @@ public:
      *    and the residual norms are converging at the same time and thus accounts for some-illconditioning issues
      *    but not all.
      *
+     *    With this routine the user can override or add to the residual weighting norm evaluation by specifying
+     *    their own vector of residual absolute and relative tolerances.
+     *    
      *   The user specified tolerance for the residual is given by the following quantity
      *
-     *   residWeightNorm[i] = residAtol[i] +  residRtol * m_rowWtScales[i] / neq
+     *   residWeightNorm[i] = residAtol[i] +  residRtol * m_rowWtScales[i] / neq 
      *
      *     @param residNormHandling  Parameter that sets the default handling of the residual norms
      *                      0   The residual weighting vector is calculated to make sure that the solution
@@ -692,7 +708,7 @@ public:
      *                      2   Use the minimum value of the residual weights calculcated by method 1 and 2.
      *                          This is the default if this routine is called and this parameter isn't specified.
      */
-    void setResidualTols(double residRtol, double* residATol, int residNormHandling = 2);
+    void setResidualTols(double residRtol, double * residATol, int residNormHandling = 2);
 
     //! Set the value of the maximum # of newton iterations
     /*!
@@ -709,7 +725,7 @@ public:
      */
     void calcSolnToResNormVector();
 
-    //! Calculate the steepest descent direction and the Cauchy Point where the quadratic formulation
+    //! Calculate the steepest descent direction and the Cauchy Point where the quadratic formulation 
     //! of the nonlinear problem expects a minimum along the descent direction.
     /*!
      *  @param jac   Jacobian matrix: must be unfactored.
@@ -737,12 +753,12 @@ public:
      *
      *  @param time_curr   Current time
      *  @param ydot0       INPUT    Current value of the derivative of the solution vector
-     *  @param ydot1       INPUT  Time derivatives of solution at the conditions which are evaluated for success
+     *  @param ydot1       INPUT  Time derivates of solution at the conditions which are evalulated for success
      *  @param numTrials   OUTPUT Counter for the number of residual evaluations
      */
-    void descentComparison(doublereal time_curr ,doublereal* ydot0, doublereal* ydot1, int& numTrials);
+    void descentComparison(doublereal time_curr ,doublereal * ydot0, doublereal * ydot1, int &numTrials);
 
-
+  
     //!  Setup the parameters for the double dog leg
     /*!
      *  The calls to the doCauchySolve() and doNewtonSolve() routines are done at the main level. This routine comes
@@ -758,7 +774,7 @@ public:
      *
      * @return Returns the leg number ( 0, 1, or 2).
      */
-    int lambdaToLeg(const doublereal lambda, doublereal& alpha) const;
+    int lambdaToLeg(const doublereal lambda, doublereal &alpha) const;
 
     //! Given a trust distance, this routine calculates the intersection of the this distance with the
     //! double dogleg curve
@@ -768,7 +784,7 @@ public:
      *   @param      alpha       (OUTPUT)    Returns the relative distance along the appropriate leg
      *   @return     leg         (OUTPUT)    Returns the leg ID (0, 1, or 2)
      */
-    int calcTrustIntersection(doublereal trustVal, doublereal& lambda, doublereal& alpha) const;
+    int calcTrustIntersection(doublereal trustVal, doublereal &lambda, doublereal &alpha) const;
 
     //! Initialize the size of the trust vector.
     /*!
@@ -787,7 +803,7 @@ public:
      *            2 Factor of the first Cauchy Point distance
      *            3 Factor of the first Newton step distance
      *
-     *  @param factor Factor to use in combination with the method
+     *  @param factor Factor to use in combination with the method 
      *
      */
     void setTrustRegionInitializationMethod(int method, doublereal factor);
@@ -795,7 +811,7 @@ public:
 
     //! Damp using the dog leg approach
     /*!
-     *
+     *  
      * @param time_curr  INPUT     Current value of the time
      * @param y_n_curr   INPUT    Current value of the solution vector
      * @param ydot_n_curr INPUT   Current value of the derivative of the solution vector
@@ -817,10 +833,10 @@ public:
      *           0 Uncertain Success: s1 is about the same as s0
      *          -2 Unsuccessful step.
      */
-    int dampDogLeg(const doublereal time_curr, const doublereal* y_n_curr,
-                   const doublereal* ydot_n_curr,  std::vector<doublereal> & step_1,
-                   doublereal* const y_n_1, doublereal* const ydot_n_1,
-                   doublereal& stepNorm_1, doublereal& stepNorm_2, GeneralMatrix& jac, int& num_backtracks);
+    int dampDogLeg(const doublereal time_curr, const doublereal* y_n_curr, 
+		   const doublereal *ydot_n_curr,  std::vector<doublereal> & step_1,
+		   doublereal* const y_n_1, doublereal* const ydot_n_1, 
+		   doublereal& stepNorm_1, doublereal& stepNorm_2, GeneralMatrix& jac, int& num_backtracks);
 
     //! Decide whether the current step is acceptable and adjust the trust region size
     /*!
@@ -835,8 +851,8 @@ public:
      * @param y_n_curr   INPUT    Current value of the solution vector
      * @param ydot_n_curr INPUT    Current value of the derivative of the solution vector
      * @param step_1     INPUT    Trial step
-     * @param y_n_1         OUTPUT   Solution values at the conditions which are evaluated for success
-     * @param ydot_n_1      OUTPUT   Time derivatives of solution at the conditions which are evaluated for success
+     * @param y_n_1         OUTPUT   Solution values at the conditions which are evalulated for success
+     * @param ydot_n_1      OUTPUT   Time derivates of solution at the conditions which are evalulated for success
      * @param trustDeltaOld INPUT Value of the trust length at the old conditions
      *
      *
@@ -846,15 +862,15 @@ public:
      *        0  The step passed.
      *       -1  The step size is now too small (||d || < 0.1). A really small step isn't decreasing the function.
      *           This is an error condition.
-     *       -2  Current value of the solution vector caused a residual error in its evaluation.
+     *       -2  Current value of the solution vector caused a residual error in its evaluation. 
      *           Step is a failure, and the step size must be reduced in order to proceed further.
      */
-    int decideStep(const doublereal time_curr, int leg, doublereal alpha, const doublereal* const y_n_curr,
-                   const doublereal* const ydot_n_curr,
-                   const std::vector<doublereal> & step_1,
-                   const doublereal* const y_n_1, const doublereal* const ydot_n_1, doublereal trustDeltaOld);
+    int decideStep(const doublereal time_curr, int leg, doublereal alpha, const doublereal * const y_n_curr, 
+		   const doublereal * const ydot_n_curr, 
+		   const std::vector<doublereal> & step_1,
+		   const doublereal * const y_n_1, const doublereal * const ydot_n_1, doublereal trustDeltaOld);
 
-    //! Calculated the expected residual along the double dogleg curve.
+    //! Calculated the expected residual along the double dogleg curve. 
     /*!
      *  @param leg 0, 1, or 2 representing the curves of the dogleg
      *  @param alpha  Relative distance along the particular curve.
@@ -873,12 +889,12 @@ public:
      *  @param legBest       OUTPUT   leg of the dogleg that gives the lowest residual
      *  @param alphaBest     OUTPUT   distance along dogleg for best result.
      */
-    void residualComparisonLeg(const doublereal time_curr, const doublereal* const ydot0, int& legBest,
-                               doublereal& alphaBest) const;
+    void residualComparisonLeg(const doublereal time_curr, const doublereal * const ydot0, int & legBest, 
+			       doublereal & alphaBest) const;
 
     //! Set the print level from the nonlinear solver
     /*!
-     *
+     * 
      *   0 -> absolutely nothing is printed for a single time step.
      *   1 -> One line summary per solve_nonlinear call
      *   2 -> short description, points of interest: Table of nonlinear solve - one line per iteration
@@ -912,21 +928,21 @@ public:
      *              MEMBER DATA
      * ------------------------------------------------------------------------------------------------
      */
-private:
+ private:
 
-    //! Pointer to the residual and jacobian evaluator for the
+    //! Pointer to the residual and jacobian evaluator for the 
     //! function
     /*!
      *   See ResidJacEval.h for an evaluator.
      */
-    ResidJacEval* m_func;
+    ResidJacEval *m_func;
 
     //! Solution type
     int solnType_;
 
     //! Local copy of the number of equations
-    size_t neq_;
-
+    int neq_;
+  
     //! Soln error weights
     std::vector<doublereal> m_ewt;
 
@@ -949,11 +965,14 @@ private:
     //! Vector containing the solution at the previous time step
     std::vector<doublereal> m_y_nm1;
 
-    //! Vector containing the solution at the previous time step
-    std::vector<doublereal> m_y_n_1;
+    //! Vector containing the solution derivative at the previous time step
+    std::vector<doublereal> m_ydot_nm1;
+
+    //! Vector containing the solution at the new point that is to be considered
+    std::vector<doublereal> m_y_n_trial;
 
     //! Value of the solution time derivative at the new point that is to be considered
-    std::vector<doublereal> m_ydot_n_1;
+    std::vector<doublereal> m_ydot_trial;
 
     //! Value of the step to be taken in the solution
     std::vector<doublereal> m_step_1;
@@ -970,7 +989,7 @@ private:
 
     //! Weights for normalizing the values of the residuals
     /*!
-     *  They are calculated as the  sum of the absolute values of the jacobian
+     *  They are calculated as the  sum of the absolute values of the jacobian 
      *  multiplied by the solution weight function.
      *  This is carried out in scaleMatrix().
      */
@@ -997,7 +1016,7 @@ private:
     //! Norm of the residual at the start of each nonlinear iteration
     doublereal m_normResid_0;
 
-    //! Norm of the residual after it has been bounded
+    //! Norm of the residual after it has been bounded 
     doublereal m_normResid_Bound;
 
     //! Norm of the residual at the end of the first leg of the current iteration
@@ -1067,8 +1086,10 @@ private:
     //! Total number of newton iterations
     int m_numTotalNewtIts;
 
+ public:
     //! Minimum number of newton iterations to use
     int m_min_newt_its;
+ private:
 
     //! Maximum number of newton iterations
     int maxNewtIts_;
@@ -1086,14 +1107,14 @@ private:
     //! Current system time
     /*!
      *  Note, we assume even for steady state problems that the residual
-     *  is a function of a system time.
+     *  is a function of a system time. 
      */
     doublereal time_n;
 
     //! Boolean indicating matrix conditioning
     int m_matrixConditioning;
 
-    //! Order of the time step method = 1
+    //! Order of the time step method = 1 
     int m_order;
 
     //! value of the relative tolerance to use in solving the equation set
@@ -1101,9 +1122,6 @@ private:
 
     //! Base value of the absolute tolerance
     doublereal atolBase_;
-
-    //! Pointer containing the solution derivative at the previous time step
-    doublereal* m_ydot_nm1;
 
     //! absolute tolerance in the solution unknown
     /*!
@@ -1132,8 +1150,10 @@ private:
      *   2 -> short description, points of interest: Table of nonlinear solve - one line per iteration
      *   3 -> Table is included -> More printing per nonlinear iteration (default) that occurs during the table
      *   4 -> Summaries of the nonlinear solve iteration as they are occurring -> table no longer printed
+     *        Base_ShowSolution Residual called for residual printing at the end of convergence.
      *   5 -> Algorithm information on the nonlinear iterates are printed out
      *   6 -> Additional info on the nonlinear iterates are printed out
+     *        Base_ShowSolution Residual called for residual printing at the end of each step.
      *   7 -> Additional info on the linear solve is printed out.
      *   8 -> Info on a per iterate of the linear solve is printed out.
      */
@@ -1144,12 +1164,12 @@ private:
 
     //! Copy of the jacobian that doesn't get overwritten when the inverse is determined
     /*!
-     *  The jacobian stored here is the raw matrix, before any row or column scaling is carried out
+     *  The jacobian storred here is the raw matrix, before any row or column scaling is carried out
      */
-    Cantera::GeneralMatrix* jacCopyPtr_;
+    Cantera::GeneralMatrix * jacCopyPtr_;
 
     //! Hessian
-    Cantera::GeneralMatrix* HessianPtr_;
+    Cantera::GeneralMatrix * HessianPtr_;
 
     /*********************************************************************************************
      *      VARIABLES ASSOCIATED WITH STEPS AND ASSOCIATED DOUBLE DOGLEG PARAMETERS
@@ -1176,16 +1196,16 @@ private:
 
     //! Residual dot Jd norm
     /*!
-     *  This is equal to  R_hat dot  J_hat d_y_descent
+     *  This is equal to  R_hat dot  J_hat d_y_descent 
      */
     doublereal RJd_norm_;
 
     //! Value of lambdaStar_ which is used to calculate the Cauchy point
     doublereal lambdaStar_;
 
-    //!  Jacobian times the steepest descent direction in the normalized coordinates.
+    //!  Jacobian times the steepest descent direction in the normalized coordinates. 
     /*!
-     *  This is equal to [ Jhat d^y_{descent} ] in the notes, Eqn. 18.
+     *  This is equal to [ Jhat d^y_{descent} ] in the notes, Eqn. 18. 
      */
     std::vector<doublereal> Jd_;
 
@@ -1195,7 +1215,7 @@ private:
     //! Current norm of the vector deltaX_trust_ in terms of the solution norm
     mutable  doublereal norm_deltaX_trust_;
 
-    //! Current value of trust radius. This is used with deltaX_trust_ to
+    //! Current value of trust radius. This is used with deltaX_trust_ to 
     //! calculate the max step size.
     doublereal trustDelta_;
 
@@ -1253,7 +1273,7 @@ private:
     //! Factor indicating how much trust region has been changed next iteration - output variable
     doublereal NextTrustFactor_;
 
-    //! Boolean indicating that the residual weights have been reevaluated this iteration - output variable
+    //! Boolean indicating that the residual weights have been reevalulated this iteration - output variable
     bool ResidWtsReevaluated_;
 
     //! Expected DResid_dS for the steepest descent path - output variable
@@ -1272,7 +1292,7 @@ private:
      *     STATIC VARIABLES
      *****************************************************************************************/
 
-public:
+  public:
     //! Turn off printing of time
     /*!
      *  Necessary to do for test suites
@@ -1297,7 +1317,7 @@ public:
      */
     static bool s_alwaysAssumeNewtonGood;
 
-};
+  };
 
 }
 

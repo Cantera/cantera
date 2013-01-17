@@ -100,6 +100,7 @@ const doublereal logGasConstant = std::log(GasConstant);
 
 //! One atmosphere [Pa]
 const doublereal OneAtm = 1.01325e5;
+const doublereal OneBar = 1.0E5;
 
 //! Universal gas constant in cal/mol/K
 const doublereal GasConst_cal_mol_K = GasConstant / 4184.0;

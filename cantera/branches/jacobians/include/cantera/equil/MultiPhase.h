@@ -61,9 +61,6 @@ class MultiPhase
 {
 
 public:
-    //! Shorthand for an index variable that can't be negative
-    typedef size_t index_t;
-
     //! Constructor.
     /*!
      *   The constructor takes no arguments, since
@@ -195,7 +192,7 @@ public:
     /*!
      *   @param iph  phase Index
      */
-    std::string phaseName(const index_t iph) const;
+    std::string phaseName(const size_t iph) const;
 
     //! Returns the index, given the phase name
     /*!
@@ -210,14 +207,14 @@ public:
     /*!
      * @param n  Index of the phase.
      */
-    doublereal phaseMoles(const index_t n) const;
+    doublereal phaseMoles(const size_t n) const;
 
     //! Set the number of moles of phase with index n.
     /*!
      * @param n     Index of the phase
      * @param moles Number of moles in the phase (kmol)
      */
-    void setPhaseMoles(const index_t n, const doublereal moles);
+    void setPhaseMoles(const size_t n, const doublereal moles);
 
     /// Return a %ThermoPhase reference to phase n.
     /*! The state of phase n is
@@ -228,7 +225,7 @@ public:
      *
      * @return   Reference to the %ThermoPhase object for the phase
      */
-    thermo_t& phase(index_t n);
+    thermo_t & phase(size_t n);
 
     //! Check that the specified phase index is in range
     //! Throws an exception if m is greater than nPhases()
@@ -246,7 +243,7 @@ public:
      *
      * @param kGlob   Global species index k
      */
-    doublereal speciesMoles(index_t kGlob) const;
+    doublereal speciesMoles(size_t kGlob) const;
 
     //! Return the global index of the species belonging to phase number \c p
     //! with local index \c k within the phase.
@@ -256,7 +253,7 @@ public:
      * @param k local index of the species within the phase
      * @param p index of the phase
      */
-    size_t speciesIndex(index_t k, index_t p) const {
+    size_t speciesIndex(size_t k, size_t p) const {
         return m_spstart[p] + k;
     }
 
@@ -298,13 +295,13 @@ public:
     /*!
      * @param p     Phase Index
      */
-    doublereal phaseCharge(index_t p) const;
+    doublereal phaseCharge(size_t p) const;
 
     //! Total moles of global element \a m, summed over all phases.
     /*!
      * @param m   Index of the global element
      */
-    doublereal elementMoles(index_t m) const;
+    doublereal elementMoles(size_t m) const;
 
     //!  Returns a vector of Chemical potentials.
     /*!
@@ -449,7 +446,7 @@ public:
     doublereal cp() const;
 
     /// Number of phases.
-    index_t nPhases() const {
+    size_t nPhases() const {
         return m_np;
     }
 
@@ -458,7 +455,7 @@ public:
     /*!
      * @param kGlob   index of the global species
      */
-    bool solutionSpecies(index_t kGlob) const;
+    bool solutionSpecies(size_t kGlob) const;
 
     //! Returns the phase index of the Kth "global" species
     /*!
@@ -467,13 +464,13 @@ public:
      * @return
      *     Returns the index of the owning phase.
      */
-    size_t speciesPhaseIndex(const index_t kGlob) const;
+    size_t speciesPhaseIndex(const size_t kGlob) const;
 
     //! Returns the mole fraction of global species k
     /*!
      * @param kGlob Index of the global species.
      */
-    doublereal moleFraction(const index_t kGlob) const;
+    doublereal moleFraction(const size_t kGlob) const;
 
     //! Set the Mole fractions of the nth phase
     /*!
@@ -484,7 +481,7 @@ public:
      * @param n    ID of the phase
      * @param x    Vector of input mole fractions.
      */
-    void setPhaseMoleFractions(const index_t n, const doublereal* const x);
+    void setPhaseMoleFractions(const size_t n, const doublereal* const x);
 
     //! Set the number numbers of species in the MultiPhase
     /*!
@@ -550,7 +547,7 @@ public:
     /*!
      * @param p  Index of the phase.
      */
-    bool tempOK(index_t p) const;
+    bool tempOK(size_t p) const;
 
     // These methods are meant for internal use.
 
@@ -658,7 +655,7 @@ private:
     /**
      *   Number of phases in the MultiPhase object
      */
-    index_t  m_np;
+    size_t  m_np;
 
     //! Current value of the temperature (kelvin)
     doublereal m_temp;
@@ -669,11 +666,11 @@ private:
     /**
      * Number of distinct elements in all of the phases
      */
-    index_t m_nel;
+    size_t m_nel;
     /**
      * Number of distinct species in all of the phases
      */
-    index_t m_nsp;
+    size_t m_nsp;
 
     //! True if the init() routine has been called, and the MultiPhase frozen
     bool m_init;

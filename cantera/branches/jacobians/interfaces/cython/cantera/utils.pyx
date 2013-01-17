@@ -17,4 +17,10 @@ cdef pystr(string x):
         return s.decode()
 
 def addDirectory(directory):
+    """ Add a directory to search for Cantera data files. """
     CxxAddDirectory(stringify(directory))
+
+def _have_sundials():
+    return bool(get_sundials_version())
+
+__version__ = pystr(get_cantera_version())

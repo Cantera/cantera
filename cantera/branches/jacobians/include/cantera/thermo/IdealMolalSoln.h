@@ -407,24 +407,6 @@ public:
         return err("potentialEnergy");
     }
 
-    /*
-     * Set the electric potential of this phase (V).
-     * This is used by classes InterfaceKinetics and EdgeKinetics to
-     * compute the rates of charge-transfer reactions, and in computing
-     * the electrochemical potentials of the species.
-     *
-     * @param v       input Electric Potential (volts).
-     */
-    void setElectricPotential(doublereal v) {
-        m_phi = v;
-    }
-
-    //! Returns the electric potential of this phase (V).
-    doublereal electricPotential() const {
-        return m_phi;
-    }
-
-
     /**
      * @}
      * @name Activities and Activity Concentrations

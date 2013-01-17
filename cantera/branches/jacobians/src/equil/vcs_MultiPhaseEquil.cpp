@@ -12,8 +12,7 @@
 #include "cantera/equil/vcs_prob.h"
 #include "cantera/equil/vcs_internal.h"
 #include "cantera/equil/vcs_VolPhase.h"
-#include "vcs_species_thermo.h"
-#include "vcs_SpeciesProperties.h"
+#include "cantera/equil/vcs_species_thermo.h"
 
 #include "cantera/equil/vcs_solve.h"
 
@@ -26,6 +25,7 @@
 #include "cantera/thermo/IdealSolidSolnPhase.h"
 #include "cantera/thermo/IdealMolalSoln.h"
 #include "cantera/equil/ChemEquil.h"
+#include "cantera/equil/vcs_SpeciesProperties.h"
 
 #include <string>
 #include <vector>
@@ -1451,7 +1451,7 @@ int vcs_Cantera_update_vprob(Cantera::MultiPhase* mphase,
 }
 //====================================================================================================================
 // This routine hasn't been checked yet
-void vcs_MultiPhaseEquil::getStoichVector(index_t rxn, Cantera::vector_fp& nu)
+void vcs_MultiPhaseEquil::getStoichVector(size_t rxn, Cantera::vector_fp& nu)
 {
     size_t nsp = m_vsolvePtr->m_numSpeciesTot;
     nu.resize(nsp, 0.0);

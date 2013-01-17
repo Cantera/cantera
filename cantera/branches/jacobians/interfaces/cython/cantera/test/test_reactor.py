@@ -1,4 +1,5 @@
 import numpy as np
+import unittest
 import re
 
 import cantera as ct
@@ -153,7 +154,7 @@ class TestReactor(utilities.CanteraTest):
 
         self.net.advance(10.0)
         self.assertNear(self.net.time, 10.0)
-        self.assertNear(self.r1.T, self.r2.T)
+        self.assertNear(self.r1.T, self.r2.T, 1e-7)
         self.assertNotAlmostEqual(self.r1.thermo.P, self.r2.thermo.P)
 
     def test_heatTransfer2(self):
@@ -470,8 +471,8 @@ class TestFlowReactor(utilities.CanteraTest):
 
         net = ct.ReactorNet()
         net.addReactor(r)
-        net.atol = 1e-16
-        net.rtol = 1e-10
+        net.atol = 1e-18
+        net.rtol = 1e-9
 
         t = 0
         self.assertNear(r.speed, 10 / r.density)
@@ -530,6 +531,8 @@ class TestWallKinetics(utilities.CanteraTest):
         self.assertArrayNear(C_left, C_right)
 
 
+@unittest.skipUnless(ct._have_sundials(),
+                     "Sensitivity calculations require Sundials")
 class TestReactorSensitivities(utilities.CanteraTest):
     def test_sensitivities1(self):
         net = ct.ReactorNet()

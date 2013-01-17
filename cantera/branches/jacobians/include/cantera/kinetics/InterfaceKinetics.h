@@ -133,31 +133,21 @@ public:
      * @param fwdROP vector of rates of progress.
      *        length = number of reactions, Units are kmol m-2 s-1.
      */
-    virtual void getFwdRatesOfProgress(doublereal* fwdROP) {
-        updateROP();
-        std::copy(m_ropf.begin(), m_ropf.end(), fwdROP);
-    }
+    virtual void getFwdRatesOfProgress(doublereal* fwdROP);
 
     //! Return the reverse rates of progress for each reaction
     /*!
      * @param revROP vector of rates of progress.
      *        length = number of reactions, Units are kmol m-2 s-1.
      */
-    virtual void getRevRatesOfProgress(doublereal* revROP) {
-        updateROP();
-        std::copy(m_ropr.begin(), m_ropr.end(), revROP);
-    }
+    virtual void getRevRatesOfProgress(doublereal* revROP);
 
     //! Return the net rates of progress for each reaction
     /*!
      * @param netROP vector of rates of progress.
      *        length = number of reactions, Units are kmol m-2 s-1.
      */
-    virtual void getNetRatesOfProgress(doublereal* netROP) {
-        updateROP();
-        std::copy(m_ropnet.begin(), m_ropnet.end(), netROP);
-    }
-
+    virtual void getNetRatesOfProgress(doublereal* netROP);
 
     //! Get the equilibrium constants of all reactions, whether
     //! the reaction is reversible or not.
@@ -573,7 +563,7 @@ public:
      *  @param iphase  Index of the phase. This is the order within the internal thermo vector object
      *  @param isStable Flag indicating whether the phase is stable or not
      */
-    void setPhaseStability(const int iphase, const int isStable);
+    void setPhaseStability(const size_t iphase, const int isStable);
 
     //! Gets the phase existence int for the ith phase
     /*!
@@ -582,7 +572,7 @@ public:
      * @return Returns the int specifying whether the kinetics object thinks the phase exists
      *         or not. If it exists, then species in that phase can be a reactant in reactions.
      */
-    int phaseExistence(const int iphase) const;
+    int phaseExistence(const size_t iphase) const;
 
     //! Gets the phase stability int for the ith phase
     /*!
@@ -593,7 +583,7 @@ public:
      *         If it stable, then the kinetics object will allow for rates of production of
      *         of species in that phase that are positive.
      */
-    int phaseStability(const int iphase) const;
+    int phaseStability(const size_t iphase) const;
 
 
 protected:

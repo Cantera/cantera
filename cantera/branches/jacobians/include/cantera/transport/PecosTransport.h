@@ -57,7 +57,7 @@ public:
      */
     virtual doublereal viscosity();
 
-    virtual void getSpeciesViscosities(doublereal* visc) {
+    virtual void getSpeciesViscosities(doublereal* const visc) {
         update_T();
         updateViscosity_T();
         copy(m_visc.begin(), m_visc.end(), visc);
@@ -147,10 +147,10 @@ public:
      *             length = ldx * ndim
      */
     virtual void getSpeciesFluxes(size_t ndim,
-                                  const doublereal* grad_T,
+                                  const doublereal* const grad_T,
                                   size_t ldx,
-                                  const doublereal* grad_X,
-                                  size_t ldf, doublereal* fluxes);
+                                  const doublereal* const grad_X,
+                                  size_t ldf, doublereal* const fluxes);
 
     //! Initialize the transport object
     /*!
