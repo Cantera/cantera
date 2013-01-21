@@ -109,7 +109,7 @@ public:
      */
     IonsFromNeutralVPSSTP(const std::string& inputFile,
                           const std::string& id = "",
-                          ThermoPhase* neutralPhase = 0);
+                          thermo_t* neutralPhase = 0);
 
     //! Construct and initialize an IonsFromNeutralVPSSTP object
     //! directly from an XML database
@@ -129,7 +129,7 @@ public:
      *                       neutral phase object is created and used.
      */
     IonsFromNeutralVPSSTP(XML_Node& phaseRoot, const std::string& id = "",
-                          ThermoPhase* neutralPhase = 0);
+                          thermo_t* neutralPhase = 0);
 
 
     //! Copy constructor
@@ -157,7 +157,7 @@ public:
      *  inherited from ThermoPhase even if the application only has
      *  a pointer to ThermoPhase to work with.
      */
-    virtual ThermoPhase* duplMyselfAsThermoPhase() const;
+    virtual thermo_t* duplMyselfAsThermoPhase() const;
 
     /// The following methods are used in the process of constructing
     /// the phase and setting its parameters from a specification in an
@@ -821,7 +821,7 @@ public:
      *  If the variable, IOwnNThermoPhase_ is true, then we own
      *  the pointer. If not, then this is considered a shallow pointer.
      */
-    ThermoPhase* neutralMoleculePhase_;
+    thermo_t* neutralMoleculePhase_;
 
 private:
     GibbsExcessVPSSTP *geThermo;

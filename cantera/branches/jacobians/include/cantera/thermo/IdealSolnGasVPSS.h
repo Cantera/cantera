@@ -69,7 +69,7 @@ public:
     /*
      * Duplication routine
      */
-    virtual ThermoPhase* duplMyselfAsThermoPhase() const;
+    virtual thermo_t * duplMyselfAsThermoPhase() const;
 
     //@}
 

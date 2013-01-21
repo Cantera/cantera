@@ -14,8 +14,8 @@ using namespace std;
 
 namespace Cantera
 {
-
-Phase::Phase() :
+template<typename ValAndDerivType>
+Phase<ValAndDerivType>::Phase() :
     m_kk(0),
     m_ndim(3),
     m_xml(new XML_Node("phase")),
@@ -32,7 +32,8 @@ Phase::Phase() :
 {
 }
 
-Phase::Phase(const Phase& right) :
+template<typename ValAndDerivType>
+Phase<ValAndDerivType>::Phase(const Phase& right) :
     m_kk(0),
     m_ndim(3),
     m_xml(0),
@@ -51,7 +52,8 @@ Phase::Phase(const Phase& right) :
     *this = operator=(right);
 }
 
-Phase& Phase::operator=(const Phase& right)
+template<typename ValAndDerivType>
+Phase<ValAndDerivType>& Phase<ValAndDerivType>::operator=(const Phase<ValAndDerivType>& right)
 {
     // Check for self assignment.
     if (this == &right) {
@@ -104,7 +106,8 @@ Phase& Phase::operator=(const Phase& right)
 }
 
 // Destructor.
-Phase::~Phase()
+template<typename ValAndDerivType>
+Phase<ValAndDerivType>::~Phase()
 {
     if (m_xml) {
         delete m_xml;
@@ -112,57 +115,67 @@ Phase::~Phase()
     }
 }
 
-XML_Node& Phase::xml()
+template<typename ValAndDerivType>
+XML_Node& Phase<ValAndDerivType>::xml()
 {
     return *m_xml;
 }
 
-std::string Phase::id() const
+template<typename ValAndDerivType>
+std::string Phase<ValAndDerivType>::id() const
 {
     return m_id;
 }
 
-void Phase::setID(const std::string& id)
+template<typename ValAndDerivType>
+void Phase<ValAndDerivType>::setID(const std::string& id)
 {
     m_id = id;
 }
 
-std::string Phase::name() const
+template<typename ValAndDerivType>
+std::string Phase<ValAndDerivType>::name() const
 {
     return m_name;
 }
 
-void Phase::setName(const std::string& nm)
+template<typename ValAndDerivType>
+void Phase<ValAndDerivType>::setName(const std::string& nm)
 {
     m_name = nm;
 }
 
-size_t Phase::nElements() const
+template<typename ValAndDerivType>
+size_t Phase<ValAndDerivType>::nElements() const
 {
     return m_mm;
 }
 
-void Phase::checkElementIndex(size_t m) const
+template<typename ValAndDerivType>
+void Phase<ValAndDerivType>::checkElementIndex(size_t m) const
 {
     if (m >= m_mm) {
         throw IndexError("checkElementIndex", "elements", m, m_mm-1);
     }
 }
 
-void Phase::checkElementArraySize(size_t mm) const
+template<typename ValAndDerivType>
+void Phase<ValAndDerivType>::checkElementArraySize(size_t mm) const
 {
     if (m_mm > mm) {
         throw ArraySizeError("checkElementArraySize", mm, m_mm);
     }
 }
 
-string Phase::elementName(size_t m) const
+template<typename ValAndDerivType>
+string Phase<ValAndDerivType>::elementName(size_t m) const
 {
     checkElementIndex(m);
     return m_elementNames[m];
 }
 
-size_t Phase::elementIndex(const std::string& name) const
+template<typename ValAndDerivType>
+size_t Phase<ValAndDerivType>::elementIndex(const std::string& name) const
 {
     for (size_t i = 0; i < m_mm; i++) {
         if (m_elementNames[i] == name) {
@@ -172,17 +185,20 @@ size_t Phase::elementIndex(const std::string& name) const
     return npos;
 }
 
-const vector<string>& Phase::elementNames() const
+template<typename ValAndDerivType>
+const vector<string>& Phase<ValAndDerivType>::elementNames() const
 {
     return m_elementNames;
 }
 
-doublereal Phase::atomicWeight(size_t m) const
+template<typename ValAndDerivType>
+doublereal Phase<ValAndDerivType>::atomicWeight(size_t m) const
 {
     return m_atomicWeights[m];
 }
 
-doublereal Phase::entropyElement298(size_t m) const
+template<typename ValAndDerivType>
+doublereal Phase<ValAndDerivType>::entropyElement298(size_t m) const
 {
     AssertThrowMsg(m_entropy298[m] != ENTROPY298_UNKNOWN,
                    "Elements::entropy298",
@@ -191,43 +207,50 @@ doublereal Phase::entropyElement298(size_t m) const
     return (m_entropy298[m]);
 }
 
-const vector_fp& Phase::atomicWeights() const
+template<typename ValAndDerivType>
+const vector_fp& Phase<ValAndDerivType>::atomicWeights() const
 {
     return m_atomicWeights;
 }
 
-int Phase::atomicNumber(size_t m) const
+template<typename ValAndDerivType>
+int Phase<ValAndDerivType>::atomicNumber(size_t m) const
 {
     return m_atomicNumbers[m];
 }
 
-int Phase::elementType(size_t m) const
+template<typename ValAndDerivType>
+int Phase<ValAndDerivType>::elementType(size_t m) const
 {
     return m_elem_type[m];
 }
 
-int Phase::changeElementType(int m, int elem_type)
+template<typename ValAndDerivType>
+int Phase<ValAndDerivType>::changeElementType(int m, int elem_type)
 {
     int old = m_elem_type[m];
     m_elem_type[m] = elem_type;
     return old;
 }
 
-doublereal Phase::nAtoms(size_t k, size_t m) const
+template<typename ValAndDerivType>
+doublereal Phase<ValAndDerivType>::nAtoms(size_t k, size_t m) const
 {
     checkElementIndex(m);
     checkSpeciesIndex(k);
     return m_speciesComp[m_mm * k + m];
 }
 
-void Phase::getAtoms(size_t k, double* atomArray) const
+template<typename ValAndDerivType>
+void Phase<ValAndDerivType>::getAtoms(size_t k, double* atomArray) const
 {
     for (size_t m = 0; m < m_mm; m++) {
         atomArray[m] = (double) m_speciesComp[m_mm * k + m];
     }
 }
 
-size_t Phase::speciesIndex(const std::string& nameStr) const
+template<typename ValAndDerivType>
+size_t Phase<ValAndDerivType>::speciesIndex(const std::string& nameStr) const
 {
     std::string pn;
     std::string sn = parseSpeciesName(nameStr, pn);
@@ -244,67 +267,77 @@ size_t Phase::speciesIndex(const std::string& nameStr) const
     return npos;
 }
 
-string Phase::speciesName(size_t k) const
+template<typename ValAndDerivType>
+string Phase<ValAndDerivType>::speciesName(size_t k) const
 {
     checkSpeciesIndex(k);
     return m_speciesNames[k];
 }
 
-const vector<string>& Phase::speciesNames() const
+template<typename ValAndDerivType>
+const vector<string>& Phase<ValAndDerivType>::speciesNames() const
 {
     return m_speciesNames;
 }
 
-void Phase::checkSpeciesIndex(size_t k) const
+template<typename ValAndDerivType>
+void Phase<ValAndDerivType>::checkSpeciesIndex(size_t k) const
 {
     if (k >= m_kk) {
         throw IndexError("checkSpeciesIndex", "species", k, m_kk-1);
     }
 }
 
-void Phase::checkSpeciesArraySize(size_t kk) const
+template<typename ValAndDerivType>
+void Phase<ValAndDerivType>::checkSpeciesArraySize(size_t kk) const
 {
     if (m_kk > kk) {
         throw ArraySizeError("checkSpeciesArraySize", kk, m_kk);
     }
 }
 
-std::string Phase::speciesSPName(int k) const
+template<typename ValAndDerivType>
+std::string Phase<ValAndDerivType>::speciesSPName(int k) const
 {
     std::string sn = speciesName(k);
     return(m_name + ":" + sn);
 }
 
-void Phase::saveState(vector_fp& state) const
+template<typename ValAndDerivType>
+void Phase<ValAndDerivType>::saveState(vector_fp& state) const
 {
     state.resize(nSpecies() + 2);
     saveState(state.size(),&(state[0]));
 }
-void Phase::saveState(size_t lenstate, doublereal* state) const
+template<typename ValAndDerivType>
+void Phase<ValAndDerivType>::saveState(size_t lenstate, doublereal* state) const
 {
     state[0] = temperature();
     state[1] = density();
     getMassFractions(state + 2);
 }
 
-void Phase::restoreState(const vector_fp& state)
+template<typename ValAndDerivType>
+void Phase<ValAndDerivType>::restoreState(const vector_fp& state)
 {
     restoreState(state.size(),&state[0]);
 }
 
-void Phase::restoreState(size_t lenstate, const doublereal* state)
+template<typename ValAndDerivType>
+void Phase<ValAndDerivType>::restoreState(size_t lenstate, const doublereal* state)
 {
     if (lenstate >= nSpecies() + 2) {
         setMassFractions_NoNorm(state + 2);
         setTemperature(state[0]);
         setDensity(state[1]);
     } else {
-        throw ArraySizeError("Phase::restoreState",
+        throw ArraySizeError("Phase<ValAndDerivType>::restoreState",
                              lenstate,nSpecies()+2);
     }
 }
 
-void Phase::setMoleFractions(const doublereal* const x)
+template<typename ValAndDerivType>
+void Phase<ValAndDerivType>::setMoleFractions(const doublereal* const x)
 {
     // Use m_y as a temporary work vector for the non-negative mole fractions
     doublereal norm = 0.0;
@@ -342,7 +375,8 @@ void Phase::setMoleFractions(const doublereal* const x)
     m_stateNum++;
 }
 
-void Phase::setMoleFractions_NoNorm(const doublereal* const x)
+template<typename ValAndDerivType>
+void Phase<ValAndDerivType>::setMoleFractions_NoNorm(const doublereal* const x)
 {
     m_mmw = dot(x, x + m_kk, m_molwts.begin());
     doublereal rmmw = 1.0/m_mmw;
@@ -352,7 +386,8 @@ void Phase::setMoleFractions_NoNorm(const doublereal* const x)
     m_stateNum++;
 }
 
-void Phase::setMoleFractionsByName(compositionMap& xMap)
+template<typename ValAndDerivType>
+void Phase<ValAndDerivType>::setMoleFractionsByName(compositionMap& xMap)
 {
     size_t kk = nSpecies();
     doublereal x;
@@ -366,13 +401,15 @@ void Phase::setMoleFractionsByName(compositionMap& xMap)
     setMoleFractions(&mf[0]);
 }
 
-void Phase::setMoleFractionsByName(const std::string& x)
+template<typename ValAndDerivType>
+void Phase<ValAndDerivType>::setMoleFractionsByName(const std::string& x)
 {
     compositionMap c = parseCompString(x, speciesNames());
     setMoleFractionsByName(c);
 }
 
-void Phase::setMassFractions(const doublereal* const y)
+template<typename ValAndDerivType>
+void Phase<ValAndDerivType>::setMassFractions(const doublereal* const y)
 {
     for (size_t k = 0; k < m_kk; k++) {
         m_y[k] = std::max(y[k], 0.0); // Ignore negative mass fractions
@@ -386,7 +423,8 @@ void Phase::setMassFractions(const doublereal* const y)
     m_stateNum++;
 }
 
-void Phase::setMassFractions_NoNorm(const doublereal* const y)
+template<typename ValAndDerivType>
+void Phase<ValAndDerivType>::setMassFractions_NoNorm(const doublereal* const y)
 {
     doublereal sum = 0.0;
     copy(y, y + m_kk, m_y.begin());
@@ -397,7 +435,8 @@ void Phase::setMassFractions_NoNorm(const doublereal* const y)
     m_stateNum++;
 }
 
-void Phase::setMassFractionsByName(compositionMap& yMap)
+template<typename ValAndDerivType>
+void Phase<ValAndDerivType>::setMassFractionsByName(compositionMap& yMap)
 {
     size_t kk = nSpecies();
     doublereal y;
@@ -411,84 +450,97 @@ void Phase::setMassFractionsByName(compositionMap& yMap)
     setMassFractions(&mf[0]);
 }
 
-void Phase::setMassFractionsByName(const std::string& y)
+template<typename ValAndDerivType>
+void Phase<ValAndDerivType>::setMassFractionsByName(const std::string& y)
 {
     compositionMap c = parseCompString(y, speciesNames());
     setMassFractionsByName(c);
 }
 
-void Phase::setState_TRX(doublereal t, doublereal dens, const doublereal* x)
+template<typename ValAndDerivType>
+void Phase<ValAndDerivType>::setState_TRX(doublereal t, doublereal dens, const doublereal* x)
 {
     setMoleFractions(x);
     setTemperature(t);
     setDensity(dens);
 }
 
-void Phase::setState_TNX(doublereal t, doublereal n, const doublereal* x)
+template<typename ValAndDerivType>
+void Phase<ValAndDerivType>::setState_TNX(doublereal t, doublereal n, const doublereal* x)
 {
     setMoleFractions(x);
     setTemperature(t);
     setMolarDensity(n);
 }
 
-void Phase::setState_TRX(doublereal t, doublereal dens, compositionMap& x)
+template<typename ValAndDerivType>
+void Phase<ValAndDerivType>::setState_TRX(doublereal t, doublereal dens, compositionMap& x)
 {
     setMoleFractionsByName(x);
     setTemperature(t);
     setDensity(dens);
 }
 
-void Phase::setState_TRY(doublereal t, doublereal dens, const doublereal* y)
+template<typename ValAndDerivType>
+void Phase<ValAndDerivType>::setState_TRY(doublereal t, doublereal dens, const doublereal* y)
 {
     setMassFractions(y);
     setTemperature(t);
     setDensity(dens);
 }
 
-void Phase::setState_TRY(doublereal t, doublereal dens, compositionMap& y)
+template<typename ValAndDerivType>
+void Phase<ValAndDerivType>::setState_TRY(doublereal t, doublereal dens, compositionMap& y)
 {
     setMassFractionsByName(y);
     setTemperature(t);
     setDensity(dens);
 }
 
-void Phase::setState_TR(doublereal t, doublereal rho)
+template<typename ValAndDerivType>
+void Phase<ValAndDerivType>::setState_TR(doublereal t, doublereal rho)
 {
     setTemperature(t);
     setDensity(rho);
 }
 
-void Phase::setState_TX(doublereal t, doublereal* x)
+template<typename ValAndDerivType>
+void Phase<ValAndDerivType>::setState_TX(doublereal t, doublereal* x)
 {
     setTemperature(t);
     setMoleFractions(x);
 }
 
-void Phase::setState_TY(doublereal t, doublereal* y)
+template<typename ValAndDerivType>
+void Phase<ValAndDerivType>::setState_TY(doublereal t, doublereal* y)
 {
     setTemperature(t);
     setMassFractions(y);
 }
 
-void Phase::setState_RX(doublereal rho, doublereal* x)
+template<typename ValAndDerivType>
+void Phase<ValAndDerivType>::setState_RX(doublereal rho, doublereal* x)
 {
     setMoleFractions(x);
     setDensity(rho);
 }
 
-void Phase::setState_RY(doublereal rho, doublereal* y)
+template<typename ValAndDerivType>
+void Phase<ValAndDerivType>::setState_RY(doublereal rho, doublereal* y)
 {
     setMassFractions(y);
     setDensity(rho);
 }
 
-doublereal Phase::molecularWeight(size_t k) const
+template<typename ValAndDerivType>
+doublereal Phase<ValAndDerivType>::molecularWeight(size_t k) const
 {
     checkSpeciesIndex(k);
     return m_molwts[k];
 }
 
-void Phase::getMolecularWeights(vector_fp& weights) const
+template<typename ValAndDerivType>
+void Phase<ValAndDerivType>::getMolecularWeights(vector_fp& weights) const
 {
     const vector_fp& mw = molecularWeights();
     if (weights.size() < mw.size()) {
@@ -497,38 +549,44 @@ void Phase::getMolecularWeights(vector_fp& weights) const
     copy(mw.begin(), mw.end(), weights.begin());
 }
 
-void Phase::getMolecularWeights(doublereal* weights) const
+template<typename ValAndDerivType>
+void Phase<ValAndDerivType>::getMolecularWeights(doublereal* weights) const
 {
     const vector_fp& mw = molecularWeights();
     copy(mw.begin(), mw.end(), weights);
 }
 
-const vector_fp& Phase::molecularWeights() const
+template<typename ValAndDerivType>
+const vector_fp& Phase<ValAndDerivType>::molecularWeights() const
 {
     return m_molwts;
 }
 
-void Phase::getMoleFractionsByName(compositionMap& x) const
+template<typename ValAndDerivType>
+void Phase<ValAndDerivType>::getMoleFractionsByName(compositionMap& x) const
 {
     x.clear();
     size_t kk = nSpecies();
     for (size_t k = 0; k < kk; k++) {
-        x[speciesName(k)] = Phase::moleFraction(k);
+        x[speciesName(k)] = Phase<ValAndDerivType>::moleFraction(k);
     }
 }
 
-void Phase::getMoleFractions(doublereal* const x) const
+template<typename ValAndDerivType>
+void Phase<ValAndDerivType>::getMoleFractions(doublereal* const x) const
 {
     scale(m_ym.begin(), m_ym.end(), x, m_mmw);
 }
 
-doublereal Phase::moleFraction(size_t k) const
+template<typename ValAndDerivType>
+doublereal Phase<ValAndDerivType>::moleFraction(size_t k) const
 {
     checkSpeciesIndex(k);
     return m_ym[k] * m_mmw;
 }
 
-doublereal Phase::moleFraction(const std::string& nameSpec) const
+template<typename ValAndDerivType>
+doublereal Phase<ValAndDerivType>::moleFraction(const std::string& nameSpec) const
 {
     size_t iloc = speciesIndex(nameSpec);
     if (iloc != npos) {
@@ -538,18 +596,21 @@ doublereal Phase::moleFraction(const std::string& nameSpec) const
     }
 }
 
-const doublereal* Phase::moleFractdivMMW() const
+template<typename ValAndDerivType>
+const doublereal* Phase<ValAndDerivType>::moleFractdivMMW() const
 {
     return &m_ym[0];
 }
 
-doublereal Phase::massFraction(size_t k) const
+template<typename ValAndDerivType>
+doublereal Phase<ValAndDerivType>::massFraction(size_t k) const
 {
     checkSpeciesIndex(k);
     return m_y[k];
 }
 
-doublereal Phase::massFraction(const std::string& nameSpec) const
+template<typename ValAndDerivType>
+doublereal Phase<ValAndDerivType>::massFraction(const std::string& nameSpec) const
 {
     size_t iloc = speciesIndex(nameSpec);
     if (iloc != npos) {
@@ -559,23 +620,27 @@ doublereal Phase::massFraction(const std::string& nameSpec) const
     }
 }
 
-void Phase::getMassFractions(doublereal* const y) const
+template<typename ValAndDerivType>
+void Phase<ValAndDerivType>::getMassFractions(doublereal* const y) const
 {
     copy(m_y.begin(), m_y.end(), y);
 }
 
-doublereal Phase::concentration(const size_t k) const
+template<typename ValAndDerivType>
+doublereal Phase<ValAndDerivType>::concentration(const size_t k) const
 {
     checkSpeciesIndex(k);
     return m_y[k] * m_dens * m_rmolwts[k] ;
 }
 
-void Phase::getConcentrations(doublereal* const c) const
+template<typename ValAndDerivType>
+void Phase<ValAndDerivType>::getConcentrations(doublereal* const c) const
 {
     scale(m_ym.begin(), m_ym.end(), c, m_dens);
 }
 
-void Phase::setConcentrations(const doublereal* const conc)
+template<typename ValAndDerivType>
+void Phase<ValAndDerivType>::setConcentrations(const doublereal* const conc)
 {
     // Use m_y as temporary storage for non-negative concentrations
     doublereal sum = 0.0, norm = 0.0;
@@ -595,27 +660,32 @@ void Phase::setConcentrations(const doublereal* const conc)
     m_stateNum++;
 }
 
-doublereal Phase::molarDensity() const
+template<typename ValAndDerivType>
+doublereal Phase<ValAndDerivType>::molarDensity() const
 {
     return density()/meanMolecularWeight();
 }
 
-void Phase::setMolarDensity(const doublereal molarDensity)
+template<typename ValAndDerivType>
+void Phase<ValAndDerivType>::setMolarDensity(const doublereal molarDensity)
 {
     m_dens = molarDensity*meanMolecularWeight();
 }
 
-doublereal Phase::molarVolume() const
+template<typename ValAndDerivType>
+doublereal Phase<ValAndDerivType>::molarVolume() const
 {
     return 1.0/molarDensity();
 }
 
-doublereal Phase::charge(size_t k) const
+template<typename ValAndDerivType>
+doublereal Phase<ValAndDerivType>::charge(size_t k) const
 {
     return m_speciesCharge[k];
 }
 
-doublereal Phase::chargeDensity() const
+template<typename ValAndDerivType>
+doublereal Phase<ValAndDerivType>::chargeDensity() const
 {
     size_t kk = nSpecies();
     doublereal cdens = 0.0;
@@ -626,27 +696,32 @@ doublereal Phase::chargeDensity() const
     return cdens;
 }
 
-doublereal Phase::mean_X(const doublereal* const Q) const
+template<typename ValAndDerivType>
+doublereal Phase<ValAndDerivType>::mean_X(const doublereal* const Q) const
 {
     return m_mmw*std::inner_product(m_ym.begin(), m_ym.end(), Q, 0.0);
 }
 
-doublereal Phase::mean_Y(const doublereal* const Q) const
+template<typename ValAndDerivType>
+doublereal Phase<ValAndDerivType>::mean_Y(const doublereal* const Q) const
 {
     return dot(m_y.begin(), m_y.end(), Q);
 }
 
-doublereal Phase::sum_xlogx() const
+template<typename ValAndDerivType>
+doublereal Phase<ValAndDerivType>::sum_xlogx() const
 {
     return m_mmw* Cantera::sum_xlogx(m_ym.begin(), m_ym.end()) + log(m_mmw);
 }
 
-doublereal Phase::sum_xlogQ(doublereal* Q) const
+template<typename ValAndDerivType>
+doublereal Phase<ValAndDerivType>::sum_xlogQ(doublereal* Q) const
 {
     return m_mmw * Cantera::sum_xlogQ(m_ym.begin(), m_ym.end(), Q);
 }
 
-void Phase::addElement(const std::string& symbol, doublereal weight)
+template<typename ValAndDerivType>
+void Phase<ValAndDerivType>::addElement(const std::string& symbol, doublereal weight)
 {
     if (weight == -12345.0) {
         weight = LookupWtElements(symbol);
@@ -669,14 +744,16 @@ void Phase::addElement(const std::string& symbol, doublereal weight)
     m_mm++;
 }
 
-void Phase::addElement(const XML_Node& e)
+template<typename ValAndDerivType>
+void Phase<ValAndDerivType>::addElement(const XML_Node& e)
 {
     doublereal weight = atof(e["atomicWt"].c_str());
     string symbol = e["name"];
     addElement(symbol, weight);
 }
 
-void Phase::addUniqueElement(const std::string& symbol, doublereal weight,
+template<typename ValAndDerivType>
+void Phase<ValAndDerivType>::addUniqueElement(const std::string& symbol, doublereal weight,
                              int atomicNumber, doublereal entropy298,
                              int elem_type)
 {
@@ -723,7 +800,8 @@ void Phase::addUniqueElement(const std::string& symbol, doublereal weight,
     }
 }
 
-void Phase::addUniqueElement(const XML_Node& e)
+template<typename ValAndDerivType>
+void Phase<ValAndDerivType>::addUniqueElement(const XML_Node& e)
 {
     doublereal weight = 0.0;
     if (e.hasAttrib("atomicWt")) {
@@ -748,7 +826,8 @@ void Phase::addUniqueElement(const XML_Node& e)
     }
 }
 
-void Phase::addElementsFromXML(const XML_Node& phase)
+template<typename ValAndDerivType>
+void Phase<ValAndDerivType>::addElementsFromXML(const XML_Node& phase)
 {
     // get the declared element names
     if (! phase.hasChild("elementArray")) {
@@ -799,17 +878,20 @@ void Phase::addElementsFromXML(const XML_Node& phase)
     }
 }
 
-void Phase::freezeElements()
+template<typename ValAndDerivType>
+void Phase<ValAndDerivType>::freezeElements()
 {
     m_elementsFrozen = true;
 }
 
-bool Phase::elementsFrozen()
+template<typename ValAndDerivType>
+bool Phase<ValAndDerivType>::elementsFrozen()
 {
     return m_elementsFrozen;
 }
 
-size_t Phase::addUniqueElementAfterFreeze(const std::string& symbol,
+template<typename ValAndDerivType>
+size_t Phase<ValAndDerivType>::addUniqueElementAfterFreeze(const std::string& symbol,
         doublereal weight, int atomicNumber,
         doublereal entropy298, int elem_type)
 {
@@ -823,7 +905,7 @@ size_t Phase::addUniqueElementAfterFreeze(const std::string& symbol,
     m_elementsFrozen = true;
     ii = elementIndex(symbol);
     if (ii != m_mm-1) {
-        throw CanteraError("Phase::addElementAfterFreeze()", "confused");
+        throw CanteraError("Phase<ValAndDerivType>::addElementAfterFreeze()", "confused");
     }
     if (m_kk > 0) {
         vector_fp old(m_speciesComp);
@@ -839,7 +921,8 @@ size_t Phase::addUniqueElementAfterFreeze(const std::string& symbol,
     return ii;
 }
 
-void Phase::addSpecies(const std::string& name, const doublereal* comp,
+template<typename ValAndDerivType>
+void Phase<ValAndDerivType>::addSpecies(const std::string& name, const doublereal* comp,
                        doublereal charge, doublereal size)
 {
     freezeElements();
@@ -861,7 +944,7 @@ void Phase::addSpecies(const std::string& name, const doublereal* comp,
             doublereal ecomp = compNew[eindex];
             if (fabs(charge + ecomp) > 0.001) {
                 if (ecomp != 0.0) {
-                    throw CanteraError("Phase::addSpecies",
+                    throw CanteraError("Phase<ValAndDerivType>::addSpecies",
                                        "Input charge and element E compositions differ "
                                        "for species " + name);
                 } else {
@@ -887,7 +970,8 @@ void Phase::addSpecies(const std::string& name, const doublereal* comp,
     m_kk++;
 }
 
-void Phase::addUniqueSpecies(const std::string& name, const doublereal* comp,
+template<typename ValAndDerivType>
+void Phase<ValAndDerivType>::addUniqueSpecies(const std::string& name, const doublereal* comp,
                              doublereal charge, doublereal size)
 {
     for (size_t k = 0; k < m_kk; k++) {
@@ -916,13 +1000,15 @@ void Phase::addUniqueSpecies(const std::string& name, const doublereal* comp,
     addSpecies(name, comp, charge, size);
 }
 
-void Phase::freezeSpecies()
+template<typename ValAndDerivType>
+void Phase<ValAndDerivType>::freezeSpecies()
 {
     m_speciesFrozen = true;
     init(molecularWeights());
 }
 
-void Phase::init(const vector_fp& mw)
+template<typename ValAndDerivType>
+void Phase<ValAndDerivType>::init(const vector_fp& mw)
 {
     m_kk = mw.size();
     m_rmolwts.resize(m_kk);
@@ -931,7 +1017,7 @@ void Phase::init(const vector_fp& mw)
     copy(mw.begin(), mw.end(), m_molwts.begin());
     for (size_t k = 0; k < m_kk; k++) {
         if (m_molwts[k] < 0.0) {
-            throw CanteraError("Phase::init",
+            throw CanteraError("Phase<ValAndDerivType>::init",
                                "negative molecular weight for species number "
                                + int2str(k));
         }
@@ -955,7 +1041,8 @@ void Phase::init(const vector_fp& mw)
     m_mmw = 1.0 / m_ym[0];
 }
 
-bool Phase::ready() const
+template<typename ValAndDerivType>
+bool Phase<ValAndDerivType>::ready() const
 {
     return (m_kk > 0 && m_elementsFrozen && m_speciesFrozen);
 }

@@ -105,7 +105,7 @@ IdealSolnGasVPSS::~IdealSolnGasVPSS()
  * Duplication function.
  *  This calls the copy constructor for this object.
  */
-ThermoPhase* IdealSolnGasVPSS::duplMyselfAsThermoPhase() const
+thermo_t* IdealSolnGasVPSS::duplMyselfAsThermoPhase() const
 {
     return new IdealSolnGasVPSS(*this);
 }
@@ -185,7 +185,7 @@ void IdealSolnGasVPSS::calcDensity()
     if (m_idealGas) {
         double dens = (m_Pcurrent * meanMolecularWeight()
                        /(GasConstant * temperature()));
-        Phase::setDensity(dens);
+        phase_t::setDensity(dens);
     } else {
         const doublereal* const dtmp = moleFractdivMMW();
         const vector_fp& vss = m_VPSS_ptr->standardVolumes();
@@ -195,7 +195,7 @@ void IdealSolnGasVPSS::calcDensity()
          * by calling the Phase::setDensity() function.
          */
         double dens = 1.0/invDens;
-        Phase::setDensity(dens);
+        phase_t::setDensity(dens);
     }
 }
 

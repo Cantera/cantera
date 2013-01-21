@@ -18,7 +18,7 @@
 namespace Cantera
 {
 
-class SpeciesThermoFactory;
+template <typename ValAndDerivType> class SpeciesThermoFactory;
 class VPSSMgr;
 
 /*!
@@ -252,7 +252,7 @@ ThermoPhase<ValAndDerivType> * newPhase(const std::string& infile, std::string i
  * @ingroup thermoprops
  */
 template<typename ValAndDerivType>
-bool importPhase(XML_Node& phase, ThermoPhase<ValAndDerivType> * th, SpeciesThermoFactory* spfactory = 0);
+bool importPhase(XML_Node& phase, ThermoPhase<ValAndDerivType> * th, SpeciesThermoFactory<ValAndDerivType>* spfactory = 0);
 
 //! Install a species into a ThermoPhase object, which defines
 //! the phase thermodynamics and speciation.
@@ -295,11 +295,12 @@ bool importPhase(XML_Node& phase, ThermoPhase<ValAndDerivType> * th, SpeciesTher
  * @return
  *  Returns true if everything is ok, false otherwise.
  */
+template <typename ValAndDerivType>
 bool installSpecies(size_t k, const XML_Node& s, thermo_t& p,
                     SpeciesThermo* spthermo_ptr, int rule,
                     XML_Node* phaseNode_ptr = 0,
                     VPSSMgr* vpss_ptr = 0,
-                    SpeciesThermoFactory* factory = 0);
+                    SpeciesThermoFactory<ValAndDerivType>* factory = 0);
 
 //!  Search an XML tree for species data.
 /*!

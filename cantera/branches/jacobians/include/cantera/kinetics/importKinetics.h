@@ -24,7 +24,7 @@ namespace Cantera
 {
 
 class Kinetics;
-class SpeciesThermoFactory;
+template <typename ValAndDerivType> class SpeciesThermoFactory;
 class XML_Node;
 
 //! Rules for parsing and installing reactions

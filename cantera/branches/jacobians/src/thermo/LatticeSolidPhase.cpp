@@ -61,7 +61,7 @@ LatticeSolidPhase&
 LatticeSolidPhase::operator=(const LatticeSolidPhase& right)
 {
     if (&right != this) {
-        ThermoPhase::operator=(right);
+        thermo_t::operator=(right);
         m_tlast = right.m_tlast;
         m_press = right.m_press;
         m_molar_density = right.m_molar_density;
@@ -92,7 +92,7 @@ LatticeSolidPhase::~LatticeSolidPhase()
  *
  * @return It returns a %ThermoPhase pointer.
  */
-ThermoPhase* LatticeSolidPhase::duplMyselfAsThermoPhase() const
+thermo_t* LatticeSolidPhase::duplMyselfAsThermoPhase() const
 {
     return new LatticeSolidPhase(*this);
 }
@@ -278,7 +278,7 @@ doublereal  LatticeSolidPhase::calcDensity()
     for (size_t n = 0; n < m_nlattice; n++) {
         sum += theta_[n] * m_lattice[n]->density();
     }
-    Phase::setDensity(sum);
+    phase_t::setDensity(sum);
     return sum;
 }
 //====================================================================================================================
@@ -306,7 +306,7 @@ void LatticeSolidPhase::setMoleFractions(const doublereal* const x)
     for (size_t k = 0; k < strt; k++) {
         m_x[k] = x[k] / m_nlattice;
     }
-    Phase::setMoleFractions(DATA_PTR(m_x));
+    phase_t::setMoleFractions(DATA_PTR(m_x));
     calcDensity();
 }
 //====================================================================================================================
@@ -321,7 +321,7 @@ void LatticeSolidPhase::getMoleFractions(doublereal* const x) const
 {
     size_t nsp, strt = 0;
     // the ifdef block should be the way we calculate this.!!!!!
-    Phase::getMoleFractions(x);
+    phase_t::getMoleFractions(x);
     doublereal sum;
     for (size_t n = 0; n < m_nlattice; n++) {
         nsp =  m_lattice[n]->nSpecies();
@@ -464,7 +464,7 @@ void LatticeSolidPhase::installSlavePhases(Cantera::XML_Node* phaseNode)
 {
     size_t kk = 0;
     size_t kstart = 0;
-    SpeciesThermoFactory* spFactory = SpeciesThermoFactory::factory();
+    SpeciesThermoFactory<doublereal> * spFactory = SpeciesThermoFactory<doublereal>::factory();
     SpeciesThermo* spthermo_ptr = new GeneralSpeciesThermo();
     setSpeciesThermo(spthermo_ptr);
     m_speciesData.clear();
@@ -567,7 +567,7 @@ void LatticeSolidPhase::initThermo()
         lkstart_[n+1] = loc;
     }
     setMoleFractions(DATA_PTR(m_x));
-    ThermoPhase::initThermo();
+    thermo_t::initThermo();
 }
 //====================================================================================================================
 // Initialize vectors that depend on the number of species and sublattices
@@ -636,7 +636,7 @@ void LatticeSolidPhase::setParametersFromXML(const XML_Node& eosdata)
     m_nlattice = nl;
     for (size_t n = 0; n < nl; n++) {
         XML_Node& i = *lattices[n];
-        m_lattice.push_back((LatticePhase*)newPhase(i));
+        m_lattice.push_back((LatticePhase *)newPhase<doublereal>(i));
     }
     std::vector<string> pnam;
     std::vector<string> pval;
@@ -647,7 +647,7 @@ void LatticeSolidPhase::setParametersFromXML(const XML_Node& eosdata)
         double val = fpValueCheck(pval[i]);
         bool found = false;
         for (size_t j = 0; j < nl; j++) {
-            ThermoPhase& tp = *(m_lattice[j]);
+            thermo_t& tp = *(m_lattice[j]);
             string idj = tp.id();
             if (idj == pnam[i]) {
                 theta_[j] = val;

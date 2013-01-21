@@ -24,7 +24,7 @@ namespace Cantera
  * \nosubgrouping
  *
  */
-class StoichSubstance : public ThermoPhase
+class StoichSubstance : public thermo_t
 {
 
 public:
@@ -64,7 +64,7 @@ public:
      *
      * @return returns a pointer to a %ThermoPhase
      */
-    ThermoPhase* duplMyselfAsThermoPhase() const;
+    thermo_t* duplMyselfAsThermoPhase() const;
 
     /**
      *
@@ -329,7 +329,7 @@ public:
 #ifdef H298MODIFY_CAPABILITY
 
     virtual void modifyOneHf298SS(const size_t &k, const doublereal Hf298New) {
-        m_spthermo->modifyOneHf298(k, Hf298New);
+        (this->m_spthermo)->modifyOneHf298(k, Hf298New);
         m_tlast += 0.0001234;
     }
 #endif

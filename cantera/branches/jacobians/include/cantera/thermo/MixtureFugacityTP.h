@@ -75,7 +75,7 @@ class PDSS;
  *
  *  @nosubgrouping
  */
-class MixtureFugacityTP : public ThermoPhase
+class MixtureFugacityTP : public thermo_t
 {
 
 public:
@@ -108,7 +108,7 @@ public:
     /*!
      *  @return  Returns a duplication
      */
-    virtual ThermoPhase* duplMyselfAsThermoPhase() const;
+    virtual thermo_t* duplMyselfAsThermoPhase() const;
 
     //@}
 

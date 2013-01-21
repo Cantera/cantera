@@ -141,7 +141,7 @@ MineralEQ3::~MineralEQ3()
  *
  * @return It returns a ThermoPhase pointer.
  */
-ThermoPhase* MineralEQ3::duplMyselfAsThermoPhase() const
+thermo_t* MineralEQ3::duplMyselfAsThermoPhase() const
 {
     return new MineralEQ3(*this);
 }

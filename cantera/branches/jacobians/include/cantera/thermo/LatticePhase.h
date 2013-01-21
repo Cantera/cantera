@@ -247,7 +247,7 @@ namespace Cantera
  * @ingroup thermoprops
  *
  */
-class LatticePhase : public ThermoPhase
+class LatticePhase : public thermo_t
 {
 
 public:
@@ -292,7 +292,7 @@ public:
      *
      * @return It returns a ThermoPhase pointer.
      */
-    ThermoPhase* duplMyselfAsThermoPhase() const;
+    thermo_t* duplMyselfAsThermoPhase() const;
 
     //! Equation of state flag. Returns the value cLattice
     virtual int eosType() const {
@@ -769,7 +769,7 @@ public:
      *   @param  Hf298New    Specify the new value of the Heat of Formation at 298K and 1 bar
      */
     virtual void modifyOneHf298SS(const size_t &k, const doublereal Hf298New) {
-        m_spthermo->modifyOneHf298(k, Hf298New);
+        (this->m_spthermo)->modifyOneHf298(k, Hf298New);
         m_tlast += 0.0001234;
     }
 #endif

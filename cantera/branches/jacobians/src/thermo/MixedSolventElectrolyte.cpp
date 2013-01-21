@@ -129,7 +129,7 @@ MixedSolventElectrolyte::~MixedSolventElectrolyte()
  * This routine duplicates the current object and returns
  * a pointer to ThermoPhase.
  */
-ThermoPhase*
+thermo_t*
 MixedSolventElectrolyte::duplMyselfAsThermoPhase() const
 {
     return new MixedSolventElectrolyte(*this);

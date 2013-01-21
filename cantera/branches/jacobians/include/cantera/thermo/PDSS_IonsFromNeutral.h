@@ -20,7 +20,11 @@ namespace Cantera
 {
 class XML_Node;
 class VPStandardStateTP;
-class ThermoPhase;
+
+template<typename ValAndDerivType> class ThermoPhase;
+typedef ThermoPhase<double> thermo_t;
+
+
 
 
 //! Derived class for pressure dependent standard states of an ideal gas species
@@ -459,7 +463,7 @@ protected:
     /*!
      *  This is a shallow pointer.
      */
-    const ThermoPhase* neutralMoleculePhase_;
+    const thermo_t* neutralMoleculePhase_;
 
 public:
 

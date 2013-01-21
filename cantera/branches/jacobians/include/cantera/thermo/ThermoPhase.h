@@ -99,7 +99,7 @@ class XML_Node;
  * @ingroup phases
  */
 template<typename ValAndDerivType = double>
-class ThermoPhase : public Phase<ValAndDerivType>
+class ThermoPhase: public Phase<ValAndDerivType>
 {
 
 public:
@@ -198,7 +198,7 @@ public:
      */
     doublereal Hf298SS(const int k) const
     {
-        return (m_spthermo->reportOneHf298(k));
+        return ((this->m_spthermo)->reportOneHf298(k));
     }
 
     //! Modify the value of the 298 K Heat of Formation of one species in the phase (J kmol-1)
@@ -211,7 +211,7 @@ public:
      */
     virtual void modifyOneHf298SS(const size_t &k, const doublereal Hf298New)
     {
-        m_spthermo->modifyOneHf298(k, Hf298New);
+        (this->m_spthermo)->modifyOneHf298(k, Hf298New);
     }
 
 #else
@@ -1742,7 +1742,6 @@ protected:
     //! Restatement of number of species in the object within the current class
     using Phase<ValAndDerivType>::m_kk;
 
-
 private:
 
     //! Error function that gets called for unhandled cases
@@ -1754,8 +1753,13 @@ private:
 };
 
 //! typedef for the ThermoPhase class without any derivative information
+/*!
+ *  Note, these definitions may be changed later
+ */
 typedef ThermoPhase<double> thermo_t;
 
+//! typedef for the ThermoPhase class without any derivative information
+typedef ThermoPhase<double> thermo_t_double;
 
 //!  typedef for the ThermoPhase class with derivative information
 #ifdef INDEPENDENT_VARIABLE_DERIVATIVES

@@ -16,6 +16,7 @@
 #include "cantera/thermo/PDSS.h"
 #include "cantera/base/stringUtils.h"
 
+#include <math.h>
 using namespace std;
 
 namespace Cantera
@@ -25,7 +26,7 @@ namespace Cantera
  * Default constructor
  */
 MixtureFugacityTP::MixtureFugacityTP() :
-    ThermoPhase(),
+    thermo_t(),
     m_Pcurrent(-1.0),
     moleFractions_(0),
     iState_(FLUID_GAS),
@@ -49,7 +50,7 @@ MixtureFugacityTP::MixtureFugacityTP() :
  *  to do the heavy lifting.
  */
 MixtureFugacityTP::MixtureFugacityTP(const MixtureFugacityTP& b) :
-    ThermoPhase(),
+    thermo_t(),
     m_Pcurrent(-1.0),
     moleFractions_(0),
     iState_(FLUID_GAS),
@@ -78,7 +79,7 @@ MixtureFugacityTP::operator=(const MixtureFugacityTP& b)
          * Mostly, this is a passthrough to the underlying
          * assignment operator for the ThermoPhase parent object.
          */
-        ThermoPhase::operator=(b);
+        thermo_t::operator=(b);
         /*
          * However, we have to handle data that we own.
          */
@@ -128,7 +129,7 @@ MixtureFugacityTP::~MixtureFugacityTP()
  * Duplication function.
  *  This calls the copy constructor for this object.
  */
-ThermoPhase* MixtureFugacityTP::duplMyselfAsThermoPhase() const
+thermo_t* MixtureFugacityTP::duplMyselfAsThermoPhase() const
 {
     return new MixtureFugacityTP(*this);
 }
@@ -156,7 +157,7 @@ int MixtureFugacityTP::standardStateConvention() const
  *                     the value -1 means gas. The value -2 means unrestricted.
  *                     Values of zero or greater refer to species dominated condensed phases.
  */
-void  MixtureFugacityTP::setForcedSolutionBranch(int solnBranch)
+void MixtureFugacityTP::setForcedSolutionBranch(int solnBranch)
 {
     forcedState_ = solnBranch;
 }
@@ -226,7 +227,7 @@ void MixtureFugacityTP::getStandardChemPotentials(doublereal* g) const
     _updateReferenceStateThermo();
     copy(m_g0_RT.begin(), m_g0_RT.end(), g);
     doublereal RT = _RT();
-    double tmp = log(pressure() /m_spthermo->refPressure());
+    double tmp = std::log((double) pressure() /(this->m_spthermo)->refPressure());
     for (size_t k = 0; k < m_kk; k++) {
         g[k] = RT * (g[k] + tmp);
     }
@@ -248,7 +249,7 @@ void MixtureFugacityTP::getEnthalpy_RT(doublereal* hrt) const
  */
 void MixtureFugacityTP::modifyOneHf298SS(const int k, const doublereal Hf298New)
 {
-    m_spthermo->modifyOneHf298(k, Hf298New);
+    (this->m_spthermo)->modifyOneHf298(k, Hf298New);
     m_Tlast_ref += 0.0001234;
 }
 #endif
@@ -262,7 +263,7 @@ void MixtureFugacityTP::getEntropy_R(doublereal* sr) const
 {
     _updateReferenceStateThermo();
     copy(m_s0_R.begin(), m_s0_R.end(), sr);
-    double tmp = log(pressure() /m_spthermo->refPressure());
+    double tmp = ::log((double) (pressure() /m_spthermo->refPressure()));
     for (size_t k = 0; k < m_kk; k++) {
         sr[k] -= tmp;
     }
@@ -276,7 +277,7 @@ void MixtureFugacityTP::getGibbs_RT(doublereal* grt) const
 {
     _updateReferenceStateThermo();
     copy(m_g0_RT.begin(), m_g0_RT.end(), grt);
-    double tmp = log(pressure() /m_spthermo->refPressure());
+    double tmp = ::log((double) (pressure() /m_spthermo->refPressure()));
     for (size_t k = 0; k < m_kk; k++) {
         grt[k] += tmp;
     }
@@ -291,7 +292,7 @@ void MixtureFugacityTP::getPureGibbs(doublereal* g) const
 {
     _updateReferenceStateThermo();
     scale(m_g0_RT.begin(), m_g0_RT.end(), g, _RT());
-    double tmp = log(pressure() /m_spthermo->refPressure());
+    double tmp = ::log((double) (pressure() /m_spthermo->refPressure()));
     tmp *= _RT();
     for (size_t k = 0; k < m_kk; k++) {
         g[k] += tmp;
@@ -468,7 +469,7 @@ void MixtureFugacityTP::setStateFromXML(const XML_Node& state)
         double rho = ctml::getFloat(state, "density", "density");
         setState_TR(t, rho);
     } else if (doTP) {
-        double rho = Phase::density();
+        double rho = Phase<doublereal>::density();
         setState_TR(t, rho);
     }
 }
@@ -480,7 +481,7 @@ void MixtureFugacityTP::setStateFromXML(const XML_Node& state)
 void MixtureFugacityTP::initThermo()
 {
     initLengths();
-    ThermoPhase::initThermo();
+    thermo_t::initThermo();
 }
 //====================================================================================================================
 /*
@@ -517,37 +518,37 @@ void MixtureFugacityTP::setPressure(doublereal p)
 //====================================================================================================================
 void MixtureFugacityTP::setMassFractions(const doublereal* const y)
 {
-    Phase::setMassFractions(y);
+    phase_t::setMassFractions(y);
     getMoleFractions(DATA_PTR(moleFractions_));
 }
 //====================================================================================================================
 void MixtureFugacityTP::setMassFractions_NoNorm(const doublereal* const y)
 {
-    Phase::setMassFractions_NoNorm(y);
+    phase_t::setMassFractions_NoNorm(y);
     getMoleFractions(DATA_PTR(moleFractions_));
 }
 //====================================================================================================================
 void MixtureFugacityTP::setMoleFractions(const doublereal* const x)
 {
-    Phase::setMoleFractions(x);
+    phase_t::setMoleFractions(x);
     getMoleFractions(DATA_PTR(moleFractions_));
 }
 //====================================================================================================================
 void MixtureFugacityTP::setMoleFractions_NoNorm(const doublereal* const x)
 {
-    Phase::setMoleFractions_NoNorm(x);
+    phase_t::setMoleFractions_NoNorm(x);
     getMoleFractions(DATA_PTR(moleFractions_));
 }
 //====================================================================================================================
 void MixtureFugacityTP::setConcentrations(const doublereal* const c)
 {
-    Phase::setConcentrations(c);
+    phase_t::setConcentrations(c);
     getMoleFractions(DATA_PTR(moleFractions_));
 }
 //====================================================================================================================
 void MixtureFugacityTP::setMoleFractions_NoState(const doublereal* const x)
 {
-    Phase::setMoleFractions(x);
+    phase_t::setMoleFractions(x);
     getMoleFractions(DATA_PTR(moleFractions_));
     updateMixingExpressions();
 }
@@ -572,7 +573,7 @@ void MixtureFugacityTP::setState_TP(doublereal t, doublereal pres)
     getMoleFractions(DATA_PTR(moleFractions_));
 
 
-    Phase::setTemperature(t);
+    phase_t::setTemperature(t);
     _updateReferenceStateThermo();
     // Depends on the mole fractions and the temperature
     updateMixingExpressions();
@@ -581,17 +582,17 @@ void MixtureFugacityTP::setState_TP(doublereal t, doublereal pres)
     //  double mmw = meanMolecularWeight();
 
     if (forcedState_ ==  FLUID_UNDEFINED) {
-        double rhoNow = Phase::density();
+        double rhoNow = phase_t::density();
         double rho = densityCalc(t, pres, iState_, rhoNow);
         if (rho > 0.0) {
-            Phase::setDensity(rho);
+            phase_t::setDensity(rho);
             m_Pcurrent = pres;
             iState_ = phaseState(true);
         } else {
             if (rho < -1.5) {
                 rho = densityCalc(t, pres, FLUID_UNDEFINED , rhoNow);
                 if (rho > 0.0) {
-                    Phase::setDensity(rho);
+                    phase_t::setDensity(rho);
                     m_Pcurrent = pres;
                     iState_ = phaseState(true);
                 } else {
@@ -607,10 +608,10 @@ void MixtureFugacityTP::setState_TP(doublereal t, doublereal pres)
     } else if (forcedState_ == FLUID_GAS) {
         // Normal density calculation
         if (iState_ < FLUID_LIQUID_0) {
-            double rhoNow = Phase::density();
+            double rhoNow = phase_t::density();
             double rho = densityCalc(t, pres, iState_, rhoNow);
             if (rho > 0.0) {
-                Phase::setDensity(rho);
+                phase_t::setDensity(rho);
                 m_Pcurrent = pres;
                 iState_ = phaseState(true);
                 if (iState_ >= FLUID_LIQUID_0) {
@@ -625,10 +626,10 @@ void MixtureFugacityTP::setState_TP(doublereal t, doublereal pres)
 
     } else if (forcedState_ > FLUID_LIQUID_0) {
         if (iState_ >= FLUID_LIQUID_0) {
-            double rhoNow = Phase::density();
+            double rhoNow = phase_t::density();
             double rho = densityCalc(t, pres, iState_, rhoNow);
             if (rho > 0.0) {
-                Phase::setDensity(rho);
+                phase_t::setDensity(rho);
                 m_Pcurrent = pres;
                 iState_ = phaseState(true);
                 if (iState_ == FLUID_GAS) {
@@ -659,9 +660,9 @@ void MixtureFugacityTP::setState_TP(doublereal t, doublereal pres)
 void MixtureFugacityTP::setState_TR(doublereal T, doublereal rho)
 {
     getMoleFractions(DATA_PTR(moleFractions_));
-    Phase::setTemperature(T);
+    phase_t::setTemperature(T);
     _updateReferenceStateThermo();
-    Phase::setDensity(rho);
+    phase_t::setDensity(rho);
     doublereal mv = molarVolume();
     // depends on mole fraction and temperature
     updateMixingExpressions();
@@ -713,7 +714,7 @@ void MixtureFugacityTP::initThermoXML(XML_Node& phaseNode, const std::string& id
     //m_VPSS_ptr->initThermo();
 
     // m_VPSS_ptr->initThermoXML(phaseNode, id);
-    ThermoPhase::initThermoXML(phaseNode, id);
+    thermo_t::initThermoXML(phaseNode, id);
 }
 //====================================================================================================================
 doublereal MixtureFugacityTP::z() const
@@ -1353,7 +1354,7 @@ void MixtureFugacityTP::_updateReferenceStateThermo() const
     // If the temperature has changed since the last time these
     // properties were computed, recompute them.
     if (m_Tlast_ref != Tnow) {
-        m_spthermo->update(Tnow, &m_cp0_R[0], &m_h0_RT[0],  &m_s0_R[0]);
+        (this->m_spthermo)->update(Tnow, &m_cp0_R[0], &m_h0_RT[0],  &m_s0_R[0]);
         m_Tlast_ref = Tnow;
 
         // update the species Gibbs functions

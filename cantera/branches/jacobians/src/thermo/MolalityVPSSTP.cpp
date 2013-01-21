@@ -110,7 +110,7 @@ MolalityVPSSTP::~MolalityVPSSTP()
  * This routine duplicates the current object and returns
  * a pointer to ThermoPhase.
  */
-ThermoPhase*
+thermo_t*
 MolalityVPSSTP::duplMyselfAsThermoPhase() const
 {
     return new MolalityVPSSTP(*this);

@@ -143,7 +143,7 @@ MolarityIonicVPSSTP::~MolarityIonicVPSSTP()
  * This routine duplicates the current object and returns
  * a pointer to ThermoPhase.
  */
-ThermoPhase*
+thermo_t*
 MolarityIonicVPSSTP::duplMyselfAsThermoPhase() const
 {
     return new MolarityIonicVPSSTP(*this);

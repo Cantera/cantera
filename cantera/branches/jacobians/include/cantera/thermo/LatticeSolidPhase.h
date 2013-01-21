@@ -106,7 +106,7 @@ namespace Cantera
  *  (This object is still under construction)
  *
  */
-class LatticeSolidPhase : public ThermoPhase
+class LatticeSolidPhase : public thermo_t
 {
 
 public:
@@ -137,7 +137,7 @@ public:
      *
      * @return It returns a ThermoPhase pointer.
      */
-    ThermoPhase* duplMyselfAsThermoPhase() const;
+    thermo_t* duplMyselfAsThermoPhase() const;
 
     //! Equation of state type flag.
     /*!

@@ -126,8 +126,7 @@ MargulesVPSSTP::~MargulesVPSSTP()
  * This routine duplicates the current object and returns
  * a pointer to ThermoPhase.
  */
-ThermoPhase*
-MargulesVPSSTP::duplMyselfAsThermoPhase() const
+thermo_t * MargulesVPSSTP::duplMyselfAsThermoPhase() const
 {
     return new MargulesVPSSTP(*this);
 }

@@ -21,7 +21,7 @@ namespace Cantera
 class XML_Node;
 class VPStandardStateTP;
 class VPSSMgr;
-class ThermoPhase;
+template<typename ValAndDerivType> class ThermoPhase;
 
 /**
  * Throw a named error for an unknown or missing species thermo model.
@@ -73,6 +73,7 @@ public:
  *
  * @ingroup thermoprops
  */
+template<typename ValAndDerivType>
 class SpeciesThermoFactory : public FactoryBase
 {
 
@@ -87,7 +88,7 @@ public:
      * otherwise simply returns the pointer to the existing
      * instance.
      */
-    static SpeciesThermoFactory* factory();
+    static SpeciesThermoFactory<ValAndDerivType>* factory();
 
     //! Delete static instance of this class
     /**
@@ -159,8 +160,9 @@ public:
      *                      information for the phase in which the species
      *                      resides
      */
+
     void installThermoForSpecies(size_t k, const XML_Node& speciesNode,
-                                 ThermoPhase* th_ptr, SpeciesThermo& spthermo,
+                                 ThermoPhase<ValAndDerivType> * th_ptr, SpeciesThermo& spthermo,
                                  const XML_Node* phaseNode_ptr = 0) const;
 
     //! Install a species thermodynamic property parameterization
@@ -186,7 +188,7 @@ public:
     void installVPThermoForSpecies(size_t k, const XML_Node& speciesNode,
                                    VPStandardStateTP* vp_ptr,
                                    VPSSMgr* vpss_ptr,
-                                   SpeciesThermo* spthermo_ptr,
+                                   SpeciesThermo * spthermo_ptr,
                                    const XML_Node* phaseNode_ptr) const;
 
 private:
@@ -225,7 +227,8 @@ private:
  * @param f            Pointer to a SpeciesThermoFactory. optional parameter.
  *                     Defaults to NULL.
  */
-SpeciesThermo* newSpeciesThermoMgr(int type, SpeciesThermoFactory* f=0);
+template<typename ValAndDerivType>
+SpeciesThermo* newSpeciesThermoMgr(int type, SpeciesThermoFactory<ValAndDerivType>* f=0);
 
 //! Create a new species thermo manager instance, by specifying
 //!the type and (optionally) a pointer to the factory to use to create it.
@@ -241,8 +244,9 @@ SpeciesThermo* newSpeciesThermoMgr(int type, SpeciesThermoFactory* f=0);
  * @param f           Pointer to a SpeciesThermoFactory. optional parameter.
  *                    Defaults to NULL.
  */
+template<typename ValAndDerivType>
 SpeciesThermo* newSpeciesThermoMgr(std::string& stype,
-                                   SpeciesThermoFactory* f=0);
+                                   SpeciesThermoFactory<ValAndDerivType>* f=0);
 
 //! Function to return SpeciesThermo manager
 /*!
@@ -259,8 +263,9 @@ SpeciesThermo* newSpeciesThermoMgr(std::string& stype,
  * @param f            Pointer to a SpeciesThermoFactory. optional parameter.
  *                    Defaults to NULL.
  */
+template<typename ValAndDerivType>
 SpeciesThermo* newSpeciesThermoMgr(std::vector<XML_Node*> spDataNodeList,
-                                   SpeciesThermoFactory* f=0);
+                                   SpeciesThermoFactory<ValAndDerivType>* f=0);
 
 }
 

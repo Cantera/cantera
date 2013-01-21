@@ -52,7 +52,7 @@ LatticePhase::LatticePhase(const LatticePhase& right) :
 LatticePhase& LatticePhase::operator=(const LatticePhase& right)
 {
     if (&right != this) {
-        ThermoPhase::operator=(right);
+        thermo_t::operator=(right);
         m_Pref       = right.m_Pref;
         m_Pcurrent     = right.m_Pcurrent;
         m_tlast      = right.m_tlast;
@@ -102,7 +102,7 @@ LatticePhase::LatticePhase(XML_Node& phaseRef, const std::string& id)
  *
  * @return It returns a ThermoPhase pointer.
  */
-ThermoPhase* LatticePhase::duplMyselfAsThermoPhase() const
+thermo_t* LatticePhase::duplMyselfAsThermoPhase() const
 {
     return new LatticePhase(*this);
 }
@@ -171,31 +171,31 @@ void LatticePhase::setPressure(doublereal p)
 //====================================================================================================================
 void LatticePhase::setMoleFractions(const doublereal* const x)
 {
-    Phase::setMoleFractions(x);
+    phase_t::setMoleFractions(x);
     calcDensity();
 }
 //====================================================================================================================
 void LatticePhase::setMoleFractions_NoNorm(const doublereal* const x)
 {
-    Phase::setMoleFractions(x);
+    phase_t::setMoleFractions(x);
     calcDensity();
 }
 //====================================================================================================================
 void LatticePhase::setMassFractions(const doublereal* const y)
 {
-    Phase::setMassFractions(y);
+    phase_t::setMassFractions(y);
     calcDensity();
 }
 //====================================================================================================================
 void LatticePhase::setMassFractions_NoNorm(const doublereal* const y)
 {
-    Phase::setMassFractions_NoNorm(y);
+    phase_t::setMassFractions_NoNorm(y);
     calcDensity();
 }
 //====================================================================================================================
 void LatticePhase::setConcentrations(const doublereal* const c)
 {
-    Phase::setConcentrations(c);
+    phase_t::setConcentrations(c);
     calcDensity();
 }
 //====================================================================================================================
@@ -404,7 +404,7 @@ void LatticePhase::initThermo()
     m_s0_R.resize(leng);
     m_speciesMolarVolume.resize(leng, 0.0);
 
-    ThermoPhase::initThermo();
+    thermo_t::initThermo();
 }
 //====================================================================================================================
 void LatticePhase::initThermoXML(XML_Node& phaseNode, const std::string& id)
@@ -457,7 +457,7 @@ void LatticePhase::initThermoXML(XML_Node& phaseNode, const std::string& id)
      * Call the base initThermo, which handles setting the initial
      * state.
      */
-    ThermoPhase::initThermoXML(phaseNode, id);
+    thermo_t::initThermoXML(phaseNode, id);
 }
 //=====================================================================================================
 // Update the species reference state thermodynamic functions

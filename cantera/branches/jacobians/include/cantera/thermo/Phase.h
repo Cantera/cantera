@@ -798,6 +798,8 @@ private:
 //! typedef for the Phase class without any derivative information
 typedef Phase<double> phase_t;
 
+typedef Phase<double> phase_t_double;
+
 }
 
 #endif

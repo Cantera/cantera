@@ -145,7 +145,7 @@ MetalSHEelectrons::operator=(const MetalSHEelectrons& right)
  *
  * @return It returns a ThermoPhase pointer.
  */
-ThermoPhase* MetalSHEelectrons::duplMyselfAsThermoPhase() const
+thermo_t* MetalSHEelectrons::duplMyselfAsThermoPhase() const
 {
     return new MetalSHEelectrons(*this);
 }
