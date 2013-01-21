@@ -188,7 +188,7 @@ FixedChemPotSSTP::~FixedChemPotSSTP()
  *
  * @return It returns a ThermoPhase pointer.
  */
-ThermoPhase* FixedChemPotSSTP::duplMyselfAsThermoPhase() const
+thermo_t * FixedChemPotSSTP::duplMyselfAsThermoPhase() const
 {
     return new FixedChemPotSSTP(*this);
 }

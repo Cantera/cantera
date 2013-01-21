@@ -27,7 +27,7 @@ namespace Cantera
  * i.e., unity.
  */
 IdealSolidSolnPhase::IdealSolidSolnPhase(int formGC) :
-    ThermoPhase(),
+    thermo_t(),
     m_formGC(formGC),
     m_Pref(OneAtm),
     m_Pcurrent(OneAtm),
@@ -42,7 +42,7 @@ IdealSolidSolnPhase::IdealSolidSolnPhase(int formGC) :
 IdealSolidSolnPhase::IdealSolidSolnPhase(const std::string& inputFile,
                                          const std::string& id,
                                          int formGC) :
-    ThermoPhase(),
+    thermo_t(),
     m_formGC(formGC),
     m_Pref(OneAtm),
     m_Pcurrent(OneAtm),
@@ -57,7 +57,7 @@ IdealSolidSolnPhase::IdealSolidSolnPhase(const std::string& inputFile,
 //====================================================================================================================
 IdealSolidSolnPhase::IdealSolidSolnPhase(XML_Node& root, const std::string& id,
         int formGC) :
-    ThermoPhase(),
+    thermo_t(),
     m_formGC(formGC),
     m_Pref(OneAtm),
     m_Pcurrent(OneAtm),
@@ -80,7 +80,7 @@ IdealSolidSolnPhase& IdealSolidSolnPhase::
 operator=(const IdealSolidSolnPhase& b)
 {
     if (this != &b) {
-        ThermoPhase::operator=(b);
+        thermo_t::operator=(b);
 
         m_formGC     = b.m_formGC;
         m_Pref       = b.m_Pref;
@@ -105,7 +105,7 @@ operator=(const IdealSolidSolnPhase& b)
  *     not the copy constructor, because it has to be
  *     a virtual function)
  */
-ThermoPhase* IdealSolidSolnPhase::duplMyselfAsThermoPhase() const
+thermo_t* IdealSolidSolnPhase::duplMyselfAsThermoPhase() const
 {
     return new IdealSolidSolnPhase(*this);
 }
@@ -278,7 +278,7 @@ void IdealSolidSolnPhase::calcDensity()
      * by calling the Phase::setDensity() function.
      */
     double dens = 1.0/invDens;
-    Phase::setDensity(dens);
+    phase_t::setDensity(dens);
 }
 
 /**
@@ -355,7 +355,7 @@ void IdealSolidSolnPhase::setMolarDensity(const doublereal n)
  */
 void IdealSolidSolnPhase::setMoleFractions(const doublereal* const x)
 {
-    Phase::setMoleFractions(x);
+    phase_t::setMoleFractions(x);
     calcDensity();
 }
 
@@ -366,7 +366,7 @@ void IdealSolidSolnPhase::setMoleFractions(const doublereal* const x)
  */
 void IdealSolidSolnPhase::setMoleFractions_NoNorm(const doublereal* const x)
 {
-    Phase::setMoleFractions(x);
+    phase_t::setMoleFractions(x);
     calcDensity();
 }
 
@@ -377,7 +377,7 @@ void IdealSolidSolnPhase::setMoleFractions_NoNorm(const doublereal* const x)
  */
 void IdealSolidSolnPhase::setMassFractions(const doublereal* const y)
 {
-    Phase::setMassFractions(y);
+    phase_t::setMassFractions(y);
     calcDensity();
 }
 
@@ -388,7 +388,7 @@ void IdealSolidSolnPhase::setMassFractions(const doublereal* const y)
  */
 void IdealSolidSolnPhase::setMassFractions_NoNorm(const doublereal* const y)
 {
-    Phase::setMassFractions_NoNorm(y);
+    phase_t::setMassFractions_NoNorm(y);
     calcDensity();
 }
 
@@ -399,7 +399,7 @@ void IdealSolidSolnPhase::setMassFractions_NoNorm(const doublereal* const y)
  */
 void IdealSolidSolnPhase::setConcentrations(const doublereal* const c)
 {
-    Phase::setConcentrations(c);
+    phase_t::setConcentrations(c);
     calcDensity();
 }
 
@@ -1164,7 +1164,7 @@ void IdealSolidSolnPhase::initThermoXML(XML_Node& phaseNode, const std::string& 
      * Call the base initThermo, which handles setting the initial
      * state.
      */
-    ThermoPhase::initThermoXML(phaseNode, id);
+    thermo_t::initThermoXML(phaseNode, id);
 }
 
 /*

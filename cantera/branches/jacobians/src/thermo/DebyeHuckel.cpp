@@ -209,7 +209,7 @@ DebyeHuckel::~DebyeHuckel()
  *  duplicate the current object. It uses the copy constructor
  *  defined above.
  */
-ThermoPhase* DebyeHuckel::duplMyselfAsThermoPhase() const
+thermo_t* DebyeHuckel::duplMyselfAsThermoPhase() const
 {
     return new DebyeHuckel(*this);
 }
@@ -329,7 +329,7 @@ void DebyeHuckel::setPressure(doublereal p)
 void DebyeHuckel::setState_TP(doublereal t, doublereal p)
 {
 
-    Phase::setTemperature(t);
+    Phase<doublereal>::setTemperature(t);
     /*
      * Store the current pressure
      */
@@ -389,7 +389,7 @@ void DebyeHuckel::calcDensity()
         vtotal += vbar[i] * x[i];
     }
     doublereal dd = meanMolecularWeight() / vtotal;
-    Phase::setDensity(dd);
+    Phase<doublereal>::setDensity(dd);
 }
 
 

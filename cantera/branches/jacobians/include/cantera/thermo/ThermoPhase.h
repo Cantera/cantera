@@ -1739,6 +1739,10 @@ protected:
      */
     std::vector<doublereal> xMol_Ref;
 
+    //! Restatement of number of species in the object within the current class
+    using Phase<ValAndDerivType>::m_kk;
+
+
 private:
 
     //! Error function that gets called for unhandled cases

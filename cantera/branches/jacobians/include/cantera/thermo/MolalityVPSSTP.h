@@ -230,7 +230,7 @@ public:
      *  inherited from ThermoPhase even if the application only has
      *  a pointer to ThermoPhase to work with.
      */
-    virtual ThermoPhase* duplMyselfAsThermoPhase() const;
+    virtual thermo_t* duplMyselfAsThermoPhase() const;
 
     /**
      *

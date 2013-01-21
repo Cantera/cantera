@@ -605,7 +605,7 @@ HMWSoln::~HMWSoln()
  *  duplicate the current object. It uses the copy constructor
  *  defined above.
  */
-ThermoPhase* HMWSoln::duplMyselfAsThermoPhase() const
+thermo_t* HMWSoln::duplMyselfAsThermoPhase() const
 {
     return new HMWSoln(*this);
 }
@@ -798,7 +798,7 @@ void HMWSoln::calcDensity()
         vtotal += vbar[i] * x[i];
     }
     doublereal dd = meanMolecularWeight() / vtotal;
-    Phase::setDensity(dd);
+    phase_t::setDensity(dd);
 }
 
 /*
@@ -839,7 +839,7 @@ doublereal HMWSoln::thermalExpansionCoeff() const
 double HMWSoln::density() const
 {
     //    calcDensity();
-    return Phase::density();
+    return phase_t::density();
 }
 
 /*
@@ -904,7 +904,7 @@ void HMWSoln::setTemperature(const doublereal temp)
  */
 void HMWSoln::setState_TP(doublereal temp, doublereal pres)
 {
-    Phase::setTemperature(temp);
+    phase_t::setTemperature(temp);
     /*
      * Store the current pressure
      */
@@ -3737,7 +3737,7 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dT() const
 #ifdef DEBUG_MODE
                 if (m_debugCalc) {
                     printf("%d %g: %g %g %g %g\n",
-                           counterIJ,  BMX_L[counterIJ], beta0MX_L[counterIJ],
+                           (int) counterIJ,  BMX_L[counterIJ], beta0MX_L[counterIJ],
                            beta1MX_L[counterIJ],  beta2MX_L[counterIJ], gfunc[counterIJ]);
                 }
 #endif

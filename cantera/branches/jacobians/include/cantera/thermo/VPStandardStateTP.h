@@ -56,7 +56,7 @@ class PDSS;
  *
  *  @nosubgrouping
  */
-class VPStandardStateTP : public ThermoPhase
+class VPStandardStateTP : public thermo_t
 {
 
 public:
@@ -87,7 +87,7 @@ public:
     /*
      * Duplication routine
      */
-    virtual ThermoPhase* duplMyselfAsThermoPhase() const;
+    virtual thermo_t* duplMyselfAsThermoPhase() const;
 
     //@}
 

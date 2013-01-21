@@ -105,8 +105,7 @@ GibbsExcessVPSSTP::~GibbsExcessVPSSTP()
  * This routine duplicates the current object and returns
  * a pointer to ThermoPhase.
  */
-ThermoPhase*
-GibbsExcessVPSSTP::duplMyselfAsThermoPhase() const
+thermo_t* GibbsExcessVPSSTP::duplMyselfAsThermoPhase() const
 {
     return new GibbsExcessVPSSTP(*this);
 }
@@ -117,32 +116,32 @@ GibbsExcessVPSSTP::duplMyselfAsThermoPhase() const
 
 void GibbsExcessVPSSTP::setMassFractions(const doublereal* const y)
 {
-    Phase::setMassFractions(y);
+    phase_t::setMassFractions(y);
     getMoleFractions(DATA_PTR(moleFractions_));
 }
 
 void GibbsExcessVPSSTP::setMassFractions_NoNorm(const doublereal* const y)
 {
-    Phase::setMassFractions_NoNorm(y);
+    phase_t::setMassFractions_NoNorm(y);
     getMoleFractions(DATA_PTR(moleFractions_));
 }
 
 void GibbsExcessVPSSTP::setMoleFractions(const doublereal* const x)
 {
-    Phase::setMoleFractions(x);
+    phase_t::setMoleFractions(x);
     getMoleFractions(DATA_PTR(moleFractions_));
 }
 
 void GibbsExcessVPSSTP::setMoleFractions_NoNorm(const doublereal* const x)
 {
-    Phase::setMoleFractions_NoNorm(x);
+    phase_t::setMoleFractions_NoNorm(x);
     getMoleFractions(DATA_PTR(moleFractions_));
 }
 
 
 void GibbsExcessVPSSTP::setConcentrations(const doublereal* const c)
 {
-    Phase::setConcentrations(c);
+    phase_t::setConcentrations(c);
     getMoleFractions(DATA_PTR(moleFractions_));
 }
 
@@ -193,12 +192,12 @@ void GibbsExcessVPSSTP::calcDensity()
         vtotal += vbar[i] * moleFractions_[i];
     }
     doublereal dd = meanMolecularWeight() / vtotal;
-    Phase::setDensity(dd);
+    phase_t::setDensity(dd);
 }
 
 void GibbsExcessVPSSTP::setState_TP(doublereal t, doublereal p)
 {
-    Phase::setTemperature(t);
+    phase_t::setTemperature(t);
     /*
      * Store the current pressure
      */

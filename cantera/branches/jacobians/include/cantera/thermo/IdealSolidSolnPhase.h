@@ -61,7 +61,7 @@ const int cIdealSolidSolnPhase2 = 5012;
  *
  * @ingroup thermoprops
  */
-class IdealSolidSolnPhase : public ThermoPhase
+class IdealSolidSolnPhase : public thermo_t
 {
 
 public:
@@ -150,7 +150,7 @@ public:
      *     not the copy constructor, because it has to be
      *     a virtual function)
      */
-    virtual ThermoPhase* duplMyselfAsThermoPhase() const;
+    virtual thermo_t* duplMyselfAsThermoPhase() const;
 
     //! Destructor
     virtual ~IdealSolidSolnPhase() {}

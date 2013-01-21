@@ -162,7 +162,7 @@ IdealMolalSoln::~IdealMolalSoln()
 /**
  *
  */
-ThermoPhase* IdealMolalSoln::duplMyselfAsThermoPhase() const
+thermo_t* IdealMolalSoln::duplMyselfAsThermoPhase() const
 {
     return new IdealMolalSoln(*this);
 }
@@ -301,7 +301,7 @@ void IdealMolalSoln::calcDensity()
         vtotal += vbar[i] * x[i];
     }
     doublereal dd = meanMolecularWeight() / vtotal;
-    Phase::setDensity(dd);
+    phase_t::setDensity(dd);
 }
 
 /*
@@ -371,7 +371,7 @@ void IdealMolalSoln::setDensity(const doublereal rho)
  */
 void IdealMolalSoln::setMolarDensity(const doublereal conc)
 {
-    double concI = Phase::molarDensity();
+    double concI = phase_t::molarDensity();
     if (conc != concI) {
         throw CanteraError("IdealMolalSoln::setMolarDensity",
                            "molarDensity/denisty is not an independent variable");
@@ -380,7 +380,7 @@ void IdealMolalSoln::setMolarDensity(const doublereal conc)
 
 void IdealMolalSoln::setState_TP(doublereal temp, doublereal pres)
 {
-    Phase::setTemperature(temp);
+    phase_t::setTemperature(temp);
     m_Pcurrent = pres;
     updateStandardStateThermo();
     //m_densWaterSS = m_waterSS->density();

@@ -66,7 +66,7 @@ namespace Cantera
  *
  *  \nosubgrouping
  */
-class SingleSpeciesTP : public ThermoPhase
+class SingleSpeciesTP : public thermo_t
 {
 
 public:
@@ -97,7 +97,7 @@ public:
      *
      * @return It returns a ThermoPhase pointer.
      */
-    ThermoPhase* duplMyselfAsThermoPhase() const;
+    thermo_t* duplMyselfAsThermoPhase() const;
 
     /**
      *

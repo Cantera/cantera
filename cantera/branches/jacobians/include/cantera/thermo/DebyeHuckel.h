@@ -646,7 +646,7 @@ public:
      *
      * @return returns a pointer to a ThermoPhase
      */
-    ThermoPhase* duplMyselfAsThermoPhase() const;
+    thermo_t* duplMyselfAsThermoPhase() const;
 
     /**
      *

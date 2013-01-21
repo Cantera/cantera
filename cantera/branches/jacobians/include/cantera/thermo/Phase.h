@@ -405,8 +405,10 @@ public:
     void getMoleFractionsByName(compositionMap& x) const;
 
     //! Return the mole fraction of a single species
-    //!     @param  k  species index
-    //!     @return Mole fraction of the species
+    /*!
+     *     @param  k  species index
+     *     @return Mole fraction of the species
+     */
     doublereal moleFraction(size_t k) const;
 
     //! Return the mole fraction of a single species
@@ -767,8 +769,9 @@ private:
     int m_stateNum;
 
     //! Boolean indicating whether the number of species has been frozen.
-    //! During the construction of the phase, this is false. After construction
-    //! of the the phase, this is true.
+    /*! During the construction of the phase, this is false. After construction
+    *   of the the phase, this is true.
+    */
     bool m_speciesFrozen;
 
     //! If this is true, then no elements may be added to the object.
@@ -791,6 +794,9 @@ private:
     vector_fp m_entropy298;
 
 };
+
+//! typedef for the Phase class without any derivative information
+typedef Phase<double> phase_t;
 
 }
 

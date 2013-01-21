@@ -1331,7 +1331,7 @@ public:
      *
      * @return returns a pointer to a ThermoPhase
      */
-    ThermoPhase* duplMyselfAsThermoPhase() const;
+    thermo_t* duplMyselfAsThermoPhase() const;
 
 
      //!   Import, construct, and initialize a HMWSoln phase

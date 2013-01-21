@@ -304,7 +304,8 @@ namespace Cantera
  *    @ingroup thermoprops
  *
  */
-class IdealGasPhase : public ThermoPhase
+template<typename ValAndDerivType = double>
+class IdealGasPhase : public ThermoPhase<ValAndDerivType>
 {
 
 public:
@@ -346,7 +347,7 @@ public:
      * @return returns a pointer to a %ThermoPhase object, containing
      *      a copy of the current object
      */
-    ThermoPhase* duplMyselfAsThermoPhase() const;
+    ThermoPhase<ValAndDerivType> * duplMyselfAsThermoPhase() const;
 
     //! Equation of state flag.
     /*!
@@ -376,7 +377,7 @@ public:
      * \see SpeciesThermo
      */
     virtual doublereal enthalpy_mole() const {
-        return GasConstant * temperature() *
+        return GasConstant * this->temperature() *
                mean_X(&enthalpy_RT_ref()[0]);
     }
 
@@ -495,7 +496,7 @@ public:
      * \f[ P = n \hat R T. \f]
      */
     virtual doublereal pressure() const {
-        return GasConstant * molarDensity() * temperature();
+        return GasConstant * this->molarDensity() * this->temperature();
     }
 
 
@@ -510,8 +511,8 @@ public:
      * @param p Pressure (Pa)
      */
     virtual void setPressure(doublereal p) {
-        setDensity(p * meanMolecularWeight()
-                   /(GasConstant * temperature()));
+        setDensity(p * this->meanMolecularWeight()
+                   /(GasConstant * this->temperature()));
     }
 
     //! Returns  the isothermal compressibility. Units: 1/Pa.
@@ -535,7 +536,7 @@ public:
      * For ideal gases, it's equal to the inverse of the temperature.
      */
     virtual doublereal thermalExpansionCoeff() const {
-        return 1.0/temperature();
+        return 1.0/this->temperature();
     }
 
     //@}
@@ -584,7 +585,7 @@ public:
      *           reaction rate expressions within the phase.
      */
     virtual void getActivityConcentrations(doublereal* c) const {
-        getConcentrations(c);
+        this->getConcentrations(c);
     }
 
     //! Returns the standard concentration \f$ C^0_k \f$, which is used to normalize
@@ -764,7 +765,7 @@ public:
 #ifdef H298MODIFY_CAPABILITY
 
     virtual void modifyOneHf298SS(const size_t &k, const doublereal Hf298New) {
-        m_spthermo->modifyOneHf298(k, Hf298New);
+        (this->m_spthermo)->modifyOneHf298(k, Hf298New);
         m_tlast += 0.0001234;
     }
 #endif
@@ -942,6 +943,17 @@ protected:
 
     //! Temporary array containing internally calculated partial pressures
     mutable vector_fp      m_pp;
+
+
+    //! class namespace inclusion of the number of species in the phase
+    using Phase<ValAndDerivType>::m_kk;
+
+    //! Class namespace inclusion of the reference state species calculator
+    using ThermoPhase<ValAndDerivType>::m_spthermo;
+
+    using ThermoPhase<ValAndDerivType>::_RT;
+
+    using Phase<ValAndDerivType>::molarDensity;
 
 private:
 
