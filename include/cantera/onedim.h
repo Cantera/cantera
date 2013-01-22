@@ -5,7 +5,6 @@
 #include "oneD/OneDim.h"
 #include "oneD/Domain1D.h"
 #include "oneD/Inlet1D.h"
-#include "oneD/Surf1D.h"
 #include "oneD/MultiNewton.h"
 #include "oneD/MultiJac.h"
 #include "oneD/StFlow.h"
