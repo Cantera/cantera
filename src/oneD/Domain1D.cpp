@@ -102,7 +102,7 @@ eval(size_t jg, doublereal* xg, doublereal* rg,
         jmin = 0;
         jmax = m_points - 1;
     } else {          // evaluate points for Jacobian
-        jmin = std::max<size_t>(jpt-1, 0);
+        jmin = std::max<size_t>(jpt, 1) - 1;
         jmax = std::min(jpt+1,m_points-1);
     }
 
