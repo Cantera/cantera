@@ -1110,6 +1110,7 @@ class Parser(object):
             pdepArrhenius = None
             efficiencies = {}
             chebyshevCoeffs = []
+            revReaction = None
 
             # Note that the subsequent lines could be in any order
             for line in lines[1:]:
@@ -1227,6 +1228,9 @@ class Parser(object):
                     # Assume a list of collider efficiencies
                     for collider, efficiency in zip(tokens[0::2], tokens[1::2]):
                         efficiencies[collider.strip()] = float(efficiency.strip())
+
+            if revReaction:
+                revReaction.duplicate = reaction.duplicate
 
             # Decide which kinetics to keep and store them on the reaction object
             # Only one of these should be true at a time!
