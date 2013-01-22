@@ -106,7 +106,7 @@ public:
      *  inherited from ThermoPhase even if the application only has
      *  a pointer to ThermoPhase to work with.
      */
-    virtual ThermoPhase* duplMyselfAsThermoPhase() const;
+    virtual thermo_t* duplMyselfAsThermoPhase() const;
 
     /**
      *
@@ -362,9 +362,9 @@ protected:
     size_t numPassThroughSpecies_;
     size_t neutralPBindexStart;
 
-    ThermoPhase* cationPhase_;
+    thermo_t* cationPhase_;
 
-    ThermoPhase* anionPhase_;
+    thermo_t* anionPhase_;
 
     mutable std::vector<doublereal> moleFractionsTmp_;
 

@@ -427,7 +427,7 @@ public:
 
 #ifdef H298MODIFY_CAPABILITY
 
-    virtual doublereal reportOneHf298(int k) const {
+    virtual doublereal reportOneHf298(size_t k) const {
         doublereal h;
         doublereal t = 298.15;
 
@@ -447,7 +447,7 @@ public:
         return h;
     }
 
-    virtual void modifyOneHf298(const int k, const doublereal Hf298New) {
+    virtual void modifyOneHf298(const size_t k, const doublereal Hf298New) {
 
         int grp = m_group_map[k];
         int pos = m_posInGroup_map[k];

@@ -363,7 +363,7 @@ public:
      *   @param k    species index
      *   @return     Returns the current value of the Heat of Formation at 298K and 1 bar
      */
-    virtual doublereal reportOneHf298(int k) const = 0;
+    virtual doublereal reportOneHf298(size_t k) const = 0;
 
     //!  Modify the value of the 298 K Heat of Formation of the standard state of
     //!  one species in the phase (J kmol-1)
@@ -375,7 +375,7 @@ public:
      *   @param  Hf298New    Specify the new value of the Heat of Formation at 298K and 1 bar.
      *                       units = J/kmol.
      */
-    virtual void modifyOneHf298(const int k, const doublereal Hf298New) = 0;
+    virtual void modifyOneHf298(const size_t k, const doublereal Hf298New) = 0;
 #endif
 };
 //@}

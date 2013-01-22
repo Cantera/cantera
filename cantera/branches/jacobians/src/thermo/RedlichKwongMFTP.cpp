@@ -250,7 +250,7 @@ RedlichKwongMFTP::~RedlichKwongMFTP()
  * Duplication function.
  *  This calls the copy constructor for this object.
  */
-ThermoPhase* RedlichKwongMFTP::duplMyselfAsThermoPhase() const
+thermo_t* RedlichKwongMFTP::duplMyselfAsThermoPhase() const
 {
     return new RedlichKwongMFTP(*this);
 }
@@ -372,14 +372,14 @@ void RedlichKwongMFTP::calcDensity()
      * by calling the Phase::setDensity() function.
      */
     double dens = 1.0/invDens;
-    Phase::setDensity(dens);
+    phase_t::setDensity(dens);
 
 }
 
 //====================================================================================================================
 void RedlichKwongMFTP::setTemperature(const doublereal temp)
 {
-    Phase::setTemperature(temp);
+    phase_t::setTemperature(temp);
     _updateReferenceStateThermo();
     updateAB();
 }
@@ -903,7 +903,7 @@ void RedlichKwongMFTP::initLengths()
     a_vec_Curr_.resize(m_kk * m_kk, 0.0);
     b_vec_Curr_.resize(m_kk, 0.0);
 
-    a_coeff_vec.resize(2, m_kk * m_kk, 0.0);
+    a_coeff_vec.resize(2, m_kk * m_kk);
 
 
     m_pc_Species.resize(m_kk, 0.0);

@@ -29,7 +29,7 @@ namespace Cantera
  *   class constructor
  */
 SingleSpeciesTP::SingleSpeciesTP() :
-    ThermoPhase(),
+    thermo_t(),
     m_press(OneAtm),
     m_p0(OneAtm),
     m_tlast(-1.0)
@@ -42,7 +42,7 @@ SingleSpeciesTP::SingleSpeciesTP() :
  * @param right Object to be copied
  */
 SingleSpeciesTP::SingleSpeciesTP(const SingleSpeciesTP& right):
-    ThermoPhase(),
+    thermo_t(),
     m_press(OneAtm),
     m_p0(OneAtm),
     m_tlast(-1.0)
@@ -57,7 +57,7 @@ SingleSpeciesTP::SingleSpeciesTP(const SingleSpeciesTP& right):
 SingleSpeciesTP& SingleSpeciesTP::operator=(const SingleSpeciesTP& right)
 {
     if (&right != this) {
-        ThermoPhase::operator=(right);
+        thermo_t::operator=(right);
         m_press      = right.m_press;
         m_p0         = right.m_p0;
         m_tlast      = right.m_tlast;
@@ -84,7 +84,7 @@ SingleSpeciesTP::~SingleSpeciesTP()
  *
  * @return It returns a ThermoPhase pointer.
  */
-ThermoPhase* SingleSpeciesTP::duplMyselfAsThermoPhase() const
+thermo_t* SingleSpeciesTP::duplMyselfAsThermoPhase() const
 {
     return new SingleSpeciesTP(*this);
 }
@@ -666,7 +666,7 @@ void SingleSpeciesTP::initThermo()
     /*
      * Call the base class initThermo object.
      */
-    ThermoPhase::initThermo();
+    thermo_t::initThermo();
 }
 
 /*

@@ -112,7 +112,7 @@ PseudoBinaryVPSSTP::~PseudoBinaryVPSSTP()
  * This routine duplicates the current object and returns
  * a pointer to ThermoPhase.
  */
-ThermoPhase*
+thermo_t*
 PseudoBinaryVPSSTP::duplMyselfAsThermoPhase() const
 {
     return new PseudoBinaryVPSSTP(*this);

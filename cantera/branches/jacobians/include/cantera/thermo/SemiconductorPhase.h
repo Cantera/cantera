@@ -3,15 +3,13 @@
  */
 
 //  Copyright 2003 California Institute of Technology
-
 #ifndef CT_SEMICONDPHASE_H
 #define CT_SEMICONDPHASE_H
 
 #include "mix_defs.h"
 #include "ThermoPhase.h"
 
-namespace Cantera
-{
+namespace Cantera {
 
 const int cElectron = 0;
 const int cHole = 1;
@@ -23,51 +21,61 @@ const int cHole = 1;
  * in a semiconductor.
  *
  */
-class SemiconductorPhase : public ThermoPhase
+class SemiconductorPhase: public thermo_t
 {
 
 public:
 
-    SemiconductorPhase() {}
-    SemiconductorPhase(std::string infile, std::string id="");
+    SemiconductorPhase()
+    {
+    }
 
-    SemiconductorPhase(const SemiconductorPhase& right) {
+    SemiconductorPhase(std::string infile, std::string id = "");
+
+    SemiconductorPhase(const SemiconductorPhase& right)
+    {
         *this = operator=(right);
     }
 
-    SemiconductorPhase& operator=(const SemiconductorPhase& right) {
+    SemiconductorPhase& operator=(const SemiconductorPhase& right)
+    {
         if (&right != this) {
-            ThermoPhase::operator=(right);
+            thermo_t::operator=(right);
             m_press = right.m_press;
         }
         return *this;
     }
 
-    virtual ~SemiconductorPhase() {}
+    virtual ~SemiconductorPhase()
+    {
+    }
 
     //! Duplicator
-    virtual ThermoPhase* duplMyselfAsThermoPhase() const {
+    virtual thermo_t* duplMyselfAsThermoPhase() const
+    {
         SemiconductorPhase* idg = new SemiconductorPhase(*this);
-        return (ThermoPhase*) idg;
+        return (thermo_t*) idg;
     }
 
     // Overloaded methods of class ThermoPhase
 
-    virtual int eosType() const {
+    virtual int eosType() const
+    {
         return cSemiconductor;
     }
 
-
-    virtual void setPressure(doublereal pres) {
+    virtual void setPressure(doublereal pres)
+    {
         m_press = pres;
     }
-    virtual doublereal  pressure() const {
+    virtual doublereal pressure() const
+    {
         return m_press;
     }
 
-
-    virtual void setParametersFromXML(const XML_Node& eosdata) {
-        eosdata._require("model","Semiconductor");
+    virtual void setParametersFromXML(const XML_Node& eosdata)
+    {
+        eosdata._require("model", "Semiconductor");
         doublereal rho = ctml::getFloat(eosdata, "density", "-");
         setDensity(rho);
         doublereal bandgap = ctml::getFloat(eosdata, "bandgap", "-");
@@ -83,30 +91,36 @@ public:
         m_bandgap = bandgap;
     }
 
-    void setEffectiveMasses(doublereal e_mass, doublereal h_mass) {
+    void setEffectiveMasses(doublereal e_mass, doublereal h_mass)
+    {
         m_emass = e_mass;
         m_hmass = h_mass;
     }
 
-    void setDonorDoping(doublereal n_donor, doublereal e_donor) {
+    void setDonorDoping(doublereal n_donor, doublereal e_donor)
+    {
         m_ndonor = n_donor;
         m_edonor = e_donor;
     }
 
-    void setAcceptorDoping(doublereal n_acceptor, doublereal e_acceptor) {
+    void setAcceptorDoping(doublereal n_acceptor, doublereal e_acceptor)
+    {
         m_nacceptor = n_acceptor;
         m_eacceptor = e_acceptor;
     }
 
-    doublereal effectiveMass_e() const {
+    doublereal effectiveMass_e() const
+    {
         return m_emass;
     }
 
-    doublereal effectiveMass_h() const {
+    doublereal effectiveMass_h() const
+    {
         return m_hmass;
     }
 
-    doublereal fermiLevel() const {
+    doublereal fermiLevel() const
+    {
         return m_fermi_level;
     }
 
@@ -115,7 +129,8 @@ public:
     doublereal nv() const;
     doublereal ec() const;
     doublereal ev() const;
-    doublereal bandgap() const {
+    doublereal bandgap() const
+    {
         return m_bandgap;
     }
 
@@ -138,8 +153,4 @@ private:
 }
 
 #endif
-
-
-
-
 

@@ -24,7 +24,7 @@ namespace Cantera
 
 // Base Constructor
 PureFluidPhase::PureFluidPhase() :
-    ThermoPhase(),
+    thermo_t(),
     m_sub(0),
     m_subflag(0),
     m_mw(-1.0),
@@ -34,7 +34,7 @@ PureFluidPhase::PureFluidPhase() :
 
 // CopyConstructor
 PureFluidPhase::PureFluidPhase(const PureFluidPhase& right) :
-    ThermoPhase(),
+    thermo_t(),
     m_sub(0),
     m_subflag(0),
     m_mw(-1.0),
@@ -50,7 +50,7 @@ PureFluidPhase::PureFluidPhase(const PureFluidPhase& right) :
 PureFluidPhase& PureFluidPhase::operator=(const PureFluidPhase& right)
 {
     if (&right != this) {
-        ThermoPhase::operator=(right);
+        thermo_t::operator=(right);
         if (m_sub) {
             delete m_sub;
         }
@@ -70,7 +70,7 @@ PureFluidPhase& PureFluidPhase::operator=(const PureFluidPhase& right)
  *
  * @return returns a pointer to a %ThermoPhase
  */
-ThermoPhase* PureFluidPhase::duplMyselfAsThermoPhase() const
+thermo_t* PureFluidPhase::duplMyselfAsThermoPhase() const
 {
     return new PureFluidPhase(*this);
 }
@@ -113,8 +113,8 @@ initThermo()
     double s_R = s0_R - log(p/refPressure());
     m_sub->setStdState(h0_RT*GasConstant*298.15/m_mw,
                        s_R*GasConstant/m_mw, T0, p);
-    writelog("PureFluidPhase::initThermo: initialized phase "
-             +id()+"\n", m_verbose);
+    writelog1("PureFluidPhase::initThermo: initialized phase "
+             + this->id() + "\n", (int) m_verbose);
 }
 
 void PureFluidPhase::

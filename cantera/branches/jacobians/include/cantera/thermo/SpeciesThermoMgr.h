@@ -224,11 +224,11 @@ public:
 
 #ifdef H298MODIFY_CAPABILITY
 
-    virtual doublereal reportOneHf298(int k) const {
+    virtual doublereal reportOneHf298(size_t k) const {
         throw CanteraError("reportHF298", "unimplemented");
     }
 
-    virtual void modifyOneHf298(const int k, const doublereal Hf298New) {
+    virtual void modifyOneHf298(const size_t k, const doublereal Hf298New) {
         throw CanteraError("reportHF298", "unimplemented");
     }
 

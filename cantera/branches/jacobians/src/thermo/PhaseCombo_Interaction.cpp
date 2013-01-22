@@ -139,7 +139,7 @@ PhaseCombo_Interaction::~PhaseCombo_Interaction()
  *
  * HKM - Checked for Transition
  */
-ThermoPhase*
+thermo_t*
 PhaseCombo_Interaction::duplMyselfAsThermoPhase() const
 {
     return new PhaseCombo_Interaction(*this);

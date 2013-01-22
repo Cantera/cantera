@@ -16,6 +16,8 @@
 #include "cantera/thermo/ThermoFactory.h"
 #include "cantera/base/stringUtils.h"
 
+#include "cantera/base/ct_defs.h"
+
 #include <iomanip>
 #include <fstream>
 
@@ -204,7 +206,7 @@ RedlichKisterVPSSTP::~RedlichKisterVPSSTP()
  * This routine duplicates the current object and returns
  * a pointer to ThermoPhase.
  */
-ThermoPhase*
+thermo_t*
 RedlichKisterVPSSTP::duplMyselfAsThermoPhase() const
 {
     return new RedlichKisterVPSSTP(*this);
@@ -864,7 +866,7 @@ void RedlichKisterVPSSTP::resizeNumInteractions(const size_t num)
     m_N_ij.resize(num, npos);
     m_HE_m_ij.resize(num);
     m_SE_m_ij.resize(num);
-    dlnActCoeff_dX_.resize(num, num, 0.0);
+    dlnActCoeff_dX_.resize(num, num);
 }
 //====================================================================================================================
 // Process an XML node called "binaryNeutralSpeciesParameters"
@@ -973,7 +975,7 @@ void RedlichKisterVPSSTP::Vint(double& VintOut, double& voltsOut)
 
     lnActCoeff_Scaled_.assign(m_kk, 0.0);
 
-    for (int i = 0; i <  numBinaryInteractions_; i++) {
+    for (int i = 0; i < (int) numBinaryInteractions_; i++) {
         iA =  m_pSpecies_A_ij[i];
         iB =  m_pSpecies_B_ij[i];
         XA = moleFractions_[iA];

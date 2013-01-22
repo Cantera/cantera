@@ -40,6 +40,7 @@ GeneralSpeciesThermo::
 GeneralSpeciesThermo(const GeneralSpeciesThermo& b) :
     m_tlow_max(b.m_tlow_max),
     m_thigh_min(b.m_thigh_min),
+    m_p0(OneAtm),
     m_kk(b.m_kk)
 {
     m_sp.resize(m_kk, 0);
@@ -371,7 +372,7 @@ SpeciesThermoInterpType* GeneralSpeciesThermo::provideSTIT(size_t k)
 
 #ifdef H298MODIFY_CAPABILITY
 
-doublereal GeneralSpeciesThermo::reportOneHf298(int k) const
+doublereal GeneralSpeciesThermo::reportOneHf298(size_t k) const
 {
     SpeciesThermoInterpType* sp_ptr = m_sp[k];
     doublereal h = -1.0;
@@ -381,7 +382,7 @@ doublereal GeneralSpeciesThermo::reportOneHf298(int k) const
     return h;
 }
 
-void GeneralSpeciesThermo::modifyOneHf298(const int k, const doublereal Hf298New)
+void GeneralSpeciesThermo::modifyOneHf298(const size_t k, const doublereal Hf298New)
 {
     SpeciesThermoInterpType* sp_ptr = m_sp[k];
     if (sp_ptr) {
