@@ -101,8 +101,16 @@ public:
     void setRefineCriteria(int dom = -1, doublereal ratio = 10.0,
                            doublereal slope = 0.8, doublereal curve = 0.8, doublereal prune = -0.1);
     void setMaxGridPoints(int dom = -1, int npoints = 300);
-
+ 
     void restore(std::string fname, std::string id);
+    //! Set the minimum grid spacing in the specified domain(s).
+    /*!
+     *  @param dom Domain index. If dom == -1, the specified spacing
+                   is applied to all domains.
+        @param gridmin The minimum allowable grid spacing [m]
+    */
+    void setGridMin(int dom, double gridmin);
+
     void getInitialSoln();
 
     void setSolution(const doublereal* soln) {
