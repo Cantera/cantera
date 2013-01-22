@@ -48,6 +48,7 @@ public:
     Domain1D(size_t nv=1, size_t points=1,
              doublereal time = 0.0) :
         m_rdt(0.0),
+        m_nv(0),
         m_time(time),
         m_container(0),
         m_index(npos),
