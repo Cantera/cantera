@@ -312,6 +312,7 @@ int MultiNewton::solve(doublereal* x0, doublereal* x1,
     bool frst = true;
     doublereal rdt = r.rdt();
     int j0 = jac.nEvals();
+    int nJacReeval = 0;
 
     while (1 > 0) {
 
@@ -370,6 +371,10 @@ int MultiNewton::solve(doublereal* x0, doublereal* x1,
         else if (m < 0) {
             if (jac.age() > 1) {
                 forceNewJac = true;
+                if (nJacReeval > 3) {
+                    goto done;
+                }
+                nJacReeval++;
                 if (loglevel > 0)
                     writelog("\nRe-evaluating Jacobian, since no damping "
                              "coefficient\ncould be found with this Jacobian.\n");
