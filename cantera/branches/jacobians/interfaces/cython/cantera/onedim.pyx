@@ -365,12 +365,6 @@ cdef CxxIdealGasPhase* getIdealGasPhase(ThermoPhase phase) except *:
     return <CxxIdealGasPhase*>(phase.thermo)
 
 
-cdef class StagnationFlow(_FlowBase):
-    def __cinit__(self, _SolutionBase thermo, *args, **kwargs):
-        gas = getIdealGasPhase(thermo)
-        self.flow = new CxxStFlow(gas, thermo.nSpecies(), 2)
-
-
 cdef class FreeFlow(_FlowBase):
     def __cinit__(self, _SolutionBase thermo, *args, **kwargs):
         gas = getIdealGasPhase(thermo)
@@ -1063,9 +1057,11 @@ class CounterflowDiffusionFlame(FlameBase):
 
         if stoich is None:
             if oxidizer == 'O2':
-                nH = self.gas.nAtoms(fuel, 'H')
-                nC = self.gas.nAtoms(fuel, 'C')
-                stoich = 1.0 * nC + 0.25 * nH
+                stoich = 0.0
+                if 'H' in self.gas.elementNames:
+                    stoich += 0.25 * self.gas.nAtoms(fuel, 'H')
+                if 'C' in self.gas.elementNames:
+                    stoich += self.gas.nAtoms(fuel, 'C')
             else:
                 raise Exception('oxidizer/fuel stoichiometric ratio must be '
                                 'specified since the oxidizer is not O2')
