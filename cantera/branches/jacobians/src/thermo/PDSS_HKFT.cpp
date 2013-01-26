@@ -637,7 +637,7 @@ void PDSS_HKFT::initThermoXML(const XML_Node& phaseNode, const std::string& id)
 }
 
 void PDSS_HKFT::initAllPtrs(VPStandardStateTP* vptp_ptr, VPSSMgr* vpssmgr_ptr,
-                            SpeciesThermo* spthermo_ptr)
+                            SpeciesThermo<doublereal>* spthermo_ptr)
 {
 
     PDSS::initAllPtrs(vptp_ptr, vpssmgr_ptr,  spthermo_ptr);

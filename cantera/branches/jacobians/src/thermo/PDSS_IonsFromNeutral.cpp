@@ -115,7 +115,7 @@ PDSS* PDSS_IonsFromNeutral::duplMyselfAsPDSS() const
 }
 //====================================================================================================================
 void PDSS_IonsFromNeutral::initAllPtrs(VPStandardStateTP* tp, VPSSMgr* vpssmgr_ptr,
-                                       SpeciesThermo* spthermo)
+                                       SpeciesThermo<doublereal>* spthermo)
 {
     PDSS::initAllPtrs(tp, vpssmgr_ptr, spthermo);
 
@@ -269,7 +269,7 @@ void PDSS_IonsFromNeutral::initThermoXML(const XML_Node& phaseNode, std::string&
 void PDSS_IonsFromNeutral::initThermo()
 {
     PDSS::initThermo();
-    SpeciesThermo& sp = m_tp->speciesThermo();
+    SpeciesThermo<doublereal>& sp = m_tp->speciesThermo();
     m_p0 = sp.refPressure(m_spindex);
     m_minTemp = m_spthermo->minTemp(m_spindex);
     m_maxTemp = m_spthermo->maxTemp(m_spindex);

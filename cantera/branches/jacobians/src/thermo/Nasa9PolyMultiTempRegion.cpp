@@ -150,8 +150,8 @@ Nasa9PolyMultiTempRegion(const Nasa9PolyMultiTempRegion<ValAndDerivType>& b) :
 {
     m_regionPts.resize(m_numTempRegions);
     for (size_t i = 0; i < m_numTempRegions; i++) {
-        Nasa9Poly1* dptr = b.m_regionPts[i];
-        m_regionPts[i] = new Nasa9Poly1(*dptr);
+        Nasa9Poly1<ValAndDerivType>* dptr = b.m_regionPts[i];
+        m_regionPts[i] = new Nasa9Poly1<ValAndDerivType>(*dptr);
     }
 }
 
@@ -177,7 +177,7 @@ Nasa9PolyMultiTempRegion<ValAndDerivType>::operator=(const Nasa9PolyMultiTempReg
         m_currRegion = b.m_currRegion;
         m_regionPts.resize(m_numTempRegions);
         for (size_t i = 0; i < m_numTempRegions; i++) {
-            m_regionPts[i] = new Nasa9Poly1(*(b.m_regionPts[i]));
+            m_regionPts[i] = new Nasa9Poly1<ValAndDerivType>(*(b.m_regionPts[i]));
         }
     }
     return *this;

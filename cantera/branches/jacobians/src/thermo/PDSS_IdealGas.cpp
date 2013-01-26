@@ -155,7 +155,7 @@ void PDSS_IdealGas::initThermoXML(const XML_Node& phaseNode, std::string& id)
 void PDSS_IdealGas::initThermo()
 {
     PDSS::initThermo();
-    SpeciesThermo& sp = m_tp->speciesThermo();
+    SpeciesThermo<doublereal>& sp = m_tp->speciesThermo();
     m_p0 = sp.refPressure(m_spindex);
     m_minTemp = m_spthermo->minTemp(m_spindex);
     m_maxTemp = m_spthermo->maxTemp(m_spindex);

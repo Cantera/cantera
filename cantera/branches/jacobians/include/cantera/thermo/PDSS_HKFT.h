@@ -439,7 +439,7 @@ public:
      *                       state thermodynamic coefficients.
      */
     virtual void initAllPtrs(VPStandardStateTP* vptp_ptr, VPSSMgr* vpssmgr_ptr,
-                             SpeciesThermo* spthermo_ptr);
+                             SpeciesThermo<doublereal>* spthermo_ptr);
 
     //! This utility function reports back the type of
     //! parameterization and all of the parameters for the

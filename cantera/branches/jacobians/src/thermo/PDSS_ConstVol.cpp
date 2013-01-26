@@ -106,7 +106,7 @@ void PDSS_ConstVol::constructPDSSXML(VPStandardStateTP* tp, size_t spindex,
                                      const XML_Node& phaseNode, bool spInstalled)
 {
     PDSS::initThermo();
-    SpeciesThermo& sp = m_tp->speciesThermo();
+    SpeciesThermo<doublereal>& sp = m_tp->speciesThermo();
     m_p0 = sp.refPressure(m_spindex);
 
     if (!spInstalled) {
@@ -198,7 +198,7 @@ void PDSS_ConstVol::initThermoXML(const XML_Node& phaseNode, std::string& id)
 void PDSS_ConstVol::initThermo()
 {
     PDSS::initThermo();
-    SpeciesThermo& sp = m_tp->speciesThermo();
+    SpeciesThermo<doublereal>& sp = m_tp->speciesThermo();
     m_p0 = sp.refPressure(m_spindex);
     m_V0_ptr[m_spindex] = m_constMolarVolume;
     m_Vss_ptr[m_spindex] = m_constMolarVolume;
