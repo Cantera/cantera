@@ -1418,7 +1418,7 @@ public:
      *
      *  @internal
      */
-    void setSpeciesThermo(SpeciesThermo* spthermo);
+    void setSpeciesThermo(SpeciesThermo<ValAndDerivType>* spthermo);
 
     //! Return a changeable reference to the calculation manager
     //! for species reference-state thermodynamic properties
@@ -1428,7 +1428,7 @@ public:
      *
      * @internal
      */
-    virtual SpeciesThermo& speciesThermo(int k = -1);
+    virtual SpeciesThermo<ValAndDerivType>& speciesThermo(int k = -1);
 
     /**
      * @internal
@@ -1691,7 +1691,7 @@ protected:
      *   This class is called when the reference-state thermodynamic properties
      *   of all the species in the phase needs to be evaluated.
      */
-    SpeciesThermo* m_spthermo;
+    SpeciesThermo<ValAndDerivType> * m_spthermo;
 
     //! Vector of pointers to the species databases.
     /*!

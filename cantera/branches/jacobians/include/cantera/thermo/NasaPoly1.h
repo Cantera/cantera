@@ -1,4 +1,3 @@
-
 /**
  *  @file NasaPoly1.h
  *  Header for a single-species standard state object derived
@@ -9,17 +8,14 @@
  *  This parameterization has one NASA temperature region.
  */
 
-
 #ifndef CT_NASAPOLY1_H
 #define CT_NASAPOLY1_H
 // Copyright 2001  California Institute of Technology
 
-
 #include "cantera/base/global.h"
 #include "SpeciesThermoInterpType.h"
 
-namespace Cantera
-{
+namespace Cantera {
 
 /**
  * The NASA polynomial parameterization for one temperature range.
@@ -47,16 +43,21 @@ namespace Cantera
  * This class is designed specifically for use by class NasaThermo.
  * @ingroup spthermo
  */
-class NasaPoly1 : public SpeciesThermoInterpType
+template<typename ValAndDerivType>
+class NasaPoly1: public SpeciesThermoInterpType<ValAndDerivType>
 {
 
 public:
 
     //! Empty constructor
-    NasaPoly1()
-        : m_lowT(0.0), m_highT(0.0),
-          m_Pref(0.0), m_index(0), m_coeff(7, 0.0) {}
-
+    NasaPoly1() :
+            m_lowT(0.0),
+            m_highT(0.0),
+            m_Pref(0.0),
+            m_index(0),
+            m_coeff(7, 0.0)
+    {
+    }
 
     //! constructor used in templated instantiations
     /*!
@@ -67,13 +68,13 @@ public:
      * @param coeffs       Vector of coefficients used to set the
      *                     parameters for the standard state.
      */
-    NasaPoly1(size_t n, doublereal tlow, doublereal thigh, doublereal pref,
-              const doublereal* coeffs) :
-        m_lowT(tlow),
-        m_highT(thigh),
-        m_Pref(pref),
-        m_index(n),
-        m_coeff(vector_fp(7)) {
+    NasaPoly1(size_t n, doublereal tlow, doublereal thigh, doublereal pref, const doublereal* coeffs) :
+            m_lowT(tlow),
+            m_highT(thigh),
+            m_Pref(pref),
+            m_index(n),
+            m_coeff(vector_fp(7))
+    {
         std::copy(coeffs, coeffs + 7, m_coeff.begin());
     }
 
@@ -81,68 +82,74 @@ public:
     /*!
      * @param b object to be copied
      */
-    NasaPoly1(const NasaPoly1& b) :
-        m_lowT(b.m_lowT),
-        m_highT(b.m_highT),
-        m_Pref(b.m_Pref),
-        m_index(b.m_index),
-        m_coeff(vector_fp(7)) {
-        std::copy(b.m_coeff.begin(),
-                  b.m_coeff.begin() + 7,
-                  m_coeff.begin());
+    NasaPoly1(const NasaPoly1<ValAndDerivType> & b) :
+            m_lowT(b.m_lowT),
+            m_highT(b.m_highT),
+            m_Pref(b.m_Pref),
+            m_index(b.m_index),
+            m_coeff(vector_fp(7))
+    {
+        std::copy(b.m_coeff.begin(), b.m_coeff.begin() + 7, m_coeff.begin());
     }
 
     //! assignment operator
     /*!
      * @param b object to be copied
      */
-    NasaPoly1& operator=(const NasaPoly1& b) {
+    NasaPoly1& operator=(const NasaPoly1<ValAndDerivType> & b)
+    {
         if (&b != this) {
-            m_lowT   = b.m_lowT;
-            m_highT  = b.m_highT;
-            m_Pref   = b.m_Pref;
-            m_index  = b.m_index;
-            std::copy(b.m_coeff.begin(),
-                      b.m_coeff.begin() + 7,
-                      m_coeff.begin());
+            m_lowT = b.m_lowT;
+            m_highT = b.m_highT;
+            m_Pref = b.m_Pref;
+            m_index = b.m_index;
+            std::copy(b.m_coeff.begin(), b.m_coeff.begin() + 7, m_coeff.begin());
         }
         return *this;
     }
 
     //! Destructor
-    virtual ~NasaPoly1() {}
+    virtual ~NasaPoly1()
+    {
+    }
 
     //! duplicator
-    virtual SpeciesThermoInterpType*
-    duplMyselfAsSpeciesThermoInterpType() const {
-        NasaPoly1* np = new NasaPoly1(*this);
-        return (SpeciesThermoInterpType*) np;
+    virtual SpeciesThermoInterpType<ValAndDerivType> *
+    duplMyselfAsSpeciesThermoInterpType() const
+    {
+        NasaPoly1<ValAndDerivType>* np = new NasaPoly1<ValAndDerivType>(*this);
+        return (SpeciesThermoInterpType<ValAndDerivType>*) np;
     }
 
     //! Returns the minimum temperature that the thermo
     //! parameterization is valid
-    virtual doublereal minTemp() const     {
+    virtual doublereal minTemp() const
+    {
         return m_lowT;
     }
 
     //! Returns the maximum temperature that the thermo
     //! parameterization is valid
-    virtual doublereal maxTemp() const     {
+    virtual doublereal maxTemp() const
+    {
         return m_highT;
     }
 
     //! Returns the reference pressure (Pa)
-    virtual doublereal refPressure() const {
+    virtual doublereal refPressure() const
+    {
         return m_Pref;
     }
 
     //! Returns an integer representing the type of parameterization
-    virtual int reportType() const {
+    virtual int reportType() const
+    {
         return NASA1;
     }
 
     //! Returns an integer representing the species index
-    virtual size_t speciesIndex() const {
+    virtual size_t speciesIndex() const
+    {
         return m_index;
     }
 
@@ -169,21 +176,19 @@ public:
      * @param s_R     Vector of Dimensionless entropies.
      *                (length m_kk).
      */
-    virtual void updateProperties(const doublereal* tt,
-                                  doublereal* cp_R, doublereal* h_RT, doublereal* s_R) const {
+    virtual void updateProperties(const doublereal* tt, ValAndDerivType * cp_R, ValAndDerivType* h_RT, ValAndDerivType* s_R) const
+    {
 
-        doublereal ct0 = m_coeff[2];          // a0
-        doublereal ct1 = m_coeff[3]*tt[0];    // a1 * T
-        doublereal ct2 = m_coeff[4]*tt[1];    // a2 * T^2
-        doublereal ct3 = m_coeff[5]*tt[2];    // a3 * T^3
-        doublereal ct4 = m_coeff[6]*tt[3];    // a4 * T^4
+        doublereal ct0 = m_coeff[2]; // a0
+        doublereal ct1 = m_coeff[3] * tt[0]; // a1 * T
+        doublereal ct2 = m_coeff[4] * tt[1]; // a2 * T^2
+        doublereal ct3 = m_coeff[5] * tt[2]; // a3 * T^3
+        doublereal ct4 = m_coeff[6] * tt[3]; // a4 * T^4
 
         doublereal cp, h, s;
         cp = ct0 + ct1 + ct2 + ct3 + ct4;
-        h = ct0 + 0.5*ct1 + OneThird*ct2 + 0.25*ct3 + 0.2*ct4
-            + m_coeff[0]*tt[4];               // last term is a5/T
-        s = ct0*tt[5] + ct1 + 0.5*ct2 + OneThird*ct3
-            +0.25*ct4 + m_coeff[1];           // last term is a6
+        h = ct0 + 0.5 * ct1 + OneThird * ct2 + 0.25 * ct3 + 0.2 * ct4 + m_coeff[0] * tt[4]; // last term is a5/T
+        s = ct0 * tt[5] + ct1 + 0.5 * ct2 + OneThird * ct3 + 0.25 * ct4 + m_coeff[1]; // last term is a6
 
         // return the computed properties in the location in the output
         // arrays for this species
@@ -193,7 +198,6 @@ public:
         //writelog("NASA1: for species "+int2str(m_index)+", h_RT = "+
         //    fp2str(h)+"\n");
     }
-
 
     //! Compute the reference-state property of one species
     /*!
@@ -211,16 +215,16 @@ public:
      * @param s_R     Vector of Dimensionless entropies.
      *                (length m_kk).
      */
-    virtual void updatePropertiesTemp(const doublereal temp,
-                                      doublereal* cp_R, doublereal* h_RT,
-                                      doublereal* s_R) const {
+    virtual void updatePropertiesTemp(const doublereal temp, ValAndDerivType* cp_R, ValAndDerivType* h_RT,
+                                      ValAndDerivType * s_R) const
+    {
         double tPoly[6];
-        tPoly[0]  = temp;
-        tPoly[1]  = temp * temp;
-        tPoly[2]  = tPoly[1] * temp;
-        tPoly[3]  = tPoly[2] * temp;
-        tPoly[4]  = 1.0 / temp;
-        tPoly[5]  = std::log(temp);
+        tPoly[0] = temp;
+        tPoly[1] = temp * temp;
+        tPoly[2] = tPoly[1] * temp;
+        tPoly[3] = tPoly[2] * temp;
+        tPoly[4] = 1.0 / temp;
+        tPoly[5] = std::log(temp);
         updateProperties(tPoly, cp_R, h_RT, s_R);
     }
 
@@ -238,10 +242,9 @@ public:
      * @param coeffs    Vector of coefficients used to set the
      *                  parameters for the standard state.
      */
-    virtual void reportParameters(size_t& n, int& type,
-                                  doublereal& tlow, doublereal& thigh,
-                                  doublereal& pref,
-                                  doublereal* const coeffs) const {
+    virtual void reportParameters(size_t& n, int& type, doublereal& tlow, doublereal& thigh, doublereal& pref,
+                                  doublereal* const coeffs) const
+    {
         n = m_index;
         type = NASA1;
         tlow = m_lowT;
@@ -250,7 +253,7 @@ public:
         coeffs[5] = m_coeff[0];
         coeffs[6] = m_coeff[1];
         for (int i = 2; i < 7; i++) {
-            coeffs[i-2] = m_coeff[i];
+            coeffs[i - 2] = m_coeff[i];
         }
     }
 
@@ -259,33 +262,34 @@ public:
      * @param coeffs   Vector of coefficients used to set the
      *                 parameters for the standard state.
      */
-    virtual void modifyParameters(doublereal* coeffs) {
+    virtual void modifyParameters(doublereal* coeffs)
+    {
         m_coeff[0] = coeffs[5];
         m_coeff[1] = coeffs[6];
         for (int i = 0; i < 5; i++) {
-            m_coeff[i+2] = coeffs[i];
+            m_coeff[i + 2] = coeffs[i];
         }
     }
 
 #ifdef H298MODIFY_CAPABILITY
 
-    virtual doublereal reportHf298(doublereal* const h298 = 0) const {
+    virtual doublereal reportHf298(doublereal* const h298 = 0) const
+    {
         double tt[6];
         double temp = 298.15;
-        tt[0]  = temp;
-        tt[1]  = temp * temp;
-        tt[2]  = tt[1] * temp;
-        tt[3]  = tt[2] * temp;
-        tt[4]  = 1.0 / temp;
+        tt[0] = temp;
+        tt[1] = temp * temp;
+        tt[2] = tt[1] * temp;
+        tt[3] = tt[2] * temp;
+        tt[4] = 1.0 / temp;
         //tt[5]  = std::log(temp);
-        doublereal ct0 = m_coeff[2];          // a0
-        doublereal ct1 = m_coeff[3]*tt[0];    // a1 * T
-        doublereal ct2 = m_coeff[4]*tt[1];    // a2 * T^2
-        doublereal ct3 = m_coeff[5]*tt[2];    // a3 * T^3
-        doublereal ct4 = m_coeff[6]*tt[3];    // a4 * T^4
+        doublereal ct0 = m_coeff[2]; // a0
+        doublereal ct1 = m_coeff[3] * tt[0]; // a1 * T
+        doublereal ct2 = m_coeff[4] * tt[1]; // a2 * T^2
+        doublereal ct3 = m_coeff[5] * tt[2]; // a3 * T^3
+        doublereal ct4 = m_coeff[6] * tt[3]; // a4 * T^4
 
-        double h_RT = ct0 + 0.5*ct1 + OneThird*ct2 + 0.25*ct3 + 0.2*ct4
-                      + m_coeff[0]*tt[4];               // last t
+        double h_RT = ct0 + 0.5 * ct1 + OneThird * ct2 + 0.25 * ct3 + 0.2 * ct4 + m_coeff[0] * tt[4]; // last t
 
         double h = h_RT * GasConstant * temp;
         if (h298) {
@@ -294,7 +298,8 @@ public:
         return h;
     }
 
-    virtual void modifyOneHf298(const size_t &k, const doublereal Hf298New) {
+    virtual void modifyOneHf298(const size_t &k, const doublereal Hf298New)
+    {
         if (k != m_index) {
             return;
         }

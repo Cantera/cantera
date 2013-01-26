@@ -70,7 +70,8 @@ namespace Cantera
 
 
 //! Empty constructor
-Nasa9PolyMultiTempRegion::Nasa9PolyMultiTempRegion() :
+template<typename ValAndDerivType>
+Nasa9PolyMultiTempRegion<ValAndDerivType>::Nasa9PolyMultiTempRegion() :
     m_lowT(0.0),
     m_highT(0.0),
     m_Pref(0.0),
@@ -90,8 +91,9 @@ Nasa9PolyMultiTempRegion::Nasa9PolyMultiTempRegion() :
  *                  represent the reference temperature parameterization
  *                  for a single species.
  */
-Nasa9PolyMultiTempRegion::
-Nasa9PolyMultiTempRegion(std::vector<Cantera::Nasa9Poly1*> &regionPts) :
+template<typename ValAndDerivType>
+Nasa9PolyMultiTempRegion<ValAndDerivType>::
+Nasa9PolyMultiTempRegion(std::vector<Cantera::Nasa9Poly1<ValAndDerivType> * > &regionPts) :
     m_lowT(0.0),
     m_highT(0.0),
     m_Pref(0.0),
@@ -135,8 +137,9 @@ Nasa9PolyMultiTempRegion(std::vector<Cantera::Nasa9Poly1*> &regionPts) :
 /*
  * @param b object to be copied
  */
-Nasa9PolyMultiTempRegion::
-Nasa9PolyMultiTempRegion(const Nasa9PolyMultiTempRegion& b) :
+template<typename ValAndDerivType>
+Nasa9PolyMultiTempRegion<ValAndDerivType>::
+Nasa9PolyMultiTempRegion(const Nasa9PolyMultiTempRegion<ValAndDerivType>& b) :
     m_lowT(b.m_lowT),
     m_highT(b.m_highT),
     m_Pref(b.m_Pref),
@@ -156,8 +159,9 @@ Nasa9PolyMultiTempRegion(const Nasa9PolyMultiTempRegion& b) :
 /*
  * @param b object to be copied
  */
-Nasa9PolyMultiTempRegion&
-Nasa9PolyMultiTempRegion::operator=(const Nasa9PolyMultiTempRegion& b)
+template<typename ValAndDerivType>
+Nasa9PolyMultiTempRegion<ValAndDerivType>&
+Nasa9PolyMultiTempRegion<ValAndDerivType>::operator=(const Nasa9PolyMultiTempRegion<ValAndDerivType>& b)
 {
     if (&b != this) {
         for (size_t i = 0; i < m_numTempRegions; i++) {
@@ -180,7 +184,8 @@ Nasa9PolyMultiTempRegion::operator=(const Nasa9PolyMultiTempRegion& b)
 }
 
 // Destructor
-Nasa9PolyMultiTempRegion::~Nasa9PolyMultiTempRegion()
+template<typename ValAndDerivType>
+Nasa9PolyMultiTempRegion<ValAndDerivType>::~Nasa9PolyMultiTempRegion()
 {
     for (size_t i = 0; i < m_numTempRegions; i++) {
         delete m_regionPts[i];
@@ -189,41 +194,47 @@ Nasa9PolyMultiTempRegion::~Nasa9PolyMultiTempRegion()
 }
 
 // duplicator
-SpeciesThermoInterpType*
-Nasa9PolyMultiTempRegion::duplMyselfAsSpeciesThermoInterpType() const
+template<typename ValAndDerivType>
+SpeciesThermoInterpType<ValAndDerivType> *
+Nasa9PolyMultiTempRegion<ValAndDerivType>::duplMyselfAsSpeciesThermoInterpType() const
 {
-    return new Nasa9PolyMultiTempRegion(*this);
+    return new Nasa9PolyMultiTempRegion<ValAndDerivType>(*this);
 }
 
 // Returns the minimum temperature that the thermo
 // parameterization is valid
-doublereal Nasa9PolyMultiTempRegion::minTemp() const
+template<typename ValAndDerivType>
+doublereal Nasa9PolyMultiTempRegion<ValAndDerivType>::minTemp() const
 {
     return m_lowT;
 }
 
 // Returns the maximum temperature that the thermo
 // parameterization is valid
-doublereal Nasa9PolyMultiTempRegion::maxTemp() const
+template<typename ValAndDerivType>
+doublereal Nasa9PolyMultiTempRegion<ValAndDerivType>::maxTemp() const
 {
     return m_highT;
 }
 
 // Returns the reference pressure (Pa)
-doublereal Nasa9PolyMultiTempRegion::refPressure() const
+template<typename ValAndDerivType>
+doublereal Nasa9PolyMultiTempRegion<ValAndDerivType>::refPressure() const
 {
     return m_Pref;
 }
 
 // Returns an integer representing the type of parameterization
-int Nasa9PolyMultiTempRegion::reportType() const
+template<typename ValAndDerivType>
+int Nasa9PolyMultiTempRegion<ValAndDerivType>::reportType() const
 {
     return NASA9MULTITEMP;
 }
 
 
 // Returns an integer representing the species index
-size_t Nasa9PolyMultiTempRegion::speciesIndex() const
+template<typename ValAndDerivType>
+size_t Nasa9PolyMultiTempRegion<ValAndDerivType>::speciesIndex() const
 {
     return m_index;
 }
@@ -253,10 +264,11 @@ size_t Nasa9PolyMultiTempRegion::speciesIndex() const
  * @param s_R     Vector of Dimensionless entropies.
  *                (length m_kk).
  */
-void Nasa9PolyMultiTempRegion::updateProperties(const doublereal* tt,
-        doublereal* cp_R,
-        doublereal* h_RT,
-        doublereal* s_R) const
+template<typename ValAndDerivType>
+void Nasa9PolyMultiTempRegion<ValAndDerivType>::updateProperties(const doublereal* tt,
+        ValAndDerivType* cp_R,
+        ValAndDerivType* h_RT,
+        ValAndDerivType* s_R) const
 {
     // Let's put some additional debugging here.
     // This is an external routine
@@ -304,9 +316,10 @@ void Nasa9PolyMultiTempRegion::updateProperties(const doublereal* tt,
  * @param s_R     Vector of Dimensionless entropies.
  *                (length m_kk).
  */
-void Nasa9PolyMultiTempRegion::updatePropertiesTemp(const doublereal temp,
-        doublereal* cp_R, doublereal* h_RT,
-        doublereal* s_R) const
+template<typename ValAndDerivType>
+void Nasa9PolyMultiTempRegion<ValAndDerivType>::updatePropertiesTemp(const doublereal temp,
+        ValAndDerivType* cp_R, ValAndDerivType* h_RT,
+        ValAndDerivType* s_R) const
 {
     double tPoly[7];
     tPoly[0]  = temp;
@@ -342,7 +355,8 @@ void Nasa9PolyMultiTempRegion::updatePropertiesTemp(const doublereal temp,
  * @param coeffs    Vector of coefficients used to set the
  *                  parameters for the standard state.
  */
-void Nasa9PolyMultiTempRegion::reportParameters(size_t& n, int& type,
+template<typename ValAndDerivType>
+void Nasa9PolyMultiTempRegion<ValAndDerivType>::reportParameters(size_t& n, int& type,
         doublereal& tlow, doublereal& thigh,
         doublereal& pref,
         doublereal* const coeffs) const
@@ -375,7 +389,8 @@ void Nasa9PolyMultiTempRegion::reportParameters(size_t& n, int& type,
  * @param coeffs   Vector of coefficients used to set the
  *                 parameters for the standard state.
  */
-void Nasa9PolyMultiTempRegion::modifyParameters(doublereal* coeffs)
+template<typename ValAndDerivType>
+void Nasa9PolyMultiTempRegion<ValAndDerivType>::modifyParameters(doublereal* coeffs)
 {
     int index = 3;
     for (size_t iReg = 0; iReg < m_numTempRegions; iReg++) {

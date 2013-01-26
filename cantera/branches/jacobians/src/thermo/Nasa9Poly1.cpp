@@ -10,12 +10,9 @@
  *  This parameterization has one NASA temperature region.
  */
 // Copyright 2007  Sandia National Laboratories
-
 #include "cantera/thermo/Nasa9Poly1.h"
 
-namespace Cantera
-{
-
+namespace Cantera {
 
 // The NASA 9 polynomial parameterization for one temperature range.
 /*
@@ -60,12 +57,16 @@ namespace Cantera
  * @ingroup spthermo
  */
 
-
 //! Empty constructor
-Nasa9Poly1::Nasa9Poly1()
-    : m_lowT(0.0), m_highT(0.0),
-      m_Pref(1.0E5), m_index(0), m_coeff(vector_fp(9)) {}
-
+template<typename ValAndDerivType>
+Nasa9Poly1<ValAndDerivType>::Nasa9Poly1() :
+        m_lowT(0.0),
+        m_highT(0.0),
+        m_Pref(1.0E5),
+        m_index(0),
+        m_coeff(vector_fp(9))
+{
+}
 
 // constructor used in templated instantiations
 /*
@@ -76,14 +77,13 @@ Nasa9Poly1::Nasa9Poly1()
  * @param coeffs       Vector of coefficients used to set the
  *                     parameters for the standard state.
  */
-Nasa9Poly1::Nasa9Poly1(size_t n, doublereal tlow, doublereal thigh,
-                       doublereal pref,
-                       const doublereal* coeffs) :
-    m_lowT(tlow),
-    m_highT(thigh),
-    m_Pref(pref),
-    m_index(n),
-    m_coeff(vector_fp(9))
+template<typename ValAndDerivType>
+Nasa9Poly1<ValAndDerivType>::Nasa9Poly1(size_t n, doublereal tlow, doublereal thigh, doublereal pref, const doublereal* coeffs) :
+        m_lowT(tlow),
+        m_highT(thigh),
+        m_Pref(pref),
+        m_index(n),
+        m_coeff(vector_fp(9))
 {
     std::copy(coeffs, coeffs + 9, m_coeff.begin());
 }
@@ -92,76 +92,81 @@ Nasa9Poly1::Nasa9Poly1(size_t n, doublereal tlow, doublereal thigh,
 /*
  * @param b object to be copied
  */
-Nasa9Poly1::Nasa9Poly1(const Nasa9Poly1& b) :
-    m_lowT(b.m_lowT),
-    m_highT(b.m_highT),
-    m_Pref(b.m_Pref),
-    m_index(b.m_index),
-    m_coeff(vector_fp(9))
+template<typename ValAndDerivType>
+Nasa9Poly1<ValAndDerivType>::Nasa9Poly1(const Nasa9Poly1& b) :
+        m_lowT(b.m_lowT),
+        m_highT(b.m_highT),
+        m_Pref(b.m_Pref),
+        m_index(b.m_index),
+        m_coeff(vector_fp(9))
 {
-    std::copy(b.m_coeff.begin(),
-              b.m_coeff.begin() + 9,
-              m_coeff.begin());
+    std::copy(b.m_coeff.begin(), b.m_coeff.begin() + 9, m_coeff.begin());
 }
 
 // assignment operator
 /*
  * @param b object to be copied
  */
-Nasa9Poly1& Nasa9Poly1::operator=(const Nasa9Poly1& b)
+template<typename ValAndDerivType>
+Nasa9Poly1<ValAndDerivType>& Nasa9Poly1<ValAndDerivType>::operator=(const Nasa9Poly1<ValAndDerivType>& b)
 {
     if (&b != this) {
-        m_lowT   = b.m_lowT;
-        m_highT  = b.m_highT;
-        m_Pref   = b.m_Pref;
-        m_index  = b.m_index;
-        std::copy(b.m_coeff.begin(),
-                  b.m_coeff.begin() + 9,
-                  m_coeff.begin());
+        m_lowT = b.m_lowT;
+        m_highT = b.m_highT;
+        m_Pref = b.m_Pref;
+        m_index = b.m_index;
+        std::copy(b.m_coeff.begin(), b.m_coeff.begin() + 9, m_coeff.begin());
     }
     return *this;
 }
 
 // Destructor
-Nasa9Poly1::~Nasa9Poly1()
+template<typename ValAndDerivType>
+Nasa9Poly1<ValAndDerivType>::~Nasa9Poly1()
 {
 }
 
 // duplicator
-SpeciesThermoInterpType*
-Nasa9Poly1::duplMyselfAsSpeciesThermoInterpType() const
+template<typename ValAndDerivType>
+SpeciesThermoInterpType<ValAndDerivType>*
+Nasa9Poly1<ValAndDerivType>::duplMyselfAsSpeciesThermoInterpType() const
 {
-    return new Nasa9Poly1(*this);
+    return new Nasa9Poly1<ValAndDerivType>(*this);
 }
 
 // Returns the minimum temperature that the thermo
 // parameterization is valid
-doublereal Nasa9Poly1::minTemp() const
+template<typename ValAndDerivType>
+doublereal Nasa9Poly1<ValAndDerivType>::minTemp() const
 {
     return m_lowT;
 }
 
 // Returns the maximum temperature that the thermo
 // parameterization is valid
-doublereal Nasa9Poly1::maxTemp() const
+template<typename ValAndDerivType>
+doublereal Nasa9Poly1<ValAndDerivType>::maxTemp() const
 {
     return m_highT;
 }
 
 // Returns the reference pressure (Pa)
-doublereal Nasa9Poly1::refPressure() const
+template<typename ValAndDerivType>
+doublereal Nasa9Poly1<ValAndDerivType>::refPressure() const
 {
     return m_Pref;
 }
 
 // Returns an integer representing the type of parameterization
-int Nasa9Poly1::reportType() const
+template<typename ValAndDerivType>
+int Nasa9Poly1<ValAndDerivType>::reportType() const
 {
     return NASA9;
 }
 
 // Returns an integer representing the species index
-size_t Nasa9Poly1::speciesIndex() const
+template<typename ValAndDerivType>
+size_t Nasa9Poly1<ValAndDerivType>::speciesIndex() const
 {
     return m_index;
 }
@@ -190,25 +195,21 @@ size_t Nasa9Poly1::speciesIndex() const
  * @param s_R     Vector of Dimensionless entropies.
  *                (length m_kk).
  */
-void Nasa9Poly1::updateProperties(const doublereal* tt,
-                                  doublereal* cp_R, doublereal* h_RT,
-                                  doublereal* s_R) const
+template<typename ValAndDerivType>
+void Nasa9Poly1<ValAndDerivType>::updateProperties(const doublereal* tt, ValAndDerivType* cp_R, ValAndDerivType* h_RT, ValAndDerivType* s_R) const
 {
 
-    doublereal ct0 = m_coeff[0] * tt[5];   // a0 / (T^2)
-    doublereal ct1 = m_coeff[1] * tt[4];   // a1 / T
-    doublereal ct2 = m_coeff[2];           // a2
-    doublereal ct3 = m_coeff[3] * tt[0];   // a3 * T
-    doublereal ct4 = m_coeff[4] * tt[1];   // a4 * T^2
-    doublereal ct5 = m_coeff[5] * tt[2];   // a5 * T^3
-    doublereal ct6 = m_coeff[6] * tt[3];   // a6 * T^4
-
+    doublereal ct0 = m_coeff[0] * tt[5]; // a0 / (T^2)
+    doublereal ct1 = m_coeff[1] * tt[4]; // a1 / T
+    doublereal ct2 = m_coeff[2]; // a2
+    doublereal ct3 = m_coeff[3] * tt[0]; // a3 * T
+    doublereal ct4 = m_coeff[4] * tt[1]; // a4 * T^2
+    doublereal ct5 = m_coeff[5] * tt[2]; // a5 * T^3
+    doublereal ct6 = m_coeff[6] * tt[3]; // a6 * T^4
 
     doublereal cpdivR = ct0 + ct1 + ct2 + ct3 + ct4 + ct5 + ct6;
-    doublereal hdivRT = -ct0 + tt[6]*ct1  + ct2 + 0.5*ct3 + OneThird*ct4
-                        + 0.25*ct5  + 0.2*ct6 + m_coeff[7] * tt[4];
-    doublereal sdivR  = -0.5*ct0  - ct1 + tt[6]*ct2  + ct3  + 0.5*ct4
-                        + OneThird*ct5 + 0.25*ct6 + m_coeff[8];
+    doublereal hdivRT = -ct0 + tt[6] * ct1 + ct2 + 0.5 * ct3 + OneThird * ct4 + 0.25 * ct5 + 0.2 * ct6 + m_coeff[7] * tt[4];
+    doublereal sdivR = -0.5 * ct0 - ct1 + tt[6] * ct2 + ct3 + 0.5 * ct4 + OneThird * ct5 + 0.25 * ct6 + m_coeff[8];
 
     // return the computed properties in the location in the output
     // arrays for this species
@@ -218,7 +219,6 @@ void Nasa9Poly1::updateProperties(const doublereal* tt,
     //writelog("NASA9poly1: for species "+int2str(m_index)+", h_RT = "+
     //    fp2str(h)+"\n");
 }
-
 
 // Compute the reference-state property of one species
 /*
@@ -245,18 +245,18 @@ void Nasa9Poly1::updateProperties(const doublereal* tt,
  * @param s_R     Vector of Dimensionless entropies.
  *                (length m_kk).
  */
-void Nasa9Poly1::updatePropertiesTemp(const doublereal temp,
-                                      doublereal* cp_R, doublereal* h_RT,
-                                      doublereal* s_R) const
+template<typename ValAndDerivType>
+void Nasa9Poly1<ValAndDerivType>::updatePropertiesTemp(const doublereal temp, ValAndDerivType* cp_R, ValAndDerivType* h_RT,
+        ValAndDerivType* s_R) const
 {
     double tPoly[7];
-    tPoly[0]  = temp;
-    tPoly[1]  = temp * temp;
-    tPoly[2]  = tPoly[1] * temp;
-    tPoly[3]  = tPoly[2] * temp;
-    tPoly[4]  = 1.0 / temp;
-    tPoly[5]  = tPoly[4] / temp;
-    tPoly[6]  = std::log(temp);
+    tPoly[0] = temp;
+    tPoly[1] = temp * temp;
+    tPoly[2] = tPoly[1] * temp;
+    tPoly[3] = tPoly[2] * temp;
+    tPoly[4] = 1.0 / temp;
+    tPoly[5] = tPoly[4] / temp;
+    tPoly[6] = std::log(temp);
     updateProperties(tPoly, cp_R, h_RT, s_R);
 }
 
@@ -274,10 +274,9 @@ void Nasa9Poly1::updatePropertiesTemp(const doublereal temp,
  * @param coeffs    Vector of coefficients used to set the
  *                  parameters for the standard state.
  */
-void Nasa9Poly1::reportParameters(size_t& n, int& type,
-                                  doublereal& tlow, doublereal& thigh,
-                                  doublereal& pref,
-                                  doublereal* const coeffs) const
+template<typename ValAndDerivType>
+void Nasa9Poly1<ValAndDerivType>::reportParameters(size_t& n, int& type, doublereal& tlow, doublereal& thigh, doublereal& pref,
+                                                   doublereal* const coeffs) const
 {
     n = m_index;
     type = NASA9;
@@ -288,7 +287,7 @@ void Nasa9Poly1::reportParameters(size_t& n, int& type,
     coeffs[1] = m_lowT;
     coeffs[2] = m_highT;
     for (int i = 0; i < 9; i++) {
-        coeffs[i+3] = m_coeff[i];
+        coeffs[i + 3] = m_coeff[i];
     }
 
 }
@@ -298,13 +297,13 @@ void Nasa9Poly1::reportParameters(size_t& n, int& type,
  * @param coeffs   Vector of coefficients used to set the
  *                 parameters for the standard state.
  */
-void Nasa9Poly1::modifyParameters(doublereal* coeffs)
+template<typename ValAndDerivType>
+void Nasa9Poly1<ValAndDerivType>::modifyParameters(doublereal* coeffs)
 {
     for (int i = 0; i < 9; i++) {
         m_coeff[i] = coeffs[i];
     }
 }
-
 
 }
 

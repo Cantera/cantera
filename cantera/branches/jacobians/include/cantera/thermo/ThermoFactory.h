@@ -297,7 +297,7 @@ bool importPhase(XML_Node& phase, ThermoPhase<ValAndDerivType> * th, SpeciesTher
  */
 template <typename ValAndDerivType>
 bool installSpecies(size_t k, const XML_Node& s, thermo_t& p,
-                    SpeciesThermo* spthermo_ptr, int rule,
+                    SpeciesThermo<ValAndDerivType> * spthermo_ptr, int rule,
                     XML_Node* phaseNode_ptr = 0,
                     VPSSMgr* vpss_ptr = 0,
                     SpeciesThermoFactory<ValAndDerivType>* factory = 0);

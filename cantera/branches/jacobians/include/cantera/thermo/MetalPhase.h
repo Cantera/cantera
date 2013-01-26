@@ -20,7 +20,7 @@ namespace Cantera
  * Class MetalPhase represents electrons in a metal.
  *
  */
-class MetalPhase : public ThermoPhase
+class MetalPhase : public thermo_t
 {
 
 public:
@@ -33,7 +33,7 @@ public:
 
     MetalPhase& operator=(const MetalPhase& right) {
         if (&right != this) {
-            ThermoPhase::operator=(right);
+            thermo_t::operator=(right);
             m_press = right.m_press;
         }
         return *this;
@@ -42,9 +42,9 @@ public:
     virtual ~MetalPhase() {}
 
     //! Duplicator
-    virtual ThermoPhase* duplMyselfAsThermoPhase() const {
+    virtual thermo_t* duplMyselfAsThermoPhase() const {
         MetalPhase* idg = new MetalPhase(*this);
-        return (ThermoPhase*) idg;
+        return (thermo_t*) idg;
     }
 
     // Overloaded methods of class ThermoPhase

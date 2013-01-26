@@ -48,7 +48,8 @@ namespace Cantera
  *
  * @ingroup spthermo
  */
-class NasaPoly2 : public SpeciesThermoInterpType
+template<typename ValAndDerivType>
+class NasaPoly2 : public SpeciesThermoInterpType<ValAndDerivType>
 {
 
 public:
@@ -123,10 +124,10 @@ public:
     virtual ~NasaPoly2() { }
 
     //! duplicator
-    virtual SpeciesThermoInterpType*
+    virtual SpeciesThermoInterpType<ValAndDerivType>*
     duplMyselfAsSpeciesThermoInterpType() const {
-        NasaPoly2* np = new NasaPoly2(*this);
-        return (SpeciesThermoInterpType*) np;
+        NasaPoly2<ValAndDerivType>* np = new NasaPoly2<ValAndDerivType>(*this);
+        return (SpeciesThermoInterpType<ValAndDerivType>*) np;
     }
 
     //! Returns the minimum temperature that the thermo
@@ -181,7 +182,7 @@ public:
      *                (length m_kk).
      */
     void updateProperties(const doublereal* tt,
-                          doublereal* cp_R, doublereal* h_RT, doublereal* s_R) const {
+                          ValAndDerivType* cp_R, ValAndDerivType* h_RT, ValAndDerivType* s_R) const {
 
         double T = tt[0];
         if (T <= m_midT) {
@@ -208,9 +209,9 @@ public:
      *                (length m_kk).
      */
     void updatePropertiesTemp(const doublereal temp,
-                              doublereal* cp_R,
-                              doublereal* h_RT,
-                              doublereal* s_R) const {
+                              ValAndDerivType* cp_R,
+                              ValAndDerivType* h_RT,
+                              ValAndDerivType* s_R) const {
         if (temp <= m_midT) {
             mnp_low.updatePropertiesTemp(temp, cp_R, h_RT, s_R);
         } else {
@@ -288,9 +289,9 @@ protected:
     //! Reference state pressure
     doublereal m_Pref;
     //! NasaPoly1 object for the low temperature region.
-    NasaPoly1 mnp_low;
+    NasaPoly1<ValAndDerivType> mnp_low;
     //! NasaPoly1 object for the high temperature region.
-    NasaPoly1 mnp_high;
+    NasaPoly1<ValAndDerivType> mnp_high;
     //! species index
     size_t m_index;
     //! array of polynomial coefficients

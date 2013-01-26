@@ -45,7 +45,8 @@ namespace Cantera
  *
  * @ingroup spthermo
  */
-class ConstCpPoly: public SpeciesThermoInterpType
+template <typename ValAndDerivType>
+class ConstCpPoly: public SpeciesThermoInterpType<ValAndDerivType>
 {
 
 public:
@@ -73,16 +74,16 @@ public:
                 const doublereal* coeffs);
 
     //! copy constructor
-    ConstCpPoly(const ConstCpPoly&);
+    ConstCpPoly(const ConstCpPoly<ValAndDerivType> &);
 
     //! Assignment operator
-    ConstCpPoly& operator=(const ConstCpPoly&);
+    ConstCpPoly& operator=(const ConstCpPoly<ValAndDerivType> &);
 
     //! Destructor
     virtual ~ConstCpPoly();
 
     //! Duplicator
-    virtual SpeciesThermoInterpType*
+    virtual SpeciesThermoInterpType<ValAndDerivType>*
     duplMyselfAsSpeciesThermoInterpType() const;
     //! Returns the minimum temperature that the thermo
     //! parameterization is valid

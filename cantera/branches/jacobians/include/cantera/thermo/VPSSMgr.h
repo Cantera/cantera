@@ -21,10 +21,10 @@
 namespace Cantera
 {
 
-class SpeciesThermoInterpType;
+template<typename ValAndDerivType> class SpeciesThermoInterpType;
 class VPStandardStateTP;
 class XML_Node;
-class SpeciesThermo;
+template<typename ValAndDerivType> class SpeciesThermo;
 class PDSS;
 /**
  * @defgroup mgrpdssthermocalc Managers for Calculating Standard-State Thermodynamics
@@ -273,7 +273,7 @@ public:
      *                 that will handle the calculation of the reference
      *                 state thermodynamic coefficients.
      */
-    VPSSMgr(VPStandardStateTP* vptp_ptr, SpeciesThermo* spth = 0);
+    VPSSMgr(VPStandardStateTP* vptp_ptr, SpeciesThermo<doublereal>* spth = 0);
 
     //! Destructor
     virtual ~VPSSMgr();
@@ -562,7 +562,7 @@ public:
 
     //! Return the pointer to the reference-state Thermo calculator
     //! SpeciesThermo object.
-    SpeciesThermo* SpeciesThermoMgr() {
+    SpeciesThermo<doublereal>* SpeciesThermoMgr() {
         return m_spthermo;
     }
 
@@ -778,7 +778,7 @@ public:
      *  @param vp_ptr   Pointer to the VPStandardStateTP standard state
      *  @param sp_ptr   Pointer to the SpeciesThermo standard state
      */
-    virtual void initAllPtrs(VPStandardStateTP* vp_ptr, SpeciesThermo* sp_ptr);
+    virtual void initAllPtrs(VPStandardStateTP* vp_ptr, SpeciesThermo<doublereal>* sp_ptr);
 
 protected:
 
@@ -792,7 +792,7 @@ protected:
     /*!
      * Note, this can have a value of 0
      */
-    SpeciesThermo* m_spthermo;
+    SpeciesThermo<doublereal>* m_spthermo;
 
     //! The last temperature at which the standard state thermodynamic
     //! properties were calculated at.

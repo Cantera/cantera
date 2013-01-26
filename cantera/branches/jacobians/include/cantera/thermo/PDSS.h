@@ -172,7 +172,7 @@ namespace Cantera
  */
 
 class XML_Node;
-class SpeciesThermo;
+template<typename ValAndDerivType> class SpeciesThermo;
 class VPStandardStateTP;
 class VPSSMgr;
 
@@ -651,7 +651,7 @@ public:
      *                       state thermodynamic coefficients.
      */
     virtual void initAllPtrs(VPStandardStateTP* vptp_ptr, VPSSMgr* vpssmgr_ptr,
-                             SpeciesThermo* spthermo_ptr);
+                             SpeciesThermo<doublereal>* spthermo_ptr);
 
     //@}
 
@@ -704,7 +704,7 @@ protected:
      * or doesn't control the calculation, this will be
      * set to zero.
      */
-    SpeciesThermo* m_spthermo;
+    SpeciesThermo<doublereal>* m_spthermo;
 
     //!  Reference state enthalpy divided by RT.
     /*!

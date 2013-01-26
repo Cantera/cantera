@@ -11,7 +11,9 @@
 #include "cantera/thermo/Elements.h"
 
 namespace Cantera {
-class SpeciesThermo;
+
+
+template<typename ValAndDerivType > class SpeciesThermo;
 
 /**
  * @defgroup phases Models of Phases of Matter

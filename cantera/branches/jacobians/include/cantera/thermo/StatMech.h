@@ -25,7 +25,8 @@ namespace Cantera
 /*!
  * @ingroup spthermo
  */
-class StatMech : public SpeciesThermoInterpType
+template<typename ValAndDerivType>
+class StatMech : public SpeciesThermoInterpType<ValAndDerivType>
 {
 
 public:
@@ -62,7 +63,7 @@ public:
     virtual ~StatMech();
 
     //! duplicator
-    virtual SpeciesThermoInterpType*
+    virtual SpeciesThermoInterpType<ValAndDerivType>*
     duplMyselfAsSpeciesThermoInterpType() const;
 
     //! Returns the minimum temperature that the thermo
@@ -110,7 +111,7 @@ public:
      *                (length m_kk).
      */
     virtual void updateProperties(const doublereal* tt,
-                                  doublereal* cp_R, doublereal* h_RT, doublereal* s_R) const;
+                                  ValAndDerivType* cp_R, ValAndDerivType* h_RT, ValAndDerivType* s_R) const;
 
 
     //! Compute the reference-state property of one species
@@ -139,8 +140,8 @@ public:
      *                (length m_kk).
      */
     virtual void updatePropertiesTemp(const doublereal temp,
-                                      doublereal* cp_R, doublereal* h_RT,
-                                      doublereal* s_R) const;
+                                      ValAndDerivType* cp_R, ValAndDerivType* h_RT,
+                                      ValAndDerivType* s_R) const;
 
     //!This utility function reports back the type of
     //! parameterization and all of the parameters for the

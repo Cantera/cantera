@@ -895,20 +895,21 @@ SpeciesThermo* newSpeciesThermoMgr(std::string& stype, SpeciesThermoFactory<ValA
  *  These functions allow using a different factory class that
  *  derives from SpeciesThermoFactory.
  *
- * @param spData_nodes Vector of XML_Nodes, each of which is a speciesData XML Node.
- *                     Each %speciesData node contains a list of XML species elements
- *                      e.g., \<speciesData id="Species_Data"\>
+ *
+ *  @param species nodes This vector contains a list
+ *                        of species XML nodes that will be in the phase
+ *
  * @param f            Pointer to a SpeciesThermoFactory. optional parameter.
  *                     Defaults to NULL.
  * @param opt          Boolean defaults to false.
  */
 template<typename ValAndDerivType>
-SpeciesThermo* newSpeciesThermoMgr(std::vector<XML_Node*> spData_nodes, SpeciesThermoFactory<ValAndDerivType>* f)
+SpeciesThermo* newSpeciesThermoMgr(std::vector<XML_Node*> species_nodes, SpeciesThermoFactory<ValAndDerivType>* f)
 {
     if (f == 0) {
         f = SpeciesThermoFactory<ValAndDerivType>::factory();
     }
-    return f->newSpeciesThermo(spData_nodes);
+    return f->newSpeciesThermo(species_nodes);
 }
 
 }

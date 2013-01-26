@@ -12,7 +12,7 @@
 
 namespace Cantera
 {
-class SpeciesThermo;
+template<typename ValAndDerivType> class SpeciesThermo;
 class XML_Node;
 
 //!  The %Mu0Poly class implements an interpolation of the Gibbs free energy based on a
@@ -68,7 +68,8 @@ class XML_Node;
  *
  * @ingroup spthermo
  */
-class Mu0Poly: public SpeciesThermoInterpType
+template<typename ValAndDerivType>
+class Mu0Poly: public SpeciesThermoInterpType<ValAndDerivType>
 {
 
 public:
@@ -116,7 +117,7 @@ public:
     virtual ~Mu0Poly();
 
     //! Duplicator
-    virtual SpeciesThermoInterpType*
+    virtual SpeciesThermoInterpType<ValAndDerivType>*
     duplMyselfAsSpeciesThermoInterpType() const;
 
     //! Returns the minimum temperature that the thermo
@@ -160,8 +161,8 @@ public:
      *                (length m_kk).
      */
     virtual void updateProperties(const doublereal* tPoly,
-                                  doublereal* cp_R, doublereal* h_RT,
-                                  doublereal* s_R) const ;
+                                  ValAndDerivType* cp_R, ValAndDerivType* h_RT,
+                                  ValAndDerivType* s_R) const ;
 
     //! Compute the reference-state property of one species
     /*!
@@ -180,9 +181,9 @@ public:
      *                (length m_kk).
      */
     virtual void updatePropertiesTemp(const doublereal temp,
-                                      doublereal* cp_R,
-                                      doublereal* h_RT,
-                                      doublereal* s_R) const ;
+                                      ValAndDerivType* cp_R,
+                                      ValAndDerivType* h_RT,
+                                      ValAndDerivType* s_R) const ;
 
     //!This utility function reports back the type of
     //! parameterization and all of the parameters for the
@@ -297,8 +298,9 @@ private:
  *
  *  @ingroup spthermo
  */
+template<typename ValAndDerivType>
 void installMu0ThermoFromXML(const std::string& speciesName,
-                             SpeciesThermo& sp, size_t k,
+                             SpeciesThermo<ValAndDerivType>& sp, size_t k,
                              const XML_Node* Mu0Node_ptr);
 }
 

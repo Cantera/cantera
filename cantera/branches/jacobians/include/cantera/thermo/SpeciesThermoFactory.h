@@ -6,7 +6,6 @@
  *     \link Cantera::SpeciesThermoFactory SpeciesThermoFactory\endlink);
  */
 // Copyright 2001  California Institute of Technology
-
 #ifndef SPECIESTHERMO_FACTORY_H
 #define SPECIESTHERMO_FACTORY_H
 
@@ -15,8 +14,7 @@
 #include "cantera/base/FactoryBase.h"
 #include "cantera/base/ct_thread.h"
 
-namespace Cantera
-{
+namespace Cantera {
 
 class XML_Node;
 class VPStandardStateTP;
@@ -37,14 +35,16 @@ public:
      * @param spName Species Name that caused the error
      * @param speciesThermoModel Unrecognized species thermo model name
      */
-    UnknownSpeciesThermoModel(const std::string& proc, const std::string& spName,
-                              const std::string& speciesThermoModel) :
-        CanteraError(proc, "species " + spName +
-                     ": Specified speciesThermoPhase model "
-                     + speciesThermoModel +
-                     " does not match any known type.") {}
+    UnknownSpeciesThermoModel(const std::string& proc, const std::string& spName, const std::string& speciesThermoModel) :
+            CanteraError(proc,
+                    "species " + spName + ": Specified speciesThermoPhase model " + speciesThermoModel
+                            + " does not match any known type.")
+    {
+    }
     //! destructor
-    virtual ~UnknownSpeciesThermoModel() throw() {}
+    virtual ~UnknownSpeciesThermoModel() throw ()
+    {
+    }
 };
 
 //! Factory to build instances of classes that manage the
@@ -116,7 +116,7 @@ public:
      *                          species property manager for the reference
      *                          state
      */
-    SpeciesThermo* newSpeciesThermo(int type) const;
+    SpeciesThermo<ValAndDerivType> * newSpeciesThermo(int type) const;
 
     //! Create a new species thermo property manager given a string
     /*!
@@ -130,7 +130,7 @@ public:
      *                          species property manager for the reference
      *                          state
      */
-    SpeciesThermo* newSpeciesThermoManager(std::string& stype) const;
+    SpeciesThermo<ValAndDerivType>* newSpeciesThermoManager(std::string& stype) const;
 
     //! Create a new species property manager for the reference
     //! state for a group of species
@@ -146,7 +146,7 @@ public:
      *                          species property manager for the reference
      *                          state
      */
-    SpeciesThermo* newSpeciesThermo(std::vector<XML_Node*> & spDataNodeList) const;
+    SpeciesThermo<ValAndDerivType>* newSpeciesThermo(std::vector<XML_Node*> & spDataNodeList) const;
 
     //! Install a species thermodynamic property parameterization
     //! for the reference state for one species into a species thermo manager.
@@ -161,9 +161,8 @@ public:
      *                      resides
      */
 
-    void installThermoForSpecies(size_t k, const XML_Node& speciesNode,
-                                 ThermoPhase<ValAndDerivType> * th_ptr, SpeciesThermo& spthermo,
-                                 const XML_Node* phaseNode_ptr = 0) const;
+    void installThermoForSpecies(size_t k, const XML_Node& speciesNode, ThermoPhase<ValAndDerivType> * th_ptr,
+                                 SpeciesThermo<ValAndDerivType>& spthermo, const XML_Node* phaseNode_ptr = 0) const;
 
     //! Install a species thermodynamic property parameterization
     //! for the standard state for one species into a species thermo manager, VPSSMgr
@@ -185,11 +184,8 @@ public:
      *                      information for the phase in which the species
      *                      resides
      */
-    void installVPThermoForSpecies(size_t k, const XML_Node& speciesNode,
-                                   VPStandardStateTP* vp_ptr,
-                                   VPSSMgr* vpss_ptr,
-                                   SpeciesThermo * spthermo_ptr,
-                                   const XML_Node* phaseNode_ptr) const;
+    void installVPThermoForSpecies(size_t k, const XML_Node& speciesNode, VPStandardStateTP* vp_ptr, VPSSMgr* vpss_ptr,
+                                   SpeciesThermo<ValAndDerivType> * spthermo_ptr, const XML_Node* phaseNode_ptr) const;
 
 private:
 
@@ -201,9 +197,10 @@ private:
 
     //! Constructor. This is made private, so that only the static
     //! method factory() can instantiate the class.
-    SpeciesThermoFactory() {}
+    SpeciesThermoFactory()
+    {
+    }
 };
-
 
 ////////////////////// Convenience functions ////////////////////
 //
@@ -211,7 +208,6 @@ private:
 //  derives from SpeciesThermoFactory.
 //
 //////////////////////////////////////////////////////////////////
-
 
 //! Create a new species thermo manager instance, by specifying
 //!the type and (optionally) a pointer to the factory to use to create it.
@@ -228,7 +224,7 @@ private:
  *                     Defaults to NULL.
  */
 template<typename ValAndDerivType>
-SpeciesThermo* newSpeciesThermoMgr(int type, SpeciesThermoFactory<ValAndDerivType>* f=0);
+SpeciesThermo<ValAndDerivType>* newSpeciesThermoMgr(int type, SpeciesThermoFactory<ValAndDerivType>* f = 0);
 
 //! Create a new species thermo manager instance, by specifying
 //!the type and (optionally) a pointer to the factory to use to create it.
@@ -245,8 +241,7 @@ SpeciesThermo* newSpeciesThermoMgr(int type, SpeciesThermoFactory<ValAndDerivTyp
  *                    Defaults to NULL.
  */
 template<typename ValAndDerivType>
-SpeciesThermo* newSpeciesThermoMgr(std::string& stype,
-                                   SpeciesThermoFactory<ValAndDerivType>* f=0);
+SpeciesThermo<ValAndDerivType>* newSpeciesThermoMgr(std::string& stype, SpeciesThermoFactory<ValAndDerivType>* f = 0);
 
 //! Function to return SpeciesThermo manager
 /*!
@@ -260,15 +255,14 @@ SpeciesThermo* newSpeciesThermoMgr(std::string& stype,
  *  @param spDataNodeList This vector contains a list
  *                        of species XML nodes that will be in the phase
  *
- * @param f            Pointer to a SpeciesThermoFactory. optional parameter.
- *                    Defaults to NULL.
+ *  @param f            Pointer to a SpeciesThermoFactory. optional parameter.
+ *                      Defaults to NULL.
  */
 template<typename ValAndDerivType>
-SpeciesThermo* newSpeciesThermoMgr(std::vector<XML_Node*> spDataNodeList,
-                                   SpeciesThermoFactory<ValAndDerivType>* f=0);
+SpeciesThermo<ValAndDerivType>* newSpeciesThermoMgr(std::vector<XML_Node*> spDataNodeList,
+                                                    SpeciesThermoFactory<ValAndDerivType>* f = 0);
 
 }
 
 #endif
-
 

@@ -465,7 +465,7 @@ void LatticeSolidPhase::installSlavePhases(Cantera::XML_Node* phaseNode)
     size_t kk = 0;
     size_t kstart = 0;
     SpeciesThermoFactory<doublereal> * spFactory = SpeciesThermoFactory<doublereal>::factory();
-    SpeciesThermo* spthermo_ptr = new GeneralSpeciesThermo();
+    SpeciesThermo<doublereal>* spthermo_ptr = new GeneralSpeciesThermo<doublereal>();
     setSpeciesThermo(spthermo_ptr);
     m_speciesData.clear();
 
@@ -678,7 +678,7 @@ void LatticeSolidPhase::modifyOneHf298SS(const size_t &k, const doublereal Hf298
     for (size_t n = 0; n < m_nlattice; n++) {
         if (lkstart_[n+1] < k) {
             size_t kk = k-lkstart_[n];
-            SpeciesThermo& l_spthermo =  m_lattice[n]->speciesThermo();
+            SpeciesThermo<doublereal>& l_spthermo =  m_lattice[n]->speciesThermo();
             l_spthermo.modifyOneHf298(kk, Hf298New);
         }
     }

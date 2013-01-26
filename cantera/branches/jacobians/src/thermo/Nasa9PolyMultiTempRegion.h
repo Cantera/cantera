@@ -67,7 +67,8 @@ namespace Cantera
  *
  * @ingroup spthermo
  */
-class Nasa9PolyMultiTempRegion : public SpeciesThermoInterpType
+template<typename ValAndDerivType>
+class Nasa9PolyMultiTempRegion : public SpeciesThermoInterpType<ValAndDerivType>
 {
 
 public:
@@ -87,25 +88,25 @@ public:
      *  Note, after the constructor, we will own the underlying
      *  Nasa9Poly1 objects and be responsible for owning them.
      */
-    Nasa9PolyMultiTempRegion(std::vector<Cantera::Nasa9Poly1*> &regionPts);
+    Nasa9PolyMultiTempRegion(std::vector<Cantera::Nasa9Poly1<ValAndDerivType>*> &regionPts);
 
     //! Copy constructor
     /*!
      * @param b object to be copied
      */
-    Nasa9PolyMultiTempRegion(const Nasa9PolyMultiTempRegion& b);
+    Nasa9PolyMultiTempRegion(const Nasa9PolyMultiTempRegion<ValAndDerivType>& b);
 
     //! Assignment operator
     /*!
      * @param b object to be copied
      */
-    Nasa9PolyMultiTempRegion& operator=(const Nasa9PolyMultiTempRegion& b);
+    Nasa9PolyMultiTempRegion& operator=(const Nasa9PolyMultiTempRegion<ValAndDerivType>& b);
 
     //! Destructor
     virtual ~Nasa9PolyMultiTempRegion();
 
     //! Duplicator
-    virtual SpeciesThermoInterpType*
+    virtual SpeciesThermoInterpType<ValAndDerivType>*
     duplMyselfAsSpeciesThermoInterpType() const;
 
     //! Returns the minimum temperature that the thermo
@@ -150,8 +151,8 @@ public:
      *                (length m_kk).
      */
     virtual void updateProperties(const doublereal* tt,
-                                  doublereal* cp_R, doublereal* h_RT,
-                                  doublereal* s_R) const;
+                                  ValAndDerivType* cp_R, ValAndDerivType* h_RT,
+                                  ValAndDerivType* s_R) const;
 
 
     //! Compute the reference-state property of one species
@@ -180,8 +181,8 @@ public:
      *                (length m_kk).
      */
     virtual void updatePropertiesTemp(const doublereal temp,
-                                      doublereal* cp_R, doublereal* h_RT,
-                                      doublereal* s_R) const;
+                                      ValAndDerivType* cp_R, ValAndDerivType* h_RT,
+                                      ValAndDerivType* s_R) const;
 
     //!This utility function reports back the type of
     //! parameterization and all of the parameters for the
@@ -236,7 +237,7 @@ protected:
      * This object will now own these pointers and delete
      * them when the current object is deleted.
      */
-    std::vector<Nasa9Poly1*>m_regionPts;
+    std::vector<Nasa9Poly1<ValAndDerivType> * > m_regionPts;
 
     //! current region
     mutable int m_currRegion;

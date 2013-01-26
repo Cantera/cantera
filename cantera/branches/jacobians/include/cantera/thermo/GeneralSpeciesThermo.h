@@ -30,7 +30,8 @@ namespace Cantera
  *
  * @ingroup mgrsrefcalc
  */
-class GeneralSpeciesThermo : public SpeciesThermo
+template<typename ValAndDerivType>
+class GeneralSpeciesThermo : public SpeciesThermo<ValAndDerivType>
 {
 
 public:
@@ -54,7 +55,7 @@ public:
     virtual ~GeneralSpeciesThermo();
 
     //! Duplicator
-    virtual SpeciesThermo* duplMyselfAsSpeciesThermo() const ;
+    virtual SpeciesThermo<ValAndDerivType>* duplMyselfAsSpeciesThermo() const ;
 
     //! Install a new species thermodynamic property
     //! parameterization for one species.
@@ -96,7 +97,7 @@ public:
      * @param stit_ptr Pointer to the SpeciesThermoInterpType object
      *          This will set up the thermo for one species
      */
-    virtual void install_STIT(SpeciesThermoInterpType* stit_ptr);
+    virtual void install_STIT(SpeciesThermoInterpType<ValAndDerivType>* stit_ptr);
 
     //! Install a PDSS object to handle the reference state thermodynamics
     //! calculation
@@ -120,9 +121,9 @@ public:
      * @param s_R     Vector of Dimensionless entropies.
      *                (length m_kk).
      */
-    virtual void update_one(size_t k, doublereal T, doublereal* cp_R,
-                            doublereal* h_RT,
-                            doublereal* s_R) const;
+    virtual void update_one(size_t k, doublereal T, ValAndDerivType * cp_R,
+                            ValAndDerivType * h_RT,
+                            ValAndDerivType * s_R) const;
 
     //! Compute the reference-state properties for all species.
     /*!
@@ -139,8 +140,8 @@ public:
      * @param s_R     Vector of Dimensionless entropies.
      *                (length m_kk).
      */
-    virtual void update(doublereal T, doublereal* cp_R,
-                        doublereal* h_RT, doublereal* s_R) const;
+    virtual void update(doublereal T, ValAndDerivType * cp_R,
+                        ValAndDerivType * h_RT, ValAndDerivType * s_R) const;
 
     //! Minimum temperature.
     /*!
@@ -215,7 +216,7 @@ public:
 #endif
 
 private:
-    //! Provide the SpeciesthermoInterpType object
+    //! Provide the SpeciesThermoInterpType object
     /*!
      *  provide access to the SpeciesThermoInterpType object.
      *  This
@@ -224,7 +225,7 @@ private:
      *
      * @return pointer to the SpeciesThermoInterpType object.
      */
-    SpeciesThermoInterpType* provideSTIT(size_t k);
+    SpeciesThermoInterpType<ValAndDerivType>* provideSTIT(size_t k);
 
 protected:
 
@@ -238,7 +239,7 @@ protected:
      * species. These cases must be handled by the calling
      * routine.
      */
-    std::vector<SpeciesThermoInterpType*> m_sp;
+    std::vector<SpeciesThermoInterpType<ValAndDerivType> * > m_sp;
 
     //! Maximum value of the lowest temperature
     doublereal                         m_tlow_max;

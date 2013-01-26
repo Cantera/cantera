@@ -111,7 +111,7 @@ FixedChemPotSSTP::FixedChemPotSSTP(const std::string& Ename, doublereal val) :
     vector_fp ecomp(nElements(), 0.0);
     ecomp[0] = 1.0;
     double chrg = 0.0;
-    SpeciesThermo* spth = new SimpleThermo();
+    SpeciesThermo<doublereal>* spth = new SimpleThermo<doublereal>();
     setSpeciesThermo(spth);
     addUniqueSpecies(pname, &ecomp[0], chrg, 0.0);
     double c[4];

@@ -55,7 +55,7 @@ public:
     virtual ~EdgePhase() {}
 
     //! Duplicator from a ThermoPhase object
-    ThermoPhase* duplMyselfAsThermoPhase() const;
+    thermo_t* duplMyselfAsThermoPhase() const;
 
     //! returns the equation of state type
     virtual int eosType() const {

@@ -141,7 +141,7 @@ namespace Cantera
  *
  * @ingroup thermoprops
  */
-class SurfPhase : public ThermoPhase
+class SurfPhase : public thermo_t
 {
 
 public:
@@ -201,7 +201,7 @@ public:
      *
      * @return returns a pointer to a %ThermoPhase
      */
-    ThermoPhase* duplMyselfAsThermoPhase() const;
+    thermo_t* duplMyselfAsThermoPhase() const;
 
     //----- reimplemented methods of class ThermoPhase ------
 

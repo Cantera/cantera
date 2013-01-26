@@ -60,9 +60,14 @@ using namespace ctml;
 
 namespace Cantera
 {
+//! Storage for the s_factory Singleton
+template<typename ValAndDerivType>
+ThermoFactory<ValAndDerivType> * ThermoFactory<ValAndDerivType>::s_factory = 0;
 
-ThermoFactory* ThermoFactory::s_factory = 0;
-mutex_t ThermoFactory::thermo_mutex;
+//! Storage for the thermo mutex
+template<typename ValAndDerivType>
+mutex_t ThermoFactory<ValAndDerivType>::thermo_mutex;
+
 
 //! Define the number of %ThermoPhase types for use in this factory routine
 static int ntypes = 24;
@@ -92,7 +97,8 @@ static int _itypes[]   = {cIdealGas, cIncompressible,
 /*
  * This method returns a new instance of a subclass of ThermoPhase
  */
-ThermoPhase* ThermoFactory::newThermoPhase(const std::string& model)
+template<typename ValAndDerivType>
+ThermoPhase<ValAndDerivType> * ThermoFactory<ValAndDerivType>::newThermoPhase(const std::string& model)
 {
 
     int ieos=-1;
@@ -103,11 +109,11 @@ ThermoPhase* ThermoFactory::newThermoPhase(const std::string& model)
         }
     }
 
-    ThermoPhase* th=0;
+    ThermoPhase<ValAndDerivType>* th=0;
     switch (ieos) {
 
     case cIdealGas:
-        th = new IdealGasPhase;
+        th = new IdealGasPhase<ValAndDerivType>();
         break;
 
     case cIncompressible:
@@ -246,11 +252,12 @@ std::string eosTypeString(int ieos, int length)
  * populate that class with the correct parameters from the XML
  * tree.
  */
-ThermoPhase* newPhase(XML_Node& xmlphase)
+template<typename ValAndDerivType>
+ThermoPhase<ValAndDerivType> * newPhase(XML_Node& xmlphase)
 {
     const XML_Node& th = xmlphase.child("thermo");
     string model = th["model"];
-    ThermoPhase* t = newThermoPhase(model);
+    ThermoPhase<ValAndDerivType>* t = newThermoPhase<ValAndDerivType>(model);
     if (model == "singing cows") {
       throw CanteraError("ThermoPhase::newPhase", "Cows don't sing");
     }
@@ -270,7 +277,9 @@ ThermoPhase* newPhase(XML_Node& xmlphase)
     return t;
 }
 
-ThermoPhase* newPhase(const std::string& infile, std::string id)
+
+template<typename ValAndDerivType>
+ThermoPhase<ValAndDerivType>* newPhase(const std::string& infile, std::string id)
 {
     XML_Node* root = get_XML_File(infile);
     if (id == "-") {
@@ -282,9 +291,9 @@ ThermoPhase* newPhase(const std::string& infile, std::string id)
                            "Couldn't find phase named \"" + id + "\" in file, " + infile);
     }
     if (xphase) {
-        return newPhase(*xphase);
+        return newPhase<ValAndDerivType>(*xphase);
     } else {
-        return (ThermoPhase*) 0;
+        return (ThermoPhase<ValAndDerivType>*) 0;
     }
 }
 
@@ -438,8 +447,9 @@ static void formSpeciesXMLNodeList(std::vector<XML_Node*> &spDataNodeList,
  *             here, especially for those objects which are
  *             part of the Cantera Kernel.
  */
-bool importPhase(XML_Node& phase, ThermoPhase* th,
-                 SpeciesThermoFactory* spfactory)
+template<typename ValAndDerivType>
+bool importPhase(XML_Node& phase, ThermoPhase<ValAndDerivType>* th,
+                 SpeciesThermoFactory<ValAndDerivType>* spfactory)
 {
 
     // Check the the supplied XML node in fact represents a
@@ -503,7 +513,7 @@ bool importPhase(XML_Node& phase, ThermoPhase* th,
     // if no species thermo factory was supplied,
     // use the default one.
     if (!spfactory) {
-        spfactory = SpeciesThermoFactory::factory();
+        spfactory = SpeciesThermoFactory<ValAndDerivType>::factory();
     }
 
     /***************************************************************
@@ -607,7 +617,7 @@ bool importPhase(XML_Node& phase, ThermoPhase* th,
         // to see what thermodynamic property parameterizations are
         // used, and selects a class that can handle the
         // parameterizations found.
-        spth = newSpeciesThermoMgr(spDataNodeList);
+        spth = newSpeciesThermoMgr<ValAndDerivType>(spDataNodeList);
 
         // install it in the phase object
         th->setSpeciesThermo(spth);
@@ -703,11 +713,12 @@ bool importPhase(XML_Node& phase, ThermoPhase* th,
  * @return
  *  Returns true if everything is ok, false otherwise.
  */
+template<typename ValAndDerivType>
 bool installSpecies(size_t k, const XML_Node& s, thermo_t& th,
-                    SpeciesThermo* spthermo_ptr, int rule,
+                    SpeciesThermo<ValAndDerivType> * spthermo_ptr, int rule,
                     XML_Node* phaseNode_ptr,
                     VPSSMgr* vpss_ptr,
-                    SpeciesThermoFactory* factory)
+                    SpeciesThermoFactory<ValAndDerivType>* factory)
 {
 
     std::string xname = s.name();

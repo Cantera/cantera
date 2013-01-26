@@ -159,6 +159,7 @@ class VPSSMgr;
  *
  * @ingroup spthermo
  */
+template <typename ValAndDerivType>
 class SpeciesThermoInterpType
 {
 
@@ -171,7 +172,7 @@ public:
     virtual ~SpeciesThermoInterpType();
 
     //! duplicator
-    virtual SpeciesThermoInterpType*
+    virtual SpeciesThermoInterpType<ValAndDerivType> *
     duplMyselfAsSpeciesThermoInterpType() const = 0;
 
 
@@ -211,9 +212,9 @@ public:
      * @param s_R     Vector of Dimensionless entropies.
      *                (length m_kk).
      */
-    virtual void updateProperties(const doublereal* tempPoly,
-                                  doublereal* cp_R, doublereal* h_RT,
-                                  doublereal* s_R) const;
+    virtual void updateProperties(const ValAndDerivType* tempPoly,
+                                  ValAndDerivType* cp_R, ValAndDerivType* h_RT,
+                                  ValAndDerivType* s_R) const;
 
     //! Compute the reference-state property of one species
     /*!
@@ -232,9 +233,9 @@ public:
      *                (length m_kk).
      */
     virtual void updatePropertiesTemp(const doublereal temp,
-                                      doublereal* cp_R,
-                                      doublereal* h_RT,
-                                      doublereal* s_R) const = 0;
+                                      ValAndDerivType* cp_R,
+                                      ValAndDerivType* h_RT,
+                                      ValAndDerivType* s_R) const = 0;
 
     //!This utility function reports back the type of
     //! parameterization and all of the parameters for the
@@ -303,7 +304,8 @@ public:
  *
  * @ingroup spthermo
  */
-class STITbyPDSS : public SpeciesThermoInterpType
+template<typename ValAndDerivType>
+class STITbyPDSS : public SpeciesThermoInterpType<ValAndDerivType>
 {
 
 public:
@@ -334,7 +336,7 @@ public:
     virtual ~STITbyPDSS();
 
     //! duplicator
-    virtual SpeciesThermoInterpType* duplMyselfAsSpeciesThermoInterpType() const;
+    virtual SpeciesThermoInterpType<ValAndDerivType>* duplMyselfAsSpeciesThermoInterpType() const;
 
     //! Initialize and/or Reinitialize all the pointers for this object
     /*!
@@ -389,9 +391,9 @@ public:
      * @param s_R     Vector of Dimensionless entropies.
      *                (length m_kk).
      */
-    virtual void updateProperties(const doublereal* tempPoly,
-                                  doublereal* cp_R, doublereal* h_RT,
-                                  doublereal* s_R) const;
+    virtual void updateProperties(const ValAndDerivType* tempPoly,
+                                  ValAndDerivType* cp_R, ValAndDerivType* h_RT,
+                                  ValAndDerivType* s_R) const;
 
     //! Compute the reference-state property of one species
     /*!
@@ -410,9 +412,9 @@ public:
      *                (length m_kk).
      */
     virtual void updatePropertiesTemp(const doublereal temp,
-                                      doublereal* cp_R,
-                                      doublereal* h_RT,
-                                      doublereal* s_R) const;
+                                      ValAndDerivType* cp_R,
+                                      ValAndDerivType* h_RT,
+                                      ValAndDerivType* s_R) const;
 
     //!This utility function reports back the type of
     //! parameterization and all of the parameters for the

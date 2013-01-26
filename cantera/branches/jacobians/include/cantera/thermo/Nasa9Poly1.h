@@ -68,7 +68,8 @@ namespace Cantera
  *
  * @ingroup spthermo
  */
-class Nasa9Poly1 : public SpeciesThermoInterpType
+template<typename ValAndDerivType>
+class Nasa9Poly1 : public SpeciesThermoInterpType<ValAndDerivType>
 {
 
 public:
@@ -93,19 +94,19 @@ public:
     /*!
      * @param b object to be copied
      */
-    Nasa9Poly1(const Nasa9Poly1& b);
+    Nasa9Poly1(const Nasa9Poly1<ValAndDerivType> & b);
 
     //! assignment operator
     /*!
      * @param b object to be copied
      */
-    Nasa9Poly1& operator=(const Nasa9Poly1& b);
+    Nasa9Poly1& operator=(const Nasa9Poly1<ValAndDerivType> & b);
 
     //! Destructor
     virtual ~Nasa9Poly1();
 
     //! duplicator
-    virtual SpeciesThermoInterpType*
+    virtual SpeciesThermoInterpType<ValAndDerivType> *
     duplMyselfAsSpeciesThermoInterpType() const;
 
     //! Returns the minimum temperature that the thermo
@@ -150,7 +151,7 @@ public:
      *                (length m_kk).
      */
     virtual void updateProperties(const doublereal* tt,
-                                  doublereal* cp_R, doublereal* h_RT, doublereal* s_R) const;
+                                  ValAndDerivType * cp_R, ValAndDerivType * h_RT, ValAndDerivType * s_R) const;
 
 
     //! Compute the reference-state property of one species
@@ -178,9 +179,9 @@ public:
      * @param s_R     Vector of Dimensionless entropies.
      *                (length m_kk).
      */
-    virtual void updatePropertiesTemp(const doublereal temp,
-                                      doublereal* cp_R, doublereal* h_RT,
-                                      doublereal* s_R) const;
+    virtual void updatePropertiesTemp(const double temp,
+                                      ValAndDerivType * cp_R, ValAndDerivType * h_RT,
+                                      ValAndDerivType * s_R) const;
 
     //!This utility function reports back the type of
     //! parameterization and all of the parameters for the

@@ -19,8 +19,8 @@ using namespace ctml;
 namespace Cantera
 {
 
-
-Mu0Poly::Mu0Poly() : m_numIntervals(0),
+template<typename ValAndDerivType>
+Mu0Poly<ValAndDerivType>::Mu0Poly() : m_numIntervals(0),
     m_H298(0.0),
     m_lowT(0.0),
     m_highT(0.0),
@@ -46,7 +46,8 @@ Mu0Poly::Mu0Poly() : m_numIntervals(0),
  *         7  = mu3 (J/kmol)
  *         ........
  */
-Mu0Poly::Mu0Poly(size_t n, doublereal tlow, doublereal thigh,
+template<typename ValAndDerivType>
+Mu0Poly<ValAndDerivType>::Mu0Poly(size_t n, doublereal tlow, doublereal thigh,
                  doublereal pref,
                  const doublereal* coeffs) :
     m_numIntervals(0),
@@ -61,7 +62,8 @@ Mu0Poly::Mu0Poly(size_t n, doublereal tlow, doublereal thigh,
 }
 
 
-Mu0Poly::Mu0Poly(const Mu0Poly& b)
+template<typename ValAndDerivType>
+Mu0Poly<ValAndDerivType>::Mu0Poly(const Mu0Poly& b)
     : m_numIntervals(b.m_numIntervals),
       m_H298(b.m_H298),
       m_t0_int(b.m_t0_int),
@@ -76,7 +78,8 @@ Mu0Poly::Mu0Poly(const Mu0Poly& b)
 {
 }
 
-Mu0Poly& Mu0Poly::operator=(const Mu0Poly& b)
+template<typename ValAndDerivType>
+Mu0Poly<ValAndDerivType>& Mu0Poly<ValAndDerivType>::operator=(const Mu0Poly<ValAndDerivType>& b)
 {
     if (&b != this) {
         m_numIntervals = b.m_numIntervals;
@@ -97,25 +100,30 @@ Mu0Poly& Mu0Poly::operator=(const Mu0Poly& b)
 /*
  * Destructor:
  */
-Mu0Poly::~Mu0Poly()
+template<typename ValAndDerivType>
+Mu0Poly<ValAndDerivType>::~Mu0Poly()
 {
 }
 
-SpeciesThermoInterpType*
-Mu0Poly::duplMyselfAsSpeciesThermoInterpType() const
+template<typename ValAndDerivType>
+SpeciesThermoInterpType<ValAndDerivType>*
+Mu0Poly<ValAndDerivType>::duplMyselfAsSpeciesThermoInterpType() const
 {
     return new Mu0Poly(*this);
 }
 
-doublereal Mu0Poly::minTemp() const
+template<typename ValAndDerivType>
+doublereal Mu0Poly<ValAndDerivType>::minTemp() const
 {
     return m_lowT;
 }
-doublereal  Mu0Poly::maxTemp() const
+template<typename ValAndDerivType>
+doublereal  Mu0Poly<ValAndDerivType>::maxTemp() const
 {
     return m_highT;
 }
-doublereal Mu0Poly::refPressure() const
+template<typename ValAndDerivType>
+doublereal Mu0Poly<ValAndDerivType>::refPressure() const
 {
     return m_Pref;
 }
@@ -134,9 +142,10 @@ doublereal Mu0Poly::refPressure() const
  *       *tt = Temperature (Kelvin)
  *
  */
-void  Mu0Poly::
-updateProperties(const doublereal* tt,  doublereal* cp_R,
-                 doublereal* h_RT, doublereal* s_R) const
+template<typename ValAndDerivType>
+void  Mu0Poly<ValAndDerivType>::
+updateProperties(const doublereal* tt,  ValAndDerivType* cp_R,
+        ValAndDerivType* h_RT, ValAndDerivType* s_R) const
 {
     size_t j = m_numIntervals;
     double T = *tt;
@@ -156,11 +165,12 @@ updateProperties(const doublereal* tt,  doublereal* cp_R,
     s_R[m_index]  = m_s0_R_int[j] + cp_Rj * (log(T/T1));
 }
 
-void  Mu0Poly::
+template<typename ValAndDerivType>
+void  Mu0Poly<ValAndDerivType>::
 updatePropertiesTemp(const doublereal T,
-                     doublereal* cp_R,
-                     doublereal* h_RT,
-                     doublereal* s_R) const
+                     ValAndDerivType* cp_R,
+                     ValAndDerivType* h_RT,
+                     ValAndDerivType* s_R) const
 {
     updateProperties(&T, cp_R, h_RT, s_R);
 }
@@ -171,7 +181,8 @@ updatePropertiesTemp(const doublereal T,
  *
  *
  */
-void Mu0Poly::reportParameters(size_t& n, int& type,
+template<typename ValAndDerivType>
+void Mu0Poly<ValAndDerivType>::reportParameters(size_t& n, int& type,
                                doublereal& tlow, doublereal& thigh,
                                doublereal& pref,
                                doublereal* const coeffs) const
@@ -191,7 +202,8 @@ void Mu0Poly::reportParameters(size_t& n, int& type,
     }
 }
 
-void Mu0Poly::modifyParameters(doublereal* coeffs)
+template<typename ValAndDerivType>
+void Mu0Poly<ValAndDerivType>::modifyParameters(doublereal* coeffs)
 {
     processCoeffs(coeffs);
 }
@@ -201,8 +213,9 @@ void Mu0Poly::modifyParameters(doublereal* coeffs)
  * parameterization for species k into a SpeciesThermo instance,
  * getting the information from an XML database.
  */
+template<typename ValAndDerivType>
 void installMu0ThermoFromXML(const std::string& speciesName,
-                             SpeciesThermo& sp, size_t k,
+                             SpeciesThermo<ValAndDerivType>& sp, size_t k,
                              const XML_Node* Mu0Node_ptr)
 {
 
@@ -304,7 +317,8 @@ void installMu0ThermoFromXML(const std::string& speciesName,
  *         7  = mu3 (J/kmol)
  *         ........
  */
-void Mu0Poly::processCoeffs(const doublereal* coeffs)
+template<typename ValAndDerivType>
+void Mu0Poly<ValAndDerivType>::processCoeffs(const doublereal* coeffs)
 {
 
     size_t i, iindex;

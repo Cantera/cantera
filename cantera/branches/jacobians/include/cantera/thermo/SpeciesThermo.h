@@ -6,16 +6,14 @@
  */
 // Copyright 2001  California Institute of Technology
 
-
 #ifndef CT_SPECIESTHERMO_H
 #define CT_SPECIESTHERMO_H
 
 #include "cantera/base/ct_defs.h"
 
-namespace Cantera
-{
+namespace Cantera {
 
-class SpeciesThermoInterpType;
+template<typename ValAndDerivType> class SpeciesThermoInterpType;
 
 /**
  * @defgroup mgrsrefcalc Managers for Calculating Reference-State Thermodynamics
@@ -162,7 +160,6 @@ class SpeciesThermoInterpType;
  */
 //@{
 
-
 //! Pure Virtual base class for the species thermo manager classes.
 /*!
  *  This class defines the interface which all subclasses must implement.
@@ -172,24 +169,35 @@ class SpeciesThermoInterpType;
  * species in their reference state at a range of temperatures.
  * Note, the pressure dependence of the reference state is not
  * handled by this particular species standard state model.
+ *
+ * HKM FAD comments
+ *   May want to create another FAD type here that would correspond only to the inclusion
+ *   of the temperature derivative. Not sure it matters, but it is a thought.
  */
+template<typename ValAndDerivType = double>
 class SpeciesThermo
 {
 
 public:
 
     //! Constructor
-    SpeciesThermo() {}
+    SpeciesThermo()
+    {
+    }
 
     //! Destructor
-    virtual ~SpeciesThermo() {}
+    virtual ~SpeciesThermo()
+    {
+    }
 
     //! Copy Constructor for the %SpeciesThermo object.
     /*!
      * @param right    Reference to %SpeciesThermo object to be copied into the
      *                 current one.
      */
-    SpeciesThermo(const SpeciesThermo& right) {}
+    SpeciesThermo(const SpeciesThermo<ValAndDerivType>& right)
+    {
+    }
 
     //! Assignment operator for the %SpeciesThermo object
     /*!
@@ -198,7 +206,8 @@ public:
      * @param right    Reference to %SpeciesThermo object to be copied into the
      *                 current one.
      */
-    SpeciesThermo& operator=(const SpeciesThermo& right) {
+    SpeciesThermo& operator=(const SpeciesThermo<ValAndDerivType>& right)
+    {
         return *this;
     }
 
@@ -211,7 +220,7 @@ public:
      *  ->commented out because we first need to add copy constructors
      *   and assignment operators to all of the derived classes.
      */
-    virtual SpeciesThermo* duplMyselfAsSpeciesThermo() const = 0;
+    virtual SpeciesThermo<ValAndDerivType>* duplMyselfAsSpeciesThermo() const = 0;
 
     //! Install a new species thermodynamic property
     //! parameterization for one species.
@@ -234,10 +243,8 @@ public:
      *                    parameterization.
      * @see speciesThermoTypes.h
      */
-    virtual void install(const std::string& name, size_t index, int type,
-                         const doublereal* c,
-                         doublereal minTemp, doublereal maxTemp,
-                         doublereal refPressure)=0;
+    virtual void install(const std::string& name, size_t index, int type, const doublereal* c, doublereal minTemp,
+                         doublereal maxTemp, doublereal refPressure)=0;
 
     //! Install a new species thermodynamic property
     //! parameterization for one species.
@@ -245,8 +252,7 @@ public:
      * @param stit_ptr Pointer to the SpeciesThermoInterpType object
      *          This will set up the thermo for one species
      */
-    virtual void install_STIT(SpeciesThermoInterpType* stit_ptr) = 0;
-
+    virtual void install_STIT(SpeciesThermoInterpType<ValAndDerivType>* stit_ptr) = 0;
 
     //! Compute the reference-state properties for all species.
     /*!
@@ -263,9 +269,7 @@ public:
      * @param s_R     Vector of Dimensionless entropies.
      *                (length m_kk).
      */
-    virtual void update(doublereal T, doublereal* cp_R,
-                        doublereal* h_RT, doublereal* s_R) const=0;
-
+    virtual void update(doublereal T, ValAndDerivType* cp_R, ValAndDerivType* h_RT, ValAndDerivType* s_R) const=0;
 
     //! Like update(), but only updates the single species k.
     /*!
@@ -282,10 +286,8 @@ public:
      * @param s_R     Vector of Dimensionless entropies.
      *                (length m_kk).
      */
-    virtual void update_one(size_t k, doublereal T,
-                            doublereal* cp_R,
-                            doublereal* h_RT,
-                            doublereal* s_R) const {
+    virtual void update_one(size_t k, doublereal T, ValAndDerivType* cp_R, ValAndDerivType* h_RT, ValAndDerivType* s_R) const
+    {
         update(T, cp_R, h_RT, s_R);
     }
 
@@ -299,7 +301,7 @@ public:
      *
      * @param k    Species index
      */
-    virtual doublereal minTemp(size_t k=npos) const =0;
+    virtual doublereal minTemp(size_t k = npos) const =0;
 
     //! Maximum temperature.
     /*!
@@ -311,7 +313,7 @@ public:
      *
      * @param k  Species Index
      */
-    virtual doublereal maxTemp(size_t k=npos) const =0;
+    virtual doublereal maxTemp(size_t k = npos) const =0;
 
     //! The reference-state pressure for species k.
     /*!
@@ -326,7 +328,7 @@ public:
      *
      * @param k Species Index
      */
-    virtual doublereal refPressure(size_t k=npos) const =0;
+    virtual doublereal refPressure(size_t k = npos) const =0;
 
     //! This utility function reports the type of parameterization
     //! used for the species with index number index.
@@ -334,8 +336,7 @@ public:
      *
      * @param index  Species index
      */
-    virtual int reportType(size_t index=npos) const = 0;
-
+    virtual int reportType(size_t index = npos) const = 0;
 
     //! This utility function reports back the type of
     //! parameterization and all of the parameters for the species, index.
@@ -348,10 +349,7 @@ public:
      * @param maxTemp   output - Maximum temperature
      * @param refPressure output - reference pressure (Pa).
      */
-    virtual void reportParams(size_t index, int& type,
-                              doublereal* const c,
-                              doublereal& minTemp,
-                              doublereal& maxTemp,
+    virtual void reportParams(size_t index, int& type, doublereal* const c, doublereal& minTemp, doublereal& maxTemp,
                               doublereal& refPressure) const =0;
 
 #ifdef H298MODIFY_CAPABILITY

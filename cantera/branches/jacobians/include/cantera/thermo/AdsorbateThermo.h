@@ -28,7 +28,8 @@ namespace Cantera
  *
  * @ingroup spthermo
  */
-class Adsorbate : public SpeciesThermoInterpType
+template<typename ValAndDerivType>
+class Adsorbate : public SpeciesThermoInterpType<ValAndDerivType>
 {
 
 public:
@@ -75,10 +76,10 @@ public:
     virtual ~Adsorbate() {}
 
     //! duplicator
-    virtual SpeciesThermoInterpType*
+    virtual SpeciesThermoInterpType<ValAndDerivType>*
     duplMyselfAsSpeciesThermoInterpType() const {
-        Adsorbate* np = new Adsorbate(*this);
-        return (SpeciesThermoInterpType*) np;
+        Adsorbate<ValAndDerivType>* np = new Adsorbate<ValAndDerivType>(*this);
+        return (SpeciesThermoInterpType<ValAndDerivType>*) np;
     }
 
     virtual void install(const std::string& name, size_t index, int type,
@@ -142,9 +143,9 @@ public:
      *                (length m_kk).
      */
     void updatePropertiesTemp(const doublereal temp,
-                              doublereal* cp_R,
-                              doublereal* h_RT,
-                              doublereal* s_R) const {
+                              ValAndDerivType* cp_R,
+                              ValAndDerivType* h_RT,
+                              ValAndDerivType* s_R) const {
         h_RT[m_index] = _energy_RT(temp);
         cp_R[m_index] = (temp*h_RT[m_index]
                          - (temp-0.01)*_energy_RT(temp-0.01))/0.01;

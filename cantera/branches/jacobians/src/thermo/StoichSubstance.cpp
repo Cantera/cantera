@@ -51,7 +51,7 @@ StoichSubstance& StoichSubstance::
 operator=(const StoichSubstance& right)
 {
     if (&right != this) {
-        ThermoPhase::operator=(right);
+        thermo_t::operator=(right);
         m_press   = right.m_press;
         m_p0      = right.m_p0;
         m_tlast   = right.m_tlast;
@@ -70,7 +70,7 @@ operator=(const StoichSubstance& right)
  *
  * @return returns a pointer to a %ThermoPhase
  */
-ThermoPhase* StoichSubstance::duplMyselfAsThermoPhase() const
+thermo_t* StoichSubstance::duplMyselfAsThermoPhase() const
 {
     return new StoichSubstance(*this);
 }

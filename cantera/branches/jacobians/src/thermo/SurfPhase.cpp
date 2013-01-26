@@ -25,7 +25,7 @@ namespace Cantera
 {
 
 SurfPhase::SurfPhase(doublereal n0):
-    ThermoPhase(),
+    thermo_t(),
     m_n0(n0),
     m_logn0(0.0),
     m_press(OneAtm),
@@ -38,7 +38,7 @@ SurfPhase::SurfPhase(doublereal n0):
 }
 
 SurfPhase::SurfPhase(const std::string& infile, std::string id) :
-    ThermoPhase(),
+    thermo_t(),
     m_n0(0.0),
     m_logn0(0.0),
     m_press(OneAtm),
@@ -65,7 +65,7 @@ SurfPhase::SurfPhase(const std::string& infile, std::string id) :
 
 
 SurfPhase::SurfPhase(XML_Node& xmlphase) :
-    ThermoPhase(),
+    thermo_t(),
     m_n0(0.0),
     m_logn0(0.0),
     m_press(OneAtm),
@@ -110,7 +110,7 @@ SurfPhase& SurfPhase::
 operator=(const SurfPhase& right)
 {
     if (&right != this) {
-        ThermoPhase::operator=(right);
+        thermo_t::operator=(right);
         m_n0         = right.m_n0;
         m_logn0      = right.m_logn0;
         m_press      = right.m_press;
@@ -133,7 +133,7 @@ operator=(const SurfPhase& right)
  *
  * @return returns a pointer to a %ThermoPhase
  */
-ThermoPhase* SurfPhase::duplMyselfAsThermoPhase() const
+thermo_t* SurfPhase::duplMyselfAsThermoPhase() const
 {
     return new SurfPhase(*this);
 }
@@ -503,7 +503,7 @@ EdgePhase& EdgePhase::operator=(const EdgePhase& right)
  *
  * @return returns a pointer to a %ThermoPhase
  */
-ThermoPhase* EdgePhase::duplMyselfAsThermoPhase() const
+thermo_t* EdgePhase::duplMyselfAsThermoPhase() const
 {
     return new EdgePhase(*this);
 }

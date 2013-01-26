@@ -127,7 +127,7 @@ StoichSubstanceSSTP::~StoichSubstanceSSTP()
  *
  * @return It returns a ThermoPhase pointer.
  */
-ThermoPhase* StoichSubstanceSSTP::duplMyselfAsThermoPhase() const
+thermo_t* StoichSubstanceSSTP::duplMyselfAsThermoPhase() const
 {
     return new StoichSubstanceSSTP(*this);
 }

@@ -45,7 +45,8 @@ namespace Cantera
  *
  * @ingroup mgrsrefcalc
  */
-class SimpleThermo : public SpeciesThermo
+template<typename ValAndDerivType>
+class SimpleThermo : public SpeciesThermo<ValAndDerivType>
 {
 
 public:
@@ -122,9 +123,9 @@ public:
      *  ->commented out because we first need to add copy constructors
      *   and assignment operators to all of the derived classes.
      */
-    virtual SpeciesThermo* duplMyselfAsSpeciesThermo() const {
-        SimpleThermo* nt = new SimpleThermo(*this);
-        return (SpeciesThermo*) nt;
+    virtual SpeciesThermo<ValAndDerivType>* duplMyselfAsSpeciesThermo() const {
+        SimpleThermo* nt = new SimpleThermo<ValAndDerivType>(*this);
+        return (SpeciesThermo<ValAndDerivType> *) nt;
     }
 
     //! Install a new species thermodynamic property
@@ -199,7 +200,7 @@ public:
      * @param stit_ptr Pointer to the SpeciesThermoInterpType object
      *          This will set up the thermo for one species
      */
-    virtual void install_STIT(SpeciesThermoInterpType* stit_ptr) {
+    virtual void install_STIT(SpeciesThermoInterpType<ValAndDerivType> * stit_ptr) {
         throw CanteraError("install_STIT", "not implemented");
     }
 

@@ -57,7 +57,8 @@ namespace Cantera
 
  * @ingroup spthermo
  */
-class ShomatePoly : public SpeciesThermoInterpType
+template<typename ValAndDerivType>
+class ShomatePoly : public SpeciesThermoInterpType<ValAndDerivType>
 {
 
 public:
@@ -134,10 +135,10 @@ public:
     virtual ~ShomatePoly() {}
 
     //! Duplicator from the base class
-    virtual SpeciesThermoInterpType*
+    virtual SpeciesThermoInterpType<ValAndDerivType>*
     duplMyselfAsSpeciesThermoInterpType() const {
-        ShomatePoly* sp = new ShomatePoly(*this);
-        return (SpeciesThermoInterpType*) sp;
+        ShomatePoly<ValAndDerivType>* sp = new ShomatePoly<ValAndDerivType>(*this);
+        return (SpeciesThermoInterpType<ValAndDerivType>*) sp;
     }
 
     //! Returns the minimum temperature that the thermo
@@ -193,8 +194,8 @@ public:
      *                (length m_kk).
      */
     virtual void updateProperties(const doublereal* tt,
-                                  doublereal* cp_R, doublereal* h_RT,
-                                  doublereal* s_R) const {
+                                  ValAndDerivType* cp_R, ValAndDerivType* h_RT,
+                                  ValAndDerivType* s_R) const {
 
         doublereal A      = m_coeff[0];
         doublereal Bt     = m_coeff[1]*tt[0];
@@ -407,7 +408,8 @@ private:
  *
  * @ingroup spthermo
  */
-class ShomatePoly2 : public SpeciesThermoInterpType
+template<typename ValAndDerivType>
+class ShomatePoly2 : public SpeciesThermoInterpType<ValAndDerivType>
 {
 public:
 
@@ -448,15 +450,15 @@ public:
         m_coeff.resize(15);
         std::copy(coeffs, coeffs + 15, m_coeff.begin());
         m_midT = coeffs[0];
-        msp_low  = new ShomatePoly(n, tlow, m_midT, pref, coeffs+1);
-        msp_high = new ShomatePoly(n, m_midT, thigh, pref, coeffs+8);
+        msp_low  = new ShomatePoly<ValAndDerivType>(n, tlow, m_midT, pref, coeffs+1);
+        msp_high = new ShomatePoly<ValAndDerivType>(n, m_midT, thigh, pref, coeffs+8);
     }
 
     //! Copy constructor
     /*!
      * @param b object to be copied.
      */
-    ShomatePoly2(const ShomatePoly2& b) :
+    ShomatePoly2(const ShomatePoly2<ValAndDerivType>& b) :
         m_lowT(b.m_lowT),
         m_midT(b.m_midT),
         m_highT(b.m_highT),
@@ -468,9 +470,9 @@ public:
         std::copy(b.m_coeff.begin(),
                   b.m_coeff.begin() + 15,
                   m_coeff.begin());
-        msp_low  = new ShomatePoly(m_index, m_lowT, m_midT,
+        msp_low  = new ShomatePoly<ValAndDerivType>(m_index, m_lowT, m_midT,
                                    m_Pref, &m_coeff[1]);
-        msp_high = new ShomatePoly(m_index, m_midT, m_highT,
+        msp_high = new ShomatePoly<ValAndDerivType>(m_index, m_midT, m_highT,
                                    m_Pref, &m_coeff[8]);
     }
 
@@ -478,7 +480,7 @@ public:
     /*!
      * @param b object to be copied.
      */
-    ShomatePoly2& operator=(const ShomatePoly2& b) {
+    ShomatePoly2& operator=(const ShomatePoly2<ValAndDerivType>& b) {
         if (&b != this) {
             m_lowT   = b.m_lowT;
             m_midT   = b.m_midT;
@@ -494,9 +496,9 @@ public:
             if (msp_high) {
                 delete msp_high;
             }
-            msp_low  = new ShomatePoly(m_index, m_lowT, m_midT,
+            msp_low  = new ShomatePoly<ValAndDerivType>(m_index, m_lowT, m_midT,
                                        m_Pref, &m_coeff[1]);
-            msp_high = new ShomatePoly(m_index, m_midT, m_highT,
+            msp_high = new ShomatePoly<ValAndDerivType>(m_index, m_midT, m_highT,
                                        m_Pref, &m_coeff[8]);
         }
         return *this;
@@ -510,10 +512,10 @@ public:
 
 
     //! duplicator
-    virtual SpeciesThermoInterpType*
+    virtual SpeciesThermoInterpType<ValAndDerivType>*
     duplMyselfAsSpeciesThermoInterpType() const {
-        ShomatePoly2* sp = new ShomatePoly2(*this);
-        return (SpeciesThermoInterpType*) sp;
+        ShomatePoly2<ValAndDerivType>* sp = new ShomatePoly2<ValAndDerivType>(*this);
+        return (SpeciesThermoInterpType<ValAndDerivType>*) sp;
     }
 
     //! Returns the minimum temperature that the thermo
@@ -567,8 +569,8 @@ public:
      *                (length m_kk).
      */
     virtual void updateProperties(const doublereal* tt,
-                                  doublereal* cp_R, doublereal* h_RT,
-                                  doublereal* s_R) const {
+                                  ValAndDerivType* cp_R, ValAndDerivType* h_RT,
+                                  ValAndDerivType* s_R) const {
         double T = 1000 * tt[0];
         if (T <= m_midT) {
             msp_low->updateProperties(tt, cp_R, h_RT, s_R);
@@ -595,9 +597,9 @@ public:
      *                (length m_kk).
      */
     virtual void updatePropertiesTemp(const doublereal temp,
-                                      doublereal* cp_R,
-                                      doublereal* h_RT,
-                                      doublereal* s_R) const {
+                                      ValAndDerivType* cp_R,
+                                      ValAndDerivType* h_RT,
+                                      ValAndDerivType* s_R) const {
         if (temp <= m_midT) {
             msp_low->updatePropertiesTemp(temp, cp_R, h_RT, s_R);
         } else {
@@ -646,8 +648,8 @@ public:
         delete msp_high;
         std::copy(coeffs, coeffs + 15, m_coeff.begin());
         m_midT = coeffs[0];
-        msp_low  = new ShomatePoly(m_index, m_lowT, m_midT,  m_Pref, coeffs+1);
-        msp_high = new ShomatePoly(m_index, m_midT, m_highT, m_Pref, coeffs+8);
+        msp_low  = new ShomatePoly<ValAndDerivType>(m_index, m_lowT, m_midT,  m_Pref, coeffs+1);
+        msp_high = new ShomatePoly<ValAndDerivType>(m_index, m_midT, m_highT, m_Pref, coeffs+8);
     }
 
 #ifdef H298MODIFY_CAPABILITY
@@ -692,9 +694,9 @@ protected:
     //! Reference pressure (Pascal)
     doublereal m_Pref;
     //! Pointer to the Shomate polynomial for the low temperature region.
-    ShomatePoly* msp_low;
+    ShomatePoly<ValAndDerivType> * msp_low;
     //! Pointer to the Shomate polynomial for the high temperature region.
-    ShomatePoly* msp_high;
+    ShomatePoly<ValAndDerivType>* msp_high;
     //! Array of the original coefficients.
     vector_fp m_coeff;
     //! Species index
