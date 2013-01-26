@@ -25,7 +25,7 @@ namespace Cantera
 {
 
 VPSSMgr_Water_HKFT::VPSSMgr_Water_HKFT(VPStandardStateTP* vp_ptr,
-                                       SpeciesThermo* spth) :
+                                       SpeciesThermo<doublereal>* spth) :
     VPSSMgr(vp_ptr, spth),
     m_waterSS(0),
     m_tlastRef(-1.0)
@@ -278,7 +278,7 @@ VPSSMgr_Water_HKFT::createInstallPDSS(size_t k, const XML_Node& speciesNode,
         }
         m_waterSS = new PDSS_Water(m_vptp_ptr, 0);
 
-        GeneralSpeciesThermo* genSpthermo = dynamic_cast<GeneralSpeciesThermo*>(m_spthermo);
+        GeneralSpeciesThermo<doublereal>* genSpthermo = dynamic_cast<GeneralSpeciesThermo<doublereal> * >(m_spthermo);
         if (!genSpthermo) {
             throw CanteraError("VPSSMgr_Water_HKFT::installSpecies",
                                "failed dynamic cast");
@@ -297,7 +297,7 @@ VPSSMgr_Water_HKFT::createInstallPDSS(size_t k, const XML_Node& speciesNode,
 
         kPDSS = new PDSS_HKFT(m_vptp_ptr, k, speciesNode, *phaseNode_ptr, true);
 
-        GeneralSpeciesThermo* genSpthermo = dynamic_cast<GeneralSpeciesThermo*>(m_spthermo);
+        GeneralSpeciesThermo<doublereal> * genSpthermo = dynamic_cast<GeneralSpeciesThermo<doublereal> * >(m_spthermo);
         if (!genSpthermo) {
             throw CanteraError("VPSSMgr_Water_HKFT::installSpecies",
                                "failed dynamic cast");

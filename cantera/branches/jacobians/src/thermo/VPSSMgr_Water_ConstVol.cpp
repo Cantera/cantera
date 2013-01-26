@@ -59,7 +59,7 @@ VPSSMgr_Water_ConstVol::duplMyselfAsVPSSMgr() const
     return new VPSSMgr_Water_ConstVol(*this);
 }
 
-void VPSSMgr_Water_ConstVol::initAllPtrs(VPStandardStateTP* vp_ptr, SpeciesThermo* sp_ptr)
+void VPSSMgr_Water_ConstVol::initAllPtrs(VPStandardStateTP* vp_ptr, SpeciesThermo<doublereal>* sp_ptr)
 {
     VPSSMgr::initAllPtrs(vp_ptr, sp_ptr);
     m_waterSS = dynamic_cast<PDSS_Water*>(m_vptp_ptr->providePDSS(0));
@@ -254,7 +254,7 @@ VPSSMgr_Water_ConstVol::createInstallPDSS(size_t k, const XML_Node& speciesNode,
             delete m_waterSS;
         }
         m_waterSS = new PDSS_Water(m_vptp_ptr, 0);
-        GeneralSpeciesThermo* genSpthermo = dynamic_cast<GeneralSpeciesThermo*>(m_spthermo);
+        GeneralSpeciesThermo<doublereal> * genSpthermo = dynamic_cast<GeneralSpeciesThermo<doublereal> * >(m_spthermo);
         if (!genSpthermo) {
             throw CanteraError("VPSSMgr_Water_ConstVol::installSpecies", "failed dynamic cast");
         }

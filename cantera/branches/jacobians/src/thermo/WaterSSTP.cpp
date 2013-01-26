@@ -111,7 +111,7 @@ WaterSSTP& WaterSSTP::operator=(const WaterSSTP& b)
 }
 
 
-ThermoPhase* WaterSSTP::duplMyselfAsThermoPhase() const
+thermo_t* WaterSSTP::duplMyselfAsThermoPhase() const
 {
     return new WaterSSTP(*this);
 }
@@ -172,8 +172,8 @@ initThermoXML(XML_Node& phaseNode, const std::string& id)
      * Set the baseline
      */
     doublereal T = 298.15;
-    Phase::setDensity(7.0E-8);
-    Phase::setTemperature(T);
+    Phase<doublereal>::setDensity(7.0E-8);
+    Phase<doublereal>::setTemperature(T);
 
     doublereal presLow = 1.0E-2;
     doublereal oneBar = 1.0E5;
@@ -514,14 +514,14 @@ doublereal WaterSSTP::critDensity() const
 
 void WaterSSTP::setTemperature(const doublereal temp)
 {
-    Phase::setTemperature(temp);
+    Phase<doublereal>::setTemperature(temp);
     doublereal dd = density();
     m_sub->setState_TR(temp, dd);
 }
 
 void WaterSSTP::setDensity(const doublereal dens)
 {
-    Phase::setDensity(dens);
+    Phase<doublereal>::setDensity(dens);
     doublereal temp = temperature();
     m_sub->setState_TR(temp, dens);
 }

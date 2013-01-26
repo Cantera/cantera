@@ -25,7 +25,7 @@ namespace Cantera
  * Default constructor
  */
 VPStandardStateTP::VPStandardStateTP() :
-    ThermoPhase(),
+    ThermoPhase<doublereal>(),
     m_Pcurrent(OneAtm),
     m_Tlast_ss(-1.0),
     m_Plast_ss(-1.0),
@@ -44,7 +44,7 @@ VPStandardStateTP::VPStandardStateTP() :
  *  to do the heavy lifting.
  */
 VPStandardStateTP::VPStandardStateTP(const VPStandardStateTP& b) :
-    ThermoPhase(),
+    ThermoPhase<doublereal>(),
     m_Pcurrent(OneAtm),
     m_Tlast_ss(-1.0),
     m_Plast_ss(-1.0),
@@ -68,7 +68,7 @@ VPStandardStateTP::operator=(const VPStandardStateTP& b)
          * Mostly, this is a passthrough to the underlying
          * assignment operator for the ThermoPhase parent object.
          */
-        ThermoPhase::operator=(b);
+        ThermoPhase<doublereal>::operator=(b);
         /*
          * However, we have to handle data that we own.
          */
@@ -142,7 +142,7 @@ VPStandardStateTP::~VPStandardStateTP()
  * Duplication function.
  *  This calls the copy constructor for this object.
  */
-ThermoPhase* VPStandardStateTP::duplMyselfAsThermoPhase() const
+ThermoPhase<doublereal> * VPStandardStateTP::duplMyselfAsThermoPhase() const
 {
     return new VPStandardStateTP(*this);
 }
@@ -367,7 +367,7 @@ void VPStandardStateTP::getStandardVolumes_ref(doublereal* vol) const
 void VPStandardStateTP::initThermo()
 {
     initLengths();
-    ThermoPhase::initThermo();
+    ThermoPhase<doublereal>::initThermo();
     m_VPSS_ptr->initThermo();
     for (size_t k = 0; k < m_kk; k++) {
         PDSS* kPDSS = m_PDSS_storage[k];
@@ -422,7 +422,7 @@ void VPStandardStateTP::setState_TP(doublereal t, doublereal pres)
      *     Therefore, we need to do the standard state thermo calc with the
      *  (t, pres) combo.
      */
-    Phase::setTemperature(t);
+    Phase<doublereal>::setTemperature(t);
     m_Pcurrent = pres;
     updateStandardStateThermo();
     /*
@@ -495,7 +495,7 @@ void VPStandardStateTP::initThermoXML(XML_Node& phaseNode, const std::string& id
         }
     }
     m_VPSS_ptr->initThermoXML(phaseNode, id);
-    ThermoPhase::initThermoXML(phaseNode, id);
+    ThermoPhase<doublereal>::initThermoXML(phaseNode, id);
 }
 
 

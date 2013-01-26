@@ -664,7 +664,7 @@ int vcs_MultiPhaseEquil::equilibrate_TP(int estimateEquil,
     size_t kGlob = 0;
     for (size_t ip = 0; ip < m_vprob->NPhase; ip++) {
         double phaseMole = 0.0;
-        Cantera::ThermoPhase& tref = m_mix->phase(ip);
+        Cantera::thermo_t& tref = m_mix->phase(ip);
         for (size_t k = 0; k < tref.nSpecies(); k++, kGlob++) {
             phaseMole += m_vprob->w[kGlob];
         }
@@ -774,7 +774,7 @@ void vcs_MultiPhaseEquil::reportCSV(const std::string& reportFile)
     vol = 0.0;
     for (size_t iphase = 0; iphase < nphase; iphase++) {
         istart =    m_mix->speciesIndex(0, iphase);
-        Cantera::ThermoPhase& tref = m_mix->phase(iphase);
+        Cantera::thermo_t& tref = m_mix->phase(iphase);
         nSpecies = tref.nSpecies();
         VolPM.resize(nSpecies, 0.0);
         tref.getPartialMolarVolumes(VCS_DATA_PTR(VolPM));
@@ -799,8 +799,8 @@ void vcs_MultiPhaseEquil::reportCSV(const std::string& reportFile)
 
     for (size_t iphase = 0; iphase < nphase; iphase++) {
         istart =    m_mix->speciesIndex(0, iphase);
-        Cantera::ThermoPhase& tref = m_mix->phase(iphase);
-        Cantera::ThermoPhase* tp = &tref;
+        Cantera::thermo_t& tref = m_mix->phase(iphase);
+        Cantera::thermo_t* tp = &tref;
         string phaseName = tref.name();
         vcs_VolPhase* volP = m_vprob->VPhaseList[iphase];
         double TMolesPhase = volP->totalMoles();
@@ -943,7 +943,7 @@ int  vcs_Cantera_to_vprob(Cantera::MultiPhase* mphase,
     vprob->Vol       = mphase->volume();
     vprob->Title     = "MultiPhase Object";
 
-    Cantera::ThermoPhase* tPhase = 0;
+    Cantera::thermo_t* tPhase = 0;
 
     bool gasPhase;
     int printLvl = vprob->m_printLvl;
@@ -1161,7 +1161,7 @@ int  vcs_Cantera_to_vprob(Cantera::MultiPhase* mphase,
             /*
              *   get a reference to the Cantera species thermo.
              */
-            SpeciesThermo& sp = tPhase->speciesThermo();
+            SpeciesThermo<doublereal>& sp = tPhase->speciesThermo();
 
             int spType;
             double c[150];
@@ -1335,7 +1335,7 @@ int vcs_Cantera_update_vprob(Cantera::MultiPhase* mphase,
     vprob->T         = mphase->temperature();
     vprob->PresPA    = mphase->pressure();
     vprob->Vol       = mphase->volume();
-    Cantera::ThermoPhase* tPhase = 0;
+    Cantera::thermo_t* tPhase = 0;
 
     for (size_t iphase = 0; iphase < totNumPhases; iphase++) {
         tPhase = &(mphase->phase(iphase));

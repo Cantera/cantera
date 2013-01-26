@@ -112,8 +112,8 @@ VPSSMgr_IdealGas::createInstallPDSS(size_t k, const XML_Node& speciesNode,
         m_Vss.resize(k+1, 0.0);
     }
 
-    SpeciesThermoFactory<doublereal> * f = SpeciesThermoFactory::factory();
-    f->installThermoForSpecies(k, speciesNode,(ThermoPhase*) m_vptp_ptr, *m_spthermo, phaseNode_ptr);
+    SpeciesThermoFactory<doublereal> * f = SpeciesThermoFactory<doublereal>::factory();
+    f->installThermoForSpecies(k, speciesNode,(ThermoPhase<doublereal> *) m_vptp_ptr, *m_spthermo, phaseNode_ptr);
 
     PDSS* kPDSS = new PDSS_IdealGas(m_vptp_ptr, k, speciesNode,
                                     *phaseNode_ptr, true);

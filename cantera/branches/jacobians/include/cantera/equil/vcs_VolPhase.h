@@ -11,6 +11,7 @@
 #ifndef VCS_VOLPHASE_H
 #define VCS_VOLPHASE_H
 
+#include "cantera/base/ct_defs.h"
 #include "cantera/equil/vcs_DoubleStarStar.h"
 #include "cantera/equil/vcs_SpeciesProperties.h"
 
@@ -23,7 +24,9 @@
 // Forward reference for ThermoPhase object within the Cantera namespace
 namespace Cantera
 {
-class ThermoPhase;
+template<typename ValAndDerivType> class ThermoPhase;
+
+typedef ThermoPhase<doublereal> thermo_t;
 }
 
 namespace VCSnonideal
@@ -348,13 +351,13 @@ public:
      * @param tp_ptr Pointer to the ThermoPhase object corresponding
      *               to this phase.
      */
-    void setPtrThermoPhase(Cantera::ThermoPhase* tp_ptr);
+    void setPtrThermoPhase(Cantera::thermo_t* tp_ptr);
 
     //! Return a const ThermoPhase pointer corresponding to this phase
     /*!
      *  @return pointer to the ThermoPhase.
      */
-    const Cantera::ThermoPhase* ptrThermoPhase() const;
+    const Cantera::thermo_t* ptrThermoPhase() const;
 
     //! Return the total moles in the phase
     /*!
@@ -549,7 +552,7 @@ public:
      *
      * @param tPhase Pointer to the thermophase object
      */
-    size_t transferElementsFM(const Cantera::ThermoPhase* const tPhase);
+    size_t transferElementsFM(const Cantera::thermo_t* const tPhase);
 
     //! Get a constant form of the Species Formula Matrix
     /*!
@@ -832,7 +835,7 @@ private:
      *  If we are using Cantera, this is the
      *    pointer to the ThermoPhase object. If not, this is null.
      */
-    Cantera::ThermoPhase* TP_ptr;
+    Cantera::thermo_t* TP_ptr;
 
     //!  Total mols in the phase
     /*!

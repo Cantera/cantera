@@ -1051,7 +1051,7 @@ vcs_VolPhase::sendToVCS_LnActCoeffJac(double* const* const np_LnACJac_VCS)
  * @param tp_ptr Pointer to the ThermoPhase object corresponding
  *               to this phase.
  */
-void vcs_VolPhase::setPtrThermoPhase(Cantera::ThermoPhase* tp_ptr)
+void vcs_VolPhase::setPtrThermoPhase(Cantera::thermo_t* tp_ptr)
 {
     TP_ptr = tp_ptr;
     if (TP_ptr) {
@@ -1107,7 +1107,7 @@ void vcs_VolPhase::setPtrThermoPhase(Cantera::ThermoPhase* tp_ptr)
 /*
  *  @return pointer to the ThermoPhase.
  */
-const Cantera::ThermoPhase* vcs_VolPhase::ptrThermoPhase() const
+const Cantera::thermo_t* vcs_VolPhase::ptrThermoPhase() const
 {
     return TP_ptr;
 }
@@ -1438,7 +1438,7 @@ std::string vcs_VolPhase::elementName(const size_t e) const
  *  This function decides whether a phase has charged species
  *  or not.
  */
-static bool hasChargedSpecies(const Cantera::ThermoPhase* const tPhase)
+static bool hasChargedSpecies(const Cantera::thermo_t* const tPhase)
 {
     for (size_t k = 0; k < tPhase->nSpecies(); k++) {
         if (tPhase->charge(k) != 0.0) {
@@ -1456,7 +1456,7 @@ static bool hasChargedSpecies(const Cantera::ThermoPhase* const tPhase)
  *  phase. It does this by searching for charged species. If it
  *  finds one, and if the phase needs one, then it returns true.
  */
-static bool chargeNeutralityElement(const Cantera::ThermoPhase* const tPhase)
+static bool chargeNeutralityElement(const Cantera::thermo_t* const tPhase)
 {
     int hasCharge = hasChargedSpecies(tPhase);
     if (tPhase->chargeNeutralityNecessary()) {
@@ -1467,7 +1467,7 @@ static bool chargeNeutralityElement(const Cantera::ThermoPhase* const tPhase)
     return false;
 }
 
-size_t vcs_VolPhase::transferElementsFM(const Cantera::ThermoPhase* const tPhase)
+size_t vcs_VolPhase::transferElementsFM(const Cantera::thermo_t* const tPhase)
 {
     size_t e, k, eT;
     std::string ename;

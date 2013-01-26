@@ -155,7 +155,7 @@ public:
     virtual ~WaterSSTP();
 
     //! Duplicator from a ThermoPhase object
-    ThermoPhase* duplMyselfAsThermoPhase() const;
+    ThermoPhase<doublereal>* duplMyselfAsThermoPhase() const;
 
     /**
      *

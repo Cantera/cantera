@@ -189,20 +189,18 @@ protected:
 
     std::string sp_name;
 
-    //*generic species struct that contains everything we need here
-    // achtung: add doxygen markup here
-    // achtung: convert doubles to realdoubles
+    //! generic species struct that contains everything we need here
     struct species {
-        //Nominal T-R Degrees of freedom (cv = cfs*k*T)
+        //! Nominal T-R Degrees of freedom (cv = cfs*k*T)
         doublereal cfs;
 
-        // Mol. Wt. Molecular weight (kg/kmol)
+        //!  Mol. Wt. Molecular weight (kg/kmol)
         doublereal mol_weight;
 
-        // number of vibrational temperatures necessary
+        //! number of vibrational temperatures necessary
         int nvib;
 
-        // Theta_v Characteristic vibrational temperature(s) (K)
+        //! Theta_v Characteristic vibrational temperature(s) (K)
         doublereal theta[5];
     };
 

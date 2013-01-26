@@ -836,7 +836,7 @@ doublereal MultiPhaseEquil::computeReactionSteps(vector_fp& dxi)
             // sum over solution phases
             doublereal sum = 0.0, psum;
             for (ip = 0; ip < m_np; ip++) {
-                ThermoPhase& p = m_mix->phase(ip);
+                thermo_t& p = m_mix->phase(ip);
                 if (p.nSpecies() > 1) {
                     psum = 0.0;
                     for (k = 0; k < m_nsp; k++) {
@@ -973,7 +973,7 @@ void MultiPhaseEquil::reportCSV(const std::string& reportFile)
     vol = 0.0;
     for (size_t iphase = 0; iphase < nphase; iphase++) {
         istart =    m_mix->speciesIndex(0, iphase);
-        ThermoPhase& tref = m_mix->phase(iphase);
+        thermo_t& tref = m_mix->phase(iphase);
         nSpecies = tref.nSpecies();
         VolPM.resize(nSpecies, 0.0);
         tref.getMoleFractions(&mf[istart]);
@@ -999,8 +999,8 @@ void MultiPhaseEquil::reportCSV(const std::string& reportFile)
     for (size_t iphase = 0; iphase < nphase; iphase++) {
         istart =    m_mix->speciesIndex(0, iphase);
 
-        ThermoPhase& tref = m_mix->phase(iphase);
-        ThermoPhase* tp = &tref;
+        thermo_t& tref = m_mix->phase(iphase);
+        thermo_t* tp = &tref;
         tp->getMoleFractions(&mf[istart]);
         string phaseName = tref.name();
         //      vcs_VolPhase *volP = m_vprob->VPhaseList[iphase];
