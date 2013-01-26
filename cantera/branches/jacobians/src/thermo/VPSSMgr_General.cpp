@@ -30,7 +30,7 @@ namespace Cantera
 {
 
 VPSSMgr_General::VPSSMgr_General(VPStandardStateTP* vp_ptr,
-                                 SpeciesThermo* spth) :
+                                 SpeciesThermo<doublereal>* spth) :
     VPSSMgr(vp_ptr, spth)
 {
     // Might want to do something other than holding this true.
@@ -85,7 +85,7 @@ VPSSMgr* VPSSMgr_General::duplMyselfAsVPSSMgr() const
  *  @param vp_ptr   Pointer to the VPStandardStateTP standard state
  *  @param sp_ptr   Pointer to the SpeciesThermo standard state
  */
-void VPSSMgr_General::initAllPtrs(VPStandardStateTP* vp_ptr, SpeciesThermo* sp_ptr)
+void VPSSMgr_General::initAllPtrs(VPStandardStateTP* vp_ptr, SpeciesThermo<doublereal> * sp_ptr)
 {
     VPSSMgr::initAllPtrs(vp_ptr, sp_ptr);
     /*
@@ -171,7 +171,7 @@ VPSSMgr_General::returnPDSS_ptr(size_t k, const XML_Node& speciesNode,
 {
     PDSS* kPDSS = 0;
     doST = true;
-    GeneralSpeciesThermo* genSpthermo = dynamic_cast<GeneralSpeciesThermo*>(m_spthermo);
+    GeneralSpeciesThermo<doublereal> * genSpthermo = dynamic_cast<GeneralSpeciesThermo<doublereal> * >(m_spthermo);
 
 
     const XML_Node* const ss = speciesNode.findByName("standardState");

@@ -21,9 +21,9 @@
 namespace Cantera
 {
 
-class SpeciesThermoInterpType;
+template<typename ValAndDerivType> class SpeciesThermoInterpType;
 class VPStandardStateTP;
-class SpeciesThermo;
+template<typename ValAndDerivType> class SpeciesThermo;
 class PDSS;
 class PDSS_Water;
 
@@ -51,7 +51,7 @@ public:
      *  @param vp_ptr   Pointer to the VPStandardStateTP standard state
      *  @param sp_ptr   Pointer to the SpeciesThermo standard state
      */
-    VPSSMgr_Water_ConstVol(VPStandardStateTP* vp_ptr, SpeciesThermo* sp_ptr);
+    VPSSMgr_Water_ConstVol(VPStandardStateTP* vp_ptr, SpeciesThermo<doublereal> * sp_ptr);
 
     //! Destructor
     virtual ~VPSSMgr_Water_ConstVol();
@@ -303,7 +303,7 @@ public:
      *  @param    vp_ptr     Pointer to the Variable Pressure standard state object
      *  @param    sp_ptr     Pointer to the reference state thermo calculator object
      */
-    virtual void initAllPtrs(VPStandardStateTP* vp_ptr, SpeciesThermo* sp_ptr);
+    virtual void initAllPtrs(VPStandardStateTP* vp_ptr, SpeciesThermo<doublereal> * sp_ptr);
 
 private:
 

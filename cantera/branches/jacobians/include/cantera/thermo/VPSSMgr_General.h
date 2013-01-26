@@ -21,9 +21,9 @@
 namespace Cantera
 {
 
-class SpeciesThermoInterpType;
+template<typename ValAndDerivType> class SpeciesThermoInterpType;
 class VPStandardStateTP;
-class SpeciesThermo;
+template<typename ValAndDerivType> class SpeciesThermo;
 class PDSS;
 
 
@@ -54,7 +54,7 @@ public:
      *                malloced.
      */
     VPSSMgr_General(VPStandardStateTP* vp_ptr,
-                    SpeciesThermo* spth);
+                    SpeciesThermo<doublereal> * spth);
 
     //! Destructor
     virtual ~VPSSMgr_General();
@@ -273,7 +273,7 @@ public:
      *  @param vp_ptr   Pointer to the VPStandardStateTP standard state
      *  @param sp_ptr   Pointer to the SpeciesThermo standard state
      */
-    virtual void initAllPtrs(VPStandardStateTP* vp_ptr, SpeciesThermo* sp_ptr);
+    virtual void initAllPtrs(VPStandardStateTP* vp_ptr, SpeciesThermo<doublereal> * sp_ptr);
 
 private:
 

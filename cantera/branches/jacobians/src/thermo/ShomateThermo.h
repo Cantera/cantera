@@ -6,8 +6,6 @@
  *   \link Cantera::ShomateThermo ShomateThermo\endlink).
  */
 // Copyright 2001  California Institute of Technology
-
-
 #ifndef CT_SHOMATETHERMO_H
 #define CT_SHOMATETHERMO_H
 
@@ -15,8 +13,7 @@
 #include "ShomatePoly.h"
 #include "cantera/thermo/speciesThermoTypes.h"
 
-namespace Cantera
-{
+namespace Cantera {
 
 //! A species thermodynamic property manager for the Shomate polynomial parameterization.
 /*!
@@ -59,7 +56,8 @@ namespace Cantera
  *
  * @ingroup mgrsrefcalc
  */
-class ShomateThermo : public SpeciesThermo
+template<typename ValAndDerivType>
+class ShomateThermo: public SpeciesThermo<ValAndDerivType>
 {
 
 public:
@@ -72,27 +70,31 @@ public:
 
     //! constructor
     ShomateThermo() :
-        ID(SHOMATE),
-        m_tlow_max(0.0),
-        m_thigh_min(1.e30),
-        m_p0(-1.0),
-        m_ngroups(0) {
+            ID(SHOMATE),
+            m_tlow_max(0.0),
+            m_thigh_min(1.e30),
+            m_p0(-1.0),
+            m_ngroups(0)
+    {
         m_t.resize(7);
     }
 
     //! destructor
-    virtual ~ShomateThermo() {}
+    virtual ~ShomateThermo()
+    {
+    }
 
     //! Copy Constructor
     /*!
      * @param right Object to be copied
      */
-    ShomateThermo(const ShomateThermo& right) :
-        ID(SHOMATE),
-        m_tlow_max(0.0),
-        m_thigh_min(1.e30),
-        m_p0(-1.0),
-        m_ngroups(0) {
+    ShomateThermo(const ShomateThermo<ValAndDerivType>& right) :
+            ID(SHOMATE),
+            m_tlow_max(0.0),
+            m_thigh_min(1.e30),
+            m_p0(-1.0),
+            m_ngroups(0)
+    {
         *this = operator=(right);
     }
 
@@ -100,28 +102,28 @@ public:
     /*!
      * @param right Object to be copied
      */
-    ShomateThermo& operator=(const ShomateThermo& right) {
+    ShomateThermo& operator=(const ShomateThermo<ValAndDerivType>& right)
+    {
         if (&right == this) {
             return *this;
         }
 
-        m_high           = right.m_high;
-        m_low            = right.m_low;
-        m_index          = right.m_index;
-        m_tmid           = right.m_tmid;
-        m_tlow_max       = right.m_tlow_max;
-        m_thigh_min      = right.m_thigh_min;
-        m_tlow           = right.m_tlow;
-        m_thigh          = right.m_thigh;
-        m_p0             = right.m_p0;
-        m_ngroups        = right.m_ngroups;
-        m_t              = right.m_t;
-        m_group_map      = right.m_group_map;
+        m_high = right.m_high;
+        m_low = right.m_low;
+        m_index = right.m_index;
+        m_tmid = right.m_tmid;
+        m_tlow_max = right.m_tlow_max;
+        m_thigh_min = right.m_thigh_min;
+        m_tlow = right.m_tlow;
+        m_thigh = right.m_thigh;
+        m_p0 = right.m_p0;
+        m_ngroups = right.m_ngroups;
+        m_t = right.m_t;
+        m_group_map = right.m_group_map;
         m_posInGroup_map = right.m_posInGroup_map;
 
         return *this;
     }
-
 
     //! Duplication routine for objects which inherit from
     //! %SpeciesThermo
@@ -132,9 +134,10 @@ public:
      *  ->commented out because we first need to add copy constructors
      *   and assignment operators to all of the derived classes.
      */
-    virtual SpeciesThermo* duplMyselfAsSpeciesThermo() const {
-        ShomateThermo* st = new ShomateThermo(*this);
-        return (SpeciesThermo*) st;
+    virtual SpeciesThermo<ValAndDerivType>* duplMyselfAsSpeciesThermo() const
+    {
+        ShomateThermo<ValAndDerivType>* st = new ShomateThermo<ValAndDerivType>(*this);
+        return (SpeciesThermo<ValAndDerivType> *) st;
     }
 
     //! Install a new species thermodynamic property
@@ -163,14 +166,13 @@ public:
      * @see ShomatePoly
      * @see ShomatePoly2
      */
-    virtual void install(const std::string& name, size_t index, int type,
-                         const doublereal* c,
-                         doublereal minTemp, doublereal maxTemp,
-                         doublereal refPressure) {
-        int imid = int(c[0]);       // midpoint temp converted to integer
-        int igrp = m_index[imid];   // has this value been seen before?
-        if (igrp == 0) {            // if not, prepare new group
-            std::vector<ShomatePoly> v;
+    virtual void install(const std::string& name, size_t index, int type, const doublereal* c, doublereal minTemp,
+                         doublereal maxTemp, doublereal refPressure)
+    {
+        int imid = int(c[0]); // midpoint temp converted to integer
+        int igrp = m_index[imid]; // has this value been seen before?
+        if (igrp == 0) { // if not, prepare new group
+            std::vector<ShomatePoly<ValAndDerivType> > v;
             m_high.push_back(v);
             m_low.push_back(v);
             m_tmid.push_back(c[0]);
@@ -178,17 +180,15 @@ public:
             m_ngroups++;
         }
         m_group_map[index] = igrp;
-        m_posInGroup_map[index] = (int) m_low[igrp-1].size();
-        doublereal tlow  = minTemp;
-        doublereal tmid  = c[0];
+        m_posInGroup_map[index] = (int) m_low[igrp - 1].size();
+        doublereal tlow = minTemp;
+        doublereal tmid = c[0];
         doublereal thigh = maxTemp;
 
         const doublereal* clow = c + 1;
         const doublereal* chigh = c + 8;
-        m_high[igrp-1].push_back(ShomatePoly(index, tmid, thigh,
-                                             refPressure, chigh));
-        m_low[igrp-1].push_back(ShomatePoly(index, tlow, tmid,
-                                            refPressure, clow));
+        m_high[igrp - 1].push_back(ShomatePoly<ValAndDerivType>(index, tmid, thigh, refPressure, chigh));
+        m_low[igrp - 1].push_back(ShomatePoly<ValAndDerivType>(index, tlow, tmid, refPressure, clow));
         if (tlow > m_tlow_max) {
             m_tlow_max = tlow;
         }
@@ -197,7 +197,7 @@ public:
         }
 
         if (m_tlow.size() < index + 1) {
-            m_tlow.resize(index + 1,  tlow);
+            m_tlow.resize(index + 1, tlow);
             m_thigh.resize(index + 1, thigh);
         }
         m_tlow[index] = tlow;
@@ -206,9 +206,8 @@ public:
         if (m_p0 < 0.0) {
             m_p0 = refPressure;
         } else if (fabs(m_p0 - refPressure) > 0.1) {
-            std::string logmsg =  " ERROR ShomateThermo: New Species, " + name
-                                  +  ", has a different reference pressure, "
-                                  + fp2str(refPressure) + ", than existing reference pressure, " + fp2str(m_p0) + "\n";
+            std::string logmsg = " ERROR ShomateThermo: New Species, " + name + ", has a different reference pressure, "
+                    + fp2str(refPressure) + ", than existing reference pressure, " + fp2str(m_p0) + "\n";
             writelog(logmsg);
             logmsg = "                  This is now a fatal error\n";
             writelog(logmsg);
@@ -224,7 +223,8 @@ public:
      * @param stit_ptr Pointer to the SpeciesThermoInterpType object
      *          This will set up the thermo for one species
      */
-    virtual void install_STIT(SpeciesThermoInterpType* stit_ptr) {
+    virtual void install_STIT(SpeciesThermoInterpType<ValAndDerivType> * stit_ptr)
+    {
         throw CanteraError("install_STIT", "not implemented");
     }
 
@@ -239,29 +239,29 @@ public:
      * @param s_R     Vector of Dimensionless entropies.
      *                (length m_kk).
      */
-    virtual void update_one(size_t k, doublereal t, doublereal* cp_R,
-                            doublereal* h_RT, doublereal* s_R) const {
+    virtual void update_one(size_t k, doublereal t, ValAndDerivType* cp_R, ValAndDerivType* h_RT, ValAndDerivType* s_R) const
+    {
 
-        doublereal tt = 1.e-3*t;
+        doublereal tt = 1.e-3 * t;
         m_t[0] = tt;
-        m_t[1] = tt*tt;
-        m_t[2] = m_t[1]*tt;
-        m_t[3] = 1.0/m_t[1];
+        m_t[1] = tt * tt;
+        m_t[2] = m_t[1] * tt;
+        m_t[3] = 1.0 / m_t[1];
         m_t[4] = log(tt);
-        m_t[5] = 1.0/GasConstant;
-        m_t[6] = 1.0/(GasConstant * t);
+        m_t[5] = 1.0 / GasConstant;
+        m_t[6] = 1.0 / (GasConstant * t);
 
         size_t grp = m_group_map[k];
         size_t pos = m_posInGroup_map[k];
-        const std::vector<ShomatePoly> &mlg = m_low[grp-1];
-        const ShomatePoly* nlow = &(mlg[pos]);
+        const std::vector<ShomatePoly<ValAndDerivType> > &mlg = m_low[grp - 1];
+        const ShomatePoly<ValAndDerivType>* nlow = &(mlg[pos]);
 
         doublereal tmid = nlow->maxTemp();
         if (t < tmid) {
             nlow->updateProperties(&m_t[0], cp_R, h_RT, s_R);
         } else {
-            const std::vector<ShomatePoly> &mhg = m_high[grp-1];
-            const ShomatePoly* nhigh = &(mhg[pos]);
+            const std::vector<ShomatePoly<ValAndDerivType> > &mhg = m_high[grp - 1];
+            const ShomatePoly<ValAndDerivType>* nhigh = &(mhg[pos]);
             nhigh->updateProperties(&m_t[0], cp_R, h_RT, s_R);
         }
     }
@@ -281,27 +281,27 @@ public:
      * @param s_R     Vector of Dimensionless entropies.
      *                (length m_kk).
      */
-    virtual void update(doublereal t, doublereal* cp_R,
-                        doublereal* h_RT, doublereal* s_R) const {
+    virtual void update(doublereal t, doublereal* cp_R, doublereal* h_RT, doublereal* s_R) const
+    {
         int i;
 
-        doublereal tt = 1.e-3*t;
+        doublereal tt = 1.e-3 * t;
         m_t[0] = tt;
-        m_t[1] = tt*tt;
-        m_t[2] = m_t[1]*tt;
-        m_t[3] = 1.0/m_t[1];
+        m_t[1] = tt * tt;
+        m_t[2] = m_t[1] * tt;
+        m_t[3] = 1.0 / m_t[1];
         m_t[4] = log(tt);
-        m_t[5] = 1.0/GasConstant;
-        m_t[6] = 1.0/(GasConstant * t);
+        m_t[5] = 1.0 / GasConstant;
+        m_t[6] = 1.0 / (GasConstant * t);
 
-        std::vector<ShomatePoly>::const_iterator _begin, _end;
+        typename std::vector<ShomatePoly<ValAndDerivType> >::const_iterator _begin, _end;
         for (i = 0; i != m_ngroups; i++) {
             if (t > m_tmid[i]) {
-                _begin  = m_high[i].begin();
-                _end    = m_high[i].end();
+                _begin = m_high[i].begin();
+                _end = m_high[i].end();
             } else {
-                _begin  = m_low[i].begin();
-                _end    = m_low[i].end();
+                _begin = m_low[i].begin();
+                _end = m_low[i].end();
             }
             for (; _begin != _end; ++_begin) {
                 _begin->updateProperties(&m_t[0], cp_R, h_RT, s_R);
@@ -319,7 +319,8 @@ public:
      *
      * @param k    Species index
      */
-    virtual doublereal minTemp(size_t k=npos) const {
+    virtual doublereal minTemp(size_t k = npos) const
+    {
         if (k == npos) {
             return m_tlow_max;
         } else {
@@ -337,7 +338,8 @@ public:
      *
      * @param k  species index
      */
-    virtual doublereal maxTemp(size_t k=npos) const {
+    virtual doublereal maxTemp(size_t k = npos) const
+    {
         if (k == npos) {
             return m_thigh_min;
         } else {
@@ -358,7 +360,8 @@ public:
      *
      * @param k species index
      */
-    virtual doublereal refPressure(size_t k=npos) const {
+    virtual doublereal refPressure(size_t k = npos) const
+    {
         return m_p0;
     }
 
@@ -368,7 +371,8 @@ public:
      *
      * @param index  Species index
      */
-    virtual int reportType(size_t index) const {
+    virtual int reportType(size_t index) const
+    {
         return SHOMATE;
     }
 
@@ -386,34 +390,30 @@ public:
      * @param maxTemp   output - Maximum temperature
      * @param refPressure output - reference pressure (Pa).
      */
-    virtual void reportParams(size_t index, int& type,
-                              doublereal* const c,
-                              doublereal& minTemp,
-                              doublereal& maxTemp,
-                              doublereal& refPressure) const {
+    virtual void reportParams(size_t index, int& type, doublereal* const c, doublereal& minTemp, doublereal& maxTemp,
+                              doublereal& refPressure) const
+    {
         type = reportType(index);
         if (type == SHOMATE) {
             size_t grp = m_group_map[index];
             size_t pos = m_posInGroup_map[index];
             int itype = SHOMATE;
-            const std::vector<ShomatePoly> &mlg = m_low[grp-1];
-            const std::vector<ShomatePoly> &mhg = m_high[grp-1];
-            const ShomatePoly* lowPoly  = &(mlg[pos]);
-            const ShomatePoly* highPoly = &(mhg[pos]);
+            const std::vector<ShomatePoly<ValAndDerivType> > &mlg = m_low[grp - 1];
+            const std::vector<ShomatePoly<ValAndDerivType> > &mhg = m_high[grp - 1];
+            const ShomatePoly<ValAndDerivType> * lowPoly = &(mlg[pos]);
+            const ShomatePoly<ValAndDerivType> * highPoly = &(mhg[pos]);
             doublereal tmid = lowPoly->maxTemp();
             c[0] = tmid;
             size_t n;
             double ttemp;
-            lowPoly->reportParameters(n, itype, minTemp, ttemp, refPressure,
-                                      c + 1);
+            lowPoly->reportParameters(n, itype, minTemp, ttemp, refPressure, c + 1);
             if (n != index) {
                 throw CanteraError("  ", "confused");
             }
             if (itype != SHOMATE && itype != SHOMATE1) {
                 throw CanteraError("  ", "confused");
             }
-            highPoly->reportParameters(n, itype,  ttemp, maxTemp,
-                                       refPressure, c + 8);
+            highPoly->reportParameters(n, itype, ttemp, maxTemp, refPressure, c + 8);
             if (n != index) {
                 throw CanteraError("  ", "confused");
             }
@@ -427,38 +427,40 @@ public:
 
 #ifdef H298MODIFY_CAPABILITY
 
-    virtual doublereal reportOneHf298(size_t k) const {
+    virtual doublereal reportOneHf298(size_t k) const
+    {
         doublereal h;
         doublereal t = 298.15;
 
         int grp = m_group_map[k];
         int pos = m_posInGroup_map[k];
-        const std::vector<ShomatePoly> &mlg = m_low[grp-1];
-        const ShomatePoly* nlow = &(mlg[pos]);
+        const std::vector<ShomatePoly<ValAndDerivType> > &mlg = m_low[grp - 1];
+        const ShomatePoly<ValAndDerivType>* nlow = &(mlg[pos]);
 
         doublereal tmid = nlow->maxTemp();
         if (t <= tmid) {
             h = nlow->reportHf298();
         } else {
-            const std::vector<ShomatePoly> &mhg = m_high[grp-1];
-            const ShomatePoly* nhigh = &(mhg[pos]);
+            const std::vector<ShomatePoly<ValAndDerivType> > &mhg = m_high[grp - 1];
+            const ShomatePoly<ValAndDerivType>* nhigh = &(mhg[pos]);
             h = nhigh->reportHf298();
         }
         return h;
     }
 
-    virtual void modifyOneHf298(const size_t k, const doublereal Hf298New) {
+    virtual void modifyOneHf298(const size_t k, const doublereal Hf298New)
+    {
 
         int grp = m_group_map[k];
         int pos = m_posInGroup_map[k];
-        std::vector<ShomatePoly> &mlg = m_low[grp-1];
-        ShomatePoly* nlow = &(mlg[pos]);
-        std::vector<ShomatePoly> &mhg = m_high[grp-1];
-        ShomatePoly* nhigh = &(mhg[pos]);
+        std::vector<ShomatePoly<ValAndDerivType> > &mlg = m_low[grp - 1];
+        ShomatePoly<ValAndDerivType>* nlow = &(mlg[pos]);
+        std::vector<ShomatePoly<ValAndDerivType> > &mhg = m_high[grp - 1];
+        ShomatePoly<ValAndDerivType>* nhigh = &(mhg[pos]);
         doublereal tmid = nlow->maxTemp();
 
         double hnow = reportOneHf298(k);
-        double delH =  Hf298New - hnow;
+        double delH = Hf298New - hnow;
         if (298.15 <= tmid) {
             nlow->modifyOneHf298(k, Hf298New);
             double h = nhigh->reportHf298(0);
@@ -473,7 +475,6 @@ public:
 
     }
 
-
 #endif
 protected:
 
@@ -484,7 +485,7 @@ protected:
      * The second vector is equal to the number of species
      * in that particular group.
      */
-    std::vector<std::vector<ShomatePoly> > m_high;
+    std::vector<std::vector<ShomatePoly<ValAndDerivType> > > m_high;
 
     //! Vector of vector of NasaPoly1's for the low temp region.
     /*!
@@ -493,49 +494,49 @@ protected:
      * The second vector is equal to the number of species
      * in that particular group.
      */
-    std::vector<std::vector<ShomatePoly> > m_low;
+    std::vector<std::vector<ShomatePoly<ValAndDerivType> > > m_low;
 
     //! Map between the midpoint temperature, as an int, to the group number
     /*!
      * Length is equal to the number of groups. Only used in the setup.
      */
-    std::map<int, int>              m_index;
+    std::map<int, int> m_index;
 
     //! Vector of log temperature limits
     /*!
      * Length is equal to the number of groups.
      */
-    vector_fp                  m_tmid;
+    vector_fp m_tmid;
 
     //! Maximum value of the low temperature limit
-    doublereal                 m_tlow_max;
+    doublereal m_tlow_max;
 
     //! Minimum value of the high temperature limit
-    doublereal                 m_thigh_min;
+    doublereal m_thigh_min;
 
     //! Vector of low temperature limits (species index)
     /*!
      * Length is equal to number of species
      */
-    vector_fp                  m_tlow;
+    vector_fp m_tlow;
 
     //! Vector of low temperature limits (species index)
     /*!
      * Length is equal to number of species
      */
-    vector_fp                  m_thigh;
+    vector_fp m_thigh;
 
     //! Reference pressure (Pa)
     /*!
      * all species must have the same reference pressure.
      */
-    doublereal                 m_p0;
+    doublereal m_p0;
 
     //! number of groups
-    int                        m_ngroups;
+    int m_ngroups;
 
     //! Vector of temperature polynomials
-    mutable vector_fp          m_t;
+    mutable vector_fp m_t;
 
     /*!
      * This map takes as its index, the species index in the phase.

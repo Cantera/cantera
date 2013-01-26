@@ -5,7 +5,6 @@
  * \link Cantera::ConstCpPoly ConstCpPoly \endlink).
  */
 // Copyright 2001  California Institute of Technology
-
 #include "ConstCpPoly.h"
 
 #include <cmath>
@@ -99,7 +98,8 @@ doublereal ConstCpPoly<ValAndDerivType>::refPressure() const
 }
 
 template<typename ValAndDerivType>
-void ConstCpPoly<ValAndDerivType>::updateProperties(const doublereal* tt, doublereal* cp_R, doublereal* h_RT, doublereal* s_R) const
+void ConstCpPoly<ValAndDerivType>::updateProperties(const ValAndDerivType* tt, ValAndDerivType* cp_R, ValAndDerivType* h_RT,
+                                                    ValAndDerivType* s_R) const
 {
     double t = *tt;
     doublereal logt = log(t);
@@ -110,7 +110,8 @@ void ConstCpPoly<ValAndDerivType>::updateProperties(const doublereal* tt, double
 }
 
 template<typename ValAndDerivType>
-void ConstCpPoly<ValAndDerivType>::updatePropertiesTemp(const doublereal temp, doublereal* cp_R, doublereal* h_RT, doublereal* s_R) const
+void ConstCpPoly<ValAndDerivType>::updatePropertiesTemp(const doublereal temp, ValAndDerivType* cp_R, ValAndDerivType* h_RT,
+                                                        ValAndDerivType* s_R) const
 {
     doublereal logt = log(temp);
     doublereal rt = 1.0 / temp;
@@ -121,7 +122,7 @@ void ConstCpPoly<ValAndDerivType>::updatePropertiesTemp(const doublereal temp, d
 
 template<typename ValAndDerivType>
 void ConstCpPoly<ValAndDerivType>::reportParameters(size_t& n, int& type, doublereal& tlow, doublereal& thigh, doublereal& pref,
-                                   doublereal* const coeffs) const
+                                                    doublereal* const coeffs) const
 {
     n = m_index;
     type = CONSTANT_CP;

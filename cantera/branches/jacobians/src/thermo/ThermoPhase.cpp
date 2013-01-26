@@ -6,7 +6,6 @@
  */
 
 //  Copyright 2002 California Institute of Technology
-
 #include "cantera/thermo/ThermoPhase.h"
 #include "cantera/base/mdp_allo.h"
 #include "cantera/base/stringUtils.h"
@@ -18,23 +17,25 @@
 using namespace std;
 using namespace ctml;
 
-namespace Cantera
-{
+namespace Cantera {
 
 //! Constructor. Note that ThermoPhase is meant to be used as
 //! a base class, so this constructor should not be called
 //! explicitly.
-ThermoPhase::ThermoPhase() :
-    Phase(),
-    m_spthermo(0), m_speciesData(0),
-    m_phi(0.0),
-    m_hasElementPotentials(false),
-    m_chargeNeutralityNecessary(false),
-    m_ssConvention(cSS_CONVENTION_TEMPERATURE)
+template<typename ValAndDerivType>
+ThermoPhase<ValAndDerivType>::ThermoPhase() :
+        Phase<ValAndDerivType>(),
+        m_spthermo(0),
+        m_speciesData(0),
+        m_phi(0.0),
+        m_hasElementPotentials(false),
+        m_chargeNeutralityNecessary(false),
+        m_ssConvention(cSS_CONVENTION_TEMPERATURE)
 {
 }
 
-ThermoPhase::~ThermoPhase()
+template<typename ValAndDerivType>
+ThermoPhase<ValAndDerivType>::~ThermoPhase()
 {
     for (size_t k = 0; k < m_kk; k++) {
         if (m_speciesData[k]) {
@@ -53,14 +54,15 @@ ThermoPhase::~ThermoPhase()
  * Currently, this is implemented, but not tested. If called it will
  * throw an exception until fully tested.
  */
-ThermoPhase::ThermoPhase(const ThermoPhase& right)  :
-    Phase(),
-    m_spthermo(0),
-    m_speciesData(0),
-    m_phi(0.0),
-    m_hasElementPotentials(false),
-    m_chargeNeutralityNecessary(false),
-    m_ssConvention(cSS_CONVENTION_TEMPERATURE)
+template<typename ValAndDerivType>
+ThermoPhase<ValAndDerivType>::ThermoPhase(const ThermoPhase& right) :
+        Phase<ValAndDerivType>(),
+        m_spthermo(0),
+        m_speciesData(0),
+        m_phi(0.0),
+        m_hasElementPotentials(false),
+        m_chargeNeutralityNecessary(false),
+        m_ssConvention(cSS_CONVENTION_TEMPERATURE)
 {
     /*
      * Call the assignment operator
@@ -74,8 +76,8 @@ ThermoPhase::ThermoPhase(const ThermoPhase& right)  :
  *  Note this stuff will not work until the underlying phase
  *  has a working assignment operator
  */
-ThermoPhase& ThermoPhase::
-operator=(const ThermoPhase& right)
+template<typename ValAndDerivType>
+ThermoPhase<ValAndDerivType>& ThermoPhase<ValAndDerivType>::operator=(const ThermoPhase& right)
 {
     /*
      * Check for self assignment.
@@ -100,7 +102,7 @@ operator=(const ThermoPhase& right)
     /*
      * Call the base class assignment operator
      */
-    (void)Phase::operator=(right);
+    (void) Phase<ValAndDerivType>::operator=(right);
 
     /*
      * Pointer to the species thermodynamic property manager
@@ -135,35 +137,42 @@ operator=(const ThermoPhase& right)
  *  Currently, this is not fully implemented. If called, an
  *  exception will be called by the ThermoPhase copy constructor.
  */
-ThermoPhase* ThermoPhase::duplMyselfAsThermoPhase() const
+template<typename ValAndDerivType>
+ThermoPhase<ValAndDerivType>*
+ThermoPhase<ValAndDerivType>::duplMyselfAsThermoPhase() const
 {
     return new ThermoPhase(*this);
 }
 //====================================================================================================================
-int ThermoPhase::activityConvention() const
+template<typename ValAndDerivType>
+int ThermoPhase<ValAndDerivType>::activityConvention() const
 {
     return cAC_CONVENTION_MOLAR;
 }
 //=================================================================================================================
-int ThermoPhase::standardStateConvention() const
+template<typename ValAndDerivType>
+int ThermoPhase<ValAndDerivType>::standardStateConvention() const
 {
     return m_ssConvention;
 }
 //=================================================================================================================
-doublereal ThermoPhase::logStandardConc(size_t k) const
+template<typename ValAndDerivType>
+doublereal ThermoPhase<ValAndDerivType>::logStandardConc(size_t k) const
 {
     return log(standardConcentration(k));
 }
 //=================================================================================================================
-void ThermoPhase::getActivities(doublereal* a) const
+template<typename ValAndDerivType>
+void ThermoPhase<ValAndDerivType>::getActivities(doublereal* a) const
 {
     getActivityConcentrations(a);
-    for (size_t k = 0; k < nSpecies(); k++) {
+    for (size_t k = 0; k < this->nSpecies(); k++) {
         a[k] /= standardConcentration(k);
     }
 }
 //=================================================================================================================
-void ThermoPhase::getLnActivityCoefficients(doublereal* lnac) const
+template<typename ValAndDerivType>
+void ThermoPhase<ValAndDerivType>::getLnActivityCoefficients(doublereal* lnac) const
 {
     getActivityCoefficients(lnac);
     for (size_t k = 0; k < m_kk; k++) {
@@ -171,86 +180,93 @@ void ThermoPhase::getLnActivityCoefficients(doublereal* lnac) const
     }
 }
 //=================================================================================================================
-void ThermoPhase::setState_TPX(doublereal t, doublereal p, const doublereal* x)
+template<typename ValAndDerivType>
+void ThermoPhase<ValAndDerivType>::setState_TPX(doublereal t, doublereal p, const doublereal* x)
 {
-    setMoleFractions(x);
-    setState_TP(t,p);
+    this->setMoleFractions(x);
+    setState_TP(t, p);
 }
 //=================================================================================================================
-void ThermoPhase::setState_TPX(doublereal t, doublereal p, compositionMap& x)
+template<typename ValAndDerivType>
+void ThermoPhase<ValAndDerivType>::setState_TPX(doublereal t, doublereal p, compositionMap& x)
 {
-    setMoleFractionsByName(x);
-    setState_TP(t,p);
+    this->setMoleFractionsByName(x);
+    setState_TP(t, p);
 }
 //=================================================================================================================
-void ThermoPhase::setState_TPX(doublereal t, doublereal p, const std::string& x)
+template<typename ValAndDerivType>
+void ThermoPhase<ValAndDerivType>::setState_TPX(doublereal t, doublereal p, const std::string& x)
 {
-    compositionMap xx = parseCompString(x, speciesNames());
-    setMoleFractionsByName(xx);
-    setState_TP(t,p);
+    compositionMap xx = parseCompString(x, this->speciesNames());
+    this->setMoleFractionsByName(xx);
+    setState_TP(t, p);
 }
 //=================================================================================================================
-void ThermoPhase::setState_TPY(doublereal t, doublereal p,
-                               const doublereal* y)
+template<typename ValAndDerivType>
+void ThermoPhase<ValAndDerivType>::setState_TPY(doublereal t, doublereal p, const doublereal* y)
 {
-    setMassFractions(y);
-    setState_TP(t,p);
+    this->setMassFractions(y);
+    setState_TP(t, p);
 }
 //=================================================================================================================
-void ThermoPhase::setState_TPY(doublereal t, doublereal p,
-                               compositionMap& y)
+template<typename ValAndDerivType>
+void ThermoPhase<ValAndDerivType>::setState_TPY(doublereal t, doublereal p, compositionMap& y)
 {
-    setMassFractionsByName(y);
-    setState_TP(t,p);
+    this->setMassFractionsByName(y);
+    setState_TP(t, p);
 }
 //=================================================================================================================
-void ThermoPhase::setState_TPY(doublereal t, doublereal p,
-                               const std::string& y)
+template<typename ValAndDerivType>
+void ThermoPhase<ValAndDerivType>::setState_TPY(doublereal t, doublereal p, const std::string& y)
 {
-    compositionMap yy = parseCompString(y, speciesNames());
-    setMassFractionsByName(yy);
-    setState_TP(t,p);
+    compositionMap yy = parseCompString(y, this->speciesNames());
+    this->setMassFractionsByName(yy);
+    setState_TP(t, p);
 }
 //=================================================================================================================
 
-void ThermoPhase::setState_TP(doublereal t, doublereal p)
+template<typename ValAndDerivType>
+void ThermoPhase<ValAndDerivType>::setState_TP(doublereal t, doublereal p)
 {
-    setTemperature(t);
+    this->setTemperature(t);
     setPressure(p);
 }
 //=================================================================================================================
 
-void ThermoPhase::setState_PX(doublereal p, doublereal* x)
+template<typename ValAndDerivType>
+void ThermoPhase<ValAndDerivType>::setState_PX(doublereal p, doublereal* x)
 {
-    setMoleFractions(x);
+    this->setMoleFractions(x);
     setPressure(p);
 }
 //=================================================================================================================
 
-void ThermoPhase::setState_PY(doublereal p, doublereal* y)
+template<typename ValAndDerivType>
+void ThermoPhase<ValAndDerivType>::setState_PY(doublereal p, doublereal* y)
 {
-    setMassFractions(y);
+    this->setMassFractions(y);
     setPressure(p);
 }
 //=================================================================================================================
 
-void ThermoPhase::setState_HP(doublereal Htarget, doublereal p,
-                              doublereal dTtol)
+template<typename ValAndDerivType>
+void ThermoPhase<ValAndDerivType>::setState_HP(doublereal Htarget, doublereal p, doublereal dTtol)
 {
     setState_HPorUV(Htarget, p, dTtol, false);
 }
 //=================================================================================================================
 
-void ThermoPhase::setState_UV(doublereal u, doublereal v,
-                              doublereal dTtol)
+template<typename ValAndDerivType>
+void ThermoPhase<ValAndDerivType>::setState_UV(doublereal u, doublereal v, doublereal dTtol)
 {
     setState_HPorUV(u, v, dTtol, true);
 }
 //=================================================================================================================
 
-void ThermoPhase::setState_conditional_TP(doublereal t, doublereal p, bool set_p)
+template<typename ValAndDerivType>
+void ThermoPhase<ValAndDerivType>::setState_conditional_TP(doublereal t, doublereal p, bool set_p)
 {
-    setTemperature(t);
+    this->setTemperature(t);
     if (set_p) {
         setPressure(p);
     }
@@ -266,8 +282,8 @@ void ThermoPhase::setState_conditional_TP(doublereal t, doublereal p, bool set_p
  *  Note, the value of dTtol may become important for some applications
  *  where numerical jacobians are being calculated.
  */
-void ThermoPhase::setState_HPorUV(doublereal Htarget, doublereal p,
-                                  doublereal dTtol, bool doUV)
+template<typename ValAndDerivType>
+void ThermoPhase<ValAndDerivType>::setState_HPorUV(doublereal Htarget, doublereal p, doublereal dTtol, bool doUV)
 {
     doublereal dt;
     doublereal Hmax = 0.0, Hmin = 0.0;
@@ -277,14 +293,12 @@ void ThermoPhase::setState_HPorUV(doublereal Htarget, doublereal p,
     if (doUV) {
         v = p;
         if (v < 1.0E-300) {
-            throw CanteraError("setState_HPorUV (UV)",
-                               "Input specific volume is too small or negative. v = " + fp2str(v));
+            throw CanteraError("setState_HPorUV (UV)", "Input specific volume is too small or negative. v = " + fp2str(v));
         }
-        setDensity(1.0/v);
+        this->setDensity(1.0 / v);
     } else {
         if (p < 1.0E-300) {
-            throw CanteraError("setState_HPorUV (HP)",
-                               "Input pressure is too small or negative. p = " + fp2str(p));
+            throw CanteraError("setState_HPorUV (HP)", "Input pressure is too small or negative. p = " + fp2str(p));
         }
         setPressure(p);
     }
@@ -333,7 +347,7 @@ void ThermoPhase::setState_HPorUV(doublereal Htarget, doublereal p,
             Tunstable = Tnew;
         }
         // limit step size to 100 K
-        dt = clip((Htarget - Hold)/cpd, -100.0, 100.0);
+        dt = clip((Htarget - Hold) / cpd, -100.0, 100.0);
 
         // Calculate the new T
         Tnew = Told + dt;
@@ -384,10 +398,10 @@ void ThermoPhase::setState_HPorUV(doublereal Htarget, doublereal p,
         //    spinodal value of H.
         for (int its = 0; its < 10; its++) {
             Tnew = Told + dt;
-	    if (Tnew < Told / 3.0) {
-		Tnew = Told / 3.0;
-		dt = -2.0 * Told / 3.0;
-	    }
+            if (Tnew < Told / 3.0) {
+                Tnew = Told / 3.0;
+                dt = -2.0 * Told / 3.0;
+            }
             setState_conditional_TP(Tnew, p, !doUV);
             if (doUV) {
                 Hnew = intEnergy_mass();
@@ -421,8 +435,8 @@ void ThermoPhase::setState_HPorUV(doublereal Htarget, doublereal p,
         double Herr = Htarget - Hnew;
         double acpd = std::max(fabs(cpd), 1.0E-5);
         double denom = std::max(fabs(Htarget), acpd * dTtol);
-        double HConvErr = fabs((Herr)/denom);
-        if (HConvErr < 0.00001 *dTtol || fabs(dt) < dTtol) {
+        double HConvErr = fabs((Herr) / denom);
+        if (HConvErr < 0.00001 * dTtol || fabs(dt) < dTtol) {
             return;
         }
     }
@@ -431,7 +445,7 @@ void ThermoPhase::setState_HPorUV(doublereal Htarget, doublereal p,
      * Formulate a detailed error message, since questions seem to
      * arise often about the lack of convergence.
      */
-    string ErrString =  "No convergence in 500 iterations\n";
+    string ErrString = "No convergence in 500 iterations\n";
     if (doUV) {
         ErrString += "\tTarget Internal Energy  = " + fp2str(Htarget) + "\n";
         ErrString += "\tCurrent Specific Volume = " + fp2str(v) + "\n";
@@ -448,8 +462,7 @@ void ThermoPhase::setState_HPorUV(doublereal Htarget, doublereal p,
         ErrString += "\tCurrent Delta T         = " + fp2str(dt) + "\n";
     }
     if (unstablePhase) {
-        ErrString += "\t  - The phase became unstable (Cp < 0) T_unstable_last = "
-                     + fp2str(Tunstable) + "\n";
+        ErrString += "\t  - The phase became unstable (Cp < 0) T_unstable_last = " + fp2str(Tunstable) + "\n";
     }
     if (doUV) {
         throw CanteraError("setState_HPorUV (UV)", ErrString);
@@ -459,15 +472,15 @@ void ThermoPhase::setState_HPorUV(doublereal Htarget, doublereal p,
 }
 //=================================================================================================================
 
-void ThermoPhase::setState_SP(doublereal Starget, doublereal p,
-                              doublereal dTtol)
+template<typename ValAndDerivType>
+void ThermoPhase<ValAndDerivType>::setState_SP(doublereal Starget, doublereal p, doublereal dTtol)
 {
     setState_SPorSV(Starget, p, dTtol, false);
 }
 //=================================================================================================================
 
-void ThermoPhase::setState_SV(doublereal Starget, doublereal v,
-                              doublereal dTtol)
+template<typename ValAndDerivType>
+void ThermoPhase<ValAndDerivType>::setState_SV(doublereal Starget, doublereal v, doublereal dTtol)
 {
     setState_SPorSV(Starget, v, dTtol, true);
 }
@@ -483,22 +496,20 @@ void ThermoPhase::setState_SV(doublereal Starget, doublereal v,
  *  Note, the value of dTtol may become important for some applications
  *  where numerical jacobians are being calculated.
  */
-void ThermoPhase::setState_SPorSV(doublereal Starget, doublereal p,
-                                  doublereal dTtol, bool doSV)
+template<typename ValAndDerivType>
+void ThermoPhase<ValAndDerivType>::setState_SPorSV(doublereal Starget, doublereal p, doublereal dTtol, bool doSV)
 {
     doublereal v = 0.0;
     doublereal dt;
     if (doSV) {
         v = p;
         if (v < 1.0E-300) {
-            throw CanteraError("setState_SPorSV (SV)",
-                               "Input specific volume is too small or negative. v = " + fp2str(v));
+            throw CanteraError("setState_SPorSV (SV)", "Input specific volume is too small or negative. v = " + fp2str(v));
         }
-        setDensity(1.0/v);
+        this->setDensity(1.0 / v);
     } else {
         if (p < 1.0E-300) {
-            throw CanteraError("setState_SPorSV (SP)",
-                               "Input pressure is too small or negative. p = " + fp2str(p));
+            throw CanteraError("setState_SPorSV (SP)", "Input pressure is too small or negative. p = " + fp2str(p));
         }
         setPressure(p);
     }
@@ -546,7 +557,7 @@ void ThermoPhase::setState_SPorSV(doublereal Starget, doublereal p,
             Tunstable = Tnew;
         }
         // limit step size to 100 K
-        dt = clip((Starget - Sold)*Told/cpd, -100.0, 100.0);
+        dt = clip((Starget - Sold) * Told / cpd, -100.0, 100.0);
         Tnew = Told + dt;
 
         // Limit the step size so that we are convergent
@@ -620,8 +631,8 @@ void ThermoPhase::setState_SPorSV(doublereal Starget, doublereal p,
         double Serr = Starget - Snew;
         double acpd = std::max(fabs(cpd), 1.0E-5);
         double denom = std::max(fabs(Starget), acpd * dTtol);
-        double SConvErr = fabs((Serr * Tnew)/denom);
-        if (SConvErr < 0.00001 *dTtol || fabs(dt) < dTtol) {
+        double SConvErr = fabs((Serr * Tnew) / denom);
+        if (SConvErr < 0.00001 * dTtol || fabs(dt) < dTtol) {
             return;
         }
     }
@@ -630,7 +641,7 @@ void ThermoPhase::setState_SPorSV(doublereal Starget, doublereal p,
      * Formulate a detailed error message, since questions seem to
      * arise often about the lack of convergence.
      */
-    string ErrString =  "No convergence in 500 iterations\n";
+    string ErrString = "No convergence in 500 iterations\n";
     if (doSV) {
         ErrString += "\tTarget Entropy          = " + fp2str(Starget) + "\n";
         ErrString += "\tCurrent Specific Volume = " + fp2str(v) + "\n";
@@ -647,8 +658,7 @@ void ThermoPhase::setState_SPorSV(doublereal Starget, doublereal p,
         ErrString += "\tCurrent Delta T         = " + fp2str(dt) + "\n";
     }
     if (unstablePhase) {
-        ErrString += "\t  - The phase became unstable (Cp < 0) T_unstable_last = "
-                     + fp2str(Tunstable) + "\n";
+        ErrString += "\t  - The phase became unstable (Cp < 0) T_unstable_last = " + fp2str(Tunstable) + "\n";
     }
     if (doSV) {
         throw CanteraError("setState_SPorSV (SV)", ErrString);
@@ -658,10 +668,10 @@ void ThermoPhase::setState_SPorSV(doublereal Starget, doublereal p,
 }
 //=================================================================================================================
 
-doublereal ThermoPhase::err(const std::string& msg) const
+template<typename ValAndDerivType>
+doublereal ThermoPhase<ValAndDerivType>::err(const std::string& msg) const
 {
-    throw CanteraError("ThermoPhase","Base class method "
-                       +msg+" called. Equation of state type: "+int2str(eosType()));
+    throw CanteraError("ThermoPhase", "Base class method " + msg + " called. Equation of state type: " + int2str(eosType()));
     return 0.0;
 }
 
@@ -692,14 +702,15 @@ doublereal ThermoPhase::err(const std::string& msg) const
  *  uA[4] = Temperature units - default = 0;
  *  uA[5] = time units - default = 0
  */
-void ThermoPhase::getUnitsStandardConc(double* uA, int k, int sizeUA) const
+template<typename ValAndDerivType>
+void ThermoPhase<ValAndDerivType>::getUnitsStandardConc(double* uA, int k, int sizeUA) const
 {
     for (int i = 0; i < sizeUA; i++) {
         if (i == 0) {
             uA[0] = 1.0;
         }
         if (i == 1) {
-            uA[1] = -int(nDim());
+            uA[1] = -int(this->nDim());
         }
         if (i == 2) {
             uA[2] = 0.0;
@@ -730,7 +741,8 @@ void ThermoPhase::getUnitsStandardConc(double* uA, int k, int sizeUA) const
  *
  *  @internal
  */
-void ThermoPhase::setSpeciesThermo(SpeciesThermo* spthermo)
+template<typename ValAndDerivType>
+void ThermoPhase<ValAndDerivType>::setSpeciesThermo(SpeciesThermo<ValAndDerivType> * spthermo)
 {
     if (m_spthermo) {
         if (m_spthermo != spthermo) {
@@ -748,11 +760,11 @@ void ThermoPhase::setSpeciesThermo(SpeciesThermo* spthermo)
  *
  * @internal
  */
-SpeciesThermo& ThermoPhase::speciesThermo(int k)
+template<typename ValAndDerivType>
+SpeciesThermo<ValAndDerivType>& ThermoPhase<ValAndDerivType>::speciesThermo(int k)
 {
     if (!m_spthermo) {
-        throw CanteraError("ThermoPhase::speciesThermo()",
-                           "species reference state thermo manager was not set");
+        throw CanteraError("ThermoPhase::speciesThermo()", "species reference state thermo manager was not set");
     }
     return *m_spthermo;
 }
@@ -772,19 +784,17 @@ SpeciesThermo& ThermoPhase::speciesThermo(int k)
  *            phase. If none is given, the first XML
  *            phase element will be used.
  */
-void ThermoPhase::initThermoFile(const std::string& inputFile,
-                                 const std::string& id)
+template<typename ValAndDerivType>
+void ThermoPhase<ValAndDerivType>::initThermoFile(const std::string& inputFile, const std::string& id)
 {
 
     if (inputFile.size() == 0) {
-        throw CanteraError("ThermoPhase::initThermoFile",
-                           "input file is null");
+        throw CanteraError("ThermoPhase::initThermoFile", "input file is null");
     }
     string path = findInputFile(inputFile);
     ifstream fin(path.c_str());
     if (!fin) {
-        throw CanteraError("initThermoFile","could not open "
-                           +path+" for reading.");
+        throw CanteraError("initThermoFile", "could not open " + path + " for reading.");
     }
     /*
      * The phase object automatically constructs an XML object.
@@ -795,15 +805,13 @@ void ThermoPhase::initThermoFile(const std::string& inputFile,
     fxml->build(fin);
     XML_Node* fxml_phase = findXMLPhase(fxml, id);
     if (!fxml_phase) {
-        throw CanteraError("ThermoPhase::initThermo",
-                           "ERROR: Can not find phase named " +
-                           id + " in file named " + inputFile);
+        throw CanteraError("ThermoPhase::initThermo", "ERROR: Can not find phase named " + id + " in file named " + inputFile);
     }
     //fxml_phase->copy(&phaseNode_XML);
     //initThermoXML(*fxml_phase, id);
     bool m_ok = importPhase(*fxml_phase, this);
     if (!m_ok) {
-        throw CanteraError("ThermoPhase::initThermoFile","importPhase failed ");
+        throw CanteraError("ThermoPhase::initThermoFile", "importPhase failed ");
     }
     delete fxml;
 }
@@ -828,7 +836,8 @@ void ThermoPhase::initThermoFile(const std::string& inputFile,
  *             to see if phaseNode is pointing to the phase
  *             with the correct id.
  */
-void ThermoPhase::initThermoXML(XML_Node& phaseNode, const std::string& id)
+template<typename ValAndDerivType>
+void ThermoPhase<ValAndDerivType>::initThermoXML(XML_Node& phaseNode, const std::string& id)
 {
 
     /*
@@ -841,7 +850,8 @@ void ThermoPhase::initThermoXML(XML_Node& phaseNode, const std::string& id)
     setReferenceComposition(0);
 }
 
-void ThermoPhase::setReferenceComposition(const doublereal* const x)
+template<typename ValAndDerivType>
+void ThermoPhase<ValAndDerivType>::setReferenceComposition(const doublereal* const x)
 {
     xMol_Ref.resize(m_kk);
     if (x) {
@@ -849,20 +859,20 @@ void ThermoPhase::setReferenceComposition(const doublereal* const x)
             xMol_Ref[k] = x[k];
         }
     } else {
-        getMoleFractions(DATA_PTR(xMol_Ref));
+        this->getMoleFractions(DATA_PTR(xMol_Ref));
     }
     double sum = -1.0;
     for (size_t k = 0; k < m_kk; k++) {
         sum += xMol_Ref[k];
     }
     if (fabs(sum) > 1.0E-11) {
-        throw CanteraError("ThermoPhase::setReferenceComposition",
-                           "input mole fractions don't sum to 1.0");
+        throw CanteraError("ThermoPhase::setReferenceComposition", "input mole fractions don't sum to 1.0");
     }
 
 }
 
-void ThermoPhase::getReferenceComposition(doublereal* const x) const
+template<typename ValAndDerivType>
+void ThermoPhase<ValAndDerivType>::getReferenceComposition(doublereal* const x) const
 {
     for (size_t k = 0; k < m_kk; k++) {
         x[k] = xMol_Ref[k];
@@ -884,36 +894,39 @@ void ThermoPhase::getReferenceComposition(doublereal* const x) const
  *
  * @see importCTML.cpp
  */
-void ThermoPhase::initThermo()
+template<typename ValAndDerivType>
+void ThermoPhase<ValAndDerivType>::initThermo()
 {
     // Check to see that there is at least one species defined in the phase
     if (m_kk == 0) {
-        throw CanteraError("ThermoPhase::initThermo()",
-                           "Number of species is equal to zero");
+        throw CanteraError("ThermoPhase::initThermo()", "Number of species is equal to zero");
     }
     xMol_Ref.resize(m_kk, 0.0);
 }
 //====================================================================================================================
-void ThermoPhase::installSlavePhases(Cantera::XML_Node* phaseNode)
+template<typename ValAndDerivType>
+void ThermoPhase<ValAndDerivType>::installSlavePhases(Cantera::XML_Node* phaseNode)
 {
 
 }
 //====================================================================================================================
-void ThermoPhase::saveSpeciesData(const size_t k, const XML_Node* const data)
+template<typename ValAndDerivType>
+void ThermoPhase<ValAndDerivType>::saveSpeciesData(const size_t k, const XML_Node* const data)
 {
     if (m_speciesData.size() < (k + 1)) {
-        m_speciesData.resize(k+1, 0);
+        m_speciesData.resize(k + 1, 0);
     }
     m_speciesData[k] = new XML_Node(*data);
 }
 //====================================================================================================================
 // Return a pointer to the XML tree containing the species
 // data for this phase.
-const std::vector<const XML_Node*> & ThermoPhase::speciesData() const
+template<typename ValAndDerivType>
+const std::vector<const XML_Node*> &
+ThermoPhase<ValAndDerivType>::speciesData() const
 {
     if (m_speciesData.size() != m_kk) {
-        throw CanteraError("ThermoPhase::speciesData",
-                           "m_speciesData is the wrong size");
+        throw CanteraError("ThermoPhase::speciesData", "m_speciesData is the wrong size");
     }
     return m_speciesData;
 }
@@ -921,20 +934,21 @@ const std::vector<const XML_Node*> & ThermoPhase::speciesData() const
 /*
  * Set the thermodynamic state.
  */
-void ThermoPhase::setStateFromXML(const XML_Node& state)
+template<typename ValAndDerivType>
+void ThermoPhase<ValAndDerivType>::setStateFromXML(const XML_Node& state)
 {
-    string comp = getChildValue(state,"moleFractions");
+    string comp = getChildValue(state, "moleFractions");
     if (comp != "") {
-        setMoleFractionsByName(comp);
+        this->setMoleFractionsByName(comp);
     } else {
-        comp = getChildValue(state,"massFractions");
+        comp = getChildValue(state, "massFractions");
         if (comp != "") {
-            setMassFractionsByName(comp);
+            this->setMassFractionsByName(comp);
         }
     }
     if (state.hasChild("temperature")) {
         double t = getFloat(state, "temperature", "temperature");
-        setTemperature(t);
+        this->setTemperature(t);
     }
     if (state.hasChild("pressure")) {
         double p = getFloat(state, "pressure", "pressure");
@@ -942,7 +956,7 @@ void ThermoPhase::setStateFromXML(const XML_Node& state)
     }
     if (state.hasChild("density")) {
         double rho = getFloat(state, "density", "density");
-        setDensity(rho);
+        this->setDensity(rho);
     }
 }
 //====================================================================================================================
@@ -955,10 +969,11 @@ void ThermoPhase::setStateFromXML(const XML_Node& state)
  *    @param lambda vector containing the element potentials.
  *           Length = nElements. Units are Joules/kmol.
  */
-void ThermoPhase::setElementPotentials(const vector_fp& lambda)
+template<typename ValAndDerivType>
+void ThermoPhase<ValAndDerivType>::setElementPotentials(const vector_fp& lambda)
 {
-    doublereal rrt = 1.0/(GasConstant* temperature());
-    size_t mm = nElements();
+    doublereal rrt = 1.0 / (GasConstant * temperature());
+    size_t mm = this->nElements();
     if (lambda.size() < mm) {
         throw CanteraError("setElementPotentials", "lambda too small");
     }
@@ -978,12 +993,13 @@ void ThermoPhase::setElementPotentials(const vector_fp& lambda)
  * @param lambda Vector containing the element potentials.
  *        Length = nElements. Units are Joules/kmol.
  */
-bool ThermoPhase::getElementPotentials(doublereal* lambda) const
+template<typename ValAndDerivType>
+bool ThermoPhase<ValAndDerivType>::getElementPotentials(doublereal* lambda) const
 {
-    doublereal rt = GasConstant* temperature();
+    doublereal rt = GasConstant * temperature();
     if (m_hasElementPotentials) {
-        for (size_t m = 0; m < nElements(); m++) {
-            lambda[m] =  m_lambdaRRT[m] * rt;
+        for (size_t m = 0; m < this->nElements(); m++) {
+            lambda[m] = m_lambdaRRT[m] * rt;
         }
     }
     return (m_hasElementPotentials);
@@ -1007,7 +1023,8 @@ bool ThermoPhase::getElementPotentials(doublereal* lambda) const
  * @param dlnActCoeffdN    Output vector of derivatives of the
  *                         log Activity Coefficients. length = m_kk * m_kk
  */
-void ThermoPhase::getdlnActCoeffdlnN(const size_t ld, doublereal* const dlnActCoeffdlnN)
+template<typename ValAndDerivType>
+void ThermoPhase<ValAndDerivType>::getdlnActCoeffdlnN(const size_t ld, doublereal* const dlnActCoeffdlnN)
 {
     for (size_t m = 0; m < m_kk; m++) {
         for (size_t k = 0; k < m_kk; k++) {
@@ -1017,7 +1034,8 @@ void ThermoPhase::getdlnActCoeffdlnN(const size_t ld, doublereal* const dlnActCo
     return;
 }
 //====================================================================================================================
-void ThermoPhase::getdlnActCoeffdlnN_numderiv(const size_t ld, doublereal* const dlnActCoeffdlnN)
+template<typename ValAndDerivType>
+void ThermoPhase<ValAndDerivType>::getdlnActCoeffdlnN_numderiv(const size_t ld, doublereal* const dlnActCoeffdlnN)
 {
     double deltaMoles_j = 0.0;
     double pres = pressure();
@@ -1028,7 +1046,7 @@ void ThermoPhase::getdlnActCoeffdlnN_numderiv(const size_t ld, doublereal* const
     std::vector<double> ActCoeff_Base(m_kk);
     getActivityCoefficients(DATA_PTR(ActCoeff_Base));
     std::vector<double> Xmol_Base(m_kk);
-    getMoleFractions(DATA_PTR(Xmol_Base));
+    this->getMoleFractions(DATA_PTR(Xmol_Base));
 
     // Make copies of ActCoeff and Xmol_ for use in taking differences
     std::vector<double> ActCoeff(m_kk);
@@ -1071,8 +1089,8 @@ void ThermoPhase::getdlnActCoeffdlnN_numderiv(const size_t ld, doublereal* const
          */
         double* const lnActCoeffCol = dlnActCoeffdlnN + ld * j;
         for (size_t k = 0; k < m_kk; k++) {
-            lnActCoeffCol[k] = (2*moles_j_base + deltaMoles_j) *(ActCoeff[k] - ActCoeff_Base[k]) /
-                               ((ActCoeff[k] + ActCoeff_Base[k]) * deltaMoles_j);
+            lnActCoeffCol[k] = (2 * moles_j_base + deltaMoles_j) * (ActCoeff[k] - ActCoeff_Base[k])
+                    / ((ActCoeff[k] + ActCoeff_Base[k]) * deltaMoles_j);
         }
         /*
          * Revert to the base case Xmol_, v_totalMoles
@@ -1080,34 +1098,35 @@ void ThermoPhase::getdlnActCoeffdlnN_numderiv(const size_t ld, doublereal* const
         v_totalMoles = TMoles_base;
         mdp::mdp_copy_dbl_1(DATA_PTR(Xmol), DATA_PTR(Xmol_Base), (int) m_kk);
     }
-    /*
-     * Go get base values for the activity coefficients.
-     * -> Note this calls setState_TPX() again;
-     * -> Just wanted to make sure that cantera is in sync
-     *    with VolPhase after this call.
-     */
+        /*
+         * Go get base values for the activity coefficients.
+         * -> Note this calls setState_TPX() again;
+         * -> Just wanted to make sure that cantera is in sync
+         *    with VolPhase after this call.
+         */
     setState_PX(pres, DATA_PTR(Xmol_Base));
 }
 //====================================================================================================================
-/*
- * Format a summary of the mixture state for output.
- */
-std::string ThermoPhase::report(bool show_thermo) const
+    /*
+     * Format a summary of the mixture state for output.
+     */
+template<typename ValAndDerivType>
+std::string ThermoPhase<ValAndDerivType>::report(bool show_thermo) const
 {
     char p[800];
     string s = "";
     try {
-        if (name() != "") {
-            sprintf(p, " \n  %s:\n", name().c_str());
+        if (this->name() != "") {
+            sprintf(p, " \n  %s:\n", this->name().c_str());
             s += p;
         }
         sprintf(p, " \n       temperature    %12.6g  K\n", temperature());
         s += p;
         sprintf(p, "          pressure    %12.6g  Pa\n", pressure());
         s += p;
-        sprintf(p, "           density    %12.6g  kg/m^3\n", density());
+        sprintf(p, "           density    %12.6g  kg/m^3\n", this->density());
         s += p;
-        sprintf(p, "  mean mol. weight    %12.6g  amu\n", meanMolecularWeight());
+        sprintf(p, "  mean mol. weight    %12.6g  amu\n", this->meanMolecularWeight());
         s += p;
 
         doublereal phi = electricPotential();
@@ -1122,24 +1141,18 @@ std::string ThermoPhase::report(bool show_thermo) const
             s += p;
             sprintf(p, "                       -----------      ------------\n");
             s += p;
-            sprintf(p, "          enthalpy    %12.6g     %12.4g     J\n",
-                    enthalpy_mass(), enthalpy_mole());
+            sprintf(p, "          enthalpy    %12.6g     %12.4g     J\n", enthalpy_mass(), enthalpy_mole());
             s += p;
-            sprintf(p, "   internal energy    %12.6g     %12.4g     J\n",
-                    intEnergy_mass(), intEnergy_mole());
+            sprintf(p, "   internal energy    %12.6g     %12.4g     J\n", intEnergy_mass(), intEnergy_mole());
             s += p;
-            sprintf(p, "           entropy    %12.6g     %12.4g     J/K\n",
-                    entropy_mass(), entropy_mole());
+            sprintf(p, "           entropy    %12.6g     %12.4g     J/K\n", entropy_mass(), entropy_mole());
             s += p;
-            sprintf(p, "    Gibbs function    %12.6g     %12.4g     J\n",
-                    gibbs_mass(), gibbs_mole());
+            sprintf(p, "    Gibbs function    %12.6g     %12.4g     J\n", gibbs_mass(), gibbs_mole());
             s += p;
-            sprintf(p, " heat capacity c_p    %12.6g     %12.4g     J/K\n",
-                    cp_mass(), cp_mole());
+            sprintf(p, " heat capacity c_p    %12.6g     %12.4g     J/K\n", cp_mass(), cp_mole());
             s += p;
             try {
-                sprintf(p, " heat capacity c_v    %12.6g     %12.4g     J/K\n",
-                        cv_mass(), cv_mole());
+                sprintf(p, " heat capacity c_v    %12.6g     %12.4g     J/K\n", cv_mass(), cv_mole());
                 s += p;
             } catch (CanteraError& err) {
                 err.save();
@@ -1148,12 +1161,12 @@ std::string ThermoPhase::report(bool show_thermo) const
             }
         }
 
-        size_t kk = nSpecies();
+        size_t kk = this->nSpecies();
         vector_fp x(kk);
         vector_fp y(kk);
         vector_fp mu(kk);
-        getMoleFractions(&x[0]);
-        getMassFractions(&y[0]);
+        this->getMoleFractions(&x[0]);
+        this->getMassFractions(&y[0]);
         getChemPotentials(&mu[0]);
         doublereal rt = GasConstant * temperature();
         //if (th.nSpecies() > 1) {
@@ -1167,11 +1180,9 @@ std::string ThermoPhase::report(bool show_thermo) const
             s += p;
             for (size_t k = 0; k < kk; k++) {
                 if (x[k] > SmallNumber) {
-                    sprintf(p, "%18s   %12.6g     %12.6g     %12.6g\n",
-                            speciesName(k).c_str(), x[k], y[k], mu[k]/rt);
+                    sprintf(p, "%18s   %12.6g     %12.6g     %12.6g\n", this->speciesName(k).c_str(), x[k], y[k], mu[k] / rt);
                 } else {
-                    sprintf(p, "%18s   %12.6g     %12.6g     \n",
-                            speciesName(k).c_str(), x[k], y[k]);
+                    sprintf(p, "%18s   %12.6g     %12.6g     \n", this->speciesName(k).c_str(), x[k], y[k]);
                 }
                 s += p;
             }
@@ -1183,8 +1194,7 @@ std::string ThermoPhase::report(bool show_thermo) const
                     "     ------------\n");
             s += p;
             for (size_t k = 0; k < kk; k++) {
-                sprintf(p, "%18s   %12.6g     %12.6g\n",
-                        speciesName(k).c_str(), x[k], y[k]);
+                sprintf(p, "%18s   %12.6g     %12.6g\n", this->speciesName(k).c_str(), x[k], y[k]);
                 s += p;
             }
         }
@@ -1199,17 +1209,18 @@ std::string ThermoPhase::report(bool show_thermo) const
 /*
  * Format a summary of the mixture state for output.
  */
-void ThermoPhase::reportCSV(std::ofstream& csvFile) const
+template<typename ValAndDerivType>
+void ThermoPhase<ValAndDerivType>::reportCSV(std::ofstream& csvFile) const
 {
     int tabS = 15;
     int tabM = 30;
     csvFile.precision(8);
 
-    vector_fp X(nSpecies());
-    getMoleFractions(&X[0]);
+    vector_fp X(this->nSpecies());
+    this->getMoleFractions(&X[0]);
 
-    std::vector<std::string> pNames;
-    std::vector<vector_fp> data;
+    std::vector < std::string > pNames;
+    std::vector < vector_fp > data;
     getCsvReportData(pNames, data);
 
     csvFile << setw(tabS) << "Species,";
@@ -1217,8 +1228,8 @@ void ThermoPhase::reportCSV(std::ofstream& csvFile) const
         csvFile << setw(tabM) << pNames[i] << ",";
     }
     csvFile << endl;
-    for (size_t k = 0; k < nSpecies(); k++) {
-        csvFile << setw(tabS) << speciesName(k) + ",";
+    for (size_t k = 0; k < this->nSpecies(); k++) {
+        csvFile << setw(tabS) << this->speciesName(k) + ",";
         if (X[k] > SmallNumber) {
             for (size_t i = 0; i < pNames.size(); i++) {
                 csvFile << setw(tabM) << data[i][k] << ",";
@@ -1233,17 +1244,17 @@ void ThermoPhase::reportCSV(std::ofstream& csvFile) const
     }
 }
 
-void ThermoPhase::getCsvReportData(std::vector<std::string>& names,
-                                   std::vector<vector_fp>& data) const
+template<typename ValAndDerivType>
+void ThermoPhase<ValAndDerivType>::getCsvReportData(std::vector<std::string>& names, std::vector<vector_fp>& data) const
 {
     names.clear();
-    data.assign(10, vector_fp(nSpecies()));
+    data.assign(10, vector_fp(this->nSpecies()));
 
     names.push_back("X");
-    getMoleFractions(&data[0][0]);
+    this->getMoleFractions(&data[0][0]);
 
     names.push_back("Y");
-    getMassFractions(&data[1][0]);
+    this->getMassFractions(&data[1][0]);
 
     names.push_back("Chem. Pot (J/kmol)");
     getChemPotentials(&data[2][0]);

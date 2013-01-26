@@ -20,7 +20,8 @@
 namespace Cantera
 {
 
-class SpeciesThermoInterpType;
+template<typename ValAndDerivType> class SpeciesThermoInterpType;
+template<typename ValAndDerivType> class SpeciesThermo;
 class PDSS;
 
 //! Constant Molar Volume e VPSS species thermo manager class
@@ -45,7 +46,7 @@ public:
      *                phase. It's a requirement that this be already
      *                malloced.
      */
-    VPSSMgr_ConstVol(VPStandardStateTP* vp_ptr, SpeciesThermo* spth);
+    VPSSMgr_ConstVol(VPStandardStateTP* vp_ptr, SpeciesThermo<doublereal>* spth);
 
     //! Destructor
     virtual ~VPSSMgr_ConstVol();

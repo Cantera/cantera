@@ -23,7 +23,7 @@ using namespace std;
 namespace Cantera
 {
 
-VPSSMgr_ConstVol::VPSSMgr_ConstVol(VPStandardStateTP* vp_ptr, SpeciesThermo* spth) :
+VPSSMgr_ConstVol::VPSSMgr_ConstVol(VPStandardStateTP* vp_ptr, SpeciesThermo<doublereal> * spth) :
     VPSSMgr(vp_ptr, spth)
 {
     m_useTmpRefStateStorage      = true;

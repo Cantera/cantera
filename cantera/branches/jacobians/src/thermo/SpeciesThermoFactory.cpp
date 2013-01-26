@@ -155,74 +155,75 @@ SpeciesThermoFactory<ValAndDerivType>::~SpeciesThermoFactory()
  * specified in a CTML phase specification.
  */
 template<typename ValAndDerivType>
-SpeciesThermo *
+SpeciesThermo<ValAndDerivType> *
 SpeciesThermoFactory<ValAndDerivType>::newSpeciesThermo(std::vector<XML_Node*> & spDataNodeList) const
 {
     int inasa = 0, ishomate = 0, isimple = 0, iother = 0;
     try {
         getSpeciesThermoTypes(spDataNodeList, inasa, ishomate, isimple, iother);
-    } catch (UnknownSpeciesThermoModel) {
+    } catch (UnknownSpeciesThermoModel &berr) {
         iother = 1;
         popError();
     }
     if (iother) {
         //writelog("returning new GeneralSpeciesThermo");
-        return new GeneralSpeciesThermo();
+        return new GeneralSpeciesThermo<ValAndDerivType>();
     }
     return newSpeciesThermo(NASA * inasa + SHOMATE * ishomate + SIMPLE * isimple);
 }
 template<typename ValAndDerivType>
-SpeciesThermo* SpeciesThermoFactory<ValAndDerivType>::newSpeciesThermo(int type) const
+SpeciesThermo<ValAndDerivType> * SpeciesThermoFactory<ValAndDerivType>::newSpeciesThermo(int type) const
 {
     switch (type) {
     case NASA:
-        return new NasaThermo;
+        return new NasaThermo<ValAndDerivType>();
     case SHOMATE:
-        return new ShomateThermo;
+        return new ShomateThermo<ValAndDerivType>();
     case SIMPLE:
-        return new SimpleThermo;
+        return new SimpleThermo<ValAndDerivType>();
     case NASA + SHOMATE:
-        return new SpeciesThermoDuo<NasaThermo, ShomateThermo> ;
+        return new SpeciesThermoDuo<NasaThermo<ValAndDerivType>, ShomateThermo<ValAndDerivType> > ;
     case NASA + SIMPLE:
-        return new SpeciesThermoDuo<NasaThermo, SimpleThermo> ;
+        return new SpeciesThermoDuo<NasaThermo<ValAndDerivType>, SimpleThermo<ValAndDerivType> > ;
     case SHOMATE + SIMPLE:
-        return new SpeciesThermoDuo<ShomateThermo, SimpleThermo> ;
+        return new SpeciesThermoDuo<ShomateThermo<ValAndDerivType>, SimpleThermo<ValAndDerivType> > ;
     default:
         throw UnknownSpeciesThermo("SpeciesThermoFactory::newSpeciesThermo", type);
         return 0;
     }
 }
 template<typename ValAndDerivType>
-SpeciesThermo* SpeciesThermoFactory<ValAndDerivType>::newSpeciesThermoManager(std::string& stype) const
+SpeciesThermo<ValAndDerivType>* SpeciesThermoFactory<ValAndDerivType>::newSpeciesThermoManager(std::string& stype) const
 {
     std::string ltype = lowercase(stype);
     if (ltype == "nasa") {
-        return new NasaThermo;
+        return new NasaThermo<ValAndDerivType>();
     } else if (ltype == "shomate") {
-        return new ShomateThermo;
+        return new ShomateThermo<ValAndDerivType>();
     } else if (ltype == "simple" || ltype == "constant_cp") {
-        return new SimpleThermo;
+        return new SimpleThermo<ValAndDerivType>();
     } else if (ltype == "nasa_shomate_duo") {
-        return new SpeciesThermoDuo<NasaThermo, ShomateThermo> ;
+        return new SpeciesThermoDuo<NasaThermo<ValAndDerivType>, ShomateThermo<ValAndDerivType> > ;
     } else if (ltype == "nasa_simple_duo") {
-        return new SpeciesThermoDuo<NasaThermo, SimpleThermo> ;
+        return new SpeciesThermoDuo<NasaThermo<ValAndDerivType>, SimpleThermo<ValAndDerivType> > ;
     } else if (ltype == "shomate_simple_duo") {
-        return new SpeciesThermoDuo<ShomateThermo, SimpleThermo> ;
+        return new SpeciesThermoDuo<ShomateThermo<ValAndDerivType>, SimpleThermo<ValAndDerivType> > ;
     } else if (ltype == "general") {
-        return new GeneralSpeciesThermo();
+        return new GeneralSpeciesThermo<ValAndDerivType>();
     } else if (ltype == "") {
-        return (SpeciesThermo*) 0;
+        return (SpeciesThermo<ValAndDerivType> *) 0;
     } else {
         throw UnknownSpeciesThermo("SpeciesThermoFactory::newSpeciesThermoManager", stype);
     }
-    return (SpeciesThermo*) 0;
+    return (SpeciesThermo<ValAndDerivType> *) 0;
 }
 
 /*
  * Check the continuity of properties at the midpoint
  * temperature.
  */
-void NasaThermo::checkContinuity(const std::string& name, double tmid, const doublereal* clow, doublereal* chigh)
+template<typename ValAndDerivType>
+void NasaThermo<ValAndDerivType>::checkContinuity(const std::string& name, double tmid, const doublereal* clow, doublereal* chigh)
 {
     // heat capacity
     doublereal cplow = poly4(tmid, clow);
@@ -267,8 +268,9 @@ void NasaThermo::checkContinuity(const std::string& name, double tmid, const dou
  *  @param f0ptr              Ptr to the first XML_Node for the first NASA polynomial
  *  @param f1ptr              Ptr to the first XML_Node for the first NASA polynomial
  */
-static void installNasaThermoFromXML(const std::string& speciesName, SpeciesThermo& sp, size_t k, const XML_Node* f0ptr,
-                                     const XML_Node* f1ptr)
+template<typename ValAndDerivType>
+static void installNasaThermoFromXML(const std::string& speciesName, SpeciesThermo<ValAndDerivType> & sp, size_t k,
+                                     const XML_Node* f0ptr, const XML_Node* f1ptr)
 {
     doublereal tmin0, tmax0, tmin1, tmax1, tmin, tmid, tmax;
 
@@ -403,7 +405,7 @@ static doublereal convertDGFormation(size_t k, ThermoPhase<ValAndDerivType>* th_
  */
 template<typename ValAndDerivType>
 static void installMinEQ3asShomateThermoFromXML(const std::string& speciesName, ThermoPhase<ValAndDerivType>* th_ptr,
-                                                SpeciesThermo& sp, size_t k, const XML_Node* MinEQ3node)
+                                                SpeciesThermo<ValAndDerivType>& sp, size_t k, const XML_Node* MinEQ3node)
 {
 
     vector_fp coef(15), c0(7, 0.0);
@@ -484,8 +486,9 @@ static void installMinEQ3asShomateThermoFromXML(const std::string& speciesName, 
  *  @param f0ptr              Ptr to the first XML_Node for the first NASA polynomial
  *  @param f1ptr              Ptr to the first XML_Node for the first NASA polynomial
  */
-static void installShomateThermoFromXML(const std::string& speciesName, SpeciesThermo& sp, size_t k, const XML_Node* f0ptr,
-                                        const XML_Node* f1ptr)
+template<typename ValAndDerivType>
+static void installShomateThermoFromXML(const std::string& speciesName, SpeciesThermo<ValAndDerivType>& sp, size_t k,
+                                        const XML_Node* f0ptr, const XML_Node* f1ptr)
 {
     doublereal tmin0, tmax0, tmin1, tmax1, tmin, tmid, tmax;
     const XML_Node& f0 = *f0ptr;
@@ -549,7 +552,9 @@ static void installShomateThermoFromXML(const std::string& speciesName, SpeciesT
  *  @param k                  Species index within the phase
  *  @param f                  XML_Node for the SimpleThermo block
  */
-static void installSimpleThermoFromXML(const std::string& speciesName, SpeciesThermo& sp, size_t k, const XML_Node& f)
+template<typename ValAndDerivType>
+static void installSimpleThermoFromXML(const std::string& speciesName, SpeciesThermo<ValAndDerivType>& sp, size_t k,
+                                       const XML_Node& f)
 {
     doublereal tmin, tmax;
     tmin = fpValue(f["Tmin"]);
@@ -576,13 +581,15 @@ static void installSimpleThermoFromXML(const std::string& speciesName, SpeciesTh
  *  @param k                  Species index within the phase
  *  @param tp                 Vector of XML Nodes that make up the parameterization
  */
-static void installNasa9ThermoFromXML(const std::string& speciesName, SpeciesThermo& sp, size_t k, const std::vector<XML_Node*>& tp)
+template<typename ValAndDerivType>
+static void installNasa9ThermoFromXML(const std::string& speciesName, SpeciesThermo<ValAndDerivType>& sp, size_t k,
+                                      const std::vector<XML_Node*>& tp)
 {
     const XML_Node* fptr = tp[0];
     int nRegions = 0;
     vector_fp cPoly;
-    Nasa9Poly1* np_ptr = 0;
-    std::vector<Nasa9Poly1*> regionPtrs;
+    Nasa9Poly1<ValAndDerivType> * np_ptr = 0;
+    std::vector<Nasa9Poly1<ValAndDerivType> *> regionPtrs;
     doublereal tmin, tmax, pref = OneAtm;
     // Loop over all of the possible temperature regions
     for (size_t i = 0; i < tp.size(); i++) {
@@ -604,7 +611,7 @@ static void installNasa9ThermoFromXML(const std::string& speciesName, SpeciesThe
                     if (cPoly.size() != 9) {
                         throw CanteraError("installNasa9ThermoFromXML", "Expected 9 coeff polynomial");
                     }
-                    np_ptr = new Nasa9Poly1(k, tmin, tmax, pref, DATA_PTR(cPoly));
+                    np_ptr = new Nasa9Poly1<ValAndDerivType>(k, tmin, tmax, pref, DATA_PTR(cPoly));
                     regionPtrs.push_back(np_ptr);
                     nRegions++;
                 }
@@ -616,7 +623,7 @@ static void installNasa9ThermoFromXML(const std::string& speciesName, SpeciesThe
     } else if (nRegions == 1) {
         sp.install_STIT(np_ptr);
     } else {
-        Nasa9PolyMultiTempRegion* npMulti_ptr = new Nasa9PolyMultiTempRegion(regionPtrs);
+        Nasa9PolyMultiTempRegion<ValAndDerivType>* npMulti_ptr = new Nasa9PolyMultiTempRegion<ValAndDerivType>(regionPtrs);
         sp.install_STIT(npMulti_ptr);
     }
 }
@@ -625,12 +632,14 @@ static void installNasa9ThermoFromXML(const std::string& speciesName, SpeciesThe
  * Install a stat mech based property solver
  * for species k into a SpeciesThermo instance.
  */
-static void installStatMechThermoFromXML(const std::string& speciesName, SpeciesThermo& sp, int k, const std::vector<XML_Node*>& tp)
+template<typename ValAndDerivType>
+static void installStatMechThermoFromXML(const std::string& speciesName, SpeciesThermo<ValAndDerivType>& sp, int k,
+                                         const std::vector<XML_Node*>& tp)
 {
     const XML_Node* fptr = tp[0];
     int nRegTmp = tp.size();
     vector_fp cPoly;
-    std::vector<StatMech*> regionPtrs;
+    std::vector<StatMech<ValAndDerivType> *> regionPtrs;
     doublereal tmin, tmax = 0.0, pref = OneAtm;
 
     // Loop over all of the possible temperature regions
@@ -674,7 +683,9 @@ static void installStatMechThermoFromXML(const std::string& speciesName, Species
  *  @param k                  Species index within the phase
  *  @param f                  XML Node that contains the parameterization
  */
-static void installAdsorbateThermoFromXML(const std::string& speciesName, SpeciesThermo& sp, size_t k, const XML_Node& f)
+template<typename ValAndDerivType>
+static void installAdsorbateThermoFromXML(const std::string& speciesName, SpeciesThermo<ValAndDerivType>& sp, size_t k,
+                                          const XML_Node& f)
 {
     vector_fp freqs;
     doublereal tmin, tmax, pref = OneAtm;
@@ -720,7 +731,8 @@ static void installAdsorbateThermoFromXML(const std::string& speciesName, Specie
  */
 template<typename ValAndDerivType>
 void SpeciesThermoFactory<ValAndDerivType>::installThermoForSpecies(size_t k, const XML_Node& speciesNode,
-                                                                    ThermoPhase<ValAndDerivType>* th_ptr, SpeciesThermo& spthermo,
+                                                                    ThermoPhase<ValAndDerivType>* th_ptr,
+                                                                    SpeciesThermo<ValAndDerivType>& spthermo,
                                                                     const XML_Node* phaseNode_ptr) const
 {
     /*
@@ -823,7 +835,7 @@ void SpeciesThermoFactory<ValAndDerivType>::installThermoForSpecies(size_t k, co
 template<typename ValAndDerivType>
 void SpeciesThermoFactory<ValAndDerivType>::installVPThermoForSpecies(size_t k, const XML_Node& speciesNode,
                                                                       VPStandardStateTP* vp_ptr, VPSSMgr* vpssmgr_ptr,
-                                                                      SpeciesThermo* spthermo_ptr,
+                                                                      SpeciesThermo<ValAndDerivType>* spthermo_ptr,
                                                                       const XML_Node* phaseNode_ptr) const
 {
 
@@ -853,12 +865,12 @@ void SpeciesThermoFactory<ValAndDerivType>::installVPThermoForSpecies(size_t k, 
  *                     Defaults to NULL.
  */
 template<typename ValAndDerivType>
-SpeciesThermo* newSpeciesThermoMgr(int type, SpeciesThermoFactory<ValAndDerivType> * f)
+SpeciesThermo<ValAndDerivType>* newSpeciesThermoMgr(int type, SpeciesThermoFactory<ValAndDerivType> * f)
 {
     if (f == 0) {
         f = SpeciesThermoFactory<ValAndDerivType>::factory();
     }
-    SpeciesThermo* sptherm = f->newSpeciesThermo(type);
+    SpeciesThermo<ValAndDerivType>* sptherm = f->newSpeciesThermo(type);
     return sptherm;
 }
 
@@ -877,12 +889,12 @@ SpeciesThermo* newSpeciesThermoMgr(int type, SpeciesThermoFactory<ValAndDerivTyp
  *                    Defaults to NULL.
  */
 template<typename ValAndDerivType>
-SpeciesThermo* newSpeciesThermoMgr(std::string& stype, SpeciesThermoFactory<ValAndDerivType>* f)
+SpeciesThermo<ValAndDerivType>* newSpeciesThermoMgr(std::string& stype, SpeciesThermoFactory<ValAndDerivType>* f)
 {
     if (f == 0) {
         f = SpeciesThermoFactory<ValAndDerivType>::factory();
     }
-    SpeciesThermo* sptherm = f->newSpeciesThermoManager(stype);
+    SpeciesThermo<ValAndDerivType>* sptherm = f->newSpeciesThermoManager(stype);
     return sptherm;
 }
 
@@ -904,12 +916,13 @@ SpeciesThermo* newSpeciesThermoMgr(std::string& stype, SpeciesThermoFactory<ValA
  * @param opt          Boolean defaults to false.
  */
 template<typename ValAndDerivType>
-SpeciesThermo* newSpeciesThermoMgr(std::vector<XML_Node*> species_nodes, SpeciesThermoFactory<ValAndDerivType>* f)
+SpeciesThermo<ValAndDerivType>* newSpeciesThermoMgr(std::vector<XML_Node*> species_nodes, SpeciesThermoFactory<ValAndDerivType>* f)
 {
     if (f == 0) {
         f = SpeciesThermoFactory<ValAndDerivType>::factory();
     }
-    return f->newSpeciesThermo(species_nodes);
+    SpeciesThermo<ValAndDerivType>* sptherm = f->newSpeciesThermo(species_nodes);
+    return sptherm;
 }
 
 }

@@ -20,9 +20,9 @@
 namespace Cantera
 {
 
-class SpeciesThermoInterpType;
+template<typename ValAndDerivType> class SpeciesThermoInterpType;
 class VPStandardStateTP;
-class SpeciesThermo;
+template<typename ValAndDerivType> class SpeciesThermo;
 class PDSS;
 class PDSS_Water;
 
@@ -54,7 +54,7 @@ public:
      *                 state thermodynamic coefficients.
      */
     VPSSMgr_Water_HKFT(VPStandardStateTP* vptp_ptr,
-                       SpeciesThermo* spth);
+                       SpeciesThermo<doublereal> * spth);
 
     //! Destructor
     virtual ~VPSSMgr_Water_HKFT();

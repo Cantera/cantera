@@ -260,11 +260,11 @@ VPSSMgrFactory::newVPSSMgr(VPStandardStateTP* vp_ptr,
 
     // first get the reference state handler. If we have explicit instructions,
     // use them to spawn the object.
-    SpeciesThermo* spth = 0;
+    SpeciesThermo<doublereal> * spth = 0;
     if (ssManager != "") {
-        spth = newSpeciesThermoMgr(ssManager);
+        spth = newSpeciesThermoMgr<doublereal>(ssManager);
     } else {
-        spth = newSpeciesThermoMgr(spDataNodeList);
+        spth = newSpeciesThermoMgr<doublereal>(spDataNodeList);
     }
     vp_ptr->setSpeciesThermo(spth);
 
@@ -336,7 +336,7 @@ VPSSMgrFactory::newVPSSMgr(VPStandardStateTP* vp_ptr,
 VPSSMgr*
 VPSSMgrFactory::newVPSSMgr(VPSSMgr_enumType type, VPStandardStateTP* vp_ptr)
 {
-    SpeciesThermo& spthermoRef = vp_ptr->speciesThermo();
+    SpeciesThermo<doublereal> & spthermoRef = vp_ptr->speciesThermo();
     switch (type) {
     case cVPSSMGR_IDEALGAS:
         return new VPSSMgr_IdealGas(vp_ptr, &spthermoRef);

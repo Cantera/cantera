@@ -6,14 +6,12 @@
  */
 // Copyright 2001  California Institute of Technology
 
-
 #ifndef CT_CONSTCPPOLY_H
 #define CT_CONSTCPPOLY_H
 
 #include "cantera/thermo/SpeciesThermoInterpType.h"
 
-namespace Cantera
-{
+namespace Cantera {
 
 /**
  *  A constant-heat capacity species thermodynamic property manager class.
@@ -45,7 +43,7 @@ namespace Cantera
  *
  * @ingroup spthermo
  */
-template <typename ValAndDerivType>
+template<typename ValAndDerivType>
 class ConstCpPoly: public SpeciesThermoInterpType<ValAndDerivType>
 {
 
@@ -69,9 +67,7 @@ public:
      *           -   c[3] = \f$ {Cp}_k^o(T_0, p_{ref}) \f$  (J(kmol K)
      *
      */
-    ConstCpPoly(size_t n, doublereal tlow, doublereal thigh,
-                doublereal pref,
-                const doublereal* coeffs);
+    ConstCpPoly(size_t n, doublereal tlow, doublereal thigh, doublereal pref, const doublereal* coeffs);
 
     //! copy constructor
     ConstCpPoly(const ConstCpPoly<ValAndDerivType> &);
@@ -85,6 +81,7 @@ public:
     //! Duplicator
     virtual SpeciesThermoInterpType<ValAndDerivType>*
     duplMyselfAsSpeciesThermoInterpType() const;
+
     //! Returns the minimum temperature that the thermo
     //! parameterization is valid
     doublereal minTemp() const;
@@ -97,12 +94,14 @@ public:
     doublereal refPressure() const;
 
     //! Returns an integer representing the type of parameterization
-    virtual int reportType() const {
+    virtual int reportType() const
+    {
         return CONSTANT_CP;
     }
 
     //! Returns an integer representing the species index
-    virtual size_t speciesIndex() const {
+    virtual size_t speciesIndex() const
+    {
         return m_index;
     }
 
@@ -124,9 +123,7 @@ public:
      * @param s_R     Vector of Dimensionless entropies.
      *                (length m_kk).
      */
-    void updateProperties(const doublereal* tt,
-                          doublereal* cp_R, doublereal* h_RT,
-                          doublereal* s_R) const;
+    void updateProperties(const ValAndDerivType* tt, ValAndDerivType* cp_R, ValAndDerivType* h_RT, ValAndDerivType* s_R) const;
 
     //! Compute the reference-state property of one species
     /*!
@@ -144,9 +141,7 @@ public:
      * @param s_R     Vector of Dimensionless entropies.
      *                (length m_kk).
      */
-    void updatePropertiesTemp(const doublereal temp,
-                              doublereal* cp_R, doublereal* h_RT,
-                              doublereal* s_R) const;
+    void updatePropertiesTemp(const doublereal temp, ValAndDerivType* cp_R, ValAndDerivType* h_RT, ValAndDerivType* s_R) const;
     //!This utility function reports back the type of
     //! parameterization and all of the parameters for the
     //! species, index.
@@ -161,9 +156,7 @@ public:
      * @param coeffs    Vector of coefficients used to set the
      *                  parameters for the standard state.
      */
-    void reportParameters(size_t& n, int& type,
-                          doublereal& tlow, doublereal& thigh,
-                          doublereal& pref,
+    void reportParameters(size_t& n, int& type, doublereal& tlow, doublereal& thigh, doublereal& pref,
                           doublereal* const coeffs) const;
     //! Modify parameters for the standard state
     /*!

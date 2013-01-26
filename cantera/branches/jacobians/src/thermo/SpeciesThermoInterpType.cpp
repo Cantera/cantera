@@ -3,26 +3,26 @@
  *  Definitions for a
  */
 // Copyright 2007  Sandia National Laboratories
-
 #include "cantera/thermo/SpeciesThermoInterpType.h"
 #include "cantera/thermo/VPSSMgr.h"
 #include "cantera/thermo/PDSS.h"
 #include "cantera/base/ctexceptions.h"
 
-namespace Cantera
-{
+namespace Cantera {
 
-SpeciesThermoInterpType::SpeciesThermoInterpType()
-{
-}
-
-SpeciesThermoInterpType::~SpeciesThermoInterpType()
+template<typename ValAndDerivType>
+SpeciesThermoInterpType<ValAndDerivType>::SpeciesThermoInterpType()
 {
 }
 
-void SpeciesThermoInterpType::updateProperties(const doublereal* tempPoly,
-        doublereal* cp_R, doublereal* h_RT,
-        doublereal* s_R) const
+template<typename ValAndDerivType>
+SpeciesThermoInterpType<ValAndDerivType>::~SpeciesThermoInterpType()
+{
+}
+
+template<typename ValAndDerivType>
+void SpeciesThermoInterpType<ValAndDerivType>::updateProperties(const ValAndDerivType* tempPoly, ValAndDerivType* cp_R,
+                                                                ValAndDerivType* h_RT, ValAndDerivType* s_R) const
 {
     double T = tempPoly[0];
     updatePropertiesTemp(T, cp_R, h_RT, s_R);
@@ -30,16 +30,16 @@ void SpeciesThermoInterpType::updateProperties(const doublereal* tempPoly,
 
 #ifdef H298MODIFY_CAPABILITY
 
-doublereal SpeciesThermoInterpType::reportHf298(doublereal* const h298) const
+template<typename ValAndDerivType>
+doublereal SpeciesThermoInterpType<ValAndDerivType>::reportHf298(doublereal* const h298) const
 {
-    throw CanteraError("SpeciesThermoInterpType::reportHf298",
-                       "Not implemented");
+    throw CanteraError("SpeciesThermoInterpType::reportHf298", "Not implemented");
 }
 
-void SpeciesThermoInterpType::modifyOneHf298(const size_t k, const doublereal Hf298New)
+template<typename ValAndDerivType>
+void SpeciesThermoInterpType<ValAndDerivType>::modifyOneHf298(const size_t k, const doublereal Hf298New)
 {
-    throw CanteraError("SpeciesThermoInterpType::modifyOneHf298",
-                       "Not implemented");
+    throw CanteraError("SpeciesThermoInterpType::modifyOneHf298", "Not implemented");
 }
 
 #endif
@@ -47,39 +47,44 @@ void SpeciesThermoInterpType::modifyOneHf298(const size_t k, const doublereal Hf
 /***************************************************************************************************/
 
 //! Constructor
-STITbyPDSS::STITbyPDSS() :
-    m_speciesIndex(npos)
+template<typename ValAndDerivType>
+STITbyPDSS<ValAndDerivType>::STITbyPDSS() :
+        m_speciesIndex(npos)
 {
 }
 
-STITbyPDSS::STITbyPDSS(size_t k, VPSSMgr* vpssmgr_ptr, PDSS* PDSS_ptr) :
-    m_vpssmgr_ptr(vpssmgr_ptr),
-    m_PDSS_ptr(PDSS_ptr),
-    m_speciesIndex(k)
+template<typename ValAndDerivType>
+STITbyPDSS<ValAndDerivType>::STITbyPDSS(size_t k, VPSSMgr* vpssmgr_ptr, PDSS* PDSS_ptr) :
+        m_vpssmgr_ptr(vpssmgr_ptr),
+        m_PDSS_ptr(PDSS_ptr),
+        m_speciesIndex(k)
 {
 }
 
-STITbyPDSS::STITbyPDSS(const STITbyPDSS& b) :
-    m_vpssmgr_ptr(b.m_vpssmgr_ptr),
-    m_PDSS_ptr(b.m_PDSS_ptr),
-    m_speciesIndex(b.m_speciesIndex)
+template<typename ValAndDerivType>
+STITbyPDSS<ValAndDerivType>::STITbyPDSS(const STITbyPDSS& b) :
+        m_vpssmgr_ptr(b.m_vpssmgr_ptr),
+        m_PDSS_ptr(b.m_PDSS_ptr),
+        m_speciesIndex(b.m_speciesIndex)
 {
 }
 
 //! Destructor
-STITbyPDSS::~STITbyPDSS()
+template<typename ValAndDerivType>
+STITbyPDSS<ValAndDerivType>::~STITbyPDSS()
 {
 }
 
 //! duplicator
-SpeciesThermoInterpType*
-STITbyPDSS::duplMyselfAsSpeciesThermoInterpType() const
+template<typename ValAndDerivType>
+SpeciesThermoInterpType<ValAndDerivType> *
+STITbyPDSS<ValAndDerivType>::duplMyselfAsSpeciesThermoInterpType() const
 {
-    return new STITbyPDSS(*this);
+    return new STITbyPDSS<ValAndDerivType>(*this);
 }
 
-
-void STITbyPDSS::initAllPtrs(size_t speciesIndex, VPSSMgr* vpssmgr_ptr, PDSS* PDSS_ptr)
+template<typename ValAndDerivType>
+void STITbyPDSS<ValAndDerivType>::initAllPtrs(size_t speciesIndex, VPSSMgr* vpssmgr_ptr, PDSS* PDSS_ptr)
 {
     AssertThrow(speciesIndex == m_speciesIndex, "STITbyPDSS::initAllPtrs internal confusion");
     m_vpssmgr_ptr = vpssmgr_ptr;
@@ -88,32 +93,37 @@ void STITbyPDSS::initAllPtrs(size_t speciesIndex, VPSSMgr* vpssmgr_ptr, PDSS* PD
 
 //! Returns the minimum temperature that the thermo
 //! parameterization is valid
-doublereal  STITbyPDSS::minTemp() const
+template<typename ValAndDerivType>
+doublereal STITbyPDSS<ValAndDerivType>::minTemp() const
 {
     return m_PDSS_ptr->minTemp();
 }
 
 //! Returns the maximum temperature that the thermo
 //! parameterization is valid
-doublereal  STITbyPDSS::maxTemp() const
+template<typename ValAndDerivType>
+doublereal STITbyPDSS<ValAndDerivType>::maxTemp() const
 {
     return m_PDSS_ptr->maxTemp();
 }
 
 //! Returns the reference pressure (Pa)
-doublereal  STITbyPDSS::refPressure() const
+template<typename ValAndDerivType>
+doublereal STITbyPDSS<ValAndDerivType>::refPressure() const
 {
     return m_PDSS_ptr->refPressure();
 }
 
 //! Returns an integer representing the type of parameterization
-int  STITbyPDSS::reportType() const
+template<typename ValAndDerivType>
+int STITbyPDSS<ValAndDerivType>::reportType() const
 {
     return PDSS_TYPE;
 }
 
 //! Returns an integer representing the species index
-size_t STITbyPDSS::speciesIndex() const
+template<typename ValAndDerivType>
+size_t STITbyPDSS<ValAndDerivType>::speciesIndex() const
 {
     return m_speciesIndex;
 }
@@ -137,9 +147,9 @@ size_t STITbyPDSS::speciesIndex() const
  * @param s_R     Vector of Dimensionless entropies.
  *                (length m_kk).
  */
-void  STITbyPDSS::updateProperties(const doublereal* tempPoly,
-                                   doublereal* cp_R, doublereal* h_RT,
-                                   doublereal* s_R) const
+template<typename ValAndDerivType>
+void STITbyPDSS<ValAndDerivType>::updateProperties(const ValAndDerivType* tempPoly, ValAndDerivType* cp_R, ValAndDerivType* h_RT,
+                                                   ValAndDerivType* s_R) const
 {
     doublereal T = tempPoly[0];
     updatePropertiesTemp(T, cp_R, h_RT, s_R);
@@ -161,18 +171,16 @@ void  STITbyPDSS::updateProperties(const doublereal* tempPoly,
  * @param s_R     Vector of Dimensionless entropies.
  *                (length m_kk).
  */
-void  STITbyPDSS::updatePropertiesTemp(const doublereal temp,
-                                       doublereal* cp_R,
-                                       doublereal* h_RT,
-                                       doublereal* s_R) const
+template<typename ValAndDerivType>
+void STITbyPDSS<ValAndDerivType>::updatePropertiesTemp(const doublereal temp, ValAndDerivType* cp_R, ValAndDerivType* h_RT,
+                                                       ValAndDerivType* s_R) const
 {
     //m_vpssmgr_ptr->setState_T(temp);
     m_PDSS_ptr->setTemperature(temp);
-    AssertThrowMsg(m_speciesIndex != npos, "STITbyPDSS::updatePropertiesTemp",
-                   "object was probably not installed correctly");
+    AssertThrowMsg(m_speciesIndex != npos, "STITbyPDSS::updatePropertiesTemp", "object was probably not installed correctly");
     h_RT[m_speciesIndex] = m_PDSS_ptr->enthalpy_RT_ref();
     cp_R[m_speciesIndex] = m_PDSS_ptr->cp_R_ref();
-    s_R[m_speciesIndex]  = m_PDSS_ptr->entropy_R_ref();
+    s_R[m_speciesIndex] = m_PDSS_ptr->entropy_R_ref();
 }
 
 //!This utility function reports back the type of
@@ -189,10 +197,9 @@ void  STITbyPDSS::updatePropertiesTemp(const doublereal temp,
  * @param coeffs    Vector of coefficients used to set the
  *                  parameters for the standard state.
  */
-void  STITbyPDSS::reportParameters(size_t& index, int& type,
-                                   doublereal& minTemp, doublereal& maxTemp,
-                                   doublereal& refPressure,
-                                   doublereal* const coeffs) const
+template<typename ValAndDerivType>
+void STITbyPDSS<ValAndDerivType>::reportParameters(size_t& index, int& type, doublereal& minTemp, doublereal& maxTemp,
+                                                   doublereal& refPressure, doublereal* const coeffs) const
 {
     index = m_speciesIndex;
     type = PDSS_TYPE;
@@ -206,9 +213,9 @@ void  STITbyPDSS::reportParameters(size_t& index, int& type,
  * @param coeffs   Vector of coefficients used to set the
  *                 parameters for the standard state.
  */
-void  STITbyPDSS::modifyParameters(doublereal* coeffs)
+template<typename ValAndDerivType>
+void STITbyPDSS<ValAndDerivType>::modifyParameters(doublereal* coeffs)
 {
 }
-
 
 }

@@ -609,7 +609,7 @@ bool importPhase(XML_Node& phase, ThermoPhase<ValAndDerivType>* th,
     //delete &th->speciesThermo();
 
     // Decide whether the the phase has a variable pressure ss or not
-    SpeciesThermo* spth = 0;
+    SpeciesThermo<ValAndDerivType>* spth = 0;
     VPSSMgr* vp_spth = 0;
     if (ssConvention == cSS_CONVENTION_TEMPERATURE) {
         // Create a new species thermo manager.  Function

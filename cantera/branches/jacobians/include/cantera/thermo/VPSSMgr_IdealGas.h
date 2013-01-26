@@ -22,9 +22,9 @@
 namespace Cantera
 {
 
-class SpeciesThermoInterpType;
+template<typename ValAndDerivType> class SpeciesThermoInterpType;
 class VPStandardStateTP;
-class SpeciesThermo;
+template<typename ValAndDerivType> class SpeciesThermo;
 
 
 //! Virtual base class for the species thermo manager classes.
@@ -50,7 +50,7 @@ public:
      * @param vp_ptr Pointer to the owning ThermoPhase
      * @param spth   Species thermo pointer.
      */
-    VPSSMgr_IdealGas(VPStandardStateTP* vp_ptr, SpeciesThermo* spth);
+    VPSSMgr_IdealGas(VPStandardStateTP* vp_ptr, SpeciesThermo<doublereal> * spth);
 
     //! Destructor
     virtual ~VPSSMgr_IdealGas();

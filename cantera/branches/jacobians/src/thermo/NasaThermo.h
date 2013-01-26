@@ -6,7 +6,6 @@
  *   \link Cantera::NasaThermo NasaThermo\endlink).
  */
 // Copyright 2003 California Institute of Technology
-
 #ifndef CT_NASATHERMO_H
 #define CT_NASATHERMO_H
 #include <string>
@@ -16,8 +15,7 @@
 #include "cantera/thermo/speciesThermoTypes.h"
 #include "cantera/base/global.h"
 
-namespace Cantera
-{
+namespace Cantera {
 
 /**
  * A species thermodynamic property manager for the NASA
@@ -46,7 +44,8 @@ namespace Cantera
  *
  * @ingroup mgrsrefcalc
  */
-class NasaThermo : public SpeciesThermo
+template<typename ValAndDerivType>
+class NasaThermo: public SpeciesThermo<ValAndDerivType>
 {
 
 public:
@@ -59,11 +58,12 @@ public:
 
     //! constructor
     NasaThermo() :
-        ID(NASA),
-        m_tlow_max(0.0),
-        m_thigh_min(1.e30),
-        m_p0(-1.0),
-        m_ngroups(0) {
+            ID(NASA),
+            m_tlow_max(0.0),
+            m_thigh_min(1.e30),
+            m_p0(-1.0),
+            m_ngroups(0)
+    {
         m_t.resize(6);
     }
 
@@ -72,11 +72,12 @@ public:
      *  @param right NasaThermo object to be copied.
      */
     NasaThermo(const NasaThermo& right) :
-        ID(NASA),
-        m_tlow_max(0.0),
-        m_thigh_min(1.e30),
-        m_p0(-1.0),
-        m_ngroups(0) {
+            ID(NASA),
+            m_tlow_max(0.0),
+            m_thigh_min(1.e30),
+            m_p0(-1.0),
+            m_ngroups(0)
+    {
         *this = operator=(right);
     }
 
@@ -84,7 +85,8 @@ public:
     /*!
      *  @param right NasaThermo object to be copied.
      */
-    NasaThermo& operator=(const NasaThermo& right) {
+    NasaThermo& operator=(const NasaThermo& right)
+    {
         /*
          * Check for self assignment.
          */
@@ -92,27 +94,28 @@ public:
             return *this;
         }
 
-        m_high           = right.m_high;
-        m_low            = right.m_low;
-        m_index          = right.m_index;
-        m_tmid           = right.m_tmid;
-        m_tlow_max       = right.m_tlow_max;
-        m_thigh_min      = right.m_thigh_min;
-        m_tlow           = right.m_tlow;
-        m_thigh          = right.m_thigh;
-        m_p0             = right.m_p0;
-        m_ngroups        = right.m_ngroups;
-        m_t              = right.m_t;
-        m_group_map      = right.m_group_map;
+        m_high = right.m_high;
+        m_low = right.m_low;
+        m_index = right.m_index;
+        m_tmid = right.m_tmid;
+        m_tlow_max = right.m_tlow_max;
+        m_thigh_min = right.m_thigh_min;
+        m_tlow = right.m_tlow;
+        m_thigh = right.m_thigh;
+        m_p0 = right.m_p0;
+        m_ngroups = right.m_ngroups;
+        m_t = right.m_t;
+        m_group_map = right.m_group_map;
         m_posInGroup_map = right.m_posInGroup_map;
-        m_name           = right.m_name;
+        m_name = right.m_name;
 
         return *this;
     }
 
-
     //! destructor
-    virtual ~NasaThermo() {}
+    virtual ~NasaThermo()
+    {
+    }
 
     //! Duplication routine for objects which inherit from
     //! %SpeciesThermo
@@ -123,9 +126,10 @@ public:
      *  ->commented out because we first need to add copy constructors
      *   and assignment operators to all of the derived classes.
      */
-    virtual SpeciesThermo* duplMyselfAsSpeciesThermo() const {
-        NasaThermo* nt = new NasaThermo(*this);
-        return (SpeciesThermo*) nt;
+    virtual SpeciesThermo<ValAndDerivType>* duplMyselfAsSpeciesThermo() const
+    {
+        NasaThermo<ValAndDerivType>* nt = new NasaThermo<ValAndDerivType>(*this);
+        return (SpeciesThermo<ValAndDerivType>*) nt;
     }
 
     //! install a new species thermodynamic property
@@ -150,16 +154,15 @@ public:
      *                    parameterization.
      * @see speciesThermoTypes.h
      */
-    virtual void install(const std::string& name, size_t index, int type,
-                         const doublereal* c,
-                         doublereal minTemp, doublereal maxTemp,
-                         doublereal refPressure) {
+    virtual void install(const std::string& name, size_t index, int type, const doublereal* c, doublereal minTemp,
+                         doublereal maxTemp, doublereal refPressure)
+    {
 
         m_name[index] = name;
-        int imid = int(c[0]);       // midpoint temp converted to integer
-        int igrp = m_index[imid];   // has this value been seen before?
-        if (igrp == 0) {            // if not, prepare new group
-            std::vector<NasaPoly1> v;
+        int imid = int(c[0]); // midpoint temp converted to integer
+        int igrp = m_index[imid]; // has this value been seen before?
+        if (igrp == 0) { // if not, prepare new group
+            std::vector<NasaPoly1<ValAndDerivType> > v;
             m_high.push_back(v);
             m_low.push_back(v);
             m_tmid.push_back(c[0]);
@@ -168,28 +171,26 @@ public:
         }
 
         m_group_map[index] = igrp;
-        m_posInGroup_map[index] = (int) m_low[igrp-1].size();
+        m_posInGroup_map[index] = (int) m_low[igrp - 1].size();
 
-        doublereal tlow  = minTemp;
-        doublereal tmid  = c[0];
+        doublereal tlow = minTemp;
+        doublereal tmid = c[0];
         doublereal thigh = maxTemp;
         const doublereal* clow = c + 1;
 
         vector_fp chigh(7);
         copy(c + 8, c + 15, chigh.begin());
 
-        m_high[igrp-1].push_back(NasaPoly1(index, tmid, thigh,
-                                           refPressure, &chigh[0]));
-        m_low[igrp-1].push_back(NasaPoly1(index, tlow, tmid,
-                                          refPressure, clow));
+        m_high[igrp - 1].push_back(NasaPoly1<ValAndDerivType>(index, tmid, thigh, refPressure, &chigh[0]));
+        m_low[igrp - 1].push_back(NasaPoly1<ValAndDerivType>(index, tlow, tmid, refPressure, clow));
 
         vector_fp clu(7), chu(7);
         clu[5] = clow[0];
         clu[6] = clow[1];
-        copy(clow+2, clow+7, clu.begin());
+        copy(clow + 2, clow + 7, clu.begin());
         chu[5] = chigh[0];
         chu[6] = chigh[1];
-        copy(chigh.begin()+2, chigh.begin()+7, chu.begin());
+        copy(chigh.begin() + 2, chigh.begin() + 7, chu.begin());
 
         checkContinuity(name, tmid, &clu[0], &chu[0]);
 
@@ -200,7 +201,7 @@ public:
             m_thigh_min = thigh;
         }
         if (m_tlow.size() < index + 1) {
-            m_tlow.resize(index + 1,  tlow);
+            m_tlow.resize(index + 1, tlow);
             m_thigh.resize(index + 1, thigh);
         }
         m_tlow[index] = tlow;
@@ -208,8 +209,8 @@ public:
         if (m_p0 < 0.0) {
             m_p0 = refPressure;
         } else if (fabs(m_p0 - refPressure) > 0.1) {
-            std::string logmsg =  " ERROR NasaThermo: New Species, " + name +  ", has a different reference pressure, "
-                                  + fp2str(refPressure) + ", than existing reference pressure, " + fp2str(m_p0) + "\n";
+            std::string logmsg = " ERROR NasaThermo: New Species, " + name + ", has a different reference pressure, "
+                    + fp2str(refPressure) + ", than existing reference pressure, " + fp2str(m_p0) + "\n";
             writelog(logmsg);
             logmsg = "                  This is now a fatal error\n";
             writelog(logmsg);
@@ -224,10 +225,10 @@ public:
      * @param stit_ptr Pointer to the SpeciesThermoInterpType object
      *          This will set up the thermo for one species
      */
-    virtual void install_STIT(SpeciesThermoInterpType* stit_ptr) {
+    virtual void install_STIT(SpeciesThermoInterpType<ValAndDerivType> * stit_ptr)
+    {
         throw CanteraError("install_STIT", "not implemented");
     }
-
 
     //! Like update(), but only updates the single species k.
     /*!
@@ -241,27 +242,27 @@ public:
      *                (length m_kk).
      *
      */
-    virtual void update_one(size_t k, doublereal t, doublereal* cp_R,
-                            doublereal* h_RT, doublereal* s_R) const {
+    virtual void update_one(size_t k, doublereal t, ValAndDerivType* cp_R, ValAndDerivType* h_RT, ValAndDerivType* s_R) const
+    {
 
         m_t[0] = t;
-        m_t[1] = t*t;
-        m_t[2] = m_t[1]*t;
-        m_t[3] = m_t[2]*t;
-        m_t[4] = 1.0/t;
+        m_t[1] = t * t;
+        m_t[2] = m_t[1] * t;
+        m_t[3] = m_t[2] * t;
+        m_t[4] = 1.0 / t;
         m_t[5] = log(t);
 
         size_t grp = m_group_map[k];
         size_t pos = m_posInGroup_map[k];
-        const std::vector<NasaPoly1> &mlg = m_low[grp-1];
-        const NasaPoly1* nlow = &(mlg[pos]);
+        const std::vector<NasaPoly1<ValAndDerivType> > &mlg = m_low[grp - 1];
+        const NasaPoly1<ValAndDerivType> * nlow = &(mlg[pos]);
 
         doublereal tmid = nlow->maxTemp();
         if (t < tmid) {
             nlow->updateProperties(&m_t[0], cp_R, h_RT, s_R);
         } else {
-            const std::vector<NasaPoly1> &mhg = m_high[grp-1];
-            const NasaPoly1* nhigh = &(mhg[pos]);
+            const std::vector<NasaPoly1<ValAndDerivType> > &mhg = m_high[grp - 1];
+            const NasaPoly1<ValAndDerivType>* nhigh = &(mhg[pos]);
             nhigh->updateProperties(&m_t[0], cp_R, h_RT, s_R);
         }
     }
@@ -281,27 +282,27 @@ public:
      * @param s_R     Vector of Dimensionless entropies.
      *                (length m_kk).
      */
-    virtual void update(doublereal t, doublereal* cp_R,
-                        doublereal* h_RT, doublereal* s_R) const {
+    virtual void update(doublereal t, ValAndDerivType* cp_R, ValAndDerivType* h_RT, ValAndDerivType* s_R) const
+    {
         int i;
 
         // load functions of temperature into m_t vector
         m_t[0] = t;
-        m_t[1] = t*t;
-        m_t[2] = m_t[1]*t;
-        m_t[3] = m_t[2]*t;
-        m_t[4] = 1.0/t;
+        m_t[1] = t * t;
+        m_t[2] = m_t[1] * t;
+        m_t[3] = m_t[2] * t;
+        m_t[4] = 1.0 / t;
         m_t[5] = log(t);
 
         // iterate over the groups
-        std::vector<NasaPoly1>::const_iterator _begin, _end;
+        typename std::vector<NasaPoly1<ValAndDerivType> >::const_iterator _begin, _end;
         for (i = 0; i != m_ngroups; i++) {
             if (t > m_tmid[i]) {
-                _begin  = m_high[i].begin();
-                _end    = m_high[i].end();
+                _begin = m_high[i].begin();
+                _end = m_high[i].end();
             } else {
-                _begin  = m_low[i].begin();
-                _end    = m_low[i].end();
+                _begin = m_low[i].begin();
+                _end = m_low[i].end();
             }
             for (; _begin != _end; ++_begin) {
                 _begin->updateProperties(&m_t[0], cp_R, h_RT, s_R);
@@ -319,7 +320,8 @@ public:
      *
      * @param k    Species index
      */
-    virtual doublereal minTemp(size_t k=npos) const {
+    virtual doublereal minTemp(size_t k = npos) const
+    {
         if (k == npos) {
             return m_tlow_max;
         } else {
@@ -337,7 +339,8 @@ public:
      *
      * @param k Species index
      */
-    virtual doublereal maxTemp(size_t k=npos) const {
+    virtual doublereal maxTemp(size_t k = npos) const
+    {
         if (k == npos) {
             return m_thigh_min;
         } else {
@@ -358,7 +361,8 @@ public:
      *
      * @param k Species index
      */
-    virtual doublereal refPressure(size_t k=npos) const {
+    virtual doublereal refPressure(size_t k = npos) const
+    {
         return m_p0;
     }
 
@@ -368,7 +372,8 @@ public:
      *
      * @param index  Species index
      */
-    virtual int reportType(size_t index) const {
+    virtual int reportType(size_t index) const
+    {
         return NASA;
     }
 
@@ -386,34 +391,30 @@ public:
      * @param maxTemp   output - Maximum temperature
      * @param refPressure output - reference pressure (Pa).
      */
-    virtual void reportParams(size_t index, int& type,
-                              doublereal* const c,
-                              doublereal& minTemp,
-                              doublereal& maxTemp,
-                              doublereal& refPressure) const {
+    virtual void reportParams(size_t index, int& type, doublereal* const c, doublereal& minTemp, doublereal& maxTemp,
+                              doublereal& refPressure) const
+    {
         type = reportType(index);
         if (type == NASA) {
             size_t grp = m_group_map[index];
             size_t pos = m_posInGroup_map[index];
-            const std::vector<NasaPoly1> &mlg = m_low[grp-1];
-            const std::vector<NasaPoly1> &mhg = m_high[grp-1];
-            const NasaPoly1* lowPoly  = &(mlg[pos]);
-            const NasaPoly1* highPoly = &(mhg[pos]);
+            const std::vector<NasaPoly1<ValAndDerivType> > &mlg = m_low[grp - 1];
+            const std::vector<NasaPoly1<ValAndDerivType> > &mhg = m_high[grp - 1];
+            const NasaPoly1<ValAndDerivType>* lowPoly = &(mlg[pos]);
+            const NasaPoly1<ValAndDerivType>* highPoly = &(mhg[pos]);
             int itype = NASA;
             doublereal tmid = lowPoly->maxTemp();
             c[0] = tmid;
             size_t n;
             double ttemp;
-            lowPoly->reportParameters(n, itype, minTemp, ttemp, refPressure,
-                                      c + 1);
+            lowPoly->reportParameters(n, itype, minTemp, ttemp, refPressure, c + 1);
             if (n != index) {
                 throw CanteraError("  ", "confused");
             }
             if (itype != NASA1) {
                 throw CanteraError("  ", "confused");
             }
-            highPoly->reportParameters(n, itype, ttemp, maxTemp, refPressure,
-                                       c + 8);
+            highPoly->reportParameters(n, itype, ttemp, maxTemp, refPressure, c + 8);
             if (n != index) {
                 throw CanteraError("  ", "confused");
             }
@@ -426,35 +427,37 @@ public:
     }
 
 #ifdef H298MODIFY_CAPABILITY
-    virtual doublereal reportOneHf298(const size_t k) const {
+    virtual doublereal reportOneHf298(const size_t k) const
+    {
 
         int grp = m_group_map[k];
         int pos = m_posInGroup_map[k];
-        const std::vector<NasaPoly1> &mlg = m_low[grp-1];
-        const NasaPoly1* nlow = &(mlg[pos]);
+        const std::vector<NasaPoly1<ValAndDerivType> > &mlg = m_low[grp - 1];
+        const NasaPoly1<ValAndDerivType> * nlow = &(mlg[pos]);
         doublereal tmid = nlow->maxTemp();
         double h;
         if (298.15 <= tmid) {
             h = nlow->reportHf298(0);
         } else {
-            const std::vector<NasaPoly1> &mhg = m_high[grp-1];
-            const NasaPoly1* nhigh = &(mhg[pos]);
+            const std::vector<NasaPoly1<ValAndDerivType> > &mhg = m_high[grp - 1];
+            const NasaPoly1<ValAndDerivType> * nhigh = &(mhg[pos]);
             h = nhigh->reportHf298(0);
         }
         return h;
     }
 
-    virtual void modifyOneHf298(const size_t k, const doublereal Hf298New) {
+    virtual void modifyOneHf298(const size_t k, const doublereal Hf298New)
+    {
         int grp = m_group_map[k];
         int pos = m_posInGroup_map[k];
-        std::vector<NasaPoly1> &mlg = m_low[grp-1];
-        NasaPoly1* nlow = &(mlg[pos]);
-        std::vector<NasaPoly1> &mhg = m_high[grp-1];
-        NasaPoly1* nhigh = &(mhg[pos]);
+        std::vector<NasaPoly1<ValAndDerivType> > &mlg = m_low[grp - 1];
+        NasaPoly1<ValAndDerivType> * nlow = &(mlg[pos]);
+        std::vector<NasaPoly1<ValAndDerivType> > &mhg = m_high[grp - 1];
+        NasaPoly1<ValAndDerivType> * nhigh = &(mhg[pos]);
         doublereal tmid = nlow->maxTemp();
 
         double hnow = reportOneHf298(k);
-        double delH =  Hf298New - hnow;
+        double delH = Hf298New - hnow;
         if (298.15 <= tmid) {
             nlow->modifyOneHf298(k, Hf298New);
             double h = nhigh->reportHf298(0);
@@ -478,7 +481,7 @@ protected:
      * The second vector is equal to the number of species
      * in that particular group.
      */
-    std::vector<std::vector<NasaPoly1> > m_high;
+    std::vector<std::vector<NasaPoly1<ValAndDerivType> > > m_high;
 
     //! Vector of vector of NasaPoly1's for the low temp region.
     /*!
@@ -487,49 +490,49 @@ protected:
      * The second vector is equal to the number of species
      * in that particular group.
      */
-    std::vector<std::vector<NasaPoly1> > m_low;
+    std::vector<std::vector<NasaPoly1<ValAndDerivType> > > m_low;
 
     //! Map between the midpoint temperature, as an int, to the group number
     /*!
      * Length is equal to the number of groups. Only used in the setup.
      */
-    std::map<int, int>                 m_index;
+    std::map<int, int> m_index;
 
     //! Vector of log temperature limits
     /*!
      * Length is equal to the number of groups.
      */
-    vector_fp                          m_tmid;
+    vector_fp m_tmid;
 
     //! Maximum value of the low temperature limit
-    doublereal                         m_tlow_max;
+    doublereal m_tlow_max;
 
     //! Minimum value of the high temperature limit
-    doublereal                         m_thigh_min;
+    doublereal m_thigh_min;
 
     //! Vector of low temperature limits (species index)
     /*!
      * Length is equal to number of species
      */
-    vector_fp                          m_tlow;
+    vector_fp m_tlow;
 
     //! Vector of low temperature limits (species index)
     /*!
      * Length is equal to number of species
      */
-    vector_fp                          m_thigh;
+    vector_fp m_thigh;
 
     //! Reference pressure (Pa)
     /*!
      * all species must have the same reference pressure.
      */
-    doublereal                         m_p0;
+    doublereal m_p0;
 
     //! number of groups
-    int                                m_ngroups;
+    int m_ngroups;
 
     //! Vector of temperature polynomials
-    mutable vector_fp                  m_t;
+    mutable vector_fp m_t;
 
     /*!
      * This map takes as its index, the species index in the phase.
@@ -558,18 +561,16 @@ private:
      * @param clow  coefficients for lower temperature region
      * @param chigh coefficients for higher temperature region
      */
-    void checkContinuity(const std::string& name, double tmid,
-                         const doublereal* clow, doublereal* chigh);
+    void checkContinuity(const std::string& name, double tmid, const doublereal* clow, doublereal* chigh);
 
     //! for internal use by checkContinuity
     /*!
      * @param t temperature
      * @param c coefficient array
      */
-    doublereal enthalpy_RT(double t, const doublereal* c) {
-        return c[0] + 0.5*c[1]*t + OneThird*c[2]*t*t
-               + 0.25*c[3]*t*t*t + 0.2*c[4]*t*t*t*t
-               + c[5]/t;
+    doublereal enthalpy_RT(double t, const doublereal* c)
+    {
+        return c[0] + 0.5 * c[1] * t + OneThird * c[2] * t * t + 0.25 * c[3] * t * t * t + 0.2 * c[4] * t * t * t * t + c[5] / t;
     }
 
     //! for internal use by checkContinuity
@@ -577,13 +578,10 @@ private:
      * @param t temperature
      * @param c coefficient array
      */
-    doublereal entropy_R(double t, const doublereal* c) {
-        return c[0]*log(t) + c[1]*t + 0.5*c[2]*t*t
-               + OneThird*c[3]*t*t*t + 0.25*c[4]*t*t*t*t
-               + c[6];
+    doublereal entropy_R(double t, const doublereal* c)
+    {
+        return c[0] * log(t) + c[1] * t + 0.5 * c[2] * t * t + OneThird * c[3] * t * t * t + 0.25 * c[4] * t * t * t * t + c[6];
     }
-
-
 
 };
 
