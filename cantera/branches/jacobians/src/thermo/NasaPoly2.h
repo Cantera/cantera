@@ -181,7 +181,7 @@ public:
      * @param s_R     Vector of Dimensionless entropies.
      *                (length m_kk).
      */
-    void updateProperties(const doublereal* tt,
+    void updateProperties(const ValAndDerivType* tt,
                           ValAndDerivType* cp_R, ValAndDerivType* h_RT, ValAndDerivType* s_R) const {
 
         double T = tt[0];
@@ -191,6 +191,8 @@ public:
             mnp_high.updateProperties(tt, cp_R, h_RT, s_R);
         }
     }
+
+
 
     //! Compute the reference-state property of one species
     /*!
@@ -298,6 +300,17 @@ protected:
     vector_fp m_coeff;
 
 };
+
+template<> void NasaPoly2<doubleFAD>::updateProperties(const doubleFAD* tt,
+                             doubleFAD* cp_R, doubleFAD* h_RT, doubleFAD* s_R) const {
+
+           double T = tt[0].val();
+           if (T <= m_midT) {
+               mnp_low.updateProperties(tt, cp_R, h_RT, s_R);
+           } else {
+               mnp_high.updateProperties(tt, cp_R, h_RT, s_R);
+           }
+       }
 
 }
 #endif

@@ -14,7 +14,7 @@
 using namespace std;
 using namespace Cantera;
 
-typedef Cabinet<ThermoPhase> ThermoCabinet;
+typedef Cabinet<thermo_t> ThermoCabinet;
 
 extern "C" {
 

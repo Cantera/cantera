@@ -7,6 +7,7 @@
 #include "cantera/thermo/VPSSMgr.h"
 #include "cantera/thermo/PDSS.h"
 #include "cantera/base/ctexceptions.h"
+#include "cantera/base/ct_defs.h"
 
 namespace Cantera {
 
@@ -25,6 +26,17 @@ void SpeciesThermoInterpType<ValAndDerivType>::updateProperties(const ValAndDeri
                                                                 ValAndDerivType* h_RT, ValAndDerivType* s_R) const
 {
     double T = tempPoly[0];
+    updatePropertiesTemp(T, cp_R, h_RT, s_R);
+}
+
+// Specialized instantiation of the updateProperties() member function for the DFad template case.
+/*
+ * This is necessary because we need to get the plain value of temperature for updatePropertiesTemp() function
+ */
+template<> void SpeciesThermoInterpType<doubleFAD>::updateProperties(const doubleFAD* tempPoly, doubleFAD* cp_R,
+                                                                doubleFAD* h_RT, doubleFAD* s_R) const
+{
+    double T = tempPoly[0].val();
     updatePropertiesTemp(T, cp_R, h_RT, s_R);
 }
 
@@ -217,5 +229,13 @@ template<typename ValAndDerivType>
 void STITbyPDSS<ValAndDerivType>::modifyParameters(doublereal* coeffs)
 {
 }
+
+// ExplicitInstantiation Section
+template class SpeciesThermoInterpType<doublereal>;
+#ifdef INDEPENDENT_VARIABLE_DERIVATIVES
+#ifdef HAS_SACADO
+template class SpeciesThermoInterpType<doubleFAD>;
+#endif
+#endif
 
 }

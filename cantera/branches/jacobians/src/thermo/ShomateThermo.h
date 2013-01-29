@@ -281,7 +281,7 @@ public:
      * @param s_R     Vector of Dimensionless entropies.
      *                (length m_kk).
      */
-    virtual void update(doublereal t, doublereal* cp_R, doublereal* h_RT, doublereal* s_R) const
+    virtual void update(doublereal t, ValAndDerivType* cp_R, ValAndDerivType* h_RT, ValAndDerivType* s_R) const
     {
         int i;
 

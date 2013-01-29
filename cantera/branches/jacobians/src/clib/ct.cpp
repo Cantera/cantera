@@ -29,7 +29,7 @@ using namespace Cantera;
 #include "windows.h"
 #endif
 
-typedef Cabinet<ThermoPhase> ThermoCabinet;
+typedef Cabinet<thermo_t> ThermoCabinet;
 typedef Cabinet<Kinetics> KineticsCabinet;
 typedef Cabinet<Transport> TransportCabinet;
 typedef Cabinet<XML_Node, false> XmlCabinet;
@@ -166,7 +166,7 @@ extern "C" {
     int phase_getMoleFractions(int n, size_t lenx, double* x)
     {
         try {
-            ThermoPhase& p = ThermoCabinet::item(n);
+            thermo_t& p = ThermoCabinet::item(n);
             p.checkSpeciesArraySize(lenx);
             p.getMoleFractions(x);
             return 0;
@@ -187,7 +187,7 @@ extern "C" {
     int phase_getMassFractions(int n, size_t leny, double* y)
     {
         try {
-            ThermoPhase& p = ThermoCabinet::item(n);
+            thermo_t& p = ThermoCabinet::item(n);
             p.checkSpeciesArraySize(leny);
             p.getMassFractions(y);
             return 0;
@@ -208,7 +208,7 @@ extern "C" {
     int phase_setMoleFractions(int n, size_t lenx, double* x, int norm)
     {
         try {
-            ThermoPhase& p = ThermoCabinet::item(n);
+            thermo_t& p = ThermoCabinet::item(n);
             p.checkSpeciesArraySize(lenx);
             if (norm) {
                 p.setMoleFractions(x);
@@ -224,7 +224,7 @@ extern "C" {
     int phase_setMoleFractionsByName(int n, char* x)
     {
         try {
-            ThermoPhase& p = ThermoCabinet::item(n);
+            thermo_t& p = ThermoCabinet::item(n);
             compositionMap xx = parseCompString(x, p.speciesNames());
             p.setMoleFractionsByName(xx);
             return 0;
@@ -237,7 +237,7 @@ extern "C" {
                                double* y, int norm)
     {
         try {
-            ThermoPhase& p = ThermoCabinet::item(n);
+            thermo_t& p = ThermoCabinet::item(n);
             p.checkSpeciesArraySize(leny);
             if (norm) {
                 p.setMassFractions(y);
@@ -253,7 +253,7 @@ extern "C" {
     int phase_setMassFractionsByName(int n, char* y)
     {
         try {
-            ThermoPhase& p = ThermoCabinet::item(n);
+            thermo_t& p = ThermoCabinet::item(n);
             compositionMap yy = parseCompString(y, p.speciesNames());
             p.setMassFractionsByName(yy);
             return 0;
@@ -265,7 +265,7 @@ extern "C" {
     int phase_getAtomicWeights(int n, size_t lenm, double* atw)
     {
         try {
-            ThermoPhase& p = ThermoCabinet::item(n);
+            thermo_t& p = ThermoCabinet::item(n);
             p.checkElementArraySize(lenm);
             const vector_fp& wt = p.atomicWeights();
             copy(wt.begin(), wt.end(), atw);
@@ -278,7 +278,7 @@ extern "C" {
     int phase_getMolecularWeights(int n, size_t lenm, double* mw)
     {
         try {
-            ThermoPhase& p = ThermoCabinet::item(n);
+            thermo_t& p = ThermoCabinet::item(n);
             p.checkElementArraySize(lenm);
             const vector_fp& wt = p.molecularWeights();
             copy(wt.begin(), wt.end(), mw);
@@ -354,7 +354,7 @@ extern "C" {
     {
         try {
             XML_Node& x = XmlCabinet::item(mxml);
-            thermo_t* th = newPhase(x);
+            thermo_t* th = newPhase<doublereal>(x);
             return ThermoCabinet::add(th);
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -508,7 +508,7 @@ extern "C" {
     int th_chemPotentials(int n, size_t lenm, double* murt)
     {
         try {
-            ThermoPhase& thrm = ThermoCabinet::item(n);
+            thermo_t& thrm = ThermoCabinet::item(n);
             thrm.checkSpeciesArraySize(lenm);
             thrm.getChemPotentials(murt);
             return 0;
@@ -520,7 +520,7 @@ extern "C" {
     int th_elementPotentials(int n, size_t lenm, double* lambda)
     {
         try {
-            ThermoPhase& thrm = ThermoCabinet::item(n);
+            thermo_t& thrm = ThermoCabinet::item(n);
             thrm.checkElementArraySize(lenm);
             equilibrate(thrm, "TP", 0);
             thrm.getElementPotentials(lambda);
@@ -618,7 +618,7 @@ extern "C" {
     doublereal th_minTemp(int n, int k)
     {
         try {
-            ThermoPhase& ph = ThermoCabinet::item(n);
+            thermo_t& ph = ThermoCabinet::item(n);
             if (k != -1) {
                 ph.checkSpeciesIndex(k);
                 return ph.minTemp(k);
@@ -633,7 +633,7 @@ extern "C" {
     doublereal th_maxTemp(int n, int k)
     {
         try {
-            ThermoPhase& ph = ThermoCabinet::item(n);
+            thermo_t& ph = ThermoCabinet::item(n);
             if (k != -1) {
                 ph.checkSpeciesIndex(k);
                 return ph.maxTemp(k);
@@ -649,7 +649,7 @@ extern "C" {
     int th_getEnthalpies_RT(int n, size_t lenm, double* h_rt)
     {
         try {
-            ThermoPhase& thrm = ThermoCabinet::item(n);
+            thermo_t& thrm = ThermoCabinet::item(n);
             thrm.checkSpeciesArraySize(lenm);
             thrm.getEnthalpy_RT_ref(h_rt);
             return 0;
@@ -661,7 +661,7 @@ extern "C" {
     int th_getEntropies_R(int n, size_t lenm, double* s_r)
     {
         try {
-            ThermoPhase& thrm = ThermoCabinet::item(n);
+            thermo_t& thrm = ThermoCabinet::item(n);
             thrm.checkSpeciesArraySize(lenm);
             thrm.getEntropy_R_ref(s_r);
             return 0;
@@ -673,7 +673,7 @@ extern "C" {
     int th_getCp_R(int n, size_t lenm, double* cp_r)
     {
         try {
-            ThermoPhase& thrm = ThermoCabinet::item(n);
+            thermo_t& thrm = ThermoCabinet::item(n);
             thrm.checkSpeciesArraySize(lenm);
             thrm.getCp_R_ref(cp_r);
             return 0;
@@ -860,6 +860,7 @@ extern "C" {
         } catch (...) {
             return handleAllExceptions(npos, npos);
         }
+        return (size_t) 0;
     }
 
     size_t kin_nPhases(int n)
@@ -1081,7 +1082,7 @@ extern "C" {
         try {
             // @todo This function only works for single phase kinetics
             Kinetics& k = KineticsCabinet::item(n);
-            ThermoPhase& p = k.thermo();
+            thermo_t& p = k.thermo();
             size_t nsp = p.nSpecies();
             k.checkSpeciesArraySize(len);
             k.checkSpeciesArraySize(nsp);
@@ -1284,7 +1285,7 @@ extern "C" {
     int import_phase(int nth, int nxml, char* id)
     {
         try {
-            ThermoPhase& thrm = ThermoCabinet::item(nth);
+            thermo_t& thrm = ThermoCabinet::item(nth);
             XML_Node& node = XmlCabinet::item(nxml);
             importPhase(node, &thrm);
             return 0;
@@ -1460,7 +1461,7 @@ extern "C" {
                 root = &XmlCabinet::item(ixml);
             }
 
-            ThermoPhase& t = ThermoCabinet::item(ith);
+            thermo_t& t = ThermoCabinet::item(ith);
             Kinetics& kin = KineticsCabinet::item(ikin);
             XML_Node* r = 0;
             if (root) {

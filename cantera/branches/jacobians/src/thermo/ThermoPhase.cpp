@@ -1281,4 +1281,14 @@ void ThermoPhase<ValAndDerivType>::getCsvReportData(std::vector<std::string>& na
     getPartialMolarVolumes(&data[9][0]);
 }
 
+
+//! Explicit Instantiations
+template class ThermoPhase<doublereal>;
+#ifdef INDEPENDENT_VARIABLE_DERIVATIVES
+#ifdef HAS_SACADO
+template class ThermoPhase<doubleFAD>;
+#endif
+#endif
+
+
 }

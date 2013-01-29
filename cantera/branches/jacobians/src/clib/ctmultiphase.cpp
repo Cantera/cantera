@@ -60,7 +60,7 @@ extern "C" {
     int mix_addPhase(int i, int j, double moles)
     {
         try {
-            mixCabinet::item(i).addPhase(&Cabinet<ThermoPhase>::item(j), moles);
+            mixCabinet::item(i).addPhase(&Cabinet<thermo_t>::item(j), moles);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);

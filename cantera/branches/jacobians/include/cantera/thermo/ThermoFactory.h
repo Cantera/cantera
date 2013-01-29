@@ -296,7 +296,7 @@ bool importPhase(XML_Node& phase, ThermoPhase<ValAndDerivType> * th, SpeciesTher
  *  Returns true if everything is ok, false otherwise.
  */
 template <typename ValAndDerivType>
-bool installSpecies(size_t k, const XML_Node& s, thermo_t& p,
+bool installSpecies(size_t k, const XML_Node& s, ThermoPhase<ValAndDerivType>& p,
                     SpeciesThermo<ValAndDerivType> * spthermo_ptr, int rule,
                     XML_Node* phaseNode_ptr = 0,
                     VPSSMgr* vpss_ptr = 0,

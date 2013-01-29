@@ -1047,4 +1047,16 @@ bool Phase<ValAndDerivType>::ready() const
     return (m_kk > 0 && m_elementsFrozen && m_speciesFrozen);
 }
 
+//! Explicit Instantiation
+template class Phase<doublereal>;
+
+#ifdef INDEPENDENT_VARIABLE_DERIVATIVES
+#ifdef HAS_SACADO
+template class Phase<doubleFAD>;
+#endif
+#endif
+
+
+
+
 } // namespace Cantera

@@ -176,16 +176,18 @@ public:
      * @param s_R     Vector of Dimensionless entropies.
      *                (length m_kk).
      */
-    virtual void updateProperties(const doublereal* tt, ValAndDerivType * cp_R, ValAndDerivType* h_RT, ValAndDerivType* s_R) const
+    virtual void updateProperties(const ValAndDerivType* tt, ValAndDerivType * cp_R, ValAndDerivType* h_RT, ValAndDerivType* s_R) const
     {
 
         doublereal ct0 = m_coeff[2]; // a0
-        doublereal ct1 = m_coeff[3] * tt[0]; // a1 * T
-        doublereal ct2 = m_coeff[4] * tt[1]; // a2 * T^2
-        doublereal ct3 = m_coeff[5] * tt[2]; // a3 * T^3
-        doublereal ct4 = m_coeff[6] * tt[3]; // a4 * T^4
+        ValAndDerivType ct1 = m_coeff[3] * tt[0]; // a1 * T
+        ValAndDerivType ct2 = m_coeff[4] * tt[1]; // a2 * T^2
+        ValAndDerivType ct3 = m_coeff[5] * tt[2]; // a3 * T^3
+        ValAndDerivType ct4 = m_coeff[6] * tt[3]; // a4 * T^4
 
-        doublereal cp, h, s;
+        ValAndDerivType cp;
+        ValAndDerivType h;
+        ValAndDerivType s;
         cp = ct0 + ct1 + ct2 + ct3 + ct4;
         h = ct0 + 0.5 * ct1 + OneThird * ct2 + 0.25 * ct3 + 0.2 * ct4 + m_coeff[0] * tt[4]; // last term is a5/T
         s = ct0 * tt[5] + ct1 + 0.5 * ct2 + OneThird * ct3 + 0.25 * ct4 + m_coeff[1]; // last term is a6
@@ -218,7 +220,7 @@ public:
     virtual void updatePropertiesTemp(const doublereal temp, ValAndDerivType* cp_R, ValAndDerivType* h_RT,
                                       ValAndDerivType * s_R) const
     {
-        double tPoly[6];
+        ValAndDerivType tPoly[6];
         tPoly[0] = temp;
         tPoly[1] = temp * temp;
         tPoly[2] = tPoly[1] * temp;

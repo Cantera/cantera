@@ -241,8 +241,8 @@ public:
      *                (length m_kk).
      */
     virtual void updatePropertiesTemp(const doublereal temp,
-                                      doublereal* cp_R, doublereal* h_RT,
-                                      doublereal* s_R) const {
+                                      ValAndDerivType* cp_R, ValAndDerivType* h_RT,
+                                      ValAndDerivType* s_R) const {
         double tPoly[7];
         doublereal tt = 1.e-3*temp;
         tPoly[0] = tt;

@@ -22,7 +22,7 @@ typedef Cabinet<ReactorNet> NetworkCabinet;
 typedef Cabinet<FlowDevice> FlowDeviceCabinet;
 typedef Cabinet<Wall> WallCabinet;
 typedef Cabinet<Func1> FuncCabinet;
-typedef Cabinet<ThermoPhase> ThermoCabinet;
+typedef Cabinet<thermo_t> ThermoCabinet;
 typedef Cabinet<Kinetics> KineticsCabinet;
 
 template<> ReactorCabinet* ReactorCabinet::__storage = 0;

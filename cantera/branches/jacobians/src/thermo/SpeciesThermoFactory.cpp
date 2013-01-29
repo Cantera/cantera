@@ -11,6 +11,7 @@ using namespace std;
 #include "cantera/thermo/SpeciesThermo.h"
 #include "NasaThermo.h"
 #include "ShomateThermo.h"
+#include "NasaPoly2.h"
 #include "cantera/thermo/SimpleThermo.h"
 #include "cantera/thermo/GeneralSpeciesThermo.h"
 #include "cantera/thermo/Mu0Poly.h"
@@ -122,6 +123,13 @@ SpeciesThermoFactory<ValAndDerivType> * SpeciesThermoFactory<ValAndDerivType>::f
     return s_factory;
 }
 
+template SpeciesThermoFactory<doublereal> * SpeciesThermoFactory<doublereal>::factory();
+#ifdef INDEPENDENT_VARIABLE_DERIVATIVES
+#ifdef HAS_SACADO
+template SpeciesThermoFactory<doubleFAD> * SpeciesThermoFactory<doubleFAD>::factory();
+#endif
+#endif
+
 // Delete static instance of this class
 /*
  * If it is necessary to explicitly delete the factory before
@@ -182,11 +190,12 @@ SpeciesThermo<ValAndDerivType> * SpeciesThermoFactory<ValAndDerivType>::newSpeci
     case SIMPLE:
         return new SimpleThermo<ValAndDerivType>();
     case NASA + SHOMATE:
-        return new SpeciesThermoDuo<NasaThermo<ValAndDerivType>, ShomateThermo<ValAndDerivType> > ;
+        // HKM -> needed a cast here. Not sure why and not sure if this fixes the problem.
+        return new SpeciesThermoDuo<NasaThermo<ValAndDerivType>, ShomateThermo<ValAndDerivType>, ValAndDerivType>;
     case NASA + SIMPLE:
-        return new SpeciesThermoDuo<NasaThermo<ValAndDerivType>, SimpleThermo<ValAndDerivType> > ;
+        return new SpeciesThermoDuo<NasaThermo<ValAndDerivType>, SimpleThermo<ValAndDerivType>, ValAndDerivType>;
     case SHOMATE + SIMPLE:
-        return new SpeciesThermoDuo<ShomateThermo<ValAndDerivType>, SimpleThermo<ValAndDerivType> > ;
+        return new SpeciesThermoDuo<ShomateThermo<ValAndDerivType>, SimpleThermo<ValAndDerivType>, ValAndDerivType>;
     default:
         throw UnknownSpeciesThermo("SpeciesThermoFactory::newSpeciesThermo", type);
         return 0;
@@ -203,11 +212,11 @@ SpeciesThermo<ValAndDerivType>* SpeciesThermoFactory<ValAndDerivType>::newSpecie
     } else if (ltype == "simple" || ltype == "constant_cp") {
         return new SimpleThermo<ValAndDerivType>();
     } else if (ltype == "nasa_shomate_duo") {
-        return new SpeciesThermoDuo<NasaThermo<ValAndDerivType>, ShomateThermo<ValAndDerivType> > ;
+        return new SpeciesThermoDuo<NasaThermo<ValAndDerivType>, ShomateThermo<ValAndDerivType>, ValAndDerivType > ;
     } else if (ltype == "nasa_simple_duo") {
-        return new SpeciesThermoDuo<NasaThermo<ValAndDerivType>, SimpleThermo<ValAndDerivType> > ;
+        return new SpeciesThermoDuo<NasaThermo<ValAndDerivType>, SimpleThermo<ValAndDerivType>, ValAndDerivType > ;
     } else if (ltype == "shomate_simple_duo") {
-        return new SpeciesThermoDuo<ShomateThermo<ValAndDerivType>, SimpleThermo<ValAndDerivType> > ;
+        return new SpeciesThermoDuo<ShomateThermo<ValAndDerivType>, SimpleThermo<ValAndDerivType>, ValAndDerivType > ;
     } else if (ltype == "general") {
         return new GeneralSpeciesThermo<ValAndDerivType>();
     } else if (ltype == "") {
@@ -924,5 +933,49 @@ SpeciesThermo<ValAndDerivType>* newSpeciesThermoMgr(std::vector<XML_Node*> speci
     SpeciesThermo<ValAndDerivType>* sptherm = f->newSpeciesThermo(species_nodes);
     return sptherm;
 }
+
+// Explicit Instantiation Section
+
+
+template class ShomatePoly<doublereal>;
+#ifdef INDEPENDENT_VARIABLE_DERIVATIVES
+#ifdef HAS_SACADO
+template class ShomatePoly<doubleFAD>;
+#endif
+#endif
+
+template class ShomateThermo<doublereal>;
+#ifdef INDEPENDENT_VARIABLE_DERIVATIVES
+#ifdef HAS_SACADO
+template class ShomateThermo<doubleFAD>;
+#endif
+#endif
+
+
+template class NasaPoly2<doublereal>;
+#ifdef INDEPENDENT_VARIABLE_DERIVATIVES
+#ifdef HAS_SACADO
+template class NasaPoly2<doubleFAD>;
+#endif
+#endif
+
+template class NasaThermo<doublereal>;
+#ifdef INDEPENDENT_VARIABLE_DERIVATIVES
+#ifdef HAS_SACADO
+template class NasaThermo<doubleFAD>;
+#endif
+#endif
+
+
+template class SpeciesThermoFactory<doublereal>;
+#ifdef INDEPENDENT_VARIABLE_DERIVATIVES
+#ifdef HAS_SACADO
+template class SpeciesThermoFactory<doubleFAD>;
+#endif
+#endif
+
+
+
+
 
 }

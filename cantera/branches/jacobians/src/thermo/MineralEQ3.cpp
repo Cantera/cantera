@@ -596,6 +596,9 @@ void MineralEQ3::convertDGFormation()
     m_Mu0_pr_tr = dg + totalSum;
 }
 
+// Explicit Instantiation Section
+// template class MineralEQ3<doublereal>;
+
 }
 
 

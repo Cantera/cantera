@@ -21,7 +21,7 @@ typedef Cabinet<Domain1D> DomainCabinet;
 template<> SimCabinet* SimCabinet::__storage = 0;
 template<> DomainCabinet* DomainCabinet::__storage = 0;
 
-typedef Cabinet<ThermoPhase> ThermoCabinet;
+typedef Cabinet<thermo_t> ThermoCabinet;
 typedef Cabinet<Kinetics> KineticsCabinet;
 typedef Cabinet<Transport> TransportCabinet;
 
@@ -364,7 +364,7 @@ extern "C" {
     int stflow_new(int iph, int ikin, int itr, int itype)
     {
         try {
-            IdealGasPhase& ph = ThermoCabinet::get<IdealGasPhase>(iph);
+            IdealGasPhase<doublereal>& ph = ThermoCabinet::get< IdealGasPhase<doublereal> >(iph);
             if (itype == 1) {
                 AxiStagnFlow* x = new AxiStagnFlow(&ph, ph.nSpecies(), 2);
                 x->setKinetics(KineticsCabinet::item(ikin));

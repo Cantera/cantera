@@ -66,16 +66,18 @@ class SpeciesThermoDuo: public SpeciesThermo<ValAndDerivType>
 
 public:
     //! Constructor
-    SpeciesThermoDuo()
+    SpeciesThermoDuo() :
+        SpeciesThermo<ValAndDerivType>(),
+        m_p0(OneAtm)
     {
     }
-    ;
+
 
     //! Destructor
     virtual ~SpeciesThermoDuo()
     {
     }
-    ;
+
 
     //! copy constructor
     /*!
@@ -83,7 +85,7 @@ public:
      */
     SpeciesThermoDuo(const SpeciesThermoDuo& right)
     {
-        *this = operator=(right);
+        operator=(right);
     }
 
     //! Assignment operator

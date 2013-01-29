@@ -532,7 +532,7 @@ protected:
     int m_ngroups;
 
     //! Vector of temperature polynomials
-    mutable vector_fp m_t;
+    mutable std::vector<ValAndDerivType> m_t;
 
     /*!
      * This map takes as its index, the species index in the phase.

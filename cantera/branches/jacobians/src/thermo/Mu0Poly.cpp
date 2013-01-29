@@ -435,6 +435,15 @@ void Mu0Poly<ValAndDerivType>::processCoeffs(const doublereal* coeffs)
 #endif
 }
 
+// Explicit Instantiation Section
+template class Mu0Poly<doublereal>;
+#ifdef INDEPENDENT_VARIABLE_DERIVATIVES
+#ifdef HAS_SACADO
+template class Mu0Poly<doubleFAD>;
+#endif
+#endif
+
+
 }
 
 

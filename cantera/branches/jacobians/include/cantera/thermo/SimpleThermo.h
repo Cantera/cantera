@@ -219,8 +219,8 @@ public:
      * @param s_R     Vector of Dimensionless entropies.
      *                (length m_kk).
      */
-    virtual void update(doublereal t, doublereal* cp_R,
-                        doublereal* h_RT, doublereal* s_R) const {
+    virtual void update(doublereal t, ValAndDerivType* cp_R,
+                        ValAndDerivType* h_RT, ValAndDerivType* s_R) const {
         size_t k, ki;
         doublereal logt = log(t);
         doublereal rt = 1.0/t;
@@ -243,8 +243,8 @@ public:
      * @param s_R     Vector of Dimensionless entropies.
      *                (length m_kk).
      */
-    virtual void update_one(size_t k, doublereal t, doublereal* cp_R,
-                            doublereal* h_RT, doublereal* s_R) const {
+    virtual void update_one(size_t k, doublereal t, ValAndDerivType* cp_R,
+                            ValAndDerivType* h_RT, ValAndDerivType* s_R) const {
         doublereal logt = log(t);
         doublereal rt = 1.0/t;
         size_t loc = m_loc[k];

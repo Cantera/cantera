@@ -686,6 +686,10 @@ void SingleSpeciesTP::_updateThermo() const
     }
 }
 
+
+// Explicit Instantiation Section
+// template class SingleSpeciesTP<doublereal>;
+
 }
 
 

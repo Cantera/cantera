@@ -182,6 +182,9 @@ void ConstDensityThermo::setParametersFromXML(const XML_Node& eosdata)
     setDensity(rho);
 }
 
+// Explicit Instantiation Section
+// template class ConstDensityThermo<doublereal>;
+
 }
 
 

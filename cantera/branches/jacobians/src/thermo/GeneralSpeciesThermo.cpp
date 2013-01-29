@@ -379,5 +379,14 @@ void GeneralSpeciesThermo<ValAndDerivType>::modifyOneHf298(const size_t k, const
 
 #endif
 //=====================================================================================================================
+// Explicit Instantiation Section
+
+template class GeneralSpeciesThermo<doublereal>;
+#ifdef INDEPENDENT_VARIABLE_DERIVATIVES
+#ifdef HAS_SACADO
+template class GeneralSpeciesThermo<doubleFAD>;
+#endif
+#endif
+
 }
 //=====================================================================================================================
