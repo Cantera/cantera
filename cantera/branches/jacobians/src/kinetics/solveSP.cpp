@@ -66,7 +66,7 @@ solveSP::solveSP(ImplicitSurfChem* surfChemPtr, int bulkFunc) :
             throw CanteraError("solveSP",
                                "InterfaceKinetics object has no surface phase");
         }
-        ThermoPhase* tp = &(m_kin->thermo(surfPhaseIndex));
+        thermo_t* tp = &(m_kin->thermo(surfPhaseIndex));
         SurfPhase* sp = dynamic_cast<SurfPhase*>(tp);
         if (!sp) {
             throw CanteraError("solveSP",
@@ -477,7 +477,7 @@ void solveSP::updateMFKinSpecies(doublereal* XMolKinSpecies, int isp)
     size_t nph = m_kin->nPhases();
     for (size_t iph = 0; iph < nph; iph++) {
         size_t ksi = m_kin->kineticsSpeciesIndex(0, iph);
-        ThermoPhase& thref = m_kin->thermo(iph);
+        thermo_t& thref = m_kin->thermo(iph);
         thref.getMoleFractions(XMolKinSpecies + ksi);
     }
 }
@@ -855,7 +855,7 @@ calc_t(doublereal netProdRateSolnSP[], doublereal XMolSolnSP[],
         // the InterfaceKinetics object
         size_t surfIndex = m_kin->surfacePhaseIndex();
         kstart = m_kin->kineticsSpeciesIndex(0, surfIndex);
-        ThermoPhase& THref = m_kin->thermo(surfIndex);
+        thermo_t& THref = m_kin->thermo(surfIndex);
 
         m_kin->getNetProductionRates(DATA_PTR(m_numEqn1));
 

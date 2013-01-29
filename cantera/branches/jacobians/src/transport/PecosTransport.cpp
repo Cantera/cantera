@@ -101,7 +101,7 @@ bool PecosTransport::initGas(GasTransportParams& tr)
 
     for (k = 0; k < m_nsp; k++) {
         cv_rot[k] = tr.crot[k];
-        cp_R[k] = ((IdealGasPhase*)tr.thermo)->cp_R_ref()[k];
+        cp_R[k] = ((IdealGasPhase<doublereal> *)tr.thermo)->cp_R_ref()[k];
         cv_int[k] = cp_R[k] - 2.5 - cv_rot[k];
     }
     return true;

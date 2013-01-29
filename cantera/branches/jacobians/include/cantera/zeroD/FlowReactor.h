@@ -73,7 +73,8 @@ public:
 
 protected:
 
-    doublereal m_speed, m_dist, m_T;
+    doublereal m_speed;
+    doublereal m_dist, m_T;
     doublereal m_fctr;
     doublereal m_rho0, m_speed0, m_P0, m_h0;
 

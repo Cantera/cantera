@@ -186,7 +186,7 @@ DustyGasTransport::~DustyGasTransport()
  *   @param  phase           Pointer to the underlying ThermoPhase model for the gas phase
  *   @param  gastr           Pointer to the underlying Transport model for transport in the gas phase.
  */
-void DustyGasTransport::initialize(ThermoPhase* phase, Transport* gastr)
+void DustyGasTransport::initialize(thermo_t* phase, Transport* gastr)
 {
 
     // constant mixture attributes

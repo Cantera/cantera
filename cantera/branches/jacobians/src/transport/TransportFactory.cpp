@@ -1036,7 +1036,7 @@ void TransportFactory::getLiquidSpeciesTransportData(const std::vector<const XML
                 data.speciesName = name;
                 data.mobilityRatio.resize(nsp*nsp,0);
                 data.selfDiffusion.resize(nsp,0);
-                ThermoPhase* temp_thermo = trParam.thermo;
+                thermo_t* temp_thermo = trParam.thermo;
 
                 size_t num = trNode.nChildren();
                 for (size_t iChild = 0; iChild < num; iChild++) {
@@ -1156,7 +1156,7 @@ void TransportFactory::getLiquidInteractionsTransportData(const XML_Node& transp
 
 	    trParam.mobilityRatio.resize(nsp*nsp,0);
 	    trParam.selfDiffusion.resize(nsp,0);
-	    ThermoPhase *temp_thermo = trParam.thermo;
+	    thermo_t *temp_thermo = trParam.thermo;
 
 
             if (tranTypeNode.hasChild("compositionDependence")) {
@@ -1278,7 +1278,7 @@ void TransportFactory::getLiquidInteractionsTransportData(const XML_Node& transp
 	XML_Node &tranTypeNode = transportNode.child(iChild);
 	std::string nodeName = tranTypeNode.name();
 
-	ThermoPhase *temp_thermo = trParam.thermo;
+	thermo_t *temp_thermo = trParam.thermo;
 
 	//tranTypeNode contains the interaction model
 	//	XML_Node &compDepNode = tranTypeNode.child("compositionDependence");
@@ -1402,7 +1402,7 @@ void TransportFactory::fitProperties(GasTransportParams& tr,
             t = tr.tmin + dt*n;
 
             tr.thermo->setTemperature(t);
-            cp_R = ((IdealGasPhase*)tr.thermo)->cp_R_ref()[k];
+            cp_R = ((IdealGasPhase<doublereal> * )tr.thermo)->cp_R_ref()[k];
 
             tstar = Boltzmann * t/ tr.eps[k];
             sqrt_T = sqrt(t);

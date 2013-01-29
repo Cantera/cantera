@@ -521,7 +521,7 @@ private:
     /*!
      *
      */
-    std::vector<ThermoPhase*> m_bulkPhasePtrs;
+    std::vector<ThermoPhase<doublereal> * > m_bulkPhasePtrs;
 
     //! Index between the equation index and the position in the
     //! kinetic species array for the appropriate kinetics

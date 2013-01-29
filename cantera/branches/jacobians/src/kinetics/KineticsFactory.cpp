@@ -48,7 +48,7 @@ static int _itypes[]   = {0, cGasKinetics, cGRI30, cInterfaceKinetics, cEdgeKine
  */
 
 Kinetics* KineticsFactory::
-newKinetics(XML_Node& phaseData, vector<ThermoPhase*> th)
+newKinetics(XML_Node& phaseData, vector<thermo_t *> th)
 {
     /*
      * Look for a child of the xml element phase called

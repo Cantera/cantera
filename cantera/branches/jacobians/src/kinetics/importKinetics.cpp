@@ -99,7 +99,7 @@ void checkRxnElementBalance(Kinetics& kin,
         size_t n = kin.speciesPhaseIndex(kp);  // phase this product belongs to
         size_t klocal = kp - kin.kineticsSpeciesIndex(0,n); // index within this phase
         kstoich = rdata.pstoich[index]; // product stoichiometric coeff
-        const ThermoPhase& ph = kin.speciesPhase(kp);
+        const thermo_t& ph = kin.speciesPhase(kp);
         for (size_t m = 0; m < ph.nElements(); m++) {
             bal[ph.elementName(m)] += kstoich*ph.nAtoms(klocal,m);
             balp[ph.elementName(m)] += kstoich*ph.nAtoms(klocal,m);
@@ -113,7 +113,7 @@ void checkRxnElementBalance(Kinetics& kin,
         //klocal = kr - kin.start(n);
         size_t klocal = kr - kin.kineticsSpeciesIndex(0,n);
         kstoich = rdata.rstoich[index];
-        const ThermoPhase& ph = kin.speciesPhase(kr);
+        const thermo_t& ph = kin.speciesPhase(kr);
         for (size_t m = 0; m < ph.nElements(); m++) {
             bal[ph.elementName(m)] -= kstoich*ph.nAtoms(klocal,m);
             balr[ph.elementName(m)] += kstoich*ph.nAtoms(klocal,m);
@@ -334,7 +334,7 @@ static void getStick(const XML_Node& node, Kinetics& kin,
      *      ispPhaseIndex = phase # of the special species
      */
     string spname = node["species"];
-    ThermoPhase& th = kin.speciesPhase(spname);
+    thermo_t& th = kin.speciesPhase(spname);
     size_t isp = th.speciesIndex(spname);
     size_t ispKinetics = kin.kineticsSpeciesIndex(spname);
     size_t ispPhaseIndex = kin.speciesPhaseIndex(ispKinetics);
@@ -349,7 +349,7 @@ static void getStick(const XML_Node& node, Kinetics& kin,
 
         // get the phase species k belongs to
         np = kin.speciesPhaseIndex(k);
-        const ThermoPhase& p = kin.thermo(np);
+        const thermo_t& p = kin.thermo(np);
 
         // get the local index of species k in this phase
         klocal = p.speciesIndex(kin.kineticsSpeciesName(k));
@@ -1042,7 +1042,7 @@ bool installReactionArrays(const XML_Node& p, Kinetics& kin,
  *              that will be initialized with a kinetics
  *              mechanism.
  */
-bool importKinetics(const XML_Node& phase, std::vector<ThermoPhase*> th,
+bool importKinetics(const XML_Node& phase, std::vector<thermo_t*> th,
                     Kinetics* k)
 {
 
@@ -1124,7 +1124,7 @@ bool importKinetics(const XML_Node& phase, std::vector<ThermoPhase*> th,
  * mechanism.
  */
 bool buildSolutionFromXML(XML_Node& root, const std::string& id,
-                          const std::string& nm, ThermoPhase* th, Kinetics* k)
+                          const std::string& nm, thermo_t* th, Kinetics* k)
 {
     XML_Node* x;
     x = get_XML_NameID(nm, string("#")+id, &root);
@@ -1142,7 +1142,7 @@ bool buildSolutionFromXML(XML_Node& root, const std::string& id,
      * Create a vector of ThermoPhase pointers of length 1
      * having the current th ThermoPhase as the entry.
      */
-    vector<ThermoPhase*> phases(1);
+    vector<thermo_t*> phases(1);
     phases[0] = th;
     /*
      * Fill in the kinetics object k, by querying the

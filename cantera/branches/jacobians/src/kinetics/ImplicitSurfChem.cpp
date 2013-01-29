@@ -63,7 +63,7 @@ ImplicitSurfChem::ImplicitSurfChem(vector<InterfaceKinetics*> k) :
         size_t imatch = npos;
         for (size_t ip = 0; ip < nPhases; ip++) {
             if (ip != ns) {
-                ThermoPhase* thPtr = & kinPtr->thermo(ip);
+                ThermoPhase<doublereal>* thPtr = & kinPtr->thermo(ip);
                 if ((imatch = checkMatch(m_bulkPhases, thPtr)) == npos) {
                     m_bulkPhases.push_back(thPtr);
                     m_numBulkPhases++;
@@ -97,11 +97,11 @@ ImplicitSurfChem::ImplicitSurfChem(vector<InterfaceKinetics*> k) :
     m_work.resize(ntmax);
 }
 
-int ImplicitSurfChem::checkMatch(std::vector<ThermoPhase*> m_vec, ThermoPhase* thPtr)
+int ImplicitSurfChem::checkMatch(std::vector<thermo_t *> m_vec, thermo_t * thPtr)
 {
     int retn = -1;
     for (int i = 0; i < (int) m_vec.size(); i++) {
-        ThermoPhase* th = m_vec[i];
+        thermo_t* th = m_vec[i];
         if (th == thPtr) {
             return i;
         }
@@ -255,7 +255,7 @@ void ImplicitSurfChem::solvePseudoSteadyStateProblem(int ifuncOverride,
      */
     getConcSpecies(DATA_PTR(m_concSpecies));
     InterfaceKinetics* ik = m_vecKinPtrs[0];
-    ThermoPhase& tp = ik->thermo(0);
+    thermo_t& tp = ik->thermo(0);
     doublereal TKelvin = tp.temperature();
     doublereal PGas  = tp.pressure();
     /*
@@ -325,13 +325,13 @@ void ImplicitSurfChem::getConcSpecies(doublereal* const vecConcSpecies) const
 {
     size_t kstart;
     for (size_t ip = 0; ip < m_nsurf; ip++) {
-        ThermoPhase* TP_ptr = m_surf[ip];
+        thermo_t * TP_ptr = m_surf[ip];
         kstart = m_specStartIndex[ip];
         TP_ptr->getConcentrations(vecConcSpecies + kstart);
     }
     kstart = m_nv;
     for (size_t ip = 0; ip <  m_numBulkPhases; ip++) {
-        ThermoPhase* TP_ptr = m_bulkPhases[ip];
+        thermo_t * TP_ptr = m_bulkPhases[ip];
         TP_ptr->getConcentrations(vecConcSpecies + kstart);
         kstart += TP_ptr->nSpecies();
     }
@@ -350,13 +350,13 @@ void ImplicitSurfChem::setConcSpecies(const doublereal* const vecConcSpecies)
 {
     size_t kstart;
     for (size_t ip = 0; ip < m_nsurf; ip++) {
-        ThermoPhase* TP_ptr = m_surf[ip];
+        thermo_t * TP_ptr = m_surf[ip];
         kstart = m_specStartIndex[ip];
         TP_ptr->setConcentrations(vecConcSpecies + kstart);
     }
     kstart = m_nv;
     for (size_t ip = 0; ip <  m_numBulkPhases; ip++) {
-        ThermoPhase* TP_ptr = m_bulkPhases[ip];
+        thermo_t * TP_ptr = m_bulkPhases[ip];
         TP_ptr->setConcentrations(vecConcSpecies + kstart);
         kstart += TP_ptr->nSpecies();
     }
@@ -375,11 +375,11 @@ void ImplicitSurfChem::
 setCommonState_TP(doublereal TKelvin, doublereal PresPa)
 {
     for (size_t ip = 0; ip < m_nsurf; ip++) {
-        ThermoPhase* TP_ptr = m_surf[ip];
+        thermo_t * TP_ptr = m_surf[ip];
         TP_ptr->setState_TP(TKelvin, PresPa);
     }
     for (size_t ip = 0; ip < m_numBulkPhases; ip++) {
-        ThermoPhase* TP_ptr = m_bulkPhases[ip];
+        thermo_t * TP_ptr = m_bulkPhases[ip];
         TP_ptr->setState_TP(TKelvin, PresPa);
     }
 }

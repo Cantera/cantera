@@ -179,8 +179,8 @@ void Kinetics::assignShallowPointers(const std::vector<thermo_t*> & tpVector)
                            " Number of ThermoPhase objects arent't the same");
     }
     for (size_t i = 0; i < ns; i++) {
-        ThermoPhase* ntp = tpVector[i];
-        ThermoPhase* otp = m_thermo[i];
+        thermo_t * ntp = tpVector[i];
+        thermo_t * otp = m_thermo[i];
         if (ntp->id() != otp->id()) {
             throw CanteraError(" Kinetics::assignShallowPointers",
                                " id() of the ThermoPhase objects isn't the same");

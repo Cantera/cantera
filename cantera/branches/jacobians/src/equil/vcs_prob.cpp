@@ -546,7 +546,7 @@ void VCS_PROB::reportCSV(const std::string& reportFile)
         istart = iK;
 
         vcs_VolPhase* volP = VPhaseList[iphase];
-        const Cantera::ThermoPhase* tp = volP->ptrThermoPhase();
+        const Cantera::ThermoPhase<doublereal>* tp = volP->ptrThermoPhase();
         string phaseName = volP->PhaseName;
         size_t nSpeciesPhase = volP->nSpecies();
         volP->sendToVCS_VolPM(VCS_DATA_PTR(volPM));

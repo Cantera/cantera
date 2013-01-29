@@ -17,8 +17,8 @@ bool FlowDevice::install(ReactorBase& in, ReactorBase& out)
     m_out->addInlet(*this);
 
     // construct adapters between inlet and outlet species
-    ThermoPhase* mixin = &m_in->contents();
-    ThermoPhase* mixout = &m_out->contents();
+    thermo_t* mixin = &m_in->contents();
+    thermo_t* mixout = &m_out->contents();
     if (mixin == 0 || mixout == 0) {
         return false;
     }

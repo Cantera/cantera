@@ -58,7 +58,7 @@ public:
     /// will be used to evaluate all thermodynamic, kinetic, and transport
     /// properties.
     /// @param nsp Number of species.
-    StFlow(IdealGasPhase* ph = 0, size_t nsp = 1, size_t points = 1);
+    StFlow(IdealGasPhase<doublereal> * ph = 0, size_t nsp = 1, size_t points = 1);
 
     /// Destructor.
     virtual ~StFlow() {}
@@ -84,7 +84,7 @@ public:
      * Set the thermo manager. Note that the flow equations assume
      * the ideal gas equation.
      */
-    void setThermo(IdealGasPhase& th) {
+    void setThermo(IdealGasPhase<doublereal>& th) {
         m_thermo = &th;
     }
 
@@ -479,7 +479,7 @@ protected:
 
     size_t m_nsp;
 
-    IdealGasPhase* m_thermo;
+    IdealGasPhase<doublereal>* m_thermo;
     Kinetics* m_kin;
     Transport* m_trans;
 
@@ -504,7 +504,7 @@ protected:
     vector_fp m_tfix;
 
     bool m_dovisc;
-    void updateTransport(doublereal* x, size_t j0, size_t j1);
+    void updateTransport(doublereal * x, size_t j0, size_t j1);
 
 private:
     vector_fp m_ybar;
@@ -518,7 +518,7 @@ private:
 class AxiStagnFlow : public StFlow
 {
 public:
-    AxiStagnFlow(IdealGasPhase* ph = 0, size_t nsp = 1, size_t points = 1) :
+    AxiStagnFlow(IdealGasPhase<doublereal> * ph = 0, size_t nsp = 1, size_t points = 1) :
         StFlow(ph, nsp, points) {
         m_dovisc = true;
     }
@@ -540,7 +540,7 @@ public:
 class FreeFlame : public StFlow
 {
 public:
-    FreeFlame(IdealGasPhase* ph = 0, size_t nsp = 1, size_t points = 1) :
+    FreeFlame(IdealGasPhase<doublereal>* ph = 0, size_t nsp = 1, size_t points = 1) :
         StFlow(ph, nsp, points) {
         m_dovisc = false;
         setID("flame");
@@ -580,8 +580,8 @@ private:
 };
 */
 
-void importSolution(size_t points, doublereal* oldSoln, IdealGasPhase& oldmech,
-                    size_t size_new, doublereal* newSoln, IdealGasPhase& newmech);
+void importSolution(size_t points, doublereal* oldSoln, IdealGasPhase<doublereal> & oldmech,
+                    size_t size_new, doublereal* newSoln, IdealGasPhase<doublereal> & newmech);
 
 }
 

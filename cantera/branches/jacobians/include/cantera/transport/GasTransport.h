@@ -7,15 +7,18 @@
 
 #include "TransportBase.h"
 
-namespace Cantera
-{
+namespace Cantera {
 
 //! Class GasTransport implements some functions and properties that are
 //! shared by the MixTransport and MultiTransport classes.
-class GasTransport : public Transport
+class GasTransport: public Transport
 {
 public:
-    virtual ~GasTransport() {}
+
+    virtual ~GasTransport()
+    {
+    }
+
     GasTransport(const GasTransport& right);
     GasTransport& operator=(const GasTransport& right);
 
@@ -42,7 +45,8 @@ public:
     virtual doublereal viscosity();
 
     //! Get the pure-species viscosities
-    virtual void getSpeciesViscosities(doublereal* const visc) {
+    virtual void getSpeciesViscosities(doublereal* const visc)
+    {
         update_T();
         updateViscosity_T();
         std::copy(m_visc.begin(), m_visc.end(), visc);
@@ -101,7 +105,7 @@ public:
     virtual void getMixDiffCoeffsMass(doublereal* const d);
 
 protected:
-    GasTransport(ThermoPhase* thermo=0);
+    GasTransport(thermo_t* thermo = 0);
 
     virtual bool initGas(GasTransportParams& tr);
     virtual void update_T();

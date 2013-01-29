@@ -5,7 +5,6 @@
  *  \link Cantera::ImplicitSurfChem ImplicitSurfChem\endlink).
  */
 // Copyright 2001  California Institute of Technology
-
 #ifndef CT_IMPSURFCHEM_H
 #define CT_IMPSURFCHEM_H
 
@@ -15,11 +14,9 @@
 #include "cantera/thermo/SurfPhase.h"
 #include "solveSP.h"
 
-namespace Cantera
-{
+namespace Cantera {
 
 class solveSP;
-
 
 //! Advances the surface coverages of the associated set of SurfacePhase
 //! objects in time
@@ -59,11 +56,10 @@ class solveSP;
  * @ingroup  kineticsmgr
  *
  */
-class ImplicitSurfChem : public FuncEval
+class ImplicitSurfChem: public FuncEval
 {
 
 public:
-
 
     //! Constructor for multiple surfaces.
     /*!
@@ -85,7 +81,6 @@ public:
      */
     virtual void initialize(doublereal t0 = 0.0);
 
-
     //! Integrate from t0 to t1. The integrator is reinitialized first.
     /*!
      *   This routine does a time accurate solve from t = t0 to t = t1.
@@ -95,7 +90,6 @@ public:
      *  @param t1  Final Time -> This is an input
      */
     void integrate(doublereal t0, doublereal t1);
-
 
     //! Integrate from t0 to t1 without reinitializing the integrator.
     /*!
@@ -107,7 +101,6 @@ public:
      *  @param t1  Final Time -> This is an input
      */
     void integrate0(doublereal t0, doublereal t1);
-
 
     //! Solve for the pseudo steady-state of the surface problem
     /*!
@@ -135,14 +128,13 @@ public:
      *             time used in the initial transient algorithm,
      *             before the equation system is solved directly.
      */
-    void solvePseudoSteadyStateProblem(int ifuncOverride = -1,
-                                       doublereal timeScaleOverride = 1.0);
-
+    void solvePseudoSteadyStateProblem(int ifuncOverride = -1, doublereal timeScaleOverride = 1.0);
 
     // overloaded methods of class FuncEval
 
     //! Return the number of equations
-    virtual size_t neq() {
+    virtual size_t neq()
+    {
         return m_nv;
     }
 
@@ -154,8 +146,7 @@ public:
      *                derivative of the surface coverages.
      *  @param p   Unused parameter pass-through parameter vector
      */
-    virtual void eval(doublereal t, doublereal* y, doublereal* ydot,
-                      doublereal* p);
+    virtual void eval(doublereal t, doublereal* y, doublereal* ydot, doublereal* p);
 
     //! Set the initial conditions for the solution vector
     /*!
@@ -165,8 +156,7 @@ public:
      *            On output, this contains the initial value
      *           of the solution.
      */
-    virtual void getInitialConditions(doublereal t0,
-                                      size_t leny, doublereal* y);
+    virtual void getInitialConditions(doublereal t0, size_t leny, doublereal* y);
 
     /*
      * Get the specifications for the problem from the values
@@ -205,25 +195,25 @@ public:
      */
     void setCommonState_TP(doublereal TKelvin, doublereal PresPa);
 
-
     //! Returns a reference to the vector of pointers to the
     //! InterfaceKinetics objects
     /*!
      * This should probably go away in the future, as it opens up the
      * class.
      */
-    std::vector<InterfaceKinetics*> & getObjects() {
+    std::vector<InterfaceKinetics*> & getObjects()
+    {
         return m_vecKinPtrs;
     }
 
-    int checkMatch(std::vector<ThermoPhase*> m_vec, ThermoPhase* thPtr);
+    int checkMatch(std::vector<ThermoPhase<doublereal> *> m_vec, ThermoPhase<doublereal> * thPtr);
 
-    void setIOFlag(int ioFlag) {
+    void setIOFlag(int ioFlag)
+    {
         m_ioFlag = ioFlag;
     }
 
 protected:
-
 
     //! Set the mixture to a state consistent with solution
     //! vector y.
@@ -242,13 +232,13 @@ protected:
     std::vector<SurfPhase*> m_surf;
 
     //! Vector of pointers to bulk phases
-    std::vector<ThermoPhase*> m_bulkPhases;
+    std::vector<ThermoPhase<doublereal> *> m_bulkPhases;
 
     //! vector of pointers to InterfaceKinetics objects
     std::vector<InterfaceKinetics*> m_vecKinPtrs;
 
     //! Vector of number of species in each Surface Phase
-    std::vector<size_t>  m_nsp;
+    std::vector<size_t> m_nsp;
 
     //! index of the surface phase in each InterfaceKinetics object
     std::vector<size_t> m_surfindex;
@@ -271,17 +261,15 @@ protected:
 
     size_t m_numBulkPhases;
     std::vector<size_t> m_nspBulkPhases;
-    size_t  m_numTotalBulkSpecies;
+    size_t m_numTotalBulkSpecies;
     size_t m_numTotalSpecies;
 
     std::vector<vector_int> pLocVec;
     //! Pointer to the cvode integrator
     Integrator* m_integ;
-    doublereal m_atol, m_rtol;   // tolerances
-    doublereal m_maxstep;        // max step size
+    doublereal m_atol, m_rtol; // tolerances
+    doublereal m_maxstep; // max step size
     vector_fp m_work;
-
-
 
     /**
      * Temporary vector - length num species in the Kinetics object.

@@ -4,7 +4,7 @@
 namespace Cantera
 {
 
-GasTransport::GasTransport(ThermoPhase* thermo) :
+GasTransport::GasTransport(thermo_t* thermo) :
     Transport(thermo),
     m_molefracs(0),
     m_viscmix(0.0),

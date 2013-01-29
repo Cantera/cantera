@@ -103,7 +103,7 @@ protected:
     size_t m_nv, m_left_nsp, m_right_nsp;
     size_t m_sp_left, m_sp_right;
     size_t m_start_left, m_start_right;
-    ThermoPhase* m_phase_left, *m_phase_right;
+    thermo_t* m_phase_left, *m_phase_right;
     doublereal m_temp, m_mdot;
 
 private:
