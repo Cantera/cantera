@@ -119,9 +119,9 @@ class TestMixture(utilities.CanteraTest):
         self.assertEqual(self.mix.phase_moles(1), 4)
 
     def test_species_moles(self):
-        self.mix.set_species_moles('H2:1.0, N2:4.0')
+        self.mix.species_moles = 'H2:1.0, N2:4.0'
         P = self.mix.phase_moles()
-        S = self.mix.species_moles()
+        S = self.mix.species_moles
 
         self.assertEqual(P[0], 1)
         self.assertEqual(P[1], 4)
@@ -130,18 +130,18 @@ class TestMixture(utilities.CanteraTest):
         self.assertEqual(S[self.mix.species_index(1, 'N2')], 4)
 
         S[2] = 7
-        self.mix.set_species_moles(S)
-        self.assertNear(self.mix.species_moles(2), S[2])
+        self.mix.species_moles = S
+        self.assertNear(self.mix.species_moles[2], S[2])
         self.assertNear(self.mix.phase_moles(0), sum(S[:self.phase1.n_species]))
 
         with self.assertRaises(ValueError):
-            self.mix.set_species_moles((1,2,3))
+            self.mix.species_moles = (1,2,3)
 
         with self.assertRaises(TypeError):
-            self.mix.set_species_moles(9)
+            self.mix.species_moles = 9
 
     def test_element_moles(self):
-        self.mix.set_species_moles('H2:1.0, OH:4.0')
+        self.mix.species_moles = 'H2:1.0, OH:4.0'
 
         self.assertNear(self.mix.element_moles('H'), 6)
         self.assertNear(self.mix.element_moles('O'), 4)
@@ -156,7 +156,7 @@ class TestMixture(utilities.CanteraTest):
         self.assertArrayNear(C[self.phase1.n_species:], C2)
 
     def test_equilibrate1(self):
-        self.mix.set_species_moles('H2:1.0, O2:0.5, N2:1.0')
+        self.mix.species_moles = 'H2:1.0, O2:0.5, N2:1.0'
         self.mix.T = 400
         self.mix.P = 2 * ct.one_atm
 
@@ -169,7 +169,7 @@ class TestMixture(utilities.CanteraTest):
         self.assertNear(self.mix.P, 2 * ct.one_atm)
 
     def test_equilibrate2(self):
-        self.mix.set_species_moles('H2:1.0, O2:0.5, N2:1.0')
+        self.mix.species_moles = 'H2:1.0, O2:0.5, N2:1.0'
         self.mix.T = 400
         self.mix.P = 2 * ct.one_atm
 

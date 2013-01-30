@@ -229,40 +229,33 @@ cdef class Mixture:
         """
         self.mix.setPhaseMoles(self.phase_index(p), moles)
 
-    def species_moles(self, species=None):
+    property species_moles:
         """
-        Returns the number of moles of species *k* if *k* is specified,
-        or the number of of moles of each species otherwise.
-        """
-        if species is not None:
-            return self.mix.speciesMoles(species)
-
-        cdef np.ndarray[np.double_t, ndim=1] data = np.empty(self.n_species)
-        for k in range(self.n_species):
-            data[k] = self.mix.speciesMoles(k)
-        return data
-
-    def set_species_moles(self, moles):
-        """
-        Set the moles of the species [kmol]. The moles may be specified either
+        The number of moles of each species. May be set either
         as a string, or as an array. If an array is used, it must be
         dimensioned at least as large as the total number of species in the
         mixture. Note that the species may belong to any phase, and
         unspecified species are set to zero.
 
-        >>> mix.set_species_moles('C(s):1.0, CH4:2.0, O2:0.2')
-
+        >>> mix.species_moles = 'C(s):1.0, CH4:2.0, O2:0.2'
         """
-        if isinstance(moles, (str, unicode)):
-            self.mix.setMolesByName(stringify(moles))
-            return
+        def __get__(self):
+            cdef np.ndarray[np.double_t, ndim=1] data = np.empty(self.n_species)
+            for k in range(self.n_species):
+                data[k] = self.mix.speciesMoles(k)
+            return data
 
-        if len(moles) != self.n_species:
-            raise ValueError('mole array must be of length n_species')
+        def __set__(self, moles):
+            if isinstance(moles, (str, unicode)):
+                self.mix.setMolesByName(stringify(moles))
+                return
 
-        cdef np.ndarray[np.double_t, ndim=1] data = \
-            np.ascontiguousarray(moles, dtype=np.double)
-        self.mix.setMoles(&data[0])
+            if len(moles) != self.n_species:
+                raise ValueError('mole array must be of length n_species')
+
+            cdef np.ndarray[np.double_t, ndim=1] data = \
+                np.ascontiguousarray(moles, dtype=np.double)
+            self.mix.setMoles(&data[0])
 
     def element_moles(self, e):
         """
