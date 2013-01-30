@@ -844,10 +844,9 @@ def _trim(docstring):
     if indent < 999:
         for line in lines[1:]:
             trimmed.append(line[indent:].rstrip())
-    # Strip off trailing and leading blank lines:
-    trimmed = [t for t in trimmed if t]
-    # Return a single string:
-    return '\n'.join(trimmed)
+
+    # Return a single string, with trailing and leading blank lines stripped
+    return '\n'.join(trimmed).strip('\n')
 
 def _array_property(attr, size=None):
     """
