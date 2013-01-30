@@ -191,11 +191,38 @@ cdef extern from "cantera/equil/MultiPhase.h" namespace "Cantera":
         CxxMultiPhase()
         void addPhase(CxxThermoPhase*, double) except +
         void init() except +
-        double nSpecies()
-        void setTemperature(double)
+
+        size_t nSpecies()
+        size_t nElements()
+        size_t nPhases()
+        size_t elementIndex(string) except +
+        size_t speciesIndex(size_t, size_t) except +
+        string speciesName(size_t) except +
+        double nAtoms(size_t, size_t) except +
+
+        double phaseMoles(size_t) except +
+        void setPhaseMoles(size_t, double) except +
+        void setMoles(double*) except +
+        void setMolesByName(string) except +
+
+        double speciesMoles(size_t) except +
+        double elementMoles(size_t) except +
+
+        void setTemperature(double) except +
         double temperature()
-        void setPressure(double)
+        void setPressure(double) except +
         double pressure()
+
+        double minTemp() except +
+        double maxTemp() except +
+        double charge() except +
+        double phaseCharge(size_t) except +
+        void getChemPotentials(double*) except +
+        double enthalpy() except +
+        double entropy() except +
+        double gibbs() except +
+        double cp() except +
+        double volume() except +
 
 cdef extern from "cantera/equil/equil.h" namespace "Cantera":
     int equilibrate(CxxThermoPhase&, char*, int, double, int, int, int) except +
@@ -496,10 +523,6 @@ cdef class _SolutionBase:
     cdef int thermoBasis
     cdef np.ndarray _selectedSpecies
     cdef object parent
-
-cdef class Mixture:
-    cdef CxxMultiPhase* mix
-    cdef list _phases
 
 cdef class Kinetics(_SolutionBase):
     pass
