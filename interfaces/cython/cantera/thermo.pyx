@@ -263,9 +263,9 @@ cdef class ThermoPhase(_SolutionBase):
         Get/Set the species mole fractions. Can be set as either an array or
         as a string. Always returns an array::
 
-            >>> phase.Y = [0.1, 0, 0, 0.4, 0, 0, 0, 0, 0.5]
-            >>> phase.Y = 'H2:0.1, O2:0.4, AR:0.5'
-            >>> phase.Y
+            >>> phase.X = [0.1, 0, 0, 0.4, 0, 0, 0, 0, 0.5]
+            >>> phase.X = 'H2:0.1, O2:0.4, AR:0.5'
+            >>> phase.X
             array([0.1, 0, 0, 0.4, 0, 0, 0, 0, 0.5])
 
         """
