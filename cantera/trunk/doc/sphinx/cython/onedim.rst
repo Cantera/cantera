@@ -11,10 +11,10 @@ Composite Domains
 
 Flow Domains
 ------------
-.. autoclass:: StagnationFlow
 .. autoclass:: FreeFlow
+    :inherited-members:
 .. autoclass:: AxisymmetricStagnationFlow
-
+    :inherited-members:
 
 Boundaries
 ----------
