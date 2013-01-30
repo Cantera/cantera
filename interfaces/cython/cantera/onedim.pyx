@@ -15,30 +15,30 @@ cdef class Domain1D:
         def __get__(self):
             return self.domain.domainIndex()
 
-    property nComponents:
+    property n_components:
         """Number of solution components at each grid point."""
         def __get__(self):
             return self.domain.nComponents()
 
-    property nPoints:
+    property n_points:
         """Number of grid points belonging to this domain."""
         def __get__(self):
             return self.domain.nPoints()
 
-    def componentName(self, int n):
+    def component_name(self, int n):
         """Name of the nth component."""
         return pystr(self.domain.componentName(n))
 
-    property componentNames:
+    property component_names:
         """List of the names of all components of this domain."""
         def __get__(self):
-            return [self.componentName(n) for n in range(self.nComponents)]
+            return [self.component_name(n) for n in range(self.n_components)]
 
-    def componentIndex(self, str name):
+    def component_index(self, str name):
         """Index of the component with name 'name'"""
         return self.domain.componentIndex(stringify(name))
 
-    def setBounds(self, *, default=None, Y=None, **kwargs):
+    def set_bounds(self, *, default=None, Y=None, **kwargs):
         """
         Set the lower and upper bounds on the solution.
 
@@ -48,20 +48,20 @@ cdef class Domain1D:
         bounds for all unspecified components. The keyword *Y* can be used to
         stand for all species mass fractions in flow domains.
 
-        >>> d.setBounds(default=(0, 1), Y=(-1.0e-5, 2.0))
+        >>> d.set_bounds(default=(0, 1), Y=(-1.0e-5, 2.0))
         """
         if default is not None:
-            for n in range(self.nComponents):
+            for n in range(self.n_components):
                 self.domain.setBounds(n, default[0], default[1])
 
         if Y is not None:
-            for n in range(4, self.nComponents):
+            for n in range(4, self.n_components):
                 self.domain.setBounds(n, Y[0], Y[1])
 
         for name,(lower,upper) in kwargs.items():
-            self.domain.setBounds(self.componentName(name), lower, upper)
+            self.domain.setBounds(self.component_name(name), lower, upper)
 
-    def setSteadyTolerances(self, *, default=None, Y=None, **kwargs):
+    def set_steady_tolerances(self, *, default=None, Y=None, **kwargs):
         """
         Set the error tolerances for the steady-state problem.
 
@@ -71,9 +71,9 @@ cdef class Domain1D:
         unspecified components. The keyword *Y* can be used to stand for all
         species mass fractions in flow domains.
         """
-        self._setTolerances(0, default, Y, kwargs)
+        self._set_tolerances(0, default, Y, kwargs)
 
-    def setTransientTolerances(self, *, default=None, Y=None, **kwargs):
+    def set_transient_tolerances(self, *, default=None, Y=None, **kwargs):
         """
         Set the error tolerances for the steady-state problem.
 
@@ -83,21 +83,21 @@ cdef class Domain1D:
         unspecified components. The keyword *Y* can be used to stand for all
         species mass fractions in flow domains.
         """
-        self._setTolerances(1, default, Y, kwargs)
+        self._set_tolerances(1, default, Y, kwargs)
 
-    def _setTolerances(self, isTransient, default, Y, components):
+    def _set_tolerances(self, is_transient, default, Y, components):
         if default is not None:
-            for n in range(self.nComponents):
+            for n in range(self.n_components):
                 self.domain.setTolerances(n, default[0], default[1],
-                                          isTransient)
+                                          is_transient)
 
         if Y is not None:
-            for n in range(4, self.nComponents):
-                self.domain.setTolerances(n, Y[0], Y[1], isTransient)
+            for n in range(4, self.n_components):
+                self.domain.setTolerances(n, Y[0], Y[1], is_transient)
 
         for name,(lower,upper) in components.items():
-            self.domain.setTolerances(self.componentName(name),
-                                      lower, upper, isTransient)
+            self.domain.setTolerances(self.component_name(name),
+                                      lower, upper, is_transient)
 
     def bounds(self, component):
         """
@@ -106,7 +106,7 @@ cdef class Domain1D:
         >>> d.bounds('T')
         (200.0, 5000.0)
         """
-        n = self.componentIndex(component)
+        n = self.component_index(component)
         return self.domain.lowerBound(n), self.domain.upperBound(n)
 
     def tolerances(self, component):
@@ -116,15 +116,15 @@ cdef class Domain1D:
 
         >>> rtol, atol = d.tolerances('u')
         """
-        k = self.componentIndex(component)
+        k = self.component_index(component)
         return self.domain.rtol(k), self.domain.atol(k)
 
     property grid:
         """ The grid for this domain """
         def __get__(self):
-            cdef np.ndarray[np.double_t, ndim=1] grid = np.empty(self.nPoints)
+            cdef np.ndarray[np.double_t, ndim=1] grid = np.empty(self.n_points)
             cdef int i
-            for i in range(self.nPoints):
+            for i in range(self.n_points):
                 grid[i] = self.domain.grid(i)
             return grid
 
@@ -209,7 +209,7 @@ cdef class Inlet1D(Boundary1D):
     def __dealloc__(self):
         del self.inlet
 
-    property spreadRate:
+    property spread_rate:
         def __get__(self):
             return self.inlet.spreadRate()
         def __set__(self, s):
@@ -275,7 +275,7 @@ cdef class ReactingSurface1D(Boundary1D):
     def __dealloc__(self):
         del self.surf
 
-    def setKinetics(self, Kinetics kin):
+    def set_kinetics(self, Kinetics kin):
         """Set the kinetics manager (surface reaction mechanism object)."""
         if kin.kinetics.type() not in (kinetics_type_interface,
                                        kinetics_type_edge):
@@ -283,7 +283,7 @@ cdef class ReactingSurface1D(Boundary1D):
                             'InterfaceKinetics.')
         self.surf.setKineticsMgr(<CxxInterfaceKinetics*>kin.kinetics)
 
-    def enableCoverageEquations(self, on=True):
+    def enable_coverage_equations(self, on=True):
         """ Turn solving the surface coverage equations on or off. """
         self.surf.enableCoverageEquations(<cbool>on)
 
@@ -311,11 +311,11 @@ cdef class _FlowBase(Domain1D):
         def __set__(self, P):
             self.flow.setPressure(P)
 
-    def setTransport(self, _SolutionBase phase):
+    def set_transport(self, _SolutionBase phase):
         self.gas = phase
         self.flow.setTransport(deref(self.gas.transport))
 
-    property soretEnabled:
+    property soret_enabled:
         """
         Determines whether or not to include diffusive mass fluxes due to the
         Soret effect. Enabling this option works only when using the
@@ -326,7 +326,7 @@ cdef class _FlowBase(Domain1D):
         def __set__(self, enable):
             self.flow.enableSoret(<cbool>enable)
 
-    property energyEnabled:
+    property energy_enabled:
         """ Determines whether or not to solve the energy equation."""
         def __get__(self):
             return self.flow.doEnergy(0)
@@ -336,7 +336,7 @@ cdef class _FlowBase(Domain1D):
             else:
                 self.flow.fixTemperature()
 
-    def setFixedTempProfile(self, pos, T):
+    def set_fixed_temp_profile(self, pos, T):
         """Set the fixed temperature profile. This profile is used
         whenever the energy equation is disabled.
 
@@ -345,8 +345,8 @@ cdef class _FlowBase(Domain1D):
         :param temp:
             array of temperature values
 
-        >>> d.setFixedTempProfile(array([0.0, 0.5, 1.0]),
-        ...                       array([500.0, 1500.0, 2000.0])
+        >>> d.set_fixed_temp_profile(array([0.0, 0.5, 1.0]),
+        ...                          array([500.0, 1500.0, 2000.0])
         """
         cdef vector[double] x, y
         for p in pos:
@@ -368,7 +368,7 @@ cdef CxxIdealGasPhase* getIdealGasPhase(ThermoPhase phase) except *:
 cdef class FreeFlow(_FlowBase):
     def __cinit__(self, _SolutionBase thermo, *args, **kwargs):
         gas = getIdealGasPhase(thermo)
-        self.flow = <CxxStFlow*>(new CxxFreeFlame(gas, thermo.nSpecies, 2))
+        self.flow = <CxxStFlow*>(new CxxFreeFlame(gas, thermo.n_species, 2))
 
 
 cdef class AxisymmetricStagnationFlow(_FlowBase):
@@ -402,7 +402,7 @@ cdef class AxisymmetricStagnationFlow(_FlowBase):
     """
     def __cinit__(self, _SolutionBase thermo, *args, **kwargs):
         gas = getIdealGasPhase(thermo)
-        self.flow = <CxxStFlow*>(new CxxAxiStagnFlow(gas, thermo.nSpecies, 2))
+        self.flow = <CxxStFlow*>(new CxxAxiStagnFlow(gas, thermo.n_species, 2))
 
 
 cdef class Sim1D:
@@ -431,7 +431,7 @@ cdef class Sim1D:
 
         self._initialized = False
 
-    def domainIndex(self, dom):
+    def domain_index(self, dom):
         """
         Get the index of a domain, specified either by name or as a Domain1D
         object.
@@ -453,14 +453,14 @@ cdef class Sim1D:
         return idom
 
     def _get_indices(self, dom, comp):
-        idom = self.domainIndex(dom)
+        idom = self.domain_index(dom)
         dom = self.domains[idom]
         if isinstance(comp, (str, unicode)):
-            kcomp = dom.componentIndex(comp)
+            kcomp = dom.component_index(comp)
         else:
             kcomp = comp
 
-        assert 0 <= kcomp < dom.nComponents
+        assert 0 <= kcomp < dom.n_components
 
         return idom, kcomp
 
@@ -480,7 +480,7 @@ cdef class Sim1D:
         dom, comp = self._get_indices(domain, component)
         return self.sim.value(dom, comp, point)
 
-    def setValue(self, domain, component, point, value):
+    def set_value(self, domain, component, point, value):
         """
         Set the value of one component in one domain at one point to 'value'.
 
@@ -500,7 +500,7 @@ cdef class Sim1D:
         dom, comp = self._get_indices(domain, component)
         self.sim.setValue(dom, comp, point, value)
 
-    def workValue(self, domain, component, point):
+    def work_value(self, domain, component, point):
         """
         Internal work array value at one point. After calling eval, this array
         contains the values of the residual function.
@@ -531,12 +531,12 @@ cdef class Sim1D:
         idom, kcomp = self._get_indices(domain, component)
         dom = self.domains[idom]
         cdef int j
-        cdef np.ndarray[np.double_t, ndim=1] data = np.empty(dom.nPoints)
-        for j in range(dom.nPoints):
+        cdef np.ndarray[np.double_t, ndim=1] data = np.empty(dom.n_points)
+        for j in range(dom.n_points):
             data[j] = self.sim.value(idom, kcomp, j)
         return data
 
-    def setProfile(self, domain, component, positions, values):
+    def set_profile(self, domain, component, positions, values):
         """
         Set an initial estimate for a profile of one component in one domain.
 
@@ -549,7 +549,7 @@ cdef class Sim1D:
         :param values:
             sequence of values at the relative positions specified in *positions*
 
-        >>> s.setProfile(d, 'T', [0.0, 0.2, 1.0], [400.0, 800.0, 1500.0])
+        >>> s.set_profile(d, 'T', [0.0, 0.2, 1.0], [400.0, 800.0, 1500.0])
         """
         dom, comp = self._get_indices(domain, component)
 
@@ -561,7 +561,7 @@ cdef class Sim1D:
 
         self.sim.setProfile(dom, comp, pos_vec, val_vec)
 
-    def setFlatProfile(self, domain, component, value):
+    def set_flat_profile(self, domain, component, value):
         """Set a flat profile for one component in one domain.
 
         :param domain:
@@ -571,42 +571,42 @@ cdef class Sim1D:
         :param v:
             value
 
-        >>> s.setFlatProfile(d, 'u', -3.0)
+        >>> s.set_flat_profile(d, 'u', -3.0)
         """
         dom, comp = self._get_indices(domain, component)
         self.sim.setFlatProfile(dom, comp, value)
 
-    def showSolution(self):
+    def show_solution(self):
         """ print the current solution. """
         if not self._initialized:
-            self.setInitialGuess()
+            self.set_initial_guess()
         self.sim.showSolution()
 
-    def setTimeStep(self, stepsize, nSteps):
+    def set_time_step(self, stepsize, n_steps):
         """Set the sequence of time steps to try when Newton fails.
 
         :param stepsize:
             initial time step size [s]
-        :param nSteps:
+        :param n_steps:
             sequence of integer step numbers
 
-        >>> s.setTimeStep(1.0e-5, [1, 2, 5, 10])
+        >>> s.set_time_step(1.0e-5, [1, 2, 5, 10])
         """
         cdef vector[int] data
-        for n in nSteps:
+        for n in n_steps:
             data.push_back(n)
         self.sim.setTimeStep(stepsize, data.size(), &data[0])
 
-    def setInitialGuess(self):
+    def set_initial_guess(self):
         """
         Set the initial guess for the solution. Derived classes extend this
         function to set approximations for the temperature and composition
         profiles.
         """
-        self._getInitialSolution()
+        self._get_initial_solution()
         self._initialized = True
 
-    def _getInitialSolution(self):
+    def _get_initial_solution(self):
         """
         Load the initial solution from each domain into the global solution
         vector.
@@ -624,7 +624,7 @@ cdef class Sim1D:
             if True, enable grid refinement.
         """
         if not self._initialized:
-            self.setInitialGuess()
+            self.set_initial_guess()
         self.sim.solve(loglevel, <cbool>refine_grid)
 
     def refine(self, loglevel=1):
@@ -634,7 +634,7 @@ cdef class Sim1D:
         """
         self.sim.refine(loglevel)
 
-    def setRefineCriteria(self, domain, ratio=10.0, slope=0.8, curve=0.8,
+    def set_refine_criteria(self, domain, ratio=10.0, slope=0.8, curve=0.8,
                           prune=0.05):
         """
         Set the criteria used to refine one domain.
@@ -658,12 +658,12 @@ cdef class Sim1D:
             Set prune significantly smaller than 'slope' and 'curve'. Set to
             zero to disable pruning the grid.
 
-        >>> s.setRefineCriteria(d, ratio=5.0, slope=0.2, curve=0.3, prune=0.03)
+        >>> s.set_refine_criteria(d, ratio=5.0, slope=0.2, curve=0.3, prune=0.03)
         """
-        idom = self.domainIndex(domain)
+        idom = self.domain_index(domain)
         self.sim.setRefineCriteria(idom, ratio, slope, curve, prune)
 
-    def setMaxJacAge(self, ss_age, ts_age):
+    def set_max_jac_age(self, ss_age, ts_age):
         """
         Set the maximum number of times the Jacobian will be used before it
         must be re-evaluated.
@@ -675,22 +675,22 @@ cdef class Sim1D:
         """
         self.sim.setJacAge(ss_age, ts_age)
 
-    def setTimeStepFactor(self, tfactor):
+    def set_time_step_factor(self, tfactor):
         """
         Set the factor by which the time step will be increased after a
         successful step, or decreased after an unsuccessful one.
         """
         self.sim.setTimeStepFactor(tfactor)
 
-    def setMinTimeStep(self, tsmin):
+    def set_min_time_step(self, tsmin):
         """ Set the minimum time step. """
         self.sim.setMinTimeStep(tsmin)
 
-    def setMaxTimeStep(self, tsmax):
+    def set_max_time_step(self, tsmax):
         """ Set the maximum time step. """
         self.sim.setMaxTimeStep(tsmax)
 
-    def setFixedTemperature(self, T):
+    def set_fixed_temperature(self, T):
         """
         Set the temperature used to fix the spatial location of a freely
         propagating flame.
@@ -725,14 +725,14 @@ cdef class Sim1D:
         self.sim.restore(stringify(filename), stringify(name), loglevel)
         self._initialized = True
 
-    def showStats(self, printTime=True):
+    def show_stats(self, print_time=True):
         """
         Show the statistics for the last solution.
 
         If invoked with no arguments or with a non-zero argument, the timing
         statistics will be printed. Otherwise, the timing will not be printed.
         """
-        self.sim.writeStats(printTime)
+        self.sim.writeStats(print_time)
 
     def __dealloc__(self):
         del self.sim
@@ -753,36 +753,36 @@ class FlameBase(Sim1D):
         self.gas = gas
         self.flame.P = gas.P
 
-    def setRefineCriteria(self, ratio=10.0, slope=0.8, curve=0.8, prune=0.0):
-        super().setRefineCriteria(self.flame, ratio, slope, curve, prune)
+    def set_refine_criteria(self, ratio=10.0, slope=0.8, curve=0.8, prune=0.0):
+        super().set_refine_criteria(self.flame, ratio, slope, curve, prune)
 
-    def setProfile(self, component, locations, values):
-        super().setProfile(self.flame, component, locations, values)
-
-    @property
-    def transportModel(self):
-        return self.gas.transportModel
-
-    @transportModel.setter
-    def transportModel(self, model):
-        self.gas.transportModel = model
-        self.flame.setTransport(self.gas)
+    def set_profile(self, component, locations, values):
+        super().set_profile(self.flame, component, locations, values)
 
     @property
-    def energyEnabled(self):
-        return self.flame.energyEnabled
+    def transport_model(self):
+        return self.gas.transport_model
 
-    @energyEnabled.setter
-    def energyEnabled(self, enable):
-        self.flame.energyEnabled = enable
+    @transport_model.setter
+    def transport_model(self, model):
+        self.gas.transport_model = model
+        self.flame.set_transport(self.gas)
 
     @property
-    def soretEnabled(self):
-        return self.flame.soretEnabled
+    def energy_enabled(self):
+        return self.flame.energy_enabled
 
-    @soretEnabled.setter
-    def soretEnabled(self, enable):
-        self.flame.soretEnabled = enable
+    @energy_enabled.setter
+    def energy_enabled(self, enable):
+        self.flame.energy_enabled = enable
+
+    @property
+    def soret_enabled(self):
+        return self.flame.soret_enabled
+
+    @soret_enabled.setter
+    def soret_enabled(self, enable):
+        self.flame.soret_enabled = enable
 
     @property
     def grid(self):
@@ -822,10 +822,10 @@ class FlameBase(Sim1D):
         else:
             return self.value(self.flame, component, point)
 
-    def setGasState(self, point):
-        k0 = self.flame.componentIndex(self.gas.speciesName(0))
+    def set_gas_state(self, point):
+        k0 = self.flame.component_index(self.gas.species_name(0))
         Y = [self.solution(k, point)
-             for k in range(k0, k0 + self.gas.nSpecies)]
+             for k in range(k0, k0 + self.gas.n_species)]
         self.gas.TPY = self.value(self.flame, 'T', point), self.P, Y
 
 def _trim(docstring):
@@ -858,55 +858,55 @@ def _array_property(attr, size=None):
     def getter(self):
         if size is None:
             # 1D array for scalar property
-            vals = np.empty(self.flame.nPoints)
+            vals = np.empty(self.flame.n_points)
         else:
             # 2D array
-            vals = np.empty((getattr(self.gas, size), self.flame.nPoints))
+            vals = np.empty((getattr(self.gas, size), self.flame.n_points))
 
-        for i in range(self.flame.nPoints):
-            self.setGasState(i)
+        for i in range(self.flame.n_points):
+            self.set_gas_state(i)
             vals[...,i] = getattr(self.gas, attr)
 
         return vals
 
     if size is None:
-        extradoc = "\nReturns an array of length `nPoints`."
+        extradoc = "\nReturns an array of length `n_points`."
     else:
-        extradoc = "\nReturns an array of size `%s` x `nPoints`." % size
+        extradoc = "\nReturns an array of size `%s` x `n_points`." % size
 
     doc = _trim(getattr(Solution, attr).__doc__) + extradoc
     return property(getter, doc=doc)
 
 # Add scalar properties to FlameBase
 for attr in ['density', 'density_mass', 'density_mole', 'volume_mass',
-             'volume_mole', 'intEnergy_mole', 'intEnergy_mass', 'h',
+             'volume_mole', 'int_energy_mole', 'int_energy_mass', 'h',
              'enthalpy_mole', 'enthalpy_mass', 's', 'entropy_mole',
              'entropy_mass', 'g', 'gibbs_mole', 'gibbs_mass', 'cv',
              'cv_mole', 'cv_mass', 'cp', 'cp_mole', 'cp_mass',
-             'isothermalCompressibility', 'thermalExpansionCoeff',
-             'viscosity', 'thermalConductivity']:
+             'isothermal_compressibility', 'thermal_expansion_coeff',
+             'viscosity', 'thermal_conductivity']:
     setattr(FlameBase, attr, _array_property(attr))
 FlameBase.volume = _array_property('v') # avoid confusion with velocity gradient 'V'
-FlameBase.intEnergy = _array_property('u') # avoid collision with velocity 'u'
+FlameBase.int_energy = _array_property('u') # avoid collision with velocity 'u'
 
 # Add properties with values for each species
 for attr in ['X', 'Y', 'concentrations', 'partial_molar_enthalpies',
              'partial_molar_entropies', 'partial_molar_int_energies',
-             'chem_potentials', 'electrochem_potentials', 'partial_molar_cp',
+             'chemical_potentials', 'electrochemical_potentials', 'partial_molar_cp',
              'partial_molar_volumes', 'standard_enthalpies_RT',
-             'standard_entropies_R', 'standard_intEnergies_RT',
-             'standard_gibbs_RT', 'standard_cp_R', 'creationRates',
-             'destructionRates', 'netProductionRates', 'mixDiffCoeffs',
-             'mixDiffCoeffsMass', 'mixDiffCoeffsMole', 'thermalDiffCoeffs']:
-    setattr(FlameBase, attr, _array_property(attr, 'nSpecies'))
+             'standard_entropies_R', 'standard_int_energies_RT',
+             'standard_gibbs_RT', 'standard_cp_R', 'creation_rates',
+             'destruction_rates', 'net_production_rates', 'mix_diff_coeffs',
+             'mix_diff_coeffs_mass', 'mix_diff_coeffs_mole', 'thermal_diff_coeffs']:
+    setattr(FlameBase, attr, _array_property(attr, 'n_species'))
 
 # Add properties with values for each reaction
-for attr in ['fwdRatesOfProgress', 'revRatesOfProgress', 'netRatesOfProgress',
-             'equilibriumConstants', 'fwdRateConstants', 'revRateConstants',
-             'deltaEnthalpy', 'deltaGibbs', 'deltaEntropy',
-             'deltaStandardEnthalpy', 'deltaStandardGibbs',
-             'deltaStandardEntropy']:
-    setattr(FlameBase, attr, _array_property(attr, 'nReactions'))
+for attr in ['forward_rates_of_progress', 'reverse_rates_of_progress', 'net_rates_of_progress',
+             'equilibrium_constants', 'forward_rate_constants', 'reverse_rate_constants',
+             'delta_enthalpy', 'delta_gibbs', 'delta_entropy',
+             'delta_standard_enthalpy', 'delta_standard_gibbs',
+             'delta_standard_entropy']:
+    setattr(FlameBase, attr, _array_property(attr, 'n_reactions'))
 
 
 class FreeFlame(FlameBase):
@@ -927,7 +927,7 @@ class FreeFlame(FlameBase):
 
         super().__init__((self.inlet, self.flame, self.outlet), gas, grid)
 
-    def setInitialGuess(self):
+    def set_initial_guess(self):
         """
         Set the initial guess for the solution. The adiabatic flame
         temperature and equilibrium composition are computed for the inlet gas
@@ -935,7 +935,7 @@ class FreeFlame(FlameBase):
         domain width to Tad, then is flat. The mass fraction profiles are set
         similarly.
         """
-        super().setInitialGuess()
+        super().set_initial_guess()
         self.gas.TPY = self.inlet.T, self.P, self.inlet.Y
         Y0 = self.inlet.Y
         u0 = self.inlet.mdot/self.gas.density
@@ -948,12 +948,12 @@ class FreeFlame(FlameBase):
         u1 = self.inlet.mdot/self.gas.density
 
         locs = [0.0, 0.3, 0.5, 1.0]
-        self.setProfile('u', locs, [u0, u0, u1, u1])
-        self.setProfile('T', locs, [T0, T0, Teq, Teq])
-        self.setFixedTemperature(0.5 * (T0 + Teq))
-        for n in range(self.gas.nSpecies):
-            self.setProfile(self.gas.speciesName(n),
-                            locs, [Y0[n], Y0[n], Yeq[n], Yeq[n]])
+        self.set_profile('u', locs, [u0, u0, u1, u1])
+        self.set_profile('T', locs, [T0, T0, Teq, Teq])
+        self.set_fixed_temperature(0.5 * (T0 + Teq))
+        for n in range(self.gas.n_species):
+            self.set_profile(self.gas.species_name(n),
+                             locs, [Y0[n], Y0[n], Yeq[n], Yeq[n]])
 
 
 class BurnerFlame(FlameBase):
@@ -982,7 +982,7 @@ class BurnerFlame(FlameBase):
 
         super().__init__((self.burner, self.flame, self.outlet), gas, grid)
 
-    def setInitialGuess(self):
+    def set_initial_guess(self):
         """
         Set the initial guess for the solution. The adiabatic flame
         temperature and equilibrium composition are computed for the burner
@@ -990,7 +990,7 @@ class BurnerFlame(FlameBase):
         20% of the flame to Tad, then is flat. The mass fraction profiles are
         set similarly.
         """
-        super().setInitialGuess()
+        super().set_initial_guess()
 
         self.gas.TPY = self.burner.T, self.P, self.burner.Y
         Y0 = self.burner.Y
@@ -1004,11 +1004,11 @@ class BurnerFlame(FlameBase):
         u1 = self.burner.mdot/self.gas.density
 
         locs = [0.0, 0.2, 1.0]
-        self.setProfile('u', locs, [u0, u1, u1])
-        self.setProfile('T', locs, [T0, Teq, Teq])
-        for n in range(self.gas.nSpecies):
-            self.setProfile(self.gas.speciesName(n),
-                            locs, [Y0[n], Yeq[n], Yeq[n]])
+        self.set_profile('u', locs, [u0, u1, u1])
+        self.set_profile('T', locs, [T0, Teq, Teq])
+        for n in range(self.gas.n_species):
+            self.set_profile(self.gas.species_name(n),
+                             locs, [Y0[n], Yeq[n], Yeq[n]])
 
 
 class CounterflowDiffusionFlame(FlameBase):
@@ -1041,35 +1041,35 @@ class CounterflowDiffusionFlame(FlameBase):
         super().__init__((self.fuel_inlet, self.flame, self.oxidizer_inlet),
                          gas, grid)
 
-    def setInitialGuess(self, fuel, oxidizer='O2', stoich=None):
+    def set_initial_guess(self, fuel, oxidizer='O2', stoich=None):
         """
         Set the initial guess for the solution. The fuel species must be
         specified:
 
-        >>> f.setInitialGuess(fuel='CH4')
+        >>> f.set_initial_guess(fuel='CH4')
 
         The oxidizer and corresponding stoichiometry must be specified if it
         is not 'O2'. The initial guess is generated by assuming infinitely-
         fast chemistry.
         """
 
-        super().setInitialGuess()
+        super().set_initial_guess()
 
         if stoich is None:
             if oxidizer == 'O2':
                 stoich = 0.0
-                if 'H' in self.gas.elementNames:
-                    stoich += 0.25 * self.gas.nAtoms(fuel, 'H')
-                if 'C' in self.gas.elementNames:
-                    stoich += self.gas.nAtoms(fuel, 'C')
+                if 'H' in self.gas.element_names:
+                    stoich += 0.25 * self.gas.n_atoms(fuel, 'H')
+                if 'C' in self.gas.element_names:
+                    stoich += self.gas.n_atoms(fuel, 'C')
             else:
                 raise Exception('oxidizer/fuel stoichiometric ratio must be '
                                 'specified since the oxidizer is not O2')
 
-        kFuel = self.gas.speciesIndex(fuel)
-        kOx = self.gas.speciesIndex(oxidizer)
+        kFuel = self.gas.species_index(fuel)
+        kOx = self.gas.species_index(oxidizer)
 
-        s = stoich * self.gas.molecularWeights[kOx] / self.gas.molecularWeights[kFuel]
+        s = stoich * self.gas.molecular_weights[kOx] / self.gas.molecular_weights[kFuel]
         phi = s * self.fuel_inlet.Y[kFuel] / self.oxidizer_inlet.Y[kOx]
         zst = 1.0 / (1.0 + phi)
 
@@ -1098,12 +1098,12 @@ class CounterflowDiffusionFlame(FlameBase):
         zz = self.flame.grid
         dz = zz[-1] - zz[0]
         a = (u0o + u0f)/dz
-        f = np.sqrt(a / (2.0 * self.gas.mixDiffCoeffs[kOx]))
+        f = np.sqrt(a / (2.0 * self.gas.mix_diff_coeffs[kOx]))
 
         x0 = mdotf * dz / (mdotf + mdoto)
         nz = len(zz)
 
-        Y = np.zeros((nz, self.gas.nSpecies))
+        Y = np.zeros((nz, self.gas.n_species))
         T = np.zeros(nz)
         for j in range(nz):
             x = zz[j]
@@ -1120,8 +1120,8 @@ class CounterflowDiffusionFlame(FlameBase):
         T[-1] = T0o
         zrel = zz/dz
 
-        self.setProfile('u', [0.0, 1.0], [u0f, -u0o])
-        self.setProfile('V', [0.0, x0/dz, 1.0], [0.0, a, 0.0])
-        self.setProfile('T', zrel, T)
-        for k,spec in enumerate(self.gas.speciesNames):
-            self.setProfile(spec, zrel, Y[:,k])
+        self.set_profile('u', [0.0, 1.0], [u0f, -u0o])
+        self.set_profile('V', [0.0, x0/dz, 1.0], [0.0, a, 0.0])
+        self.set_profile('T', zrel, T)
+        for k,spec in enumerate(self.gas.species_names):
+            self.set_profile(spec, zrel, Y[:,k])

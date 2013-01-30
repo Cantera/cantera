@@ -520,8 +520,8 @@ cdef class _SolutionBase:
     cdef CxxThermoPhase* thermo
     cdef CxxKinetics* kinetics
     cdef CxxTransport* transport
-    cdef int thermoBasis
-    cdef np.ndarray _selectedSpecies
+    cdef int thermo_basis
+    cdef np.ndarray _selected_species
     cdef object parent
 
 cdef class Kinetics(_SolutionBase):
@@ -551,13 +551,13 @@ cdef class WallSurface:
 
 cdef class Wall:
     cdef CxxWall* wall
-    cdef WallSurface leftSurface
-    cdef WallSurface rightSurface
-    cdef object _velocityFunc
-    cdef object _heatFluxFunc
+    cdef WallSurface left_surface
+    cdef WallSurface right_surface
+    cdef object _velocity_func
+    cdef object _heat_flux_func
     cdef str name
 
 cdef class FlowDevice:
     cdef CxxFlowDevice* dev
-    cdef Func1 _rateFunc
+    cdef Func1 _rate_func
     cdef str name

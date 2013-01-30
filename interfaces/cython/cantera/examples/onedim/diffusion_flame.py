@@ -6,7 +6,7 @@ import cantera as ct
 import numpy as np
 import csv
 
-p = ct.OneAtm  # pressure
+p = ct.one_atm  # pressure
 tin_f = 300.0  # fuel inlet temperature
 tin_o = 300.0  # oxidizer inlet temperature
 mdot_o = 0.72  # kg/m^2/s
@@ -35,18 +35,18 @@ f.oxidizer_inlet.mdot = mdot_o
 f.oxidizer_inlet.X = comp_o
 f.oxidizer_inlet.T = tin_o
 
-f.flame.setSteadyTolerances(default=tol_ss)
-f.flame.setTransientTolerances(default=tol_ts)
+f.flame.set_steady_tolerances(default=tol_ss)
+f.flame.set_transient_tolerances(default=tol_ts)
 
-f.setInitialGuess(fuel='C2H6')
-f.energyEnabled = False
+f.set_initial_guess(fuel='C2H6')
+f.energy_enabled = False
 f.solve(loglevel, refine_grid=False)
 
-f.energyEnabled = True
-f.setRefineCriteria(ratio=4, slope=0.2, curve=0.3, prune=0.04)
+f.energy_enabled = True
+f.set_refine_criteria(ratio=4, slope=0.2, curve=0.3, prune=0.04)
 f.solve(loglevel, refine_grid=refine_grid)
+f.show_solution()
 
-f.showSolution()
 
 f.save('c2h6_diffusion.xml')
 
@@ -58,9 +58,9 @@ V = f.V
 with open('c2h6_diffusion.csv', 'w') as csvfile:
     writer = csv.writer(csvfile)
     writer.writerow(['z (m)', 'u (m/s)', 'V (1/s)', 'T (K)', 'rho (kg/m3)'] +
-                    list(gas.speciesNames))
-    for n in range(f.flame.nPoints):
-        f.setGasState(n)
+                    list(gas.species_names))
+    for n in range(f.flame.n_points):
+        f.set_gas_state(n)
         writer.writerow([z[n], u[n], V[n], T[n], gas.density] + list(gas.X))
 
 print('solution saved to c2h6_diffusion.csv')

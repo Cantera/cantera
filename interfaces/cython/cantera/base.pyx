@@ -13,8 +13,8 @@ cdef class _SolutionBase:
             self.kinetics = other.kinetics
             self.transport = other.transport
 
-            self.thermoBasis = other.thermoBasis
-            self._selectedSpecies = other._selectedSpecies.copy()
+            self.thermo_basis = other.thermo_basis
+            self._selected_species = other._selected_species.copy()
             return
 
         # Instantiate a set of new Cantera C++ objects
@@ -51,7 +51,7 @@ cdef class _SolutionBase:
         # Initialization of transport is deferred to Transport.__init__
         self.transport = NULL
 
-        self._selectedSpecies = np.ndarray(0, dtype=np.integer)
+        self._selected_species = np.ndarray(0, dtype=np.integer)
 
     def __init__(self, *args, **kwargs):
         if isinstance(self, Transport):
@@ -61,20 +61,20 @@ cdef class _SolutionBase:
         copy = self.__class__(source=self)
         if isinstance(selection, slice):
             selection = range(selection.start or 0,
-                              selection.stop or self.nSpecies,
+                              selection.stop or self.n_species,
                               selection.step or 1)
-        copy.selectedSpecies = selection
+        copy.selected_species = selection
         return copy
 
-    property selectedSpecies:
+    property selected_species:
         def __get__(self):
-            return list(self._selectedSpecies)
+            return list(self._selected_species)
         def __set__(self, species):
             if isinstance(species, (str, unicode, int)):
                 species = (species,)
-            self._selectedSpecies.resize(len(species))
+            self._selected_species.resize(len(species))
             for i,spec in enumerate(species):
-                self._selectedSpecies[i] = self.speciesIndex(spec)
+                self._selected_species[i] = self.species_index(spec)
 
     def __dealloc__(self):
         # only delete the C++ objects if this is the parent object

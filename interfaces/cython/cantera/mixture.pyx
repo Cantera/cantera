@@ -6,13 +6,13 @@ cdef class Mixture:
     paired with the number of moles for that phase::
 
         >>> gas = cantera.Solution('gas.cti')
-        >>> gas.speciesNames
+        >>> gas.species_names
         ['H2', 'H', 'O2', 'O', 'OH']
         >>> graphite = cantera.Solution('graphite.cti')
-        >>> graphite.speciesNames
+        >>> graphite.species_names
         ['C(g)']
-        >>> mix = Mixture([(gas, 1.0), (graphite, 0.1)])
-        >>> mix.speciesNames
+        >>> mix = cantera.Mixture([(gas, 1.0), (graphite, 0.1)])
+        >>> mix.species_names
         ['H2', 'H', 'O2', 'O', 'OH', 'C(g)']
 
     Note that the objects representing each phase compute only the intensive
@@ -60,7 +60,7 @@ cdef class Mixture:
         s = []
         for i,phase in enumerate(self._phases):
             s.append('************ Phase {0} ************'.format(phase.name))
-            s.append('Moles:  {0}'.format(self.phaseMoles(i)))
+            s.append('Moles:  {0}'.format(self.phase_moles(i)))
             s.append(phase.report())
 
         return '\n'.join(s)
@@ -68,15 +68,15 @@ cdef class Mixture:
     def __call__(self):
         print(self.report())
 
-    property nElements:
+    property n_elements:
         """Total number of elements present in the mixture."""
         def __get__(self):
             return self.mix.nElements()
 
-    cpdef int elementIndex(self, element) except *:
+    cpdef int element_index(self, element) except *:
         """Index of element with name 'element'::
 
-            >>> mix.elementIndex('H')
+            >>> mix.element_index('H')
             2
         """
         if isinstance(element, (str, unicode)):
@@ -86,26 +86,26 @@ cdef class Mixture:
         else:
             raise TypeError("'element' must be a string or a number")
 
-        if not 0 <= index < self.nElements:
+        if not 0 <= index < self.n_elements:
             raise ValueError('No such element.')
 
         return index
 
-    property nSpecies:
+    property n_species:
         """Number of species."""
         def __get__(self):
             return self.mix.nSpecies()
 
-    def speciesName(self, k):
+    def species_name(self, k):
         """Name of the species with index *k*. Note that index numbers
         are assigned in order as phases are added."""
         return pystr(self.mix.speciesName(k))
 
-    property speciesNames:
+    property species_names:
         def __get__(self):
-            return [self.speciesName(k) for k in range(self.nSpecies)]
+            return [self.species_name(k) for k in range(self.n_species)]
 
-    def speciesIndex(self, phase, species):
+    def species_index(self, phase, species):
         """
         :param phase:
             Phase object, index or name
@@ -114,32 +114,32 @@ cdef class Mixture:
 
         Returns the global index of species *species* in phase *phase*.
         """
-        p = self.phaseIndex(phase)
+        p = self.phase_index(phase)
 
         if isinstance(species, (str, unicode)):
-            k = self.phase(p).speciesIndex(species)
+            k = self.phase(p).species_index(species)
         elif isinstance(species, (int, float)):
             k = <int?>species
-            if not 0 <= k < self.nSpecies:
+            if not 0 <= k < self.n_species:
                 raise ValueError('Species index out of range')
         else:
             raise TypeError("'species' must be a string or number")
 
         return self.mix.speciesIndex(k, p)
 
-    def nAtoms(self, k, m):
+    def n_atoms(self, k, m):
         """
         Number of atoms of element *m* in the species with global index *k*.
         The element may be referenced either by name or by index.
 
-        >>> n = mix.nAtoms(3, 'H')
+        >>> n = mix.n_atoms(3, 'H')
         4.0
         """
-        if not 0 <= k < self.nSpecies:
-            raise IndexError('Species index ({}) out of range (0 < {})'.format(k, self.nSpecies))
-        return self.mix.nAtoms(k, self.elementIndex(m))
+        if not 0 <= k < self.n_species:
+            raise IndexError('Species index ({}) out of range (0 < {})'.format(k, self.n_species))
+        return self.mix.nAtoms(k, self.element_index(m))
 
-    property nPhases:
+    property n_phases:
         """Number of phases"""
         def __get__(self):
             return len(self._phases)
@@ -147,13 +147,13 @@ cdef class Mixture:
     def phase(self, n):
         return self._phases[n]
 
-    def phaseIndex(self, p):
+    def phase_index(self, p):
         """Index of the phase named *p*."""
         if isinstance(p, ThermoPhase):
             p = p.name
 
         if isinstance(p, (int, float)):
-            if p == int(p) and 0 <= p < self.nPhases:
+            if p == int(p) and 0 <= p < self.n_phases:
                 return int(p)
             else:
                 raise IndexError("Phase index '{0}' out of range.".format(p))
@@ -163,7 +163,7 @@ cdef class Mixture:
                     return i
         raise KeyError("No such phase: '{0}'".format(p))
 
-    property phaseNames:
+    property phase_names:
         """Names of all phases in the order added."""
         def __get__(self):
             return [phase.name for phase in self._phases]
@@ -178,20 +178,20 @@ cdef class Mixture:
         def __set__(self, T):
             self.mix.setTemperature(T)
 
-    property minTemp:
+    property min_temp:
         """
         The minimum temperature for which all species in multi-species
         solutions have valid thermo data. Stoichiometric phases are not
-        considered in determining minTemp.
+        considered in determining min_temp.
         """
         def __get__(self):
             return self.mix.minTemp()
 
-    property maxTemp:
+    property max_temp:
         """
         The maximum temperature for which all species in multi-species
         solutions have valid thermo data. Stoichiometric phases are not
-        considered in determining maxTemp.
+        considered in determining max_temp.
         """
         def __get__(self):
             return self.mix.maxTemp()
@@ -209,27 +209,27 @@ cdef class Mixture:
         def __get__(self):
             return self.mix.charge()
 
-    def phaseCharge(self, p):
+    def phase_charge(self, p):
         """The charge of phase *p* in Coulumbs."""
-        return self.mix.phaseCharge(self.phaseIndex(p))
+        return self.mix.phaseCharge(self.phase_index(p))
 
-    def phaseMoles(self, p=None):
+    def phase_moles(self, p=None):
         """
         Moles in phase *p*, if *p* is specified, otherwise the number of
         moles in all phases.
         """
         if p is None:
-            return [self.mix.phaseMoles(n) for n in range(self.nPhases)]
+            return [self.mix.phaseMoles(n) for n in range(self.n_phases)]
         else:
-            return self.mix.phaseMoles(self.phaseIndex(p))
+            return self.mix.phaseMoles(self.phase_index(p))
 
-    def setPhaseMoles(self, p, moles):
+    def set_phase_moles(self, p, moles):
         """
         Set the number of moles of phase *p* to *moles*
         """
-        self.mix.setPhaseMoles(self.phaseIndex(p), moles)
+        self.mix.setPhaseMoles(self.phase_index(p), moles)
 
-    def speciesMoles(self, species=None):
+    def species_moles(self, species=None):
         """
         Returns the number of moles of species *k* if *k* is specified,
         or the number of of moles of each species otherwise.
@@ -237,12 +237,12 @@ cdef class Mixture:
         if species is not None:
             return self.mix.speciesMoles(species)
 
-        cdef np.ndarray[np.double_t, ndim=1] data = np.empty(self.nSpecies)
-        for k in range(self.nSpecies):
+        cdef np.ndarray[np.double_t, ndim=1] data = np.empty(self.n_species)
+        for k in range(self.n_species):
             data[k] = self.mix.speciesMoles(k)
         return data
 
-    def setSpeciesMoles(self, moles):
+    def set_species_moles(self, moles):
         """
         Set the moles of the species [kmol]. The moles may be specified either
         as a string, or as an array. If an array is used, it must be
@@ -250,36 +250,36 @@ cdef class Mixture:
         mixture. Note that the species may belong to any phase, and
         unspecified species are set to zero.
 
-        >>> mix.setSpeciesMoles('C(s):1.0, CH4:2.0, O2:0.2')
+        >>> mix.set_species_moles('C(s):1.0, CH4:2.0, O2:0.2')
 
         """
         if isinstance(moles, (str, unicode)):
             self.mix.setMolesByName(stringify(moles))
             return
 
-        if len(moles) != self.nSpecies:
-            raise ValueError('mole array must be of length nSpecies')
+        if len(moles) != self.n_species:
+            raise ValueError('mole array must be of length n_species')
 
         cdef np.ndarray[np.double_t, ndim=1] data = \
             np.ascontiguousarray(moles, dtype=np.double)
         self.mix.setMoles(&data[0])
 
-    def elementMoles(self, e):
+    def element_moles(self, e):
         """
         Total number of moles of element *e*, summed over all species.
         The element may be referenced either by index number or by name.
         """
-        return self.mix.elementMoles(self.elementIndex(e))
+        return self.mix.elementMoles(self.element_index(e))
 
-    property chem_potentials:
+    property chemical_potentials:
         """The chemical potentials of all species [J/kmol]."""
         def __get__(self):
-            cdef np.ndarray[np.double_t, ndim=1] data = np.empty(self.nSpecies)
+            cdef np.ndarray[np.double_t, ndim=1] data = np.empty(self.n_species)
             self.mix.getChemPotentials(&data[0])
             return data
 
-    def equilibrate(self, XY, solver='vcs', rtol=1e-9, maxsteps=1000,
-                    maxiter=100, estimateEquil=0, printlevel=0, loglevel=0):
+    def equilibrate(self, XY, solver='vcs', rtol=1e-9, max_steps=1000,
+                    max_iter=100, estimate_equil=0, print_level=0, log_level=0):
         """
         Set to a state of chemical equilibrium holding property pair *XY*
         constant. This method uses a version of the VCS algorithm to find the
@@ -301,29 +301,29 @@ cdef class Mixture:
             less than this value for each reaction. Note that this default is
             very conservative, and good equilibrium solutions may be obtained
             with larger error tolerances.
-        :param maxsteps:
+        :param max_steps:
             Maximum number of steps to take while solving the equilibrium
             problem for specified *T* and *P*.
-        :param maxiter:
+        :param max_iter:
             Maximum number of temperature and/or pressure iterations.
             This is only relevant if a property pair other than (T,P) is
             specified.
-        :param estimateEquil:
+        :param estimate_equil:
             Flag indicating whether the solver should estimate its own initial
             condition. If 0, the initial mole fraction vector in the phase
             objects are used as the initial condition. If 1, the initial mole
             fraction vector is used if the element abundances are satisfied.
             if -1, the initial mole fraction vector is thrown out, and an
             estimate is formulated.
-        :param printlevel:
+        :param print_level:
             Determines the amount of output displayed during the solution
             process. 0 indicates no output, while larger numbers produce
             successively more verbose information.
-        :param loglevel:
+        :param log_level:
             Controls the amount of diagnostic output written to an HTML log
-            file. If loglevel = 0, no diagnostic output is written. For
+            file. If log_level = 0, no diagnostic output is written. For
             values > 0, more detailed information is written to the log file as
-            loglevel increases. The default log file name is
+            log_level increases. The default log file name is
             "equilibrium_log.html", but if this file exists, the log
             information will be written to "equilibrium_log{n}.html",
             where {n} is an integer chosen to avoid overwriting existing
@@ -337,5 +337,6 @@ cdef class Mixture:
             raise ValueError('Unrecognized equilibrium solver '
                              'specified: "{}"'.format(solver))
 
-        vcs_equilibrate(deref(self.mix), stringify(XY).c_str(), estimateEquil,
-                        printlevel, iSolver, rtol, maxsteps, maxiter, loglevel)
+        vcs_equilibrate(deref(self.mix), stringify(XY).c_str(), estimate_equil,
+                        print_level, iSolver, rtol, max_steps, max_iter,
+                        log_level)
