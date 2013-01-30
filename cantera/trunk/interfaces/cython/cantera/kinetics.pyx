@@ -4,16 +4,16 @@ ctypedef void (*kineticsMethod1d)(CxxKinetics*, double*) except +
 # cause "layout conflicts" when creating derived classes with multiple bases,
 # e.g. class Solution. [Cython 0.16]
 cdef np.ndarray get_species_array(Kinetics kin, kineticsMethod1d method):
-    cdef np.ndarray[np.double_t, ndim=1] data = np.empty(kin.nTotalSpecies)
+    cdef np.ndarray[np.double_t, ndim=1] data = np.empty(kin.n_total_species)
     method(kin.kinetics, &data[0])
-    # @TODO: Fix _selectedSpecies to work with interface kinetics
-    if kin._selectedSpecies.size:
-        return data[kin._selectedSpecies]
+    # @TODO: Fix _selected_species to work with interface kinetics
+    if kin._selected_species.size:
+        return data[kin._selected_species]
     else:
         return data
 
 cdef np.ndarray get_reaction_array(Kinetics kin, kineticsMethod1d method):
-    cdef np.ndarray[np.double_t, ndim=1] data = np.empty(kin.nReactions)
+    cdef np.ndarray[np.double_t, ndim=1] data = np.empty(kin.n_reactions)
     method(kin.kinetics, &data[0])
     return data
 
@@ -25,7 +25,7 @@ cdef class Kinetics(_SolutionBase):
     a reaction mechanism.
     """
 
-    property nTotalSpecies:
+    property n_total_species:
         """
         Total number of species in all phases participating in the kinetics
         mechanism.
@@ -33,144 +33,144 @@ cdef class Kinetics(_SolutionBase):
         def __get__(self):
             return self.kinetics.nTotalSpecies()
 
-    property nReactions:
+    property n_reactions:
         """Number of reactions in the reaction mechanism."""
         def __get__(self):
             return self.kinetics.nReactions()
 
-    property nPhases:
+    property n_phases:
         """Number of phases in the reaction mechanism."""
         def __get__(self):
             return self.kinetics.nPhases()
 
-    property reactionPhaseIndex:
+    property reaction_phase_index:
         """The index of the phase where the reactions occur."""
         def __get__(self):
             return self.kinetics.reactionPhaseIndex()
 
-    def _checkPhaseIndex(self, n):
-        if not 0 <= n < self.nPhases:
+    def _check_phase_index(self, n):
+        if not 0 <= n < self.n_phases:
             raise ValueError("Phase index ({}) out of range".format(n))
 
-    def _checkReactionIndex(self, n):
-        if not 0 <= n < self.nReactions:
+    def _check_reaction_index(self, n):
+        if not 0 <= n < self.n_reactions:
             raise ValueError("Reaction index ({}) out of range".format(n))
 
-    def _checkKineticsSpeciesIndex(self, n):
-        if not 0 <= n < self.nTotalSpecies:
+    def _check_kinetics_species_index(self, n):
+        if not 0 <= n < self.n_total_species:
             raise ValueError("Kinetics Species index ({}) out of range".format(n))
 
-    def kineticsSpeciesIndex(self, int species, int phase):
+    def kinetics_species_index(self, int species, int phase):
         """
         The index of species *species* of phase *phase* within arrays returned
         by methods of class `Kinetics`.
         """
-        self._checkKineticsSpeciesIndex(species)
-        self._checkPhaseIndex(phase)
+        self._check_kinetics_species_index(species)
+        self._check_phase_index(phase)
         return self.kinetics.kineticsSpeciesIndex(species, phase)
 
-    def isReversible(self, int iReaction):
-        """True if reaction `iReaction` is reversible."""
-        self._checkReactionIndex(iReaction)
-        return self.kinetics.isReversible(iReaction)
+    def is_reversible(self, int i_reaction):
+        """True if reaction `i_reaction` is reversible."""
+        self._check_reaction_index(i_reaction)
+        return self.kinetics.isReversible(i_reaction)
 
-    def multiplier(self, int iReaction):
+    def multiplier(self, int i_reaction):
         """
         A scaling factor applied to the rate coefficient for reaction
-        *iReaction*. Can be used to carry out sensitivity analysis or to
-        selectively disable a particular reaction. See `setMultiplier`.
+        *i_reaction*. Can be used to carry out sensitivity analysis or to
+        selectively disable a particular reaction. See `set_multiplier`.
         """
-        self._checkReactionIndex(iReaction)
-        return self.kinetics.multiplier(iReaction)
+        self._check_reaction_index(i_reaction)
+        return self.kinetics.multiplier(i_reaction)
 
-    def setMultiplier(self, double value, int iReaction=-1):
+    def set_multiplier(self, double value, int i_reaction=-1):
         """
-        Set the multiplier for for reaction *iReaction* to *value*.
-        If *iReaction* is not specified, then the multiplier for all reactions
+        Set the multiplier for for reaction *i_reaction* to *value*.
+        If *i_reaction* is not specified, then the multiplier for all reactions
         is set to *value*. See `multiplier`.
         """
-        if iReaction == -1:
-            for iReaction in range(self.nReactions):
-                self.kinetics.setMultiplier(iReaction, value)
+        if i_reaction == -1:
+            for i_reaction in range(self.n_reactions):
+                self.kinetics.setMultiplier(i_reaction, value)
         else:
-            self._checkReactionIndex(iReaction)
-            self.kinetics.setMultiplier(iReaction, value)
+            self._check_reaction_index(i_reaction)
+            self.kinetics.setMultiplier(i_reaction, value)
 
-    def reactionType(self, int iReaction):
-        """Type of reaction *iReaction*."""
-        self._checkReactionIndex(iReaction)
-        return self.kinetics.reactionType(iReaction)
+    def reaction_type(self, int i_reaction):
+        """Type of reaction *i_reaction*."""
+        self._check_reaction_index(i_reaction)
+        return self.kinetics.reactionType(i_reaction)
 
-    def reactionEquation(self, int iReaction):
-        """The equation for the specified reaction. See also `reactionEquations`."""
-        self._checkReactionIndex(iReaction)
-        return pystr(self.kinetics.reactionString(iReaction))
+    def reaction_equation(self, int i_reaction):
+        """The equation for the specified reaction. See also `reaction_equations`."""
+        self._check_reaction_index(i_reaction)
+        return pystr(self.kinetics.reactionString(i_reaction))
 
-    def reactionEquations(self, indices=None):
+    def reaction_equations(self, indices=None):
         """
         Returns a list containing the reaction equation for all reactions in the
         mechanism (if *indices* is unspecified) or the equations for each
         reaction in the sequence *indices*. For example::
 
-            >>> gas.reactionEquations()
+            >>> gas.reaction_equations()
             ['2 O + M <=> O2 + M', 'O + H + M <=> OH + M', 'O + H2 <=> H + OH', ...]
-            >>> gas.reactionEquations([2,3])
+            >>> gas.reaction_equations([2,3])
             ['O + H + M <=> OH + M', 'O + H2 <=> H + OH']
 
-        See also `reactionEquation`.
+        See also `reaction_equation`.
         """
         if indices is None:
-            return [self.reactionEquation(i) for i in range(self.nReactions)]
+            return [self.reaction_equation(i) for i in range(self.n_reactions)]
         else:
-            return [self.reactionEquation(i) for i in indices]
+            return [self.reaction_equation(i) for i in indices]
 
-    def reactantStoichCoeff(self, int kSpec, int iReaction):
+    def reactant_stoich_coeff(self, int k_spec, int i_reaction):
         """
-        The stoichiometric coefficient of species *kSpec* as a reactant in
-        reaction *iReaction*.
+        The stoichiometric coefficient of species *k_spec* as a reactant in
+        reaction *i_reaction*.
         """
-        self._checkKineticsSpeciesIndex(kSpec)
-        self._checkReactionIndex(iReaction)
-        return self.kinetics.reactantStoichCoeff(kSpec, iReaction)
+        self._check_kinetics_species_index(k_spec)
+        self._check_reaction_index(i_reaction)
+        return self.kinetics.reactantStoichCoeff(k_spec, i_reaction)
 
-    def productStoichCoeff(self, int kSpec, int iReaction):
+    def product_stoich_coeff(self, int k_spec, int i_reaction):
         """
-        The stoichiometric coefficient of species *kSpec* as a product in
-        reaction *iReaction*.
+        The stoichiometric coefficient of species *k_spec* as a product in
+        reaction *i_reaction*.
         """
-        self._checkKineticsSpeciesIndex(kSpec)
-        self._checkReactionIndex(iReaction)
-        return self.kinetics.productStoichCoeff(kSpec, iReaction)
+        self._check_kinetics_species_index(k_spec)
+        self._check_reaction_index(i_reaction)
+        return self.kinetics.productStoichCoeff(k_spec, i_reaction)
 
-    def reactantStoichCoeffs(self):
+    def reactant_stoich_coeffs(self):
         """
         The array of reactant stoichiometric coefficients. Element *[k,i]* of
         this array is the reactant stoichiometric coefficient of species *k* in
         reaction *i*.
         """
-        cdef np.ndarray[np.double_t, ndim=2] data = np.empty((self.nTotalSpecies,
-                                                              self.nReactions))
+        cdef np.ndarray[np.double_t, ndim=2] data = np.empty((self.n_total_species,
+                                                              self.n_reactions))
         cdef int i,k
-        for i in range(self.nReactions):
-            for k in range(self.nTotalSpecies):
+        for i in range(self.n_reactions):
+            for k in range(self.n_total_species):
                 data[k,i] = self.kinetics.reactantStoichCoeff(k,i)
         return data
 
-    def productStoichCoeffs(self):
+    def product_stoich_coeffs(self):
         """
         The array of product stoichiometric coefficients. Element *[k,i]* of
         this array is the product stoichiometric coefficient of species *k* in
         reaction *i*.
         """
-        cdef np.ndarray[np.double_t, ndim=2] data = np.empty((self.nTotalSpecies,
-                                                              self.nReactions))
+        cdef np.ndarray[np.double_t, ndim=2] data = np.empty((self.n_total_species,
+                                                              self.n_reactions))
         cdef int i,k
-        for i in range(self.nReactions):
-            for k in range(self.nTotalSpecies):
+        for i in range(self.n_reactions):
+            for k in range(self.n_total_species):
                 data[k,i] = self.kinetics.productStoichCoeff(k,i)
         return data
 
-    property fwdRatesOfProgress:
+    property forward_rates_of_progress:
         """
         Forward rates of progress for the reactions. [kmol/m^3/s] for bulk
         phases or [kmol/m^2/s] for surface phases.
@@ -178,7 +178,7 @@ cdef class Kinetics(_SolutionBase):
         def __get__(self):
             return get_reaction_array(self, kin_getFwdRatesOfProgress)
 
-    property revRatesOfProgress:
+    property reverse_rates_of_progress:
         """
         Reverse rates of progress for the reactions. [kmol/m^3/s] for bulk
         phases or [kmol/m^2/s] for surface phases.
@@ -186,7 +186,7 @@ cdef class Kinetics(_SolutionBase):
         def __get__(self):
             return get_reaction_array(self, kin_getRevRatesOfProgress)
 
-    property netRatesOfProgress:
+    property net_rates_of_progress:
         """
         Net rates of progress for the reactions. [kmol/m^3/s] for bulk phases
         or [kmol/m^2/s] for surface phases.
@@ -194,17 +194,17 @@ cdef class Kinetics(_SolutionBase):
         def __get__(self):
             return get_reaction_array(self, kin_getNetRatesOfProgress)
 
-    property equilibriumConstants:
+    property equilibrium_constants:
         """Equilibrium constants in concentration units for all reactions."""
         def __get__(self):
             return get_reaction_array(self, kin_getEquilibriumConstants)
 
-    property activationEnergies:
+    property activation_energies:
         """Activation energies for all reactions [K]."""
         def __get__(self):
             return get_reaction_array(self, kin_getActivationEnergies)
 
-    property fwdRateConstants:
+    property forward_rate_constants:
         """
         Forward rate constants for all reactions. Units are a combination of
         kmol, m^3 and s, that depend on the rate expression for the reaction.
@@ -212,7 +212,7 @@ cdef class Kinetics(_SolutionBase):
         def __get__(self):
             return get_reaction_array(self, kin_getFwdRateConstants)
 
-    property revRateConstants:
+    property reverse_rate_constants:
         """
         Reverse rate constants for all reactions. Units are a combination of
         kmol, m^3 and s, that depend on the rate expression for the reaction.
@@ -220,7 +220,7 @@ cdef class Kinetics(_SolutionBase):
         def __get__(self):
             return get_reaction_array(self, kin_getRevRateConstants)
 
-    property creationRates:
+    property creation_rates:
         """
         Creation rates for each species. [kmol/m^3/s] for bulk phases or
         [kmol/m^2/s] for surface phases.
@@ -228,7 +228,7 @@ cdef class Kinetics(_SolutionBase):
         def __get__(self):
             return get_species_array(self, kin_getCreationRates)
 
-    property destructionRates:
+    property destruction_rates:
         """
         Destruction rates for each species. [kmol/m^3/s] for bulk phases or
         [kmol/m^2/s] for surface phases.
@@ -236,7 +236,7 @@ cdef class Kinetics(_SolutionBase):
         def __get__(self):
             return get_species_array(self, kin_getDestructionRates)
 
-    property netProductionRates:
+    property net_production_rates:
         """
         Net production rates for each species. [kmol/m^3/s] for bulk phases or
         [kmol/m^2/s] for surface phases.
@@ -244,22 +244,22 @@ cdef class Kinetics(_SolutionBase):
         def __get__(self):
             return get_species_array(self, kin_getNetProductionRates)
 
-    property deltaEnthalpy:
+    property delta_enthalpy:
         """Change in enthalpy for each reaction [J/kmol]."""
         def __get__(self):
             return get_reaction_array(self, kin_getDeltaEnthalpy)
 
-    property deltaGibbs:
+    property delta_gibbs:
         """Change in Gibbs free energy for each reaction [J/kmol]."""
         def __get__(self):
             return get_reaction_array(self, kin_getDeltaGibbs)
 
-    property deltaEntropy:
+    property delta_entropy:
         """Change in entropy for each reaction [J/kmol/K]."""
         def __get__(self):
             return get_reaction_array(self, kin_getDeltaEntropy)
 
-    property deltaStandardEnthalpy:
+    property delta_standard_enthalpy:
         """
         Change in standard-state enthalpy (independent of composition) for
         each reaction [J/kmol].
@@ -267,7 +267,7 @@ cdef class Kinetics(_SolutionBase):
         def __get__(self):
             return get_reaction_array(self, kin_getDeltaSSEnthalpy)
 
-    property deltaStandardGibbs:
+    property delta_standard_gibbs:
         """
         Change in standard-state Gibbs free energy (independent of composition)
         for each reaction [J/kmol].
@@ -275,7 +275,7 @@ cdef class Kinetics(_SolutionBase):
         def __get__(self):
             return get_reaction_array(self, kin_getDeltaSSGibbs)
 
-    property deltaStandardEntropy:
+    property delta_standard_entropy:
         """
         Change in standard-state entropy (independent of composition) for
         each reaction [J/kmol/K].
@@ -295,7 +295,7 @@ cdef class InterfaceKinetics(Kinetics):
                                         kinetics_type_edge):
             raise TypeError("Underlying Kinetics class is not of the correct type.")
 
-    def advanceCoverages(self, double dt):
+    def advance_coverages(self, double dt):
         """
         This method carries out a time-accurate advancement of the surface
         coverages for a specified amount of time.

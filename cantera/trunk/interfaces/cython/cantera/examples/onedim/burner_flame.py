@@ -5,7 +5,7 @@ A burner-stabilized lean premixed hydrogen-oxygen flame at low pressure.
 import cantera as ct
 import csv
 
-p = 0.05 * ct.OneAtm
+p = 0.05 * ct.one_atm
 tburner = 373.0
 mdot = 0.06
 reactants = 'H2:1.5, O2:1, AR:7'  # premixed gas composition
@@ -26,28 +26,28 @@ f.burner.T = tburner
 f.burner.X = reactants
 f.burner.mdot = mdot
 
-f.setInitialGuess()
-f.flame.setSteadyTolerances(default=tol_ss)
-f.flame.setTransientTolerances(default=tol_ts)
-f.showSolution()
+f.set_initial_guess()
+f.flame.set_steady_tolerances(default=tol_ss)
+f.flame.set_transient_tolerances(default=tol_ts)
+f.show_solution()
 
-f.energyEnabled = False
-f.setMaxJacAge(10, 10)
+f.energy_enabled = False
+f.set_max_jac_age(10, 10)
 f.solve(loglevel, refine_grid=False)
 f.save('h2_burner_flame.xml', 'no_energy',
        'solution with the energy equation disabled')
 
-f.setRefineCriteria(ratio=3.0, slope=0.05, curve=0.1)
-f.energyEnabled = True
+f.set_refine_criteria(ratio=3.0, slope=0.05, curve=0.1)
+f.energy_enabled = True
 f.solve(loglevel, refine_grid)
 f.save('h2_burner_flame.xml', 'energy',
        'solution with the energy equation enabled')
 
 #print('mixture-averaged flamespeed = ', f.u[0])
 
-f.transportModel = 'Multi'
+f.transport_model = 'Multi'
 f.solve(loglevel, refine_grid)
-f.showSolution()
+f.show_solution()
 print('multicomponent flamespeed = ', f.u[0])
 f.save('h2_burner_flame.xml','energy_multi',
        'solution with the energy equation enabled and multicomponent transport')
@@ -60,9 +60,9 @@ V = f.V
 with open('h2_burner_flame.csv', 'w') as csvfile:
     writer = csv.writer(csvfile)
     writer.writerow(['z (m)', 'u (m/s)', 'V (1/s)', 'T (K)', 'rho (kg/m3)'] +
-                    list(gas.speciesNames))
-    for n in range(f.flame.nPoints):
-        f.setGasState(n)
+                    list(gas.species_names))
+    for n in range(f.flame.n_points):
+        f.set_gas_state(n)
         writer.writerow([z[n], u[n], V[n], T[n], gas.density] + list(gas.X))
 
 print('solution saved to h2_burner_flame.csv')

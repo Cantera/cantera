@@ -7,7 +7,7 @@ from . import utilities
 
 
 class TestReactor(utilities.CanteraTest):
-    def makeReactors(self, independent=True, nReactors=2,
+    def make_reactors(self, independent=True, n_reactors=2,
                       T1=300, P1=101325, X1='O2:1.0',
                       T2=300, P2=101325, X2='O2:1.0'):
 
@@ -16,26 +16,26 @@ class TestReactor(utilities.CanteraTest):
         self.gas1 = ct.Solution('h2o2.xml')
         self.gas1.TPX = T1, P1, X1
         self.r1 = ct.Reactor(self.gas1)
-        self.net.addReactor(self.r1)
+        self.net.add_reactor(self.r1)
 
         if independent:
             self.gas2 = ct.Solution('h2o2.xml')
         else:
             self.gas2 = self.gas1
 
-        if nReactors >= 2:
+        if n_reactors >= 2:
             self.gas2.TPX = T2, P2, X2
             self.r2 = ct.Reactor(self.gas2)
-            self.net.addReactor(self.r2)
+            self.net.add_reactor(self.r2)
 
-    def addWall(self, **kwargs):
+    def add_wall(self, **kwargs):
         self.w = ct.Wall(self.r1, self.r2, **kwargs)
         return self.w
 
     def test_insert(self):
         R = ct.Reactor()
         f1 = lambda r: r.T
-        f2 = lambda r: r.kinetics.netProductionRates
+        f2 = lambda r: r.kinetics.net_production_rates
         self.assertRaises(Exception, f1, R)
         self.assertRaises(Exception, f2, R)
 
@@ -44,10 +44,10 @@ class TestReactor(utilities.CanteraTest):
         R.insert(g)
 
         self.assertNear(R.T, 300)
-        self.assertEqual(len(R.kinetics.netProductionRates), g.nSpecies)
+        self.assertEqual(len(R.kinetics.net_production_rates), g.n_species)
 
     def test_names(self):
-        self.makeReactors()
+        self.make_reactors()
 
         pattern = re.compile(r'(\d+)')
         digits1 = pattern.search(self.r1.name).group(0)
@@ -62,7 +62,7 @@ class TestReactor(utilities.CanteraTest):
         T1, P1 = 300, 101325
         T2, P2 = 500, 300000
 
-        self.makeReactors(T1=T1, T2=T2, P1=P1, P2=P2)
+        self.make_reactors(T1=T1, T2=T2, P1=P1, P2=P2)
         self.net.advance(1.0)
 
         # Nothing should change from the initial condition
@@ -75,7 +75,7 @@ class TestReactor(utilities.CanteraTest):
         T1, P1 = 300, 101325
         T2, P2 = 500, 300000
 
-        self.makeReactors(T1=T1, T2=T2, P1=P1, P2=P2, independent=False)
+        self.make_reactors(T1=T1, T2=T2, P1=P1, P2=P2, independent=False)
         self.net.advance(1.0)
 
         # Nothing should change from the initial condition
@@ -85,14 +85,14 @@ class TestReactor(utilities.CanteraTest):
         self.assertNear(P2, self.r2.thermo.P)
 
     def test_timestepping(self):
-        self.makeReactors()
+        self.make_reactors()
 
         tStart = 0.3
         tEnd = 10.0
         dt_max = 0.07
         t = tStart
-        self.net.setMaxTimeStep(dt_max)
-        self.net.setInitialTime(tStart)
+        self.net.set_max_time_step(dt_max)
+        self.net.set_initial_time(tStart)
         self.assertNear(self.net.time, tStart)
 
         while t < tEnd:
@@ -103,9 +103,9 @@ class TestReactor(utilities.CanteraTest):
 
         #self.assertNear(self.net.time, tEnd)
 
-    def test_equalizePressure(self):
-        self.makeReactors(P1=101325, P2=300000)
-        self.addWall(K=0.1, A=1.0)
+    def test_equalize_pressure(self):
+        self.make_reactors(P1=101325, P2=300000)
+        self.add_wall(K=0.1, A=1.0)
 
         self.assertEqual(len(self.r1.walls), 1)
         self.assertEqual(len(self.r2.walls), 1)
@@ -120,10 +120,10 @@ class TestReactor(utilities.CanteraTest):
 
     def test_tolerances(self):
         def integrate(atol, rtol):
-            P0 = 10 * ct.OneAtm
+            P0 = 10 * ct.one_atm
             T0 = 1100
             X0 = 'H2:1.0, O2:0.5, AR:8.0'
-            self.makeReactors(nReactors=1, T1=T0, P1=P0, X1=X0)
+            self.make_reactors(n_reactors=1, T1=T0, P1=P0, X1=X0)
             self.net.rtol = rtol
             self.net.atol = atol
 
@@ -147,34 +147,34 @@ class TestReactor(utilities.CanteraTest):
         self.assertTrue(n_baseline > n_rtol)
         self.assertTrue(n_baseline > n_atol)
 
-    def test_heatTransfer1(self):
+    def test_heat_transfer1(self):
         # Connected reactors reach thermal equilibrium after some time
-        self.makeReactors(T1=300, T2=1000)
-        self.addWall(U=500, A=1.0)
+        self.make_reactors(T1=300, T2=1000)
+        self.add_wall(U=500, A=1.0)
 
         self.net.advance(10.0)
         self.assertNear(self.net.time, 10.0)
         self.assertNear(self.r1.T, self.r2.T, 1e-7)
         self.assertNotAlmostEqual(self.r1.thermo.P, self.r2.thermo.P)
 
-    def test_heatTransfer2(self):
+    def test_heat_transfer2(self):
         # Result should be the same if (m * cp) / (U * A) is held constant
-        self.makeReactors(T1=300, T2=1000)
-        self.addWall(U=200, A=1.0)
+        self.make_reactors(T1=300, T2=1000)
+        self.add_wall(U=200, A=1.0)
 
         self.net.advance(1.0)
         T1a = self.r1.T
         T2a = self.r2.T
 
-        self.makeReactors(T1=300, T2=1000)
+        self.make_reactors(T1=300, T2=1000)
         self.r1.volume = 0.25
         self.r2.volume = 0.25
-        w = self.addWall(U=100, A=0.5)
+        w = self.add_wall(U=100, A=0.5)
 
-        self.assertNear(w.heatTransferCoeff * w.area * (self.r1.T - self.r2.T),
+        self.assertNear(w.heat_transfer_coeff * w.area * (self.r1.T - self.r2.T),
                         w.qdot(0))
         self.net.advance(1.0)
-        self.assertNear(w.heatTransferCoeff * w.area * (self.r1.T - self.r2.T),
+        self.assertNear(w.heat_transfer_coeff * w.area * (self.r1.T - self.r2.T),
                         w.qdot(1.0))
         T1b = self.r1.T
         T2b = self.r2.T
@@ -186,10 +186,10 @@ class TestReactor(utilities.CanteraTest):
         # Adiabatic, constant volume combustion should proceed to equilibrum
         # at constant internal energy and volume.
 
-        P0 = 10 * ct.OneAtm
+        P0 = 10 * ct.one_atm
         T0 = 1100
         X0 = 'H2:1.0, O2:0.5, AR:8.0'
-        self.makeReactors(nReactors=1, T1=T0, P1=P0, X1=X0)
+        self.make_reactors(n_reactors=1, T1=T0, P1=P0, X1=X0)
 
         self.net.advance(1.0)
 
@@ -206,7 +206,7 @@ class TestReactor(utilities.CanteraTest):
         # Adiabatic, constant pressure combustion should proceed to equilibrum
         # at constant enthalpy and pressure.
 
-        P0 = 10 * ct.OneAtm
+        P0 = 10 * ct.one_atm
         T0 = 1100
         X0 = 'H2:1.0, O2:0.5, AR:8.0'
 
@@ -215,7 +215,7 @@ class TestReactor(utilities.CanteraTest):
         r1 = ct.ConstPressureReactor(gas1)
 
         net = ct.ReactorNet()
-        net.addReactor(r1)
+        net.add_reactor(r1)
         net.advance(1.0)
 
         gas2 = ct.Solution('h2o2.xml')
@@ -228,7 +228,7 @@ class TestReactor(utilities.CanteraTest):
         self.assertArrayNear(r1.thermo.X, gas2.X)
 
     def test_wall_velocity(self):
-        self.makeReactors()
+        self.make_reactors()
         A = 0.2
 
         V1 = 2.0
@@ -236,7 +236,7 @@ class TestReactor(utilities.CanteraTest):
         self.r1.volume = V1
         self.r2.volume = V2
 
-        self.addWall(A=A)
+        self.add_wall(A=A)
 
         def v(t):
             if 0 < t <= 1:
@@ -246,7 +246,7 @@ class TestReactor(utilities.CanteraTest):
             else:
                 return 0.0
 
-        self.w.setVelocity(v)
+        self.w.set_velocity(v)
         self.net.advance(1.0)
         self.assertNear(self.w.vdot(1.0), 1.0 * A, 1e-7)
         self.net.advance(2.0)
@@ -256,9 +256,9 @@ class TestReactor(utilities.CanteraTest):
         self.assertNear(self.r2.volume, V2 - 1.0 * A)
 
     def test_disable_energy(self):
-        self.makeReactors(T1=500)
-        self.r1.energyEnabled = False
-        self.addWall(A=1.0, U=2500)
+        self.make_reactors(T1=500)
+        self.r1.energy_enabled = False
+        self.add_wall(A=1.0, U=2500)
 
         self.net.advance(11.0)
 
@@ -266,7 +266,7 @@ class TestReactor(utilities.CanteraTest):
         self.assertNear(self.r2.T, 500)
 
     def test_heat_flux_func(self):
-        self.makeReactors(T1=500, T2=300)
+        self.make_reactors(T1=500, T2=300)
         self.r1.volume = 0.5
 
         U1a = self.r1.volume * self.r1.density * self.r1.thermo.u
@@ -275,8 +275,8 @@ class TestReactor(utilities.CanteraTest):
         V1a = self.r1.volume
         V2a = self.r2.volume
 
-        self.addWall(A=0.3)
-        self.w.setHeatFlux(lambda t: 90000 * (1 - t**2) if t <= 1.0 else 0.0)
+        self.add_wall(A=0.3)
+        self.w.set_heat_flux(lambda t: 90000 * (1 - t**2) if t <= 1.0 else 0.0)
         Q = 0.3 * 60000
 
         self.net.advance(1.1)
@@ -289,13 +289,13 @@ class TestReactor(utilities.CanteraTest):
         self.assertNear(U2a + Q, U2b, 1e-6)
 
     def test_mass_flow_controller(self):
-        self.makeReactors(nReactors=1)
+        self.make_reactors(n_reactors=1)
         gas2 = ct.Solution('h2o2.xml')
         gas2.TPX = 300, 10*101325, 'H2:1.0'
         reservoir = ct.Reservoir(gas2)
 
         mfc = ct.MassFlowController(reservoir, self.r1)
-        mfc.setMassFlowRate(lambda t: 0.1 if 0.2 <= t < 1.2 else 0.0)
+        mfc.set_mass_flow_rate(lambda t: 0.1 if 0.2 <= t < 1.2 else 0.0)
 
         self.assertEqual(len(reservoir.inlets), 0)
         self.assertEqual(len(reservoir.outlets), 1)
@@ -316,14 +316,14 @@ class TestReactor(utilities.CanteraTest):
         self.assertArrayNear(ma * Ya + 0.1 * gas2.Y, mb * Yb)
 
     def test_valve1(self):
-        self.makeReactors(P1=10*ct.OneAtm, X1='AR:1.0', X2='O2:1.0')
+        self.make_reactors(P1=10*ct.one_atm, X1='AR:1.0', X2='O2:1.0')
         valve = ct.Valve(self.r1, self.r2)
         k = 2e-5
-        valve.setValveCoeff(k)
+        valve.set_valve_coeff(k)
 
         self.assertEqual(self.r1.outlets, self.r2.inlets)
-        self.assertTrue(self.r1.energyEnabled)
-        self.assertTrue(self.r2.energyEnabled)
+        self.assertTrue(self.r1.energy_enabled)
+        self.assertTrue(self.r2.energy_enabled)
         self.assertTrue((self.r1.thermo.P - self.r2.thermo.P) * k,
                         valve.mdot(0))
 
@@ -348,15 +348,15 @@ class TestReactor(utilities.CanteraTest):
         # Similar to test_valve1, but by disabling the energy equation
         # (constant T) we can compare with an analytical solution for
         # the mass of each reactor as a function of time
-        self.makeReactors(P1=10*ct.OneAtm)
-        self.r1.energyEnabled = False
-        self.r2.energyEnabled = False
+        self.make_reactors(P1=10*ct.one_atm)
+        self.r1.energy_enabled = False
+        self.r2.energy_enabled = False
         valve = ct.Valve(self.r1, self.r2)
         k = 2e-5
-        valve.setValveCoeff(k)
+        valve.set_valve_coeff(k)
 
-        self.assertFalse(self.r1.energyEnabled)
-        self.assertFalse(self.r2.energyEnabled)
+        self.assertFalse(self.r1.energy_enabled)
+        self.assertFalse(self.r2.energy_enabled)
 
         m1a = self.r1.thermo.density * self.r1.volume
         m2a = self.r2.thermo.density * self.r2.volume
@@ -376,10 +376,10 @@ class TestReactor(utilities.CanteraTest):
     def test_valve3(self):
         # This case specifies a non-linear relationship between pressure drop
         # and flow rate.
-        self.makeReactors(P1=10*ct.OneAtm, X1='AR:1.0', X2='O2:1.0')
+        self.make_reactors(P1=10*ct.one_atm, X1='AR:1.0', X2='O2:1.0')
         valve = ct.Valve(self.r1, self.r2)
         mdot = lambda dP: 5e-3 * np.sqrt(dP) if dP > 0 else 0.0
-        valve.setValveCoeff(mdot)
+        valve.set_valve_coeff(mdot)
 
         t = 0
         while t < 1.0:
@@ -389,34 +389,34 @@ class TestReactor(utilities.CanteraTest):
             self.assertNear(mdot(p1-p2), valve.mdot(t))
 
     def test_pressure_controller(self):
-        self.makeReactors(nReactors=1)
+        self.make_reactors(n_reactors=1)
         g = ct.Solution('h2o2.xml')
         g.TPX = 500, 2*101325, 'H2:1.0'
-        inletReservoir = ct.Reservoir(g)
+        inlet_reservoir = ct.Reservoir(g)
         g.TP = 300, 101325
-        outletReservoir = ct.Reservoir(g)
+        outlet_reservoir = ct.Reservoir(g)
 
-        mfc = ct.MassFlowController(inletReservoir, self.r1)
+        mfc = ct.MassFlowController(inlet_reservoir, self.r1)
         mdot = lambda t: np.exp(-100*(t-0.5)**2)
-        mfc.setMassFlowRate(mdot)
+        mfc.set_mass_flow_rate(mdot)
 
-        pc = ct.PressureController(self.r1, outletReservoir)
-        pc.setMaster(mfc)
-        pc.setPressureCoeff(1e-5)
+        pc = ct.PressureController(self.r1, outlet_reservoir)
+        pc.set_master(mfc)
+        pc.set_pressure_coeff(1e-5)
 
         t = 0
         while t < 1.0:
             t = self.net.step(1.0)
             self.assertNear(mdot(t), mfc.mdot(t))
-            dP = self.r1.thermo.P - outletReservoir.thermo.P
+            dP = self.r1.thermo.P - outlet_reservoir.thermo.P
             self.assertNear(mdot(t) + 1e-5 * dP, pc.mdot(t))
 
-    def test_setInitialTime(self):
-        self.makeReactors(P1=10*ct.OneAtm, X1='AR:1.0', X2='O2:1.0')
+    def test_set_initial_time(self):
+        self.make_reactors(P1=10*ct.one_atm, X1='AR:1.0', X2='O2:1.0')
         self.net.rtol = 1e-12
         valve = ct.Valve(self.r1, self.r2)
         mdot = lambda dP: 5e-3 * np.sqrt(dP) if dP > 0 else 0.0
-        valve.setValveCoeff(mdot)
+        valve.set_valve_coeff(mdot)
 
         t0 = 0.0
         tf = t0 + 0.5
@@ -425,14 +425,14 @@ class TestReactor(utilities.CanteraTest):
         p1a = self.r1.thermo.P
         p2a = self.r2.thermo.P
 
-        self.makeReactors(P1=10*ct.OneAtm, X1='AR:1.0', X2='O2:1.0')
+        self.make_reactors(P1=10*ct.one_atm, X1='AR:1.0', X2='O2:1.0')
         self.net.rtol = 1e-12
         valve = ct.Valve(self.r1, self.r2)
         mdot = lambda dP: 5e-3 * np.sqrt(dP) if dP > 0 else 0.0
-        valve.setValveCoeff(mdot)
+        valve.set_valve_coeff(mdot)
 
         t0 = 0.2
-        self.net.setInitialTime(t0)
+        self.net.set_initial_time(t0)
         tf = t0 + 0.5
         self.net.advance(tf)
         self.assertNear(self.net.time, tf)
@@ -448,10 +448,10 @@ class TestFlowReactor(utilities.CanteraTest):
         g = ct.Solution('h2o2.xml')
         g.TPX = 300, 101325, 'O2:1.0'
         r = ct.FlowReactor(g)
-        r.massFlowRate = 10
+        r.mass_flow_rate = 10
 
         net = ct.ReactorNet()
-        net.addReactor(r)
+        net.add_reactor(r)
 
         t = 0
         v0 = r.speed
@@ -467,10 +467,10 @@ class TestFlowReactor(utilities.CanteraTest):
         g.TPX = 1400, 20*101325, 'CO:1.0, H2O:1.0'
 
         r = ct.FlowReactor(g)
-        r.massFlowRate = 10
+        r.mass_flow_rate = 10
 
         net = ct.ReactorNet()
-        net.addReactor(r)
+        net.add_reactor(r)
         net.atol = 1e-18
         net.rtol = 1e-9
 
@@ -487,7 +487,7 @@ class TestFlowReactor(utilities.CanteraTest):
 
 
 class TestWallKinetics(utilities.CanteraTest):
-    def makeReactors(self):
+    def make_reactors(self):
         self.net = ct.ReactorNet()
 
         self.gas = ct.Solution('diamond.xml', 'gas')
@@ -495,18 +495,18 @@ class TestWallKinetics(utilities.CanteraTest):
         self.interface = ct.Interface('diamond.xml', 'diamond_100',
                                       (self.gas, self.solid))
         self.r1 = ct.Reactor(self.gas)
-        self.net.addReactor(self.r1)
+        self.net.add_reactor(self.r1)
 
         self.r2 = ct.Reactor(self.gas)
-        self.net.addReactor(self.r2)
+        self.net.add_reactor(self.r2)
 
         self.w = ct.Wall(self.r1, self.r2)
 
     def test_coverages(self):
-        self.makeReactors()
+        self.make_reactors()
         self.w.left.kinetics = self.interface
 
-        C = np.zeros(self.interface.nSpecies)
+        C = np.zeros(self.interface.n_species)
         C[0] = 0.3
         C[4] = 0.7
 
@@ -518,7 +518,7 @@ class TestWallKinetics(utilities.CanteraTest):
         self.assertEqual(self.w.right.kinetics, None)
         self.assertRaises(Exception, lambda: self.w.right.coverages)
 
-        self.makeReactors()
+        self.make_reactors()
         self.w.right.kinetics = self.interface
         self.w.right.coverages = C
         self.assertArrayNear(self.w.right.coverages, C)
@@ -539,18 +539,18 @@ class TestReactorSensitivities(utilities.CanteraTest):
         gas = ct.Solution('gri30.xml')
         gas.TPX = 1300, 20*101325, 'CO:1.0, H2:0.1, CH4:0.1, H2O:0.5'
         r1 = ct.Reactor(gas)
-        net.addReactor(r1)
+        net.add_reactor(r1)
 
-        self.assertEqual(net.nSensitivityParams, 0)
-        r1.addSensitivityReaction(40)
-        r1.addSensitivityReaction(41)
+        self.assertEqual(net.n_sensitivity_params, 0)
+        r1.add_sensitivity_reaction(40)
+        r1.add_sensitivity_reaction(41)
 
         net.advance(0.1)
 
-        self.assertEqual(net.nSensitivityParams, 2)
-        self.assertEqual(net.nVars, gas.nSpecies + 2)
+        self.assertEqual(net.n_sensitivity_params, 2)
+        self.assertEqual(net.n_vars, gas.n_species + 2)
         S = net.sensitivities()
-        self.assertEqual(S.shape, (net.nVars, net.nSensitivityParams))
+        self.assertEqual(S.shape, (net.n_vars, net.n_sensitivity_params))
 
     def test_sensitivities2(self):
         net = ct.ReactorNet()
@@ -560,30 +560,30 @@ class TestReactorSensitivities(utilities.CanteraTest):
         interface = ct.Interface('diamond.xml', 'diamond_100',
                                  (gas1, solid))
         r1 = ct.Reactor(gas1)
-        net.addReactor(r1)
+        net.add_reactor(r1)
 
         gas2 = ct.Solution('h2o2.xml')
         gas2.TPX = 900, 101325, 'H2:0.1, OH:1e-7, O2:0.1, AR:1e-5'
         r2 = ct.Reactor(gas2)
-        net.addReactor(r2)
+        net.add_reactor(r2)
 
         w = ct.Wall(r1, r2)
         w.left.kinetics = interface
 
-        C = np.zeros(interface.nSpecies)
+        C = np.zeros(interface.n_species)
         C[0] = 0.3
         C[4] = 0.7
 
         w.left.coverages = C
-        w.left.addSensitivityReaction(2)
-        r2.addSensitivityReaction(18)
+        w.left.add_sensitivity_reaction(2)
+        r2.add_sensitivity_reaction(18)
 
         for T in (901, 905, 910, 950, 1500):
             while r2.T < T:
                 net.step(1.0)
 
             S = net.sensitivities()
-            K1 = gas1.nSpecies + interface.nSpecies
+            K1 = gas1.n_species + interface.n_species
 
             # Constant internal energy and volume should generate zero
             # sensitivity coefficients
@@ -607,7 +607,7 @@ class TestReactorSensitivities(utilities.CanteraTest):
             gas.TPX = 900, 101325, 'H2:0.1, OH:1e-7, O2:0.1, AR:1e-5'
 
             r = ct.Reactor(gas)
-            net.addReactor(r)
+            net.add_reactor(r)
             return r, net
 
         def integrate(r, net):
@@ -618,21 +618,21 @@ class TestReactorSensitivities(utilities.CanteraTest):
         r1,net1 = setup()
         params1 = [2,10,18,19]
         for p in params1:
-            r1.addSensitivityReaction(p)
+            r1.add_sensitivity_reaction(p)
         S1 = integrate(r1, net1)
 
-        pname = lambda r,i: '%s: %s' % (r.name, gas.reactionEquation(i))
+        pname = lambda r,i: '%s: %s' % (r.name, gas.reaction_equation(i))
         for i,p in enumerate(params1):
-            self.assertEqual(pname(r1,p), net1.sensitivityParameterName(i))
+            self.assertEqual(pname(r1,p), net1.sensitivity_parameter_name(i))
 
         r2,net2 = setup()
         params2 = [19,10,2,18]
         for p in params2:
-            r2.addSensitivityReaction(p)
+            r2.add_sensitivity_reaction(p)
         S2 = integrate(r2, net2)
 
         for i,p in enumerate(params2):
-            self.assertEqual(pname(r2,p), net2.sensitivityParameterName(i))
+            self.assertEqual(pname(r2,p), net2.sensitivity_parameter_name(i))
 
         for i,j in enumerate((2,1,3,0)):
             self.assertArrayNear(S1[:,i], S2[:,j])
@@ -651,11 +651,11 @@ class TestReactorSensitivities(utilities.CanteraTest):
             gas2.TPX = 920, 101325, 'H2:0.1, OH:1e-7, O2:0.1, AR:0.5'
             rB = ct.Reactor(gas2)
             if reverse:
-                net.addReactor(rB)
-                net.addReactor(rA)
+                net.add_reactor(rB)
+                net.add_reactor(rA)
             else:
-                net.addReactor(rA)
-                net.addReactor(rB)
+                net.add_reactor(rA)
+                net.add_reactor(rB)
 
             return rA, rB, net
 
@@ -669,21 +669,21 @@ class TestReactorSensitivities(utilities.CanteraTest):
             rA1,rB1,net1 = setup(reverse)
             params1 = [(rA1,2),(rA1,19),(rB1,10),(rB1,18)]
             for r,p in params1:
-                r.addSensitivityReaction(p)
+                r.add_sensitivity_reaction(p)
             S.append(integrate(rA1, net1))
 
-            pname = lambda r,i: '%s: %s' % (r.name, gas.reactionEquation(i))
+            pname = lambda r,i: '%s: %s' % (r.name, gas.reaction_equation(i))
             for i,(r,p) in enumerate(params1):
-                self.assertEqual(pname(r,p), net1.sensitivityParameterName(i))
+                self.assertEqual(pname(r,p), net1.sensitivity_parameter_name(i))
 
             rA2,rB2,net2 = setup(reverse)
             params2 = [(rB2,10),(rA2,19),(rB2,18),(rA2,2)]
             for r,p in params2:
-                r.addSensitivityReaction(p)
+                r.add_sensitivity_reaction(p)
             S.append(integrate(rA2, net2))
 
             for i,(r,p) in enumerate(params2):
-                self.assertEqual(pname(r,p), net2.sensitivityParameterName(i))
+                self.assertEqual(pname(r,p), net2.sensitivity_parameter_name(i))
 
         # Check that the results reflect the changed parameter ordering
         for a,b in ((0,1), (2,3)):
@@ -692,7 +692,7 @@ class TestReactorSensitivities(utilities.CanteraTest):
 
         # Check that results are consistent after changing the order that
         # reactors are added to the network
-        N = gas.nSpecies + 2
+        N = gas.n_species + 2
         self.assertArrayNear(S[0][:N], S[2][N:], 1e-5, 1e-5)
         self.assertArrayNear(S[0][N:], S[2][:N], 1e-5, 1e-5)
         self.assertArrayNear(S[1][:N], S[3][N:], 1e-5, 1e-5)
@@ -727,8 +727,8 @@ class TestReactorSensitivities(utilities.CanteraTest):
             wA.area = 0.1
             wB.area = 10
 
-            C1 = np.zeros(interface.nSpecies)
-            C2 = np.zeros(interface.nSpecies)
+            C1 = np.zeros(interface.n_species)
+            C2 = np.zeros(interface.n_species)
             C1[0] = 0.3
             C1[4] = 0.7
 
@@ -738,11 +738,11 @@ class TestReactorSensitivities(utilities.CanteraTest):
             wB.right.coverages = C2
 
             if order // 2 == 0:
-                net.addReactor(rA)
-                net.addReactor(rB)
+                net.add_reactor(rA)
+                net.add_reactor(rB)
             else:
-                net.addReactor(rB)
-                net.addReactor(rA)
+                net.add_reactor(rB)
+                net.add_reactor(rA)
 
             return rA,rB,wA,wB,net
 
@@ -756,14 +756,14 @@ class TestReactorSensitivities(utilities.CanteraTest):
             rA,rB,wA,wB,net = setup(order)
             for (obj,k) in [(rB,2), (rB,18), (wA.left,2),
                             (wA.left,0), (wB.right,2)]:
-                obj.addSensitivityReaction(k)
+                obj.add_sensitivity_reaction(k)
             integrate(rB, net)
             S.append(net.sensitivities())
 
             rA,rB,wA,wB,net = setup(order)
             for (obj,k) in [(wB.right,2), (wA.left,2), (rB,18),
                             (wA.left,0), (rB,2)]:
-                obj.addSensitivityReaction(k)
+                obj.add_sensitivity_reaction(k)
 
             integrate(rB, net)
             S.append(net.sensitivities())

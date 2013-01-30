@@ -7,9 +7,9 @@ cdef class ReactorBase:
     """
     Common base class for reactors and reservoirs.
     """
-    reactorType = "None"
+    reactor_type = "None"
     def __cinit__(self, *args, **kwargs):
-        self.rbase = newReactor(stringify(self.reactorType))
+        self.rbase = newReactor(stringify(self.reactor_type))
 
     def __init__(self, ThermoPhase contents=None, name=None, **kwargs):
         self._inlets = []
@@ -21,9 +21,9 @@ cdef class ReactorBase:
         if name is not None:
             self.name = name
         else:
-            reactor_counts[self.reactorType] += 1
-            n = reactor_counts[self.reactorType]
-            self.name = '{0}_{1}'.format(self.reactorType, n)
+            reactor_counts[self.reactor_type] += 1
+            n = reactor_counts[self.reactor_type]
+            self.name = '{0}_{1}'.format(self.reactor_type, n)
 
     def __dealloc__(self):
         del self.rbase
@@ -89,21 +89,21 @@ cdef class ReactorBase:
         def __get__(self):
             return self._walls
 
-    def _addInlet(self, inlet):
+    def _add_inlet(self, inlet):
         """
         Store a reference to *inlet* to prevent it from being prematurely
         garbage collected.
         """
         self._inlets.append(inlet)
 
-    def _addOutlet(self, outlet):
+    def _add_outlet(self, outlet):
         """
         Store a reference to *outlet* to prevent it from being prematurely
         garbage collected.
         """
         self._outlets.append(outlet)
 
-    def _addWall(self, wall):
+    def _add_wall(self, wall):
         """
         Store a reference to *wall* to prevent it from being prematurely
         garbage collected.
@@ -118,7 +118,7 @@ cdef class Reactor(ReactorBase):
     chemically-inert walls. These properties may all be changed by adding
     appropriate components, e.g. `Wall`, `MassFlowController` and `Valve`.
     """
-    reactorType = "Reactor"
+    reactor_type = "Reactor"
 
     def __cinit__(self, *args, **kwargs):
         self.reactor = <CxxReactor*>(self.rbase)
@@ -158,7 +158,7 @@ cdef class Reactor(ReactorBase):
         super().__init__(contents, **kwargs)
 
         if energy == 'off':
-            self.energyEnabled = False
+            self.energy_enabled = False
         elif energy != 'on':
             raise ValueError("'energy' must be either 'on' or 'off'")
 
@@ -177,7 +177,7 @@ cdef class Reactor(ReactorBase):
             self.rbase.restoreState()
             return self._kinetics
 
-    property energyEnabled:
+    property energy_enabled:
         """
         *True* when the energy equation is being solved for this reactor.
         When this is *False*, the reactor temperature is held constant.
@@ -188,7 +188,7 @@ cdef class Reactor(ReactorBase):
         def __set__(self, pybool value):
             self.reactor.setEnergy(int(value))
 
-    def addSensitivityReaction(self, m):
+    def add_sensitivity_reaction(self, m):
         self.reactor.addSensitivityReaction(m)
 
 
@@ -198,7 +198,7 @@ cdef class Reservoir(ReactorBase):
     pressure, and chemical composition in a reservoir never change from
     their initial values.
     """
-    reactorType = "Reservoir"
+    reactor_type = "Reservoir"
 
 
 cdef class ConstPressureReactor(Reactor):
@@ -206,7 +206,7 @@ cdef class ConstPressureReactor(Reactor):
     of the reactor changes as a function of time in order to keep the
     pressure constant.
     """
-    reactorType = "ConstPressureReactor"
+    reactor_type = "ConstPressureReactor"
 
 
 cdef class FlowReactor(Reactor):
@@ -215,9 +215,9 @@ cdef class FlowReactor(Reactor):
     Time integration follows a fluid element along the length of the reactor.
     The reactor is assumed to be frictionless and adiabatic.
     """
-    reactorType = "FlowReactor"
+    reactor_type = "FlowReactor"
 
-    property massFlowRate:
+    property mass_flow_rate:
         """ Mass flow rate per unit area [kg/m^2*s] """
         def __set__(self, double value):
             (<CxxFlowReactor*>self.reactor).setMassFlowRate(value)
@@ -252,7 +252,7 @@ cdef class WallSurface:
             return self._kinetics
         def __set__(self, Kinetics k):
             self._kinetics = k
-            self.wall._setKinetics()
+            self.wall._set_kinetics()
 
     property coverages:
         """
@@ -266,13 +266,13 @@ cdef class WallSurface:
         def __set__(self, coverages):
             if self._kinetics is None:
                 raise Exception("Can't set coverages before assigning kinetics manager.")
-            if len(coverages) != self._kinetics.nSpecies:
+            if len(coverages) != self._kinetics.n_species:
                 raise ValueError('Incorrect number of site coverages specified')
             cdef np.ndarray[np.double_t, ndim=1] data = \
                     np.ascontiguousarray(coverages, dtype=np.double)
             self.cxxwall.setCoverages(self.side, &data[0])
 
-    def addSensitivityReaction(self, int m):
+    def add_sensitivity_reaction(self, int m):
         self.cxxwall.addSensitivityReaction(self.side, m)
 
 
@@ -313,8 +313,8 @@ cdef class Wall:
 
     def __cinit__(self, *args, **kwargs):
         self.wall = new CxxWall()
-        self.leftSurface = WallSurface(self, 0)
-        self.rightSurface = WallSurface(self, 1)
+        self.left_surface = WallSurface(self, 0)
+        self.right_surface = WallSurface(self, 1)
 
     def __init__(self, left, right, *, name=None, A=None, K=None, U=None,
                  Q=None, velocity=None, kinetics=(None,None)):
@@ -346,8 +346,8 @@ cdef class Wall:
             chemistry occurs on only one side, enter ``None`` for the
             non-reactive side.
         """
-        self._velocityFunc = None
-        self._heatFluxFunc = None
+        self._velocity_func = None
+        self._heat_flux_func = None
 
         self._install(left, right)
         if name is not None:
@@ -360,38 +360,38 @@ cdef class Wall:
         if A is not None:
             self.area = A
         if K is not None:
-            self.expansionRateCoeff = K
+            self.expansion_rate_coeff = K
         if U is not None:
-            self.heatTransferCoeff = U
+            self.heat_transfer_coeff = U
         if Q is not None:
-            self.setHeatFlux(Q)
+            self.set_heat_flux(Q)
         if velocity is not None:
-            self.setVelocity(velocity)
+            self.set_velocity(velocity)
         if kinetics[0] is not None:
-            self.leftSurface.kinetics = kinetics[0]
+            self.left_surface.kinetics = kinetics[0]
         if kinetics[1] is not None:
-            self.rightSurface.kinetics = kinetics[1]
+            self.right_surface.kinetics = kinetics[1]
 
     def _install(self, ReactorBase left, ReactorBase right):
         """
         Install this Wall between two `Reactor` objects or between a
         `Reactor` and a `Reservoir`.
         """
-        left._addWall(self)
-        right._addWall(self)
+        left._add_wall(self)
+        right._add_wall(self)
         self.wall.install(deref(left.rbase), deref(right.rbase))
 
     property left:
         """ The left surface of this wall. """
         def __get__(self):
-            return self.leftSurface
+            return self.left_surface
 
     property right:
         """ The right surface of this wall. """
         def __get__(self):
-            return self.rightSurface
+            return self.right_surface
 
-    property expansionRateCoeff:
+    property expansion_rate_coeff:
         """
         The coefficient *K* [m/s/Pa] that determines the velocity of the wall
         as a function of the pressure difference between the adjacent reactors.
@@ -408,7 +408,7 @@ cdef class Wall:
         def __set__(self, double value):
             self.wall.setArea(value)
 
-    property heatTransferCoeff:
+    property heat_transfer_coeff:
         """the overall heat transfer coefficient [W/m^2/K]"""
         def __get__(self):
             return self.wall.getHeatTransferCoeff()
@@ -422,7 +422,7 @@ cdef class Wall:
         def __set__(self, double value):
             self.wall.setEmissivity(value)
 
-    def setVelocity(self, v):
+    def set_velocity(self, v):
         """
         The wall velocity [m/s]. May be either a constant or an arbirary
         function of time. See `Func1`.
@@ -433,10 +433,10 @@ cdef class Wall:
         else:
             f = Func1(v)
 
-        self._velocityFunc = f
+        self._velocity_func = f
         self.wall.setVelocity(f.func)
 
-    def setHeatFlux(self, q):
+    def set_heat_flux(self, q):
         """
         Heat flux [W/m^2] across the wall. May be either a constant or
         an arbitrary function of time. See `Func1`.
@@ -447,7 +447,7 @@ cdef class Wall:
         else:
             f = Func1(q)
 
-        self._heatFluxFunc = f
+        self._heat_flux_func = f
         self.wall.setHeatFlux(f.func)
 
     def vdot(self, double t):
@@ -466,11 +466,11 @@ cdef class Wall:
         """
         return self.wall.Q(t)
 
-    def _setKinetics(self):
-        cdef CxxKinetics* L = (self.leftSurface._kinetics.kinetics
-                               if self.leftSurface._kinetics else NULL)
-        cdef CxxKinetics* R = (self.rightSurface._kinetics.kinetics
-                               if self.rightSurface._kinetics else NULL)
+    def _set_kinetics(self):
+        cdef CxxKinetics* L = (self.left_surface._kinetics.kinetics
+                               if self.left_surface._kinetics else NULL)
+        cdef CxxKinetics* R = (self.right_surface._kinetics.kinetics
+                               if self.right_surface._kinetics else NULL)
         self.wall.setKinetics(L, R)
 
 
@@ -491,7 +491,7 @@ cdef class FlowDevice:
 
     def __init__(self, upstream, downstream, *, name=None):
         assert self.dev != NULL
-        self._rateFunc = None
+        self._rate_func = None
 
         if name is not None:
             self.name = name
@@ -510,8 +510,8 @@ cdef class FlowDevice:
         Install the device between the *upstream* (source) and *downstream*
         (destination) reactors or reservoirs.
         """
-        upstream._addOutlet(self)
-        downstream._addInlet(self)
+        upstream._add_outlet(self)
+        downstream._add_inlet(self)
         self.dev.install(deref(upstream.rbase), deref(downstream.rbase))
 
     def mdot(self, double t):
@@ -548,15 +548,15 @@ cdef class MassFlowController(FlowDevice):
     def __init__(self, upstream, downstream, *, name=None, mdot=None):
         super().__init__(upstream, downstream, name=name)
         if mdot is not None:
-            self.setMassFlowRate(mdot)
+            self.set_mass_flow_rate(mdot)
 
-    def setMassFlowRate(self, m):
+    def set_mass_flow_rate(self, m):
         """
         Set the mass flow rate [kg/s] through this controller to be either
         a constant or an arbitrary function of time. See `Func1`.
 
-        >>> mfc.setMassFlowRate(0.3)
-        >>> mfc.setMassFlowRate(lambda t: 2.5 * exp(-10 * (t - 0.5)**2))
+        >>> mfc.set_mass_flow_rate(0.3)
+        >>> mfc.set_mass_flow_rate(lambda t: 2.5 * exp(-10 * (t - 0.5)**2))
         """
         cdef Func1 f
         if isinstance(m, Func1):
@@ -564,7 +564,7 @@ cdef class MassFlowController(FlowDevice):
         else:
             f = Func1(m)
 
-        self._rateFunc = f
+        self._rate_func = f
         self.dev.setFunction(f.func)
 
 
@@ -596,9 +596,9 @@ cdef class Valve(FlowDevice):
     def __init__(self, upstream, downstream, *, name=None, K=None):
         super().__init__(upstream, downstream, name=name)
         if K is not None:
-            self.setValveCoeff(K)
+            self.set_valve_coeff(K)
 
-    def setValveCoeff(self, k):
+    def set_valve_coeff(self, k):
         """
         Set the relationship betwen mass flow rate and the pressure drop across
         the valve. If a number is given, it is the proportionality constant
@@ -606,8 +606,8 @@ cdef class Valve(FlowDevice):
         rate [kg/s] given the pressure drop [Pa].
 
         >>> V = Valve(res1, reactor1)
-        >>> V.setValveCoeff(1e-4)
-        >>> V.setValveCoeff(lambda dP: (1e-5 * dP)**2)
+        >>> V.set_valve_coeff(1e-4)
+        >>> V.set_valve_coeff(lambda dP: (1e-5 * dP)**2)
         """
         cdef double kv
         cdef Func1 f
@@ -620,7 +620,7 @@ cdef class Valve(FlowDevice):
             f = k
         else:
             f = Func1(k)
-        self._rateFunc = f
+        self._rate_func = f
         self.dev.setFunction(f.func)
 
 
@@ -642,18 +642,18 @@ cdef class PressureController(FlowDevice):
     def __init__(self, upstream, downstream, *, name=None, master=None, K=None):
         super().__init__(upstream, downstream, name=name)
         if master is not None:
-            self.setMaster(master)
+            self.set_master(master)
         if K is not None:
-            self.setPressureCoeff(K)
+            self.set_pressure_coeff(K)
 
-    def setPressureCoeff(self, double k):
+    def set_pressure_coeff(self, double k):
         """
         Set the proportionality constant *k* [kg/s/Pa] between the pressure
         drop and the mass flow rate.
         """
         self.dev.setParameters(1, &k)
 
-    def setMaster(self, FlowDevice d):
+    def set_master(self, FlowDevice d):
         """
         Set the "master" `FlowDevice` used to compute this device's mass flow
         rate.
@@ -684,9 +684,9 @@ cdef class ReactorNet:
     def __init__(self, reactors=()):
         self._reactors = []  # prevents premature garbage collection
         for R in reactors:
-            self.addReactor(R)
+            self.add_reactor(R)
 
-    def addReactor(self, ReactorBase r):
+    def add_reactor(self, ReactorBase r):
         """Add a reactor to the network."""
         self._reactors.append(r)
         self.net.addReactor(r.rbase)
@@ -710,14 +710,14 @@ cdef class ReactorNet:
         def __get__(self):
             return self.net.time()
 
-    def setInitialTime(self, double t):
+    def set_initial_time(self, double t):
         """
         Set the initial time. Restarts integration from this time using the
         current state as the initial condition. Default: 0.0 s.
         """
         self.net.setInitialTime(t)
 
-    def setMaxTimeStep(self, double t):
+    def set_max_time_step(self, double t):
         """
         Set the maximum time step *t* [s] that the integrator is allowed
         to use.
@@ -744,7 +744,7 @@ cdef class ReactorNet:
         def __set__(self, tol):
             self.net.setTolerances(-1, tol)
 
-    property rtolSensitivity:
+    property rtol_sensitivity:
         """
         The relative error tolerance for sensitivity analysis.
         """
@@ -753,7 +753,7 @@ cdef class ReactorNet:
         def __set__(self, tol):
             self.net.setSensitivityTolerances(tol, -1)
 
-    property atolSensitivity:
+    property atol_sensitivity:
         """
         The absolute error tolerance for sensitivity analysis.
         """
@@ -780,20 +780,20 @@ cdef class ReactorNet:
 
     def sensitivities(self):
         cdef np.ndarray[np.double_t, ndim=2] data = \
-                np.empty((self.nVars, self.nSensitivityParams))
+                np.empty((self.n_vars, self.n_sensitivity_params))
         cdef int p,k
-        for p in range(self.nSensitivityParams):
-            for k in range(self.nVars):
+        for p in range(self.n_sensitivity_params):
+            for k in range(self.n_vars):
                 data[k,p] = self.net.sensitivity(k,p)
         return data
 
-    def sensitivityParameterName(self, int p):
+    def sensitivity_parameter_name(self, int p):
         return pystr(self.net.sensitivityParameterName(p))
 
-    property nSensitivityParams:
+    property n_sensitivity_params:
         def __get__(self):
             return self.net.nparams()
 
-    property nVars:
+    property n_vars:
         def __get__(self):
             return self.net.neq()

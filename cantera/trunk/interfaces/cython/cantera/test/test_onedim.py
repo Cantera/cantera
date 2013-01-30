@@ -21,7 +21,7 @@ class TestOnedim(utilities.CanteraTest):
         interface = ct.Solution('diamond.xml', 'diamond_100', (gas, solid))
 
         surface = ct.ReactingSurface1D()
-        surface.setKinetics(interface)
+        surface.set_kinetics(interface)
 
 
 class TestFreeFlame(utilities.CanteraTest):
@@ -37,8 +37,8 @@ class TestFreeFlame(utilities.CanteraTest):
 
         # Flame object
         self.sim = ct.FreeFlame(self.gas, initial_grid)
-        self.sim.flame.setSteadyTolerances(default=tol_ss)
-        self.sim.flame.setTransientTolerances(default=tol_ts)
+        self.sim.flame.set_steady_tolerances(default=tol_ss)
+        self.sim.flame.set_transient_tolerances(default=tol_ts)
 
         # Set properties of the upstream fuel-air mixture
         self.sim.inlet.T = Tin
@@ -46,35 +46,35 @@ class TestFreeFlame(utilities.CanteraTest):
 
     def solve_fixed_T(self):
         # Solve with the energy equation disabled
-        self.sim.energyEnabled = False
-        self.sim.setMaxJacAge(50, 50)
-        self.sim.setTimeStep(1e-5, [2, 5, 10, 20])
+        self.sim.energy_enabled = False
+        self.sim.set_max_jac_age(50, 50)
+        self.sim.set_time_step(1e-5, [2, 5, 10, 20])
         self.sim.solve(loglevel=0, refine_grid=False)
 
-        self.assertFalse(self.sim.energyEnabled)
+        self.assertFalse(self.sim.energy_enabled)
 
     def solve_mix(self, ratio=3.0, slope=0.3, curve=0.2, prune=0.0):
         # Solve with the energy equation enabled
 
-        self.sim.setRefineCriteria(ratio=ratio, slope=slope, curve=curve, prune=prune)
-        self.sim.energyEnabled = True
+        self.sim.set_refine_criteria(ratio=ratio, slope=slope, curve=curve, prune=prune)
+        self.sim.energy_enabled = True
         self.sim.solve(loglevel=0, refine_grid=True)
 
-        self.assertTrue(self.sim.energyEnabled)
-        self.assertEqual(self.sim.transportModel, 'Mix')
+        self.assertTrue(self.sim.energy_enabled)
+        self.assertEqual(self.sim.transport_model, 'Mix')
 
     def solve_multi(self):
-        self.sim.transportModel = 'Multi'
+        self.sim.transport_model = 'Multi'
         self.sim.solve(loglevel=0, refine_grid=True)
 
-        self.assertEqual(self.sim.transportModel, 'Multi')
+        self.assertEqual(self.sim.transport_model, 'Multi')
 
     def test_converge_adiabatic(self):
         # Test that the adiabatic flame temperature and species profiles
         # converge to the correct equilibrium values as the grid is refined
 
         reactants= 'H2:1.1, O2:1, AR:5'
-        p = ct.OneAtm
+        p = ct.one_atm
         Tin = 300
 
         self.create_sim(p, Tin, reactants)
@@ -100,13 +100,13 @@ class TestFreeFlame(utilities.CanteraTest):
         self.assertLess(abs(T2-Tad), abs(T1-Tad))
         self.assertLess(abs(T3-Tad), abs(T2-Tad))
 
-        for k in range(self.gas.nSpecies):
+        for k in range(self.gas.n_species):
             self.assertLess(abs(X2[k]-Xad[k]), abs(X1[k]-Xad[k]))
             self.assertLess(abs(X3[k]-Xad[k]), abs(X2[k]-Xad[k]))
 
     def test_mixture_averaged(self):
         reactants= 'H2:1.1, O2:1, AR:5'
-        p = ct.OneAtm
+        p = ct.one_atm
         Tin = 300
 
         self.create_sim(p, Tin, reactants)
@@ -125,7 +125,7 @@ class TestFreeFlame(utilities.CanteraTest):
     # @utilities.unittest.skip('sometimes slow')
     def test_multicomponent(self):
         reactants= 'H2:1.1, O2:1, AR:5.3'
-        p = ct.OneAtm
+        p = ct.one_atm
         Tin = 300
 
         self.create_sim(p, Tin, reactants)
@@ -137,16 +137,16 @@ class TestFreeFlame(utilities.CanteraTest):
         # the mixture-averaged flame speed.
         self.solve_multi()
         Su_multi = self.sim.u[0]
-        self.assertFalse(self.sim.soretEnabled)
+        self.assertFalse(self.sim.soret_enabled)
 
         self.assertNear(Su_mix, Su_multi, 5e-2)
         self.assertNotEqual(Su_mix, Su_multi)
 
         # Flame speed with Soret effect should be similar but not identical to
         # the multicomponent flame speed
-        self.sim.soretEnabled = True
+        self.sim.soret_enabled = True
         self.sim.solve(loglevel=0, refine_grid=True)
-        self.assertTrue(self.sim.soretEnabled)
+        self.assertTrue(self.sim.soret_enabled)
         Su_soret = self.sim.u[0]
 
         self.assertNear(Su_multi, Su_soret, 2e-1)
@@ -154,7 +154,7 @@ class TestFreeFlame(utilities.CanteraTest):
 
     def test_prune(self):
         reactants= 'H2:1.1, O2:1, AR:5'
-        p = ct.OneAtm
+        p = ct.one_atm
         Tin = 300
 
         self.create_sim(p, Tin, reactants)
@@ -172,7 +172,7 @@ class TestFreeFlame(utilities.CanteraTest):
 
     def test_save_restore(self):
         reactants= 'H2:1.1, O2:1, AR:5'
-        p = 2 * ct.OneAtm
+        p = 2 * ct.one_atm
         Tin = 400
 
         self.create_sim(p, Tin, reactants)
@@ -188,8 +188,8 @@ class TestFreeFlame(utilities.CanteraTest):
 
         self.sim.save(filename, 'test', loglevel=0)
 
-        self.create_sim(ct.OneAtm, Tin, reactants)
-        self.sim.energyEnabled = False
+        self.create_sim(ct.one_atm, Tin, reactants)
+        self.sim.energy_enabled = False
         self.sim.restore(filename, 'test', loglevel=0)
 
         P2a = self.sim.P
@@ -215,7 +215,7 @@ class TestFreeFlame(utilities.CanteraTest):
         self.assertArrayNear(V1, V3, 1e-3)
 
     def test_array_properties(self):
-        self.create_sim(ct.OneAtm, 300, 'H2:1.1, O2:1, AR:5')
+        self.create_sim(ct.one_atm, 300, 'H2:1.1, O2:1, AR:5')
 
         for attr in ct.FlameBase.__dict__:
             if isinstance(ct.FlameBase.__dict__[attr], property):
@@ -244,8 +244,8 @@ class TestDiffusionFlame(utilities.CanteraTest):
 
         # Flame object
         self.sim = ct.CounterflowDiffusionFlame(self.gas, initial_grid)
-        self.sim.flame.setSteadyTolerances(default=tol_ss)
-        self.sim.flame.setTransientTolerances(default=tol_ts)
+        self.sim.flame.set_steady_tolerances(default=tol_ss)
+        self.sim.flame.set_transient_tolerances(default=tol_ts)
 
         # Set properties of the fuel and oxidizer mixtures
         self.sim.fuel_inlet.mdot = mdot_fuel
@@ -256,27 +256,27 @@ class TestDiffusionFlame(utilities.CanteraTest):
         self.sim.oxidizer_inlet.X = oxidizer
         self.sim.oxidizer_inlet.T = T_ox
 
-        self.sim.setInitialGuess(fuel='H2')
+        self.sim.set_initial_guess(fuel='H2')
 
     def solve_fixed_T(self):
         # Solve with the energy equation disabled
-        self.sim.energyEnabled = False
+        self.sim.energy_enabled = False
         self.sim.solve(loglevel=0, refine_grid=False)
 
-        self.assertFalse(self.sim.energyEnabled)
+        self.assertFalse(self.sim.energy_enabled)
 
     def solve_mix(self, ratio=3.0, slope=0.1, curve=0.12, prune=0.0):
         # Solve with the energy equation enabled
 
-        self.sim.setRefineCriteria(ratio=ratio, slope=slope, curve=curve, prune=prune)
-        self.sim.energyEnabled = True
+        self.sim.set_refine_criteria(ratio=ratio, slope=slope, curve=curve, prune=prune)
+        self.sim.energy_enabled = True
         self.sim.solve(loglevel=0, refine_grid=True)
 
-        self.assertTrue(self.sim.energyEnabled)
-        self.assertEqual(self.sim.transportModel, 'Mix')
+        self.assertTrue(self.sim.energy_enabled)
+        self.assertEqual(self.sim.transport_model, 'Mix')
 
     def test_mixture_averaged(self, saveReference=False):
-        self.create_sim(p=ct.OneAtm)
+        self.create_sim(p=ct.one_atm)
 
         nPoints = len(self.sim.grid)
         Tfixed = self.sim.T
@@ -285,7 +285,7 @@ class TestDiffusionFlame(utilities.CanteraTest):
         self.assertArrayNear(Tfixed, self.sim.T)
 
         self.solve_mix()
-        data = np.empty((self.sim.flame.nPoints, self.gas.nSpecies + 4))
+        data = np.empty((self.sim.flame.n_points, self.gas.n_species + 4))
         data[:,0] = self.sim.grid
         data[:,1] = self.sim.u
         data[:,2] = self.sim.V

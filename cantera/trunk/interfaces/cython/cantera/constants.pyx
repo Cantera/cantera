@@ -13,34 +13,34 @@ cdef extern from "cantera/base/ct_defs.h" namespace "Cantera":
     cdef double CxxEpsilon_0 "Cantera::epsilon_0"
 
 #: Avogadro's Number, /kmol
-Avogadro = CxxAvogadro
+avogadro = CxxAvogadro
 
 #: The ideal gas constant in J/kmo-K
-GasConstant = CxxGasConstant
+gas_constant = CxxGasConstant
 
 #: One atmosphere in Pascals
-OneAtm = CxxOneAtm
+one_atm = CxxOneAtm
 
 #: Boltzmann constant
-Boltzmann = CxxBoltzmann
+boltzmann = CxxBoltzmann
 
 #: Planck constant (J/s)
-Planck = CxxPlanck
+planck = CxxPlanck
 
 #: The Stefan-Boltzmann constant, W/m^2K^4
-StefanBoltz = CxxStefanBoltz
+stefan_boltzmann = CxxStefanBoltz
 
 #: The charge on an electron (C)
-ElectronCharge = CxxElectronCharge
+electron_charge = CxxElectronCharge
 
 #: The mass of an electron (kg)
-ElectronMass = CxxElectronMass
+electron_mass = CxxElectronMass
 
 #: Faraday constant, C/kmol
-Faraday = CxxFaraday
+faraday = CxxFaraday
 
 #: Speed of Light (m/s).
-lightSpeed = CxxLightSpeed
+light_speed = CxxLightSpeed
 
 #: Permeability of free space :math:`\mu_0` in N/A^2.
 permeability_0 = CxxPermeability_0

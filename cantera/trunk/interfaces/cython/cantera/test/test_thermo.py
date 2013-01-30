@@ -9,30 +9,30 @@ class TestThermoPhase(utilities.CanteraTest):
         self.phase = ct.Solution('h2o2.xml')
 
     def test_species(self):
-        self.assertEqual(self.phase.nSpecies, 9)
-        for i,name in enumerate(self.phase.speciesNames):
-            self.assertEqual(name, self.phase.speciesName(i))
-            self.assertEqual(i, self.phase.speciesIndex(name))
-            self.assertEqual(i, self.phase.speciesIndex(i))
+        self.assertEqual(self.phase.n_species, 9)
+        for i,name in enumerate(self.phase.species_names):
+            self.assertEqual(name, self.phase.species_name(i))
+            self.assertEqual(i, self.phase.species_index(name))
+            self.assertEqual(i, self.phase.species_index(i))
 
     def test_elements(self):
-        self.assertEqual(self.phase.nElements, 3)
-        for i,symbol in enumerate(self.phase.elementNames):
-            self.assertEqual(symbol, self.phase.elementName(i))
-            self.assertEqual(i, self.phase.elementIndex(symbol))
-            self.assertEqual(i, self.phase.elementIndex(i))
+        self.assertEqual(self.phase.n_elements, 3)
+        for i,symbol in enumerate(self.phase.element_names):
+            self.assertEqual(symbol, self.phase.element_name(i))
+            self.assertEqual(i, self.phase.element_index(symbol))
+            self.assertEqual(i, self.phase.element_index(i))
 
-    def test_nAtoms(self):
-        self.assertEqual(self.phase.nAtoms('H2', 'H'), 2)
-        self.assertEqual(self.phase.nAtoms('H2O2', 'H'), 2)
-        self.assertEqual(self.phase.nAtoms('HO2', 'H'), 1)
-        self.assertEqual(self.phase.nAtoms('AR', 'H'), 0)
+    def test_n_atoms(self):
+        self.assertEqual(self.phase.n_atoms('H2', 'H'), 2)
+        self.assertEqual(self.phase.n_atoms('H2O2', 'H'), 2)
+        self.assertEqual(self.phase.n_atoms('HO2', 'H'), 1)
+        self.assertEqual(self.phase.n_atoms('AR', 'H'), 0)
 
-        self.assertRaises(ValueError, lambda: self.phase.nAtoms('C', 'H2'))
-        self.assertRaises(ValueError, lambda: self.phase.nAtoms('H', 'CH4'))
+        self.assertRaises(ValueError, lambda: self.phase.n_atoms('C', 'H2'))
+        self.assertRaises(ValueError, lambda: self.phase.n_atoms('H', 'CH4'))
 
     def test_setComposition(self):
-        X = np.zeros(self.phase.nSpecies)
+        X = np.zeros(self.phase.n_species)
         X[2] = 1.0
         self.phase.X = X
         Y = self.phase.Y
@@ -54,7 +54,7 @@ class TestThermoPhase(utilities.CanteraTest):
         report = self.phase.report()
         self.assertTrue(self.phase.name in report)
         self.assertTrue('temperature' in report)
-        for name in self.phase.speciesNames:
+        for name in self.phase.species_names:
             self.assertTrue(name in report)
 
     def test_name(self):
@@ -79,7 +79,7 @@ class TestThermoPhase(utilities.CanteraTest):
         self.assertEqual(self.phase.density_mass, self.phase.density)
         self.assertEqual(self.phase.enthalpy_mass, self.phase.h)
         self.assertEqual(self.phase.entropy_mass, self.phase.s)
-        self.assertEqual(self.phase.intEnergy_mass, self.phase.u)
+        self.assertEqual(self.phase.int_energy_mass, self.phase.u)
         self.assertEqual(self.phase.volume_mass, self.phase.v)
         self.assertEqual(self.phase.cv_mass, self.phase.cv)
         self.assertEqual(self.phase.cp_mass, self.phase.cp)
@@ -90,7 +90,7 @@ class TestThermoPhase(utilities.CanteraTest):
         self.assertEqual(self.phase.density_mole, self.phase.density)
         self.assertEqual(self.phase.enthalpy_mole, self.phase.h)
         self.assertEqual(self.phase.entropy_mole, self.phase.s)
-        self.assertEqual(self.phase.intEnergy_mole, self.phase.u)
+        self.assertEqual(self.phase.int_energy_mole, self.phase.u)
         self.assertEqual(self.phase.volume_mole, self.phase.v)
         self.assertEqual(self.phase.cv_mole, self.phase.cv)
         self.assertEqual(self.phase.cp_mole, self.phase.cp)
@@ -178,7 +178,7 @@ class TestThermoPhase(utilities.CanteraTest):
         self.check_getters()
 
     def test_getState(self):
-        self.assertNear(self.phase.P, ct.OneAtm)
+        self.assertNear(self.phase.P, ct.one_atm)
         self.assertNear(self.phase.T, 300)
 
     def test_partial_molar(self):
@@ -190,9 +190,9 @@ class TestThermoPhase(utilities.CanteraTest):
                         self.phase.entropy_mole)
 
         self.assertNear(sum(self.phase.partial_molar_int_energies * self.phase.X),
-                        self.phase.intEnergy_mole)
+                        self.phase.int_energy_mole)
 
-        self.assertNear(sum(self.phase.chem_potentials * self.phase.X),
+        self.assertNear(sum(self.phase.chemical_potentials * self.phase.X),
                         self.phase.gibbs_mole)
 
         self.assertNear(sum(self.phase.partial_molar_cp * self.phase.X),
@@ -201,26 +201,26 @@ class TestThermoPhase(utilities.CanteraTest):
     def test_nondimensional(self):
         self.phase.TDY = 850.0, 0.2, 'H2:0.1, H2O:0.6, AR:0.3'
         H = (sum(self.phase.standard_enthalpies_RT * self.phase.X) *
-             ct.GasConstant * self.phase.T)
+             ct.gas_constant * self.phase.T)
         self.assertNear(H, self.phase.enthalpy_mole)
 
-        U = (sum(self.phase.standard_intEnergies_RT * self.phase.X) *
-             ct.GasConstant * self.phase.T)
-        self.assertNear(U, self.phase.intEnergy_mole)
+        U = (sum(self.phase.standard_int_energies_RT * self.phase.X) *
+             ct.gas_constant * self.phase.T)
+        self.assertNear(U, self.phase.int_energy_mole)
 
-        cp = sum(self.phase.standard_cp_R * self.phase.X) * ct.GasConstant
+        cp = sum(self.phase.standard_cp_R * self.phase.X) * ct.gas_constant
         self.assertNear(cp, self.phase.cp_mole)
 
-    def test_isothermalCompressibility(self):
-        self.assertNear(self.phase.isothermalCompressibility, 1.0/self.phase.P)
+    def test_isothermal_compressibility(self):
+        self.assertNear(self.phase.isothermal_compressibility, 1.0/self.phase.P)
 
-    def test_thermalExpansionCoeff(self):
-        self.assertNear(self.phase.thermalExpansionCoeff, 1.0/self.phase.T)
+    def test_thermal_expansion_coeff(self):
+        self.assertNear(self.phase.thermal_expansion_coeff, 1.0/self.phase.T)
 
     def test_ref_info(self):
-        self.assertEqual(self.phase.refPressure, ct.OneAtm)
-        self.assertEqual(self.phase.minTemp, 300.0)
-        self.assertEqual(self.phase.maxTemp, 3500.0)
+        self.assertEqual(self.phase.reference_pressure, ct.one_atm)
+        self.assertEqual(self.phase.min_temp, 300.0)
+        self.assertEqual(self.phase.max_temp, 3500.0)
 
 
 class TestInterfacePhase(utilities.CanteraTest):
@@ -231,5 +231,5 @@ class TestInterfacePhase(utilities.CanteraTest):
                                       (self.gas, self.solid))
 
     def test_properties(self):
-        self.interface.siteDensity = 100
-        self.assertEqual(self.interface.siteDensity, 100)
+        self.interface.site_density = 100
+        self.assertEqual(self.interface.site_density, 100)
