@@ -101,6 +101,9 @@ template < typename ValAndDerivType = doublereal >
 class Phase
 {
 public:
+
+    typedef std::vector<ValAndDerivType> vector_ValAndDeriv;
+
     Phase(); //!< Default constructor.
 
     virtual ~Phase();//!< Destructor.
@@ -473,7 +476,7 @@ public:
     //! Get the species concentrations (kmol/m^3).
     //!     @param[out] c Array of species concentrations Length must be
     //! greater than or equal to the number of species.
-    void getConcentrations(doublereal* const c) const;
+    void getConcentrations(ValAndDerivType* const c) const;
 
     //! Concentration of species k.
     //! If k is outside the valid range, an exception will be thrown.
@@ -529,17 +532,17 @@ public:
 
     //! Density (kg/m^3).
     //!     @return The density of the phase
-    virtual doublereal density() const {
+    virtual ValAndDerivType density() const {
         return m_dens;
     }
 
     //! Molar density (kmol/m^3).
     //!     @return The molar density of the phase
-    doublereal molarDensity() const;
+    ValAndDerivType molarDensity() const;
 
     //! Molar volume (m^3/kmol).
     //!     @return The molar volume of the phase
-    doublereal molarVolume() const;
+    ValAndDerivType molarVolume() const;
 
     //! Set the internally stored density (kg/m^3) of the phase
     //! Note the density of a phase is an independent variable.
@@ -574,7 +577,7 @@ public:
     //! Q should contain pure-species molar property values.
     //!     @param[in] Q Array of length m_kk that is to be averaged.
     //!     @return mole-fraction-weighted mean of Q
-    doublereal mean_X(const doublereal* const Q) const;
+    ValAndDerivType mean_X(const ValAndDerivType* const Q) const;
 
     //! Evaluate the mass-fraction-weighted mean of an array Q.
     //! \f[ \sum_k Y_k Q_k \f]

@@ -277,37 +277,37 @@ public:
      */
 
     /// Molar enthalpy. Units: J/kmol.
-    virtual doublereal enthalpy_mole() const
+    virtual ValAndDerivType enthalpy_mole() const
     {
         return err("enthalpy_mole");
     }
 
     /// Molar internal energy. Units: J/kmol.
-    virtual doublereal intEnergy_mole() const
+    virtual ValAndDerivType intEnergy_mole() const
     {
         return enthalpy_mole() - pressure() * molarVolume();
     }
 
     /// Molar entropy. Units: J/kmol/K.
-    virtual doublereal entropy_mole() const
+    virtual ValAndDerivType entropy_mole() const
     {
         return err("entropy_mole");
     }
 
     /// Molar Gibbs function. Units: J/kmol.
-    virtual doublereal gibbs_mole() const
+    virtual ValAndDerivType gibbs_mole() const
     {
         return enthalpy_mole() - temperature() * entropy_mole();
     }
 
     /// Molar heat capacity at constant pressure. Units: J/kmol/K.
-    virtual doublereal cp_mole() const
+    virtual ValAndDerivType cp_mole() const
     {
         return err("cp_mole");
     }
 
     /// Molar heat capacity at constant volume. Units: J/kmol/K.
-    virtual doublereal cv_mole() const
+    virtual ValAndDerivType cv_mole() const
     {
         return err("cv_mole");
     }
@@ -317,8 +317,8 @@ public:
      * constant volume.
      *
      */
-    /// Molar heat capacity at constant volume. Units: J/kmol/K.
-    virtual doublereal cv_vib(int, double) const
+    //! Molar heat capacity at constant volume. Units: J/kmol/K.
+    virtual ValAndDerivType cv_vib(int, double) const
     {
         return err("cv_vib");
     }
@@ -337,7 +337,7 @@ public:
      *  mechanical equation of state \f$ P(T, \rho, Y_1, \dots,
      *  Y_K) \f$.
      */
-    virtual doublereal pressure() const
+    virtual ValAndDerivType pressure() const
     {
         return err("pressure");
     }
@@ -371,7 +371,7 @@ public:
      * \kappa_T = \frac{1}{\rho}\left(\frac{\partial \rho}{\partial P}\right)_T
      * \f]
      */
-    virtual doublereal isothermalCompressibility() const
+    virtual ValAndDerivType isothermalCompressibility() const
     {
         err("isothermalCompressibility");
         return -1.0;
@@ -384,7 +384,7 @@ public:
      * \beta = \frac{1}{v}\left(\frac{\partial v}{\partial T}\right)_P
      * \f]
      */
-    virtual doublereal thermalExpansionCoeff() const
+    virtual ValAndDerivType thermalExpansionCoeff() const
     {
         err("thermalExpansionCoeff()");
         return -1.0;
@@ -492,7 +492,7 @@ public:
      *           units depend upon the implementation of the
      *           reaction rate expressions within the phase.
      */
-    virtual void getActivityConcentrations(doublereal* c) const
+    virtual void getActivityConcentrations(ValAndDerivType* c) const
     {
         err("getActivityConcentrations");
     }
@@ -515,7 +515,7 @@ public:
      *   Returns the standard concentration. The units are by definition
      *   dependent on the ThermoPhase and kinetics manager representation.
      */
-    virtual doublereal standardConcentration(size_t k = 0) const
+    virtual ValAndDerivType standardConcentration(size_t k = 0) const
     {
         err("standardConcentration");
         return -1.0;
@@ -525,7 +525,7 @@ public:
     /*!
      * @param k    index of the species (defaults to zero)
      */
-    virtual doublereal logStandardConc(size_t k = 0) const;
+    virtual ValAndDerivType logStandardConc(size_t k = 0) const;
 
     //! Returns the units of the standard and generalized concentrations.
     /*!
@@ -569,14 +569,14 @@ public:
      *
      * @param a   Output vector of activities. Length: m_kk.
      */
-    virtual void getActivities(doublereal* a) const;
+    virtual void getActivities(ValAndDerivType* a) const;
 
     //! Get the array of non-dimensional molar-based activity coefficients at
     //! the current solution temperature, pressure, and solution concentration.
     /*!
      * @param ac Output vector of activity coefficients. Length: m_kk.
      */
-    virtual void getActivityCoefficients(doublereal* ac) const
+    virtual void getActivityCoefficients(ValAndDerivType* ac) const
     {
         if (this->m_kk == 1) {
             ac[0] = 1.0;
@@ -590,7 +590,7 @@ public:
     /*!
      * @param lnac Output vector of ln activity coefficients. Length: m_kk.
      */
-    virtual void getLnActivityCoefficients(doublereal* lnac) const;
+    virtual void getLnActivityCoefficients(ValAndDerivType* lnac) const;
 
     //@}
     /// @name  Partial Molar Properties of the Solution
@@ -605,7 +605,7 @@ public:
      * @param mu  Output vector of dimensionless chemical potentials.
      *            Length: m_kk.
      */
-    virtual void getChemPotentials_RT(doublereal* mu) const
+    virtual void getChemPotentials_RT(ValAndDerivType* mu) const
     {
         err("getChemPotentials_RT");
     }
@@ -619,7 +619,7 @@ public:
      * @param mu  Output vector of species chemical
      *            potentials. Length: m_kk. Units: J/kmol
      */
-    virtual void getChemPotentials(doublereal* mu) const
+    virtual void getChemPotentials(ValAndDerivType* mu) const
     {
         err("getChemPotentials");
     }
@@ -639,7 +639,7 @@ public:
      * @param mu  Output vector of species electrochemical
      *            potentials. Length: m_kk. Units: J/kmol
      */
-    void getElectrochemPotentials(doublereal* mu) const
+    void getElectrochemPotentials(ValAndDerivType* mu) const
     {
         getChemPotentials(mu);
         double ve = Faraday * electricPotential();
@@ -654,7 +654,7 @@ public:
      * @param hbar    Output vector of species partial molar enthalpies.
      *                Length: m_kk. units are J/kmol.
      */
-    virtual void getPartialMolarEnthalpies(doublereal* hbar) const
+    virtual void getPartialMolarEnthalpies(ValAndDerivType* hbar) const
     {
         err("getPartialMolarEnthalpies");
     }
@@ -665,7 +665,7 @@ public:
      * @param sbar    Output vector of species partial molar entropies.
      *                Length = m_kk. units are J/kmol/K.
      */
-    virtual void getPartialMolarEntropies(doublereal* sbar) const
+    virtual void getPartialMolarEntropies(ValAndDerivType* sbar) const
     {
         err("getPartialMolarEntropies");
     }
@@ -676,7 +676,7 @@ public:
      * @param ubar    Output vector of species partial molar internal energies.
      *                Length = m_kk. units are J/kmol.
      */
-    virtual void getPartialMolarIntEnergies(doublereal* ubar) const
+    virtual void getPartialMolarIntEnergies(ValAndDerivType* ubar) const
     {
         err("getPartialMolarIntEnergies");
     }
@@ -688,7 +688,7 @@ public:
      *                capacities at constant pressure.
      *                Length = m_kk. units are J/kmol/K.
      */
-    virtual void getPartialMolarCp(doublereal* cpbar) const
+    virtual void getPartialMolarCp(ValAndDerivType* cpbar) const
     {
         err("getPartialMolarCp");
     }
@@ -699,7 +699,7 @@ public:
      *  @param vbar   Output vector of species partial molar volumes.
      *                Length = m_kk. units are m^3/kmol.
      */
-    virtual void getPartialMolarVolumes(doublereal* vbar) const
+    virtual void getPartialMolarVolumes(ValAndDerivType* vbar) const
     {
         err("getPartialMolarVolumes");
     }
@@ -712,7 +712,7 @@ public:
      *  @param d_vbar_dT   Output vector of derivatives of species partial molar volumes wrt T.
      *                     Length = m_kk. units are m^3/kmol/K.
      */
-    virtual void getdPartialMolarVolumes_dT(doublereal* d_vbar_dT) const
+    virtual void getdPartialMolarVolumes_dT(ValAndDerivType* d_vbar_dT) const
     {
         err("getdPartialMolarVolumes_dT");
     }
@@ -736,7 +736,7 @@ public:
      *  @param d_vbar_dP   Output vector of derivatives of species partial molar volumes wrt P.
      *                     Length = m_kk. units are m^3/kmol/Pa.
      */
-    virtual void getdPartialMolarVolumes_dP(doublereal* d_vbar_dP) const
+    virtual void getdPartialMolarVolumes_dP(ValAndDerivType* d_vbar_dP) const
     {
         err("getdPartialMolarVolumes_dP");
     }
@@ -755,7 +755,7 @@ public:
      * @param mu      Output vector of chemical potentials.
      *                Length: m_kk.
      */
-    virtual void getStandardChemPotentials(doublereal* mu) const
+    virtual void getStandardChemPotentials(ValAndDerivType* mu) const
     {
         err("getStandardChemPotentials");
     }
@@ -766,7 +766,7 @@ public:
      * @param hrt      Output vector of  nondimensional standard state enthalpies.
      *                 Length: m_kk.
      */
-    virtual void getEnthalpy_RT(doublereal* hrt) const
+    virtual void getEnthalpy_RT(ValAndDerivType* hrt) const
     {
         err("getEnthalpy_RT");
     }
@@ -777,7 +777,7 @@ public:
      * @param sr   Output vector of  nondimensional standard state entropies.
      *             Length: m_kk.
      */
-    virtual void getEntropy_R(doublereal* sr) const
+    virtual void getEntropy_R(ValAndDerivType* sr) const
     {
         err("getEntropy_R");
     }
@@ -788,7 +788,7 @@ public:
      * @param grt  Output vector of nondimensional standard state gibbs free energies
      *             Length: m_kk.
      */
-    virtual void getGibbs_RT(doublereal* grt) const
+    virtual void getGibbs_RT(ValAndDerivType* grt) const
     {
         err("getGibbs_RT");
     }
@@ -800,7 +800,7 @@ public:
      * @param gpure  Output vector of  standard state gibbs free energies
      *               Length: m_kk.
      */
-    virtual void getPureGibbs(doublereal* gpure) const
+    virtual void getPureGibbs(ValAndDerivType* gpure) const
     {
         err("getPureGibbs");
     }
@@ -811,7 +811,7 @@ public:
      * @param urt  output vector of nondimensional standard state internal energies
      *             of the species. Length: m_kk.
      */
-    virtual void getIntEnergy_RT(doublereal* urt) const
+    virtual void getIntEnergy_RT(ValAndDerivType* urt) const
     {
         err("getIntEnergy_RT");
     }
@@ -823,7 +823,7 @@ public:
      * @param cpr   Output vector of nondimensional standard state heat capacities
      *              Length: m_kk.
      */
-    virtual void getCp_R(doublereal* cpr) const
+    virtual void getCp_R(ValAndDerivType* cpr) const
     {
         err("getCp_R");
     }
@@ -836,7 +836,7 @@ public:
      * @param vol     Output vector containing the standard state volumes.
      *                Length: m_kk.
      */
-    virtual void getStandardVolumes(doublereal* vol) const
+    virtual void getStandardVolumes(ValAndDerivType* vol) const
     {
         err("getStandardVolumes");
     }
@@ -850,7 +850,7 @@ public:
      * @param d_vol_dT Output vector containing derivatives of standard state volumes wrt T
      *                 Length: m_kk.
      */
-    virtual void getdStandardVolumes_dT(doublereal* d_vol_dT) const
+    virtual void getdStandardVolumes_dT(ValAndDerivType* d_vol_dT) const
     {
         err("getdStandardVolumes_dT");
     }
@@ -864,7 +864,7 @@ public:
      * @param d_vol_dP  Output vector containing the derivative of standard state volumes wrt P.
      *                  Length: m_kk.
      */
-    virtual void getdStandardVolumes_dP(doublereal* d_vol_dP) const
+    virtual void getdStandardVolumes_dP(ValAndDerivType* d_vol_dP) const
     {
         err("getdStandardVolumes_dP");
     }
@@ -884,7 +884,7 @@ public:
      *                enthalpies
      *                Length: m_kk.
      */
-    virtual void getEnthalpy_RT_ref(doublereal* hrt) const
+    virtual void getEnthalpy_RT_ref(ValAndDerivType* hrt) const
     {
         err("getEnthalpy_RT_ref");
     }
@@ -896,7 +896,7 @@ public:
      * @param grt     Output vector containing the nondimensional reference state
      *                Gibbs Free energies.  Length: m_kk.
      */
-    virtual void getGibbs_RT_ref(doublereal* grt) const
+    virtual void getGibbs_RT_ref(ValAndDerivType* grt) const
     {
         err("getGibbs_RT_ref");
     }
@@ -910,7 +910,7 @@ public:
      * @param g       Output vector containing the  reference state
      *                Gibbs Free energies.  Length: m_kk. Units: J/kmol.
      */
-    virtual void getGibbs_ref(doublereal* g) const
+    virtual void getGibbs_ref(ValAndDerivType* g) const
     {
         err("getGibbs_ref");
     }
@@ -922,7 +922,7 @@ public:
      * @param er      Output vector containing the nondimensional reference state
      *                entropies.  Length: m_kk.
      */
-    virtual void getEntropy_R_ref(doublereal* er) const
+    virtual void getEntropy_R_ref(ValAndDerivType* er) const
     {
         err("getEntropy_R_ref");
     }
@@ -935,7 +935,7 @@ public:
      *               internal energies of the species.
      *               Length: m_kk
      */
-    virtual void getIntEnergy_RT_ref(doublereal* urt) const
+    virtual void getIntEnergy_RT_ref(ValAndDerivType* urt) const
     {
         err("getIntEnergy_RT_ref");
     }
@@ -949,7 +949,7 @@ public:
      *               heat capacities at constant pressure for the species.
      *               Length: m_kk
      */
-    virtual void getCp_R_ref(doublereal* cprt) const
+    virtual void getCp_R_ref(ValAndDerivType* cprt) const
     {
         err("getCp_R_ref()");
     }
@@ -962,7 +962,7 @@ public:
      * @param vol     Output vector containing the standard state volumes.
      *                Length: m_kk.
      */
-    virtual void getStandardVolumes_ref(doublereal* vol) const
+    virtual void getStandardVolumes_ref(ValAndDerivType* vol) const
     {
         err("getStandardVolumes_ref");
     }
@@ -996,7 +996,7 @@ public:
     /**
      * Specific enthalpy. Units: J/kg.
      */
-    doublereal enthalpy_mass() const
+    ValAndDerivType enthalpy_mass() const
     {
         return enthalpy_mole() / this->meanMolecularWeight();
     }
@@ -1004,7 +1004,7 @@ public:
     /**
      * Specific internal energy. Units: J/kg.
      */
-    doublereal intEnergy_mass() const
+    ValAndDerivType intEnergy_mass() const
     {
         return intEnergy_mole() / this->meanMolecularWeight();
     }
@@ -1012,7 +1012,7 @@ public:
     /**
      * Specific entropy. Units: J/kg/K.
      */
-    doublereal entropy_mass() const
+    ValAndDerivType entropy_mass() const
     {
         return entropy_mole() / this->meanMolecularWeight();
     }
@@ -1020,7 +1020,7 @@ public:
     /**
      * Specific Gibbs function. Units: J/kg.
      */
-    doublereal gibbs_mass() const
+    ValAndDerivType gibbs_mass() const
     {
         return gibbs_mole() / this->meanMolecularWeight();
     }
@@ -1028,7 +1028,7 @@ public:
     /**
      * Specific heat at constant pressure. Units: J/kg/K.
      */
-    doublereal cp_mass() const
+    ValAndDerivType cp_mass() const
     {
         return cp_mole() / this->meanMolecularWeight();
     }
@@ -1036,7 +1036,7 @@ public:
     /**
      * Specific heat at constant volume. Units: J/kg/K.
      */
-    doublereal cv_mass() const
+    ValAndDerivType cv_mass() const
     {
         return cv_mole() / this->meanMolecularWeight();
     }
@@ -1334,7 +1334,7 @@ public:
     /*!
      * @param p Pressure (Pa)
      */
-    virtual doublereal satTemperature(doublereal p) const
+    virtual ValAndDerivType satTemperature(doublereal p) const
     {
         err("satTemperature");
         return -1.0;
@@ -1344,14 +1344,14 @@ public:
     /*!
      * @param t Temperature (Kelvin)
      */
-    virtual doublereal satPressure(doublereal t) const
+    virtual ValAndDerivType satPressure(doublereal t) const
     {
         err("satPressure");
         return -1.0;
     }
 
     //! Return the fraction of vapor at the current conditions
-    virtual doublereal vaporFraction() const
+    virtual ValAndDerivType vaporFraction() const
     {
         err("vaprFraction");
         return -1.0;
@@ -1583,7 +1583,7 @@ public:
      *                       log Activity Coefficients along the path. length = m_kk
      *                       units are 1/units(s). if s is a physical coordinate then the units are 1/m.
      */
-    virtual void getdlnActCoeffds(const doublereal dTds, const doublereal* const dXds, doublereal* dlnActCoeffds) const
+    virtual void getdlnActCoeffds(const doublereal dTds, const doublereal* const dXds, ValAndDerivType* dlnActCoeffds) const
     {
         err("getdlnActCoeffds");
     }
@@ -1605,7 +1605,7 @@ public:
      * @param dlnActCoeffdlnX_diag    Output vector of derivatives of the
      *                                log Activity Coefficients wrt the mole fractions. length = m_kk
      */
-    virtual void getdlnActCoeffdlnX_diag(doublereal* dlnActCoeffdlnX_diag) const
+    virtual void getdlnActCoeffdlnX_diag(ValAndDerivType* dlnActCoeffdlnX_diag) const
     {
         err("getdlnActCoeffdlnX_diag");
     }
@@ -1627,7 +1627,7 @@ public:
      * @param dlnActCoeffdlnN_diag    Output vector of derivatives of the
      *                                log Activity Coefficients. length = m_kk
      */
-    virtual void getdlnActCoeffdlnN_diag(doublereal* dlnActCoeffdlnN_diag) const
+    virtual void getdlnActCoeffdlnN_diag(ValAndDerivType* dlnActCoeffdlnN_diag) const
     {
         err("getdlnActCoeffdlnN_diag");
     }
@@ -1651,9 +1651,9 @@ public:
      * @param dlnActCoeffdlnN    Output vector of derivatives of the
      *                           log Activity Coefficients. length = m_kk * m_kk
      */
-    virtual void getdlnActCoeffdlnN(const size_t ld, doublereal* const dlnActCoeffdlnN);
+    virtual void getdlnActCoeffdlnN(const size_t ld, ValAndDerivType* const dlnActCoeffdlnN);
 
-    virtual void getdlnActCoeffdlnN_numderiv(const size_t ld, doublereal* const dlnActCoeffdlnN);
+    virtual void getdlnActCoeffdlnN_numderiv(const size_t ld, ValAndDerivType* const dlnActCoeffdlnN);
 
     /**
      * @}

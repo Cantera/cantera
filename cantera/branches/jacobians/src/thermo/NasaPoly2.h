@@ -14,6 +14,7 @@
 #define CT_NASAPOLY2_H
 
 #include "cantera/thermo/SpeciesThermoInterpType.h"
+#include "cantera/thermo/NasaPoly1.h"
 
 namespace Cantera
 {
@@ -182,16 +183,7 @@ public:
      *                (length m_kk).
      */
     void updateProperties(const ValAndDerivType* tt,
-                          ValAndDerivType* cp_R, ValAndDerivType* h_RT, ValAndDerivType* s_R) const {
-
-        double T = tt[0];
-        if (T <= m_midT) {
-            mnp_low.updateProperties(tt, cp_R, h_RT, s_R);
-        } else {
-            mnp_high.updateProperties(tt, cp_R, h_RT, s_R);
-        }
-    }
-
+                          ValAndDerivType* cp_R, ValAndDerivType* h_RT, ValAndDerivType* s_R) const;
 
 
     //! Compute the reference-state property of one species
@@ -301,18 +293,8 @@ protected:
 
 };
 
-template<> void NasaPoly2<doubleFAD>::updateProperties(const doubleFAD* tt,
-                             doubleFAD* cp_R, doubleFAD* h_RT, doubleFAD* s_R) const {
-
-           double T = tt[0].val();
-           if (T <= m_midT) {
-               mnp_low.updateProperties(tt, cp_R, h_RT, s_R);
-           } else {
-               mnp_high.updateProperties(tt, cp_R, h_RT, s_R);
-           }
-       }
-
 }
+
 #endif
 
 

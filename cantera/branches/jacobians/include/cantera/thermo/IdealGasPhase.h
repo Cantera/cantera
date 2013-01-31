@@ -6,7 +6,6 @@
  */
 
 //  Copyright 2001 California Institute of Technology
-
 #ifndef CT_IDEALGASPHASE_H
 #define CT_IDEALGASPHASE_H
 
@@ -15,9 +14,7 @@
 #include "SpeciesThermo.h"
 #include "cantera/base/utilities.h"
 
-namespace Cantera
-{
-
+namespace Cantera {
 
 //!  Class %IdealGasPhase represents low-density gases that obey the
 //!  ideal gas equation of state.
@@ -284,19 +281,19 @@ namespace Cantera
  *   object named silane is given below.
  *
  * @verbatim
-   <!--     phase silane      -->
-   <phase dim="3" id="silane">
-      <elementArray datasrc="elements.xml"> Si  H  He </elementArray>
-      <speciesArray datasrc="#species_data">
-              H2  H  HE  SIH4  SI  SIH  SIH2  SIH3  H3SISIH  SI2H6
-                     H2SISIH2  SI3H8  SI2  SI3
-      </speciesArray>
-      <reactionArray datasrc="#reaction_data"/>
-      <thermo model="IdealGas"/>
-      <kinetics model="GasKinetics"/>
-      <transport model="None"/>
-    </phase>
-    @endverbatim
+ <!--     phase silane      -->
+ <phase dim="3" id="silane">
+ <elementArray datasrc="elements.xml"> Si  H  He </elementArray>
+ <speciesArray datasrc="#species_data">
+ H2  H  HE  SIH4  SI  SIH  SIH2  SIH3  H3SISIH  SI2H6
+ H2SISIH2  SI3H8  SI2  SI3
+ </speciesArray>
+ <reactionArray datasrc="#reaction_data"/>
+ <thermo model="IdealGas"/>
+ <kinetics model="GasKinetics"/>
+ <transport model="None"/>
+ </phase>
+ @endverbatim
  *
  *   The model attribute "IdealGas" of the thermo XML element identifies the phase as
  *   being of the type handled by the IdealGasPhase object.
@@ -305,10 +302,13 @@ namespace Cantera
  *
  */
 template<typename ValAndDerivType = double>
-class IdealGasPhase : public ThermoPhase<ValAndDerivType>
+class IdealGasPhase: public ThermoPhase<ValAndDerivType>
 {
 
 public:
+
+    //! Typedef for vector of FAD types
+    typedef std::vector<ValAndDerivType> vector_ValAndDeriv;
 
     //! Default empty Constructor
     IdealGasPhase();
@@ -324,7 +324,6 @@ public:
      */
     IdealGasPhase(const IdealGasPhase& right);
 
-
     //! Assignment operator
     /*!
      * Assignment operator for the object. Constructed
@@ -333,10 +332,12 @@ public:
      *
      * @param right Object to be copied.
      */
-    IdealGasPhase& operator=(const  IdealGasPhase& right);
+    IdealGasPhase& operator=(const IdealGasPhase& right);
 
     //! Destructor
-    virtual ~IdealGasPhase() {}
+    virtual ~IdealGasPhase()
+    {
+    }
 
     //! Duplicator from the %ThermoPhase parent class
     /*!
@@ -353,7 +354,8 @@ public:
     /*!
      *  Returns the value cIdealGas, defined  in mix_defs.h.
      */
-    virtual int eosType() const {
+    virtual int eosType() const
+    {
         return cIdealGas;
     }
 
@@ -361,7 +363,6 @@ public:
      * @name Molar Thermodynamic Properties of the Solution ------------------------------
      * @{
      */
-
 
     //! Return the Molar enthalpy. Units: J/kmol.
     /*!
@@ -376,9 +377,9 @@ public:
      *
      * \see SpeciesThermo
      */
-    virtual doublereal enthalpy_mole() const {
-        return GasConstant * this->temperature() *
-               mean_X(&enthalpy_RT_ref()[0]);
+    virtual ValAndDerivType enthalpy_mole() const
+    {
+        return GasConstant * this->temperature() * mean_X(&enthalpy_RT_ref()[0]);
     }
 
     /**
@@ -392,7 +393,7 @@ public:
      * property manager.
      * @see SpeciesThermo
      */
-    virtual doublereal intEnergy_mole() const;
+    virtual ValAndDerivType intEnergy_mole() const;
 
     /**
      * Molar entropy. Units: J/kmol/K.
@@ -405,13 +406,13 @@ public:
      * property manager.
      * @see SpeciesThermo
      */
-    virtual doublereal entropy_mole() const;
+    virtual ValAndDerivType entropy_mole() const;
 
     /**
      * Molar Gibbs free Energy for an ideal gas.
      * Units =  J/kmol.
      */
-    virtual doublereal gibbs_mole() const;
+    virtual ValAndDerivType gibbs_mole() const;
 
     /**
      * Molar heat capacity at constant pressure. Units: J/kmol/K.
@@ -424,14 +425,14 @@ public:
      * property manager.
      * @see SpeciesThermo
      */
-    virtual doublereal cp_mole() const;
+    virtual ValAndDerivType cp_mole() const;
 
     /**
      * Molar heat capacity at constant volume. Units: J/kmol/K.
      * For an ideal gas mixture,
      * \f[ \hat c_v = \hat c_p - \hat R. \f]
      */
-    virtual doublereal cv_mole() const;
+    virtual ValAndDerivType cv_mole() const;
 
     /**
      * @returns species translational/rotational specific heat at
@@ -449,7 +450,7 @@ public:
      * \f]
      * for atoms.
      */
-    virtual doublereal cv_tr(doublereal) const;
+    virtual ValAndDerivType cv_tr(doublereal) const;
 
     /**
      * @returns species translational specific heat at constant volume.
@@ -459,7 +460,7 @@ public:
      *   C^{trans}_{v,s} \equiv \frac{\partial e^{trans}_s}{\partial T} = \frac{3}{2} R_s
      * \f]
      */
-    virtual doublereal cv_trans() const;
+    virtual ValAndDerivType cv_trans() const;
 
     /**
      * @returns species rotational specific heat at constant volume.
@@ -472,7 +473,7 @@ public:
      *   C^{rot}_{v,s} \equiv C^{tr}_{v,s} - C^{trans}_{v,s}
      * \f]
      */
-    virtual doublereal cv_rot(double atomicity) const;
+    virtual ValAndDerivType cv_rot(double atomicity) const;
 
     /**
      * @returns species vibrational specific heat at
@@ -481,7 +482,7 @@ public:
      *   C^{vib}_{v,s} \equiv \frac{\partial e^{vib}_s}{\partial T_V} = \frac{R_s \theta_{vs}^2 \exp\left(\theta_{vs}/T_V\right)}{\left[\left(\exp\left(\theta_{vs}/T_V\right)-1\right)T_V\right]^2}
      * \f]
      */
-    virtual doublereal cv_vib(int k, doublereal T) const;
+    virtual ValAndDerivType cv_vib(int k, doublereal T) const;
 
     //@}
 
@@ -495,10 +496,10 @@ public:
      * For an ideal gas mixture,
      * \f[ P = n \hat R T. \f]
      */
-    virtual doublereal pressure() const {
+    virtual ValAndDerivType pressure() const
+    {
         return GasConstant * this->molarDensity() * this->temperature();
     }
-
 
     //! Set the pressure at constant temperature and composition.
     /*!
@@ -510,9 +511,9 @@ public:
      *
      * @param p Pressure (Pa)
      */
-    virtual void setPressure(doublereal p) {
-        setDensity(p * this->meanMolecularWeight()
-                   /(GasConstant * this->temperature()));
+    virtual void setPressure(doublereal p)
+    {
+        setDensity(p * this->meanMolecularWeight() / (GasConstant * this->temperature()));
     }
 
     //! Returns  the isothermal compressibility. Units: 1/Pa.
@@ -523,8 +524,9 @@ public:
      * \f]
      *  For ideal gases it's equal to the inverse of the pressure
      */
-    virtual doublereal isothermalCompressibility() const {
-        return 1.0/pressure();
+    virtual ValAndDerivType isothermalCompressibility() const
+    {
+        return 1.0 / pressure();
     }
 
     //! Return the volumetric thermal expansion coefficient. Units: 1/K.
@@ -535,8 +537,9 @@ public:
      * \f]
      * For ideal gases, it's equal to the inverse of the temperature.
      */
-    virtual doublereal thermalExpansionCoeff() const {
-        return 1.0/this->temperature();
+    virtual ValAndDerivType thermalExpansionCoeff() const
+    {
+        return 1.0 / this->temperature();
     }
 
     //@}
@@ -584,7 +587,8 @@ public:
      *           units depend upon the implementation of the
      *           reaction rate expressions within the phase.
      */
-    virtual void getActivityConcentrations(doublereal* c) const {
+    virtual void getActivityConcentrations(ValAndDerivType* c) const
+    {
         this->getConcentrations(c);
     }
 
@@ -602,14 +606,14 @@ public:
      * @return
      *   Returns the standard Concentration in units of m3 kmol-1.
      */
-    virtual doublereal standardConcentration(size_t k=0) const;
+    virtual ValAndDerivType standardConcentration(size_t k = 0) const;
 
     //! Returns the natural logarithm of the standard
     //! concentration of the kth species
     /*!
      * @param k    index of the species. (defaults to zero)
      */
-    virtual doublereal logStandardConc(size_t k=0) const;
+    virtual ValAndDerivType logStandardConc(size_t k = 0) const;
 
     //! Get the array of non-dimensional activity coefficients at
     //! the current solution temperature, pressure, and solution concentration.
@@ -618,13 +622,11 @@ public:
      *
      * @param ac Output vector of activity coefficients. Length: m_kk.
      */
-    virtual void getActivityCoefficients(doublereal* ac) const;
-
+    virtual void getActivityCoefficients(ValAndDerivType* ac) const;
 
     //@}
     /// @name Partial Molar Properties of the Solution ----------------------------------
     //@{
-
 
     //! Get the species chemical potentials. Units: J/kmol.
     /*!
@@ -635,42 +637,42 @@ public:
      * @param mu  Output vector of species chemical
      *            potentials. Length: m_kk. Units: J/kmol
      */
-    virtual void getChemPotentials(doublereal* mu) const;
+    virtual void getChemPotentials(ValAndDerivType* mu) const;
 
     //!  Get the species partial molar enthalpies. Units: J/kmol.
     /*!
      * @param hbar    Output vector of species partial molar enthalpies.
      *                Length: m_kk. units are J/kmol.
      */
-    virtual void getPartialMolarEnthalpies(doublereal* hbar) const;
+    virtual void getPartialMolarEnthalpies(ValAndDerivType* hbar) const;
 
     //! Get the species partial molar entropies. Units: J/kmol/K.
     /*!
      * @param sbar    Output vector of species partial molar entropies.
      *                Length = m_kk. units are J/kmol/K.
      */
-    virtual void getPartialMolarEntropies(doublereal* sbar) const;
+    virtual void getPartialMolarEntropies(ValAndDerivType* sbar) const;
 
     //! Get the species partial molar enthalpies. Units: J/kmol.
     /*!
      * @param ubar    Output vector of species partial molar internal energies.
      *                Length = m_kk. units are J/kmol.
      */
-    virtual void getPartialMolarIntEnergies(doublereal* ubar) const;
+    virtual void getPartialMolarIntEnergies(ValAndDerivType* ubar) const;
 
     //! Get the partial molar heat capacities Units: J/kmol/K
     /*!
      * @param cpbar   Output vector of species partial molar heat capacities at constant pressure.
      *                Length = m_kk. units are J/kmol/K.
      */
-    virtual void getPartialMolarCp(doublereal* cpbar) const;
+    virtual void getPartialMolarCp(ValAndDerivType* cpbar) const;
 
     //! Get the species partial molar volumes. Units: m^3/kmol.
     /*!
      *  @param vbar   Output vector of species partial molar volumes.
      *                Length = m_kk. units are m^3/kmol.
      */
-    virtual void getPartialMolarVolumes(doublereal* vbar) const;
+    virtual void getPartialMolarVolumes(ValAndDerivType* vbar) const;
 
     //@}
     /// @name  Properties of the Standard State of the Species in the Solution ----------
@@ -686,7 +688,7 @@ public:
      * @param mu  Output vector of chemical potentials.
      *            Length: m_kk.
      */
-    virtual void getStandardChemPotentials(doublereal* mu) const;
+    virtual void getStandardChemPotentials(ValAndDerivType* mu) const;
 
     //! Get the nondimensional Enthalpy functions for the species standard states
     //! at their standard states at the current <I>T</I> and <I>P</I> of the solution.
@@ -694,7 +696,7 @@ public:
      * @param hrt      Output vector of  nondimensional standard state enthalpies.
      *                 Length: m_kk.
      */
-    virtual void getEnthalpy_RT(doublereal* hrt) const;
+    virtual void getEnthalpy_RT(ValAndDerivType* hrt) const;
 
     //! Get the array of nondimensional Entropy functions for the
     //! species standard states at the current <I>T</I> and <I>P</I> of the solution.
@@ -702,7 +704,7 @@ public:
      * @param sr   Output vector of  nondimensional standard state entropies.
      *             Length: m_kk.
      */
-    virtual void getEntropy_R(doublereal* sr) const;
+    virtual void getEntropy_R(ValAndDerivType* sr) const;
 
     //! Get the nondimensional Gibbs functions for the species
     //! standard states at the current <I>T</I> and <I>P</I> of the solution.
@@ -710,7 +712,7 @@ public:
      * @param grt  Output vector of nondimensional standard state gibbs free energies
      *             Length: m_kk.
      */
-    virtual void getGibbs_RT(doublereal* grt) const;
+    virtual void getGibbs_RT(ValAndDerivType* grt) const;
 
     //! Get the Gibbs functions for the standard
     //! state of the species at the current <I>T</I> and <I>P</I> of the solution
@@ -719,7 +721,7 @@ public:
      * @param gpure  Output vector of  standard state gibbs free energies
      *               Length: m_kk.
      */
-    virtual void getPureGibbs(doublereal* gpure) const;
+    virtual void getPureGibbs(ValAndDerivType* gpure) const;
 
     //!  Returns the vector of nondimensional Internal Energies  of the standard
     //!  state species at the current <I>T</I> and <I>P</I> of the solution
@@ -727,7 +729,7 @@ public:
      * @param urt  output vector of nondimensional standard state internal energies
      *             of the species. Length: m_kk.
      */
-    virtual void getIntEnergy_RT(doublereal* urt) const;
+    virtual void getIntEnergy_RT(ValAndDerivType* urt) const;
 
     //! Get the nondimensional Heat Capacities at constant
     //! pressure for the species standard states
@@ -736,7 +738,7 @@ public:
      * @param cpr   Output vector of nondimensional standard state heat capacities
      *              Length: m_kk.
      */
-    virtual void getCp_R(doublereal* cpr) const;
+    virtual void getCp_R(ValAndDerivType* cpr) const;
 
     //!  Get the molar volumes of the species standard states at the current
     //!  <I>T</I> and <I>P</I> of the solution.
@@ -746,12 +748,11 @@ public:
      * @param vol     Output vector containing the standard state volumes.
      *                Length: m_kk.
      */
-    virtual void getStandardVolumes(doublereal* vol) const;
+    virtual void getStandardVolumes(ValAndDerivType* vol) const;
 
     //@}
     /// @name Thermodynamic Values for the Species Reference States ---------------------
     //@{
-
 
     //!  Returns the vector of nondimensional
     //!  enthalpies of the reference state at the current temperature
@@ -760,11 +761,12 @@ public:
      * @param hrt     Output vector containing the nondimensional reference state
      *                enthalpies.  Length: m_kk.
      */
-    virtual void getEnthalpy_RT_ref(doublereal* hrt) const;
+    virtual void getEnthalpy_RT_ref(ValAndDerivType* hrt) const;
 
 #ifdef H298MODIFY_CAPABILITY
 
-    virtual void modifyOneHf298SS(const size_t &k, const doublereal Hf298New) {
+    virtual void modifyOneHf298SS(const size_t &k, const doublereal Hf298New)
+    {
         (this->m_spthermo)->modifyOneHf298(k, Hf298New);
         m_tlast += 0.0001234;
     }
@@ -776,7 +778,7 @@ public:
      * @param grt     Output vector containing the nondimensional reference state
      *                Gibbs Free energies.  Length: m_kk.
      */
-    virtual void getGibbs_RT_ref(doublereal* grt) const;
+    virtual void getGibbs_RT_ref(ValAndDerivType* grt) const;
 
     //!  Returns the vector of the
     //!  gibbs function of the reference state at the current temperature
@@ -787,7 +789,7 @@ public:
      * @param g       Output vector containing the  reference state
      *                Gibbs Free energies.  Length: m_kk. Units: J/kmol.
      */
-    virtual void getGibbs_ref(doublereal* g) const;
+    virtual void getGibbs_ref(ValAndDerivType* g) const;
 
     //!  Returns the vector of nondimensional
     //!  entropies of the reference state at the current temperature
@@ -796,7 +798,7 @@ public:
      * @param er      Output vector containing the nondimensional reference state
      *                entropies.  Length: m_kk.
      */
-    virtual void getEntropy_R_ref(doublereal* er) const;
+    virtual void getEntropy_R_ref(ValAndDerivType* er) const;
 
     //! Returns the vector of nondimensional
     //!  internal Energies of the reference state at the current temperature
@@ -806,7 +808,7 @@ public:
      *               internal energies of the species.
      *               Length: m_kk
      */
-    virtual void getIntEnergy_RT_ref(doublereal* urt) const;
+    virtual void getIntEnergy_RT_ref(ValAndDerivType* urt) const;
 
     //!  Returns the vector of nondimensional
     //!  constant pressure heat capacities of the reference state
@@ -817,7 +819,7 @@ public:
      *               heat capacities at constant pressure for the species.
      *               Length: m_kk
      */
-    virtual void  getCp_R_ref(doublereal* cprt) const;
+    virtual void getCp_R_ref(ValAndDerivType* cprt) const;
 
     //!  Get the molar volumes of the species standard states at the current
     //!  <I>T</I> and <I>P_ref</I> of the solution.
@@ -827,18 +829,20 @@ public:
      * @param vol     Output vector containing the standard state volumes.
      *                Length: m_kk.
      */
-    virtual void getStandardVolumes_ref(doublereal* vol) const;
+    virtual void getStandardVolumes_ref(ValAndDerivType* vol) const;
 
     //@}
     /// @name NonVirtual Internal methods to Return References to Reference State Thermo
     //@{
+
 
     //! Returns a reference to the dimensionless reference state enthalpy vector.
     /*!
      * This function is part of the layer that checks/recalculates the reference
      * state thermo functions.
      */
-    const vector_fp& enthalpy_RT_ref() const {
+    const vector_ValAndDeriv& enthalpy_RT_ref() const
+    {
         _updateThermo();
         return m_h0_RT;
     }
@@ -848,7 +852,8 @@ public:
      * This function is part of the layer that checks/recalculates the reference
      * state thermo functions.
      */
-    const vector_fp& gibbs_RT_ref() const {
+    const vector_ValAndDeriv& gibbs_RT_ref() const
+    {
         _updateThermo();
         return m_g0_RT;
     }
@@ -858,7 +863,8 @@ public:
      * This function is part of the layer that checks/recalculates the reference
      * state thermo functions.
      */
-    const vector_fp& entropy_R_ref() const {
+    const vector_ValAndDeriv& entropy_R_ref() const
+    {
         _updateThermo();
         return m_s0_R;
     }
@@ -868,7 +874,8 @@ public:
      * This function is part of the layer that checks/recalculates the reference
      * state thermo functions.
      */
-    const vector_fp& cp_R_ref() const {
+    const vector_ValAndDeriv& cp_R_ref() const
+    {
         _updateThermo();
         return m_cp0_R;
     }
@@ -922,28 +929,27 @@ protected:
     doublereal m_p0;
 
     //! last value of the temperature processed by reference state
-    mutable doublereal    m_tlast;
+    mutable doublereal m_tlast;
 
     //! Temporary storage for log of p/rt
-    mutable doublereal    m_logc0;
+    mutable doublereal m_logc0;
 
     //! Temporary storage for dimensionless reference state enthalpies
-    mutable vector_fp      m_h0_RT;
+    mutable vector_ValAndDeriv m_h0_RT;
 
     //! Temporary storage for dimensionless reference state heat capacities
-    mutable vector_fp      m_cp0_R;
+    mutable vector_ValAndDeriv m_cp0_R;
 
     //! Temporary storage for dimensionless reference state gibbs energies
-    mutable vector_fp      m_g0_RT;
+    mutable vector_ValAndDeriv m_g0_RT;
 
     //! Temporary storage for dimensionless reference state entropies
-    mutable vector_fp      m_s0_R;
+    mutable vector_ValAndDeriv m_s0_R;
 
-    mutable vector_fp      m_expg0_RT;
+    mutable vector_ValAndDeriv m_expg0_RT;
 
     //! Temporary array containing internally calculated partial pressures
-    mutable vector_fp      m_pp;
-
+    mutable vector_fp m_pp;
 
     //! class namespace inclusion of the number of species in the phase
     using Phase<ValAndDerivType>::m_kk;

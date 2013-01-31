@@ -12,23 +12,22 @@
 
 using namespace std;
 
-namespace Cantera
-{
+namespace Cantera {
 // Default empty Constructor
 template<typename ValAndDerivType>
-IdealGasPhase<ValAndDerivType>::IdealGasPhase():
-    m_p0(-1.0),
-    m_tlast(0.0),
-    m_logc0(0.0)
+IdealGasPhase<ValAndDerivType>::IdealGasPhase() :
+        m_p0(-1.0),
+        m_tlast(0.0),
+        m_logc0(0.0)
 {
 }
 
 // Copy Constructor
 template<typename ValAndDerivType>
-IdealGasPhase<ValAndDerivType>::IdealGasPhase(const IdealGasPhase& right):
-    m_p0(right.m_p0),
-    m_tlast(right.m_tlast),
-    m_logc0(right.m_logc0)
+IdealGasPhase<ValAndDerivType>::IdealGasPhase(const IdealGasPhase& right) :
+        m_p0(right.m_p0),
+        m_tlast(right.m_tlast),
+        m_logc0(right.m_logc0)
 {
     /*
      * Use the assignment operator to do the brunt
@@ -50,15 +49,15 @@ IdealGasPhase<ValAndDerivType>& IdealGasPhase<ValAndDerivType>::operator=(const 
 {
     if (&right != this) {
         ThermoPhase<ValAndDerivType>::operator=(right);
-        m_p0      = right.m_p0;
-        m_tlast   = right.m_tlast;
-        m_logc0   = right.m_logc0;
-        m_h0_RT   = right.m_h0_RT;
-        m_cp0_R   = right.m_cp0_R;
-        m_g0_RT   = right.m_g0_RT;
-        m_s0_R    = right.m_s0_R;
-        m_expg0_RT= right.m_expg0_RT;
-        m_pp      = right.m_pp;
+        m_p0 = right.m_p0;
+        m_tlast = right.m_tlast;
+        m_logc0 = right.m_logc0;
+        m_h0_RT = right.m_h0_RT;
+        m_cp0_R = right.m_cp0_R;
+        m_g0_RT = right.m_g0_RT;
+        m_s0_R = right.m_s0_R;
+        m_expg0_RT = right.m_expg0_RT;
+        m_pp = right.m_pp;
     }
     return *this;
 }
@@ -91,10 +90,9 @@ ThermoPhase<ValAndDerivType>* IdealGasPhase<ValAndDerivType>::duplMyselfAsThermo
  * @see SpeciesThermo
  */
 template<typename ValAndDerivType>
-doublereal IdealGasPhase<ValAndDerivType>::intEnergy_mole() const
+ValAndDerivType IdealGasPhase<ValAndDerivType>::intEnergy_mole() const
 {
-    return GasConstant * this->temperature()
-           * (mean_X(&enthalpy_RT_ref()[0]) - 1.0);
+    return GasConstant * this->temperature() * (mean_X(&enthalpy_RT_ref()[0]) - 1.0);
 }
 
 /*
@@ -109,10 +107,10 @@ doublereal IdealGasPhase<ValAndDerivType>::intEnergy_mole() const
  * @see SpeciesThermo
  */
 template<typename ValAndDerivType>
-doublereal IdealGasPhase<ValAndDerivType>::entropy_mole() const
+ValAndDerivType IdealGasPhase<ValAndDerivType>::entropy_mole() const
 {
-    return GasConstant * (mean_X(&entropy_R_ref()[0]) -
-                          this->sum_xlogx() - std::log(pressure()/(this->m_spthermo)->refPressure()));
+    return GasConstant
+            * (mean_X(&entropy_R_ref()[0]) - this->sum_xlogx() - std::log(pressure() / (this->m_spthermo)->refPressure()));
 }
 
 /*
@@ -120,7 +118,7 @@ doublereal IdealGasPhase<ValAndDerivType>::entropy_mole() const
  * Units =  J/kmol.
  */
 template<typename ValAndDerivType>
-doublereal IdealGasPhase<ValAndDerivType>::gibbs_mole() const
+ValAndDerivType IdealGasPhase<ValAndDerivType>::gibbs_mole() const
 {
     return enthalpy_mole() - this->temperature() * entropy_mole();
 }
@@ -137,7 +135,7 @@ doublereal IdealGasPhase<ValAndDerivType>::gibbs_mole() const
  * @see SpeciesThermo
  */
 template<typename ValAndDerivType>
-doublereal IdealGasPhase<ValAndDerivType>::cp_mole() const
+ValAndDerivType IdealGasPhase<ValAndDerivType>::cp_mole() const
 {
     return GasConstant * mean_X(&cp_R_ref()[0]);
 }
@@ -148,7 +146,7 @@ doublereal IdealGasPhase<ValAndDerivType>::cp_mole() const
  * \f[ \hat c_v = \hat c_p - \hat R. \f]
  */
 template<typename ValAndDerivType>
-doublereal IdealGasPhase<ValAndDerivType>::cv_mole() const
+ValAndDerivType IdealGasPhase<ValAndDerivType>::cv_mole() const
 {
     return cp_mole() - GasConstant;
 }
@@ -161,21 +159,20 @@ doublereal IdealGasPhase<ValAndDerivType>::cv_mole() const
  *
  */
 template<typename ValAndDerivType>
-doublereal IdealGasPhase<ValAndDerivType>::cv_tr(doublereal atomicity) const
+ValAndDerivType IdealGasPhase<ValAndDerivType>::cv_tr(doublereal atomicity) const
 {
     // k is the species number
-    int dum  = 0;
+    int dum = 0;
     int type = 0;
     doublereal c[12];
     doublereal minTemp;
     doublereal maxTemp;
     doublereal refPressure;
 
-    (this->m_spthermo)->reportParams(dum,type,c,minTemp,maxTemp,refPressure);
+    (this->m_spthermo)->reportParams(dum, type, c, minTemp, maxTemp, refPressure);
 
     if (type != 111) {
-        throw CanteraError("Error in IdealGasPhase.cpp",
-                           "cv_tr only supported for StatMech!. \n\n");
+        throw CanteraError("Error in IdealGasPhase.cpp", "cv_tr only supported for StatMech!. \n\n");
 
     }
 
@@ -187,9 +184,9 @@ doublereal IdealGasPhase<ValAndDerivType>::cv_tr(doublereal atomicity) const
  * @returns species translational specific heat at constant volume.
  */
 template<typename ValAndDerivType>
-doublereal IdealGasPhase<ValAndDerivType>::cv_trans() const
+ValAndDerivType IdealGasPhase<ValAndDerivType>::cv_trans() const
 {
-    return 1.5*GasConstant;
+    return 1.5 * GasConstant;
 }
 
 /**
@@ -197,7 +194,7 @@ doublereal IdealGasPhase<ValAndDerivType>::cv_trans() const
  *
  */
 template<typename ValAndDerivType>
-doublereal IdealGasPhase<ValAndDerivType>::cv_rot(double atom) const
+ValAndDerivType IdealGasPhase<ValAndDerivType>::cv_rot(double atom) const
 {
     return std::max(cv_tr(atom) - cv_trans(), 0.);
 }
@@ -224,11 +221,11 @@ doublereal IdealGasPhase<ValAndDerivType>::cv_rot(double atom) const
  *
  */
 template<typename ValAndDerivType>
-doublereal IdealGasPhase<ValAndDerivType>::cv_vib(const int k, const doublereal T) const
+ValAndDerivType IdealGasPhase<ValAndDerivType>::cv_vib(const int k, const doublereal T) const
 {
 
     // k is the species number
-    int dum  = 0;
+    int dum = 0;
     int type = 0;
     doublereal c[12];
     doublereal minTemp;
@@ -237,12 +234,11 @@ doublereal IdealGasPhase<ValAndDerivType>::cv_vib(const int k, const doublereal 
 
     c[0] = this->temperature();
 
-    (this->m_spthermo)->reportParams(dum,type,c,minTemp,maxTemp,refPressure);
+    (this->m_spthermo)->reportParams(dum, type, c, minTemp, maxTemp, refPressure);
 
     // basic sanity check
     if (type != 111) {
-        throw CanteraError("Error in IdealGasPhase.cpp",
-                           "cv_vib only supported for StatMech!. \n\n");
+        throw CanteraError("Error in IdealGasPhase.cpp", "cv_vib only supported for StatMech!. \n\n");
 
     }
 
@@ -259,22 +255,23 @@ doublereal IdealGasPhase<ValAndDerivType>::cv_vib(const int k, const doublereal 
  * the generalized concentration.
  */
 template<typename ValAndDerivType>
-doublereal IdealGasPhase<ValAndDerivType>::standardConcentration(size_t k) const
+ValAndDerivType IdealGasPhase<ValAndDerivType>::standardConcentration(size_t k) const
 {
-    double p = pressure();
-    return p/(GasConstant * this->temperature());
+    ValAndDerivType p = pressure();
+    return p / (GasConstant * this->temperature());
 }
+
 
 /*
  * Returns the natural logarithm of the standard
  * concentration of the kth species
  */
 template<typename ValAndDerivType>
-doublereal IdealGasPhase<ValAndDerivType>::logStandardConc(size_t k) const
+ValAndDerivType IdealGasPhase<ValAndDerivType>::logStandardConc(size_t k) const
 {
     _updateThermo();
-    double p = pressure();
-    double lc = std::log(p / (GasConstant * this->temperature()));
+    ValAndDerivType p = pressure();
+    ValAndDerivType lc = std::log(p / (GasConstant * this->temperature()));
     return lc;
 }
 
@@ -282,7 +279,7 @@ doublereal IdealGasPhase<ValAndDerivType>::logStandardConc(size_t k) const
  * Get the array of non-dimensional activity coefficients
  */
 template<typename ValAndDerivType>
-void IdealGasPhase<ValAndDerivType>::getActivityCoefficients(doublereal* ac) const
+void IdealGasPhase<ValAndDerivType>::getActivityCoefficients(ValAndDerivType* ac) const
 {
     for (size_t k = 0; k < this->m_kk; k++) {
         ac[k] = 1.0;
@@ -294,30 +291,30 @@ void IdealGasPhase<ValAndDerivType>::getActivityCoefficients(doublereal* ac) con
  * \mu^0_k(T,P) \f$.
  */
 template<typename ValAndDerivType>
-void IdealGasPhase<ValAndDerivType>::getStandardChemPotentials(doublereal* muStar) const
+void IdealGasPhase<ValAndDerivType>::getStandardChemPotentials(ValAndDerivType* muStar) const
 {
-    const vector_fp& gibbsrt = gibbs_RT_ref();
+    const vector_ValAndDeriv& gibbsrt = gibbs_RT_ref();
     scale(gibbsrt.begin(), gibbsrt.end(), muStar, this->_RT());
-    double tmp = log(pressure() / (this->m_spthermo)->refPressure());
-    tmp *=  GasConstant * this->temperature();
+    ValAndDerivType tmp = log(pressure() / (this->m_spthermo)->refPressure());
+    tmp *= GasConstant * this->temperature();
     for (size_t k = 0; k < this->m_kk; k++) {
-        muStar[k] += tmp;  // add RT*ln(P/P_0)
+        muStar[k] += tmp; // add RT*ln(P/P_0)
     }
 }
 
 //  Partial Molar Properties of the Solution --------------
 
 template<typename ValAndDerivType>
-void IdealGasPhase<ValAndDerivType>::getChemPotentials(doublereal* mu) const
+void IdealGasPhase<ValAndDerivType>::getChemPotentials(ValAndDerivType* mu) const
 {
     getStandardChemPotentials(mu);
     //doublereal logp = log(pressure()/m_spthermo->refPressure());
-    doublereal xx;
-    doublereal rt = this->temperature() * GasConstant;
+    ValAndDerivType xx;
+    ValAndDerivType rt = this->temperature() * GasConstant;
     //const vector_fp& g_RT = gibbs_RT_ref();
     for (size_t k = 0; k < m_kk; k++) {
         xx = std::max(SmallNumber, this->moleFraction(k));
-        mu[k] += rt*(log(xx));
+        mu[k] += rt * (log(xx));
     }
 }
 
@@ -326,10 +323,10 @@ void IdealGasPhase<ValAndDerivType>::getChemPotentials(doublereal* mu) const
  * units = J / kmol
  */
 template<typename ValAndDerivType>
-void IdealGasPhase<ValAndDerivType>::getPartialMolarEnthalpies(doublereal* hbar) const
+void IdealGasPhase<ValAndDerivType>::getPartialMolarEnthalpies(ValAndDerivType* hbar) const
 {
-    const vector_fp& _h = enthalpy_RT_ref();
-    doublereal rt = GasConstant * this->temperature();
+    const vector_ValAndDeriv& _h = enthalpy_RT_ref();
+    ValAndDerivType rt = GasConstant * this->temperature();
     scale(_h.begin(), _h.end(), hbar, rt);
 }
 
@@ -338,15 +335,15 @@ void IdealGasPhase<ValAndDerivType>::getPartialMolarEnthalpies(doublereal* hbar)
  * units = J / kmol / K
  */
 template<typename ValAndDerivType>
-void IdealGasPhase<ValAndDerivType>::getPartialMolarEntropies(doublereal* sbar) const
+void IdealGasPhase<ValAndDerivType>::getPartialMolarEntropies(ValAndDerivType* sbar) const
 {
-    const vector_fp& _s = entropy_R_ref();
+    const vector_ValAndDeriv& _s = entropy_R_ref();
     doublereal r = GasConstant;
     scale(_s.begin(), _s.end(), sbar, r);
-    doublereal logp = log(pressure()/m_spthermo->refPressure());
+    ValAndDerivType logp = log(pressure() / m_spthermo->refPressure());
     for (size_t k = 0; k < this->m_kk; k++) {
-        doublereal xx = std::max(SmallNumber, this->moleFraction(k));
-        sbar[k] += r * (- logp - log(xx));
+        ValAndDerivType xx = std::max(SmallNumber, this->moleFraction(k));
+        sbar[k] += r * (-logp - log(xx));
     }
 }
 
@@ -355,12 +352,12 @@ void IdealGasPhase<ValAndDerivType>::getPartialMolarEntropies(doublereal* sbar) 
  * units = J / kmol
  */
 template<typename ValAndDerivType>
-void IdealGasPhase<ValAndDerivType>::getPartialMolarIntEnergies(doublereal* ubar) const
+void IdealGasPhase<ValAndDerivType>::getPartialMolarIntEnergies(ValAndDerivType* ubar) const
 {
-    const vector_fp& _h = enthalpy_RT_ref();
-    doublereal rt = GasConstant * this->temperature();
+    const vector_ValAndDeriv& _h = enthalpy_RT_ref();
+    ValAndDerivType rt = GasConstant * this->temperature();
     for (size_t k = 0; k < this->m_kk; k++) {
-        ubar[k] =  rt * (_h[k] - 1.0);
+        ubar[k] = rt * (_h[k] - 1.0);
     }
 }
 
@@ -368,9 +365,9 @@ void IdealGasPhase<ValAndDerivType>::getPartialMolarIntEnergies(doublereal* ubar
  * Get the array of partial molar heat capacities
  */
 template<typename ValAndDerivType>
-void IdealGasPhase<ValAndDerivType>::getPartialMolarCp(doublereal* cpbar) const
+void IdealGasPhase<ValAndDerivType>::getPartialMolarCp(ValAndDerivType* cpbar) const
 {
-    const vector_fp& _cp = cp_R_ref();
+    const vector_ValAndDeriv& _cp = cp_R_ref();
     scale(_cp.begin(), _cp.end(), cpbar, GasConstant);
 }
 
@@ -379,9 +376,9 @@ void IdealGasPhase<ValAndDerivType>::getPartialMolarCp(doublereal* cpbar) const
  * units = m^3 / kmol
  */
 template<typename ValAndDerivType>
-void IdealGasPhase<ValAndDerivType>::getPartialMolarVolumes(doublereal* vbar) const
+void IdealGasPhase<ValAndDerivType>::getPartialMolarVolumes(ValAndDerivType* vbar) const
 {
-    double vol = 1.0 / this->molarDensity();
+    ValAndDerivType vol = 1.0 / this->molarDensity();
     for (size_t k = 0; k < this->m_kk; k++) {
         vbar[k] = vol;
     }
@@ -395,9 +392,9 @@ void IdealGasPhase<ValAndDerivType>::getPartialMolarVolumes(doublereal* vbar) co
  * solution
  */
 template<typename ValAndDerivType>
-void IdealGasPhase<ValAndDerivType>::getEnthalpy_RT(doublereal* hrt) const
+void IdealGasPhase<ValAndDerivType>::getEnthalpy_RT(ValAndDerivType* hrt) const
 {
-    const vector_fp& _h = enthalpy_RT_ref();
+    const vector_ValAndDeriv& _h = enthalpy_RT_ref();
     copy(_h.begin(), _h.end(), hrt);
 }
 
@@ -407,11 +404,11 @@ void IdealGasPhase<ValAndDerivType>::getEnthalpy_RT(doublereal* hrt) const
  * at the current <I>T</I> and <I>P</I> of the solution.
  */
 template<typename ValAndDerivType>
-void IdealGasPhase<ValAndDerivType>::getEntropy_R(doublereal* sr) const
+void IdealGasPhase<ValAndDerivType>::getEntropy_R(ValAndDerivType* sr) const
 {
-    const vector_fp& _s = entropy_R_ref();
+    const vector_ValAndDeriv& _s = entropy_R_ref();
     copy(_s.begin(), _s.end(), sr);
-    double tmp = log(pressure() /m_spthermo->refPressure());
+    ValAndDerivType tmp = log(pressure() / m_spthermo->refPressure());
     for (size_t k = 0; k < this->m_kk; k++) {
         sr[k] -= tmp;
     }
@@ -422,11 +419,11 @@ void IdealGasPhase<ValAndDerivType>::getEntropy_R(doublereal* sr) const
  * standard states at the current T and P of the solution.
  */
 template<typename ValAndDerivType>
-void IdealGasPhase<ValAndDerivType>::getGibbs_RT(doublereal* grt) const
+void IdealGasPhase<ValAndDerivType>::getGibbs_RT(ValAndDerivType* grt) const
 {
-    const vector_fp& gibbsrt = gibbs_RT_ref();
+    const vector_ValAndDeriv& gibbsrt = gibbs_RT_ref();
     copy(gibbsrt.begin(), gibbsrt.end(), grt);
-    double tmp = log(pressure() /m_spthermo->refPressure());
+    ValAndDerivType tmp = log(pressure() / m_spthermo->refPressure());
     for (size_t k = 0; k < this->m_kk; k++) {
         grt[k] += tmp;
     }
@@ -438,11 +435,11 @@ void IdealGasPhase<ValAndDerivType>::getGibbs_RT(doublereal* grt) const
  * getStandardChemPotentials().
  */
 template<typename ValAndDerivType>
-void IdealGasPhase<ValAndDerivType>::getPureGibbs(doublereal* gpure) const
+void IdealGasPhase<ValAndDerivType>::getPureGibbs(ValAndDerivType* gpure) const
 {
-    const vector_fp& gibbsrt = gibbs_RT_ref();
+    const vector_ValAndDeriv& gibbsrt = gibbs_RT_ref();
     scale(gibbsrt.begin(), gibbsrt.end(), gpure, this->_RT());
-    double tmp = log(pressure() /m_spthermo->refPressure());
+    ValAndDerivType tmp = log(pressure() / m_spthermo->refPressure());
     tmp *= _RT();
     for (size_t k = 0; k < this->m_kk; k++) {
         gpure[k] += tmp;
@@ -455,9 +452,9 @@ void IdealGasPhase<ValAndDerivType>::getPureGibbs(doublereal* gpure) const
  *  and pressure of the solution for each species.
  */
 template<typename ValAndDerivType>
-void IdealGasPhase<ValAndDerivType>::getIntEnergy_RT(doublereal* urt) const
+void IdealGasPhase<ValAndDerivType>::getIntEnergy_RT(ValAndDerivType* urt) const
 {
-    const vector_fp& _h = enthalpy_RT_ref();
+    const vector_ValAndDeriv& _h = enthalpy_RT_ref();
     for (size_t k = 0; k < m_kk; k++) {
         urt[k] = _h[k] - 1.0;
     }
@@ -469,9 +466,9 @@ void IdealGasPhase<ValAndDerivType>::getIntEnergy_RT(doublereal* urt) const
  * standard states at the current T and P of the solution.
  */
 template<typename ValAndDerivType>
-void IdealGasPhase<ValAndDerivType>::getCp_R(doublereal* cpr) const
+void IdealGasPhase<ValAndDerivType>::getCp_R(ValAndDerivType* cpr) const
 {
-    const vector_fp& _cpr = cp_R_ref();
+    const vector_ValAndDeriv& _cpr = cp_R_ref();
     copy(_cpr.begin(), _cpr.end(), cpr);
 }
 
@@ -484,9 +481,9 @@ void IdealGasPhase<ValAndDerivType>::getCp_R(doublereal* cpr) const
  *                Length: m_kk.
  */
 template<typename ValAndDerivType>
-void IdealGasPhase<ValAndDerivType>::getStandardVolumes(doublereal* vol) const
+void IdealGasPhase<ValAndDerivType>::getStandardVolumes(ValAndDerivType* vol) const
 {
-    double tmp = 1.0 / molarDensity();
+    ValAndDerivType tmp = 1.0 / molarDensity();
     for (size_t k = 0; k < m_kk; k++) {
         vol[k] = tmp;
     }
@@ -500,9 +497,9 @@ void IdealGasPhase<ValAndDerivType>::getStandardVolumes(doublereal* vol) const
  *  and reference pressure.
  */
 template<typename ValAndDerivType>
-void IdealGasPhase<ValAndDerivType>::getEnthalpy_RT_ref(doublereal* hrt) const
+void IdealGasPhase<ValAndDerivType>::getEnthalpy_RT_ref(ValAndDerivType* hrt) const
 {
-    const vector_fp& _h = enthalpy_RT_ref();
+    const vector_ValAndDeriv& _h = enthalpy_RT_ref();
     copy(_h.begin(), _h.end(), hrt);
 }
 
@@ -512,9 +509,9 @@ void IdealGasPhase<ValAndDerivType>::getEnthalpy_RT_ref(doublereal* hrt) const
  *  and reference pressure.
  */
 template<typename ValAndDerivType>
-void IdealGasPhase<ValAndDerivType>::getGibbs_RT_ref(doublereal* grt) const
+void IdealGasPhase<ValAndDerivType>::getGibbs_RT_ref(ValAndDerivType* grt) const
 {
-    const vector_fp& gibbsrt = gibbs_RT_ref();
+    const vector_ValAndDeriv& gibbsrt = gibbs_RT_ref();
     copy(gibbsrt.begin(), gibbsrt.end(), grt);
 }
 
@@ -525,9 +522,9 @@ void IdealGasPhase<ValAndDerivType>::getGibbs_RT_ref(doublereal* grt) const
  *  units = J/kmol
  */
 template<typename ValAndDerivType>
-void IdealGasPhase<ValAndDerivType>::getGibbs_ref(doublereal* g) const
+void IdealGasPhase<ValAndDerivType>::getGibbs_ref(ValAndDerivType* g) const
 {
-    const vector_fp& gibbsrt = gibbs_RT_ref();
+    const vector_ValAndDeriv& gibbsrt = gibbs_RT_ref();
     scale(gibbsrt.begin(), gibbsrt.end(), g, _RT());
 }
 
@@ -537,9 +534,9 @@ void IdealGasPhase<ValAndDerivType>::getGibbs_ref(doublereal* g) const
  *  and reference pressure.
  */
 template<typename ValAndDerivType>
-void IdealGasPhase<ValAndDerivType>::getEntropy_R_ref(doublereal* er) const
+void IdealGasPhase<ValAndDerivType>::getEntropy_R_ref(ValAndDerivType* er) const
 {
-    const vector_fp& _s = entropy_R_ref();
+    const vector_ValAndDeriv& _s = entropy_R_ref();
     copy(_s.begin(), _s.end(), er);
 }
 
@@ -549,9 +546,9 @@ void IdealGasPhase<ValAndDerivType>::getEntropy_R_ref(doublereal* er) const
  *  of the solution and the reference pressure for each species.
  */
 template<typename ValAndDerivType>
-void IdealGasPhase<ValAndDerivType>::getIntEnergy_RT_ref(doublereal* urt) const
+void IdealGasPhase<ValAndDerivType>::getIntEnergy_RT_ref(ValAndDerivType* urt) const
 {
-    const vector_fp& _h = enthalpy_RT_ref();
+    const vector_ValAndDeriv& _h = enthalpy_RT_ref();
     for (size_t k = 0; k < m_kk; k++) {
         urt[k] = _h[k] - 1.0;
     }
@@ -563,24 +560,22 @@ void IdealGasPhase<ValAndDerivType>::getIntEnergy_RT_ref(doublereal* urt) const
  *   at the current temperature and reference pressure.
  */
 template<typename ValAndDerivType>
-void IdealGasPhase<ValAndDerivType>::getCp_R_ref(doublereal* cprt) const
+void IdealGasPhase<ValAndDerivType>::getCp_R_ref(ValAndDerivType* cprt) const
 {
-    const vector_fp& _cpr = cp_R_ref();
+    const vector_ValAndDeriv& _cpr = cp_R_ref();
     copy(_cpr.begin(), _cpr.end(), cprt);
 }
 
 template<typename ValAndDerivType>
-void IdealGasPhase<ValAndDerivType>::getStandardVolumes_ref(doublereal* vol) const
+void IdealGasPhase<ValAndDerivType>::getStandardVolumes_ref(ValAndDerivType* vol) const
 {
-    doublereal tmp = _RT() / m_p0;
+    ValAndDerivType tmp = _RT() / m_p0;
     for (size_t k = 0; k < m_kk; k++) {
         vol[k] = tmp;
     }
 }
 
-
 // new methods defined here -------------------------------
-
 
 template<typename ValAndDerivType>
 void IdealGasPhase<ValAndDerivType>::initThermo()
@@ -602,8 +597,9 @@ void IdealGasPhase<ValAndDerivType>::initThermo()
 template<typename ValAndDerivType>
 void IdealGasPhase<ValAndDerivType>::setToEquilState(const doublereal* mu_RT)
 {
-    double tmp, tmp2;
-    const vector_fp& grt = gibbs_RT_ref();
+    ValAndDerivType tmp;
+    ValAndDerivType tmp2;
+    const vector_ValAndDeriv& grt = gibbs_RT_ref();
 
     /*
      * Within the method, we protect against inf results if the
@@ -613,7 +609,7 @@ void IdealGasPhase<ValAndDerivType>::setToEquilState(const doublereal* mu_RT)
      * the partial pressure to zero. This capability is needed
      * by the elemental potential method.
      */
-    doublereal pres = 0.0;
+    ValAndDerivType pres = 0.0;
     for (size_t k = 0; k < m_kk; k++) {
         tmp = -grt[k] + mu_RT[k];
         if (tmp < -600.) {
@@ -631,6 +627,38 @@ void IdealGasPhase<ValAndDerivType>::setToEquilState(const doublereal* mu_RT)
     this->setState_PX(pres, &m_pp[0]);
 }
 
+template<>
+void IdealGasPhase<doubleFAD>::setToEquilState(const doublereal* mu_RT)
+{
+    doublereal tmp;
+    doublereal tmp2;
+    const vector_ValAndDeriv& grt = gibbs_RT_ref();
+
+    /*
+     * Within the method, we protect against inf results if the
+     * exponent is too high.
+     *
+     * If it is too low, we set
+     * the partial pressure to zero. This capability is needed
+     * by the elemental potential method.
+     */
+    doublereal pres = 0.0;
+    for (size_t k = 0; k < m_kk; k++) {
+        tmp = - (grt[k]).val() + mu_RT[k];
+        if (tmp < -600.) {
+            m_pp[k] = 0.0;
+        } else if (tmp > 500.0) {
+            tmp2 = tmp / 500.;
+            tmp2 *= tmp2;
+            m_pp[k] = m_p0 * exp(500.) * tmp2;
+        } else {
+            m_pp[k] = m_p0 * exp(tmp);
+        }
+        pres += m_pp[k];
+    }
+    // set state
+    this->setState_PX(pres, &m_pp[0]);
+}
 
 /// This method is called each time a thermodynamic property is
 /// requested, to check whether the internal species properties
@@ -658,9 +686,18 @@ void IdealGasPhase<ValAndDerivType>::_updateThermo() const
         for (size_t k = 0; k < m_kk; k++) {
             m_g0_RT[k] = m_h0_RT[k] - m_s0_R[k];
         }
-        m_logc0 = log(m_p0/(GasConstant * tnow));
+        m_logc0 = log(m_p0 / (GasConstant * tnow));
         m_tlast = tnow;
     }
 }
+
+// Explicit Instantiation Section
+template class IdealGasPhase<doublereal> ;
+#ifdef INDEPENDENT_VARIABLE_DERIVATIVES
+#ifdef HAS_SACADO
+template class IdealGasPhase<doubleFAD> ;
+#endif
+#endif
+
 }
 

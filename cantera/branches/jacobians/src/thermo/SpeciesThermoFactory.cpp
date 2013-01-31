@@ -907,6 +907,13 @@ SpeciesThermo<ValAndDerivType>* newSpeciesThermoMgr(std::string& stype, SpeciesT
     return sptherm;
 }
 
+template SpeciesThermo<doublereal>* newSpeciesThermoMgr(std::string& stype, SpeciesThermoFactory<doublereal>* f);
+#ifdef INDEPENDENT_VARIABLE_DERIVATIVES
+#ifdef HAS_SACADO
+template SpeciesThermo<doubleFAD>*  newSpeciesThermoMgr(std::string& stype, SpeciesThermoFactory<doubleFAD>* f);
+#endif
+#endif
+
 // Function to return SpeciesThermo manager
 /*
  * This utility program  will look through species nodes. It will discover what
@@ -933,6 +940,13 @@ SpeciesThermo<ValAndDerivType>* newSpeciesThermoMgr(std::vector<XML_Node*> speci
     SpeciesThermo<ValAndDerivType>* sptherm = f->newSpeciesThermo(species_nodes);
     return sptherm;
 }
+
+template SpeciesThermo<doublereal>* newSpeciesThermoMgr(std::vector<XML_Node*> species_nodes, SpeciesThermoFactory<doublereal>* f);
+#ifdef INDEPENDENT_VARIABLE_DERIVATIVES
+#ifdef HAS_SACADO
+template SpeciesThermo<doubleFAD>*  newSpeciesThermoMgr(std::vector<XML_Node*> species_nodes, SpeciesThermoFactory<doubleFAD>* f);
+#endif
+#endif
 
 // Explicit Instantiation Section
 
@@ -963,6 +977,13 @@ template class NasaThermo<doublereal>;
 #ifdef INDEPENDENT_VARIABLE_DERIVATIVES
 #ifdef HAS_SACADO
 template class NasaThermo<doubleFAD>;
+#endif
+#endif
+
+template class SpeciesThermo<doublereal>;
+#ifdef INDEPENDENT_VARIABLE_DERIVATIVES
+#ifdef HAS_SACADO
+template class SpeciesThermo<doubleFAD>;
 #endif
 #endif
 

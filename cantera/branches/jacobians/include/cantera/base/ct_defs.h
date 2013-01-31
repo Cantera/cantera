@@ -189,9 +189,19 @@ const doublereal Tiny = 1.e-20;
  * to species.
  */
 typedef std::map<std::string, doublereal> compositionMap;
+
 //! Turn on the use of stl vectors for the basic array type within cantera
 //! Vector of doubles.
-typedef std::vector<double> vector_fp;
+typedef std::vector<doublereal> vector_fp;
+
+#ifdef INDEPENDENT_VARIABLE_DERIVATIVES
+#ifdef HAS_SACADO
+typedef std::vector<doubleFAD> vector_FAD;
+#endif
+#endif
+
+
+
 //! Vector of ints
 typedef std::vector<int> vector_int;
 

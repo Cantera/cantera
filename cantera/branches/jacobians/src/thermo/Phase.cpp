@@ -696,10 +696,12 @@ doublereal Phase<ValAndDerivType>::chargeDensity() const
     return cdens;
 }
 
+
+// HKM The concept of using Xi/W as a basic storage needs to be reworked when going to a derivative implementation
 template<typename ValAndDerivType>
-doublereal Phase<ValAndDerivType>::mean_X(const doublereal* const Q) const
+ValAndDerivType Phase<ValAndDerivType>::mean_X(const ValAndDerivType* const Q) const
 {
-    return m_mmw*std::inner_product(m_ym.begin(), m_ym.end(), Q, 0.0);
+    return m_mmw * std::inner_product(m_ym.begin(), m_ym.end(), Q, 0.0);
 }
 
 template<typename ValAndDerivType>
