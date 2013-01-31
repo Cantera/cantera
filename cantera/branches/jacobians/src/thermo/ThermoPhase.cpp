@@ -157,13 +157,13 @@ int ThermoPhase<ValAndDerivType>::standardStateConvention() const
 }
 //=================================================================================================================
 template<typename ValAndDerivType>
-doublereal ThermoPhase<ValAndDerivType>::logStandardConc(size_t k) const
+ValAndDerivType ThermoPhase<ValAndDerivType>::logStandardConc(size_t k) const
 {
     return log(standardConcentration(k));
 }
 //=================================================================================================================
 template<typename ValAndDerivType>
-void ThermoPhase<ValAndDerivType>::getActivities(doublereal* a) const
+void ThermoPhase<ValAndDerivType>::getActivities(ValAndDerivType* a) const
 {
     getActivityConcentrations(a);
     for (size_t k = 0; k < this->nSpecies(); k++) {
@@ -172,7 +172,7 @@ void ThermoPhase<ValAndDerivType>::getActivities(doublereal* a) const
 }
 //=================================================================================================================
 template<typename ValAndDerivType>
-void ThermoPhase<ValAndDerivType>::getLnActivityCoefficients(doublereal* lnac) const
+void ThermoPhase<ValAndDerivType>::getLnActivityCoefficients(ValAndDerivType* lnac) const
 {
     getActivityCoefficients(lnac);
     for (size_t k = 0; k < m_kk; k++) {
@@ -318,8 +318,14 @@ void ThermoPhase<ValAndDerivType>::setState_HPorUV(doublereal Htarget, doublerea
         setState_conditional_TP(Tnew, p, !doUV);
     }
 
-    double Hnew = (doUV) ? intEnergy_mass() : enthalpy_mass();
-    double Cpnew = (doUV) ? cv_mass() : cp_mass();
+    double Hnew, Cpnew;
+    if (doUV) {
+        Hnew = FAD_Eliminate(intEnergy_mass());
+        Cpnew = FAD_Eliminate(cv_mass());
+    } else {
+        Hnew = FAD_Eliminate(enthalpy_mass());
+        Cpnew = FAD_Eliminate(cp_mass());
+    }
     double Htop = Hnew;
     double Ttop = Tnew;
     double Hbot = Hnew;
@@ -368,7 +374,12 @@ void ThermoPhase<ValAndDerivType>::setState_HPorUV(doublereal Htarget, doublerea
         // Check Max and Min values
         if (Tnew > Tmax && !ignoreBounds) {
             setState_conditional_TP(Tmax, p, !doUV);
-            Hmax = (doUV) ? intEnergy_mass() : enthalpy_mass();
+            if (doUV) {
+                Hmax = FAD_Eliminate(intEnergy_mass());
+            } else {
+                Hmax = FAD_Eliminate(enthalpy_mass());
+            }
+
             if (Hmax >= Htarget) {
                 if (Htop < Htarget) {
                     Ttop = Tmax;
@@ -381,7 +392,11 @@ void ThermoPhase<ValAndDerivType>::setState_HPorUV(doublereal Htarget, doublerea
         }
         if (Tnew < Tmin && !ignoreBounds) {
             setState_conditional_TP(Tmin, p, !doUV);
-            Hmin = (doUV) ? intEnergy_mass() : enthalpy_mass();
+            if (doUV) {
+                Hmin = FAD_Eliminate(intEnergy_mass());
+            } else {
+                Hmin = FAD_Eliminate(enthalpy_mass());
+            }
             if (Hmin <= Htarget) {
                 if (Hbot > Htarget) {
                     Tbot = Tmin;
@@ -404,11 +419,11 @@ void ThermoPhase<ValAndDerivType>::setState_HPorUV(doublereal Htarget, doublerea
             }
             setState_conditional_TP(Tnew, p, !doUV);
             if (doUV) {
-                Hnew = intEnergy_mass();
-                Cpnew = cv_mass();
+                Hnew = FAD_Eliminate(intEnergy_mass());
+                Cpnew = FAD_Eliminate(cv_mass());
             } else {
-                Hnew = enthalpy_mass();
-                Cpnew = cp_mass();
+                Hnew = FAD_Eliminate(enthalpy_mass());
+                Cpnew = FAD_Eliminate(cp_mass());
             }
             if (Cpnew < 0.0) {
                 unstablePhaseNew = true;
@@ -529,8 +544,8 @@ void ThermoPhase<ValAndDerivType>::setState_SPorSV(doublereal Starget, doublerea
         setState_conditional_TP(Tnew, p, !doSV);
     }
 
-    double Snew = entropy_mass();
-    double Cpnew = (doSV) ? cv_mass() : cp_mass();
+    double Snew = FAD_Eliminate(entropy_mass());
+    double Cpnew = (doSV) ? FAD_Eliminate(cv_mass()) : FAD_Eliminate(cp_mass());
 
     double Stop = Snew;
     double Ttop = Tnew;
@@ -574,7 +589,7 @@ void ThermoPhase<ValAndDerivType>::setState_SPorSV(doublereal Starget, doublerea
         // Check Max and Min values
         if (Tnew > Tmax && !ignoreBounds) {
             setState_conditional_TP(Tmax, p, !doSV);
-            double Smax = entropy_mass();
+            double Smax = FAD_Eliminate(entropy_mass());
             if (Smax >= Starget) {
                 if (Stop < Starget) {
                     Ttop = Tmax;
@@ -586,7 +601,7 @@ void ThermoPhase<ValAndDerivType>::setState_SPorSV(doublereal Starget, doublerea
             }
         } else if (Tnew < Tmin && !ignoreBounds) {
             setState_conditional_TP(Tmin, p, !doSV);
-            double Smin = enthalpy_mass();
+            double Smin = FAD_Eliminate(enthalpy_mass());
             if (Smin <= Starget) {
                 if (Sbot > Starget) {
                     Sbot = Tmin;
@@ -604,8 +619,8 @@ void ThermoPhase<ValAndDerivType>::setState_SPorSV(doublereal Starget, doublerea
         for (int its = 0; its < 10; its++) {
             Tnew = Told + dt;
             setState_conditional_TP(Tnew, p, !doSV);
-            Cpnew = (doSV) ? cv_mass() : cp_mass();
-            Snew = entropy_mass();
+            Cpnew = (doSV) ? FAD_Eliminate(cv_mass()) : FAD_Eliminate(cp_mass());
+            Snew = FAD_Eliminate(entropy_mass());
             if (Cpnew < 0.0) {
                 unstablePhaseNew = true;
                 Tunstable = Tnew;
@@ -1024,7 +1039,7 @@ bool ThermoPhase<ValAndDerivType>::getElementPotentials(doublereal* lambda) cons
  *                         log Activity Coefficients. length = m_kk * m_kk
  */
 template<typename ValAndDerivType>
-void ThermoPhase<ValAndDerivType>::getdlnActCoeffdlnN(const size_t ld, doublereal* const dlnActCoeffdlnN)
+void ThermoPhase<ValAndDerivType>::getdlnActCoeffdlnN(const size_t ld, ValAndDerivType* const dlnActCoeffdlnN)
 {
     for (size_t m = 0; m < m_kk; m++) {
         for (size_t k = 0; k < m_kk; k++) {
@@ -1035,24 +1050,24 @@ void ThermoPhase<ValAndDerivType>::getdlnActCoeffdlnN(const size_t ld, doublerea
 }
 //====================================================================================================================
 template<typename ValAndDerivType>
-void ThermoPhase<ValAndDerivType>::getdlnActCoeffdlnN_numderiv(const size_t ld, doublereal* const dlnActCoeffdlnN)
+void ThermoPhase<ValAndDerivType>::getdlnActCoeffdlnN_numderiv(const size_t ld, ValAndDerivType* const dlnActCoeffdlnN)
 {
-    double deltaMoles_j = 0.0;
-    double pres = pressure();
+    doublereal deltaMoles_j = 0.0;
+    ValAndDerivType pres = pressure();
 
     /*
      * Evaluate the current base activity coefficients if necessary
      */
-    std::vector<double> ActCoeff_Base(m_kk);
+    std::vector<ValAndDerivType> ActCoeff_Base(m_kk);
     getActivityCoefficients(DATA_PTR(ActCoeff_Base));
-    std::vector<double> Xmol_Base(m_kk);
+    vector_fp Xmol_Base(m_kk);
     this->getMoleFractions(DATA_PTR(Xmol_Base));
 
     // Make copies of ActCoeff and Xmol_ for use in taking differences
-    std::vector<double> ActCoeff(m_kk);
-    std::vector<double> Xmol(m_kk);
-    double v_totalMoles = 1.0;
-    double TMoles_base = v_totalMoles;
+    typename Phase<ValAndDerivType>::vector_ValAndDeriv ActCoeff(m_kk);
+    vector_fp Xmol(m_kk);
+    doublereal v_totalMoles = 1.0;
+    doublereal TMoles_base = v_totalMoles;
 
     /*
      *  Loop over the columns species to be deltad
@@ -1065,7 +1080,7 @@ void ThermoPhase<ValAndDerivType>::getdlnActCoeffdlnN_numderiv(const size_t ld, 
          * -> experience has shown that you always need to make the deltas greater than needed to
          *    change the other mole fractions in order to capture some effects.
          */
-        double moles_j_base = v_totalMoles * Xmol_Base[j];
+        doublereal moles_j_base = v_totalMoles * Xmol_Base[j];
         deltaMoles_j = 1.0E-7 * moles_j_base + v_totalMoles * 1.0E-13 + 1.0E-150;
         /*
          * Now, update the total moles in the phase and all of the
@@ -1081,13 +1096,14 @@ void ThermoPhase<ValAndDerivType>::getdlnActCoeffdlnN_numderiv(const size_t ld, 
          * Go get new values for the activity coefficients.
          * -> Note this calls setState_PX();
          */
-        setState_PX(pres, DATA_PTR(Xmol));
+
+        setState_PX(FAD_Eliminate(pres), DATA_PTR(Xmol));
         getActivityCoefficients(DATA_PTR(ActCoeff));
 
         /*
          * Calculate the column of the matrix
          */
-        double* const lnActCoeffCol = dlnActCoeffdlnN + ld * j;
+        ValAndDerivType* const lnActCoeffCol = dlnActCoeffdlnN + ld * j;
         for (size_t k = 0; k < m_kk; k++) {
             lnActCoeffCol[k] = (2 * moles_j_base + deltaMoles_j) * (ActCoeff[k] - ActCoeff_Base[k])
                     / ((ActCoeff[k] + ActCoeff_Base[k]) * deltaMoles_j);
@@ -1104,7 +1120,7 @@ void ThermoPhase<ValAndDerivType>::getdlnActCoeffdlnN_numderiv(const size_t ld, 
          * -> Just wanted to make sure that cantera is in sync
          *    with VolPhase after this call.
          */
-    setState_PX(pres, DATA_PTR(Xmol_Base));
+    setState_PX(FAD_Eliminate(pres), DATA_PTR(Xmol_Base));
 }
 //====================================================================================================================
     /*
@@ -1205,6 +1221,103 @@ std::string ThermoPhase<ValAndDerivType>::report(bool show_thermo) const
     }
     return s;
 }
+
+template<>
+std::string ThermoPhase<doubleFAD>::report(bool show_thermo) const
+{
+    char p[800];
+    string s = "";
+    try {
+        if (this->name() != "") {
+            sprintf(p, " \n  %s:\n", this->name().c_str());
+            s += p;
+        }
+        sprintf(p, " \n       temperature    %12.6g  K\n", temperature());
+        s += p;
+        sprintf(p, "          pressure    %12.6g  Pa\n", pressure().val());
+        s += p;
+        sprintf(p, "           density    %12.6g  kg/m^3\n", this->density().val());
+        s += p;
+        sprintf(p, "  mean mol. weight    %12.6g  amu\n", this->meanMolecularWeight().val());
+        s += p;
+
+        doublereal phi = electricPotential();
+        if (phi != 0.0) {
+            sprintf(p, "         potential    %12.6g  V\n", phi);
+            s += p;
+        }
+        if (show_thermo) {
+            sprintf(p, " \n");
+            s += p;
+            sprintf(p, "                          1 kg            1 kmol\n");
+            s += p;
+            sprintf(p, "                       -----------      ------------\n");
+            s += p;
+            sprintf(p, "          enthalpy    %12.6g     %12.4g     J\n", enthalpy_mass().val(), enthalpy_mole().val());
+            s += p;
+            sprintf(p, "   internal energy    %12.6g     %12.4g     J\n", intEnergy_mass().val(), intEnergy_mole().val());
+            s += p;
+            sprintf(p, "           entropy    %12.6g     %12.4g     J/K\n", entropy_mass().val(), entropy_mole().val());
+            s += p;
+            sprintf(p, "    Gibbs function    %12.6g     %12.4g     J\n", gibbs_mass().val(), gibbs_mole().val());
+            s += p;
+            sprintf(p, " heat capacity c_p    %12.6g     %12.4g     J/K\n", cp_mass().val(), cp_mole().val());
+            s += p;
+            try {
+                sprintf(p, " heat capacity c_v    %12.6g     %12.4g     J/K\n", cv_mass().val(), cv_mole().val());
+                s += p;
+            } catch (CanteraError& err) {
+                err.save();
+                sprintf(p, " heat capacity c_v    <not implemented>       \n");
+                s += p;
+            }
+        }
+
+        size_t kk = this->nSpecies();
+        vector_fp x(kk);
+        vector<doubleFAD> y(kk);
+        vector<doubleFAD> mu(kk);
+        this->getMoleFractions(&x[0]);
+        this->getMassFractions(&y[0]);
+        getChemPotentials(&mu[0]);
+        doublereal rt = GasConstant * temperature();
+        //if (th.nSpecies() > 1) {
+
+        if (show_thermo) {
+            sprintf(p, " \n                           X     "
+                    "            Y          Chem. Pot. / RT    \n");
+            s += p;
+            sprintf(p, "                     -------------     "
+                    "------------     ------------\n");
+            s += p;
+            for (size_t k = 0; k < kk; k++) {
+                if (x[k] > SmallNumber) {
+                    sprintf(p, "%18s   %12.6g     %12.6g     %12.6g\n", this->speciesName(k).c_str(), x[k], y[k].val(),
+                            mu[k].val() / rt);
+                } else {
+                    sprintf(p, "%18s   %12.6g     %12.6g     \n", this->speciesName(k).c_str(), x[k], y[k].val());
+                }
+                s += p;
+            }
+        } else {
+            sprintf(p, " \n                           X"
+                    "Y\n");
+            s += p;
+            sprintf(p, "                     -------------"
+                    "     ------------\n");
+            s += p;
+            for (size_t k = 0; k < kk; k++) {
+                sprintf(p, "%18s   %12.6g     %12.6g\n", this->speciesName(k).c_str(), x[k], y[k].val());
+                s += p;
+            }
+        }
+    }
+    //}
+    catch (CanteraError& err) {
+        err.save();
+    }
+    return s;
+}
 //====================================================================================================================
 /*
  * Format a summary of the mixture state for output.
@@ -1219,8 +1332,8 @@ void ThermoPhase<ValAndDerivType>::reportCSV(std::ofstream& csvFile) const
     vector_fp X(this->nSpecies());
     this->getMoleFractions(&X[0]);
 
-    std::vector < std::string > pNames;
-    std::vector < vector_fp > data;
+    std::vector<std::string> pNames;
+    std::vector<vector_fp> data;
     getCsvReportData(pNames, data);
 
     csvFile << setw(tabS) << "Species,";
@@ -1281,14 +1394,77 @@ void ThermoPhase<ValAndDerivType>::getCsvReportData(std::vector<std::string>& na
     getPartialMolarVolumes(&data[9][0]);
 }
 
+template<>
+void ThermoPhase<doubleFAD>::getCsvReportData(std::vector<std::string>& names, std::vector<vector_fp>& data) const
+{
+    names.clear();
+    data.assign(10, vector_fp(this->nSpecies()));
+    vector<doubleFAD> vdtmp(m_kk);
+
+    names.push_back("X");
+    this->getMoleFractions(&data[0][0]);
+
+    names.push_back("Y");
+    this->getMassFractions(&vdtmp[0]);
+    for (size_t k = 0; k < m_kk; k++) {
+        data[1][k] = vdtmp[k].val();
+    }
+
+    names.push_back("Chem. Pot (J/kmol)");
+    getChemPotentials(&vdtmp[0]);
+    for (size_t k = 0; k < m_kk; k++) {
+        data[2][k] = vdtmp[k].val();
+    }
+
+    names.push_back("Activity");
+    getActivities(&vdtmp[0]);
+    for (size_t k = 0; k < m_kk; k++) {
+        data[3][k] = vdtmp[k].val();
+    }
+
+    names.push_back("Act. Coeff.");
+    getActivityCoefficients(&vdtmp[0]);
+    for (size_t k = 0; k < m_kk; k++) {
+        data[3][k] = vdtmp[k].val();
+    }
+
+    names.push_back("Part. Mol Enthalpy (J/kmol)");
+    getPartialMolarEnthalpies(&vdtmp[0]);
+    for (size_t k = 0; k < m_kk; k++) {
+        data[3][k] = vdtmp[k].val();
+    }
+
+    names.push_back("Part. Mol. Entropy (J/K/kmol)");
+    getPartialMolarEntropies(&vdtmp[0]);
+    for (size_t k = 0; k < m_kk; k++) {
+        data[6][k] = vdtmp[k].val();
+    }
+
+    names.push_back("Part. Mol. Energy (J/kmol)");
+    getPartialMolarIntEnergies(&vdtmp[0]);
+    for (size_t k = 0; k < m_kk; k++) {
+        data[7][k] = vdtmp[k].val();
+    }
+
+    names.push_back("Part. Mol. Cp (J/K/kmol");
+    getPartialMolarCp(&vdtmp[0]);
+    for (size_t k = 0; k < m_kk; k++) {
+        data[8][k] = vdtmp[k].val();
+    }
+
+    names.push_back("Part. Mol. Cv (J/K/kmol)");
+    getPartialMolarVolumes(&vdtmp[0]);
+    for (size_t k = 0; k < m_kk; k++) {
+        data[9][k] = vdtmp[k].val();
+    }
+}
 
 //! Explicit Instantiations
-template class ThermoPhase<doublereal>;
+template class ThermoPhase<doublereal> ;
 #ifdef INDEPENDENT_VARIABLE_DERIVATIVES
 #ifdef HAS_SACADO
-template class ThermoPhase<doubleFAD>;
+template class ThermoPhase<doubleFAD> ;
 #endif
 #endif
-
 
 }

@@ -414,27 +414,32 @@ public:
      *     @param  k  species index
      *     @return Mole fraction of the species
      */
-    doublereal moleFraction(size_t k) const;
+    ValAndDerivType moleFraction(size_t k) const;
 
     //! Return the mole fraction of a single species
     //!     @param  name  String name of the species
     //!     @return Mole fraction of the species
-    doublereal moleFraction(const std::string& name) const;
+    ValAndDerivType moleFraction(const std::string& name) const;
 
     //! Return the mass fraction of a single species
     //!     @param  k species index
     //!     @return Mass fraction of the species
-    doublereal massFraction(size_t k) const;
+    ValAndDerivType massFraction(size_t k) const;
 
     //! Return the mass fraction of a single species
     //!     @param  name  String name of the species
     //!     @return Mass Fraction of the species
-    doublereal massFraction(const std::string& name) const;
+    ValAndDerivType massFraction(const std::string& name) const;
 
     //! Get the species mole fraction vector.
     //!     @param x On return, x contains the mole fractions. Must have a
     //!          length greater than or equal to the number of species.
-    void getMoleFractions(doublereal* const x) const;
+    void getMoleFractions(ValAndDerivType* const x) const;
+
+    template<typename OutType>
+    void getMoleFractions(OutType* const x) const;
+
+    void getMoleFractionsNoDeriv(doublereal* const x) const;
 
     //! Set the mole fractions to the specified values
     //! There is no restriction on the sum of the mole fraction vector.
@@ -453,10 +458,10 @@ public:
 
     //! Get the species mass fractions.
     //!     @param[out] y Array of mass fractions, length nSpecies()
-    void getMassFractions(doublereal* const y) const;
+    void getMassFractions(ValAndDerivType* const y) const;
 
     //! Return a const pointer to the mass fraction array
-    const doublereal* massFractions() const {
+    const ValAndDerivType* massFractions() const {
         return &m_y[0];
     }
 
@@ -481,7 +486,7 @@ public:
     //! Concentration of species k.
     //! If k is outside the valid range, an exception will be thrown.
     //!     @param  k Index of species
-    doublereal concentration(const size_t k) const;
+    ValAndDerivType concentration(const size_t k) const;
 
     //! Set the concentrations to the specified values within the phase.
     //! We set the concentrations here and therefore we set the overall density
@@ -497,7 +502,7 @@ public:
     //! Returns a const pointer to the start of the moleFraction/MW array.
     //! This array is the array of mole fractions, each divided by the mean
     //! molecular weight.
-    const doublereal* moleFractdivMMW() const;
+    const ValAndDerivType* moleFractdivMMW() const;
 
     //@}
 
@@ -507,7 +512,7 @@ public:
     doublereal charge(size_t k) const;
 
     //! Charge density [C/m^3].
-    doublereal chargeDensity() const;
+    ValAndDerivType chargeDensity() const;
 
     //! Returns the number of spatial dimensions (1, 2, or 3)
     size_t nDim() const {
@@ -583,21 +588,21 @@ public:
     //! \f[ \sum_k Y_k Q_k \f]
     //!     @param[in] Q  Array of species property values in mass units.
     //!     @return The mass-fraction-weighted mean of Q.
-    doublereal mean_Y(const doublereal* const Q) const;
+    ValAndDerivType mean_Y(const doublereal* const Q) const;
 
     //!  The mean molecular weight. Units: (kg/kmol)
-    doublereal meanMolecularWeight() const {
+    ValAndDerivType meanMolecularWeight() const {
         return m_mmw;
     }
 
     //! Evaluate \f$ \sum_k X_k \log X_k \f$.
     //! @return The indicated sum. Dimensionless.
-    doublereal sum_xlogx() const;
+    ValAndDerivType sum_xlogx() const;
 
     //! Evaluate \f$ \sum_k X_k \log Q_k \f$.
     //!     @param Q Vector of length m_kk to take the log average of
     //!     @return The indicated sum.
-    doublereal sum_xlogQ(doublereal* const Q) const;
+    ValAndDerivType sum_xlogQ(doublereal* const Q) const;
     //@}
 
     //! @name Adding Elements and Species
@@ -755,15 +760,15 @@ private:
     //!This is an independent variable except in the
     //! incompressible degenerate case. Thus, the pressure is determined from
     //! this variable rather than other way round.
-    doublereal m_dens;
+    ValAndDerivType m_dens;
 
-    doublereal m_mmw;//!< mean molecular weight of the mixture (kg kmol-1)
+    ValAndDerivType m_mmw;//!< mean molecular weight of the mixture (kg kmol-1)
 
     //! m_ym[k] = mole fraction of species k divided by the mean molecular
     //! weight of mixture.
-    mutable vector_fp m_ym;
+    mutable vector_ValAndDeriv m_ym;
 
-    mutable vector_fp m_y;//!< species mass fractions
+    mutable vector_ValAndDeriv m_y;//!< species mass fractions
 
     vector_fp m_molwts;//!< species molecular weights (kg kmol-1)
 
@@ -797,6 +802,8 @@ private:
 
     //! Entropy at 298.15 K and 1 bar of stable state pure elements (J kmol-1)
     vector_fp m_entropy298;
+
+    mutable vector_ValAndDeriv m_vdtmps;
 
 };
 

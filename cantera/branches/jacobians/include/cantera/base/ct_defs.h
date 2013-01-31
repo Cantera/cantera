@@ -200,6 +200,17 @@ typedef std::vector<doubleFAD> vector_FAD;
 #endif
 #endif
 
+#ifdef INDEPENDENT_VARIABLE_DERIVATIVES
+#ifdef HAS_SACADO
+#define VECTOR_VALANDDERIV std::vector<ValAndTypeDeriv>
+#else
+#define VECTOR_VALANDDERIV vector_fp;
+#endif
+#else
+#define VECTOR_VALANDDERIV vector_fp;
+#endif
+
+
 
 
 //! Vector of ints
@@ -210,6 +221,20 @@ typedef std::vector<std::vector<size_t> > grouplist_t;
 
 //! index returned by functions to indicate "no position"
 const size_t npos = static_cast<size_t>(-1);
+
+
+template<typename ValAndDerivType>
+inline doublereal FAD_Eliminate(const ValAndDerivType& vd)
+{
+    return (vd);
+}
+
+template<>
+inline doublereal FAD_Eliminate(const doubleFAD& vd)
+{
+    return (vd.val());
+}
+
 
 } // namespace
 

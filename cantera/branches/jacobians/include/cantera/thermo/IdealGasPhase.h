@@ -513,7 +513,9 @@ public:
      */
     virtual void setPressure(doublereal p)
     {
-        setDensity(p * this->meanMolecularWeight() / (GasConstant * this->temperature()));
+        ValAndDerivType dd = p * this->meanMolecularWeight() / (GasConstant * this->temperature());
+        doublereal ddr = FAD_Eliminate(dd);
+        this->setDensity(ddr);
     }
 
     //! Returns  the isothermal compressibility. Units: 1/Pa.
@@ -834,7 +836,6 @@ public:
     //@}
     /// @name NonVirtual Internal methods to Return References to Reference State Thermo
     //@{
-
 
     //! Returns a reference to the dimensionless reference state enthalpy vector.
     /*!

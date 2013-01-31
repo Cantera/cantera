@@ -261,7 +261,6 @@ ValAndDerivType IdealGasPhase<ValAndDerivType>::standardConcentration(size_t k) 
     return p / (GasConstant * this->temperature());
 }
 
-
 /*
  * Returns the natural logarithm of the standard
  * concentration of the kth species
@@ -294,7 +293,11 @@ template<typename ValAndDerivType>
 void IdealGasPhase<ValAndDerivType>::getStandardChemPotentials(ValAndDerivType* muStar) const
 {
     const vector_ValAndDeriv& gibbsrt = gibbs_RT_ref();
-    scale(gibbsrt.begin(), gibbsrt.end(), muStar, this->_RT());
+    //scale(gibbsrt.begin(), gibbsrt.end(), muStar, this->_RT());
+    ValAndDerivType rt = this->_RT();
+    for (size_t k = 0; k < this->m_kk; k++) {
+        muStar[k] = rt * gibbsrt[k];
+    }
     ValAndDerivType tmp = log(pressure() / (this->m_spthermo)->refPressure());
     tmp *= GasConstant * this->temperature();
     for (size_t k = 0; k < this->m_kk; k++) {
@@ -327,7 +330,10 @@ void IdealGasPhase<ValAndDerivType>::getPartialMolarEnthalpies(ValAndDerivType* 
 {
     const vector_ValAndDeriv& _h = enthalpy_RT_ref();
     ValAndDerivType rt = GasConstant * this->temperature();
-    scale(_h.begin(), _h.end(), hbar, rt);
+    //scale(_h.begin(), _h.end(), hbar, rt);
+    for (size_t k = 0; k < this->m_kk; k++) {
+        hbar[k] = rt * _h[k];
+    }
 }
 
 /*
@@ -339,7 +345,10 @@ void IdealGasPhase<ValAndDerivType>::getPartialMolarEntropies(ValAndDerivType* s
 {
     const vector_ValAndDeriv& _s = entropy_R_ref();
     doublereal r = GasConstant;
-    scale(_s.begin(), _s.end(), sbar, r);
+    // scale(_s.begin(), _s.end(), sbar, r);
+    for (size_t k = 0; k < this->m_kk; k++) {
+        sbar[k] = r * _s[k];
+    }
     ValAndDerivType logp = log(pressure() / m_spthermo->refPressure());
     for (size_t k = 0; k < this->m_kk; k++) {
         ValAndDerivType xx = std::max(SmallNumber, this->moleFraction(k));
@@ -368,7 +377,10 @@ template<typename ValAndDerivType>
 void IdealGasPhase<ValAndDerivType>::getPartialMolarCp(ValAndDerivType* cpbar) const
 {
     const vector_ValAndDeriv& _cp = cp_R_ref();
-    scale(_cp.begin(), _cp.end(), cpbar, GasConstant);
+    // scale(_cp.begin(), _cp.end(), cpbar, GasConstant);
+    for (size_t k = 0; k < this->m_kk; k++) {
+        cpbar[k] = GasConstant * _cp[k];
+    }
 }
 
 /*
@@ -438,7 +450,11 @@ template<typename ValAndDerivType>
 void IdealGasPhase<ValAndDerivType>::getPureGibbs(ValAndDerivType* gpure) const
 {
     const vector_ValAndDeriv& gibbsrt = gibbs_RT_ref();
-    scale(gibbsrt.begin(), gibbsrt.end(), gpure, this->_RT());
+    // scale(gibbsrt.begin(), gibbsrt.end(), gpure, this->_RT());
+    ValAndDerivType rt = this->_RT();
+    for (size_t k = 0; k < m_kk; k++) {
+        gpure[k] = rt * gibbsrt[k];
+    }
     ValAndDerivType tmp = log(pressure() / m_spthermo->refPressure());
     tmp *= _RT();
     for (size_t k = 0; k < this->m_kk; k++) {
@@ -525,7 +541,11 @@ template<typename ValAndDerivType>
 void IdealGasPhase<ValAndDerivType>::getGibbs_ref(ValAndDerivType* g) const
 {
     const vector_ValAndDeriv& gibbsrt = gibbs_RT_ref();
-    scale(gibbsrt.begin(), gibbsrt.end(), g, _RT());
+    // scale(gibbsrt.begin(), gibbsrt.end(), g, _RT());
+    ValAndDerivType rt = this->_RT();
+    for (size_t k = 0; k < m_kk; k++) {
+        g[k] = rt * gibbsrt[k];
+    }
 }
 
 /*
@@ -644,7 +664,7 @@ void IdealGasPhase<doubleFAD>::setToEquilState(const doublereal* mu_RT)
      */
     doublereal pres = 0.0;
     for (size_t k = 0; k < m_kk; k++) {
-        tmp = - (grt[k]).val() + mu_RT[k];
+        tmp = -(grt[k]).val() + mu_RT[k];
         if (tmp < -600.) {
             m_pp[k] = 0.0;
         } else if (tmp > 500.0) {

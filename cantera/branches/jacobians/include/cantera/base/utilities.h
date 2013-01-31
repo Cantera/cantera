@@ -23,21 +23,27 @@
 #include <algorithm>
 #include <numeric>
 
-namespace Cantera
-{
+namespace Cantera {
+
 //! Unary operator to multiply the argument by a constant.
 /*!
  *  The form of this operator is designed for use by std::transform.
  *  @see @ref  scale().
+ *
+ *  HKM This unary function is in serious error.
  */
-template<class T> struct timesConstant : public std::unary_function<T, double> {
+template<class T> struct timesConstant: public std::unary_function<T, double>
+{
     //! Constructor
     /*!
      * @param c  Constant of templated type T
      *           that will be stored internally within the object
      *           and used in the multiplication operation
      */
-    timesConstant(T c) : m_c(c) {}
+    timesConstant(double c) :
+            m_c(c)
+    {
+    }
 
     //! Parenthesis operator returning a double
     /*!
@@ -47,13 +53,54 @@ template<class T> struct timesConstant : public std::unary_function<T, double> {
      * @return Returns a value of type double from the internal
      *         multiplication
      */
-    double operator()(T x) {
+    double operator()(T x)
+    {
         return m_c * x;
     }
 
     //! Stored constant value of time T
+    double m_c;
+};
+
+
+//! Unary operator to multiply the argument by a constant.
+/*!
+ *  The form of this operator is designed for use by std::transform.
+ *  @see @ref  scale().
+ *
+ *  HKM This unary function is in serious error.
+ */
+template<class T> struct timesConstantVal: public std::unary_function<T, T>
+{
+    //! Constructor
+    /*!
+     * @param c  Constant of templated type T
+     *           that will be stored internally within the object
+     *           and used in the multiplication operation
+     */
+    timesConstantVal(T c) :
+            m_c(c)
+    {
+    }
+
+    //! Parenthesis operator returning a double
+    /*!
+     * @param x  Variable of templated type T that will be
+     *           used in the multiplication operator
+     *
+     * @return Returns a value of type double from the internal
+     *         multiplication
+     */
+    T operator()(T x)
+    {
+        return m_c * x;
+    }
+
+    //! Stored constant value
     T m_c;
 };
+
+
 
 //!  Templated Inner product of two vectors of length 4.
 /*!
@@ -69,9 +116,8 @@ template<class T> struct timesConstant : public std::unary_function<T, double> {
 template<class V>
 inline doublereal dot4(const V& x, const V& y)
 {
-    return x[0]*y[0] + x[1]*y[1] + x[2]*y[2] + x[3]*y[3];
+    return x[0] * y[0] + x[1] * y[1] + x[2] * y[2] + x[3] * y[3];
 }
-
 
 //!  Templated Inner product of two vectors of length 5
 /*!
@@ -87,8 +133,7 @@ inline doublereal dot4(const V& x, const V& y)
 template<class V>
 inline doublereal dot5(const V& x, const V& y)
 {
-    return x[0]*y[0] + x[1]*y[1] + x[2]*y[2] + x[3]*y[3] +
-           x[4]*y[4];
+    return x[0] * y[0] + x[1] * y[1] + x[2] * y[2] + x[3] * y[3] + x[4] * y[4];
 }
 
 //!  Templated Inner product of two vectors of length 6
@@ -105,8 +150,7 @@ inline doublereal dot5(const V& x, const V& y)
 template<class V>
 inline doublereal dot6(const V& x, const V& y)
 {
-    return x[0]*y[0] + x[1]*y[1] + x[2]*y[2] + x[3]*y[3] +
-           x[4]*y[4] + x[5]*y[5];
+    return x[0] * y[0] + x[1] * y[1] + x[2] * y[2] + x[3] * y[3] + x[4] * y[4] + x[5] * y[5];
 }
 
 //! Function that calculates a templated inner product.
@@ -131,8 +175,7 @@ inline doublereal dot6(const V& x, const V& y)
  *     The return is hard-coded to return a double.
  */
 template<class InputIter, class InputIter2>
-inline doublereal dot(InputIter x_begin, InputIter x_end,
-                      InputIter2 y_begin)
+inline doublereal dot(InputIter x_begin, InputIter x_end, InputIter2 y_begin)
 {
     return std::inner_product(x_begin, x_end, y_begin, 0.0);
 }
@@ -152,6 +195,8 @@ inline doublereal dot(InputIter x_begin, InputIter x_end,
  *               iterator class OutputIter. This is the output variable
  *               for this routine.
  * @param scale_factor  input scale factor belonging to the class S.
+ *
+ * HKM @todo: This is a broken implementation because it only works for doubles.
  */
 template<class InputIter, class OutputIter, class S>
 inline void scale(InputIter begin, InputIter end,
@@ -192,14 +237,12 @@ inline void scale(InputIter begin, InputIter end,
  * @param scale_factor Scale Factor to multiply y[i] by
  */
 template<class InputIter, class OutputIter, class S>
-inline void increment_scale(InputIter begin, InputIter end,
-                            OutputIter out, S scale_factor)
+inline void increment_scale(InputIter begin, InputIter end, OutputIter out, S scale_factor)
 {
     for (; begin != end; ++begin, ++out) {
         *out += scale_factor * *begin;
     }
 }
-
 
 //! Multiply each entry in x by the corresponding entry in y.
 /*!
@@ -227,8 +270,7 @@ inline void increment_scale(InputIter begin, InputIter end,
  *                  iterator class outputIter.
  */
 template<class InputIter, class OutputIter>
-inline void multiply_each(OutputIter x_begin, OutputIter x_end,
-                          InputIter y_begin)
+inline void multiply_each(OutputIter x_begin, OutputIter x_end, InputIter y_begin)
 {
     for (; x_begin != x_end; ++x_begin, ++y_begin) {
         *x_begin *= *y_begin;
@@ -334,12 +376,11 @@ inline doublereal absmax(InputIter begin, InputIter end)
  *                  iterator class OutputIter.
  */
 template<class InputIter, class OutputIter>
-inline void normalize(InputIter begin, InputIter end,
-                      OutputIter out)
+inline void normalize(InputIter begin, InputIter end, OutputIter out)
 {
     doublereal sum = std::accumulate(begin, end, 0.0);
     for (; begin != end; ++begin, ++out) {
-        *out = *begin/sum;
+        *out = *begin / sum;
     }
 }
 
@@ -369,8 +410,7 @@ inline void normalize(InputIter begin, InputIter end,
  *                  iterator class InputIter.
  */
 template<class InputIter, class OutputIter>
-inline void divide_each(OutputIter x_begin, OutputIter x_end,
-                        InputIter y_begin)
+inline void divide_each(OutputIter x_begin, OutputIter x_end, InputIter y_begin)
 {
     for (; x_begin != x_end; ++x_begin, ++y_begin) {
         *x_begin /= *y_begin;
@@ -390,8 +430,7 @@ inline void divide_each(OutputIter x_begin, OutputIter x_end,
  *                  iterator class InputIter.
  */
 template<class InputIter, class OutputIter>
-inline void sum_each(OutputIter x_begin, OutputIter x_end,
-                     InputIter y_begin)
+inline void sum_each(OutputIter x_begin, OutputIter x_end, InputIter y_begin)
 {
     for (; x_begin != x_end; ++x_begin, ++y_begin) {
         *x_begin += *y_begin;
@@ -430,14 +469,12 @@ inline void sum_each(OutputIter x_begin, OutputIter x_end,
  *                iterator class IndexIter.
  */
 template<class InputIter, class OutputIter, class IndexIter>
-inline void scatter_copy(InputIter begin, InputIter end,
-                         OutputIter result, IndexIter index)
+inline void scatter_copy(InputIter begin, InputIter end, OutputIter result, IndexIter index)
 {
     for (; begin != end; ++begin, ++index) {
         *(result + *index) = *begin;
     }
 }
-
 
 //! Multiply selected elements in an array by a contiguous
 //! sequence of multipliers.
@@ -466,14 +503,12 @@ inline void scatter_copy(InputIter begin, InputIter end,
  *                     iterator class IndexIter.
  */
 template<class InputIter, class RandAccessIter, class IndexIter>
-inline void scatter_mult(InputIter mult_begin, InputIter mult_end,
-                         RandAccessIter data, IndexIter index)
+inline void scatter_mult(InputIter mult_begin, InputIter mult_end, RandAccessIter data, IndexIter index)
 {
     for (; mult_begin != mult_end; ++mult_begin, ++index) {
         *(data + *index) *= *mult_begin;
     }
 }
-
 
 //! Divide selected elements in an array by a contiguous sequence of divisors.
 /*!
@@ -501,8 +536,7 @@ inline void scatter_mult(InputIter mult_begin, InputIter mult_end,
  *                iterator class IndexIter.
  */
 template<class InputIter, class OutputIter, class IndexIter>
-inline void scatter_divide(InputIter begin, InputIter end,
-                           OutputIter result, IndexIter index)
+inline void scatter_divide(InputIter begin, InputIter end, OutputIter result, IndexIter index)
 {
     for (; begin != end; ++begin, ++index) {
         *(result + *index) /= *begin;
@@ -533,6 +567,16 @@ inline doublereal sum_xlogx(InputIter begin, InputIter end)
     return sum;
 }
 
+template< typename ValAndTypeDeriv, class InputIter>
+inline ValAndTypeDeriv sum_xlogx_valderiv(InputIter begin, InputIter end)
+{
+    ValAndTypeDeriv sum = 0.0;
+    for (; begin != end; ++begin) {
+        sum += (*begin) * std::log(*begin + Tiny);
+    }
+    return sum;
+}
+
 //! Compute \f[ \sum_k x_k \log Q_k. \f].
 /*!
  * The template arguments are:  template<class InputIter1, class InputIter2>
@@ -552,8 +596,7 @@ inline doublereal sum_xlogx(InputIter begin, InputIter end)
  *      The return from this class is hard coded to a doublereal.
  */
 template<class InputIter1, class InputIter2>
-inline doublereal sum_xlogQ(InputIter1 begin, InputIter1 end,
-                            InputIter2 Q_begin)
+inline doublereal sum_xlogQ(InputIter1 begin, InputIter1 end, InputIter2 Q_begin)
 {
     doublereal sum = 0.0;
     for (; begin != end; ++begin, ++Q_begin) {
@@ -579,9 +622,8 @@ inline doublereal sum_xlogQ(InputIter1 begin, InputIter1 end,
 template<class OutputIter>
 inline void scale(int N, double alpha, OutputIter x)
 {
-    scale(x, x+N, x, alpha);
+    scale(x, x + N, x, alpha);
 }
-
 
 //! Templated evaluation of a polynomial of order 6
 /*!
@@ -591,8 +633,7 @@ inline void scale(int N, double alpha, OutputIter x)
 template<class D, class R>
 R poly6(D x, R* c)
 {
-    return ((((((c[6]*x + c[5])*x + c[4])*x + c[3])*x +
-              c[2])*x + c[1])*x + c[0]);
+    return ((((((c[6] * x + c[5]) * x + c[4]) * x + c[3]) * x + c[2]) * x + c[1]) * x + c[0]);
 }
 
 //! Templated evaluation of a polynomial of order 8
@@ -603,8 +644,7 @@ R poly6(D x, R* c)
 template<class D, class R>
 R poly8(D x, R* c)
 {
-    return ((((((((c[8]*x + c[7])*x + c[6])*x + c[5])*x + c[4])*x + c[3])*x +
-              c[2])*x + c[1])*x + c[0]);
+    return ((((((((c[8] * x + c[7]) * x + c[6]) * x + c[5]) * x + c[4]) * x + c[3]) * x + c[2]) * x + c[1]) * x + c[0]);
 }
 
 //! Templated evaluation of a polynomial of order 10
@@ -615,9 +655,8 @@ R poly8(D x, R* c)
 template<class D, class R>
 R poly10(D x, R* c)
 {
-    return ((((((((((c[10]*x + c[9])*x + c[8])*x + c[7])*x
-                  + c[6])*x + c[5])*x + c[4])*x + c[3])*x
-              + c[2])*x + c[1])*x + c[0]);
+    return ((((((((((c[10] * x + c[9]) * x + c[8]) * x + c[7]) * x + c[6]) * x + c[5]) * x + c[4]) * x + c[3]) * x + c[2]) * x
+            + c[1]) * x + c[0]);
 }
 
 //! Templated evaluation of a polynomial of order 5
@@ -628,8 +667,7 @@ R poly10(D x, R* c)
 template<class D, class R>
 R poly5(D x, R* c)
 {
-    return (((((c[5]*x + c[4])*x + c[3])*x +
-              c[2])*x + c[1])*x + c[0]);
+    return (((((c[5] * x + c[4]) * x + c[3]) * x + c[2]) * x + c[1]) * x + c[0]);
 }
 
 //! Evaluates a polynomial of order 4.
@@ -640,8 +678,7 @@ R poly5(D x, R* c)
 template<class D, class R>
 R poly4(D x, R* c)
 {
-    return ((((c[4]*x + c[3])*x +
-              c[2])*x + c[1])*x + c[0]);
+    return ((((c[4] * x + c[3]) * x + c[2]) * x + c[1]) * x + c[0]);
 }
 
 //! Templated evaluation of a polynomial of order 3
@@ -652,7 +689,7 @@ R poly4(D x, R* c)
 template<class D, class R>
 R poly3(D x, R* c)
 {
-    return (((c[3]*x + c[2])*x + c[1])*x + c[0]);
+    return (((c[3] * x + c[2]) * x + c[1]) * x + c[0]);
 }
 
 //! Templated deep copy of a std vector of pointers
@@ -672,7 +709,7 @@ void deepStdVectorPointerCopy(const std::vector<D*> &fromVec, std::vector<D*> &t
     size_t is = toVec.size();
     for (size_t i = 0; i < is; is++) {
         if (toVec[i]) {
-            delete(toVec[i]);
+            delete (toVec[i]);
         }
     }
     is = fromVec.size();
