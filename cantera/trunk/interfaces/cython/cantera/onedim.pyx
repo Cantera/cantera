@@ -3,9 +3,12 @@ cdef class Domain1D:
     def __cinit__(self, *args, **kwargs):
         self.domain = NULL
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, name=None, **kwargs):
         if self.domain is NULL:
             raise TypeError("Can't instantiate abstract class Domain1D.")
+
+        if name is not None:
+            self.name = name
 
     property index:
         """
@@ -917,12 +920,9 @@ class FreeFlame(FlameBase):
         the flame. The three domains comprising the stack are stored as
         ``self.inlet``, ``self.flame``, and ``self.outlet``.
         """
-        self.inlet = Inlet1D()
-        self.inlet.name = 'reactants'
-        self.outlet = Outlet1D()
-        self.outlet.name = 'products'
-        self.flame = FreeFlow(gas)
-        self.flame.name = 'flame'
+        self.inlet = Inlet1D(name='reactants')
+        self.outlet = Outlet1D(name='products')
+        self.flame = FreeFlow(gas, name='flame')
 
         super().__init__((self.inlet, self.flame, self.outlet), gas, grid)
 
@@ -971,13 +971,10 @@ class BurnerFlame(FlameBase):
         stack are stored as ``self.burner``, ``self.flame``, and
         ``self.outlet``.
         """
-        self.burner = Inlet1D()
-        self.burner.name = 'burner'
+        self.burner = Inlet1D(name='burner')
         self.burner.T = gas.T
-        self.outlet = Outlet1D()
-        self.outlet.name = 'outlet'
-        self.flame = AxisymmetricStagnationFlow(gas)
-        self.flame.name = 'flame'
+        self.outlet = Outlet1D(name='outlet')
+        self.flame = AxisymmetricStagnationFlow(gas, name='flame')
 
         super().__init__((self.burner, self.flame, self.outlet), gas, grid)
 
@@ -1026,16 +1023,13 @@ class CounterflowDiffusionFlame(FlameBase):
         stack are stored as ``self.fuel_inlet``, ``self.flame``, and
         ``self.oxidizer_inlet``.
         """
-        self.fuel_inlet = Inlet1D()
-        self.fuel_inlet.name = 'fuel_inlet'
+        self.fuel_inlet = Inlet1D(name='fuel_inlet')
         self.fuel_inlet.T = gas.T
 
-        self.oxidizer_inlet = Inlet1D()
-        self.oxidizer_inlet.name = 'oxidizer_inlet'
+        self.oxidizer_inlet = Inlet1D(name='oxidizer_inlet')
         self.oxidizer_inlet.T = gas.T
 
-        self.flame = AxisymmetricStagnationFlow(gas)
-        self.flame.name = 'flame'
+        self.flame = AxisymmetricStagnationFlow(gas, name='flame')
 
         super().__init__((self.fuel_inlet, self.flame, self.oxidizer_inlet),
                          gas, grid)
@@ -1142,18 +1136,15 @@ class ImpingingJet(FlameBase):
         created to represent the flow. The three domains comprising the stack
         are stored as ``self.inlet``, ``self.flame``, and ``self.surface``.
         """
-        self.inlet = Inlet1D()
-        self.inlet.name = 'inlet'
+        self.inlet = Inlet1D(name='inlet')
         self.inlet.T = gas.T
-        self.flame = AxisymmetricStagnationFlow(gas)
-        self.flame.name = 'flame'
+        self.flame = AxisymmetricStagnationFlow(gas, name='flame')
 
         if surface is None:
-            self.surface = Surface1D()
+            self.surface = Surface1D(name='surface')
         else:
-            self.surface = ReactingSurface1D()
+            self.surface = ReactingSurface1D(name='surface')
             self.surface.set_kinetics(surface)
-        self.surface.name = 'surface'
 
         self.surface.T = surface.T
 
