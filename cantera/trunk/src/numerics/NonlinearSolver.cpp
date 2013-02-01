@@ -6,11 +6,7 @@
  */
 
 /*
- *  $Date$
- *  $Revision$
- */
-/*
- * Copywrite 2004 Sandia Corporation. Under the terms of Contract
+ * Copyright 2004 Sandia Corporation. Under the terms of Contract
  * DE-AC04-94AL85000 with Sandia Corporation, the U.S. Government
  * retains certain rights in this software.
  * See file License.txt for licensing information.
@@ -26,6 +22,7 @@
 #include "cantera/base/clockWC.h"
 #include "cantera/base/vec_functions.h"
 #include "cantera/base/mdp_allo.h"
+#include "cantera/base/stringUtils.h"
 
 #include <cfloat>
 #include <ctime>
@@ -34,12 +31,7 @@
 #include <cmath>
 
 //@{
-extern void print_line(const char *, int);
 
-#ifndef MAX
-#define MAX(x,y)    (( (x) > (y) ) ? (x) : (y))
-#define MIN(x,y)    (( (x) < (y) ) ? (x) : (y))
-#endif
 #ifndef CONSTD_DATA_PTR
 #define CONSTD_DATA_PTR(x) (( const doublereal *) (&x[0]))
 #endif
@@ -109,6 +101,7 @@ namespace Cantera {
     m_y_n_curr(0),
     m_ydot_n_curr(0),
     m_y_nm1(0),
+    m_ydot_nm1(0),
     m_y_n_trial(0),
     m_ydot_trial(0),
     m_colScales(0),
@@ -144,7 +137,6 @@ namespace Cantera {
     m_order(1),
     rtol_(1.0E-3),
     atolBase_(1.0E-10),
-    m_ydot_nm1(0),
     atolk_(0),
     userResidAtol_(0),
     userResidRtol_(1.0E-3),
@@ -210,7 +202,7 @@ namespace Cantera {
     m_y_high_bounds.resize(neq_, hb);
     m_y_low_bounds.resize(neq_, -hb);    
 
-    for (int i = 0; i < neq_; i++) {
+    for (size_t i = 0; i < neq_; i++) {
       atolk_[i] = atolBase_;
       m_ewt[i] = atolk_[i];
     }
@@ -233,6 +225,7 @@ namespace Cantera {
     m_y_n_curr(0),
     m_ydot_n_curr(0),
     m_y_nm1(0),
+    m_ydot_nm1(0),
     m_y_n_trial(0),
     m_ydot_trial(0),
     m_step_1(0),
@@ -269,7 +262,6 @@ namespace Cantera {
     m_order(1),
     rtol_(1.0E-3),
     atolBase_(1.0E-10),
-    m_ydot_nm1(0),
     atolk_(0),
     userResidAtol_(0),
     userResidRtol_(1.0E-3),
@@ -438,7 +430,7 @@ namespace Cantera {
    * @param y  vector of the current solution values
    */
   void NonlinearSolver::createSolnWeights(const doublereal * const y) {
-    for (int i = 0; i < neq_; i++) {
+    for (size_t i = 0; i < neq_; i++) {
       m_ewt[i] = rtol_ * fabs(y[i]) + atolk_[i];
 #ifdef DEBUG_MODE
       if (m_ewt[i] <= 0.0) {
@@ -456,7 +448,7 @@ namespace Cantera {
    */
   void NonlinearSolver::setBoundsConstraints(const doublereal * const y_low_bounds,
 					     const doublereal * const y_high_bounds) {
-    for (int i = 0; i < neq_; i++) {
+    for (size_t i = 0; i < neq_; i++) {
       m_y_low_bounds[i]  = y_low_bounds[i];
       m_y_high_bounds[i] = y_high_bounds[i];
     }
@@ -493,9 +485,8 @@ namespace Cantera {
   doublereal NonlinearSolver::solnErrorNorm(const doublereal * const delta_y, const char * title, int printLargest,
 					    const doublereal dampFactor) const
   {
-    int  i;
     doublereal sum_norm = 0.0, error;
-    for (i = 0; i < neq_; i++) {
+    for (size_t i = 0; i < neq_; i++) {
       error     = delta_y[i] / m_ewt[i];
       sum_norm += (error * error);
     }
@@ -526,7 +517,7 @@ namespace Cantera {
 
 	doublereal dmax1, normContrib;
 	int j; 
-	int *imax = mdp::mdp_alloc_int_1(num_entries, -1);
+	std::vector<size_t> imax(num_entries, npos);
         printf("\t\t        Printout of Largest Contributors:                     (damp = %g)\n", dampFactor);
         printf("\t\t        I   weightdeltaY/sqtN|     deltaY    "
 	       "ysolnOld     ysolnNew   Soln_Weights\n");
@@ -534,7 +525,7 @@ namespace Cantera {
 
 	for (int jnum = 0; jnum < num_entries; jnum++) {
 	  dmax1 = -1.0;
-	  for (i = 0; i < neq_; i++) {
+	  for (size_t i = 0; i < neq_; i++) {
 	    bool used = false;
 	    for (j = 0; j < jnum; j++) {
 	      if (imax[j] == i) used = true;
@@ -548,17 +539,16 @@ namespace Cantera {
 	      }
 	    }
 	  }
-	  i = imax[jnum];
-	  if (i >= 0) {
+	  size_t i = imax[jnum];
+	  if (i != npos) {
 	    error = delta_y[i] / m_ewt[i];
 	    normContrib = sqrt(error * error);
-	    printf("\t\t     %4d %12.4e       | %12.4e %12.4e %12.4e %12.4e\n", i, normContrib/sqrt((double)neq_), 
+	    printf("\t\t     %4s %12.4e       | %12.4e %12.4e %12.4e %12.4e\n", int2str(i).c_str(), normContrib/sqrt((double)neq_), 
 		   delta_y[i], m_y_n_curr[i], m_y_n_curr[i] + dampFactor * delta_y[i], m_ewt[i]);
 
 	  }	  
 	}
 	printf("\t\t   "); print_line("-", 90);
-	mdp::mdp_safe_free((void **) &imax);
       }
     }
     return sum_norm;
@@ -574,10 +564,9 @@ namespace Cantera {
   doublereal NonlinearSolver::residErrorNorm(const doublereal * const resid, const char * title, const int printLargest,
 					     const doublereal * const y) const
   {
-    int    i;
     doublereal sum_norm = 0.0, error;
 
-    for (i = 0; i < neq_; i++) {
+    for (size_t i = 0; i < neq_; i++) {
 #ifdef DEBUG_MODE
       mdp::checkFinite(resid[i]);
 #endif
@@ -595,7 +584,7 @@ namespace Cantera {
       const int num_entries = printLargest;
       doublereal dmax1, normContrib;
       int j;
-      int *imax = mdp::mdp_alloc_int_1(num_entries, -1);
+      std::vector<size_t> imax(num_entries, npos);
 
       if (m_print_flag >= 4 && m_print_flag <= 5) {
 	printf("\t\t   residErrorNorm():");
@@ -621,7 +610,7 @@ namespace Cantera {
         print_line("-", 88);
 	for (int jnum = 0; jnum < num_entries; jnum++) {
 	  dmax1 = -1.0;
-	  for (i = 0; i < neq_; i++) {
+	  for (size_t i = 0; i < neq_; i++) {
 	    bool used = false;
 	    for (j = 0; j < jnum; j++) {
 	      if (imax[j] == i) used = true;
@@ -635,18 +624,17 @@ namespace Cantera {
 	      }
 	    }
 	  }
-	  i = imax[jnum];
-	  if (i >= 0) {
+	  size_t i = imax[jnum];
+	  if (i != npos) {
 	    error = resid[i] / m_residWts[i];
 	    normContrib = sqrt(error * error);
-	    printf("\t\t     %4d     %12.4e     %12.4e     %12.4e | %12.4e\n", i,  normContrib, resid[i], m_residWts[i], y[i]);
+	    printf("\t\t     %4s     %12.4e     %12.4e     %12.4e | %12.4e\n", int2str(i).c_str(),  normContrib, resid[i], m_residWts[i], y[i]);
 	  }	  
 	}
       
 	printf("\t\t   "); 
 	print_line("-", 90);
       }
-      mdp::mdp_safe_free((void **) &imax);
     }
     return sum_norm;
   }
@@ -660,7 +648,7 @@ namespace Cantera {
    *  effect of ensuring that all delta variables will have the same order of magnitude at convergence
    *  end.
    *  
-   *  The second way is the explicity set the column factors in the second argument of this function call.
+   *  The second way is the explicitly set the column factors in the second argument of this function call.
    *
    *  The final way to input the scales is to override the ResidJacEval member function call,
    *
@@ -675,7 +663,7 @@ namespace Cantera {
     if (useColScaling) {
       if (scaleFactors) {
         m_colScaling = 2;
-        for (int i = 0; i < neq_; i++) {
+        for (size_t i = 0; i < neq_; i++) {
           m_colScales[i] = scaleFactors[i];
           if (m_colScales[i] <= 1.0E-200) {
             throw CanteraError("NonlinearSolver::setColumnScaling() ERROR", "Bad column scale factor");
@@ -706,11 +694,11 @@ namespace Cantera {
    */
   void NonlinearSolver::calcColumnScales() {
     if (m_colScaling == 1) {
-      for (int i = 0; i < neq_; i++) {
+      for (size_t i = 0; i < neq_; i++) {
 	m_colScales[i] = m_ewt[i];
       }
     } else {
-      for (int i = 0; i < neq_; i++) {
+      for (size_t i = 0; i < neq_; i++) {
 	m_colScales[i] = 1.0;
       }
     }
@@ -750,7 +738,6 @@ namespace Cantera {
 				    doublereal time_curr, int num_newt_its)
   {	 
     int irow, jcol;
-    int ku, kl;
     size_t ivec[2];
     jac.nRowsAndStruct(ivec);
     double *colP_j;
@@ -772,19 +759,19 @@ namespace Cantera {
 	   * Scale the new Jacobian
 	   */
 	  doublereal *jptr = &(*(jac.begin()));
-	  for (jcol = 0; jcol < neq_; jcol++) {
-	    for (irow = 0; irow < neq_; irow++) {
+	  for (jcol = 0; jcol < (int) neq_; jcol++) {
+	    for (irow = 0; irow < (int) neq_; irow++) {
 	      *jptr *= m_colScales[jcol];
 	      jptr++;
 	    }
 	  }
 	} else if (jac.matrixType_ == 1) {
-	  kl = ivec[0];
-	  ku = ivec[1];
-	  for (jcol = 0; jcol < neq_; jcol++) {
+	  int kl = static_cast<int>(ivec[0]);
+	  int ku = static_cast<int>(ivec[1]);
+	  for (jcol = 0; jcol < (int) neq_; jcol++) {
 	    colP_j = (doublereal *) jac.ptrColumn(jcol);
 	    for (irow = jcol - ku; irow <= jcol + kl; irow++) {
-	      if (irow >= 0 && irow < neq_) {
+	      if (irow >= 0 && irow < (int) neq_) {
 		colP_j[kl + ku + irow - jcol] *= m_colScales[jcol];
 	      }
 	    }
@@ -793,7 +780,7 @@ namespace Cantera {
       }
     }
     /*
-     * row sum scaling -> Note, this is an unequivical success
+     * row sum scaling -> Note, this is an unequivocal success
      *      at keeping the small numbers well balanced and nonnegative.
      */
     if (! jac.factored()) {
@@ -803,13 +790,13 @@ namespace Cantera {
        * Then &(*()) reverts it to a doublereal *.
        */
       doublereal *jptr = &(*(jac.begin()));
-      for (irow = 0; irow < neq_; irow++) {
+      for (irow = 0; irow < (int) neq_; irow++) {
 	m_rowScales[irow] = 0.0;
 	m_rowWtScales[irow] = 0.0;
       }
       if (jac.matrixType_ == 0) {
-	for (jcol = 0; jcol < neq_; jcol++) {
-	  for (irow = 0; irow < neq_; irow++) {
+	for (jcol = 0; jcol < (int) neq_; jcol++) {
+	  for (irow = 0; irow < (int) neq_; irow++) {
 	    if (m_rowScaling) {
 	      m_rowScales[irow] += fabs(*jptr);
 	    }
@@ -827,12 +814,12 @@ namespace Cantera {
 	  }
 	}	
       } else if (jac.matrixType_ == 1) {
-	kl = ivec[0];
-	ku = ivec[1];
-	for (jcol = 0; jcol < neq_; jcol++) {
+        int kl = static_cast<int>(ivec[0]);
+        int ku = static_cast<int>(ivec[1]);
+	for (jcol = 0; jcol < (int) neq_; jcol++) {
 	  colP_j = (doublereal *) jac.ptrColumn(jcol);
 	  for (irow = jcol - ku; irow <= jcol + kl; irow++) {
-	    if (irow >= 0 && irow < neq_) {
+	    if (irow >= 0 && irow < (int) neq_) {
 	      double vv = fabs(colP_j[kl + ku + irow - jcol]);
 	      if (m_rowScaling) {
 		m_rowScales[irow] += vv;
@@ -852,11 +839,11 @@ namespace Cantera {
 	}
       }
       if (m_rowScaling) {
-	for (irow = 0; irow < neq_; irow++) {
+	for (irow = 0; irow < (int) neq_; irow++) {
 	  m_rowScales[irow] = 1.0/m_rowScales[irow];
 	}
       } else {
-	for (irow = 0; irow < neq_; irow++) {
+	for (irow = 0; irow < (int) neq_; irow++) {
 	  m_rowScales[irow] = 1.0;
 	}
       }
@@ -866,19 +853,19 @@ namespace Cantera {
       if (m_rowScaling) {
 	if (jac.matrixType_ == 0) {
 	  jptr = &(*(jac.begin()));
-	  for (jcol = 0; jcol < neq_; jcol++) {
-	    for (irow = 0; irow < neq_; irow++) {
+	  for (jcol = 0; jcol < (int) neq_; jcol++) {
+	    for (irow = 0; irow < (int) neq_; irow++) {
 	      *jptr *= m_rowScales[irow];
 	      jptr++;
 	    }
 	  }
 	} else if (jac.matrixType_ == 1) {
-	  kl = ivec[0];
-	  ku = ivec[1];
-	  for (jcol = 0; jcol < neq_; jcol++) {
+          int kl = static_cast<int>(ivec[0]);
+          int ku = static_cast<int>(ivec[1]);
+	  for (jcol = 0; jcol < (int) neq_; jcol++) {
 	    colP_j = (doublereal *) jac.ptrColumn(jcol);
 	    for (irow = jcol - ku; irow <= jcol + kl; irow++) {
-	      if (irow >= 0 && irow < neq_) {
+	      if (irow >= 0 && irow < (int) neq_) {
 		colP_j[kl + ku + irow - jcol] *= m_rowScales[irow];
 	      }
 	    }
@@ -906,32 +893,32 @@ namespace Cantera {
    
       if (checkUserResidualTols_ != 1) {
 	doublereal sum = 0.0;
-	for (int irow = 0; irow < neq_; irow++) {
+	for (size_t irow = 0; irow < neq_; irow++) {
 	  m_residWts[irow] = m_rowWtScales[irow] / neq_;
 	  sum += m_residWts[irow];
 	}
 	sum /= neq_;
-	for (int irow = 0; irow < neq_; irow++) {
+	for (size_t irow = 0; irow < neq_; irow++) {
 	  m_residWts[irow] = (m_residWts[irow] + atolBase_ * atolBase_ * sum);
 	}
 	if (checkUserResidualTols_ == 2) {
-	  for (int irow = 0; irow < neq_; irow++) {
-	    m_residWts[irow] = MIN(m_residWts[irow], userResidAtol_[irow] + userResidRtol_ * m_rowWtScales[irow] / neq_);
+	  for (size_t irow = 0; irow < neq_; irow++) {
+	    m_residWts[irow] = std::min(m_residWts[irow], userResidAtol_[irow] + userResidRtol_ * m_rowWtScales[irow] / neq_);
 	  }
 	}
       } else {
-	for (int irow = 0; irow < neq_; irow++) {
+	for (size_t irow = 0; irow < neq_; irow++) {
 	  m_residWts[irow] = userResidAtol_[irow] + userResidRtol_ * m_rowWtScales[irow] / neq_;
 	}
       }
       
       
-      for (int irow = 0; irow < neq_; irow++) {
+      for (size_t irow = 0; irow < neq_; irow++) {
         m_wksp[irow] = 0.0;
       }   
       doublereal *jptr = &(jacCopyPtr_->operator()(0,0));
-      for (int jcol = 0; jcol < neq_; jcol++) {
-	for (int irow = 0; irow < neq_; irow++) {
+      for (size_t jcol = 0; jcol < neq_; jcol++) {
+	for (size_t irow = 0; irow < neq_; irow++) {
 	  m_wksp[irow] += (*jptr) * m_ewt[jcol];
 	  jptr++;
 	}
@@ -939,7 +926,7 @@ namespace Cantera {
       doublereal resNormOld = 0.0;
       doublereal error;
      
-      for (int irow = 0; irow < neq_; irow++) {
+      for (size_t irow = 0; irow < neq_; irow++) {
 	error = m_wksp[irow] /  m_residWts[irow];
         resNormOld  += error * error;
       }
@@ -976,17 +963,14 @@ namespace Cantera {
 				     const doublereal * const ydot_curr,  doublereal * const delta_y, 
 				     GeneralMatrix& jac)
   {
-    int irow;
-
-
     // multiply the residual by -1
     if (m_rowScaling  && !m_resid_scaled) {
-      for (int n = 0; n < neq_; n++) {
+      for (size_t n = 0; n < neq_; n++) {
 	delta_y[n] = -m_rowScales[n] * m_resid[n];
       }
       m_resid_scaled = true;
     } else {
-      for (int n = 0; n < neq_; n++) {
+      for (size_t n = 0; n < neq_; n++) {
         delta_y[n] = -m_resid[n];
       }
     }
@@ -1004,14 +988,14 @@ namespace Cantera {
      * reverse the column scaling if there was any.
      */
     if (m_colScaling) {
-      for (irow = 0; irow < neq_; irow++) {
+      for (size_t irow = 0; irow < neq_; irow++) {
 	delta_y[irow] = delta_y[irow] * m_colScales[irow];
       }
     }
 	
 #ifdef DEBUG_JAC
     if (printJacContributions) {
-      for (int iNum = 0; iNum < numRows; iNum++) {
+      for (size_t iNum = 0; iNum < numRows; iNum++) {
 	if (iNum > 0) focusRow++;
 	doublereal dsum = 0.0;
 	vector_fp& Jdata = jacBack.data();
@@ -1031,7 +1015,7 @@ namespace Cantera {
 	       focusRow, delta_y[focusRow],
 	       dRow, RRow[iNum] / dRow, RRow[iNum]);
 	dsum +=  RRow[iNum] / dRow;
-	for (int ii = 0; ii < neq_; ii++) {
+	for (size_t ii = 0; ii < neq_; ii++) {
 	  if (ii != focusRow) {
 	    doublereal aij =  Jdata[neq_ * ii + focusRow];
 	    doublereal contrib = aij * delta_y[ii] * (-1.0) / dRow;
@@ -1072,20 +1056,19 @@ namespace Cantera {
 					   doublereal * const delta_y, GeneralMatrix& jac)
   {
     bool newtonGood = true;
-    int irow;
     doublereal *delyNewton = 0;
     // We can default to QR here ( or not )
     jac.useFactorAlgorithm(1);
     int useQR = jac.factorAlgorithm();
-    // multiplyl the residual by -1
+    // multiply the residual by -1
     // Scale the residual if there is row scaling. Note, the matrix has already been scaled
     if (m_rowScaling  && !m_resid_scaled) {
-      for (int n = 0; n < neq_; n++) {
+      for (size_t n = 0; n < neq_; n++) {
 	delta_y[n] = -m_rowScales[n] * m_resid[n];
       }
       m_resid_scaled = true;
     } else {
-      for (int n = 0; n < neq_; n++) {
+      for (size_t n = 0; n < neq_; n++) {
         delta_y[n] = -m_resid[n];
       }
     }
@@ -1132,9 +1115,7 @@ namespace Cantera {
     if (s_doBothSolvesAndCompare) {
       doHessian = true;
     }
-    bool useNewton = false;
     if (m_conditionNumber < 1.0E7) {
-      useNewton = true;
       if (m_print_flag >= 4) {
 	printf("\t\t   doAffineNewtonSolve: Condition number = %g during regular solve\n", m_conditionNumber);
       }
@@ -1154,14 +1135,13 @@ namespace Cantera {
        * reverse the column scaling if there was any on a successful solve
        */
       if (m_colScaling) {
-	for (irow = 0; irow < neq_; irow++) {
+	for (size_t irow = 0; irow < neq_; irow++) {
 	  delta_y[irow] = delta_y[irow] * m_colScales[irow];
 	}
       }
       
     } else {
       if (jac.matrixType_ == 1) {
-	useNewton = true;
 	newtonGood = true;
 	if (m_print_flag >= 3) {
 	  printf("\t\t   doAffineNewtonSolve() WARNING: Condition number too large, %g, But Banded Hessian solve "
@@ -1179,8 +1159,8 @@ namespace Cantera {
     if (doHessian) {
       // Store the old value for later comparison
  
-      delyNewton = mdp::mdp_alloc_dbl_1(neq_, MDP_DBL_NOINIT);
-      for (irow = 0; irow < neq_; irow++) {
+      delyNewton = mdp::mdp_alloc_dbl_1((int) neq_, MDP_DBL_NOINIT);
+      for (size_t irow = 0; irow < neq_; irow++) {
 	delyNewton[irow] = delta_y[irow];
       }
       
@@ -1196,18 +1176,18 @@ namespace Cantera {
       GeneralMatrix &jacCopy = *jacCopyPtr_;
       hessian.zero();
       if (m_rowScaling) {
-	for (int i = 0; i < neq_; i++) {
-	  for (int j = i; j < neq_; j++) {
-	    for (int k = 0; k < neq_; k++) {
+	for (size_t i = 0; i < neq_; i++) {
+	  for (size_t j = i; j < neq_; j++) {
+	    for (size_t k = 0; k < neq_; k++) {
 	      hessian(i,j) += jacCopy(k,i) * jacCopy(k,j) * m_rowScales[k] * m_rowScales[k];
 	    }
 	    hessian(j,i) = hessian(i,j);
 	  }
 	}
       } else {
-	for (int i = 0; i < neq_; i++) {
-	  for (int j = i; j < neq_; j++) {
-	    for (int k = 0; k < neq_; k++) {
+	for (size_t i = 0; i < neq_; i++) {
+	  for (size_t j = i; j < neq_; j++) {
+	    for (size_t k = 0; k < neq_; k++) {
 	      hessian(i,j) += jacCopy(k,i) * jacCopy(k,j);
 	    }
 	    hessian(j,i) = hessian(i,j);
@@ -1221,11 +1201,11 @@ namespace Cantera {
       doublereal hnorm = 0.0;
       doublereal hcol = 0.0;
       if (m_colScaling) {
-	for (int i = 0; i < neq_; i++) {
-	  for (int j = i; j < neq_; j++) {
+	for (size_t i = 0; i < neq_; i++) {
+	  for (size_t j = i; j < neq_; j++) {
 	    hcol += fabs(hessian(j,i)) * m_colScales[j];
 	  }
-	  for (int j = i+1; j < neq_; j++) {
+	  for (size_t j = i+1; j < neq_; j++) {
 	    hcol += fabs(hessian(i,j)) * m_colScales[j];
 	  }
 	  hcol *= m_colScales[i];
@@ -1234,11 +1214,11 @@ namespace Cantera {
 	  }
 	}
       } else {
-	for (int i = 0; i < neq_; i++) {
-	  for (int j = i; j < neq_; j++) {
+	for (size_t i = 0; i < neq_; i++) {
+	  for (size_t j = i; j < neq_; j++) {
 	    hcol += fabs(hessian(j,i));
 	  }
-	  for (int j = i+1; j < neq_; j++) {
+	  for (size_t j = i+1; j < neq_; j++) {
 	    hcol += fabs(hessian(i,j));
 	  }
 	  if (hcol > hnorm) {
@@ -1257,11 +1237,11 @@ namespace Cantera {
       }
 #endif
       if (m_colScaling) {
-	for (int i = 0; i < neq_; i++) {
+	for (size_t i = 0; i < neq_; i++) {
 	  hessian(i,i) += hcol / (m_colScales[i] * m_colScales[i]);
 	}
       } else {
-	for (int i = 0; i < neq_; i++) {
+	for (size_t i = 0; i < neq_; i++) {
 	  hessian(i,i) += hcol;
 	}
       }
@@ -1279,29 +1259,29 @@ namespace Cantera {
       }
 
       // doublereal *JTF = delta_y;
-      doublereal *delyH = mdp::mdp_alloc_dbl_1(neq_, MDP_DBL_NOINIT);
+      doublereal *delyH = mdp::mdp_alloc_dbl_1((int) neq_, MDP_DBL_NOINIT);
       // First recalculate the scaled residual. It got wiped out doing the newton solve
       if (m_rowScaling) {
-	for (int n = 0; n < neq_; n++) {
+	for (size_t n = 0; n < neq_; n++) {
 	  delyH[n] = -m_rowScales[n] * m_resid[n];
 	}
       } else {
-	for (int n = 0; n < neq_; n++) {
+	for (size_t n = 0; n < neq_; n++) {
 	  delyH[n] = -m_resid[n];
 	}
       }
 
       if (m_rowScaling) {
-	for (int j = 0; j < neq_; j++) {
+	for (size_t j = 0; j < neq_; j++) {
 	  delta_y[j] = 0.0;
-	  for (int i = 0; i < neq_; i++) {
+	  for (size_t i = 0; i < neq_; i++) {
 	    delta_y[j] += delyH[i] * jacCopy(i,j) * m_rowScales[i];
 	  }
 	}
       } else {
-	for (int j = 0; j < neq_; j++) {
+	for (size_t j = 0; j < neq_; j++) {
 	  delta_y[j] = 0.0;
-	  for (int i = 0; i < neq_; i++) {
+	  for (size_t i = 0; i < neq_; i++) {
 	    delta_y[j] += delyH[i] * jacCopy(i,j);
 	  }
 	}
@@ -1322,7 +1302,7 @@ namespace Cantera {
        * reverse the column scaling if there was any.
        */
       if (m_colScaling) {
-	for (irow = 0; irow < neq_; irow++) {
+	for (size_t irow = 0; irow < neq_; irow++) {
 	  delta_y[irow] = delta_y[irow] * m_colScales[irow];
 	}
       }
@@ -1342,8 +1322,8 @@ namespace Cantera {
 	printf("\t\t            Norm: %12.4E %12.4E\n", normHess, normNewt);
        
 	printf("\t\t          --------------------------------------------------------\n");
-	for (int i =0; i < neq_; i++) {
-	  printf("\t\t             %3d  %13.5E %13.5E\n", i, delta_y[i], delyNewton[i]);
+	for (size_t i = 0; i < neq_; i++) {
+	  printf("\t\t             %3s  %13.5E %13.5E\n", int2str(i).c_str(), delta_y[i], delyNewton[i]);
 	}
 	printf("\t\t          --------------------------------------------------------\n");
       } else if (doDogLeg_ && m_print_flag >= 4) {
@@ -1362,7 +1342,7 @@ namespace Cantera {
        *  Choose the delta_y to use
        */
       if (newtonGood || s_alwaysAssumeNewtonGood) {
-	mdp::mdp_copy_dbl_1(DATA_PTR(delta_y), CONSTD_DATA_PTR(delyNewton), neq_);
+	mdp::mdp_copy_dbl_1(DATA_PTR(delta_y), CONSTD_DATA_PTR(delyNewton), (int) neq_);
       }
       mdp::mdp_safe_free((void **) &delyH);
       mdp::mdp_safe_free((void **) &delyNewton);
@@ -1431,14 +1411,14 @@ namespace Cantera {
      *  actual equation
      *
      *  Here we calculate the steepest descent direction. This is equation (11) in the notes. It is
-     *  storred in deltaX_CP_[].The value corresponds to d_descent[].
+     *  stored in deltaX_CP_[].The value corresponds to d_descent[].
      */
-    for (int j = 0; j < neq_; j++) {
+    for (size_t j = 0; j < neq_; j++) {
       deltaX_CP_[j] = 0.0;
       if (m_colScaling) {
 	colFac = 1.0 / m_colScales[j];
       }
-      for (int i = 0; i < neq_; i++) {
+      for (size_t i = 0; i < neq_; i++) {
 	if (m_rowScaling) {
 	  rowFac = 1.0 / m_rowScales[i];
 	}
@@ -1453,14 +1433,14 @@ namespace Cantera {
     /*
      *  Calculate J_hat d_y_descent. This is formula 18 in the notes.
      */
-    for (int i = 0; i < neq_; i++) {
+    for (size_t i = 0; i < neq_; i++) {
       Jd_[i] = 0.0;
       if (m_rowScaling) {
 	rowFac = 1.0 / m_rowScales[i];
       } else {
 	rowFac = 1.0;
       }
-      for (int j = 0; j < neq_; j++) {
+      for (size_t j = 0; j < neq_; j++) {
         if (m_colScaling) {
           colFac = 1.0 / m_colScales[j];
         }
@@ -1474,7 +1454,7 @@ namespace Cantera {
      */
     RJd_norm_ = 0.0;
     JdJd_norm_ = 0.0;
-    for (int i = 0; i < neq_; i++) {
+    for (size_t i = 0; i < neq_; i++) {
       RJd_norm_ += m_resid[i] * Jd_[i] / m_residWts[i];
       JdJd_norm_ += Jd_[i] * Jd_[i];
     }
@@ -1496,7 +1476,7 @@ namespace Cantera {
      *  Cauchy distance. From now on, if we want to recreate the descent vector, we have
      *  to unnormalize it by dividing by lambdaStar_.
      */
-    for (int i = 0; i < neq_; i++) {
+    for (size_t i = 0; i < neq_; i++) {
       deltaX_CP_[i] *= lambdaStar_;
     }
 
@@ -1550,7 +1530,6 @@ namespace Cantera {
   //===================================================================================================================
   void  NonlinearSolver::descentComparison(doublereal time_curr, doublereal *ydot0, doublereal *ydot1, int &numTrials)
   {
-    int info;
     doublereal ff = 1.0E-5;
     doublereal ffNewt = 1.0E-5;
     doublereal *y_n_1 = DATA_PTR(m_wksp);
@@ -1561,7 +1540,7 @@ namespace Cantera {
 	ff = 1.0E-2;
       }
     }
-    for (int i = 0; i < neq_; i++) {
+    for (size_t i = 0; i < neq_; i++) {
       y_n_1[i] = m_y_n_curr[i] + ff * deltaX_CP_[i];
     }
     /*
@@ -1569,9 +1548,9 @@ namespace Cantera {
      *  -> m_resid[] contains the result of the residual calculation
      */
     if (solnType_ != NSOLN_TYPE_STEADY_STATE) {
-      info = doResidualCalc(time_curr, solnType_, y_n_1, ydot1, Base_LaggedSolutionComponents);
+      doResidualCalc(time_curr, solnType_, y_n_1, ydot1, Base_LaggedSolutionComponents);
     } else {
-      info = doResidualCalc(time_curr, solnType_, y_n_1, ydot0, Base_LaggedSolutionComponents);
+      doResidualCalc(time_curr, solnType_, y_n_1, ydot0, Base_LaggedSolutionComponents);
     }  
 
     doublereal normResid02 = m_normResid_0 * m_normResid_0 * neq_;
@@ -1583,7 +1562,7 @@ namespace Cantera {
     if (sNewt > 1.0) {
       ffNewt = ffNewt / sNewt;
     }
-    for (int i = 0; i < neq_; i++) {
+    for (size_t i = 0; i < neq_; i++) {
       y_n_1[i] = m_y_n_curr[i] + ffNewt * deltaX_Newton_[i];
     }
     /*
@@ -1594,16 +1573,16 @@ namespace Cantera {
      *  -> m_resid[] contains the result of the residual calculation
      */
     if (solnType_ != NSOLN_TYPE_STEADY_STATE) {
-      info = doResidualCalc(time_curr, solnType_, y_n_1, ydot1, Base_LaggedSolutionComponents);
+      doResidualCalc(time_curr, solnType_, y_n_1, ydot1, Base_LaggedSolutionComponents);
     } else {
-      info = doResidualCalc(time_curr, solnType_, y_n_1, ydot0, Base_LaggedSolutionComponents);
+      doResidualCalc(time_curr, solnType_, y_n_1, ydot0, Base_LaggedSolutionComponents);
     }  
     doublereal residNewt = residErrorNorm(DATA_PTR(m_resid));
     doublereal residNewt2 = residNewt * residNewt * neq_;
 
     doublereal funcDecreaseNewt2 = 0.5 * (residNewt2 - normResid02) / ( ffNewt * sNewt);
 
-    // This is the expected inital rate of decrease in the Cauchy direction.
+    // This is the expected initial rate of decrease in the Cauchy direction.
     //   -> This is Eqn. 29 = Rhat dot Jhat dy / || d ||
     doublereal funcDecreaseSDExp = RJd_norm_ / cauchyDistanceNorm * lambdaStar_;
 
@@ -1627,7 +1606,7 @@ namespace Cantera {
      *   The steepest direction is always largest even when there are variable solution weights
      *
      *   HKM When a hessian is used with junk on the diagonal,  funcDecreaseNewtExp2 is no longer accurate as the
-     *  direction gets signficantly shorter with increasing condition number. This suggests an algorithm where the 
+     *  direction gets significantly shorter with increasing condition number. This suggests an algorithm where the 
      *  newton step from the Hessian should be increased so as to match funcDecreaseNewtExp2 =  funcDecreaseNewt2.
      *  This roughly equals the ratio of the norms of the hessian and newton steps. This increased Newton step can
      *  then be used with the trust region double dogleg algorithm. 
@@ -1654,14 +1633,14 @@ namespace Cantera {
 	 if (ii == 12) {
 	   ff = ffNewt;
 	 }
-	 for (int i = 0; i < neq_; i++) {
+	 for (size_t i = 0; i < neq_; i++) {
 	   y_n_1[i] = m_y_n_curr[i] + ff * deltaX_Newton_[i];
 	 } 
 	 numTrials += 1;
 	 if (solnType_ != NSOLN_TYPE_STEADY_STATE) {
-	   info = doResidualCalc(time_curr, solnType_, y_n_1, ydot1, Base_LaggedSolutionComponents);
+	   doResidualCalc(time_curr, solnType_, y_n_1, ydot1, Base_LaggedSolutionComponents);
 	 } else {
-	   info = doResidualCalc(time_curr, solnType_, y_n_1, ydot0, Base_LaggedSolutionComponents);
+	   doResidualCalc(time_curr, solnType_, y_n_1, ydot0, Base_LaggedSolutionComponents);
 	 }  
 	 residNewt = residErrorNorm(DATA_PTR(m_resid));
 	 residNewt2 = residNewt * residNewt * neq_;
@@ -1725,7 +1704,7 @@ namespace Cantera {
     Nuu_ = beta;
 
     dist_R0_ = m_normDeltaSoln_CP;
-    for (int i = 0; i < neq_; i++) {
+    for (size_t i = 0; i < neq_; i++) {
       m_wksp[i] = Nuu_ * deltaX_Newton_[i] - deltaX_CP_[i];
     }
     dist_R1_ = solnErrorNorm(DATA_PTR(m_wksp));
@@ -1853,9 +1832,9 @@ namespace Cantera {
     alphaT.push_back(0.50);
     alphaT.push_back(0.75);
     alphaT.push_back(1.0);
-    for (int iteration = 0; iteration < (int) alphaT.size(); iteration++) {
+    for (size_t iteration = 0; iteration < alphaT.size(); iteration++) {
       alpha = alphaT[iteration];
-      for (int i = 0; i < neq_; i++) {
+      for (size_t i = 0; i < neq_; i++) {
 	y1[i] = m_y_n_curr[i] + alpha * deltaX_CP_[i];
       }
       if (solnType_ != NSOLN_TYPE_STEADY_STATE) {
@@ -1888,9 +1867,9 @@ namespace Cantera {
       }
     }
 
-    for (int iteration = 0; iteration < (int) alphaT.size(); iteration++) {
+    for (size_t iteration = 0; iteration < alphaT.size(); iteration++) {
       doublereal alpha = alphaT[iteration];
-      for (int i = 0; i < neq_; i++) {
+      for (size_t i = 0; i < neq_; i++) {
 	y1[i] = m_y_n_curr[i] + (1.0 - alpha) * deltaX_CP_[i];
 	y1[i] += alpha * Nuu_ * deltaX_Newton_[i];
       }
@@ -1907,7 +1886,7 @@ namespace Cantera {
 	doResidualCalc(time_curr, solnType_, y1, ydot0, Base_LaggedSolutionComponents);
       }  
 
-      for (int i = 0; i < neq_; i++) {
+      for (size_t i = 0; i < neq_; i++) {
 	y1[i] -= m_y_n_curr[i];
       }
       sLen = solnErrorNorm(DATA_PTR(y1));
@@ -1927,9 +1906,9 @@ namespace Cantera {
       }
     }
 
-    for (int iteration = 0; iteration < (int) alphaT.size(); iteration++) {
+    for (size_t iteration = 0; iteration < alphaT.size(); iteration++) {
       doublereal alpha = alphaT[iteration];
-      for (int i = 0; i < neq_; i++) {
+      for (size_t i = 0; i < neq_; i++) {
 	y1[i] = m_y_n_curr[i] + ( Nuu_ + alpha * (1.0 - Nuu_))* deltaX_Newton_[i];
       }
       if (solnType_ != NSOLN_TYPE_STEADY_STATE) {
@@ -1971,7 +1950,7 @@ namespace Cantera {
 	if (legBest == 0) {
 	  sLen = alpha * solnErrorNorm(DATA_PTR(deltaX_CP_));
 	} else if (legBest == 1) {
-	  for (int i = 0; i < neq_; i++) {
+	  for (size_t i = 0; i < neq_; i++) {
 	    y1[i] = (1.0 - alphaBest) * deltaX_CP_[i];
 	    y1[i] += alphaBest * Nuu_ * deltaX_Newton_[i];
 	  }
@@ -1999,14 +1978,14 @@ namespace Cantera {
   //====================================================================================================================
   void  NonlinearSolver::setDefaultDeltaBoundsMagnitudes()
   {
-    for (int i = 0; i < neq_; i++) {
+    for (size_t i = 0; i < neq_; i++) {
       m_deltaStepMinimum[i] = 1000. * atolk_[i];
-      m_deltaStepMinimum[i] = MAX(m_deltaStepMinimum[i], 0.1 * fabs(m_y_n_curr[i]));
+      m_deltaStepMinimum[i] = std::max(m_deltaStepMinimum[i], 0.1 * fabs(m_y_n_curr[i]));
     }
   }
   //====================================================================================================================
   void  NonlinearSolver::adjustUpStepMinimums() {
-    for (int i = 0; i < neq_; i++) {
+    for (size_t i = 0; i < neq_; i++) {
       doublereal goodVal = deltaX_trust_[i] * trustDelta_;
       if (deltaX_trust_[i] * trustDelta_ >   m_deltaStepMinimum[i]) {
 	m_deltaStepMinimum[i] = 1.1 * goodVal;
@@ -2018,7 +1997,7 @@ namespace Cantera {
   void  NonlinearSolver::setDeltaBoundsMagnitudes(const doublereal * const deltaStepMinimum)
   {
     
-    for (int i = 0; i < neq_; i++) {
+    for (size_t i = 0; i < neq_; i++) {
       m_deltaStepMinimum[i] = deltaStepMinimum[i];
     }
     m_manualDeltaStepSet = 1;
@@ -2044,7 +2023,7 @@ namespace Cantera {
   double
   NonlinearSolver::deltaBoundStep(const doublereal * const y_n_curr, const doublereal * const step_1) {
 			       
-    int i_fbounds = 0;
+    size_t i_fbounds = 0;
     int ifbd = 0;
     int i_fbd = 0;
     doublereal UPFAC = 2.0;
@@ -2053,7 +2032,7 @@ namespace Cantera {
     doublereal ff;
     doublereal f_delta_bounds = 1.0;
     doublereal ff_alt;
-    for (int i = 0; i < neq_; i++) {
+    for (size_t i = 0; i < neq_; i++) {
       doublereal y_new = y_n_curr[i] + step_1[i];
       sameSign = y_new * y_n_curr[i];
      
@@ -2070,14 +2049,14 @@ namespace Cantera {
 	    (fabs(y_new - y_n_curr[i]) > m_deltaStepMinimum[i])) {
 	  ff = (UPFAC - 1.0) * fabs(y_n_curr[i]/(y_new - y_n_curr[i]));
 	  ff_alt = fabs(m_deltaStepMinimum[i] / (y_new - y_n_curr[i]));
-	  ff = MAX(ff, ff_alt);
+	  ff = std::max(ff, ff_alt);
 	  ifbd = 1;
 	}
 	if ((fabs(2.0 * y_new) < fabs(y_n_curr[i])) &&
 	    (fabs(y_new - y_n_curr[i]) > m_deltaStepMinimum[i])) {
 	  ff = y_n_curr[i]/(y_new - y_n_curr[i]) * (1.0 - 2.0)/2.0;
 	  ff_alt = fabs(m_deltaStepMinimum[i] / (y_new - y_n_curr[i]));
-	  ff = MAX(ff, ff_alt);
+	  ff = std::max(ff, ff_alt);
 	  ifbd = 0;
 	}
       } else {
@@ -2088,7 +2067,7 @@ namespace Cantera {
 	if (fabs(y_n_curr[i]) > m_deltaStepMinimum[i]) {
 	  ff = y_n_curr[i]/(y_new - y_n_curr[i]) * (1.0 - 2.0)/2.0;
 	  ff_alt = fabs(m_deltaStepMinimum[i] / (y_new - y_n_curr[i]));
-	  ff = MAX(ff, ff_alt);
+	  ff = std::max(ff, ff_alt);
 	  if (y_n_curr[i] >= 0.0) {
 	    ifbd = 0;
 	  } else {
@@ -2101,7 +2080,7 @@ namespace Cantera {
 	else if (fabs(y_new) > 0.5 * fabs(y_n_curr[i])) {
 	  ff = y_n_curr[i]/(y_new - y_n_curr[i]) * (-1.5);
 	  ff_alt = fabs(m_deltaStepMinimum[i] / (y_new - y_n_curr[i]));
-	  ff = MAX(ff, ff_alt);
+	  ff = std::max(ff, ff_alt);
 	  ifbd = 0;
 	}
       }
@@ -2122,14 +2101,14 @@ namespace Cantera {
     if (m_print_flag >= 3) {
       if (f_delta_bounds < 1.0) {
 	if (i_fbd) {
-	  printf("\t\tdeltaBoundStep: Increase of Variable %d causing "
+	  printf("\t\tdeltaBoundStep: Increase of Variable %s causing "
 		 "delta damping of %g: origVal = %10.3g, undampedNew = %10.3g, dampedNew = %10.3g\n",
-		 i_fbounds, f_delta_bounds, y_n_curr[i_fbounds], y_n_curr[i_fbounds] + step_1[i_fbounds],
+		 int2str(i_fbounds).c_str(), f_delta_bounds, y_n_curr[i_fbounds], y_n_curr[i_fbounds] + step_1[i_fbounds],
 		 y_n_curr[i_fbounds] +  f_delta_bounds * step_1[i_fbounds] );
 	} else {
-	  printf("\t\tdeltaBoundStep: Decrease of variable %d causing"
+	  printf("\t\tdeltaBoundStep: Decrease of variable %s causing"
 		 "delta damping of %g: origVal = %10.3g, undampedNew = %10.3g, dampedNew = %10.3g\n",
-		 i_fbounds, f_delta_bounds, y_n_curr[i_fbounds], y_n_curr[i_fbounds] + step_1[i_fbounds],
+		 int2str(i_fbounds).c_str(), f_delta_bounds, y_n_curr[i_fbounds], y_n_curr[i_fbounds] + step_1[i_fbounds],
 		 y_n_curr[i_fbounds] +  f_delta_bounds * step_1[i_fbounds]);
 	}
       }
@@ -2149,7 +2128,7 @@ namespace Cantera {
   {
     doublereal trustDeltaOld = trustDelta_;
     doublereal wtSum = 0.0;
-    for (int i = 0; i < neq_; i++) {
+    for (size_t i = 0; i < neq_; i++) {
       wtSum += m_ewt[i];
     }
     wtSum /= neq_;
@@ -2162,7 +2141,7 @@ namespace Cantera {
     doublereal oldVal; 
     doublereal fabsy;
     // we use the old value of the trust region as an indicator
-    for (int i = 0; i < neq_; i++) {
+    for (size_t i = 0; i < neq_; i++) {
       oldVal = deltaX_trust_[i];
       fabsy = fabs(m_y_n_curr[i]);
       // First off make sure that each trust region vector is 1/2 the size of each variable or smaller
@@ -2195,7 +2174,7 @@ namespace Cantera {
     // Final renormalization. 
     norm_deltaX_trust_ = solnErrorNorm(DATA_PTR(deltaX_trust_));
     doublereal  sum = trustNormGoal / trustNorm;
-    for (int i = 0; i < neq_; i++) {
+    for (size_t i = 0; i < neq_; i++) {
       deltaX_trust_[i] = deltaX_trust_[i] * sum;
     } 
     norm_deltaX_trust_ = solnErrorNorm(DATA_PTR(deltaX_trust_));
@@ -2218,13 +2197,13 @@ namespace Cantera {
       return;
     }
     if (trustRegionInitializationMethod_ == 1) {
-      for (int i = 0; i < neq_; i++) {
+      for (size_t i = 0; i < neq_; i++) {
 	deltaX_trust_[i] = m_ewt[i] * trustRegionInitializationFactor_;
        }
       trustDelta_ = 1.0;
     }
     if (trustRegionInitializationMethod_ == 2) {
-      for (int i = 0; i < neq_; i++) {
+      for (size_t i = 0; i < neq_; i++) {
 	deltaX_trust_[i] = m_ewt[i] * m_normDeltaSoln_CP * trustRegionInitializationFactor_;
        }
       doublereal cpd = calcTrustDistance(deltaX_CP_);
@@ -2239,7 +2218,7 @@ namespace Cantera {
       }
     }
     if (trustRegionInitializationMethod_ == 3) {
-      for (int i = 0; i < neq_; i++) {
+      for (size_t i = 0; i < neq_; i++) {
 	deltaX_trust_[i] = m_ewt[i] *  m_normDeltaSoln_Newton * trustRegionInitializationFactor_;
        }
       doublereal cpd = calcTrustDistance(deltaX_Newton_);
@@ -2267,15 +2246,15 @@ namespace Cantera {
    */
   void NonlinearSolver::fillDogLegStep(int leg, doublereal alpha, std::vector<doublereal>  & deltaX) const {
     if (leg == 0) {
-      for (int i = 0; i < neq_; i++) {
+      for (size_t i = 0; i < neq_; i++) {
 	deltaX[i] = alpha * deltaX_CP_[i];
       }
     } else if (leg == 2) {
-      for (int i = 0; i < neq_; i++) {
+      for (size_t i = 0; i < neq_; i++) {
 	deltaX[i] = (alpha + (1.0 - alpha) * Nuu_) * deltaX_Newton_[i];
       }
     } else {
-      for (int i = 0; i < neq_; i++) {
+      for (size_t i = 0; i < neq_; i++) {
 	deltaX[i] = deltaX_CP_[i] * (1.0 - alpha) + alpha * Nuu_ * deltaX_Newton_[i];
       }
     }
@@ -2294,7 +2273,7 @@ namespace Cantera {
   {
     doublereal sum = 0.0;
     doublereal tmp = 0.0;
-    for (int i = 0; i < neq_; i++) {
+    for (size_t i = 0; i < neq_; i++) {
       tmp = deltaX[i] / deltaX_trust_[i];
       sum += tmp * tmp;
     }
@@ -2333,7 +2312,7 @@ namespace Cantera {
       return 0;
     }
     doublereal sumv = 0.0;
-    for (int i = 0; i < neq_; i++) {
+    for (size_t i = 0; i < neq_; i++) {
       sumv += (deltaX_Newton_[i] / deltaX_trust_[i]) * (deltaX_CP_[i] / deltaX_trust_[i]);
     }
 
@@ -2378,11 +2357,11 @@ namespace Cantera {
    */
   doublereal NonlinearSolver::boundStep(const doublereal * const y, const doublereal * const step0)
   {
-    int i, i_lower = -1;
+    size_t i_lower = npos;
     doublereal fbound = 1.0, f_bounds = 1.0;
     doublereal ff, y_new;
     
-    for (i = 0; i < neq_; i++) {
+    for (size_t i = 0; i < neq_; i++) {
       y_new = y[i] + step0[i];
       /*
        * Force the step to only take 80% a step towards the lower bounds
@@ -2418,12 +2397,12 @@ namespace Cantera {
      */
     if (m_print_flag >= 3) {
       if (f_bounds != 1.0) {
-	printf("\t\tboundStep: Variable %d causing bounds damping of %g\n", i_lower, f_bounds);
+	printf("\t\tboundStep: Variable %s causing bounds damping of %g\n", int2str(i_lower).c_str(), f_bounds);
       }
     }
 
     doublereal f_delta_bounds = deltaBoundStep(y, step0);
-    fbound = MIN(f_bounds, f_delta_bounds);
+    fbound = std::min(f_bounds, f_delta_bounds);
 
     return fbound;
   }
@@ -2456,14 +2435,14 @@ namespace Cantera {
 				doublereal * const y_n_1, doublereal * const ydot_n_1, doublereal * const step_2,
 				doublereal & stepNorm_2, GeneralMatrix& jac, bool writetitle, int& num_backtracks) 
   {  
-    int j, m;
+    int m;
     int info = 0;
     int retnTrial = NSOLN_RETN_FAIL_DAMPSTEP;
     // Compute the weighted norm of the undamped step size step_1
     doublereal stepNorm_1 = solnErrorNorm(step_1);
 
     doublereal * step_1_orig = DATA_PTR(m_wksp);
-    for (j = 0; j < neq_; j++) {
+    for (size_t j = 0; j < neq_; j++) {
       step_1_orig[j] = step_1[j];
     }
    
@@ -2498,7 +2477,7 @@ namespace Cantera {
        * Whenever we update the solution, we must also always
        * update the time derivative.
        */
-      for (j = 0; j < neq_; j++) {
+      for (size_t j = 0; j < neq_; j++) {
 	step_1[j] =  ff * step_1_orig[j];
 	y_n_1[j] = y_n_curr[j] + step_1[j];
       }
@@ -2691,7 +2670,6 @@ namespace Cantera {
     int info;
    
     bool success = false;
-    int retn = 0;
     bool haveASuccess = false;
     doublereal trustDeltaOld = trustDelta_;
     doublereal* stepLastGood = DATA_PTR(m_wksp);
@@ -2701,7 +2679,7 @@ namespace Cantera {
 
     // damping coefficient starts at 1.0
     m_dampRes = 1.0;
-    int j, m;
+    int m;
     doublereal tlen;
    
 
@@ -2730,14 +2708,14 @@ namespace Cantera {
        * Decrease the step length if we are bound
        */
       if (m_dampBound < 1.0) {
-	for (j = 0; j < neq_; j++) {
+	for (size_t j = 0; j < neq_; j++) {
 	  step_1[j] =  step_1[j] * m_dampBound;
 	}
       }
       /*
        *  Calculate the new solution value y1[] given the step size
        */
-      for (j = 0; j < neq_; j++) {
+      for (size_t j = 0; j < neq_; j++) {
 	y_n_1[j] = y_n_curr[j] + step_1[j];
       }
       /*
@@ -2763,7 +2741,6 @@ namespace Cantera {
 	  doublereal stepNorm =  solnErrorNorm(DATA_PTR(step_1));
 	  printf("\t\t   dampDogLeg: Current direction rejected, update became too small %g\n", stepNorm);
 	  success = false;
-	  retn = NSOLN_RETN_FAIL_STEPTOOSMALL;
 	  break;
 	}
       }
@@ -2771,7 +2748,6 @@ namespace Cantera {
 	if (m_print_flag >= 1) {
 	  printf("\t\t dampDogLeg: current trial step and damping led to LAPACK ERROR %d. Bailing\n", info);
 	  success = false;
-	  retn = NSOLN_RETN_MATRIXINVERSIONERROR;
 	  break;
 	}
       }
@@ -2783,7 +2759,7 @@ namespace Cantera {
 
 	haveASuccess = true;
 	// Store the good results in stepLastGood
-	mdp::mdp_copy_dbl_1(DATA_PTR(stepLastGood), CONSTD_DATA_PTR(step_1), neq_);
+	mdp::mdp_copy_dbl_1(DATA_PTR(stepLastGood), CONSTD_DATA_PTR(step_1), (int) neq_);
 	// Within the program decideStep(), we have already increased the value of trustDelta_. We store the
 	// value of step0 in step1, recalculate a larger step0 in the next fillDogLegStep(),
 	// and then attempt to see if the larger step works in the next iteration
@@ -2794,8 +2770,8 @@ namespace Cantera {
 	// already been decreased in the decideStep() routine. We go back and try another iteration with
 	// a smaller trust region. 
 	if (haveASuccess) {
-	  mdp::mdp_copy_dbl_1(DATA_PTR(step_1), CONSTD_DATA_PTR(stepLastGood), neq_);
-	  for (j = 0; j < neq_; j++) {
+	  mdp::mdp_copy_dbl_1(DATA_PTR(step_1), CONSTD_DATA_PTR(stepLastGood), (int) neq_);
+	  for (size_t j = 0; j < neq_; j++) {
 	    y_n_1[j] = y_n_curr[j] + step_1[j];
 	  }    
 	  if (solnType_ != NSOLN_TYPE_STEADY_STATE) {
@@ -2847,8 +2823,8 @@ namespace Cantera {
    * @param y0         INPUT    Current value of the solution vector
    * @param ydot0      INPUT    Current value of the derivative of the solution vector
    * @param step0      INPUT    Trial step
-   * @param y1         OUTPUT   Solution values at the conditions which are evalulated for success
-   * @param ydot1      OUTPUT   Time derivates of solution at the conditions which are evalulated for success
+   * @param y1         OUTPUT   Solution values at the conditions which are evaluated for success
+   * @param ydot1      OUTPUT   Time derivatives of solution at the conditions which are evalulated for success
    * @param trustDeltaOld INPUT Value of the trust length at the old conditions
    *
    *
@@ -2868,7 +2844,6 @@ namespace Cantera {
 				  doublereal trustDeltaOld) 
   {
     int retn = 2;
-    bool goodStep = false;
     int info;
     doublereal ll;
     // Calculate the solution step length
@@ -2880,7 +2855,7 @@ namespace Cantera {
     // Calculate the distance to the cauchy point
     doublereal cauchyDistanceNorm = solnErrorNorm(DATA_PTR(deltaX_CP_));
 
-    // This is the expected inital rate of decrease in the cauchy direction.
+    // This is the expected initial rate of decrease in the cauchy direction.
     //   -> This is Eqn. 29 = Rhat dot Jhat dy / || d ||
     doublereal funcDecreaseSDExp = RJd_norm_ / cauchyDistanceNorm * lambdaStar_;
     if (funcDecreaseSDExp > 0.0) {
@@ -2923,7 +2898,6 @@ namespace Cantera {
     doublereal acceptableDelF =  funcDecreaseSDExp * stepNorm * 1.0E-4;
     if (funcDecrease < acceptableDelF) {
       m_normResid_1 = m_normResidTrial;
-      goodStep = true;
       m_normResid_1 =  m_normResidTrial;
       retn = 0;
       if (m_print_flag >= 4) {
@@ -3057,7 +3031,6 @@ namespace Cantera {
       return 1;
     }
 
-    bool m_residCurrent = false;
     num_linear_solves -= m_numTotalLinearSolves;
     int retnDamp = 0;
     int retnCode = 0;
@@ -3077,11 +3050,11 @@ namespace Cantera {
     bool trInit = false;
 
   
-    mdp::mdp_copy_dbl_1(DATA_PTR(m_y_n_curr), DATA_PTR(y_comm), neq_);
+    mdp::mdp_copy_dbl_1(DATA_PTR(m_y_n_curr), DATA_PTR(y_comm), (int) neq_);
   
     if (SolnType != NSOLN_TYPE_STEADY_STATE || ydot_comm) {
-      mdp::mdp_copy_dbl_1(DATA_PTR(m_ydot_n_curr), ydot_comm, neq_);
-      mdp::mdp_copy_dbl_1(DATA_PTR(m_ydot_trial), ydot_comm, neq_);
+      mdp::mdp_copy_dbl_1(DATA_PTR(m_ydot_n_curr), ydot_comm, (int) neq_);
+      mdp::mdp_copy_dbl_1(DATA_PTR(m_ydot_trial), ydot_comm, (int) neq_);
     }
     // Redo the solution weights every time we enter the function
     createSolnWeights(DATA_PTR(m_y_n_curr));
@@ -3098,7 +3071,7 @@ namespace Cantera {
       trInit = true;
       initializeTrustRegion();
     } else {
-      mdp::mdp_init_dbl_1(DATA_PTR(deltaX_trust_), 1.0, neq_); 
+      mdp::mdp_init_dbl_1(DATA_PTR(deltaX_trust_), 1.0, (int) neq_); 
       trustDelta_ = 1.0;
     }
 
@@ -3191,12 +3164,10 @@ namespace Cantera {
 	  retnDamp = NSOLN_RETN_JACOBIANFORMATIONERROR ;
 	  goto done;
 	}
-	m_residCurrent = true;
       } else {
 	if (m_print_flag > 1) {
 	  printf("\t   solve_nonlinear_problem(): Solving system with old jacobian\n");
 	}
-	m_residCurrent = false;
       }
       /*
        * Go get new scales
@@ -3581,9 +3552,9 @@ namespace Cantera {
       
     }
     
-    mdp::mdp_copy_dbl_1(y_comm, CONSTD_DATA_PTR(m_y_n_curr), neq_);
+    mdp::mdp_copy_dbl_1(y_comm, CONSTD_DATA_PTR(m_y_n_curr), (int) neq_);
     if (solnType_ != NSOLN_TYPE_STEADY_STATE) {
-      mdp::mdp_copy_dbl_1(ydot_comm, CONSTD_DATA_PTR(m_ydot_n_curr), neq_);
+      mdp::mdp_copy_dbl_1(ydot_comm, CONSTD_DATA_PTR(m_ydot_n_curr), (int) neq_);
     }
  
     num_linear_solves += m_numTotalLinearSolves;
@@ -3649,20 +3620,19 @@ namespace Cantera {
 			       const doublereal * const y_n_curr,
 			       const doublereal * const y_n_1,
 			       doublereal damp,
-			       int num_entries) {
-    int i, j, jnum;
+			       size_t num_entries) {
     bool used;
     doublereal dmax0, dmax1, error, rel_norm;
     printf("\t\t%s currentDamp = %g\n", title, damp);
     printf("\t\t     I     ysolnOld %13s ysolnNewRaw | ysolnNewTrial "
 	   "%10s ysolnNewTrialRaw | solnWeight  wtDelSoln wtDelSolnTrial\n", stepNorm_1, stepNorm_2);
-    int *imax = mdp::mdp_alloc_int_1(num_entries, -1);
+    std::vector<size_t> imax(num_entries, npos);
     printf("\t\t   "); print_line("-", 125);
-    for (jnum = 0; jnum < num_entries; jnum++) {
+    for (size_t jnum = 0; jnum < num_entries; jnum++) {
       dmax1 = -1.0;
-      for (i = 0; i < neq_; i++) {
+      for (size_t i = 0; i < neq_; i++) {
 	used = false;
-	for (j = 0; j < jnum; j++) {
+	for (size_t j = 0; j < jnum; j++) {
 	  if (imax[j] == i) used = true;
 	}
 	if (!used) {
@@ -3676,19 +3646,18 @@ namespace Cantera {
 	  }
 	}
       }
-      if (imax[jnum] >= 0) {
-	i = imax[jnum];
+      if (imax[jnum] != npos) {
+	size_t i = imax[jnum];
 	error = step_1[i] /  m_ewt[i];
 	dmax0 = sqrt(error * error);
 	error = step_2[i] /  m_ewt[i];
 	dmax1 = sqrt(error * error);
-	printf("\t\t  %4d %12.4e %12.4e %12.4e |  %12.4e  %12.4e   %12.4e    |%12.4e %12.4e %12.4e\n",
-	       i, y_n_curr[i], step_1[i],  y_n_curr[i] + step_1[i], y_n_1[i],
+	printf("\t\t  %4s %12.4e %12.4e %12.4e |  %12.4e  %12.4e   %12.4e    |%12.4e %12.4e %12.4e\n",
+	       int2str(i).c_str(), y_n_curr[i], step_1[i],  y_n_curr[i] + step_1[i], y_n_1[i],
 	       step_2[i], y_n_1[i]+ step_2[i], m_ewt[i], dmax0, dmax1);
       }
     }
     printf("\t\t   "); print_line("-", 125);
-    mdp::mdp_safe_free((void **) &imax);
   }
   //====================================================================================================================
   //!  This routine subtracts two numbers for one another
@@ -3712,7 +3681,7 @@ namespace Cantera {
    */
   static inline doublereal subtractRD(doublereal a, doublereal b) {
     doublereal diff = a - b;
-    doublereal d = MIN(fabs(a), fabs(b));
+    doublereal d = std::min(fabs(a), fabs(b));
     d *= 1.0E-14;
     doublereal ad = fabs(diff);
     if (ad < 1.0E-300) {
@@ -3743,7 +3712,6 @@ namespace Cantera {
 				  doublereal * const y,  doublereal * const ydot,
 				  int num_newt_its)
   {
-    int i, j;
     double* col_j;
     int info;
     doublereal ysave, dy;
@@ -3791,7 +3759,7 @@ namespace Cantera {
 	 * deltaY's that are appropriate for calculating the numerical
 	 * derivative.
 	 */
-	doublereal *dyVector = mdp::mdp_alloc_dbl_1(neq_, MDP_DBL_NOINIT);
+	doublereal *dyVector = mdp::mdp_alloc_dbl_1((int) neq_, MDP_DBL_NOINIT);
 	retn = m_func->calcDeltaSolnVariables(time_curr, y, ydot, dyVector, DATA_PTR(m_ewt));
 	if (s_print_NumJac) {
 	  if (m_print_flag >= 7) {
@@ -3801,9 +3769,9 @@ namespace Cantera {
 	    }
 	    if (neq_ < 20) {
 	      printf("\t\tUnk            m_ewt              y                dyVector            ResN\n");
-	      for (int iii = 0; iii < neq_; iii++){
-		printf("\t\t %4d       %16.8e   %16.8e   %16.8e  %16.8e \n",
-		       iii,   m_ewt[iii],  y[iii], dyVector[iii], f[iii]);
+	      for (size_t iii = 0; iii < neq_; iii++){
+		printf("\t\t %4s       %16.8e   %16.8e   %16.8e  %16.8e \n",
+		       int2str(iii).c_str(),   m_ewt[iii],  y[iii], dyVector[iii], f[iii]);
 	      }
 	    }
 	  }
@@ -3820,7 +3788,7 @@ namespace Cantera {
 	 * sqrt of machine precision approach, i.e., 1.0E-7,
 	 * to bound the lower limit of the delta.
 	 */
-	for (j = 0; j < neq_; j++) {
+	for (size_t j = 0; j < neq_; j++) {
 
 
 	  /*
@@ -3863,7 +3831,7 @@ namespace Cantera {
 	  }
 
 	  doublereal diff;
-	  for (i = 0; i < neq_; i++) {
+	  for (size_t i = 0; i < neq_; i++) {
 	    diff = subtractRD(m_wksp[i], f[i]);
 	    col_j[i] = diff / dy;
 	  }
@@ -3880,7 +3848,7 @@ namespace Cantera {
       } else if (J.matrixType_ == 1) {
 	int ku, kl;
 	size_t ivec[2];
-	int n = J.nRowsAndStruct(ivec);
+	size_t n = J.nRowsAndStruct(ivec);
 	kl = ivec[0];
 	ku = ivec[1];
 	if (n != neq_) {
@@ -3896,7 +3864,7 @@ namespace Cantera {
 	m_nJacEval++;
 
 
-	doublereal *dyVector = mdp::mdp_alloc_dbl_1(neq_, MDP_DBL_NOINIT);
+	doublereal *dyVector = mdp::mdp_alloc_dbl_1((int) neq_, MDP_DBL_NOINIT);
 	retn = m_func->calcDeltaSolnVariables(time_curr, y, ydot, dyVector, DATA_PTR(m_ewt));
       	if (s_print_NumJac) {
 	  if (m_print_flag >= 7) {
@@ -3906,16 +3874,16 @@ namespace Cantera {
 	    }
 	    if (neq_ < 20) {
 	      printf("\t\tUnk            m_ewt              y                dyVector            ResN\n");
-	      for (int iii = 0; iii < neq_; iii++){
-		printf("\t\t %4d       %16.8e   %16.8e   %16.8e  %16.8e \n",
-		       iii,   m_ewt[iii],  y[iii], dyVector[iii], f[iii]);
+	      for (size_t iii = 0; iii < neq_; iii++){
+		printf("\t\t %4s       %16.8e   %16.8e   %16.8e  %16.8e \n",
+		       int2str(iii).c_str(),   m_ewt[iii],  y[iii], dyVector[iii], f[iii]);
 	      }
 	    }
 	  }
 	}
 
 
-	for (j = 0; j < neq_; j++) {
+	for (size_t j = 0; j < neq_; j++) {
 
 
 	  col_j = (doublereal *) J.ptrColumn(j);
@@ -3930,7 +3898,7 @@ namespace Cantera {
 	    ydot[j] += dy * CJ;
 	  }
 
-	  info =  m_func->evalResidNJ(time_curr, delta_t_n, y, ydot, DATA_PTR(m_wksp), JacDelta_ResidEval, j, dy);
+	  info =  m_func->evalResidNJ(time_curr, delta_t_n, y, ydot, DATA_PTR(m_wksp), JacDelta_ResidEval, static_cast<int>(j), dy);
 	  m_nfe++;
 #ifdef DEBUG_MODE
 	  if (fabs(dy) < 1.0E-300) {
@@ -3949,8 +3917,8 @@ namespace Cantera {
 
 
 
-	  for (int i = j - ku; i <= j + kl; i++) {
-	    if (i >= 0 &&  i < neq_) {
+	  for (int i = (int) j - ku; i <= (int) j + kl; i++) {
+	    if (i >= 0 &&  i < (int) neq_) {
 	      diff = subtractRD(m_wksp[i], f[i]);
 	      col_j[kl + ku + i - j] = diff / dy;
 	    }
@@ -3964,14 +3932,14 @@ namespace Cantera {
 
 	mdp::mdp_safe_free((void **) &dyVector);
 	double vSmall;
-	int ismall = J.checkRows(vSmall);
+	size_t ismall = J.checkRows(vSmall);
 	if (vSmall < 1.0E-100) {
-	  printf("WE have a zero row, %d\n", ismall);
+	  printf("WE have a zero row, %s\n", int2str(ismall).c_str());
 	  exit(-1);
 	}
         ismall = J.checkColumns(vSmall);
 	if (vSmall < 1.0E-100) {
-	  printf("WE have a zero column, %d\n", ismall);
+	  printf("WE have a zero column, %s\n", int2str(ismall).c_str());
 	  exit(-1);
 	}
 
@@ -3983,27 +3951,27 @@ namespace Cantera {
       if (neq_ < 30) {
 	printf("\t\tCurrent Matrix and Residual:\n");
 	printf("\t\t    I,J | ");
-	for (j = 0; j < neq_; j++) {
-	  printf("  %5d     ", j);
+	for (size_t j = 0; j < neq_; j++) {
+	  printf("  %5s     ", int2str(j).c_str());
 	}
 	printf("|   Residual  \n");
 	printf("\t\t        --");
-	for (j = 0; j < neq_; j++) {
+	for (size_t j = 0; j < neq_; j++) {
 	  printf("------------");
 	}
 	printf("|  -----------\n");
 
 
-	for (i = 0; i < neq_; i++) {
-	  printf("\t\t   %4d |", i);
-	  for (j = 0; j < neq_; j++) {
+	for (size_t i = 0; i < neq_; i++) {
+	  printf("\t\t   %4s |", int2str(i).c_str());
+	  for (size_t j = 0; j < neq_; j++) {
 	    printf(" % 11.4E", J(i,j) );
 	  }
 	  printf(" |  % 11.4E\n", f[i]);
 	}
 
 	printf("\t\t        --");
-	for (j = 0; j < neq_; j++) {
+	for (size_t j = 0; j < neq_; j++) {
 	  printf("------------");
 	}
 	printf("--------------\n");
@@ -4033,19 +4001,18 @@ namespace Cantera {
     if (!ydot_curr) {
       return;
     }
-    int    i;
     doublereal c1;
     switch (order) {
     case 0:
     case 1:             /* First order forward Euler/backward Euler */
       c1 = 1.0 / delta_t_n;
-      for (i = 0; i < neq_; i++) {
+      for (size_t i = 0; i < neq_; i++) {
         ydot_curr[i] = c1 * (y_curr[i] - m_y_nm1[i]);
       }
       return;
     case 2:             /* Second order Adams-Bashforth / Trapezoidal Rule */
       c1 = 2.0 / delta_t_n;
-      for (i = 0; i < neq_; i++) {
+      for (size_t i = 0; i < neq_; i++) {
         ydot_curr[i] = c1 * (y_curr[i] - m_y_nm1[i])  - m_ydot_nm1[i];
       }
   
@@ -4100,7 +4067,7 @@ namespace Cantera {
   {
     ResidWtsReevaluated_ = true;
     if (checkUserResidualTols_ == 1) {
-      for (int i = 0; i < neq_; i++) {
+      for (size_t i = 0; i < neq_; i++) {
 	m_residWts[i] = userResidAtol_[i] + userResidRtol_ * m_rowWtScales[i] / rtol_;
 #ifdef DEBUG_MODE
         mdp::checkFinite(m_residWts[i]);
@@ -4108,7 +4075,7 @@ namespace Cantera {
       }
     } else {
       doublereal sum = 0.0;  
-      for (int i = 0; i < neq_; i++) {
+      for (size_t i = 0; i < neq_; i++) {
 	m_residWts[i] = m_rowWtScales[i];
 #ifdef DEBUG_MODE
         mdp::checkFinite(m_residWts[i]);
@@ -4116,13 +4083,13 @@ namespace Cantera {
 	sum += m_residWts[i];
       }
       sum /= neq_;
-      for (int i = 0; i < neq_; i++) {
+      for (size_t i = 0; i < neq_; i++) {
 	m_residWts[i] = m_ScaleSolnNormToResNorm * (m_residWts[i] + atolBase_ * atolBase_ * sum);
       }
       if (checkUserResidualTols_ == 2) {
-	for (int i = 0; i < neq_; i++) {
+	for (size_t i = 0; i < neq_; i++) {
 	  double uR = userResidAtol_[i] + userResidRtol_ * m_rowWtScales[i] / rtol_;
-	  m_residWts[i] = MIN(m_residWts[i], uR);
+	  m_residWts[i] = std::min(m_residWts[i], uR);
 	}
       }
     }
@@ -4135,7 +4102,7 @@ namespace Cantera {
   void
   NonlinearSolver::getResidWts(doublereal * const residWts) const
   {
-    for (int i = 0; i < neq_; i++) {
+    for (size_t i = 0; i < neq_; i++) {
       residWts[i] = (m_residWts)[i];
     }
   }
@@ -4213,7 +4180,7 @@ namespace Cantera {
    */
   void NonlinearSolver::setAtol(const doublereal * const atol)
   {
-    for (int i = 0; i < neq_; i++) {
+    for (size_t i = 0; i < neq_; i++) {
       if (atol[i] <= 0.0) {
 	throw CanteraError("NonlinearSolver::setAtol()",
 			   "Atol is less than or equal to zero");
@@ -4247,7 +4214,7 @@ namespace Cantera {
    *                          norms are roughly 1 when the residual norm is roughly 1.
    *                          This is the default if this routine is not called.
    *                      1   Use the user residual norm specified by the parameters in this routine
-   *                      2   Use the minimum value of the residual weights calculcated by method 0 and 1.
+   *                      2   Use the minimum value of the residual weights calculated by method 0 and 1.
    *                          This is the default if this routine is called and this parameter isn't specified.
    */
   void  NonlinearSolver::setResidualTols(double residRtol, double * residATol, int residNormHandling)
@@ -4260,7 +4227,7 @@ namespace Cantera {
     userResidRtol_ = residRtol;
     if (residATol) {
       userResidAtol_.resize(neq_);
-      for (int i = 0; i < neq_; i++) {
+      for (size_t i = 0; i < neq_; i++) {
 	userResidAtol_[i] = residATol[i];
       }
     } else {
