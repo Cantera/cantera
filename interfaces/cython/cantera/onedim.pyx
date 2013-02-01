@@ -288,9 +288,10 @@ cdef class ReactingSurface1D(Boundary1D):
                             'InterfaceKinetics.')
         self.surf.setKineticsMgr(<CxxInterfaceKinetics*>kin.kinetics)
 
-    def enable_coverage_equations(self, on=True):
-        """ Turn solving the surface coverage equations on or off. """
-        self.surf.enableCoverageEquations(<cbool>on)
+    property coverage_enabled:
+        """Controls whether or not to solve the surface coverage equations."""
+        def __set__(self, value):
+            self.surf.enableCoverageEquations(<cbool>value)
 
 
 cdef class _FlowBase(Domain1D):
