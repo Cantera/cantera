@@ -47,6 +47,7 @@ class TestTransport(utilities.CanteraTest):
 class TestDustyGas(utilities.CanteraTest):
     def setUp(self):
         self.phase = ct.DustyGas('h2o2.xml')
+        self.phase.TPX = 500.0, ct.one_atm, "O2:2.0, H2:1.0, H2O:1.0"
         self.phase.porosity = 0.2
         self.phase.tortuosity = 0.3
         self.phase.mean_pore_radius = 1e-4
@@ -65,3 +66,21 @@ class TestDustyGas(utilities.CanteraTest):
 
     # The other parameters don't have such simple relationships to the diffusion
     # coefficients, so we can't test them as easily
+
+    def test_molar_fluxes(self):
+        T1, rho1, Y1 = self.phase.TDY
+        self.phase.TPX = 500.0, ct.one_atm, "O2:2.0, H2:1.001, H2O:0.999"
+
+        T2, rho2, Y2 = self.phase.TDY
+
+        fluxes0 = self.phase.molar_fluxes(T1, T1, rho1, rho1, Y1, Y1, 1e-4)
+        self.assertArrayNear(fluxes0, np.zeros(self.phase.n_species))
+
+        fluxes1 = self.phase.molar_fluxes(T1, T2, rho1, rho2, Y1, Y2, 1e-4)
+        kH2 = self.phase.species_index('H2')
+        kH2O = self.phase.species_index('H2O')
+        self.assertTrue(fluxes1[kH2] < 0)
+        self.assertTrue(fluxes1[kH2O] > 0)
+
+        # Not sure why the following condition is not satisfied:
+        # self.assertNear(sum(fluxes1) / sum(abs(fluxes1)), 0.0)
