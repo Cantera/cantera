@@ -25,4 +25,4 @@ setup(name="Cantera",
       ext_modules = exts,
       package_data = {'cantera.data': ['*.*'],
                       'cantera.test.data': ['*.*'],
-                      'cantera.examples': ['*/*.py']})
+                      'cantera.examples': ['*/*.*']})
