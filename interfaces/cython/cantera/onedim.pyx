@@ -1124,3 +1124,72 @@ class CounterflowDiffusionFlame(FlameBase):
         self.set_profile('T', zrel, T)
         for k,spec in enumerate(self.gas.species_names):
             self.set_profile(spec, zrel, Y[:,k])
+
+
+class ImpingingJet(FlameBase):
+    """An axisymmetric flow impinging on a surface at normal incidence."""
+    def __init__(self, gas, grid, surface=None):
+        """
+        :param gas:
+            `Solution` (using the IdealGas thermodynamic model) used to
+            evaluate all gas properties and reaction rates.
+        :param grid:
+            Array of initial grid points
+        :param surface:
+            A Kinetics object used to compute any surface reactions.
+
+        A domain of class `AxisymmetricStagnationFlow` named ``flame`` will be
+        created to represent the flow. The three domains comprising the stack
+        are stored as ``self.inlet``, ``self.flame``, and ``self.surface``.
+        """
+        self.inlet = Inlet1D()
+        self.inlet.name = 'inlet'
+        self.inlet.T = gas.T
+        self.flame = AxisymmetricStagnationFlow(gas)
+        self.flame.name = 'flame'
+
+        if surface is None:
+            self.surface = Surface1D()
+        else:
+            self.surface = ReactingSurface1D()
+            self.surface.set_kinetics(surface)
+        self.surface.name = 'surface'
+
+        self.surface.T = surface.T
+
+        super().__init__((self.inlet, self.flame, self.surface),
+                         gas, grid)
+
+    def set_initial_guess(self, products='inlet'):
+        """
+        Set the initial guess for the solution. If products = 'equil', then
+        the equilibrium composition at the adiabatic flame temperature will be
+        used to form the initial guess. Otherwise the inlet composition will
+        be used.
+        """
+        super().set_initial_guess()
+
+        Y0 = self.inlet.Y
+        T0 = self.inlet.T
+        self.gas.TPY = T0, self.flame.P, Y0
+        u0 = self.inlet.mdot / self.gas.density
+
+        if products == 'equil':
+            self.gas.equilibrate('HP')
+            Teq = self.gas.T
+            Yeq = self.gas.Y
+            locs = np.array([0.0, 0.3, 0.7, 1.0])
+            self.set_profile('T', locs, [T0, Teq, Teq, self.surface.T])
+            for k in range(self.gas.n_species):
+                self.set_profile(self.gas.species_name(k), locs,
+                                 [Y0[k], Yeq[k], Yeq[k], Yeq[k]])
+        else:
+            locs = np.array([0.0, 1.0])
+            self.set_profile('T', locs, [T0, self.surface.T])
+            for k in range(self.gas.n_species):
+                self.set_profile(self.gas.species_name(k), locs,
+                                 [Y0[k], Y0[k]])
+
+        locs = np.array([0.0, 1.0])
+        self.set_profile('u', locs, [u0, 0.0])
+        self.set_profile('V', locs, [0.0, 0.0])
