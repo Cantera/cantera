@@ -3,7 +3,6 @@ A freely-propagating, premixed hydrogen flat flame with multicomponent
 transport properties.
 """
 
-import csv
 import cantera as ct
 
 # Simulation parameters
@@ -58,15 +57,4 @@ f.save('h2_adiabatic.xml','energy_multi',
        'solution with multicomponent transport')
 
 # write the velocity, temperature, density, and mole fractions to a CSV file
-z = f.flame.grid
-T = f.T
-u = f.u
-V = f.V
-
-with open('h2_adiabatic.csv', 'w') as csvfile:
-    writer = csv.writer(csvfile)
-    writer.writerow(['z (m)', 'u (m/s)', 'V (1/s)', 'T (K)', 'rho (kg/m3)'] +
-                    list(gas.species_names))
-    for n in range(f.flame.n_points):
-        f.set_gas_state(n)
-        writer.writerow([z[n], u[n], V[n], T[n], gas.density] + list(gas.X))
+f.write_csv('h2_adiabatic.csv', quiet=False)

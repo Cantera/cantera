@@ -1,3 +1,5 @@
+import csv
+
 cdef class Domain1D:
     cdef CxxDomain1D* domain
     def __cinit__(self, *args, **kwargs):
@@ -830,6 +832,36 @@ class FlameBase(Sim1D):
         Y = [self.solution(k, point)
              for k in range(k0, k0 + self.gas.n_species)]
         self.gas.TPY = self.value(self.flame, 'T', point), self.P, Y
+
+    def write_csv(self, filename, species='X', quiet=True):
+        """
+        Write the velocity, temperature, density, and species profiles
+        to a CSV file.
+
+        :param filename:
+            Output file name
+        :param species:
+            Attribute to use obtaining species profiles, e.g. ``X`` for
+            mole fractions or ``Y`` for mass fractions.
+        """
+
+        z = self.grid
+        T = self.T
+        u = self.u
+        V = self.V
+
+        csvfile = open(filename, 'w')
+        writer = csv.writer(csvfile)
+        writer.writerow(['z (m)', 'u (m/s)', 'V (1/s)',
+                         'T (K)', 'rho (kg/m3)'] + self.gas.species_names)
+        for n in range(self.flame.n_points):
+            self.set_gas_state(n)
+            writer.writerow([z[n], u[n], V[n], T[n], self.gas.density] +
+                            list(getattr(self.gas, species)))
+        csvfile.close()
+        if not quiet:
+            print("Solution saved to '{}'.".format(filename))
+
 
 def _trim(docstring):
     """Remove block indentation from a docstring."""
