@@ -216,7 +216,7 @@ namespace Cantera {
 
     //! Compute the current residual
     /*!
-     *  The current value of the residual is storred in the internal work array m_resid, which is defined
+     *  The current value of the residual is stored in the internal work array m_resid, which is defined
      *  as mutable
      *
      *  @param time_curr    Value of the time 
@@ -286,7 +286,7 @@ namespace Cantera {
      *
      *  Internal input
      * ---------------
-     *  internal m_resid      Storred residual is used as input
+     *  internal m_resid      Stored residual is used as input
      *
      *
      *  @return Returns the result code from lapack. A zero means success. Anything
@@ -494,7 +494,7 @@ namespace Cantera {
      *    @param time_curr Current physical time
      *    @param y_n_curr     Base value of the solution before any steps 
      *                        are taken
-     *    @param ydot_n_curr  Base value of the time derivative of teh
+     *    @param ydot_n_curr  Base value of the time derivative of the
      *                        solution
      *    @param step_1       Initial step suggested.
      *    @param y_n_1        Value of y1, the suggested solution after damping
@@ -570,7 +570,7 @@ namespace Cantera {
      *  effect of ensuring that all delta variables will have the same order of magnitude at convergence
      *  end.
      *  
-     *  The second way is the explicity set the column factors in the second argument of this function call.
+     *  The second way is the explicitly set the column factors in the second argument of this function call.
      *
      *  The final way to input the scales is to override the ResidJacEval member function call,
      *
@@ -621,7 +621,7 @@ namespace Cantera {
     print_solnDelta_norm_contrib(const doublereal * const step_1, const char * const stepNorm_1,
 				 const doublereal * const step_2, const char * const stepNorm_2,
 				 const char * const title, const doublereal * const y_n_curr,
-				 const doublereal * const y_n_1,  doublereal damp, int num_entries);
+				 const doublereal * const y_n_1,  doublereal damp, size_t num_entries);
 
     //! Compute the Residual Weights
     /*!
@@ -705,7 +705,7 @@ namespace Cantera {
      *                          norms are roughly 1 when the residual norm is roughly 1.
      *                          This is the default if this routine is not called.
      *                      1   Use the user residual norm specified by the parameters in this routine
-     *                      2   Use the minimum value of the residual weights calculcated by method 1 and 2.
+     *                      2   Use the minimum value of the residual weights calculated by method 1 and 2.
      *                          This is the default if this routine is called and this parameter isn't specified.
      */
     void setResidualTols(double residRtol, double * residATol, int residNormHandling = 2);
@@ -753,7 +753,7 @@ namespace Cantera {
      *
      *  @param time_curr   Current time
      *  @param ydot0       INPUT    Current value of the derivative of the solution vector
-     *  @param ydot1       INPUT  Time derivates of solution at the conditions which are evalulated for success
+     *  @param ydot1       INPUT  Time derivatives of solution at the conditions which are evaluated for success
      *  @param numTrials   OUTPUT Counter for the number of residual evaluations
      */
     void descentComparison(doublereal time_curr ,doublereal * ydot0, doublereal * ydot1, int &numTrials);
@@ -851,8 +851,8 @@ namespace Cantera {
      * @param y_n_curr   INPUT    Current value of the solution vector
      * @param ydot_n_curr INPUT    Current value of the derivative of the solution vector
      * @param step_1     INPUT    Trial step
-     * @param y_n_1         OUTPUT   Solution values at the conditions which are evalulated for success
-     * @param ydot_n_1      OUTPUT   Time derivates of solution at the conditions which are evalulated for success
+     * @param y_n_1         OUTPUT   Solution values at the conditions which are evaluated for success
+     * @param ydot_n_1      OUTPUT   Time derivatives of solution at the conditions which are evaluated for success
      * @param trustDeltaOld INPUT Value of the trust length at the old conditions
      *
      *
@@ -941,7 +941,7 @@ namespace Cantera {
     int solnType_;
 
     //! Local copy of the number of equations
-    int neq_;
+    size_t neq_;
   
     //! Soln error weights
     std::vector<doublereal> m_ewt;
@@ -1164,7 +1164,7 @@ namespace Cantera {
 
     //! Copy of the jacobian that doesn't get overwritten when the inverse is determined
     /*!
-     *  The jacobian storred here is the raw matrix, before any row or column scaling is carried out
+     *  The jacobian stored here is the raw matrix, before any row or column scaling is carried out
      */
     Cantera::GeneralMatrix * jacCopyPtr_;
 
@@ -1273,7 +1273,7 @@ namespace Cantera {
     //! Factor indicating how much trust region has been changed next iteration - output variable
     doublereal NextTrustFactor_;
 
-    //! Boolean indicating that the residual weights have been reevalulated this iteration - output variable
+    //! Boolean indicating that the residual weights have been reevaluated this iteration - output variable
     bool ResidWtsReevaluated_;
 
     //! Expected DResid_dS for the steepest descent path - output variable
