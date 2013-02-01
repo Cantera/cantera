@@ -36,6 +36,10 @@ cdef class Mixture:
         self._phases = []
 
         cdef _SolutionBase phase
+        if isinstance(phases[0], _SolutionBase):
+            # Assign default composition to the list of phases
+            phases = [(p, 1 if i == 0 else 0) for i,p in enumerate(phases)]
+
         for phase,moles in phases:
             self.mix.addPhase(phase.thermo, moles)
             self._phases.append(phase)
