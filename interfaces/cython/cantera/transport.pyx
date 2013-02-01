@@ -135,3 +135,39 @@ cdef class DustyGasTransport(Transport):
         """Permeability of the porous medium [m^2]."""
         def __set__(self, value):
             (<CxxDustyGasTransport*>self.transport).setPermeability(value)
+
+    def molar_fluxes(self, T1, T2, rho1, rho2, Y1, Y2, delta):
+        """
+        Get the molar fluxes [kmol/m^2/s], given the thermodynamic state at
+        two nearby points.
+
+        :param T1:
+            Temperature [K] at the first point
+        :param T2:
+            Temperature [K] at the second point
+        :param rho1:
+            Density [kg/m^3] at the first point
+        :param rho2:
+            Density [kg/m^3] at the second point
+        :param Y1:
+            Array of mass fractions at the first point. Length `n_species`.
+        :param Y2:
+            Array of mass fractions at the second point. Length `n_species`.
+        :param delta:
+            Distance [m] between the two points.
+        """
+
+        cdef np.ndarray[np.double_t, ndim=1] state1 = np.empty(self.n_species + 2)
+        cdef np.ndarray[np.double_t, ndim=1] state2 = np.empty(self.n_species + 2)
+        cdef np.ndarray[np.double_t, ndim=1] fluxes = np.empty(self.n_species)
+
+        state1[0] = T1
+        state1[1] = rho1
+        state1[2:] = Y1
+        state2[0] = T2
+        state2[1] = rho2
+        state2[2:] = Y2
+
+        (<CxxDustyGasTransport*>self.transport).getMolarFluxes(&state1[0],
+            &state2[0], delta, &fluxes[0])
+        return fluxes

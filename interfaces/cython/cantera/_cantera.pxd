@@ -184,6 +184,7 @@ cdef extern from "cantera/transport/DustyGasTransport.h" namespace "Cantera":
         void setMeanPoreRadius(double) except +
         void setMeanParticleDiameter(double) except +
         void setPermeability(double) except +
+        void getMolarFluxes(double*, double*, double, double*) except +
 
 
 cdef extern from "cantera/equil/MultiPhase.h" namespace "Cantera":
