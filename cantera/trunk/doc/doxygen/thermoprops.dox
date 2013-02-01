@@ -180,90 +180,90 @@
  *
  *     <TABLE>
  *      <TR>
- *        <TD> \link ThermoPhase::setState_TPX() setState_TPX()\endlink </TD>
+ *        <TD> \link Cantera::ThermoPhase::setState_TPX() setState_TPX()\endlink </TD>
  *        <TD>    Sets the temperature, mole fractions and then the pressure
  *                of the phase. </TD>
  *      </TR>
  *      <TR>
- *        <TD> \link ThermoPhase::setState_TPY() setState_TPY()\endlink    </TD>
+ *        <TD> \link Cantera::ThermoPhase::setState_TPY() setState_TPY()\endlink    </TD>
  *        <TD>    Set the temperature, mass fractions and then the pressure
  *                of the phase. </TD>
  *      </TR>
  *      <TR>
- *        <TD> \link MolalityVPSSTP::setState_TPM() setState_TPM()\endlink     </TD>
+ *        <TD> \link Cantera::MolalityVPSSTP::setState_TPM() setState_TPM()\endlink     </TD>
  *        <TD>    Set the temperature, solute molalities, and then the
  *                pressure of the phase. Only from %ThermoPhase objects which
  *                inherit from MolalityVPSSTP
  *        </TD>
  *      </TR>
  *      <TR>
- *        <TD> \link ThermoPhase::setState_TP() setState_TP()\endlink     </TD>
+ *        <TD> \link Cantera::ThermoPhase::setState_TP() setState_TP()\endlink     </TD>
  *        <TD>    Set the temperature, and then the pressure
  *                of the phase. The mole fractions are assumed fixed.
  *        </TD>
  *      </TR>
  *      <TR>
- *        <TD> \link ThermoPhase::setState_PX() setState_PX()\endlink     </TD>
+ *        <TD> \link Cantera::ThermoPhase::setState_PX() setState_PX()\endlink     </TD>
  *        <TD>    Set the mole fractions and then the pressure
  *                         of the phase. The temperature is assumed fixed.
  *        </TD>
  *      </TR>
  *      <TR>
- *        <TD> \link ThermoPhase::setState_PY() setState_PY()\endlink     </TD>
+ *        <TD> \link Cantera::ThermoPhase::setState_PY() setState_PY()\endlink     </TD>
  *        <TD>  Set the mass fractions and then the pressure
  *                         of the phase. The temperature is assumed fixed.
  *        </TD>
  *      </TR>
  *      <TR>
- *        <TD> \link ThermoPhase::setState_HP() setState_HP()\endlink     </TD>
+ *        <TD> \link Cantera::ThermoPhase::setState_HP() setState_HP()\endlink     </TD>
  *        <TD> Set the total specific enthalpy and the pressure
  *                         of the phase using an iterative process.
  *                         The mole fractions are assumed fixed
  *        </TD>
  *      </TR>
  *      <TR>
- *        <TD> \link ThermoPhase::setState_UV() setState_UV()\endlink     </TD>
+ *        <TD> \link Cantera::ThermoPhase::setState_UV() setState_UV()\endlink     </TD>
  *        <TD>  Set the total specific internal energy and the pressure
  *                         of the phase using an iterative process.
  *                         The mole fractions are assumed fixed.
  *        </TD>
  *      </TR>
  *      <TR>
- *        <TD> \link ThermoPhase::setState_SP() setState_SP()\endlink     </TD>
+ *        <TD> \link Cantera::ThermoPhase::setState_SP setState_SP()\endlink     </TD>
  *        <TD>  Set the total specific internal energy and the pressure
  *                         of the phase using an iterative process.
  *                         The mole fractions are assumed fixed.
  *        </TD>
  *      </TR>
  *      <TR>
- *        <TD> \link ThermoPhase::setState_SV() setState_SV()\endlink     </TD>
+ *        <TD> \link Cantera::ThermoPhase::setState_SV setState_SV()\endlink     </TD>
  *        <TD> Set the total specific entropy and the total specific
  *                         molar volume of the phase using an iterative process.
  *                         The mole fractions are assumed fixed.
  *        </TD>
  *      </TR>
  *      <TR>
- *        <TD> \link Phase::setConcentrations() setConcentrations()\endlink     </TD>
+ *        <TD> \link Cantera::Phase::setConcentrations setConcentrations()\endlink     </TD>
  *        <TD> Set the concentrations of all the species in the
  *                         phase. Note this implicitly specifies the pressure and
  *                         density of the phase. The temperature is assumed fixed.
  *        </TD>
  *      </TR>
  *      <TR>
- *        <TD> \link Phase::setDensity() setDensity()\endlink     </TD>
+ *        <TD> \link Cantera::Phase::setDensity setDensity()\endlink     </TD>
  *        <TD>  Set the total density of the phase. The temperature and
  *                         mole fractions are assumed fixed. Note this implicitly
  *                         sets the pressure of the phase.
  *        </TD>
  *      </TR>
  *      <TR>
- *        <TD> \link Phase::setTemperature() setTemperature()\endlink     </TD>
+ *        <TD> \link Cantera::Phase::setTemperature() setTemperature()\endlink     </TD>
  *        <TD> Set the temperature of the phase. The density and
  *                         the mole fractions of the phase are fixed.
  *        </TD>
  *      </TR>
  *      <TR>
- *        <TD> \link ThermoPhase::setToEquilState() setToEquilState()\endlink     </TD>
+ *        <TD> \link Cantera::ThermoPhase::setToEquilState() setToEquilState()\endlink     </TD>
  *        <TD>  Sets the mole fractions of the phase to their
  *                         equilibrium values assuming fixed temperature and
  *                         total density.
@@ -493,7 +493,7 @@
  *  standard state properties of the species within the phase.
  *  If only a reference state is needed
  *  then a call to
- *  \link #newSpeciesThermoMgr(std::vector<XML_Node*> spData_nodes, SpeciesThermoFactory* f=0, bool opt=false) newSpeciesThermoMgr()\endlink
+ *  \link #Cantera::newSpeciesThermoMgr(std::vector<XML_Node*> spData_nodes, SpeciesThermoFactory* f=0, bool opt=false) newSpeciesThermoMgr()\endlink
  *  is made in order
  *  pick a manager, i.e., a derivative of the SpeciesThermo
  *  object, to use.
