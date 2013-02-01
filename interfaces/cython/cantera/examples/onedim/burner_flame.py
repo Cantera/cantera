@@ -3,7 +3,6 @@ A burner-stabilized lean premixed hydrogen-oxygen flame at low pressure.
 """
 
 import cantera as ct
-import csv
 
 p = 0.05 * ct.one_atm
 tburner = 373.0
@@ -52,17 +51,4 @@ print('multicomponent flamespeed = ', f.u[0])
 f.save('h2_burner_flame.xml','energy_multi',
        'solution with the energy equation enabled and multicomponent transport')
 
-z = f.flame.grid
-T = f.T
-u = f.u
-V = f.V
-
-with open('h2_burner_flame.csv', 'w') as csvfile:
-    writer = csv.writer(csvfile)
-    writer.writerow(['z (m)', 'u (m/s)', 'V (1/s)', 'T (K)', 'rho (kg/m3)'] +
-                    list(gas.species_names))
-    for n in range(f.flame.n_points):
-        f.set_gas_state(n)
-        writer.writerow([z[n], u[n], V[n], T[n], gas.density] + list(gas.X))
-
-print('solution saved to h2_burner_flame.csv')
+f.write_csv('h2_burner_flame.csv', quiet=False)
