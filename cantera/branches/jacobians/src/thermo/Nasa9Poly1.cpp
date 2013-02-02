@@ -305,5 +305,14 @@ void Nasa9Poly1<ValAndDerivType>::modifyParameters(doublereal* coeffs)
     }
 }
 
+
+// Explicit Instantiations
+template class Nasa9Poly1<doublereal> ;
+#ifdef INDEPENDENT_VARIABLE_DERIVATIVES
+#ifdef HAS_SACADO
+template class Nasa9Poly1<doubleFAD>;
+#endif
+#endif
+
 }
 

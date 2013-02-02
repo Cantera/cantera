@@ -101,9 +101,9 @@ template<typename ValAndDerivType>
 void ConstCpPoly<ValAndDerivType>::updateProperties(const ValAndDerivType* tt, ValAndDerivType* cp_R, ValAndDerivType* h_RT,
                                                     ValAndDerivType* s_R) const
 {
-    double t = *tt;
-    doublereal logt = log(t);
-    doublereal rt = 1.0 / t;
+    ValAndDerivType t = *tt;
+    ValAndDerivType logt = log(t);
+    ValAndDerivType rt = 1.0 / t;
     cp_R[m_index] = m_cp0_R;
     h_RT[m_index] = rt * (m_h0_R + (t - m_t0) * m_cp0_R);
     s_R[m_index] = m_s0_R + m_cp0_R * (logt - m_logt0);
@@ -113,8 +113,8 @@ template<typename ValAndDerivType>
 void ConstCpPoly<ValAndDerivType>::updatePropertiesTemp(const doublereal temp, ValAndDerivType* cp_R, ValAndDerivType* h_RT,
                                                         ValAndDerivType* s_R) const
 {
-    doublereal logt = log(temp);
-    doublereal rt = 1.0 / temp;
+    ValAndDerivType logt = log(temp);
+    ValAndDerivType rt = 1.0 / temp;
     cp_R[m_index] = m_cp0_R;
     h_RT[m_index] = rt * (m_h0_R + (temp - m_t0) * m_cp0_R);
     s_R[m_index] = m_s0_R + m_cp0_R * (logt - m_logt0);
@@ -151,7 +151,7 @@ template<typename ValAndDerivType>
 doublereal ConstCpPoly<ValAndDerivType>::reportHf298(doublereal* const h298) const
 {
     double temp = 298.15;
-    doublereal h = GasConstant * (m_h0_R + (temp - m_t0) * m_cp0_R);
+    doublereal h = FAD_Eliminate(GasConstant * (m_h0_R + (temp - m_t0) * m_cp0_R));
     if (h298) {
         h298[m_index] = h;
     }
@@ -169,6 +169,15 @@ void ConstCpPoly<ValAndDerivType>::modifyOneHf298(const size_t &k, const doubler
     m_h0_R += delH / GasConstant;
 }
 
+#endif
+
+
+// Explicit Instantiations
+template class ConstCpPoly<doublereal> ;
+#ifdef INDEPENDENT_VARIABLE_DERIVATIVES
+#ifdef HAS_SACADO
+template class ConstCpPoly<doubleFAD>;
+#endif
 #endif
 
 }

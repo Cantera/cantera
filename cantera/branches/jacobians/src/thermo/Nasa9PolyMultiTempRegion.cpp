@@ -399,4 +399,13 @@ void Nasa9PolyMultiTempRegion<ValAndDerivType>::modifyParameters(doublereal* coe
     }
 }
 
+// Explicit Instantiations
+template class Nasa9PolyMultiTempRegion<doublereal> ;
+#ifdef INDEPENDENT_VARIABLE_DERIVATIVES
+#ifdef HAS_SACADO
+template class Nasa9PolyMultiTempRegion<doubleFAD>;
+#endif
+#endif
+
+
 }

@@ -33,8 +33,8 @@ void SpeciesThermoInterpType<ValAndDerivType>::updateProperties(const ValAndDeri
 /*
  * This is necessary because we need to get the plain value of temperature for updatePropertiesTemp() function
  */
-template<> void SpeciesThermoInterpType<doubleFAD>::updateProperties(const doubleFAD* tempPoly, doubleFAD* cp_R,
-                                                                doubleFAD* h_RT, doubleFAD* s_R) const
+template<> void SpeciesThermoInterpType<doubleFAD>::updateProperties(const doubleFAD* tempPoly, doubleFAD* cp_R, doubleFAD* h_RT,
+                                                                     doubleFAD* s_R) const
 {
     double T = tempPoly[0].val();
     updatePropertiesTemp(T, cp_R, h_RT, s_R);
@@ -167,6 +167,13 @@ void STITbyPDSS<ValAndDerivType>::updateProperties(const ValAndDerivType* tempPo
     updatePropertiesTemp(T, cp_R, h_RT, s_R);
 }
 
+template<>
+void STITbyPDSS<doubleFAD>::updateProperties(const doubleFAD* tempPoly, doubleFAD* cp_R, doubleFAD* h_RT, doubleFAD* s_R) const
+{
+    doublereal T = tempPoly[0].val();
+    updatePropertiesTemp(T, cp_R, h_RT, s_R);
+}
+
 //! Compute the reference-state property of one species
 /*!
  * Given temperature T in K, this method updates the values of
@@ -231,10 +238,17 @@ void STITbyPDSS<ValAndDerivType>::modifyParameters(doublereal* coeffs)
 }
 
 // ExplicitInstantiation Section
-template class SpeciesThermoInterpType<doublereal>;
+template class SpeciesThermoInterpType<doublereal> ;
 #ifdef INDEPENDENT_VARIABLE_DERIVATIVES
 #ifdef HAS_SACADO
-template class SpeciesThermoInterpType<doubleFAD>;
+template class SpeciesThermoInterpType<doubleFAD> ;
+#endif
+#endif
+
+template class STITbyPDSS<doublereal> ;
+#ifdef INDEPENDENT_VARIABLE_DERIVATIVES
+#ifdef HAS_SACADO
+template class STITbyPDSS<doubleFAD> ;
 #endif
 #endif
 

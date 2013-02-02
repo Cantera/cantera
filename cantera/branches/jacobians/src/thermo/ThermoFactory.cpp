@@ -54,6 +54,8 @@
 
 #include <cstdlib>
 
+#include <typeinfo>
+
 using namespace std;
 using namespace ctml;
 
@@ -609,7 +611,14 @@ bool importPhase(XML_Node& phase, ThermoPhase<ValAndDerivType>* th, SpeciesTherm
     } else if (ssConvention == cSS_CONVENTION_VPSS) {
         vp_spth = newVPSSMgr(vpss_ptr, &phase, spDataNodeList);
         vpss_ptr->setVPSSMgr(vp_spth);
-        spth = vp_spth->SpeciesThermoMgr();
+        /*
+         * HKM - just to get this compiled. This is a kluge. Didn't want to create a specialized templated version of importPhase just yet.
+         */
+        if (typeid(ValAndDerivType).name() == typeid(doubleFAD).name()) {
+            spth = newSpeciesThermoMgr<ValAndDerivType>(spDataNodeList);
+        } else {
+            spth = (SpeciesThermo<ValAndDerivType> *) vp_spth->SpeciesThermoMgr();
+        }
         th->setSpeciesThermo(spth);
     } else {
         throw CanteraError("importPhase()", "unknown convention");
@@ -650,6 +659,14 @@ bool importPhase(XML_Node& phase, ThermoPhase<ValAndDerivType>* th, SpeciesTherm
 
     return true;
 }
+
+// Explicit Instantiations
+template bool importPhase(XML_Node& phase, ThermoPhase<doublereal>* th, SpeciesThermoFactory<doublereal>* spfactory);
+#ifdef INDEPENDENT_VARIABLE_DERIVATIVES
+#ifdef HAS_SACADO
+template bool importPhase(XML_Node& phase, ThermoPhase<doubleFAD>* th, SpeciesThermoFactory<doubleFAD>* spfactory);
+#endif
+#endif
 
 /*
  * Install a species into a ThermoPhase object, which defines

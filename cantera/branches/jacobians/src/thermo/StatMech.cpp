@@ -666,7 +666,7 @@ void StatMech<ValAndDerivType>::updateProperties(const ValAndDerivType* tt, ValA
     }
 
     // translational + rotational specific heat
-    doublereal ctr = 0.0;
+    ValAndDerivType ctr = 0.0;
     double theta = 0.0;
 
     // 5/2 * R for molecules, 3/2 * R for atoms
@@ -680,7 +680,7 @@ void StatMech<ValAndDerivType>::updateProperties(const ValAndDerivType* tt, ValA
     }
 
     // Cp = Cv + R
-    doublereal cpdivR = ctr / GasConstant + 1;
+    ValAndDerivType cpdivR = ctr / GasConstant + 1;
 
     // ACTUNG: fix enthalpy and entropy
     doublereal hdivRT = 0.0;
@@ -720,11 +720,11 @@ void StatMech<ValAndDerivType>::updateProperties(const ValAndDerivType* tt, ValA
  */
 template<typename ValAndDerivType>
 void StatMech<ValAndDerivType>::updatePropertiesTemp(const doublereal temp, ValAndDerivType* cp_R, ValAndDerivType* h_RT,
-        ValAndDerivType* s_R) const
+                                                     ValAndDerivType* s_R) const
 {
-    double tPoly[1];
-    tPoly[0] = temp;
-    updateProperties(tPoly, cp_R, h_RT, s_R);
+    ValAndDerivType tPoly;
+    tPoly = temp;
+    updateProperties(&tPoly, cp_R, h_RT, s_R);
 }
 
 //This utility function reports back the type of
@@ -793,6 +793,14 @@ void StatMech<ValAndDerivType>::modifyParameters(doublereal* coeffs)
 {
 
 }
+
+// Explicit Instantiations
+template class StatMech<doublereal> ;
+#ifdef INDEPENDENT_VARIABLE_DERIVATIVES
+#ifdef HAS_SACADO
+template class StatMech<doubleFAD> ;
+#endif
+#endif
 
 }
 

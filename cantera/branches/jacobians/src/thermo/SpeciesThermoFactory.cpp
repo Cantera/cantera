@@ -973,6 +973,14 @@ template class NasaPoly2<doubleFAD>;
 #endif
 #endif
 
+
+template class NasaPoly1<doublereal>;
+#ifdef INDEPENDENT_VARIABLE_DERIVATIVES
+#ifdef HAS_SACADO
+template class NasaPoly1<doubleFAD>;
+#endif
+#endif
+
 template class NasaThermo<doublereal>;
 #ifdef INDEPENDENT_VARIABLE_DERIVATIVES
 #ifdef HAS_SACADO

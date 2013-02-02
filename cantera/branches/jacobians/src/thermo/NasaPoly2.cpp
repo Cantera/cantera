@@ -1,10 +1,11 @@
 /**
  *  @file NasaPoly2.cpp
- *  \link Cantera::SpeciesThermoInterpType SpeciesThermoInterpType\endlink
+ *  \link Cantera::NasaPoly2 NasaPoly2\endlink
  */
 
 // Copyright 2007  Sandia National Laboratories
 #include "NasaPoly2.h"
+
 #include <vector>
 #include <map>
 
@@ -45,7 +46,7 @@ void NasaPoly2<ValAndDerivType>::updateProperties(const ValAndDerivType* tt, Val
     }
 }
 
-// Overriding the particilar template
+// Overriding the particular template
 
 template<> void NasaPoly2<doubleFAD>::updateProperties(const doubleFAD* tt, doubleFAD* cp_R, doubleFAD* h_RT, doubleFAD* s_R) const
 {
@@ -57,5 +58,10 @@ template<> void NasaPoly2<doubleFAD>::updateProperties(const doubleFAD* tt, doub
         mnp_high.updateProperties(tt, cp_R, h_RT, s_R);
     }
 }
+
+/*
+ *  HKM For some reason this tidbit was needed to complete the linking.
+ */
+template void NasaPoly2<doublereal>::updateProperties(const doublereal* tt, doublereal* cp_R, doublereal* h_RT, doublereal* s_R) const;
 
 }

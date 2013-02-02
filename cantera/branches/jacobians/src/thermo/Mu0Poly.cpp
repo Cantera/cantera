@@ -16,16 +16,16 @@
 using namespace std;
 using namespace ctml;
 
-namespace Cantera
-{
+namespace Cantera {
 
 template<typename ValAndDerivType>
-Mu0Poly<ValAndDerivType>::Mu0Poly() : m_numIntervals(0),
-    m_H298(0.0),
-    m_lowT(0.0),
-    m_highT(0.0),
-    m_Pref(0.0),
-    m_index(0)
+Mu0Poly<ValAndDerivType>::Mu0Poly() :
+        m_numIntervals(0),
+        m_H298(0.0),
+        m_lowT(0.0),
+        m_highT(0.0),
+        m_Pref(0.0),
+        m_index(0)
 {
 }
 
@@ -47,34 +47,31 @@ Mu0Poly<ValAndDerivType>::Mu0Poly() : m_numIntervals(0),
  *         ........
  */
 template<typename ValAndDerivType>
-Mu0Poly<ValAndDerivType>::Mu0Poly(size_t n, doublereal tlow, doublereal thigh,
-                 doublereal pref,
-                 const doublereal* coeffs) :
-    m_numIntervals(0),
-    m_H298(0.0),
-    m_lowT(tlow),
-    m_highT(thigh),
-    m_Pref(pref),
-    m_index(n)
+Mu0Poly<ValAndDerivType>::Mu0Poly(size_t n, doublereal tlow, doublereal thigh, doublereal pref, const doublereal* coeffs) :
+        m_numIntervals(0),
+        m_H298(0.0),
+        m_lowT(tlow),
+        m_highT(thigh),
+        m_Pref(pref),
+        m_index(n)
 {
 
     processCoeffs(coeffs);
 }
 
-
 template<typename ValAndDerivType>
-Mu0Poly<ValAndDerivType>::Mu0Poly(const Mu0Poly& b)
-    : m_numIntervals(b.m_numIntervals),
-      m_H298(b.m_H298),
-      m_t0_int(b.m_t0_int),
-      m_mu0_R_int(b.m_mu0_R_int),
-      m_h0_R_int(b.m_h0_R_int),
-      m_s0_R_int(b.m_s0_R_int),
-      m_cp0_R_int(b.m_cp0_R_int),
-      m_lowT(b.m_lowT),
-      m_highT(b.m_highT),
-      m_Pref(b.m_Pref),
-      m_index(b.m_index)
+Mu0Poly<ValAndDerivType>::Mu0Poly(const Mu0Poly& b) :
+        m_numIntervals(b.m_numIntervals),
+        m_H298(b.m_H298),
+        m_t0_int(b.m_t0_int),
+        m_mu0_R_int(b.m_mu0_R_int),
+        m_h0_R_int(b.m_h0_R_int),
+        m_s0_R_int(b.m_s0_R_int),
+        m_cp0_R_int(b.m_cp0_R_int),
+        m_lowT(b.m_lowT),
+        m_highT(b.m_highT),
+        m_Pref(b.m_Pref),
+        m_index(b.m_index)
 {
 }
 
@@ -83,16 +80,16 @@ Mu0Poly<ValAndDerivType>& Mu0Poly<ValAndDerivType>::operator=(const Mu0Poly<ValA
 {
     if (&b != this) {
         m_numIntervals = b.m_numIntervals;
-        m_H298         = b.m_H298;
-        m_t0_int       = b.m_t0_int;
-        m_mu0_R_int    = b.m_mu0_R_int;
-        m_h0_R_int     = b.m_h0_R_int;
-        m_s0_R_int     = b.m_s0_R_int;
-        m_cp0_R_int    = b.m_cp0_R_int;
-        m_lowT         = b.m_lowT;
-        m_highT        = b.m_highT;
-        m_Pref         = b.m_Pref;
-        m_index        = b.m_index;
+        m_H298 = b.m_H298;
+        m_t0_int = b.m_t0_int;
+        m_mu0_R_int = b.m_mu0_R_int;
+        m_h0_R_int = b.m_h0_R_int;
+        m_s0_R_int = b.m_s0_R_int;
+        m_cp0_R_int = b.m_cp0_R_int;
+        m_lowT = b.m_lowT;
+        m_highT = b.m_highT;
+        m_Pref = b.m_Pref;
+        m_index = b.m_index;
     }
     return *this;
 }
@@ -118,7 +115,7 @@ doublereal Mu0Poly<ValAndDerivType>::minTemp() const
     return m_lowT;
 }
 template<typename ValAndDerivType>
-doublereal  Mu0Poly<ValAndDerivType>::maxTemp() const
+doublereal Mu0Poly<ValAndDerivType>::maxTemp() const
 {
     return m_highT;
 }
@@ -143,15 +140,14 @@ doublereal Mu0Poly<ValAndDerivType>::refPressure() const
  *
  */
 template<typename ValAndDerivType>
-void  Mu0Poly<ValAndDerivType>::
-updateProperties(const doublereal* tt,  ValAndDerivType* cp_R,
-        ValAndDerivType* h_RT, ValAndDerivType* s_R) const
+void Mu0Poly<ValAndDerivType>::updateProperties(const doublereal* tt, ValAndDerivType* cp_R, ValAndDerivType* h_RT,
+                                                ValAndDerivType* s_R) const
 {
     size_t j = m_numIntervals;
     double T = *tt;
     for (size_t i = 0; i < m_numIntervals; i++) {
-        double T2 =  m_t0_int[i+1];
-        if (T <=T2) {
+        double T2 = m_t0_int[i + 1];
+        if (T <= T2) {
             j = i;
             break;
         }
@@ -159,18 +155,15 @@ updateProperties(const doublereal* tt,  ValAndDerivType* cp_R,
     double T1 = m_t0_int[j];
     double cp_Rj = m_cp0_R_int[j];
 
-    doublereal rt = 1.0/T;
+    doublereal rt = 1.0 / T;
     cp_R[m_index] = cp_Rj;
-    h_RT[m_index] = rt*(m_h0_R_int[j] + (T - T1) * cp_Rj);
-    s_R[m_index]  = m_s0_R_int[j] + cp_Rj * (log(T/T1));
+    h_RT[m_index] = rt * (m_h0_R_int[j] + (T - T1) * cp_Rj);
+    s_R[m_index] = m_s0_R_int[j] + cp_Rj * (log(T / T1));
 }
 
 template<typename ValAndDerivType>
-void  Mu0Poly<ValAndDerivType>::
-updatePropertiesTemp(const doublereal T,
-                     ValAndDerivType* cp_R,
-                     ValAndDerivType* h_RT,
-                     ValAndDerivType* s_R) const
+void Mu0Poly<ValAndDerivType>::updatePropertiesTemp(const doublereal T, ValAndDerivType* cp_R, ValAndDerivType* h_RT,
+                                                    ValAndDerivType* s_R) const
 {
     updateProperties(&T, cp_R, h_RT, s_R);
 }
@@ -182,22 +175,20 @@ updatePropertiesTemp(const doublereal T,
  *
  */
 template<typename ValAndDerivType>
-void Mu0Poly<ValAndDerivType>::reportParameters(size_t& n, int& type,
-                               doublereal& tlow, doublereal& thigh,
-                               doublereal& pref,
-                               doublereal* const coeffs) const
+void Mu0Poly<ValAndDerivType>::reportParameters(size_t& n, int& type, doublereal& tlow, doublereal& thigh, doublereal& pref,
+                                                doublereal* const coeffs) const
 {
     n = m_index;
     type = MU0_INTERP;
     tlow = m_lowT;
     thigh = m_highT;
     pref = m_Pref;
-    coeffs[0] = int(m_numIntervals)+1;
+    coeffs[0] = int(m_numIntervals) + 1;
     coeffs[1] = m_H298 * GasConstant;
     int j = 2;
-    for (size_t i = 0; i < m_numIntervals+1; i++) {
+    for (size_t i = 0; i < m_numIntervals + 1; i++) {
         coeffs[j] = m_t0_int[i];
-        coeffs[j+1] = m_mu0_R_int[i] * GasConstant;
+        coeffs[j + 1] = m_mu0_R_int[i] * GasConstant;
         j += 2;
     }
 }
@@ -214,8 +205,7 @@ void Mu0Poly<ValAndDerivType>::modifyParameters(doublereal* coeffs)
  * getting the information from an XML database.
  */
 template<typename ValAndDerivType>
-void installMu0ThermoFromXML(const std::string& speciesName,
-                             SpeciesThermo<ValAndDerivType>& sp, size_t k,
+void installMu0ThermoFromXML(const std::string& speciesName, SpeciesThermo<ValAndDerivType>& sp, size_t k,
                              const XML_Node* Mu0Node_ptr)
 {
 
@@ -238,12 +228,9 @@ void installMu0ThermoFromXML(const std::string& speciesName,
     }
 
     vector_fp cValues(numPoints);
-    const XML_Node* valNode_ptr =
-        getByTitle(const_cast<XML_Node&>(Mu0Node), "Mu0Values");
+    const XML_Node* valNode_ptr = getByTitle(const_cast<XML_Node&>(Mu0Node), "Mu0Values");
     if (!valNode_ptr) {
-        throw CanteraError("installMu0ThermoFromXML",
-                           "missing required while processing "
-                           + speciesName);
+        throw CanteraError("installMu0ThermoFromXML", "missing required while processing " + speciesName);
     }
     getFloatArray(*valNode_ptr, cValues, true, "actEnergy");
     /*
@@ -257,25 +244,18 @@ void installMu0ThermoFromXML(const std::string& speciesName,
     }
     size_t ns = cValues.size();
     if (ns != numPoints) {
-        throw CanteraError("installMu0ThermoFromXML",
-                           "numPoints inconsistent while processing "
-                           + speciesName);
+        throw CanteraError("installMu0ThermoFromXML", "numPoints inconsistent while processing " + speciesName);
     }
 
     vector_fp cTemperatures(numPoints);
-    const XML_Node* tempNode_ptr =
-        getByTitle(const_cast<XML_Node&>(Mu0Node), "Mu0Temperatures");
+    const XML_Node* tempNode_ptr = getByTitle(const_cast<XML_Node&>(Mu0Node), "Mu0Temperatures");
     if (!tempNode_ptr) {
-        throw CanteraError("installMu0ThermoFromXML",
-                           "missing required while processing + "
-                           + speciesName);
+        throw CanteraError("installMu0ThermoFromXML", "missing required while processing + " + speciesName);
     }
     getFloatArray(*tempNode_ptr, cTemperatures, false);
     ns = cTemperatures.size();
     if (ns != numPoints) {
-        throw CanteraError("installMu0ThermoFromXML",
-                           "numPoints inconsistent while processing "
-                           + speciesName);
+        throw CanteraError("installMu0ThermoFromXML", "numPoints inconsistent while processing " + speciesName);
     }
 
     /*
@@ -287,14 +267,13 @@ void installMu0ThermoFromXML(const std::string& speciesName,
         }
     }
 
-
     vector_fp c(2 + 2 * numPoints);
 
     c[0] = static_cast<double>(numPoints);
     c[1] = h298;
     for (size_t i = 0; i < numPoints; i++) {
-        c[2+i*2]   = cTemperatures[i];
-        c[2+i*2+1] = cValues[i];
+        c[2 + i * 2] = cTemperatures[i];
+        c[2 + i * 2 + 1] = cValues[i];
     }
 
     sp.install(speciesName, k, MU0_INTERP, &c[0], tmin, tmax, pref);
@@ -325,11 +304,10 @@ void Mu0Poly<ValAndDerivType>::processCoeffs(const doublereal* coeffs)
     double T1, T2;
     size_t nPoints = (size_t) coeffs[0];
     if (nPoints < 2) {
-        throw CanteraError("Mu0Poly",
-                           "nPoints must be >= 2");
+        throw CanteraError("Mu0Poly", "nPoints must be >= 2");
     }
     m_numIntervals = nPoints - 1;
-    m_H298       = coeffs[1] / GasConstant;
+    m_H298 = coeffs[1] / GasConstant;
     size_t iT298 = 0;
     /*
      * Resize according to the number of points
@@ -348,23 +326,21 @@ void Mu0Poly<ValAndDerivType>::processCoeffs(const doublereal* coeffs)
     for (i = 0, iindex = 2; i < nPoints; i++) {
         T1 = coeffs[iindex];
         m_t0_int[i] = T1;
-        m_mu0_R_int[i] =  coeffs[iindex+1] / GasConstant;
+        m_mu0_R_int[i] = coeffs[iindex + 1] / GasConstant;
         if (T1 == 298.15) {
             iT298 = i;
             ifound = true;
         }
         if (i < nPoints - 1) {
-            T2 = coeffs[iindex+2];
+            T2 = coeffs[iindex + 2];
             if (T2 <= T1) {
-                throw CanteraError("Mu0Poly",
-                                   "Temperatures are not monotonic increasing");
+                throw CanteraError("Mu0Poly", "Temperatures are not monotonic increasing");
             }
         }
         iindex += 2;
     }
     if (!ifound) {
-        throw CanteraError("Mu0Poly",
-                           "One temperature has to be 298.15");
+        throw CanteraError("Mu0Poly", "One temperature has to be 298.15");
     }
 
     /*
@@ -374,23 +350,23 @@ void Mu0Poly<ValAndDerivType>::processCoeffs(const doublereal* coeffs)
     T1 = m_t0_int[iT298];
     doublereal mu1 = m_mu0_R_int[iT298];
     m_h0_R_int[iT298] = m_H298;
-    m_s0_R_int[iT298] = - (mu1 - m_h0_R_int[iT298]) / T1;
+    m_s0_R_int[iT298] = -(mu1 - m_h0_R_int[iT298]) / T1;
     for (i = iT298; i < m_numIntervals; i++) {
-        T1      = m_t0_int[i];
-        s1      = m_s0_R_int[i];
-        h1      = m_h0_R_int[i];
-        mu1     = m_mu0_R_int[i];
-        T2      = m_t0_int[i+1];
-        mu2     = m_mu0_R_int[i+1];
+        T1 = m_t0_int[i];
+        s1 = m_s0_R_int[i];
+        h1 = m_h0_R_int[i];
+        mu1 = m_mu0_R_int[i];
+        T2 = m_t0_int[i + 1];
+        mu2 = m_mu0_R_int[i + 1];
         deltaMu = mu2 - mu1;
-        deltaT  = T2 - T1;
-        cpi = (deltaMu - T1 * s1 + T2 * s1) / (deltaT - T2 * log(T2/T1));
+        deltaT = T2 - T1;
+        cpi = (deltaMu - T1 * s1 + T2 * s1) / (deltaT - T2 * log(T2 / T1));
         h2 = h1 + cpi * deltaT;
-        s2 = s1 + cpi * log(T2/T1);
-        m_cp0_R_int[i]   = cpi;
-        m_h0_R_int[i+1]  = h2;
-        m_s0_R_int[i+1]  = s2;
-        m_cp0_R_int[i+1] = cpi;
+        s2 = s1 + cpi * log(T2 / T1);
+        m_cp0_R_int[i] = cpi;
+        m_h0_R_int[i + 1] = h2;
+        m_s0_R_int[i + 1] = s2;
+        m_cp0_R_int[i + 1] = cpi;
     }
 
     /*
@@ -400,53 +376,58 @@ void Mu0Poly<ValAndDerivType>::processCoeffs(const doublereal* coeffs)
         T2 = m_t0_int[iT298];
         mu2 = m_mu0_R_int[iT298];
         m_h0_R_int[iT298] = m_H298;
-        m_s0_R_int[iT298] = - (mu2 - m_h0_R_int[iT298]) / T2;
+        m_s0_R_int[iT298] = -(mu2 - m_h0_R_int[iT298]) / T2;
         for (i = iT298 - 1; i != npos; i--) {
-            T1      = m_t0_int[i];
-            mu1     = m_mu0_R_int[i];
-            T2      = m_t0_int[i+1];
-            mu2     = m_mu0_R_int[i+1];
-            s2      = m_s0_R_int[i+1];
-            h2      = m_h0_R_int[i+1];
+            T1 = m_t0_int[i];
+            mu1 = m_mu0_R_int[i];
+            T2 = m_t0_int[i + 1];
+            mu2 = m_mu0_R_int[i + 1];
+            s2 = m_s0_R_int[i + 1];
+            h2 = m_h0_R_int[i + 1];
             deltaMu = mu2 - mu1;
-            deltaT  = T2 - T1;
-            cpi = (deltaMu - T1 * s2 + T2 * s2) / (deltaT - T1 * log(T2/T1));
+            deltaT = T2 - T1;
+            cpi = (deltaMu - T1 * s2 + T2 * s2) / (deltaT - T1 * log(T2 / T1));
             h1 = h2 - cpi * deltaT;
-            s1 = s2 - cpi * log(T2/T1);
-            m_cp0_R_int[i]   = cpi;
-            m_h0_R_int[i]    = h1;
-            m_s0_R_int[i]    = s1;
-            if (i == (m_numIntervals-1)) {
-                m_cp0_R_int[i+1] = cpi;
+            s1 = s2 - cpi * log(T2 / T1);
+            m_cp0_R_int[i] = cpi;
+            m_h0_R_int[i] = h1;
+            m_s0_R_int[i] = s1;
+            if (i == (m_numIntervals - 1)) {
+                m_cp0_R_int[i + 1] = cpi;
             }
         }
     }
 #ifdef DEBUG_HKM_NOT
     printf("    Temp     mu0(J/kmol)   cp0(J/kmol/K)   "
-           " h0(J/kmol)   s0(J/kmol/K) \n");
+            " h0(J/kmol)   s0(J/kmol/K) \n");
     for (i = 0; i < nPoints; i++) {
         printf("%12.3g %12.5g %12.5g %12.5g %12.5g\n",
-               m_t0_int[i],  m_mu0_R_int[i] * GasConstant,
-               m_cp0_R_int[i]* GasConstant,
-               m_h0_R_int[i]* GasConstant,
-               m_s0_R_int[i]* GasConstant);
+                m_t0_int[i], m_mu0_R_int[i] * GasConstant,
+                m_cp0_R_int[i]* GasConstant,
+                m_h0_R_int[i]* GasConstant,
+                m_s0_R_int[i]* GasConstant);
         fflush(stdout);
     }
 #endif
 }
 
 // Explicit Instantiation Section
-template class Mu0Poly<doublereal>;
+template class Mu0Poly<doublereal> ;
 #ifdef INDEPENDENT_VARIABLE_DERIVATIVES
 #ifdef HAS_SACADO
-template class Mu0Poly<doubleFAD>;
+template class Mu0Poly<doubleFAD> ;
+#endif
+#endif
+
+template void installMu0ThermoFromXML(const std::string& speciesName, SpeciesThermo<doublereal>& sp, size_t k,
+                                      const XML_Node* Mu0Node_ptr);
+#ifdef INDEPENDENT_VARIABLE_DERIVATIVES
+#ifdef HAS_SACADO
+template void installMu0ThermoFromXML(const std::string& speciesName, SpeciesThermo<doubleFAD>& sp, size_t k,
+                                      const XML_Node* Mu0Node_ptr);
 #endif
 #endif
 
 
 }
-
-
-
-
 
