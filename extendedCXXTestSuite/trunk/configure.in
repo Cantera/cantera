@@ -467,6 +467,7 @@ AC_OUTPUT(Makefile \
 	  thermo_UnitTests/CO2_tester/Makefile \
 	  thermo_UnitTests/CO2_fugacity/Makefile \
 	  thermo_UnitTests/LatticeSolid_LiSi/Makefile \
+	  thermo_UnitTests/nasapoly_gtest/Makefile \
 	  transport_UnitTests/Makefile \
           transport_UnitTests/SimpleTransportTest1/Makefile \
           transport_UnitTests/SimpleTransportTest1/runtest \

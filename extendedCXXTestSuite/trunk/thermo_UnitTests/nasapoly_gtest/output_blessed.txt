@@ -1,0 +1,19 @@
+Running main() from nasapoly.cpp
+[==========] Running 5 tests from 1 test case.
+[----------] Global test environment set-up.
+[----------] 5 tests from NasaPoly1Test
+[ RUN      ] NasaPoly1Test.Initialization
+[       OK ] NasaPoly1Test.Initialization (0 ms)
+[ RUN      ] NasaPoly1Test.Copy
+[       OK ] NasaPoly1Test.Copy (0 ms)
+[ RUN      ] NasaPoly1Test.Assignment
+[       OK ] NasaPoly1Test.Assignment (0 ms)
+[ RUN      ] NasaPoly1Test.updateProperties
+[       OK ] NasaPoly1Test.updateProperties (0 ms)
+[ RUN      ] NasaPoly1Test.updatePropertiesTemp
+[       OK ] NasaPoly1Test.updatePropertiesTemp (0 ms)
+[----------] 5 tests from NasaPoly1Test (1 ms total)
+
+[----------] Global test environment tear-down
+[==========] 5 tests from 1 test case ran. (1 ms total)
+[  PASSED  ] 5 tests.

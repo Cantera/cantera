@@ -10,26 +10,31 @@ all:
 	cd CO2_tester;     @MAKE@
 	cd CO2_fugacity;   @MAKE@
 	cd LatticeSolid_LiSi;   @MAKE@
+	cd nasapoly_gtest;  @MAKE@
 
 depends:
 	cd CO2_tester;     @MAKE@ depends
 	cd CO2_fugacity;   @MAKE@ depends
 	cd LatticeSolid_LiSi;   @MAKE@ depends
+	cd nasapoly_gtest;  @MAKE@ depends
 
 clean:
 	cd CO2_tester;     @MAKE@ clean
 	cd CO2_fugacity;   @MAKE@ clean
 	cd LatticeSolid_LiSi;   @MAKE@ clean
+	cd nasapoly_gtest;  @MAKE@ clean
 
 test:
 	cd CO2_tester;     @MAKE@ test
 	cd CO2_fugacity;   @MAKE@ test
 	cd LatticeSolid_LiSi;   @MAKE@ test
+	cd nasapoly_gtest;  @MAKE@ test
 
 rebaseline:
 	cd CO2_tester;      @MAKE@ rebaseline
 	cd CO2_fugacity;    @MAKE@ rebaseline
 	cd LatticeSolid_LiSi;   @MAKE@ rebaseline
+	cd nasapoly_gtest;  @MAKE@ rebaseline
 
 
 

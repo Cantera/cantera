@@ -1,0 +1,119 @@
+#
+#  Makefile.in: 
+#     Makefile for  latsol
+#
+# $Id: Makefile.in,v 1.1 2011/03/10 23:58:53 hkmoffa Exp $
+#
+#
+RM = /bin/rm -f
+#
+##########################################################################
+#           Setup The Cantera Directory locations
+#########################################################################
+#
+PROGRAM=nasapoly
+#
+# The directory where Cantera include files may be found.
+#
+CANTERA_INCROOT=@ct_incroot@
+#
+include $(CANTERA_INCROOT)/cantera/Cantera.mak
+#
+#
+# Set up the various local and global defines
+#
+LDEFINES = -DDEBUG  -DDEBUG_TEST
+#
+# Set up the global include directory macro
+#
+INCLUDE_DIRS = -I../../src $(CANTERA_TOTAL_INCLUDES) 
+#
+# the C++ compiler
+#
+CXX = @CXX@
+
+debug_mode = 0
+ifeq ($(debug_mode), 1)
+   DEBUG_FLAG=-DDEBUG_MODE
+else
+   DEBUG_FLAG=
+endif
+
+CXXFLAGS = @CXXFLAGS@ $(DEBUG_FLAG)
+LCXX_FLAGS = @LCXX_FLAGS@
+LCXX_END_LIBS = @LCXX_END_LIBS@
+CXXLDR = $(CXX)
+CFLAGS=@CXXFLAGS@
+#
+# Both the C and C++ compiler predefines
+#
+CCFLAGS =   $(LDEFINES) $(INCLUDE_DIRS) 
+
+#
+# GTEST library
+#
+GTEST_LIB =  -L$(CANTERA_INSTALL_ROOT)/lib -lgtest
+#
+GTEST_DEP = $(CANTERA_INSTALL_ROOT)/lib/libgtest.a
+#
+######################################################################
+
+all: .depends  $(PROGRAM)
+
+######################################################################
+
+.SUFFIXES: .src  .d .cpp
+
+.cpp.o:
+	$(CXX) $(CXXFLAGS) $(CCFLAGS) -c $<
+# 
+# These classes compile against the Cantera kernel
+# format
+#
+SRCDIR=../../src
+
+###########################################################################
+# section to set up depends
+###########################################################################
+DEPENDS = $(PROGRAM).d
+
+.cpp.d:
+	@CXX_DEPENDS@ $(CXXFLAGS) $(CCFLAGS) -c $*.cpp > $*.d
+
+.depends: $(DEPENDS)
+	cat *.d > .depends
+
+depends:
+	$(RM) *.d .depends
+	@MAKE@ .depends
+
+rebaseline:
+	cp output.txt output_blessed.txt
+#
+############################################################################
+############################################################################
+#
+$(PROGRAM).d: $(PROGRAM).cpp
+
+$(PROGRAM): $(PROGRAM).o  $(CANTERA_CORE_LIBS_DEP) $(GTEST_DEP)
+	$(CXXLDR) $(LCXX_FLAGS) $(FLIB_BSD) -o $(PROGRAM) \
+                  $(PROGRAM).o \
+                   $(CANTERA_TOTAL_LIBS) $(GTEST_LIB) $(LCXX_END_LIBS) 
+
+test:
+	@ ./runtest
+
+###########################################################################
+#          INSTALL RULES
+###########################################################################
+
+ifeq ($(wildcard .depends), .depends)
+include .depends
+endif
+
+install:
+
+clean:
+	$(RM) *.o   fort.* *%  core *.trace tmp* *~
+	$(RM) $(PROGRAM)
+
