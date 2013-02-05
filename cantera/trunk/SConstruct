@@ -952,6 +952,7 @@ elif env['layout'] == 'debian':
 else:
     env['PYTHON_INSTALLER'] = 'direct'
 
+
 addInstallActions = ('install' in COMMAND_LINE_TARGETS or
                      'uninstall' in COMMAND_LINE_TARGETS)
 
