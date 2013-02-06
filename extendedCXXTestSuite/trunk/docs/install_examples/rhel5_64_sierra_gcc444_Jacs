@@ -1,0 +1,75 @@
+#!/bin/sh
+#
+#
+CANTERA_INSTALL_DIR=/home/hkmoffa/arch/linux64_gcc444/canteraJacobians_dbg
+export CANTERA_INSTALL_DIR
+#
+CANTERA_ROOT=/home/hkmoffa/Cantera/gc/canteraJacobians
+export CANTERA_ROOT
+#
+#
+PYTHON_DIR=/home/hkmoffa/arch/linux64_gcc424/python-2.6.4
+export PYTHON_DIR
+#
+#  BUILD_WITH_F2C is optional on linux. 
+#
+export BUILD_WITH_F2C='n'
+#
+#
+#CANTERA_CONFIG_PREFIX=/home/hkmoffa/arch/linux
+#export CANTERA_CONFIG_PREFIX
+#
+SET_PYTHON_SITE_PACKAGE_TOPDIR=y
+export SET_PYTHON_SITE_PACKAGE_TOPDIR
+#
+PYTHON_SITE_PACKAGE_TOPDIR=/home/hkmoffa/arch/linux64_gcc424/python-2.6.4
+export PYTHON_SITE_PACKAGE_TOPDIR
+#
+CXX=/sierra/Sntools/SDK/compilers/gcc/4.4.4-RHEL5/bin/g++
+export CXX
+#
+CC=/sierra/Sntools/SDK/compilers/gcc/4.4.4-RHEL5/bin/gcc
+export CC
+
+
+#
+CXXFLAGS="-g -Wall -DDEBUG_HKM"
+export CXXFLAGS
+#
+LCXX_END_LIBS=" -lgfortran"
+export LCXX_END_LIBS
+#
+# Specify the fortran compiler, because some libraries are
+# written in fortran. This is used to find the libraries
+# to link against
+#
+F77='/sierra/Sntools/SDK/compilers/gcc/4.4.4-RHEL5/bin/gfortran'
+export F77
+
+FFLAGS="-g -DDEBUG_HKM  -fno-second-underscore"
+export FFLAGS
+
+# export MPIHOME=/sierra/Sntools/extras/mpi/RHEL5/openmpi-1.4.2/gcc-4.4.4-64Bit
+export MPIHOME=/sierra/Sntools/SDK/mpi/openmpi/1.4.2-gcc-4.4.4-RHEL5
+
+
+MPICXX=${MPIHOME}/bin/mpiCC
+export MPICXX
+
+MPICC=${MPIHOME}/bin/mpicc
+export MPICC
+
+MPIF77=${MPIHOME}/bin/mpif77
+export MPIF77
+
+CXX_DEPENDS='/sierra/Sntools/SDK/mpi/openmpi/1.4.2-gcc-4.4.4-RHEL5/bin/mpiCC -MM'
+export CXX_DEPENDS 
+
+export DO_MPI='y'
+
+
+#
+MAKE=gmake
+export MAKE
+#
+./preconfig
