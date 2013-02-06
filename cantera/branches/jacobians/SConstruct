@@ -33,6 +33,14 @@ if not COMMAND_LINE_TARGETS:
     print __doc__
     sys.exit(0)
 
+valid_commands = ('build','clean','install','uninstall',
+                  'help','msi','samples')
+
+for command in COMMAND_LINE_TARGETS:
+    if command not in valid_commands and not command.startswith('test'):
+        print 'ERROR: unrecognized command line target: %r' % command
+        sys.exit(0)
+
 extraEnvArgs = {}
 
 if 'clean' in COMMAND_LINE_TARGETS:
@@ -61,6 +69,7 @@ if 'clean' in COMMAND_LINE_TARGETS:
 
 opts = Variables('cantera.conf')
 
+windows_compiler_options = []
 if os.name == 'nt':
     # On Windows, use the same version of Visual Studio that was used
     # to compile Python, and target the same architecture, unless
@@ -80,7 +89,7 @@ if os.name == 'nt':
     else:
         target_arch = 'x86'
 
-    opts.AddVariables(
+    windows_compiler_options.extend([
         ('msvc_version',
          """Version of Visual Studio to use. The default is the same version
             that was used to compile the installed version of Python.""",
@@ -92,7 +101,8 @@ if os.name == 'nt':
         EnumVariable(
             'toolchain',
             """The preferred compiler toolchain.""",
-            'msvc', ('msvc', 'mingw', 'intel')))
+            'msvc', ('msvc', 'mingw', 'intel'))])
+    opts.AddVariables(*windows_compiler_options)
 
     pickCompilerEnv = Environment()
     opts.Update(pickCompilerEnv)
@@ -168,15 +178,15 @@ else:
     print "Error: Unrecognized operating system '%s'" % os.name
     sys.exit(1)
 
-opts.AddVariables(
+compiler_options = [
     ('CXX',
      'The C++ compiler to use.',
      env['CXX']),
     ('CC',
      """The C compiler to use. This is only used to compile CVODE and
         the Python extension module.""",
-     env['CC']),
-    )
+     env['CC'])]
+opts.AddVariables(*compiler_options)
 opts.Update(env)
 
 defaults.cxxFlags = ''
@@ -250,7 +260,7 @@ if 'install' in COMMAND_LINE_TARGETS:
 else:
     installPathTest = PathVariable.PathAccept
 
-opts.AddVariables(
+config_options = [
     PathVariable(
         'prefix',
         'Set this to the directory where Cantera should be installed.',
@@ -573,8 +583,9 @@ opts.AddVariables(
         should be lowercase 'helvetica'.""",
      'Helvetica'),
     ('cantera_version', '', '2.1_CanteraJacobiansBranch')
-    )
+]
 
+opts.AddVariables(*config_options)
 opts.Update(env)
 opts.Save('cantera.conf', env)
 
@@ -605,6 +616,14 @@ running 'scons build'. The format of this file is:
     for opt in opts.options:
         print '\n'.join(formatOption(env, opt))
     sys.exit(0)
+
+valid_arguments = (set(opt[0] for opt in windows_compiler_options) |
+                   set(opt[0] for opt in compiler_options) |
+                   set(opt[0] for opt in config_options))
+for arg in ARGUMENTS:
+    if arg not in valid_arguments:
+        print 'Encountered unexpected command line argument: %r' % arg
+        sys.exit(0)
 
 # ********************************************
 # *** Configure system-specific properties ***
@@ -936,6 +955,7 @@ elif env['layout'] == 'debian':
     env['INSTALL_MANPAGES'] = False
 else:
     env['PYTHON_INSTALLER'] = 'direct'
+
 
 addInstallActions = ('install' in COMMAND_LINE_TARGETS or
                      'uninstall' in COMMAND_LINE_TARGETS)

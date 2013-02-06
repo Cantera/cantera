@@ -1,0 +1,43 @@
+#!/bin/sh
+#
+#
+
+location='build'
+CUR=`pwd`
+# echo $CUR
+CANTERA_SRC_ROOT=${CANTERA_SRC_ROOT:="$CUR"}
+echo hhh = $CANTERA_SRC_ROOT
+
+CANTERA_INSTALL_DIR=${CANTERA_INSTALL_ROOT:="$CUR"}
+
+
+if test $# -gt 0
+then
+  locat=$1
+  echo locat = $locat
+  if [ $locat == 'install' ]
+  then
+   location='install'
+ fi 
+
+ if [ $locat == 'build' ]
+ then
+   location='build'
+ fi 
+fi
+
+startpg=$CANTERA_SRC_ROOT/build/docs/doxygen/html/index.html
+
+if [ $location == 'build' ]
+then
+  startpg=$CANTERA_SRC_ROOT/build/docs/doxygen/html/index.html
+elif [ $location == 'install' ]
+then
+  startpg=$CANTERA_INSTALL_DIR/share/cantera/doc/doxygen/html/index.html
+fi
+
+#
+#
+firefox $startpg &
+
+exit 0;

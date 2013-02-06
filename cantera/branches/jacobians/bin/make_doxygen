@@ -1,0 +1,9 @@
+#!/bin/sh
+#
+#
+CUR=`pwd`
+CANTERA_SRC_ROOT=${CANTERA_SRC_ROOT:="$CUR"}
+
+cd $CANTERA_SRC_ROOT
+# doxygen doc/doxygen/Doxyfile 
+doxygen doc/doxygen/Doxyfile.tested

@@ -16,7 +16,7 @@ cdef pystr(string x):
         # Python 3.x
         return s.decode()
 
-def addDirectory(directory):
+def add_directory(directory):
     """ Add a directory to search for Cantera data files. """
     CxxAddDirectory(stringify(directory))
 

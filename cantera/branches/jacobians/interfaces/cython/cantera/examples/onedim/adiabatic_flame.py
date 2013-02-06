@@ -3,11 +3,10 @@ A freely-propagating, premixed hydrogen flat flame with multicomponent
 transport properties.
 """
 
-import csv
 import cantera as ct
 
 # Simulation parameters
-p = ct.OneAtm  # pressure [Pa]
+p = ct.one_atm  # pressure [Pa]
 Tin = 300.0  # unburned gas temperature [K]
 reactants = 'H2:1.1, O2:1, AR:5'  # premixed gas composition
 
@@ -23,50 +22,39 @@ gas.TPX = Tin, p, reactants
 
 # Flame object
 f = ct.FreeFlame(gas, initial_grid)
-f.flame.setSteadyTolerances(default=tol_ss)
-f.flame.setTransientTolerances(default=tol_ts)
+f.flame.set_steady_tolerances(default=tol_ss)
+f.flame.set_transient_tolerances(default=tol_ts)
 
 # Set properties of the upstream fuel-air mixture
 f.inlet.T = Tin
 f.inlet.X = reactants
 
-f.showSolution()
+f.show_solution()
 
 # Solve with the energy equation disabled
-f.energyEnabled = False
-f.setMaxJacAge(10, 10)
-f.setTimeStep(1e-5, [2, 5, 10, 20])
+f.energy_enabled = False
+f.set_max_jac_age(10, 10)
+f.set_time_step(1e-5, [2, 5, 10, 20])
 f.solve(loglevel=loglevel, refine_grid=False)
 f.save('h2_adiabatic.xml', 'no_energy',
        'solution with the energy equation disabled')
 
 # Solve with the energy equation enabled
-f.setRefineCriteria(ratio=3, slope=0.06, curve=0.12)
-f.energyEnabled = True
+f.set_refine_criteria(ratio=3, slope=0.06, curve=0.12)
+f.energy_enabled = True
 f.solve(loglevel=loglevel, refine_grid=refine_grid)
 f.save('h2_adiabatic.xml', 'energy',
        'solution with mixture-averaged transport')
-f.showSolution()
+f.show_solution()
 print('mixture-averaged flamespeed = {:7f} m/s'.format(f.u[0]))
 
 # Solve with multi-component transport properties
-f.transportModel = 'Multi'
+f.transport_model = 'Multi'
 f.solve(loglevel, refine_grid)
-f.showSolution()
+f.show_solution()
 print('multicomponent flamespeed = {:7f} m/s'.format(f.u[0]))
 f.save('h2_adiabatic.xml','energy_multi',
        'solution with multicomponent transport')
 
 # write the velocity, temperature, density, and mole fractions to a CSV file
-z = f.flame.grid
-T = f.T
-u = f.u
-V = f.V
-
-with open('h2_adiabatic.csv', 'w') as csvfile:
-    writer = csv.writer(csvfile)
-    writer.writerow(['z (m)', 'u (m/s)', 'V (1/s)', 'T (K)', 'rho (kg/m3)'] +
-                    list(gas.speciesNames))
-    for n in range(f.flame.nPoints):
-        f.setGasState(n)
-        writer.writerow([z[n], u[n], V[n], T[n], gas.density] + list(gas.X))
+f.write_csv('h2_adiabatic.csv', quiet=False)

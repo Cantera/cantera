@@ -1,6 +1,6 @@
-cdef enum ThermoBasis:
-    massBasis = 0
-    molarBasis = 1
+cdef enum Thermasis:
+    mass_basis = 0
+    molar_basis = 1
 
 ctypedef void (*thermoMethod1d)(CxxThermoPhase*, double*) except +
 
@@ -17,7 +17,7 @@ cdef class ThermoPhase(_SolutionBase):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         if 'source' not in kwargs:
-            self.thermoBasis = massBasis
+            self.thermo_basis = mass_basis
 
     def report(self, show_thermo=True):
         """
@@ -52,29 +52,29 @@ cdef class ThermoPhase(_SolutionBase):
         such as `HPX` and `UV`.
         """
         def __get__(self):
-            if self.thermoBasis == massBasis:
+            if self.thermo_basis == mass_basis:
                 return 'mass'
             else:
                 return 'molar'
 
         def __set__(self, value):
             if value == 'mass':
-                self.thermoBasis = massBasis
+                self.thermo_basis = mass_basis
             elif value == 'molar':
-                self.thermoBasis = molarBasis
+                self.thermo_basis = molar_basis
             else:
                 raise ValueError("Valid choices are 'mass' or 'molar'.")
 
-    cdef double _massFactor(self):
+    cdef double _mass_factor(self):
         """ Conversion factor from current basis to kg """
-        if self.thermoBasis == molarBasis:
+        if self.thermo_basis == molar_basis:
             return self.thermo.meanMolecularWeight()
         else:
             return 1.0
 
-    cdef double _moleFactor(self):
+    cdef double _mole_factor(self):
         """ Conversion factor from current basis to moles """
-        if self.thermoBasis == massBasis:
+        if self.thermo_basis == mass_basis:
             return 1.0/self.thermo.meanMolecularWeight()
         else:
             return 1.0
@@ -135,12 +135,12 @@ cdef class ThermoPhase(_SolutionBase):
 
     ####### Composition, species, and elements ########
 
-    property nElements:
+    property n_elements:
         """Number of elements."""
         def __get__(self):
             return self.thermo.nElements()
 
-    cpdef int elementIndex(self, element) except *:
+    cpdef int element_index(self, element) except *:
         """
         The index of element *element*, which may be specified as a string or
         an integer. In the latter case, the index is checked for validity and
@@ -153,39 +153,39 @@ cdef class ThermoPhase(_SolutionBase):
         else:
             raise TypeError("'element' must be a string or a number")
 
-        if not 0 <= index < self.nElements:
+        if not 0 <= index < self.n_elements:
             raise ValueError('No such element.')
 
         return index
 
-    def elementName(self, m):
+    def element_name(self, m):
         """Name of the element with index *m*."""
         return pystr(self.thermo.elementName(m))
 
-    property elementNames:
+    property element_names:
         """A list of all the element names."""
         def __get__(self):
-            return [self.elementName(m) for m in range(self.nElements)]
+            return [self.element_name(m) for m in range(self.n_elements)]
 
-    property nSpecies:
+    property n_species:
         """Number of species."""
         def __get__(self):
             return self.thermo.nSpecies()
 
-    def speciesName(self, k):
+    def species_name(self, k):
         """Name of the species with index *k*."""
         return pystr(self.thermo.speciesName(k))
 
-    property speciesNames:
+    property species_names:
         """A list of all the species names."""
         def __get__(self):
-            if self._selectedSpecies.size:
-                indices = self._selectedSpecies
+            if self._selected_species.size:
+                indices = self._selected_species
             else:
-                indices = range(self.nSpecies)
-            return [self.speciesName(k) for k in indices]
+                indices = range(self.n_species)
+            return [self.species_name(k) for k in indices]
 
-    cpdef int speciesIndex(self, species) except *:
+    cpdef int species_index(self, species) except *:
         """
         The index of species *species*, which may be specified as a string or
         an integer. In the latter case, the index is checked for validity and
@@ -198,44 +198,44 @@ cdef class ThermoPhase(_SolutionBase):
         else:
             raise TypeError("'species' must be a string or a number")
 
-        if not 0 <= index < self.nSpecies:
+        if not 0 <= index < self.n_species:
             raise ValueError('No such species.')
 
         return index
 
-    def nAtoms(self, species, element):
+    def n_atoms(self, species, element):
         """
         Number of atoms of element *element* in species *species*. The element
         and species may be specified by name or by index.
 
-        >>> phase.nAtoms('CH4','H')
+        >>> phase.n_atoms('CH4','H')
         4
         """
-        return self.thermo.nAtoms(self.speciesIndex(species),
-                                  self.elementIndex(element))
+        return self.thermo.nAtoms(self.species_index(species),
+                                  self.element_index(element))
 
     cdef np.ndarray _getArray1(self, thermoMethod1d method):
-        cdef np.ndarray[np.double_t, ndim=1] data = np.empty(self.nSpecies)
+        cdef np.ndarray[np.double_t, ndim=1] data = np.empty(self.n_species)
         method(self.thermo, &data[0])
-        if self._selectedSpecies.size:
-            return data[self._selectedSpecies]
+        if self._selected_species.size:
+            return data[self._selected_species]
         else:
             return data
 
     cdef void _setArray1(self, thermoMethod1d method, values) except *:
-        if len(values) != self.nSpecies:
+        if len(values) != self.n_species:
             raise ValueError("Array has incorrect length")
 
         cdef np.ndarray[np.double_t, ndim=1] data = \
             np.ascontiguousarray(values, dtype=np.double)
         method(self.thermo, &data[0])
 
-    property molecularWeights:
+    property molecular_weights:
         """Array of species molecular weights (molar masses) [kg/kmol]."""
         def __get__(self):
             return self._getArray1(thermo_getMolecularWeights)
 
-    property meanMolecularWeight:
+    property mean_molecular_weight:
         """The mean molecular weight (molar mass) [kg/kmol]."""
         def __get__(self):
             return self.thermo.meanMolecularWeight()
@@ -263,9 +263,9 @@ cdef class ThermoPhase(_SolutionBase):
         Get/Set the species mole fractions. Can be set as either an array or
         as a string. Always returns an array::
 
-            >>> phase.Y = [0.1, 0, 0, 0.4, 0, 0, 0, 0, 0.5]
-            >>> phase.Y = 'H2:0.1, O2:0.4, AR:0.5'
-            >>> phase.Y
+            >>> phase.X = [0.1, 0, 0, 0.4, 0, 0, 0, 0, 0.5]
+            >>> phase.X = 'H2:0.1, O2:0.4, AR:0.5'
+            >>> phase.X
             array([0.1, 0, 0, 0.4, 0, 0, 0, 0, 0.5])
 
         """
@@ -299,7 +299,7 @@ cdef class ThermoPhase(_SolutionBase):
     property density:
         """Density [kg/m^3 or kmol/m^3] depending on `basis`."""
         def __get__(self):
-            return self.thermo.density() / self._massFactor()
+            return self.thermo.density() / self._mass_factor()
 
     property density_mass:
         """(Mass) density [kg/m^3]."""
@@ -314,7 +314,7 @@ cdef class ThermoPhase(_SolutionBase):
     property v:
         """Specific volume [m^3/kg or m^3/kmol] depending on `basis`."""
         def __get__(self):
-            return self._massFactor() / self.thermo.density()
+            return self._mass_factor() / self.thermo.density()
 
     property volume_mass:
         """Specific volume [m^3/kg]."""
@@ -329,14 +329,14 @@ cdef class ThermoPhase(_SolutionBase):
     property u:
         """Internal energy in [J/kg or J/kmol]."""
         def __get__(self):
-            return self.thermo.intEnergy_mole() * self._moleFactor()
+            return self.thermo.intEnergy_mole() * self._mole_factor()
 
-    property intEnergy_mole:
+    property int_energy_mole:
         """Molar internal energy [J/kmol]."""
         def __get__(self):
             return self.thermo.intEnergy_mole()
 
-    property intEnergy_mass:
+    property int_energy_mass:
         """Specific internal energy [J/kg]."""
         def __get__(self):
             return self.thermo.intEnergy_mass()
@@ -344,7 +344,7 @@ cdef class ThermoPhase(_SolutionBase):
     property h:
         """Enthalpy [J/kg or J/kmol] depending on `basis`."""
         def __get__(self):
-            return self.thermo.enthalpy_mole() * self._moleFactor()
+            return self.thermo.enthalpy_mole() * self._mole_factor()
 
     property enthalpy_mole:
         """Molar enthalpy [J/kmol]."""
@@ -359,7 +359,7 @@ cdef class ThermoPhase(_SolutionBase):
     property s:
         """Entropy [J/kg/K or J/kmol/K] depending on `basis`."""
         def __get__(self):
-            return self.thermo.entropy_mole() * self._moleFactor()
+            return self.thermo.entropy_mole() * self._mole_factor()
 
     property entropy_mole:
         """Molar entropy [J/kmol/K]."""
@@ -374,7 +374,7 @@ cdef class ThermoPhase(_SolutionBase):
     property g:
         """Gibbs free energy [J/kg or J/kmol] depending on `basis`."""
         def __get__(self):
-            return self.thermo.gibbs_mole() * self._moleFactor()
+            return self.thermo.gibbs_mole() * self._mole_factor()
 
     property gibbs_mole:
         """Molar Gibbs free energy [J/kmol]."""
@@ -392,7 +392,7 @@ cdef class ThermoPhase(_SolutionBase):
         `basis`.
         """
         def __get__(self):
-            return self.thermo.cv_mole() * self._moleFactor()
+            return self.thermo.cv_mole() * self._mole_factor()
 
     property cv_mole:
         """Molar heat capacity at constant volume [J/kmol/K]."""
@@ -410,7 +410,7 @@ cdef class ThermoPhase(_SolutionBase):
         on `basis`.
         """
         def __get__(self):
-            return self.thermo.cp_mole() * self._moleFactor()
+            return self.thermo.cp_mole() * self._mole_factor()
 
     property cp_mole:
         """Molar heat capacity at constant pressure [J/kmol/K]."""
@@ -429,7 +429,7 @@ cdef class ThermoPhase(_SolutionBase):
         def __get__(self):
             return self.T, self.density
         def __set__(self, values):
-            self.thermo.setState_TR(values[0], values[1] * self._massFactor())
+            self.thermo.setState_TR(values[0], values[1] * self._mass_factor())
 
     property TDX:
         """
@@ -484,8 +484,8 @@ cdef class ThermoPhase(_SolutionBase):
         def __get__(self):
             return self.u, self.v
         def __set__(self, values):
-            self.thermo.setState_UV(values[0] / self._massFactor(),
-                                    values[1] / self._massFactor())
+            self.thermo.setState_UV(values[0] / self._mass_factor(),
+                                    values[1] / self._mass_factor())
 
     property UVX:
         """
@@ -514,7 +514,7 @@ cdef class ThermoPhase(_SolutionBase):
         def __get__(self):
             return self.h, self.P
         def __set__(self, values):
-            self.thermo.setState_HP(values[0] / self._massFactor(), values[1])
+            self.thermo.setState_HP(values[0] / self._mass_factor(), values[1])
 
     property HPX:
         """Get/Set enthalpy [J/kg or J/kmol], pressure [Pa] and mole fractions."""
@@ -537,7 +537,7 @@ cdef class ThermoPhase(_SolutionBase):
         def __get__(self):
             return self.s, self.P
         def __set__(self, values):
-            self.thermo.setState_SP(values[0] / self._massFactor(), values[1])
+            self.thermo.setState_SP(values[0] / self._mass_factor(), values[1])
 
     property SPX:
         """Get/Set entropy [J/kg/K or J/kmol/K], pressure [Pa], and mole fractions."""
@@ -571,12 +571,12 @@ cdef class ThermoPhase(_SolutionBase):
         def __get__(self):
             return self._getArray1(thermo_getPartialMolarIntEnergies)
 
-    property chem_potentials:
+    property chemical_potentials:
         """Array of species chemical potentials [J/kmol]."""
         def __get__(self):
             return self._getArray1(thermo_getChemPotentials)
 
-    property electrochem_potentials:
+    property electrochemical_potentials:
         """Array of species electrochemical potentials [J/kmol]."""
         def __get__(self):
             return self._getArray1(thermo_getElectrochemPotentials)
@@ -610,7 +610,7 @@ cdef class ThermoPhase(_SolutionBase):
         def __get__(self):
             return self._getArray1(thermo_getEntropy_R)
 
-    property standard_intEnergies_RT:
+    property standard_int_energies_RT:
         """
         Array of nondimensional species standard-state internal energies at the
         current temperature and pressure.
@@ -635,17 +635,17 @@ cdef class ThermoPhase(_SolutionBase):
             return self._getArray1(thermo_getCp_R)
 
     ######## Miscellaneous properties ########
-    property isothermalCompressibility:
+    property isothermal_compressibility:
         """Isothermal compressibility [1/Pa]."""
         def __get__(self):
             return self.thermo.isothermalCompressibility()
 
-    property thermalExpansionCoeff:
+    property thermal_expansion_coeff:
         """Thermal expansion coefficient [1/K]."""
         def __get__(self):
             return self.thermo.thermalExpansionCoeff()
 
-    property minTemp:
+    property min_temp:
         """
         Minimum temperature for which the thermodynamic data for the phase are
         valid.
@@ -653,7 +653,7 @@ cdef class ThermoPhase(_SolutionBase):
         def __get__(self):
             return self.thermo.minTemp()
 
-    property maxTemp:
+    property max_temp:
         """
         Maximum temperature for which the thermodynamic data for the phase are
         valid.
@@ -661,19 +661,19 @@ cdef class ThermoPhase(_SolutionBase):
         def __get__(self):
             return self.thermo.maxTemp()
 
-    property refPressure:
+    property reference_pressure:
         """Reference state pressure [Pa]."""
         def __get__(self):
             return self.thermo.refPressure()
 
-    property electricPotential:
+    property electric_potential:
         """Get/Set the electric potential [V] for this phase."""
         def __get__(self):
             return self.thermo.electricPotential()
         def __set__(self, double value):
             self.thermo.setElectricPotential(value)
 
-    def elementPotentials(self):
+    def element_potentials(self):
         """
         Get the array of element potentials. The element potentials are only
         defined for equilibrium states. This method first sets the composition
@@ -681,7 +681,7 @@ cdef class ThermoPhase(_SolutionBase):
         element potentials for this equilibrium state.
         """
         self.equilibrate('TP')
-        cdef np.ndarray[np.double_t, ndim=1] data = np.zeros(self.nElements)
+        cdef np.ndarray[np.double_t, ndim=1] data = np.zeros(self.n_elements)
         self.thermo.getElementPotentials(&data[0])
         return data
 
@@ -694,7 +694,7 @@ cdef class InterfacePhase(ThermoPhase):
             raise TypeError('Underlying ThermoPhase object is of the wrong type.')
         self.surf = <CxxSurfPhase*>(self.thermo)
 
-    property siteDensity:
+    property site_density:
         """
         Get/Set the site density. [kmol/m^2] for surface phases; [kmol/m] for
         edge phases.
@@ -707,15 +707,15 @@ cdef class InterfacePhase(ThermoPhase):
     property coverages:
         """Get/Set the fraction of sites covered by each species."""
         def __get__(self):
-            cdef np.ndarray[np.double_t, ndim=1] data = np.empty(self.nSpecies)
+            cdef np.ndarray[np.double_t, ndim=1] data = np.empty(self.n_species)
             self.surf.getCoverages(&data[0])
-            if self._selectedSpecies.size:
-                return data[self._selectedSpecies]
+            if self._selected_species.size:
+                return data[self._selected_species]
             else:
                 return data
 
         def __set__(self, theta):
-            if len(theta) != self.nSpecies:
+            if len(theta) != self.n_species:
                 raise ValueError("Array has incorrect length")
             cdef np.ndarray[np.double_t, ndim=1] data = \
                 np.ascontiguousarray(theta, dtype=np.double)
@@ -727,27 +727,27 @@ cdef class PureFluid(ThermoPhase):
     A pure substance that can  be a gas, a liquid, a mixed gas-liquid fluid,
     or a fluid beyond its critical point.
     """
-    property critTemperature:
+    property critical_temperature:
         """Critical temperature [K]."""
         def __get__(self):
             return self.thermo.critTemperature()
 
-    property critPressure:
+    property critical_pressure:
         """Critical pressure [Pa]."""
         def __get__(self):
             return self.thermo.critPressure()
 
-    property critDensity:
+    property critical_density:
         """Critical density [kg/m^3 or kmol/m^3] depending on `basis`."""
         def __get__(self):
-            return self.thermo.critDensity() / self._massFactor()
+            return self.thermo.critDensity() / self._mass_factor()
 
-    property Psat:
+    property P_sat:
         """Saturation pressure [Pa] at the current temperature."""
         def __get__(self):
             return self.thermo.satPressure(self.T)
 
-    property Tsat:
+    property T_sat:
         """Saturation temperature [K] at the current pressure."""
         def __get__(self):
             return self.thermo.satTemperature(self.P)

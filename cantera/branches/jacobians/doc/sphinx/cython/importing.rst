@@ -15,4 +15,4 @@ thermodynamic, chemical kinetic, and (optionally) transport properties.
 Utility Functions
 -----------------
 
-.. autofunction:: addDirectory
+.. autofunction:: add_directory
