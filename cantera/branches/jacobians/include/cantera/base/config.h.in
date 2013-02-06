@@ -4,6 +4,14 @@
 #ifndef CT_CONFIG_H
 #define CT_CONFIG_H
 
+/*!
+ * TODO:
+ *    These defines are in the top namespace by default. Therefore, they
+ *    should have names prepended with CANTERA_ so as not to 
+ *    be confused with other packages.
+ */
+ 
+
 //---------------------------- Version Flags ------------------//
 // Cantera version -> this will be a double-quoted string value
 //                    referring to branch number within svn
@@ -11,9 +19,11 @@
 
 //------------------------ Development flags ------------------//
 //
-// Compile in additional debug printing where available.
-// Note, the printing may need to be turned on via a switch.
-// This just compiles in the code.
+//! Compile in additional debug printing where available.
+/*!
+ * Note, the printing should always need to be turned on via a additional switch.
+ * This just compiles in the code.
+ */
 %(DEBUG_MODE)s
 
 #ifdef DEBUG_MODE
@@ -33,6 +43,22 @@ typedef  int          integer;      // Fortran integer
 typedef  int          ftnlen;       // Fortran hidden string length type
 
 
+//! Let's define a tmp macro to designate the code in this branch
+/*!
+ *  A macro of this type will designate when application code needs to be changed
+ *  For example, code in this branch needs to be changed from:
+ *
+ *      XML_Node *xc  = get_XML_File("liquidvapor.xml");
+ *      ThermoPhase * tp = newPhase(xc); 
+ *  to
+ *      XML_Node *xc  = get_XML_File("liquidvapor.xml");
+ *      ThermoPhase<doublereal> * newPhase<doublereal>(xc)
+ * 
+ *  Eventually all the code will need to migrate to the new form. However, 
+ *  this define is used to designate the new form when the two forms
+ *  must coexist.
+ */
+#define CANTERA_HAS_TEMPLATES 1
 
 #define HAS_SACADO 1
 
