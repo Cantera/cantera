@@ -572,7 +572,7 @@ opts.AddVariables(
         name recognized by the 'dot' program. On linux systems, this
         should be lowercase 'helvetica'.""",
      'Helvetica'),
-    ('cantera_version', '', '2.1a1')
+    ('cantera_version', '', '2.1_CanteraJacobiansBranch')
     )
 
 opts.Update(env)
@@ -1012,6 +1012,7 @@ else: # env['layout'] == 'standard'
 
 configh = {'CANTERA_VERSION': quoted(env['cantera_version'])}
 
+
 # Conditional defines
 def cdefine(definevar, configvar, comp=True, value=1):
     if env.get(configvar) == comp:
@@ -1245,6 +1246,12 @@ if env['f90_interface'] == 'y':
 
 VariantDir('build/src', 'src', duplicate=0)
 SConscript('build/src/SConscript')
+
+#
+#  Added the sacadoLite package into the include directory of the installation package
+# HKM -> Need an if statement here for whether we have it or not
+#
+install(env.RecursiveInstall, pjoin('$inst_incroot', 'sacadoLite'), '#ext/sacadoLite')
 
 if env['python_package'] in ('full','minimal'):
     VariantDir('build/src/python', 'src/python', duplicate=0)

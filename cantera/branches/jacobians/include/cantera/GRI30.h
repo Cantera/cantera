@@ -21,7 +21,7 @@ namespace Cantera
  * methods like "getNetReactionRates."
  */
 class GRI30 :
-    public IdealGasPhase,
+    public IdealGasPhase<doublereal>,
     public GRI_30_Kinetics
 {
 public:
