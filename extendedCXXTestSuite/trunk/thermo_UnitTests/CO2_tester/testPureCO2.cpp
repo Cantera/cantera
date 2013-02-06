@@ -29,7 +29,11 @@ int main () {
 
       XML_Node *xc = get_XML_File("liquidvapor.xml"); 
       XML_Node * const xs = xc->findNameID("phase", "carbondioxide");
+#ifdef CANTERA_HAS_TEMPLATES
+      ThermoPhase<doublereal> *water_tp = newPhase<doublereal>(*xs);
+#else
       ThermoPhase *water_tp = newPhase(*xs);
+#endif
       PureFluidPhase *w = dynamic_cast <PureFluidPhase *>(water_tp);
 
       /* 
