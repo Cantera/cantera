@@ -186,7 +186,7 @@ void PDSS_ConstVol::constructPDSSFile(VPStandardStateTP* tp, size_t spindex,
     delete fxml;
 }
 
-void PDSS_ConstVol::initThermoXML(const XML_Node& phaseNode, std::string& id)
+void PDSS_ConstVol::initThermoXML(const XML_Node& phaseNode, const std::string& id)
 {
     PDSS::initThermoXML(phaseNode, id);
     m_minTemp = m_spthermo->minTemp(m_spindex);

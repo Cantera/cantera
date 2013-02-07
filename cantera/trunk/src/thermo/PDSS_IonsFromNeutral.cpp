@@ -261,7 +261,7 @@ void PDSS_IonsFromNeutral::constructPDSSFile(VPStandardStateTP* tp, size_t spind
     delete fxml;
 }
 //=======================================================================================================
-void PDSS_IonsFromNeutral::initThermoXML(const XML_Node& phaseNode, std::string& id)
+void PDSS_IonsFromNeutral::initThermoXML(const XML_Node& phaseNode, const std::string& id)
 {
     PDSS::initThermoXML(phaseNode, id);
 }
