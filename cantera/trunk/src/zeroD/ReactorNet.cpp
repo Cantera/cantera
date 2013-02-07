@@ -14,7 +14,7 @@ ReactorNet::ReactorNet() : Cantera::FuncEval(), m_nr(0), m_nreactors(0),
     m_integ(0), m_time(0.0), m_init(false),
     m_nv(0), m_rtol(1.0e-9), m_rtolsens(1.0e-4),
     m_atols(1.0e-15), m_atolsens(1.0e-4),
-    m_maxstep(-1.0),
+    m_maxstep(-1.0), m_maxErrTestFails(0),
     m_verbose(false), m_ntotpar(0)
 {
 #ifdef DEBUG_MODE
@@ -133,6 +133,7 @@ void ReactorNet::initialize()
     m_integ->setTolerances(m_rtol, neq(), DATA_PTR(m_atol));
     m_integ->setSensitivityTolerances(m_rtolsens, m_atolsens);
     m_integ->setMaxStepSize(m_maxstep);
+    m_integ->setMaxErrTestFails(m_maxErrTestFails);
     if (m_verbose) {
         sprintf(buf, "Number of equations: %s\n", int2str(neq()).c_str());
         writelog(buf);
