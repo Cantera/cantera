@@ -95,8 +95,8 @@ public:
      *  @param thermo   Pointer to the %ThermoPhase class
      */
 
-    virtual LTPspecies* newLTP(const XML_Node &trNode, const std::string &name, 
-			       TransportPropertyType tp_ind, thermo_t* thermo);
+    virtual LTPspecies* newLTP(const XML_Node& trNode, const std::string& name,
+                               TransportPropertyType tp_ind, thermo_t* thermo);
 
 
     //! Factory function for the construction of new LiquidTranInteraction
@@ -186,7 +186,7 @@ private:
     virtual void initSolidTransport(Transport* tr, thermo_t* thermo, int log_level=0);
 
 
-  private:
+private:
 
 
     //! Static instance of the factor -> This is the only instance of this
@@ -267,17 +267,17 @@ private:
 
     //! Read transport property data from a file for a solid phase
     /*!
-     * Given a phase XML data base, this method constructs the 
+     * Given a phase XML data base, this method constructs the
      * SolidTransportData object containing the transport data for the phase.
      *
      * @param db   Reference to XML_Node containing the phase.
      * @param log  Reference to an XML log file. (currently unused)
      * @param tr   Reference to the SolidTransportData object that will contain the results.
      */
-    void getSolidTransportData(const XML_Node &transportNode,  
-			       XML_Node& log, 
-			       const std::string phaseName, 
-			       SolidTransportData& tr);
+    void getSolidTransportData(const XML_Node& transportNode,
+                               XML_Node& log,
+                               const std::string phaseName,
+                               SolidTransportData& tr);
 
 
     //! Generate polynomial fits to the viscosity, conductivity, and
@@ -348,14 +348,14 @@ private:
      */
     void setupLiquidTransport(std::ostream& flog, thermo_t* thermo, int log_level, LiquidTransportParams& trParam);
 
-    //! Prepare to build a new transport manager for solids 
+    //! Prepare to build a new transport manager for solids
     /*!
      *  @param flog                 Reference to the ostream for writing log info
      *  @param thermo               Pointer to the %ThermoPhase object
      *  @param log_level            log level
      *  @param trParam              SolidTransportData structure to be filled up with information
      */
-    void setupSolidTransport(std::ostream &flog, thermo_t* thermo, int log_level, SolidTransportData& trParam);
+    void setupSolidTransport(std::ostream& flog, thermo_t* thermo, int log_level, SolidTransportData& trParam);
 
 
     //! Second-order correction to the binary diffusion coefficients

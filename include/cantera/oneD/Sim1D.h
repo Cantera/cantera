@@ -76,7 +76,7 @@ public:
               const std::string& desc, int loglevel=1);
 
     void saveResidual(const std::string& fname, const std::string& id,
-              const std::string& desc, int loglevel=1);
+                      const std::string& desc, int loglevel=1);
 
     /// Print to stream s the current solution for all domains.
     void showSolution(std::ostream& s);

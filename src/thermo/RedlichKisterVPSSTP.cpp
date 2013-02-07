@@ -53,7 +53,7 @@ RedlichKisterVPSSTP::RedlichKisterVPSSTP() :
 
  */
 RedlichKisterVPSSTP::RedlichKisterVPSSTP(const std::string& inputFile,
-                                         const std::string& id) :
+        const std::string& id) :
     GibbsExcessVPSSTP(),
     numBinaryInteractions_(0),
     m_pSpecies_A_ij(0),
@@ -69,7 +69,7 @@ RedlichKisterVPSSTP::RedlichKisterVPSSTP(const std::string& inputFile,
 }
 //====================================================================================================================
 RedlichKisterVPSSTP::RedlichKisterVPSSTP(XML_Node& phaseRoot,
-                                         const std::string& id) :
+        const std::string& id) :
     GibbsExcessVPSSTP(),
     numBinaryInteractions_(0),
     m_pSpecies_A_ij(0),

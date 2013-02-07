@@ -30,7 +30,7 @@ public:
 
     void SetUp() {
         std::string Xref = "H:1.0, R1A:1.0, R1B:1.0, R2:1.0, "
-            "R3:1.0, R4:1.0, R5:1.0, R6:1.0";
+                           "R3:1.0, R4:1.0, R5:1.0, R6:1.0";
 
         thermo_->setState_TPX(900.0, 101325 * 8.0, Xref);
     }
@@ -55,11 +55,13 @@ protected:
 ThermoPhase* PdepTest::thermo_ = NULL;
 Kinetics* PdepTest::kin_ = NULL;
 
-TEST_F(PdepTest, reactionCounts) {
+TEST_F(PdepTest, reactionCounts)
+{
     EXPECT_EQ((size_t) 6, kin_->nReactions());
 }
 
-TEST_F(PdepTest, PlogLowPressure) {
+TEST_F(PdepTest, PlogLowPressure)
+{
     // Test that P-log reactions have the right low-pressure limit
     set_TP(500.0, 1e-7);
     vector_fp kf(6);
@@ -78,7 +80,8 @@ TEST_F(PdepTest, PlogLowPressure) {
     EXPECT_NEAR(kf3, kf[3], 1e-9 * kf3);
 }
 
-TEST_F(PdepTest, PlogHighPressure) {
+TEST_F(PdepTest, PlogHighPressure)
+{
     // Test that P-log reactions have the right high-pressure limit
     set_TP(500.0, 1e10);
     vector_fp kf(6);
@@ -93,7 +96,8 @@ TEST_F(PdepTest, PlogHighPressure) {
     EXPECT_NEAR(kf3, kf[3], 1e-9 * kf3);
 }
 
-TEST_F(PdepTest, PlogDuplicatePressures) {
+TEST_F(PdepTest, PlogDuplicatePressures)
+{
     // Test that multiple rate expressions are combined when necessary
     set_TP(500.0, 1e10);
     vector_fp kf(6);
@@ -106,7 +110,8 @@ TEST_F(PdepTest, PlogDuplicatePressures) {
     EXPECT_NEAR(kf2, kf[2], 1e-9 * kf2);
 }
 
-TEST_F(PdepTest, PlogCornerCases) {
+TEST_F(PdepTest, PlogCornerCases)
+{
     // Test rate evaluation at the corner cases where the pressure
     // is exactly of the specified interpolation values
     set_TP(500.0, 101325);
@@ -122,7 +127,8 @@ TEST_F(PdepTest, PlogCornerCases) {
     EXPECT_NEAR(kf2, kf[2], 1e-9 * kf2);
 }
 
-TEST_F(PdepTest, PlogIntermediatePressure1) {
+TEST_F(PdepTest, PlogIntermediatePressure1)
+{
     set_TP(1100.0, 20*101325);
     vector_fp ropf(6);
     kin_->getFwdRatesOfProgress(&ropf[0]);
@@ -135,7 +141,8 @@ TEST_F(PdepTest, PlogIntermediatePressure1) {
     EXPECT_NEAR(1.774796e+06, ropf[3], 1e2);
 }
 
-TEST_F(PdepTest, PlogIntermediatePressure2) {
+TEST_F(PdepTest, PlogIntermediatePressure2)
+{
     thermo_->setState_TP(1100.0, 0.5*101325);
     vector_fp ropf(6);
     kin_->getFwdRatesOfProgress(&ropf[0]);
@@ -146,7 +153,8 @@ TEST_F(PdepTest, PlogIntermediatePressure2) {
     EXPECT_NEAR(1.109248e+03, ropf[3], 1e-1);
 }
 
-TEST_F(PdepTest, PlogIntermediatePressure3) {
+TEST_F(PdepTest, PlogIntermediatePressure3)
+{
     thermo_->setState_TP(800.0, 70*101325);
     vector_fp ropf(6);
     kin_->getFwdRatesOfProgress(&ropf[0]);
@@ -157,7 +165,8 @@ TEST_F(PdepTest, PlogIntermediatePressure3) {
     EXPECT_NEAR(1.007440e+07, ropf[3], 1e+3);
 }
 
-TEST_F(PdepTest, ChebyshevIntermediate1) {
+TEST_F(PdepTest, ChebyshevIntermediate1)
+{
     // Test Chebyshev rates in the normal interpolation region
     vector_fp kf(6);
 
@@ -168,7 +177,8 @@ TEST_F(PdepTest, ChebyshevIntermediate1) {
     EXPECT_NEAR(1.187949573e+00, kf[5], 1e-7);
 }
 
-TEST_F(PdepTest, ChebyshevIntermediate2) {
+TEST_F(PdepTest, ChebyshevIntermediate2)
+{
     // Test Chebyshev rates in the normal interpolation region
     vector_fp kf(6);
 
@@ -179,7 +189,8 @@ TEST_F(PdepTest, ChebyshevIntermediate2) {
     EXPECT_NEAR(9.581780687e-24, kf[5], 1e-31);
 }
 
-TEST_F(PdepTest, ChebyshevIntermediateROP) {
+TEST_F(PdepTest, ChebyshevIntermediateROP)
+{
     set_TP(1100.0, 30 * 101325);
     vector_fp ropf(6);
     // Expected rates computed using Chemkin
@@ -188,7 +199,8 @@ TEST_F(PdepTest, ChebyshevIntermediateROP) {
     EXPECT_NEAR(4.877390e-02, ropf[5], 1e-5);
 }
 
-TEST_F(PdepTest, ChebyshevEdgeCases) {
+TEST_F(PdepTest, ChebyshevEdgeCases)
+{
     vector_fp kf(6);
 
     // Minimum P

@@ -30,7 +30,7 @@ namespace Cantera
 class TransportParams;
 class GasTransportParams;
 class LiquidTransportParams;
-  class SolidTransportData;
+class SolidTransportData;
 
 /*!
  * \addtogroup tranprops
@@ -843,16 +843,15 @@ public:
      *   @param tr Reference to the parameter list that will be used
      *             to initialize the class
      */
-    virtual bool initSolid(SolidTransportData& tr)
-    { 
-      err("initSolid"); 
-      return false; 
+    virtual bool initSolid(SolidTransportData& tr) {
+        err("initSolid");
+        return false;
     }
-    
-  public:
-    //! Specifies the %ThermPhase object. 
+
+public:
+    //! Specifies the %ThermPhase object.
     /*!
-     *  We have relaxed this operation so that it will succeed when 
+     *  We have relaxed this operation so that it will succeed when
      *  the underlying old and new ThermoPhase objects have the same
      *  number of species and the same names of the species in the
      *  same order. The idea here is to allow copy constructors and duplicators
@@ -863,7 +862,7 @@ public:
      *
      *   @param   thermo  Reference to the ThermoPhase object that
      *                    the transport object will use
-     */ 
+     */
     virtual void setThermo(thermo_t& thermo);
 
 

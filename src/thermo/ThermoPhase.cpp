@@ -384,10 +384,10 @@ void ThermoPhase::setState_HPorUV(doublereal Htarget, doublereal p,
         //    spinodal value of H.
         for (int its = 0; its < 10; its++) {
             Tnew = Told + dt;
-	    if (Tnew < Told / 3.0) {
-		Tnew = Told / 3.0;
-		dt = -2.0 * Told / 3.0;
-	    }
+            if (Tnew < Told / 3.0) {
+                Tnew = Told / 3.0;
+                dt = -2.0 * Told / 3.0;
+            }
             setState_conditional_TP(Tnew, p, !doUV);
             if (doUV) {
                 Hnew = intEnergy_mass();

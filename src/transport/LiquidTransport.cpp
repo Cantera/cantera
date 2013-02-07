@@ -836,7 +836,7 @@ void  LiquidTransport::getFluidMobilities(doublereal* const mobil_f)
 /*
  * @param grad_T Gradient of the temperature (length num dimensions);
  */
-void LiquidTransport::set_Grad_T(const doublereal *grad_T)
+void LiquidTransport::set_Grad_T(const doublereal* grad_T)
 {
     for (size_t a = 0; a < m_nDim; a++) {
         m_Grad_T[a] = grad_T[a];
@@ -848,7 +848,7 @@ void LiquidTransport::set_Grad_T(const doublereal *grad_T)
  *
  * @param grad_V Gradient of the voltage (length num dimensions);
  */
-void LiquidTransport::set_Grad_V(const doublereal *grad_V)
+void LiquidTransport::set_Grad_V(const doublereal* grad_V)
 {
     for (size_t a = 0; a < m_nDim; a++) {
         m_Grad_V[a] = grad_V[a];
@@ -860,7 +860,7 @@ void LiquidTransport::set_Grad_V(const doublereal *grad_V)
  *
  * @param grad_X Gradient of the mole fractions(length nsp * num dimensions);
  */
-void LiquidTransport::set_Grad_X(const doublereal *grad_X)
+void LiquidTransport::set_Grad_X(const doublereal* grad_X)
 {
     size_t itop = m_nDim * m_nsp;
     for (size_t i = 0; i < itop; i++) {
@@ -1516,7 +1516,7 @@ void LiquidTransport::updateHydrodynamicRadius_T()
 void LiquidTransport::update_Grad_lnAC()
 {
     doublereal grad_T;
-//    static vector_fp grad_lnAC(m_nsp), grad_X(m_nsp);
+    //    static vector_fp grad_lnAC(m_nsp), grad_X(m_nsp);
     //   IonsFromNeutralVPSSTP * tempIons = dynamic_cast<IonsFromNeutralVPSSTP *> m_thermo;
     //MargulesVPSSTP * tempMarg = dynamic_cast<MargulesVPSSTP *> (tempIons->neutralMoleculePhase_);
 

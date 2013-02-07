@@ -160,8 +160,8 @@ void VCS_SOLVE::vcs_nondim_TP()
                   tmole_orig);
             plogendl();
             throw Cantera::CanteraError("VCS_SOLVE::vcs_nondim_TP",
-                    " Total input moles ," + Cantera::fp2str(tmole_orig) +
-                    "is outside the range handled by vcs.\n");
+                                        " Total input moles ," + Cantera::fp2str(tmole_orig) +
+                                        "is outside the range handled by vcs.\n");
         }
 
         // Determine the scale of the problem

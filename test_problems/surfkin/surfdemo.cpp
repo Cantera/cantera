@@ -24,7 +24,7 @@ int main()
         vector_fp cov;
         cov.push_back(0.8);
         cov.push_back(0.2);
-	cout.precision(4);
+        cout.precision(4);
         surf.setCoverages(DATA_PTR(cov));
         vector_fp wdot(gas.nSpecies() + surf.nSpecies());
         surf.getNetProductionRates(DATA_PTR(wdot));
@@ -32,7 +32,7 @@ int main()
             cout << gas.speciesName(k) << "  " << wdot[k] << endl;
         }
 
-        for (size_t k = 0; k < surf.nSpecies(); k++)	  
+        for (size_t k = 0; k < surf.nSpecies(); k++)
             cout << surf.speciesName(k) << "   "
                  << wdot[k+gas.nSpecies()] << endl;
 

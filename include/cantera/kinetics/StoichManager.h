@@ -696,7 +696,7 @@ inline static void _writeDecrementReaction(InputIter begin, InputIter end,
 
 template<class InputIter>
 inline static void _writeMultiply(InputIter begin, InputIter end,
-        const std::string& r, std::map<size_t, std::string>& out)
+                                  const std::string& r, std::map<size_t, std::string>& out)
 {
     for (; begin != end; ++begin) {
         begin->writeMultiply(r, out);

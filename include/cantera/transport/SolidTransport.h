@@ -68,12 +68,12 @@ public:
     }
 
     /**
-     * The ionic conducitivity in 1/ohm/m. 
+     * The ionic conducitivity in 1/ohm/m.
      */
     virtual doublereal ionConductivity() ;
 
 
-    //!  Returns the mixture thermal conductivity in W/m/K. 
+    //!  Returns the mixture thermal conductivity in W/m/K.
     /*!
      *   Units are in W / m K  or equivalently kg m / s3 K
      *
@@ -139,15 +139,15 @@ public:
 
     friend class TransportFactory;
 
-  protected:
+protected:
 
     //! Initialize the transport object
     /*!
      * Here we change all of the internal dimensions to be sufficient.
      * We get the object ready to do property evaluations.
-     * A lot of the input required to do property evaluations is 
-     * contained in the SolidTransportParams class that is 
-     * filled in TransportFactory. 
+     * A lot of the input required to do property evaluations is
+     * contained in the SolidTransportParams class that is
+     * filled in TransportFactory.
      *
      * @param tr  Transport parameters for all of the species
      *            in the phase.
@@ -155,27 +155,27 @@ public:
     virtual bool initSolid(SolidTransportData& tr);
 
 
-  private:
+private:
 
-    
+
     //! Model type for the ionic conductivity
     /*!
      *  shallow pointer that should be zero during destructor
      */
     LTPspecies* m_ionConductivity;
-    
+
     //! Model type for the thermal conductivity
     /*!
      *  shallow pointer that should be zero during destructor
      */
     LTPspecies* m_thermalConductivity;
-   
+
     //! Model type for the electrical conductivity
     /*!
      *  shallow pointer that should be zero during destructor
      */
     LTPspecies* m_electConductivity;
-   
+
     //! Model type for the defectDiffusivity -- or more like a defect diffusivity in the context of the solid phase.
     /*!
      *  shallow pointer that should be zero during destructor

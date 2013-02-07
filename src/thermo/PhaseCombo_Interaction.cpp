@@ -45,7 +45,7 @@ PhaseCombo_Interaction::PhaseCombo_Interaction() :
  * HKM - Checked for Transition
  */
 PhaseCombo_Interaction::PhaseCombo_Interaction(const std::string& inputFile,
-                                               const std::string& id) :
+        const std::string& id) :
     GibbsExcessVPSSTP(),
     numBinaryInteractions_(0),
     formMargules_(0),
@@ -60,7 +60,7 @@ PhaseCombo_Interaction::PhaseCombo_Interaction(const std::string& inputFile,
  * HKM - Checked for Transition
  */
 PhaseCombo_Interaction::PhaseCombo_Interaction(XML_Node& phaseRoot,
-                                               const std::string& id) :
+        const std::string& id) :
     GibbsExcessVPSSTP(),
     numBinaryInteractions_(0),
     formMargules_(0),

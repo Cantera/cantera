@@ -534,7 +534,8 @@ double CVodesIntegrator::sensitivity(size_t k, size_t p)
     return NV_Ith_S(m_yS[p],k);
 }
 
-string CVodesIntegrator::getErrorInfo(int N) {
+string CVodesIntegrator::getErrorInfo(int N)
+{
     N_Vector errs = N_VNew_Serial(m_neq);
     N_Vector errw = N_VNew_Serial(m_neq);
     CVodeGetErrWeights(m_cvode_mem, errw);

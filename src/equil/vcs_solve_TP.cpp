@@ -3651,12 +3651,12 @@ size_t VCS_SOLVE::vcs_basisOptMax(const double* const molNum, const size_t j,
     double big = molNum[j] * m_spSize[j] * 1.01;
     if (m_spSize[j] <= 0.0) {
         throw CanteraError("VCS_SOLVE::vcs_basisOptMax",
-                                    "spSize is nonpositive");
+                           "spSize is nonpositive");
     }
     for (size_t i = j + 1; i < n; ++i) {
         if (m_spSize[i] <= 0.0) {
             throw CanteraError("VCS_SOLVE::vcs_basisOptMax",
-                                        "spSize is nonpositive");
+                               "spSize is nonpositive");
         }
         bool doSwap = false;
         if (m_SSPhase[j]) {

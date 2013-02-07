@@ -261,7 +261,7 @@ public:
         return h;
     }
 
-    void modifyOneHf298(const size_t &k, const doublereal Hf298New) {
+    void modifyOneHf298(const size_t& k, const doublereal Hf298New) {
         if (k != m_index) {
             return;
         }

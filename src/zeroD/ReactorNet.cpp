@@ -67,8 +67,8 @@ void ReactorNet::initialize()
             for (size_t i = 0; i < sens_objs.size(); i++) {
                 std::map<size_t, size_t>& s = m_sensOrder[sens_objs[i]];
                 for (std::map<size_t, size_t>::iterator iter = s.begin();
-                     iter != s.end();
-                     ++iter) {
+                        iter != s.end();
+                        ++iter) {
                     m_sensIndex.resize(std::max(iter->second + 1, m_sensIndex.size()));
                     m_sensIndex[iter->second] = sensParamNumber++;
                 }
@@ -288,9 +288,9 @@ void ReactorNet::registerSensitivityReaction(void* reactor,
 {
     std::pair<void*, int> R = std::make_pair(reactor, leftright);
     if (m_sensOrder.count(R) &&
-        m_sensOrder[R].count(reactionIndex)) {
-            throw CanteraError("ReactorNet::registerSensitivityReaction",
-                               "Attempted to register duplicate sensitivity reaction");
+            m_sensOrder[R].count(reactionIndex)) {
+        throw CanteraError("ReactorNet::registerSensitivityReaction",
+                           "Attempted to register duplicate sensitivity reaction");
     }
     m_paramNames.push_back(name);
     m_sensOrder[R][reactionIndex] = m_ntotpar;

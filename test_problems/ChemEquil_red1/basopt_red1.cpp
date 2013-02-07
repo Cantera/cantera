@@ -45,13 +45,12 @@ int main(int argc, char** argv)
          * The MultiPhaseEquil solver just gets the wrong result.
          */
         int it = equilibrate(g, "TP", -1);
-	if (it != 1)
-	  {
-	    cerr << "incorrect number of iterations." << endl;
-	    return -1;
-	  }
-	cout.unsetf(ios::floatfield);
-	cout.precision(3);
+        if (it != 1) {
+            cerr << "incorrect number of iterations." << endl;
+            return -1;
+        }
+        cout.unsetf(ios::floatfield);
+        cout.precision(3);
         //cout << g;
 
         return 0;

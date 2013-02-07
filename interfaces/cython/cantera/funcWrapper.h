@@ -3,7 +3,7 @@
 
 #include "cantera/numerics/Func1.h"
 
-typedef double (*callback_wrapper)(double, void*, void**);
+typedef double(*callback_wrapper)(double, void*, void**);
 
 // A C++ exception that holds a Python exception so that it can be re-raised
 // by translate_exception()
@@ -25,8 +25,7 @@ class Func1Py : public Cantera::Func1
 public:
     Func1Py(callback_wrapper callback, void* pyobj) :
         m_callback(callback),
-        m_pyobj(pyobj)
-    {
+        m_pyobj(pyobj) {
     }
 
     double eval(double t) const {
@@ -49,8 +48,7 @@ private:
 //     cdef double eval(double) except +translate_exception
 inline int translate_exception()
 {
-    try
-    {
+    try {
         if (!PyErr_Occurred()) {
             // Let the latest Python exception pass through and ignore the
             // current one.

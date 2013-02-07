@@ -673,7 +673,7 @@ void LatticeSolidPhase::setParametersFromXML(const XML_Node& eosdata)
  *   @param  k           Species k
  *   @param  Hf298New    Specify the new value of the Heat of Formation at 298K and 1 bar
  */
-void LatticeSolidPhase::modifyOneHf298SS(const size_t &k, const doublereal Hf298New)
+void LatticeSolidPhase::modifyOneHf298SS(const size_t& k, const doublereal Hf298New)
 {
     for (size_t n = 0; n < m_nlattice; n++) {
         if (lkstart_[n+1] < k) {

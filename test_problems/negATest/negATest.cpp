@@ -13,7 +13,7 @@ int main(int argc, char** argv)
     try {
         if (argc != 2) {
             cout << "Error: no input file specified.\n"
-                "Choose either 'noxNeg.cti' or 'noxNeg_blessed.xml" << endl;
+                 "Choose either 'noxNeg.cti' or 'noxNeg_blessed.xml" << endl;
             exit(-1);
         }
         std::string infile(argv[1]);
