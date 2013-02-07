@@ -127,6 +127,7 @@ CVodesIntegrator::CVodesIntegrator() :
     m_abstolsens(1.0e-4),
     m_nabs(0),
     m_hmax(0.0),
+    m_hmin(0.0),
     m_maxsteps(20000),
     m_fdata(0),
     m_np(0),
@@ -462,6 +463,9 @@ void CVodesIntegrator::applyOptions()
     }
     if (m_hmax > 0) {
         CVodeSetMaxStep(m_cvode_mem, m_hmax);
+    }
+    if (m_hmin > 0) {
+        CVodeSetMinStep(m_cvode_mem, m_hmin);
     }
 }
 
