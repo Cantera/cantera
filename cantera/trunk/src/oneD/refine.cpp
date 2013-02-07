@@ -37,7 +37,6 @@ int Refiner::analyze(size_t n, const doublereal* z,
     }
 
     if (m_domain->nPoints() <= 1) {
-        //writelog("can't refine a domain with 1 point: "+m_domain->id()+"\n");
         return 0;
     }
 
@@ -55,114 +54,87 @@ int Refiner::analyze(size_t n, const doublereal* z,
         throw CanteraError("analyze","inconsistent");
     }
 
-
-    /**
-     * find locations where cell size ratio is too large.
-     */
-    size_t j;
-    string name;
-    doublereal vmin, vmax, smin, smax, aa, ss;
-    doublereal dmax, r;
+    // find locations where cell size ratio is too large.
     vector_fp v(n), s(n-1);
 
     vector_fp dz(n-1);
-    for (j = 0; j < n-1; j++) {
+    for (size_t j = 0; j < n-1; j++) {
         dz[j] = z[j+1] - z[j];
     }
 
     for (size_t i = 0; i < m_nv; i++) {
         if (m_active[i]) {
-            name = m_domain->componentName(i);
-            //writelog("refine: examining "+name+"\n");
+            string name = m_domain->componentName(i);
             // get component i at all points
-            for (j = 0; j < n; j++) {
+            for (size_t j = 0; j < n; j++) {
                 v[j] = value(x, i, j);
             }
 
             // slope of component i
-            for (j = 0; j < n-1; j++)
-                s[j] = (value(x, i, j+1) - value(x, i, j))/
-                       (z[j+1] - z[j]);
+            for (size_t j = 0; j < n-1; j++) {
+                s[j] = (value(x, i, j+1) - value(x, i, j))/(z[j+1] - z[j]);
+            }
 
             // find the range of values and slopes
-
-            vmin = *min_element(v.begin(), v.end());
-            vmax = *max_element(v.begin(), v.end());
-            smin = *min_element(s.begin(), s.end());
-            smax = *max_element(s.begin(), s.end());
+            doublereal vmin = *min_element(v.begin(), v.end());
+            doublereal vmax = *max_element(v.begin(), v.end());
+            doublereal smin = *min_element(s.begin(), s.end());
+            doublereal smax = *max_element(s.begin(), s.end());
 
             // max absolute values of v and s
-            aa = std::max(fabs(vmax), fabs(vmin));
-            ss = std::max(fabs(smax), fabs(smin));
+            doublereal aa = std::max(fabs(vmax), fabs(vmin));
+            doublereal ss = std::max(fabs(smax), fabs(smin));
 
             // refine based on component i only if the range of v is
             // greater than a fraction 'min_range' of max |v|. This
             // eliminates components that consist of small fluctuations
             // on a constant background.
-
             if ((vmax - vmin) > m_min_range*aa) {
-
-                // maximum allowable difference in value between
-                // adjacent points.
-
-                dmax = m_slope*(vmax - vmin) + m_thresh;
-                for (j = 0; j < n-1; j++) {
-                    r = fabs(v[j+1] - v[j])/dmax;
+                // maximum allowable difference in value between adjacent
+                // points.
+                doublereal dmax = m_slope*(vmax - vmin) + m_thresh;
+                for (size_t j = 0; j < n-1; j++) {
+                    doublereal r = fabs(v[j+1] - v[j])/dmax;
                     if (r > 1.0 && dz[j] >= 2 * m_gridmin) {
                         m_loc[j] = 1;
                         m_c[name] = 1;
-                        //if (int(m_loc.size()) + n > m_npmax) goto done;
                     }
                     if (r >= m_prune) {
                         m_keep[j] = 1;
                         m_keep[j+1] = 1;
-                    } else {
-                        //writelog(string("r = ")+fp2str(r)+"\n");
-                        if (m_keep[j] == 0) {
-                            //if (m_keep[j-1] > -1 && m_keep[j+1] > -1)
-                            m_keep[j] = -1;
-                        }
-                        //if (m_keep[j+1] == 0) m_keep[j+1] = -1;
+                    } else if (m_keep[j] == 0) {
+                        m_keep[j] = -1;
                     }
                 }
             }
-
 
             // refine based on the slope of component i only if the
             // range of s is greater than a fraction 'min_range' of max
             // |s|. This eliminates components that consist of small
             // fluctuations on a constant slope background.
-
             if ((smax - smin) > m_min_range*ss) {
-
                 // maximum allowable difference in slope between
                 // adjacent points.
-                dmax = m_curve*(smax - smin); // + 0.5*m_curve*(smax + smin);
-                for (j = 0; j < n-2; j++) {
-                    r = fabs(s[j+1] - s[j]) / (dmax + m_thresh/dz[j]);
+                doublereal dmax = m_curve*(smax - smin);
+                for (size_t j = 0; j < n-2; j++) {
+                    doublereal r = fabs(s[j+1] - s[j]) / (dmax + m_thresh/dz[j]);
                     if (r > 1.0 && dz[j] >= 2 * m_gridmin &&
                             dz[j+1] >= 2 * m_gridmin) {
                         m_c[name] = 1;
                         m_loc[j] = 1;
                         m_loc[j+1] = 1;
-                        //if (int(m_loc.size()) + n > m_npmax) goto done;
                     }
                     if (r >= m_prune) {
                         m_keep[j+1] = 1;
-                    } else {
-                        //writelog(string("r slope = ")+fp2str(r)+"\n");
-                        if (m_keep[j+1] == 0) {
-                            //if (m_keep[j] > -1 && m_keep[j+2] > -1)
-                            m_keep[j+1] = -1;
-                        }
+                    } else if (m_keep[j+1] == 0) {
+                        m_keep[j+1] = -1;
                     }
                 }
             }
-
         }
     }
 
-    for (j = 1; j < n-1; j++) {
+    for (size_t j = 1; j < n-1; j++) {
         if (dz[j] > m_ratio*dz[j-1]) {
             m_loc[j] = 1;
             m_c["point "+int2str(j)] = 1;
@@ -177,11 +149,8 @@ int Refiner::analyze(size_t n, const doublereal* z,
         if (j < n-2 && z[j+1]-z[j] > m_ratio * dz[j+1]) {
             m_keep[j] = 1;
         }
-        //if (m_loc.size() + n > m_npmax) goto done;
     }
 
-    //done:
-    //m_did_analysis = true;
     return int(m_loc.size());
 }
 
@@ -192,8 +161,7 @@ double Refiner::value(const double* x, size_t i, size_t j)
 
 void Refiner::show()
 {
-    int nnew = static_cast<int>(m_loc.size());
-    if (nnew > 0) {
+    if (!m_loc.empty()) {
         r_drawline();
         writelog(string("Refining grid in ") +
                  m_domain->id()+".\n"
@@ -212,9 +180,6 @@ void Refiner::show()
         r_drawline();
     } else if (m_domain->nPoints() > 1) {
         writelog("no new points needed in "+m_domain->id()+"\n");
-        //writelog("curve = "+fp2str(m_curve)+"\n");
-        //writelog("slope = "+fp2str(m_slope)+"\n");
-        //writelog("prune = "+fp2str(m_prune)+"\n");
     }
 }
 
@@ -222,21 +187,18 @@ void Refiner::show()
 int Refiner::getNewGrid(int n, const doublereal* z,
                         int nn, doublereal* zn)
 {
-    int j;
     int nnew = static_cast<int>(m_loc.size());
     if (nnew + n > nn) {
-        throw CanteraError("Refine::getNewGrid",
-                           "array size too small.");
-        return -1;
+        throw CanteraError("Refine::getNewGrid", "array size too small.");
     }
 
-    int jn = 0;
     if (m_loc.empty()) {
         copy(z, z + n,  zn);
         return 0;
     }
 
-    for (j = 0; j < n - 1; j++) {
+    int jn = 0;
+    for (int j = 0; j < n - 1; j++) {
         zn[jn] = z[j];
         jn++;
         if (m_loc.count(j)) {

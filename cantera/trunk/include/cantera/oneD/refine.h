@@ -10,9 +10,7 @@ class Domain1D;
 
 class Refiner
 {
-
 public:
-
     Refiner(Domain1D& domain);
     virtual ~Refiner() {}
 
@@ -45,7 +43,6 @@ public:
 
     int analyze(size_t n, const doublereal* z, const doublereal* x);
     int getNewGrid(int n, const doublereal* z, int nn, doublereal* znew);
-    //int getNewSoln(int n, const doublereal* x, doublereal* xnew);
     int nNewPoints() {
         return static_cast<int>(m_loc.size());
     }
@@ -54,7 +51,7 @@ public:
         return m_loc.find(j) != m_loc.end();
     }
     bool keepPoint(size_t j) {
-        return (m_keep[j] != -1); // m_keep.find(j) != m_keep.end();
+        return (m_keep[j] != -1);
     }
     double value(const double* x, size_t i, size_t j);
     double maxRatio() {
@@ -71,18 +68,16 @@ public:
     }
 
 protected:
-
     std::map<size_t, int> m_loc;
     std::map<size_t, int> m_keep;
-    std::map<std::string, int>    m_c;
-    std::vector<bool>        m_active;
-    doublereal          m_ratio, m_slope, m_curve, m_prune;
-    doublereal          m_min_range;
-    Domain1D*            m_domain;
+    std::map<std::string, int> m_c;
+    std::vector<bool> m_active;
+    doublereal m_ratio, m_slope, m_curve, m_prune;
+    doublereal m_min_range;
+    Domain1D* m_domain;
     size_t m_nv, m_npmax;
-    doublereal          m_thresh;
+    doublereal m_thresh;
     doublereal m_gridmin; //!< minimum grid spacing [m]
-
 };
 
 }
