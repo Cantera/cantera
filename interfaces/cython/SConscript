@@ -88,6 +88,11 @@ else:
         localenv['py_extra_compiler_args'] = repr(['-fprofile-arcs', '-ftest-coverage'])
         localenv['py_extra_link_args'] = repr(['-fprofile-arcs', '-ftest-coverage'])
 
+if 'LDFLAGS' not in localenv['ENV']:
+    localenv['ENV']['LDFLAGS'] = ''
+for framework in localenv['FRAMEWORKS']:
+    localenv['ENV']['LDFLAGS'] += ' -framework ' + framework
+
 dataFiles = localenv.RecursiveInstall('#interfaces/cython/cantera/data',
                                       '#build/data')
 build(dataFiles)
