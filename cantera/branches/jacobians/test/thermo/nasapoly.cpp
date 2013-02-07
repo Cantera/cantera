@@ -33,7 +33,7 @@ protected:
         tpow_[5] = std::log(T);
     }
 
-    void testEquivalent(NasaPoly1& p, NasaPoly1& q) {
+    void testEquivalent(NasaPoly1<doublereal>& p, NasaPoly1<doublereal>& q) {
         EXPECT_EQ(poly.minTemp(), q.minTemp());
         EXPECT_EQ(poly.maxTemp(), q.maxTemp());
         EXPECT_EQ(poly.refPressure(), q.refPressure());
@@ -49,7 +49,7 @@ protected:
         EXPECT_DOUBLE_EQ(s_R1, s_R2);
     }
 
-    NasaPoly1 poly;
+    NasaPoly1<doublereal> poly;
     std::vector<double> tpow_;
 };
 
@@ -63,13 +63,13 @@ TEST_F(NasaPoly1Test, Initialization)
 
 TEST_F(NasaPoly1Test, Copy)
 {
-    NasaPoly1 q(poly);
+    NasaPoly1<doublereal> q(poly);
     testEquivalent(poly, q);
 }
 
 TEST_F(NasaPoly1Test, Assignment)
 {
-    NasaPoly1 q;
+    NasaPoly1<doublereal> q;
     q = poly;
     testEquivalent(poly, q);
 }

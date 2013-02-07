@@ -27,7 +27,7 @@ int main()
 
         XML_Node* xc = get_XML_File("liquidvapor.xml");
         XML_Node* const xs = xc->findNameID("phase", "water");
-        ThermoPhase* water_tp = newPhase(*xs);
+        thermo_t_double* water_tp = newPhase<doublereal>(*xs);
         PureFluidPhase* w = dynamic_cast <PureFluidPhase*>(water_tp);
 
         /*

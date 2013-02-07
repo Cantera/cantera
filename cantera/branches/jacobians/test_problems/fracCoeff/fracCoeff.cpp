@@ -44,12 +44,12 @@ int main(int argc, char** argv)
         ctml::get_CTML_Tree(xc, path);
 
         XML_Node* const xg = xc->findNameID("phase", "gas");
-        ThermoPhase* gasTP = newPhase(*xg);
+        thermo_t_double* gasTP = newPhase<doublereal>(*xg);
         size_t nsp = gasTP->nSpecies();
 	cout.precision(4);
         cout << "Number of species = " << nsp << endl;
 
-        vector<ThermoPhase*> phaseList;
+        vector<thermo_t_double*> phaseList;
         phaseList.push_back(gasTP);
         GasKinetics* iKin_ptr = new GasKinetics();
         importKinetics(*xg, phaseList, iKin_ptr);

@@ -31,7 +31,7 @@ int main(int argc, char** argv)
          */
         string nacl_s = "NaCl_Solid.xml";
         string id = "NaCl(S)";
-        Cantera::ThermoPhase* solid = Cantera::newPhase(nacl_s, id);
+        Cantera::thermo_t* solid = Cantera::newPhase<doublereal>(nacl_s, id);
 
         size_t nsp = HMW->nSpecies();
         double acMol[100];

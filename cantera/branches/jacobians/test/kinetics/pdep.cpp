@@ -14,7 +14,7 @@ public:
     static void SetUpTestCase() {
         XML_Node* phase_node = get_XML_File("../data/pdep-test.xml");
 
-        thermo_ = new IdealGasPhase();
+        thermo_ = new IdealGasPhase<doublereal>();
         kin_ = new GasKinetics();
 
         buildSolutionFromXML(*phase_node, "gas", "phase", thermo_, kin_);
@@ -36,7 +36,7 @@ public:
     }
 
 protected:
-    static ThermoPhase* thermo_;
+    static thermo_t* thermo_;
     static Kinetics* kin_;
 
     void set_TP(double T, double P) {
@@ -52,7 +52,7 @@ protected:
     double T_, RT_, P_;
 };
 
-ThermoPhase* PdepTest::thermo_ = NULL;
+ThermoPhase<doublereal>* PdepTest::thermo_ = NULL;
 Kinetics* PdepTest::kin_ = NULL;
 
 TEST_F(PdepTest, reactionCounts) {

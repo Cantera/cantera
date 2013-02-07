@@ -27,7 +27,7 @@ int main(int argc, char** argv)
         /*
          * Load in and initialize the
          */
-        Cantera::ThermoPhase* solid = newPhase("NaCl_Solid.xml","NaCl(S)");
+        Cantera::thermo_t* solid = newPhase<doublereal>("NaCl_Solid.xml","NaCl(S)");
 
 
         size_t nsp = HMW->nSpecies();
@@ -70,9 +70,9 @@ int main(int argc, char** argv)
         double Xmol[30];
         HMW->getMoleFractions(Xmol);
 
-        ThermoPhase* hmwtb = (ThermoPhase*)HMW;
+        thermo_t* hmwtb = (thermo_t*) HMW;
 
-        ThermoPhase* hmwtbDupl = hmwtb->duplMyselfAsThermoPhase();
+        thermo_t* hmwtbDupl = hmwtb->duplMyselfAsThermoPhase();
         //ThermoPhase *hmwtbDupl = 0;
         HMWSoln* HMW1 = HMW;
         HMWSoln* HMW2 = dynamic_cast<HMWSoln*>(hmwtbDupl);

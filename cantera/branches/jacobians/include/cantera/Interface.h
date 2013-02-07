@@ -45,7 +45,7 @@ public:
      *   soon.
      */
     Interface(const std::string& infile, std::string id,
-              std::vector<Cantera::ThermoPhase*> otherPhases) :
+              std::vector<Cantera::thermo_t*> otherPhases) :
         m_ok(false),
         m_r(0) {
         m_r = Cantera::get_XML_File(infile);
@@ -123,7 +123,7 @@ protected:
  *  This is the preferred method to create an Interface instance.
  */
 Interface* importInterface(const std::string& infile, const std::string& id,
-                           std::vector<Cantera::ThermoPhase*> phases)
+                           std::vector<Cantera::thermo_t*> phases)
 {
     return new Interface(infile, id, phases);
 }

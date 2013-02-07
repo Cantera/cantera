@@ -11,7 +11,7 @@ class FixedChemPotSstpConstructorTest : public testing::Test
 
 TEST_F(FixedChemPotSstpConstructorTest, fromXML)
 {
-    ThermoPhase* p = newPhase("../data/LiFixed.xml", "");
+    thermo_t_double* p = newPhase<doublereal>("../data/LiFixed.xml", "");
     ASSERT_EQ((int) p->nSpecies(), 1);
     double mu;
     p->getChemPotentials(&mu);

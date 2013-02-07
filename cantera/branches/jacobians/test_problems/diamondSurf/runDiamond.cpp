@@ -49,23 +49,23 @@ int main(int argc, char** argv)
         ctml::get_CTML_Tree(xc, path);
 
         XML_Node* const xg = xc->findNameID("phase", "gas");
-        ThermoPhase* gasTP = newPhase(*xg);
+        thermo_t_double* gasTP = newPhase<doublereal>(*xg);
         size_t nsp = gasTP->nSpecies();
-	cout.precision(4);
+	    cout.precision(4);
         cout << "Number of species = " << nsp << endl;
 
         XML_Node* const xd = xc->findNameID("phase", "diamond");
-        ThermoPhase* diamondTP = newPhase(*xd);
+        thermo_t_double* diamondTP = newPhase<doublereal>(*xd);
         size_t nsp_diamond = diamondTP->nSpecies();
         cout << "Number of species in diamond = " << nsp_diamond << endl;
 
 
         XML_Node* const xs = xc->findNameID("phase", "diamond_100");
-        ThermoPhase* diamond100TP = newPhase(*xs);
+        thermo_t_double* diamond100TP = newPhase<doublereal>(*xs);
         size_t nsp_d100 = diamond100TP->nSpecies();
         cout << "Number of species in diamond_100 = " << nsp_d100 << endl;
 
-        vector<ThermoPhase*> phaseList;
+        vector<thermo_t_double*> phaseList;
         phaseList.push_back(gasTP);
         phaseList.push_back(diamondTP);
         phaseList.push_back(diamond100TP);

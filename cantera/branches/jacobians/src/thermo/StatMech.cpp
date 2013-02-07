@@ -2,12 +2,12 @@
  *  @file StatMech.cpp
  *  \link Cantera::SpeciesThermoInterpType SpeciesThermoInterpType\endlink
  */
-#include <iostream>
+
 // Copyright 2007  Sandia National Laboratories
 #include "cantera/thermo/StatMech.h"
 #include <vector>
 #include <map>
-
+#include <iostream>
 
 namespace Cantera {
 

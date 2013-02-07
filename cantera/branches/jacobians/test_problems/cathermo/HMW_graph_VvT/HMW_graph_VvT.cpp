@@ -27,7 +27,7 @@ int main(int argc, char** argv)
         /*
          * Load in and initialize the
          */
-        Cantera::ThermoPhase* solid = newPhase("NaCl_Solid.xml","NaCl(S)");
+        Cantera::thermo_t* solid = newPhase<doublereal>("NaCl_Solid.xml","NaCl(S)");
 
 
         size_t nsp = HMW->nSpecies();

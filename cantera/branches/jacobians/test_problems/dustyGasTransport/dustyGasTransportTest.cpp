@@ -12,7 +12,7 @@ int main(int argc, char** argv)
     try {
         int log_level = 3;
 
-        std::auto_ptr<ThermoPhase> g(newPhase("h2o2.xml", "ohmech"));
+        std::auto_ptr<thermo_t_double> g(newPhase<doublereal>("h2o2.xml", "ohmech"));
         auto_ptr<Transport> tran(newTransportMgr("DustyGas", g.get(), log_level));
         DustyGasTransport* tranDusty = dynamic_cast<DustyGasTransport*>(tran.get());
 
