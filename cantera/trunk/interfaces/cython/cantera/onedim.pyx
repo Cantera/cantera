@@ -718,8 +718,14 @@ cdef class Sim1D:
              loglevel=1):
         """
         Save the solution in XML format.
+        :param filename:
+            solution file
+        :param name:
+            solution name within the file
+        :param description:
+            custom description text
 
-        >>> s.save(file='save.xml', name='energy_off',
+        >>> s.save(filename='save.xml', name='energy_off',
         ...        description='solution with energy eqn. disabled')
 
         """
