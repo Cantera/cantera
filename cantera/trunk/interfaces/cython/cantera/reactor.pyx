@@ -68,6 +68,11 @@ cdef class ReactorBase:
         def __get__(self):
             return self.thermo.density
 
+    property mass:
+        """The mass of the reactor's contents."""
+        def __get__(self):
+            return self.thermo.density_mass * self.volume
+
     property Y:
         """The mass fractions of the reactor's contents."""
         def __get__(self):
