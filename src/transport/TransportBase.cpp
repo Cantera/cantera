@@ -105,7 +105,7 @@ void Transport::setParameters(const int type, const int k,
   void Transport::setThermo(thermo_t& thermo) { 
     if (!ready()) { 
       m_thermo = &thermo;
-      //m_nmin = m_thermo->nSpecies();
+      m_nsp = m_thermo->nSpecies();
     }
     else  {
       int newNum = thermo.nSpecies();
