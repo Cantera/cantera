@@ -374,22 +374,6 @@ void CVodesIntegrator::initialize(double t0, FuncEval& func)
     }
 #endif
 
-    if (m_type == DENSE + NOJAC) {
-        long int N = m_neq;
-        CVDense(m_cvode_mem, N);
-    } else if (m_type == DIAG) {
-        CVDiag(m_cvode_mem);
-    } else if (m_type == GMRES) {
-        CVSpgmr(m_cvode_mem, PREC_NONE, 0);
-    } else if (m_type == BAND + NOJAC) {
-        long int N = m_neq;
-        long int nu = m_mupper;
-        long int nl = m_mlower;
-        CVBand(m_cvode_mem, N, nu, nl);
-    } else {
-        throw CVodesErr("unsupported option");
-    }
-
     // pass a pointer to func in m_data
     delete m_fdata;
     m_fdata = new FuncData(&func, func.nparams());
@@ -411,17 +395,7 @@ void CVodesIntegrator::initialize(double t0, FuncEval& func)
         flag = CVodeSetSensParams(m_cvode_mem, DATA_PTR(m_fdata->m_pars),
                                   NULL, NULL);
     }
-
-    // set options
-    if (m_maxord > 0) {
-        flag = CVodeSetMaxOrd(m_cvode_mem, m_maxord);
-    }
-    if (m_maxsteps > 0) {
-        flag = CVodeSetMaxNumSteps(m_cvode_mem, m_maxsteps);
-    }
-    if (m_hmax > 0) {
-        flag = CVodeSetMaxStep(m_cvode_mem, m_hmax);
-    }
+    applyOptions();
 }
 
 
@@ -459,24 +433,27 @@ void CVodesIntegrator::reinitialize(double t0, FuncEval& func)
     }
 #endif
 
+    applyOptions();
+}
+
+void CVodesIntegrator::applyOptions()
+{
     if (m_type == DENSE + NOJAC) {
         long int N = m_neq;
         CVDense(m_cvode_mem, N);
     } else if (m_type == DIAG) {
         CVDiag(m_cvode_mem);
+    } else if (m_type == GMRES) {
+        CVSpgmr(m_cvode_mem, PREC_NONE, 0);
     } else if (m_type == BAND + NOJAC) {
         long int N = m_neq;
         long int nu = m_mupper;
         long int nl = m_mlower;
         CVBand(m_cvode_mem, N, nu, nl);
-    } else if (m_type == GMRES) {
-        CVSpgmr(m_cvode_mem, PREC_NONE, 0);
     } else {
         throw CVodesErr("unsupported option");
     }
 
-
-    // set options
     if (m_maxord > 0) {
         CVodeSetMaxOrd(m_cvode_mem, m_maxord);
     }

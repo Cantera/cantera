@@ -6,12 +6,12 @@
 #ifndef CT_CVODESWRAPPER_H
 #define CT_CVODESWRAPPER_H
 
-#ifdef HAS_SUNDIALS
-
 #include "cantera/numerics/Integrator.h"
 #include "cantera/numerics/FuncEval.h"
 #include "cantera/base/ctexceptions.h"
 #include "cantera/base/ct_defs.h"
+
+#ifdef HAS_SUNDIALS
 
 #if SUNDIALS_VERSION == 22
 #include "nvector_serial.h"
@@ -84,6 +84,12 @@ public:
     //! This information can be used to identify which variables are
     //! responsible for integrator failures or unexpected small timesteps.
     virtual std::string getErrorInfo(int N);
+
+protected:
+
+    //! Applies user-specified options to the underlying CVODES solver. Called
+    //! during integrator initialization or reinitialization.
+    void applyOptions();
 
 private:
 
