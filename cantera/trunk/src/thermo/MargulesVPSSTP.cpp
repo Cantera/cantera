@@ -491,7 +491,7 @@ void MargulesVPSSTP::getPartialMolarVolumes(doublereal* vbar) const
 
         for (size_t iK = 0; iK < m_kk; iK++) {
             vbar[iK] += all;
-//            vbar[iK] += XA*XB*temp1+((delAK-XA)*XB+XA*(delBK-XB))*temp1+XB*XA*(delBK-XB)*g1;
+            // vbar[iK] += XA*XB*temp1+((delAK-XA)*XB+XA*(delBK-XB))*temp1+XB*XA*(delBK-XB)*g1;
         }
         vbar[iA] += XB * temp1;
         vbar[iB] += XA * temp1 + XA*XB*g1;
@@ -686,7 +686,7 @@ void MargulesVPSSTP::s_update_dlnActCoeff_dT() const
         const doublereal mult = 2.0 * invT;
         const doublereal dT2all = mult * all;
         for (iK = 0; iK < m_kk; iK++) {
-//            double temp = (delAK * XB + XA * delBK - XA * XB) * (g0 + g1 * XB) + XA * XB * (delBK - XB) * g1;
+            // double temp = (delAK * XB + XA * delBK - XA * XB) * (g0 + g1 * XB) + XA * XB * (delBK - XB) * g1;
             dlnActCoeffdT_Scaled_[iK] += all;
             d2lnActCoeffdT2_Scaled_[iK] -= dT2all;
         }
@@ -755,8 +755,8 @@ void  MargulesVPSSTP::getdlnActCoeffds(const doublereal dTds, const doublereal* 
         const doublereal g2XAdXB = 2*g1*XA*dXB;
         const doublereal all = (-XB * dXA - XA *dXB) * g02g1XB - XB *g2XAdXB;
         for (iK = 0; iK < m_kk; iK++) {
-//            dlnActCoeffds[iK] += ((delBK-XB)*dXA + (delAK-XA)*dXB)*(g0+2*g1*XB) + (delBK-XB)*2*g1*XA*dXB
-//                                 + dlnActCoeffdT_Scaled_[iK]*dTds;
+            // dlnActCoeffds[iK] += ((delBK-XB)*dXA + (delAK-XA)*dXB)*(g0+2*g1*XB) + (delBK-XB)*2*g1*XA*dXB
+            //                      + dlnActCoeffdT_Scaled_[iK]*dTds;
             dlnActCoeffds[iK] += all + dlnActCoeffdT_Scaled_[iK]*dTds;
         }
         dlnActCoeffds[iA] += dXB * g02g1XB;

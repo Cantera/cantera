@@ -141,7 +141,7 @@ int Refiner::analyze(size_t n, const doublereal* z,
                 for (j = 0; j < n-2; j++) {
                     r = fabs(s[j+1] - s[j]) / (dmax + m_thresh/dz[j]);
                     if (r > 1.0 && dz[j] >= 2 * m_gridmin &&
-                        dz[j+1] >= 2 * m_gridmin) {
+                            dz[j+1] >= 2 * m_gridmin) {
                         m_c[name] = 1;
                         m_loc[j] = 1;
                         m_loc[j+1] = 1;

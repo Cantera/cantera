@@ -251,10 +251,11 @@ std::string canteraRoot();
 void writelog(const std::string& msg);
 
 
-inline void writelog(const std::string& msg, int loglevel) {
-	if (loglevel > 0) {
-		writelog(msg);
-	}
+inline void writelog(const std::string& msg, int loglevel)
+{
+    if (loglevel > 0) {
+        writelog(msg);
+    }
 }
 
 //!  Write a message to the screen.
@@ -529,7 +530,8 @@ XML_Node* get_XML_NameID(const std::string& nameTarget,
 
 //! Clip *value* such that lower <= value <= upper
 template <class T>
-inline T clip(const T& value, const T& lower, const T& upper) {
+inline T clip(const T& value, const T& lower, const T& upper)
+{
     return std::max(lower, std::min(upper, value));
 }
 

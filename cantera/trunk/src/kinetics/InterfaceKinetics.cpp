@@ -1367,7 +1367,7 @@ void InterfaceKinetics::setPhaseExistence(const size_t iphase, const int exists)
         if (!m_phaseExists[iphase]) {
             m_phaseExistsCheck--;
             if (m_phaseExistsCheck < 0) {
-               m_phaseExistsCheck = 0;
+                m_phaseExistsCheck = 0;
             }
             m_phaseExists[iphase] = true;
         }

@@ -46,7 +46,7 @@ MixedSolventElectrolyte::MixedSolventElectrolyte() :
 
  */
 MixedSolventElectrolyte::MixedSolventElectrolyte(const std::string& inputFile,
-                                                 const std::string& id) :
+        const std::string& id) :
     MolarityIonicVPSSTP(),
     numBinaryInteractions_(0),
     formMargules_(0),
@@ -56,7 +56,7 @@ MixedSolventElectrolyte::MixedSolventElectrolyte(const std::string& inputFile,
 }
 
 MixedSolventElectrolyte::MixedSolventElectrolyte(XML_Node& phaseRoot,
-                                                 const std::string& id) :
+        const std::string& id) :
     MolarityIonicVPSSTP(),
     numBinaryInteractions_(0),
     formMargules_(0),

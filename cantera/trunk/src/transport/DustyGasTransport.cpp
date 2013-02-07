@@ -106,56 +106,59 @@ DustyGasTransport& DustyGasTransport::operator=(const  DustyGasTransport& right)
 DustyGasTransport::~DustyGasTransport()
 {
     delete m_gastran;
-  }
-  //====================================================================================================================
-  // Duplication routine for objects which inherit from %Transport
-  /*
-   *  This virtual routine can be used to duplicate %Transport objects
-   *  inherited from %Transport even if the application only has
-   *  a pointer to %Transport to work with.
-   *
-   *  These routines are basically wrappers around the derived copy
-   *  constructor.
-   */
-  Transport *DustyGasTransport::duplMyselfAsTransport() const {
+}
+//====================================================================================================================
+// Duplication routine for objects which inherit from %Transport
+/*
+ *  This virtual routine can be used to duplicate %Transport objects
+ *  inherited from %Transport even if the application only has
+ *  a pointer to %Transport to work with.
+ *
+ *  These routines are basically wrappers around the derived copy
+ *  constructor.
+ */
+Transport* DustyGasTransport::duplMyselfAsTransport() const
+{
     DustyGasTransport* tr = new DustyGasTransport(*this);
-    return (dynamic_cast<Transport *>(tr));
-  }
-  //====================================================================================================================
-  // Specifies the %ThermPhase object. 
-    /*
-     *  We have relaxed this operation so that it will succeed when 
-     *  the underlying old and new ThermoPhase objects have the same
-     *  number of species and the same names of the species in the
-     *  same order. The idea here is to allow copy constructors and duplicators
-     *  to work. In order for them to work, we need a method to switch the
-     *  internal pointer within the Transport object after the duplication
-     *  takes place.  Also, different thermodynamic instanteations of the same
-     *  species should also work.
-     *
-     *   @param   thermo  Reference to the ThermoPhase object that
-     *                    the transport object will use
-     */
-  void DustyGasTransport::setThermo(thermo_t& thermo) {
+    return (dynamic_cast<Transport*>(tr));
+}
+//====================================================================================================================
+// Specifies the %ThermPhase object.
+/*
+ *  We have relaxed this operation so that it will succeed when
+ *  the underlying old and new ThermoPhase objects have the same
+ *  number of species and the same names of the species in the
+ *  same order. The idea here is to allow copy constructors and duplicators
+ *  to work. In order for them to work, we need a method to switch the
+ *  internal pointer within the Transport object after the duplication
+ *  takes place.  Also, different thermodynamic instanteations of the same
+ *  species should also work.
+ *
+ *   @param   thermo  Reference to the ThermoPhase object that
+ *                    the transport object will use
+ */
+void DustyGasTransport::setThermo(thermo_t& thermo)
+{
 
     Transport::setThermo(thermo);
     m_gastran->setThermo(thermo);
-  }
-  //====================================================================================================================
-  //   Set the Parameters in the model
-  /*
-   *    @param type     Type of the parameter to set
-   *                     0 - porosity
-   *                     1 - tortuosity
-   *                     2 - mean pore radius
-   *                     3 - mean particle radius
-   *                     4 - permeability
-   *    @param k         Unused int
-   *    @param p         pointer to double for the input list of parameters
-   *
-   */
-  void DustyGasTransport::setParameters(const int type, const int k, const doublereal* const p) {
-    switch(type) {
+}
+//====================================================================================================================
+//   Set the Parameters in the model
+/*
+ *    @param type     Type of the parameter to set
+ *                     0 - porosity
+ *                     1 - tortuosity
+ *                     2 - mean pore radius
+ *                     3 - mean particle radius
+ *                     4 - permeability
+ *    @param k         Unused int
+ *    @param p         pointer to double for the input list of parameters
+ *
+ */
+void DustyGasTransport::setParameters(const int type, const int k, const doublereal* const p)
+{
+    switch (type) {
     case 0:
         setPorosity(p[0]);
         break;

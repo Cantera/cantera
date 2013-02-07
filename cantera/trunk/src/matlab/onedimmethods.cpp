@@ -27,7 +27,7 @@ void onedimmethods(int nlhs, mxArray* plhs[],
 
         switch (job) {
 
-        // construct a new stagnation flow instance
+            // construct a new stagnation flow instance
         case 1:
             checkNArgs(7, nrhs);
             ph = getInt(prhs[3]);
@@ -37,38 +37,38 @@ void onedimmethods(int nlhs, mxArray* plhs[],
             indx = stflow_new(ph, kin, tr, itype);
             break;
 
-        // construct a new Inlet1D instance
+            // construct a new Inlet1D instance
         case 2:
             checkNArgs(3, nrhs);
             indx = inlet_new();
             break;
 
-        // construct a new Surf1D instance
+            // construct a new Surf1D instance
         case 3:
             checkNArgs(3, nrhs);
             indx = surf_new();
             break;
 
-        // construct a new Symm1D instance
+            // construct a new Symm1D instance
         case 4:
             checkNArgs(3, nrhs);
             indx = symm_new();
             break;
 
-        // construct a new Outlet1D instance
+            // construct a new Outlet1D instance
         case 5:
             checkNArgs(3, nrhs);
             indx = outlet_new();
             break;
 
-        // construct a new ReactingSurf1D instance
+            // construct a new ReactingSurf1D instance
         case 6:
             checkNArgs(4, nrhs);
             indx = reactingsurf_new();
             reactingsurf_setkineticsmgr(indx, getInt(prhs[3]));
             break;
 
-        // construct a new Sim1D instance
+            // construct a new Sim1D instance
         case 8: {
             checkNArgs(5, nrhs);
             nd = getInt(prhs[3]);

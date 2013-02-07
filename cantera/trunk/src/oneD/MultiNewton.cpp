@@ -27,7 +27,8 @@ namespace Cantera
 {
 
 // unnamed-namespace for local helpers
-namespace {
+namespace
+{
 
 class Indx
 {

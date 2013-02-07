@@ -40,8 +40,7 @@ IdealSolidSolnPhase::IdealSolidSolnPhase(int formGC) :
 }
 
 IdealSolidSolnPhase::IdealSolidSolnPhase(const std::string& inputFile,
-                                         const std::string& id,
-                                         int formGC) :
+        const std::string& id, int formGC) :
     ThermoPhase(),
     m_formGC(formGC),
     m_Pref(OneAtm),
