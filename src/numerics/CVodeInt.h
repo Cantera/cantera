@@ -60,6 +60,7 @@ public:
     virtual void setMaxStepSize(double hmax);
     virtual void setMinStepSize(double hmin);
     virtual void setMaxSteps(int nmax);
+    virtual void setMaxErrTestFails(int nmax) {}
 
 private:
 

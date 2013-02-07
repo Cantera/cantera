@@ -729,6 +729,14 @@ cdef class ReactorNet:
         """
         self.net.setMaxTimeStep(t)
 
+    property max_err_test_fails:
+        """
+        The maximum number of error test failures permitted by the CVODES
+        integrator in a single time step.
+        """
+        def __set__(self, n):
+            self.net.setMaxErrTestFails(n)
+
     property rtol:
         """
         The relative error tolerance used while integrating the reactor

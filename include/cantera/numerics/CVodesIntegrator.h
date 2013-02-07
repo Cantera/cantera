@@ -70,6 +70,7 @@ public:
     virtual void setMaxStepSize(double hmax);
     virtual void setMinStepSize(double hmin);
     virtual void setMaxSteps(int nmax);
+    virtual void setMaxErrTestFails(int n);
     virtual void setBandwidth(int N_Upper, int N_Lower) {
         m_mupper = N_Upper;
         m_mlower = N_Lower;
@@ -111,6 +112,7 @@ private:
     size_t m_nabs;
     double m_hmax, m_hmin;
     int m_maxsteps;
+    int m_maxErrTestFails;
     FuncData* m_fdata;
     N_Vector*  m_yS;
     size_t m_np;

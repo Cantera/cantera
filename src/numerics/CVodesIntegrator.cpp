@@ -129,6 +129,7 @@ CVodesIntegrator::CVodesIntegrator() :
     m_hmax(0.0),
     m_hmin(0.0),
     m_maxsteps(20000),
+    m_maxErrTestFails(0),
     m_fdata(0),
     m_np(0),
     m_mupper(0), m_mlower(0),
@@ -236,6 +237,14 @@ void CVodesIntegrator::setMaxSteps(int nmax)
     m_maxsteps = nmax;
     if (m_cvode_mem) {
         CVodeSetMaxNumSteps(m_cvode_mem, m_maxsteps);
+    }
+}
+
+void CVodesIntegrator::setMaxErrTestFails(int n)
+{
+    m_maxErrTestFails = n;
+    if (m_cvode_mem) {
+        CVodeSetMaxErrTestFails(m_cvode_mem, n);
     }
 }
 
@@ -466,6 +475,9 @@ void CVodesIntegrator::applyOptions()
     }
     if (m_hmin > 0) {
         CVodeSetMinStep(m_cvode_mem, m_hmin);
+    }
+    if (m_maxErrTestFails > 0) {
+        CVodeSetMaxErrTestFails(m_cvode_mem, m_maxErrTestFails);
     }
 }
 
