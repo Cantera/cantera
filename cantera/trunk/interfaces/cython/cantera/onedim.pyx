@@ -839,6 +839,14 @@ class FlameBase(Sim1D):
         """
         return self.profile(self.flame, 'V')
 
+    @property
+    def L(self):
+        """
+        Array containing the radial pressure gradient (1/r)(dP/dr) [N/m^4] at
+        each point. Note: This value is named 'lambda' in the C++ code.
+        """
+        return self.profile(self.flame, 'lambda')
+
     def solution(self, component, point=None):
         if point is None:
             return self.profile(self.flame, component)
