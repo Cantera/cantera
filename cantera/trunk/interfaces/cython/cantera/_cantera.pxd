@@ -448,6 +448,7 @@ cdef extern from "cantera/oneD/Sim1D.h":
         void setTimeStepFactor(double)
         void setMinTimeStep(double)
         void setMaxTimeStep(double)
+        void setGridMin(int, double) except +
         void setFixedTemperature(double)
 
 
