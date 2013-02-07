@@ -669,6 +669,17 @@ cdef class Sim1D:
         idom = self.domain_index(domain)
         self.sim.setRefineCriteria(idom, ratio, slope, curve, prune)
 
+    def set_grid_min(self, dz, domain=None):
+        """
+        Set the minimum grid spacing on *domain*. If *domain* is None, then
+        set the grid spacing for all domains.
+        """
+        if domain is None:
+            idom = -1
+        else:
+            idom = self.domain_index(domain)
+        self.sim.setGridMin(idom, dz)
+
     def set_max_jac_age(self, ss_age, ts_age):
         """
         Set the maximum number of times the Jacobian will be used before it
