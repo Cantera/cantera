@@ -1175,11 +1175,11 @@ class ImpingingJet(FlameBase):
 
         if surface is None:
             self.surface = Surface1D(name='surface')
+            self.surface.T = gas.T
         else:
             self.surface = ReactingSurface1D(name='surface')
             self.surface.set_kinetics(surface)
-
-        self.surface.T = surface.T
+            self.surface.T = surface.T
 
         super().__init__((self.inlet, self.flame, self.surface),
                          gas, grid)
