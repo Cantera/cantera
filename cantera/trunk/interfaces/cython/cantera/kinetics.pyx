@@ -289,11 +289,18 @@ cdef class InterfaceKinetics(Kinetics):
     A kinetics manager for heterogeneous reaction mechanisms. The
     reactions are assumed to occur at an interface between bulk phases.
     """
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, infile, phaseid='', phases=(), *args, **kwargs):
+        super().__init__(infile, phaseid, phases, *args, **kwargs)
         if self.kinetics.type() not in (kinetics_type_interface,
                                         kinetics_type_edge):
             raise TypeError("Underlying Kinetics class is not of the correct type.")
+
+        self._phase_indices = {}
+        for phase in [self] + list(phases):
+            i = self.kinetics.phaseIndex(stringify(phase.name))
+            self._phase_indices[phase] = i
+            self._phase_indices[phase.name] = i
+            self._phase_indices[i] = i
 
     def advance_coverages(self, double dt):
         """
@@ -301,3 +308,45 @@ cdef class InterfaceKinetics(Kinetics):
         coverages for a specified amount of time.
         """
         (<CxxInterfaceKinetics*>self.kinetics).advanceCoverages(dt)
+
+    def phase_index(self, phase):
+        """
+        Get the index of the phase *phase*, where *phase* may specified using
+        the phase object, the name, or the index itself.
+        """
+        return self._phase_indices[phase]
+
+    def _phase_slice(self, phase):
+        p = self.phase_index(phase)
+        k1 = self.kinetics_species_index(0, p)
+
+        if p == self.n_phases - 1:
+            k2 = self.n_total_species
+        else:
+            k2 = self.kinetics_species_index(0, p+1)
+
+        return slice(k1,k2)
+
+    def get_creation_rates(self, phase):
+        """
+        Creation rates for each species in phase *phase*. Use the
+        `creation_rates` property to get the creation rates for species in all
+        phases.
+        """
+        return self.creation_rates[self._phase_slice(phase)]
+
+    def get_destruction_rates(self, phase):
+        """
+        Destruction rates for each species in phase *phase*. Use the
+        `destruction_rates` property to get the destruction rates for species
+        in all phases.
+        """
+        return self.destruction_rates[self._phase_slice(phase)]
+
+    def get_net_production_rates(self, phase):
+        """
+        Net production rates for each species in phase *phase*. Use the
+        `net_production_rates` property to get the net_production rates for
+        species in all phases.
+        """
+        return self.net_production_rates[self._phase_slice(phase)]

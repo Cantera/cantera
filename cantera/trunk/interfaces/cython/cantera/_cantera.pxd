@@ -146,6 +146,7 @@ cdef extern from "cantera/kinetics/Kinetics.h" namespace "Cantera":
         int nReactions()
         int nPhases()
         int reactionPhaseIndex()
+        int phaseIndex(string)
         int kineticsSpeciesIndex(int, int)
 
         CxxThermoPhase& thermo(int)
