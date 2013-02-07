@@ -49,7 +49,7 @@ public:
         if (m_A  <= 0.0) {
             m_logA = -1.0E300;
         } else {
-            m_logA = log(m_A);
+            m_logA = std::log(m_A);
         }
     }
 
@@ -98,7 +98,7 @@ public:
      * factor.
      */
     doublereal updateRC(doublereal logT, doublereal recipT) const {
-        return m_A * exp(m_b*logT - m_E*recipT);
+        return m_A * std::exp(m_b*logT - m_E*recipT);
     }
 
 
@@ -162,7 +162,7 @@ public:
         if (m_A <= 0.0) {
             m_logA = -1.0E300;
         } else {
-            m_logA = log(m_A);
+            m_logA = std::log(m_A);
         }
 
         const vector_fp& data = rdata.rateCoeffParameters;
@@ -203,7 +203,7 @@ public:
             // changed n to k, dgg 1/22/04
             th = std::max(theta[k], Tiny);
             //                th = fmaxx(theta[n], Tiny);
-            m_mcov += m_mc[n]*log(th);
+            m_mcov += m_mc[n]*std::log(th);
         }
     }
 
@@ -226,7 +226,7 @@ public:
      * factor.
      */
     doublereal updateRC(doublereal logT, doublereal recipT) const {
-        return m_A * exp(m_acov + m_b*logT - (m_E + m_ecov)*recipT + m_mcov);
+        return m_A * std::exp(m_acov + m_b*logT - (m_E + m_ecov)*recipT + m_mcov);
     }
 
     doublereal activationEnergy_R() const {
@@ -279,7 +279,7 @@ public:
         if (m_A  <= 0.0) {
             m_logA = -1.0E300;
         } else {
-            m_logA = log(m_A);
+            m_logA = std::log(m_A);
         }
     }
 
@@ -296,7 +296,7 @@ public:
         if (m_A  <= 0.0) {
             m_logA = -1.0E300;
         } else {
-            m_logA = log(m_A);
+            m_logA = std::log(m_A);
         }
     }
 
@@ -328,7 +328,7 @@ public:
      * factor.
      */
     doublereal updateRC(doublereal logT, doublereal recipT) const {
-        return m_A * exp(m_b*logT - m_E*recipT);
+        return m_A * std::exp(m_b*logT - m_E*recipT);
     }
 
     void writeUpdateRHS(std::ostream& s) const {
@@ -381,7 +381,7 @@ public:
         for (iter_t iter = rdata.plogParameters.begin();
              iter != rdata.plogParameters.end();
              iter++) {
-            double logp = log(iter->first);
+            double logp = std::log(iter->first);
             if (pressures_.empty() || pressures_.rbegin()->first != logp) {
                 // starting a new group
                 pressures_[logp] = std::make_pair(j, j+1);
@@ -405,7 +405,7 @@ public:
              iter != pressures_.end();
              iter++) {
             if (iter->second.first == iter->second.second - 1) {
-                A_[iter->second.first] = log(A_[iter->second.first]);
+                A_[iter->second.first] = std::log(A_[iter->second.first]);
             }
         }
 
@@ -475,9 +475,9 @@ public:
         } else {
             double k = 1e-300; // non-zero to make log(k) finite
             for (size_t m = 0; m < m1_; m++) {
-                k += A1_[m] * exp(n1_[m] * logT - Ea1_[m] * recipT);
+                k += A1_[m] * std::exp(n1_[m] * logT - Ea1_[m] * recipT);
             }
-            log_k1 = log(k);
+            log_k1 = std::log(k);
         }
 
         if (m2_ == 1) {
@@ -485,9 +485,9 @@ public:
         } else {
             double k = 1e-300; // non-zero to make log(k) finite
             for (size_t m = 0; m < m2_; m++) {
-                k += A2_[m] * exp(n2_[m] * logT - Ea2_[m] * recipT);
+                k += A2_[m] * std::exp(n2_[m] * logT - Ea2_[m] * recipT);
             }
-            log_k2 = log(k);
+            log_k2 = std::log(k);
         }
 
         return log_k1 + (log_k2 - log_k1) * (logP_ - logP1_) * rDeltaP_;
@@ -499,7 +499,7 @@ public:
      * This function returns the actual value of the rate constant.
      */
     doublereal updateRC(doublereal logT, doublereal recipT) const {
-        return exp(update(logT, recipT));
+        return std::exp(update(logT, recipT));
     }
 
     doublereal activationEnergy_R() const {
@@ -530,7 +530,7 @@ public:
                     throw CanteraError("Plog::validate",
                         "Invalid rate coefficient for reaction #" +
                         int2str(rdata.number) + ":\n" + rdata.equation + "\n" +
-                        "at P = " + fp2str(exp((++iter)->first)) +
+                        "at P = " + fp2str(std::exp((++iter)->first)) +
                         ", T = " + fp2str(T[i]));
                 }
             }
@@ -582,8 +582,8 @@ public:
         chebCoeffs_(rdata.chebCoeffs),
         dotProd_(rdata.chebDegreeT)
     {
-        double logPmin = log10(rdata.chebPmin);
-        double logPmax = log10(rdata.chebPmax);
+        double logPmin = std::log10(rdata.chebPmin);
+        double logPmax = std::log10(rdata.chebPmax);
         double TminInv = 1.0 / rdata.chebTmin;
         double TmaxInv = 1.0 / rdata.chebTmax;
 
@@ -639,7 +639,7 @@ public:
      * This function returns the actual value of the rate constant.
      */
     doublereal updateRC(doublereal logT, doublereal recipT) const {
-        return pow(10, update(logT, recipT));
+        return std::pow(10, update(logT, recipT));
     }
 
     doublereal activationEnergy_R() const {
