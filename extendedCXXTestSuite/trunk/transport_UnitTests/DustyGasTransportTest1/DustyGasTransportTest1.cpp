@@ -58,7 +58,11 @@ int main(int argc, char **argv)
     int log_level = 3;
 
 
-    ThermoPhase *g = newPhase(iFile, "ohmech");
+#ifdef CANTERA_HAS_TEMPLATES
+    thermo_t *g = newPhase<doublereal>(iFile, "ohmech");
+#else
+    thermo_t *g = newPhase(iFile, "ohmech");
+#endif
 
     double Temp = 500;
     Transport* tran = newTransportMgr("DustyGas", g, log_level);

@@ -22,7 +22,7 @@ int main() {
     gas.setState_TPX(1200.0, OneAtm, 
 		     "H2:2, O2:1, OH:0.01, H:0.01, O:0.01");
 
-    vector<ThermoPhase*> phases;
+    vector<thermo_t_double*> phases;
     phases.push_back(&gas);
     Interface surf("surface.xml", "surface", phases);
     vector_fp cov;
@@ -41,10 +41,10 @@ int main() {
 
 
     int nph = surf.nPhases();
-    std::vector<ThermoPhase *> thermoVec;
+    std::vector<thermo_t_double *> thermoVec;
     for (int iph = 0; iph < nph; iph++) {
-      ThermoPhase * tp_ph = & surf.thermo(iph);
-      ThermoPhase *tp2_ph = tp_ph->duplMyselfAsThermoPhase();
+      thermo_t_double * tp_ph = & surf.thermo(iph);
+      thermo_t_double *tp2_ph = tp_ph->duplMyselfAsThermoPhase();
       thermoVec.push_back(tp2_ph);  
     }
     
@@ -54,7 +54,7 @@ int main() {
     Cantera::InterfaceKinetics *surf2 = dynamic_cast<InterfaceKinetics *>(ksurf2);
     
     int isurf = surf2->surfacePhaseIndex();
-    ThermoPhase *tsurp = thermoVec[isurf];
+    thermo_t_double *tsurp = thermoVec[isurf];
     SurfPhase *surp = dynamic_cast<SurfPhase *>(tsurp);
 
     surp->setCoverages(DATA_PTR(cov));
@@ -68,10 +68,10 @@ int main() {
 	   << wdot[k+gas.nSpecies()] << endl;
     }
 
-    std::vector<ThermoPhase *> thermoVec3;
+    std::vector<thermo_t *> thermoVec3;
     for (int iph = 0; iph < nph; iph++) {
-      ThermoPhase * tp_ph = thermoVec[iph];
-      ThermoPhase *tp3_ph = tp_ph->duplMyselfAsThermoPhase();
+      thermo_t_double * tp_ph = thermoVec[iph];
+      thermo_t_double *tp3_ph = tp_ph->duplMyselfAsThermoPhase();
       thermoVec3.push_back(tp3_ph);  
     }
 

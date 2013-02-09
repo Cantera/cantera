@@ -34,7 +34,11 @@ protected:
         tpow_[5] = std::log(T);
     }
 
+#ifdef CANTERA_HAS_TEMPLATES
+    void testEquivalent(NasaPoly1<doublereal>& p, NasaPoly1<doublereal>& q) {
+#else
     void testEquivalent(NasaPoly1& p, NasaPoly1& q) {
+#endif
         EXPECT_EQ(poly.minTemp(), q.minTemp());
         EXPECT_EQ(poly.maxTemp(), q.maxTemp());
         EXPECT_EQ(poly.refPressure(), q.refPressure());
@@ -50,7 +54,11 @@ protected:
         EXPECT_DOUBLE_EQ(s_R1, s_R2);
     }
 
+#ifdef CANTERA_HAS_TEMPLATES
+    NasaPoly1<doublereal> poly;
+#else
     NasaPoly1 poly;
+#endif
     std::vector<double> tpow_;
 };
 
@@ -64,13 +72,21 @@ TEST_F(NasaPoly1Test, Initialization)
 
 TEST_F(NasaPoly1Test, Copy)
 {
+#ifdef CANTERA_HAS_TEMPLATES
+    NasaPoly1<doublereal> q(poly);
+#else
     NasaPoly1 q(poly);
+#endif
     testEquivalent(poly, q);
 }
 
 TEST_F(NasaPoly1Test, Assignment)
 {
+#ifdef CANTERA_HAS_TEMPLATES
+    NasaPoly1<doublereal> q;
+#else
     NasaPoly1 q;
+#endif
     q = poly;
     testEquivalent(poly, q);
 }

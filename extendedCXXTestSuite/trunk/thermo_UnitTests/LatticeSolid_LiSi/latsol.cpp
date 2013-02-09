@@ -50,14 +50,22 @@ int main(int argc, char **argv)
 
      string f_li7si3 = "Li7Si3_ls.xml";
      string id = "Li7Si3_and_Interstitials(S)";
+#ifdef CANTERA_HAS_TEMPLATES
+     Cantera::ThermoPhase<doublereal> *LiSi_solid = Cantera::newPhase<doublereal>(f_li7si3, id);
+#else
      Cantera::ThermoPhase *LiSi_solid = Cantera::newPhase(f_li7si3, id);
+#endif
 
      MargulesVPSSTP *salt = new MargulesVPSSTP(1);
 
      //int iKCl_l = salt->speciesIndex("KCl(L)");
      //int iLiCl_l = salt->speciesIndex("LiCl(L)");
 
+#ifdef CANTERA_HAS_TEMPLATES
+     ThermoPhase<doublereal> *Li_liq = newPhase<doublereal>("Li_Liquid.xml","Li(L)");
+#else
      ThermoPhase *Li_liq = newPhase("Li_Liquid.xml","Li(L)");
+#endif
 
      /*
       * set states

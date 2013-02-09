@@ -93,43 +93,77 @@ int main(int argc, char** argv) {
     if (!xg) {
       throw CanteraError("couldn't find file", "");
     }
+#ifdef CANTERA_HAS_TEMPLATES
+    ThermoPhase<doublereal> *surfTP = newPhase<doublereal>(*xg);
+    ThermoPhase<doublereal> *gasTP =  newPhase<doublereal>("gas.xml", "");
+#else
     ThermoPhase *surfTP = newPhase(*xg);
+    ThermoPhase *gasTP =  newPhase("gas.xml", "");
+#endif
 
   
-    ThermoPhase *gasTP =  newPhase("gas.xml", "");
     //IdealGasPhase *gasTP = new IdealGasPhase("gas.xml", "");
+
 
     string s_cao_s = "CaO_Solid.xml";
     id = "CaO(S)";
+#ifdef CANTERA_HAS_TEMPLATES
+    Cantera::ThermoPhase<doublereal> *cao_s = Cantera::newPhase<doublereal>(s_cao_s, id);
+#else
     Cantera::ThermoPhase *cao_s = Cantera::newPhase(s_cao_s, id);
+#endif
 
     string  s_caco3_s = "CaCO3_Solid.xml";
     id = "CaCO3(S)";
+#ifdef CANTERA_HAS_TEMPLATES
+    Cantera::ThermoPhase<doublereal> *caco3_s = Cantera::newPhase<doublereal>(s_caco3_s, id);
+#else
     Cantera::ThermoPhase *caco3_s = Cantera::newPhase(s_caco3_s, id);
+#endif
 
     string  s_c_s = "C_Solid.xml";
     id = "C(S)";
+#ifdef CANTERA_HAS_TEMPLATES
+    Cantera::ThermoPhase<doublereal> *c_s = Cantera::newPhase<doublereal>(s_c_s, id);
+#else
     Cantera::ThermoPhase *c_s = Cantera::newPhase(s_c_s, id);
+#endif
 
     string  s_fe3o4_s = "Fe3O4_Solid.xml";
     id = "Fe3O4(S)";
+#ifdef CANTERA_HAS_TEMPLATES
+    Cantera::ThermoPhase<doublereal> *fe3o4_s = Cantera::newPhase<doublereal>(s_fe3o4_s, id);
+#else
     Cantera::ThermoPhase *fe3o4_s = Cantera::newPhase(s_fe3o4_s, id);
+#endif
 
     string  s_feo_s = "FeO_Solid.xml";
     id = "FeO(S)";
+#ifdef CANTERA_HAS_TEMPLATES
+    Cantera::ThermoPhase<doublereal> *feo_s = Cantera::newPhase<doublereal>(s_feo_s, id);
+#else
     Cantera::ThermoPhase *feo_s = Cantera::newPhase(s_feo_s, id);
+#endif
 
 
     string  s_fe_s = "Fe_Solid.xml";
     id = "Fe(S)";
+#ifdef CANTERA_HAS_TEMPLATES
+    Cantera::ThermoPhase<doublereal> *fe_s = Cantera::newPhase<doublereal>(s_fe_s, id);
+#else
     Cantera::ThermoPhase *fe_s = Cantera::newPhase(s_fe_s, id);
+#endif
 
     //   string s_reactSurf = "ReactionSurf.xml";
     // id = "reaction_surface";
     //Cantera::ThermoPhase *surfTP = Cantera::newPhase(s_reactSurf, id);
 
 
-    vector<ThermoPhase *> phaseList;
+#ifdef CANTERA_HAS_TEMPLATES
+    vector<thermo_t *> phaseList;
+#else
+    vector<thermo_t *> phaseList;
+#endif
      
     phaseList.push_back(gasTP);
     phaseList.push_back(cao_s);
