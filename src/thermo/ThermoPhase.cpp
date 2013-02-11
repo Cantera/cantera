@@ -909,7 +909,7 @@ void ThermoPhase::saveSpeciesData(const size_t k, const XML_Node* const data)
 //====================================================================================================================
 // Return a pointer to the XML tree containing the species
 // data for this phase.
-const std::vector<const XML_Node*> & ThermoPhase::speciesData() const
+const std::vector<const XML_Node*>& ThermoPhase::speciesData() const
 {
     if (m_speciesData.size() != m_kk) {
         throw CanteraError("ThermoPhase::speciesData",
