@@ -6,7 +6,6 @@
  */
 
 //  Copyright 2001 California Institute of Technology
-
 #ifndef CT_IDEALGASPHASE_H
 #define CT_IDEALGASPHASE_H
 
@@ -17,7 +16,6 @@
 
 namespace Cantera
 {
-
 
 //!  Class %IdealGasPhase represents low-density gases that obey the
 //!  ideal gas equation of state.
@@ -284,19 +282,19 @@ namespace Cantera
  *   object named silane is given below.
  *
  * @verbatim
-   <!--     phase silane      -->
-   <phase dim="3" id="silane">
-      <elementArray datasrc="elements.xml"> Si  H  He </elementArray>
-      <speciesArray datasrc="#species_data">
-              H2  H  HE  SIH4  SI  SIH  SIH2  SIH3  H3SISIH  SI2H6
-                     H2SISIH2  SI3H8  SI2  SI3
-      </speciesArray>
-      <reactionArray datasrc="#reaction_data"/>
-      <thermo model="IdealGas"/>
-      <kinetics model="GasKinetics"/>
-      <transport model="None"/>
-    </phase>
-    @endverbatim
+ <!--     phase silane      -->
+ <phase dim="3" id="silane">
+ <elementArray datasrc="elements.xml"> Si  H  He </elementArray>
+ <speciesArray datasrc="#species_data">
+ H2  H  HE  SIH4  SI  SIH  SIH2  SIH3  H3SISIH  SI2H6
+ H2SISIH2  SI3H8  SI2  SI3
+ </speciesArray>
+ <reactionArray datasrc="#reaction_data"/>
+ <thermo model="IdealGas"/>
+ <kinetics model="GasKinetics"/>
+ <transport model="None"/>
+ </phase>
+ @endverbatim
  *
  *   The model attribute "IdealGas" of the thermo XML element identifies the phase as
  *   being of the type handled by the IdealGasPhase object.
@@ -304,13 +302,39 @@ namespace Cantera
  *    @ingroup thermoprops
  *
  */
-class IdealGasPhase : public ThermoPhase
+class IdealGasPhase: public ThermoPhase
 {
 
 public:
 
     //! Default empty Constructor
     IdealGasPhase();
+
+    //! Construct and initialize an IdealGasPhase ThermoPhase object
+    //! directly from an ASCII input file
+    /*!
+     *   Working constructors
+     *
+     *  The two constructors below are a direct way that
+     *  the phase can initialize itself. They are shells that call
+     *  the routine initThermo(), with a reference to the
+     *  XML database to get the info for the phase.
+     *
+     * @param inputFile Name of the input file containing the phase XML data
+     *                  to set up the object
+     * @param id        ID of the phase in the input file. Defaults to the
+     *                  empty string.
+     */
+    IdealGasPhase(const std::string& inputFile, const std::string& id = "");
+
+    //! Construct and initialize an IdealGasPhase ThermoPhase object
+    //! directly from an XML database
+    /*!
+     *  @param phaseRef XML phase node containing the description of the phase
+     *  @param id     id attribute containing the name of the phase.
+     *                (default is the empty string)
+     */
+    IdealGasPhase(XML_Node& phaseRef, const std::string& id = "");
 
     //! Copy Constructor
     /*!
@@ -323,7 +347,6 @@ public:
      */
     IdealGasPhase(const IdealGasPhase& right);
 
-
     //! Assignment operator
     /*!
      * Assignment operator for the object. Constructed
@@ -332,10 +355,10 @@ public:
      *
      * @param right Object to be copied.
      */
-    IdealGasPhase& operator=(const  IdealGasPhase& right);
+    IdealGasPhase& operator=(const IdealGasPhase& right);
 
     //! Destructor
-    virtual ~IdealGasPhase() {}
+    virtual ~IdealGasPhase();
 
     //! Duplicator from the %ThermoPhase parent class
     /*!
@@ -361,7 +384,6 @@ public:
      * @{
      */
 
-
     //! Return the Molar enthalpy. Units: J/kmol.
     /*!
      * For an ideal gas mixture,
@@ -376,8 +398,7 @@ public:
      * \see SpeciesThermo
      */
     virtual doublereal enthalpy_mole() const {
-        return GasConstant * temperature() *
-               mean_X(&enthalpy_RT_ref()[0]);
+        return GasConstant * temperature() * mean_X(&enthalpy_RT_ref()[0]);
     }
 
     /**
@@ -498,7 +519,6 @@ public:
         return GasConstant * molarDensity() * temperature();
     }
 
-
     //! Set the pressure at constant temperature and composition.
     /*!
      *  Units: Pa.
@@ -510,8 +530,7 @@ public:
      * @param p Pressure (Pa)
      */
     virtual void setPressure(doublereal p) {
-        setDensity(p * meanMolecularWeight()
-                   /(GasConstant * temperature()));
+        setDensity(p * meanMolecularWeight() / (GasConstant * temperature()));
     }
 
     //! Returns  the isothermal compressibility. Units: 1/Pa.
@@ -523,7 +542,7 @@ public:
      *  For ideal gases it's equal to the inverse of the pressure
      */
     virtual doublereal isothermalCompressibility() const {
-        return 1.0/pressure();
+        return 1.0 / pressure();
     }
 
     //! Return the volumetric thermal expansion coefficient. Units: 1/K.
@@ -535,7 +554,7 @@ public:
      * For ideal gases, it's equal to the inverse of the temperature.
      */
     virtual doublereal thermalExpansionCoeff() const {
-        return 1.0/temperature();
+        return 1.0 / temperature();
     }
 
     //@}
@@ -601,14 +620,14 @@ public:
      * @return
      *   Returns the standard Concentration in units of m3 kmol-1.
      */
-    virtual doublereal standardConcentration(size_t k=0) const;
+    virtual doublereal standardConcentration(size_t k = 0) const;
 
     //! Returns the natural logarithm of the standard
     //! concentration of the kth species
     /*!
      * @param k    index of the species. (defaults to zero)
      */
-    virtual doublereal logStandardConc(size_t k=0) const;
+    virtual doublereal logStandardConc(size_t k = 0) const;
 
     //! Get the array of non-dimensional activity coefficients at
     //! the current solution temperature, pressure, and solution concentration.
@@ -619,11 +638,9 @@ public:
      */
     virtual void getActivityCoefficients(doublereal* ac) const;
 
-
     //@}
     /// @name Partial Molar Properties of the Solution ----------------------------------
     //@{
-
 
     //! Get the species chemical potentials. Units: J/kmol.
     /*!
@@ -751,7 +768,6 @@ public:
     /// @name Thermodynamic Values for the Species Reference States ---------------------
     //@{
 
-
     //!  Returns the vector of nondimensional
     //!  enthalpies of the reference state at the current temperature
     //!  of the solution and the reference pressure for the species.
@@ -816,7 +832,7 @@ public:
      *               heat capacities at constant pressure for the species.
      *               Length: m_kk
      */
-    virtual void  getCp_R_ref(doublereal* cprt) const;
+    virtual void getCp_R_ref(doublereal* cprt) const;
 
     //!  Get the molar volumes of the species standard states at the current
     //!  <I>T</I> and <I>P_ref</I> of the solution.
@@ -921,27 +937,27 @@ protected:
     doublereal m_p0;
 
     //! last value of the temperature processed by reference state
-    mutable doublereal    m_tlast;
+    mutable doublereal m_tlast;
 
-    //! Temporary storage for log of p/rt
-    mutable doublereal    m_logc0;
+    //! Temporary storage for log of p/RT
+    mutable doublereal m_logc0;
 
     //! Temporary storage for dimensionless reference state enthalpies
-    mutable vector_fp      m_h0_RT;
+    mutable vector_fp m_h0_RT;
 
     //! Temporary storage for dimensionless reference state heat capacities
-    mutable vector_fp      m_cp0_R;
+    mutable vector_fp m_cp0_R;
 
     //! Temporary storage for dimensionless reference state gibbs energies
-    mutable vector_fp      m_g0_RT;
+    mutable vector_fp m_g0_RT;
 
     //! Temporary storage for dimensionless reference state entropies
-    mutable vector_fp      m_s0_R;
+    mutable vector_fp m_s0_R;
 
-    mutable vector_fp      m_expg0_RT;
+    mutable vector_fp m_expg0_RT;
 
     //! Temporary array containing internally calculated partial pressures
-    mutable vector_fp      m_pp;
+    mutable vector_fp m_pp;
 
 private:
 
