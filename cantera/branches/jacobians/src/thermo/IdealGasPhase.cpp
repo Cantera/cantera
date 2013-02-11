@@ -22,6 +22,29 @@ IdealGasPhase<ValAndDerivType>::IdealGasPhase() :
 {
 }
 
+template<typename ValAndDerivType>
+IdealGasPhase<ValAndDerivType>::IdealGasPhase(const std::string& inputFile, const std::string& id) :
+    m_p0(-1.0),
+    m_tlast(0.0),
+    m_logc0(0.0)
+{
+    this->initThermoFile(inputFile, id);
+}
+
+template<typename ValAndDerivType>
+IdealGasPhase<ValAndDerivType>::IdealGasPhase(XML_Node& phaseRef, const std::string& id) :
+    m_p0(-1.0),
+    m_tlast(0.0),
+    m_logc0(0.0)
+{
+    this->initThermoXML(phaseRef, id);
+}
+
+template<typename ValAndDerivType>
+IdealGasPhase<ValAndDerivType>::~IdealGasPhase()
+{
+}
+
 // Copy Constructor
 template<typename ValAndDerivType>
 IdealGasPhase<ValAndDerivType>::IdealGasPhase(const IdealGasPhase& right) :

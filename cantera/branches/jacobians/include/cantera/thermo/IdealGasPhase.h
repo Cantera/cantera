@@ -301,6 +301,7 @@ namespace Cantera {
  *    @ingroup thermoprops
  *
  */
+
 template<typename ValAndDerivType = double>
 class IdealGasPhase: public ThermoPhase<ValAndDerivType>
 {
@@ -312,6 +313,32 @@ public:
 
     //! Default empty Constructor
     IdealGasPhase();
+
+    //! Construct and initialize an IdealGasPhase ThermoPhase object
+    //! directly from an ASCII input file
+    /*!
+     *   Working constructors
+     *
+     *  The two constructors below are a direct way that
+     *  the phase can initialize itself. They are shells that call
+     *  the routine initThermo(), with a reference to the
+     *  XML database to get the info for the phase.
+     *
+     * @param inputFile Name of the input file containing the phase XML data
+     *                  to set up the object
+     * @param id        ID of the phase in the input file. Defaults to the
+     *                  empty string.
+     */
+    IdealGasPhase(const std::string& inputFile, const std::string& id = "");
+
+    //! Construct and initialize an IdealGasPhase ThermoPhase object
+    //! directly from an XML database
+    /*!
+     *  @param phaseRef XML phase node containing the description of the phase
+     *  @param id     id attribute containing the name of the phase.
+     *                (default is the empty string)
+     */
+    IdealGasPhase(XML_Node& phaseRef, const std::string& id = "");
 
     //! Copy Constructor
     /*!
@@ -335,9 +362,7 @@ public:
     IdealGasPhase& operator=(const IdealGasPhase& right);
 
     //! Destructor
-    virtual ~IdealGasPhase()
-    {
-    }
+    virtual ~IdealGasPhase();
 
     //! Duplicator from the %ThermoPhase parent class
     /*!
@@ -377,8 +402,8 @@ public:
      *
      * \see SpeciesThermo
      */
-    virtual ValAndDerivType enthalpy_mole() const
-    {
+
+    virtual ValAndDerivType enthalpy_mole() const {
         return GasConstant * this->temperature() * mean_X(&enthalpy_RT_ref()[0]);
     }
 
@@ -932,7 +957,7 @@ protected:
     //! last value of the temperature processed by reference state
     mutable doublereal m_tlast;
 
-    //! Temporary storage for log of p/rt
+    //! Temporary storage for log of p/RT
     mutable doublereal m_logc0;
 
     //! Temporary storage for dimensionless reference state enthalpies
