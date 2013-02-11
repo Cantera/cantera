@@ -96,7 +96,7 @@ int main(int argc, char** argv)
         Xmol[iH2OL] = 1.0;
         hmw.setState_TPX(T, pres, DATA_PTR(Xmol));
 
-        ThermoPhase* gas = newPhase("gas.xml", "");
+        thermo_t_double* gas = newPhase<doublereal>("gas.xml", "");
 
         kk = gas->nSpecies();
         Xmol.resize(kk, 0.0);

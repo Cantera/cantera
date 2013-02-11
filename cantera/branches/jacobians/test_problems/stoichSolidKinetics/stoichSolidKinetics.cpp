@@ -46,17 +46,17 @@ void testProblem()
     if (!xg) {
         throw CanteraError("couldn't find file", "");
     }
-    std::auto_ptr<ThermoPhase> surfTP(newPhase(*xg));
-    std::auto_ptr<ThermoPhase> gasTP(newPhase("gas.xml", ""));
+    std::auto_ptr<thermo_t_double> surfTP(newPhase<doublereal>(*xg));
+    std::auto_ptr<thermo_t_double> gasTP(newPhase<doublereal>("gas.xml", ""));
 
-    std::auto_ptr<ThermoPhase> cao_s(newPhase("solidPhases.xml", "CaO(S)"));
-    std::auto_ptr<ThermoPhase> caco3_s(newPhase("solidPhases.xml", "CaCO3(S)"));
-    std::auto_ptr<ThermoPhase> c_s(newPhase("solidPhases.xml", "C(S)"));
-    std::auto_ptr<ThermoPhase> fe3o4_s(newPhase("solidPhases.xml", "Fe3O4(S)"));
-    std::auto_ptr<ThermoPhase> feo_s(newPhase("solidPhases.xml", "FeO(S)"));
-    std::auto_ptr<ThermoPhase> fe_s(newPhase("solidPhases.xml", "Fe(S)"));
+    std::auto_ptr<thermo_t_double> cao_s(newPhase<doublereal>("solidPhases.xml", "CaO(S)"));
+    std::auto_ptr<thermo_t_double> caco3_s(newPhase<doublereal>("solidPhases.xml", "CaCO3(S)"));
+    std::auto_ptr<thermo_t_double> c_s(newPhase<doublereal>("solidPhases.xml", "C(S)"));
+    std::auto_ptr<thermo_t_double> fe3o4_s(newPhase<doublereal>("solidPhases.xml", "Fe3O4(S)"));
+    std::auto_ptr<thermo_t_double> feo_s(newPhase<doublereal>("solidPhases.xml", "FeO(S)"));
+    std::auto_ptr<thermo_t_double> fe_s(newPhase<doublereal>("solidPhases.xml", "Fe(S)"));
 
-    vector<ThermoPhase*> phaseList;
+    vector<thermo_t_double*> phaseList;
     phaseList.push_back(gasTP.get());
     phaseList.push_back(cao_s.get());
     phaseList.push_back(caco3_s.get());

@@ -40,7 +40,7 @@ static void printUsage()
 
 using namespace Cantera;
 
-void printGas(ostream& oooo, ThermoPhase* gasTP, InterfaceKinetics* iKin_ptr, double* src)
+void printGas(ostream& oooo, thermo_t_double* gasTP, InterfaceKinetics* iKin_ptr, double* src)
 {
     double x[MSSIZE];
     double C[MSSIZE];
@@ -76,7 +76,7 @@ void printGas(ostream& oooo, ThermoPhase* gasTP, InterfaceKinetics* iKin_ptr, do
 
 }
 
-void printBulk(ostream& oooo,ThermoPhase* bulkPhaseTP, InterfaceKinetics* iKin_ptr, double* src)
+void printBulk(ostream& oooo,thermo_t_double* bulkPhaseTP, InterfaceKinetics* iKin_ptr, double* src)
 {
     double x[MSSIZE];
     double C[MSSIZE];
@@ -122,7 +122,7 @@ void printBulk(ostream& oooo,ThermoPhase* bulkPhaseTP, InterfaceKinetics* iKin_p
     oooo << endl;
 }
 
-void printSurf(ostream& oooo, ThermoPhase* surfPhaseTP,
+void printSurf(ostream& oooo, thermo_t_double* surfPhaseTP,
                InterfaceKinetics* iKin_ptr, double* src)
 {
     double x[MSSIZE];
@@ -231,7 +231,7 @@ int main(int argc, char** argv)
                    gasPhaseName.c_str());
             exit(-1);
         }
-        ThermoPhase* gasTP = newPhase(*xg);
+        thermo_t_double* gasTP = newPhase<doublereal>(*xg);
         size_t nspGas = gasTP->nSpecies();
         cout << "Number of species = " << nspGas << endl;
 
@@ -242,7 +242,7 @@ int main(int argc, char** argv)
                    bulkParticlePhaseName.c_str());
             exit(-1);
         }
-        ThermoPhase* bulkPhaseTP = newPhase(*xd);
+        thermo_t_double* bulkPhaseTP = newPhase<doublereal>(*xd);
         size_t nspBulk = bulkPhaseTP->nSpecies();
         cout << "Number of species in bulk phase named " <<
              bulkParticlePhaseName << " = " << nspBulk << endl;
@@ -256,12 +256,12 @@ int main(int argc, char** argv)
                    surfParticlePhaseName.c_str());
             exit(-1);
         }
-        ThermoPhase* surfPhaseTP = newPhase(*xs);
+        thermo_t_double* surfPhaseTP = newPhase<doublereal>(*xs);
         size_t nsp_d100 = surfPhaseTP->nSpecies();
         cout << "Number of species in surface phase, " << surfParticlePhaseName
              << " = " << nsp_d100 << endl;
 
-        vector<ThermoPhase*> phaseList;
+        vector<thermo_t_double*> phaseList;
         phaseList.push_back(gasTP);
         phaseList.push_back(bulkPhaseTP);
         phaseList.push_back(surfPhaseTP);
@@ -278,13 +278,13 @@ int main(int argc, char** argv)
 
         // create a second copy of the same surface phase
         // (this is a made up problem btw to check the software capability)
-        ThermoPhase* surfPhaseTP2 = newPhase(*xs);
+        thermo_t_double* surfPhaseTP2 = newPhase<doublereal>(*xs);
         size_t nsp2 = surfPhaseTP2->nSpecies();
         string pname = surfPhaseTP2->id();
         cout << "Number of species in 2nd surface phase, " << pname
              << " = " << nsp2 << endl;
 
-        vector<ThermoPhase*> phaseList2;
+        vector<thermo_t_double*> phaseList2;
         phaseList2.push_back(gasTP);
         phaseList2.push_back(bulkPhaseTP);
         phaseList2.push_back(surfPhaseTP2);

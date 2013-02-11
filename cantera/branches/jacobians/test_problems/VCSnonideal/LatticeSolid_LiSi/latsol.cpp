@@ -15,7 +15,7 @@ void testProblem()
     VCSnonideal::vcs_timing_print_lvl = 0;
 
     // Create the phases
-    std::auto_ptr<ThermoPhase> LiSi_solid(newPhase("Li7Si3_ls.xml",
+    std::auto_ptr<thermo_t_double> LiSi_solid(newPhase<doublereal>("Li7Si3_ls.xml",
                                                    "Li7Si3_and_Interstitials(S)"));
     FixedChemPotSSTP LiFixed("Li", -2.3E7);
     MargulesVPSSTP salt(1);
