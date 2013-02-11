@@ -208,6 +208,7 @@ public:
      *   @param  k           Species k
      *   @param  Hf298New    Specify the new value of the Heat of Formation at 298K and 1 bar
      */
+
     virtual void modifyOneHf298SS(const size_t &k, const doublereal Hf298New)
     {
         (this->m_spthermo)->modifyOneHf298(k, Hf298New);

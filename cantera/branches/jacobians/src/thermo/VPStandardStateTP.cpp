@@ -228,7 +228,7 @@ void VPStandardStateTP::getEnthalpy_RT(doublereal* hrt) const
  *   @param  k           Species k
  *   @param  Hf298New    Specify the new value of the Heat of Formation at 298K and 1 bar
  */
-void VPStandardStateTP::modifyOneHf298SS(const size_t &k, const doublereal Hf298New)
+void VPStandardStateTP::modifyOneHf298SS(const size_t& k, const doublereal Hf298New)
 {
     m_spthermo->modifyOneHf298(k, Hf298New);
     m_Tlast_ss += 0.0001234;
@@ -272,7 +272,7 @@ void VPStandardStateTP::getStandardVolumes(doublereal* vol) const
     updateStandardStateThermo();
     m_VPSS_ptr->getStandardVolumes(vol);
 }
-const vector_fp & VPStandardStateTP::getStandardVolumes() const
+const vector_fp& VPStandardStateTP::getStandardVolumes() const
 {
     updateStandardStateThermo();
     return m_VPSS_ptr->getStandardVolumes();

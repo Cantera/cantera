@@ -343,7 +343,7 @@ void StFlow::_finalize(const doublereal* x)
  */
 
 void StFlow::eval(size_t jg, doublereal* xg,
-                        doublereal* rg, integer* diagg, doublereal rdt)
+                  doublereal* rg, integer* diagg, doublereal rdt)
 {
 
     // if evaluating a Jacobian, and the global point is outside
@@ -519,8 +519,7 @@ void StFlow::eval(size_t jg, doublereal* xg,
 
                 rsd[index(c_offset_T, j)] -= rdt*(T(x,j) - T_prev(j));
                 diag[index(c_offset_T, j)] = 1;
-            }
-            else {
+            } else {
                 // residual equations if the energy equation is disabled
                 rsd[index(c_offset_T, j)] = T(x,j) - T_fixed(j);
                 diag[index(c_offset_T, j)] = 0;
@@ -675,7 +674,7 @@ void StFlow::updateDiffFluxes(const doublereal* x, size_t j0, size_t j1)
     if (m_do_soret) {
         for (m = j0; m < j1; m++) {
             gradlogT = 2.0 * (T(x,m+1) - T(x,m)) /
-                ((T(x,m+1) + T(x,m)) * (z(m+1) - z(m)));
+                       ((T(x,m+1) + T(x,m)) * (z(m+1) - z(m)));
             for (k = 0; k < m_nsp; k++) {
                 m_flux(k,m) -= m_dthermal(k,m)*gradlogT;
             }
@@ -921,7 +920,7 @@ void StFlow::setJac(MultiJac* jac)
 }
 
 void AxiStagnFlow::evalRightBoundary(doublereal* x, doublereal* rsd,
-                                   integer* diag, doublereal rdt)
+                                     integer* diag, doublereal rdt)
 {
     size_t j = m_points - 1;
     // the boundary object connected to the right of this one may modify or
@@ -943,7 +942,7 @@ void AxiStagnFlow::evalRightBoundary(doublereal* x, doublereal* rsd,
 }
 
 void AxiStagnFlow::evalContinuity(size_t j, doublereal* x, doublereal* rsd,
-                                integer* diag, doublereal rdt)
+                                  integer* diag, doublereal rdt)
 {
     //----------------------------------------------
     //    Continuity equation
@@ -965,7 +964,7 @@ void AxiStagnFlow::evalContinuity(size_t j, doublereal* x, doublereal* rsd,
 }
 
 void FreeFlame::evalRightBoundary(doublereal* x, doublereal* rsd,
-                                   integer* diag, doublereal rdt)
+                                  integer* diag, doublereal rdt)
 {
     size_t j = m_points - 1;
 
@@ -990,7 +989,7 @@ void FreeFlame::evalRightBoundary(doublereal* x, doublereal* rsd,
 
 
 void FreeFlame::evalContinuity(size_t j, doublereal* x, doublereal* rsd,
-                                integer* diag, doublereal rdt)
+                               integer* diag, doublereal rdt)
 {
     //----------------------------------------------
     //    Continuity equation

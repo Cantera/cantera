@@ -46,6 +46,13 @@ public:
         m_init = false;
     }
 
+    //! Set the maximum number of error test failures permitted by the CVODES
+    //! integrator in a single time step.
+    void setMaxErrTestFails(int nmax) {
+        m_maxErrTestFails = nmax;
+        m_init = false;
+    }
+
     void setTolerances(doublereal rtol, doublereal atol) {
         if (rtol >= 0.0) {
             m_rtol = rtol;
@@ -189,6 +196,7 @@ protected:
     doublereal m_rtol, m_rtolsens;
     doublereal m_atols, m_atolsens;
     doublereal m_maxstep;
+    int m_maxErrTestFails;
     bool m_verbose;
     size_t m_ntotpar;
     std::vector<size_t> m_nparams;

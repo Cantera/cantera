@@ -100,11 +100,11 @@ public:
      *  These routines are basically wrappers around the derived copy
      *  constructor.
      */
-    virtual Transport *duplMyselfAsTransport() const;
+    virtual Transport* duplMyselfAsTransport() const;
 
-    //! Specifies the %ThermPhase object. 
+    //! Specifies the %ThermPhase object.
     /*!
-     *  We have relaxed this operation so that it will succeed when 
+     *  We have relaxed this operation so that it will succeed when
      *  the underlying old and new ThermoPhase objects have the same
      *  number of species and the same names of the species in the
      *  same order. The idea here is to allow copy constructors and duplicators

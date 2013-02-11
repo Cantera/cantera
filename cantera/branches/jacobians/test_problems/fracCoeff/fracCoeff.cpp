@@ -46,7 +46,7 @@ int main(int argc, char** argv)
         XML_Node* const xg = xc->findNameID("phase", "gas");
         thermo_t_double* gasTP = newPhase<doublereal>(*xg);
         size_t nsp = gasTP->nSpecies();
-	cout.precision(4);
+        cout.precision(4);
         cout << "Number of species = " << nsp << endl;
 
         vector<thermo_t_double*> phaseList;

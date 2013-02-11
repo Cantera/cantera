@@ -269,7 +269,7 @@ void addFloatArray(Cantera::XML_Node& node, const std::string& title, const size
 *   @param name          Name of the XML node
 *   @param n             Length of the doubles vector.
 *   @param values        Pointer to a vector of doubles
-*   @param unitsString   String name of the Units attribute. This is an optional 
+*   @param unitsString   String name of the Units attribute. This is an optional
 *                        parameter. The default is to
 *                        have an empty string.
 *   @param type          String type. This is an optional parameter. The default
@@ -284,22 +284,26 @@ void addFloatArray(Cantera::XML_Node& node, const std::string& title, const size
 *                        entry.
 *
 */
-void addNamedFloatArray(Cantera::XML_Node& node, const std::string &name, const int n,
-			const doublereal* const vals, const std::string units,
-			const std::string type, const doublereal minval,
-			const doublereal maxval) 
+void addNamedFloatArray(Cantera::XML_Node& node, const std::string& name, const int n,
+                        const doublereal* const vals, const std::string units,
+                        const std::string type, const doublereal minval,
+                        const doublereal maxval)
 {
     int i;
     std::string v = "";
     for (i = 0; i < n; i++) {
-	v += fp2str(vals[i],FP_Format);
-	if (i == n-1) v += "\n";
-	else if (i > 0 && (i+1) % 3 == 0) v += ",\n";
-	else v += ", ";
+        v += fp2str(vals[i],FP_Format);
+        if (i == n-1) {
+            v += "\n";
+        } else if (i > 0 && (i+1) % 3 == 0) {
+            v += ",\n";
+        } else {
+            v += ", ";
+        }
     }
     XML_Node& f = node.addChild(name, v);
     if (type != "") {
-	f.addAttribute("type",type);
+        f.addAttribute("type",type);
     }
     /*
      *  Add vtype, which indicates the type of the value. Here we specify it as a list of floats separated
@@ -308,9 +312,15 @@ void addNamedFloatArray(Cantera::XML_Node& node, const std::string &name, const 
     f.addAttribute("vtype", "floatArray");
 
     f.addAttribute("size", n);
-    if (units != "") f.addAttribute("units", units);
-    if (minval != Undef) f.addAttribute("min", minval);
-    if (maxval != Undef) f.addAttribute("max", maxval);
+    if (units != "") {
+        f.addAttribute("units", units);
+    }
+    if (minval != Undef) {
+        f.addAttribute("min", minval);
+    }
+    if (maxval != Undef) {
+        f.addAttribute("max", maxval);
+    }
 }
 
 //====================================================================================================================
@@ -401,62 +411,63 @@ std::string getChildValue(const Cantera::XML_Node& parent, const std::string& na
     return parent(nameString);
 }
 
-  //====================================================================================================================
-  //  This function reads a child node with the name, "string", with a specific
-  //  title attribute named "titleString"
-  /* 
-   *   This function will read a child node to the current XML node, with the
-   *   name "string". It must have a title attribute, named titleString, and the body
-   *   of the XML node will be read into the valueString output argument.
-   *
-   *  Example:  
-   *
-   * Code snipet:
-   *       @verbatum
-   const XML_Node &node;
-   getString(XML_Node& node, std::string titleString, std::string valueString, 
-   std::string typeString);
-   @endverbatum
-   *
-   *  Reads the following the snippet in the XML file:
-   *  @verbatum
-   <string title="titleString" type="typeString">
-     valueString
-   <\string>
-   @endverbatum
-   *
-   *   @param node          Reference to the XML_Node object of the parent XML element
-   *   @param titleString   String name of the title attribute of the child node
-   *   @param valueString   Value string that is found in the child node. output variable
-   *   @param typeString    String type. This is an optional output variable. It is filled
-   *                        with the attribute "type" of the XML entry.
-   */
-  void getString(const Cantera::XML_Node& node, const std::string &titleString, std::string& valueString,
-                 std::string& typeString) {
+//====================================================================================================================
+//  This function reads a child node with the name, "string", with a specific
+//  title attribute named "titleString"
+/*
+ *   This function will read a child node to the current XML node, with the
+ *   name "string". It must have a title attribute, named titleString, and the body
+ *   of the XML node will be read into the valueString output argument.
+ *
+ *  Example:
+ *
+ * Code snipet:
+ *       @verbatum
+ const XML_Node &node;
+ getString(XML_Node& node, std::string titleString, std::string valueString,
+ std::string typeString);
+ @endverbatum
+ *
+ *  Reads the following the snippet in the XML file:
+ *  @verbatum
+ <string title="titleString" type="typeString">
+   valueString
+ <\string>
+ @endverbatum
+ *
+ *   @param node          Reference to the XML_Node object of the parent XML element
+ *   @param titleString   String name of the title attribute of the child node
+ *   @param valueString   Value string that is found in the child node. output variable
+ *   @param typeString    String type. This is an optional output variable. It is filled
+ *                        with the attribute "type" of the XML entry.
+ */
+void getString(const Cantera::XML_Node& node, const std::string& titleString, std::string& valueString,
+               std::string& typeString)
+{
     valueString = "";
     typeString = "";
     XML_Node* s = getByTitle(node, titleString);
     if (s)
-      if (s->name() == "string") {
-        valueString = (*s).value();
-        typeString = (*s)["type"];
-        return;
-      }
-  }
+        if (s->name() == "string") {
+            valueString = (*s).value();
+            typeString = (*s)["type"];
+            return;
+        }
+}
 
 
 //=======================================================================================================================
 
 //  This function attempts to read a named child node and returns with the contents in the value string.
 //  title attribute named "titleString"
-/* 
+/*
  *   This function will read a child node to the current XML node, with the
  *   name "string". It must have a title attribute, named titleString, and the body
  *   of the XML node will be read into the valueString output argument.
  *
  *   If the child node is not found then the empty string is returned.
  *
- *  Example:  
+ *  Example:
  *
  * Code snipet:
  *       @verbatum
@@ -489,24 +500,24 @@ std::string getChildValue(const Cantera::XML_Node& parent, const std::string& na
  *   @param typeString    String type. This is an optional output variable. It is filled
  *                        with the attribute "type" of the XML entry.         output variable
  */
-void getNamedStringValue(const Cantera::XML_Node& node, const std::string &nameString, std::string& valueString,
-			 std::string& typeString)
+void getNamedStringValue(const Cantera::XML_Node& node, const std::string& nameString, std::string& valueString,
+                         std::string& typeString)
 {
     valueString = "";
     typeString = "";
     if (node.hasChild(nameString)) {
-	XML_Node &xc = node.child(nameString);
-	valueString = xc.value();
-	typeString = xc["type"];
+        XML_Node& xc = node.child(nameString);
+        valueString = xc.value();
+        typeString = xc["type"];
     } else {
-	XML_Node* s = getByTitle(node, nameString);
-	if (s) {
-	    if (s->name() == "string") {
-		valueString = (*s).value();
-		typeString = (*s)["type"];
-		return;
-	    }
-	}
+        XML_Node* s = getByTitle(node, nameString);
+        if (s) {
+            if (s->name() == "string") {
+                valueString = (*s).value();
+                typeString = (*s)["type"];
+                return;
+            }
+        }
     }
 }
 //====================================================================================================================
@@ -1111,17 +1122,18 @@ size_t getFloatArray(const Cantera::XML_Node& node, std::vector<doublereal> & v,
     return v.size();
 }
 
- //====================================================================================================================
-  int  getNamedFloatArray(const Cantera::XML_Node& parentNode, const std::string & nodeName, std::vector<doublereal> & v,
-                          const bool convert, const std::string unitsString) {
+//====================================================================================================================
+int  getNamedFloatArray(const Cantera::XML_Node& parentNode, const std::string& nodeName, std::vector<doublereal> & v,
+                        const bool convert, const std::string unitsString)
+{
     std::string::size_type icom;
     std::string numstr;
     doublereal dtmp;
     std::string nn = parentNode.name();
     v.clear();
-    const Cantera::XML_Node *readNode = parentNode.findByName(nodeName);
+    const Cantera::XML_Node* readNode = parentNode.findByName(nodeName);
     if (!readNode) {
-      return 0;
+        return 0;
     }
 
     doublereal vmin = Undef;
@@ -1132,17 +1144,19 @@ size_t getFloatArray(const Cantera::XML_Node& node, std::vector<doublereal> & v,
      */
     std::string units = (*readNode)["units"];
     if (units != "" && convert) {
-      if (unitsString == "actEnergy" && units != "") {
-        funit = actEnergyToSI(units);
-      } else if (unitsString != "" && units != "") {
-        funit = toSI(units);
-      }
+        if (unitsString == "actEnergy" && units != "") {
+            funit = actEnergyToSI(units);
+        } else if (unitsString != "" && units != "") {
+            funit = toSI(units);
+        }
     }
 
-    if ((*readNode)["min"] != "")
-      vmin = atofCheck((*readNode)["min"].c_str());
-    if ((*readNode)["max"] != "")
-      vmax = atofCheck((*readNode)["max"].c_str());
+    if ((*readNode)["min"] != "") {
+        vmin = atofCheck((*readNode)["min"].c_str());
+    }
+    if ((*readNode)["max"] != "") {
+        vmax = atofCheck((*readNode)["max"].c_str());
+    }
 
     int expectedSize = 0;
     nn = (*readNode)["size"];
@@ -1150,58 +1164,57 @@ size_t getFloatArray(const Cantera::XML_Node& node, std::vector<doublereal> & v,
 
     nn = (*readNode)["vtype"];
     if (nn != "floatArray") {
-      throw CanteraError("getNamedFloatArray",
-                         "node named " + nodeName + "didn't have correct vtype");
+        throw CanteraError("getNamedFloatArray",
+                           "node named " + nodeName + "didn't have correct vtype");
     }
 
 
- doublereal vv;
+    doublereal vv;
     std::string val = readNode->value();
     while (1 > 0) {
-      icom = val.find(',');
-      if (icom != string::npos) {
-        numstr = val.substr(0,icom);
-        val = val.substr(icom+1,val.size());
-        dtmp = atofCheck(numstr.c_str());
-        v.push_back(dtmp);
-      }
-      else {
-        /*
-         * This little bit of code is to allow for the
-         * possibility of a comma being the last 
-         * item in the value text. This was allowed in
-         * previous versions of Cantera, even though it
-         * would appear to be odd. So, we keep the
-         * possibilty in for backwards compatibility.
-         */
-        int nlen = strlen(val.c_str());
-        if (nlen > 0) {
-          dtmp = atofCheck(val.c_str());
-          v.push_back(dtmp);
+        icom = val.find(',');
+        if (icom != string::npos) {
+            numstr = val.substr(0,icom);
+            val = val.substr(icom+1,val.size());
+            dtmp = atofCheck(numstr.c_str());
+            v.push_back(dtmp);
+        } else {
+            /*
+             * This little bit of code is to allow for the
+             * possibility of a comma being the last
+             * item in the value text. This was allowed in
+             * previous versions of Cantera, even though it
+             * would appear to be odd. So, we keep the
+             * possibilty in for backwards compatibility.
+             */
+            int nlen = strlen(val.c_str());
+            if (nlen > 0) {
+                dtmp = atofCheck(val.c_str());
+                v.push_back(dtmp);
+            }
+            break;
         }
-        break;
-      }
-      vv = v.back();
-      if (vmin != Undef && vv < vmin - Tiny) {
-        writelog("\nWarning: value "+fp2str(vv)+
-                 " is below lower limit of " +fp2str(vmin)+".\n");
-      }
-      if (vmax != Undef && vv > vmax + Tiny) {
-        writelog("\nWarning: value "+fp2str(vv)+
-                 " is above upper limit of " +fp2str(vmin)+".\n");
-      }
+        vv = v.back();
+        if (vmin != Undef && vv < vmin - Tiny) {
+            writelog("\nWarning: value "+fp2str(vv)+
+                     " is below lower limit of " +fp2str(vmin)+".\n");
+        }
+        if (vmax != Undef && vv > vmax + Tiny) {
+            writelog("\nWarning: value "+fp2str(vv)+
+                     " is above upper limit of " +fp2str(vmin)+".\n");
+        }
     }
     int nv = v.size();
     for (int n = 0; n < nv; n++) {
-      v[n] *= funit;
+        v[n] *= funit;
     }
     if (nv != expectedSize) {
-      throw CanteraError("getNamedFloatArray",
-                         "node named " + nodeName + "didn't have correct number of floats"
-                         + int2str(expectedSize) + " vs " + int2str(nv));
+        throw CanteraError("getNamedFloatArray",
+                           "node named " + nodeName + "didn't have correct number of floats"
+                           + int2str(expectedSize) + " vs " + int2str(nv));
     }
     return nv;
-  }
+}
 //====================================================================================================================
 // This routine is used to interpret the value portions of XML
 // elements that contain colon separated pairs.

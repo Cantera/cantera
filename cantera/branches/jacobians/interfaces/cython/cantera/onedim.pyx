@@ -669,6 +669,17 @@ cdef class Sim1D:
         idom = self.domain_index(domain)
         self.sim.setRefineCriteria(idom, ratio, slope, curve, prune)
 
+    def set_grid_min(self, dz, domain=None):
+        """
+        Set the minimum grid spacing on *domain*. If *domain* is None, then
+        set the grid spacing for all domains.
+        """
+        if domain is None:
+            idom = -1
+        else:
+            idom = self.domain_index(domain)
+        self.sim.setGridMin(idom, dz)
+
     def set_max_jac_age(self, ss_age, ts_age):
         """
         Set the maximum number of times the Jacobian will be used before it
@@ -707,8 +718,14 @@ cdef class Sim1D:
              loglevel=1):
         """
         Save the solution in XML format.
+        :param filename:
+            solution file
+        :param name:
+            solution name within the file
+        :param description:
+            custom description text
 
-        >>> s.save(file='save.xml', name='energy_off',
+        >>> s.save(filename='save.xml', name='energy_off',
         ...        description='solution with energy eqn. disabled')
 
         """
@@ -821,6 +838,14 @@ class FlameBase(Sim1D):
         Array containing the tangential velocity gradient [1/s] at each point.
         """
         return self.profile(self.flame, 'V')
+
+    @property
+    def L(self):
+        """
+        Array containing the radial pressure gradient (1/r)(dP/dr) [N/m^4] at
+        each point. Note: This value is named 'lambda' in the C++ code.
+        """
+        return self.profile(self.flame, 'lambda')
 
     def solution(self, component, point=None):
         if point is None:
@@ -1175,11 +1200,11 @@ class ImpingingJet(FlameBase):
 
         if surface is None:
             self.surface = Surface1D(name='surface')
+            self.surface.T = gas.T
         else:
             self.surface = ReactingSurface1D(name='surface')
             self.surface.set_kinetics(surface)
-
-        self.surface.T = surface.T
+            self.surface.T = surface.T
 
         super().__init__((self.inlet, self.flame, self.surface),
                          gas, grid)

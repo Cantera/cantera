@@ -366,7 +366,7 @@ void Phase<ValAndDerivType>::setMoleFractions(const doublereal* const x)
      * Set m_ym_ to the normalized mole fractions divided by the normalized mean molecular weight:
      *         m_ym_k = X_k / (sum_k X_k M_k)
      */
-//    transform(m_y.begin(), m_y.end(), m_ym.begin(), timesConstant<double>(1.0/sum));
+    // transform(m_y.begin(), m_y.end(), m_ym.begin(), timesConstant<double>(1.0/sum));
     const doublereal invSum = 1.0 / sum;
     for (size_t k = 0; k < m_kk; k++) {
         m_ym[k] = m_y[k] * invSum;

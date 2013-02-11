@@ -79,7 +79,7 @@ bool VCS_SOLVE::vcs_elabcheck(int ibound)
                  * This logic is for charge neutrality condition
                  */
                 if (m_elType[i] == VCS_ELEM_TYPE_CHARGENEUTRALITY &&
-                    m_elemAbundancesGoal[i] != 0.0) {
+                        m_elemAbundancesGoal[i] != 0.0) {
                     throw Cantera::CanteraError("VCS_SOLVE::vcs_elabcheck",
                                                 "Problem with charge neutrality condition");
                 }

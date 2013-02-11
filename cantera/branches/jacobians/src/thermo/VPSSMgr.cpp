@@ -218,7 +218,7 @@ void VPSSMgr::getStandardVolumes(doublereal* vol) const
         err("getStandardVolumes");
     }
 }
-const vector_fp &
+const vector_fp&
 VPSSMgr::getStandardVolumes() const
 {
     if (m_useTmpStandardStateStorage) {

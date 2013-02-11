@@ -144,7 +144,7 @@ public:
      *  @param    b     input      DenseMatrix B of size NxN
      *  @param    prod  output     output DenseMatrix prod size NxN
      */
-    virtual void mult(const DenseMatrix &b, DenseMatrix &prod) const;
+    virtual void mult(const DenseMatrix& b, DenseMatrix& prod) const;
 
     //! Left-multiply the matrix by transpose(b), and write the result to prod.
     /*!

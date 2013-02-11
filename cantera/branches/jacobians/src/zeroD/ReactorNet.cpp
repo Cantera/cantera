@@ -14,7 +14,7 @@ ReactorNet::ReactorNet() : Cantera::FuncEval(), m_nr(0), m_nreactors(0),
     m_integ(0), m_time(0.0), m_init(false),
     m_nv(0), m_rtol(1.0e-9), m_rtolsens(1.0e-4),
     m_atols(1.0e-15), m_atolsens(1.0e-4),
-    m_maxstep(-1.0),
+    m_maxstep(-1.0), m_maxErrTestFails(0),
     m_verbose(false), m_ntotpar(0)
 {
 #ifdef DEBUG_MODE
@@ -67,8 +67,8 @@ void ReactorNet::initialize()
             for (size_t i = 0; i < sens_objs.size(); i++) {
                 std::map<size_t, size_t>& s = m_sensOrder[sens_objs[i]];
                 for (std::map<size_t, size_t>::iterator iter = s.begin();
-                     iter != s.end();
-                     ++iter) {
+                        iter != s.end();
+                        ++iter) {
                     m_sensIndex.resize(std::max(iter->second + 1, m_sensIndex.size()));
                     m_sensIndex[iter->second] = sensParamNumber++;
                 }
@@ -133,6 +133,7 @@ void ReactorNet::initialize()
     m_integ->setTolerances(m_rtol, neq(), DATA_PTR(m_atol));
     m_integ->setSensitivityTolerances(m_rtolsens, m_atolsens);
     m_integ->setMaxStepSize(m_maxstep);
+    m_integ->setMaxErrTestFails(m_maxErrTestFails);
     if (m_verbose) {
         sprintf(buf, "Number of equations: %s\n", int2str(neq()).c_str());
         writelog(buf);
@@ -287,9 +288,9 @@ void ReactorNet::registerSensitivityReaction(void* reactor,
 {
     std::pair<void*, int> R = std::make_pair(reactor, leftright);
     if (m_sensOrder.count(R) &&
-        m_sensOrder[R].count(reactionIndex)) {
-            throw CanteraError("ReactorNet::registerSensitivityReaction",
-                               "Attempted to register duplicate sensitivity reaction");
+            m_sensOrder[R].count(reactionIndex)) {
+        throw CanteraError("ReactorNet::registerSensitivityReaction",
+                           "Attempted to register duplicate sensitivity reaction");
     }
     m_paramNames.push_back(name);
     m_sensOrder[R][reactionIndex] = m_ntotpar;

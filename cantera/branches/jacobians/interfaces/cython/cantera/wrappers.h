@@ -5,12 +5,12 @@
 // Wrappers for preprocessor defines
 std::string get_cantera_version()
 {
-	return std::string(CANTERA_VERSION);
+    return std::string(CANTERA_VERSION);
 }
 
 int get_sundials_version()
 {
-	return SUNDIALS_VERSION;
+    return SUNDIALS_VERSION;
 }
 
 // Function which populates a 1D array

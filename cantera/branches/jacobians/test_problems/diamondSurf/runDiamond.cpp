@@ -37,7 +37,7 @@ int main(int argc, char** argv)
 #endif
     if (argc != 2) {
         cout << "Error: no input file specified.\n"
-            "Choose either 'diamond.cti' or 'diamond_blessed.xml" << endl;
+             "Choose either 'diamond.cti' or 'diamond_blessed.xml" << endl;
         exit(-1);
     }
     std::string infile(argv[1]);
@@ -51,7 +51,7 @@ int main(int argc, char** argv)
         XML_Node* const xg = xc->findNameID("phase", "gas");
         thermo_t_double* gasTP = newPhase<doublereal>(*xg);
         size_t nsp = gasTP->nSpecies();
-	    cout.precision(4);
+        cout.precision(4);
         cout << "Number of species = " << nsp << endl;
 
         XML_Node* const xd = xc->findNameID("phase", "diamond");

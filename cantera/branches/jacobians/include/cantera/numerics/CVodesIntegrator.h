@@ -6,12 +6,12 @@
 #ifndef CT_CVODESWRAPPER_H
 #define CT_CVODESWRAPPER_H
 
-#ifdef HAS_SUNDIALS
-
 #include "cantera/numerics/Integrator.h"
 #include "cantera/numerics/FuncEval.h"
 #include "cantera/base/ctexceptions.h"
 #include "cantera/base/ct_defs.h"
+
+#ifdef HAS_SUNDIALS
 
 #if SUNDIALS_VERSION == 22
 #include "nvector_serial.h"
@@ -70,6 +70,7 @@ public:
     virtual void setMaxStepSize(double hmax);
     virtual void setMinStepSize(double hmin);
     virtual void setMaxSteps(int nmax);
+    virtual void setMaxErrTestFails(int n);
     virtual void setBandwidth(int N_Upper, int N_Lower) {
         m_mupper = N_Upper;
         m_mlower = N_Lower;
@@ -84,6 +85,12 @@ public:
     //! This information can be used to identify which variables are
     //! responsible for integrator failures or unexpected small timesteps.
     virtual std::string getErrorInfo(int N);
+
+protected:
+
+    //! Applies user-specified options to the underlying CVODES solver. Called
+    //! during integrator initialization or reinitialization.
+    void applyOptions();
 
 private:
 
@@ -105,6 +112,7 @@ private:
     size_t m_nabs;
     double m_hmax, m_hmin;
     int m_maxsteps;
+    int m_maxErrTestFails;
     FuncData* m_fdata;
     N_Vector*  m_yS;
     size_t m_np;

@@ -269,7 +269,7 @@ public:
      *            units =  m^3 / kmol
      */
     virtual void getStandardVolumes(doublereal* vol) const;
-    virtual const vector_fp & getStandardVolumes() const;
+    virtual const vector_fp& getStandardVolumes() const;
 
 
     //! Set the temperature of the phase
@@ -427,7 +427,7 @@ public:
      *   @param  Hf298New    Specify the new value of the Heat of Formation at 298K and 1 bar.
      *                       units = J/kmol.
      */
-    void modifyOneHf298SS(const size_t &k, const doublereal Hf298New);
+    void modifyOneHf298SS(const size_t& k, const doublereal Hf298New);
 #endif
 
     //!  Returns the vector of nondimensional

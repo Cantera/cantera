@@ -320,7 +320,7 @@ void Reactor::addSensitivityReaction(size_t rxn)
                            "Reaction number out of range ("+int2str(rxn)+")");
 
     network().registerSensitivityReaction(this, rxn,
-            name()+": "+m_kin->reactionString(rxn));
+                                          name()+": "+m_kin->reactionString(rxn));
     m_pnum.push_back(rxn);
     m_mult_save.push_back(1.0);
 }

@@ -127,7 +127,9 @@ CVodesIntegrator::CVodesIntegrator() :
     m_abstolsens(1.0e-4),
     m_nabs(0),
     m_hmax(0.0),
+    m_hmin(0.0),
     m_maxsteps(20000),
+    m_maxErrTestFails(0),
     m_fdata(0),
     m_np(0),
     m_mupper(0), m_mlower(0),
@@ -235,6 +237,14 @@ void CVodesIntegrator::setMaxSteps(int nmax)
     m_maxsteps = nmax;
     if (m_cvode_mem) {
         CVodeSetMaxNumSteps(m_cvode_mem, m_maxsteps);
+    }
+}
+
+void CVodesIntegrator::setMaxErrTestFails(int n)
+{
+    m_maxErrTestFails = n;
+    if (m_cvode_mem) {
+        CVodeSetMaxErrTestFails(m_cvode_mem, n);
     }
 }
 
@@ -374,22 +384,6 @@ void CVodesIntegrator::initialize(double t0, FuncEval& func)
     }
 #endif
 
-    if (m_type == DENSE + NOJAC) {
-        long int N = m_neq;
-        CVDense(m_cvode_mem, N);
-    } else if (m_type == DIAG) {
-        CVDiag(m_cvode_mem);
-    } else if (m_type == GMRES) {
-        CVSpgmr(m_cvode_mem, PREC_NONE, 0);
-    } else if (m_type == BAND + NOJAC) {
-        long int N = m_neq;
-        long int nu = m_mupper;
-        long int nl = m_mlower;
-        CVBand(m_cvode_mem, N, nu, nl);
-    } else {
-        throw CVodesErr("unsupported option");
-    }
-
     // pass a pointer to func in m_data
     delete m_fdata;
     m_fdata = new FuncData(&func, func.nparams());
@@ -411,17 +405,7 @@ void CVodesIntegrator::initialize(double t0, FuncEval& func)
         flag = CVodeSetSensParams(m_cvode_mem, DATA_PTR(m_fdata->m_pars),
                                   NULL, NULL);
     }
-
-    // set options
-    if (m_maxord > 0) {
-        flag = CVodeSetMaxOrd(m_cvode_mem, m_maxord);
-    }
-    if (m_maxsteps > 0) {
-        flag = CVodeSetMaxNumSteps(m_cvode_mem, m_maxsteps);
-    }
-    if (m_hmax > 0) {
-        flag = CVodeSetMaxStep(m_cvode_mem, m_hmax);
-    }
+    applyOptions();
 }
 
 
@@ -459,24 +443,27 @@ void CVodesIntegrator::reinitialize(double t0, FuncEval& func)
     }
 #endif
 
+    applyOptions();
+}
+
+void CVodesIntegrator::applyOptions()
+{
     if (m_type == DENSE + NOJAC) {
         long int N = m_neq;
         CVDense(m_cvode_mem, N);
     } else if (m_type == DIAG) {
         CVDiag(m_cvode_mem);
+    } else if (m_type == GMRES) {
+        CVSpgmr(m_cvode_mem, PREC_NONE, 0);
     } else if (m_type == BAND + NOJAC) {
         long int N = m_neq;
         long int nu = m_mupper;
         long int nl = m_mlower;
         CVBand(m_cvode_mem, N, nu, nl);
-    } else if (m_type == GMRES) {
-        CVSpgmr(m_cvode_mem, PREC_NONE, 0);
     } else {
         throw CVodesErr("unsupported option");
     }
 
-
-    // set options
     if (m_maxord > 0) {
         CVodeSetMaxOrd(m_cvode_mem, m_maxord);
     }
@@ -485,6 +472,12 @@ void CVodesIntegrator::reinitialize(double t0, FuncEval& func)
     }
     if (m_hmax > 0) {
         CVodeSetMaxStep(m_cvode_mem, m_hmax);
+    }
+    if (m_hmin > 0) {
+        CVodeSetMinStep(m_cvode_mem, m_hmin);
+    }
+    if (m_maxErrTestFails > 0) {
+        CVodeSetMaxErrTestFails(m_cvode_mem, m_maxErrTestFails);
     }
 }
 
@@ -541,7 +534,8 @@ double CVodesIntegrator::sensitivity(size_t k, size_t p)
     return NV_Ith_S(m_yS[p],k);
 }
 
-string CVodesIntegrator::getErrorInfo(int N) {
+string CVodesIntegrator::getErrorInfo(int N)
+{
     N_Vector errs = N_VNew_Serial(m_neq);
     N_Vector errw = N_VNew_Serial(m_neq);
     CVodeGetErrWeights(m_cvode_mem, errw);

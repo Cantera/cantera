@@ -53,7 +53,7 @@ MolarityIonicVPSSTP::MolarityIonicVPSSTP() :
  *  XML database to get the info for the phase.
  */
 MolarityIonicVPSSTP::MolarityIonicVPSSTP(const std::string& inputFile,
-                                         const std::string& id) :
+        const std::string& id) :
     GibbsExcessVPSSTP(),
     PBType_(PBTYPE_PASSTHROUGH),
     numPBSpecies_(m_kk),
@@ -67,7 +67,7 @@ MolarityIonicVPSSTP::MolarityIonicVPSSTP(const std::string& inputFile,
 }
 //====================================================================================================================
 MolarityIonicVPSSTP::MolarityIonicVPSSTP(XML_Node& phaseRoot,
-                                         const std::string& id) :
+        const std::string& id) :
     GibbsExcessVPSSTP(),
     PBType_(PBTYPE_PASSTHROUGH),
     numPBSpecies_(m_kk),

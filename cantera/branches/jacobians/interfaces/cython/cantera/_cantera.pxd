@@ -146,6 +146,7 @@ cdef extern from "cantera/kinetics/Kinetics.h" namespace "Cantera":
         int nReactions()
         int nPhases()
         int reactionPhaseIndex()
+        int phaseIndex(string)
         int kineticsSpeciesIndex(int, int)
 
         CxxThermoPhase& thermo(int)
@@ -321,6 +322,7 @@ cdef extern from "cantera/zeroD/ReactorNet.h":
         double rtol()
         double atol()
         void setMaxTimeStep(double)
+        void setMaxErrTestFails(int)
         cbool verbose()
         void setVerbose(cbool)
         size_t neq()
@@ -448,6 +450,7 @@ cdef extern from "cantera/oneD/Sim1D.h":
         void setTimeStepFactor(double)
         void setMinTimeStep(double)
         void setMaxTimeStep(double)
+        void setGridMin(int, double) except +
         void setFixedTemperature(double)
 
 

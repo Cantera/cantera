@@ -83,7 +83,6 @@ Transport* MixTransport::duplMyselfAsTransport() const
 bool MixTransport::initGas(GasTransportParams& tr)
 {
     GasTransport::initGas(tr);
- 
 
     m_eps = tr.eps;
     m_sigma = tr.sigma;

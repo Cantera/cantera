@@ -15,59 +15,61 @@ using namespace std;
 #ifndef SAFE_DELETE
 #define SAFE_DELETE(x)  if (x) { delete (x); x = 0; }
 #endif
-namespace Cantera {
+namespace Cantera
+{
 
-  //====================================================================================================================
-  SolidTransportData::SolidTransportData() :
-    speciesName("-"),   
+//====================================================================================================================
+SolidTransportData::SolidTransportData() :
+    speciesName("-"),
     ionConductivity(0),
     thermalConductivity(0),
     electConductivity(0),
     defectDiffusivity(0),
     defectActivity(0)
-  {
+{
 
-  }
-  //====================================================================================================================
-  // Copy constructor
-  SolidTransportData::SolidTransportData(const SolidTransportData &right) :
-    speciesName("-"),   
+}
+//====================================================================================================================
+// Copy constructor
+SolidTransportData::SolidTransportData(const SolidTransportData& right) :
+    speciesName("-"),
     ionConductivity(0),
     thermalConductivity(0),
     electConductivity(0),
     defectDiffusivity(0),
     defectActivity(0)
-  {
+{
     *this = right; //use assignment operator to do other work
-  }
-  //====================================================================================================================
-  // Assignment operator
-  SolidTransportData& SolidTransportData::operator=(const SolidTransportData& right) 
-  {
+}
+//====================================================================================================================
+// Assignment operator
+SolidTransportData& SolidTransportData::operator=(const SolidTransportData& right)
+{
     if (&right != this) {
-      // These are all shallow pointer copies - yes, yes, yes horrible crime.
-      speciesName        = right.speciesName;
-      if (right.ionConductivity) {
-	ionConductivity = (right.ionConductivity)->duplMyselfAsLTPspecies();
-      }
+        // These are all shallow pointer copies - yes, yes, yes horrible crime.
+        speciesName        = right.speciesName;
+        if (right.ionConductivity) {
+            ionConductivity = (right.ionConductivity)->duplMyselfAsLTPspecies();
+        }
 
-      if (right.thermalConductivity) {
-	thermalConductivity  = (right.thermalConductivity)->duplMyselfAsLTPspecies();
-      }
-      if (right.electConductivity) {
-	electConductivity = (right.electConductivity)->duplMyselfAsLTPspecies();
-      }
-      if (right.defectDiffusivity) {
-	defectDiffusivity = (right.defectDiffusivity)->duplMyselfAsLTPspecies();
-      }
-      if (right.defectActivity) {
-	defectActivity = (right.defectActivity)->duplMyselfAsLTPspecies();
-      }
+        if (right.thermalConductivity) {
+            thermalConductivity  = (right.thermalConductivity)->duplMyselfAsLTPspecies();
+        }
+        if (right.electConductivity) {
+            electConductivity = (right.electConductivity)->duplMyselfAsLTPspecies();
+        }
+        if (right.defectDiffusivity) {
+            defectDiffusivity = (right.defectDiffusivity)->duplMyselfAsLTPspecies();
+        }
+        if (right.defectActivity) {
+            defectActivity = (right.defectActivity)->duplMyselfAsLTPspecies();
+        }
     }
     return *this;
-  }
- //====================================================================================================================
-  SolidTransportData::~SolidTransportData() {
+}
+//====================================================================================================================
+SolidTransportData::~SolidTransportData()
+{
 
     SAFE_DELETE(ionConductivity);
     SAFE_DELETE(thermalConductivity);
@@ -75,6 +77,6 @@ namespace Cantera {
     SAFE_DELETE(defectDiffusivity);
     SAFE_DELETE(defectActivity);
 
-  }
- //====================================================================================================================
+}
+//====================================================================================================================
 }

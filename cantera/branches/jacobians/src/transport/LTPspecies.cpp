@@ -48,39 +48,39 @@ static void getArrhenius(const XML_Node& node,
     E = getFloat(node, "E", "actEnergy");
     E /= GasConstant;
 
-  }                
-  //====================================================================================================================
-  // Construct an LTPspecies object for a liquid tranport property.
-  /*
-   *    The species transport property is constructed from the XML node, 
-   *    \verbatim <propNode>, \endverbatim that is a child of the 
-   *    \verbatim <transport> \endverbatim node in the species block and specifies a type of transport
-   *    property (like viscosity)
-   *
-   *   @param   propNode      Pointer to the XML node that contains the property information
-   *   @param   name          String containing the species name
-   *   @param   tp_ind        enum TransportPropertyType containing the property id that this object 
-   *                          is creating a parameterization for (e.g., viscosity)
-   *   @param   thermo        const pointer to the ThermoPhase object, which is used to find the temperature.
-   */ 
-  LTPspecies::LTPspecies(const XML_Node * const propNode, const std::string name, 
-                         TransportPropertyType tp_ind, const thermo_t * thermo) :
-     m_speciesName(name), 
-     m_model(LTP_TD_NOTSET),
-     m_property(tp_ind),
-     m_thermo(thermo),
-     m_mixWeight(1.0)
-  {
-     if (propNode) {
-       if (propNode->hasChild("mixtureWeighting") ) {
-         m_mixWeight = getFloat(*propNode, "mixtureWeighting");
-       }
-     }
-  }
-  //====================================================================================================================
-  // Copy constructor
-  LTPspecies::LTPspecies(const LTPspecies &right) 
-  {
+}
+//====================================================================================================================
+// Construct an LTPspecies object for a liquid tranport property.
+/*
+ *    The species transport property is constructed from the XML node,
+ *    \verbatim <propNode>, \endverbatim that is a child of the
+ *    \verbatim <transport> \endverbatim node in the species block and specifies a type of transport
+ *    property (like viscosity)
+ *
+ *   @param   propNode      Pointer to the XML node that contains the property information
+ *   @param   name          String containing the species name
+ *   @param   tp_ind        enum TransportPropertyType containing the property id that this object
+ *                          is creating a parameterization for (e.g., viscosity)
+ *   @param   thermo        const pointer to the ThermoPhase object, which is used to find the temperature.
+ */
+LTPspecies::LTPspecies(const XML_Node* const propNode, const std::string name,
+                       TransportPropertyType tp_ind, const thermo_t* thermo) :
+    m_speciesName(name),
+    m_model(LTP_TD_NOTSET),
+    m_property(tp_ind),
+    m_thermo(thermo),
+    m_mixWeight(1.0)
+{
+    if (propNode) {
+        if (propNode->hasChild("mixtureWeighting")) {
+            m_mixWeight = getFloat(*propNode, "mixtureWeighting");
+        }
+    }
+}
+//====================================================================================================================
+// Copy constructor
+LTPspecies::LTPspecies(const LTPspecies& right)
+{
 
     *this = right;
 }
@@ -129,35 +129,35 @@ bool LTPspecies::checkPositive() const
 {
     return (m_coeffs[0] > 0);
 
-  }
-  //====================================================================================================================
-  doublereal LTPspecies::getMixWeight() const 
-  {
-    return m_mixWeight; 
-  }
-  //====================================================================================================================
-  // Internal model to adjust species-specific properties for composition.
-  /*
-   *  Currently just a place holder, but this method could take 
-   *  the composition from the thermo object and adjust coefficients 
-   *  accoding to some unspecified model.
-   */
-  void LTPspecies::adjustCoeffsForComposition() 
-  {
-  }
-  //====================================================================================================================
-  // Construct an LTPspecies object for a liquid tranport property 
-  // expressed as a constant value.
-  /* The transport property is constructed from the XML node, 
-   *  \verbatim <propNode>, \endverbatim that is a child of the
-   *  \verbatim <transport> \endverbatim node and specifies a type of
-   *  transport property (like viscosity)
-   */ 
-  LTPspecies_Const::LTPspecies_Const(const XML_Node &propNode, const std::string name, 
-				     TransportPropertyType tp_ind, const thermo_t * const thermo) : 
-    LTPspecies(&propNode, name, tp_ind, thermo) 
-  {
-    m_model = LTP_TD_CONSTANT;	
+}
+//====================================================================================================================
+doublereal LTPspecies::getMixWeight() const
+{
+    return m_mixWeight;
+}
+//====================================================================================================================
+// Internal model to adjust species-specific properties for composition.
+/*
+ *  Currently just a place holder, but this method could take
+ *  the composition from the thermo object and adjust coefficients
+ *  accoding to some unspecified model.
+ */
+void LTPspecies::adjustCoeffsForComposition()
+{
+}
+//====================================================================================================================
+// Construct an LTPspecies object for a liquid tranport property
+// expressed as a constant value.
+/* The transport property is constructed from the XML node,
+ *  \verbatim <propNode>, \endverbatim that is a child of the
+ *  \verbatim <transport> \endverbatim node and specifies a type of
+ *  transport property (like viscosity)
+ */
+LTPspecies_Const::LTPspecies_Const(const XML_Node& propNode, const std::string name,
+                                   TransportPropertyType tp_ind, const thermo_t* const thermo) :
+    LTPspecies(&propNode, name, tp_ind, thermo)
+{
+    m_model = LTP_TD_CONSTANT;
     double A_k = getFloatCurrent(propNode, "toSI");
     if (A_k > 0.0) {
         m_coeffs.push_back(A_k);
@@ -200,28 +200,28 @@ doublereal LTPspecies_Const::getSpeciesTransProp()
 {
     return m_coeffs[0];
 
-  }
-  //====================================================================================================================
-  // Construct an LTPspecies object for a liquid tranport property 
-  // expressed in extended Arrhenius form.
-  /*
-   *  The transport property is constructed from the XML node, 
-   *  \verbatim <propNode>, \endverbatim that is a child of the
-   *  \verbatim <transport> \endverbatim node and specifies a type of  transport property (like viscosity)
-   *
-   *
-   *   @param   propNode      Referenc to the XML node that contains the property information.This class
-   *                          is assumed to be parameterized by reading XML_Node information.
-   *   @param   name          String containing the species name
-   *   @param   tp_ind        enum TransportPropertyType containing the property id that this object 
-   *                          is creating a parameterization for (e.g., viscosity)
-   *   @param   thermo        const pointer to the ThermoPhase object, which is used to find the temperature.
-   *
-   */ 
-  LTPspecies_Arrhenius::LTPspecies_Arrhenius(const XML_Node &propNode, const std::string name, 
-					     TransportPropertyType tp_ind,  const thermo_t* thermo) : 
-    LTPspecies(&propNode, name, tp_ind, thermo) 
-  {
+}
+//====================================================================================================================
+// Construct an LTPspecies object for a liquid tranport property
+// expressed in extended Arrhenius form.
+/*
+ *  The transport property is constructed from the XML node,
+ *  \verbatim <propNode>, \endverbatim that is a child of the
+ *  \verbatim <transport> \endverbatim node and specifies a type of  transport property (like viscosity)
+ *
+ *
+ *   @param   propNode      Referenc to the XML node that contains the property information.This class
+ *                          is assumed to be parameterized by reading XML_Node information.
+ *   @param   name          String containing the species name
+ *   @param   tp_ind        enum TransportPropertyType containing the property id that this object
+ *                          is creating a parameterization for (e.g., viscosity)
+ *   @param   thermo        const pointer to the ThermoPhase object, which is used to find the temperature.
+ *
+ */
+LTPspecies_Arrhenius::LTPspecies_Arrhenius(const XML_Node& propNode, const std::string name,
+        TransportPropertyType tp_ind,  const thermo_t* thermo) :
+    LTPspecies(&propNode, name, tp_ind, thermo)
+{
 
     m_model = LTP_TD_ARRHENIUS;
     m_temp = 0.0;
@@ -316,24 +316,24 @@ doublereal LTPspecies_Arrhenius::getSpeciesTransProp()
     }
     return m_prop;
 
-  }
-  //====================================================================================================================
-  // Construct an LTPspecies object for a liquid tranport property expressed as a polynomial in temperature.
-  /*
-   *  The transport property is constructed from the XML node, \verbatim <propNode>, \endverbatim that is a child of the
-   *  \verbatim <transport> \endverbatim node and specifies a type of transport property (like viscosity).
-   *
-   *
-   *   @param   propNode      Referenc to the XML node that contains the property information. This class
-   *                          must be parameterized by reading XML_Node information.
-   *   @param   name          String containing the species name
-   *   @param   tp_ind        enum TransportPropertyType containing the property id that this object 
-   *                          is creating a parameterization for (e.g., viscosity)
-   *   @param   thermo        const pointer to the ThermoPhase object, which is used to find the temperature.
-   *
-   */ 
-  LTPspecies_Poly::LTPspecies_Poly(const XML_Node &propNode, const std::string name, 
-				   TransportPropertyType tp_ind, const thermo_t* thermo) : 
+}
+//====================================================================================================================
+// Construct an LTPspecies object for a liquid tranport property expressed as a polynomial in temperature.
+/*
+ *  The transport property is constructed from the XML node, \verbatim <propNode>, \endverbatim that is a child of the
+ *  \verbatim <transport> \endverbatim node and specifies a type of transport property (like viscosity).
+ *
+ *
+ *   @param   propNode      Referenc to the XML node that contains the property information. This class
+ *                          must be parameterized by reading XML_Node information.
+ *   @param   name          String containing the species name
+ *   @param   tp_ind        enum TransportPropertyType containing the property id that this object
+ *                          is creating a parameterization for (e.g., viscosity)
+ *   @param   thermo        const pointer to the ThermoPhase object, which is used to find the temperature.
+ *
+ */
+LTPspecies_Poly::LTPspecies_Poly(const XML_Node& propNode, const std::string name,
+                                 TransportPropertyType tp_ind, const thermo_t* thermo) :
     LTPspecies(&propNode, name, tp_ind, thermo),
     m_temp(-1.0),
     m_prop(0.0)
@@ -388,25 +388,25 @@ doublereal LTPspecies_Poly::getSpeciesTransProp()
     }
     return m_prop;
 
-  }  
-  //====================================================================================================================
-  // Construct an LTPspecies object for a liquid tranport property 
-  // expressed as an exponential in temperature.
-  /*
-   *  The transport property is constructed from the XML node, \verbatim <propNode>, \endverbatim that is a child of the
-   *  \verbatim <transport> \endverbatim node and specifies a type of transport property (like viscosity).
-   *
-   *
-   *   @param   propNode      Referenc to the XML node that contains the property information. This class
-   *                          must be parameterized by reading XML_Node information.
-   *   @param   name          String containing the species name
-   *   @param   tp_ind        enum TransportPropertyType containing the property id that this object 
-   *                          is creating a parameterization for (e.g., viscosity)
-   *   @param   thermo        const pointer to the ThermoPhase object, which is used to find the temperature.
-   *
-   */ 
-  LTPspecies_ExpT::LTPspecies_ExpT(const XML_Node &propNode, const std::string name, TransportPropertyType tp_ind, 
-				   const thermo_t* thermo) : 
+}
+//====================================================================================================================
+// Construct an LTPspecies object for a liquid tranport property
+// expressed as an exponential in temperature.
+/*
+ *  The transport property is constructed from the XML node, \verbatim <propNode>, \endverbatim that is a child of the
+ *  \verbatim <transport> \endverbatim node and specifies a type of transport property (like viscosity).
+ *
+ *
+ *   @param   propNode      Referenc to the XML node that contains the property information. This class
+ *                          must be parameterized by reading XML_Node information.
+ *   @param   name          String containing the species name
+ *   @param   tp_ind        enum TransportPropertyType containing the property id that this object
+ *                          is creating a parameterization for (e.g., viscosity)
+ *   @param   thermo        const pointer to the ThermoPhase object, which is used to find the temperature.
+ *
+ */
+LTPspecies_ExpT::LTPspecies_ExpT(const XML_Node& propNode, const std::string name, TransportPropertyType tp_ind,
+                                 const thermo_t* thermo) :
 
     LTPspecies(&propNode, name, tp_ind, thermo),
     m_temp(-1.0),

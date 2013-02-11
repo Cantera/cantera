@@ -1459,8 +1459,8 @@ void IonsFromNeutralVPSSTP::getdlnActCoeffds(const doublereal dTds, const double
         return;
     }
 
-//    static vector_fp dlnActCoeff_NeutralMolecule(numNeutMolSpec);
-//    static vector_fp dX_NeutralMolecule(numNeutMolSpec);
+    //    static vector_fp dlnActCoeff_NeutralMolecule(numNeutMolSpec);
+    //    static vector_fp dX_NeutralMolecule(numNeutMolSpec);
 
     getNeutralMoleculeMoleGrads(DATA_PTR(dXds),DATA_PTR(dX_NeutralMolecule));
 

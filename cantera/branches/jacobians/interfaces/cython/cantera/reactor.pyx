@@ -68,6 +68,11 @@ cdef class ReactorBase:
         def __get__(self):
             return self.thermo.density
 
+    property mass:
+        """The mass of the reactor's contents."""
+        def __get__(self):
+            return self.thermo.density_mass * self.volume
+
     property Y:
         """The mass fractions of the reactor's contents."""
         def __get__(self):
@@ -723,6 +728,14 @@ cdef class ReactorNet:
         to use.
         """
         self.net.setMaxTimeStep(t)
+
+    property max_err_test_fails:
+        """
+        The maximum number of error test failures permitted by the CVODES
+        integrator in a single time step.
+        """
+        def __set__(self, n):
+            self.net.setMaxErrTestFails(n)
 
     property rtol:
         """

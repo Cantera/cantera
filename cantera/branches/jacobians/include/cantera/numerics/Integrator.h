@@ -184,6 +184,11 @@ public:
         warn("setMinStepSize");
     }
 
+    //! Set the maximum permissible number of error test failures
+    virtual void setMaxErrTestFails(int n) {
+        warn("setMaxErrTestFails");
+    }
+
     virtual void setMaxSteps(int nmax) {
         warn("setMaxStep");
     }

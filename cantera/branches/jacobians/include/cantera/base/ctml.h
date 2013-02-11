@@ -221,7 +221,7 @@ void addFloatArray(Cantera::XML_Node& node,  const std::string& titleString,
    *   @param name          Name of the XML node
    *   @param n             Length of the doubles vector.
    *   @param values        Pointer to a vector of doubles
-   *   @param unitsString   String name of the Units attribute. This is an optional 
+   *   @param unitsString   String name of the Units attribute. This is an optional
    *                        parameter. The default is to
    *                        have an empty string.
    *   @param type          String type. This is an optional parameter. The default
@@ -236,7 +236,7 @@ void addFloatArray(Cantera::XML_Node& node,  const std::string& titleString,
    *                        entry.
    *
    */
-void addNamedFloatArray(Cantera::XML_Node& parentNode, const std::string &name, const int n,
+void addNamedFloatArray(Cantera::XML_Node& parentNode, const std::string& name, const int n,
                         const doublereal* const vals, const std::string units = "",
                         const std::string type = "",
                         const doublereal minval = Cantera::Undef,
@@ -760,19 +760,19 @@ Cantera::XML_Node* getByTitle(const Cantera::XML_Node& node, const std::string& 
 
 //!  This function reads a child node with the name string with a specific
 //!  title attribute named titleString
-/*! 
-   *   This function will read a child node to the current XML node with the name "string". 
+/*!
+   *   This function will read a child node to the current XML node with the name "string".
    *   It must have a title attribute, named titleString, and the body
    *   of the XML node will be read into the valueString output argument.
    *
    *   If the child node is not found then the empty string is returned.
    *
-   *  Example:  
+   *  Example:
    *
    * Code snipet:
    *       @verbatim
      const XML_Node &node;
-     getString(XML_Node& node, std::string titleString, std::string valueString, 
+     getString(XML_Node& node, std::string titleString, std::string valueString,
      std::string typeString);
    @endverbatim
    *
@@ -789,8 +789,8 @@ Cantera::XML_Node* getByTitle(const Cantera::XML_Node& node, const std::string& 
    *   @param typeString    String type. This is an optional output variable. It is filled
    *                        with the attribute "type" of the XML entry.
    */
-  void getString(const Cantera::XML_Node& node, const std::string &titleString,
-                 std::string& valueString, std::string& typeString);
+void getString(const Cantera::XML_Node& node, const std::string& titleString,
+               std::string& valueString, std::string& typeString);
 
 
 //!  This function attempts to read a named child node and returns with the contents in the value string.

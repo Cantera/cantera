@@ -147,7 +147,7 @@ void PDSS_IdealGas::constructPDSSFile(VPStandardStateTP* tp, size_t spindex,
     delete fxml;
 }
 
-void PDSS_IdealGas::initThermoXML(const XML_Node& phaseNode, std::string& id)
+void PDSS_IdealGas::initThermoXML(const XML_Node& phaseNode, const std::string& id)
 {
     PDSS::initThermoXML(phaseNode, id);
 }

@@ -824,7 +824,7 @@ public:
     thermo_t* neutralMoleculePhase_;
 
 private:
-    GibbsExcessVPSSTP *geThermo;
+    GibbsExcessVPSSTP* geThermo;
     // Temporary vectors that I don't want to allocate every time the function is called
     mutable vector_fp y;
     mutable vector_fp dlnActCoeff_NeutralMolecule;

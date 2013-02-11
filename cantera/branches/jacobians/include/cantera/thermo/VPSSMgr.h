@@ -413,7 +413,7 @@ public:
      *            units =  m^3 / kmol
      */
     virtual void getStandardVolumes(doublereal* vol) const;
-    virtual const vector_fp & getStandardVolumes() const;
+    virtual const vector_fp& getStandardVolumes() const;
 
     //! Return a reference to a vector of the species standard molar volumes
     const vector_fp& standardVolumes() const {
