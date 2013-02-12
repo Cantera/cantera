@@ -40,6 +40,8 @@ int main(int argc, char** argv)
 
     try {
 
+        Cantera::setDefaultIndependentVars(INDVAR_TP_MOLEFRACTION_VECTOR);
+
 	IdealGasPhase<doubleFAD> * ig_fad = new IdealGasPhase<doubleFAD>("diamond.xml", "");
 
 	delete ig_fad;
