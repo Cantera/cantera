@@ -11,7 +11,7 @@
 namespace Cantera {
 
 // Forward declaration
-class ThermoPhase;
+template<typename ValAndDerivType> class ThermoPhase;
 
 //!  Specification of the types of independent variable combinations allowed within Cantera
 /*!
@@ -167,7 +167,7 @@ typedef size_t VAR_TYPE_SUBNUM;
  */
 class IndVar_Phase_Specification
 {
-
+public:
     //! Constructor
     IndVar_Phase_Specification();
 
@@ -198,7 +198,45 @@ class IndVar_Phase_Specification
     bool hasSurfaceTension_;
 
     //! Const pointer to the ThermoPhase object whose independent variables we are specifying.
-    const ThermoPhase *tp_ptr_;
+    const ThermoPhase<doubleFAD> *tp_ptr_;
+
+};
+
+//!  Specification of independent variables
+/*!
+ *  There exists one of these per problem
+ */
+class IndVar_ProblemSpecification
+{
+public:
+    //! Constructor
+    IndVar_ProblemSpecification();
+
+    //! Destructor
+    ~IndVar_ProblemSpecification();
+
+    //! Copy Constructor
+    /*!
+     * @param b object to be copied
+     */
+    IndVar_ProblemSpecification(const IndVar_ProblemSpecification &b);
+
+    //! Assignment operator
+    /*!
+     * @param b object to be copied
+     *
+     * @return  returns a changeable reference to the current object
+     */
+    IndVar_ProblemSpecification & operator=(const IndVar_ProblemSpecification &b);
+
+    //! Specification of the main way to identify independent variables.
+    INDVAR_FORM indVar_Method_;
+
+    //! Has a voltage
+    bool hasVoltage_;
+
+    //! Has a surface tension variable
+    bool hasSurfaceTension_;
 
 };
 

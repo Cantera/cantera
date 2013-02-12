@@ -179,6 +179,30 @@ std::string findInputFile(const std::string& name)
     return app()->findInputFile(name) ;
 }
 
+//=======================================================================================================
+// Set the default form of the independent variables
+/*
+ *   Set the default form of the independent variables for the application. This is used to
+ *   construct a default form of the independent variables for ThermoPhase, Kinetics, and transport
+ *   objects.
+ *
+ *   The jacobian wrt the Independent variables is calculated for calls to property evaluators.
+ *
+ *   @param indvars                INDVAR_FORM enum.   Set the default form of the independent variables to
+ *                                 an enum given by this value. The enum is defined in the file
+ *                                 IndependentVars.h
+ *   @param hasVoltage             Boolean indicating we should add a voltage variable.
+ *   @param hasSurfaceTension      Boolean indicating we should add a surface tension variable.
+ */
+void setDefaultIndependentVars(INDVAR_FORM indvars, bool hasVoltage, bool hasSurfaceTension)
+{
+    IndVar_ProblemSpecification& indVar = app()->IndVar();
+    indVar.indVar_Method_ = indvars;
+    indVar.hasVoltage_ = hasVoltage;
+    indVar.hasSurfaceTension_ = hasSurfaceTension;
+}
+//=======================================================================================================
+
 doublereal toSI(const std::string& unit)
 {
     doublereal f = Unit::units()->toSI(unit);

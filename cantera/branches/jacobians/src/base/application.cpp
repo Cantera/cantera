@@ -333,7 +333,9 @@ Application::Application() :
     inputDirs(0),
     stop_on_error(false),
     options(),
+    tmp_dir(""),
     xmlfiles(),
+    varsSpecification_(0),
     pMessenger()
 {
 #if !defined( THREAD_SAFE_CANTERA )
@@ -371,6 +373,10 @@ Application::~Application()
         pos->second->unlock();
         delete pos->second;
         pos->second = 0;
+    }
+    if (varsSpecification_) {
+        delete varsSpecification_;
+        varsSpecification_= 0;
     }
 }
 

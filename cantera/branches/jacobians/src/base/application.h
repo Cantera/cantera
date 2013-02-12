@@ -4,14 +4,14 @@
 #include "cantera/base/config.h"
 #include "cantera/base/ct_thread.h"
 #include "cantera/base/logger.h"
+#include "cantera/base/IndependentVars.h"
 
 #include <map>
 #include <memory>
 #include <string>
 #include <vector>
 
-namespace Cantera
-{
+namespace Cantera {
 
 class XML_Node;
 
@@ -24,7 +24,6 @@ class XML_Node;
  * to each process that invokes Cantera functions. This process-specific
  * data is stored in the class Application.
  */
-
 
 //!  Class to hold global data.
 /*!
@@ -87,7 +86,7 @@ protected:
         /*!
          * @ingroup errorhandling
          */
-        int getErrorCount() ;
+        int getErrorCount();
 
         //! Discard the last error message
         /*!
@@ -97,7 +96,7 @@ protected:
          *
          * @ingroup errorhandling
          */
-        void popError() ;
+        void popError();
 
         //! Retrieve the last error message in a string
         /*!
@@ -106,7 +105,7 @@ protected:
          *
          * @ingroup errorhandling
          */
-        std::string lastErrorMessage() ;
+        std::string lastErrorMessage();
 
         //!  Prints all of the error messages to an ostream
         /*!
@@ -121,7 +120,7 @@ protected:
          *
          * @ingroup errorhandling
          */
-        void getErrors(std::ostream& f) ;
+        void getErrors(std::ostream& f);
 
         //!  Prints all of the error messages using writelog
         /*!
@@ -158,7 +157,7 @@ protected:
          * @param pszmsg  c character string to be written to the screen
          * @ingroup textlogs
          */
-        void writelog(const char* pszmsg) ;
+        void writelog(const char* pszmsg);
 
         //! Write an error message and quit.
         /*!
@@ -173,7 +172,7 @@ protected:
          *
          * @param msg    Error message to be written to cerr.
          */
-        void logerror(const std::string& msg) ;
+        void logerror(const std::string& msg);
 
         //! Install a logger.
         /*!
@@ -184,7 +183,7 @@ protected:
          * @see Logger.
          * @ingroup textlogs
          */
-        void setLogger(Logger* logwriter) ;
+        void setLogger(Logger* logwriter);
 
 #ifdef WITH_HTML_LOGS
 
@@ -200,7 +199,7 @@ protected:
          *  @param loglevel loglevel of the group.
          *  @ingroup HTML_logs
          */
-        void beginLogGroup(const std::string& title, int loglevel) ;
+        void beginLogGroup(const std::string& title, int loglevel);
 
         //! Add an entry to an HTML log file.
         /*!
@@ -211,7 +210,7 @@ protected:
          *
          * @ingroup HTML_logs
          */
-        void addLogEntry(const std::string& tag, const std::string& value) ;
+        void addLogEntry(const std::string& tag, const std::string& value);
 
         //! Add an entry to an HTML log file.
         /*!
@@ -222,7 +221,7 @@ protected:
          *
          * @ingroup HTML_logs
          */
-        void addLogEntry(const std::string& tag, doublereal value) ;
+        void addLogEntry(const std::string& tag, doublereal value);
 
         //! Add an entry to an HTML log file.
         /*!
@@ -233,7 +232,7 @@ protected:
          *
          * @ingroup HTML_logs
          */
-        void addLogEntry(const std::string& tag, int value) ;
+        void addLogEntry(const std::string& tag, int value);
 
         //! Add an entry to an HTML log file.
         /*!
@@ -243,7 +242,7 @@ protected:
          *
          * @ingroup HTML_logs
          */
-        void addLogEntry(const std::string& msg) ;
+        void addLogEntry(const std::string& msg);
 
         //! Close the current group of log messages.
         /*!
@@ -257,7 +256,7 @@ protected:
          * @param title Name of the log group. It defaults to the most recent
          *              log group created.
          */
-        void endLogGroup(const std::string& title) ;
+        void endLogGroup(const std::string& title);
 
         //! Write the HTML log file.
         /*!
@@ -301,11 +300,11 @@ protected:
         //! Current vector of loggroups that are open
         std::vector<std::string> loggroups;
 #endif
-    } ;
+    };
 
 #ifdef THREAD_SAFE_CANTERA
     //! Typedef for thread specific messages
-    typedef boost::shared_ptr< Messages >   pMessages_t ;
+    typedef boost::shared_ptr< Messages > pMessages_t;
 
     //! Class that stores thread messages for each thread, and retrieves them
     //! based on the thread id.
@@ -325,14 +324,13 @@ protected:
         void removeThreadMessages();
 
         //! Typedef for map between a thread and the message
-        typedef std::map< cthreadId_t, pMessages_t > threadMsgMap_t ;
+        typedef std::map< cthreadId_t, pMessages_t > threadMsgMap_t;
 
     private:
         //! Thread Msg Map
-        threadMsgMap_t   m_threadMsgMap ;
-    } ;
+        threadMsgMap_t m_threadMsgMap;
+    };
 #endif
-
 
 protected:
     //! Constructor for class sets up the initial conditions
@@ -366,16 +364,18 @@ public:
      * @param msg  Description of the error
      * @ingroup errorhandling
      */
-    void addError(const std::string& r, const std::string& msg) {
-        pMessenger->addError(r, msg) ;
+    void addError(const std::string& r, const std::string& msg)
+    {
+        pMessenger->addError(r, msg);
     }
 
     //! Return the number of errors that have been encountered so far.
     /*!
      * @ingroup error handling
      */
-    int getErrorCount() {
-        return pMessenger->getErrorCount() ;
+    int getErrorCount()
+    {
+        return pMessenger->getErrorCount();
     }
 
     //! Discard the last error message
@@ -386,8 +386,9 @@ public:
      *
      * @ingroup errorhandling
      */
-    void popError() {
-        pMessenger->popError() ;
+    void popError()
+    {
+        pMessenger->popError();
     }
 
     //! Retrieve the last error message in a string
@@ -397,8 +398,9 @@ public:
      *
      * @ingroup errorhandling
      */
-    std::string lastErrorMessage() {
-        return pMessenger->lastErrorMessage() ;
+    std::string lastErrorMessage()
+    {
+        return pMessenger->lastErrorMessage();
     }
 
     //!  Prints all of the error messages to an ostream
@@ -414,8 +416,9 @@ public:
      *
      * @ingroup errorhandling
      */
-    void getErrors(std::ostream& f) {
-        pMessenger->getErrors(f) ;
+    void getErrors(std::ostream& f)
+    {
+        pMessenger->getErrors(f);
     }
 
     //!  Prints all of the error messages using writelog
@@ -428,8 +431,9 @@ public:
      *
      * @ingroup errorhandling
      */
-    void logErrors() {
-        pMessenger->logErrors() ;
+    void logErrors()
+    {
+        pMessenger->logErrors();
     }
 
     //!  Add a directory to the data file search path.
@@ -438,7 +442,7 @@ public:
      *
      * @param dir  String name for the directory to be added to the search path
      */
-    void addDataDirectory(const std::string& dir) ;
+    void addDataDirectory(const std::string& dir);
 
     //! Find an input file.
     /*!
@@ -467,7 +471,7 @@ public:
      *
      * @ingroup inputfiles
      */
-    std::string findInputFile(const std::string& name) ;
+    std::string findInputFile(const std::string& name);
 
     //! Return a pointer to the XML tree for a Cantera input file.
     /*!
@@ -479,7 +483,7 @@ public:
      * @param file String containing the relative or absolute file name
      * @param debug Debug flag
      */
-    XML_Node* get_XML_File(const std::string& file, int debug=0) ;
+    XML_Node* get_XML_File(const std::string& file, int debug = 0);
 
     //! Close an XML File
     /*!
@@ -487,7 +491,7 @@ public:
      *
      * @param file String containing the relative or absolute file name
      */
-    void close_XML_File(const std::string& file) ;
+    void close_XML_File(const std::string& file);
 
     //!  Write a message to the screen.
     /*!
@@ -500,19 +504,20 @@ public:
      */
 #ifdef _WIN32
     long int readStringRegistryKey(const std::string& keyName, const std::string& valueName,
-                                   std::string& value, const std::string& defaultValue);
+            std::string& value, const std::string& defaultValue);
 #endif
 
-    void writelog(const std::string& msg) {
+    void writelog(const std::string& msg)
+    {
         pMessenger->writelog(msg);
     }
-
 
     //! Write an endl to the screen and flush output
     /*!
      * @ingroup textlogs
      */
-    void writelogendl() {
+    void writelogendl()
+    {
         pMessenger->writelogendl();
     }
 
@@ -525,7 +530,8 @@ public:
      * @param pszmsg  c null terminated string to be written to the screen
      * @ingroup textlogs
      */
-    void writelog(const char* pszmsg) {
+    void writelog(const char* pszmsg)
+    {
         pMessenger->writelog(pszmsg);
     }
 
@@ -542,7 +548,8 @@ public:
      *
      * @param msg    Error message to be written to cerr.
      */
-    void logerror(const std::string& msg) {
+    void logerror(const std::string& msg)
+    {
         pMessenger->logerror(msg);
     }
 
@@ -553,12 +560,13 @@ public:
      *  @see Logger.
      *  @ingroup textlogs
      */
-    void setLogger(Logger* logwriter) {
+    void setLogger(Logger* logwriter)
+    {
         pMessenger->setLogger(logwriter);
     }
 
     //! Delete Messenger object allocated per thread.
-    void thread_complete() ;
+    void thread_complete();
 
 #ifdef WITH_HTML_LOGS
     //!Create a new group for log messages.
@@ -573,8 +581,9 @@ public:
      *  @param loglevel loglevel of the group.
      *  @ingroup HTML_logs
      */
-    void beginLogGroup(const std::string& title, int loglevel) {
-        pMessenger->beginLogGroup(title,loglevel);
+    void beginLogGroup(const std::string& title, int loglevel)
+    {
+        pMessenger->beginLogGroup(title, loglevel);
     }
 
     //! Add an entry to an HTML log file.
@@ -586,7 +595,8 @@ public:
      *
      * @ingroup HTML_logs
      */
-    void addLogEntry(const std::string& tag, const std::string& value) {
+    void addLogEntry(const std::string& tag, const std::string& value)
+    {
         pMessenger->addLogEntry(tag, value);
     }
 
@@ -599,7 +609,8 @@ public:
      *
      * @ingroup HTML_logs
      */
-    void addLogEntry(const std::string& tag, doublereal value) {
+    void addLogEntry(const std::string& tag, doublereal value)
+    {
         pMessenger->addLogEntry(tag, value);
     }
 
@@ -612,7 +623,8 @@ public:
      *
      * @ingroup HTML_logs
      */
-    void addLogEntry(const std::string& tag, int value) {
+    void addLogEntry(const std::string& tag, int value)
+    {
         pMessenger->addLogEntry(tag, value);
     }
 
@@ -624,7 +636,8 @@ public:
      *
      * @ingroup HTML_logs
      */
-    void addLogEntry(const std::string& msg) {
+    void addLogEntry(const std::string& msg)
+    {
         pMessenger->addLogEntry(msg);
     }
 
@@ -641,8 +654,9 @@ public:
      *              log group created.
      * @ingroup HTML_logs
      */
-    void endLogGroup(const std::string& title) {
-        pMessenger->endLogGroup(title) ;
+    void endLogGroup(const std::string& title)
+    {
+        pMessenger->endLogGroup(title);
     }
 
     //! Write the HTML log file.
@@ -659,8 +673,9 @@ public:
      *
      *  @param  file Name of the file to be written
      */
-    void write_logfile(const std::string& file) {
-        pMessenger->write_logfile(file) ;
+    void write_logfile(const std::string& file)
+    {
+        pMessenger->write_logfile(file);
     }
 #endif
 
@@ -697,6 +712,7 @@ protected:
 
     //! Current vector of input directories to search for input files
     std::vector<std::string> inputDirs;
+
     //! Current list of error messages
     //vector<string> errorMessage;
     //! Current list of warning messages
@@ -707,14 +723,31 @@ protected:
     //string msglog;
     //! Current line length
     // size_t linelen;
+
     //! Current value of stop_on_error
     bool stop_on_error;
+
     //! Current map of options
-    std::map<std::string, std::string>     options;
+    std::map<std::string, std::string> options;
+
     //! Current value of tmp_dir
     std::string tmp_dir;
+
     //! Current vector of xml file trees that have been previously parsed
     std::map<std::string, XML_Node*> xmlfiles;
+
+    IndVar_ProblemSpecification *varsSpecification_;
+
+public:
+    IndVar_ProblemSpecification& IndVar()
+    {
+        if (!varsSpecification_) {
+            varsSpecification_ = new IndVar_ProblemSpecification();
+        }
+        return *varsSpecification_;
+    }
+protected:
+
     //! Current pointer to the logwriter
     //Logger* logwriter;
 #ifdef WITH_HTML_LOGS
@@ -731,14 +764,14 @@ protected:
 #endif
 
 #if defined(THREAD_SAFE_CANTERA)
-    ThreadMessages   pMessenger ;
+    ThreadMessages pMessenger;
 #else
-    std::auto_ptr<Messages> pMessenger ;
+    std::auto_ptr<Messages> pMessenger;
 #endif
 
 private:
     //! Pointer to the single Application instance
-    static Application* s_app ;
+    static Application* s_app;
 };
 
 }

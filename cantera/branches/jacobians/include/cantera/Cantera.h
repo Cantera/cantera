@@ -51,6 +51,9 @@ namespace Cantera_CXX{ }
 // Include the array object
 #include "base/Array.h"
 
+// Include a description of the independent variables options
+#include "base/IndependentVars.h"
+
 #endif
 
 
