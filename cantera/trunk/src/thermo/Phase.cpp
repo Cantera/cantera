@@ -609,11 +609,6 @@ doublereal Phase::molarVolume() const
     return 1.0/molarDensity();
 }
 
-doublereal Phase::charge(size_t k) const
-{
-    return m_speciesCharge[k];
-}
-
 doublereal Phase::chargeDensity() const
 {
     size_t kk = nSpecies();

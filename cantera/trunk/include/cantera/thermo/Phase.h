@@ -501,7 +501,9 @@ public:
     //! Dimensionless electrical charge of a single molecule of species k
     //! The charge is normalized by the the magnitude of the electron charge
     //!     @param k species index
-    doublereal charge(size_t k) const;
+    doublereal charge(size_t k) const {
+        return m_speciesCharge[k];
+    }
 
     //! Charge density [C/m^3].
     doublereal chargeDensity() const;

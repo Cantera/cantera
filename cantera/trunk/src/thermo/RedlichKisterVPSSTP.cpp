@@ -701,7 +701,6 @@ void RedlichKisterVPSSTP::readXMLBinarySpecies(XML_Node& xmLBinarySpecies)
         throw CanteraError("RedlichKisterVPSSTP::readXMLBinarySpecies",
                            "Incorrect name for processing this routine: " + xname);
     }
-    double* charge = DATA_PTR(m_speciesCharge);
     std::string stemp;
     size_t Npoly = 0;
     vector_fp hParams, sParams, vParams;
@@ -723,7 +722,7 @@ void RedlichKisterVPSSTP::readXMLBinarySpecies(XML_Node& xmLBinarySpecies)
         return;
     }
     string ispName = speciesName(iSpecies);
-    if (charge[iSpecies] != 0) {
+    if (charge(iSpecies) != 0) {
         throw CanteraError("RedlichKisterVPSSTP::readXMLBinarySpecies", "speciesA charge problem");
     }
     size_t jSpecies = speciesIndex(jName);
@@ -731,7 +730,7 @@ void RedlichKisterVPSSTP::readXMLBinarySpecies(XML_Node& xmLBinarySpecies)
         return;
     }
     std::string jspName = speciesName(jSpecies);
-    if (charge[jSpecies] != 0) {
+    if (charge(jSpecies) != 0) {
         throw CanteraError("RedlichKisterVPSSTP::readXMLBinarySpecies", "speciesB charge problem");
     }
     /*

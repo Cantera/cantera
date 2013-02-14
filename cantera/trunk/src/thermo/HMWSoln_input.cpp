@@ -60,7 +60,6 @@ void HMWSoln::readXMLBinarySalt(XML_Node& BinSalt)
         throw CanteraError("HMWSoln::readXMLBinarySalt",
                            "Incorrect name for processing this routine: " + xname);
     }
-    double* charge = DATA_PTR(m_speciesCharge);
     string stemp;
     size_t nParamsFound, i;
     vector_fp vParams;
@@ -81,7 +80,7 @@ void HMWSoln::readXMLBinarySalt(XML_Node& BinSalt)
         return;
     }
     string ispName = speciesName(iSpecies);
-    if (charge[iSpecies] <= 0) {
+    if (charge(iSpecies) <= 0) {
         throw CanteraError("HMWSoln::readXMLBinarySalt", "cation charge problem");
     }
     size_t jSpecies = speciesIndex(jName);
@@ -89,7 +88,7 @@ void HMWSoln::readXMLBinarySalt(XML_Node& BinSalt)
         return;
     }
     string jspName = speciesName(jSpecies);
-    if (charge[jSpecies] >= 0) {
+    if (charge(jSpecies) >= 0) {
         throw CanteraError("HMWSoln::readXMLBinarySalt", "anion charge problem");
     }
 
@@ -263,7 +262,6 @@ void HMWSoln::readXMLThetaAnion(XML_Node& BinSalt)
         throw CanteraError("HMWSoln::readXMLThetaAnion",
                            "Incorrect name for processing this routine: " + xname);
     }
-    double* charge = DATA_PTR(m_speciesCharge);
     string stemp;
     string ispName = BinSalt.attrib("anion1");
     if (ispName == "") {
@@ -281,14 +279,14 @@ void HMWSoln::readXMLThetaAnion(XML_Node& BinSalt)
     if (iSpecies == npos) {
         return;
     }
-    if (charge[iSpecies] >= 0) {
+    if (charge(iSpecies) >= 0) {
         throw CanteraError("HMWSoln::readXMLThetaAnion", "anion1 charge problem");
     }
     size_t jSpecies = speciesIndex(jspName);
     if (jSpecies == npos) {
         return;
     }
-    if (charge[jSpecies] >= 0) {
+    if (charge(jSpecies) >= 0) {
         throw CanteraError("HMWSoln::readXMLThetaAnion", "anion2 charge problem");
     }
 
@@ -345,7 +343,6 @@ void HMWSoln::readXMLThetaCation(XML_Node& BinSalt)
         throw CanteraError("HMWSoln::readXMLThetaCation",
                            "Incorrect name for processing this routine: " + xname);
     }
-    double* charge = DATA_PTR(m_speciesCharge);
     string stemp;
     string ispName = BinSalt.attrib("cation1");
     if (ispName == "") {
@@ -363,14 +360,14 @@ void HMWSoln::readXMLThetaCation(XML_Node& BinSalt)
     if (iSpecies == npos) {
         return;
     }
-    if (charge[iSpecies] <= 0) {
+    if (charge(iSpecies) <= 0) {
         throw CanteraError("HMWSoln::readXMLThetaCation", "cation1 charge problem");
     }
     size_t jSpecies = speciesIndex(jspName);
     if (jSpecies == npos) {
         return;
     }
-    if (charge[jSpecies] <= 0) {
+    if (charge(jSpecies) <= 0) {
         throw CanteraError("HMWSoln::readXMLThetaCation", "cation2 charge problem");
     }
 
@@ -425,7 +422,6 @@ void HMWSoln::readXMLPsiCommonCation(XML_Node& BinSalt)
         throw CanteraError("HMWSoln::readXMLPsiCommonCation",
                            "Incorrect name for processing this routine: " + xname);
     }
-    double* charge = DATA_PTR(m_speciesCharge);
     string stemp;
     vector_fp vParams;
     size_t nParamsFound = 0;
@@ -449,7 +445,7 @@ void HMWSoln::readXMLPsiCommonCation(XML_Node& BinSalt)
     if (kSpecies == npos) {
         return;
     }
-    if (charge[kSpecies] <= 0) {
+    if (charge(kSpecies) <= 0) {
         throw CanteraError("HMWSoln::readXMLPsiCommonCation",
                            "cation charge problem");
     }
@@ -457,7 +453,7 @@ void HMWSoln::readXMLPsiCommonCation(XML_Node& BinSalt)
     if (iSpecies == npos) {
         return;
     }
-    if (charge[iSpecies] >= 0) {
+    if (charge(iSpecies) >= 0) {
         throw CanteraError("HMWSoln::readXMLPsiCommonCation",
                            "anion1 charge problem");
     }
@@ -465,7 +461,7 @@ void HMWSoln::readXMLPsiCommonCation(XML_Node& BinSalt)
     if (jSpecies == npos) {
         return;
     }
-    if (charge[jSpecies] >= 0) {
+    if (charge(jSpecies) >= 0) {
         throw CanteraError("HMWSoln::readXMLPsiCommonCation",
                            "anion2 charge problem");
     }
@@ -566,7 +562,6 @@ void HMWSoln::readXMLPsiCommonAnion(XML_Node& BinSalt)
         throw CanteraError("HMWSoln::readXMLPsiCommonAnion",
                            "Incorrect name for processing this routine: " + xname);
     }
-    double* charge = DATA_PTR(m_speciesCharge);
     string stemp;
     vector_fp vParams;
     size_t nParamsFound = 0;
@@ -590,14 +585,14 @@ void HMWSoln::readXMLPsiCommonAnion(XML_Node& BinSalt)
     if (kSpecies == npos) {
         return;
     }
-    if (charge[kSpecies] >= 0) {
+    if (charge(kSpecies) >= 0) {
         throw CanteraError("HMWSoln::readXMLPsiCommonAnion", "anion charge problem");
     }
     size_t iSpecies = speciesIndex(iName);
     if (iSpecies == npos) {
         return;
     }
-    if (charge[iSpecies] <= 0) {
+    if (charge(iSpecies) <= 0) {
         throw CanteraError("HMWSoln::readXMLPsiCommonAnion",
                            "cation1 charge problem");
     }
@@ -605,7 +600,7 @@ void HMWSoln::readXMLPsiCommonAnion(XML_Node& BinSalt)
     if (jSpecies == npos) {
         return;
     }
-    if (charge[jSpecies] <= 0) {
+    if (charge(jSpecies) <= 0) {
         throw CanteraError("HMWSoln::readXMLPsiCommonAnion",
                            "cation2 charge problem");
     }
@@ -710,7 +705,6 @@ void HMWSoln::readXMLLambdaNeutral(XML_Node& BinSalt)
         throw CanteraError("HMWSoln::readXMLLanbdaNeutral",
                            "Incorrect name for processing this routine: " + xname);
     }
-    double* charge = DATA_PTR(m_speciesCharge);
     string stemp;
     string iName = BinSalt.attrib("species1");
     if (iName == "") {
@@ -728,7 +722,7 @@ void HMWSoln::readXMLLambdaNeutral(XML_Node& BinSalt)
     if (iSpecies == npos) {
         return;
     }
-    if (charge[iSpecies] != 0) {
+    if (charge(iSpecies) != 0) {
         throw CanteraError("HMWSoln::readXMLLambdaNeutral",
                            "neutral charge problem");
     }
@@ -791,7 +785,6 @@ void HMWSoln::readXMLMunnnNeutral(XML_Node& BinSalt)
         throw CanteraError("HMWSoln::readXMLMunnnNeutral",
                            "Incorrect name for processing this routine: " + xname);
     }
-    double* charge = DATA_PTR(m_speciesCharge);
     string stemp;
     string iName = BinSalt.attrib("species1");
     if (iName == "") {
@@ -806,7 +799,7 @@ void HMWSoln::readXMLMunnnNeutral(XML_Node& BinSalt)
     if (iSpecies == npos) {
         return;
     }
-    if (charge[iSpecies] != 0) {
+    if (charge(iSpecies) != 0) {
         throw CanteraError("HMWSoln::readXMLMunnnNeutral",
                            "neutral charge problem");
     }
@@ -859,7 +852,6 @@ void HMWSoln::readXMLZetaCation(const XML_Node& BinSalt)
         throw CanteraError("HMWSoln::readXMLZetaCation",
                            "Incorrect name for processing this routine: " + xname);
     }
-    double* charge = DATA_PTR(m_speciesCharge);
     string stemp;
     vector_fp vParams;
     size_t nParamsFound = 0;
@@ -886,7 +878,7 @@ void HMWSoln::readXMLZetaCation(const XML_Node& BinSalt)
     if (iSpecies == npos) {
         return;
     }
-    if (charge[iSpecies] != 0.0) {
+    if (charge(iSpecies) != 0.0) {
         throw CanteraError("HMWSoln::readXMLZetaCation",  "neutral charge problem");
     }
 
@@ -894,7 +886,7 @@ void HMWSoln::readXMLZetaCation(const XML_Node& BinSalt)
     if (jSpecies == npos) {
         return;
     }
-    if (charge[jSpecies] <= 0.0) {
+    if (charge(jSpecies) <= 0.0) {
         throw CanteraError("HMWSoln::readXLZetaCation", "cation1 charge problem");
     }
 
@@ -902,7 +894,7 @@ void HMWSoln::readXMLZetaCation(const XML_Node& BinSalt)
     if (kSpecies == npos) {
         return;
     }
-    if (charge[kSpecies] >= 0.0) {
+    if (charge(kSpecies) >= 0.0) {
         throw CanteraError("HMWSoln::readXMLZetaCation", "anion1 charge problem");
     }
 
@@ -1391,7 +1383,7 @@ initThermoXML(XML_Node& phaseNode, const std::string& id)
      * regular charge.
      */
     for (size_t k = 0; k < m_kk; k++) {
-        m_speciesCharge_Stoich[k] = m_speciesCharge[k];
+        m_speciesCharge_Stoich[k] = charge(k);
     }
 
     /*
@@ -1555,9 +1547,9 @@ initThermoXML(XML_Node& phaseNode, const std::string& id)
      *   a charge species, a nonpolar neutral, or the solvent.
      */
     for (size_t k = 0; k < m_kk; k++) {
-        if (fabs(m_speciesCharge[k]) > 0.0001) {
+        if (fabs(charge(k)) > 0.0001) {
             m_electrolyteSpeciesType[k] = cEST_chargedSpecies;
-            if (fabs(m_speciesCharge_Stoich[k] - m_speciesCharge[k])
+            if (fabs(m_speciesCharge_Stoich[k] - charge(k))
                     > 0.0001) {
                 m_electrolyteSpeciesType[k] = cEST_weakAcidAssociated;
             }
@@ -1632,8 +1624,8 @@ initThermoXML(XML_Node& phaseNode, const std::string& id)
         size_t kMaxC = npos;
         double MaxC = 0.0;
         for (size_t k = 0; k < m_kk; k++) {
-            sum += mf[k] * m_speciesCharge[k];
-            if (fabs(mf[k] * m_speciesCharge[k]) > MaxC) {
+            sum += mf[k] * charge(k);
+            if (fabs(mf[k] * charge(k)) > MaxC) {
                 kMaxC = k;
             }
         }
@@ -1671,9 +1663,9 @@ initThermoXML(XML_Node& phaseNode, const std::string& id)
                 }
                 if (notDone) {
                     if (kMaxC != npos) {
-                        if (mf[kMaxC] > (1.1 * sum / m_speciesCharge[kMaxC])) {
-                            mf[kMaxC] -= sum / m_speciesCharge[kMaxC];
-                            mf[0] += sum / m_speciesCharge[kMaxC];
+                        if (mf[kMaxC] > (1.1 * sum / charge(kMaxC))) {
+                            mf[kMaxC] -= sum / charge(kMaxC);
+                            mf[0] += sum / charge(kMaxC);
                         } else {
                             mf[kMaxC] *= 0.5;
                             mf[0] += mf[kMaxC];

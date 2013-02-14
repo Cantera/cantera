@@ -770,7 +770,6 @@ void MargulesVPSSTP::readXMLBinarySpecies(XML_Node& xmLBinarySpecies)
         throw CanteraError("MargulesVPSSTP::readXMLBinarySpecies",
                            "Incorrect name for processing this routine: " + xname);
     }
-    double* charge = DATA_PTR(m_speciesCharge);
     string stemp;
     size_t nParamsFound;
     vector_fp vParams;
@@ -791,7 +790,7 @@ void MargulesVPSSTP::readXMLBinarySpecies(XML_Node& xmLBinarySpecies)
         return;
     }
     string ispName = speciesName(iSpecies);
-    if (charge[iSpecies] != 0) {
+    if (charge(iSpecies) != 0) {
         throw CanteraError("MargulesVPSSTP::readXMLBinarySpecies", "speciesA charge problem");
     }
     size_t jSpecies = speciesIndex(jName);
@@ -799,7 +798,7 @@ void MargulesVPSSTP::readXMLBinarySpecies(XML_Node& xmLBinarySpecies)
         return;
     }
     string jspName = speciesName(jSpecies);
-    if (charge[jSpecies] != 0) {
+    if (charge(jSpecies) != 0) {
         throw CanteraError("MargulesVPSSTP::readXMLBinarySpecies", "speciesB charge problem");
     }
 
