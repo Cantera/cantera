@@ -21,9 +21,6 @@ using namespace ctml;
 namespace Cantera
 {
 
-//! Constructor. Note that ThermoPhase is meant to be used as
-//! a base class, so this constructor should not be called
-//! explicitly.
 ThermoPhase::ThermoPhase() :
     Phase(),
     m_spthermo(0), m_speciesData(0),
@@ -46,13 +43,6 @@ ThermoPhase::~ThermoPhase()
     m_spthermo = 0;
 }
 
-//====================================================================================================================
-/*
- * Copy Constructor for the ThermoPhase object.
- *
- * Currently, this is implemented, but not tested. If called it will
- * throw an exception until fully tested.
- */
 ThermoPhase::ThermoPhase(const ThermoPhase& right)  :
     Phase(),
     m_spthermo(0),
@@ -67,13 +57,7 @@ ThermoPhase::ThermoPhase(const ThermoPhase& right)  :
      */
     *this = operator=(right);
 }
-//====================================================================================================================
-/*
- * operator=()
- *
- *  Note this stuff will not work until the underlying phase
- *  has a working assignment operator
- */
+
 ThermoPhase& ThermoPhase::
 operator=(const ThermoPhase& right)
 {
@@ -123,38 +107,27 @@ operator=(const ThermoPhase& right)
     m_ssConvention = right.m_ssConvention;
     return *this;
 }
-//====================================================================================================================
-/*
- * Duplication routine for objects which inherit from
- * ThermoPhase.
- *
- *  This virtual routine can be used to duplicate thermophase objects
- *  inherited from ThermoPhase even if the application only has
- *  a pointer to ThermoPhase to work with.
- *
- *  Currently, this is not fully implemented. If called, an
- *  exception will be called by the ThermoPhase copy constructor.
- */
+
 ThermoPhase* ThermoPhase::duplMyselfAsThermoPhase() const
 {
     return new ThermoPhase(*this);
 }
-//====================================================================================================================
+
 int ThermoPhase::activityConvention() const
 {
     return cAC_CONVENTION_MOLAR;
 }
-//=================================================================================================================
+
 int ThermoPhase::standardStateConvention() const
 {
     return m_ssConvention;
 }
-//=================================================================================================================
+
 doublereal ThermoPhase::logStandardConc(size_t k) const
 {
     return log(standardConcentration(k));
 }
-//=================================================================================================================
+
 void ThermoPhase::getActivities(doublereal* a) const
 {
     getActivityConcentrations(a);
@@ -162,7 +135,7 @@ void ThermoPhase::getActivities(doublereal* a) const
         a[k] /= standardConcentration(k);
     }
 }
-//=================================================================================================================
+
 void ThermoPhase::getLnActivityCoefficients(doublereal* lnac) const
 {
     getActivityCoefficients(lnac);
@@ -170,40 +143,40 @@ void ThermoPhase::getLnActivityCoefficients(doublereal* lnac) const
         lnac[k] = std::log(lnac[k]);
     }
 }
-//=================================================================================================================
+
 void ThermoPhase::setState_TPX(doublereal t, doublereal p, const doublereal* x)
 {
     setMoleFractions(x);
     setState_TP(t,p);
 }
-//=================================================================================================================
+
 void ThermoPhase::setState_TPX(doublereal t, doublereal p, compositionMap& x)
 {
     setMoleFractionsByName(x);
     setState_TP(t,p);
 }
-//=================================================================================================================
+
 void ThermoPhase::setState_TPX(doublereal t, doublereal p, const std::string& x)
 {
     compositionMap xx = parseCompString(x, speciesNames());
     setMoleFractionsByName(xx);
     setState_TP(t,p);
 }
-//=================================================================================================================
+
 void ThermoPhase::setState_TPY(doublereal t, doublereal p,
                                const doublereal* y)
 {
     setMassFractions(y);
     setState_TP(t,p);
 }
-//=================================================================================================================
+
 void ThermoPhase::setState_TPY(doublereal t, doublereal p,
                                compositionMap& y)
 {
     setMassFractionsByName(y);
     setState_TP(t,p);
 }
-//=================================================================================================================
+
 void ThermoPhase::setState_TPY(doublereal t, doublereal p,
                                const std::string& y)
 {
@@ -211,42 +184,36 @@ void ThermoPhase::setState_TPY(doublereal t, doublereal p,
     setMassFractionsByName(yy);
     setState_TP(t,p);
 }
-//=================================================================================================================
 
 void ThermoPhase::setState_TP(doublereal t, doublereal p)
 {
     setTemperature(t);
     setPressure(p);
 }
-//=================================================================================================================
 
 void ThermoPhase::setState_PX(doublereal p, doublereal* x)
 {
     setMoleFractions(x);
     setPressure(p);
 }
-//=================================================================================================================
 
 void ThermoPhase::setState_PY(doublereal p, doublereal* y)
 {
     setMassFractions(y);
     setPressure(p);
 }
-//=================================================================================================================
 
 void ThermoPhase::setState_HP(doublereal Htarget, doublereal p,
                               doublereal dTtol)
 {
     setState_HPorUV(Htarget, p, dTtol, false);
 }
-//=================================================================================================================
 
 void ThermoPhase::setState_UV(doublereal u, doublereal v,
                               doublereal dTtol)
 {
     setState_HPorUV(u, v, dTtol, true);
 }
-//=================================================================================================================
 
 void ThermoPhase::setState_conditional_TP(doublereal t, doublereal p, bool set_p)
 {
@@ -256,16 +223,6 @@ void ThermoPhase::setState_conditional_TP(doublereal t, doublereal p, bool set_p
     }
 }
 
-// Do the convergence work
-/*
- *  We assume here that H at constant P is a monotonically increasing
- *  function of T.
- *  We assume here that U at constant V is a monotonically increasing
- *  function of T.
- *
- *  Note, the value of dTtol may become important for some applications
- *  where numerical jacobians are being calculated.
- */
 void ThermoPhase::setState_HPorUV(doublereal Htarget, doublereal p,
                                   doublereal dTtol, bool doUV)
 {
@@ -457,32 +414,19 @@ void ThermoPhase::setState_HPorUV(doublereal Htarget, doublereal p,
         throw CanteraError("setState_HPorUV (HP)", ErrString);
     }
 }
-//=================================================================================================================
 
 void ThermoPhase::setState_SP(doublereal Starget, doublereal p,
                               doublereal dTtol)
 {
     setState_SPorSV(Starget, p, dTtol, false);
 }
-//=================================================================================================================
 
 void ThermoPhase::setState_SV(doublereal Starget, doublereal v,
                               doublereal dTtol)
 {
     setState_SPorSV(Starget, v, dTtol, true);
 }
-//=================================================================================================================
 
-// Do the convergence work for fixed entropy situations
-/*
- *  We assume here that S at constant P is a monotonically increasing
- *  function of T.
- *  We assume here that S at constant V is a monotonically increasing
- *  function of T.
- *
- *  Note, the value of dTtol may become important for some applications
- *  where numerical jacobians are being calculated.
- */
 void ThermoPhase::setState_SPorSV(doublereal Starget, doublereal p,
                                   doublereal dTtol, bool doSV)
 {
@@ -656,7 +600,6 @@ void ThermoPhase::setState_SPorSV(doublereal Starget, doublereal p,
         throw CanteraError("setState_SPorSV (SP)", ErrString);
     }
 }
-//=================================================================================================================
 
 doublereal ThermoPhase::err(const std::string& msg) const
 {
@@ -665,33 +608,6 @@ doublereal ThermoPhase::err(const std::string& msg) const
     return 0.0;
 }
 
-/*
- * Returns the units of the standard and general concentrations
- * Note they have the same units, as their divisor is
- * defined to be equal to the activity of the kth species
- * in the solution, which is unitless.
- *
- * This routine is used in print out applications where the
- * units are needed. Usually, MKS units are assumed throughout
- * the program and in the XML input files.
- *
- * On return uA contains the powers of the units (MKS assumed)
- * of the standard concentrations and generalized concentrations
- * for the kth species.
- *
- * The base %ThermoPhase class assigns the default quantities
- * of (kmol/m3).
- * Inherited classes are responsible for overriding the default
- * values if necessary.
- *
- *  uA[0] = kmol units - default  = 1
- *  uA[1] = m    units - default  = -nDim(), the number of spatial
- *                                dimensions in the Phase class.
- *  uA[2] = kg   units - default  = 0;
- *  uA[3] = Pa(pressure) units - default = 0;
- *  uA[4] = Temperature units - default = 0;
- *  uA[5] = time units - default = 0
- */
 void ThermoPhase::getUnitsStandardConc(double* uA, int k, int sizeUA) const
 {
     for (int i = 0; i < sizeUA; i++) {
@@ -715,21 +631,7 @@ void ThermoPhase::getUnitsStandardConc(double* uA, int k, int sizeUA) const
         }
     }
 }
-//=================================================================================================================
-//  Install a species thermodynamic property manager.
-/*
- * The species thermodynamic property manager
- * computes properties of the pure species for use in
- * constructing solution properties. It is meant for internal
- * use, and some classes derived from ThermoPhase may not use
- * any species thermodynamic property manager. This method is
- * called by function importPhase() in importCTML.cpp.
- *
- * @param spthermo input pointer to the species thermodynamic property
- *                 manager.
- *
- *  @internal
- */
+
 void ThermoPhase::setSpeciesThermo(SpeciesThermo* spthermo)
 {
     if (m_spthermo) {
@@ -739,15 +641,7 @@ void ThermoPhase::setSpeciesThermo(SpeciesThermo* spthermo)
     }
     m_spthermo = spthermo;
 }
-//=================================================================================================================
-// Return a changeable reference to the calculation manager
-// for species reference-state thermodynamic properties
-/*
- *
- * @param k   Species id. The default is -1, meaning return the default
- *
- * @internal
- */
+
 SpeciesThermo& ThermoPhase::speciesThermo(int k)
 {
     if (!m_spthermo) {
@@ -756,22 +650,7 @@ SpeciesThermo& ThermoPhase::speciesThermo(int k)
     }
     return *m_spthermo;
 }
-//=================================================================================================================
-/*
- * initThermoFile():
- *
- * Initialization of a phase using an xml file.
- *
- * This routine is a precursor to initThermoXML(XML_Node*)
- * routine, which does most of the work.
- *
- * @param infile XML file containing the description of the
- *        phase
- *
- * @param id  Optional parameter identifying the name of the
- *            phase. If none is given, the first XML
- *            phase element will be used.
- */
+
 void ThermoPhase::initThermoFile(const std::string& inputFile,
                                  const std::string& id)
 {
@@ -807,27 +686,7 @@ void ThermoPhase::initThermoFile(const std::string& inputFile,
     }
     delete fxml;
 }
-//=================================================================================================================
 
-/*
- *   Import and initialize a ThermoPhase object
- *
- *   This function is called from importPhase()
- *   after the elements and the
- *   species are initialized with default ideal solution
- *   level data.
- *
- * @param phaseNode This object must be the phase node of a
- *             complete XML tree
- *             description of the phase, including all of the
- *             species data. In other words while "phase" must
- *             point to an XML phase object, it must have
- *             sibling nodes "speciesData" that describe
- *             the species in the phase.
- * @param id   ID of the phase. If nonnull, a check is done
- *             to see if phaseNode is pointing to the phase
- *             with the correct id.
- */
 void ThermoPhase::initThermoXML(XML_Node& phaseNode, const std::string& id)
 {
 
@@ -869,21 +728,6 @@ void ThermoPhase::getReferenceComposition(doublereal* const x) const
     }
 }
 
-/*
- * Initialize.
- *
- * This method is provided to allow
- * subclasses to perform any initialization required after all
- * species have been added. For example, it might be used to
- * resize internal work arrays that must have an entry for
- * each species.  The base class implementation does nothing,
- * and subclasses that do not require initialization do not
- * need to overload this method.  When importing a CTML phase
- * description, this method is called just prior to returning
- * from function importPhase.
- *
- * @see importCTML.cpp
- */
 void ThermoPhase::initThermo()
 {
     // Check to see that there is at least one species defined in the phase
@@ -893,12 +737,10 @@ void ThermoPhase::initThermo()
     }
     xMol_Ref.resize(m_kk, 0.0);
 }
-//====================================================================================================================
 void ThermoPhase::installSlavePhases(Cantera::XML_Node* phaseNode)
 {
-
 }
-//====================================================================================================================
+
 void ThermoPhase::saveSpeciesData(const size_t k, const XML_Node* const data)
 {
     if (m_speciesData.size() < (k + 1)) {
@@ -906,10 +748,8 @@ void ThermoPhase::saveSpeciesData(const size_t k, const XML_Node* const data)
     }
     m_speciesData[k] = new XML_Node(*data);
 }
-//====================================================================================================================
-// Return a pointer to the XML tree containing the species
-// data for this phase.
-const std::vector<const XML_Node*>& ThermoPhase::speciesData() const
+
+const std::vector<const XML_Node*> & ThermoPhase::speciesData() const
 {
     if (m_speciesData.size() != m_kk) {
         throw CanteraError("ThermoPhase::speciesData",
@@ -917,10 +757,7 @@ const std::vector<const XML_Node*>& ThermoPhase::speciesData() const
     }
     return m_speciesData;
 }
-//====================================================================================================================
-/*
- * Set the thermodynamic state.
- */
+
 void ThermoPhase::setStateFromXML(const XML_Node& state)
 {
     string comp = getChildValue(state,"moleFractions");
@@ -945,16 +782,7 @@ void ThermoPhase::setStateFromXML(const XML_Node& state)
         setDensity(rho);
     }
 }
-//====================================================================================================================
-/*
- * Called by function 'equilibrate' in ChemEquil.h to transfer
- * the element potentials to this object after every successful
- *  equilibration routine.
- * The element potentials are stored in their dimensionless
- * forms, calculated by dividing by RT.
- *    @param lambda vector containing the element potentials.
- *           Length = nElements. Units are Joules/kmol.
- */
+
 void ThermoPhase::setElementPotentials(const vector_fp& lambda)
 {
     doublereal rrt = 1.0/(GasConstant* temperature());
@@ -971,13 +799,6 @@ void ThermoPhase::setElementPotentials(const vector_fp& lambda)
     m_hasElementPotentials = true;
 }
 
-/*
- * Returns the stored element potentials.
- * The element potentials are retrieved from their stored
- * dimensionless forms by multiplying by RT.
- * @param lambda Vector containing the element potentials.
- *        Length = nElements. Units are Joules/kmol.
- */
 bool ThermoPhase::getElementPotentials(doublereal* lambda) const
 {
     doublereal rt = GasConstant* temperature();
@@ -988,25 +809,7 @@ bool ThermoPhase::getElementPotentials(doublereal* lambda) const
     }
     return (m_hasElementPotentials);
 }
-//====================================================================================================================
-// Get the array of derivatives of the log activity coefficients with respect to the species mole numbers
-/*
- * Implementations should take the derivative of the logarithm of the activity coefficient with respect to a
- * species mole number (with all other species mole numbers held constant)
- *
- *  units = 1 / kmol
- *
- *  dlnActCoeffdN[ ld * k  + m]  will contain the derivative of log act_coeff for the <I>m</I><SUP>th</SUP>
- *                               species with respect to the number of moles of the <I>k</I><SUP>th</SUP> species.
- *
- * \f[
- *        \frac{d \ln(\gamma_m) }{d n_k }\Bigg|_{n_i}
- * \f]
- *
- * @param ld               Number of rows in the matrix
- * @param dlnActCoeffdN    Output vector of derivatives of the
- *                         log Activity Coefficients. length = m_kk * m_kk
- */
+
 void ThermoPhase::getdlnActCoeffdlnN(const size_t ld, doublereal* const dlnActCoeffdlnN)
 {
     for (size_t m = 0; m < m_kk; m++) {
@@ -1016,7 +819,7 @@ void ThermoPhase::getdlnActCoeffdlnN(const size_t ld, doublereal* const dlnActCo
     }
     return;
 }
-//====================================================================================================================
+
 void ThermoPhase::getdlnActCoeffdlnN_numderiv(const size_t ld, doublereal* const dlnActCoeffdlnN)
 {
     double deltaMoles_j = 0.0;
@@ -1088,10 +891,7 @@ void ThermoPhase::getdlnActCoeffdlnN_numderiv(const size_t ld, doublereal* const
      */
     setState_PX(pres, DATA_PTR(Xmol_Base));
 }
-//====================================================================================================================
-/*
- * Format a summary of the mixture state for output.
- */
+
 std::string ThermoPhase::report(bool show_thermo) const
 {
     char p[800];
@@ -1195,10 +995,7 @@ std::string ThermoPhase::report(bool show_thermo) const
     }
     return s;
 }
-//====================================================================================================================
-/*
- * Format a summary of the mixture state for output.
- */
+
 void ThermoPhase::reportCSV(std::ofstream& csvFile) const
 {
     int tabS = 15;
