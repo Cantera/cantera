@@ -4,7 +4,6 @@
  *   employ excess gibbs free energy formulations related to Margules
  *   expansions (see \ref thermoprops
  *    and class \link Cantera::MargulesVPSSTP MargulesVPSSTP\endlink).
- *
  */
 /*
  * Copyright (2009) Sandia Corporation. Under the terms of
@@ -22,11 +21,6 @@ using namespace std;
 
 namespace Cantera
 {
-
-/*
- * Default constructor.
- *
- */
 MargulesVPSSTP::MargulesVPSSTP() :
     GibbsExcessVPSSTP(),
     numBinaryInteractions_(0),
@@ -35,15 +29,6 @@ MargulesVPSSTP::MargulesVPSSTP() :
 {
 }
 
-/*
- * Working constructors
- *
- *  The two constructors below are the normal way
- *  the phase initializes itself. They are shells that call
- *  the routine initThermo(), with a reference to the
- *  XML database to get the info for the phase.
-
- */
 MargulesVPSSTP::MargulesVPSSTP(const std::string& inputFile, const std::string& id) :
     GibbsExcessVPSSTP(),
     numBinaryInteractions_(0),
@@ -62,25 +47,12 @@ MargulesVPSSTP::MargulesVPSSTP(XML_Node& phaseRoot, const std::string& id) :
     importPhase(*findXMLPhase(&phaseRoot, id), this);
 }
 
-
-/*
- * Copy Constructor:
- *
- *  Note this stuff will not work until the underlying phase
- *  has a working copy constructor
- */
 MargulesVPSSTP::MargulesVPSSTP(const MargulesVPSSTP& b) :
     GibbsExcessVPSSTP()
 {
     MargulesVPSSTP::operator=(b);
 }
 
-/*
- * operator=()
- *
- *  Note this stuff will not work until the underlying phase
- *  has a working assignment operator
- */
 MargulesVPSSTP& MargulesVPSSTP::
 operator=(const MargulesVPSSTP& b)
 {
@@ -111,34 +83,16 @@ operator=(const MargulesVPSSTP& b)
     return *this;
 }
 
-/**
- *
- * ~MargulesVPSSTP():   (virtual)
- *
- * Destructor: does nothing:
- *
- */
 MargulesVPSSTP::~MargulesVPSSTP()
 {
 }
 
-/*
- * This routine duplicates the current object and returns
- * a pointer to ThermoPhase.
- */
 ThermoPhase*
 MargulesVPSSTP::duplMyselfAsThermoPhase() const
 {
     return new MargulesVPSSTP(*this);
 }
 
-// Special constructor for a hard-coded problem
-/*
- *
- *   LiKCl treating the PseudoBinary layer as passthrough.
- *   -> test to predict the eutectic and liquidus correctly.
- *
- */
 MargulesVPSSTP::MargulesVPSSTP(int testProb)  :
     GibbsExcessVPSSTP(),
     numBinaryInteractions_(0),
@@ -197,41 +151,19 @@ MargulesVPSSTP::MargulesVPSSTP(int testProb)  :
     m_pSpecies_A_ij[0] = iKCl;
 }
 
-
 /*
  *  -------------- Utilities -------------------------------
  */
 
-
-// Equation of state type flag.
-/*
- * The ThermoPhase base class returns
- * zero. Subclasses should define this to return a unique
- * non-zero value. Known constants defined for this purpose are
- * listed in mix_defs.h. The MargulesVPSSTP class also returns
- * zero, as it is a non-complete class.
- */
 int MargulesVPSSTP::eosType() const
 {
     return 0;
 }
 
 /*
- * ------------ Molar Thermodynamic Properties ----------------------
- */
-
-
-/*
  * - Activities, Standard States, Activity Concentrations -----------
  */
 
-
-//====================================================================================================================
-// Get the array of non-dimensional molar-based ln activity coefficients at
-// the current solution temperature, pressure, and solution concentration.
-/*
- * @param lnac Output vector of ln activity coefficients. Length: m_kk.
- */
 void MargulesVPSSTP::getLnActivityCoefficients(doublereal* lnac) const
 {
     /*
@@ -246,12 +178,10 @@ void MargulesVPSSTP::getLnActivityCoefficients(doublereal* lnac) const
         lnac[k] = lnActCoeff_Scaled_[k];
     }
 }
-//====================================================================================================================
+
 /*
  * ------------ Partial Molar Properties of the Solution ------------
  */
-
-
 
 void MargulesVPSSTP::getElectrochemPotentials(doublereal* mu) const
 {
@@ -261,7 +191,6 @@ void MargulesVPSSTP::getElectrochemPotentials(doublereal* mu) const
         mu[k] += ve*charge(k);
     }
 }
-
 
 void MargulesVPSSTP::getChemPotentials(doublereal* mu) const
 {
@@ -284,7 +213,6 @@ void MargulesVPSSTP::getChemPotentials(doublereal* mu) const
     }
 }
 
-/// Molar enthalpy. Units: J/kmol.
 doublereal MargulesVPSSTP::enthalpy_mole() const
 {
     size_t kk = nSpecies();
@@ -297,7 +225,6 @@ doublereal MargulesVPSSTP::enthalpy_mole() const
     return h;
 }
 
-/// Molar entropy. Units: J/kmol.
 doublereal MargulesVPSSTP::entropy_mole() const
 {
     size_t kk = nSpecies();
@@ -310,7 +237,6 @@ doublereal MargulesVPSSTP::entropy_mole() const
     return s;
 }
 
-/// Molar heat capacity at constant pressure. Units: J/kmol/K.
 doublereal MargulesVPSSTP::cp_mole() const
 {
     size_t kk = nSpecies();
@@ -323,26 +249,11 @@ doublereal MargulesVPSSTP::cp_mole() const
     return cp;
 }
 
-/// Molar heat capacity at constant volume. Units: J/kmol/K.
 doublereal MargulesVPSSTP::cv_mole() const
 {
     return cp_mole() - GasConstant;
 }
 
-// Returns an array of partial molar enthalpies for the species
-// in the mixture.
-/*
- * Units (J/kmol)
- *
- * For this phase, the partial molar enthalpies are equal to the
- * standard state enthalpies modified by the derivative of the
- * molality-based activity coefficient wrt temperature
- *
- *  \f[
- * \bar h_k(T,P) = h^o_k(T,P) - R T^2 \frac{d \ln(\gamma_k)}{dT}
- * \f]
- *
- */
 void MargulesVPSSTP::getPartialMolarEnthalpies(doublereal* hbar) const
 {
     /*
@@ -369,20 +280,6 @@ void MargulesVPSSTP::getPartialMolarEnthalpies(doublereal* hbar) const
     }
 }
 
-// Returns an array of partial molar heat capacities for the species
-// in the mixture.
-/*
- * Units (J/kmol)
- *
- * For this phase, the partial molar enthalpies are equal to the
- * standard state enthalpies modified by the derivative of the
- * activity coefficient wrt temperature
- *
- *  \f[
- * ??????????? \bar s_k(T,P) = s^o_k(T,P) - R T^2 \frac{d \ln(\gamma_k)}{dT}
- * \f]
- *
- */
 void MargulesVPSSTP::getPartialMolarCp(doublereal* cpbar) const
 {
     /*
@@ -408,20 +305,6 @@ void MargulesVPSSTP::getPartialMolarCp(doublereal* cpbar) const
     }
 }
 
-// Returns an array of partial molar entropies for the species
-// in the mixture.
-/*
- * Units (J/kmol)
- *
- * For this phase, the partial molar enthalpies are equal to the
- * standard state enthalpies modified by the derivative of the
- * activity coefficient wrt temperature
- *
- *  \f[
- * \bar s_k(T,P) = s^o_k(T,P) - R T^2 \frac{d \ln(\gamma_k)}{dT}
- * \f]
- *
- */
 void MargulesVPSSTP::getPartialMolarEntropies(doublereal* sbar) const
 {
     double xx;
@@ -449,20 +332,6 @@ void MargulesVPSSTP::getPartialMolarEntropies(doublereal* sbar) const
     }
 }
 
-/*
- * ------------ Partial Molar Properties of the Solution ------------
- */
-
-// Return an array of partial molar volumes for the
-// species in the mixture. Units: m^3/kmol.
-/*
- *  Frequently, for this class of thermodynamics representations,
- *  the excess Volume due to mixing is zero. Here, we set it as
- *  a default. It may be overridden in derived classes.
- *
- *  @param vbar   Output vector of species partial molar volumes.
- *                Length = m_kk. units are m^3/kmol.
- */
 void MargulesVPSSTP::getPartialMolarVolumes(doublereal* vbar) const
 {
 
@@ -505,50 +374,18 @@ doublereal MargulesVPSSTP::err(const std::string& msg) const
     return 0;
 }
 
-
-/*
- * @internal Initialize. This method is provided to allow
- * subclasses to perform any initialization required after all
- * species have been added. For example, it might be used to
- * resize internal work arrays that must have an entry for
- * each species.  The base class implementation does nothing,
- * and subclasses that do not require initialization do not
- * need to overload this method.  When importing a CTML phase
- * description, this method is called just prior to returning
- * from function importPhase.
- *
- * @see importCTML.cpp
- */
 void MargulesVPSSTP::initThermo()
 {
     initLengths();
     GibbsExcessVPSSTP::initThermo();
 }
 
-
-//   Initialize lengths of local variables after all species have
-//   been identified.
 void  MargulesVPSSTP::initLengths()
 {
     m_kk = nSpecies();
     dlnActCoeffdlnN_.resize(m_kk, m_kk);
 }
 
-/*
- * initThermoXML()                (virtual from ThermoPhase)
- *   Import and initialize a ThermoPhase object
- *
- * @param phaseNode This object must be the phase node of a
- *             complete XML tree
- *             description of the phase, including all of the
- *             species data. In other words while "phase" must
- *             point to an XML phase object, it must have
- *             sibling nodes "speciesData" that describe
- *             the species in the phase.
- * @param id   ID of the phase. If nonnull, a check is done
- *             to see if phaseNode is pointing to the phase
- *             with the correct id.
- */
 void MargulesVPSSTP::initThermoXML(XML_Node& phaseNode, const std::string& id)
 {
     string stemp;
@@ -617,15 +454,7 @@ void MargulesVPSSTP::initThermoXML(XML_Node& phaseNode, const std::string& id)
 
 
 }
-//===================================================================================================================
 
-// Update the activity coefficients
-/*
- * This function will be called to update the internally stored
- * natural logarithm of the activity coefficients
- *
- *   he = X_A X_B(B + C X_B)
- */
 void MargulesVPSSTP::s_update_lnActCoeff() const
 {
     size_t iA, iB, iK;
@@ -653,14 +482,7 @@ void MargulesVPSSTP::s_update_lnActCoeff() const
         lnActCoeff_Scaled_[iB] += XA * g0g1XB + XAXB * g1;
     }
 }
-//===================================================================================================================
-// Update the derivative of the log of the activity coefficients wrt T
-/*
- * This function will be called to update the internally stored
- * natural logarithm of the activity coefficients
- *
- *   he = X_A X_B(B + C X_B)
- */
+
 void MargulesVPSSTP::s_update_dlnActCoeff_dT() const
 {
     size_t iA, iB, iK;
@@ -696,7 +518,7 @@ void MargulesVPSSTP::s_update_dlnActCoeff_dT() const
         d2lnActCoeffdT2_Scaled_[iB] -= mult * XA * g0g1XB + XAXB * g1;
     }
 }
-//====================================================================================================================
+
 void MargulesVPSSTP::getdlnActCoeffdT(doublereal* dlnActCoeffdT) const
 {
     s_update_dlnActCoeff_dT();
@@ -704,7 +526,7 @@ void MargulesVPSSTP::getdlnActCoeffdT(doublereal* dlnActCoeffdT) const
         dlnActCoeffdT[k] = dlnActCoeffdT_Scaled_[k];
     }
 }
-//====================================================================================================================
+
 void MargulesVPSSTP::getd2lnActCoeffdT2(doublereal* d2lnActCoeffdT2) const
 {
     s_update_dlnActCoeff_dT();
@@ -712,24 +534,10 @@ void MargulesVPSSTP::getd2lnActCoeffdT2(doublereal* d2lnActCoeffdT2) const
         d2lnActCoeffdT2[k] = d2lnActCoeffdT2_Scaled_[k];
     }
 }
-//====================================================================================================================
 
-// Get the change in activity coefficients w.r.t. change in state (temp, mole fraction, etc.) along
-// a line in parameter space or along a line in physical space
-/*
- *
- * @param dTds           Input of temperature change along the path
- * @param dXds           Input vector of changes in mole fraction along the path. length = m_kk
- *                       Along the path length it must be the case that the mole fractions sum to one.
- * @param dlnActCoeffds  Output vector of the directional derivatives of the
- *                       log Activity Coefficients along the path. length = m_kk
- *  units are 1/units(s). if s is a physical coordinate then the units are 1/m.
- */
 void  MargulesVPSSTP::getdlnActCoeffds(const doublereal dTds, const doublereal* const dXds,
                                        doublereal* dlnActCoeffds) const
 {
-
-
     size_t iA, iB, iK;
     double XA, XB, g0 , g1, dXA, dXB;
     double T = temperature();
@@ -763,15 +571,7 @@ void  MargulesVPSSTP::getdlnActCoeffds(const doublereal dTds, const doublereal* 
         dlnActCoeffds[iB] += dXA * g02g1XB + g2XAdXB;
     }
 }
-//====================================================================================================================
-// Update the derivative of the log of the activity coefficients wrt dlnN
-/*
- * This function will be called to update the internally stored gradients of the
- * logarithm of the activity coefficients.  These are used in the determination
- * of the diffusion coefficients.
- *
- *   he = X_A X_B(B + C X_B)
- */
+
 void MargulesVPSSTP::s_update_dlnActCoeff_dlnN_diag() const
 {
     size_t iA, iB, iK, delAK, delBK;
@@ -827,14 +627,6 @@ void MargulesVPSSTP::s_update_dlnActCoeff_dlnN_diag() const
     }
 }
 
-//====================================================================================================================
-// Update the derivative of the log of the activity coefficients wrt dlnN
-/*
- * This function will be called to update the internally stored gradients of the
- * logarithm of the activity coefficients.  These are used in the determination
- * of the diffusion coefficients.
- *
- */
 void MargulesVPSSTP::s_update_dlnActCoeff_dlnN() const
 {
     size_t iA, iB;
@@ -902,7 +694,7 @@ void MargulesVPSSTP::s_update_dlnActCoeff_dlnN() const
         }
     }
 }
-//====================================================================================================================
+
 void MargulesVPSSTP::s_update_dlnActCoeff_dlnX_diag() const
 {
     doublereal T = temperature();
@@ -924,7 +716,6 @@ void MargulesVPSSTP::s_update_dlnActCoeff_dlnX_diag() const
     }
 }
 
-//====================================================================================================================
 void MargulesVPSSTP::getdlnActCoeffdlnN_diag(doublereal* dlnActCoeffdlnN_diag) const
 {
     s_update_dlnActCoeff_dlnN_diag();
@@ -932,7 +723,7 @@ void MargulesVPSSTP::getdlnActCoeffdlnN_diag(doublereal* dlnActCoeffdlnN_diag) c
         dlnActCoeffdlnN_diag[k] = dlnActCoeffdlnN_diag_[k];
     }
 }
-//====================================================================================================================
+
 void MargulesVPSSTP::getdlnActCoeffdlnX_diag(doublereal* dlnActCoeffdlnX_diag) const
 {
     s_update_dlnActCoeff_dlnX_diag();
@@ -940,7 +731,7 @@ void MargulesVPSSTP::getdlnActCoeffdlnX_diag(doublereal* dlnActCoeffdlnX_diag) c
         dlnActCoeffdlnX_diag[k] = dlnActCoeffdlnX_diag_[k];
     }
 }
-//====================================================================================================================
+
 void MargulesVPSSTP::getdlnActCoeffdlnN(const size_t ld, doublereal* dlnActCoeffdlnN)
 {
     s_update_dlnActCoeff_dlnN();
@@ -951,7 +742,7 @@ void MargulesVPSSTP::getdlnActCoeffdlnN(const size_t ld, doublereal* dlnActCoeff
         }
     }
 }
-//====================================================================================================================
+
 void MargulesVPSSTP::resizeNumInteractions(const size_t num)
 {
     numBinaryInteractions_ = num;
@@ -970,17 +761,8 @@ void MargulesVPSSTP::resizeNumInteractions(const size_t num)
 
     m_pSpecies_A_ij.resize(num, npos);
     m_pSpecies_B_ij.resize(num, npos);
-
 }
-//====================================================================================================================
 
-/*
- * Process an XML node called "binaryNeutralSpeciesParameters"
- * This node contains all of the parameters necessary to describe
- * the Margules Interaction for a single binary interaction
- * This function reads the XML file and writes the coefficients
- * it finds to an internal data structures.
- */
 void MargulesVPSSTP::readXMLBinarySpecies(XML_Node& xmLBinarySpecies)
 {
     string xname = xmLBinarySpecies.name();
@@ -1096,11 +878,7 @@ void MargulesVPSSTP::readXMLBinarySpecies(XML_Node& xmLBinarySpecies)
             m_VSE_b_ij[iSpot] = vParams[0];
             m_VSE_c_ij[iSpot] = vParams[1];
         }
-
-
     }
-
 }
 
 }
-

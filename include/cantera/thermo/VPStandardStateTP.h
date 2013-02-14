@@ -60,12 +60,8 @@ class VPStandardStateTP : public ThermoPhase
 {
 
 public:
+    //! @name Constructors and Duplicators for %VPStandardStateTP
 
-    /*!
-     *
-     * @name Constructors and Duplicators for %VPStandardStateTP
-     *
-     */
     /// Constructor.
     VPStandardStateTP();
 
@@ -84,16 +80,11 @@ public:
     //! Destructor.
     virtual ~VPStandardStateTP();
 
-    /*
-     * Duplication routine
-     */
+    //! Duplication routine
     virtual ThermoPhase* duplMyselfAsThermoPhase() const;
 
     //@}
-
-    /**
-     * @name  Utilities (VPStandardStateTP)
-     */
+    //! @name  Utilities (VPStandardStateTP)
     //@{
     /**
      * Equation of state type flag. The base class returns
@@ -110,12 +101,10 @@ public:
     //! temperature based, and variable pressure based.
     /*!
      * Currently, there are two standard state conventions:
-     *  - Temperature-based activities
-     *   cSS_CONVENTION_TEMPERATURE 0
-     *      - default
-     *
-     *  -  Variable Pressure and Temperature -based activities
-     *   cSS_CONVENTION_VPSS 1
+     *  - Temperature-based activities,
+     *    `cSS_CONVENTION_TEMPERATURE 0` (default)
+     *  - Variable Pressure and Temperature-based activities,
+     *    `cSS_CONVENTION_VPSS 1`
      */
     virtual int standardStateConvention() const;
 
@@ -141,17 +130,14 @@ public:
         err("getdlnActCoeffdlnN_diag");
     }
 
-
     //@}
-    /// @name  Partial Molar Properties of the Solution  (VPStandardStateTP)
+    /// @name  Partial Molar Properties of the Solution (VPStandardStateTP)
     //@{
 
-
-    //! Get the array of non-dimensional species chemical potentials
-    //! These are partial molar Gibbs free energies.
+    //! Get the array of non-dimensional species chemical potentials.
     /*!
+     * These are partial molar Gibbs free energies,
      * \f$ \mu_k / \hat R T \f$.
-     * Units: unitless
      *
      * We close the loop on this function, here, calling
      * getChemPotentials() and then dividing by RT. No need for child
@@ -165,14 +151,12 @@ public:
     //@}
 
     /*!
-     * @name  Properties of the Standard State of the Species in the Solution
-     *                (VPStandardStateTP)
+     * @name  Properties of the Standard State of the Species in the Solution (VPStandardStateTP)
      *
      *  Within VPStandardStateTP, these properties are calculated via a common routine,
-     *  _updateStandardStateThermo(),
-     *  which must be overloaded in inherited objects.
-     *  The values are cached within this object, and are not recalculated unless
-     *  the temperature or pressure changes.
+     *  _updateStandardStateThermo(), which must be overloaded in inherited
+     *  objects. The values are cached within this object, and are not
+     *  recalculated unless the temperature or pressure changes.
      */
     //@{
 
@@ -271,7 +255,6 @@ public:
     virtual void getStandardVolumes(doublereal* vol) const;
     virtual const vector_fp& getStandardVolumes() const;
 
-
     //! Set the temperature of the phase
     /*!
      *    Currently this passes down to setState_TP(). It does not
@@ -281,7 +264,6 @@ public:
      * @param temp  Temperature (kelvin)
      */
     virtual void setTemperature(const doublereal temp);
-
 
     //! Set the internally stored pressure (Pa) at constant
     //! temperature and composition
@@ -405,7 +387,6 @@ public:
      */
     //@{
 
-
     //!  Returns the vector of nondimensional
     //!  enthalpies of the reference state at the current temperature
     //!  of the solution and the reference pressure for the species.
@@ -434,7 +415,6 @@ public:
     //!  Gibbs free energies of the reference state at the current temperature
     //!  of the solution and the reference pressure for the species.
     /*!
-     *
      * @param grt Output vector contains the nondimensional Gibbs free energies
      *            of the reference state of the species
      *            length = m_kk, units = dimensionless.
@@ -488,16 +468,9 @@ public:
      *                Length: m_kk.
      */
     virtual void getStandardVolumes_ref(doublereal* vol) const;
-
-protected:
-
-
-
     //@}
 
-
 public:
-
     //! @name Initialization Methods - For Internal use (VPStandardState)
     /*!
      * The following methods are used in the process of constructing
@@ -521,23 +494,6 @@ public:
      */
     virtual void setParametersFromXML(const XML_Node& eosdata) {}
 
-    //! @internal Initialize the object
-    /*!
-     * This method is provided to allow
-     * subclasses to perform any initialization required after all
-     * species have been added. For example, it might be used to
-     * resize internal work arrays that must have an entry for
-     * each species.  The base class implementation does nothing,
-     * and subclasses that do not require initialization do not
-     * need to overload this method.  When importing a CTML phase
-     * description, this method is called after calling installSpecies()
-     * for each species in the phase. It's called before calling
-     * initThermoXML() for the phase. Therefore, it's the correct
-     * place for initializing vectors which have lengths equal to the
-     * number of species.
-     *
-     * @see importCTML.cpp
-     */
     virtual void initThermo();
 
     //!   Initialize a ThermoPhase object, potentially reading activity
@@ -634,9 +590,7 @@ protected:
      */
     std::vector<PDSS*> m_PDSS_storage;
 
-
 private:
-
     //! VPStandardStateTP has its own err routine
     /*!
      * @param msg  Error message string

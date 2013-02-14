@@ -31,9 +31,6 @@
 namespace Cantera
 {
 
-/*
- * Default constructor
- */
 HMWSoln::HMWSoln() :
     MolalityVPSSTP(),
     m_formPitzer(PITZERFORM_BASE),
@@ -55,11 +52,11 @@ HMWSoln::HMWSoln() :
     IMS_gamma_k_min_(10.0),
     IMS_cCut_(0.05),
     IMS_slopefCut_(0.6),
+    IMS_slopegCut_(0.0),
     IMS_dfCut_(0.0),
     IMS_efCut_(0.0),
     IMS_afCut_(0.0),
     IMS_bfCut_(0.0),
-    IMS_slopegCut_(0.0),
     IMS_dgCut_(0.0),
     IMS_egCut_(0.0),
     IMS_agCut_(0.0),
@@ -83,14 +80,7 @@ HMWSoln::HMWSoln() :
         elambda1[i] = 0.0;
     }
 }
-/*
- * Working constructors
- *
- *  The two constructors below are the normal way
- *  the phase initializes itself. They are shells that call
- *  the routine initThermo(), with a reference to the
- *  XML database to get the info for the phase.
- */
+
 HMWSoln::HMWSoln(const std::string& inputFile, const std::string& id) :
     MolalityVPSSTP(),
     m_formPitzer(PITZERFORM_BASE),
@@ -112,11 +102,11 @@ HMWSoln::HMWSoln(const std::string& inputFile, const std::string& id) :
     IMS_gamma_k_min_(10.0),
     IMS_cCut_(0.05),
     IMS_slopefCut_(0.6),
+    IMS_slopegCut_(0.0),
     IMS_dfCut_(0.0),
     IMS_efCut_(0.0),
     IMS_afCut_(0.0),
     IMS_bfCut_(0.0),
-    IMS_slopegCut_(0.0),
     IMS_dgCut_(0.0),
     IMS_egCut_(0.0),
     IMS_agCut_(0.0),
@@ -163,11 +153,11 @@ HMWSoln::HMWSoln(XML_Node& phaseRoot, const std::string& id) :
     IMS_gamma_k_min_(10.0),
     IMS_cCut_(0.05),
     IMS_slopefCut_(0.6),
+    IMS_slopegCut_(0.0),
     IMS_dfCut_(0.0),
     IMS_efCut_(0.0),
     IMS_afCut_(0.0),
     IMS_bfCut_(0.0),
-    IMS_slopegCut_(0.0),
     IMS_dgCut_(0.0),
     IMS_egCut_(0.0),
     IMS_agCut_(0.0),
@@ -193,12 +183,6 @@ HMWSoln::HMWSoln(XML_Node& phaseRoot, const std::string& id) :
     importPhase(*findXMLPhase(&phaseRoot, id), this);
 }
 
-/*
- * Copy Constructor:
- *
- *  Note this stuff will not work until the underlying phase
- *  has a working copy constructor
- */
 HMWSoln::HMWSoln(const HMWSoln& b) :
     MolalityVPSSTP(),
     m_formPitzer(PITZERFORM_BASE),
@@ -220,11 +204,11 @@ HMWSoln::HMWSoln(const HMWSoln& b) :
     IMS_gamma_k_min_(10.0),
     IMS_cCut_(0.05),
     IMS_slopefCut_(0.6),
+    IMS_slopegCut_(0.0),
     IMS_dfCut_(0.0),
     IMS_efCut_(0.0),
     IMS_afCut_(0.0),
     IMS_bfCut_(0.0),
-    IMS_slopegCut_(0.0),
     IMS_dgCut_(0.0),
     IMS_egCut_(0.0),
     IMS_agCut_(0.0),
@@ -250,12 +234,6 @@ HMWSoln::HMWSoln(const HMWSoln& b) :
     *this = b;
 }
 
-/*
- * operator=()
- *
- *  Note this stuff will not work until the underlying phase
- *  has a working assignment operator
- */
 HMWSoln& HMWSoln::
 operator=(const HMWSoln& b)
 {
@@ -417,33 +395,6 @@ operator=(const HMWSoln& b)
     return *this;
 }
 
-
-
-/*
- *
- *
- *  test problems:
- *  1 = NaCl problem - 5 species -
- *   the thermo is read in from an XML file
- *
- * speci   molality                        charge
- *  Cl-     6.0954          6.0997E+00      -1
- *  H+      1.0000E-08      2.1628E-09      1
- *  Na+     6.0954E+00      6.0997E+00      1
- *  OH-     7.5982E-07      1.3977E-06     -1
- *  HMW_params____beta0MX__beta1MX__beta2MX__CphiMX_____alphaMX__thetaij
- * 10
- * 1  2          0.1775  0.2945   0.0      0.00080    2.0      0.0
- * 1  3          0.0765  0.2664   0.0      0.00127    2.0      0.0
- * 1  4          0.0     0.0      0.0      0.0        0.0     -0.050
- * 2  3          0.0     0.0      0.0      0.0        0.0      0.036
- * 2  4          0.0     0.0      0.0      0.0        0.0      0.0
- * 3  4          0.0864  0.253    0.0      0.0044     2.0      0.0
- * Triplet_interaction_parameters_psiaa'_or_psicc'
- * 2
- * 1  2  3   -0.004
- * 1  3  4   -0.006
- */
 HMWSoln::HMWSoln(int testProb) :
     MolalityVPSSTP(),
     m_formPitzer(PITZERFORM_BASE),
@@ -465,11 +416,11 @@ HMWSoln::HMWSoln(int testProb) :
     IMS_gamma_k_min_(10.0),
     IMS_cCut_(0.05),
     IMS_slopefCut_(0.6),
+    IMS_slopegCut_(0.0),
     IMS_dfCut_(0.0),
     IMS_efCut_(0.0),
     IMS_afCut_(0.0),
     IMS_bfCut_(0.0),
-    IMS_slopegCut_(0.0),
     IMS_dgCut_(0.0),
     IMS_egCut_(0.0),
     IMS_agCut_(0.0),
@@ -585,11 +536,6 @@ HMWSoln::HMWSoln(int testProb) :
     printCoeffs();
 }
 
-/*
- * ~HMWSoln():   (virtual)
- *
- *     Destructor: does nothing:
- */
 HMWSoln::~HMWSoln()
 {
     if (m_waterProps) {
@@ -598,24 +544,11 @@ HMWSoln::~HMWSoln()
     }
 }
 
-/*
- *  duplMyselfAsThermoPhase():
- *
- *  This routine operates at the ThermoPhase level to
- *  duplicate the current object. It uses the copy constructor
- *  defined above.
- */
 ThermoPhase* HMWSoln::duplMyselfAsThermoPhase() const
 {
     return new HMWSoln(*this);
 }
 
-/*
- * Equation of state type flag. The base class returns
- * zero. Subclasses should define this to return a unique
- * non-zero value. Constants defined for this purpose are
- * listed in mix_defs.h.
- */
 int HMWSoln::eosType() const
 {
     int res;
@@ -638,9 +571,6 @@ int HMWSoln::eosType() const
 //
 // -------- Molar Thermodynamic Properties of the Solution ---------------
 //
-/*
- * Molar enthalpy of the solution. Units: J/kmol.
- */
 doublereal HMWSoln::enthalpy_mole() const
 {
     getPartialMolarEnthalpies(DATA_PTR(m_tmpV));
@@ -661,8 +591,6 @@ doublereal HMWSoln::relative_enthalpy() const
     double h0bar = mean_X(DATA_PTR(m_gamma_tmp));
     return (hbar - h0bar);
 }
-
-
 
 doublereal HMWSoln::relative_molal_enthalpy() const
 {
@@ -706,12 +634,6 @@ doublereal HMWSoln::relative_molal_enthalpy() const
     return L;
 }
 
-/*
- * Molar internal energy of the solution. Units: J/kmol.
- *
- * This is calculated from the soln enthalpy and then
- * subtracting pV.
- */
 doublereal HMWSoln::intEnergy_mole() const
 {
     double hh = enthalpy_mole();
@@ -721,29 +643,18 @@ doublereal HMWSoln::intEnergy_mole() const
     return uu;
 }
 
-/*
- *  Molar soln entropy at constant pressure. Units: J/kmol/K.
- *
- *  This is calculated from the partial molar entropies.
- */
 doublereal HMWSoln::entropy_mole() const
 {
     getPartialMolarEntropies(DATA_PTR(m_tmpV));
     return mean_X(DATA_PTR(m_tmpV));
 }
 
-/// Molar Gibbs function. Units: J/kmol.
 doublereal HMWSoln::gibbs_mole() const
 {
     getChemPotentials(DATA_PTR(m_tmpV));
     return mean_X(DATA_PTR(m_tmpV));
 }
 
-/* Molar heat capacity at constant pressure. Units: J/kmol/K.
- *
- * Returns the solution heat capacition at constant pressure.
- * This is calculated from the partial molar heat capacities.
- */
 doublereal HMWSoln::cp_mole() const
 {
     getPartialMolarCp(DATA_PTR(m_tmpV));
@@ -751,7 +662,6 @@ doublereal HMWSoln::cp_mole() const
     return val;
 }
 
-// Molar heat capacity at constant volume. Units: J/kmol/K.
 doublereal HMWSoln::cv_mole() const
 {
     double kappa_t = isothermalCompressibility();
@@ -767,21 +677,11 @@ doublereal HMWSoln::cv_mole() const
 // ------- Mechanical Equation of State Properties ------------------------
 //
 
-/**
- * Pressure. Units: Pa.
- * For this incompressible system, we return the internally stored
- * independent value of the pressure.
- */
 doublereal HMWSoln::pressure() const
 {
     return m_Pcurrent;
 }
 
-/*
- * Set the pressure at constant temperature. Units: Pa.
- * This method sets a constant within the object.
- * The mass density is not a function of pressure.
- */
 void HMWSoln::setPressure(doublereal p)
 {
     setState_TP(temperature(), p);
@@ -801,16 +701,6 @@ void HMWSoln::calcDensity()
     Phase::setDensity(dd);
 }
 
-/*
- * The isothermal compressibility. Units: 1/Pa.
- * The isothermal compressibility is defined as
- * \f[
- * \kappa_T = -\frac{1}{v}\left(\frac{\partial v}{\partial P}\right)_T
- * \f]
- *
- *  It's equal to zero for this model, since the molar volume
- *  doesn't change with pressure or temperature.
- */
 doublereal HMWSoln::isothermalCompressibility() const
 {
     throw CanteraError("HMWSoln::isothermalCompressibility",
@@ -818,17 +708,6 @@ doublereal HMWSoln::isothermalCompressibility() const
     return 0.0;
 }
 
-/*
- * The thermal expansion coefficient. Units: 1/K.
- * The thermal expansion coefficient is defined as
- *
- * \f[
- * \beta = \frac{1}{v}\left(\frac{\partial v}{\partial T}\right)_P
- * \f]
- *
- *  It's equal to zero for this model, since the molar volume
- *  doesn't change with pressure or temperature.
- */
 doublereal HMWSoln::thermalExpansionCoeff() const
 {
     throw CanteraError("HMWSoln::thermalExpansionCoeff",
@@ -842,26 +721,6 @@ double HMWSoln::density() const
     return Phase::density();
 }
 
-/*
- * Overwritten setDensity() function is necessary because the
- * density is not an independent variable.
- *
- * This function will now throw an error condition
- *
- * Note, in general, setting the phase density is now a nonlinear
- * calculation. P and T are the fundamental variables. This
- * routine should be revamped to do the nonlinear problem
- *
- * @internal May have to adjust the strategy here to make
- * the eos for these materials slightly compressible, in order
- * to create a condition where the density is a function of
- * the pressure.
- *
- * This function will now throw an error condition.
- *
- *  NOTE: This is an overwritten function from the State.h
- *        class
- */
 void HMWSoln::setDensity(const doublereal rho)
 {
     double dens_old = density();
@@ -872,36 +731,17 @@ void HMWSoln::setDensity(const doublereal rho)
     }
 }
 
-/*
- * Overwritten setMolarDensity() function is necessary because the
- * density is not an independent variable.
- *
- * This function will now throw an error condition.
- *
- *  NOTE: This is an overwritten function from the State.h
- *        class
- */
 void HMWSoln::setMolarDensity(const doublereal rho)
 {
     throw CanteraError("HMWSoln::setMolarDensity",
                        "Density is not an independent variable");
 }
 
-/*
- * Overwritten setTemperature(double) from State.h. This
- * function sets the temperature, and makes sure that
- * the value propagates to underlying objects.
- */
 void HMWSoln::setTemperature(const doublereal temp)
 {
     setState_TP(temp, m_Pcurrent);
 }
 
-/*
- * Overwritten setTemperature(double) from State.h. This
- * function sets the temperature, and makes sure that
- * the value propagates to underlying objects.
- */
 void HMWSoln::setState_TP(doublereal temp, doublereal pres)
 {
     Phase::setTemperature(temp);
@@ -932,19 +772,6 @@ void HMWSoln::setState_TP(doublereal temp, doublereal pres)
 // ------- Activities and Activity Concentrations
 //
 
-/*
- * This method returns an array of generalized concentrations
- * \f$ C_k\f$ that are defined such that
- * \f$ a_k = C_k / C^0_k, \f$ where \f$ C^0_k \f$
- * is a standard concentration
- * defined below.  These generalized concentrations are used
- * by kinetics manager classes to compute the forward and
- * reverse rates of elementary reactions.
- *
- * @param c Array of generalized concentrations. The
- *           units depend upon the implementation of the
- *           reaction rate expressions within the phase.
- */
 void HMWSoln::getActivityConcentrations(doublereal* c) const
 {
     double cs_solvent = standardConcentration();
@@ -958,28 +785,6 @@ void HMWSoln::getActivityConcentrations(doublereal* c) const
     }
 }
 
-/*
- * The standard concentration \f$ C^0_k \f$ used to normalize
- * the generalized concentration. In many cases, this quantity
- * will be the same for all species in a phase - for example,
- * for an ideal gas \f$ C^0_k = P/\hat R T \f$. For this
- * reason, this method returns a single value, instead of an
- * array.  However, for phases in which the standard
- * concentration is species-specific (e.g. surface species of
- * different sizes), this method may be called with an
- * optional parameter indicating the species.
- *
- * For the time being we will use the concentration of pure
- * solvent for the the standard concentration of the solvent.
- * We will use the concentration of the pure solvent
- * multipled by Mnaught (kg solvent / gmol solvent) for
- * the standard concentration of all solute species.
- * This has the effect of making reaction rates
- * based on the molality of species proportional to the
- * molality of the species, but have units based on assuming
- * all species concentrations have units of kmol/m3.
- *
- */
 doublereal HMWSoln::standardConcentration(size_t k) const
 {
     getStandardVolumes(DATA_PTR(m_tmpV));
@@ -990,38 +795,12 @@ doublereal HMWSoln::standardConcentration(size_t k) const
     return 1.0 / mvSolvent;
 }
 
-/*
- * Returns the natural logarithm of the standard
- * concentration of the kth species
- */
 doublereal HMWSoln::logStandardConc(size_t k) const
 {
     double c_solvent = standardConcentration(k);
     return log(c_solvent);
 }
 
-/*
- * Returns the units of the standard and general concentrations
- * Note they have the same units, as their divisor is
- * defined to be equal to the activity of the kth species
- * in the solution, which is unitless.
- *
- * This routine is used in print out applications where the
- * units are needed. Usually, MKS units are assumed throughout
- * the program and in the XML input files.
- *
- * On return uA contains the powers of the units (MKS assumed)
- * of the standard concentrations and generalized concentrations
- * for the kth species.
- *
- *  uA[0] = kmol units - default  = 1
- *  uA[1] = m    units - default  = -nDim(), the number of spatial
- *                                dimensions in the Phase class.
- *  uA[2] = kg   units - default  = 0;
- *  uA[3] = Pa(pressure) units - default = 0;
- *  uA[4] = Temperature units - default = 0;
- *  uA[5] = time units - default = 0
- */
 void HMWSoln::getUnitsStandardConc(double* uA, int k, int sizeUA) const
 {
     for (int i = 0; i < sizeUA; i++) {
@@ -1046,13 +825,6 @@ void HMWSoln::getUnitsStandardConc(double* uA, int k, int sizeUA) const
     }
 }
 
-/*
- * Get the array of non-dimensional activities at
- * the current solution temperature, pressure, and
- * solution concentration.
- * (note solvent activity coefficient is on the molar scale).
- *
- */
 void HMWSoln::getActivities(doublereal* ac) const
 {
     updateStandardStateThermo();
@@ -1078,17 +850,6 @@ void HMWSoln::getActivities(doublereal* ac) const
     //applyphScale(ac);
 }
 
-/*
- * getUnscaledMolalityActivityCoefficients()             (virtual, const)
- *
- * Get the array of non-dimensional Molality based
- * activity coefficients at
- * the current solution temperature, pressure, and
- * solution concentration.
- * (note solvent activity coefficient is on the molar scale).
- *
- *  Note, most of the work is done in an internal private routine
- */
 void HMWSoln::
 getUnscaledMolalityActivityCoefficients(doublereal* acMolality) const
 {
@@ -1104,21 +865,7 @@ getUnscaledMolalityActivityCoefficients(doublereal* acMolality) const
 //
 // ------ Partial Molar Properties of the Solution -----------------
 //
-/*
- * Get the species chemical potentials. Units: J/kmol.
- *
- * This function returns a vector of chemical potentials of the
- * species in solution.
- *
- * \f[
- *    \mu_k = \mu^{o}_k(T,P) + R T ln(m_k)
- * \f]
- *
- * \f[
- *    \mu_solvent = \mu^{o}_solvent(T,P) +
- *            R T ((X_solvent - 1.0) / X_solvent)
- * \f]
- */
+
 void HMWSoln::getChemPotentials(doublereal* mu) const
 {
     double xx;
@@ -1147,26 +894,6 @@ void HMWSoln::getChemPotentials(doublereal* mu) const
         RT * (log(xx) + m_lnActCoeffMolal_Scaled[m_indexSolvent]);
 }
 
-
-/*
- * Returns an array of partial molar enthalpies for the species
- * in the mixture.
- * Units (J/kmol)
- *
- * For this phase, the partial molar enthalpies are equal to the
- * standard state enthalpies modified by the derivative of the
- * molality-based activity coefficient wrt temperature
- *
- *  \f[
- * \bar h_k(T,P) = h^{\triangle}_k(T,P) - R T^2 \frac{d \ln(\gamma_k^\triangle)}{dT}
- * \f]
- * The solvent partial molar enthalpy is equal to
- *  \f[
- * \bar h_o(T,P) = h^{o}_o(T,P) - R T^2 \frac{d \ln(a_o)}{dT}
- * \f]
- *
- *
- */
 void HMWSoln::getPartialMolarEnthalpies(doublereal* hbar) const
 {
     /*
@@ -1193,35 +920,6 @@ void HMWSoln::getPartialMolarEnthalpies(doublereal* hbar) const
     }
 }
 
-/*
- * getPartialMolarEntropies()        (virtual, const)
- *
- * Returns an array of partial molar entropies of the species in the
- * solution. Units: J/kmol.
- *
- * Maxwell's equations provide an insight in how to calculate this
- * (p.215 Smith and Van Ness)
- *
- *      d(chemPot_i)/dT = -sbar_i
- *
- * Combining this with the expression H = G + TS yields:
- *
- *  \f[
- *     \bar s_k(T,P) =  s^{\triangle}_k(T,P)
- *             - R \ln( \gamma^{\triangle}_k \frac{m_k}{m^{\triangle}}))
- *                    - R T \frac{d \ln(\gamma^{\triangle}_k) }{dT}
- * \f]
- * \f[
- *      \bar s_o(T,P) = s^o_o(T,P) - R \ln(a_o)
- *                    - R T \frac{d \ln(a_o)}{dT}
- * \f]
- *
- * The reference-state pure-species entropies,\f$ \hat s^0_k(T) \f$,
- * at the reference pressure, \f$ P_{ref} \f$,  are computed by the
- * species thermodynamic
- * property manager. They are polynomial functions of temperature.
- * @see SpeciesThermo
- */
 void HMWSoln::
 getPartialMolarEntropies(doublereal* sbar) const
 {
@@ -1268,24 +966,6 @@ getPartialMolarEntropies(doublereal* sbar) const
     }
 }
 
-/*
- * getPartialMolarVolumes()                (virtual, const)
- *
- * Returns an array of partial molar volumes of the species
- * in the solution. Units: m^3 kmol-1.
- *
- * For this solution, the partial molar volumes are a
- * complex function of pressure.
- *
- * The general relation is
- *
- *       vbar_i = d(chemPot_i)/dP at const T, n
- *
- *              = V0_i + d(Gex)/dP)_T,M
- *
- *              = V0_i + RT d(lnActCoeffi)dP _T,M
- *
- */
 void HMWSoln::getPartialMolarVolumes(doublereal* vbar) const
 {
     /*
@@ -1304,24 +984,6 @@ void HMWSoln::getPartialMolarVolumes(doublereal* vbar) const
     }
 }
 
-/*
- * Partial molar heat capacity of the solution:
- *   The kth partial molar heat capacity is  equal to
- *   the temperature derivative of the partial molar
- *   enthalpy of the kth species in the solution at constant
- *   P and composition (p. 220 Smith and Van Ness).
- *
- *  \f[
- *     \bar C_{p,k}(T,P) =  C^{\triangle}_{p,k}(T,P)
- *             - 2 R T \frac{d \ln( \gamma^{\triangle}_k)}{dT}
- *                    - R T^2 \frac{d^2 \ln(\gamma^{\triangle}_k) }{{dT}^2}
- * \f]
- * \f[
- *      \bar C_{p,o}(T,P) = C^o_{p,o}(T,P)
- *                   - 2 R T \frac{d \ln(a_o)}{dT}
- *                    - R T^2 \frac{d^2 \ln(a_o)}{{dT}^2}
- * \f]
- */
 void HMWSoln::getPartialMolarCp(doublereal* cpbar) const
 {
     /*
@@ -1350,44 +1012,9 @@ void HMWSoln::getPartialMolarCp(doublereal* cpbar) const
 }
 
 /*
- * Updates the standard state thermodynamic functions at the current T and
- * P of the solution.
- *
- * @internal
- *
- * This function gets called for every call to functions in this
- * class. It checks to see whether the temperature or pressure has changed and
- * thus the ss thermodynamics functions for all of the species
- * must be recalculated.
- */
-//  void HMWSoln::_updateStandardStateThermo() const {
-//doublereal tnow = temperature();
-// doublereal pnow = m_Pcurrent;
-// if (m_waterSS) {
-//   m_waterSS->setTempPressure(tnow, pnow);
-// }
-// m_VPSS_ptr->setState_TP(tnow, pnow);
-// VPStandardStateTP::updateStandardStateThermo();
-//}
-
-/*
- * ------ Thermodynamic Values for the Species Reference States ---
- */
-
-// -> This is handled by VPStandardStatesTP
-
-/*
  *  -------------- Utilities -------------------------------
  */
 
-/*
- * @internal
- * Set equation of state parameters. The number and meaning of
- * these depends on the subclass.
- * @param n number of parameters
- * @param c array of <I>n</I> coefficients
- *
- */
 void HMWSoln::setParameters(int n, doublereal* const c)
 {
 }
@@ -1395,32 +1022,11 @@ void HMWSoln::setParameters(int n, doublereal* const c)
 void HMWSoln::getParameters(int& n, doublereal* const c) const
 {
 }
-/*
- * Set equation of state parameter values from XML
- * entries. This method is called by function importPhase in
- * file importCTML.cpp when processing a phase definition in
- * an input file. It should be overloaded in subclasses to set
- * any parameters that are specific to that particular phase
- * model.
- *
- * @param eosdata An XML_Node object corresponding to
- * the "thermo" entry for this phase in the input file.
- *
- * HKM -> Right now, the parameters are set elsewhere (initThermoXML)
- *        It just didn't seem to fit.
- */
+
 void HMWSoln::setParametersFromXML(const XML_Node& eosdata)
 {
 }
 
-/*
- * Get the saturation pressure for a given temperature.
- * Note the limitations of this function. Stability considerations
- * concerning multiphase equilibrium are ignored in this
- * calculation. Therefore, the call is made directly to the SS of
- * water underneath. The object is put back into its original
- * state at the end of the call.
- */
 doublereal HMWSoln::satPressure(doublereal t) const
 {
     double p_old = pressure();
@@ -1433,26 +1039,6 @@ doublereal HMWSoln::satPressure(doublereal t) const
     return pres;
 }
 
-/*
- * A_Debye_TP()                              (virtual)
- *
- *   Returns the A_Debye parameter as a function of temperature
- *  and pressure. This function also sets the internal value
- *  of the parameter within the object, if it is changeable.
- *
- *  The default is to assume that it is constant, given
- *  in the initialization process and stored in the
- *  member double, m_A_Debye
- *
- *            A_Debye = (1/(8 Pi)) sqrt(2 Na dw /1000)
- *                          (e e/(epsilon R T))^3/2
- *
- *                    where epsilon = e_rel * e_naught
- *
- * Note, this is SI units. Frequently, gaussian units are
- * used in Pitzer's papers where D is used, D = epsilon/(4 Pi)
- * units = A_Debye has units of sqrt(gmol kg-1).
- */
 double HMWSoln::A_Debye_TP(double tempArg, double presArg) const
 {
     double T = temperature();
@@ -1480,16 +1066,6 @@ double HMWSoln::A_Debye_TP(double tempArg, double presArg) const
     return A;
 }
 
-/*
- * dA_DebyedT_TP()                              (virtual)
- *
- *  Returns the derivative of the A_Debye parameter with
- *  respect to temperature as a function of temperature
- *  and pressure.
- *
- * units = A_Debye has units of sqrt(gmol kg-1).
- *         Temp has units of Kelvin.
- */
 double HMWSoln::dA_DebyedT_TP(double tempArg, double presArg) const
 {
     doublereal T = temperature();
@@ -1516,16 +1092,6 @@ double HMWSoln::dA_DebyedT_TP(double tempArg, double presArg) const
     return dAdT;
 }
 
-/*
- * dA_DebyedP_TP()                              (virtual)
- *
- *  Returns the derivative of the A_Debye parameter with
- *  respect to pressure, as a function of temperature
- *  and pressure.
- *
- * units = A_Debye has units of sqrt(gmol kg-1).
- *         Pressure has units of pascals.
- */
 double HMWSoln::dA_DebyedP_TP(double tempArg, double presArg) const
 {
     double T = temperature();
@@ -1551,17 +1117,6 @@ double HMWSoln::dA_DebyedP_TP(double tempArg, double presArg) const
     return dAdP;
 }
 
-
-/*
- *  Calculate the DH Parameter used for the Enthalpy calculations
- *
- *      ADebye_L = 4 R T**2 d(Aphi) / dT
- *
- *   where   Aphi = A_Debye/3
- *
- *   units -> J / (kmolK) * sqrt( kg/gmol)
- *
- */
 double HMWSoln::ADebye_L(double tempArg, double presArg) const
 {
     double dAdT = dA_DebyedT_TP();
@@ -1574,16 +1129,6 @@ double HMWSoln::ADebye_L(double tempArg, double presArg) const
     return retn;
 }
 
-/*
- *  Calculate the DH Parameter used for the Volume calculations
- *
- *      ADebye_V = - 4 R T d(Aphi) / dP
- *
- *   where   Aphi = A_Debye/3
- *
- *   units -> J / (kmolK) * sqrt( kg/gmol)
- *
- */
 double HMWSoln::ADebye_V(double tempArg, double presArg) const
 {
     double dAdP = dA_DebyedP_TP();
@@ -1596,24 +1141,6 @@ double HMWSoln::ADebye_V(double tempArg, double presArg) const
     return retn;
 }
 
-/*
- * Return Pitzer's definition of A_J. This is basically the
- * temperature derivative of A_L, and the second derivative
- * of Aphi
- * It's the DH parameter used in heat capacity calculations
- *
- *  A_J = 2 A_L/T + 4 * R * T * T * d2(A_phi)/dT2
- *
- *    Units = sqrt(kg/gmol) (R)
- *
- *   where
- *      ADebye_L = 4 R T**2 d(Aphi) / dT
- *
- *   where   Aphi = A_Debye/3
- *
- *   units -> J / (kmolK) * sqrt( kg/gmol)
- *
- */
 double HMWSoln::ADebye_J(double tempArg, double presArg) const
 {
     double T = temperature();
@@ -1627,16 +1154,6 @@ double HMWSoln::ADebye_J(double tempArg, double presArg) const
     return retn;
 }
 
-/*
- * d2A_DebyedT2_TP()                              (virtual)
- *
- *  Returns the 2nd derivative of the A_Debye parameter with
- *  respect to temperature as a function of temperature
- *  and pressure.
- *
- * units = A_Debye has units of sqrt(gmol kg-1).
- *         Temp has units of Kelvin.
- */
 double HMWSoln::d2A_DebyedT2_TP(double tempArg, double presArg) const
 {
     double T = temperature();
@@ -1663,10 +1180,6 @@ double HMWSoln::d2A_DebyedT2_TP(double tempArg, double presArg) const
 }
 
 /*
- * ----------- Critical State Properties --------------------------
- */
-
-/*
  * ---------- Other Property Functions
  */
 double HMWSoln::AionicRadius(int k) const
@@ -1678,10 +1191,6 @@ double HMWSoln::AionicRadius(int k) const
  * ------------ Private and Restricted Functions ------------------
  */
 
-/**
- * Bail out of functions with an error exit if they are not
- * implemented.
- */
 doublereal HMWSoln::err(const std::string& msg) const
 {
     throw CanteraError("HMWSoln",
@@ -1689,15 +1198,6 @@ doublereal HMWSoln::err(const std::string& msg) const
     return 0.0;
 }
 
-
-
-/*
- * initLengths():
- *
- * This internal function adjusts the lengths of arrays based on
- * the number of species. This is done before these arrays are
- * populated with parameter values.
- */
 void HMWSoln::initLengths()
 {
     m_kk = nSpecies();
@@ -1829,14 +1329,8 @@ void HMWSoln::initLengths()
     counterIJ_setup();
 }
 
-/**
- * Calculate the natural log of the molality-based
- * activity coefficients.
- *
- */
 void HMWSoln::s_update_lnMolalityActCoeff() const
 {
-
     /*
      * Calculate the molalities. Currently, the molalities
      * may not be current with respect to the contents of the
@@ -1864,7 +1358,6 @@ void HMWSoln::s_update_lnMolalityActCoeff() const
             += m_molalities[k] * (zs_k1 * zs_k1 + zs_k2 * zs_k2);
         }
     }
-
 
     /*
      * Update the temperature dependence of the pitzer coefficients
@@ -1922,10 +1415,6 @@ void HMWSoln::s_update_lnMolalityActCoeff() const
     s_updateScaling_pHScaling();
 }
 
-
-/*
- * Calculate cropped molalities
- */
 void HMWSoln::calcMolalitiesCropped() const
 {
     doublereal Imax = 0.0, Itmp;
@@ -2091,13 +1580,6 @@ void HMWSoln::calcMolalitiesCropped() const
 
 }
 
-/*
- * Set up a counter variable for keeping track of symmetric binary
- * interactions amongst the solute species.
- *
- * n = m_kk*i + j
- * m_Counter[n] = counter
- */
 void HMWSoln::counterIJ_setup(void) const
 {
     size_t n, nc, i, j;
@@ -2122,19 +1604,6 @@ void HMWSoln::counterIJ_setup(void) const
     }
 }
 
-/*
- * Calculates the Pitzer coefficients' dependence on the
- * temperature. It will also calculate the temperature
- * derivatives of the coefficients, as they are important
- * in the calculation of the latent heats and the
- * heat capacities of the mixtures.
- *
- * @param doDerivs If >= 1, then the routine will calculate
- *                 the first derivative. If >= 2, the
- *                 routine will calculate the first and second
- *                 temperature derivative.
- *                 default = 2
- */
 void HMWSoln::s_updatePitzer_CoeffWRTemp(int doDerivs) const
 {
 
@@ -2408,17 +1877,9 @@ void HMWSoln::s_updatePitzer_CoeffWRTemp(int doDerivs) const
 
 }
 
-/*
- * Calculate the Pitzer portion of the activity coefficients.
- *
- * This is the main routine in the whole module. It calculates the
- * molality based activity coefficients for the solutes, and
- * the activity of water.
- */
 void HMWSoln::
 s_updatePitzer_lnMolalityActCoeff() const
 {
-
     /*
      * HKM -> Assumption is made that the solvent is
      *        species 0.
@@ -2575,7 +2036,6 @@ s_updatePitzer_lnMolalityActCoeff() const
 #endif
 
     /*
-     *
      *  calculate g(x) and hfunc(x) for each cation-anion pair MX
      *   In the original literature, hfunc, was called gprime. However,
      *   it's not the derivative of g(x), so I renamed it.
@@ -3452,18 +2912,6 @@ s_updatePitzer_lnMolalityActCoeff() const
 #endif
 }
 
-/**
- * s_update_dlnMolalityActCoeff_dT()         (private, const )
- *
- *   Using internally stored values, this function calculates
- *   the temperature derivative of the logarithm of the
- *   activity coefficient for all species in the mechanism.
- *
- *   We assume that the activity coefficients are current.
- *
- *   solvent activity coefficient is on the molality
- *   scale. It's derivative is too.
- */
 void HMWSoln::s_update_dlnMolalityActCoeff_dT() const
 {
     /*
@@ -3497,21 +2945,13 @@ void HMWSoln::s_update_dlnMolalityActCoeff_dT() const
 
 }
 
-/*************************************************************************************/
-
-/*
- * Calculate the Pitzer portion of the temperature
- * derivative of the log activity coefficients.
- * This is an internal routine.
- *
- * It may be assumed that the
- * Pitzer activity coefficient routine is called immediately
- * preceding the calling of this routine. Therefore, some
- * quantities do not need to be recalculated in this routine.
- *
- */
 void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dT() const
 {
+    /*
+     * It may be assumed that the Pitzer activity coefficient routine is
+     * called immediately preceding the calling of this routine. Therefore,
+     * some quantities do not need to be recalculated in this routine.
+     */
 
     /*
      * HKM -> Assumption is made that the solvent is
@@ -3651,7 +3091,6 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dT() const
 #endif
 
     /*
-     *
      *  calculate g(x) and hfunc(x) for each cation-anion pair MX
      *   In the original literature, hfunc, was called gprime. However,
      *   it's not the derivative of g(x), so I renamed it.
@@ -4323,11 +3762,6 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dT() const
 #endif
 }
 
-/**
- * This function calculates the temperature second derivative
- * of the natural logarithm of the molality activity
- * coefficients.
- */
 void HMWSoln::s_update_d2lnMolalityActCoeff_dT2() const
 {
     /*
@@ -4359,33 +3793,10 @@ void HMWSoln::s_update_d2lnMolalityActCoeff_dT2() const
     s_updateScaling_pHScaling_dT2();
 }
 
-/*************************************************************************************/
-
-/*
- * s_updatePitzer_d2lnMolalityActCoeff_dT2()         (private, const )
- *
- *   Using internally stored values, this function calculates
- *   the temperature 2nd derivative of the logarithm of the
- *   activity coefficient for all species in the mechanism.
- *   This is an internal routine
- *
- *   We assume that the activity coefficients and first temperature
- *   derivatives of the activity coefficients  are current.
- *
- * It may be assumed that the
- * Pitzer activity coefficient and first deriv routine are called immediately
- * preceding the calling of this routine. Therefore, some
- * quantities do not need to be recalculated in this routine.
- *
- *   solvent activity coefficient is on the molality
- *   scale. It's derivatives are too.
- */
 void HMWSoln::s_updatePitzer_d2lnMolalityActCoeff_dT2() const
 {
-
     /*
-     * HKM -> Assumption is made that the solvent is
-     *        species 0.
+     * HKM -> Assumption is made that the solvent is species 0.
      */
 #ifdef DEBUG_MODE
     m_debugCalc = 0;
@@ -5033,7 +4444,6 @@ void HMWSoln::s_updatePitzer_d2lnMolalityActCoeff_dT2() const
 
     /*
      * ------ SUBSECTION FOR CALCULATING THE d2 OSMOTIC COEFF dT2 ---------
-     *
      */
     sum1 = 0.0;
     sum2 = 0.0;
@@ -5207,25 +4617,10 @@ void HMWSoln::s_updatePitzer_d2lnMolalityActCoeff_dT2() const
 #endif
 }
 
-/********************************************************************************************/
-
-/*
- * s_update_dlnMolalityActCoeff_dP()         (private, const )
- *
- *   Using internally stored values, this function calculates
- *   the pressure derivative of the logarithm of the
- *   activity coefficient for all species in the mechanism.
- *
- *   We assume that the activity coefficients are current.
- *
- *   solvent activity coefficient is on the molality
- *   scale. Its derivative is too.
- */
 void HMWSoln::s_update_dlnMolalityActCoeff_dP() const
 {
     m_dlnActCoeffMolaldP_Unscaled.assign(m_kk, 0.0);
     s_updatePitzer_dlnMolalityActCoeff_dP();
-
 
     for (size_t k = 1; k < m_kk; k++) {
         if (CROP_speciesCropped_[k] == 2) {
@@ -5237,34 +4632,13 @@ void HMWSoln::s_update_dlnMolalityActCoeff_dP() const
         m_dlnActCoeffMolaldP_Unscaled[0] = 0.0;
     }
 
-
     s_updateScaling_pHScaling_dP();
 }
 
-/*
- * s_updatePitzer_dlnMolalityActCoeff_dP()         (private, const )
- *
- *   Using internally stored values, this function calculates
- *   the pressure derivative of the logarithm of the
- *   activity coefficient for all species in the mechanism.
- *   This is an internal routine
- *
- *   We assume that the activity coefficients are current.
- *
- * It may be assumed that the
- * Pitzer activity coefficient and first deriv routine are called immediately
- * preceding the calling of this routine. Therefore, some
- * quantities do not need to be recalculated in this routine.
- *
- *   solvent activity coefficient is on the molality
- *   scale. Its derivatives are too.
- */
 void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dP() const
 {
-
     /*
-     * HKM -> Assumption is made that the solvent is
-     *        species 0.
+     * HKM -> Assumption is made that the solvent is species 0.
      */
 #ifdef DEBUG_MODE
     m_debugCalc = 0;
@@ -5520,7 +4894,6 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dP() const
 
     /*
      * --------- SUBSECTION TO CALCULATE CMX_P ----------
-     * ---------
      */
 #ifdef DEBUG_MODE
     if (m_debugCalc) {
@@ -5670,7 +5043,6 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dP() const
 
         /*
          * -------- SUBSECTION FOR CALCULATING THE dACTCOEFFdP FOR CATIONS -----
-         * --
          */
         if (charge[i] > 0) {
             // species i is the cation (positive) to calc the actcoeff
@@ -5773,7 +5145,6 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dP() const
 
         /*
          * ------ SUBSECTION FOR CALCULATING THE dACTCOEFFdP FOR ANIONS ------
-         *
          */
         if (charge[i] < 0) {
             //          species i is an anion (negative)
@@ -5907,7 +5278,6 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dP() const
 
     /*
      * ------ SUBSECTION FOR CALCULATING THE d OSMOTIC COEFF dP ---------
-     *
      */
     sum1 = 0.0;
     sum2 = 0.0;
@@ -6085,16 +5455,6 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dP() const
 
 }
 
-/**********************************************************************************************/
-
-/*
- * Calculate the lambda interactions.
- *
- * Calculate E-lambda terms for charge combinations of like sign,
- *   using method of Pitzer (1975).
- *
- *  This code snippet is included from Bethke, Appendix 2.
- */
 void HMWSoln::calc_lambdas(double is) const
 {
     double aphi, dj, jfunc, jprime, t, x, zprod;
@@ -6156,15 +5516,6 @@ void HMWSoln::calc_lambdas(double is) const
     }
 }
 
-/*
- * Calculate the etheta interaction.
- * This interaction accounts for the mixing effects of like-signed
- * ions with different charges. There is fairly extensive literature
- * on this effect. See the notes.
- * This interaction will be nonzero for species with the same charge.
- *
- *  This code snippet is included from Bethke, Appendix 2.
- */
 void HMWSoln::calc_thetas(int z1, int z2,
                           double* etheta, double* etheta_prime) const
 {
@@ -6209,16 +5560,6 @@ void HMWSoln::calc_thetas(int z1, int z2,
     }
 }
 
-// This function will be called to update the internally stored
-// natural logarithm of the molality activity coefficients
-/*
- * Normally they are all one. However, sometimes they are not,
- * due to stability schemes
- *
- *    gamma_k_molar =  gamma_k_molal / Xmol_solvent
- *
- *    gamma_o_molar = gamma_o_molal
- */
 void  HMWSoln::s_updateIMS_lnMolalityActCoeff() const
 {
     double tmp;
@@ -6330,11 +5671,6 @@ void  HMWSoln::s_updateIMS_lnMolalityActCoeff() const
     return;
 }
 
-
-/**
- * This routine prints out the input pitzer coefficients for the
- * current mechanism
- */
 void HMWSoln::printCoeffs() const
 {
     size_t i, j, k;
@@ -6394,13 +5730,6 @@ void HMWSoln::printCoeffs() const
     }
 }
 
-//! Apply the current phScale to a set of activity Coefficients or activities
-/*!
-   *  See the Eq3/6 Manual for a thorough discussion.
-   *
-   * @param acMolality input/Output vector containing the molality based
-   *                   activity coefficients. length: m_kk.
-   */
 void HMWSoln::applyphScale(doublereal* acMolality) const
 {
     if (m_pHScalingType == PHSCALE_PITZER) {
@@ -6415,13 +5744,6 @@ void HMWSoln::applyphScale(doublereal* acMolality) const
     }
 }
 
-//  Apply the current phScale to a set of activity Coefficients or activities
-/*
- *  See the Eq3/6 Manual for a thorough discussion.
- *
- * @param acMolality input/Output vector containing the molality based
- *                   activity coefficients. length: m_kk.
- */
 void HMWSoln::s_updateScaling_pHScaling() const
 {
     if (m_pHScalingType == PHSCALE_PITZER) {
@@ -6437,12 +5759,6 @@ void HMWSoln::s_updateScaling_pHScaling() const
     }
 }
 
-//  Apply the current phScale to a set of derivativies of the activity Coefficients
-//  wrt temperature
-/*
- *  See the Eq3/6 Manual for a thorough discussion of the need
- *
- */
 void HMWSoln::s_updateScaling_pHScaling_dT() const
 {
     if (m_pHScalingType == PHSCALE_PITZER) {
@@ -6458,12 +5774,6 @@ void HMWSoln::s_updateScaling_pHScaling_dT() const
     }
 }
 
-//  Apply the current phScale to a set of 2nd derivatives of the activity Coefficients
-//  wrt temperature
-/*
- *  See the Eq3/6 Manual for a thorough discussion of the need
- *
- */
 void HMWSoln::s_updateScaling_pHScaling_dT2() const
 {
     if (m_pHScalingType == PHSCALE_PITZER) {
@@ -6479,11 +5789,6 @@ void HMWSoln::s_updateScaling_pHScaling_dT2() const
     }
 }
 
-//   Apply the current phScale to a set of derivatives of the activity Coefficients
-//   wrt pressure
-/*
- *  See the Eq3/6 Manual for a thorough discussion of the need
- */
 void HMWSoln::s_updateScaling_pHScaling_dP() const
 {
     if (m_pHScalingType == PHSCALE_PITZER) {
@@ -6499,10 +5804,6 @@ void HMWSoln::s_updateScaling_pHScaling_dP() const
     }
 }
 
-//  Calculate the temperature derivative of the Chlorine activity coefficient
-/*
- *  We assume here that the m_IionicMolality variable is up to date.
- */
 doublereal HMWSoln::s_NBS_CLM_lnMolalityActCoeff() const
 {
     doublereal sqrtIs = sqrt(m_IionicMolality);
@@ -6511,10 +5812,6 @@ doublereal HMWSoln::s_NBS_CLM_lnMolalityActCoeff() const
     return  lnGammaClMs2;
 }
 
-//  Calculate the temperature derivative of the Chlorine activity coefficient
-/*
- *  We assume here that the m_IionicMolality variable is up to date.
- */
 doublereal HMWSoln::s_NBS_CLM_dlnMolalityActCoeff_dT() const
 {
     doublereal sqrtIs = sqrt(m_IionicMolality);
@@ -6523,10 +5820,6 @@ doublereal HMWSoln::s_NBS_CLM_dlnMolalityActCoeff_dT() const
     return d_lnGammaClM_dT;
 }
 
-//  Calculate the second temperature derivative of the Chlorine activity coefficient
-/*
- *  We assume here that the m_IionicMolality variable is up to date.
- */
 doublereal HMWSoln::s_NBS_CLM_d2lnMolalityActCoeff_dT2() const
 {
     doublereal sqrtIs = sqrt(m_IionicMolality);
@@ -6535,10 +5828,6 @@ doublereal HMWSoln::s_NBS_CLM_d2lnMolalityActCoeff_dT2() const
     return d_lnGammaClM_dT2;
 }
 
-//  Calculate the pressure derivative of the Chlorine activity coefficient
-/*
- *  We assume here that the m_IionicMolality variable is up to date.
- */
 doublereal HMWSoln::s_NBS_CLM_dlnMolalityActCoeff_dP() const
 {
     doublereal sqrtIs = sqrt(m_IionicMolality);
@@ -6557,4 +5846,3 @@ int HMWSoln::debugPrinting()
 }
 
 }
-/*****************************************************************************/

@@ -30,7 +30,6 @@ namespace Cantera
 /* @{
  */
 
-
 /**
  * This phase is based upon the mixing-rule assumption that
  * all molality-based activity coefficients are equal
@@ -65,12 +64,12 @@ namespace Cantera
  * depending on the value of the member attribute m_formGC, which
  * is supplied in the XML file.
  *
- *                          <TABLE>
- *  <TR><TD> m_formGC </TD><TD> ActivityConc </TD><TD> StandardConc </TD></TR>
- *  <TR><TD> 0        </TD><TD> \f$ {m_k}/ { m^{\Delta}}\f$     </TD><TD> \f$ 1.0        \f$ </TD></TR>
- *  <TR><TD> 1        </TD><TD> \f$  m_k / (m^{\Delta} V_k)\f$  </TD><TD> \f$ 1.0 / V_k  \f$ </TD></TR>
- *  <TR><TD> 2        </TD><TD> \f$  m_k / (m^{\Delta} V^0_0)\f$</TD><TD> \f$ 1.0 / V^0_0\f$ </TD></TR>
- *                         </TABLE>
+ * <TABLE>
+ * <TR><TD> m_formGC </TD><TD> ActivityConc </TD><TD> StandardConc </TD></TR>
+ * <TR><TD> 0        </TD><TD> \f$ {m_k}/ { m^{\Delta}}\f$     </TD><TD> \f$ 1.0        \f$ </TD></TR>
+ * <TR><TD> 1        </TD><TD> \f$  m_k / (m^{\Delta} V_k)\f$  </TD><TD> \f$ 1.0 / V_k  \f$ </TD></TR>
+ * <TR><TD> 2        </TD><TD> \f$  m_k / (m^{\Delta} V^0_0)\f$</TD><TD> \f$ 1.0 / V^0_0\f$ </TD></TR>
+ * </TABLE>
  *
  * \f$ V^0_0 \f$ is the solvent standard molar volume. \f$ m^{\Delta} \f$ is a constant equal to a
  * molality of \f$ 1.0 \quad\mbox{gm kmol}^{-1} \f$.
@@ -80,37 +79,26 @@ namespace Cantera
  * The value and form of the activity concentration will affect
  * reaction rate constants involving species in this phase.
  *
- * @verbatim
-    <thermo model="IdealMolalSoln">
-       <standardConc model="solvent_volume" />
-       <solvent> H2O(l) </solvent>
-
-       <activityCoefficients model="IdealMolalSoln" >
-   <idealMolalSolnCutoff model="polyExp">
-      <gamma_O_limit> 1.0E-5  <gammaOlimit>
-      <gamma_k_limit> 1.0E-5  <gammaklimit>
-            <X_o_cutoff>    0.20    </X_o_cutoff>
-      <C_0_param>     0.05    </C_0_param>
-      <slope_f_limit> 0.6     </slopefLimit>
-      <slope_g_limit> 0.0     </slopegLimit>
-   </idealMolalSolnCutoff>
- </activityCoefficients>
-
-
-
-    </thermo>
-
-
-
- @endverbatim
- *
+ *      <thermo model="IdealMolalSoln">
+ *         <standardConc model="solvent_volume" />
+ *         <solvent> H2O(l) </solvent>
+ *         <activityCoefficients model="IdealMolalSoln" >
+ *             <idealMolalSolnCutoff model="polyExp">
+ *                 <gamma_O_limit> 1.0E-5  </gamma_O_limit>
+ *                 <gamma_k_limit> 1.0E-5  <gamma_k_limit>
+ *                 <X_o_cutoff>    0.20    </X_o_cutoff>
+ *                 <C_0_param>     0.05    </C_0_param>
+ *                 <slope_f_limit> 0.6     </slope_f_limit>
+ *                 <slope_g_limit> 0.0     </slope_g_limit>
+ *             </idealMolalSolnCutoff>
+ *          </activityCoefficients>
+ *      </thermo>
  */
 class IdealMolalSoln : public MolalityVPSSTP
 {
-
 public:
 
-    /// Constructors
+    /// Constructor
     IdealMolalSoln();
 
     //! Copy Constructor
@@ -153,11 +141,8 @@ public:
      */
     ThermoPhase* duplMyselfAsThermoPhase() const;
 
-    /**
-     *
-     * @name  Utilities
-     * @{
-     */
+    //! @name  Utilities
+    //! @{
 
     /**
      * Equation of state type flag. The base class returns
@@ -169,15 +154,12 @@ public:
         return 0;
     }
 
-    /**
-     * @}
-     * @name  Molar Thermodynamic Properties of the Solution ---------------
-     * @{
-     */
+    //! @}
+    //! @name  Molar Thermodynamic Properties of the Solution
+    //! @{
 
     //! Molar enthalpy of the solution. Units: J/kmol.
     /*!
-     *
      * Returns the amount of enthalpy per mole of solution.
      * For an ideal molal solution,
      * \f[
@@ -194,7 +176,6 @@ public:
 
     //! Molar internal energy of the solution: Units: J/kmol.
     /*!
-     *
      * Returns the amount of internal energy per mole of solution.
      * For an ideal molal solution,
      * \f[
@@ -223,9 +204,7 @@ public:
 
     //! Molar Gibbs function for the solution: Units J/kmol.
     /*!
-     *
-     * Returns the gibbs free energy of the solution per mole
-     * of the solution.
+     * Returns the gibbs free energy of the solution per mole of the solution.
      *
      * \f[
      * \bar{g}(T, P, X_k) = \sum_k X_k \mu_k(T)
@@ -237,7 +216,7 @@ public:
 
     //! Molar heat capacity of the solution at constant pressure. Units: J/kmol/K.
     /*!
-     *   \f[
+     * \f[
      * \bar{c}_p(T, P, X_k) = \sum_k X_k \bar{c}_{p,k}(T)
      * \f]
      *
@@ -247,15 +226,12 @@ public:
 
     //! Molar heat capacity of the solution at constant volume. Units: J/kmol/K.
     /*!
-     * Molar heat capacity at constant volume: Units: J/kmol/K.
      * NOT IMPLEMENTED.
-     * Units: J/kmol/K
      */
     virtual doublereal cv_mole() const;
 
     //@}
-    /** @name Mechanical Equation of State Properties -------------------------
-     //@{
+    /** @name Mechanical Equation of State Properties
      *
      *   In this equation of state implementation, the density is a
      *   function only of the mole fractions. Therefore, it can't be
@@ -264,8 +240,7 @@ public:
      *   state by calling setDensity() may cause an exception to be
      *   thrown.
      */
-
-
+    //@{
 
     /**
      * Set the pressure at constant temperature. Units: Pa.
@@ -296,9 +271,6 @@ protected:
      * species molar volumes. We have additionally specified
      * in this class that the pure species molar volumes are
      * independent of temperature and pressure.
-     *
-     * NOTE: This is a non-virtual function, which is not a
-     *       member of the ThermoPhase base class.
      */
     void calcDensity();
 
@@ -316,9 +288,6 @@ public:
      *
      * This function will now throw an error condition.
      *
-     *  NOTE: This is an overwritten function from the State.h
-     *        class
-     *
      * @param rho   Input Density
      */
     void setDensity(const doublereal rho);
@@ -328,9 +297,6 @@ public:
      * density is not an independent variable.
      *
      * This function will now throw an error condition.
-     *
-     *  NOTE: This is an overwritten function from the State.h
-     *        class
      *
      * @param rho   Input Density
      */
@@ -381,12 +347,9 @@ public:
      * @{
      */
 
-
     //!Set the potential energy of species k to pe.
     /*!
      * Units: J/kmol.
-     * This function must be reimplemented in inherited classes
-     * of ThermoPhase.
      *
      * @param k    Species index
      * @param pe   Input potential energy.
@@ -395,11 +358,9 @@ public:
         err("setPotentialEnergy");
     }
 
-    /*
+    /**
      * Get the potential energy of species k.
      * Units: J/kmol.
-     * This function must be reimplemented in inherited classes
-     * of ThermoPhase.
      *
      * @param k Species index
      */
@@ -468,13 +429,13 @@ public:
      * the program and in the XML input files.
      *
      * @param uA Output vector containing the units
-     *  uA[0] = kmol units - default  = 1
-     *  uA[1] = m    units - default  = -nDim(), the number of spatial
-     *                                dimensions in the Phase class.
-     *  uA[2] = kg   units - default  = 0;
-     *  uA[3] = Pa(pressure) units - default = 0;
-     *  uA[4] = Temperature units - default = 0;
-     *  uA[5] = time units - default = 0
+     *     uA[0] = kmol units - default  = 1
+     *     uA[1] = m    units - default  = -nDim(), the number of spatial
+     *                                   dimensions in the Phase class.
+     *     uA[2] = kg   units - default  = 0;
+     *     uA[3] = Pa(pressure) units - default = 0;
+     *     uA[4] = Temperature units - default = 0;
+     *     uA[5] = time units - default = 0
      * @param k species index. Defaults to 0.
      * @param sizeUA output int containing the size of the vector.
      *        Currently, this is equal to 6.
@@ -510,13 +471,12 @@ public:
     getMolalityActivityCoefficients(doublereal* acMolality) const;
 
     //@}
-    /// @name  Partial Molar Properties of the Solution -----------------
+    /// @name  Partial Molar Properties of the Solution
     //@{
 
 
     //!Get the species chemical potentials: Units: J/kmol.
     /*!
-     *
      * This function returns a vector of chemical potentials of the
      * species in solution.
      *
@@ -531,7 +491,7 @@ public:
      * \f$ w \f$ refers to the solvent species.
      * \f$ X_w \f$ is the mole fraction of the solvent.
      * \f$ m_k \f$ is the molality of the kth solute.
-     * \f$ m^\Delta is 1 gmol solute per kg solvent. \f$
+     * \f$ m^\Delta \f$ is 1 gmol solute per kg solvent.
      *
      * Units: J/kmol.
      *
@@ -622,47 +582,9 @@ public:
      */
     virtual void getPartialMolarCp(doublereal* cpbar) const;
 
-    //@}
-    /// @name  Properties of the Standard State of the Species
-    //          in the Solution --
-    //@{
-
-
-
-
-    //@}
-    /// @name Thermodynamic Values for the Species Reference States ---
-    //@{
-
-
-    ///////////////////////////////////////////////////////
-    //
-    //  The methods below are not virtual, and should not
-    //  be overloaded.
-    //
-    //////////////////////////////////////////////////////
-
-    /**
-     * @name Specific Properties
-     * @{
-     */
-
-
-    /**
-     * @name Setting the State
-     *
-     * These methods set all or part of the thermodynamic
-     * state.
-     * @{
-     */
-
-    //@}
-
-    /**
-     * @name Chemical Equilibrium
-     * Chemical equilibrium.
-     * @{
-     */
+    //!@}
+    //! @name Chemical Equilibrium
+    //! @{
 
     /**
      * This method is used by the ChemEquil equilibrium solver.
@@ -710,12 +632,15 @@ public:
      * any parameters that are specific to that particular phase
      * model.
      *
+     * HKM -> Right now, the parameters are set elsewhere (initThermo)
+     *        It just didn't seem to fit.
+     *
+     *
      * @param eosdata An XML_Node object corresponding to
      * the "thermo" entry for this phase in the input file.
      */
     virtual void setParametersFromXML(const XML_Node& eosdata);
 
-    //---------------------------------------------------------
     /// @name Critical state properties.
     /// These methods are only implemented by some subclasses.
 
@@ -751,14 +676,6 @@ public:
 
     //@}
 
-    /// @name Saturation properties.
-    /// These methods are only implemented by subclasses that
-    /// implement full liquid-vapor equations of state.
-    ///
-
-    //@}
-
-
     /*
      *  -------------- Utilities -------------------------------
      */
@@ -793,8 +710,7 @@ public:
 
     //! Report the molar volume of species k
     /*!
-     *
-     * units - \f$ m^3 kmol^-1 \f$
+     * units - \f$ m^3 kmol^{-1} \f$
      *
      * @param k Species index.
      */
@@ -802,7 +718,7 @@ public:
 
     /*!
      * Fill in a return vector containing the species molar volumes
-     * units - \f$ m^3 kmol^-1 \f$
+     * units - \f$ m^3 kmol^{-1} \f$
      *
      * @param smv Output vector of species molar volumes.
      */
@@ -811,7 +727,7 @@ public:
 
 protected:
     /**
-     * Species molar volume \f$ m^3 kmol^-1 \f$
+     * Species molar volume \f$ m^3 kmol^{-1} \f$
      */
     vector_fp   m_speciesMolarVolume;
 
@@ -820,12 +736,12 @@ protected:
      * depending on the value of the member attribute m_formGC, which
      * is supplied in the XML file.
      *
-     *                          <TABLE>
+     *  <TABLE>
      *  <TR><TD> m_formGC </TD><TD> ActivityConc </TD><TD> StandardConc </TD></TR>
      *  <TR><TD> 0        </TD><TD> \f$ {m_k}/ { m^{\Delta}}\f$     </TD><TD> \f$ 1.0        \f$ </TD></TR>
      *  <TR><TD> 1        </TD><TD> \f$  m_k / (m^{\Delta} V_k)\f$  </TD><TD> \f$ 1.0 / V_k  \f$ </TD></TR>
      *  <TR><TD> 2        </TD><TD> \f$  m_k / (m^{\Delta} V^0_0)\f$</TD><TD> \f$ 1.0 / V^0_0\f$ </TD></TR>
-     *                         </TABLE>
+     *  </TABLE>
      */
     int m_formGC;
 
@@ -834,7 +750,6 @@ public:
     int IMS_typeCutoff_;
 
 private:
-
     /**
      * Temporary array used in equilibrium calculations
      */
@@ -861,27 +776,12 @@ public:
     //! gamma_k minimum for the cutoff process at the zero solvent point
     doublereal IMS_gamma_k_min_;
 
-    //! Parameter in the polyExp cutoff treatment having to do with rate of exp decay
-    doublereal IMS_cCut_;
-
     //! Parameter in the polyExp cutoff treatment
     /*!
      *  This is the slope of the f function at the zero solvent point
      *  Default value is 0.6
      */
     doublereal IMS_slopefCut_;
-
-    //! Parameter in the polyExp cutoff treatment having to do with rate of exp decay
-    doublereal IMS_dfCut_;
-
-    //! Parameter in the polyExp cutoff treatment having to do with rate of exp decay
-    doublereal IMS_efCut_;
-
-    //! Parameter in the polyExp cutoff treatment having to do with rate of exp decay
-    doublereal IMS_afCut_;
-
-    //! Parameter in the polyExp cutoff treatment having to do with rate of exp decay
-    doublereal IMS_bfCut_;
 
     //! Parameter in the polyExp cutoff treatment
     /*!
@@ -890,17 +790,18 @@ public:
      */
     doublereal IMS_slopegCut_;
 
-    //! Parameter in the polyExp cutoff treatment having to do with rate of exp decay
+    //! @name Parameters in the polyExp cutoff treatment having to do with rate of exp decay
+    //! @{
+    doublereal IMS_cCut_;
+    doublereal IMS_dfCut_;
+    doublereal IMS_efCut_;
+    doublereal IMS_afCut_;
+    doublereal IMS_bfCut_;
     doublereal IMS_dgCut_;
-
-    //! Parameter in the polyExp cutoff treatment having to do with rate of exp decay
     doublereal IMS_egCut_;
-
-    //! Parameter in the polyExp cutoff treatment having to do with rate of exp decay
     doublereal IMS_agCut_;
-
-    //! Parameter in the polyExp cutoff treatment having to do with rate of exp decay
     doublereal IMS_bgCut_;
+    //! @}
 
 private:
 
@@ -914,7 +815,11 @@ private:
     //! natural logarithm of the molality activity coefficients
     /*!
      * Normally the solutes are all zero. However, sometimes they are not,
-     * due to stability schemes
+     * due to stability schemes.
+     *
+     *    gamma_k_molar =  gamma_k_molal / Xmol_solvent
+     *
+     *    gamma_o_molar = gamma_o_molal
      */
     void s_updateIMS_lnMolalityActCoeff() const;
 
@@ -938,8 +843,3 @@ private:
 }
 
 #endif
-
-
-
-
-
