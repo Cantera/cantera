@@ -931,7 +931,6 @@ initThermoXML(XML_Node& phaseNode, const std::string& id)
         if (acNode.hasChild("ionicRadius")) {
             XML_Node& irNode = acNode.child("ionicRadius");
 
-            std::string Aunits = "";
             double Afactor = 1.0;
             if (irNode.hasAttrib("units")) {
                 std::string Aunits = irNode.attrib("units");

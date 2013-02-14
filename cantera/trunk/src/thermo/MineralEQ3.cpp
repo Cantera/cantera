@@ -212,8 +212,7 @@ void MineralEQ3::getIntEnergy_RT(doublereal* urt) const
 {
     _updateThermo();
     doublereal RT = GasConstant * temperature();
-    doublereal PV = m_p0 / molarDensity();
-    urt[0] = m_h0_RT[0] - PV / RT;
+    urt[0] = m_h0_RT[0] - m_p0 / molarDensity() / RT;
 }
 
 /*
@@ -224,8 +223,7 @@ void MineralEQ3::getIntEnergy_RT_ref(doublereal* urt) const
 {
     _updateThermo();
     doublereal RT = GasConstant * temperature();
-    doublereal PV = m_p0 / molarDensity();
-    urt[0] = m_h0_RT[0] - PV / RT;
+    urt[0] = m_h0_RT[0] - m_p0 / molarDensity() / RT;
 }
 
 /*

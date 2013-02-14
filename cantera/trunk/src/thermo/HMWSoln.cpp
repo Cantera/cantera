@@ -1953,7 +1953,7 @@ s_updatePitzer_lnMolalityActCoeff() const
     double sum_m_phi_minus_1, osmotic_coef, lnwateract;
 
     int z1, z2;
-    size_t n, i, j, k, m, counterIJ,  counterIJ2;
+    size_t n, i, j, m, counterIJ,  counterIJ2;
 
 #ifdef DEBUG_MODE
     if (m_debugCalc) {
@@ -2358,7 +2358,7 @@ s_updatePitzer_lnMolalityActCoeff() const
                          * non-duplicate sum over double anions, j, k, with
                          * respect to the cation, i.
                          */
-                        for (k = j+1; k < m_kk; k++) {
+                        for (size_t k = j+1; k < m_kk; k++) {
                             // an inner sum over all anions
                             if (charge(k) < 0.0) {
                                 n = k + j * m_kk + i * m_kk * m_kk;
@@ -2392,7 +2392,7 @@ s_updatePitzer_lnMolalityActCoeff() const
                         }
 #endif
                     }
-                    for (k = 1; k < m_kk; k++) {
+                    for (size_t k = 1; k < m_kk; k++) {
                         if (charge(k) < 0.0) {
                             // two inner sums over anions
 
@@ -2528,7 +2528,7 @@ s_updatePitzer_lnMolalityActCoeff() const
                     }
 #endif
                     if (j < m_kk-1) {
-                        for (k = j+1; k < m_kk; k++) {
+                        for (size_t k = j+1; k < m_kk; k++) {
                             // an inner sum over all cations
                             if (charge(k) > 0) {
                                 n = k + j * m_kk + i * m_kk * m_kk;
@@ -2564,7 +2564,7 @@ s_updatePitzer_lnMolalityActCoeff() const
                         }
 #endif
                     }
-                    for (k = 1; k < m_kk; k++) {
+                    for (size_t k = 1; k < m_kk; k++) {
                         if (charge(k) > 0.0) {
                             // two inner sums over cations
                             n = k + j * m_kk + i * m_kk * m_kk;
@@ -2677,7 +2677,7 @@ s_updatePitzer_lnMolalityActCoeff() const
                  * Zeta term -> we piggyback on the psi term
                  */
                 if (charge(j) > 0.0) {
-                    for (k = 1; k < m_kk; k++) {
+                    for (size_t k = 1; k < m_kk; k++) {
                         if (charge(k) < 0.0) {
                             n = k + j * m_kk + i * m_kk * m_kk;
                             sum3 = sum3 + molality[j]*molality[k]*psi_ijk[n];
@@ -2747,7 +2747,7 @@ s_updatePitzer_lnMolalityActCoeff() const
          * Loop Over Cations
          */
         if (charge(j) > 0.0) {
-            for (k = 1; k < m_kk; k++) {
+            for (size_t k = 1; k < m_kk; k++) {
                 if (charge(k) < 0.0) {
                     /*
                      * Find the counterIJ for the symmetric j,k binary interaction
@@ -2760,7 +2760,7 @@ s_updatePitzer_lnMolalityActCoeff() const
                 }
             }
 
-            for (k = j+1; k < m_kk; k++) {
+            for (size_t k = j+1; k < m_kk; k++) {
                 if (j == (m_kk-1)) {
                     // we should never reach this step
                     printf("logic error 1 in Step 9 of hmw_act");
@@ -2790,7 +2790,7 @@ s_updatePitzer_lnMolalityActCoeff() const
          * Loop Over Anions
          */
         if (charge(j) < 0) {
-            for (k = j+1; k < m_kk; k++) {
+            for (size_t k = j+1; k < m_kk; k++) {
                 if (j == m_kk-1) {
                     // we should never reach this step
                     printf("logic error 2 in Step 9 of hmw_act");
@@ -2820,7 +2820,7 @@ s_updatePitzer_lnMolalityActCoeff() const
          * Loop Over Neutral Species
          */
         if (charge(j) == 0) {
-            for (k = 1; k < m_kk; k++) {
+            for (size_t k = 1; k < m_kk; k++) {
                 if (charge(k) < 0.0) {
                     sum4 = sum4 + molality[j]*molality[k]*m_Lambda_nj(j,k);
                 }
@@ -3006,7 +3006,7 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dT() const
     double sum_m_phi_minus_1, d_osmotic_coef_dT, d_lnwateract_dT;
 
     int z1, z2;
-    size_t n, i, j, k, m, counterIJ,  counterIJ2;
+    size_t n, i, j, m, counterIJ,  counterIJ2;
 
 #ifdef DEBUG_MODE
     if (m_debugCalc) {
@@ -3373,7 +3373,7 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dT() const
                          * non-duplicate sum over double anions, j, k, with
                          * respect to the cation, i.
                          */
-                        for (k = j+1; k < m_kk; k++) {
+                        for (size_t k = j+1; k < m_kk; k++) {
                             // an inner sum over all anions
                             if (charge(k) < 0.0) {
                                 n = k + j * m_kk + i * m_kk * m_kk;
@@ -3389,7 +3389,7 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dT() const
                     if (j != i) {
                         sum2 = sum2 + molality[j]*(2.0*Phi_L[counterIJ]);
                     }
-                    for (k = 1; k < m_kk; k++) {
+                    for (size_t k = 1; k < m_kk; k++) {
                         if (charge(k) < 0.0) {
                             // two inner sums over anions
 
@@ -3471,7 +3471,7 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dT() const
                     sum1 = sum1 + molality[j]*
                            (2.0*BMX_L[counterIJ] + molarcharge*CMX_L[counterIJ]);
                     if (j < m_kk-1) {
-                        for (k = j+1; k < m_kk; k++) {
+                        for (size_t k = j+1; k < m_kk; k++) {
                             // an inner sum over all cations
                             if (charge(k) > 0) {
                                 n = k + j * m_kk + i * m_kk * m_kk;
@@ -3489,7 +3489,7 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dT() const
                     if (j != i) {
                         sum2 = sum2 + molality[j]*(2.0*Phi_L[counterIJ]);
                     }
-                    for (k = 1; k < m_kk; k++) {
+                    for (size_t k = 1; k < m_kk; k++) {
                         if (charge(k) > 0.0) {
                             // two inner sums over cations
                             n = k + j * m_kk + i * m_kk * m_kk;
@@ -3552,7 +3552,7 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dT() const
                  * Zeta term -> we piggyback on the psi term
                  */
                 if (charge(j) > 0.0) {
-                    for (k = 1; k < m_kk; k++) {
+                    for (size_t k = 1; k < m_kk; k++) {
                         if (charge(k) < 0.0) {
                             n = k + j * m_kk + i * m_kk * m_kk;
                             sum3 = sum3 + molality[j]*molality[k]*psi_ijk_L[n];
@@ -3604,7 +3604,7 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dT() const
          * Loop Over Cations
          */
         if (charge(j) > 0.0) {
-            for (k = 1; k < m_kk; k++) {
+            for (size_t k = 1; k < m_kk; k++) {
                 if (charge(k) < 0.0) {
                     /*
                      * Find the counterIJ for the symmetric j,k binary interaction
@@ -3617,7 +3617,7 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dT() const
                 }
             }
 
-            for (k = j+1; k < m_kk; k++) {
+            for (size_t k = j+1; k < m_kk; k++) {
                 if (j == (m_kk-1)) {
                     // we should never reach this step
                     printf("logic error 1 in Step 9 of hmw_act");
@@ -3647,7 +3647,7 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dT() const
          * Loop Over Anions
          */
         if (charge(j) < 0) {
-            for (k = j+1; k < m_kk; k++) {
+            for (size_t k = j+1; k < m_kk; k++) {
                 if (j == m_kk-1) {
                     // we should never reach this step
                     printf("logic error 2 in Step 9 of hmw_act");
@@ -3677,7 +3677,7 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dT() const
          * Loop Over Neutral Species
          */
         if (charge(j) == 0) {
-            for (k = 1; k < m_kk; k++) {
+            for (size_t k = 1; k < m_kk; k++) {
                 if (charge(k) < 0.0) {
                     sum4 = sum4 + molality[j]*molality[k]*m_Lambda_nj_L(j,k);
                 }
@@ -3847,7 +3847,7 @@ void HMWSoln::s_updatePitzer_d2lnMolalityActCoeff_dT2() const
     double sum_m_phi_minus_1, d2_osmotic_coef_dT2, d2_lnwateract_dT2;
 
     int z1, z2;
-    size_t n, i, j, k, m, counterIJ,  counterIJ2;
+    size_t n, i, j, m, counterIJ,  counterIJ2;
 
 #ifdef DEBUG_MODE
     if (m_debugCalc) {
@@ -4225,7 +4225,7 @@ void HMWSoln::s_updatePitzer_d2lnMolalityActCoeff_dT2() const
                          * non-duplicate sum over double anions, j, k, with
                          * respect to the cation, i.
                          */
-                        for (k = j+1; k < m_kk; k++) {
+                        for (size_t k = j+1; k < m_kk; k++) {
                             // an inner sum over all anions
                             if (charge(k) < 0.0) {
                                 n = k + j * m_kk + i * m_kk * m_kk;
@@ -4241,7 +4241,7 @@ void HMWSoln::s_updatePitzer_d2lnMolalityActCoeff_dT2() const
                     if (j != i) {
                         sum2 = sum2 + molality[j]*(2.0*Phi_LL[counterIJ]);
                     }
-                    for (k = 1; k < m_kk; k++) {
+                    for (size_t k = 1; k < m_kk; k++) {
                         if (charge(k) < 0.0) {
                             // two inner sums over anions
 
@@ -4323,7 +4323,7 @@ void HMWSoln::s_updatePitzer_d2lnMolalityActCoeff_dT2() const
                     sum1 = sum1 + molality[j]*
                            (2.0*BMX_LL[counterIJ] + molarcharge*CMX_LL[counterIJ]);
                     if (j < m_kk-1) {
-                        for (k = j+1; k < m_kk; k++) {
+                        for (size_t k = j+1; k < m_kk; k++) {
                             // an inner sum over all cations
                             if (charge(k) > 0) {
                                 n = k + j * m_kk + i * m_kk * m_kk;
@@ -4341,7 +4341,7 @@ void HMWSoln::s_updatePitzer_d2lnMolalityActCoeff_dT2() const
                     if (j != i) {
                         sum2 = sum2 + molality[j]*(2.0*Phi_LL[counterIJ]);
                     }
-                    for (k = 1; k < m_kk; k++) {
+                    for (size_t k = 1; k < m_kk; k++) {
                         if (charge(k) > 0.0) {
                             // two inner sums over cations
                             n = k + j * m_kk + i * m_kk * m_kk;
@@ -4406,7 +4406,7 @@ void HMWSoln::s_updatePitzer_d2lnMolalityActCoeff_dT2() const
                  * Zeta term -> we piggyback on the psi term
                  */
                 if (charge(j) > 0.0) {
-                    for (k = 1; k < m_kk; k++) {
+                    for (size_t k = 1; k < m_kk; k++) {
                         if (charge(k) < 0.0) {
                             n = k + j * m_kk + i * m_kk * m_kk;
                             sum3 = sum3 + molality[j]*molality[k]*psi_ijk_LL[n];
@@ -4457,7 +4457,7 @@ void HMWSoln::s_updatePitzer_d2lnMolalityActCoeff_dT2() const
          * Loop Over Cations
          */
         if (charge(j) > 0.0) {
-            for (k = 1; k < m_kk; k++) {
+            for (size_t k = 1; k < m_kk; k++) {
                 if (charge(k) < 0.0) {
                     /*
                      * Find the counterIJ for the symmetric j,k binary interaction
@@ -4470,7 +4470,7 @@ void HMWSoln::s_updatePitzer_d2lnMolalityActCoeff_dT2() const
                 }
             }
 
-            for (k = j+1; k < m_kk; k++) {
+            for (size_t k = j+1; k < m_kk; k++) {
                 if (j == (m_kk-1)) {
                     // we should never reach this step
                     printf("logic error 1 in Step 9 of hmw_act");
@@ -4500,7 +4500,7 @@ void HMWSoln::s_updatePitzer_d2lnMolalityActCoeff_dT2() const
          * Loop Over Anions
          */
         if (charge(j) < 0) {
-            for (k = j+1; k < m_kk; k++) {
+            for (size_t k = j+1; k < m_kk; k++) {
                 if (j == m_kk-1) {
                     // we should never reach this step
                     printf("logic error 2 in Step 9 of hmw_act");
@@ -4530,7 +4530,7 @@ void HMWSoln::s_updatePitzer_d2lnMolalityActCoeff_dT2() const
          * Loop Over Neutral Species
          */
         if (charge(j) == 0) {
-            for (k = 1; k < m_kk; k++) {
+            for (size_t k = 1; k < m_kk; k++) {
                 if (charge(k) < 0.0) {
                     sum4 = sum4 + molality[j]*molality[k]*m_Lambda_nj_LL(j,k);
                 }
@@ -4687,7 +4687,7 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dP() const
     double sum_m_phi_minus_1, d_osmotic_coef_dP, d_lnwateract_dP;
 
     int z1, z2;
-    size_t n, i, j, k, m, counterIJ,  counterIJ2;
+    size_t n, i, j, m, counterIJ,  counterIJ2;
 
     double currTemp = temperature();
     double currPres = pressure();
@@ -4876,7 +4876,7 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dP() const
                 printf(" %-16s %-16s %11.7f %11.7f %11.7f \n",
                        sni.c_str(), snj.c_str(),
                        BMX_P[counterIJ], BprimeMX_P[counterIJ], BphiMX_P[counterIJ]);
-            }
+            }(k =
 #endif
         }
     }
@@ -5058,7 +5058,7 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dP() const
                          * non-duplicate sum over double anions, j, k, with
                          * respect to the cation, i.
                          */
-                        for (k = j+1; k < m_kk; k++) {
+                        for (size_t k = j+1; k < m_kk; k++) {
                             // an inner sum over all anions
                             if (charge(k) < 0.0) {
                                 n = k + j * m_kk + i * m_kk * m_kk;
@@ -5074,7 +5074,7 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dP() const
                     if (j != i) {
                         sum2 = sum2 + molality[j]*(2.0*Phi_P[counterIJ]);
                     }
-                    for (k = 1; k < m_kk; k++) {
+                    for (size_t k = 1; k < m_kk; k++) {
                         if (charge(k) < 0.0) {
                             // two inner sums over anions
 
@@ -5157,7 +5157,7 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dP() const
                     sum1 = sum1 + molality[j]*
                            (2.0*BMX_P[counterIJ] + molarcharge*CMX_P[counterIJ]);
                     if (j < m_kk-1) {
-                        for (k = j+1; k < m_kk; k++) {
+                        for (size_t k = j+1; k < m_kk; k++) {
                             // an inner sum over all cations
                             if (charge(k) > 0) {
                                 n = k + j * m_kk + i * m_kk * m_kk;
@@ -5175,7 +5175,7 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dP() const
                     if (j != i) {
                         sum2 = sum2 + molality[j]*(2.0*Phi_P[counterIJ]);
                     }
-                    for (k = 1; k < m_kk; k++) {
+                    for (size_t k = 1; k < m_kk; k++) {
                         if (charge(k) > 0.0) {
                             // two inner sums over cations
                             n = k + j * m_kk + i * m_kk * m_kk;
@@ -5239,7 +5239,7 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dP() const
                  * Zeta term -> we piggyback on the psi term
                  */
                 if (charge(j) > 0.0) {
-                    for (k = 1; k < m_kk; k++) {
+                    for (size_t k = 1; k < m_kk; k++) {
                         if (charge(k) < 0.0) {
                             n = k + j * m_kk + i * m_kk * m_kk;
                             sum3 = sum3 + molality[j]*molality[k]*psi_ijk_P[n];
@@ -5290,7 +5290,7 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dP() const
          * Loop Over Cations
          */
         if (charge(j) > 0.0) {
-            for (k = 1; k < m_kk; k++) {
+            for (size_t k = 1; k < m_kk; k++) {
                 if (charge(k) < 0.0) {
                     /*
                      * Find the counterIJ for the symmetric j,k binary interaction
@@ -5303,7 +5303,7 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dP() const
                 }
             }
 
-            for (k = j+1; k < m_kk; k++) {
+            for (size_t k = j+1; k < m_kk; k++) {
                 if (j == (m_kk-1)) {
                     // we should never reach this step
                     printf("logic error 1 in Step 9 of hmw_act");
@@ -5334,7 +5334,7 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dP() const
          * Loop Over Anions
          */
         if (charge(j) < 0) {
-            for (k = j+1; k < m_kk; k++) {
+            for (size_t k = j+1; k < m_kk; k++) {
                 if (j == m_kk-1) {
                     // we should never reach this step
                     printf("logic error 2 in Step 9 of hmw_act");
@@ -5364,7 +5364,7 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dP() const
          * Loop Over Neutral Species
          */
         if (charge(j) == 0) {
-            for (k = 1; k < m_kk; k++) {
+            for (size_t k = 1; k < m_kk; k++) {
                 if (charge(k) < 0.0) {
                     sum4 = sum4 + molality[j]*molality[k]*m_Lambda_nj_P(j,k);
                 }

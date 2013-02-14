@@ -446,12 +446,11 @@ void IdealMolalSoln::getPartialMolarEntropies(doublereal* sbar) const
 {
     getEntropy_R(sbar);
     doublereal R = GasConstant;
-    doublereal mm;
     calcMolalities();
     if (IMS_typeCutoff_ == 0) {
         for (size_t k = 0; k < m_kk; k++) {
             if (k != m_indexSolvent) {
-                mm = std::max(SmallNumber, m_molalities[k]);
+                doublereal mm = std::max(SmallNumber, m_molalities[k]);
                 sbar[k] -= R * log(mm);
             }
         }
