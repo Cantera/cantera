@@ -2,6 +2,7 @@
 *_output.txt
 *_output.csv
 *_output.out
+*.exe
 ChemEquil_gri_matrix/gri_matrix
 ChemEquil_gri_pairs/gri_pairs
 ChemEquil_ionizedGas/ionizedGasEquil
