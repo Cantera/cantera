@@ -48,7 +48,7 @@ namespace Cantera
  * The enthalpy function is given by the following relation.
  *
  *       \f[
- *   \raggedright   h^o_k(T,P) =
+ *              h^o_k(T,P) =
  *                  h^{ref}_k(T) + \tilde v \left( P - P_{ref} \right)
  *       \f]
  *
@@ -67,13 +67,12 @@ namespace Cantera
  * of pressure. The standard state gibbs free energy is obtained
  * from the enthalpy and entropy functions.
  *
- *
  * <b> Specification of Solution Thermodynamic Properties </b>
  *
  *  All solution properties are obtained from the standard state
  *  species functions, since there is only one species in the phase.
  *
- * <b> Application within %Kinetics Managers </b>
+ * <b> %Application within %Kinetics Managers </b>
  *
  * The standard concentration is equal to 1.0. This means that the
  * kinetics operator works on an (activities basis). Since this
@@ -93,77 +92,11 @@ namespace Cantera
  * appear in the rate constant expression, since it's a stoichiometric
  * phase and the activity is always equal to 1.0.
  *
- * <b> Instantiation of the Class </b>
- *
- * The constructor for this phase is NOT located in the default ThermoFactory
- * for %Cantera. However, a new %StoichSubstanceSSTP may be created by
- * the following code snippets:
- *
- * @code
- *    sprintf(file_ID,"%s#NaCl(S)", iFile);
- *    XML_Node *xm = get_XML_NameID("phase", file_ID, 0);
- *    StoichSubstanceSSTP *solid = new StoichSubstanceSSTP(*xm);
- * @endcode
- *
- * or by the following call to importPhase():
- *
- * @code
- *    sprintf(file_ID,"%s#NaCl(S)", iFile);
- *    XML_Node *xm = get_XML_NameID("phase", file_ID, 0);
- *    StoichSubstanceSSTP solid;
- *    importPhase(*xm, &solid);
- * @endcode
- *
- *   <b> XML Example </b>
- *
- * The phase model name for this is called StoichSubstance. It must be supplied
- * as the model attribute of the thermo XML element entry.
- * Within the phase XML block,
- * the density of the phase must be specified. An example of an XML file
- * this phase is given below.
- *
- * @verbatim
-   <!-- phase NaCl(S)    -->
-   <phase dim="3" id="NaCl(S)">
-      <elementArray datasrc="elements.xml">
-         Na Cl
-      </elementArray>
-      <speciesArray datasrc="#species_NaCl(S)"> NaCl(S) </speciesArray>
-      <thermo model="StoichSubstanceSSTP">
-         <density units="g/cm3">2.165</density>
-      </thermo>
-      <transport model="None"/>
-      <kinetics model="none"/>
-   </phase>
-
-   <!-- species definitions     -->
-   <speciesData id="species_NaCl(S)">
-     <!-- species NaCl(S)   -->
-     <species name="NaCl(S)">
-        <atomArray> Na:1 Cl:1 </atomArray>
-        <thermo>
-           <Shomate Pref="1 bar" Tmax="1075.0" Tmin="250.0">
-              <floatArray size="7">
-                  50.72389, 6.672267, -2.517167,
-                  10.15934, -0.200675, -427.2115,
-                  130.3973
-              </floatArray>
-           </Shomate>
-        </thermo>
-        <density units="g/cm3">2.165</density>
-      </species>
-   </speciesData>  @endverbatim
- *
- *  The model attribute, "StoichSubstanceSSTP", on the thermo element identifies the phase as being
- * a StoichSubstanceSSTP object.
- *
  * @ingroup thermoprops
  */
 class MineralEQ3 : public StoichSubstanceSSTP
 {
-
 public:
-
     //! Default constructor for the StoichSubstanceSSTP class
     MineralEQ3();
 
@@ -210,30 +143,14 @@ public:
     ThermoPhase* duplMyselfAsThermoPhase() const;
 
     /**
-     *
-     * @name  Utilities
-     * @{
-     */
-
-    /**
      * Equation of state flag.
      *
      * Returns the value cStoichSubstance, defined in mix_defs.h.
      */
     virtual int eosType() const;
 
-    /**
-     *  @}
-     *  @name Molar Thermodynamic Properties of the Solution
-     *  @{
-     */
-
-    /**
-     * @}
-     * @name Mechanical Equation of State
-     * @{
-     */
-
+    //! @name Mechanical Equation of State
+    //! @{
 
     //! Report the Pressure. Units: Pa.
     /*!
@@ -354,27 +271,21 @@ public:
      * values if necessary.
      *
      * @param uA Output vector containing the units
-     *  uA[0] = kmol units - default  = 1
-     *  uA[1] = m    units - default  = -nDim(), the number of spatial
-     *                                dimensions in the Phase class.
-     *  uA[2] = kg   units - default  = 0;
-     *  uA[3] = Pa(pressure) units - default = 0;
-     *  uA[4] = Temperature units - default = 0;
-     *  uA[5] = time units - default = 0
+     *
+     *     uA[0] = kmol units - default  = 1
+     *     uA[1] = m    units - default  = -nDim(), the number of spatial
+     *                                   dimensions in the Phase class.
+     *     uA[2] = kg   units - default  = 0;
+     *     uA[3] = Pa(pressure) units - default = 0;
+     *     uA[4] = Temperature units - default = 0;
+     *     uA[5] = time units - default = 0
+     *
      * @param k species index. Defaults to 0.
      * @param sizeUA output int containing the size of the vector.
      *        Currently, this is equal to 6.
      */
     virtual void getUnitsStandardConc(doublereal* uA, int k = 0,
                                       int sizeUA = 6) const;
-
-    //@}
-    /// @name  Partial Molar Properties of the Solution
-    ///
-    ///        These properties are handled by the parent class,
-    ///        SingleSpeciesTP
-    //@{
-
 
     //@}
     /// @name  Properties of the Standard State of the Species in the Solution
@@ -441,15 +352,7 @@ public:
      *               Length: m_kk
      */
     virtual void getIntEnergy_RT_ref(doublereal* urt) const;
-
-    /*
-     * ---- Critical State Properties
-     */
-
-
-    /*
-     * ---- Saturation Properties
-     */
+    //! @}
 
     //! Internal initialization required after all species have
     //! been added
@@ -492,7 +395,6 @@ public:
     //! Set the equation of state parameters
     /*!
      * @internal
-     *  The number and meaning of these depends on the subclass.
      *
      * @param n number of parameters
      * @param c array of \a n coefficients
@@ -526,23 +428,12 @@ public:
      *
      * @param eosdata An XML_Node object corresponding to
      *                the "thermo" entry for this phase in the input file.
-     *
-     * eosdata points to the thermo block, and looks like this:
-     *
-     *   @verbatim
-         <phase id="stoichsolid" >
-           <thermo model="StoichSubstance">
-               <density units="g/cm3">3.52</density>
-           </thermo>
-     </phase>    @endverbatim
-     *
      */
     virtual void setParametersFromXML(const XML_Node& eosdata);
     doublereal LookupGe(const std::string& elemName);
     void convertDGFormation();
 
 protected:
-
     //! Value of the Absolute Gibbs Free Energy NIST scale at T_r and P_r
     /*!
      *  This is the NIST scale value of Gibbs free energy at T_r = 298.15
@@ -551,7 +442,6 @@ protected:
      *  J kmol-1
      */
     doublereal m_Mu0_pr_tr;
-
 
     //! Input value of S_j at Tr and Pr    (cal gmol-1 K-1)
     /*!
@@ -591,7 +481,6 @@ protected:
 
     //! c coefficient (cal K gmol-1 K) x 10^-5
     doublereal m_c;
-
 };
 
 }

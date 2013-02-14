@@ -22,13 +22,10 @@ namespace Cantera
  * Class StoichSubstance represents a stoichiometric (fixed composition)
  * incompressible substance.
  * \nosubgrouping
- *
  */
 class StoichSubstance : public ThermoPhase
 {
-
 public:
-
     //! Default empty constructor
     StoichSubstance();
 
@@ -67,12 +64,6 @@ public:
     ThermoPhase* duplMyselfAsThermoPhase() const;
 
     /**
-     *
-     * @name  Utilities
-     * @{
-     */
-
-    /**
      * Equation of state flag. Returns the value cStoichSubstance,
      * defined in mix_defs.h.
      */
@@ -80,12 +71,8 @@ public:
         return cStoichSubstance;
     }
 
-
-    /**
-     * @}
-     * @name Molar Thermodynamic Properties of the Solution ---------
-     * @{
-     */
+    //! @name Molar Thermodynamic Properties of the Solution
+    //! @{
 
     /**
      * Molar enthalpy. Units: J/kmol.  For an incompressible,
@@ -113,7 +100,6 @@ public:
      */
     virtual doublereal entropy_mole() const;
 
-
     /**
      * Molar gibbs Function. Units: J/kmol. This is determined
      * from the molar enthalpy and entropy functions.
@@ -132,14 +118,9 @@ public:
      */
     virtual doublereal cv_mole() const;
 
-    //@}
-
-
-    /**
-     * @name Mechanical Equation of State
-     * @{
-     */
-
+    //! @}
+    //! @name Mechanical Equation of State
+    //! @{
 
     //! Report the Pressure. Units: Pa.
     /*!
@@ -148,7 +129,6 @@ public:
      * pressure value.
      */
     virtual doublereal pressure() const;
-
 
     //! Set the pressure at constant temperature. Units: Pa.
     /*!
@@ -161,12 +141,9 @@ public:
      */
     virtual void setPressure(doublereal p);
 
-    //@}
-
-    /**
-     * @name Chemical Potentials and Activities
-     *@{
-     */
+    //! @}
+    //! @name Chemical Potentials and Activities
+    //! @{
 
     /**
      * This method returns the array of generalized
@@ -201,7 +178,7 @@ public:
 
     /**
      * Returns the units of the standard and generalized
-     * concentrations Note they have the same units, as their
+     * concentrations. Note they have the same units, as their
      * ratio is defined to be equal to the activity of the kth
      * species in the solution, which is unitless.
      *
@@ -209,21 +186,19 @@ public:
      * units are needed. Usually, MKS units are assumed throughout
      * the program and in the XML input files.
      *
-     *  uA[0] = kmol units - default  = 0
-     *  uA[1] = m    units - default  = 0
-     *  uA[2] = kg   units - default  = 0;
-     *  uA[3] = Pa(pressure) units - default = 0;
-     *  uA[4] = Temperature units - default = 0;
-     *  uA[5] = time units - default = 0
+     *     uA[0] = kmol units - default  = 0
+     *     uA[1] = m    units - default  = 0
+     *     uA[2] = kg   units - default  = 0;
+     *     uA[3] = Pa(pressure) units - default = 0;
+     *     uA[4] = Temperature units - default = 0;
+     *     uA[5] = time units - default = 0
      */
     virtual void getUnitsStandardConc(double* uA, int k = 0,
                                       int sizeUA = 6) const;
 
-
     //@}
-    /// @name  Partial Molar Properties of the Solution ----------------------------
+    /// @name  Partial Molar Properties of the Solution
     //@{
-
 
     /**
      * Get the array of non-dimensional chemical potentials
@@ -264,9 +239,8 @@ public:
      */
     virtual void getPartialMolarVolumes(doublereal* vbar) const;
 
-
     //@}
-    /// @name  Properties of the Standard State of the Species in the Solution -----
+    /// @name  Properties of the Standard State of the Species in the Solution
     //@{
     /**
      * Get the nondimensional Enthalpy functions for the species
@@ -312,7 +286,7 @@ public:
     virtual void getStandardVolumes(doublereal* vol) const;
 
     //@}
-    /// @name Thermodynamic Values for the Species Reference States --------------------
+    /// @name Thermodynamic Values for the Species Reference States
     //@{
 
     /**
@@ -379,6 +353,7 @@ public:
      *               Length: m_kk
      */
     virtual void getCp_R_ref(doublereal* cprt) const;
+    //! @}
 
     virtual void initThermo();
 
@@ -398,15 +373,9 @@ protected:
     mutable vector_fp      m_s0_R;
 
 private:
-
     void _updateThermo() const;
 };
 
 }
 
 #endif
-
-
-
-
-

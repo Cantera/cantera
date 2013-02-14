@@ -26,7 +26,6 @@ namespace Cantera
  *  The class is based on the electron having a chemical potential
  *  equal to one-half of the entropy of the H<SUP>2</SUP> gas at the system pressure
  *
- *
  * <b> Specification of Species Standard %State Properties </b>
  *
  *  This class inherits from SingleSpeciesTP.
@@ -75,7 +74,6 @@ namespace Cantera
  *            u^o_k(T,P) = h^o_k(T) - R T
  *       \f]
  *
- *
  * <b> Specification of Solution Thermodynamic Properties </b>
  *
  *  All solution properties are obtained from the standard state
@@ -93,7 +91,6 @@ namespace Cantera
  *  have on reactions is in terms of the standard state chemical potential, which
  *  is equal to 1/2 of the H2 gas chemical potential, and the voltage assigned
  *  to the electron, which is the voltage of the metal.
- *
  *
  * <b> Instantiation of the Class </b>
  *
@@ -116,7 +113,7 @@ namespace Cantera
  * @endcode
  *
  *  @code
- *  ThermoPhase *eMetal = newPhase("  MetalSHEelectrons.xml", "MetalSHEelectrons");
+ *  ThermoPhase *eMetal = newPhase("MetalSHEelectrons.xml", "MetalSHEelectrons");
  *  @endcode
  *
  *   Additionally, this phase may be created without including an xml file with
@@ -126,8 +123,6 @@ namespace Cantera
  *    MetalSHEelectrons *eMetal = new MetalSHEelectrons("MetalSHEelectrons_default.xml", "");
  * @endcode
  *
- *
- *
  *   <b> XML Example </b>
  *
  * The phase model name for this is called %MetalSHEelectrons. It must be supplied
@@ -136,58 +131,56 @@ namespace Cantera
  * the density of the phase must be specified though it's not used. An example of an XML file
  * this phase is given below.
  *
- * @verbatim
-<?xml version="1.0"?>
-<ctml>
-<validate reactions="yes" species="yes"/>
-
-<phase dim="3" id="MetalSHEelectrons">
-  <elementArray datasrc="elements.xml">
-      E
-  </elementArray>
-  <speciesArray datasrc="#species_Metal_SHEelectrons"> she_electron </speciesArray>
-  <thermo model="metalSHEelectrons">
-    <density units="g/cm3">2.165</density>
-  </thermo>
-  <transport model="None"/>
-  <kinetics model="none"/>
-</phase>
-
-<!-- species definitions     -->
-<speciesData id="species_Metal_SHEelectrons">
-  <species name="she_electron">
-    <atomArray> E:1  </atomArray>
-    <charge> -1 </charge>
-    <thermo>
-      <NASA Tmax="1000.0" Tmin="200.0" P0="100000.0">
-       <floatArray name="coeffs" size="7">
-        1.172165560E+00,   3.990260375E-03,  -9.739075500E-06,  1.007860470E-08,
-       -3.688058805E-12, -4.589675865E+02,  3.415051190E-01
-       </floatArray>
-      </NASA>
-      <NASA Tmax="6000.0" Tmin="1000.0" P0="100000.0">
-         <floatArray name="coeffs" size="7">
-           1.466432895E+00,  4.133039835E-04, -7.320116750E-08, 7.705017950E-12,
-          -3.444022160E-16, -4.065327985E+02, -5.121644350E-01
-        </floatArray>
-      </NASA>
-    </thermo>
-    <density units="g/cm3">2.165</density>
-  </species>
-</speciesData>
-</ctml>
-@endverbatim
+ * @code
+ * <?xml version="1.0"?>
+ * <ctml>
+ *   <validate reactions="yes" species="yes"/>
  *
- *  The model attribute, "MetalSHEelectrons", on the thermo element
- *  identifies the phase as being a %MetalSHEelectrons object.
+ *   <phase dim="3" id="MetalSHEelectrons">
+ *     <elementArray datasrc="elements.xml">
+ *         E
+ *     </elementArray>
+ *     <speciesArray datasrc="#species_Metal_SHEelectrons"> she_electron </speciesArray>
+ *     <thermo model="metalSHEelectrons">
+ *       <density units="g/cm3">2.165</density>
+ *     </thermo>
+ *     <transport model="None"/>
+ *     <kinetics model="none"/>
+ *   </phase>
+ *
+ *   <!-- species definitions     -->
+ *   <speciesData id="species_Metal_SHEelectrons">
+ *     <species name="she_electron">
+ *       <atomArray> E:1  </atomArray>
+ *       <charge> -1 </charge>
+ *       <thermo>
+ *         <NASA Tmax="1000.0" Tmin="200.0" P0="100000.0">
+ *          <floatArray name="coeffs" size="7">
+ *           1.172165560E+00,   3.990260375E-03,  -9.739075500E-06,  1.007860470E-08,
+ *          -3.688058805E-12, -4.589675865E+02,  3.415051190E-01
+ *          </floatArray>
+ *         </NASA>
+ *         <NASA Tmax="6000.0" Tmin="1000.0" P0="100000.0">
+ *            <floatArray name="coeffs" size="7">
+ *              1.466432895E+00,  4.133039835E-04, -7.320116750E-08, 7.705017950E-12,
+ *             -3.444022160E-16, -4.065327985E+02, -5.121644350E-01
+ *           </floatArray>
+ *         </NASA>
+ *       </thermo>
+ *       <density units="g/cm3">2.165</density>
+ *     </species>
+ *   </speciesData>
+ * </ctml>
+ * @endcode
+ *
+ * The model attribute, "MetalSHEelectrons", on the thermo element
+ * identifies the phase as being a %MetalSHEelectrons object.
  *
  * @ingroup thermoprops
  */
 class MetalSHEelectrons : public SingleSpeciesTP
 {
-
 public:
-
     //! Default constructor for the MetalSHEelectrons class
     MetalSHEelectrons();
 
@@ -220,7 +213,7 @@ public:
      */
     MetalSHEelectrons& operator=(const MetalSHEelectrons& right);
 
-    //! Destructor for the routine (virtual)
+    //! Destructor for the routine
     virtual ~MetalSHEelectrons();
 
     //! Duplication function
@@ -234,36 +227,19 @@ public:
     ThermoPhase* duplMyselfAsThermoPhase() const;
 
     /**
-     *
-     * @name  Utilities
-     * @{
-     */
-
-    /**
      * Equation of state flag.
      *
-     * Returns the value cStoichSubstance, defined in mix_defs.h.
+     * Returns the value cMetalSHEelectrons, defined in mix_defs.h.
      */
     virtual int eosType() const;
 
-    /**
-     *  @}
-     *  @name Molar Thermodynamic Properties of the Solution
-     *  @{
-     */
-
-    /**
-     * @}
-     * @name Mechanical Equation of State
-     * @{
-     */
-
+    //! @name Mechanical Equation of State
+    //! @{
 
     //! Report the Pressure. Units: Pa.
     /*!
-     * For an incompressible substance, the density is independent
-     * of pressure. This method simply returns the stored
-     * pressure value.
+     * For an incompressible substance, the density is independent of
+     * pressure. This method simply returns the stored pressure value.
      */
     virtual doublereal pressure() const;
 
@@ -296,14 +272,12 @@ public:
      */
     virtual doublereal thermalExpansionCoeff() const ;
 
-    /**
-     * @}
-     * @name Activities, Standard States, and Activity Concentrations
-     *
-     *  This section is largely handled by parent classes, since there
-     *  is only one species. Therefore, the activity is equal to one.
-     * @{
-     */
+    //! @}
+    //! @name Activities, Standard States, and Activity Concentrations
+    //!
+    //! This section is largely handled by parent classes, since there
+    //! is only one species. Therefore, the activity is equal to one.
+    //! @{
 
     //! This method returns an array of generalized concentrations
     /*!
@@ -378,27 +352,19 @@ public:
      * values if necessary.
      *
      * @param uA Output vector containing the units
-     *  uA[0] = kmol units - default  = 1
-     *  uA[1] = m    units - default  = -nDim(), the number of spatial
-     *                                dimensions in the Phase class.
-     *  uA[2] = kg   units - default  = 0;
-     *  uA[3] = Pa(pressure) units - default = 0;
-     *  uA[4] = Temperature units - default = 0;
-     *  uA[5] = time units - default = 0
+     *     uA[0] = kmol units - default  = 1
+     *     uA[1] = m    units - default  = -nDim(), the number of spatial
+     *                                   dimensions in the Phase class.
+     *     uA[2] = kg   units - default  = 0;
+     *     uA[3] = Pa(pressure) units - default = 0;
+     *     uA[4] = Temperature units - default = 0;
+     *     uA[5] = time units - default = 0
      * @param k species index. Defaults to 0.
      * @param sizeUA output int containing the size of the vector.
      *        Currently, this is equal to 6.
      */
     virtual void getUnitsStandardConc(doublereal* uA, int k = 0,
                                       int sizeUA = 6) const;
-
-    //@}
-    /// @name  Partial Molar Properties of the Solution
-    ///
-    ///        These properties are handled by the parent class,
-    ///        SingleSpeciesTP
-    //@{
-
 
     //@}
     /// @name  Properties of the Standard State of the Species in the Solution
@@ -465,15 +431,7 @@ public:
      *               Length: m_kk
      */
     virtual void getIntEnergy_RT_ref(doublereal* urt) const;
-
-    /*
-     * ---- Critical State Properties
-     */
-
-
-    /*
-     * ---- Saturation Properties
-     */
+    // @}
 
     /*
      * @internal Initialize. This method is provided to allow
@@ -484,12 +442,11 @@ public:
      * and subclasses that do not require initialization do not
      * need to overload this method.  When importing a CTML phase
      * description, this method is called just prior to returning
-     * from function importPhase.
+     * from function importPhase.setParameters
      *
      * @see importCTML.cpp
      */
     virtual void initThermo();
-
 
     virtual void initThermoXML(XML_Node& phaseNode, const std::string& id);
 
@@ -503,7 +460,6 @@ public:
     //! Set the equation of state parameters
     /*!
      * @internal
-     *  The number and meaning of these depends on the subclass.
      *
      * @param n number of parameters
      * @param c array of \a n coefficients
@@ -540,21 +496,19 @@ public:
      *
      * eosdata points to the thermo block, and looks like this:
      *
-     *   @verbatim
-         <phase id="stoichsolid" >
-           <thermo model="StoichSubstance">
-               <density units="g/cm3">3.52</density>
-           </thermo>
-     </phase>    @endverbatim
-     *
+     * @code
+     * <phase id="stoichsolid" >
+     *   <thermo model="StoichSubstance">
+     *     <density units="g/cm3">3.52</density>
+     *   </thermo>
+     * </phase>
+     * @endcode
      */
     virtual void setParametersFromXML(const XML_Node& eosdata);
 
 protected:
-
     XML_Node* xdef_;
 };
-
 
 }
 #endif

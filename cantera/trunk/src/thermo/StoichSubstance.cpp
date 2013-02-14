@@ -13,8 +13,6 @@
 
 namespace Cantera
 {
-
-// Default empty constructor
 StoichSubstance::StoichSubstance() :
     m_press(OneAtm),
     m_p0(OneAtm),
@@ -22,15 +20,6 @@ StoichSubstance::StoichSubstance() :
 {
 }
 
-// Copy Constructor
-/*
- * Copy constructor for the object. Constructed
- * object will be a clone of this object, but will
- * also own all of its data.
- * This is a wrapper around the assignment operator
- *
- * @param right Object to be copied.
- */
 StoichSubstance::StoichSubstance(const StoichSubstance& right) :
     m_press(OneAtm),
     m_p0(OneAtm),
@@ -39,14 +28,6 @@ StoichSubstance::StoichSubstance(const StoichSubstance& right) :
     *this = operator=(right);
 }
 
-// Assignment operator
-/*
- * Assignment operator for the object. Constructed
- * object will be a clone of this object, but will
- * also own all of its data.
- *
- * @param right Object to be copied.
- */
 StoichSubstance& StoichSubstance::
 operator=(const StoichSubstance& right)
 {
@@ -62,20 +43,11 @@ operator=(const StoichSubstance& right)
     return *this;
 }
 
-// Duplicator from the %ThermoPhase parent class
-/*
- * Given a pointer to a %ThermoPhase object, this function will
- * duplicate the %ThermoPhase object and all underlying structures.
- * This is basically a wrapper around the copy constructor.
- *
- * @return returns a pointer to a %ThermoPhase
- */
 ThermoPhase* StoichSubstance::duplMyselfAsThermoPhase() const
 {
     return new StoichSubstance(*this);
 }
 
-// Destructor
 StoichSubstance::~StoichSubstance()
 {
 }
@@ -297,7 +269,3 @@ void StoichSubstance::setParametersFromXML(const XML_Node& eosdata)
 }
 
 }
-
-
-
-
