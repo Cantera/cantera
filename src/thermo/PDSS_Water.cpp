@@ -251,9 +251,7 @@ void PDSS_Water::constructPDSSFile(VPStandardStateTP* tp, int spindex,
 
 void PDSS_Water::constructSet()
 {
-    if (m_sub) {
-        delete m_sub;
-    }
+    delete m_sub;
     m_sub = new WaterPropsIAPWS();
     if (m_sub == 0) {
         throw CanteraError("PDSS_Water::initThermo",

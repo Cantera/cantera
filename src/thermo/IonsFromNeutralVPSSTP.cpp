@@ -141,9 +141,7 @@ operator=(const IonsFromNeutralVPSSTP& b)
      */
     if (IOwnNThermoPhase_) {
         if (b.neutralMoleculePhase_) {
-            if (neutralMoleculePhase_) {
-                delete neutralMoleculePhase_;
-            }
+            delete neutralMoleculePhase_;
             neutralMoleculePhase_   = (b.neutralMoleculePhase_)->duplMyselfAsThermoPhase();
         } else {
             neutralMoleculePhase_   = 0;

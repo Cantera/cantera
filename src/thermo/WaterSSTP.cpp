@@ -123,9 +123,7 @@ initThermoXML(XML_Node& phaseNode, const std::string& id)
      * Do initializations that don't depend on knowing the XML file
      */
     initThermo();
-    if (m_sub) {
-        delete m_sub;
-    }
+    delete m_sub;
     m_sub = new WaterPropsIAPWS();
     if (m_sub == 0) {
         throw CanteraError("WaterSSTP::initThermo",

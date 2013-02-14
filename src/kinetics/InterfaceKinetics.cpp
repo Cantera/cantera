@@ -67,9 +67,7 @@ InterfaceKinetics::InterfaceKinetics(thermo_t* thermo) :
  */
 InterfaceKinetics::~InterfaceKinetics()
 {
-    if (m_integrator) {
-        delete m_integrator;
-    }
+    delete m_integrator;
 }
 //====================================================================================================================
 //  Copy Constructor for the %InterfaceKinetics object.

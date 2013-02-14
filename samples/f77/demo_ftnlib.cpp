@@ -82,17 +82,13 @@ extern "C" {
             string fin = string(file, lenfile);
             string fth = string(id, lenid);
             trmodel = string(transport, lentr);
-            if (_gas) {
-                delete _gas;
-            }
+            delete _gas;
             _gas = new IdealGasMix(fin, fth);
         } catch (CanteraError& err) {
             handleError(err);
         }
         try {
-            if (_trans) {
-                delete _trans;
-            }
+            delete _trans;
             _trans = newTransportMgr(trmodel,_gas,1);
         } catch (CanteraError& err) {
             _trans =  newTransportMgr("",_gas,1);

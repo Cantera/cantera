@@ -90,9 +90,7 @@ MetalSHEelectrons::MetalSHEelectrons(const MetalSHEelectrons&  right) :
 
 MetalSHEelectrons::~MetalSHEelectrons()
 {
-    if (xdef_) {
-        delete xdef_;
-    }
+    delete xdef_;
 }
 
 MetalSHEelectrons&
@@ -102,9 +100,7 @@ MetalSHEelectrons::operator=(const MetalSHEelectrons& right)
         SingleSpeciesTP::operator=(right);
     }
 
-    if (xdef_) {
-        delete xdef_;
-    }
+    delete xdef_;
     xdef_ = new XML_Node(*right.xdef_);
 
     return *this;

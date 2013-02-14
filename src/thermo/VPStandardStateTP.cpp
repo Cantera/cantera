@@ -345,9 +345,7 @@ VPStandardStateTP::createInstallPDSS(size_t k,  const XML_Node& s,
     if (m_PDSS_storage.size() < k+1) {
         m_PDSS_storage.resize(k+1,0);
     }
-    if (m_PDSS_storage[k] != 0) {
-        delete m_PDSS_storage[k] ;
-    }
+    delete m_PDSS_storage[k];
     m_PDSS_storage[k] = m_VPSS_ptr->createInstallPDSS(k, s, phaseNode_ptr);
 }
 

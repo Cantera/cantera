@@ -488,12 +488,8 @@ public:
             std::copy(b.m_coeff.begin(),
                       b.m_coeff.begin() + 15,
                       m_coeff.begin());
-            if (msp_low) {
-                delete msp_low;
-            }
-            if (msp_high) {
-                delete msp_high;
-            }
+            delete msp_low;
+            delete msp_high;
             msp_low  = new ShomatePoly(m_index, m_lowT, m_midT,
                                        m_Pref, &m_coeff[1]);
             msp_high = new ShomatePoly(m_index, m_midT, m_highT,

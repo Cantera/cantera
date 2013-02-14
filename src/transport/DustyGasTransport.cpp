@@ -94,9 +94,7 @@ DustyGasTransport& DustyGasTransport::operator=(const  DustyGasTransport& right)
 
     // Warning -> gastran may not point to the correct object
     //            after this copy. The routine initialize() must be called
-    if (m_gastran) {
-        delete m_gastran;
-    }
+    delete m_gastran;
     m_gastran = right.duplMyselfAsTransport();
 
 
@@ -196,9 +194,7 @@ void DustyGasTransport::initialize(ThermoPhase* phase, Transport* gastr)
     m_thermo = phase;
     m_nsp = m_thermo->nSpecies();
     if (m_gastran != gastr) {
-        if (m_gastran) {
-            delete m_gastran;
-        }
+        delete m_gastran;
         m_gastran = gastr;
     }
 
