@@ -119,3 +119,13 @@ class TestKinetics(utilities.CanteraTest):
         self.assertArrayNear(self.phase.delta_standard_enthalpy -
                              self.phase.delta_standard_entropy * self.phase.T,
                              self.phase.delta_standard_gibbs)
+
+
+class TestEmptyKinetics(utilities.CanteraTest):
+    def test_empty(self):
+        gas = ct.Solution('air-no-reactions.xml')
+
+        self.assertEqual(gas.n_reactions, 0)
+        self.assertArrayNear(gas.creation_rates, np.zeros(gas.n_species))
+        self.assertArrayNear(gas.destruction_rates, np.zeros(gas.n_species))
+        self.assertArrayNear(gas.net_production_rates, np.zeros(gas.n_species))
