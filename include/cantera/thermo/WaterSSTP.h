@@ -52,7 +52,7 @@ class WaterProps;
  *   - Delta_Hfo_idealgas(298.15) = -241.826 kJ/gmol
  *   - So_idealgas(298.15, 1bar)  =  188.835  J/gmolK
  *
- *         ref ->  (http://webbook.nist.gov)
+ *   (From http://webbook.nist.gov)
  *
  *   The "o" here refers to a hypothetical ideal gas state. The way
  *   we achieve this in practice is to evaluate at a very low pressure
@@ -104,30 +104,27 @@ class WaterProps;
  *   An example of an XML Element named phase setting up a WaterSSTP object with
  *   id "water"   is given below.
  *
- * @verbatim
-    <!-- phase water     -->
-    <phase dim="3" id="water">
-         <elementArray datasrc="elements.xml">O  H </elementArray>
-         <speciesArray datasrc="#species_data">H2O</speciesArray>
-         <state>
-           <temperature units="K">300.0</temperature>
-           <pressure units="Pa">101325.0</pressure>
-         </state>
-         <thermo model="PureLiquidWater"/>
-         <kinetics model="none"/>
-     </phase>
- @endverbatim
+ * @code
+ * <!-- phase water     -->
+ * <phase dim="3" id="water">
+ *   <elementArray datasrc="elements.xml">O  H </elementArray>
+ *   <speciesArray datasrc="#species_data">H2O</speciesArray>
+ *   <state>
+ *     <temperature units="K">300.0</temperature>
+ *     <pressure units="Pa">101325.0</pressure>
+ *   </state>
+ *   <thermo model="PureLiquidWater"/>
+ *   <kinetics model="none"/>
+ * </phase>
+ * @endcode
  *
  *  Note the model "PureLiquidWater" indicates the usage of the WaterSSTP object.
  *
  * @ingroup thermoprops
- *
  */
 class WaterSSTP : public SingleSpeciesTP
 {
-
 public:
-
     //! Base constructor
     WaterSSTP();
 
@@ -157,25 +154,17 @@ public:
     //! Duplicator from a ThermoPhase object
     ThermoPhase* duplMyselfAsThermoPhase() const;
 
-    /**
-     *
-     * @name  Utilities
-     * @{
-     */
     virtual int eosType() const {
         return -1;
     }
 
-    /**
-     * @}
-     * @name  Molar Thermodynamic Properties of the Solution --------------
-     * @{
-     */
+    //! @name  Molar Thermodynamic Properties of the Solution
+    //! @{
 
     virtual doublereal cv_mole() const;
 
     //@}
-    /// @name Mechanical Equation of State Properties ---------------------
+    /// @name Mechanical Equation of State Properties
     //@{
 
     virtual doublereal pressure() const;
@@ -212,28 +201,9 @@ public:
      */
     virtual doublereal dthermalExpansionCoeffdT() const;
 
-    /**
-     * @}
-     * @name Potential Energy
-     * @{
-     */
-
-    /**
-     * @}
-     * @name Activities, Standard States,  and Activity Concentrations
-     * @{
-     */
-
-    //@}
-    /// @name  Partial Molar Properties of the Solution -----------------
-    //@{
-
-
-    //@}
-    /// @name  Properties of the Standard State of the Species
-    //          in the Solution --
-    //@{
-
+    //! @}
+    //! @name Properties of the Standard State of the Species in the Solution
+    //! @{
 
     //!  Get the gibbs function for the species
     //!  standard states at the current T and P of the solution.
@@ -256,13 +226,11 @@ public:
     //! Get the array of nondimensional Enthalpy functions for the standard state species
     //! at the current <I>T</I> and <I>P</I> of the solution.
     /*!
-     *
      * @param hrt Vector of length m_kk, which on return
      *            will contain the nondimensional
      *            standard state enthalpy of species <I>k</I>
      */
     void getEnthalpy_RT(doublereal* hrt) const;
-
 
     //! Get the nondimensional Entropies for the species
     //! standard states at the current T and P of the solution.
@@ -276,7 +244,6 @@ public:
     //!   Get the nondimensional heat capacity at constant pressure
     //!   function for the species standard states at the current T and P of the solution.
     /*!
-     *
      * @param cpr Vector of length m_kk, which on return
      *           will contain the nondimensional
      *           constant pressure heat capacity for species <I>k</I>
@@ -287,7 +254,6 @@ public:
     //!  internal Energies of the standard state at the current
     //! temperature and pressure of the solution for each species.
     /*!
-     *
      * @param urt  Output vector of standard state nondimensional internal energies.
      *             Length: m_kk.
      */
@@ -299,7 +265,6 @@ public:
      *  All functions in this group need to be overrided, because
      *  the  m_spthermo SpeciesThermo function is not adequate for
      *  the real equation of state.
-     *
      */
     //@{
 
@@ -322,12 +287,10 @@ public:
       */
     virtual void getGibbs_RT_ref(doublereal* grt) const;
 
-
     /*!
-     *  Returns the vector of the
-     *  gibbs function of the reference state at the current temperature
-     *  of the solution and the reference pressure for the species.
-     *  units = J/kmol
+     *  Returns the vector of the gibbs function of the reference state at the
+     *  current temperature of the solution and the reference pressure for the
+     *  species. units = J/kmol
      *
      * @param g       Output vector containing the  reference state
      *                Gibbs Free energies.  Length: m_kk. Units: J/kmol.
@@ -365,6 +328,7 @@ public:
      *                Length: m_kk.
      */
     virtual void getStandardVolumes_ref(doublereal* vol) const;
+    //! @}
 
     /// critical temperature
     virtual doublereal critTemperature() const;
@@ -374,11 +338,6 @@ public:
 
     /// critical density
     virtual doublereal critDensity() const;
-
-    /// saturation temperature
-    //virtual doublereal satTemperature(doublereal p) const;
-
-
 
     /// saturation pressure
     /*!
@@ -465,7 +424,6 @@ public:
 
     //! Set equation of state parameter values from XML entries.
     /*!
-     *
      * This method is called by function importPhase() in
      * file importCTML.cpp when processing a phase definition in
      * an input file. It should be overloaded in subclasses to set
@@ -488,9 +446,7 @@ public:
         return m_waterProps;
     }
 
-
 protected:
-
     /**
      * @internal
      *        This internal routine must be overwritten because
@@ -545,6 +501,3 @@ private:
 }
 
 #endif
-
-
-
