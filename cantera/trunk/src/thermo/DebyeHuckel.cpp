@@ -53,7 +53,7 @@ DebyeHuckel::DebyeHuckel() :
 }
 
 DebyeHuckel::DebyeHuckel(const std::string& inputFile,
-                         const std::string& id) :
+                         const std::string& id_) :
     MolalityVPSSTP(),
     m_formDH(DHFORM_DILUTE_LIMIT),
     m_formGC(2),
@@ -72,10 +72,10 @@ DebyeHuckel::DebyeHuckel(const std::string& inputFile,
     m_npActCoeff[0] = 0.1127;
     m_npActCoeff[1] = -0.01049;
     m_npActCoeff[2] = 1.545E-3;
-    initThermoFile(inputFile, id);
+    initThermoFile(inputFile, id_);
 }
 
-DebyeHuckel::DebyeHuckel(XML_Node& phaseRoot, const std::string& id) :
+DebyeHuckel::DebyeHuckel(XML_Node& phaseRoot, const std::string& id_) :
     MolalityVPSSTP(),
     m_formDH(DHFORM_DILUTE_LIMIT),
     m_formGC(2),
@@ -94,7 +94,7 @@ DebyeHuckel::DebyeHuckel(XML_Node& phaseRoot, const std::string& id) :
     m_npActCoeff[0] = 0.1127;
     m_npActCoeff[1] = -0.01049;
     m_npActCoeff[2] = 1.545E-3;
-    importPhase(*findXMLPhase(&phaseRoot, id), this);
+    importPhase(*findXMLPhase(&phaseRoot, id_), this);
 }
 
 DebyeHuckel::DebyeHuckel(const DebyeHuckel& b) :
@@ -623,11 +623,11 @@ static int interp_est(const std::string& estString)
 }
 
 void DebyeHuckel::
-initThermoXML(XML_Node& phaseNode, const std::string& id)
+initThermoXML(XML_Node& phaseNode, const std::string& id_)
 {
-    if (id.size() > 0) {
+    if (id_.size() > 0) {
         std::string idp = phaseNode.id();
-        if (idp != id) {
+        if (idp != id_) {
             throw CanteraError("DebyeHuckel::initThermoXML",
                                "phasenode and Id are incompatible");
         }

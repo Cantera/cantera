@@ -834,11 +834,11 @@ size_t Phase::addUniqueElementAfterFreeze(const std::string& symbol,
 }
 
 void Phase::addSpecies(const std::string& name, const doublereal* comp,
-                       doublereal charge, doublereal size)
+                       doublereal charge_, doublereal size)
 {
     freezeElements();
     m_speciesNames.push_back(name);
-    m_speciesCharge.push_back(charge);
+    m_speciesCharge.push_back(charge_);
     m_speciesSize.push_back(size);
     size_t ne = nElements();
     // Create a changeable copy of the element composition. We now change
@@ -849,11 +849,11 @@ void Phase::addSpecies(const std::string& name, const doublereal* comp,
     }
     double wt = 0.0;
     const vector_fp& aw = atomicWeights();
-    if (charge != 0.0) {
+    if (charge_ != 0.0) {
         size_t eindex = elementIndex("E");
         if (eindex != npos) {
             doublereal ecomp = compNew[eindex];
-            if (fabs(charge + ecomp) > 0.001) {
+            if (fabs(charge_ + ecomp) > 0.001) {
                 if (ecomp != 0.0) {
                     throw CanteraError("Phase::addSpecies",
                                        "Input charge and element E compositions differ "
@@ -861,7 +861,7 @@ void Phase::addSpecies(const std::string& name, const doublereal* comp,
                 } else {
                     // Just fix up the element E composition based on the input
                     // species charge
-                    compNew[eindex] = -charge;
+                    compNew[eindex] = -charge_;
                 }
             }
         } else {
@@ -870,7 +870,7 @@ void Phase::addSpecies(const std::string& name, const doublereal* comp,
             ne = nElements();
             eindex = elementIndex("E");
             compNew.resize(ne);
-            compNew[ne - 1] = - charge;
+            compNew[ne - 1] = - charge_;
         }
     }
     for (size_t m = 0; m < ne; m++) {
@@ -882,7 +882,7 @@ void Phase::addSpecies(const std::string& name, const doublereal* comp,
 }
 
 void Phase::addUniqueSpecies(const std::string& name, const doublereal* comp,
-                             doublereal charge, doublereal size)
+                             doublereal charge_, doublereal size)
 {
     for (size_t k = 0; k < m_kk; k++) {
         if (m_speciesNames[k] == name) {
@@ -894,7 +894,7 @@ void Phase::addUniqueSpecies(const std::string& name, const doublereal* comp,
                                        "compositions: " + name);
                 }
             }
-            if (charge != m_speciesCharge[k]) {
+            if (charge_ != m_speciesCharge[k]) {
                 throw CanteraError("addUniqueSpecies",
                                    "Duplicate species have different "
                                    "charges: " + name);
@@ -907,7 +907,7 @@ void Phase::addUniqueSpecies(const std::string& name, const doublereal* comp,
             return;
         }
     }
-    addSpecies(name, comp, charge, size);
+    addSpecies(name, comp, charge_, size);
 }
 
 void Phase::freezeSpecies()

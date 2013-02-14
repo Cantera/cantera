@@ -58,11 +58,11 @@ public:
      * energy to SI units.
      * @param units activation energy units
      */
-    doublereal actEnergyToSI(const std::string& units) {
-        if (m_act_u.find(units) != m_act_u.end()) {
-            return m_act_u[units];
+    doublereal actEnergyToSI(const std::string& units_) {
+        if (m_act_u.find(units_) != m_act_u.end()) {
+            return m_act_u[units_];
         } else {
-            return toSI(units);
+            return toSI(units_);
         }
     }
 
@@ -75,16 +75,16 @@ public:
      *
      * @param units String containing the units description
      */
-    doublereal toSI(const std::string& units) {
+    doublereal toSI(const std::string& units_) {
 
         // if dimensionless, return 1.0
-        if (units == "") {
+        if (units_ == "") {
             return 1.0;
         }
 
         doublereal f = 1.0, fctr;
         int tsize;
-        std::string u = units, tok, tsub;
+        std::string u = units_, tok, tsub;
         std::string::size_type k;
         char action = '-';
 

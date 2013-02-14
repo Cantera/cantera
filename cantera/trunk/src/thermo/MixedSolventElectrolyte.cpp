@@ -32,23 +32,23 @@ MixedSolventElectrolyte::MixedSolventElectrolyte() :
 }
 
 MixedSolventElectrolyte::MixedSolventElectrolyte(const std::string& inputFile,
-        const std::string& id) :
+        const std::string& id_) :
     MolarityIonicVPSSTP(),
     numBinaryInteractions_(0),
     formMargules_(0),
     formTempModel_(0)
 {
-    initThermoFile(inputFile, id);
+    initThermoFile(inputFile, id_);
 }
 
 MixedSolventElectrolyte::MixedSolventElectrolyte(XML_Node& phaseRoot,
-        const std::string& id) :
+        const std::string& id_) :
     MolarityIonicVPSSTP(),
     numBinaryInteractions_(0),
     formMargules_(0),
     formTempModel_(0)
 {
-    importPhase(*findXMLPhase(&phaseRoot, id), this);
+    importPhase(*findXMLPhase(&phaseRoot, id_), this);
 }
 
 MixedSolventElectrolyte::MixedSolventElectrolyte(const MixedSolventElectrolyte& b) :
@@ -392,14 +392,14 @@ void  MixedSolventElectrolyte::initLengths()
     dlnActCoeffdlnN_.resize(m_kk, m_kk);
 }
 
-void MixedSolventElectrolyte::initThermoXML(XML_Node& phaseNode, const std::string& id)
+void MixedSolventElectrolyte::initThermoXML(XML_Node& phaseNode, const std::string& id_)
 {
     string subname = "MixedSolventElectrolyte::initThermoXML";
     string stemp;
 
-    if ((int) id.size() > 0) {
+    if ((int) id_.size() > 0) {
         string idp = phaseNode.id();
-        if (idp != id) {
+        if (idp != id_) {
             throw CanteraError(subname, "phasenode and Id are incompatible");
         }
     }
@@ -414,7 +414,7 @@ void MixedSolventElectrolyte::initThermoXML(XML_Node& phaseNode, const std::stri
     XML_Node& thermoNode = phaseNode.child("thermo");
     string mStringa = thermoNode.attrib("model");
     string mString = lowercase(mStringa);
-    if (mString != "MixedSolventElectrolyte") {
+    if (mString != "mixedsolventelectrolyte") {
         throw CanteraError(subname, "Unknown thermo model: " + mStringa);
     }
 
@@ -452,7 +452,7 @@ void MixedSolventElectrolyte::initThermoXML(XML_Node& phaseNode, const std::stri
     /*
      * Go down the chain
      */
-    MolarityIonicVPSSTP::initThermoXML(phaseNode, id);
+    MolarityIonicVPSSTP::initThermoXML(phaseNode, id_);
 
 
 }

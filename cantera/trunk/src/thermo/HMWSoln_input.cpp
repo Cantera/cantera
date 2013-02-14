@@ -1136,12 +1136,12 @@ void HMWSoln::constructPhaseXML(XML_Node& phaseNode, std::string id)
 }
 
 void HMWSoln::
-initThermoXML(XML_Node& phaseNode, const std::string& id)
+initThermoXML(XML_Node& phaseNode, const std::string& id_)
 {
     string stemp;
-    if (id.size() > 0) {
+    if (id_.size() > 0) {
         string idp = phaseNode.id();
-        if (idp != id) {
+        if (idp != id_) {
             throw CanteraError("HMWSoln::initThermoXML",
                                "phasenode and Id are incompatible");
         }
@@ -1609,7 +1609,7 @@ initThermoXML(XML_Node& phaseNode, const std::string& id)
     calcMCCutoffParams_();
     setMoleFSolventMin(1.0E-5);
 
-    MolalityVPSSTP::initThermoXML(phaseNode, id);
+    MolalityVPSSTP::initThermoXML(phaseNode, id_);
     /*
      * Lastly calculate the charge balance and then add stuff until the charges compensate
      */

@@ -412,7 +412,7 @@ addElement(const XML_Node& e)
  */
 void Elements::
 addUniqueElement(const std::string& symbol,
-                 doublereal weight, int atomicNumber, doublereal entropy298,
+                 doublereal weight, int atomicNumber_, doublereal entropy298,
                  int elem_type)
 {
     if (weight == -12345.0) {
@@ -442,7 +442,7 @@ addUniqueElement(const std::string& symbol,
         }
         m_atomicWeights.push_back(weight);
         m_elementNames.push_back(symbol);
-        m_atomicNumbers.push_back(atomicNumber);
+        m_atomicNumbers.push_back(atomicNumber_);
         m_entropy298.push_back(entropy298);
         if (symbol == "E") {
             m_elem_type.push_back(CT_ELEM_TYPE_ELECTRONCHARGE);

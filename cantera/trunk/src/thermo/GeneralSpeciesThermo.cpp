@@ -107,16 +107,16 @@ void GeneralSpeciesThermo::install(const std::string& name,
                                    size_t index,
                                    int type,
                                    const doublereal* c,
-                                   doublereal minTemp,
-                                   doublereal maxTemp,
-                                   doublereal refPressure)
+                                   doublereal minTemp_,
+                                   doublereal maxTemp_,
+                                   doublereal refPressure_)
 {
     /*
      * Resize the arrays if necessary, filling the empty
      * slots with the zero pointer.
      */
 
-    if (minTemp <= 0.0) {
+    if (minTemp_ <= 0.0) {
         throw CanteraError("Error in GeneralSpeciesThermo.cpp",
                            " Cannot take 0 tmin as input. \n\n");
     }
@@ -133,39 +133,39 @@ void GeneralSpeciesThermo::install(const std::string& name,
 
     switch (type) {
     case NASA1:
-        m_sp[index] = new NasaPoly1(index, minTemp, maxTemp,
-                                    refPressure, c);
+        m_sp[index] = new NasaPoly1(index, minTemp_, maxTemp_,
+                                    refPressure_, c);
         break;
     case SHOMATE1:
-        m_sp[index] = new ShomatePoly(index, minTemp, maxTemp,
-                                      refPressure, c);
+        m_sp[index] = new ShomatePoly(index, minTemp_, maxTemp_,
+                                      refPressure_, c);
         break;
     case CONSTANT_CP:
     case SIMPLE:
-        m_sp[index] = new ConstCpPoly(index, minTemp, maxTemp,
-                                      refPressure, c);
+        m_sp[index] = new ConstCpPoly(index, minTemp_, maxTemp_,
+                                      refPressure_, c);
         break;
     case MU0_INTERP:
-        m_sp[index] = new Mu0Poly(index, minTemp, maxTemp,
-                                  refPressure, c);
+        m_sp[index] = new Mu0Poly(index, minTemp_, maxTemp_,
+                                  refPressure_, c);
         break;
     case SHOMATE2:
-        m_sp[index] = new ShomatePoly2(index, minTemp, maxTemp,
-                                       refPressure, c);
+        m_sp[index] = new ShomatePoly2(index, minTemp_, maxTemp_,
+                                       refPressure_, c);
         break;
     case NASA2:
-        m_sp[index] = new NasaPoly2(index, minTemp, maxTemp,
-                                    refPressure, c);
+        m_sp[index] = new NasaPoly2(index, minTemp_, maxTemp_,
+                                    refPressure_, c);
         break;
 
     case STAT:
-        m_sp[index] = new StatMech(index, minTemp, maxTemp,
-                                   refPressure, c, name);
+        m_sp[index] = new StatMech(index, minTemp_, maxTemp_,
+                                   refPressure_, c, name);
         break;
 
     case ADSORBATE:
-        m_sp[index] = new Adsorbate(index, minTemp, maxTemp,
-                                    refPressure, c);
+        m_sp[index] = new Adsorbate(index, minTemp_, maxTemp_,
+                                    refPressure_, c);
         break;
     default:
         throw UnknownSpeciesThermoModel(
@@ -177,8 +177,8 @@ void GeneralSpeciesThermo::install(const std::string& name,
         cout << "Null m_sp... index = " << index << endl;
         cout << "type = " << type << endl;
     }
-    m_tlow_max = max(minTemp, m_tlow_max);
-    m_thigh_min = min(maxTemp, m_thigh_min);
+    m_tlow_max = max(minTemp_, m_tlow_max);
+    m_thigh_min = min(maxTemp_, m_thigh_min);
 }
 
 // Install a new species thermodynamic property
@@ -212,11 +212,8 @@ void GeneralSpeciesThermo::install_STIT(SpeciesThermoInterpType* stit_ptr)
     /*
      * Calculate max and min
      */
-    double minTemp = stit_ptr->minTemp();
-    double maxTemp = stit_ptr->maxTemp();
-
-    m_tlow_max = max(minTemp, m_tlow_max);
-    m_thigh_min = min(maxTemp, m_thigh_min);
+    m_tlow_max = max(stit_ptr->minTemp(), m_tlow_max);
+    m_thigh_min = min(stit_ptr->maxTemp(), m_thigh_min);
 }
 
 
@@ -285,13 +282,13 @@ int GeneralSpeciesThermo::reportType(size_t index) const
  */
 void GeneralSpeciesThermo::
 reportParams(size_t index, int& type, doublereal* const c,
-             doublereal& minTemp, doublereal& maxTemp, doublereal& refPressure) const
+             doublereal& minTemp_, doublereal& maxTemp_, doublereal& refPressure_) const
 {
     SpeciesThermoInterpType* sp = m_sp[index];
     size_t n;
     if (sp) {
-        sp->reportParameters(n, type, minTemp, maxTemp,
-                             refPressure, c);
+        sp->reportParameters(n, type, minTemp_, maxTemp_,
+                             refPressure_, c);
         if (n != index) {
             throw CanteraError("GeneralSpeciesThermo::reportParams",
                                "Internal error encountered");

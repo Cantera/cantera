@@ -32,18 +32,18 @@ FixedChemPotSSTP::FixedChemPotSSTP() :
 {
 }
 
-FixedChemPotSSTP::FixedChemPotSSTP(const std::string& infile, std::string id) :
+FixedChemPotSSTP::FixedChemPotSSTP(const std::string& infile, std::string id_) :
     SingleSpeciesTP(),
     chemPot_(0.0)
 {
     XML_Node* root = get_XML_File(infile);
-    if (id == "-") {
-        id = "";
+    if (id_ == "-") {
+        id_ = "";
     }
-    XML_Node* xphase = get_XML_NameID("phase", std::string("#")+id, root);
+    XML_Node* xphase = get_XML_NameID("phase", std::string("#")+id_, root);
     if (!xphase) {
         throw CanteraError("FixedChemPotSSTP::FixedChemPotSSTP",
-                           "Couldn't find phase name in file:" + id);
+                           "Couldn't find phase name in file:" + id_);
     }
     // Check the model name to ensure we have compatibility
     const XML_Node& th = xphase->child("thermo");
@@ -54,14 +54,13 @@ FixedChemPotSSTP::FixedChemPotSSTP(const std::string& infile, std::string id) :
     }
     importPhase(*xphase, this);
 }
-
-FixedChemPotSSTP::FixedChemPotSSTP(XML_Node& xmlphase, const std::string& id) :
+FixedChemPotSSTP::FixedChemPotSSTP(XML_Node& xmlphase, const std::string& id_) :
     SingleSpeciesTP(),
     chemPot_(0.0)
 {
-    if (id != "") {
+    if (id_ != "") {
         std::string idxml = xmlphase["id"];
-        if (id != idxml) {
+        if (id_ != idxml) {
             throw CanteraError("FixedChemPotSSTP::FixedChemPotSSTP",
                                "id's don't match");
         }
@@ -313,7 +312,7 @@ void FixedChemPotSSTP::initThermo()
     SingleSpeciesTP::initThermo();
 }
 
-void FixedChemPotSSTP::initThermoXML(XML_Node& phaseNode, const std::string& id)
+void FixedChemPotSSTP::initThermoXML(XML_Node& phaseNode, const std::string& id_)
 {
     /*
      * Find the Thermo XML node
@@ -331,7 +330,7 @@ void FixedChemPotSSTP::initThermoXML(XML_Node& phaseNode, const std::string& id)
         double val = ctml::getFloatDefaultUnits(tnode, "chemicalPotential", "J/kmol");
         chemPot_ = val;
     }
-    SingleSpeciesTP::initThermoXML(phaseNode, id);
+    SingleSpeciesTP::initThermoXML(phaseNode, id_);
 }
 
 void FixedChemPotSSTP::setParameters(int n, doublereal* const c)

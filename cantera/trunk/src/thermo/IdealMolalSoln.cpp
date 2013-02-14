@@ -111,7 +111,7 @@ IdealMolalSoln::IdealMolalSoln(const std::string& inputFile,
     initThermoFile(inputFile, id);
 }
 
-IdealMolalSoln::IdealMolalSoln(XML_Node& root, const std::string& id) :
+IdealMolalSoln::IdealMolalSoln(XML_Node& root, const std::string& id_) :
     MolalityVPSSTP(),
     m_formGC(2),
     IMS_typeCutoff_(0),
@@ -130,7 +130,7 @@ IdealMolalSoln::IdealMolalSoln(XML_Node& root, const std::string& id) :
     IMS_agCut_(0.0),
     IMS_bgCut_(0.0)
 {
-    importPhase(*findXMLPhase(&root, id), this);
+    importPhase(*findXMLPhase(&root, id_), this);
 }
 
 IdealMolalSoln::~IdealMolalSoln()
@@ -508,7 +508,7 @@ void IdealMolalSoln::initThermo()
     MolalityVPSSTP::initThermo();
 }
 
-void IdealMolalSoln::initThermoXML(XML_Node& phaseNode, const std::string& id)
+void IdealMolalSoln::initThermoXML(XML_Node& phaseNode, const std::string& id_)
 {
     /*
      * Find the Thermo XML node
@@ -523,9 +523,9 @@ void IdealMolalSoln::initThermoXML(XML_Node& phaseNode, const std::string& id)
      */
     initThermo();
 
-    if (id.size() > 0) {
+    if (id_.size() > 0) {
         std::string idp = phaseNode.id();
-        if (idp != id) {
+        if (idp != id_) {
             throw CanteraError("IdealMolalSoln::initThermo",
                                "phasenode and Id are incompatible");
         }
@@ -666,7 +666,7 @@ void IdealMolalSoln::initThermoXML(XML_Node& phaseNode, const std::string& id)
         calcIMSCutoffParams_();
     }
 
-    MolalityVPSSTP::initThermoXML(phaseNode, id);
+    MolalityVPSSTP::initThermoXML(phaseNode, id_);
 
 
     setMoleFSolventMin(1.0E-5);

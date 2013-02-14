@@ -1272,14 +1272,14 @@ void PDSS_HKFT::convertDGFormation()
  */
 void PDSS_HKFT::reportParams(size_t& kindex, int& type,
                              doublereal* const c,
-                             doublereal& minTemp,
-                             doublereal& maxTemp,
-                             doublereal& refPressure) const
+                             doublereal& minTemp_,
+                             doublereal& maxTemp_,
+                             doublereal& refPressure_) const
 {
 
     // Fill in the first part
-    PDSS::reportParams(kindex, type, c, minTemp, maxTemp,
-                       refPressure);
+    PDSS::reportParams(kindex, type, c, minTemp_, maxTemp_,
+                       refPressure_);
 
 
     c[0] = m_deltaG_formation_tr_pr;
