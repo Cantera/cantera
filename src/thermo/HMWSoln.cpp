@@ -600,14 +600,13 @@ doublereal HMWSoln::relative_molal_enthalpy() const
     size_t kcation = npos;
     double xcation = 0.0;
     size_t kanion = npos;
-    const double* charge =  DATA_PTR(m_speciesCharge);
     for (size_t k = 0; k < m_kk; k++) {
-        if (charge[k] > 0.0) {
+        if (charge(k) > 0.0) {
             if (m_tmpV[k] > xanion) {
                 xanion = m_tmpV[k];
                 kanion = k;
             }
-        } else if (charge[k] < 0.0) {
+        } else if (charge(k) < 0.0) {
             if (m_tmpV[k] > xcation) {
                 xcation = m_tmpV[k];
                 kcation = k;
@@ -621,12 +620,12 @@ doublereal HMWSoln::relative_molal_enthalpy() const
     double factor = 1;
     if (xanion < xcation) {
         xuse = xanion;
-        if (charge[kcation] != 1.0) {
-            factor = charge[kcation];
+        if (charge(kcation) != 1.0) {
+            factor = charge(kcation);
         }
     } else {
-        if (charge[kanion] != 1.0) {
-            factor = charge[kanion];
+        if (charge(kanion) != 1.0) {
+            factor = charge(kanion);
         }
     }
     xuse = xuse / factor;
@@ -1348,7 +1347,7 @@ void HMWSoln::s_update_lnMolalityActCoeff() const
      */
     m_IionicMolalityStoich = 0.0;
     for (size_t k = 0; k < m_kk; k++) {
-        double z_k = m_speciesCharge[k];
+        double z_k = charge(k);
         double zs_k1 =  m_speciesCharge_Stoich[k];
         if (z_k == zs_k1) {
             m_IionicMolalityStoich += m_molalities[k] * z_k * z_k;
@@ -1423,8 +1422,7 @@ void HMWSoln::calcMolalitiesCropped() const
 
     for (size_t k = 0; k < m_kk; k++) {
         m_molalitiesCropped[k] = m_molalities[k];
-        double charge = m_speciesCharge[k];
-        Itmp = m_molalities[k] * charge * charge;
+        Itmp = m_molalities[k] * charge(k) * charge(k);
         if (Itmp > Imax) {
             Imax = Itmp;
         }
@@ -1445,13 +1443,13 @@ void HMWSoln::calcMolalitiesCropped() const
         m_molalitiesAreCropped = true;
 
         for (size_t i = 1; i < (m_kk - 1); i++) {
-            double charge_i = m_speciesCharge[i];
+            double charge_i = charge(i);
             double abs_charge_i = fabs(charge_i);
             if (charge_i == 0.0) {
                 continue;
             }
             for (size_t j = (i+1); j < m_kk; j++) {
-                double charge_j = m_speciesCharge[j];
+                double charge_j = charge(j);
                 double abs_charge_j = fabs(charge_j);
                 /*
                  * Find the counterIJ for the symmetric binary interaction
@@ -1499,7 +1497,7 @@ void HMWSoln::calcMolalitiesCropped() const
             size_t cation_contrib_max_i = npos;
             double cation_contrib_max = -1.0;
             for (size_t i = 0; i < m_kk; i++) {
-                double charge_i = m_speciesCharge[i];
+                double charge_i = charge(i);
                 if (charge_i < 0.0) {
                     double anion_contrib =  - m_molalitiesCropped[i] * charge_i;
                     anion_charge += anion_contrib ;
@@ -1518,7 +1516,7 @@ void HMWSoln::calcMolalitiesCropped() const
             }
             double total_charge = cation_charge - anion_charge;
             if (total_charge > 1.0E-8) {
-                double desiredCrop = total_charge/m_speciesCharge[cation_contrib_max_i];
+                double desiredCrop = total_charge/charge(cation_contrib_max_i);
                 double maxCrop =  0.66 * m_molalitiesCropped[cation_contrib_max_i];
                 if (desiredCrop < maxCrop) {
                     m_molalitiesCropped[cation_contrib_max_i] -= desiredCrop;
@@ -1527,7 +1525,7 @@ void HMWSoln::calcMolalitiesCropped() const
                     m_molalitiesCropped[cation_contrib_max_i] -= maxCrop;
                 }
             } else if (total_charge < -1.0E-8) {
-                double desiredCrop = total_charge/m_speciesCharge[anion_contrib_max_i];
+                double desiredCrop = total_charge/charge(anion_contrib_max_i);
                 double maxCrop =  0.66 * m_molalitiesCropped[anion_contrib_max_i];
                 if (desiredCrop < maxCrop) {
                     m_molalitiesCropped[anion_contrib_max_i] -= desiredCrop;
@@ -1564,14 +1562,12 @@ void HMWSoln::calcMolalitiesCropped() const
         // the charge neutrality of the solution after cropping.
         Itmp = 0.0;
         for (size_t k = 0; k < m_kk; k++) {
-            double charge = m_speciesCharge[k];
-            Itmp += m_molalitiesCropped[k] * charge * charge;
+            Itmp += m_molalitiesCropped[k] * charge(k) * charge(k);
         }
         if (Itmp > m_maxIionicStrength) {
             double ratio = Itmp / m_maxIionicStrength;
             for (size_t k = 0; k < m_kk; k++) {
-                double charge = m_speciesCharge[k];
-                if (charge != 0.0) {
+                if (charge(k) != 0.0) {
                     m_molalitiesCropped[k] *= ratio;
                 }
             }
@@ -1775,7 +1771,7 @@ void HMWSoln::s_updatePitzer_CoeffWRTemp(int doDerivs) const
     // i must be neutral for this term to be nonzero. We take advantage of this
     // here to lower the operation count.
     for (i = 1; i < m_kk; i++) {
-        if (m_speciesCharge[i] == 0.0) {
+        if (charge(i) == 0.0) {
             for (j = 1; j < m_kk; j++) {
                 n = i * m_kk + j;
                 const double* Lambda_coeff = m_Lambda_nj_coeff.ptrColumn(n);
@@ -1901,10 +1897,6 @@ s_updatePitzer_lnMolalityActCoeff() const
      * Use the CROPPED molality of the species in solution.
      */
     const double* molality = DATA_PTR(m_molalitiesCropped);
-    /*
-     * These are the charges of the species accessed from class Phase
-     */
-    const double* charge = DATA_PTR(m_speciesCharge);
 
     /*
      * These are data inputs about the Pitzer correlation. They come
@@ -1978,9 +1970,9 @@ s_updatePitzer_lnMolalityActCoeff() const
      */
     for (n = 1; n < m_kk; n++) {
         //      ionic strength
-        Is += charge[n] * charge[n] * molality[n];
+        Is += charge(n) * charge(n) * molality[n];
         //      total molar charge
-        molarcharge +=  fabs(charge[n]) * molality[n];
+        molarcharge +=  fabs(charge(n)) * molality[n];
         molalitysumUncropped += m_molalities[n];
     }
     Is *= 0.5;
@@ -2051,7 +2043,7 @@ s_updatePitzer_lnMolalityActCoeff() const
             /*
              * Only loop over oppositely charge species
              */
-            if (charge[i]*charge[j] < 0) {
+            if (charge(i)*charge(j) < 0) {
                 /*
                  * x is a reduced function variable
                  */
@@ -2126,7 +2118,7 @@ s_updatePitzer_lnMolalityActCoeff() const
              * both species have a non-zero charge, and one is positive
              * and the other is negative
              */
-            if (charge[i]*charge[j] < 0.0) {
+            if (charge(i)*charge(j) < 0.0) {
                 BMX[counterIJ]  = beta0MX[counterIJ]
                                   + beta1MX[counterIJ] * gfunc[counterIJ]
                                   + beta2MX[counterIJ] * g2func[counterIJ];
@@ -2182,9 +2174,9 @@ s_updatePitzer_lnMolalityActCoeff() const
              * both species have a non-zero charge, and one is positive
              * and the other is negative
              */
-            if (charge[i]*charge[j] < 0.0) {
+            if (charge(i)*charge(j) < 0.0) {
                 CMX[counterIJ] = CphiMX[counterIJ]/
-                                 (2.0* sqrt(fabs(charge[i]*charge[j])));
+                                 (2.0* sqrt(fabs(charge(i)*charge(j))));
             } else {
                 CMX[counterIJ] = 0.0;
             }
@@ -2230,9 +2222,9 @@ s_updatePitzer_lnMolalityActCoeff() const
              * both species have a non-zero charge, and one is positive
              * and the other is negative
              */
-            if (charge[i]*charge[j] > 0) {
-                z1 = (int) fabs(charge[i]);
-                z2 = (int) fabs(charge[j]);
+            if (charge(i)*charge(j) > 0) {
+                z1 = (int) fabs(charge(i));
+                z2 = (int) fabs(charge(j));
                 Phi[counterIJ] = thetaij[counterIJ] + etheta[z1][z2];
                 Phiprime[counterIJ] = etheta_prime[z1][z2];
                 Phiphi[counterIJ] = Phi[counterIJ] + Is * Phiprime[counterIJ];
@@ -2290,14 +2282,14 @@ s_updatePitzer_lnMolalityActCoeff() const
              * both species have a non-zero charge, and one is positive
              * and the other is negative
              */
-            if (charge[i]*charge[j] < 0) {
+            if (charge(i)*charge(j) < 0) {
                 F = F + molality[i]*molality[j] * BprimeMX[counterIJ];
             }
             /*
              * Both species have a non-zero charge, and they
              * have the same sign
              */
-            if (charge[i]*charge[j] > 0) {
+            if (charge(i)*charge(j) > 0) {
                 F = F + molality[i]*molality[j] * Phiprime[counterIJ];
             }
 #ifdef DEBUG_MODE
@@ -2320,7 +2312,7 @@ s_updatePitzer_lnMolalityActCoeff() const
          * -------- -> equations agree with my notes, Eqn. (118).
          *          -> Equations agree with Pitzer, eqn.(63)
          */
-        if (charge[i] > 0.0) {
+        if (charge(i) > 0.0) {
 
 #ifdef DEBUG_MODE
             if (m_debugCalc) {
@@ -2329,7 +2321,7 @@ s_updatePitzer_lnMolalityActCoeff() const
             }
 #endif
             // species i is the cation (positive) to calc the actcoeff
-            zsqF = charge[i]*charge[i]*F;
+            zsqF = charge(i)*charge(i)*F;
 #ifdef DEBUG_MODE
             if (m_debugCalc) {
                 printf("      Unary term:                                      z*z*F = %10.5f\n", zsqF);
@@ -2347,7 +2339,7 @@ s_updatePitzer_lnMolalityActCoeff() const
                 n = m_kk*i + j;
                 counterIJ = m_CounterIJ[n];
 
-                if (charge[j] < 0.0) {
+                if (charge(j) < 0.0) {
                     // sum over all anions
                     sum1 = sum1 + molality[j]*
                            (2.0*BMX[counterIJ] + molarcharge*CMX[counterIJ]);
@@ -2368,7 +2360,7 @@ s_updatePitzer_lnMolalityActCoeff() const
                          */
                         for (k = j+1; k < m_kk; k++) {
                             // an inner sum over all anions
-                            if (charge[k] < 0.0) {
+                            if (charge(k) < 0.0) {
                                 n = k + j * m_kk + i * m_kk * m_kk;
                                 sum3 = sum3 + molality[j]*molality[k]*psi_ijk[n];
 #ifdef DEBUG_MODE
@@ -2386,7 +2378,7 @@ s_updatePitzer_lnMolalityActCoeff() const
                 }
 
 
-                if (charge[j] > 0.0) {
+                if (charge(j) > 0.0) {
                     // sum over all cations
                     if (j != i) {
                         sum2 = sum2 + molality[j]*(2.0*Phi[counterIJ]);
@@ -2401,7 +2393,7 @@ s_updatePitzer_lnMolalityActCoeff() const
 #endif
                     }
                     for (k = 1; k < m_kk; k++) {
-                        if (charge[k] < 0.0) {
+                        if (charge(k) < 0.0) {
                             // two inner sums over anions
 
                             n = k + j * m_kk + i * m_kk * m_kk;
@@ -2420,14 +2412,14 @@ s_updatePitzer_lnMolalityActCoeff() const
                              */
                             n = m_kk*j + k;
                             counterIJ2 = m_CounterIJ[n];
-                            sum4 = sum4 + (fabs(charge[i])*
+                            sum4 = sum4 + (fabs(charge(i))*
                                            molality[j]*molality[k]*CMX[counterIJ2]);
 #ifdef DEBUG_MODE
                             if (m_debugCalc) {
                                 if ((molality[j]*molality[k]*CMX[counterIJ2]) != 0.0) {
                                     snj = speciesName(j) + "," + speciesName(k) + ":";
                                     printf("      Tern CMX term on %-16s abs(z_i) m_j m_k CMX = %10.5f\n", snj.c_str(),
-                                           fabs(charge[i])* molality[j]*molality[k]*CMX[counterIJ2]);
+                                           fabs(charge(i))* molality[j]*molality[k]*CMX[counterIJ2]);
                                 }
                             }
 #endif
@@ -2438,7 +2430,7 @@ s_updatePitzer_lnMolalityActCoeff() const
                 /*
                  * Handle neutral j species
                  */
-                if (charge[j] == 0) {
+                if (charge(j) == 0) {
                     sum5 = sum5 + molality[j]*2.0*m_Lambda_nj(j,i);
 #ifdef DEBUG_MODE
                     if (m_debugCalc) {
@@ -2453,7 +2445,7 @@ s_updatePitzer_lnMolalityActCoeff() const
                      * Zeta interaction term
                      */
                     for (size_t k = 1; k < m_kk; k++) {
-                        if (charge[k] < 0.0) {
+                        if (charge(k) < 0.0) {
                             size_t izeta = j;
                             size_t jzeta = i;
                             n = izeta * m_kk * m_kk + jzeta * m_kk + k;
@@ -2492,7 +2484,7 @@ s_updatePitzer_lnMolalityActCoeff() const
          * -------- -> equations agree with my notes, Eqn. (119).
          *          -> Equations agree with Pitzer, eqn.(64)
          */
-        if (charge[i] < 0) {
+        if (charge(i) < 0) {
 
 #ifdef DEBUG_MODE
             if (m_debugCalc) {
@@ -2502,7 +2494,7 @@ s_updatePitzer_lnMolalityActCoeff() const
 #endif
 
             //          species i is an anion (negative)
-            zsqF = charge[i]*charge[i]*F;
+            zsqF = charge(i)*charge(i)*F;
 #ifdef DEBUG_MODE
             if (m_debugCalc) {
                 printf("      Unary term:                                      z*z*F = %10.5f\n", zsqF);
@@ -2523,7 +2515,7 @@ s_updatePitzer_lnMolalityActCoeff() const
                 /*
                  * For Anions, do the cation interactions.
                  */
-                if (charge[j] > 0) {
+                if (charge(j) > 0) {
                     sum1 = sum1 + molality[j]*
                            (2.0*BMX[counterIJ]+molarcharge*CMX[counterIJ]);
 #ifdef DEBUG_MODE
@@ -2538,7 +2530,7 @@ s_updatePitzer_lnMolalityActCoeff() const
                     if (j < m_kk-1) {
                         for (k = j+1; k < m_kk; k++) {
                             // an inner sum over all cations
-                            if (charge[k] > 0) {
+                            if (charge(k) > 0) {
                                 n = k + j * m_kk + i * m_kk * m_kk;
                                 sum3 = sum3 + molality[j]*molality[k]*psi_ijk[n];
 #ifdef DEBUG_MODE
@@ -2558,7 +2550,7 @@ s_updatePitzer_lnMolalityActCoeff() const
                 /*
                  * For Anions, do the other anion interactions.
                  */
-                if (charge[j] < 0.0) {
+                if (charge(j) < 0.0) {
                     //  sum over all anions
                     if (j != i) {
                         sum2 = sum2 + molality[j]*(2.0*Phi[counterIJ]);
@@ -2573,7 +2565,7 @@ s_updatePitzer_lnMolalityActCoeff() const
 #endif
                     }
                     for (k = 1; k < m_kk; k++) {
-                        if (charge[k] > 0.0) {
+                        if (charge(k) > 0.0) {
                             // two inner sums over cations
                             n = k + j * m_kk + i * m_kk * m_kk;
                             sum2 = sum2 + molality[j]*molality[k]*psi_ijk[n];
@@ -2592,14 +2584,14 @@ s_updatePitzer_lnMolalityActCoeff() const
                             n = m_kk*j + k;
                             counterIJ2 = m_CounterIJ[n];
                             sum4 = sum4 +
-                                   (fabs(charge[i])*
+                                   (fabs(charge(i))*
                                     molality[j]*molality[k]*CMX[counterIJ2]);
 #ifdef DEBUG_MODE
                             if (m_debugCalc) {
                                 if ((molality[j]*molality[k]*CMX[counterIJ2]) != 0.0) {
                                     snj = speciesName(j) + "," + speciesName(k) + ":";
                                     printf("      Tern CMX term on %-16s abs(z_i) m_j m_k CMX = %10.5f\n", snj.c_str(),
-                                           fabs(charge[i])* molality[j]*molality[k]*CMX[counterIJ2]);
+                                           fabs(charge(i))* molality[j]*molality[k]*CMX[counterIJ2]);
                                 }
                             }
 #endif
@@ -2610,7 +2602,7 @@ s_updatePitzer_lnMolalityActCoeff() const
                 /*
                  * for Anions, do the neutral species interaction
                  */
-                if (charge[j] == 0.0) {
+                if (charge(j) == 0.0) {
                     sum5 = sum5 + molality[j]*2.0*m_Lambda_nj(j,i);
 #ifdef DEBUG_MODE
                     if (m_debugCalc) {
@@ -2625,7 +2617,7 @@ s_updatePitzer_lnMolalityActCoeff() const
                      * Zeta interaction term
                      */
                     for (size_t k = 1; k < m_kk; k++) {
-                        if (charge[k] > 0.0) {
+                        if (charge(k) > 0.0) {
                             size_t izeta = j;
                             size_t jzeta = k;
                             size_t kzeta = i;
@@ -2660,7 +2652,7 @@ s_updatePitzer_lnMolalityActCoeff() const
          * ------ -> equations agree with my notes,
          *        -> Equations agree with Pitzer,
          */
-        if (charge[i] == 0.0) {
+        if (charge(i) == 0.0) {
 #ifdef DEBUG_MODE
             if (m_debugCalc) {
                 sni = speciesName(i);
@@ -2684,9 +2676,9 @@ s_updatePitzer_lnMolalityActCoeff() const
                 /*
                  * Zeta term -> we piggyback on the psi term
                  */
-                if (charge[j] > 0.0) {
+                if (charge(j) > 0.0) {
                     for (k = 1; k < m_kk; k++) {
-                        if (charge[k] < 0.0) {
+                        if (charge(k) < 0.0) {
                             n = k + j * m_kk + i * m_kk * m_kk;
                             sum3 = sum3 + molality[j]*molality[k]*psi_ijk[n];
 #ifdef DEBUG_MODE
@@ -2754,9 +2746,9 @@ s_updatePitzer_lnMolalityActCoeff() const
         /*
          * Loop Over Cations
          */
-        if (charge[j] > 0.0) {
+        if (charge(j) > 0.0) {
             for (k = 1; k < m_kk; k++) {
-                if (charge[k] < 0.0) {
+                if (charge(k) < 0.0) {
                     /*
                      * Find the counterIJ for the symmetric j,k binary interaction
                      */
@@ -2774,7 +2766,7 @@ s_updatePitzer_lnMolalityActCoeff() const
                     printf("logic error 1 in Step 9 of hmw_act");
                     exit(EXIT_FAILURE);
                 }
-                if (charge[k] > 0.0) {
+                if (charge(k) > 0.0) {
                     /*
                      * Find the counterIJ for the symmetric j,k binary interaction
                      * between 2 cations.
@@ -2783,7 +2775,7 @@ s_updatePitzer_lnMolalityActCoeff() const
                     counterIJ = m_CounterIJ[n];
                     sum2 = sum2 + molality[j]*molality[k]*Phiphi[counterIJ];
                     for (m = 1; m < m_kk; m++) {
-                        if (charge[m] < 0.0) {
+                        if (charge(m) < 0.0) {
                             // species m is an anion
                             n = m + k * m_kk + j * m_kk * m_kk;
                             sum2 = sum2 +
@@ -2797,14 +2789,14 @@ s_updatePitzer_lnMolalityActCoeff() const
         /*
          * Loop Over Anions
          */
-        if (charge[j] < 0) {
+        if (charge(j) < 0) {
             for (k = j+1; k < m_kk; k++) {
                 if (j == m_kk-1) {
                     // we should never reach this step
                     printf("logic error 2 in Step 9 of hmw_act");
                     exit(EXIT_FAILURE);
                 }
-                if (charge[k] < 0) {
+                if (charge(k) < 0) {
                     /*
                      * Find the counterIJ for the symmetric j,k binary interaction
                      * between two anions
@@ -2814,7 +2806,7 @@ s_updatePitzer_lnMolalityActCoeff() const
 
                     sum3 = sum3 + molality[j]*molality[k]*Phiphi[counterIJ];
                     for (m = 1; m < m_kk; m++) {
-                        if (charge[m] > 0.0) {
+                        if (charge(m) > 0.0) {
                             n = m + k * m_kk + j * m_kk * m_kk;
                             sum3 = sum3 +
                                    molality[j]*molality[k]*molality[m]*psi_ijk[n];
@@ -2827,25 +2819,25 @@ s_updatePitzer_lnMolalityActCoeff() const
         /*
          * Loop Over Neutral Species
          */
-        if (charge[j] == 0) {
+        if (charge(j) == 0) {
             for (k = 1; k < m_kk; k++) {
-                if (charge[k] < 0.0) {
+                if (charge(k) < 0.0) {
                     sum4 = sum4 + molality[j]*molality[k]*m_Lambda_nj(j,k);
                 }
-                if (charge[k] > 0.0) {
+                if (charge(k) > 0.0) {
                     sum5 = sum5 + molality[j]*molality[k]*m_Lambda_nj(j,k);
                 }
-                if (charge[k] == 0.0) {
+                if (charge(k) == 0.0) {
                     if (k > j) {
                         sum6 = sum6 + molality[j]*molality[k]*m_Lambda_nj(j,k);
                     } else if (k == j) {
                         sum6 = sum6 + 0.5 * molality[j]*molality[k]*m_Lambda_nj(j,k);
                     }
                 }
-                if (charge[k] < 0.0) {
+                if (charge(k) < 0.0) {
                     size_t izeta = j;
                     for (m = 1; m < m_kk; m++) {
-                        if (charge[m] > 0.0) {
+                        if (charge(m) > 0.0) {
                             size_t jzeta = m;
                             n = k + jzeta * m_kk + izeta * m_kk * m_kk;
                             double zeta = psi_ijk[n];
@@ -2968,7 +2960,6 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dT() const
     std::string sni, snj, snk;
 
     const double* molality  =  DATA_PTR(m_molalitiesCropped);
-    const double* charge    =  DATA_PTR(m_speciesCharge);
     const double* beta0MX_L =  DATA_PTR(m_Beta0MX_ij_L);
     const double* beta1MX_L =  DATA_PTR(m_Beta1MX_ij_L);
     const double* beta2MX_L =  DATA_PTR(m_Beta2MX_ij_L);
@@ -3033,9 +3024,9 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dT() const
      */
     for (n = 1; n < m_kk; n++) {
         //      ionic strength
-        Is += charge[n] * charge[n] * molality[n];
+        Is += charge(n) * charge(n) * molality[n];
         //      total molar charge
-        molarcharge +=  fabs(charge[n]) * molality[n];
+        molarcharge +=  fabs(charge(n)) * molality[n];
         molalitysum += molality[n];
     }
     Is *= 0.5;
@@ -3105,7 +3096,7 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dT() const
             /*
              * Only loop over oppositely charge species
              */
-            if (charge[i]*charge[j] < 0) {
+            if (charge(i)*charge(j) < 0) {
                 /*
                  * x is a reduced function variable
                  */
@@ -3169,7 +3160,7 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dT() const
              * both species have a non-zero charge, and one is positive
              * and the other is negative
              */
-            if (charge[i]*charge[j] < 0.0) {
+            if (charge(i)*charge(j) < 0.0) {
                 BMX_L[counterIJ]  = beta0MX_L[counterIJ]
                                     + beta1MX_L[counterIJ] * gfunc[counterIJ]
                                     + beta2MX_L[counterIJ] * gfunc[counterIJ];
@@ -3225,9 +3216,9 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dT() const
              * both species have a non-zero charge, and one is positive
              * and the other is negative
              */
-            if (charge[i]*charge[j] < 0.0) {
+            if (charge(i)*charge(j) < 0.0) {
                 CMX_L[counterIJ] = CphiMX_L[counterIJ]/
-                                   (2.0* sqrt(fabs(charge[i]*charge[j])));
+                                   (2.0* sqrt(fabs(charge(i)*charge(j))));
             } else {
                 CMX_L[counterIJ] = 0.0;
             }
@@ -3264,9 +3255,9 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dT() const
              * both species have a non-zero charge, and one is positive
              * and the other is negative
              */
-            if (charge[i]*charge[j] > 0) {
-                z1 = (int) fabs(charge[i]);
-                z2 = (int) fabs(charge[j]);
+            if (charge(i)*charge(j) > 0) {
+                z1 = (int) fabs(charge(i));
+                z2 = (int) fabs(charge(j));
                 //Phi[counterIJ] = thetaij_L[counterIJ] + etheta[z1][z2];
                 Phi_L[counterIJ] = thetaij_L[counterIJ];
                 //Phiprime[counterIJ] = etheta_prime[z1][z2];
@@ -3328,14 +3319,14 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dT() const
              * both species have a non-zero charge, and one is positive
              * and the other is negative
              */
-            if (charge[i]*charge[j] < 0) {
+            if (charge(i)*charge(j) < 0) {
                 dFdT = dFdT + molality[i]*molality[j] * BprimeMX_L[counterIJ];
             }
             /*
              * Both species have a non-zero charge, and they
              * have the same sign, e.g., both positive or both negative.
              */
-            if (charge[i]*charge[j] > 0) {
+            if (charge(i)*charge(j) > 0) {
                 dFdT = dFdT + molality[i]*molality[j] * Phiprime[counterIJ];
             }
 #ifdef DEBUG_MODE
@@ -3357,9 +3348,9 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dT() const
          * -------- SUBSECTION FOR CALCULATING THE dACTCOEFFdT FOR CATIONS -----
          * --
          */
-        if (charge[i] > 0) {
+        if (charge(i) > 0) {
             // species i is the cation (positive) to calc the actcoeff
-            zsqdFdT = charge[i]*charge[i]*dFdT;
+            zsqdFdT = charge(i)*charge(i)*dFdT;
             sum1 = 0.0;
             sum2 = 0.0;
             sum3 = 0.0;
@@ -3372,7 +3363,7 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dT() const
                 n = m_kk*i + j;
                 counterIJ = m_CounterIJ[n];
 
-                if (charge[j] < 0.0) {
+                if (charge(j) < 0.0) {
                     // sum over all anions
                     sum1 = sum1 + molality[j]*
                            (2.0*BMX_L[counterIJ] + molarcharge*CMX_L[counterIJ]);
@@ -3384,7 +3375,7 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dT() const
                          */
                         for (k = j+1; k < m_kk; k++) {
                             // an inner sum over all anions
-                            if (charge[k] < 0.0) {
+                            if (charge(k) < 0.0) {
                                 n = k + j * m_kk + i * m_kk * m_kk;
                                 sum3 = sum3 + molality[j]*molality[k]*psi_ijk_L[n];
                             }
@@ -3393,13 +3384,13 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dT() const
                 }
 
 
-                if (charge[j] > 0.0) {
+                if (charge(j) > 0.0) {
                     // sum over all cations
                     if (j != i) {
                         sum2 = sum2 + molality[j]*(2.0*Phi_L[counterIJ]);
                     }
                     for (k = 1; k < m_kk; k++) {
-                        if (charge[k] < 0.0) {
+                        if (charge(k) < 0.0) {
                             // two inner sums over anions
 
                             n = k + j * m_kk + i * m_kk * m_kk;
@@ -3409,7 +3400,7 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dT() const
                              */
                             n = m_kk*j + k;
                             counterIJ2 = m_CounterIJ[n];
-                            sum4 = sum4 + (fabs(charge[i])*
+                            sum4 = sum4 + (fabs(charge(i))*
                                            molality[j]*molality[k]*CMX_L[counterIJ2]);
                         }
                     }
@@ -3418,14 +3409,14 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dT() const
                 /*
                  * Handle neutral j species
                  */
-                if (charge[j] == 0) {
+                if (charge(j) == 0) {
                     sum5 = sum5 + molality[j]*2.0*m_Lambda_nj_L(j,i);
                 }
                 /*
                  * Zeta interaction term
                  */
                 for (size_t k = 1; k < m_kk; k++) {
-                    if (charge[k] < 0.0) {
+                    if (charge(k) < 0.0) {
                         size_t izeta = j;
                         size_t jzeta = i;
                         n = izeta * m_kk * m_kk + jzeta * m_kk + k;
@@ -3458,9 +3449,9 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dT() const
          * ------ SUBSECTION FOR CALCULATING THE dACTCOEFFdT FOR ANIONS ------
          *
          */
-        if (charge[i] < 0) {
+        if (charge(i) < 0) {
             //          species i is an anion (negative)
-            zsqdFdT = charge[i]*charge[i]*dFdT;
+            zsqdFdT = charge(i)*charge(i)*dFdT;
             sum1 = 0.0;
             sum2 = 0.0;
             sum3 = 0.0;
@@ -3476,13 +3467,13 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dT() const
                 /*
                  * For Anions, do the cation interactions.
                  */
-                if (charge[j] > 0) {
+                if (charge(j) > 0) {
                     sum1 = sum1 + molality[j]*
                            (2.0*BMX_L[counterIJ] + molarcharge*CMX_L[counterIJ]);
                     if (j < m_kk-1) {
                         for (k = j+1; k < m_kk; k++) {
                             // an inner sum over all cations
-                            if (charge[k] > 0) {
+                            if (charge(k) > 0) {
                                 n = k + j * m_kk + i * m_kk * m_kk;
                                 sum3 = sum3 + molality[j]*molality[k]*psi_ijk_L[n];
                             }
@@ -3493,13 +3484,13 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dT() const
                 /*
                  * For Anions, do the other anion interactions.
                  */
-                if (charge[j] < 0.0) {
+                if (charge(j) < 0.0) {
                     //  sum over all anions
                     if (j != i) {
                         sum2 = sum2 + molality[j]*(2.0*Phi_L[counterIJ]);
                     }
                     for (k = 1; k < m_kk; k++) {
-                        if (charge[k] > 0.0) {
+                        if (charge(k) > 0.0) {
                             // two inner sums over cations
                             n = k + j * m_kk + i * m_kk * m_kk;
                             sum2 = sum2 + molality[j]*molality[k]*psi_ijk_L[n];
@@ -3509,7 +3500,7 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dT() const
                             n = m_kk*j + k;
                             counterIJ2 = m_CounterIJ[n];
                             sum4 = sum4 +
-                                   (fabs(charge[i])*
+                                   (fabs(charge(i))*
                                     molality[j]*molality[k]*CMX_L[counterIJ2]);
                         }
                     }
@@ -3518,10 +3509,10 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dT() const
                 /*
                  * for Anions, do the neutral species interaction
                  */
-                if (charge[j] == 0.0) {
+                if (charge(j) == 0.0) {
                     sum5 = sum5 + molality[j]*2.0*m_Lambda_nj_L(j,i);
                     for (size_t k = 1; k < m_kk; k++) {
-                        if (charge[k] > 0.0) {
+                        if (charge(k) > 0.0) {
                             size_t izeta = j;
                             size_t jzeta = k;
                             size_t kzeta = i;
@@ -3552,7 +3543,7 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dT() const
          * ------ -> equations agree with my notes,
          *        -> Equations agree with Pitzer,
          */
-        if (charge[i] == 0.0) {
+        if (charge(i) == 0.0) {
             sum1 = 0.0;
             sum3 = 0.0;
             for (j = 1; j < m_kk; j++) {
@@ -3560,9 +3551,9 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dT() const
                 /*
                  * Zeta term -> we piggyback on the psi term
                  */
-                if (charge[j] > 0.0) {
+                if (charge(j) > 0.0) {
                     for (k = 1; k < m_kk; k++) {
-                        if (charge[k] < 0.0) {
+                        if (charge(k) < 0.0) {
                             n = k + j * m_kk + i * m_kk * m_kk;
                             sum3 = sum3 + molality[j]*molality[k]*psi_ijk_L[n];
                         }
@@ -3612,9 +3603,9 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dT() const
         /*
          * Loop Over Cations
          */
-        if (charge[j] > 0.0) {
+        if (charge(j) > 0.0) {
             for (k = 1; k < m_kk; k++) {
-                if (charge[k] < 0.0) {
+                if (charge(k) < 0.0) {
                     /*
                      * Find the counterIJ for the symmetric j,k binary interaction
                      */
@@ -3632,7 +3623,7 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dT() const
                     printf("logic error 1 in Step 9 of hmw_act");
                     exit(EXIT_FAILURE);
                 }
-                if (charge[k] > 0.0) {
+                if (charge(k) > 0.0) {
                     /*
                      * Find the counterIJ for the symmetric j,k binary interaction
                      * between 2 cations.
@@ -3641,7 +3632,7 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dT() const
                     counterIJ = m_CounterIJ[n];
                     sum2 = sum2 + molality[j]*molality[k]*Phiphi_L[counterIJ];
                     for (m = 1; m < m_kk; m++) {
-                        if (charge[m] < 0.0) {
+                        if (charge(m) < 0.0) {
                             // species m is an anion
                             n = m + k * m_kk + j * m_kk * m_kk;
                             sum2 = sum2 +
@@ -3655,14 +3646,14 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dT() const
         /*
          * Loop Over Anions
          */
-        if (charge[j] < 0) {
+        if (charge(j) < 0) {
             for (k = j+1; k < m_kk; k++) {
                 if (j == m_kk-1) {
                     // we should never reach this step
                     printf("logic error 2 in Step 9 of hmw_act");
                     exit(EXIT_FAILURE);
                 }
-                if (charge[k] < 0) {
+                if (charge(k) < 0) {
                     /*
                      * Find the counterIJ for the symmetric j,k binary interaction
                      * between two anions
@@ -3672,7 +3663,7 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dT() const
 
                     sum3 = sum3 + molality[j]*molality[k]*Phiphi_L[counterIJ];
                     for (m = 1; m < m_kk; m++) {
-                        if (charge[m] > 0.0) {
+                        if (charge(m) > 0.0) {
                             n = m + k * m_kk + j * m_kk * m_kk;
                             sum3 = sum3 +
                                    molality[j]*molality[k]*molality[m]*psi_ijk_L[n];
@@ -3685,25 +3676,25 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dT() const
         /*
          * Loop Over Neutral Species
          */
-        if (charge[j] == 0) {
+        if (charge(j) == 0) {
             for (k = 1; k < m_kk; k++) {
-                if (charge[k] < 0.0) {
+                if (charge(k) < 0.0) {
                     sum4 = sum4 + molality[j]*molality[k]*m_Lambda_nj_L(j,k);
                 }
-                if (charge[k] > 0.0) {
+                if (charge(k) > 0.0) {
                     sum5 = sum5 + molality[j]*molality[k]*m_Lambda_nj_L(j,k);
                 }
-                if (charge[k] == 0.0) {
+                if (charge(k) == 0.0) {
                     if (k > j) {
                         sum6 = sum6 + molality[j]*molality[k]*m_Lambda_nj_L(j,k);
                     } else if (k == j) {
                         sum6 = sum6 + 0.5 * molality[j]*molality[k]*m_Lambda_nj_L(j,k);
                     }
                 }
-                if (charge[k] < 0.0) {
+                if (charge(k) < 0.0) {
                     size_t izeta = j;
                     for (m = 1; m < m_kk; m++) {
-                        if (charge[m] > 0.0) {
+                        if (charge(m) > 0.0) {
                             size_t jzeta = m;
                             n = k + jzeta * m_kk + izeta * m_kk * m_kk;
                             double zeta_L = psi_ijk_L[n];
@@ -3809,7 +3800,6 @@ void HMWSoln::s_updatePitzer_d2lnMolalityActCoeff_dT2() const
     std::string sni, snj, snk;
 
     const double* molality  =  DATA_PTR(m_molalitiesCropped);
-    const double* charge    =  DATA_PTR(m_speciesCharge);
     const double* beta0MX_LL=  DATA_PTR(m_Beta0MX_ij_LL);
     const double* beta1MX_LL=  DATA_PTR(m_Beta1MX_ij_LL);
     const double* beta2MX_LL=  DATA_PTR(m_Beta2MX_ij_LL);
@@ -3876,9 +3866,9 @@ void HMWSoln::s_updatePitzer_d2lnMolalityActCoeff_dT2() const
      */
     for (n = 1; n < m_kk; n++) {
         //      ionic strength
-        Is += charge[n] * charge[n] * molality[n];
+        Is += charge(n) * charge(n) * molality[n];
         //      total molar charge
-        molarcharge +=  fabs(charge[n]) * molality[n];
+        molarcharge +=  fabs(charge(n)) * molality[n];
         molalitysum += molality[n];
     }
     Is *= 0.5;
@@ -3949,7 +3939,7 @@ void HMWSoln::s_updatePitzer_d2lnMolalityActCoeff_dT2() const
             /*
              * Only loop over oppositely charge species
              */
-            if (charge[i]*charge[j] < 0) {
+            if (charge(i)*charge(j) < 0) {
                 /*
                  * x is a reduced function variable
                  */
@@ -4012,7 +4002,7 @@ void HMWSoln::s_updatePitzer_d2lnMolalityActCoeff_dT2() const
              * both species have a non-zero charge, and one is positive
              * and the other is negative
              */
-            if (charge[i]*charge[j] < 0.0) {
+            if (charge(i)*charge(j) < 0.0) {
                 BMX_LL[counterIJ]  = beta0MX_LL[counterIJ]
                                      + beta1MX_LL[counterIJ] * gfunc[counterIJ]
                                      + beta2MX_LL[counterIJ] * g2func[counterIJ];
@@ -4068,9 +4058,9 @@ void HMWSoln::s_updatePitzer_d2lnMolalityActCoeff_dT2() const
              * both species have a non-zero charge, and one is positive
              * and the other is negative
              */
-            if (charge[i]*charge[j] < 0.0) {
+            if (charge(i)*charge(j) < 0.0) {
                 CMX_LL[counterIJ] = CphiMX_LL[counterIJ]/
-                                    (2.0* sqrt(fabs(charge[i]*charge[j])));
+                                    (2.0* sqrt(fabs(charge(i)*charge(j))));
             } else {
                 CMX_LL[counterIJ] = 0.0;
             }
@@ -4107,9 +4097,9 @@ void HMWSoln::s_updatePitzer_d2lnMolalityActCoeff_dT2() const
              * both species have a non-zero charge, and one is positive
              * and the other is negative
              */
-            if (charge[i]*charge[j] > 0) {
-                z1 = (int) fabs(charge[i]);
-                z2 = (int) fabs(charge[j]);
+            if (charge(i)*charge(j) > 0) {
+                z1 = (int) fabs(charge(i));
+                z2 = (int) fabs(charge(j));
                 //Phi[counterIJ] = thetaij[counterIJ] + etheta[z1][z2];
                 //Phi_L[counterIJ] = thetaij_L[counterIJ];
                 Phi_LL[counterIJ] = thetaij_LL[counterIJ];
@@ -4181,14 +4171,14 @@ void HMWSoln::s_updatePitzer_d2lnMolalityActCoeff_dT2() const
              * both species have a non-zero charge, and one is positive
              * and the other is negative
              */
-            if (charge[i]*charge[j] < 0) {
+            if (charge(i)*charge(j) < 0) {
                 d2FdT2 = d2FdT2 + molality[i]*molality[j] * BprimeMX_LL[counterIJ];
             }
             /*
              * Both species have a non-zero charge, and they
              * have the same sign, e.g., both positive or both negative.
              */
-            if (charge[i]*charge[j] > 0) {
+            if (charge(i)*charge(j) > 0) {
                 d2FdT2 = d2FdT2 + molality[i]*molality[j] * Phiprime[counterIJ];
             }
 #ifdef DEBUG_MODE
@@ -4210,9 +4200,9 @@ void HMWSoln::s_updatePitzer_d2lnMolalityActCoeff_dT2() const
          * -------- SUBSECTION FOR CALCULATING THE dACTCOEFFdT FOR CATIONS -----
          * --
          */
-        if (charge[i] > 0) {
+        if (charge(i) > 0) {
             // species i is the cation (positive) to calc the actcoeff
-            zsqd2FdT2 = charge[i]*charge[i]*d2FdT2;
+            zsqd2FdT2 = charge(i)*charge(i)*d2FdT2;
             sum1 = 0.0;
             sum2 = 0.0;
             sum3 = 0.0;
@@ -4225,7 +4215,7 @@ void HMWSoln::s_updatePitzer_d2lnMolalityActCoeff_dT2() const
                 n = m_kk*i + j;
                 counterIJ = m_CounterIJ[n];
 
-                if (charge[j] < 0.0) {
+                if (charge(j) < 0.0) {
                     // sum over all anions
                     sum1 = sum1 + molality[j]*
                            (2.0*BMX_LL[counterIJ] + molarcharge*CMX_LL[counterIJ]);
@@ -4237,7 +4227,7 @@ void HMWSoln::s_updatePitzer_d2lnMolalityActCoeff_dT2() const
                          */
                         for (k = j+1; k < m_kk; k++) {
                             // an inner sum over all anions
-                            if (charge[k] < 0.0) {
+                            if (charge(k) < 0.0) {
                                 n = k + j * m_kk + i * m_kk * m_kk;
                                 sum3 = sum3 + molality[j]*molality[k]*psi_ijk_LL[n];
                             }
@@ -4246,13 +4236,13 @@ void HMWSoln::s_updatePitzer_d2lnMolalityActCoeff_dT2() const
                 }
 
 
-                if (charge[j] > 0.0) {
+                if (charge(j) > 0.0) {
                     // sum over all cations
                     if (j != i) {
                         sum2 = sum2 + molality[j]*(2.0*Phi_LL[counterIJ]);
                     }
                     for (k = 1; k < m_kk; k++) {
-                        if (charge[k] < 0.0) {
+                        if (charge(k) < 0.0) {
                             // two inner sums over anions
 
                             n = k + j * m_kk + i * m_kk * m_kk;
@@ -4262,7 +4252,7 @@ void HMWSoln::s_updatePitzer_d2lnMolalityActCoeff_dT2() const
                              */
                             n = m_kk*j + k;
                             counterIJ2 = m_CounterIJ[n];
-                            sum4 = sum4 + (fabs(charge[i])*
+                            sum4 = sum4 + (fabs(charge(i))*
                                            molality[j]*molality[k]*CMX_LL[counterIJ2]);
                         }
                     }
@@ -4271,13 +4261,13 @@ void HMWSoln::s_updatePitzer_d2lnMolalityActCoeff_dT2() const
                 /*
                  * Handle neutral j species
                  */
-                if (charge[j] == 0) {
+                if (charge(j) == 0) {
                     sum5 = sum5 + molality[j]*2.0*m_Lambda_nj_LL(j,i);
                     /*
                      * Zeta interaction term
                      */
                     for (size_t k = 1; k < m_kk; k++) {
-                        if (charge[k] < 0.0) {
+                        if (charge(k) < 0.0) {
                             size_t izeta = j;
                             size_t jzeta = i;
                             n = izeta * m_kk * m_kk + jzeta * m_kk + k;
@@ -4311,9 +4301,9 @@ void HMWSoln::s_updatePitzer_d2lnMolalityActCoeff_dT2() const
          * ------ SUBSECTION FOR CALCULATING THE d2ACTCOEFFdT2 FOR ANIONS ------
          *
          */
-        if (charge[i] < 0) {
+        if (charge(i) < 0) {
             //          species i is an anion (negative)
-            zsqd2FdT2 = charge[i]*charge[i]*d2FdT2;
+            zsqd2FdT2 = charge(i)*charge(i)*d2FdT2;
             sum1 = 0.0;
             sum2 = 0.0;
             sum3 = 0.0;
@@ -4329,13 +4319,13 @@ void HMWSoln::s_updatePitzer_d2lnMolalityActCoeff_dT2() const
                 /*
                  * For Anions, do the cation interactions.
                  */
-                if (charge[j] > 0) {
+                if (charge(j) > 0) {
                     sum1 = sum1 + molality[j]*
                            (2.0*BMX_LL[counterIJ] + molarcharge*CMX_LL[counterIJ]);
                     if (j < m_kk-1) {
                         for (k = j+1; k < m_kk; k++) {
                             // an inner sum over all cations
-                            if (charge[k] > 0) {
+                            if (charge(k) > 0) {
                                 n = k + j * m_kk + i * m_kk * m_kk;
                                 sum3 = sum3 + molality[j]*molality[k]*psi_ijk_LL[n];
                             }
@@ -4346,13 +4336,13 @@ void HMWSoln::s_updatePitzer_d2lnMolalityActCoeff_dT2() const
                 /*
                  * For Anions, do the other anion interactions.
                  */
-                if (charge[j] < 0.0) {
+                if (charge(j) < 0.0) {
                     //  sum over all anions
                     if (j != i) {
                         sum2 = sum2 + molality[j]*(2.0*Phi_LL[counterIJ]);
                     }
                     for (k = 1; k < m_kk; k++) {
-                        if (charge[k] > 0.0) {
+                        if (charge(k) > 0.0) {
                             // two inner sums over cations
                             n = k + j * m_kk + i * m_kk * m_kk;
                             sum2 = sum2 + molality[j]*molality[k]*psi_ijk_LL[n];
@@ -4362,7 +4352,7 @@ void HMWSoln::s_updatePitzer_d2lnMolalityActCoeff_dT2() const
                             n = m_kk*j + k;
                             counterIJ2 = m_CounterIJ[n];
                             sum4 = sum4 +
-                                   (fabs(charge[i])*
+                                   (fabs(charge(i))*
                                     molality[j]*molality[k]*CMX_LL[counterIJ2]);
                         }
                     }
@@ -4371,13 +4361,13 @@ void HMWSoln::s_updatePitzer_d2lnMolalityActCoeff_dT2() const
                 /*
                  * for Anions, do the neutral species interaction
                  */
-                if (charge[j] == 0.0) {
+                if (charge(j) == 0.0) {
                     sum5 = sum5 + molality[j]*2.0*m_Lambda_nj_LL(j,i);
                     /*
                      * Zeta interaction term
                      */
                     for (size_t k = 1; k < m_kk; k++) {
-                        if (charge[k] > 0.0) {
+                        if (charge(k) > 0.0) {
                             size_t izeta = j;
                             size_t jzeta = k;
                             size_t kzeta = i;
@@ -4407,7 +4397,7 @@ void HMWSoln::s_updatePitzer_d2lnMolalityActCoeff_dT2() const
          * ------ -> equations agree with my notes,
          *        -> Equations agree with Pitzer,
          */
-        if (charge[i] == 0.0) {
+        if (charge(i) == 0.0) {
             sum1 = 0.0;
             sum3 = 0.0;
             for (j = 1; j < m_kk; j++) {
@@ -4415,9 +4405,9 @@ void HMWSoln::s_updatePitzer_d2lnMolalityActCoeff_dT2() const
                 /*
                  * Zeta term -> we piggyback on the psi term
                  */
-                if (charge[j] > 0.0) {
+                if (charge(j) > 0.0) {
                     for (k = 1; k < m_kk; k++) {
-                        if (charge[k] < 0.0) {
+                        if (charge(k) < 0.0) {
                             n = k + j * m_kk + i * m_kk * m_kk;
                             sum3 = sum3 + molality[j]*molality[k]*psi_ijk_LL[n];
                         }
@@ -4466,9 +4456,9 @@ void HMWSoln::s_updatePitzer_d2lnMolalityActCoeff_dT2() const
         /*
          * Loop Over Cations
          */
-        if (charge[j] > 0.0) {
+        if (charge(j) > 0.0) {
             for (k = 1; k < m_kk; k++) {
-                if (charge[k] < 0.0) {
+                if (charge(k) < 0.0) {
                     /*
                      * Find the counterIJ for the symmetric j,k binary interaction
                      */
@@ -4486,7 +4476,7 @@ void HMWSoln::s_updatePitzer_d2lnMolalityActCoeff_dT2() const
                     printf("logic error 1 in Step 9 of hmw_act");
                     exit(EXIT_FAILURE);
                 }
-                if (charge[k] > 0.0) {
+                if (charge(k) > 0.0) {
                     /*
                      * Find the counterIJ for the symmetric j,k binary interaction
                      * between 2 cations.
@@ -4495,7 +4485,7 @@ void HMWSoln::s_updatePitzer_d2lnMolalityActCoeff_dT2() const
                     counterIJ = m_CounterIJ[n];
                     sum2 = sum2 + molality[j]*molality[k]*Phiphi_LL[counterIJ];
                     for (m = 1; m < m_kk; m++) {
-                        if (charge[m] < 0.0) {
+                        if (charge(m) < 0.0) {
                             // species m is an anion
                             n = m + k * m_kk + j * m_kk * m_kk;
                             sum2 = sum2 +
@@ -4509,14 +4499,14 @@ void HMWSoln::s_updatePitzer_d2lnMolalityActCoeff_dT2() const
         /*
          * Loop Over Anions
          */
-        if (charge[j] < 0) {
+        if (charge(j) < 0) {
             for (k = j+1; k < m_kk; k++) {
                 if (j == m_kk-1) {
                     // we should never reach this step
                     printf("logic error 2 in Step 9 of hmw_act");
                     exit(EXIT_FAILURE);
                 }
-                if (charge[k] < 0) {
+                if (charge(k) < 0) {
                     /*
                      * Find the counterIJ for the symmetric j,k binary interaction
                      * between two anions
@@ -4526,7 +4516,7 @@ void HMWSoln::s_updatePitzer_d2lnMolalityActCoeff_dT2() const
 
                     sum3 = sum3 + molality[j]*molality[k]*Phiphi_LL[counterIJ];
                     for (m = 1; m < m_kk; m++) {
-                        if (charge[m] > 0.0) {
+                        if (charge(m) > 0.0) {
                             n = m + k * m_kk + j * m_kk * m_kk;
                             sum3 = sum3 +
                                    molality[j]*molality[k]*molality[m]*psi_ijk_LL[n];
@@ -4539,25 +4529,25 @@ void HMWSoln::s_updatePitzer_d2lnMolalityActCoeff_dT2() const
         /*
          * Loop Over Neutral Species
          */
-        if (charge[j] == 0) {
+        if (charge(j) == 0) {
             for (k = 1; k < m_kk; k++) {
-                if (charge[k] < 0.0) {
+                if (charge(k) < 0.0) {
                     sum4 = sum4 + molality[j]*molality[k]*m_Lambda_nj_LL(j,k);
                 }
-                if (charge[k] > 0.0) {
+                if (charge(k) > 0.0) {
                     sum5 = sum5 + molality[j]*molality[k]*m_Lambda_nj_LL(j,k);
                 }
-                if (charge[k] == 0.0) {
+                if (charge(k) == 0.0) {
                     if (k > j) {
                         sum6 = sum6 + molality[j]*molality[k]*m_Lambda_nj_LL(j,k);
                     } else if (k == j) {
                         sum6 = sum6 + 0.5 * molality[j]*molality[k]*m_Lambda_nj_LL(j,k);
                     }
                 }
-                if (charge[k] < 0.0) {
+                if (charge(k) < 0.0) {
                     size_t izeta = j;
                     for (m = 1; m < m_kk; m++) {
-                        if (charge[m] > 0.0) {
+                        if (charge(m) > 0.0) {
                             size_t jzeta = m;
                             n = k + jzeta * m_kk + izeta * m_kk * m_kk;
                             double zeta_LL = psi_ijk_LL[n];
@@ -4651,7 +4641,6 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dP() const
     std::string sni, snj, snk;
 
     const double* molality  =  DATA_PTR(m_molalitiesCropped);
-    const double* charge    =  DATA_PTR(m_speciesCharge);
     const double* beta0MX_P =  DATA_PTR(m_Beta0MX_ij_P);
     const double* beta1MX_P =  DATA_PTR(m_Beta1MX_ij_P);
     const double* beta2MX_P =  DATA_PTR(m_Beta2MX_ij_P);
@@ -4719,9 +4708,9 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dP() const
      */
     for (n = 1; n < m_kk; n++) {
         //      ionic strength
-        Is += charge[n] * charge[n] * molality[n];
+        Is += charge(n) * charge(n) * molality[n];
         //      total molar charge
-        molarcharge +=  fabs(charge[n]) * molality[n];
+        molarcharge +=  fabs(charge(n)) * molality[n];
         molalitysum += molality[n];
     }
     Is *= 0.5;
@@ -4793,7 +4782,7 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dP() const
             /*
              * Only loop over oppositely charge species
              */
-            if (charge[i]*charge[j] < 0) {
+            if (charge(i)*charge(j) < 0) {
                 /*
                  * x is a reduced function variable
                  */
@@ -4857,7 +4846,7 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dP() const
              * both species have a non-zero charge, and one is positive
              * and the other is negative
              */
-            if (charge[i]*charge[j] < 0.0) {
+            if (charge(i)*charge(j) < 0.0) {
                 BMX_P[counterIJ]  = beta0MX_P[counterIJ]
                                     + beta1MX_P[counterIJ] * gfunc[counterIJ]
                                     + beta2MX_P[counterIJ] * g2func[counterIJ];
@@ -4912,9 +4901,9 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dP() const
              * both species have a non-zero charge, and one is positive
              * and the other is negative
              */
-            if (charge[i]*charge[j] < 0.0) {
+            if (charge(i)*charge(j) < 0.0) {
                 CMX_P[counterIJ] = CphiMX_P[counterIJ]/
-                                   (2.0* sqrt(fabs(charge[i]*charge[j])));
+                                   (2.0* sqrt(fabs(charge(i)*charge(j))));
             } else {
                 CMX_P[counterIJ] = 0.0;
             }
@@ -4951,9 +4940,9 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dP() const
              * both species have a non-zero charge, and one is positive
              * and the other is negative
              */
-            if (charge[i]*charge[j] > 0) {
-                z1 = (int) fabs(charge[i]);
-                z2 = (int) fabs(charge[j]);
+            if (charge(i)*charge(j) > 0) {
+                z1 = (int) fabs(charge(i));
+                z2 = (int) fabs(charge(j));
                 //Phi[counterIJ] = thetaij_L[counterIJ] + etheta[z1][z2];
                 Phi_P[counterIJ] = thetaij_P[counterIJ];
                 //Phiprime[counterIJ] = etheta_prime[z1][z2];
@@ -5015,14 +5004,14 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dP() const
              * both species have a non-zero charge, and one is positive
              * and the other is negative
              */
-            if (charge[i]*charge[j] < 0) {
+            if (charge(i)*charge(j) < 0) {
                 dFdP = dFdP + molality[i]*molality[j] * BprimeMX_P[counterIJ];
             }
             /*
              * Both species have a non-zero charge, and they
              * have the same sign, e.g., both positive or both negative.
              */
-            if (charge[i]*charge[j] > 0) {
+            if (charge(i)*charge(j) > 0) {
                 dFdP = dFdP + molality[i]*molality[j] * Phiprime[counterIJ];
             }
 #ifdef DEBUG_MODE
@@ -5044,9 +5033,9 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dP() const
         /*
          * -------- SUBSECTION FOR CALCULATING THE dACTCOEFFdP FOR CATIONS -----
          */
-        if (charge[i] > 0) {
+        if (charge(i) > 0) {
             // species i is the cation (positive) to calc the actcoeff
-            zsqdFdP = charge[i]*charge[i]*dFdP;
+            zsqdFdP = charge(i)*charge(i)*dFdP;
             sum1 = 0.0;
             sum2 = 0.0;
             sum3 = 0.0;
@@ -5059,7 +5048,7 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dP() const
                 n = m_kk*i + j;
                 counterIJ = m_CounterIJ[n];
 
-                if (charge[j] < 0.0) {
+                if (charge(j) < 0.0) {
                     // sum over all anions
                     sum1 = sum1 + molality[j]*
                            (2.0*BMX_P[counterIJ] + molarcharge*CMX_P[counterIJ]);
@@ -5071,7 +5060,7 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dP() const
                          */
                         for (k = j+1; k < m_kk; k++) {
                             // an inner sum over all anions
-                            if (charge[k] < 0.0) {
+                            if (charge(k) < 0.0) {
                                 n = k + j * m_kk + i * m_kk * m_kk;
                                 sum3 = sum3 + molality[j]*molality[k]*psi_ijk_P[n];
                             }
@@ -5080,13 +5069,13 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dP() const
                 }
 
 
-                if (charge[j] > 0.0) {
+                if (charge(j) > 0.0) {
                     // sum over all cations
                     if (j != i) {
                         sum2 = sum2 + molality[j]*(2.0*Phi_P[counterIJ]);
                     }
                     for (k = 1; k < m_kk; k++) {
-                        if (charge[k] < 0.0) {
+                        if (charge(k) < 0.0) {
                             // two inner sums over anions
 
                             n = k + j * m_kk + i * m_kk * m_kk;
@@ -5096,7 +5085,7 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dP() const
                              */
                             n = m_kk*j + k;
                             counterIJ2 = m_CounterIJ[n];
-                            sum4 = sum4 + (fabs(charge[i])*
+                            sum4 = sum4 + (fabs(charge(i))*
                                            molality[j]*molality[k]*CMX_P[counterIJ2]);
                         }
                     }
@@ -5105,13 +5094,13 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dP() const
                 /*
                  * for Anions, do the neutral species interaction
                  */
-                if (charge[j] == 0) {
+                if (charge(j) == 0) {
                     sum5 = sum5 + molality[j]*2.0*m_Lambda_nj_P(j,i);
                     /*
                      * Zeta interaction term
                      */
                     for (size_t k = 1; k < m_kk; k++) {
-                        if (charge[k] < 0.0) {
+                        if (charge(k) < 0.0) {
                             size_t izeta = j;
                             size_t jzeta = i;
                             n = izeta * m_kk * m_kk + jzeta * m_kk + k;
@@ -5146,9 +5135,9 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dP() const
         /*
          * ------ SUBSECTION FOR CALCULATING THE dACTCOEFFdP FOR ANIONS ------
          */
-        if (charge[i] < 0) {
+        if (charge(i) < 0) {
             //          species i is an anion (negative)
-            zsqdFdP = charge[i]*charge[i]*dFdP;
+            zsqdFdP = charge(i)*charge(i)*dFdP;
             sum1 = 0.0;
             sum2 = 0.0;
             sum3 = 0.0;
@@ -5164,13 +5153,13 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dP() const
                 /*
                  * For Anions, do the cation interactions.
                  */
-                if (charge[j] > 0) {
+                if (charge(j) > 0) {
                     sum1 = sum1 + molality[j]*
                            (2.0*BMX_P[counterIJ] + molarcharge*CMX_P[counterIJ]);
                     if (j < m_kk-1) {
                         for (k = j+1; k < m_kk; k++) {
                             // an inner sum over all cations
-                            if (charge[k] > 0) {
+                            if (charge(k) > 0) {
                                 n = k + j * m_kk + i * m_kk * m_kk;
                                 sum3 = sum3 + molality[j]*molality[k]*psi_ijk_P[n];
                             }
@@ -5181,13 +5170,13 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dP() const
                 /*
                  * For Anions, do the other anion interactions.
                  */
-                if (charge[j] < 0.0) {
+                if (charge(j) < 0.0) {
                     //  sum over all anions
                     if (j != i) {
                         sum2 = sum2 + molality[j]*(2.0*Phi_P[counterIJ]);
                     }
                     for (k = 1; k < m_kk; k++) {
-                        if (charge[k] > 0.0) {
+                        if (charge(k) > 0.0) {
                             // two inner sums over cations
                             n = k + j * m_kk + i * m_kk * m_kk;
                             sum2 = sum2 + molality[j]*molality[k]*psi_ijk_P[n];
@@ -5197,7 +5186,7 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dP() const
                             n = m_kk*j + k;
                             counterIJ2 = m_CounterIJ[n];
                             sum4 = sum4 +
-                                   (fabs(charge[i])*
+                                   (fabs(charge(i))*
                                     molality[j]*molality[k]*CMX_P[counterIJ2]);
                         }
                     }
@@ -5206,13 +5195,13 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dP() const
                 /*
                  * for Anions, do the neutral species interaction
                  */
-                if (charge[j] == 0.0) {
+                if (charge(j) == 0.0) {
                     sum5 = sum5 + molality[j]*2.0*m_Lambda_nj_P(j,i);
                     /*
                      * Zeta interaction term
                      */
                     for (size_t k = 1; k < m_kk; k++) {
-                        if (charge[k] > 0.0) {
+                        if (charge(k) > 0.0) {
                             size_t izeta = j;
                             size_t jzeta = k;
                             size_t kzeta = i;
@@ -5241,7 +5230,7 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dP() const
         /*
          * ------ SUBSECTION FOR CALCULATING d NEUTRAL SOLUTE ACT COEFF dP -------
          */
-        if (charge[i] == 0.0) {
+        if (charge(i) == 0.0) {
             sum1 = 0.0;
             sum3 = 0.0;
             for (j = 1; j < m_kk; j++) {
@@ -5249,9 +5238,9 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dP() const
                 /*
                  * Zeta term -> we piggyback on the psi term
                  */
-                if (charge[j] > 0.0) {
+                if (charge(j) > 0.0) {
                     for (k = 1; k < m_kk; k++) {
-                        if (charge[k] < 0.0) {
+                        if (charge(k) < 0.0) {
                             n = k + j * m_kk + i * m_kk * m_kk;
                             sum3 = sum3 + molality[j]*molality[k]*psi_ijk_P[n];
                         }
@@ -5300,9 +5289,9 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dP() const
         /*
          * Loop Over Cations
          */
-        if (charge[j] > 0.0) {
+        if (charge(j) > 0.0) {
             for (k = 1; k < m_kk; k++) {
-                if (charge[k] < 0.0) {
+                if (charge(k) < 0.0) {
                     /*
                      * Find the counterIJ for the symmetric j,k binary interaction
                      */
@@ -5320,7 +5309,7 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dP() const
                     printf("logic error 1 in Step 9 of hmw_act");
                     exit(EXIT_FAILURE);
                 }
-                if (charge[k] > 0.0) {
+                if (charge(k) > 0.0) {
                     /*
                      * Find the counterIJ for the symmetric j,k binary interaction
                      * between 2 cations.
@@ -5329,7 +5318,7 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dP() const
                     counterIJ = m_CounterIJ[n];
                     sum2 = sum2 + molality[j]*molality[k]*Phiphi_P[counterIJ];
                     for (m = 1; m < m_kk; m++) {
-                        if (charge[m] < 0.0) {
+                        if (charge(m) < 0.0) {
                             // species m is an anion
                             n = m + k * m_kk + j * m_kk * m_kk;
                             sum2 = sum2 +
@@ -5344,14 +5333,14 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dP() const
         /*
          * Loop Over Anions
          */
-        if (charge[j] < 0) {
+        if (charge(j) < 0) {
             for (k = j+1; k < m_kk; k++) {
                 if (j == m_kk-1) {
                     // we should never reach this step
                     printf("logic error 2 in Step 9 of hmw_act");
                     exit(EXIT_FAILURE);
                 }
-                if (charge[k] < 0) {
+                if (charge(k) < 0) {
                     /*
                      * Find the counterIJ for the symmetric j,k binary interaction
                      * between two anions
@@ -5361,7 +5350,7 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dP() const
 
                     sum3 = sum3 + molality[j]*molality[k]*Phiphi_P[counterIJ];
                     for (m = 1; m < m_kk; m++) {
-                        if (charge[m] > 0.0) {
+                        if (charge(m) > 0.0) {
                             n = m + k * m_kk + j * m_kk * m_kk;
                             sum3 = sum3 +
                                    molality[j]*molality[k]*molality[m]*psi_ijk_P[n];
@@ -5374,25 +5363,25 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dP() const
         /*
          * Loop Over Neutral Species
          */
-        if (charge[j] == 0) {
+        if (charge(j) == 0) {
             for (k = 1; k < m_kk; k++) {
-                if (charge[k] < 0.0) {
+                if (charge(k) < 0.0) {
                     sum4 = sum4 + molality[j]*molality[k]*m_Lambda_nj_P(j,k);
                 }
-                if (charge[k] > 0.0) {
+                if (charge(k) > 0.0) {
                     sum5 = sum5 + molality[j]*molality[k]*m_Lambda_nj_P(j,k);
                 }
-                if (charge[k] == 0.0) {
+                if (charge(k) == 0.0) {
                     if (k > j) {
                         sum6 = sum6 + molality[j]*molality[k]*m_Lambda_nj_P(j,k);
                     } else if (k == j) {
                         sum6 = sum6 + 0.5 * molality[j]*molality[k]*m_Lambda_nj_P(j,k);
                     }
                 }
-                if (charge[k] < 0.0) {
+                if (charge(k) < 0.0) {
                     size_t izeta = j;
                     for (m = 1; m < m_kk; m++) {
-                        if (charge[m] > 0.0) {
+                        if (charge(m) > 0.0) {
                             size_t jzeta = m;
                             n = k + jzeta * m_kk + izeta * m_kk * m_kk;
                             double zeta_P = psi_ijk_P[n];
@@ -5676,7 +5665,6 @@ void HMWSoln::printCoeffs() const
     size_t i, j, k;
     std::string sni, snj;
     calcMolalities();
-    const double* charge = DATA_PTR(m_speciesCharge);
     double* molality = DATA_PTR(m_molalitiesCropped);
     double* moleF = DATA_PTR(m_tmpV);
     /*
@@ -5690,7 +5678,7 @@ void HMWSoln::printCoeffs() const
     for (k = 0; k < m_kk; k++) {
         sni = speciesName(k);
         printf("%2s     %-16s %14.7le %14.7le %5.1f \n",
-               int2str(k).c_str(), sni.c_str(), moleF[k], molality[k], charge[k]);
+               int2str(k).c_str(), sni.c_str(), moleF[k], molality[k], charge(k));
     }
 
     printf("\n Species          Species            beta0MX  "
@@ -5740,7 +5728,7 @@ void HMWSoln::applyphScale(doublereal* acMolality) const
     doublereal lnGammaCLMs1 = m_lnActCoeffMolal_Unscaled[m_indexCLM];
     doublereal afac = -1.0 *(lnGammaClMs2 - lnGammaCLMs1);
     for (size_t k = 0; k < m_kk; k++) {
-        acMolality[k] *= exp(m_speciesCharge[k] * afac);
+        acMolality[k] *= exp(charge(k) * afac);
     }
 }
 
@@ -5755,7 +5743,7 @@ void HMWSoln::s_updateScaling_pHScaling() const
     doublereal lnGammaCLMs1 = m_lnActCoeffMolal_Unscaled[m_indexCLM];
     doublereal afac = -1.0 *(lnGammaClMs2 - lnGammaCLMs1);
     for (size_t k = 0; k < m_kk; k++) {
-        m_lnActCoeffMolal_Scaled[k] = m_lnActCoeffMolal_Unscaled[k] + m_speciesCharge[k] * afac;
+        m_lnActCoeffMolal_Scaled[k] = m_lnActCoeffMolal_Unscaled[k] + charge(k) * afac;
     }
 }
 
@@ -5770,7 +5758,7 @@ void HMWSoln::s_updateScaling_pHScaling_dT() const
     doublereal dlnGammaCLM_dT_s1 = m_dlnActCoeffMolaldT_Unscaled[m_indexCLM];
     doublereal afac = -1.0 *(dlnGammaClM_dT_s2 - dlnGammaCLM_dT_s1);
     for (size_t k = 0; k < m_kk; k++) {
-        m_dlnActCoeffMolaldT_Scaled[k] = m_dlnActCoeffMolaldT_Unscaled[k] + m_speciesCharge[k] * afac;
+        m_dlnActCoeffMolaldT_Scaled[k] = m_dlnActCoeffMolaldT_Unscaled[k] + charge(k) * afac;
     }
 }
 
@@ -5785,7 +5773,7 @@ void HMWSoln::s_updateScaling_pHScaling_dT2() const
     doublereal d2lnGammaCLM_dT2_s1 = m_d2lnActCoeffMolaldT2_Unscaled[m_indexCLM];
     doublereal afac = -1.0 *(d2lnGammaClM_dT2_s2 - d2lnGammaCLM_dT2_s1);
     for (size_t k = 0; k < m_kk; k++) {
-        m_d2lnActCoeffMolaldT2_Scaled[k] = m_d2lnActCoeffMolaldT2_Unscaled[k] + m_speciesCharge[k] * afac;
+        m_d2lnActCoeffMolaldT2_Scaled[k] = m_d2lnActCoeffMolaldT2_Unscaled[k] + charge(k) * afac;
     }
 }
 
@@ -5800,7 +5788,7 @@ void HMWSoln::s_updateScaling_pHScaling_dP() const
     doublereal dlnGammaCLM_dP_s1 = m_dlnActCoeffMolaldP_Unscaled[m_indexCLM];
     doublereal afac = -1.0 *(dlnGammaClM_dP_s2 - dlnGammaCLM_dP_s1);
     for (size_t k = 0; k < m_kk; k++) {
-        m_dlnActCoeffMolaldP_Scaled[k] = m_dlnActCoeffMolaldP_Unscaled[k] + m_speciesCharge[k] * afac;
+        m_dlnActCoeffMolaldP_Scaled[k] = m_dlnActCoeffMolaldP_Unscaled[k] + charge(k) * afac;
     }
 }
 
