@@ -67,7 +67,7 @@ VPStandardStateTP::operator=(const VPStandardStateTP& b)
          */
         if (m_PDSS_storage.size() > 0) {
             for (int k = 0; k < (int) m_PDSS_storage.size(); k++) {
-                delete(m_PDSS_storage[k]);
+                delete m_PDSS_storage[k];
             }
         }
         m_PDSS_storage.resize(m_kk);
@@ -114,7 +114,7 @@ VPStandardStateTP::operator=(const VPStandardStateTP& b)
 VPStandardStateTP::~VPStandardStateTP()
 {
     for (int k = 0; k < (int) m_PDSS_storage.size(); k++) {
-        delete(m_PDSS_storage[k]);
+        delete m_PDSS_storage[k];
     }
     delete m_VPSS_ptr;
 }

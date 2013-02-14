@@ -82,7 +82,7 @@ WaterPropsIAPWS& WaterPropsIAPWS::operator=(const WaterPropsIAPWS& b)
 // destructor
 WaterPropsIAPWS::~WaterPropsIAPWS()
 {
-    delete(m_phi);
+    delete m_phi;
     m_phi = 0;
 }
 
