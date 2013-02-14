@@ -107,7 +107,7 @@ doublereal IdealSolnGasVPSS::intEnergy_mole() const
 {
     doublereal p0 = pressure();
     doublereal md = molarDensity();
-    return (enthalpy_mole() - p0 / md);
+    return enthalpy_mole() - p0 / md;
 }
 
 doublereal IdealSolnGasVPSS::entropy_mole() const

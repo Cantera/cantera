@@ -1992,7 +1992,7 @@ void NonlinearSolver::residualComparisonLeg(const doublereal time_curr, const do
 doublereal  NonlinearSolver::trustRegionLength() const
 {
     norm_deltaX_trust_ = solnErrorNorm(DATA_PTR(deltaX_trust_));
-    return (trustDelta_ * norm_deltaX_trust_);
+    return trustDelta_ * norm_deltaX_trust_;
 }
 //====================================================================================================================
 void  NonlinearSolver::setDefaultDeltaBoundsMagnitudes()

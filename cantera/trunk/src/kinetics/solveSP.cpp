@@ -775,7 +775,7 @@ static doublereal calcWeightedNorm(const doublereal wtX[], const doublereal dx[]
         tmp = dx[i] / wtX[i];
         norm += tmp * tmp;
     }
-    return (sqrt(norm/dim));
+    return sqrt(norm/dim);
 }
 
 /*
@@ -891,7 +891,7 @@ calc_t(doublereal netProdRateSolnSP[], doublereal XMolSolnSP[],
         *label_factor = 1.0;
     }
     inv_timeScale = inv_timeScale / *label_factor;
-    return (inv_timeScale);
+    return inv_timeScale;
 
 } /* calc_t */
 

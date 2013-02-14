@@ -447,7 +447,7 @@ size_t VCS_PROB::addElement(const char* elNameNew, int elType, int elactive)
     ElName[ne-1] = elNameNew;
     m_elType[ne-1] = elType;
     ElActive[ne-1] = elactive;
-    return (ne - 1);
+    return ne - 1;
 }
 
 // This routines adds entries for the formula matrix for one species

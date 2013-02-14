@@ -260,7 +260,7 @@ doublereal PDSS_HKFT::intEnergy_mole() const
 {
     doublereal hh = enthalpy_RT();
     doublereal mv = molarVolume();
-    return (hh - mv * m_pres);
+    return hh - mv * m_pres;
 }
 
 /*
@@ -270,7 +270,7 @@ doublereal PDSS_HKFT::intEnergy_mole() const
 doublereal PDSS_HKFT::entropy_mole() const
 {
     doublereal delS = deltaS();
-    return (m_Entrop_tr_pr * 1.0E3 * 4.184 + delS);
+    return m_Entrop_tr_pr * 1.0E3 * 4.184 + delS;
 }
 
 /*
@@ -280,7 +280,7 @@ doublereal PDSS_HKFT::entropy_mole() const
 doublereal PDSS_HKFT::gibbs_mole() const
 {
     doublereal delG = deltaG();
-    return (m_Mu0_tr_pr + delG);
+    return m_Mu0_tr_pr + delG;
 }
 
 /*
@@ -391,7 +391,7 @@ doublereal
 PDSS_HKFT::cv_mole() const
 {
     throw CanteraError("PDSS_HKFT::cv_mole()", "unimplemented");
-    return (0.0);
+    return 0.0;
 }
 
 doublereal  PDSS_HKFT::molarVolume() const
@@ -454,7 +454,7 @@ doublereal
 PDSS_HKFT::density() const
 {
     doublereal val = molarVolume();
-    return (m_mw/val);
+    return m_mw/val;
 }
 
 doublereal
@@ -545,21 +545,21 @@ doublereal
 PDSS_HKFT::critTemperature() const
 {
     throw CanteraError("PDSS_HKFT::critTemperature()", "unimplemented");
-    return (0.0);
+    return 0.0;
 }
 
 // critical pressure
 doublereal PDSS_HKFT::critPressure() const
 {
     throw CanteraError("PDSS_HKFT::critPressure()", "unimplemented");
-    return (0.0);
+    return 0.0;
 }
 
 // critical density
 doublereal PDSS_HKFT::critDensity() const
 {
     throw CanteraError("PDSS_HKFT::critDensity()", "unimplemented");
-    return (0.0);
+    return 0.0;
 }
 
 

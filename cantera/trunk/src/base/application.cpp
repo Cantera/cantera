@@ -304,7 +304,7 @@ Application::Messages* Application::ThreadMessages::operator ->()
     cthreadId_t curId = getThisThreadId() ;
     threadMsgMap_t::iterator iter = m_threadMsgMap.find(curId) ;
     if (iter != m_threadMsgMap.end()) {
-        return (iter->second.get()) ;
+        return iter->second.get();
     }
     pMessages_t pMsgs(new Messages()) ;
     m_threadMsgMap.insert(std::pair< cthreadId_t, pMessages_t >(curId, pMsgs)) ;

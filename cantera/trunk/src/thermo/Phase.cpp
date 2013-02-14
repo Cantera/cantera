@@ -187,7 +187,7 @@ doublereal Phase::entropyElement298(size_t m) const
                    "Elements::entropy298",
                    "Entropy at 298 K of element is unknown");
     AssertTrace(m < m_mm);
-    return (m_entropy298[m]);
+    return m_entropy298[m];
 }
 
 const vector_fp& Phase::atomicWeights() const
@@ -271,7 +271,7 @@ void Phase::checkSpeciesArraySize(size_t kk) const
 std::string Phase::speciesSPName(int k) const
 {
     std::string sn = speciesName(k);
-    return(m_name + ":" + sn);
+    return m_name + ":" + sn;
 }
 
 void Phase::saveState(vector_fp& state) const

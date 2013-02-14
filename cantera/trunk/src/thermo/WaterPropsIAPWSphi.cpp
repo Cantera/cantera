@@ -633,7 +633,7 @@ doublereal  WaterPropsIAPWSphi::phiR_d() const
 doublereal  WaterPropsIAPWSphi::phi0_d() const
 {
     doublereal  delta = DELTAsave;
-    return (1.0/delta);
+    return 1.0/delta;
 }
 
 /*
@@ -782,7 +782,7 @@ doublereal  WaterPropsIAPWSphi::phiR_dd() const
 doublereal  WaterPropsIAPWSphi::phi0_dd() const
 {
     doublereal  delta = DELTAsave;
-    return (-1.0/(delta*delta));
+    return -1.0/(delta*delta);
 }
 
 /*

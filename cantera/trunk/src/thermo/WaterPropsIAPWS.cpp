@@ -119,7 +119,7 @@ doublereal  WaterPropsIAPWS::helmholtzFE() const
     doublereal retn = m_phi->phi(tau, delta);
     doublereal temperature = T_c/tau;
     doublereal RT = Rgas * temperature;
-    return (retn * RT);
+    return retn * RT;
 }
 
 /*
@@ -133,7 +133,7 @@ doublereal  WaterPropsIAPWS::pressure() const
     doublereal retn = m_phi->pressureM_rhoRT(tau, delta);
     doublereal rho = delta * Rho_c;
     doublereal temperature = T_c / tau;
-    return (retn * rho * Rgas * temperature/M_water);
+    return retn * rho * Rgas * temperature/M_water;
 }
 
 /*
@@ -307,7 +307,7 @@ doublereal WaterPropsIAPWS::density_const(doublereal pressure,
  */
 doublereal WaterPropsIAPWS::density() const
 {
-    return (delta * Rho_c);
+    return delta * Rho_c;
 }
 
 // Returns the temperature (Kelvin)
@@ -316,7 +316,7 @@ doublereal WaterPropsIAPWS::density() const
  */
 doublereal WaterPropsIAPWS::temperature() const
 {
-    return (T_c / tau);
+    return T_c / tau;
 }
 
 /*
@@ -375,7 +375,7 @@ doublereal WaterPropsIAPWS::isothermalCompressibility() const
 {
     doublereal dpdrho_val = dpdrho();
     doublereal dens = delta * Rho_c;
-    return (1.0 / (dens * dpdrho_val));
+    return 1.0 / (dens * dpdrho_val);
 }
 
 // Returns the value of dp / drho at constant T at  the current
@@ -405,7 +405,7 @@ doublereal WaterPropsIAPWS::dpdrho() const
 doublereal WaterPropsIAPWS:: coeffPresExp() const
 {
     doublereal retn = m_phi->dimdpdT(tau, delta);
-    return (retn);
+    return retn;
 }
 
 // Returns the coefficient of thermal expansion.
@@ -419,7 +419,7 @@ doublereal WaterPropsIAPWS:: coeffThermExp() const
     doublereal kappa = isothermalCompressibility();
     doublereal beta = coeffPresExp();
     doublereal dens = delta * Rho_c;
-    return (kappa * dens * Rgas * beta / M_water);
+    return kappa * dens * Rgas * beta / M_water;
 }
 
 // Calculate the Gibbs free energy in mks units of J kmol-1 K-1.
@@ -428,7 +428,7 @@ doublereal WaterPropsIAPWS::Gibbs() const
 {
     doublereal gRT = m_phi->gibbs_RT();
     doublereal temperature = T_c/tau;
-    return (gRT * Rgas * temperature);
+    return gRT * Rgas * temperature;
 }
 
 
@@ -840,7 +840,7 @@ doublereal WaterPropsIAPWS::enthalpy() const
 {
     doublereal temperature = T_c/tau;
     doublereal hRT =  m_phi->enthalpy_RT();
-    return (hRT * Rgas * temperature);
+    return hRT * Rgas * temperature;
 }
 
 /*
@@ -851,7 +851,7 @@ doublereal WaterPropsIAPWS::intEnergy() const
 {
     doublereal temperature = T_c / tau;
     doublereal uRT = m_phi->intEnergy_RT();
-    return (uRT * Rgas * temperature);
+    return uRT * Rgas * temperature;
 }
 
 /*
@@ -861,7 +861,7 @@ doublereal WaterPropsIAPWS::intEnergy() const
 doublereal WaterPropsIAPWS::entropy() const
 {
     doublereal sR = m_phi->entropy_R();
-    return (sR * Rgas);
+    return sR * Rgas;
 }
 
 /*
@@ -871,7 +871,7 @@ doublereal WaterPropsIAPWS::entropy() const
 doublereal WaterPropsIAPWS::cv() const
 {
     doublereal cvR = m_phi->cv_R();
-    return (cvR * Rgas);
+    return cvR * Rgas;
 }
 
 // Calculate the constant pressure heat capacity in mks units of J kmol-1 K-1
@@ -879,7 +879,7 @@ doublereal WaterPropsIAPWS::cv() const
 doublereal  WaterPropsIAPWS::cp() const
 {
     doublereal cpR = m_phi->cp_R();
-    return (cpR * Rgas);
+    return cpR * Rgas;
 }
 
 // Calculate the molar volume (kmol m-3)
@@ -887,7 +887,7 @@ doublereal  WaterPropsIAPWS::cp() const
 doublereal WaterPropsIAPWS::molarVolume() const
 {
     doublereal rho = delta * Rho_c;
-    return (M_water / rho);
+    return M_water / rho;
 }
 
 }

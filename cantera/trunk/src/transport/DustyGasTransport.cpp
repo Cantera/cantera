@@ -118,7 +118,7 @@ DustyGasTransport::~DustyGasTransport()
 Transport* DustyGasTransport::duplMyselfAsTransport() const
 {
     DustyGasTransport* tr = new DustyGasTransport(*this);
-    return (dynamic_cast<Transport*>(tr));
+    return dynamic_cast<Transport*>(tr);
 }
 //====================================================================================================================
 // Specifies the %ThermPhase object.

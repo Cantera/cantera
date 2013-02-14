@@ -241,14 +241,14 @@ doublereal RedlichKwongMFTP::enthalpy_mole() const
     doublereal rt = _RT();
     doublereal h_ideal = rt * mean_X(DATA_PTR(m_h0_RT));
     doublereal h_nonideal = hresid();
-    return (h_ideal + h_nonideal);
+    return h_ideal + h_nonideal;
 }
 
 doublereal RedlichKwongMFTP::intEnergy_mole() const
 {
     doublereal p0 = pressure();
     doublereal md = molarDensity();
-    return (enthalpy_mole() - p0 / md);
+    return enthalpy_mole() - p0 / md;
 }
 
 doublereal RedlichKwongMFTP::entropy_mole() const
@@ -257,7 +257,7 @@ doublereal RedlichKwongMFTP::entropy_mole() const
     doublereal sr_ideal =  GasConstant * (mean_X(DATA_PTR(m_s0_R))
                                           - sum_xlogx() - std::log(pressure()/m_spthermo->refPressure()));
     doublereal sr_nonideal = sresid();
-    return (sr_ideal + sr_nonideal);
+    return sr_ideal + sr_nonideal;
 }
 
 doublereal RedlichKwongMFTP::gibbs_mole() const

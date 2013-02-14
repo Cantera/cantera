@@ -236,14 +236,14 @@ PDSS_SSVol::enthalpy_mole() const
 {
     doublereal val = enthalpy_RT();
     doublereal RT = GasConstant * m_temp;
-    return (val * RT);
+    return val * RT;
 }
 
 doublereal
 PDSS_SSVol::enthalpy_RT() const
 {
     doublereal val = m_hss_RT_ptr[m_spindex];
-    return (val);
+    return val;
 }
 
 doublereal
@@ -252,7 +252,7 @@ PDSS_SSVol::intEnergy_mole() const
     doublereal pVRT = (m_pres * m_Vss_ptr[m_spindex]) / (GasConstant * m_temp);
     doublereal val = m_h0_RT_ptr[m_spindex] - pVRT;
     doublereal RT = GasConstant * m_temp;
-    return (val * RT);
+    return val * RT;
 }
 
 
@@ -260,14 +260,14 @@ doublereal
 PDSS_SSVol::entropy_mole() const
 {
     doublereal val = entropy_R();
-    return (val * GasConstant);
+    return val * GasConstant;
 }
 
 doublereal
 PDSS_SSVol::entropy_R() const
 {
     doublereal val = m_sss_R_ptr[m_spindex];
-    return (val);
+    return val;
 }
 
 /**
@@ -279,80 +279,80 @@ PDSS_SSVol::gibbs_mole() const
 {
     doublereal val = gibbs_RT();
     doublereal RT = GasConstant * m_temp;
-    return (val * RT);
+    return val * RT;
 }
 
 doublereal
 PDSS_SSVol::gibbs_RT() const
 {
     doublereal val = m_gss_RT_ptr[m_spindex];
-    return (val);
+    return val;
 }
 
 doublereal
 PDSS_SSVol::cp_mole() const
 {
     doublereal val = m_cpss_R_ptr[m_spindex];
-    return (val * GasConstant);
+    return val * GasConstant;
 }
 
 doublereal
 PDSS_SSVol::cp_R() const
 {
     doublereal val = m_cpss_R_ptr[m_spindex];
-    return (val);
+    return val;
 }
 
 doublereal
 PDSS_SSVol::cv_mole() const
 {
     doublereal val = (cp_mole() -  m_V0_ptr[m_spindex]);
-    return (val);
+    return val;
 }
 
 doublereal
 PDSS_SSVol::molarVolume() const
 {
     doublereal val = m_Vss_ptr[m_spindex];
-    return (val);
+    return val;
 }
 
 doublereal
 PDSS_SSVol::density() const
 {
     doublereal val = m_Vss_ptr[m_spindex];
-    return (m_mw/val);
+    return m_mw/val;
 }
 
 doublereal
 PDSS_SSVol::gibbs_RT_ref() const
 {
     doublereal val = m_g0_RT_ptr[m_spindex];
-    return (val);
+    return val;
 }
 
 doublereal PDSS_SSVol::enthalpy_RT_ref() const
 {
     doublereal val = m_h0_RT_ptr[m_spindex];
-    return (val);
+    return val;
 }
 
 doublereal PDSS_SSVol::entropy_R_ref() const
 {
     doublereal val = m_s0_R_ptr[m_spindex];
-    return (val);
+    return val;
 }
 
 doublereal PDSS_SSVol::cp_R_ref() const
 {
     doublereal val = m_cp0_R_ptr[m_spindex];
-    return (val);
+    return val;
 }
 
 doublereal PDSS_SSVol::molarVolume_ref() const
 {
     doublereal val = m_V0_ptr[m_spindex];
-    return (val);
+    return val;
 }
 
 void PDSS_SSVol::calcMolarVolume() const
@@ -381,21 +381,21 @@ void PDSS_SSVol::calcMolarVolume() const
 doublereal PDSS_SSVol::critTemperature() const
 {
     throw CanteraError("PDSS_SSVol::critTemperature()", "unimplemented");
-    return (0.0);
+    return 0.0;
 }
 
 /// critical pressure
 doublereal PDSS_SSVol::critPressure() const
 {
     throw CanteraError("PDSS_SSVol::critPressure()", "unimplemented");
-    return (0.0);
+    return 0.0;
 }
 
 /// critical density
 doublereal PDSS_SSVol::critDensity() const
 {
     throw CanteraError("PDSS_SSVol::critDensity()", "unimplemented");
-    return (0.0);
+    return 0.0;
 }
 
 
@@ -462,7 +462,7 @@ void PDSS_SSVol::setState_TR(doublereal temp, doublereal rho)
 /// saturation pressure
 doublereal PDSS_SSVol::satPressure(doublereal t)
 {
-    return (1.0E-200);
+    return 1.0E-200;
 }
 
 }

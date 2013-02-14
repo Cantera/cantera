@@ -91,7 +91,7 @@ doublereal Rotor::relPopulation(int J, doublereal T)
  */
 doublereal Rotor::frequency(int J_lower, int J_upper)
 {
-    return (energy_w(J_upper) - energy_w(J_lower));
+    return energy_w(J_upper) - energy_w(J_lower);
 }
 
 /**
