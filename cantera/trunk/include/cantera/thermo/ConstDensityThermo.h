@@ -22,31 +22,15 @@ namespace Cantera
 //!   Overloads the virtual methods of class ThermoPhase to implement the
 //!   incompressible equation of state.
 /**
- *
- *
- * <b> Specification of Species Standard State Properties </b>
- *
- *
  * <b> Specification of Solution Thermodynamic Properties </b>
  *
- *     The density is assumed to be constant, no matter what the concentration of the solution.
- *
- *
- * <b> Application within %Kinetics Managers </b>
- *
- *
- * <b> XML Example </b>
- *
- *   An example of an XML Element named phase setting up a SurfPhase object named diamond_100
- *   is given below.
+ * The density is assumed to be constant, no matter what the concentration of the solution.
  *
  * @ingroup thermoprops
  */
 class ConstDensityThermo : public ThermoPhase
 {
-
 public:
-
     //! Constructor.
     ConstDensityThermo();
 
@@ -67,13 +51,13 @@ public:
 
     //! Duplication routine for objects which inherit from %ThermoPhase
     /*!
-     *  This virtual routine can be used to duplicate %ThermoPhase objects
-     *  inherited from %ThermoPhase even if the application only has
+     *  This virtual routine can be used to duplicate objects
+     *  derived from %ThermoPhase even if the application only has
      *  a pointer to %ThermoPhase to work with.
      */
     virtual ThermoPhase* duplMyselfAsThermoPhase() const;
 
-    //! overloaded methods of class ThermoPhase
+    //! Returns a constant corresponding to this class's equation of state
     virtual int eosType() const;
 
     /// Molar enthalpy. Units: J/kmol.
@@ -95,26 +79,11 @@ public:
     virtual doublereal cv_mole() const;
 
     //! Return the thermodynamic pressure (Pa).
-    /*!
-     *  This method must be overloaded in derived classes. Since the
-     *  mass density, temperature, and mass fractions are stored,
-     *  this method should use these values to implement the
-     *  mechanical equation of state \f$ P(T, \rho, Y_1, \dots,
-     *  Y_K) \f$.
-     */
     virtual doublereal pressure() const;
 
     //! Set the internally stored pressure (Pa) at constant
     //! temperature and composition
     /*!
-     *   This method must be reimplemented in derived classes, where it
-     *   may involve the solution of a nonlinear equation. Within %Cantera,
-     *   the independent variable is the density. Therefore, this function
-     *   solves for the density that will yield the desired input pressure.
-     *   The temperature and composition iare held constant during this process.
-     *
-     *  This base class function will print an error, if not overwritten.
-     *
      *  @param p input Pressure (Pa)
      */
     virtual void setPressure(doublereal p);
@@ -250,9 +219,6 @@ public:
         std::copy(_cpr.begin(), _cpr.end(), cpr);
     }
 
-
-    // new methods defined here
-
     //!  Returns a reference to the vector of nondimensional
     //!  enthalpies of the reference state at the current temperature
     //!  of the solution and the reference pressure for the species.
@@ -319,7 +285,6 @@ public:
      */
     virtual void setToEquilState(const doublereal* lambda_RT);
 
-
     //! Set the equation of state parameters
     /*!
      * @internal
@@ -384,7 +349,6 @@ protected:
     doublereal m_press;
 
 private:
-
     //! Function to update the reference state thermo functions
     void _updateThermo() const;
 };
