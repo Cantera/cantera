@@ -212,8 +212,7 @@ doublereal DebyeHuckel::intEnergy_mole() const
     double hh = enthalpy_mole();
     double pres = pressure();
     double molarV = 1.0/molarDensity();
-    double uu = hh - pres * molarV;
-    return uu;
+    return hh - pres * molarV;
 }
 
 doublereal DebyeHuckel::entropy_mole() const
@@ -231,8 +230,7 @@ doublereal DebyeHuckel::gibbs_mole() const
 doublereal DebyeHuckel::cp_mole() const
 {
     getPartialMolarCp(DATA_PTR(m_tmpV));
-    double val = mean_X(DATA_PTR(m_tmpV));
-    return val;
+    return mean_X(DATA_PTR(m_tmpV));
 }
 
 doublereal DebyeHuckel::cv_mole() const
@@ -1331,8 +1329,7 @@ double DebyeHuckel::_lnactivityWaterHelgesonFixedForm() const
     if (sum > 2.0 * m_maxIionicStrength) {
         sum = 2.0 *  m_maxIionicStrength;
     };
-    double lac = - m_Mnaught * sum * oc;
-    return lac;
+    return - m_Mnaught * sum * oc;
 }
 
 void DebyeHuckel::s_update_lnMolalityActCoeff() const

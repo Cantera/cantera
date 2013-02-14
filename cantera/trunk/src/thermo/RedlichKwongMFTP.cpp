@@ -278,8 +278,7 @@ doublereal RedlichKwongMFTP::cp_mole() const
     doublereal fac = TKelvin * dadt - 3.0 * m_a_current / 2.0;
     doublereal dHdT_V = (cpref + mv * dpdT_ - GasConstant - 1.0 / (2.0 * m_b_current * TKelvin * sqt) * log(vpb/mv) * fac
                          +1.0/(m_b_current * sqt) * log(vpb/mv) * (-0.5 * dadt));
-    double cp = dHdT_V - (mv + TKelvin * dpdT_ / dpdV_) * dpdT_;
-    return cp;
+    return dHdT_V - (mv + TKelvin * dpdT_ / dpdV_) * dpdT_;
 }
 
 doublereal RedlichKwongMFTP::cv_mole() const
@@ -386,8 +385,7 @@ doublereal RedlichKwongMFTP::standardConcentration(size_t k) const
 doublereal RedlichKwongMFTP::logStandardConc(size_t k) const
 {
     double c = standardConcentration(k);
-    double lc = std::log(c);
-    return lc;
+    return std::log(c);
 }
 
 void RedlichKwongMFTP::getUnitsStandardConc(double* uA, int, int sizeUA) const
@@ -1040,8 +1038,7 @@ doublereal RedlichKwongMFTP::sresid() const
     doublereal sqT = sqrt(T);
     doublereal fac = dadt - m_a_current / (2.0 * T);
     double sresid_mol_R =  log(zz*(1.0 - hh)) + log(1.0 + hh) * fac / (sqT * GasConstant * m_b_current);
-    double sp = GasConstant * sresid_mol_R;
-    return sp;
+    return GasConstant * sresid_mol_R;
 }
 
 doublereal RedlichKwongMFTP::hresid() const
@@ -1056,8 +1053,7 @@ doublereal RedlichKwongMFTP::hresid() const
     doublereal T = temperature();
     doublereal sqT = sqrt(T);
     doublereal fac = T * dadt - 3.0 *m_a_current / (2.0);
-    double hresid_mol = GasConstant * T * (zz - 1.0) + fac * log(1.0 + hh) / (sqT * m_b_current);
-    return hresid_mol;
+    return GasConstant * T * (zz - 1.0) + fac * log(1.0 + hh) / (sqT * m_b_current);
 }
 
 doublereal RedlichKwongMFTP::liquidVolEst(doublereal TKelvin, doublereal& presGuess) const
@@ -1114,7 +1110,6 @@ doublereal RedlichKwongMFTP::densityCalc(doublereal TKelvin, doublereal presPa, 
     setTemperature(TKelvin);
     double tcrit = critTemperature();
     doublereal mmw = meanMolecularWeight();
-    double densBase = 0.0;
     if (rhoguess == -1.0) {
         if (phaseRequested != FLUID_GAS) {
             if (TKelvin > tcrit) {
@@ -1177,15 +1172,13 @@ doublereal RedlichKwongMFTP::densityCalc(doublereal TKelvin, doublereal presPa, 
         //printf("DensityCalc(): Possible problem encountered\n");
         return -1.0;
     }
-    densBase = mmw / molarVolLast;
-    return densBase;
+    return mmw / molarVolLast;
 }
 
 doublereal  RedlichKwongMFTP::densSpinodalLiquid() const
 {
     if (NSolns_ != 3) {
-        double dens = critDensity();
-        return dens;
+        return critDensity();
     }
     double vmax = Vroot_[1];
     double vmin = Vroot_[0];
@@ -1202,15 +1195,13 @@ doublereal  RedlichKwongMFTP::densSpinodalLiquid() const
         throw CanteraError("  RedlichKwongMFTP::densSpinodalLiquid() ", "didn't converge");
     }
     doublereal mmw = meanMolecularWeight();
-    doublereal rho = mmw / vbest;
-    return rho;
+    return mmw / vbest;
 }
 
 doublereal RedlichKwongMFTP::densSpinodalGas() const
 {
     if (NSolns_ != 3) {
-        double dens = critDensity();
-        return dens;
+        return critDensity();
     }
     double vmax = Vroot_[2];
     double vmin = Vroot_[1];
@@ -1227,8 +1218,7 @@ doublereal RedlichKwongMFTP::densSpinodalGas() const
         throw CanteraError("  RedlichKwongMFTP::densSpinodalGas() ", "didn't converge");
     }
     doublereal mmw = meanMolecularWeight();
-    doublereal rho = mmw / vbest;
-    return rho;
+    return mmw / vbest;
 }
 
 doublereal RedlichKwongMFTP::pressureCalc(doublereal TKelvin, doublereal molarVol) const

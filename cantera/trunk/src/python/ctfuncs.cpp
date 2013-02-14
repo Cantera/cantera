@@ -29,8 +29,7 @@ ct_refcnt(PyObject* self, PyObject* args)
     if (!PyArg_ParseTuple(args, "O", &o)) {
         return NULL;
     }
-    PyObject* cnt = Py_BuildValue("i",o->ob_refcnt);
-    return cnt;
+    return Py_BuildValue("i",o->ob_refcnt);
 }
 
 // static PyObject *

@@ -660,8 +660,7 @@ extern "C" {
             }
             Kinetics* kin = newKineticsMgr(*x, phases);
             if (kin) {
-                int k = KineticsCabinet::add(kin);
-                return k;
+                return KineticsCabinet::add(kin);
             } else {
                 return 0;
             }

@@ -175,8 +175,7 @@ PDSS_IdealGas::enthalpy_mole() const
 doublereal
 PDSS_IdealGas::enthalpy_RT() const
 {
-    doublereal val = m_h0_RT_ptr[m_spindex];
-    return val;
+    return m_h0_RT_ptr[m_spindex];
 }
 
 
@@ -206,8 +205,7 @@ PDSS_IdealGas::entropy_mole() const
 doublereal
 PDSS_IdealGas::entropy_R() const
 {
-    doublereal val = m_s0_R_ptr[m_spindex] - log(m_pres/m_p0);
-    return val;
+    return m_s0_R_ptr[m_spindex] - log(m_pres/m_p0);
 }
 
 /*
@@ -225,8 +223,7 @@ PDSS_IdealGas::gibbs_mole() const
 doublereal
 PDSS_IdealGas::gibbs_RT() const
 {
-    doublereal val = m_g0_RT_ptr[m_spindex] + log(m_pres/m_p0);
-    return val;
+    return m_g0_RT_ptr[m_spindex] + log(m_pres/m_p0);
 }
 
 /*
@@ -243,8 +240,7 @@ PDSS_IdealGas::cp_mole() const
 doublereal
 PDSS_IdealGas::cp_R() const
 {
-    doublereal val = m_cp0_R_ptr[m_spindex];
-    return val;
+    return m_cp0_R_ptr[m_spindex];
 }
 
 doublereal
@@ -274,20 +270,17 @@ PDSS_IdealGas::cv_mole() const
 doublereal
 PDSS_IdealGas::gibbs_RT_ref() const
 {
-    doublereal val = m_g0_RT_ptr[m_spindex];
-    return val;
+    return m_g0_RT_ptr[m_spindex];
 }
 
 doublereal PDSS_IdealGas::enthalpy_RT_ref() const
 {
-    doublereal val = m_h0_RT_ptr[m_spindex];
-    return val;
+    return m_h0_RT_ptr[m_spindex];
 }
 
 doublereal PDSS_IdealGas::entropy_R_ref() const
 {
-    doublereal val = m_s0_R_ptr[m_spindex];
-    return val;
+    return m_s0_R_ptr[m_spindex];
 }
 
 doublereal PDSS_IdealGas::cp_R_ref() const

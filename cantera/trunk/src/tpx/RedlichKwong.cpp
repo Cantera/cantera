@@ -11,8 +11,7 @@ namespace tpx
 
 double RedlichKwong::up()
 {
-    double u = -Pp()/Rho + hresid() + m_energy_offset;
-    return u;
+    return -Pp()/Rho + hresid() + m_energy_offset;
 }
 
 double RedlichKwong::hresid()
@@ -28,8 +27,7 @@ double RedlichKwong::sresid()
     double hh = m_b * (Rho/m_mw);
     double sresid_mol_R =  log(z()*(1.0 - hh))
                            - (0.5*m_a/(m_b*8314.3*T*sqrt(T)))*log(1.0 + hh);
-    double sp = 8314.3*sresid_mol_R/m_mw;
-    return sp;
+    return 8314.3*sresid_mol_R/m_mw;
 }
 
 double RedlichKwong::sp()
@@ -39,8 +37,7 @@ double RedlichKwong::sp()
     //double ss = rgas*(log(Pref/(Rho*rgas*T)));
     double sr = sresid();
     double p = Pp();
-    double s = rgas*(log(Pref/p)) + sr + m_entropy_offset;
-    return s;
+    return rgas*(log(Pref/p)) + sr + m_entropy_offset;
 }
 
 double RedlichKwong::z()
@@ -53,8 +50,7 @@ double RedlichKwong::Pp()
 {
     double R = 8314.3;
     double V = m_mw/Rho;
-    double pp = R*T/(V - m_b) - m_a/(sqrt(T)*V*(V+m_b));
-    return pp;
+    return R*T/(V - m_b) - m_a/(sqrt(T)*V*(V+m_b));
 }
 
 double RedlichKwong::Psat()

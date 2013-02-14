@@ -507,8 +507,7 @@ doublereal MixtureFugacityTP::z() const
     doublereal mmw = meanMolecularWeight();
     doublereal molarV = mmw / rho;
     doublereal rt = _RT();
-    doublereal zz = p * molarV / rt;
-    return zz;
+    return p * molarV / rt;
 }
 
 doublereal MixtureFugacityTP::sresid() const
@@ -789,8 +788,7 @@ int MixtureFugacityTP::phaseState(bool checkState) const
         double tcrit = critTemperature();
         double rhocrit = critDensity();
         if (t >= tcrit) {
-            state = FLUID_SUPERCRIT;
-            return state;
+            return FLUID_SUPERCRIT;
         }
         double tmid = tcrit - 100.;
         if (tmid < 0.0) {

@@ -389,8 +389,7 @@ doublereal WaterPropsIAPWS::dpdrho() const
 {
     doublereal retn = m_phi->dimdpdrho(tau, delta);
     doublereal temperature = T_c/tau;
-    doublereal val = retn * Rgas * temperature / M_water;
-    return val;
+    return retn * Rgas * temperature / M_water;
 }
 
 // Returns the isochoric pressure derivative wrt temperature
@@ -404,8 +403,7 @@ doublereal WaterPropsIAPWS::dpdrho() const
  */
 doublereal WaterPropsIAPWS:: coeffPresExp() const
 {
-    doublereal retn = m_phi->dimdpdT(tau, delta);
-    return retn;
+    return m_phi->dimdpdT(tau, delta);
 }
 
 // Returns the coefficient of thermal expansion.

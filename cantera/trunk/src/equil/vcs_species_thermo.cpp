@@ -267,12 +267,10 @@ double VCS_SPECIES_THERMO::G0_R_calc(size_t kglob, double TKelvin)
 #endif
     double fe, H, S;
     if (SS0_Model == VCS_SS0_CONSTANT) {
-        fe = SS0_feSave;
-        return fe;
+        return SS0_feSave;
     }
     if (TKelvin == SS0_TSave) {
-        fe = SS0_feSave;
-        return fe;
+        return SS0_feSave;
     }
     if (UseCanteraCalls) {
         if (m_VCS_UnitsFormat != VCS_UNITS_MKS) {

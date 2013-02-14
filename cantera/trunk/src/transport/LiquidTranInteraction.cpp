@@ -494,8 +494,7 @@ doublereal LTI_Log_MoleFracs::getMixTransProp(doublereal* speciesValues, doubler
         }
     }
 
-    value = exp(value);
-    return value;
+    return exp(value);
 }
 
 

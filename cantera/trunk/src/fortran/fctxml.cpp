@@ -52,8 +52,7 @@ extern "C" {
     {
         try {
             XML_Node* x = Cantera::get_XML_File(f2string(file, filelen));
-            int ix = XmlCabinet::add(x);
-            return ix;
+            return XmlCabinet::add(x);
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }

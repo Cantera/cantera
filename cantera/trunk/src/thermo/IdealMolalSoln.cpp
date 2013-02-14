@@ -146,8 +146,7 @@ doublereal IdealMolalSoln::enthalpy_mole() const
 {
     getPartialMolarEnthalpies(DATA_PTR(m_tmpV));
     getMoleFractions(DATA_PTR(m_pp));
-    double val = mean_X(DATA_PTR(m_tmpV));
-    return val;
+    return mean_X(DATA_PTR(m_tmpV));
 }
 
 doublereal IdealMolalSoln::intEnergy_mole() const
@@ -171,8 +170,7 @@ doublereal IdealMolalSoln::gibbs_mole() const
 doublereal IdealMolalSoln::cp_mole() const
 {
     getPartialMolarCp(DATA_PTR(m_tmpV));
-    double val = mean_X(DATA_PTR(m_tmpV));
-    return val;
+    return mean_X(DATA_PTR(m_tmpV));
 }
 
 doublereal IdealMolalSoln::cv_mole() const

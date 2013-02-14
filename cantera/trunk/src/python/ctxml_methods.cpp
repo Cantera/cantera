@@ -7,8 +7,7 @@ py_xml_new(PyObject* self, PyObject* args)
         return NULL;
     }
     int n = xml_new(nm);
-    PyObject* pn = Py_BuildValue("i",n);
-    return pn;
+    return Py_BuildValue("i",n);
 }
 
 static PyObject*
@@ -23,8 +22,7 @@ py_xml_get_XML_File(PyObject* self, PyObject* args)
     if (n < 0) {
         return reportError(n);
     }
-    PyObject* pn = Py_BuildValue("i",n);
-    return pn;
+    return Py_BuildValue("i",n);
 }
 
 

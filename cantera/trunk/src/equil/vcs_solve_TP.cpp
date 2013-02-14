@@ -2063,8 +2063,7 @@ double VCS_SOLVE::vcs_minor_alt_calc(size_t kspec, size_t irxn, bool* do_delete
             if (w_kspec < VCS_DELETE_MINORSPECIES_CUTOFF) {
                 goto L_ZERO_SPECIES;
             }
-            dx = molNum_kspec_new - w_kspec;
-            return dx;
+            return molNum_kspec_new - w_kspec;
         } else {
             if (fabs(dg_irxn) <= m_tolmin2) {
                 molNum_kspec_new = w_kspec;
@@ -2129,8 +2128,7 @@ double VCS_SOLVE::vcs_minor_alt_calc(size_t kspec, size_t irxn, bool* do_delete
         if ((molNum_kspec_new) < VCS_DELETE_MINORSPECIES_CUTOFF) {
             goto L_ZERO_SPECIES;
         }
-        dx = molNum_kspec_new - w_kspec;
-        return dx;
+        return molNum_kspec_new - w_kspec;
         /*
          *
          *  Alternate return based for cases where we need to delete the species
@@ -2140,8 +2138,7 @@ double VCS_SOLVE::vcs_minor_alt_calc(size_t kspec, size_t irxn, bool* do_delete
 L_ZERO_SPECIES:
         ;
         *do_delete = true;
-        dx = - w_kspec;
-        return dx;
+        return - w_kspec;
     } else {
         /*
          * Voltage calculation
@@ -4733,8 +4730,6 @@ void VCS_SOLVE::vcs_updateVP(const int vcsState)
  */
 bool VCS_SOLVE::vcs_evaluate_speciesType()
 {
-    bool allMinorZeroedSpecies;
-
     m_numRxnMinorZeroed = 0;
 #ifdef DEBUG_MODE
     if (m_debug_print_lvl >= 2) {
@@ -4811,9 +4806,7 @@ bool VCS_SOLVE::vcs_evaluate_speciesType()
     }
 #endif
 
-    allMinorZeroedSpecies = (m_numRxnMinorZeroed >= m_numRxnRdc);
-
-    return allMinorZeroedSpecies;
+    return (m_numRxnMinorZeroed >= m_numRxnRdc);
 }
 /*****************************************************************************/
 

@@ -278,7 +278,7 @@ double Heptane::Pp()
  */
 double Heptane::Psat()
 {
-    double log, sum=0,P;
+    double log, sum=0;
     if ((T < Tmn) || (T > Tc)) {
         throw TPX_Error("Heptane::Psat",
                         "Temperature out of range. T = " + fp2str(T));
@@ -288,9 +288,7 @@ double Heptane::Psat()
     }
 
     log = ((Tc/T)-1)*sum;
-    P=exp(log)*Pc;
-
-    return P;
+    return exp(log)*Pc;
 }
 
 

@@ -160,7 +160,7 @@ double water::Pp()
 
 double water::Psat()
 {
-    double log, sum=0,P;
+    double log, sum=0;
     if ((T < Tmn) || (T > Tc)) {
         throw TPX_Error("water::Psat",
                         "Temperature out of range. T = " + fp2str(T));
@@ -169,8 +169,7 @@ double water::Psat()
         sum += F[i-1]*pow(aww*(T-Tp),double(i-1));    // DGG mod
     }
     log = (Tc/T-1)*sum;
-    P=exp(log)*Pc;
-    return P;
+    return exp(log)*Pc;
 }
 
 /*
@@ -199,8 +198,7 @@ double water::ldens()
     for (i=0; i<8; i++) {
         sum+=D[i]*pow(1.0 - T/Tc, double(i+1)/3.0);
     }
-    double density = Roc*(1+sum);
-    return density;
+    return Roc*(1+sum);
 }
 
 double water::Tcrit()

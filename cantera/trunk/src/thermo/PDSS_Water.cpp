@@ -337,20 +337,17 @@ doublereal PDSS_Water::gibbs_mole() const
 
 doublereal PDSS_Water::cp_mole() const
 {
-    doublereal cp = m_sub->cp();
-    return cp;
+    return m_sub->cp();
 }
 
 doublereal PDSS_Water::cv_mole() const
 {
-    doublereal cv = m_sub->cv();
-    return cv;
+    return m_sub->cv();
 }
 
 doublereal  PDSS_Water::molarVolume() const
 {
-    doublereal mv = m_sub->molarVolume();
-    return mv;
+    return m_sub->molarVolume();
 }
 
 doublereal PDSS_Water::gibbs_RT_ref() const
@@ -457,8 +454,7 @@ void PDSS_Water::setPressure(doublereal p)
  */
 doublereal PDSS_Water::thermalExpansionCoeff() const
 {
-    doublereal val = m_sub->coeffThermExp();
-    return val;
+    return m_sub->coeffThermExp();
 }
 
 doublereal PDSS_Water::dthermalExpansionCoeffdT() const
@@ -474,14 +470,12 @@ doublereal PDSS_Water::dthermalExpansionCoeffdT() const
     doublereal vald = m_sub->coeffThermExp();
     m_sub->setState_TR(m_temp, dens_save);
     doublereal val2 = m_sub->coeffThermExp();
-    doublereal val = (val2 - vald) / 0.04;
-    return val;
+    return (val2 - vald) / 0.04;
 }
 
 doublereal PDSS_Water::isothermalCompressibility() const
 {
-    doublereal val = m_sub->isothermalCompressibility();
-    return val;
+    return m_sub->isothermalCompressibility();
 }
 
 /// critical temperature

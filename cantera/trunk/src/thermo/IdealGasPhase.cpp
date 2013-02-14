@@ -169,8 +169,7 @@ doublereal IdealGasPhase::logStandardConc(size_t k) const
 {
     _updateThermo();
     double p = pressure();
-    double lc = std::log(p / (GasConstant * temperature()));
-    return lc;
+    return std::log(p / (GasConstant * temperature()));
 }
 
 void IdealGasPhase::getActivityCoefficients(doublereal* ac) const

@@ -150,14 +150,11 @@ doublereal WaterProps::density_T(doublereal T, doublereal P, int ifunc)
     if (rho < rhomin) {
         rho = rhomin;
         if (ifunc == 1) {
-            doublereal drhodT = - rhomin / T;
-            return drhodT;
+            return - rhomin / T;
         } else if (ifunc == 3) {
-            doublereal drhodP = rhomin / P;
-            return drhodP;
+            return rhomin / P;
         } else if (ifunc == 2) {
-            doublereal d2rhodT2 = 2.0 * rhomin / (T * T);
-            return d2rhodT2;
+            return 2.0 * rhomin / (T * T);
         }
     }
 
@@ -247,8 +244,7 @@ doublereal WaterProps::relEpsilon(doublereal T, doublereal P_pascal,
 
         doublereal dltmpdT = (dBdT/tmpBpar - dBdT/tmpB1000);
         if (ifunc == 1) {
-            doublereal depsReldT = deps1000dT + dCdT * ltmp + C * dltmpdT;
-            return depsReldT;
+            return deps1000dT + dCdT * ltmp + C * dltmpdT;
         }
         doublereal T3     = T2 * T;
         doublereal d2CdT2 = - 2.0 * dCdT / tmpC;
@@ -267,8 +263,7 @@ doublereal WaterProps::relEpsilon(doublereal T, doublereal P_pascal,
     }
     if (ifunc == 3) {
         doublereal dltmpdP   = 1.0E-5 / tmpBpar;
-        doublereal depsReldP = C * dltmpdP;
-        return depsReldP;
+        return C * dltmpdP;
     }
 
     return epsRel;
@@ -399,8 +394,7 @@ doublereal WaterProps::ADebye(doublereal T, doublereal P_input, int ifunc)
 
 doublereal WaterProps::satPressure(doublereal T)
 {
-    doublereal pres = m_waterIAPWS->psat(T);
-    return pres;
+    return m_waterIAPWS->psat(T);
 }
 
 // Returns the density of water
@@ -413,8 +407,7 @@ doublereal WaterProps::satPressure(doublereal T)
  */
 doublereal WaterProps::density_IAPWS(doublereal temp, doublereal press)
 {
-    doublereal dens = m_waterIAPWS->density(temp, press, WATER_LIQUID);
-    return dens;
+    return m_waterIAPWS->density(temp, press, WATER_LIQUID);
 }
 
 // Returns the density of water
@@ -424,8 +417,7 @@ doublereal WaterProps::density_IAPWS(doublereal temp, doublereal press)
  */
 doublereal WaterProps::density_IAPWS() const
 {
-    doublereal dens = m_waterIAPWS->density();
-    return dens;
+    return m_waterIAPWS->density();
 }
 
 doublereal WaterProps::coeffThermalExp_IAPWS(doublereal temp, doublereal press)
@@ -435,8 +427,7 @@ doublereal WaterProps::coeffThermalExp_IAPWS(doublereal temp, doublereal press)
         throw CanteraError("WaterProps::coeffThermalExp_IAPWS",
                            "Unable to solve for density at T = " + fp2str(temp) + " and P = " + fp2str(press));
     }
-    doublereal cte = m_waterIAPWS->coeffThermExp();
-    return cte;
+    return m_waterIAPWS->coeffThermExp();
 }
 
 doublereal WaterProps::isothermalCompressibility_IAPWS(doublereal temp, doublereal press)
@@ -446,8 +437,7 @@ doublereal WaterProps::isothermalCompressibility_IAPWS(doublereal temp, doublere
         throw CanteraError("WaterProps::isothermalCompressibility_IAPWS",
                            "Unable to solve for density at T = " + fp2str(temp) + " and P = " + fp2str(press));
     }
-    doublereal kappa = m_waterIAPWS->isothermalCompressibility();
-    return kappa;
+    return m_waterIAPWS->isothermalCompressibility();
 }
 
 
@@ -665,8 +655,7 @@ doublereal WaterProps::thermalConductivityWater() const
     doublereal  lambda2bar = 0.0013848 / (mu0bar * mu1bar) * t2r2 * dpdT_const_rho * dpdT_const_rho *
                              xsipow * sqrt(rhobar) * exp(-18.66*temp2 - rho4);
 
-    doublereal lambda = (lambda0bar * lambda1bar + lambda2bar) * lambdastar;
-    return lambda;
+    return (lambda0bar * lambda1bar + lambda2bar) * lambdastar;
 }
 
 

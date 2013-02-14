@@ -1236,8 +1236,7 @@ std::string string16_EOSType(int EOSType)
         break;
     }
     st[16] = '\0';
-    std::string sss=st;
-    return sss;
+    return st;
 }
 /***************************************************************************/
 
@@ -1620,8 +1619,7 @@ void vcs_VolPhase::setElementType(const size_t e, const int eType)
 
 double const* const* vcs_VolPhase::getFormulaMatrix() const
 {
-    double const* const* fm = m_formulaMatrix.constBaseDataAddr();
-    return fm;
+    return m_formulaMatrix.constBaseDataAddr();
 }
 /***************************************************************************/
 

@@ -891,8 +891,7 @@ SpeciesThermo* newSpeciesThermoMgr(int type, SpeciesThermoFactory* f)
     if (f == 0) {
         f = SpeciesThermoFactory::factory();
     }
-    SpeciesThermo* sptherm = f->newSpeciesThermo(type);
-    return sptherm;
+    return f->newSpeciesThermo(type);
 }
 
 // Create a new species thermo manager instance, by specifying
@@ -915,8 +914,7 @@ SpeciesThermo* newSpeciesThermoMgr(std::string& stype,
     if (f == 0) {
         f = SpeciesThermoFactory::factory();
     }
-    SpeciesThermo* sptherm = f->newSpeciesThermoManager(stype);
-    return sptherm;
+    return f->newSpeciesThermoManager(stype);
 }
 
 // Function to return SpeciesThermo manager

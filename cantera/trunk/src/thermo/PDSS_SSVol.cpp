@@ -242,8 +242,7 @@ PDSS_SSVol::enthalpy_mole() const
 doublereal
 PDSS_SSVol::enthalpy_RT() const
 {
-    doublereal val = m_hss_RT_ptr[m_spindex];
-    return val;
+    return m_hss_RT_ptr[m_spindex];
 }
 
 doublereal
@@ -266,8 +265,7 @@ PDSS_SSVol::entropy_mole() const
 doublereal
 PDSS_SSVol::entropy_R() const
 {
-    doublereal val = m_sss_R_ptr[m_spindex];
-    return val;
+    return m_sss_R_ptr[m_spindex];
 }
 
 /**
@@ -285,8 +283,7 @@ PDSS_SSVol::gibbs_mole() const
 doublereal
 PDSS_SSVol::gibbs_RT() const
 {
-    doublereal val = m_gss_RT_ptr[m_spindex];
-    return val;
+    return m_gss_RT_ptr[m_spindex];
 }
 
 doublereal
@@ -299,22 +296,19 @@ PDSS_SSVol::cp_mole() const
 doublereal
 PDSS_SSVol::cp_R() const
 {
-    doublereal val = m_cpss_R_ptr[m_spindex];
-    return val;
+    return m_cpss_R_ptr[m_spindex];
 }
 
 doublereal
 PDSS_SSVol::cv_mole() const
 {
-    doublereal val = (cp_mole() -  m_V0_ptr[m_spindex]);
-    return val;
+    return (cp_mole() -  m_V0_ptr[m_spindex]);
 }
 
 doublereal
 PDSS_SSVol::molarVolume() const
 {
-    doublereal val = m_Vss_ptr[m_spindex];
-    return val;
+    return m_Vss_ptr[m_spindex];
 }
 
 doublereal
@@ -327,32 +321,27 @@ PDSS_SSVol::density() const
 doublereal
 PDSS_SSVol::gibbs_RT_ref() const
 {
-    doublereal val = m_g0_RT_ptr[m_spindex];
-    return val;
+    return m_g0_RT_ptr[m_spindex];
 }
 
 doublereal PDSS_SSVol::enthalpy_RT_ref() const
 {
-    doublereal val = m_h0_RT_ptr[m_spindex];
-    return val;
+    return m_h0_RT_ptr[m_spindex];
 }
 
 doublereal PDSS_SSVol::entropy_R_ref() const
 {
-    doublereal val = m_s0_R_ptr[m_spindex];
-    return val;
+    return m_s0_R_ptr[m_spindex];
 }
 
 doublereal PDSS_SSVol::cp_R_ref() const
 {
-    doublereal val = m_cp0_R_ptr[m_spindex];
-    return val;
+    return m_cp0_R_ptr[m_spindex];
 }
 
 doublereal PDSS_SSVol::molarVolume_ref() const
 {
-    doublereal val = m_V0_ptr[m_spindex];
-    return val;
+    return m_V0_ptr[m_spindex];
 }
 
 void PDSS_SSVol::calcMolarVolume() const

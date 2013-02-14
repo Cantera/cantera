@@ -380,15 +380,13 @@ public:
     virtual Func1& duplicate() const {
         Func1& f1d = m_f1->duplicate();
         Func1& f2d = m_f2->duplicate();
-        Func1& dup = newSumFunction(f1d, f2d);
-        return dup;
+        return newSumFunction(f1d, f2d);
     }
 
     virtual Func1& derivative() const {
         Func1& d1 = m_f1->derivative();
         Func1& d2 = m_f2->derivative();
-        Func1& d = newSumFunction(d1, d2);
-        return d;
+        return newSumFunction(d1, d2);
     }
     virtual int order() const {
         return 0;
@@ -445,12 +443,10 @@ public:
     virtual Func1& duplicate() const {
         Func1& f1d = m_f1->duplicate();
         Func1& f2d = m_f2->duplicate();
-        Func1& dup = newDiffFunction(f1d, f2d);
-        return dup;
+        return newDiffFunction(f1d, f2d);
     }
     virtual Func1& derivative() const {
-        Func1& d = newDiffFunction(m_f1->derivative(), m_f2->derivative());
-        return d;
+        return newDiffFunction(m_f1->derivative(), m_f2->derivative());
     }
     virtual int order() const {
         return 0;
@@ -505,8 +501,7 @@ public:
     virtual Func1& duplicate() const {
         Func1& f1d = m_f1->duplicate();
         Func1& f2d = m_f2->duplicate();
-        Func1& dup = newProdFunction(f1d, f2d);
-        return dup;
+        return newProdFunction(f1d, f2d);
     }
 
     virtual std::string write(const std::string& arg) const;
@@ -518,8 +513,7 @@ public:
     virtual Func1& derivative() const {
         Func1& a1 = newProdFunction(m_f1->duplicate(), m_f2->derivative());
         Func1& a2 = newProdFunction(m_f2->duplicate(), m_f1->derivative());
-        Func1& s = newSumFunction(a1, a2);
-        return s;
+        return newSumFunction(a1, a2);
     }
     virtual int order() const {
         return 1;
@@ -651,8 +645,7 @@ public:
         return m_f1->eval(t) + m_c;
     }
     virtual Func1& derivative() const {
-        Func1& f1d = m_f1->derivative();
-        return f1d;
+        return m_f1->derivative();
     }
     virtual std::string write(const std::string& arg) const;
 
@@ -712,8 +705,7 @@ public:
     virtual Func1& duplicate() const {
         Func1& f1d = m_f1->duplicate();
         Func1& f2d = m_f2->duplicate();
-        Func1& dup = newRatioFunction(f1d, f2d);
-        return dup;
+        return newRatioFunction(f1d, f2d);
     }
 
     virtual Func1& derivative() const {
@@ -721,8 +713,7 @@ public:
         Func1& a2 = newProdFunction(m_f1->duplicate(), m_f2->derivative());
         Func1& s = newDiffFunction(a1, a2);
         Func1& p = newProdFunction(m_f2->duplicate(), m_f2->duplicate());
-        Func1& r = newRatioFunction(s, p);
-        return r;
+        return newRatioFunction(s, p);
     }
 
     virtual std::string write(const std::string& arg) const;
@@ -782,8 +773,7 @@ public:
     virtual Func1& duplicate() const {
         Func1& f1d = m_f1->duplicate();
         Func1& f2d = m_f2->duplicate();
-        Func1& dup = newCompositeFunction(f1d, f2d);
-        return dup;
+        return newCompositeFunction(f1d, f2d);
     }
 
     virtual Func1& derivative() const {

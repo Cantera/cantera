@@ -22,8 +22,7 @@ typedef int (*exfun)(int n);
 int run_example(int n, exfun f, int job = 2)
 {
     cout << "\n\n\n\n>>>>>  example " << n+1 << "\n\nDescription:  " << endl;
-    int i = f(job);
-    return i;
+    return f(job);
 }
 
 // array of example functions
