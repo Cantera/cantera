@@ -185,7 +185,7 @@ bool get_next_keyLine(FILE* ifp, TOKEN* keyLineTok, TOKEN* keyArgTok)
      */
     if (ifp == NULL || keyLineTok == NULL || keyArgTok == NULL) {
         fprintf(stderr, "get_next_keyLine ERROR, arguments are bad\n");
-        return(false);
+        return false;
     }
 
     /*
@@ -195,7 +195,7 @@ bool get_next_keyLine(FILE* ifp, TOKEN* keyLineTok, TOKEN* keyArgTok)
 do_it_again:
     do {
         if ((retn_value = read_string(ifp, save_input, '\n')) < 0) {
-            return(false);
+            return false;
         }
         if (PrintInputFile)  {
             if (retn_value <=0) {
@@ -281,13 +281,13 @@ int tok_to_int(const TOKEN* tokPtr, const int maxVal, const int minVal,
  */
 {
     if (tokPtr->ntokes == 0) {
-        return(str_to_int(DEFAULT_STR, maxVal, minVal, defaultVal, error));
+        return str_to_int(DEFAULT_STR, maxVal, minVal, defaultVal, error);
     } else if (tokPtr->ntokes > 1) {
         (void) fprintf(stderr, "ERROR: tok_to_int, ntokes > 1: %s\n",
                        tokPtr->orig_str);
         *error = true;
     }
-    return(str_to_int(tokPtr->tok_ptr[0], maxVal, minVal, defaultVal, error));
+    return str_to_int(tokPtr->tok_ptr[0], maxVal, minVal, defaultVal, error);
 }
 /**************************************************************************/
 /**************************************************************************/
@@ -350,7 +350,7 @@ int str_to_int(const char* int_string, const int maxVal, const int minVal,
     } else {
         *error = true;
     }
-    return (retn_value);
+    return retn_value;
 }
 /**************************************************************************/
 /**************************************************************************/
@@ -400,13 +400,13 @@ double tok_to_double(const TOKEN* tokPtr, const double maxVal,
  */
 {
     if (tokPtr->ntokes == 0) {
-        return(str_to_double(DEFAULT_STR, maxVal, minVal, defaultVal, error));
+        return str_to_double(DEFAULT_STR, maxVal, minVal, defaultVal, error);
     } else if (tokPtr->ntokes > 1) {
         (void) fprintf(stderr, "ERROR: tok_to_double, ntokes > 1: %s\n",
                        tokPtr->orig_str);
         *error = true;
     }
-    return(str_to_double(tokPtr->tok_ptr[0], maxVal, minVal, defaultVal, error));
+    return str_to_double(tokPtr->tok_ptr[0], maxVal, minVal, defaultVal, error);
 }
 /**************************************************************************/
 /**************************************************************************/
@@ -474,7 +474,7 @@ double str_to_double(const char* dbl_string, const double maxVal,
     } else {
         *error = true;
     }
-    return (retn_value);
+    return retn_value;
 }
 /*****************************************************************************/
 /*****************************************************************************/
@@ -505,13 +505,13 @@ bool tok_to_boolean(const TOKEN* tokPtr, const int default_value,
 */
 {
     if (tokPtr->ntokes == 0) {
-        return(str_to_boolean(DEFAULT_STR, default_value, error));
+        return str_to_boolean(DEFAULT_STR, default_value, error);
     } else if (tokPtr->ntokes > 1) {
         (void) fprintf(stderr, "ERROR: tok_to_boolean, ntokes > 1: %s\n",
                        tokPtr->orig_str);
         *error = true;
     }
-    return(str_to_boolean(tokPtr->tok_ptr[0], default_value, error));
+    return str_to_boolean(tokPtr->tok_ptr[0], default_value, error);
 }
 /******************************************************************************/
 /******************************************************************************/
@@ -589,7 +589,7 @@ char* tok_to_string(const TOKEN* tokPtr,  const int maxTok,
         (void) fprintf(stderr,"\tmaxTok = %d, minTok = %d\n", maxTok, minTok);
         *error = true;
     }
-    return (str);
+    return str;
 }
 /*****************************************************************************/
 /*****************************************************************************/
@@ -618,18 +618,18 @@ char* str_to_string(const char* str, const char* defaultVal,
     if (str == NULL) {
         *error = true;
         (void) fprintf(stderr,"ERROR str_to_string: str is uninialized\n");
-        return(NULL);
+        return NULL;
     }
     if (strmatch(str, DEFAULT_STR)) {
         if (strmatch(defaultVal, NO_DEFAULT_STR)) {
             *error = true;
             (void) fprintf(stderr,"ERROR str_to_string: no default allowed\n");
-            return(copy_string(NO_DEFAULT_STR));
+            return copy_string(NO_DEFAULT_STR);
         } else {
-            return(copy_string(defaultVal));
+            return copy_string(defaultVal);
         }
     }
-    return(copy_string(str));
+    return copy_string(str);
 }
 /**************************************************************************/
 /**************************************************************************/
@@ -671,7 +671,7 @@ int scan_for_int(FILE* ifp, const char* str, const int maxVal,
                 fprintf(stderr,"\tmax = %d, min = %d\n", maxVal, minVal);
                 exit(-1);
             } else {
-                return(retn_value);
+                return retn_value;
             }
         }
     }
@@ -768,7 +768,7 @@ double scan_for_double(FILE* ifp, const char* string, const double maxVal,
                 (void) fprintf(stderr,"\tmax = %e, min = %e\n", maxVal, minVal);
                 exit(-1);
             } else {
-                return(retn_value);
+                return retn_value;
             }
         }
     }
@@ -807,7 +807,7 @@ char* scan_for_string(FILE* ifp, const char* string, const int maxVal,
         (void) fprintf(stderr, "\tlength max = %d, min = %d\n", maxVal, minVal);
         exit(-1);
     }
-    return (copy_string(input));
+    return copy_string(input);
 }
 /**************************************************************************/
 /**************************************************************************/
@@ -850,7 +850,7 @@ int scan_for_line(FILE* ifp, const char* str, char input[],
     if (strlen(str) > MAX_INPUT_STR_LN) {
         fprintf(stderr,"%sMatch string is too long:\n\t%s\n",
                 ename, str);
-        return(-1);
+        return -1;
     }
 
     /*
@@ -862,7 +862,7 @@ int scan_for_line(FILE* ifp, const char* str, char input[],
         if (str[i] == COM_CHAR || str[i] == COM_CHAR2) {
             fprintf(stderr, "%s Comment in match string\n\t%s\n",
                     ename, str);
-            return(-1);
+            return -1;
         }
     }
 
@@ -873,7 +873,7 @@ int scan_for_line(FILE* ifp, const char* str, char input[],
     if ((retn_value = strip(strcpy(match_string, str))) <= 0) {
         fprintf(stderr, "%sMatch string is white space: \"%s\"\n",
                 ename, str);
-        return(-1);
+        return -1;
     }
 
     /*
@@ -890,7 +890,7 @@ int scan_for_line(FILE* ifp, const char* str, char input[],
             fprintf(stderr,
                     "%sEOF found in input file while searching for:\n", ename);
             fprintf(stderr, "\t\"%s\"\n", match_string);
-            return(retn_value);
+            return retn_value;
         }
 
         /*
@@ -981,7 +981,7 @@ int read_line(FILE* ifp, char input[], const int print_flag)
     */
 
     if (retn_value == 0) {
-        return (strip(input));
+        return strip(input);
     }
 
     /*
@@ -990,7 +990,7 @@ int read_line(FILE* ifp, char input[], const int print_flag)
     */
 
     (void) strip(input);
-    return (retn_value);
+    return retn_value;
 }
 /**************************************************************************/
 /**************************************************************************/
@@ -1056,7 +1056,7 @@ int read_string(FILE* ifp, char string[], const char ch)
      *   Make sure the string is null terminated and return
      */
     string[i] = '\0';
-    return (rtn_value);
+    return rtn_value;
 }
 /**************************************************************************/
 
@@ -1083,7 +1083,7 @@ static bool interpret_boolean(const char* token, int* ret_value,
             *ret_value = false;
             break;
         default:
-            return (false);
+            return false;
         }
     } else {
         if (strmatch(token,"true") || strmatch(token,"yes")) {
@@ -1093,7 +1093,7 @@ static bool interpret_boolean(const char* token, int* ret_value,
         } else if (strmatch(token,DEFAULT_STR) == 0) {
             *ret_value = default_value;
         } else {
-            return (false);
+            return false;
         }
     }
     return (true);
@@ -1147,10 +1147,10 @@ static bool interpret_int(const char* token, int* retn_value,
     } else  {
         if ((retn = sscanf(token, "%d", retn_value)) != 1) {
             *retn_value = retn;
-            return (false);
+            return false;
         }
     }
-    return (true);
+    return true;
 }
 /******************************************************************************/
 /******************************************************************************/
@@ -1219,12 +1219,12 @@ static bool interpret_double(const char* token, double* retn_value,
     } else {
         if ((retn = sscanf(token, "%e", &retn_float)) != 1) {
             *retn_value = (double) retn;
-            return (false);
+            return false;
         } else {
             *retn_value = (double) retn_float;
         }
     }
-    return(true);
+    return true;
 }
 /******************************************************************************/
 /******************************************************************************/
@@ -1255,7 +1255,7 @@ int strip(char str[])
     */
 
     if ((str == NULL) || (str[0] == '\0')) {
-        return (0);
+        return 0;
     }
 
     /* Find first non-space character character */
@@ -1287,7 +1287,7 @@ int strip(char str[])
     }
     j++;
     str[j] = '\0';
-    return (j);
+    return j;
 }
 /**************************************************************************/
 /**************************************************************************/
@@ -1338,7 +1338,7 @@ char* TokToStrng(const TOKEN* keyptr)
     for (i = 0, fstr[0]= '\0'; i < (keyptr->ntokes - 1); i++, str++) {
         (void) strcat(strcat(fstr, *str), " ");
     }
-    return(strcat(fstr, *str));
+    return strcat(fstr, *str);
 }
 /******************************************************************************/
 /******************************************************************************/
@@ -1384,7 +1384,7 @@ int stokenize(char* string, const char* delimiters, char* tok_ptr[],
             }
         } while ((tok_ptr[i] = strtok(NULL, delimiters)) != NULL);
     }
-    return (i);
+    return i;
 }
 /*****************************************************************************/
 /*****************************************************************************/
@@ -1399,9 +1399,9 @@ static bool outofbnds(const double value, const double maxVal,
  */
 {
     if ((value <= maxVal) && (value >= minVal)) {
-        return (false);
+        return false;
     }
-    return(true);
+    return true;
 }
 /******************************************************************************
  *
@@ -1419,20 +1419,20 @@ bool strmatch(const char* s1, const char* s2)
     while (*s1 != '\0') {
 #   if defined (_INCLUDE_XOPEN_SOURCE) && ! defined(__lint)
         if (_tolower((*s1++)) != _tolower((*s2++))) {
-            return (false);
+            return false;
         }
 #   else
         if (tolower(*s1) != tolower(*s2)) {
-            return (false);
+            return false;
         }
         s1++;
         s2++;
 #   endif
     }
     if (*s2 != '\0') {
-        return (false);
+        return false;
     }
-    return (true);
+    return true;
 }
 
 /*****************************************************************************
@@ -1447,7 +1447,7 @@ bool strstrmatch(const char* s1, const char* s2)
     struct TOKEN tmpKeyStruct1, tmpKeyStruct2;
     fillTokStruct(&tmpKeyStruct1, s1);
     fillTokStruct(&tmpKeyStruct2, s2);
-    return (toktokmatch(&tmpKeyStruct2, &tmpKeyStruct1));
+    return toktokmatch(&tmpKeyStruct2, &tmpKeyStruct1);
 }
 
 /*******************************************************************************
@@ -1464,7 +1464,7 @@ bool strtokmatch(const TOKEN* keyptr, const char* s2)
 {
     struct TOKEN tmpKeyStruct;
     fillTokStruct(&tmpKeyStruct, s2);
-    return (toktokmatch(keyptr, &tmpKeyStruct));
+    return toktokmatch(keyptr, &tmpKeyStruct);
 }
 
 /**************************************************************************
@@ -1569,9 +1569,9 @@ int in_char_list(const char* const str1, const char** const list,
 {
     int i;
     for (i = 0; i < num_list; i++) if (strstrmatch(str1, list[i])) {
-            return(i);
+            return i;
         }
-    return (-1);
+    return -1;
 }
 /*****************************************************************************/
 /*****************************************************************************/
@@ -1593,7 +1593,7 @@ char* copy_string(const char* string)
     } else {
         (void) strcpy(new_string, string);
     }
-    return (new_string);
+    return new_string;
 }
 
 /******************************************************************************

@@ -4594,7 +4594,7 @@ double VCS_SOLVE::l2normdg(double dgLocal[]) const
             }
         }
     }
-    return (std::sqrt(tmp / m_numRxnRdc));
+    return std::sqrt(tmp / m_numRxnRdc);
 }
 /*****************************************************************************/
 

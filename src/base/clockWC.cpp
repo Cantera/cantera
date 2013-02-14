@@ -60,6 +60,6 @@ double clockWC::secondsWC()
         value += clock_rollovers * clock_width;
     }
     last_num_ticks = num_ticks;
-    return(value);
+    return value;
 }
 }

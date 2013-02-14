@@ -1311,7 +1311,7 @@ doublereal InterfaceKinetics::electrochem_beta(size_t irxn) const
 //================================================================================================
 bool InterfaceKinetics::ready() const
 {
-    return (m_finalized);
+    return m_finalized;
 }
 //================================================================================================
 // Advance the surface coverages in time

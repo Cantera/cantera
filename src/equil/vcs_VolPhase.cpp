@@ -377,7 +377,7 @@ double vcs_VolPhase::AC_calc_one(size_t kspec) const
     if (! m_UpToDate_AC) {
         _updateActCoeff();
     }
-    return(ActCoeff[kspec]);
+    return ActCoeff[kspec];
 }
 /***************************************************************************/
 

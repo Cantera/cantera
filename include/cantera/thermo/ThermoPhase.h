@@ -187,7 +187,7 @@ public:
      *   @return     Returns the current value of the Heat of Formation at 298K and 1 bar
      */
     doublereal Hf298SS(const int k) const {
-        return (m_spthermo->reportOneHf298(k));
+        return m_spthermo->reportOneHf298(k);
     }
 
     //! Modify the value of the 298 K Heat of Formation of one species in the phase (J kmol-1)

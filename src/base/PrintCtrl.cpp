@@ -218,7 +218,7 @@ double PrintCtrl::cropSigDigits(const double d, int nSig) const
     }
     double paltabs = (double) nfabs;
     double daltabs = paltabs * pow(10.0, (double) -E10);
-    return (sgn * daltabs);
+    return sgn * daltabs;
 }
 
 // Set the default value of N decade

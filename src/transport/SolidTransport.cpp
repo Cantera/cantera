@@ -79,7 +79,7 @@ SolidTransport& SolidTransport::operator=(const SolidTransport& b)
 Transport* SolidTransport::duplMyselfAsTransport() const
 {
     SolidTransport* tr = new SolidTransport(*this);
-    return (dynamic_cast<Transport*>(tr));
+    return dynamic_cast<Transport*>(tr);
 }
 
 //====================================================================================================================

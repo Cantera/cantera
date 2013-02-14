@@ -805,7 +805,7 @@ bool ThermoPhase::getElementPotentials(doublereal* lambda) const
             lambda[m] =  m_lambdaRRT[m] * rt;
         }
     }
-    return (m_hasElementPotentials);
+    return m_hasElementPotentials;
 }
 
 void ThermoPhase::getdlnActCoeffdlnN(const size_t ld, doublereal* const dlnActCoeffdlnN)

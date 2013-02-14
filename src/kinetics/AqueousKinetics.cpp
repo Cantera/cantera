@@ -609,7 +609,7 @@ void AqueousKinetics::finalize()
 
 bool AqueousKinetics::ready() const
 {
-    return (m_finalized);
+    return m_finalized;
 }
 
 }

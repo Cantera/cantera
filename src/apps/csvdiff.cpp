@@ -178,7 +178,7 @@ static double calc_rdiff(double d1, double d2, double rtol, double atol)
     double rhs, lhs;
     rhs = fabs(d1-d2);
     lhs = atol + rtol * 0.5 * (fabs(d1) + fabs(d2));
-    return (rhs/lhs);
+    return rhs/lhs;
 }
 
 /*****************************************************************************/
@@ -535,7 +535,7 @@ static double get_atol(const double* values, const int nvals,
     }
     sum /= nvals;
     retn = sqrt(sum);
-    return ((retn + 1.0) * atol);
+    return (retn + 1.0) * atol;
 }
 
 /*****************************************************************************/
@@ -1032,7 +1032,7 @@ int main(int argc, char* argv[])
 
     }
 
-    return(testPassed);
+    return testPassed;
 
 } /************END of main() *************************************************/
 /*****************************************************************************/

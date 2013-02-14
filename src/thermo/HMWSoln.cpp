@@ -589,7 +589,7 @@ doublereal HMWSoln::relative_enthalpy() const
         m_gamma_tmp[k] *= RT;
     }
     double h0bar = mean_X(DATA_PTR(m_gamma_tmp));
-    return (hbar - h0bar);
+    return hbar - h0bar;
 }
 
 doublereal HMWSoln::relative_molal_enthalpy() const

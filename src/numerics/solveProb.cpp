@@ -570,7 +570,7 @@ static doublereal calcWeightedNorm(const doublereal wtX[], const doublereal dx[]
         tmp = dx[i] / wtX[i];
         norm += tmp * tmp;
     }
-    return (sqrt(norm/dim));
+    return sqrt(norm/dim);
 }
 //================================================================================================
 /*
@@ -662,7 +662,7 @@ calc_t(doublereal netProdRateSolnSP[], doublereal Csoln[],
     }
 #endif
 
-    return (inv_timeScale);
+    return inv_timeScale;
 
 }
 //====================================================================================================================

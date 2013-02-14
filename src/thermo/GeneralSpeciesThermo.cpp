@@ -363,7 +363,7 @@ doublereal GeneralSpeciesThermo::refPressure(size_t k) const
 
 SpeciesThermoInterpType* GeneralSpeciesThermo::provideSTIT(size_t k)
 {
-    return (m_sp[k]);
+    return m_sp[k];
 }
 
 #ifdef H298MODIFY_CAPABILITY
