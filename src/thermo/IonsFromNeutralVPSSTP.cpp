@@ -990,8 +990,6 @@ void IonsFromNeutralVPSSTP::initThermoXML(XML_Node& phaseNode, const std::string
         neutralMoleculePhase_  = newPhase(*neut_ptr);
     }
 
-
-    size_t k;
     /*
      *   variables that need to be populated
      *
@@ -1001,7 +999,7 @@ void IonsFromNeutralVPSSTP::initThermoXML(XML_Node& phaseNode, const std::string
 
     numCationSpecies_ = 0;
     cationList_.clear();
-    for (k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
         if (charge(k) > 0) {
             cationList_.push_back(k);
             numCationSpecies_++;
@@ -1010,7 +1008,7 @@ void IonsFromNeutralVPSSTP::initThermoXML(XML_Node& phaseNode, const std::string
 
     numAnionSpecies_ = 0;
     anionList_.clear();
-    for (k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
         if (charge(k) < 0) {
             anionList_.push_back(k);
             numAnionSpecies_++;
@@ -1019,7 +1017,7 @@ void IonsFromNeutralVPSSTP::initThermoXML(XML_Node& phaseNode, const std::string
 
     numPassThroughSpecies_= 0;
     passThroughList_.clear();
-    for (k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
         if (charge(k) == 0) {
             passThroughList_.push_back(k);
             numPassThroughSpecies_++;
@@ -1028,7 +1026,7 @@ void IonsFromNeutralVPSSTP::initThermoXML(XML_Node& phaseNode, const std::string
 
     PDSS_IonsFromNeutral* speciesSS = 0;
     indexSpecialSpecies_ = npos;
-    for (k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
         speciesSS = dynamic_cast<PDSS_IonsFromNeutral*>(providePDSS(k));
         if (!speciesSS) {
             throw CanteraError("initThermoXML", "Dynamic cast failed");
@@ -1085,12 +1083,12 @@ void IonsFromNeutralVPSSTP::initThermoXML(XML_Node& phaseNode, const std::string
         fm_neutralMolec_ions_[indexSpecialSpecies_  + jNeut * m_kk ] += fac;
 
 
-        for (k = 0; k < m_kk; k++) {
+        for (size_t k = 0; k < m_kk; k++) {
             for (size_t m = 0; m < nElementsI; m++) {
                 elemVectorI[m] = nAtoms(k, m);
             }
-            double fac = factorOverlap(elnamesVN, elemVectorN, nElementsN,
-                                       elnamesVI ,elemVectorI, nElementsI);
+            fac = factorOverlap(elnamesVN, elemVectorN, nElementsN,
+                                elnamesVI ,elemVectorI, nElementsI);
             if (fac > 0.0) {
                 for (size_t m = 0; m < nElementsN; m++) {
                     std::string mName = elnamesVN[m];
