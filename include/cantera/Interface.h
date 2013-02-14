@@ -11,7 +11,6 @@
 
 namespace Cantera
 {
-
 //! An interface between multiple bulk phases.
 /*!
  * This class is defined mostly for convenience. It inherits both from
@@ -107,16 +106,13 @@ public:
     }
 
 protected:
-
     //! Flag indicating that the object has been instantiated
     bool m_ok;
 
     //! XML_Node pointer to the XML File object that contains the Surface and the Interfacial Reaction object
     //! description
     Cantera::XML_Node* m_r;
-
 };
-
 
 //! Import an instance of class Interface from a specification in an input file.
 /*!
@@ -129,6 +125,5 @@ Interface* importInterface(const std::string& infile, const std::string& id,
 }
 
 }
-
 
 #endif
