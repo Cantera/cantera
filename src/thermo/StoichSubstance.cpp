@@ -54,8 +54,7 @@ StoichSubstance::~StoichSubstance()
 
 doublereal StoichSubstance::enthalpy_mole() const
 {
-    double hh = intEnergy_mole() + m_press / molarDensity();
-    return hh;
+    return intEnergy_mole() + m_press / molarDensity();
 }
 
 doublereal StoichSubstance::intEnergy_mole() const

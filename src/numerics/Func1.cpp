@@ -248,9 +248,7 @@ string Pow1::write(const std::string& arg) const
 string Const1::write(const std::string& arg) const
 {
     //cout << "Const1" << endl;
-    string c  = "";
-    c = fp2str(m_c);
-    return c;
+    return fp2str(m_c);
 }
 
 string Ratio1::write(const std::string& arg) const

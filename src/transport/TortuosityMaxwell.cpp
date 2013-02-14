@@ -92,8 +92,7 @@ doublereal TortuosityMaxwell::tortuosityFactor(doublereal porosity)
  */
 doublereal TortuosityMaxwell::McMillanFactor(doublereal porosity)
 {
-    doublereal tmp = 1 + 3 * (1.0 - porosity) * (relativeConductivities_ - 1.0) / (relativeConductivities_ + 2);
-    return tmp;
+    return 1 + 3 * (1.0 - porosity) * (relativeConductivities_ - 1.0) / (relativeConductivities_ + 2);
 }
 //====================================================================================================================
 }

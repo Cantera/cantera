@@ -890,9 +890,7 @@ calc_t(doublereal netProdRateSolnSP[], doublereal XMolSolnSP[],
         *label_old = *label;
         *label_factor = 1.0;
     }
-    inv_timeScale = inv_timeScale / *label_factor;
-    return inv_timeScale;
-
+    return inv_timeScale / *label_factor;
 } /* calc_t */
 
 /*

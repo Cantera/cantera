@@ -172,8 +172,7 @@ double PrintCtrl::cropAbs10(const double d, int Ndec) const
         N10 += 1;
     }
     int nsig = N10 - Ndec;
-    double retn = cropSigDigits(d, nsig);
-    return retn;
+    return cropSigDigits(d, nsig);
 }
 
 // Crop a double at a certain number of significant digits

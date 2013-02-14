@@ -575,8 +575,7 @@ doublereal HMWSoln::enthalpy_mole() const
 {
     getPartialMolarEnthalpies(DATA_PTR(m_tmpV));
     getMoleFractions(DATA_PTR(m_pp));
-    double val = mean_X(DATA_PTR(m_tmpV));
-    return val;
+    return mean_X(DATA_PTR(m_tmpV));
 }
 
 doublereal HMWSoln::relative_enthalpy() const
@@ -629,8 +628,7 @@ doublereal HMWSoln::relative_molal_enthalpy() const
         }
     }
     xuse = xuse / factor;
-    L = L / xuse;
-    return L;
+    return L / xuse;
 }
 
 doublereal HMWSoln::intEnergy_mole() const
@@ -638,8 +636,7 @@ doublereal HMWSoln::intEnergy_mole() const
     double hh = enthalpy_mole();
     double pres = pressure();
     double molarV = 1.0/molarDensity();
-    double uu = hh - pres * molarV;
-    return uu;
+    return hh - pres * molarV;
 }
 
 doublereal HMWSoln::entropy_mole() const
@@ -657,8 +654,7 @@ doublereal HMWSoln::gibbs_mole() const
 doublereal HMWSoln::cp_mole() const
 {
     getPartialMolarCp(DATA_PTR(m_tmpV));
-    double val = mean_X(DATA_PTR(m_tmpV));
-    return val;
+    return mean_X(DATA_PTR(m_tmpV));
 }
 
 doublereal HMWSoln::cv_mole() const
@@ -668,8 +664,7 @@ doublereal HMWSoln::cv_mole() const
     double cp = cp_mole();
     double tt = temperature();
     double molarV = molarVolume();
-    double cv = cp - beta * beta * tt * molarV / kappa_t;
-    return cv;
+    return cp - beta * beta * tt * molarV / kappa_t;
 }
 
 //
@@ -1124,8 +1119,7 @@ double HMWSoln::ADebye_L(double tempArg, double presArg) const
     if (tempArg != -1.0) {
         T = tempArg;
     }
-    double retn = dAphidT * (4.0 * GasConstant * T * T);
-    return retn;
+    return dAphidT * (4.0 * GasConstant * T * T);
 }
 
 double HMWSoln::ADebye_V(double tempArg, double presArg) const
@@ -1136,8 +1130,7 @@ double HMWSoln::ADebye_V(double tempArg, double presArg) const
     if (tempArg != -1.0) {
         T = tempArg;
     }
-    double retn = - dAphidP * (4.0 * GasConstant * T);
-    return retn;
+    return - dAphidP * (4.0 * GasConstant * T);
 }
 
 double HMWSoln::ADebye_J(double tempArg, double presArg) const
@@ -1149,8 +1142,7 @@ double HMWSoln::ADebye_J(double tempArg, double presArg) const
     double A_L = ADebye_L(T, presArg);
     double d2 = d2A_DebyedT2_TP(T, presArg);
     double d2Aphi = d2 / 3.0;
-    double retn = 2.0 * A_L / T + 4.0 * GasConstant * T * T *d2Aphi;
-    return retn;
+    return 2.0 * A_L / T + 4.0 * GasConstant * T * T *d2Aphi;
 }
 
 double HMWSoln::d2A_DebyedT2_TP(double tempArg, double presArg) const
@@ -5804,24 +5796,21 @@ doublereal HMWSoln::s_NBS_CLM_dlnMolalityActCoeff_dT() const
 {
     doublereal sqrtIs = sqrt(m_IionicMolality);
     doublereal dAdT = dA_DebyedT_TP();
-    doublereal d_lnGammaClM_dT = - dAdT * sqrtIs /(1.0 + 1.5 * sqrtIs);
-    return d_lnGammaClM_dT;
+    return - dAdT * sqrtIs /(1.0 + 1.5 * sqrtIs);
 }
 
 doublereal HMWSoln::s_NBS_CLM_d2lnMolalityActCoeff_dT2() const
 {
     doublereal sqrtIs = sqrt(m_IionicMolality);
     doublereal d2AdT2 = d2A_DebyedT2_TP();
-    doublereal d_lnGammaClM_dT2 = - d2AdT2 * sqrtIs /(1.0 + 1.5 * sqrtIs);
-    return d_lnGammaClM_dT2;
+    return - d2AdT2 * sqrtIs /(1.0 + 1.5 * sqrtIs);
 }
 
 doublereal HMWSoln::s_NBS_CLM_dlnMolalityActCoeff_dP() const
 {
     doublereal sqrtIs = sqrt(m_IionicMolality);
     doublereal dAdP = dA_DebyedP_TP();
-    doublereal d_lnGammaClM_dP = - dAdP * sqrtIs /(1.0 + 1.5 * sqrtIs);
-    return d_lnGammaClM_dP;
+    return - dAdP * sqrtIs /(1.0 + 1.5 * sqrtIs);
 }
 
 int HMWSoln::debugPrinting()

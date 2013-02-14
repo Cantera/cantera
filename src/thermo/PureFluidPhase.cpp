@@ -315,8 +315,7 @@ doublereal PureFluidPhase::critDensity() const
 
 doublereal PureFluidPhase::satTemperature(doublereal p) const
 {
-    doublereal ts = m_sub->Tsat(p);
-    return ts;
+    return m_sub->Tsat(p);
 }
 
 void PureFluidPhase::setState_HP(doublereal h, doublereal p,
@@ -351,8 +350,7 @@ doublereal PureFluidPhase::satPressure(doublereal t) const
 {
     doublereal vsv = m_sub->v();
     Set(tpx::PropertyPair::TV,t,vsv);
-    doublereal ps = m_sub->Ps();
-    return ps;
+    return m_sub->Ps();
 }
 
 doublereal PureFluidPhase::vaporFraction() const

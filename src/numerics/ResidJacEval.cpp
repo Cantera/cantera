@@ -317,8 +317,7 @@ int ResidJacEval::eval(const doublereal t, const doublereal* const y, const doub
                        doublereal* const r)
 {
     double deltaT = -1.0;
-    int flag = evalResidNJ(t, deltaT, y, ydot, r);
-    return flag;
+    return evalResidNJ(t, deltaT, y, ydot, r);
 }
 //====================================================================================================================
 // Calculate an analytical jacobian and the residual at the current time and values.

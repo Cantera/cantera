@@ -381,8 +381,7 @@ public:
     virtual doublereal F(doublereal pr, const doublereal* work) const {
         doublereal lpr = log10(std::max(pr,SmallNumber));
         doublereal xx = 1.0/(1.0 + lpr*lpr);
-        doublereal ff = pow(*work , xx);
-        return ff;
+        return pow(*work , xx);
     }
 
     //! Utility function that returns the size of the workspace

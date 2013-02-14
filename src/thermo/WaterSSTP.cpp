@@ -263,8 +263,7 @@ void WaterSSTP::getCp_R(doublereal* cpr) const
 
 doublereal WaterSSTP::cv_mole() const
 {
-    doublereal cv = m_sub->cv();
-    return cv;
+    return m_sub->cv();
 }
 
 void WaterSSTP::getEnthalpy_RT_ref(doublereal* hrt) const
@@ -379,8 +378,7 @@ void WaterSSTP::getStandardVolumes_ref(doublereal* vol) const
 
 doublereal WaterSSTP::pressure() const
 {
-    doublereal p = m_sub->pressure();
-    return p;
+    return m_sub->pressure();
 }
 
 void WaterSSTP::
@@ -402,14 +400,12 @@ setPressure(doublereal p)
 
 doublereal WaterSSTP::isothermalCompressibility() const
 {
-    doublereal val = m_sub->isothermalCompressibility();
-    return val;
+    return m_sub->isothermalCompressibility();
 }
 
 doublereal WaterSSTP::thermalExpansionCoeff() const
 {
-    doublereal val = m_sub->coeffThermExp();
-    return val;
+    return m_sub->coeffThermExp();
 }
 
 doublereal WaterSSTP::dthermalExpansionCoeffdT() const
@@ -426,8 +422,7 @@ doublereal WaterSSTP::dthermalExpansionCoeffdT() const
     doublereal vald = m_sub->coeffThermExp();
     m_sub->setState_TR(T, dens_save);
     doublereal val2 = m_sub->coeffThermExp();
-    doublereal val = (val2 - vald) / 0.04;
-    return val;
+    return (val2 - vald) / 0.04;
 }
 
 doublereal WaterSSTP::critTemperature() const

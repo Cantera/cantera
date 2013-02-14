@@ -82,8 +82,7 @@ doublereal LatticeSolidPhase::minTemp(size_t k) const
     if (k != npos) {
         for (size_t n = 0; n < m_nlattice; n++) {
             if (lkstart_[n+1] < k) {
-                double ml = (m_lattice[n])->minTemp(k-lkstart_[n]);
-                return ml;
+                return (m_lattice[n])->minTemp(k-lkstart_[n]);
             }
         }
     }
@@ -100,8 +99,7 @@ doublereal LatticeSolidPhase::maxTemp(size_t k) const
     if (k != npos) {
         for (size_t n = 0; n < m_nlattice; n++) {
             if (lkstart_[n+1] < k) {
-                double ml = (m_lattice[n])->maxTemp(k - lkstart_[n]);
-                return ml;
+                return (m_lattice[n])->maxTemp(k - lkstart_[n]);
             }
         }
     }

@@ -541,8 +541,7 @@ doublereal  WaterPropsIAPWSphi::phi(doublereal  tau, doublereal  delta)
     tdpolycalc(tau, delta);
     doublereal  nau = phi0();
     doublereal  res = phiR();
-    doublereal  retn = nau + res;
-    return retn;
+    return nau + res;
 }
 
 
@@ -646,8 +645,7 @@ doublereal  WaterPropsIAPWSphi::phi_d(doublereal  tau, doublereal  delta)
     tdpolycalc(tau, delta);
     doublereal  nau = phi0_d();
     doublereal  res = phiR_d();
-    doublereal  retn = nau + res;
-    return retn;
+    return nau + res;
 }
 
 /*
@@ -661,8 +659,7 @@ doublereal  WaterPropsIAPWSphi::pressureM_rhoRT(doublereal  tau, doublereal  del
 {
     tdpolycalc(tau, delta);
     doublereal  res = phiR_d();
-    doublereal  retn = 1.0 + delta * res;
-    return retn;
+    return 1.0 + delta * res;
 }
 
 /*
@@ -795,8 +792,7 @@ doublereal  WaterPropsIAPWSphi::phi_dd(doublereal  tau, doublereal  delta)
     tdpolycalc(tau, delta);
     doublereal  nau = phi0_dd();
     doublereal  res = phiR_dd();
-    doublereal  retn = nau + res;
-    return retn;
+    return nau + res;
 }
 
 doublereal  WaterPropsIAPWSphi::dimdpdrho(doublereal  tau, doublereal  delta)
@@ -804,8 +800,7 @@ doublereal  WaterPropsIAPWSphi::dimdpdrho(doublereal  tau, doublereal  delta)
     tdpolycalc(tau, delta);
     doublereal  res1 = phiR_d();
     doublereal  res2 = phiR_dd();
-    doublereal  retn = 1.0 + delta * (2.0*res1 + delta*res2);
-    return retn;
+    return 1.0 + delta * (2.0*res1 + delta*res2);
 }
 
 doublereal  WaterPropsIAPWSphi::dimdpdT(doublereal  tau, doublereal  delta)
@@ -813,8 +808,7 @@ doublereal  WaterPropsIAPWSphi::dimdpdT(doublereal  tau, doublereal  delta)
     tdpolycalc(tau, delta);
     doublereal  res1 = phiR_d();
     doublereal  res2 = phiR_dt();
-    doublereal  retn = (1.0 + delta * res1) - tau * delta * (res2);
-    return retn;
+    return (1.0 + delta * res1) - tau * delta * (res2);
 }
 
 /*
@@ -914,8 +908,7 @@ doublereal  WaterPropsIAPWSphi::phi_t(doublereal  tau, doublereal  delta)
     tdpolycalc(tau, delta);
     doublereal  nau = phi0_t();
     doublereal  res = phiR_t();
-    doublereal  retn = nau + res;
-    return retn;
+    return nau + res;
 }
 
 /*
@@ -1027,8 +1020,7 @@ doublereal  WaterPropsIAPWSphi::phi_tt(doublereal  tau, doublereal  delta)
     tdpolycalc(tau, delta);
     doublereal  nau = phi0_tt();
     doublereal  res = phiR_tt();
-    doublereal  retn = nau + res;
-    return retn;
+    return nau + res;
 }
 
 /**
@@ -1237,8 +1229,7 @@ doublereal  WaterPropsIAPWSphi::gibbs_RT() const
 {
     doublereal  delta = DELTAsave;
     doublereal  rd = phiR_d();
-    doublereal  g = 1.0 + phi0() + phiR() + delta * rd;
-    return g;
+    return 1.0 + phi0() + phiR() + delta * rd;
 }
 
 /**
@@ -1251,8 +1242,7 @@ doublereal  WaterPropsIAPWSphi::enthalpy_RT() const
     doublereal  rd = phiR_d();
     doublereal  nt = phi0_t();
     doublereal  rt = phiR_t();
-    doublereal  hRT = 1.0 + tau * (nt + rt) + delta * rd;
-    return hRT;
+    return 1.0 + tau * (nt + rt) + delta * rd;
 }
 
 /*
@@ -1265,8 +1255,7 @@ doublereal  WaterPropsIAPWSphi::entropy_R() const
     doublereal  rt = phiR_t();
     doublereal  p0 = phi0();
     doublereal  pR = phiR();
-    doublereal  sR = tau * (nt + rt) - p0 - pR;
-    return sR;
+    return tau * (nt + rt) - p0 - pR;
 }
 
 /*
@@ -1277,8 +1266,7 @@ doublereal  WaterPropsIAPWSphi::intEnergy_RT() const
     doublereal  tau   = TAUsave;
     doublereal  nt = phi0_t();
     doublereal  rt = phiR_t();
-    doublereal  uR = tau * (nt + rt);
-    return uR;
+    return tau * (nt + rt);
 }
 
 /*
@@ -1289,8 +1277,7 @@ doublereal  WaterPropsIAPWSphi::cv_R() const
     doublereal  tau   = TAUsave;
     doublereal  ntt = phi0_tt();
     doublereal  rtt = phiR_tt();
-    doublereal  cvR = - tau * tau * (ntt + rtt);
-    return cvR;
+    return - tau * tau * (ntt + rtt);
 }
 
 /*
