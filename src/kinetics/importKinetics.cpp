@@ -902,6 +902,7 @@ bool installReactionArrays(const XML_Node& p, Kinetics& kin,
     p.getChildren("reactionArray",rarrays);
     int na = static_cast<int>(rarrays.size());
     if (na == 0) {
+        kin.finalize();
         return false;
     }
     for (int n = 0; n < na; n++) {
