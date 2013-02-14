@@ -185,14 +185,11 @@ namespace Cantera
  *       factors. The other one would be for purposes of stoichiometry evaluation. the
  *       stoichiometry evaluation one would be a 1E-13 limit. Anything less would create
  *       problems with roundoff error.
- *
  */
 class MolalityVPSSTP : public VPStandardStateTP
 {
-
 public:
-
-    /// Constructors
+    /// Default Constructor
     /*!
      * This doesn't do much more than initialize constants with
      * default values for water at 25C. Water molecular weight
@@ -205,18 +202,12 @@ public:
 
     //! Copy constructor
     /*!
-     *  Note this stuff will not work until the underlying phase
-     *  has a working copy constructor
-     *
      * @param b class to be copied
      */
     MolalityVPSSTP(const MolalityVPSSTP& b);
 
     /// Assignment operator
     /*!
-     *  Note this stuff will not work until the underlying phase
-     *  has a working assignment operator
-     *
      * @param b class to be copied.
      */
     MolalityVPSSTP& operator=(const MolalityVPSSTP& b);
@@ -224,20 +215,16 @@ public:
     /// Destructor.
     virtual ~MolalityVPSSTP();
 
-    //! Duplication routine for objects which inherit from  ThermoPhase.
+    //! Duplication routine for objects which inherit from ThermoPhase.
     /*!
-     *  This virtual routine can be used to duplicate thermophase objects
+     *  This virtual routine can be used to duplicate objects
      *  inherited from ThermoPhase even if the application only has
      *  a pointer to ThermoPhase to work with.
      */
     virtual ThermoPhase* duplMyselfAsThermoPhase() const;
 
-    /**
-     *
-     * @name  Utilities
-     * @{
-     */
-
+    //! @name  Utilities
+    //! @{
 
     //! Equation of state type flag.
     /*!
@@ -269,48 +256,35 @@ public:
      */
     int pHScale() const;
 
-    /**
-     * @}
-     * @name  Molar Thermodynamic Properties
-     * @{
-     */
-
+    //! @}
+    //! @name Utilities for Solvent ID and Molality
+    //! @{
 
     /**
-     * @}
-     * @name Utilities for Solvent ID and Molality
-     * @{
-     */
-
-    /**
-     * This routine sets the index number of the solvent for
-     * the phase.
+     * This routine sets the index number of the solvent for the phase.
      *
-     *  Note, having a solvent
-     *   is a precursor to many things having to do with molality.
+     *  Note, having a solvent is a precursor to many things having to do
+     *  with molality.
      *
      * @param k the solvent index number
      */
     void setSolvent(size_t k);
+
+    //! Returns the solvent index.
+    size_t solventIndex() const;
 
     /**
      * Sets the minimum mole fraction in the molality formulation.
      * Note the molality formulation is singular in the limit that
      * the solvent mole fraction goes to zero. Numerically, how
      * this limit is treated and resolved is an ongoing issue within
-     * Cantera.
+     * Cantera. The minimum mole fraction must be in the range 0 to 0.9.
      *
      * @param xmolSolventMIN  Input double containing the minimum mole fraction
      */
     void setMoleFSolventMin(doublereal xmolSolventMIN);
 
-    //! Returns the solvent index.
-    size_t solventIndex() const;
-
-    /**
-     * Returns the minimum mole fraction in the molality
-     * formulation.
-     */
+    //! Returns the minimum mole fraction in the molality formulation.
     doublereal moleFSolventMin() const;
 
     //! Calculates the molality of all species and stores the result internally.
@@ -324,7 +298,7 @@ public:
      *    - \f$ M_o \f$ is the molecular weight of the solvent
      *    - \f$ X_o \f$ is the mole fraction of the solvent
      *    - \f$ X_i \f$ is the mole fraction of the solute.
-     *    - \f$ X_{o,p} = max (X_{o}^{min}, X_o) \f$
+     *    - \f$ X_{o,p} = \max (X_{o}^{min}, X_o) \f$
      *    - \f$ X_{o}^{min} \f$ = minimum mole fraction of solvent allowed
      *              in the denominator.
      */
@@ -404,23 +378,6 @@ public:
 
     /**
      * @}
-     * @name Mechanical Properties
-     * @{
-     */
-
-    /**
-     * @}
-     * @name Potential Energy
-     *
-     * Species may have an additional potential energy due to the
-     * presence of external gravitation or electric fields. These
-     * methods allow specifying a potential energy for individual
-     * species.
-     * @{
-     */
-
-    /**
-     * @}
      * @name Activities, Standard States, and Activity Concentrations
      *
      * The activity \f$a_k\f$ of a species in solution is
@@ -433,19 +390,15 @@ public:
 
     /**
      * This method returns the activity convention.
-     * Currently, there are two activity conventions
-     *  Molar-based activities
-     *       Unit activity of species at either a hypothetical pure
-     *       solution of the species or at a hypothetical
-     *       pure ideal solution at infinite dilution
-     *   cAC_CONVENTION_MOLAR 0
-     *      - default
-     *
-     *  Molality based activities
-     *       (unit activity of solutes at a hypothetical 1 molal
-     *        solution referenced to infinite dilution at all
-     *        pressures and temperatures).
-     *   cAC_CONVENTION_MOLALITY 1
+     * Currently, there are two activity conventions:
+     * - Molar-based activities: %Unit activity of species at either a
+     *   hypothetical pure solution of the species or at a hypothetical
+     *   pure ideal solution at infinite dilution.
+     *   `cAC_CONVENTION_MOLAR 0` (default)
+     * - Molality based activities: unit activity of solutes at a hypothetical
+     *   1 molal solution referenced to infinite dilution at all pressures and
+     *   temperatures. The solvent is still on molar basis.
+     *   `cAC_CONVENTION_MOLALITY 1`
      *
      *  We set the convention to molality here.
      */
@@ -513,7 +466,6 @@ public:
      */
     virtual void getUnitsStandardConc(double* uA, int k = 0,
                                       int sizeUA = 6) const;
-
 
     //! Get the array of non-dimensional activities (molality
     //! based for this class and classes that derive from it) at
@@ -597,8 +549,6 @@ public:
      */
     virtual void getMolalityActivityCoefficients(doublereal* acMolality) const;
 
-
-
     //! Calculate the osmotic coefficient
     /*!
      *   \f[
@@ -619,12 +569,10 @@ public:
     /// @name  Partial Molar Properties of the Solution
     //@{
 
-
     /**
      * Get the species electrochemical potentials.
-     * These are partial molar quantities.
-     * This method adds a term \f$ Fz_k \phi_k \f$ to the
-     * to each chemical potential.
+     * These are partial molar quantities. This method adds a term
+     * \f$ Fz_k \phi_k \f$ to each chemical potential.
      *
      * Units: J/kmol
      *
@@ -633,41 +581,7 @@ public:
      */
     void getElectrochemPotentials(doublereal* mu) const;
 
-
     //@}
-    /// @name  Properties of the Standard State of the Species in the Solution
-    //@{
-
-
-
-    //@}
-    /// @name Thermodynamic Values for the Species Reference States
-    //@{
-
-
-    ///////////////////////////////////////////////////////
-    //
-    //  The methods below are not virtual, and should not
-    //  be overloaded.
-    //
-    //////////////////////////////////////////////////////
-
-    /**
-     * @name Specific Properties
-     * @{
-     */
-
-
-    /**
-     * @name Setting the State
-     *
-     * These methods set all or part of the thermodynamic
-     * state.
-     * @{
-     */
-
-    //@}
-
     /**
      * @name Chemical Equilibrium
      * Routines that implement the Chemical equilibrium capability
@@ -691,9 +605,7 @@ public:
      */
     virtual void setToEquilState(const doublereal* lambda_RT);
 
-
     //@}
-
 
     //! Set equation of state parameter values from XML entries.
     /*!
@@ -711,7 +623,7 @@ public:
      * XML block. The solvent concentration is then set
      * to everything else.
      *
-     * The function first calls the overloaded function ,
+     * The function first calls the overloaded function,
      * VPStandardStateTP::setStateFromXML(), to pick up the parent class
      * behavior.
      *
@@ -723,28 +635,16 @@ public:
      */
     virtual void setStateFromXML(const XML_Node& state);
 
+    //@}
+    //! @name Initialization
     /// The following methods are used in the process of constructing
     /// the phase and setting its parameters from a specification in an
     /// input file. They are not normally used in application programs.
     /// To see how they are used, see files importCTML.cpp and
     /// ThermoFactory.cpp.
+    //@{
 
-
-    /*!
-     * @internal Initialize. This method is provided to allow
-     * subclasses to perform any initialization required after all
-     * species have been added. For example, it might be used to
-     * resize internal work arrays that must have an entry for
-     * each species.  The base class implementation does nothing,
-     * and subclasses that do not require initialization do not
-     * need to overload this method.  When importing a CTML phase
-     * description, this method is called just prior to returning
-     * from function importPhase.
-     *
-     * @see importCTML.cpp
-     */
     virtual void initThermo();
-
 
     /**
      *   Import and initialize a ThermoPhase object
@@ -762,6 +662,7 @@ public:
      */
     void initThermoXML(XML_Node& phaseNode, const std::string& id);
 
+    //@}
 
     //! Set the temperature (K), pressure (Pa), and molalities
     //!(gmol kg-1) of the solutes
@@ -820,7 +721,6 @@ public:
      *                    about the thermodynamic state of the system.
      */
     virtual std::string report(bool show_thermo = true) const;
-
 
 protected:
 
@@ -953,8 +853,6 @@ private:
  *   \f]
  *
  *  where j is any one species.
- *
- *
  */
 const int PHSCALE_PITZER = 0;
 
@@ -980,15 +878,9 @@ const int PHSCALE_PITZER = 0;
  *
  *  This is the NBS pH scale, which is used in all conventional pH
  *  measurements. and is based on the Bates-Guggenheim equations.
- *
  */
 const int PHSCALE_NBS    = 1;
 
 }
 
 #endif
-
-
-
-
-

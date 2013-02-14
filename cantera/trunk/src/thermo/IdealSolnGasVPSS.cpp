@@ -24,16 +24,12 @@ using namespace std;
 namespace Cantera
 {
 
-/*
- * Default constructor
- */
 IdealSolnGasVPSS::IdealSolnGasVPSS() :
     VPStandardStateTP(),
     m_idealGas(0),
     m_formGC(0)
 {
 }
-
 
 IdealSolnGasVPSS::IdealSolnGasVPSS(const std::string& infile, std::string id) :
     VPStandardStateTP(),
@@ -52,15 +48,6 @@ IdealSolnGasVPSS::IdealSolnGasVPSS(const std::string& infile, std::string id) :
     importPhase(*xphase, this);
 }
 
-/*
- * Copy Constructor:
- *
- *  Note this stuff will not work until the underlying phase
- *  has a working copy constructor.
- *
- *  The copy constructor just calls the assignment operator
- *  to do the heavy lifting.
- */
 IdealSolnGasVPSS::IdealSolnGasVPSS(const IdealSolnGasVPSS& b) :
     VPStandardStateTP(),
     m_idealGas(0),
@@ -69,12 +56,6 @@ IdealSolnGasVPSS::IdealSolnGasVPSS(const IdealSolnGasVPSS& b) :
     *this = b;
 }
 
-/*
- * operator=()
- *
- *  Note this stuff will not work until the underlying phase
- *  has a working assignment operator
- */
 IdealSolnGasVPSS& IdealSolnGasVPSS::
 operator=(const IdealSolnGasVPSS& b)
 {
@@ -93,18 +74,10 @@ operator=(const IdealSolnGasVPSS& b)
     return *this;
 }
 
-/*
- * ~IdealSolnGasVPSS():   (virtual)
- *
- */
 IdealSolnGasVPSS::~IdealSolnGasVPSS()
 {
 }
 
-/*
- * Duplication function.
- *  This calls the copy constructor for this object.
- */
 ThermoPhase* IdealSolnGasVPSS::duplMyselfAsThermoPhase() const
 {
     return new IdealSolnGasVPSS(*this);
@@ -118,12 +91,10 @@ int IdealSolnGasVPSS::eosType() const
     return cIdealSolnGasVPSS_iscv;
 }
 
-
 /*
  * ------------Molar Thermodynamic Properties -------------------------
  */
 
-/// Molar enthalpy. Units: J/kmol.
 doublereal IdealSolnGasVPSS::enthalpy_mole() const
 {
     updateStandardStateThermo();
@@ -132,7 +103,6 @@ doublereal IdealSolnGasVPSS::enthalpy_mole() const
             mean_X(DATA_PTR(enth_RT)));
 }
 
-/// Molar internal energy. Units: J/kmol.
 doublereal IdealSolnGasVPSS::intEnergy_mole() const
 {
     doublereal p0 = pressure();
@@ -140,7 +110,6 @@ doublereal IdealSolnGasVPSS::intEnergy_mole() const
     return (enthalpy_mole() - p0 / md);
 }
 
-/// Molar entropy. Units: J/kmol/K.
 doublereal IdealSolnGasVPSS::entropy_mole() const
 {
     updateStandardStateThermo();
@@ -149,13 +118,11 @@ doublereal IdealSolnGasVPSS::entropy_mole() const
 
 }
 
-/// Molar Gibbs function. Units: J/kmol.
 doublereal IdealSolnGasVPSS::gibbs_mole() const
 {
     return enthalpy_mole() - temperature() * entropy_mole();
 }
 
-/// Molar heat capacity at constant pressure. Units: J/kmol/K.
 doublereal IdealSolnGasVPSS::cp_mole() const
 {
     updateStandardStateThermo();
@@ -163,11 +130,9 @@ doublereal IdealSolnGasVPSS::cp_mole() const
     return  GasConstant * (mean_X(DATA_PTR(cp_R)));
 }
 
-/// Molar heat capacity at constant volume. Units: J/kmol/K.
 doublereal IdealSolnGasVPSS::cv_mole() const
 {
     return cp_mole() - GasConstant;
-
 }
 
 void IdealSolnGasVPSS::setPressure(doublereal p)
@@ -236,10 +201,6 @@ void IdealSolnGasVPSS::getActivityConcentrations(doublereal* c) const
     }
 }
 
-/*
- * Returns the standard concentration \f$ C^0_k \f$, which is used to normalize
- * the generalized concentration.
- */
 doublereal IdealSolnGasVPSS::standardConcentration(size_t k) const
 {
     if (m_idealGas) {
@@ -260,10 +221,6 @@ doublereal IdealSolnGasVPSS::standardConcentration(size_t k) const
     }
 }
 
-/*
- * Returns the natural logarithm of the standard
- * concentration of the kth species
- */
 doublereal IdealSolnGasVPSS::logStandardConc(size_t k) const
 {
     double c = standardConcentration(k);
@@ -271,32 +228,6 @@ doublereal IdealSolnGasVPSS::logStandardConc(size_t k) const
     return lc;
 }
 
-/*
- *
- * getUnitsStandardConcentration()
- *
- * Returns the units of the standard and general concentrations
- * Note they have the same units, as their divisor is
- * defined to be equal to the activity of the kth species
- * in the solution, which is unitless.
- *
- * This routine is used in print out applications where the
- * units are needed. Usually, MKS units are assumed throughout
- * the program and in the XML input files.
- *
- *  uA[0] = kmol units - default  = 1
- *  uA[1] = m    units - default  = -nDim(), the number of spatial
- *                                dimensions in the Phase class.
- *  uA[2] = kg   units - default  = 0;
- *  uA[3] = Pa(pressure) units - default = 0;
- *  uA[4] = Temperature units - default = 0;
- *  uA[5] = time units - default = 0
- *
- *  For EOS types other than cIdealSolidSolnPhase1, the default
- *  kmol/m3 holds for standard concentration units. For
- *  cIdealSolidSolnPhase0 type, the standard concentration is
- *  unitless.
- */
 void IdealSolnGasVPSS::getUnitsStandardConc(double* uA, int, int sizeUA) const
 {
     int eos = eosType();
@@ -328,10 +259,6 @@ void IdealSolnGasVPSS::getUnitsStandardConc(double* uA, int, int sizeUA) const
     }
 }
 
-
-/*
- * Get the array of non-dimensional activity coefficients
- */
 void IdealSolnGasVPSS::getActivityCoefficients(doublereal* ac) const
 {
     for (size_t k = 0; k < m_kk; k++) {
@@ -343,15 +270,6 @@ void IdealSolnGasVPSS::getActivityCoefficients(doublereal* ac) const
  * ---- Partial Molar Properties of the Solution -----------------
  */
 
-/*
- * Get the array of non-dimensional species chemical potentials
- * These are partial molar Gibbs free energies.
- * \f$ \mu_k / \hat R T \f$.
- * Units: unitless
- *
- * We close the loop on this function, here, calling
- * getChemPotentials() and then dividing by RT.
- */
 void IdealSolnGasVPSS::getChemPotentials_RT(doublereal* muRT) const
 {
     getChemPotentials(muRT);
@@ -371,7 +289,6 @@ void IdealSolnGasVPSS::getChemPotentials(doublereal* mu) const
         mu[k] += rt*(log(xx));
     }
 }
-
 
 void IdealSolnGasVPSS::getPartialMolarEnthalpies(doublereal* hbar) const
 {
@@ -410,23 +327,11 @@ void IdealSolnGasVPSS::getPartialMolarVolumes(doublereal* vbar) const
     getStandardVolumes(vbar);
 }
 
-/*
- * ----- Thermodynamic Values for the Species Reference States ----
- */
-
-
-
-
-/*
- * Perform initializations after all species have been
- * added.
- */
 void IdealSolnGasVPSS::initThermo()
 {
     initLengths();
     VPStandardStateTP::initThermo();
 }
-
 
 void IdealSolnGasVPSS::setToEquilState(const doublereal* mu_RT)
 {
@@ -461,33 +366,12 @@ void IdealSolnGasVPSS::setToEquilState(const doublereal* mu_RT)
     setState_PX(pres, &m_pp[0]);
 }
 
-/*
- * Initialize the internal lengths.
- *       (this is not a virtual function)
- */
 void IdealSolnGasVPSS::initLengths()
 {
     m_kk = nSpecies();
     m_pp.resize(m_kk, 0.0);
 }
 
-/*
- *   Import and initialize a ThermoPhase object
- *
- * param phaseNode This object must be the phase node of a
- *             complete XML tree
- *             description of the phase, including all of the
- *             species data. In other words while "phase" must
- *             point to an XML phase object, it must have
- *             sibling nodes "speciesData" that describe
- *             the species in the phase.
- * param id   ID of the phase. If nonnull, a check is done
- *             to see if phaseNode is pointing to the phase
- *             with the correct id.
- *
- * This routine initializes the lengths in the current object and
- * then calls the parent routine.
- */
 void IdealSolnGasVPSS::initThermoXML(XML_Node& phaseNode, const std::string& id)
 {
     IdealSolnGasVPSS::initLengths();
@@ -555,5 +439,3 @@ void IdealSolnGasVPSS::setParametersFromXML(const XML_Node& thermoNode)
 }
 
 }
-
-

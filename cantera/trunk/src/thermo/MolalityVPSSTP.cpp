@@ -28,16 +28,6 @@ using namespace std;
 namespace Cantera
 {
 
-/*
- * Default constructor.
- *
- * This doesn't do much more than initialize constants with
- * default values for water at 25C. Water molecular weight
- * comes from the default elements.xml file. It actually
- * differs slightly from the IAPWS95 value of 18.015268. However,
- * density conservation and therefore element conservation
- * is the more important principle to follow.
- */
 MolalityVPSSTP::MolalityVPSSTP() :
     VPStandardStateTP(),
     m_indexSolvent(0),
@@ -55,12 +45,6 @@ MolalityVPSSTP::MolalityVPSSTP() :
     m_chargeNeutralityNecessary = true;
 }
 
-/*
- * Copy Constructor:
- *
- *  Note this stuff will not work until the underlying phase
- *  has a working copy constructor
- */
 MolalityVPSSTP::MolalityVPSSTP(const MolalityVPSSTP& b) :
     VPStandardStateTP(),
     m_indexSolvent(b.m_indexSolvent),
@@ -73,12 +57,6 @@ MolalityVPSSTP::MolalityVPSSTP(const MolalityVPSSTP& b) :
     *this = operator=(b);
 }
 
-/*
- * operator=()
- *
- *  Note this stuff will not work until the underlying phase
- *  has a working assignment operator
- */
 MolalityVPSSTP& MolalityVPSSTP::
 operator=(const MolalityVPSSTP& b)
 {
@@ -95,21 +73,10 @@ operator=(const MolalityVPSSTP& b)
     return *this;
 }
 
-/**
- *
- * ~MolalityVPSSTP():   (virtual)
- *
- * Destructor: does nothing:
- *
- */
 MolalityVPSSTP::~MolalityVPSSTP()
 {
 }
 
-/*
- * This routine duplicates the current object and returns
- * a pointer to ThermoPhase.
- */
 ThermoPhase*
 MolalityVPSSTP::duplMyselfAsThermoPhase() const
 {
@@ -120,25 +87,11 @@ MolalityVPSSTP::duplMyselfAsThermoPhase() const
  *  -------------- Utilities -------------------------------
  */
 
-// Equation of state type flag.
-/*
- * The ThermoPhase base class returns
- * zero. Subclasses should define this to return a unique
- * non-zero value. Known constants defined for this purpose are
- * listed in mix_defs.h. The MolalityVPSSTP class also returns
- * zero, as it is a non-complete class.
- */
 int MolalityVPSSTP::eosType() const
 {
     return 0;
 }
 
-// Set the pH scale, which determines the scale for single-ion activity
-// coefficients.
-/*
- *  Single ion activity coefficients are not unique in terms of the
- *  representing actual measurable quantities.
- */
 void MolalityVPSSTP::setpHScale(const int pHscaleType)
 {
     m_pHScalingType = pHscaleType;
@@ -148,24 +101,11 @@ void MolalityVPSSTP::setpHScale(const int pHscaleType)
     }
 }
 
-// Reports the pH scale, which determines the scale for single-ion activity
-// coefficients.
-/*
- *  Single ion activity coefficients are not unique in terms of the
- *  representing actual measurable quantities.
- */
 int MolalityVPSSTP::pHScale() const
 {
     return m_pHScalingType;
 }
 
-/*
- * setSolvent():
- *  Utilities for Solvent ID and Molality
- *  Here we also calculate and store the molecular weight
- *  of the solvent and the m_Mnaught parameter.
- *  @param k index of the solvent.
- */
 void MolalityVPSSTP::setSolvent(size_t k)
 {
     if (k >= m_kk) {
@@ -179,18 +119,11 @@ void MolalityVPSSTP::setSolvent(size_t k)
     m_Mnaught = m_weightSolvent / 1000.;
 }
 
-/*
- * return the solvent id index number.
- */
 size_t MolalityVPSSTP::solventIndex() const
 {
     return m_indexSolvent;
 }
 
-/*
- * Sets the minimum mole fraction in the molality formulation. The
- * minimum mole fraction must be in the range 0 to 0.9.
- */
 void  MolalityVPSSTP::
 setMoleFSolventMin(doublereal xmolSolventMIN)
 {
@@ -202,29 +135,11 @@ setMoleFSolventMin(doublereal xmolSolventMIN)
     m_xmolSolventMIN = xmolSolventMIN;
 }
 
-/**
- * Returns the minimum mole fraction in the molality formulation.
- */
 doublereal MolalityVPSSTP::moleFSolventMin() const
 {
     return m_xmolSolventMIN;
 }
 
-/*
- * calcMolalities():
- *   We calculate the vector of molalities of the species
- *   in the phase and store the result internally:
- * \f[
- *     m_i = (n_i) / (1000 * M_o * n_{o,p})
- * \f]
- *    where
- *    - \f$ M_o \f$ is the molecular weight of the solvent
- *    - \f$ n_o \f$ is the mole fraction of the solvent
- *    - \f$ n_i \f$ is the mole fraction of the solute.
- *    - \f$ n_{o,p} = max (n_{o, min}, n_o) \f$
- *    - \f$ n_{o,min} \f$ = minimum mole fraction of solvent allowed
- *              in the denominator.
- */
 void MolalityVPSSTP::calcMolalities() const
 {
     getMoleFractions(DATA_PTR(m_molalities));
@@ -238,21 +153,6 @@ void MolalityVPSSTP::calcMolalities() const
     }
 }
 
-/*
- * getMolalities():
- *   We calculate the vector of molalities of the species
- *   in the phase
- * \f[
- *     m_i = (n_i) / (1000 * M_o * n_{o,p})
- * \f]
- *    where
- *    - \f$ M_o \f$ is the molecular weight of the solvent
- *    - \f$ n_o \f$ is the mole fraction of the solvent
- *    - \f$ n_i \f$ is the mole fraction of the solute.
- *    - \f$ n_{o,p} = max (n_{o, min}, n_o) \f$
- *    - \f$ n_{o,min} \f$ = minimum mole fraction of solvent allowed
- *              in the denominator.
- */
 void MolalityVPSSTP::getMolalities(doublereal* const molal) const
 {
     calcMolalities();
@@ -261,24 +161,8 @@ void MolalityVPSSTP::getMolalities(doublereal* const molal) const
     }
 }
 
-/*
- * setMolalities():
- *   We are supplied with the molalities of all of the
- *   solute species. We then calculate the mole fractions of all
- *   species and update the ThermoPhase object.
- *
- *     m_i = (n_i) / (W_o/1000 * n_o_p)
- *
- *    where M_o is the molecular weight of the solvent
- *    n_o is the mole fraction of the solvent
- *    n_i is the mole fraction of the solute.
- *    n_o_p = max (n_o_min, n_o)
- *    n_o_min = minimum mole fraction of solvent allowed
- *              in the denominator.
- */
 void MolalityVPSSTP::setMolalities(const doublereal* const molal)
 {
-
     double Lsum = 1.0 / m_Mnaught;
     for (size_t k = 1; k < m_kk; k++) {
         m_molalities[k] = molal[k];
@@ -306,16 +190,13 @@ void MolalityVPSSTP::setMolalities(const doublereal* const molal)
     calcMolalities();
 }
 
-/*
- * setMolalitiesByName()
- *
- *  This routine sets the molalities by name
- *  HKM -> Might need to be more complicated here, setting
- *         neutrals so that the existing mole fractions are
- *         preserved.
- */
 void MolalityVPSSTP::setMolalitiesByName(compositionMap& mMap)
 {
+    /*
+     *  HKM -> Might need to be more complicated here, setting
+     *         neutrals so that the existing mole fractions are
+     *         preserved.
+     */
     size_t kk = nSpecies();
     doublereal x;
     /*
@@ -396,46 +277,16 @@ void MolalityVPSSTP::setMolalitiesByName(compositionMap& mMap)
     calcMolalities();
 }
 
-/*
- * setMolalitiesByNames()
- *
- *   Set the molalities of the solutes by name
- */
 void MolalityVPSSTP::setMolalitiesByName(const std::string& x)
 {
     compositionMap xx = parseCompString(x, speciesNames());
     setMolalitiesByName(xx);
 }
 
-
-/*
- * ------------ Molar Thermodynamic Properties ----------------------
- */
-
-
 /*
  * - Activities, Standard States, Activity Concentrations -----------
  */
 
-/*
- * This method returns the activity convention.
- * Currently, there are two activity conventions
- *  Molar-based activities
- *       Unit activity of species at either a hypothetical pure
- *       solution of the species or at a hypothetical
- *       pure ideal solution at infinite dilution
- *   cAC_CONVENTION_MOLAR 0
- *      - default
- *
- *  Molality based activities
- *       (unit activity of solutes at a hypothetical 1 molal
- *        solution referenced to infinite dilution at all
- *        pressures and temperatures).
- *       (solvent is still on molar basis).
- *   cAC_CONVENTION_MOLALITY 1
- *
- *  We set the convention to molality here.
- */
 int MolalityVPSSTP::activityConvention() const
 {
     return cAC_CONVENTION_MOLALITY;
@@ -463,19 +314,6 @@ void MolalityVPSSTP::getActivities(doublereal* ac) const
     err("getActivities");
 }
 
-/*
- * Get the array of non-dimensional activity coefficients at
- * the current solution temperature, pressure, and
- * solution concentration.
- * These are mole fraction based activity coefficients. In this
- * object, their calculation is based on translating the values
- * of Molality based activity coefficients.
- *  See Denbigh p. 278 for a thorough discussion.
- *
- * Note, the solvent is treated differently. getMolalityActivityCoeff()
- * returns the molar based solvent activity coefficient already.
- * Therefore, we do not have to divide by x_s here.
- */
 void MolalityVPSSTP::getActivityCoefficients(doublereal* ac) const
 {
     getMolalityActivityCoefficients(ac);
@@ -489,38 +327,12 @@ void MolalityVPSSTP::getActivityCoefficients(doublereal* ac) const
     }
 }
 
-// Get the array of non-dimensional molality based
-//  activity coefficients at the current solution temperature,
-//  pressure, and  solution concentration.
-/*
- *  See Denbigh p. 278 for a thorough discussion. This class must be overwritten in
- *  classes which derive from %MolalityVPSSTP. This function takes over from the
- *  molar-based activity coefficient calculation, getActivityCoefficients(), in
- *  derived classes.
- *
- *  Note these activity coefficients have the current pH scale applied to them.
- *
- * @param acMolality Output vector containing the molality based activity coefficients.
- *                   length: m_kk.
- */
 void MolalityVPSSTP::getMolalityActivityCoefficients(doublereal* acMolality) const
 {
     getUnscaledMolalityActivityCoefficients(acMolality);
     applyphScale(acMolality);
 }
 
-/*
- * osmotic coefficient:
- *
- *  Calculate the osmotic coefficient of the solvent. Note there
- *  are lots of definitions of the osmotic coefficient floating
- *  around. We use the one defined in the Pitzer's book:
- *  (Activity Coeff in Electrolyte Solutions, K. S. Pitzer
- *   CRC Press, Boca Raton, 1991, p. 85, Eqn. 28).
- *
- *        Definition:
- *         - sum(m_i) * Mnaught * oc = ln(activity_solvent)
- */
 doublereal MolalityVPSSTP::osmoticCoefficient() const
 {
     /*
@@ -543,7 +355,6 @@ doublereal MolalityVPSSTP::osmoticCoefficient() const
     return oc;
 }
 
-
 void MolalityVPSSTP::getElectrochemPotentials(doublereal* mu) const
 {
     getChemPotentials(mu);
@@ -553,11 +364,6 @@ void MolalityVPSSTP::getElectrochemPotentials(doublereal* mu) const
     }
 }
 
-/*
- * ------------ Partial Molar Properties of the Solution ------------
- */
-
-
 doublereal MolalityVPSSTP::err(const std::string& msg) const
 {
     throw CanteraError("MolalityVPSSTP","Base class method "
@@ -565,28 +371,6 @@ doublereal MolalityVPSSTP::err(const std::string& msg) const
     return 0;
 }
 
-/*
- * Returns the units of the standard and general concentrations
- * Note they have the same units, as their divisor is
- * defined to be equal to the activity of the kth species
- * in the solution, which is unitless.
- *
- * This routine is used in print out applications where the
- * units are needed. Usually, MKS units are assumed throughout
- * the program and in the XML input files.
- *
- * On return uA contains the powers of the units (MKS assumed)
- * of the standard concentrations and generalized concentrations
- * for the kth species.
- *
- *  uA[0] = kmol units - default  = 1
- *  uA[1] = m    units - default  = -nDim(), the number of spatial
- *                                dimensions in the Phase class.
- *  uA[2] = kg   units - default  = 0;
- *  uA[3] = Pa(pressure) units - default = 0;
- *  uA[4] = Temperature units - default = 0;
- *  uA[5] = time units - default = 0
- */
 void MolalityVPSSTP::getUnitsStandardConc(double* uA, int k, int sizeUA) const
 {
     for (int i = 0; i < sizeUA; i++) {
@@ -617,9 +401,6 @@ void MolalityVPSSTP::setToEquilState(const doublereal* lambda_RT)
     err("setToEquilState");
 }
 
-/*
- * Set the thermodynamic state.
- */
 void MolalityVPSSTP::setStateFromXML(const XML_Node& state)
 {
     VPStandardStateTP::setStateFromXML(state);
@@ -633,10 +414,6 @@ void MolalityVPSSTP::setStateFromXML(const XML_Node& state)
     }
 }
 
-/*
- * Set the temperature (K), pressure (Pa), and molalities
- * (gmol kg-1) of the solutes
- */
 void MolalityVPSSTP::setState_TPM(doublereal t, doublereal p,
                                   const doublereal* const molalities)
 {
@@ -644,18 +421,12 @@ void MolalityVPSSTP::setState_TPM(doublereal t, doublereal p,
     setState_TP(t, p);
 }
 
-/*
- * Set the temperature (K), pressure (Pa), and molalities.
- */
 void MolalityVPSSTP::setState_TPM(doublereal t, doublereal p, compositionMap& m)
 {
     setMolalitiesByName(m);
     setState_TP(t, p);
 }
 
-/*
- * Set the temperature (K), pressure (Pa), and molality.
- */
 void MolalityVPSSTP::setState_TPM(doublereal t, doublereal p, const std::string& m)
 {
     setMolalitiesByName(m);
@@ -663,19 +434,6 @@ void MolalityVPSSTP::setState_TPM(doublereal t, doublereal p, const std::string&
 }
 
 
-/*
- * @internal Initialize. This method is provided to allow
- * subclasses to perform any initialization required after all
- * species have been added. For example, it might be used to
- * resize internal work arrays that must have an entry for
- * each species.  The base class implementation does nothing,
- * and subclasses that do not require initialization do not
- * need to overload this method.  When importing a CTML phase
- * description, this method is called just prior to returning
- * from function importPhase.
- *
- * @see importCTML.cpp
- */
 void MolalityVPSSTP::initThermo()
 {
     initLengths();
@@ -691,48 +449,16 @@ void MolalityVPSSTP::initThermo()
     m_indexCLM = findCLMIndex();
 }
 
-//  Get the array of unscaled non-dimensional molality based
-//  activity coefficients at the current solution temperature,
-//  pressure, and  solution concentration.
-/*
- *  See Denbigh p. 278 for a thorough discussion. This class must be overwritten in
- *  classes which derive from %MolalityVPSSTP. This function takes over from the
- *  molar-based activity coefficient calculation, getActivityCoefficients(), in
- *  derived classes.
- *
- * @param acMolality Output vector containing the molality based activity coefficients.
- *                   length: m_kk.
- */
 void MolalityVPSSTP::getUnscaledMolalityActivityCoefficients(doublereal* acMolality) const
 {
     err("getUnscaledMolalityActivityCoefficients");
 }
 
-//  Apply the current phScale to a set of activity Coefficients or activities
-/*
- *  See the Eq3/6 Manual for a thorough discussion.
- *
- * @param acMolality input/Output vector containing the molality based
- *                   activity coefficients. length: m_kk.
- */
 void MolalityVPSSTP::applyphScale(doublereal* acMolality) const
 {
     err("applyphScale");
 }
 
-//  Returns the index of the Cl- species.
-/*
- *  The Cl- species is special in the sense that its single ion
- *  molality-based activity coefficient is used in the specification
- *  of the pH scale for single ions. Therefore, we need to know
- *  what species index Cl- is. If the species isn't in the species
- *  list then this routine returns -1, and we can't use the NBS
- *  pH scale.
- *
- *  Right now we use a restrictive interpretation. The species
- *  must be named "Cl-". It must consist of exactly one Cl and one E
- *  atom.
- */
 size_t MolalityVPSSTP::findCLMIndex() const
 {
     size_t indexCLM = npos;
@@ -798,21 +524,6 @@ void  MolalityVPSSTP::initLengths()
     m_molalities.resize(m_kk);
 }
 
-/*
- * initThermoXML()                (virtual from ThermoPhase)
- *   Import and initialize a ThermoPhase object
- *
- * @param phaseNode This object must be the phase node of a
- *             complete XML tree
- *             description of the phase, including all of the
- *             species data. In other words while "phase" must
- *             point to an XML phase object, it must have
- *             sibling nodes "speciesData" that describe
- *             the species in the phase.
- * @param id   ID of the phase. If nonnull, a check is done
- *             to see if phaseNode is pointing to the phase
- *             with the correct id.
- */
 void MolalityVPSSTP::initThermoXML(XML_Node& phaseNode, const std::string& id)
 {
 
@@ -830,8 +541,6 @@ void MolalityVPSSTP::initThermoXML(XML_Node& phaseNode, const std::string& id)
   */
 std::string MolalityVPSSTP::report(bool show_thermo) const
 {
-
-
     char p[800];
     string s = "";
     try {
@@ -947,9 +656,6 @@ std::string MolalityVPSSTP::report(bool show_thermo) const
     return s;
 }
 
-/*
- * Format a summary of the mixture state for output.
- */
 void MolalityVPSSTP::getCsvReportData(std::vector<std::string>& names,
                                       std::vector<vector_fp>& data) const
 {

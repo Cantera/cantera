@@ -22,7 +22,6 @@
 namespace Cantera
 {
 
-
 /**
  * Major Parameters:
  *   The form of the Pitzer expression refers to the
@@ -36,10 +35,8 @@ namespace Cantera
  *
  *   Only one form is supported atm. This parameter is included for
  *   future expansion.
- *
  */
 #define PITZERFORM_BASE 0
-
 
 /*!
  * @name Temperature Dependence of the Pitzer Coefficients
@@ -64,7 +61,6 @@ namespace Cantera
  *
  *       beta0 = q0 + q3(1/T - 1/Tr) + q4(ln(T/Tr)) +
  *               q1(T - Tr) + q2(T**2 - Tr**2)
- *
  */
 //@{
 #define PITZER_TEMP_CONSTANT   0
@@ -131,8 +127,8 @@ class PDSS_Water;
  * The enthalpy function is given by the following relation.
  *
  *       \f[
- *   \raggedright  h^\triangle_k(T,P) = h^{\triangle,ref}_k(T)
- *         + \tilde{v}_k \left( P - P_{ref} \right)
+ *          h^\triangle_k(T,P) = h^{\triangle,ref}_k(T)
+ *              + \tilde{v}_k \left( P - P_{ref} \right)
  *       \f]
  *
  * For an incompressible,
@@ -356,139 +352,140 @@ class PDSS_Water;
  *  molalities or ionic strengths. However, all coefficients are potentially functions
  *  of the temperature and pressure of the solution.
  *
- *   <I>A</I> is the Debye-Huckel constant. Its specification is described in its own
- *   section below.
+ *  <I>A</I> is the Debye-Huckel constant. Its specification is described in its own
+ *  section below.
  *
- *   \f$ I\f$ is the ionic strength of the solution, and is given by:
+ *  \f$ I\f$ is the ionic strength of the solution, and is given by:
  *
- *   \f[
- *       I = \frac{1}{2} \sum_k{m_k  z_k^2}
- *   \f]
+ *  \f[
+ *      I = \frac{1}{2} \sum_k{m_k  z_k^2}
+ *  \f]
  *
- *   In contrast to several other Debye-Huckel implementations (see \ref DebyeHuckel), the
- *   parameter \f$ b\f$ in the above equation is a constant that
- *   does not vary with respect to ion identity. This is an important simplification
- *   as it avoids troubles with satisfaction of the Gibbs-Duhem analysis.
+ *  In contrast to several other Debye-Huckel implementations (see \ref DebyeHuckel), the
+ *  parameter \f$ b\f$ in the above equation is a constant that
+ *  does not vary with respect to ion identity. This is an important simplification
+ *  as it avoids troubles with satisfaction of the Gibbs-Duhem analysis.
  *
- *   The function \f$ Z \f$ is given by
+ *  The function \f$ Z \f$ is given by
  *
- *   \f[
- *       Z = \sum_i m_i \left| z_i \right|
- *   \f]
+ *  \f[
+ *      Z = \sum_i m_i \left| z_i \right|
+ *  \f]
  *
- *   The value of \f$ B_{ca}\f$ is given by the following function
+ *  The value of \f$ B_{ca}\f$ is given by the following function
  *
- *   \f[
+ *  \f[
  *      B_{ca} = \beta^{(0)}_{ca} + \beta^{(1)}_{ca} g(\alpha^{(1)}_{ca} \sqrt{I})
  *             + \beta^{(2)}_{ca} g(\alpha^{(2)}_{ca} \sqrt{I})
- *   \f]
+ *  \f]
  *
- *   where
+ *  where
  *
- *   \f[
- *       g(x) = 2 \frac{(1 - (1 + x)\exp[-x])}{x^2}
- *   \f]
+ *  \f[
+ *      g(x) = 2 \frac{(1 - (1 + x)\exp[-x])}{x^2}
+ *  \f]
  *
- *   The formulation for \f$ B_{ca}\f$ combined with the formulation of the
- *   Debye-Huckel term in the eqn. for the excess Gibbs free energy stems
- *   essentially from an empirical fit to the ionic strength dependent data
- *   based over a wide sampling of binary electrolyte systems. \f$ C_{ca} \f$,
- *   \f$ \lambda_{nc} \f$, \f$ \lambda_{na} \f$, \f$ \lambda_{nn} \f$,
- *   \f$ \Psi_{c{c'}a} \f$, \f$ \Psi_{a{a'}c} \f$ are experimentally derived
- *   coefficients that may have pressure and/or temperature dependencies.
- *    The \f$ \Phi_{c{c'}} \f$ and \f$ \Phi_{a{a'}} \f$ formulations are
- *   slightly more complicated. \f$ b \f$ is a universal
- *   constant defined to be equal to \f$ 1.2\ kg^{1/2}\ gmol^{-1/2} \f$. The exponential
- *   coefficient \f$ \alpha^{(1)}_{ca} \f$ is usually
- *   fixed at \f$ \alpha^{(1)}_{ca} = 2.0\ kg^{1/2} gmol^{-1/2}\f$
- *   except for 2-2 electrolytes, while other parameters were fit to experimental
- *   data. For 2-2 electrolytes, \f$ \alpha^{(1)}_{ca} = 1.4\ kg^{1/2}\ gmol^{-1/2}\f$
- *    is used in combination with either \f$ \alpha^{(2)}_{ca} = 12\ kg^{1/2}\ gmol^{-1/2}\f$
- *   or \f$ \alpha^{(2)}_{ca} = k A_\psi \f$, where <I>k</I> is a constant. For electrolytes other
- *   than 2-2 electrolytes the \f$ \beta^{(2)}_{ca} g(\alpha^{(2)}_{ca} \sqrt{I}) \f$  term
- *   is not used in the fitting procedure; it is only used for divalent metal
- *   solfates and other high-valence electrolytes which exhibit significant
- *   association at low ionic strengths.
+ *  The formulation for \f$ B_{ca}\f$ combined with the formulation of the
+ *  Debye-Huckel term in the eqn. for the excess Gibbs free energy stems
+ *  essentially from an empirical fit to the ionic strength dependent data
+ *  based over a wide sampling of binary electrolyte systems. \f$ C_{ca} \f$,
+ *  \f$ \lambda_{nc} \f$, \f$ \lambda_{na} \f$, \f$ \lambda_{nn} \f$,
+ *  \f$ \Psi_{c{c'}a} \f$, \f$ \Psi_{a{a'}c} \f$ are experimentally derived
+ *  coefficients that may have pressure and/or temperature dependencies.
  *
- *   The \f$ \beta^{(0)}_{ca} \f$,  \f$ \beta^{(1)}_{ca}\f$,  \f$ \beta^{(2)}_{ca} \f$,
- *   and \f$ C_{ca} \f$ binary coefficients are referred to as ion-interaction or
- *   Pitzer parameters. These Pitzer parameters may vary with temperature and pressure
- *   but they do not depend on the ionic strength. Their values and temperature
- *   derivatives of their values have been tabulated for a range of electrolytes
+ *  The \f$ \Phi_{c{c'}} \f$ and \f$ \Phi_{a{a'}} \f$ formulations are
+ *  slightly more complicated. \f$ b \f$ is a universal
+ *  constant defined to be equal to \f$ 1.2\ kg^{1/2}\ gmol^{-1/2} \f$. The exponential
+ *  coefficient \f$ \alpha^{(1)}_{ca} \f$ is usually
+ *  fixed at \f$ \alpha^{(1)}_{ca} = 2.0\ kg^{1/2} gmol^{-1/2}\f$
+ *  except for 2-2 electrolytes, while other parameters were fit to experimental
+ *  data. For 2-2 electrolytes, \f$ \alpha^{(1)}_{ca} = 1.4\ kg^{1/2}\ gmol^{-1/2}\f$
+ *  is used in combination with either \f$ \alpha^{(2)}_{ca} = 12\ kg^{1/2}\ gmol^{-1/2}\f$
+ *  or \f$ \alpha^{(2)}_{ca} = k A_\psi \f$, where <I>k</I> is a constant. For electrolytes other
+ *  than 2-2 electrolytes the \f$ \beta^{(2)}_{ca} g(\alpha^{(2)}_{ca} \sqrt{I}) \f$  term
+ *  is not used in the fitting procedure; it is only used for divalent metal
+ *  solfates and other high-valence electrolytes which exhibit significant
+ *  association at low ionic strengths.
  *
- *   The \f$ \Phi_{c{c'}} \f$ and \f$ \Phi_{a{a'}} \f$ contributions, which
- *   capture cation-cation and anion-anion interactions, also have an
- *   ionic strength dependence.
+ *  The \f$ \beta^{(0)}_{ca} \f$,  \f$ \beta^{(1)}_{ca}\f$,  \f$ \beta^{(2)}_{ca} \f$,
+ *  and \f$ C_{ca} \f$ binary coefficients are referred to as ion-interaction or
+ *  Pitzer parameters. These Pitzer parameters may vary with temperature and pressure
+ *  but they do not depend on the ionic strength. Their values and temperature
+ *  derivatives of their values have been tabulated for a range of electrolytes
  *
- *   Ternary contributions \f$ \Psi_{c{c'}a} \f$ and \f$ \Psi_{a{a'}c} \f$
- *   have been measured also for some systems. The success of the Pitzer
- *   method lies in its ability to model nonlinear activity coefficients
- *   of complex multicomponent systems with just binary and minor
- *   ternary contributions, which can be independently measured in
- *   binary or ternary subsystems.
+ *  The \f$ \Phi_{c{c'}} \f$ and \f$ \Phi_{a{a'}} \f$ contributions, which
+ *  capture cation-cation and anion-anion interactions, also have an
+ *  ionic strength dependence.
+ *
+ *  Ternary contributions \f$ \Psi_{c{c'}a} \f$ and \f$ \Psi_{a{a'}c} \f$
+ *  have been measured also for some systems. The success of the Pitzer
+ *  method lies in its ability to model nonlinear activity coefficients
+ *  of complex multicomponent systems with just binary and minor
+ *  ternary contributions, which can be independently measured in
+ *  binary or ternary subsystems.
  *
  *
  *  <H3> Multicomponent Activity Coefficients for Solutes </H3>
  *
- *    The formulas for activity coefficients of solutes may be obtained by taking the
- *    following derivative of the excess Gibbs Free Energy formulation described above:
+ *  The formulas for activity coefficients of solutes may be obtained by taking the
+ *  following derivative of the excess Gibbs Free Energy formulation described above:
  *
- *    \f[
+ *  \f[
  *     \ln(\gamma_k^\triangle) = \frac{d\left( \frac{G^{ex}}{M_o n_o RT} \right)}{d(m_k)}\Bigg|_{n_i}
- *    \f]
+ *  \f]
  *
- *    In the formulas below the following conventions are used. The subscript <I>M</I> refers
- *    to a particular cation. The subscript X refers to a particular anion, whose
- *    activity is being currently evaluated. the subscript <I>a</I> refers to a summation
- *    over all anions in the solution, while the subscript <I>c</I> refers to a summation
- *    over all cations in the solutions.
+ *  In the formulas below the following conventions are used. The subscript <I>M</I> refers
+ *  to a particular cation. The subscript X refers to a particular anion, whose
+ *  activity is being currently evaluated. the subscript <I>a</I> refers to a summation
+ *  over all anions in the solution, while the subscript <I>c</I> refers to a summation
+ *  over all cations in the solutions.
  *
- *     The activity coefficient for a particular cation <I>M</I> is given by
+ *  The activity coefficient for a particular cation <I>M</I> is given by
  *
- *   \f[
+ *  \f[
  *      \ln(\gamma_M^\triangle) = -z_M^2(F) + \sum_a m_a \left( 2 B_{Ma} + Z C_{Ma} \right)
  *      + z_M   \left( \sum_a  \sum_c m_a m_c C_{ca} \right)
  *             + \sum_c m_c \left[ 2 \Phi_{Mc} + \sum_a m_a \Psi_{Mca} \right]
  *             + \sum_{a < a'} \sum m_a m_{a'} \Psi_{Ma{a'}}
  *             +  2 \sum_n m_n \lambda_{nM}
- *   \f]
+ *  \f]
  *
- *     The activity coefficient for a particular anion <I>X</I> is given by
+ *  The activity coefficient for a particular anion <I>X</I> is given by
  *
- *   \f[
+ *  \f[
  *      \ln(\gamma_X^\triangle) = -z_X^2(F) + \sum_a m_c \left( 2 B_{cX} + Z C_{cX} \right)
  *      + \left|z_X \right|  \left( \sum_a  \sum_c m_a m_c C_{ca} \right)
  *             + \sum_a m_a \left[ 2 \Phi_{Xa} + \sum_c m_c \Psi_{cXa} \right]
  *             + \sum_{c < c'} \sum m_c m_{c'} \Psi_{c{c'}X}
  *             +  2 \sum_n m_n \lambda_{nM}
- *   \f]
- *              where the function \f$ F \f$ is given by
+ *  \f]
+ *  where the function \f$ F \f$ is given by
  *
- *   \f[
+ *  \f[
  *       F = - A_{\phi} \left[ \frac{\sqrt{I}}{1 + b \sqrt{I}}
  *                 + \frac{2}{b} \ln{\left(1 + b\sqrt{I}\right)} \right]
  *                 + \sum_a \sum_c m_a m_c B'_{ca}
  *                 + \sum_{c < c'} \sum m_c m_{c'} \Phi'_{c{c'}}
  *                 + \sum_{a < a'} \sum m_a m_{a'} \Phi'_{a{a'}}
- *   \f]
+ *  \f]
  *
- *   We have employed the definition of \f$ A_{\phi} \f$, also used by Pitzer
- *   which is equal to
+ *  We have employed the definition of \f$ A_{\phi} \f$, also used by Pitzer
+ *  which is equal to
  *
  *   \f[
  *     A_{\phi} = \frac{A_{Debye}}{3}
  *   \f]
  *
- *   In the above formulas, \f$ \Phi'_{c{c'}} \f$  and \f$ \Phi'_{a{a'}} \f$ are the
- *   ionic strength derivatives of \f$ \Phi_{c{c'}} \f$  and \f$  \Phi_{a{a'}} \f$,
- *   respectively.
+ *  In the above formulas, \f$ \Phi'_{c{c'}} \f$  and \f$ \Phi'_{a{a'}} \f$ are the
+ *  ionic strength derivatives of \f$ \Phi_{c{c'}} \f$  and \f$  \Phi_{a{a'}} \f$,
+ *  respectively.
  *
- *   The function \f$ B'_{MX} \f$ is defined as:
+ *  The function \f$ B'_{MX} \f$ is defined as:
  *
- *   \f[
+ *  \f[
  *       B'_{MX} = \left( \frac{\beta^{(1)}_{MX} h(\alpha^{(1)}_{MX} \sqrt{I})}{I}  \right)
  *                 \left( \frac{\beta^{(2)}_{MX} h(\alpha^{(2)}_{MX} \sqrt{I})}{I}  \right)
- *   \f]
+ *  \f]
  *
  *  where \f$ h(x) \f$ is defined as
  *
@@ -497,11 +494,11 @@ class PDSS_Water;
  *        \frac{2\left(1 - \left(1 + x + \frac{x^2}{2} \right)\exp(-x) \right)}{x^2}
  *   \f]
  *
- *   The activity coefficient for neutral species <I>N</I> is given by
+ *  The activity coefficient for neutral species <I>N</I> is given by
  *
- *   \f[
- *       \ln(\gamma_N^\triangle) = 2 \left( \sum_i m_i \lambda_{iN}\right)
- *   \f]
+ *  \f[
+ *      \ln(\gamma_N^\triangle) = 2 \left( \sum_i m_i \lambda_{iN}\right)
+ *  \f]
  *
  *
  *  <H3> Activity of the Water Solvent </H3>
@@ -546,7 +543,6 @@ class PDSS_Water;
  *  \f]
  *
  *  It can be shown that the expression
- *
  *
  *  \f[
  *     B^{\phi}_{ca} = \beta^{(0)}_{ca} + \beta^{(1)}_{ca} \exp{(- \alpha^{(1)}_{ca} \sqrt{I})}
@@ -681,7 +677,7 @@ class PDSS_Water;
  *               + q_4^{{\beta}0} \ln \left( \frac{T}{T_r} \right)
  *  \f]
  *
- *  This same COMPLEX1 </TT> temperature
+ *  This same <TT> COMPLEX1 </TT> temperature
  *  dependence given above is used for the following parameters:
  *  \f$ \beta^{(0)}_{MX} \f$, \f$ \beta^{(1)}_{MX} \f$,
  *  \f$ \beta^{(2)}_{MX} \f$, \f$ \Theta_{cc'} \f$,  \f$\Theta_{aa'} \f$,
@@ -704,12 +700,9 @@ class PDSS_Water;
  *  charges. \f$ \Phi_{ij} \f$, where \f$ ij \f$ is either \f$ a{a'} \f$
  *  or \f$ c{c'} \f$ is given by
  *
- *
- *
  *  \f[
  *      {\Phi}_{ij} = \Theta_{ij} + \,^E \Theta_{ij}(I)
  *  \f]
- *
  *
  *  \f$ \Theta_{ij} \f$ is the small virial coefficient expansion term.
  *  Dependent in general on temperature and pressure, its ionic
@@ -766,23 +759,23 @@ class PDSS_Water;
  *  in absolute size. Currently these parameters do not have
  *  any dependence on temperature, pressure, or ionic strength.
  *
- *   Their values are input using the XML element
- *   <TT> psiCommonCation </TT> and  <TT> psiCommonAnion </TT>.
- *   The species id's are specified in attribute fields in
- *   the XML element. The fields  <TT>cation</TT>,
- *   <TT> anion1</TT>, and <TT> anion2</TT>
- *   are used for  <TT>psiCommonCation</TT>. The fields <TT> anion</TT>,
- *   <TT>cation1</TT> and  <TT>cation2</TT> are used for
- *   <TT> psiCommonAnion</TT>. An example block is given below.
- *   The <TT> Theta </TT> field below is a duplicate of the
- *   <TT> thetaAnion </TT> field mentioned above. The two fields
- *   are input into the same block for convenience, and because
- *   their data are highly correlated, in practice.
- *   It is an error for the
- *   two blocks to specify different information about
- *   thetaAnion (or thetaCation) in different blocks. It's
- *   ok to specify duplicate but consistent information
- *   in multiple blocks.
+ *  Their values are input using the XML element
+ *  <TT> psiCommonCation </TT> and  <TT> psiCommonAnion </TT>.
+ *  The species id's are specified in attribute fields in
+ *  the XML element. The fields  <TT>cation</TT>,
+ *  <TT> anion1</TT>, and <TT> anion2</TT>
+ *  are used for  <TT>psiCommonCation</TT>. The fields <TT> anion</TT>,
+ *  <TT>cation1</TT> and  <TT>cation2</TT> are used for
+ *  <TT> psiCommonAnion</TT>. An example block is given below.
+ *  The <TT> Theta </TT> field below is a duplicate of the
+ *  <TT> thetaAnion </TT> field mentioned above. The two fields
+ *  are input into the same block for convenience, and because
+ *  their data are highly correlated, in practice.
+ *  It is an error for the
+ *  two blocks to specify different information about
+ *  thetaAnion (or thetaCation) in different blocks. It's
+ *  ok to specify duplicate but consistent information
+ *  in multiple blocks.
  *
  * @code
      <psiCommonCation cation="Na+" anion1="Cl-" anion2="OH-">
@@ -889,10 +882,10 @@ class PDSS_Water;
  *  \f$ A_{Debye} \f$ a full function of <I>T</I> and <I>P</I> and creates nontrivial entries for
  *  the excess heat capacity, enthalpy, and excess volumes of solution.
  *
- *   \f[
+ *  \f[
  *      A_{Debye} = \frac{F e B_{Debye}}{8 \pi \epsilon R T} {\left( C_o \tilde{M}_o \right)}^{1/2}
- *   \f]
- * where
+ *  \f]
+ *  where
  *
  *  \f[
  *      B_{Debye} = \frac{F} {{(\frac{\epsilon R T}{2})}^{1/2}}
@@ -904,25 +897,24 @@ class PDSS_Water;
  *                  {\left(\frac{N_a e^2}{\epsilon R T }\right)}^{3/2}
  *  \f]
  *
- *            Units = sqrt(kg/gmol)
+ *  Units = sqrt(kg/gmol)
  *
- *     where
- *      - \f$ N_a \f$ is Avogadro's number
- *      - \f$ \rho_w \f$ is the density of water
- *      - \f$ e \f$ is the electronic charge
- *      - \f$ \epsilon = K \epsilon_o \f$ is the permittivity of water
- *           where \f$ K \f$ is the dielectric constant of water,
- *           and  \f$ \epsilon_o \f$ is the permittivity of free space.
- *      - \f$ \rho_o \f$ is the density of the solvent in its standard state.
+ *  where
+ *  - \f$ N_a \f$ is Avogadro's number
+ *  - \f$ \rho_w \f$ is the density of water
+ *  - \f$ e \f$ is the electronic charge
+ *  - \f$ \epsilon = K \epsilon_o \f$ is the permittivity of water
+ *  - \f$ K \f$ is the dielectric constant of water,
+ *  - \f$ \epsilon_o \f$ is the permittivity of free space.
+ *  - \f$ \rho_o \f$ is the density of the solvent in its standard state.
  *
- *            Nominal value at 298 K and 1 atm = 1.172576 (kg/gmol)<SUP>1/2</SUP>
- *                  based on:
- *                 -   \f$ \epsilon / \epsilon_0 \f$ = 78.54
- *                           (water at 25C)
- *                 -   T = 298.15 K
- *                 -   B_Debye = 3.28640E9 (kg/gmol)<SUP>1/2</SUP> m<SUP>-1</SUP>
+ *  Nominal value at 298 K and 1 atm = 1.172576 (kg/gmol)<SUP>1/2</SUP>
+ *  based on:
+ *  - \f$ \epsilon / \epsilon_0 \f$ = 78.54 (water at 25C)
+ *  - T = 298.15 K
+ *  - B_Debye = 3.28640E9 (kg/gmol)<SUP>1/2</SUP> m<SUP>-1</SUP>
  *
- * An example of a fixed value implementation is given below.
+ *  An example of a fixed value implementation is given below.
  * @code
  *   <activityCoefficients model="Pitzer">
  *         <!-- A_Debye units = sqrt(kg/gmol)  -->
@@ -1242,12 +1234,8 @@ public:
     //! Construct and initialize an HMWSoln ThermoPhase object
     //! directly from an ASCII input file
     /*!
-     * Working constructors
-     *
-     *  The two constructors below are the normal way
-     *  the phase initializes itself. They are shells that call
-     *  the routine initThermo(), with a reference to the
-     *  XML database to get the info for the phase.
+     *  This constructor is a shell that calls the routine initThermo(), with
+     *  a reference to the XML database to get the info for the phase.
      *
      * @param inputFile Name of the input file containing the phase XML data
      *                  to set up the object
@@ -1264,7 +1252,6 @@ public:
      *                (default is the empty string)
      */
     HMWSoln(XML_Node& phaseRef, const std::string& id = "");
-
 
     //! Copy Constructor
     /*!
@@ -1287,33 +1274,31 @@ public:
      */
     HMWSoln& operator=(const HMWSoln& right);
 
-
-    //!  This is a special constructor, used to replicate test problems
-    //!  during the initial verification of the object
+    //! This is a special constructor, used to replicate test problems
+    //! during the initial verification of the object
     /*!
-     *
-     *
      *  test problems:
-     *  1 = NaCl problem - 5 species -
-     *   the thermo is read in from an XML file
+     *  1 = NaCl problem - 5 species - the thermo is read in from an XML file
      *
-     * speci   molality                        charge
-     *  Cl-     6.0954          6.0997E+00      -1
-     *  H+      1.0000E-08      2.1628E-09      1
-     *  Na+     6.0954E+00      6.0997E+00      1
-     *  OH-     7.5982E-07      1.3977E-06     -1
-     *  HMW_params____beta0MX__beta1MX__beta2MX__CphiMX_____alphaMX__thetaij
-     * 10
-     * 1  2          0.1775  0.2945   0.0      0.00080    2.0      0.0
-     * 1  3          0.0765  0.2664   0.0      0.00127    2.0      0.0
-     * 1  4          0.0     0.0      0.0      0.0        0.0     -0.050
-     * 2  3          0.0     0.0      0.0      0.0        0.0      0.036
-     * 2  4          0.0     0.0      0.0      0.0        0.0      0.0
-     * 3  4          0.0864  0.253    0.0      0.0044     2.0      0.0
-     * Triplet_interaction_parameters_psiaa'_or_psicc'
-     * 2
-     * 1  2  3   -0.004
-     * 1  3  4   -0.006
+     *      speci   molality                        charge
+     *      Cl-     6.0954          6.0997E+00      -1
+     *      H+      1.0000E-08      2.1628E-09      1
+     *      Na+     6.0954E+00      6.0997E+00      1
+     *      OH-     7.5982E-07      1.3977E-06     -1
+     *
+     *      HMW_params____beta0MX__beta1MX__beta2MX__CphiMX_____alphaMX__thetaij
+     *      10
+     *      1  2          0.1775  0.2945   0.0      0.00080    2.0      0.0
+     *      1  3          0.0765  0.2664   0.0      0.00127    2.0      0.0
+     *      1  4          0.0     0.0      0.0      0.0        0.0     -0.050
+     *      2  3          0.0     0.0      0.0      0.0        0.0      0.036
+     *      2  4          0.0     0.0      0.0      0.0        0.0      0.0
+     *      3  4          0.0864  0.253    0.0      0.0044     2.0      0.0
+     *
+     *      Triplet_interaction_parameters_psiaa'_or_psicc'
+     *      2
+     *      1  2  3   -0.004
+     *      1  3  4   -0.006
      *
      * @param testProb Hard -coded test problem to instantiate.
      *                 Current valid values are 1.
@@ -1333,10 +1318,9 @@ public:
      */
     ThermoPhase* duplMyselfAsThermoPhase() const;
 
-
-    //!   Import, construct, and initialize a HMWSoln phase
-    /*!   specification from an XML tree into the current object.
-     *
+    //! Import, construct, and initialize a HMWSoln phase
+    //! specification from an XML tree into the current object.
+    /*
      * This routine is a precursor to constructPhaseXML(XML_Node*)
      * routine, which does most of the work.
      *
@@ -1348,17 +1332,16 @@ public:
      */
     void constructPhaseFile(std::string inputFile, std::string id);
 
-    //!   Import and initialize a HMWSoln phase specification in an XML tree into the current object.
+    //! Import and initialize a HMWSoln phase specification in an XML tree
+    //! into the current object.
     /*!
-     *   Here we read an XML description of the phase.
-     *   We import descriptions of the elements that make up the
-     *   species in a phase.
-     *   We import information about the species, including their
-     *   reference state thermodynamic polynomials. We then freeze
-     *   the state of the species.
+     * Here we read an XML description of the phase. We import descriptions of
+     * the elements that make up the species in a phase. We import information
+     * about the species, including their reference state thermodynamic
+     * polynomials. We then freeze the state of the species.
      *
-     *   Then, we read the species molar volumes from the xml
-     *   tree to finish the initialization.
+     * Then, we read the species molar volumes from the xml tree to finish the
+     * initialization.
      *
      * @param phaseNode This object must be the phase node of a complete XML tree
      *             description of the phase, including all of the
@@ -1373,24 +1356,14 @@ public:
      */
     void constructPhaseXML(XML_Node& phaseNode, std::string id);
 
-    /**
-     * @name  Utilities
-     * @{
-     */
+    //! @name  Utilities
+    //! @{
 
-    /**
-     * Equation of state type flag. The base class returns
-     * zero. Subclasses should define this to return a unique
-     * non-zero value. Constants defined for this purpose are
-     * listed in mix_defs.h.
-     */
     virtual int eosType() const;
 
-    /**
-     * @}
-     * @name  Molar Thermodynamic Properties of the Solution --------------
-     * @{
-     */
+    //! @}
+    //! @name  Molar Thermodynamic Properties of the Solution
+    //! @{
 
     /// Molar enthalpy. Units: J/kmol.
     /**
@@ -1415,7 +1388,6 @@ public:
      * Note this is kmol of the guessed at salt composition
      */
     virtual doublereal relative_molal_enthalpy() const;
-
 
     /// Molar internal energy. Units: J/kmol.
     /**
@@ -1459,17 +1431,16 @@ public:
      */
     virtual doublereal cv_mole() const;
 
-    //@}
-    /// @name Mechanical Equation of State Properties ---------------------
-    //@{
-    /**
-     *   In this equation of state implementation, the density is a
-     *   function only of the mole fractions. Therefore, it can't be
-     *   an independent variable. Instead, the pressure is used as the
-     *   independent variable. Functions which try to set the thermodynamic
-     *   state by calling setDensity() may cause an exception to be
-     *   thrown.
+    //!@}
+    //! @name Mechanical Equation of State Properties
+    /*!
+     * In this equation of state implementation, the density is a function
+     * only of the mole fractions. Therefore, it can't be an independent
+     * variable. Instead, the pressure is used as the independent variable.
+     * Functions which try to set the thermodynamic state by calling
+     * setDensity() may cause an exception to be thrown.
      */
+    //!@{
 
     /**
      * Pressure. Units: Pa.
@@ -1526,15 +1497,22 @@ public:
 
     //! Set the internally stored density (kg/m^3) of the phase.
     /*!
-     * Overwritten setDensity() function is necessary because of
-     * the underlying water model.
+     * Overwritten setDensity() function is necessary because the
+     * density is not an independent variable.
      *
+     * This function will now throw an error condition.
+     *
+     * Note, in general, setting the phase density is now a nonlinear
+     * calculation. P and T are the fundamental variables. This
+     * routine should be revamped to do the nonlinear problem.
+     *
+     * @todo May have to adjust the strategy here to make
+     * the eos for these materials slightly compressible, in order
+     * to create a condition where the density is a function of
+     * the pressure.
      * @todo Now have a compressible ss equation for liquid water.
      *       Therefore, this phase is compressible. May still
      *       want to change the independent variable however.
-     *
-     *  NOTE: This is an overwritten function from the State.h
-     *        class
      *
      * @param rho Input density (kg/m^3).
      */
@@ -1548,17 +1526,13 @@ public:
      * This function will now throw an error condition if the input
      * isn't exactly equal to the current molar density.
      *
-     *  NOTE: This is a virtual function overwritten from the State.h
-     *        class
-     *
      * @param conc   Input molar density (kmol/m^3).
      */
     void setMolarDensity(const doublereal conc);
 
     //! Set the temperature (K)
     /*!
-     * Overwritten setTemperature(double) from State.h. This
-     * function sets the temperature, and makes sure that
+     * This function sets the temperature, and makes sure that
      * the value propagates to underlying objects, such as
      * the water standard state model.
      *
@@ -1577,13 +1551,14 @@ public:
      */
     virtual void setState_TP(doublereal t, doublereal p);
 
-
     /**
      * The isothermal compressibility. Units: 1/Pa.
      * The isothermal compressibility is defined as
      * \f[
      * \kappa_T = -\frac{1}{v}\left(\frac{\partial v}{\partial P}\right)_T
      * \f]
+     *  It's equal to zero for this model, since the molar volume
+     *  doesn't change with pressure or temperature.
      */
     virtual doublereal isothermalCompressibility() const;
 
@@ -1594,6 +1569,8 @@ public:
      * \f[
      * \beta = \frac{1}{v}\left(\frac{\partial v}{\partial T}\right)_P
      * \f]
+     *  It's equal to zero for this model, since the molar volume
+     *  doesn't change with pressure or temperature.
      */
     virtual doublereal thermalExpansionCoeff() const;
 
@@ -1608,8 +1585,6 @@ public:
      * @{
      */
 
-
-
     /**
      * @}
      * @name Activities, Standard States,  and Activity Concentrations
@@ -1622,7 +1597,6 @@ public:
      * Activity is assumed to be molality-based here.
      * @{
      */
-
 
     //! This method returns an array of generalized activity concentrations
     /*!
@@ -1644,7 +1618,6 @@ public:
      *  \f[
      *      C_o^a = C^o_o a_o
      *  \f]
-     *
      *
      * @param c Array of generalized concentrations. The
      *          units are kmol m-3 for both the solvent and the solute species
@@ -1723,7 +1696,6 @@ public:
      *      C_o^a = C^o_o a_o
      *  \f]
      *
-     *
      * @param k Optional parameter indicating the species. The default
      *         is to assume this refers to species 0.
      * @return
@@ -1733,7 +1705,6 @@ public:
      * @param k Species index
      */
     virtual doublereal standardConcentration(size_t k=0) const;
-
 
     //! Returns the natural logarithm of the standard
     //! concentration of the kth species
@@ -1787,9 +1758,9 @@ public:
      */
     virtual void getActivities(doublereal* ac) const;
 
-    //@}
-    /// @name  Partial Molar Properties of the Solution -----------------
-    //@{
+    //! @}
+    //! @name  Partial Molar Properties of the Solution
+    //! @{
 
     //! Get the species chemical potentials. Units: J/kmol.
     /*!
@@ -1823,7 +1794,6 @@ public:
      *       = h^{o}_o(T,P)
      *       + R T^2 (\sum_{k \neq o} m_k)  \tilde{M_o} (\frac{d \phi}{dT})
      * \f]
-     *
      *
      * @param hbar    Output vector of species partial molar enthalpies.
      *                Length: m_kk. units are J/kmol.
@@ -1895,66 +1865,16 @@ public:
      *                    - R T^2 \frac{d^2 \ln(a_o)}{{dT}^2}
      * \f]
      *
-     *
      * @param cpbar   Output vector of species partial molar heat
      *                capacities at constant pressure.
      *                Length = m_kk. units are J/kmol/K.
      */
     virtual void getPartialMolarCp(doublereal* cpbar) const;
 
-    //@}
-
-
-
-protected:
-
-    //! Updates the standard state thermodynamic functions at the current T and P of the solution.
-    /*!
-     * @internal
-     *
-     * This function gets called for every call to a public function in this
-     * class. It checks to see whether the temperature or pressure has changed and
-     * thus whether the ss thermodynamics functions must be recalculated.
-     *
-     * @param pres  Pressure at which to evaluate the standard states.
-     *              The default, indicated by a -1.0, is to use the current pressure
-     */
-    //virtual void _updateStandardStateThermo() const;
-
-    //@}
-    /// @name Thermodynamic Values for the Species Reference States ---
-    //@{
-
-
-    ///////////////////////////////////////////////////////
-    //
-    //  The methods below are not virtual, and should not
-    //  be overloaded.
-    //
-    //////////////////////////////////////////////////////
-
-    /**
-     * @name Specific Properties
-     * @{
-     */
-
-
-    /**
-     * @name Setting the State
-     *
-     * These methods set all or part of the thermodynamic
-     * state.
-     * @{
-     */
-
-    //@}
-
-    /**
-     * @name Chemical Equilibrium
-     * Chemical equilibrium.
-     * @{
-     */
 public:
+    //! @}
+    //! @name Chemical Equilibrium
+    //! @{
 
     //!This method is used by the ChemEquil equilibrium solver.
     /*!
@@ -1974,7 +1894,6 @@ public:
     }
 
     //@}
-
 
     //! Set the equation of state parameters
     /*!
@@ -2005,6 +1924,9 @@ public:
      * any parameters that are specific to that particular phase
      * model.
      *
+     * HKM -> Right now, the parameters are set elsewhere (initThermoXML)
+     *        It just didn't seem to fit.
+     *
      * @param eosdata An XML_Node object corresponding to
      *                the "thermo" entry for this phase in the input file.
      */
@@ -2013,7 +1935,6 @@ public:
     //---------------------------------------------------------
     /// @name Critical state properties.
     /// These methods are only implemented by some subclasses.
-
     //@{
 
     /// Critical temperature (K).
@@ -2077,7 +1998,6 @@ public:
 
     //@}
 
-
     /*
      *  -------------- Utilities -------------------------------
      */
@@ -2101,8 +2021,6 @@ public:
 
     //! Initialize the phase parameters from an XML file.
     /*!
-     *  initThermoXML()                 (virtual from ThermoPhase)
-     *
      *  This gets called from importPhase(). It processes the XML file
      *  after the species are set up. This is the main routine for
      *  reading in activity coefficient parameters.
@@ -2140,7 +2058,6 @@ public:
     //! respect to temperature as a function of temperature
     //! and pressure.
     /*!
-     *
      *            A_Debye = (F e B_Debye) / (8 Pi epsilon R T)
      *
      *            Units = sqrt(kg/gmol)
@@ -2182,7 +2099,6 @@ public:
      *
      *            Units = sqrt(kg/gmol) (RT)
      *
-     *
      * @param temperature  Temperature of the derivative calculation
      *                     or -1 to indicate the current temperature
      *
@@ -2211,6 +2127,7 @@ public:
      */
     double ADebye_J(double temperature = -1.0,
                     double pressure = -1.0) const;
+
     /**
      * Return Pitzer's definition of A_V. This is the
      * derivative wrt pressure of A_phi multiplied by - 4 R T
@@ -2226,7 +2143,6 @@ public:
      *
      * @param pressure    Pressure of the derivative calculation
      *                    or -1 to indicate the current pressure
-     *
      */
     double ADebye_V(double temperature = -1.0,
                     double pressure = -1.0) const;
@@ -2235,7 +2151,6 @@ public:
     //! respect to temperature as a function of temperature
     //! and pressure.
     /*!
-     *
      *            A_Debye = (F e B_Debye) / (8 Pi epsilon R T)
      *
      *            Units = sqrt(kg/gmol)
@@ -2256,7 +2171,6 @@ public:
     double AionicRadius(int k = 0) const;
 
     /**
-     *
      * formPitzer():
      *
      *  Returns the form of the Pitzer parameterization used
@@ -2265,9 +2179,7 @@ public:
         return m_formPitzer;
     }
 
-    /**
-     * Print out all of the input coefficients.
-     */
+    //! Print out all of the input Pitzer coefficients.
     void printCoeffs() const;
 
     //!  Get the array of unscaled non-dimensional molality based
@@ -2289,7 +2201,6 @@ private:
     //! Apply the current phScale to a set of activity Coefficients
     /*!
      *  See the Eq3/6 Manual for a thorough discussion.
-     *
      */
     void s_updateScaling_pHScaling() const;
 
@@ -2313,7 +2224,6 @@ private:
      *  See the Eq3/6 Manual for a thorough discussion of the need
      */
     void s_updateScaling_pHScaling_dP() const;
-
 
     //!  Calculate the Chlorine activity coefficient on the NBS scale
     /*!
@@ -2353,7 +2263,6 @@ private:
      * The list is repeated here:
      *
      * PITZERFORM_BASE  = 0    (only one supported atm)
-     *
      */
     int m_formPitzer;
 
@@ -2430,9 +2339,7 @@ private:
      */
     double m_maxIionicStrength;
 
-    /**
-     * Reference Temperature for the Pitzer formulations.
-     */
+    //! Reference Temperature for the Pitzer formulations.
     double m_TempPitzerRef;
 
     /**
@@ -2508,19 +2415,13 @@ private:
      */
     double m_densWaterSS;
 
-    /**
-     *  Pointer to the water property calculator
-     */
+    //! Pointer to the water property calculator
     WaterProps* m_waterProps;
 
-    /**
-     * Temporary array used in equilibrium calculations
-     */
+    //! Temporary array used in equilibrium calculations
     mutable vector_fp      m_pp;
 
-    /**
-     * vector of size m_kk, used as a temporary holding area.
-     */
+    //! vector of size m_kk, used as a temporary holding area.
     mutable vector_fp      m_tmpV;
 
     /**
@@ -2845,7 +2746,6 @@ private:
      */
     Array2D  m_Lambda_nj_coeff;
 
-
     //! Mu coefficient for the self-ternary neutral coefficient
     /*!
      * Array of 2D data used in the Pitzer/HMW formulation.
@@ -2883,17 +2783,13 @@ private:
     mutable vector_fp  m_Mu_nnn_P;
 
     //! Array of coefficients form_Mu_nnn term
-    /*!
-     *
-     */
     Array2D   m_Mu_nnn_coeff;
-
 
     //!  Logarithm of the activity coefficients on the molality
     //!  scale.
     /*!
-     *       mutable because we change this if the composition
-     *       or temperature or pressure changes.
+     *   mutable because we change this if the composition
+     *   or temperature or pressure changes.
      *
      *  index is the species index
      */
@@ -2902,8 +2798,8 @@ private:
     //!  Logarithm of the activity coefficients on the molality
     //!  scale.
     /*!
-     *       mutable because we change this if the composition
-     *       or temperature or pressure changes.
+     *   mutable because we change this if the composition
+     *   or temperature or pressure changes.
      *
      *  index is the species index
      */
@@ -2970,14 +2866,10 @@ private:
      */
     mutable vector_int m_CounterIJ;
 
-    /**
-     *  This is elambda, MEC
-     */
+    //! This is elambda, MEC
     mutable double elambda[17];
 
-    /**
-     *  This is elambda1, MEC
-     */
+    //! This is elambda1, MEC
     mutable double elambda1[17];
 
     /**
@@ -3199,18 +3091,6 @@ private:
      */
     doublereal IMS_slopefCut_;
 
-    //! Parameter in the polyExp cutoff treatment having to do with rate of exp decay
-    doublereal IMS_dfCut_;
-
-    //! Parameter in the polyExp cutoff treatment having to do with rate of exp decay
-    doublereal IMS_efCut_;
-
-    //! Parameter in the polyExp cutoff treatment having to do with rate of exp decay
-    doublereal IMS_afCut_;
-
-    //! Parameter in the polyExp cutoff treatment having to do with rate of exp decay
-    doublereal IMS_bfCut_;
-
     //! Parameter in the polyExp cutoff treatment
     /*!
      *  This is the slope of the g function at the zero solvent point
@@ -3218,18 +3098,17 @@ private:
      */
     doublereal IMS_slopegCut_;
 
-    //! Parameter in the polyExp cutoff treatment having to do with
-    //! rate of exp decay
+    //! @name Parameters in the polyExp cutoff treatment having to do with rate of exp decay
+    //! @{
+    doublereal IMS_dfCut_;
+    doublereal IMS_efCut_;
+    doublereal IMS_afCut_;
+    doublereal IMS_bfCut_;
     doublereal IMS_dgCut_;
-
-    //! Parameter in the polyExp cutoff treatment having to do with rate of exp decay
     doublereal IMS_egCut_;
-
-    //! Parameter in the polyExp cutoff treatment having to do with rate of exp decay
     doublereal IMS_agCut_;
-
-    //! Parameter in the polyExp cutoff treatment having to do with rate of exp decay
     doublereal IMS_bgCut_;
+    //! @}
 
     //! value of the solvent mole fraction that centers the cutoff polynomials
     //! for the cutoff =1 process;
@@ -3245,45 +3124,29 @@ private:
      */
     doublereal MC_slopepCut_;
 
-    //! Parameter in the Molality Exp cutoff treatment
+    //! @name Parameters in the Molality Exp cutoff treatment
+    //! @{
     doublereal MC_dpCut_;
-
-    //!  Parameter in the Molality Exp cutoff treatment
     doublereal MC_epCut_;
-
-    //! Parameter in the Molality Exp cutoff treatment
     doublereal MC_apCut_;
-
-    //! Parameter in the Molality Exp cutoff treatment
     doublereal MC_bpCut_;
-
-    //! Parameter in the Molality Exp cutoff treatment
     doublereal MC_cpCut_;
-
-    //! Parameter in the Molality Exp cutoff treatment
     doublereal CROP_ln_gamma_o_min;
-
-    //! Parameter in the Molality Exp cutoff treatment
     doublereal CROP_ln_gamma_o_max;
-
-    //! Parameter in the Molality Exp cutoff treatment
     doublereal CROP_ln_gamma_k_min;
-
-    //! Parameter in the Molality Exp cutoff treatment
     doublereal CROP_ln_gamma_k_max;
 
     //! This is a boolean-type vector indicating whether
     //! a species's activity coefficient is in the cropped regime
     /*!
-     *
-     *  0 = Not in cropped regime
-     *  1 = In a transition regime where it is altered but there
-     *      still may be a temperature or pressure dependence
-     *  2 = In a cropped regime where there is no temperature
-     *      or pressure dependence
+     *  * 0 = Not in cropped regime
+     *  * 1 = In a transition regime where it is altered but there
+     *        still may be a temperature or pressure dependence
+     *  * 2 = In a cropped regime where there is no temperature
+     *        or pressure dependence
      */
     mutable std::vector<int> CROP_speciesCropped_;
-
+    //! @}
 
     //! Local error routine
     /*!
@@ -3291,7 +3154,7 @@ private:
      */
     doublereal err(const std::string& msg) const;
 
-    //!  Initialize all of the species - dependent lengths in the object
+    //!  Initialize all of the species-dependent lengths in the object
     void initLengths();
 
     //! Apply the current phScale to a set of activity Coefficients or
@@ -3314,7 +3177,8 @@ private:
     //! This function calculates the temperature derivative of the
     //! natural logarithm of the molality activity coefficients.
     /*!
-     * This is the private function. It does all of the direct work.
+     * This function does all of the direct work. The solvent activity
+     * coefficient is on the molality scale. It's derivative is too.
      */
     void s_update_dlnMolalityActCoeff_dT() const;
 
@@ -3328,6 +3192,8 @@ private:
     /**
      * This function calculates the pressure derivative of the
      * natural logarithm of the molality activity coefficients.
+     *
+     * Assumes that the activity coefficients are current.
      */
     void s_update_dlnMolalityActCoeff_dP() const;
 
@@ -3344,9 +3210,11 @@ private:
     void s_updateIMS_lnMolalityActCoeff() const;
 
 private:
+    //! Calculate the Pitzer portion of the activity coefficients.
     /**
-     * This function does the main pitzer coefficient
-     * calculation
+     *  This is the main routine in the whole module. It calculates the
+     *  molality based activity coefficients for the solutes, and
+     *  the activity of water.
      */
     void s_updatePitzer_lnMolalityActCoeff() const;
 
@@ -3359,22 +3227,21 @@ private:
     void s_updatePitzer_dlnMolalityActCoeff_dT() const;
 
     /**
-     * This function calculates the temperature second derivative
-     * of the natural logarithm of the molality activity
-     * coefficients.
+     * This function calculates the temperature second derivative of the
+     * natural logarithm of the molality activity coefficients.
+     *
+     * It is assumed that the Pitzer activity coefficient and first derivative
+     * routine are called immediately preceding the call to this routine.
      */
     void s_updatePitzer_d2lnMolalityActCoeff_dT2() const;
 
     //!  Calculates the Pressure derivative of the
     //!  natural logarithm of the molality activity coefficients.
     /*!
-     * Public function makes sure that all dependent data is
-     * up to date, before calling a private function
+     * It is assumed that the Pitzer activity coefficient and first derivative
+     * routine are called immediately preceding the calling of this routine.
      */
     void s_updatePitzer_dlnMolalityActCoeff_dP() const;
-
-
-
 
     //! Calculates the Pitzer coefficients' dependence on the temperature.
     /*!
@@ -3391,13 +3258,12 @@ private:
      */
     void s_updatePitzer_CoeffWRTemp(int doDerivs = 2) const;
 
-
-
     //! Calculate the lambda interactions.
     /*!
      *
-     * Calculate E-lambda terms for charge combinations of like sign,
-     *   using method of Pitzer (1975).
+     * Calculate E-lambda terms for charge combinations of like sign, using
+     * method of Pitzer (1975). This implementation is based on Bethke,
+     * Appendix 2.
      *
      * @param is Ionic strength
      */
@@ -3406,9 +3272,10 @@ private:
     /**
      *  Calculate etheta and etheta_prime
      *
-     *  This interaction will be nonzero for species with the
-     *  same charge. this routine is not to be called for
-     *  neutral species; it core dumps or error exits.
+     * This interaction accounts for the mixing effects of like-signed ions
+     * with different charges. This interaction will be nonzero for species
+     * with the same charge. this routine is not to be called for neutral
+     * species; it core dumps or error exits.
      *
      * MEC implementation routine.
      *
@@ -3571,4 +3438,3 @@ public:
 }
 
 #endif
-

@@ -28,8 +28,7 @@ namespace Cantera
 //!  the Margules approximation for the excess gibbs free energy while eliminating
 //!  the entropy of mixing term.
 /*!
- *
- *  %PhaseCombo_Interaction derives from class GibbsExcessVPSSTP which is derived from VPStandardStateTP,
+ *  PhaseCombo_Interaction derives from class GibbsExcessVPSSTP which is derived from VPStandardStateTP,
  *  and overloads the virtual methods defined there with ones that
  *  use expressions appropriate for the Margules Excess gibbs free energy approximation.
  *  The reader should refer to the MargulesVPSSTP class for information on that class.
@@ -60,7 +59,6 @@ namespace Cantera
  *  like a series of phases. That's why we named it PhaseCombo.
  *
  *
- *
  * <HR>
  * <H2> Specification of Species Standard %State Properties </H2>
  * <HR>
@@ -71,7 +69,6 @@ namespace Cantera
  *  that the species are in pure component states at the temperature
  *  and pressure of the solution.  I don't think it prevents, however,
  *  some species from being dilute in the solution.
- *
  *
  * <HR>
  * <H2> Specification of Solution Thermodynamic Properties </H2>
@@ -102,7 +99,7 @@ namespace Cantera
  *            a_k = \gamma_k  X_k
  *       \f]
  *
- *      where
+ *  where
  *
  *      \f[
  *           R T \ln( \gamma_k )= \frac{d(n G^E)}{d(n_k)}\Bigg|_{n_i}
@@ -227,29 +224,29 @@ namespace Cantera
  *             \exp(\frac{\mu^{ref}_l - \mu^{ref}_j - \mu^{ref}_k}{R T} ) * \frac{P_{ref}}{RT}
  *   \f]
  *
- *    %Kinetics managers will calculate the concentration equilibrium constant, \f$ K_c \f$,
- *    using the second and third part of the above expression as a definition for the concentration
- *    equilibrium constant.
+ *  %Kinetics managers will calculate the concentration equilibrium constant, \f$ K_c \f$,
+ *  using the second and third part of the above expression as a definition for the concentration
+ *  equilibrium constant.
  *
- *    For completeness, the pressure equilibrium constant may be obtained as well
+ *  For completeness, the pressure equilibrium constant may be obtained as well
  *
- *   \f[
+ *  \f[
  *         \frac{P_j P_k}{ P_l P_{ref}} = K_p^1 = \exp(\frac{\mu^{ref}_l - \mu^{ref}_j - \mu^{ref}_k}{R T} )
- *   \f]
+ *  \f]
  *
- *   \f$ K_p \f$ is the simplest form of the equilibrium constant for ideal gases. However, it isn't
- *   necessarily the simplest form of the equilibrium constant for other types of phases; \f$ K_c \f$ is
- *   used instead because it is completely general.
+ *  \f$ K_p \f$ is the simplest form of the equilibrium constant for ideal gases. However, it isn't
+ *  necessarily the simplest form of the equilibrium constant for other types of phases; \f$ K_c \f$ is
+ *  used instead because it is completely general.
  *
- *   The reverse rate of progress may be written down as
- *   \f[
+ *  The reverse rate of progress may be written down as
+ *  \f[
  *    R^{-1} = k^{-1} C_l^a =  k^{-1} (C^o a_l)
- *   \f]
+ *  \f]
  *
  *  where we can use the concept of microscopic reversibility to
  *  write the reverse rate constant in terms of the
  *  forward reate constant and the concentration equilibrium
- *   constant, \f$ K_c \f$.
+ *  constant, \f$ K_c \f$.
  *
  *    \f[
  *       k^{-1} =  k^1 K^1_c
@@ -261,7 +258,6 @@ namespace Cantera
  * <HR>
  * <H2> Instantiation of the Class </H2>
  * <HR>
- *
  *
  * The constructor for this phase is located in the default ThermoFactory
  * for %Cantera. A new %PhaseCombo_Interaction object may be created by the following code
@@ -276,12 +272,11 @@ namespace Cantera
  *
  * or by the following code
  *
- *  @code
- *    std::string  id = "LiFeS_X";
+ * @code
+ *    std::string id = "LiFeS_X";
  *    Cantera::ThermoPhase *LiFeS_X_Phase = Cantera::newPhase("LiFeS_X_combo.xml", id);
  *    PhaseCombo_Interaction *LiFeS_X_solid = dynamic_cast <PhaseCombo_Interaction *>(l_tp);
  * @endcode
- *
  *
  * or by the following constructor:
  *
@@ -298,51 +293,46 @@ namespace Cantera
  *   An example of an XML Element named phase setting up a PhaseCombo_Interaction
  *   object named LiFeS_X  is given below.
  *
+ * @code
+ * <phase dim="3" id="LiFeS_X">
+ *   <elementArray datasrc="elements.xml">
+ *      Li Fe S
+ *   </elementArray>
+ *   <speciesArray datasrc="#species_LiFeS">
+ *     LiTFe1S2(S)  Li2Fe1S2(S)
+ *   </speciesArray>
+ *   <thermo model="PhaseCombo_Interaction">
+ *     <activityCoefficients model="Margules" TempModel="constant">
+ *       <binaryNeutralSpeciesParameters speciesA="LiTFe1S2(S)" speciesB="Li2Fe1S2(S)">
+ *         <excessEnthalpy model="poly_Xb" terms="2" units="kJ/mol">
+ *             84.67069219, -269.1959421
+ *         </excessEnthalpy>
+ *         <excessEntropy  model="poly_Xb" terms="2" units="J/mol/K">
+ *             100.7511565, -361.4222659
+ *         </excessEntropy>
+ *         <excessVolume_Enthalpy model="poly_Xb" terms="2" units="ml/mol">
+ *              0, 0
+ *         </excessVolume_Enthalpy>
+ *         <excessVolume_Entropy  model="poly_Xb" terms="2" units="ml/mol/K">
+ *              0, 0
+ *         </excessVolume_Entropy>
+ *       </binaryNeutralSpeciesParameters>
+ *     </activityCoefficients>
+ *   </thermo>
+ *   <transport model="none"/>
+ *   <kinetics model="none"/>
+ * </phase>
+ * @endcode
  *
- * @verbatim
-
-  <phase dim="3" id="LiFeS_X">
-    <elementArray datasrc="elements.xml">
-       Li Fe S
-    </elementArray>
-    <speciesArray datasrc="#species_LiFeS">
-     LiTFe1S2(S)  Li2Fe1S2(S)
-    </speciesArray>
-    <thermo model="PhaseCombo_Interaction">
-    <activityCoefficients model="Margules" TempModel="constant">
-       <binaryNeutralSpeciesParameters speciesA="LiTFe1S2(S)" speciesB="Li2Fe1S2(S)">
-          <excessEnthalpy model="poly_Xb" terms="2" units="kJ/mol">
-              84.67069219, -269.1959421
-          </excessEnthalpy>
-          <excessEntropy  model="poly_Xb" terms="2" units="J/mol/K">
-              100.7511565, -361.4222659
-          </excessEntropy>
-          <excessVolume_Enthalpy model="poly_Xb" terms="2" units="ml/mol">
-               0, 0
-          </excessVolume_Enthalpy>
-          <excessVolume_Entropy  model="poly_Xb" terms="2" units="ml/mol/K">
-               0, 0
-          </excessVolume_Entropy>
-        </binaryNeutralSpeciesParameters>
-     </activityCoefficients>
-   </thermo>
-   <transport model="none"/>
-   <kinetics model="none"/>
- </phase>
-
- @endverbatim
+ * The model attribute "PhaseCombo_Interaction" of the thermo XML element identifies the phase as
+ * being of the type handled by the PhaseCombo_Interaction object.
  *
- *   The model attribute "PhaseCombo_Interaction" of the thermo XML element identifies the phase as
- *   being of the type handled by the PhaseCombo_Interaction object.
+ * @ingroup thermoprops
  *
- *    @ingroup thermoprops
- *
-*/
+ */
 class PhaseCombo_Interaction : public GibbsExcessVPSSTP
 {
-
 public:
-
     //! Constructor
     /*!
      * This doesn't do much more than initialize constants with
@@ -357,13 +347,6 @@ public:
     //! Construct and initialize a PhaseCombo_Interaction ThermoPhase object
     //! directly from an xml input file
     /*!
-     * Working constructors
-     *
-     *  The two constructors below are the normal way
-     *  the phase initializes itself. They are shells that call
-     *  the routine initThermo(), with a reference to the
-     *  XML database to get the info for the phase.
-     *
      * @param inputFile Name of the input file containing the phase XML data
      *                  to set up the object
      * @param id        ID of the phase in the input file. Defaults to the
@@ -380,29 +363,22 @@ public:
      */
     PhaseCombo_Interaction(XML_Node& phaseRef, const std::string& id = "");
 
-
     //! Special constructor for a hard-coded problem
     /*!
-     *
-     *  @param testProb Hard-coded value. Only the value of 1 is
-     *                  used. It's for
-     *                  a LiKCl system
-     *                  -> test to predict the eutectic and liquidus correctly.
+     *  @param testProb Hard-coded value. Only the value of 1 is used. It's
+     *                  for a LiKCl system -> test to predict the eutectic and
+     *                  liquidus correctly.
      */
     PhaseCombo_Interaction(int testProb);
 
     //! Copy constructor
     /*!
-     *  Note this stuff will not work until the underlying phase
-     *  has a working copy constructor
-     *
      * @param b class to be copied
      */
     PhaseCombo_Interaction(const PhaseCombo_Interaction& b);
 
     //! Assignment operator
     /*!
-     *
      * @param b class to be copied.
      */
     PhaseCombo_Interaction& operator=(const PhaseCombo_Interaction& b);
@@ -418,55 +394,32 @@ public:
      */
     virtual ThermoPhase* duplMyselfAsThermoPhase() const;
 
-    /**
-     *
-     * @name  Utilities
-     * @{
-     */
-
+    //! @name  Utilities
+    //! @{
 
     //! Equation of state type flag.
     /*!
-     * The ThermoPhase base class returns
-     * zero. Subclasses should define this to return a unique
-     * non-zero value. Known constants defined for this purpose are
-     * listed in mix_defs.h. The MolalityVPSSTP class also returns
-     * zero, as it is a non-complete class.
+     * The ThermoPhase base class returns zero. Subclasses should define this
+     * to return a unique non-zero value. Known constants defined for this
+     * purpose are listed in mix_defs.h.
      */
     virtual int eosType() const;
 
-    /**
-     * @}
-     * @name  Molar Thermodynamic Properties
-     * @{
-     */
+    //! @}
+    //! @name  Molar Thermodynamic Properties
+    //! @{
 
+    /// Molar enthalpy. Units: J/kmol.
+    virtual doublereal enthalpy_mole() const;
 
-    /**
-     * @}
-     * @name Utilities for Solvent ID and Molality
-     * @{
-     */
+    /// Molar entropy. Units: J/kmol.
+    virtual doublereal entropy_mole() const;
 
+    /// Molar heat capacity at constant pressure. Units: J/kmol/K.
+    virtual doublereal cp_mole() const;
 
-
-
-    /**
-     * @}
-     * @name Mechanical Properties
-     * @{
-     */
-
-    /**
-     * @}
-     * @name Potential Energy
-     *
-     * Species may have an additional potential energy due to the
-     * presence of external gravitation or electric fields. These
-     * methods allow specifying a potential energy for individual
-     * species.
-     * @{
-     */
+    /// Molar heat capacity at constant volume. Units: J/kmol/K.
+    virtual doublereal cv_mole() const;
 
     /**
      * @}
@@ -501,18 +454,6 @@ public:
      *            potentials. Length: m_kk. Units: J/kmol
      */
     virtual void getChemPotentials(doublereal* mu) const;
-
-    /// Molar enthalpy. Units: J/kmol.
-    virtual doublereal enthalpy_mole() const;
-
-    /// Molar entropy. Units: J/kmol.
-    virtual doublereal entropy_mole() const;
-
-    /// Molar heat capacity at constant pressure. Units: J/kmol/K.
-    virtual doublereal cp_mole() const;
-
-    /// Molar heat capacity at constant volume. Units: J/kmol/K.
-    virtual doublereal cv_mole() const;
 
     //! Returns an array of partial molar enthalpies for the species
     //! in the mixture.
@@ -574,7 +515,6 @@ public:
      */
     virtual void getPartialMolarCp(doublereal* cpbar) const;
 
-
     //! Return an array of partial molar volumes for the
     //! species in the mixture. Units: m^3/kmol.
     /*!
@@ -626,28 +566,14 @@ public:
      */
     virtual void getdlnActCoeffdT(doublereal* dlnActCoeffdT) const;
 
-
-
-    //@}
-    /// @name  Properties of the Standard State of the Species in the Solution
-    //@{
-
-
-
-    //@}
-    /// @name Thermodynamic Values for the Species Reference States
-    //@{
-
-
-
-
-
+    /// @}
+    /// @name Initialization
     /// The following methods are used in the process of constructing
     /// the phase and setting its parameters from a specification in an
     /// input file. They are not normally used in application programs.
     /// To see how they are used, see files importCTML.cpp and
     /// ThermoFactory.cpp.
-
+    /// @{
 
     /*!
      * @internal Initialize. This method is provided to allow
@@ -663,7 +589,6 @@ public:
      * @see importCTML.cpp
      */
     virtual void initThermo();
-
 
     /**
      *   Import and initialize a ThermoPhase object
@@ -681,11 +606,9 @@ public:
      */
     void initThermoXML(XML_Node& phaseNode, const std::string& id);
 
-    /**
-     * @}
-     * @name  Derivatives of Thermodynamic Variables needed for Applications
-     * @{
-     */
+    //! @}
+    //! @name  Derivatives of Thermodynamic Variables needed for Applications
+    //! @{
 
     //! Get the change in activity coefficients w.r.t. change in state (temp, mole fraction, etc.) along
     //! a line in parameter space or along a line in physical space
@@ -734,7 +657,6 @@ public:
      */
     virtual void getdlnActCoeffdlnN_diag(doublereal* dlnActCoeffdlnN_diag) const;
 
-
     //! Get the array of derivatives of the log activity coefficients with respect to the ln species mole numbers
     /*!
      * Implementations should take the derivative of the logarithm of the activity coefficient with respect to a
@@ -758,7 +680,6 @@ public:
     //@}
 
 private:
-
     //! Process an XML node called "binaryNeutralSpeciesParameters"
     /*!
      * This node contains all of the parameters necessary to describe
@@ -777,7 +698,6 @@ private:
      *  @param num Number of binary Margules interaction terms
      */
     void resizeNumInteractions(const size_t num);
-
 
     //! Initialize lengths of local variables after all species have
     //! been identified.
@@ -824,7 +744,6 @@ private:
      */
     void s_update_dlnActCoeff_dlnN() const;
 
-
 private:
     //! Error function
     /*!
@@ -835,8 +754,6 @@ private:
     doublereal err(const std::string& msg) const;
 
 protected:
-
-
     //! number of binary interaction expressions
     size_t numBinaryInteractions_;
 
@@ -888,8 +805,6 @@ protected:
     //! excess gibbs free energy expression
     mutable vector_fp m_VSE_d_ij;
 
-
-
     //! vector of species indices representing species A in the interaction
     /*!
      *  Each Margules excess Gibbs free energy term involves two species, A and B.
@@ -915,17 +830,8 @@ protected:
      *  Currently there is only one form -> constant wrt temperature.
      */
     int formTempModel_;
-
-
 };
-
-
 
 }
 
 #endif
-
-
-
-
-
