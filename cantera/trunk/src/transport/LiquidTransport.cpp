@@ -205,55 +205,29 @@ LiquidTransport::~LiquidTransport()
 
     //These are constructed in TransportFactory::newLTP
     for (size_t k = 0; k < m_nsp; k++) {
-        if (m_viscTempDep_Ns[k]) {
-            delete m_viscTempDep_Ns[k];
-        }
-        if (m_ionCondTempDep_Ns[k]) {
-            delete m_ionCondTempDep_Ns[k];
-        }
+        delete m_viscTempDep_Ns[k];
+        delete m_ionCondTempDep_Ns[k];
         for (size_t l = 0; l < m_nsp; l++) {
-            if (m_selfDiffTempDep_Ns[l][k]) {
-                delete m_selfDiffTempDep_Ns[l][k];
-            }
+            delete m_selfDiffTempDep_Ns[l][k];
         }
         for (size_t l=0; l < m_nsp2; l++) {
-            if (m_mobRatTempDep_Ns[l][k]) {
-                delete m_mobRatTempDep_Ns[l][k];
-            }
+            delete m_mobRatTempDep_Ns[l][k];
         }
-        if (m_lambdaTempDep_Ns[k]) {
-            delete m_lambdaTempDep_Ns[k];
-        }
-        if (m_radiusTempDep_Ns[k]) {
-            delete m_radiusTempDep_Ns[k];
-        }
-        if (m_diffTempDep_Ns[k]) {
-            delete m_diffTempDep_Ns[k];
-        }
+        delete m_lambdaTempDep_Ns[k];
+        delete m_radiusTempDep_Ns[k];
+        delete m_diffTempDep_Ns[k];
         //These are constructed in TransportFactory::newLTI
-        if (m_selfDiffMixModel[k]) {
-            delete m_selfDiffMixModel[k];
-        }
+        delete m_selfDiffMixModel[k];
     }
 
     for (size_t k = 0; k < m_nsp2; k++) {
-        if (m_mobRatMixModel[k]) {
-            delete m_mobRatMixModel[k];
-        }
+        delete m_mobRatMixModel[k];
     }
 
-    if (m_viscMixModel) {
-        delete m_viscMixModel;
-    }
-    if (m_ionCondMixModel) {
-        delete m_ionCondMixModel;
-    }
-    if (m_lambdaMixModel) {
-        delete m_lambdaMixModel;
-    }
-    if (m_diffMixModel) {
-        delete m_diffMixModel;
-    }
+    delete m_viscMixModel;
+    delete m_ionCondMixModel;
+    delete m_lambdaMixModel;
+    delete m_diffMixModel;
     //if ( m_radiusMixModel ) delete m_radiusMixModel;
 
 }

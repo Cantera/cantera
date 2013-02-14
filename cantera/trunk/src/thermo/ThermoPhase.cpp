@@ -77,9 +77,7 @@ operator=(const ThermoPhase& right)
             m_speciesData[k] = 0;
         }
     }
-    if (m_spthermo) {
-        delete m_spthermo;
-    }
+    delete m_spthermo;
 
     /*
      * Call the base class assignment operator

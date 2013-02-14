@@ -309,12 +309,8 @@ NonlinearSolver::NonlinearSolver(const NonlinearSolver& right) :
 //====================================================================================================================
 NonlinearSolver::~NonlinearSolver()
 {
-    if (jacCopyPtr_) {
-        delete jacCopyPtr_;
-    }
-    if (HessianPtr_) {
-        delete HessianPtr_;
-    }
+    delete jacCopyPtr_;
+    delete HessianPtr_;
 }
 //====================================================================================================================
 NonlinearSolver& NonlinearSolver::operator=(const NonlinearSolver& right)
@@ -378,13 +374,9 @@ NonlinearSolver& NonlinearSolver::operator=(const NonlinearSolver& right)
     m_print_flag               = right.m_print_flag;
     m_ScaleSolnNormToResNorm   = right.m_ScaleSolnNormToResNorm;
 
-    if (jacCopyPtr_) {
-        delete(jacCopyPtr_);
-    }
+    delete jacCopyPtr_;
     jacCopyPtr_                = (right.jacCopyPtr_)->duplMyselfAsGeneralMatrix();
-    if (HessianPtr_) {
-        delete(HessianPtr_);
-    }
+    delete HessianPtr_;
     HessianPtr_                = (right.HessianPtr_)->duplMyselfAsGeneralMatrix();
 
     deltaX_CP_                 = right.deltaX_CP_;
@@ -3067,9 +3059,7 @@ int NonlinearSolver::solve_nonlinear_problem(int SolnType, doublereal* const y_c
     int retnCode = 0;
     bool forceNewJac = false;
 
-    if (jacCopyPtr_) {
-        delete jacCopyPtr_;
-    }
+    delete jacCopyPtr_;
     jacCopyPtr_ = jac.duplMyselfAsGeneralMatrix();
 
     doublereal stepNorm_1;

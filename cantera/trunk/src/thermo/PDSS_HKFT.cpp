@@ -172,9 +172,7 @@ PDSS_HKFT& PDSS_HKFT::operator=(const PDSS_HKFT& b)
     m_waterSS        = 0;
     m_densWaterSS               = b.m_densWaterSS;
     //! Need to call initAllPtrs AFTER, to get the correct m_waterProps
-    if (m_waterProps) {
-        delete m_waterProps;
-    }
+    delete m_waterProps;
     m_waterProps                = 0;
     m_born_coeff_j              = b.m_born_coeff_j;
     m_r_e_j                     = b.m_r_e_j;
@@ -642,9 +640,7 @@ void PDSS_HKFT::initAllPtrs(VPStandardStateTP* vptp_ptr, VPSSMgr* vpssmgr_ptr,
 
     PDSS::initAllPtrs(vptp_ptr, vpssmgr_ptr,  spthermo_ptr);
     m_waterSS = (PDSS_Water*) m_tp->providePDSS(0);
-    if (m_waterProps) {
-        delete m_waterProps;
-    }
+    delete m_waterProps;
     m_waterProps = new WaterProps(m_waterSS);
 }
 

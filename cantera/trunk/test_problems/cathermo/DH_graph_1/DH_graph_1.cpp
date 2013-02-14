@@ -75,9 +75,7 @@ int main(int argc, char** argv)
 
     } catch (CanteraError& err) {
         std::cout << err.what() << std::endl;
-        if (fl) {
-            delete fl;
-        }
+        delete fl;
         return -1;
     }
 }

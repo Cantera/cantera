@@ -273,9 +273,7 @@ VPSSMgr_Water_HKFT::createInstallPDSS(size_t k, const XML_Node& speciesNode,
                                "wrong SS mode: " + model);
         }
         //VPSSMgr::installSTSpecies(k, speciesNode, phaseNode_ptr);
-        if (m_waterSS) {
-            delete m_waterSS;
-        }
+        delete m_waterSS;
         m_waterSS = new PDSS_Water(m_vptp_ptr, 0);
 
         GeneralSpeciesThermo* genSpthermo = dynamic_cast<GeneralSpeciesThermo*>(m_spthermo);

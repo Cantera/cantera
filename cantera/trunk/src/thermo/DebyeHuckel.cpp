@@ -862,9 +862,7 @@ initThermoXML(XML_Node& phaseNode, const std::string& id_)
          * the internal eos water calculator.
          */
         if (m_form_A_Debye == A_DEBYE_WATER) {
-            if (m_waterProps) {
-                delete m_waterProps;
-            }
+            delete m_waterProps;
             m_waterProps = new WaterProps(m_waterSS);
         }
 

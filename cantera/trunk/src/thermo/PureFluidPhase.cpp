@@ -45,9 +45,7 @@ PureFluidPhase& PureFluidPhase::operator=(const PureFluidPhase& right)
 {
     if (&right != this) {
         ThermoPhase::operator=(right);
-        if (m_sub) {
-            delete m_sub;
-        }
+        delete m_sub;
         m_subflag    = right.m_subflag;
         m_sub        = tpx::GetSub(m_subflag);
         m_mw         = right.m_mw;
@@ -69,9 +67,7 @@ PureFluidPhase::~PureFluidPhase()
 void PureFluidPhase::
 initThermo()
 {
-    if (m_sub) {
-        delete m_sub;
-    }
+    delete m_sub;
     m_sub = tpx::GetSub(m_subflag);
     if (m_sub == 0) {
         throw CanteraError("PureFluidPhase::initThermo",

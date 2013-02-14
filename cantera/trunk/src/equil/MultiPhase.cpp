@@ -842,9 +842,7 @@ doublereal MultiPhase::equilibrate(int XY, doublereal err,
             addLogEntry("max T",fp2str(Thigh));
         }
         for (n = 0; n < maxiter; n++) {
-            if (e) {
-                delete e;
-            }
+            delete e;
             e = new MultiPhaseEquil(this, strt);
             if (loglevel > 0) {
                 beginLogGroup("iteration "+int2str(n));

@@ -668,9 +668,7 @@ void deepStdVectorPointerCopy(const std::vector<D*> &fromVec, std::vector<D*> &t
 {
     size_t is = toVec.size();
     for (size_t i = 0; i < is; is++) {
-        if (toVec[i]) {
-            delete(toVec[i]);
-        }
+        delete toVec[i];
     }
     is = fromVec.size();
     toVec.resize(is);
