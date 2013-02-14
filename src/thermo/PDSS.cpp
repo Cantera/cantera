@@ -532,14 +532,14 @@ void PDSS::err(const std::string& msg) const
 
 void PDSS::reportParams(size_t& kindex, int& type,
                         doublereal* const c,
-                        doublereal& minTemp,
-                        doublereal& maxTemp,
-                        doublereal& refPressure) const
+                        doublereal& minTemp_,
+                        doublereal& maxTemp_,
+                        doublereal& refPressure_) const
 {
     kindex = m_spindex;
     type = m_pdssType;
-    minTemp = m_minTemp;
-    maxTemp = m_maxTemp;
-    refPressure = m_p0;
+    minTemp_ = m_minTemp;
+    maxTemp_ = m_maxTemp;
+    refPressure_ = m_p0;
 }
 }

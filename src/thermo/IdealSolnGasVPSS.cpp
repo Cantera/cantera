@@ -31,19 +31,19 @@ IdealSolnGasVPSS::IdealSolnGasVPSS() :
 {
 }
 
-IdealSolnGasVPSS::IdealSolnGasVPSS(const std::string& infile, std::string id) :
+IdealSolnGasVPSS::IdealSolnGasVPSS(const std::string& infile, std::string id_) :
     VPStandardStateTP(),
     m_idealGas(0),
     m_formGC(0)
 {
     XML_Node* root = get_XML_File(infile);
-    if (id == "-") {
-        id = "";
+    if (id_ == "-") {
+        id_ = "";
     }
-    XML_Node* xphase = get_XML_NameID("phase", std::string("#")+id, root);
+    XML_Node* xphase = get_XML_NameID("phase", std::string("#")+id_, root);
     if (!xphase) {
         throw CanteraError("newPhase",
-                           "Couldn't find phase named \"" + id + "\" in file, " + infile);
+                           "Couldn't find phase named \"" + id_ + "\" in file, " + infile);
     }
     importPhase(*xphase, this);
 }
@@ -372,7 +372,7 @@ void IdealSolnGasVPSS::initLengths()
     m_pp.resize(m_kk, 0.0);
 }
 
-void IdealSolnGasVPSS::initThermoXML(XML_Node& phaseNode, const std::string& id)
+void IdealSolnGasVPSS::initThermoXML(XML_Node& phaseNode, const std::string& id_)
 {
     IdealSolnGasVPSS::initLengths();
 
@@ -421,7 +421,7 @@ void IdealSolnGasVPSS::initThermoXML(XML_Node& phaseNode, const std::string& id)
         }
     }
 
-    VPStandardStateTP::initThermoXML(phaseNode, id);
+    VPStandardStateTP::initThermoXML(phaseNode, id_);
 }
 
 void IdealSolnGasVPSS::setParametersFromXML(const XML_Node& thermoNode)

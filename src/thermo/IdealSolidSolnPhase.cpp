@@ -35,7 +35,7 @@ IdealSolidSolnPhase::IdealSolidSolnPhase(int formGC) :
 }
 
 IdealSolidSolnPhase::IdealSolidSolnPhase(const std::string& inputFile,
-        const std::string& id, int formGC) :
+        const std::string& id_, int formGC) :
     ThermoPhase(),
     m_formGC(formGC),
     m_Pref(OneAtm),
@@ -46,10 +46,10 @@ IdealSolidSolnPhase::IdealSolidSolnPhase(const std::string& inputFile,
         throw CanteraError(" IdealSolidSolnPhase Constructor",
                            " Illegal value of formGC");
     }
-    initThermoFile(inputFile, id);
+    initThermoFile(inputFile, id_);
 }
 
-IdealSolidSolnPhase::IdealSolidSolnPhase(XML_Node& root, const std::string& id,
+IdealSolidSolnPhase::IdealSolidSolnPhase(XML_Node& root, const std::string& id_,
         int formGC) :
     ThermoPhase(),
     m_formGC(formGC),
@@ -61,7 +61,7 @@ IdealSolidSolnPhase::IdealSolidSolnPhase(XML_Node& root, const std::string& id,
         throw CanteraError(" IdealSolidSolnPhase Constructor",
                            " Illegal value of formGC");
     }
-    importPhase(*findXMLPhase(&root, id), this);
+    importPhase(*findXMLPhase(&root, id_), this);
 }
 
 IdealSolidSolnPhase::IdealSolidSolnPhase(const IdealSolidSolnPhase& b)
@@ -556,12 +556,12 @@ void IdealSolidSolnPhase::initThermo()
 {
 }
 
-void IdealSolidSolnPhase::initThermoXML(XML_Node& phaseNode, const std::string& id)
+void IdealSolidSolnPhase::initThermoXML(XML_Node& phaseNode, const std::string& id_)
 {
     string subname = "IdealSolidSolnPhase::initThermoXML";
-    if (id.size() > 0) {
+    if (id_.size() > 0) {
         string idp = phaseNode.id();
-        if (idp != id) {
+        if (idp != id_) {
             throw CanteraError(subname.c_str(),
                                "phasenode and Id are incompatible");
         }
@@ -633,7 +633,7 @@ void IdealSolidSolnPhase::initThermoXML(XML_Node& phaseNode, const std::string& 
      * Call the base initThermo, which handles setting the initial
      * state.
      */
-    ThermoPhase::initThermoXML(phaseNode, id);
+    ThermoPhase::initThermoXML(phaseNode, id_);
 }
 
 void IdealSolidSolnPhase::

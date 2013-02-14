@@ -29,22 +29,22 @@ MargulesVPSSTP::MargulesVPSSTP() :
 {
 }
 
-MargulesVPSSTP::MargulesVPSSTP(const std::string& inputFile, const std::string& id) :
+MargulesVPSSTP::MargulesVPSSTP(const std::string& inputFile, const std::string& id_) :
     GibbsExcessVPSSTP(),
     numBinaryInteractions_(0),
     formMargules_(0),
     formTempModel_(0)
 {
-    initThermoFile(inputFile, id);
+    initThermoFile(inputFile, id_);
 }
 
-MargulesVPSSTP::MargulesVPSSTP(XML_Node& phaseRoot, const std::string& id) :
+MargulesVPSSTP::MargulesVPSSTP(XML_Node& phaseRoot, const std::string& id_) :
     GibbsExcessVPSSTP(),
     numBinaryInteractions_(0),
     formMargules_(0),
     formTempModel_(0)
 {
-    importPhase(*findXMLPhase(&phaseRoot, id), this);
+    importPhase(*findXMLPhase(&phaseRoot, id_), this);
 }
 
 MargulesVPSSTP::MargulesVPSSTP(const MargulesVPSSTP& b) :
@@ -386,13 +386,13 @@ void  MargulesVPSSTP::initLengths()
     dlnActCoeffdlnN_.resize(m_kk, m_kk);
 }
 
-void MargulesVPSSTP::initThermoXML(XML_Node& phaseNode, const std::string& id)
+void MargulesVPSSTP::initThermoXML(XML_Node& phaseNode, const std::string& id_)
 {
     string stemp;
     string subname = "MargulesVPSSTP::initThermoXML";
-    if ((int) id.size() > 0) {
+    if ((int) id_.size() > 0) {
         string idp = phaseNode.id();
-        if (idp != id) {
+        if (idp != id_) {
             throw CanteraError(subname, "phasenode and Id are incompatible");
         }
     }
@@ -450,7 +450,7 @@ void MargulesVPSSTP::initThermoXML(XML_Node& phaseNode, const std::string& id)
     /*
      * Go down the chain
      */
-    GibbsExcessVPSSTP::initThermoXML(phaseNode, id);
+    GibbsExcessVPSSTP::initThermoXML(phaseNode, id_);
 
 
 }

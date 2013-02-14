@@ -36,17 +36,17 @@ MineralEQ3::MineralEQ3():
 {
 }
 
-MineralEQ3::MineralEQ3(const std::string& infile, std::string id) :
+MineralEQ3::MineralEQ3(const std::string& infile, std::string id_) :
     StoichSubstanceSSTP()
 {
     XML_Node* root = get_XML_File(infile);
-    if (id == "-") {
-        id = "";
+    if (id_ == "-") {
+        id_ = "";
     }
-    XML_Node* xphase = get_XML_NameID("phase", std::string("#")+id, root);
+    XML_Node* xphase = get_XML_NameID("phase", std::string("#")+id_, root);
     if (!xphase) {
         throw CanteraError("MineralEQ3::MineralEQ3",
-                           "Couldn't find phase name in file:" + id);
+                           "Couldn't find phase name in file:" + id_);
     }
     // Check the model name to ensure we have compatibility
     const XML_Node& th = xphase->child("thermo");
@@ -58,12 +58,12 @@ MineralEQ3::MineralEQ3(const std::string& infile, std::string id) :
     importPhase(*xphase, this);
 }
 
-MineralEQ3::MineralEQ3(XML_Node& xmlphase, const std::string& id) :
+MineralEQ3::MineralEQ3(XML_Node& xmlphase, const std::string& id_) :
     StoichSubstanceSSTP()
 {
-    if (id != "") {
+    if (id_ != "") {
         std::string idxml = xmlphase["id"];
-        if (id != idxml) {
+        if (id_ != idxml) {
             throw CanteraError("MineralEQ3::MineralEQ3",
                                "id's don't match");
         }
@@ -251,7 +251,7 @@ void MineralEQ3::getParameters(int& n, doublereal* const c) const
     c[0] = rho;
 }
 
-void MineralEQ3::initThermoXML(XML_Node& phaseNode, const std::string& id)
+void MineralEQ3::initThermoXML(XML_Node& phaseNode, const std::string& id_)
 {
     /*
      * Find the Thermo XML node

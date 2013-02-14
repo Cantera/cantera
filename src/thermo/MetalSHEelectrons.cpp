@@ -33,7 +33,7 @@ MetalSHEelectrons::MetalSHEelectrons():
 {
 }
 
-MetalSHEelectrons::MetalSHEelectrons(const std::string& infile, std::string id) :
+MetalSHEelectrons::MetalSHEelectrons(const std::string& infile, std::string id_) :
     SingleSpeciesTP(),
     xdef_(0)
 {
@@ -44,13 +44,13 @@ MetalSHEelectrons::MetalSHEelectrons(const std::string& infile, std::string id) 
     } else {
         root = get_XML_File(infile);
     }
-    if (id == "-") {
-        id = "";
+    if (id_ == "-") {
+        id_ = "";
     }
-    XML_Node* xphase = get_XML_NameID("phase", std::string("#")+id, root);
+    XML_Node* xphase = get_XML_NameID("phase", std::string("#")+id_, root);
     if (!xphase) {
         throw CanteraError("MetalSHEelectrons::MetalSHEelectrons",
-                           "Couldn't find phase name in file:" + id);
+                           "Couldn't find phase name in file:" + id_);
     }
     // Check the model name to ensure we have compatibility
     const XML_Node& th = xphase->child("thermo");
@@ -62,13 +62,13 @@ MetalSHEelectrons::MetalSHEelectrons(const std::string& infile, std::string id) 
     importPhase(*xphase, this);
 }
 
-MetalSHEelectrons::MetalSHEelectrons(XML_Node& xmlphase, const std::string& id) :
+MetalSHEelectrons::MetalSHEelectrons(XML_Node& xmlphase, const std::string& id_) :
     SingleSpeciesTP(),
     xdef_(0)
 {
-    if (id != "") {
+    if (id_ != "") {
         std::string idxml = xmlphase["id"];
-        if (id != idxml) {
+        if (id_ != idxml) {
             throw CanteraError("MetalSHEelectrons::MetalSHEelectrons",
                                "id's don't match");
         }
@@ -236,7 +236,7 @@ void MetalSHEelectrons::initThermo()
     SingleSpeciesTP::initThermo();
 }
 
-void MetalSHEelectrons::initThermoXML(XML_Node& phaseNode, const std::string& id)
+void MetalSHEelectrons::initThermoXML(XML_Node& phaseNode, const std::string& id_)
 {
     /*
      * Find the Thermo XML node
@@ -251,7 +251,7 @@ void MetalSHEelectrons::initThermoXML(XML_Node& phaseNode, const std::string& id
         dens = ctml::getFloatDefaultUnits(tnode, "density", "kg/m3");
     }
     setDensity(dens);
-    SingleSpeciesTP::initThermoXML(phaseNode, id);
+    SingleSpeciesTP::initThermoXML(phaseNode, id_);
 }
 
 XML_Node* MetalSHEelectrons::makeDefaultXMLTree()

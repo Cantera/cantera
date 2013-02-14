@@ -278,18 +278,18 @@ template<class T1, class T2>
 void
 SpeciesThermoDuo<T1, T2>::install(const std::string& name, size_t sp, int type,
                                   const doublereal* c,
-                                  doublereal minTemp,
-                                  doublereal maxTemp,
-                                  doublereal refPressure)
+                                  doublereal minTemp_,
+                                  doublereal maxTemp_,
+                                  doublereal refPressure_)
 {
-    m_p0 = refPressure;
+    m_p0 = refPressure_;
     if (type == m_thermo1.ID) {
-        m_thermo1.install(name, sp, 0, c, minTemp, maxTemp,
-                          refPressure);
+        m_thermo1.install(name, sp, 0, c, minTemp_, maxTemp_,
+                          refPressure_);
         speciesToType[sp] = m_thermo1.ID;
     } else if (type == m_thermo2.ID) {
-        m_thermo2.install(name, sp, 0, c, minTemp, maxTemp,
-                          refPressure);
+        m_thermo2.install(name, sp, 0, c, minTemp_, maxTemp_,
+                          refPressure_);
         speciesToType[sp] = m_thermo2.ID;
     } else {
         throw UnknownSpeciesThermo("SpeciesThermoDuo:install",type);
@@ -320,17 +320,17 @@ template<class T1, class T2>
 void
 SpeciesThermoDuo<T1, T2>::reportParams(size_t index, int& type,
                                        doublereal* const c,
-                                       doublereal& minTemp,
-                                       doublereal& maxTemp,
-                                       doublereal& refPressure) const
+                                       doublereal& minTemp_,
+                                       doublereal& maxTemp_,
+                                       doublereal& refPressure_) const
 {
     int ctype = reportType(index);
     if (ctype == m_thermo1.ID) {
-        m_thermo1.reportParams(index, type, c, minTemp, maxTemp,
-                               refPressure);
+        m_thermo1.reportParams(index, type, c, minTemp_, maxTemp_,
+                               refPressure_);
     } else if (ctype == m_thermo2.ID) {
-        m_thermo2.reportParams(index, type, c, minTemp, maxTemp,
-                               refPressure);
+        m_thermo2.reportParams(index, type, c, minTemp_, maxTemp_,
+                               refPressure_);
     } else {
         throw CanteraError("  ", "confused");
     }

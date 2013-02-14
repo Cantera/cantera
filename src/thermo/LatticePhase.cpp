@@ -62,14 +62,14 @@ LatticePhase::~LatticePhase()
 {
 }
 
-LatticePhase::LatticePhase(const std::string& inputFile, const std::string& id)
+LatticePhase::LatticePhase(const std::string& inputFile, const std::string& id_)
 {
-    initThermoFile(inputFile, id);
+    initThermoFile(inputFile, id_);
 }
 
-LatticePhase::LatticePhase(XML_Node& phaseRef, const std::string& id)
+LatticePhase::LatticePhase(XML_Node& phaseRef, const std::string& id_)
 {
-    importPhase(*findXMLPhase(&phaseRef, id), this);
+    importPhase(*findXMLPhase(&phaseRef, id_), this);
 }
 
 ThermoPhase* LatticePhase::duplMyselfAsThermoPhase() const
@@ -341,10 +341,10 @@ void LatticePhase::initThermo()
     ThermoPhase::initThermo();
 }
 
-void LatticePhase::initThermoXML(XML_Node& phaseNode, const std::string& id)
+void LatticePhase::initThermoXML(XML_Node& phaseNode, const std::string& id_)
 {
     std::string idattrib = phaseNode.id();
-    if (!id.empty() && id != idattrib) {
+    if (!id_.empty() && id_ != idattrib) {
         throw CanteraError("LatticePhase::initThermoXML",
                            "ids don't match");
     }
@@ -391,7 +391,7 @@ void LatticePhase::initThermoXML(XML_Node& phaseNode, const std::string& id)
      * Call the base initThermo, which handles setting the initial
      * state.
      */
-    ThermoPhase::initThermoXML(phaseNode, id);
+    ThermoPhase::initThermoXML(phaseNode, id_);
 }
 
 void LatticePhase::_updateThermo() const

@@ -81,7 +81,7 @@ HMWSoln::HMWSoln() :
     }
 }
 
-HMWSoln::HMWSoln(const std::string& inputFile, const std::string& id) :
+HMWSoln::HMWSoln(const std::string& inputFile, const std::string& id_) :
     MolalityVPSSTP(),
     m_formPitzer(PITZERFORM_BASE),
     m_formPitzerTemp(PITZER_TEMP_CONSTANT),
@@ -129,10 +129,10 @@ HMWSoln::HMWSoln(const std::string& inputFile, const std::string& id) :
         elambda[i] = 0.0;
         elambda1[i] = 0.0;
     }
-    initThermoFile(inputFile, id);
+    initThermoFile(inputFile, id_);
 }
 
-HMWSoln::HMWSoln(XML_Node& phaseRoot, const std::string& id) :
+HMWSoln::HMWSoln(XML_Node& phaseRoot, const std::string& id_) :
     MolalityVPSSTP(),
     m_formPitzer(PITZERFORM_BASE),
     m_formPitzerTemp(PITZER_TEMP_CONSTANT),
@@ -180,7 +180,7 @@ HMWSoln::HMWSoln(XML_Node& phaseRoot, const std::string& id) :
         elambda[i] = 0.0;
         elambda1[i] = 0.0;
     }
-    importPhase(*findXMLPhase(&phaseRoot, id), this);
+    importPhase(*findXMLPhase(&phaseRoot, id_), this);
 }
 
 HMWSoln::HMWSoln(const HMWSoln& b) :

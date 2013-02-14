@@ -368,20 +368,20 @@ XML_Node::XML_Node(const char* cnm)  :
  *  @param parent   Pointer to the parent for this node in the tree.
  *                  A value of zero 0 indicates this is the top of the tree.
  */
-XML_Node::XML_Node(const std::string& nm, XML_Node* const parent) :
+XML_Node::XML_Node(const std::string& nm, XML_Node* const parent_) :
     m_name(nm),
     m_value(""),
-    m_parent(parent),
+    m_parent(parent_),
     m_root(0),
     m_locked(false),
     m_nchildren(0),
     m_iscomment(false),
     m_linenum(0)
 {
-    if (!parent) {
+    if (!parent_) {
         m_root = this;
     } else {
-        m_root = &(parent->root());
+        m_root = &(parent_->root());
     }
 }
 
@@ -554,10 +554,10 @@ XML_Node& XML_Node::addChild(const char* cstring)
  *   @param   value      Value of the XML_Node - string
  *   @return  Returns a reference to the created child XML_Node object
  */
-XML_Node& XML_Node::addChild(const std::string& name, const std::string& value)
+XML_Node& XML_Node::addChild(const std::string& name_, const std::string& value_)
 {
-    XML_Node& c = addChild(name);
-    c.addValue(value);
+    XML_Node& c = addChild(name_);
+    c.addValue(value_);
     return c;
 }
 
@@ -576,11 +576,11 @@ XML_Node& XML_Node::addChild(const std::string& name, const std::string& value)
  *
  *   @return  Returns a reference to the created child XML_Node object
  */
-XML_Node& XML_Node::addChild(const std::string& name, const doublereal value,
+XML_Node& XML_Node::addChild(const std::string& name_, const doublereal value_,
                              const std::string& fmt)
 {
-    XML_Node& c = addChild(name);
-    c.addValue(value, fmt);
+    XML_Node& c = addChild(name_);
+    c.addValue(value_, fmt);
     return c;
 }
 
@@ -703,9 +703,9 @@ std::string XML_Node::operator()(const std::string& loc) const
  * @param attrib  String name for the attribute to be assigned
  * @param value   String value that the attribute will have
  */
-void XML_Node::addAttribute(const std::string& attrib, const std::string& value)
+void XML_Node::addAttribute(const std::string& attrib_, const std::string& value_)
 {
-    m_attribs[attrib] = value;
+    m_attribs[attrib_] = value_;
 }
 
 // Add or modify an attribute to the double, value
@@ -718,10 +718,10 @@ void XML_Node::addAttribute(const std::string& attrib, const std::string& value)
  * @param fmt     Format of the printf string conversion of the double.
  *                Default is "%g".
  */
-void XML_Node::addAttribute(const std::string& attrib,
-                            const doublereal value, const std::string& fmt)
+void XML_Node::addAttribute(const std::string& attrib_,
+                            const doublereal value_, const std::string& fmt)
 {
-    m_attribs[attrib] = fp2str(value, fmt);
+    m_attribs[attrib_] = fp2str(value_, fmt);
 }
 
 //  The operator[] is overloaded to provide a lookup capability
@@ -1037,17 +1037,17 @@ XML_Node* XML_Node::findNameIDIndex(const std::string& nameTarget,
  * This algorithm does a lateral search of first generation children
  * first before diving deeper into each tree branch.
  */
-XML_Node* XML_Node::findID(const std::string& id, const int depth) const
+XML_Node* XML_Node::findID(const std::string& id_, const int depth) const
 {
     if (hasAttrib("id")) {
-        if (attrib("id") == id) {
+        if (attrib("id") == id_) {
             return const_cast<XML_Node*>(this);
         }
     }
     if (depth > 0) {
         XML_Node* r = 0;
         for (size_t i = 0; i < nChildren(); i++) {
-            r = m_children[i]->findID(id, depth-1);
+            r = m_children[i]->findID(id_, depth-1);
             if (r != 0) {
                 return r;
             }
@@ -1170,10 +1170,10 @@ void XML_Node::build(std::istream& f)
     XML_Reader r(f);
     string nm, nm2, val;
     XML_Node* node = this;
-    map<string, string> attribs;
+    map<string, string> node_attribs;
     while (!f.eof()) {
-        attribs.clear();
-        nm = r.readTag(attribs);
+        node_attribs.clear();
+        nm = r.readTag(node_attribs);
 
         if (nm == "EOF") {
             break;
@@ -1186,7 +1186,7 @@ void XML_Node::build(std::istream& f)
             nm2 = nm.substr(0,nm.size()-1);
             node = &node->addChild(nm2);
             node->addValue("");
-            node->attribs() = attribs;
+            node->attribs() = node_attribs;
             node->setLineNumber(lnum);
             node = node->parent();
         } else if (nm[0] != '/') {
@@ -1194,7 +1194,7 @@ void XML_Node::build(std::istream& f)
                 node = &node->addChild(nm);
                 val = r.readValue();
                 node->addValue(val);
-                node->attribs() = attribs;
+                node->attribs() = node_attribs;
                 node->setLineNumber(lnum);
             } else if (nm.substr(0,2) == "--") {
                 if (nm.substr(nm.size()-2,2) == "--") {
@@ -1335,11 +1335,11 @@ void XML_Node::unlock()
  *                  with the matching name
  */
 void XML_Node::getChildren(const std::string& nm,
-                           std::vector<XML_Node*>& children) const
+                           std::vector<XML_Node*>& children_) const
 {
     for (size_t i = 0; i < nChildren(); i++) {
         if (child(i).name() == nm) {
-            children.push_back(&child(i));
+            children_.push_back(&child(i));
         }
     }
 }
@@ -1535,11 +1535,11 @@ XML_Node& XML_Node::root() const
     return *m_root;
 }
 
-void XML_Node::setRoot(const XML_Node& root)
+void XML_Node::setRoot(const XML_Node& newRoot)
 {
-    m_root = const_cast<XML_Node*>(&root);
+    m_root = const_cast<XML_Node*>(&newRoot);
     for (size_t i = 0; i < m_nchildren; i++) {
-        m_children[i]->setRoot(root);
+        m_children[i]->setRoot(newRoot);
     }
 }
 
