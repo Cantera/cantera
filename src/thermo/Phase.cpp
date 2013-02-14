@@ -103,7 +103,6 @@ Phase& Phase::operator=(const Phase& right)
     return *this;
 }
 
-// Destructor.
 Phase::~Phase()
 {
     if (m_xml) {
