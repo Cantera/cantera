@@ -513,7 +513,7 @@ void MultiTransport::getMultiDiffCoeffs(const size_t ld, doublereal* const d)
 
     // update the binary diffusion coefficients
     update_T();
-    updateDiff_T();
+    updateThermal_T();
 
     // evaluate L0000 if the temperature or concentrations have
     // changed since it was last evaluated.
