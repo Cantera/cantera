@@ -203,6 +203,9 @@ private:
     // work space
     vector_fp m_spwork1, m_spwork2, m_spwork3;
 
+    //! Mole fraction vector from last L-matrix evaluation
+    vector_fp m_molefracs_last;
+
     void correctBinDiffCoeffs();
 
     //! Boolean indicating viscosity is up to date

@@ -78,6 +78,7 @@ bool MultiTransport::initGas(GasTransportParams& tr)
     m_a.resize(3*m_nsp, 1.0);
     m_b.resize(3*m_nsp, 0.0);
     m_aa.resize(m_nsp, m_nsp, 0.0);
+    m_molefracs_last.resize(m_nsp, -1.0);
 
     m_frot_298.resize(m_nsp);
     m_rotrelax.resize(m_nsp);
@@ -166,6 +167,9 @@ void MultiTransport::solveLMatrixEquation()
     // if T has changed, update the temperature-dependent properties.
     updateThermal_T();
     update_C();
+    if (m_lmatrix_soln_ok) {
+        return;
+    }
 
     // Copy the mole fractions twice into the last two blocks of
     // the right-hand-side vector m_b. The first block of m_b was
@@ -233,10 +237,9 @@ void MultiTransport::solveLMatrixEquation()
                            "error in solving L matrix.");
     }
     m_lmatrix_soln_ok = true;
-    m_l0000_ok = false;
+    m_molefracs_last = m_molefracs;
     // L matrix is overwritten with LU decomposition
-    //}
-    m_lmatrix_soln_ok = true;
+    m_l0000_ok = false;
 }
 
 //====================================================================================================================
@@ -528,6 +531,7 @@ void MultiTransport::getMultiDiffCoeffs(const size_t ld, doublereal* const d)
                            string(" invert returned ierr = ")+int2str(ierr));
     }
     m_l0000_ok = false;           // matrix is overwritten by inverse
+    m_lmatrix_soln_ok = false;
 
     //doublereal pres = m_thermo->pressure();
     doublereal prefactor = 16.0 * m_temp
@@ -562,18 +566,21 @@ void MultiTransport::update_T()
 
 void MultiTransport::update_C()
 {
-    // signal that concentration-dependent quantities will need to
-    // be recomputed before use, and update the local mole
-    // fraction array.
-    m_l0000_ok = false;
-    m_lmatrix_soln_ok = false;
+    // Update the local mole fraction array
     m_thermo->getMoleFractions(DATA_PTR(m_molefracs));
 
-    // add an offset to avoid a pure species condition
-    // (check - this may be unnecessary)
     for (size_t k = 0; k < m_nsp; k++) {
+        // add an offset to avoid a pure species condition
         m_molefracs[k] = std::max(Tiny, m_molefracs[k]);
+        if (m_molefracs[k] != m_molefracs_last[k]) {
+            // If any mole fractions have changed, signal that concentration-
+            // dependent quantities will need to be recomputed before use.
+            m_l0000_ok = false;
+            m_lmatrix_soln_ok = false;
+        }
     }
+    m_l0000_ok = false;
+    m_lmatrix_soln_ok = false;
 }
 
 /*************************************************************************
