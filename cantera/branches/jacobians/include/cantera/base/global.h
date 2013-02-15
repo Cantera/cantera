@@ -16,15 +16,15 @@
  *     -  HTML_logs   (see \ref HTML_logs)
  */
 // Copyright 2001  California Institute of Technology
-
 #ifndef CT_GLOBAL_H
 #define CT_GLOBAL_H
 
 #include "ct_defs.h"
 #include "IndependentVars.h"
 
-namespace Cantera
-{
+#include <vector>
+
+namespace Cantera {
 
 class XML_Node;
 class Logger;
@@ -198,7 +198,7 @@ void appdelete();
  * within the thread just before the thread terminates.  If your version of Cantera has not
  * been specifically compiled for thread safety this function does nothing.
  */
-void thread_complete() ;
+void thread_complete();
 
 //! Returns root directory where %Cantera where installed
 /*!
@@ -230,7 +230,6 @@ std::string canteraRoot();
  * @ingroup logs
  */
 
-
 //!  Write a message to the screen.
 /*!
  * The string may be of any
@@ -251,7 +250,6 @@ std::string canteraRoot();
  */
 void writelog(const std::string& msg);
 
-
 inline void writelog(const std::string& msg, int loglevel)
 {
     if (loglevel > 0) {
@@ -259,7 +257,8 @@ inline void writelog(const std::string& msg, int loglevel)
     }
 }
 
-inline void writelog1(const std::string& msg, int loglevel) {
+inline void writelog1(const std::string& msg, int loglevel)
+{
     if (loglevel > 0) {
         writelog(msg);
     }
@@ -291,7 +290,7 @@ void writelog(const char* msg);
  * @param fmt  c format string for the following arguments
  * @ingroup textlogs
  */
-void writelogf(const char* fmt,...);
+void writelogf(const char* fmt, ...);
 
 //! Write an end of line character to the screen and flush output
 /*!
@@ -406,7 +405,7 @@ void close_XML_File(const std::string& file);
  *  @param loglevel loglevel of the group.
  *  @ingroup HTML_logs
  */
-void beginLogGroup(const std::string& title, int loglevel=-99);
+void beginLogGroup(const std::string& title, int loglevel = -99);
 
 //! Add an entry to an HTML log file.
 /*!
@@ -464,7 +463,7 @@ void addLogEntry(const std::string& msg);
  *              log group created.
  * @ingroup HTML_logs
  */
-void endLogGroup(const std::string& title="");
+void endLogGroup(const std::string& title = "");
 
 //! Write the HTML log file.
 /*!
@@ -518,7 +517,6 @@ inline void write_logfile(const std::string& file = "log.html") {}
  */
 XML_Node* get_XML_Node(const std::string& file_ID, XML_Node* root);
 
-
 //! This routine will locate an XML node in either the input
 //! XML tree or in another input file specified by the file
 //! part of the file_ID string.
@@ -547,17 +545,33 @@ XML_Node* get_XML_Node(const std::string& file_ID, XML_Node* root);
  * @return
  *    Returns the XML_Node, if found. Returns null if not found.
  */
-XML_Node* get_XML_NameID(const std::string& nameTarget,
-                         const std::string& file_ID,
-                         XML_Node* root);
+XML_Node* get_XML_NameID(const std::string& nameTarget, const std::string& file_ID, XML_Node* root);
 
 //! Clip *value* such that lower <= value <= upper
-template <class T>
+template<class T>
 inline T clip(const T& value, const T& lower, const T& upper)
 {
     return std::max(lower, std::min(upper, value));
 }
 
+void assignVectorFadToDouble(std::vector<doublereal>& left, const std::vector<Cantera::doubleFAD>& right);
+
+
+template<typename T1, typename T2>
+void assignVectorVectorClass(std::vector<std::vector<T1> >& left, const std::vector<std::vector<T2> >& right)
+{
+    size_t nn = (right).size();
+    left.resize(nn);
+    for (size_t k = 0; k < nn; k++) {
+        const std::vector<T2> & pfrom = (right)[k];
+        std::vector<T1> & pto = left[k];
+        size_t mm = pfrom.size();
+        pto.resize(mm);
+        for (size_t l = 0; l < mm; l++) {
+            pto[l] = pfrom[l];
+        }
+    }
+};
 }
 
 #endif

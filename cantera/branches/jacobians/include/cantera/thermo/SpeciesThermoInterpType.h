@@ -6,132 +6,130 @@
  */
 
 // Copyright 2001  California Institute of Technology
-
 #include "cantera/base/ct_defs.h"
 #include "speciesThermoTypes.h"
 
 #ifndef CT_SPECIESTHERMOINTERPTYPE_H
 #define CT_SPECIESTHERMOINTERPTYPE_H
 
-namespace Cantera
-{
+namespace Cantera {
 
 class PDSS;
 class VPSSMgr;
 
 /**
-  * @defgroup spthermo Species Reference-State Thermodynamic Properties
-  *
-  *  The %ThermoPhase object relies on classes to calculate
-  *  the thermodynamic properties of the reference state for all
-  *  of the species in the phase.
-  *  This group describes the types and functionality of the classes
-  *  that calculate the reference state thermodynamic functions
-  *  within %Cantera.
-  *
-  *
-  * To compute the thermodynamic properties of multicomponent
-  * solutions, it is necessary to know something about the
-  * thermodynamic properties of the individual species present in
-  * the solution. Exactly what sort of species properties are
-  * required depends on the thermodynamic model for the
-  * solution. For a gaseous solution (i.e., a gas mixture), the
-  * species properties required are usually ideal gas properties at
-  * the mixture temperature and at a reference pressure (almost always at
-  * 1 bar). For other types of solutions, however, it may
-  * not be possible to isolate the species in a "pure" state. For
-  * example, the thermodynamic properties of, say, Na+ and Cl- in
-  * saltwater are not easily determined from data on the properties
-  * of solid NaCl, or solid Na metal, or chlorine gas. In this
-  * case, the solvation in water is fundamental to the identity of
-  * the species, and some other reference state must be used. One
-  * common convention for liquid solutions is to use thermodynamic
-  * data for the solutes in the limit of infinite dilution within the
-  * pure solvent; another convention is to reference all properties
-  * to unit molality.
-  *
-  * In defining these standard states for species in a phase, we make
-  * the following definition. A reference state is a standard state
-  * of a species in a phase limited to one particular pressure, the reference
-  * pressure. The reference state specifies the dependence of all
-  * thermodynamic functions as a function of the temperature, in
-  * between a minimum temperature and a maximum temperature. The
-  * reference state also specifies the molar volume of the species
-  * as a function of temperature. The molar volume is a thermodynamic
-  * function.
-  * A full standard state does the same thing as a reference state,
-  * but specifies the thermodynamics functions at all pressures.
-  *
-  * Whatever the conventions used by a particular solution model,
-  * means need to be provided to compute the species properties in
-  * the reference state. Class SpeciesThermo is the base class
-  * for a family of classes that compute properties of all
-  * species in a phase in their reference states, for a range of temperatures.
-  * Note, the pressure dependence of the species thermodynamic functions is not
-  * handled by this particular species thermodynamic model. %SpeciesThermo
-  * calculates the reference-state thermodynamic values of all species in a single
-  * phase during each call.
-  *
-  * The class SpeciesThermoInterpType is a pure virtual base class for
-  * calculation of thermodynamic functions for a single species
-  * in its reference state.
-  * The following classes inherit from %SpeciesThermoInterpType.
-  *
-  *   - NasaPoly1          in file NasaPoly1.h
-  *      - This is a one zone model,  consisting of a 7
-  *        coefficient Nasa Polynomial format.
-  *      .
-  *   - NasaPoly2          in file NasaPoly2.h
-  *      - This is a two zone model, with each zone consisting of a 7
-  *        coefficient Nasa Polynomial format.
-  *      .
-  *   - ShomatePoly        in file ShomatePoly.h
-  *      - This is a one zone model, consisting of a 7
-  *        coefficient Shomate Polynomial format.
-  *      .
-  *   - ShomatePoly2       in file ShomatePoly.h
-  *      - This is a two zone model, with each zone consisting of a 7
-  *        coefficient Shomate Polynomial format.
-  *      .
-  *   - ConstCpPoly        in file ConstCpPoly.h
-  *      - This is a one-zone constant heat capacity model.
-  *      .
-  *   - Mu0Poly            in file Mu0Poly.h
-  *      - This is a multizoned model. The chemical potential is given
-  *        at a set number of temperatures. Between each temperature
-  *        the heat capacity is treated as a constant.
-  *      .
-  *   - Nasa9Poly1          in file Nasa9Poly1.h
-  *      - This is a one zone model,  consisting of the 9
-  *        coefficient Nasa Polynomial format.
-  *      .
-  *   - Nasa9PolyMultiTempRegion       in file Nasa9PolyMultiTempRegion.h
-  *      - This is a multiple zone model, consisting of the 9
-  *        coefficient Nasa Polynomial format in each zone.
-  *      .
-  *   - STITbyPDSS          in file SpeciesThermoInterpType.h
-  *      - This is an object that calculates reference state thermodynamic
-  *        functions by relying on a pressure dependent
-  *        standard state object (i.e., a PDSS object) to calculate
-  *        the thermodynamic functions.
-  *      .
-  *
-  *  The most important member function for the %SpeciesThermoInterpType class
-  *  is the member function
-  *  \link SpeciesThermoInterpType::updatePropertiesTemp() updatePropertiesTemp()\endlink.
-  *  The function calculates the values of Cp, H, and S for the specific
-  *  species pertaining to this class. It takes as its arguments the
-  *  base pointer for the vector of  Cp, H, and S values for all species
-  *  in the phase. The offset for the species is known within the
-  *  object.
-  *
-  *  A key concept for reference states is that there is a maximum and a minimum
-  *  temperature beyond which the thermodynamic formulation isn't valid.
-  *  Calls for temperatures outside this range will cause the
-  *  object to throw a CanteraError.
-  *
-  * @ingroup thermoprops
-  */
+ * @defgroup spthermo Species Reference-State Thermodynamic Properties
+ *
+ *  The %ThermoPhase object relies on classes to calculate
+ *  the thermodynamic properties of the reference state for all
+ *  of the species in the phase.
+ *  This group describes the types and functionality of the classes
+ *  that calculate the reference state thermodynamic functions
+ *  within %Cantera.
+ *
+ *
+ * To compute the thermodynamic properties of multicomponent
+ * solutions, it is necessary to know something about the
+ * thermodynamic properties of the individual species present in
+ * the solution. Exactly what sort of species properties are
+ * required depends on the thermodynamic model for the
+ * solution. For a gaseous solution (i.e., a gas mixture), the
+ * species properties required are usually ideal gas properties at
+ * the mixture temperature and at a reference pressure (almost always at
+ * 1 bar). For other types of solutions, however, it may
+ * not be possible to isolate the species in a "pure" state. For
+ * example, the thermodynamic properties of, say, Na+ and Cl- in
+ * saltwater are not easily determined from data on the properties
+ * of solid NaCl, or solid Na metal, or chlorine gas. In this
+ * case, the solvation in water is fundamental to the identity of
+ * the species, and some other reference state must be used. One
+ * common convention for liquid solutions is to use thermodynamic
+ * data for the solutes in the limit of infinite dilution within the
+ * pure solvent; another convention is to reference all properties
+ * to unit molality.
+ *
+ * In defining these standard states for species in a phase, we make
+ * the following definition. A reference state is a standard state
+ * of a species in a phase limited to one particular pressure, the reference
+ * pressure. The reference state specifies the dependence of all
+ * thermodynamic functions as a function of the temperature, in
+ * between a minimum temperature and a maximum temperature. The
+ * reference state also specifies the molar volume of the species
+ * as a function of temperature. The molar volume is a thermodynamic
+ * function.
+ * A full standard state does the same thing as a reference state,
+ * but specifies the thermodynamics functions at all pressures.
+ *
+ * Whatever the conventions used by a particular solution model,
+ * means need to be provided to compute the species properties in
+ * the reference state. Class SpeciesThermo is the base class
+ * for a family of classes that compute properties of all
+ * species in a phase in their reference states, for a range of temperatures.
+ * Note, the pressure dependence of the species thermodynamic functions is not
+ * handled by this particular species thermodynamic model. %SpeciesThermo
+ * calculates the reference-state thermodynamic values of all species in a single
+ * phase during each call.
+ *
+ * The class SpeciesThermoInterpType is a pure virtual base class for
+ * calculation of thermodynamic functions for a single species
+ * in its reference state.
+ * The following classes inherit from %SpeciesThermoInterpType.
+ *
+ *   - NasaPoly1          in file NasaPoly1.h
+ *      - This is a one zone model,  consisting of a 7
+ *        coefficient Nasa Polynomial format.
+ *      .
+ *   - NasaPoly2          in file NasaPoly2.h
+ *      - This is a two zone model, with each zone consisting of a 7
+ *        coefficient Nasa Polynomial format.
+ *      .
+ *   - ShomatePoly        in file ShomatePoly.h
+ *      - This is a one zone model, consisting of a 7
+ *        coefficient Shomate Polynomial format.
+ *      .
+ *   - ShomatePoly2       in file ShomatePoly.h
+ *      - This is a two zone model, with each zone consisting of a 7
+ *        coefficient Shomate Polynomial format.
+ *      .
+ *   - ConstCpPoly        in file ConstCpPoly.h
+ *      - This is a one-zone constant heat capacity model.
+ *      .
+ *   - Mu0Poly            in file Mu0Poly.h
+ *      - This is a multizoned model. The chemical potential is given
+ *        at a set number of temperatures. Between each temperature
+ *        the heat capacity is treated as a constant.
+ *      .
+ *   - Nasa9Poly1          in file Nasa9Poly1.h
+ *      - This is a one zone model,  consisting of the 9
+ *        coefficient Nasa Polynomial format.
+ *      .
+ *   - Nasa9PolyMultiTempRegion       in file Nasa9PolyMultiTempRegion.h
+ *      - This is a multiple zone model, consisting of the 9
+ *        coefficient Nasa Polynomial format in each zone.
+ *      .
+ *   - STITbyPDSS          in file SpeciesThermoInterpType.h
+ *      - This is an object that calculates reference state thermodynamic
+ *        functions by relying on a pressure dependent
+ *        standard state object (i.e., a PDSS object) to calculate
+ *        the thermodynamic functions.
+ *      .
+ *
+ *  The most important member function for the %SpeciesThermoInterpType class
+ *  is the member function
+ *  \link SpeciesThermoInterpType::updatePropertiesTemp() updatePropertiesTemp()\endlink.
+ *  The function calculates the values of Cp, H, and S for the specific
+ *  species pertaining to this class. It takes as its arguments the
+ *  base pointer for the vector of  Cp, H, and S values for all species
+ *  in the phase. The offset for the species is known within the
+ *  object.
+ *
+ *  A key concept for reference states is that there is a maximum and a minimum
+ *  temperature beyond which the thermodynamic formulation isn't valid.
+ *  Calls for temperatures outside this range will cause the
+ *  object to throw a CanteraError.
+ *
+ * @ingroup thermoprops
+ */
 
 //!  Pure Virtual Base class for the thermodynamic manager for
 //!  an individual species' reference state
@@ -159,7 +157,7 @@ class VPSSMgr;
  *
  * @ingroup spthermo
  */
-template <typename ValAndDerivType>
+template<typename ValAndDerivType>
 class SpeciesThermoInterpType
 {
 
@@ -175,6 +173,9 @@ public:
     virtual SpeciesThermoInterpType<ValAndDerivType> *
     duplMyselfAsSpeciesThermoInterpType() const = 0;
 
+    //! duplicator
+    virtual SpeciesThermoInterpType<double> *
+    duplMyselfAsSpeciesThermoInterpTypeDouble() const = 0;
 
     //! Returns the minimum temperature that the thermo
     //! parameterization is valid
@@ -212,8 +213,7 @@ public:
      * @param s_R     Vector of Dimensionless entropies.
      *                (length m_kk).
      */
-    virtual void updateProperties(const ValAndDerivType* tempPoly,
-                                  ValAndDerivType* cp_R, ValAndDerivType* h_RT,
+    virtual void updateProperties(const ValAndDerivType* tempPoly, ValAndDerivType* cp_R, ValAndDerivType* h_RT,
                                   ValAndDerivType* s_R) const;
 
     //! Compute the reference-state property of one species
@@ -232,9 +232,7 @@ public:
      * @param s_R     Vector of Dimensionless entropies.
      *                (length m_kk).
      */
-    virtual void updatePropertiesTemp(const doublereal temp,
-                                      ValAndDerivType* cp_R,
-                                      ValAndDerivType* h_RT,
+    virtual void updatePropertiesTemp(const doublereal temp, ValAndDerivType* cp_R, ValAndDerivType* h_RT,
                                       ValAndDerivType* s_R) const = 0;
 
     //!This utility function reports back the type of
@@ -251,9 +249,7 @@ public:
      * @param coeffs    Vector of coefficients used to set the
      *                  parameters for the standard state.
      */
-    virtual void reportParameters(size_t& index, int& type,
-                                  doublereal& minTemp, doublereal& maxTemp,
-                                  doublereal& refPressure,
+    virtual void reportParameters(size_t& index, int& type, doublereal& minTemp, doublereal& maxTemp, doublereal& refPressure,
                                   doublereal* const coeffs) const = 0;
 
     //! Modify parameters for the standard state
@@ -261,7 +257,9 @@ public:
      * @param coeffs   Vector of coefficients used to set the
      *                 parameters for the standard state.
      */
-    virtual void modifyParameters(doublereal* coeffs) {}
+    virtual void modifyParameters(doublereal* coeffs)
+    {
+    }
 
 #ifdef H298MODIFY_CAPABILITY
 
@@ -305,7 +303,7 @@ public:
  * @ingroup spthermo
  */
 template<typename ValAndDerivType>
-class STITbyPDSS : public SpeciesThermoInterpType<ValAndDerivType>
+class STITbyPDSS: public SpeciesThermoInterpType<ValAndDerivType>
 {
 
 public:
@@ -330,13 +328,17 @@ public:
     /*!
      *  @param b Object to be copied
      */
-    STITbyPDSS(const STITbyPDSS& b);
+    template<typename ValAndDerivType2>
+    STITbyPDSS(const STITbyPDSS<ValAndDerivType2>& b);
 
     //! Destructor
     virtual ~STITbyPDSS();
 
     //! duplicator
     virtual SpeciesThermoInterpType<ValAndDerivType>* duplMyselfAsSpeciesThermoInterpType() const;
+
+    //! Duplicator
+    virtual SpeciesThermoInterpType<doublereal>* duplMyselfAsSpeciesThermoInterpTypeDouble() const;
 
     //! Initialize and/or Reinitialize all the pointers for this object
     /*!
@@ -391,8 +393,7 @@ public:
      * @param s_R     Vector of Dimensionless entropies.
      *                (length m_kk).
      */
-    virtual void updateProperties(const ValAndDerivType* tempPoly,
-                                  ValAndDerivType* cp_R, ValAndDerivType* h_RT,
+    virtual void updateProperties(const ValAndDerivType* tempPoly, ValAndDerivType* cp_R, ValAndDerivType* h_RT,
                                   ValAndDerivType* s_R) const;
 
     //! Compute the reference-state property of one species
@@ -411,9 +412,7 @@ public:
      * @param s_R     Vector of Dimensionless entropies.
      *                (length m_kk).
      */
-    virtual void updatePropertiesTemp(const doublereal temp,
-                                      ValAndDerivType* cp_R,
-                                      ValAndDerivType* h_RT,
+    virtual void updatePropertiesTemp(const doublereal temp, ValAndDerivType* cp_R, ValAndDerivType* h_RT,
                                       ValAndDerivType* s_R) const;
 
     //!This utility function reports back the type of
@@ -430,9 +429,7 @@ public:
      * @param coeffs    Vector of coefficients used to set the
      *                  parameters for the standard state.
      */
-    virtual void reportParameters(size_t& index, int& type,
-                                  doublereal& minTemp, doublereal& maxTemp,
-                                  doublereal& refPressure,
+    virtual void reportParameters(size_t& index, int& type, doublereal& minTemp, doublereal& maxTemp, doublereal& refPressure,
                                   doublereal* const coeffs) const;
 
     //! Modify parameters for the standard state
@@ -458,6 +455,9 @@ private:
 
     //! Species index within the phase
     size_t m_speciesIndex;
+
+    friend class STITbyPDSS<doublereal>;
+    friend class STITbyPDSS<doubleFAD>;
 };
 
 }

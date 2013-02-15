@@ -9,14 +9,12 @@
  */
 // Copyright 2007  California Institute of Technology
 
-
 #ifndef CT_ADSORBATE_H
 #define CT_ADSORBATE_H
 
 #include "SpeciesThermoInterpType.h"
 
-namespace Cantera
-{
+namespace Cantera {
 
 /**
  * An adsorbed surface species.
@@ -29,19 +27,19 @@ namespace Cantera
  * @ingroup spthermo
  */
 template<typename ValAndDerivType>
-class Adsorbate : public SpeciesThermoInterpType<ValAndDerivType>
+class Adsorbate: public SpeciesThermoInterpType<ValAndDerivType>
 {
 
 public:
 
     //! Empty constructor
-    Adsorbate()
-        : m_lowT(0.0),
-          m_highT(0.0),
-          m_index(0),
-          m_nFreqs(0) {
+    Adsorbate() :
+            m_lowT(0.0),
+            m_highT(0.0),
+            m_index(0),
+            m_nFreqs(0)
+    {
     }
-
 
     //! Full Constructor
     /*!
@@ -50,81 +48,111 @@ public:
      * @param thigh     output - Maximum temperature
      * @param pref      output - reference pressure (Pa).
      */
-    Adsorbate(size_t n, doublereal tlow, doublereal thigh, doublereal pref,
-              const doublereal* coeffs) : m_lowT(tlow),
-        m_highT(thigh),
-        m_index(n) {
+    Adsorbate(size_t n, doublereal tlow, doublereal thigh, doublereal pref, const doublereal* coeffs) :
+            m_lowT(tlow),
+            m_highT(thigh),
+            m_index(n)
+    {
         m_nFreqs = int(coeffs[0]);
         m_be = coeffs[1];
         m_freq.resize(m_nFreqs);
-        std::copy(coeffs+2, coeffs + 2 + m_nFreqs, m_freq.begin());
+        std::copy(coeffs + 2, coeffs + 2 + m_nFreqs, m_freq.begin());
     }
 
     /// Copy Constructor
-    Adsorbate(const Adsorbate& b) :
-        m_lowT(b.m_lowT),
-        m_highT(b.m_highT),
-        m_Pref(b.m_Pref),
-        m_index(b.m_index),
-        m_be(b.m_be) {
+    Adsorbate(const Adsorbate<ValAndDerivType>& b) :
+            m_lowT(b.m_lowT),
+            m_highT(b.m_highT),
+            m_Pref(b.m_Pref),
+            m_index(b.m_index),
+            m_be(b.m_be)
+    {
         m_nFreqs = b.m_nFreqs;
-        std::copy(b.m_freq.begin(), b.m_freq.begin() + m_nFreqs,
-                  m_freq.begin());
+        std::copy(b.m_freq.begin(), b.m_freq.begin() + m_nFreqs, m_freq.begin());
     }
 
+
+    /// Copy Constructor
+    template<typename ValAndDerivType2>
+    Adsorbate(const Adsorbate<ValAndDerivType2>& b) :
+            m_lowT(b.m_lowT),
+            m_highT(b.m_highT),
+            m_Pref(b.m_Pref),
+            m_index(b.m_index),
+            m_be(b.m_be)
+    {
+        m_nFreqs = b.m_nFreqs;
+        std::copy(b.m_freq.begin(), b.m_freq.begin() + m_nFreqs, m_freq.begin());
+    }
+
+
     //! destructor
-    virtual ~Adsorbate() {}
+    virtual ~Adsorbate()
+    {
+    }
 
     //! duplicator
     virtual SpeciesThermoInterpType<ValAndDerivType>*
-    duplMyselfAsSpeciesThermoInterpType() const {
+    duplMyselfAsSpeciesThermoInterpType() const
+    {
         Adsorbate<ValAndDerivType>* np = new Adsorbate<ValAndDerivType>(*this);
         return (SpeciesThermoInterpType<ValAndDerivType>*) np;
     }
 
-    virtual void install(const std::string& name, size_t index, int type,
-                         const doublereal* c, doublereal minTemp, doublereal maxTemp,
-                         doublereal refPressure) {
+    //! Duplicator
+    virtual SpeciesThermoInterpType<doublereal>*
+    duplMyselfAsSpeciesThermoInterpTypeDouble() const
+    {
+        Adsorbate<doublereal>* np = new Adsorbate<doublereal>(*this);
+        return (SpeciesThermoInterpType<doublereal>*) np;
+    }
+
+    virtual void install(const std::string& name, size_t index, int type, const doublereal* c, doublereal minTemp,
+                         doublereal maxTemp, doublereal refPressure)
+    {
         m_be = c[1];
         m_nFreqs = int(c[0]);
         for (size_t n = 0; n < m_nFreqs; n++) {
-            m_freq[n] = c[n+2];
+            m_freq[n] = c[n + 2];
         }
         m_index = index;
 
-        m_lowT  = minTemp;
+        m_lowT = minTemp;
         m_highT = maxTemp;
         m_Pref = refPressure;
     }
 
-
     //! Returns the minimum temperature that the thermo
     //! parameterization is valid
-    virtual doublereal minTemp() const     {
+    virtual doublereal minTemp() const
+    {
         return m_lowT;
     }
 
     //! Returns the maximum temperature that the thermo
     //! parameterization is valid
-    virtual doublereal maxTemp() const     {
+    virtual doublereal maxTemp() const
+    {
         return m_highT;
     }
 
     //! Returns the reference pressure (Pa)
-    virtual doublereal refPressure() const {
+    virtual doublereal refPressure() const
+    {
         return OneAtm;
     }
 
     //! Returns an integer representing the type of parameterization
-    virtual int reportType() const {
+    virtual int reportType() const
+    {
         return ADSORBATE;
     }
 
     //! Returns an integer representing the species index
-    virtual size_t speciesIndex() const {
+    virtual size_t speciesIndex() const
+    {
         return m_index;
     }
-
 
     //! Compute the reference-state property of one species
     /*!
@@ -142,13 +170,10 @@ public:
      * @param s_R     Vector of Dimensionless entropies.
      *                (length m_kk).
      */
-    void updatePropertiesTemp(const doublereal temp,
-                              ValAndDerivType* cp_R,
-                              ValAndDerivType* h_RT,
-                              ValAndDerivType* s_R) const {
+    void updatePropertiesTemp(const doublereal temp, ValAndDerivType* cp_R, ValAndDerivType* h_RT, ValAndDerivType* s_R) const
+    {
         h_RT[m_index] = _energy_RT(temp);
-        cp_R[m_index] = (temp*h_RT[m_index]
-                         - (temp-0.01)*_energy_RT(temp-0.01))/0.01;
+        cp_R[m_index] = (temp * h_RT[m_index] - (temp - 0.01) * _energy_RT(temp - 0.01)) / 0.01;
         s_R[m_index] = h_RT[m_index] - _free_energy_RT(temp);
     }
 
@@ -166,10 +191,9 @@ public:
      * @param coeffs    Vector of coefficients used to set the
      *                  parameters for the standard state.
      */
-    void reportParameters(size_t& n, int& type,
-                          doublereal& tlow, doublereal& thigh,
-                          doublereal& pref,
-                          doublereal* const coeffs) const {
+    void reportParameters(size_t& n, int& type, doublereal& tlow, doublereal& thigh, doublereal& pref,
+                          doublereal* const coeffs) const
+    {
         n = m_index;
         type = ADSORBATE;
         tlow = m_lowT;
@@ -177,8 +201,8 @@ public:
         pref = m_Pref;
         coeffs[0] = static_cast<double>(m_nFreqs);
         coeffs[1] = m_be;
-        for (size_t i = 2; i < m_nFreqs+2; i++) {
-            coeffs[i] = m_freq[i-2];
+        for (size_t i = 2; i < m_nFreqs + 2; i++) {
+            coeffs[i] = m_freq[i - 2];
         }
     }
 
@@ -196,39 +220,41 @@ protected:
     vector_fp m_freq;
     doublereal m_be;
 
-
-    doublereal _energy_RT(double T) const {
+    doublereal _energy_RT(double T) const
+    {
         doublereal x, hnu_kt, hnu, sum = 0.0;
-        doublereal kt = T*Boltzmann;
+        doublereal kt = T * Boltzmann;
         for (size_t i = 0; i < m_nFreqs; i++) {
             hnu = Planck * m_freq[i];
-            hnu_kt = hnu/kt;
+            hnu_kt = hnu / kt;
             x = exp(-hnu_kt);
-            sum += hnu_kt * x/(1.0 - x);
+            sum += hnu_kt * x / (1.0 - x);
         }
-        return sum + m_be/(GasConstant*T);
+        return sum + m_be / (GasConstant * T);
     }
 
-    doublereal _free_energy_RT(double T) const {
+    doublereal _free_energy_RT(double T) const
+    {
         doublereal x, hnu_kt, sum = 0.0;
-        doublereal kt = T*Boltzmann;
+        doublereal kt = T * Boltzmann;
         for (size_t i = 0; i < m_nFreqs; i++) {
             hnu_kt = Planck * m_freq[i] / kt;
             x = exp(-hnu_kt);
             sum += log(1.0 - x);
         }
-        return sum + m_be/(GasConstant*T);
+        return sum + m_be / (GasConstant * T);
     }
 
-    doublereal _entropy_R(double T) const {
+    doublereal _entropy_R(double T) const
+    {
         return _energy_RT(T) - _free_energy_RT(T);
     }
+
+    friend class Adsorbate<doublereal>;
+    friend class Adsorbate<doubleFAD>;
 
 };
 
 }
 #endif
-
-
-
 

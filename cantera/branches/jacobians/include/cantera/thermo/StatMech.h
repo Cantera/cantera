@@ -18,22 +18,20 @@
 #include <string>
 #include <map>
 
-namespace Cantera
-{
+namespace Cantera {
 
 //!
 /*!
  * @ingroup spthermo
  */
 template<typename ValAndDerivType>
-class StatMech : public SpeciesThermoInterpType<ValAndDerivType>
+class StatMech: public SpeciesThermoInterpType<ValAndDerivType>
 {
 
 public:
 
     //! Empty constructor
     StatMech();
-
 
     //! constructor used in templated instantiations
     /*!
@@ -44,20 +42,26 @@ public:
      * @param coeffs       Vector of coefficients used to set the
      *                     parameters for the standard state.
      */
-    StatMech(int n, doublereal tlow, doublereal thigh, doublereal pref,
-             const doublereal* coeffs, const std::string& my_name);
+    StatMech(int n, doublereal tlow, doublereal thigh, doublereal pref, const doublereal* coeffs, const std::string& my_name);
 
     //! copy constructor
     /*!
      * @param b object to be copied
      */
-    StatMech(const StatMech& b);
+    StatMech(const StatMech<ValAndDerivType>& b);
+
+    //! copy constructor
+    /*!
+     * @param b object to be copied
+     */
+    template<typename ValAndDerivType2>
+    StatMech(const StatMech<ValAndDerivType2>& b);
 
     //! assignment operator
     /*!
      * @param b object to be copied
      */
-    StatMech& operator=(const StatMech& b);
+    StatMech<ValAndDerivType>& operator=(const StatMech<ValAndDerivType>& b);
 
     //! Destructor
     virtual ~StatMech();
@@ -65,6 +69,10 @@ public:
     //! duplicator
     virtual SpeciesThermoInterpType<ValAndDerivType>*
     duplMyselfAsSpeciesThermoInterpType() const;
+
+    //! Duplicator
+    virtual SpeciesThermoInterpType<doublereal>*
+    duplMyselfAsSpeciesThermoInterpTypeDouble() const;
 
     //! Returns the minimum temperature that the thermo
     //! parameterization is valid
@@ -110,9 +118,8 @@ public:
      * @param s_R     Vector of Dimensionless entropies.
      *                (length m_kk).
      */
-    virtual void updateProperties(const ValAndDerivType* tt,
-                                  ValAndDerivType* cp_R, ValAndDerivType* h_RT, ValAndDerivType* s_R) const;
-
+    virtual void updateProperties(const ValAndDerivType* tt, ValAndDerivType* cp_R, ValAndDerivType* h_RT,
+                                  ValAndDerivType* s_R) const;
 
     //! Compute the reference-state property of one species
     /*!
@@ -139,8 +146,7 @@ public:
      * @param s_R     Vector of Dimensionless entropies.
      *                (length m_kk).
      */
-    virtual void updatePropertiesTemp(const doublereal temp,
-                                      ValAndDerivType* cp_R, ValAndDerivType* h_RT,
+    virtual void updatePropertiesTemp(const doublereal temp, ValAndDerivType* cp_R, ValAndDerivType* h_RT,
                                       ValAndDerivType* s_R) const;
 
     //!This utility function reports back the type of
@@ -163,9 +169,7 @@ public:
      *      coeffs[2] is max temperature
      *      coeffs[3+i] from i =0,9 are the coefficients themselves
      */
-    virtual void reportParameters(size_t& n, int& type,
-                                  doublereal& tlow, doublereal& thigh,
-                                  doublereal& pref,
+    virtual void reportParameters(size_t& n, int& type, doublereal& tlow, doublereal& thigh, doublereal& pref,
                                   doublereal* const coeffs) const;
 
     //! Modify parameters for the standard state
@@ -190,7 +194,8 @@ protected:
     std::string sp_name;
 
     //! generic species struct that contains everything we need here
-    struct species {
+    struct species
+    {
         //! Nominal T-R Degrees of freedom (cv = cfs*k*T)
         doublereal cfs;
 
@@ -204,7 +209,10 @@ protected:
         doublereal theta[5];
     };
 
-    std::map<std::string,species*> name_map;
+    std::map<std::string, species*> name_map;
+
+    friend class StatMech<doublereal> ;
+    friend class StatMech<doubleFAD> ;
 
 };
 

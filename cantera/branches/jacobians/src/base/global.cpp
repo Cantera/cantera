@@ -11,13 +11,12 @@
 
 using namespace std;
 
-namespace Cantera
-{
+namespace Cantera {
 
 //! Return a pointer to the application object
 static Application* app()
 {
-    return Application::Instance() ;
+    return Application::Instance();
 }
 
 // **************** Text Logging ****************
@@ -25,7 +24,7 @@ static Application* app()
 void setLogger(Logger* logwriter)
 {
     try {
-        app()->setLogger(logwriter) ;
+        app()->setLogger(logwriter);
     } catch (std::bad_alloc) {
         logwriter->error("bad alloc thrown by app()");
     }
@@ -41,22 +40,25 @@ void writelog(const char* msg)
     app()->writelog(msg);
 }
 
-void writelogf(const char* fmt,...)
+void writelogf(const char* fmt, ...)
 {
-    enum { BUFSIZE = 2048 } ;
-    char sbuf[BUFSIZE] ;
+    enum
+    {
+        BUFSIZE = 2048
+    };
+    char sbuf[BUFSIZE];
 
-    va_list args ;
-    va_start(args, fmt) ;
+    va_list args;
+    va_start(args, fmt);
 
 #ifdef _MSC_VER
-    _vsnprintf(sbuf, BUFSIZE, fmt, args) ;
+    _vsnprintf(sbuf, BUFSIZE, fmt, args);
 #else
-    vsprintf(sbuf, fmt, args) ;
+    vsprintf(sbuf, fmt, args);
 #endif
 
-    writelog(sbuf) ;
-    va_end(args) ;
+    writelog(sbuf);
+    va_end(args);
 }
 
 void writelogendl()
@@ -75,41 +77,40 @@ void error(const std::string& msg)
 
 void beginLogGroup(const std::string& title, int loglevel)
 {
-    app()->beginLogGroup(title, loglevel) ;
+    app()->beginLogGroup(title, loglevel);
 }
 
 void addLogEntry(const std::string& tag, const std::string& value)
 {
-    app()->addLogEntry(tag, value) ;
+    app()->addLogEntry(tag, value);
 }
 
 void addLogEntry(const std::string& tag, doublereal value)
 {
-    app()->addLogEntry(tag, value) ;
+    app()->addLogEntry(tag, value);
 }
 
 void addLogEntry(const std::string& tag, int value)
 {
-    app()->addLogEntry(tag, value) ;
+    app()->addLogEntry(tag, value);
 }
 
 void addLogEntry(const std::string& msg)
 {
-    app()->addLogEntry(msg) ;
+    app()->addLogEntry(msg);
 }
 
 void endLogGroup(const std::string& title)
 {
-    app()->endLogGroup(title) ;
+    app()->endLogGroup(title);
 }
 
 void write_logfile(const std::string& file)
 {
-    app()->write_logfile(file) ;
+    app()->write_logfile(file);
 }
 
 #endif // WITH_HTML_LOGS
-
 // **************** Global Data ****************
 
 Unit* Unit::s_u = 0;
@@ -117,26 +118,26 @@ mutex_t Unit::units_mutex;
 
 void appdelete()
 {
-    Application::ApplicationDestroy() ;
+    Application::ApplicationDestroy();
     FactoryBase::deleteFactories();
     Unit::deleteUnit();
 }
 
 void thread_complete()
 {
-    app()->thread_complete() ;
+    app()->thread_complete();
 }
 
 XML_Node* get_XML_File(const std::string& file, int debug)
 {
-    XML_Node* xtmp = app()->get_XML_File(file, debug) ;
+    XML_Node* xtmp = app()->get_XML_File(file, debug);
     //writelog("get_XML_File: returned from app:get_XML_FILE " + int2str(xtmp) + "\n");
     return xtmp;
 }
 
 void close_XML_File(const std::string& file)
 {
-    app()->close_XML_File(file) ;
+    app()->close_XML_File(file);
 }
 
 int nErrors()
@@ -146,37 +147,37 @@ int nErrors()
 
 void popError()
 {
-    app()->popError() ;
+    app()->popError();
 }
 
 string lastErrorMessage()
 {
-    return app()->lastErrorMessage() ;
+    return app()->lastErrorMessage();
 }
 
 void showErrors(std::ostream& f)
 {
-    app()->getErrors(f) ;
+    app()->getErrors(f);
 }
 
 void showErrors()
 {
-    app()->logErrors() ;
+    app()->logErrors();
 }
 
 void setError(const std::string& r, const std::string& msg)
 {
-    app()->addError(r, msg) ;
+    app()->addError(r, msg);
 }
 
 void addDirectory(const std::string& dir)
 {
-    app()->addDataDirectory(dir) ;
+    app()->addDataDirectory(dir);
 }
 
 std::string findInputFile(const std::string& name)
 {
-    return app()->findInputFile(name) ;
+    return app()->findInputFile(name);
 }
 
 //=======================================================================================================
@@ -209,7 +210,7 @@ doublereal toSI(const std::string& unit)
     if (f) {
         return f;
     } else {
-        throw CanteraError("toSI","unknown unit string: "+unit);
+        throw CanteraError("toSI", "unknown unit string: " + unit);
     }
     return 1.0;
 }
@@ -248,8 +249,8 @@ static void split_at_pound(const std::string& src, std::string& file, std::strin
 {
     string::size_type ipound = src.find('#');
     if (ipound != string::npos) {
-        id = src.substr(ipound+1,src.size());
-        file = src.substr(0,ipound);
+        id = src.substr(ipound + 1, src.size());
+        file = src.substr(0, ipound);
     } else {
         id = "";
         file = src;
@@ -262,25 +263,22 @@ XML_Node* get_XML_Node(const std::string& file_ID, XML_Node* root)
     XML_Node* db, *doc;
     split_at_pound(file_ID, fname, idstr);
     if (fname == "") {
-        if (!root) throw CanteraError("get_XML_Node",
-                                          "no file name given. file_ID = "+file_ID);
+        if (!root)
+            throw CanteraError("get_XML_Node", "no file name given. file_ID = " + file_ID);
         db = root->findID(idstr, 3);
     } else {
         doc = get_XML_File(fname);
-        if (!doc) throw CanteraError("get_XML_Node",
-                                         "get_XML_File failed trying to open "+fname);
+        if (!doc)
+            throw CanteraError("get_XML_Node", "get_XML_File failed trying to open " + fname);
         db = doc->findID(idstr, 3);
     }
     if (!db) {
-        throw CanteraError("get_XML_Node",
-                           "id tag '"+idstr+"' not found.");
+        throw CanteraError("get_XML_Node", "id tag '" + idstr + "' not found.");
     }
     return db;
 }
 
-XML_Node* get_XML_NameID(const std::string& nameTarget,
-                         const std::string& file_ID,
-                         XML_Node* root)
+XML_Node* get_XML_NameID(const std::string& nameTarget, const std::string& file_ID, XML_Node* root)
 {
     string fname, idTarget;
     XML_Node* db, *doc;
@@ -300,6 +298,19 @@ XML_Node* get_XML_NameID(const std::string& nameTarget,
     return db;
 }
 
+void assignVectorFadToDouble(std::vector<doublereal>& left, const std::vector<Cantera::doubleFAD>& right)
+{
+    size_t nn = right.size();
+    left.resize(nn);
+    for (size_t k = 0; k < nn; k++) {
+        left[k] = right[k].val();
+    }
+}
+
+
 std::vector<FactoryBase*> FactoryBase::s_vFactoryRegistry;
 
+
+
 }
+

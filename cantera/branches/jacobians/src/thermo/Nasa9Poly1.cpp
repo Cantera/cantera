@@ -93,7 +93,19 @@ Nasa9Poly1<ValAndDerivType>::Nasa9Poly1(size_t n, doublereal tlow, doublereal th
  * @param b object to be copied
  */
 template<typename ValAndDerivType>
-Nasa9Poly1<ValAndDerivType>::Nasa9Poly1(const Nasa9Poly1& b) :
+Nasa9Poly1<ValAndDerivType>::Nasa9Poly1(const Nasa9Poly1<ValAndDerivType>& b) :
+        m_lowT(b.m_lowT),
+        m_highT(b.m_highT),
+        m_Pref(b.m_Pref),
+        m_index(b.m_index),
+        m_coeff(vector_fp(9))
+{
+    std::copy(b.m_coeff.begin(), b.m_coeff.begin() + 9, m_coeff.begin());
+}
+
+template<typename ValAndDerivType>
+template<typename ValAndDerivType2>
+Nasa9Poly1<ValAndDerivType>::Nasa9Poly1(const Nasa9Poly1<ValAndDerivType2>& b) :
         m_lowT(b.m_lowT),
         m_highT(b.m_highT),
         m_Pref(b.m_Pref),
@@ -133,6 +145,17 @@ Nasa9Poly1<ValAndDerivType>::duplMyselfAsSpeciesThermoInterpType() const
 {
     return new Nasa9Poly1<ValAndDerivType>(*this);
 }
+
+
+//! Duplicator
+template<typename ValAndDerivType>
+SpeciesThermoInterpType<doublereal>*
+Nasa9Poly1<ValAndDerivType>::duplMyselfAsSpeciesThermoInterpTypeDouble() const
+{
+    return new Nasa9Poly1<doublereal>(*this);
+}
+
+
 
 // Returns the minimum temperature that the thermo
 // parameterization is valid

@@ -5,7 +5,6 @@
  * \link Cantera::ConstCpPoly ConstCpPoly\endlink).
  */
 // Copyright 2001  California Institute of Technology
-
 #ifndef CT_CONSTCPPOLY_H
 #define CT_CONSTCPPOLY_H
 
@@ -72,6 +71,11 @@ public:
     //! copy constructor
     ConstCpPoly(const ConstCpPoly<ValAndDerivType> &);
 
+    //! copy constructor
+    template<typename ValAndDerivType2>
+    ConstCpPoly(const ConstCpPoly<ValAndDerivType2> &);
+
+
     //! Assignment operator
     ConstCpPoly& operator=(const ConstCpPoly<ValAndDerivType> &);
 
@@ -81,6 +85,10 @@ public:
     //! Duplicator
     virtual SpeciesThermoInterpType<ValAndDerivType>*
     duplMyselfAsSpeciesThermoInterpType() const;
+
+    //! Duplicator
+    virtual SpeciesThermoInterpType<doublereal>*
+    duplMyselfAsSpeciesThermoInterpTypeDouble() const;
 
     //! Returns the minimum temperature that the thermo
     //! parameterization is valid
@@ -158,6 +166,7 @@ public:
      */
     void reportParameters(size_t& n, int& type, doublereal& tlow, doublereal& thigh, doublereal& pref,
                           doublereal* const coeffs) const;
+
     //! Modify parameters for the standard state
     /*!
      * @param coeffs   Vector of coefficients used to set the
@@ -195,6 +204,8 @@ protected:
 
 private:
 
+    friend class ConstCpPoly<doublereal>;
+    friend class ConstCpPoly<doubleFAD>;
 };
 
 }

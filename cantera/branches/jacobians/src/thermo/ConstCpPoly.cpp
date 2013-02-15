@@ -39,7 +39,7 @@ ConstCpPoly<ValAndDerivType>::ConstCpPoly(size_t n, doublereal tlow, doublereal 
     m_logt0 = log(m_t0);
 }
 template<typename ValAndDerivType>
-ConstCpPoly<ValAndDerivType>::ConstCpPoly(const ConstCpPoly& b) :
+ConstCpPoly<ValAndDerivType>::ConstCpPoly(const ConstCpPoly<ValAndDerivType>& b) :
         m_t0(b.m_t0),
         m_cp0_R(b.m_cp0_R),
         m_h0_R(b.m_h0_R),
@@ -51,6 +51,22 @@ ConstCpPoly<ValAndDerivType>::ConstCpPoly(const ConstCpPoly& b) :
         m_index(b.m_index)
 {
 }
+
+template<typename ValAndDerivType>
+template<typename ValAndDerivType2>
+ConstCpPoly<ValAndDerivType>::ConstCpPoly(const ConstCpPoly<ValAndDerivType2>& b) :
+        m_t0(b.m_t0),
+        m_cp0_R(b.m_cp0_R),
+        m_h0_R(b.m_h0_R),
+        m_s0_R(b.m_s0_R),
+        m_logt0(b.m_logt0),
+        m_lowT(b.m_lowT),
+        m_highT(b.m_highT),
+        m_Pref(b.m_Pref),
+        m_index(b.m_index)
+{
+}
+
 
 template<typename ValAndDerivType>
 ConstCpPoly<ValAndDerivType>& ConstCpPoly<ValAndDerivType>::operator=(const ConstCpPoly<ValAndDerivType>& b)
@@ -80,6 +96,15 @@ ConstCpPoly<ValAndDerivType>::duplMyselfAsSpeciesThermoInterpType() const
 {
     return new ConstCpPoly(*this);
 }
+
+
+template<typename ValAndDerivType>
+SpeciesThermoInterpType<doublereal>*
+ConstCpPoly<ValAndDerivType>::duplMyselfAsSpeciesThermoInterpTypeDouble() const
+{
+    return new ConstCpPoly<doublereal>(*this);
+}
+
 
 template<typename ValAndDerivType>
 doublereal ConstCpPoly<ValAndDerivType>::minTemp() const
@@ -174,9 +199,11 @@ void ConstCpPoly<ValAndDerivType>::modifyOneHf298(const size_t &k, const doubler
 
 // Explicit Instantiations
 template class ConstCpPoly<doublereal> ;
+
 #ifdef INDEPENDENT_VARIABLE_DERIVATIVES
 #ifdef HAS_SACADO
 template class ConstCpPoly<doubleFAD>;
+template  ConstCpPoly<doublereal>::ConstCpPoly(const ConstCpPoly<doubleFAD> &);
 #endif
 #endif
 

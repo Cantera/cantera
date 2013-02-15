@@ -27,6 +27,7 @@ using namespace std;
 
 #include "cantera/base/xml.h"
 #include "cantera/base/ctml.h"
+#include "cantera/base/global.h"
 
 #include <cmath>
 
@@ -191,11 +192,11 @@ SpeciesThermo<ValAndDerivType> * SpeciesThermoFactory<ValAndDerivType>::newSpeci
         return new SimpleThermo<ValAndDerivType>();
     case NASA + SHOMATE:
         // HKM -> needed a cast here. Not sure why and not sure if this fixes the problem.
-        return new SpeciesThermoDuo<NasaThermo<ValAndDerivType>, ShomateThermo<ValAndDerivType>, ValAndDerivType>;
+        return new SpeciesThermoDuo<ValAndDerivType, NasaThermo, ShomateThermo>;
     case NASA + SIMPLE:
-        return new SpeciesThermoDuo<NasaThermo<ValAndDerivType>, SimpleThermo<ValAndDerivType>, ValAndDerivType>;
+        return new SpeciesThermoDuo<ValAndDerivType, NasaThermo, SimpleThermo>;
     case SHOMATE + SIMPLE:
-        return new SpeciesThermoDuo<ShomateThermo<ValAndDerivType>, SimpleThermo<ValAndDerivType>, ValAndDerivType>;
+        return new SpeciesThermoDuo<ValAndDerivType, ShomateThermo, SimpleThermo>;
     default:
         throw UnknownSpeciesThermo("SpeciesThermoFactory::newSpeciesThermo", type);
         return 0;
@@ -212,11 +213,11 @@ SpeciesThermo<ValAndDerivType>* SpeciesThermoFactory<ValAndDerivType>::newSpecie
     } else if (ltype == "simple" || ltype == "constant_cp") {
         return new SimpleThermo<ValAndDerivType>();
     } else if (ltype == "nasa_shomate_duo") {
-        return new SpeciesThermoDuo<NasaThermo<ValAndDerivType>, ShomateThermo<ValAndDerivType>, ValAndDerivType > ;
+        return new SpeciesThermoDuo<ValAndDerivType, NasaThermo, ShomateThermo > ;
     } else if (ltype == "nasa_simple_duo") {
-        return new SpeciesThermoDuo<NasaThermo<ValAndDerivType>, SimpleThermo<ValAndDerivType>, ValAndDerivType > ;
+        return new SpeciesThermoDuo<ValAndDerivType, NasaThermo, SimpleThermo > ;
     } else if (ltype == "shomate_simple_duo") {
-        return new SpeciesThermoDuo<ShomateThermo<ValAndDerivType>, SimpleThermo<ValAndDerivType>, ValAndDerivType > ;
+        return new SpeciesThermoDuo<ValAndDerivType, ShomateThermo, SimpleThermo > ;
     } else if (ltype == "general") {
         return new GeneralSpeciesThermo<ValAndDerivType>();
     } else if (ltype == "") {
@@ -951,19 +952,7 @@ template SpeciesThermo<doubleFAD>*  newSpeciesThermoMgr(std::vector<XML_Node*> s
 // Explicit Instantiation Section
 
 
-template class ShomatePoly<doublereal>;
-#ifdef INDEPENDENT_VARIABLE_DERIVATIVES
-#ifdef HAS_SACADO
-template class ShomatePoly<doubleFAD>;
-#endif
-#endif
 
-template class ShomateThermo<doublereal>;
-#ifdef INDEPENDENT_VARIABLE_DERIVATIVES
-#ifdef HAS_SACADO
-template class ShomateThermo<doubleFAD>;
-#endif
-#endif
 
 
 template class NasaPoly2<doublereal>;
@@ -981,12 +970,6 @@ template class NasaPoly1<doubleFAD>;
 #endif
 #endif
 
-template class NasaThermo<doublereal>;
-#ifdef INDEPENDENT_VARIABLE_DERIVATIVES
-#ifdef HAS_SACADO
-template class NasaThermo<doubleFAD>;
-#endif
-#endif
 
 template class SpeciesThermo<doublereal>;
 #ifdef INDEPENDENT_VARIABLE_DERIVATIVES

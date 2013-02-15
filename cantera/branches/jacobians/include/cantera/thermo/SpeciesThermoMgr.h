@@ -60,30 +60,29 @@ public:
  *
  * @ingroup mgrsrefcalc
  */
-template<class T1, class T2, typename ValAndDerivType = double>
+template<typename ValAndDerivType, template<typename > class T1, template<typename > class T2>
 class SpeciesThermoDuo: public SpeciesThermo<ValAndDerivType>
 {
 
 public:
     //! Constructor
     SpeciesThermoDuo() :
-        SpeciesThermo<ValAndDerivType>(),
-        m_p0(OneAtm)
+            SpeciesThermo<ValAndDerivType>(),
+            m_p0(OneAtm)
     {
     }
-
 
     //! Destructor
     virtual ~SpeciesThermoDuo()
     {
     }
 
-
     //! copy constructor
     /*!
      * @param right Object to be copied
      */
-    SpeciesThermoDuo(const SpeciesThermoDuo& right)
+    template<typename ValAndDerivType2>
+    SpeciesThermoDuo(const SpeciesThermoDuo<ValAndDerivType2, T1, T2>& right)
     {
         operator=(right);
     }
@@ -92,7 +91,18 @@ public:
     /*!
      * @param right Object to be copied
      */
-    SpeciesThermoDuo& operator=(const SpeciesThermoDuo& right);
+    template<typename ValAndDerivType2>
+    SpeciesThermoDuo<ValAndDerivType, T1, T2>& operator=(const SpeciesThermoDuo<ValAndDerivType2, T1, T2>& right);
+
+    //! Duplication routine for objects which inherit from
+    //! %SpeciesThermo87
+
+    /*!
+     *  This virtual routine can be used to duplicate %SpeciesThermo  objects
+     *  inherited from %SpeciesThermo even if the application only has
+     *  a pointer to %SpeciesThermo to work with.
+     */
+    virtual SpeciesThermo<ValAndDerivType>* duplMyselfAsSpeciesThermo() const;
 
     //! Duplication routine for objects which inherit from
     //! %SpeciesThermo
@@ -103,7 +113,7 @@ public:
      *  ->commented out because we first need to add copy constructors
      *   and assignment operators to all of the derived classes.
      */
-    virtual SpeciesThermo<ValAndDerivType>* duplMyselfAsSpeciesThermo() const;
+    virtual SpeciesThermo<doublereal>* duplMyselfAsSpeciesThermoDouble() const;
 
     /**
      * install a new species thermodynamic property
@@ -149,7 +159,8 @@ public:
      *
      * @param t       Temperature (Kelvin)
      * @param cp_R    Vector of Dimensionless heat capacities.
-     *                (length m_kk).
+     *                (length m_kk).85L85
+     *
      * @param h_RT    Vector of Dimensionless enthalpies.
      *                (length m_kk).
      * @param s_R     Vector of Dimensionless entropies.
@@ -247,44 +258,31 @@ public:
 private:
 
     //! Thermo Type 1
-    T1 m_thermo1;
+    T1<ValAndDerivType> m_thermo1;
     //! Thermo Type 2
-    T2 m_thermo2;
+    T2<ValAndDerivType> m_thermo2;
     //! Reference pressure
     doublereal m_p0;
     //! map from species to type
     std::map<size_t, int> speciesToType;
+
+    friend class SpeciesThermoDuo<doubleFAD, T1, T2> ;
+    friend class SpeciesThermoDuo<doublereal, T1, T2> ;
 };
 
 // ------------------------- cpp part of file -------------------------------------
 
 // Definitions for the SpeciesThermoDuo<T1,T2> templated class
 
-template<class T1, class T2, class ValAndDerivType>
-SpeciesThermoDuo<T1, T2, ValAndDerivType> &
-SpeciesThermoDuo<T1, T2, ValAndDerivType>::operator=(const SpeciesThermoDuo& right)
-{
-    if (&right == this) {
-        return *this;
-    }
-
-    m_thermo1 = right.m_thermo1;
-    m_thermo2 = right.m_thermo2;
-    m_p0 = right.m_p0;
-    speciesToType = right.speciesToType;
-
-    return *this;
-}
-
-template<class T1, class T2, class ValAndDerivType>
+template<typename ValAndDerivType, template<typename > class T1, template<typename > class T2>
 SpeciesThermo<ValAndDerivType> *
-SpeciesThermoDuo<T1, T2, ValAndDerivType>::duplMyselfAsSpeciesThermo() const
+SpeciesThermoDuo<ValAndDerivType, T1, T2>::duplMyselfAsSpeciesThermo() const
 {
-    return new SpeciesThermoDuo<T1, T2, ValAndDerivType>(*this);
+    return new SpeciesThermoDuo<ValAndDerivType, T1, T2>(*this);
 }
 
-template<class T1, class T2, class ValAndDerivType>
-void SpeciesThermoDuo<T1, T2, ValAndDerivType>::install(const std::string& name, size_t sp, int type, const doublereal* c,
+template<typename ValAndDerivType, template<typename > class T1, template<typename > class T2>
+void SpeciesThermoDuo<ValAndDerivType, T1, T2>::install(const std::string& name, size_t sp, int type, const doublereal* c,
                                                         doublereal minTemp, doublereal maxTemp, doublereal refPressure)
 {
     m_p0 = refPressure;
@@ -299,16 +297,16 @@ void SpeciesThermoDuo<T1, T2, ValAndDerivType>::install(const std::string& name,
     }
 }
 
-template<class T1, class T2, class ValAndDerivType>
-void SpeciesThermoDuo<T1, T2, ValAndDerivType>::update(doublereal t, ValAndDerivType* cp_R, ValAndDerivType* h_RT,
+template<typename ValAndDerivType, template<typename > class T1, template<typename > class T2>
+void SpeciesThermoDuo<ValAndDerivType, T1, T2>::update(doublereal t, ValAndDerivType* cp_R, ValAndDerivType* h_RT,
                                                        ValAndDerivType* s_R) const
 {
     m_thermo1.update(t, cp_R, h_RT, s_R);
     m_thermo2.update(t, cp_R, h_RT, s_R);
 }
 
-template<class T1, class T2, class ValAndDerivType>
-int SpeciesThermoDuo<T1, T2, ValAndDerivType>::reportType(size_t k) const
+template<typename ValAndDerivType, template<typename > class T1, template<typename > class T2>
+int SpeciesThermoDuo<ValAndDerivType, T1, T2>::reportType(size_t k) const
 {
     std::map<size_t, int>::const_iterator p = speciesToType.find(k);
     if (p != speciesToType.end()) {
@@ -317,8 +315,8 @@ int SpeciesThermoDuo<T1, T2, ValAndDerivType>::reportType(size_t k) const
     return -1;
 }
 
-template<class T1, class T2, class ValAndDerivType>
-void SpeciesThermoDuo<T1, T2, ValAndDerivType>::reportParams(size_t index, int& type, doublereal* const c, doublereal& minTemp,
+template<typename ValAndDerivType, template<typename > class T1, template<typename > class T2>
+void SpeciesThermoDuo<ValAndDerivType, T1, T2>::reportParams(size_t index, int& type, doublereal* const c, doublereal& minTemp,
                                                              doublereal& maxTemp, doublereal& refPressure) const
 {
     int ctype = reportType(index);

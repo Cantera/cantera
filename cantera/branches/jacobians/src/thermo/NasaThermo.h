@@ -71,46 +71,39 @@ public:
     /*!
      *  @param right NasaThermo object to be copied.
      */
-    NasaThermo(const NasaThermo& right) :
+    NasaThermo(const NasaThermo<ValAndDerivType>& right) :
             ID(NASA),
             m_tlow_max(0.0),
             m_thigh_min(1.e30),
             m_p0(-1.0),
             m_ngroups(0)
     {
-        *this = operator=(right);
+        operator=(right);
+    }
+
+    //! Copy constructor
+    /*!
+     *  @param right NasaThermo object to be copied.
+     */
+    template<typename ValAndDerivType2>
+    NasaThermo(const NasaThermo<ValAndDerivType2>& right) :
+            ID(NASA),
+            m_tlow_max(0.0),
+            m_thigh_min(1.e30),
+            m_p0(-1.0),
+            m_ngroups(0)
+    {
+        operator=(right);
     }
 
     //! Assignment operator
     /*!
      *  @param right NasaThermo object to be copied.
      */
-    NasaThermo& operator=(const NasaThermo& right)
-    {
-        /*
-         * Check for self assignment.
-         */
-        if (this == &right) {
-            return *this;
-        }
+    NasaThermo<ValAndDerivType>& operator=(const NasaThermo<ValAndDerivType>& right);
 
-        m_high = right.m_high;
-        m_low = right.m_low;
-        m_index = right.m_index;
-        m_tmid = right.m_tmid;
-        m_tlow_max = right.m_tlow_max;
-        m_thigh_min = right.m_thigh_min;
-        m_tlow = right.m_tlow;
-        m_thigh = right.m_thigh;
-        m_p0 = right.m_p0;
-        m_ngroups = right.m_ngroups;
-        m_t = right.m_t;
-        m_group_map = right.m_group_map;
-        m_posInGroup_map = right.m_posInGroup_map;
-        m_name = right.m_name;
-
-        return *this;
-    }
+    template<typename ValAndDerivType2>
+    NasaThermo<ValAndDerivType>& operator=(const NasaThermo<ValAndDerivType2>& right);
 
     //! destructor
     virtual ~NasaThermo()
@@ -130,6 +123,23 @@ public:
     {
         NasaThermo<ValAndDerivType>* nt = new NasaThermo<ValAndDerivType>(*this);
         return (SpeciesThermo<ValAndDerivType>*) nt;
+    }
+
+    //! Duplication routine for objects which inherit from %SpeciesThermo
+    /*!
+     *  This virtual routine can be used to duplicate %SpeciesThermo  objects
+     *  inherited from %SpeciesThermo even if the application only has
+     *  a pointer to %SpeciesThermo to work with.
+     *
+     *  This routine returns a doublereal templated version of SpeciesThermo no matter
+     *  what templated version the underlying class is.
+     *
+     *  @return Duplicated <double> version of the SpeciesThermo
+     */
+    virtual SpeciesThermo<doublereal>* duplMyselfAsSpeciesThermoDouble() const
+    {
+        NasaThermo<doublereal>* st = new NasaThermo<doublereal>(*this);
+        return (SpeciesThermo<doublereal> *) st;
     }
 
     //! install a new species thermodynamic property
@@ -255,14 +265,14 @@ public:
         size_t grp = m_group_map[k];
         size_t pos = m_posInGroup_map[k];
         const std::vector<NasaPoly1<ValAndDerivType> > &mlg = m_low[grp - 1];
-        const NasaPoly1<ValAndDerivType> * nlow = &(mlg[pos]);
+        const NasaPoly1<ValAndDerivType> * nlow = & (mlg[pos]);
 
         doublereal tmid = nlow->maxTemp();
         if (t < tmid) {
             nlow->updateProperties(&m_t[0], cp_R, h_RT, s_R);
         } else {
             const std::vector<NasaPoly1<ValAndDerivType> > &mhg = m_high[grp - 1];
-            const NasaPoly1<ValAndDerivType>* nhigh = &(mhg[pos]);
+            const NasaPoly1<ValAndDerivType>* nhigh = & (mhg[pos]);
             nhigh->updateProperties(&m_t[0], cp_R, h_RT, s_R);
         }
     }
@@ -400,8 +410,8 @@ public:
             size_t pos = m_posInGroup_map[index];
             const std::vector<NasaPoly1<ValAndDerivType> > &mlg = m_low[grp - 1];
             const std::vector<NasaPoly1<ValAndDerivType> > &mhg = m_high[grp - 1];
-            const NasaPoly1<ValAndDerivType>* lowPoly = &(mlg[pos]);
-            const NasaPoly1<ValAndDerivType>* highPoly = &(mhg[pos]);
+            const NasaPoly1<ValAndDerivType>* lowPoly = & (mlg[pos]);
+            const NasaPoly1<ValAndDerivType>* highPoly = & (mhg[pos]);
             int itype = NASA;
             doublereal tmid = lowPoly->maxTemp();
             c[0] = tmid;
@@ -433,14 +443,14 @@ public:
         int grp = m_group_map[k];
         int pos = m_posInGroup_map[k];
         const std::vector<NasaPoly1<ValAndDerivType> > &mlg = m_low[grp - 1];
-        const NasaPoly1<ValAndDerivType> * nlow = &(mlg[pos]);
+        const NasaPoly1<ValAndDerivType> * nlow = & (mlg[pos]);
         doublereal tmid = nlow->maxTemp();
         double h;
         if (298.15 <= tmid) {
             h = nlow->reportHf298(0);
         } else {
             const std::vector<NasaPoly1<ValAndDerivType> > &mhg = m_high[grp - 1];
-            const NasaPoly1<ValAndDerivType> * nhigh = &(mhg[pos]);
+            const NasaPoly1<ValAndDerivType> * nhigh = & (mhg[pos]);
             h = nhigh->reportHf298(0);
         }
         return h;
@@ -451,9 +461,9 @@ public:
         int grp = m_group_map[k];
         int pos = m_posInGroup_map[k];
         std::vector<NasaPoly1<ValAndDerivType> > &mlg = m_low[grp - 1];
-        NasaPoly1<ValAndDerivType> * nlow = &(mlg[pos]);
+        NasaPoly1<ValAndDerivType> * nlow = & (mlg[pos]);
         std::vector<NasaPoly1<ValAndDerivType> > &mhg = m_high[grp - 1];
-        NasaPoly1<ValAndDerivType> * nhigh = &(mhg[pos]);
+        NasaPoly1<ValAndDerivType> * nhigh = & (mhg[pos]);
         doublereal tmid = nlow->maxTemp();
 
         double hnow = reportOneHf298(k);
@@ -582,6 +592,9 @@ private:
     {
         return c[0] * log(t) + c[1] * t + 0.5 * c[2] * t * t + OneThird * c[3] * t * t * t + 0.25 * c[4] * t * t * t * t + c[6];
     }
+
+    friend class NasaThermo<doublereal> ;
+    friend class NasaThermo<doubleFAD> ;
 
 };
 

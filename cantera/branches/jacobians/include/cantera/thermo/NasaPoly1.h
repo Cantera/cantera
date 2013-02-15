@@ -92,6 +92,21 @@ public:
         std::copy(b.m_coeff.begin(), b.m_coeff.begin() + 7, m_coeff.begin());
     }
 
+    //! copy constructor
+    /*!
+     * @param b object to be copied
+     */
+    template<typename ValAndDerivType2>
+    NasaPoly1(const NasaPoly1<ValAndDerivType2> & b) :
+            m_lowT(b.m_lowT),
+            m_highT(b.m_highT),
+            m_Pref(b.m_Pref),
+            m_index(b.m_index),
+            m_coeff(vector_fp(7))
+    {
+        std::copy(b.m_coeff.begin(), b.m_coeff.begin() + 7, m_coeff.begin());
+    }
+
     //! assignment operator
     /*!
      * @param b object to be copied
@@ -119,6 +134,14 @@ public:
     {
         NasaPoly1<ValAndDerivType>* np = new NasaPoly1<ValAndDerivType>(*this);
         return (SpeciesThermoInterpType<ValAndDerivType>*) np;
+    }
+
+    //! Duplicator
+    virtual SpeciesThermoInterpType<doublereal>*
+    duplMyselfAsSpeciesThermoInterpTypeDouble() const
+    {
+        NasaPoly1<doublereal>* np = new NasaPoly1<doublereal>(*this);
+        return (SpeciesThermoInterpType<doublereal>*) np;
     }
 
     //! Returns the minimum temperature that the thermo
@@ -176,7 +199,8 @@ public:
      * @param s_R     Vector of Dimensionless entropies.
      *                (length m_kk).
      */
-    virtual void updateProperties(const ValAndDerivType* tt, ValAndDerivType * cp_R, ValAndDerivType* h_RT, ValAndDerivType* s_R) const
+    virtual void updateProperties(const ValAndDerivType* tt, ValAndDerivType * cp_R, ValAndDerivType* h_RT,
+                                  ValAndDerivType* s_R) const
     {
 
         doublereal ct0 = m_coeff[2]; // a0
@@ -300,7 +324,8 @@ public:
         return h;
     }
 
-    virtual void modifyOneHf298(const size_t& k, const doublereal Hf298New) {
+    virtual void modifyOneHf298(const size_t& k, const doublereal Hf298New)
+    {
         if (k != m_index) {
             return;
         }
@@ -323,6 +348,8 @@ protected:
     //! array of polynomial coefficients
     vector_fp m_coeff;
 
+    friend class NasaPoly1<doublereal> ;
+    friend class NasaPoly1<doubleFAD> ;
 };
 
 }

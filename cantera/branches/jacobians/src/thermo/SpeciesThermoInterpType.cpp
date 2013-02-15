@@ -74,7 +74,8 @@ STITbyPDSS<ValAndDerivType>::STITbyPDSS(size_t k, VPSSMgr* vpssmgr_ptr, PDSS* PD
 }
 
 template<typename ValAndDerivType>
-STITbyPDSS<ValAndDerivType>::STITbyPDSS(const STITbyPDSS& b) :
+template<typename ValAndDerivType2>
+STITbyPDSS<ValAndDerivType>::STITbyPDSS(const STITbyPDSS<ValAndDerivType2>& b) :
         m_vpssmgr_ptr(b.m_vpssmgr_ptr),
         m_PDSS_ptr(b.m_PDSS_ptr),
         m_speciesIndex(b.m_speciesIndex)
@@ -93,6 +94,15 @@ SpeciesThermoInterpType<ValAndDerivType> *
 STITbyPDSS<ValAndDerivType>::duplMyselfAsSpeciesThermoInterpType() const
 {
     return new STITbyPDSS<ValAndDerivType>(*this);
+}
+
+
+//! duplicator
+template<typename ValAndDerivType>
+SpeciesThermoInterpType<doublereal> *
+STITbyPDSS<ValAndDerivType>::duplMyselfAsSpeciesThermoInterpTypeDouble() const
+{
+    return new STITbyPDSS<doublereal>(*this);
 }
 
 template<typename ValAndDerivType>

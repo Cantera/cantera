@@ -155,6 +155,30 @@ Nasa9PolyMultiTempRegion(const Nasa9PolyMultiTempRegion<ValAndDerivType>& b) :
     }
 }
 
+
+// copy constructor
+/*
+ * @param b object to be copied
+ */
+template<typename ValAndDerivType>
+template<typename ValAndDerivType2>
+Nasa9PolyMultiTempRegion<ValAndDerivType>::
+Nasa9PolyMultiTempRegion(const Nasa9PolyMultiTempRegion<ValAndDerivType2>& b) :
+    m_lowT(b.m_lowT),
+    m_highT(b.m_highT),
+    m_Pref(b.m_Pref),
+    m_index(b.m_index),
+    m_numTempRegions(b.m_numTempRegions),
+    m_lowerTempBounds(b.m_lowerTempBounds),
+    m_currRegion(b.m_currRegion)
+{
+    m_regionPts.resize(m_numTempRegions);
+    for (size_t i = 0; i < m_numTempRegions; i++) {
+        Nasa9Poly1<ValAndDerivType2>* dptr = b.m_regionPts[i];
+        m_regionPts[i] = new Nasa9Poly1<ValAndDerivType>(*dptr);
+    }
+}
+
 // assignment operator
 /*
  * @param b object to be copied
@@ -199,6 +223,15 @@ SpeciesThermoInterpType<ValAndDerivType> *
 Nasa9PolyMultiTempRegion<ValAndDerivType>::duplMyselfAsSpeciesThermoInterpType() const
 {
     return new Nasa9PolyMultiTempRegion<ValAndDerivType>(*this);
+}
+
+
+//! Duplicator
+template<typename ValAndDerivType>
+SpeciesThermoInterpType<doublereal>*
+Nasa9PolyMultiTempRegion<ValAndDerivType>::duplMyselfAsSpeciesThermoInterpTypeDouble() const
+{
+    return new Nasa9PolyMultiTempRegion<doublereal>(*this);
 }
 
 // Returns the minimum temperature that the thermo

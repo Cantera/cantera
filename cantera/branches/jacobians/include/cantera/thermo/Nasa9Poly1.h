@@ -96,11 +96,14 @@ public:
      */
     Nasa9Poly1(const Nasa9Poly1<ValAndDerivType> & b);
 
+    template<typename ValAndDerivType2>
+    Nasa9Poly1(const Nasa9Poly1<ValAndDerivType2> & b);
+
     //! assignment operator
     /*!
      * @param b object to be copied
      */
-    Nasa9Poly1& operator=(const Nasa9Poly1<ValAndDerivType> & b);
+    Nasa9Poly1<ValAndDerivType>& operator=(const Nasa9Poly1<ValAndDerivType> & b);
 
     //! Destructor
     virtual ~Nasa9Poly1();
@@ -108,6 +111,11 @@ public:
     //! duplicator
     virtual SpeciesThermoInterpType<ValAndDerivType> *
     duplMyselfAsSpeciesThermoInterpType() const;
+
+
+    //! Duplicator
+    virtual SpeciesThermoInterpType<doublereal>*
+    duplMyselfAsSpeciesThermoInterpTypeDouble() const;
 
     //! Returns the minimum temperature that the thermo
     //! parameterization is valid
@@ -226,6 +234,9 @@ protected:
     size_t m_index;
     //! array of polynomial coefficients
     vector_fp m_coeff;
+
+    friend class Nasa9Poly1<doublereal>;
+    friend class Nasa9Poly1<doubleFAD>;
 };
 
 }

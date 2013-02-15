@@ -10,8 +10,7 @@
 
 #include "cantera/thermo/SpeciesThermoInterpType.h"
 
-namespace Cantera
-{
+namespace Cantera {
 template<typename ValAndDerivType> class SpeciesThermo;
 class XML_Node;
 
@@ -104,14 +103,18 @@ public:
      *            - ........
      *            .
      */
-    Mu0Poly(size_t n, doublereal tlow, doublereal thigh,
-            doublereal pref, const doublereal* coeffs);
+    Mu0Poly(size_t n, doublereal tlow, doublereal thigh, doublereal pref, const doublereal* coeffs);
 
     //! Copy constructor
-    Mu0Poly(const Mu0Poly&);
+    Mu0Poly(const Mu0Poly<ValAndDerivType>& right);
+
+    //! Copy constructor
+    template<typename ValAndDerivType2>
+    Mu0Poly(const Mu0Poly<ValAndDerivType2>& right);
 
     //! Assignment operator
-    Mu0Poly& operator=(const Mu0Poly&);
+    template<typename ValAndDerivType2>
+    Mu0Poly<ValAndDerivType>& operator=(const Mu0Poly<ValAndDerivType2>& right);
 
     //! Destructor
     virtual ~Mu0Poly();
@@ -119,6 +122,10 @@ public:
     //! Duplicator
     virtual SpeciesThermoInterpType<ValAndDerivType>*
     duplMyselfAsSpeciesThermoInterpType() const;
+
+    //! Duplicator
+    virtual SpeciesThermoInterpType<doublereal>*
+    duplMyselfAsSpeciesThermoInterpTypeDouble() const;
 
     //! Returns the minimum temperature that the thermo
     //! parameterization is valid
@@ -132,12 +139,14 @@ public:
     virtual doublereal refPressure() const;
 
     //! Returns an integer representing the type of parameterization
-    virtual int reportType() const {
+    virtual int reportType() const
+    {
         return MU0_INTERP;
     }
 
     //! Returns an integer representing the species index
-    virtual size_t speciesIndex() const {
+    virtual size_t speciesIndex() const
+    {
         return m_index;
     }
 
@@ -160,9 +169,8 @@ public:
      * @param s_R     Vector of Dimensionless entropies.
      *                (length m_kk).
      */
-    virtual void updateProperties(const doublereal* tPoly,
-                                  ValAndDerivType* cp_R, ValAndDerivType* h_RT,
-                                  ValAndDerivType* s_R) const ;
+    virtual void updateProperties(const doublereal* tPoly, ValAndDerivType* cp_R, ValAndDerivType* h_RT,
+                                  ValAndDerivType* s_R) const;
 
     //! Compute the reference-state property of one species
     /*!
@@ -180,10 +188,8 @@ public:
      * @param s_R     Vector of Dimensionless entropies.
      *                (length m_kk).
      */
-    virtual void updatePropertiesTemp(const doublereal temp,
-                                      ValAndDerivType* cp_R,
-                                      ValAndDerivType* h_RT,
-                                      ValAndDerivType* s_R) const ;
+    virtual void updatePropertiesTemp(const doublereal temp, ValAndDerivType* cp_R, ValAndDerivType* h_RT,
+                                      ValAndDerivType* s_R) const;
 
     //!This utility function reports back the type of
     //! parameterization and all of the parameters for the
@@ -199,9 +205,7 @@ public:
      * @param coeffs    Vector of coefficients used to set the
      *                  parameters for the standard state.
      */
-    virtual void reportParameters(size_t& n, int& type,
-                                  doublereal& tlow, doublereal& thigh,
-                                  doublereal& pref,
+    virtual void reportParameters(size_t& n, int& type, doublereal& tlow, doublereal& thigh, doublereal& pref,
                                   doublereal* const coeffs) const;
 
     //! Modify parameters for the standard state
@@ -282,6 +286,9 @@ private:
      */
     void processCoeffs(const doublereal* coeffs);
 
+    friend class Mu0Poly<doublereal> ;
+    friend class Mu0Poly<doubleFAD> ;
+
 };
 
 //!  Install a Mu0 polynomial thermodynamic reference state
@@ -299,11 +306,9 @@ private:
  *  @ingroup spthermo
  */
 template<typename ValAndDerivType>
-void installMu0ThermoFromXML(const std::string& speciesName,
-                             SpeciesThermo<ValAndDerivType>& sp, size_t k,
+void installMu0ThermoFromXML(const std::string& speciesName, SpeciesThermo<ValAndDerivType>& sp, size_t k,
                              const XML_Node* Mu0Node_ptr);
 }
 
 #endif
-
 

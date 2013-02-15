@@ -10,9 +10,9 @@
 
 #include "SpeciesThermoMgr.h"
 #include "speciesThermoTypes.h"
+#include "cantera/base/global.h"
 
-namespace Cantera
-{
+namespace Cantera {
 
 /*!
  *  A constant-heat capacity species thermodynamic property manager class.
@@ -46,7 +46,7 @@ namespace Cantera
  * @ingroup mgrsrefcalc
  */
 template<typename ValAndDerivType>
-class SimpleThermo : public SpeciesThermo<ValAndDerivType>
+class SimpleThermo: public SpeciesThermo<ValAndDerivType>
 {
 
 public:
@@ -60,62 +60,64 @@ public:
 
     //! Constructor
     SimpleThermo() :
-        ID(SIMPLE),
-        m_tlow_max(0.0),
-        m_thigh_min(1.e30),
-        m_p0(-1.0),
-        m_nspData(0) {}
+            ID(SIMPLE),
+            m_tlow_max(0.0),
+            m_thigh_min(1.e30),
+            m_p0(-1.0),
+            m_nspData(0)
+    {
+    }
 
     //! Destructor
-    virtual ~SimpleThermo() {}
+    virtual ~SimpleThermo()
+    {
+    }
 
     //! Copy constructor
     /*!
      * @param right Object to be copied
      */
-    SimpleThermo(const SimpleThermo& right) :
-        ID(SIMPLE),
-        m_tlow_max(0.0),
-        m_thigh_min(1.e30),
-        m_p0(-1.0),
-        m_nspData(0) {
+    SimpleThermo(const SimpleThermo<ValAndDerivType>& right) :
+            ID(SIMPLE),
+            m_tlow_max(0.0),
+            m_thigh_min(1.e30),
+            m_p0(-1.0),
+            m_nspData(0)
+    {
         /*
          * Call the assignment operator
          */
-        *this = operator=(right);
+        operator=(right);
+    }
+
+    //! Copy constructor
+    /*!
+     * @param right Object to be copied
+     */
+    template<typename ValAndDerivType2>
+    SimpleThermo(const SimpleThermo<ValAndDerivType2>& right) :
+            ID(SIMPLE),
+            m_tlow_max(0.0),
+            m_thigh_min(1.e30),
+            m_p0(-1.0),
+            m_nspData(0)
+    {
+        /*
+         * Call the assignment operator
+         */
+        operator=(right);
     }
 
     //! Assignment operator
     /*!
      * @param right Object to be copied
      */
-    SimpleThermo& operator=(const SimpleThermo& right) {
-        /*
-         * Check for self assignment.
-         */
-        if (this == &right) {
-            return *this;
-        }
+    SimpleThermo<ValAndDerivType>& operator=(const SimpleThermo<ValAndDerivType>& right);
 
-        m_loc          = right.m_loc;
-        m_index        = right.m_index;
-        m_tlow_max     = right.m_tlow_max;
-        m_thigh_min    = right.m_thigh_min;
-        m_tlow         = right.m_tlow;
-        m_thigh        = right.m_thigh;
-        m_t0           = right.m_t0;
-        m_logt0        = right.m_logt0;
-        m_h0_R         = right.m_h0_R;
-        m_s0_R         = right.m_s0_R;
-        m_cp0_R        = right.m_cp0_R;
-        m_p0           = right.m_p0;
-        m_nspData      = right.m_nspData;
+    template<typename ValAndDerivType2>
+    SimpleThermo<ValAndDerivType>& operator=(const SimpleThermo<ValAndDerivType2>& right);
 
-        return *this;
-    }
-
-    //! Duplication routine for objects which inherit from
-    //! %SpeciesThermo
+    //! Duplication routine for objects which inherit from  %SpeciesThermo
     /*!
      *  This virtual routine can be used to duplicate %SpeciesThermo  objects
      *  inherited from %SpeciesThermo even if the application only has
@@ -123,9 +125,27 @@ public:
      *  ->commented out because we first need to add copy constructors
      *   and assignment operators to all of the derived classes.
      */
-    virtual SpeciesThermo<ValAndDerivType>* duplMyselfAsSpeciesThermo() const {
+    virtual SpeciesThermo<ValAndDerivType>* duplMyselfAsSpeciesThermo() const
+    {
         SimpleThermo* nt = new SimpleThermo<ValAndDerivType>(*this);
         return (SpeciesThermo<ValAndDerivType> *) nt;
+    }
+
+    //! Duplication routine for objects which inherit from %SpeciesThermo
+    /*!
+     *  This virtual routine can be used to duplicate %SpeciesThermo  objects
+     *  inherited from %SpeciesThermo even if the application only has
+     *  a pointer to %SpeciesThermo to work with.
+     *
+     *  This routine returns a doublereal templated version of SpeciesThermo no matter
+     *  what templated version the underlying class is.
+     *
+     *  @return Duplicated <double> version of the SpeciesThermo
+     */
+    virtual SpeciesThermo<doublereal>* duplMyselfAsSpeciesThermoDouble() const
+    {
+        SimpleThermo<doublereal>* nt = new SimpleThermo<doublereal>(*this);
+        return (SpeciesThermo<doublereal> *) nt;
     }
 
     //! Install a new species thermodynamic property
@@ -152,18 +172,19 @@ public:
      *
      * @see ConstCpPoly
      */
-    virtual void install(const std::string& name, size_t index, int type, const doublereal* c,
-                         doublereal minTemp, doublereal maxTemp, doublereal refPressure) {
+    virtual void install(const std::string& name, size_t index, int type, const doublereal* c, doublereal minTemp,
+                         doublereal maxTemp, doublereal refPressure)
+    {
 
         m_logt0.push_back(log(c[0]));
         m_t0.push_back(c[0]);
-        m_h0_R.push_back(c[1]/GasConstant);
-        m_s0_R.push_back(c[2]/GasConstant);
-        m_cp0_R.push_back(c[3]/GasConstant);
+        m_h0_R.push_back(c[1] / GasConstant);
+        m_s0_R.push_back(c[2] / GasConstant);
+        m_cp0_R.push_back(c[3] / GasConstant);
         m_index.push_back(index);
         m_loc[index] = m_nspData;
         m_nspData++;
-        doublereal tlow  = minTemp;
+        doublereal tlow = minTemp;
         doublereal thigh = maxTemp;
 
         if (tlow > m_tlow_max) {
@@ -174,7 +195,7 @@ public:
         }
 
         if (m_tlow.size() < index + 1) {
-            m_tlow.resize(index + 1,  tlow);
+            m_tlow.resize(index + 1, tlow);
             m_thigh.resize(index + 1, thigh);
         }
         m_tlow[index] = tlow;
@@ -183,12 +204,11 @@ public:
         if (m_p0 < 0.0) {
             m_p0 = refPressure;
         } else if (fabs(m_p0 - refPressure) > 0.1) {
-            std::string logmsg =  " WARNING SimpleThermo: New Species, " + name +
-                                  ", has a different reference pressure, "
-                                  + fp2str(refPressure) + ", than existing reference pressure, " + fp2str(m_p0) + "\n";
-            writelog(logmsg);
+            std::string logmsg = " WARNING SimpleThermo: New Species, " + name + ", has a different reference pressure, "
+                    + fp2str(refPressure) + ", than existing reference pressure, " + fp2str(m_p0) + "\n";
+            Cantera::writelog(logmsg);
             logmsg = "                  This is now a fatal error\n";
-            writelog(logmsg);
+            Cantera::writelog(logmsg);
             throw CanteraError("install()", "Species have different reference pressures");
         }
         m_p0 = refPressure;
@@ -200,7 +220,8 @@ public:
      * @param stit_ptr Pointer to the SpeciesThermoInterpType object
      *          This will set up the thermo for one species
      */
-    virtual void install_STIT(SpeciesThermoInterpType<ValAndDerivType> * stit_ptr) {
+    virtual void install_STIT(SpeciesThermoInterpType<ValAndDerivType> * stit_ptr)
+    {
         throw CanteraError("install_STIT", "not implemented");
     }
 
@@ -219,15 +240,15 @@ public:
      * @param s_R     Vector of Dimensionless entropies.
      *                (length m_kk).
      */
-    virtual void update(doublereal t, ValAndDerivType* cp_R,
-                        ValAndDerivType* h_RT, ValAndDerivType* s_R) const {
+    virtual void update(doublereal t, ValAndDerivType* cp_R, ValAndDerivType* h_RT, ValAndDerivType* s_R) const
+    {
         size_t k, ki;
         doublereal logt = log(t);
-        doublereal rt = 1.0/t;
+        doublereal rt = 1.0 / t;
         for (k = 0; k < m_nspData; k++) {
             ki = m_index[k];
             cp_R[ki] = m_cp0_R[k];
-            h_RT[ki] = rt*(m_h0_R[k] + (t - m_t0[k]) * m_cp0_R[k]);
+            h_RT[ki] = rt * (m_h0_R[k] + (t - m_t0[k]) * m_cp0_R[k]);
             s_R[ki] = m_s0_R[k] + m_cp0_R[k] * (logt - m_logt0[k]);
         }
     }
@@ -243,13 +264,13 @@ public:
      * @param s_R     Vector of Dimensionless entropies.
      *                (length m_kk).
      */
-    virtual void update_one(size_t k, doublereal t, ValAndDerivType* cp_R,
-                            ValAndDerivType* h_RT, ValAndDerivType* s_R) const {
+    virtual void update_one(size_t k, doublereal t, ValAndDerivType* cp_R, ValAndDerivType* h_RT, ValAndDerivType* s_R) const
+    {
         doublereal logt = log(t);
-        doublereal rt = 1.0/t;
+        doublereal rt = 1.0 / t;
         size_t loc = m_loc[k];
         cp_R[k] = m_cp0_R[loc];
-        h_RT[k] = rt*(m_h0_R[loc] + (t - m_t0[loc]) * m_cp0_R[loc]);
+        h_RT[k] = rt * (m_h0_R[loc] + (t - m_t0[loc]) * m_cp0_R[loc]);
         s_R[k] = m_s0_R[loc] + m_cp0_R[loc] * (logt - m_logt0[loc]);
     }
 
@@ -263,7 +284,8 @@ public:
      *
      * @param k    Species index
      */
-    virtual doublereal minTemp(size_t k=npos) const {
+    virtual doublereal minTemp(size_t k = npos) const
+    {
         if (k == npos) {
             return m_tlow_max;
         } else {
@@ -281,7 +303,8 @@ public:
      *
      * @param k  Species Index
      */
-    virtual doublereal maxTemp(size_t k=npos) const {
+    virtual doublereal maxTemp(size_t k = npos) const
+    {
         if (k == npos) {
             return m_thigh_min;
         } else {
@@ -302,7 +325,8 @@ public:
      *
      * @param k Species Index
      */
-    virtual doublereal refPressure(size_t k=npos) const {
+    virtual doublereal refPressure(size_t k = npos) const
+    {
         return m_p0;
     }
 
@@ -312,7 +336,8 @@ public:
      *
      * @param index  Species index
      */
-    virtual int reportType(size_t index) const {
+    virtual int reportType(size_t index) const
+    {
         return SIMPLE;
     }
 
@@ -331,11 +356,9 @@ public:
      * @param refPressure output - reference pressure (Pa).
      *
      */
-    virtual void reportParams(size_t index, int& type,
-                              doublereal* const c,
-                              doublereal& minTemp,
-                              doublereal& maxTemp,
-                              doublereal& refPressure) const {
+    virtual void reportParams(size_t index, int& type, doublereal* const c, doublereal& minTemp, doublereal& maxTemp,
+                              doublereal& refPressure) const
+    {
         type = reportType(index);
         size_t loc = m_loc[index];
         if (type == SIMPLE) {
@@ -351,14 +374,15 @@ public:
 
 #ifdef H298MODIFY_CAPABILITY
 
-    virtual doublereal reportOneHf298(size_t k) const {
+    virtual doublereal reportOneHf298(size_t k) const
+    {
         throw CanteraError("reportHF298", "unimplemented");
     }
 
-    virtual void modifyOneHf298(const size_t k, const doublereal Hf298New) {
+    virtual void modifyOneHf298(const size_t k, const doublereal Hf298New)
+    {
         throw CanteraError("reportHF298", "unimplemented");
     }
-
 
 #endif
 protected:
@@ -380,64 +404,67 @@ protected:
     std::vector<size_t> m_index;
 
     //! Maximum value of the low temperature limit
-    doublereal                 m_tlow_max;
+    doublereal m_tlow_max;
 
     //! Minimum value of the high temperature limit
-    doublereal                 m_thigh_min;
+    doublereal m_thigh_min;
 
     //! Vector of low temperature limits (species index)
     /*!
      * Length is equal to number of data points
      */
-    vector_fp                  m_tlow;
+    vector_fp m_tlow;
 
     //! Vector of low temperature limits (species index)
     /*!
      * Length is equal to number of data points
      */
-    vector_fp                  m_thigh;
+    vector_fp m_thigh;
 
     //! Vector of base temperatures (kelvin)
     /*!
      * Length is equal to the number of species data points
      */
-    vector_fp                  m_t0;
+    vector_fp m_t0;
 
     //! Vector of base log temperatures (kelvin)
     /*!
      * Length is equal to the number of species data points
      */
-    vector_fp                  m_logt0;
+    vector_fp m_logt0;
 
     //! Vector of base dimensionless Enthalpies
     /*!
      * Length is equal to the number of species data points
      */
-    vector_fp                  m_h0_R;
+    vector_fp m_h0_R;
 
     //! Vector of base dimensionless Entropies
     /*!
      * Length is equal to the number of species data points
      */
-    vector_fp                  m_s0_R;
+    vector_fp m_s0_R;
 
     //! Vector of base dimensionless heat capacities
     /*!
      * Length is equal to the number of species data points
      */
-    vector_fp                  m_cp0_R;
+    vector_fp m_cp0_R;
 
     //! Reference pressure (Pa)
     /*!
      * all species must have the same reference pressure.
      */
-    doublereal                 m_p0;
+    doublereal m_p0;
 
     //! Number of species data points in the object.
     /*!
      * This is less than or equal to the number of species in the phase.
      */
     size_t m_nspData;
+
+    friend class SimpleThermo<doublereal> ;
+    friend class SimpleThermo<doubleFAD> ;
 
 };
 

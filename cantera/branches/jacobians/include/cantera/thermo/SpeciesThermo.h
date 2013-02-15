@@ -5,7 +5,6 @@
  *  and class \link Cantera::SpeciesThermo SpeciesThermo\endlink).
  */
 // Copyright 2001  California Institute of Technology
-
 #ifndef CT_SPECIESTHERMO_H
 #define CT_SPECIESTHERMO_H
 
@@ -159,7 +158,6 @@ template<typename ValAndDerivType> class SpeciesThermoInterpType;
  * @ingroup thermoprops
  */
 //@{
-
 //! Pure Virtual base class for the species thermo manager classes.
 /*!
  *  This class defines the interface which all subclasses must implement.
@@ -217,10 +215,23 @@ public:
      *  This virtual routine can be used to duplicate %SpeciesThermo  objects
      *  inherited from %SpeciesThermo even if the application only has
      *  a pointer to %SpeciesThermo to work with.
-     *  ->commented out because we first need to add copy constructors
-     *   and assignment operators to all of the derived classes.
+     *
+     *  @return Duplicated  version of the SpeciesThermo
      */
     virtual SpeciesThermo<ValAndDerivType>* duplMyselfAsSpeciesThermo() const = 0;
+
+    //! Duplication routine for objects which inherit from %SpeciesThermo
+    /*!
+     *  This virtual routine can be used to duplicate %SpeciesThermo  objects
+     *  inherited from %SpeciesThermo even if the application only has
+     *  a pointer to %SpeciesThermo to work with.
+     *
+     *  This routine returns a doublereal templated version of SpeciesThermo no matter
+     *  what templated version the underlying class is.
+     *
+     *  @return Duplicated <double> version of the SpeciesThermo
+     */
+    virtual SpeciesThermo<doublereal>* duplMyselfAsSpeciesThermoDouble() const = 0;
 
     //! Install a new species thermodynamic property
     //! parameterization for one species.

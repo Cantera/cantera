@@ -10,17 +10,14 @@
  *  This parameterization has multiple NASA temperature regions.
  */
 
-
 #ifndef CT_NASA9POLYMULTITEMPREGION_H
 #define CT_NASA9POLYMULTITEMPREGION_H
 // Copyright 2007  Sandia National Laboratories
 
-
 #include "cantera/base/global.h"
 #include "cantera/thermo/Nasa9Poly1.h"
 
-namespace Cantera
-{
+namespace Cantera {
 
 //! The NASA 9 polynomial parameterization for a single species
 //! encompassing multiple temperature regions.
@@ -68,7 +65,7 @@ namespace Cantera
  * @ingroup spthermo
  */
 template<typename ValAndDerivType>
-class Nasa9PolyMultiTempRegion : public SpeciesThermoInterpType<ValAndDerivType>
+class Nasa9PolyMultiTempRegion: public SpeciesThermoInterpType<ValAndDerivType>
 {
 
 public:
@@ -96,6 +93,13 @@ public:
      */
     Nasa9PolyMultiTempRegion(const Nasa9PolyMultiTempRegion<ValAndDerivType>& b);
 
+    //! Copy constructor
+    /*!
+     * @param b object to be copied
+     */
+    template<typename ValAndDerivType2>
+    Nasa9PolyMultiTempRegion(const Nasa9PolyMultiTempRegion<ValAndDerivType2>& b);
+
     //! Assignment operator
     /*!
      * @param b object to be copied
@@ -108,6 +112,10 @@ public:
     //! Duplicator
     virtual SpeciesThermoInterpType<ValAndDerivType>*
     duplMyselfAsSpeciesThermoInterpType() const;
+
+    //! Duplicator
+    virtual SpeciesThermoInterpType<doublereal>*
+    duplMyselfAsSpeciesThermoInterpTypeDouble() const;
 
     //! Returns the minimum temperature that the thermo
     //! parameterization is valid
@@ -150,10 +158,7 @@ public:
      * @param s_R     Vector of Dimensionless entropies.
      *                (length m_kk).
      */
-    virtual void updateProperties(const doublereal* tt,
-                                  ValAndDerivType* cp_R, ValAndDerivType* h_RT,
-                                  ValAndDerivType* s_R) const;
-
+    virtual void updateProperties(const doublereal* tt, ValAndDerivType* cp_R, ValAndDerivType* h_RT, ValAndDerivType* s_R) const;
 
     //! Compute the reference-state property of one species
     /*!
@@ -180,8 +185,7 @@ public:
      * @param s_R     Vector of Dimensionless entropies.
      *                (length m_kk).
      */
-    virtual void updatePropertiesTemp(const doublereal temp,
-                                      ValAndDerivType* cp_R, ValAndDerivType* h_RT,
+    virtual void updatePropertiesTemp(const doublereal temp, ValAndDerivType* cp_R, ValAndDerivType* h_RT,
                                       ValAndDerivType* s_R) const;
 
     //!This utility function reports back the type of
@@ -205,9 +209,7 @@ public:
      *        coeffs[index+1] = maxTempZone
      *        coeffs[index+2+i] from i =0,9 are the coefficients themselves
      */
-    virtual void reportParameters(size_t& n, int& type,
-                                  doublereal& tlow, doublereal& thigh,
-                                  doublereal& pref,
+    virtual void reportParameters(size_t& n, int& type, doublereal& tlow, doublereal& thigh, doublereal& pref,
                                   doublereal* const coeffs) const;
 
     //! Modify parameters for the standard state
@@ -237,10 +239,13 @@ protected:
      * This object will now own these pointers and delete
      * them when the current object is deleted.
      */
-    std::vector<Nasa9Poly1<ValAndDerivType> * > m_regionPts;
+    std::vector<Nasa9Poly1<ValAndDerivType> *> m_regionPts;
 
     //! current region
     mutable int m_currRegion;
+
+    friend class Nasa9PolyMultiTempRegion<doublereal> ;
+    friend class Nasa9PolyMultiTempRegion<doubleFAD> ;
 };
 
 }

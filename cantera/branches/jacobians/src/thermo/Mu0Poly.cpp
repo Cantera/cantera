@@ -60,7 +60,25 @@ Mu0Poly<ValAndDerivType>::Mu0Poly(size_t n, doublereal tlow, doublereal thigh, d
 }
 
 template<typename ValAndDerivType>
-Mu0Poly<ValAndDerivType>::Mu0Poly(const Mu0Poly& b) :
+Mu0Poly<ValAndDerivType>::Mu0Poly(const Mu0Poly<ValAndDerivType>& b) :
+        m_numIntervals(b.m_numIntervals),
+        m_H298(b.m_H298),
+        m_t0_int(b.m_t0_int),
+        m_mu0_R_int(b.m_mu0_R_int),
+        m_h0_R_int(b.m_h0_R_int),
+        m_s0_R_int(b.m_s0_R_int),
+        m_cp0_R_int(b.m_cp0_R_int),
+        m_lowT(b.m_lowT),
+        m_highT(b.m_highT),
+        m_Pref(b.m_Pref),
+        m_index(b.m_index)
+{
+}
+
+
+template<typename ValAndDerivType>
+template<typename ValAndDerivType2>
+Mu0Poly<ValAndDerivType>::Mu0Poly(const Mu0Poly<ValAndDerivType2>& b) :
         m_numIntervals(b.m_numIntervals),
         m_H298(b.m_H298),
         m_t0_int(b.m_t0_int),
@@ -76,7 +94,8 @@ Mu0Poly<ValAndDerivType>::Mu0Poly(const Mu0Poly& b) :
 }
 
 template<typename ValAndDerivType>
-Mu0Poly<ValAndDerivType>& Mu0Poly<ValAndDerivType>::operator=(const Mu0Poly<ValAndDerivType>& b)
+template<typename ValAndDerivType2>
+Mu0Poly<ValAndDerivType>& Mu0Poly<ValAndDerivType>::operator=(const Mu0Poly<ValAndDerivType2>& b)
 {
     if (&b != this) {
         m_numIntervals = b.m_numIntervals;
@@ -107,6 +126,13 @@ SpeciesThermoInterpType<ValAndDerivType>*
 Mu0Poly<ValAndDerivType>::duplMyselfAsSpeciesThermoInterpType() const
 {
     return new Mu0Poly(*this);
+}
+
+template<typename ValAndDerivType>
+SpeciesThermoInterpType<doublereal>*
+Mu0Poly<ValAndDerivType>::duplMyselfAsSpeciesThermoInterpTypeDouble() const
+{
+    return new Mu0Poly<doublereal>(*this);
 }
 
 template<typename ValAndDerivType>
@@ -350,7 +376,7 @@ void Mu0Poly<ValAndDerivType>::processCoeffs(const doublereal* coeffs)
     T1 = m_t0_int[iT298];
     doublereal mu1 = m_mu0_R_int[iT298];
     m_h0_R_int[iT298] = m_H298;
-    m_s0_R_int[iT298] = -(mu1 - m_h0_R_int[iT298]) / T1;
+    m_s0_R_int[iT298] = - (mu1 - m_h0_R_int[iT298]) / T1;
     for (i = iT298; i < m_numIntervals; i++) {
         T1 = m_t0_int[i];
         s1 = m_s0_R_int[i];
@@ -376,7 +402,7 @@ void Mu0Poly<ValAndDerivType>::processCoeffs(const doublereal* coeffs)
         T2 = m_t0_int[iT298];
         mu2 = m_mu0_R_int[iT298];
         m_h0_R_int[iT298] = m_H298;
-        m_s0_R_int[iT298] = -(mu2 - m_h0_R_int[iT298]) / T2;
+        m_s0_R_int[iT298] = - (mu2 - m_h0_R_int[iT298]) / T2;
         for (i = iT298 - 1; i != npos; i--) {
             T1 = m_t0_int[i];
             mu1 = m_mu0_R_int[i];
@@ -427,7 +453,6 @@ template void installMu0ThermoFromXML(const std::string& speciesName, SpeciesThe
                                       const XML_Node* Mu0Node_ptr);
 #endif
 #endif
-
 
 }
 

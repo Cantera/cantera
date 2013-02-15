@@ -12,6 +12,7 @@
 #include "cantera/thermo/SpeciesThermoMgr.h"
 #include "ShomatePoly.h"
 #include "cantera/thermo/speciesThermoTypes.h"
+#include "cantera/Cantera.h"
 
 namespace Cantera {
 
@@ -95,36 +96,35 @@ public:
             m_p0(-1.0),
             m_ngroups(0)
     {
-        *this = operator=(right);
+        operator=(right);
     }
 
+    //! Copy Constructor
+    /*!
+     * @param right Object to be copied
+     */
+    template<typename ValAndDerivType2>
+    ShomateThermo(const ShomateThermo<ValAndDerivType2>& right) :
+            ID(SHOMATE),
+            m_tlow_max(0.0),
+            m_thigh_min(1.e30),
+            m_p0(-1.0),
+            m_ngroups(0)
+    {
+        operator=(right);
+    }
+
+    //=============================================================================================================================
     //! Assignment Operator
     /*!
      * @param right Object to be copied
      */
-    ShomateThermo& operator=(const ShomateThermo<ValAndDerivType>& right)
-    {
-        if (&right == this) {
-            return *this;
-        }
+    ShomateThermo& operator=(const ShomateThermo<ValAndDerivType>& right);
 
-        m_high = right.m_high;
-        m_low = right.m_low;
-        m_index = right.m_index;
-        m_tmid = right.m_tmid;
-        m_tlow_max = right.m_tlow_max;
-        m_thigh_min = right.m_thigh_min;
-        m_tlow = right.m_tlow;
-        m_thigh = right.m_thigh;
-        m_p0 = right.m_p0;
-        m_ngroups = right.m_ngroups;
-        m_t = right.m_t;
-        m_group_map = right.m_group_map;
-        m_posInGroup_map = right.m_posInGroup_map;
+    template<typename ValAndDerivType2>
+    ShomateThermo& operator=(const ShomateThermo<ValAndDerivType2>& right);
 
-        return *this;
-    }
-
+    //=============================================================================================================================
     //! Duplication routine for objects which inherit from
     //! %SpeciesThermo
     /*!
@@ -138,6 +138,23 @@ public:
     {
         ShomateThermo<ValAndDerivType>* st = new ShomateThermo<ValAndDerivType>(*this);
         return (SpeciesThermo<ValAndDerivType> *) st;
+    }
+
+    //! Duplication routine for objects which inherit from %SpeciesThermo
+    /*!
+     *  This virtual routine can be used to duplicate %SpeciesThermo  objects
+     *  inherited from %SpeciesThermo even if the application only has
+     *  a pointer to %SpeciesThermo to work with.
+     *
+     *  This routine returns a doublereal templated version of SpeciesThermo no matter
+     *  what templated version the underlying class is.
+     *
+     *  @return Duplicated <double> version of the SpeciesThermo
+     */
+    virtual SpeciesThermo<doublereal>* duplMyselfAsSpeciesThermoDouble() const
+    {
+        ShomateThermo<doublereal>* st = new ShomateThermo<doublereal>(*this);
+        return (SpeciesThermo<doublereal> *) st;
     }
 
     //! Install a new species thermodynamic property
@@ -254,14 +271,14 @@ public:
         size_t grp = m_group_map[k];
         size_t pos = m_posInGroup_map[k];
         const std::vector<ShomatePoly<ValAndDerivType> > &mlg = m_low[grp - 1];
-        const ShomatePoly<ValAndDerivType>* nlow = &(mlg[pos]);
+        const ShomatePoly<ValAndDerivType>* nlow = & (mlg[pos]);
 
         doublereal tmid = nlow->maxTemp();
         if (t < tmid) {
             nlow->updateProperties(&m_t[0], cp_R, h_RT, s_R);
         } else {
             const std::vector<ShomatePoly<ValAndDerivType> > &mhg = m_high[grp - 1];
-            const ShomatePoly<ValAndDerivType>* nhigh = &(mhg[pos]);
+            const ShomatePoly<ValAndDerivType>* nhigh = & (mhg[pos]);
             nhigh->updateProperties(&m_t[0], cp_R, h_RT, s_R);
         }
     }
@@ -400,8 +417,8 @@ public:
             int itype = SHOMATE;
             const std::vector<ShomatePoly<ValAndDerivType> > &mlg = m_low[grp - 1];
             const std::vector<ShomatePoly<ValAndDerivType> > &mhg = m_high[grp - 1];
-            const ShomatePoly<ValAndDerivType> * lowPoly = &(mlg[pos]);
-            const ShomatePoly<ValAndDerivType> * highPoly = &(mhg[pos]);
+            const ShomatePoly<ValAndDerivType> * lowPoly = & (mlg[pos]);
+            const ShomatePoly<ValAndDerivType> * highPoly = & (mhg[pos]);
             doublereal tmid = lowPoly->maxTemp();
             c[0] = tmid;
             size_t n;
@@ -435,14 +452,14 @@ public:
         int grp = m_group_map[k];
         int pos = m_posInGroup_map[k];
         const std::vector<ShomatePoly<ValAndDerivType> > &mlg = m_low[grp - 1];
-        const ShomatePoly<ValAndDerivType>* nlow = &(mlg[pos]);
+        const ShomatePoly<ValAndDerivType>* nlow = & (mlg[pos]);
 
         doublereal tmid = nlow->maxTemp();
         if (t <= tmid) {
             h = nlow->reportHf298();
         } else {
             const std::vector<ShomatePoly<ValAndDerivType> > &mhg = m_high[grp - 1];
-            const ShomatePoly<ValAndDerivType>* nhigh = &(mhg[pos]);
+            const ShomatePoly<ValAndDerivType>* nhigh = & (mhg[pos]);
             h = nhigh->reportHf298();
         }
         return h;
@@ -454,9 +471,9 @@ public:
         int grp = m_group_map[k];
         int pos = m_posInGroup_map[k];
         std::vector<ShomatePoly<ValAndDerivType> > &mlg = m_low[grp - 1];
-        ShomatePoly<ValAndDerivType>* nlow = &(mlg[pos]);
+        ShomatePoly<ValAndDerivType>* nlow = & (mlg[pos]);
         std::vector<ShomatePoly<ValAndDerivType> > &mhg = m_high[grp - 1];
-        ShomatePoly<ValAndDerivType>* nhigh = &(mhg[pos]);
+        ShomatePoly<ValAndDerivType>* nhigh = & (mhg[pos]);
         doublereal tmid = nlow->maxTemp();
 
         double hnow = reportOneHf298(k);
@@ -536,7 +553,7 @@ protected:
     int m_ngroups;
 
     //! Vector of temperature polynomials
-    mutable vector_fp m_t;
+    mutable std::vector<ValAndDerivType> m_t;
 
     /*!
      * This map takes as its index, the species index in the phase.
@@ -552,6 +569,9 @@ protected:
      * temperature polynomials for that species are stored.
      */
     mutable std::map<size_t, size_t> m_posInGroup_map;
+
+    friend class ShomateThermo<doublereal> ;
+    friend class ShomateThermo<doubleFAD> ;
 };
 
 }

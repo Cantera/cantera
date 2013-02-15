@@ -56,7 +56,22 @@ StatMech<ValAndDerivType>::StatMech(int n, doublereal tlow, doublereal thigh, do
  * @param b object to be copied
  */
 template<typename ValAndDerivType>
-StatMech<ValAndDerivType>::StatMech(const StatMech& b) :
+StatMech<ValAndDerivType>::StatMech(const StatMech<ValAndDerivType>& b) :
+        m_lowT(b.m_lowT),
+        m_highT(b.m_highT),
+        m_Pref(b.m_Pref),
+        m_index(b.m_index)
+{
+
+}
+
+// copy constructor
+/*
+ * @param b object to be copied
+ */
+template<typename ValAndDerivType>
+template<typename ValAndDerivType2>
+StatMech<ValAndDerivType>::StatMech(const StatMech<ValAndDerivType2>& b) :
         m_lowT(b.m_lowT),
         m_highT(b.m_highT),
         m_Pref(b.m_Pref),
@@ -70,7 +85,7 @@ StatMech<ValAndDerivType>::StatMech(const StatMech& b) :
  * @param b object to be copied
  */
 template<typename ValAndDerivType>
-StatMech<ValAndDerivType>& StatMech<ValAndDerivType>::operator=(const StatMech& b)
+StatMech<ValAndDerivType>& StatMech<ValAndDerivType>::operator=(const StatMech<ValAndDerivType>& b)
 {
     if (&b != this) {
         m_lowT = b.m_lowT;
@@ -93,6 +108,14 @@ SpeciesThermoInterpType<ValAndDerivType> *
 StatMech<ValAndDerivType>::duplMyselfAsSpeciesThermoInterpType() const
 {
     return new StatMech<ValAndDerivType>(*this);
+}
+
+// duplicator
+template<typename ValAndDerivType>
+SpeciesThermoInterpType<doublereal> *
+StatMech<ValAndDerivType>::duplMyselfAsSpeciesThermoInterpTypeDouble() const
+{
+    return new StatMech<doublereal>(*this);
 }
 
 // Returns the minimum temperature that the thermo
@@ -802,6 +825,7 @@ template class StatMech<doublereal> ;
 #ifdef INDEPENDENT_VARIABLE_DERIVATIVES
 #ifdef HAS_SACADO
 template class StatMech<doubleFAD> ;
+
 #endif
 #endif
 

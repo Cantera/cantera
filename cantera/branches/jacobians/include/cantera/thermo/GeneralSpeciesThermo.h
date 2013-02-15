@@ -16,9 +16,7 @@
 #include "StatMech.h"
 #include "speciesThermoTypes.h"
 
-
-namespace Cantera
-{
+namespace Cantera {
 
 //! A species thermodynamic property manager for a phase.
 /*!
@@ -31,7 +29,7 @@ namespace Cantera
  * @ingroup mgrsrefcalc
  */
 template<typename ValAndDerivType>
-class GeneralSpeciesThermo : public SpeciesThermo<ValAndDerivType>
+class GeneralSpeciesThermo: public SpeciesThermo<ValAndDerivType>
 {
 
 public:
@@ -43,19 +41,40 @@ public:
     /*!
      * @param b   Object to be copied
      */
-    GeneralSpeciesThermo(const GeneralSpeciesThermo& b);
+    GeneralSpeciesThermo(const GeneralSpeciesThermo<ValAndDerivType>& b);
+
+    template<typename ValAndDerivType2>
+    GeneralSpeciesThermo(const GeneralSpeciesThermo<ValAndDerivType2>& b);
 
     //! Assignment operator
     /*!
      * @param b   Object to be copied
      */
-    GeneralSpeciesThermo& operator=(const GeneralSpeciesThermo& b);
+    template<typename ValAndDerivType2>
+    GeneralSpeciesThermo<ValAndDerivType>& operator=(const GeneralSpeciesThermo<ValAndDerivType2>& b);
 
     //! Destructor
     virtual ~GeneralSpeciesThermo();
 
     //! Duplicator
-    virtual SpeciesThermo<ValAndDerivType>* duplMyselfAsSpeciesThermo() const ;
+    virtual SpeciesThermo<ValAndDerivType>* duplMyselfAsSpeciesThermo() const;
+
+    //! Duplication routine for objects which inherit from %SpeciesThermo
+    /*!
+     *  This virtual routine can be used to duplicate %SpeciesThermo  objects
+     *  inherited from %SpeciesThermo even if the application only has
+     *  a pointer to %SpeciesThermo to work with.
+     *
+     *  This routine returns a doublereal templated version of SpeciesThermo no matter
+     *  what templated version the underlying class is.
+     *
+     *  @return Duplicated <double> version of the SpeciesThermo
+     */
+    virtual SpeciesThermo<doublereal>* duplMyselfAsSpeciesThermoDouble() const
+    {
+        GeneralSpeciesThermo<doublereal>* nt = new GeneralSpeciesThermo<doublereal>(*this);
+        return (SpeciesThermo<doublereal> *) nt;
+    }
 
     //! Install a new species thermodynamic property
     //! parameterization for one species.
@@ -86,10 +105,8 @@ public:
      * @todo Create a factory method for SpeciesThermoInterpType.
      *       That's basically what we are doing here.
      */
-    virtual void install(const std::string& name, size_t index, int type,
-                         const doublereal* c,
-                         doublereal minTemp, doublereal maxTemp,
-                         doublereal refPressure);
+    virtual void install(const std::string& name, size_t index, int type, const doublereal* c, doublereal minTemp,
+                         doublereal maxTemp, doublereal refPressure);
 
     //! Install a new species thermodynamic property
     //! parameterization for one species.
@@ -121,9 +138,7 @@ public:
      * @param s_R     Vector of Dimensionless entropies.
      *                (length m_kk).
      */
-    virtual void update_one(size_t k, doublereal T, ValAndDerivType * cp_R,
-                            ValAndDerivType * h_RT,
-                            ValAndDerivType * s_R) const;
+    virtual void update_one(size_t k, doublereal T, ValAndDerivType * cp_R, ValAndDerivType * h_RT, ValAndDerivType * s_R) const;
 
     //! Compute the reference-state properties for all species.
     /*!
@@ -140,8 +155,7 @@ public:
      * @param s_R     Vector of Dimensionless entropies.
      *                (length m_kk).
      */
-    virtual void update(doublereal T, ValAndDerivType * cp_R,
-                        ValAndDerivType * h_RT, ValAndDerivType * s_R) const;
+    virtual void update(doublereal T, ValAndDerivType * cp_R, ValAndDerivType * h_RT, ValAndDerivType * s_R) const;
 
     //! Minimum temperature.
     /*!
@@ -153,7 +167,7 @@ public:
      *
      * @param k    Species index
      */
-    virtual doublereal minTemp(size_t k=npos) const;
+    virtual doublereal minTemp(size_t k = npos) const;
 
     //! Maximum temperature.
     /*!
@@ -165,7 +179,7 @@ public:
      *
      * @param k  Species Index
      */
-    virtual doublereal maxTemp(size_t k=npos) const;
+    virtual doublereal maxTemp(size_t k = npos) const;
 
     //! The reference-state pressure for species k.
     /*!
@@ -180,7 +194,7 @@ public:
      *
      * @param k Species Index
      */
-    virtual doublereal refPressure(size_t k=npos) const;
+    virtual doublereal refPressure(size_t k = npos) const;
 
     //! This utility function reports the type of parameterization
     //! used for the species with index number index.
@@ -201,10 +215,7 @@ public:
      * @param maxTemp   output - Maximum temperature
      * @param refPressure output - reference pressure (Pa).
      */
-    virtual void reportParams(size_t index, int& type,
-                              doublereal* const c,
-                              doublereal& minTemp,
-                              doublereal& maxTemp,
+    virtual void reportParams(size_t index, int& type, doublereal* const c, doublereal& minTemp, doublereal& maxTemp,
                               doublereal& refPressure) const;
 
 #ifdef H298MODIFY_CAPABILITY
@@ -239,16 +250,16 @@ protected:
      * species. These cases must be handled by the calling
      * routine.
      */
-    std::vector<SpeciesThermoInterpType<ValAndDerivType> * > m_sp;
+    std::vector<SpeciesThermoInterpType<ValAndDerivType> *> m_sp;
 
     //! Maximum value of the lowest temperature
-    doublereal                         m_tlow_max;
+    doublereal m_tlow_max;
 
     //! Minimum value of the highest temperature
-    doublereal                         m_thigh_min;
+    doublereal m_thigh_min;
 
     //! reference pressure (Pa)
-    doublereal                         m_p0;
+    doublereal m_p0;
 
     /**
      * Internal variable indicating the length of the
@@ -256,11 +267,12 @@ protected:
      */
     size_t m_kk;
 
-
     //! Make the class VPSSMgr a friend because we need to access
     //! the function provideSTIT()
     friend class VPSSMgr;
 
+    friend class GeneralSpeciesThermo<doublereal> ;
+    friend class GeneralSpeciesThermo<doubleFAD> ;
 
 };
 

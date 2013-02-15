@@ -35,6 +35,7 @@ GeneralSpeciesThermo<ValAndDerivType>::GeneralSpeciesThermo() :
     m_thigh_min = 1.0E30;
 }
 //=====================================================================================================================
+
 template<typename ValAndDerivType>
 GeneralSpeciesThermo<ValAndDerivType>::GeneralSpeciesThermo(const GeneralSpeciesThermo<ValAndDerivType> & b) :
         m_tlow_max(b.m_tlow_max),
@@ -50,12 +51,48 @@ GeneralSpeciesThermo<ValAndDerivType>::GeneralSpeciesThermo(const GeneralSpecies
         }
     }
 }
+
+template<typename ValAndDerivType>
+template<typename ValAndDerivType2>
+GeneralSpeciesThermo<ValAndDerivType>::GeneralSpeciesThermo(const GeneralSpeciesThermo<ValAndDerivType2> & b) :
+        m_tlow_max(b.m_tlow_max),
+        m_thigh_min(b.m_thigh_min),
+        m_p0(OneAtm),
+        m_kk(b.m_kk)
+{
+    m_sp.resize(m_kk, 0);
+    for (size_t k = 0; k < m_kk; k++) {
+        SpeciesThermoInterpType<ValAndDerivType2>* bk = b.m_sp[k];
+        if (bk) {
+            m_sp[k] = bk->duplMyselfAsSpeciesThermoInterpType();
+        }
+    }
+}
+
+template<>
+template<>
+GeneralSpeciesThermo<doublereal>::GeneralSpeciesThermo(const GeneralSpeciesThermo<doubleFAD> & b) :
+        m_tlow_max(b.m_tlow_max),
+        m_thigh_min(b.m_thigh_min),
+        m_p0(OneAtm),
+        m_kk(b.m_kk)
+{
+    m_sp.resize(m_kk, 0);
+    for (size_t k = 0; k < m_kk; k++) {
+        SpeciesThermoInterpType<doubleFAD>* bk = b.m_sp[k];
+        if (bk) {
+            m_sp[k] = bk->duplMyselfAsSpeciesThermoInterpTypeDouble();
+        }
+    }
+}
+
 //=====================================================================================================================
 template<typename ValAndDerivType>
+template<typename ValAndDerivType2>
 GeneralSpeciesThermo<ValAndDerivType>&
-GeneralSpeciesThermo<ValAndDerivType>::operator=(const GeneralSpeciesThermo<ValAndDerivType> & b)
+GeneralSpeciesThermo<ValAndDerivType>::operator=(const GeneralSpeciesThermo<ValAndDerivType2> & b)
 {
-    if (&b != this) {
+    if ((GeneralSpeciesThermo<ValAndDerivType> *)&b != this) {
         m_tlow_max = b.m_tlow_max;
         m_thigh_min = b.m_thigh_min;
 
@@ -69,7 +106,7 @@ GeneralSpeciesThermo<ValAndDerivType>::operator=(const GeneralSpeciesThermo<ValA
         m_kk = b.m_kk;
         m_sp.resize(m_kk, 0);
         for (size_t k = 0; k < m_kk; k++) {
-            SpeciesThermoInterpType<ValAndDerivType>* bk = b.m_sp[k];
+            SpeciesThermoInterpType<ValAndDerivType2>* bk = b.m_sp[k];
             if (bk) {
                 m_sp[k] = bk->duplMyselfAsSpeciesThermoInterpType();
             }
@@ -77,6 +114,64 @@ GeneralSpeciesThermo<ValAndDerivType>::operator=(const GeneralSpeciesThermo<ValA
     }
     return *this;
 }
+
+template<>
+template<>
+GeneralSpeciesThermo<doublereal>&
+GeneralSpeciesThermo<doublereal>::operator=(const GeneralSpeciesThermo<doublereal> & b)
+{
+    if (&b != this) {
+        m_tlow_max = b.m_tlow_max;
+        m_thigh_min = b.m_thigh_min;
+
+        for (size_t k = 0; k < m_kk; k++) {
+            SpeciesThermoInterpType<doublereal>* sp = m_sp[k];
+            if (sp) {
+                delete sp;
+                m_sp[k] = 0;
+            }
+        }
+        m_kk = b.m_kk;
+        m_sp.resize(m_kk, 0);
+        for (size_t k = 0; k < m_kk; k++) {
+            SpeciesThermoInterpType<doublereal>* bk = b.m_sp[k];
+            if (bk) {
+                m_sp[k] = bk->duplMyselfAsSpeciesThermoInterpType();
+            }
+        }
+    }
+    return *this;
+}
+
+template<>
+template<>
+GeneralSpeciesThermo<doublereal>&
+GeneralSpeciesThermo<doublereal>::operator=(const GeneralSpeciesThermo<doubleFAD> & b)
+{
+    if ((GeneralSpeciesThermo<doublereal> *)&b != this) {
+        m_tlow_max = b.m_tlow_max;
+        m_thigh_min = b.m_thigh_min;
+
+        for (size_t k = 0; k < m_kk; k++) {
+            SpeciesThermoInterpType<doublereal>* sp = m_sp[k];
+            if (sp) {
+                delete sp;
+                m_sp[k] = 0;
+            }
+        }
+        m_kk = b.m_kk;
+        m_sp.resize(m_kk, 0);
+        for (size_t k = 0; k < m_kk; k++) {
+            SpeciesThermoInterpType<doubleFAD>* bk = b.m_sp[k];
+            if (bk) {
+                m_sp[k] = bk->duplMyselfAsSpeciesThermoInterpTypeDouble();
+            }
+        }
+    }
+    return *this;
+}
+
+
 
 template<typename ValAndDerivType>
 GeneralSpeciesThermo<ValAndDerivType>::~GeneralSpeciesThermo()
@@ -382,9 +477,18 @@ void GeneralSpeciesThermo<ValAndDerivType>::modifyOneHf298(const size_t k, const
 // Explicit Instantiation Section
 
 template class GeneralSpeciesThermo<doublereal>;
+
+//template  GeneralSpeciesThermo<doublereal>::GeneralSpeciesThermo(const GeneralSpeciesThermo<doublereal> & b);
+template GeneralSpeciesThermo<doublereal>&  GeneralSpeciesThermo<doublereal>::operator=(const GeneralSpeciesThermo<doublereal> & b);
+
 #ifdef INDEPENDENT_VARIABLE_DERIVATIVES
 #ifdef HAS_SACADO
 template class GeneralSpeciesThermo<doubleFAD>;
+//template  GeneralSpeciesThermo<doubleFAD>::GeneralSpeciesThermo(const GeneralSpeciesThermo<doubleFAD> & b);
+template GeneralSpeciesThermo<doubleFAD>&  GeneralSpeciesThermo<doubleFAD>::operator=(const GeneralSpeciesThermo<doubleFAD> & b);
+
+template GeneralSpeciesThermo<doublereal>&  GeneralSpeciesThermo<doublereal>::operator=(const GeneralSpeciesThermo<doubleFAD> & b);
+
 #endif
 #endif
 

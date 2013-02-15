@@ -8,16 +8,13 @@
  *    Shomate polynomial expressions.
  */
 // Copyright 2001  California Institute of Technology
-
-
 #ifndef CT_SHOMATEPOLY1_H
 #define CT_SHOMATEPOLY1_H
 
 #include "cantera/thermo/SpeciesThermoInterpType.h"
+#include "cantera/base/ctexceptions.h"
 
-namespace Cantera
-{
-
+namespace Cantera {
 
 //! The Shomate polynomial parameterization for one temperature range
 //! for one species
@@ -58,15 +55,19 @@ namespace Cantera
  * @ingroup spthermo
  */
 template<typename ValAndDerivType>
-class ShomatePoly : public SpeciesThermoInterpType<ValAndDerivType>
+class ShomatePoly: public SpeciesThermoInterpType<ValAndDerivType>
 {
 
 public:
 
     //! Empty constructor
-    ShomatePoly()
-        : m_lowT(0.0), m_highT(0.0),
-          m_Pref(0.0), m_index(0) {}
+    ShomatePoly() :
+            m_lowT(0.0),
+            m_highT(0.0),
+            m_Pref(0.0),
+            m_index(0)
+    {
+    }
 
     //! Constructor used in templated instantiations
     /*!
@@ -88,12 +89,12 @@ public:
      *  See the class description for the polynomial representation of the
      *  thermo functions in terms of \f$ A, \dots, G \f$.
      */
-    ShomatePoly(size_t n, doublereal tlow, doublereal thigh, doublereal pref,
-                const doublereal* coeffs) :
-        m_lowT(tlow),
-        m_highT(thigh),
-        m_Pref(pref),
-        m_index(n) {
+    ShomatePoly(size_t n, doublereal tlow, doublereal thigh, doublereal pref, const doublereal* coeffs) :
+            m_lowT(tlow),
+            m_highT(thigh),
+            m_Pref(pref),
+            m_index(n)
+    {
         m_coeff.resize(7);
         std::copy(coeffs, coeffs + 7, m_coeff.begin());
     }
@@ -102,72 +103,96 @@ public:
     /*!
      * @param b object to be copied
      */
-    ShomatePoly(const ShomatePoly& b) :
-        m_lowT(b.m_lowT),
-        m_highT(b.m_highT),
-        m_Pref(b.m_Pref),
-        m_coeff(vector_fp(7)),
-        m_index(b.m_index) {
-        std::copy(b.m_coeff.begin(),
-                  b.m_coeff.begin() + 7,
-                  m_coeff.begin());
+    ShomatePoly(const ShomatePoly<ValAndDerivType>& b) :
+            m_lowT(b.m_lowT),
+            m_highT(b.m_highT),
+            m_Pref(b.m_Pref),
+            m_coeff(vector_fp(7)),
+            m_index(b.m_index)
+    {
+        std::copy(b.m_coeff.begin(), b.m_coeff.begin() + 7, m_coeff.begin());
+    }
+
+    template<typename ValAndDerivType2>
+    ShomatePoly(const ShomatePoly<ValAndDerivType2>& b) :
+            m_lowT(b.m_lowT),
+            m_highT(b.m_highT),
+            m_Pref(b.m_Pref),
+            m_coeff(vector_fp(7)),
+            m_index(b.m_index)
+    {
+        std::copy(b.m_coeff.begin(), b.m_coeff.begin() + 7, m_coeff.begin());
     }
 
     //! Assignment operator
     /*!
      * @param  b
      */
-    ShomatePoly& operator=(const ShomatePoly& b) {
+    ShomatePoly<ValAndDerivType>& operator=(const ShomatePoly<ValAndDerivType>& b)
+    {
         if (&b != this) {
-            m_lowT   = b.m_lowT;
-            m_highT  = b.m_highT;
-            m_Pref   = b.m_Pref;
-            m_index  = b.m_index;
+            m_lowT = b.m_lowT;
+            m_highT = b.m_highT;
+            m_Pref = b.m_Pref;
+            m_index = b.m_index;
             m_coeff.resize(7);
-            std::copy(b.m_coeff.begin(),
-                      b.m_coeff.begin() + 7,
-                      m_coeff.begin());
+            std::copy(b.m_coeff.begin(), b.m_coeff.begin() + 7, m_coeff.begin());
         }
         return *this;
     }
 
     //! Destructor
-    virtual ~ShomatePoly() {}
+    virtual ~ShomatePoly()
+    {
+    }
 
     //! Duplicator from the base class
     virtual SpeciesThermoInterpType<ValAndDerivType>*
-    duplMyselfAsSpeciesThermoInterpType() const {
+    duplMyselfAsSpeciesThermoInterpType() const
+    {
         ShomatePoly<ValAndDerivType>* sp = new ShomatePoly<ValAndDerivType>(*this);
         return (SpeciesThermoInterpType<ValAndDerivType>*) sp;
     }
 
+    //! Duplicator
+    virtual SpeciesThermoInterpType<doublereal>*
+    duplMyselfAsSpeciesThermoInterpTypeDouble() const
+    {
+        ShomatePoly<doublereal>* np = new ShomatePoly<doublereal>(*this);
+        return (SpeciesThermoInterpType<doublereal>*) np;
+    }
+
     //! Returns the minimum temperature that the thermo
     //! parameterization is valid
-    virtual doublereal minTemp() const {
+    virtual doublereal minTemp() const
+    {
         return m_lowT;
     }
 
     //! Returns the maximum temperature that the thermo
     //! parameterization is valid
-    virtual doublereal maxTemp() const {
+    virtual doublereal maxTemp() const
+    {
         return m_highT;
     }
 
     //! Returns the reference pressure (Pa)
-    virtual doublereal refPressure() const {
+    virtual doublereal refPressure() const
+    {
         return m_Pref;
     }
 
     //! Returns an integer representing the type of parameterization
-    virtual int reportType() const {
+    virtual int reportType() const
+    {
         return SHOMATE;
     }
 
     //! Returns an integer representing the species index
-    virtual size_t speciesIndex() const {
+    virtual size_t speciesIndex() const
+    {
         return m_index;
     }
-
 
     //! Update the properties for this species, given a temperature polynomial
     /*!
@@ -193,36 +218,8 @@ public:
      * @param s_R     Vector of Dimensionless entropies.
      *                (length m_kk).
      */
-    virtual void updateProperties(const doublereal* tt,
-                                  ValAndDerivType* cp_R, ValAndDerivType* h_RT,
-                                  ValAndDerivType* s_R) const {
-
-        doublereal A      = m_coeff[0];
-        doublereal Bt     = m_coeff[1]*tt[0];
-        doublereal Ct2    = m_coeff[2]*tt[1];
-        doublereal Dt3    = m_coeff[3]*tt[2];
-        doublereal Etm2   = m_coeff[4]*tt[3];
-        doublereal F      = m_coeff[5];
-        doublereal G      = m_coeff[6];
-
-        doublereal cp, h, s;
-        cp = A + Bt + Ct2 + Dt3 + Etm2;
-        h = tt[0]*(A + 0.5*Bt + OneThird*Ct2 + 0.25*Dt3 - Etm2) + F;
-        s = A*tt[4] + Bt + 0.5*Ct2 + OneThird*Dt3 - 0.5*Etm2 + G;
-
-        /*
-         *  Shomate polynomials parameterizes assuming units of
-         *  J/(gmol*K) for cp_r and s_R and kJ/(gmol) for h.
-         *  However, Cantera assumes default MKS units of
-         *  J/(kmol*K). This requires us to multiply cp and s
-         *  by 1.e3 and h by 1.e6, before we then nondimensionlize
-         *  the results by dividing by (GasConstant * T),
-         *  where GasConstant has units of J/(kmol * K).
-         */
-        cp_R[m_index] = 1.e3 * cp * tt[5];
-        h_RT[m_index] = 1.e6 * h  * tt[6];
-        s_R[m_index]  = 1.e3 * s  * tt[5];
-    }
+    virtual void updateProperties(const ValAndDerivType* tt, ValAndDerivType* cp_R, ValAndDerivType* h_RT,
+                                  ValAndDerivType* s_R) const;
 
     //! Compute the reference-state property of one species
     /*!
@@ -240,18 +237,18 @@ public:
      * @param s_R     Vector of Dimensionless entropies.
      *                (length m_kk).
      */
-    virtual void updatePropertiesTemp(const doublereal temp,
-                                      ValAndDerivType* cp_R, ValAndDerivType* h_RT,
-                                      ValAndDerivType* s_R) const {
-        double tPoly[7];
-        doublereal tt = 1.e-3*temp;
+    virtual void updatePropertiesTemp(const doublereal temp, ValAndDerivType* cp_R, ValAndDerivType* h_RT,
+                                      ValAndDerivType* s_R) const
+    {
+        ValAndDerivType tPoly[7];
+        doublereal tt = 1.e-3 * temp;
         tPoly[0] = tt;
         tPoly[1] = tt * tt;
         tPoly[2] = tPoly[1] * tt;
-        tPoly[3] = 1.0/tPoly[1];
+        tPoly[3] = 1.0 / tPoly[1];
         tPoly[4] = std::log(tt);
-        tPoly[5] = 1.0/GasConstant;
-        tPoly[6] = 1.0/(GasConstant * temp);
+        tPoly[5] = 1.0 / GasConstant;
+        tPoly[6] = 1.0 / (GasConstant * temp);
         updateProperties(tPoly, cp_R, h_RT, s_R);
     }
 
@@ -269,10 +266,9 @@ public:
      * @param coeffs    Vector of coefficients used to set the
      *                  parameters for the standard state.
      */
-    virtual void reportParameters(size_t& n, int& type,
-                                  doublereal& tlow, doublereal& thigh,
-                                  doublereal& pref,
-                                  doublereal* const coeffs) const {
+    virtual void reportParameters(size_t& n, int& type, doublereal& tlow, doublereal& thigh, doublereal& pref,
+                                  doublereal* const coeffs) const
+    {
         n = m_index;
         type = SHOMATE;
         tlow = m_lowT;
@@ -288,10 +284,10 @@ public:
      * @param coeffs   Vector of coefficients used to set the
      *                 parameters for the standard state.
      */
-    virtual void modifyParameters(doublereal* coeffs) {
+    virtual void modifyParameters(doublereal* coeffs)
+    {
         if (m_coeff.size() != 7) {
-            throw CanteraError("modifyParameters",
-                               "modifying something that hasn't been initialized");
+            throw Cantera::CanteraError("modifyParameters", "modifying something that hasn't been initialized");
         }
         std::copy(coeffs, coeffs + 7, m_coeff.begin());
     }
@@ -308,25 +304,26 @@ public:
      *   @return     Returns the current value of the Heat of Formation at 298K and 1 bar for
      *               species m_index.
      */
-    virtual doublereal reportHf298(doublereal* const h298 = 0) const {
+    virtual doublereal reportHf298(doublereal* const h298 = 0) const
+    {
 
         double tPoly[4];
-        doublereal tt = 1.e-3*298.15;
+        doublereal tt = 1.e-3 * 298.15;
         tPoly[0] = tt;
         tPoly[1] = tt * tt;
         tPoly[2] = tPoly[1] * tt;
-        tPoly[3] = 1.0/tPoly[1];
+        tPoly[3] = 1.0 / tPoly[1];
 
-        doublereal A      = m_coeff[0];
-        doublereal Bt     = m_coeff[1]*tPoly[0];
-        doublereal Ct2    = m_coeff[2]*tPoly[1];
-        doublereal Dt3    = m_coeff[3]*tPoly[2];
-        doublereal Etm2   = m_coeff[4]*tPoly[3];
-        doublereal F      = m_coeff[5];
+        doublereal A = m_coeff[0];
+        doublereal Bt = m_coeff[1] * tPoly[0];
+        doublereal Ct2 = m_coeff[2] * tPoly[1];
+        doublereal Dt3 = m_coeff[3] * tPoly[2];
+        doublereal Etm2 = m_coeff[4] * tPoly[3];
+        doublereal F = m_coeff[5];
 
-        doublereal h = tPoly[0]*(A + 0.5*Bt + OneThird*Ct2 + 0.25*Dt3 - Etm2) + F;
+        doublereal h = tPoly[0] * (A + 0.5 * Bt + OneThird * Ct2 + 0.25 * Dt3 - Etm2) + F;
 
-        double hh =  1.e6 * h;
+        double hh = 1.e6 * h;
         if (h298) {
             h298[m_index] = 1.e6 * h;
         }
@@ -341,7 +338,8 @@ public:
      *   @param  k           Species k
      *   @param  Hf298New    Specify the new value of the Heat of Formation at 298K and 1 bar
      */
-    virtual void modifyOneHf298(const size_t k, const doublereal Hf298New) {
+    virtual void modifyOneHf298(const size_t k, const doublereal Hf298New)
+    {
         doublereal hnow = reportHf298();
         doublereal delH = Hf298New - hnow;
         m_coeff[5] += delH / 1.0E6;
@@ -361,6 +359,8 @@ protected:
     //! Species Index
     size_t m_index;
 
+    friend class ShomatePoly<doublereal> ;
+    friend class ShomatePoly<doubleFAD> ;
 private:
 
 };
@@ -409,19 +409,20 @@ private:
  * @ingroup spthermo
  */
 template<typename ValAndDerivType>
-class ShomatePoly2 : public SpeciesThermoInterpType<ValAndDerivType>
+class ShomatePoly2: public SpeciesThermoInterpType<ValAndDerivType>
 {
 public:
 
     //! Empty constructor
-    ShomatePoly2()
-        : m_lowT(0.0),
-          m_midT(0.0),
-          m_highT(0.0),
-          m_Pref(0.0),
-          msp_low(0),
-          msp_high(0),
-          m_index(0) {
+    ShomatePoly2() :
+            m_lowT(0.0),
+            m_midT(0.0),
+            m_highT(0.0),
+            m_Pref(0.0),
+            msp_low(0),
+            msp_high(0),
+            m_index(0)
+    {
         m_coeff.resize(15);
     }
 
@@ -438,20 +439,20 @@ public:
      *                     coefficients are the low temperature range Shomate coefficients.
      *                     The last 7 are the high temperature range Shomate coefficients.
      */
-    ShomatePoly2(size_t n, doublereal tlow, doublereal thigh, doublereal pref,
-                 const doublereal* coeffs) :
-        m_lowT(tlow),
-        m_midT(0.0),
-        m_highT(thigh),
-        m_Pref(pref),
-        msp_low(0),
-        msp_high(0),
-        m_index(n)  {
+    ShomatePoly2(size_t n, doublereal tlow, doublereal thigh, doublereal pref, const doublereal* coeffs) :
+            m_lowT(tlow),
+            m_midT(0.0),
+            m_highT(thigh),
+            m_Pref(pref),
+            msp_low(0),
+            msp_high(0),
+            m_index(n)
+    {
         m_coeff.resize(15);
         std::copy(coeffs, coeffs + 15, m_coeff.begin());
         m_midT = coeffs[0];
-        msp_low  = new ShomatePoly<ValAndDerivType>(n, tlow, m_midT, pref, coeffs+1);
-        msp_high = new ShomatePoly<ValAndDerivType>(n, m_midT, thigh, pref, coeffs+8);
+        msp_low = new ShomatePoly<ValAndDerivType>(n, tlow, m_midT, pref, coeffs + 1);
+        msp_high = new ShomatePoly<ValAndDerivType>(n, m_midT, thigh, pref, coeffs + 8);
     }
 
     //! Copy constructor
@@ -459,89 +460,117 @@ public:
      * @param b object to be copied.
      */
     ShomatePoly2(const ShomatePoly2<ValAndDerivType>& b) :
-        m_lowT(b.m_lowT),
-        m_midT(b.m_midT),
-        m_highT(b.m_highT),
-        m_Pref(b.m_Pref),
-        msp_low(0),
-        msp_high(0),
-        m_coeff(vector_fp(15)),
-        m_index(b.m_index) {
-        std::copy(b.m_coeff.begin(),
-                  b.m_coeff.begin() + 15,
-                  m_coeff.begin());
-        msp_low  = new ShomatePoly<ValAndDerivType>(m_index, m_lowT, m_midT,
-                                   m_Pref, &m_coeff[1]);
-        msp_high = new ShomatePoly<ValAndDerivType>(m_index, m_midT, m_highT,
-                                   m_Pref, &m_coeff[8]);
+            m_lowT(b.m_lowT),
+            m_midT(b.m_midT),
+            m_highT(b.m_highT),
+            m_Pref(b.m_Pref),
+            msp_low(0),
+            msp_high(0),
+            m_coeff(vector_fp(15)),
+            m_index(b.m_index)
+    {
+        std::copy(b.m_coeff.begin(), b.m_coeff.begin() + 15, m_coeff.begin());
+        msp_low = new ShomatePoly<ValAndDerivType>(m_index, m_lowT, m_midT, m_Pref, &m_coeff[1]);
+        msp_high = new ShomatePoly<ValAndDerivType>(m_index, m_midT, m_highT, m_Pref, &m_coeff[8]);
+    }
+
+    //! Copy constructor
+    /*!
+     * @param b object to be copied.
+     */
+    template<typename ValAndDerivType2>
+    ShomatePoly2(const ShomatePoly2<ValAndDerivType2>& b) :
+            m_lowT(b.m_lowT),
+            m_midT(b.m_midT),
+            m_highT(b.m_highT),
+            m_Pref(b.m_Pref),
+            msp_low(0),
+            msp_high(0),
+            m_coeff(vector_fp(15)),
+            m_index(b.m_index)
+    {
+        std::copy(b.m_coeff.begin(), b.m_coeff.begin() + 15, m_coeff.begin());
+        msp_low = new ShomatePoly<ValAndDerivType>(m_index, m_lowT, m_midT, m_Pref, &m_coeff[1]);
+        msp_high = new ShomatePoly<ValAndDerivType>(m_index, m_midT, m_highT, m_Pref, &m_coeff[8]);
     }
 
     //! Assignment operator
     /*!
      * @param b object to be copied.
      */
-    ShomatePoly2& operator=(const ShomatePoly2<ValAndDerivType>& b) {
+    ShomatePoly2& operator=(const ShomatePoly2<ValAndDerivType>& b)
+    {
         if (&b != this) {
-            m_lowT   = b.m_lowT;
-            m_midT   = b.m_midT;
-            m_highT  = b.m_highT;
-            m_Pref   = b.m_Pref;
-            m_index  = b.m_index;
-            std::copy(b.m_coeff.begin(),
-                      b.m_coeff.begin() + 15,
-                      m_coeff.begin());
+            m_lowT = b.m_lowT;
+            m_midT = b.m_midT;
+            m_highT = b.m_highT;
+            m_Pref = b.m_Pref;
+            m_index = b.m_index;
+            std::copy(b.m_coeff.begin(), b.m_coeff.begin() + 15, m_coeff.begin());
             if (msp_low) {
                 delete msp_low;
             }
             if (msp_high) {
                 delete msp_high;
             }
-            msp_low  = new ShomatePoly<ValAndDerivType>(m_index, m_lowT, m_midT,
-                                       m_Pref, &m_coeff[1]);
-            msp_high = new ShomatePoly<ValAndDerivType>(m_index, m_midT, m_highT,
-                                       m_Pref, &m_coeff[8]);
+            msp_low = new ShomatePoly<ValAndDerivType>(m_index, m_lowT, m_midT, m_Pref, &m_coeff[1]);
+            msp_high = new ShomatePoly<ValAndDerivType>(m_index, m_midT, m_highT, m_Pref, &m_coeff[8]);
         }
         return *this;
     }
 
     //! Destructor
-    virtual ~ShomatePoly2() {
+    virtual ~ShomatePoly2()
+    {
         delete msp_low;
         delete msp_high;
     }
 
-
     //! duplicator
     virtual SpeciesThermoInterpType<ValAndDerivType>*
-    duplMyselfAsSpeciesThermoInterpType() const {
+    duplMyselfAsSpeciesThermoInterpType() const
+    {
         ShomatePoly2<ValAndDerivType>* sp = new ShomatePoly2<ValAndDerivType>(*this);
         return (SpeciesThermoInterpType<ValAndDerivType>*) sp;
     }
 
+    //! Duplicator
+    virtual SpeciesThermoInterpType<doublereal>*
+    duplMyselfAsSpeciesThermoInterpTypeDouble() const
+    {
+        ShomatePoly2<doublereal>* np = new ShomatePoly2<doublereal>(*this);
+        return (SpeciesThermoInterpType<doublereal>*) np;
+    }
+
     //! Returns the minimum temperature that the thermo
     //! parameterization is valid
-    virtual doublereal minTemp() const {
+    virtual doublereal minTemp() const
+    {
         return m_lowT;
     }
 
     //! Returns the maximum temperature that the thermo
     //! parameterization is valid
-    virtual doublereal maxTemp() const {
+    virtual doublereal maxTemp() const
+    {
         return m_highT;
     }
 
     //! Returns the reference pressure (Pa)
-    virtual doublereal refPressure() const {
+    virtual doublereal refPressure() const
+    {
         return m_Pref;
     }
 
     //! Returns an integer representing the type of parameterization
-    virtual int reportType() const {
+    virtual int reportType() const
+    {
         return SHOMATE2;
     }
 
     //! Returns an integer representing the species index
-    virtual size_t speciesIndex() const {
+    virtual size_t speciesIndex() const
+    {
         return m_index;
     }
 
@@ -568,17 +597,8 @@ public:
      * @param s_R     Vector of Dimensionless entropies.
      *                (length m_kk).
      */
-    virtual void updateProperties(const doublereal* tt,
-                                  ValAndDerivType* cp_R, ValAndDerivType* h_RT,
-                                  ValAndDerivType* s_R) const {
-        double T = 1000 * tt[0];
-        if (T <= m_midT) {
-            msp_low->updateProperties(tt, cp_R, h_RT, s_R);
-        } else {
-            msp_high->updateProperties(tt, cp_R, h_RT, s_R);
-        }
-
-    }
+    virtual void updateProperties(const ValAndDerivType* tt, ValAndDerivType* cp_R, ValAndDerivType* h_RT,
+                                  ValAndDerivType* s_R) const;
 
     //! Compute the reference-state property of one species
     /*!
@@ -596,10 +616,9 @@ public:
      * @param s_R     Vector of Dimensionless entropies.
      *                (length m_kk).
      */
-    virtual void updatePropertiesTemp(const doublereal temp,
-                                      ValAndDerivType* cp_R,
-                                      ValAndDerivType* h_RT,
-                                      ValAndDerivType* s_R) const {
+    virtual void updatePropertiesTemp(const doublereal temp, ValAndDerivType* cp_R, ValAndDerivType* h_RT,
+                                      ValAndDerivType* s_R) const
+    {
         if (temp <= m_midT) {
             msp_low->updatePropertiesTemp(temp, cp_R, h_RT, s_R);
         } else {
@@ -621,10 +640,9 @@ public:
      * @param coeffs    Vector of coefficients used to set the
      *                  parameters for the standard state.
      */
-    virtual void reportParameters(size_t& n, int& type,
-                                  doublereal& tlow, doublereal& thigh,
-                                  doublereal& pref,
-                                  doublereal* const coeffs) const {
+    virtual void reportParameters(size_t& n, int& type, doublereal& tlow, doublereal& thigh, doublereal& pref,
+                                  doublereal* const coeffs) const
+    {
         n = m_index;
         type = SHOMATE2;
         tlow = m_lowT;
@@ -643,18 +661,20 @@ public:
      * @param coeffs   Vector of coefficients used to set the
      *                 parameters for the standard state.
      */
-    virtual void modifyParameters(doublereal* coeffs) {
+    virtual void modifyParameters(doublereal* coeffs)
+    {
         delete msp_low;
         delete msp_high;
         std::copy(coeffs, coeffs + 15, m_coeff.begin());
         m_midT = coeffs[0];
-        msp_low  = new ShomatePoly<ValAndDerivType>(m_index, m_lowT, m_midT,  m_Pref, coeffs+1);
-        msp_high = new ShomatePoly<ValAndDerivType>(m_index, m_midT, m_highT, m_Pref, coeffs+8);
+        msp_low = new ShomatePoly<ValAndDerivType>(m_index, m_lowT, m_midT, m_Pref, coeffs + 1);
+        msp_high = new ShomatePoly<ValAndDerivType>(m_index, m_midT, m_highT, m_Pref, coeffs + 8);
     }
 
 #ifdef H298MODIFY_CAPABILITY
 
-    virtual doublereal reportHf298(doublereal* const h298 = 0) const {
+    virtual doublereal reportHf298(doublereal* const h298 = 0) const
+    {
         doublereal h;
         if (298.15 <= m_midT) {
             h = msp_low->reportHf298(h298);
@@ -667,7 +687,8 @@ public:
         return h;
     }
 
-    virtual void modifyOneHf298(const size_t& k, const doublereal Hf298New) {
+    virtual void modifyOneHf298(const size_t& k, const doublereal Hf298New)
+    {
         if (k != m_index) {
             return;
         }
@@ -677,7 +698,7 @@ public:
         double h = msp_low->reportHf298(0);
         double hnew = h + delH;
         msp_low->modifyOneHf298(k, hnew);
-        h  = msp_high->reportHf298(0);
+        h = msp_high->reportHf298(0);
         hnew = h + delH;
         msp_high->modifyOneHf298(k, hnew);
     }
@@ -701,7 +722,11 @@ protected:
     vector_fp m_coeff;
     //! Species index
     size_t m_index;
+
+    friend class ShomatePoly2<doublereal> ;
+    friend class ShomatePoly2<doubleFAD> ;
 };
+
 }
 
 #endif
