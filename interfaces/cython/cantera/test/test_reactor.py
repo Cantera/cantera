@@ -473,6 +473,7 @@ class TestFlowReactor(utilities.CanteraTest):
         net.add_reactor(r)
         net.atol = 1e-18
         net.rtol = 1e-9
+        net.max_err_test_fails = 10
 
         t = 0
         self.assertNear(r.speed, 10 / r.density)
