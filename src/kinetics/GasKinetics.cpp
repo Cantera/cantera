@@ -232,7 +232,8 @@ void GasKinetics::updateKc()
     doublereal rrt = 1.0/(GasConstant * thermo().temperature());
     for (size_t i = 0; i < m_nrev; i++) {
         size_t irxn = m_revindex[i];
-        m_rkcn[irxn] = exp(m_rkcn[irxn]*rrt - m_dn[irxn]*m_logStandConc);
+        m_rkcn[irxn] = std::min(exp(m_rkcn[irxn]*rrt - m_dn[irxn]*m_logStandConc),
+                                BigNumber);
     }
 
     for (size_t i = 0; i != m_nirrev; ++i) {
