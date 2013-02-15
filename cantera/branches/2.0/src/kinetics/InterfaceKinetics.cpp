@@ -403,10 +403,10 @@ void InterfaceKinetics::updateKc()
 void InterfaceKinetics::checkPartialEquil()
 {
     vector_fp dmu(nTotalSpecies(), 0.0);
-    vector_fp rmu(nReactions(), 0.0);
-    vector_fp frop(nReactions(), 0.0);
-    vector_fp rrop(nReactions(), 0.0);
-    vector_fp netrop(nReactions(), 0.0);
+    vector_fp frop(std::max<size_t>(nReactions(), 1), 0.0);
+    vector_fp rrop(std::max<size_t>(nReactions(), 1), 0.0);
+    vector_fp netrop(std::max<size_t>(nReactions(), 1), 0.0);
+    vector_fp rmu(std::max<size_t>(nReactions(), 1), 0.0);
     if (m_nrev > 0) {
         doublereal rt = GasConstant*thermo(0).temperature();
         cout << "T = " << thermo(0).temperature() << " " << rt << endl;
@@ -1332,7 +1332,8 @@ void InterfaceKinetics::init()
 void InterfaceKinetics::finalize()
 {
     Kinetics::finalize();
-    m_rwork.resize(nReactions());
+    size_t safe_reaction_size = std::max<size_t>(nReactions(), 1);
+    m_rwork.resize(safe_reaction_size);
     size_t ks = reactionPhaseIndex();
     if (ks == npos) throw CanteraError("InterfaceKinetics::finalize",
                                            "no surface phase is present.");
@@ -1343,11 +1344,17 @@ void InterfaceKinetics::finalize()
                            +int2str(m_surf->nDim()));
 
     m_StandardConc.resize(m_kk, 0.0);
-    m_deltaG0.resize(m_ii, 0.0);
-    m_ProdStanConcReac.resize(m_ii, 0.0);
+    m_deltaG0.resize(safe_reaction_size, 0.0);
+    m_ProdStanConcReac.resize(safe_reaction_size, 0.0);
 
     if (m_thermo.size() != m_phaseExists.size()) {
         throw CanteraError("InterfaceKinetics::finalize", "internal error");
+    }
+
+    // Guarantee that these arrays can be converted to double* even in the
+    // special case where there are no reactions defined.
+    if (!m_ii) {
+        m_perturb.resize(1, 1.0);
     }
 
     m_finalized = true;
@@ -1485,7 +1492,7 @@ void InterfaceKinetics::setPhaseStability(const int iphase, const int isStable)
 //================================================================================================
 void EdgeKinetics::finalize()
 {
-    m_rwork.resize(nReactions());
+    m_rwork.resize(std::max<size_t>(nReactions(), 1));
     size_t ks = reactionPhaseIndex();
     if (ks == npos) throw CanteraError("EdgeKinetics::finalize",
                                            "no edge phase is present.");
@@ -1494,6 +1501,13 @@ void EdgeKinetics::finalize()
         throw CanteraError("EdgeKinetics::finalize",
                            "expected interface dimension = 1, but got dimension = "
                            +int2str(m_surf->nDim()));
+
+    // Guarantee that these arrays can be converted to double* even in the
+    // special case where there are no reactions defined.
+    if (!m_ii) {
+        m_perturb.resize(1, 1.0);
+    }
+
     m_finalized = true;
 }
 //================================================================================================
