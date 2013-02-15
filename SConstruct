@@ -555,6 +555,11 @@ config_options = [
         the -static linking flag.""",
         True),
     BoolVariable(
+        'install_gtest',
+        """Determines whether to install the Google Test library and headers
+           alongside Cantera's libraries. Not recommended.""",
+        False),
+    BoolVariable(
         'single_library',
         """If set, include code from the 'ext' folder in the cantera library
         rather than creating separate libraries for ctlapack, ctf2c, etc.""",
