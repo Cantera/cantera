@@ -234,7 +234,7 @@ class TestDiffusionFlame(utilities.CanteraTest):
     def create_sim(self, p, fuel='H2:1.0, AR:1.0', T_fuel=300, mdot_fuel=0.24,
                    oxidizer='O2:0.2, AR:0.8', T_ox=300, mdot_ox=0.72):
 
-        initial_grid = initial_grid = np.linspace(0, 0.02, 6)  # m
+        initial_grid = np.linspace(0, 0.02, 6)  # m
         tol_ss = [1.0e-5, 1.0e-12]  # [rtol, atol] for steady-state problem
         tol_ts = [5.0e-4, 1.0e-9]  # [rtol, atol] for time stepping
 
