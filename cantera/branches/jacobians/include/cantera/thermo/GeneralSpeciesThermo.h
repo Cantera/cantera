@@ -70,11 +70,7 @@ public:
      *
      *  @return Duplicated <double> version of the SpeciesThermo
      */
-    virtual SpeciesThermo<doublereal>* duplMyselfAsSpeciesThermoDouble() const
-    {
-        GeneralSpeciesThermo<doublereal>* nt = new GeneralSpeciesThermo<doublereal>(*this);
-        return (SpeciesThermo<doublereal> *) nt;
-    }
+    virtual SpeciesThermo<doublereal>* duplMyselfAsSpeciesThermoDouble() const;
 
     //! Install a new species thermodynamic property
     //! parameterization for one species.
@@ -271,8 +267,10 @@ protected:
     //! the function provideSTIT()
     friend class VPSSMgr;
 
+
     friend class GeneralSpeciesThermo<doublereal> ;
     friend class GeneralSpeciesThermo<doubleFAD> ;
+
 
 };
 

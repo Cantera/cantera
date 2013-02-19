@@ -11,6 +11,7 @@
 
 #include "Phase.h"
 #include "SpeciesThermo.h"
+#include "ThermoDerivInfo.h"
 
 namespace Cantera {
 
@@ -98,7 +99,7 @@ class XML_Node;
  * @ingroup phases
  */
 template<typename ValAndDerivType = double>
-class ThermoPhase: public Phase<ValAndDerivType>
+class ThermoPhase: public Phase<ValAndDerivType>, public ThermoDerivInfo<ValAndDerivType>
 {
 
 public:
@@ -118,7 +119,14 @@ public:
     /*!
      * @param right  ThermoPhase to be copied
      */
-    ThermoPhase(const ThermoPhase& right);
+    ThermoPhase(const ThermoPhase<ValAndDerivType>& right);
+
+    //!Copy Constructor for the %ThermoPhase object.
+    /*!
+     * @param right  ThermoPhase to be copied
+     */
+    template<typename ValAndDerivType2>
+    ThermoPhase(const ThermoPhase<ValAndDerivType2>& right);
 
     //! Assignment operator
     /*!
@@ -127,7 +135,17 @@ public:
      * @param right    Reference to %ThermoPhase object to be copied into the
      *                 current one.
      */
-    ThermoPhase& operator=(const ThermoPhase& right);
+    ThermoPhase<ValAndDerivType>& operator=(const ThermoPhase<ValAndDerivType>& right);
+
+    //! Assignment operator
+    /*!
+     *  This is NOT a virtual function.
+     *
+     * @param right    Reference to %ThermoPhase object to be copied into the
+     *                 current one.
+     */
+    template<typename ValAndDerivType2>
+    ThermoPhase<ValAndDerivType>& operator=(const ThermoPhase<ValAndDerivType2>& right);
 
     //! Duplication routine for objects which inherit from
     //!  ThermoPhase.
@@ -140,6 +158,8 @@ public:
      *  constructor.
      */
     virtual ThermoPhase* duplMyselfAsThermoPhase() const;
+
+    virtual ThermoPhase<doublereal>* duplMyselfAsThermoPhaseDouble() const;
 
     /**
      *
@@ -197,7 +217,7 @@ public:
      */
     doublereal Hf298SS(const int k) const
     {
-        return ((this->m_spthermo)->reportOneHf298(k));
+        return ( (this->m_spthermo)->reportOneHf298(k));
     }
 
     //! Modify the value of the 298 K Heat of Formation of one species in the phase (J kmol-1)
@@ -1750,6 +1770,14 @@ private:
      */
     doublereal err(const std::string& msg) const;
 
+    //! Make sure that different versions of the Class are friends with one another.
+    /*!
+     *
+     *   Apparently it's ok to be friends with yourself or this wouldn't work.
+     */
+    friend class ThermoPhase<doublereal> ;
+    friend class ThermoPhase<doubleFAD> ;
+
 };
 
 //! typedef for the ThermoPhase class without any derivative information
@@ -1765,6 +1793,7 @@ typedef ThermoPhase<double> thermo_t_double;
 #ifdef INDEPENDENT_VARIABLE_DERIVATIVES
 #ifdef HAS_SACADO
 typedef ThermoPhase<doubleFAD> thermo_t_deriv;
+
 #endif
 #endif
 

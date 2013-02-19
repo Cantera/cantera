@@ -28,34 +28,34 @@ std::string VarType::VarMainName(const VAR_TYPE variableType)
 {
     switch (variableType) {
 
-    case TEMPERATURE:
+    case VARIABLE_TYPE_TEMPERATURE:
         return string("Temperature");
         break;
-    case PRESSURE:
+    case VARIABLE_TYPE_PRESSURE:
         return string("Pres_axial");
         break;
-    case PRESSUREGRADIENT_RADIAL:
+    case VARIABLE_TYPE_PRESSUREGRADIENT_RADIAL:
         return string("PresGrad_radial");
         break;
-    case MOLEFRACTION_SPECIES:
+    case VARIABLE_TYPE_MOLEFRACTION_SPECIES:
         return string("MF_sp");
         break;
-    case MASSFRACTION_SPECIES:
+    case VARIABLE_TYPE_MASSFRACTION_SPECIES:
         return string("WF_sp");
         break;
-    case VOLUMEFRACTION_SPECIES:
+    case VARIABLE_TYPE_VOLUMEFRACTION_SPECIES:
         return string("VF_sp");
         break;
-    case VOLUMEFRACTION_PHASE:
+    case VARIABLE_TYPE_VOLUMEFRACTION_PHASE:
         return string("VF_ph");
         break;
-    case CONCENTRATION_SPECIES:
+    case VARIABLE_TYPE_CONCENTRATION_SPECIES:
         return string("Conc_sp");
         break;
-    case VOLTAGE:
+    case VARIABLE_TYPE_VOLTAGE:
         return string("Volt");
         break;
-    case SURFACETENSION_PHASE:
+    case VARIABLE_TYPE_SURFACETENSION_PHASE:
         return string("SurfTn_ph");
         break;
     default:

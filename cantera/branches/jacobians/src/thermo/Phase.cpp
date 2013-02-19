@@ -8,8 +8,11 @@
 #include "cantera/base/vec_functions.h"
 #include "cantera/base/ctexceptions.h"
 #include "cantera/base/stringUtils.h"
+#include "cantera/base/ct_defs.h"
 
 using namespace std;
+
+
 
 namespace Cantera {
 template<typename ValAndDerivType>
@@ -49,7 +52,7 @@ Phase<ValAndDerivType>::Phase(const Phase& right) :
     // Use the assignment operator to do the actual copying
     *this = operator=(right);
 }
-
+//===================================================================================================================
 template<typename ValAndDerivType>
 Phase<ValAndDerivType>& Phase<ValAndDerivType>::operator=(const Phase<ValAndDerivType>& right)
 {
@@ -103,6 +106,119 @@ Phase<ValAndDerivType>& Phase<ValAndDerivType>::operator=(const Phase<ValAndDeri
     return *this;
 }
 
+//===================================================================================================================
+template<typename ValAndDerivType>
+template<typename ValAndDerivType2>
+Phase<ValAndDerivType>& Phase<ValAndDerivType>::operator=(const Phase<ValAndDerivType2>& right)
+{
+    // Check for self assignment.
+    if (this == (Phase<ValAndDerivType> *)&right) {
+        return *this;
+    }
+
+    // Handle our own data
+    m_kk = right.m_kk;
+    m_ndim = right.m_ndim;
+    m_temp = right.m_temp;
+    m_dens = right.m_dens;
+    m_mmw = right.m_mmw;
+    m_ym = right.m_ym;
+    m_y = right.m_y;
+    m_molwts = right.m_molwts;
+    m_rmolwts = right.m_rmolwts;
+    m_stateNum = -1;
+
+    m_speciesFrozen = right.m_speciesFrozen;
+    m_speciesNames = right.m_speciesNames;
+    m_speciesComp = right.m_speciesComp;
+    m_speciesCharge = right.m_speciesCharge;
+    m_speciesSize = right.m_speciesSize;
+
+    m_mm = right.m_mm;
+    m_elementsFrozen = right.m_elementsFrozen;
+    m_atomicWeights = right.m_atomicWeights;
+    m_atomicNumbers = right.m_atomicNumbers;
+    m_elementNames = right.m_elementNames;
+    m_entropy298 = right.m_entropy298;
+    m_elem_type = right.m_elem_type;
+    /*
+     * This is a little complicated. -> Because we delete m_xml
+     * in the destructor, we own m_xml completely, and we need
+     * to have our own individual copies of the XML data tree
+     * in each object
+     */
+    if (m_xml) {
+        delete m_xml;
+        m_xml = 0;
+    }
+    if (right.m_xml) {
+        m_xml = new XML_Node();
+        (right.m_xml)->copy(m_xml);
+    }
+    m_id = right.m_id;
+    m_name = right.m_name;
+
+    return *this;
+}
+
+
+template<>
+template<>
+Phase<doublereal>& Phase<doublereal>::operator=(const Phase<doubleFAD>& right)
+{
+    // Check for self assignment.
+    if (this == (Phase<doublereal> *)&right) {
+        return *this;
+    }
+
+    // Handle our own data
+    m_kk = right.m_kk;
+    m_ndim = right.m_ndim;
+    m_temp = right.m_temp;
+    m_dens = right.m_dens.val();
+    m_mmw = right.m_mmw.val();
+
+    assignVectorFadToDouble(m_ym, right.m_ym);
+    assignVectorFadToDouble(m_y, right.m_y);
+
+
+    m_molwts = right.m_molwts;
+    m_rmolwts = right.m_rmolwts;
+    m_stateNum = -1;
+
+    m_speciesFrozen = right.m_speciesFrozen;
+    m_speciesNames = right.m_speciesNames;
+    m_speciesComp = right.m_speciesComp;
+    m_speciesCharge = right.m_speciesCharge;
+    m_speciesSize = right.m_speciesSize;
+
+    m_mm = right.m_mm;
+    m_elementsFrozen = right.m_elementsFrozen;
+    m_atomicWeights = right.m_atomicWeights;
+    m_atomicNumbers = right.m_atomicNumbers;
+    m_elementNames = right.m_elementNames;
+    m_entropy298 = right.m_entropy298;
+    m_elem_type = right.m_elem_type;
+    /*
+     * This is a little complicated. -> Because we delete m_xml
+     * in the destructor, we own m_xml completely, and we need
+     * to have our own individual copies of the XML data tree
+     * in each object
+     */
+    if (m_xml) {
+        delete m_xml;
+        m_xml = 0;
+    }
+    if (right.m_xml) {
+        m_xml = new XML_Node();
+        (right.m_xml)->copy(m_xml);
+    }
+    m_id = right.m_id;
+    m_name = right.m_name;
+
+    return *this;
+}
+//===================================================================================================================
 // Destructor.
 template<typename ValAndDerivType>
 Phase<ValAndDerivType>::~Phase()
@@ -1142,6 +1258,7 @@ template class Phase<doublereal> ;
 #ifdef INDEPENDENT_VARIABLE_DERIVATIVES
 #ifdef HAS_SACADO
 template class Phase<doubleFAD> ;
+template Phase<doublereal>& Phase<doublereal>::operator=(const Phase<doubleFAD>& right);
 #endif
 #endif
 

@@ -16,6 +16,7 @@ namespace Cantera {
 // Default empty Constructor
 template<typename ValAndDerivType>
 IdealGasPhase<ValAndDerivType>::IdealGasPhase() :
+        ThermoPhase<ValAndDerivType>(),
         m_p0(-1.0),
         m_tlast(0.0),
         m_logc0(0.0)
@@ -24,18 +25,20 @@ IdealGasPhase<ValAndDerivType>::IdealGasPhase() :
 
 template<typename ValAndDerivType>
 IdealGasPhase<ValAndDerivType>::IdealGasPhase(const std::string& inputFile, const std::string& id) :
-    m_p0(-1.0),
-    m_tlast(0.0),
-    m_logc0(0.0)
+        ThermoPhase<ValAndDerivType>(),
+        m_p0(-1.0),
+        m_tlast(0.0),
+        m_logc0(0.0)
 {
     this->initThermoFile(inputFile, id);
 }
 
 template<typename ValAndDerivType>
 IdealGasPhase<ValAndDerivType>::IdealGasPhase(XML_Node& phaseRef, const std::string& id) :
-    m_p0(-1.0),
-    m_tlast(0.0),
-    m_logc0(0.0)
+        ThermoPhase<ValAndDerivType>(),
+        m_p0(-1.0),
+        m_tlast(0.0),
+        m_logc0(0.0)
 {
     this->initThermoXML(phaseRef, id);
 }
@@ -48,6 +51,7 @@ IdealGasPhase<ValAndDerivType>::~IdealGasPhase()
 // Copy Constructor
 template<typename ValAndDerivType>
 IdealGasPhase<ValAndDerivType>::IdealGasPhase(const IdealGasPhase& right) :
+        ThermoPhase<ValAndDerivType>(),
         m_p0(right.m_p0),
         m_tlast(right.m_tlast),
         m_logc0(right.m_logc0)
@@ -687,7 +691,7 @@ void IdealGasPhase<doubleFAD>::setToEquilState(const doublereal* mu_RT)
      */
     doublereal pres = 0.0;
     for (size_t k = 0; k < m_kk; k++) {
-        tmp = -(grt[k]).val() + mu_RT[k];
+        tmp = - (grt[k]).val() + mu_RT[k];
         if (tmp < -600.) {
             m_pp[k] = 0.0;
         } else if (tmp > 500.0) {

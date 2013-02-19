@@ -6,14 +6,15 @@
 #ifndef CT_PHASE_H
 #define CT_PHASE_H
 
+#include "cantera/base/ct_defs.h"
 #include "cantera/base/vec_functions.h"
 #include "cantera/base/ctml.h"
 #include "cantera/thermo/Elements.h"
+#include "cantera/base/ct_defs.h"
 
 namespace Cantera {
 
-
-template<typename ValAndDerivType > class SpeciesThermo;
+template<typename ValAndDerivType> class SpeciesThermo;
 
 /**
  * @defgroup phases Models of Phases of Matter
@@ -42,6 +43,8 @@ public:
     {
     }
 };
+
+
 
 //! Base class for phases of matter
 /*!
@@ -97,7 +100,7 @@ public:
  *
  * @ingroup phases
  */
-template < typename ValAndDerivType = doublereal >
+template<typename ValAndDerivType = doublereal>
 class Phase
 {
 public:
@@ -106,15 +109,20 @@ public:
 
     Phase(); //!< Default constructor.
 
-    virtual ~Phase();//!< Destructor.
+    virtual ~Phase(); //!< Destructor.
 
     //! Copy Constructor
     //!     @param right Reference to the class to be used in the copy
-    Phase(const Phase& right);
+    Phase(const Phase<ValAndDerivType>& right);
 
     //! Assignment operator
     //!     @param right Reference to the class to be used in the copy
-    Phase& operator=(const Phase& right);
+    Phase<ValAndDerivType>& operator=(const Phase<ValAndDerivType>& right);
+
+    //! Assignment operator
+    //!     @param right Reference to the class to be used in the copy
+    template<typename ValAndDerivType2>
+    Phase<ValAndDerivType>& operator=(const Phase<ValAndDerivType2>& right);
 
     //! Returns a reference to the XML_Node stored for the phase.
     //! The XML_Node for the phase contains all of the input data used to set
@@ -254,7 +262,8 @@ public:
     const std::vector<std::string>& speciesNames() const;
 
     /// Returns the number of species in the phase
-    size_t nSpecies() const {
+    size_t nSpecies() const
+    {
         return m_kk;
     }
 
@@ -398,7 +407,8 @@ public:
     //! This routine returns the size of species k
     //!     @param k index of the species
     //!     @return The size of the species. Units are meters.
-    doublereal size(size_t k) const {
+    doublereal size(size_t k) const
+    {
         return m_speciesSize[k];
     }
 
@@ -461,7 +471,8 @@ public:
     void getMassFractions(ValAndDerivType* const y) const;
 
     //! Return a const pointer to the mass fraction array
-    const ValAndDerivType* massFractions() const {
+    const ValAndDerivType* massFractions() const
+    {
         return &m_y[0];
     }
 
@@ -515,14 +526,16 @@ public:
     ValAndDerivType chargeDensity() const;
 
     //! Returns the number of spatial dimensions (1, 2, or 3)
-    size_t nDim() const {
+    size_t nDim() const
+    {
         return m_ndim;
     }
 
     //! Set the number of spatial dimensions (1, 2, or 3). The number of
     //! spatial dimensions is used for vector involving directions.
     //!     @param ndim Input number of dimensions.
-    void setNDim(size_t ndim) {
+    void setNDim(size_t ndim)
+    {
         m_ndim = ndim;
     }
 
@@ -531,13 +544,15 @@ public:
 
     //! Temperature (K).
     //!     @return The temperature of the phase
-    doublereal temperature() const {
+    doublereal temperature() const
+    {
         return m_temp;
     }
 
     //! Density (kg/m^3).
     //!     @return The density of the phase
-    virtual ValAndDerivType density() const {
+    virtual ValAndDerivType density() const
+    {
         return m_dens;
     }
 
@@ -552,7 +567,8 @@ public:
     //! Set the internally stored density (kg/m^3) of the phase
     //! Note the density of a phase is an independent variable.
     //!     @param[in] density density (kg/m^3).
-    virtual void setDensity(const doublereal density_) {
+    virtual void setDensity(const doublereal density_)
+    {
         if (density_ <= 0.0) {
             throw CanteraError("Phase::setDensity()", "density must be positive");
         }
@@ -565,10 +581,10 @@ public:
 
     //! Set the internally stored temperature of the phase (K).
     //!     @param temp Temperature in Kelvin
-    virtual void setTemperature(const doublereal temp) {
+    virtual void setTemperature(const doublereal temp)
+    {
         if (temp <= 0) {
-            throw CanteraError("Phase::setTemperature",
-                    "temperature must be positive");
+            throw CanteraError("Phase::setTemperature", "temperature must be positive");
         }
         m_temp = temp;
     }
@@ -591,7 +607,8 @@ public:
     ValAndDerivType mean_Y(const doublereal* const Q) const;
 
     //!  The mean molecular weight. Units: (kg/kmol)
-    ValAndDerivType meanMolecularWeight() const {
+    ValAndDerivType meanMolecularWeight() const
+    {
         return m_mmw;
     }
 
@@ -617,7 +634,7 @@ public:
     //! Add an element.
     //!     @param symbol Atomic symbol std::string.
     //!     @param weight Atomic mass in amu.
-    void addElement(const std::string& symbol, doublereal weight=-12345.0);
+    void addElement(const std::string& symbol, doublereal weight = -12345.0);
 
     //! Add an element from an XML specification.
     //!     @param e Reference to the XML_Node where the element is described.
@@ -635,10 +652,9 @@ public:
     //! error.
     //!     @param elem_type Specifies the type of the element constraint
     //! equation. This defaults to CT_ELEM_TYPE_ABSPOS, i.e., an element.
-    void addUniqueElement(const std::string& symbol, doublereal weight=-12345.0,
-            int atomicNumber = 0,
-            doublereal entropy298 = ENTROPY298_UNKNOWN,
-            int elem_type = CT_ELEM_TYPE_ABSPOS);
+    void addUniqueElement(const std::string& symbol, doublereal weight = -12345.0, int atomicNumber = 0, doublereal entropy298 =
+                                  ENTROPY298_UNKNOWN,
+                          int elem_type = CT_ELEM_TYPE_ABSPOS);
 
     //! Add an element, checking for uniqueness
     //! The uniqueness is checked by comparing the string symbol. If not unique,
@@ -667,13 +683,11 @@ public:
     //! if used will cause Cantera to throw an error.
     //!     @param elem_type Specifies the type of the element constraint
     //! equation. This defaults to CT_ELEM_TYPE_ABSPOS, i.e., an element.
-    size_t addUniqueElementAfterFreeze(const std::string& symbol,
-            doublereal weight, int atomicNumber,
-            doublereal entropy298 = ENTROPY298_UNKNOWN,
-            int elem_type = CT_ELEM_TYPE_ABSPOS);
+    size_t addUniqueElementAfterFreeze(const std::string& symbol, doublereal weight, int atomicNumber, doublereal entropy298 =
+                                               ENTROPY298_UNKNOWN,
+                                       int elem_type = CT_ELEM_TYPE_ABSPOS);
 
-    void addSpecies(const std::string& name, const doublereal* comp,
-            doublereal charge = 0.0, doublereal size = 1.0);
+    void addSpecies(const std::string& name, const doublereal* comp, doublereal charge = 0.0, doublereal size = 1.0);
 
     //! Add a species to the phase, checking for uniqueness of the name
     //! This routine checks for uniqueness of the string name. It only adds the
@@ -683,9 +697,7 @@ public:
     //! species.
     //!     @param charge  Charge of the species. Defaults to zero.
     //!     @param size    Size of the species (meters). Defaults to 1 meter.
-    void addUniqueSpecies(const std::string& name, const doublereal* comp,
-            doublereal charge = 0.0,
-            doublereal size = 1.0);
+    void addUniqueSpecies(const std::string& name, const doublereal* comp, doublereal charge = 0.0, doublereal size = 1.0);
     //!@} end group adding species and elements
 
     //! Call when finished adding species.
@@ -693,14 +705,16 @@ public:
     virtual void freezeSpecies();
 
     //! True if freezeSpecies has been called.
-    bool speciesFrozen() {
+    bool speciesFrozen()
+    {
         return m_speciesFrozen;
     }
 
     virtual bool ready() const;
 
     //! Return the State Mole Fraction Number
-    int stateMFNumber() const {
+    int stateMFNumber() const
+    {
         return m_stateNum;
     }
 
@@ -714,9 +728,10 @@ protected:
     //! Set the molecular weight of a single species to a given value
     //!     @param k       id of the species
     //!     @param mw      Molecular Weight (kg kmol-1)
-    void setMolecularWeight(const int k, const double mw) {
+    void setMolecularWeight(const int k, const double mw)
+    {
         m_molwts[k] = mw;
-        m_rmolwts[k] = 1.0/mw;
+        m_rmolwts[k] = 1.0 / mw;
     }
 
     //! Number of species in the phase.
@@ -735,10 +750,10 @@ protected:
     //! which employ the constant partial molar volume approximation.
     vector_fp m_speciesSize;
 
-    vector_fp m_speciesCharge;//!< Vector of species charges. length m_kk.
+    vector_fp m_speciesCharge; //!< Vector of species charges. length m_kk.
 
 private:
-    XML_Node* m_xml;//!< XML node containing the XML info for this phase
+    XML_Node* m_xml; //!< XML node containing the XML info for this phase
 
     //! ID of the phase. This is the value of the ID attribute of the XML
     //! phase node. The field will stay that way even if the name is changed.
@@ -762,17 +777,17 @@ private:
     //! this variable rather than other way round.
     ValAndDerivType m_dens;
 
-    ValAndDerivType m_mmw;//!< mean molecular weight of the mixture (kg kmol-1)
+    ValAndDerivType m_mmw; //!< mean molecular weight of the mixture (kg kmol-1)
 
     //! m_ym[k] = mole fraction of species k divided by the mean molecular
     //! weight of mixture.
     mutable vector_ValAndDeriv m_ym;
 
-    mutable vector_ValAndDeriv m_y;//!< species mass fractions
+    mutable vector_ValAndDeriv m_y; //!< species mass fractions
 
-    vector_fp m_molwts;//!< species molecular weights (kg kmol-1)
+    vector_fp m_molwts; //!< species molecular weights (kg kmol-1)
 
-    vector_fp m_rmolwts;//!< inverse of species molecular weights (kmol kg-1)
+    vector_fp m_rmolwts; //!< inverse of species molecular weights (kmol kg-1)
 
     //! State Change variable. Whenever the mole fraction vector changes,
     //! this int is incremented.
@@ -780,8 +795,8 @@ private:
 
     //! Boolean indicating whether the number of species has been frozen.
     /*! During the construction of the phase, this is false. After construction
-    *   of the the phase, this is true.
-    */
+     *   of the the phase, this is true.
+     */
     bool m_speciesFrozen;
 
     //! If this is true, then no elements may be added to the object.
@@ -790,20 +805,28 @@ private:
     //! Vector of the species names
     std::vector<std::string> m_speciesNames;
 
-    size_t m_mm;//!< Number of elements.
+    size_t m_mm; //!< Number of elements.
 
-    vector_fp m_atomicWeights;//!< element atomic weights (kg kmol-1)
+    vector_fp m_atomicWeights; //!< element atomic weights (kg kmol-1)
 
-    vector_int m_atomicNumbers;//!< element atomic numbers
+    vector_int m_atomicNumbers; //!< element atomic numbers
 
-    std::vector<std::string> m_elementNames;//!< element names
+    std::vector<std::string> m_elementNames; //!< element names
 
-    vector_int m_elem_type;//!< Vector of element types
+    vector_int m_elem_type; //!< Vector of element types
 
     //! Entropy at 298.15 K and 1 bar of stable state pure elements (J kmol-1)
     vector_fp m_entropy298;
 
     mutable vector_ValAndDeriv m_vdtmps;
+
+    //! Make sure that different versions of the Class are friends with one another.
+    /*!
+     *
+     *   Apparently it's ok to be friends with yourself or this wouldn't work.
+     */
+    friend class Phase<doublereal>;
+    friend class Phase<doubleFAD>;
 
 };
 

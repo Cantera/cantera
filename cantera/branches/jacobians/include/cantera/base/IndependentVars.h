@@ -140,19 +140,19 @@ enum Var_Name_Enum
 {
     VARIABLE_TYPE_UNSPECIFIED = -2, //!< Variable_Type_Unspecified
     VARIABLE_TYPE_ANY, //!< Variable_Type_Any
-    TEMPERATURE, //!< Temperature
-    PRESSURE, //!< Isotropic 3D Pressure of the phase
-    PRESSUREGRADIENT_RADIAL, //!< PressureGradient_radial
-    MOLEFRACTION_SPECIES, // 3
-    MASSFRACTION_SPECIES, // 4
-    VOLUMEFRACTION_SPECIES, //!< VolumeFraction_species
-    VOLUMEFRACTION_PHASE, //!< VolumeFraction_phase
-    CONCENTRATION_SPECIES, // adding in extra variable types
-    VOLTAGE, // 7
-    SURFACETENSION_PHASE, //!< Surface tension of the phase
+    VARIABLE_TYPE_TEMPERATURE, //!< Temperature
+    VARIABLE_TYPE_PRESSURE, //!< Isotropic 3D Pressure of the phase
+    VARIABLE_TYPE_PRESSUREGRADIENT_RADIAL, //!< PressureGradient_radial
+    VARIABLE_TYPE_MOLEFRACTION_SPECIES, // 3
+    VARIABLE_TYPE_MASSFRACTION_SPECIES, // 4
+    VARIABLE_TYPE_VOLUMEFRACTION_SPECIES, //!< VolumeFraction_species
+    VARIABLE_TYPE_VOLUMEFRACTION_PHASE, //!< VolumeFraction_phase
+    VARIABLE_TYPE_CONCENTRATION_SPECIES, // adding in extra variable types
+    VARIABLE_TYPE_VOLTAGE, // 7
+    VARIABLE_TYPE_SURFACETENSION_PHASE, //!< Surface tension of the phase
 
     //! must be last in the list
-    MAX_VAR_NAME //!< Max_Var_Name
+    VARIABLE_TYPE_MAX_VAR_NAME //!< Max_Var_Name
 };
 
 //! simplifying name for the enum

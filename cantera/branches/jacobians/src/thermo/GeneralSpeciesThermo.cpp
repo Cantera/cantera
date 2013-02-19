@@ -92,7 +92,7 @@ template<typename ValAndDerivType2>
 GeneralSpeciesThermo<ValAndDerivType>&
 GeneralSpeciesThermo<ValAndDerivType>::operator=(const GeneralSpeciesThermo<ValAndDerivType2> & b)
 {
-    if ((GeneralSpeciesThermo<ValAndDerivType> *)&b != this) {
+    if ((GeneralSpeciesThermo<ValAndDerivType> *) &b != this) {
         m_tlow_max = b.m_tlow_max;
         m_thigh_min = b.m_thigh_min;
 
@@ -148,7 +148,7 @@ template<>
 GeneralSpeciesThermo<doublereal>&
 GeneralSpeciesThermo<doublereal>::operator=(const GeneralSpeciesThermo<doubleFAD> & b)
 {
-    if ((GeneralSpeciesThermo<doublereal> *)&b != this) {
+    if ((GeneralSpeciesThermo<doublereal> *) &b != this) {
         m_tlow_max = b.m_tlow_max;
         m_thigh_min = b.m_thigh_min;
 
@@ -171,8 +171,6 @@ GeneralSpeciesThermo<doublereal>::operator=(const GeneralSpeciesThermo<doubleFAD
     return *this;
 }
 
-
-
 template<typename ValAndDerivType>
 GeneralSpeciesThermo<ValAndDerivType>::~GeneralSpeciesThermo()
 {
@@ -190,6 +188,24 @@ SpeciesThermo<ValAndDerivType> *
 GeneralSpeciesThermo<ValAndDerivType>::duplMyselfAsSpeciesThermo() const
 {
     return new GeneralSpeciesThermo<ValAndDerivType>(*this);
+}
+//=====================================================================================================================
+// Duplication routine for objects which inherit from %SpeciesThermo
+/*
+ *  This virtual routine can be used to duplicate %SpeciesThermo  objects
+ *  inherited from %SpeciesThermo even if the application only has
+ *  a pointer to %SpeciesThermo to work with.
+ *
+ *  This routine returns a doublereal templated version of SpeciesThermo no matter
+ *  what templated version the underlying class is.
+ *
+ *  @return Duplicated <double> version of the SpeciesThermo
+ */
+template<typename ValAndDerivType>
+SpeciesThermo<doublereal>* GeneralSpeciesThermo<ValAndDerivType>::duplMyselfAsSpeciesThermoDouble() const
+{
+    GeneralSpeciesThermo<doublereal>* nn = new GeneralSpeciesThermo<doublereal>(*this);
+    return (SpeciesThermo<doublereal>*) nn;
 }
 //=====================================================================================================================
 /*
@@ -326,12 +342,12 @@ template<typename ValAndDerivType>
 void GeneralSpeciesThermo<ValAndDerivType>::update(doublereal t, ValAndDerivType* cp_R, ValAndDerivType* h_RT,
                                                    ValAndDerivType* s_R) const
 {
-    typename std::vector<SpeciesThermoInterpType<ValAndDerivType>*>::const_iterator  _begin, _end;
+    typename std::vector<SpeciesThermoInterpType<ValAndDerivType>*>::const_iterator _begin, _end;
     _begin = m_sp.begin();
     _end = m_sp.end();
     SpeciesThermoInterpType<ValAndDerivType>* sp_ptr = 0;
     for (; _begin != _end; ++_begin) {
-        sp_ptr = *(_begin);
+        sp_ptr = * (_begin);
         if (sp_ptr) {
             sp_ptr->updatePropertiesTemp(t, cp_R, h_RT, s_R);
         }
@@ -362,18 +378,15 @@ int GeneralSpeciesThermo<ValAndDerivType>::reportType(size_t index) const
  *  For the NASA object, there are 15 coefficients.
  */
 template<typename ValAndDerivType>
-void GeneralSpeciesThermo<ValAndDerivType>::
-reportParams(size_t index, int& type, doublereal* const c,
-        doublereal& minTemp, doublereal& maxTemp, doublereal& refPressure) const
+void GeneralSpeciesThermo<ValAndDerivType>::reportParams(size_t index, int& type, doublereal* const c, doublereal& minTemp,
+                                                         doublereal& maxTemp, doublereal& refPressure) const
 {
     SpeciesThermoInterpType<ValAndDerivType>* sp = m_sp[index];
     size_t n;
     if (sp) {
-        sp->reportParameters(n, type, minTemp, maxTemp,
-                refPressure, c);
+        sp->reportParameters(n, type, minTemp, maxTemp, refPressure, c);
         if (n != index) {
-            throw CanteraError("GeneralSpeciesThermo::reportParams",
-                    "Internal error encountered");
+            throw CanteraError("GeneralSpeciesThermo::reportParams", "Internal error encountered");
         }
     } else {
         type = -1;
@@ -476,18 +489,18 @@ void GeneralSpeciesThermo<ValAndDerivType>::modifyOneHf298(const size_t k, const
 //=====================================================================================================================
 // Explicit Instantiation Section
 
-template class GeneralSpeciesThermo<doublereal>;
+template class GeneralSpeciesThermo<doublereal> ;
 
 //template  GeneralSpeciesThermo<doublereal>::GeneralSpeciesThermo(const GeneralSpeciesThermo<doublereal> & b);
-template GeneralSpeciesThermo<doublereal>&  GeneralSpeciesThermo<doublereal>::operator=(const GeneralSpeciesThermo<doublereal> & b);
+template GeneralSpeciesThermo<doublereal>& GeneralSpeciesThermo<doublereal>::operator=(const GeneralSpeciesThermo<doublereal> & b);
 
 #ifdef INDEPENDENT_VARIABLE_DERIVATIVES
 #ifdef HAS_SACADO
-template class GeneralSpeciesThermo<doubleFAD>;
+template class GeneralSpeciesThermo<doubleFAD> ;
 //template  GeneralSpeciesThermo<doubleFAD>::GeneralSpeciesThermo(const GeneralSpeciesThermo<doubleFAD> & b);
-template GeneralSpeciesThermo<doubleFAD>&  GeneralSpeciesThermo<doubleFAD>::operator=(const GeneralSpeciesThermo<doubleFAD> & b);
+template GeneralSpeciesThermo<doubleFAD>& GeneralSpeciesThermo<doubleFAD>::operator=(const GeneralSpeciesThermo<doubleFAD> & b);
 
-template GeneralSpeciesThermo<doublereal>&  GeneralSpeciesThermo<doublereal>::operator=(const GeneralSpeciesThermo<doubleFAD> & b);
+template GeneralSpeciesThermo<doublereal>& GeneralSpeciesThermo<doublereal>::operator=(const GeneralSpeciesThermo<doubleFAD> & b);
 
 #endif
 #endif

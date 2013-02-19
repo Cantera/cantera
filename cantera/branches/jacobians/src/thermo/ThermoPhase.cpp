@@ -10,6 +10,7 @@
 #include "cantera/base/mdp_allo.h"
 #include "cantera/base/stringUtils.h"
 #include "cantera/thermo/ThermoFactory.h"
+#include "cantera/thermo/ThermoDerivInfo.h"
 
 #include <iomanip>
 #include <fstream>
@@ -25,6 +26,7 @@ namespace Cantera {
 template<typename ValAndDerivType>
 ThermoPhase<ValAndDerivType>::ThermoPhase() :
         Phase<ValAndDerivType>(),
+        ThermoDerivInfo<ValAndDerivType>(),
         m_spthermo(0),
         m_speciesData(0),
         m_phi(0.0),
@@ -55,8 +57,9 @@ ThermoPhase<ValAndDerivType>::~ThermoPhase()
  * throw an exception until fully tested.
  */
 template<typename ValAndDerivType>
-ThermoPhase<ValAndDerivType>::ThermoPhase(const ThermoPhase& right) :
+ThermoPhase<ValAndDerivType>::ThermoPhase(const ThermoPhase<ValAndDerivType>& right) :
         Phase<ValAndDerivType>(),
+        ThermoDerivInfo<ValAndDerivType>(),
         m_spthermo(0),
         m_speciesData(0),
         m_phi(0.0),
@@ -67,7 +70,31 @@ ThermoPhase<ValAndDerivType>::ThermoPhase(const ThermoPhase& right) :
     /*
      * Call the assignment operator
      */
-    *this = operator=(right);
+    operator=(right);
+}
+//============================================================================================================
+/*
+ * Copy Constructor for the ThermoPhase object.
+ *
+ * Currently, this is implemented, but not tested. If called it will
+ * throw an exception until fully tested.
+ */
+template<typename ValAndDerivType>
+template<typename ValAndDerivType2>
+ThermoPhase<ValAndDerivType>::ThermoPhase(const ThermoPhase<ValAndDerivType2>& right) :
+        Phase<ValAndDerivType>(),
+        ThermoDerivInfo<ValAndDerivType>(),
+        m_spthermo(0),
+        m_speciesData(0),
+        m_phi(0.0),
+        m_hasElementPotentials(false),
+        m_chargeNeutralityNecessary(false),
+        m_ssConvention(cSS_CONVENTION_TEMPERATURE)
+{
+    /*
+     * Call the assignment operator
+     */
+    operator=(right);
 }
 //====================================================================================================================
 /*
@@ -77,7 +104,7 @@ ThermoPhase<ValAndDerivType>::ThermoPhase(const ThermoPhase& right) :
  *  has a working assignment operator
  */
 template<typename ValAndDerivType>
-ThermoPhase<ValAndDerivType>& ThermoPhase<ValAndDerivType>::operator=(const ThermoPhase& right)
+ThermoPhase<ValAndDerivType>& ThermoPhase<ValAndDerivType>::operator=(const ThermoPhase<ValAndDerivType>& right)
 {
     /*
      * Check for self assignment.
@@ -100,9 +127,10 @@ ThermoPhase<ValAndDerivType>& ThermoPhase<ValAndDerivType>::operator=(const Ther
     }
 
     /*
-     * Call the base class assignment operator
+     * Call the base class assignment operators
      */
     (void) Phase<ValAndDerivType>::operator=(right);
+    (void) ThermoDerivInfo<ValAndDerivType>::operator=(right);
 
     /*
      * Pointer to the species thermodynamic property manager
@@ -115,7 +143,122 @@ ThermoPhase<ValAndDerivType>& ThermoPhase<ValAndDerivType>::operator=(const Ther
      */
     m_speciesData.resize(m_kk);
     for (size_t k = 0; k < m_kk; k++) {
-        m_speciesData[k] = new XML_Node(*(right.m_speciesData[k]));
+        m_speciesData[k] = new XML_Node(* (right.m_speciesData[k]));
+    }
+
+    m_phi = right.m_phi;
+    m_lambdaRRT = right.m_lambdaRRT;
+    m_hasElementPotentials = right.m_hasElementPotentials;
+    m_chargeNeutralityNecessary = right.m_chargeNeutralityNecessary;
+    m_ssConvention = right.m_ssConvention;
+    return *this;
+}
+//====================================================================================================================
+/*
+ * operator=()
+ *
+ *  Note this stuff will not work until the underlying phase
+ *  has a working assignment operator
+ */
+template<typename ValAndDerivType>
+template<typename ValAndDerivType2>
+ThermoPhase<ValAndDerivType>& ThermoPhase<ValAndDerivType>::operator=(const ThermoPhase<ValAndDerivType2>& right)
+{
+    /*
+     * Check for self assignment.
+     */
+    if (this == (ThermoPhase<ValAndDerivType> *) &right) {
+        return *this;
+    }
+
+    /*
+     * We need to destruct first
+     */
+    for (size_t k = 0; k < m_kk; k++) {
+        if (m_speciesData[k]) {
+            delete m_speciesData[k];
+            m_speciesData[k] = 0;
+        }
+    }
+    if (m_spthermo) {
+        delete m_spthermo;
+    }
+
+    /*
+     * Call the base class assignment operators
+     */
+    (void) Phase<ValAndDerivType>::operator=(right);
+    (void) ThermoDerivInfo<ValAndDerivType>::operator=(right);
+
+    /*
+     * Pointer to the species thermodynamic property manager
+     * We own this, so we need to do a deep copy
+     */
+    m_spthermo = (right.m_spthermo)->duplMyselfAsSpeciesThermo();
+
+    /*
+     * Do a deep copy of species Data, because we own this
+     */
+    m_speciesData.resize(m_kk);
+    for (size_t k = 0; k < m_kk; k++) {
+        m_speciesData[k] = new XML_Node(* (right.m_speciesData[k]));
+    }
+
+    m_phi = right.m_phi;
+    m_lambdaRRT = right.m_lambdaRRT;
+    m_hasElementPotentials = right.m_hasElementPotentials;
+    m_chargeNeutralityNecessary = right.m_chargeNeutralityNecessary;
+    m_ssConvention = right.m_ssConvention;
+    return *this;
+}
+/*
+ * operator=()
+ *
+ *  Note this stuff will not work until the underlying phase
+ *  has a working assignment operator
+ */
+template<>
+template<>
+ThermoPhase<doublereal>& ThermoPhase<doublereal>::operator=(const ThermoPhase<doubleFAD>& right)
+{
+    /*
+     * Check for self assignment.
+     */
+    if (this == (ThermoPhase<doublereal> *) &right) {
+        return *this;
+    }
+
+    /*
+     * We need to destruct first
+     */
+    for (size_t k = 0; k < m_kk; k++) {
+        if (m_speciesData[k]) {
+            delete m_speciesData[k];
+            m_speciesData[k] = 0;
+        }
+    }
+    if (m_spthermo) {
+        delete m_spthermo;
+    }
+
+    /*
+     * Call the base class assignment operators
+     */
+    (void) Phase<doublereal>::operator=(right);
+    (void) ThermoDerivInfo<doublereal>::operator=(right);
+
+    /*
+     * Pointer to the species thermodynamic property manager
+     * We own this, so we need to do a deep copy
+     */
+    m_spthermo = (right.m_spthermo)->duplMyselfAsSpeciesThermoDouble();
+
+    /*
+     * Do a deep copy of species Data, because we own this
+     */
+    m_speciesData.resize(m_kk);
+    for (size_t k = 0; k < m_kk; k++) {
+        m_speciesData[k] = new XML_Node(* (right.m_speciesData[k]));
     }
 
     m_phi = right.m_phi;
@@ -141,7 +284,15 @@ template<typename ValAndDerivType>
 ThermoPhase<ValAndDerivType>*
 ThermoPhase<ValAndDerivType>::duplMyselfAsThermoPhase() const
 {
-    return new ThermoPhase(*this);
+    return new ThermoPhase<ValAndDerivType>(*this);
+}
+
+//=====================================================================================================================
+template<typename ValAndDerivType>
+ThermoPhase<doublereal>* ThermoPhase<ValAndDerivType>::duplMyselfAsThermoPhaseDouble() const
+{
+    ThermoPhase<doublereal>* tp = new ThermoPhase<doublereal>(*this);
+    return tp;
 }
 //====================================================================================================================
 template<typename ValAndDerivType>
@@ -353,7 +504,7 @@ void ThermoPhase<ValAndDerivType>::setState_HPorUV(doublereal Htarget, doublerea
             Tunstable = Tnew;
         }
         // limit step size to 100 K
-        dt = clip((Htarget - Hold) / cpd, -100.0, 100.0);
+        dt = clip( (Htarget - Hold) / cpd, -100.0, 100.0);
 
         // Calculate the new T
         Tnew = Told + dt;
@@ -361,7 +512,7 @@ void ThermoPhase<ValAndDerivType>::setState_HPorUV(doublereal Htarget, doublerea
         // Limit the step size so that we are convergent
         // This is the step that makes it different from a
         // Newton's algorithm
-        if ((dt > 0.0 && unstablePhase) || (dt <= 0.0 && !unstablePhase)) {
+        if ( (dt > 0.0 && unstablePhase) || (dt <= 0.0 && !unstablePhase)) {
             if (Hbot < Htarget && Tnew < (0.75 * Tbot + 0.25 * Told)) {
                 dt = 0.75 * (Tbot - Told);
                 Tnew = Told + dt;
@@ -450,7 +601,7 @@ void ThermoPhase<ValAndDerivType>::setState_HPorUV(doublereal Htarget, doublerea
         double Herr = Htarget - Hnew;
         double acpd = std::max(fabs(cpd), 1.0E-5);
         double denom = std::max(fabs(Htarget), acpd * dTtol);
-        double HConvErr = fabs((Herr) / denom);
+        double HConvErr = fabs( (Herr) / denom);
         if (HConvErr < 0.00001 * dTtol || fabs(dt) < dTtol) {
             return;
         }
@@ -572,11 +723,11 @@ void ThermoPhase<ValAndDerivType>::setState_SPorSV(doublereal Starget, doublerea
             Tunstable = Tnew;
         }
         // limit step size to 100 K
-        dt = clip((Starget - Sold) * Told / cpd, -100.0, 100.0);
+        dt = clip( (Starget - Sold) * Told / cpd, -100.0, 100.0);
         Tnew = Told + dt;
 
         // Limit the step size so that we are convergent
-        if ((dt > 0.0 && unstablePhase) || (dt <= 0.0 && !unstablePhase)) {
+        if ( (dt > 0.0 && unstablePhase) || (dt <= 0.0 && !unstablePhase)) {
             if (Sbot < Starget && Tnew < Tbot) {
                 dt = 0.75 * (Tbot - Told);
                 Tnew = Told + dt;
@@ -646,7 +797,7 @@ void ThermoPhase<ValAndDerivType>::setState_SPorSV(doublereal Starget, doublerea
         double Serr = Starget - Snew;
         double acpd = std::max(fabs(cpd), 1.0E-5);
         double denom = std::max(fabs(Starget), acpd * dTtol);
-        double SConvErr = fabs((Serr * Tnew) / denom);
+        double SConvErr = fabs( (Serr * Tnew) / denom);
         if (SConvErr < 0.00001 * dTtol || fabs(dt) < dTtol) {
             return;
         }
@@ -1106,7 +1257,7 @@ void ThermoPhase<ValAndDerivType>::getdlnActCoeffdlnN_numderiv(const size_t ld, 
         ValAndDerivType* const lnActCoeffCol = dlnActCoeffdlnN + ld * j;
         for (size_t k = 0; k < m_kk; k++) {
             lnActCoeffCol[k] = (2 * moles_j_base + deltaMoles_j) * (ActCoeff[k] - ActCoeff_Base[k])
-                    / ((ActCoeff[k] + ActCoeff_Base[k]) * deltaMoles_j);
+                    / ( (ActCoeff[k] + ActCoeff_Base[k]) * deltaMoles_j);
         }
         /*
          * Revert to the base case Xmol_, v_totalMoles
@@ -1464,6 +1615,8 @@ template class ThermoPhase<doublereal> ;
 #ifdef INDEPENDENT_VARIABLE_DERIVATIVES
 #ifdef HAS_SACADO
 template class ThermoPhase<doubleFAD> ;
+template ThermoPhase<doublereal>::ThermoPhase(const ThermoPhase<doubleFAD>& right);
+template ThermoPhase<doublereal>& ThermoPhase<doublereal>::operator=(const ThermoPhase<doubleFAD>& right);
 #endif
 #endif
 

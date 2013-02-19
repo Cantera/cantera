@@ -71,6 +71,11 @@ void error(const std::string& msg)
     app()->logerror(msg);
 }
 
+IndVar_ProblemSpecification& DefaultIndVar()
+{
+    return app()->IndVar();
+}
+
 // **************** HTML Logging ****************
 
 #ifdef WITH_HTML_LOGS
@@ -307,10 +312,8 @@ void assignVectorFadToDouble(std::vector<doublereal>& left, const std::vector<Ca
     }
 }
 
-
 std::vector<FactoryBase*> FactoryBase::s_vFactoryRegistry;
 
 
 
 }
-

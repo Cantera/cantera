@@ -310,6 +310,14 @@ void writelogendl();
  */
 void error(const std::string& msg);
 
+
+//! Return a structure indicating the default independent variables in the problem
+/*!
+ * @return  Returns a structure of type IndVar_ProblemSpecification
+ *
+ */
+IndVar_ProblemSpecification& DefaultIndVar();
+
 //! Install a logger.
 /*!
  *  Called by the language interfaces to install an appropriate logger.
@@ -572,6 +580,7 @@ void assignVectorVectorClass(std::vector<std::vector<T1> >& left, const std::vec
         }
     }
 };
+
 }
 
 #endif

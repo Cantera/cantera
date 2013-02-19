@@ -131,6 +131,7 @@ public:
         return (SpeciesThermo<ValAndDerivType> *) nt;
     }
 
+
     //! Duplication routine for objects which inherit from %SpeciesThermo
     /*!
      *  This virtual routine can be used to duplicate %SpeciesThermo  objects
@@ -147,6 +148,7 @@ public:
         SimpleThermo<doublereal>* nt = new SimpleThermo<doublereal>(*this);
         return (SpeciesThermo<doublereal> *) nt;
     }
+
 
     //! Install a new species thermodynamic property
     //! parameterization for one species.

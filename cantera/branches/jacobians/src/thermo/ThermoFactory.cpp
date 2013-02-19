@@ -657,6 +657,11 @@ bool importPhase(XML_Node& phase, ThermoPhase<ValAndDerivType>* th, SpeciesTherm
     std::string id = "";
     th->initThermoXML(phase, id);
 
+    // Handle the default specification of independent variables
+    //th->(ThermoDerivInfo<ValAndDerivType>::generateDerivVector());
+
+    th->generateThermoPhaseCopyDouble(th);
+    th->generateDerivVector();
     return true;
 }
 
