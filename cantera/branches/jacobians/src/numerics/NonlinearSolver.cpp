@@ -309,12 +309,8 @@ NonlinearSolver::NonlinearSolver(const NonlinearSolver& right) :
 //====================================================================================================================
 NonlinearSolver::~NonlinearSolver()
 {
-    if (jacCopyPtr_) {
-        delete jacCopyPtr_;
-    }
-    if (HessianPtr_) {
-        delete HessianPtr_;
-    }
+    delete jacCopyPtr_;
+    delete HessianPtr_;
 }
 //====================================================================================================================
 NonlinearSolver& NonlinearSolver::operator=(const NonlinearSolver& right)
@@ -378,13 +374,9 @@ NonlinearSolver& NonlinearSolver::operator=(const NonlinearSolver& right)
     m_print_flag               = right.m_print_flag;
     m_ScaleSolnNormToResNorm   = right.m_ScaleSolnNormToResNorm;
 
-    if (jacCopyPtr_) {
-        delete(jacCopyPtr_);
-    }
+    delete jacCopyPtr_;
     jacCopyPtr_                = (right.jacCopyPtr_)->duplMyselfAsGeneralMatrix();
-    if (HessianPtr_) {
-        delete(HessianPtr_);
-    }
+    delete HessianPtr_;
     HessianPtr_                = (right.HessianPtr_)->duplMyselfAsGeneralMatrix();
 
     deltaX_CP_                 = right.deltaX_CP_;
@@ -1806,8 +1798,7 @@ doublereal NonlinearSolver::expectedResidLeg(int leg, doublereal alpha) const
                 + alpha * alpha * Nuu_ * Nuu_ * res0_2
                 - 2 * alpha * Nuu_ * (1.0 - alpha) * RdotJS;
 
-        resNorm = sqrt(res2 / neq_);
-        return resNorm;
+        return sqrt(res2 / neq_);
 
     } else {
         doublereal beta = Nuu_ + alpha * (1.0 - Nuu_);
@@ -2000,7 +1991,7 @@ void NonlinearSolver::residualComparisonLeg(const doublereal time_curr, const do
 doublereal  NonlinearSolver::trustRegionLength() const
 {
     norm_deltaX_trust_ = solnErrorNorm(DATA_PTR(deltaX_trust_));
-    return (trustDelta_ * norm_deltaX_trust_);
+    return trustDelta_ * norm_deltaX_trust_;
 }
 //====================================================================================================================
 void  NonlinearSolver::setDefaultDeltaBoundsMagnitudes()
@@ -2307,8 +2298,7 @@ doublereal  NonlinearSolver::calcTrustDistance(std::vector<doublereal> const& de
         tmp = deltaX[i] / deltaX_trust_[i];
         sum += tmp * tmp;
     }
-    sum = sqrt(sum / neq_) / trustDelta_;
-    return sum;
+    return sqrt(sum / neq_) / trustDelta_;
 }
 //====================================================================================================================
 // Given a trust distance, this routine calculates the intersection of the this distance with the
@@ -2388,7 +2378,7 @@ int NonlinearSolver::calcTrustIntersection(doublereal trustDelta, doublereal& la
 doublereal NonlinearSolver::boundStep(const doublereal* const y, const doublereal* const step0)
 {
     size_t i_lower = npos;
-    doublereal fbound = 1.0, f_bounds = 1.0;
+    doublereal f_bounds = 1.0;
     doublereal ff, y_new;
 
     for (size_t i = 0; i < neq_; i++) {
@@ -2432,9 +2422,7 @@ doublereal NonlinearSolver::boundStep(const doublereal* const y, const doublerea
     }
 
     doublereal f_delta_bounds = deltaBoundStep(y, step0);
-    fbound = std::min(f_bounds, f_delta_bounds);
-
-    return fbound;
+    return std::min(f_bounds, f_delta_bounds);
 }
 //===================================================================================================================
 // Find a damping coefficient through a look-ahead mechanism
@@ -3067,9 +3055,7 @@ int NonlinearSolver::solve_nonlinear_problem(int SolnType, doublereal* const y_c
     int retnCode = 0;
     bool forceNewJac = false;
 
-    if (jacCopyPtr_) {
-        delete jacCopyPtr_;
-    }
+    delete jacCopyPtr_;
     jacCopyPtr_ = jac.duplMyselfAsGeneralMatrix();
 
     doublereal stepNorm_1;
@@ -4071,8 +4057,7 @@ calc_ydot(const int order, const doublereal* const y_curr, doublereal* const ydo
 doublereal NonlinearSolver::filterNewStep(const doublereal timeCurrent,
         const doublereal* const ybase, doublereal* const step0)
 {
-    doublereal tmp = m_func->filterNewStep(timeCurrent, ybase, step0);
-    return tmp;
+    return m_func->filterNewStep(timeCurrent, ybase, step0);
 }
 //====================================================================================================================
 // Apply a filtering process to the new solution
@@ -4086,8 +4071,7 @@ doublereal NonlinearSolver::filterNewStep(const doublereal timeCurrent,
 doublereal NonlinearSolver::filterNewSolution(const doublereal timeCurrent,
         doublereal* const y_current, doublereal* const ydot_current)
 {
-    doublereal tmp = m_func->filterSolnPrediction(timeCurrent, y_current);
-    return tmp;
+    return m_func->filterSolnPrediction(timeCurrent, y_current);
 }
 //====================================================================================================================
 // Compute the Residual Weights

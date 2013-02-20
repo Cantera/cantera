@@ -28,13 +28,6 @@ using namespace ctml;
 
 namespace Cantera
 {
-
-
-//! utility function to assign an integer value from a string
-//! for the ElectrolyteSpeciesType field.
-/*!
- *  @param estString string name of the electrolyte species type
- */
 int HMWSoln::interp_est(const std::string& estString)
 {
     const char* cc = estString.c_str();
@@ -60,13 +53,6 @@ int HMWSoln::interp_est(const std::string& estString)
     return rval;
 }
 
-/*
- * Process an XML node called "SimpleSaltParameters.
- * This node contains all of the parameters necessary to describe
- * the Pitzer model for that particular binary salt.
- * This function reads the XML file and writes the coefficients
- * it finds to an internal data structures.
- */
 void HMWSoln::readXMLBinarySalt(XML_Node& BinSalt)
 {
     string xname = BinSalt.name();
@@ -74,7 +60,6 @@ void HMWSoln::readXMLBinarySalt(XML_Node& BinSalt)
         throw CanteraError("HMWSoln::readXMLBinarySalt",
                            "Incorrect name for processing this routine: " + xname);
     }
-    double* charge = DATA_PTR(m_speciesCharge);
     string stemp;
     size_t nParamsFound, i;
     vector_fp vParams;
@@ -95,7 +80,7 @@ void HMWSoln::readXMLBinarySalt(XML_Node& BinSalt)
         return;
     }
     string ispName = speciesName(iSpecies);
-    if (charge[iSpecies] <= 0) {
+    if (charge(iSpecies) <= 0) {
         throw CanteraError("HMWSoln::readXMLBinarySalt", "cation charge problem");
     }
     size_t jSpecies = speciesIndex(jName);
@@ -103,7 +88,7 @@ void HMWSoln::readXMLBinarySalt(XML_Node& BinSalt)
         return;
     }
     string jspName = speciesName(jSpecies);
-    if (charge[jSpecies] >= 0) {
+    if (charge(jSpecies) >= 0) {
         throw CanteraError("HMWSoln::readXMLBinarySalt", "anion charge problem");
     }
 
@@ -268,11 +253,6 @@ void HMWSoln::readXMLBinarySalt(XML_Node& BinSalt)
     }
 }
 
-/**
- * Process an XML node called "thetaAnion".
- * This node contains all of the parameters necessary to describe
- * the binary interactions between two anions.
- */
 void HMWSoln::readXMLThetaAnion(XML_Node& BinSalt)
 {
     string xname = BinSalt.name();
@@ -282,7 +262,6 @@ void HMWSoln::readXMLThetaAnion(XML_Node& BinSalt)
         throw CanteraError("HMWSoln::readXMLThetaAnion",
                            "Incorrect name for processing this routine: " + xname);
     }
-    double* charge = DATA_PTR(m_speciesCharge);
     string stemp;
     string ispName = BinSalt.attrib("anion1");
     if (ispName == "") {
@@ -300,14 +279,14 @@ void HMWSoln::readXMLThetaAnion(XML_Node& BinSalt)
     if (iSpecies == npos) {
         return;
     }
-    if (charge[iSpecies] >= 0) {
+    if (charge(iSpecies) >= 0) {
         throw CanteraError("HMWSoln::readXMLThetaAnion", "anion1 charge problem");
     }
     size_t jSpecies = speciesIndex(jspName);
     if (jSpecies == npos) {
         return;
     }
-    if (charge[jSpecies] >= 0) {
+    if (charge(jSpecies) >= 0) {
         throw CanteraError("HMWSoln::readXMLThetaAnion", "anion2 charge problem");
     }
 
@@ -355,11 +334,6 @@ void HMWSoln::readXMLThetaAnion(XML_Node& BinSalt)
     }
 }
 
-/**
- * Process an XML node called "thetaCation".
- * This node contains all of the parameters necessary to describe
- * the binary interactions between two cation.
- */
 void HMWSoln::readXMLThetaCation(XML_Node& BinSalt)
 {
     string xname = BinSalt.name();
@@ -369,7 +343,6 @@ void HMWSoln::readXMLThetaCation(XML_Node& BinSalt)
         throw CanteraError("HMWSoln::readXMLThetaCation",
                            "Incorrect name for processing this routine: " + xname);
     }
-    double* charge = DATA_PTR(m_speciesCharge);
     string stemp;
     string ispName = BinSalt.attrib("cation1");
     if (ispName == "") {
@@ -387,14 +360,14 @@ void HMWSoln::readXMLThetaCation(XML_Node& BinSalt)
     if (iSpecies == npos) {
         return;
     }
-    if (charge[iSpecies] <= 0) {
+    if (charge(iSpecies) <= 0) {
         throw CanteraError("HMWSoln::readXMLThetaCation", "cation1 charge problem");
     }
     size_t jSpecies = speciesIndex(jspName);
     if (jSpecies == npos) {
         return;
     }
-    if (charge[jSpecies] <= 0) {
+    if (charge(jSpecies) <= 0) {
         throw CanteraError("HMWSoln::readXMLThetaCation", "cation2 charge problem");
     }
 
@@ -442,11 +415,6 @@ void HMWSoln::readXMLThetaCation(XML_Node& BinSalt)
     }
 }
 
-/*
- * Process an XML node called "readXMLPsiCommonCation".
- * This node contains all of the parameters necessary to describe
- * the binary interactions between two anions and one common cation.
- */
 void HMWSoln::readXMLPsiCommonCation(XML_Node& BinSalt)
 {
     string xname = BinSalt.name();
@@ -454,7 +422,6 @@ void HMWSoln::readXMLPsiCommonCation(XML_Node& BinSalt)
         throw CanteraError("HMWSoln::readXMLPsiCommonCation",
                            "Incorrect name for processing this routine: " + xname);
     }
-    double* charge = DATA_PTR(m_speciesCharge);
     string stemp;
     vector_fp vParams;
     size_t nParamsFound = 0;
@@ -478,7 +445,7 @@ void HMWSoln::readXMLPsiCommonCation(XML_Node& BinSalt)
     if (kSpecies == npos) {
         return;
     }
-    if (charge[kSpecies] <= 0) {
+    if (charge(kSpecies) <= 0) {
         throw CanteraError("HMWSoln::readXMLPsiCommonCation",
                            "cation charge problem");
     }
@@ -486,7 +453,7 @@ void HMWSoln::readXMLPsiCommonCation(XML_Node& BinSalt)
     if (iSpecies == npos) {
         return;
     }
-    if (charge[iSpecies] >= 0) {
+    if (charge(iSpecies) >= 0) {
         throw CanteraError("HMWSoln::readXMLPsiCommonCation",
                            "anion1 charge problem");
     }
@@ -494,7 +461,7 @@ void HMWSoln::readXMLPsiCommonCation(XML_Node& BinSalt)
     if (jSpecies == npos) {
         return;
     }
-    if (charge[jSpecies] >= 0) {
+    if (charge(jSpecies) >= 0) {
         throw CanteraError("HMWSoln::readXMLPsiCommonCation",
                            "anion2 charge problem");
     }
@@ -588,11 +555,6 @@ void HMWSoln::readXMLPsiCommonCation(XML_Node& BinSalt)
     }
 }
 
-/**
- * Process an XML node called "PsiCommonAnion".
- * This node contains all of the parameters necessary to describe
- * the binary interactions between two cations and one common anion.
- */
 void HMWSoln::readXMLPsiCommonAnion(XML_Node& BinSalt)
 {
     string xname = BinSalt.name();
@@ -600,7 +562,6 @@ void HMWSoln::readXMLPsiCommonAnion(XML_Node& BinSalt)
         throw CanteraError("HMWSoln::readXMLPsiCommonAnion",
                            "Incorrect name for processing this routine: " + xname);
     }
-    double* charge = DATA_PTR(m_speciesCharge);
     string stemp;
     vector_fp vParams;
     size_t nParamsFound = 0;
@@ -624,14 +585,14 @@ void HMWSoln::readXMLPsiCommonAnion(XML_Node& BinSalt)
     if (kSpecies == npos) {
         return;
     }
-    if (charge[kSpecies] >= 0) {
+    if (charge(kSpecies) >= 0) {
         throw CanteraError("HMWSoln::readXMLPsiCommonAnion", "anion charge problem");
     }
     size_t iSpecies = speciesIndex(iName);
     if (iSpecies == npos) {
         return;
     }
-    if (charge[iSpecies] <= 0) {
+    if (charge(iSpecies) <= 0) {
         throw CanteraError("HMWSoln::readXMLPsiCommonAnion",
                            "cation1 charge problem");
     }
@@ -639,7 +600,7 @@ void HMWSoln::readXMLPsiCommonAnion(XML_Node& BinSalt)
     if (jSpecies == npos) {
         return;
     }
-    if (charge[jSpecies] <= 0) {
+    if (charge(jSpecies) <= 0) {
         throw CanteraError("HMWSoln::readXMLPsiCommonAnion",
                            "cation2 charge problem");
     }
@@ -735,14 +696,6 @@ void HMWSoln::readXMLPsiCommonAnion(XML_Node& BinSalt)
     }
 }
 
-
-
-/**
- * Process an XML node called "LambdaNeutral".
- * This node contains all of the parameters necessary to describe
- * the binary interactions between one neutral species and
- * any other species (neutral or otherwise) in the mechanism.
- */
 void HMWSoln::readXMLLambdaNeutral(XML_Node& BinSalt)
 {
     string xname = BinSalt.name();
@@ -752,7 +705,6 @@ void HMWSoln::readXMLLambdaNeutral(XML_Node& BinSalt)
         throw CanteraError("HMWSoln::readXMLLanbdaNeutral",
                            "Incorrect name for processing this routine: " + xname);
     }
-    double* charge = DATA_PTR(m_speciesCharge);
     string stemp;
     string iName = BinSalt.attrib("species1");
     if (iName == "") {
@@ -770,7 +722,7 @@ void HMWSoln::readXMLLambdaNeutral(XML_Node& BinSalt)
     if (iSpecies == npos) {
         return;
     }
-    if (charge[iSpecies] != 0) {
+    if (charge(iSpecies) != 0) {
         throw CanteraError("HMWSoln::readXMLLambdaNeutral",
                            "neutral charge problem");
     }
@@ -824,11 +776,6 @@ void HMWSoln::readXMLLambdaNeutral(XML_Node& BinSalt)
     }
 }
 
-/**
- * Process an XML node called "MunnnNeutral".
- * This node contains all of the parameters necessary to describe
- * the self-ternary interactions for one neutral species.
- */
 void HMWSoln::readXMLMunnnNeutral(XML_Node& BinSalt)
 {
     string xname = BinSalt.name();
@@ -838,7 +785,6 @@ void HMWSoln::readXMLMunnnNeutral(XML_Node& BinSalt)
         throw CanteraError("HMWSoln::readXMLMunnnNeutral",
                            "Incorrect name for processing this routine: " + xname);
     }
-    double* charge = DATA_PTR(m_speciesCharge);
     string stemp;
     string iName = BinSalt.attrib("species1");
     if (iName == "") {
@@ -853,7 +799,7 @@ void HMWSoln::readXMLMunnnNeutral(XML_Node& BinSalt)
     if (iSpecies == npos) {
         return;
     }
-    if (charge[iSpecies] != 0) {
+    if (charge(iSpecies) != 0) {
         throw CanteraError("HMWSoln::readXMLMunnnNeutral",
                            "neutral charge problem");
     }
@@ -899,11 +845,6 @@ void HMWSoln::readXMLMunnnNeutral(XML_Node& BinSalt)
     }
 }
 
-/*
- * Process an XML node called "readXMLZetaCation".
- * This node contains all of the parameters necessary to describe
- * the ternary interactions between a neutral, a cation and an anion
- */
 void HMWSoln::readXMLZetaCation(const XML_Node& BinSalt)
 {
     string xname = BinSalt.name();
@@ -911,7 +852,6 @@ void HMWSoln::readXMLZetaCation(const XML_Node& BinSalt)
         throw CanteraError("HMWSoln::readXMLZetaCation",
                            "Incorrect name for processing this routine: " + xname);
     }
-    double* charge = DATA_PTR(m_speciesCharge);
     string stemp;
     vector_fp vParams;
     size_t nParamsFound = 0;
@@ -938,7 +878,7 @@ void HMWSoln::readXMLZetaCation(const XML_Node& BinSalt)
     if (iSpecies == npos) {
         return;
     }
-    if (charge[iSpecies] != 0.0) {
+    if (charge(iSpecies) != 0.0) {
         throw CanteraError("HMWSoln::readXMLZetaCation",  "neutral charge problem");
     }
 
@@ -946,7 +886,7 @@ void HMWSoln::readXMLZetaCation(const XML_Node& BinSalt)
     if (jSpecies == npos) {
         return;
     }
-    if (charge[jSpecies] <= 0.0) {
+    if (charge(jSpecies) <= 0.0) {
         throw CanteraError("HMWSoln::readXLZetaCation", "cation1 charge problem");
     }
 
@@ -954,7 +894,7 @@ void HMWSoln::readXMLZetaCation(const XML_Node& BinSalt)
     if (kSpecies == npos) {
         return;
     }
-    if (charge[kSpecies] >= 0.0) {
+    if (charge(kSpecies) >= 0.0) {
         throw CanteraError("HMWSoln::readXMLZetaCation", "anion1 charge problem");
     }
 
@@ -1004,11 +944,6 @@ void HMWSoln::readXMLZetaCation(const XML_Node& BinSalt)
     }
 }
 
-// Process an XML node called "croppingCoefficients"
-// for the cropping coefficients values
-/*
- * @param acNode Activity Coefficient XML Node
- */
 void HMWSoln::readXMLCroppingCoefficients(const XML_Node& acNode)
 {
 
@@ -1035,32 +970,12 @@ void HMWSoln::readXMLCroppingCoefficients(const XML_Node& acNode)
     }
 }
 
-/*
- *  Initialization routine for a HMWSoln phase.
- *
- * This is a virtual routine. This routine will call initThermo()
- * for the parent class as well.
- */
 void HMWSoln::initThermo()
 {
     MolalityVPSSTP::initThermo();
     initLengths();
 }
 
-/*
- *   Import, construct, and initialize a HMWSoln phase
- *   specification from an XML tree into the current object.
- *
- * This routine is a precursor to constructPhaseXML(XML_Node*)
- * routine, which does most of the work.
- *
- * @param infile XML file containing the description of the
- *        phase
- *
- * @param id  Optional parameter identifying the name of the
- *            phase. If none is given, the first XML
- *            phase element will be used.
- */
 void HMWSoln::constructPhaseFile(std::string inputFile, std::string id)
 {
 
@@ -1092,33 +1007,6 @@ void HMWSoln::constructPhaseFile(std::string inputFile, std::string id)
     delete fxml;
 }
 
-/*
- *   Import, construct, and initialize a HMWSoln phase
- *   specification from an XML tree into the current object.
- *
- *   Most of the work is carried out by the cantera base
- *   routine, importPhase(). That routine imports all of the
- *   species and element data, including the standard states
- *   of the species.
- *
- *   Then, In this routine, we read the information
- *   particular to the specification of the activity
- *   coefficient model for the Pitzer parameterization.
- *
- *   We also read information about the molar volumes of the
- *   standard states if present in the XML file.
- *
- * @param phaseNode This object must be the phase node of a
- *             complete XML tree
- *             description of the phase, including all of the
- *             species data. In other words while "phase" must
- *             point to an XML phase object, it must have
- *             sibling nodes "speciesData" that describe
- *             the species in the phase.
- * @param id   ID of the phase. If nonnull, a check is done
- *             to see if phaseNode is pointing to the phase
- *             with the correct id.
- */
 void HMWSoln::constructPhaseXML(XML_Node& phaseNode, std::string id)
 {
     string stemp;
@@ -1247,33 +1135,13 @@ void HMWSoln::constructPhaseXML(XML_Node& phaseNode, std::string id)
 
 }
 
-
-
-/**
- * Process the XML file after species are set up.
- *
- *  This gets called from importPhase(). It processes the XML file
- *  after the species are set up. This is the main routine for
- *  reading in activity coefficient parameters.
- *
- * @param phaseNode This object must be the phase node of a
- *             complete XML tree
- *             description of the phase, including all of the
- *             species data. In other words while "phase" must
- *             point to an XML phase object, it must have
- *             sibling nodes "speciesData" that describe
- *             the species in the phase.
- * @param id   ID of the phase. If nonnull, a check is done
- *             to see if phaseNode is pointing to the phase
- *             with the correct id.
- */
 void HMWSoln::
-initThermoXML(XML_Node& phaseNode, const std::string& id)
+initThermoXML(XML_Node& phaseNode, const std::string& id_)
 {
     string stemp;
-    if (id.size() > 0) {
+    if (id_.size() > 0) {
         string idp = phaseNode.id();
-        if (idp != id) {
+        if (idp != id_) {
             throw CanteraError("HMWSoln::initThermoXML",
                                "phasenode and Id are incompatible");
         }
@@ -1515,7 +1383,7 @@ initThermoXML(XML_Node& phaseNode, const std::string& id)
      * regular charge.
      */
     for (size_t k = 0; k < m_kk; k++) {
-        m_speciesCharge_Stoich[k] = m_speciesCharge[k];
+        m_speciesCharge_Stoich[k] = charge(k);
     }
 
     /*
@@ -1566,7 +1434,6 @@ initThermoXML(XML_Node& phaseNode, const std::string& id)
         if (acNode.hasChild("ionicRadius")) {
             XML_Node& irNode = acNode.child("ionicRadius");
 
-            string Aunits = "";
             double Afactor = 1.0;
             if (irNode.hasAttrib("units")) {
                 string Aunits = irNode.attrib("units");
@@ -1679,9 +1546,9 @@ initThermoXML(XML_Node& phaseNode, const std::string& id)
      *   a charge species, a nonpolar neutral, or the solvent.
      */
     for (size_t k = 0; k < m_kk; k++) {
-        if (fabs(m_speciesCharge[k]) > 0.0001) {
+        if (fabs(charge(k)) > 0.0001) {
             m_electrolyteSpeciesType[k] = cEST_chargedSpecies;
-            if (fabs(m_speciesCharge_Stoich[k] - m_speciesCharge[k])
+            if (fabs(m_speciesCharge_Stoich[k] - charge(k))
                     > 0.0001) {
                 m_electrolyteSpeciesType[k] = cEST_weakAcidAssociated;
             }
@@ -1742,7 +1609,7 @@ initThermoXML(XML_Node& phaseNode, const std::string& id)
     calcMCCutoffParams_();
     setMoleFSolventMin(1.0E-5);
 
-    MolalityVPSSTP::initThermoXML(phaseNode, id);
+    MolalityVPSSTP::initThermoXML(phaseNode, id_);
     /*
      * Lastly calculate the charge balance and then add stuff until the charges compensate
      */
@@ -1756,8 +1623,8 @@ initThermoXML(XML_Node& phaseNode, const std::string& id)
         size_t kMaxC = npos;
         double MaxC = 0.0;
         for (size_t k = 0; k < m_kk; k++) {
-            sum += mf[k] * m_speciesCharge[k];
-            if (fabs(mf[k] * m_speciesCharge[k]) > MaxC) {
+            sum += mf[k] * charge(k);
+            if (fabs(mf[k] * charge(k)) > MaxC) {
                 kMaxC = k;
             }
         }
@@ -1795,9 +1662,9 @@ initThermoXML(XML_Node& phaseNode, const std::string& id)
                 }
                 if (notDone) {
                     if (kMaxC != npos) {
-                        if (mf[kMaxC] > (1.1 * sum / m_speciesCharge[kMaxC])) {
-                            mf[kMaxC] -= sum / m_speciesCharge[kMaxC];
-                            mf[0] += sum / m_speciesCharge[kMaxC];
+                        if (mf[kMaxC] > (1.1 * sum / charge(kMaxC))) {
+                            mf[kMaxC] -= sum / charge(kMaxC);
+                            mf[0] += sum / charge(kMaxC);
                         } else {
                             mf[kMaxC] *= 0.5;
                             mf[0] += mf[kMaxC];
@@ -1825,8 +1692,7 @@ initThermoXML(XML_Node& phaseNode, const std::string& id)
     //}
 
 }
-//====================================================================================================================
-// Precalculate the IMS Cutoff parameters for typeCutoff = 2
+
 void  HMWSoln::calcIMSCutoffParams_()
 {
     IMS_afCut_ = 1.0 / (std::exp(1.0) *  IMS_gamma_k_min_);
@@ -1877,7 +1743,6 @@ void  HMWSoln::calcIMSCutoffParams_()
     }
 }
 
-// Precalculate the MC Cutoff parameters
 void  HMWSoln::calcMCCutoffParams_()
 {
     MC_X_o_min_ = 0.35;

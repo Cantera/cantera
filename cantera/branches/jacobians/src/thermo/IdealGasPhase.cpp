@@ -13,7 +13,7 @@
 using namespace std;
 
 namespace Cantera {
-// Default empty Constructor
+
 template<typename ValAndDerivType>
 IdealGasPhase<ValAndDerivType>::IdealGasPhase() :
         ThermoPhase<ValAndDerivType>(),
@@ -48,7 +48,6 @@ IdealGasPhase<ValAndDerivType>::~IdealGasPhase()
 {
 }
 
-// Copy Constructor
 template<typename ValAndDerivType>
 IdealGasPhase<ValAndDerivType>::IdealGasPhase(const IdealGasPhase& right) :
         ThermoPhase<ValAndDerivType>(),
@@ -63,14 +62,6 @@ IdealGasPhase<ValAndDerivType>::IdealGasPhase(const IdealGasPhase& right) :
     *this = right;
 }
 
-// Assignment operator
-/*
- * Assignment operator for the object. Constructed
- * object will be a clone of this object, but will
- * also own all of its data.
- *
- * @param right Object to be copied.
- */
 template<typename ValAndDerivType>
 IdealGasPhase<ValAndDerivType>& IdealGasPhase<ValAndDerivType>::operator=(const IdealGasPhase<ValAndDerivType>& right)
 {
@@ -89,14 +80,6 @@ IdealGasPhase<ValAndDerivType>& IdealGasPhase<ValAndDerivType>::operator=(const 
     return *this;
 }
 
-// Duplicator from the %ThermoPhase parent class
-/*
- * Given a pointer to a %ThermoPhase object, this function will
- * duplicate the %ThermoPhase object and all underlying structures.
- * This is basically a wrapper around the copy constructor.
- *
- * @return returns a pointer to a %ThermoPhase
- */
 template<typename ValAndDerivType>
 ThermoPhase<ValAndDerivType>* IdealGasPhase<ValAndDerivType>::duplMyselfAsThermoPhase() const
 {
@@ -105,34 +88,12 @@ ThermoPhase<ValAndDerivType>* IdealGasPhase<ValAndDerivType>::duplMyselfAsThermo
 
 // Molar Thermodynamic Properties of the Solution ------------------
 
-/*
- * Molar internal energy. J/kmol. For an ideal gas mixture,
- * \f[
- * \hat u(T) = \sum_k X_k \hat h^0_k(T) - \hat R T,
- * \f]
- * and is a function only of temperature.
- * The reference-state pure-species enthalpies
- * \f$ \hat h^0_k(T) \f$ are computed by the species thermodynamic
- * property manager.
- * @see SpeciesThermo
- */
 template<typename ValAndDerivType>
 ValAndDerivType IdealGasPhase<ValAndDerivType>::intEnergy_mole() const
 {
     return GasConstant * this->temperature() * (mean_X(&enthalpy_RT_ref()[0]) - 1.0);
 }
 
-/*
- * Molar entropy. Units: J/kmol/K.
- * For an ideal gas mixture,
- * \f[
- * \hat s(T, P) = \sum_k X_k \hat s^0_k(T) - \hat R \log (P/P^0).
- * \f]
- * The reference-state pure-species entropies
- * \f$ \hat s^0_k(T) \f$ are computed by the species thermodynamic
- * property manager.
- * @see SpeciesThermo
- */
 template<typename ValAndDerivType>
 ValAndDerivType IdealGasPhase<ValAndDerivType>::entropy_mole() const
 {
@@ -140,51 +101,24 @@ ValAndDerivType IdealGasPhase<ValAndDerivType>::entropy_mole() const
             * (mean_X(&entropy_R_ref()[0]) - this->sum_xlogx() - std::log(pressure() / (this->m_spthermo)->refPressure()));
 }
 
-/*
- * Molar Gibbs free Energy for an ideal gas.
- * Units =  J/kmol.
- */
 template<typename ValAndDerivType>
 ValAndDerivType IdealGasPhase<ValAndDerivType>::gibbs_mole() const
 {
     return enthalpy_mole() - this->temperature() * entropy_mole();
 }
 
-/*
- * Molar heat capacity at constant pressure. Units: J/kmol/K.
- * For an ideal gas mixture,
- * \f[
- * \hat c_p(t) = \sum_k \hat c^0_{p,k}(T).
- * \f]
- * The reference-state pure-species heat capacities
- * \f$ \hat c^0_{p,k}(T) \f$ are computed by the species thermodynamic
- * property manager.
- * @see SpeciesThermo
- */
 template<typename ValAndDerivType>
 ValAndDerivType IdealGasPhase<ValAndDerivType>::cp_mole() const
 {
     return GasConstant * mean_X(&cp_R_ref()[0]);
 }
 
-/*
- * Molar heat capacity at constant volume. Units: J/kmol/K.
- * For an ideal gas mixture,
- * \f[ \hat c_v = \hat c_p - \hat R. \f]
- */
 template<typename ValAndDerivType>
 ValAndDerivType IdealGasPhase<ValAndDerivType>::cv_mole() const
 {
     return cp_mole() - GasConstant;
 }
 
-/**
- * @returns species translational/rotational specific heat at
- * constant volume.
- *
- * Either: $5/2 R_s$ or $3/2 R_s$ for molecules/atoms.
- *
- */
 template<typename ValAndDerivType>
 ValAndDerivType IdealGasPhase<ValAndDerivType>::cv_tr(doublereal atomicity) const
 {
@@ -207,46 +141,18 @@ ValAndDerivType IdealGasPhase<ValAndDerivType>::cv_tr(doublereal atomicity) cons
     return c[3];
 }
 
-/**
- * @returns species translational specific heat at constant volume.
- */
 template<typename ValAndDerivType>
 ValAndDerivType IdealGasPhase<ValAndDerivType>::cv_trans() const
 {
     return 1.5 * GasConstant;
 }
 
-/**
- * @returns species rotational specific heat at constant volume.
- *
- */
 template<typename ValAndDerivType>
 ValAndDerivType IdealGasPhase<ValAndDerivType>::cv_rot(double atom) const
 {
     return std::max(cv_tr(atom) - cv_trans(), 0.);
 }
 
-/**
- * @returns species vibrational specific heat at
- * constant volume.
- *
- * C^{vib}_{v,s} = \frac{\partial e^{vib}_{v,s} }{\partial T}
- *
- * The species vibration energy ($e^{vib}_{v,s}$) is:
- *
- * 0: atom
- *
- * Diatomic:
- * \f[
- * \frac{R_s \theta_{v,s}}{e^{\theta_{v,s}/T}-1}
- * \f]
- *
- * General Molecules:
- * \f[
- * \sum_i \frac{R_s \theta_{v,s,i}}{e^{\theta_{v,s,i}/T}-1}
- * \f]
- *
- */
 template<typename ValAndDerivType>
 ValAndDerivType IdealGasPhase<ValAndDerivType>::cv_vib(const int k, const doublereal T) const
 {
@@ -274,13 +180,6 @@ ValAndDerivType IdealGasPhase<ValAndDerivType>::cv_vib(const int k, const double
 
 }
 
-// Mechanical Equation of State ----------------------------
-// Chemical Potentials and Activities ----------------------
-
-/*
- * Returns the standard concentration \f$ C^0_k \f$, which is used to normalize
- * the generalized concentration.
- */
 template<typename ValAndDerivType>
 ValAndDerivType IdealGasPhase<ValAndDerivType>::standardConcentration(size_t k) const
 {
@@ -288,10 +187,6 @@ ValAndDerivType IdealGasPhase<ValAndDerivType>::standardConcentration(size_t k) 
     return p / (GasConstant * this->temperature());
 }
 
-/*
- * Returns the natural logarithm of the standard
- * concentration of the kth species
- */
 template<typename ValAndDerivType>
 ValAndDerivType IdealGasPhase<ValAndDerivType>::logStandardConc(size_t k) const
 {
@@ -301,9 +196,6 @@ ValAndDerivType IdealGasPhase<ValAndDerivType>::logStandardConc(size_t k) const
     return lc;
 }
 
-/*
- * Get the array of non-dimensional activity coefficients
- */
 template<typename ValAndDerivType>
 void IdealGasPhase<ValAndDerivType>::getActivityCoefficients(ValAndDerivType* ac) const
 {
@@ -312,10 +204,6 @@ void IdealGasPhase<ValAndDerivType>::getActivityCoefficients(ValAndDerivType* ac
     }
 }
 
-/*
- * Get the array of chemical potentials at unit activity \f$
- * \mu^0_k(T,P) \f$.
- */
 template<typename ValAndDerivType>
 void IdealGasPhase<ValAndDerivType>::getStandardChemPotentials(ValAndDerivType* muStar) const
 {
@@ -348,10 +236,6 @@ void IdealGasPhase<ValAndDerivType>::getChemPotentials(ValAndDerivType* mu) cons
     }
 }
 
-/*
- * Get the array of partial molar enthalpies of the species
- * units = J / kmol
- */
 template<typename ValAndDerivType>
 void IdealGasPhase<ValAndDerivType>::getPartialMolarEnthalpies(ValAndDerivType* hbar) const
 {
@@ -363,10 +247,6 @@ void IdealGasPhase<ValAndDerivType>::getPartialMolarEnthalpies(ValAndDerivType* 
     }
 }
 
-/*
- * Get the array of partial molar entropies of the species
- * units = J / kmol / K
- */
 template<typename ValAndDerivType>
 void IdealGasPhase<ValAndDerivType>::getPartialMolarEntropies(ValAndDerivType* sbar) const
 {
@@ -383,10 +263,6 @@ void IdealGasPhase<ValAndDerivType>::getPartialMolarEntropies(ValAndDerivType* s
     }
 }
 
-/*
- * Get the array of partial molar internal energies of the species
- * units = J / kmol
- */
 template<typename ValAndDerivType>
 void IdealGasPhase<ValAndDerivType>::getPartialMolarIntEnergies(ValAndDerivType* ubar) const
 {
@@ -397,9 +273,6 @@ void IdealGasPhase<ValAndDerivType>::getPartialMolarIntEnergies(ValAndDerivType*
     }
 }
 
-/*
- * Get the array of partial molar heat capacities
- */
 template<typename ValAndDerivType>
 void IdealGasPhase<ValAndDerivType>::getPartialMolarCp(ValAndDerivType* cpbar) const
 {
@@ -410,10 +283,6 @@ void IdealGasPhase<ValAndDerivType>::getPartialMolarCp(ValAndDerivType* cpbar) c
     }
 }
 
-/*
- * Get the array of partial molar volumes
- * units = m^3 / kmol
- */
 template<typename ValAndDerivType>
 void IdealGasPhase<ValAndDerivType>::getPartialMolarVolumes(ValAndDerivType* vbar) const
 {
@@ -425,11 +294,6 @@ void IdealGasPhase<ValAndDerivType>::getPartialMolarVolumes(ValAndDerivType* vba
 
 // Properties of the Standard State of the Species in the Solution --
 
-/*
- * Get the nondimensional Enthalpy functions for the species
- * at their standard states at the current T and P of the
- * solution
- */
 template<typename ValAndDerivType>
 void IdealGasPhase<ValAndDerivType>::getEnthalpy_RT(ValAndDerivType* hrt) const
 {
@@ -437,11 +301,6 @@ void IdealGasPhase<ValAndDerivType>::getEnthalpy_RT(ValAndDerivType* hrt) const
     copy(_h.begin(), _h.end(), hrt);
 }
 
-/*
- * Get the array of nondimensional entropy functions for the
- * standard state species
- * at the current <I>T</I> and <I>P</I> of the solution.
- */
 template<typename ValAndDerivType>
 void IdealGasPhase<ValAndDerivType>::getEntropy_R(ValAndDerivType* sr) const
 {
@@ -453,10 +312,6 @@ void IdealGasPhase<ValAndDerivType>::getEntropy_R(ValAndDerivType* sr) const
     }
 }
 
-/*
- * Get the nondimensional gibbs function for the species
- * standard states at the current T and P of the solution.
- */
 template<typename ValAndDerivType>
 void IdealGasPhase<ValAndDerivType>::getGibbs_RT(ValAndDerivType* grt) const
 {
@@ -468,11 +323,6 @@ void IdealGasPhase<ValAndDerivType>::getGibbs_RT(ValAndDerivType* grt) const
     }
 }
 
-/*
- * get the pure Gibbs free energies of each species assuming
- * it is in its standard state. This is the same as
- * getStandardChemPotentials().
- */
 template<typename ValAndDerivType>
 void IdealGasPhase<ValAndDerivType>::getPureGibbs(ValAndDerivType* gpure) const
 {
@@ -489,11 +339,6 @@ void IdealGasPhase<ValAndDerivType>::getPureGibbs(ValAndDerivType* gpure) const
     }
 }
 
-/*
- *  Returns the vector of nondimensional
- *  internal Energies of the standard state at the current temperature
- *  and pressure of the solution for each species.
- */
 template<typename ValAndDerivType>
 void IdealGasPhase<ValAndDerivType>::getIntEnergy_RT(ValAndDerivType* urt) const
 {
@@ -503,11 +348,6 @@ void IdealGasPhase<ValAndDerivType>::getIntEnergy_RT(ValAndDerivType* urt) const
     }
 }
 
-/*
- * Get the nondimensional heat capacity at constant pressure
- * function for the species
- * standard states at the current T and P of the solution.
- */
 template<typename ValAndDerivType>
 void IdealGasPhase<ValAndDerivType>::getCp_R(ValAndDerivType* cpr) const
 {
@@ -515,14 +355,6 @@ void IdealGasPhase<ValAndDerivType>::getCp_R(ValAndDerivType* cpr) const
     copy(_cpr.begin(), _cpr.end(), cpr);
 }
 
-/*
- *  Get the molar volumes of the species standard states at the current
- *  <I>T</I> and <I>P</I> of the solution.
- *  units = m^3 / kmol
- *
- * @param vol     Output vector containing the standard state volumes.
- *                Length: m_kk.
- */
 template<typename ValAndDerivType>
 void IdealGasPhase<ValAndDerivType>::getStandardVolumes(ValAndDerivType* vol) const
 {
@@ -534,11 +366,6 @@ void IdealGasPhase<ValAndDerivType>::getStandardVolumes(ValAndDerivType* vol) co
 
 // Thermodynamic Values for the Species Reference States ---------
 
-/*
- *  Returns the vector of nondimensional
- *  enthalpies of the reference state at the current temperature
- *  and reference pressure.
- */
 template<typename ValAndDerivType>
 void IdealGasPhase<ValAndDerivType>::getEnthalpy_RT_ref(ValAndDerivType* hrt) const
 {
@@ -546,11 +373,6 @@ void IdealGasPhase<ValAndDerivType>::getEnthalpy_RT_ref(ValAndDerivType* hrt) co
     copy(_h.begin(), _h.end(), hrt);
 }
 
-/*
- *  Returns the vector of nondimensional
- *  enthalpies of the reference state at the current temperature
- *  and reference pressure.
- */
 template<typename ValAndDerivType>
 void IdealGasPhase<ValAndDerivType>::getGibbs_RT_ref(ValAndDerivType* grt) const
 {
@@ -558,12 +380,6 @@ void IdealGasPhase<ValAndDerivType>::getGibbs_RT_ref(ValAndDerivType* grt) const
     copy(gibbsrt.begin(), gibbsrt.end(), grt);
 }
 
-/*
- *  Returns the vector of the
- *  gibbs function of the reference state at the current temperature
- *  and reference pressure.
- *  units = J/kmol
- */
 template<typename ValAndDerivType>
 void IdealGasPhase<ValAndDerivType>::getGibbs_ref(ValAndDerivType* g) const
 {
@@ -575,11 +391,6 @@ void IdealGasPhase<ValAndDerivType>::getGibbs_ref(ValAndDerivType* g) const
     }
 }
 
-/*
- *  Returns the vector of nondimensional
- *  entropies of the reference state at the current temperature
- *  and reference pressure.
- */
 template<typename ValAndDerivType>
 void IdealGasPhase<ValAndDerivType>::getEntropy_R_ref(ValAndDerivType* er) const
 {
@@ -587,11 +398,6 @@ void IdealGasPhase<ValAndDerivType>::getEntropy_R_ref(ValAndDerivType* er) const
     copy(_s.begin(), _s.end(), er);
 }
 
-/*
- *  Returns the vector of nondimensional
- *  internal Energies of the reference state at the current temperature
- *  of the solution and the reference pressure for each species.
- */
 template<typename ValAndDerivType>
 void IdealGasPhase<ValAndDerivType>::getIntEnergy_RT_ref(ValAndDerivType* urt) const
 {
@@ -601,11 +407,6 @@ void IdealGasPhase<ValAndDerivType>::getIntEnergy_RT_ref(ValAndDerivType* urt) c
     }
 }
 
-/*
- *  Returns the vector of nondimensional
- *  constant pressure heat capacities of the reference state
- *   at the current temperature and reference pressure.
- */
 template<typename ValAndDerivType>
 void IdealGasPhase<ValAndDerivType>::getCp_R_ref(ValAndDerivType* cprt) const
 {
@@ -622,8 +423,6 @@ void IdealGasPhase<ValAndDerivType>::getStandardVolumes_ref(ValAndDerivType* vol
     }
 }
 
-// new methods defined here -------------------------------
-
 template<typename ValAndDerivType>
 void IdealGasPhase<ValAndDerivType>::initThermo()
 {
@@ -636,11 +435,6 @@ void IdealGasPhase<ValAndDerivType>::initThermo()
     m_pp.resize(m_kk);
 }
 
-/*
- * Set mixture to an equilibrium state consistent with specified
- * chemical potentials and temperature. This method is needed by
- * the ChemEquil equilibrium solver.
- */
 template<typename ValAndDerivType>
 void IdealGasPhase<ValAndDerivType>::setToEquilState(const doublereal* mu_RT)
 {
@@ -747,4 +541,3 @@ template class IdealGasPhase<doubleFAD> ;
 #endif
 
 }
-

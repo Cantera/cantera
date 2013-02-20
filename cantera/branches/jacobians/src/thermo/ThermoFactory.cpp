@@ -810,7 +810,7 @@ template bool installSpecies(size_t k, const XML_Node& s, thermo_t_deriv& th, Sp
 const XML_Node* speciesXML_Node(const std::string& kname, const XML_Node* phaseSpeciesData)
 {
     if (!phaseSpeciesData) {
-        return ((const XML_Node*) 0);
+        return 0;
     }
     string jname = phaseSpeciesData->name();
     if (jname != "speciesData") {
@@ -825,7 +825,7 @@ const XML_Node* speciesXML_Node(const std::string& kname, const XML_Node* phaseS
             return &sp;
         }
     }
-    return ((const XML_Node*) 0);
+    return 0;
 }
 
 }

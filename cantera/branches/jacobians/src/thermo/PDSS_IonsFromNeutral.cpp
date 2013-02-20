@@ -283,7 +283,7 @@ PDSS_IonsFromNeutral::enthalpy_mole() const
 {
     doublereal val = enthalpy_RT();
     doublereal RT = GasConstant * m_temp;
-    return (val * RT);
+    return val * RT;
 }
 //=======================================================================================================
 doublereal
@@ -307,7 +307,7 @@ PDSS_IonsFromNeutral::intEnergy_mole() const
 {
     doublereal val = m_h0_RT_ptr[m_spindex] - 1.0;
     doublereal RT = GasConstant * m_temp;
-    return (val * RT);
+    return val * RT;
 }
 //=======================================================================================================
 /*
@@ -318,7 +318,7 @@ doublereal
 PDSS_IonsFromNeutral::entropy_mole() const
 {
     doublereal val = entropy_R();
-    return (val * GasConstant);
+    return val * GasConstant;
 }
 //=======================================================================================================
 doublereal
@@ -345,7 +345,7 @@ PDSS_IonsFromNeutral::gibbs_mole() const
 {
     doublereal val = gibbs_RT();
     doublereal RT = GasConstant * m_temp;
-    return (val * RT);
+    return val * RT;
 }
 //=======================================================================================================
 doublereal
@@ -371,7 +371,7 @@ doublereal
 PDSS_IonsFromNeutral::cp_mole() const
 {
     doublereal val = cp_R();
-    return (val * GasConstant);
+    return val * GasConstant;
 }
 //=======================================================================================================
 doublereal
@@ -498,21 +498,21 @@ void PDSS_IonsFromNeutral::setPressure(doublereal p)
 doublereal PDSS_IonsFromNeutral::critTemperature() const
 {
     throw CanteraError("PDSS_IonsFromNeutral::critTemperature()", "unimplemented");
-    return (0.0);
+    return 0.0;
 }
 //====================================================================================================================
 // critical pressure
 doublereal PDSS_IonsFromNeutral::critPressure() const
 {
     throw CanteraError("PDSS_IonsFromNeutral::critPressure()", "unimplemented");
-    return (0.0);
+    return 0.0;
 }
 //====================================================================================================================
 // critical density
 doublereal PDSS_IonsFromNeutral::critDensity() const
 {
     throw CanteraError("PDSS_IonsFromNeutral::critDensity()", "unimplemented");
-    return (0.0);
+    return 0.0;
 }
 //====================================================================================================================
 
@@ -549,7 +549,7 @@ doublereal PDSS_IonsFromNeutral::satPressure(doublereal t)
 {
     throw CanteraError("PDSS_IonsFromNeutral::satPressure()", "unimplemented");
     /*NOTREACHED*/
-    return (0.0);
+    return 0.0;
 }
 //====================================================================================================================
 

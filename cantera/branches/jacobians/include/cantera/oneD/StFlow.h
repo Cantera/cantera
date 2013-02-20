@@ -294,8 +294,7 @@ public:
 protected:
 
     doublereal component(const doublereal* x, size_t i, size_t j) const {
-        doublereal xx = x[index(i,j)];
-        return xx;
+        return x[index(i,j)];
     }
 
     doublereal conc(const doublereal* x, size_t k,size_t j) const {

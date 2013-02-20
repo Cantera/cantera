@@ -30,11 +30,6 @@ using namespace std;
 
 namespace Cantera {
 
-//====================================================================================================================
-/*
- * Default constructor.
- *
- */
 IonsFromNeutralVPSSTP::IonsFromNeutralVPSSTP() :
         GibbsExcessVPSSTP(),
         ionSolnType_(cIonSolnType_SINGLEANION),
@@ -53,32 +48,6 @@ IonsFromNeutralVPSSTP::IonsFromNeutralVPSSTP() :
 {
 }
 
-//====================================================================================================================
-// Construct and initialize an IonsFromNeutralVPSSTP object
-// directly from an ASCII input file
-/*
- * Working constructors
- *
- *  The two constructors below are the normal way
- *  the phase initializes itself. They are shells that call
- *  the routine initThermo(), with a reference to the
- *  XML database to get the info for the phase.
- *
- * @param inputFile Name of the input file containing the phase XML data
- *                  to set up the object
- * @param id        ID of the phase in the input file. Defaults to the
- *                  empty string.
- * @param neutralPhase   The object takes a neutralPhase ThermoPhase
- *                       object as input. It can either take a pointer
- *                       to an existing object in the parameter list,
- *                       in which case it does not own the object, or
- *                       it can construct a neutral Phase as a slave
- *                       object, in which case, it does own the slave
- *                       object, for purposes of who gets to destroy
- *                       the object.
- *                       If this parameter is zero, then a slave
- *                       neutral phase object is created and used.
- */
 IonsFromNeutralVPSSTP::IonsFromNeutralVPSSTP(const std::string& inputFile, const std::string& id, thermo_t* neutralPhase) :
         GibbsExcessVPSSTP(),
         ionSolnType_(cIonSolnType_SINGLEANION),
@@ -104,7 +73,7 @@ IonsFromNeutralVPSSTP::IonsFromNeutralVPSSTP(const std::string& inputFile, const
     //dlnActCoeff_NeutralMolecule.resize(numNeutMolSpec);
     //dX_NeutralMolecule.resize(numNeutMolSpec);
 }
-//====================================================================================================================
+
 IonsFromNeutralVPSSTP::IonsFromNeutralVPSSTP(XML_Node& phaseRoot, const std::string& id, thermo_t* neutralPhase) :
         GibbsExcessVPSSTP(),
         ionSolnType_(cIonSolnType_SINGLEANION),
@@ -126,20 +95,12 @@ IonsFromNeutralVPSSTP::IonsFromNeutralVPSSTP(XML_Node& phaseRoot, const std::str
     }
     constructPhaseXML(phaseRoot, id);
     geThermo = dynamic_cast<GibbsExcessVPSSTP*>(neutralMoleculePhase_);
-    y.resize(numNeutralMoleculeSpecies_, 0.0);
+    y_.resize(numNeutralMoleculeSpecies_, 0.0);
     size_t numNeutMolSpec = geThermo->nSpecies();
-    dlnActCoeff_NeutralMolecule.resize(numNeutMolSpec);
-    dX_NeutralMolecule.resize(numNeutMolSpec);
+    dlnActCoeff_NeutralMolecule_.resize(numNeutMolSpec);
+    dX_NeutralMolecule_.resize(numNeutMolSpec);
 }
 
-//====================================================================================================================
-
-/*
- * Copy Constructor:
- *
- *  Note this stuff will not work until the underlying phase
- *  has a working copy constructor
- */
 IonsFromNeutralVPSSTP::IonsFromNeutralVPSSTP(const IonsFromNeutralVPSSTP& b) :
         GibbsExcessVPSSTP(),
         ionSolnType_(cIonSolnType_SINGLEANION),
@@ -159,13 +120,7 @@ IonsFromNeutralVPSSTP::IonsFromNeutralVPSSTP(const IonsFromNeutralVPSSTP& b) :
 {
     IonsFromNeutralVPSSTP::operator=(b);
 }
-//====================================================================================================================
-/*
- * operator=()
- *
- *  Note this stuff will not work until the underlying phase
- *  has a working assignment operator
- */
+
 IonsFromNeutralVPSSTP& IonsFromNeutralVPSSTP::operator=(const IonsFromNeutralVPSSTP& b)
 {
     if (&b == this) {
@@ -181,9 +136,7 @@ IonsFromNeutralVPSSTP& IonsFromNeutralVPSSTP::operator=(const IonsFromNeutralVPS
      */
     if (IOwnNThermoPhase_) {
         if (b.neutralMoleculePhase_) {
-            if (neutralMoleculePhase_) {
-                delete neutralMoleculePhase_;
-            }
+            delete neutralMoleculePhase_;
             neutralMoleculePhase_ = (b.neutralMoleculePhase_)->duplMyselfAsThermoPhase();
         } else {
             neutralMoleculePhase_ = 0;
@@ -209,9 +162,9 @@ IonsFromNeutralVPSSTP& IonsFromNeutralVPSSTP::operator=(const IonsFromNeutralVPS
     passThroughList_ = b.passThroughList_;
     numPassThroughSpecies_ = b.numPassThroughSpecies_;
 
-    y = b.y;
-    dlnActCoeff_NeutralMolecule = b.dlnActCoeff_NeutralMolecule;
-    dX_NeutralMolecule = b.dX_NeutralMolecule;
+    y_ = b.y_;
+    dlnActCoeff_NeutralMolecule_ = b.dlnActCoeff_NeutralMolecule_;
+    dX_NeutralMolecule_ = b.dX_NeutralMolecule_;
 
     IOwnNThermoPhase_ = b.IOwnNThermoPhase_;
     moleFractionsTmp_ = b.moleFractionsTmp_;
@@ -226,13 +179,6 @@ IonsFromNeutralVPSSTP& IonsFromNeutralVPSSTP::operator=(const IonsFromNeutralVPS
     return *this;
 }
 
-/*
- *
- * ~IonsFromNeutralVPSSTP():   (virtual)
- *
- * Destructor: does nothing:
- *
- */
 IonsFromNeutralVPSSTP::~IonsFromNeutralVPSSTP()
 {
     if (IOwnNThermoPhase_) {
@@ -241,31 +187,13 @@ IonsFromNeutralVPSSTP::~IonsFromNeutralVPSSTP()
     }
 }
 
-/*
- * This routine duplicates the current object and returns
- * a pointer to ThermoPhase.
- */
 thermo_t*
 IonsFromNeutralVPSSTP::duplMyselfAsThermoPhase() const
 {
     return new IonsFromNeutralVPSSTP(*this);
 }
 
-/*
- *   Import, construct, and initialize a phase
- *   specification from an XML tree into the current object.
- *
- * This routine is a precursor to constructPhaseXML(XML_Node*)
- * routine, which does most of the work.
- *
- * @param infile XML file containing the description of the
- *        phase
- *
- * @param id  Optional parameter identifying the name of the
- *            phase. If none is given, the first XML
- *            phase element will be used.
- */
-void IonsFromNeutralVPSSTP::constructPhaseFile(std::string inputFile, std::string id)
+void IonsFromNeutralVPSSTP::constructPhaseFile(std::string inputFile, std::string id_)
 {
 
     if (inputFile.size() == 0) {
@@ -283,50 +211,22 @@ void IonsFromNeutralVPSSTP::constructPhaseFile(std::string inputFile, std::strin
     XML_Node &phaseNode_XML = xml();
     XML_Node *fxml = new XML_Node();
     fxml->build(fin);
-    XML_Node *fxml_phase = findXMLPhase(fxml, id);
+    XML_Node *fxml_phase = findXMLPhase(fxml, id_);
     if (!fxml_phase) {
         throw CanteraError("MargulesVPSSTP:constructPhaseFile",
-                "ERROR: Can not find phase named " + id + " in file named " + inputFile);
+                "ERROR: Can not find phase named " + id_ + " in file named " + inputFile);
     }
     fxml_phase->copy(&phaseNode_XML);
-    constructPhaseXML(*fxml_phase, id);
+    constructPhaseXML(*fxml_phase, id_);
     delete fxml;
 }
 
-/*
- *   Import, construct, and initialize a HMWSoln phase
- *   specification from an XML tree into the current object.
- *
- *   Most of the work is carried out by the cantera base
- *   routine, importPhase(). That routine imports all of the
- *   species and element data, including the standard states
- *   of the species.
- *
- *   Then, In this routine, we read the information
- *   particular to the specification of the activity
- *   coefficient model for the Pitzer parameterization.
- *
- *   We also read information about the molar volumes of the
- *   standard states if present in the XML file.
- *
- * @param phaseNode This object must be the phase node of a
- *             complete XML tree
- *             description of the phase, including all of the
- *             species data. In other words while "phase" must
- *             point to an XML phase object, it must have
- *             sibling nodes "speciesData" that describe
- *             the species in the phase.
- * @param id   ID of the phase. If nonnull, a check is done
- *             to see if phaseNode is pointing to the phase
- *             with the correct id.
- */
-
-void IonsFromNeutralVPSSTP::constructPhaseXML(XML_Node& phaseNode, std::string id)
+void IonsFromNeutralVPSSTP::constructPhaseXML(XML_Node& phaseNode, std::string id_)
 {
     string stemp;
-    if (id.size() > 0) {
+    if (id_.size() > 0) {
         string idp = phaseNode.id();
-        if (idp != id) {
+        if (idp != id_) {
             throw CanteraError("IonsFromNeutralVPSSTP::constructPhaseXML", "phasenode and Id are incompatible");
         }
     }
@@ -401,9 +301,7 @@ int IonsFromNeutralVPSSTP::eosType() const
 /*
  * ------------ Molar Thermodynamic Properties ----------------------
  */
-/*
- * Molar enthalpy of the solution. Units: J/kmol.
- */
+
 doublereal IonsFromNeutralVPSSTP::enthalpy_mole() const
 {
     getPartialMolarEnthalpies(DATA_PTR(m_pp));
@@ -421,22 +319,15 @@ doublereal IonsFromNeutralVPSSTP::intEnergy_mole() const
     double hh = enthalpy_mole();
     double pres = pressure();
     double molarV = 1.0 / molarDensity();
-    double uu = hh - pres * molarV;
-    return uu;
+    return hh - pres * molarV;
 }
 
-/**
- *  Molar soln entropy at constant pressure. Units: J/kmol/K.
- *
- *  This is calculated from the partial molar entropies.
- */
 doublereal IonsFromNeutralVPSSTP::entropy_mole() const
 {
     getPartialMolarEntropies(DATA_PTR(m_pp));
     return mean_X(DATA_PTR(m_pp));
 }
 
-/// Molar Gibbs function. Units: J/kmol.
 doublereal IonsFromNeutralVPSSTP::gibbs_mole() const
 {
     getChemPotentials(DATA_PTR(m_pp));
@@ -450,11 +341,9 @@ doublereal IonsFromNeutralVPSSTP::gibbs_mole() const
 doublereal IonsFromNeutralVPSSTP::cp_mole() const
 {
     getPartialMolarCp(DATA_PTR(m_pp));
-    double val = mean_X(DATA_PTR(m_pp));
-    return val;
+    return mean_X(DATA_PTR(m_pp));
 }
 
-/// Molar heat capacity at constant volume. Units: J/kmol/K.
 doublereal IonsFromNeutralVPSSTP::cv_mole() const
 {
     // Need to revisit this, as it is wrong
@@ -463,23 +352,18 @@ doublereal IonsFromNeutralVPSSTP::cv_mole() const
     //err("not implemented");
     //return 0.0;
         }
-//===========================================================================================================
+
     /*
      * - Activities, Standard States, Activity Concentrations -----------
      */
-//===========================================================================================================
+
 void IonsFromNeutralVPSSTP::getDissociationCoeffs(vector_fp& coeffs, vector_fp& charges, std::vector<size_t>& neutMolIndex) const
 {
     coeffs = fm_neutralMolec_ions_;
     charges = m_speciesCharge;
     neutMolIndex = fm_invert_ionForNeutral;
 }
-//===========================================================================================================
-// Get the array of non-dimensional molar-based activity coefficients at
-// the current solution temperature, pressure, and solution concentration.
-/*
- * @param ac Output vector of activity coefficients. Length: m_kk.
- */
+
 void IonsFromNeutralVPSSTP::getActivityCoefficients(doublereal* ac) const
 {
 
@@ -502,7 +386,7 @@ void IonsFromNeutralVPSSTP::getActivityCoefficients(doublereal* ac) const
 }
 
 /*
- * ---------  Partial Molar Properties of the Solution -------------------------------
+ * ---------  Partial Molar Properties of the Solution -------------
  */
 
 // Get the species chemical potentials. Units: J/kmol.
@@ -618,20 +502,6 @@ void IonsFromNeutralVPSSTP::getPartialMolarEnthalpies(doublereal* hbar) const
     }
 }
 
-// Returns an array of partial molar entropies for the species
-// in the mixture.
-/*
- * Units (J/kmol)
- *
- * For this phase, the partial molar enthalpies are equal to the
- * standard state enthalpies modified by the derivative of the
- * activity coefficient wrt temperature
- *
- *  \f[
- * \bar s_k(T,P) = s^o_k(T,P) - R T^2 \frac{d \ln(\gamma_k)}{dT}
- * \f]
- *
- */
 void IonsFromNeutralVPSSTP::getPartialMolarEntropies(doublereal* sbar) const
 {
     double xx;
@@ -687,26 +557,7 @@ void IonsFromNeutralVPSSTP::getdlnActCoeffdlnX_diag(doublereal* dlnActCoeffdlnX_
         dlnActCoeffdlnX_diag[k] = dlnActCoeffdlnX_diag_[k];
     }
 }
-//====================================================================================================================
-// Get the array of log concentration-like derivatives of the
-// log activity coefficients
-/*
- * This function is a virtual method.  For ideal mixtures
- * (unity activity coefficients), this can return zero.
- * Implementations should take the derivative of the
- * logarithm of the activity coefficient with respect to the
- * logarithm of the concentration-like variable (i.e. moles)
- * that represents the standard state.
- * This quantity is to be used in conjunction with derivatives of
- * that concentration-like variable when the derivative of the chemical
- * potential is taken.
- *
- *  units = dimensionless
- *
- * @param dlnActCoeffdlnN_diag    Output vector of log(mole fraction)
- *                 derivatives of the log Activity Coefficients.
- *                 length = m_kk
- */
+
 void IonsFromNeutralVPSSTP::getdlnActCoeffdlnN_diag(doublereal* dlnActCoeffdlnN_diag) const
 {
     s_update_lnActCoeff();
@@ -716,7 +567,7 @@ void IonsFromNeutralVPSSTP::getdlnActCoeffdlnN_diag(doublereal* dlnActCoeffdlnN_
         dlnActCoeffdlnN_diag[k] = dlnActCoeffdlnN_diag_[k];
     }
 }
-//====================================================================================================================
+
 void IonsFromNeutralVPSSTP::getdlnActCoeffdlnN(const size_t ld, doublereal* dlnActCoeffdlnN)
 {
     s_update_lnActCoeff();
@@ -728,26 +579,19 @@ void IonsFromNeutralVPSSTP::getdlnActCoeffdlnN(const size_t ld, doublereal* dlnA
         }
     }
 }
-//====================================================================================================================
+
 void IonsFromNeutralVPSSTP::setTemperature(const doublereal temp)
 {
     double p = pressure();
     IonsFromNeutralVPSSTP::setState_TP(temp, p);
 }
-//====================================================================================================================
+
 void IonsFromNeutralVPSSTP::setPressure(doublereal p)
 {
     double t = temperature();
     IonsFromNeutralVPSSTP::setState_TP(t, p);
 }
-//====================================================================================================================
-// Set the temperature (K) and pressure (Pa)
-/*
- * Setting the pressure may involve the solution of a nonlinear equation.
- *
- * @param t    Temperature (K)
- * @param p    Pressure (Pa)
- */
+
 void IonsFromNeutralVPSSTP::setState_TP(doublereal t, doublereal p)
 {
     /*
@@ -766,11 +610,6 @@ void IonsFromNeutralVPSSTP::setState_TP(doublereal t, doublereal p)
     phase_t::setDensity(dd);
 }
 
-// Calculate ion mole fractions from neutral molecule
-// mole fractions.
-/*
- *  @param mf Dump the mole fractions into this vector.
- */
 void IonsFromNeutralVPSSTP::calcIonMoleFractions(doublereal* const mf) const
 {
     doublereal fmij;
@@ -807,21 +646,7 @@ void IonsFromNeutralVPSSTP::calcIonMoleFractions(doublereal* const mf) const
     }
 
 }
-//====================================================================================================================
-// Calculate neutral molecule mole fractions
-/*
- *  This routine calculates the neutral molecule mole
- *  fraction given the vector of ion mole fractions,
- *  i.e., the mole fractions from this ThermoPhase.
- *  Note, this routine basically assumes that there
- *  is charge neutrality. If there isn't, then it wouldn't
- *  make much sense.
- *
- *  for the case of  cIonSolnType_SINGLEANION, some slough
- *  in the charge neutrality is allowed. The cation number
- *  is followed, while the difference in charge neutrality
- *  is dumped into the anion mole number to fix the imbalance.
- */
+
 void IonsFromNeutralVPSSTP::calcNeutralMoleculeMoleFractions() const
 {
     size_t icat, jNeut;
@@ -930,21 +755,7 @@ void IonsFromNeutralVPSSTP::calcNeutralMoleculeMoleFractions() const
 
     }
 }
-//====================================================================================================================
-// Calculate neutral molecule mole fractions
-/*
- *  This routine calculates the neutral molecule mole
- *  fraction given the vector of ion mole fractions,
- *  i.e., the mole fractions from this ThermoPhase.
- *  Note, this routine basically assumes that there
- *  is charge neutrality. If there isn't, then it wouldn't
- *  make much sense.
- *
- *  for the case of  cIonSolnType_SINGLEANION, some slough
- *  in the charge neutrality is allowed. The cation number
- *  is followed, while the difference in charge neutrality
- *  is dumped into the anion mole number to fix the imbalance.
- */
+
 void IonsFromNeutralVPSSTP::getNeutralMoleculeMoleGrads(const doublereal* const dx, doublereal* const dy) const
 {
     doublereal fmij;
@@ -954,7 +765,7 @@ void IonsFromNeutralVPSSTP::getNeutralMoleculeMoleGrads(const doublereal* const 
 
     //! Zero the vector we are trying to find.
     for (size_t k = 0; k < numNeutralMoleculeSpecies_; k++) {
-        y[k] = 0.0;
+        y_[k] = 0.0;
         dy[k] = 0.0;
     }
 
@@ -978,7 +789,7 @@ void IonsFromNeutralVPSSTP::getNeutralMoleculeMoleGrads(const doublereal* const 
                 AssertTrace(fmij != 0.0);
                 const doublereal temp = 1.0 / fmij;
                 dy[jNeut] += dx[icat] * temp;
-                y[jNeut] += moleFractions_[icat] * temp;
+                y_[jNeut] += moleFractions_[icat] * temp;
             }
         }
 
@@ -988,7 +799,7 @@ void IonsFromNeutralVPSSTP::getNeutralMoleculeMoleGrads(const doublereal* const 
             fmij = fm_neutralMolec_ions_[icat + jNeut * m_kk];
             const doublereal temp = 1.0 / fmij;
             dy[jNeut] += dx[icat] * temp;
-            y[jNeut] += moleFractions_[icat] * temp;
+            y_[jNeut] += moleFractions_[icat] * temp;
         }
 #ifdef DEBUG_MODE_NOT
         //check dy sum to zero
@@ -1019,12 +830,12 @@ void IonsFromNeutralVPSSTP::getNeutralMoleculeMoleGrads(const doublereal* const 
         sumy = 0.0;
         sumdy = 0.0;
         for (size_t k = 0; k < numNeutralMoleculeSpecies_; k++) {
-            sumy += y[k];
+            sumy += y_[k];
             sumdy += dy[k];
         }
         sumy = 1.0 / sumy;
         for (size_t k = 0; k < numNeutralMoleculeSpecies_; k++) {
-            dy[k] = dy[k] * sumy - y[k] * sumdy * sumy * sumy;
+            dy[k] = dy[k] * sumy - y_[k] * sumdy * sumy * sumy;
         }
 
         break;
@@ -1094,29 +905,12 @@ doublereal IonsFromNeutralVPSSTP::err(const std::string& msg) const
     return 0;
 }
 
-//====================================================================================================================
-/*
- * @internal Initialize. This method is provided to allow
- * subclasses to perform any initialization required after all
- * species have been added. For example, it might be used to
- * resize internal work arrays that must have an entry for
- * each species.  The base class implementation does nothing,
- * and subclasses that do not require initialization do not
- * need to overload this method.  When importing a CTML phase
- * description, this method is called just prior to returning
- * from function importPhase.
- *
- * @see importCTML.cpp
- */
 void IonsFromNeutralVPSSTP::initThermo()
 {
     initLengths();
     GibbsExcessVPSSTP::initThermo();
 }
-//====================================================================================================================
 
-//   Initialize lengths of local variables after all species have
-//   been identified.
 void IonsFromNeutralVPSSTP::initLengths()
 {
     m_kk = nSpecies();
@@ -1136,12 +930,12 @@ void IonsFromNeutralVPSSTP::initLengths()
     dlnActCoeffdlnN_diag_NeutralMolecule_.resize(numNeutralMoleculeSpecies_);
     dlnActCoeffdlnN_NeutralMolecule_.resize(numNeutralMoleculeSpecies_, numNeutralMoleculeSpecies_, 0.0);
 
-    y.resize(numNeutralMoleculeSpecies_, 0.0);
-    dlnActCoeff_NeutralMolecule.resize(numNeutralMoleculeSpecies_, 0.0);
-    dX_NeutralMolecule.resize(numNeutralMoleculeSpecies_, 0.0);
+    y_.resize(numNeutralMoleculeSpecies_, 0.0);
+    dlnActCoeff_NeutralMolecule_.resize(numNeutralMoleculeSpecies_, 0.0);
+    dX_NeutralMolecule_.resize(numNeutralMoleculeSpecies_, 0.0);
 
 }
-//====================================================================================================================
+
 //!  Return the factor overlap
 /*!
  *     @param elnamesVN
@@ -1150,7 +944,6 @@ void IonsFromNeutralVPSSTP::initLengths()
  *     @param elnamesVI
  *     @param elemVectorI
  *     @param nElementsI
- *
  */
 static double factorOverlap(const std::vector<std::string>& elnamesVN, const std::vector<double>& elemVectorN,
                             const size_t nElementsN, const std::vector<std::string>& elnamesVI,
@@ -1174,28 +967,12 @@ static double factorOverlap(const std::vector<std::string>& elnamesVN, const std
     }
     return fMax;
 }
-//====================================================================================================================
-/*
- * initThermoXML()                (virtual from ThermoPhase)
- *   Import and initialize a ThermoPhase object
- *
- * @param phaseNode This object must be the phase node of a
- *             complete XML tree
- *             description of the phase, including all of the
- *             species data. In other words while "phase" must
- *             point to an XML phase object, it must have
- *             sibling nodes "speciesData" that describe
- *             the species in the phase.
- * @param id   ID of the phase. If nonnull, a check is done
- *             to see if phaseNode is pointing to the phase
- *             with the correct id.
- */
-void IonsFromNeutralVPSSTP::initThermoXML(XML_Node& phaseNode, const std::string& id)
+void IonsFromNeutralVPSSTP::initThermoXML(XML_Node& phaseNode, const std::string& id_)
 {
     string stemp;
-    if (id.size() > 0) {
+    if (id_.size() > 0) {
         string idp = phaseNode.id();
-        if (idp != id) {
+        if (idp != id_) {
             throw CanteraError("IonsFromNeutralVPSSTP::initThermoXML", "phasenode and Id are incompatible");
         }
     }
@@ -1238,7 +1015,7 @@ void IonsFromNeutralVPSSTP::initThermoXML(XML_Node& phaseNode, const std::string
         neutralMoleculePhase_ = newPhase<doublereal>(*neut_ptr);
     }
 
-    size_t k;
+    //size_t k;
     /*
      *   variables that need to be populated
      *
@@ -1248,7 +1025,7 @@ void IonsFromNeutralVPSSTP::initThermoXML(XML_Node& phaseNode, const std::string
 
     numCationSpecies_ = 0;
     cationList_.clear();
-    for (k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
         if (charge(k) > 0) {
             cationList_.push_back(k);
             numCationSpecies_++;
@@ -1257,7 +1034,7 @@ void IonsFromNeutralVPSSTP::initThermoXML(XML_Node& phaseNode, const std::string
 
     numAnionSpecies_ = 0;
     anionList_.clear();
-    for (k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
         if (charge(k) < 0) {
             anionList_.push_back(k);
             numAnionSpecies_++;
@@ -1266,7 +1043,7 @@ void IonsFromNeutralVPSSTP::initThermoXML(XML_Node& phaseNode, const std::string
 
     numPassThroughSpecies_ = 0;
     passThroughList_.clear();
-    for (k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
         if (charge(k) == 0) {
             passThroughList_.push_back(k);
             numPassThroughSpecies_++;
@@ -1275,7 +1052,7 @@ void IonsFromNeutralVPSSTP::initThermoXML(XML_Node& phaseNode, const std::string
 
     PDSS_IonsFromNeutral* speciesSS = 0;
     indexSpecialSpecies_ = npos;
-    for (k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
         speciesSS = dynamic_cast<PDSS_IonsFromNeutral*>(providePDSS(k));
         if (!speciesSS) {
             throw CanteraError("initThermoXML", "Dynamic cast failed");
@@ -1329,7 +1106,7 @@ void IonsFromNeutralVPSSTP::initThermoXML(XML_Node& phaseNode, const std::string
         }
         fm_neutralMolec_ions_[indexSpecialSpecies_ + jNeut * m_kk] += fac;
 
-        for (k = 0; k < m_kk; k++) {
+        for (size_t k = 0; k < m_kk; k++) {
             for (size_t m = 0; m < nElementsI; m++) {
                 elemVectorI[m] = nAtoms(k, m);
             }
@@ -1372,20 +1149,14 @@ void IonsFromNeutralVPSSTP::initThermoXML(XML_Node& phaseNode, const std::string
     /*
      * This includes the setStateFromXML calls
      */
-    GibbsExcessVPSSTP::initThermoXML(phaseNode, id);
+    GibbsExcessVPSSTP::initThermoXML(phaseNode, id_);
 
     /*
      * There is one extra step here. We assure ourselves that we
      * have charge conservation.
      */
 }
-//====================================================================================================================
-// Update the activity coefficients
-/*
- * This function will be called to update the internally stored
- * natural logarithm of the activity coefficients
- *
- */
+
 void IonsFromNeutralVPSSTP::s_update_lnActCoeff() const
 {
     size_t icat, jNeut;
@@ -1434,17 +1205,7 @@ void IonsFromNeutralVPSSTP::s_update_lnActCoeff() const
     }
 
 }
-//====================================================================================================================
-// Get the change in activity coefficients w.r.t. change in state (temp, mole fraction, etc.) along
-// a line in parameter space or along a line in physical space
-/*
- *
- * @param dTds           Input of temperature change along the path
- * @param dXds           Input vector of changes in mole fraction along the path. length = m_kk
- *                       Along the path length it must be the case that the mole fractions sum to one.
- * @param dlnActCoeffds  Output vector of the directional derivatives of the
- *                       log Activity Coefficients along the path. length = m_kk
- */
+
 void IonsFromNeutralVPSSTP::getdlnActCoeffds(const doublereal dTds, const doublereal* const dXds, doublereal* dlnActCoeffds) const
 {
     size_t icat, jNeut;
@@ -1462,11 +1223,11 @@ void IonsFromNeutralVPSSTP::getdlnActCoeffds(const doublereal dTds, const double
     //    static vector_fp dlnActCoeff_NeutralMolecule(numNeutMolSpec);
     //    static vector_fp dX_NeutralMolecule(numNeutMolSpec);
 
-    getNeutralMoleculeMoleGrads(DATA_PTR(dXds),DATA_PTR(dX_NeutralMolecule));
+    getNeutralMoleculeMoleGrads(DATA_PTR(dXds),DATA_PTR(dX_NeutralMolecule_));
 
     // All mole fractions returned to normal
 
-    geThermo->getdlnActCoeffds(dTds, DATA_PTR(dX_NeutralMolecule), DATA_PTR(dlnActCoeff_NeutralMolecule));
+    geThermo->getdlnActCoeffds(dTds, DATA_PTR(dX_NeutralMolecule_), DATA_PTR(dlnActCoeff_NeutralMolecule_));
 
     switch (ionSolnType_) {
     case cIonSolnType_PASSTHROUGH:
@@ -1479,7 +1240,7 @@ void IonsFromNeutralVPSSTP::getdlnActCoeffds(const doublereal dTds, const double
             icat = cationList_[k];
             jNeut = fm_invert_ionForNeutral[icat];
             fmij = fm_neutralMolec_ions_[icat + jNeut * m_kk];
-            dlnActCoeffds[icat] = dlnActCoeff_NeutralMolecule[jNeut] / fmij;
+            dlnActCoeffds[icat] = dlnActCoeff_NeutralMolecule_[jNeut] / fmij;
         }
 
         // Do the anion list
@@ -1491,7 +1252,7 @@ void IonsFromNeutralVPSSTP::getdlnActCoeffds(const doublereal dTds, const double
         for (size_t k = 0; k < numPassThroughSpecies_; k++) {
             icat = passThroughList_[k];
             jNeut = fm_invert_ionForNeutral[icat];
-            dlnActCoeffds[icat] = dlnActCoeff_NeutralMolecule[jNeut];
+            dlnActCoeffds[icat] = dlnActCoeff_NeutralMolecule_[jNeut];
         }
         break;
 
@@ -1507,12 +1268,7 @@ void IonsFromNeutralVPSSTP::getdlnActCoeffds(const doublereal dTds, const double
     }
 
 }
-//====================================================================================================================
-// Update the temperature derivative of the ln activity coefficients
-/*
- * This function will be called to update the internally stored
- * temperature derivative of the natural logarithm of the activity coefficients
- */
+
 void IonsFromNeutralVPSSTP::s_update_dlnActCoeffdT() const
 {
     size_t icat, jNeut;
@@ -1566,11 +1322,7 @@ void IonsFromNeutralVPSSTP::s_update_dlnActCoeffdT() const
     }
 
 }
-//====================================================================================================================
-/*
- * This function will be called to update the internally stored
- * temperature derivative of the natural logarithm of the activity coefficients
- */
+
 void IonsFromNeutralVPSSTP::s_update_dlnActCoeff_dlnX_diag() const
 {
     size_t icat, jNeut;
@@ -1624,11 +1376,7 @@ void IonsFromNeutralVPSSTP::s_update_dlnActCoeff_dlnX_diag() const
     }
 
 }
-//====================================================================================================================
-/*
- * This function will be called to update the internally stored
- * temperature derivative of the natural logarithm of the activity coefficients
- */
+
 void IonsFromNeutralVPSSTP::s_update_dlnActCoeff_dlnN_diag() const
 {
     size_t icat, jNeut;
@@ -1682,14 +1430,7 @@ void IonsFromNeutralVPSSTP::s_update_dlnActCoeff_dlnN_diag() const
     }
 
 }
-//====================================================================================================================
-// Update the derivative of the log of the activity coefficients
-//  wrt log(number of moles) - diagonal components
-/*
- * This function will be called to update the internally stored
- * derivative of the natural logarithm of the activity coefficients
- * wrt logarithm of the number of moles of given species.
- */
+
 void IonsFromNeutralVPSSTP::s_update_dlnActCoeff_dlnN() const
 {
     size_t kcat = 0, kNeut = 0, mcat = 0, mNeut = 0;
@@ -1773,6 +1514,5 @@ void IonsFromNeutralVPSSTP::s_update_dlnActCoeff_dlnN() const
         break;
     }
 }
-//====================================================================================================================
+
 }
-//======================================================================================================================

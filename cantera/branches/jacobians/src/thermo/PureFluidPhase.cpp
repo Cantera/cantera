@@ -22,7 +22,6 @@ using std::setw;
 namespace Cantera
 {
 
-// Base Constructor
 PureFluidPhase::PureFluidPhase() :
     thermo_t(),
     m_sub(0),
@@ -32,7 +31,6 @@ PureFluidPhase::PureFluidPhase() :
 {
 }
 
-// CopyConstructor
 PureFluidPhase::PureFluidPhase(const PureFluidPhase& right) :
     thermo_t(),
     m_sub(0),
@@ -43,17 +41,11 @@ PureFluidPhase::PureFluidPhase(const PureFluidPhase& right) :
     *this = right;
 }
 
-//! Assignment operator
-/*!
- * @param right Object to be copied
- */
 PureFluidPhase& PureFluidPhase::operator=(const PureFluidPhase& right)
 {
     if (&right != this) {
         thermo_t::operator=(right);
-        if (m_sub) {
-            delete m_sub;
-        }
+        delete m_sub;
         m_subflag    = right.m_subflag;
         m_sub        = tpx::GetSub(m_subflag);
         m_mw         = right.m_mw;
@@ -62,21 +54,10 @@ PureFluidPhase& PureFluidPhase::operator=(const PureFluidPhase& right)
     return *this;
 }
 
-// Duplicator from the %ThermoPhase parent class
-/*
- * Given a pointer to a %ThermoPhase object, this function will
- * duplicate the %ThermoPhase object and all underlying structures.
- * This is basically a wrapper around the copy constructor.
- *
- * @return returns a pointer to a %ThermoPhase
- */
 thermo_t* PureFluidPhase::duplMyselfAsThermoPhase() const
 {
     return new PureFluidPhase(*this);
 }
-
-
-
 
 PureFluidPhase::~PureFluidPhase()
 {
@@ -86,9 +67,7 @@ PureFluidPhase::~PureFluidPhase()
 void PureFluidPhase::
 initThermo()
 {
-    if (m_sub) {
-        delete m_sub;
-    }
+    delete m_sub;
     m_sub = tpx::GetSub(m_subflag);
     if (m_sub == 0) {
         throw CanteraError("PureFluidPhase::initThermo",
@@ -175,178 +154,108 @@ pressure() const
     setTPXState();
     return m_sub->P();
 }
-//====================================================================================================================
-void PureFluidPhase::
-setPressure(doublereal p)
+
+void PureFluidPhase::setPressure(doublereal p)
 {
     Set(tpx::PropertyPair::TP, temperature(), p);
     setDensity(1.0/m_sub->v());
 }
-//====================================================================================================================
+
 void PureFluidPhase::Set(tpx::PropertyPair::type n, double x, double y) const
 {
     m_sub->Set(n, x, y);
 }
-//====================================================================================================================
+
 void PureFluidPhase::setTPXState() const
 {
     Set(tpx::PropertyPair::TV, temperature(), 1.0/density());
 }
-//====================================================================================================================
 
 doublereal PureFluidPhase::isothermalCompressibility() const
 {
     return m_sub->isothermalCompressibility();
 }
-//====================================================================================================================
+
 doublereal PureFluidPhase::thermalExpansionCoeff() const
 {
     return m_sub->thermalExpansionCoeff();
 }
-//====================================================================================================================
+
 tpx::Substance& PureFluidPhase::TPX_Substance()
 {
     return *m_sub;
 }
-//====================================================================================================================
-// Returns an array of partial molar enthalpies for the species
-// in the mixture. Units (J/kmol)
-/*
- * @param hbar    Output vector of species partial molar enthalpies.
- *                Length: m_kk. units are J/kmol.
- */
+
 void  PureFluidPhase::getPartialMolarEnthalpies(doublereal* hbar) const
 {
     hbar[0] = enthalpy_mole();
 }
-//====================================================================================================================
-// Returns an array of partial molar entropies of the species in the
-// solution. Units: J/kmol/K.
-/*
- * @param sbar    Output vector of species partial molar entropies.
- *                Length = m_kk. units are J/kmol/K.
- */
+
 void  PureFluidPhase::getPartialMolarEntropies(doublereal* sbar) const
 {
     sbar[0] = entropy_mole();
 }
-//====================================================================================================================
-// Return an array of partial molar internal energies for the
-// species in the mixture.  Units: J/kmol.
-/*
- * @param ubar    Output vector of species partial molar internal energies.
- *                Length = m_kk. units are J/kmol.
- */
+
 void  PureFluidPhase::getPartialMolarIntEnergies(doublereal* ubar) const
 {
     ubar[0] = intEnergy_mole();
 }
-//====================================================================================================================
-// Return an array of partial molar heat capacities for the
-// species in the mixture.  Units: J/kmol/K
-/*
- * @param cpbar   Output vector of species partial molar heat
- *                capacities at constant pressure.
- *                Length = m_kk. units are J/kmol/K.
- */
+
 void  PureFluidPhase::getPartialMolarCp(doublereal* cpbar) const
 {
     cpbar[0] = cp_mole();
 }
-//====================================================================================================================
-// Return an array of partial molar volumes for the
-// species in the mixture. Units: m^3/kmol.
-/*
- *  @param vbar   Output vector of species partial molar volumes.
- *                Length = m_kk. units are m^3/kmol.
- */
+
 void  PureFluidPhase::getPartialMolarVolumes(doublereal* vbar) const
 {
     vbar[0] = 1.0 / molarDensity();
 }
-//====================================================================================================================
+
 int PureFluidPhase::standardStateConvention() const
 {
     return cSS_CONVENTION_TEMPERATURE;
 }
-//====================================================================================================================
+
 void  PureFluidPhase::getActivityConcentrations(doublereal* c) const
 {
     c[0] = 1.0;
 }
-//====================================================================================================================
+
 doublereal PureFluidPhase::standardConcentration(size_t k) const
 {
     return 1.0;
 }
-//====================================================================================================================
+
 void  PureFluidPhase::getActivities(doublereal* a) const
 {
     a[0] = 1.0;
 }
-//====================================================================================================================
-// Get the array of chemical potentials at unit activity for the species
-// at their standard states at the current <I>T</I> and <I>P</I> of the solution.
-/*
- * These are the standard state chemical potentials \f$ \mu^0_k(T,P)
- * \f$. The values are evaluated at the current
- * temperature and pressure of the solution
- *
- * @param mu      Output vector of chemical potentials.
- *                Length: m_kk.
- */
+
 void  PureFluidPhase::getStandardChemPotentials(doublereal* mu) const
 {
     mu[0] = gibbs_mole();
 }
-//====================================================================================================================
-//   Get the nondimensional Enthalpy functions for the species
-//   at their standard states at the current <I>T</I> and <I>P</I> of the solution.
-/*
- * @param hrt      Output vector of  nondimensional standard state enthalpies.
- *                 Length: m_kk.
- */
+
 void PureFluidPhase::getEnthalpy_RT(doublereal* hrt) const
 {
     doublereal rt = _RT();
     doublereal h = enthalpy_mole();
     hrt[0] = h / rt;
 }
-//====================================================================================================================
-//   Get the array of nondimensional Entropy functions for the
-//   standard state species at the current <I>T</I> and <I>P</I> of the solution.
-/*
- * @param sr   Output vector of  nondimensional standard state entropies.
- *             Length: m_kk.
- */
+
 void PureFluidPhase::getEntropy_R(doublereal* sr) const
 {
     doublereal s = entropy_mole();
     sr[0] = s / GasConstant;
 }
-//====================================================================================================================
-// Get the nondimensional Gibbs functions for the species
-// in their standard states at the current <I>T</I> and <I>P</I> of the solution.
-/*
- * @param grt  Output vector of nondimensional standard state gibbs free energies
- *             Length: m_kk.
- */
+
 void  PureFluidPhase::getGibbs_RT(doublereal* grt) const
 {
     doublereal rt = _RT();
     doublereal g = gibbs_mole();
     grt[0] = g / rt;
 }
-//====================================================================================================================
-//  Returns the vector of nondimensional enthalpies of the reference state at the current temperature
-//  of the solution and the reference pressure for the species.
-/*
- *  This base function will throw a CanteraException unless
- *  it is overwritten in a derived class.
- *
- * @param hrt     Output vector containing the nondimensional reference state enthalpies
- *                Length: m_kk.
- */
+
 void PureFluidPhase::getEnthalpy_RT_ref(doublereal* hrt) const
 {
     double psave = pressure();
@@ -358,13 +267,7 @@ void PureFluidPhase::getEnthalpy_RT_ref(doublereal* hrt) const
     Set(tpx::PropertyPair::TP, t, psave);
 
 }
-//====================================================================================================================
-//  Returns the vector of nondimensional Gibbs Free Energies of the reference state at the current temperature
-//  of the solution and the reference pressure for the species.
-/*
- * @param grt     Output vector containing the nondimensional reference state
- *                Gibbs Free energies.  Length: m_kk.
- */
+
 void  PureFluidPhase::getGibbs_RT_ref(doublereal* grt) const
 {
     double psave = pressure();
@@ -376,27 +279,13 @@ void  PureFluidPhase::getGibbs_RT_ref(doublereal* grt) const
     grt[0] += log(pref/plow);
     Set(tpx::PropertyPair::TP, t, psave);
 }
-//====================================================================================================================
-//  Returns the vector of the gibbs function of the reference state at the current temperature
-//  of the solution and the reference pressure for the species.
-/*
- *  units = J/kmol
- *
- * @param g       Output vector containing the  reference state
- *                Gibbs Free energies.  Length: m_kk. Units: J/kmol.
- */
+
 void PureFluidPhase::getGibbs_ref(doublereal* g) const
 {
     getGibbs_RT_ref(g);
     g[0] *= (GasConstant * temperature());
 }
-//====================================================================================================================
-//  Returns the vector of nondimensional entropies of the reference state at the current temperature
-//  of the solution and the reference pressure for each species.
-/*
- * @param er      Output vector containing the nondimensional reference state
- *                entropies.  Length: m_kk.
- */
+
 void PureFluidPhase::getEntropy_R_ref(doublereal* er) const
 {
     double psave = pressure();
@@ -408,76 +297,68 @@ void PureFluidPhase::getEntropy_R_ref(doublereal* er) const
     er[0] -= log(pref/plow);
     Set(tpx::PropertyPair::TP, t, psave);
 }
-//====================================================================================================================
-// critical temperature
+
 doublereal PureFluidPhase::critTemperature() const
 {
     return m_sub->Tcrit();
 }
-//====================================================================================================================
-/// critical pressure
+
 doublereal PureFluidPhase::critPressure() const
 {
     return m_sub->Pcrit();
 }
-//====================================================================================================================
-/// critical density
+
 doublereal PureFluidPhase::critDensity() const
 {
     return 1.0/m_sub->Vcrit();
 }
-//====================================================================================================================
 
-/// saturation temperature
 doublereal PureFluidPhase::satTemperature(doublereal p) const
 {
-    doublereal ts = m_sub->Tsat(p);
-    return ts;
+    return m_sub->Tsat(p);
 }
-//====================================================================================================================
+
 void PureFluidPhase::setState_HP(doublereal h, doublereal p,
                                  doublereal tol)
 {
     Set(tpx::PropertyPair::HP, h, p);
     setState_TR(m_sub->Temp(), 1.0/m_sub->v());
 }
-//====================================================================================================================
+
 void PureFluidPhase::setState_UV(doublereal u, doublereal v,
                                  doublereal tol)
 {
     Set(tpx::PropertyPair::UV, u, v);
     setState_TR(m_sub->Temp(), 1.0/m_sub->v());
 }
-//====================================================================================================================
+
 void PureFluidPhase::setState_SV(doublereal s, doublereal v,
                                  doublereal tol)
 {
     Set(tpx::PropertyPair::SV, s, v);
     setState_TR(m_sub->Temp(), 1.0/m_sub->v());
 }
-//====================================================================================================================
+
 void PureFluidPhase::setState_SP(doublereal s, doublereal p,
                                  doublereal tol)
 {
     Set(tpx::PropertyPair::SP, s, p);
     setState_TR(m_sub->Temp(), 1.0/m_sub->v());
 }
-//====================================================================================================================
-// saturation pressure
+
 doublereal PureFluidPhase::satPressure(doublereal t) const
 {
     doublereal vsv = m_sub->v();
     Set(tpx::PropertyPair::TV,t,vsv);
-    doublereal ps = m_sub->Ps();
-    return ps;
+    return m_sub->Ps();
 }
-//====================================================================================================================
+
 doublereal PureFluidPhase::vaporFraction() const
 {
     setTPXState();
     return m_sub->x();
 }
-//====================================================================================================================
+
 void PureFluidPhase::setState_Tsat(doublereal t, doublereal x)
 {
     setTemperature(t);
@@ -485,7 +366,7 @@ void PureFluidPhase::setState_Tsat(doublereal t, doublereal x)
     Set(tpx::PropertyPair::TX, t, x);
     setDensity(1.0/m_sub->v());
 }
-//====================================================================================================================
+
 void PureFluidPhase::setState_Psat(doublereal p, doublereal x)
 {
     setTPXState();
@@ -494,10 +375,6 @@ void PureFluidPhase::setState_Psat(doublereal p, doublereal x)
     setDensity(1.0/m_sub->v());
 }
 
-//====================================================================================================================
-/**
- * Format a summary of the mixture state for output.
- */
 std::string PureFluidPhase::report(bool show_thermo) const
 {
     char p[800];

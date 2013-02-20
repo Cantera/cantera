@@ -126,8 +126,7 @@ void WaterTransport::initTP()
  */
 doublereal WaterTransport::viscosity()
 {
-    doublereal visc = m_waterProps->viscosityWater();
-    return visc;
+    return m_waterProps->viscosityWater();
 }
 
 // Returns the thermal conductivity of water at the current conditions
@@ -147,8 +146,7 @@ doublereal WaterTransport::viscosity()
  */
 doublereal WaterTransport::thermalConductivity()
 {
-    doublereal lambda = m_waterProps->thermalConductivityWater();
-    return lambda;
+    return m_waterProps->thermalConductivityWater();
 }
 
 }

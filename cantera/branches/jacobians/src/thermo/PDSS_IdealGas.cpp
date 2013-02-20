@@ -169,14 +169,13 @@ PDSS_IdealGas::enthalpy_mole() const
 {
     doublereal val = enthalpy_RT();
     doublereal RT = GasConstant * m_temp;
-    return (val * RT);
+    return val * RT;
 }
 
 doublereal
 PDSS_IdealGas::enthalpy_RT() const
 {
-    doublereal val = m_h0_RT_ptr[m_spindex];
-    return (val);
+    return m_h0_RT_ptr[m_spindex];
 }
 
 
@@ -189,7 +188,7 @@ PDSS_IdealGas::intEnergy_mole() const
 {
     doublereal val = m_h0_RT_ptr[m_spindex] - 1.0;
     doublereal RT = GasConstant * m_temp;
-    return (val * RT);
+    return val * RT;
 }
 
 /*
@@ -200,14 +199,13 @@ doublereal
 PDSS_IdealGas::entropy_mole() const
 {
     doublereal val = entropy_R();
-    return (val * GasConstant);
+    return val * GasConstant;
 }
 
 doublereal
 PDSS_IdealGas::entropy_R() const
 {
-    doublereal val = m_s0_R_ptr[m_spindex] - log(m_pres/m_p0);
-    return (val);
+    return m_s0_R_ptr[m_spindex] - log(m_pres/m_p0);
 }
 
 /*
@@ -219,14 +217,13 @@ PDSS_IdealGas::gibbs_mole() const
 {
     doublereal val = gibbs_RT();
     doublereal RT = GasConstant * m_temp;
-    return (val * RT);
+    return val * RT;
 }
 
 doublereal
 PDSS_IdealGas::gibbs_RT() const
 {
-    doublereal val = m_g0_RT_ptr[m_spindex] + log(m_pres/m_p0);
-    return (val);
+    return m_g0_RT_ptr[m_spindex] + log(m_pres/m_p0);
 }
 
 /*
@@ -237,27 +234,26 @@ doublereal
 PDSS_IdealGas::cp_mole() const
 {
     doublereal val = cp_R();
-    return (val * GasConstant);
+    return val * GasConstant;
 }
 
 doublereal
 PDSS_IdealGas::cp_R() const
 {
-    doublereal val = m_cp0_R_ptr[m_spindex];
-    return (val);
+    return m_cp0_R_ptr[m_spindex];
 }
 
 doublereal
 PDSS_IdealGas::molarVolume() const
 {
-    return (GasConstant * m_temp / m_pres);
+    return GasConstant * m_temp / m_pres;
 }
 
 
 doublereal
 PDSS_IdealGas::density() const
 {
-    return (m_pres * m_mw / (GasConstant * m_temp));
+    return m_pres * m_mw / (GasConstant * m_temp);
 }
 
 /*
@@ -267,37 +263,34 @@ PDSS_IdealGas::density() const
 doublereal
 PDSS_IdealGas::cv_mole() const
 {
-    return (cp_mole() - GasConstant);
+    return cp_mole() - GasConstant;
 }
 
 
 doublereal
 PDSS_IdealGas::gibbs_RT_ref() const
 {
-    doublereal val = m_g0_RT_ptr[m_spindex];
-    return (val);
+    return m_g0_RT_ptr[m_spindex];
 }
 
 doublereal PDSS_IdealGas::enthalpy_RT_ref() const
 {
-    doublereal val = m_h0_RT_ptr[m_spindex];
-    return (val);
+    return m_h0_RT_ptr[m_spindex];
 }
 
 doublereal PDSS_IdealGas::entropy_R_ref() const
 {
-    doublereal val = m_s0_R_ptr[m_spindex];
-    return (val);
+    return m_s0_R_ptr[m_spindex];
 }
 
 doublereal PDSS_IdealGas::cp_R_ref() const
 {
-    return (cp_R());
+    return cp_R();
 }
 
 doublereal PDSS_IdealGas::molarVolume_ref() const
 {
-    return (GasConstant * m_temp / m_p0);
+    return GasConstant * m_temp / m_p0;
 }
 
 /*
@@ -308,7 +301,7 @@ doublereal PDSS_IdealGas::molarVolume_ref() const
 doublereal  PDSS_IdealGas::pressure() const
 {
     throw CanteraError("PDSS_IdealGas::pressure()", "unimplemented");
-    return (0.0);
+    return 0.0;
 }
 
 void PDSS_IdealGas::setPressure(doublereal p)
@@ -323,21 +316,21 @@ void PDSS_IdealGas::setPressure(doublereal p)
 doublereal PDSS_IdealGas::critTemperature() const
 {
     throw CanteraError("PDSS_IdealGas::critTemperature()", "unimplemented");
-    return (0.0);
+    return 0.0;
 }
 
 // critical pressure
 doublereal PDSS_IdealGas::critPressure() const
 {
     throw CanteraError("PDSS_IdealGas::critPressure()", "unimplemented");
-    return (0.0);
+    return 0.0;
 }
 
 // critical density
 doublereal PDSS_IdealGas::critDensity() const
 {
     throw CanteraError("PDSS_IdealGas::critDensity()", "unimplemented");
-    return (0.0);
+    return 0.0;
 }
 
 
@@ -386,7 +379,7 @@ doublereal PDSS_IdealGas::satPressure(doublereal t)
 {
     throw CanteraError("PDSS_IdealGas::satPressure()", "unimplemented");
     /*NOTREACHED*/
-    return (0.0);
+    return 0.0;
 }
 
 

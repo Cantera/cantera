@@ -81,7 +81,7 @@ class PDSS_Water;
  * The enthalpy function is given by the following relation.
  *
  *       \f[
- *   \raggedright  h^\triangle_k(T,P) = h^{\triangle,ref}_k(T)
+ *         h^\triangle_k(T,P) = h^{\triangle,ref}_k(T)
  *         + \tilde v \left( P - P_{ref} \right)
  *       \f]
  *
@@ -201,7 +201,7 @@ class PDSS_Water;
  *  \f$ I_s \f$ we need to
  *  catalog all species in the phase. This is done using the following categories:
  *
- *  -  <B>cEST_solvent</B>    :           Solvent species (neutral)
+ *  -  <B>cEST_solvent</B>                Solvent species (neutral)
  *  -  <B>cEST_chargedSpecies</B>         Charged species (charged)
  *  -  <B>cEST_weakAcidAssociated</B>     Species which can break apart into charged species.
  *                                        It may or may not be charged.  These may or
@@ -249,8 +249,7 @@ class PDSS_Water;
  *
  *  DHFORM_DILUTE_LIMIT = 0
  *
- *      This form assumes a dilute limit to DH, and is mainly
- *      for informational purposes:
+ *  This form assumes a dilute limit to DH, and is mainly for informational purposes:
  *  \f[
  *      \ln(\gamma_k^\triangle) = - z_k^2 A_{Debye} \sqrt{I}
  *  \f]
@@ -278,10 +277,9 @@ class PDSS_Water;
  *                        + \log(10) B^{dot}_k  I
  *   \f]
  *
- *      Note, this particular form where \f$ a_k \f$ can differ in
- *          multielectrolyte
- *          solutions has problems with respect to a Gibbs-Duhem analysis. However,
- *          we include it here because there is a lot of data fit to it.
+ *  Note, this particular form where \f$ a_k \f$ can differ in multielectrolyte
+ *  solutions has problems with respect to a Gibbs-Duhem analysis. However,
+ *  we include it here because there is a lot of data fit to it.
  *
  *  The activity for the solvent water,\f$ a_o \f$, is not independent and must be
  *  determined from the Gibbs-Duhem relation. Here, we use:
@@ -305,15 +303,14 @@ class PDSS_Water;
  *
  *  DHFORM_BDOT_AUNIFORM = 2
  *
- *      This form assumes Bethke's format for the Debye-Huckel activity coefficient
+ *  This form assumes Bethke's format for the Debye-Huckel activity coefficient
  *
  *   \f[
  *    \ln(\gamma_k^\triangle) = -z_k^2 \frac{A_{Debye} \sqrt{I}}{ 1 + B_{Debye}  a \sqrt{I}}
  *                        + \log(10) B^{dot}_k  I
  *   \f]
  *
- *         The value of a is determined at the beginning of the
- *         calculation, and not changed.
+ *  The value of a is determined at the beginning of the calculation, and not changed.
  *
  *  \f[
  *       \ln(a_o) = \frac{X_o - 1.0}{X_o}
@@ -326,19 +323,18 @@ class PDSS_Water;
  *
  *  DHFORM_BETAIJ        = 3
  *
- *      This form assumes a linear expansion in a virial coefficient form
- *      It is used extensively in the book by Newmann, "Electrochemistry Systems",
- *      and is the beginning of
- *      more complex treatments for stronger electrolytes, fom Pitzer
- *      and from Harvey, Moller, and Weire.
+ *  This form assumes a linear expansion in a virial coefficient form.
+ *  It is used extensively in the book by Newmann, "Electrochemistry Systems",
+ *  and is the beginning of more complex treatments for stronger electrolytes,
+ *  fom Pitzer and from Harvey, Moller, and Weire.
  *
  *   \f[
  *    \ln(\gamma_k^\triangle) = -z_k^2 \frac{A_{Debye} \sqrt{I}}{ 1 + B_{Debye}  a \sqrt{I}}
  *                         + 2 \sum_j \beta_{j,k} m_j
  *   \f]
  *
- *   In the current treatment the binary interaction coefficients, \f$ \beta_{j,k}\f$, are
- *   independent of temperature and pressure.
+ *  In the current treatment the binary interaction coefficients, \f$ \beta_{j,k}\f$, are
+ *  independent of temperature and pressure.
  *
  *  \f[
  *       \ln(a_o) = \frac{X_o - 1.0}{X_o}
@@ -384,9 +380,9 @@ class PDSS_Water;
  *
  *  DHFORM_PITZER_BETAIJ  = 4
  *
- *      This form assumes an activity coefficient formulation consistent
- *      with a truncated form of Pitzer's formulation. Pitzer's formulation is equivalent
- *      to the formulations above in the dilute limit, where rigorous theory may be applied.
+ *  This form assumes an activity coefficient formulation consistent
+ *  with a truncated form of Pitzer's formulation. Pitzer's formulation is equivalent
+ *  to the formulations above in the dilute limit, where rigorous theory may be applied.
  *
  *   \f[
  *     \ln(\gamma_k^\triangle) = -z_k^2 \frac{A_{Debye}}{3} \frac{\sqrt{I}}{ 1 + B_{Debye}  a \sqrt{I}}
@@ -425,23 +421,19 @@ class PDSS_Water;
  *                 {\left(\frac{N_a e^2}{\epsilon R T }\right)}^{3/2}
  * \f]
  *
- *            Units = sqrt(kg/gmol)
+ * where
+ *   - \f$ N_a \f$ is Avogadro's number
+ *   - \f$ \rho_w \f$ is the density of water
+ *   - \f$ e \f$ is the electronic charge
+ *   - \f$ \epsilon = K \epsilon_o \f$ is the permittivity of water
+ *   - \f$ K \f$ is the dielectric constant of water
+ *   - \f$ \epsilon_o \f$ is the permittivity of free space
+ *   - \f$ \rho_o \f$ is the density of the solvent in its standard state.
  *
- *     where
- *      - \f$ N_a \f$ is Avogadro's number
- *      - \f$ \rho_w \f$ is the density of water
- *      - \f$ e \f$ is the electronic charge
- *      - \f$ \epsilon = K \epsilon_o \f$ is the permittivity of water
- *           where \f$ K \f$ is the dielectric constant of water,
- *           and  \f$ \epsilon_o \f$ is the permittivity of free space.
- *      - \f$ \rho_o \f$ is the density of the solvent in its standard state.
- *
- *            Nominal value at 298 K and 1 atm = 1.172576 (kg/gmol)<SUP>1/2</SUP>
- *                  based on:
- *                 -   \f$ \epsilon / \epsilon_0 \f$ = 78.54
- *                           (water at 25C)
- *                 -   T = 298.15 K
- *                 -   B_Debye = 3.28640E9 (kg/gmol)<SUP>1/2</SUP> m<SUP>-1</SUP>
+ * Nominal value at 298 K and 1 atm = 1.172576 (kg/gmol)<SUP>1/2</SUP> based on:
+ *   - \f$ \epsilon / \epsilon_0 \f$ = 78.54 (water at 25C)
+ *   - T = 298.15 K
+ *   - B_Debye = 3.28640E9 (kg/gmol)<SUP>1/2</SUP> m<SUP>-1</SUP>
  *
  * An example of a fixed value implementation is given below.
  * @code
@@ -607,10 +599,8 @@ class PDSS_Water;
  */
 class DebyeHuckel : public MolalityVPSSTP
 {
-
 public:
-
-    //! Empty Constructor
+    //! Default Constructor
     DebyeHuckel();
 
     //! Copy constructor
@@ -622,16 +612,14 @@ public:
     //! Full constructor for creating the phase.
     /*!
      *  @param inputFile  File name containing the XML description of the phase
-     *  @param id     id attribute containing the name of the phase.
-     *                (default is the empty string)
+     *  @param id         id attribute containing the name of the phase.
      */
     DebyeHuckel(const std::string& inputFile, const std::string& id = "");
 
     //! Full constructor for creating the phase.
     /*!
      *  @param phaseRef XML phase node containing the description of the phase
-     *  @param id     id attribute containing the name of the phase.
-     *                (default is the empty string)
+     *  @param id       id attribute containing the name of the phase.
      */
     DebyeHuckel(XML_Node& phaseRef, const std::string& id = "");
 
@@ -648,11 +636,8 @@ public:
      */
     thermo_t* duplMyselfAsThermoPhase() const;
 
-    /**
-     *
-     * @name  Utilities
-     * @{
-     */
+    //! @name  Utilities
+    //! @{
 
     /**
      * Equation of state type flag. The base class returns
@@ -662,29 +647,18 @@ public:
      */
     virtual int eosType() const;
 
-    /**
-     * @}
-     * @name  Molar Thermodynamic Properties of the Solution --------------
-     * @{
-     */
+    //! @}
+    //! @name  Molar Thermodynamic Properties of the Solution
+    //! @{
 
-    /// Molar enthalpy. Units: J/kmol.
-    /**
-     * Molar enthalpy of the solution. Units: J/kmol.
-     *      (HKM -> Bump up to Parent object)
-     */
+    /// Molar enthalpy of the solution. Units: J/kmol.
     virtual doublereal enthalpy_mole() const;
 
-    /// Molar internal energy. Units: J/kmol.
-    /**
-     * Molar internal energy of the solution. Units: J/kmol.
-     *      (HKM -> Bump up to Parent object)
-     */
+    /// Molar internal energy of the solution. Units: J/kmol.
     virtual doublereal intEnergy_mole() const;
 
     /// Molar entropy. Units: J/kmol/K.
     /**
-     * Molar entropy of the solution. Units: J/kmol/K.
      * For an ideal, constant partial molar volume solution mixture with
      * pure species phases which exhibit zero volume expansivity:
      * \f[
@@ -697,15 +671,10 @@ public:
      * property manager. The pure species entropies are independent of
      * temperature since the volume expansivities are equal to zero.
      * @see SpeciesThermo
-     *
-     *      (HKM -> Bump up to Parent object)
      */
     virtual doublereal entropy_mole() const;
 
     /// Molar Gibbs function. Units: J/kmol.
-    /*
-     *      (HKM -> Bump up to Parent object)
-     */
     virtual doublereal gibbs_mole() const;
 
     /// Molar heat capacity at constant pressure. Units: J/kmol/K.
@@ -718,7 +687,7 @@ public:
     virtual doublereal cv_mole() const;
 
     //@}
-    /** @name Mechanical Equation of State Properties -------------------------
+    /** @name Mechanical Equation of State Properties
      //@{
      *
      *   In this equation of state implementation, the density is a
@@ -787,13 +756,9 @@ public:
      * This function will now throw an error condition if the
      * input isn't exactly equal to the current density.
      *
-     *
      * @todo Now have a compressible ss equation for liquid water.
      *       Therefore, this phase is compressible. May still
      *       want to change the independent variable however.
-     *
-     *  NOTE: This is an overwritten function from the State.h
-     *        class
      *
      * @param rho Input density (kg/m^3).
      */
@@ -807,21 +772,15 @@ public:
      * This function will now throw an error condition if the input
      * isn't exactly equal to the current molar density.
      *
-     *  NOTE: This is a virtual function overwritten from the State.h
-     *        class
-     *
      * @param conc   Input molar density (kmol/m^3).
      */
     virtual void setMolarDensity(const doublereal conc);
 
     //! Set the temperature (K)
     /*!
-     * Overwritten setTemperature(double) from State.h. This
-     * function sets the temperature, and makes sure that
+     * This function sets the temperature, and makes sure that
      * the value propagates to underlying objects, such as
      * the water standard state model.
-     *
-     * @todo Make Phase::setTemperature a virtual function
      *
      * @param temp Temperature in kelvin
      */
@@ -842,6 +801,9 @@ public:
      * \f[
      * \kappa_T = -\frac{1}{v}\left(\frac{\partial v}{\partial P}\right)_T
      * \f]
+     *
+     *  It's equal to zero for this model, since the molar volume
+     *  doesn't change with pressure or temperature.
      */
     virtual doublereal isothermalCompressibility() const;
 
@@ -852,19 +814,11 @@ public:
      * \f[
      * \beta = \frac{1}{v}\left(\frac{\partial v}{\partial T}\right)_P
      * \f]
+     *
+     *  It's equal to zero for this model, since the molar volume
+     *  doesn't change with pressure or temperature.
      */
     virtual doublereal thermalExpansionCoeff() const;
-
-    /**
-     * @}
-     * @name Potential Energy
-     *
-     * Species may have an additional potential energy due to the
-     * presence of external gravitation or electric fields. These
-     * methods allow specifying a potential energy for individual
-     * species.
-     * @{
-     */
 
     /**
      * @}
@@ -935,6 +889,10 @@ public:
      * Inherited classes are responsible for overriding the default
      * values if necessary.
      *
+     * On return uA contains the powers of the units (MKS assumed)
+     * of the standard concentrations and generalized concentrations
+     * for the kth species.
+     *
      * @param uA Output vector containing the units
      *  uA[0] = kmol units - default  = 1
      *  uA[1] = m    units - default  = -nDim(), the number of spatial
@@ -959,7 +917,7 @@ public:
      * derived classes may want to override this default
      * implementation.
      *
-     * (note solvent is on molar scale).
+     * (note solvent activity coefficient is on molar scale).
      *
      * @param ac  Output vector of activities. Length: m_kk.
      */
@@ -972,6 +930,8 @@ public:
      *  note solvent is on molar scale. The solvent molar
      *  based activity coefficient is returned.
      *
+     *  Note, most of the work is done in an internal private routine
+     *
      * @param acMolality Vector of Molality-based activity coefficients
      *                   Length: m_kk
      */
@@ -979,7 +939,7 @@ public:
     getMolalityActivityCoefficients(doublereal* acMolality) const;
 
     //@}
-    /// @name  Partial Molar Properties of the Solution -----------------
+    /// @name  Partial Molar Properties of the Solution
     //@{
 
 
@@ -992,9 +952,6 @@ public:
      * \f[
      *    \mu_k = \mu^{\triangle}_k(T,P) + R T ln(\gamma_k^{\triangle} m_k)
      * \f]
-     *  or another way to phrase this is
-     *
-     *  where
      *
      * @param mu  Output vector of species chemical
      *            potentials. Length: m_kk. Units: J/kmol
@@ -1029,8 +986,9 @@ public:
     /**
      * Maxwell's equations provide an insight in how to calculate this
      *   (p.215 Smith and Van Ness)
-     *
-     *      d(chemPot_i)/dT = -sbar_i
+     *   \f[
+     *      \frac{d\mu_i}{dT} = -\bar{s}_i
+     *   \f]
      *
      * For this phase, the partial molar entropies are equal to the
      * SS species entropies plus the ideal solution contribution.following
@@ -1039,7 +997,7 @@ public:
      *     \bar s_k(T,P) =  \hat s^0_k(T) - R log(M0 * molality[k])
      * \f]
      * \f[
-     *      \bar s_solvent(T,P) =  \hat s^0_solvent(T)
+     *      \bar s_{solvent}(T,P) =  \hat s^0_{solvent}(T)
      *                  - R ((xmolSolvent - 1.0) / xmolSolvent)
      * \f]
      *
@@ -1066,8 +1024,15 @@ public:
     //! Return an array of partial molar volumes for the
     //! species in the mixture. Units: m^3/kmol.
     /*!
-     * For this solution, the partial molar volumes are equal to the
-     * constant species molar volumes.
+     * For this solution, the partial molar volumes are normally
+     *  equal to theconstant species molar volumes, except
+     * when the activity coefficients depend on pressure.
+     *
+     * The general relation is
+     *
+     *       vbar_i = d(chemPot_i)/dP at const T, n
+     *              = V0_i + d(Gex)/dP)_T,M
+     *              = V0_i + RT d(lnActCoeffi)dP _T,M
      *
      *  @param vbar   Output vector of species partial molar volumes.
      *                Length = m_kk. units are m^3/kmol.
@@ -1076,53 +1041,9 @@ public:
 
     //@}
 
-
 protected:
-
-    //! Updates the standard state thermodynamic functions at the current T and P of the solution.
-    /*!
-     * @internal
-     *
-     * This function gets called for every call to a public function in this
-     * class. It checks to see whether the temperature or pressure has changed and
-     * thus whether the ss thermodynamics functions must be recalculated.
-     *
-     * @param pres  Pressure at which to evaluate the standard states.
-     *              The default, indicated by a -1.0, is to use the current pressure
-     */
-    //virtual void _updateStandardStateThermo() const;
-
-    //@}
-    /// @name Thermodynamic Values for the Species Reference States ---
-    //@{
-
-
-    ///////////////////////////////////////////////////////
-    //
-    //  The methods below are not virtual, and should not
-    //  be overloaded.
-    //
-    //////////////////////////////////////////////////////
-
-    /**
-     * @name Specific Properties
-     * @{
-     */
-
-
-    /**
-     * @name Setting the State
-     *
-     * These methods set all or part of the thermodynamic
-     * state.
-     * @{
-     */
-
-    //@}
-
     /**
      * @name Chemical Equilibrium
-     * Chemical equilibrium.
      * @{
      */
 
@@ -1143,9 +1064,7 @@ public:
         err("setToEquilState");
     }
 
-
     //@}
-
 
     //! Set the equation of state parameters
     /*!
@@ -1177,20 +1096,13 @@ public:
      * model. Note, this method is called before the phase is
      * initialized with elements and/or species.
      *
+     * HKM -> Right now, the parameters are set elsewhere (initThermoXML)
+     *        It just didn't seem to fit.
+     *
      * @param eosdata An XML_Node object corresponding to
      *                the "thermo" entry for this phase in the input file.
      */
     virtual void setParametersFromXML(const XML_Node& eosdata);
-
-    //---------------------------------------------------------
-    /// @name Critical state properties.
-    /// These methods are only implemented by some subclasses.
-
-    //@{
-
-
-
-    //@}
 
     /// @name Saturation properties.
     /// These methods are only implemented by subclasses that
@@ -1236,11 +1148,9 @@ public:
 
     //@}
 
-
     /*
      *  -------------- Utilities -------------------------------
      */
-
 
     //! Initialize the object's internal lengths after species are set
     /**
@@ -1292,35 +1202,32 @@ public:
      *   \f[
      *      A_{Debye} = \frac{F e B_{Debye}}{8 \pi \epsilon R T} {\left( C_o \tilde{M}_o \right)}^{1/2}
      *   \f]
-     * where
-     *
+     *  where
      *  \f[
      *         B_{Debye} = \frac{F} {{(\frac{\epsilon R T}{2})}^{1/2}}
      *  \f]
      *  Therefore:
-     * \f[
+     *  \f[
      *   A_{Debye} = \frac{1}{8 \pi}
      *                 {\left(\frac{2 N_a \rho_o}{1000}\right)}^{1/2}
      *                 {\left(\frac{N_a e^2}{\epsilon R T }\right)}^{3/2}
-     * \f]
+     *  \f]
      *
-     *            Units = sqrt(kg/gmol)
+     *  where
+     *  - Units = sqrt(kg/gmol)
+     *  - \f$ N_a \f$ is Avogadro's number
+     *  - \f$ \rho_w \f$ is the density of water
+     *  - \f$ e \f$ is the electronic charge
+     *  - \f$ \epsilon = K \epsilon_o \f$ is the permittivity of water
+     *  - \f$ K \f$ is the dielectric constant of water,
+     *  - \f$ \epsilon_o \f$ is the permittivity of free space.
+     *  - \f$ \rho_o \f$ is the density of the solvent in its standard state.
      *
-     *     where
-     *      - \f$ N_a \f$ is Avogadro's number
-     *      - \f$ \rho_w \f$ is the density of water
-     *      - \f$ e \f$ is the electronic charge
-     *      - \f$ \epsilon = K \epsilon_o \f$ is the permittivity of water
-     *           where \f$ K \f$ is the dielectric constant of water,
-     *           and  \f$ \epsilon_o \f$ is the permittivity of free space.
-     *      = \f$ \rho_o \f$ is the density of the solvent in its standard state.
-     *
-     *            Nominal value at 298 K and 1 atm = 1.172576 (kg/gmol)<SUP>1/2</SUP>
-     *                  based on:
-     *                 -   \f$ \epsilon / \epsilon_0 \f$ = 78.54
-     *                           (water at 25C)
-     *                 -   T = 298.15 K
-     *                 -   B_Debye = 3.28640E9 (kg/gmol)<SUP>1/2</SUP> m<SUP>-1</SUP>
+     *  Nominal value at 298 K and 1 atm = 1.172576 (kg/gmol)<SUP>1/2</SUP>
+     *  based on:
+     *    - \f$ \epsilon / \epsilon_0 \f$ = 78.54 (water at 25C)
+     *    - T = 298.15 K
+     *    - B_Debye = 3.28640E9 (kg/gmol)<SUP>1/2</SUP> m<SUP>-1</SUP>
      *
      * @param temperature Temperature in kelvin. Defaults to -1, in which
      *                    case the   temperature of the phase is assumed.
@@ -1331,14 +1238,13 @@ public:
     virtual double A_Debye_TP(double temperature = -1.0,
                               double pressure = -1.0) const;
 
-
     //! Value of the derivative of the Debye Huckel constant with
     //! respect to temperature.
     /*!
      * This is a function of temperature and pressure. See A_Debye_TP() for
      * a definition of \f$ A_{Debye} \f$.
      *
-     *            Units = sqrt(kg/gmol) K-1
+     * Units = sqrt(kg/gmol) K-1
      *
      * @param temperature Temperature in kelvin. Defaults to -1, in which
      *                    case the   temperature of the phase is assumed.
@@ -1355,7 +1261,7 @@ public:
      * This is a function of temperature and pressure. See A_Debye_TP() for
      * a definition of \f$ A_{Debye} \f$.
      *
-     *            Units = sqrt(kg/gmol) K-2
+     * Units = sqrt(kg/gmol) K-2
      *
      * @param temperature Temperature in kelvin. Defaults to -1, in which
      *                    case the   temperature of the phase is assumed.
@@ -1372,7 +1278,7 @@ public:
      * This is a function of temperature and pressure. See A_Debye_TP() for
      * a definition of \f$ A_{Debye} \f$.
      *
-     *            Units = sqrt(kg/gmol) Pa-1
+     * Units = sqrt(kg/gmol) Pa-1
      *
      * @param temperature Temperature in kelvin. Defaults to -1, in which
      *                    case the   temperature of the phase is assumed.
@@ -1400,8 +1306,6 @@ public:
     }
 
 private:
-
-
     //!  Static function that implements the non-polar species
     //!   salt-out modifications.
     /*!
@@ -1410,7 +1314,6 @@ private:
      * @param IionicMolality Value of the ionic molality (sqrt(gmol/kg))
      */
     double _nonpolarActCoeff(double IionicMolality) const;
-
 
     //!      Formula for the osmotic coefficient that occurs in the GWB.
     /*!
@@ -1425,10 +1328,7 @@ private:
      *      NaCl brine. It's to be used with extreme caution.
      */
     double _lnactivityWaterHelgesonFixedForm() const;
-
-
     //@}
-
 
 protected:
 
@@ -1497,9 +1397,7 @@ protected:
      */
     vector_fp m_Aionic;
 
-    /**
-     * Current value of the ionic strength on the molality scale
-     */
+    //! Current value of the ionic strength on the molality scale
     mutable double m_IionicMolality;
 
     /**
@@ -1588,18 +1486,16 @@ protected:
 
     //! Array of B_Dot values
     /**
-     *  B_Dot ->  This expression is an extension of the
-     *            Debye-Huckel expression used in some formulations
-     *            to extend DH to higher molalities.
-     *            B_dot is specific to the major ionic pair.
+     *  This expression is an extension of the Debye-Huckel expression used
+     *  in some formulations to extend DH to higher molalities. B_dot is
+     *  specific to the major ionic pair.
      */
     vector_fp  m_B_Dot;
 
     /**
-     * m_npActCoeff -> These are coefficients to describe
-     *  the increase in activity coeff for non-polar molecules
-     *  due to the electrolyte becoming stronger (the so-called
-     *  salt-out effect)
+     *  These are coefficients to describe the increase in activity coeff for
+     *  non-polar molecules due to the electrolyte becoming stronger (the
+     *  so-called salt-out effect)
      */
     vector_fp m_npActCoeff;
 
@@ -1616,19 +1512,13 @@ protected:
      */
     double m_densWaterSS;
 
-    /**
-     *  Pointer to the water property calculator
-     */
+    //! Pointer to the water property calculator
     WaterProps* m_waterProps;
 
-    /**
-     * Temporary array used in equilibrium calculations
-     */
+    //! Temporary array used in equilibrium calculations
     mutable vector_fp      m_pp;
 
-    /**
-     * vector of size m_kk, used as a temporary holding area.
-     */
+    //! vector of size m_kk, used as a temporary holding area.
     mutable vector_fp      m_tmpV;
 
     /**
@@ -1670,6 +1560,8 @@ protected:
     mutable vector_fp m_dlnActCoeffMolaldP;
 
 private:
+
+    //! Bail out of functions with an error exit if they are not implemented.
     doublereal err(const std::string& msg) const;
 
     //! Initialize the internal lengths.
@@ -1682,8 +1574,9 @@ private:
 private:
     //! Calculate the log activity coefficients
     /*!
-     * This function updates the internally stored
-     * natural logarithm of the molality activity coefficients
+     * This function updates the internally stored natural logarithm of the
+     * molality activity coefficients. This is the main routine for
+     * implementing the activity coefficient formulation.
      */
     void s_update_lnMolalityActCoeff() const;
 
@@ -1694,8 +1587,6 @@ private:
      *   activity coefficient for all species in the mechanism.
      *
      *   We assume that the activity coefficients are current in this routine
-     *
-     *
      *
      *   The solvent activity coefficient is on the molality scale. Its derivative is too.
      */
@@ -1711,8 +1602,6 @@ private:
      *
      *   solvent activity coefficient is on the molality
      *   scale. Its derivatives are too.
-     *
-     * note: private routine
      */
     void s_update_d2lnMolalityActCoeff_dT2() const;
 
@@ -1734,8 +1623,3 @@ private:
 }
 
 #endif
-
-
-
-
-

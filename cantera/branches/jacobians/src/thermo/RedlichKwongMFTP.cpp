@@ -28,10 +28,6 @@ const doublereal RedlichKwongMFTP::omega_a = 4.27480233540E-01;
 const doublereal RedlichKwongMFTP::omega_b = 8.66403499650E-02;
 const doublereal RedlichKwongMFTP::omega_vc = 3.33333333333333E-01;
 
-//====================================================================================================================
-/*
- * Default constructor
- */
 RedlichKwongMFTP::RedlichKwongMFTP() :
     MixtureFugacityTP(),
     m_standardMixingRules(0),
@@ -56,7 +52,7 @@ RedlichKwongMFTP::RedlichKwongMFTP() :
     Vroot_[1] = 0.0;
     Vroot_[2] = 0.0;
 }
-//====================================================================================================================
+
 RedlichKwongMFTP::RedlichKwongMFTP(const std::string& infile, std::string id) :
     MixtureFugacityTP(),
     m_standardMixingRules(0),
@@ -91,7 +87,7 @@ RedlichKwongMFTP::RedlichKwongMFTP(const std::string& infile, std::string id) :
     }
     importPhase(*xphase, this);
 }
-//====================================================================================================================
+
 RedlichKwongMFTP::RedlichKwongMFTP(XML_Node& phaseRefRoot, const std::string& id) :
     MixtureFugacityTP(),
     m_standardMixingRules(0),
@@ -122,7 +118,6 @@ RedlichKwongMFTP::RedlichKwongMFTP(XML_Node& phaseRefRoot, const std::string& id
     importPhase(*xphase, this);
 }
 
-//====================================================================================================================
 RedlichKwongMFTP::RedlichKwongMFTP(int testProb) :
     MixtureFugacityTP(),
     m_standardMixingRules(0),
@@ -161,16 +156,7 @@ RedlichKwongMFTP::RedlichKwongMFTP(int testProb) :
     }
     importPhase(*xphase, this);
 }
-//====================================================================================================================
-/*
- * Copy Constructor:
- *
- *  Note this stuff will not work until the underlying phase
- *  has a working copy constructor.
- *
- *  The copy constructor just calls the assignment operator
- *  to do the heavy lifting.
- */
+
 RedlichKwongMFTP::RedlichKwongMFTP(const RedlichKwongMFTP& b) :
     MixtureFugacityTP(),
     m_standardMixingRules(0),
@@ -194,13 +180,6 @@ RedlichKwongMFTP::RedlichKwongMFTP(const RedlichKwongMFTP& b) :
     *this = b;
 }
 
-//====================================================================================================================
-/*
- * operator=()
- *
- *  Note this stuff will not work until the underlying phase
- *  has a working assignment operator
- */
 RedlichKwongMFTP& RedlichKwongMFTP::
 operator=(const RedlichKwongMFTP& b)
 {
@@ -237,69 +216,55 @@ operator=(const RedlichKwongMFTP& b)
     }
     return *this;
 }
-//====================================================================================================================
-/*
- * ~RedlichKwongMFTP():   (virtual)
- *
- */
+
 RedlichKwongMFTP::~RedlichKwongMFTP()
 {
 }
-//====================================================================================================================
-/*
- * Duplication function.
- *  This calls the copy constructor for this object.
- */
+
 thermo_t* RedlichKwongMFTP::duplMyselfAsThermoPhase() const
 {
     return new RedlichKwongMFTP(*this);
 }
-//====================================================================================================================
+
 int RedlichKwongMFTP::eosType() const
 {
     return cRedlichKwongMFTP;
 }
 
-//====================================================================================================================
 /*
  * ------------Molar Thermodynamic Properties -------------------------
  */
-//====================================================================================================================
-// Molar enthalpy. Units: J/kmol.
+
 doublereal RedlichKwongMFTP::enthalpy_mole() const
 {
     _updateReferenceStateThermo();
     doublereal rt = _RT();
     doublereal h_ideal = rt * mean_X(DATA_PTR(m_h0_RT));
     doublereal h_nonideal = hresid();
-    return (h_ideal + h_nonideal);
+    return h_ideal + h_nonideal;
 }
-//====================================================================================================================
-// Molar internal energy. Units: J/kmol.
+
 doublereal RedlichKwongMFTP::intEnergy_mole() const
 {
     doublereal p0 = pressure();
     doublereal md = molarDensity();
-    return (enthalpy_mole() - p0 / md);
+    return enthalpy_mole() - p0 / md;
 }
-//====================================================================================================================
-// Molar entropy. Units: J/kmol/K.
+
 doublereal RedlichKwongMFTP::entropy_mole() const
 {
     _updateReferenceStateThermo();
     doublereal sr_ideal =  GasConstant * (mean_X(DATA_PTR(m_s0_R))
                                           - sum_xlogx() - std::log(pressure()/m_spthermo->refPressure()));
     doublereal sr_nonideal = sresid();
-    return (sr_ideal + sr_nonideal);
+    return sr_ideal + sr_nonideal;
 }
-//====================================================================================================================
-// Molar Gibbs function. Units: J/kmol.
+
 doublereal RedlichKwongMFTP::gibbs_mole() const
 {
     return enthalpy_mole() - temperature() * entropy_mole();
 }
-//====================================================================================================================
-/// Molar heat capacity at constant pressure. Units: J/kmol/K.
+
 doublereal RedlichKwongMFTP::cp_mole() const
 {
     _updateReferenceStateThermo();
@@ -313,32 +278,17 @@ doublereal RedlichKwongMFTP::cp_mole() const
     doublereal fac = TKelvin * dadt - 3.0 * m_a_current / 2.0;
     doublereal dHdT_V = (cpref + mv * dpdT_ - GasConstant - 1.0 / (2.0 * m_b_current * TKelvin * sqt) * log(vpb/mv) * fac
                          +1.0/(m_b_current * sqt) * log(vpb/mv) * (-0.5 * dadt));
-    double cp = dHdT_V - (mv + TKelvin * dpdT_ / dpdV_) * dpdT_;
-    return cp;
+    return dHdT_V - (mv + TKelvin * dpdT_ / dpdV_) * dpdT_;
 }
-//====================================================================================================================
-/// Molar heat capacity at constant volume. Units: J/kmol/K.
+
 doublereal RedlichKwongMFTP::cv_mole() const
 {
     throw CanteraError("", "unimplemented");
     return cp_mole() - GasConstant;
 }
-//====================================================================================================================
-// Return the thermodynamic pressure (Pa).
-/*
- *  Since the mass density, temperature, and mass fractions are stored,
- *  this method uses these values to implement the
- *  mechanical equation of state \f$ P(T, \rho, Y_1, \dots,  Y_K) \f$.
- *
- * \f[
- *    P = \frac{RT}{v-b_{mix}} - \frac{a_{mix}}{T^{0.5} v \left( v + b_{mix} \right) }
- * \f]
- *
- */
+
 doublereal RedlichKwongMFTP::pressure() const
 {
-
-
 #ifdef DEBUG_MODE
     _updateReferenceStateThermo();
 
@@ -354,10 +304,9 @@ doublereal RedlichKwongMFTP::pressure() const
         throw CanteraError(" RedlichKwongMFTP::pressure()", "setState broken down, maybe");
     }
 #endif
-
     return m_Pcurrent;
 }
-//====================================================================================================================
+
 void RedlichKwongMFTP::calcDensity()
 {
     /*
@@ -373,58 +322,52 @@ void RedlichKwongMFTP::calcDensity()
      */
     double dens = 1.0/invDens;
     phase_t::setDensity(dens);
-
 }
 
-//====================================================================================================================
 void RedlichKwongMFTP::setTemperature(const doublereal temp)
 {
     phase_t::setTemperature(temp);
     _updateReferenceStateThermo();
     updateAB();
 }
-//====================================================================================================================
+
 void RedlichKwongMFTP::setMassFractions(const doublereal* const x)
 {
     MixtureFugacityTP::setMassFractions(x);
     updateAB();
 }
-//====================================================================================================================
+
 void RedlichKwongMFTP::setMassFractions_NoNorm(const doublereal* const x)
 {
     MixtureFugacityTP::setMassFractions_NoNorm(x);
     updateAB();
 }
-//====================================================================================================================
+
 void RedlichKwongMFTP::setMoleFractions(const doublereal* const x)
 {
     MixtureFugacityTP::setMoleFractions(x);
     updateAB();
 }
-//====================================================================================================================
+
 void RedlichKwongMFTP::setMoleFractions_NoNorm(const doublereal* const x)
 {
     MixtureFugacityTP::setMoleFractions(x);
     updateAB();
 }
-//====================================================================================================================
+
 void RedlichKwongMFTP::setConcentrations(const doublereal* const c)
 {
     MixtureFugacityTP::setConcentrations(c);
     updateAB();
 }
 
-//====================================================================================================================
 doublereal RedlichKwongMFTP::isothermalCompressibility() const
 {
-
-
     throw CanteraError("RedlichKwongMFTP::isothermalCompressibility() ",
                        "not implemented");
-
     return 0.0;
 }
-//====================================================================================================================
+
 void RedlichKwongMFTP::getActivityConcentrations(doublereal* c) const
 {
     getPartialMolarVolumes(DATA_PTR(m_partialMolarVolumes));
@@ -432,59 +375,19 @@ void RedlichKwongMFTP::getActivityConcentrations(doublereal* c) const
         c[k] = moleFraction(k) / m_partialMolarVolumes[k];
     }
 }
-//====================================================================================================================
-/*
- * Returns the standard concentration \f$ C^0_k \f$, which is used to normalize
- * the generalized concentration.
- */
+
 doublereal RedlichKwongMFTP::standardConcentration(size_t k) const
 {
-
     getStandardVolumes(DATA_PTR(m_tmpV));
-
     return 1.0 / m_tmpV[k];
-
-
-
 }
-//====================================================================================================================
-/*
- * Returns the natural logarithm of the standard
- * concentration of the kth species
- */
+
 doublereal RedlichKwongMFTP::logStandardConc(size_t k) const
 {
     double c = standardConcentration(k);
-    double lc = std::log(c);
-    return lc;
+    return std::log(c);
 }
-//====================================================================================================================
-/*
- *
- * getUnitsStandardConcentration()
- *
- * Returns the units of the standard and general concentrations
- * Note they have the same units, as their divisor is
- * defined to be equal to the activity of the kth species
- * in the solution, which is unitless.
- *
- * This routine is used in print out applications where the
- * units are needed. Usually, MKS units are assumed throughout
- * the program and in the XML input files.
- *
- *  uA[0] = kmol units - default  = 1
- *  uA[1] = m    units - default  = -nDim(), the number of spatial
- *                                dimensions in the Phase class.
- *  uA[2] = kg   units - default  = 0;
- *  uA[3] = Pa(pressure) units - default = 0;
- *  uA[4] = Temperature units - default = 0;
- *  uA[5] = time units - default = 0
- *
- *  For EOS types other than cIdealSolidSolnPhase1, the default
- *  kmol/m3 holds for standard concentration units. For
- *  cIdealSolidSolnPhase0 type, the standard concentration is
- *  unitless.
- */
+
 void RedlichKwongMFTP::getUnitsStandardConc(double* uA, int, int sizeUA) const
 {
     //int eos = eosType();
@@ -512,14 +415,6 @@ void RedlichKwongMFTP::getUnitsStandardConc(double* uA, int, int sizeUA) const
 
 }
 
-//====================================================================================================================
-//! Get the array of non-dimensional activity coefficients at
-//! the current solution temperature, pressure, and solution concentration.
-/*!
- *  For ideal gases, the activity coefficients are all equal to one.
- *
- * @param ac Output vector of activity coefficients. Length: m_kk.
- */
 void RedlichKwongMFTP::getActivityCoefficients(doublereal* ac) const
 {
     doublereal TKelvin = temperature();
@@ -551,20 +446,11 @@ void RedlichKwongMFTP::getActivityCoefficients(doublereal* ac) const
         ac[k] = exp(ac[k]/rt);
     }
 }
-//====================================================================================================================
+
 /*
  * ---- Partial Molar Properties of the Solution -----------------
  */
-//====================================================================================================================
-/*
- * Get the array of non-dimensional species chemical potentials
- * These are partial molar Gibbs free energies.
- * \f$ \mu_k / \hat R T \f$.
- * Units: unitless
- *
- * We close the loop on this function, here, calling
- * getChemPotentials() and then dividing by RT.
- */
+
 void RedlichKwongMFTP::getChemPotentials_RT(doublereal* muRT) const
 {
     getChemPotentials(muRT);
@@ -573,7 +459,7 @@ void RedlichKwongMFTP::getChemPotentials_RT(doublereal* muRT) const
         muRT[k] *= invRT;
     }
 }
-//====================================================================================================================
+
 void RedlichKwongMFTP::getChemPotentials(doublereal* mu) const
 {
     getGibbs_ref(mu);
@@ -610,7 +496,7 @@ void RedlichKwongMFTP::getChemPotentials(doublereal* mu) const
                  );
     }
 }
-//====================================================================================================================
+
 void RedlichKwongMFTP::getPartialMolarEnthalpies(doublereal* hbar) const
 {
     /*
@@ -669,7 +555,7 @@ void RedlichKwongMFTP::getPartialMolarEnthalpies(doublereal* hbar) const
     }
 
 }
-//====================================================================================================================
+
 void RedlichKwongMFTP::getPartialMolarEntropies(doublereal* sbar) const
 {
     getEntropy_R_ref(sbar);
@@ -726,21 +612,21 @@ void RedlichKwongMFTP::getPartialMolarEntropies(doublereal* sbar) const
         sbar[k] -= -m_partialMolarVolumes[k] * dpdT_;
     }
 }
-//====================================================================================================================
+
 void RedlichKwongMFTP::getPartialMolarIntEnergies(doublereal* ubar) const
 {
     getIntEnergy_RT(ubar);
     doublereal rt = GasConstant * temperature();
     scale(ubar, ubar+m_kk, ubar, rt);
 }
-//====================================================================================================================
+
 void RedlichKwongMFTP::getPartialMolarCp(doublereal* cpbar) const
 {
     getCp_R(cpbar);
     doublereal r = GasConstant;
     scale(cpbar, cpbar+m_kk, cpbar, r);
 }
-//====================================================================================================================
+
 void RedlichKwongMFTP::getPartialMolarVolumes(doublereal* vbar) const
 {
     // getStandardVolumes(vbar);
@@ -786,7 +672,7 @@ void RedlichKwongMFTP::getPartialMolarVolumes(doublereal* vbar) const
     }
 
 }
-//====================================================================================================================
+
 doublereal RedlichKwongMFTP::critTemperature() const
 {
     double pc, tc, vc;
@@ -802,7 +688,7 @@ doublereal RedlichKwongMFTP::critTemperature() const
     calcCriticalConditions(m_a_current, m_b_current, a0, aT, pc, tc, vc);
     return tc;
 }
-//====================================================================================================================
+
 doublereal RedlichKwongMFTP::critPressure() const
 {
     double pc, tc, vc;
@@ -819,7 +705,7 @@ doublereal RedlichKwongMFTP::critPressure() const
 
     return pc;
 }
-//====================================================================================================================
+
 doublereal RedlichKwongMFTP::critDensity() const
 {
     double pc, tc, vc;
@@ -837,26 +723,13 @@ doublereal RedlichKwongMFTP::critDensity() const
     double mmw = meanMolecularWeight();
     return mmw / vc;
 }
-//====================================================================================================================
 
-/*
- * ----- Thermodynamic Values for the Species Reference States ----
- */
-
-
-//====================================================================================================================
-
-/*
- * Perform initializations after all species have been
- * added.
- */
 void RedlichKwongMFTP::initThermo()
 {
     initLengths();
     MixtureFugacityTP::initThermo();
 }
 
-//====================================================================================================================
 void RedlichKwongMFTP::setToEquilState(const doublereal* mu_RT)
 {
     double tmp, tmp2;
@@ -891,11 +764,7 @@ void RedlichKwongMFTP::setToEquilState(const doublereal* mu_RT)
     // set state
     setState_PX(pres, &m_pp[0]);
 }
-//====================================================================================================================
-/*
- * Initialize the internal lengths.
- *       (this is not a virtual function)
- */
+
 void RedlichKwongMFTP::initLengths()
 {
 
@@ -916,24 +785,7 @@ void RedlichKwongMFTP::initLengths()
     m_partialMolarVolumes.resize(m_kk, 0.0);
     dpdni_.resize(m_kk, 0.0);
 }
-//====================================================================================================================
-/*
- *   Import and initialize a ThermoPhase object
- *
- * param phaseNode This object must be the phase node of a
- *             complete XML tree
- *             description of the phase, including all of the
- *             species data. In other words while "phase" must
- *             point to an XML phase object, it must have
- *             sibling nodes "speciesData" that describe
- *             the species in the phase.
- * param id   ID of the phase. If nonnull, a check is done
- *             to see if phaseNode is pointing to the phase
- *             with the correct id.
- *
- * This routine initializes the lengths in the current object and
- * then calls the parent routine.
- */
+
 void RedlichKwongMFTP::initThermoXML(XML_Node& phaseNode, const std::string& id)
 {
     RedlichKwongMFTP::initLengths();
@@ -1018,7 +870,6 @@ void RedlichKwongMFTP::initThermoXML(XML_Node& phaseNode, const std::string& id)
 
     MixtureFugacityTP::initThermoXML(phaseNode, id);
 }
-//====================================================================================================================
 
 void RedlichKwongMFTP::readXMLPureFluid(XML_Node& pureFluidParam)
 {
@@ -1083,7 +934,7 @@ void RedlichKwongMFTP::readXMLPureFluid(XML_Node& pureFluidParam)
         }
     }
 }
-//====================================================================================================================
+
 void RedlichKwongMFTP::applyStandardMixingRules()
 {
     int nParam = 2;
@@ -1100,7 +951,6 @@ void RedlichKwongMFTP::applyStandardMixingRules()
         }
     }
 }
-//====================================================================================================================
 
 void RedlichKwongMFTP::readXMLCrossFluid(XML_Node& CrossFluidParam)
 {
@@ -1168,22 +1018,13 @@ void RedlichKwongMFTP::readXMLCrossFluid(XML_Node& CrossFluidParam)
         }
     }
 }
-//====================================================================================================================
+
 void RedlichKwongMFTP::setParametersFromXML(const XML_Node& thermoNode)
 {
     MixtureFugacityTP::setParametersFromXML(thermoNode);
     std::string model = thermoNode["model"];
-
-
 }
-//====================================================================================================================
-// Calculate the deviation terms for the total entropy of the mixture from the
-// ideal gas mixture
-/*
- *  Here we use the current state conditions
- *
- * @return  Returns the change in entropy in units of J kmol-1 K-1.
- */
+
 doublereal RedlichKwongMFTP::sresid() const
 {
     // note this agrees with tpx
@@ -1197,17 +1038,9 @@ doublereal RedlichKwongMFTP::sresid() const
     doublereal sqT = sqrt(T);
     doublereal fac = dadt - m_a_current / (2.0 * T);
     double sresid_mol_R =  log(zz*(1.0 - hh)) + log(1.0 + hh) * fac / (sqT * GasConstant * m_b_current);
-    double sp = GasConstant * sresid_mol_R;
-    return sp;
+    return GasConstant * sresid_mol_R;
 }
-//====================================================================================================================
-// Calculate the deviation terms for the total enthalpy of the mixture from the
-// ideal gas mixture
-/*
- *  Here we use the current state conditions
- *
- * @return  Returns the change in entropy in units of J kmol-1.
- */
+
 doublereal RedlichKwongMFTP::hresid() const
 {
     // note this agrees with tpx
@@ -1220,24 +1053,9 @@ doublereal RedlichKwongMFTP::hresid() const
     doublereal T = temperature();
     doublereal sqT = sqrt(T);
     doublereal fac = T * dadt - 3.0 *m_a_current / (2.0);
-    double hresid_mol = GasConstant * T * (zz - 1.0) + fac * log(1.0 + hh) / (sqT * m_b_current);
-    return hresid_mol;
+    return GasConstant * T * (zz - 1.0) + fac * log(1.0 + hh) / (sqT * m_b_current);
 }
-//====================================================================================================================
-// Estimate for the molar volume of the liquid
-/*
- *   Note: this is only used as a starting guess for later routines that actually calculate an
- *  accurate value for the liquid molar volume.
- *  This routine doesn't change the state of the system.
- *
- *  @param TKelvin  temperature in kelvin
- *  @param pres     Pressure in Pa. This is used as an initial guess. If the routine
- *                  needs to change the pressure to find a stable liquid state, the
- *                  new pressure is returned in this variable.
- *
- *  @return Returns the estimate of the liquid volume.  If the liquid can't be found, this
- *          routine returns -1.
- */
+
 doublereal RedlichKwongMFTP::liquidVolEst(doublereal TKelvin, doublereal& presGuess) const
 {
     double v = m_b_current * 1.1;
@@ -1282,31 +1100,7 @@ doublereal RedlichKwongMFTP::liquidVolEst(doublereal TKelvin, doublereal& presGu
     //printf ("     RedlichKwongMFTP::liquidVolEst %g %g converged in %d its\n", TKelvin, pres, i);
     return v;
 }
-//====================================================================================================================
-//  Calculates the density given the temperature and the pressure and a guess at the density.
-/*
- * Note, below T_c, this is a multivalued function. We do not cross the vapor dome in this.
- * This is protected because it is called during setState_TP() routines. Infinite loops would result
- * if it were not protected.
- *
- *  -> why is this not const?
- *
- * parameters:
- *    @param TKelvin   Temperature in Kelvin
- *    @param pressure  Pressure in Pascals (Newton/m**2)
- *    @param phaseReqested     int representing the phase whose density we are requesting. If we put
- *                     a gas or liquid phase here, we will attempt to find a volume in that
- *                     part of the volume space, only, in this routine. A value of FLUID_UNDEFINED
- *                     means that we will accept anything.
- *
- *   @param rhoguess   Guessed density of the fluid. A value of -1.0 indicates that there
- *                     is no guessed density
- *
- *
- *  @return   We return the density of the fluid at the requested phase. If we have not found any
- *            acceptable density we return a -1. If we have found an acceptable density at a
- *            different phase, we return a -2.
- */
+
 doublereal RedlichKwongMFTP::densityCalc(doublereal TKelvin, doublereal presPa, int phaseRequested, doublereal rhoguess)
 {
 
@@ -1316,7 +1110,6 @@ doublereal RedlichKwongMFTP::densityCalc(doublereal TKelvin, doublereal presPa, 
     setTemperature(TKelvin);
     double tcrit = critTemperature();
     doublereal mmw = meanMolecularWeight();
-    double densBase = 0.0;
     if (rhoguess == -1.0) {
         if (phaseRequested != FLUID_GAS) {
             if (TKelvin > tcrit) {
@@ -1379,20 +1172,13 @@ doublereal RedlichKwongMFTP::densityCalc(doublereal TKelvin, doublereal presPa, 
         //printf("DensityCalc(): Possible problem encountered\n");
         return -1.0;
     }
-    densBase = mmw / molarVolLast;
-    return densBase;
+    return mmw / molarVolLast;
 }
-//====================================================================================================================
-// Return the value of the density at the liquid spinodal point (on the liquid side)
-// for the current temperature.
-/*
- * @return returns the density with units of kg m-3
- */
+
 doublereal  RedlichKwongMFTP::densSpinodalLiquid() const
 {
     if (NSolns_ != 3) {
-        double dens = critDensity();
-        return dens;
+        return critDensity();
     }
     double vmax = Vroot_[1];
     double vmin = Vroot_[0];
@@ -1409,20 +1195,13 @@ doublereal  RedlichKwongMFTP::densSpinodalLiquid() const
         throw CanteraError("  RedlichKwongMFTP::densSpinodalLiquid() ", "didn't converge");
     }
     doublereal mmw = meanMolecularWeight();
-    doublereal rho = mmw / vbest;
-    return rho;
+    return mmw / vbest;
 }
-//====================================================================================================================
-// Return the value of the density at the gas spinodal point (on the gas side)
-// for the current temperature.
-/*
- * @return returns the density with units of kg m-3
- */
+
 doublereal RedlichKwongMFTP::densSpinodalGas() const
 {
     if (NSolns_ != 3) {
-        double dens = critDensity();
-        return dens;
+        return critDensity();
     }
     double vmax = Vroot_[2];
     double vmin = Vroot_[1];
@@ -1439,19 +1218,9 @@ doublereal RedlichKwongMFTP::densSpinodalGas() const
         throw CanteraError("  RedlichKwongMFTP::densSpinodalGas() ", "didn't converge");
     }
     doublereal mmw = meanMolecularWeight();
-    doublereal rho = mmw / vbest;
-    return rho;
+    return mmw / vbest;
 }
-//====================================================================================================================
-// Calculate the pressure given the temperature and the molar volume
-/*
- *  Calculate the pressure given the temperature and the molar volume
- *
- * @param   TKelvin   temperature in kelvin
- * @param   molarVol  molar volume ( m3/kmol)
- *
- * @return  Returns the pressure.
- */
+
 doublereal RedlichKwongMFTP::pressureCalc(doublereal TKelvin, doublereal molarVol) const
 {
     doublereal sqt = sqrt(TKelvin);
@@ -1459,18 +1228,7 @@ doublereal RedlichKwongMFTP::pressureCalc(doublereal TKelvin, doublereal molarVo
                   - m_a_current / (sqt * molarVol * (molarVol + m_b_current));
     return pres;
 }
-//====================================================================================================================
-// Calculate the pressure and the pressure derivative given the temperature and the molar volume
-/*
- *  Temperature and mole number are held constant
- *
- * @param   TKelvin   temperature in kelvin
- * @param   molarVol  molar volume ( m3/kmol)
- *
- * @param   presCalc  Returns the pressure.
- *
- *  @return  Returns the derivative of the pressure wrt the molar volume
- */
+
 doublereal  RedlichKwongMFTP::dpdVCalc(doublereal TKelvin, doublereal molarVol, doublereal& presCalc) const
 {
     doublereal sqt = sqrt(TKelvin);
@@ -1483,7 +1241,6 @@ doublereal  RedlichKwongMFTP::dpdVCalc(doublereal TKelvin, doublereal molarVol, 
                        + m_a_current * (2 * molarVol + m_b_current) / (sqt * molarVol * molarVol * vpb * vpb));
     return dpdv;
 }
-//====================================================================================================================
 
 void  RedlichKwongMFTP::pressureDerivatives() const
 {
@@ -1501,12 +1258,12 @@ void  RedlichKwongMFTP::pressureDerivatives() const
 
     dpdT_ = (GasConstant / (vmb) - fac / (sqt *  mv * vpb));
 }
-//====================================================================================================================
+
 void RedlichKwongMFTP::updateMixingExpressions()
 {
     updateAB();
 }
-//====================================================================================================================
+
 void RedlichKwongMFTP::updateAB()
 {
     double temp = temperature();
@@ -1528,7 +1285,7 @@ void RedlichKwongMFTP::updateAB()
         }
     }
 }
-//====================================================================================================================
+
 void RedlichKwongMFTP::calculateAB(doublereal temp, doublereal& aCalc, doublereal& bCalc) const
 {
     bCalc = 0.0;
@@ -1553,7 +1310,7 @@ void RedlichKwongMFTP::calculateAB(doublereal temp, doublereal& aCalc, doublerea
         }
     }
 }
-//====================================================================================================================
+
 doublereal RedlichKwongMFTP::da_dt() const
 {
 
@@ -1568,7 +1325,7 @@ doublereal RedlichKwongMFTP::da_dt() const
     }
     return dadT;
 }
-//====================================================================================================================
+
 void RedlichKwongMFTP::calcCriticalConditions(doublereal a, doublereal b, doublereal a0_coeff, doublereal aT_coeff,
         doublereal& pc, doublereal& tc, doublereal& vc) const
 {
@@ -1612,18 +1369,6 @@ void RedlichKwongMFTP::calcCriticalConditions(doublereal a, doublereal b, double
     vc = omega_vc * GasConstant * tc / pc;
 }
 
-//====================================================================================================================
-// Solve the cubic equation of state
-/*
- * The R-K equation of state may be solved via the following formula
- *
- *     V**3 - V**2(RT/P)  - V(RTb/P - a/(P T**.5) + b*b) - (a b / (P T**.5)) = 0
- *
-
- * Returns the number of solutions found. If it only finds the liquid branch solution, it will return a -1 or a -2
- * instead of 1 or 2.  If it returns 0, then there is an error.
- *
- */
 int RedlichKwongMFTP::NicholsSolve(double TKelvin, double pres, doublereal a, doublereal b,
                                    doublereal Vroot[3]) const
 {

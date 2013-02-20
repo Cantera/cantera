@@ -973,8 +973,7 @@ double BEulerInt::time_error_norm()
         error     = (m_y_n[i] - m_y_pred_n[i]) /  m_ewt[i];
         rel_norm += (error * error);
     }
-    rel_norm = sqrt(rel_norm / m_neq);
-    return rel_norm;
+    return sqrt(rel_norm / m_neq);
 }
 
 /*************************************************************************

@@ -248,13 +248,13 @@ void PDSS::initPtrs()
 doublereal PDSS::enthalpy_mole() const
 {
     err("enthalpy_mole()");
-    return (0.0);
+    return 0.0;
 }
 
 doublereal PDSS::enthalpy_RT() const
 {
     double RT = GasConstant * m_temp;
-    return (enthalpy_mole()/RT);
+    return enthalpy_mole()/RT;
 }
 
 // Return the molar internal Energy in units of J kmol-1
@@ -267,7 +267,7 @@ doublereal PDSS::enthalpy_RT() const
 doublereal PDSS::intEnergy_mole() const
 {
     err("intEnergy_mole()");
-    return (0.0);
+    return 0.0;
 }
 
 // Return the molar entropy in units of J kmol-1 K-1
@@ -280,12 +280,12 @@ doublereal PDSS::intEnergy_mole() const
 doublereal PDSS::entropy_mole() const
 {
     err("entropy_mole()");
-    return (0.0);
+    return 0.0;
 }
 
 doublereal PDSS::entropy_R() const
 {
-    return(entropy_mole()/GasConstant);
+    return entropy_mole()/GasConstant;
 }
 
 // Return the molar gibbs free energy in units of J kmol-1
@@ -298,13 +298,13 @@ doublereal PDSS::entropy_R() const
 doublereal PDSS::gibbs_mole() const
 {
     err("gibbs_mole()");
-    return (0.0);
+    return 0.0;
 }
 
 doublereal PDSS::gibbs_RT() const
 {
     double RT = GasConstant * m_temp;
-    return (gibbs_mole()/RT);
+    return gibbs_mole()/RT;
 }
 
 // Return the molar const pressure heat capacity in units of J kmol-1 K-1
@@ -317,12 +317,12 @@ doublereal PDSS::gibbs_RT() const
 doublereal PDSS::cp_mole() const
 {
     err("cp_mole()");
-    return (0.0);
+    return 0.0;
 }
 
 doublereal PDSS::cp_R() const
 {
-    return (cp_mole()/GasConstant);
+    return cp_mole()/GasConstant;
 }
 
 doublereal PDSS::molarVolume() const
@@ -347,7 +347,7 @@ doublereal PDSS::density() const
 doublereal PDSS::cv_mole() const
 {
     err("cv_mole()");
-    return (0.0);
+    return 0.0;
 }
 
 doublereal PDSS::gibbs_RT_ref() const
@@ -390,7 +390,7 @@ enthalpyDelp_mole() const
 {
     doublereal RT = m_temp * GasConstant;
     doublereal tmp = enthalpy_RT_ref();
-    return(enthalpy_mole() - RT * tmp);
+    return enthalpy_mole() - RT * tmp;
 }
 
 
@@ -402,7 +402,7 @@ enthalpyDelp_mole() const
 doublereal PDSS::entropyDelp_mole() const
 {
     doublereal tmp = entropy_R_ref();
-    return(entropy_mole() - GasConstant * tmp);
+    return entropy_mole() - GasConstant * tmp;
 
 }
 
@@ -415,7 +415,7 @@ doublereal PDSS::gibbsDelp_mole() const
 {
     doublereal RT = m_temp * GasConstant;
     doublereal tmp = gibbs_RT_ref();
-    return(gibbs_mole() - RT * tmp);
+    return gibbs_mole() - RT * tmp;
 }
 
 // Return the molar const volume heat capacity in units of J kmol-1 K-1
@@ -428,7 +428,7 @@ doublereal PDSS::gibbsDelp_mole() const
 doublereal PDSS::cpDelp_mole() const
 {
     doublereal tmp = cp_R_ref();
-    return(cp_mole() - GasConstant * tmp);
+    return cp_mole() - GasConstant * tmp;
 }
 
 /**
@@ -438,7 +438,7 @@ doublereal PDSS::cpDelp_mole() const
  */
 doublereal PDSS::pressure() const
 {
-    return (m_pres);
+    return m_pres;
 }
 
 // Return the volumetric thermal expansion coefficient. Units: 1/K.
@@ -451,28 +451,28 @@ doublereal PDSS::pressure() const
 doublereal PDSS::thermalExpansionCoeff() const
 {
     throw CanteraError("PDSS::thermalExpansionCoeff()", "unimplemented");
-    return (0.0);
+    return 0.0;
 }
 
 /// critical temperature
 doublereal PDSS::critTemperature() const
 {
     err("critTemperature()");
-    return (0.0);
+    return 0.0;
 }
 
 /// critical pressure
 doublereal PDSS::critPressure() const
 {
     err("critPressure()");
-    return (0.0);
+    return 0.0;
 }
 
 /// critical density
 doublereal PDSS::critDensity() const
 {
     err("critDensity()");
-    return (0.0);
+    return 0.0;
 }
 
 void PDSS::setPressure(doublereal pres)
@@ -520,7 +520,7 @@ void PDSS::setState_TR(doublereal temp, doublereal rho)
 doublereal PDSS::satPressure(doublereal t)
 {
     err("satPressure()");
-    return (0.0);
+    return 0.0;
 }
 
 
@@ -532,14 +532,14 @@ void PDSS::err(const std::string& msg) const
 
 void PDSS::reportParams(size_t& kindex, int& type,
                         doublereal* const c,
-                        doublereal& minTemp,
-                        doublereal& maxTemp,
-                        doublereal& refPressure) const
+                        doublereal& minTemp_,
+                        doublereal& maxTemp_,
+                        doublereal& refPressure_) const
 {
     kindex = m_spindex;
     type = m_pdssType;
-    minTemp = m_minTemp;
-    maxTemp = m_maxTemp;
-    refPressure = m_p0;
+    minTemp_ = m_minTemp;
+    maxTemp_ = m_maxTemp;
+    refPressure_ = m_p0;
 }
 }

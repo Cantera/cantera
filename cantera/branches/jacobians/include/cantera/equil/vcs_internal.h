@@ -271,8 +271,7 @@ typedef double(*VCS_FUNC_PTR)(double xval, double Vtarget,
      double tmp1 = theta1 + sin(theta1) * cos(theta1) - 2.0 * h_2 / rad_cyl * sin(theta1);
      double f_buoy = tmp * (Pi * rho_gas + (rho_liq - rho_gas) * tmp1);
      double f_sten = 2 * sigma * sin(theta1 + alpha1 - Pi);
-     double f_net =  f_grav +  f_buoy +  f_sten;
-     return f_net;
+     return f_grav +  f_buoy +  f_sten;
    }
    double calc_h2_farfield(double theta1) {
      double rhs = sigma * (1.0 + cos(alpha1 + theta1));
@@ -281,14 +280,12 @@ typedef double(*VCS_FUNC_PTR)(double xval, double Vtarget,
      double sign = -1.0;
      if (alpha1 + theta1 < Pi) sign = 1.0;
      double res = sign * sqrt(rhs);
-     double h2 = res + rad_cyl * cos(theta1);
-     return h2;
+     return res + rad_cyl * cos(theta1);
    }
    double funcZero(double xval, double Vtarget, int varID, void *fptrPassthrough, int *err) {
      double theta = xval;
      double h2 = calc_h2_farfield(theta);
-     double fv = func_vert(theta, h2, rho_cyl);
-     return fv;
+     return func_vert(theta, h2, rho_cyl);
    }
    int main () {
      double thetamax = Pi;

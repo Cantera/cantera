@@ -172,8 +172,7 @@ double PrintCtrl::cropAbs10(const double d, int Ndec) const
         N10 += 1;
     }
     int nsig = N10 - Ndec;
-    double retn = cropSigDigits(d, nsig);
-    return retn;
+    return cropSigDigits(d, nsig);
 }
 
 // Crop a double at a certain number of significant digits
@@ -218,7 +217,7 @@ double PrintCtrl::cropSigDigits(const double d, int nSig) const
     }
     double paltabs = (double) nfabs;
     double daltabs = paltabs * pow(10.0, (double) -E10);
-    return (sgn * daltabs);
+    return sgn * daltabs;
 }
 
 // Set the default value of N decade

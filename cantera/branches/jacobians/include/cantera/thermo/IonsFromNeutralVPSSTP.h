@@ -5,7 +5,7 @@
  *  (see \ref thermoprops
  * and class \link Cantera::IonsFromNeutralVPSSTP IonsFromNeutralVPSSTP\endlink).
  *
- * Header file for a derived class of %ThermoPhase that handles
+ * Header file for a derived class of ThermoPhase that handles
  * variable pressure standard state methods for calculating
  * thermodynamic properties that are further based upon activities
  * based on the molality scale.  These include most of the methods for
@@ -53,30 +53,29 @@ enum IonSolnType_enumType {
  *
  *  This object actually employs 4 different mole fraction types.
  *
- *  1) There is a mole fraction associated the the cations and
+ *  1. There is a mole fraction associated the the cations and
  *     anions and neutrals from this ThermoPhase object. This
  *     is the normal mole fraction vector for this object.
  *     Note, however, it isn't the appropriate mole fraction
  *     vector to use even for obtaining the correct ideal
  *     free energies of mixing.
- *  2) There is a mole fraction vector associated with the
+ *  2. There is a mole fraction vector associated with the
  *     neutral molecule ThermoPhase object.
- *  3) There is a mole fraction vector associated with the
+ *  3. There is a mole fraction vector associated with the
  *     cation lattice.
- *  4) There is a mole fraction vector associated with the
+ *  4. There is a mole fraction vector associated with the
  *     anion lattice
  *
  *  This object can translate between any of the four mole
  *  fraction representations.
- *
- *
  */
 class IonsFromNeutralVPSSTP : public GibbsExcessVPSSTP
 {
-
 public:
 
-    /// Constructors
+    //! @name Constructors
+    //! @{
+
     /*!
      * Default constructor
      */
@@ -85,12 +84,8 @@ public:
     //! Construct and initialize an IonsFromNeutralVPSSTP object
     //! directly from an ASCII input file
     /*!
-     * Working constructors
-     *
-     *  The two constructors below are the normal way
-     *  the phase initializes itself. They are shells that call
-     *  the routine initThermo(), with a reference to the
-     *  XML database to get the info for the phase.
+     *  This constructor is a shell around the routine initThermo(), with a
+     *  reference to the XML database to get the info for the phase.
      *
      * @param inputFile Name of the input file containing the phase XML data
      *                  to set up the object
@@ -134,16 +129,12 @@ public:
 
     //! Copy constructor
     /*!
-     *  Note this stuff will not work until the underlying phase
-     *  has a working copy constructor
-     *
      * @param b class to be copied
      */
     IonsFromNeutralVPSSTP(const IonsFromNeutralVPSSTP& b);
 
     /// Assignment operator
     /*!
-     *
      * @param b class to be copied.
      */
     IonsFromNeutralVPSSTP& operator=(const IonsFromNeutralVPSSTP& b);
@@ -158,6 +149,8 @@ public:
      *  a pointer to ThermoPhase to work with.
      */
     virtual thermo_t* duplMyselfAsThermoPhase() const;
+
+    // @}
 
     /// The following methods are used in the process of constructing
     /// the phase and setting its parameters from a specification in an
@@ -202,13 +195,8 @@ public:
      */
     void constructPhaseXML(XML_Node& phaseNode, std::string id);
 
-
-    /**
-     *
-     * @name  Utilities
-     * @{
-     */
-
+    //! @name  Utilities
+    //! @{
 
     //! Equation of state type flag.
     /*!
@@ -220,80 +208,35 @@ public:
      */
     virtual int eosType() const;
 
-
-
-    /**
-     * @}
-     * @name  Molar Thermodynamic Properties
-     * @{
-     */
+    //! @}
+    //! @name Molar Thermodynamic Properties
+    //! @{
 
     //! Return the Molar enthalpy. Units: J/kmol.
     /*!
-     * This is calculated from the partial molar enthalpies of the species
+     * This is calculated from the partial molar enthalpies of the species.
      */
     virtual doublereal enthalpy_mole() const;
 
     /**
      * Molar internal energy. J/kmol.
-     *  *
+     *
      * This is calculated from the soln enthalpy and then
      * subtracting pV.
      */
     virtual doublereal intEnergy_mole() const;
 
-    /**
-     * Molar entropy. Units: J/kmol/K.
-     *
-     *
-     */
+    //! Molar entropy. Units: J/kmol/K.
     virtual doublereal entropy_mole() const;
 
-    /**
-     * Molar Gibbs free Energy for an ideal gas.
-     * Units =  J/kmol.
-     */
+    //! Molar Gibbs free Energy for an ideal gas. Units =  J/kmol.
     virtual doublereal gibbs_mole() const;
 
-    /**
-     * Molar heat capacity at constant pressure. Units: J/kmol/K.
-     * For an ideal gas mixture,
-     *
-     */
+    //! Molar heat capacity at constant pressure. Units: J/kmol/K.
     virtual doublereal cp_mole() const;
 
-    /**
-     * Molar heat capacity at constant volume. Units: J/kmol/K.
-     *
-     */
+    //! Molar heat capacity at constant volume. Units: J/kmol/K.
     virtual doublereal cv_mole() const;
-
-
-    /**
-     * @}
-     * @name Utilities
-     * @{
-     */
-
-
-
-
-    /**
-     * @}
-     * @name Mechanical Properties
-     * @{
-     */
-
-    /**
-     * @}
-     * @name Potential Energy
-     *
-     * Species may have an additional potential energy due to the
-     * presence of external gravitation or electric fields. These
-     * methods allow specifying a potential energy for individual
-     * species.
-     * @{
-     */
 
     /**
      * @}
@@ -314,7 +257,6 @@ public:
      */
     virtual void getActivityCoefficients(doublereal* ac) const;
 
-
     //@}
     /// @name  Partial Molar Properties of the Solution
     //@{
@@ -329,7 +271,6 @@ public:
      *            potentials. Length: m_kk. Units: J/kmol
      */
     virtual void getChemPotentials(doublereal* mu) const;
-
 
     //! Returns an array of partial molar enthalpies for the species
     //! in the mixture.
@@ -387,13 +328,14 @@ public:
     //! Get the array of log concentration-like derivatives of the
     //! log activity coefficients - diagonal component
     /*!
-     * This function is a virtual method.  For ideal mixtures
-     * (unity activity coefficients), this can return zero.
-     * Implementations should take the derivative of the
-     * logarithm of the activity coefficient with respect to the
-     * logarithm of the mole fraction.
+     * For ideal mixtures (unity activity coefficients), this can return zero.
+     * Implementations should take the derivative of the logarithm of the
+     * activity coefficient with respect to the logarithm of the mole
+     * fraction. This quantity is to be used in conjunction with derivatives
+     * of that concentration-like variable when the derivative of the chemical
+     * potential is taken.
      *
-     *  units = dimensionless
+     * units = dimensionless
      *
      * @param dlnActCoeffdlnX_diag    Output vector of log(mole fraction)
      *                 derivatives of the log Activity Coefficients.
@@ -404,11 +346,10 @@ public:
     //! Get the array of log concentration-like derivatives of the
     //! log activity coefficients - diagonal components
     /*!
-     * This function is a virtual method.  For ideal mixtures
-     * (unity activity coefficients), this can return zero.
-     * Implementations should take the derivative of the
-     * logarithm of the activity coefficient with respect to the
-     * logarithm of the species mole numbe. This routine just does the diagonal entries.
+     * For ideal mixtures (unity activity coefficients), this can return zero.
+     * Implementations should take the derivative of the logarithm of the
+     * activity coefficient with respect to the logarithm of the species mole
+     * numbe. This routine just does the diagonal entries.
      *
      *  units = dimensionless
      *
@@ -437,7 +378,7 @@ public:
      *                         log Activity Coefficients. length = m_kk * m_kk
      */
     virtual void getdlnActCoeffdlnN(const size_t ld, doublereal* const dlnActCoeffdlnN) ;
-
+    //! @}
 
     //! Get the Salt Dissociation Coefficients
     //! Returns the vector of dissociation coefficients and vector of charges
@@ -449,7 +390,6 @@ public:
      *                               This is the mapping between ion species and neutral molecule for quick invert.
      */
     void getDissociationCoeffs(vector_fp& fm_neutralMolec_ions, vector_fp& charges, std::vector<size_t>& neutMolIndex) const;
-
 
     //! Return the current value of the neutral mole fraction vector
     /*!
@@ -494,36 +434,9 @@ public:
         anion=anionList_;
     }
 
-
-    //@}
-    /// @name  Properties of the Standard State of the Species in the Solution
-    //@{
-
-
-
-    //@}
-    /// @name Thermodynamic Values for the Species Reference States
-    //@{
-
-
-    ///////////////////////////////////////////////////////
-    //
-    //  The methods below are not virtual, and should not
-    //  be overloaded.
-    //
-    //////////////////////////////////////////////////////
-
-    /**
-     * @name Specific Properties
-     * @{
-     */
-
-
     /**
      * @name Setting the State
-     *
-     * These methods set all or part of the thermodynamic
-     * state.
+     * These methods set all or part of the thermodynamic state.
      * @{
      */
 
@@ -540,8 +453,7 @@ public:
     virtual void setState_TP(doublereal t, doublereal p);
 
 
-    //! Calculate ion mole fractions from neutral molecule
-    //! mole fractions.
+    //! Calculate ion mole fractions from neutral molecule mole fractions.
     /*!
      *  @param mf Dump the mole fractions into this vector.
      */
@@ -612,8 +524,7 @@ public:
     virtual void setMoleFractions_NoNorm(const doublereal* const x);
 
     /**
-     * Set the concentrations to the specified values within the
-     * phase.
+     * Set the concentrations to the specified values within the phase.
      *
      * @param c The input vector to this routine is in dimensional
      *        units. For volumetric phases c[k] is the
@@ -641,7 +552,6 @@ public:
      */
     virtual void initThermo();
 
-
     /**
      *   Import and initialize a ThermoPhase object
      *
@@ -660,8 +570,6 @@ public:
 
 
 private:
-
-
     //! Initialize lengths of local variables after all species have
     //! been identified.
     void initLengths();
@@ -752,16 +660,15 @@ protected:
     //! Formula Matrix for composition of neutral molecules
     //! in terms of the molecules in this ThermoPhase
     /*!
-     *       fm_neutralMolec_ions[ i + jNeut * m_kk                ]
+     *       fm_neutralMolec_ions[ i + jNeut * m_kk ]
      *
-     *             This is the number of ions of type i in the neutral
-     *             molecule jNeut.
+     *  This is the number of ions of type i in the neutral
+     *  molecule jNeut.
      */
     std::vector<double> fm_neutralMolec_ions_;
 
     //! Mapping between ion species and neutral molecule for quick invert.
     /*!
-     *
      * fm_invert_ionForNeutral returns vector of int. Each element represents
      * an ionic species and stores the value of the corresponding neutral
      * molecule
@@ -774,11 +681,11 @@ protected:
      *  We assume that for a selected set of ion species, that that
      *  ion is only in the neutral molecule, jNeut.
      *
-     *     therefore,
+     *  therefore,
      *
      *      NeutralMolecMoleFractions_[jNeut] += moleFractions_[i_ion] / fmij;
      *
-     *   where fmij is the number of ions in neutral molecule jNeut.
+     *  where fmij is the number of ions in neutral molecule jNeut.
      *
      *  Thus, we formulate the neutral molecule mole fraction NeutralMolecMoleFractions_[]
      *  vector from this association. We further assume that there are
@@ -790,7 +697,6 @@ protected:
 
     //! Mole fractions using the Neutral Molecule Mole fraction basis
     mutable std::vector<doublereal> NeutralMolecMoleFractions_;
-
 
     //! List of the species in this ThermoPhase which are cation species
     std::vector<size_t> cationList_;
@@ -826,9 +732,9 @@ public:
 private:
     GibbsExcessVPSSTP* geThermo;
     // Temporary vectors that I don't want to allocate every time the function is called
-    mutable vector_fp y;
-    mutable vector_fp dlnActCoeff_NeutralMolecule;
-    mutable vector_fp dX_NeutralMolecule;
+    mutable vector_fp y_;
+    mutable vector_fp dlnActCoeff_NeutralMolecule_;
+    mutable vector_fp dX_NeutralMolecule_;
 
     //! If true then we own the underlying neutral Molecule Phase
     /*!
@@ -845,8 +751,8 @@ private:
      *  This vector is used as a temporary storage area when calculating the ion chemical
      *  potentials.
      *
-     *  Units = Joules/kmol
-     *  Length =  numNeutralMoleculeSpecies_
+     *  - Units = Joules/kmol
+     *  - Length =  numNeutralMoleculeSpecies_
      */
     mutable std::vector<doublereal> muNeutralMolecule_;
 
@@ -855,18 +761,17 @@ private:
      *  This vector is used as a temporary storage area when calculating the ion chemical
      *  potentials and activity coefficients
      *
-     *  Units = none
-     *  Length =  numNeutralMoleculeSpecies_
+     *  - Units = none
+     *  - Length =  numNeutralMoleculeSpecies_
      */
     mutable std::vector<doublereal> lnActCoeff_NeutralMolecule_;
 
     //! Storage vector for the neutral molecule d ln activity coefficients dT
     /*!
      *  This vector is used as a temporary storage area when calculating the ion derivatives
-
      *
-     *  Units =  1/Kelvin
-     *  Length =  numNeutralMoleculeSpecies_
+     *  - Units =  1/Kelvin
+     *  - Length =  numNeutralMoleculeSpecies_
      */
     mutable std::vector<doublereal> dlnActCoeffdT_NeutralMolecule_;
 
@@ -874,8 +779,8 @@ private:
     /*!
      *  This vector is used as a temporary storage area when calculating the ion derivatives
      *
-     *  Units =  none
-     *  Length =  numNeutralMoleculeSpecies_
+     *  - Units =  none
+     *  - Length =  numNeutralMoleculeSpecies_
      */
     mutable std::vector<doublereal> dlnActCoeffdlnX_diag_NeutralMolecule_;
 
@@ -883,8 +788,8 @@ private:
     /*!
      *  This vector is used as a temporary storage area when calculating the ion derivatives
      *
-     *  Units =  none
-     *  Length =  numNeutralMoleculeSpecies_
+     *  - Units =  none
+     *  - Length =  numNeutralMoleculeSpecies_
      */
     mutable std::vector<doublereal> dlnActCoeffdlnN_diag_NeutralMolecule_;
 
@@ -892,16 +797,11 @@ private:
     /*!
      *  This vector is used as a temporary storage area when calculating the ion derivatives
      *
-     *  Units =  none
-     *  Length =  numNeutralMoleculeSpecies_
+     *  - Units =  none
+     *  - Length =  numNeutralMoleculeSpecies_
      */
     mutable Array2D dlnActCoeffdlnN_NeutralMolecule_;
-
 };
-
-
-
-
 
 }
 

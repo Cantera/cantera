@@ -57,27 +57,19 @@ LiquidTranInteraction::~LiquidTranInteraction()
 {
     size_t kmax = m_Aij.size();
     for (size_t k = 0; k < kmax; k++) {
-        if (m_Aij[k]) {
-            delete m_Aij[k];
-        }
+        delete m_Aij[k];
     }
     kmax = m_Bij.size();
     for (size_t k = 0; k < kmax; k++) {
-        if (m_Bij[k]) {
-            delete m_Bij[k];
-        }
+        delete m_Bij[k];
     }
     kmax = m_Hij.size();
     for (size_t k = 0; k < kmax; k++) {
-        if (m_Hij[k]) {
-            delete m_Hij[k];
-        }
+        delete m_Hij[k];
     }
     kmax = m_Sij.size();
     for (size_t k = 0; k < kmax; k++) {
-        if (m_Sij[k]) {
-            delete m_Sij[k];
-        }
+        delete m_Sij[k];
     }
 }
 
@@ -502,8 +494,7 @@ doublereal LTI_Log_MoleFracs::getMixTransProp(doublereal* speciesValues, doubler
         }
     }
 
-    value = exp(value);
-    return value;
+    return exp(value);
 }
 
 

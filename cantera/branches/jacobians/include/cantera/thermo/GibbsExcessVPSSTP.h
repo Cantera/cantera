@@ -39,14 +39,14 @@ namespace Cantera
  * and semi-miscible compounds.
  *
  * It includes
- *   . regular solutions
- *   . Margules expansions
- *   . NTRL equation
- *   . Wilson's equation
- *   . UNIQUAC equation of state.
+ *   - regular solutions
+ *   - Margules expansions
+ *   - NTRL equation
+ *   - Wilson's equation
+ *   - UNIQUAC equation of state.
  *
- * This class adds additional functions onto the %ThermoPhase interface
- * that handles the calculation of the excess Gibbs free energy. The %ThermoPhase
+ * This class adds additional functions onto the ThermoPhase interface
+ * that handles the calculation of the excess Gibbs free energy. The ThermoPhase
  * class includes a member function, ThermoPhase::activityConvention()
  * that indicates which convention the activities are based on. The
  * default is to assume activities are based on the molar convention.
@@ -55,14 +55,12 @@ namespace Cantera
  * All of the Excess Gibbs free energy formulations in this area employ
  * symmetrical formulations.
  *
- *
- *  Chemical potentials
+ * Chemical potentials
  * of species k, \f$ \mu_o \f$, has the following general format:
  *
  * \f[
  *    \mu_k = \mu^o_k(T,P) + R T ln( \gamma_k X_k )
  * \f]
- *
  *
  * where \f$ \gamma_k^{\triangle} \f$ is a molar based activity coefficient for species
  * \f$k\f$.
@@ -70,7 +68,6 @@ namespace Cantera
  * GibbsExcessVPSSTP contains an internal vector with the current mole
  * fraction vector. That's one of its primary usages. In order to keep the mole fraction
  * vector constant, all of the setState functions are redesigned at this layer.
- *
  *
  *  <H3>
  *        Activity Concentrations: Relationship of %ThermoPhase to %Kinetics Expressions
@@ -96,15 +93,12 @@ namespace Cantera
  *  All setState functions that set the internal state of the ThermoPhase object are
  *  overloaded at this level, so that a current mole fraction vector is maintained within
  *  the object.
- *
- *
  */
 class GibbsExcessVPSSTP : public VPStandardStateTP
 {
-
 public:
-
-    /// Constructors
+    //! @name Constructors
+    //! @{
     /*!
      * This doesn't do much more than initialize constants with
      * default values for water at 25C. Water molecular weight
@@ -117,16 +111,12 @@ public:
 
     //! Copy constructor
     /*!
-     *  Note this stuff will not work until the underlying phase
-     *  has a working copy constructor
-     *
      * @param b class to be copied
      */
     GibbsExcessVPSSTP(const GibbsExcessVPSSTP& b);
 
     /// Assignment operator
     /*!
-     *
      * @param b class to be copied.
      */
     GibbsExcessVPSSTP& operator=(const GibbsExcessVPSSTP& b);
@@ -141,13 +131,7 @@ public:
      *  a pointer to ThermoPhase to work with.
      */
     virtual thermo_t* duplMyselfAsThermoPhase() const;
-
-    /**
-     *
-     * @name  Utilities
-     * @{
-     */
-
+    //! @}
 
     //! Equation of state type flag.
     /*!
@@ -159,23 +143,9 @@ public:
      */
     virtual int eosType() const;
 
-
-
-    /**
-     * @}
-     * @name  Molar Thermodynamic Properties
-     * @{
-     */
-
-
-
-
-
-    /**
-     * @}
-     * @name Mechanical Properties
-     * @{
-     */
+    //! @}
+    //! @name Mechanical Properties
+    //! @{
 
     //! Set the internally stored pressure (Pa) at constant
     //! temperature and composition
@@ -191,7 +161,6 @@ public:
     virtual void setPressure(doublereal p);
 
 protected:
-
     /**
      * Calculate the density of the mixture using the partial
      * molar volumes and mole fractions as input
@@ -218,17 +187,6 @@ protected:
     void calcDensity();
 
 public:
-    /**
-     * @}
-     * @name Potential Energy
-     *
-     * Species may have an additional potential energy due to the
-     * presence of external gravitation or electric fields. These
-     * methods allow specifying a potential energy for individual
-     * species.
-     * @{
-     */
-
     /**
      * @}
      * @name Activities, Standard States, and Activity Concentrations
@@ -258,8 +216,6 @@ public:
      *           reaction rate expressions within the phase.
      */
     virtual void getActivityConcentrations(doublereal* c) const;
-
-
 
     /**
      * The standard concentration \f$ C^0_k \f$ used to normalize
@@ -393,11 +349,9 @@ public:
         err("getdlnActCoeffdlnX");
     }
 
-
     //@}
     /// @name  Partial Molar Properties of the Solution
     //@{
-
 
     /**
      * Get the species electrochemical potentials.
@@ -425,38 +379,12 @@ public:
     virtual void getPartialMolarVolumes(doublereal* vbar) const;
     virtual const vector_fp& getPartialMolarVolumes() const;
 
-    //@}
-    /// @name  Properties of the Standard State of the Species in the Solution
-    //@{
-
-
-
-    //@}
-    /// @name Thermodynamic Values for the Species Reference States
-    //@{
-
-
-    ///////////////////////////////////////////////////////
-    //
-    //  The methods below are not virtual, and should not
-    //  be overloaded.
-    //
-    //////////////////////////////////////////////////////
-
     /**
-     * @name Specific Properties
-     * @{
-     */
-
-
-    /**
+     * @}
      * @name Setting the State
-     *
-     * These methods set all or part of the thermodynamic
-     * state.
+     * These methods set all or part of the thermodynamic state.
      * @{
      */
-
 
     //! Set the temperature (K) and pressure (Pa)
     /*!
@@ -466,15 +394,6 @@ public:
      * @param p    Pressure (Pa)
      */
     virtual void setState_TP(doublereal t, doublereal p);
-
-    //@}
-
-    /**
-     * @name Chemical Equilibrium
-     * Routines that implement the Chemical equilibrium capability
-     * for a single phase, based on the element-potential method.
-     * @{
-     */
 
     /**
      * Set the mass fractions to the specified values, and then
@@ -499,7 +418,6 @@ public:
      *           Length is m_kk.
      */
     virtual void setMassFractions_NoNorm(const doublereal* const y);
-
 
     /**
      * Set the mole fractions to the specified values, and then
@@ -537,17 +455,7 @@ public:
      *        of species in the phase.
      */
     virtual void setConcentrations(const doublereal* const c);
-
     //@}
-
-
-
-    /// The following methods are used in the process of constructing
-    /// the phase and setting its parameters from a specification in an
-    /// input file. They are not normally used in application programs.
-    /// To see how they are used, see files importCTML.cpp and
-    /// ThermoFactory.cpp.
-
 
     /*!
      * @internal Initialize. This method is provided to allow
@@ -564,9 +472,7 @@ public:
      */
     virtual void initThermo();
 
-
 private:
-
     //! Initialize lengths of local variables after all species have
     //! been identified.
     void initLengths();
@@ -580,17 +486,14 @@ private:
     doublereal err(const std::string& msg) const;
 
 protected:
-
     //! utility routine to check mole fraction sum
     /*!
      * @param x   vector of mole fractions.
+     * @deprecated
      */
     double checkMFSum(const doublereal* const x) const;
 
 protected:
-
-    // HKM get rid of _Scaled_ prefix
-
     //! Storage for the current values of the mole fractions of the species
     /*!
      * This vector is kept up-to-date when the setState functions are called.
@@ -634,15 +537,8 @@ protected:
 
     //! Temporary storage space that is fair game
     mutable std::vector<doublereal> m_pp;
-
 };
-
 
 }
 
 #endif
-
-
-
-
-

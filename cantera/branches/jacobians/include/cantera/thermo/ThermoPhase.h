@@ -41,7 +41,7 @@ class XML_Node;
 
 //!   Base class for a phase with thermodynamic properties.
 /*!
- * Class %ThermoPhase is the base class for the family of classes
+ * Class ThermoPhase is the base class for the family of classes
  * that represent phases of matter of any type. It defines a
  * common public interface, and implements a few methods. Most of
  * the methods, however, are declared virtual and are meant to be
@@ -50,9 +50,8 @@ class XML_Node;
  * through pointers of type ThermoPhase* that point to objects of
  * subclasses of ThermoPhase.
  *
- * Class %ThermoPhase extends class Phase by adding methods to compute
- * thermodynamic
- * properties in addition to the ones (temperature, density,
+ * Class ThermoPhase extends class Phase by adding methods to compute
+ * thermodynamic properties in addition to the ones (temperature, density,
  * composition) that class Phase provides. The distinction is that
  * the methods declared in ThermoPhase require knowing the
  * particular equation of state of the phase of interest, while
@@ -290,11 +289,9 @@ public:
         return m_chargeNeutralityNecessary;
     }
 
-    /**
-     * @}
-     * @name  Molar Thermodynamic Properties of the Solution
-     * @{
-     */
+    //! @}
+    //! @name  Molar Thermodynamic Properties of the Solution
+    //! @{
 
     /// Molar enthalpy. Units: J/kmol.
     virtual ValAndDerivType enthalpy_mole() const
@@ -335,7 +332,6 @@ public:
     /**
      * @returns species vibrational specific heat at
      * constant volume.
-     *
      */
     //! Molar heat capacity at constant volume. Units: J/kmol/K.
     virtual ValAndDerivType cv_vib(int, double) const
@@ -343,11 +339,9 @@ public:
         return err("cv_vib");
     }
 
-    /**
-     * @}
-     * @name Mechanical Properties
-     * @{
-     */
+    //! @}
+    //! @name Mechanical Properties
+    //! @{
 
     //! Return the thermodynamic pressure (Pa).
     /*!
@@ -561,6 +555,10 @@ public:
      * of (kmol/m3) for all species.
      * Inherited classes are responsible for overriding the default
      * values if necessary.
+     *
+     * On return uA contains the powers of the units (MKS assumed)
+     * of the standard concentrations and generalized concentrations
+     * for the kth species.
      *
      * @param uA Output vector containing the units
      *  uA[0] = kmol units - default  = 1
@@ -1008,10 +1006,8 @@ public:
     //
 
     //@}
-    /**
-     * @name Specific Properties
-     * @{
-     */
+    //! @name Specific Properties
+    //@{
 
     /**
      * Specific enthalpy. Units: J/kg.
@@ -1187,8 +1183,9 @@ public:
     /*!
      * @param h     Specific enthalpy (J/kg)
      * @param p     Pressure (Pa)
-     * @param tol   Optional parameter setting the tolerance of the
-     *              calculation. Defaults to 1.0E-4
+     * @param tol   Optional parameter setting the tolerance of the calculation.
+     *              Important for some applications where numerical Jacobians
+     *              are being calculated.Defaults to 1.0E-4
      */
     virtual void setState_HP(doublereal h, doublereal p, doublereal tol = 1.e-4);
 
@@ -1199,8 +1196,9 @@ public:
      *
      * @param u    specific internal energy (J/kg)
      * @param v    specific volume (m^3/kg).
-     * @param tol  Optional parameter setting the tolerance of the
-     *             calculation. Defaults to 1.0E-4
+     * @param tol  Optional parameter setting the tolerance of the calculation.
+     *             Important for some applications where numerical Jacobians
+     *             are being calculated.Defaults to 1.0E-4
      */
     virtual void setState_UV(doublereal u, doublereal v, doublereal tol = 1.e-4);
 
@@ -1210,8 +1208,9 @@ private:
     /*!
      * @param h     Specific enthalpy or internal energy (J/kg)
      * @param p     Pressure (Pa) or specific volume (m^3/kg)
-     * @param tol   Optional parameter setting the tolerance of the
-     *              calculation. Defaults to 1.0E-4
+     * @param tol   Optional parameter setting the tolerance of the calculation.
+     *              Defaults to 1.0E-4. Important for some applications where
+     *              numerical Jacobians are being calculated.
      * @param doUV  True if solving for UV, false for HP.
      */
     void setState_HPorUV(doublereal h, doublereal p, doublereal tol = 1.e-4, bool doUV = false);
@@ -1225,8 +1224,9 @@ public:
      *
      * @param s    specific entropy (J/kg/K)
      * @param p    specific pressure (Pa).
-     * @param tol  Optional parameter setting the tolerance of the
-     *             calculation. Defaults to 1.0E-4
+     * @param tol   Optional parameter setting the tolerance of the calculation.
+     *              Defaults to 1.0E-4. Important for some applications where
+     *              numerical Jacobians are being calculated.
      */
     virtual void setState_SP(doublereal s, doublereal p, doublereal tol = 1.e-4);
 
@@ -1237,8 +1237,9 @@ public:
      *
      * @param s    specific entropy (J/kg/K)
      * @param v    specific volume (m^3/kg).
-     * @param tol  Optional parameter setting the tolerance of the
-     *             calculation. Defaults to 1.0E-4
+     * @param tol   Optional parameter setting the tolerance of the calculation.
+     *              Defaults to 1.0E-4. Important for some applications where
+     *              numerical Jacobians are being calculated.
      */
     virtual void setState_SV(doublereal s, doublereal v, doublereal tol = 1.e-4);
 
@@ -1248,8 +1249,9 @@ private:
     /*!
      * @param s     Specific entropy (J/kg)
      * @param p     Pressure (Pa) or specific volume (m^3/kg)
-     * @param tol   Optional parameter setting the tolerance of the
-     *              calculation. Defaults to 1.0E-4
+     * @param tol   Optional parameter setting the tolerance of the calculation.
+     *              Defaults to 1.0E-4. Important for some applications where
+     *              numerical Jacobians are being calculated.
      * @param doSV  True if solving for SV, false for SP.
      */
     void setState_SPorSV(doublereal s, doublereal p, doublereal tol = 1.e-4, bool doSV = false);
@@ -1586,11 +1588,9 @@ public:
      */
     virtual void setStateFromXML(const XML_Node& state);
 
-    /**
-     * @}
-     * @name  Derivatives of Thermodynamic Variables needed for Applications
-     * @{
-     */
+    //! @}
+    //! @name  Derivatives of Thermodynamic Variables needed for Applications
+    //! @{
 
     //! Get the change in activity coefficients wrt changes in state (temp, mole fraction, etc) along
     //! a line in parameter space or along a line in physical space
@@ -1675,11 +1675,9 @@ public:
 
     virtual void getdlnActCoeffdlnN_numderiv(const size_t ld, ValAndDerivType* const dlnActCoeffdlnN);
 
-    /**
-     * @}
-     * @name Printing
-     * @{
-     */
+    //! @}
+    //! @name Printing
+    //! @{
 
     //! returns a summary of the state of the phase as a string
     /*!
@@ -1730,7 +1728,7 @@ protected:
     doublereal m_phi;
 
     /// Vector of element potentials.
-    ///    -> length equal to number of elements
+    /// Length equal to number of elements.
     vector_fp m_lambdaRRT;
 
     //! Boolean indicating whether there is a valid set of saved element potentials

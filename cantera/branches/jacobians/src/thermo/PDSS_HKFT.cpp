@@ -172,9 +172,7 @@ PDSS_HKFT& PDSS_HKFT::operator=(const PDSS_HKFT& b)
     m_waterSS        = 0;
     m_densWaterSS               = b.m_densWaterSS;
     //! Need to call initAllPtrs AFTER, to get the correct m_waterProps
-    if (m_waterProps) {
-        delete m_waterProps;
-    }
+    delete m_waterProps;
     m_waterProps                = 0;
     m_born_coeff_j              = b.m_born_coeff_j;
     m_r_e_j                     = b.m_r_e_j;
@@ -249,8 +247,7 @@ doublereal PDSS_HKFT::enthalpy_mole2() const
 {
     doublereal delH = deltaH();
     double enthTRPR = m_Mu0_tr_pr + 298.15 * m_Entrop_tr_pr * 1.0E3 * 4.184;
-    double res = delH + enthTRPR;
-    return res;
+    return delH + enthTRPR;
 }
 #endif
 
@@ -262,7 +259,7 @@ doublereal PDSS_HKFT::intEnergy_mole() const
 {
     doublereal hh = enthalpy_RT();
     doublereal mv = molarVolume();
-    return (hh - mv * m_pres);
+    return hh - mv * m_pres;
 }
 
 /*
@@ -272,7 +269,7 @@ doublereal PDSS_HKFT::intEnergy_mole() const
 doublereal PDSS_HKFT::entropy_mole() const
 {
     doublereal delS = deltaS();
-    return (m_Entrop_tr_pr * 1.0E3 * 4.184 + delS);
+    return m_Entrop_tr_pr * 1.0E3 * 4.184 + delS;
 }
 
 /*
@@ -282,7 +279,7 @@ doublereal PDSS_HKFT::entropy_mole() const
 doublereal PDSS_HKFT::gibbs_mole() const
 {
     doublereal delG = deltaG();
-    return (m_Mu0_tr_pr + delG);
+    return m_Mu0_tr_pr + delG;
 }
 
 /*
@@ -393,7 +390,7 @@ doublereal
 PDSS_HKFT::cv_mole() const
 {
     throw CanteraError("PDSS_HKFT::cv_mole()", "unimplemented");
-    return (0.0);
+    return 0.0;
 }
 
 doublereal  PDSS_HKFT::molarVolume() const
@@ -448,15 +445,14 @@ doublereal  PDSS_HKFT::molarVolume() const
     doublereal molVol_calgmolPascal = a1term + a2term +  a3term + a4term + wterm + qterm;
 
     // Convert to m**3 / kmol from (cal/gmol/Pa)
-    doublereal molVol = molVol_calgmolPascal * 4.184 * 1.0E3;
-    return molVol;
+    return molVol_calgmolPascal * 4.184 * 1.0E3;
 }
 
 doublereal
 PDSS_HKFT::density() const
 {
     doublereal val = molarVolume();
-    return (m_mw/val);
+    return m_mw/val;
 }
 
 doublereal
@@ -547,21 +543,21 @@ doublereal
 PDSS_HKFT::critTemperature() const
 {
     throw CanteraError("PDSS_HKFT::critTemperature()", "unimplemented");
-    return (0.0);
+    return 0.0;
 }
 
 // critical pressure
 doublereal PDSS_HKFT::critPressure() const
 {
     throw CanteraError("PDSS_HKFT::critPressure()", "unimplemented");
-    return (0.0);
+    return 0.0;
 }
 
 // critical density
 doublereal PDSS_HKFT::critDensity() const
 {
     throw CanteraError("PDSS_HKFT::critDensity()", "unimplemented");
-    return (0.0);
+    return 0.0;
 }
 
 
@@ -642,9 +638,7 @@ void PDSS_HKFT::initAllPtrs(VPStandardStateTP* vptp_ptr, VPSSMgr* vpssmgr_ptr,
 
     PDSS::initAllPtrs(vptp_ptr, vpssmgr_ptr,  spthermo_ptr);
     m_waterSS = (PDSS_Water*) m_tp->providePDSS(0);
-    if (m_waterProps) {
-        delete m_waterProps;
-    }
+    delete m_waterProps;
     m_waterProps = new WaterProps(m_waterSS);
 }
 
@@ -907,8 +901,7 @@ doublereal PDSS_HKFT::deltaH() const
                                 + yterm + yrterm + wterm + wrterm + otterm + otrterm;
 
     // Convert to Joules / kmol
-    doublereal deltaH = deltaH_calgmol * 1.0E3 * 4.184;
-    return deltaH;
+    return deltaH_calgmol * 1.0E3 * 4.184;
 }
 #endif
 
@@ -956,8 +949,7 @@ doublereal PDSS_HKFT::deltaG() const
     doublereal deltaG_calgmol = sterm + c1term + a1term + a2term + c2term + a3term + a4term + wterm + wrterm + yterm;
 
     // Convert to Joules / kmol
-    doublereal deltaG = deltaG_calgmol * 1.0E3 * 4.184;
-    return deltaG;
+    return deltaG_calgmol * 1.0E3 * 4.184;
 }
 
 
@@ -1016,8 +1008,7 @@ doublereal PDSS_HKFT::deltaS() const
     doublereal deltaS_calgmol = c1term + c2term + a3term + a4term + wterm + wrterm  + otterm + otrterm;
 
     // Convert to Joules / kmol
-    doublereal deltaS = deltaS_calgmol * 1.0E3 * 4.184;
-    return deltaS;
+    return deltaS_calgmol * 1.0E3 * 4.184;
 }
 
 
@@ -1030,8 +1021,7 @@ doublereal PDSS_HKFT::ag(const doublereal temp, const int ifunc) const
     static doublereal ag_coeff[3] = { -2.037662,  5.747000E-3,  -6.557892E-6};
     if (ifunc == 0) {
         doublereal t2 = temp * temp;
-        doublereal val = ag_coeff[0] + ag_coeff[1] * temp + ag_coeff[2] * t2;
-        return val;
+        return ag_coeff[0] + ag_coeff[1] * temp + ag_coeff[2] * t2;
     } else if (ifunc == 1) {
         return  ag_coeff[1] + ag_coeff[2] * 2.0 * temp;
     }
@@ -1051,8 +1041,7 @@ doublereal PDSS_HKFT::bg(const doublereal temp, const int ifunc) const
     static doublereal bg_coeff[3] = { 6.107361, -1.074377E-2,  1.268348E-5};
     if (ifunc == 0) {
         doublereal t2 = temp * temp;
-        doublereal val = bg_coeff[0] + bg_coeff[1] * temp + bg_coeff[2] * t2;
-        return val;
+        return bg_coeff[0] + bg_coeff[1] * temp + bg_coeff[2] * t2;
     }   else if (ifunc == 1) {
         return bg_coeff[1] + bg_coeff[2] * 2.0 * temp;
     }
@@ -1161,9 +1150,7 @@ doublereal PDSS_HKFT::g(const doublereal temp, const doublereal pres, const int 
     } else if (ifunc == 3) {
         doublereal beta   = m_waterSS->isothermalCompressibility();
 
-        doublereal dgdp = - bfunc * gval * dens * beta / (1.0 - dens);
-
-        return dgdp;
+        return - bfunc * gval * dens * beta / (1.0 - dens);
     } else {
         throw CanteraError("HKFT_PDSS::g", "unimplemented");
     }
@@ -1272,14 +1259,14 @@ void PDSS_HKFT::convertDGFormation()
  */
 void PDSS_HKFT::reportParams(size_t& kindex, int& type,
                              doublereal* const c,
-                             doublereal& minTemp,
-                             doublereal& maxTemp,
-                             doublereal& refPressure) const
+                             doublereal& minTemp_,
+                             doublereal& maxTemp_,
+                             doublereal& refPressure_) const
 {
 
     // Fill in the first part
-    PDSS::reportParams(kindex, type, c, minTemp, maxTemp,
-                       refPressure);
+    PDSS::reportParams(kindex, type, c, minTemp_, maxTemp_,
+                       refPressure_);
 
 
     c[0] = m_deltaG_formation_tr_pr;

@@ -594,12 +594,22 @@ void AqueousKinetics::finalize()
 {
     if (!m_finalized) {
         m_finalized = true;
+
+        // Guarantee that these arrays can be converted to double* even in the
+        // special case where there are no reactions defined.
+        if (!m_ii) {
+            m_perturb.resize(1, 1.0);
+            m_ropf.resize(1, 0.0);
+            m_ropr.resize(1, 0.0);
+            m_ropnet.resize(1, 0.0);
+            m_rkcn.resize(1, 0.0);
+        }
     }
 }
 
 bool AqueousKinetics::ready() const
 {
-    return (m_finalized);
+    return m_finalized;
 }
 
 }

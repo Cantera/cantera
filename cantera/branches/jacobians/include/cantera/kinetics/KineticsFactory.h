@@ -81,8 +81,7 @@ inline Kinetics* newKineticsMgr(XML_Node& phase,
     if (f == 0) {
         f = KineticsFactory::factory();
     }
-    Kinetics* kin = f->newKinetics(phase, th);
-    return kin;
+    return f->newKinetics(phase, th);
 }
 
 /**
@@ -93,8 +92,7 @@ inline Kinetics* newKineticsMgr(const std::string& model, KineticsFactory* f=0)
     if (f == 0) {
         f = KineticsFactory::factory();
     }
-    Kinetics* kin = f->newKinetics(model);
-    return kin;
+    return f->newKinetics(model);
 }
 }
 

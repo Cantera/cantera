@@ -381,7 +381,9 @@ Other Required Software
 
   * http://python.org/download/
   * Known to work with 2.6 and 2.7; Expected to work with versions >= 2.5
-  * Does not yet work with 3.x
+  * The Cython module supports Python 2.x and 3.x. However, SCons requires
+    Python 2.x, so compilation of the Cython module requires two Python
+    installations.
 
 * Boost
 
@@ -397,14 +399,20 @@ Optional Programs
 
   * Required to build the Cantera Python module.
   * http://sourceforge.net/projects/numpy/
-  * Known to work with versions 1.3 and 1.5; Expected to work with version >= 1.1
+  * Known to work with versions 1.3 and 1.6; Expected to work with version >= 1.1
   * Test suite requires version >= 1.3
 
 * `Cython <http://cython.org/>`_
 
   * Required to build the new Python module
-  * Known to work with version 0.16; Expected to work with version >= 0.15
-  * Supports Python 2.6, 2.7, and 3.2
+  * Known to work with versions 0.16, 0.17, and 0.18. Expected to work with
+    versions >= 0.16.
+  * Supports Python 2.7 and 3.2. Expected to work with versions >= 3.2.
+
+* `3to2 <http://pypi.python.org/pypi/3to2>`_
+
+  * Used to convert Cython examples to Python 2 syntax.
+  * Known to work with version 1.0
 
 * Matlab
 
@@ -444,3 +452,4 @@ Optional Programs
 * `Doxygen <http://www.stack.nl/~dimitri/doxygen/>`_
 
   * Required for building the C++ API Documentation
+  * Version 1.8 or newer is recommended.

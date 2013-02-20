@@ -228,13 +228,12 @@ double hydrogen::ldens()
                         "Temperature out of range. T = " + fp2str(T));
     }
     double x=1-T/Tc;
-    double sum, term;
+    double sum;
     int i;
     for (i=1, sum=0; i<=6; i++) {
         sum+=Dhydro[i]*pow(x, 1+double(i-1)/3.0);
     }
-    term = sum+Roc+Dhydro[0]*pow(x,alpha1);
-    return term;
+    return sum+Roc+Dhydro[0]*pow(x,alpha1);
 }
 
 

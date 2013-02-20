@@ -250,9 +250,7 @@ VPSSMgr_Water_ConstVol::createInstallPDSS(size_t k, const XML_Node& speciesNode,
         if (model != "waterIAPWS" && model != "waterPDSS") {
             throw CanteraError("VPSSMgr_Water_ConstVol::installSpecies", "wrong SS mode: " + model);
         }
-        if (m_waterSS) {
-            delete m_waterSS;
-        }
+        delete m_waterSS;
         m_waterSS = new PDSS_Water(m_vptp_ptr, 0);
         GeneralSpeciesThermo<doublereal> * genSpthermo = dynamic_cast<GeneralSpeciesThermo<doublereal> * >(m_spthermo);
         if (!genSpthermo) {

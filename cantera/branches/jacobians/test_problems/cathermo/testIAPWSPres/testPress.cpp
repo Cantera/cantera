@@ -16,8 +16,7 @@ double numdpdt(WaterPropsIAPWS* water, double T, double pres)
     double Td = T + 0.001;
     water->setState_TR(Td, rho);
     double presd = water->pressure();
-    double dpdt = (presd - presB) / 0.001;
-    return dpdt;
+    return (presd - presB) / 0.001;
 }
 
 int main()

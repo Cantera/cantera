@@ -552,9 +552,7 @@ int VCS_SOLVE::vcs_prob_specifyFully(const VCS_PROB* pub)
      *
      */
     for (size_t kspec = 0; kspec < nspecies; kspec++) {
-        if (m_speciesThermoList[kspec] != NULL) {
-            delete m_speciesThermoList[kspec];
-        }
+        delete m_speciesThermoList[kspec];
         VCS_SPECIES_THERMO* spf = pub->SpeciesThermo[kspec];
         m_speciesThermoList[kspec] = spf->duplMyselfAsVCS_SPECIES_THERMO();
         if (m_speciesThermoList[kspec] == NULL) {

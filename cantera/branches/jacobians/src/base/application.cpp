@@ -269,17 +269,10 @@ void Application::Messages::write_logfile(const std::string& file)
     // can be appended to the name to create the name of a file
     // that does not exist.
     std::string fname = nm + ext;
-    std::ifstream f(fname.c_str());
-    if (f) {
-        int n = 0;
-        while (1 > 0) {
-            n++;
-            fname = nm + int2str(n) + ext;
-            std::ifstream f(fname.c_str());
-            if (!f) {
-                break;
-            }
-        }
+    int n = 0;
+    while (std::ifstream(fname.c_str())) {
+        n++;
+        fname = nm + int2str(n) + ext;
     }
 
     // Now we have a file name that does not correspond to any
@@ -311,7 +304,7 @@ Application::Messages* Application::ThreadMessages::operator ->()
     cthreadId_t curId = getThisThreadId() ;
     threadMsgMap_t::iterator iter = m_threadMsgMap.find(curId) ;
     if (iter != m_threadMsgMap.end()) {
-        return (iter->second.get()) ;
+        return iter->second.get();
     }
     pMessages_t pMsgs(new Messages()) ;
     m_threadMsgMap.insert(std::pair< cthreadId_t, pMessages_t >(curId, pMsgs)) ;

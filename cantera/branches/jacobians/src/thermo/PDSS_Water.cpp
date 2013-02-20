@@ -251,9 +251,7 @@ void PDSS_Water::constructPDSSFile(VPStandardStateTP* tp, int spindex,
 
 void PDSS_Water::constructSet()
 {
-    if (m_sub) {
-        delete m_sub;
-    }
+    delete m_sub;
     m_sub = new WaterPropsIAPWS();
     if (m_sub == 0) {
         throw CanteraError("PDSS_Water::initThermo",
@@ -316,43 +314,40 @@ void PDSS_Water::initThermoXML(const XML_Node& phaseNode, const std::string& id)
 doublereal PDSS_Water::enthalpy_mole() const
 {
     doublereal h = m_sub->enthalpy();
-    return (h + EW_Offset);
+    return h + EW_Offset;
 }
 
 doublereal PDSS_Water::intEnergy_mole() const
 {
     doublereal u = m_sub->intEnergy();
-    return (u + EW_Offset);
+    return u + EW_Offset;
 }
 
 doublereal PDSS_Water::entropy_mole() const
 {
     doublereal s = m_sub->entropy();
-    return (s + SW_Offset);
+    return s + SW_Offset;
 }
 
 doublereal PDSS_Water::gibbs_mole() const
 {
     doublereal g = m_sub->Gibbs();
-    return (g + EW_Offset - SW_Offset*m_temp);
+    return g + EW_Offset - SW_Offset*m_temp;
 }
 
 doublereal PDSS_Water::cp_mole() const
 {
-    doublereal cp = m_sub->cp();
-    return cp;
+    return m_sub->cp();
 }
 
 doublereal PDSS_Water::cv_mole() const
 {
-    doublereal cv = m_sub->cv();
-    return cv;
+    return m_sub->cv();
 }
 
 doublereal  PDSS_Water::molarVolume() const
 {
-    doublereal mv = m_sub->molarVolume();
-    return (mv);
+    return m_sub->molarVolume();
 }
 
 doublereal PDSS_Water::gibbs_RT_ref() const
@@ -361,7 +356,7 @@ doublereal PDSS_Water::gibbs_RT_ref() const
     m_sub->density(T, m_p0);
     doublereal h = m_sub->enthalpy();
     m_sub->setState_TR(m_temp, m_dens);
-    return ((h + EW_Offset - SW_Offset*T)/(T * GasConstant));
+    return (h + EW_Offset - SW_Offset*T)/(T * GasConstant);
 }
 
 doublereal PDSS_Water::enthalpy_RT_ref() const
@@ -370,7 +365,7 @@ doublereal PDSS_Water::enthalpy_RT_ref() const
     m_sub->density(T, m_p0);
     doublereal h = m_sub->enthalpy();
     m_sub->setState_TR(m_temp, m_dens);
-    return ((h + EW_Offset)/(T * GasConstant));
+    return (h + EW_Offset)/(T * GasConstant);
 }
 
 doublereal PDSS_Water::entropy_R_ref() const
@@ -379,7 +374,7 @@ doublereal PDSS_Water::entropy_R_ref() const
     m_sub->density(T, m_p0);
     doublereal s = m_sub->entropy();
     m_sub->setState_TR(m_temp, m_dens);
-    return ((s + SW_Offset)/GasConstant);
+    return (s + SW_Offset)/GasConstant;
 }
 
 doublereal PDSS_Water::cp_R_ref() const
@@ -388,7 +383,7 @@ doublereal PDSS_Water::cp_R_ref() const
     m_sub->density(T, m_p0);
     doublereal cp = m_sub->cp();
     m_sub->setState_TR(m_temp, m_dens);
-    return (cp/GasConstant);
+    return cp/GasConstant;
 }
 
 doublereal PDSS_Water::molarVolume_ref() const
@@ -397,7 +392,7 @@ doublereal PDSS_Water::molarVolume_ref() const
     m_sub->density(T, m_p0);
     doublereal mv = m_sub->molarVolume();
     m_sub->setState_TR(m_temp, m_dens);
-    return (mv);
+    return mv;
 }
 
 
@@ -459,8 +454,7 @@ void PDSS_Water::setPressure(doublereal p)
  */
 doublereal PDSS_Water::thermalExpansionCoeff() const
 {
-    doublereal val = m_sub->coeffThermExp();
-    return val;
+    return m_sub->coeffThermExp();
 }
 
 doublereal PDSS_Water::dthermalExpansionCoeffdT() const
@@ -476,14 +470,12 @@ doublereal PDSS_Water::dthermalExpansionCoeffdT() const
     doublereal vald = m_sub->coeffThermExp();
     m_sub->setState_TR(m_temp, dens_save);
     doublereal val2 = m_sub->coeffThermExp();
-    doublereal val = (val2 - vald) / 0.04;
-    return val;
+    return (val2 - vald) / 0.04;
 }
 
 doublereal PDSS_Water::isothermalCompressibility() const
 {
-    doublereal val = m_sub->isothermalCompressibility();
-    return val;
+    return m_sub->isothermalCompressibility();
 }
 
 /// critical temperature

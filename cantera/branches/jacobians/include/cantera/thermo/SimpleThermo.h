@@ -165,18 +165,17 @@ public:
      *       -   c[2] = \f$ S_k^o(T_0, p_{ref}) \f$    (J/kmol K)
      *       -   c[3] = \f$ {Cp}_k^o(T_0, p_{ref}) \f$  (J(kmol K)
      *
-     * @param minTemp  minimum temperature for which this parameterization
+     * @param minTemp_  minimum temperature for which this parameterization
      *                 is valid.
-     * @param maxTemp  maximum temperature for which this parameterization
+     * @param maxTemp_  maximum temperature for which this parameterization
      *                 is valid.
-     * @param refPressure standard-state pressure for this
+     * @param refPressure_ standard-state pressure for this
      *                    parameterization.
      *
      * @see ConstCpPoly
      */
-    virtual void install(const std::string& name, size_t index, int type, const doublereal* c, doublereal minTemp,
-                         doublereal maxTemp, doublereal refPressure)
-    {
+    virtual void install(const std::string& name, size_t index, int type, const doublereal* c,
+                         doublereal minTemp_, doublereal maxTemp_, doublereal refPressure_) {
 
         m_logt0.push_back(log(c[0]));
         m_t0.push_back(c[0]);
@@ -186,8 +185,8 @@ public:
         m_index.push_back(index);
         m_loc[index] = m_nspData;
         m_nspData++;
-        doublereal tlow = minTemp;
-        doublereal thigh = maxTemp;
+        doublereal tlow  = minTemp_;
+        doublereal thigh = maxTemp_;
 
         if (tlow > m_tlow_max) {
             m_tlow_max = tlow;
@@ -204,16 +203,17 @@ public:
         m_thigh[index] = thigh;
 
         if (m_p0 < 0.0) {
-            m_p0 = refPressure;
-        } else if (fabs(m_p0 - refPressure) > 0.1) {
-            std::string logmsg = " WARNING SimpleThermo: New Species, " + name + ", has a different reference pressure, "
-                    + fp2str(refPressure) + ", than existing reference pressure, " + fp2str(m_p0) + "\n";
-            Cantera::writelog(logmsg);
+            m_p0 = refPressure_;
+        } else if (fabs(m_p0 - refPressure_) > 0.1) {
+            std::string logmsg =  " WARNING SimpleThermo: New Species, " + name +
+                                  ", has a different reference pressure, "
+                                  + fp2str(refPressure_) + ", than existing reference pressure, " + fp2str(m_p0) + "\n";
+            writelog(logmsg);
             logmsg = "                  This is now a fatal error\n";
             Cantera::writelog(logmsg);
             throw CanteraError("install()", "Species have different reference pressures");
         }
-        m_p0 = refPressure;
+        m_p0 = refPressure_;
     }
 
     //! Install a new species thermodynamic property
@@ -353,14 +353,16 @@ public:
      * @param c         Vector of coefficients used to set the
      *                  parameters for the standard state.
      *                  For the SimpleThermo object, there are 4 coefficients.
-     * @param minTemp   output - Minimum temperature
-     * @param maxTemp   output - Maximum temperature
-     * @param refPressure output - reference pressure (Pa).
+     * @param minTemp_   output - Minimum temperature
+     * @param maxTemp_   output - Maximum temperature
+     * @param refPressure_ output - reference pressure (Pa).
      *
      */
-    virtual void reportParams(size_t index, int& type, doublereal* const c, doublereal& minTemp, doublereal& maxTemp,
-                              doublereal& refPressure) const
-    {
+    virtual void reportParams(size_t index, int& type,
+                              doublereal* const c,
+                              doublereal& minTemp_,
+                              doublereal& maxTemp_,
+                              doublereal& refPressure_) const {
         type = reportType(index);
         size_t loc = m_loc[index];
         if (type == SIMPLE) {
@@ -368,9 +370,9 @@ public:
             c[1] = m_h0_R[loc] * GasConstant;
             c[2] = m_s0_R[loc] * GasConstant;
             c[3] = m_cp0_R[loc] * GasConstant;
-            minTemp = m_tlow[loc];
-            maxTemp = m_thigh[loc];
-            refPressure = m_p0;
+            minTemp_ = m_tlow[loc];
+            maxTemp_ = m_thigh[loc];
+            refPressure_ = m_p0;
         }
     }
 

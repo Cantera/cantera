@@ -167,7 +167,7 @@ doublereal Elements::LookupWtElements(const std::string& ename)
     string s3 = ename.substr(0,3);
     for (int i = 0; i < num; i++) {
         if (s3 == aWTable[i].name) {
-            return (aWTable[i].atomicWeight);
+            return aWTable[i].atomicWeight;
         }
     }
     throw CanteraError("LookupWtElements", "element not found");
@@ -180,7 +180,7 @@ doublereal LookupWtElements(const std::string& ename)
     string s3 = ename.substr(0,3);
     for (int i = 0; i < num; i++) {
         if (s3 == aWTable[i].name) {
-            return (aWTable[i].atomicWeight);
+            return aWTable[i].atomicWeight;
         }
     }
     throw CanteraError("LookupWtElements", "element not found");
@@ -313,7 +313,7 @@ doublereal Elements::entropyElement298(int m) const
                    "Elements::entropy298",
                    "Entropy at 298 K of element is unknown");
     AssertTrace(m >= 0 && m < m_mm);
-    return (m_entropy298[m]);
+    return m_entropy298[m];
 }
 //====================================================================================================================
 //! Return the element constraint type
@@ -412,7 +412,7 @@ addElement(const XML_Node& e)
  */
 void Elements::
 addUniqueElement(const std::string& symbol,
-                 doublereal weight, int atomicNumber, doublereal entropy298,
+                 doublereal weight, int atomicNumber_, doublereal entropy298,
                  int elem_type)
 {
     if (weight == -12345.0) {
@@ -442,7 +442,7 @@ addUniqueElement(const std::string& symbol,
         }
         m_atomicWeights.push_back(weight);
         m_elementNames.push_back(symbol);
-        m_atomicNumbers.push_back(atomicNumber);
+        m_atomicNumbers.push_back(atomicNumber_);
         m_entropy298.push_back(entropy298);
         if (symbol == "E") {
             m_elem_type.push_back(CT_ELEM_TYPE_ELECTRONCHARGE);
@@ -516,7 +516,7 @@ void Elements::clear()
  */
 bool Elements::ready() const
 {
-    return (m_elementsFrozen);
+    return m_elementsFrozen;
 }
 
 

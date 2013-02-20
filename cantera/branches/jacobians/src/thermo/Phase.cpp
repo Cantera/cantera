@@ -316,7 +316,7 @@ doublereal Phase<ValAndDerivType>::entropyElement298(size_t m) const
 {
     AssertThrowMsg(m_entropy298[m] != ENTROPY298_UNKNOWN, "Elements::entropy298", "Entropy at 298 K of element is unknown");
     AssertTrace(m < m_mm);
-    return (m_entropy298[m]);
+    return m_entropy298[m];
 }
 
 template<typename ValAndDerivType>
@@ -886,11 +886,6 @@ ValAndDerivType Phase<ValAndDerivType>::molarVolume() const
     return 1.0 / molarDensity();
 }
 
-template<typename ValAndDerivType>
-doublereal Phase<ValAndDerivType>::charge(size_t k) const
-{
-    return m_speciesCharge[k];
-}
 
 template<typename ValAndDerivType>
 ValAndDerivType Phase<ValAndDerivType>::chargeDensity() const
@@ -1135,11 +1130,11 @@ size_t Phase<ValAndDerivType>::addUniqueElementAfterFreeze(const std::string& sy
 }
 
 template<typename ValAndDerivType>
-void Phase<ValAndDerivType>::addSpecies(const std::string& name, const doublereal* comp, doublereal charge, doublereal size)
+void Phase<ValAndDerivType>::addSpecies(const std::string& name, const doublereal* comp, doublereal charge_, doublereal size)
 {
     freezeElements();
     m_speciesNames.push_back(name);
-    m_speciesCharge.push_back(charge);
+    m_speciesCharge.push_back(charge_);
     m_speciesSize.push_back(size);
     size_t ne = nElements();
     // Create a changeable copy of the element composition. We now change
@@ -1150,18 +1145,18 @@ void Phase<ValAndDerivType>::addSpecies(const std::string& name, const doublerea
     }
     double wt = 0.0;
     const vector_fp& aw = atomicWeights();
-    if (charge != 0.0) {
+    if (charge_ != 0.0) {
         size_t eindex = elementIndex("E");
         if (eindex != npos) {
             doublereal ecomp = compNew[eindex];
-            if (fabs(charge + ecomp) > 0.001) {
+            if (fabs(charge_ + ecomp) > 0.001) {
                 if (ecomp != 0.0) {
                     throw CanteraError("Phase<ValAndDerivType>::addSpecies", "Input charge and element E compositions differ "
                             "for species " + name);
                 } else {
                     // Just fix up the element E composition based on the input
                     // species charge
-                    compNew[eindex] = -charge;
+                    compNew[eindex] = -charge_;
                 }
             }
         } else {
@@ -1169,7 +1164,7 @@ void Phase<ValAndDerivType>::addSpecies(const std::string& name, const doublerea
             ne = nElements();
             eindex = elementIndex("E");
             compNew.resize(ne);
-            compNew[ne - 1] = -charge;
+            compNew[ne - 1] = -charge_;
         }
     }
     for (size_t m = 0; m < ne; m++) {
@@ -1253,7 +1248,7 @@ bool Phase<ValAndDerivType>::ready() const
 }
 
 //! Explicit Instantiation
-template class Phase<doublereal> ;
+template class Phase<doublereal>;
 
 #ifdef INDEPENDENT_VARIABLE_DERIVATIVES
 #ifdef HAS_SACADO

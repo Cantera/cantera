@@ -19,7 +19,6 @@
 
 namespace Cantera
 {
-
 //!   This phase object consists of a single component that can be a
 //!   gas, a liquid, a mixed gas-liquid fluid, or a fluid beyond its
 //!   critical point
@@ -27,24 +26,10 @@ namespace Cantera
  *  The object inherits from ThermoPhase. However, it's built on top
  *  of the tpx package.
  *
- *
- * <H2> Specification of Species Standard State Properties </H2>
- *
- *
- * <H2> Application within %Kinetics Managers </H2>
- *
- *
- * <H2> XML Example </H2>
- *
- *
- * <H2> Instantiation of the Class </H2>
- *
  * @ingroup thermoprops
  */
-
 class PureFluidPhase  : public thermo_t
 {
-
 public:
 
     //! Empty Base Constructor
@@ -127,8 +112,6 @@ public:
         mu[0] = gibbs_mole();
     }
 
-
-
     //!  Get the species electrochemical potentials.
     /*!
      *  These are partial molar quantities.  This method adds a term \f$ F z_k
@@ -159,7 +142,6 @@ public:
      *                Length: m_kk. units are J/kmol.
      */
     virtual void getPartialMolarEnthalpies(doublereal* hbar) const;
-
 
     //! Returns an array of partial molar entropies of the species in the
     //! solution. Units: J/kmol/K.
@@ -345,9 +327,6 @@ public:
     //!  Returns the vector of nondimensional enthalpies of the reference state at the current temperature
     //!  of the solution and the reference pressure for the species.
     /*!
-     *  This base function will throw a Cantera exception unless
-     *  it is overwritten in a derived class.
-     *
      * @param hrt     Output vector containing the nondimensional reference state enthalpies
      *                Length: m_kk.
      */
@@ -370,8 +349,6 @@ public:
      *                Gibbs Free energies.  Length: m_kk. Units: J/kmol.
      */
     virtual void getGibbs_ref(doublereal* g) const;
-
-
 
     //!  Returns the vector of nondimensional entropies of the reference state at the current temperature
     //!  of the solution and the reference pressure for each species.
@@ -436,13 +413,9 @@ public:
      */
     virtual void setState_SP(doublereal s, doublereal p,
                              doublereal tol = 1.e-8);
-
     //@}
 
     //! @name Critical State Properties
-    /*!
-     *      Critical properties for the pure fluid
-     */
     //@{
 
     //! critical temperature
@@ -457,13 +430,7 @@ public:
     //@}
 
     //! @name Saturation properties.
-    /*!
-     * These methods are only implemented by subclasses that
-     * implement full liquid-vapor equations of state. They may be
-     * moved out of ThermoPhase at a later date.
-     */
     //@{
-
 
     //! saturation temperature
     /*!
@@ -516,7 +483,6 @@ public:
 
     //! Set equation of state parameter values from XML entries.
     /*!
-     *
      * This method is called by function importPhase() in
      * file importCTML.cpp when processing a phase definition in
      * an input file. It should be overloaded in subclasses to set
@@ -528,7 +494,6 @@ public:
      *                the "thermo" entry for this phase in the input file.
      */
     virtual void setParametersFromXML(const XML_Node& eosdata);
-
 
     //! returns a summary of the state of the phase as a string
     /*!
@@ -551,7 +516,6 @@ protected:
     void setTPXState() const;
 
 private:
-
     //! Pointer to the underlying tpx object Substance that does the work
     mutable tpx::Substance* m_sub;
 

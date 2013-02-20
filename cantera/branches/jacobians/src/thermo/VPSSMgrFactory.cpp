@@ -239,7 +239,6 @@ VPSSMgrFactory::newVPSSMgr(VPStandardStateTP* vp_ptr,
 
     std::string ssManager="";
     std::string vpssManager="";
-    VPSSMgr* vpss = 0;
 
     // First look for any explicit instructions within the XML Database
     // for the standard state manager and the variable pressure
@@ -272,17 +271,14 @@ VPSSMgrFactory::newVPSSMgr(VPStandardStateTP* vp_ptr,
     // and return immediately
     if (vpssManager != "") {
         VPSSMgr_enumType type = VPSSMgr_StringConversion(vpssManager);
-        vpss = newVPSSMgr(type, vp_ptr);
-        return vpss;
+        return newVPSSMgr(type, vp_ptr);
     }
 
     // Handle special cases based on the VPStandardState types
     if (vp_ptr->eosType() == cVPSS_IdealGas) {
-        vpss = new VPSSMgr_IdealGas(vp_ptr, spth);
-        return vpss;
+        return new VPSSMgr_IdealGas(vp_ptr, spth);
     } else if (vp_ptr->eosType() == cVPSS_ConstVol) {
-        vpss = new VPSSMgr_ConstVol(vp_ptr, spth);
-        return vpss;
+        return new VPSSMgr_ConstVol(vp_ptr, spth);
     }
 
 
@@ -304,29 +300,25 @@ VPSSMgrFactory::newVPSSMgr(VPStandardStateTP* vp_ptr,
             if (inasaIG ||  ishomateIG || isimpleIG) {
                 throw CanteraError("newVPSSMgr", "Ideal gas with liquid water");
             } else {
-                vpss = new VPSSMgr_Water_ConstVol(vp_ptr, spth);
+                return new VPSSMgr_Water_ConstVol(vp_ptr, spth);
             }
         } else {
             if (inasaIG ||  ishomateIG || isimpleIG) {
                 throw CanteraError("newVPSSMgr", "Ideal gas with liquid water");
             } else if (inasaCV || ishomateCV ||  isimpleCV) {
-                vpss = new VPSSMgr_General(vp_ptr, spth);
+                return new VPSSMgr_General(vp_ptr, spth);
             } else {
-                vpss = new VPSSMgr_Water_HKFT(vp_ptr, spth);
+                return new VPSSMgr_Water_HKFT(vp_ptr, spth);
             }
         }
     }
-    if (vpss == 0) {
-        if (inasaCV || ishomateCV || isimpleCV) {
-            if (!inasaIG && !ishomateIG && !isimpleIG && !itpx && !ihptx && !iother) {
-                vpss = new VPSSMgr_ConstVol(vp_ptr, spth);
-            }
+    if (inasaCV || ishomateCV || isimpleCV) {
+        if (!inasaIG && !ishomateIG && !isimpleIG && !itpx && !ihptx && !iother) {
+            return new VPSSMgr_ConstVol(vp_ptr, spth);
         }
     }
-    if (vpss == 0) {
-        vpss = new VPSSMgr_General(vp_ptr, spth);
-    }
-    return vpss;
+
+    return new VPSSMgr_General(vp_ptr, spth);
 }
 
 
@@ -365,8 +357,7 @@ VPSSMgr* newVPSSMgr(VPSSMgr_enumType type, VPStandardStateTP* vp_ptr,
     if (f == 0) {
         f = VPSSMgrFactory::factory();
     }
-    VPSSMgr* vpsssptherm = f->newVPSSMgr(type, vp_ptr);
-    return vpsssptherm;
+    return f->newVPSSMgr(type, vp_ptr);
 }
 
 
@@ -378,8 +369,7 @@ VPSSMgr* newVPSSMgr(VPStandardStateTP* tp_ptr,
     if (f == 0) {
         f = VPSSMgrFactory::factory();
     }
-    VPSSMgr* vpsssptherm = f->newVPSSMgr(tp_ptr, phaseNode_ptr, spDataNodeList);
-    return vpsssptherm;
+    return f->newVPSSMgr(tp_ptr, phaseNode_ptr, spDataNodeList);
 }
 
 

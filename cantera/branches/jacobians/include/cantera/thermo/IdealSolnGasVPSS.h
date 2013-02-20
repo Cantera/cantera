@@ -19,12 +19,12 @@
 
 namespace Cantera
 {
-
 class XML_Node;
 class PDSS;
 
 /*!
-  * @name CONSTANTS - Models for the Standard State of IdealSolnPhase's
+  * @name CONSTANTS
+  * Models for the Standard State of an IdealSolnPhase
   */
 //@{
 const int cIdealSolnGasPhaseG = 6009;
@@ -32,29 +32,26 @@ const int cIdealSolnGasPhase0 = 6010;
 const int cIdealSolnGasPhase1 = 6011;
 const int cIdealSolnGasPhase2 = 6012;
 
-
 /**
  * @ingroup thermoprops
  *
- *  This class can handle either an ideal solution or an ideal gas approximation
- *  of a phase.
- *
+ * An ideal solution or an ideal gas approximation of a phase. Uses variable
+ * pressure standard state methods for calculating thermodynamic properties.
  *
  *  @nosubgrouping
  */
 class IdealSolnGasVPSS : public VPStandardStateTP
 {
-
 public:
-
     /*!
-     *
      * @name Constructors and Duplicators for %IdealSolnGasVPSS
-     *
      */
+    //! @{
+
     /// Constructor.
     IdealSolnGasVPSS();
 
+    /// Create an object from an XML input file
     IdealSolnGasVPSS(const std::string& infile, std::string id="");
 
     /// Copy Constructor.
@@ -66,16 +63,12 @@ public:
     /// Destructor.
     virtual ~IdealSolnGasVPSS();
 
-    /*
-     * Duplication routine
-     */
+    //! Duplication routine
     virtual thermo_t * duplMyselfAsThermoPhase() const;
 
-    //@}
 
-    /**
-     * @name  Utilities (IdealSolnGasVPSS)
-     */
+
+    //! @name  Utilities (IdealSolnGasVPSS)
     //@{
     /**
      * Equation of state type flag. The base class returns
@@ -85,7 +78,9 @@ public:
      */
     virtual int eosType() const;
 
-    //@}
+    //! @}
+    //! @name Molar Thermodynamic Properties
+    //! @{
 
     /// Molar enthalpy. Units: J/kmol.
     doublereal enthalpy_mole() const;
@@ -105,11 +100,9 @@ public:
     /// Molar heat capacity at constant volume. Units: J/kmol/K.
     doublereal cv_mole() const;
 
-    /**
-     * @}
-     * @name Mechanical Properties
-     * @{
-     */
+    //! @}
+    //! @name Mechanical Properties
+    //! @{
 
     //! Set the pressure in the fluid
     /*!
@@ -146,14 +139,11 @@ protected:
      * species standard state molar volumes.
      * The species molar volumes may be functions
      * of temperature and pressure.
-     *
-     * NOTE: This is a non-virtual function, which is not a
-     *       member of the ThermoPhase base class.
      */
     virtual void calcDensity();
+    //! @}
 
 public:
-
     //! This method returns an array of generalized concentrations
     /*!
      * \f$ C^a_k\f$ are defined such that \f$ a_k = C^a_k /
@@ -236,7 +226,7 @@ public:
     virtual void getActivityCoefficients(doublereal* ac) const;
 
 
-    /// @name  Partial Molar Properties of the Solution  (IdealSolnGasVPSS)
+    /// @name  Partial Molar Properties of the Solution
     //@{
 
     //! Get the array of non-dimensional species chemical potentials
@@ -300,34 +290,10 @@ public:
      *                Length = m_kk. units are m^3/kmol.
      */
     virtual void getPartialMolarVolumes(doublereal* vbar) const;
-
     //@}
-
-    /*!
-     * @name  Properties of the Standard State of the Species in the Solution
-     *
-     *  Properties of the standard states are delegated to the VPSSMgr object.
-     *  The values are cached within this object, and are not recalculated unless
-     *  the temperature or pressure changes.
-     */
-    //@{
-
-    //@}
-
-    /// @name Thermodynamic Values for the Species Reference States (IdealSolnGasVPSS)
-    /*!
-     *  Properties of the reference states are delegated to the VPSSMgr object.
-     *  The values are cached within this object, and are not recalculated unless
-     *  the temperature or pressure changes.
-     */
-    //@{
-
-    //@}
-
 
 public:
-
-    //! @name Initialization Methods - For Internal use (VPStandardState)
+    //! @name Initialization Methods - For Internal use
     /*!
      * The following methods are used in the process of constructing
      * the phase and setting its parameters from a specification in an
@@ -337,9 +303,7 @@ public:
      */
     //@{
 
-
-    //! Set equation of state parameter values from XML
-    //! entries.
+    //! Set equation of state parameter values from XML entries.
     /*!
      *  This method is called by function importPhase in
      *  file importCTML.cpp when processing a phase definition in
@@ -368,7 +332,6 @@ public:
      */
     virtual void initThermo();
 
-
     //!This method is used by the ChemEquil equilibrium solver.
     /*!
      * It sets the state such that the chemical potentials satisfy
@@ -386,7 +349,6 @@ public:
     //!   Initialize a ThermoPhase object, potentially reading activity
     //!   coefficient information from an XML database.
     /*!
-     *
      * This routine initializes the lengths in the current object and
      * then calls the parent routine.
      * This method is provided to allow
@@ -415,15 +377,13 @@ public:
 private:
     //!  @internal Initialize the internal lengths in this object.
     /*!
-     * Note this is not a virtual function and only handles
-     * this object
+     * Note this is not a virtual function and only handles this object
      */
     void initLengths();
 
     //@}
 
 protected:
-
     //! boolean indicating what ideal solution this is
     /*!
      *  - 1 = ideal gas
@@ -441,7 +401,6 @@ protected:
 
     //! Temporary storage - length = m_kk.
     vector_fp m_pp;
-
 };
 }
 

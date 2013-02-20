@@ -154,7 +154,7 @@ class TestReactor(utilities.CanteraTest):
 
         self.net.advance(10.0)
         self.assertNear(self.net.time, 10.0)
-        self.assertNear(self.r1.T, self.r2.T, 1e-7)
+        self.assertNear(self.r1.T, self.r2.T, 5e-7)
         self.assertNotAlmostEqual(self.r1.thermo.P, self.r2.thermo.P)
 
     def test_heat_transfer2(self):
@@ -473,6 +473,7 @@ class TestFlowReactor(utilities.CanteraTest):
         net.add_reactor(r)
         net.atol = 1e-18
         net.rtol = 1e-9
+        net.max_err_test_fails = 10
 
         t = 0
         self.assertNear(r.speed, 10 / r.density)

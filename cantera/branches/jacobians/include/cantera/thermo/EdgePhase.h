@@ -16,23 +16,21 @@
 namespace Cantera
 {
 
-//! A thermodynamic %Phase representing a one dimensional edge between two surfaces
+//! A thermodynamic phase representing a one dimensional edge between two
+//! surfaces.
 /*!
  * This thermodynamic function is largely a wrapper around the SurfPhase
  * thermodynamic object.
  *
  * All of the equations and formulations carry through from SurfPhase to this
- * EdgePhase object.
- * It should be noted however, that dimensional object with length dimensions,
- * have their dimensions reduced by one.
+ * EdgePhase object. It should be noted however, that dimensional object with
+ * length dimensions, have their dimensions reduced by one.
  *
  * @ingroup thermoprops
  */
 class EdgePhase : public SurfPhase
 {
-
 public:
-
     //! Constructor
     /*!
      * @param n0  Surface site density (kmol m-1).
@@ -62,10 +60,8 @@ public:
         return cEdge;
     }
 
-
     //! Set the Equation-of-State parameters by reading an XML Node Input
     /*!
-     *
      * The Equation-of-State data consists of one item, the site density.
      *
      * @param thermoData   Reference to an XML_Node named thermo
@@ -89,5 +85,3 @@ public:
 }
 
 #endif
-
-

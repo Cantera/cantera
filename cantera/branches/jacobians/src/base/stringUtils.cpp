@@ -421,7 +421,7 @@ int stripLTWScstring(char str[])
      *    Quick Returns
      */
     if ((str == 0) || (str[0] == '\0')) {
-        return (0);
+        return 0;
     }
 
     /* Find first non-space character character */
@@ -449,7 +449,7 @@ int stripLTWScstring(char str[])
     }
     j++;
     str[j] = '\0';
-    return (j);
+    return j;
 }
 //================================================================================================
 // Translate a char string into a single double
@@ -557,7 +557,7 @@ doublereal strSItoDbl(const std::string& strSI)
         fp = toSI(v[1]);
     }
     doublereal val = atofCheck(v[0].c_str());
-    return (val * fp);
+    return val * fp;
 }
 //================================================================================================
 //!  Find the first white space in a string

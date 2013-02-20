@@ -25,12 +25,6 @@ using namespace std;
 
 namespace Cantera
 {
-
-//====================================================================================================================
-/*
- * Default constructor.
- *
- */
 RedlichKisterVPSSTP::RedlichKisterVPSSTP() :
     GibbsExcessVPSSTP(),
     numBinaryInteractions_(0),
@@ -44,16 +38,7 @@ RedlichKisterVPSSTP::RedlichKisterVPSSTP() :
     dlnActCoeff_dX_()
 {
 }
-//====================================================================================================================
-/*
- * Working constructors
- *
- *  The two constructors below are the normal way
- *  the phase initializes itself. They are shells that call
- *  the routine initThermo(), with a reference to the
- *  XML database to get the info for the phase.
 
- */
 RedlichKisterVPSSTP::RedlichKisterVPSSTP(const std::string& inputFile,
         const std::string& id) :
     GibbsExcessVPSSTP(),
@@ -69,7 +54,7 @@ RedlichKisterVPSSTP::RedlichKisterVPSSTP(const std::string& inputFile,
 {
     initThermoFile(inputFile, id);
 }
-//====================================================================================================================
+
 RedlichKisterVPSSTP::RedlichKisterVPSSTP(XML_Node& phaseRoot,
         const std::string& id) :
     GibbsExcessVPSSTP(),
@@ -85,14 +70,7 @@ RedlichKisterVPSSTP::RedlichKisterVPSSTP(XML_Node& phaseRoot,
 {
     importPhase(*findXMLPhase(&phaseRoot, id), this);
 }
-//====================================================================================================================
-// Special constructor for a hard-coded problem
-/*
- *
- *   LiKCl treating the PseudoBinary layer as passthrough.
- *   -> test to predict the eutectic and liquidus correctly.
- *
- */
+
 RedlichKisterVPSSTP::RedlichKisterVPSSTP(int testProb)  :
     GibbsExcessVPSSTP(),
     numBinaryInteractions_(0),
@@ -138,16 +116,8 @@ RedlichKisterVPSSTP::RedlichKisterVPSSTP(int testProb)  :
                            "Unable to find VLi");
     }
     m_pSpecies_B_ij[0] = iVLi;
-
-
 }
-//====================================================================================================================
-/*
- * Copy Constructor:
- *
- *  Note this stuff will not work until the underlying phase
- *  has a working copy constructor
- */
+
 RedlichKisterVPSSTP::RedlichKisterVPSSTP(const RedlichKisterVPSSTP& b) :
     GibbsExcessVPSSTP(),
     numBinaryInteractions_(0),
@@ -162,13 +132,7 @@ RedlichKisterVPSSTP::RedlichKisterVPSSTP(const RedlichKisterVPSSTP& b) :
 {
     RedlichKisterVPSSTP::operator=(b);
 }
-//====================================================================================================================
-/*
- * operator=()
- *
- *  Note this stuff will not work until the underlying phase
- *  has a working assignment operator
- */
+
 RedlichKisterVPSSTP& RedlichKisterVPSSTP::
 operator=(const RedlichKisterVPSSTP& b)
 {
@@ -190,51 +154,25 @@ operator=(const RedlichKisterVPSSTP& b)
 
     return *this;
 }
-//====================================================================================================================
-/*
- *
- * ~RedlichKisterVPSSTP():   (virtual)
- *
- * Destructor: does nothing:
- *
- */
+
 RedlichKisterVPSSTP::~RedlichKisterVPSSTP()
 {
 }
-//====================================================================================================================
-/*
- * This routine duplicates the current object and returns
- * a pointer to ThermoPhase.
- */
+
 thermo_t*
 RedlichKisterVPSSTP::duplMyselfAsThermoPhase() const
 {
     return new RedlichKisterVPSSTP(*this);
 }
 
-//====================================================================================================================
-// Equation of state type flag.
-/*
- * The ThermoPhase base class returns
- * zero. Subclasses should define this to return a unique
- * non-zero value. Known constants defined for this purpose are
- * listed in mix_defs.h. The RedlichKisterVPSSTP class also returns
- * zero, as it is a non-complete class.
- */
 int RedlichKisterVPSSTP::eosType() const
 {
     return 0;
 }
 
-//====================================================================================================================
-/*
- * ------------ Molar Thermodynamic Properties ----------------------
- */
-//====================================================================================================================
 /*
  * - Activities, Standard States, Activity Concentrations -----------
  */
-//====================================================================================================================
 
 void RedlichKisterVPSSTP::getLnActivityCoefficients(doublereal* lnac) const
 {
@@ -250,11 +188,11 @@ void RedlichKisterVPSSTP::getLnActivityCoefficients(doublereal* lnac) const
         lnac[k] = lnActCoeff_Scaled_[k];
     }
 }
-//====================================================================================================================
+
 /*
  * ------------ Partial Molar Properties of the Solution ------------
  */
-//====================================================================================================================
+
 void RedlichKisterVPSSTP::getElectrochemPotentials(doublereal* mu) const
 {
     getChemPotentials(mu);
@@ -263,7 +201,7 @@ void RedlichKisterVPSSTP::getElectrochemPotentials(doublereal* mu) const
         mu[k] += ve*charge(k);
     }
 }
-//====================================================================================================================
+
 void RedlichKisterVPSSTP::getChemPotentials(doublereal* mu) const
 {
     doublereal xx;
@@ -287,8 +225,7 @@ void RedlichKisterVPSSTP::getChemPotentials(doublereal* mu) const
         mu[k] += RT * (log(xx) + lnActCoeff_Scaled_[k]);
     }
 }
-//====================================================================================================================
-//Molar enthalpy. Units: J/kmol.
+
 doublereal RedlichKisterVPSSTP::enthalpy_mole() const
 {
     size_t kk = nSpecies();
@@ -300,8 +237,7 @@ doublereal RedlichKisterVPSSTP::enthalpy_mole() const
     }
     return h;
 }
-//====================================================================================================================
-/// Molar entropy. Units: J/kmol.
+
 doublereal RedlichKisterVPSSTP::entropy_mole() const
 {
     size_t kk = nSpecies();
@@ -313,8 +249,7 @@ doublereal RedlichKisterVPSSTP::entropy_mole() const
     }
     return s;
 }
-//====================================================================================================================
-/// Molar heat capacity at constant pressure. Units: J/kmol/K.
+
 doublereal RedlichKisterVPSSTP::cp_mole() const
 {
     size_t kk = nSpecies();
@@ -326,27 +261,12 @@ doublereal RedlichKisterVPSSTP::cp_mole() const
     }
     return cp;
 }
-//====================================================================================================================
-/// Molar heat capacity at constant volume. Units: J/kmol/K.
+
 doublereal RedlichKisterVPSSTP::cv_mole() const
 {
     return cp_mole() - GasConstant;
 }
-//====================================================================================================================
-// Returns an array of partial molar enthalpies for the species
-// in the mixture.
-/*
- * Units (J/kmol)
- *
- * For this phase, the partial molar enthalpies are equal to the
- * standard state enthalpies modified by the derivative of the
- * molality-based activity coefficient wrt temperature
- *
- *  \f[
- * \bar h_k(T,P) = h^o_k(T,P) - R T^2 \frac{d \ln(\gamma_k)}{dT}
- * \f]
- *
- */
+
 void RedlichKisterVPSSTP::getPartialMolarEnthalpies(doublereal* hbar) const
 {
     /*
@@ -372,21 +292,7 @@ void RedlichKisterVPSSTP::getPartialMolarEnthalpies(doublereal* hbar) const
         hbar[k] -= RTT * dlnActCoeffdT_Scaled_[k];
     }
 }
-//====================================================================================================================
-// Returns an array of partial molar heat capacities for the species
-// in the mixture.
-/*
- * Units (J/kmol)
- *
- * For this phase, the partial molar enthalpies are equal to the
- * standard state enthalpies modified by the derivative of the
- * activity coefficient wrt temperature
- *
- *  \f[
- * ??????????? \bar s_k(T,P) = s^o_k(T,P) - R T^2 \frac{d \ln(\gamma_k)}{dT}
- * \f]
- *
- */
+
 void RedlichKisterVPSSTP::getPartialMolarCp(doublereal* cpbar) const
 {
     /*
@@ -411,21 +317,7 @@ void RedlichKisterVPSSTP::getPartialMolarCp(doublereal* cpbar) const
         cpbar[k] *= GasConstant;
     }
 }
-//====================================================================================================================
-// Returns an array of partial molar entropies for the species
-// in the mixture.
-/*
- * Units (J/kmol)
- *
- * For this phase, the partial molar enthalpies are equal to the
- * standard state enthalpies modified by the derivative of the
- * activity coefficient wrt temperature
- *
- *  \f[
- * \bar s_k(T,P) = s^o_k(T,P) - R T^2 \frac{d \ln(\gamma_k)}{dT}
- * \f]
- *
- */
+
 void RedlichKisterVPSSTP::getPartialMolarEntropies(doublereal* sbar) const
 {
     double xx;
@@ -453,20 +345,6 @@ void RedlichKisterVPSSTP::getPartialMolarEntropies(doublereal* sbar) const
     }
 }
 
-/*
- * ------------ Partial Molar Properties of the Solution ------------
- */
-//====================================================================================================================
-// Return an array of partial molar volumes for the
-// species in the mixture. Units: m^3/kmol.
-/*
- *  Frequently, for this class of thermodynamics representations,
- *  the excess Volume due to mixing is zero. Here, we set it as
- *  a default. It may be overridden in derived classes.
- *
- *  @param vbar   Output vector of species partial molar volumes.
- *                Length = m_kk. units are m^3/kmol.
- */
 void RedlichKisterVPSSTP::getPartialMolarVolumes(doublereal* vbar) const
 {
     /*
@@ -478,52 +356,26 @@ void RedlichKisterVPSSTP::getPartialMolarVolumes(doublereal* vbar) const
         vbar[iK] += 0.0;
     }
 }
-//====================================================================================================================
+
 doublereal RedlichKisterVPSSTP::err(const std::string& msg) const
 {
     throw CanteraError("RedlichKisterVPSSTP","Base class method "
                        +msg+" called. Equation of state type: "+int2str(eosType()));
     return 0;
 }
-//====================================================================================================================
-/*
- * @internal Initialize. This method is provided to allow
- * subclasses to perform any initialization required after all
- * species have been added. For example, it might be used to
- * resize internal work arrays that must have an entry for
- * each species.  The base class implementation does nothing,
- * and subclasses that do not require initialization do not
- * need to overload this method.  When importing a CTML phase
- * description, this method is called just prior to returning
- * from function importPhase.
- *
- * @see importCTML.cpp
- */
+
 void RedlichKisterVPSSTP::initThermo()
 {
     initLengths();
     GibbsExcessVPSSTP::initThermo();
 }
-//====================================================================================================================
-//   Initialize lengths of local variables after all species have
-//   been identified.
+
 void  RedlichKisterVPSSTP::initLengths()
 {
     m_kk = nSpecies();
     dlnActCoeffdlnN_.resize(m_kk, m_kk);
 }
-//====================================================================================================================
-/*
- * initThermoXML()                (virtual from ThermoPhase)
- *   Import and initialize a ThermoPhase object
- *
- * @param phaseNode This object must be the phase node of a complete XML tree
- *                  description of the phase, including all of the species data. In other words while "phase" must
- *                  point to an XML phase object, it must have sibling nodes "speciesData" that describe
- *             the species in the phase.
- * @param id   ID of the phase. If nonnull, a check is done to see if phaseNode is pointing to the phase
- *             with the correct id.
- */
+
 void RedlichKisterVPSSTP::initThermoXML(XML_Node& phaseNode, const std::string& id)
 {
     std::string subname = "RedlichKisterVPSSTP::initThermoXML";
@@ -585,13 +437,7 @@ void RedlichKisterVPSSTP::initThermoXML(XML_Node& phaseNode, const std::string& 
      */
     GibbsExcessVPSSTP::initThermoXML(phaseNode, id);
 }
-//===================================================================================================================
-// Update the activity coefficients
-/*
- * This function will be called to update the internally stored
- * natural logarithm of the activity coefficients
- *
- */
+
 void RedlichKisterVPSSTP::s_update_lnActCoeff() const
 {
     doublereal XA, XB;
@@ -662,14 +508,7 @@ void RedlichKisterVPSSTP::s_update_lnActCoeff() const
     }
 
 }
-//===================================================================================================================
-// Update the derivative of the log of the activity coefficients wrt T
-/*
- * This function will be called to update the internally stored
- * natural logarithm of the activity coefficients
- *
 
- */
 void RedlichKisterVPSSTP::s_update_dlnActCoeff_dT() const
 {
     doublereal XA, XB;
@@ -715,7 +554,7 @@ void RedlichKisterVPSSTP::s_update_dlnActCoeff_dT() const
         }
     }
 }
-//====================================================================================================================
+
 void RedlichKisterVPSSTP::getdlnActCoeffdT(doublereal* dlnActCoeffdT) const
 {
     s_update_dlnActCoeff_dT();
@@ -723,7 +562,7 @@ void RedlichKisterVPSSTP::getdlnActCoeffdT(doublereal* dlnActCoeffdT) const
         dlnActCoeffdT[k] = dlnActCoeffdT_Scaled_[k];
     }
 }
-//====================================================================================================================
+
 void RedlichKisterVPSSTP::getd2lnActCoeffdT2(doublereal* d2lnActCoeffdT2) const
 {
     s_update_dlnActCoeff_dT();
@@ -731,7 +570,7 @@ void RedlichKisterVPSSTP::getd2lnActCoeffdT2(doublereal* d2lnActCoeffdT2) const
         d2lnActCoeffdT2[k] = d2lnActCoeffdT2_Scaled_[k];
     }
 }
-//====================================================================================================================
+
 void RedlichKisterVPSSTP::s_update_dlnActCoeff_dX_() const
 {
     doublereal XA, XB;
@@ -802,18 +641,7 @@ void RedlichKisterVPSSTP::s_update_dlnActCoeff_dX_() const
         }
     }
 }
-//====================================================================================================================
-// Get the change in activity coefficients w.r.t. change in state (temp, mole fraction, etc.) along
-// a line in parameter space or along a line in physical space
-/*
- *
- * @param dTds           Input of temperature change along the path
- * @param dXds           Input vector of changes in mole fraction along the path. length = m_kk
- *                       Along the path length it must be the case that the mole fractions sum to one.
- * @param dlnActCoeffds  Output vector of the directional derivatives of the
- *                       log Activity Coefficients along the path. length = m_kk
- *  units are 1/units(s). if s is a physical coordinate then the units are 1/m.
- */
+
 void RedlichKisterVPSSTP::getdlnActCoeffds(const doublereal dTds, const doublereal* const dXds,
         doublereal* dlnActCoeffds) const
 {
@@ -827,7 +655,6 @@ void RedlichKisterVPSSTP::getdlnActCoeffds(const doublereal dTds, const doublere
     }
 }
 
-//====================================================================================================================
 void RedlichKisterVPSSTP::getdlnActCoeffdlnN_diag(doublereal* dlnActCoeffdlnN_diag) const
 {
     s_update_dlnActCoeff_dX_();
@@ -838,7 +665,7 @@ void RedlichKisterVPSSTP::getdlnActCoeffdlnN_diag(doublereal* dlnActCoeffdlnN_di
         }
     }
 }
-//====================================================================================================================
+
 void RedlichKisterVPSSTP::getdlnActCoeffdlnX_diag(doublereal* dlnActCoeffdlnX_diag) const
 {
     s_update_dlnActCoeff_dX_();
@@ -846,7 +673,7 @@ void RedlichKisterVPSSTP::getdlnActCoeffdlnX_diag(doublereal* dlnActCoeffdlnX_di
         dlnActCoeffdlnX_diag[k] = dlnActCoeffdlnX_diag_[k];
     }
 }
-//====================================================================================================================
+
 void RedlichKisterVPSSTP::getdlnActCoeffdlnN(const size_t ld, doublereal* dlnActCoeffdlnN)
 {
     s_update_dlnActCoeff_dX_();
@@ -857,7 +684,7 @@ void RedlichKisterVPSSTP::getdlnActCoeffdlnN(const size_t ld, doublereal* dlnAct
         }
     }
 }
-//====================================================================================================================
+
 void RedlichKisterVPSSTP::resizeNumInteractions(const size_t num)
 {
     numBinaryInteractions_ = num;
@@ -868,13 +695,7 @@ void RedlichKisterVPSSTP::resizeNumInteractions(const size_t num)
     m_SE_m_ij.resize(num);
     dlnActCoeff_dX_.resize(num, num);
 }
-//====================================================================================================================
-// Process an XML node called "binaryNeutralSpeciesParameters"
-/*
- *  This node contains all of the parameters necessary to describe the RedlichKister Interaction for
- *  a single binary interaction. This function reads the XML file and writes the coefficients
- *  it finds to an internal data structures.
- */
+
 void RedlichKisterVPSSTP::readXMLBinarySpecies(XML_Node& xmLBinarySpecies)
 {
     std::string xname = xmLBinarySpecies.name();
@@ -882,7 +703,6 @@ void RedlichKisterVPSSTP::readXMLBinarySpecies(XML_Node& xmLBinarySpecies)
         throw CanteraError("RedlichKisterVPSSTP::readXMLBinarySpecies",
                            "Incorrect name for processing this routine: " + xname);
     }
-    double* charge = DATA_PTR(m_speciesCharge);
     std::string stemp;
     size_t Npoly = 0;
     vector_fp hParams, sParams, vParams;
@@ -904,7 +724,7 @@ void RedlichKisterVPSSTP::readXMLBinarySpecies(XML_Node& xmLBinarySpecies)
         return;
     }
     string ispName = speciesName(iSpecies);
-    if (charge[iSpecies] != 0) {
+    if (charge(iSpecies) != 0) {
         throw CanteraError("RedlichKisterVPSSTP::readXMLBinarySpecies", "speciesA charge problem");
     }
     size_t jSpecies = speciesIndex(jName);
@@ -912,7 +732,7 @@ void RedlichKisterVPSSTP::readXMLBinarySpecies(XML_Node& xmLBinarySpecies)
         return;
     }
     std::string jspName = speciesName(jSpecies);
-    if (charge[jSpecies] != 0) {
+    if (charge(jSpecies) != 0) {
         throw CanteraError("RedlichKisterVPSSTP::readXMLBinarySpecies", "speciesB charge problem");
     }
     /*
@@ -963,7 +783,7 @@ void RedlichKisterVPSSTP::readXMLBinarySpecies(XML_Node& xmLBinarySpecies)
     m_N_ij.push_back(Npoly);
     resizeNumInteractions(numBinaryInteractions_);
 }
-//====================================================================================================================
+
 #ifdef DEBUG_MODE
 void RedlichKisterVPSSTP::Vint(double& VintOut, double& voltsOut)
 {
@@ -1012,6 +832,4 @@ void RedlichKisterVPSSTP::Vint(double& VintOut, double& voltsOut)
     voltsOut = Volts + termp;
 }
 #endif
-//====================================================================================================================
 }
-

@@ -107,8 +107,8 @@ public:
         return (SpeciesThermoInterpType<doublereal>*) np;
     }
 
-    virtual void install(const std::string& name, size_t index, int type, const doublereal* c, doublereal minTemp,
-                         doublereal maxTemp, doublereal refPressure)
+    virtual void install(const std::string& name, size_t index, int type, const doublereal* c, doublereal minTemp_,
+                         doublereal maxTemp_, doublereal refPressure_)
     {
         m_be = c[1];
         m_nFreqs = int(c[0]);
@@ -117,9 +117,9 @@ public:
         }
         m_index = index;
 
-        m_lowT = minTemp;
-        m_highT = maxTemp;
-        m_Pref = refPressure;
+        m_lowT  = minTemp_;
+        m_highT = maxTemp_;
+        m_Pref = refPressure_;
     }
 
     //! Returns the minimum temperature that the thermo

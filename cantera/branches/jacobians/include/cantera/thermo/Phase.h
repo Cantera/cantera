@@ -192,16 +192,16 @@ public:
     //! Return the element constraint type
     //! Possible types include:
     //!
-    //! CT_ELEM_TYPE_TURNEDOFF        -1
-    //! CT_ELEM_TYPE_ABSPOS            0
-    //! CT_ELEM_TYPE_ELECTRONCHARGE    1
-    //! CT_ELEM_TYPE_CHARGENEUTRALITY  2
-    //! CT_ELEM_TYPE_LATTICERATIO      3
-    //! CT_ELEM_TYPE_KINETICFROZEN     4
-    //! CT_ELEM_TYPE_SURFACECONSTRAINT 5
-    //! CT_ELEM_TYPE_OTHERCONSTRAINT   6
+    //!     CT_ELEM_TYPE_TURNEDOFF        -1
+    //!     CT_ELEM_TYPE_ABSPOS            0
+    //!     CT_ELEM_TYPE_ELECTRONCHARGE    1
+    //!     CT_ELEM_TYPE_CHARGENEUTRALITY  2
+    //!     CT_ELEM_TYPE_LATTICERATIO      3
+    //!     CT_ELEM_TYPE_KINETICFROZEN     4
+    //!     CT_ELEM_TYPE_SURFACECONSTRAINT 5
+    //!     CT_ELEM_TYPE_OTHERCONSTRAINT   6
     //!
-    //! The default is CT_ELEM_TYPE_ABSPOS.
+    //! The default is `CT_ELEM_TYPE_ABSPOS`.
     //!     @param m  Element index
     //!     @return Returns the element type
     int elementType(size_t m) const;
@@ -307,8 +307,8 @@ public:
      */
     //!@{
     //! Set the species mole fractions by name.
-    //!     @param xMap map from species names to mole fraction values.
     //! Species not listed by name in \c xMap are set to zero.
+    //!     @param xMap map from species names to mole fraction values.
     void setMoleFractionsByName(compositionMap& xMap);
 
     //! Set the mole fractions of a group of species by name. Species which
@@ -317,8 +317,8 @@ public:
     void setMoleFractionsByName(const std::string& x);
 
     //! Set the species mass fractions by name.
-    //!     @param yMap map from species names to mass fraction values.
     //! Species not listed by name in \c yMap are set to zero.
+    //!     @param yMap map from species names to mass fraction values.
     void setMassFractionsByName(compositionMap& yMap);
 
     //! Set the species mass fractions by name.
@@ -478,8 +478,9 @@ public:
 
     //! Set the mass fractions to the specified values and normalize them.
     //!     @param[in] y Array of unnormalized mass fraction values. Length
-    //! must be greater than or equal to the number of species. The Ptate
-    //! object will normalize this vector before storing its contents.
+    //!                  must be greater than or equal to the number of
+    //!                  species. The Phase object will normalize this vector
+    //!                  before storing its contents.
     virtual void setMassFractions(const doublereal* const y);
 
     //! Set the mass fractions to the specified values without normalizing.
@@ -491,7 +492,7 @@ public:
 
     //! Get the species concentrations (kmol/m^3).
     //!     @param[out] c Array of species concentrations Length must be
-    //! greater than or equal to the number of species.
+    //!                   greater than or equal to the number of species.
     void getConcentrations(ValAndDerivType* const c) const;
 
     //! Concentration of species k.
@@ -505,9 +506,10 @@ public:
     //! Therefore, we have possibly changed the pressure of the phase by
     //! calling this routine.
     //!     @param[in] conc Array of concentrations in dimensional units. For
-    //! bulk phases c[k] is the concentration of the kth species in kmol/m3.
-    //! For surface phases, c[k] is the concentration in kmol/m2. The length of
-    //!  the vector is the numberof species in the phase.
+    //!                     bulk phases c[k] is the concentration of the kth
+    //!                     species in kmol/m3. For surface phases, c[k] is the
+    //!                     concentration in kmol/m2. The length of the vector
+    //!                     is the number of species in the phase.
     virtual void setConcentrations(const doublereal* const conc);
 
     //! Returns a const pointer to the start of the moleFraction/MW array.
@@ -520,7 +522,9 @@ public:
     //! Dimensionless electrical charge of a single molecule of species k
     //! The charge is normalized by the the magnitude of the electron charge
     //!     @param k species index
-    doublereal charge(size_t k) const;
+    doublereal charge(size_t k) const {
+        return m_speciesCharge[k];
+    }
 
     //! Charge density [C/m^3].
     ValAndDerivType chargeDensity() const;
@@ -566,9 +570,8 @@ public:
 
     //! Set the internally stored density (kg/m^3) of the phase
     //! Note the density of a phase is an independent variable.
-    //!     @param[in] density density (kg/m^3).
-    virtual void setDensity(const doublereal density_)
-    {
+    //!     @param[in] density_ density (kg/m^3).
+    virtual void setDensity(const doublereal density_) {
         if (density_ <= 0.0) {
             throw CanteraError("Phase::setDensity()", "density must be positive");
         }

@@ -232,7 +232,8 @@ void GasKinetics::updateKc()
     doublereal rrt = 1.0/(GasConstant * thermo().temperature());
     for (size_t i = 0; i < m_nrev; i++) {
         size_t irxn = m_revindex[i];
-        m_rkcn[irxn] = exp(m_rkcn[irxn]*rrt - m_dn[irxn]*m_logStandConc);
+        m_rkcn[irxn] = std::min(exp(m_rkcn[irxn]*rrt - m_dn[irxn]*m_logStandConc),
+                                BigNumber);
     }
 
     for (size_t i = 0; i != m_nirrev; ++i) {
@@ -838,12 +839,22 @@ void GasKinetics::finalize()
         concm_3b_values.resize(m_3b_concm.workSize());
         concm_falloff_values.resize(m_falloff_concm.workSize());
         m_finalized = true;
+
+        // Guarantee that these arrays can be converted to double* even in the
+        // special case where there are no reactions defined.
+        if (!m_ii) {
+            m_perturb.resize(1, 1.0);
+            m_ropf.resize(1, 0.0);
+            m_ropr.resize(1, 0.0);
+            m_ropnet.resize(1, 0.0);
+            m_rkcn.resize(1, 0.0);
+        }
     }
 }
 //====================================================================================================================
 bool GasKinetics::ready() const
 {
-    return (m_finalized);
+    return m_finalized;
 }
 //====================================================================================================================
 }

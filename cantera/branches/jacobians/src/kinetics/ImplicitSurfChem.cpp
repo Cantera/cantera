@@ -114,12 +114,8 @@ int ImplicitSurfChem::checkMatch(std::vector<thermo_t *> m_vec, thermo_t * thPtr
  */
 ImplicitSurfChem::~ImplicitSurfChem()
 {
-    if (m_integ) {
-        delete m_integ;
-    }
-    if (m_surfSolver) {
-        delete m_surfSolver;
-    }
+    delete m_integ;
+    delete m_surfSolver;
 }
 
 // overloaded method of FuncEval. Called by the integrator to

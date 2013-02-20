@@ -30,16 +30,15 @@ namespace Cantera
  */
 
 /*!
- *  MolarityIonicVPSSTP is a derived class of ThermoPhase
- *  GibbsExcessVPSSTP that handles
+ *  MolarityIonicVPSSTP is a derived class of GibbsExcessVPSSTP that handles
  *  variable pressure standard state methods for calculating
  *  thermodynamic properties that are further based on
  *  expressing the Excess Gibbs free energy as a function of
  *  the mole fractions (or pseudo mole fractions) of the constituents.
  *  This category is the workhorse for describing ionic systems which are not on the molality scale.
  *
- *  This class adds additional functions onto the %ThermoPhase interface
- *  that handles the calculation of the excess Gibbs free energy. The %ThermoPhase
+ *  This class adds additional functions onto the ThermoPhase interface
+ *  that handles the calculation of the excess Gibbs free energy. The ThermoPhase
  *  class includes a member function, ThermoPhase::activityConvention()
  *  that indicates which convention the activities are based on. The
  *  default is to assume activities are based on the molar convention.
@@ -60,8 +59,7 @@ class MolarityIonicVPSSTP : public GibbsExcessVPSSTP
 {
 
 public:
-
-    /// Constructors
+    /// Constructor
     /*!
      * This doesn't do much more than initialize constants with
      * default values for water at 25C. Water molecular weight
@@ -73,13 +71,8 @@ public:
     MolarityIonicVPSSTP();
 
     //! Construct and initialize a MolarityIonicVPSSTP ThermoPhase object
-    //! directly from an xml input file
+    //! directly from an XML input file
     /*!
-     * Working constructors
-     *
-     *  The two constructors below are the normal way the phase initializes itself. They are shells that call
-     *  the routine initThermo(), with a reference to the XML database to get the info for the phase.
-     *
      * @param inputFile Name of the input file containing the phase XML data
      *                  to set up the object
      * @param id        ID of the phase in the input file. Defaults to the
@@ -96,19 +89,14 @@ public:
      */
     MolarityIonicVPSSTP(XML_Node& phaseRef, const std::string& id = "");
 
-
     //! Copy constructor
     /*!
-     *  Note this stuff will not work until the underlying phase
-     *  has a working copy constructor
-     *
      * @param b class to be copied
      */
     MolarityIonicVPSSTP(const  MolarityIonicVPSSTP& b);
 
     /// Assignment operator
     /*!
-     *
      * @param b class to be copied.
      */
     MolarityIonicVPSSTP& operator=(const MolarityIonicVPSSTP& b);
@@ -124,12 +112,8 @@ public:
      */
     virtual thermo_t* duplMyselfAsThermoPhase() const;
 
-    /**
-     *
-     * @name  Utilities
-     * @{
-     */
-
+    //! @name  Utilities
+    //! @{
 
     //! Equation of state type flag.
     /*!
@@ -140,39 +124,6 @@ public:
      * zero, as it is a non-complete class.
      */
     virtual int eosType() const;
-
-    /**
-     * @}
-     * @name  Molar Thermodynamic Properties
-     * @{
-     */
-
-
-    /**
-     * @}
-     * @name Utilities for Solvent ID and Molality
-     * @{
-     */
-
-
-
-
-    /**
-     * @}
-     * @name Mechanical Properties
-     * @{
-     */
-
-    /**
-     * @}
-     * @name Potential Energy
-     *
-     * Species may have an additional potential energy due to the
-     * presence of external gravitation or electric fields. These
-     * methods allow specifying a potential energy for individual
-     * species.
-     * @{
-     */
 
     /**
      * @}
@@ -293,67 +244,18 @@ public:
      */
     virtual void getPartialMolarVolumes(doublereal* vbar) const;
 
-
     //@}
-    /// @name  Properties of the Standard State of the Species in the Solution
-    //@{
-
-
-
-    //@}
-    /// @name Thermodynamic Values for the Species Reference States
-    //@{
-
-
-    ///////////////////////////////////////////////////////
-    //
-    //  The methods below are not virtual, and should not
-    //  be overloaded.
-    //
-    //////////////////////////////////////////////////////
-
-    /**
-     * @name Specific Properties
-     * @{
-     */
-
-
-    /**
-     * @name Setting the State
-     *
-     * These methods set all or part of the thermodynamic
-     * state.
-     * @{
-     */
 
     //! Calculate pseudo binary mole fractions
-    /*!
-     *
-     */
     virtual void calcPseudoBinaryMoleFractions() const;
 
-
-    //@}
-
-    /**
-     * @name Chemical Equilibrium
-     * Routines that implement the Chemical equilibrium capability
-     * for a single phase, based on the element-potential method.
-     * @{
-     */
-
-
-
-    //@}
-
-
-
+    /// @name Initialization
     /// The following methods are used in the process of constructing
     /// the phase and setting its parameters from a specification in an
     /// input file. They are not normally used in application programs.
     /// To see how they are used, see files importCTML.cpp and
     /// ThermoFactory.cpp.
-
+    /// @{
 
     /*!
      * @internal Initialize. This method is provided to allow
@@ -370,7 +272,6 @@ public:
      */
     virtual void initThermo();
 
-
     /**
      *   Import and initialize a ThermoPhase object
      *
@@ -386,7 +287,7 @@ public:
      *             with the correct id.
      */
     void initThermoXML(XML_Node& phaseNode, const std::string& id);
-
+    //! @}
 
     //! returns a summary of the state of the phase as a string
     /*!
@@ -395,10 +296,7 @@ public:
      */
     virtual std::string report(bool show_thermo = true) const;
 
-
 private:
-
-
     //! Initialize lengths of local variables after all species have been identified.
     void initLengths();
 
@@ -413,7 +311,6 @@ private:
      *                          containing the binary interaction
      */
     void readXMLBinarySpecies(XML_Node& xmlBinarySpecies);
-
 
     //! Update the activity coefficients
     /*!
@@ -441,7 +338,6 @@ private:
      */
     void s_update_dlnActCoeff_dX_() const;
 
-
 private:
     //! Error function
     /*!
@@ -452,13 +348,12 @@ private:
     doublereal err(const std::string& msg) const;
 
 protected:
-
     // Pseudobinary type
     /*!
-     *      PBTYPE_PASSTHROUGH       All species are passthrough species
-     *      PBTYPE_SINGLEANION       there is only one anion in the mixture
-     *      PBTYPE_SINGLECATION      there is only one cation in the mixture
-     *      PBTYPE_MULTICATIONANION  Complex mixture
+     *  - `PBTYPE_PASSTHROUGH` - All species are passthrough species
+     *  - `PBTYPE_SINGLEANION` - there is only one anion in the mixture
+     *  - `PBTYPE_SINGLECATION` - there is only one cation in the mixture
+     *  - `PBTYPE_MULTICATIONANION` - Complex mixture
      */
     int PBType_;
 
@@ -484,10 +379,6 @@ protected:
     size_t neutralPBindexStart;
 
     mutable std::vector<doublereal> moleFractionsTmp_;
-
-private:
-
-
 };
 
 #define  PBTYPE_PASSTHROUGH        0
@@ -495,13 +386,6 @@ private:
 #define  PBTYPE_SINGLECATION       2
 #define  PBTYPE_MULTICATIONANION   3
 
-
-
 }
 
 #endif
-
-
-
-
-

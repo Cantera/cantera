@@ -308,11 +308,8 @@ void GeneralSpeciesThermo<ValAndDerivType>::install_STIT(SpeciesThermoInterpType
     /*
      * Calculate max and min
      */
-    double minTemp = stit_ptr->minTemp();
-    double maxTemp = stit_ptr->maxTemp();
-
-    m_tlow_max = max(minTemp, m_tlow_max);
-    m_thigh_min = min(maxTemp, m_thigh_min);
+    m_tlow_max = max(stit_ptr->minTemp(), m_tlow_max);
+    m_thigh_min = min(stit_ptr->maxTemp(), m_thigh_min);
 }
 //=====================================================================================================================
 template<typename ValAndDerivType>
@@ -460,7 +457,7 @@ doublereal GeneralSpeciesThermo<ValAndDerivType>::refPressure(size_t k) const
 template<typename ValAndDerivType>
 SpeciesThermoInterpType<ValAndDerivType> * GeneralSpeciesThermo<ValAndDerivType>::provideSTIT(size_t k)
 {
-    return (m_sp[k]);
+    return m_sp[k];
 }
 //=====================================================================================================================
 #ifdef H298MODIFY_CAPABILITY

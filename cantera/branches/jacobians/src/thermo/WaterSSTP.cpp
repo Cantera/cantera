@@ -23,10 +23,6 @@ using namespace std;
 
 namespace Cantera
 {
-/**
- * Basic list of constructors and duplicators
- */
-
 WaterSSTP::WaterSSTP() :
     SingleSpeciesTP(),
     m_sub(0),
@@ -38,7 +34,6 @@ WaterSSTP::WaterSSTP() :
     m_allowGasPhase(false)
 {
 }
-
 
 WaterSSTP::WaterSSTP(const std::string& inputFile, const std::string& id) :
     SingleSpeciesTP(),
@@ -53,7 +48,6 @@ WaterSSTP::WaterSSTP(const std::string& inputFile, const std::string& id) :
     initThermoFile(inputFile, id);
 }
 
-
 WaterSSTP::WaterSSTP(XML_Node& phaseRoot, const std::string& id) :
     SingleSpeciesTP(),
     m_sub(0),
@@ -66,7 +60,6 @@ WaterSSTP::WaterSSTP(XML_Node& phaseRoot, const std::string& id) :
 {
     importPhase(*findXMLPhase(&phaseRoot, id), this);
 }
-
 
 WaterSSTP::WaterSSTP(const WaterSSTP& b) :
     SingleSpeciesTP(b),
@@ -88,9 +81,6 @@ WaterSSTP::WaterSSTP(const WaterSSTP& b) :
     *this = b;
 }
 
-/*
- * Assignment operator
- */
 WaterSSTP& WaterSSTP::operator=(const WaterSSTP& b)
 {
     if (&b == this) {
@@ -109,7 +99,6 @@ WaterSSTP& WaterSSTP::operator=(const WaterSSTP& b)
     m_allowGasPhase = b.m_allowGasPhase;
     return *this;
 }
-
 
 thermo_t* WaterSSTP::duplMyselfAsThermoPhase() const
 {
@@ -130,14 +119,11 @@ void WaterSSTP::initThermo()
 void WaterSSTP::
 initThermoXML(XML_Node& phaseNode, const std::string& id)
 {
-
     /*
      * Do initializations that don't depend on knowing the XML file
      */
     initThermo();
-    if (m_sub) {
-        delete m_sub;
-    }
+    delete m_sub;
     m_sub = new WaterPropsIAPWS();
     if (m_sub == 0) {
         throw CanteraError("WaterSSTP::initThermo",
@@ -230,9 +216,6 @@ setParametersFromXML(const XML_Node& eosdata)
     eosdata._require("model","PureLiquidWater");
 }
 
-/*
- * Return the molar dimensionless enthalpy
- */
 void WaterSSTP::getEnthalpy_RT(doublereal* hrt) const
 {
     double T = temperature();
@@ -240,29 +223,18 @@ void WaterSSTP::getEnthalpy_RT(doublereal* hrt) const
     *hrt = (h + EW_Offset)/(GasConstant*T);
 }
 
-/*
- * Calculate the internal energy in mks units of
- * J kmol-1
- */
 void WaterSSTP::getIntEnergy_RT(doublereal* ubar) const
 {
     doublereal u = m_sub->intEnergy();
     *ubar = (u + EW_Offset)/GasConstant;
 }
 
-/*
- * Calculate the dimensionless entropy
- */
 void WaterSSTP::getEntropy_R(doublereal* sr) const
 {
     doublereal s = m_sub->entropy();
     sr[0] = (s + SW_Offset) / GasConstant;
 }
 
-/*
- * Calculate the Gibbs free energy in mks units of
- * J kmol-1 K-1.
- */
 void WaterSSTP::getGibbs_RT(doublereal* grt) const
 {
     double T = temperature();
@@ -273,10 +245,6 @@ void WaterSSTP::getGibbs_RT(doublereal* grt) const
     }
 }
 
-/*
- * Calculate the Gibbs free energy in mks units of
- * J kmol-1 K-1.
- */
 void WaterSSTP::getStandardChemPotentials(doublereal* gss) const
 {
     double T = temperature();
@@ -293,18 +261,10 @@ void WaterSSTP::getCp_R(doublereal* cpr) const
     cpr[0] = cp / GasConstant;
 }
 
-/*
- * Calculate the constant volume heat capacity
- * in mks units of J kmol-1 K-1
- */
 doublereal WaterSSTP::cv_mole() const
 {
-    doublereal cv = m_sub->cv();
-    return cv;
+    return m_sub->cv();
 }
-
-// @name Thermodynamic Values for the Species Reference State
-
 
 void WaterSSTP::getEnthalpy_RT_ref(doublereal* hrt) const
 {
@@ -416,15 +376,9 @@ void WaterSSTP::getStandardVolumes_ref(doublereal* vol) const
     dd = m_sub->density(T, p, waterState, dens);
 }
 
-/*
- * Calculate the pressure (Pascals), given the temperature and density
- *  Temperature: kelvin
- *  rho: density in kg m-3
- */
 doublereal WaterSSTP::pressure() const
 {
-    doublereal p = m_sub->pressure();
-    return p;
+    return m_sub->pressure();
 }
 
 void WaterSSTP::
@@ -444,34 +398,14 @@ setPressure(doublereal p)
     setDensity(dd);
 }
 
-// Returns  the isothermal compressibility. Units: 1/Pa.
-/*
- * The isothermal compressibility is defined as
- * \f[
- * \kappa_T = -\frac{1}{v}\left(\frac{\partial v}{\partial P}\right)_T
- * \f]
- *  or
- * \f[
- * \kappa_T = \frac{1}{\rho}\left(\frac{\partial \rho}{\partial P}\right)_T
- * \f]
- */
 doublereal WaterSSTP::isothermalCompressibility() const
 {
-    doublereal val = m_sub->isothermalCompressibility();
-    return val;
+    return m_sub->isothermalCompressibility();
 }
 
-// Return the volumetric thermal expansion coefficient. Units: 1/K.
-/*
- * The thermal expansion coefficient is defined as
- * \f[
- * \beta = \frac{1}{v}\left(\frac{\partial v}{\partial T}\right)_P
- * \f]
- */
 doublereal WaterSSTP::thermalExpansionCoeff() const
 {
-    doublereal val = m_sub->coeffThermExp();
-    return val;
+    return m_sub->coeffThermExp();
 }
 
 doublereal WaterSSTP::dthermalExpansionCoeffdT() const
@@ -488,29 +422,23 @@ doublereal WaterSSTP::dthermalExpansionCoeffdT() const
     doublereal vald = m_sub->coeffThermExp();
     m_sub->setState_TR(T, dens_save);
     doublereal val2 = m_sub->coeffThermExp();
-    doublereal val = (val2 - vald) / 0.04;
-    return val;
+    return (val2 - vald) / 0.04;
 }
 
-
-// critical temperature
 doublereal WaterSSTP::critTemperature() const
 {
     return m_sub->Tcrit();
 }
 
-// critical pressure
 doublereal WaterSSTP::critPressure() const
 {
     return m_sub->Pcrit();
 }
 
-// critical density
 doublereal WaterSSTP::critDensity() const
 {
     return m_sub->Rhocrit();
 }
-
 
 void WaterSSTP::setTemperature(const doublereal temp)
 {
@@ -526,7 +454,6 @@ void WaterSSTP::setDensity(const doublereal dens)
     m_sub->setState_TR(temp, dens);
 }
 
-// saturation pressure
 doublereal WaterSSTP::satPressure(doublereal t) const
 {
     doublereal tsave = temperature();
@@ -536,7 +463,6 @@ doublereal WaterSSTP::satPressure(doublereal t) const
     return pp;
 }
 
-// Return the fraction of vapor at the current conditions
 doublereal WaterSSTP::vaporFraction() const
 {
     if (temperature() >= m_sub->Tcrit()) {
@@ -551,6 +477,5 @@ doublereal WaterSSTP::vaporFraction() const
      */
     return 0.0;
 }
-
 
 }

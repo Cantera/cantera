@@ -20,9 +20,6 @@ using namespace ctml;
 
 namespace Cantera {
 
-//! Constructor. Note that ThermoPhase is meant to be used as
-//! a base class, so this constructor should not be called
-//! explicitly.
 template<typename ValAndDerivType>
 ThermoPhase<ValAndDerivType>::ThermoPhase() :
         Phase<ValAndDerivType>(),
@@ -49,13 +46,6 @@ ThermoPhase<ValAndDerivType>::~ThermoPhase()
     m_spthermo = 0;
 }
 
-//====================================================================================================================
-/*
- * Copy Constructor for the ThermoPhase object.
- *
- * Currently, this is implemented, but not tested. If called it will
- * throw an exception until fully tested.
- */
 template<typename ValAndDerivType>
 ThermoPhase<ValAndDerivType>::ThermoPhase(const ThermoPhase<ValAndDerivType>& right) :
         Phase<ValAndDerivType>(),
@@ -125,7 +115,6 @@ ThermoPhase<ValAndDerivType>& ThermoPhase<ValAndDerivType>::operator=(const Ther
     if (m_spthermo) {
         delete m_spthermo;
     }
-
     /*
      * Call the base class assignment operators
      */
@@ -280,6 +269,7 @@ ThermoPhase<doublereal>& ThermoPhase<doublereal>::operator=(const ThermoPhase<do
  *  Currently, this is not fully implemented. If called, an
  *  exception will be called by the ThermoPhase copy constructor.
  */
+
 template<typename ValAndDerivType>
 ThermoPhase<ValAndDerivType>*
 ThermoPhase<ValAndDerivType>::duplMyselfAsThermoPhase() const
@@ -295,24 +285,25 @@ ThermoPhase<doublereal>* ThermoPhase<ValAndDerivType>::duplMyselfAsThermoPhaseDo
     return tp;
 }
 //====================================================================================================================
+
 template<typename ValAndDerivType>
 int ThermoPhase<ValAndDerivType>::activityConvention() const
 {
     return cAC_CONVENTION_MOLAR;
 }
-//=================================================================================================================
+
 template<typename ValAndDerivType>
 int ThermoPhase<ValAndDerivType>::standardStateConvention() const
 {
     return m_ssConvention;
 }
-//=================================================================================================================
+
 template<typename ValAndDerivType>
 ValAndDerivType ThermoPhase<ValAndDerivType>::logStandardConc(size_t k) const
 {
     return log(standardConcentration(k));
 }
-//=================================================================================================================
+
 template<typename ValAndDerivType>
 void ThermoPhase<ValAndDerivType>::getActivities(ValAndDerivType* a) const
 {
@@ -321,7 +312,7 @@ void ThermoPhase<ValAndDerivType>::getActivities(ValAndDerivType* a) const
         a[k] /= standardConcentration(k);
     }
 }
-//=================================================================================================================
+
 template<typename ValAndDerivType>
 void ThermoPhase<ValAndDerivType>::getLnActivityCoefficients(ValAndDerivType* lnac) const
 {
@@ -330,21 +321,21 @@ void ThermoPhase<ValAndDerivType>::getLnActivityCoefficients(ValAndDerivType* ln
         lnac[k] = std::log(lnac[k]);
     }
 }
-//=================================================================================================================
+
 template<typename ValAndDerivType>
 void ThermoPhase<ValAndDerivType>::setState_TPX(doublereal t, doublereal p, const doublereal* x)
 {
     this->setMoleFractions(x);
     setState_TP(t, p);
 }
-//=================================================================================================================
+
 template<typename ValAndDerivType>
 void ThermoPhase<ValAndDerivType>::setState_TPX(doublereal t, doublereal p, compositionMap& x)
 {
     this->setMoleFractionsByName(x);
     setState_TP(t, p);
 }
-//=================================================================================================================
+
 template<typename ValAndDerivType>
 void ThermoPhase<ValAndDerivType>::setState_TPX(doublereal t, doublereal p, const std::string& x)
 {
@@ -352,21 +343,21 @@ void ThermoPhase<ValAndDerivType>::setState_TPX(doublereal t, doublereal p, cons
     this->setMoleFractionsByName(xx);
     setState_TP(t, p);
 }
-//=================================================================================================================
+
 template<typename ValAndDerivType>
 void ThermoPhase<ValAndDerivType>::setState_TPY(doublereal t, doublereal p, const doublereal* y)
 {
     this->setMassFractions(y);
     setState_TP(t, p);
 }
-//=================================================================================================================
+
 template<typename ValAndDerivType>
 void ThermoPhase<ValAndDerivType>::setState_TPY(doublereal t, doublereal p, compositionMap& y)
 {
     this->setMassFractionsByName(y);
     setState_TP(t, p);
 }
-//=================================================================================================================
+
 template<typename ValAndDerivType>
 void ThermoPhase<ValAndDerivType>::setState_TPY(doublereal t, doublereal p, const std::string& y)
 {
@@ -374,7 +365,6 @@ void ThermoPhase<ValAndDerivType>::setState_TPY(doublereal t, doublereal p, cons
     this->setMassFractionsByName(yy);
     setState_TP(t, p);
 }
-//=================================================================================================================
 
 template<typename ValAndDerivType>
 void ThermoPhase<ValAndDerivType>::setState_TP(doublereal t, doublereal p)
@@ -382,7 +372,6 @@ void ThermoPhase<ValAndDerivType>::setState_TP(doublereal t, doublereal p)
     this->setTemperature(t);
     setPressure(p);
 }
-//=================================================================================================================
 
 template<typename ValAndDerivType>
 void ThermoPhase<ValAndDerivType>::setState_PX(doublereal p, doublereal* x)
@@ -390,7 +379,6 @@ void ThermoPhase<ValAndDerivType>::setState_PX(doublereal p, doublereal* x)
     this->setMoleFractions(x);
     setPressure(p);
 }
-//=================================================================================================================
 
 template<typename ValAndDerivType>
 void ThermoPhase<ValAndDerivType>::setState_PY(doublereal p, doublereal* y)
@@ -398,21 +386,18 @@ void ThermoPhase<ValAndDerivType>::setState_PY(doublereal p, doublereal* y)
     this->setMassFractions(y);
     setPressure(p);
 }
-//=================================================================================================================
 
 template<typename ValAndDerivType>
 void ThermoPhase<ValAndDerivType>::setState_HP(doublereal Htarget, doublereal p, doublereal dTtol)
 {
     setState_HPorUV(Htarget, p, dTtol, false);
 }
-//=================================================================================================================
 
 template<typename ValAndDerivType>
 void ThermoPhase<ValAndDerivType>::setState_UV(doublereal u, doublereal v, doublereal dTtol)
 {
     setState_HPorUV(u, v, dTtol, true);
 }
-//=================================================================================================================
 
 template<typename ValAndDerivType>
 void ThermoPhase<ValAndDerivType>::setState_conditional_TP(doublereal t, doublereal p, bool set_p)
@@ -423,16 +408,6 @@ void ThermoPhase<ValAndDerivType>::setState_conditional_TP(doublereal t, doubler
     }
 }
 
-// Do the convergence work
-/*
- *  We assume here that H at constant P is a monotonically increasing
- *  function of T.
- *  We assume here that U at constant V is a monotonically increasing
- *  function of T.
- *
- *  Note, the value of dTtol may become important for some applications
- *  where numerical jacobians are being calculated.
- */
 template<typename ValAndDerivType>
 void ThermoPhase<ValAndDerivType>::setState_HPorUV(doublereal Htarget, doublereal p, doublereal dTtol, bool doUV)
 {
@@ -636,32 +611,19 @@ void ThermoPhase<ValAndDerivType>::setState_HPorUV(doublereal Htarget, doublerea
         throw CanteraError("setState_HPorUV (HP)", ErrString);
     }
 }
-//=================================================================================================================
 
 template<typename ValAndDerivType>
 void ThermoPhase<ValAndDerivType>::setState_SP(doublereal Starget, doublereal p, doublereal dTtol)
 {
     setState_SPorSV(Starget, p, dTtol, false);
 }
-//=================================================================================================================
 
 template<typename ValAndDerivType>
 void ThermoPhase<ValAndDerivType>::setState_SV(doublereal Starget, doublereal v, doublereal dTtol)
 {
     setState_SPorSV(Starget, v, dTtol, true);
 }
-//=================================================================================================================
 
-// Do the convergence work for fixed entropy situations
-/*
- *  We assume here that S at constant P is a monotonically increasing
- *  function of T.
- *  We assume here that S at constant V is a monotonically increasing
- *  function of T.
- *
- *  Note, the value of dTtol may become important for some applications
- *  where numerical jacobians are being calculated.
- */
 template<typename ValAndDerivType>
 void ThermoPhase<ValAndDerivType>::setState_SPorSV(doublereal Starget, doublereal p, doublereal dTtol, bool doSV)
 {
@@ -832,7 +794,6 @@ void ThermoPhase<ValAndDerivType>::setState_SPorSV(doublereal Starget, doublerea
         throw CanteraError("setState_SPorSV (SP)", ErrString);
     }
 }
-//=================================================================================================================
 
 template<typename ValAndDerivType>
 doublereal ThermoPhase<ValAndDerivType>::err(const std::string& msg) const
@@ -841,33 +802,6 @@ doublereal ThermoPhase<ValAndDerivType>::err(const std::string& msg) const
     return 0.0;
 }
 
-/*
- * Returns the units of the standard and general concentrations
- * Note they have the same units, as their divisor is
- * defined to be equal to the activity of the kth species
- * in the solution, which is unitless.
- *
- * This routine is used in print out applications where the
- * units are needed. Usually, MKS units are assumed throughout
- * the program and in the XML input files.
- *
- * On return uA contains the powers of the units (MKS assumed)
- * of the standard concentrations and generalized concentrations
- * for the kth species.
- *
- * The base %ThermoPhase class assigns the default quantities
- * of (kmol/m3).
- * Inherited classes are responsible for overriding the default
- * values if necessary.
- *
- *  uA[0] = kmol units - default  = 1
- *  uA[1] = m    units - default  = -nDim(), the number of spatial
- *                                dimensions in the Phase class.
- *  uA[2] = kg   units - default  = 0;
- *  uA[3] = Pa(pressure) units - default = 0;
- *  uA[4] = Temperature units - default = 0;
- *  uA[5] = time units - default = 0
- */
 template<typename ValAndDerivType>
 void ThermoPhase<ValAndDerivType>::getUnitsStandardConc(double* uA, int k, int sizeUA) const
 {
@@ -892,21 +826,7 @@ void ThermoPhase<ValAndDerivType>::getUnitsStandardConc(double* uA, int k, int s
         }
     }
 }
-//=================================================================================================================
-//  Install a species thermodynamic property manager.
-/*
- * The species thermodynamic property manager
- * computes properties of the pure species for use in
- * constructing solution properties. It is meant for internal
- * use, and some classes derived from ThermoPhase may not use
- * any species thermodynamic property manager. This method is
- * called by function importPhase() in importCTML.cpp.
- *
- * @param spthermo input pointer to the species thermodynamic property
- *                 manager.
- *
- *  @internal
- */
+
 template<typename ValAndDerivType>
 void ThermoPhase<ValAndDerivType>::setSpeciesThermo(SpeciesThermo<ValAndDerivType> * spthermo)
 {
@@ -917,15 +837,7 @@ void ThermoPhase<ValAndDerivType>::setSpeciesThermo(SpeciesThermo<ValAndDerivTyp
     }
     m_spthermo = spthermo;
 }
-//=================================================================================================================
-// Return a changeable reference to the calculation manager
-// for species reference-state thermodynamic properties
-/*
- *
- * @param k   Species id. The default is -1, meaning return the default
- *
- * @internal
- */
+
 template<typename ValAndDerivType>
 SpeciesThermo<ValAndDerivType>& ThermoPhase<ValAndDerivType>::speciesThermo(int k)
 {
@@ -934,22 +846,7 @@ SpeciesThermo<ValAndDerivType>& ThermoPhase<ValAndDerivType>::speciesThermo(int 
     }
     return *m_spthermo;
 }
-//=================================================================================================================
-/*
- * initThermoFile():
- *
- * Initialization of a phase using an xml file.
- *
- * This routine is a precursor to initThermoXML(XML_Node*)
- * routine, which does most of the work.
- *
- * @param infile XML file containing the description of the
- *        phase
- *
- * @param id  Optional parameter identifying the name of the
- *            phase. If none is given, the first XML
- *            phase element will be used.
- */
+
 template<typename ValAndDerivType>
 void ThermoPhase<ValAndDerivType>::initThermoFile(const std::string& inputFile, const std::string& id)
 {
@@ -981,27 +878,7 @@ void ThermoPhase<ValAndDerivType>::initThermoFile(const std::string& inputFile, 
     }
     delete fxml;
 }
-//=================================================================================================================
 
-/*
- *   Import and initialize a ThermoPhase object
- *
- *   This function is called from importPhase()
- *   after the elements and the
- *   species are initialized with default ideal solution
- *   level data.
- *
- * @param phaseNode This object must be the phase node of a
- *             complete XML tree
- *             description of the phase, including all of the
- *             species data. In other words while "phase" must
- *             point to an XML phase object, it must have
- *             sibling nodes "speciesData" that describe
- *             the species in the phase.
- * @param id   ID of the phase. If nonnull, a check is done
- *             to see if phaseNode is pointing to the phase
- *             with the correct id.
- */
 template<typename ValAndDerivType>
 void ThermoPhase<ValAndDerivType>::initThermoXML(XML_Node& phaseNode, const std::string& id)
 {
@@ -1045,21 +922,6 @@ void ThermoPhase<ValAndDerivType>::getReferenceComposition(doublereal* const x) 
     }
 }
 
-/*
- * Initialize.
- *
- * This method is provided to allow
- * subclasses to perform any initialization required after all
- * species have been added. For example, it might be used to
- * resize internal work arrays that must have an entry for
- * each species.  The base class implementation does nothing,
- * and subclasses that do not require initialization do not
- * need to overload this method.  When importing a CTML phase
- * description, this method is called just prior to returning
- * from function importPhase.
- *
- * @see importCTML.cpp
- */
 template<typename ValAndDerivType>
 void ThermoPhase<ValAndDerivType>::initThermo()
 {
@@ -1069,13 +931,11 @@ void ThermoPhase<ValAndDerivType>::initThermo()
     }
     xMol_Ref.resize(m_kk, 0.0);
 }
-//====================================================================================================================
 template<typename ValAndDerivType>
 void ThermoPhase<ValAndDerivType>::installSlavePhases(Cantera::XML_Node* phaseNode)
 {
-
 }
-//====================================================================================================================
+
 template<typename ValAndDerivType>
 void ThermoPhase<ValAndDerivType>::saveSpeciesData(const size_t k, const XML_Node* const data)
 {
@@ -1096,10 +956,7 @@ ThermoPhase<ValAndDerivType>::speciesData() const
     }
     return m_speciesData;
 }
-//====================================================================================================================
-/*
- * Set the thermodynamic state.
- */
+
 template<typename ValAndDerivType>
 void ThermoPhase<ValAndDerivType>::setStateFromXML(const XML_Node& state)
 {
@@ -1125,16 +982,7 @@ void ThermoPhase<ValAndDerivType>::setStateFromXML(const XML_Node& state)
         this->setDensity(rho);
     }
 }
-//====================================================================================================================
-/*
- * Called by function 'equilibrate' in ChemEquil.h to transfer
- * the element potentials to this object after every successful
- *  equilibration routine.
- * The element potentials are stored in their dimensionless
- * forms, calculated by dividing by RT.
- *    @param lambda vector containing the element potentials.
- *           Length = nElements. Units are Joules/kmol.
- */
+
 template<typename ValAndDerivType>
 void ThermoPhase<ValAndDerivType>::setElementPotentials(const vector_fp& lambda)
 {
@@ -1152,13 +1000,6 @@ void ThermoPhase<ValAndDerivType>::setElementPotentials(const vector_fp& lambda)
     m_hasElementPotentials = true;
 }
 
-/*
- * Returns the stored element potentials.
- * The element potentials are retrieved from their stored
- * dimensionless forms by multiplying by RT.
- * @param lambda Vector containing the element potentials.
- *        Length = nElements. Units are Joules/kmol.
- */
 template<typename ValAndDerivType>
 bool ThermoPhase<ValAndDerivType>::getElementPotentials(doublereal* lambda) const
 {
@@ -1168,27 +1009,9 @@ bool ThermoPhase<ValAndDerivType>::getElementPotentials(doublereal* lambda) cons
             lambda[m] = m_lambdaRRT[m] * rt;
         }
     }
-    return (m_hasElementPotentials);
+    return m_hasElementPotentials;
 }
-//====================================================================================================================
-// Get the array of derivatives of the log activity coefficients with respect to the species mole numbers
-/*
- * Implementations should take the derivative of the logarithm of the activity coefficient with respect to a
- * species mole number (with all other species mole numbers held constant)
- *
- *  units = 1 / kmol
- *
- *  dlnActCoeffdN[ ld * k  + m]  will contain the derivative of log act_coeff for the <I>m</I><SUP>th</SUP>
- *                               species with respect to the number of moles of the <I>k</I><SUP>th</SUP> species.
- *
- * \f[
- *        \frac{d \ln(\gamma_m) }{d n_k }\Bigg|_{n_i}
- * \f]
- *
- * @param ld               Number of rows in the matrix
- * @param dlnActCoeffdN    Output vector of derivatives of the
- *                         log Activity Coefficients. length = m_kk * m_kk
- */
+
 template<typename ValAndDerivType>
 void ThermoPhase<ValAndDerivType>::getdlnActCoeffdlnN(const size_t ld, ValAndDerivType* const dlnActCoeffdlnN)
 {
@@ -1199,7 +1022,7 @@ void ThermoPhase<ValAndDerivType>::getdlnActCoeffdlnN(const size_t ld, ValAndDer
     }
     return;
 }
-//====================================================================================================================
+
 template<typename ValAndDerivType>
 void ThermoPhase<ValAndDerivType>::getdlnActCoeffdlnN_numderiv(const size_t ld, ValAndDerivType* const dlnActCoeffdlnN)
 {
@@ -1373,6 +1196,7 @@ std::string ThermoPhase<ValAndDerivType>::report(bool show_thermo) const
     return s;
 }
 
+
 template<>
 std::string ThermoPhase<doubleFAD>::report(bool show_thermo) const
 {
@@ -1473,6 +1297,7 @@ std::string ThermoPhase<doubleFAD>::report(bool show_thermo) const
 /*
  * Format a summary of the mixture state for output.
  */
+
 template<typename ValAndDerivType>
 void ThermoPhase<ValAndDerivType>::reportCSV(std::ofstream& csvFile) const
 {
@@ -1611,7 +1436,7 @@ void ThermoPhase<doubleFAD>::getCsvReportData(std::vector<std::string>& names, s
 }
 
 //! Explicit Instantiations
-template class ThermoPhase<doublereal> ;
+template class ThermoPhase<doublereal>;
 #ifdef INDEPENDENT_VARIABLE_DERIVATIVES
 #ifdef HAS_SACADO
 template class ThermoPhase<doubleFAD> ;
