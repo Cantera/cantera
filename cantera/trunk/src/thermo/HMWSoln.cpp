@@ -3159,7 +3159,7 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dT() const
 #ifdef DEBUG_MODE
                 if (m_debugCalc) {
                     printf("%d %g: %g %g %g %g\n",
-                           counterIJ,  BMX_L[counterIJ], beta0MX_L[counterIJ],
+                           (int) counterIJ,  BMX_L[counterIJ], beta0MX_L[counterIJ],
                            beta1MX_L[counterIJ],  beta2MX_L[counterIJ], gfunc[counterIJ]);
                 }
 #endif
@@ -4868,7 +4868,7 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dP() const
                 printf(" %-16s %-16s %11.7f %11.7f %11.7f \n",
                        sni.c_str(), snj.c_str(),
                        BMX_P[counterIJ], BprimeMX_P[counterIJ], BphiMX_P[counterIJ]);
-            }(k =
+            }
 #endif
         }
     }
