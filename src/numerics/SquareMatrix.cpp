@@ -155,6 +155,17 @@ void  SquareMatrix::mult(const doublereal* b, doublereal* prod) const
     DenseMatrix::mult(b, prod);
 }
 //====================================================================================================================
+// Multiply A*B and write result to \c prod.
+/*
+ *
+ *  @param    b     input      DenseMatrix B of size NxN
+ *  @param    prod  output     output DenseMatrix prod size NxN
+ */
+void SquareMatrix::mult(const DenseMatrix& b, DenseMatrix& prod) const
+{
+    DenseMatrix::mult(b, prod);
+}
+//====================================================================================================================
 // Multiply b*A and write result to prod.
 /*
  *  @param b    Vector to do the lh multiplication

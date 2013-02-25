@@ -83,6 +83,14 @@ public:
      */
     virtual void mult(const doublereal* b, doublereal* prod) const;
 
+    //! Multiply A*B and write result to \c prod.
+    /*!
+     *
+     *  @param    b     input      DenseMatrix B of size NxN
+     *  @param    prod  output     output DenseMatrix prod size NxN
+     */
+    virtual void mult(const DenseMatrix& b, DenseMatrix& prod) const;
+
     //! Multiply b*A and write result to prod.
     /*!
      *  @param b    Vector to do the lh multiplication
