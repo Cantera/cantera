@@ -20,8 +20,32 @@ class TestOnedim(utilities.CanteraTest):
         solid = ct.Solution('diamond.xml', 'diamond')
         interface = ct.Solution('diamond.xml', 'diamond_100', (gas, solid))
 
-        surface = ct.ReactingSurface1D()
+        surface = ct.ReactingSurface1D(phase=gas)
         surface.set_kinetics(interface)
+
+    def test_boundaryProperties(self):
+        gas1 = ct.Solution('h2o2.xml')
+        gas2 = ct.Solution('h2o2.xml')
+        inlet = ct.Inlet1D(name='something', phase=gas1)
+        flame = ct.FreeFlow(gas1)
+        sim = ct.Sim1D((inlet, flame))
+
+        self.assertEqual(inlet.name, 'something')
+
+        gas2.TPX = 400, 101325, 'H2:0.3, O2:0.5, AR:0.2'
+        Xref = gas2.X
+        Yref = gas2.Y
+        inlet.Y = Yref
+
+        self.assertArrayNear(inlet.Y, Yref)
+        self.assertArrayNear(inlet.X, Xref)
+
+        gas2.TPX = 400, 101325, 'H2:0.5, O2:0.2, AR:0.3'
+        Xref = gas2.X
+        Yref = gas2.Y
+        inlet.X = Xref
+        self.assertArrayNear(inlet.X, Xref)
+        self.assertArrayNear(inlet.Y, Yref)
 
 
 class TestFreeFlame(utilities.CanteraTest):
