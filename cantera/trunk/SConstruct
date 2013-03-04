@@ -860,11 +860,14 @@ else:
 if env['python3_package'] in ('y', 'default'):
     # See if we can execute the Python 3 interpreter
     try:
-        ret = subprocess.check_call([env['python3_cmd'],'-c','""'])
+        script = '\n'.join(("from distutils.sysconfig import *",
+                            "print(get_python_version())"))
+        info = getCommandOutput(env['python3_cmd'], '-c', script)
+        env['python3_version'] = info.strip()
     except OSError:
-        ret = -1
+        info = False
 
-    if ret:
+    if not info:
         if env['python3_package'] == 'default':
             print ('INFO: Not building the Python 3 package because the Python '
                    '3 interpreter %r could not be found' % env['python3_cmd'])
@@ -996,6 +999,9 @@ if env['layout'] == 'debian':
     env['python_module_loc'] = pjoin(env['python_prefix'],
                                      'python%i.%i' % sys.version_info[:2],
                                      'dist-packages')
+    env['python3_module_loc'] = env.subst(pjoin('${python3_prefix}',
+                                                'python${python3_version}',
+                                                'dist-packages'))
     env['ct_datadir'] = '/usr/share/cantera/data'
 elif env['layout'] == 'compact':
     env['inst_libdir'] = pjoin(instRoot, 'lib')
@@ -1011,6 +1017,9 @@ elif env['layout'] == 'compact':
     env['python_module_loc'] = pjoin(env['python_prefix'], 'lib',
                                      'python%i.%i' % sys.version_info[:2],
                                      'site-packages')
+    env['python3_module_loc'] = env.subst(pjoin('${python3_prefix}', 'lib',
+                                                'python${python3_version}',
+                                                'site-packages'))
 else: # env['layout'] == 'standard'
     env['inst_libdir'] = pjoin(instRoot, 'lib')
     env['inst_bindir'] = pjoin(instRoot, 'bin')
@@ -1025,7 +1034,9 @@ else: # env['layout'] == 'standard'
     env['python_module_loc'] = pjoin(env['python_prefix'], 'lib',
                                      'python%i.%i' % sys.version_info[:2],
                                      'site-packages')
-
+    env['python3_module_loc'] = env.subst(pjoin('${python3_prefix}', 'lib',
+                                                'python${python3_version}',
+                                                'site-packages'))
 
 # **************************************
 # *** Set options needed in config.h ***
@@ -1324,20 +1335,24 @@ Default('build')
 
 def postInstallMessage(target, source, env):
     env['python_module_loc'] = env.subst(env['python_module_loc'])
+    env['python_example_loc'] = pjoin(env['python_module_loc'], 'cantera', 'examples')
+    env['python3_example_loc'] = pjoin(env['python3_module_loc'], 'cantera', 'examples')
+    env['matlab_sample_loc'] = pjoin(env['ct_matlab_dir'], 'matlab')
+    env['matlab_ctpath_loc'] = pjoin(env['prefix'], 'matlab', 'ctpath.m')
     print """
 Cantera has been successfully installed.
 
 File locations:
 
-    applications      %(ct_bindir)s
-    library files     %(ct_libdir)s
-    C++ headers       %(ct_incdir)s
-    samples           %(ct_sampledir)s
-    data files        %(ct_datadir)s""" % env
+  applications                %(ct_bindir)s
+  library files               %(ct_libdir)s
+  C++ headers                 %(ct_incroot)s
+  samples                     %(ct_sampledir)s
+  data files                  %(ct_datadir)s""" % env,
 
     if env['python_package'] == 'full':
         print """
-    Python package    %(python_module_loc)s""" % env
+  Python 2 package (Cantera)  %(python_module_loc)s""" % env,
     elif warnNoPython:
         print """
     #################################################################
@@ -1345,28 +1360,39 @@ File locations:
      suitable array package (e.g. numpy) could not be found.
     #################################################################"""
 
+    if env['python_package'] == 'new':
+        print """
+  Python 2 package (cantera)  %(python_module_loc)s
+  Python 2 samples            %(python_example_loc)s""" % env,
+
+    if env['python3_package'] == 'y':
+        print """
+  Python 3 package (cantera)  %(python3_module_loc)s
+  Python 3 samples            %(python3_module_loc)s""" % env,
+
     if env['matlab_toolbox'] == 'y':
         print """
-    Matlab toolbox    %(ct_matlab_dir)s
-    Matlab samples    %(ct_sampledir)s/matlab
+  Matlab toolbox              %(ct_matlab_dir)s
+  Matlab samples              %(matlab_sample_loc)s
 
-    An m-file to set the correct matlab path for Cantera is at:
+An m-file to set the correct matlab path for Cantera is at:
 
-        %(prefix)s/matlab/ctpath.m
-    """ % env
+  %(matlab_ctpath_loc)s
+    """ % env,
 
     if os.name != 'nt':
         print """
-    setup script      %(ct_bindir)s/setup_cantera
+  setup script                %(ct_bindir)s/setup_cantera
 
-    The setup script configures the environment for Cantera. It is
-    recommended that you run this script by typing:
+The setup script configures the environment for Cantera. It is recommended that
+you run this script by typing:
 
-        source %(ct_bindir)s/setup_cantera
+  source %(ct_bindir)s/setup_cantera
 
-    before using Cantera, or else include its contents in your shell
-    login script.
+before using Cantera, or else include its contents in your shell login script.
     """ % env
+    else:
+        print ''
 
 finish_install = env.Command('finish_install', [], postInstallMessage)
 env.Depends(finish_install, installTargets)
