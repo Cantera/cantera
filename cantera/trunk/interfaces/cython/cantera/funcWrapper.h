@@ -2,6 +2,9 @@
 #define CT_CYTHON_FUNC_WRAPPER
 
 #include "cantera/numerics/Func1.h"
+#include "cantera/base/ctexceptions.h"
+
+#include "Python.h"
 
 typedef double(*callback_wrapper)(double, void*, void**);
 
