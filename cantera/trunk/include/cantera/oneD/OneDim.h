@@ -12,6 +12,7 @@ namespace Cantera
 
 class MultiJac;
 class MultiNewton;
+class Func1;
 
 /**
  * Container class for multiple-domain 1D problems. Each domain is
@@ -215,6 +216,13 @@ public:
     }
     void saveStats();
 
+    //! Set a function that will be called every time #eval is called.
+    //! Can be used to provide keyboard interrupt support in the high-level
+    //! language interfaces.
+    void setInterrupt(Func1* interrupt) {
+        m_interrupt = interrupt;
+    }
+
 protected:
 
     void evalSSJacobian(doublereal* x, doublereal* xnew);
@@ -246,6 +254,9 @@ protected:
 
     // options
     int m_ss_jac_age, m_ts_jac_age;
+
+    //! Function called at the start of every call to #eval.
+    Func1* m_interrupt;
 
 private:
 

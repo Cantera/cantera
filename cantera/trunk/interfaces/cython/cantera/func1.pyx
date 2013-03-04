@@ -9,7 +9,7 @@ cdef double func_callback(double t, void* obj, void** err):
     """
     try:
         return (<Func1>obj).callable(t)
-    except Exception as e:
+    except BaseException as e:
         exc_type, exc_value = sys.exc_info()[:2]
 
         # Stash the exception info to prevent it from being garbage collected
