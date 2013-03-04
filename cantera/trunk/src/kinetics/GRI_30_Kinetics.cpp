@@ -63,7 +63,7 @@ void GRI_30_Kinetics::gri30_updateROP()
 {
 
     gri30_update_rates_T();
-    _update_rates_C();
+    update_rates_C();
 
     if (m_ROP_ok) {
         return;
