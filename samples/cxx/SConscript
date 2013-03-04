@@ -30,6 +30,7 @@ for subdir, name, extensions in samples:
     ## Generate Makefiles to be installed
     localenv['make_sourcefile'] = '%s.cpp' % name
     localenv['make_target'] = name
+    localenv['make_Cantera_dot_mak'] = pjoin(localenv['ct_incroot'], 'cantera', 'Cantera.mak')
     makefile = build(localenv.SubstFile(pjoin(subdir, 'Makefile'), 'Makefile.in'))
     install(pjoin('$inst_sampledir', 'cxx', subdir), makefile)
 
