@@ -144,19 +144,7 @@ Kinetics* GasKinetics::duplMyselfAsKinetics(const std::vector<thermo_t*> & tpVec
     return gK;
 }
 //====================================================================================================================
-/**
- * Update temperature-dependent portions of reaction rates and
- * falloff functions.
- */
-void GasKinetics::update_T()
-{
-}
-//====================================================================================================================
-void GasKinetics::
-update_C() {}
-//====================================================================================================================
-void GasKinetics::
-_update_rates_T()
+void GasKinetics::update_rates_T()
 {
     doublereal T = thermo().temperature();
     m_logStandConc = log(thermo().standardConcentration());
@@ -187,8 +175,7 @@ _update_rates_T()
 
 //====================================================================================================================
 
-void GasKinetics::
-_update_rates_C()
+void GasKinetics::update_rates_C()
 {
     thermo().getActivityConcentrations(&m_conc[0]);
     doublereal ctot = thermo().molarDensity();
@@ -247,7 +234,7 @@ void GasKinetics::updateKc()
  */
 void GasKinetics::getEquilibriumConstants(doublereal* kc)
 {
-    _update_rates_T();
+    update_rates_T();
     thermo().getStandardChemPotentials(&m_grt[0]);
     fill(m_rkcn.begin(), m_rkcn.end(), 0.0);
 
@@ -501,8 +488,8 @@ void GasKinetics::processFalloffReactions()
 //====================================================================================================================
 void GasKinetics::updateROP()
 {
-    _update_rates_C();
-    _update_rates_T();
+    update_rates_C();
+    update_rates_T();
 
     if (m_ROP_ok) {
         return;
@@ -558,8 +545,8 @@ void GasKinetics::updateROP()
 void GasKinetics::
 getFwdRateConstants(doublereal* kfwd)
 {
-    _update_rates_C();
-    _update_rates_T();
+    update_rates_C();
+    update_rates_T();
 
     // copy rate coefficients into ropf
     copy(m_rfn.begin(), m_rfn.end(), m_ropf.begin());

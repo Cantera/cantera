@@ -322,11 +322,7 @@ public:
     virtual void finalize();
     virtual bool ready() const;
 
-    virtual void update_T();
-    virtual void update_C();
-
     void updateROP();
-
 
     const std::vector<grouplist_t>& reactantGroups(size_t i) {
         return m_rgroups[i];
@@ -335,14 +331,15 @@ public:
         return m_pgroups[i];
     }
 
-
-    void _update_rates_T();
+    //! Update temperature-dependent portions of reaction rates and falloff
+    //! functions.
+    virtual void update_rates_T();
 
     //! Update properties that depend on concentrations.
     //! Currently the enhanced collision partner concentrations are updated
     //! here, as well as the pressure-dependent portion of P-log and Chebyshev
     //! reactions.
-    void _update_rates_C();
+    virtual void update_rates_C();
 
     //@}
 
