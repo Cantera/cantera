@@ -76,7 +76,10 @@ localenv.AddPostAction(make_setup,
                                                                    extraArgs))
 
 # Install the Python module
-if localenv['python_prefix']:
+if localenv['python_prefix'] == 'USER':
+    # Install to the platform-specific user site-packages directory
+    extra = '--user'
+elif localenv['python_prefix']:
     # A specific location for the Cantera python module has been specified
     extra = '--prefix="%s"' % localenv['python_prefix']
 else:

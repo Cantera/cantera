@@ -10,8 +10,8 @@ localenv = env.Clone()
 # 'setup_cantera'
 if localenv['layout'] != 'debian':
     v = sys.version_info
-    localenv['python_module_loc'] = pjoin(localenv['python_prefix'], 'lib',
-                                          'python%i.%i' % v[:2], 'site-packages')
+    if localenv['python_prefix'] == 'USER':
+        localenv['python_module_loc'] = ''
     target = build(localenv.SubstFile('setup_cantera', 'setup_cantera.in'))
     install('$inst_bindir', target)
 

@@ -301,7 +301,8 @@ config_options = [
            an alternate location. On Unix-like systems, the default is the same
            as the $prefix option. If this option is set to the empty string (the
            default on Windows), then the Package will be installed to the system
-           default 'site-packages' directory.""",
+           default 'site-packages' directory. To install to the current user's
+           site-packages directory, use 'python_prefix=USER'.""",
         defaults.python_prefix, PathVariable.PathAccept),
     EnumVariable(
         'python3_package',
@@ -325,7 +326,8 @@ config_options = [
            an alternate location. On Unix-like systems, the default is the same
            as the $prefix option. If this option is set to the empty string (the
            default on Windows), then the Package will be installed to the system
-           default 'site-packages' directory.""",
+           default 'site-packages' directory. To install to the current user's
+           site-packages directory, use 'python3_prefix=USER'.""",
         defaults.python_prefix, PathVariable.PathAccept),
     EnumVariable(
         'matlab_toolbox',
@@ -838,6 +840,12 @@ if env['python_package'] in ('full','default','new'):
             warnNoPython = True
             env['python_package'] = 'minimal'
 
+    try:
+        import site
+        env['python_usersitepackages'] = site.getusersitepackages()
+    except AttributeError: # getusersitepackages is only in Python 2.7+
+        env['python_usersitepackages'] = '<user site-packages directory>'
+
     # Check for 3to2 if we're building the "new" Python module
     # See http://pypi.python.org/pypi/3to2
     if env['python_package'] == 'new':
@@ -861,9 +869,11 @@ if env['python3_package'] in ('y', 'default'):
     # See if we can execute the Python 3 interpreter
     try:
         script = '\n'.join(("from distutils.sysconfig import *",
-                            "print(get_python_version())"))
+                            "import site",
+                            "print(get_python_version())",
+                            "print(site.getusersitepackages())"))
         info = getCommandOutput(env['python3_cmd'], '-c', script)
-        env['python3_version'] = info.strip()
+        env['python3_version'], env['python3_usersitepackages'] = info.splitlines()
     except OSError:
         info = False
 
@@ -1009,12 +1019,18 @@ else:
     env['inst_python_bindir'] = pjoin(instRoot, 'bin')
     env['inst_incdir'] = pjoin(instRoot, 'include', 'cantera')
     env['inst_incroot'] = pjoin(instRoot, 'include')
-    env['python_module_loc'] = pjoin(env['python_prefix'], 'lib',
-                                     'python%i.%i' % sys.version_info[:2],
-                                     'site-packages')
-    env['python3_module_loc'] = env.subst(pjoin('${python3_prefix}', 'lib',
-                                                'python${python3_version}',
-                                                'site-packages'))
+    if env['python_prefix'] == 'USER':
+        env['python_module_loc'] = env['python_usersitepackages']
+    else:
+        env['python_module_loc'] = pjoin(env['python_prefix'], 'lib',
+                                         'python%i.%i' % sys.version_info[:2],
+                                         'site-packages')
+    if env['python3_package'] == 'y' and env['python3_prefix'] == 'USER':
+        env['python3_module_loc'] = env['python3_usersitepackages']
+    else:
+        env['python3_module_loc'] = env.subst(pjoin('${python3_prefix}', 'lib',
+                                                    'python${python3_version}',
+                                                    'site-packages'))
     if env['layout'] == 'compact':
         env['inst_matlab_dir'] = pjoin(instRoot, 'matlab', 'toolbox')
         env['inst_datadir'] = pjoin(instRoot, 'data')

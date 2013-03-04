@@ -42,7 +42,10 @@ def add_dependencies(mod, ext):
 
 
 def install_module(prefix, python_version):
-    if prefix:
+    if prefix == 'USER':
+        # Install to the OS-dependent user site-packages directory
+        extra = '--user'
+    elif prefix:
         # A specific location for the Cantera python module has been specified
         extra = '--prefix="%s"' % prefix
     else:
