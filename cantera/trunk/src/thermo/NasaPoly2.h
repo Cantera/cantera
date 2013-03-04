@@ -9,7 +9,6 @@
  */
 // Copyright 2001  California Institute of Technology
 
-
 #ifndef CT_NASAPOLY2_H
 #define CT_NASAPOLY2_H
 
@@ -17,10 +16,7 @@
 
 namespace Cantera
 {
-
 /**
- *
- *
  * The NASA polynomial parameterization for two temperature ranges.
  * This parameterization expresses the heat capacity as a
  * fourth-order polynomial. Note that this is the form used in the
@@ -50,9 +46,7 @@ namespace Cantera
  */
 class NasaPoly2 : public SpeciesThermoInterpType
 {
-
 public:
-
     //! Empty constructor
     NasaPoly2()
         : m_lowT(0.0),
@@ -122,47 +116,38 @@ public:
     //! destructor
     virtual ~NasaPoly2() { }
 
-    //! duplicator
     virtual SpeciesThermoInterpType*
     duplMyselfAsSpeciesThermoInterpType() const {
         NasaPoly2* np = new NasaPoly2(*this);
         return (SpeciesThermoInterpType*) np;
     }
 
-    //! Returns the minimum temperature that the thermo
-    //! parameterization is valid
     doublereal minTemp() const     {
         return m_lowT;
     }
 
-    //! Returns the maximum temperature that the thermo
-    //! parameterization is valid
     doublereal maxTemp() const     {
         return m_highT;
     }
 
-    //! Returns the reference pressure (Pa)
     doublereal refPressure() const {
         return m_Pref;
     }
 
-    //! Returns an integer representing the type of parameterization
     virtual int reportType() const {
         return NASA2;
     }
 
-    //! Returns an integer representing the species index
     virtual size_t speciesIndex() const {
         return m_index;
     }
 
-
     //! Update the properties for this species, given a temperature polynomial
     /*!
-     * This method is called with a pointer to an array containing the functions of
-     * temperature needed by this  parameterization, and three pointers to arrays where the
-     * computed property values should be written. This method updates only one value in
-     * each array.
+     * This method is called with a pointer to an array containing the
+     * functions of temperature needed by this  parameterization, and three
+     * pointers to arrays where the computed property values should be
+     * written. This method updates only one value in each array.
      *
      * Temperature Polynomial:
      *  tt[0] = t;
@@ -173,16 +158,12 @@ public:
      *  tt[5] = std::log(t);
      *
      * @param tt  vector of temperature polynomials
-     * @param cp_R    Vector of Dimensionless heat capacities.
-     *                (length m_kk).
-     * @param h_RT    Vector of Dimensionless enthalpies.
-     *                (length m_kk).
-     * @param s_R     Vector of Dimensionless entropies.
-     *                (length m_kk).
+     * @param cp_R    Vector of Dimensionless heat capacities. (length m_kk).
+     * @param h_RT    Vector of Dimensionless enthalpies. (length m_kk).
+     * @param s_R     Vector of Dimensionless entropies. (length m_kk).
      */
     void updateProperties(const doublereal* tt,
                           doublereal* cp_R, doublereal* h_RT, doublereal* s_R) const {
-
         double T = tt[0];
         if (T <= m_midT) {
             mnp_low.updateProperties(tt, cp_R, h_RT, s_R);
@@ -191,22 +172,6 @@ public:
         }
     }
 
-    //! Compute the reference-state property of one species
-    /*!
-     * Given temperature T in K, this method updates the values of
-     * the non-dimensional heat capacity at constant pressure,
-     * enthalpy, and entropy, at the reference pressure, Pref
-     * of one of the species. The species index is used
-     * to reference into the cp_R, h_RT, and s_R arrays.
-     *
-     * @param temp    Temperature (Kelvin)
-     * @param cp_R    Vector of Dimensionless heat capacities.
-     *                (length m_kk).
-     * @param h_RT    Vector of Dimensionless enthalpies.
-     *                (length m_kk).
-     * @param s_R     Vector of Dimensionless entropies.
-     *                (length m_kk).
-     */
     void updatePropertiesTemp(const doublereal temp,
                               doublereal* cp_R,
                               doublereal* h_RT,
@@ -218,20 +183,6 @@ public:
         }
     }
 
-    //!This utility function reports back the type of
-    //! parameterization and all of the parameters for the
-    //! species, index.
-    /*!
-     * All parameters are output variables
-     *
-     * @param n         Species index
-     * @param type      Integer type of the standard type
-     * @param tlow      output - Minimum temperature
-     * @param thigh     output - Maximum temperature
-     * @param pref      output - reference pressure (Pa).
-     * @param coeffs    Vector of coefficients used to set the
-     *                  parameters for the standard state.
-     */
     void reportParameters(size_t& n, int& type,
                           doublereal& tlow, doublereal& thigh,
                           doublereal& pref,
@@ -295,12 +246,7 @@ protected:
     size_t m_index;
     //! array of polynomial coefficients
     vector_fp m_coeff;
-
 };
 
 }
 #endif
-
-
-
-

@@ -70,15 +70,12 @@ class XML_Node;
  */
 class Mu0Poly: public SpeciesThermoInterpType
 {
-
 public:
-
     //! Constructor
     Mu0Poly();
 
     //! Constructor used in templated instantiations
     /*!
-     *
      * In the constructor, we calculate and store the
      * piecewise linear approximation to the thermodynamic
      * functions.
@@ -115,27 +112,17 @@ public:
     //! Destructor
     virtual ~Mu0Poly();
 
-    //! Duplicator
     virtual SpeciesThermoInterpType*
     duplMyselfAsSpeciesThermoInterpType() const;
 
-    //! Returns the minimum temperature that the thermo
-    //! parameterization is valid
     virtual doublereal minTemp() const;
-
-    //! Returns the maximum temperature that the thermo
-    //! parameterization is valid
     virtual doublereal maxTemp() const;
-
-    //! Returns the reference pressure (Pa)
     virtual doublereal refPressure() const;
 
-    //! Returns an integer representing the type of parameterization
     virtual int reportType() const {
         return MU0_INTERP;
     }
 
-    //! Returns an integer representing the species index
     virtual size_t speciesIndex() const {
         return m_index;
     }
@@ -152,52 +139,18 @@ public:
      * tPoly[0] = temp (Kelvin)
      *
      * @param tPoly  vector of temperature polynomials. Length = 1
-     * @param cp_R    Vector of Dimensionless heat capacities.
-     *                (length m_kk).
-     * @param h_RT    Vector of Dimensionless enthalpies.
-     *                (length m_kk).
-     * @param s_R     Vector of Dimensionless entropies.
-     *                (length m_kk).
+     * @param cp_R    Vector of Dimensionless heat capacities. (length m_kk).
+     * @param h_RT    Vector of Dimensionless enthalpies. (length m_kk).
+     * @param s_R     Vector of Dimensionless entropies. (length m_kk).
      */
     virtual void updateProperties(const doublereal* tPoly,
                                   doublereal* cp_R, doublereal* h_RT,
                                   doublereal* s_R) const ;
 
-    //! Compute the reference-state property of one species
-    /*!
-     * Given temperature T in K, this method updates the values of
-     * the non-dimensional heat capacity at constant pressure,
-     * enthalpy, and entropy, at the reference pressure, Pref
-     * of one of the species. The species index is used
-     * to reference into the cp_R, h_RT, and s_R arrays.
-     *
-     * @param temp    Temperature (Kelvin)
-     * @param cp_R    Vector of Dimensionless heat capacities.
-     *                (length m_kk).
-     * @param h_RT    Vector of Dimensionless enthalpies.
-     *                (length m_kk).
-     * @param s_R     Vector of Dimensionless entropies.
-     *                (length m_kk).
-     */
     virtual void updatePropertiesTemp(const doublereal temp,
                                       doublereal* cp_R,
                                       doublereal* h_RT,
                                       doublereal* s_R) const ;
-
-    //!This utility function reports back the type of
-    //! parameterization and all of the parameters for the
-    //! species, index.
-    /*!
-     * All parameters are output variables
-     *
-     * @param n         Species index
-     * @param type      Integer type of the standard type
-     * @param tlow      output - Minimum temperature
-     * @param thigh     output - Maximum temperature
-     * @param pref      output - reference pressure (Pa).
-     * @param coeffs    Vector of coefficients used to set the
-     *                  parameters for the standard state.
-     */
     virtual void reportParameters(size_t& n, int& type,
                                   doublereal& tlow, doublereal& thigh,
                                   doublereal& pref,
@@ -211,25 +164,19 @@ public:
     virtual void modifyParameters(doublereal* coeffs);
 
 protected:
-
     /**
-     * Number of intervals in the interpolating linear
-     * approximation. Number of points is one more than the
-     * number of intervals.
+     * Number of intervals in the interpolating linear approximation. Number
+     * of points is one more than the number of intervals.
      */
     size_t m_numIntervals;
 
     /**
-     * Value of the enthalpy at T = 298.15.
-     *  This value is tied to the Heat of formation of
-     *  the species at 298.15.
+     * Value of the enthalpy at T = 298.15. This value is tied to the Heat of
+     * formation of the species at 298.15.
      */
     doublereal m_H298;
 
-    /**
-     * Points at which the standard state chemical potential
-     * are given.
-     */
+    //! Points at which the standard state chemical potential are given.
     vector_fp m_t0_int;
 
     /**
@@ -258,14 +205,12 @@ protected:
     size_t m_index;
 
 private:
-
     //! process the coefficients
     /*!
      * Mu0Poly():
      *
-     * In the constructor, we calculate and store the
-     * piecewise linear approximation to the thermodynamic
-     * functions.
+     * In the constructor, we calculate and store the piecewise linear
+     * approximation to the thermodynamic functions.
      *
      * @param coeffs coefficients. These are defined as follows:
      *
@@ -280,7 +225,6 @@ private:
      *         ........
      */
     void processCoeffs(const doublereal* coeffs);
-
 };
 
 //!  Install a Mu0 polynomial thermodynamic reference state
@@ -303,5 +247,3 @@ void installMu0ThermoFromXML(const std::string& speciesName,
 }
 
 #endif
-
-

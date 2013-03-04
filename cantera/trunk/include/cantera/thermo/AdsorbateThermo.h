@@ -5,10 +5,8 @@
  *  state object derived from \link Cantera::SpeciesThermoInterpType
  *  SpeciesThermoInterpType\endlink based on the expressions for the
  *  thermo properties of a species with several vibrational models.
- *
  */
 // Copyright 2007  California Institute of Technology
-
 
 #ifndef CT_ADSORBATE_H
 #define CT_ADSORBATE_H
@@ -30,7 +28,6 @@ namespace Cantera
  */
 class Adsorbate : public SpeciesThermoInterpType
 {
-
 public:
 
     //! Empty constructor
@@ -40,7 +37,6 @@ public:
           m_index(0),
           m_nFreqs(0) {
     }
-
 
     //! Full Constructor
     /*!
@@ -74,7 +70,6 @@ public:
     //! destructor
     virtual ~Adsorbate() {}
 
-    //! duplicator
     virtual SpeciesThermoInterpType*
     duplMyselfAsSpeciesThermoInterpType() const {
         Adsorbate* np = new Adsorbate(*this);
@@ -96,51 +91,26 @@ public:
         m_Pref = refPressure_;
     }
 
-
-    //! Returns the minimum temperature that the thermo
-    //! parameterization is valid
     virtual doublereal minTemp() const     {
         return m_lowT;
     }
 
-    //! Returns the maximum temperature that the thermo
-    //! parameterization is valid
     virtual doublereal maxTemp() const     {
         return m_highT;
     }
 
-    //! Returns the reference pressure (Pa)
     virtual doublereal refPressure() const {
         return OneAtm;
     }
 
-    //! Returns an integer representing the type of parameterization
     virtual int reportType() const {
         return ADSORBATE;
     }
 
-    //! Returns an integer representing the species index
     virtual size_t speciesIndex() const {
         return m_index;
     }
 
-
-    //! Compute the reference-state property of one species
-    /*!
-     * Given temperature T in K, this method updates the values of
-     * the non-dimensional heat capacity at constant pressure,
-     * enthalpy, and entropy, at the reference pressure, Pref
-     * of one of the species. The species index is used
-     * to reference into the cp_R, h_RT, and s_R arrays.
-     *
-     * @param temp    Temperature (Kelvin)
-     * @param cp_R    Vector of Dimensionless heat capacities.
-     *                (length m_kk).
-     * @param h_RT    Vector of Dimensionless enthalpies.
-     *                (length m_kk).
-     * @param s_R     Vector of Dimensionless entropies.
-     *                (length m_kk).
-     */
     void updatePropertiesTemp(const doublereal temp,
                               doublereal* cp_R,
                               doublereal* h_RT,
@@ -151,20 +121,6 @@ public:
         s_R[m_index] = h_RT[m_index] - _free_energy_RT(temp);
     }
 
-    //! This utility function reports back the type of
-    /*! parameterization and all of the parameters for the
-     * species, index.
-     *
-     * All parameters are output variables
-     *
-     * @param n         Species index
-     * @param type      Integer type of the standard type
-     * @param tlow      output - Minimum temperature
-     * @param thigh     output - Maximum temperature
-     * @param pref      output - reference pressure (Pa).
-     * @param coeffs    Vector of coefficients used to set the
-     *                  parameters for the standard state.
-     */
     void reportParameters(size_t& n, int& type,
                           doublereal& tlow, doublereal& thigh,
                           doublereal& pref,
@@ -194,7 +150,6 @@ protected:
     //! array of vib frequencies
     vector_fp m_freq;
     doublereal m_be;
-
 
     doublereal _energy_RT(double T) const {
         doublereal x, hnu_kt, hnu, sum = 0.0;
@@ -227,7 +182,3 @@ protected:
 
 }
 #endif
-
-
-
-

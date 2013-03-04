@@ -9,7 +9,6 @@
  */
 // Copyright 2001  California Institute of Technology
 
-
 #ifndef CT_SHOMATEPOLY1_H
 #define CT_SHOMATEPOLY1_H
 
@@ -17,12 +16,9 @@
 
 namespace Cantera
 {
-
-
 //! The Shomate polynomial parameterization for one temperature range
 //! for one species
 /*!
- *
  * Seven coefficients \f$(A,\dots,G)\f$ are used to represent
  * \f$ c_p^0(T)\f$, \f$ h^0(T)\f$, and \f$ s^0(T) \f$ as
  * polynomials in the temperature, \f$ T \f$ :
@@ -54,14 +50,11 @@ namespace Cantera
  * Before being used within Cantera, the dimensions must be adjusted to those
  * used by Cantera (i.e., Joules and kmol).
  *
-
  * @ingroup spthermo
  */
 class ShomatePoly : public SpeciesThermoInterpType
 {
-
 public:
-
     //! Empty constructor
     ShomatePoly()
         : m_lowT(0.0), m_highT(0.0),
@@ -133,64 +126,52 @@ public:
     //! Destructor
     virtual ~ShomatePoly() {}
 
-    //! Duplicator from the base class
     virtual SpeciesThermoInterpType*
     duplMyselfAsSpeciesThermoInterpType() const {
         ShomatePoly* sp = new ShomatePoly(*this);
         return (SpeciesThermoInterpType*) sp;
     }
 
-    //! Returns the minimum temperature that the thermo
-    //! parameterization is valid
     virtual doublereal minTemp() const {
         return m_lowT;
     }
 
-    //! Returns the maximum temperature that the thermo
-    //! parameterization is valid
     virtual doublereal maxTemp() const {
         return m_highT;
     }
 
-    //! Returns the reference pressure (Pa)
     virtual doublereal refPressure() const {
         return m_Pref;
     }
 
-    //! Returns an integer representing the type of parameterization
     virtual int reportType() const {
         return SHOMATE;
     }
 
-    //! Returns an integer representing the species index
     virtual size_t speciesIndex() const {
         return m_index;
     }
 
-
     //! Update the properties for this species, given a temperature polynomial
     /*!
-     * This method is called with a pointer to an array containing the functions of
-     * temperature needed by this  parameterization, and three pointers to arrays where the
-     * computed property values should be written. This method updates only one value in
-     * each array.
+     * This method is called with a pointer to an array containing the
+     * functions of temperature needed by this  parameterization, and three
+     * pointers to arrays where the computed property values should be
+     * written. This method updates only one value in each array.
      *
-     *  tt is T/1000.
-     *  m_t[0] = tt;
-     *  m_t[1] = tt*tt;
-     *  m_t[2] = m_t[1]*tt;
-     *  m_t[3] = 1.0/m_t[1];
-     *  m_t[4] = log(tt);
-     *  m_t[5] = 1.0/GasConstant;
-     *  m_t[6] = 1.0/(GasConstant * T);
+     *   - `tt` is T/1000.
+     *   - `m_t[0] = tt`
+     *   - `m_t[1] = tt*tt`
+     *   - `m_t[2] = m_t[1]*tt`
+     *   - `m_t[3] = 1.0/m_t[1]`
+     *   - `m_t[4] = log(tt)`
+     *   - `m_t[5] = 1.0/GasConstant`
+     *   - `m_t[6] = 1.0/(GasConstant * T)`
      *
      * @param tt      Vector of temperature polynomials
-     * @param cp_R    Vector of Dimensionless heat capacities.
-     *                (length m_kk).
-     * @param h_RT    Vector of Dimensionless enthalpies.
-     *                (length m_kk).
-     * @param s_R     Vector of Dimensionless entropies.
-     *                (length m_kk).
+     * @param cp_R    Vector of Dimensionless heat capacities. (length m_kk).
+     * @param h_RT    Vector of Dimensionless enthalpies. (length m_kk).
+     * @param s_R     Vector of Dimensionless entropies. (length m_kk).
      */
     virtual void updateProperties(const doublereal* tt,
                                   doublereal* cp_R, doublereal* h_RT,
@@ -223,22 +204,6 @@ public:
         s_R[m_index]  = 1.e3 * s  * tt[5];
     }
 
-    //! Compute the reference-state property of one species
-    /*!
-     * Given temperature T in K, this method updates the values of
-     * the non-dimensional heat capacity at constant pressure,
-     * enthalpy, and entropy, at the reference pressure, Pref
-     * of one of the species. The species index is used
-     * to reference into the cp_R, h_RT, and s_R arrays.
-     *
-     * @param temp    Temperature (Kelvin)
-     * @param cp_R    Vector of Dimensionless heat capacities.
-     *                (length m_kk).
-     * @param h_RT    Vector of Dimensionless enthalpies.
-     *                (length m_kk).
-     * @param s_R     Vector of Dimensionless entropies.
-     *                (length m_kk).
-     */
     virtual void updatePropertiesTemp(const doublereal temp,
                                       doublereal* cp_R, doublereal* h_RT,
                                       doublereal* s_R) const {
@@ -254,20 +219,6 @@ public:
         updateProperties(tPoly, cp_R, h_RT, s_R);
     }
 
-    //!This utility function reports back the type of
-    //! parameterization and all of the parameters for the
-    //! species, index.
-    /*!
-     * All parameters are output variables
-     *
-     * @param n         Species index
-     * @param type      Integer type of the standard type
-     * @param tlow      output - Minimum temperature
-     * @param thigh     output - Maximum temperature
-     * @param pref      output - reference pressure (Pa).
-     * @param coeffs    Vector of coefficients used to set the
-     *                  parameters for the standard state.
-     */
     virtual void reportParameters(size_t& n, int& type,
                                   doublereal& tlow, doublereal& thigh,
                                   doublereal& pref,
@@ -297,18 +248,7 @@ public:
 
 #ifdef H298MODIFY_CAPABILITY
 
-    //! Report the 298 K Heat of Formation of the standard state of one species (J kmol-1)
-    /*!
-     *   The 298K Heat of Formation is defined as the enthalpy change to create the standard state
-     *   of the species from its constituent elements in their standard states at 298 K and 1 bar.
-     *
-     *   @param h298 If this is nonnull,  the current value of the Heat of Formation at 298K and 1 bar for
-     *               species m_index is returned in h298[m_index].
-     *   @return     Returns the current value of the Heat of Formation at 298K and 1 bar for
-     *               species m_index.
-     */
     virtual doublereal reportHf298(doublereal* const h298 = 0) const {
-
         double tPoly[4];
         doublereal tt = 1.e-3*298.15;
         tPoly[0] = tt;
@@ -332,14 +272,6 @@ public:
         return hh;
     }
 
-    //! Modify the value of the 298 K Heat of Formation of one species in the phase (J kmol-1)
-    /*!
-     *   The 298K heat of formation is defined as the enthalpy change to create the standard state
-     *   of the species from its constituent elements in their standard states at 298 K and 1 bar.
-     *
-     *   @param  k           Species k
-     *   @param  Hf298New    Specify the new value of the Heat of Formation at 298K and 1 bar
-     */
     virtual void modifyOneHf298(const int k, const doublereal Hf298New) {
         doublereal hnow = reportHf298();
         doublereal delH = Hf298New - hnow;
@@ -359,15 +291,11 @@ protected:
     vector_fp m_coeff;
     //! Species Index
     size_t m_index;
-
-private:
-
 };
 
 //! The Shomate polynomial parameterization for two temperature ranges
 //! for one species
 /*!
- *
  * Seven coefficients \f$(A,\dots,G)\f$ are used to represent
  * \f$ c_p^0(T)\f$, \f$ h^0(T)\f$, and \f$ s^0(T) \f$ as
  * polynomials in the temperature, \f$ T \f$, in one temperature region:
@@ -404,13 +332,11 @@ private:
  * therefore, in this representation. The first coefficient is the midrange
  * temperature.
  *
- *
  * @ingroup spthermo
  */
 class ShomatePoly2 : public SpeciesThermoInterpType
 {
 public:
-
     //! Empty constructor
     ShomatePoly2()
         : m_lowT(0.0),
@@ -504,63 +430,51 @@ public:
         delete msp_high;
     }
 
-
-    //! duplicator
     virtual SpeciesThermoInterpType*
     duplMyselfAsSpeciesThermoInterpType() const {
         ShomatePoly2* sp = new ShomatePoly2(*this);
         return (SpeciesThermoInterpType*) sp;
     }
 
-    //! Returns the minimum temperature that the thermo
-    //! parameterization is valid
     virtual doublereal minTemp() const {
         return m_lowT;
     }
 
-    //! Returns the maximum temperature that the thermo
-    //! parameterization is valid
     virtual doublereal maxTemp() const {
         return m_highT;
     }
 
-    //! Returns the reference pressure (Pa)
     virtual doublereal refPressure() const {
         return m_Pref;
     }
 
-    //! Returns an integer representing the type of parameterization
     virtual int reportType() const {
         return SHOMATE2;
     }
 
-    //! Returns an integer representing the species index
     virtual size_t speciesIndex() const {
         return m_index;
     }
 
     //! Update the properties for this species, given a temperature polynomial
     /*!
-     * This method is called with a pointer to an array containing the functions of
-     * temperature needed by this  parameterization, and three pointers to arrays where the
-     * computed property values should be written. This method updates only one value in
-     * each array.
+     * This method is called with a pointer to an array containing the
+     * functions of temperature needed by this  parameterization, and three
+     * pointers to arrays where the computed property values should be
+     * written. This method updates only one value in each array.
      *
      * Temperature Polynomial:
-     *  tt[0] = t;
-     *  tt[1] = t*t;
-     *  tt[2] = m_t[1]*t;
-     *  tt[3] = m_t[2]*t;
-     *  tt[4] = 1.0/t;
-     *  tt[5] = std::log(t);
+     *   - `tt[0] = t`
+     *   - `tt[1] = t*t`
+     *   - `tt[2] = m_t[1]*t`
+     *   - `tt[3] = m_t[2]*t`
+     *   - `tt[4] = 1.0/t`
+     *   - `tt[5] = std::log(t)`
      *
      * @param tt      vector of temperature polynomials
-     * @param cp_R    Vector of Dimensionless heat capacities.
-     *                (length m_kk).
-     * @param h_RT    Vector of Dimensionless enthalpies.
-     *                (length m_kk).
-     * @param s_R     Vector of Dimensionless entropies.
-     *                (length m_kk).
+     * @param cp_R    Vector of Dimensionless heat capacities. (length m_kk).
+     * @param h_RT    Vector of Dimensionless enthalpies. (length m_kk).
+     * @param s_R     Vector of Dimensionless entropies. (length m_kk).
      */
     virtual void updateProperties(const doublereal* tt,
                                   doublereal* cp_R, doublereal* h_RT,
@@ -571,25 +485,8 @@ public:
         } else {
             msp_high->updateProperties(tt, cp_R, h_RT, s_R);
         }
-
     }
 
-    //! Compute the reference-state property of one species
-    /*!
-     * Given temperature T in K, this method updates the values of
-     * the non-dimensional heat capacity at constant pressure,
-     * enthalpy, and entropy, at the reference pressure, Pref
-     * of one of the species. The species index is used
-     * to reference into the cp_R, h_RT, and s_R arrays.
-     *
-     * @param temp    Temperature (Kelvin)
-     * @param cp_R    Vector of Dimensionless heat capacities.
-     *                (length m_kk).
-     * @param h_RT    Vector of Dimensionless enthalpies.
-     *                (length m_kk).
-     * @param s_R     Vector of Dimensionless entropies.
-     *                (length m_kk).
-     */
     virtual void updatePropertiesTemp(const doublereal temp,
                                       doublereal* cp_R,
                                       doublereal* h_RT,
@@ -601,20 +498,6 @@ public:
         }
     }
 
-    //!This utility function reports back the type of
-    //! parameterization and all of the parameters for the
-    //! species, index.
-    /*!
-     * All parameters are output variables
-     *
-     * @param n         Species index
-     * @param type      Integer type of the standard type
-     * @param tlow      output - Minimum temperature
-     * @param thigh     output - Maximum temperature
-     * @param pref      output - reference pressure (Pa).
-     * @param coeffs    Vector of coefficients used to set the
-     *                  parameters for the standard state.
-     */
     virtual void reportParameters(size_t& n, int& type,
                                   doublereal& tlow, doublereal& thigh,
                                   doublereal& pref,
@@ -631,8 +514,7 @@ public:
 
     //! Modify parameters for the standard state
     /*!
-     * Here, we take the tact that we will just regenerate the
-     * object.
+     * Here, we take the tact that we will just regenerate the object.
      *
      * @param coeffs   Vector of coefficients used to set the
      *                 parameters for the standard state.

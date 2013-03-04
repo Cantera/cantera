@@ -6,15 +6,11 @@
  */
 // Copyright 2001  California Institute of Technology
 
-
-
 #include "ConstCpPoly.h"
-
 #include <cmath>
 
 namespace Cantera
 {
-
 ConstCpPoly::ConstCpPoly()
     :  m_t0(0.0),
        m_cp0_R(0.0),
@@ -168,5 +164,3 @@ void ConstCpPoly::modifyOneHf298(const size_t& k, const doublereal Hf298New)
 #endif
 
 }
-
-
