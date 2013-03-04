@@ -436,7 +436,7 @@ cdef extern from "cantera/oneD/Sim1D.h":
         void showSolution() except +
         void setTimeStep(double, size_t, int*) except +
         void getInitialSoln() except +
-        void solve(int, cbool) except +
+        void solve(int, cbool) except +translate_exception
         void refine(int) except +
         void setRefineCriteria(size_t, double, double, double, double)
         void save(string, string, string, int) except +
@@ -452,6 +452,7 @@ cdef extern from "cantera/oneD/Sim1D.h":
         void setMaxTimeStep(double)
         void setGridMin(int, double) except +
         void setFixedTemperature(double)
+        void setInterrupt(CxxFunc1*) except +
 
 
 cdef extern from "wrappers.h":

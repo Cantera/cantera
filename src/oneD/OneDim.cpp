@@ -2,6 +2,7 @@
 #include "cantera/oneD/MultiNewton.h"
 #include "cantera/oneD/OneDim.h"
 
+#include "cantera/numerics/Func1.h"
 #include "cantera/base/ctml.h"
 
 #include <fstream>
@@ -22,7 +23,7 @@ OneDim::OneDim()
       m_nd(0), m_bw(0), m_size(0),
       m_init(false),
       m_ss_jac_age(10), m_ts_jac_age(20),
-      m_nevals(0), m_evaltime(0.0)
+      m_nevals(0), m_interrupt(0), m_evaltime(0.0)
 {
     //writelog("OneDim default constructor\n");
     m_newt = new MultiNewton(1);
@@ -41,7 +42,7 @@ OneDim::OneDim(vector<Domain1D*> domains) :
     m_nd(0), m_bw(0), m_size(0),
     m_init(false),
     m_ss_jac_age(10), m_ts_jac_age(20),
-    m_nevals(0), m_evaltime(0.0)
+    m_nevals(0), m_interrupt(0), m_evaltime(0.0)
 {
     //writelog("OneDim constructor\n");
 
@@ -282,6 +283,9 @@ Domain1D* OneDim::pointDomain(size_t i)
 void OneDim::eval(size_t j, double* x, double* r, doublereal rdt, int count)
 {
     clock_t t0 = clock();
+    if (m_interrupt) {
+        m_interrupt->eval(m_nevals);
+    }
     fill(r, r + m_size, 0.0);
     fill(m_mask.begin(), m_mask.end(), 0);
     if (rdt < 0.0) {

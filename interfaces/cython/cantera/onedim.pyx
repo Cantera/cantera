@@ -1,4 +1,5 @@
 import csv
+import interrupts
 
 cdef class Domain1D:
     cdef CxxDomain1D* domain
@@ -445,6 +446,7 @@ cdef class Sim1D:
     cdef CxxSim1D* sim
     cdef readonly object domains
     cdef object _initialized
+    cdef Func1 interrupt
 
     def __cinit__(self, *args, **kwargs):
         self.sim = NULL
@@ -457,8 +459,20 @@ cdef class Sim1D:
 
         self.sim = new CxxSim1D(D)
         self.domains = tuple(domains)
-
+        self.set_interrupt(interrupts.no_op)
         self._initialized = False
+
+    def set_interrupt(self, f):
+        """
+        Set an interrupt function to be called each time that OneDim::eval is
+        called. The signature of *f* is `float f(float)`. The default
+        interrupt function is used to trap KeyboardInterrupt exceptions so
+        that `ctrl-c` can be used to break out of the C++ solver loop.
+        """
+        if not isinstance(f, Func1):
+            f = Func1(f)
+        self.interrupt = f
+        self.sim.setInterrupt(self.interrupt.func)
 
     def domain_index(self, dom):
         """
