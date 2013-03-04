@@ -24,9 +24,6 @@
 
 namespace Cantera
 {
-/**
- * Basic list of constructors and duplicators
- */
 PDSS_Water::PDSS_Water() :
     PDSS(),
     m_sub(0),
@@ -66,7 +63,6 @@ PDSS_Water::PDSS_Water(VPStandardStateTP* tp, int spindex) :
     m_minTemp = 200.;
     m_maxTemp = 10000.;
 }
-
 
 PDSS_Water::PDSS_Water(VPStandardStateTP* tp, int spindex,
                        const std::string& inputFile, const std::string& id) :
@@ -113,8 +109,6 @@ PDSS_Water::PDSS_Water(VPStandardStateTP* tp, int spindex,
     m_maxTemp = 10000.;
 }
 
-
-
 PDSS_Water::PDSS_Water(const PDSS_Water& b) :
     PDSS(),
     m_sub(0),
@@ -134,9 +128,6 @@ PDSS_Water::PDSS_Water(const PDSS_Water& b) :
     *this = b;
 }
 
-/**
- * Assignment operator
- */
 PDSS_Water& PDSS_Water::operator=(const PDSS_Water& b)
 {
     if (&b == this) {
@@ -178,48 +169,15 @@ PDSS* PDSS_Water::duplMyselfAsPDSS() const
     return new PDSS_Water(*this);
 }
 
-/*
- * constructPDSSXML:
- *
- * Initialization of a Debye-Huckel phase using an
- * xml file.
- *
- * This routine is a precursor to  constructSet
- * routine, which does most of the work.
- *
- * @param infile XML file containing the description of the
- *        phase
- *
- * @param id  Optional parameter identifying the name of the
- *            phase. If none is given, the first XML
- *            phase element will be used.
- */
 void PDSS_Water::constructPDSSXML(VPStandardStateTP* tp, int spindex,
                                   const XML_Node& phaseNode, const std::string& id)
 {
     constructSet();
 }
 
-/*
- * constructPDSSFile():
- *
- * Initialization of a Debye-Huckel phase using an
- * xml file.
- *
- * This routine is a precursor to constructPDSSXML(XML_Node*)
- * routine, which does most of the work.
- *
- * @param infile XML file containing the description of the
- *        phase
- *
- * @param id  Optional parameter identifying the name of the
- *            phase. If none is given, the first XML
- *            phase element will be used.
- */
 void PDSS_Water::constructPDSSFile(VPStandardStateTP* tp, int spindex,
                                    const std::string& inputFile, const std::string& id)
 {
-
     if (inputFile.size() == 0) {
         throw CanteraError("PDSS_Water::constructPDSSFile",
                            "input file is null");
@@ -246,8 +204,6 @@ void PDSS_Water::constructPDSSFile(VPStandardStateTP* tp, int spindex,
     constructPDSSXML(tp, spindex, *fxml_phase, id);
     delete fxml;
 }
-
-
 
 void PDSS_Water::constructSet()
 {
@@ -395,12 +351,6 @@ doublereal PDSS_Water::molarVolume_ref() const
     return mv;
 }
 
-
-/**
- * Calculate the pressure (Pascals), given the temperature and density
- *  Temperature: kelvin
- *  rho: density in kg m-3
- */
 doublereal PDSS_Water::pressure() const
 {
     doublereal p = m_sub->pressure();
@@ -408,18 +358,16 @@ doublereal PDSS_Water::pressure() const
     return p;
 }
 
-
-// In this routine we must be sure to only find the water branch of the
-// curve and not the gas branch
 void PDSS_Water::setPressure(doublereal p)
 {
+    // In this routine we must be sure to only find the water branch of the
+    // curve and not the gas branch
     doublereal T = m_temp;
     doublereal dens = m_dens;
     int waterState = WATER_LIQUID;
     if (T > m_sub->Tcrit()) {
         waterState = WATER_SUPERCRIT;
     }
-
 
 #ifdef DEBUG_HKM
     //printf("waterPDSS: set pres = %g t = %g, waterState = %d\n",
@@ -445,13 +393,6 @@ void PDSS_Water::setPressure(doublereal p)
     }
 }
 
-// Return the volumetric thermal expansion coefficient. Units: 1/K.
-/*
- * The thermal expansion coefficient is defined as
- * \f[
- * \beta = \frac{1}{v}\left(\frac{\partial v}{\partial T}\right)_P
- * \f]
- */
 doublereal PDSS_Water::thermalExpansionCoeff() const
 {
     return m_sub->coeffThermExp();
@@ -478,19 +419,16 @@ doublereal PDSS_Water::isothermalCompressibility() const
     return m_sub->isothermalCompressibility();
 }
 
-/// critical temperature
 doublereal PDSS_Water::critTemperature() const
 {
     return m_sub->Tcrit();
 }
 
-/// critical pressure
 doublereal PDSS_Water::critPressure() const
 {
     return m_sub->Pcrit();
 }
 
-/// critical density
 doublereal PDSS_Water::critDensity() const
 {
     return m_sub->Rhocrit();
@@ -540,7 +478,6 @@ doublereal PDSS_Water::pref_safe(doublereal temp) const
     return OneAtm;
 }
 
-// saturation pressure
 doublereal PDSS_Water::satPressure(doublereal t)
 {
     doublereal pp = m_sub->psat(t, WATER_LIQUID);

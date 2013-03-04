@@ -24,8 +24,6 @@ using namespace std;
 
 namespace Cantera
 {
-
-//====================================================================================================================
 PDSS_IonsFromNeutral::PDSS_IonsFromNeutral(VPStandardStateTP* tp, size_t spindex) :
     PDSS(tp, spindex),
     neutralMoleculePhase_(0),
@@ -35,7 +33,7 @@ PDSS_IonsFromNeutral::PDSS_IonsFromNeutral(VPStandardStateTP* tp, size_t spindex
 {
     m_pdssType = cPDSS_IONSFROMNEUTRAL;
 }
-//====================================================================================================================
+
 PDSS_IonsFromNeutral::PDSS_IonsFromNeutral(VPStandardStateTP* tp, size_t spindex,
         const std::string& inputFile, const std::string& id) :
     PDSS(tp, spindex),
@@ -47,7 +45,6 @@ PDSS_IonsFromNeutral::PDSS_IonsFromNeutral(VPStandardStateTP* tp, size_t spindex
     m_pdssType = cPDSS_IONSFROMNEUTRAL;
     constructPDSSFile(tp, spindex, inputFile, id);
 }
-//====================================================================================================================
 
 PDSS_IonsFromNeutral::PDSS_IonsFromNeutral(VPStandardStateTP* tp, size_t spindex, const XML_Node& speciesNode,
         const XML_Node& phaseRoot, bool spInstalled) :
@@ -64,7 +61,6 @@ PDSS_IonsFromNeutral::PDSS_IonsFromNeutral(VPStandardStateTP* tp, size_t spindex
     std::string id = "";
     constructPDSSXML(tp, spindex, speciesNode, phaseRoot, id);
 }
-//====================================================================================================================
 
 PDSS_IonsFromNeutral::PDSS_IonsFromNeutral(const PDSS_IonsFromNeutral& b) :
     PDSS(b)
@@ -75,10 +71,7 @@ PDSS_IonsFromNeutral::PDSS_IonsFromNeutral(const PDSS_IonsFromNeutral& b) :
      */
     *this = b;
 }
-//====================================================================================================================
-/*
- * Assignment operator
- */
+
 PDSS_IonsFromNeutral& PDSS_IonsFromNeutral::operator=(const PDSS_IonsFromNeutral& b)
 {
     if (&b == this) {
@@ -103,17 +96,16 @@ PDSS_IonsFromNeutral& PDSS_IonsFromNeutral::operator=(const PDSS_IonsFromNeutral
 
     return *this;
 }
-//====================================================================================================================
+
 PDSS_IonsFromNeutral::~PDSS_IonsFromNeutral()
 {
 }
-//====================================================================================================================
-//! Duplicator
+
 PDSS* PDSS_IonsFromNeutral::duplMyselfAsPDSS() const
 {
     return new PDSS_IonsFromNeutral(*this);
 }
-//====================================================================================================================
+
 void PDSS_IonsFromNeutral::initAllPtrs(VPStandardStateTP* tp, VPSSMgr* vpssmgr_ptr,
                                        SpeciesThermo* spthermo)
 {
@@ -125,29 +117,7 @@ void PDSS_IonsFromNeutral::initAllPtrs(VPStandardStateTP* tp, VPSSMgr* vpssmgr_p
     }
     neutralMoleculePhase_ = ionPhase->neutralMoleculePhase_;
 }
-//====================================================================================================================
-// Initialization of a PDSS object using an xml tree
-/*
- * This routine is a driver for the initialization of the
- * object.
- *
- *   basic logic:
- *       initThermo()                 (cascade)
- *       getStuff from species Part of XML file
- *       initThermoXML(phaseNode)      (cascade)
- *
- * @param vptp_ptr   Pointer to the Variable pressure %ThermoPhase object
- *                   This object must have already been malloced.
- *
- * @param spindex    Species index within the phase
- *
- * @param phaseNode  Reference to the phase Information for the phase
- *                   that owns this species.
- *
- * @param id         Optional parameter identifying the name of the
- *                   phase. If none is given, the first XML
- *                   phase element will be used.
- */
+
 void PDSS_IonsFromNeutral::constructPDSSXML(VPStandardStateTP* tp, size_t spindex,
         const XML_Node& speciesNode,
         const XML_Node& phaseNode, const std::string& id)
@@ -200,32 +170,11 @@ void PDSS_IonsFromNeutral::constructPDSSXML(VPStandardStateTP* tp, size_t spinde
     if (specialSpecies_ == 1) {
         add2RTln2_ = false;
     }
-
 }
-//====================================================================================================================
-// Initialization of a PDSS object using an
-// input XML file.
-/*
- *
- * This routine is a precursor to constructPDSSXML(XML_Node*)
- * routine, which does most of the work.
- *
- * @param vptp_ptr    Pointer to the Variable pressure %ThermoPhase object
- *                    This object must have already been malloced.
- *
- * @param spindex     Species index within the phase
- *
- * @param inputFile   XML file containing the description of the
- *                    phase
- *
- * @param id          Optional parameter identifying the name of the
- *                    phase. If none is given, the first XML
- *                    phase element will be used.
- */
+
 void PDSS_IonsFromNeutral::constructPDSSFile(VPStandardStateTP* tp, size_t spindex,
         const std::string& inputFile, const std::string& id)
 {
-
     if (inputFile.size() == 0) {
         throw CanteraError("PDSS_IonsFromNeutral::constructPDSSFile",
                            "input file is null");
@@ -260,12 +209,12 @@ void PDSS_IonsFromNeutral::constructPDSSFile(VPStandardStateTP* tp, size_t spind
     constructPDSSXML(tp, spindex, *s, *fxml_phase, id);
     delete fxml;
 }
-//=======================================================================================================
+
 void PDSS_IonsFromNeutral::initThermoXML(const XML_Node& phaseNode, const std::string& id)
 {
     PDSS::initThermoXML(phaseNode, id);
 }
-//=======================================================================================================
+
 void PDSS_IonsFromNeutral::initThermo()
 {
     PDSS::initThermo();
@@ -274,10 +223,7 @@ void PDSS_IonsFromNeutral::initThermo()
     m_minTemp = m_spthermo->minTemp(m_spindex);
     m_maxTemp = m_spthermo->maxTemp(m_spindex);
 }
-//=======================================================================================================
-/*
- * Return the molar enthalpy in units of J kmol-1
- */
+
 doublereal
 PDSS_IonsFromNeutral::enthalpy_mole() const
 {
@@ -285,7 +231,7 @@ PDSS_IonsFromNeutral::enthalpy_mole() const
     doublereal RT = GasConstant * m_temp;
     return val * RT;
 }
-//=======================================================================================================
+
 doublereal
 PDSS_IonsFromNeutral::enthalpy_RT() const
 {
@@ -297,11 +243,7 @@ PDSS_IonsFromNeutral::enthalpy_RT() const
     }
     return val;
 }
-//=======================================================================================================
-/*
- * Calculate the internal energy in mks units of
- * J kmol-1
- */
+
 doublereal
 PDSS_IonsFromNeutral::intEnergy_mole() const
 {
@@ -309,18 +251,14 @@ PDSS_IonsFromNeutral::intEnergy_mole() const
     doublereal RT = GasConstant * m_temp;
     return val * RT;
 }
-//=======================================================================================================
-/*
- * Calculate the entropy in mks units of
- * J kmol-1 K-1
- */
+
 doublereal
 PDSS_IonsFromNeutral::entropy_mole() const
 {
     doublereal val = entropy_R();
     return val * GasConstant;
 }
-//=======================================================================================================
+
 doublereal
 PDSS_IonsFromNeutral::entropy_R() const
 {
@@ -335,11 +273,7 @@ PDSS_IonsFromNeutral::entropy_R() const
     }
     return val;
 }
-//=======================================================================================================
-/*
- * Calculate the Gibbs free energy in mks units of
- * J kmol-1 K-1.
- */
+
 doublereal
 PDSS_IonsFromNeutral::gibbs_mole() const
 {
@@ -347,7 +281,7 @@ PDSS_IonsFromNeutral::gibbs_mole() const
     doublereal RT = GasConstant * m_temp;
     return val * RT;
 }
-//=======================================================================================================
+
 doublereal
 PDSS_IonsFromNeutral::gibbs_RT() const
 {
@@ -362,18 +296,14 @@ PDSS_IonsFromNeutral::gibbs_RT() const
     }
     return val;
 }
-//=======================================================================================================
-/*
- * Calculate the constant pressure heat capacity
- * in mks units of J kmol-1 K-1
- */
+
 doublereal
 PDSS_IonsFromNeutral::cp_mole() const
 {
     doublereal val = cp_R();
     return val * GasConstant;
 }
-//=======================================================================================================
+
 doublereal
 PDSS_IonsFromNeutral::cp_R() const
 {
@@ -385,7 +315,7 @@ PDSS_IonsFromNeutral::cp_R() const
     }
     return val;
 }
-//=======================================================================================================
+
 doublereal
 PDSS_IonsFromNeutral::molarVolume() const
 {
@@ -397,24 +327,19 @@ PDSS_IonsFromNeutral::molarVolume() const
     }
     return val;
 }
-//=======================================================================================================
+
 doublereal
 PDSS_IonsFromNeutral::density() const
 {
     return (m_pres * m_mw / (GasConstant * m_temp));
 }
 
-/*
- * Calculate the constant volume heat capacity
- * in mks units of J kmol-1 K-1
- */
 doublereal
 PDSS_IonsFromNeutral::cv_mole() const
 {
     throw CanteraError("PDSS_IonsFromNeutral::cv_mole()", "unimplemented");
     return 0.0;
 }
-//====================================================================================================================
 
 doublereal
 PDSS_IonsFromNeutral::gibbs_RT_ref() const
@@ -430,7 +355,7 @@ PDSS_IonsFromNeutral::gibbs_RT_ref() const
     }
     return val;
 }
-//====================================================================================================================
+
 doublereal PDSS_IonsFromNeutral::enthalpy_RT_ref() const
 {
     neutralMoleculePhase_->getEnthalpy_RT_ref(DATA_PTR(tmpNM));
@@ -441,7 +366,7 @@ doublereal PDSS_IonsFromNeutral::enthalpy_RT_ref() const
     }
     return val;
 }
-//====================================================================================================================
+
 doublereal PDSS_IonsFromNeutral::entropy_R_ref() const
 {
     neutralMoleculePhase_->getEntropy_R_ref(DATA_PTR(tmpNM));
@@ -455,7 +380,7 @@ doublereal PDSS_IonsFromNeutral::entropy_R_ref() const
     }
     return val;
 }
-//====================================================================================================================
+
 doublereal PDSS_IonsFromNeutral::cp_R_ref() const
 {
     neutralMoleculePhase_->getCp_R_ref(DATA_PTR(tmpNM));
@@ -466,7 +391,7 @@ doublereal PDSS_IonsFromNeutral::cp_R_ref() const
     }
     return val;
 }
-//====================================================================================================================
+
 doublereal PDSS_IonsFromNeutral::molarVolume_ref() const
 {
     neutralMoleculePhase_->getStandardVolumes_ref(DATA_PTR(tmpNM));
@@ -477,81 +402,64 @@ doublereal PDSS_IonsFromNeutral::molarVolume_ref() const
     }
     return val;
 }
-//====================================================================================================================
-/*
- * Calculate the pressure (Pascals), given the temperature and density
- *  Temperature: kelvin
- *  rho: density in kg m-3
- */
+
 doublereal  PDSS_IonsFromNeutral::pressure() const
 {
     return m_pres;
 }
-//====================================================================================================================
+
 void PDSS_IonsFromNeutral::setPressure(doublereal p)
 {
     m_pres = p;
 }
 
-//====================================================================================================================
-// critical temperature
 doublereal PDSS_IonsFromNeutral::critTemperature() const
 {
     throw CanteraError("PDSS_IonsFromNeutral::critTemperature()", "unimplemented");
     return 0.0;
 }
-//====================================================================================================================
-// critical pressure
+
 doublereal PDSS_IonsFromNeutral::critPressure() const
 {
     throw CanteraError("PDSS_IonsFromNeutral::critPressure()", "unimplemented");
     return 0.0;
 }
-//====================================================================================================================
-// critical density
+
 doublereal PDSS_IonsFromNeutral::critDensity() const
 {
     throw CanteraError("PDSS_IonsFromNeutral::critDensity()", "unimplemented");
     return 0.0;
 }
-//====================================================================================================================
 
-/*
- * Return the temperature
- *
- * Obtain the temperature from the owning VPStandardStateTP object
- * if you can.
- */
 doublereal PDSS_IonsFromNeutral::temperature() const
 {
+    /*
+     * Obtain the temperature from the owning VPStandardStateTP object if you can.
+     */
     m_temp = m_vpssmgr_ptr->temperature();
     return m_temp;
 }
-//====================================================================================================================
+
 void PDSS_IonsFromNeutral::setTemperature(doublereal temp)
 {
     m_temp = temp;
 }
-//====================================================================================================================
 
 void PDSS_IonsFromNeutral::setState_TP(doublereal temp, doublereal pres)
 {
     m_pres = pres;
     m_temp = temp;
 }
-//====================================================================================================================
+
 void  PDSS_IonsFromNeutral::setState_TR(doublereal temp, doublereal rho)
 {
 }
-//====================================================================================================================
-// saturation pressure
+
 doublereal PDSS_IonsFromNeutral::satPressure(doublereal t)
 {
     throw CanteraError("PDSS_IonsFromNeutral::satPressure()", "unimplemented");
     /*NOTREACHED*/
     return 0.0;
 }
-//====================================================================================================================
 
 }
-//====================================================================================================================
