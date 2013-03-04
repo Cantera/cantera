@@ -1,6 +1,6 @@
 #include "cantera/thermo/ThermoPhase.h"
 #include "cantera/transport/TransportBase.h"
-
+#include "cantera/kinetics/Kinetics.h"
 
 // Wrappers for preprocessor defines
 std::string get_cantera_version()
