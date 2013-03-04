@@ -154,15 +154,24 @@ cdef class Domain1D:
 
 
 cdef class Boundary1D(Domain1D):
-    """ Base class for boundary domains. """
+    """
+    Base class for boundary domains.
+
+    :param phase:
+        The (gas) phase corresponding to the adjacent flow domain
+    """
     cdef CxxBdry1D* boundary
+    cdef _SolutionBase phase
+
     def __cinit__(self, *args, **kwargs):
         self.boundary = NULL
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, _SolutionBase phase, **kwargs):
         if self.boundary is NULL:
             raise TypeError("Can't instantiate abstract class Boundary1D.")
         self.domain = <CxxDomain1D*>(self.boundary)
+        self.phase = phase
+
         Domain1D.__init__(self, *args, **kwargs)
 
     property T:
@@ -180,7 +189,14 @@ cdef class Boundary1D(Domain1D):
             self.boundary.setMdot(mdot)
 
     property X:
-        """ Species mole fractions at this boundary. """
+        """
+        Species mole fractions at this boundary. May be set as either a string
+        or as an array.
+        """
+        def __get__(self):
+            self.phase.TPY = self.phase.T, self.phase.P, self.Y
+            return self.phase.X
+
         def __set__(self, X):
             cdef np.ndarray[np.double_t, ndim=1] data
             if isinstance(X, (str, unicode)):
@@ -190,7 +206,10 @@ cdef class Boundary1D(Domain1D):
                 self.boundary.setMoleFractions(&data[0])
 
     property Y:
-        """ Species mass fractions at this boundary. """
+        """
+        Species mass fractions at this boundary. May be set as either a string
+        or as an array.
+        """
         def __get__(self):
             cdef int nsp = self.boundary.nSpecies()
             cdef np.ndarray[np.double_t, ndim=1] Y = np.empty(nsp)
@@ -198,6 +217,10 @@ cdef class Boundary1D(Domain1D):
             for k in range(nsp):
                 Y[k] = self.boundary.massFraction(k)
             return Y
+
+        def __set__(self, Y):
+            self.phase.TPY = self.phase.T, self.phase.P, Y
+            self.X = self.phase.X
 
 
 cdef class Inlet1D(Boundary1D):
@@ -978,8 +1001,8 @@ class FreeFlame(FlameBase):
         the flame. The three domains comprising the stack are stored as
         ``self.inlet``, ``self.flame``, and ``self.outlet``.
         """
-        self.inlet = Inlet1D(name='reactants')
-        self.outlet = Outlet1D(name='products')
+        self.inlet = Inlet1D(name='reactants', phase=gas)
+        self.outlet = Outlet1D(name='products', phase=gas)
         self.flame = FreeFlow(gas, name='flame')
 
         super().__init__((self.inlet, self.flame, self.outlet), gas, grid)
@@ -1029,9 +1052,9 @@ class BurnerFlame(FlameBase):
         stack are stored as ``self.burner``, ``self.flame``, and
         ``self.outlet``.
         """
-        self.burner = Inlet1D(name='burner')
+        self.burner = Inlet1D(name='burner', phase=gas)
         self.burner.T = gas.T
-        self.outlet = Outlet1D(name='outlet')
+        self.outlet = Outlet1D(name='outlet', phase=gas)
         self.flame = AxisymmetricStagnationFlow(gas, name='flame')
 
         super().__init__((self.burner, self.flame, self.outlet), gas, grid)
@@ -1081,10 +1104,10 @@ class CounterflowDiffusionFlame(FlameBase):
         stack are stored as ``self.fuel_inlet``, ``self.flame``, and
         ``self.oxidizer_inlet``.
         """
-        self.fuel_inlet = Inlet1D(name='fuel_inlet')
+        self.fuel_inlet = Inlet1D(name='fuel_inlet', phase=gas)
         self.fuel_inlet.T = gas.T
 
-        self.oxidizer_inlet = Inlet1D(name='oxidizer_inlet')
+        self.oxidizer_inlet = Inlet1D(name='oxidizer_inlet', phase=gas)
         self.oxidizer_inlet.T = gas.T
 
         self.flame = AxisymmetricStagnationFlow(gas, name='flame')
@@ -1194,15 +1217,15 @@ class ImpingingJet(FlameBase):
         created to represent the flow. The three domains comprising the stack
         are stored as ``self.inlet``, ``self.flame``, and ``self.surface``.
         """
-        self.inlet = Inlet1D(name='inlet')
+        self.inlet = Inlet1D(name='inlet', phase=gas)
         self.inlet.T = gas.T
         self.flame = AxisymmetricStagnationFlow(gas, name='flame')
 
         if surface is None:
-            self.surface = Surface1D(name='surface')
+            self.surface = Surface1D(name='surface', phase=gas)
             self.surface.T = gas.T
         else:
-            self.surface = ReactingSurface1D(name='surface')
+            self.surface = ReactingSurface1D(name='surface', phase=gas)
             self.surface.set_kinetics(surface)
             self.surface.T = surface.T
 
