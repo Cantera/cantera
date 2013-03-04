@@ -22,16 +22,11 @@ using namespace std;
 
 namespace Cantera
 {
-/**
- * Basic list of constructors and duplicators
- */
-
 PDSS_ConstVol::PDSS_ConstVol(VPStandardStateTP* tp, size_t spindex) :
     PDSS(tp, spindex)
 {
     m_pdssType = cPDSS_CONSTVOL;
 }
-
 
 PDSS_ConstVol::PDSS_ConstVol(VPStandardStateTP* tp, size_t spindex,
                              const std::string& inputFile, const std::string& id) :
@@ -51,7 +46,6 @@ PDSS_ConstVol::PDSS_ConstVol(VPStandardStateTP* tp, size_t spindex,
     constructPDSSXML(tp, spindex, speciesNode,  phaseRoot, spInstalled) ;
 }
 
-
 PDSS_ConstVol::PDSS_ConstVol(const PDSS_ConstVol& b) :
     PDSS(b)
 {
@@ -62,9 +56,6 @@ PDSS_ConstVol::PDSS_ConstVol(const PDSS_ConstVol& b) :
     *this = b;
 }
 
-/*
- * Assignment operator
- */
 PDSS_ConstVol& PDSS_ConstVol::operator=(const PDSS_ConstVol& b)
 {
     if (&b == this) {
@@ -79,28 +70,11 @@ PDSS_ConstVol::~PDSS_ConstVol()
 {
 }
 
-// Duplicator
 PDSS* PDSS_ConstVol::duplMyselfAsPDSS() const
 {
     return new PDSS_ConstVol(*this);
 }
 
-/*
- * constructPDSSXML:
- *
- * Initialization of a PDSS_ConstVol object using an
- * xml file.
- *
- * This routine is a precursor to initThermo(XML_Node*)
- * routine, which does most of the work.
- *
- * @param infile XML file containing the description of the
- *        phase
- *
- * @param id  Optional parameter identifying the name of the
- *            phase. If none is given, the first XML
- *            phase element will be used.
- */
 void PDSS_ConstVol::constructPDSSXML(VPStandardStateTP* tp, size_t spindex,
                                      const XML_Node& speciesNode,
                                      const XML_Node& phaseNode, bool spInstalled)
@@ -130,28 +104,10 @@ void PDSS_ConstVol::constructPDSSXML(VPStandardStateTP* tp, size_t spindex,
     // initThermoXML(phaseNode, id);
 }
 
-
-/*
- * constructPDSSFile():
- *
- * Initialization of a PDSS_ConstVol object using an
- * xml file.
- *
- * This routine is a precursor to initThermo(XML_Node*)
- * routine, which does most of the work.
- *
- * @param infile XML file containing the description of the
- *        phase
- *
- * @param id  Optional parameter identifying the name of the
- *            phase. If none is given, the first XML
- *            phase element will be used.
- */
 void PDSS_ConstVol::constructPDSSFile(VPStandardStateTP* tp, size_t spindex,
                                       const std::string& inputFile,
                                       const std::string& id)
 {
-
     if (inputFile.size() == 0) {
         throw CanteraError("PDSS_ConstVol::initThermo",
                            "input file is null");
@@ -218,7 +174,6 @@ PDSS_ConstVol::enthalpy_RT() const
     return m_hss_RT_ptr[m_spindex];
 }
 
-
 doublereal
 PDSS_ConstVol::intEnergy_mole() const
 {
@@ -227,7 +182,6 @@ PDSS_ConstVol::intEnergy_mole() const
     doublereal RT = GasConstant * m_temp;
     return val * RT;
 }
-
 
 doublereal
 PDSS_ConstVol::entropy_mole() const
@@ -242,10 +196,6 @@ PDSS_ConstVol::entropy_R() const
     return m_sss_R_ptr[m_spindex];
 }
 
-/*
- * Calculate the Gibbs free energy in mks units of
- * J kmol-1 K-1.
- */
 doublereal
 PDSS_ConstVol::gibbs_mole() const
 {
@@ -319,23 +269,18 @@ doublereal PDSS_ConstVol::molarVolume_ref() const
     return m_V0_ptr[m_spindex];
 }
 
-
-
-// critical temperature
 doublereal PDSS_ConstVol::critTemperature() const
 {
     throw CanteraError("PDSS_ConstVol::critTemperature()", "unimplemented");
     return 0.0;
 }
 
-// critical pressure
 doublereal PDSS_ConstVol::critPressure() const
 {
     throw CanteraError("PDSS_ConstVol::critPressure()", "unimplemented");
     return 0.0;
 }
 
-// critical density
 doublereal PDSS_ConstVol::critDensity() const
 {
     throw CanteraError("PDSS_ConstVol::critDensity()", "unimplemented");
@@ -366,13 +311,11 @@ void PDSS_ConstVol::setTemperature(doublereal temp)
 
 }
 
-
 void PDSS_ConstVol::setState_TP(doublereal temp, doublereal pres)
 {
     setTemperature(temp);
     setPressure(pres);
 }
-
 
 void PDSS_ConstVol::setState_TR(doublereal temp, doublereal rho)
 {
@@ -384,7 +327,6 @@ void PDSS_ConstVol::setState_TR(doublereal temp, doublereal rho)
     setTemperature(temp);
 }
 
-// saturation pressure
 doublereal PDSS_ConstVol::satPressure(doublereal t)
 {
     return 1.0E-200;

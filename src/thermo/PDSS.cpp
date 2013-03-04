@@ -21,9 +21,6 @@
 
 namespace Cantera
 {
-/**
- * Basic list of constructors and duplicators
- */
 PDSS::PDSS() :
     m_pdssType(cPDSS_UNDEF),
     m_temp(-1.0),
@@ -80,9 +77,6 @@ PDSS::PDSS(VPStandardStateTP* tp, size_t spindex) :
     }
 }
 
-
-
-
 PDSS::PDSS(const PDSS& b) :
     m_pdssType(cPDSS_UNDEF),
     m_temp(-1.0),
@@ -113,11 +107,6 @@ PDSS::PDSS(const PDSS& b) :
     *this = b;
 }
 
-/**
- * Assignment operator
- *        ok -> we don't know what to do here, so we'll
- *              first implement a shallow copy.
- */
 PDSS& PDSS::operator=(const PDSS& b)
 {
     if (&b == this) {
@@ -173,23 +162,11 @@ PDSS::~PDSS()
 {
 }
 
-// Duplicator from the %PDSS parent class
-/*
- * Given a pointer to a %PDSS object, this function will
- * duplicate the %PDSS object and all underlying structures.
- * This is basically a wrapper around the copy constructor.
- *
- * @return returns a pointer to a %PDSS
- */
 PDSS* PDSS::duplMyselfAsPDSS() const
 {
     return new PDSS(*this);
 }
 
-// Returns the type of the standard state parameterization
-/*
- * @return Returns the integer # of the parameterization
- */
 PDSS_enumType PDSS::reportPDSSType() const
 {
     return m_pdssType;
@@ -237,14 +214,6 @@ void PDSS::initPtrs()
     m_Vss_ptr     = &(m_vpssmgr_ptr->mPDSS_Vss[0]);
 }
 
-
-
-// Return the molar enthalpy in units of J kmol-1
-/*
- * Returns the species standard state enthalpy in J kmol-1 at the
- * current temperature and pressure.
- * (NOTE: assumes that ThermoPhase Ref Polynomials are up-to-date)
- */
 doublereal PDSS::enthalpy_mole() const
 {
     err("enthalpy_mole()");
@@ -257,26 +226,12 @@ doublereal PDSS::enthalpy_RT() const
     return enthalpy_mole()/RT;
 }
 
-// Return the molar internal Energy in units of J kmol-1
-/*
- * Returns the species standard state internal Energy in J kmol-1 at the
- * current temperature and pressure.
- *
- * @return returns the species standard state internal Energy in  J kmol-1
- */
 doublereal PDSS::intEnergy_mole() const
 {
     err("intEnergy_mole()");
     return 0.0;
 }
 
-// Return the molar entropy in units of J kmol-1 K-1
-/*
- * Returns the species standard state entropy in J kmol-1 K-1 at the
- * current temperature and pressure.
- *
- * @return returns the species standard state entropy in J kmol-1 K-1
- */
 doublereal PDSS::entropy_mole() const
 {
     err("entropy_mole()");
@@ -288,13 +243,6 @@ doublereal PDSS::entropy_R() const
     return entropy_mole()/GasConstant;
 }
 
-// Return the molar gibbs free energy in units of J kmol-1
-/*
- * Returns the species standard state gibbs free energy in J kmol-1 at the
- * current temperature and pressure.
- *
- * @return returns the species standard state gibbs free energy in  J kmol-1
- */
 doublereal PDSS::gibbs_mole() const
 {
     err("gibbs_mole()");
@@ -307,13 +255,6 @@ doublereal PDSS::gibbs_RT() const
     return gibbs_mole()/RT;
 }
 
-// Return the molar const pressure heat capacity in units of J kmol-1 K-1
-/*
- * Returns the species standard state Cp in J kmol-1 K-1 at the
- * current temperature and pressure.
- *
- * @return returns the species standard state Cp in J kmol-1 K-1
- */
 doublereal PDSS::cp_mole() const
 {
     err("cp_mole()");
@@ -337,13 +278,6 @@ doublereal PDSS::density() const
     return 0.0;
 }
 
-// Return the molar const volume heat capacity in units of J kmol-1 K-1
-/*
- * Returns the species standard state Cv in J kmol-1 K-1 at the
- * current temperature and pressure.
- *
- * @return returns the species standard state Cv in J kmol-1 K-1
- */
 doublereal PDSS::cv_mole() const
 {
     err("cv_mole()");
@@ -380,11 +314,6 @@ doublereal PDSS::molarVolume_ref() const
     return 0.0;
 }
 
-/**
- * Return the difference in enthalpy between current p
- * and ref p0, in mks units of
- * in units of J kmol-1
- */
 doublereal PDSS::
 enthalpyDelp_mole() const
 {
@@ -393,12 +322,6 @@ enthalpyDelp_mole() const
     return enthalpy_mole() - RT * tmp;
 }
 
-
-/**
- *  Return the difference in entropy between current p
- * and ref p0, in mks units of
- * J kmol-1 K-1
- */
 doublereal PDSS::entropyDelp_mole() const
 {
     doublereal tmp = entropy_R_ref();
@@ -406,11 +329,6 @@ doublereal PDSS::entropyDelp_mole() const
 
 }
 
-/**
- * Calculate the difference in Gibbs free energy between current p and
- * the ref p0, in mks units of
- * J kmol-1 K-1.
- */
 doublereal PDSS::gibbsDelp_mole() const
 {
     doublereal RT = m_temp * GasConstant;
@@ -418,57 +336,35 @@ doublereal PDSS::gibbsDelp_mole() const
     return gibbs_mole() - RT * tmp;
 }
 
-// Return the molar const volume heat capacity in units of J kmol-1 K-1
-/*
- * Returns the species standard state Cv in J kmol-1 K-1 at the
- * current temperature and pressure.
- *
- * @return returns the species standard state Cv in J kmol-1 K-1
- */
 doublereal PDSS::cpDelp_mole() const
 {
     doublereal tmp = cp_R_ref();
     return cp_mole() - GasConstant * tmp;
 }
 
-/**
- * Calculate the pressure (Pascals), given the temperature and density
- *  Temperature: kelvin
- *  rho: density in kg m-3
- */
 doublereal PDSS::pressure() const
 {
     return m_pres;
 }
 
-// Return the volumetric thermal expansion coefficient. Units: 1/K.
-/*
- * The thermal expansion coefficient is defined as
- * \f[
- * \beta = \frac{1}{v}\left(\frac{\partial v}{\partial T}\right)_P
- * \f]
- */
 doublereal PDSS::thermalExpansionCoeff() const
 {
     throw CanteraError("PDSS::thermalExpansionCoeff()", "unimplemented");
     return 0.0;
 }
 
-/// critical temperature
 doublereal PDSS::critTemperature() const
 {
     err("critTemperature()");
     return 0.0;
 }
 
-/// critical pressure
 doublereal PDSS::critPressure() const
 {
     err("critPressure()");
     return 0.0;
 }
 
-/// critical density
 doublereal PDSS::critDensity() const
 {
     err("critDensity()");
@@ -480,13 +376,6 @@ void PDSS::setPressure(doublereal pres)
     m_pres = pres;
 }
 
-
-/**
- * Return the temperature
- *
- * Obtain the temperature from the owning ThermoPhase object
- * if you can.
- */
 doublereal PDSS::temperature() const
 {
     return m_temp;
@@ -516,19 +405,16 @@ void PDSS::setState_TR(doublereal temp, doublereal rho)
     err("setState_TR()");
 }
 
-/// saturation pressure
 doublereal PDSS::satPressure(doublereal t)
 {
     err("satPressure()");
     return 0.0;
 }
 
-
 void PDSS::err(const std::string& msg) const
 {
     throw CanteraError("PDSS::" + msg, "unimplemented");
 }
-
 
 void PDSS::reportParams(size_t& kindex, int& type,
                         doublereal* const c,
