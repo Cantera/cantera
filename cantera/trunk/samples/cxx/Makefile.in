@@ -1,4 +1,4 @@
-include ../../Cantera.mak
+include @make_Cantera_dot_mak@
 
 CC=@CC@
 CXX=@CXX@
