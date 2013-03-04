@@ -1003,40 +1003,30 @@ if env['layout'] == 'debian':
                                                 'python${python3_version}',
                                                 'dist-packages'))
     env['ct_datadir'] = '/usr/share/cantera/data'
-elif env['layout'] == 'compact':
+else:
     env['inst_libdir'] = pjoin(instRoot, 'lib')
     env['inst_bindir'] = pjoin(instRoot, 'bin')
     env['inst_python_bindir'] = pjoin(instRoot, 'bin')
     env['inst_incdir'] = pjoin(instRoot, 'include', 'cantera')
     env['inst_incroot'] = pjoin(instRoot, 'include')
-    env['inst_matlab_dir'] = pjoin(instRoot, 'matlab', 'toolbox')
-    env['inst_datadir'] = pjoin(instRoot, 'data')
-    env['inst_sampledir'] = pjoin(instRoot, 'samples')
-    env['inst_docdir'] = pjoin(instRoot, 'doc')
-    env['inst_mandir'] = pjoin(instRoot, 'man1')
     env['python_module_loc'] = pjoin(env['python_prefix'], 'lib',
                                      'python%i.%i' % sys.version_info[:2],
                                      'site-packages')
     env['python3_module_loc'] = env.subst(pjoin('${python3_prefix}', 'lib',
                                                 'python${python3_version}',
                                                 'site-packages'))
-else: # env['layout'] == 'standard'
-    env['inst_libdir'] = pjoin(instRoot, 'lib')
-    env['inst_bindir'] = pjoin(instRoot, 'bin')
-    env['inst_python_bindir'] = pjoin(instRoot, 'bin')
-    env['inst_incdir'] = pjoin(instRoot, 'include', 'cantera')
-    env['inst_incroot'] = pjoin(instRoot, 'include')
-    env['inst_matlab_dir'] = pjoin(instRoot, 'lib', 'cantera', 'matlab', 'toolbox')
-    env['inst_datadir'] = pjoin(instRoot, 'share', 'cantera', 'data')
-    env['inst_sampledir'] = pjoin(instRoot, 'share', 'cantera', 'samples')
-    env['inst_docdir'] = pjoin(instRoot, 'share', 'cantera', 'doc')
-    env['inst_mandir'] = pjoin(instRoot, 'man', 'man1')
-    env['python_module_loc'] = pjoin(env['python_prefix'], 'lib',
-                                     'python%i.%i' % sys.version_info[:2],
-                                     'site-packages')
-    env['python3_module_loc'] = env.subst(pjoin('${python3_prefix}', 'lib',
-                                                'python${python3_version}',
-                                                'site-packages'))
+    if env['layout'] == 'compact':
+        env['inst_matlab_dir'] = pjoin(instRoot, 'matlab', 'toolbox')
+        env['inst_datadir'] = pjoin(instRoot, 'data')
+        env['inst_sampledir'] = pjoin(instRoot, 'samples')
+        env['inst_docdir'] = pjoin(instRoot, 'doc')
+        env['inst_mandir'] = pjoin(instRoot, 'man1')
+    else: # env['layout'] == 'standard'
+        env['inst_matlab_dir'] = pjoin(instRoot, 'lib', 'cantera', 'matlab', 'toolbox')
+        env['inst_datadir'] = pjoin(instRoot, 'share', 'cantera', 'data')
+        env['inst_sampledir'] = pjoin(instRoot, 'share', 'cantera', 'samples')
+        env['inst_docdir'] = pjoin(instRoot, 'share', 'cantera', 'doc')
+        env['inst_mandir'] = pjoin(instRoot, 'man', 'man1')
 
 # **************************************
 # *** Set options needed in config.h ***
