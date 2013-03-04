@@ -44,9 +44,6 @@ void SpeciesThermoInterpType::modifyOneHf298(const int k, const doublereal Hf298
 
 #endif
 
-/***************************************************************************************************/
-
-//! Constructor
 STITbyPDSS::STITbyPDSS() :
     m_speciesIndex(npos)
 {
@@ -66,18 +63,15 @@ STITbyPDSS::STITbyPDSS(const STITbyPDSS& b) :
 {
 }
 
-//! Destructor
 STITbyPDSS::~STITbyPDSS()
 {
 }
 
-//! duplicator
 SpeciesThermoInterpType*
 STITbyPDSS::duplMyselfAsSpeciesThermoInterpType() const
 {
     return new STITbyPDSS(*this);
 }
-
 
 void STITbyPDSS::initAllPtrs(size_t speciesIndex, VPSSMgr* vpssmgr_ptr, PDSS* PDSS_ptr)
 {
@@ -86,57 +80,31 @@ void STITbyPDSS::initAllPtrs(size_t speciesIndex, VPSSMgr* vpssmgr_ptr, PDSS* PD
     m_PDSS_ptr = PDSS_ptr;
 }
 
-//! Returns the minimum temperature that the thermo
-//! parameterization is valid
 doublereal  STITbyPDSS::minTemp() const
 {
     return m_PDSS_ptr->minTemp();
 }
 
-//! Returns the maximum temperature that the thermo
-//! parameterization is valid
 doublereal  STITbyPDSS::maxTemp() const
 {
     return m_PDSS_ptr->maxTemp();
 }
 
-//! Returns the reference pressure (Pa)
 doublereal  STITbyPDSS::refPressure() const
 {
     return m_PDSS_ptr->refPressure();
 }
 
-//! Returns an integer representing the type of parameterization
 int  STITbyPDSS::reportType() const
 {
     return PDSS_TYPE;
 }
 
-//! Returns an integer representing the species index
 size_t STITbyPDSS::speciesIndex() const
 {
     return m_speciesIndex;
 }
 
-//! Update the properties for this species, given a temperature
-//! polynomial
-/*!
- * This method is called with a pointer to an array containing the functions of
- * temperature needed by this  parameterization, and three pointers to arrays where the
- * computed property values should be written. This method updates only one value in
- * each array.
- *
- * The form and length of the Temperature Polynomial may vary depending on the
- * parameterization.
- *
- * @param tempPoly  vector of temperature polynomials
- * @param cp_R    Vector of Dimensionless heat capacities.
- *                (length m_kk).
- * @param h_RT    Vector of Dimensionless enthalpies.
- *                (length m_kk).
- * @param s_R     Vector of Dimensionless entropies.
- *                (length m_kk).
- */
 void  STITbyPDSS::updateProperties(const doublereal* tempPoly,
                                    doublereal* cp_R, doublereal* h_RT,
                                    doublereal* s_R) const
@@ -145,22 +113,6 @@ void  STITbyPDSS::updateProperties(const doublereal* tempPoly,
     updatePropertiesTemp(T, cp_R, h_RT, s_R);
 }
 
-//! Compute the reference-state property of one species
-/*!
- * Given temperature T in K, this method updates the values of
- * the non-dimensional heat capacity at constant pressure,
- * enthalpy, and entropy, at the reference pressure, Pref
- * of one of the species. The species index is used
- * to reference into the cp_R, h_RT, and s_R arrays.
- *
- * @param temp    Temperature (Kelvin)
- * @param cp_R    Vector of Dimensionless heat capacities.
- *                (length m_kk).
- * @param h_RT    Vector of Dimensionless enthalpies.
- *                (length m_kk).
- * @param s_R     Vector of Dimensionless entropies.
- *                (length m_kk).
- */
 void  STITbyPDSS::updatePropertiesTemp(const doublereal temp,
                                        doublereal* cp_R,
                                        doublereal* h_RT,
@@ -175,20 +127,6 @@ void  STITbyPDSS::updatePropertiesTemp(const doublereal temp,
     s_R[m_speciesIndex]  = m_PDSS_ptr->entropy_R_ref();
 }
 
-//!This utility function reports back the type of
-//! parameterization and all of the parameters for the
-//! species, index.
-/*!
- * All parameters are output variables
- *
- * @param index     Species index
- * @param type      Integer type of the standard type
- * @param minTemp   output - Minimum temperature
- * @param maxTemp   output - Maximum temperature
- * @param refPressure output - reference pressure (Pa).
- * @param coeffs    Vector of coefficients used to set the
- *                  parameters for the standard state.
- */
 void  STITbyPDSS::reportParameters(size_t& index, int& type,
                                    doublereal& minTemp, doublereal& maxTemp,
                                    doublereal& refPressure,
@@ -201,14 +139,8 @@ void  STITbyPDSS::reportParameters(size_t& index, int& type,
     refPressure = m_PDSS_ptr->refPressure();
 }
 
-//! Modify parameters for the standard state
-/*!
- * @param coeffs   Vector of coefficients used to set the
- *                 parameters for the standard state.
- */
 void  STITbyPDSS::modifyParameters(doublereal* coeffs)
 {
 }
-
 
 }

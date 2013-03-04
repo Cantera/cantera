@@ -18,8 +18,6 @@ using namespace ctml;
 
 namespace Cantera
 {
-
-
 Mu0Poly::Mu0Poly() : m_numIntervals(0),
     m_H298(0.0),
     m_lowT(0.0),
@@ -29,23 +27,6 @@ Mu0Poly::Mu0Poly() : m_numIntervals(0),
 {
 }
 
-/*
- * Mu0Poly():
- *
- * In the constructor, we calculate and store the
- * piecewise linear approximation to the thermodynamic
- * functions.
- *
- *  coeffs[0] = number of points (integer)
- *         1  = H298(J/kmol)
- *         2  = T1  (Kelvin)
- *         3  = mu1 (J/kmol)
- *         4  = T2  (Kelvin)
- *         5  = mu2 (J/kmol)
- *         6  = T3  (Kelvin)
- *         7  = mu3 (J/kmol)
- *         ........
- */
 Mu0Poly::Mu0Poly(size_t n, doublereal tlow, doublereal thigh,
                  doublereal pref,
                  const doublereal* coeffs) :
@@ -56,10 +37,8 @@ Mu0Poly::Mu0Poly(size_t n, doublereal tlow, doublereal thigh,
     m_Pref(pref),
     m_index(n)
 {
-
     processCoeffs(coeffs);
 }
-
 
 Mu0Poly::Mu0Poly(const Mu0Poly& b)
     : m_numIntervals(b.m_numIntervals),
@@ -120,20 +99,6 @@ doublereal Mu0Poly::refPressure() const
     return m_Pref;
 }
 
-/*
- *  updateProperties is the main workhorse program.
- *  Given a temperature (*tt), it calculates the thermodynamic
- *  functions H/RT, S_R, and cp_R, and returns the answer.
- *
- *  Note, it returns an answer by inserting the values into the
- *  index position, m_index in vectors of  H/RT, S_R, and cp_R.
- *
- *
- *   Input
- *  -------
- *       *tt = Temperature (Kelvin)
- *
- */
 void  Mu0Poly::
 updateProperties(const doublereal* tt,  doublereal* cp_R,
                  doublereal* h_RT, doublereal* s_R) const
@@ -165,12 +130,6 @@ updatePropertiesTemp(const doublereal T,
     updateProperties(&T, cp_R, h_RT, s_R);
 }
 
-/*
- * report all of the parameters that make up this
- * interpolation.
- *
- *
- */
 void Mu0Poly::reportParameters(size_t& n, int& type,
                                doublereal& tlow, doublereal& thigh,
                                doublereal& pref,
@@ -196,11 +155,6 @@ void Mu0Poly::modifyParameters(doublereal* coeffs)
     processCoeffs(coeffs);
 }
 
-/*
- * Install a Mu0 polynomial thermodynamic reference state property
- * parameterization for species k into a SpeciesThermo instance,
- * getting the information from an XML database.
- */
 void installMu0ThermoFromXML(const std::string& speciesName,
                              SpeciesThermo& sp, size_t k,
                              const XML_Node* Mu0Node_ptr)
@@ -287,26 +241,8 @@ void installMu0ThermoFromXML(const std::string& speciesName,
     sp.install(speciesName, k, MU0_INTERP, &c[0], tmin, tmax, pref);
 }
 
-/*
- * Mu0Poly():
- *
- * In the constructor, we calculate and store the
- * piecewise linear approximation to the thermodynamic
- * functions.
- *
- *  coeffs[0] = number of points (integer)
- *         1  = H298(J/kmol)
- *         2  = T1  (Kelvin)
- *         3  = mu1 (J/kmol)
- *         4  = T2  (Kelvin)
- *         5  = mu2 (J/kmol)
- *         6  = T3  (Kelvin)
- *         7  = mu3 (J/kmol)
- *         ........
- */
 void Mu0Poly::processCoeffs(const doublereal* coeffs)
 {
-
     size_t i, iindex;
     double T1, T2;
     size_t nPoints = (size_t) coeffs[0];
@@ -422,8 +358,3 @@ void Mu0Poly::processCoeffs(const doublereal* coeffs)
 }
 
 }
-
-
-
-
-

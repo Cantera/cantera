@@ -10,18 +10,15 @@
  *  This parameterization has multiple NASA temperature regions.
  */
 
-
 #ifndef CT_NASA9POLYMULTITEMPREGION_H
 #define CT_NASA9POLYMULTITEMPREGION_H
 // Copyright 2007  Sandia National Laboratories
-
 
 #include "cantera/base/global.h"
 #include "cantera/thermo/Nasa9Poly1.h"
 
 namespace Cantera
 {
-
 //! The NASA 9 polynomial parameterization for a single species
 //! encompassing multiple temperature regions.
 /*!
@@ -69,9 +66,7 @@ namespace Cantera
  */
 class Nasa9PolyMultiTempRegion : public SpeciesThermoInterpType
 {
-
 public:
-
     //! Empty constructor
     Nasa9PolyMultiTempRegion();
 
@@ -104,33 +99,21 @@ public:
     //! Destructor
     virtual ~Nasa9PolyMultiTempRegion();
 
-    //! Duplicator
     virtual SpeciesThermoInterpType*
     duplMyselfAsSpeciesThermoInterpType() const;
 
-    //! Returns the minimum temperature that the thermo
-    //! parameterization is valid
     virtual doublereal minTemp() const;
-
-    //! Returns the maximum temperature that the thermo
-    //! parameterization is valid
     virtual doublereal maxTemp() const;
-
-    //! Returns the reference pressure (Pa)
     virtual doublereal refPressure() const;
-
-    //! Returns an integer representing the type of parameterization
     virtual int reportType() const;
-
-    //! Returns an integer representing the species index
     virtual size_t speciesIndex() const;
 
     //! Update the properties for this species, given a temperature polynomial
     /*!
-     * This method is called with a pointer to an array containing the functions of
-     * temperature needed by this  parameterization, and three pointers to arrays where the
-     * computed property values should be written. This method updates only one value in
-     * each array.
+     * This method is called with a pointer to an array containing the
+     * functions of temperature needed by this  parameterization, and three
+     * pointers to arrays where the computed property values should be
+     * written. This method updates only one value in each array.
      *
      * Temperature Polynomial:
      *  tt[0] = t;
@@ -142,17 +125,13 @@ public:
      *  tt[6] = std::log(t);
      *
      * @param tt      vector of temperature polynomials
-     * @param cp_R    Vector of Dimensionless heat capacities.
-     *                (length m_kk).
-     * @param h_RT    Vector of Dimensionless enthalpies.
-     *                (length m_kk).
-     * @param s_R     Vector of Dimensionless entropies.
-     *                (length m_kk).
+     * @param cp_R    Vector of Dimensionless heat capacities. (length m_kk).
+     * @param h_RT    Vector of Dimensionless enthalpies. (length m_kk).
+     * @param s_R     Vector of Dimensionless entropies. (length m_kk).
      */
     virtual void updateProperties(const doublereal* tt,
                                   doublereal* cp_R, doublereal* h_RT,
                                   doublereal* s_R) const;
-
 
     //! Compute the reference-state property of one species
     /*!
@@ -172,12 +151,9 @@ public:
      *  tt[6] = std::log(t);
      *
      * @param temp    Temperature (Kelvin)
-     * @param cp_R    Vector of Dimensionless heat capacities.
-     *                (length m_kk).
-     * @param h_RT    Vector of Dimensionless enthalpies.
-     *                (length m_kk).
-     * @param s_R     Vector of Dimensionless entropies.
-     *                (length m_kk).
+     * @param cp_R    Vector of Dimensionless heat capacities. (length m_kk).
+     * @param h_RT    Vector of Dimensionless enthalpies. (length m_kk).
+     * @param s_R     Vector of Dimensionless entropies. (length m_kk).
      */
     virtual void updatePropertiesTemp(const doublereal temp,
                                       doublereal* cp_R, doublereal* h_RT,
@@ -244,4 +220,3 @@ protected:
 
 }
 #endif
-

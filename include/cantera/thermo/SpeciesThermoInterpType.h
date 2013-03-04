@@ -22,13 +22,10 @@ class VPSSMgr;
 /**
   * @defgroup spthermo Species Reference-State Thermodynamic Properties
   *
-  *  The %ThermoPhase object relies on classes to calculate
-  *  the thermodynamic properties of the reference state for all
-  *  of the species in the phase.
-  *  This group describes the types and functionality of the classes
-  *  that calculate the reference state thermodynamic functions
-  *  within %Cantera.
-  *
+  *  The %ThermoPhase object relies on classes to calculate the thermodynamic
+  *  properties of the reference state for all of the species in the phase.
+  *  This group describes the types and functionality of the classes that
+  *  calculate the reference state thermodynamic functions within %Cantera.
   *
   * To compute the thermodynamic properties of multicomponent
   * solutions, it is necessary to know something about the
@@ -116,7 +113,7 @@ class VPSSMgr;
   *        the thermodynamic functions.
   *      .
   *
-  *  The most important member function for the %SpeciesThermoInterpType class
+  *  The most important member function for the SpeciesThermoInterpType class
   *  is the member function
   *  \link SpeciesThermoInterpType::updatePropertiesTemp() updatePropertiesTemp()\endlink.
   *  The function calculates the values of Cp, H, and S for the specific
@@ -155,13 +152,10 @@ class VPSSMgr;
  *                           doublereal pref,  const doublereal* coeffs)
  *  @endcode
  *
- *  The constructor is used to instantiate the object.
- *
  * @ingroup spthermo
  */
 class SpeciesThermoInterpType
 {
-
 public:
 
     //! Constructor
@@ -173,7 +167,6 @@ public:
     //! duplicator
     virtual SpeciesThermoInterpType*
     duplMyselfAsSpeciesThermoInterpType() const = 0;
-
 
     //! Returns the minimum temperature that the thermo
     //! parameterization is valid
@@ -192,8 +185,7 @@ public:
     //! Returns an integer representing the species index
     virtual size_t speciesIndex() const = 0;
 
-    //! Update the properties for this species, given a temperature
-    //! polynomial
+    //! Update the properties for this species, given a temperature polynomial
     /*!
      * This method is called with a pointer to an array containing the functions of
      * temperature needed by this  parameterization, and three pointers to arrays where the
@@ -204,12 +196,9 @@ public:
      * parameterization.
      *
      * @param tempPoly  vector of temperature polynomials
-     * @param cp_R    Vector of Dimensionless heat capacities.
-     *                (length m_kk).
-     * @param h_RT    Vector of Dimensionless enthalpies.
-     *                (length m_kk).
-     * @param s_R     Vector of Dimensionless entropies.
-     *                (length m_kk).
+     * @param cp_R    Vector of Dimensionless heat capacities. (length m_kk).
+     * @param h_RT    Vector of Dimensionless enthalpies. (length m_kk).
+     * @param s_R     Vector of Dimensionless entropies. (length m_kk).
      */
     virtual void updateProperties(const doublereal* tempPoly,
                                   doublereal* cp_R, doublereal* h_RT,
@@ -224,12 +213,9 @@ public:
      * to reference into the cp_R, h_RT, and s_R arrays.
      *
      * @param temp    Temperature (Kelvin)
-     * @param cp_R    Vector of Dimensionless heat capacities.
-     *                (length m_kk).
-     * @param h_RT    Vector of Dimensionless enthalpies.
-     *                (length m_kk).
-     * @param s_R     Vector of Dimensionless entropies.
-     *                (length m_kk).
+     * @param cp_R    Vector of Dimensionless heat capacities. (length m_kk).
+     * @param h_RT    Vector of Dimensionless enthalpies. (length m_kk).
+     * @param s_R     Vector of Dimensionless entropies. (length m_kk).
      */
     virtual void updatePropertiesTemp(const doublereal temp,
                                       doublereal* cp_R,
@@ -292,7 +278,6 @@ public:
 //!  Class for the thermodynamic manager for an individual species' reference state
 //!  which uses the PDSS base class to satisfy the requests.
 /*!
- *
  *  This class is a pass-through class for handling thermodynamics calls
  *  for reference state thermo to an pressure dependent standard state (PDSS)
  *  class. For some situations, it makes no sense to have a reference state
@@ -305,15 +290,12 @@ public:
  */
 class STITbyPDSS : public SpeciesThermoInterpType
 {
-
 public:
-
     //! Constructor
     STITbyPDSS();
 
     //! Main Constructor
     /*!
-     *
      *  @param speciesIndex species index for this object. Note, this must
      *         agree with what was internally set before.
      *
@@ -333,7 +315,6 @@ public:
     //! Destructor
     virtual ~STITbyPDSS();
 
-    //! duplicator
     virtual SpeciesThermoInterpType* duplMyselfAsSpeciesThermoInterpType() const;
 
     //! Initialize and/or Reinitialize all the pointers for this object
@@ -349,7 +330,6 @@ public:
      *                      that owns the PDSS object that will handle calls for this object
      *
      *  @param PDSS_ptr     Pointer to the PDSS object that handles calls for this object
-     *
      */
     void initAllPtrs(size_t speciesIndex, VPSSMgr* vpssmgr_ptr, PDSS* PDSS_ptr);
 
@@ -370,80 +350,23 @@ public:
     //! Returns an integer representing the species index
     virtual size_t speciesIndex() const;
 
-    //! Update the properties for this species, given a temperature
-    //! polynomial
-    /*!
-     * This method is called with a pointer to an array containing the functions of
-     * temperature needed by this  parameterization, and three pointers to arrays where the
-     * computed property values should be written. This method updates only one value in
-     * each array.
-     *
-     * The form and length of the Temperature Polynomial may vary depending on the
-     * parameterization.
-     *
-     * @param tempPoly  vector of temperature polynomials
-     * @param cp_R    Vector of Dimensionless heat capacities.
-     *                (length m_kk).
-     * @param h_RT    Vector of Dimensionless enthalpies.
-     *                (length m_kk).
-     * @param s_R     Vector of Dimensionless entropies.
-     *                (length m_kk).
-     */
     virtual void updateProperties(const doublereal* tempPoly,
                                   doublereal* cp_R, doublereal* h_RT,
                                   doublereal* s_R) const;
 
-    //! Compute the reference-state property of one species
-    /*!
-     * Given temperature T in K, this method updates the values of
-     * the non-dimensional heat capacity at constant pressure,
-     * enthalpy, and entropy, at the reference pressure, Pref
-     * of one of the species. The species index is used
-     * to reference into the cp_R, h_RT, and s_R arrays.
-     *
-     * @param temp    Temperature (Kelvin)
-     * @param cp_R    Vector of Dimensionless heat capacities.
-     *                (length m_kk).
-     * @param h_RT    Vector of Dimensionless enthalpies.
-     *                (length m_kk).
-     * @param s_R     Vector of Dimensionless entropies.
-     *                (length m_kk).
-     */
     virtual void updatePropertiesTemp(const doublereal temp,
                                       doublereal* cp_R,
                                       doublereal* h_RT,
                                       doublereal* s_R) const;
 
-    //!This utility function reports back the type of
-    //! parameterization and all of the parameters for the
-    //! species, index.
-    /*!
-     * All parameters are output variables
-     *
-     * @param index     Species index
-     * @param type      Integer type of the standard type
-     * @param minTemp   output - Minimum temperature
-     * @param maxTemp   output - Maximum temperature
-     * @param refPressure output - reference pressure (Pa).
-     * @param coeffs    Vector of coefficients used to set the
-     *                  parameters for the standard state.
-     */
     virtual void reportParameters(size_t& index, int& type,
                                   doublereal& minTemp, doublereal& maxTemp,
                                   doublereal& refPressure,
                                   doublereal* const coeffs) const;
 
-    //! Modify parameters for the standard state
-    /*!
-     *  This is a stub routine, without functionality
-     *
-     * @param coeffs   Vector of coefficients used to set the
-     *                 parameters for the standard state.
-     */
     virtual void modifyParameters(doublereal* coeffs);
 
 private:
-
     //! Pointer to the Variable pressure standard state manager
     //! that owns the PDSS object that will handle calls for this object
     VPSSMgr* m_vpssmgr_ptr;
@@ -461,4 +384,3 @@ private:
 }
 
 #endif
-
