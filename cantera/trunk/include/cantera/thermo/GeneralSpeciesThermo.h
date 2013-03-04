@@ -16,7 +16,6 @@
 #include "StatMech.h"
 #include "speciesThermoTypes.h"
 
-
 namespace Cantera
 {
 
@@ -32,9 +31,7 @@ namespace Cantera
  */
 class GeneralSpeciesThermo : public SpeciesThermo
 {
-
 public:
-
     //! Constructor
     GeneralSpeciesThermo();
 
@@ -53,7 +50,6 @@ public:
     //! Destructor
     virtual ~GeneralSpeciesThermo();
 
-    //! Duplicator
     virtual SpeciesThermo* duplMyselfAsSpeciesThermo() const ;
 
     //! Install a new species thermodynamic property
@@ -78,8 +74,7 @@ public:
      *                 is valid.
      * @param maxTemp  maximum temperature for which this parameterization
      *                 is valid.
-     * @param refPressure standard-state pressure for this
-     *                    parameterization.
+     * @param refPressure standard-state pressure for this parameterization.
      * @see speciesThermoTypes.h
      *
      * @todo Create a factory method for SpeciesThermoInterpType.
@@ -90,12 +85,6 @@ public:
                          doublereal minTemp, doublereal maxTemp,
                          doublereal refPressure);
 
-    //! Install a new species thermodynamic property
-    //! parameterization for one species.
-    /*!
-     * @param stit_ptr Pointer to the SpeciesThermoInterpType object
-     *          This will set up the thermo for one species
-     */
     virtual void install_STIT(SpeciesThermoInterpType* stit_ptr);
 
     //! Install a PDSS object to handle the reference state thermodynamics
@@ -113,93 +102,21 @@ public:
     /*!
      * @param k       species index
      * @param T       Temperature (Kelvin)
-     * @param cp_R    Vector of Dimensionless heat capacities.
-     *                (length m_kk).
-     * @param h_RT    Vector of Dimensionless enthalpies.
-     *                (length m_kk).
-     * @param s_R     Vector of Dimensionless entropies.
-     *                (length m_kk).
+     * @param cp_R    Vector of Dimensionless heat capacities. (length m_kk).
+     * @param h_RT    Vector of Dimensionless enthalpies. (length m_kk).
+     * @param s_R     Vector of Dimensionless entropies. (length m_kk).
      */
     virtual void update_one(size_t k, doublereal T, doublereal* cp_R,
                             doublereal* h_RT,
                             doublereal* s_R) const;
 
-    //! Compute the reference-state properties for all species.
-    /*!
-     * Given temperature T in K, this method updates the values of
-     * the non-dimensional heat capacity at constant pressure,
-     * enthalpy, and entropy, at the reference pressure, Pref
-     * of each of the standard states.
-     *
-     * @param T       Temperature (Kelvin)
-     * @param cp_R    Vector of Dimensionless heat capacities.
-     *                (length m_kk).
-     * @param h_RT    Vector of Dimensionless enthalpies.
-     *                (length m_kk).
-     * @param s_R     Vector of Dimensionless entropies.
-     *                (length m_kk).
-     */
     virtual void update(doublereal T, doublereal* cp_R,
                         doublereal* h_RT, doublereal* s_R) const;
 
-    //! Minimum temperature.
-    /*!
-     * If no argument is supplied, this
-     * method returns the minimum temperature for which \e all
-     * parameterizations are valid. If an integer index k is
-     * supplied, then the value returned is the minimum
-     * temperature for species k in the phase.
-     *
-     * @param k    Species index
-     */
     virtual doublereal minTemp(size_t k=npos) const;
-
-    //! Maximum temperature.
-    /*!
-     * If no argument is supplied, this
-     * method returns the maximum temperature for which \e all
-     * parameterizations are valid. If an integer index k is
-     * supplied, then the value returned is the maximum
-     * temperature for parameterization k.
-     *
-     * @param k  Species Index
-     */
     virtual doublereal maxTemp(size_t k=npos) const;
-
-    //! The reference-state pressure for species k.
-    /*!
-     *
-     * returns the reference state pressure in Pascals for
-     * species k. If k is left out of the argument list,
-     * it returns the reference state pressure for the first
-     * species.
-     * Note that some SpeciesThermo implementations, such
-     * as those for ideal gases, require that all species
-     * in the same phase have the same reference state pressures.
-     *
-     * @param k Species Index
-     */
     virtual doublereal refPressure(size_t k=npos) const;
-
-    //! This utility function reports the type of parameterization
-    //! used for the species with index number index.
-    /*!
-     *
-     * @param index  Species index
-     */
     virtual int reportType(size_t index) const;
-
-    //! This utility function reports back the type of
-    //! parameterization and all of the parameters for the species, index.
-    /*!
-     * @param index     Species index
-     * @param type      Integer type of the standard type
-     * @param c         Vector of coefficients used to set the
-     *                  parameters for the standard state.
-     * @param minTemp   output - Minimum temperature
-     * @param maxTemp   output - Maximum temperature
-     * @param refPressure output - reference pressure (Pa).
-     */
     virtual void reportParams(size_t index, int& type,
                               doublereal* const c,
                               doublereal& minTemp,
@@ -217,17 +134,13 @@ public:
 private:
     //! Provide the SpeciesthermoInterpType object
     /*!
-     *  provide access to the SpeciesThermoInterpType object.
-     *  This
-     *
-     *  @param k  integer parameter
+     * @param k  species index
      *
      * @return pointer to the SpeciesThermoInterpType object.
      */
     SpeciesThermoInterpType* provideSTIT(size_t k);
 
 protected:
-
     /**
      * This is the main unknown in the object. It is
      * a list of pointers to type SpeciesThermoInterpType.
@@ -255,15 +168,11 @@ protected:
      */
     size_t m_kk;
 
-
     //! Make the class VPSSMgr a friend because we need to access
     //! the function provideSTIT()
     friend class VPSSMgr;
-
-
 };
 
 }
 
 #endif
-
