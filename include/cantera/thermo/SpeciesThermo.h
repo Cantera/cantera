@@ -6,7 +6,6 @@
  */
 // Copyright 2001  California Institute of Technology
 
-
 #ifndef CT_SPECIESTHERMO_H
 #define CT_SPECIESTHERMO_H
 
@@ -14,7 +13,6 @@
 
 namespace Cantera
 {
-
 class SpeciesThermoInterpType;
 
 /**
@@ -26,7 +24,6 @@ class SpeciesThermoInterpType;
  *  significant cost, so efficiency is important.
  *  This group describes how this is done efficiently within Cantera.
  *
- *
  * To compute the thermodynamic properties of multicomponent
  * solutions, it is necessary to know something about the
  * thermodynamic properties of the individual species present in
@@ -36,7 +33,6 @@ class SpeciesThermoInterpType;
  * species properties required are usually ideal gas properties at
  * the mixture temperature and at a reference pressure (almost always at
  * 1 bar).
- *
  *
  * In defining these standard states for species in a phase, we make
  * the following definition. A reference state is a standard state
@@ -83,7 +79,6 @@ class SpeciesThermoInterpType;
  *  It accepts as an argument a pointer to an already formed
  *  SpeciesThermoInterpType object.
  *
- *
  *  The following classes inherit from %SpeciesThermo. Each of these classes
  *  handle multiple species, usually all of the species in a phase. However,
  *  there is no requirement that a %SpeciesThermo object handles all of the
@@ -92,22 +87,16 @@ class SpeciesThermoInterpType;
  *   - NasaThermo          in file NasaThermo.h
  *      - This is a two zone model, with each zone consisting of a 7
  *        coefficient Nasa Polynomial format.
- *      .
  *   - ShomateThermo       in file ShomateThermo.h
  *      - This is a two zone model, with each zone consisting of a 7
  *        coefficient Shomate Polynomial format.
- *      .
  *   - SimpleThermo        in file SimpleThermo.h
  *      - This is a one-zone constant heat capacity model.
- *      .
  *   - GeneralSpeciesThermo in file GeneralSpeciesThermo.h
  *      - This is a general model. Each species is handled separately
  *        via a vector over SpeciesThermoInterpType classes.
- *      .
  *   - SpeciesThermoDuo      in file SpeciesThermoMgr.h
  *      - This is a combination of two SpeciesThermo types.
- *      .
- *   .
  *
  * The class SpeciesThermoInterpType is a pure virtual base class for
  * calculation of thermodynamic functions for a single species
@@ -117,65 +106,53 @@ class SpeciesThermoInterpType;
  *   - NasaPoly1          in file NasaPoly1.h
  *      - This is a one zone model,  consisting of a 7
  *        coefficient Nasa Polynomial format.
- *      .
  *   - NasaPoly2          in file NasaPoly2.h
  *      - This is a two zone model, with each zone consisting of a 7
  *        coefficient Nasa Polynomial format.
- *      .
  *   - ShomatePoly        in file ShomatePoly.h
  *      - This is a one zone model, consisting of a 7
  *        coefficient Shomate Polynomial format.
- *      .
  *   - ShomatePoly2       in file ShomatePoly.h
  *      - This is a two zone model, with each zone consisting of a 7
  *        coefficient Shomate Polynomial format.
- *      .
  *   - ConstCpPoly        in file ConstCpPoly.h
  *      - This is a one-zone constant heat capacity model.
- *      .
  *   - Mu0Poly            in file Mu0Poly.h
  *      - This is a multizoned model. The chemical potential is given
  *        at a set number of temperatures. Between each temperature
  *        the heat capacity is treated as a constant.
- *      .
  *   - Nasa9Poly1          in file Nasa9Poly1.h
  *      - This is a one zone model,  consisting of the 9
  *        coefficient Nasa Polynomial format.
- *      .
  *   - Nasa9PolyMultiTempRegion       in file Nasa9PolyMultiTempRegion.h
  *      - This is a multiple zone model, consisting of the 9
  *        coefficient Nasa Polynomial format in each zone.
- *      .
- *   .In particular the NasaThermo %SpeciesThermo-derived model has
- *    been optimized for execution speed. It's the main-stay of
- *    gas phase computations involving large numbers of species in
- *    a phase. It combines the calculation of each species, which
- *    individually have NasaPoly2 representations, to
- *    minimize the computational time.
  *
- *    The GeneralSpeciesThermo %SpeciesThermo object is completely
- *    general. It does not try to coordinate the individual species
- *    calculations at all and therefore is the slowest but
- *    most general implementation.
+ * In particular the NasaThermo %SpeciesThermo-derived model has been
+ * optimized for execution speed. It's the main-stay of gas phase computations
+ * involving large numbers of species in a phase. It combines the calculation
+ * of each species, which individually have NasaPoly2 representations, to
+ * minimize the computational time.
+ *
+ * The GeneralSpeciesThermo %SpeciesThermo object is completely general. It
+ * does not try to coordinate the individual species calculations at all and
+ * therefore is the slowest but most general implementation.
  *
  * @ingroup thermoprops
  */
 //@{
 
-
 //! Pure Virtual base class for the species thermo manager classes.
 /*!
  *  This class defines the interface which all subclasses must implement.
  *
- * Class %SpeciesThermo is the base class
- * for a family of classes that compute properties of a set of
- * species in their reference state at a range of temperatures.
- * Note, the pressure dependence of the reference state is not
+ * Class SpeciesThermo is the base class for a family of classes that compute
+ * properties of a set of species in their reference state at a range of
+ * temperatures. Note, the pressure dependence of the reference state is not
  * handled by this particular species standard state model.
  */
 class SpeciesThermo
 {
-
 public:
 
     //! Constructor
@@ -193,8 +170,6 @@ public:
 
     //! Assignment operator for the %SpeciesThermo object
     /*!
-     *  This is NOT a virtual function.
-     *
      * @param right    Reference to %SpeciesThermo object to be copied into the
      *                 current one.
      */
@@ -202,20 +177,18 @@ public:
         return *this;
     }
 
-    //! Duplication routine for objects which inherit from
-    //! %SpeciesThermo
+    //! Duplication routine for objects derived from SpeciesThermo
     /*!
-     *  This virtual routine can be used to duplicate %SpeciesThermo  objects
-     *  inherited from %SpeciesThermo even if the application only has
-     *  a pointer to %SpeciesThermo to work with.
-     *  ->commented out because we first need to add copy constructors
-     *   and assignment operators to all of the derived classes.
+     *  This function can be used to duplicate objects derived from
+     *  SpeciesThermo even if the application only has a pointer to
+     *  SpeciesThermo to work with.
      */
     virtual SpeciesThermo* duplMyselfAsSpeciesThermo() const = 0;
 
     //! Install a new species thermodynamic property
     //! parameterization for one species.
     /*!
+     * @see speciesThermoTypes.h
      *
      * @param name      Name of the species
      * @param index     The 'update' method will update the property
@@ -232,7 +205,6 @@ public:
      *                 is valid.
      * @param refPressure standard-state pressure for this
      *                    parameterization.
-     * @see speciesThermoTypes.h
      */
     virtual void install(const std::string& name, size_t index, int type,
                          const doublereal* c,
@@ -247,40 +219,30 @@ public:
      */
     virtual void install_STIT(SpeciesThermoInterpType* stit_ptr) = 0;
 
-
     //! Compute the reference-state properties for all species.
     /*!
-     * Given temperature T in K, this method updates the values of
-     * the non-dimensional heat capacity at constant pressure,
-     * enthalpy, and entropy, at the reference pressure, Pref
-     * of each of the standard states.
+     * Given temperature T in K, this method updates the values of the non-
+     * dimensional heat capacity at constant pressure, enthalpy, and entropy,
+     * at the reference pressure, Pref of each of the standard states.
      *
      * @param T       Temperature (Kelvin)
-     * @param cp_R    Vector of Dimensionless heat capacities.
-     *                (length m_kk).
-     * @param h_RT    Vector of Dimensionless enthalpies.
-     *                (length m_kk).
-     * @param s_R     Vector of Dimensionless entropies.
-     *                (length m_kk).
+     * @param cp_R    Vector of Dimensionless heat capacities. (length m_kk).
+     * @param h_RT    Vector of Dimensionless enthalpies. (length m_kk).
+     * @param s_R     Vector of Dimensionless entropies. (length m_kk).
      */
     virtual void update(doublereal T, doublereal* cp_R,
                         doublereal* h_RT, doublereal* s_R) const=0;
 
-
     //! Like update(), but only updates the single species k.
     /*!
-     *  The default treatment is to just call update() which
-     *  means that potentially the operation takes a m_kk*m_kk
-     *  hit.
+     *  The default treatment is to just call update() which means that
+     *  potentially the operation takes a m_kk*m_kk hit.
      *
      * @param k       species index
      * @param T       Temperature (Kelvin)
-     * @param cp_R    Vector of Dimensionless heat capacities.
-     *                (length m_kk).
-     * @param h_RT    Vector of Dimensionless enthalpies.
-     *                (length m_kk).
-     * @param s_R     Vector of Dimensionless entropies.
-     *                (length m_kk).
+     * @param cp_R    Vector of Dimensionless heat capacities. (length m_kk).
+     * @param h_RT    Vector of Dimensionless enthalpies. (length m_kk).
+     * @param s_R     Vector of Dimensionless entropies. (length m_kk).
      */
     virtual void update_one(size_t k, doublereal T,
                             doublereal* cp_R,
@@ -291,11 +253,10 @@ public:
 
     //! Minimum temperature.
     /*!
-     * If no argument is supplied, this
-     * method returns the minimum temperature for which \e all
-     * parameterizations are valid. If an integer index k is
-     * supplied, then the value returned is the minimum
-     * temperature for species k in the phase.
+     * If no argument is supplied, this method returns the minimum temperature
+     * for which \e all parameterizations are valid. If an integer index k is
+     * supplied, then the value returned is the minimum temperature for
+     * species k in the phase.
      *
      * @param k    Species index
      */
@@ -303,11 +264,10 @@ public:
 
     //! Maximum temperature.
     /*!
-     * If no argument is supplied, this
-     * method returns the maximum temperature for which \e all
-     * parameterizations are valid. If an integer index k is
-     * supplied, then the value returned is the maximum
-     * temperature for parameterization k.
+     * If no argument is supplied, this method returns the maximum temperature
+     * for which \e all parameterizations are valid. If an integer index k is
+     * supplied, then the value returned is the maximum temperature for
+     * parameterization k.
      *
      * @param k  Species Index
      */
@@ -315,30 +275,25 @@ public:
 
     //! The reference-state pressure for species k.
     /*!
-     *
-     * returns the reference state pressure in Pascals for
-     * species k. If k is left out of the argument list,
-     * it returns the reference state pressure for the first
-     * species.
-     * Note that some SpeciesThermo implementations, such
-     * as those for ideal gases, require that all species
-     * in the same phase have the same reference state pressures.
+     * Returns the reference state pressure in Pascals for species k. If k is
+     * left out of the argument list, it returns the reference state pressure
+     * for the first species. Note that some SpeciesThermo implementations,
+     * such as those for ideal gases, require that all species in the same
+     * phase have the same reference state pressures.
      *
      * @param k Species Index
      */
     virtual doublereal refPressure(size_t k=npos) const =0;
 
     //! This utility function reports the type of parameterization
-    //! used for the species with index number index.
+    //! used for the species with index number *index*.
     /*!
-     *
      * @param index  Species index
      */
     virtual int reportType(size_t index=npos) const = 0;
 
-
-    //! This utility function reports back the type of
-    //! parameterization and all of the parameters for the species, index.
+    //! This utility function reports back the type of parameterization and
+    //! all of the parameters for the species with index number *index*.
     /*!
      * @param index     Species index
      * @param type      Integer type of the standard type
@@ -382,4 +337,3 @@ public:
 }
 
 #endif
-

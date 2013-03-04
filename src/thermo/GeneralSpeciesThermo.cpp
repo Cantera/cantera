@@ -20,11 +20,6 @@ using namespace std;
 
 namespace Cantera
 {
-
-
-/*
- * Constructors
- */
 GeneralSpeciesThermo::GeneralSpeciesThermo() :
     SpeciesThermo(),
     m_tlow_max(0.0),
@@ -95,14 +90,6 @@ GeneralSpeciesThermo::duplMyselfAsSpeciesThermo() const
     return new GeneralSpeciesThermo(*this);
 }
 
-
-/*
- * Install parameterization for a species.
- * @param index    Species index
- * @param type     parameterization type
- * @param c        coefficients. The meaning of these depends on
- *                 the parameterization.
- */
 void GeneralSpeciesThermo::install(const std::string& name,
                                    size_t index,
                                    int type,
@@ -181,12 +168,6 @@ void GeneralSpeciesThermo::install(const std::string& name,
     m_thigh_min = min(maxTemp_, m_thigh_min);
 }
 
-// Install a new species thermodynamic property
-// parameterization for one species.
-/*
- * @param stit_ptr Pointer to the SpeciesThermoInterpType object
- *          This will set up the thermo for one species
- */
 void GeneralSpeciesThermo::install_STIT(SpeciesThermoInterpType* stit_ptr)
 {
     /*
@@ -216,8 +197,6 @@ void GeneralSpeciesThermo::install_STIT(SpeciesThermoInterpType* stit_ptr)
     m_thigh_min = min(stit_ptr->maxTemp(), m_thigh_min);
 }
 
-
-
 void GeneralSpeciesThermo::installPDSShandler(size_t k, PDSS* PDSS_ptr,
         VPSSMgr* vpssmgr_ptr)
 {
@@ -225,9 +204,6 @@ void GeneralSpeciesThermo::installPDSShandler(size_t k, PDSS* PDSS_ptr,
     install_STIT(stit_ptr);
 }
 
-/**
- *  Update the properties for one species.
- */
 void GeneralSpeciesThermo::
 update_one(size_t k, doublereal t, doublereal* cp_R,
            doublereal* h_RT, doublereal* s_R) const
@@ -238,10 +214,6 @@ update_one(size_t k, doublereal t, doublereal* cp_R,
     }
 }
 
-
-/**
- *  Update the properties for all species.
- */
 void GeneralSpeciesThermo::
 update(doublereal t, doublereal* cp_R,
        doublereal* h_RT, doublereal* s_R) const
@@ -261,10 +233,6 @@ update(doublereal t, doublereal* cp_R,
     }
 }
 
-/**
- * This utility function reports the type of parameterization
- * used for the species, index.
- */
 int GeneralSpeciesThermo::reportType(size_t index) const
 {
     SpeciesThermoInterpType* sp = m_sp[index];
@@ -274,12 +242,6 @@ int GeneralSpeciesThermo::reportType(size_t index) const
     return -1;
 }
 
-/**
- * This utility function reports back the type of
- * parameterization and all of the parameters for the
- * species, index.
- *  For the NASA object, there are 15 coefficients.
- */
 void GeneralSpeciesThermo::
 reportParams(size_t index, int& type, doublereal* const c,
              doublereal& minTemp_, doublereal& maxTemp_, doublereal& refPressure_) const
@@ -298,29 +260,6 @@ reportParams(size_t index, int& type, doublereal* const c,
     }
 }
 
-// //! Modify parameters for the standard state
-// /*!
-//  * @param index Species index
-//  * @param c     Vector of coefficients used to set the
-//  *              parameters for the standard state.
-//  */
-// void GeneralSpeciesThermo::
-// modifyParams(size_t index, doublereal* c)
-// {
-//   SpeciesThermoInterpType* sp = m_sp[index];
-//   if (sp) {
-//     sp->modifyParameters(c);
-//   }
-// }
-
-
-/**
- * Return the lowest temperature at which the thermodynamic
- * parameterization is valid.  If no argument is supplied, the
- * value is the one for which all species parameterizations
- * are valid. Otherwise, if an integer argument is given, the
- * value applies only to the species with that index.
- */
 doublereal GeneralSpeciesThermo::minTemp(size_t k) const
 {
     if (k == npos) {
@@ -360,7 +299,6 @@ doublereal GeneralSpeciesThermo::refPressure(size_t k) const
     return m_p0;
 }
 
-
 SpeciesThermoInterpType* GeneralSpeciesThermo::provideSTIT(size_t k)
 {
     return m_sp[k];
@@ -386,8 +324,6 @@ void GeneralSpeciesThermo::modifyOneHf298(const int k, const doublereal Hf298New
     }
 }
 
-
 #endif
-
 
 }

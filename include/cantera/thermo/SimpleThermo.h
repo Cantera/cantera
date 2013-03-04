@@ -13,13 +13,11 @@
 
 namespace Cantera
 {
-
 /*!
- *  A constant-heat capacity species thermodynamic property manager class.
- *  This makes the
- *  assumption that the heat capacity is a constant. Then, the following
- *  relations are used to complete the specification of the thermodynamic
- *  functions for each species in the phase.
+ * A constant-heat capacity species thermodynamic property manager class. This
+ * makes the assumption that the heat capacity is a constant. Then, the
+ * following relations are used to complete the specification of the
+ * thermodynamic functions for each species in the phase.
  *
  * \f[
  *   \frac{c_p(T)}{R} = Cp0\_R
@@ -47,14 +45,9 @@ namespace Cantera
  */
 class SimpleThermo : public SpeciesThermo
 {
-
 public:
-
-    //! Initialized to the type of parameterization
-    /*!A
-     * Note, this value is used in some template functions. For this object the
-     * value is SIMPLE.
-     */
+    //! The type of parameterization. Note, this value is used in some
+    //! template functions. For this object the value is SIMPLE.
     const int ID;
 
     //! Constructor
@@ -113,15 +106,6 @@ public:
         return *this;
     }
 
-    //! Duplication routine for objects which inherit from
-    //! %SpeciesThermo
-    /*!
-     *  This virtual routine can be used to duplicate %SpeciesThermo  objects
-     *  inherited from %SpeciesThermo even if the application only has
-     *  a pointer to %SpeciesThermo to work with.
-     *  ->commented out because we first need to add copy constructors
-     *   and assignment operators to all of the derived classes.
-     */
     virtual SpeciesThermo* duplMyselfAsSpeciesThermo() const {
         SimpleThermo* nt = new SimpleThermo(*this);
         return (SpeciesThermo*) nt;
@@ -130,7 +114,6 @@ public:
     //! Install a new species thermodynamic property
     //! parameterization for one species.
     /*!
-     *
      * @param name      String name of the species
      * @param index     Species index, k
      * @param type      int flag specifying the type of parameterization to be
@@ -146,8 +129,7 @@ public:
      *                 is valid.
      * @param maxTemp_  maximum temperature for which this parameterization
      *                 is valid.
-     * @param refPressure_ standard-state pressure for this
-     *                    parameterization.
+     * @param refPressure_ standard-state pressure for this parameterization.
      *
      * @see ConstCpPoly
      */
@@ -193,31 +175,10 @@ public:
         m_p0 = refPressure_;
     }
 
-    //! Install a new species thermodynamic property
-    //! parameterization for one species.
-    /*!
-     * @param stit_ptr Pointer to the SpeciesThermoInterpType object
-     *          This will set up the thermo for one species
-     */
     virtual void install_STIT(SpeciesThermoInterpType* stit_ptr) {
         throw CanteraError("install_STIT", "not implemented");
     }
 
-    //! Compute the reference-state properties for all species.
-    /*!
-     * Given temperature T in K, this method updates the values of
-     * the non-dimensional heat capacity at constant pressure,
-     * enthalpy, and entropy, at the reference pressure, Pref
-     * of each of the standard states.
-     *
-     * @param t       Temperature (Kelvin)
-     * @param cp_R    Vector of Dimensionless heat capacities.
-     *                (length m_kk).
-     * @param h_RT    Vector of Dimensionless enthalpies.
-     *                (length m_kk).
-     * @param s_R     Vector of Dimensionless entropies.
-     *                (length m_kk).
-     */
     virtual void update(doublereal t, doublereal* cp_R,
                         doublereal* h_RT, doublereal* s_R) const {
         size_t k, ki;
@@ -235,12 +196,9 @@ public:
     /*!
      * @param k       species index
      * @param t       Temperature (Kelvin)
-     * @param cp_R    Vector of Dimensionless heat capacities.
-     *                (length m_kk).
-     * @param h_RT    Vector of Dimensionless enthalpies.
-     *                (length m_kk).
-     * @param s_R     Vector of Dimensionless entropies.
-     *                (length m_kk).
+     * @param cp_R    Vector of Dimensionless heat capacities. (length m_kk).
+     * @param h_RT    Vector of Dimensionless enthalpies. (length m_kk).
+     * @param s_R     Vector of Dimensionless entropies. (length m_kk).
      */
     virtual void update_one(size_t k, doublereal t, doublereal* cp_R,
                             doublereal* h_RT, doublereal* s_R) const {
@@ -252,16 +210,6 @@ public:
         s_R[k] = m_s0_R[loc] + m_cp0_R[loc] * (logt - m_logt0[loc]);
     }
 
-    //! Minimum temperature.
-    /*!
-     * If no argument is supplied, this
-     * method returns the minimum temperature for which \e all
-     * parameterizations are valid. If an integer index k is
-     * supplied, then the value returned is the minimum
-     * temperature for species k in the phase.
-     *
-     * @param k    Species index
-     */
     virtual doublereal minTemp(size_t k=npos) const {
         if (k == npos) {
             return m_tlow_max;
@@ -270,16 +218,6 @@ public:
         }
     }
 
-    //! Maximum temperature.
-    /*!
-     * If no argument is supplied, this
-     * method returns the maximum temperature for which \e all
-     * parameterizations are valid. If an integer index k is
-     * supplied, then the value returned is the maximum
-     * temperature for parameterization k.
-     *
-     * @param k  Species Index
-     */
     virtual doublereal maxTemp(size_t k=npos) const {
         if (k == npos) {
             return m_thigh_min;
@@ -288,37 +226,17 @@ public:
         }
     }
 
-    //! The reference-state pressure for species k.
-    /*!
-     *
-     * returns the reference state pressure in Pascals for
-     * species k. If k is left out of the argument list,
-     * it returns the reference state pressure for the first
-     * species.
-     * Note that some SpeciesThermo implementations, such
-     * as those for ideal gases, require that all species
-     * in the same phase have the same reference state pressures.
-     *
-     * @param k Species Index
-     */
     virtual doublereal refPressure(size_t k=npos) const {
         return m_p0;
     }
 
-    //! This utility function reports the type of parameterization
-    //! used for the species with index number index.
-    /*!
-     *
-     * @param index  Species index
-     */
     virtual int reportType(size_t index) const {
         return SIMPLE;
     }
 
     /*!
-     * This utility function reports back the type of
-     * parameterization and all of the parameters for the
-     * species, index.
+     * This utility function reports back the type of parameterization and all
+     * of the parameters for the species, index.
      *
      * @param index     Species index
      * @param type      Integer type of the standard type
@@ -328,7 +246,6 @@ public:
      * @param minTemp_   output - Minimum temperature
      * @param maxTemp_   output - Maximum temperature
      * @param refPressure_ output - reference pressure (Pa).
-     *
      */
     virtual void reportParams(size_t index, int& type,
                               doublereal* const c,
@@ -349,7 +266,6 @@ public:
     }
 
 #ifdef H298MODIFY_CAPABILITY
-
     virtual doublereal reportOneHf298(int k) const {
         throw CanteraError("reportHF298", "unimplemented");
     }
@@ -357,11 +273,9 @@ public:
     virtual void modifyOneHf298(const int k, const doublereal Hf298New) {
         throw CanteraError("reportHF298", "unimplemented");
     }
-
-
 #endif
-protected:
 
+protected:
     //! Mapping between the species index and the vector index where the coefficients are kept
     /*!
      * This object doesn't have a one-to one correspondence between the species index, kspec,
@@ -437,7 +351,6 @@ protected:
      * This is less than or equal to the number of species in the phase.
      */
     size_t m_nspData;
-
 };
 
 }
