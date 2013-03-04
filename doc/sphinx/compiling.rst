@@ -405,8 +405,8 @@ Optional Programs
 * `Cython <http://cython.org/>`_
 
   * Required to build the new Python module
-  * Known to work with versions 0.16, 0.17, and 0.18. Expected to work with
-    versions >= 0.16.
+  * Known to work with versions 0.17 and 0.18. Expected to work with
+    versions >= 0.17.
   * Supports Python 2.7 and 3.2. Expected to work with versions >= 3.2.
 
 * `3to2 <http://pypi.python.org/pypi/3to2>`_
