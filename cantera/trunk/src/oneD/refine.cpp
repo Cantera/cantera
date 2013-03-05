@@ -134,19 +134,37 @@ int Refiner::analyze(size_t n, const doublereal* z,
         }
     }
 
+    // Refine based on properties of the grid itself
     for (size_t j = 1; j < n-1; j++) {
+        // Add a new point if the ratio with left interval is too large
         if (dz[j] > m_ratio*dz[j-1]) {
             m_loc[j] = 1;
             m_c["point "+int2str(j)] = 1;
+            m_keep[j-1] = 1;
+            m_keep[j] = 1;
+            m_keep[j+1] = 1;
+            m_keep[j+2] = 1;
         }
+
+        // Add a point if the ratio with right interval is too large
         if (dz[j] < dz[j-1]/m_ratio) {
             m_loc[j-1] = 1;
             m_c["point "+int2str(j-1)] = 1;
+            m_keep[j-2] = 1;
+            m_keep[j-1] = 1;
+            m_keep[j] = 1;
+            m_keep[j+1] = 1;
         }
-        if (j > 1 && z[j+1]-z[j] > m_ratio * dz[j-2]) {
+
+        // Keep the point if removing would make the ratio with the left
+        // interval too large.
+        if (j > 1 && z[j+1]-z[j-1] > m_ratio * dz[j-2]) {
             m_keep[j] = 1;
         }
-        if (j < n-2 && z[j+1]-z[j] > m_ratio * dz[j+1]) {
+
+        // Keep the point if removing would make the ratio with the right
+        // interval too large.
+        if (j < n-2 && z[j+1]-z[j-1] > m_ratio * dz[j+1]) {
             m_keep[j] = 1;
         }
 
