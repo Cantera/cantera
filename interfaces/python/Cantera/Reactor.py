@@ -943,7 +943,7 @@ class Wall:
         """
         if qfunc:
             self._qfunc = qfunc # hold on to a reference so it doesn't get deleted
-            n = self.qfunc.func_id()
+            n = qfunc.func_id()
         else:
             n = 0
         return _cantera.wall_setHeatFlux(self.__wall_id, n)
