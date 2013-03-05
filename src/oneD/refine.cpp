@@ -149,6 +149,11 @@ int Refiner::analyze(size_t n, const doublereal* z,
         if (j < n-2 && z[j+1]-z[j] > m_ratio * dz[j+1]) {
             m_keep[j] = 1;
         }
+
+        // Keep the point where the temperature is fixed
+        if (z[j] == m_domain->m_zfixed) {
+            m_keep[j] = 1;
+        }
     }
 
     // Don't allow pruning to remove multiple adjacent grid points
