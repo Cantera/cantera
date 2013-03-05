@@ -327,6 +327,30 @@ void StFlow::_finalize(const doublereal* x)
     if (e) {
         solveEnergyEqn();
     }
+
+    // If the domain contains the temperature fixed point, make sure that it
+    // is correctly set. This may be necessary when the grid has been modified
+    // externally.
+    if (m_tfixed != Undef) {
+        bool found_zfix = false;
+        for (size_t j = 0; j < m_points; j++) {
+            if (z(j) == m_zfixed) {
+                found_zfix = true;
+                break;
+            }
+        }
+        if (!found_zfix) {
+            for (size_t j = 0; j < m_points - 1; j++) {
+                // Find where the temperature profile crosses the current
+                // fixed temperature.
+                if ((T(x, j) - m_tfixed) * (T(x, j+1) - m_tfixed) <= 0.0) {
+                    m_tfixed = T(x, j+1);
+                    m_zfixed = z(j+1);
+                    break;
+                }
+            }
+        }
+    }
 }
 
 
