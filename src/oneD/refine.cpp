@@ -151,6 +151,14 @@ int Refiner::analyze(size_t n, const doublereal* z,
         }
     }
 
+    // Don't allow pruning to remove multiple adjacent grid points
+    // in a single pass.
+    for (size_t j = 2; j < n-1; j++) {
+        if (m_keep[j] == -1 && m_keep[j-1] == -1) {
+            m_keep[j] = 1;
+        }
+    }
+
     return int(m_loc.size());
 }
 
