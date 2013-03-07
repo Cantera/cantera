@@ -23,7 +23,6 @@ using namespace std;
 
 namespace Cantera
 {
-
 VPSSMgr_Water_ConstVol::VPSSMgr_Water_ConstVol(VPStandardStateTP* vp_ptr,
         SpeciesThermo* spth) :
     VPSSMgr(vp_ptr, spth),
@@ -32,7 +31,6 @@ VPSSMgr_Water_ConstVol::VPSSMgr_Water_ConstVol(VPStandardStateTP* vp_ptr,
     m_useTmpRefStateStorage      = true;
     m_useTmpStandardStateStorage = true;
 }
-
 
 VPSSMgr_Water_ConstVol::~VPSSMgr_Water_ConstVol()
 {
@@ -45,7 +43,6 @@ VPSSMgr_Water_ConstVol::VPSSMgr_Water_ConstVol(const VPSSMgr_Water_ConstVol& rig
     m_useTmpStandardStateStorage = true;
     *this = right;
 }
-
 
 VPSSMgr_Water_ConstVol&
 VPSSMgr_Water_ConstVol::operator=(const VPSSMgr_Water_ConstVol& b)
@@ -74,7 +71,6 @@ VPSSMgr_Water_ConstVol::initAllPtrs(VPStandardStateTP* vp_ptr,
                            "bad dynamic cast");
     }
 }
-
 
 void
 VPSSMgr_Water_ConstVol::getEnthalpy_RT_ref(doublereal* hrt) const
@@ -182,11 +178,8 @@ void VPSSMgr_Water_ConstVol::_updateRefStateThermo() const
     m_waterSS->setState_TP(m_tlast, m_plast);
 }
 
-
-
 void VPSSMgr_Water_ConstVol::_updateStandardStateThermo()
 {
-
     doublereal RT = GasConstant * m_tlast;
     doublereal del_pRT = (m_plast - OneAtm) / (RT);
 
@@ -207,7 +200,6 @@ void VPSSMgr_Water_ConstVol::_updateStandardStateThermo()
     m_gss_RT[0] = (m_hss_RT[0] - m_sss_R[0]);
     m_Vss[0]    = (m_vptp_ptr->molecularWeight(0) / m_waterSS->density());
 }
-
 
 void VPSSMgr_Water_ConstVol::initThermo()
 {
@@ -260,7 +252,6 @@ PDSS*
 VPSSMgr_Water_ConstVol::createInstallPDSS(size_t k, const XML_Node& speciesNode,
         const XML_Node* const phaseNode_ptr)
 {
-
     PDSS* kPDSS = 0;
     // Will have to do something for water
     // -> make sure it's species 0
@@ -322,5 +313,3 @@ VPSSMgr_enumType VPSSMgr_Water_ConstVol::reportVPSSMgrType() const
     return cVPSSMGR_WATER_CONSTVOL;
 }
 }
-
-
