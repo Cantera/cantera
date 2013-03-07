@@ -77,7 +77,7 @@ cdef class Domain1D:
         unspecified components. The keyword *Y* can be used to stand for all
         species mass fractions in flow domains.
         """
-        self._set_tolerances(0, default, Y, kwargs)
+        self._set_tolerances(1, default, Y, kwargs)
 
     def set_transient_tolerances(self, *, default=None, Y=None, **kwargs):
         """
@@ -89,7 +89,7 @@ cdef class Domain1D:
         unspecified components. The keyword *Y* can be used to stand for all
         species mass fractions in flow domains.
         """
-        self._set_tolerances(1, default, Y, kwargs)
+        self._set_tolerances(-1, default, Y, kwargs)
 
     def _set_tolerances(self, is_transient, default, Y, components):
         if default is not None:
