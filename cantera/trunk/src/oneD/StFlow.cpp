@@ -887,8 +887,29 @@ void StFlow::restore(const XML_Node& dom, doublereal* soln, int loglevel)
             }
         }
     }
-}
 
+    getFloatArray(dom, x, false, "", "energy_enabled");
+    if (x.size() == nPoints()) {
+        for (size_t i = 0; i < x.size(); i++) {
+            m_do_energy[i] = x[i];
+        }
+    } else if (!x.empty()) {
+        throw CanteraError("StFlow::restore", "energy_enabled is length" +
+                           int2str(x.size()) + "but should be length" +
+                           int2str(nPoints()));
+    }
+
+    getFloatArray(dom, x, false, "", "species_enabled");
+    if (x.size() == m_nsp) {
+        for (size_t i = 0; i < x.size(); i++) {
+            m_do_species[i] = x[i];
+        }
+    } else if (!x.empty()) {
+        throw CanteraError("StFlow::restore", "species_enabled is length" +
+                           int2str(x.size()) + "but should be length" +
+                           int2str(m_nsp));
+    }
+}
 
 
 XML_Node& StFlow::save(XML_Node& o, const doublereal* const sol)
@@ -933,6 +954,19 @@ XML_Node& StFlow::save(XML_Node& o, const doublereal* const sol)
         addFloatArray(gv,m_thermo->speciesName(k),
                       x.size(),DATA_PTR(x),"","massFraction",0.0,1.0);
     }
+
+    vector_fp values(nPoints());
+    for (size_t i = 0; i < nPoints(); i++) {
+        values[i] = m_do_energy[i];
+    }
+    addNamedFloatArray(flow, "energy_enabled", nPoints(), &values[0]);
+
+    values.resize(m_nsp);
+    for (size_t i = 0; i < m_nsp; i++) {
+        values[i] = m_do_species[i];
+    }
+    addNamedFloatArray(flow, "species_enabled", m_nsp, &values[0]);
+
     return flow;
 }
 

@@ -222,6 +222,7 @@ class TestFreeFlame(utilities.CanteraTest):
         rtol, atol = self.sim.flame.tolerances('T')
         self.assertNear(rtol, self.tol_ss[0])
         self.assertNear(atol, self.tol_ss[1])
+        self.assertFalse(self.sim.energy_enabled)
 
         P2a = self.sim.P
 
