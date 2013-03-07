@@ -49,8 +49,8 @@ class TestOnedim(utilities.CanteraTest):
 
 
 class TestFreeFlame(utilities.CanteraTest):
-    tol_ss = [1.0e-5, 1.0e-13]  # [rtol atol] for steady-state problem
-    tol_ts = [1.0e-4, 1.0e-10]  # [rtol atol] for time stepping
+    tol_ss = [1.0e-5, 1.0e-14]  # [rtol atol] for steady-state problem
+    tol_ts = [1.0e-4, 1.0e-11]  # [rtol atol] for time stepping
 
     def create_sim(self, p, Tin, reactants):
 
@@ -265,8 +265,8 @@ class TestDiffusionFlame(utilities.CanteraTest):
                    oxidizer='O2:0.2, AR:0.8', T_ox=300, mdot_ox=0.72):
 
         initial_grid = np.linspace(0, 0.02, 6)  # m
-        tol_ss = [1.0e-5, 1.0e-12]  # [rtol, atol] for steady-state problem
-        tol_ts = [5.0e-4, 1.0e-9]  # [rtol, atol] for time stepping
+        tol_ss = [2.0e-5, 1.0e-11]  # [rtol, atol] for steady-state problem
+        tol_ts = [5.0e-4, 1.0e-11]  # [rtol, atol] for time stepping
 
         # IdealGasMix object used to compute mixture properties
         self.gas = ct.Solution('h2o2.xml', 'ohmech')
