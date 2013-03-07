@@ -909,6 +909,13 @@ void StFlow::restore(const XML_Node& dom, doublereal* soln, int loglevel)
                            int2str(x.size()) + "but should be length" +
                            int2str(m_nsp));
     }
+
+    if (dom.hasChild("refine_criteria")) {
+        XML_Node& ref = dom.child("refine_criteria");
+        refiner().setCriteria(getFloat(ref, "ratio"), getFloat(ref, "slope"),
+                              getFloat(ref, "curve"), getFloat(ref, "prune"));
+        refiner().setGridMin(getFloat(ref, "grid_min"));
+    }
 }
 
 
@@ -966,6 +973,13 @@ XML_Node& StFlow::save(XML_Node& o, const doublereal* const sol)
         values[i] = m_do_species[i];
     }
     addNamedFloatArray(flow, "species_enabled", m_nsp, &values[0]);
+
+    XML_Node& ref = flow.addChild("refine_criteria");
+    addFloat(ref, "ratio", refiner().maxRatio());
+    addFloat(ref, "slope", refiner().maxDelta());
+    addFloat(ref, "curve", refiner().maxSlope());
+    addFloat(ref, "prune", refiner().prune());
+    addFloat(ref, "grid_min", refiner().gridMin());
 
     return flow;
 }
