@@ -22,7 +22,6 @@ using namespace std;
 
 namespace Cantera
 {
-
 class SpeciesThermo;
 
 VPSSMgr::VPSSMgr(VPStandardStateTP* vptp_ptr, SpeciesThermo* spthermo) :
@@ -64,11 +63,6 @@ VPSSMgr::VPSSMgr(const VPSSMgr& right) :
     *this = right;
 }
 
-//====================================================================================================================
-/*
- *  Assigment operator
- *    We use a shallow copy strategy here. Note, this will have to be fixed up later.
- */
 VPSSMgr&
 VPSSMgr::operator=(const VPSSMgr& right)
 {
@@ -122,12 +116,12 @@ VPSSMgr::operator=(const VPSSMgr& right)
 
     return *this;
 }
-//====================================================================================================================
+
 VPSSMgr* VPSSMgr::duplMyselfAsVPSSMgr() const
 {
     return new VPSSMgr(*this);
 }
-//====================================================================================================================
+
 void VPSSMgr::initAllPtrs(VPStandardStateTP* vp_ptr,
                           SpeciesThermo* sp_ptr)
 {
@@ -150,7 +144,7 @@ void VPSSMgr::initAllPtrs(VPStandardStateTP* vp_ptr,
     }
 
 }
-//====================================================================================================================
+
 // Standard States
 
 void
@@ -383,9 +377,7 @@ VPSSMgr::initLengths()
     m_sss_R.resize(m_kk, 0.0);
     m_Vss.resize(m_kk, 0.0);
 
-
-    // Storage used by the PDSS objects to store their
-    // answers.
+    // Storage used by the PDSS objects to store their answers.
     mPDSS_h0_RT.resize(m_kk, 0.0);
     mPDSS_cp0_R.resize(m_kk, 0.0);
     mPDSS_g0_RT.resize(m_kk, 0.0);
@@ -463,7 +455,6 @@ PDSS* VPSSMgr::createInstallPDSS(size_t k, const XML_Node& s,
     return (PDSS*) 0;
 }
 
-
 /*****************************************************************/
 doublereal VPSSMgr::minTemp(size_t k) const
 {
@@ -512,5 +503,3 @@ void VPSSMgr::err(const std::string& msg) const
     throw CanteraError("VPSSMgr::" + msg, "unimplemented");
 }
 }
-
-

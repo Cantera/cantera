@@ -315,5 +315,3 @@ VPSSMgr_enumType VPSSMgr_Water_HKFT::reportVPSSMgrType() const
     return cVPSSMGR_WATER_HKFT;
 }
 }
-
-

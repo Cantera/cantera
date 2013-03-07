@@ -44,7 +44,6 @@ VPSSMgr_IdealGas::VPSSMgr_IdealGas(const VPSSMgr_IdealGas& right) :
     *this = right;
 }
 
-
 VPSSMgr_IdealGas& VPSSMgr_IdealGas::operator=(const VPSSMgr_IdealGas& b)
 {
     if (&b == this) {
@@ -58,7 +57,6 @@ VPSSMgr* VPSSMgr_IdealGas::duplMyselfAsVPSSMgr() const
 {
     return new VPSSMgr_IdealGas(*this);
 }
-
 
 void VPSSMgr_IdealGas::getIntEnergy_RT(doublereal* urt) const
 {
@@ -122,12 +120,10 @@ VPSSMgr_IdealGas::createInstallPDSS(size_t k, const XML_Node& speciesNode,
     return kPDSS;
 }
 
-
 PDSS_enumType VPSSMgr_IdealGas::reportPDSSType(int k) const
 {
     return cPDSS_IDEALGAS;
 }
-
 
 VPSSMgr_enumType VPSSMgr_IdealGas::reportVPSSMgrType() const
 {
