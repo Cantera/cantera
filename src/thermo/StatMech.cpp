@@ -11,27 +11,10 @@
 
 namespace Cantera
 {
-
-// Statistical mechanics
-/*
- * @ingroup spthermo
- */
-
-//! Empty constructor
 StatMech::StatMech()
     : m_lowT(0.1), m_highT(1.0),
       m_Pref(1.0E5), m_index(0) {}
 
-
-// constructor used in templated instantiations
-/*
- * @param n            Species index
- * @param tlow         Minimum temperature
- * @param thigh        Maximum temperature
- * @param pref         reference pressure (Pa).
- * @param coeffs       Vector of coefficients used to set the
- *                     parameters for the standard state.
- */
 StatMech::StatMech(int n, doublereal tlow, doublereal thigh,
                    doublereal pref,
                    const doublereal* coeffs,
@@ -50,10 +33,6 @@ StatMech::StatMech(int n, doublereal tlow, doublereal thigh,
     buildmap();
 }
 
-// copy constructor
-/*
- * @param b object to be copied
- */
 StatMech::StatMech(const StatMech& b) :
     m_lowT(b.m_lowT),
     m_highT(b.m_highT),
@@ -63,10 +42,6 @@ StatMech::StatMech(const StatMech& b) :
 
 }
 
-// assignment operator
-/*
- * @param b object to be copied
- */
 StatMech& StatMech::operator=(const StatMech& b)
 {
     if (&b != this) {
@@ -78,45 +53,36 @@ StatMech& StatMech::operator=(const StatMech& b)
     return *this;
 }
 
-// Destructor
 StatMech::~StatMech()
 {
 }
 
-// duplicator
 SpeciesThermoInterpType*
 StatMech::duplMyselfAsSpeciesThermoInterpType() const
 {
     return new StatMech(*this);
 }
 
-// Returns the minimum temperature that the thermo
-// parameterization is valid
 doublereal StatMech::minTemp() const
 {
     return m_lowT;
 }
 
-// Returns the maximum temperature that the thermo
-// parameterization is valid
 doublereal StatMech::maxTemp() const
 {
     return m_highT;
 }
 
-// Returns the reference pressure (Pa)
 doublereal StatMech::refPressure() const
 {
     return m_Pref;
 }
 
-// Returns an integer representing the type of parameterization
 int StatMech::reportType() const
 {
     return STAT;
 }
 
-// Returns an integer representing the species index
 size_t StatMech::speciesIndex() const
 {
     return m_index;
@@ -620,27 +586,6 @@ int StatMech::buildmap()
     return 0;
 }
 
-// Update the properties for this species
-/**
- *
- * \f[
- * \frac{C_p^0(T)}{R} = \frac{C_v^0(T)}{R} + 1
- * \f]
- *
- * Where,
- * \f[
- * \frac{C_v^0(T)}{R} = \frac{C_v^{tr}(T)}{R} + \frac{C_v^{vib}(T)}{R}
- * \f]
- *
- *
- * @param tt      vector of temperature polynomials
- * @param cp_R    Vector of Dimensionless heat capacities.
- *                (length m_kk).
- * @param h_RT    Vector of Dimensionless enthalpies.
- *                (length m_kk).
- * @param s_R     Vector of Dimensionless entropies.
- *                (length m_kk).
- */
 void StatMech::updateProperties(const doublereal* tt,
                                 doublereal* cp_R, doublereal* h_RT,
                                 doublereal* s_R) const
@@ -687,32 +632,6 @@ void StatMech::updateProperties(const doublereal* tt,
     s_R [m_index] = sdivR;
 }
 
-
-// Compute the reference-state property of one species
-/*
- * Given temperature T in K, this method updates the values of
- * the non-dimensional heat capacity at constant pressure,
- * enthalpy, and entropy, at the reference pressure, Pref
- * of one of the species. The species index is used
- * to reference into the cp_R, h_RT, and s_R arrays.
- *
- * Temperature Polynomial:
- *  tt[0] = t;
- *  tt[1] = t*t;
- *  tt[2] = t*t*t;
- *  tt[3] = t*t*t*t;
- *  tt[4] = 1.0/t;
- *  tt[5] = 1.0/(t*t);
- *  tt[6] = std::log(t);
- *
- * @param temp    Temperature (Kelvin)
- * @param cp_R    Vector of Dimensionless heat capacities.
- *                (length m_kk).
- * @param h_RT    Vector of Dimensionless enthalpies.
- *                (length m_kk).
- * @param s_R     Vector of Dimensionless entropies.
- *                (length m_kk).
- */
 void StatMech::updatePropertiesTemp(const doublereal temp,
                                     doublereal* cp_R, doublereal* h_RT,
                                     doublereal* s_R) const
@@ -722,19 +641,6 @@ void StatMech::updatePropertiesTemp(const doublereal temp,
     updateProperties(tPoly, cp_R, h_RT, s_R);
 }
 
-//This utility function reports back the type of
-// parameterization and all of the parameters for the
-// species, index.
-/*
- * All parameters are output variables
- *
- * @param n         Species index
- * @param type      Integer type of the standard type
- * @param tlow      output - Minimum temperature
- * @param thigh     output - Maximum temperature
- * @param pref      output - reference pressure (Pa).
- * @param coeffs    Vector of species state data
- */
 void StatMech::reportParameters(size_t& n, int& type,
                                 doublereal& tlow, doublereal& thigh,
                                 doublereal& pref,
@@ -779,18 +685,8 @@ void StatMech::reportParameters(size_t& n, int& type,
 
 }
 
-// Modify parameters for the standard state
-/*
- * @param coeffs   Vector of coefficients used to set the
- *                 parameters for the standard state.
- */
 void StatMech::modifyParameters(doublereal* coeffs)
 {
-
-
-
 }
 
-
 }
-
