@@ -89,9 +89,6 @@ static int _itypes[]   = {cIdealGas, cIncompressible,
                           cMolarityIonicVPSSTP, cMixedSolventElectrolyte, cRedlichKisterVPSSTP
                          };
 
-/*
- * This method returns a new instance of a subclass of ThermoPhase
- */
 ThermoPhase* ThermoFactory::newThermoPhase(const std::string& model)
 {
 
@@ -213,14 +210,6 @@ ThermoPhase* ThermoFactory::newThermoPhase(const std::string& model)
     return th;
 }
 
-// Translate the eosType id into a string
-/*
- *  Returns a string representation of the eosType id for a phase.
- *  @param ieos  eosType id of the phase. This is unique for the phase
- *  @param length maximum length of the return string. Defaults to 100
- *
- *  @return returns a string representation.
- */
 std::string eosTypeString(int ieos, int length)
 {
     std::string ss = "UnknownPhaseType";
@@ -234,18 +223,6 @@ std::string eosTypeString(int ieos, int length)
     return ss;
 }
 
-
-/*
- * Create a new ThermoPhase object and initializes it according to
- * the XML tree database.  This routine first looks up the
- * identity of the model for the solution thermodynamics in the
- * model attribute of the thermo child of the xml phase
- * node. Then, it does a string lookup on the model to figure out
- * what ThermoPhase derived class is assigned. It creates a new
- * instance of that class, and then calls importPhase() to
- * populate that class with the correct parameters from the XML
- * tree.
- */
 ThermoPhase* newPhase(XML_Node& xmlphase)
 {
     const XML_Node& th = xmlphase.child("thermo");
@@ -288,17 +265,15 @@ ThermoPhase* newPhase(const std::string& infile, std::string id)
 //====================================================================================================================
 //!  Gather a vector of pointers to XML_Nodes for a phase
 /*!
- *
- *   @param spDataNodeList         Output vector of pointer to XML_Nodes which contain the species XML_Nodes for the
- *                                 species in the current phase.
- *   @param spNamesList            Output Vector of strings, which contain the names of the species in the phase
- *   @param spRuleList             Output Vector of ints, which contain the value of sprule for each species in the phase
- *   @param spArray_names          Vector of pointers to the XML_Nodes which contains the names of the
- *                                 species in the phase
- *
- *   @param spArray_dbases         Input vector of pointers to species data bases.
- *                                 We search each data base for the required species names
- *   @param  sprule                Input vector of sprule values
+ *   @param spDataNodeList   Output vector of pointer to XML_Nodes which contain the species XML_Nodes for the
+ *                           species in the current phase.
+ *   @param spNamesList      Output Vector of strings, which contain the names of the species in the phase
+ *   @param spRuleList       Output Vector of ints, which contain the value of sprule for each species in the phase
+ *   @param spArray_names    Vector of pointers to the XML_Nodes which contains the names of the
+ *                           species in the phase
+ *   @param spArray_dbases   Input vector of pointers to species data bases.
+ *                           We search each data base for the required species names
+ *   @param  sprule          Input vector of sprule values
  */
 static void formSpeciesXMLNodeList(std::vector<XML_Node*> &spDataNodeList,
                                    std::vector<std::string> &spNamesList,
@@ -409,32 +384,7 @@ static void formSpeciesXMLNodeList(std::vector<XML_Node*> &spDataNodeList,
         }
     }
 }
-//====================================================================================================================
-/*
- * Import a phase specification.
- *   Here we read an XML description of the phase.
- *   We import descriptions of the elements that make up the
- *   species in a phase.
- *   We import information about the species, including their
- *   reference state thermodynamic polynomials. We then freeze
- *   the state of the species, and finally call initThermoXML(phase, id)
- *   a member function of the ThermoPhase object to "finish"
- *   the description.
- *
- *
- * @param phase This object must be the phase node of a
- *             complete XML tree
- *             description of the phase, including all of the
- *             species data. In other words while "phase" must
- *             point to an XML phase object, it must have
- *             sibling nodes "speciesData" that describe
- *             the species in the phase.
- * @param th   Pointer to the ThermoPhase object which will
- *             handle the thermodynamics for this phase.
- *             We initialize part of the Thermophase object
- *             here, especially for those objects which are
- *             part of the Cantera Kernel.
- */
+
 bool importPhase(XML_Node& phase, ThermoPhase* th,
                  SpeciesThermoFactory* spfactory)
 {
@@ -660,53 +610,12 @@ bool importPhase(XML_Node& phase, ThermoPhase* th,
     return true;
 }
 
-/*
- * Install a species into a ThermoPhase object, which defines
- * the phase thermodynamics and speciation.
- *
- *  This routine first gathers the information from the Species XML
- *  tree and calls addUniqueSpecies() to add it to the
- *  ThermoPhase object, p.
- *  This information consists of:
- *         ecomp[] = element composition of species.
- *         chgr    = electric charge of species
- *         name    = string name of species
- *         sz      = size of the species
- *                 (option double used a lot in thermo)
- *
- *  Then, the routine processes the "thermo" XML element and
- *  calls underlying utility routines to read the XML elements
- *  containing the thermodynamic information for the reference
- *  state of the species. Failures or lack of information trigger
- *  an "UnknownSpeciesThermoModel" exception being thrown.
- * *
- * @param k     Species Index in the phase
- * @param s     XML_Node containing the species data for this species.
- * @param p     Reference to the ThermoPhase object.
- * @param spthermo Reference to the SpeciesThermo object, where
- *              the standard state thermo properties for this
- *              species will be installed.
- * @param rule  Parameter that handles what to do with species
- *              who have elements that aren't declared.
- *              Check that all elements in the species
- *              exist in 'p'. If rule != 0, quietly skip
- *              this species if some elements are undeclared;
- *              otherwise, throw an exception
- * @param phaseNode_ptr Pointer to the XML_Node for this phase
- *              (defaults to 0)
- * @param factory Pointer to the SpeciesThermoFactory .
- *              (defaults to 0)
- *
- * @return
- *  Returns true if everything is ok, false otherwise.
- */
 bool installSpecies(size_t k, const XML_Node& s, thermo_t& th,
                     SpeciesThermo* spthermo_ptr, int rule,
                     XML_Node* phaseNode_ptr,
                     VPSSMgr* vpss_ptr,
                     SpeciesThermoFactory* factory)
 {
-
     std::string xname = s.name();
     if (xname != "species") {
         throw CanteraError("installSpecies",
@@ -779,19 +688,6 @@ bool installSpecies(size_t k, const XML_Node& s, thermo_t& th,
     return true;
 }
 
-
-//  Search an XML tree for species data.
-/*
- *   This utility routine will search the XML tree for the species
- *   named by the string, kname. It will return the XML_Node
- *   pointer to the species data for that species.
- *   Failures of any kind return the null pointer.
- *
- * @param kname String containing the name of the species.
- * @param phaseSpeciesData   Pointer to the XML speciesData element
- *              containing the species data for that phase.
- *
- */
 const XML_Node* speciesXML_Node(const std::string& kname,
                                 const XML_Node* phaseSpeciesData)
 {

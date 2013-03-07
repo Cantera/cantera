@@ -43,13 +43,12 @@ namespace Cantera
 
 VPSSMgrFactory* VPSSMgrFactory::s_factory = 0;
 
-// Defn of the static mutex variable that locks the %VPSSMgr factory singleton
+// Defn of the static mutex variable that locks the VPSSMgr factory singleton
 mutex_t VPSSMgrFactory::vpss_species_thermo_mutex;
 
 //! Examine the types of species thermo parameterizations, and return a flag indicating the type of parameterization
 //! needed by the species.
 /*!
- *
  *  @param spDataNodeList            Species Data XML node. This node contains a list
  *                                     of species XML nodes underneath it.
  *  @param has_nasa_idealGas         Boolean indicating that one species has a NASA ideal gas standard state
@@ -187,12 +186,6 @@ static void getVPSSMgrTypes(std::vector<XML_Node*> & spDataNodeList,
     }
 }
 
-// Delete static instance of this class
-/*
- * If it is necessary to explicitly delete the factory before
- * the process terminates (for example, when checking for
- * memory leaks) then this method can be called to delete it.
- */
 void VPSSMgrFactory::deleteFactory()
 {
     ScopedLock lock(vpss_species_thermo_mutex);
@@ -229,8 +222,6 @@ VPSSMgrFactory::VPSSMgr_StringConversion(const std::string& ssModel) const
     return type;
 }
 
-// Chose the variable pressure standard state manager
-// and the reference standard state manager
 VPSSMgr*
 VPSSMgrFactory::newVPSSMgr(VPStandardStateTP* vp_ptr,
                            XML_Node* phaseNode_ptr,
@@ -321,8 +312,6 @@ VPSSMgrFactory::newVPSSMgr(VPStandardStateTP* vp_ptr,
     return new VPSSMgr_General(vp_ptr, spth);
 }
 
-
-
 // I don't think this is currently used. However, this is a virtual
 // function where additional capabilities may be added.
 VPSSMgr*
@@ -371,6 +360,5 @@ VPSSMgr* newVPSSMgr(VPStandardStateTP* tp_ptr,
     }
     return f->newVPSSMgr(tp_ptr, phaseNode_ptr, spDataNodeList);
 }
-
 
 }
