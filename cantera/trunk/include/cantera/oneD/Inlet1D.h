@@ -186,7 +186,7 @@ public:
     virtual void init();
     virtual void eval(size_t jg, doublereal* xg, doublereal* rg,
                       integer* diagg, doublereal rdt);
-    virtual void save(XML_Node& o, const doublereal* const soln);
+    virtual XML_Node& save(XML_Node& o, const doublereal* const soln);
     virtual void restore(const XML_Node& dom, doublereal* soln, int loglevel);
 
 protected:
@@ -221,7 +221,7 @@ public:
     virtual void eval(size_t jg, doublereal* xg, doublereal* rg,
                       integer* diagg, doublereal rdt);
 
-    virtual void save(XML_Node& o, const doublereal* const soln);
+    virtual XML_Node& save(XML_Node& o, const doublereal* const soln);
     virtual void restore(const XML_Node& dom, doublereal* soln, int loglevel);
     virtual void _finalize(const doublereal* x) {}
     virtual void _getInitialSoln(doublereal* x) {
@@ -253,7 +253,7 @@ public:
     virtual void eval(size_t jg, doublereal* xg, doublereal* rg,
                       integer* diagg, doublereal rdt);
 
-    virtual void save(XML_Node& o, const doublereal* const soln);
+    virtual XML_Node& save(XML_Node& o, const doublereal* const soln);
     virtual void restore(const XML_Node& dom, doublereal* soln, int loglevel);
     virtual void _finalize(const doublereal* x) {
         ; //m_temp = x[0];
@@ -286,7 +286,7 @@ public:
     virtual void eval(size_t jg, doublereal* xg, doublereal* rg,
                       integer* diagg, doublereal rdt);
 
-    virtual void save(XML_Node& o, const doublereal* const soln);
+    virtual XML_Node& save(XML_Node& o, const doublereal* const soln);
     virtual void restore(const XML_Node& dom, doublereal* soln, int loglevel);
     virtual void _finalize(const doublereal* x) {
         ; //m_temp = x[0];
@@ -340,7 +340,7 @@ public:
     virtual void init();
     virtual void eval(size_t jg, doublereal* xg, doublereal* rg,
                       integer* diagg, doublereal rdt);
-    virtual void save(XML_Node& o, const doublereal* const soln);
+    virtual XML_Node& save(XML_Node& o, const doublereal* const soln);
     virtual void restore(const XML_Node& dom, doublereal* soln, int loglevel);
 
 protected:
@@ -375,7 +375,7 @@ public:
     virtual void eval(size_t jg, doublereal* xg, doublereal* rg,
                       integer* diagg, doublereal rdt);
 
-    virtual void save(XML_Node& o, const doublereal* const soln);
+    virtual XML_Node& save(XML_Node& o, const doublereal* const soln);
     virtual void restore(const XML_Node& dom, doublereal* soln, int loglevel);
 
     virtual void _getInitialSoln(doublereal* x) {
@@ -438,7 +438,7 @@ public:
     virtual void eval(size_t jg, doublereal* xg, doublereal* rg,
                       integer* diagg, doublereal rdt);
 
-    virtual void save(XML_Node& o, const doublereal* const soln);
+    virtual XML_Node& save(XML_Node& o, const doublereal* const soln);
     virtual void restore(const XML_Node& dom, doublereal* soln, int loglevel);
 
     virtual void _getInitialSoln(doublereal* x) {

@@ -190,7 +190,7 @@ public:
      *              The object will pick out which part of the solution
      *              vector pertains to this object.
      */
-    virtual void save(XML_Node& o, const doublereal* const sol);
+    virtual XML_Node& save(XML_Node& o, const doublereal* const sol);
 
     virtual void restore(const XML_Node& dom, doublereal* soln,
                          int loglevel);

@@ -754,7 +754,7 @@ size_t StFlow::componentIndex(const std::string& name) const
 
 void StFlow::restore(const XML_Node& dom, doublereal* soln, int loglevel)
 {
-
+    Domain1D::restore(dom, soln, loglevel);
     vector<string> ignored;
     size_t nsp = m_thermo->nSpecies();
     vector_int did_species(nsp, 0);
@@ -891,17 +891,14 @@ void StFlow::restore(const XML_Node& dom, doublereal* soln, int loglevel)
 
 
 
-void StFlow::save(XML_Node& o, const doublereal* const sol)
+XML_Node& StFlow::save(XML_Node& o, const doublereal* const sol)
 {
     size_t k;
 
     Array2D soln(m_nv, m_points, sol + loc());
 
-    XML_Node& flow = (XML_Node&)o.addChild("domain");
+    XML_Node& flow = Domain1D::save(o, sol);
     flow.addAttribute("type",flowType());
-    flow.addAttribute("id",m_id);
-    flow.addAttribute("points", double(m_points));
-    flow.addAttribute("components", double(m_nv));
 
     if (m_desc != "") {
         addString(flow,"description",m_desc);
@@ -936,6 +933,7 @@ void StFlow::save(XML_Node& o, const doublereal* const sol)
         addFloatArray(gv,m_thermo->speciesName(k),
                       x.size(),DATA_PTR(x),"","massFraction",0.0,1.0);
     }
+    return flow;
 }
 
 void StFlow::setJac(MultiJac* jac)
