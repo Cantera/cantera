@@ -215,10 +215,13 @@ class TestFreeFlame(utilities.CanteraTest):
 
         # Create flame object with dummy initial grid
         self.sim = ct.FreeFlame(self.gas)
-        self.sim.flame.set_steady_tolerances(default=self.tol_ss)
-        self.sim.flame.set_transient_tolerances(default=self.tol_ts)
-
         self.sim.restore(filename, 'test', loglevel=0)
+
+        # Sim is initially in "steady-state" mode, so this returns the
+        # steady-state tolerances
+        rtol, atol = self.sim.flame.tolerances('T')
+        self.assertNear(rtol, self.tol_ss[0])
+        self.assertNear(atol, self.tol_ss[1])
 
         P2a = self.sim.P
 

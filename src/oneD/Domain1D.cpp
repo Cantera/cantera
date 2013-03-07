@@ -4,10 +4,12 @@
  */
 
 #include "cantera/oneD/Domain1D.h"
+ #include "cantera/base/ctml.h"
 
 #include <cstdio>
 
 using namespace std;
+using namespace ctml;
 
 namespace Cantera
 {
@@ -128,11 +130,39 @@ XML_Node& Domain1D::save(XML_Node& o, const doublereal* const sol)
     d.addAttribute("points", nPoints());
     d.addAttribute("components", nComponents());
     d.addAttribute("id", id());
+    addFloatArray(d, "abstol_transient", nComponents(), &m_atol_ts[0]);
+    addFloatArray(d, "reltol_transient", nComponents(), &m_rtol_ts[0]);
+    addFloatArray(d, "abstol_steady", nComponents(), &m_atol_ss[0]);
+    addFloatArray(d, "reltol_steady", nComponents(), &m_rtol_ss[0]);
     return d;
 }
 
 void Domain1D::restore(const XML_Node& dom, doublereal* soln, int loglevel)
 {
+    vector_fp values;
+    vector<XML_Node*> nodes;
+    dom.getChildren("floatArray", nodes);
+    for (size_t i = 0; i < nodes.size(); i++) {
+        string title = nodes[i]->attrib("title");
+        getFloatArray(*nodes[i], values, false);
+        if (values.size() != nComponents()) {
+            throw CanteraError("Domain1D::restore", "Got an array of length " +
+                               int2str(values.size()) + " when one of length " +
+                               int2str(nComponents()) + "was expected.");
+        }
+        if (title == "abstol_transient") {
+            m_atol_ts = values;
+        } else if (title == "reltol_transient") {
+            m_rtol_ts = values;
+        } else if (title == "abstol_steady") {
+            m_atol_ss = values;
+        } else if (title == "reltol_steady") {
+            m_rtol_ss = values;
+        } else {
+            throw CanteraError("Domain1D::restore",
+                               "Got an unexpected array, '" + title + "'");
+        }
+    }
 }
 
 // called to set up initial grid, and after grid refinement
