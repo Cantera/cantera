@@ -17,28 +17,21 @@
 
 namespace Cantera
 {
-
-
-/*
- * default constructor -> object owns its own water evaluator
- */
 WaterProps::WaterProps():
     m_waterIAPWS(0),
     m_own_sub(false)
 {
+    // object owns its own water evaluator
     m_waterIAPWS = new WaterPropsIAPWS();
     m_own_sub = true;
 }
 
-/*
- * constructor -> object in slave mode, It doesn't own its
- *      own water evaluator.
- */
 WaterProps::WaterProps(PDSS_Water* wptr)  :
     m_waterIAPWS(0),
     m_own_sub(false)
 {
     if (wptr) {
+        // object in slave mode; it doesn't own its own water evaluator.
         m_waterIAPWS = wptr->getWater();
         m_own_sub = false;
     } else {
@@ -60,9 +53,6 @@ WaterProps::WaterProps(WaterPropsIAPWS* waterIAPWS)  :
     }
 }
 
-/**
- * Copy constructor
- */
 WaterProps::WaterProps(const WaterProps& b)  :
     m_waterIAPWS(0),
     m_own_sub(false)
@@ -70,9 +60,6 @@ WaterProps::WaterProps(const WaterProps& b)  :
     *this = b;
 }
 
-/**
- * Destructor
- */
 WaterProps::~WaterProps()
 {
     if (m_own_sub) {
@@ -80,9 +67,6 @@ WaterProps::~WaterProps()
     }
 }
 
-/**
- * Assignment operator
- */
 WaterProps& WaterProps::operator=(const WaterProps& b)
 {
     if (&b == this) {
@@ -106,27 +90,6 @@ WaterProps& WaterProps::operator=(const WaterProps& b)
     return *this;
 }
 
-// Simple calculation of water density at atmospheric pressure.
-// Valid up to boiling point.
-/*
- * This formulation has no dependence on the pressure and shouldn't
- * be used where accuracy is needed.
- *
- * @param T temperature in kelvin
- * @param P Pressure in pascal
- * @param ifunc changes what's returned
- *
- * @return value returned depends on ifunc value:
- * ifunc = 0 Returns the density in kg/m^3
- * ifunc = 1 returns the derivative of the density wrt T.
- * ifunc = 2 returns the 2nd derivative of the density wrt T
- * ifunc = 3 returns the derivative of the density wrt P.
- *
- * Verification:
- *   Agrees with the CRC values (6-10) for up to 4 sig digits.
- *
- * units = returns density in kg m-3.
- */
 doublereal WaterProps::density_T(doublereal T, doublereal P, int ifunc)
 {
     doublereal Tc = T - 273.15;
@@ -179,37 +142,6 @@ doublereal WaterProps::density_T(doublereal T, doublereal P, int ifunc)
     return rho;
 }
 
-//  Bradley-Pitzer equation for the dielectric constant
-//  of water as a function of temperature and pressure.
-/*!
- *  Returns the dimensionless relative dielectric constant
- *  and its derivatives.
- *
- *  ifunc = 0 value
- *  ifunc = 1 Temperature derivative
- *  ifunc = 2 second temperature derivative
- *  ifunc = 3 return pressure first derivative
- *
- * Range of validity 0 to 350C, 0 to 1 kbar pressure
- *
- * @param T temperature (kelvin)
- * @param P_pascal pressure in pascal
- * @param ifunc changes what's returned from the function
- *
- * @return Depends on the value of ifunc:
- * ifunc = 0 return value
- * ifunc = 1 return temperature derivative
- * ifunc = 2 return second temperature derivative
- * ifunc = 3 return pressure first derivative
- *
- *  Validation:
- *   Numerical experiments indicate that this function agrees with
- *   the Archer and Wang data in the CRC p. 6-10 to all 4 significant
- *   digits shown (0 to 100C).
- *
- *   value at 25C, relEps = 78.38
- *
- */
 doublereal WaterProps::relEpsilon(doublereal T, doublereal P_pascal,
                                   int ifunc)
 {
@@ -397,24 +329,11 @@ doublereal WaterProps::satPressure(doublereal T)
     return m_waterIAPWS->psat(T);
 }
 
-// Returns the density of water
-/*
- * This function sets the internal temperature and pressure
- * of the underlying object at the same time.
- *
- * @param T Temperature (kelvin)
- * @param P pressure (pascal)
- */
 doublereal WaterProps::density_IAPWS(doublereal temp, doublereal press)
 {
     return m_waterIAPWS->density(temp, press, WATER_LIQUID);
 }
 
-// Returns the density of water
-/*
- *  This function uses the internal state of the
- *  underlying water object
- */
 doublereal WaterProps::density_IAPWS() const
 {
     return m_waterIAPWS->density();
@@ -440,10 +359,6 @@ doublereal WaterProps::isothermalCompressibility_IAPWS(doublereal temp, doublere
     return m_waterIAPWS->isothermalCompressibility();
 }
 
-
-
-
-
 // Parameters for the viscosityWater() function
 
 // \cond
@@ -467,25 +382,8 @@ const doublereal presStar = 22.115E6;  // Pa
 const doublereal muStar = 55.071E-6;   //Pa s
 // \endcond
 
-// Returns the viscosity of water at the current conditions
-// (kg/m/s)
-/*
- *  This function calculates the value of the viscosity of pure
- *  water at the current T and P.
- *
- *  The formulas used are from the paper
- *
- *     J. V. Sengers, J. T. R. Watson, "Improved International
- *     Formulations for the Viscosity and Thermal Conductivity of
- *     Water Substance", J. Phys. Chem. Ref. Data, 15, 1291 (1986).
- *
- *  The formulation is accurate for all temperatures and pressures,
- *  for steam and for water, even near the critical point.
- *  Pressures above 500 MPa and temperature above 900 C are suspect.
- */
 doublereal WaterProps::viscosityWater() const
 {
-
     doublereal temp = m_waterIAPWS->temperature();
     doublereal dens = m_waterIAPWS->density();
 
@@ -548,21 +446,6 @@ doublereal WaterProps::viscosityWater() const
     return mubar * muStar;
 }
 
-//! Returns the thermal conductivity of water at the current conditions
-//! (W/m/K)
-/*!
- *  This function calculates the value of the thermal conductivity of
- *  water at the current T and P.
- *
- *  The formulas used are from the paper
- *     J. V. Sengers, J. T. R. Watson, "Improved International
- *     Formulations for the Viscosity and Thermal Conductivity of
- *     Water Substance", J. Phys. Chem. Ref. Data, 15, 1291 (1986).
- *
- *  The formulation is accurate for all temperatures and pressures,
- *  for steam and for water, even near the critical point.
- *  Pressures above 500 MPa and temperature above 900 C are suspect.
- */
 doublereal WaterProps::thermalConductivityWater() const
 {
     static const doublereal Tstar = 647.27;
@@ -657,6 +540,5 @@ doublereal WaterProps::thermalConductivityWater() const
 
     return (lambda0bar * lambda1bar + lambda2bar) * lambdastar;
 }
-
 
 }
