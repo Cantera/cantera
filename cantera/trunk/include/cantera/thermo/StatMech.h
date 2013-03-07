@@ -21,7 +21,7 @@
 namespace Cantera
 {
 
-//!
+// Statistical mechanics
 /*!
  * @ingroup spthermo
  */
@@ -87,27 +87,27 @@ public:
 
     //! Update the properties for this species, given a temperature polynomial
     /*!
-     * This method is called with a pointer to an array containing the functions of
-     * temperature needed by this  parameterization, and three pointers to arrays where the
-     * computed property values should be written. This method updates only one value in
-     * each array.
+     * This method is called with a pointer to an array containing the
+     * functions of temperature needed by this  parameterization, and three
+     * pointers to arrays where the computed property values should be
+     * written. This method updates only one value in each array.
+     *
+     * \f[
+     * \frac{C_p^0(T)}{R} = \frac{C_v^0(T)}{R} + 1
+     * \f]
+     *
+     * Where,
+     * \f[
+     * \frac{C_v^0(T)}{R} = \frac{C_v^{tr}(T)}{R} + \frac{C_v^{vib}(T)}{R}
+     * \f]
      *
      * Temperature Polynomial:
      *  tt[0] = t;
-     *  tt[1] = t*t;
-     *  tt[2] = t*t*t;
-     *  tt[3] = t*t*t*t;
-     *  tt[4] = 1.0/t;
-     *  tt[5] = 1.0/(t*t);
-     *  tt[6] = std::log(t);
      *
      * @param tt      vector of temperature polynomials
-     * @param cp_R    Vector of Dimensionless heat capacities.
-     *                (length m_kk).
-     * @param h_RT    Vector of Dimensionless enthalpies.
-     *                (length m_kk).
-     * @param s_R     Vector of Dimensionless entropies.
-     *                (length m_kk).
+     * @param cp_R    Vector of Dimensionless heat capacities. (length m_kk).
+     * @param h_RT    Vector of Dimensionless enthalpies. (length m_kk).
+     * @param s_R     Vector of Dimensionless entropies. (length m_kk).
      */
     virtual void updateProperties(const doublereal* tt,
                                   doublereal* cp_R, doublereal* h_RT, doublereal* s_R) const;
@@ -115,36 +115,22 @@ public:
 
     //! Compute the reference-state property of one species
     /*!
-     * Given temperature T in K, this method updates the values of
-     * the non-dimensional heat capacity at constant pressure,
-     * enthalpy, and entropy, at the reference pressure, Pref
-     * of one of the species. The species index is used
-     * to reference into the cp_R, h_RT, and s_R arrays.
-     *
-     * Temperature Polynomial:
-     *  tt[0] = t;
-     *  tt[1] = t*t;
-     *  tt[2] = t*t*t;
-     *  tt[3] = t*t*t*t;
-     *  tt[4] = 1.0/t;
-     *  tt[5] = 1.0/(t*t);
-     *  tt[6] = std::log(t);
+     * Given temperature T in K, this method updates the values of the non-
+     * dimensional heat capacity at constant pressure, enthalpy, and entropy,
+     * at the reference pressure, Pref of one of the species. The species
+     * index is used to reference into the cp_R, h_RT, and s_R arrays.
      *
      * @param temp    Temperature (Kelvin)
-     * @param cp_R    Vector of Dimensionless heat capacities.
-     *                (length m_kk).
-     * @param h_RT    Vector of Dimensionless enthalpies.
-     *                (length m_kk).
-     * @param s_R     Vector of Dimensionless entropies.
-     *                (length m_kk).
+     * @param cp_R    Vector of Dimensionless heat capacities. (length m_kk).
+     * @param h_RT    Vector of Dimensionless enthalpies. (length m_kk).
+     * @param s_R     Vector of Dimensionless entropies. (length m_kk).
      */
     virtual void updatePropertiesTemp(const doublereal temp,
                                       doublereal* cp_R, doublereal* h_RT,
                                       doublereal* s_R) const;
 
-    //!This utility function reports back the type of
-    //! parameterization and all of the parameters for the
-    //! species, index.
+    //! This utility function reports back the type of parameterization and
+    //! all of the parameters for the species, index.
     /*!
      * All parameters are output variables
      *
@@ -211,4 +197,3 @@ protected:
 
 }
 #endif
-
