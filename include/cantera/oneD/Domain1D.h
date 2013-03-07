@@ -389,18 +389,30 @@ public:
 
     //! Save the current solution for this domain into an XML_Node
     /*!
-     *  Base class version of the general domain1D save function. This
-     *  base class version will throw an error condition. Inherited classes
-     *  will know how to save the solution vector.
+     *  Base class version of the general domain1D save function. Derived
+     *  classes should call the base class method in addition to saving their
+     *  own data.
      *
      *  @param o    XML_Node to save the solution to.
      *  @param sol  Current value of the solution vector.
      *              The object will pick out which part of the solution
      *              vector pertains to this object.
+     *  @return     XML_Node created to represent this domain
      */
-    virtual void save(XML_Node& o, const doublereal* const sol) {
-        throw CanteraError("Domain1D::save","base class method called");
-    }
+    virtual XML_Node& save(XML_Node& o, const doublereal* const sol);
+
+    //! Restore the solution for this domain from an XML_Node
+    /*!
+     * Base class version of the general Domain1D restore function. Derived
+     * classes should call the base class method in addition to restoring
+     * their own data.
+     *
+     * @param o XML_Node for this domain
+     * @param soln Current value of the solution vector, local to this object.
+     * @param loglevel 0 to suppress all output; 1 to show warnings; 2 for
+     *      verbose output
+     */
+    virtual void restore(const XML_Node& dom, doublereal* soln, int loglevel);
 
     size_t size() const {
         return m_nv*m_points;
@@ -530,8 +542,6 @@ public:
 
     virtual void showSolution_s(std::ostream& s, const doublereal* x) {}
     virtual void showSolution(const doublereal* x);
-
-    virtual void restore(const XML_Node& dom, doublereal* soln, int loglevel) {}
 
     doublereal z(size_t jlocal) const {
         return m_z[jlocal];

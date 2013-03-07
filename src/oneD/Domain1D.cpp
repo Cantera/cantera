@@ -122,6 +122,18 @@ eval(size_t jg, doublereal* xg, doublereal* rg,
     }
 }
 
+XML_Node& Domain1D::save(XML_Node& o, const doublereal* const sol)
+{
+    XML_Node& d = o.addChild("domain");
+    d.addAttribute("points", nPoints());
+    d.addAttribute("components", nComponents());
+    d.addAttribute("id", id());
+    return d;
+}
+
+void Domain1D::restore(const XML_Node& dom, doublereal* soln, int loglevel)
+{
+}
 
 // called to set up initial grid, and after grid refinement
 void Domain1D::setupGrid(size_t n, const doublereal* z)
