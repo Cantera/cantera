@@ -801,13 +801,15 @@ cdef class Sim1D:
 class FlameBase(Sim1D):
     """ Base class for flames with a single flow domain """
 
-    def __init__(self, domains, gas, grid):
+    def __init__(self, domains, gas, grid=None):
         """
         :param gas:
             object to use to evaluate all gas properties and reaction rates
         :param grid:
             array of initial grid points
         """
+        if grid is None:
+            grid = np.linspace(0.0, 0.1, 6)
         self.flame.grid = grid
         super().__init__(domains)
         self.gas = gas
@@ -1009,7 +1011,7 @@ for attr in ['forward_rates_of_progress', 'reverse_rates_of_progress', 'net_rate
 class FreeFlame(FlameBase):
     """A freely-propagating flat flame."""
 
-    def __init__(self, gas, grid):
+    def __init__(self, gas, grid=None):
         """
         A domain of type FreeFlow named 'flame' will be created to represent
         the flame. The three domains comprising the stack are stored as
@@ -1053,7 +1055,7 @@ class FreeFlame(FlameBase):
 class BurnerFlame(FlameBase):
     """A burner-stabilized flat flame."""
 
-    def __init__(self, gas, grid):
+    def __init__(self, gas, grid=None):
         """
         :param gas:
             `Solution` (using the IdealGas thermodynamic model) used to
@@ -1105,7 +1107,7 @@ class BurnerFlame(FlameBase):
 class CounterflowDiffusionFlame(FlameBase):
     """ A counterflow diffusion flame """
 
-    def __init__(self, gas, grid):
+    def __init__(self, gas, grid=None):
         """
         :param gas:
             `Solution` (using the IdealGas thermodynamic model) used to
@@ -1217,7 +1219,7 @@ class CounterflowDiffusionFlame(FlameBase):
 
 class ImpingingJet(FlameBase):
     """An axisymmetric flow impinging on a surface at normal incidence."""
-    def __init__(self, gas, grid, surface=None):
+    def __init__(self, gas, grid=None, surface=None):
         """
         :param gas:
             `Solution` (using the IdealGas thermodynamic model) used to

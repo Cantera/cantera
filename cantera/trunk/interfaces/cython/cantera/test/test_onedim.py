@@ -49,11 +49,12 @@ class TestOnedim(utilities.CanteraTest):
 
 
 class TestFreeFlame(utilities.CanteraTest):
+    tol_ss = [1.0e-5, 1.0e-13]  # [rtol atol] for steady-state problem
+    tol_ts = [1.0e-4, 1.0e-10]  # [rtol atol] for time stepping
+
     def create_sim(self, p, Tin, reactants):
 
         initial_grid = [0.0, 0.001, 0.01, 0.02, 0.029, 0.03]  # m
-        tol_ss = [1.0e-5, 1.0e-13]  # [rtol atol] for steady-state problem
-        tol_ts = [1.0e-4, 1.0e-10]  # [rtol atol] for time stepping
 
         # IdealGasMix object used to compute mixture properties
         self.gas = ct.Solution('h2o2.xml')
@@ -61,8 +62,8 @@ class TestFreeFlame(utilities.CanteraTest):
 
         # Flame object
         self.sim = ct.FreeFlame(self.gas, initial_grid)
-        self.sim.flame.set_steady_tolerances(default=tol_ss)
-        self.sim.flame.set_transient_tolerances(default=tol_ts)
+        self.sim.flame.set_steady_tolerances(default=self.tol_ss)
+        self.sim.flame.set_transient_tolerances(default=self.tol_ts)
 
         # Set properties of the upstream fuel-air mixture
         self.sim.inlet.T = Tin
@@ -212,8 +213,11 @@ class TestFreeFlame(utilities.CanteraTest):
 
         self.sim.save(filename, 'test', loglevel=0)
 
-        self.create_sim(ct.one_atm, Tin, reactants)
-        self.sim.energy_enabled = False
+        # Create flame object with dummy initial grid
+        self.sim = ct.FreeFlame(self.gas)
+        self.sim.flame.set_steady_tolerances(default=self.tol_ss)
+        self.sim.flame.set_transient_tolerances(default=self.tol_ts)
+
         self.sim.restore(filename, 'test', loglevel=0)
 
         P2a = self.sim.P
