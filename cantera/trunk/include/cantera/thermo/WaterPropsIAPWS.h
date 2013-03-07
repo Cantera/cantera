@@ -39,93 +39,95 @@ namespace Cantera
 
 //! Class for calculating the equation of state of water.
 /*!
+ * The reference is W. Wagner, A. Prub, "The IAPWS Formulation 1995 for the
+ * Thermodynamic Properties of Ordinary Water Substance for General and
+ * Scientific Use," J. Phys. Chem. Ref. Dat, 31, 387, 2002.
  *
- *  The reference is W. Wagner, A. Prub, "The IAPWS Formulation 1995 for the Thermodynamic
- *  Properties of Ordinary Water Substance for General and Scientific Use,"
- *  J. Phys. Chem. Ref. Dat, 31, 387, 2002.
+ * This class provides a very complicated polynomial for the specific
+ * Helmholtz free energy of water, as a function of temperature and density.
  *
- * This class provides a very complicated polynomial for the specific helmholtz free
- * energy of water, as a function of temperature and density.
+ * \f[
+ *     \frac{M\hat{f}(\rho,T)}{R T} = \phi(\delta, \tau) =
+ *                     \phi^o(\delta, \tau) +  \phi^r(\delta, \tau)
+ * \f]
  *
- *    \f[
- *        \frac{M\hat{f}(\rho,T)}{R T} = \phi(\delta, \tau) =
- *                        \phi^o(\delta, \tau) +  \phi^r(\delta, \tau)
- *    \f]
+ * where
  *
- *  where
+ * \f[
+ *     \delta = \rho / \rho_c \quad \mathrm{and} \quad \tau = T_c / T
+ * \f]
  *
- *    \f[
- *         \delta = \rho / \rho_c \mbox{\qquad and \qquad} \tau = T_c / T
- *    \f]
+ * The following constants are assumed
  *
- *  The following constants are assumed
+ * \f[
+ *     T_c = 647.096\mathrm{\;K}
+ * \f]
+ * \f[
+ *     \rho_c = 322 \mathrm{\;kg\,m^{-3}}
+ * \f]
+ * \f[
+ *     R/M = 0.46151805 \mathrm{\;kJ\,kg^{-1}\,K^{-1}}
+ * \f]
  *
- *     \f[
- *         T_c = 647.096\mbox{\ K}
- *    \f]
- *    \f[
- *        \rho_c = 322 \mbox{\  kg\ m$^{-3}$}
- *     \f]
- *    \f[
- *        R/M = 0.46151805 \mbox{\ kJ\ kg$^{-1}$\ K$^{-1}$}
- *    \f]
+ * The free energy is a unique single-valued function of the temperature and
+ * density over its entire range.
  *
- *  The free energy is a unique single-valued function of the temperature and density
- *  over its entire range.
+ * Note, the base thermodynamic state for this class is the one used in the
+ * steam tables, i.e., the liquid at the triple point for water has the
+ * following properties:
  *
- * Note, the base thermodynamic state for this class is the one
- * used in the steam tables, i.e., the liquid at the triple point
- * for water has the following properties:
+ *   - u(273.16, rho)    = 0.0
+ *   - s(273.16, rho)    = 0.0
+ *   - psat(273.16)      = 611.655 Pascal
+ *   - rho(273.16, psat) = 999.793 kg m-3
  *
- * -  u(273.16, rho)    = 0.0
- * -  s(273.16, rho)    = 0.0
- * -  psat(273.16)      = 611.655 Pascal
- * -  rho(273.16, psat) = 999.793 kg m-3
- *
- *  Therefore, to use this class within %Cantera, offsets to u() and s() must be used
- *  to put the water class onto the same basis as other thermodynamic quantities.
- *  For example, in the WaterSSTP class, these offsets are calculated in the following way.
- *  The thermodynamic base state for water is set to the NIST basis here
- *  by specifying constants EW_Offset and SW_Offset. These offsets are
- *  calculated on the fly so that the following properties hold:
+ * Therefore, to use this class within %Cantera, offsets to u() and s() must
+ * be used to put the water class onto the same basis as other thermodynamic
+ * quantities. For example, in the WaterSSTP class, these offsets are
+ * calculated in the following way. The thermodynamic base state for water is
+ * set to the NIST basis here by specifying constants EW_Offset and SW_Offset.
+ * These offsets are calculated on the fly so that the following properties
+ * hold:
  *
  *   - Delta_Hfo_idealGas(298.15, 1bar) = -241.826 kJ/gmol
  *   - So_idealGas(298.15, 1bar)        = 188.835 J/gmolK
  *
- *   The offsets are calculated by actually computing the above quantities and then
- *   calculating the correction factor.
+ * The offsets are calculated by actually computing the above quantities and
+ * then calculating the correction factor.
  *
- *  This class provides an interface to the #WaterPropsIAPWSphi class, which actually
- *  calculates the \f$ \phi^o(\delta, \tau)  \f$ and the  \f$ \phi^r(\delta, \tau) \f$
- *  polynomials in dimensionless form.
+ * This class provides an interface to the WaterPropsIAPWSphi class, which
+ * actually calculates the \f$ \phi^o(\delta, \tau)  \f$ and the
+ * \f$ \phi^r(\delta, \tau) \f$ polynomials in dimensionless form.
  *
- *  All thermodynamic results from this class are returned in dimensional form. This
- *  is because the gas constant (and molecular weight) used within this class is allowed to be potentially
- *  different than that used elsewhere in %Cantera. Therefore, everything has to be
- *  in dimensional units. Note, however, the thermodynamic basis is set to that used
- *  in the steam tables. (u = s = 0 for liquid water at the triple point).
+ * All thermodynamic results from this class are returned in dimensional form.
+ * This is because the gas constant (and molecular weight) used within this
+ * class is allowed to be potentially different than that used elsewhere in
+ * %Cantera. Therefore, everything has to be in dimensional units. Note,
+ * however, the thermodynamic basis is set to that used in the steam tables.
+ * (u = s = 0 for liquid water at the triple point).
  *
- *  This class is not a %ThermoPhase. However, it does maintain an internal state of
- *  the object that is dependent on temperature and density. The internal state
- *  is characterized by an internally stored \f$ \tau\f$ and a \f$ \delta \f$ value,
- *  and an iState value, which indicates whether the point is a liquid, a gas,
- *  or a supercritical fluid.
- *  Along with that the  \f$ \tau\f$ and a \f$ \delta \f$ values are polynomials of
- *  \f$ \tau\f$ and a \f$ \delta \f$ that are kept by the #WaterPropsIAPWSphi class.
- *  Therefore, whenever  \f$ \tau\f$ or \f$ \delta \f$ is changed, the function setState()
- *  must be called in order for the internal state to be kept up to date.
+ * This class is not a %ThermoPhase. However, it does maintain an internal
+ * state of the object that is dependent on temperature and density. The
+ * internal state is characterized by an internally stored \f$ \tau\f$ and a
+ * \f$ \delta \f$ value, and an iState value, which indicates whether the
+ * point is a liquid, a gas, or a supercritical fluid. Along with that the
+ * \f$ \tau\f$ and a \f$ \delta \f$ values are polynomials of \f$ \tau\f$ and
+ * a \f$ \delta \f$ that are kept by the WaterPropsIAPWSphi class. Therefore,
+ * whenever  \f$ \tau\f$ or \f$ \delta \f$ is changed, the function setState()
+ * must be called in order for the internal state to be kept up to date.
  *
- * The class is pretty straightforward. However, one function deserves mention.
- * the #density() function calculates the density that is consistent with
- * a particular value of the temperature and pressure. It may therefore be
- * multivalued or potentially there may be no answer from this function. It therefore
- * takes a phase guess and a density guess as optional parameters. If no guesses are
- * supplied to density(), a gas phase guess is assumed. This may or may not be what
- * is wanted. Therefore, density() should usually at least be supplied with a phase
- * guess so that it may manufacture an appropriate density guess.
- * #density() manufactures the initial density guess, nondimensionalizes everything,
- * and then calls #WaterPropsIAPWSphi::dfind(), which does the iterative calculation
- * to find the density condition that matches the desired input pressure.
+ * The class is pretty straightforward. However, one function deserves
+ * mention. The density() function calculates the density that is consistent
+ * with a particular value of the temperature and pressure. It may therefore
+ * be multivalued or potentially there may be no answer from this function. It
+ * therefore takes a phase guess and a density guess as optional parameters.
+ * If no guesses are supplied to density(), a gas phase guess is assumed. This
+ * may or may not be what is wanted. Therefore, density() should usually at
+ * least be supplied with a phase guess so that it may manufacture an
+ * appropriate density guess. density() manufactures the initial density
+ * guess, nondimensionalizes everything, and then calls
+ * WaterPropsIAPWSphi::dfind(), which does the iterative calculation to find
+ * the density condition that matches the desired input pressure.
  *
  * The phase guess defines are located in the .h file. they are
  *
@@ -133,45 +135,37 @@ namespace Cantera
  *   - WATER_LIQUID
  *   - WATER_SUPERCRIT
  *
- * There are only three functions which actually change the value of the internal
- * state of this object after it's been instantiated
-
+ * There are only three functions which actually change the value of the
+ * internal state of this object after it's been instantiated
+ *
  *   - setState_TR(temperature, rho)
  *   - density(temperature, pressure, phase, rhoguess)
  *   - psat(temperature, waterState);
  *
- * The setState_TR() is the main function that sets the temperature and rho value.
- * The density() function serves as a setState_TP() function, in that it sets
- * internal state to a temperature and pressure. However, note that this is potentially
- * multivalued. Therefore, we need to supply in addition a phase guess and a rho guess
- * to the input temperature and pressure.
- * The psat() function sets the internal state to the saturated liquid or saturated gas
- * state, depending on the waterState parameter.
+ * The setState_TR() is the main function that sets the temperature and rho
+ * value. The density() function serves as a setState_TP() function, in that
+ * it sets internal state to a temperature and pressure. However, note that
+ * this is potentially multivalued. Therefore, we need to supply in addition a
+ * phase guess and a rho guess to the input temperature and pressure. The
+ * psat() function sets the internal state to the saturated liquid or
+ * saturated gas state, depending on the waterState parameter.
  *
- * Because the underlying object WaterPropsIAPWSphi is privately held, you can be
- * sure that the underlying state of this object doesn't change except due to the
- * three function calls listed above.
+ * Because the underlying object WaterPropsIAPWSphi is privately held, you can
+ * be sure that the underlying state of this object doesn't change except due
+ * to the three function calls listed above.
  *
  * @ingroup thermoprops
- *
  */
 class WaterPropsIAPWS
 {
 public:
-
     //! Base constructor
     WaterPropsIAPWS();
 
     //! Copy constructor
-    /*!
-     * @param right Object to be copied
-     */
     WaterPropsIAPWS(const WaterPropsIAPWS& right);
 
     //! assignment constructor
-    /*!
-     * @param right Object to be copied
-     */
     WaterPropsIAPWS& operator=(const WaterPropsIAPWS& right);
 
     //! destructor
@@ -229,16 +223,17 @@ public:
     /*!
      *  Note, below T_c, this is a multivalued function.
      *
-     * The #density() function calculates the density that is consistent with
+     * The density() function calculates the density that is consistent with
      * a particular value of the temperature and pressure. It may therefore be
-     * multivalued or potentially there may be no answer from this function. It therefore
-     * takes a phase guess and a density guess as optional parameters. If no guesses are
-     * supplied to density(), a gas phase guess is assumed. This may or may not be what
-     * is wanted. Therefore, density() should usually at least be supplied with a phase
-     * guess so that it may manufacture an appropriate density guess.
-     * #density() manufactures the initial density guess, nondimensionalizes everything,
-     * and then calls #WaterPropsIAPWSphi::dfind(), which does the iterative calculation
-     * to find the density condition that matches the desired input pressure.
+     * multivalued or potentially there may be no answer from this function.
+     * It therefore takes a phase guess and a density guess as optional
+     * parameters. If no guesses are supplied to density(), a gas phase guess
+     * is assumed. This may or may not be what is wanted. Therefore, density()
+     * should usually at least be supplied with a phase guess so that it may
+     * manufacture an appropriate density guess. density() manufactures the
+     * initial density guess, nondimensionalizes everything, and then calls
+     * WaterPropsIAPWSphi::dfind(), which does the iterative calculation to
+     * find the density condition that matches the desired input pressure.
      *
      *  @param  temperature: Kelvin
      *  @param  pressure   : Pressure in Pascals (Newton/m**2)
@@ -258,17 +253,17 @@ public:
     /*!
      *  Note, below T_c, this is a multivalued function.
      *
-     * The #density() function calculates the density that is consistent with
-     * a particular value of the temperature and pressure. It may therefore be
-     * multivalued or potentially there may be no answer from this function. It therefore
-     * takes a phase guess and a density guess as optional parameters. If no guesses are
-
-     * supplied to density(), a gas phase guess is assumed. This may or may not be what
-     * is wanted. Therefore, density() should usually at least be supplied with a phase
-     * guess so that it may manufacture an appropriate density guess.
-     * #density() manufactures the initial density guess, nondimensionalizes everything,
-     * and then calls #WaterPropsIAPWSphi::dfind(), which does the iterative calculation
-     * to find the density condition that matches the desired input pressure.
+     * The density() function calculates the density that is consistent with a
+     * particular value of the temperature and pressure. It may therefore be
+     * multivalued or potentially there may be no answer from this function.
+     * It therefore takes a phase guess and a density guess as optional
+     * parameters. If no guesses are supplied to density(), a gas phase guess
+     * is assumed. This may or may not be what is wanted. Therefore, density()
+     * should usually at least be supplied with a phase guess so that it may
+     * manufacture an appropriate density guess. density() manufactures the
+     * initial density guess, nondimensionalizes everything, and then calls
+     * WaterPropsIAPWSphi::dfind(), which does the iterative calculation to
+     * find the density condition that matches the desired input pressure.
      *
      *  @param  pressure   : Pressure in Pascals (Newton/m**2)
      *  @param  phase      : guessed phase of water
@@ -306,13 +301,12 @@ public:
 
     //! Returns the isochoric pressure derivative wrt temperature
     /*!
-     *
-     *     beta = M / (rho * Rgas) (d (pressure) / dT) at constant rho
+     *      beta = M / (rho * Rgas) (d (pressure) / dT) at constant rho
      *
      *  Note for ideal gases this is equal to one.
      *
-     *    beta = delta (phi0_d() + phiR_d())
-     *            - tau delta (phi0_dt() + phiR_dt())
+     *      beta = delta (phi0_d() + phiR_d())
+     *              - tau delta (phi0_dt() + phiR_dt())
      */
     doublereal coeffPresExp() const;
 
@@ -350,23 +344,23 @@ public:
      */
     doublereal psat_est(doublereal temperature) const;
 
-    //! This function returns the saturation pressure given the
-    //! temperature as an input parameter, and sets the internal state to the saturated
+    //! This function returns the saturation pressure given the temperature as
+    //! an input parameter, and sets the internal state to the saturated
     //! conditions.
     /*!
-     *  Note this function will return the saturation pressure, given the temperature.
-     *  It will then set the state of the system to the saturation condition. The input
-     *  parameter waterState is used to either specify the liquid state or the
-     *  gas state at the desired temperature and saturated pressure.
+     *  Note this function will return the saturation pressure, given the
+     *  temperature. It will then set the state of the system to the
+     *  saturation condition. The input parameter waterState is used to either
+     *  specify the liquid state or the gas state at the desired temperature
+     *  and saturated pressure.
      *
-     *  If the input temperature, T, is above T_c, this routine will set the internal
-     *  state to T and the pressure to P_c. Then, return P_c.
+     *  If the input temperature, T, is above T_c, this routine will set the
+     *  internal state to T and the pressure to P_c. Then, return P_c.
      *
      * @param temperature   input temperature (kelvin)
      * @param waterState    integer specifying the water state
      *
-     * @return Returns the saturation pressure
-     *                units = Pascal
+     * @return Returns the saturation pressure. units = Pascal
      */
     doublereal psat(doublereal temperature, int waterState = WATER_LIQUID);
 
@@ -386,13 +380,13 @@ public:
 
     //! Returns the Phase State flag for the current state of the object
     /*!
-     * @param checkState If true, this function does a complete check to see where
-     *        in parameters space we are
+     * @param checkState If true, this function does a complete check to see
+     *        where in parameters space we are
      *
      *  There are three values:
-     *     WATER_GAS   below the critical temperature but below the critical density
-     *     WATER_LIQUID  below the critical temperature but above the critical density
-     *     WATER_SUPERCRIT   above the critical temperature
+     *    - WATER_GAS   below the critical temperature but below the critical density
+     *    - WATER_LIQUID  below the critical temperature but above the critical density
+     *    - WATER_SUPERCRIT   above the critical temperature
      */
     int phaseState(bool checkState = false) const ;
 
@@ -423,8 +417,6 @@ public:
 private:
     //! Calculate the dimensionless temp and rho and store internally.
     /*!
-     *  Private routine
-     *
      * @param temperature   input temperature (kelvin)
      *  @param rho          density in kg m-3
      */
@@ -432,7 +424,7 @@ private:
 
     //! Utility routine in the calculation of the saturation pressure
     /*!
-     *  Private routine
+     * Calculate the Gibbs free energy in mks units of J kmol-1 K-1.
      *
      * @param temperature    temperature (kelvin)
      * @param pressure       pressure (Pascal)
@@ -445,8 +437,6 @@ private:
 
     //! Utility routine in the calculation of the saturation pressure
     /*!
-     *  Private routine
-     *
      * @param temperature    temperature (kelvin)
      * @param pressure       pressure (Pascal)
      * @param densLiq        Output density of liquid
@@ -455,8 +445,6 @@ private:
      */
     void corr1(doublereal temperature, doublereal pressure, doublereal& densLiq,
                doublereal& densGas, doublereal& pcorr);
-
-private:
 
     //! pointer to the underlying object that does the calculations.
     WaterPropsIAPWSphi* m_phi;

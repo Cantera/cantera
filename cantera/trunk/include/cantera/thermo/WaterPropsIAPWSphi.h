@@ -1,9 +1,10 @@
 /**
  * @file WaterPropsIAPWSphi.h
- *  Header for Lowest level of the classes which support a real water model
- *  (see class \link Cantera::WaterPropsIAPWS WaterPropsIAPWS\endlink and  class \link WaterPropsIAPWSphi WaterPropsIAPWSphi\endlink).
+ * Header for Lowest level of the classes which support a real water model
+ * (see class \link Cantera::WaterPropsIAPWS WaterPropsIAPWS\endlink and class
+ * \link Cantera::WaterPropsIAPWSphi WaterPropsIAPWSphi\endlink).
  *
- *   This class calculates dimensionless quantities.
+ * This class calculates dimensionless quantities.
  */
 /*
  * Copyright (2006) Sandia Corporation. Under the terms of
@@ -18,36 +19,31 @@
 namespace Cantera
 {
 
+//! Low level class for the real description of water.
 /*!
- * the WaterPropsIAPSWSphi class support low level calls for
- * the real description of water.
- *
- *  The reference is W. Wagner, A. Prub, "The IAPWS Formulation 1995 for the Thermodynamic
- *  Properties of Ordinary Water Substance for General and Scientific Use,"
- *  J. Phys. Chem. Ref. Dat, 31, 387, 2002.
+ * The reference is W. Wagner, A. Prub, "The IAPWS Formulation 1995 for the
+ * Thermodynamic Properties of Ordinary Water Substance for General and
+ * Scientific Use," J. Phys. Chem. Ref. Dat, 31, 387, 2002.
  *
  * Units Note: This class works with reduced units exclusively.
  */
 class WaterPropsIAPWSphi
 {
-
 public:
-
     //! Base constructor
     WaterPropsIAPWSphi();
 
     //! Calculate the Phi function, which is the base function
     /*!
-     * The phi function is basically the helmholtz free energy
-     * Eqn. (6.4)
-     * All internal polynomials are recalculated.
+     * The phi function is basically the helmholtz free energy Eqn. (6.4) All
+     * internal polynomials are recalculated.
      *
      * @param tau     Dimensionless temperature = T_c/T
      * @param delta   Dimensionless density =  delta = rho / Rho_c
      */
     doublereal phi(doublereal tau, doublereal delta);
 
-    //! Delta derivative of phi
+    //! Calculate derivative of phi wrt delta
     /*!
      * @param tau     Dimensionless temperature = T_c/T
      * @param delta   Dimensionless density =  delta = rho / Rho_c
@@ -83,7 +79,6 @@ public:
 
     //! Calculate the dimensionless pressure at tau and delta;
     /*!
-     *
      *       pM/(rhoRT) = delta * phi_d() = 1.0 + delta phiR_d()
      *
      * @param tau     Dimensionless temperature = T_c/T
@@ -114,10 +109,10 @@ public:
     doublereal dimdpdT(doublereal tau, doublereal delta);
 
     /**
-     * This program computes the reduced density, given the reduced pressure
-     * and the reduced temperature, tau. It takes an initial guess, deltaGuess.
-     * DeltaGuess is important as this is a multivalued function below the
-     * critical point.
+     * This function computes the reduced density, given the reduced pressure
+     * and the reduced temperature, tau. It takes an initial guess,
+     * deltaGuess. DeltaGuess is important as this is a multivalued function
+     * below the critical point.
      *
      * @param p_red       Value of the dimensionless pressure
      * @param tau         Dimensionless temperature = T_c/T
@@ -128,36 +123,23 @@ public:
      */
     doublereal dfind(doublereal p_red, doublereal tau, doublereal deltaGuess);
 
-    /**
-     * Calculate the dimensionless gibbs free energy
-     */
+    //! Calculate the dimensionless gibbs free energy
     doublereal gibbs_RT() const;
 
-    /**
-     * Calculate the dimensionless enthalpy, h/RT
-     */
+    //! Calculate the dimensionless enthalpy, h/RT
     doublereal enthalpy_RT() const;
 
-    /**
-     * Calculate the dimensionless entropy, s/R
-     */
+    //! Calculate the dimensionless entropy, s/R
     doublereal entropy_R() const;
 
-    /**
-     * Calculate the dimensionless internal energy, u/RT
-     */
+    //! Calculate the dimensionless internal energy, u/RT
     doublereal intEnergy_RT() const;
 
-    /**
-     * Calculate the dimensionless constant volume heat capacity, Cv/R
-     */
+    //! Calculate the dimensionless constant volume heat capacity, Cv/R
     doublereal cv_R() const;
 
-    /**
-     * Calculate the dimensionless constant pressure heat capacity, Cv/R
-     */
+    //! Calculate the dimensionless constant pressure heat capacity, Cv/R
     doublereal cp_R() const;
-
 
     //! Calculates internal polynomials in tau and delta.
     /*!
@@ -169,45 +151,47 @@ public:
      */
     void tdpolycalc(doublereal tau, doublereal delta);
 
-    //! Return the value of phiR(), res
+    /*!
+     * Calculate Equation 6.6 for phiR, the residual part of the
+     * dimensionless Helmholtz free energy.
+     */
     doublereal phiR() const;
 
 private:
-
-    //! nau calculation
+    //! Calculate Equation 6.5 for phi0, the ideal gas part of the
+    //! dimensionless Helmholtz free energy.
     doublereal phi0() const;
-    //! calculation of d_phiR/d_d
+    //! Calculate d_phiR_d(delta), the first derivative of phiR wrt delta
     doublereal phiR_d() const;
-    //! calculation of d_nau/d_d
+    //! Calculate d_phi0_d(delta), the first derivative of phi0 wrt delta
     doublereal phi0_d() const;
-    //! calculation of d2_res/d_dd
+    //! Calculate d2_phiR_dd(delta), the second derivative of phiR wrt delta
     doublereal phiR_dd() const;
-    //! calculation of d2_nau/d_dd
+    //! Calculate d2_phi0_dd(delta), the second derivative of phi0 wrt delta
     doublereal phi0_dd() const;
-    //! calculation of d_nau/d_t
+    //! Calculate d_phi0/d(tau)
     doublereal phi0_t() const;
-    //! calculation of d_res/d_t
+    //! Calculate Equation 6.6 for dphiRdtau, the derivative residual part of
+    //! the dimensionless Helmholtz free energy wrt temperature
     doublereal phiR_t() const;
-    //! calculation of d2_res/d_tt
+    //! Calculate Equation 6.6 for dphiRdtau, the second derivative residual
+    //! part of the dimensionless Helmholtz free energy wrt temperature
     doublereal phiR_tt() const;
-    //! calculation of d2_nau/d_tt
+    //! Calculate d2_phi0/dtau2
     doublereal phi0_tt() const;
-    //! calculation of d2_res/d_dt
+    //! Calculate the mixed derivative d2_phiR/(dtau ddelta)
     doublereal phiR_dt() const;
-    //! calculation of d2_nau/d_dt
+    //! Calculate the mixed derivative d2_phi0/(dtau ddelta)
     doublereal phi0_dt() const;
 
     /**
-     * intCheck() calculates all of the functions at a one point and
-     * prints out the result. It's used for conducting the internal
-     * check.
+     * Calculates all of the functions at a one point and prints out the
+     * result. It's used for conducting the internal check.
      *
      * @param tau     Dimensionless temperature = T_c/T
      * @param delta   Dimensionless density =  delta = rho / Rho_c
      */
     void intCheck(doublereal tau, doublereal delta);
-
-private:
 
     //! Value of internally calculated polynomials of powers of TAU
     doublereal TAUp[52];
