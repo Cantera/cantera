@@ -141,22 +141,19 @@ inline ThermoPhase* newThermoPhase(const std::string& model,
  */
 std::string eosTypeString(int ieos, int length = 100);
 
-
+//! Create a new ThermoPhase object and initializes it according to the XML
+//! tree.
 /*!
- *  This routine first looks up the
- * identity of the model for the solution thermodynamics in the
- * model attribute of the thermo child of the xml phase
- * node. Then, it does a string lookup using Cantera's internal ThermoPhase Factory routines
- * on the model to figure out
- * what ThermoPhase derived class should be assigned. It creates a new
- * instance of that class, and then calls importPhase() to
- * populate that class with the correct parameters from the XML
- * tree.
+ * This routine first looks up the identity of the model for the solution
+ * thermodynamics in the model attribute of the thermo child of the xml phase
+ * node. Then, it does a string lookup using Cantera's internal ThermoPhase
+ * Factory routines on the model to figure out what ThermoPhase derived class
+ * should be assigned. It creates a new instance of that class, and then calls
+ * importPhase() to populate that class with the correct parameters from the
+ * XML tree.
  *
  * @param phase XML_Node reference pointing to the phase XML element.
- *
- * @return
- *    Returns a pointer to the completed and initialized ThermoPhase object.
+ * @return  A pointer to the completed and initialized ThermoPhase object.
  *
  * @ingroup inputfiles
  */

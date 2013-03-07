@@ -492,8 +492,7 @@
  *  (both P and T dependent), is to be used to calculate the
  *  standard state properties of the species within the phase.
  *  If only a reference state is needed
- *  then a call to
- *  \link #Cantera::newSpeciesThermoMgr(std::vector<XML_Node*> spData_nodes, SpeciesThermoFactory* f=0, bool opt=false) newSpeciesThermoMgr()\endlink
+ *  then a call to newSpeciesThermoMgr()
  *  is made in order
  *  pick a manager, i.e., a derivative of the SpeciesThermo
  *  object, to use.
