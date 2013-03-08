@@ -888,26 +888,30 @@ void StFlow::restore(const XML_Node& dom, doublereal* soln, int loglevel)
         }
     }
 
-    getFloatArray(dom, x, false, "", "energy_enabled");
-    if (x.size() == nPoints()) {
-        for (size_t i = 0; i < x.size(); i++) {
-            m_do_energy[i] = x[i];
+    if (dom.hasChild("energy_enabled")) {
+        getFloatArray(dom, x, false, "", "energy_enabled");
+        if (x.size() == nPoints()) {
+            for (size_t i = 0; i < x.size(); i++) {
+                m_do_energy[i] = x[i];
+            }
+        } else if (!x.empty()) {
+            throw CanteraError("StFlow::restore", "energy_enabled is length" +
+                               int2str(x.size()) + "but should be length" +
+                               int2str(nPoints()));
         }
-    } else if (!x.empty()) {
-        throw CanteraError("StFlow::restore", "energy_enabled is length" +
-                           int2str(x.size()) + "but should be length" +
-                           int2str(nPoints()));
     }
 
-    getFloatArray(dom, x, false, "", "species_enabled");
-    if (x.size() == m_nsp) {
-        for (size_t i = 0; i < x.size(); i++) {
-            m_do_species[i] = x[i];
+    if (dom.hasChild("species_enabled")) {
+        getFloatArray(dom, x, false, "", "species_enabled");
+        if (x.size() == m_nsp) {
+            for (size_t i = 0; i < x.size(); i++) {
+                m_do_species[i] = x[i];
+            }
+        } else if (!x.empty()) {
+            throw CanteraError("StFlow::restore", "species_enabled is length" +
+                               int2str(x.size()) + "but should be length" +
+                               int2str(m_nsp));
         }
-    } else if (!x.empty()) {
-        throw CanteraError("StFlow::restore", "species_enabled is length" +
-                           int2str(x.size()) + "but should be length" +
-                           int2str(m_nsp));
     }
 
     if (dom.hasChild("refine_criteria")) {
