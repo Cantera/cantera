@@ -347,14 +347,20 @@ public:
         return m_pgroups[i];
     }
 
+    virtual void update_rates_T();
+    virtual void update_rates_C();
 
-    void _update_rates_T();
+    void _update_rates_T() {
+        update_rates_T();
+    }
 
     //! Update properties that depend on concentrations.
     //! Currently the enhanced collision partner concentrations are updated
     //! here, as well as the pressure-dependent portion of P-log and Chebyshev
     //! reactions.
-    void _update_rates_C();
+    void _update_rates_C() {
+        update_rates_C();
+    }
 
     //@}
 
