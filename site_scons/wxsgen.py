@@ -71,7 +71,7 @@ class WxsGenerator(object):
                                      UpgradeCode='2340BEE1-279D-11E1-A4AA-001FBC085391',
                                      Language='1033',
                                      Codepage='1252',
-                                     Version='2.0.1',
+                                     Version='2.0.2',
                                      Manufacturer='Cantera Developers'))
 
         fields = {'Platform': 'x64'} if self.x64 else {}
