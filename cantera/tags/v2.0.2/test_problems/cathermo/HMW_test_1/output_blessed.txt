@@ -1,0 +1,330 @@
+Index  Name                  MoleF   MolalityCropped  Charge
+ 0     H2O(L)            8.1992706e-01  5.5508435e+01   0.0 
+ 1     Cl-               9.0036447e-02  6.0953986e+00  -1.0 
+ 2     H+                3.1947189e-11  2.1628000e-09   1.0 
+ 3     Na+               9.0036468e-02  6.0954000e+00   1.0 
+ 4     OH-               2.0645728e-08  1.3977000e-06  -1.0 
+
+ Species          Species            beta0MX  beta1MX   beta2MX   CphiMX    alphaMX thetaij    
+ Cl-              H+                 0.17750   0.29450   0.00000   0.00080   2.00000   0.00000 
+ Cl-              Na+                0.07650   0.26640   0.00000   0.00127   2.00000   0.00000 
+ Cl-              OH-                0.00000   0.00000   0.00000   0.00000   2.00000  -0.05000 
+ H+               Na+                0.00000   0.00000   0.00000   0.00000   2.00000   0.03600 
+ H+               OH-                0.00000   0.00000   0.00000   0.00000   2.00000   0.00000 
+ Na+              OH-                0.08640   0.25300   0.00000   0.00440   2.00000   0.00000 
+
+ Species          Species          Species       psi   
+ Cl-              H+               Na+               -0.00400 
+ Cl-              Na+              H+                -0.00400 
+ Cl-              Na+              OH-               -0.00600 
+ Cl-              OH-              Na+               -0.00600 
+ H+               Cl-              Na+               -0.00400 
+ H+               Na+              Cl-               -0.00400 
+ Na+              Cl-              H+                -0.00400 
+ Na+              Cl-              OH-               -0.00600 
+ Na+              H+               Cl-               -0.00400 
+ Na+              OH-              Cl-               -0.00600 
+ OH-              Cl-              Na+               -0.00600 
+ OH-              Na+              Cl-               -0.00600 
+a1 = 3.04284e-10
+a2 = 3.04284e-10
+
+ Debugging information from hmw_act 
+ Step 1: 
+ ionic strenth      =  6.0997000e+00 
+ total molar charge =  1.2199400e+01 
+ Is = 6.0997
+ ij = 1, elambda = 0.0454012, elambda1 = -0.00306854
+ ij = 2, elambda = 0.200776, elambda1 = -0.014532
+ ij = 3, elambda = 0.47109, elambda1 = -0.0351127
+ ij = 4, elambda = 0.857674, elambda1 = -0.0650149
+ ij = 4, elambda = 0.857674, elambda1 = -0.0650149
+ ij = 6, elambda = 1.98206, elambda1 = -0.153152
+ ij = 8, elambda = 3.57685, elambda1 = -0.279391
+ ij = 9, elambda = 4.55112, elambda1 = -0.356872
+ ij = 12, elambda = 8.18289, elambda1 = -0.646977
+ ij = 16, elambda = 14.6822, elambda1 = -1.16875
+ Step 2: 
+ z1=  1 z2=  1 E-theta(I) = 0.000000, E-thetaprime(I) = 0.000000
+ z1=  1 z2=  2 E-theta(I) = -0.059044, E-thetaprime(I) = 0.004790
+ z1=  1 z2=  3 E-theta(I) = -0.355533, E-thetaprime(I) = 0.028969
+ z1=  1 z2=  4 E-theta(I) = -1.068400, E-thetaprime(I) = 0.087216
+ z1=  2 z2=  1 E-theta(I) = -0.059044, E-thetaprime(I) = 0.004790
+ z1=  2 z2=  2 E-theta(I) = 0.000000, E-thetaprime(I) = 0.000000
+ z1=  2 z2=  3 E-theta(I) = -0.178237, E-thetaprime(I) = 0.014566
+ z1=  2 z2=  4 E-theta(I) = -0.951372, E-thetaprime(I) = 0.077813
+ z1=  3 z2=  1 E-theta(I) = -0.355533, E-thetaprime(I) = 0.028969
+ z1=  3 z2=  2 E-theta(I) = -0.178237, E-thetaprime(I) = 0.014566
+ z1=  3 z2=  3 E-theta(I) = 0.000000, E-thetaprime(I) = 0.000000
+ z1=  3 z2=  4 E-theta(I) = -0.357010, E-thetaprime(I) = 0.029220
+ z1=  4 z2=  1 E-theta(I) = -1.068400, E-thetaprime(I) = 0.087216
+ z1=  4 z2=  2 E-theta(I) = -0.951372, E-thetaprime(I) = 0.077813
+ z1=  4 z2=  3 E-theta(I) = -0.357010, E-thetaprime(I) = 0.029220
+ z1=  4 z2=  4 E-theta(I) = 0.000000, E-thetaprime(I) = 0.000000
+ Step 3: 
+ Species          Species            g(x)  hfunc(x)   
+ Cl-              H+                 0.07849  -0.07133 
+ Cl-              Na+                0.07849  -0.07133 
+ Cl-              OH-                0.00000   0.00000 
+ H+               Na+                0.00000   0.00000 
+ H+               OH-                0.07849  -0.07133 
+ Na+              OH-                0.07849  -0.07133 
+ Step 4: 
+ Species          Species            BMX    BprimeMX    BphiMX   
+1 0.200614: 0.1775 0.2945 0 0.0784862
+ Cl-              H+                 0.2006142  -0.0034438   0.1796081 
+2 0.0974087: 0.0765 0.2664 0 0.0784862
+ Cl-              Na+                0.0974087  -0.0031152   0.0784069 
+ Cl-              OH-                0.0000000   0.0000000   0.0000000 
+ H+               Na+                0.0000000   0.0000000   0.0000000 
+5 0: 0 0 0 0.0784862
+ H+               OH-                0.0000000   0.0000000   0.0000000 
+6 0.106257: 0.0864 0.253 0 0.0784862
+ Na+              OH-                0.1062570  -0.0029585   0.0882110 
+ Step 5: 
+ Species          Species            CMX 
+ Cl-              H+                 0.0004000 
+ Cl-              Na+                0.0006350 
+ Cl-              OH-                0.0000000 
+ H+               Na+                0.0000000 
+ H+               OH-                0.0000000 
+ Na+              OH-                0.0022000 
+ Step 6: 
+ Species          Species            Phi_ij  Phiprime_ij  Phi^phi_ij 
+ Cl-              H+                 0.000000   0.000000   0.000000 
+ Cl-              Na+                0.000000   0.000000   0.000000 
+ Cl-              OH-               -0.050000   0.000000  -0.050000 
+ H+               Na+                0.036000   0.000000   0.036000 
+ H+               OH-                0.000000   0.000000   0.000000 
+ Na+              OH-                0.000000   0.000000   0.000000 
+ Step 7: 
+ initial value of F =  -1.143942 
+ F =  -1.143942 
+ F =  -1.259847 
+ F =  -1.259847 
+ F =  -1.259847 
+ F =  -1.259847 
+ F =  -1.259847 
+ Step 8: Summing in All Contributions to Activity Coefficients 
+  Contributions to ln(ActCoeff_Cl-):
+      Unary term:                                      z*z*F =   -1.25985
+      Tern CMX term on Cl-,H+:          abs(z_i) m_j m_k CMX =    0.00000
+      Tern CMX term on Cl-,Na+:         abs(z_i) m_j m_k CMX =    0.02363
+      Bin term with H+:                            2 m_j BMX =    0.00000
+                                                   m_j Z CMX =    0.00000
+      Psi term on H+,Na+:                    m_j m_k psi_ijk =   -0.00000
+      Bin term with Na+:                           2 m_j BMX =    1.18833
+                                                   m_j Z CMX =    0.04725
+      Phi term with OH-:                        2 m_j Phi_aa =   -0.00000
+      Psi term on OH-,Na+:                   m_j m_k psi_ijk =   -0.00000
+      Tern CMX term on OH-,Na+:         abs(z_i) m_j m_k CMX =    0.00000
+      Net Cl-                                     lngamma[i] =   -0.00064             gamma[i]=  0.999359
+  Contributions to ln(ActCoeff_H+):
+      Unary term:                                      z*z*F =   -1.25985
+      Bin term with Cl-:                           2 m_j BMX =    2.44737
+                                                   m_j Z CMX =    0.02977
+      Tern CMX term on H+,Cl-:          abs(z_i) m_j m_k CMX =    0.00000
+      Phi term with Na+:                        2 m_j Phi_cc =    0.43918
+      Psi term on Na+,Cl-:                   m_j m_k psi_ijk =   -0.14883
+      Tern CMX term on Na+,Cl-:         abs(z_i) m_j m_k CMX =    0.02363
+      Tern CMX term on Na+,OH-:         abs(z_i) m_j m_k CMX =    0.00000
+      Bin term with OH-:                           2 m_j BMX =    0.00000
+                                                   m_j Z CMX =    0.00000
+      Net H+                                      lngamma[i] =    1.53127         gamma[i]=  4.624042 
+  Contributions to ln(ActCoeff_Na+):
+      Unary term:                                      z*z*F =   -1.25985
+      Bin term with Cl-:                           2 m_j BMX =    1.18833
+                                                   m_j Z CMX =    0.04725
+      Psi term on Cl-,OH-:                   m_j m_k psi_ijk =   -0.00000
+      Phi term with H+:                         2 m_j Phi_cc =    0.00000
+      Psi term on H+,Cl-:                    m_j m_k psi_ijk =   -0.00000
+      Tern CMX term on H+,Cl-:          abs(z_i) m_j m_k CMX =    0.00000
+      Tern CMX term on Na+,Cl-:         abs(z_i) m_j m_k CMX =    0.02363
+      Tern CMX term on Na+,OH-:         abs(z_i) m_j m_k CMX =    0.00000
+      Bin term with OH-:                           2 m_j BMX =    0.00000
+                                                   m_j Z CMX =    0.00000
+      Net Na+                                     lngamma[i] =   -0.00064         gamma[i]=  0.999359 
+  Contributions to ln(ActCoeff_OH-):
+      Unary term:                                      z*z*F =   -1.25985
+      Phi term with Cl-:                        2 m_j Phi_aa =   -0.60997
+      Tern CMX term on Cl-,H+:          abs(z_i) m_j m_k CMX =    0.00000
+      Psi term on Cl-,Na+:                   m_j m_k psi_ijk =   -0.22324
+      Tern CMX term on Cl-,Na+:         abs(z_i) m_j m_k CMX =    0.02363
+      Bin term with H+:                            2 m_j BMX =    0.00000
+                                                   m_j Z CMX =    0.00000
+      Bin term with Na+:                           2 m_j BMX =    1.29627
+                                                   m_j Z CMX =    0.16371
+      Tern CMX term on OH-,Na+:         abs(z_i) m_j m_k CMX =    0.00000
+      Net OH-                                     lngamma[i] =   -0.60945             gamma[i]=  0.543650
+ Step 9: 
+ term1= -1.489777 sum1=  3.205458 sum2=  0.000000 sum3= -0.000001 sum4=  0.000000 sum5=  0.000000
+     sum_m_phi_minus_1=  3.431360        osmotic_coef=  1.281273
+ Step 10: 
+ Weight of Solvent =         18.01528
+ molalitySumUncropped =          12.1994
+ ln_a_water= -0.281593 a_water=  0.754581
+
+
+ Debugging information from hmw_act 
+ Step 1: 
+ ionic strenth      =  6.0997000e+00 
+ total molar charge =  1.2199400e+01 
+ Is = 6.0997
+ ij = 1, elambda = 0.0454012, elambda1 = -0.00306854
+ ij = 2, elambda = 0.200776, elambda1 = -0.014532
+ ij = 3, elambda = 0.47109, elambda1 = -0.0351127
+ ij = 4, elambda = 0.857674, elambda1 = -0.0650149
+ ij = 4, elambda = 0.857674, elambda1 = -0.0650149
+ ij = 6, elambda = 1.98206, elambda1 = -0.153152
+ ij = 8, elambda = 3.57685, elambda1 = -0.279391
+ ij = 9, elambda = 4.55112, elambda1 = -0.356872
+ ij = 12, elambda = 8.18289, elambda1 = -0.646977
+ ij = 16, elambda = 14.6822, elambda1 = -1.16875
+ Step 2: 
+ z1=  1 z2=  1 E-theta(I) = 0.000000, E-thetaprime(I) = 0.000000
+ z1=  1 z2=  2 E-theta(I) = -0.059044, E-thetaprime(I) = 0.004790
+ z1=  1 z2=  3 E-theta(I) = -0.355533, E-thetaprime(I) = 0.028969
+ z1=  1 z2=  4 E-theta(I) = -1.068400, E-thetaprime(I) = 0.087216
+ z1=  2 z2=  1 E-theta(I) = -0.059044, E-thetaprime(I) = 0.004790
+ z1=  2 z2=  2 E-theta(I) = 0.000000, E-thetaprime(I) = 0.000000
+ z1=  2 z2=  3 E-theta(I) = -0.178237, E-thetaprime(I) = 0.014566
+ z1=  2 z2=  4 E-theta(I) = -0.951372, E-thetaprime(I) = 0.077813
+ z1=  3 z2=  1 E-theta(I) = -0.355533, E-thetaprime(I) = 0.028969
+ z1=  3 z2=  2 E-theta(I) = -0.178237, E-thetaprime(I) = 0.014566
+ z1=  3 z2=  3 E-theta(I) = 0.000000, E-thetaprime(I) = 0.000000
+ z1=  3 z2=  4 E-theta(I) = -0.357010, E-thetaprime(I) = 0.029220
+ z1=  4 z2=  1 E-theta(I) = -1.068400, E-thetaprime(I) = 0.087216
+ z1=  4 z2=  2 E-theta(I) = -0.951372, E-thetaprime(I) = 0.077813
+ z1=  4 z2=  3 E-theta(I) = -0.357010, E-thetaprime(I) = 0.029220
+ z1=  4 z2=  4 E-theta(I) = 0.000000, E-thetaprime(I) = 0.000000
+ Step 3: 
+ Species          Species            g(x)  hfunc(x)   
+ Cl-              H+                 0.07849  -0.07133 
+ Cl-              Na+                0.07849  -0.07133 
+ Cl-              OH-                0.00000   0.00000 
+ H+               Na+                0.00000   0.00000 
+ H+               OH-                0.07849  -0.07133 
+ Na+              OH-                0.07849  -0.07133 
+ Step 4: 
+ Species          Species            BMX    BprimeMX    BphiMX   
+1 0.200614: 0.1775 0.2945 0 0.0784862
+ Cl-              H+                 0.2006142  -0.0034438   0.1796081 
+2 0.0974087: 0.0765 0.2664 0 0.0784862
+ Cl-              Na+                0.0974087  -0.0031152   0.0784069 
+ Cl-              OH-                0.0000000   0.0000000   0.0000000 
+ H+               Na+                0.0000000   0.0000000   0.0000000 
+5 0: 0 0 0 0.0784862
+ H+               OH-                0.0000000   0.0000000   0.0000000 
+6 0.106257: 0.0864 0.253 0 0.0784862
+ Na+              OH-                0.1062570  -0.0029585   0.0882110 
+ Step 5: 
+ Species          Species            CMX 
+ Cl-              H+                 0.0004000 
+ Cl-              Na+                0.0006350 
+ Cl-              OH-                0.0000000 
+ H+               Na+                0.0000000 
+ H+               OH-                0.0000000 
+ Na+              OH-                0.0022000 
+ Step 6: 
+ Species          Species            Phi_ij  Phiprime_ij  Phi^phi_ij 
+ Cl-              H+                 0.000000   0.000000   0.000000 
+ Cl-              Na+                0.000000   0.000000   0.000000 
+ Cl-              OH-               -0.050000   0.000000  -0.050000 
+ H+               Na+                0.036000   0.000000   0.036000 
+ H+               OH-                0.000000   0.000000   0.000000 
+ Na+              OH-                0.000000   0.000000   0.000000 
+ Step 7: 
+ initial value of F =  -1.143942 
+ F =  -1.143942 
+ F =  -1.259847 
+ F =  -1.259847 
+ F =  -1.259847 
+ F =  -1.259847 
+ F =  -1.259847 
+ Step 8: Summing in All Contributions to Activity Coefficients 
+  Contributions to ln(ActCoeff_Cl-):
+      Unary term:                                      z*z*F =   -1.25985
+      Tern CMX term on Cl-,H+:          abs(z_i) m_j m_k CMX =    0.00000
+      Tern CMX term on Cl-,Na+:         abs(z_i) m_j m_k CMX =    0.02363
+      Bin term with H+:                            2 m_j BMX =    0.00000
+                                                   m_j Z CMX =    0.00000
+      Psi term on H+,Na+:                    m_j m_k psi_ijk =   -0.00000
+      Bin term with Na+:                           2 m_j BMX =    1.18833
+                                                   m_j Z CMX =    0.04725
+      Phi term with OH-:                        2 m_j Phi_aa =   -0.00000
+      Psi term on OH-,Na+:                   m_j m_k psi_ijk =   -0.00000
+      Tern CMX term on OH-,Na+:         abs(z_i) m_j m_k CMX =    0.00000
+      Net Cl-                                     lngamma[i] =   -0.00064             gamma[i]=  0.999359
+  Contributions to ln(ActCoeff_H+):
+      Unary term:                                      z*z*F =   -1.25985
+      Bin term with Cl-:                           2 m_j BMX =    2.44737
+                                                   m_j Z CMX =    0.02977
+      Tern CMX term on H+,Cl-:          abs(z_i) m_j m_k CMX =    0.00000
+      Phi term with Na+:                        2 m_j Phi_cc =    0.43918
+      Psi term on Na+,Cl-:                   m_j m_k psi_ijk =   -0.14883
+      Tern CMX term on Na+,Cl-:         abs(z_i) m_j m_k CMX =    0.02363
+      Tern CMX term on Na+,OH-:         abs(z_i) m_j m_k CMX =    0.00000
+      Bin term with OH-:                           2 m_j BMX =    0.00000
+                                                   m_j Z CMX =    0.00000
+      Net H+                                      lngamma[i] =    1.53127         gamma[i]=  4.624042 
+  Contributions to ln(ActCoeff_Na+):
+      Unary term:                                      z*z*F =   -1.25985
+      Bin term with Cl-:                           2 m_j BMX =    1.18833
+                                                   m_j Z CMX =    0.04725
+      Psi term on Cl-,OH-:                   m_j m_k psi_ijk =   -0.00000
+      Phi term with H+:                         2 m_j Phi_cc =    0.00000
+      Psi term on H+,Cl-:                    m_j m_k psi_ijk =   -0.00000
+      Tern CMX term on H+,Cl-:          abs(z_i) m_j m_k CMX =    0.00000
+      Tern CMX term on Na+,Cl-:         abs(z_i) m_j m_k CMX =    0.02363
+      Tern CMX term on Na+,OH-:         abs(z_i) m_j m_k CMX =    0.00000
+      Bin term with OH-:                           2 m_j BMX =    0.00000
+                                                   m_j Z CMX =    0.00000
+      Net Na+                                     lngamma[i] =   -0.00064         gamma[i]=  0.999359 
+  Contributions to ln(ActCoeff_OH-):
+      Unary term:                                      z*z*F =   -1.25985
+      Phi term with Cl-:                        2 m_j Phi_aa =   -0.60997
+      Tern CMX term on Cl-,H+:          abs(z_i) m_j m_k CMX =    0.00000
+      Psi term on Cl-,Na+:                   m_j m_k psi_ijk =   -0.22324
+      Tern CMX term on Cl-,Na+:         abs(z_i) m_j m_k CMX =    0.02363
+      Bin term with H+:                            2 m_j BMX =    0.00000
+                                                   m_j Z CMX =    0.00000
+      Bin term with Na+:                           2 m_j BMX =    1.29627
+                                                   m_j Z CMX =    0.16371
+      Tern CMX term on OH-,Na+:         abs(z_i) m_j m_k CMX =    0.00000
+      Net OH-                                     lngamma[i] =   -0.60945             gamma[i]=  0.543650
+ Step 9: 
+ term1= -1.489777 sum1=  3.205458 sum2=  0.000000 sum3= -0.000001 sum4=  0.000000 sum5=  0.000000
+     sum_m_phi_minus_1=  3.431360        osmotic_coef=  1.281273
+ Step 10: 
+ Weight of Solvent =         18.01528
+ molalitySumUncropped =          12.1994
+ ln_a_water= -0.281593 a_water=  0.754581
+
+            Name      Activity  ActCoeffMolal    MoleFract      Molality
+          H2O(L)      0.754581       0.92042      0.819823       55.5084
+             Cl-       6.09579      0.999359     0.0900885        6.0997
+              H+   1.00009e-08       4.62404   3.19431e-11    2.1628e-09
+             Na+       6.09579      0.999359     0.0900885        6.0997
+             OH-    7.5986e-07       0.54365   2.06431e-08    1.3977e-06
+           Species   Standard chemical potentials (kJ/gmol) 
+------------------------------------------------------------
+          H2O(L)      -306.685777
+             Cl-      -131.066575
+              H+                0
+             Na+      -311.162266
+             OH-      -226.881844
+------------------------------------------------------------
+ Some DeltaSS values:               Delta(mu_0)
+ NaCl(S): Na+ + Cl- -> NaCl(S):        9.59844 kJ/gmol 
+                                :       3.871963 (dimensionless) 
+                                :       1.681572 (dimensionless/ln10) 
+            G0(NaCl(S)) =      -432.6304 (fixed)
+            G0(Na+)     =      -311.1623
+            G0(Cl-)     =      -131.0666
+ OH-: H2O(L) - H+ -> OH-:       79.80393 kJ/gmol 
+                                :       32.19251 (dimensionless) 
+                                :       13.98103 (dimensionless/ln10) 
+            G0(OH-)    =      -226.8818
+            G0(H+)     =              0
+            G0(H2O(L)) =      -306.6858
+------------------------------------------------------------

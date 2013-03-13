@@ -1,0 +1,2 @@
+#!/bin/sh
+/bin/rm -f csvCode.txt ct2ctml.log diff_test.out output.txt gri30.xml

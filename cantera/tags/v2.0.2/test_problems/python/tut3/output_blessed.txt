@@ -1,0 +1,579 @@
+
+
+  Tutorial 3: Getting Help
+
+
+Cantera.solution.Solution
+Help on class Solution in module Cantera.solution:
+
+class Solution(Cantera.ThermoPhase.ThermoPhase, Cantera.Kinetics.Kinetics, Cantera.Transport.Transport)
+ |  A class for chemically-reacting solutions.
+ |  
+ |  Instances can be created to represent any type of solution -- a
+ |  mixture of gases, a liquid solution, or a solid solution, for
+ |  example.
+ |  
+ |  Class Solution derives from classes ThermoPhase, Kinetics, and
+ |  Transport.  It defines very few methods of its own, and is
+ |  provided largely for convenience, so that a single object can be
+ |  used to compute thermodynamic, kinetic, and transport properties
+ |  of a solution. Functions like IdealGasMix and others defined in
+ |  module gases return objects of class Solution.
+ |  
+ |  Method resolution order:
+ |      Solution
+ |      Cantera.ThermoPhase.ThermoPhase
+ |      Cantera.Phase.Phase
+ |      Cantera.Kinetics.Kinetics
+ |      Cantera.Transport.Transport
+ |  
+ |  Methods defined here:
+ |  
+ |  __del__(self)
+ |  
+ |  __init__(self, src='', id='', loglevel=0, debug=0)
+ |  
+ |  __repr__(self)
+ |  
+ |  name(self)
+ |  
+ |  set(self, **options)
+ |      Set various properties.
+ |      T       --- temperature [K]
+ |      P       --- pressure [Pa]
+ |      Rho     --- density [kg/m3]
+ |      V       --- specific volume [m3/kg]
+ |      H       --- specific enthalpy [J/kg]
+ |      U       --- specific internal energy [J/kg]
+ |      S       --- specific entropy [J/kg/K]
+ |      X       --- mole fractions (string or array)
+ |      Y       --- mass fractions (string or array)
+ |      Vapor   --- saturated vapor fraction
+ |      Liquid  --- saturated liquid fraction
+ |  
+ |  ----------------------------------------------------------------------
+ |  Methods inherited from Cantera.ThermoPhase.ThermoPhase:
+ |  
+ |  chemPotentials(self, species=[])
+ |      Species chemical potentials.
+ |      
+ |      This method returns an array containing the species
+ |      chemical potentials [J/kmol]. The expressions used to
+ |      compute these depend on the model implemented by the
+ |      underlying kernel thermo manager.
+ |  
+ |  cp_R(self, species=[])
+ |      Pure species non-dimensional heat capacities
+ |      at constant pressure.
+ |      
+ |      This method returns an array containing the pure-species
+ |      standard-state heat capacities divided by R. For gaseous
+ |      species, these values are ideal gas heat capacities.
+ |  
+ |  cp_mass(self)
+ |      Specific heat at constant pressure [J/kg/K].
+ |  
+ |  cp_mole(self)
+ |      The molar heat capacity at constant pressure [J/kmol/K].
+ |  
+ |  cv_mass(self)
+ |      Specific heat at constant volume [J/kg/K].
+ |  
+ |  cv_mole(self)
+ |      The molar heat capacity at constant volume [J/kmol/K].
+ |  
+ |  electricPotential(self)
+ |      Electric potential [V].
+ |  
+ |  elementPotentials(self, elements=[])
+ |      Element potentials of the elements.
+ |      
+ |      This method returns an array containing the element potentials
+ |      [J/kmol]. The element potentials are only defined for
+ |      equilibrium states. This method first sets the composition to
+ |      a state of equilibrium holding T and P constant, then computes
+ |      the element potentials for this equilibrium state.
+ |  
+ |  enthalpies_RT(self, species=[])
+ |      Pure species non-dimensional reference state enthalpies.
+ |      
+ |      This method returns an array containing the pure-species
+ |      standard-state enthalpies divided by RT. For gaseous species,
+ |      these values are ideal gas enthalpies.
+ |  
+ |  enthalpy_mass(self)
+ |      Specific enthalpy [J/kg].
+ |  
+ |  enthalpy_mole(self)
+ |      The molar enthalpy [J/kmol].
+ |  
+ |  entropies_R(self, species=[])
+ |      Pure species non-dimensional entropies.
+ |      
+ |      This method returns an array containing the pure-species
+ |      standard-state entropies divided by R. For gaseous species,
+ |      these values are ideal gas entropies.
+ |  
+ |  entropy_mass(self)
+ |      Specific entropy [J/kg/K].
+ |  
+ |  entropy_mole(self)
+ |      The molar entropy [J/kmol/K].
+ |  
+ |  equilibrate(self, XY, solver=-1, rtol=1.0000000000000001e-09, maxsteps=1000, maxiter=100, loglevel=0)
+ |      Set to a state of chemical equilibrium holding property pair
+ |      'XY' constant.
+ |      
+ |      XY ---   A two-letter string, which must be one of the set
+ |      ['TP','TV','HP','SP','SV','UV','PT','VT','PH','PS','VS','VU'].
+ |      If H, U, S, or V is specified, the value must be the specific
+ |      value (per unit mass)
+ |      
+ |      solver --- Specifies the equilibrium solver to use. If solver =
+ |      0, a fast solver using the element potential method will be
+ |      used. If solver > 0, a slower but more robust Gibbs
+ |      minimization solver will be used. If solver < 0 or
+ |      unspecified, the fast solver will be tried first, then if it
+ |      fails the other will be tried.
+ |      
+ |      rtol -- the relative error tolerance.
+ |      
+ |      maxsteps -- maximum number of steps in composition to take to
+ |      find a converged solution.
+ |      
+ |      maxiter -- for the Gibbs minimization solver only, this
+ |      specifies the number of 'outer' iterations on T or P when some
+ |      property pair other than TP is specified.
+ |      
+ |      loglevel -- set to a value > 0 to write diagnostic output to a
+ |      file in HTML format. Larger values generate more detailed
+ |      information. The file will be named 'equilibrate_log.html.'
+ |      Subsequent files will be named 'equillibrate_log1.html', etc.,
+ |      so that log files are not overwritten.
+ |  
+ |  gibbs_RT(self, species=[])
+ |      Pure species non-dimensional Gibbs free energies.
+ |      
+ |      This method returns an array containing the pure-species
+ |      standard-state Gibbs free energies divided by R.
+ |      For gaseous species, these are ideal gas values.
+ |  
+ |  gibbs_mass(self)
+ |      Specific Gibbs free energy [J/kg].
+ |  
+ |  gibbs_mole(self)
+ |      The molar Gibbs function [J/kmol].
+ |  
+ |  intEnergy_mass(self)
+ |      Specific internal energy [J/kg].
+ |  
+ |  intEnergy_mole(self)
+ |      The molar internal energy [J/kmol].
+ |  
+ |  maxTemp(self, sp=None)
+ |      Maximum temperature for which thermodynamic property fits
+ |      are valid.  If a species is specified (by name or number),
+ |      then the maximum temperature is for only this
+ |      species. Otherwise it is the highest temperature for which the
+ |      properties are valid for all species.
+ |  
+ |  minTemp(self, sp=None)
+ |      Minimum temperature for which thermodynamic property fits
+ |      are valid.  If a species is specified (by name or number),
+ |      then the minimum temperature is for only this
+ |      species. Otherwise it is the lowest temperature for which the
+ |      properties are valid for all species.
+ |  
+ |  pressure(self)
+ |      The pressure [Pa].
+ |  
+ |  refPressure(self)
+ |      Reference pressure [Pa].
+ |      All standard-state thermodynamic properties are for this pressure.
+ |  
+ |  restoreState(self, s)
+ |      Restore the state to that stored in array s.
+ |  
+ |  saveState(self)
+ |      Return an array with state information that can later be
+ |      used to restore the state.
+ |  
+ |  setElectricPotential(self, v)
+ |      Set the electric potential.
+ |  
+ |  setName(self, name)
+ |      Set the name attribute. This can be any string
+ |  
+ |  setPressure(self, p)
+ |      Set the pressure [Pa].
+ |  
+ |  setState_HP(self, h, p)
+ |      Set the state by specifying the specific enthalpy and
+ |      the pressure.
+ |  
+ |  setState_PX(self, p, x)
+ |      Set the pressure [Pa], and mole fractions.
+ |  
+ |  setState_PY(self, p, y)
+ |      Set the pressure [Pa], and mass fractions.
+ |  
+ |  setState_SP(self, s, p)
+ |      Set the state by specifying the specific entropy
+ |      energy and the pressure.
+ |  
+ |  setState_SV(self, s, v)
+ |      Set the state by specifying the specific entropy
+ |      and the specific volume.
+ |  
+ |  setState_TP(self, t, p)
+ |      Set the temperature [K] and pressure [Pa].
+ |  
+ |  setState_TPX(self, t, p, x)
+ |      Set the temperature [K], pressure [Pa], and
+ |      mole fractions.
+ |  
+ |  setState_TPY(self, t, p, y)
+ |      Set the temperature [K], pressure [Pa], and
+ |      mass fractions.
+ |  
+ |  setState_UV(self, u, v)
+ |      Set the state by specifying the specific internal
+ |      energy and the specific volume.
+ |  
+ |  thermo_hndl(self)
+ |      Return the integer index that is used to
+ |      reference the kernel object. For internal use.
+ |  
+ |  thermophase(self)
+ |      Return the integer index that is used to
+ |      reference the kernel object. For internal use.
+ |  
+ |  ----------------------------------------------------------------------
+ |  Methods inherited from Cantera.Phase.Phase:
+ |  
+ |  atomicWeights(self, elements=[])
+ |      Array of element molar masses [kg/kmol].
+ |      
+ |      If a sequence of element symbols is supplied, only the values
+ |      for those elements are returned, ordered as in the
+ |      list. Otherwise, the values are for all elements in the phase,
+ |      ordered as in the input file.
+ |  
+ |  density(self)
+ |      Mass density [kg/m^3].
+ |  
+ |  elementIndex(self, element)
+ |      The index of element 'element', which may be specified as
+ |      a string or an integer index. In the latter case, the index is
+ |      checked for validity and returned. If no such element is
+ |      present, an exception is thrown.
+ |  
+ |  elementName(self, m)
+ |      Name of the element with index number m.
+ |  
+ |  elementNames(self)
+ |      Return a tuple of all element names.
+ |  
+ |  massFraction(self, species)
+ |      Mass fraction of one species, referenced by name or
+ |      index number.
+ |      >>> ph.massFraction(4)
+ |      >>> ph.massFraction('CH4')
+ |  
+ |  massFractions(self, species=None)
+ |      Species mass fraction array.
+ |      If optional argument 'species'
+ |      is supplied, then only the values for the selected species are
+ |      returned.
+ |      >>> y1 = ph.massFractions()   # all species
+ |      >>> y2 = ph.massFractions(['OH', 'CH3'. 'O2'])
+ |  
+ |  meanMolarMass(self)
+ |      Mean molar mass [kg/kmol].
+ |  
+ |  meanMolecularWeight(self)
+ |      Mean molar mass [kg/kmol].
+ |  
+ |  molarDensity(self)
+ |      Molar density [kmol/m^3].
+ |  
+ |  molarMasses(self, species=None)
+ |      Array of species molar masses [kg/kmol].
+ |  
+ |  moleFraction(self, species)
+ |      Mole fraction of a species, referenced by name or
+ |      index number.
+ |      >>> ph.moleFraction(4)
+ |      >>> ph.moleFraction('CH4')
+ |  
+ |  moleFractions(self, species=None)
+ |      Species mole fraction array.
+ |      If optional argument 'species'
+ |      is supplied, then only the values for the selected species are
+ |      returned.
+ |      >>> x1 = ph.moleFractions()   # all species
+ |      >>> x2 = ph.moleFractions(['OH', 'CH3'. 'O2'])
+ |  
+ |  molecularWeights(self, species=None)
+ |      Array of species molar masses [kg/kmol].
+ |  
+ |  nAtoms(self, species=None, element=None)
+ |      Number of atoms of element 'element' in species 'species'.
+ |      The  element and species may be specified by name or by number.
+ |      >>> ph.nAtoms('CH4','H')
+ |      ___ 4
+ |  
+ |  nElements(self)
+ |      Number of elements.
+ |  
+ |  nSpecies(self)
+ |      Number of species.
+ |  
+ |  phase_id(self)
+ |      The integer index used to access the kernel-level object.
+ |      Internal.
+ |  
+ |  selectElements(self, f, elements)
+ |      Given an array 'f' of floating-point element properties,
+ |      return a nummodule array of those values corresponding to elements
+ |      listed in 'elements'.
+ |      >>> f = ph.elementPotentials()
+ |      >>> lam_o, lam_h = ph.selectElements(f, ['O', 'H'])
+ |  
+ |  selectSpecies(self, f, species)
+ |      Given an array 'f' of floating-point species properties,
+ |      return an array of those values corresponding to species
+ |      listed in 'species'. This method is used internally to implement
+ |      species selection in methods like moleFractions, massFractions, etc.
+ |      >>> f = ph.chemPotentials()
+ |      >>> muo2, muh2 = ph.selectSpecies(f, ['O2', 'H2'])
+ |  
+ |  setDensity(self, rho)
+ |      Set the density [kg/m3].
+ |  
+ |  setMassFractions(self, x, norm=1)
+ |      Set the mass fractions.
+ |      See: setMoleFractions
+ |  
+ |  setMolarDensity(self, n)
+ |      Set the density [kmol/m3].
+ |  
+ |  setMoleFractions(self, x, norm=1)
+ |      Set the mole fractions.
+ |      
+ |      x - string or array of mole fraction values
+ |      
+ |      norm - If non-zero (default), array values will be
+ |      scaled to sum to 1.0.
+ |      
+ |      >>> ph.setMoleFractions('CO:1, H2:7, H2O:7.8')
+ |      >>> x = [1.0]*ph.nSpecies()
+ |      >>> ph.setMoleFractions(x)
+ |      >>> ph.setMoleFractions(x, norm = 0)  # don't normalize values
+ |  
+ |  setState_TNX(self, t, n, x)
+ |      Set the temperature, molardensity, and mole fractions. The mole
+ |      fractions may be entered as a string or array,
+ |      >>> ph.setState_TNX(600.0, 2.0e-3, 'CH4:0.4, O2:0.6')
+ |  
+ |  setState_TR(self, t, rho)
+ |      Set the temperature and density, leaving the composition
+ |      unchanged.
+ |  
+ |  setState_TRX(self, t, rho, x)
+ |      Set the temperature, density, and mole fractions. The mole
+ |      fractions may be entered as a string or array,
+ |      >>> ph.setState_TRX(600.0, 2.0e-3, 'CH4:0.4, O2:0.6')
+ |  
+ |  setState_TRY(self, t, rho, y)
+ |      Set the temperature, density, and mass fractions.
+ |  
+ |  setTemperature(self, t)
+ |      Set the temperature [K].
+ |  
+ |  speciesIndex(self, species)
+ |      The index of species 'species', which may be specified as
+ |      a string or an integer index. In the latter case, the index is
+ |      checked for validity and returned. If no such species is
+ |      present, an exception is thrown.
+ |  
+ |  speciesName(self, k)
+ |      Name of the species with index k.
+ |  
+ |  speciesNames(self)
+ |      Return a tuple of all species names.
+ |  
+ |  temperature(self)
+ |      Temperature [K].
+ |  
+ |  volume_mass(self)
+ |      Specific volume [m^3/kg].
+ |  
+ |  ----------------------------------------------------------------------
+ |  Methods inherited from Cantera.Kinetics.Kinetics:
+ |  
+ |  activationEnergies(self)
+ |      Activation energies in Kelvin for all reactions.
+ |  
+ |  advanceCoverages(self, dt)
+ |  
+ |  clear(self)
+ |      Delete the kinetics manager.
+ |  
+ |  creationRates(self, phase=None)
+ |  
+ |  delta_G(self)
+ |  
+ |  delta_G0(self)
+ |  
+ |  delta_H(self)
+ |  
+ |  delta_H0(self)
+ |  
+ |  delta_S(self)
+ |  
+ |  delta_S0(self)
+ |  
+ |  destructionRates(self, phase=None)
+ |  
+ |  equilibriumConstants(self)
+ |      Equilibrium constants in concentration units for all reactions.
+ |  
+ |  fwdRateConstants(self)
+ |      Forward rate constants for all reactions.
+ |  
+ |  fwdRatesOfProgress(self)
+ |      Forward rates of progress of the reactions.
+ |  
+ |  isReversible(self, i)
+ |      True (1) if reaction number 'i' is reversible,
+ |      and false (0) otherwise.
+ |  
+ |  kin_index(self)
+ |  
+ |  kineticsSpeciesIndex(self, name, phase)
+ |      The index of a species.
+ |      name  -- species name
+ |      phase -- phase name
+ |      
+ |      Kinetics managers for heterogeneous reaction mechanisms
+ |      maintain a list of all species in all phases. The order of the
+ |      species in this list determines the ordering of the arrays of
+ |      production rates. This method returns the index for the
+ |      specified species of the specified phase, and is used to
+ |      locate the entry for a particular species in the production
+ |      rate arrays.
+ |  
+ |  kineticsStart(self, n)
+ |      The starting location of phase n in production rate arrays.
+ |  
+ |  kineticsType(self)
+ |      Kinetics manager type.
+ |  
+ |  kinetics_hndl(self)
+ |  
+ |  multiplier(self, i)
+ |  
+ |  nPhases(self)
+ |      Number of phases.
+ |  
+ |  nReactions(self)
+ |      Number of reactions.
+ |  
+ |  netProductionRates(self, phase=None)
+ |  
+ |  netRatesOfProgress(self)
+ |      Net rates of progress of the reactions.
+ |  
+ |  phase(self, n)
+ |      Return an object representing the nth phase.
+ |  
+ |  productStoichCoeff(self, k, i)
+ |      The stoichiometric coefficient of species k as a product in reaction i.
+ |  
+ |  productStoichCoeffs(self)
+ |      The array of product stoichiometric coefficients. Element
+ |      [k,i] of this array is the product stoichiometric
+ |      coefficient of species k in reaction i.
+ |  
+ |  reactantStoichCoeff(self, k, i)
+ |      The stoichiometric coefficient of species k as a reactant in reaction i.
+ |  
+ |  reactantStoichCoeffs(self)
+ |      The array of reactant stoichiometric coefficients. Element
+ |      [k,i] of this array is the reactant stoichiometric
+ |      coefficient of species k in reaction i.
+ |  
+ |  reactionEqn(self, i)
+ |      The equation for the specified reaction. If a list of equation numbers
+ |      is given, then a list of equation strings is returned.
+ |  
+ |  reactionPhaseIndex(self)
+ |      The phase in which the reactions take place.
+ |  
+ |  reactionString(self, i)
+ |      Reaction string for reaction number 'i'
+ |  
+ |  reactionType(self, i)
+ |      Type of reaction 'i'
+ |  
+ |  revRateConstants(self, doIrreversible=0)
+ |      Reverse rate constants for all reactions.
+ |  
+ |  revRatesOfProgress(self)
+ |      Reverse rates of progress of the reactions.
+ |  
+ |  setMultiplier(self, value=0.0, reaction=-1)
+ |  
+ |  sourceTerms(self)
+ |  
+ |  ----------------------------------------------------------------------
+ |  Methods inherited from Cantera.Transport.Transport:
+ |  
+ |  addTransportModel(self, model, loglevel=1)
+ |      Add a new transport model.  Note that if 'model' is the
+ |      name of an already-installed transport model, the new
+ |      transport manager will take the place of the old one, which
+ |      will no longer be accessible. This method does not change the
+ |      active model.
+ |  
+ |  binaryDiffCoeffs(self)
+ |      Two-dimensional array of species binary diffusion coefficients.
+ |  
+ |  desc(self)
+ |      A short description of the active model.
+ |  
+ |  diffusionCoeffs(self)
+ |      Species diffusion coefficients. (m^2/s).
+ |  
+ |  mixDiffCoeffs(self)
+ |      Mixture-averaged diffusion coefficients.
+ |  
+ |  molarFluxes(self, state1, state2, delta)
+ |  
+ |  multiDiffCoeffs(self)
+ |      Two-dimensional array of species multicomponent diffusion
+ |      coefficients. Not implemented in all transport managers.
+ |  
+ |  setParameters(self, type, k, params)
+ |      Set model-specific parameters.
+ |  
+ |  switchTransportModel(self, model)
+ |      Switch to a different transport model.
+ |  
+ |  thermalConductivity(self)
+ |      Thermal conductivity. [W/m/K].
+ |  
+ |  thermalDiffCoeffs(self)
+ |      Return a one-dimensional array of the species thermal diffusion
+ |      coefficients. Not implemented in all transport models.
+ |  
+ |  transport_hndl(self)
+ |      For internal use.
+ |  
+ |  transport_id(self)
+ |      For internal use.
+ |  
+ |  viscosity(self)
+ |      Viscosity [Pa-s].
+

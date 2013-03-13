@@ -1,0 +1,42 @@
+#!/bin/sh
+
+echo " "
+echo "***************************************************"
+echo "    Testing CK2CTI on NASA9 Thermodynamics : using the build/bin version of ck2cti"
+echo "***************************************************"
+echo " "
+BINDIR=@buildbin@
+CK2CTI=$BINDIR/ck2cti
+/bin/rm  -f sample.cti
+echo "...Test 1: Converting file sample.inp..."
+$CK2CTI -i ./sample.inp -id sample -t sampleData.inp
+#
+# strip out variably dated stuff
+#
+cat sample.cti | sed '1,5s/^#.*$/#/' > samplea.cti
+#
+# Change all 3 character exponent expressions starting with 0
+# into 2 character exponent expressions
+# (MSVC++ defaults to 3, and I can't figure out how to change
+#  this behavior).
+#
+../../bin/exp3to2.sh samplea.cti > sampleb.cti
+#
+#
+diff sampleb.cti sample_blessed.cti > diff_test.out
+retnStat=$?
+#
+if [ $retnStat = "0" ]
+then
+  echo "Successful diff comparison on ck2cti test (nasa9_reader/sample.inp)"
+  return 0
+else
+  echo "########################################################"
+  echo "Unsuccessful diff comparison on ck2cti test (nasa9_reader/sample.inp)"
+  echo "   For more information, see files:"
+  echo "       test_problems/nasa9_reader/diff_test.out"
+  echo "       test_problems/nasa9_reader/sampleb.cti"
+  echo "       test_problems/nasa9_reader/sample_blessed.cti"
+  echo "########################################################"
+  return 1
+fi

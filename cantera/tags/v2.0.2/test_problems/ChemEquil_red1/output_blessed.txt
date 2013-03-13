@@ -1,0 +1,22 @@
+number of components = 1
+ 
+  gri30_mix:
+ 
+       temperature            2000  K
+          pressure          100000  Pa
+           density        0.156582  kg/m^3
+  mean mol. weight         26.0379  amu
+ 
+                          1 kg            1 kmol
+                       -----------      ------------
+          enthalpy     1.32407e+07        3.448e+08     J
+   internal energy     1.26021e+07        3.281e+08     J
+           entropy         12321.9        3.208e+05     J/K
+    Gibbs function     -1.1403e+07       -2.969e+08     J
+ heat capacity c_p         3110.34        8.099e+04     J/K
+ heat capacity c_v         2791.01        7.267e+04     J/K
+ 
+                           X                 Y          Chem. Pot. / RT    
+                     -------------     ------------     ------------
+                CH    5.94369e-09      2.97184e-09          -8.9275
+              C2H2              1                1          -17.855

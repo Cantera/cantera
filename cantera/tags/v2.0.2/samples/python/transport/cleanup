@@ -1,0 +1,4 @@
+#!/bin/sh
+#
+/bin/rm -rf .cttmp* ct2ctml.log transport_log.xml vcs_equilibrate_res*.csv \
+             diff_out_0.txt  h2o2.xml  ct2ctml.log output_0.txt

@@ -1,0 +1,6 @@
+#!/bin/sh
+#
+/bin/rm -rf equilibrate_log*.html
+/bin/rm -rf .cttmp* ct2ctml.log transport_log.xml vcs_equilibrate_res*.csv \
+            equil_koh.csv diff_csv.txt diff_out_0.txt   output_0.txt
+
