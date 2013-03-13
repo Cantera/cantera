@@ -339,11 +339,11 @@ void CVodesIntegrator::initialize(double t0, FuncEval& func)
 #if SUNDIALS_VERSION <= 23
     if (m_itol == CV_SV) {
         // vector atol
-        flag = CVodeMalloc(m_cvode_mem, cvodes_rhs, m_t0, nv(m_y), m_itol,
-                           m_reltol, nv(m_abstol));
+        flag = CVodeMalloc(m_cvode_mem, cvodes_rhs, m_t0, m_y, m_itol,
+                           m_reltol, m_abstol);
     } else {
         // scalar atol
-        flag = CVodeMalloc(m_cvode_mem, cvodes_rhs, m_t0, nv(m_y), m_itol,
+        flag = CVodeMalloc(m_cvode_mem, cvodes_rhs, m_t0, m_y, m_itol,
                            m_reltol, &m_abstols);
     }
     if (flag != CV_SUCCESS) {
@@ -425,11 +425,11 @@ void CVodesIntegrator::reinitialize(double t0, FuncEval& func)
 
 #if SUNDIALS_VERSION <= 23
     if (m_itol == CV_SV) {
-        result = CVodeReInit(m_cvode_mem, cvodes_rhs, m_t0, nv(m_y),
+        result = CVodeReInit(m_cvode_mem, cvodes_rhs, m_t0, m_y,
                              m_itol, m_reltol,
-                             nv(m_abstol));
+                             m_abstol);
     } else {
-        result = CVodeReInit(m_cvode_mem, cvodes_rhs, m_t0, nv(m_y),
+        result = CVodeReInit(m_cvode_mem, cvodes_rhs, m_t0, m_y,
                              m_itol, m_reltol,
                              &m_abstols);
     }
