@@ -981,20 +981,20 @@ class Parser(object):
         quantity_units = self.quantity_units
         if 'units' in entry.lower():
             for units in sorted(QUANTITY_UNITS, key=lambda k: -len(k)):
-                m = re.search(r'units *\/ *%s *\/' % re.escape(units),
-                              entry, re.IGNORECASE)
+                pattern = re.compile(r'units *\/ *%s *\/' % re.escape(units),
+                                     flags=re.IGNORECASE)
+                m = pattern.search(entry)
                 if m:
-                    entry = re.sub(r'units *\/ *%s *\/' % re.escape(units), '',
-                                   entry, flags=re.IGNORECASE)
+                    entry = pattern.sub('', entry)
                     quantity_units = QUANTITY_UNITS[units]
                     break
 
             for units in sorted(ENERGY_UNITS, key=lambda k: -len(k)):
-                m = re.search(r'units *\/ *%s *\/' % re.escape(units),
-                              entry, re.IGNORECASE)
+                pattern = re.compile(r'units *\/ *%s *\/' % re.escape(units),
+                                     re.IGNORECASE)
+                m = pattern.search(entry)
                 if m:
-                    entry = re.sub(r'units *\/ *%s *\/' % re.escape(units), '',
-                                   entry, flags=re.IGNORECASE)
+                    entry = pattern.sub('', entry)
                     energy_units = ENERGY_UNITS[units]
                     break
 
