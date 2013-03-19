@@ -49,8 +49,7 @@ static int parseGroupString(std::string str, std::vector<std::string>& esyms,
  *  Throw an exception if one of the four lines that must have
  *  1, 2, 3, or 4 in column 80 do not.
  */
-static void illegalThermoLine(std::ostream& f,
-                              char n, int linenum = -1)
+static void illegalThermoLine(std::ostream& f, int linenum)
 {
     throw CK_SyntaxError(f, "column 80 must "
                          "contain an integer", linenum);
@@ -813,8 +812,8 @@ void CKParser::readThermoRecord(Species& sp)
 
     //------------- line 1 ---------------------------
 
-    if (s[79] != '1') {
-        illegalThermoLine(*m_log, s[79], m_line);
+    if (s.size() < 80 || s[79] != '1') {
+        illegalThermoLine(*m_log, m_line);
     }
 
     // extract the species name and the id string (date)
@@ -893,8 +892,8 @@ void CKParser::readThermoRecord(Species& sp)
     //-------------- line 2 ----------------------------
 
     getCKLine(s, comment);
-    if (s[79] != '2') {
-        illegalThermoLine(*m_log, s[79], m_line);
+    if (s.size() < 80 || s[79] != '2') {
+        illegalThermoLine(*m_log, m_line);
     }
     for (i = 0; i < 5; i++) {
         numstr = s.substr(i*15, 15);
@@ -908,8 +907,8 @@ void CKParser::readThermoRecord(Species& sp)
     //-------------- line 3 ----------------------------
 
     getCKLine(s, comment);
-    if (s[79] != '3') {
-        illegalThermoLine(*m_log, s[79], m_line);
+    if (s.size() < 80 || s[79] != '3') {
+        illegalThermoLine(*m_log, m_line);
     }
     for (i = 0; i < 2; i++) {
         numstr = s.substr(i*15, 15);
@@ -931,8 +930,8 @@ void CKParser::readThermoRecord(Species& sp)
     //--------------- line 4 ----------------------------
 
     getCKLine(s, comment);
-    if (s[79] != '4') {
-        illegalThermoLine(*m_log, s[79], m_line);
+    if (s.size() < 80 || s[79] != '4') {
+        illegalThermoLine(*m_log, m_line);
     }
     for (i = 0; i < 4; i++) {
         numstr = s.substr(i*15, 15);
