@@ -1099,24 +1099,32 @@ int  vcs_Cantera_to_vprob(Cantera::MultiPhase* mphase,
              */
             string stmp = mphase->speciesName(kT);
             vprob->SpName[kT] = stmp;
-
             /*
-             *   Set the initial estimate of the number of kmoles of the species
-             *   and the mole fraction vector. translate from
-             *   kmol to gmol.
+             * Transfer the type of unknown
              */
-            vprob->w[kT] = mphase->speciesMoles(kT);
-            tMoles += vprob->w[kT];
-            vprob->mf[kT] = mphase->moleFraction(kT);
+            vprob->SpeciesUnknownType[kT] = VolPhase->speciesUnknownType(k);
+
+            if (vprob->SpeciesUnknownType[kT] == VCS_SPECIES_TYPE_MOLNUM) {
+                /*
+                 *   Set the initial number of kmoles of the species
+                 *   and the mole fraction vector
+                 */
+                vprob->w[kT] = mphase->speciesMoles(kT);
+                tMoles += vprob->w[kT];
+                vprob->mf[kT] = mphase->moleFraction(kT);
+             } else if (vprob->SpeciesUnknownType[kT] == VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
+                vprob->w[kT] = tPhase->electricPotential();
+                vprob->mf[kT] = mphase->moleFraction(kT);
+             } else {
+               throw CanteraError(" vcs_Cantera_to_vprob() ERROR",
+                                  "Unknown species type: " + int2str(vprob->SpeciesUnknownType[kT]));
+             }
+
 
             /*
              * transfer chemical potential vector
              */
             vprob->m_gibbsSpecies[kT] = muPhase[k];
-            /*
-             * Transfer the type of unknown
-             */
-            vprob->SpeciesUnknownType[kT] = VolPhase->speciesUnknownType(k);
             /*
              * Transfer the species information from the
              * volPhase structure to the VPROB structure
