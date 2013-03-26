@@ -3330,9 +3330,18 @@ int VCS_SOLVE::vcs_basopt(const bool doJustComponents, double aw[], double sa[],
 #ifdef DEBUG_MODE
             if (m_debug_print_lvl >= 2) {
                 plogf("   ---   %-12.12s", (m_speciesName[k]).c_str());
-                plogf("(%9.2g) replaces %-12.12s", m_molNumSpecies_old[k],
-                      m_speciesName[jr].c_str());
-                plogf("(%9.2g) as component %3d\n", m_molNumSpecies_old[jr], jr);
+                if (m_speciesUnknownType[k] == VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
+                   plogf("(Volts = %9.2g)", m_molNumSpecies_old[k]);
+                } else {
+                   plogf("(%9.2g)", m_molNumSpecies_old[k]);
+                }
+                plogf(" replaces %-12.12s", m_speciesName[jr].c_str());
+                if (m_speciesUnknownType[jr] == VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
+                   plogf("(Volts = %9.2g)", m_molNumSpecies_old[jr]);
+                } else {
+                   plogf("(%9.2g)", m_molNumSpecies_old[jr]);
+                }
+                plogf(" as component %3d\n", jr);
             }
 #endif
             vcs_switch_pos(false, jr, k);
@@ -3342,7 +3351,11 @@ int VCS_SOLVE::vcs_basopt(const bool doJustComponents, double aw[], double sa[],
         else {
             if (m_debug_print_lvl >= 2) {
                 plogf("   ---   %-12.12s", m_speciesName[k].c_str());
-                plogf("(%9.2g) remains            ", m_molNumSpecies_old[k]);
+                if (m_speciesUnknownType[k] == VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
+                    plogf("(Volts = %9.2g) remains            ", m_molNumSpecies_old[k]);
+                } else {
+                    plogf("(%9.2g) remains            ", m_molNumSpecies_old[k]);
+                }
                 plogf("              as component %3d\n", jr);
             }
         }
@@ -3497,7 +3510,11 @@ L_END_LOOP:
         }
         plogf("\n   ---          Components Moles:");
         for (j = 0; j < ncTrial; j++) {
-            plogf(" % -10.3E", m_molNumSpecies_old[j]);
+            if (m_speciesUnknownType[j] == VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
+                plogf(" % -10.3E", 0.0);
+            } else {
+                plogf(" % -10.3E", m_molNumSpecies_old[j]);
+            }
         }
         plogf("\n   ---   NonComponent|   Moles  |");
         for (j = 0; j < ncTrial; j++) {
@@ -3508,7 +3525,11 @@ L_END_LOOP:
         for (i = 0; i < m_numRxnTot; i++) {
             plogf("   --- %3d ", m_indexRxnToSpecies[i]);
             plogf("%-10.10s", m_speciesName[m_indexRxnToSpecies[i]].c_str());
-            plogf("|% -10.3E|", m_molNumSpecies_old[m_indexRxnToSpecies[i]]);
+            if (m_speciesUnknownType[m_indexRxnToSpecies[i]] == VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
+                plogf("|% -10.3E|", 0.0);
+            } else {
+                plogf("|% -10.3E|", m_molNumSpecies_old[m_indexRxnToSpecies[i]]);
+            }
             for (j = 0; j < ncTrial; j++) {
                 plogf("    %+7.3f", m_stoichCoeffRxnMatrix[i][j]);
             }
@@ -5122,7 +5143,11 @@ void  VCS_SOLVE::vcs_printDeltaG(const int stateCalc)
         for (size_t i = 0; i < m_numRxnTot; i++) {
             plogf("   --- %3d ", m_indexRxnToSpecies[i]);
             plogf("%-10.10s", m_speciesName[m_indexRxnToSpecies[i]].c_str());
-            plogf("|%10.3g|", m_molNumSpecies_old[m_indexRxnToSpecies[i]]);
+            if (m_speciesUnknownType[m_indexRxnToSpecies[i]] == VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
+                plogf("|   NA     |");
+            } else {
+                plogf("|%10.3g|", m_molNumSpecies_old[m_indexRxnToSpecies[i]]);
+            }
             for (j = 0; j < m_numComponents; j++) {
                 plogf("     %6.2f", m_stoichCoeffRxnMatrix[i][j]);
             }
@@ -5177,7 +5202,11 @@ void  VCS_SOLVE::vcs_printDeltaG(const int stateCalc)
         }
         printf("%-24.24s", m_speciesName[kspec].c_str());
         printf(" %-3s", Cantera::int2str(iphase).c_str());
-        printf(" % -12.4e", molNumSpecies[kspec]);
+        if (m_speciesUnknownType[kspec] == VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
+            printf("    NA       ");
+        } else { 
+            printf(" % -12.4e", molNumSpecies[kspec]);
+        }
         printf(" % -12.4e", mfValue);
         printf(" % -12.4e", feSpecies[kspec] * RT);
         printf(" % -12.4e", feFull * RT);

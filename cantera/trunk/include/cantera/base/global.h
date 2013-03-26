@@ -28,6 +28,14 @@ namespace Cantera
 class XML_Node;
 class Logger;
 
+//! Declaration for whether the Debug mode is turned on within Cantera
+/*!
+ *  Turn on the mode by using the following compile time syntax
+ *
+ *       scons debug_verbose=True build
+ */
+extern const int g_DEBUG_MODE;
+
 //! Return the number of errors that have been encountered so far
 /*!
  * @ingroup errorhandling
