@@ -1288,7 +1288,11 @@ int  vcs_Cantera_to_vprob(Cantera::MultiPhase* mphase,
             vcs_VolPhase* VolPhase = vprob->VPhaseList[iphase];
             plogf("%16s      %5d   %16s", vprob->SpName[i].c_str(), iphase,
                   VolPhase->PhaseName.c_str());
-            plogf("             %-10.5g\n",  vprob->w[i]);
+            if (vprob->SpeciesUnknownType[i] == VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
+                plogf("     Volts = %-10.5g\n",  vprob->w[i]);
+            } else {
+                plogf("             %-10.5g\n",  vprob->w[i]);
+            }
         }
 
         /*
@@ -1421,7 +1425,11 @@ int vcs_Cantera_update_vprob(Cantera::MultiPhase* mphase,
             vcs_VolPhase* VolPhase = vprob->VPhaseList[iphase];
             plogf("%16s      %5d   %16s", vprob->SpName[i].c_str(), iphase,
                   VolPhase->PhaseName.c_str());
-            plogf("             %-10.5g\n",  vprob->w[i]);
+            if (vprob->SpeciesUnknownType[i] == VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
+                plogf("     Volts = %-10.5g\n",  vprob->w[i]);
+            } else {
+                plogf("             %-10.5g\n",  vprob->w[i]);
+            }
         }
 
         /*

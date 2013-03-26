@@ -208,7 +208,9 @@ void VCS_PROB::set_gai()
 
     for (size_t j = 0; j < ne; j++) {
         for (size_t kspec = 0; kspec < nspecies; kspec++) {
-            ElemAbund[j] += fm[j][kspec] * w[kspec];
+            if (SpeciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
+                ElemAbund[j] += fm[j][kspec] * w[kspec];
+            }
         }
     }
 }
