@@ -201,7 +201,7 @@ int VCS_SOLVE::vcs_solve_phaseStability(const int iph, const int ifunc,
 {
     double test = -1.0E-10;
     bool usedZeroedSpecies;
-    std::vector<size_t> phasePopPhaseIDs(0);
+    // std::vector<size_t> phasePopPhaseIDs(0);
     int iStab = 0;
 
     std::vector<double> sm(m_numElemConstraints*m_numElemConstraints, 0.0);
@@ -212,8 +212,7 @@ int VCS_SOLVE::vcs_solve_phaseStability(const int iph, const int ifunc,
     std::vector<double> wx(m_numElemConstraints, 0.0);
 
 
-    vcs_basopt(false, VCS_DATA_PTR(aw), VCS_DATA_PTR(sa),
-               VCS_DATA_PTR(sm), VCS_DATA_PTR(ss),
+    vcs_basopt(false, VCS_DATA_PTR(aw), VCS_DATA_PTR(sa), VCS_DATA_PTR(sm), VCS_DATA_PTR(ss),
                test, &usedZeroedSpecies);
     vcs_evaluate_speciesType();
 
@@ -227,8 +226,8 @@ int VCS_SOLVE::vcs_solve_phaseStability(const int iph, const int ifunc,
         vcs_printDeltaG(VCS_STATECALC_OLD);
     }
     vcs_dcopy(VCS_DATA_PTR(m_deltaGRxn_Deficient), VCS_DATA_PTR(m_deltaGRxn_old), m_numRxnRdc);
-    phasePopPhaseIDs.clear();
-    vcs_popPhaseID(phasePopPhaseIDs);
+    // phasePopPhaseIDs.clear();
+    // vcs_popPhaseID(phasePopPhaseIDs);
     funcVal = vcs_phaseStabilityTest(iph);
     if (funcVal > 0.0) {
         iStab = 1;

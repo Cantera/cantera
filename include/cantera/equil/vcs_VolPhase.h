@@ -861,6 +861,8 @@ private:
      *   the value of the variable is the global vcs reaction number. Note,
      *   that the global reaction number will go out of order when the species positions
      *   are swapped. So, this number has to be recalculated.
+     *
+     *   Length = number of species in phase
      */
     std::vector<size_t> creationGlobalRxnNumbers_;
 
