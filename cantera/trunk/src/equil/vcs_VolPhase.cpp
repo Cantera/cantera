@@ -303,7 +303,11 @@ void vcs_VolPhase::resize(const size_t phaseNum, const size_t nspecies,
     for (size_t i = 0; i < nspecies; i++) {
         Xmol_[i] = 1.0/nspecies;
         creationMoleNumbers_[i] = 1.0/nspecies;
-        creationGlobalRxnNumbers_[i] = IndSpecies[i] - m_numElemConstraints;
+        if (IndSpecies[i] - m_numElemConstraints >= 0) {
+            creationGlobalRxnNumbers_[i] = IndSpecies[i] - m_numElemConstraints;
+        } else {
+            creationGlobalRxnNumbers_[i] = npos;
+        }
     }
 
     SS0ChemicalPotential.resize(nspecies, -1.0);
@@ -344,9 +348,8 @@ void vcs_VolPhase::elemResize(const size_t numElemConstraints)
     m_numElemConstraints = numElemConstraints;
 }
 /***************************************************************************/
-
-//! Evaluate activity coefficients
-/*!
+// Evaluate activity coefficients
+/*
  *   We carry out a calculation whenever UpTODate_AC is false. Specifically
  *   whenever a phase goes zero, we do not carry out calculations on it.
  *
@@ -1129,8 +1132,9 @@ void vcs_VolPhase::setCreationMoleNumbers(const double* const n_k,
         const std::vector<size_t> &creationGlobalRxnNumbers)
 {
     vcs_dcopy(VCS_DATA_PTR(creationMoleNumbers_), n_k, m_numSpecies);
-    creationGlobalRxnNumbers_ = creationGlobalRxnNumbers;
-
+    for (size_t k = 0; k < m_numSpecies; k++) { 
+        creationGlobalRxnNumbers_[k] = creationGlobalRxnNumbers[k];
+    }
 }
 /***************************************************************************/
 
