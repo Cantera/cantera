@@ -236,7 +236,7 @@ bool getReagents(const XML_Node& rxn, Kinetics& kin, int rp,
          * specified species.
          */
         spnum.push_back(isp);
-        stch = atof(val[n].c_str());
+        stch = fpValue(val[n]);
         stoich.push_back(stch);
         ord = doublereal(stch);
         order.push_back(ord);
