@@ -231,7 +231,7 @@ void parseCompString(const std::string& ss, Cantera::compositionMap& x)
                     throw CanteraError("parseCompString",
                                        "unknown species " + nm);
                 }
-                x[nm] = atof(num.c_str());
+                x[nm] = fpValue(num);
             } else {
                 s = "";
             }
@@ -322,7 +322,11 @@ int intValue(std::string val)
 //================================================================================================
 doublereal fpValue(std::string val)
 {
-    return std::atof(stripws(val).c_str());
+    doublereal rval;
+    std::stringstream ss(val);
+    ss.imbue(std::locale("C"));
+    ss >> rval;
+    return rval;
 }
 //================================================================================================
 doublereal fpValueCheck(std::string val)
@@ -469,12 +473,12 @@ int stripLTWScstring(char str[])
 //================================================================================================
 // Translate a char string into a single double
 /*
- * atofCheck is a wrapper around the C stdlib routine atof().
- * It does quite a bit more error checking than atof() or
+ * atofCheck is a wrapper around the C++ stdlib stringstream double parser.
+ * It does quite a bit more error checking than atofCheck() or
  * strtod(), and is quite a bit more restrictive.
  *
  *   First it interprets both E, e, d, and D as exponents.
- *   atof() only interprets e or E as an exponent character.
+ *   stringstreams only interpret e or E as an exponent character.
  *
  *   It only accepts a string as well formed if it consists as a
  *   single token. Multiple words will produce an error message
@@ -485,6 +489,9 @@ int stripLTWScstring(char str[])
  *   has occurred.
  *
  *   It does not accept hexadecimal numbers.
+ *
+ *   It does always use the C locale, regardless of any locale
+ *   settings.
  *
  *  @param dptr  pointer to the input c string
  *  @return      Returns the double
@@ -539,7 +546,10 @@ doublereal atofCheck(const char* const dptr)
                                "Trouble processing string, " + hh);
         }
     }
-    doublereal rval = atof(eptr);
+    doublereal rval;
+    std::stringstream ss(eptr);
+    ss.imbue(std::locale("C"));
+    ss >> rval;
     free(eptr);
     return rval;
 }

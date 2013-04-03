@@ -700,7 +700,7 @@ void Phase::addElement(const std::string& symbol, doublereal weight)
 
 void Phase::addElement(const XML_Node& e)
 {
-    doublereal weight = atof(e["atomicWt"].c_str());
+    doublereal weight = fpValue(e["atomicWt"]);
     string symbol = e["name"];
     addElement(symbol, weight);
 }
@@ -756,7 +756,7 @@ void Phase::addUniqueElement(const XML_Node& e)
 {
     doublereal weight = 0.0;
     if (e.hasAttrib("atomicWt")) {
-        weight = atof(stripws(e["atomicWt"]).c_str());
+        weight = fpValue(stripws(e["atomicWt"]));
     }
     int anum = 0;
     if (e.hasAttrib("atomicNumber")) {
@@ -767,7 +767,7 @@ void Phase::addUniqueElement(const XML_Node& e)
     if (e.hasChild("entropy298")) {
         XML_Node& e298Node = e.child("entropy298");
         if (e298Node.hasAttrib("value")) {
-            entropy298 = atofCheck(stripws(e298Node["value"]).c_str());
+            entropy298 = fpValueCheck(stripws(e298Node["value"]));
         }
     }
     if (weight != 0.0) {

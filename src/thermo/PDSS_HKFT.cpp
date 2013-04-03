@@ -686,12 +686,12 @@ void PDSS_HKFT::constructPDSSXML(VPStandardStateTP* tp, size_t spindex,
 
     std::string minTstring = (*hh)["Tmin"];
     if (minTstring != "") {
-        m_minTemp = atofCheck(minTstring.c_str());
+        m_minTemp = fpValueCheck(minTstring);
     }
 
     std::string maxTstring = (*hh)["Tmax"];
     if (maxTstring != "") {
-        m_maxTemp = atofCheck(maxTstring.c_str());
+        m_maxTemp = fpValueCheck(maxTstring);
     }
 
     if (hh->hasChild("DG0_f_Pr_Tr")) {
