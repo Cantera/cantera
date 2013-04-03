@@ -5168,7 +5168,10 @@ void  VCS_SOLVE::vcs_printDeltaG(const int stateCalc)
 
     for (size_t kspec = 0; kspec < m_numSpeciesTot; kspec++) {
 
-        size_t irxn = kspec -  m_numComponents;
+        size_t irxn = npos;
+        if (kspec >= m_numComponents) {
+	    irxn = kspec - m_numComponents;
+	}
 
         double mfValue = 1.0;
         size_t iphase = m_phaseID[kspec];
