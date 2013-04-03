@@ -243,12 +243,12 @@ void HMWSoln::readXMLBinarySalt(XML_Node& BinSalt)
 
         if (nodeName == "alpha1") {
             stemp = xmlChild.value();
-            m_Alpha1MX_ij[counter] = atofCheck(stemp.c_str());
+            m_Alpha1MX_ij[counter] = fpValueCheck(stemp);
         }
 
         if (nodeName == "alpha2") {
             stemp = xmlChild.value();
-            m_Alpha2MX_ij[counter] = atofCheck(stemp.c_str());
+            m_Alpha2MX_ij[counter] = fpValueCheck(stemp);
         }
     }
 }
@@ -475,7 +475,7 @@ void HMWSoln::readXMLPsiCommonCation(XML_Node& BinSalt)
         if (nodeName == "theta") {
             stemp = xmlChild.value();
             double old = m_Theta_ij[counter];
-            m_Theta_ij[counter] = atofCheck(stemp.c_str());
+            m_Theta_ij[counter] = fpValueCheck(stemp);
             if (old != 0.0) {
                 if (old != m_Theta_ij[counter]) {
                     throw CanteraError("HMWSoln::readXMLPsiCommonCation",
@@ -614,7 +614,7 @@ void HMWSoln::readXMLPsiCommonAnion(XML_Node& BinSalt)
         if (nodeName == "theta") {
             stemp = xmlChild.value();
             double old = m_Theta_ij[counter];
-            m_Theta_ij[counter] = atofCheck(stemp.c_str());
+            m_Theta_ij[counter] = fpValueCheck(stemp);
             if (old != 0.0) {
                 if (old != m_Theta_ij[counter]) {
                     throw CanteraError("HMWSoln::readXMLPsiCommonAnion",
@@ -1116,7 +1116,7 @@ void HMWSoln::constructPhaseXML(XML_Node& phaseNode, std::string id)
         stemp = scNode.attrib("TempReference");
         formString = lowercase(stemp);
         if (formString != "") {
-            m_TempPitzerRef = atofCheck(formString.c_str());
+            m_TempPitzerRef = fpValueCheck(formString);
         } else {
             m_TempPitzerRef = 273.15 + 25;
         }
@@ -1230,7 +1230,7 @@ initThermoXML(XML_Node& phaseNode, const std::string& id_)
         stemp = scNode.attrib("TempReference");
         formString = lowercase(stemp);
         if (formString != "") {
-            m_TempPitzerRef = atofCheck(formString.c_str());
+            m_TempPitzerRef = fpValueCheck(formString);
         } else {
             m_TempPitzerRef = 273.15 + 25;
         }
