@@ -269,7 +269,7 @@ int fillArrayFromString(const std::string& str,
             num = s;
             s = "";
         }
-        a[count] = atofCheck(num.c_str());
+        a[count] = fpValueCheck(num);
         count++;
     }
     return count;
@@ -315,7 +315,44 @@ doublereal fpValue(const std::string& val)
 //================================================================================================
 doublereal fpValueCheck(const std::string& val)
 {
-    return atofCheck(stripws(val).c_str());
+    std::string str = stripws(val);
+    if (str.empty()) {
+        throw CanteraError("fpValueCheck", "string has zero length");
+    }
+    int numDot = 0;
+    int numExp = 0;
+    char ch;
+    int istart = 0;
+    ch = str[0];
+    if (ch == '+' || ch == '-') {
+        istart = 1;
+    }
+    for (int i = istart; i < str.size(); i++) {
+        ch = str[i];
+        if (isdigit(ch)) {
+        } else if (ch == '.') {
+            numDot++;
+            if (numDot > 1) {
+                throw CanteraError("fpValueCheck",
+                                   "string has more than one .");
+            }
+        } else if (ch == 'e' || ch == 'E' || ch == 'd' || ch == 'D') {
+            numExp++;
+            str[i] = 'E';
+            if (numExp > 1) {
+                throw CanteraError("fpValueCheck",
+                                   "string has more than one exp char");
+            }
+            ch = str[i+1];
+            if (ch == '+' || ch == '-') {
+                i++;
+            }
+        } else {
+            throw CanteraError("fpValueCheck",
+                               "Trouble processing string, " + str);
+        }
+    }
+    return fpValue(str);
 }
 //================================================================================================
 //  Generate a logfile name based on an input file name
@@ -455,89 +492,6 @@ int stripLTWScstring(char str[])
     return j;
 }
 //================================================================================================
-// Translate a char string into a single double
-/*
- * atofCheck is a wrapper around the C++ stdlib stringstream double parser.
- * It does quite a bit more error checking than atofCheck() or
- * strtod(), and is quite a bit more restrictive.
- *
- *   First it interprets both E, e, d, and D as exponents.
- *   stringstreams only interpret e or E as an exponent character.
- *
- *   It only accepts a string as well formed if it consists as a
- *   single token. Multiple words will produce an error message
- *
- *   It will produce an error for NAN and inf entries as well,
- *   in contrast to atof() or strtod().
- *   The user needs to know that a serious numerical issue
- *   has occurred.
- *
- *   It does not accept hexadecimal numbers.
- *
- *   It does always use the C locale, regardless of any locale
- *   settings.
- *
- *  @param dptr  pointer to the input c string
- *  @return      Returns the double
- *
- * On any error, it will throw a CanteraError signal.
- */
-doublereal atofCheck(const char* const dptr)
-{
-    if (!dptr) {
-        throw CanteraError("atofCheck", "null pointer to string");
-    }
-    char* eptr = (char*) malloc(strlen(dptr)+1);
-    strcpy(eptr, dptr);
-    int ll = stripLTWScstring(eptr);
-    if (ll == 0) {
-        throw CanteraError("atofCheck", "string has zero length");
-    }
-    int numDot = 0;
-    int numExp = 0;
-    char ch;
-    int istart = 0;
-    ch = eptr[0];
-    if (ch == '+' || ch == '-') {
-        istart = 1;
-    }
-    for (int i = istart; i < ll; i++) {
-        ch = eptr[i];
-        if (isdigit(ch)) {
-        } else if (ch == '.') {
-            numDot++;
-            if (numDot > 1) {
-                free(eptr);
-                throw CanteraError("atofCheck",
-                                   "string has more than one .");
-            }
-        } else if (ch == 'e' || ch == 'E' || ch == 'd' || ch == 'D') {
-            numExp++;
-            eptr[i] = 'E';
-            if (numExp > 1) {
-                free(eptr);
-                throw CanteraError("atofCheck",
-                                   "string has more than one exp char");
-            }
-            ch = eptr[i+1];
-            if (ch == '+' || ch == '-') {
-                i++;
-            }
-        } else {
-            std::string hh(dptr);
-            free(eptr);
-            throw CanteraError("atofCheck",
-                               "Trouble processing string, " + hh);
-        }
-    }
-    doublereal rval;
-    std::stringstream ss(eptr);
-    ss.imbue(std::locale("C"));
-    ss >> rval;
-    free(eptr);
-    return rval;
-}
-//================================================================================================
 // Interpret one or two token string as a single double
 /*
  *   This is similar to atof(). However, the second token
@@ -565,7 +519,7 @@ doublereal strSItoDbl(const std::string& strSI)
     } else if (n == 2) {
         fp = toSI(v[1]);
     }
-    doublereal val = atofCheck(v[0].c_str());
+    doublereal val = fpValueCheck(v[0]);
     return val * fp;
 }
 //================================================================================================

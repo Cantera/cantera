@@ -175,12 +175,25 @@ int intValue(const std::string& val);
  */
 doublereal fpValue(const std::string& val);
 
-//! Translate a string into one doublereal value
+//! Translate a string into one doublereal value, with error checking
 /*!
- *  Error checking is carried on the conversion.
+ *  fpValueCheck is a wrapper around the C++ stringstream double parser. It
+ *  does quite a bit more error checking than atof() or strtod(), and is quite
+ *  a bit more restrictive.
  *
- *  @param val   String value of the double
+ *  First it interprets both E, e, d, and D as exponents. stringstreams only
+ *  interpret e or E as an exponent character.
  *
+ *  It only accepts a string as well formed if it consists as a single token.
+ *  Multiple words will raise an exception. It will raise a CanteraError for
+ *  NAN and inf entries as well, in contrast to atof() or strtod(). The user
+ *  needs to know that a serious numerical issue has occurred.
+ *
+ *  It does not accept hexadecimal numbers.
+ *
+ *  It always use the C locale, regardless of any locale settings.
+ *
+ *  @param val   String representation of the number
  *  @return      Returns a doublereal value
  */
 doublereal fpValueCheck(const std::string& val);
@@ -227,33 +240,6 @@ std::string wrapString(const std::string& s,
  *               comments have been removed.
  */
 int stripLTWScstring(char str[]);
-
-//! Translate a char string into a single double
-/*!
- * atofCheck is a wrapper around the C stdlib routine atof().
- * It does quite a bit more error checking than atof() or
- * strtod(), and is quite a bit more restrictive.
- *
- *   First it interprets both E, e, d, and D as exponents.
- *   atof() only interprets e or E as an exponent character.
- *
- *   It only accepts a string as well formed if it consists as a
- *   single token. Multiple words will produce an error message
- *
- *   It will produce an error for NAN and inf entries as well,
- *   in contrast to atof() or strtod().
- *   The user needs to know that a serious numerical issue
- *   has occurred.
- *
- *   It does not accept hexadecimal numbers.
- *
- *  @param dptr  pointer to the input c string
- *  @return      Returns the double
- *
- * On any error, it will throw a CanteraError signal.
- */
-doublereal atofCheck(const char* const dptr);
-
 
 //! Interpret one or two token string as a single double
 /*!

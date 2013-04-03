@@ -650,9 +650,9 @@ bool installSpecies(size_t k, const XML_Node& s, thermo_t& th,
     size_t nel = th.nElements();
     vector_fp ecomp(nel, 0.0);
     for (size_t m = 0; m < nel; m++) {
-        const char* es = comp[th.elementName(m)].c_str();
-        if (strlen(es) > 0) {
-            ecomp[m] = atofCheck(es);
+        std::string& es = comp[th.elementName(m)];
+        if (!es.empty()) {
+            ecomp[m] = fpValueCheck(es);
         }
     }
 
