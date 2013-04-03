@@ -633,7 +633,7 @@ void getFloats(const Cantera::XML_Node& node, std::map<std::string, double>& v,
     std::string typ, title, units, vmin, vmax;
     for (int i = 0; i < n; i++) {
         const XML_Node& fi = *(f[i]);
-        x = atof(fi().c_str());
+        x = fpValue(fi());
         x0 = Undef;
         x1 = Undef;
         typ = fi["type"];
@@ -642,14 +642,14 @@ void getFloats(const Cantera::XML_Node& node, std::map<std::string, double>& v,
         vmin = fi["min"];
         vmax = fi["max"];
         if (vmin != "") {
-            x0 = atof(vmin.c_str());
+            x0 = fpValue(vmin);
             if (x < x0 - Tiny) {
                 writelog("\nWarning: value "+fi()+" is below lower limit of "
                          +vmin+".\n");
             }
         }
         if (fi["max"] != "") {
-            x1 = atof(vmax.c_str());
+            x1 = fpValue(vmax);
             if (x > x1 + Tiny) {
                 writelog("\nWarning: value "+fi()+" is above upper limit of "
                          +vmax+".\n");
@@ -744,21 +744,21 @@ doublereal getFloatCurrent(const Cantera::XML_Node& node,
 {
     doublereal x, x0, x1, fctr = 1.0;
     string units, vmin, vmax;
-    x = atof(node().c_str());
+    x = fpValue(node());
     x0 = Undef;
     x1 = Undef;
     units = node["units"];
     vmin = node["min"];
     vmax = node["max"];
     if (vmin != "") {
-        x0 = atof(vmin.c_str());
+        x0 = fpValue(vmin);
         if (x < x0 - Tiny) {
             writelog("\nWarning: value "+node()+" is below lower limit of "
                      +vmin+".\n");
         }
     }
     if (node["max"] != "") {
-        x1 = atof(vmax.c_str());
+        x1 = fpValue(vmax);
         if (x > x1 + Tiny) {
             writelog("\nWarning: value "+node()+" is above upper limit of "
                      +vmax+".\n");
@@ -1076,10 +1076,10 @@ size_t getFloatArray(const Cantera::XML_Node& node, std::vector<doublereal> & v,
     }
 
     if ((*readNode)["min"] != "") {
-        vmin = atofCheck((*readNode)["min"].c_str());
+        vmin = fpValueCheck((*readNode)["min"]);
     }
     if ((*readNode)["max"] != "") {
-        vmax = atofCheck((*readNode)["max"].c_str());
+        vmax = fpValueCheck((*readNode)["max"]);
     }
 
     doublereal vv;
@@ -1089,7 +1089,7 @@ size_t getFloatArray(const Cantera::XML_Node& node, std::vector<doublereal> & v,
         if (icom != string::npos) {
             numstr = val.substr(0,icom);
             val = val.substr(icom+1,val.size());
-            dtmp = atofCheck(numstr.c_str());
+            dtmp = fpValueCheck(numstr);
             v.push_back(dtmp);
         } else {
             /*
@@ -1101,7 +1101,7 @@ size_t getFloatArray(const Cantera::XML_Node& node, std::vector<doublereal> & v,
              * possibility in for backwards compatibility.
              */
             if (!val.empty()) {
-                dtmp = atofCheck(val.c_str());
+                dtmp = fpValueCheck(val);
                 v.push_back(dtmp);
             }
             break;
@@ -1152,10 +1152,10 @@ int  getNamedFloatArray(const Cantera::XML_Node& parentNode, const std::string& 
     }
 
     if ((*readNode)["min"] != "") {
-        vmin = atofCheck((*readNode)["min"].c_str());
+        vmin = fpValueCheck((*readNode)["min"]);
     }
     if ((*readNode)["max"] != "") {
-        vmax = atofCheck((*readNode)["max"].c_str());
+        vmax = fpValueCheck((*readNode)["max"]);
     }
 
     int expectedSize = 0;
@@ -1176,7 +1176,7 @@ int  getNamedFloatArray(const Cantera::XML_Node& parentNode, const std::string& 
         if (icom != string::npos) {
             numstr = val.substr(0,icom);
             val = val.substr(icom+1,val.size());
-            dtmp = atofCheck(numstr.c_str());
+            dtmp = fpValueCheck(numstr);
             v.push_back(dtmp);
         } else {
             /*
@@ -1189,7 +1189,7 @@ int  getNamedFloatArray(const Cantera::XML_Node& parentNode, const std::string& 
              */
             int nlen = strlen(val.c_str());
             if (nlen > 0) {
-                dtmp = atofCheck(val.c_str());
+                dtmp = fpValueCheck(val);
                 v.push_back(dtmp);
             }
             break;
@@ -1425,7 +1425,7 @@ void getMatrixValues(const Cantera::XML_Node& node,
             throw CanteraError("getMatrixValues","Col not matched by string: "
                                + key2);
         }
-        double dval = atofCheck(val.c_str());
+        double dval = fpValueCheck(val);
         dval *= funit;
         /*
          * Finally, insert the value;

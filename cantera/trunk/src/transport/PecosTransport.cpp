@@ -667,9 +667,9 @@ void PecosTransport::read_blottner_transport_table()
 
             // this is the right species index
             if (sss.compare(ss1) == 0) {
-                a[k] = atof(ss2.c_str());
-                b[k] = atof(ss3.c_str());
-                c[k] = atof(ss4.c_str());
+                a[k] = fpValue(ss2);
+                b[k] = fpValue(ss3);
+                c[k] = fpValue(ss4);
 
                 // index
                 i++;

@@ -661,7 +661,7 @@ std::string XML_Node::operator()() const
  */
 doublereal  XML_Node::fp_value() const
 {
-    return atofCheck(m_value.c_str());
+    return fpValueCheck(m_value);
 }
 
 // Return the value of an XML node as a single int
