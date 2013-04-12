@@ -19,34 +19,17 @@ class ThermoPhase;
 
 //! Convert a double into a c++ string
 /*!
- *  This routine doesn't assume a formatting. You must supply the formatting
- *
  * @param x double to be converted
  * @param fmt   Format to be used (printf style)
  */
-std::string fp2str(const double x, const std::string& fmt);
-
-//! Convert a double into a c++ string
-/*!
- * The default format to use is equivalent to the default
- * format used by printf's "`%g`" formatting.
- *
- * @param x double to be converted
- */
-std::string fp2str(const double x);
+std::string fp2str(const double x, const std::string& fmt="%g");
 
 //!  Convert an int to a string using a format converter
 /*!
  *  @param n          int to be converted
  *  @param fmt        format converter for an int int the printf command
  */
-std::string int2str(const int n, const std::string& fmt);
-
-//!  Convert an int to a string
-/*!
- *  @param n          int to be converted
- */
-std::string int2str(const int n);
+std::string int2str(const int n, const std::string& fmt="%d");
 
 //!  Convert an unsigned integer to a string
 /*!
