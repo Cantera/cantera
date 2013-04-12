@@ -65,7 +65,7 @@ ThermoFactory* ThermoFactory::s_factory = 0;
 mutex_t ThermoFactory::thermo_mutex;
 
 //! Define the number of %ThermoPhase types for use in this factory routine
-static int ntypes = 24;
+static int ntypes = 26;
 
 //! Define the string name of the %ThermoPhase types that are handled by this factory routine
 static string _types[] = {"IdealGas", "Incompressible",
@@ -75,7 +75,8 @@ static string _types[] = {"IdealGas", "Incompressible",
                           "IdealMolalSolution", "IdealGasVPSS", "IdealSolnVPSS",
                           "MineralEQ3", "MetalSHEelectrons", "Margules", "PhaseCombo_Interaction",
                           "IonsFromNeutralMolecule", "FixedChemPot", "MolarityIonicVPSSTP",
-                          "MixedSolventElectrolyte", "Redlich-Kister"
+                          "MixedSolventElectrolyte", "Redlich-Kister", "RedlichKwong",
+                          "RedlichKwongMFTP"
                          };
 
 //! Define the integer id of the %ThermoPhase types that are handled by this factory routine
@@ -86,7 +87,8 @@ static int _itypes[]   = {cIdealGas, cIncompressible,
                           cIdealMolalSoln, cVPSS_IdealGas, cIdealSolnGasVPSS_iscv,
                           cMineralEQ3, cMetalSHEelectrons,
                           cMargulesVPSSTP,  cPhaseCombo_Interaction, cIonsFromNeutral, cFixedChemPot,
-                          cMolarityIonicVPSSTP, cMixedSolventElectrolyte, cRedlichKisterVPSSTP
+                          cMolarityIonicVPSSTP, cMixedSolventElectrolyte, cRedlichKisterVPSSTP,
+                          cRedlichKwongMFTP, cRedlichKwongMFTP
                          };
 
 ThermoPhase* ThermoFactory::newThermoPhase(const std::string& model)
