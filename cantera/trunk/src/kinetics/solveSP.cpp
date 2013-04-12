@@ -31,12 +31,10 @@ namespace Cantera
 static doublereal calc_damping(doublereal* x, doublereal* dx, size_t dim, int*);
 static doublereal calcWeightedNorm(const doublereal [], const doublereal dx[], size_t);
 
-
 /***************************************************************************
  *  solveSP Class Definitions
  ***************************************************************************/
 
-// Main constructor
 solveSP::solveSP(ImplicitSurfChem* surfChemPtr, int bulkFunc) :
     m_SurfChemPtr(surfChemPtr),
     m_objects(surfChemPtr->getObjects()),
@@ -52,7 +50,6 @@ solveSP::solveSP(ImplicitSurfChem* surfChemPtr, int bulkFunc) :
     m_maxTotSpecies(0),
     m_ioflag(0)
 {
-
     m_numSurfPhases = 0;
     size_t numPossibleSurfPhases = m_objects.size();
     for (size_t n = 0; n < numPossibleSurfPhases; n++) {
@@ -143,18 +140,10 @@ solveSP::solveSP(ImplicitSurfChem* surfChemPtr, int bulkFunc) :
     }
 }
 
-// Empty destructor
 solveSP::~solveSP()
 {
 }
 
-/*
- * The following calculation is a Newton's method to
- * get the surface fractions of the surface and bulk species by
- * requiring that the
- * surface species production rate = 0 and that the bulk fractions are
- * proportional to their production rates.
- */
 int solveSP::solveSurfProb(int ifunc, doublereal time_scale, doublereal TKelvin,
                            doublereal PGas, doublereal reltol, doublereal abstol)
 {
@@ -444,9 +433,6 @@ int solveSP::solveSurfProb(int ifunc, doublereal time_scale, doublereal TKelvin,
     return 1;
 }
 
-/*
- * Update the surface states of the surface phases.
- */
 void solveSP::updateState(const doublereal* CSolnSP)
 {
     size_t loc = 0;
@@ -456,9 +442,6 @@ void solveSP::updateState(const doublereal* CSolnSP)
     }
 }
 
-/*
- * Update the mole fractions for phases which are part of the equation set
- */
 void solveSP::updateMFSolnSP(doublereal* XMolSolnSP)
 {
     for (size_t isp = 0; isp < m_numSurfPhases; isp++) {
@@ -467,10 +450,6 @@ void solveSP::updateMFSolnSP(doublereal* XMolSolnSP)
     }
 }
 
-/*
- * Update the mole fractions for phases which are part of a single
- * interfacial kinetics object
- */
 void solveSP::updateMFKinSpecies(doublereal* XMolKinSpecies, int isp)
 {
     InterfaceKinetics* m_kin = m_objects[isp];
@@ -482,10 +461,6 @@ void solveSP::updateMFKinSpecies(doublereal* XMolKinSpecies, int isp)
     }
 }
 
-/*
- * Update the vector that keeps track of the largest species in each
- * surface phase.
- */
 void solveSP::evalSurfLarge(const doublereal* CSolnSP)
 {
     size_t kindexSP = 0;
@@ -503,16 +478,6 @@ void solveSP::evalSurfLarge(const doublereal* CSolnSP)
     }
 }
 
-/*
- * This calculates the net production rates of all species
- *
- * This calculates the function eval.
- *      (should switch to special_species formulation for sum condition)
- *
- * @internal
- *   This routine uses the m_numEqn1 and m_netProductionRatesSave vectors
- *   as temporary internal storage.
- */
 void solveSP::fun_eval(doublereal* resid, const doublereal* CSoln,
                        const doublereal* CSolnOld,  const bool do_time,
                        const doublereal deltaT)
@@ -627,13 +592,6 @@ void solveSP::fun_eval(doublereal* resid, const doublereal* CSoln,
     }
 }
 
-/*
- * Calculate the Jacobian and residual
- *
- * @internal
- *   This routine uses the m_numEqn2 vector
- *   as temporary internal storage.
- */
 void solveSP::resjac_eval(std::vector<doublereal*> &JacCol,
                           doublereal resid[], doublereal CSoln[],
                           const doublereal CSolnOld[], const bool do_time,
@@ -686,12 +644,10 @@ void solveSP::resjac_eval(std::vector<doublereal*> &JacCol,
     }
 }
 
-
 #define APPROACH 0.80
 
-static doublereal calc_damping(doublereal x[], doublereal dxneg[], size_t dim, int* label)
-
-/* This function calculates a damping factor for the Newton iteration update
+/*!
+ * This function calculates a damping factor for the Newton iteration update
  * vector, dxneg, to insure that all site and bulk fractions, x, remain
  * bounded between zero and one.
  *
@@ -701,7 +657,7 @@ static doublereal calc_damping(doublereal x[], doublereal dxneg[], size_t dim, i
  * that the step can take.  If the full step would not force any fraction
  * outside of 0-1, then Newton's method is allowed to operate normally.
  */
-
+static doublereal calc_damping(doublereal x[], doublereal dxneg[], size_t dim, int* label)
 {
     doublereal    damp = 1.0, xnew, xtop, xbot;
     static doublereal damp_old = 1.0;
@@ -778,11 +734,6 @@ static doublereal calcWeightedNorm(const doublereal wtX[], const doublereal dx[]
     return sqrt(norm/dim);
 }
 
-/*
- * Calculate the weighting factors for norms wrt both the species
- * concentration unknowns and the residual unknowns.
- *
- */
 void solveSP::calcWeights(doublereal wtSpecies[], doublereal wtResid[],
                           const Array2D& Jac, const doublereal CSoln[],
                           const doublereal abstol, const doublereal reltol)
@@ -824,17 +775,6 @@ void solveSP::calcWeights(doublereal wtSpecies[], doublereal wtResid[],
     }
 }
 
-/*
- *    This routine calculates a pretty conservative 1/del_t based
- *    on  MAX_i(sdot_i/(X_i*SDen0)).  This probably guarantees
- *    diagonal dominance.
- *
- *     Small surface fractions are allowed to intervene in the del_t
- *     determination, no matter how small.  This may be changed.
- *     Now minimum changed to 1.0e-12,
- *
- *     Maximum time step set to time_scale.
- */
 doublereal solveSP::
 calc_t(doublereal netProdRateSolnSP[], doublereal XMolSolnSP[],
        int* label, int* label_old, doublereal* label_factor, int ioflag)
@@ -893,9 +833,6 @@ calc_t(doublereal netProdRateSolnSP[], doublereal XMolSolnSP[],
     return inv_timeScale / *label_factor;
 } /* calc_t */
 
-/*
- * Optional printing at the start of the solveSP problem
- */
 void solveSP::print_header(int ioflag, int ifunc, doublereal time_scale,
                            int damping, doublereal reltol, doublereal abstol,
                            doublereal TKelvin,

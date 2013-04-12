@@ -100,19 +100,18 @@ class InterfaceKinetics;
  *
  *   The unknown solution vector is defined as follows:
  *
- *                kindexSP
- *   ----------------------------
- *   C_0_0           0
- *   C_1_0           1
- *   C_2_0           2
- *    . . .         ...
- *   C_N0-1_0      N0-1
- *   C_0_1         N0
- *   C_1_1         N0+1
- *   C_2_1         N0+2
- *    . . .        ...
- *   C_N1-1_1      NO+N1-1
- *
+ *   C_i_j     | kindexSP
+ *   --------- | ----------
+ *   C_0_0     |   0
+ *   C_1_0     |   1
+ *   C_2_0     |   2
+ *    . . .    |  ...
+ *   C_N0-1_0  | N0-1
+ *   C_0_1     | N0
+ *   C_1_1     | N0+1
+ *   C_2_1     | N0+2
+ *    . . .    | ...
+ *   C_N1-1_1  | NO+N1-1
  *
  *   Note there are a couple of different types of species indices
  *   floating around in the formulation of this object.
@@ -127,78 +126,57 @@ class InterfaceKinetics;
  *  Indices which relate to individual kinetics objects use the suffix KSI (kinetics
  *  species index).
  *
- *
- *  Solution Method
+ *  ## Solution Method
  *
  *  This routine is typically used within a residual calculation in a large code.
  *  It's typically invoked millions of times for large calculations, and it must
  *  work every time. Therefore, requirements demand that it be robust but also
  *  efficient.
  *
- *  The solution methodology is largely determined by the <TT>ifunc<\TT> parameter,
+ *  The solution methodology is largely determined by the `ifunc` parameter,
  *  that is input to the solution object. This parameter may have the following
  *  4 values:
  *
+ *  1. `SFLUX_INITIALIZE` - This assumes that the initial guess supplied to
+ *     the routine is far from the correct one. Substantial work plus
+ *     transient time-stepping is to be expected to find a solution.
+ *  2. `SFLUX_RESIDUAL` - Need to solve the surface problem in order to
+ *     calculate the surface fluxes of gas-phase species. (Can expect a
+ *     moderate change in the solution vector -> try to solve the system by
+ *     direct methods with no damping first -> then, try time-stepping if the
+ *     first method fails) A "time_scale" supplied here is used in the
+ *     algorithm to determine when to shut off time-stepping.
+ *  3. `SFLUX_JACOBIAN` - Calculation of the surface problem is due to the
+ *     need for a numerical jacobian for the gas-problem. The solution is
+ *     expected to be very close to the initial guess, and extra accuracy is
+ *     needed because solution variables have been delta'd from nominal values
+ *     to create jacobian entries.
+ *  4. `SFLUX_TRANSIENT` - The transient calculation is performed here for an
+ *     amount of time specified by "time_scale".  It is not guaranteed to be
+ *     time-accurate - just stable and fairly fast. The solution after del_t
+ *     time is returned, whether it's converged to a steady state or not. This
+ *     is a poor man's time stepping algorithm.
  *
- *  1: SFLUX_INITIALIZE   = This assumes that the initial guess supplied to the
- *                          routine is far from the correct one. Substantial
- *                          work plus transient time-stepping is to be expected
- *                          to find a solution.
- *
- *  2:  SFLUX_RESIDUAL    = Need to solve the surface problem in order to
- *                          calculate the surface fluxes of gas-phase species.
- *                          (Can expect a moderate change in the solution
- *                           vector -> try to solve the system by direct methods
- *                           with no damping first -> then, try time-stepping
- *                           if the first method fails)
- *                          A "time_scale" supplied here is used in the
- *                          algorithm to determine when to shut off
- *                          time-stepping.
- *
- *  3:  SFLUX_JACOBIAN    = Calculation of the surface problem is due to the
- *                          need for a numerical jacobian for the gas-problem.
- *                          The solution is expected to be very close to the
- *                          initial guess, and extra accuracy is needed because
- *                          solution variables have been delta'd from
- *                          nominal values to create jacobian entries.
- *
- *  4:  SFLUX_TRANSIENT   = The transient calculation is performed here for an
- *                          amount of time specified by "time_scale".  It is
- *                          not guaranteed to be time-accurate - just stable
- *                          and fairly fast. The solution after del_t time is
- *                          returned, whether it's converged to a steady
- *                          state or not. This is a poor man's time stepping
- *                          algorithm.
- *
- * Pseudo time stepping algorithm:
+ *  ### Pseudo time stepping algorithm:
  *  The time step is determined from sdot[], so  so that the time step
- *   doesn't ever change the value of a variable by more than 100%.
+ *  doesn't ever change the value of a variable by more than 100%.
  *
  *  This algorithm does use a damped Newton's method to relax the equations.
  *  Damping is based on a "delta damping" technique. The solution unknowns
  *  are not allowed to vary too much between iterations.
  *
- *
- *   EXTRA_ACCURACY:A constant that is the ratio of the required update norm in
- *    this Newton iteration compared to that in the nonlinear solver.
- *     A value of 0.1 is used so surface species are safely  overconverged.
+ *  `EXTRA_ACCURACY`: A constant that is the ratio of the required update norm
+ *  in this Newton iteration compared to that in the nonlinear solver. A value
+ *  of 0.1 is used so surface species are safely  overconverged.
  *
  *  Functions called:
- *----------------------------------------------------------------------------
- *
- * ct_dgetrf    -- First half of LAPACK direct solve of a full Matrix
- *
- * ct_dgetrs    -- Second half of LAPACK direct solve of a full matrix. Returns
- *                 solution vector in the right-hand-side vector, resid.
- *
- *----------------------------------------------------------------------------
- *
+ *  - `ct_dgetrf` -- First half of LAPACK direct solve of a full Matrix
+ *  - `ct_dgetrs` -- Second half of LAPACK direct solve of a full matrix.
+ *    Returns solution vector in the right-hand-side vector, resid.
  */
 class solveSP
 {
-
 public:
-
     //! Constructor for the object
     /*!
      *  @param surfChemPtr  Pointer to the ImplicitSurfChem object that
@@ -214,7 +192,6 @@ public:
     ~solveSP();
 
 private:
-
     //! Unimplemented private copy constructor
     solveSP(const solveSP& right);
 
@@ -222,12 +199,15 @@ private:
     solveSP& operator=(const solveSP& right);
 
 public:
-
     //! Main routine that actually calculates the pseudo steady state
     //! of the surface problem
     /*!
-     *   The actual converged solution is returned as part of the
-     *   internal state of the InterfaceKinetics objects.
+     * The actual converged solution is returned as part of the internal state
+     * of the InterfaceKinetics objects.
+     *
+     * Uses Newton's method to get the surface fractions of the surface and
+     * bulk species by requiring that the surface species production rate = 0
+     * and that the bulk fractions are proportional to their production rates.
      *
      * @param ifunc Determines the type of solution algorithm to be
      *                  used.  Possible values are  SFLUX_INITIALIZE  ,
@@ -252,8 +232,7 @@ public:
                       doublereal PGas, doublereal reltol, doublereal abstol);
 
 private:
-
-    //! Printing routine that gets called at the start of every
+    //! Printing routine that optionally gets called at the start of every
     //! invocation
     void print_header(int ioflag, int ifunc, doublereal time_scale,
                       int damping, doublereal reltol, doublereal abstol,
@@ -268,11 +247,7 @@ private:
                         doublereal resid[], doublereal XMolSolnSP[],
                         doublereal wtSpecies[], size_t dim, bool do_time);
 
-
     //! Print a summary of the solution
-    /*!
-     *
-     */
     void printFinal(int ioflag, doublereal damp, int label_d, int label_t,
                     doublereal inv_t, doublereal t_real, size_t iter,
                     doublereal update_norm, doublereal resid_norm,
@@ -285,33 +260,30 @@ private:
     //! Calculate a conservative delta T to use in a pseudo-steady state
     //! algorithm
     /*!
-     *    This routine calculates a pretty conservative 1/del_t based
-     *    on  MAX_i(sdot_i/(X_i*SDen0)).  This probably guarantees
-     *    diagonal dominance.
+     *  This routine calculates a pretty conservative 1/del_t based
+     *  on  MAX_i(sdot_i/(X_i*SDen0)).  This probably guarantees
+     *  diagonal dominance.
      *
-     *     Small surface fractions are allowed to intervene in the del_t
-     *     determination, no matter how small.  This may be changed.
-     *     Now minimum changed to 1.0e-12,
+     *  Small surface fractions are allowed to intervene in the del_t
+     *  determination, no matter how small.  This may be changed.
+     *  Now minimum changed to 1.0e-12,
      *
-     *     Maximum time step set to time_scale.
+     *  Maximum time step set to time_scale.
      *
-     *    @param netProdRateSolnSP  Output variable. Net production rate
-     *             of all of the species in the solution vector.
-     *    @param XMolSolnSP output variable.
-     *            Mole fraction of all of the species in the  solution vector
-     *    @param label Output variable. Pointer to the value of the
-     *                 species index (kindexSP) that is controlling
-     *                 the time step
-     *    @param label_old Output variable. Pointer to the value of the
-     *                 species index (kindexSP) that controlled
-     *                 the time step at the previous iteration
-     *    @param label_factor Output variable. Pointer to the current
-     *                 factor that is used to indicate the same species
-     *                 is controlling the time step.
-     *
-     *    @param ioflag Level of the output requested.
-     *
-     *    @return  Returns the 1. /  delta T to be used on the next step
+     *  @param netProdRateSolnSP  Output variable. Net production rate of all
+     *      of the species in the solution vector.
+     *  @param XMolSolnSP output variable. Mole fraction of all of the species
+     *      in the  solution vector
+     *  @param label Output variable. Pointer to the value of the species
+     *      index (kindexSP) that is controlling the time step
+     *  @param label_old Output variable. Pointer to the value of the species
+     *      index (kindexSP) that controlled the time step at the previous
+     *      iteration
+     *  @param label_factor Output variable. Pointer to the current factor
+     *      that is used to indicate the same species is controlling the time
+     *      step.
+     * @param ioflag Level of the output requested.
+     * @return  Returns the 1. /  delta T to be used on the next step
      */
     doublereal calc_t(doublereal netProdRateSolnSP[], doublereal XMolSolnSP[],
                       int* label, int* label_old,
@@ -319,10 +291,9 @@ private:
 
     //! Calculate the solution and residual weights
     /*!
-     *   @param wtSpecies Weights to use for the soln unknowns. These
-     *                    are in concentration units
+     *  @param wtSpecies Weights to use for the soln unknowns. These are in
+     *      concentration units
      *  @param wtResid    Weights to sue for the residual unknowns.
-     *
      *  @param Jac        Jacobian. Row sum scaling is used for the Jacobian
      *  @param CSolnSP    Solution vector for the surface problem
      *  @param abstol     Absolute error tolerance
@@ -355,22 +326,20 @@ private:
      */
     void updateMFKinSpecies(doublereal* XMolKinSp, int isp);
 
-
     //! Update the vector that keeps track of the largest species in each
     //! surface phase.
     /*!
-     * @param CsolnSP Vector of the current values of the surface concentrations
+     * @param CSolnSP Vector of the current values of the surface concentrations
      *                in all of the surface species.
      */
     void evalSurfLarge(const doublereal* CSolnSP);
 
     //! Main Function evaluation
     /*!
-     *
      *  @param resid output Vector of residuals, length = m_neq
      *  @param CSolnSP  Vector of species concentrations, unknowns in the
      *                  problem, length = m_neq
-     *  @param CSolnSPOld Old Vector of species concentrations, unknowns in the
+     *  @param CSolnOldSP Old Vector of species concentrations, unknowns in the
      *                  problem, length = m_neq
      *  @param do_time Calculate a time dependent residual
      *  @param deltaT  Delta time for time dependent problem.
@@ -396,8 +365,7 @@ private:
                      const doublereal* CSolnSPOld,  const bool do_time,
                      const doublereal deltaT);
 
-    //!   Pointer to the manager of the implicit surface chemistry
-    //!   problem
+    //!   Pointer to the manager of the implicit surface chemistry problem
     /*!
      *    This object actually calls the current object. Thus, we are
      *    providing a loop-back functionality here.
@@ -490,11 +458,11 @@ private:
     //! Total number of volumetric condensed phases included in the steady state
     //! problem handled by this routine.
     /*!
-     * This is equal to or less
-     * than the total number of volumetric phases in all of the InterfaceKinetics
-     * objects. We usually do not include bulk phases. Bulk phases
-     * are only included in the calculation when their domain isn't included
-     * in the underlying continuum  model conservation equation system.
+     * This is equal to or less than the total number of volumetric phases in
+     * all of the InterfaceKinetics objects. We usually do not include bulk
+     * phases. Bulk phases are only included in the calculation when their
+     * domain isn't included in the underlying continuum  model conservation
+     * equation system.
      *
      * This is equal to 0, for the time being
      */
@@ -510,24 +478,20 @@ private:
     //std::vector<int>              m_bulkKinObjPhaseID;
 
 
-    //!  Total number of species in all bulk phases.
+    //! Total number of species in all bulk phases.
     /*!
-     *      This is also the number of bulk equations to solve when bulk
-     *      equation solving is turned on.
+     *  This is also the number of bulk equations to solve when bulk equation
+     *  solving is turned on.
      */
     size_t m_numTotBulkSpeciesSS;
 
     //! Vector of bulk phase pointers, length is equal to m_numBulkPhases.
-    /*!
-     *
-     */
     std::vector<ThermoPhase*> m_bulkPhasePtrs;
 
-    //! Index between the equation index and the position in the
-    //! kinetic species array for the appropriate kinetics
-    //! operator
+    //! Index between the equation index and the position in the kinetic
+    //! species array for the appropriate kinetics operator
     /*!
-     *   Length = m_neq.
+     *  Length = m_neq.
      *
      *  ksp = m_kinSpecIndex[ieq]
      *  ksp is the kinetic species index for the ieq'th equation.
@@ -544,29 +508,19 @@ private:
     //! Vector containing the indices of the largest species
     //! in each surface phase
     /*!
-     *           k = m_spSurfLarge[i]
-     * where
-     *           k is the local species index, i.e.,
-     *                it varies from 0 num species in phase-1
-     *           i is the surface phase index in the problem
-     *
-     *  length is equal to m_numSurfPhases
+     *  `k = m_spSurfLarge[i]` where `k` is the local species index, i.e., it
+     *  varies from 0 to (num species in phase - 1) and `i` is the surface
+     *  phase index in the problem. Length is equal to #m_numSurfPhases.
      */
     std::vector<size_t>  m_spSurfLarge;
 
-    //! m_atol is the absolute tolerance in real units.
-    /*!
-     *   units are (kmol/m2)
-     */
+    //! The absolute tolerance in real units. units are (kmol/m2)
     doublereal m_atol;
 
-    //! m_rtol is the relative error tolerance.
+    //! The relative error tolerance.
     doublereal m_rtol;
 
-    //! maximum value of the time step
-    /*!
-     * units = seconds
-     */
+    //! maximum value of the time step. units = seconds
     doublereal m_maxstep;
 
     //! Maximum number of species in any single kinetics operator
@@ -585,28 +539,16 @@ private:
     //! Temporary vector with length equal to max m_maxTotSpecies
     vector_fp m_CSolnSave;
 
-    //! Solution vector
-    /*!
-     * length MAX(1, m_neq)
-     */
+    //! Solution vector. length MAX(1, m_neq)
     vector_fp m_CSolnSP;
 
-    //! Saved initial solution vector
-    /*!
-     * length MAX(1, m_neq)
-     */
+    //! Saved initial solution vector. length MAX(1, m_neq)
     vector_fp m_CSolnSPInit;
 
-    //! Saved  solution vector at the old time step
-    /*!
-     * length MAX(1, m_neq)
-     */
+    //! Saved  solution vector at the old time step. length MAX(1, m_neq)
     vector_fp m_CSolnSPOld;
 
-    //!  Weights for the residual norm calculation
-    /*!
-     * length MAX(1, m_neq)
-     */
+    //!  Weights for the residual norm calculation. length MAX(1, m_neq)
     vector_fp m_wtResid;
 
     //!  Weights for the species concentrations norm calculation
@@ -628,33 +570,22 @@ private:
      */
     vector_fp m_resid;
 
-    //! Vector of mole fractions
-    /*!
-     *length m_maxTotSpecies
-     */
+    //! Vector of mole fractions. length m_maxTotSpecies
     vector_fp m_XMolKinSpecies;
 
-    //!  pivots
-    /*!
-     * length MAX(1, m_neq)
-     */
+    //! pivots. length MAX(1, m_neq)
     vector_int m_ipiv;
 
-    //! Vector of pointers to the top of the columns of the
-    //! jacobians
+    //! Vector of pointers to the top of the columns of the Jacobian
     /*!
      *   The "dim" by "dim" computed Jacobian matrix for the
      *   local Newton's method.
      */
     std::vector<doublereal*> m_JacCol;
 
-    //! Jacobian
-    /*!
-     *   m_neq by m_neq computed Jacobian matrix for the
-     *   local Newton's method.
-     */
+    //! Jacobian. m_neq by m_neq computed Jacobian matrix for the local
+    //! Newton's method.
     Array2D m_Jac;
-
 
 public:
     int m_ioflag;
