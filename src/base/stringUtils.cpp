@@ -30,15 +30,6 @@
 namespace Cantera
 {
 
-//================================================================================================
-// Convert a double into a c++ string
-/*
- *  This routine doesn't assume a formatting. You
- *  must supply the formatting
- *
- * @param x double to be converted
- * @param fmt   Format to be used (printf style)
- */
 std::string fp2str(const double x, const std::string& fmt)
 {
     char buf[64];
@@ -49,6 +40,7 @@ std::string fp2str(const double x, const std::string& fmt)
     }
     return std::string(" ");
 }
+
 std::string fp2str(const double x)
 {
     char buf[64];
@@ -59,10 +51,7 @@ std::string fp2str(const double x)
     }
     return std::string(" ");
 }
-//================================================================================================
-/*
- * Convert an integer number to a std::string using sprintf.
- */
+
 std::string int2str(const int n, const std::string& fmt)
 {
     char buf[30];
@@ -73,11 +62,7 @@ std::string int2str(const int n, const std::string& fmt)
     }
     return std::string(" ");
 }
-//================================================================================================
-//  Convert an int to a string
-/*
- *  @param n          int to be converted
- */
+
 std::string int2str(const int n)
 {
     char buf[30];
@@ -88,18 +73,14 @@ std::string int2str(const int n)
     }
     return std::string(" ");
 }
-//================================================================================================
-//  Convert an int to a string
-/*
- *  @param n          int to be converted
- */
+
 std::string int2str(const size_t n)
 {
     std::stringstream ss;
     ss << n;
     return ss.str();
 }
-//================================================================================================
+
 std::string lowercase(const std::string& s)
 {
     int n = static_cast<int>(s.size());
@@ -109,14 +90,12 @@ std::string lowercase(const std::string& s)
     }
     return lc;
 }
-//================================================================================================
-//! Return the position of the first printable
-//! character in the string
+
+//! Return the position of the first printable character in the string
 /*!
  *    @param  s    input string
- *    @return      Returns an int representing the first
- *                 printable string. If none returns the
- *                 size of the string.
+ *    @return      Returns an int representing the first printable string. If
+ *                 none returns the size of the string.
  */
 static int firstChar(const std::string& s)
 {
@@ -129,14 +108,12 @@ static int firstChar(const std::string& s)
     }
     return i;
 }
-//================================================================================================
-//! Return the position of the last printable
-//! character in the string
+
+//! Return the position of the last printable character in the string
 /*!
  *    @param  s    input string
- *    @return      Returns an int representing the first
- *                 printable string. If none returns
- *                 -1.
+ *    @return      Returns an int representing the first printable string. If
+ *                 none returns -1.
  */
 static int lastChar(const std::string& s)
 {
@@ -148,30 +125,14 @@ static int lastChar(const std::string& s)
         }
     return i;
 }
-//================================================================================================
-// Strip the leading and trailing white space
-// from a string
-/*
- *  The command isprint() is used to determine printable
- *  characters.
- *
- *    @param   s       Input string
- *    @return  Returns a copy of the string, stripped
- *             of leading and trailing white space
- */
+
 std::string stripws(const std::string& s)
 {
     int ifirst = firstChar(s);
     int ilast = lastChar(s);
     return s.substr(ifirst, ilast - ifirst + 1);
 }
-//================================================================================================
-// Strip non-printing characters wherever they are
-/*
- *   @param s        Input string
- *   @return         Returns a copy of the string,
- *                   stripped of all non-printing characters.
- */
+
 std::string stripnonprint(const std::string& s)
 {
     int i;
@@ -222,16 +183,7 @@ compositionMap parseCompString(const std::string& ss,
     } while (s != "");
     return x;
 }
-//================================================================================================
-//   Parse a composition string into individual key:composition
-//   pairs
-/*
- *
- *     @param ss   original string consisting of multiple key:composition
- *                 pairs on multiple lines
- *     @param w    Output vector consisting of single key:composition
- *                 items in each index.
- */
+
 void split(const std::string& ss, std::vector<std::string>& w)
 {
     std::string s = ss;
@@ -252,7 +204,7 @@ void split(const std::string& ss, std::vector<std::string>& w)
         }
     } while (s != "");
 }
-//================================================================================================
+
 int fillArrayFromString(const std::string& str,
                         doublereal* const a, const char delim)
 {
@@ -274,14 +226,7 @@ int fillArrayFromString(const std::string& str,
     }
     return count;
 }
-//================================================================================================
-// Get the file name without the path or extension
-/*
- *   @param fullPath   Input file name consisting
- *                     of the full file name
- *
- *  @return Returns the basename
- */
+
 std::string getBaseName(const std::string& path)
 {
     std::string file;
@@ -298,12 +243,12 @@ std::string getBaseName(const std::string& path)
     }
     return file;
 }
-//================================================================================================
+
 int intValue(const std::string& val)
 {
     return std::atoi(stripws(val).c_str());
 }
-//================================================================================================
+
 doublereal fpValue(const std::string& val)
 {
     doublereal rval;
@@ -312,7 +257,7 @@ doublereal fpValue(const std::string& val)
     ss >> rval;
     return rval;
 }
-//================================================================================================
+
 doublereal fpValueCheck(const std::string& val)
 {
     std::string str = stripws(val);
@@ -354,29 +299,14 @@ doublereal fpValueCheck(const std::string& val)
     }
     return fpValue(str);
 }
-//================================================================================================
-//  Generate a logfile name based on an input file name
-/*
- *   It tries to find the basename. Then, it appends a .log
- *   to it.
- *
- *   @param infile      Input file name
- *
- *  @return Returns a logfile name
- */
+
 std::string logfileName(const std::string& infile)
 {
     std::string logfile = getBaseName(infile);
     logfile += ".log";
     return logfile;
 }
-//================================================================================================
-//    Line wrap a string via a copy operation
-/*
- *   @param s   Input string to be line wrapped
- *   @paramlen  Length at which to wrap. The
- *              default is 70.
- */
+
 std::string wrapString(const std::string& s, const int len)
 {
     int count=0;
@@ -395,21 +325,7 @@ std::string wrapString(const std::string& s, const int len)
     }
     return r;
 }
-//================================================================================================
-// Parse a name string, separating out the phase name from the species name
-/*
- *   Name strings must not contain these internal characters "; \n \t "
- *   Only one colon is allowed, the one separating the phase name from the
- *   species name. Therefore, names may not include a colon.
- *
- *   @param nameStr   (input) Name string containing the phase name and the species
- *                            name separated by a colon. The phase name is optional.
- *                             example:   "silane:SiH4"
- *   @param phaseName (output) Name of the phase, if specified. If not specified,
- *                             a blank string is returned.
- *   @return          (output) Species name is returned. If nameStr is blank
- *                             an empty string is returned.
- */
+
 std::string parseSpeciesName(const std::string& nameStr, std::string& phaseName)
 {
     std::string s = stripws(nameStr);
@@ -435,23 +351,7 @@ std::string parseSpeciesName(const std::string& nameStr, std::string& phaseName)
     }
     return s;
 }
-//================================================================================================
-// Routine strips off white space from a c character string
-/*
- *     This routine strips off blanks and tabs (only leading and trailing
- *     characters) in 'str'.  On return, it returns the number of
- *     characters still included in the string (excluding the null character).
- *
- *      Comments are excluded -> All instances of the comment character, '!',
- *                               are replaced by '\0' thereby terminating
- *                               the string
- *
- *     Parameter list:
- *
- * @param  str   On output 'str' contains the same characters as on
- *               input except the leading and trailing white space and
- *               comments have been removed.
- */
+
 int stripLTWScstring(char str[])
 {
     int  i = 0, j = 0;
@@ -491,22 +391,7 @@ int stripLTWScstring(char str[])
     str[j] = '\0';
     return j;
 }
-//================================================================================================
-// Interpret one or two token string as a single double
-/*
- *   This is similar to atof(). However, the second token
- *   is interpreted as an MKS units string and a conversion
- *   factor to MKS is applied.
- *
- *   Example
- *  " 1.0 atm"
- *
- *   results in the number 1.01325e5
- *
- *   @param strSI string to be converted. One or two tokens
- *
- *   @return returns a converted double
- */
+
 doublereal strSItoDbl(const std::string& strSI)
 {
     std::vector<std::string> v;
@@ -522,14 +407,14 @@ doublereal strSItoDbl(const std::string& strSI)
     doublereal val = fpValueCheck(v[0]);
     return val * fp;
 }
-//================================================================================================
+
 //!  Find the first white space in a string
 /*!
  *   Returns the location of the first white space character in a string
  *
  *   @param   val    Input string to be parsed
- *   @return  In a size_type variable, return the location of the first white space character.
- *             Return npos if none is found
+ *   @return  In a size_type variable, return the location of the first white
+ *             space character. Return npos if none is found
  */
 static std::string::size_type findFirstWS(const std::string& val)
 {
@@ -547,14 +432,14 @@ static std::string::size_type findFirstWS(const std::string& val)
     }
     return ibegin;
 }
-//================================================================================================
+
 //!  Find the first non-white space in a string
 /*!
  *   Returns the location of the first non-white space character in a string
  *
  *   @param   val    Input string to be parsed
- *   @return  In a size_type variable, return the location of the first nonwhite space character.
- *             Return npos if none is found
+ *   @return  In a size_type variable, return the location of the first
+ *             nonwhite space character. Return npos if none is found
  */
 static std::string::size_type findFirstNotOfWS(const std::string& val)
 {
@@ -572,15 +457,7 @@ static std::string::size_type findFirstNotOfWS(const std::string& val)
     }
     return ibegin;
 }
-//================================================================================================
-// This function  separates a string up into tokens
-// according to the location of white space.
-/*
- *    The separate tokens are returned in a string vector, v.
- *
- *  @param oval   String to be broken up
- *  @param v     Output vector of tokens.
- */
+
 void tokenizeString(const std::string& oval,
                     std::vector<std::string>& v)
 {
@@ -604,7 +481,6 @@ void tokenizeString(const std::string& oval,
         }
     }
 }
-//================================================================================================
 
 void copyString(const std::string& source, char* dest, size_t length)
 {
