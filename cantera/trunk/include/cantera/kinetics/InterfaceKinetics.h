@@ -255,13 +255,8 @@ public:
      * Note, a direct solve is carried out under the hood here,
      * to reduce the computational time.
      *
-     * @param ifuncOverride 4 values are possible
-     *                    1  SFLUX_INITIALIZE
-     *                    2  SFLUX_RESIDUAL
-     *                    3  SFLUX_JACOBIAN
-     *                    4  SFLUX_TRANSIENT
-     *         The default is -1, which means that the program
-     *         will decide.
+     * @param ifuncOverride One of the values defined in @ref solvesp_methods.
+     *         The default is -1, which means that the program will decide.
      * @param timeScaleOverride When a pseudo transient is
      *             selected this value can be used to override
      *             the default time scale for integration which
