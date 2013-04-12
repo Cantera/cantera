@@ -73,14 +73,29 @@ public:
     //! Used to speed up duplicate reaction checks.
     std::map<std::vector<char>, std::vector<size_t> > m_participants;
 
+    /**
+     *  Install an individual reaction into a kinetics manager. The
+     *  data for the reaction is in the xml_node r. In other words, r
+     *  points directly to a ctml element named "reaction". i refers
+     *  to the number id of the reaction in the kinetics object.
+     *
+     * @param iRxn Reaction number.
+     * @param r XML_Node containing reaction data.
+     * @param kin Kinetics manager to which reaction will be added.
+     * @param default_phase Default phase for locating a species
+     * @param rules Rule for handling reactions with missing species
+     *             (skip or flag as error)
+     * @param validate_rxn If true, check that this reaction is not a
+     *                     duplicate of one already entered, and check that
+     *                     the reaction balances.
+     *
+     * @ingroup kineticsmgr
+     */
     bool installReaction(int i, const XML_Node& r, Kinetics& kin,
                          std::string default_phase, ReactionRules& rule,
                          bool validate_rxn) ;
 };
 
-/*
- * Check a reaction to see if the elements balance.
- */
 void checkRxnElementBalance(Kinetics& kin,
                             const ReactionData& rdata, doublereal errorTolerance)
 {
@@ -144,36 +159,6 @@ void checkRxnElementBalance(Kinetics& kin,
     }
 }
 
-
-/**
- * Get the reactants or products of a reaction. The information
- * is returned in the spnum, stoich, and order vectors. The
- * length of the vectors is the number of different types of
- * reactants or products found for the reaction.
- *
- * Input
- * --------
- *  rxn -> xml node pointing to the reaction element
- *         in the xml tree.
- *  kin -> Reference to the kinetics object to install
- *         the information into.
- *  rp = 1 -> Go get the reactants for a reaction
- *      -1 -> Go get the products for a reaction
- *  default_phase = String name for the default phase
- *          to loop up species in.
- *  Output
- * -----------
- *  spnum = vector of species numbers found.
- *          Length is number of reactants or products.
- *  stoich = stoichiometric coefficient of the reactant or product
- *          Length is number of reactants or products.
- *  order = Order of the reactant and product in the reaction
- *          rate expression
- *  rules = If we fail to find a species, we will throw an error
- *         if rule != 1. If rule = 1, we simply return false,
- *         allowing the calling routine to skip this reaction
- *         and continue.
- */
 bool getReagents(const XML_Node& rxn, Kinetics& kin, int rp,
                  std::string default_phase, std::vector<size_t>& spnum,
                  vector_fp& stoich, vector_fp& order,
@@ -276,7 +261,6 @@ bool getReagents(const XML_Node& rxn, Kinetics& kin, int rp,
     }
     return true;
 }
-
 
 /**
  * getArrhenius() parses the xml element called Arrhenius.
@@ -415,12 +399,10 @@ static void getCoverageDependence(const XML_Node& node,
     }
 }
 
-
 //! Get falloff parameters for a reaction.
 /*!
  *  This routine reads the falloff XML node and extracts parameters into a
  *  vector of doubles
- *
  *
  * @verbatim
  <falloff type="Troe"> 0.5 73.2 5000. 9999. </falloff>
@@ -495,14 +477,6 @@ static void getEfficiencies(const XML_Node& eff, Kinetics& kin,
     }
 }
 
-/*
- * Extract the rate coefficient for a reaction from the xml node, kf.
- * kf should point to a XML element named "rateCoeff".
- * rdata is the partially filled ReactionData object for the reaction.
- * This function will fill in more fields in the ReactionData object.
- *
- *  @param kf   Reference to the XML Node named rateCoeff
- */
 void getRateCoefficient(const XML_Node& kf, Kinetics& kin,
                         ReactionData& rdata, const ReactionRules& rules)
 {
@@ -605,14 +579,6 @@ void getRateCoefficient(const XML_Node& kf, Kinetics& kin,
     }
 }
 
-/*
- * This function returns true if two reactions are duplicates of
- * one another, and false otherwise.  The input arguments are two
- * maps from species number to stoichiometric coefficient, one for
- * each reaction. The reactions are considered duplicates if their
- * stoichiometric coefficients have the same ratio for all
- * species.
- */
 doublereal isDuplicateReaction(std::map<int, doublereal>& r1,
                                std::map<int, doublereal>& r2)
 {
@@ -656,25 +622,6 @@ next:
     return ratio;
 }
 
-
-/**
- *  Install an individual reaction into a kinetics manager. The
- *  data for the reaction is in the xml_node r. In other words, r
- *  points directly to a ctml element named "reaction". i refers
- *  to the number id of the reaction in the kinetics object.
- *
- * @param iRxn Reaction number.
- * @param r XML_Node containing reaction data.
- * @param kin Kinetics manager to which reaction will be added.
- * @param default_phase Default phase for locating a species
- * @param rules Rule for handling reactions with missing species
- *             (skip or flag as error)
- * @param validate_rxn If true, check that this reaction is not a
- *                     duplicate of one already entered, and check that the reaction
- *                     balances.
- *
- * @ingroup kineticsmgr
- */
 bool rxninfo::installReaction(int iRxn, const XML_Node& r, Kinetics& kin,
                               string default_phase, ReactionRules& rules,
                               bool validate_rxn)
@@ -870,20 +817,6 @@ bool rxninfo::installReaction(int iRxn, const XML_Node& r, Kinetics& kin,
     return true;
 }
 
-/*
- *  Take information from the XML tree, p, about reactions
- *  and install them into the kinetics object, kin.
- *  default_phase is the default phase to assume when
- *  looking up species.
- *
- *  At this point, p usually refers to the phase xml element.
- *  One of the children of this element is reactionArray,
- *  the element which determines where in the xml file to
- *  look up the reaction rate data pertaining to the phase.
- *
- *  On return, if reaction instantiation goes correctly, return true.
- *  If there is a problem, return false.
- */
 bool installReactionArrays(const XML_Node& p, Kinetics& kin,
                            std::string default_phase, bool check_for_duplicates)
 {
@@ -1016,33 +949,6 @@ bool installReactionArrays(const XML_Node& p, Kinetics& kin,
     return true;
 }
 
-
-/*
- * Import a reaction mechanism for a phase or an interface.
- *
- * @param phase This is an xml node containing a description
- *              of a phase. Within the phase is a XML element
- *              called reactionArray containing the location
- *              of the description of the reactions that make
- *              up the kinetics object.
- *              Also within the phase is an XML element called
- *              phaseArray containing a listing of other phases
- *              that participate in the kinetics mechanism.
- *
- * @param th    This is a list of ThermoPhase pointers which must
- *              include all of
- *              the phases that participate in the kinetics
- *              operator. All of the phases must have already
- *              been initialized and formed within Cantera.
- *              However, their pointers should not have been
- *              added to the Kinetics object; this addition
- *              is carried out here. Additional phases may
- *              be include; these have no effect.
- *
- * @param k     This is a pointer to the kinetics manager class
- *              that will be initialized with a kinetics
- *              mechanism.
- */
 bool importKinetics(const XML_Node& phase, std::vector<ThermoPhase*> th,
                     Kinetics* k)
 {
@@ -1120,10 +1026,6 @@ bool importKinetics(const XML_Node& phase, std::vector<ThermoPhase*> th,
     return installReactionArrays(phase, kin, owning_phase, check_for_duplicates);
 }
 
-/*
- * Build a single-phase ThermoPhase object with associated kinetics
- * mechanism.
- */
 bool buildSolutionFromXML(XML_Node& root, const std::string& id,
                           const std::string& nm, ThermoPhase* th, Kinetics* k)
 {

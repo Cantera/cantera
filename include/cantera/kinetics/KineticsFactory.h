@@ -15,7 +15,6 @@
 namespace Cantera
 {
 
-
 class UnknownKineticsModel : public CanteraError
 {
 public:
@@ -26,15 +25,12 @@ public:
     virtual ~UnknownKineticsModel() throw() {}
 };
 
-
 /**
  * Factory for kinetics managers.
  */
 class KineticsFactory : public FactoryBase
 {
-
 public:
-
     static KineticsFactory* factory() {
         ScopedLock lock(kinetics_mutex);
         if (!s_factory) {
@@ -57,20 +53,35 @@ public:
     }
 
     /**
-     * Create a new kinetics manager.
+     * Return a new kinetics manager that implements a reaction mechanism
+     * specified in a CTML file. In other words, the kinetics manager, given
+     * the rate constants and formulation of the reactions that make up a
+     * kinetics mechanism, is responsible for calculating the rates of
+     * progress of the reactions and for calculating the source terms for
+     * species.
+     *
+     * @param phase An XML_Node that contains the xml data describing the
+     *              phase. Of particular note to this routine is the child xml
+     *              element called "kinetics". The element has one attribute
+     *              called "model", with a string value. The value of this
+     *              string is used to decide which kinetics manager is used to
+     *              calculate the reaction mechanism.
+     *
+     * @return Pointer to the new kinetics manager.
      */
     virtual Kinetics* newKinetics(XML_Node& phase,
                                   std::vector<ThermoPhase*> th);
 
+    /**
+     * Return a new, empty kinetics manager.
+     */
     virtual Kinetics* newKinetics(const std::string& model);
 
 private:
-
     static KineticsFactory* s_factory;
     KineticsFactory() {}
     static mutex_t kinetics_mutex;
 };
-
 
 /**
  *  Create a new kinetics manager.
@@ -97,6 +108,3 @@ inline Kinetics* newKineticsMgr(const std::string& model, KineticsFactory* f=0)
 }
 
 #endif
-
-
-
