@@ -365,6 +365,11 @@ void Sim1D::solve(int loglevel, bool refine_grid)
 
         if (refine_grid) {
             new_points = refine(loglevel);
+            if (new_points) {
+                // If the grid has changed, preemptively reduce the timestep
+                // to avoid multiple successive failed time steps.
+                dt = m_tstep;
+            }
             if (new_points && loglevel > 6) {
                 save("debug_sim1d.xml", "debug", "After regridding");
             }
