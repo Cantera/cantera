@@ -44,11 +44,6 @@ void writelog(const std::string& msg)
     app()->writelog(msg);
 }
 
-void writelog(const char* msg)
-{
-    app()->writelog(msg);
-}
-
 void writelogf(const char* fmt,...)
 {
     enum { BUFSIZE = 2048 } ;

@@ -149,17 +149,6 @@ protected:
         //! Write an end of line and flush output
         void writelogendl();
 
-        //!  Write a message to the screen.
-        /*!
-         * The string may be of any
-         * length, and may contain end-of-line characters. This method is
-         * used throughout %Cantera to write log messages.
-         *
-         * @param pszmsg  c character string to be written to the screen
-         * @ingroup textlogs
-         */
-        void writelog(const char* pszmsg) ;
-
         //! Write an error message and quit.
         /*!
          *  The default behavior is
@@ -514,19 +503,6 @@ public:
      */
     void writelogendl() {
         pMessenger->writelogendl();
-    }
-
-    //!  Write a message to the screen.
-    /*!
-     * The string may be of any
-     * length, and may contain end-of-line characters. This method is
-     * used throughout %Cantera to write log messages.
-     *
-     * @param pszmsg  c null terminated string to be written to the screen
-     * @ingroup textlogs
-     */
-    void writelog(const char* pszmsg) {
-        pMessenger->writelog(pszmsg);
     }
 
     //! Write an error message and quit.
