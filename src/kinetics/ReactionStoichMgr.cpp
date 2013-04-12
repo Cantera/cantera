@@ -17,20 +17,15 @@ using namespace std;
 
 namespace Cantera
 {
-//====================================================================================================================
-// create stoichiometry managers for the reactants of all reactions,
-// for the products of the reversible reactions, and for the
-// products of the irreversible reactions.
 ReactionStoichMgr::ReactionStoichMgr()
 {
     m_dummy.resize(10,1.0);
 }
-//====================================================================================================================
+
 ReactionStoichMgr::~ReactionStoichMgr()
 {
 }
 
-//====================================================================================================================
 ReactionStoichMgr::ReactionStoichMgr(const  ReactionStoichMgr& right) :
     m_reactants(right.m_reactants),
     m_revproducts(right.m_revproducts),
@@ -39,7 +34,6 @@ ReactionStoichMgr::ReactionStoichMgr(const  ReactionStoichMgr& right) :
 {
 }
 
-//====================================================================================================================
 ReactionStoichMgr& ReactionStoichMgr::operator=(const ReactionStoichMgr& right)
 {
     if (this != &right) {
@@ -51,7 +45,7 @@ ReactionStoichMgr& ReactionStoichMgr::operator=(const ReactionStoichMgr& right)
     }
     return *this;
 }
-//====================================================================================================================
+
 void ReactionStoichMgr::
 add(size_t rxn, const std::vector<size_t>& reactants,
     const std::vector<size_t>& products,
@@ -66,7 +60,6 @@ add(size_t rxn, const std::vector<size_t>& reactants,
         m_irrevproducts.add(rxn, products);
     }
 }
-
 
 void ReactionStoichMgr::
 add(size_t rxn, const ReactionData& r)
@@ -192,7 +185,6 @@ multiplyRevProducts(const doublereal* c, doublereal* r)
 {
     m_revproducts.multiply(c, r);
 }
-
 
 void ReactionStoichMgr::
 write(const string& filename)
