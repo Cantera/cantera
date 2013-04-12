@@ -14,7 +14,6 @@ using namespace std;
 namespace Cantera
 {
 
-/// add a path to or from this node
 void SpeciesNode::addPath(Path* path)
 {
     m_paths.push_back(path);
@@ -36,10 +35,6 @@ void SpeciesNode::printPaths()
     }
 }
 
-
-/**
- * Construct a path connecting two species nodes.
- */
 Path::Path(SpeciesNode* begin, SpeciesNode* end)
     : m_a(begin), m_b(end), m_total(0.0)
 {
@@ -47,12 +42,6 @@ Path::Path(SpeciesNode* begin, SpeciesNode* end)
     end->addPath(this);
 }
 
-
-/**
- * add a reaction to the path. Increment the flow from this
- * reaction, the total flow, and the flow associated with this
- * label.
- */
 void Path::addReaction(size_t rxnNumber, doublereal value,
                        const string& label)
 {
@@ -63,11 +52,6 @@ void Path::addReaction(size_t rxnNumber, doublereal value,
     }
 }
 
-
-/**
- * Write the label for a path connecting two species, indicating
- * the percent of the total flow due to each reaction.
- */
 void Path::writeLabel(ostream& s, doublereal threshold)
 {
     size_t nn = m_label.size();
@@ -92,10 +76,6 @@ void Path::writeLabel(ostream& s, doublereal threshold)
     }
 }
 
-
-/**
- * Default constructor.
- */
 ReactionPathDiagram::ReactionPathDiagram()
 {
     name = "reaction_paths";
@@ -120,10 +100,6 @@ ReactionPathDiagram::ReactionPathDiagram()
     m_local = npos;
 }
 
-
-/**
- * Destructor. Deletes all nodes and paths in the diagram.
- */
 ReactionPathDiagram::~ReactionPathDiagram()
 {
     // delete the nodes
@@ -138,7 +114,6 @@ ReactionPathDiagram::~ReactionPathDiagram()
         delete m_pathlist[n];
     }
 }
-
 
 vector_int ReactionPathDiagram::reactions()
 {
@@ -243,21 +218,6 @@ void ReactionPathDiagram::writeData(ostream& s)
     }
 }
 
-
-/**
- *  Export the reaction path diagram. This method writes to stream
- *  \c s the commands for the 'dot' program in the \c GraphViz
- *  package from AT&T. (GraphViz may be downloaded from
- *  www.graphviz.org.)
- *
- *  To generate a postscript reaction path diagram from the
- *  output of this method saved in file paths.dot, for example, give
- *  the command:
- *  \code
- *  dot -Tps paths.dot > paths.ps
- *  \endcode
- *  To generate a GIF image, replace -Tps with -Tgif
- */
 void ReactionPathDiagram::exportToDot(ostream& s)
 {
     doublereal flxratio, flmax = 0.0, lwidth;
@@ -497,10 +457,6 @@ std::vector<size_t> ReactionPathDiagram::species()
     return m_speciesNumber;
 }
 
-
-/**
- *  analyze a reaction to determine which reactants lead to which products.
- */
 int ReactionPathBuilder::findGroups(ostream& logfile, Kinetics& s)
 {
     m_groups.resize(m_nr);
@@ -718,8 +674,6 @@ void ReactionPathBuilder::findElements(Kinetics& kin)
     }
 }
 
-
-
 int ReactionPathBuilder::init(ostream& logfile, Kinetics& kin)
 {
     //m_warn.clear();
@@ -879,7 +833,6 @@ string reactionLabel(size_t i, size_t kr, size_t nr,
     return label;
 }
 
-
 int ReactionPathBuilder::build(Kinetics& s, const string& element,
                                ostream& output, ReactionPathDiagram& r, bool quiet)
 {
@@ -1032,6 +985,5 @@ int ReactionPathBuilder::build(Kinetics& s, const string& element,
     }
     return 1;
 }
-
 
 }
