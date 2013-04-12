@@ -2,7 +2,6 @@
  *  @file GasKinetics.cpp
  *
  * Homogeneous kinetics in ideal gases
- *
  */
 
 // Copyright 2001  California Institute of Technology
@@ -19,11 +18,6 @@ using namespace std;
 
 namespace Cantera
 {
-
-//====================================================================================================================
-/*
- * Construct an empty reaction mechanism.
- */
 GasKinetics::
 GasKinetics(thermo_t* thermo) :
     Kinetics(),
@@ -43,7 +37,6 @@ GasKinetics(thermo_t* thermo) :
     m_temp = 0.0;
 }
 
-//====================================================================================================================
 GasKinetics::GasKinetics(const GasKinetics& right) :
     Kinetics(),
     m_nfall(0),
@@ -59,11 +52,11 @@ GasKinetics::GasKinetics(const GasKinetics& right) :
     m_temp = 0.0;
     *this = right;
 }
-//====================================================================================================================
+
 GasKinetics::~GasKinetics()
 {
 }
-//====================================================================================================================
+
 GasKinetics& GasKinetics::operator=(const GasKinetics& right)
 {
     if (this == &right) {
@@ -124,26 +117,14 @@ GasKinetics& GasKinetics::operator=(const GasKinetics& right)
 
     return *this;
 }
-//====================================================================================================================
-// Duplication routine for objects which inherit from Kinetics
-/*
- *  This virtual routine can be used to duplicate %Kinetics objects
- *  inherited from %Kinetics even if the application only has
- *  a pointer to %Kinetics to work with.
- *
- *  These routines are basically wrappers around the derived copy
- *  constructor.
- *
- * @param  tpVector Vector of shallow pointers to ThermoPhase objects. this is the
- *                  m_thermo vector within this object
- */
+
 Kinetics* GasKinetics::duplMyselfAsKinetics(const std::vector<thermo_t*> & tpVector) const
 {
     GasKinetics* gK = new GasKinetics(*this);
     gK->assignShallowPointers(tpVector);
     return gK;
 }
-//====================================================================================================================
+
 void GasKinetics::update_rates_T()
 {
     doublereal T = thermo().temperature();
@@ -171,9 +152,7 @@ void GasKinetics::update_rates_T()
     m_temp = T;
     updateKc();
     m_ROP_ok = false;
-};
-
-//====================================================================================================================
+}
 
 void GasKinetics::update_rates_C()
 {
@@ -204,10 +183,7 @@ void GasKinetics::update_rates_C()
 
     m_ROP_ok = false;
 }
-//====================================================================================================================
-/**
- * Update the equilibrium constants in molar units.
- */
+
 void GasKinetics::updateKc()
 {
     thermo().getStandardChemPotentials(&m_grt[0]);
@@ -227,11 +203,7 @@ void GasKinetics::updateKc()
         m_rkcn[ m_irrev[i] ] = 0.0;
     }
 }
-//====================================================================================================================
-/**
- * Get the equilibrium constants of all reactions, whether
- * reversible or not.
- */
+
 void GasKinetics::getEquilibriumConstants(doublereal* kc)
 {
     update_rates_T();
@@ -250,18 +222,7 @@ void GasKinetics::getEquilibriumConstants(doublereal* kc)
     // be updated before it is used next.
     m_temp = 0.0;
 }
-//====================================================================================================================
-/**
- *
- * getDeltaGibbs():
- *
- * Return the vector of values for the reaction gibbs free energy
- * change
- * These values depend upon the concentration
- * of the ideal gas.
- *
- *  units = J kmol-1
- */
+
 void GasKinetics::getDeltaGibbs(doublereal* deltaG)
 {
     /*
@@ -275,18 +236,7 @@ void GasKinetics::getDeltaGibbs(doublereal* deltaG)
      */
     m_rxnstoich.getReactionDelta(m_ii, &m_grt[0], deltaG);
 }
-//====================================================================================================================
-/**
- *
- * getDeltaEnthalpy():
- *
- * Return the vector of values for the reactions change in
- * enthalpy.
- * These values depend upon the concentration
- * of the solution.
- *
- *  units = J kmol-1
- */
+
 void GasKinetics::getDeltaEnthalpy(doublereal* deltaH)
 {
     /*
@@ -300,18 +250,7 @@ void GasKinetics::getDeltaEnthalpy(doublereal* deltaH)
      */
     m_rxnstoich.getReactionDelta(m_ii, &m_grt[0], deltaH);
 }
-//====================================================================================================================
-/*
- *
- * getDeltaEntropy():
- *
- * Return the vector of values for the reactions change in
- * entropy.
- * These values depend upon the concentration
- * of the solution.
- *
- *  units = J kmol-1 Kelvin-1
- */
+
 void GasKinetics::getDeltaEntropy(doublereal* deltaS)
 {
     /*
@@ -325,18 +264,7 @@ void GasKinetics::getDeltaEntropy(doublereal* deltaS)
      */
     m_rxnstoich.getReactionDelta(m_ii, &m_grt[0], deltaS);
 }
-//====================================================================================================================
-/**
- *
- * getDeltaSSGibbs():
- *
- * Return the vector of values for the reaction
- * standard state gibbs free energy change.
- * These values don't depend upon the concentration
- * of the solution.
- *
- *  units = J kmol-1
- */
+
 void GasKinetics::getDeltaSSGibbs(doublereal* deltaG)
 {
     /*
@@ -352,18 +280,7 @@ void GasKinetics::getDeltaSSGibbs(doublereal* deltaG)
      */
     m_rxnstoich.getReactionDelta(m_ii, &m_grt[0], deltaG);
 }
-//====================================================================================================================
-/**
- *
- * getDeltaSSEnthalpy():
- *
- * Return the vector of values for the change in the
- * standard state enthalpies of reaction.
- * These values don't depend upon the concentration
- * of the solution.
- *
- *  units = J kmol-1
- */
+
 void GasKinetics::getDeltaSSEnthalpy(doublereal* deltaH)
 {
     /*
@@ -383,18 +300,7 @@ void GasKinetics::getDeltaSSEnthalpy(doublereal* deltaH)
      */
     m_rxnstoich.getReactionDelta(m_ii, &m_grt[0], deltaH);
 }
-//====================================================================================================================
-/*********************************************************************
- *
- * getDeltaSSEntropy():
- *
- * Return the vector of values for the change in the
- * standard state entropies for each reaction.
- * These values don't depend upon the concentration
- * of the solution.
- *
- *  units = J kmol-1 Kelvin-1
- */
+
 void GasKinetics::getDeltaSSEntropy(doublereal* deltaS)
 {
     /*
@@ -414,57 +320,24 @@ void GasKinetics::getDeltaSSEntropy(doublereal* deltaS)
     m_rxnstoich.getReactionDelta(m_ii, &m_grt[0], deltaS);
 }
 
-//====================================================================================================================
-// Return the species net production rates
-/*
- * Species net production rates [kmol/m^3/s]. Return the species
- * net production rates (creation - destruction) in array
- * wdot, which must be dimensioned at least as large as the
- * total number of species.
- *
- *  @param net  Array of species production rates.
- *             units kmol m-3 s-1
- */
 void GasKinetics::getNetProductionRates(doublereal* net)
 {
     updateROP();
     m_rxnstoich.getNetProductionRates(m_kk, &m_ropnet[0], net);
 }
-//====================================================================================================================
-// Return the species creation rates
-/*
- * Species creation rates [kmol/m^3]. Return the species
- * creation rates in array cdot, which must be
- * dimensioned at least as large as the total number of
- * species.
- *
- *  @param cdot  Array of species production rates.
- *              units kmol m-3 s-1
- */
+
 void GasKinetics::getCreationRates(doublereal* cdot)
 {
     updateROP();
     m_rxnstoich.getCreationRates(m_kk, &m_ropf[0], &m_ropr[0], cdot);
 }
-//====================================================================================================================
-//   Return a vector of the species destruction rates
-/*
- * Species destruction rates [kmol/m^3]. Return the species
- * destruction rates in array ddot, which must be
- * dimensioned at least as large as the total number of
- * species.
- *
- *
- *  @param ddot  Array of species destruction rates.
- *               units kmol m-3 s-1
- *
- */
+
 void GasKinetics::getDestructionRates(doublereal* ddot)
 {
     updateROP();
     m_rxnstoich.getDestructionRates(m_kk, &m_ropf[0], &m_ropr[0], ddot);
 }
-//====================================================================================================================
+
 void GasKinetics::processFalloffReactions()
 {
     // use m_ropr for temporary storage of reduced pressure
@@ -485,7 +358,6 @@ void GasKinetics::processFalloffReactions()
                  m_ropf.begin(), m_fallindx.begin());
 }
 
-//====================================================================================================================
 void GasKinetics::updateROP()
 {
     update_rates_C();
@@ -533,15 +405,7 @@ void GasKinetics::updateROP()
 
     m_ROP_ok = true;
 }
-//====================================================================================================================
-/**
- *
- * getFwdRateConstants():
- *
- * Update the rate of progress for the reactions.
- * This key routine makes sure that the rate of progress vectors
- * located in the solid kinetics data class are up to date.
- */
+
 void GasKinetics::
 getFwdRateConstants(doublereal* kfwd)
 {
@@ -571,18 +435,7 @@ getFwdRateConstants(doublereal* kfwd)
         kfwd[i] = m_ropf[i];
     }
 }
-//====================================================================================================================
-/**
- *
- * getRevRateConstants():
- *
- * Return a vector of the reverse reaction rate constants
- *
- * Length is the number of reactions. units depends
- * on many issues. Note, this routine will return rate constants
- * for irreversible reactions if the default for
- * doIrreversible is overridden.
- */
+
 void GasKinetics::
 getRevRateConstants(doublereal* krev, bool doIrreversible)
 {
@@ -605,7 +458,7 @@ getRevRateConstants(doublereal* krev, bool doIrreversible)
         }
     }
 }
-//====================================================================================================================
+
 void GasKinetics::
 addReaction(ReactionData& r)
 {
@@ -636,7 +489,6 @@ addReaction(ReactionData& r)
     m_rxneqn.push_back(r.equation);
 }
 
-//====================================================================================================================
 void GasKinetics::
 addFalloffReaction(ReactionData& r)
 {
@@ -673,7 +525,6 @@ addFalloffReaction(ReactionData& r)
     ++m_nfall;
     registerReaction(reactionNumber(), FALLOFF_RXN, iloc);
 }
-//====================================================================================================================
 
 void GasKinetics::
 addElementaryReaction(ReactionData& r)
@@ -689,7 +540,6 @@ addElementaryReaction(ReactionData& r)
     registerReaction(reactionNumber(), ELEMENTARY_RXN, iloc);
 }
 
-//====================================================================================================================
 void GasKinetics::
 addThreeBodyReaction(ReactionData& r)
 {
@@ -706,7 +556,6 @@ addThreeBodyReaction(ReactionData& r)
                        r.default_3b_eff);
     registerReaction(reactionNumber(), THREE_BODY_RXN, iloc);
 }
-//====================================================================================================================
 
 void GasKinetics::addPlogReaction(ReactionData& r)
 {
@@ -795,8 +644,6 @@ void GasKinetics::installReagents(const ReactionData& r)
         m_nirrev++;
     }
 }
-//====================================================================================================================
-
 
 void GasKinetics::installGroups(size_t irxn,
                                 const vector<grouplist_t>& r, const vector<grouplist_t>& p)
@@ -808,7 +655,6 @@ void GasKinetics::installGroups(size_t irxn,
     }
 }
 
-//====================================================================================================================
 void GasKinetics::init()
 {
     m_kk = thermo().nSpecies();
@@ -818,7 +664,7 @@ void GasKinetics::init()
     m_grt.resize(m_kk);
     m_logp_ref = log(thermo().refPressure()) - log(GasConstant);
 }
-//====================================================================================================================
+
 void GasKinetics::finalize()
 {
     if (!m_finalized) {
@@ -838,11 +684,10 @@ void GasKinetics::finalize()
         }
     }
 }
-//====================================================================================================================
+
 bool GasKinetics::ready() const
 {
     return m_finalized;
 }
-//====================================================================================================================
+
 }
-//======================================================================================================================

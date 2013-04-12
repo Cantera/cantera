@@ -1,6 +1,5 @@
 /**
  *  @file InterfaceKinetics.cpp
- *
  */
 
 // Copyright 2002  California Institute of Technology
@@ -18,16 +17,6 @@ using namespace std;
 
 namespace Cantera
 {
-
-//====================================================================================================================
-/*
- * Construct an empty InterfaceKinetics reaction mechanism.
- *  @param thermo This is an optional parameter that may be
- *         used to initialize the inherited Kinetics class with
- *         one ThermoPhase class object -> in other words it's
- *         useful for initialization of homogeneous kinetics
- *         mechanisms.
- */
 InterfaceKinetics::InterfaceKinetics(thermo_t* thermo) :
     Kinetics(),
     m_redo_rates(false),
@@ -61,20 +50,12 @@ InterfaceKinetics::InterfaceKinetics(thermo_t* thermo) :
         addPhase(*thermo);
     }
 }
-//====================================================================================================================
-/*
- * Destructor
- */
+
 InterfaceKinetics::~InterfaceKinetics()
 {
     delete m_integrator;
 }
-//====================================================================================================================
-//  Copy Constructor for the %InterfaceKinetics object.
-/*
- * Currently, this is not fully implemented. If called it will
- * throw an exception.
- */
+
 InterfaceKinetics::InterfaceKinetics(const InterfaceKinetics& right) :
     Kinetics(),
     m_redo_rates(false),
@@ -109,14 +90,7 @@ InterfaceKinetics::InterfaceKinetics(const InterfaceKinetics& right) :
      */
     *this = operator=(right);
 }
-//====================================================================================================================
-// Assignment operator
-/*
- *  This is NOT a virtual function.
- *
- * @param right    Reference to %Kinetics object to be copied into the
- *                 current one.
- */
+
 InterfaceKinetics& InterfaceKinetics::
 operator=(const InterfaceKinetics& right)
 {
@@ -183,48 +157,20 @@ int InterfaceKinetics::type() const
 {
     return cInterfaceKinetics;
 }
-//====================================================================================================================
-// Duplication routine for objects which inherit from Kinetics
-/*
- *  This virtual routine can be used to duplicate %Kinetics objects
- *  inherited from %Kinetics even if the application only has
- *  a pointer to %Kinetics to work with.
- *
- *  These routines are basically wrappers around the derived copy
- *  constructor.
- *
- * @param  tpVector Vector of shallow pointers to ThermoPhase objects. this is the
- *                  m_thermo vector within this object
- */
+
 Kinetics* InterfaceKinetics::duplMyselfAsKinetics(const std::vector<thermo_t*> & tpVector) const
 {
     InterfaceKinetics* iK = new InterfaceKinetics(*this);
     iK->assignShallowPointers(tpVector);
     return iK;
 }
-//====================================================================================================================
-// Set the electric potential in the nth phase
-/*
- * @param n phase Index in this kinetics object.
- * @param V Electric potential (volts)
- */
+
 void InterfaceKinetics::setElectricPotential(int n, doublereal V)
 {
     thermo(n).setElectricPotential(V);
     m_redo_rates = true;
 }
 
-//====================================================================================================================
-// Update properties that depend on temperature
-/*
- *  This is called to update all of the properties that depend on temperature
- *
- *  Current objects that this function updates
- *       m_logtemp
- *       m_rfn
- *       m_rates.
- *       updateKc();
- */
 void InterfaceKinetics::_update_rates_T()
 {
     _update_rates_phi();
@@ -250,7 +196,7 @@ void InterfaceKinetics::_update_rates_T()
         m_redo_rates = false;
     }
 }
-//====================================================================================================================
+
 void InterfaceKinetics::_update_rates_phi()
 {
     for (size_t n = 0; n < nPhases(); n++) {
@@ -260,16 +206,7 @@ void InterfaceKinetics::_update_rates_phi()
         }
     }
 }
-//====================================================================================================================
 
-
-/**
- * Update properties that depend on concentrations. This method
- * fills out the array of generalized concentrations by calling
- * method getActivityConcentrations for each phase, which classes
- * representing phases should overload to return the appropriate
- * quantities.
- */
 void InterfaceKinetics::_update_rates_C()
 {
     for (size_t n = 0; n < nPhases(); n++) {
@@ -286,26 +223,12 @@ void InterfaceKinetics::_update_rates_C()
     m_ROP_ok = false;
 }
 
-
-// Get the vector of activity concentrations used in the kinetics object
-/*
- *  @param conc  (output) Vector of activity concentrations. Length is
- *               equal to the number of species in the kinetics object
- */
 void InterfaceKinetics::getActivityConcentrations(doublereal* const conc)
 {
     _update_rates_C();
     copy(m_conc.begin(), m_conc.end(), conc);
 }
 
-
-/**
- * Update the equilibrium constants in molar units for all
- * reversible reactions. Irreversible reactions have their
- * equilibrium constant set to zero.
- * For reactions involving charged species the equilibrium
- * constant is adjusted according to the electrostatic potential.
- */
 void InterfaceKinetics::updateKc()
 {
     fill(m_rkcn.begin(), m_rkcn.end(), 0.0);
@@ -347,9 +270,6 @@ void InterfaceKinetics::updateKc()
         }
     }
 }
-//====================================================================================================================
-
-
 
 void InterfaceKinetics::checkPartialEquil()
 {
@@ -405,10 +325,6 @@ void InterfaceKinetics::getNetRatesOfProgress(doublereal* netROP)
     std::copy(m_ropnet.begin(), m_ropnet.end(), netROP);
 }
 
-/**
- * Get the equilibrium constants of all reactions, whether
- * reversible or not.
- */
 void InterfaceKinetics::getEquilibriumConstants(doublereal* kc)
 {
     size_t ik=0;
@@ -462,62 +378,24 @@ void InterfaceKinetics::getExchangeCurrentQuantities()
 
 }
 
-// Returns the Species creation rates [kmol/m^2/s].
-/*
- *   Return the species
- * creation rates in array cdot, which must be
- * dimensioned at least as large as the total number of
- * species in all phases of the kinetics
- * model
- *
- *  @param cdot Vector containing the creation rates.
- *              length = m_kk. units = kmol/m^2/s
- */
 void InterfaceKinetics::getCreationRates(doublereal* cdot)
 {
     updateROP();
     m_rxnstoich.getCreationRates(m_kk, &m_ropf[0], &m_ropr[0], cdot);
 }
 
-//  Return the Species destruction rates [kmol/m^2/s].
-/*
- *  Return the species destruction rates in array ddot, which must be
- *  dimensioned at least as large as the total number of
- *  species in all phases of the kinetics model
- */
 void InterfaceKinetics::getDestructionRates(doublereal* ddot)
 {
     updateROP();
     m_rxnstoich.getDestructionRates(m_kk, &m_ropf[0], &m_ropr[0], ddot);
 }
 
-// Return the species net production rates
-/*
- * Species net production rates [kmol/m^2/s]. Return the species
- * net production rates (creation - destruction) in array
- * wdot, which must be dimensioned at least as large as the
- * total number of species in all phases of the kinetics
- * model
- *
- * @param net  Vector of species production rates.
- *             units kmol m-d s-1, where d is dimension.
- */
 void InterfaceKinetics::getNetProductionRates(doublereal* net)
 {
     updateROP();
     m_rxnstoich.getNetProductionRates(m_kk, &m_ropnet[0], net);
 }
 
-//====================================================================================================================
-// Apply corrections for interfacial charge transfer reactions
-/*
- * For reactions that transfer charge across a potential difference,
- * the activation energies are modified by the potential difference.
- * (see, for example, ...). This method applies this correction.
- *
- * @param kf  Vector of forward reaction rate constants on which to have
- *            the correction applied
- */
 void InterfaceKinetics::applyButlerVolmerCorrection(doublereal* const kf)
 {
     // compute the electrical potential energy of each species
@@ -573,7 +451,7 @@ void InterfaceKinetics::applyButlerVolmerCorrection(doublereal* const kf)
         }
     }
 }
-//====================================================================================================================
+
 void InterfaceKinetics::applyExchangeCurrentDensityFormulation(doublereal* const kfwd)
 {
     getExchangeCurrentQuantities();
@@ -589,14 +467,8 @@ void InterfaceKinetics::applyExchangeCurrentDensityFormulation(doublereal* const
             kfwd[irxn] *= tmp;
         }
     }
-
-
 }
-//====================================================================================================================
-/**
- * Update the rates of progress of the reactions in the reaction
- * mechanism. This routine operates on internal data.
- */
+
 void InterfaceKinetics::getFwdRateConstants(doublereal* kfwd)
 {
 
@@ -609,12 +481,7 @@ void InterfaceKinetics::getFwdRateConstants(doublereal* kfwd)
     multiply_each(kfwd, kfwd + nReactions(), m_perturb.begin());
 
 }
-//====================================================================================================================
 
-/**
- * Update the rates of progress of the reactions in the reaction
- * mechanism. This routine operates on internal data.
- */
 void InterfaceKinetics::getRevRateConstants(doublereal* krev, bool doIrreversible)
 {
     getFwdRateConstants(krev);
@@ -627,17 +494,12 @@ void InterfaceKinetics::getRevRateConstants(doublereal* krev, bool doIrreversibl
         multiply_each(krev, krev + nReactions(), m_rkcn.begin());
     }
 }
-//====================================================================================================================
 
 void InterfaceKinetics::getActivationEnergies(doublereal* E)
 {
     copy(m_E.begin(), m_E.end(), E);
 }
-//====================================================================================================================
-/**
- * Update the rates of progress of the reactions in the reaction
- * mechanism. This routine operates on internal data.
- */
+
 void InterfaceKinetics::updateROP()
 {
     _update_rates_T();
@@ -768,19 +630,7 @@ InterfaceKinetics::adjustRatesForIntermediatePhases()
 
 }
 #endif
-//=================================================================================================
 
-/*
- *
- * getDeltaGibbs():
- *
- * Return the vector of values for the reaction gibbs free energy
- * change
- * These values depend upon the concentration
- * of the ideal gas.
- *
- *  units = J kmol-1
- */
 void InterfaceKinetics::getDeltaGibbs(doublereal* deltaG)
 {
     /*
@@ -800,17 +650,7 @@ void InterfaceKinetics::getDeltaGibbs(doublereal* deltaG)
      */
     m_rxnstoich.getReactionDelta(m_ii, DATA_PTR(m_grt), deltaG);
 }
-//=================================================================================================
-// Return the vector of values for the reaction electrochemical free energy change.
-/*
- * These values depend upon the concentration of the solution and
- * the voltage of the phases
- *
- *  units = J kmol-1
- *
- * @param deltaM  Output vector of  deltaM's for reactions
- *                Length: m_ii.
- */
+
 void InterfaceKinetics::getDeltaElectrochemPotentials(doublereal* deltaM)
 {
     /*
@@ -827,18 +667,7 @@ void InterfaceKinetics::getDeltaElectrochemPotentials(doublereal* deltaM)
      */
     m_rxnstoich.getReactionDelta(m_ii, DATA_PTR(m_grt), deltaM);
 }
-//=================================================================================================
-/*
- *
- * getDeltaEnthalpy():
- *
- * Return the vector of values for the reactions change in
- * enthalpy.
- * These values depend upon the concentration
- * of the solution.
- *
- *  units = J kmol-1
- */
+
 void InterfaceKinetics::getDeltaEnthalpy(doublereal* deltaH)
 {
     /*
@@ -855,19 +684,6 @@ void InterfaceKinetics::getDeltaEnthalpy(doublereal* deltaH)
     m_rxnstoich.getReactionDelta(m_ii, DATA_PTR(m_grt), deltaH);
 }
 
-
-// Return the vector of values for the change in
-// entropy due to each reaction
-/*
- * These values depend upon the concentration
- * of the solution.
- *
- *  units = J kmol-1 Kelvin-1
- *
- * @param deltaS vector of Enthalpy changes
- *        Length = m_ii, number of reactions
- *
- */
 void InterfaceKinetics::getDeltaEntropy(doublereal* deltaS)
 {
     /*
@@ -884,17 +700,6 @@ void InterfaceKinetics::getDeltaEntropy(doublereal* deltaS)
     m_rxnstoich.getReactionDelta(m_ii, DATA_PTR(m_grt), deltaS);
 }
 
-/**
- *
- * getDeltaSSGibbs():
- *
- * Return the vector of values for the reaction
- * standard state gibbs free energy change.
- * These values don't depend upon the concentration
- * of the solution.
- *
- *  units = J kmol-1
- */
 void InterfaceKinetics::getDeltaSSGibbs(doublereal* deltaG)
 {
     /*
@@ -913,17 +718,6 @@ void InterfaceKinetics::getDeltaSSGibbs(doublereal* deltaG)
     m_rxnstoich.getReactionDelta(m_ii, DATA_PTR(m_grt), deltaG);
 }
 
-/**
- *
- * getDeltaSSEnthalpy():
- *
- * Return the vector of values for the change in the
- * standard state enthalpies of reaction.
- * These values don't depend upon the concentration
- * of the solution.
- *
- *  units = J kmol-1
- */
 void InterfaceKinetics::getDeltaSSEnthalpy(doublereal* deltaH)
 {
     /*
@@ -946,17 +740,6 @@ void InterfaceKinetics::getDeltaSSEnthalpy(doublereal* deltaH)
     m_rxnstoich.getReactionDelta(m_ii, DATA_PTR(m_grt), deltaH);
 }
 
-/*********************************************************************
- *
- * getDeltaSSEntropy():
- *
- * Return the vector of values for the change in the
- * standard state entropies for each reaction.
- * These values don't depend upon the concentration
- * of the solution.
- *
- *  units = J kmol-1 Kelvin-1
- */
 void InterfaceKinetics::getDeltaSSEntropy(doublereal* deltaS)
 {
     /*
@@ -978,23 +761,8 @@ void InterfaceKinetics::getDeltaSSEntropy(doublereal* deltaS)
     m_rxnstoich.getReactionDelta(m_ii, DATA_PTR(m_grt), deltaS);
 }
 
-//====================================================================================================================
-/**
- * Add a single reaction to the mechanism. This routine
- * must be called after init() and before finalize().
- * This function branches on the types of reactions allowed
- * by the interfaceKinetics manager in order to install
- * the reaction correctly in the manager.
- * The manager allows the following reaction types
- *  Elementary
- *  Surface
- *  Global
- * There is no difference between elementary and surface
- * reactions.
- */
 void InterfaceKinetics::addReaction(ReactionData& r)
 {
-
     /*
      * Install the rate coefficient for the current reaction
      * in the appropriate data structure.
@@ -1036,7 +804,7 @@ void InterfaceKinetics::addReaction(ReactionData& r)
         m_rxnPhaseIsProduct[i][p] = true;
     }
 }
-//====================================================================================================================
+
 void InterfaceKinetics::addElementaryReaction(ReactionData& r)
 {
     // install rate coeff calculator
@@ -1089,7 +857,6 @@ void InterfaceKinetics::addElementaryReaction(ReactionData& r)
     m_rfn.push_back(r.rateCoeffParameters[0]);
     registerReaction(reactionNumber(), ELEMENTARY_RXN, iloc);
 }
-//====================================================================================================================
 
 void InterfaceKinetics::setIOFlag(int ioFlag)
 {
@@ -1125,7 +892,6 @@ void InterfaceKinetics::setIOFlag(int ioFlag)
 
 //         registerReaction( reactionNumber(), GLOBAL_RXN, iloc);
 //     }
-
 
 void InterfaceKinetics::installReagents(const ReactionData& r)
 {
@@ -1224,22 +990,14 @@ void InterfaceKinetics::installReagents(const ReactionData& r)
         m_nirrev++;
     }
 }
-//===============================================================================================
+
 void InterfaceKinetics::addPhase(thermo_t& thermo)
 {
     Kinetics::addPhase(thermo);
     m_phaseExists.push_back(true);
     m_phaseIsStable.push_back(true);
 }
-//================================================================================================
-/**
- * Prepare the class for the addition of reactions. This function
- * must be called after instantiation of the class, but before
- * any reactions are actually added to the mechanism.
- * This function calculates m_kk the number of species in all
- * phases participating in the reaction mechanism. We don't know
- * m_kk previously, before all phases have been added.
- */
+
 void InterfaceKinetics::init()
 {
     m_kk = 0;
@@ -1254,15 +1012,7 @@ void InterfaceKinetics::init()
     m_pot.resize(m_kk, 0.0);
     m_phi.resize(nPhases(), 0.0);
 }
-//================================================================================================
-/**
- * Finish adding reactions and prepare for use. This function
- * must be called after all reactions are entered into the mechanism
- * and before the mechanism is used to calculate reaction rates.
- *
- * Here, we resize work arrays based on the number of reactions,
- * since we don't know this number up to now.
- */
+
 void InterfaceKinetics::finalize()
 {
     Kinetics::finalize();
@@ -1308,16 +1058,11 @@ doublereal InterfaceKinetics::electrochem_beta(size_t irxn) const
     return 0.0;
 }
 
-//================================================================================================
 bool InterfaceKinetics::ready() const
 {
     return m_finalized;
 }
-//================================================================================================
-// Advance the surface coverages in time
-/*
- * @param tstep  Time value to advance the surface coverages
- */
+
 void InterfaceKinetics::
 advanceCoverages(doublereal tstep)
 {
@@ -1331,19 +1076,7 @@ advanceCoverages(doublereal tstep)
     delete m_integrator;
     m_integrator = 0;
 }
-//================================================================================================
-// Solve for the pseudo steady-state of the surface problem
-/*
- * Solve for the steady state of the surface problem.
- * This is the same thing as the advanceCoverages() function,
- * but at infinite times.
- *
- * Note, a direct solve is carried out under the hood here,
- * to reduce the computational time.
- *
- * the integrator object is saved between calls to
- * reduce the computational cost of repeated calls.
- */
+
 void InterfaceKinetics::
 solvePseudoSteadyStateProblem(int ifuncOverride, doublereal timeScaleOverride)
 {
@@ -1360,7 +1093,6 @@ solvePseudoSteadyStateProblem(int ifuncOverride, doublereal timeScaleOverride)
      */
     m_integrator->solvePseudoSteadyStateProblem(ifuncOverride, timeScaleOverride);
 }
-//================================================================================================
 
 void InterfaceKinetics::setPhaseExistence(const size_t iphase, const int exists)
 {
@@ -1385,14 +1117,7 @@ void InterfaceKinetics::setPhaseExistence(const size_t iphase, const int exists)
     }
 
 }
-//================================================================================================
-// Gets the phase existence int for the ith phase
-/*
- * @param iphase  Phase Id
- *
- * @return Returns the int specifying whether the kinetics object thinks the phase exists
- *         or not. If it exists, then species in that phase can be a reactant in reactions.
- */
+
 int InterfaceKinetics::phaseExistence(const size_t iphase) const
 {
     if (iphase >= m_thermo.size()) {
@@ -1400,16 +1125,7 @@ int InterfaceKinetics::phaseExistence(const size_t iphase) const
     }
     return m_phaseExists[iphase];
 }
-//================================================================================================
-// Gets the phase stability int for the ith phase
-/*
- * @param iphase  Phase Id
- *
- * @return Returns the int specifying whether the kinetics object thinks the phase is stable
- *         with nonzero mole numbers.
- *         If it stable, then the kinetics object will allow for rates of production of
- *         of species in that phase that are positive.
- */
+
 int InterfaceKinetics::phaseStability(const size_t iphase) const
 {
     if (iphase >= m_thermo.size()) {
@@ -1417,7 +1133,6 @@ int InterfaceKinetics::phaseStability(const size_t iphase) const
     }
     return m_phaseIsStable[iphase];
 }
-//================================================================================================
 
 void InterfaceKinetics::setPhaseStability(const size_t iphase, const int isStable)
 {
@@ -1431,7 +1146,6 @@ void InterfaceKinetics::setPhaseStability(const size_t iphase, const int isStabl
     }
 }
 
-//================================================================================================
 void EdgeKinetics::finalize()
 {
     m_rwork.resize(std::max<size_t>(nReactions(), 1));
@@ -1456,7 +1170,5 @@ void EdgeKinetics::finalize()
 
     m_finalized = true;
 }
-//================================================================================================
+
 }
-
-
