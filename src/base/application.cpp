@@ -112,14 +112,12 @@ Application::Messages::~Messages()
 #endif
 }
 
-// Set an error condition in the application class without throwing an exception
 void Application::Messages::addError(const std::string& r, const std::string& msg)
 {
     errorMessage.push_back(msg);
     errorRoutine.push_back(r);
 }
 
-// Return the number of errors encountered so far
 int Application::Messages::getErrorCount()
 {
     return static_cast<int>(errorMessage.size()) ;
@@ -137,19 +135,16 @@ void Application::Messages::setLogger(Logger* _logwriter)
     logwriter = _logwriter;
 }
 
-// Write an error message and terminate execution
 void Application::Messages::logerror(const std::string& msg)
 {
     logwriter->error(msg) ;
 }
 
-// Write a message to the screen
 void Application::Messages::writelog(const std::string& msg)
 {
     logwriter->write(msg);
 }
 
-// Write an endl to the screen and flush output
 void Application::Messages::writelogendl()
 {
     logwriter->writeendl();
