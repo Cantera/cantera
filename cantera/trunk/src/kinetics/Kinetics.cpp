@@ -8,8 +8,6 @@
  */
 // Copyright 2001-2004  California Institute of Technology
 
-// Why InterfaceKinetics.h and not Kinetics.h ??
-
 #include "cantera/kinetics/Kinetics.h"
 #include "cantera/thermo/SurfPhase.h"
 #include "cantera/kinetics/StoichManager.h"
@@ -23,8 +21,6 @@ using namespace std;
 
 namespace Cantera
 {
-
-
 Kinetics::Kinetics() :
     m_ii(0),
     m_kk(0),
@@ -43,12 +39,6 @@ Kinetics::Kinetics() :
 
 Kinetics::~Kinetics() {}
 
-
-//  Copy Constructor for the %Kinetics object.
-/*
- * Currently, this is not fully implemented. If called it will
- * throw an exception.
- */
 Kinetics::Kinetics(const Kinetics& right) :
     m_ii(0),
     m_kk(0),
@@ -69,13 +59,6 @@ Kinetics::Kinetics(const Kinetics& right) :
     *this = right;
 }
 
-// Assignment operator
-/*
- *  This is NOT a virtual function.
- *
- * @param right    Reference to %Kinetics object to be copied into the
- *                 current one.
- */
 Kinetics& Kinetics::
 operator=(const Kinetics& right)
 {
@@ -104,17 +87,6 @@ operator=(const Kinetics& right)
     return *this;
 }
 
-//====================================================================================================================
-// Duplication routine for objects which inherit from
-// Kinetics
-/*
- *  This virtual routine can be used to duplicate %Kinetics objects
- *  inherited from %Kinetics even if the application only has
- *  a pointer to %Kinetics to work with.
- *
- *  These routines are basically wrappers around the derived copy
- *  constructor.
- */
 Kinetics* Kinetics::duplMyselfAsKinetics(const std::vector<thermo_t*> & tpVector) const
 {
     Kinetics* ko = new Kinetics(*this);
@@ -170,7 +142,6 @@ void Kinetics::checkSpeciesArraySize(size_t kk) const
     }
 }
 
-//====================================================================================================================
 void Kinetics::assignShallowPointers(const std::vector<thermo_t*> & tpVector)
 {
     size_t ns = tpVector.size();
@@ -198,17 +169,7 @@ void Kinetics::assignShallowPointers(const std::vector<thermo_t*> & tpVector)
 
 
 }
-//====================================================================================================================
-/**
- * Takes as input an array of properties for all species in the
- * mechanism and copies those values belonging to a particular
- * phase to the output array.
- * @param data Input data array.
- * @param phase Pointer to one of the phase objects participating
- * in this reaction mechanism
- * @param phase_data Output array where the values for the the
- * specified phase are to be written.
- */
+
 void Kinetics::selectPhase(const doublereal* data, const thermo_t* phase,
                            doublereal* phase_data)
 {
@@ -223,17 +184,6 @@ void Kinetics::selectPhase(const doublereal* data, const thermo_t* phase,
     throw CanteraError("Kinetics::selectPhase", "Phase not found.");
 }
 
-
-/**
- * kineticsSpeciesName():
- *
- * Return the string name of the kth species in the kinetics
- * manager. k is an integer from 0 to ktot - 1, where ktot is
- * the number of species in the kinetics manager, which is the
- * sum of the number of species in all phases participating in
- * the kinetics manager.  If k is out of bounds, the string
- * "<unknown>" is returned.
- */
 string Kinetics::kineticsSpeciesName(size_t k) const
 {
     for (size_t n = m_start.size()-1; n != npos; n--) {
@@ -244,17 +194,6 @@ string Kinetics::kineticsSpeciesName(size_t k) const
     return "<unknown>";
 }
 
-/**
- * This routine will look up a species number based on the input
- * std::string nm. The lookup of species will occur for all phases
- * listed in the kinetics object.
- *
- *  return
- *   - If a match is found, the position in the species list is returned.
- *   - If no match is found, the value -1 is returned.
- *
- * @param nm   Input string name of the species
- */
 size_t Kinetics::kineticsSpeciesIndex(const std::string& nm) const
 {
     for (size_t n = 0; n < m_thermo.size(); n++) {
@@ -268,18 +207,6 @@ size_t Kinetics::kineticsSpeciesIndex(const std::string& nm) const
     return npos;
 }
 
-/**
- * This routine will look up a species number based on the input
- * std::string nm. The lookup of species will occur in the specified
- * phase of the object, or all phases if ph is "<any>".
- *
- *  return
- *   - If a match is found, the position in the species list is returned.
- *   - If no match is found, the value npos (-1) is returned.
- *
- * @param nm   Input string name of the species
- * @param ph   Input string name of the phase.
- */
 size_t Kinetics::kineticsSpeciesIndex(const std::string& nm,
                                       const std::string& ph) const
 {
@@ -300,13 +227,6 @@ size_t Kinetics::kineticsSpeciesIndex(const std::string& nm,
     return npos;
 }
 
-
-/**
- * This function looks up the string name of a species and
- * returns a reference to the ThermoPhase object of the
- * phase where the species resides.
- * Will throw an error if the species string doesn't match.
- */
 thermo_t& Kinetics::speciesPhase(const std::string& nm)
 {
     size_t np = m_thermo.size();
@@ -322,13 +242,6 @@ thermo_t& Kinetics::speciesPhase(const std::string& nm)
     return thermo(0);
 }
 
-//==============================================================================================
-/*
- * This function takes as an argument the kineticsSpecies index
- * (i.e., the list index in the list of species in the kinetics
- * manager) and returns the index of the phase owning the
- * species.
- */
 size_t Kinetics::speciesPhaseIndex(size_t k)
 {
     for (size_t n = m_start.size()-1; n != npos; n--) {
@@ -340,26 +253,8 @@ size_t Kinetics::speciesPhaseIndex(size_t k)
     return npos;
 }
 
-/*
- * Add a phase to the kinetics manager object. This must
- * be done before the function init() is called or
- * before any reactions are input.
- * The following fields are updated:
- *  m_start -> vector of integers, containing the
- *             starting position of the species for
- *             each phase in the kinetics mechanism.
- *  m_surfphase -> index of the surface phase.
- *  m_thermo -> vector of pointers to ThermoPhase phases
- *              that participate in the kinetics
- *              mechanism.
- *  m_phaseindex -> map containing the string id of each
- *              ThermoPhase phase as a key and the
- *              index of the phase within the kinetics
- *              manager object as the value.
- */
 void Kinetics::addPhase(thermo_t& thermo)
 {
-
     // if not the first thermo object, set the start position
     // to that of the last object added + the number of its species
     if (m_thermo.size() > 0) {
@@ -402,11 +297,6 @@ void Kinetics::finalize()
     }
 }
 
-// Private function of the class Kinetics, indicating that a function
-//  inherited from the base class hasn't had a definition assigned to it
-/*
- * @param m String message
- */
 void Kinetics::err(const std::string& m) const
 {
     throw CanteraError("Kinetics::" + m,

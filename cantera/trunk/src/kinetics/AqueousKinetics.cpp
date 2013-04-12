@@ -21,10 +21,7 @@ using namespace std;
 
 namespace Cantera
 {
-//====================================================================================================================
-/**
- * Construct an empty reaction mechanism.
- */
+
 AqueousKinetics::AqueousKinetics(thermo_t* thermo) :
     Kinetics(),
     m_nfall(0),
@@ -38,7 +35,7 @@ AqueousKinetics::AqueousKinetics(thermo_t* thermo) :
         addPhase(*thermo);
     }
 }
-//====================================================================================================================
+
 AqueousKinetics::AqueousKinetics(const AqueousKinetics& right) :
     Kinetics(),
     m_nfall(0),
@@ -50,11 +47,11 @@ AqueousKinetics::AqueousKinetics(const AqueousKinetics& right) :
 {
     *this = right;
 }
-//====================================================================================================================
+
 AqueousKinetics::~AqueousKinetics()
 {
 }
-//====================================================================================================================
+
 AqueousKinetics& AqueousKinetics::operator=(const AqueousKinetics& right)
 {
     if (this == &right) {
@@ -100,7 +97,7 @@ AqueousKinetics& AqueousKinetics::operator=(const AqueousKinetics& right)
     return *this;
 
 }
-//====================================================================================================================
+
 Kinetics* AqueousKinetics::duplMyselfAsKinetics(const std::vector<thermo_t*> & tpVector) const
 {
     AqueousKinetics* gK = new AqueousKinetics(*this);
@@ -108,11 +105,6 @@ Kinetics* AqueousKinetics::duplMyselfAsKinetics(const std::vector<thermo_t*> & t
     return gK;
 }
 
-//====================================================================================================================
-/**
- * Update temperature-dependent portions of reaction rates and
- * falloff functions.
- */
 void AqueousKinetics::
 update_T() {}
 
@@ -128,13 +120,8 @@ void AqueousKinetics::_update_rates_T()
     m_temp = T;
     updateKc();
     m_ROP_ok = false;
-};
+}
 
-
-/**
- * Update properties that depend on concentrations. Currently only
- * the enhanced collision partner concentrations are updated here.
- */
 void AqueousKinetics::
 _update_rates_C()
 {
@@ -143,9 +130,6 @@ _update_rates_C()
     m_ROP_ok = false;
 }
 
-/**
- * Update the equilibrium constants in molar units.
- */
 void AqueousKinetics::updateKc()
 {
     doublereal rt = GasConstant * m_temp;
@@ -172,10 +156,6 @@ void AqueousKinetics::updateKc()
     }
 }
 
-/**
- * Get the equilibrium constants of all reactions, whether
- * reversible or not.
- */
 void AqueousKinetics::getEquilibriumConstants(doublereal* kc)
 {
     _update_rates_T();
@@ -201,17 +181,6 @@ void AqueousKinetics::getEquilibriumConstants(doublereal* kc)
     m_temp = 0.0;
 }
 
-/**
- *
- * getDeltaGibbs():
- *
- * Return the vector of values for the reaction gibbs free energy
- * change
- * These values depend upon the concentration
- * of the ideal gas.
- *
- *  units = J kmol-1
- */
 void AqueousKinetics::getDeltaGibbs(doublereal* deltaG)
 {
     /*
@@ -226,17 +195,6 @@ void AqueousKinetics::getDeltaGibbs(doublereal* deltaG)
     m_rxnstoich.getReactionDelta(m_ii, &m_grt[0], deltaG);
 }
 
-/**
- *
- * getDeltaEnthalpy():
- *
- * Return the vector of values for the reactions change in
- * enthalpy.
- * These values depend upon the concentration
- * of the solution.
- *
- *  units = J kmol-1
- */
 void AqueousKinetics::getDeltaEnthalpy(doublereal* deltaH)
 {
     /*
@@ -251,17 +209,6 @@ void AqueousKinetics::getDeltaEnthalpy(doublereal* deltaH)
     m_rxnstoich.getReactionDelta(m_ii, &m_grt[0], deltaH);
 }
 
-/*
- *
- * getDeltaEntropy():
- *
- * Return the vector of values for the reactions change in
- * entropy.
- * These values depend upon the concentration
- * of the solution.
- *
- *  units = J kmol-1 Kelvin-1
- */
 void AqueousKinetics::getDeltaEntropy(doublereal* deltaS)
 {
     /*
@@ -276,17 +223,6 @@ void AqueousKinetics::getDeltaEntropy(doublereal* deltaS)
     m_rxnstoich.getReactionDelta(m_ii, &m_grt[0], deltaS);
 }
 
-/**
- *
- * getDeltaSSGibbs():
- *
- * Return the vector of values for the reaction
- * standard state gibbs free energy change.
- * These values don't depend upon the concentration
- * of the solution.
- *
- *  units = J kmol-1
- */
 void AqueousKinetics::getDeltaSSGibbs(doublereal* deltaG)
 {
     /*
@@ -303,17 +239,6 @@ void AqueousKinetics::getDeltaSSGibbs(doublereal* deltaG)
     m_rxnstoich.getReactionDelta(m_ii, &m_grt[0], deltaG);
 }
 
-/**
- *
- * getDeltaSSEnthalpy():
- *
- * Return the vector of values for the change in the
- * standard state enthalpies of reaction.
- * These values don't depend upon the concentration
- * of the solution.
- *
- *  units = J kmol-1
- */
 void AqueousKinetics::getDeltaSSEnthalpy(doublereal* deltaH)
 {
     /*
@@ -334,17 +259,6 @@ void AqueousKinetics::getDeltaSSEnthalpy(doublereal* deltaH)
     m_rxnstoich.getReactionDelta(m_ii, &m_grt[0], deltaH);
 }
 
-/*
- *
- * getDeltaSSEntropy():
- *
- * Return the vector of values for the change in the
- * standard state entropies for each reaction.
- * These values don't depend upon the concentration
- * of the solution.
- *
- *  units = J kmol-1 Kelvin-1
- */
 void AqueousKinetics::getDeltaSSEntropy(doublereal* deltaS)
 {
     /*
@@ -363,8 +277,6 @@ void AqueousKinetics::getDeltaSSEntropy(doublereal* deltaS)
      */
     m_rxnstoich.getReactionDelta(m_ii, &m_grt[0], deltaS);
 }
-
-
 
 void AqueousKinetics::updateROP()
 {
@@ -405,14 +317,6 @@ void AqueousKinetics::updateROP()
     m_ROP_ok = true;
 }
 
-/**
- *
- * getFwdRateConstants():
- *
- * Update the rate of progress for the reactions.
- * This key routine makes sure that the rate of progress vectors
- * located in the solid kinetics data class are up to date.
- */
 void AqueousKinetics::
 getFwdRateConstants(doublereal* kfwd)
 {
@@ -430,17 +334,6 @@ getFwdRateConstants(doublereal* kfwd)
     }
 }
 
-/**
- *
- * getRevRateConstants():
- *
- * Return a vector of the reverse reaction rate constants
- *
- * Length is the number of reactions. units depends
- * on many issues. Note, this routine will return rate constants
- * for irreversible reactions if the default for
- * doIrreversible is overridden.
- */
 void AqueousKinetics::
 getRevRateConstants(doublereal* krev, bool doIrreversible)
 {
@@ -468,7 +361,6 @@ getRevRateConstants(doublereal* krev, bool doIrreversible)
 
 void AqueousKinetics::addReaction(ReactionData& r)
 {
-
     if (r.reactionType == ELEMENTARY_RXN) {
         addElementaryReaction(r);
     }
@@ -479,9 +371,6 @@ void AqueousKinetics::addReaction(ReactionData& r)
     incrementRxnCount();
     m_rxneqn.push_back(r.equation);
 }
-
-
-
 
 void AqueousKinetics::addElementaryReaction(ReactionData& r)
 {
@@ -497,9 +386,6 @@ void AqueousKinetics::addElementaryReaction(ReactionData& r)
     m_fwdOrder.push_back(r.reactants.size());
     registerReaction(reactionNumber(), ELEMENTARY_RXN, iloc);
 }
-
-
-
 
 void AqueousKinetics::installReagents(const ReactionData& r)
 {
@@ -568,7 +454,6 @@ void AqueousKinetics::installReagents(const ReactionData& r)
     }
 }
 
-
 void AqueousKinetics::installGroups(size_t irxn,
                                     const vector<grouplist_t>& r,
                                     const vector<grouplist_t>& p)
@@ -579,7 +464,6 @@ void AqueousKinetics::installGroups(size_t irxn,
         m_pgroups[reactionNumber()] = p;
     }
 }
-
 
 void AqueousKinetics::init()
 {
