@@ -245,7 +245,7 @@ save(XML_Node& o, const doublereal* const soln)
     XML_Node& inlt = Domain1D::save(o, soln);
     inlt.addAttribute("type","inlet");
     for (size_t k = 0; k < nComponents(); k++) {
-        ctml::addFloat(inlt, componentName(k), s[k], "", "",lowerBound(k), upperBound(k));
+        ctml::addFloat(inlt, componentName(k), s[k]);
     }
     for (size_t k=0; k < m_nsp; k++) {
         ctml::addFloat(inlt, "massFraction", m_yin[k], "",
@@ -780,7 +780,7 @@ save(XML_Node& o, const doublereal* const soln)
     XML_Node& inlt = Domain1D::save(o, soln);
     inlt.addAttribute("type","surface");
     for (size_t k = 0; k < nComponents(); k++) {
-        ctml::addFloat(inlt, componentName(k), s[k], "", "",0.0, 1.0);
+        ctml::addFloat(inlt, componentName(k), s[k]);
     }
     return inlt;
 }
