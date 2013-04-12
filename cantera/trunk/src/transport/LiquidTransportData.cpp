@@ -6,9 +6,6 @@
 #include "cantera/transport/LiquidTransportData.h"
 using namespace std;
 
-#ifndef SAFE_DELETE
-#define SAFE_DELETE(x)  if (x) { delete (x); x = 0; }
-#endif
 namespace Cantera
 {
 
@@ -87,26 +84,24 @@ LiquidTransportData& LiquidTransportData::operator=(const LiquidTransportData& r
 //====================================================================================================================
 LiquidTransportData::~LiquidTransportData()
 {
-
-    SAFE_DELETE(hydroRadius);
-    SAFE_DELETE(viscosity);
-    SAFE_DELETE(ionConductivity);
+    delete hydroRadius;
+    delete viscosity;
+    delete ionConductivity;
 
     for (size_t k = 0; k < mobilityRatio.size(); k++) {
         if (mobilityRatio[k]) {
-            SAFE_DELETE(mobilityRatio[k]);
+            delete mobilityRatio[k];
         }
     }
     for (size_t k = 0; k < selfDiffusion.size(); k++) {
         if (selfDiffusion[k]) {
-            SAFE_DELETE(selfDiffusion[k]);
+            delete selfDiffusion[k];
         }
     }
 
-    SAFE_DELETE(thermalCond);
-    SAFE_DELETE(electCond);
-    SAFE_DELETE(speciesDiffusivity);
-
+    delete thermalCond;
+    delete electCond;
+    delete speciesDiffusivity;
 }
 //====================================================================================================================
 }
