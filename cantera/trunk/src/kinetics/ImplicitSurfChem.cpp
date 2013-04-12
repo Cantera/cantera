@@ -15,7 +15,6 @@ using namespace std;
 namespace Cantera
 {
 
-// Constructor
 ImplicitSurfChem::ImplicitSurfChem(vector<InterfaceKinetics*> k) :
     FuncEval(),
     m_nsurf(0),
@@ -109,17 +108,12 @@ int ImplicitSurfChem::checkMatch(std::vector<ThermoPhase*> m_vec, ThermoPhase* t
     return retn;
 }
 
-/*
- * Destructor. Deletes the integrator.
- */
 ImplicitSurfChem::~ImplicitSurfChem()
 {
     delete m_integ;
     delete m_surfSolver;
 }
 
-// overloaded method of FuncEval. Called by the integrator to
-// get the initial conditions.
 void ImplicitSurfChem::getInitialConditions(doublereal t0, size_t lenc,
         doublereal* c)
 {
@@ -130,24 +124,12 @@ void ImplicitSurfChem::getInitialConditions(doublereal t0, size_t lenc,
     }
 }
 
-
-/*
- *  Must be called before calling method 'advance'
- */
 void ImplicitSurfChem::initialize(doublereal t0)
 {
     m_integ->setTolerances(m_rtol, m_atol);
     m_integ->initialize(t0, *this);
 }
 
-// Integrate from t0 to t1. The integrator is reinitialized first.
-/*
- *   This routine does a time accurate solve from t = t0 to t = t1.
- *   of the surface problem.
- *
- *  @param t0  Initial Time -> this is an input
- *  @param t1  Final Time -> This is an input
- */
 void ImplicitSurfChem::integrate(doublereal t0, doublereal t1)
 {
     m_integ->initialize(t0, *this);
@@ -156,15 +138,6 @@ void ImplicitSurfChem::integrate(doublereal t0, doublereal t1)
     updateState(m_integ->solution());
 }
 
-// Integrate from t0 to t1 without reinitializing the integrator.
-/*
- *  Use when the coverages have not changed from
- *  their values on return from the last call to integrate or
- *  integrate0.
- *
- *  @param t0  Initial Time -> this is an input
- *  @param t1  Final Time -> This is an input
- */
 void ImplicitSurfChem::integrate0(doublereal t0, doublereal t1)
 {
     m_integ->integrate(t1);
@@ -180,9 +153,6 @@ void ImplicitSurfChem::updateState(doublereal* c)
     }
 }
 
-/*
- * Called by the integrator to evaluate ydot given y at time 'time'.
- */
 void ImplicitSurfChem::eval(doublereal time, doublereal* y,
                             doublereal* ydot, doublereal* p)
 {
@@ -204,19 +174,9 @@ void ImplicitSurfChem::eval(doublereal time, doublereal* y,
     }
 }
 
-// Solve for the pseudo steady-state of the surface problem
-/*
- * Solve for the steady state of the surface problem.
- * This is the same thing as the advanceCoverages() function,
- * but at infinite times.
- *
- * Note, a direct solve is carried out under the hood here,
- * to reduce the computational time.
- */
 void ImplicitSurfChem::solvePseudoSteadyStateProblem(int ifuncOverride,
         doublereal timeScaleOverride)
 {
-
     int ifunc;
     /*
      * set bulkFunc
@@ -306,17 +266,6 @@ void ImplicitSurfChem::solvePseudoSteadyStateProblem(int ifuncOverride,
     }
 }
 
-
-
-/*
- * getConcSpecies():
- *
- * Fills the local concentration vector, m_concSpecies for all of the
- * species in all of the phases that are unknowns in the surface
- * problem.
- *
- * m_concSpecies[]
- */
 void ImplicitSurfChem::getConcSpecies(doublereal* const vecConcSpecies) const
 {
     size_t kstart;
@@ -333,15 +282,6 @@ void ImplicitSurfChem::getConcSpecies(doublereal* const vecConcSpecies) const
     }
 }
 
-/*
- * setConcSpecies():
- *
- * Fills the local concentration vector, m_concSpecies for all of the
- * species in all of the phases that are unknowns in the surface
- * problem.
- *
- * m_concSpecies[]
- */
 void ImplicitSurfChem::setConcSpecies(const doublereal* const vecConcSpecies)
 {
     size_t kstart;
@@ -358,15 +298,6 @@ void ImplicitSurfChem::setConcSpecies(const doublereal* const vecConcSpecies)
     }
 }
 
-/*
- * setCommonState_TP():
- *
- *  Sets a common temperature and pressure amongst the
- *  thermodynamic objects in the interfacial kinetics object.
- *
- *  Units Temperature = Kelvin
- *        Pressure    = Pascal
- */
 void ImplicitSurfChem::
 setCommonState_TP(doublereal TKelvin, doublereal PresPa)
 {
