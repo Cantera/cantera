@@ -17,54 +17,46 @@
 
 namespace Cantera
 {
-
 class solveSP;
-
 
 //! Advances the surface coverages of the associated set of SurfacePhase
 //! objects in time
 /*!
- *  This function advances a set of SurfacePhase objects, each
- *  associated with one InterfaceKinetics object, in time.
- *  The following equation is used for each surface phase, <I>i</I>.
+ * This function advances a set of SurfPhase objects, each associated with one
+ * InterfaceKinetics object, in time. The following equation is used for each
+ * surface phase, *i*.
  *
  *   \f[
  *        \dot \theta_k = \dot s_k (\sigma_k / s_0)
  *   \f]
  *
- *  In this equation,
- *    \f$ \theta_k \f$ is the site coverage for the kth species.
- *    \f$ \dot s_k \f$ is the source term for the kth species
- *   \f$ \sigma_k \f$ is the number of surface sites covered by
- *  each species k.
- *   \f$ s_0 \f$ is the total site density of the interfacial phase.
+ * In this equation,
+ * - \f$ \theta_k \f$ is the site coverage for the kth species.
+ * - \f$ \dot s_k \f$ is the source term for the kth species
+ * - \f$ \sigma_k \f$ is the number of surface sites covered by each species k.
+ * - \f$ s_0 \f$ is the total site density of the interfacial phase.
  *
- *  Additionally, the 0'th equation in the set is discarded. Instead the
- *  alternate equation is solved for
+ * Additionally, the 0'th equation in the set is discarded. Instead the
+ * alternate equation is solved for
  *
- *   \f[
- *        \sum_{k=0}^{N-1}  \dot \theta_k = 0
- *   \f]
+ * \f[
+ *     \sum_{k=0}^{N-1}  \dot \theta_k = 0
+ * \f]
  *
- *  This last equation serves to ensure that sum of the \f$ \theta_k \f$
- *  values stays constant.
+ * This last equation serves to ensure that sum of the \f$ \theta_k \f$ values
+ * stays constant.
  *
- *  The object uses the CVODE software to advance the surface equations.
+ * The object uses the CVODE software to advance the surface equations.
  *
- *  The solution vector used by this object is as follows.
- *   For each surface phase with \f$ N_s \f$ surface sites,
- *   it consists of the surface coverages
- *       \f$ \theta_k \f$ for \f$ k = 0, N_s - 1 \f$
+ * The solution vector used by this object is as follows: For each surface
+ * phase with \f$ N_s \f$ surface sites, it consists of the surface coverages
+ * \f$ \theta_k \f$ for \f$ k = 0, N_s - 1 \f$
  *
  * @ingroup  kineticsmgr
- *
  */
 class ImplicitSurfChem : public FuncEval
 {
-
 public:
-
-
     //! Constructor for multiple surfaces.
     /*!
      * @param k  Vector of pointers to InterfaceKinetics objects
@@ -79,12 +71,10 @@ public:
      */
     virtual ~ImplicitSurfChem();
 
-    /**
-     * Overloads the virtual function
-     * declared in FuncEval.
+    /*!
+     *  Must be called before calling method 'advance'
      */
     virtual void initialize(doublereal t0 = 0.0);
-
 
     //! Integrate from t0 to t1. The integrator is reinitialized first.
     /*!
@@ -96,18 +86,15 @@ public:
      */
     void integrate(doublereal t0, doublereal t1);
 
-
     //! Integrate from t0 to t1 without reinitializing the integrator.
     /*!
-     *  Use when the coverages have not changed from
-     *  their values on return from the last call to integrate or
-     *  integrate0.
+     *  Use when the coverages have not changed from their values on return
+     *  from the last call to integrate or integrate0.
      *
      *  @param t0  Initial Time -> this is an input
      *  @param t1  Final Time -> This is an input
      */
     void integrate0(doublereal t0, doublereal t1);
-
 
     //! Solve for the pseudo steady-state of the surface problem
     /*!
@@ -118,13 +105,13 @@ public:
      * Note, a direct solve is carried out under the hood here,
      * to reduce the computational time.
      *
-     * @param ifuncOverride 4 values are possible
-     *                    1  SFLUX_INITIALIZE
-     *                    2  SFLUX_RESIDUAL
-     *                    3  SFLUX_JACOBIAN
-     *                    4  SFLUX_TRANSIENT
-     *         The default is -1, which means that the program
-     *         will decide.
+     * @param ifuncOverride 4 values are possible. The default is -1, which
+     *     means that the program will decide:
+     *                  - 1  SFLUX_INITIALIZE
+     *                  - 2  SFLUX_RESIDUAL
+     *                  - 3  SFLUX_JACOBIAN
+     *                  - 4  SFLUX_TRANSIENT
+     *
      * @param timeScaleOverride When a pseudo transient is
      *             selected this value can be used to override
      *             the default time scale for integration which
@@ -137,7 +124,6 @@ public:
      */
     void solvePseudoSteadyStateProblem(int ifuncOverride = -1,
                                        doublereal timeScaleOverride = 1.0);
-
 
     // overloaded methods of class FuncEval
 
@@ -168,27 +154,24 @@ public:
     virtual void getInitialConditions(doublereal t0,
                                       size_t leny, doublereal* y);
 
-    /*
+    /*!
      * Get the specifications for the problem from the values
      * in the ThermoPhase objects for all phases.
      *
-     *  1) concentrations of all species in all phases, m_concSpecies[]
-     *  2) Temperature and pressure
+     *  1. concentrations of all species in all phases, #m_concSpecies
+     *  2. Temperature and pressure
      *
-     *
-     *  @param vecConcSpecies Vector of concentrations. The
-     *                  phase concentration vectors are contiguous
-     *                  within the object, in the same order as the
-     *                  unknown vector.
+     *  @param vecConcSpecies Vector of concentrations. The phase
+     *                  concentration vectors are contiguous within the
+     *                  object, in the same order as the unknown vector.
      */
     void getConcSpecies(doublereal* const vecConcSpecies) const;
 
     //! Sets the concentrations within phases that are unknowns in
     //! the surface problem
     /*!
-     * Fills the local concentration vector for all of the
-     * species in all of the phases that are unknowns in the surface
-     * problem.
+     * Fills the local concentration vector for all of the species in all of
+     * the phases that are unknowns in the surface problem.
      *
      *  @param vecConcSpecies Vector of concentrations. The
      *                  phase concentration vectors are contiguous
@@ -205,12 +188,10 @@ public:
      */
     void setCommonState_TP(doublereal TKelvin, doublereal PresPa);
 
-
     //! Returns a reference to the vector of pointers to the
     //! InterfaceKinetics objects
     /*!
-     * This should probably go away in the future, as it opens up the
-     * class.
+     * This should probably go away in the future, as it opens up the class.
      */
     std::vector<InterfaceKinetics*> & getObjects() {
         return m_vecKinPtrs;
@@ -223,18 +204,14 @@ public:
     }
 
 protected:
-
-
     //! Set the mixture to a state consistent with solution
     //! vector y.
     /*!
-     *  This function will set the surface site factions
-     *  in the underlying %SurfPhase objects to the current
-     *  value of the solution vector.
+     *  This function will set the surface site factions in the underlying
+     *  SurfPhase objects to the current value of the solution vector.
      *
-     * @param y Current value of the solution vector.
-     *          The lenth is equal to the sum of the number of surface
-     *          sites in all the surface phases
+     * @param y Current value of the solution vector. The lenth is equal to
+     *     the sum of the number of surface sites in all the surface phases.
      */
     void updateState(doublereal* y);
 
@@ -278,15 +255,13 @@ protected:
     //! Pointer to the cvode integrator
     Integrator* m_integ;
     doublereal m_atol, m_rtol;   // tolerances
-    doublereal m_maxstep;        // max step size
+    doublereal m_maxstep; //!< max step size
     vector_fp m_work;
 
-
-
     /**
-     * Temporary vector - length num species in the Kinetics object.
-     *                    This is the sum of the number of species
-     *                    in each phase included in the kinetics object.
+     * Temporary vector - length num species in the Kinetics object. This is
+     * the sum of the number of species in each phase included in the kinetics
+     * object.
      */
     vector_fp m_concSpecies;
     vector_fp m_concSpeciesSave;
@@ -327,7 +302,6 @@ protected:
     friend class solveSS;
 
 private:
-
     //! Controls the amount of printing from this routine
     //! and underlying routines.
     int m_ioFlag;
@@ -335,4 +309,3 @@ private:
 }
 
 #endif
-
