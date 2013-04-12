@@ -55,30 +55,17 @@ protected:
          */
         Messages();
 
-        //! Copy Constructor for the Messages class
-        /*! Constructor for the Messages class which is a subclass
-         * of the Application class.
-         *  @param r   Message to be copied
-         */
         Messages(const Messages& r);
-
-        //! Assignment operator
-        /*!
-         *  @param r   Message to be copied
-         */
         Messages& operator=(const Messages& r);
-
-        //! Destructor for the Messages class
         ~Messages();
 
         //! Set an error condition in the application class without
         //! throwing an exception.
         /*!
-         * This routine adds an error message to the end of the stack
-         * of errors that Cantera accumulates in the Application
-         * class.
-         * @param r   location
-         * @param msg  Description of the error
+         * This routine adds an error message to the end of the stack of errors
+         * that Cantera accumulates in the Application class.
+         * @param r    Procedure name which is generating the error condition
+         * @param msg  Descriptive message of the error condition.
          * @ingroup errorhandling
          */
         void addError(const std::string& r, const std::string& msg);
@@ -91,9 +78,9 @@ protected:
 
         //! Discard the last error message
         /*!
-         * %Cantera saves a stack of exceptions that it
-         * has caught in the Application class. This routine eliminates
-         * the last exception to be added to that stack.
+         * %Cantera saves a stack of exceptions that it has caught in the
+         * Application class. This routine eliminates the last exception to be
+         * added to that stack.
          *
          * @ingroup errorhandling
          */
@@ -101,8 +88,8 @@ protected:
 
         //! Retrieve the last error message in a string
         /*!
-         * This routine will retrieve the last error message and return
-         * it in the return string.
+         * This routine will retrieve the last error message and return it in
+         * the return string.
          *
          * @ingroup errorhandling
          */
@@ -110,12 +97,11 @@ protected:
 
         //!  Prints all of the error messages to an ostream
         /*!
-         * Print all of the error messages using function writelog.
-         * Write out all of the saved error messages to the ostream f
-         * Cantera saves a stack of exceptions that it
-         * has caught in the Application class. This routine writes
-         * out all of the error messages to the ostream
-         * and then clears them from internal storage.
+         * Write out all of the saved error messages to the ostream f using
+         * the function Logger::writelog. Cantera saves a stack of exceptions
+         * that it has caught in the Application class. This routine writes
+         * out all of the error messages to the ostream and then clears them
+         * from internal storage.
          *
          * @param f ostream which will receive the error messages
          *
@@ -137,28 +123,30 @@ protected:
 
         //!  Write a message to the screen.
         /*!
-         * The string may be of any
-         * length, and may contain end-of-line characters. This method is
-         * used throughout %Cantera to write log messages.
+         * The string may be of any length, and may contain end-of-line
+         * characters. This method is used throughout Cantera to write log
+         * messages. It can also be called by user programs.  The advantage of
+         * using writelog over writing directly to the standard output is that
+         * messages written with writelog will display correctly even when
+         * Cantera is used from MATLAB or other application that do not have a
+         * standard output stream.
          *
          * @param msg  c++ string to be written to the screen
          * @ingroup textlogs
          */
         void writelog(const std::string& msg);
 
-        //! Write an end of line and flush output
+        //! Write an end of line character to the screen and flush output
         void writelogendl();
 
         //! Write an error message and quit.
         /*!
-         *  The default behavior is
-         *  to write to the standard error stream, and then call
-         *  exit(). Note that no end-of-line character is appended to
-         *  the message, and so if one is desired it must be included
-         *  in the string. Note that this default behavior will
-         *  terminate the application Cantera is invoked from (MATLAB,
-         *  Excel, etc.) If this is not desired, then derive a class
-         *  and reimplement this method.
+         *  The default behavior is to write to the standard error stream, and
+         *  then call exit(). Note that no end-of-line character is appended
+         *  to the message, and so if one is desired it must be included in
+         *  the string. Note that this default behavior will terminate the
+         *  application Cantera is invoked from (MATLAB, Excel, etc.) If this
+         *  is not desired, then derive a class and reimplement this method.
          *
          * @param msg    Error message to be written to cerr.
          */
@@ -179,10 +167,9 @@ protected:
 
         //!Create a new group for log messages.
         /*!
-         *  Usually this is called
-         *  upon entering the function, with the title parameter equal to
-         *  the name of the function or method. Subsequent messages
-         *  written with addLogEntry will appear grouped under this
+         *  Usually this is called upon entering the function, with the title
+         *  parameter equal to the name of the function or method. Subsequent
+         *  messages written with addLogEntry will appear grouped under this
          *  heading, until endLogGroup() is called.
          *
          *  @param title String name of the LogGroup
@@ -196,7 +183,7 @@ protected:
          *  Entries appear in the form "tag:value".
          *
          * @param tag      tag
-         * @param value    double value
+         * @param value    string value
          *
          * @ingroup HTML_logs
          */
@@ -218,7 +205,7 @@ protected:
          *  Entries appear in the form "tag:value".
          *
          * @param tag      tag
-         * @param value    double value
+         * @param value    integer value
          *
          * @ingroup HTML_logs
          */
@@ -236,9 +223,8 @@ protected:
 
         //! Close the current group of log messages.
         /*!
-         *  This is typically
-         *  called just before leaving a function or method, to close the
-         *  group of messages that were output from this
+         *  This is typically called just before leaving a function or method,
+         *  to close the group of messages that were output from this
          *  function. Subsequent messages written with addLogEntry() will
          *  appear at the next-higher level in the outline, unless
          *  beginLogGroup() is called first to create a new group.
@@ -250,15 +236,14 @@ protected:
 
         //! Write the HTML log file.
         /*!
-         *  Log entries are stored in memory in
-         *  an XML tree until this function is called, which writes the
-         *  tree to a file and clears the entries stored in memory.  The
-         *  output file will have the name specified in the 'file'
-         *  argument.  If this argument has no extension, the extension
-         *  '.html' will be appended. Also, if the file already exists, an
-         *  integer will be appended to the name so that no existing log
-         *  file will be overwritten.
-         *  WITH_HTML_LOGS must be defined.
+         *  Log entries are stored in memory in an XML tree until this
+         *  function is called, which writes the tree to a file and clears the
+         *  entries stored in memory.  The output file will have the name
+         *  specified in the 'file' argument.  If this argument has no
+         *  extension, the extension '.html' will be appended. Also, if the
+         *  file already exists, an integer will be appended to the name so
+         *  that no existing log file will be overwritten. WITH_HTML_LOGS must
+         *  be defined.
          *
          *  @param  file Name of the file to be written
          */
@@ -345,78 +330,32 @@ public:
     //! Static function that destroys the application class's data
     static void ApplicationDestroy();
 
-    //! Set an error condition in the application class without
-    //! throwing an exception.
-    /*!
-     * This routine adds an error message to the end of the stack
-     * of errors that Cantera accumulates in the Application
-     * class.
-     * @param r   location
-     * @param msg  Description of the error
-     * @ingroup errorhandling
-     */
+    //! @copydoc Messages::addError
     void addError(const std::string& r, const std::string& msg) {
         pMessenger->addError(r, msg) ;
     }
 
-    //! Return the number of errors that have been encountered so far.
-    /*!
-     * @ingroup error handling
-     */
+    //! @copydoc Messages::getErrorCount
     int getErrorCount() {
         return pMessenger->getErrorCount() ;
     }
 
-    //! Discard the last error message
-    /*!
-     * %Cantera saves a stack of exceptions that it
-     * has caught in the Application class. This routine eliminates
-     * the last exception to be added to that stack.
-     *
-     * @ingroup errorhandling
-     */
+    //! @copydoc Messages::popError
     void popError() {
         pMessenger->popError() ;
     }
 
-    //! Retrieve the last error message in a string
-    /*!
-     * This routine will retrieve the last error message and return
-     * it in the return string.
-     *
-     * @ingroup errorhandling
-     */
+    //! @copydoc Messages::lastErrorMessage
     std::string lastErrorMessage() {
         return pMessenger->lastErrorMessage() ;
     }
 
-    //!  Prints all of the error messages to an ostream
-    /*!
-     * Print all of the error messages using function writelog.
-     * Write out all of the saved error messages to the ostream f
-     * Cantera saves a stack of exceptions that it
-     * has caught in the Application class. This routine writes
-     * out all of the error messages to the ostream
-     * and then clears them from internal storage.
-     *
-     * @param f ostream which will receive the error messages
-     *
-     * @ingroup errorhandling
-     */
+    //! @copydoc Messages::getErrors
     void getErrors(std::ostream& f) {
         pMessenger->getErrors(f) ;
     }
 
-    //!  Prints all of the error messages using writelog
-    /*!
-     * Print all of the error messages using function writelog.
-     * Cantera saves a stack of exceptions that it
-     * has caught in the Application class. This routine writes
-     * out all of the error messages
-     * and then clears them from internal storage.
-     *
-     * @ingroup errorhandling
-     */
+    //! @copydoc Messages::logErrors
     void logErrors() {
         pMessenger->logErrors() ;
     }
@@ -431,28 +370,26 @@ public:
 
     //! Find an input file.
     /*!
-     *    This routine will search for a file in the default
-     *    locations specified for the application.
-     *    See the routine setDefaultDirectories() listed above.
+     *  This routine will search for a file in the default locations specified
+     *  for the application. See the routine setDefaultDirectories() listed
+     *  above.
      *
-     *    The default set of directories specified for the application
-     *    will be searched if a '/' or an '\\' is found in the
-     *    name. If either is found then a relative path name is
-     *    presumed, and the default directories are not searched.
+     *  The default set of directories specified for the application will be
+     *  searched if a '/' or an '\\' is found in the name. If either is found
+     *  then a relative path name is presumed, and the default directories are
+     *  not searched.
      *
-     *    The presence of the file is determined by whether the file
-     *    can be opened for reading by the current user.
+     *  The presence of the file is determined by whether the file can be
+     *  opened for reading by the current user.
      *
      *  @param name Name of the input file to be searched for
      *
-     *    @return
+     *  @return  The absolute path name of the first matching file is
+     *      returned. If a relative path name is indicated, the relative path
+     *      name is returned.
      *
-     *      The absolute path name of the first matching
-     *      file is returned. If a relative path name
-     *      is indicated, the relative path name is returned.
-     *
-     *      If the file is not found, a message is written to
-     *      stdout and  a CanteraError exception is thrown.
+     *  If the file is not found, a message is written to stdout and a
+     *  CanteraError exception is thrown.
      *
      * @ingroup inputfiles
      */
@@ -478,163 +415,72 @@ public:
      */
     void close_XML_File(const std::string& file) ;
 
-    //!  Write a message to the screen.
-    /*!
-     * The string may be of any
-     * length, and may contain end-of-line characters. This method is
-     * used throughout %Cantera to write log messages.
-     *
-     * @param msg  c++ string to be written to the screen
-     * @ingroup textlogs
-     */
 #ifdef _WIN32
     long int readStringRegistryKey(const std::string& keyName, const std::string& valueName,
                                    std::string& value, const std::string& defaultValue);
 #endif
 
+    //! @copydoc Messages::writelog
     void writelog(const std::string& msg) {
         pMessenger->writelog(msg);
     }
 
-
     //! Write an endl to the screen and flush output
-    /*!
-     * @ingroup textlogs
-     */
     void writelogendl() {
         pMessenger->writelogendl();
     }
 
-    //! Write an error message and quit.
-    /*!
-     *  The default behavior is
-     *  to write to the standard error stream, and then call
-     *  exit(). Note that no end-of-line character is appended to
-     *  the message, and so if one is desired it must be included
-     *  in the string. Note that this default behavior will
-     *  terminate the application Cantera is invoked from (MATLAB,
-     *  Excel, etc.) If this is not desired, then derive a class
-     *  and reimplement this method.
-     *
-     * @param msg    Error message to be written to cerr.
-     */
+     //! @copydoc Messages::logerror
     void logerror(const std::string& msg) {
         pMessenger->logerror(msg);
     }
 
-    //!  Install a logger -  Called by the language interfaces to install an
-    //!  appropriate logger.
-    /*!
-     * @param logwriter Pointer to a logger object
-     *  @see Logger.
-     *  @ingroup textlogs
-     */
+    //! @copydoc Messages::setLogger
     void setLogger(Logger* logwriter) {
         pMessenger->setLogger(logwriter);
     }
 
-    //! Delete Messenger object allocated per thread.
+    //! Delete and free memory allocated per thread in multithreaded applications
+    /*!
+     * Delete the memory allocated per thread by Cantera.  It should be called
+     * from within the thread just before the thread terminates.  If your
+     * version of Cantera has not been specifically compiled for thread safety
+     * this function does nothing.
+     */
     void thread_complete() ;
 
 #ifdef WITH_HTML_LOGS
-    //!Create a new group for log messages.
-    /*!
-     *  Usually this is called
-     *  upon entering the function, with the title parameter equal to
-     *  the name of the function or method. Subsequent messages
-     *  written with addLogEntry will appear grouped under this
-     *  heading, until endLogGroup() is called.
-     *
-     *  @param title String name of the LogGroup
-     *  @param loglevel loglevel of the group.
-     *  @ingroup HTML_logs
-     */
+    //! @copydoc Messages::beginLogGroup
     void beginLogGroup(const std::string& title, int loglevel) {
         pMessenger->beginLogGroup(title,loglevel);
     }
 
-    //! Add an entry to an HTML log file.
-    /*!
-     *  Entries appear in the form "tag:value".
-     *
-     * @param tag      tag
-     * @param value    double value
-     *
-     * @ingroup HTML_logs
-     */
+    //! @copydoc Messages::addLogEntry(const std::string&, const std::string&)
     void addLogEntry(const std::string& tag, const std::string& value) {
         pMessenger->addLogEntry(tag, value);
     }
 
-    //! Add an entry to an HTML log file.
-    /*!
-     *  Entries appear in the form "tag:value".
-     *
-     * @param tag      tag
-     * @param value    double value
-     *
-     * @ingroup HTML_logs
-     */
+    //! @copydoc Messages::addLogEntry(const std::string&, doublereal)
     void addLogEntry(const std::string& tag, doublereal value) {
         pMessenger->addLogEntry(tag, value);
     }
 
-    //! Add an entry to an HTML log file.
-    /*!
-     *  Entries appear in the form "tag:value".
-     *
-     * @param tag      tag
-     * @param value    double value
-     *
-     * @ingroup HTML_logs
-     */
+    //! @copydoc Messages::addLogEntry(const std::string&, int)
     void addLogEntry(const std::string& tag, int value) {
         pMessenger->addLogEntry(tag, value);
     }
 
-    //! Add an entry to an HTML log file.
-    /*!
-     *  Entries appear in the form "msg".
-     *
-     * @param msg      Message to be added to file
-     *
-     * @ingroup HTML_logs
-     */
+    //! @copydoc Messages::addLogEntry(const std::string&)
     void addLogEntry(const std::string& msg) {
         pMessenger->addLogEntry(msg);
     }
 
-    //! Close the current group of log messages.
-    /*!
-     *  This is typically
-     *  called just before leaving a function or method, to close the
-     *  group of messages that were output from this
-     *  function. Subsequent messages written with addLogEntry() will
-     *  appear at the next-higher level in the outline, unless
-     *  beginLogGroup() is called first to create a new group.
-     *
-     * @param title Name of the log group. It defaults to the most recent
-     *              log group created.
-     * @ingroup HTML_logs
-     */
+    //! @copydoc Messages::endLogGroup
     void endLogGroup(const std::string& title) {
         pMessenger->endLogGroup(title) ;
     }
 
-    //! Write the HTML log file.
-    /*!
-     *  Log entries are stored in memory in
-     *  an XML tree until this function is called, which writes the
-     *  tree to a file and clears the entries stored in memory.  The
-     *  output file will have the name specified in the 'file'
-     *  argument.  If this argument has no extension, the extension
-     *  '.html' will be appended. Also, if the file already exists, an
-     *  integer will be appended to the name so that no existing log
-     *  file will be overwritten.
-     *  WITH_HTML_LOGS must be defined.
-     *
-     *  @param  file Name of the file to be written
-     */
+    //! @copydoc Messages::write_logfile
     void write_logfile(const std::string& file) {
         pMessenger->write_logfile(file) ;
     }
@@ -643,19 +489,17 @@ public:
 protected:
     //! Set the default directories for input files.
     /*!
-     * %Cantera searches
-     * for input files along a path that includes platform-specific
-     * default locations, and possibly user-specified locations.  This
-     * function installs the platform-specific directories on the
-     * search path. It is invoked at startup by appinit(), and never
-     * should need to be called by user programs.
+     * %Cantera searches for input files along a path that includes platform-
+     * specific default locations, and possibly user-specified locations.
+     * This function installs the platform-specific directories on the search
+     * path. It is invoked at startup by appinit(), and never should need to
+     * be called by user programs.
      *
-     * The current directory (".") is always searched first. Then, on
-     * Windows platforms, if environment variable COMMONPROGRAMFILES
-     * is set (which it should be on Win XP or Win 2000), then
-     * directories under this one will be added to the search
-     * path. The %Cantera Windows installer installs data files to this
-     * location.
+     * The current directory (".") is always searched first. Then, on Windows
+     * platforms, if environment variable COMMONPROGRAMFILES is set (which it
+     * should be on Win XP or Win 2000), then directories under this one will
+     * be added to the search path. The %Cantera Windows installer installs
+     * data files to this location.
      *
      * On the Mac, directory '/Applications/Cantera/data' is added to the
      * search path.
