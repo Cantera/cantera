@@ -22,13 +22,11 @@ namespace Cantera
 
 //! Unit conversion utility
 /*!
- *
  * @ingroup inputfiles
  */
 class Unit
 {
 public:
-
     //! Initialize the static Unit class.
     static Unit* units() {
         ScopedLock lock(units_mutex);
@@ -146,7 +144,6 @@ public:
     }
 
 private:
-
     /// pointer to the single instance of Unit
     static Unit* s_u;
 
@@ -268,4 +265,3 @@ private:
 }
 
 #endif
-
