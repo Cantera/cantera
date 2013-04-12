@@ -17,7 +17,6 @@
 
 namespace Cantera
 {
-
 enum flow_t   { NetFlow, OneWayFlow };
 
 // forward references
@@ -42,9 +41,6 @@ public:
     doublereal  value;            ///<  May be used to set node appearance
     bool        visible;          ///<  Visible on graph;
 
-
-    // public methods
-
     /**
      *  @name References.
      * Return a reference to a path object connecting this node
@@ -58,7 +54,6 @@ public:
         return m_paths[n];
     }
     //@}
-
 
     /// Total number of paths to or from this node
     int nPaths() const {
@@ -80,7 +75,6 @@ public:
 
     void printPaths();
 
-
 protected:
     doublereal m_in;
     doublereal m_out;
@@ -88,12 +82,9 @@ protected:
 };
 
 
-
 class Path
 {
-
 public:
-
     typedef std::map<size_t, doublereal> rxn_path_map;
 
     /**
@@ -105,6 +96,11 @@ public:
     /// Destructor
     virtual ~Path() {}
 
+    /**
+     * Add a reaction to the path. Increment the flow from this
+     * reaction, the total flow, and the flow associated with this
+     * label.
+     */
     void addReaction(size_t rxnNumber, doublereal value,
                      const std::string& label = "");
 
@@ -150,10 +146,13 @@ public:
         return m_rxn;
     }
 
+    /**
+     * Write the label for a path connecting two species, indicating
+     * the percent of the total flow due to each reaction.
+     */
     void writeLabel(std::ostream& s, doublereal threshold = 0.005);
 
 protected:
-
     std::map<std::string, doublereal> m_label;
     SpeciesNode* m_a, *m_b;
     rxn_path_map m_rxn;
@@ -166,11 +165,12 @@ protected:
  */
 class ReactionPathDiagram
 {
-
 public:
-
     ReactionPathDiagram();
 
+    /**
+     * Destructor. Deletes all nodes and paths in the diagram.
+     */
     virtual ~ReactionPathDiagram();
 
     /// The largest one-way flow value in any path
@@ -194,7 +194,23 @@ public:
     }
 
     void writeData(std::ostream& s);
+
+    /**
+     *  Export the reaction path diagram. This method writes to stream
+     *  \c s the commands for the 'dot' program in the \c GraphViz
+     *  package from AT&T. (GraphViz may be downloaded from
+     *  www.graphviz.org.)
+     *
+     *  To generate a postscript reaction path diagram from the
+     *  output of this method saved in file paths.dot, for example, give
+     *  the command:
+     *  \code
+     *  dot -Tps paths.dot > paths.ps
+     *  \endcode
+     *  To generate a GIF image, replace -Tps with -Tgif
+     */
     void exportToDot(std::ostream& s);
+
     void add(ReactionPathDiagram& d);
     SpeciesNode* node(size_t k) {
         return m_nodes[k];
@@ -268,7 +284,6 @@ public:
     doublereal arrow_hue;
 
 protected:
-
     doublereal                    m_flxmax;
     std::map<size_t, std::map<size_t, Path*> > m_paths;
     std::map<size_t, SpeciesNode*> m_nodes;
@@ -281,10 +296,8 @@ protected:
 };
 
 
-
 class ReactionPathBuilder
 {
-
 public:
     ReactionPathBuilder() {}
     virtual ~ReactionPathBuilder() {}
@@ -294,6 +307,8 @@ public:
     int build(Kinetics& s, const std::string& element, std::ostream& output,
               ReactionPathDiagram& r, bool quiet=false);
 
+    //! Analyze a reaction to determine which reactants lead to which
+    //! products.
     int findGroups(std::ostream& logfile, Kinetics& s);
 
     void writeGroup(std::ostream& out, const Group& g);

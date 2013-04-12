@@ -101,6 +101,12 @@ public:
         //             }
     }
 
+    /*!
+     * A group is 'valid' if all of its nonzero atom numbers have
+     * the same sign, either positive or negative. This method
+     * checks for this, and if the group is not valid it sets
+     * m_sign to -999, and sets all atom numbers to zero.
+     */
     void validate();
 
     /**
