@@ -144,12 +144,6 @@ void Application::Messages::logerror(const std::string& msg)
 }
 
 // Write a message to the screen
-void Application::Messages::writelog(const char* pszmsg)
-{
-    logwriter->write(pszmsg) ;
-}
-
-// Write a message to the screen
 void Application::Messages::writelog(const std::string& msg)
 {
     logwriter->write(msg);

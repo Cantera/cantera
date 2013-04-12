@@ -266,21 +266,6 @@ inline void writelog(const std::string& msg, int loglevel)
     }
 }
 
-//!  Write a message to the screen.
-/*!
- * The string may be of any
- * length, and may contain end-of-line characters. This method is
- * used throughout %Cantera to write log messages.
- *
- *  This routine is part of the interface suite whose behavior changes
- *  with the interface. The interface suite has been moved to the
- *  class logger and inherited classes of logger.
- *
- * @param msg  c character string to be written to the screen
- * @ingroup textlogs
- */
-void writelog(const char* msg);
-
 //! Write a formatted message to the screen
 /*!
  * Using the printf formatting of C, write a message to the screen
