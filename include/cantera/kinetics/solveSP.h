@@ -19,56 +19,49 @@
 #include <vector>
 #include "cantera/base/Array.h"
 
-//! Solution Methods
-/*!
- * Flag to specify the solution method
- *
- *  1: SFLUX_INITIALIZE   = This assumes that the initial guess supplied to the
- *                          routine is far from the correct one. Substantial
- *                          work plus transient time-stepping is to be expected
- *                          to find a solution.
- *  2:  SFLUX_RESIDUAL    = Need to solve the surface problem in order to
- *                          calculate the surface fluxes of gas-phase species.
- *                          (Can expect a moderate change in the solution
- *                           vector -> try to solve the system by direct
- *                            methods
- *                           with no damping first -> then, try time-stepping
- *                           if the first method fails)
- *                          A "time_scale" supplied here is used in the
- *                          algorithm to determine when to shut off
- *                          time-stepping.
- *  3:  SFLUX_JACOBIAN    = Calculation of the surface problem is due to the
- *                          need for a numerical jacobian for the gas-problem.
- *                          The solution is expected to be very close to the
- *                          initial guess, and accuracy is needed.
- *  4:  SFLUX_TRANSIENT   = The transient calculation is performed here for an
- *                          amount of time specified by "time_scale".  It is
- *                          not guaranteed to be time-accurate - just stable
- *                          and fairly fast. The solution after del_t time is
- *                          returned, whether it's converged to a steady
- *                          state or not.
- */
+//! @defgroup solvesp_methods Surface Problem Solver Methods
+//! @{
+
+//! This assumes that the initial guess supplied to the routine is far from
+//! the correct one. Substantial work plus transient time-stepping is to be
+//! expected to find a solution.
 const int SFLUX_INITIALIZE = 1;
-const int SFLUX_RESIDUAL   = 2;
-const int SFLUX_JACOBIAN   = 3;
-const int SFLUX_TRANSIENT  = 4;
 
+//! Need to solve the surface problem in order to calculate the surface fluxes
+//! of gas-phase species. (Can expect a moderate change in the solution
+//! vector; try to solve the system by direct methods with no damping first,
+//! then try time-stepping if the first method fails). A "time_scale" supplied
+//! here is used in the algorithm to determine when to shut off time-stepping.
+const int SFLUX_RESIDUAL = 2;
 
-/*
- * bulkFunc:     Functionality expected from the bulk phase.  This changes the
- *               equations that will be used to solve for the bulk mole
- *               fractions.
- *  1:  BULK_DEPOSITION   = deposition of a bulk phase is to be expected.
- *                          Bulk mole fractions are determined from ratios of
- *                          growth rates of bulk species.
- *  2:  BULK_ETCH         = Etching of a bulk phase is to be expected.
- *                          Bulk mole fractions are assumed constant, and given
- *                          by the initial conditions. This is also used
- whenever the condensed phase is part of the larger
- solution.
-*/
-const int BULK_DEPOSITION  = 1;
-const int BULK_ETCH        = 2;
+//! Calculation of the surface problem is due to the need for a numerical
+//! jacobian for the gas-problem. The solution is expected to be very close to
+//! the initial guess, and accuracy is needed because solution variables have
+//! been perturbed from nominal values to create Jacobian entries.
+const int SFLUX_JACOBIAN = 3;
+
+//! The transient calculation is performed here for an amount of time
+//! specified by "time_scale".  It is not guaranteed to be time-accurate -
+//! just stable and fairly fast. The solution after del_t time is returned,
+//! whether it's converged to a steady state or not. This is a poor man's time
+//! stepping algorithm.
+const int SFLUX_TRANSIENT = 4;
+// @}
+
+//! @defgroup solvesp_bulkFunc Surface Problem Bulk Phase Mode
+//! Functionality expected from the bulk phase. This changes the equations
+//! that will be used to solve for the bulk mole fractions.
+//! @{
+
+//! Deposition of a bulk phase is to be expected. Bulk mole fractions are
+//! determined from ratios of growth rates of bulk species.
+const int BULK_DEPOSITION = 1;
+
+//! Etching of a bulk phase is to be expected. Bulk mole fractions are assumed
+//! constant, and given by the initial conditions. This is also used whenever
+//! the condensed phase is part of the larger solution.
+const int BULK_ETCH = 2;
+// @}
 
 namespace Cantera
 {
@@ -77,54 +70,52 @@ class InterfaceKinetics;
 
 //! Method to solve a pseudo steady state surface problem
 /*!
- *   The following class handles solving the surface problem.
- *   The calculation uses Newton's method to
- *   obtain the surface fractions of the surface and bulk species by
- *   requiring that the
- *   surface species production rate = 0 and that the either the
- *   bulk fractions are proportional to their production rates
- *   or they are constants.
+ *  The following class handles solving the surface problem. The calculation
+ *  uses Newton's method to obtain the surface fractions of the surface and
+ *  bulk species by requiring that the surface species production rate = 0 and
+ *  that the either the bulk fractions are proportional to their production
+ *  rates or they are constants.
  *
- *    Currently, the bulk mole fractions are treated as constants.
- *    Implementation of their being added to the unknown solution
- *    vector is delayed.
+ *  Currently, the bulk mole fractions are treated as constants.
+ *  Implementation of their being added to the unknown solution vector is
+ *  delayed.
  *
- *   Lets introduce the unknown vector for the "surface
- *   problem". The surface problem is defined as the evaluation of the surface
- *   site fractions for multiple surface phases.
- *   The unknown vector will consist of the vector of surface concentrations for each
- *   species in each surface vector. Species are grouped first by their surface phases
+ *  Lets introduce the unknown vector for the "surface problem". The surface
+ *  problem is defined as the evaluation of the surface site fractions for
+ *  multiple surface phases. The unknown vector will consist of the vector of
+ *  surface concentrations for each species in each surface vector. Species
+ *  are grouped first by their surface phases
  *
- *   C_i_j = Concentration of the ith species in the jth surface phase
- *           Nj = number of surface species in the jth surface phase
+ *  - C_i_j = Concentration of the ith species in the jth surface phase
+ *  - Nj = number of surface species in the jth surface phase
  *
- *   The unknown solution vector is defined as follows:
+ *  The unknown solution vector is defined as follows:
  *
- *   C_i_j     | kindexSP
- *   --------- | ----------
- *   C_0_0     |   0
- *   C_1_0     |   1
- *   C_2_0     |   2
- *    . . .    |  ...
- *   C_N0-1_0  | N0-1
- *   C_0_1     | N0
- *   C_1_1     | N0+1
- *   C_2_1     | N0+2
- *    . . .    | ...
- *   C_N1-1_1  | NO+N1-1
+ *  C_i_j     | kindexSP
+ *  --------- | ----------
+ *  C_0_0     |   0
+ *  C_1_0     |   1
+ *  C_2_0     |   2
+ *   . . .    |  ...
+ *  C_N0-1_0  | N0-1
+ *  C_0_1     | N0
+ *  C_1_1     | N0+1
+ *  C_2_1     | N0+2
+ *   . . .    | ...
+ *  C_N1-1_1  | NO+N1-1
  *
- *   Note there are a couple of different types of species indices
- *   floating around in the formulation of this object.
+ *  Note there are a couple of different types of species indices floating
+ *  around in the formulation of this object.
  *
- *   kindexSP This is the species index in the contiguous vector of unknowns
+ *  kindexSP: This is the species index in the contiguous vector of unknowns
  *            for the surface problem.
  *
- *  Note, in the future, BULK_DEPOSITION systems will be added, and the solveSP unknown
- *  vector will get more complicated. It will include the mole fraction and growth rates
- *  of specified bulk phases
+ *  Note, in the future, BULK_DEPOSITION systems will be added, and the
+ *  solveSP unknown vector will get more complicated. It will include the mole
+ *  fraction and growth rates of specified bulk phases
  *
- *  Indices which relate to individual kinetics objects use the suffix KSI (kinetics
- *  species index).
+ *  Indices which relate to individual kinetics objects use the suffix KSI
+ *  (kinetics species index).
  *
  *  ## Solution Method
  *
@@ -134,28 +125,8 @@ class InterfaceKinetics;
  *  efficient.
  *
  *  The solution methodology is largely determined by the `ifunc` parameter,
- *  that is input to the solution object. This parameter may have the following
- *  4 values:
- *
- *  1. `SFLUX_INITIALIZE` - This assumes that the initial guess supplied to
- *     the routine is far from the correct one. Substantial work plus
- *     transient time-stepping is to be expected to find a solution.
- *  2. `SFLUX_RESIDUAL` - Need to solve the surface problem in order to
- *     calculate the surface fluxes of gas-phase species. (Can expect a
- *     moderate change in the solution vector -> try to solve the system by
- *     direct methods with no damping first -> then, try time-stepping if the
- *     first method fails) A "time_scale" supplied here is used in the
- *     algorithm to determine when to shut off time-stepping.
- *  3. `SFLUX_JACOBIAN` - Calculation of the surface problem is due to the
- *     need for a numerical jacobian for the gas-problem. The solution is
- *     expected to be very close to the initial guess, and extra accuracy is
- *     needed because solution variables have been delta'd from nominal values
- *     to create jacobian entries.
- *  4. `SFLUX_TRANSIENT` - The transient calculation is performed here for an
- *     amount of time specified by "time_scale".  It is not guaranteed to be
- *     time-accurate - just stable and fairly fast. The solution after del_t
- *     time is returned, whether it's converged to a steady state or not. This
- *     is a poor man's time stepping algorithm.
+ *  that is input to the solution object. This parameter may have one of the
+ *  values defined in @ref solvesp_methods.
  *
  *  ### Pseudo time stepping algorithm:
  *  The time step is determined from sdot[], so  so that the time step
@@ -182,9 +153,9 @@ public:
      *  @param surfChemPtr  Pointer to the ImplicitSurfChem object that
      *                      defines the surface problem to be solved.
      *
-     *  @param bulkFunc     Integer representing how the bulk phases
-     *                      should be handled. Currently, only the
-     *                      default value of BULK_ETCH is supported.
+     *  @param bulkFunc     Integer representing how the bulk phases should be
+     *                      handled. See @ref solvesp_bulkFunc. Currently,
+     *                      only the default value of BULK_ETCH is supported.
      */
     solveSP(ImplicitSurfChem* surfChemPtr, int bulkFunc = BULK_ETCH);
 
@@ -209,9 +180,8 @@ public:
      * bulk species by requiring that the surface species production rate = 0
      * and that the bulk fractions are proportional to their production rates.
      *
-     * @param ifunc Determines the type of solution algorithm to be
-     *                  used.  Possible values are  SFLUX_INITIALIZE  ,
-     *                  SFLUX_RESIDUAL SFLUX_JACOBIAN  SFLUX_TRANSIENT   .
+     * @param ifunc Determines the type of solution algorithm to be used. See
+     *                  @ref solvesp_methods for possible values.
      *
      * @param time_scale  Time over which to integrate the surface equations,
      *                    where applicable
@@ -386,14 +356,7 @@ private:
 
     //! This variable determines how the bulk phases are to be handled
     /*!
-     *  = BULK_ETCH (default) The concentrations of the bulk phases are
-     *               considered constant, just as the gas phase is.
-     *               They are not part of the solution vector.
-     *  = BULK_DEPOSITION =
-     *               We solve here for the composition of the bulk
-     *               phases by calculating a growth rate. The equations
-     *               for the species in the bulk phases are
-     *               unknowns in this calculation.
+     *  Possible values are given in @ref solvesp_bulkFunc.
      */
     int m_bulkFunc;
 
