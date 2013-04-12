@@ -7,7 +7,7 @@
 #ifndef CT_ENH_CONC_H
 #define CT_ENH_CONC_H
 
-#include <map>
+#include "cantera/base/ct_defs.h"
 
 namespace Cantera
 {
