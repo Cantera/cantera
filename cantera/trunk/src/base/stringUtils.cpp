@@ -41,32 +41,10 @@ std::string fp2str(const double x, const std::string& fmt)
     return std::string(" ");
 }
 
-std::string fp2str(const double x)
-{
-    char buf[64];
-    int n = SNPRINTF(buf, 64, "%g" , x);
-    if (n > 0) {
-        buf[29] = '\0';
-        return std::string(buf);
-    }
-    return std::string(" ");
-}
-
 std::string int2str(const int n, const std::string& fmt)
 {
     char buf[30];
     int m = SNPRINTF(buf, 30, fmt.c_str(), n);
-    if (m > 0) {
-        buf[29] = '\0';
-        return std::string(buf);
-    }
-    return std::string(" ");
-}
-
-std::string int2str(const int n)
-{
-    char buf[30];
-    int m = SNPRINTF(buf, 30, "%d", n);
     if (m > 0) {
         buf[29] = '\0';
         return std::string(buf);
