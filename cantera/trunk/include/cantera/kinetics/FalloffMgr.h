@@ -20,7 +20,6 @@ namespace Cantera
 class FalloffMgr
 {
 public:
-
     //! Constructor.
     FalloffMgr(/*FalloffFactory* f = 0*/) :
         m_n(0), m_n0(0), m_worksize(0) {
@@ -30,10 +29,7 @@ public:
         //else m_factory = f;
     }
 
-    /**
-     * Destructor. Deletes all installed falloff function
-     * calculators.
-     */
+    //! Destructor. Deletes all installed falloff function calculators.
     virtual ~FalloffMgr() {
         int i;
         for (i = 0; i < m_n; i++) {
@@ -45,11 +41,10 @@ public:
         //}
     }
 
-    /**
-     * Install a new falloff function calculator.  @param rxn
-     * Index of the falloff reaction. This will be used to determine
-     * which array entry is modified in method pr_to_falloff.
-     *
+    //! Install a new falloff function calculator.
+    /*
+     * @param rxn Index of the falloff reaction. This will be used to
+     *     determine which array entry is modified in method pr_to_falloff.
      * @param type of falloff function to install.
      * @param c vector of coefficients for the falloff function.
      */
@@ -68,9 +63,7 @@ public:
         }
     }
 
-    /**
-     * Size of the work array required to store intermediate results.
-     */
+    //! Size of the work array required to store intermediate results.
     size_t workSize() {
         return m_worksize;
     }
@@ -118,4 +111,3 @@ protected:
 }
 
 #endif
-
