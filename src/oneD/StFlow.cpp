@@ -955,7 +955,7 @@ XML_Node& StFlow::save(XML_Node& o, const doublereal* const sol)
                   x.size(),DATA_PTR(x),"1/s","rate");
 
     soln.getRow(2,DATA_PTR(x));
-    addFloatArray(gv,"T",x.size(),DATA_PTR(x),"K","temperature",0.0);
+    addFloatArray(gv,"T",x.size(),DATA_PTR(x),"K","temperature");
 
     soln.getRow(3,DATA_PTR(x));
     addFloatArray(gv,"L",x.size(),DATA_PTR(x),"N/m^4");
@@ -963,7 +963,7 @@ XML_Node& StFlow::save(XML_Node& o, const doublereal* const sol)
     for (k = 0; k < m_nsp; k++) {
         soln.getRow(4+k,DATA_PTR(x));
         addFloatArray(gv,m_thermo->speciesName(k),
-                      x.size(),DATA_PTR(x),"","massFraction",0.0,1.0);
+                      x.size(),DATA_PTR(x),"","massFraction");
     }
 
     vector_fp values(nPoints());
