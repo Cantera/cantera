@@ -121,15 +121,6 @@ extern int MDP_MP_myproc;
 #endif
 
 /****************************************************************************/
-/*
- * MDP_SAFE_DELETE()
- *       This useful define is great for delete single instances of
- *       mallocing using new.
- */
-#define MDP_SAFE_DELETE(a) if (a) { delete (a); a = 0; }
-
-
-/****************************************************************************/
 
 #define mdp_alloc_struct(x, num) (x *) mdp_array_alloc(1, (num), sizeof(x))
 

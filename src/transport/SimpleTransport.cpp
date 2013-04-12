@@ -14,12 +14,6 @@
 #include <iostream>
 using namespace std;
 
-#ifndef SAFE_DELETE
-//! \cond
-#define SAFE_DELETE(x)  if (x) { delete (x); x = 0; }
-//! \endcond
-#endif
-
 namespace Cantera
 {
 //================================================================================================
@@ -151,16 +145,16 @@ Transport* SimpleTransport::duplMyselfAsTransport() const
 SimpleTransport::~SimpleTransport()
 {
     for (size_t k = 0; k < m_coeffVisc_Ns.size() ; k++) {
-        SAFE_DELETE(m_coeffVisc_Ns[k]);
+        delete m_coeffVisc_Ns[k];
     }
     for (size_t k = 0; k < m_coeffLambda_Ns.size(); k++) {
-        SAFE_DELETE(m_coeffLambda_Ns[k]);
+        delete m_coeffLambda_Ns[k];
     }
     for (size_t k = 0; k < m_coeffDiff_Ns.size(); k++) {
-        SAFE_DELETE(m_coeffDiff_Ns[k]);
+        delete m_coeffDiff_Ns[k];
     }
     for (size_t k = 0; k < m_coeffHydroRadius_Ns.size(); k++) {
-        SAFE_DELETE(m_coeffHydroRadius_Ns[k]);
+        delete m_coeffHydroRadius_Ns[k];
     }
 }
 //================================================================================================

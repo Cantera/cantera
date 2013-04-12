@@ -18,9 +18,6 @@
 using namespace std;
 using namespace mdp;
 
-#define SAFE_DELETE(a) if (a) { delete (a); a = 0; }
-
-
 /*
  * Blas routines
  */
@@ -121,7 +118,7 @@ BEulerInt::~BEulerInt()
     mdp::mdp_safe_free((void**) &m_abstol);
     mdp::mdp_safe_free((void**) &m_rowScales);
     mdp::mdp_safe_free((void**) &m_colScales);
-    SAFE_DELETE(tdjac_ptr);
+    delete tdjac_ptr;
 }
 //================================================================================================
 void BEulerInt::setTolerances(double reltol, size_t n, double* abstol)

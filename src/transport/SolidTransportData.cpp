@@ -12,9 +12,6 @@
 
 using namespace std;
 
-#ifndef SAFE_DELETE
-#define SAFE_DELETE(x)  if (x) { delete (x); x = 0; }
-#endif
 namespace Cantera
 {
 
@@ -70,13 +67,11 @@ SolidTransportData& SolidTransportData::operator=(const SolidTransportData& righ
 //====================================================================================================================
 SolidTransportData::~SolidTransportData()
 {
-
-    SAFE_DELETE(ionConductivity);
-    SAFE_DELETE(thermalConductivity);
-    SAFE_DELETE(electConductivity);
-    SAFE_DELETE(defectDiffusivity);
-    SAFE_DELETE(defectActivity);
-
+    delete ionConductivity;
+    delete thermalConductivity;
+    delete electConductivity;
+    delete defectDiffusivity;
+    delete defectActivity;
 }
 //====================================================================================================================
 }
