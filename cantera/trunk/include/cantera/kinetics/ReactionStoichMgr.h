@@ -27,7 +27,7 @@ class ReactionData;
  * - the change in molar species properties in the reactions
  * - concentration products
  *
- * To use this class, method 'add' is first used to add each reaction.
+ * To use this class, method add() is first used to add each reaction.
  * Once all reactions have been added, the methods that compute various
  * quantities may be called.
  *
@@ -55,9 +55,7 @@ class ReactionData;
  */
 class ReactionStoichMgr
 {
-
 public:
-
     /// Constructor.
     ReactionStoichMgr();
 
@@ -105,9 +103,8 @@ public:
     virtual void add(size_t rxn, const ReactionData& r);
 
     /**
-     * Species creation rates.
-     * Given the arrays of the forward and reverse rates of
-     * progress for all reactions, compute the species creation
+     * Species creation rates. Given the arrays of the forward and reverse
+     * rates of progress for all reactions, compute the species creation
      * rates, given by
      * \f[
      *  C = N_p Q_f  + N_r Q_r.
@@ -118,11 +115,9 @@ public:
                                   const doublereal* revRatesOfProgress,
                                   doublereal* creationRates);
 
-
     /**
-     * Species destruction rates.
-     * Given the arrays of the forward and reverse rates of
-     * progress for all reactions, compute the species destruction
+     * Species destruction rates. Given the arrays of the forward and reverse
+     * rates of progress for all reactions, compute the species destruction
      * rates, given by
      * \f[
      *  D = N_r Q_f  + N_p Q_r,
@@ -135,33 +130,22 @@ public:
                                      const doublereal* revRatesOfProgress,
                                      doublereal* destructionRates);
 
-
     /**
-     * Given the array of the net rates of progress for all
-     * reactions, compute the species net production rates and
-     * return them in array w.
-     */
-    /**
-     * Species net production rates.
-     * Given the array of the net rates of
-     * progress for all reactions, compute the species net production
-     * rates, given by
+     * Species net production rates. Given the array of the net rates of
+     * progress for all reactions, compute the species net production rates,
+     * given by
      * \f[
      *  W = (N_r - N_p) Q_{\rm net},
      * \f]
      */
     virtual void getNetProductionRates(size_t nsp, const doublereal* ropnet, doublereal* w);
 
-
-
     //! Calculates the change of a molar species property in a reaction.
     /*!
-     * Given an
-     * array of species properties 'g', return in array 'dg' the
-     * change in this quantity in the reactions. Array 'g' must
-     * have a length at least as great as the number of species,
-     * and array 'dg' must have a length as great as the total
-     * number of reactions.
+     * Given an array of species properties 'g', return in array 'dg' the
+     * change in this quantity in the reactions. Array 'g' must have a length
+     * at least as great as the number of species, and array 'dg' must have a
+     * length as great as the total number of reactions.
      *  \f[
      *      \delta g_i = \sum_k{\nu_{i,k} g_k   }
      *  \f]
@@ -178,25 +162,21 @@ public:
                                   const doublereal* g,
                                   doublereal* dg);
 
-
     /**
-     * Given an array of species properties 'g', return in array
-     * 'dg' the change in this quantity in the reversible
-     * reactions. Array 'g' must have a length at least as great
-     * as the number of species, and array 'dg' must have a length
-     * as great as the total number of reactions.  This method
-     * only computes 'dg' for the reversible reactions, and the
-     * entries of 'dg' for the irreversible reactions are
-     * unaltered. This is primarily designed for use in
-     * calculating reverse rate coefficients from thermochemistry
-     * for reversible reactions.
+     * Given an array of species properties 'g', return in array 'dg' the
+     * change in this quantity in the reversible reactions. Array 'g' must
+     * have a length at least as great as the number of species, and array
+     * 'dg' must have a length as great as the total number of reactions.
+     * This method only computes 'dg' for the reversible reactions, and the
+     * entries of 'dg' for the irreversible reactions are unaltered. This is
+     * primarily designed for use in calculating reverse rate coefficients
+     * from thermochemistry for reversible reactions.
      */
     virtual void getRevReactionDelta(size_t nr, const doublereal* g, doublereal* dg);
 
-
     /**
      * Given an array of concentrations C, multiply the entries in array R by
-     * the concentration products for the reactants:
+     * the concentration products for the reactants.
      * \f[
      *  R_i = R_i * \prod_k C_k^{o_{k,i}}
      * \f]
@@ -205,10 +185,9 @@ public:
      */
     virtual void multiplyReactants(const doublereal* C, doublereal* R);
 
-
     /**
      * Given an array of concentrations C, multiply the entries in array R by
-     * the concentration products for the products:
+     * the concentration products for the products.
      * \f[
      *  R_i = R_i * \prod_k C_k^{\nu^{(p)}_{k,i}}
      * \f]
@@ -220,7 +199,6 @@ public:
     virtual void write(const std::string& filename);
 
 protected:
-
     void writeCreationRates(std::ostream& f);
     void writeDestructionRates(std::ostream& f);
     void writeNetProductionRates(std::ostream& f);
