@@ -15,15 +15,8 @@
 #include <cstdlib>
 #include <cmath>
 
-
 namespace VCSnonideal
 {
-
-
-//  Switch all species data back to the original order.
-/*
- *  This destroys the data based on reaction ordering.
- */
 int VCS_SOLVE::vcs_rearrange()
 {
     size_t i, l, j;
@@ -53,4 +46,3 @@ int VCS_SOLVE::vcs_rearrange()
 }
 
 }
-

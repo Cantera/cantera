@@ -1,17 +1,13 @@
-
 /*!
  * @file vcs_rank.cpp
  *    Header file for the internal class that holds the problem.
  */
+
 /*
- * $Id: vcs_solve.cpp 735 2011-07-25 14:44:41Z hkmoffa $
- */
-/*
- * Copywrite (2005) Sandia Corporation. Under the terms of 
+ * Copyright (2005) Sandia Corporation. Under the terms of
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the
  * U.S. Government retains certain rights in this software.
  */
-
 
 #include "cantera/equil/vcs_solve.h"
 #include "cantera/equil/vcs_internal.h"
@@ -30,7 +26,6 @@
 using namespace std;
 
 namespace VCSnonideal {
-  //====================================================================================================================
   static int basisOptMax1(const double * const molNum,
 		  const int n) {
     // int largest = 0;
@@ -49,45 +44,7 @@ namespace VCSnonideal {
     }
     return n-1;
   }
-  //====================================================================================================================
-  //  Calculate the rank of a matrix and return the rows and columns that will generate an independent basis
-  //  for that rank
-  /*
-   * Choose the optimum component species basis for the calculations, finding the rank and 
-   * set of linearly independent rows for that calculation.
-   * Then find the set of linearly indepedent element columns that can support that rank.
-   * This is done by taking the transpose of the matrix and redoing the same calculation.
-   * (there may be a better way to do this. I don't know.)
-   *
-   *
-   * Input 
-   * --------- 
-   *
-   * @param awtmp      Vector of mole numbers which will be used to construct a 
-   *                   ranking for how to pick the basis species. This is largely ignored
-   *                   here.
-   *
-   * @param numSpecies Number of species. This is the number of rows in the matrix.
-   *
-   * @param matrix     Matrix. This is the formula matrix. Nominally, the rows are species, while
-   *                   the columns are element compositions. However, this routine
-   *                   is totally general, so that the rows and columns can be anything.
-   *
-   * @param numElemConstraints Number of element constraints
-   *
-   * Output 
-   * --------- 
-   * @param usedZeroedSpecies = If true, then a species with a zero concentration
-   *                            was used as a component.
-   *
-   *
-   * @param compRes    Vector of rows which are linearly independent. (these are the components)
-   *
-   * @param elemComp   Vector of columns which are linearly independent (These are the actionable element
-   *                   constraints).
-   *
-   * @return        Returns number of components. This is the rank of the matrix
-   */
+
   int VCS_SOLVE::vcs_rank(const double * awtmp, size_t numSpecies,  const double matrix[], size_t numElemConstraints,
 			  std::vector<size_t> &compRes, std::vector<size_t>& elemComp, int * const usedZeroedSpecies) const 
   {
@@ -343,6 +300,5 @@ namespace VCSnonideal {
     }
     return numComponents;
   }
-  
 
 }

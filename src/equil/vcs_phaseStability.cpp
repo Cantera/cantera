@@ -1,7 +1,7 @@
 /**
  * @file vcs_phaseStability.cpp
  *  Implementation class for functions associated with determining the stability of a phase
- *   (see Class \link Cantera::VCS_SOLVE VCS_SOLVE\endlink and \ref equilfunctions ).
+ *   (see Class \link VCSnonideal::VCS_SOLVE VCS_SOLVE\endlink and \ref equilfunctions ).
  */
 #include "cantera/equil/vcs_solve.h"
 #include "cantera/equil/vcs_internal.h"
@@ -20,25 +20,8 @@ using namespace std;
 namespace VCSnonideal
 {
 
-//====================================================================================================================
-// Utility function that evaluates whether a phase can be popped into existence
-/*
- * A phase can be popped iff the stoichiometric coefficients for the
- * component species, whose concentrations will be lowered during the
- * process, are positive by at least a small degree.
- *
- * If one of the phase species is a zeroed component, then the phase can
- * be popped if the component increases in mole number as the phase moles
- * are increased.
- *
- * @param iphasePop  id of the phase, which is currently zeroed,
- *
- * @return Returns true if the phase can come into existence
- *         and false otherwise.
- */
 bool VCS_SOLVE::vcs_popPhasePossible(const size_t iphasePop) const
 {
-
     vcs_VolPhase* Vphase = m_VolPhaseList[iphasePop];
 
 #ifdef DEBUG_MODE
@@ -133,16 +116,6 @@ bool VCS_SOLVE::vcs_popPhasePossible(const size_t iphasePop) const
     return false;
 }
 
-//====================================================================================================================
-// Determine the list of problems that need to be checked to see if there are any phases pops
-/*
- *  This routine evaluates and fills in the following quantities
- *              phasePopProblemLists_
- *
- *  Need to work in species that are zeroed by element constraints
- *
- *  @return    Returns the number of problems that must be checked.
- */
 int  VCS_SOLVE::vcs_phasePopDeterminePossibleList()
 {
     int nfound = 0;
@@ -270,13 +243,6 @@ int  VCS_SOLVE::vcs_phasePopDeterminePossibleList()
     return nfound;
 }
 
-
-//====================================================================================================================
-// Decision as to whether a phase pops back into existence
-/*
- * @return returns the phase id of the phases that pops back into
- *         existence. Returns npos if there are no phases
- */
 size_t VCS_SOLVE::vcs_popPhaseID(std::vector<size_t> & phasePopPhaseIDs)
 {
     size_t iphasePop = npos;
@@ -407,29 +373,7 @@ size_t VCS_SOLVE::vcs_popPhaseID(std::vector<size_t> & phasePopPhaseIDs)
 #endif
     return iphasePop;
 }
-//====================================================================================================================
-// Calculates the deltas of the reactions due to phases popping
-// into existence
-/*
- * @param iphasePop  Phase id of the phase that will come into existence
- *
- * Output
- * -------
- * m_deltaMolNumSpecies(irxn) : reaction adjustments, where irxn refers
- *                              to the irxn'th species
- *                              formation reaction. This  adjustment
- *                              is for species
- *                               irxn + M, where M is the number
- *                              of components.
- *
- * @return  Returns an int representing the status of the step
- *            -  0 : normal return
- *            -  1 : A single species phase species has been zeroed out
- *                   in this routine. The species is a noncomponent
- *            -  2 : Same as one but, the zeroed species is a component.
- *            -  3 : Nothing was done because the phase couldn't be birthed
- *                   because a needed component is zero.
- */
+
 int VCS_SOLVE::vcs_popPhaseRxnStepSizes(const size_t iphasePop)
 {
     vcs_VolPhase* Vphase = m_VolPhaseList[iphasePop];
@@ -626,19 +570,8 @@ int VCS_SOLVE::vcs_popPhaseRxnStepSizes(const size_t iphasePop)
     return 0;
 }
 
-//======================================================================================================================
-// Main program to test whether a deleted phase should be brought
-// back into existence
-/*
- *
- * @param iph Phase id of the deleted phase
- *
- *   So far this algorithm seems to be stable. I haven't run across any instance where it hasn't
- *   converged. However, it's probably only a matter of time
- */
 double VCS_SOLVE::vcs_phaseStabilityTest(const size_t iph)
 {
-
     /*
      * We will use the _new state calc here
      */
@@ -970,4 +903,3 @@ double VCS_SOLVE::vcs_phaseStabilityTest(const size_t iph)
 }
 
 }
-

@@ -9,38 +9,7 @@
 
 namespace VCSnonideal
 {
-
-/*****************************************************************************/
-/*****************************************************************************/
-/*****************************************************************************/
-
 int VCS_SOLVE::vcs_TP(int ipr, int ip1, int maxit, double T_arg, double pres_arg)
-
-/**************************************************************************
- *
- * vcs_TP:
- *
- *      Solve an equilibrium problem at a particular fixed temperature
- *      and pressure
- *
- *     ipr = 1 -> Print results to standard output
- *           0 -> don't report on anything
- *     ip1 = 1 -> Print intermediate results.
- *     maxit -> Maximum number of iterations for the algorithm
- *      T = Temperature (Kelvin)
- *    pres = Pressure (pascal)
- *
- * Return Codes
- * ------------------
- *   0 = Equilibrium Achieved
- *   1 = Range space error encountered. The element abundance criteria are
- *       only partially satisfied. Specifically, the first NC= (number of
- *       components) conditions are satisfied. However, the full NE
- *       (number of elements) conditions are not satisfied. The equilibrium
- *       condition is returned.
- * -1 = Maximum number of iterations is exceeded. Convergence was not
- *      found.
- ***************************************************************************/
 {
     int retn, iconv;
     /*
@@ -91,26 +60,8 @@ int VCS_SOLVE::vcs_TP(int ipr, int ip1, int maxit, double T_arg, double pres_arg
      */
     return iconv;
 }
-/*****************************************************************************/
-/*****************************************************************************/
-/*****************************************************************************/
-/*ARGSUSED*/
-int VCS_SOLVE::vcs_evalSS_TP(int ipr, int ip1, double Temp, double pres)
 
-/**************************************************************************
- *
- * vcs_evalSS_TP:
- *
- *     IPR = 1 -> Print results to standard output
- *           0 -> don't report on anything
- *     IP1 = 1 -> Print intermediate results.
- *      T = Temperature (Kelvin)
- *    Pres = Pressure (Pascal)
- *
- *    Evaluate the standard state free energies at the current temperature
- *    and pressure. Ideal gas pressure contribution is added in here.
- *
- ***************************************************************************/
+int VCS_SOLVE::vcs_evalSS_TP(int ipr, int ip1, double Temp, double pres)
 {
     // int i;
     //double  R;
@@ -156,18 +107,9 @@ int VCS_SOLVE::vcs_evalSS_TP(int ipr, int ip1, double Temp, double pres)
         }
     }
     return VCS_SUCCESS;
-} /***************************************************************************/
-
-/*****************************************************************************/
-/*****************************************************************************/
-/*****************************************************************************/
+}
 
 void  VCS_SOLVE::vcs_fePrep_TP(void)
-
-/**************************************************************************
- *
- *
- ***************************************************************************/
 {
     for (size_t i = 0; i < m_numSpeciesTot; ++i) {
         /*
@@ -180,7 +122,6 @@ void  VCS_SOLVE::vcs_fePrep_TP(void)
             m_feSpecies_new[i] = m_SSfeSpecies[i];
         }
     }
-} /* vcs_fePrep_TP() ********************************************************/
-
 }
 
+}

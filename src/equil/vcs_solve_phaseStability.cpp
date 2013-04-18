@@ -27,7 +27,6 @@ using namespace std;
 namespace VCSnonideal
 {
 
-
 int VCS_SOLVE::vcs_PS(VCS_PROB* vprob, int iphase, int printLvl, double& feStable)
 {
 
@@ -163,38 +162,8 @@ int VCS_SOLVE::vcs_PS(VCS_PROB* vprob, int iphase, int printLvl, double& feStabl
      *        Return the convergence success flag.
      */
     return iStab;
-
-
 }
-//====================================================================================================================
-// Routine that independently determines whether a phase should be popped
-// under the current conditions.
-/*
- * This is the main routine that solves for equilibrium at constant T and P
- * using a variant of the VCS method. Nonideal phases can be accommodated
- * as well.
- *
- * Any number of single-species phases and  multi-species phases
- * can be handled by the present version.
- *
- *     Input
- * ------------
- *   @param print_lvl     1 -> Print results to standard output
- *                        0 -> don't report on anything
- *
- *   @param printDetails  1 -> Print intermediate results.
- *
- *   @param maxit         Maximum number of iterations for the algorithm
- *
- *   @return     0 = Equilibrium Achieved
- *               1 = Range space error encountered. The element abundance criteria are
- *                   only partially satisfied. Specifically, the first NC= (number of
- *                   components) conditions are satisfied. However, the full NE
- *                   (number of elements) conditions are not satisfied. The equilibrium
- *                   condition is returned.
- *              -1 = Maximum number of iterations is exceeded. Convergence was not
- *                   found.
- */
+
 int VCS_SOLVE::vcs_solve_phaseStability(const int iph, const int ifunc,
                                         double& funcVal,
                                         int printLvl)

@@ -11,13 +11,6 @@
 
 namespace VCSnonideal
 {
-
-
-//! Computes the current elemental abundances vector
-/*!
- *   Computes the elemental abundances vector, m_elemAbundances[], and stores it
- *   back into the global structure
- */
 void VCS_SOLVE::vcs_elab()
 {
     for (size_t j = 0; j < m_numElemConstraints; ++j) {
@@ -30,36 +23,6 @@ void VCS_SOLVE::vcs_elab()
     }
 }
 
-
-/*
- *
- * vcs_elabcheck:
- *
- *   This function checks to see if the element abundances are in
- *   compliance. If they are, then TRUE is returned. If not,
- *   FALSE is returned. Note the number of constraints checked is
- *   usually equal to the number of components in the problem. This
- *   routine can check satisfaction of all of the constraints in the
- *   problem, which is equal to ne. However, the solver can't fix
- *   breakage of constraints above nc, because that nc is the
- *   range space by definition. Satisfaction of extra constraints would
- *   have had to occur in the problem specification.
- *
- *   The constraints should be broken up into 2  sections. If
- *   a constraint involves a formula matrix with positive and
- *   negative signs, and eaSet = 0.0, then you can't expect that the
- *   sum will be zero. There may be roundoff that inhibits this.
- *   However, if the formula matrix is all of one sign, then
- *   this requires that all species with nonzero entries in the
- *   formula matrix be identically zero. We put this into
- *   the logic below.
- *
- * Input
- * -------
- *   ibound = 1 : Checks constraints up to the number of elements
- *            0 : Checks constraints up to the number of components.
- *
- */
 bool VCS_SOLVE::vcs_elabcheck(int ibound)
 {
     size_t top = m_numComponents;
@@ -127,23 +90,9 @@ bool VCS_SOLVE::vcs_elabcheck(int ibound)
         }
     }
     return true;
-} /* vcs_elabcheck() *********************************************************/
-
-/*****************************************************************************/
-/*****************************************************************************/
-/*****************************************************************************/
+}
 
 void VCS_SOLVE::vcs_elabPhase(size_t iphase, double* const elemAbundPhase)
-
-/*************************************************************************
- *
- * vcs_elabPhase:
- *
- *  Computes the elemental abundances vector for a single phase,
- *  elemAbundPhase[], and returns it through the argument list.
- *  The mole numbers of species are taken from the current value
- *  in m_molNumSpecies_old[].
- *************************************************************************/
 {
     for (size_t j = 0; j < m_numElemConstraints; ++j) {
         elemAbundPhase[j] = 0.0;
@@ -157,52 +106,7 @@ void VCS_SOLVE::vcs_elabPhase(size_t iphase, double* const elemAbundPhase)
     }
 }
 
-/*****************************************************************************/
-/*****************************************************************************/
-/*****************************************************************************/
-
 int VCS_SOLVE::vcs_elcorr(double aa[], double x[])
-
-/**************************************************************************
- *
- * vcs_elcorr:
- *
- * This subroutine corrects for element abundances. At the end of the
- * subroutine, the total moles in all phases are recalculated again,
- * because we have changed the number of moles in this routine.
- *
- * Input
- *  -> temporary work vectors:
- *     aa[ne*ne]
- *     x[ne]
- *
- * Return Values:
- *      0 = Nothing of significance happened,
- *          Element abundances were and still are good.
- *      1 = The solution changed significantly;
- *          The element abundances are now good.
- *      2 = The solution changed significantly,
- *          The element abundances are still bad.
- *      3 = The solution changed significantly,
- *          The element abundances are still bad and a component
- *          species got zeroed out.
- *
- *  Internal data to be worked on::
- *
- *  ga    Current element abundances
- *  m_elemAbundancesGoal   Required elemental abundances
- *  m_molNumSpecies_old     Current mole number of species.
- *  m_formulaMatrix[][]  Formula matrix of the species
- *  ne    Number of elements
- *  nc    Number of components.
- *
- * NOTES:
- *  This routine is turning out to be very problematic. There are
- *  lots of special cases and problems with zeroing out species.
- *
- *  Still need to check out when we do loops over nc vs. ne.
- *
- *************************************************************************/
 {
     int retn = 0, its;
     bool goodSpec;
@@ -608,4 +512,3 @@ L_CLEANUP:
 }
 
 }
-
