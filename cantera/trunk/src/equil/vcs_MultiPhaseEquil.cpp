@@ -33,12 +33,9 @@
 
 using namespace Cantera;
 using namespace std;
-//using namespace VCSnonideal;
 
 namespace VCSnonideal
 {
-//====================================================================================================================
-
 vcs_MultiPhaseEquil::vcs_MultiPhaseEquil() :
     m_vprob(0),
     m_mix(0),
@@ -46,7 +43,7 @@ vcs_MultiPhaseEquil::vcs_MultiPhaseEquil() :
     m_vsolvePtr(0)
 {
 }
-//====================================================================================================================
+
 vcs_MultiPhaseEquil::vcs_MultiPhaseEquil(Cantera::MultiPhase* mix, int printLvl) :
     m_vprob(0),
     m_mix(0),
@@ -81,13 +78,12 @@ vcs_MultiPhaseEquil::~vcs_MultiPhaseEquil()
         m_vsolvePtr = 0;
     }
 }
-//====================================================================================================================
+
 int vcs_MultiPhaseEquil::equilibrate_TV(int XY, doublereal xtarget,
                                         int estimateEquil,
                                         int printLvl, doublereal err,
                                         int maxsteps, int loglevel)
 {
-
     addLogEntry("problem type","fixed T, V");
     //            doublereal dt = 1.0e3;
     doublereal Vtarget = m_mix->volume();
@@ -203,7 +199,6 @@ done:
     return iSuccess;
 }
 
-//====================================================================================================================
 int vcs_MultiPhaseEquil::equilibrate_HP(doublereal Htarget,
                                         int XY, double Tlow, double Thigh,
                                         int estimateEquil,
@@ -362,7 +357,7 @@ done:
     ;
     return iSuccess;
 }
-//====================================================================================================================
+
 int vcs_MultiPhaseEquil::equilibrate_SP(doublereal Starget,
                                         double Tlow, double Thigh,
                                         int estimateEquil,
@@ -519,11 +514,7 @@ int vcs_MultiPhaseEquil::equilibrate_SP(doublereal Starget,
     throw CanteraError("MultiPhase::equilibrate_SP",
                        "No convergence for T");
 }
-//====================================================================================================================
 
-/*
- * Equilibrate the solution using the current element abundances
- */
 int vcs_MultiPhaseEquil::equilibrate(int XY, int estimateEquil,
                                      int printLvl, doublereal err,
                                      int maxsteps, int loglevel)
@@ -571,16 +562,11 @@ int vcs_MultiPhaseEquil::equilibrate(int XY, int estimateEquil,
     }
     return iSuccess;
 }
-//====================================================================================================================
-/*
- * Equilibrate the solution using the current element abundances
- */
+
 int vcs_MultiPhaseEquil::equilibrate_TP(int estimateEquil,
                                         int printLvl, doublereal err,
                                         int maxsteps, int loglevel)
 {
-    // Debugging level
-
     int maxit = maxsteps;
     clockWC tickTock;
 
@@ -736,12 +722,6 @@ int vcs_MultiPhaseEquil::equilibrate_TP(int estimateEquil,
     return iSuccess;
 }
 
-
-//====================================================================================================================
-/**************************************************************************
- *
- *
- */
 void vcs_MultiPhaseEquil::reportCSV(const std::string& reportFile)
 {
     size_t k;
@@ -911,10 +891,8 @@ static void print_char(const char letter, const int num)
         plogf("%c", letter);
     }
 }
-//====================================================================================================================
+
 /*
- *
- *
  * HKM -> Work on transferring the current value of the voltages into the
  *        equilibrium problem.
  */
@@ -1328,11 +1306,7 @@ int  vcs_Cantera_to_vprob(Cantera::MultiPhase* mphase,
 
     return VCS_SUCCESS;
 }
-//====================================================================================================================
-// Transfer the current state of mphase into the VCS_PROB object
-/*
- * The basic problem has already been set up.
- */
+
 int vcs_Cantera_update_vprob(Cantera::MultiPhase* mphase,
                              VCSnonideal::VCS_PROB* vprob)
 {
@@ -1465,8 +1439,7 @@ int vcs_Cantera_update_vprob(Cantera::MultiPhase* mphase,
 
     return VCS_SUCCESS;
 }
-//====================================================================================================================
-// This routine hasn't been checked yet
+
 void vcs_MultiPhaseEquil::getStoichVector(size_t rxn, Cantera::vector_fp& nu)
 {
     size_t nsp = m_vsolvePtr->m_numSpeciesTot;
@@ -1508,7 +1481,6 @@ size_t vcs_MultiPhaseEquil::numElemConstraints() const
     return nec;
 }
 
-
 size_t vcs_MultiPhaseEquil::component(size_t m) const
 {
     size_t nc = numComponents();
@@ -1519,28 +1491,8 @@ size_t vcs_MultiPhaseEquil::component(size_t m) const
     }
 }
 
-//====================================================================================================================
-// Determine the phase stability of a phase at the current conditions
-/*
- * Equilibration of the solution is not done before the determination is made.
- *
- *  @param iph       Phase number to determine the equilibrium. If the phase
- *                   has a non-zero mole number....
- *
- *  @param funcStab  Value of the phase pop function
- *
- *  @param printLvl  Determines the amount of printing that
- *                   gets sent to stdout from the vcs package
- *                   (Note, you may have to compile with debug
- *                    flags to get some printing).
- *
- *  @param loglevel Determines the amount of printing to the HTML
- *                  output file.
- */
 int vcs_MultiPhaseEquil::determine_PhaseStability(int iph, double& funcStab, int printLvl, int loglevel)
 {
-
-
     clockWC tickTock;
     size_t nsp = m_mix->nSpecies();
     size_t nel = m_mix->nElements();
@@ -1674,6 +1626,5 @@ int vcs_MultiPhaseEquil::determine_PhaseStability(int iph, double& funcStab, int
 
     return iStable;
 }
-//====================================================================================================================
 
 }
