@@ -198,8 +198,8 @@ SpeciesThermo* SpeciesThermoFactory::newSpeciesThermoManager(std::string& stype)
     return (SpeciesThermo*) 0;
 }
 
-void NasaThermo::checkContinuity(const std::string& name, double tmid,
-                                 const doublereal* clow, doublereal* chigh)
+void NasaThermo::ensureContinuity(const std::string& name, double tmid,
+                                 doublereal* clow, doublereal* chigh)
 {
     // heat capacity
     doublereal cplow = poly4(tmid, clow + 2);
@@ -215,6 +215,13 @@ void NasaThermo::checkContinuity(const std::string& name, double tmid,
                  +fp2str(cphigh)+".\n");
     }
 
+    // Adjust coefficients to eliminate any discontinuity
+    chigh[2] += 0.5 * delta;
+    clow[2] -= 0.5 * delta;
+
+    AssertThrowMsg(std::abs(poly4(tmid, clow+2) - poly4(tmid, chigh+2)) < 1e-12,
+                   "NasaThermo::ensureContinuity", "Cp/R does not match");
+
     // enthalpy
     doublereal hrtlow = enthalpy_RT(tmid, clow);
     doublereal hrthigh = enthalpy_RT(tmid, chigh);
@@ -229,6 +236,14 @@ void NasaThermo::checkContinuity(const std::string& name, double tmid,
                  +fp2str(hrthigh)+".\n");
     }
 
+    // Adjust coefficients to eliminate any discontinuity
+    chigh[0] += 0.5 * delta * tmid;
+    clow[0] -= 0.5 * delta * tmid;
+
+    AssertThrowMsg(std::abs(enthalpy_RT(tmid, clow) -
+                            enthalpy_RT(tmid, chigh)) < 1e-12,
+                   "NasaThermo::ensureContinuity", "H/RT does not match");
+
     // entropy
     doublereal srlow = entropy_R(tmid, clow);
     doublereal srhigh = entropy_R(tmid, chigh);
@@ -242,6 +257,14 @@ void NasaThermo::checkContinuity(const std::string& name, double tmid,
         writelog("\tValue computed using high-temperature polynomial: "
                  +fp2str(srhigh)+".\n");
     }
+
+    // Adjust coefficients to eliminate any discontinuity
+    chigh[1] += 0.5 * delta;
+    clow[1] -= 0.5 * delta;
+
+    AssertThrowMsg(std::abs(entropy_R(tmid, clow) -
+                            entropy_R(tmid, chigh)) < 1e-12,
+                   "NasaThermo::ensureContinuity", "S/R does not match");
 }
 
 
