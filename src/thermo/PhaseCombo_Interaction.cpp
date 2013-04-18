@@ -27,23 +27,23 @@ PhaseCombo_Interaction::PhaseCombo_Interaction() :
 }
 
 PhaseCombo_Interaction::PhaseCombo_Interaction(const std::string& inputFile,
-        const std::string& id) :
+        const std::string& id_) :
     GibbsExcessVPSSTP(),
     numBinaryInteractions_(0),
     formMargules_(0),
     formTempModel_(0)
 {
-    initThermoFile(inputFile, id);
+    initThermoFile(inputFile, id_);
 }
 
 PhaseCombo_Interaction::PhaseCombo_Interaction(XML_Node& phaseRoot,
-        const std::string& id) :
+        const std::string& id_) :
     GibbsExcessVPSSTP(),
     numBinaryInteractions_(0),
     formMargules_(0),
     formTempModel_(0)
 {
-    importPhase(*findXMLPhase(&phaseRoot, id), this);
+    importPhase(*findXMLPhase(&phaseRoot, id_), this);
 }
 
 PhaseCombo_Interaction::PhaseCombo_Interaction(const PhaseCombo_Interaction& b) :
@@ -793,7 +793,6 @@ void PhaseCombo_Interaction::readXMLBinarySpecies(XML_Node& xmLBinarySpecies)
         throw CanteraError("PhaseCombo_Interaction::readXMLBinarySpecies",
                            "Incorrect name for processing this routine: " + xname);
     }
-    double* charge = DATA_PTR(m_speciesCharge);
     string stemp;
     size_t nParamsFound;
     vector_fp vParams;
@@ -814,7 +813,7 @@ void PhaseCombo_Interaction::readXMLBinarySpecies(XML_Node& xmLBinarySpecies)
         return;
     }
     string ispName = speciesName(iSpecies);
-    if (charge[iSpecies] != 0) {
+    if (charge(iSpecies) != 0) {
         throw CanteraError("PhaseCombo_Interaction::readXMLBinarySpecies", "speciesA charge problem");
     }
     size_t jSpecies = speciesIndex(jName);
@@ -822,7 +821,7 @@ void PhaseCombo_Interaction::readXMLBinarySpecies(XML_Node& xmLBinarySpecies)
         return;
     }
     string jspName = speciesName(jSpecies);
-    if (charge[jSpecies] != 0) {
+    if (charge(jSpecies) != 0) {
         throw CanteraError("PhaseCombo_Interaction::readXMLBinarySpecies", "speciesB charge problem");
     }
 

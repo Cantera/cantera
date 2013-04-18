@@ -22,20 +22,20 @@ IdealGasPhase::IdealGasPhase() :
 {
 }
 
-IdealGasPhase::IdealGasPhase(const std::string& inputFile, const std::string& id) :
+IdealGasPhase::IdealGasPhase(const std::string& inputFile, const std::string& id_) :
     m_p0(-1.0),
     m_tlast(0.0),
     m_logc0(0.0)
 {
-    initThermoFile(inputFile, id);
+    initThermoFile(inputFile, id_);
 }
 
-IdealGasPhase::IdealGasPhase(XML_Node& phaseRef, const std::string& id) :
+IdealGasPhase::IdealGasPhase(XML_Node& phaseRef, const std::string& id_) :
     m_p0(-1.0),
     m_tlast(0.0),
     m_logc0(0.0)
 {
-    initThermoXML(phaseRef, id);
+    initThermoXML(phaseRef, id_);
 }
 
 IdealGasPhase::~IdealGasPhase()

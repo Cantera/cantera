@@ -976,7 +976,7 @@ void HMWSoln::initThermo()
     initLengths();
 }
 
-void HMWSoln::constructPhaseFile(std::string inputFile, std::string id)
+void HMWSoln::constructPhaseFile(std::string inputFile, std::string id_)
 {
 
     if (inputFile.size() == 0) {
@@ -996,23 +996,23 @@ void HMWSoln::constructPhaseFile(std::string inputFile, std::string id)
     XML_Node& phaseNode_XML = xml();
     XML_Node* fxml = new XML_Node();
     fxml->build(fin);
-    XML_Node* fxml_phase = findXMLPhase(fxml, id);
+    XML_Node* fxml_phase = findXMLPhase(fxml, id_);
     if (!fxml_phase) {
         throw CanteraError("HMWSoln:constructPhaseFile",
                            "ERROR: Can not find phase named " +
-                           id + " in file named " + inputFile);
+                           id_ + " in file named " + inputFile);
     }
     fxml_phase->copy(&phaseNode_XML);
-    constructPhaseXML(*fxml_phase, id);
+    constructPhaseXML(*fxml_phase, id_);
     delete fxml;
 }
 
-void HMWSoln::constructPhaseXML(XML_Node& phaseNode, std::string id)
+void HMWSoln::constructPhaseXML(XML_Node& phaseNode, std::string id_)
 {
     string stemp;
-    if (id.size() > 0) {
+    if (id_.size() > 0) {
         string idp = phaseNode.id();
-        if (idp != id) {
+        if (idp != id_) {
             throw CanteraError("HMWSoln::constructPhaseXML",
                                "phasenode and Id are incompatible");
         }

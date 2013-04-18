@@ -30,7 +30,7 @@ SurfPhase::SurfPhase(doublereal n0):
     setNDim(2);
 }
 
-SurfPhase::SurfPhase(const std::string& infile, std::string id) :
+SurfPhase::SurfPhase(const std::string& infile, std::string id_) :
     ThermoPhase(),
     m_n0(0.0),
     m_logn0(0.0),
@@ -38,13 +38,13 @@ SurfPhase::SurfPhase(const std::string& infile, std::string id) :
     m_tlast(0.0)
 {
     XML_Node* root = get_XML_File(infile);
-    if (id == "-") {
-        id = "";
+    if (id_ == "-") {
+        id_ = "";
     }
-    XML_Node* xphase = get_XML_NameID("phase", std::string("#")+id, root);
+    XML_Node* xphase = get_XML_NameID("phase", std::string("#")+id_, root);
     if (!xphase) {
         throw CanteraError("SurfPhase::SurfPhase",
-                           "Couldn't find phase name in file:" + id);
+                           "Couldn't find phase name in file:" + id_);
     }
     // Check the model name to ensure we have compatibility
     const XML_Node& th = xphase->child("thermo");

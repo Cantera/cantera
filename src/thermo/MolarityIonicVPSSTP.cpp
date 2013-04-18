@@ -41,7 +41,7 @@ MolarityIonicVPSSTP::MolarityIonicVPSSTP() :
 }
 
 MolarityIonicVPSSTP::MolarityIonicVPSSTP(const std::string& inputFile,
-        const std::string& id) :
+        const std::string& id_) :
     GibbsExcessVPSSTP(),
     PBType_(PBTYPE_PASSTHROUGH),
     numPBSpecies_(m_kk),
@@ -51,11 +51,11 @@ MolarityIonicVPSSTP::MolarityIonicVPSSTP(const std::string& inputFile,
     numPassThroughSpecies_(0),
     neutralPBindexStart(0)
 {
-    initThermoFile(inputFile, id);
+    initThermoFile(inputFile, id_);
 }
 
 MolarityIonicVPSSTP::MolarityIonicVPSSTP(XML_Node& phaseRoot,
-        const std::string& id) :
+        const std::string& id_) :
     GibbsExcessVPSSTP(),
     PBType_(PBTYPE_PASSTHROUGH),
     numPBSpecies_(m_kk),
@@ -65,7 +65,7 @@ MolarityIonicVPSSTP::MolarityIonicVPSSTP(XML_Node& phaseRoot,
     numPassThroughSpecies_(0),
     neutralPBindexStart(0)
 {
-    importPhase(*findXMLPhase(&phaseRoot, id), this);
+    importPhase(*findXMLPhase(&phaseRoot, id_), this);
 }
 
 MolarityIonicVPSSTP::MolarityIonicVPSSTP(const MolarityIonicVPSSTP& b) :
@@ -454,8 +454,8 @@ void MolarityIonicVPSSTP::initThermoXML(XML_Node& phaseNode, const std::string& 
     if (thermoNode.hasChild("activityCoefficients")) {
         XML_Node& acNode = thermoNode.child("activityCoefficients");
         acNodePtr = &acNode;
-        std::string mStringa = acNode.attrib("model");
-        std::string mString = lowercase(mStringa);
+        mStringa = acNode.attrib("model");
+        mString = lowercase(mStringa);
         // if (mString != "redlich-kister") {
         //   throw CanteraError(subname.c_str(),
         //        "Unknown activity coefficient model: " + mStringa);
@@ -549,15 +549,15 @@ std::string MolarityIonicVPSSTP::report(bool show_thermo) const
                 sprintf(p, " heat capacity c_v    %12.6g     %12.4g     J/K\n",
                         cv_mass(), cv_mole());
                 s += p;
-            } catch (CanteraError& err) {
-                err.save();
+            } catch (CanteraError& e) {
+                e.save();
                 sprintf(p, " heat capacity c_v    <not implemented>       \n");
                 s += p;
             }
         }
 
-    } catch (CanteraError& err) {
-        err.save();
+    } catch (CanteraError& e) {
+        e.save();
     }
     return s;
 }

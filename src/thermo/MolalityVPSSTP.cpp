@@ -524,7 +524,7 @@ void  MolalityVPSSTP::initLengths()
     m_molalities.resize(m_kk);
 }
 
-void MolalityVPSSTP::initThermoXML(XML_Node& phaseNode, const std::string& id)
+void MolalityVPSSTP::initThermoXML(XML_Node& phaseNode, const std::string& id_)
 {
 
     initLengths();
@@ -533,7 +533,7 @@ void MolalityVPSSTP::initThermoXML(XML_Node& phaseNode, const std::string& id)
      */
     setSolvent(0);
 
-    VPStandardStateTP::initThermoXML(phaseNode, id);
+    VPStandardStateTP::initThermoXML(phaseNode, id_);
 }
 
 /**
@@ -608,8 +608,8 @@ std::string MolalityVPSSTP::report(bool show_thermo) const
                 sprintf(p, " heat capacity c_v    %12.6g     %12.4g     J/K\n",
                         cv_mass(), cv_mole());
                 s += p;
-            } catch (CanteraError& err) {
-                err.save();
+            } catch (CanteraError& e) {
+                e.save();
                 sprintf(p, " heat capacity c_v    <not implemented>       \n");
                 s += p;
             }

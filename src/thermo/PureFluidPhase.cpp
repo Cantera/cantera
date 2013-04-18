@@ -425,8 +425,8 @@ std::string PureFluidPhase::report(bool show_thermo) const
             sprintf(p, " heat capacity c_v    %12.6g     %12.4g     J/K\n",
                     cv_mass(), cv_mole());
             s += p;
-        } catch (CanteraError& err) {
-            err.save();
+        } catch (CanteraError& e) {
+            e.save();
             sprintf(p, " heat capacity c_v    <not implemented>       \n");
             s += p;
         }
