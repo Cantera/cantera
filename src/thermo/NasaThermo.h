@@ -158,25 +158,16 @@ public:
         doublereal tlow  = minTemp;
         doublereal tmid  = c[0];
         doublereal thigh = maxTemp;
-        const doublereal* clow = c + 1;
 
-        vector_fp chigh(7);
-        copy(c + 8, c + 15, chigh.begin());
+        vector_fp chigh(c+8, c+15);
+        vector_fp clow(c+1, c+8);
+
+        checkContinuity(name, tmid, &clow[0], &chigh[0]);
 
         m_high[igrp-1].push_back(NasaPoly1(index, tmid, thigh,
                                            refPressure, &chigh[0]));
         m_low[igrp-1].push_back(NasaPoly1(index, tlow, tmid,
-                                          refPressure, clow));
-
-        vector_fp clu(7), chu(7);
-        clu[5] = clow[0];
-        clu[6] = clow[1];
-        copy(clow+2, clow+7, clu.begin());
-        chu[5] = chigh[0];
-        chu[6] = chigh[1];
-        copy(chigh.begin()+2, chigh.begin()+7, chu.begin());
-
-        checkContinuity(name, tmid, &clu[0], &chu[0]);
+                                          refPressure, &clow[0]));
 
         if (tlow > m_tlow_max) {
             m_tlow_max = tlow;
@@ -485,9 +476,9 @@ private:
      * @param c coefficient array
      */
     doublereal enthalpy_RT(double t, const doublereal* c) {
-        return c[0] + 0.5*c[1]*t + OneThird*c[2]*t*t
-               + 0.25*c[3]*t*t*t + 0.2*c[4]*t*t*t*t
-               + c[5]/t;
+        return c[2] + 0.5*c[3]*t + OneThird*c[4]*t*t
+               + 0.25*c[5]*t*t*t + 0.2*c[6]*t*t*t*t
+               + c[0]/t;
     }
 
     //! for internal use by checkContinuity
@@ -496,9 +487,9 @@ private:
      * @param c coefficient array
      */
     doublereal entropy_R(double t, const doublereal* c) {
-        return c[0]*log(t) + c[1]*t + 0.5*c[2]*t*t
-               + OneThird*c[3]*t*t*t + 0.25*c[4]*t*t*t*t
-               + c[6];
+        return c[2]*log(t) + c[3]*t + 0.5*c[4]*t*t
+               + OneThird*c[5]*t*t*t + 0.25*c[6]*t*t*t*t
+               + c[1];
     }
 };
 
