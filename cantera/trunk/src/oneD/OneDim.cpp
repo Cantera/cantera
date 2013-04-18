@@ -23,7 +23,7 @@ OneDim::OneDim()
       m_nd(0), m_bw(0), m_size(0),
       m_init(false),
       m_ss_jac_age(10), m_ts_jac_age(20),
-      m_nevals(0), m_interrupt(0), m_evaltime(0.0)
+      m_interrupt(0), m_nevals(0), m_evaltime(0.0)
 {
     //writelog("OneDim default constructor\n");
     m_newt = new MultiNewton(1);
@@ -42,7 +42,7 @@ OneDim::OneDim(vector<Domain1D*> domains) :
     m_nd(0), m_bw(0), m_size(0),
     m_init(false),
     m_ss_jac_age(10), m_ts_jac_age(20),
-    m_nevals(0), m_interrupt(0), m_evaltime(0.0)
+    m_interrupt(0), m_nevals(0), m_evaltime(0.0)
 {
     //writelog("OneDim constructor\n");
 
