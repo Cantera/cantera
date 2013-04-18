@@ -1,14 +1,13 @@
 /**
  *  @file vcs_DoubleStarStar.cpp
  *
- *  Header file for class DoubleStarStar
+ *  Implementation file for class DoubleStarStar
  */
 #include "cantera/equil/vcs_DoubleStarStar.h"
 
 namespace VCSnonideal
 {
 
-//!Default constructor. Create an empty array.
 DoubleStarStar::DoubleStarStar() :
     m_nrows(0),
     m_ncols(0)
@@ -17,10 +16,6 @@ DoubleStarStar::DoubleStarStar() :
     m_colAddr.clear();
 }
 
-/*
- *  Constructor. Create an \c m by \c n array, and initialize
- *  all elements to \c v.
- */
 DoubleStarStar::DoubleStarStar(size_t m, size_t n, double v) :
     m_nrows(n),
     m_ncols(m)
@@ -33,7 +28,6 @@ DoubleStarStar::DoubleStarStar(size_t m, size_t n, double v) :
     }
 }
 
-// copy constructor
 DoubleStarStar::DoubleStarStar(const DoubleStarStar& y)
 {
     m_nrows = y.m_nrows;
@@ -48,7 +42,6 @@ DoubleStarStar::DoubleStarStar(const DoubleStarStar& y)
     }
 }
 
-// assignment operator
 DoubleStarStar& DoubleStarStar::operator=(const DoubleStarStar& y)
 {
     if (&y == this) {
@@ -67,13 +60,6 @@ DoubleStarStar& DoubleStarStar::operator=(const DoubleStarStar& y)
     return *this;
 }
 
-
-// resize the array, and fill the new entries with 'v'
-/*
- * @param n  This is the number of rows
- * @param m  This is the number of columns in the new matrix
- * @param v  Default fill value -> defaults to zero.
- */
 void DoubleStarStar::resize(size_t m, size_t n, double v)
 {
     std::vector<double> old_data;
@@ -139,17 +125,14 @@ double const* const* DoubleStarStar::constBaseDataAddr() const
     return (double const* const*) &(m_colAddr[0]);
 }
 
-// Number of rows
 size_t DoubleStarStar::nRows() const
 {
     return m_nrows;
 }
 
-// Number of columns
 size_t DoubleStarStar::nColumns() const
 {
     return m_ncols;
 }
 
 }
-

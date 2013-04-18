@@ -1,7 +1,7 @@
 /**
- *  @file vcs_internal.h
- *      Internal declarations for the VCSnonideal package
+ *  @file vcs_internal.h Internal declarations for the VCSnonideal package
  */
+
 /*
  * Copyright (2005) Sandia Corporation. Under the terms of
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the
@@ -14,7 +14,6 @@
 #include <cstring>
 
 #include "cantera/equil/vcs_defs.h"
-
 #include "cantera/base/global.h"
 
 namespace VCSnonideal
@@ -39,26 +38,15 @@ using Cantera::npos;
 
 //! Global hook for turning on and off time printing.
 /*!
- * Default is to allow printing. But, you can assign this to zero
- * globally to turn off all time printing.
- * This is helpful for test suite purposes where you are interested
- * in differences in text files.
+ * Default is to allow printing. But, you can assign this to zero globally to
+ * turn off all time printing. This is helpful for test suite purposes where
+ * you are interested in differences in text files.
  */
 extern int vcs_timing_print_lvl;
 
-/*
- * Forward references
- */
+// Forward references
 class VCS_SPECIES_THERMO;
 class VCS_PROB;
-
-//!  Amount of extra printing that is done while in debug mode.
-/*!
- *                     0 -> none
- *                     1 -> some
- *                     2 -> alot      (default)
- *                     3 -> everything
- */
 
 //! Class to keep track of time and iterations
 /*!
@@ -75,8 +63,7 @@ public:
     //!  of vcs_TP() to solve for thermo equilibrium
     int Its;
 
-    //! Total number of optimizations of the
-    //! components basis set done
+    //! Total number of optimizations of the components basis set done
     int T_Basis_Opts;
 
     //! number of optimizations of the components basis set done
@@ -108,7 +95,7 @@ public:
     double T_Time_vcs;
 };
 
-//!  Returns the value of the gas constant in the units specified by parameter
+//! Returns the value of the gas constant in the units specified by parameter
 /*!
  *  @param mu_units Specifies the units.
  *           -  VCS_UNITS_KCALMOL: kcal gmol-1 K-1
@@ -135,7 +122,6 @@ double vcsUtil_gasConstant(int mu_units);
  *          Routine returns an integer representing success:
  *     -   1 : Matrix is singular
  *     -   0 : solution is OK
- *
  *
  *  @param c  Matrix to be inverted. c is in fortran format, i.e., rows
  *            are the inner loop. Row  numbers equal to idem.
@@ -202,31 +188,24 @@ typedef double(*VCS_FUNC_PTR)(double xval, double Vtarget,
 
 //! One dimensional root finder
 /*!
- *
- *  This root finder will find the root of a one dimensional
- *  equation
- *
+ *  This root finder will find the root of a one dimensional equation
  *  \f[
  *     f(x) = 0
  *  \f]
  *  where x is a bounded quantity: \f$ x_{min} < x < x_max \f$
  *
- *  The functional to be minimized must have the following call
- *  structure:
+ *  The function to be minimized must have the following call structure:
  *
- *    @verbatim
-         typedef double (*VCS_FUNC_PTR)(double xval, double Vtarget,
-                                        int varID, void *fptrPassthrough,
-                                        int *err);  @endverbatim
+ *  @code
+ *  typedef double (*VCS_FUNC_PTR)(double xval, double Vtarget,
+ *                                 int varID, void *fptrPassthrough,
+ *                                 int *err);  @endcode
  *
- *    xval is the current value of the x variable. Vtarget is the
- *    requested value of f(x), usually 0. varID is an integer
- *    that is passed through. fptrPassthrough is a void pointer
- *    that is passed through. err is a return error indicator.
- *    err = 0 is the norm. anything else is considered a fatal
- *    error.
- *    The return value of the function is the current value of
- *    f(xval).
+ *  xval is the current value of the x variable. Vtarget is the requested
+ *  value of f(x), usually 0. varID is an integer that is passed through.
+ *  fptrPassthrough is a void pointer that is passed through. err is a return
+ *  error indicator. err = 0 is the norm. anything else is considered a fatal
+ *  error. The return value of the function is the current value of f(xval).
  *
  *  @param xmin  Minimum permissible value of the x variable
  *  @param xmax  Maximum permissible value of the x parameter
@@ -242,69 +221,68 @@ typedef double(*VCS_FUNC_PTR)(double xval, double Vtarget,
  *               This contains the root value.
  *  @param printLvl Print level of the routine.
  *
- *
  * Following is a nontrial example for vcs_root1d() in which the position of a
  * cylinder floating on the water is calculated.
  *
- *    @verbatim
-   #include <cmath>
-   #include <cstdlib>
-
-   #include "equil/vcs_internal.h"
-
-   const double g_cgs = 980.;
-   const double mass_cyl = 0.066;
-   const double diam_cyl = 0.048;
-   const double rad_cyl = diam_cyl / 2.0;
-   const double len_cyl  = 5.46;
-   const double vol_cyl  = Pi * diam_cyl * diam_cyl / 4 * len_cyl;
-   const double rho_cyl = mass_cyl / vol_cyl;
-   const double rho_gas = 0.0;
-   const double rho_liq = 1.0;
-   const double sigma = 72.88;
-   // Contact angle in radians
-   const double alpha1 = 40.0 / 180. * Pi;
-
-   double func_vert(double theta1, double h_2, double rho_c) {
-     double f_grav = - Pi * rad_cyl * rad_cyl * rho_c * g_cgs;
-     double tmp = rad_cyl * rad_cyl * g_cgs;
-     double tmp1 = theta1 + sin(theta1) * cos(theta1) - 2.0 * h_2 / rad_cyl * sin(theta1);
-     double f_buoy = tmp * (Pi * rho_gas + (rho_liq - rho_gas) * tmp1);
-     double f_sten = 2 * sigma * sin(theta1 + alpha1 - Pi);
-     return f_grav +  f_buoy +  f_sten;
-   }
-   double calc_h2_farfield(double theta1) {
-     double rhs = sigma * (1.0 + cos(alpha1 + theta1));
-     rhs *= 2.0;
-     rhs = rhs / (rho_liq - rho_gas) / g_cgs;
-     double sign = -1.0;
-     if (alpha1 + theta1 < Pi) sign = 1.0;
-     double res = sign * sqrt(rhs);
-     return res + rad_cyl * cos(theta1);
-   }
-   double funcZero(double xval, double Vtarget, int varID, void *fptrPassthrough, int *err) {
-     double theta = xval;
-     double h2 = calc_h2_farfield(theta);
-     return func_vert(theta, h2, rho_cyl);
-   }
-   int main () {
-     double thetamax = Pi;
-     double thetamin = 0.0;
-     int maxit = 1000;
-     int iconv;
-     double thetaR = Pi/2.0;
-     int printLvl = 4;
-
-     iconv =  VCSnonideal::vcsUtil_root1d(thetamin, thetamax, maxit,
-                                          funcZero,
-                                          (void *) 0, 0.0, 0,
-                                          &thetaR, printLvl);
-     printf("theta = %g\n", thetaR);
-     double h2Final = calc_h2_farfield(thetaR);
-     printf("h2Final = %g\n", h2Final);
-     return 0;
-   }   @endverbatim
+ * @code
+ * #include <cmath>
+ * #include <cstdlib>
  *
+ * #include "equil/vcs_internal.h"
+ *
+ * const double g_cgs = 980.;
+ * const double mass_cyl = 0.066;
+ * const double diam_cyl = 0.048;
+ * const double rad_cyl = diam_cyl / 2.0;
+ * const double len_cyl  = 5.46;
+ * const double vol_cyl  = Pi * diam_cyl * diam_cyl / 4 * len_cyl;
+ * const double rho_cyl = mass_cyl / vol_cyl;
+ * const double rho_gas = 0.0;
+ * const double rho_liq = 1.0;
+ * const double sigma = 72.88;
+ * // Contact angle in radians
+ * const double alpha1 = 40.0 / 180. * Pi;
+ *
+ * double func_vert(double theta1, double h_2, double rho_c) {
+ *   double f_grav = - Pi * rad_cyl * rad_cyl * rho_c * g_cgs;
+ *   double tmp = rad_cyl * rad_cyl * g_cgs;
+ *   double tmp1 = theta1 + sin(theta1) * cos(theta1) - 2.0 * h_2 / rad_cyl * sin(theta1);
+ *   double f_buoy = tmp * (Pi * rho_gas + (rho_liq - rho_gas) * tmp1);
+ *   double f_sten = 2 * sigma * sin(theta1 + alpha1 - Pi);
+ *   return f_grav +  f_buoy +  f_sten;
+ * }
+ * double calc_h2_farfield(double theta1) {
+ *   double rhs = sigma * (1.0 + cos(alpha1 + theta1));
+ *   rhs *= 2.0;
+ *   rhs = rhs / (rho_liq - rho_gas) / g_cgs;
+ *   double sign = -1.0;
+ *   if (alpha1 + theta1 < Pi) sign = 1.0;
+ *   double res = sign * sqrt(rhs);
+ *   return res + rad_cyl * cos(theta1);
+ * }
+ * double funcZero(double xval, double Vtarget, int varID, void *fptrPassthrough, int *err) {
+ *   double theta = xval;
+ *   double h2 = calc_h2_farfield(theta);
+ *   return func_vert(theta, h2, rho_cyl);
+ * }
+ * int main () {
+ *   double thetamax = Pi;
+ *   double thetamin = 0.0;
+ *   int maxit = 1000;
+ *   int iconv;
+ *   double thetaR = Pi/2.0;
+ *   int printLvl = 4;
+ *
+ *   iconv =  VCSnonideal::vcsUtil_root1d(thetamin, thetamax, maxit,
+ *                                        funcZero,
+ *                                        (void *) 0, 0.0, 0,
+ *                                        &thetaR, printLvl);
+ *   printf("theta = %g\n", thetaR);
+ *   double h2Final = calc_h2_farfield(thetaR);
+ *   printf("h2Final = %g\n", h2Final);
+ *   return 0;
+ * }
+ * @endcode
  */
 int vcsUtil_root1d(double xmin, double xmax, size_t itmax, VCS_FUNC_PTR func,
                    void* fptrPassthrough,
@@ -357,7 +335,6 @@ inline void vcs_dcopy(double* const vec_to,
     (void) memcpy((void*) vec_to, (const void*) vec_from,
                   (length) * sizeof(double));
 }
-
 
 //! Copy an int vector
 /*!
@@ -414,7 +391,7 @@ inline void vcs_vdcopy(std::vector<double> & vec_to,
 //! Copy one std integer vector into another
 /*!
  * This is an inlined function that uses memcpy. memcpy is probably
- * the fastest way to do this. This routine requires the
+ * the fastest way to do this.
  *
  * @param vec_to  Vector to copy into. This vector must be dimensioned
  *                at least as large as the vec_from vector.
@@ -451,8 +428,8 @@ double vcs_l2norm(const std::vector<double> vec);
 //! Finds the location of the maximum component in a double vector
 /*!
  * @param x pointer to a vector of doubles
- * @param xSize pointer to a vector of doubles used as a multiplier
- *              to x[]
+ * @param xSize pointer to a vector of doubles used as a multiplier to x[]
+ *              before making the decision. Ignored if set to NULL.
  * @param j lowest index to search from
  * @param n highest index to search from
  * @return  Return index of the greatest value on X(i) searched
@@ -508,8 +485,7 @@ void vcs_print_stringTrunc(const char* str, size_t space, int alignment);
 //! Simple routine to check whether two doubles are equal up to
 //! roundoff error
 /*!
- *  Currently it's set to check for 10 digits of
- *  relative accuracy.
+ *  Currently it's set to check for 10 digits of relative accuracy.
  *
  * @param d1 first double
  * @param d2 second double
@@ -517,7 +493,6 @@ void vcs_print_stringTrunc(const char* str, size_t space, int alignment);
  * @return returns true if the doubles are "equal" and false otherwise
  */
 bool vcs_doubleEqual(double d1, double d2);
-
 
 //! Sorts a vector of ints in place from lowest to the highest values
 /*!
@@ -533,7 +508,6 @@ void vcs_heapsort(std::vector<int> &x);
  * @param x                    Reference to a constant vector of ints.
  */
 void vcs_orderedUnique(std::vector<int> & xOrderedUnique, const std::vector<int> & x);
-
 
 }
 

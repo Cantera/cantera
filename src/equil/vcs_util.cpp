@@ -19,96 +19,47 @@ using namespace std;
 
 namespace VCSnonideal
 {
-
-/***************************************************************************/
-/***************************************************************************/
-/***************************************************************************/
 #ifndef USE_MEMSET
 void vcs_dzero(double* vector, int length)
-
-/**************************************************************************
- *
- *  vcs_dzero:
- *
- *     Zeroes a double vector
- *************************************************************************/
 {
     int i;
     for (i = 0; i < length; i++) {
         vector[i] = 0.0;
     }
-} /* vcs_dzero() ***********************************************************/
+}
 #endif
-/***************************************************************************/
-/***************************************************************************/
-/***************************************************************************/
+
 #ifndef USE_MEMSET
 void vcs_izero(int* vector, int length)
-
-/**************************************************************************
- *
- *  vcs_izero:
- *
- *     Zeroes an int vector
- *************************************************************************/
 {
     int i;
     for (i = 0; i < length; i++) {
         vector[i] = 0;
     }
-} /* vcs_izero() ***********************************************************/
+}
 #endif
-/***************************************************************************/
-/***************************************************************************/
-/***************************************************************************/
 
 #ifndef USE_MEMSET
 void vcs_dcopy(double* const vec_to, const double* const vec_from, int length)
-
-/**************************************************************************
- *
- *  vcs_dcopy:
- *
- *     Copies a double vector
- ***************************************************************************/
 {
     int i;
     for (i = 0; i < length; i++) {
         vec_to[i] = vec_from[i];
     }
-} /* vcs_dzero() *************************************************************/
+}
 #endif
-/*****************************************************************************/
-/*****************************************************************************/
-/*****************************************************************************/
 
 #ifndef USE_MEMSET
 void vcs_icopy(int* vec_to, int* vec_from, int length)
-
-/**************************************************************************
- *
- *  vcs_icopy:
- *
- *     copies an int vector
- ***************************************************************************/
 {
     int i;
     for (i = 0; i < length; i++) {
         vec_to[i] = vec_from[i];
     }
-} /* vcs_dzero() *************************************************************/
+}
 #endif
 
-/*****************************************************************************/
-/*****************************************************************************/
-/*****************************************************************************/
-
 #ifndef USE_MEMSET
-/*
- *  vcs_vdzero
- *
- *    zeroes a double vector
- */
 void vcs_vdzero(std::vector<double> &vvv, int len)
 {
     if (len < 0) {
@@ -133,16 +84,7 @@ double vcs_l2norm(const std::vector<double> vec)
     return std::sqrt(sum / len);
 }
 
-/*****************************************************************************/
-/*****************************************************************************/
-/*****************************************************************************/
-
 #ifndef USE_MEMSET
-/*
- *  vcs_vizero
- *
- *    zeroes a double vector
- */
 void vcs_vizero(std::vector<int> &vvv, int len)
 {
     if (len < 0) {
@@ -154,15 +96,6 @@ void vcs_vizero(std::vector<int> &vvv, int len)
 #endif
 
 #ifndef USE_MEMSET
-/*
- *  vcs_vdcopy
- *
- *    copies a vector of doubles to another vector of doubles
- *
- * @param vec_to      Vector to be copied to
- * @param vec_from    Vector to be copied from
- * @param length      Length of the copy
- */
 void vcs_vdcopy(std::vector<double> &vec_to,
                 const std::vector<double> & vec_from, int length)
 {
@@ -171,15 +104,6 @@ void vcs_vdcopy(std::vector<double> &vec_to,
 #endif
 
 #ifndef USE_MEMSET
-/*
- *  vcs_vicopy
- *
- *    copies a vector to another vector
- *
- * @param vec_to      Vector to be copied to
- * @param vec_from    Vector to be copied from
- * @param length      Length of the copy
- */
 void vcs_vicopy(std::vector<int> &vec_to,
                 const std::vector<int> & vec_from, int length)
 {
@@ -187,18 +111,6 @@ void vcs_vicopy(std::vector<int> &vec_to,
 }
 #endif
 
-/*
- *
- * Finds the location of the maximum component in a double vector
- * INPUT
- *    x(*) - Vector to search
- *    xSize(*) if nonnull, this is the multiplier vector to be
- *             multiplied into x(*) before making the decision.
- *    j <= i < n     : i is the range of indices to search in X(*)
- *
- * RETURN
- *    return index of the greatest value on X(*) searched
- */
 size_t vcs_optMax(const double* x, const double* xSize, size_t j, size_t n)
 {
     size_t i;
@@ -226,13 +138,6 @@ size_t vcs_optMax(const double* x, const double* xSize, size_t j, size_t n)
 }
 
 int vcs_max_int(const int* vector, int length)
-
-/**************************************************************************
- *
- *  vcs_max_int:
- *
- *     returns the maximum integer in a list.
- ***************************************************************************/
 {
     int i, retn;
     if (vector == NULL || length <= 0) {
@@ -245,7 +150,6 @@ int vcs_max_int(const int* vector, int length)
     return retn;
 }
 
-//====================================================================================================================
 #ifdef DEBUG_HKM
 static void mlequ_matrixDump(double* c, int idem, int n)
 {
@@ -275,7 +179,7 @@ static void mlequ_matrixDump(double* c, int idem, int n)
 
 }
 #endif
-//====================================================================================================================
+
 //!  Swap rows in the c matrix and the b rhs matrix
 /*!
  *  @param c          Matrix of size nxn, row first
@@ -299,7 +203,7 @@ static void vcsUtil_swapRows(double* c, size_t idem, size_t n, double* b,
         std::swap(b[irowa + j * idem], b[irowb + j * idem]);
     }
 }
-//====================================================================================================================
+
 //!  Swap rows in the c matrix and the b rhs matrix to lower the condition number of the matrix
 /*!
  *  @param c          Matrix of size nxn, row first
@@ -393,37 +297,7 @@ static void vcsUtil_mlequ_preprocess(double* c, size_t idem, size_t n,
         }
     }
 }
-//====================================================================================================================
-// Invert an n x n matrix and solve m rhs's
-/*
- * Solve a square matrix with multiple right hand sides
- *
- * \f[
- *     C X + B = 0;
- * \f]
- *
- * This routine uses Gauss elimination and is optimized for the solution
- * of lots of rhs's. A crude form of row pivoting is used here.
- * The matrix C is destroyed.
- *
- * @return Routine returns an integer representing success:
- *     -   1 : Matrix is singular
- *     -   0 : solution is OK
- *    The solution x[] is returned in the matrix b.
- *
- *  @param c  Matrix to be inverted. c is in fortran format, i.e., rows
- *            are the inner loop. Row  numbers equal to idem.
- *            c[i+j*idem] = c_i_j = Matrix to be inverted: i = row number
- *                                                         j = column number
- *  @param idem number of row dimensions in c
- *  @param n  Number of rows and columns in c
- *  @param b  Multiple RHS. Note, b is actually the negative of
- *            most formulations.  Row  numbers equal to idem.
- *             b[i+j*idem] = b_i_j = vectors of rhs's:      i = row number
- *                                                          j = column number
- *            (each column is a new rhs)
- *  @param m  number of rhs's
- */
+
 int vcsUtil_mlequ(double* c, size_t idem, size_t n, double* b, size_t m)
 {
     size_t k;
@@ -534,39 +408,9 @@ FOUND_PIVOT:
     }
     return 0;
 }
-//====================================================================================================================
-// Linear equation solution by Gauss-Jordan elimination for multiple rhs vectors
-/*
- * Solve a square matrix with multiple right hand sides
- *
- * \f[
- *     C X + B = 0;
- * \f]
- *
- * This routine uses Gauss-Jordan elimination with full pivoting and is optimized for the solution
- * of lots of rhs's.
- *
- * @return Routine returns an integer representing success:
- *     -   1 : Matrix is singular
- *     -   0 : solution is OK
- *    The solution x[] is returned in the matrix b.
- *
- *  @param c  Matrix to be inverted. c is in fortran format, i.e., rows
- *            are the inner loop. Row  numbers equal to idem.
- *            c[i+j*idem] = c_i_j = Matrix to be inverted: i = row number
- *                                                         j = column number
- *  @param idem number of row dimensions in c
- *  @param n  Number of rows and columns in c
- *  @param b  Multiple RHS. Note, b is actually the negative of
- *            most formulations.  Row  numbers equal to idem.
- *             b[i+j*idem] = b_i_j = vectors of rhs's:      i = row number
- *                                                          j = column number
- *            (each column is a new rhs)
- *  @param m  number of rhs's
- */
+
 int vcsUtil_gaussj(double* c, size_t idem, size_t n, double* b, size_t m)
 {
-
     size_t i, j, k, l, ll;
     size_t irow = npos;
     size_t icol = npos;
@@ -662,17 +506,7 @@ int vcsUtil_gaussj(double* c, size_t idem, size_t n, double* b, size_t m)
     }
     return 0;
 }
-//====================================================================================================================
 
-//  Returns the value of the gas constant in the units specified by a parameter
-/*
- *  @param mu_units Specifies the units.
- *           -  VCS_UNITS_KCALMOL: kcal gmol-1 K-1
- *           -  VCS_UNITS_UNITLESS:  1.0 K-1
- *           -  VCS_UNITS_KJMOL:   kJ gmol-1 K-1
- *           -  VCS_UNITS_KELVIN:    1.0 K-1
- *           -  VCS_UNITS_MKS:   joules  kmol-1 K-1 =  kg m2 s-2 kmol-1 K-1
- */
 double vcsUtil_gasConstant(int mu_units)
 {
     double r;
@@ -702,14 +536,6 @@ double vcsUtil_gasConstant(int mu_units)
 }
 
 void vcs_print_line(const char* string, int num)
-
-/**************************************************************************
- *
- * vcs_print_char:
- *
- *      Print a line consisting of a multiple of the same string
- *
- ***************************************************************************/
 {
     if (string) {
         for (int j = 0; j < num; j++) {
@@ -789,23 +615,7 @@ const char* vcs_speciesType_string(int speciesStatus, int length)
     return sss;
 }
 
-/************************************************************************ **/
-
 void vcs_print_stringTrunc(const char* str, size_t space, int alignment)
-
-/***********************************************************************
- *  vcs_print_stringTrunc():
- *
- *     Print a string within a given space limit. This routine
- *     limits the amount of the string that will be printed to a
- *     maximum of "space" characters.
- *
- *     str = String -> must be null terminated.
- *     space = space limit for the printing.
- *     alignment = 0 centered
- *           1 right aligned
- *           2 left aligned
- ***********************************************************************/
 {
     size_t i, ls = 0, rs = 0;
     size_t len = strlen(str);
@@ -836,19 +646,7 @@ void vcs_print_stringTrunc(const char* str, size_t space, int alignment)
     }
 }
 
-/*****************************************************************************/
-/*****************************************************************************/
-/*****************************************************************************/
-
 bool vcs_doubleEqual(double d1, double d2)
-
-/*************************************************************************
- * vcs_doubleEqual()
- *
- *  Simple routine to check whether two doubles are equal up to
- *  roundoff error. Currently it's set to check for 10 digits of
- *  accuracy.
- *************************************************************************/
 {
     double denom = fabs(d1) + fabs(d2) + 1.0;
     double fac = fabs(d1 - d2) / denom;
@@ -858,13 +656,6 @@ bool vcs_doubleEqual(double d1, double d2)
     return true;
 }
 
-//=====================================================================================================================
-// Sorts a vector of ints in place from lowest to the highest values
-/*
- *  The vector is returned sorted from lowest to highest.
- *
- * @param x Reference to a vector of ints.
- */
 void vcs_heapsort(std::vector<int> & x)
 {
     int n = x.size();
@@ -909,12 +700,7 @@ void vcs_heapsort(std::vector<int> & x)
         x[i] = rra;
     }
 }
-//=====================================================================================================================
-// Sorts a vector of ints and eliminates duplicates from the resulting list
-/*
- * @param xOrderedUnique       Ordered vector of unique ints that were part of the original list
- * @param x                    Reference to a constant vector of ints.
- */
+
 void vcs_orderedUnique(std::vector<int> & xOrderedUnique, const std::vector<int> & x)
 {
     std::vector<int> xordered(x);
@@ -928,6 +714,5 @@ void vcs_orderedUnique(std::vector<int> & xOrderedUnique, const std::vector<int>
         }
     }
 }
-//=====================================================================================================================
 
 }

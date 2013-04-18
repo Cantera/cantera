@@ -1,14 +1,12 @@
 /**
- * @file vcs_species_thermo.cpp
- *   Implementation for the VCS_SPECIES_THERMO object.
+ * @file vcs_species_thermo.cpp Implementation for the VCS_SPECIES_THERMO
+ *   object.
  */
 /*
  * Copyright (2005) Sandia Corporation. Under the terms of
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the
  * U.S. Government retains certain rights in this software.
  */
-
-
 
 #include "cantera/equil/vcs_solve.h"
 #include "cantera/equil/vcs_species_thermo.h"
@@ -26,8 +24,6 @@ using namespace std;
 
 namespace VCSnonideal
 {
-
-
 VCS_SPECIES_THERMO::VCS_SPECIES_THERMO(size_t indexPhase,
                                        size_t indexSpeciesPhase) :
 
@@ -56,19 +52,10 @@ VCS_SPECIES_THERMO::VCS_SPECIES_THERMO(size_t indexPhase,
     SS0_Pref = 1.01325E5;
 }
 
-
-/******************************************************************************
- *
- * destructor
- */
 VCS_SPECIES_THERMO::~VCS_SPECIES_THERMO()
 {
 }
 
-/*****************************************************************************
- *
- * Copy Constructor VCS_SPECIES_THERMO
- */
 VCS_SPECIES_THERMO::VCS_SPECIES_THERMO(const VCS_SPECIES_THERMO& b) :
     IndexPhase(b.IndexPhase),
     IndexSpeciesPhase(b.IndexSpeciesPhase),
@@ -92,14 +79,9 @@ VCS_SPECIES_THERMO::VCS_SPECIES_THERMO(const VCS_SPECIES_THERMO& b) :
     UseCanteraCalls(b.UseCanteraCalls),
     m_VCS_UnitsFormat(b.m_VCS_UnitsFormat)
 {
-
     SS0_Params = 0;
 }
 
-/*****************************************************************************
- *
- * Assignment operator for VCS_SPECIES_THERMO
- */
 VCS_SPECIES_THERMO&
 VCS_SPECIES_THERMO::operator=(const VCS_SPECIES_THERMO& b)
 {
@@ -137,38 +119,11 @@ VCS_SPECIES_THERMO::operator=(const VCS_SPECIES_THERMO& b)
     return *this;
 }
 
-/******************************************************************************
- *
- * duplMyselfAsVCS_SPECIES_THERMO():                (virtual)
- *
- *    This routine can duplicate inherited objects given a base class
- *    pointer. It relies on valid copy constructors.
- */
-
 VCS_SPECIES_THERMO* VCS_SPECIES_THERMO::duplMyselfAsVCS_SPECIES_THERMO()
 {
     return new VCS_SPECIES_THERMO(*this);
 }
 
-
-/**************************************************************************
- *
- * GStar_R_calc();
- *
- *  This function calculates the standard state Gibbs free energy
- *  for species, kspec, at the solution temperature TKelvin and
- *  solution pressure, Pres.
- *
- *
- *  Input
- *   kglob = species global index.
- *   TKelvin = Temperature in Kelvin
- *   pres = pressure is given in units specified by if__ variable.
- *
- *
- * Output
- *    return value = standard state free energy in units of Kelvin.
- */
 double VCS_SPECIES_THERMO::GStar_R_calc(size_t kglob, double TKelvin,
                                         double pres)
 {
@@ -202,19 +157,6 @@ double VCS_SPECIES_THERMO::GStar_R_calc(size_t kglob, double TKelvin,
     return fe;
 }
 
-/**************************************************************************
- *
- * VolStar_calc:
- *
- *  This function calculates the standard state molar volume
- *  for species, kspec, at the temperature TKelvin and pressure, Pres,
- *
- *  Input
- *
- * Output
- *    return value = standard state volume in    m**3 per kmol.
- *                   (VCS_UNITS_MKS)
- */
 double VCS_SPECIES_THERMO::
 VolStar_calc(size_t kglob, double TKelvin, double presPA)
 {
@@ -246,20 +188,6 @@ VolStar_calc(size_t kglob, double TKelvin, double presPA)
     return vol;
 }
 
-/**************************************************************************
- *
- * G0_R_calc:
- *
- *  This function calculates the naught state Gibbs free energy
- *  for species, kspec, at the temperature TKelvin
- *
- *  Input
- *   kglob = species global index.
- *   TKelvin = Temperature in Kelvin
- *
- * Output
- *    return value = naught state free energy in Kelvin.
- */
 double VCS_SPECIES_THERMO::G0_R_calc(size_t kglob, double TKelvin)
 {
 #ifdef DEBUG_MODE
@@ -304,25 +232,6 @@ double VCS_SPECIES_THERMO::G0_R_calc(size_t kglob, double TKelvin)
     return fe;
 }
 
-/**************************************************************************
- *
- * eval_ac:
- *
- *  This function evaluates the activity coefficient
- *  for species, kspec
- *
- *  Input
- *      kglob -> integer value of the species in the global
- *            species list within VCS_GLOB. Phase and local species id
- *             can be looked up within object.
- *
- *   Note, T, P and mole fractions are obtained from the
- *   single private instance of VCS_GLOB
- *
- *
- * Output
- *    return value = activity coefficient for species kspec
- */
 double VCS_SPECIES_THERMO::eval_ac(size_t kglob)
 {
 #ifdef DEBUG_MODE
@@ -353,5 +262,4 @@ double VCS_SPECIES_THERMO::eval_ac(size_t kglob)
     return ac;
 }
 
-/*****************************************************************************/
 }

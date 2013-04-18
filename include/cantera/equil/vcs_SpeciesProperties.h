@@ -11,9 +11,9 @@ namespace VCSnonideal
 class VCS_SPECIES_THERMO;
 class vcs_VolPhase;
 
+//! Properties of a single species.
 class vcs_SpeciesProperties
 {
-
 public:
     size_t    IndexPhase;
     size_t    IndexSpeciesPhase;
@@ -46,16 +46,10 @@ public:
                                      This value is used for convergence issues
                                      and for calculation of numerical derivs */
 
-    /*
-     * constructor and destructor
-     */
     vcs_SpeciesProperties(size_t indexPhase, size_t indexSpeciesPhase,
                           vcs_VolPhase* owning);
     virtual ~vcs_SpeciesProperties();
 
-    /*
-     * Copy constructor and assignment operator
-     */
     vcs_SpeciesProperties(const vcs_SpeciesProperties& b);
     vcs_SpeciesProperties& operator=(const vcs_SpeciesProperties& b);
 };

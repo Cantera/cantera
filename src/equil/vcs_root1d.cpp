@@ -8,7 +8,6 @@
  * U.S. Government retains certain rights in this software.
  */
 
-
 #include "cantera/equil/vcs_internal.h"
 
 #include <cstdio>
@@ -19,9 +18,7 @@ namespace VCSnonideal
 {
 
 #define TOL_CONV 1.0E-5
-/*****************************************************************************/
-/*****************************************************************************/
-/*****************************************************************************/
+
 #ifdef DEBUG_MODE
 static void print_funcEval(FILE* fp, double xval, double fval, int its)
 {
@@ -35,87 +32,7 @@ static void print_funcEval(FILE* fp, double xval, double fval, int its)
     fprintf(fp,"\n");
 }
 #endif
-/*****************************************************************************/
-/*****************************************************************************/
-/*****************************************************************************/
 
-// One Dimensional Root Finder
-/*
- *
- * vcs_root1d:
- *
- *
- *
- * Following is a nontrial example for vcs_root1d() where the buoyancy of a
- * cylinder floating on water is calculated.
- *
- * @verbatim
- *   #include <cmath>
- *   #include <cstdlib>
- *
-  *   #include "equil/vcs_internal.h"
- *
- *   const double g_cgs = 980.;
- *   const double mass_cyl = 0.066;
- *   const double diam_cyl = 0.048;
- *   const double rad_cyl = diam_cyl / 2.0;
- *   const double len_cyl  = 5.46;
- *   const double vol_cyl  = Pi * diam_cyl * diam_cyl / 4 * len_cyl;
- *   const double rho_cyl = mass_cyl / vol_cyl;
- *   const double rho_gas = 0.0;
- *   const double rho_liq = 1.0;
- *   const double sigma = 72.88;
- *   // Contact angle in radians
- *   const double alpha1 = 40.0 / 180. * Pi;
- *
- *   using namespace Cantera;
- *   using namespace VCSnonideal;
- *
- *   double func_vert(double theta1, double h_2, double rho_c) {
- *     double f_grav = - Pi * rad_cyl * rad_cyl * rho_c * g_cgs;
- *     double tmp = rad_cyl * rad_cyl * g_cgs;
- *     double tmp1 = theta1 + sin(theta1) * cos(theta1) - 2.0 * h_2 / rad_cyl * sin(theta1);
- *     double f_buoy = tmp * (Pi * rho_gas + (rho_liq - rho_gas) * tmp1);
- *     double f_sten = 2 * sigma * sin(theta1 + alpha1 - Pi);
- *     double f_net =  f_grav +  f_buoy +  f_sten;
- *     return f_net;
- *   }
- *   double calc_h2_farfield(double theta1) {
- *       double rhs = sigma * (1.0 + cos(alpha1 + theta1));
- *       rhs *= 2.0;
- *       rhs = rhs / (rho_liq - rho_gas) / g_cgs;
- *       double sign = -1.0;
- *       if (alpha1 + theta1 < Pi) sign = 1.0;
- *       double res = sign * sqrt(rhs);
- *       double h2 = res + rad_cyl * cos(theta1);
- *       return h2;
- *   }
- *   double funcZero(double xval, double Vtarget, int varID, void *fptrPassthrough, int *err) {
- *      double theta = xval;
- *      double h2 = calc_h2_farfield(theta);
- *      double fv = func_vert(theta, h2, rho_cyl);
- *      return fv;
- *   }
- *
- *  int main () {
- *
- *     double thetamax = Pi;
- *     double thetamin = 0.0;
- *     int maxit = 1000;
- *     int iconv;
- *     double thetaR = Pi/2.0;
- *     int printLvl = 4;
- *
- *     iconv =  VCSnonideal::vcsUtil_root1d(thetamin, thetamax, maxit, funcZero,
- *                                          (void *) 0, 0.0, 0, &thetaR, printLvl);
- *     printf("theta = %g\n", thetaR);
- *     double h2Final = calc_h2_farfield(thetaR);
- *     printf("h2Final = %g\n", h2Final);
- *     return 0;
- *  }
- * @endverbatim
- *
- */
 int vcsUtil_root1d(double xmin, double xmax, size_t itmax,
                    VCS_FUNC_PTR func, void* fptrPassthrough,
                    double FuncTargVal, int varID,
@@ -499,6 +416,5 @@ QUAD_BAIL:
 #endif
     return retn;
 }
-/*****************************************************************************/
-}
 
+}
