@@ -17,15 +17,15 @@ namespace Cantera
 {
 
 #if defined(WITH_HTML_LOGS)
-/// Used to print reaction equations. Given a stoichiometric
-/// coefficient 'nu' and a chemical symbol 'sym', return a string
-/// for this species in the reaction.
-/// @param first  if this is false, then a " + " string will be
-/// added to the beginning of the string.
-/// @param nu  Stoichiometric coefficient. May be positive or negative. The
-/// absolute value will be used in the string.
-/// @param sym Species chemical symbol.
-///
+
+//! Used to print reaction equations. Given a stoichiometric coefficient 'nu'
+//! and a chemical symbol 'sym', return a string for this species in the
+//! reaction.
+//! @param first  if this is false, then a " + " string will be added to the
+//!     beginning of the string.
+//! @param nu  Stoichiometric coefficient. May be positive or negative. The
+//!     absolute value will be used in the string.
+//! @param sym Species chemical symbol.
 static string coeffString(bool first, doublereal nu, string sym)
 {
     if (nu == 0.0) {
@@ -43,12 +43,6 @@ static string coeffString(bool first, doublereal nu, string sym)
 }
 #endif
 
-/// Constructor. Construct a multiphase equilibrium manager for a
-/// multiphase mixture.
-/// @param mix Pointer to a multiphase mixture object.
-/// @param start If true, the initial composition will be
-/// determined by a linear Gibbs minimization, otherwise the
-/// initial mixture composition will be used.
 MultiPhaseEquil::MultiPhaseEquil(MultiPhase* mix, bool start, int loglevel) : m_mix(mix)
 {
     // the multi-phase mixture
@@ -209,7 +203,6 @@ MultiPhaseEquil::MultiPhaseEquil(MultiPhase* mix, bool start, int loglevel) : m_
     // numbers for the included species.
 }
 
-
 doublereal MultiPhaseEquil::equilibrate(int XY, doublereal err,
                                         int maxsteps, int loglevel)
 {
@@ -264,10 +257,6 @@ void MultiPhaseEquil::updateMixMoles()
     m_mix->setMoles(DATA_PTR(m_work3));
 }
 
-/// Clean up the composition. The solution algorithm can leave
-/// some species in stoichiometric condensed phases with very
-/// small negative mole numbers. This method simply sets these to
-/// zero.
 void MultiPhaseEquil::finish()
 {
     fill(m_work3.begin(), m_work3.end(), 0.0);
@@ -278,16 +267,6 @@ void MultiPhaseEquil::finish()
     m_mix->setMoles(DATA_PTR(m_work3));
 }
 
-
-/// Estimate the initial mole numbers. This is done by running
-/// each reaction as far forward or backward as possible, subject
-/// to the constraint that all mole numbers remain
-/// non-negative. Reactions for which \f$ \Delta \mu^0 \f$ are
-/// positive are run in reverse, and ones for which it is negative
-/// are run in the forward direction. The end result is equivalent
-/// to solving the linear programming problem of minimizing the
-/// linear Gibbs function subject to the element and
-/// non-negativity constraints.
 int MultiPhaseEquil::setInitialMoles(int loglevel)
 {
     size_t ik, j;
@@ -372,28 +351,6 @@ int MultiPhaseEquil::setInitialMoles(int loglevel)
     return 0;
 }
 
-
-///  This method finds a set of component species and a complete
-///  set of formation reactions for the non-components in terms of
-///  the components. Note that in most cases, many different
-///  component sets are possible, and therefore neither the
-///  components returned by this method nor the formation
-///  reactions are unique. The algorithm used here is described in
-///  Smith and Missen, Chemical Reaction Equilibrium Analysis.
-///
-///  The component species are taken to be the first M species
-///  in array 'species' that have linearly-independent compositions.
-///
-///  @param order On entry, vector \a order should contain species
-///  index numbers in the order of decreasing desirability as a
-///  component. For example, if it is desired to choose the
-///  components from among the major species, this array might
-///  list species index numbers in decreasing order of mole
-///  fraction. If array 'species' does not have length =
-///  nSpecies(), then the species will be considered as candidates
-///  to be components in declaration order, beginning with the
-///  first phase added.
-///
 void MultiPhaseEquil::getComponents(const std::vector<size_t>& order)
 {
     size_t m, k, j;
@@ -545,11 +502,6 @@ void MultiPhaseEquil::getComponents(const std::vector<size_t>& order)
     }
 }
 
-
-
-
-/// Re-arrange a vector of species properties in sorted form
-/// (components first) into unsorted, sequential form.
 void MultiPhaseEquil::unsort(vector_fp& x)
 {
     copy(x.begin(), x.end(), m_work2.begin());
@@ -601,7 +553,6 @@ void MultiPhaseEquil::printInfo(int loglevel)
     }
 }
 
-/// Return a string specifying the jth reaction.
 string MultiPhaseEquil::reactionString(size_t j)
 {
     string sr = "", sp = "";
@@ -664,9 +615,6 @@ void MultiPhaseEquil::step(doublereal omega, vector_fp& deltaN,
     }
 }
 
-
-/// Take one step in composition, given the gradient of G at the
-/// starting point, and a vector of reaction steps dxi.
 doublereal MultiPhaseEquil::
 stepComposition(int loglevel)
 {
@@ -774,12 +722,8 @@ stepComposition(int loglevel)
     return omega;
 }
 
-
-/// Compute the change in extent of reaction for each reaction.
-
 doublereal MultiPhaseEquil::computeReactionSteps(vector_fp& dxi)
 {
-
     size_t j, k, ik, kc, ip;
     doublereal stoich, nmoles, csum, term1, fctr, rfctr;
     vector_fp nu;
@@ -1097,8 +1041,5 @@ void MultiPhaseEquil::reportCSV(const std::string& reportFile)
     }
     fclose(FP);
 }
-
-
-
 
 }
