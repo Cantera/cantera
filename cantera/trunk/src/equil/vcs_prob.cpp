@@ -26,12 +26,6 @@ using namespace std;
 namespace VCSnonideal
 {
 
-/*
- *  VCS_PROB: constructor
- *
- *  We initialize the arrays in the structure to the appropriate sizes.
- *  And, we initialize all of the elements of the arrays to defaults.
- */
 VCS_PROB::VCS_PROB(size_t nsp, size_t nel, size_t nph) :
     prob_type(VCS_PROBTYPE_TP),
     nspecies(nsp),
@@ -103,14 +97,7 @@ VCS_PROB::VCS_PROB(size_t nsp, size_t nel, size_t nph) :
         VPhaseList[iphase] = new vcs_VolPhase();
     }
 }
-/**************************************************************************/
-/**************************************************************************/
-/**************************************************************************/
-/*
- *  VCS_PROB_INPUT:destructor
- *
- * We need to manually free all of the arrays.
- */
+
 VCS_PROB::~VCS_PROB()
 {
     for (size_t i = 0; i < nspecies; i++) {
@@ -123,15 +110,6 @@ VCS_PROB::~VCS_PROB()
     }
 }
 
-//    Resizes all of the phase lists within the structure
-/*
- *    Note, this doesn't change the number of phases in the problem.
- *    It will change NPHASE0 if nsp is greater than NPHASE0.
- *
- *  @param nPhase   size to dimension all the phase lists to
- *  @param force    If true, this will dimension the size to be equal to nPhase
- *                  even if nPhase is less than the current value of NPHASE0
- */
 void VCS_PROB::resizePhase(size_t nPhase, int force)
 {
     if (force || nPhase > NPHASE0) {
@@ -139,15 +117,6 @@ void VCS_PROB::resizePhase(size_t nPhase, int force)
     }
 }
 
-//   Resizes all of the species lists within the structure
-/*
- *    Note, this doesn't change the number of species in the problem.
- *    It will change NSPECIES0 if nsp is greater than NSPECIES0.
- *
- *  @param nsp      size to dimension all the species to
- *  @param force    If true, this will dimension the size to be equal to nsp
- *                  even if nsp is less than the current value of NSPECIES0
- */
 void VCS_PROB::resizeSpecies(size_t nsp, int force)
 {
     if (force || nsp > NSPECIES0) {
@@ -170,16 +139,6 @@ void VCS_PROB::resizeSpecies(size_t nsp, int force)
     }
 }
 
-//    Resizes all of the element lists within the structure
-/*
- *    Note, this doesn't change the number of element constraints
- *    in the problem.
- *    It will change NE0 if nel is greater than NE0.
- *
- *  @param nel      size to dimension all the elements lists
- *  @param force    If true, this will dimension the size to be equal to nel
- *                  even if nel is less than the current value of NEL0
- */
 void VCS_PROB::resizeElements(size_t nel, int force)
 {
     if (force || nel > NE0) {
@@ -195,11 +154,6 @@ void VCS_PROB::resizeElements(size_t nel, int force)
     }
 }
 
-// Calculate the element abundance vector
-/*
- *  Calculates the element abundance vectors from the mole
- *  numbers
- */
 void VCS_PROB::set_gai()
 {
     double* ElemAbund = VCS_DATA_PTR(gai);
@@ -215,14 +169,13 @@ void VCS_PROB::set_gai()
     }
 }
 
-/*****************************************************************************/
 static void print_space(int num)
 {
     for (int j = 0; j < num; j++) {
         (void) plogf(" ");
     }
 }
-/*****************************************************************************/
+
 static void print_char(const char letter, const int num)
 {
     for (int i = 0; i < num; i++) {
@@ -230,13 +183,6 @@ static void print_char(const char letter, const int num)
     }
 }
 
-/*****************************************************************************
- * prob_report():
- *
- *  Print out the  problem specification in all generality
- *  as it currently exists in the VCS_PROB object
- *
- */
 void VCS_PROB::prob_report(int print_lvl)
 {
     m_printLvl = print_lvl;
@@ -371,23 +317,6 @@ void VCS_PROB::prob_report(int print_lvl)
     }
 }
 
-
-// Add elements to the local element list
-/*
- *  This routine sorts through the elements defined in the
- *  vcs_VolPhase object. It then adds the new elements to
- *  the VCS_PROB object, and creates a global map, which is
- *  stored in the vcs_VolPhase object.
- *  Id and matching of elements is done strictly via the element name,
- *  with case not mattering.
- *
- *  The routine also fills in the position of the element
- *  in the vcs_VolPhase object's ElGlobalIndex field.
- *
- * @param volPhase  Object containing the phase to be added.
- *                  The elements in this phase are parsed for
- *                  addition to the global element list
- */
 void VCS_PROB::addPhaseElements(vcs_VolPhase* volPhase)
 {
     size_t e, eVP;
@@ -422,21 +351,6 @@ void VCS_PROB::addPhaseElements(vcs_VolPhase* volPhase)
     }
 }
 
-
-//  This routine resizes the number of elements in the VCS_PROB object by
-//  adding a new element to the end of the element list
-/*
- *   The element name is added. Formula vector entries ang element
- *   abundances for the new element are set to zero.
- *
- *   Returns the index number of the new element.
- *
- *  @param elNameNew New name of the element
- *  @param elType    Type of the element
- *  @param elactive  boolean indicating whether the element is active
- *
- *  @return returns the index number of the new element
- */
 size_t VCS_PROB::addElement(const char* elNameNew, int elType, int elactive)
 {
     if (!elNameNew) {
@@ -452,19 +366,6 @@ size_t VCS_PROB::addElement(const char* elNameNew, int elType, int elactive)
     return ne - 1;
 }
 
-// This routines adds entries for the formula matrix for one species
-/*
- *   This routines adds entries for the formula matrix for this object
- *   for one species
- *
- *   This object also fills in the index filed, IndSpecies, within
- *   the volPhase object.
- *
- *  @param volPhase object containing the species
- *  @param k        Species number within the volPhase k
- *  @param kT       global Species number within this object
- *
- */
 size_t VCS_PROB::addOnePhaseSpecies(vcs_VolPhase* volPhase, size_t k, size_t kT)
 {
     size_t e, eVP;
@@ -649,11 +550,9 @@ void VCS_PROB::reportCSV(const std::string& reportFile)
     fclose(FP);
 }
 
-
 void VCS_PROB::setDebugPrintLvl(int lvl)
 {
     vcs_debug_print_lvl = lvl;
 }
-
 
 }
