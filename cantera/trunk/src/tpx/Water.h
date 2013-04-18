@@ -5,7 +5,8 @@
 
 namespace tpx
 {
-
+//! Pure species representation of water. Values and functions are from
+//! "Thermodynamic Properties in SI" by W.C. Reynolds
 class water : public Substance
 {
 public:
@@ -40,4 +41,3 @@ private:
 
 }
 #endif // ! WATER_H
-

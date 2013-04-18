@@ -1,5 +1,3 @@
-// Hydrogen
-
 #include "Hydrogen.h"
 #include <math.h>
 #include "cantera/base/stringUtils.h"
@@ -8,7 +6,6 @@ using namespace Cantera;
 
 namespace tpx
 {
-
 static const double
 M = 2.0159,
 Tmn = 13.8,
@@ -53,7 +50,6 @@ static const double Ghydro[]= {
     -7.1519411e4, 1.2971743e4, -9.8533014e2, 1.0434776e4,
     -3.9144179e2, 5.8277696e2, 6.5409163e2, -1.8728847e2
 };
-
 
 double hydrogen::C(int i, double rt, double rt2)
 {
@@ -220,7 +216,6 @@ double hydrogen::Pp()
     return P;
 }
 
-//equation D4
 double hydrogen::ldens()
 {
     if ((T < Tmn) || (T > Tc)) {
@@ -236,8 +231,6 @@ double hydrogen::ldens()
     return sum+Roc+Dhydro[0]*pow(x,alpha1);
 }
 
-
-//equation s3
 double hydrogen::Psat()
 {
     double x = (1.0 - Tt/T)/(1.0 - Tt/Tc);

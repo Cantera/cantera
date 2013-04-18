@@ -1,14 +1,8 @@
-// Lee-Kesler equation of state
-
 #include "RedlichKwong.h"
 #include <math.h>
 
 namespace tpx
 {
-
-
-//--------------------------- member functions ------------------
-
 double RedlichKwong::up()
 {
     return -Pp()/Rho + hresid() + m_energy_offset;
@@ -45,7 +39,6 @@ double RedlichKwong::z()
     return Pp()*m_mw/(Rho*8314.3*T);
 }
 
-
 double RedlichKwong::Pp()
 {
     double R = 8314.3;
@@ -76,6 +69,5 @@ double RedlichKwong::ldens()
     Rho = Rhsave;
     return m_mw/vnew;
 }
-
 
 }
