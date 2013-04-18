@@ -162,7 +162,7 @@ public:
         vector_fp chigh(c+8, c+15);
         vector_fp clow(c+1, c+8);
 
-        checkContinuity(name, tmid, &clow[0], &chigh[0]);
+        ensureContinuity(name, tmid, &clow[0], &chigh[0]);
 
         m_high[igrp-1].push_back(NasaPoly1(index, tmid, thigh,
                                            refPressure, &chigh[0]));
@@ -460,17 +460,22 @@ protected:
     mutable std::map<size_t, std::string> m_name;
 
 private:
-    //! see SpeciesThermoFactory.cpp for the definition
+    //! Adjust polynomials to be continuous at the midpoint temperature.
     /*!
+     * Check to see if the provided coefficients are nearly continuous. Adjust
+     * the values to get more precise contintinuity to avoid convergence
+     * issues with algorithms that expect these quantities to be continuous.
+     * See SpeciesThermoFactory.cpp for the definition.
+     *
      * @param name string name of species
      * @param tmid  Mid temperature, between the two temperature regions
      * @param clow  coefficients for lower temperature region
      * @param chigh coefficients for higher temperature region
      */
-    void checkContinuity(const std::string& name, double tmid,
-                         const doublereal* clow, doublereal* chigh);
+    void ensureContinuity(const std::string& name, double tmid,
+                         doublereal* clow, doublereal* chigh);
 
-    //! for internal use by checkContinuity
+    //! for internal use by ensureContinuity
     /*!
      * @param t temperature
      * @param c coefficient array
@@ -481,7 +486,7 @@ private:
                + c[0]/t;
     }
 
-    //! for internal use by checkContinuity
+    //! for internal use by ensureContinuity
     /*!
      * @param t temperature
      * @param c coefficient array
