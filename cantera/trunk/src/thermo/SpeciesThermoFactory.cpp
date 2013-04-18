@@ -202,8 +202,8 @@ void NasaThermo::checkContinuity(const std::string& name, double tmid,
                                  const doublereal* clow, doublereal* chigh)
 {
     // heat capacity
-    doublereal cplow = poly4(tmid, clow);
-    doublereal cphigh = poly4(tmid, chigh);
+    doublereal cplow = poly4(tmid, clow + 2);
+    doublereal cphigh = poly4(tmid, chigh + 2);
     doublereal delta = cplow - cphigh;
     if (fabs(delta/(fabs(cplow)+1.0E-4)) > 0.001) {
         writelog("\n\n**** WARNING ****\nFor species "+name+
