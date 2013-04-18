@@ -1,5 +1,14 @@
-#include "subs.h"
 #include "cantera/tpx/utils.h"
+
+#include "CarbonDioxide.h"
+#include "Heptane.h"
+#include "HFC134a.h"
+#include "Hydrogen.h"
+#include "Methane.h"
+#include "Nitrogen.h"
+#include "Oxygen.h"
+#include "Water.h"
+#include "RedlichKwong.h"
 
 using std::string;
 
@@ -68,4 +77,3 @@ Substance* GetSub(int isub)
 }
 
 }
-
