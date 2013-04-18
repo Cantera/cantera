@@ -1,14 +1,10 @@
 /**
- *  @file vcs_IntStarStar.cpp
- *
- *  Header file for class IntStarStar
+ *  @file vcs_IntStarStar.cpp Implementation of class IntStarStar
  */
 #include "cantera/equil/vcs_IntStarStar.h"
 
 namespace VCSnonideal
 {
-
-//Default constructor. Create an empty array.
 IntStarStar::IntStarStar() :
     m_nrows(0),
     m_ncols(0)
@@ -17,10 +13,6 @@ IntStarStar::IntStarStar() :
     m_colAddr.clear();
 }
 
-/*
- *  Constructor. Create an \c m by \c n array, and initialize
- *  all elements to \c v.
- */
 IntStarStar::IntStarStar(size_t m, size_t n, int v) :
     m_nrows(n),
     m_ncols(m)
@@ -35,7 +27,6 @@ IntStarStar::IntStarStar(size_t m, size_t n, int v) :
     }
 }
 
-// copy constructor
 IntStarStar::IntStarStar(const IntStarStar& y)
 {
     m_nrows = y.m_nrows;
@@ -50,7 +41,6 @@ IntStarStar::IntStarStar(const IntStarStar& y)
     }
 }
 
-// assignment operator
 IntStarStar& IntStarStar::operator=(const IntStarStar& y)
 {
     if (&y == this) {
@@ -69,13 +59,6 @@ IntStarStar& IntStarStar::operator=(const IntStarStar& y)
     return *this;
 }
 
-
-//! resize the array, and fill the new entries with 'v'
-/*!
- * @param n  This is the number of rows
- * @param m  This is the number of columns in the new matrix
- * @param v  Default fill value -> defaults to zero.
- */
 void IntStarStar::resize(size_t m, size_t n, int v)
 {
     std::vector<int> old_data;
@@ -134,18 +117,14 @@ int* const* IntStarStar::baseDataAddr()
     return (int* const*) &(m_colAddr[0]);
 }
 
-/// Number of rows
 size_t IntStarStar::nRows() const
 {
     return m_nrows;
 }
 
-/// Number of columns
 size_t IntStarStar::nColumns() const
 {
     return m_ncols;
 }
 
 }
-
-

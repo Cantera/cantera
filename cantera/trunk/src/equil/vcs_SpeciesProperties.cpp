@@ -16,10 +16,6 @@ using namespace std;
 namespace VCSnonideal
 {
 
-/*****************************************************************************
- *
- * constructor():
- */
 vcs_SpeciesProperties::vcs_SpeciesProperties(size_t indexPhase,
         size_t indexSpeciesPhase,
         vcs_VolPhase* owning) :
@@ -35,18 +31,10 @@ vcs_SpeciesProperties::vcs_SpeciesProperties(size_t indexPhase,
 {
 }
 
-/******************************************************************************
- *
- * destructor
- */
 vcs_SpeciesProperties::~vcs_SpeciesProperties()
 {
 }
 
-/*****************************************************************************
- *
- * Copy Constructor vcs_SpeciesProperties
- */
 vcs_SpeciesProperties::vcs_SpeciesProperties(const vcs_SpeciesProperties& b) :
     IndexPhase(b.IndexPhase),
     IndexSpeciesPhase(b.IndexSpeciesPhase),
@@ -63,10 +51,6 @@ vcs_SpeciesProperties::vcs_SpeciesProperties(const vcs_SpeciesProperties& b) :
     FormulaMatrixCol = b.FormulaMatrixCol;
 }
 
-/*****************************************************************************
- *
- * Assignment operator for vcs_SpeciesProperties
- */
 vcs_SpeciesProperties&
 vcs_SpeciesProperties::operator=(const vcs_SpeciesProperties& b)
 {
@@ -86,6 +70,4 @@ vcs_SpeciesProperties::operator=(const vcs_SpeciesProperties& b)
     return *this;
 }
 
-/*****************************************************************************/
 }
-
