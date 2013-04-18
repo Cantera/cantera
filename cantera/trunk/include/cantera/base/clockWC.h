@@ -62,6 +62,14 @@ public:
     double start();
 
     //! Returns the wall clock time in seconds since the last reset.
+    /*!
+     *  Returns system cpu and wall clock time in seconds. This is a strictly
+     *  Ansi C timer, since clock() is defined as an Ansi C function. On some
+     *  machines clock() returns type unsigned long (HP) and on others (SUN)
+     *  it returns type long. An attempt to recover the actual time for clocks
+     *  which have rolled over is made also. However, it only works if this
+     *  function is called fairly regularily during the solution procedure.
+     */
     double secondsWC();
 
 private:

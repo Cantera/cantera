@@ -12,10 +12,9 @@
 
 #include <time.h>
 #include "cantera/base/clockWC.h"
+
 namespace Cantera
 {
-
-
 clockWC::clockWC() :
     last_num_ticks(clock()),
     clock_rollovers(0u),
@@ -26,9 +25,6 @@ clockWC::clockWC() :
     start_ticks = last_num_ticks;
 }
 
-/*
- * Reinitialize the tick counters within the object
- */
 double clockWC::start()
 {
     start_ticks = last_num_ticks = clock();
@@ -36,19 +32,6 @@ double clockWC::start()
     return 0.0;
 }
 
-/*
- *    Returns system cpu and wall clock time in seconds. This
- *    is a strictly Ansi C timer, since clock() is defined as an
- *    Ansi C function. On some machines clock() returns type
- *    unsigned long (HP) and on others (SUN) it returns type long.
- *       An attempt to recover the actual time for clocks which have
- *    rolled over is made also. However, it only works if this
- *    function is called fairly regularily during
- *    the solution procedure.
- *
- *    clock() -> returns the time in microseconds. Division by
- *               the macro CLOCKS_PER_SEC recovers the time in seconds.
- */
 double clockWC::secondsWC()
 {
     clock_t num_ticks = clock();
