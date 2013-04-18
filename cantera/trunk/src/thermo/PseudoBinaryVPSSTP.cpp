@@ -195,9 +195,9 @@ void  PseudoBinaryVPSSTP::initLengths()
     moleFractions_.resize(m_kk);
 }
 
-void PseudoBinaryVPSSTP::initThermoXML(XML_Node& phaseNode, const std::string& id)
+void PseudoBinaryVPSSTP::initThermoXML(XML_Node& phaseNode, const std::string& id_)
 {
-    GibbsExcessVPSSTP::initThermoXML(phaseNode, id);
+    GibbsExcessVPSSTP::initThermoXML(phaseNode, id_);
 }
 
 std::string PseudoBinaryVPSSTP::report(bool show_thermo) const
@@ -262,15 +262,15 @@ std::string PseudoBinaryVPSSTP::report(bool show_thermo) const
                 sprintf(p, " heat capacity c_v    %12.6g     %12.4g     J/K\n",
                         cv_mass(), cv_mole());
                 s += p;
-            } catch (CanteraError& err) {
-                err.save();
+            } catch (CanteraError& e) {
+                e.save();
                 sprintf(p, " heat capacity c_v    <not implemented>       \n");
                 s += p;
             }
         }
 
-    } catch (CanteraError& err) {
-        err.save();
+    } catch (CanteraError& e) {
+        e.save();
     }
     return s;
 }

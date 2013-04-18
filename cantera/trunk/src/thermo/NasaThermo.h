@@ -128,17 +128,17 @@ public:
      * - c[0]          midpoint temperature
      * - c[1] - c[7]   coefficients for low T range
      * - c[8] - c[14]  coefficients for high T range
-     * @param minTemp  minimum temperature for which this parameterization
+     * @param min_temp minimum temperature for which this parameterization
      *                 is valid.
-     * @param maxTemp  maximum temperature for which this parameterization
+     * @param max_temp maximum temperature for which this parameterization
      *                 is valid.
-     * @param refPressure standard-state pressure for this parameterization.
+     * @param ref_pressure standard-state pressure for this parameterization.
      * @see speciesThermoTypes.h
      */
     virtual void install(const std::string& name, size_t index, int type,
                          const doublereal* c,
-                         doublereal minTemp, doublereal maxTemp,
-                         doublereal refPressure) {
+                         doublereal min_temp, doublereal max_temp,
+                         doublereal ref_pressure) {
 
         m_name[index] = name;
         int imid = int(c[0]);       // midpoint temp converted to integer
@@ -155,9 +155,9 @@ public:
         m_group_map[index] = igrp;
         m_posInGroup_map[index] = (int) m_low[igrp-1].size();
 
-        doublereal tlow  = minTemp;
+        doublereal tlow  = min_temp;
         doublereal tmid  = c[0];
-        doublereal thigh = maxTemp;
+        doublereal thigh = max_temp;
 
         vector_fp chigh(c+8, c+15);
         vector_fp clow(c+1, c+8);
@@ -165,9 +165,9 @@ public:
         ensureContinuity(name, tmid, &clow[0], &chigh[0]);
 
         m_high[igrp-1].push_back(NasaPoly1(index, tmid, thigh,
-                                           refPressure, &chigh[0]));
+                                           ref_pressure, &chigh[0]));
         m_low[igrp-1].push_back(NasaPoly1(index, tlow, tmid,
-                                          refPressure, &clow[0]));
+                                          ref_pressure, &clow[0]));
 
         if (tlow > m_tlow_max) {
             m_tlow_max = tlow;
@@ -182,16 +182,16 @@ public:
         m_tlow[index] = tlow;
         m_thigh[index] = thigh;
         if (m_p0 < 0.0) {
-            m_p0 = refPressure;
-        } else if (fabs(m_p0 - refPressure) > 0.1) {
+            m_p0 = ref_pressure;
+        } else if (fabs(m_p0 - ref_pressure) > 0.1) {
             std::string logmsg =  " ERROR NasaThermo: New Species, " + name +  ", has a different reference pressure, "
-                                  + fp2str(refPressure) + ", than existing reference pressure, " + fp2str(m_p0) + "\n";
+                                  + fp2str(ref_pressure) + ", than existing reference pressure, " + fp2str(m_p0) + "\n";
             writelog(logmsg);
             logmsg = "                  This is now a fatal error\n";
             writelog(logmsg);
             throw CanteraError("install()", "species have different reference pressures");
         }
-        m_p0 = refPressure;
+        m_p0 = ref_pressure;
     }
 
     virtual void install_STIT(SpeciesThermoInterpType* stit_ptr) {

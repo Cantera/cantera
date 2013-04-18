@@ -426,8 +426,8 @@ void MixedSolventElectrolyte::initThermoXML(XML_Node& phaseNode, const std::stri
     if (thermoNode.hasChild("activityCoefficients")) {
         XML_Node& acNode = thermoNode.child("activityCoefficients");
         acNodePtr = &acNode;
-        string mStringa = acNode.attrib("model");
-        string mString = lowercase(mStringa);
+        mStringa = acNode.attrib("model");
+        mString = lowercase(mStringa);
         if (mString != "margules") {
             throw CanteraError(subname.c_str(),
                                "Unknown activity coefficient model: " + mStringa);

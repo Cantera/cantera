@@ -89,7 +89,7 @@ operator=(const IdealMolalSoln& b)
 }
 
 IdealMolalSoln::IdealMolalSoln(const std::string& inputFile,
-                               const std::string& id) :
+                               const std::string& id_) :
     MolalityVPSSTP(),
     m_formGC(2),
     IMS_typeCutoff_(0),
@@ -108,7 +108,7 @@ IdealMolalSoln::IdealMolalSoln(const std::string& inputFile,
     IMS_agCut_(0.0),
     IMS_bgCut_(0.0)
 {
-    initThermoFile(inputFile, id);
+    initThermoFile(inputFile, id_);
 }
 
 IdealMolalSoln::IdealMolalSoln(XML_Node& root, const std::string& id_) :

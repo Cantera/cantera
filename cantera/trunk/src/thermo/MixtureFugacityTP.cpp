@@ -490,14 +490,14 @@ void MixtureFugacityTP::setState_TPX(doublereal t, doublereal p, const doublerea
     setState_TP(t,p);
 }
 
-void MixtureFugacityTP::initThermoXML(XML_Node& phaseNode, const std::string& id)
+void MixtureFugacityTP::initThermoXML(XML_Node& phaseNode, const std::string& id_)
 {
     MixtureFugacityTP::initLengths();
 
     //m_VPSS_ptr->initThermo();
 
     // m_VPSS_ptr->initThermoXML(phaseNode, id);
-    ThermoPhase::initThermoXML(phaseNode, id);
+    ThermoPhase::initThermoXML(phaseNode, id_);
 }
 
 doublereal MixtureFugacityTP::z() const
@@ -868,7 +868,6 @@ doublereal MixtureFugacityTP::calculatePsat(doublereal TKelvin, doublereal& mola
 
         pres = psatEst(TKelvin);
         // trial value = Psat from correlation
-        int i;
         doublereal volLiquid = liquidVolEst(TKelvin, pres);
         RhoLiquidGood = mw / volLiquid;
         RhoGasGood    = pres * mw / (GasConstant * TKelvin);
@@ -934,8 +933,7 @@ doublereal MixtureFugacityTP::calculatePsat(doublereal TKelvin, doublereal& mola
                 bool goodLiq;
                 bool goodGas;
                 for (int i = 0; i < 50; i++) {
-
-                    doublereal  densLiquid = densityCalc(TKelvin, pres, FLUID_LIQUID_0, RhoLiquidGood);
+                    densLiquid = densityCalc(TKelvin, pres, FLUID_LIQUID_0, RhoLiquidGood);
                     if (densLiquid <= 0.0) {
                         goodLiq = false;
                     } else {
@@ -943,7 +941,7 @@ doublereal MixtureFugacityTP::calculatePsat(doublereal TKelvin, doublereal& mola
                         RhoLiquidGood = densLiquid;
                         presLiquid = pres;
                     }
-                    doublereal  densGas = densityCalc(TKelvin, pres, FLUID_GAS, RhoGasGood);
+                    densGas = densityCalc(TKelvin, pres, FLUID_GAS, RhoGasGood);
                     if (densGas <= 0.0) {
                         goodGas = false;
                     } else {
@@ -982,7 +980,7 @@ doublereal MixtureFugacityTP::calculatePsat(doublereal TKelvin, doublereal& mola
          *  Now that we have found a good pressure we can proceed with the algorithm.
          */
 
-        for (i = 0; i < 20; i++) {
+        for (int i = 0; i < 20; i++) {
 
             stab = corr0(TKelvin, pres, RhoLiquid, RhoGas, liqGRT, gasGRT);
             if (stab == 0) {

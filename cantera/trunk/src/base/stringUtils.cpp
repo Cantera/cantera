@@ -250,7 +250,7 @@ doublereal fpValueCheck(const std::string& val)
     if (ch == '+' || ch == '-') {
         istart = 1;
     }
-    for (int i = istart; i < str.size(); i++) {
+    for (size_t i = istart; i < str.size(); i++) {
         ch = str[i];
         if (isdigit(ch)) {
         } else if (ch == '.') {

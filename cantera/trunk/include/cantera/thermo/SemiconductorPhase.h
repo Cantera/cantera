@@ -70,7 +70,7 @@ public:
         eosdata._require("model","Semiconductor");
         doublereal rho = ctml::getFloat(eosdata, "density", "-");
         setDensity(rho);
-        doublereal bandgap = ctml::getFloat(eosdata, "bandgap", "-");
+        m_bandgap = ctml::getFloat(eosdata, "bandgap", "-");
         doublereal e_mass = ctml::getFloat(eosdata, "electron_mass", "-");
         doublereal h_mass = ctml::getFloat(eosdata, "hole_mass", "-");
         doublereal e_donor = ctml::getFloat(eosdata, "donor_energy", "-");
@@ -80,7 +80,6 @@ public:
         setEffectiveMasses(e_mass, h_mass);
         setDonorDoping(n_donor, e_donor);
         setAcceptorDoping(n_acceptor, e_acceptor);
-        m_bandgap = bandgap;
     }
 
     void setEffectiveMasses(doublereal e_mass, doublereal h_mass) {

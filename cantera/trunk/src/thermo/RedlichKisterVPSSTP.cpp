@@ -38,7 +38,7 @@ RedlichKisterVPSSTP::RedlichKisterVPSSTP() :
 }
 
 RedlichKisterVPSSTP::RedlichKisterVPSSTP(const std::string& inputFile,
-        const std::string& id) :
+        const std::string& id_) :
     GibbsExcessVPSSTP(),
     numBinaryInteractions_(0),
     m_pSpecies_A_ij(0),
@@ -50,11 +50,11 @@ RedlichKisterVPSSTP::RedlichKisterVPSSTP(const std::string& inputFile,
     formTempModel_(0),
     dlnActCoeff_dX_()
 {
-    initThermoFile(inputFile, id);
+    initThermoFile(inputFile, id_);
 }
 
 RedlichKisterVPSSTP::RedlichKisterVPSSTP(XML_Node& phaseRoot,
-        const std::string& id) :
+        const std::string& id_) :
     GibbsExcessVPSSTP(),
     numBinaryInteractions_(0),
     m_pSpecies_A_ij(0),
@@ -66,7 +66,7 @@ RedlichKisterVPSSTP::RedlichKisterVPSSTP(XML_Node& phaseRoot,
     formTempModel_(0),
     dlnActCoeff_dX_()
 {
-    importPhase(*findXMLPhase(&phaseRoot, id), this);
+    importPhase(*findXMLPhase(&phaseRoot, id_), this);
 }
 
 RedlichKisterVPSSTP::RedlichKisterVPSSTP(int testProb)  :
@@ -374,13 +374,13 @@ void  RedlichKisterVPSSTP::initLengths()
     dlnActCoeffdlnN_.resize(m_kk, m_kk);
 }
 
-void RedlichKisterVPSSTP::initThermoXML(XML_Node& phaseNode, const std::string& id)
+void RedlichKisterVPSSTP::initThermoXML(XML_Node& phaseNode, const std::string& id_)
 {
     std::string subname = "RedlichKisterVPSSTP::initThermoXML";
     std::string stemp;
-    if ((int) id.size() > 0) {
+    if ((int) id_.size() > 0) {
         string idp = phaseNode.id();
-        if (idp != id) {
+        if (idp != id_) {
             throw CanteraError(subname,
                                "phasenode and Id are incompatible");
         }
@@ -409,8 +409,8 @@ void RedlichKisterVPSSTP::initThermoXML(XML_Node& phaseNode, const std::string& 
     if (thermoNode.hasChild("activityCoefficients")) {
         XML_Node& acNode = thermoNode.child("activityCoefficients");
         acNodePtr = &acNode;
-        std::string mStringa = acNode.attrib("model");
-        std::string mString = lowercase(mStringa);
+        mStringa = acNode.attrib("model");
+        mString = lowercase(mStringa);
         if (mString != "redlich-kister") {
             throw CanteraError(subname.c_str(),
                                "Unknown activity coefficient model: " + mStringa);
@@ -433,7 +433,7 @@ void RedlichKisterVPSSTP::initThermoXML(XML_Node& phaseNode, const std::string& 
     /*
      * Go down the chain
      */
-    GibbsExcessVPSSTP::initThermoXML(phaseNode, id);
+    GibbsExcessVPSSTP::initThermoXML(phaseNode, id_);
 }
 
 void RedlichKisterVPSSTP::s_update_lnActCoeff() const

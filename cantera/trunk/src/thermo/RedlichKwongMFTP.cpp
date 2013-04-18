@@ -53,7 +53,7 @@ RedlichKwongMFTP::RedlichKwongMFTP() :
     Vroot_[2] = 0.0;
 }
 
-RedlichKwongMFTP::RedlichKwongMFTP(const std::string& infile, std::string id) :
+RedlichKwongMFTP::RedlichKwongMFTP(const std::string& infile, std::string id_) :
     MixtureFugacityTP(),
     m_standardMixingRules(0),
     m_formTempParam(0),
@@ -77,18 +77,18 @@ RedlichKwongMFTP::RedlichKwongMFTP(const std::string& infile, std::string id) :
     Vroot_[1] = 0.0;
     Vroot_[2] = 0.0;
     XML_Node* root = get_XML_File(infile);
-    if (id == "-") {
-        id = "";
+    if (id_ == "-") {
+        id_ = "";
     }
-    XML_Node* xphase = get_XML_NameID("phase", std::string("#")+id, root);
+    XML_Node* xphase = get_XML_NameID("phase", std::string("#")+id_, root);
     if (!xphase) {
         throw CanteraError("newPhase",
-                           "Couldn't find phase named \"" + id + "\" in file, " + infile);
+                           "Couldn't find phase named \"" + id_ + "\" in file, " + infile);
     }
     importPhase(*xphase, this);
 }
 
-RedlichKwongMFTP::RedlichKwongMFTP(XML_Node& phaseRefRoot, const std::string& id) :
+RedlichKwongMFTP::RedlichKwongMFTP(XML_Node& phaseRefRoot, const std::string& id_) :
     MixtureFugacityTP(),
     m_standardMixingRules(0),
     m_formTempParam(0),
@@ -111,9 +111,9 @@ RedlichKwongMFTP::RedlichKwongMFTP(XML_Node& phaseRefRoot, const std::string& id
     Vroot_[0] = 0.0;
     Vroot_[1] = 0.0;
     Vroot_[2] = 0.0;
-    XML_Node* xphase = get_XML_NameID("phase", std::string("#")+id, &phaseRefRoot);
+    XML_Node* xphase = get_XML_NameID("phase", std::string("#")+id_, &phaseRefRoot);
     if (!xphase) {
-        throw CanteraError("RedlichKwongMFTP::RedlichKwongMFTP()","Couldn't find phase named \"" + id + "\" in XML node");
+        throw CanteraError("RedlichKwongMFTP::RedlichKwongMFTP()","Couldn't find phase named \"" + id_ + "\" in XML node");
     }
     importPhase(*xphase, this);
 }
@@ -139,20 +139,20 @@ RedlichKwongMFTP::RedlichKwongMFTP(int testProb) :
     dpdni_(0)
 {
     std::string infile = "co2_redlichkwong.xml";
-    std::string id;
+    std::string id_;
     if (testProb == 1) {
         infile = "co2_redlichkwong.xml";
-        id = "carbondioxide";
+        id_ = "carbondioxide";
     } else {
         throw CanteraError("", "test prob = 1 only");
     }
     XML_Node* root = get_XML_File(infile);
-    if (id == "-") {
-        id = "";
+    if (id_ == "-") {
+        id_ = "";
     }
-    XML_Node* xphase = get_XML_NameID("phase", std::string("#")+id, root);
+    XML_Node* xphase = get_XML_NameID("phase", std::string("#")+id_, root);
     if (!xphase) {
-        throw CanteraError("newPhase", "Couldn't find phase named \"" + id + "\" in file, " + infile);
+        throw CanteraError("newPhase", "Couldn't find phase named \"" + id_ + "\" in file, " + infile);
     }
     importPhase(*xphase, this);
 }
@@ -1410,16 +1410,16 @@ int RedlichKwongMFTP::NicholsSolve(double TKelvin, double pres, doublereal a, do
         //printf("NicholsSolve(): Alternative solution (p = %g T = %g)\n", pres, TKelvin);
         doublereal ratio3 = a / (GasConstant * sqt) * pres / (GasConstant * TKelvin);
         if (fabs(ratio2) < 1.0E-5 && fabs(ratio3) < 1.0E-5) {
-            doublereal z = 1.0;
+            doublereal zz = 1.0;
             for (int i = 0; i < 10; i++) {
-                doublereal  znew = z / (z - ratio2) - ratio3 / (z + ratio1);
-                doublereal deltaz = znew - z;
-                z = znew;
+                doublereal  znew = zz / (zz - ratio2) - ratio3 / (zz + ratio1);
+                doublereal deltaz = znew - zz;
+                zz = znew;
                 if (fabs(deltaz) < 1.0E-14) {
                     break;
                 }
             }
-            doublereal v = z * GasConstant * TKelvin / pres;
+            doublereal v = zz * GasConstant * TKelvin / pres;
             Vroot[0] = v;
             return 1;
         }
@@ -1523,7 +1523,7 @@ int RedlichKwongMFTP::NicholsSolve(double TKelvin, double pres, doublereal a, do
         Vroot[1] = 0.0;
         Vroot[2] = 0.0;
 
-        double tmp = an *  Vroot[0] * Vroot[0] * Vroot[0] + bn * Vroot[0] * Vroot[0] + cn  * Vroot[0] + dn;
+        tmp = an *  Vroot[0] * Vroot[0] * Vroot[0] + bn * Vroot[0] * Vroot[0] + cn  * Vroot[0] + dn;
         if (fabs(tmp) > 1.0E-4) {
             lotsOfNumError = true;
         }
@@ -1547,7 +1547,7 @@ int RedlichKwongMFTP::NicholsSolve(double TKelvin, double pres, doublereal a, do
         Vroot[2] = alpha;
 
         for (int i = 0; i < 3; i++) {
-            double tmp = an *  Vroot[i] * Vroot[i] * Vroot[i] + bn * Vroot[i] * Vroot[i] + cn  * Vroot[i] + dn;
+            tmp = an *  Vroot[i] * Vroot[i] * Vroot[i] + bn * Vroot[i] * Vroot[i] + cn  * Vroot[i] + dn;
             if (fabs(tmp) > 1.0E-4) {
                 lotsOfNumError = true;
                 for (int j = 0; j < 3; j++) {
@@ -1570,14 +1570,14 @@ int RedlichKwongMFTP::NicholsSolve(double TKelvin, double pres, doublereal a, do
         } else {
             // need to figure out whether delta is pos or neg
             if (yN > 0.0) {
-                double tmp = pow(yN/(2*an), 1./3.);
+                tmp = pow(yN/(2*an), 1./3.);
                 if (fabs(tmp - delta) > 1.0E-9) {
                     throw CanteraError("RedlichKwongMFTP::NicholsSolve()", "unexpected");
                 }
                 Vroot[1] = xN + delta;
                 Vroot[0] = xN - 2.0*delta;  // liquid phase root
             } else {
-                double tmp = pow(yN/(2*an), 1./3.);
+                tmp = pow(yN/(2*an), 1./3.);
                 if (fabs(tmp - delta) > 1.0E-9) {
                     throw CanteraError("RedlichKwongMFTP::NicholsSolve()", "unexpected");
                 }
@@ -1587,7 +1587,7 @@ int RedlichKwongMFTP::NicholsSolve(double TKelvin, double pres, doublereal a, do
             }
         }
         for (int i = 0; i < 2; i++) {
-            double tmp = an *  Vroot[i] * Vroot[i] * Vroot[i] + bn * Vroot[i] * Vroot[i] + cn  * Vroot[i] + dn;
+            tmp = an *  Vroot[i] * Vroot[i] * Vroot[i] + bn * Vroot[i] * Vroot[i] + cn  * Vroot[i] + dn;
             if (fabs(tmp) > 1.0E-4) {
                 lotsOfNumError = true;
             }
