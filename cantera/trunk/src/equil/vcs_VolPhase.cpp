@@ -23,12 +23,6 @@
 namespace VCSnonideal
 {
 
-/*
- *
- *  vcs_VolPhase():
- *
- *    Constructor for the VolPhase object.
- */
 vcs_VolPhase::vcs_VolPhase(VCS_SOLVE* owningSolverObject) :
     m_owningSolverObject(0),
     VP_ID_(npos),
@@ -66,14 +60,7 @@ vcs_VolPhase::vcs_VolPhase(VCS_SOLVE* owningSolverObject) :
 {
     m_owningSolverObject = owningSolverObject;
 }
-/***************************************************************************/
 
-/*
- *
- *  ~vcs_VolPhase():
- *
- *   Destructor for the VolPhase object.
- */
 vcs_VolPhase::~vcs_VolPhase()
 {
     for (size_t k = 0; k < m_numSpecies; k++) {
@@ -82,16 +69,7 @@ vcs_VolPhase::~vcs_VolPhase()
         sp = 0;
     }
 }
-/************************************************************************************/
 
-/*
- *
- *  Copy Constructor():
- *
- *  Objects that are owned by this object are deep copied here, except
- *  for the ThermoPhase object.
- *  The assignment operator does most of the work.
- */
 vcs_VolPhase::vcs_VolPhase(const vcs_VolPhase& b) :
     m_owningSolverObject(b.m_owningSolverObject),
     VP_ID_(b.VP_ID_),
@@ -125,19 +103,11 @@ vcs_VolPhase::vcs_VolPhase(const vcs_VolPhase& b) :
     Temp_(b.Temp_),
     Pres_(b.Pres_)
 {
-    /*
-     * Call the Assignment operator to do the heavy
-     * lifting.
-     */
+    //! Objects that are owned by this object are deep copied here, except for
+    //! the ThermoPhase object. The assignment operator does most of the work.
     *this = b;
 }
-/***************************************************************************/
 
-/*
- * Assignment operator()
- *
- *   (note, this is used, so keep it current!)
- */
 vcs_VolPhase& vcs_VolPhase::operator=(const vcs_VolPhase& b)
 {
     if (&b != this) {
@@ -230,7 +200,6 @@ vcs_VolPhase& vcs_VolPhase::operator=(const vcs_VolPhase& b)
     }
     return *this;
 }
-/***************************************************************************/
 
 void vcs_VolPhase::resize(const size_t phaseNum, const size_t nspecies,
                           const size_t numElem, const char* const phaseName,
@@ -331,7 +300,6 @@ void vcs_VolPhase::resize(const size_t phaseNum, const size_t nspecies,
     elemResize(numElem);
 
 }
-/***************************************************************************/
 
 void vcs_VolPhase::elemResize(const size_t numElemConstraints)
 {
@@ -347,14 +315,7 @@ void vcs_VolPhase::elemResize(const size_t numElemConstraints)
 
     m_numElemConstraints = numElemConstraints;
 }
-/***************************************************************************/
-// Evaluate activity coefficients
-/*
- *   We carry out a calculation whenever UpTODate_AC is false. Specifically
- *   whenever a phase goes zero, we do not carry out calculations on it.
- *
- * (private)
- */
+
 void vcs_VolPhase::_updateActCoeff() const
 {
     if (m_isIdealSoln) {
@@ -366,15 +327,7 @@ void vcs_VolPhase::_updateActCoeff() const
     }
     m_UpToDate_AC = true;
 }
-/***************************************************************************/
 
-/*
- *
- * Evaluate one activity coefficients.
- *
- *   return one activity coefficient. Have to recalculate them all to get
- *   one.
- */
 double vcs_VolPhase::AC_calc_one(size_t kspec) const
 {
     if (! m_UpToDate_AC) {
@@ -382,10 +335,7 @@ double vcs_VolPhase::AC_calc_one(size_t kspec) const
     }
     return ActCoeff[kspec];
 }
-/***************************************************************************/
 
-// Gibbs free energy calculation at a temperature for the reference state
-// of each species
 void vcs_VolPhase::_updateG0() const
 {
     if (m_useCanteraCalls) {
@@ -402,7 +352,6 @@ void vcs_VolPhase::_updateG0() const
     }
     m_UpToDate_G0 = true;
 }
-/***************************************************************************/
 
 double vcs_VolPhase::G0_calc_one(size_t kspec) const
 {
@@ -411,7 +360,6 @@ double vcs_VolPhase::G0_calc_one(size_t kspec) const
     }
     return SS0ChemicalPotential[kspec];
 }
-/***************************************************************************/
 
 void vcs_VolPhase::_updateGStar() const
 {
@@ -429,7 +377,6 @@ void vcs_VolPhase::_updateGStar() const
     }
     m_UpToDate_GStar = true;
 }
-/***************************************************************************/
 
 double vcs_VolPhase::GStar_calc_one(size_t kspec) const
 {
@@ -438,14 +385,7 @@ double vcs_VolPhase::GStar_calc_one(size_t kspec) const
     }
     return StarChemicalPotential[kspec];
 }
-/***************************************************************************/
 
-// Set the mole fractions from a conventional mole fraction vector
-/*
- *
- * @param xmol Value of the mole fractions for the species
- *             in the phase. These are contiguous.
- */
 void vcs_VolPhase::setMoleFractions(const double* const xmol)
 {
     double sum = -1.0;
@@ -462,13 +402,7 @@ void vcs_VolPhase::setMoleFractions(const double* const xmol)
     m_UpToDate = false;
     m_vcsStateStatus = VCS_STATECALC_TMP;
 }
-/***************************************************************************/
 
-// Updates the mole fractions in subobjects
-/*
- *  Whenever the mole fractions change, this routine
- *  should be called.
- */
 void vcs_VolPhase::_updateMoleFractionDependencies()
 {
     if (m_useCanteraCalls) {
@@ -481,9 +415,7 @@ void vcs_VolPhase::_updateMoleFractionDependencies()
         m_UpToDate_VolPM = false;
     }
 }
-/***************************************************************************/
 
-// Return a const reference to the mole fraction vector in the phase
 const std::vector<double> & vcs_VolPhase::moleFractions() const
 {
     return Xmol_;
@@ -493,9 +425,7 @@ double vcs_VolPhase::moleFraction(size_t k) const
 {
     return Xmol_[k];
 }
-/***************************************************************************/
 
-// Set the moles and/or mole fractions within the phase
 void vcs_VolPhase::setMoleFractionsState(const double totalMoles,
         const double* const moleFractions,
         const int vcsStateStatus)
@@ -549,21 +479,7 @@ void vcs_VolPhase::setMoleFractionsState(const double totalMoles,
     _updateMoleFractionDependencies();
 
 }
-/***************************************************************************/
 
-// Set the moles within the phase
-/*
- *  This function takes as input the mole numbers in vcs format, and
- *  then updates this object with their values. This is essentially
- *  a gather routine.
- *
- *
- *  @param molesSpeciesVCS  array of mole numbers. Note, the indices
- *            for species in
- *            this array may not be contiguous. IndSpecies[] is needed
- *            to gather the species into the local contiguous vector
- *            format.
- */
 void vcs_VolPhase::setMolesFromVCS(const int stateCalc,
                                    const double* molesSpeciesVCS)
 {
@@ -671,9 +587,7 @@ void vcs_VolPhase::setMolesFromVCS(const int stateCalc,
      */
     m_UpToDate = true;
     m_vcsStateStatus = stateCalc;
-
 }
-/***************************************************************************/
 
 void vcs_VolPhase::setMolesFromVCSCheck(const int vcsStateStatus,
                                         const double* molesSpeciesVCS,
@@ -695,20 +609,7 @@ void vcs_VolPhase::setMolesFromVCSCheck(const int vcsStateStatus,
         }
     }
 }
-/***************************************************************************/
 
-// Update the moles within the phase, if necessary
-/*
- *  This function takes as input the stateCalc value, which
- *  determines where within VCS_SOLVE to fetch the mole numbers.
- *  It then updates this object with their values. This is essentially
- *  a gather routine.
- *
- *  @param vcsStateStatus  State calc value either VCS_STATECALC_OLD
- *                         or  VCS_STATECALC_NEW. With any other value
- *                         nothing is done.
- *
- */
 void vcs_VolPhase::updateFromVCS_MoleNumbers(const int vcsStateStatus)
 {
     if (!m_UpToDate || (vcsStateStatus != m_vcsStateStatus)) {
@@ -719,18 +620,7 @@ void vcs_VolPhase::updateFromVCS_MoleNumbers(const int vcsStateStatus)
         }
     }
 }
-/**************************************************************************/
 
-// Fill in an activity coefficients vector within a VCS_SOLVE object
-/*
- *  This routine will calculate the activity coefficients for the
- *  current phase, and fill in the corresponding entries in the
- *  VCS activity coefficients vector.
- *
- * @param AC  vector of activity coefficients for all of the species
- *            in all of the phases in a VCS problem. Only the
- *            entries for the current phase are filled in.
- */
 void vcs_VolPhase::sendToVCS_ActCoeff(const int vcsStateStatus,
                                       double* const AC)
 {
@@ -743,18 +633,7 @@ void vcs_VolPhase::sendToVCS_ActCoeff(const int vcsStateStatus,
         AC[kglob] = ActCoeff[k];
     }
 }
-/***************************************************************************/
 
-// Fill in the partial molar volume vector for VCS
-/*
- *  This routine will calculate the partial molar volumes for the
- *  current phase (if needed), and fill in the corresponding entries in the
- *  VCS partial molar volumes vector.
- *
- * @param VolPM  vector of partial molar volumes for all of the species
- *            in all of the phases in a VCS problem. Only the
- *            entries for the current phase are filled in.
- */
 double vcs_VolPhase::sendToVCS_VolPM(double* const VolPM) const
 {
     if (!m_UpToDate_VolPM) {
@@ -766,7 +645,6 @@ double vcs_VolPhase::sendToVCS_VolPM(double* const VolPM) const
     }
     return m_totalVol;
 }
-/***************************************************************************/
 
 void vcs_VolPhase::sendToVCS_GStar(double* const gstar) const
 {
@@ -778,8 +656,6 @@ void vcs_VolPhase::sendToVCS_GStar(double* const gstar) const
         gstar[kglob] = StarChemicalPotential[k];
     }
 }
-/***************************************************************************/
-
 
 void vcs_VolPhase::setElectricPotential(const double phi)
 {
@@ -793,24 +669,12 @@ void vcs_VolPhase::setElectricPotential(const double phi)
     m_UpToDate_VolPM = false;
     m_UpToDate_GStar = false;
 }
-/***************************************************************************/
 
 double vcs_VolPhase::electricPotential() const
 {
     return m_phi;
 }
-/***************************************************************************/
 
-// Sets the temperature and pressure in this object and
-//  underlying objects
-/*
- *  Sets the temperature and pressure in this object and
- *  underlying objects. The underlying objects refers to the
- *  Cantera's ThermoPhase object for this phase.
- *
- *  @param temperature_Kelvin    (Kelvin)
- *  @param pressure_PA  Pressure (MKS units - Pascal)
- */
 void vcs_VolPhase::setState_TP(const double temp, const double pres)
 {
     if (Temp_ == temp) {
@@ -830,22 +694,11 @@ void vcs_VolPhase::setState_TP(const double temp, const double pres)
     m_UpToDate_GStar   = false;
     m_UpToDate_G0      = false;
 }
-/***************************************************************************/
 
-// Sets the temperature in this object and
-// underlying objects
-/*
- *  Sets the temperature and pressure in this object and
- *  underlying objects. The underlying objects refers to the
- *  Cantera's ThermoPhase object for this phase.
- *
- *  @param temperature_Kelvin    (Kelvin)
- */
 void vcs_VolPhase::setState_T(const double temp)
 {
     setState_TP(temp, Pres_);
 }
-/***************************************************************************/
 
 void vcs_VolPhase::_updateVolStar() const
 {
@@ -861,7 +714,6 @@ void vcs_VolPhase::_updateVolStar() const
     }
     m_UpToDate_VolStar = true;
 }
-/***************************************************************************/
 
 double vcs_VolPhase::VolStar_calc_one(size_t kspec) const
 {
@@ -870,15 +722,7 @@ double vcs_VolPhase::VolStar_calc_one(size_t kspec) const
     }
     return StarMolarVol[kspec];
 }
-/***************************************************************************/
 
-// Calculate the partial molar volumes of all species and return the
-// total volume
-/*
- *  Calculates these quantities internally and then stores them
- *
- * @return total volume  (m**3)
- */
 double vcs_VolPhase::_updateVolPM() const
 {
     if (m_useCanteraCalls) {
@@ -913,7 +757,6 @@ double vcs_VolPhase::_updateVolPM() const
     m_UpToDate_VolPM = true;
     return m_totalVol;
 }
-/***************************************************************************/
 
 void vcs_VolPhase::_updateLnActCoeffJac()
 {
@@ -1007,22 +850,8 @@ void vcs_VolPhase::_updateLnActCoeffJac()
     _updateMoleFractionDependencies();
     _updateActCoeff();
 }
-/***************************************************************************/
 
-// Downloads the ln ActCoeff jacobian into the VCS version of the
-// ln ActCoeff jacobian.
-/*
- *
- *   This is essentially a scatter operation.
- *
- *   The Jacobians are actually d( lnActCoeff) / d (MolNumber);
- *   dLnActCoeffdMolNumber[j][k]
- *
- *      j = id of the species mole number
- *      k = id of the species activity coefficient
- */
-void
-vcs_VolPhase::sendToVCS_LnActCoeffJac(double* const* const np_LnACJac_VCS)
+void vcs_VolPhase::sendToVCS_LnActCoeffJac(double* const* const np_LnACJac_VCS)
 {
     /*
      * update the Ln Act Coeff jacobian entries with respect to the
@@ -1044,16 +873,7 @@ vcs_VolPhase::sendToVCS_LnActCoeffJac(double* const* const np_LnACJac_VCS)
         }
     }
 }
-/***************************************************************************/
 
-// Set the pointer for Cantera's ThermoPhase parameter
-/*
- *  When we first initialize the ThermoPhase object, we read the
- *  state of the ThermoPhase into vcs_VolPhase object.
- *
- * @param tp_ptr Pointer to the ThermoPhase object corresponding
- *               to this phase.
- */
 void vcs_VolPhase::setPtrThermoPhase(Cantera::ThermoPhase* tp_ptr)
 {
     TP_ptr = tp_ptr;
@@ -1104,29 +924,21 @@ void vcs_VolPhase::setPtrThermoPhase(Cantera::ThermoPhase* tp_ptr)
         m_useCanteraCalls = false;
     }
 }
-/***************************************************************************/
 
-// Return a const ThermoPhase pointer corresponding to this phase
-/*
- *  @return pointer to the ThermoPhase.
- */
 const Cantera::ThermoPhase* vcs_VolPhase::ptrThermoPhase() const
 {
     return TP_ptr;
 }
-/***************************************************************************/
 
 double vcs_VolPhase::totalMoles() const
 {
     return v_totalMoles;
 }
-/***************************************************************************/
 
 double vcs_VolPhase::molefraction(size_t k) const
 {
     return Xmol_[k];
 }
-/***************************************************************************/
 
 void vcs_VolPhase::setCreationMoleNumbers(const double* const n_k,
         const std::vector<size_t> &creationGlobalRxnNumbers)
@@ -1136,22 +948,13 @@ void vcs_VolPhase::setCreationMoleNumbers(const double* const n_k,
         creationGlobalRxnNumbers_[k] = creationGlobalRxnNumbers[k];
     }
 }
-/***************************************************************************/
 
 const std::vector<double> & vcs_VolPhase::creationMoleNumbers(std::vector<size_t> &creationGlobalRxnNumbers) const
 {
     creationGlobalRxnNumbers = creationGlobalRxnNumbers_;
     return creationMoleNumbers_;
 }
-/***************************************************************************/
 
-// Sets the total moles in the phase
-/*
- * We don't have to flag the internal state as changing here
- * because we have just changed the total moles.
- *
- *  @param totalMols   Total moles in the phase (kmol)
- */
 void vcs_VolPhase::setTotalMoles(const double totalMols)
 {
     v_totalMoles = totalMols;
@@ -1177,13 +980,7 @@ void vcs_VolPhase::setTotalMoles(const double totalMols)
         }
     }
 }
-/***************************************************************************/
 
-// Sets the mole flag within the object to out of date
-/*
- *  This will trigger the object to go get the current mole numbers
- *  when it needs it.
- */
 void vcs_VolPhase::setMolesOutOfDate(int stateCalc)
 {
     m_UpToDate = false;
@@ -1191,24 +988,13 @@ void vcs_VolPhase::setMolesOutOfDate(int stateCalc)
         m_vcsStateStatus = stateCalc;
     }
 }
-/***************************************************************************/
 
-// Sets the mole flag within the object to be current
 void vcs_VolPhase::setMolesCurrent(int stateCalc)
 {
     m_UpToDate = true;
     m_vcsStateStatus = stateCalc;
 }
-/***************************************************************************/
 
-
-// Return a string representing the equation of state
-/*
- * The string is no more than 16 characters.
- *  @param EOSType : integer value of the equation of state
- *
- * @return returns a string representing the EOS
- */
 std::string string16_EOSType(int EOSType)
 {
     char st[32];
@@ -1242,28 +1028,21 @@ std::string string16_EOSType(int EOSType)
     st[16] = '\0';
     return st;
 }
-/***************************************************************************/
 
-// Returns whether the phase is an ideal solution phase
 bool vcs_VolPhase::isIdealSoln() const
 {
     return m_isIdealSoln;
 }
-/***************************************************************************/
 
-// Returns whether the phase uses Cantera calls
 bool vcs_VolPhase::usingCanteraCalls() const
 {
     return m_useCanteraCalls;
 }
-/***************************************************************************/
 
 size_t vcs_VolPhase::phiVarIndex() const
 {
     return m_phiVarIndex;
 }
-/***************************************************************************/
-
 
 void vcs_VolPhase::setPhiVarIndex(size_t phiVarIndex)
 {
@@ -1275,28 +1054,17 @@ void vcs_VolPhase::setPhiVarIndex(size_t phiVarIndex)
         }
     }
 }
-/***************************************************************************/
 
-// Retrieve the kth Species structure for the species belonging to this phase
-/*
- * The index into this vector is the species index within the phase.
- *
- * @param kindex kth species index.
- */
 vcs_SpeciesProperties* vcs_VolPhase::speciesProperty(const size_t kindex)
 {
     return  ListSpeciesPtr[kindex];
 }
-/***************************************************************************/
 
-// Boolean indicating whether the phase exists or not
 int vcs_VolPhase::exists() const
 {
     return m_existence;
 }
-/**********************************************************************/
 
-// Set the existence flag in the object
 void vcs_VolPhase::setExistence(const int existence)
 {
     if (existence == VCS_PHASE_EXIST_NO || existence == VCS_PHASE_EXIST_ZEROEDPHASE) {
@@ -1336,30 +1104,12 @@ void vcs_VolPhase::setExistence(const int existence)
 #endif
     m_existence = existence;
 }
-/**********************************************************************/
 
-// Return the Global VCS index of the kth species in the phase
-/*
- *  @param spIndex local species index (0 to the number of species
- *                 in the phase)
- *
- * @return Returns the VCS_SOLVE species index of the that species
- *         This changes as rearrangements are carried out.
- */
 size_t vcs_VolPhase::spGlobalIndexVCS(const size_t spIndex) const
 {
     return IndSpecies[spIndex];
 }
-/**********************************************************************/
 
-//! set the Global VCS index of the kth species in the phase
-/*!
- *  @param spIndex local species index (0 to the number of species
- *                 in the phase)
- *
- * @return Returns the VCS_SOLVE species index of the that species
- *         This changes as rearrangements are carried out.
- */
 void vcs_VolPhase::setSpGlobalIndexVCS(const size_t spIndex,
                                        const size_t spGlobalIndex)
 {
@@ -1368,13 +1118,7 @@ void vcs_VolPhase::setSpGlobalIndexVCS(const size_t spIndex,
         creationGlobalRxnNumbers_[spIndex] = spGlobalIndex - m_numElemConstraints;
     }
 }
-/**********************************************************************/
 
-// Sets the total moles of inert in the phase
-/*
- * @param tMolesInert Value of the total kmols of inert species in the
- *        phase.
- */
 void vcs_VolPhase::setTotalMolesInert(const double tMolesInert)
 {
     if (m_totalMolesInert != tMolesInert) {
@@ -1399,48 +1143,36 @@ void vcs_VolPhase::setTotalMolesInert(const double tMolesInert)
         }
     }
 }
-/**********************************************************************/
 
-// returns the value of the total kmol of inert in the phase
 double vcs_VolPhase::totalMolesInert() const
 {
     return m_totalMolesInert;
 }
-/**********************************************************************/
 
-// Returns the global index of the local element index for the phase
 size_t vcs_VolPhase::elemGlobalIndex(const size_t e) const
 {
     AssertThrow(e < m_numElemConstraints, " vcs_VolPhase::elemGlobalIndex");
     return m_elemGlobalIndex[e];
 }
-/**********************************************************************/
 
-// Returns the global index of the local element index for the phase
 void vcs_VolPhase::setElemGlobalIndex(const size_t eLocal, const size_t eGlobal)
 {
     AssertThrow(eLocal < m_numElemConstraints,
                 "vcs_VolPhase::setElemGlobalIndex");
     m_elemGlobalIndex[eLocal] = eGlobal;
 }
-/**********************************************************************/
 
 size_t vcs_VolPhase::nElemConstraints() const
 {
     return m_numElemConstraints;
 }
-/**********************************************************************/
 
 std::string vcs_VolPhase::elementName(const size_t e) const
 {
     return m_elementNames[e];
 }
-/**********************************************************************/
 
-/*!
- *  This function decides whether a phase has charged species
- *  or not.
- */
+//! This function decides whether a phase has charged species or not.
 static bool hasChargedSpecies(const Cantera::ThermoPhase* const tPhase)
 {
     for (size_t k = 0; k < tPhase->nSpecies(); k++) {
@@ -1450,10 +1182,8 @@ static bool hasChargedSpecies(const Cantera::ThermoPhase* const tPhase)
     }
     return false;
 }
-/**********************************************************************
- *
- * chargeNeutralityElement():
- *
+
+/*!
  *  This utility routine decides whether a Cantera ThermoPhase needs
  *  a constraint equation representing the charge neutrality of the
  *  phase. It does this by searching for charged species. If it
@@ -1598,53 +1328,35 @@ size_t vcs_VolPhase::transferElementsFM(const Cantera::ThermoPhase* const tPhase
 
     return ne;
 }
-/***************************************************************************/
 
-// Type of the element constraint with index \c e.
-/*
- * @param e Element index.
- */
 int vcs_VolPhase::elementType(const size_t e) const
 {
     return m_elementType[e];
 }
-/***************************************************************************/
 
-// Set the element Type of the element constraint with index \c e.
-/*
- * @param e Element index
- * @param eType  type of the element.
- */
 void vcs_VolPhase::setElementType(const size_t e, const int eType)
 {
     m_elementType[e] = eType;
 }
-/***************************************************************************/
 
 double const* const* vcs_VolPhase::getFormulaMatrix() const
 {
     return m_formulaMatrix.constBaseDataAddr();
 }
-/***************************************************************************/
 
 int vcs_VolPhase::speciesUnknownType(const size_t k) const
 {
     return m_speciesUnknownType[k];
 }
-/***************************************************************************/
 
 int vcs_VolPhase::elementActive(const size_t e) const
 {
     return m_elementActive[e];
 }
-/***************************************************************************/
 
-//! Return the number of species in the phase
 size_t vcs_VolPhase::nSpecies() const
 {
     return m_numSpecies;
 }
-/***************************************************************************/
 
 }
-
