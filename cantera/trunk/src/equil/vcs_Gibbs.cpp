@@ -15,24 +15,8 @@
 
 namespace VCSnonideal
 {
-
-/***************************************************************************/
-/***************************************************************************/
-/***************************************************************************/
-
 double VCS_SOLVE::vcs_Total_Gibbs(double* molesSp, double* chemPot,
                                   double* tPhMoles)
-
-/*************************************************************************
- *
- * vcs_Total_Gibbs:
- *
- *    Calculate the total dimensionless Gibbs free energy
- *     -> Inert species are handled as if they had a standard free
- *        energy of zero.
- *    Note, for this algorithm this function should be MONOTONICALLY
- *    DECREASING.
- *************************************************************************/
 {
     double g = 0.0;
 
@@ -56,15 +40,6 @@ double VCS_SOLVE::vcs_Total_Gibbs(double* molesSp, double* chemPot,
     return g;
 }
 
-// Calculate the total dimensionless Gibbs free energy of a single phase
-/*
- *     -> Inert species are handled as if they had a standard free
- *        energy of zero and if they obeyed ideal solution/gas theory
- *
- * @param iphase   ID of the phase
- * @param w        Species mole number vector
- * @param fe       vector of partial molar free energies of the species.
- */
 double VCS_SOLVE::vcs_GibbsPhase(size_t iphase, const double* const w,
                                  const double* const fe)
 {

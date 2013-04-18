@@ -19,28 +19,6 @@
 namespace VCSnonideal
 {
 
-// Calculates formation reaction step sizes.
-/*
- *     This is equation 6.4-16, p. 143 in Smith and Missen.
- *
- * Output
- * -------
- * m_deltaMolNumSpecies[kspec] : reaction adjustments, where irxn refers
- *                              to the irxn'th species
- *                              formation reaction. This  adjustment
- *                              is for species
- *                               irxn + M, where M is the number
- *                              of components.
- *
- * Special branching occurs sometimes. This causes the component basis
- * to be reevaluated
- *
- * @return  Returns an int representing the status of the step
- *            -  0 : normal return
- *            -  1 : A single species phase species has been zeroed out
- *                   in this routine. The species is a noncomponent
- *            -  2 : Same as one but, the zeroed species is a component.
- */
 size_t VCS_SOLVE::vcs_RxnStepSizes(int& forceComponentCalc, size_t& kSpecial)
 {
     size_t kspec, iph;
@@ -404,32 +382,6 @@ size_t VCS_SOLVE::vcs_RxnStepSizes(int& forceComponentCalc, size_t& kSpecial)
     return iphDel;
 }
 
-//====================================================================================================================
-//  Calculates reaction adjustments using a full Hessian approximation
-/*
- *  Calculates reaction adjustments. This does what equation 6.4-16, p. 143
- * in Smith and Missen is suppose to do. However, a full matrix is
- * formed and then solved via a conjugate gradient algorithm. No
- * preconditioning is done.
- *
- * If special branching is warranted, then the program bails out.
- *
- * Output
- * -------
- * DS(I) : reaction adjustment, where I refers to the Ith species
- * Special branching occurs sometimes. This causes the component basis
- * to be reevaluated
- *     return = 0 : normal return
- *              1 : A single species phase species has been zeroed out
- *                  in this routine. The species is a noncomponent
- *              2 : Same as one but, the zeroed species is a component.
- *
- * Special attention is taken to flag cases where the direction of the
- * update is contrary to the steepest descent rule. This is an important
- * attribute of the regular vcs algorithm. We don't want to violate this.
- *
- *  NOTE: currently this routine is not used.
- */
 int VCS_SOLVE::vcs_rxn_adj_cg()
 {
     size_t irxn, j;
@@ -640,18 +592,6 @@ int VCS_SOLVE::vcs_rxn_adj_cg()
     return soldel;
 }
 
-//====================================================================================================================
-//  Calculates the diagonal contribution to the Hessian due to
-//  the dependence of the activity coefficients on the mole numbers.
-/*
- *  (See framemaker notes, Eqn. 20 - VCS Equations document)
- *
- *  We allow the diagonal to be increased positively to any degree.
- *  We allow the diagonal to be decreased to 1/3 of the ideal solution
- *  value, but no more -> it must remain positive.
- *
- *  NOTE: currently this routine is not used
- */
 double VCS_SOLVE::vcs_Hessian_diag_adj(size_t irxn, double hessianDiag_Ideal)
 {
     double diag = hessianDiag_Ideal;
@@ -670,14 +610,6 @@ double VCS_SOLVE::vcs_Hessian_diag_adj(size_t irxn, double hessianDiag_Ideal)
     return diag;
 }
 
-//====================================================================================================================
-//! Calculates the diagonal contribution to the Hessian due to
-//!  the dependence of the activity coefficients on the mole numbers.
-/*!
- *  (See framemaker notes, Eqn. 20 - VCS Equations document)
- *
- *  NOTE: currently this routine is not used
- */
 double VCS_SOLVE::vcs_Hessian_actCoeff_diag(size_t irxn)
 {
     size_t kspec, k, l, kph;
@@ -716,15 +648,7 @@ double VCS_SOLVE::vcs_Hessian_actCoeff_diag(size_t irxn)
     }
     return s;
 }
-//====================================================================================================================
-// Recalculate all of the activity coefficients in all of the phases
-// based on input mole numbers
-/*
- *
- * @param moleSpeciesVCS kmol of species to be used in the update.
- *
- * NOTE: This routine needs to be regulated.
- */
+
 void VCS_SOLVE::vcs_CalcLnActCoeffJac(const double* const moleSpeciesVCS)
 {
     /*
@@ -749,41 +673,7 @@ void VCS_SOLVE::vcs_CalcLnActCoeffJac(const double* const moleSpeciesVCS)
         }
     }
 }
-/*****************************************************************************/
 
-//! This function recalculates the deltaG for reaction, irxn
-/*!
- *       This function recalculates the deltaG for reaction irxn,
- *       given the mole numbers in molNum. It uses the temporary
- *       space mu_i, to hold the recalculated chemical potentials.
- *       It only recalculates the chemical potentials for species in phases
- *       which participate in the irxn reaction.
- *
- *       This function is used by the vcs_line_search algorithm() and
- *       should not be used widely due to the unknown state it leaves the
- *       system.
- *
- * Input
- * ------------
- * @param irxn   Reaction number
- * @param molNum  Current mole numbers of species to be used as
- *                input to the calculation (units = kmol)
- *                (length = totalNuMSpecies)
- *
- * Output
- * ------------
- * @param ac      output Activity coefficients   (length = totalNumSpecies)
- *                 Note this is only partially formed. Only species in
- *                 phases that participate in the reaction will be updated
- * @param mu_i    dimensionless chemical potentials (length - totalNumSpecies
- *                 Note this is only partially formed. Only species in
- *                 phases that participate in the reaction will be updated
- *
- * @return Returns the dimensionless deltaG of the reaction
- *
- * Note, this is a dangerous routine that leaves the underlying objects in
- * an unknown state.
- */
 double VCS_SOLVE::deltaG_Recalc_Rxn(const int stateCalc, const size_t irxn, const double* const molNum, double* const ac,
                                     double* const mu_i)
 {
@@ -801,22 +691,8 @@ double VCS_SOLVE::deltaG_Recalc_Rxn(const int stateCalc, const size_t irxn, cons
     }
     return deltaG;
 }
-/*****************************************************************************/
 
 #ifdef DEBUG_MODE
-// A line search algorithm is carried out on one reaction
-/*
- *    In this routine we carry out a rough line search algorithm
- *    to make sure that the m_deltaGRxn_new doesn't switch signs prematurely.
- *
- *  @param irxn     Reaction number
- *  @param dx_orig  Original step length
- *
- *  @param ANOTE    Output character string stating the conclusions of the
- *                  line search
- *
- *  @return         Returns the optimized step length found by the search
- */
 double VCS_SOLVE::vcs_line_search(const size_t irxn, const double dx_orig, char* const ANOTE)
 #else
 double VCS_SOLVE::vcs_line_search(const size_t irxn, const double dx_orig)
@@ -955,6 +831,5 @@ finalize:
 
     return dx;
 }
-/*****************************************************************************/
-}
 
+}

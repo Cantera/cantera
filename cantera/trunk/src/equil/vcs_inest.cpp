@@ -23,19 +23,6 @@ namespace VCSnonideal
 
 static char pprefix[20] = "   --- vcs_inest: ";
 
-// Estimate equilibrium compositions
-/*
- *  Estimates equilibrium compositions.
- *  Algorithm covered in a section of Smith and Missen's Book.
- *
- *  Linear programming module is based on using dbolm.
- *
- *  @param aw   aw[i[  Mole fraction work space        (ne in length)
- *  @param sa   sa[j] = Gramm-Schmidt orthog work space (ne in length)
- *  @param sm   sm[i+j*ne] = QR matrix work space (ne*ne in length)
- *  @param ss   ss[j] = Gramm-Schmidt orthog work space (ne in length)
- *  @param test This is a small negative number.
- */
 void VCS_SOLVE::vcs_inest(double* const aw, double* const sa, double* const sm,
                           double* const ss, double test)
 {
@@ -358,16 +345,7 @@ finished:
     }
 #endif
 }
-/***************************************************************************/
 
-//   Create an initial estimate of the solution to the thermodynamic
-//   equilibrium problem.
-/*
- *    @return  Return value indicates success:
- *      -    0: successful initial guess
- *      -   -1: Unsuccessful initial guess; the elemental abundances aren't
- *              satisfied.
- */
 int VCS_SOLVE::vcs_inest_TP()
 {
     int retn = 0;

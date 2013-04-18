@@ -1,13 +1,12 @@
 /*!
- * @file vcs_solve.h
- *    Header file for the internal class that holds the problem.
+ * @file vcs_solve.h Header file for the internal class that holds the
+ *     problem.
  */
 /*
  * Copyright (2005) Sandia Corporation. Under the terms of
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the
  * U.S. Government retains certain rights in this software.
  */
-
 
 #include "cantera/equil/vcs_solve.h"
 #include "cantera/base/ctexceptions.h"
@@ -62,27 +61,9 @@ VCS_SOLVE::VCS_SOLVE() :
 {
 }
 
-//   Initialize the sizes within the VCS_SOLVE object
-
-/*
- *    This resizes all of the internal arrays within the object. This routine
- *    operates in two modes. If all of the parameters are the same as it
- *    currently exists in the object, nothing is done by this routine; a quick
- *    exit is carried out and all of the data in the object persists.
- *
- *    IF any of the parameters are different than currently exists in the
- *    object, then all of the data in the object must be redone. It may not
- *    be zeroed, but it must be redone.
- *
- *  @param nspecies0     Number of species within the object
- *  @param nelements     Number of element constraints within the problem
- *  @param nphase0       Number of phases defined within the problem.
- *
- */
 void VCS_SOLVE::vcs_initSizes(const size_t nspecies0, const size_t nelements,
                               const size_t nphase0)
 {
-
     if (NSPECIES0 != 0) {
         if ((nspecies0 != NSPECIES0) || (nelements != m_numElemConstraints) || (nphase0 != NPHASE0)) {
             vcs_delete_memory();
@@ -237,19 +218,12 @@ void VCS_SOLVE::vcs_initSizes(const size_t nspecies0, const size_t nelements,
     return;
 
 }
-/****************************************************************************/
 
-// Destructor
 VCS_SOLVE::~VCS_SOLVE()
 {
     vcs_delete_memory();
 }
-/*****************************************************************************/
 
-// Delete memory that isn't just resizeable STL containers
-/*
- * This gets called by the destructor or by InitSizes().
- */
 void VCS_SOLVE::vcs_delete_memory()
 {
     size_t j;
@@ -273,44 +247,7 @@ void VCS_SOLVE::vcs_delete_memory()
     m_numElemConstraints = 0;
     m_numComponents = 0;
 }
-/*****************************************************************************/
 
-// Solve an equilibrium problem
-/*
- *  This is the main interface routine to the equilibrium solver
- *
- * Input:
- *   @param vprob Object containing the equilibrium Problem statement
- *
- *   @param ifunc Determines the operation to be done: Valid values:
- *            0 -> Solve a new problem by initializing structures
- *                 first. An initial estimate may or may not have
- *                 been already determined. This is indicated in the
- *                 VCS_PROB structure.
- *            1 -> The problem has already been initialized and
- *                 set up. We call this routine to resolve it
- *                 using the problem statement and
- *                 solution estimate contained in
- *                 the VCS_PROB structure.
- *            2 -> Don't solve a problem. Destroy all the private
- *                 structures.
- *
- *  @param ipr Printing of results
- *     ipr = 1 -> Print problem statement and final results to
- *                standard output
- *           0 -> don't report on anything
- *  @param ip1 Printing of intermediate results
- *     ip1 = 1 -> Print intermediate results.
- *         = 0 -> No intermediate results printing
- *
- *  @param maxit  Maximum number of iterations for the algorithm
- *
- * Output:
- *
- *    @return
- *       nonzero value: failure to solve the problem at hand.
- *       zero : success
- */
 int VCS_SOLVE::vcs(VCS_PROB* vprob, int ifunc, int ipr, int ip1, int maxit)
 {
     int retn = 0, iconv = 0;
@@ -444,16 +381,7 @@ int VCS_SOLVE::vcs(VCS_PROB* vprob, int ifunc, int ipr, int ip1, int maxit)
     }
     return iconv;
 }
-/*****************************************************************************/
 
-// Fully specify the problem to be solved using VCS_PROB
-/*
- *  Use the contents of the VCS_PROB to specify the contents of the
- *  private data, VCS_SOLVE.
- *
- *  @param pub  Pointer to VCS_PROB that will be used to
- *              initialize the current equilibrium problem
- */
 int VCS_SOLVE::vcs_prob_specifyFully(const VCS_PROB* pub)
 {
     vcs_VolPhase* Vphase = 0;
@@ -835,18 +763,7 @@ int VCS_SOLVE::vcs_prob_specifyFully(const VCS_PROB* pub)
      */
     return VCS_SUCCESS;
 }
-/*****************************************************************************/
 
-//   Specify the problem to be solved using VCS_PROB, incrementally
-/*
- *  Use the contents of the VCS_PROB to specify the contents of the
- *  private data, VCS_SOLVE.
- *
- *  It's assumed we are solving the same problem.
- *
- *  @param pub  Pointer to VCS_PROdB that will be used to
- *              initialize the current equilibrium problem
- */
 int VCS_SOLVE::vcs_prob_specify(const VCS_PROB* pub)
 {
     size_t kspec, k, i, j, iph;
@@ -971,15 +888,7 @@ int VCS_SOLVE::vcs_prob_specify(const VCS_PROB* pub)
 
     return retn;
 }
-/*****************************************************************************/
 
-// Transfer the results of the equilibrium calculation back to VCS_PROB
-/*
- *   The VCS_PUB structure is  returned to the user.
- *
- *  @param pub  Pointer to VCS_PROB that will get the results of the
- *              equilibrium calculation transfered to it.
- */
 int VCS_SOLVE::vcs_prob_update(VCS_PROB* pub)
 {
     size_t k1 = 0;
@@ -1063,17 +972,7 @@ int VCS_SOLVE::vcs_prob_update(VCS_PROB* pub)
 
     return VCS_SUCCESS;
 }
-/*****************************************************************************/
 
-// Initialize the internal counters
-/*
- * Initialize the internal counters containing the subroutine call
- * values and times spent in the subroutines.
- *
- *  ifunc = 0     Initialize only those counters appropriate for the top of
- *                vcs_solve_TP().
- *        = 1     Initialize all counters.
- */
 void VCS_SOLVE::vcs_counters_init(int ifunc)
 {
     m_VCount->Its = 0;
@@ -1091,30 +990,7 @@ void VCS_SOLVE::vcs_counters_init(int ifunc)
         m_VCount->T_Time_vcs = 0.0;
     }
 }
-/**************************************************************************/
 
-//    Calculation of the total volume and the partial molar volumes
-/*
- *  This function calculates the partial molar volume
- *  for all species, kspec, in the thermo problem
- *  at the temperature TKelvin and pressure, Pres, pres is in atm.
- *  And, it calculates the total volume of the combined system.
- *
- * Input
- * ---------------
- *    @param tkelvin   Temperature in kelvin()
- *    @param pres      Pressure in Pascal
- *    @param w         w[] is thevector containing the current mole numbers
- *                     in units of kmol.
- *
- * Output
- * ----------------
- *    @param volPM[]    For species in all phase, the entries are the
- *                      partial molar volumes units of M**3 / kmol.
- *
- *    @return           The return value is the total volume of
- *                      the entire system in units of m**3.
- */
 double VCS_SOLVE::vcs_VolTotal(const double tkelvin, const double pres,
                                const double w[], double volPM[])
 {
@@ -1128,7 +1004,5 @@ double VCS_SOLVE::vcs_VolTotal(const double tkelvin, const double pres,
     }
     return VolTot;
 }
-/****************************************************************************/
-
 
 }

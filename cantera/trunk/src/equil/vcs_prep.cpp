@@ -21,9 +21,6 @@
 
 namespace VCSnonideal
 {
-
-
-//  Calculate the status of single species phases.
 void VCS_SOLVE::vcs_SSPhase()
 {
     size_t iph;
@@ -68,41 +65,7 @@ void VCS_SOLVE::vcs_SSPhase()
         }
     }
 }
-/*****************************************************************************/
 
-//  This routine is mostly concerned with changing the private data
-//  to be consistent with what's needed for solution. It is called one
-//  time for each new problem structure definition.
-/*
- *  This routine is always followed by vcs_prep(). Therefore, tasks
- *  that need to be done for every call to vcsc() should be placed in
- *  vcs_prep() and not in this routine.
- *
- *  The problem structure refers to:
- *
- *     the number and identity of the species.
- *     the formula matrix and thus the number of components.
- *     the number and identity of the phases.
- *     the equation of state
- *     the method and parameters for determining the standard state
- *     The method and parameters for determining the activity coefficients.
- *
- * Tasks:
- *    0) Fill in the SSPhase[] array.
- *    1) Check to see if any multispecies phases actually have only one
- *       species in that phase. If true, reassign that phase and species
- *       to be a single-species phase.
- *    2) Determine the number of components in the problem if not already
- *       done so. During this process the order of the species is changed
- *       in the private data structure. All references to the species
- *       properties must employ the ind[] index vector.
- *
- *  @param printLvl Print level of the routine
- *
- *  @return the return code
- *        VCS_SUCCESS = everything went OK
- *
- */
 int VCS_SOLVE::vcs_prep_oneTime(int printLvl)
 {
     size_t kspec, i;
@@ -113,7 +76,6 @@ int VCS_SOLVE::vcs_prep_oneTime(int printLvl)
     bool conv;
 
     m_debug_print_lvl = printLvl;
-
 
     /*
      *  Calculate the Single Species status of phases
@@ -258,24 +220,6 @@ int VCS_SOLVE::vcs_prep_oneTime(int printLvl)
     return VCS_SUCCESS;
 }
 
-/*****************************************************************************/
-
-// Prepare the object for re-solution
-/*
- *  This routine is mostly concerned with changing the private data
- *  to be consistent with that needed for solution. It is called for
- *  every invocation of the vcs_solve() except for the cleanup invocation.
- *
- * Tasks:
- *  1)  Initialization of arrays to zero.
- *  2)  Calculate total number of moles in all phases
- *
- *  return code
- *     VCS_SUCCESS = everything went OK
- *     VCS_PUB_BAD = There is an irreconcilable difference in the
- *                   public data structure from when the problem was
- *                   initially set up.
- */
 int VCS_SOLVE::vcs_prep()
 {
     /*
@@ -295,23 +239,6 @@ int VCS_SOLVE::vcs_prep()
     return VCS_SUCCESS;
 }
 
-/*****************************************************************************/
-
-//  In this routine, we check for things that will cause the algorithm
-//  to fail.
-/*
- *  We check to see if the problem is well posed. If it is not, we return
- *  false and print out error conditions.
- *
- *  Current there is one condition. If all the element abundances are
- *  zero, the algorithm will fail
- *
- * @param vprob   VCS_PROB pointer to the definition of the equilibrium
- *                problem
- *
- * @return  If true, the problem is well-posed. If false, the problem
- *          is not well posed.
- */
 bool VCS_SOLVE::vcs_wellPosed(VCS_PROB* vprob)
 {
     double sum = 0.0;
@@ -325,5 +252,4 @@ bool VCS_SOLVE::vcs_wellPosed(VCS_PROB* vprob)
     return true;
 }
 
-/*****************************************************************************/
 }

@@ -20,16 +20,6 @@
 
 namespace VCSnonideal
 {
-
-//  Returns the multiplier for electric charge terms
-/*
- *   This is basically equal to F/RT
- *
- * @param mu_units integer representing the dimensional units system
- * @param TKelvin  double  Temperature in Kelvin
- *
- * @return Returns the value of F/RT
- */
 double VCS_SOLVE::vcs_nondim_Farad(int mu_units, double TKelvin) const
 {
     double Farad;
@@ -57,15 +47,6 @@ double VCS_SOLVE::vcs_nondim_Farad(int mu_units, double TKelvin) const
     return Farad;
 }
 
-//  Returns the multiplier for the nondimensionalization of the equations
-/*
- *   This is basically equal to RT
- *
- * @param mu_units integer representing the dimensional units system
- * @param TKelvin  double  Temperature in Kelvin
- *
- * @return Returns the value of RT
- */
 double VCS_SOLVE::vcs_nondimMult_TP(int mu_units, double TKelvin) const
 {
     double rt;
@@ -96,22 +77,6 @@ double VCS_SOLVE::vcs_nondimMult_TP(int mu_units, double TKelvin) const
     return rt;
 }
 
-// Nondimensionalize the problem data
-/*
- *   Nondimensionalize the free energies using the divisor, R * T
- *
- *  Essentially the internal data can either be in dimensional form
- *  or in nondimensional form. This routine switches the data from
- *  dimensional form into nondimensional form.
- *
- *  What we do is to divide by RT.
- *
- *  @todo Add a scale factor based on the total mole numbers.
- *        The algorithm contains hard coded numbers based on the
- *        total mole number. If we ever were faced with a problem
- *        with significantly different total kmol numbers than one
- *        the algorithm would have problems.
- */
 void VCS_SOLVE::vcs_nondim_TP()
 {
     double tf;
@@ -203,16 +168,6 @@ void VCS_SOLVE::vcs_nondim_TP()
     }
 }
 
-// Redimensionalize the problem data
-/*
- *  Redimensionalize the free energies using the multiplier R * T
- *
- *  Essentially the internal data can either be in dimensional form
- *  or in nondimensional form. This routine switches the data from
- *  nondimensional form into dimensional form.
- *
- *  What we do is to multiply by RT.
- */
 void VCS_SOLVE::vcs_redim_TP(void)
 {
     double tf;
@@ -260,11 +215,6 @@ void VCS_SOLVE::vcs_redim_TP(void)
     }
 }
 
-// Computes the current elemental abundances vector
-/*
- *   Computes the elemental abundances vector, m_elemAbundances[], and stores it
- *   back into the global structure
- */
 void VCS_SOLVE::vcs_printChemPotUnits(int unitsFormat) const
 {
     switch (unitsFormat) {
@@ -290,4 +240,3 @@ void VCS_SOLVE::vcs_printChemPotUnits(int unitsFormat) const
 }
 
 }
-
