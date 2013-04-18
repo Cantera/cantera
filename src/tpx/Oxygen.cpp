@@ -1,5 +1,3 @@
-// Oxygen
-
 #include "Oxygen.h"
 #include "cantera/base/stringUtils.h"
 #include <math.h>
@@ -8,7 +6,6 @@ using namespace Cantera;
 
 namespace tpx
 {
-
 static const double
 M = 31.9994,
 Tmn = 54.34,
@@ -52,8 +49,6 @@ static const double Goxy[] = {
     6.55236176900400e2, -1.13131252131570e-2,
     3.4981070244228e-6, 4.21065222886885e-9, 2.67997030050139e2
 };
-
-//equation P4
 
 double oxygen::C(int i, double rt, double rt2)
 {
@@ -195,7 +190,6 @@ double oxygen::Pp()
     return P;
 }
 
-//equation s4
 double oxygen::Psat()
 {
     double lnp;
@@ -215,7 +209,6 @@ double oxygen::Psat()
     return exp(lnp);
 }
 
-//equation D2
 double oxygen::ldens()
 {
     double xx=1-T/Tc, sum=0;

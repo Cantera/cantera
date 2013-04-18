@@ -1,21 +1,3 @@
-/*
- * This is the base substance class from which all substances are derived
- *
- * Kate Talmazan: SURF -- July, 1995
- *   original implementation of this class and all derived classes from
- *   formulas given in TPSI. Implementation of P(Rho, T), cv0(T), ldens(T),
- *   and Psat(T) for all substances in TPSI.f
- *
- * Dave Goodwin: Fall, 1996
- *   functions for u, h, s, f, g;
- *   functions to set state
- *   error handling
- *   documentation
- *
- *   Sept., 2001: minor modifications to use with Cantera
- *
- */
-
 #ifndef TPX_SUB_H
 #define TPX_SUB_H
 
@@ -53,6 +35,9 @@ enum type { H, S, U, V, P, T };
 
 const double Undef = 999.1234;
 
+/*!
+ * Base class from which all pure substances are derived
+ */
 class Substance
 {
 public:
@@ -71,42 +56,78 @@ public:
         m_energy_offset += hoff;
     }
 
-    // information about a substance:
+    //! @name Information about a substance
+    //! @{
 
-    virtual double MolWt()=0;          // molecular weight, kg/kmol
-    virtual double Tcrit()=0;          // critical temperature, K
-    virtual double Pcrit()=0;          // critical pressure, Pa
-    virtual double Vcrit()=0;          // critical specific vol, m^3/kg
-    virtual double Tmin()=0;           // min. temp for which equations valid
-    virtual double Tmax()=0;           // max. temp for which equations valid
-    virtual char* name() = 0;          // name
-    virtual char* formula() = 0;       // chemical formula
+    //! Molecular weight [kg/kmol]
+    virtual double MolWt()=0;
 
-    // properties:
+    //! Critical temperature [K]
+    virtual double Tcrit()=0;
 
-    double P();                        // pressure, Pa
+    //! Critical pressure [Pa]
+    virtual double Pcrit()=0;
+
+    //! Critical specific volume [m^3/kg]
+    virtual double Vcrit()=0;
+
+    //! Minimum temperature for which the equation of state is valid
+    virtual double Tmin()=0;
+
+    //! Maximum temperature for which the equation of state is valid
+    virtual double Tmax()=0;
+
+    //! Name of the substance
+    virtual char* name() = 0;
+
+    //! Chemical formula for the substance
+    virtual char* formula() = 0;
+    //! @}
+
+    //! @name Properties
+    //! @{
+
+    //! Pressure [Pa]. If two phases are present, return the saturation
+    //! pressure; otherwise return the pressure computed directly from the
+    //! underlying eos.
+    double P();
+
+    //! Temperature [K]
     double Temp() {
-        return T;   // temperature, K
+        return T;
     }
-    double v() {                       // specific vol, m^3/kg
+
+    //! Specific volume [m^3/kg]
+    double v() {
         return prop(propertyFlag::V);
     }
-    double u() {                       // int. energy, J/kg
+
+    //! Internal energy [J/kg]
+    double u() {
         return prop(propertyFlag::U);
     }
-    double h() {                       // enthalpy, J/kg
+
+    //! Enthalpy [J/kg]
+    double h() {
         return prop(propertyFlag::H);
     }
-    double s() {                       // entropy, J/kg/K
+
+    //! Entropy [J/kg/K]
+    double s() {
         return prop(propertyFlag::S);
     }
-    double f() {                       // Helmholtz function, J/kg
+
+    //! Helmholtz function [J/kg]
+    double f() {
         return u() - T*s();
     }
-    double g() {                       // Gibbs function, J/kg
+
+    //! Gibbs function [J/kg]
+    double g() {
         return h() - T*s();
     }
 
+    //! Specific heat at constant volume [J/kg/K]
     virtual double cv() {
         double Tsave = T, dt = 1.e-4*T;
         set_T(Tsave - dt);
@@ -117,6 +138,7 @@ public:
         return T*(s2 - s1)/(2.0*dt);
     }
 
+    //! Specific heat at constant pressure [J/kg/K]
     virtual double cp() {
         double Tsave = T, dt = 1.e-4*T;
         double p0 = P();
@@ -149,30 +171,49 @@ public:
         return -(v2 - v1)/((v2 + v1)*dp);
     }
 
-    // saturation properties
+    //! @}
+    //! @name Saturation Properties
+    //! @{
 
     double Ps();
-    virtual double dPsdT();          // d(Psat)/dT, Pa/K
-    double Tsat(double p);             // saturation temp at p
-    double x();                        // vapor mass fraction
-    int TwoPhase();                    // =1 if vapor/liquid, 0 otherwise
+
+    //! The derivative of the saturation pressure with respect to temperature.
+    virtual double dPsdT();
+
+    //! Saturation temperature at pressure *p*.
+    double Tsat(double p);
+
+    //! Vapor mass fraction. If T >= Tcrit, 0 is returned for v < Vcrit, and 1
+    //! is returned if v > Vcrit.
+    double x();
+
+    //! Returns 1 if the current state is a liquid/vapor mixture, 0 otherwise
+    int TwoPhase();
+    //! @}
+
     virtual double Pp()=0;
+
+    //! Enthaply of a single-phase state
     double hp() {
         return up() + Pp()/Rho;
     }
+
+    //! Gibbs function of a single-phase state
     double gp() {
         return hp() - T*sp();
     }
 
     double prop(propertyFlag::type ijob);
-    void set_TPp(double t0, double p0);    // set T and P
 
+    //! set T and P
+    void set_TPp(double t0, double p0);
 
-    // functions to set or change state:
+    //! Function to set or change the state for a property pair *XY* where
+    //! *x0* is the value of first property and *y0* is the value of the
+    //! second property.
     void Set(PropertyPair::type XY, double x0, double y0);
 
 protected:
-
     double T, Rho;
     double Tslast, Rhf, Rhv;
     double Pst;
@@ -181,20 +222,30 @@ protected:
     std::string m_name;
     std::string m_formula;
 
-    //virtual double Xm(int k) { return 1.0;}
-    //virtual int Species() { return 1;}
-
     virtual double ldens()=0;
-    virtual double Psat()=0;           // saturation pressure, Pa
+
+    //! Saturation pressure, Pa
+    virtual double Psat()=0;
+
+    //! Internal energy of a single-phase state
     virtual double up()=0;
+
+    //! Entropy of a single-phase state
     virtual double sp()=0;
+
     virtual int ideal() {
-        return 0;   // added 9/2/98; default is false
+        return 0;
     }
+
     double vp() {
         return 1.0/Rho;
     }
+
+    //! Uses the lever rule to set state in the dome. Returns 1 if in dome,
+    //! 0 if not, in which case state not set.
     int Lever(int itp, double sat, double val, propertyFlag::type ifunc);
+
+    //! Update saturated liquid and vapor densities and saturation pressure
     void update_sat();
 
 private:
@@ -215,6 +266,5 @@ private:
 };
 
 }
-
 
 #endif

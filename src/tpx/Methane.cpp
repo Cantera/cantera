@@ -1,5 +1,3 @@
-// Methane
-
 #include "Methane.h"
 #include "cantera/base/stringUtils.h"
 #include <math.h>
@@ -10,7 +8,6 @@ using namespace Cantera;
 
 namespace tpx
 {
-
 static const double
 M = 16.04996,
 Tmn = 90.68,
@@ -50,8 +47,6 @@ static const double Fmeth[]=
 
 static const double Gmeth[]=
 {  1.34740610e3, 1.35512060e2, -2.93910458e1, 2.12774600, 2.44656600e3  };
-
-// double rt, rt2, rt3, egrho;
 
 double methane::C(int i, double rt, double rt2)
 {
@@ -190,7 +185,6 @@ double methane::Pp()
     return P;
 }
 
-//equation s3
 double methane::Psat()
 {
     double x = (1.0 - Tt/T)/(1.0 - Tt/Tc);
@@ -204,8 +198,6 @@ double methane::Psat()
     return exp(result)*Pt;
 }
 
-
-//equation D3
 double methane::ldens()
 {
     double result;

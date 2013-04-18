@@ -17,9 +17,7 @@ using namespace Cantera;
 namespace tpx
 {
 
-/*
- * Heptane constants
- */
+// Heptane constants
 static const double Tmn = 182.56;   // [K] minimum temperature for which calculations are valid
 static const double Tmx = 1000.0;   // [K] maximum temperature for which calculations are valid
 static const double Tc=537.68;      // [K] critical temperature
@@ -33,9 +31,7 @@ static const double Tp=400;            // [K] ??
 static const double Pc=2.6199E6;    // [Pa] critical pressure
 static const double M=100.20;        // [kg/kmol] molar density
 
-/*
- * array Ahept is used by the function Pp
- */
+// array Ahept is used by the function Pp
 static const double Ahept[]= {
     2.246032E-3,
     2.082990E2,
@@ -49,10 +45,7 @@ static const double Ahept[]= {
     5.291379E-9
 };
 
-
-/*
- * array F is used by  Psat
- */
+// array F is used by Psat
 static const double F[]= {
     -7.2298764,
     3.8607475E-1,
@@ -64,10 +57,7 @@ static const double F[]= {
     3.1758992E2
 };
 
-
-/*
- * array D is used by the function ldens
- */
+// array D is used by the function ldens
 static const double D[]= {
     1.9760405E2,
     8.9451237E2,
@@ -77,10 +67,7 @@ static const double D[]= {
     9.7088329E2
 };
 
-
-/*
- * array G is used by the function sp
- */
+// array G is used by the function sp
 static const double G[]= {
     1.1925213E5,
     -7.7231363E2,
@@ -90,14 +77,6 @@ static const double G[]= {
     0.0
 };
 
-
-/*
- * C returns a multiplier in each term of the sum
- * in P-2, used in conjunction with C in the function Pp
- * j is used to represent which of the values in the summation to calculate
- * j=0 is the second additive in the formula in reynolds
- * j=1 is the third...
- */
 double Heptane::C(int j,double Tinverse, double T2inverse, double T3inverse, double T4inverse)
 {
     switch (j) {
@@ -120,10 +99,6 @@ double Heptane::C(int j,double Tinverse, double T2inverse, double T3inverse, dou
     }
 }
 
-
-/* cprime
- * derivative of C(i)
- */
 inline double Heptane::Cprime(int j, double T2inverse, double T3inverse, double T4inverse)
 {
     switch (j) {
@@ -144,11 +119,6 @@ inline double Heptane::Cprime(int j, double T2inverse, double T3inverse, double 
     }
 }
 
-
-/*
- * I = integral from o-rho { 1/(rho^2) * H(i, rho) d rho }
- * ( see section 2 of Reynolds TPSI )
- */
 inline double Heptane::I(int j, double ergho, double Gamma)
 {
     switch (j) {
@@ -165,14 +135,6 @@ inline double Heptane::I(int j, double ergho, double Gamma)
     }
 }
 
-
-/* H returns a multiplier in each term of the sum
- * in P-2
- * this is used in conjunction with C in the function Pp
- * this represents the product rho^n
- * i=0 is the second additive in the formula in reynolds
- * i=1 is the third ...
- */
 double Heptane::H(int i, double egrho)
 {
     if (i < 2) {
@@ -186,13 +148,6 @@ double Heptane::H(int i, double egrho)
     }
 }
 
-
-/*
- * internal energy
- *  see Reynolds eqn (15) section 2
- *  u = (the integral from T to To of co(T)dT) +
- *         sum from i to N ([C(i) - T*Cprime(i)] + uo
- */
 double Heptane::up()
 {
     double Tinverse = 1.0/T;
@@ -218,11 +173,6 @@ double Heptane::up()
     return sum + m_energy_offset;
 }
 
-
-/*
- *  entropy
- *  see Reynolds eqn (16) section 2
- */
 double Heptane::sp()
 {
     double T2inverse = pow(T, -2);
@@ -248,12 +198,6 @@ double Heptane::sp()
     return sum + m_entropy_offset;
 }
 
-
-/*
- * Equation P-2 in Reynolds
- * P - rho - T
- * returns P (pressure)
- */
 double Heptane::Pp()
 {
     double Tinverse = pow(T,-1);
@@ -271,11 +215,6 @@ double Heptane::Pp()
     return P;
 }
 
-
-/*
- * Equation S-2 in Reynolds
- * Pressure at Saturation
- */
 double Heptane::Psat()
 {
     double log, sum=0;
@@ -291,11 +230,6 @@ double Heptane::Psat()
     return exp(log)*Pc;
 }
 
-
-/*
- * Equation D2 in Reynolds
- * liquid density, of rho_f
- */
 double Heptane::ldens()
 {
     double xx=1-(T/Tc), sum=0;
@@ -310,12 +244,9 @@ double Heptane::ldens()
     return sum;
 }
 
+// The following functions allow users to get the properties of Heptane that
+// are not dependent on the state
 
-/*
- * the following functions allow users
- * to get the properties of Heptane
- * that are not dependent on the state
- */
 double Heptane::Tcrit()
 {
     return Tc;

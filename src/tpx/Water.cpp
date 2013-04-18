@@ -1,5 +1,3 @@
-// water
-
 #include "Water.h"
 #include "cantera/base/stringUtils.h"
 #include <math.h>
@@ -9,7 +7,6 @@ using namespace Cantera;
 
 namespace tpx
 {
-
 static const double Tmn=273.16;
 static const double Tmx=1600.0;
 static const double M=18.016;
@@ -235,5 +232,3 @@ double water::MolWt()
 }
 
 }
-
-

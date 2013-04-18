@@ -13,8 +13,6 @@ using namespace Cantera;
 
 namespace tpx
 {
-//-------------- Public Member Functions --------------
-
 Substance::Substance() :
     T(Undef),
     Rho(Undef),
@@ -28,9 +26,6 @@ Substance::Substance() :
 {
 }
 
-/// Pressure [Pa]. If two phases are present, return the
-/// saturation pressure; otherwise return the pressure
-/// computed directly from the underlying eos.
 double Substance::P()
 {
     return TwoPhase() ? Ps() : Pp();
@@ -38,8 +33,6 @@ double Substance::P()
 
 const double DeltaT = 0.000001;
 
-/// The derivative of the saturation pressure
-/// with respect to temperature.
 double Substance::dPsdT()
 {
     double tsave = T;
@@ -50,7 +43,6 @@ double Substance::dPsdT()
     return dpdt;
 }
 
-/// true if a liquid/vapor mixture, false otherwise
 int Substance::TwoPhase()
 {
     if (T >= Tcrit()) {
@@ -60,9 +52,6 @@ int Substance::TwoPhase()
     return ((Rho < Rhf) && (Rho > Rhv) ? 1 : 0);
 }
 
-/// Vapor fraction.
-/// If T >= Tcrit, 0 is returned for v < Vcrit, and 1 is
-/// returned if v > Vcrit.
 double Substance::x()
 {
     if (T >= Tcrit()) {
@@ -81,7 +70,6 @@ double Substance::x()
     }
 }
 
-/// Saturation temperature at pressure p.
 double Substance::Tsat(double p)
 {
     if (p <= 0.0 || p > Pcrit()) {
@@ -123,9 +111,7 @@ double Substance::Tsat(double p)
     return tsat;
 }
 
-
 // absolute tolerances
-
 static const double TolAbsH = 0.0001; // J/kg
 static const double TolAbsU = 0.0001;
 static const double TolAbsS = 1.e-7;
@@ -304,7 +290,6 @@ double Substance::Ps()
     return Pst;
 }
 
-// update saturated liquid and vapor densities and saturation pressure
 void Substance::update_sat()
 {
     if ((T != Tslast) && (T < Tcrit())) {
@@ -397,10 +382,6 @@ double Substance::vprop(propertyFlag::type ijob)
 
 int Substance::Lever(int itp, double sat, double val, propertyFlag::type ifunc)
 {
-    /*
-     * uses lever rule to set state in the dome. Returns 1 if in dome,
-     * 0 if not, in which case state not set.
-     */
     double psat;
     double Tsave = T;
     double Rhosave = Rho;
@@ -441,7 +422,6 @@ int Substance::Lever(int itp, double sat, double val, propertyFlag::type ifunc)
         return 0;
     }
 }
-
 
 void Substance::set_xy(propertyFlag::type ifx, propertyFlag::type ify,
                        double X, double Y,
@@ -543,7 +523,6 @@ void Substance::set_xy(propertyFlag::type ifx, propertyFlag::type ify,
         }
     }
 }
-
 
 double Substance::prop(propertyFlag::type ijob)
 {

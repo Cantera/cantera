@@ -6,7 +6,6 @@
 
 namespace tpx
 {
-
 const double GasConstant = 8314.3;
 
 class RedlichKwong : public Substance
