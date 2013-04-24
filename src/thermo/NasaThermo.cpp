@@ -2,7 +2,10 @@
  * @file NasaThermo.cpp Implementation of class Cantera::NasaThermo
  */
 #include "NasaThermo.h"
+
 #include "cantera/base/utilities.h"
+#include "cantera/numerics/DenseMatrix.h"
+#include "cantera/numerics/ctlapack.h"
 
 namespace Cantera
 {
@@ -79,7 +82,12 @@ void NasaThermo::install(const std::string& name, size_t index, int type,
     vector_fp chigh(c+8, c+15);
     vector_fp clow(c+1, c+8);
 
-    ensureContinuity(name, tmid, &clow[0], &chigh[0]);
+    doublereal maxError = checkContinuity(name, tmid, &clow[0], &chigh[0]);
+    if (maxError > 1e-6) {
+        fixDiscontinuities(tlow, tmid, thigh, &clow[0], &chigh[0]);
+        AssertThrowMsg(checkContinuity(name, tmid, &clow[0], &chigh[0]) < 1e-12,
+               "NasaThermo::install", "Polynomials still not continuous");
+    }
 
     m_high[igrp-1].push_back(NasaPoly1(index, tmid, thigh,
                                        ref_pressure, &chigh[0]));
@@ -250,6 +258,11 @@ void NasaThermo::modifyOneHf298(const int k, const doublereal Hf298New)
 }
 #endif
 
+doublereal NasaThermo::cp_R(double t, const doublereal* c)
+{
+    return poly4(t, c+2);
+}
+
 doublereal NasaThermo::enthalpy_RT(double t, const doublereal* c) {
     return c[2] + 0.5*c[3]*t + OneThird*c[4]*t*t
            + 0.25*c[5]*t*t*t + 0.2*c[6]*t*t*t*t
@@ -262,13 +275,14 @@ doublereal NasaThermo::entropy_R(double t, const doublereal* c) {
            + c[1];
 }
 
-void NasaThermo::ensureContinuity(const std::string& name, double tmid,
-                                  doublereal* clow, doublereal* chigh)
+doublereal NasaThermo::checkContinuity(const std::string& name, double tmid,
+                                       doublereal* clow, doublereal* chigh)
 {
     // heat capacity
-    doublereal cplow = poly4(tmid, clow + 2);
-    doublereal cphigh = poly4(tmid, chigh + 2);
+    doublereal cplow = cp_R(tmid, clow);
+    doublereal cphigh = cp_R(tmid, chigh);
     doublereal delta = cplow - cphigh;
+    doublereal maxError = abs(delta);
     if (fabs(delta/(fabs(cplow)+1.0E-4)) > 0.001) {
         writelog("\n\n**** WARNING ****\nFor species "+name+
                  ", discontinuity in cp/R detected at Tmid = "
@@ -279,17 +293,11 @@ void NasaThermo::ensureContinuity(const std::string& name, double tmid,
                  +fp2str(cphigh)+".\n");
     }
 
-    // Adjust coefficients to eliminate any discontinuity
-    chigh[2] += 0.5 * delta;
-    clow[2] -= 0.5 * delta;
-
-    AssertThrowMsg(std::abs(poly4(tmid, clow+2) - poly4(tmid, chigh+2)) < 1e-12,
-                   "NasaThermo::ensureContinuity", "Cp/R does not match");
-
     // enthalpy
     doublereal hrtlow = enthalpy_RT(tmid, clow);
     doublereal hrthigh = enthalpy_RT(tmid, chigh);
     delta = hrtlow - hrthigh;
+    maxError = std::max(std::abs(delta), maxError);
     if (fabs(delta/(fabs(hrtlow)+cplow*tmid)) > 0.001) {
         writelog("\n\n**** WARNING ****\nFor species "+name+
                  ", discontinuity in h/RT detected at Tmid = "
@@ -300,18 +308,11 @@ void NasaThermo::ensureContinuity(const std::string& name, double tmid,
                  +fp2str(hrthigh)+".\n");
     }
 
-    // Adjust coefficients to eliminate any discontinuity
-    chigh[0] += 0.5 * delta * tmid;
-    clow[0] -= 0.5 * delta * tmid;
-
-    AssertThrowMsg(std::abs(enthalpy_RT(tmid, clow) -
-                            enthalpy_RT(tmid, chigh)) < 1e-12,
-                   "NasaThermo::ensureContinuity", "H/RT does not match");
-
     // entropy
     doublereal srlow = entropy_R(tmid, clow);
     doublereal srhigh = entropy_R(tmid, chigh);
     delta = srlow - srhigh;
+    maxError = std::max(std::abs(delta), maxError);
     if (fabs(delta/(fabs(srlow)+cplow)) > 0.001) {
         writelog("\n\n**** WARNING ****\nFor species "+name+
                  ", discontinuity in s/R detected at Tmid = "
@@ -322,13 +323,153 @@ void NasaThermo::ensureContinuity(const std::string& name, double tmid,
                  +fp2str(srhigh)+".\n");
     }
 
-    // Adjust coefficients to eliminate any discontinuity
-    chigh[1] += 0.5 * delta;
-    clow[1] -= 0.5 * delta;
+    return maxError;
+}
 
-    AssertThrowMsg(std::abs(entropy_R(tmid, clow) -
-                            entropy_R(tmid, chigh)) < 1e-12,
-                   "NasaThermo::ensureContinuity", "S/R does not match");
+void NasaThermo::fixDiscontinuities(doublereal Tlow, doublereal Tmid,
+                                    doublereal Thigh, doublereal* clow,
+                                    doublereal* chigh)
+{
+    // The thermodynamic parameters can be written in terms nondimensionalized
+    // coefficients A[i] and the nondimensional temperature t = T/Tmid as:
+    //
+    //     C_low(t) = A[0] + A[i] * t**i
+    //     H_low(t) = A[0] + A[i] / (i+1) * t**i + A[5] / t
+    //     S_low(t) = A[0]*ln(t) + A[i] / i * t**i + A[6]
+    //
+    // where the implicit sum is over the range 1 <= i <= 4 and the
+    // nondimensional coefficients are related to the dimensional coefficients
+    // a[i] by:
+    //
+    //     A[0] = a[0]
+    //     A[i] = Tmid**i * a[i], 1 <= i <= 4
+    //     A[5] = a[5] / Tmid
+    //     A[6] = a[6] + a[0] * ln(Tmid)
+    //
+    // and corresponding relationships hold for the high-temperature
+    // polynomial coefficients B[i]. This nondimensionalization is necessary
+    // in order for the resulting matrix to be well-conditioned.
+    //
+    // The requirement that C_low(1) = C_high(1) is satisfied by:
+    //
+    //     B[0] = A[0] + (A[i] - B[i])
+    //     C_high(t) = A[0] + (A[i] + B[i] * t**i - 1)
+    //
+    // The requirement that H_low(1) = H_high(1) is satisfied by:
+    //
+    //     B[5] = A[5] + (i / (i+1) * (B[i] - A[i]))
+    //     H_high(t) = A[0] + A[5] / t + (1 - i / (i+1) / t) * A[i] +
+    //                 (t**i / (i+1) - 1 + i / (i+1) / t) * B[i]
+    //
+    // The requirement that S_low(1) = S_high(1) is satisfied by:
+    //
+    //    B[6] = A[6] + (A[i] - B[i]) / i
+    //    S_high(t) = A[0] * ln(t) + A[6] + (ln(t) + 1 / i) * A[i] +
+    //                (-ln(t) + t**i / i - 1 / i) * B[i]
+
+    // Formulate a linear least squares problem for the nondimensionalized
+    // coefficients. In the system of equations M*x = b:
+    // - each row of M consists of the factors in one of the above equations
+    //   for C_low, H_high, etc. evaluated at some temperature between Tlow
+    //   and Thigh
+    // - x is a vector of the 11 independent coefficients (A[0] through A[6]
+    //   and B[1] through B[4])
+    // - B is a vector of the corresponding value of C, H, or S computed using
+    //   the original polynomial.
+
+    const size_t nTemps = 12;
+    const size_t nCols = 11; // number of independent coefficients
+    const size_t nRows = 3*nTemps; // Evaluate C, H, and S at each temperature
+    DenseMatrix M(nRows, nCols, 0.0);
+    vector_fp b(nRows);
+    doublereal sqrtDeltaT = sqrt(Thigh) - sqrt(Tlow);
+    vector_fp tpow(5);
+    for (size_t j = 0; j < nTemps; j++) {
+        double T = pow(sqrt(Tlow) + sqrtDeltaT * j / (nTemps - 1.0), 2);
+        double t = T / Tmid; // non-dimensionalized temperature
+        double logt = std::log(t);
+        size_t n = 3 * j; // row index
+        for (int i = 1; i <= 4; i++) {
+            tpow[i] = pow(t, i);
+        }
+
+        // row n: Cp/R
+        // row n+1: H/RT
+        // row n+2: S/R
+        // columns 0 through 6 are for the low-T coefficients
+        // columns 7 through 10 are for the independent high-T coefficients
+        M(n, 0) = 1.0;
+        M(n+1,0) = 1.0;
+        M(n+2,0) = logt;
+        M(n+1,5) = 1.0 / t;
+        M(n+2,6) = 1.0;
+        if (t <= 1.0) {
+            for (int i = 1; i <= 4; i++) {
+                M(n,i) = tpow[i];
+                M(n+1,i) = tpow[i] / (i+1);
+                M(n+2,i) = tpow[i] / i;
+            }
+            b[n] = cp_R(T, clow);
+            b[n+1] = enthalpy_RT(T, clow);
+            b[n+2] = entropy_R(T, clow);
+        } else {
+            for (int i = 1; i <= 4; i++) {
+                M(n,i) = 1.0;
+                M(n,i+6) = tpow[i] - 1.0;
+                M(n+1,i) = 1 - i / ((i + 1.0) * t);
+                M(n+1,i+6) = -1 + tpow[i] / (i+1) + i / ((i+1) * t);
+                M(n+2,i) = logt + 1.0 / i;
+                M(n+2,i+6) = -logt + (tpow[i] - 1.0) / i;
+            }
+            b[n] = cp_R(T, chigh);
+            b[n+1] = enthalpy_RT(T, chigh);
+            b[n+2] = entropy_R(T, chigh);
+        }
+    }
+
+    // Solve the least squares problem
+    vector_fp sigma(nRows);
+    size_t rank;
+    int info;
+    vector_fp work(1);
+    int lwork = -1;
+    // First get the desired size of the work array
+    ct_dgelss(nRows, nCols, 1, &M(0,0), nRows, &b[0], nRows,
+              &sigma[0], -1, rank, &work[0], lwork, info);
+    work.resize(work[0]);
+    lwork = work[0];
+    ct_dgelss(nRows, nCols, 1, &M(0,0), nRows, &b[0], nRows,
+              &sigma[0], -1, rank, &work[0], lwork, info);
+
+    AssertTrace(info == 0);
+    AssertTrace(rank == nCols);
+    AssertTrace(sigma[0] / sigma[10] < 1e20); // condition number
+
+    // Compute the full set of nondimensionalized coefficients
+    // (dgelss returns the solution of M*x = b in b).
+
+    // Note that clow and chigh store the coefficients in the order:
+    // clow = [a[5], a[6], a[0], a[1], a[2], a[3], a[4]]
+    clow[2] = chigh[2] = b[0];
+    clow[0] = chigh[0] = b[5];
+    clow[1] = chigh[1] = b[6];
+    for (int i = 1; i <= 4; i++) {
+        clow[2+i] = b[i];
+        chigh[2+i] = b[6+i];
+        chigh[2] += clow[2+i] - chigh[2+i];
+        chigh[0] += i / (i + 1.0) * (chigh[2+i] - clow[2+i]);
+        chigh[1] += (clow[2+i] - chigh[2+i]) / i;
+    }
+
+    // redimensionalize
+    for (int i = 1; i <= 4; i++) {
+        clow[2+i] /= pow(Tmid, i);
+        chigh[2+i] /= pow(Tmid, i);
+    }
+    clow[0] *= Tmid;
+    chigh[0] *= Tmid;
+    clow[1] -= clow[2] * std::log(Tmid);
+    chigh[1] -= chigh[2] * std::log(Tmid);
 }
 
 }
