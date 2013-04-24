@@ -190,6 +190,9 @@ def compareTextFiles(env, file1, file2):
     if not diff:
         return 0
 
+    atol = env['test_csv_threshold']
+    rtol = env['test_csv_tolerance']
+
     # Replace nearly-equal floating point numbers with exactly equivalent
     # representations to avoid confusing difflib
     reFloat = re.compile(r'(\s*)([+-]{0,1}\d+\.{0,1}\d*[eE]{0,1}[+-]{0,1}\d*)')
@@ -220,7 +223,10 @@ def compareTextFiles(env, file1, file2):
             delta = max(getPrecision(floats1[j][1]), getPrecision(floats2[j][1]))
             num1 = float(floats1[j][1])
             num2 = float(floats2[j][1])
-            if not num1 - 1.1*delta < num2 < num1 + 1.1*delta:
+            abserr = abs(num1-num2)
+            relerr = abserr / (0.5 * abs(num1 + num2) + atol)
+            if abserr > (1.1*delta + atol) and relerr > rtol:
+                print 'Values differ: {: 14g} {: 14g}; rel. err = {:.3e}; abs. err = {:.3e}'.format(num1, num2, relerr, abserr)
                 allMatch = False
                 break
 
