@@ -515,7 +515,7 @@ void MargulesVPSSTP::s_update_dlnActCoeff_dT() const
         dlnActCoeffdT_Scaled_[iA] += XB * g0g1XB;
         dlnActCoeffdT_Scaled_[iB] += XA * g0g1XB + XAXB * g1;
         d2lnActCoeffdT2_Scaled_[iA] -= mult * XB * g0g1XB;
-        d2lnActCoeffdT2_Scaled_[iB] -= mult * XA * g0g1XB + XAXB * g1;
+        d2lnActCoeffdT2_Scaled_[iB] -= mult * (XA * g0g1XB + XAXB * g1);
     }
 }
 
