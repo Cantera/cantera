@@ -539,7 +539,7 @@ void getRateCoefficient(const XML_Node& kf, Kinetics& kin,
                         clow = coeff;
                     }
                 }
-                if (rdata.reactionType == SURFACE_RXN) {
+                if (rdata.reactionType == SURFACE_RXN || rdata.reactionType == EDGE_RXN) {
                     getCoverageDependence(c,
                                           kin.thermo(kin.surfacePhaseIndex()), rdata);
                 }
