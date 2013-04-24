@@ -226,7 +226,8 @@ def compareTextFiles(env, file1, file2):
 
         # All the values are sufficiently close, so replace the string
         # so that the diff of this line will succeed
-        text2[i] = line1
+        if allMatch:
+            text2[i] = line1
 
     # Try the comparison again
     diff = list(difflib.unified_diff(text1, text2))
