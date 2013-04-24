@@ -8,6 +8,8 @@ import sys
 import os
 import unittest
 
+sys.path.insert(0, os.path.abspath('../../interfaces/python'))
+
 import Cantera
 
 Cantera.addDirectory(os.path.join(os.path.split(os.getcwd())[0], 'data'))
