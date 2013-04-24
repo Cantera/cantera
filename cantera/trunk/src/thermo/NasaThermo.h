@@ -239,14 +239,21 @@ protected:
     mutable std::map<size_t, std::string> m_name;
 
 protected:
-    //! for internal use by ensureContinuity
+    //! Compute the nondimensional heat capacity using the given NASA polynomial
+    /*!
+     * @param t temperature
+     * @param c coefficient array
+     */
+     doublereal cp_R(double t, const doublereal* c);
+
+    //! Compute the nondimensional enthalpy using the given NASA polynomial
     /*!
      * @param t temperature
      * @param c coefficient array
      */
     doublereal enthalpy_RT(double t, const doublereal* c);
 
-    //! for internal use by ensureContinuity
+    //! Compute the nondimensional entropy using the given NASA polynomial
     /*!
      * @param t temperature
      * @param c coefficient array
@@ -256,7 +263,7 @@ protected:
     //! Adjust polynomials to be continuous at the midpoint temperature.
     /*!
      * Check to see if the provided coefficients are nearly continuous. Adjust
-     * the values to get more precise contintinuity to avoid convergence
+     * the values to get more precise continuity to avoid convergence
      * issues with algorithms that expect these quantities to be continuous.
      *
      * @param name string name of species
@@ -264,8 +271,27 @@ protected:
      * @param clow  coefficients for lower temperature region
      * @param chigh coefficients for higher temperature region
      */
-    void ensureContinuity(const std::string& name, double tmid,
-                      doublereal* clow, doublereal* chigh);
+    double checkContinuity(const std::string& name, double tmid,
+                           doublereal* clow, doublereal* chigh);
+
+    //! Adjust polynomials to be continuous at the midpoint temperature.
+    /*!
+     * We seek a set of coefficients for the low- and high-temperature
+     * polynomials which are continuous in Cp, H, and S at the midpoint while
+     * minimizing the difference between the values in Cp, H, and S over the
+     * entire valid temperature range. To do this, we formulate a linear
+     * least-squares problem to be solved for 11 of the 14 coefficients, with
+     * the remaining 3 coefficients eliminated in the process of satisfying
+     * the continuity constraints.
+     *
+     * @param Tlow  Minimum temperature at which the low-T polynomial is valid
+     * @param Tmid  Mid temperature, between the two temperature regions
+     * @param Thigh Maximum temperature at which the high-T polynomial is valid
+     * @param clow  coefficients for lower temperature region
+     * @param chigh coefficients for higher temperature region
+     */
+    void fixDiscontinuities(doublereal Tlow, doublereal Tmid, doublereal Thigh,
+                            doublereal* clow, doublereal* chigh);
 };
 
 }
