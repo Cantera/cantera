@@ -247,15 +247,22 @@ def getPrecision(x):
     the number represented by the string 'x'.
     """
     x = x.lower()
+    # Patterns to consider:
+    # 123
+    # 123.45
+    # 123.45e6
+    # 123e4
+    if 'e' in x:
+        x, exponent = x.split('e')
+        exponent = int(exponent)
+    else:
+        exponent = 0
+
     decimalPt = x.find('.')
     if decimalPt == -1:
-        decimalPt = 0
+        decimalPt = len(x) - 1
 
-    if x.find('e') != -1:
-        precision = decimalPt - x.find('e') + 1
-        precision += int(x[x.find('e')+1:])
-    else:
-        precision = decimalPt - len(x) + 1
+    precision = decimalPt + exponent - len(x) + 1
 
     return 10**precision
 
