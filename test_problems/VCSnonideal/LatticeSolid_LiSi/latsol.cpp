@@ -16,7 +16,8 @@ void testProblem()
 
     // Create the phases
     std::auto_ptr<ThermoPhase> LiSi_solid(newPhase("Li7Si3_ls.xml",
-                                          "Li7Si3_and_Interstitials(S)"));
+                                                   "Li7Si3_and_Interstitials(S)"));
+    std::auto_ptr<ThermoPhase> Li_liq(newPhase("Li_Liquid.xml", "Li(L)"));
     FixedChemPotSSTP LiFixed("Li", -2.3E7);
     MargulesVPSSTP salt(1);
 
@@ -33,15 +34,16 @@ void testProblem()
 
     LiFixed.setState_TP(T, OneAtm);
 
-    double um;
-    LiFixed.getChemPotentials(&um);
-    printf(" chem pot = %g\n", um);
+    double um[20];
+    LiFixed.getChemPotentials(um);
+    printf(" chem pot = %g\n", um[0]);
 
     double volts = 1.635;     // has some Fe in it // test suite
     double dg_corr =  - volts * Faraday;
     printf("dg_corr = %g\n", dg_corr);
 
-    double um_li_chempot = um + dg_corr;
+    Li_liq->getChemPotentials(um);
+    double um_li_chempot = um[0] + dg_corr;
     printf("um_li_chempot = %g\n", um_li_chempot);
     LiFixed.setChemicalPotential(um_li_chempot);
 
