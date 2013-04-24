@@ -9,6 +9,7 @@ import difflib
 import time
 import types
 import shutil
+import itertools
 
 import SCons.Errors
 
@@ -329,8 +330,16 @@ def compareCsvFiles(env, file1, file2):
 
     tol = env['test_csv_tolerance']
     if maxerror > tol: # Threshold based on printing 6 digits in the CSV file
-        print ("Files differ. %i / %i elements above specified tolerance" %
-               (np.sum(relerror > tol), relerror.size))
+        print ("Files differ. %i / %i elements above specified tolerance (%f)" %
+               (np.sum(relerror > tol), relerror.size, tol))
+        print '  row   col   reference     test          rel. error'
+        print '  ----  ----  ------------  ------------  ----------'
+        for i,j in itertools.product(*map(range, relerror.shape)):
+            if relerror[i,j] > tol:
+                row = i + headerRows + 1
+                col = j + 1
+                print ('  % 4i  % 4i  % 12f  % 12f  % 10f' %
+                       (row, col, data1[i,j], data2[i,j], relerror[i,j]))
         return 1
     else:
         return 0
