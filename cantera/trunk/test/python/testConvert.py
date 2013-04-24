@@ -46,9 +46,10 @@ class chemkinConverterTest(utilities.CanteraTest):
             ref_s = ref.entropies_R()
             gas_s = gas.entropies_R()
             for i in range(gas.nSpecies()):
-                self.assertNear(ref_cp[i], gas_cp[i], 1e-7)
-                self.assertNear(ref_h[i], gas_h[i], 1e-7)
-                self.assertNear(ref_s[i], gas_s[i], 1e-7)
+                message = ' for species {} at T = {}'.format(i, T)
+                self.assertNear(ref_cp[i], gas_cp[i], 1e-7, msg='cp'+message)
+                self.assertNear(ref_h[i], gas_h[i], 1e-7, msg='h'+message)
+                self.assertNear(ref_s[i], gas_s[i], 1e-7, msg='s'+message)
 
     def checkKinetics(self, ref, gas, temperatures, pressures, tol=1e-8):
         for T,P in itertools.product(temperatures, pressures):
@@ -59,8 +60,9 @@ class chemkinConverterTest(utilities.CanteraTest):
             gas_kf = gas.fwdRateConstants()
             gas_kr = gas.revRateConstants()
             for i in range(gas.nReactions()):
-                self.assertNear(ref_kf[i], gas_kf[i], rtol=tol)
-                self.assertNear(ref_kr[i], gas_kr[i], rtol=tol)
+                message = ' for reaction {} at T = {}, P = {}'.format(i, T, P)
+                self.assertNear(ref_kf[i], gas_kf[i], rtol=tol, msg='kf '+message)
+                self.assertNear(ref_kr[i], gas_kr[i], rtol=tol, msg='kr '+message)
 
     def test_gri30(self):
         convertMech('../../data/inputs/gri30.inp',
