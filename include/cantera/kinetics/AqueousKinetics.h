@@ -57,10 +57,6 @@ public:
 
     AqueousKinetics& operator=(const AqueousKinetics& right);
 
-    /// Destructor.
-    virtual ~AqueousKinetics();
-
-
     //! Duplication routine for objects which inherit from Kinetics
     /*!
      *  This virtual routine can be used to duplicate %Kinetics objects

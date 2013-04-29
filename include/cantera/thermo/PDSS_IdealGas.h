@@ -80,9 +80,6 @@ public:
     PDSS_IdealGas(VPStandardStateTP* vptp_ptr, size_t spindex, const XML_Node& speciesNode,
                   const XML_Node& phaseRef, bool spInstalled);
 
-    //! Destructor
-    virtual ~PDSS_IdealGas();
-
     virtual PDSS* duplMyselfAsPDSS() const;
 
     //! @}

@@ -87,10 +87,6 @@ operator=(const MixedSolventElectrolyte& b)
     return *this;
 }
 
-MixedSolventElectrolyte::~MixedSolventElectrolyte()
-{
-}
-
 ThermoPhase*
 MixedSolventElectrolyte::duplMyselfAsThermoPhase() const
 {

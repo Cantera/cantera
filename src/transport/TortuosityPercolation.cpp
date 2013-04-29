@@ -40,12 +40,6 @@ TortuosityPercolation::TortuosityPercolation(const TortuosityPercolation& right)
     *this = right;
 }
 //====================================================================================================================
-// Default destructor for TortuosityPercolation
-TortuosityPercolation::~TortuosityPercolation()
-{
-
-}
-//====================================================================================================================
 // Assignment operator
 /*
  * @param right Object to be copied

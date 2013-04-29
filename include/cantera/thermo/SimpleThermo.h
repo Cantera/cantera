@@ -58,9 +58,6 @@ public:
         m_p0(-1.0),
         m_nspData(0) {}
 
-    //! Destructor
-    virtual ~SimpleThermo() {}
-
     //! Copy constructor
     /*!
      * @param right Object to be copied

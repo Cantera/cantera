@@ -104,10 +104,6 @@ operator=(const MolarityIonicVPSSTP& b)
     return *this;
 }
 
-MolarityIonicVPSSTP::~MolarityIonicVPSSTP()
-{
-}
-
 ThermoPhase*
 MolarityIonicVPSSTP::duplMyselfAsThermoPhase() const
 {

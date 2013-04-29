@@ -145,10 +145,6 @@ FixedChemPotSSTP::operator=(const FixedChemPotSSTP& right)
     return *this;
 }
 
-FixedChemPotSSTP::~FixedChemPotSSTP()
-{
-}
-
 ThermoPhase* FixedChemPotSSTP::duplMyselfAsThermoPhase() const
 {
     return new FixedChemPotSSTP(*this);

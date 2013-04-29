@@ -103,9 +103,6 @@ public:
         return *this;
     }
 
-    //! Destructor
-    virtual ~NasaPoly1() {}
-
     virtual SpeciesThermoInterpType*
     duplMyselfAsSpeciesThermoInterpType() const {
         NasaPoly1* np = new NasaPoly1(*this);

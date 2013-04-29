@@ -18,7 +18,6 @@ class Reservoir : public ReactorBase
 public:
 
     Reservoir() {}
-    virtual ~Reservoir() {}
     virtual int type() const {
         return ReservoirType;
     }

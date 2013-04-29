@@ -57,10 +57,6 @@ Nasa9Poly1& Nasa9Poly1::operator=(const Nasa9Poly1& b)
     return *this;
 }
 
-Nasa9Poly1::~Nasa9Poly1()
-{
-}
-
 SpeciesThermoInterpType*
 Nasa9Poly1::duplMyselfAsSpeciesThermoInterpType() const
 {

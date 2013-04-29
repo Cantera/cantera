@@ -198,9 +198,6 @@ public:
      */
     FixedChemPotSSTP& operator=(const FixedChemPotSSTP& right);
 
-    //! Destructor for the routine
-    virtual ~FixedChemPotSSTP();
-
     //! Duplication function
     /*!
      * This virtual function is used to create a duplicate of the

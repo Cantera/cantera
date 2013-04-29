@@ -84,9 +84,6 @@ public:
      */
     SingleSpeciesTP& operator=(const SingleSpeciesTP& right);
 
-    //! Destructor
-    virtual ~SingleSpeciesTP();
-
     //! Duplication function
     /*!
      * This virtual function is used to create a duplicate of the

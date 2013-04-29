@@ -86,9 +86,6 @@ public:
      */
     RedlichKwongMFTP& operator=(const RedlichKwongMFTP& right);
 
-    //! Destructor.
-    virtual ~RedlichKwongMFTP();
-
     //! Duplicator from the ThermoPhase parent class
     /*!
      * Given a pointer to a ThermoPhase object, this function will

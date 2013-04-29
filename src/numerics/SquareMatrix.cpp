@@ -83,10 +83,6 @@ SquareMatrix& SquareMatrix::operator=(const SquareMatrix& y)
     return *this;
 }
 //====================================================================================================================
-SquareMatrix::~SquareMatrix()
-{
-}
-//====================================================================================================================
 /*
  * Solve Ax = b. Vector b is overwritten on exit with x.
  */

@@ -201,8 +201,6 @@ public:
     //! Assignment operator
     //    LTI_Solvent& operator=( const LTI_Solvent &right );
 
-    virtual ~LTI_Solvent() { }
-
     //! Return the mixture transport property value.
     /**
      * Takes the separate species transport properties
@@ -248,8 +246,6 @@ public:
 
     //! Assignment operator
     //    LTI_MoleFracs& operator=( const LTI_MoleFracs &right );
-
-    virtual ~LTI_MoleFracs() { }
 
     //! Return the mixture transport property value.
     /**
@@ -301,8 +297,6 @@ public:
 
     //! Assignment operator
     //    LTI_MassFracs& operator=( const LTI_MassFracs &right );
-
-    virtual ~LTI_MassFracs() { }
 
     //! Return the mixture transport property value.
     /**
@@ -383,8 +377,6 @@ public:
     //! Assignment operator
     //    LTI_Log_MoleFracs& operator=( const LTI_Log_MoleFracs &right );
 
-    virtual ~LTI_Log_MoleFracs() { }
-
     //! Return the mixture transport property value.
     /**
      * Takes the separate species transport properties
@@ -446,8 +438,6 @@ public:
 
     //! Assignment operator
     //    LTI_Pairwise_Interaction& operator=( const LTI_Pairwise_Interaction &right );
-
-    virtual ~LTI_Pairwise_Interaction() { }
 
     void setParameters(LiquidTransportParams& trParam) ;
 
@@ -558,8 +548,6 @@ public:
     //! Assignment operator
     //    LTI_StefanMaxwell_PPN& operator=( const LTI_StefanMaxwell_PPN &right );
 
-    virtual ~LTI_StefanMaxwell_PPN() { }
-
     void setParameters(LiquidTransportParams& trParam) ;
 
     //! Return the mixture transport property value.
@@ -610,8 +598,6 @@ public:
     //! Assignment operator
     //    LTI_StokesEinstein& operator=( const LTI_StokesEinstein &right );
 
-    virtual ~LTI_StokesEinstein() { }
-
     void setParameters(LiquidTransportParams& trParam);
 
     //! Return the mixture transport property value.
@@ -660,8 +646,6 @@ public:
 
     //! Assignment operator
     //    LTI_MoleFracs_ExpT& operator=( const LTI_MoleFracs_ExpT &right );
-
-    virtual ~LTI_MoleFracs_ExpT() { }
 
     //! Return the mixture transport property value.
     /**

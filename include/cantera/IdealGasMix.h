@@ -45,8 +45,6 @@ public:
         m_ok = buildSolutionFromXML(*m_r, m_id, "phase", this, this);
     }
 
-    virtual ~IdealGasMix() {}
-
     bool operator!() {
         return !m_ok;
     }

@@ -63,9 +63,6 @@ public:
      */
     BandMatrix(const BandMatrix& y);
 
-    //! Destructor. Does nothing.
-    virtual ~BandMatrix();
-
     //! assignment operator
     /*!
      * @param y  reference to the matrix to be copied

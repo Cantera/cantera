@@ -15,7 +15,6 @@ namespace Cantera
 class GasTransport : public Transport
 {
 public:
-    virtual ~GasTransport() {}
     GasTransport(const GasTransport& right);
     GasTransport& operator=(const GasTransport& right);
 

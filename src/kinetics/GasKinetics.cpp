@@ -53,10 +53,6 @@ GasKinetics::GasKinetics(const GasKinetics& right) :
     *this = right;
 }
 
-GasKinetics::~GasKinetics()
-{
-}
-
 GasKinetics& GasKinetics::operator=(const GasKinetics& right)
 {
     if (this == &right) {

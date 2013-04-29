@@ -94,9 +94,6 @@ public:
      */
     MixtureFugacityTP& operator=(const MixtureFugacityTP& b);
 
-    //! Destructor.
-    virtual ~MixtureFugacityTP();
-
     //! Duplication routine
     /*!
      *  @return  Returns a duplication

@@ -88,10 +88,6 @@ StoichSubstanceSSTP::operator=(const StoichSubstanceSSTP& right)
     return *this;
 }
 
-StoichSubstanceSSTP::~StoichSubstanceSSTP()
-{
-}
-
 ThermoPhase* StoichSubstanceSSTP::duplMyselfAsThermoPhase() const
 {
     return new StoichSubstanceSSTP(*this);

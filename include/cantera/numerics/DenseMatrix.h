@@ -97,9 +97,6 @@ public:
      */
     DenseMatrix& operator=(const DenseMatrix& y);
 
-    //! Destructor. Does nothing.
-    virtual ~DenseMatrix();
-
     //! Resize the matrix
     /*!
      *  Resize the matrix to n rows by m cols.

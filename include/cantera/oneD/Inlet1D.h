@@ -41,8 +41,6 @@ public:
 
     Bdry1D();
 
-    virtual ~Bdry1D() {}
-
     /// Initialize.
     virtual void init() {
         _init(1);
@@ -133,7 +131,6 @@ public:
         m_type = cInletType;
         m_xstr = "";
     }
-    virtual ~Inlet1D() {}
 
     /// set spreading rate
     virtual void setSpreadRate(doublereal V0) {
@@ -211,7 +208,6 @@ public:
     Empty1D() : Domain1D() {
         m_type = cEmptyType;
     }
-    virtual ~Empty1D() {}
 
     virtual std::string componentName(size_t n) const;
     virtual void showSolution(const doublereal* x) {}
@@ -244,7 +240,6 @@ public:
     Symm1D() : Bdry1D() {
         m_type = cSymmType;
     }
-    virtual ~Symm1D() {}
 
     virtual std::string componentName(size_t n) const;
 
@@ -277,7 +272,6 @@ public:
     Outlet1D() : Bdry1D() {
         m_type = cOutletType;
     }
-    virtual ~Outlet1D() {}
 
     virtual std::string componentName(size_t n) const;
 
@@ -315,7 +309,6 @@ public:
         m_type = cOutletResType;
         m_xstr = "";
     }
-    virtual ~OutletRes1D() {}
 
     virtual void showSolution(const doublereal* x) {}
 
@@ -366,7 +359,6 @@ public:
     Surf1D() : Bdry1D() {
         m_type = cSurfType;
     }
-    virtual ~Surf1D() {}
 
     virtual std::string componentName(size_t n) const;
 
@@ -428,8 +420,6 @@ public:
     void enableCoverageEquations(bool docov) {
         m_enabled = docov;
     }
-
-    virtual ~ReactingSurf1D() {}
 
     virtual std::string componentName(size_t n) const;
 

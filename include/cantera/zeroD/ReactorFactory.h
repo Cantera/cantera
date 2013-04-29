@@ -36,11 +36,6 @@ public:
     }
 
     /**
-         * Destructor doesn't do anything.
-         */
-    virtual ~ReactorFactory() {}
-
-    /**
      * Create a new reactor.
      * @param n the type to be created.
      */

@@ -36,9 +36,6 @@ public:
         return m_b;
     }
 
-    // destructor
-    ~RedlichKwong() {}
-
     double MolWt() {
         return m_mw;
     }

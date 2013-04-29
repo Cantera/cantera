@@ -212,9 +212,6 @@ public:
      */
     MolalityVPSSTP& operator=(const MolalityVPSSTP& b);
 
-    /// Destructor.
-    virtual ~MolalityVPSSTP();
-
     //! Duplication routine for objects which inherit from ThermoPhase.
     /*!
      *  This virtual routine can be used to duplicate objects

@@ -54,9 +54,6 @@ public:
      */
     TortuosityMaxwell(const TortuosityMaxwell& right);
 
-    //! Default destructor for TortuosityMaxwell
-    virtual ~TortuosityMaxwell();
-
     //! Assignment operator
     /*!
      * @param right Object to be copied

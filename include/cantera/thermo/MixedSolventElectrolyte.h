@@ -310,9 +310,6 @@ public:
      */
     MixedSolventElectrolyte& operator=(const MixedSolventElectrolyte& b);
 
-    //! Destructor
-    virtual ~MixedSolventElectrolyte();
-
     //! Duplication routine for objects which inherit from  ThermoPhase.
     /*!
      *  This virtual routine can be used to duplicate thermophase objects

@@ -15,7 +15,6 @@ public:
         m_name = "methane";
         m_formula = "CH4";
     }
-    virtual ~methane() {}
 
     double MolWt();
     double Tcrit();

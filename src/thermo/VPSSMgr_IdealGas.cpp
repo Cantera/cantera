@@ -32,10 +32,6 @@ VPSSMgr_IdealGas::VPSSMgr_IdealGas(VPStandardStateTP* vp_ptr, SpeciesThermo* spt
     m_useTmpStandardStateStorage = true;
 }
 
-VPSSMgr_IdealGas::~VPSSMgr_IdealGas()
-{
-}
-
 VPSSMgr_IdealGas::VPSSMgr_IdealGas(const VPSSMgr_IdealGas& right) :
     VPSSMgr(right.m_vptp_ptr, right.m_spthermo)
 {

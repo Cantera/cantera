@@ -57,9 +57,6 @@ public:
      */
     TortuosityBruggeman(const TortuosityBruggeman& right);
 
-    //! Default destructor for TortuosityBruggeman
-    virtual ~TortuosityBruggeman();
-
     //! Assignment operator
     /*!
      * @param right Object to be copied

@@ -54,11 +54,6 @@ public:
     //!  Default constructor.
     Reactor();
 
-    /**
-     * Destructor. Deletes the integrator.
-     */
-    virtual ~Reactor() {}
-
     virtual int type() const {
         return ReactorType;
     }

@@ -77,11 +77,6 @@ MixtureFugacityTP::operator=(const MixtureFugacityTP& b)
     return *this;
 }
 
-MixtureFugacityTP::~MixtureFugacityTP()
-{
-}
-
-
 ThermoPhase* MixtureFugacityTP::duplMyselfAsThermoPhase() const
 {
     return new MixtureFugacityTP(*this);

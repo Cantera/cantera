@@ -195,10 +195,6 @@ void VPSSMgrFactory::deleteFactory()
     }
 }
 
-VPSSMgrFactory::~VPSSMgrFactory()
-{
-}
-
 VPSSMgr_enumType
 VPSSMgrFactory::VPSSMgr_StringConversion(const std::string& ssModel) const
 {

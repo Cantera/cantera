@@ -127,9 +127,6 @@ public:
     //! default constructor
     AqueousTransport();
 
-    //! virtual destructor
-    virtual ~AqueousTransport() {}
-
     //! Return the model id for this transport parameterization
     virtual int model() const {
         return cAqueousTransport;

@@ -24,9 +24,6 @@ public:
     /// Default constructor.
     GRI_30_Kinetics(thermo_t* th=0);
 
-    /// Destructor.
-    virtual ~GRI_30_Kinetics() {}
-
     virtual int type() const {
         return cGRI_30_Kinetics;
     }

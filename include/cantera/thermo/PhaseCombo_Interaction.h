@@ -383,9 +383,6 @@ public:
      */
     PhaseCombo_Interaction& operator=(const PhaseCombo_Interaction& b);
 
-    //! Destructor
-    virtual ~PhaseCombo_Interaction();
-
     //! Duplication routine for objects which inherit from  ThermoPhase.
     /*!
      *  This virtual routine can be used to duplicate thermophase objects

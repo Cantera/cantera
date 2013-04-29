@@ -74,10 +74,6 @@ operator=(const IdealSolnGasVPSS& b)
     return *this;
 }
 
-IdealSolnGasVPSS::~IdealSolnGasVPSS()
-{
-}
-
 ThermoPhase* IdealSolnGasVPSS::duplMyselfAsThermoPhase() const
 {
     return new IdealSolnGasVPSS(*this);

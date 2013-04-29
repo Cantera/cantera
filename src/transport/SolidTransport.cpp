@@ -34,10 +34,6 @@ SolidTransport::SolidTransport() :
 {
 }
 //====================================================================================================================
-SolidTransport::~SolidTransport()
-{
-}
-//====================================================================================================================
 SolidTransport::SolidTransport(const SolidTransport& right) :
     Transport(),
     m_nmobile(0),

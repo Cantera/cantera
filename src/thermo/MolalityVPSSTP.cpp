@@ -73,10 +73,6 @@ operator=(const MolalityVPSSTP& b)
     return *this;
 }
 
-MolalityVPSSTP::~MolalityVPSSTP()
-{
-}
-
 ThermoPhase*
 MolalityVPSSTP::duplMyselfAsThermoPhase() const
 {

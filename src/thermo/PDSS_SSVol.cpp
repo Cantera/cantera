@@ -80,10 +80,6 @@ PDSS_SSVol& PDSS_SSVol::operator=(const PDSS_SSVol& b)
     return *this;
 }
 
-PDSS_SSVol::~PDSS_SSVol()
-{
-}
-
 PDSS* PDSS_SSVol::duplMyselfAsPDSS() const
 {
     return new PDSS_SSVol(*this);

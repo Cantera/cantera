@@ -133,10 +133,6 @@ IdealMolalSoln::IdealMolalSoln(XML_Node& root, const std::string& id_) :
     importPhase(*findXMLPhase(&root, id_), this);
 }
 
-IdealMolalSoln::~IdealMolalSoln()
-{
-}
-
 ThermoPhase* IdealMolalSoln::duplMyselfAsThermoPhase() const
 {
     return new IdealMolalSoln(*this);

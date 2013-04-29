@@ -74,10 +74,6 @@ operator=(const GibbsExcessVPSSTP& b)
     return *this;
 }
 
-GibbsExcessVPSSTP::~GibbsExcessVPSSTP()
-{
-}
-
 ThermoPhase*
 GibbsExcessVPSSTP::duplMyselfAsThermoPhase() const
 {

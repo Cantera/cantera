@@ -66,10 +66,6 @@ PDSS_IdealGas& PDSS_IdealGas::operator=(const PDSS_IdealGas& b)
     return *this;
 }
 
-PDSS_IdealGas::~PDSS_IdealGas()
-{
-}
-
 PDSS* PDSS_IdealGas::duplMyselfAsPDSS() const
 {
     return new PDSS_IdealGas(*this);

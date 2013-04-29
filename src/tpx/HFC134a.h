@@ -20,7 +20,6 @@ public:
         m_name = "HFC-134a";
         m_formula = "C2F4H2";
     }
-    ~HFC134a() {}
 
     double MolWt();
     double Tcrit();

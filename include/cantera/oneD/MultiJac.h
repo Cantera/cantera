@@ -32,9 +32,6 @@ public:
      */
     MultiJac(OneDim& r);
 
-    /// Destructor. Does nothing.
-    virtual ~MultiJac() {}
-
     /**
      * Evaluate the Jacobian at x0. The unperturbed residual
      * function is resid0, which must be supplied on input. The

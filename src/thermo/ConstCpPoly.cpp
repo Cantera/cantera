@@ -68,8 +68,6 @@ ConstCpPoly& ConstCpPoly::operator=(const ConstCpPoly& b)
     return *this;
 }
 
-ConstCpPoly::~ConstCpPoly() {}
-
 SpeciesThermoInterpType*
 ConstCpPoly::duplMyselfAsSpeciesThermoInterpType() const
 {

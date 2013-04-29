@@ -25,11 +25,6 @@ public:
      */
     FlowReactor();
 
-    /**
-     * Destructor.
-     */
-    virtual ~FlowReactor() {}
-
     virtual int type() const {
         return FlowReactorType;
     }

@@ -47,9 +47,6 @@ public:
      */
     VPSSMgr_ConstVol(VPStandardStateTP* vp_ptr, SpeciesThermo* spth);
 
-    //! Destructor
-    virtual ~VPSSMgr_ConstVol();
-
     //! Copy Constructor
     VPSSMgr_ConstVol(const VPSSMgr_ConstVol& right);
 

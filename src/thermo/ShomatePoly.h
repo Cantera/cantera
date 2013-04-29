@@ -123,9 +123,6 @@ public:
         return *this;
     }
 
-    //! Destructor
-    virtual ~ShomatePoly() {}
-
     virtual SpeciesThermoInterpType*
     duplMyselfAsSpeciesThermoInterpType() const {
         ShomatePoly* sp = new ShomatePoly(*this);

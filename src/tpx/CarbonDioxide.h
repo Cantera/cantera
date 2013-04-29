@@ -16,7 +16,6 @@ public:
         m_name="CarbonDioxide";
         m_formula="CO2";
     }
-    virtual ~CarbonDioxide() {}
 
     double MolWt();
     double Tcrit();

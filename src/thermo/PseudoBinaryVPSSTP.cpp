@@ -80,10 +80,6 @@ operator=(const PseudoBinaryVPSSTP& b)
     return *this;
 }
 
-PseudoBinaryVPSSTP::~PseudoBinaryVPSSTP()
-{
-}
-
 ThermoPhase*
 PseudoBinaryVPSSTP::duplMyselfAsThermoPhase() const
 {

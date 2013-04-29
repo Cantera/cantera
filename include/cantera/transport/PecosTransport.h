@@ -44,9 +44,6 @@ class PecosTransport : public Transport
 {
 
 public:
-
-    virtual ~PecosTransport() {}
-
     virtual int model() const {
         return cPecosTransport;
     }

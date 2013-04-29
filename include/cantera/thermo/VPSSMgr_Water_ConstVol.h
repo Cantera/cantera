@@ -42,9 +42,6 @@ public:
      */
     VPSSMgr_Water_ConstVol(VPStandardStateTP* vp_ptr, SpeciesThermo* sp_ptr);
 
-    //! Destructor
-    virtual ~VPSSMgr_Water_ConstVol();
-
     //! Copy Constructor
     VPSSMgr_Water_ConstVol(const VPSSMgr_Water_ConstVol& right);
 

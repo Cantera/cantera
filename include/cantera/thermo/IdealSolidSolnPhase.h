@@ -111,9 +111,6 @@ public:
      */
     virtual ThermoPhase* duplMyselfAsThermoPhase() const;
 
-    //! Destructor
-    virtual ~IdealSolidSolnPhase() {}
-
     /**
      * Equation of state flag. Returns a value depending upon the value of
      * #m_formGC, which is defined at instantiation.

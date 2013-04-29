@@ -78,11 +78,6 @@ DenseMatrix& DenseMatrix::operator=(const DenseMatrix& y)
     return *this;
 }
 //====================================================================================================================
-// Destructor. Does nothing.
-DenseMatrix::~DenseMatrix()
-{
-}
-//====================================================================================================================
 void DenseMatrix::resize(size_t n, size_t m, doublereal v)
 {
     Array2D::resize(n,m,v);

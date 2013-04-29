@@ -128,9 +128,6 @@ public:
      */
     IdealMolalSoln(XML_Node& phaseRef, const std::string& id = "");
 
-    /// Destructor.
-    virtual ~IdealMolalSoln();
-
     //! Duplication function
     /*!
      * This virtual function is used to create a duplicate of the

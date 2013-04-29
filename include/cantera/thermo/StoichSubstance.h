@@ -50,9 +50,6 @@ public:
      */
     StoichSubstance& operator=(const StoichSubstance& right);
 
-    //! Destructor
-    virtual ~StoichSubstance();
-
     //! Duplicator from the %ThermoPhase parent class
     /*
      * Given a pointer to a %ThermoPhase object, this function will

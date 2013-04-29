@@ -74,9 +74,6 @@ public:
     //! Assignment operator
     ConstCpPoly& operator=(const ConstCpPoly&);
 
-    //! Destructor
-    virtual ~ConstCpPoly();
-
     virtual SpeciesThermoInterpType*
     duplMyselfAsSpeciesThermoInterpType() const;
 

@@ -24,8 +24,6 @@ public:
                                           "buildSolutionFromXML returned false");
     }
 
-    virtual ~IncompressibleSolid() {}
-
     bool operator!() {
         return !m_ok;
     }

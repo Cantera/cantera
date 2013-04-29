@@ -43,8 +43,6 @@ public:
         return *this;
     }
 
-    virtual ~SemiconductorPhase() {}
-
     //! Duplicator
     virtual ThermoPhase* duplMyselfAsThermoPhase() const {
         SemiconductorPhase* idg = new SemiconductorPhase(*this);

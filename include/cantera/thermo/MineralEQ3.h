@@ -129,9 +129,6 @@ public:
      */
     MineralEQ3& operator=(const MineralEQ3& right);
 
-    //! Destructor for the routine (virtual)
-    virtual ~MineralEQ3();
-
     //! Duplication function
     /*!
      * This virtual function is used to create a duplicate of the

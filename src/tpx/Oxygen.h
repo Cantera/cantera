@@ -14,7 +14,6 @@ public:
         m_name="oxygen";
         m_formula="O2";
     }
-    virtual ~oxygen() {}
 
     double MolWt();
     double Tcrit();
