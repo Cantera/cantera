@@ -678,6 +678,9 @@ void deepStdVectorPointerCopy(const std::vector<D*> &fromVec, std::vector<D*> &t
 }
 
 //@}
+
+//! Check to see that a number is finite (not NaN, +Inf or -Inf)
+void checkFinite(const double tmp);
 }
 
 #endif

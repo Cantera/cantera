@@ -687,46 +687,6 @@ extern void mdp_init_dbl_2(double** const v, const double value,
  */
 extern void mdp_init_int_1(int* const v, const int value, const int len);
 
-
-/*
- *        Utility routines to check that a number is finite
- */
-
-//! Utility routine to check to see that a number is neither zero
-//! nor indefinite.
-/*!
- *  This check can be used before using the number in a denominator.
- *
- *  @param tmp number to be checked
- */
-extern void checkZeroFinite(const double tmp);
-
-//! Utility routine to check to see that a number is finite.
-/*!
- *  @param tmp number to be checked
- */
-extern void checkFinite(const double tmp);
-
-//! Utility routine to link checkFinte() to fortran program
-/*!
- *  This routine is accessible from fortran, usually
- *
- * @param tmp Pointer to the number to check
- *
- * @todo link it into the usual way Cantera handles Fortran calls
- */
-extern "C" void checkfinite_(double* tmp);
-
-//! utility routine to check that a double stays bounded
-/*!
- *   This routine checks to see if a number stays bounded. The absolute
- *   value of the number is required to stay below the trigger.
- *
- * @param tmp     Number to be checked
- * @param trigger bounds on the number. Defaults to 1.0E20
- */
-extern void checkMagnitude(const double tmp, const double trigger = 1.0E20);
-
 }  /* end of mdp namespace */
 /****************************************************************************/
 #endif
