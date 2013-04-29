@@ -17,10 +17,6 @@
 #include <cmath>
 #include <iostream>
 
-#ifndef  MAX
-#define  MAX(x,y) (( (x) > (y) ) ? (x) : (y))
-#endif
-
 using namespace std;
 
 namespace VCSnonideal
@@ -80,7 +76,7 @@ int VCS_SOLVE::vcs_setMolesLinProg()
 
     for (ik = 0; ik <  m_numSpeciesTot; ik++) {
         if (m_speciesUnknownType[ik] !=  VCS_SPECIES_INTERFACIALVOLTAGE) {
-            m_molNumSpecies_old[ik] = MAX(0.0, m_molNumSpecies_old[ik]);
+            m_molNumSpecies_old[ik] = max(0.0, m_molNumSpecies_old[ik]);
         }
     }
 
@@ -180,14 +176,14 @@ int VCS_SOLVE::vcs_setMolesLinProg()
             // Redo the iteration, if a component went from positive to zero on this step.
             double dsLocal = idir*dxi_min;
             m_molNumSpecies_old[ik] += dsLocal;
-            m_molNumSpecies_old[ik] = MAX(0.0,  m_molNumSpecies_old[ik]);
+            m_molNumSpecies_old[ik] = max(0.0,  m_molNumSpecies_old[ik]);
             for (size_t jcomp = 0; jcomp < m_numComponents; jcomp++) {
                 bool full = false;
                 if (m_molNumSpecies_old[jcomp] > 1.0E-15) {
                     full = true;
                 }
                 m_molNumSpecies_old[jcomp] += sc_irxn[jcomp] * dsLocal;
-                m_molNumSpecies_old[jcomp] = MAX(0.0, m_molNumSpecies_old[jcomp]);
+                m_molNumSpecies_old[jcomp] = max(0.0, m_molNumSpecies_old[jcomp]);
                 if (full) {
                     if (m_molNumSpecies_old[jcomp] < 1.0E-60) {
                         redo = true;

@@ -25,10 +25,6 @@
 using namespace std;
 using namespace Cantera;
 
-#ifndef MAX
-#define MAX(x,y) (( (x) > (y) ) ? (x) : (y))
-#endif
-
 namespace VCSnonideal
 {
 
@@ -55,7 +51,7 @@ void VCS_SOLVE::checkDelta1(double* const dsLocal,
         }
     }
     for (size_t iphase = 0; iphase < m_numPhases; iphase++) {
-        double denom = MAX(m_totalMolNum, 1.0E-4);
+        double denom = max(m_totalMolNum, 1.0E-4);
         if (!vcs_doubleEqual(dchange[iphase]/denom, delTPhMoles[iphase]/denom)) {
             plogf("checkDelta1: we have found a problem\n");
             exit(EXIT_FAILURE);
