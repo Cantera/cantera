@@ -12,18 +12,10 @@
 
 #include "cantera/numerics/BEulerInt.h"
 
-#include "cantera/base/mdp_allo.h"
 #include <iostream>
 
 using namespace std;
-using namespace mdp;
 
-/*
- * Blas routines
- */
-extern "C" {
-    extern void dcopy_(int*, double*, int*, double*, int*);
-}
 namespace Cantera
 {
 
@@ -106,27 +98,13 @@ BEulerInt::BEulerInt() :
  */
 BEulerInt::~BEulerInt()
 {
-    mdp::mdp_safe_free((void**) &m_y_n);
-    mdp::mdp_safe_free((void**) &m_y_nm1);
-    mdp::mdp_safe_free((void**) &m_y_pred_n);
-    mdp::mdp_safe_free((void**) &m_ydot_n);
-    mdp::mdp_safe_free((void**) &m_ydot_nm1);
-    mdp::mdp_safe_free((void**) &m_resid);
-    mdp::mdp_safe_free((void**) &m_residWts);
-    mdp::mdp_safe_free((void**) &m_wksp);
-    mdp::mdp_safe_free((void**) &m_ewt);
-    mdp::mdp_safe_free((void**) &m_abstol);
-    mdp::mdp_safe_free((void**) &m_rowScales);
-    mdp::mdp_safe_free((void**) &m_colScales);
     delete tdjac_ptr;
 }
 //================================================================================================
 void BEulerInt::setTolerances(double reltol, size_t n, double* abstol)
 {
     m_itol = 1;
-    if (!m_abstol) {
-        m_abstol = mdp_alloc_dbl_1(m_neq, MDP_DBL_NOINIT);
-    }
+    m_abstol.resize(m_neq);
     if (static_cast<int>(n) != m_neq) {
         printf("ERROR n is wrong\n");
         exit(-1);
@@ -229,15 +207,11 @@ void BEulerInt::setNonLinOptions(int min_newt_its, bool matrixConditioning,
     m_matrixConditioning = matrixConditioning;
     m_colScaling = colScaling;
     m_rowScaling = rowScaling;
-    if (m_colScaling) {
-        if (!m_colScales) {
-            m_colScales = mdp_alloc_dbl_1(m_neq, 1.0);
-        }
+    if (m_colScaling && m_colScales.empty()) {
+        m_colScales.assign(m_neq, 1.0);
     }
-    if (m_rowScaling) {
-        if (!m_rowScales) {
-            m_rowScales = mdp_alloc_dbl_1(m_neq, 1.0);
-        }
+    if (m_rowScaling && m_rowScales.empty()) {
+        m_rowScales.assign(m_neq, 1.0);
     }
 }
 //================================================================================================
@@ -277,7 +251,7 @@ void BEulerInt::initializeRJE(double t0, ResidJacEval& func)
     /*
      * Get the initial conditions.
      */
-    func.getInitialConditions(m_t0, m_y_n, m_ydot_n);
+    func.getInitialConditions(m_t0, &m_y_n[0], &m_ydot_n[0]);
 
     // Store a pointer to the residual routine in the object
     m_func = &func;
@@ -307,7 +281,7 @@ void BEulerInt::reinitializeRJE(double t0, ResidJacEval& func)
      * them into internal storage in the object, my[].
      */
     m_t0  = t0;
-    func.getInitialConditions(m_t0, m_y_n, m_ydot_n);
+    func.getInitialConditions(m_t0, &m_y_n[0], &m_ydot_n[0]);
     /**
      * Set up the internal weights that are used for testing convergence
      */
@@ -357,20 +331,20 @@ int BEulerInt::nEvals() const
  */
 void BEulerInt::internalMalloc()
 {
-    mdp_realloc_dbl_1(&m_ewt,      m_neq, 0, 0.0);
-    mdp_realloc_dbl_1(&m_y_n,      m_neq, 0, 0.0);
-    mdp_realloc_dbl_1(&m_y_nm1,    m_neq, 0, 0.0);
-    mdp_realloc_dbl_1(&m_y_pred_n, m_neq, 0, 0.0);
-    mdp_realloc_dbl_1(&m_ydot_n,   m_neq, 0, 0.0);
-    mdp_realloc_dbl_1(&m_ydot_nm1, m_neq, 0, 0.0);
-    mdp_realloc_dbl_1(&m_resid,    m_neq, 0, 0.0);
-    mdp_realloc_dbl_1(&m_residWts, m_neq, 0, 0.0);
-    mdp_realloc_dbl_1(&m_wksp,     m_neq, 0, 0.0);
+    m_ewt.assign(m_neq, 0.0);
+    m_y_n.assign(m_neq, 0.0);
+    m_y_nm1.assign(m_neq, 0.0);
+    m_y_pred_n.assign(m_neq, 0.0);
+    m_ydot_n.assign(m_neq, 0.0);
+    m_ydot_nm1.assign(m_neq, 0.0);
+    m_resid.assign(m_neq, 0.0);
+    m_residWts.assign(m_neq, 0.0);
+    m_wksp.assign(m_neq, 0.0);
     if (m_rowScaling) {
-        mdp_realloc_dbl_1(&m_rowScales, m_neq, 0, 1.0);
+        m_rowScales.assign(m_neq, 1.0);
     }
     if (m_colScaling) {
-        mdp_realloc_dbl_1(&m_colScales, m_neq, 0, 1.0);
+        m_colScales.assign(m_neq, 1.0);
     }
     tdjac_ptr = new SquareMatrix(m_neq);
 }
@@ -413,7 +387,7 @@ void BEulerInt::setSolnWeights()
  */
 void BEulerInt::setColumnScales()
 {
-    m_func->calcSolnScales(time_n, m_y_n, m_y_nm1, m_colScales);
+    m_func->calcSolnScales(time_n, &m_y_n[0], &m_y_nm1[0], &m_colScales[0]);
 }
 //================================================================================================
 /*
@@ -709,9 +683,9 @@ void BEulerInt::beuler_jac(GeneralMatrix& J, double* const f,
          * deltaY's that are appropriate for calculating the numerical
          * derivative.
          */
-        double* dyVector = mdp::mdp_alloc_dbl_1(m_neq, MDP_DBL_NOINIT);
-        m_func->calcDeltaSolnVariables(time_curr, y, m_y_nm1, dyVector,
-                                       m_ewt);
+         vector_fp dyVector(m_neq);
+        m_func->calcDeltaSolnVariables(time_curr, y, &m_y_nm1[0], &dyVector[0],
+                                       &m_ewt[0]);
 #ifdef DEBUG_HKM
         bool print_NumJac = false;
         if (print_NumJac) {
@@ -758,7 +732,7 @@ void BEulerInt::beuler_jac(GeneralMatrix& J, double* const f,
              */
 
 
-            m_func->evalResidNJ(time_curr, delta_t_n, y, ydot, m_wksp,
+            m_func->evalResidNJ(time_curr, delta_t_n, y, ydot, &m_wksp[0],
                                 JacDelta_ResidEval, j, dy);
             m_nfe++;
             double diff;
@@ -772,10 +746,6 @@ void BEulerInt::beuler_jac(GeneralMatrix& J, double* const f,
             ydot[j] = ydotsave;
 
         }
-        /*
-         * Release memory
-         */
-        mdp::mdp_safe_free((void**) &dyVector);
     }
 
 
@@ -835,7 +805,7 @@ void BEulerInt::calc_y_pred(int order)
     /*
      * Filter the predictions.
      */
-    m_func->filterSolnPrediction(time_n, m_y_pred_n);
+    m_func->filterSolnPrediction(time_n, &m_y_pred_n[0]);
 
 } /* calc_y_pred */
 
@@ -1081,11 +1051,11 @@ double BEulerInt::integrateRJE(double tout, double time_init)
     time_n = time_init;
     time_nm1 = time_init;
     time_nm2 = time_init;
-    m_func->evalTimeTrackingEqns(time_current, 0.0, m_y_n, m_ydot_n);
+    m_func->evalTimeTrackingEqns(time_current, 0.0, &m_y_n[0], &m_ydot_n[0]);
     double print_time = getPrintTime(time_current);
     if (print_time == time_current) {
         m_func->writeSolution(4, time_current, delta_t_n,
-                              istep, m_y_n, m_ydot_n);
+                              istep, &m_y_n[0], &m_ydot_n[0]);
     }
     /*
      * We print out column headers here for the case of
@@ -1097,7 +1067,7 @@ double BEulerInt::integrateRJE(double tout, double time_init)
      * Call a different user routine at the end of each step,
      * that will probably print to a file.
      */
-    m_func->user_out2(0, time_current, 0.0, m_y_n, m_ydot_n);
+    m_func->user_out2(0, time_current, 0.0, &m_y_n[0], &m_ydot_n[0]);
 
     do {
 
@@ -1125,7 +1095,7 @@ double BEulerInt::integrateRJE(double tout, double time_init)
         if (flag != FAILURE) {
             bool retn =
                 m_func->evalStoppingCritera(time_current, delta_t_n,
-                                            m_y_n, m_ydot_n);
+                                            &m_y_n[0], &m_ydot_n[0]);
             if (retn) {
                 weAreNotFinished = false;
                 doPrintSoln = true;
@@ -1151,7 +1121,7 @@ double BEulerInt::integrateRJE(double tout, double time_init)
          */
         if (flag != FAILURE) {
             m_func->evalTimeTrackingEqns(time_current, delta_t_n,
-                                         m_y_n, m_ydot_n);
+                                         &m_y_n[0], &m_ydot_n[0]);
         }
 
         /*
@@ -1159,7 +1129,7 @@ double BEulerInt::integrateRJE(double tout, double time_init)
          */
         if (doPrintSoln) {
             m_func->writeSolution(1, time_current, delta_t_n,
-                                  istep, m_y_n, m_ydot_n);
+                                  istep, &m_y_n[0], &m_ydot_n[0]);
             printStep = 0;
             doPrintSoln = false;
             if (m_print_flag == 1) {
@@ -1171,9 +1141,9 @@ double BEulerInt::integrateRJE(double tout, double time_init)
          * that will probably print to a file.
          */
         if (flag == FAILURE) {
-            m_func->user_out2(-1, time_current, delta_t_n, m_y_n, m_ydot_n);
+            m_func->user_out2(-1, time_current, delta_t_n, &m_y_n[0], &m_ydot_n[0]);
         } else {
-            m_func->user_out2(1, time_current, delta_t_n, m_y_n, m_ydot_n);
+            m_func->user_out2(1, time_current, delta_t_n, &m_y_n[0], &m_ydot_n[0]);
         }
 
     } while (time_current < tout &&
@@ -1207,7 +1177,7 @@ double BEulerInt::integrateRJE(double tout, double time_init)
      * Call a different user routine at the end of each step,
      * that will probably print to a file.
      */
-    m_func->user_out2(2, time_current, delta_t_n, m_y_n, m_ydot_n);
+    m_func->user_out2(2, time_current, delta_t_n, &m_y_n[0], &m_ydot_n[0]);
 
 
     if (flag != SUCCESS) {
@@ -1227,7 +1197,6 @@ double BEulerInt::integrateRJE(double tout, double time_init)
 double BEulerInt::step(double t_max)
 {
     double CJ;
-    int one = 1;
     bool step_failed = false;
     bool giveUp = false;
     bool convFailure = false;
@@ -1342,7 +1311,7 @@ double BEulerInt::step(double t_max)
          * Save the old solution, before overwriting with the new solution
          * - use
          */
-        mdp_copy_dbl_1(m_y_nm1, m_y_n, m_neq);
+        m_y_nm1 = m_y_n;
 
         /*
          * Use the predicted value as the initial guess for the corrector
@@ -1350,7 +1319,7 @@ double BEulerInt::step(double t_max)
          * every step other than the first step.
          */
         if (m_order > 0) {
-            mdp_copy_dbl_1(m_y_n, m_y_pred_n, m_neq);
+            m_y_n = m_y_pred_n;
         }
 
         /*
@@ -1359,7 +1328,7 @@ double BEulerInt::step(double t_max)
          * This overwrites ydot_nm1, losing information from the previous time
          * step.
          */
-        mdp_copy_dbl_1(m_ydot_nm1, m_ydot_n, m_neq);
+        m_ydot_nm1 = m_ydot_n;
 
         /*
          * Calculate the new time derivative, ydot_n, that is consistent
@@ -1367,7 +1336,7 @@ double BEulerInt::step(double t_max)
          * initial guess for the corrected solution vector.
          *
          */
-        calc_ydot(m_order, m_y_n, m_ydot_n);
+        calc_ydot(m_order, &m_y_n[0], &m_ydot_n[0]);
 
         /*
          * Calculate CJ, the coefficient for the jacobian corresponding to the
@@ -1389,7 +1358,7 @@ double BEulerInt::step(double t_max)
          * Note - x_corr_n and x_dot_n are considered to be updated,
          * on return from this solution.
          */
-        int ierror = solve_nonlinear_problem(m_y_n, m_ydot_n,
+        int ierror = solve_nonlinear_problem(&m_y_n[0], &m_ydot_n[0],
                                              CJ, time_n, *tdjac_ptr, num_newt_its,
                                              aztec_its, bktr_stps,
                                              nonlinearloglevel);
@@ -1414,7 +1383,7 @@ double BEulerInt::step(double t_max)
             /*
              *  Apply a filter to a new successful step
              */
-            normFilter = filterNewStep(time_n, m_y_n, m_ydot_n);
+            normFilter = filterNewStep(time_n, &m_y_n[0], &m_ydot_n[0]);
             if (normFilter > 1.0) {
                 convFailure = true;
                 step_failed = true;
@@ -1566,8 +1535,8 @@ double BEulerInt::step(double t_max)
             /*
              * Replace old solution vector and time derivative solution vector.
              */
-            dcopy_(&m_neq, m_y_nm1, &one, m_y_n, &one);
-            dcopy_(&m_neq, m_ydot_nm1, &one, m_ydot_n,  &one);
+             m_y_n = m_y_nm1;
+             m_ydot_n = m_ydot_nm1;
             /*
              * Decide whether to bail on the whole loop
              */
@@ -1655,7 +1624,7 @@ double BEulerInt::soln_error_norm(const double* const delta_y,
         const int num_entries = 8;
         double dmax1, normContrib;
         int j;
-        int* imax = mdp_alloc_int_1(num_entries, -1);
+        vector_int imax(num_entries, -1);
         printf("\t\tPrintout of Largest Contributors to norm "
                "of value (%g)\n", sum_norm);
         printf("\t\t         I    ysoln  deltaY  weightY  "
@@ -1688,7 +1657,6 @@ double BEulerInt::soln_error_norm(const double* const delta_y,
         }
         printf("\t\t   ");
         print_line("-", 80);
-        mdp_safe_free((void**) &imax);
     }
     return sum_norm;
 }
@@ -2171,15 +2139,12 @@ int BEulerInt::solve_nonlinear_problem(double* const y_comm,
     bool forceNewJac = false;
     double s1=1.e30;
 
-    double* y_curr    = mdp_alloc_dbl_1(m_neq, 0.0);
-    double* ydot_curr = mdp_alloc_dbl_1(m_neq, 0.0);
-    double* stp       = mdp_alloc_dbl_1(m_neq, 0.0);
-    double* stp1      = mdp_alloc_dbl_1(m_neq, 0.0);
-    double* y_new     = mdp_alloc_dbl_1(m_neq, 0.0);
-    double* ydot_new  = mdp_alloc_dbl_1(m_neq, 0.0);
-
-    mdp_copy_dbl_1(y_curr, y_comm, m_neq);
-    mdp_copy_dbl_1(ydot_curr, ydot_comm, m_neq);
+    vector_fp y_curr(y_comm, y_comm + m_neq);
+    vector_fp ydot_curr(ydot_comm, ydot_comm + m_neq);
+    vector_fp stp(m_neq, 0.0);
+    vector_fp stp1(m_neq, 0.0);
+    vector_fp y_new(m_neq, 0.0);
+    vector_fp ydot_new(m_neq, 0.0);
 
     bool frst = true;
     num_newt_its = 0;
@@ -2209,7 +2174,7 @@ int BEulerInt::solve_nonlinear_problem(double* const y_comm,
             if (loglevel > 1) {
                 printf("\t\t\tGetting a new Jacobian and solving system\n");
             }
-            beuler_jac(jac, m_resid, time_curr, CJ, y_curr, ydot_curr,
+            beuler_jac(jac, &m_resid[0], time_curr, CJ, &y_curr[0], &ydot_curr[0],
                        num_newt_its);
         } else {
             if (loglevel > 1) {
@@ -2218,11 +2183,11 @@ int BEulerInt::solve_nonlinear_problem(double* const y_comm,
         }
 
         // compute the undamped Newton step
-        doNewtonSolve(time_curr, y_curr, ydot_curr, stp, jac, loglevel);
+        doNewtonSolve(time_curr, &y_curr[0], &ydot_curr[0], &stp[0], jac, loglevel);
 
         // damp the Newton step
-        m = dampStep(time_curr, y_curr, ydot_curr, stp, y_new, ydot_new,
-                     stp1, s1, jac, loglevel, frst, i_backtracks);
+        m = dampStep(time_curr, &y_curr[0], &ydot_curr[0], &stp[0], &y_new[0], &ydot_new[0],
+                     &stp1[0], s1, jac, loglevel, frst, i_backtracks);
         frst = false;
         num_backtracks += i_backtracks;
 
@@ -2277,13 +2242,13 @@ int BEulerInt::solve_nonlinear_problem(double* const y_comm,
         bool m_filterIntermediate = false;
         if (m_filterIntermediate) {
             if (m == 0) {
-                (void) filterNewStep(time_n, y_new, ydot_new);
+                (void) filterNewStep(time_n, &y_new[0], &ydot_new[0]);
             }
         }
         // Exchange new for curr solutions
         if (m == 0 || m == 1) {
-            mdp_copy_dbl_1(y_curr, y_new, m_neq);
-            calc_ydot(m_order, y_curr, ydot_curr);
+            y_curr = y_new;
+            calc_ydot(m_order, &y_curr[0], &ydot_curr[0]);
         }
 
         // convergence
@@ -2301,17 +2266,10 @@ int BEulerInt::solve_nonlinear_problem(double* const y_comm,
 
 done:
     // Copy into the return vectors
-    mdp_copy_dbl_1(y_comm, y_curr, m_neq);
-    mdp_copy_dbl_1(ydot_comm, ydot_curr, m_neq);
+    copy(y_curr.begin(), y_curr.end(), y_comm);
+    copy(ydot_curr.begin(), ydot_curr.end(), ydot_comm);
     // Increment counters
     num_linear_solves += m_numTotalLinearSolves;
-    // Free memory
-    mdp_safe_free((void**) &y_curr);
-    mdp_safe_free((void**) &ydot_curr);
-    mdp_safe_free((void**) &stp);
-    mdp_safe_free((void**) &stp1);
-    mdp_safe_free((void**) &y_new);
-    mdp_safe_free((void**) &ydot_new);
 
     double time_elapsed = 0.0;
     if (loglevel > 1) {
@@ -2345,7 +2303,7 @@ print_solnDelta_norm_contrib(const double* const solnDelta0,
     printf("\t\t%s currentDamp = %g\n", title, damp);
     printf("\t\t         I  ysoln %10s ysolnTrial "
            "%10s weight relSoln0 relSoln1\n", s0, s1);
-    int* imax = mdp_alloc_int_1(num_entries, -1);
+    vector_int imax(num_entries, -1);
     printf("\t\t   ");
     print_line("-", 90);
     for (jnum = 0; jnum < num_entries; jnum++) {
@@ -2382,7 +2340,6 @@ print_solnDelta_norm_contrib(const double* const solnDelta0,
     }
     printf("\t\t   ");
     print_line("-", 90);
-    mdp_safe_free((void**) &imax);
 }
 //===============================================================================================
 
