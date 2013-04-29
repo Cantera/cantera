@@ -26,12 +26,6 @@
 
 using namespace std;
 
-
-#define MAX(x,y) (( (x) > (y) ) ? (x) : (y))
-
-/*****************************************************************/
-/*****************************************************************/
-
 #include "cantera/transport.h"
 #include "cantera/IdealGasMix.h"
 #include "cantera/transport/TransportFactory.h"
