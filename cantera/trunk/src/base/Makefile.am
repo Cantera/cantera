@@ -12,13 +12,12 @@ h_sources               = $(top_builddir)/include/cantera/base/utilities.h \
                           $(top_builddir)/include/cantera/base/XML_Writer.h  \
                           $(top_builddir)/include/cantera/base/FactoryBase.h \
                           $(top_builddir)/include/cantera/base/clockWC.h \
-                          $(top_builddir)/include/cantera/base/mdp_allo.h \
 	                  $(top_builddir)/include/cantera/base/PrintCtrl.h \
 			  LogPrintCtrl.h units.h application.h
 
 cc_sources              = ct2ctml.cpp ctml.cpp plots.cpp                   \
 			  stringUtils.cpp xml.cpp clockWC.cpp              \
-	                  PrintCtrl.cpp LogPrintCtrl.cpp mdp_allo.cpp      \
+	                  PrintCtrl.cpp LogPrintCtrl.cpp       \
 			  checkFinite.cpp application.cpp ctexceptions.cpp \
 	                  global.cpp
 
