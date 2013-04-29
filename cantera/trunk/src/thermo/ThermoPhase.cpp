@@ -8,7 +8,6 @@
 //  Copyright 2002 California Institute of Technology
 
 #include "cantera/thermo/ThermoPhase.h"
-#include "cantera/base/mdp_allo.h"
 #include "cantera/base/stringUtils.h"
 #include "cantera/thermo/ThermoFactory.h"
 
@@ -879,7 +878,7 @@ void ThermoPhase::getdlnActCoeffdlnN_numderiv(const size_t ld, doublereal* const
          * Revert to the base case Xmol_, v_totalMoles
          */
         v_totalMoles = TMoles_base;
-        mdp::mdp_copy_dbl_1(DATA_PTR(Xmol), DATA_PTR(Xmol_Base), (int) m_kk);
+        Xmol = Xmol_Base;
     }
     /*
      * Go get base values for the activity coefficients.
