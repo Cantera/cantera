@@ -23,8 +23,6 @@
 #include "cantera/numerics/GeneralMatrix.h"
 #include "cantera/numerics/NonlinearSolver.h"
 
-#include "cantera/base/mdp_allo.h"
-
 #define OPT_SIZE 10
 
 #define SUCCESS 0
@@ -79,7 +77,7 @@ public:
         return m_y_n[k];
     }
     double* solution() {
-        return m_y_n;
+        return &m_y_n[0];
     }
     int nEquations() const {
         return m_neq;
@@ -299,11 +297,11 @@ protected:
      *  Vector of absolute time truncation error tolerance
      *  when not uniform for all variables.
      */
-    double* m_abstol;
+    vector_fp m_abstol;
     /**
      * Error Weights. This is a surprisingly important quantity.
      */
-    double* m_ewt;
+    vector_fp m_ewt;
 
     //! Maximum step size
     double m_hmax;
@@ -377,11 +375,11 @@ protected:
      * Number of equations in the ode integrator
      */
     int m_neq;
-    double* m_y_n;
-    double* m_y_nm1;
-    double* m_y_pred_n;
-    double* m_ydot_n;
-    double* m_ydot_nm1;
+    vector_fp m_y_n;
+    vector_fp m_y_nm1;
+    vector_fp m_y_pred_n;
+    vector_fp m_ydot_n;
+    vector_fp m_ydot_nm1;
     /************************
      * TIME VARIABLES
      ************************/
@@ -409,12 +407,12 @@ protected:
     double delta_t_max;
 
 
-    double* m_resid;
-    double* m_residWts;
-    double* m_wksp;
+    vector_fp m_resid;
+    vector_fp m_residWts;
+    vector_fp m_wksp;
     ResidJacEval* m_func;
-    double* m_rowScales;
-    double* m_colScales;
+    vector_fp m_rowScales;
+    vector_fp m_colScales;
 
     /**
      * Pointer to the jacobian representing the
