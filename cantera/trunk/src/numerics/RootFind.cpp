@@ -18,9 +18,7 @@
 #endif
 
 #include "cantera/base/global.h"
-#ifdef DEBUG_MODE
-#include "cantera/base/mdp_allo.h"
-#endif
+#include "cantera/base/utilities.h"
 #include "cantera/base/stringUtils.h"
 /* Standard include files */
 
@@ -1183,11 +1181,11 @@ doublereal RootFind::func(doublereal x)
 {
     doublereal r;
 #ifdef DEBUG_MODE
-    mdp::checkFinite(x);
+    checkFinite(x);
 #endif
     m_residFunc->evalSS(0.0, &x, &r);
 #ifdef DEBUG_MODE
-    mdp::checkFinite(r);
+    checkFinite(r);
 #endif
     doublereal ff = r  - m_funcTargetValue;
     if (x >= x_maxTried_) {

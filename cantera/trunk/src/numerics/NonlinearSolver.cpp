@@ -574,17 +574,17 @@ doublereal NonlinearSolver::residErrorNorm(const doublereal* const resid, const 
 
     for (size_t i = 0; i < neq_; i++) {
 #ifdef DEBUG_MODE
-        mdp::checkFinite(resid[i]);
+        checkFinite(resid[i]);
 #endif
         error     = resid[i] / m_residWts[i];
 #ifdef DEBUG_MODE
-        mdp::checkFinite(error);
+        checkFinite(error);
 #endif
         sum_norm += (error * error);
     }
     sum_norm = sqrt(sum_norm / neq_);
 #ifdef DEBUG_MODE
-    mdp::checkFinite(sum_norm);
+    checkFinite(sum_norm);
 #endif
     if (printLargest) {
         const int num_entries = printLargest;
@@ -820,7 +820,7 @@ void NonlinearSolver::scaleMatrix(GeneralMatrix& jac, doublereal* const y_comm, 
                         m_rowWtScales[irow] += fabs(*jptr) * m_ewt[jcol];
                     }
 #ifdef DEBUG_MODE
-                    mdp::checkFinite(m_rowWtScales[irow]);
+                    checkFinite(m_rowWtScales[irow]);
 #endif
                     jptr++;
                 }
@@ -844,7 +844,7 @@ void NonlinearSolver::scaleMatrix(GeneralMatrix& jac, doublereal* const y_comm, 
                             m_rowWtScales[irow] += vv * m_ewt[jcol];
                         }
 #ifdef DEBUG_MODE
-                        mdp::checkFinite(m_rowWtScales[irow]);
+                        checkFinite(m_rowWtScales[irow]);
 #endif
                     }
                 }
@@ -1441,7 +1441,7 @@ doublereal NonlinearSolver::doCauchyPointSolve(GeneralMatrix& jac)
             deltaX_CP_[j] -= m_resid[i] * jac(i,j) * colFac * rowFac * m_ewt[j] * m_ewt[j]
                              / (m_residWts[i] * m_residWts[i]);
 #ifdef DEBUG_MODE
-            mdp::checkFinite(deltaX_CP_[j]);
+            checkFinite(deltaX_CP_[j]);
 #endif
         }
     }
@@ -3773,7 +3773,7 @@ int NonlinearSolver::beuler_jac(GeneralMatrix& J, doublereal* const f,
             m_nJacEval++;
 #ifdef DEBUG_MODE
             for (int ii = 0; ii < neq_; ii++) {
-                mdp::checkFinite(f[ii]);
+                checkFinite(f[ii]);
             }
 #endif
 
@@ -3844,7 +3844,7 @@ int NonlinearSolver::beuler_jac(GeneralMatrix& J, doublereal* const f,
                     throw CanteraError("NonlinearSolver::beuler_jac", "dy is equal to zero");
                 }
                 for (int ii = 0; ii < neq_; ii++) {
-                    mdp::checkFinite(m_wksp[ii]);
+                    checkFinite(m_wksp[ii]);
                 }
 #endif
 
@@ -3929,7 +3929,7 @@ int NonlinearSolver::beuler_jac(GeneralMatrix& J, doublereal* const f,
                     throw CanteraError("NonlinearSolver::beuler_jac", "dy is equal to zero");
                 }
                 for (int ii = 0; ii < neq_; ii++) {
-                    mdp::checkFinite(m_wksp[ii]);
+                    checkFinite(m_wksp[ii]);
                 }
 #endif
                 if (info != 1) {
@@ -4094,7 +4094,7 @@ NonlinearSolver::computeResidWts()
         for (size_t i = 0; i < neq_; i++) {
             m_residWts[i] = userResidAtol_[i] + userResidRtol_ * m_rowWtScales[i] / rtol_;
 #ifdef DEBUG_MODE
-            mdp::checkFinite(m_residWts[i]);
+            checkFinite(m_residWts[i]);
 #endif
         }
     } else {
@@ -4102,7 +4102,7 @@ NonlinearSolver::computeResidWts()
         for (size_t i = 0; i < neq_; i++) {
             m_residWts[i] = m_rowWtScales[i];
 #ifdef DEBUG_MODE
-            mdp::checkFinite(m_residWts[i]);
+            checkFinite(m_residWts[i]);
 #endif
             sum += m_residWts[i];
         }
