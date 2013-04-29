@@ -33,8 +33,6 @@ public:
         m_ok = buildSolutionFromXML(root, id, "phase", this, 0);
     }
 
-    virtual ~PureFluid() {}
-
     bool operator!() {
         return !m_ok;
     }

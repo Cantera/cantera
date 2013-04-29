@@ -53,10 +53,6 @@ StatMech& StatMech::operator=(const StatMech& b)
     return *this;
 }
 
-StatMech::~StatMech()
-{
-}
-
 SpeciesThermoInterpType*
 StatMech::duplMyselfAsSpeciesThermoInterpType() const
 {

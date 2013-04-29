@@ -20,7 +20,6 @@ public:
         m_name = "Lee-Kesler";
         m_formula = "---";
     }
-    ~leekesler() {}
 
     double MolWt();
     double Tcrit();

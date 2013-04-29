@@ -14,7 +14,6 @@ public:
         m_name = "water";
         m_formula = "H2O";
     }
-    ~water() {}
 
     double MolWt();
     double Tcrit();

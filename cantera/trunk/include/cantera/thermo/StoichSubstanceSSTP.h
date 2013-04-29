@@ -191,9 +191,6 @@ public:
      */
     StoichSubstanceSSTP& operator=(const StoichSubstanceSSTP& right);
 
-    //! Destructor
-    virtual ~StoichSubstanceSSTP();
-
     //! Duplication function
     /*!
      * This virtual function is used to create a duplicate of the

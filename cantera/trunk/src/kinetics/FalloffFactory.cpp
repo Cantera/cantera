@@ -51,9 +51,6 @@ public:
     //! Default constructor.
     Troe3() : m_a(0.0), m_rt3(0.0), m_rt1(0.0) {}
 
-    //! Destructor.
-    virtual ~Troe3() {}
-
     /**
      * Initialize.
      * @param c Coefficient vector of length 3,
@@ -163,9 +160,6 @@ public:
     Troe4() : m_a(0.0), m_rt3(0.0), m_rt1(0.0),
         m_t2(0.0) {}
 
-    //! Destructor
-    virtual ~Troe4() {}
-
     //! Initialization of the object
     /*!
      * @param c Vector of four doubles: The doubles are the parameters,
@@ -266,9 +260,6 @@ public:
     //! Constructor
     SRI3() {}
 
-    //! Destructor
-    virtual ~SRI3() {}
-
     //! Initialization of the object
     /*!
      * @param c Vector of three doubles: The doubles are the parameters,
@@ -353,9 +344,6 @@ class SRI5 : public Falloff
 public:
     //! Constructor
     SRI5() {}
-
-    //! Destructor
-    virtual ~SRI5() {}
 
     //! Initialization of the object
     /*!
@@ -452,9 +440,6 @@ class WF93 : public Falloff
 public:
     //! Default constructor
     WF93() {}
-
-    //! Destructor
-    virtual ~WF93() {}
 
     //! Initialization routine
     /*!

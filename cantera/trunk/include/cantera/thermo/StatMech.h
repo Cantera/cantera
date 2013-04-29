@@ -58,9 +58,6 @@ public:
      */
     StatMech& operator=(const StatMech& b);
 
-    //! Destructor
-    virtual ~StatMech();
-
     //! duplicator
     virtual SpeciesThermoInterpType*
     duplMyselfAsSpeciesThermoInterpType() const;

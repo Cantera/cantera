@@ -242,9 +242,6 @@ public:
      */
     LTPspecies_Const& operator=(const LTPspecies_Const& right);
 
-    //! Destructor
-    virtual ~LTPspecies_Const();
-
     //! duplication routine
     /*!
      *  @return  Returns a copy of this routine as a pointer to LTPspecies
@@ -326,9 +323,6 @@ public:
      *  @param right     Object to be copied
      */
     LTPspecies_Arrhenius& operator=(const LTPspecies_Arrhenius& right);
-
-    //! Destructor
-    virtual ~LTPspecies_Arrhenius();
 
     //! duplication routine
     /*!
@@ -434,9 +428,6 @@ public:
      */
     LTPspecies_Poly& operator=(const LTPspecies_Poly& right);
 
-    //! Destructor
-    virtual ~LTPspecies_Poly();
-
     //! Duplication routine
     /*!
      *  @return  Returns a copy of this routine as a pointer to LTPspecies
@@ -523,9 +514,6 @@ public:
      *  @param right   Object to be copied
      */
     LTPspecies_ExpT&  operator=(const LTPspecies_ExpT& right);
-
-    //! Destructor
-    virtual ~LTPspecies_ExpT();
 
     //! Duplication routine
     /*!

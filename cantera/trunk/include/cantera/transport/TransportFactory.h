@@ -69,15 +69,6 @@ public:
     //! Deletes the statically malloced instance.
     virtual void deleteFactory();
 
-    /*!
-     * Destructor
-     *
-     * We do not delete statically created single instance of this
-     * class here, because it would create an infinite loop if
-     * destructor is called for that single instance.
-     */
-    virtual ~TransportFactory() {}
-
     //! Get the name of the transport model corresponding to the specified constant.
     /*!
      *  @param model  Integer representing the model name

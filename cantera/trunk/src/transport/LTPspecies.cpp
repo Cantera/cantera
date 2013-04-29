@@ -182,10 +182,6 @@ LTPspecies_Const& LTPspecies_Const::operator=(const LTPspecies_Const& right)
     return *this;
 }
 //====================================================================================================================
-LTPspecies_Const::~LTPspecies_Const()
-{
-}
-//====================================================================================================================
 // Duplication routine
 /*
  *  @return  Returns a copy of this routine as a pointer to LTPspecies
@@ -256,11 +252,6 @@ LTPspecies_Arrhenius& LTPspecies_Arrhenius::operator=(const LTPspecies_Arrhenius
         m_logProp = right.m_logProp;
     }
     return *this;
-}
-//====================================================================================================================
-// Destructor
-LTPspecies_Arrhenius::~LTPspecies_Arrhenius()
-{
 }
 //====================================================================================================================
 // Duplication routine
@@ -360,10 +351,6 @@ LTPspecies_Poly& LTPspecies_Poly::operator=(const LTPspecies_Poly& right)
     return *this;
 }
 //====================================================================================================================
-LTPspecies_Poly::~LTPspecies_Poly()
-{
-}
-//====================================================================================================================
 // Duplication routine
 /*
  *  @return  Returns a copy of this routine as a pointer to LTPspecies
@@ -432,10 +419,6 @@ LTPspecies_ExpT& LTPspecies_ExpT::operator=(const LTPspecies_ExpT& right)
         m_prop    = right.m_prop;
     }
     return *this;
-}
-//====================================================================================================================
-LTPspecies_ExpT::~LTPspecies_ExpT()
-{
 }
 //====================================================================================================================
 // Duplication routine

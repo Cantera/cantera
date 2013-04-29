@@ -129,10 +129,6 @@ void SpeciesThermoFactory::deleteFactory()
     }
 }
 
-SpeciesThermoFactory::~SpeciesThermoFactory()
-{
-}
-
 SpeciesThermo* SpeciesThermoFactory::newSpeciesThermo(std::vector<XML_Node*> & spDataNodeList) const
 {
     int inasa = 0, ishomate = 0, isimple = 0, iother = 0;

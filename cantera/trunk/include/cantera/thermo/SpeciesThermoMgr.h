@@ -43,8 +43,6 @@ public:
     UnknownSpeciesThermo(const std::string& proc, const std::string& stype) :
         CanteraError(proc, "Specified species parameterization type (" + stype
                      + ") does not match any known type.") {}
-    //! destructor
-    virtual ~UnknownSpeciesThermo() throw() {}
 };
 
 /**
@@ -61,9 +59,6 @@ class SpeciesThermoDuo : public SpeciesThermo
 public:
     //! Constructor
     SpeciesThermoDuo() {};
-
-    //! Destructor
-    virtual ~SpeciesThermoDuo() {};
 
     //! copy constructor
     /*!

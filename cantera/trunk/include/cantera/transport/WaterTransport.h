@@ -81,9 +81,6 @@ public:
      */
     virtual Transport* duplMyselfAsTransport() const;
 
-    //! virtual destructor
-    virtual ~WaterTransport();
-
     //! Return the model id for this transport parameterization
     virtual int model() const {
         return cWaterTransport;

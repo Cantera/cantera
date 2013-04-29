@@ -82,9 +82,6 @@ public:
      */
     PDSS_IonsFromNeutral& operator=(const PDSS_IonsFromNeutral& b);
 
-    //! Destructor
-    virtual ~PDSS_IonsFromNeutral();
-
     virtual PDSS* duplMyselfAsPDSS() const;
     virtual void initAllPtrs(VPStandardStateTP* vptp_ptr, VPSSMgr* vpssmgr_ptr,
                              SpeciesThermo* spthermo_ptr);

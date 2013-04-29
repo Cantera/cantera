@@ -96,9 +96,6 @@ public:
      */
     Nasa9Poly1& operator=(const Nasa9Poly1& b);
 
-    //! Destructor
-    virtual ~Nasa9Poly1();
-
     virtual SpeciesThermoInterpType*
     duplMyselfAsSpeciesThermoInterpType() const;
 

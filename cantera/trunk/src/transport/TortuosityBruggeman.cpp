@@ -37,12 +37,6 @@ TortuosityBruggeman::TortuosityBruggeman(const TortuosityBruggeman& right) :
     *this = right;
 }
 //====================================================================================================================
-// Default destructor for TortuosityBruggeman
-TortuosityBruggeman::~TortuosityBruggeman()
-{
-
-}
-//====================================================================================================================
 // Assignment operator
 /*
  * @param right Object to be copied

@@ -43,9 +43,6 @@ public:
     VPSSMgr_Water_HKFT(VPStandardStateTP* vptp_ptr,
                        SpeciesThermo* spth);
 
-    //! Destructor
-    virtual ~VPSSMgr_Water_HKFT();
-
     //! Copy Constructor
     VPSSMgr_Water_HKFT(const VPSSMgr_Water_HKFT& right);
 

@@ -37,12 +37,6 @@ TortuosityMaxwell::TortuosityMaxwell(const TortuosityMaxwell& right) :
     *this = right;
 }
 //====================================================================================================================
-// Default destructor for TortuosityMaxwell
-TortuosityMaxwell::~TortuosityMaxwell()
-{
-
-}
-//====================================================================================================================
 // Assignment operator
 /*
  * @param right Object to be copied

@@ -58,10 +58,6 @@ LatticePhase& LatticePhase::operator=(const LatticePhase& right)
     return *this;
 }
 
-LatticePhase::~LatticePhase()
-{
-}
-
 LatticePhase::LatticePhase(const std::string& inputFile, const std::string& id_)
 {
     initThermoFile(inputFile, id_);

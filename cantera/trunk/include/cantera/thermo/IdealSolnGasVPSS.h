@@ -60,9 +60,6 @@ public:
     /// Assignment operator
     IdealSolnGasVPSS& operator=(const IdealSolnGasVPSS&);
 
-    /// Destructor.
-    virtual ~IdealSolnGasVPSS();
-
     //! Duplication routine
     virtual ThermoPhase* duplMyselfAsThermoPhase() const;
 

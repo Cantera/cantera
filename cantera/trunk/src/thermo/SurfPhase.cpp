@@ -114,10 +114,6 @@ doublereal SurfPhase::enthalpy_mole() const
     return mean_X(DATA_PTR(m_h0));
 }
 
-SurfPhase::~SurfPhase()
-{
-}
-
 doublereal SurfPhase::intEnergy_mole() const
 {
     return enthalpy_mole();

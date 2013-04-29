@@ -187,9 +187,6 @@ public:
      */
     SurfPhase& operator=(const SurfPhase& right);
 
-    //! Destructor.
-    virtual ~SurfPhase();
-
     //! Duplicator from the %ThermoPhase parent class
     /*
      * Given a pointer to a %ThermoPhase object, this function will

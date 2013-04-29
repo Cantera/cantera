@@ -118,15 +118,6 @@ public:
         }
     }
 
-    /**
-     * Destructor doesn't do anything. We do not delete statically created
-     * single instance of this class here, because it would create an infinite
-     * loop if destructor is called for that single instance. Instead, to
-     * delete single instance, we call delete[] from FalloffMng's destructor.
-     */
-    virtual ~FalloffFactory() {
-    }
-
     //! Return a pointer to a new falloff function calculator.
     /*!
      * @param type Integer flag specifying the type of falloff function. The

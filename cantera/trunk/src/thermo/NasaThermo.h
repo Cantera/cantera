@@ -54,8 +54,6 @@ public:
 
     NasaThermo& operator=(const NasaThermo& right);
 
-    virtual ~NasaThermo() {}
-
     virtual SpeciesThermo* duplMyselfAsSpeciesThermo() const {
         NasaThermo* nt = new NasaThermo(*this);
         return (SpeciesThermo*) nt;

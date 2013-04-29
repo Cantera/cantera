@@ -217,10 +217,6 @@ operator=(const RedlichKwongMFTP& b)
     return *this;
 }
 
-RedlichKwongMFTP::~RedlichKwongMFTP()
-{
-}
-
 ThermoPhase* RedlichKwongMFTP::duplMyselfAsThermoPhase() const
 {
     return new RedlichKwongMFTP(*this);

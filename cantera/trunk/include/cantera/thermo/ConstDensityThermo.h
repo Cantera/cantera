@@ -34,9 +34,6 @@ public:
     //! Constructor.
     ConstDensityThermo();
 
-    //! Destructor
-    virtual ~ConstDensityThermo() {}
-
     //! Copy Constructor
     /*!
      * @param right Object to be copied

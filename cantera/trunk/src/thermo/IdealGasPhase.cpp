@@ -38,10 +38,6 @@ IdealGasPhase::IdealGasPhase(XML_Node& phaseRef, const std::string& id_) :
     initThermoXML(phaseRef, id_);
 }
 
-IdealGasPhase::~IdealGasPhase()
-{
-}
-
 IdealGasPhase::IdealGasPhase(const IdealGasPhase& right) :
     m_p0(right.m_p0),
     m_tlast(right.m_tlast),

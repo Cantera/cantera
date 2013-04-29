@@ -312,9 +312,6 @@ public:
      */
     STITbyPDSS(const STITbyPDSS& b);
 
-    //! Destructor
-    virtual ~STITbyPDSS();
-
     virtual SpeciesThermoInterpType* duplMyselfAsSpeciesThermoInterpType() const;
 
     //! Initialize and/or Reinitialize all the pointers for this object

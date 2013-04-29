@@ -53,9 +53,6 @@ public:
     //! Copy Constructor
     GasKinetics(const GasKinetics& right);
 
-    //! Destructor.
-    virtual ~GasKinetics();
-
     //! Assignment operator
     GasKinetics& operator=(const GasKinetics& right);
 

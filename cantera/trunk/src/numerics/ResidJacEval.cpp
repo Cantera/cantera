@@ -37,10 +37,6 @@ ResidJacEval::ResidJacEval(const ResidJacEval& right) :
     *this = operator=(right);
 }
 //====================================================================================================================
-ResidJacEval::~ResidJacEval()
-{
-}
-//====================================================================================================================
 ResidJacEval& ResidJacEval::operator=(const ResidJacEval& right)
 {
     if (this == &right) {

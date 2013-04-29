@@ -36,9 +36,6 @@ public:
      */
     TortuosityPercolation(const TortuosityPercolation& right);
 
-    //! Default destructor for TortuosityPercolation
-    virtual ~TortuosityPercolation();
-
     //! Assignment operator
     /*!
      * @param right Object to be copied

@@ -76,9 +76,6 @@ public:
         m_msg += "<" + opentag + "> paired with </" + closetag + ">.\n";
         setError("XML_TagMismatch", m_msg);
     }
-
-    //! Destructor
-    virtual ~XML_TagMismatch() throw() {}
 };
 
 //! Class representing a specific type of XML file formatting error
@@ -109,9 +106,6 @@ public:
         m_msg += ss.str() + "\n";
         setError("XML_NoChild", m_msg);
     }
-
-    //! Destructor
-    virtual ~XML_NoChild() throw() {}
 };
 
 //////////////////// XML_Reader methods ///////////////////////

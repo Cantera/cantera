@@ -15,7 +15,6 @@ public:
         m_name = "hydrogen";
         m_formula = "H2";
     }
-    virtual ~hydrogen() {}
 
     double MolWt();
     double Tcrit();

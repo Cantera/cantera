@@ -23,9 +23,6 @@ public:
     //! Constructor
     EdgeKinetics() : InterfaceKinetics() {}
 
-    /// Destructor.
-    virtual ~EdgeKinetics() {}
-
     EdgeKinetics(const EdgeKinetics& right) :
         InterfaceKinetics(right) {
         *this=right;

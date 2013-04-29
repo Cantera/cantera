@@ -42,8 +42,6 @@ public:
         CanteraError(proc,  "Specified VPSSMgr model "
                      + VPSSMgrModel +
                      " does not match any known type.") {}
-    //! destructor
-    virtual ~UnknownVPSSMgrModel() throw() {}
 };
 
 //! Factory to build instances of classes that manage the
@@ -101,14 +99,6 @@ public:
      * memory leaks) then this method can be called to delete it.
      */
     void deleteFactory();
-
-    //! Destructor
-    /*!
-     * Doesn't do anything. We do not delete statically created single
-     * instance of this class here, because it would create an infinite loop
-     * if destructor is called for that single instance.
-     */
-    virtual ~VPSSMgrFactory();
 
     //! String conversion to an enumType
     /*!

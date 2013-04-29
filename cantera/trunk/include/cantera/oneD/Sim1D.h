@@ -40,9 +40,6 @@ public:
      */
     Sim1D(std::vector<Domain1D*>& domains);
 
-    /// Destructor. Does nothing.
-    virtual ~Sim1D() {}
-
     /**
      * @name Setting initial values
      *

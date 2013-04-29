@@ -88,10 +88,6 @@ public:
         return *this;
     }
 
-    //! Destructor. Does nothing.
-    virtual ~Interface() {
-    }
-
     //! Not operator
     bool operator!() {
         return !m_ok;

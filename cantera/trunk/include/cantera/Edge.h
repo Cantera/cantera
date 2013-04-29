@@ -33,9 +33,6 @@ public:
         m_ok = true;
     }
 
-
-    virtual ~Edge() {}
-
     bool operator!() {
         return !m_ok;
     }

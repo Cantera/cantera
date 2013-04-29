@@ -33,8 +33,6 @@ public:
                                           "buildSolutionFromXML returned false");
     }
 
-    virtual ~GRI30() {}
-
     bool operator!() {
         return !m_ok;
     }

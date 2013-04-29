@@ -121,9 +121,6 @@ public:
      */
     GibbsExcessVPSSTP& operator=(const GibbsExcessVPSSTP& b);
 
-    /// Destructor.
-    virtual ~GibbsExcessVPSSTP();
-
     //! Duplication routine for objects which inherit from  ThermoPhase.
     /*!
      *  This virtual routine can be used to duplicate thermophase objects

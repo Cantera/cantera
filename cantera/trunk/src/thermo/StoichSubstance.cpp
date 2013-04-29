@@ -48,10 +48,6 @@ ThermoPhase* StoichSubstance::duplMyselfAsThermoPhase() const
     return new StoichSubstance(*this);
 }
 
-StoichSubstance::~StoichSubstance()
-{
-}
-
 doublereal StoichSubstance::enthalpy_mole() const
 {
     return intEnergy_mole() + m_press / molarDensity();

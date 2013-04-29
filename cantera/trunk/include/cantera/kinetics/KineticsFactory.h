@@ -22,7 +22,6 @@ public:
         CanteraError(proc, "Specified Kinetics model "
                      + kineticsModel +
                      " does not match any known type.") {}
-    virtual ~UnknownKineticsModel() throw() {}
 };
 
 /**
@@ -37,11 +36,6 @@ public:
             s_factory = new KineticsFactory;
         }
         return s_factory;
-    }
-
-    virtual ~KineticsFactory() {
-        //delete s_factory;
-        //s_factory = 0;
     }
 
     virtual void deleteFactory() {

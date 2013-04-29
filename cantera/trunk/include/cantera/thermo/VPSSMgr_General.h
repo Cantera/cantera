@@ -50,9 +50,6 @@ public:
     VPSSMgr_General(VPStandardStateTP* vp_ptr,
                     SpeciesThermo* spth);
 
-    //! Destructor
-    virtual ~VPSSMgr_General();
-
     //! Copy Constructor
     VPSSMgr_General(const VPSSMgr_General& right);
 

@@ -34,12 +34,6 @@ VPSSMgr_Water_HKFT::VPSSMgr_Water_HKFT(VPStandardStateTP* vp_ptr,
     m_useTmpStandardStateStorage = true;
 }
 
-
-VPSSMgr_Water_HKFT::~VPSSMgr_Water_HKFT()
-{
-    //  m_waterSS is owned by VPStandardState
-}
-
 VPSSMgr_Water_HKFT::VPSSMgr_Water_HKFT(const VPSSMgr_Water_HKFT& right) :
     VPSSMgr(right.m_vptp_ptr, right.m_spthermo),
     m_waterSS(0),

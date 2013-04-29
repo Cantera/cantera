@@ -27,8 +27,6 @@ public:
         m_type = MFC_Type;
     }
 
-    virtual ~MassFlowController() {}
-
     virtual bool ready() {
         return FlowDevice::ready() && m_mdot >= 0.0;
     }
@@ -62,8 +60,6 @@ public:
     PressureController() : FlowDevice(), m_master(0) {
         m_type = PressureController_Type;
     }
-
-    virtual ~PressureController() {}
 
     virtual bool ready() {
         return FlowDevice::ready() && m_master != 0;
@@ -101,8 +97,6 @@ public:
     Valve() : FlowDevice() {
         m_type = Valve_Type;
     }
-
-    virtual ~Valve() {}
 
     virtual bool ready() {
         return FlowDevice::ready() && m_coeffs.size() >= 1;

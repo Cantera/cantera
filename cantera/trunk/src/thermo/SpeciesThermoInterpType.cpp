@@ -63,10 +63,6 @@ STITbyPDSS::STITbyPDSS(const STITbyPDSS& b) :
 {
 }
 
-STITbyPDSS::~STITbyPDSS()
-{
-}
-
 SpeciesThermoInterpType*
 STITbyPDSS::duplMyselfAsSpeciesThermoInterpType() const
 {

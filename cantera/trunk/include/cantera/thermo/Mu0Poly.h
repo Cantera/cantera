@@ -109,9 +109,6 @@ public:
     //! Assignment operator
     Mu0Poly& operator=(const Mu0Poly&);
 
-    //! Destructor
-    virtual ~Mu0Poly();
-
     virtual SpeciesThermoInterpType*
     duplMyselfAsSpeciesThermoInterpType() const;
 

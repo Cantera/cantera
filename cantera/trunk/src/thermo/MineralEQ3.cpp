@@ -102,10 +102,6 @@ MineralEQ3::operator=(const MineralEQ3& right)
     return *this;
 }
 
-MineralEQ3::~MineralEQ3()
-{
-}
-
 ThermoPhase* MineralEQ3::duplMyselfAsThermoPhase() const
 {
     return new MineralEQ3(*this);

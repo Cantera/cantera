@@ -83,10 +83,6 @@ operator=(const MargulesVPSSTP& b)
     return *this;
 }
 
-MargulesVPSSTP::~MargulesVPSSTP()
-{
-}
-
 ThermoPhase*
 MargulesVPSSTP::duplMyselfAsThermoPhase() const
 {

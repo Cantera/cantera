@@ -60,9 +60,6 @@ public:
     /// @param nsp Number of species.
     StFlow(IdealGasPhase* ph = 0, size_t nsp = 1, size_t points = 1);
 
-    /// Destructor.
-    virtual ~StFlow() {}
-
     /**
      * @name Problem Specification
      */
@@ -521,7 +518,6 @@ public:
         StFlow(ph, nsp, points) {
         m_dovisc = true;
     }
-    virtual ~AxiStagnFlow() {}
 
     virtual void evalRightBoundary(doublereal* x, doublereal* res,
                                    integer* diag, doublereal rdt);
@@ -544,7 +540,6 @@ public:
         m_dovisc = false;
         setID("flame");
     }
-    virtual ~FreeFlame() {}
 
     virtual void evalRightBoundary(doublereal* x, doublereal* res,
                                    integer* diag, doublereal rdt);

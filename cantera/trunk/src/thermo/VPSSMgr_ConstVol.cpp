@@ -30,11 +30,6 @@ VPSSMgr_ConstVol::VPSSMgr_ConstVol(VPStandardStateTP* vp_ptr, SpeciesThermo* spt
     m_useTmpStandardStateStorage = true;
 }
 
-
-VPSSMgr_ConstVol::~VPSSMgr_ConstVol()
-{
-}
-
 VPSSMgr_ConstVol::VPSSMgr_ConstVol(const VPSSMgr_ConstVol& right) :
     VPSSMgr(right.m_vptp_ptr, right.m_spthermo)
 {

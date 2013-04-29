@@ -23,8 +23,6 @@ public:
                                           "buildSolutionFromXML returned false");
     }
 
-    virtual ~Metal() {}
-
     bool operator!() {
         return !m_ok;
     }

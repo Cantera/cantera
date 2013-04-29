@@ -40,10 +40,6 @@ VPSSMgr_General::VPSSMgr_General(VPStandardStateTP* vp_ptr,
     m_useTmpRefStateStorage = true;
 }
 
-VPSSMgr_General::~VPSSMgr_General()
-{
-}
-
 VPSSMgr_General::VPSSMgr_General(const VPSSMgr_General& right) :
     VPSSMgr(right.m_vptp_ptr, right.m_spthermo)
 {

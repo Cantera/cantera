@@ -32,10 +32,6 @@ VPSSMgr_Water_ConstVol::VPSSMgr_Water_ConstVol(VPStandardStateTP* vp_ptr,
     m_useTmpStandardStateStorage = true;
 }
 
-VPSSMgr_Water_ConstVol::~VPSSMgr_Water_ConstVol()
-{
-}
-
 VPSSMgr_Water_ConstVol::VPSSMgr_Water_ConstVol(const VPSSMgr_Water_ConstVol& right) :
     VPSSMgr(right.m_vptp_ptr, right.m_spthermo)
 {

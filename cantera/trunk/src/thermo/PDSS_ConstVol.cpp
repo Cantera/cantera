@@ -66,10 +66,6 @@ PDSS_ConstVol& PDSS_ConstVol::operator=(const PDSS_ConstVol& b)
     return *this;
 }
 
-PDSS_ConstVol::~PDSS_ConstVol()
-{
-}
-
 PDSS* PDSS_ConstVol::duplMyselfAsPDSS() const
 {
     return new PDSS_ConstVol(*this);

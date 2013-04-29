@@ -101,9 +101,6 @@ public:
      */
     virtual Transport* duplMyselfAsTransport() const;
 
-    //! Destructor
-    virtual ~MixTransport() {}
-
     //! Return the model id for transport
     /*!
      * @return cMixtureAverage

@@ -45,10 +45,6 @@ protected:
     MultiTransport(thermo_t* thermo=0);
 
 public:
-
-    //! Destructor
-    virtual ~MultiTransport() {}
-
     // overloaded base class methods
     virtual int model() const {
         if (m_mode == CK_Mode) {

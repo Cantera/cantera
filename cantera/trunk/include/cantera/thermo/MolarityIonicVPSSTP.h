@@ -101,9 +101,6 @@ public:
      */
     MolarityIonicVPSSTP& operator=(const MolarityIonicVPSSTP& b);
 
-    /// Destructor.
-    virtual ~MolarityIonicVPSSTP();
-
     //! Duplication routine for objects which inherit from  ThermoPhase.
     /*!
      *  This virtual routine can be used to duplicate thermophase objects

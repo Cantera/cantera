@@ -32,12 +32,6 @@ public:
      */
     ConstPressureReactor();
 
-    /**
-     * Destructor. Deletes the integrator.
-     */
-    virtual ~ConstPressureReactor() {}
-
-
     virtual int type() const {
         return ConstPressureReactorType;
     }

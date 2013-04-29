@@ -49,9 +49,6 @@ public:
      */
     EdgePhase& operator=(const EdgePhase& right);
 
-    //! Destructor
-    virtual ~EdgePhase() {}
-
     //! Duplicator from a ThermoPhase object
     ThermoPhase* duplMyselfAsThermoPhase() const;
 

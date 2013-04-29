@@ -38,9 +38,6 @@ public:
      */
     VPSSMgr_IdealGas(VPStandardStateTP* vp_ptr, SpeciesThermo* spth);
 
-    //! Destructor
-    virtual ~VPSSMgr_IdealGas();
-
     //! Copy Constructor
     VPSSMgr_IdealGas(const VPSSMgr_IdealGas& right);
 

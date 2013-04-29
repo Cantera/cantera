@@ -68,12 +68,6 @@ Transport*   WaterTransport::duplMyselfAsTransport() const
     return new WaterTransport(*this);
 }
 
-
-// virtual destructor
-WaterTransport::~WaterTransport()
-{
-}
-
 // Routine to do some common initializations at the start of using
 // this routine.
 void WaterTransport::initTP()

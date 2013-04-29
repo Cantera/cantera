@@ -147,8 +147,6 @@ public:
         m_c = omega;
     }
 
-    virtual ~Sin1() {}
-
     Sin1(const Sin1& b) :
         Func1(b) {
     }
@@ -187,7 +185,7 @@ public:
         Func1() {
         m_c = omega;
     }
-    virtual ~Cos1() {}
+
     Cos1(const Cos1& b) :
         Func1(b) {
     }
@@ -224,8 +222,7 @@ public:
         Func1() {
         m_c = A;
     }
-    virtual ~Exp1() {
-    }
+
     Exp1(const Exp1& b) :
         Func1(b) {
     }
@@ -261,7 +258,7 @@ public:
         Func1() {
         m_c = n;
     }
-    virtual ~Pow1() {}
+
     Pow1(const Pow1& b) :
         Func1(b) {
     }
@@ -297,8 +294,6 @@ public:
     Const1(doublereal A) :
         Func1() {
         m_c = A;
-    }
-    virtual ~Const1() {
     }
 
     Const1(const Const1& b) :
@@ -819,8 +814,6 @@ public:
         m_tau = fwhm/(2.0*std::sqrt(std::log(2.0)));
     }
 
-    virtual ~Gaussian() {}
-
     Gaussian(const Gaussian& b) :
         Func1(b) {
         *this = Gaussian::operator=(b);
@@ -865,9 +858,6 @@ public:
         m_n = n+1;
         m_cpoly.resize(n+1);
         std::copy(c, c+m_n, m_cpoly.begin());
-    }
-
-    virtual ~Poly1() {
     }
 
     Poly1(const Poly1& b) :
@@ -929,8 +919,6 @@ public:
         std::copy(a, a+n, m_ccos.begin());
         std::copy(b, b+n, m_csin.begin());
     }
-
-    virtual ~Fourier1() {}
 
     Fourier1(const Fourier1& b) :
         Func1(b) {
@@ -996,9 +984,6 @@ public:
             m_E[i] = c[loc+2];
         }
     }
-    virtual ~Arrhenius1() {
-    }
-
 
     Arrhenius1(const Arrhenius1& b) :
         Func1() {

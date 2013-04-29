@@ -39,9 +39,6 @@ public:
      */
     SolidTransport(const SolidTransport& right);
 
-    //! Destructor
-    virtual ~SolidTransport();
-
     //! Assignment operator
     /*!
      *  This is NOT a virtual function.

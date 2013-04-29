@@ -67,9 +67,6 @@ public:
      */
     ResidJacEval(const ResidJacEval& right);
 
-    /// Destructor. Does nothing.
-    virtual ~ResidJacEval();
-
     //! Assignment operator
     /*!
      *  This is NOT a virtual function.

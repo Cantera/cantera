@@ -47,8 +47,6 @@ public:
         CanteraError(proc, "Specified ThermoPhase model "
                      + thermoModel +
                      " does not match any known type.") {}
-    //! destructor
-    virtual ~UnknownThermoPhaseModel() throw() {}
 };
 
 
@@ -79,14 +77,6 @@ public:
             s_factory = 0;
         }
     }
-
-    //! Destructor doesn't do anything.
-    /*!
-     * We do not delete statically created single instance of this
-     * class here, because it would create an infinite loop if
-     * destructor is called for that single instance.
-     */
-    virtual ~ThermoFactory() { }
 
     //! Create a new thermodynamic property manager.
     /*!

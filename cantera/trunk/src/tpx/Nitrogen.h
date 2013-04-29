@@ -16,7 +16,6 @@ public:
         m_name = "nitrogen";
         m_formula = "N2";
     }
-    virtual ~nitrogen() {}
 
     double MolWt();
     double Tcrit();

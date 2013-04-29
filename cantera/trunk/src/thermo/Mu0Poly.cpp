@@ -73,13 +73,6 @@ Mu0Poly& Mu0Poly::operator=(const Mu0Poly& b)
     return *this;
 }
 
-/*
- * Destructor:
- */
-Mu0Poly::~Mu0Poly()
-{
-}
-
 SpeciesThermoInterpType*
 Mu0Poly::duplMyselfAsSpeciesThermoInterpType() const
 {

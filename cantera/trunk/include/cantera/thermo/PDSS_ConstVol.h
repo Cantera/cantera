@@ -78,9 +78,6 @@ public:
      */
     PDSS_ConstVol& operator=(const PDSS_ConstVol& b);
 
-    //! Destructor
-    virtual ~PDSS_ConstVol();
-
     virtual PDSS* duplMyselfAsPDSS() const;
 
     //! @}

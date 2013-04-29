@@ -67,9 +67,6 @@ public:
                   m_freq.begin());
     }
 
-    //! destructor
-    virtual ~Adsorbate() {}
-
     virtual SpeciesThermoInterpType*
     duplMyselfAsSpeciesThermoInterpType() const {
         Adsorbate* np = new Adsorbate(*this);

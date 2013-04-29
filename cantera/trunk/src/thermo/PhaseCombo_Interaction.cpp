@@ -82,10 +82,6 @@ operator=(const PhaseCombo_Interaction& b)
     return *this;
 }
 
-PhaseCombo_Interaction::~PhaseCombo_Interaction()
-{
-}
-
 ThermoPhase*
 PhaseCombo_Interaction::duplMyselfAsThermoPhase() const
 {

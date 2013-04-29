@@ -53,10 +53,6 @@ public:
      */
     SquareMatrix& operator=(const SquareMatrix& right);
 
-
-    //! Destructor. Does nothing.
-    virtual ~SquareMatrix();
-
     //! Solves the Ax = b system returning x in the b spot.
     /*!
      *  @param b  Vector for the rhs of the equation system

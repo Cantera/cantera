@@ -20,11 +20,6 @@ public:
     /// phases are added using method addPhase.
     Crystal() : MultiPhase() {}
 
-    /// Destructor. Does nothing. Class MultiPhase does not take
-    /// "ownership" (i.e. responsibility for destroying) the
-    /// phase objects.
-    virtual ~Crystal() {}
-
     void addLattices(std::vector<LatticePhase*>& lattices,
                      const vector_fp& latticeSiteDensity);
 

@@ -48,10 +48,6 @@ SingleSpeciesTP& SingleSpeciesTP::operator=(const SingleSpeciesTP& right)
     return *this;
 }
 
-SingleSpeciesTP::~SingleSpeciesTP()
-{
-}
-
 ThermoPhase* SingleSpeciesTP::duplMyselfAsThermoPhase() const
 {
     return new SingleSpeciesTP(*this);

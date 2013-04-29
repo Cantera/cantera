@@ -307,9 +307,6 @@ public:
      */
     RedlichKisterVPSSTP& operator=(const RedlichKisterVPSSTP& b);
 
-    //! Destructor
-    virtual ~RedlichKisterVPSSTP();
-
     //! Duplication routine for objects which inherit from  ThermoPhase.
     /*!
      *  This virtual routine can be used to duplicate thermophase objects

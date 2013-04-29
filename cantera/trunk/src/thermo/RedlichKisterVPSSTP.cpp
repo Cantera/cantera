@@ -153,10 +153,6 @@ operator=(const RedlichKisterVPSSTP& b)
     return *this;
 }
 
-RedlichKisterVPSSTP::~RedlichKisterVPSSTP()
-{
-}
-
 ThermoPhase*
 RedlichKisterVPSSTP::duplMyselfAsThermoPhase() const
 {

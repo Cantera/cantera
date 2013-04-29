@@ -98,9 +98,6 @@ public:
     //! Constructor
     GasTransportParams();
 
-    //! Destructor
-    virtual ~GasTransportParams();
-
     // polynomial fits
 
     //! temperature-fit of the viscosity

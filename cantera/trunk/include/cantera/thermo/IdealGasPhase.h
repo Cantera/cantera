@@ -348,9 +348,6 @@ public:
      */
     IdealGasPhase& operator=(const IdealGasPhase& right);
 
-    //! Destructor
-    virtual ~IdealGasPhase();
-
     //! Duplicator from the ThermoPhase parent class
     /*!
      * Given a pointer to a ThermoPhase object, this function will

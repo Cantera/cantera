@@ -75,9 +75,6 @@ public:
         m_t.resize(7);
     }
 
-    //! destructor
-    virtual ~ShomateThermo() {}
-
     //! Copy Constructor
     /*!
      * @param right Object to be copied

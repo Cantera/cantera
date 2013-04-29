@@ -97,10 +97,6 @@ PDSS_IonsFromNeutral& PDSS_IonsFromNeutral::operator=(const PDSS_IonsFromNeutral
     return *this;
 }
 
-PDSS_IonsFromNeutral::~PDSS_IonsFromNeutral()
-{
-}
-
 PDSS* PDSS_IonsFromNeutral::duplMyselfAsPDSS() const
 {
     return new PDSS_IonsFromNeutral(*this);

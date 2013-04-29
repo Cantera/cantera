@@ -14,7 +14,6 @@ public:
         m_name = "Heptane";
         m_formula = "C7H16";
     }
-    virtual ~Heptane() {}
 
     double MolWt();
     double Tcrit();

@@ -48,10 +48,6 @@ AqueousKinetics::AqueousKinetics(const AqueousKinetics& right) :
     *this = right;
 }
 
-AqueousKinetics::~AqueousKinetics()
-{
-}
-
 AqueousKinetics& AqueousKinetics::operator=(const AqueousKinetics& right)
 {
     if (this == &right) {
