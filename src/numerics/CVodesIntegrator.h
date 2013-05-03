@@ -86,6 +86,7 @@ private:
     size_t m_neq;
     void* m_cvode_mem;
     double m_t0;
+    double m_time; //!< The current integrator time
     void* m_y, *m_abstol;
     int m_type;
     int m_itol;
@@ -102,6 +103,10 @@ private:
     N_Vector*  m_yS;
     size_t m_np;
     int m_mupper, m_mlower;
+
+    //! Indicates whether the sensitivities stored in m_yS have been updated
+    //! for at the current integrator time.
+    bool m_sens_ok;
 };
 
 }    // namespace

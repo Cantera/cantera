@@ -131,7 +131,8 @@ CVodesIntegrator::CVodesIntegrator() :
     m_maxsteps(20000),
     m_fdata(0),
     m_np(0),
-    m_mupper(0), m_mlower(0)
+    m_mupper(0), m_mlower(0),
+    m_sens_ok(false)
 {
     //m_ropt.resize(OPT_SIZE,0.0);
     //m_iopt = new long[OPT_SIZE];
@@ -253,6 +254,7 @@ void CVodesIntegrator::sensInit(double t0, FuncEval& func)
 {
     m_np = func.nparams();
     size_t nv = func.neq();
+    m_sens_ok = false;
 
     doublereal* data;
     N_Vector y;
@@ -293,6 +295,7 @@ void CVodesIntegrator::initialize(double t0, FuncEval& func)
 {
     m_neq = func.neq();
     m_t0  = t0;
+    m_time = t0;
 
     if (m_y) {
         N_VDestroy_Serial(nv(m_y));    // free solution vector if already allocated
@@ -426,6 +429,7 @@ void CVodesIntegrator::initialize(double t0, FuncEval& func)
 void CVodesIntegrator::reinitialize(double t0, FuncEval& func)
 {
     m_t0  = t0;
+    m_time = t0;
     //try {
     func.getInitialConditions(m_t0, m_neq, NV_DATA_S(nv(m_y)));
     //}
@@ -487,36 +491,21 @@ void CVodesIntegrator::reinitialize(double t0, FuncEval& func)
 
 void CVodesIntegrator::integrate(double tout)
 {
-    double t;
-    int flag;
-    flag = CVode(m_cvode_mem, tout, nv(m_y), &t, CV_NORMAL);
+    int flag = CVode(m_cvode_mem, tout, nv(m_y), &m_time, CV_NORMAL);
     if (flag != CV_SUCCESS) {
         throw CVodesErr(" CVodes error encountered. Error code: " + int2str(flag));
     }
-#if SUNDIALS_VERSION <= 23
-    if (m_np > 0) {
-        CVodeGetSens(m_cvode_mem, tout, m_yS);
-    }
-#elif SUNDIALS_VERSION >= 24
-    double tretn;
-    if (m_np > 0) {
-        CVodeGetSens(m_cvode_mem, &tretn, m_yS);
-        if (fabs(tretn - tout) > 1.0E-5) {
-            throw CVodesErr("Time of Sensitivities different than time of tout");
-        }
-    }
-#endif
+    m_sens_ok = false;
 }
 
 double CVodesIntegrator::step(double tout)
 {
-    double t;
-    int flag;
-    flag = CVode(m_cvode_mem, tout, nv(m_y), &t, CV_ONE_STEP);
+    int flag = CVode(m_cvode_mem, tout, nv(m_y), &m_time, CV_ONE_STEP);
     if (flag != CV_SUCCESS) {
         throw CVodesErr(" CVodes error encountered. Error code: " + int2str(flag));
     }
-    return t;
+    m_sens_ok = false;
+    return m_time;
 }
 
 int CVodesIntegrator::nEvals() const
@@ -529,6 +518,18 @@ int CVodesIntegrator::nEvals() const
 
 double CVodesIntegrator::sensitivity(size_t k, size_t p)
 {
+    if (!m_sens_ok && m_np) {
+#if SUNDIALS_VERSION <= 23
+        int flag = CVodeGetSens(m_cvode_mem, m_time, m_yS);
+#elif SUNDIALS_VERSION >= 24
+        int flag = CVodeGetSens(m_cvode_mem, &m_time, m_yS);
+#endif
+        if (flag != CV_SUCCESS) {
+            throw CVodesErr("CVodeGetSens failed. Error code: " + int2str(flag));
+        }
+        m_sens_ok = true;
+    }
+
     if (k >= m_neq) {
         throw CVodesErr("sensitivity: k out of range ("+int2str(p)+")");
     }
