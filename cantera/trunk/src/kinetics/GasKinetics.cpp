@@ -341,6 +341,8 @@ void GasKinetics::processFalloffReactions()
 
     for (size_t i = 0; i < m_nfall; i++) {
         pr[i] = concm_falloff_values[i] * m_rfn_low[i] / m_rfn_high[i];
+        AssertFinite(pr[i], "GasKinetics::processFalloffReactions",
+                     "pr[" + int2str(i) + "] is not finite.");
     }
 
     double* work = (falloff_work.empty()) ? 0 : &falloff_work[0];
@@ -397,6 +399,15 @@ void GasKinetics::updateROP()
 
     for (size_t j = 0; j != m_ii; ++j) {
         m_ropnet[j] = m_ropf[j] - m_ropr[j];
+    }
+
+    for (size_t i = 0; i < m_rfn.size(); i++) {
+        AssertFinite(m_rfn[i], "GasKinetics::updateROP",
+                     "m_rfn[" + int2str(i) + "] is not finite.");
+        AssertFinite(m_ropf[i], "GasKinetics::updateROP",
+                     "m_ropf[" + int2str(i) + "] is not finite.");
+        AssertFinite(m_ropr[i], "GasKinetics::updateROP",
+                     "m_ropr[" + int2str(i) + "] is not finite.");
     }
 
     m_ROP_ok = true;

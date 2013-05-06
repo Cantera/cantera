@@ -125,6 +125,11 @@ size_t Reactor::nSensParams()
 
 void Reactor::updateState(doublereal* y)
 {
+    for (size_t i = 0; i < m_nsp+2; i++) {
+        AssertFinite(y[i], "Reactor::updateState",
+                     "y[" + int2str(i) + "] is not finite");
+    }
+
     // The components of y are [0] the total internal energy,
     // [1] the total volume, and [2...K+2] the mass of each species.
     m_vol = y[1];
@@ -294,6 +299,11 @@ void Reactor::evalEqs(doublereal time, doublereal* y,
                 ydot[0] += mdot_in * m_inlet[i]->enthalpy_mass();
             }
         }
+    }
+
+    for (size_t i = 0; i < m_nsp+2; i++) {
+        AssertFinite(ydot[i], "Reactor::evalEqs",
+                     "ydot[" + int2str(i) + "] is not finite");
     }
 
     // reset sensitivity parameters
