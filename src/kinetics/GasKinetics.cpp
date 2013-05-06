@@ -340,7 +340,7 @@ void GasKinetics::processFalloffReactions()
     vector_fp& pr = m_ropr;
 
     for (size_t i = 0; i < m_nfall; i++) {
-        pr[i] = concm_falloff_values[i] * m_rfn_low[i] / m_rfn_high[i];
+        pr[i] = concm_falloff_values[i] * m_rfn_low[i] / (m_rfn_high[i] + SmallNumber);
         AssertFinite(pr[i], "GasKinetics::processFalloffReactions",
                      "pr[" + int2str(i) + "] is not finite.");
     }
