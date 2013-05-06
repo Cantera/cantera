@@ -248,6 +248,10 @@ private:
 #endif
 
 
+//! Throw an exception if the specified exception is not a finite number.
+#ifndef AssertFinite
+#  define AssertFinite(expr, procedure, message) AssertThrowMsg(expr < BigNumber && expr > -BigNumber, procedure, message)
+#endif
 
 #endif
 
