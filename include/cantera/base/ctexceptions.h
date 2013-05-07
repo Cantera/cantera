@@ -247,12 +247,11 @@ private:
 #  define AssertThrowMsg(expr, procedure, message)  ((expr) ? (void) 0 : throw Cantera::CanteraError(procedure + std::string(": at failed assert: \"") + std::string(#expr) + std::string("\""), message))
 #endif
 
+#endif
 
 //! Throw an exception if the specified exception is not a finite number.
 #ifndef AssertFinite
 #  define AssertFinite(expr, procedure, message) AssertThrowMsg(expr < BigNumber && expr > -BigNumber, procedure, message)
-#endif
-
 #endif
 
 }
