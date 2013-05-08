@@ -427,7 +427,7 @@ extern "C" {
     int flowdev_setMaster(int i, int n)
     {
         try {
-            ReactorCabinet::get<PressureController>(i).setMaster(
+            FlowDeviceCabinet::get<PressureController>(i).setMaster(
                 &FlowDeviceCabinet::item(n));
             return 0;
         } catch (...) {
