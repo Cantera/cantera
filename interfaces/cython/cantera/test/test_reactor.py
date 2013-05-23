@@ -353,6 +353,7 @@ class TestReactor(utilities.CanteraTest):
         Y1b = self.r1.thermo.Y
         Y2b = self.r2.thermo.Y
         self.assertArrayNear(m1a*Y1a + m2a*Y2a, m1b*Y1b + m2b*Y2b, atol=1e-10)
+        self.assertArrayNear(Y1a, Y1b)
 
     def test_valve2(self):
         # Similar to test_valve1, but by disabling the energy equation
@@ -372,6 +373,7 @@ class TestReactor(utilities.CanteraTest):
         m2a = self.r2.thermo.density * self.r2.volume
         P1a = self.r1.thermo.P
         P2a = self.r2.thermo.P
+        Y1 = self.r1.Y
 
         A = k * P1a * (1 + m2a/m1a)
         B = k * (P1a/m1a + P2a/m2a)
@@ -382,6 +384,8 @@ class TestReactor(utilities.CanteraTest):
             m2 = self.r2.thermo.density * self.r2.volume
             self.assertNear(m2, (m2a - A/B) * np.exp(-B * t) + A/B)
             self.assertNear(m1a+m2a, m1+m2)
+            self.assertArrayNear(self.r1.Y, Y1)
+
 
     def test_valve3(self):
         # This case specifies a non-linear relationship between pressure drop
