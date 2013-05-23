@@ -129,8 +129,11 @@ protected:
 
     //! Tolerance on the temperature
     doublereal m_vdot, m_Q;
+    doublereal m_mass; //!< total mass
     vector_fp m_work;
     vector_fp m_sdot;            // surface production rates
+    vector_fp m_wdot; //!< Species net molar production rates
+    vector_fp m_uk; //!< Species molar internal energies
     bool m_chem;
     bool m_energy;
     size_t m_nv;
