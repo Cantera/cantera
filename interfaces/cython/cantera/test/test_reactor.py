@@ -463,6 +463,98 @@ class TestReactor(utilities.CanteraTest):
         self.assertNear(p1a, p1b)
         self.assertNear(p2a, p2b)
 
+class TestWellStirredReactorIgnition(utilities.CanteraTest):
+    """ Ignition (or not) of a well-stirred reactor """
+    def setup(self, T0, P0, mdot_fuel, mdot_ox):
+
+        self.gas = ct.Solution('gri30.xml')
+
+        # fuel inlet
+        self.gas.TPX = T0, P0, "CH4:1.0"
+        self.fuel_in = ct.Reservoir(self.gas)
+
+        # oxidizer inlet
+        self.gas.TPX = T0, P0, "N2:3.76, O2:1.0"
+        self.oxidizer_in = ct.Reservoir(self.gas)
+
+        # reactor, initially filled with N2
+        self.gas.TPX = T0, P0, "N2:1.0"
+        self.combustor = ct.Reactor(self.gas)
+        self.combustor.volume = 1.0
+
+        # outlet
+        self.exhaust = ct.Reservoir(self.gas)
+
+        # connect the reactor to the reservoirs
+        self.fuel_mfc = ct.MassFlowController(self.fuel_in, self.combustor)
+        self.fuel_mfc.set_mass_flow_rate(mdot_fuel)
+        self.oxidizer_mfc = ct.MassFlowController(self.oxidizer_in, self.combustor)
+        self.oxidizer_mfc.set_mass_flow_rate(mdot_ox)
+        self.valve = ct.Valve(self.combustor, self.exhaust)
+        self.valve.set_valve_coeff(1.0)
+
+        self.net = ct.ReactorNet()
+        self.net.add_reactor(self.combustor)
+        self.net.max_err_test_fails = 10
+
+    def integrate(self, tf):
+        t = 0.0
+        times = []
+        T = []
+        i = 0
+        while t < tf:
+            i += 1
+            t = self.net.step(tf)
+            times.append(t)
+            T.append(self.combustor.T)
+        return times, T
+
+    def test_nonreacting(self):
+        mdot_f = 1.0
+        mdot_o = 5.0
+        T0 = 900.0
+        self.setup(T0, 10*ct.one_atm, mdot_f, mdot_o)
+        self.gas.set_multiplier(0.0)
+        t,T = self.integrate(100.0)
+
+        for i in range(len(t)):
+            self.assertNear(T[i], T0, rtol=1e-5)
+
+        self.assertNear(self.combustor.thermo['CH4'].Y,
+                        mdot_f / (mdot_o + mdot_f))
+
+    def test_ignition1(self):
+        self.setup(900.0, 10*ct.one_atm, 1.0, 5.0)
+        t,T = self.integrate(10.0)
+
+        self.assertTrue(T[-1] > 1200) # mixture ignited
+        for i in range(len(t)):
+            if T[i] > 0.5 * (T[0] + T[-1]):
+                tIg = t[i]
+                break
+
+        # regression test; no external basis for this result
+        self.assertNear(tIg, 2.2284, 1e-3)
+
+    def test_ignition2(self):
+        self.setup(900.0, 10*ct.one_atm, 1.0, 20.0)
+        t,T = self.integrate(10.0)
+
+        self.assertTrue(T[-1] > 1200) # mixture ignited
+        for i in range(len(t)):
+            if T[i] > 0.5 * (T[0] + T[-1]):
+                tIg = t[i]
+                break
+
+        # regression test; no external basis for this result
+        self.assertNear(tIg, 1.4900, 1e-3)
+
+    def test_ignition3(self):
+        self.setup(900.0, 10*ct.one_atm, 1.0, 80.0)
+        self.net.set_max_time_step(0.5)
+        t,T = self.integrate(100.0)
+        self.assertTrue(T[-1] < 910) # mixture did not ignite
+
 
 class TestFlowReactor(utilities.CanteraTest):
     def test_nonreacting(self):
