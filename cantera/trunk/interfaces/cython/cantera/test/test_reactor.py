@@ -504,12 +504,15 @@ class TestWallKinetics(utilities.CanteraTest):
         self.interface = ct.Interface('diamond.xml', 'diamond_100',
                                       (self.gas, self.solid))
         self.r1 = ct.Reactor(self.gas)
+        self.r1.volume = 0.01
         self.net.add_reactor(self.r1)
 
         self.r2 = ct.Reactor(self.gas)
+        self.r2.volume = 0.01
         self.net.add_reactor(self.r2)
 
         self.w = ct.Wall(self.r1, self.r2)
+        self.w.area = 1.0
 
     def test_coverages(self):
         self.make_reactors()
@@ -538,6 +541,58 @@ class TestWallKinetics(utilities.CanteraTest):
 
         self.assertNear(sum(C_left), 1.0)
         self.assertArrayNear(C_left, C_right)
+
+    def test_coverages_regression1(self):
+        # Test with energy equation disabled
+        self.make_reactors()
+        self.r1.energy_enabled = False
+        self.r2.energy_enabled = False
+        self.w.left.kinetics = self.interface
+
+        C = np.zeros(self.interface.n_species)
+        C[0] = 0.3
+        C[4] = 0.7
+
+        self.w.left.coverages = C
+        self.assertArrayNear(self.w.left.coverages, C)
+        data = []
+        test_file = 'test_coverages_regression1.csv'
+        reference_file = '../data/WallKinetics-coverages-regression1.csv'
+        data = []
+        for t in np.linspace(1e-6, 1e-3):
+            self.net.advance(t)
+            data.append([t, self.r1.T, self.r1.thermo.P, self.r1.mass] +
+                        list(self.r1.thermo.X) + list(self.w.left.coverages))
+        np.savetxt(test_file, data, delimiter=',')
+
+        bad = utilities.compareProfiles(reference_file, test_file,
+                                        rtol=1e-5, atol=1e-9, xtol=1e-12)
+        self.assertFalse(bool(bad), bad)
+
+    def test_coverages_regression2(self):
+        # Test with energy equation enabled
+        self.make_reactors()
+        self.w.left.kinetics = self.interface
+
+        C = np.zeros(self.interface.n_species)
+        C[0] = 0.3
+        C[4] = 0.7
+
+        self.w.left.coverages = C
+        self.assertArrayNear(self.w.left.coverages, C)
+        data = []
+        test_file = 'test_coverages_regression2.csv'
+        reference_file = '../data/WallKinetics-coverages-regression2.csv'
+        data = []
+        for t in np.linspace(1e-6, 1e-3):
+            self.net.advance(t)
+            data.append([t, self.r1.T, self.r1.thermo.P, self.r1.mass] +
+                        list(self.r1.thermo.X) + list(self.w.left.coverages))
+        np.savetxt(test_file, data, delimiter=',')
+
+        bad = utilities.compareProfiles(reference_file, test_file,
+                                        rtol=1e-5, atol=1e-9, xtol=1e-12)
+        self.assertFalse(bool(bad), bad)
 
 
 @unittest.skipUnless(ct._have_sundials(),
