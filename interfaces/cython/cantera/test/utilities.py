@@ -44,7 +44,10 @@ def compareProfiles(reference, sample, rtol=1e-5, atol=1e-12, xtol=1e-5):
     else:
         reference = np.asarray(reference).T
 
-    sample = np.asarray(sample).T
+    if isinstance(sample, str):
+        sample = np.genfromtxt(sample, delimiter=',').T
+    else:
+        sample = np.asarray(sample).T
 
     assert reference.shape[0] == sample.shape[0]
 
