@@ -384,10 +384,20 @@ class TestReactor(utilities.CanteraTest):
     def test_valve3(self):
         # This case specifies a non-linear relationship between pressure drop
         # and flow rate.
-        self.make_reactors(P1=10*ct.one_atm, X1='AR:1.0', X2='O2:1.0')
+        self.make_reactors(P1=10*ct.one_atm, X1='AR:0.5, O2:0.5',
+                           X2='O2:1.0')
+        self.net.rtol = 1e-12
+        self.net.atol = 1e-20
         valve = ct.Valve(self.r1, self.r2)
         mdot = lambda dP: 5e-3 * np.sqrt(dP) if dP > 0 else 0.0
         valve.set_valve_coeff(mdot)
+        Y1 = self.r1.Y
+        kO2 = self.gas1.species_index('O2')
+        kAr = self.gas1.species_index('AR')
+        def speciesMass(k):
+            return self.r1.Y[k] * self.r1.mass + self.r2.Y[k] * self.r2.mass
+        mO2 = speciesMass(kO2)
+        mAr = speciesMass(kAr)
 
         t = 0
         while t < 1.0:
@@ -395,6 +405,9 @@ class TestReactor(utilities.CanteraTest):
             p1 = self.r1.thermo.P
             p2 = self.r2.thermo.P
             self.assertNear(mdot(p1-p2), valve.mdot(t))
+            self.assertArrayNear(Y1, self.r1.Y)
+            self.assertNear(speciesMass(kAr), mAr)
+            self.assertNear(speciesMass(kO2), mO2)
 
     def test_pressure_controller(self):
         self.make_reactors(n_reactors=1)
