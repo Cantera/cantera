@@ -260,8 +260,8 @@ class TestReactor(utilities.CanteraTest):
         self.net.advance(2.0)
         self.assertNear(self.w.vdot(2.0), 0.0, 1e-7)
 
-        self.assertNear(self.r1.volume, V1 + 1.0 * A)
-        self.assertNear(self.r2.volume, V2 - 1.0 * A)
+        self.assertNear(self.r1.volume, V1 + 1.0 * A, 1e-7)
+        self.assertNear(self.r2.volume, V2 - 1.0 * A, 1e-7)
 
     def test_disable_energy(self):
         self.make_reactors(T1=500)
@@ -315,6 +315,7 @@ class TestReactor(utilities.CanteraTest):
         ma = self.r1.volume * self.r1.density
         Ya = self.r1.Y
 
+        self.net.rtol = 1e-12
         self.net.advance(2.5)
 
         mb = self.r1.volume * self.r1.density
@@ -325,6 +326,7 @@ class TestReactor(utilities.CanteraTest):
 
     def test_valve1(self):
         self.make_reactors(P1=10*ct.one_atm, X1='AR:1.0', X2='O2:1.0')
+        self.net.rtol = 1e-12
         valve = ct.Valve(self.r1, self.r2)
         k = 2e-5
         valve.set_valve_coeff(k)
@@ -350,7 +352,7 @@ class TestReactor(utilities.CanteraTest):
         self.assertNear(m1a+m2a, m1b+m2b)
         Y1b = self.r1.thermo.Y
         Y2b = self.r2.thermo.Y
-        self.assertArrayNear(m1a*Y1a + m2a*Y2a, m1b*Y1b + m2b*Y2b)
+        self.assertArrayNear(m1a*Y1a + m2a*Y2a, m1b*Y1b + m2b*Y2b, atol=1e-10)
 
     def test_valve2(self):
         # Similar to test_valve1, but by disabling the energy equation
