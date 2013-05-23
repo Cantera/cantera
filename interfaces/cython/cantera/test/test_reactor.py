@@ -625,7 +625,8 @@ class TestReactorSensitivities(utilities.CanteraTest):
         net.advance(0.1)
 
         self.assertEqual(net.n_sensitivity_params, 2)
-        self.assertEqual(net.n_vars, gas.n_species + 2)
+        self.assertEqual(net.n_vars,
+                         gas.n_species + r1.component_index(gas.species_name(0)))
         S = net.sensitivities()
         self.assertEqual(S.shape, (net.n_vars, net.n_sensitivity_params))
 
@@ -645,6 +646,7 @@ class TestReactorSensitivities(utilities.CanteraTest):
         net.add_reactor(r2)
 
         w = ct.Wall(r1, r2)
+        w.area = 1.5
         w.left.kinetics = interface
 
         C = np.zeros(interface.n_species)
@@ -660,17 +662,22 @@ class TestReactorSensitivities(utilities.CanteraTest):
                 net.step(1.0)
 
             S = net.sensitivities()
-            K1 = gas1.n_species + interface.n_species
+
+            # number of non-species variables in each reactor
+            Ns = r1.component_index(gas1.species_name(0))
+
+            # Index of first variable corresponding to r2
+            K2 = Ns + gas1.n_species + interface.n_species
 
             # Constant internal energy and volume should generate zero
             # sensitivity coefficients
-            self.assertArrayNear(S[0:2,:], np.zeros((2,2)))
-            self.assertArrayNear(S[K1+2:K1+4,:], np.zeros((2,2)))
+            self.assertArrayNear(S[0:Ns,:], np.zeros((Ns,2)))
+            self.assertArrayNear(S[K2:K2+Ns,:], np.zeros((Ns,2)))
 
-            S11 = np.linalg.norm(S[2:K1+2,0])
-            S21 = np.linalg.norm(S[2:K1+2,1])
-            S12 = np.linalg.norm(S[K1+4:,0])
-            S22 = np.linalg.norm(S[K1+4:,1])
+            S11 = np.linalg.norm(S[Ns:K2,0])
+            S21 = np.linalg.norm(S[Ns:K2,1])
+            S12 = np.linalg.norm(S[K2+Ns:,0])
+            S22 = np.linalg.norm(S[K2+Ns:,1])
 
             self.assertTrue(S11 > 1e5 * S12)
             self.assertTrue(S22 > 1e5 * S21)
@@ -769,7 +776,7 @@ class TestReactorSensitivities(utilities.CanteraTest):
 
         # Check that results are consistent after changing the order that
         # reactors are added to the network
-        N = gas.n_species + 2
+        N = gas.n_species + r.component_index(gas.species_name(0))
         self.assertArrayNear(S[0][:N], S[2][N:], 1e-5, 1e-5)
         self.assertArrayNear(S[0][N:], S[2][:N], 1e-5, 1e-5)
         self.assertArrayNear(S[1][:N], S[3][N:], 1e-5, 1e-5)
