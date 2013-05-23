@@ -58,6 +58,14 @@ class TestReactor(utilities.CanteraTest):
         self.r1.name = 'hello'
         self.assertEqual(self.r1.name, 'hello')
 
+    def test_component_index(self):
+        self.make_reactors(n_reactors=1)
+        self.net.step(1.0)
+
+        N0 = self.net.n_vars - self.gas1.n_species
+        for i, name in enumerate(self.gas1.species_names):
+            self.assertEqual(i + N0, self.r1.component_index(name))
+
     def test_disjoint(self):
         T1, P1 = 300, 101325
         T2, P2 = 500, 300000

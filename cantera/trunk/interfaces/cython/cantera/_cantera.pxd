@@ -17,6 +17,7 @@ cdef extern from "cantera/base/ctml.h" namespace "ctml":
 
 cdef extern from "cantera/base/global.h" namespace "Cantera":
     cdef void CxxAddDirectory "Cantera::addDirectory" (string)
+    cdef size_t CxxNpos "Cantera::npos"
 
 cdef extern from "cantera/thermo/mix_defs.h":
     cdef int thermo_type_ideal_gas "Cantera::cIdealGas"
@@ -253,6 +254,7 @@ cdef extern from "cantera/zeroD/Reactor.h":
         void setKineticsMgr(CxxKinetics&)
         void setEnergy(int)
         cbool energyEnabled()
+        size_t componentIndex(string&)
 
         void addSensitivityReaction(size_t) except +
         size_t nSensParams()
