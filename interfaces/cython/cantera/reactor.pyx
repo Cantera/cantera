@@ -196,6 +196,20 @@ cdef class Reactor(ReactorBase):
     def add_sensitivity_reaction(self, m):
         self.reactor.addSensitivityReaction(m)
 
+    def component_index(self, name):
+        """
+        Returns the index of the component named *name* in the system. This
+        determines the (relative) index of the component in the vector of
+        sensitivity coefficients. *name* is either a species name or the name
+        of a reactor state variable, e.g. 'U', 'T', depending on the reactor's
+        equations.
+        """
+
+        k = self.reactor.componentIndex(stringify(name))
+        if k == CxxNpos:
+            raise IndexError('No such component: {!r}'.format(name))
+        return k
+
 
 cdef class Reservoir(ReactorBase):
     """
