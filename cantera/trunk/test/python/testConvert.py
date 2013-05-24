@@ -46,7 +46,7 @@ class chemkinConverterTest(utilities.CanteraTest):
             ref_s = ref.entropies_R()
             gas_s = gas.entropies_R()
             for i in range(gas.nSpecies()):
-                message = ' for species {} at T = {}'.format(i, T)
+                message = ' for species {0} at T = {1}'.format(i, T)
                 self.assertNear(ref_cp[i], gas_cp[i], 1e-7, msg='cp'+message)
                 self.assertNear(ref_h[i], gas_h[i], 1e-7, msg='h'+message)
                 self.assertNear(ref_s[i], gas_s[i], 1e-7, msg='s'+message)

@@ -45,7 +45,7 @@ TPB_length_per_area = 1.0e7  # TPB length per unit area [1/m]
 
 def show_coverages(s):
     """Print the coverages for surface s."""
-    print('\n{}\n'.format(s.name))
+    print('\n{0}\n'.format(s.name))
     cov = s.coverages
     names = s.species_names
     for n in range(s.n_species):

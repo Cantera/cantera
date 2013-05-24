@@ -39,7 +39,7 @@ def expand(fluid, p_final, eta):
 
 
 def printState(n, fluid):
-    print('\n***************** State {} ******************'.format(n))
+    print('\n***************** State {0} ******************'.format(n))
     print(fluid.report())
 
 

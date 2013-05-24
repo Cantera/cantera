@@ -14,7 +14,7 @@ class CanteraTest(unittest.TestCase):
 
     def assertArrayNear(self, A, B, rtol=1e-8, atol=1e-12, msg=None):
         if len(A) != len(B):
-            self.fail("Arrays are of different lengths ({}, {})".format(len(A), len(B)))
+            self.fail("Arrays are of different lengths ({0}, {1})".format(len(A), len(B)))
         A = np.asarray(A)
         B = np.asarray(B)
 
