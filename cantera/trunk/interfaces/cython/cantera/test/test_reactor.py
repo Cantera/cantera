@@ -770,18 +770,13 @@ class TestReactorSensitivities(utilities.CanteraTest):
             # Index of first variable corresponding to r2
             K2 = Ns + gas1.n_species + interface.n_species
 
-            # Constant internal energy and volume should generate zero
-            # sensitivity coefficients
-            self.assertArrayNear(S[0:Ns,:], np.zeros((Ns,2)))
-            self.assertArrayNear(S[K2:K2+Ns,:], np.zeros((Ns,2)))
+            # Constant volume should generate zero sensitivity coefficient
+            self.assertArrayNear(S[1,:], np.zeros(2))
+            self.assertArrayNear(S[K2+1,:], np.zeros(2))
 
-            S11 = np.linalg.norm(S[Ns:K2,0])
-            S21 = np.linalg.norm(S[Ns:K2,1])
-            S12 = np.linalg.norm(S[K2+Ns:,0])
-            S22 = np.linalg.norm(S[K2+Ns:,1])
-
-            self.assertTrue(S11 > 1e5 * S12)
-            self.assertTrue(S22 > 1e5 * S21)
+            # Sensitivity coefficients for the disjoint reactors should be zero
+            self.assertNear(np.linalg.norm(S[Ns:K2,1]), 0.0)
+            self.assertNear(np.linalg.norm(S[K2+Ns:,0]), 0.0)
 
     def test_parameter_order1(self):
         # Single reactor, changing the order in which parameters are added
