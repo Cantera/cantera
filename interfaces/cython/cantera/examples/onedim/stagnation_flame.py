@@ -86,9 +86,9 @@ if os.path.exists(outfile):
 for m,md in enumerate(mdot):
     sim.inlet.mdot = md
     sim.solve(loglevel,refine_grid)
-    sim.save(outfile, 'mdot{}'.format(m), 'mdot = {} kg/m2/s'.format(md))
+    sim.save(outfile, 'mdot{0}'.format(m), 'mdot = {0} kg/m2/s'.format(md))
 
     # write the velocity, temperature, and mole fractions to a CSV file
-    sim.write_csv('stflame1_{}.csv'.format(m), quiet=False)
+    sim.write_csv('stflame1_{0}.csv'.format(m), quiet=False)
 
 sim.show_stats()

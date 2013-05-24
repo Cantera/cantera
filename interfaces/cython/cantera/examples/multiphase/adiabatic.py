@@ -81,7 +81,7 @@ with open(csv_file, 'w') as outfile:
     writer.writerow(['phi','T (K)'] + mix.species_names)
     for i in range(npoints):
         writer.writerow([phi[i], tad[i]] + list(xeq[:,i]))
-print('Output written to {}'.format(csv_file))
+print('Output written to {0}'.format(csv_file))
 
 if '--plot' in sys.argv:
     import matplotlib.pyplot as plt

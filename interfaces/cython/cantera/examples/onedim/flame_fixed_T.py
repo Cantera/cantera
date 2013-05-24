@@ -32,7 +32,7 @@ def getTempData(filename):
         except Exception:
             pass
 
-    print('read {} temperature values.'.format(len(z)))
+    print('read {0} temperature values.'.format(len(z)))
 
     # convert z values into non-dimensional relative positions.
     n = len(z)

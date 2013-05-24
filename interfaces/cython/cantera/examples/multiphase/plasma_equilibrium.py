@@ -25,7 +25,7 @@ writer.writerow(['T'] + mix.species_names)
 # loop over temperature
 for n in range(100):
     t = 350.0 + 50.0*n
-    print('T = {}'.format(t))
+    print('T = {0}'.format(t))
     mix.T = t
     mix.P = ct.one_atm
     mix.species_moles = "K:1.03, H2:2.12, O2:0.9"

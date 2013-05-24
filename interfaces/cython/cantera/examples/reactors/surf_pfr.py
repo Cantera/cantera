@@ -155,4 +155,4 @@ for n in range(NReactors):
                     list(gas.X) + list(surf.coverages))
 
 outfile.close()
-print("Results saved to '{}'".format(output_filename))
+print("Results saved to '{0}'".format(output_filename))
