@@ -60,7 +60,7 @@ class chemkinConverterTest(utilities.CanteraTest):
             gas_kf = gas.fwdRateConstants()
             gas_kr = gas.revRateConstants()
             for i in range(gas.nReactions()):
-                message = ' for reaction {} at T = {}, P = {}'.format(i, T, P)
+                message = ' for reaction {0} at T = {1}, P = {2}'.format(i, T, P)
                 self.assertNear(ref_kf[i], gas_kf[i], rtol=tol, msg='kf '+message)
                 self.assertNear(ref_kr[i], gas_kr[i], rtol=tol, msg='kr '+message)
 
