@@ -29,6 +29,7 @@ GasKinetics(thermo_t* thermo) :
     m_logStandConc(0.0),
     m_ROP_ok(false),
     m_temp(0.0),
+    m_pres(0.0),
     m_finalized(false)
 {
     if (thermo != 0) {
@@ -47,6 +48,7 @@ GasKinetics::GasKinetics(const GasKinetics& right) :
     m_logStandConc(0.0),
     m_ROP_ok(false),
     m_temp(0.0),
+    m_pres(0.0),
     m_finalized(false)
 {
     m_temp = 0.0;
@@ -124,30 +126,39 @@ Kinetics* GasKinetics::duplMyselfAsKinetics(const std::vector<thermo_t*> & tpVec
 void GasKinetics::update_rates_T()
 {
     doublereal T = thermo().temperature();
+    doublereal P = thermo().pressure();
     m_logStandConc = log(thermo().standardConcentration());
     doublereal logT = log(T);
-    if (!m_rfn.empty()) {
-        m_rates.update(T, logT, &m_rfn[0]);
+
+    if (T != m_temp) {
+        if (!m_rfn.empty()) {
+            m_rates.update(T, logT, &m_rfn[0]);
+        }
+
+        if (!m_rfn_low.empty()) {
+            m_falloff_low_rates.update(T, logT, &m_rfn_low[0]);
+            m_falloff_high_rates.update(T, logT, &m_rfn_high[0]);
+        }
+        if (!falloff_work.empty()) {
+            m_falloffn.updateTemp(T, &falloff_work[0]);
+        }
+        updateKc();
+        m_ROP_ok = false;
     }
 
-    if (!m_rfn_low.empty()) {
-        m_falloff_low_rates.update(T, logT, &m_rfn_low[0]);
-        m_falloff_high_rates.update(T, logT, &m_rfn_high[0]);
-    }
-    if (!falloff_work.empty()) {
-        m_falloffn.updateTemp(T, &falloff_work[0]);
-    }
-    if (m_plog_rates.nReactions()) {
-        m_plog_rates.update(T, logT, &m_rfn[0]);
-    }
+    if (T != m_temp || P != m_pres) {
+        if (m_plog_rates.nReactions()) {
+            m_plog_rates.update(T, logT, &m_rfn[0]);
+            m_ROP_ok = false;
+        }
 
-    if (m_cheb_rates.nReactions()) {
-        m_cheb_rates.update(T, logT, &m_rfn[0]);
+        if (m_cheb_rates.nReactions()) {
+            m_cheb_rates.update(T, logT, &m_rfn[0]);
+            m_ROP_ok = false;
+        }
     }
-
+    m_pres = P;
     m_temp = T;
-    updateKc();
-    m_ROP_ok = false;
 }
 
 void GasKinetics::update_rates_C()
