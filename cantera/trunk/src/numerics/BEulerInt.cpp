@@ -1,6 +1,5 @@
 /**
  *  @file BEulerInt.cpp
- *
  */
 
 /*
@@ -19,21 +18,11 @@ using namespace std;
 namespace Cantera
 {
 
-//================================================================================================
-/*
- * Exception thrown when a BEuler error is encountered. We just call the
- * Cantera Error handler in the initialization list
- */
 BEulerErr::BEulerErr(const std::string& msg) :
     CanteraError("BEulerInt", msg)
 {
 }
 
-//================================================================================================
-/*
- *  Constructor. Default settings: dense jacobian, no user-supplied
- *  Jacobian function, Newton iteration.
- */
 BEulerInt::BEulerInt() :
     m_iter(Newton_Iter),
     m_method(BEulerVarStep),
@@ -92,15 +81,12 @@ BEulerInt::BEulerInt() :
 {
 
 }
-//================================================================================================
-/*
- * Destructor
- */
+
 BEulerInt::~BEulerInt()
 {
     delete tdjac_ptr;
 }
-//================================================================================================
+
 void BEulerInt::setTolerances(double reltol, size_t n, double* abstol)
 {
     m_itol = 1;
@@ -114,64 +100,39 @@ void BEulerInt::setTolerances(double reltol, size_t n, double* abstol)
     }
     m_reltol = reltol;
 }
-//================================================================================================
+
 void BEulerInt::setTolerances(double reltol, double abstol)
 {
     m_itol = 0;
     m_reltol = reltol;
     m_abstols = abstol;
 }
-//================================================================================================
+
 void BEulerInt::setProblemType(int jacFormMethod)
 {
     m_jacFormMethod = jacFormMethod;
 }
-//================================================================================================
+
 void BEulerInt::setMethodBEMT(BEulerMethodType t)
 {
     m_method = t;
 }
-//================================================================================================
+
 void BEulerInt::setMaxStep(doublereal hmax)
 {
     m_hmax = hmax;
 }
-//================================================================================================
+
 void BEulerInt::setMaxNumTimeSteps(int maxNumTimeSteps)
 {
     m_max_time_step_attempts = maxNumTimeSteps;
 }
-//================================================================================================
+
 void BEulerInt::setNumInitialConstantDeltaTSteps(int num)
 {
     m_numInitialConstantDeltaTSteps = num;
 }
-//================================================================================================
-/*
- *
- * setPrintSolnOptins():
- *
- * This routine controls when the solution is printed
- *
- * @param printStepInterval If greater than 0, then the
- *                     soln is printed every printStepInterval
- *                     steps.
- *
- * @param printNumberToTout The solution is printed at
- *                  regular invervals a total of
- *                  "printNumberToTout" times.
- *
- * @param printSolnFirstSteps The solution is printed out
- *                   the first "printSolnFirstSteps"
- *                   steps. After these steps the other
- *                   parameters determine the printing.
- *                   default = 0
- *
- * @param dumpJacobians Dump jacobians to disk.
- *
- *                   default = false
- *
- */
+
 void BEulerInt::setPrintSolnOptions(int printSolnStepInterval,
                                     int printSolnNumberToTout,
                                     int printSolnFirstSteps,
@@ -182,24 +143,12 @@ void BEulerInt::setPrintSolnOptions(int printSolnStepInterval,
     m_printSolnFirstSteps   = printSolnFirstSteps;
     m_dumpJacobians         = dumpJacobians;
 }
-//================================================================================================
+
 void BEulerInt::setIterator(IterType t)
 {
     m_iter = t;
 }
-//================================================================================================
-/*
- *
- * setNonLinOptions()
- *
- *  Set the options for the nonlinear method
- *
- *  Defaults are set in the .h file. These are the defaults:
- *    min_newt_its = 0
- *    matrixConditioning = false
- *    colScaling = false
- *    rowScaling = true
- */
+
 void BEulerInt::setNonLinOptions(int min_newt_its, bool matrixConditioning,
                                  bool colScaling, bool rowScaling)
 {
@@ -214,34 +163,17 @@ void BEulerInt::setNonLinOptions(int min_newt_its, bool matrixConditioning,
         m_rowScales.assign(m_neq, 1.0);
     }
 }
-//================================================================================================
-/*
- *
- * setInitialTimeStep():
- *
- * Set the initial time step. Right now, we set the
- * time step by setting delta_t_np1.
- */
+
 void BEulerInt::setInitialTimeStep(double deltaT)
 {
     delta_t_np1 = deltaT;
 }
-//================================================================================================
-/*
- * setPrintFlag():
- *
- */
+
 void BEulerInt::setPrintFlag(int print_flag)
 {
     m_print_flag = print_flag;
 }
-//================================================================================================
-/*
- *
- * initialize():
- *
- * Find the initial conditions for y and ydot.
- */
+
 void BEulerInt::initializeRJE(double t0, ResidJacEval& func)
 {
     m_neq = func.nEquations();
@@ -265,12 +197,7 @@ void BEulerInt::initializeRJE(double t0, ResidJacEval& func)
     delta_t_n = 0.0;
     delta_t_nm1 = 0.0;
 }
-//================================================================================================
-/*
- *
- * reinitialize():
- *
- */
+
 void BEulerInt::reinitializeRJE(double t0, ResidJacEval& func)
 {
     m_neq = func.nEquations();
@@ -291,12 +218,7 @@ void BEulerInt::reinitializeRJE(double t0, ResidJacEval& func)
     m_func = &func;
 
 }
-//================================================================================================
-/*
- *
- * getPrintTime():
- *
- */
+
 double BEulerInt::getPrintTime(double time_current)
 {
     double tnext;
@@ -311,24 +233,12 @@ double BEulerInt::getPrintTime(double time_current)
     }
     return 1.0E300;
 }
-//================================================================================================
-/*
- * nEvals():
- *
- * Return the total number of function evaluations
- */
+
 int BEulerInt::nEvals() const
 {
     return m_nfe;
 }
-//================================================================================================
-/*
- *
- * internalMalloc():
- *
- *  Internal routine that sets up the fixed length storage based on
- *  the size of the problem to solve.
- */
+
 void BEulerInt::internalMalloc()
 {
     m_ewt.assign(m_neq, 0.0);
@@ -348,15 +258,7 @@ void BEulerInt::internalMalloc()
     }
     tdjac_ptr = new SquareMatrix(m_neq);
 }
-//================================================================================================
-/*
- * setSolnWeights():
- *
- * Set the solution weights
- *  This is a very important routine as it affects quite a few
- *  operations involving convergence.
- *
- */
+
 void BEulerInt::setSolnWeights()
 {
     int i;
@@ -378,32 +280,24 @@ void BEulerInt::setSolnWeights()
         }
     }
 }
-//================================================================================================
-/*
- *
- * setColumnScales():
- *
- * Set the column scaling vector at the current time
- */
+
 void BEulerInt::setColumnScales()
 {
     m_func->calcSolnScales(time_n, &m_y_n[0], &m_y_nm1[0], &m_colScales[0]);
 }
-//================================================================================================
-/*
- * computeResidWts():
- *
- * We compute residual weights here, which we define as the L_0 norm
- * of the Jacobian Matrix, weighted by the solution weights.
- * This is the proper way to guage the magnitude of residuals. However,
- * it does need the evaluation of the jacobian, and the implementation
- * below is slow, but doesn't take up much memory.
- *
- * Here a small weighting indicates that the change in solution is
- * very sensitive to that equation.
- */
+
 void BEulerInt::computeResidWts(GeneralMatrix& jac)
 {
+    /*
+     * We compute residual weights here, which we define as the L_0 norm
+     * of the Jacobian Matrix, weighted by the solution weights.
+     * This is the proper way to guage the magnitude of residuals. However,
+     * it does need the evaluation of the jacobian, and the implementation
+     * below is slow, but doesn't take up much memory.
+     *
+     * Here a small weighting indicates that the change in solution is
+     * very sensitive to that equation.
+     */
     int i, j;
     double* data = &(*(jac.begin()));
     double value;
@@ -415,18 +309,12 @@ void BEulerInt::computeResidWts(GeneralMatrix& jac)
         }
     }
 }
-//================================================================================================
-/*
- * filterNewStep():
- *
- * void BEulerInt::
- *
- */
+
 double BEulerInt::filterNewStep(double timeCurrent, double* y_current, double* ydot_current)
 {
     return 0.0;
 }
-//==================================================================================================
+
 static void print_line(const char* str, int n)
 {
     for (int i = 0; i < n; i++) {
@@ -434,7 +322,7 @@ static void print_line(const char* str, int n)
     }
     printf("\n");
 }
-//==================================================================================================
+
 /*
  * Print out for relevant time step information
  */
@@ -471,7 +359,7 @@ static void print_time_step1(int order, int n_time_step, double time,
     }
     printf("\n\tdelta_t_nm1      = %8.5e\n", delta_t_nm1);
 }
-//================================================================================================
+
 /*
  * Print out for relevant time step information
  */
@@ -490,7 +378,7 @@ static void print_time_step2(int  time_step_num, int order,
     print_line("=", 80);
     printf("\n");
 }
-//================================================================================================
+
 /*
  * Print Out descriptive information on why the current step failed
  */
@@ -523,7 +411,7 @@ static void print_time_fail(bool convFailure, int time_step_num,
     printf("\n");
     print_line("=", 80);
 }
-//================================================================================================
+
 /*
  * Print out the final results and counters
  */
@@ -551,7 +439,7 @@ static void print_final(double time, int step_failed,
     printf("\n");
     print_line("=", 80);
 }
-//================================================================================================
+
 /*
  * Header info for one line comment about a time step
  */
@@ -577,7 +465,7 @@ static void print_lvl1_Header(int nTimes)
     printf("\n");
     print_line("-", 80);
 }
-//================================================================================================
+
 /*
  * One line entry about time step
  *   rslt -> 4 letter code
@@ -595,9 +483,8 @@ static void print_lvl1_summary(
     }
     printf("\n");
 }
-//================================================================================================
+
 /*
- * subtractRD():
  *   This routine subtracts 2 numbers. If the difference is less
  *   than 1.0E-14 times the magnitude of the smallest number,
  *   then diff returns an exact zero.
@@ -626,18 +513,7 @@ double subtractRD(double a, double b)
     }
     return diff;
 }
-//================================================================================================
-/*
- *
- *  Function called by BEuler to evaluate the Jacobian matrix and the
- *  current residual at the current time step.
- *  @param N = The size of the equation system
- *  @param J = Jacobian matrix to be filled in
- *  @param f = Right hand side. This routine returns the current
- *             value of the rhs (output), so that it does
- *             not have to be computed again.
- *
- */
+
 void BEulerInt::beuler_jac(GeneralMatrix& J, double* const f,
                            double time_curr, double CJ,
                            double* const y,
@@ -751,36 +627,6 @@ void BEulerInt::beuler_jac(GeneralMatrix& J, double* const f,
 
 }
 
-
-/*
- * Function to calculate the predicted solution vector, m_y_pred_n for the
- * (n+1)th time step.  This routine can be used by a first order - forward
- * Euler / backward Euler predictor / corrector method or for a second order
- * Adams-Bashforth / Trapezoidal Rule predictor / corrector method.  See Nachos
- * documentation Sand86-1816 and Gresho, Lee, Sani LLNL report UCRL - 83282 for
- * more information.
- *
- * variables:
- *
- * on input:
- *
- *     N          - number of unknowns
- *     order      - indicates order of method
- *                  = 1 -> first order forward Euler/backward Euler
- *                         predictor/corrector
- *                  = 2 -> second order Adams-Bashforth/Trapezoidal Rule
- *                         predictor/corrector
- *
- *    delta_t_n   - magnitude of time step at time n     (i.e., = t_n+1 - t_n)
- *    delta_t_nm1 - magnitude of time step at time n - 1 (i.e., = t_n - t_n-1)
- *    y_n[]       - solution vector at time n
- *    y_dot_n[]   - acceleration vector from the predictor at time n
- *    y_dot_nm1[] - acceleration vector from the predictor at time n - 1
- *
- * on output:
- *
- *    m_y_pred_n[]    - predicted solution vector at time n + 1
- */
 void BEulerInt::calc_y_pred(int order)
 {
     int i;
@@ -807,42 +653,8 @@ void BEulerInt::calc_y_pred(int order)
      */
     m_func->filterSolnPrediction(time_n, &m_y_pred_n[0]);
 
-} /* calc_y_pred */
+}
 
-
-/* Function to calculate the acceleration vector ydot for the first or
- * second order predictor/corrector time integrator.  This routine can be
- * called by a first order - forward Euler / backward Euler predictor /
- * corrector or for a second order Adams - Bashforth / Trapezoidal Rule
- * predictor / corrector.  See Nachos documentation Sand86-1816 and Gresho,
- * Lee, Sani LLNL report UCRL - 83282 for more information.
- *
- *  variables:
- *
- *    on input:
- *
- *       N          - number of local unknowns on the processor
- *                    This is equal to internal plus border unknowns.
- *       order      - indicates order of method
- *                    = 1 -> first order forward Euler/backward Euler
- *                           predictor/corrector
- *                    = 2 -> second order Adams-Bashforth/Trapezoidal Rule
- *                           predictor/corrector
- *
- *      delta_t_n   - Magnitude of the current time step at time n
- *                    (i.e., = t_n - t_n-1)
- *      y_curr[]    - Current Solution vector at time n
- *      y_nm1[]     - Solution vector at time n-1
- *      ydot_nm1[] - Acceleration vector at time n-1
- *
- *   on output:
- *
- *      ydot_curr[]   - Current acceleration vector at time n
- *
- * Note we use the current attribute to denote the possibility that
- * y_curr[] may not be equal to m_y_n[] during the nonlinear solve
- * because we may be using a look-ahead scheme.
- */
 void BEulerInt::
 calc_ydot(int order, double* y_curr, double* ydot_curr)
 {
@@ -863,32 +675,8 @@ calc_ydot(int order, double* y_curr, double* ydot_curr)
         }
         return;
     }
-} /************* END calc_ydot () ****************************************/
+}
 
-/* This function calculates the time step truncation error estimate
- * from a very simple formula based on Gresho et al.  This routine can be
- * called for a
- * first order - forward Euler/backward Euler predictor/ corrector and
- * for a
- * second order Adams- Bashforth/Trapezoidal Rule predictor/corrector. See
- * Nachos documentation Sand86-1816 and Gresho, Lee, LLNL report
- *  UCRL - 83282
- * for more information.
- *
- *  variables:
- *
- *    on input:
- *
- *      abs_error   - Generic absolute error tolerance
- *      rel_error   - Generic realtive error tolerance
- *      x_coor[]    - Solution vector from the implicit corrector
- *      x_pred_n[]    - Solution vector from the explicit predictor
- *
- *   on output:
- *
- *      delta_t_n   - Magnitude of next time step at time t_n+1
- *      delta_t_nm1 - Magnitude of previous time step at time t_n
- */
 double BEulerInt::time_error_norm()
 {
     int    i;
@@ -943,47 +731,6 @@ double BEulerInt::time_error_norm()
     return sqrt(rel_norm / m_neq);
 }
 
-/*************************************************************************
- * Time step control function for the selection of the time step size based on
- * a desired accuracy of time integration and on an estimate of the relative
- * error of the time integration process. This routine can be called for a
- * first order - forward Euler/backward Euler predictor/ corrector and for a
- * second order Adams- Bashforth/Trapezoidal Rule predictor/corrector. See
- * Nachos documentation Sand86-1816 and Gresho, Lee, Sani LLNL report UCRL -
- * 83282 for more information.
- *
- *  variables:
- *
- *    on input:
- *
- *       order      - indicates order of method
- *                    = 1 -> first order forward Euler/backward Euler
- *                           predictor/corrector
- *                    = 2 -> second order forward Adams-Bashforth/Trapezoidal
- *                          rule predictor/corrector
- *
- *      delta_t_n   - Magnitude of time step at time t_n
- *      delta_t_nm1 - Magnitude of time step at time t_n-1
- *      rel_error   - Generic realtive error tolerance
- *      time_error_factor   - Estimated value of the time step truncation error
- *                           factor. This value is a ratio of the computed
- *                           error norms. The premultiplying constants
- *                           and the power are not yet applied to normalize the
- *                           predictor/corrector ratio. (see output value)
- *
- *   on output:
- *
- *      return - delta_t for the next time step
- *               If delta_t is negative, then the current time step is
- *               rejected because the time-step truncation error is
- *               too large.  The return value will contain the negative
- *               of the recommended next time step.
- *
- *      time_error_factor  - This output value is normalized so that
- *                           values greater than one indicate the current time
- *                           integration error is greater than the user
- *                           specified magnitude.
- */
 double BEulerInt::time_step_control(int order, double time_error_factor)
 {
     double factor = 0.0, power = 0.0, delta_t;
@@ -1019,15 +766,8 @@ double BEulerInt::time_step_control(int order, double time_error_factor)
         delta_t = factor * delta_t_n;
     }
     return delta_t;
-} /************ END of time_step_control()********************************/
-//================================================================================================
-/**************************************************************************
- *
- * integrate():
- *
- *  defaults are located in the .h file. They are as follows:
- *     time_init = 0.0
- */
+}
+
 double BEulerInt::integrateRJE(double tout, double time_init)
 {
     double time_current;
@@ -1186,14 +926,6 @@ double BEulerInt::integrateRJE(double tout, double time_init)
     return time_current;
 }
 
-/**************************************************************************
- *
- * step():
- *
- * This routine advances the calculations one step using a predictor
- * corrector approach. We use an implicit algorithm here.
- *
- */
 double BEulerInt::step(double t_max)
 {
     double CJ;
@@ -1590,8 +1322,6 @@ double BEulerInt::step(double t_max)
     return time_n;
 }
 
-
-
 //-----------------------------------------------------------
 //                 Constants
 //-----------------------------------------------------------
@@ -1599,17 +1329,10 @@ double BEulerInt::step(double t_max)
 const double DampFactor = 4;
 const int NDAMP = 10;
 
-
 //-----------------------------------------------------------
 //                 MultiNewton methods
 //-----------------------------------------------------------
-/**
- * L2 Norm of a delta in the solution
- *
- *  The second argument has a default of false. However,
- *  if true, then a table of the largest values is printed
- *  out to standard output.
- */
+
 double BEulerInt::soln_error_norm(const double* const delta_y,
                                   bool printLargest)
 {
@@ -1663,15 +1386,7 @@ double BEulerInt::soln_error_norm(const double* const delta_y,
 #ifdef DEBUG_HKM_JAC
 SquareMatrix jacBack();
 #endif
-/**************************************************************************
- *
- * doNewtonSolve():
- *
- * Compute the undamped Newton step.  The residual function is
- * evaluated at the current time, t_n, at the current values of the
- * solution vector, m_y_n, and the solution time derivative, m_ydot_n,
- * but the Jacobian is not recomputed.
- */
+
 void BEulerInt::doNewtonSolve(double time_curr, double* y_curr,
                               double* ydot_curr, double* delta_y,
                               GeneralMatrix& jac, int loglevel)
@@ -1838,39 +1553,6 @@ void BEulerInt::doNewtonSolve(double time_curr, double* y_curr,
     m_numTotalLinearSolves++;
 }
 
-//================================================================================================
-//  Bound the Newton step while relaxing the solution
-/*
- * Return the factor by which the undamped Newton step 'step0'
- * must be multiplied in order to keep all solution components in
- * all domains between their specified lower and upper bounds.
- * Other bounds may be applied here as well.
- *
- * Currently the bounds are hard coded into this routine:
- *
- *  Minimum value for all variables: - 0.01 * m_ewt[i]
- *  Maximum value = none.
- *
- * Thus, this means that all solution components are expected
- * to be numerical greater than zero in the limit of time step
- * truncation errors going to zero.
- *
- * Delta bounds: The idea behind these is that the Jacobian
- *               couldn't possibly be representative if the
- *               variable is changed by a lot. (true for
- *               nonlinear systems, false for linear systems)
- *  Maximum increase in variable in any one newton iteration:
- *   factor of 2
- *  Maximum decrease in variable in any one newton iteration:
- *   factor of 5
- *
- *   @param y       Current value of the solution
- *   @param step0   Current raw step change in y[]
- *   @param loglevel  Log level. This routine produces output if loglevel
- *                    is greater than one
- *
- *   @return        Returns the damping coefficient
- */
 double BEulerInt::boundStep(const double* const y,
                             const double* const step0, int loglevel)
 {
@@ -1937,18 +1619,7 @@ double BEulerInt::boundStep(const double* const y,
     }
     return fbound;
 }
-//================================================================================================
-/**************************************************************************
- *
- * dampStep():
- *
- * On entry, step0 must contain an undamped Newton step for the
- * solution x0. This method attempts to find a damping coefficient
- * such that the next undamped step would have a norm smaller than
- * that of step0. If successful, the new solution after taking the
- * damped step is returned in y1, and the undamped step at y1 is
- * returned in step1.
- */
+
 int BEulerInt::dampStep(double time_curr, const double* y0,
                         const double* ydot0, const double* step0,
                         double* y1, double* ydot1, double* step1,
@@ -1956,8 +1627,6 @@ int BEulerInt::dampStep(double time_curr, const double* y0,
                         int& loglevel, bool writetitle,
                         int& num_backtracks)
 {
-
-
     // Compute the weighted norm of the undamped step size step0
     double s0 = soln_error_norm(step0);
 
@@ -2104,28 +1773,7 @@ int BEulerInt::dampStep(double time_curr, const double* y0,
         return -2;
     }
 }
-//================================================================================================
-// Solve a nonlinear system
-/*
- * Find the solution to F(X, xprime) = 0 by damped Newton iteration.  On
- * entry, y_comm[] contains an initial estimate of the solution and
- * ydot_comm[] contains an estimate of the derivative.
- *   On  successful return, y_comm[] contains the converged solution
- * and ydot_comm[] contains the derivative
- *
- *
- * @param y_comm[] Contains the input solution. On output y_comm[] contains
- *                 the converged solution
- * @param ydot_comm  Contains the input derivative solution. On output y_comm[] contains
- *                 the converged derivative solution
- * @param CJ       Inverse of the time step
- * @param time_curr  Current value of the time
- * @param jac      Jacobian
- * @param num_newt_its  number of newton iterations
- * @param num_linear_solves number of linear solves
- * @param num_backtracks number of backtracs
- * @param loglevel  Log level
- */
+
 int BEulerInt::solve_nonlinear_problem(double* const y_comm,
                                        double* const ydot_comm, double CJ,
                                        double time_curr,
@@ -2281,11 +1929,7 @@ done:
     }
     return m;
 }
-//================================================================================================
-/*
- *
- *
- */
+
 void BEulerInt::
 print_solnDelta_norm_contrib(const double* const solnDelta0,
                              const char* const s0,
@@ -2341,7 +1985,5 @@ print_solnDelta_norm_contrib(const double* const solnDelta0,
     printf("\t\t   ");
     print_line("-", 90);
 }
-//===============================================================================================
 
 } // End of namespace Cantera
-
