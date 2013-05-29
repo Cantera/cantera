@@ -47,6 +47,8 @@ cdef extern from "cantera/thermo/ThermoPhase.h" namespace "Cantera":
         string report(cbool) except +
         string name()
         void setName(string)
+        string id()
+        void setID(string)
         double minTemp() except +
         double maxTemp() except +
         double refPressure() except +

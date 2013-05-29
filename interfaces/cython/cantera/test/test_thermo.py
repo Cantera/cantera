@@ -64,6 +64,13 @@ class TestThermoPhase(utilities.CanteraTest):
         self.assertEqual(self.phase.name, 'something')
         self.assertTrue('something' in self.phase.report())
 
+    def test_ID(self):
+        self.assertEqual(self.phase.ID, 'ohmech')
+
+        self.phase.ID = 'something'
+        self.assertEqual(self.phase.ID, 'something')
+        self.assertEqual(self.phase.name, 'ohmech')
+
     def test_badLength(self):
         X = np.zeros(5)
         def set_X():

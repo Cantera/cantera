@@ -43,6 +43,16 @@ cdef class ThermoPhase(_SolutionBase):
         def __set__(self, name):
             self.thermo.setName(stringify(name))
 
+    property ID:
+        """
+        The ID of the phase. The default is taken from the CTI/XML input file.
+        """
+        def __get__(self):
+            return pystr(self.thermo.id())
+        def __set__(self, id_):
+            self.thermo.setID(stringify(id_))
+
+
     property basis:
         """
         Determines whether intensive thermodynamic properties are treated on a
