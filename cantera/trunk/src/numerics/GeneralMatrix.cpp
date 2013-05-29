@@ -14,17 +14,17 @@ using namespace std;
 
 namespace Cantera
 {
-//====================================================================================================================
+
 GeneralMatrix::GeneralMatrix(int matType) :
     matrixType_(matType)
 {
 }
-//====================================================================================================================
+
 GeneralMatrix::GeneralMatrix(const GeneralMatrix& y) :
     matrixType_(y.matrixType_)
 {
 }
-//====================================================================================================================
+
 GeneralMatrix&  GeneralMatrix::operator=(const GeneralMatrix& y)
 {
     if (&y == this) {
@@ -33,9 +33,9 @@ GeneralMatrix&  GeneralMatrix::operator=(const GeneralMatrix& y)
     matrixType_ = y.matrixType_;
     return *this;
 }
-//====================================================================================================================
+
 GeneralMatrix::~GeneralMatrix()
 {
 }
-//====================================================================================================================
+
 }

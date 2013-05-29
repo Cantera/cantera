@@ -21,7 +21,6 @@ using namespace std;
 namespace Cantera
 {
 
-//====================================================================================================================
 BandMatrix::BandMatrix() :
     GeneralMatrix(1),
     m_factored(false),
@@ -33,7 +32,7 @@ BandMatrix::BandMatrix() :
     data.clear();
     ludata.clear();
 }
-//====================================================================================================================
+
 BandMatrix::BandMatrix(size_t n, size_t kl, size_t ku, doublereal v)   :
     GeneralMatrix(1),
     m_factored(false),
@@ -53,7 +52,7 @@ BandMatrix::BandMatrix(size_t n, size_t kl, size_t ku, doublereal v)   :
         m_colPtrs[j] = &(data[ldab * j]);
     }
 }
-//====================================================================================================================
+
 BandMatrix::BandMatrix(const BandMatrix& y) :
     GeneralMatrix(1),
     m_factored(false),
@@ -75,7 +74,7 @@ BandMatrix::BandMatrix(const BandMatrix& y) :
         m_colPtrs[j] = &(data[ldab * j]);
     }
 }
-//====================================================================================================================
+
 BandMatrix& BandMatrix::operator=(const BandMatrix& y)
 {
     if (&y == this) {
@@ -96,7 +95,7 @@ BandMatrix& BandMatrix::operator=(const BandMatrix& y)
     }
     return *this;
 }
-//====================================================================================================================
+
 void BandMatrix::resize(size_t n, size_t kl, size_t ku, doublereal v)
 {
     m_n = n;
@@ -113,29 +112,29 @@ void BandMatrix::resize(size_t n, size_t kl, size_t ku, doublereal v)
     }
     m_factored = false;
 }
-//====================================================================================================================
+
 void BandMatrix::bfill(doublereal v)
 {
     std::fill(data.begin(), data.end(), v);
     m_factored = false;
 }
-//====================================================================================================================
+
 void BandMatrix::zero()
 {
     std::fill(data.begin(), data.end(), 0.0);
     m_factored = false;
 }
-//====================================================================================================================
+
 doublereal& BandMatrix::operator()(size_t i, size_t j)
 {
     return value(i,j);
 }
-//====================================================================================================================
+
 doublereal BandMatrix::operator()(size_t i, size_t j) const
 {
     return value(i,j);
 }
-//====================================================================================================================
+
 doublereal& BandMatrix::value(size_t i, size_t j)
 {
     m_factored = false;
@@ -144,7 +143,7 @@ doublereal& BandMatrix::value(size_t i, size_t j)
     }
     return data[index(i,j)];
 }
-//====================================================================================================================
+
 doublereal BandMatrix::value(size_t i, size_t j) const
 {
     if (i + m_ku < j || i > j + m_kl) {
@@ -152,7 +151,7 @@ doublereal BandMatrix::value(size_t i, size_t j) const
     }
     return data[index(i,j)];
 }
-//====================================================================================================================
+
 size_t BandMatrix::index(size_t i, size_t j) const
 {
     int jj = static_cast<int>(j);
@@ -160,19 +159,17 @@ size_t BandMatrix::index(size_t i, size_t j) const
     size_t rw = (int) m_kl + (int) m_ku + (int) ii - jj;
     return (2*m_kl + m_ku + 1)*j + rw;
 }
-//====================================================================================================================
+
 doublereal BandMatrix::_value(size_t i, size_t j) const
 {
     return data[index(i,j)];
 }
-//====================================================================================================================
-// Number of rows
+
 size_t BandMatrix::nRows() const
 {
     return m_n;
 }
-//====================================================================================================================
-// Number of rows
+
 size_t BandMatrix::nRowsAndStruct(size_t* const iStruct) const
 {
     if (iStruct) {
@@ -229,10 +226,7 @@ void BandMatrix::mult(const doublereal* b, doublereal* prod) const
         prod[m] = sum;
     }
 }
-//====================================================================================================================
-/*
- * Multiply b*A and write result to \c prod.
- */
+
 void BandMatrix::leftMult(const doublereal* const b, doublereal* const prod) const
 {
     int kl = static_cast<int>(m_kl);
@@ -250,11 +244,7 @@ void BandMatrix::leftMult(const doublereal* const b, doublereal* const prod) con
         prod[n] = sum;
     }
 }
-//====================================================================================================================
-/*
- * Perform an LU decomposition. LAPACK routine DGBTRF is used.
- * The factorization is saved in ludata.
- */
+
 int BandMatrix::factor()
 {
     int info=0;
@@ -273,13 +263,13 @@ int BandMatrix::factor()
     }
     return info;
 }
-//====================================================================================================================
+
 int BandMatrix::solve(const doublereal* const b, doublereal* const x)
 {
     copy(b, b + m_n, x);
     return solve(x);
 }
-//====================================================================================================================
+
 int BandMatrix::solve(doublereal* b)
 {
     int info = 0;
@@ -299,29 +289,29 @@ int BandMatrix::solve(doublereal* b)
     }
     return info;
 }
-//====================================================================================================================
+
 vector_fp::iterator  BandMatrix::begin()
 {
     m_factored = false;
     return data.begin();
 }
-//====================================================================================================================
+
 vector_fp::iterator BandMatrix::end()
 {
     m_factored = false;
     return data.end();
 }
-//====================================================================================================================
+
 vector_fp::const_iterator BandMatrix::begin() const
 {
     return data.begin();
 }
-//====================================================================================================================
+
 vector_fp::const_iterator BandMatrix::end() const
 {
     return data.end();
 }
-//====================================================================================================================
+
 ostream& operator<<(ostream& s, const BandMatrix& m)
 {
     size_t nr = m.nRows();
@@ -334,45 +324,24 @@ ostream& operator<<(ostream& s, const BandMatrix& m)
     }
     return s;
 }
-//====================================================================================================================
+
 void BandMatrix::err(const std::string& msg) const
 {
     throw CanteraError("BandMatrix() unimplemented function", msg);
 }
-//====================================================================================================================
-// Factors the A matrix using the QR algorithm, overwriting A
-/*
- * we set m_factored to 2 to indicate the matrix is now QR factored
- *
- * @return  Returns the info variable from lapack
- */
+
 int  BandMatrix::factorQR()
 {
     factor();
     return 0;
 }
-//====================================================================================================================
-// Factors the A matrix using the QR algorithm, overwriting A
-// Returns an estimate of the inverse of the condition number for the matrix
-/*
- *   The matrix must have been previously factored using the QR algorithm
- *
- * @return  returns the inverse of the condition number
- */
+
 doublereal  BandMatrix::rcondQR()
 {
     double a1norm = oneNorm();
     return rcond(a1norm);
 }
-//====================================================================================================================
-// Returns an estimate of the inverse of the condition number for the matrix
-/*
- *   The matrix must have been previously factored using the LU algorithm
- *
- * @param a1norm Norm of the matrix
- *
- * @return  returns the inverse of the condition number
- */
+
 doublereal  BandMatrix::rcond(doublereal a1norm)
 {
     int printLevel = 0;
@@ -403,24 +372,17 @@ doublereal  BandMatrix::rcond(doublereal a1norm)
     }
     return rcond;
 }
-//====================================================================================================================
-// Change the way the matrix is factored
-/*
- *  @param fAlgorithm   integer
- *                   0 LU factorization
- *                   1 QR factorization
- */
+
 void BandMatrix::useFactorAlgorithm(int fAlgorithm)
 {
     // QR algorithm isn't implemented for banded matrix.
 }
-//====================================================================================================================
+
 int BandMatrix::factorAlgorithm() const
 {
     return 0;
 }
-//====================================================================================================================
-// Returns the one norm of the matrix
+
 doublereal BandMatrix::oneNorm() const
 {
     int ku = static_cast<int>(m_ku);
@@ -438,7 +400,7 @@ doublereal BandMatrix::oneNorm() const
     }
     return value;
 }
-//====================================================================================================================
+
 size_t BandMatrix::checkRows(doublereal& valueSmall) const
 {
     valueSmall = 1.0E300;
@@ -464,7 +426,7 @@ size_t BandMatrix::checkRows(doublereal& valueSmall) const
     }
     return iSmall;
 }
-//====================================================================================================================
+
 size_t BandMatrix::checkColumns(doublereal& valueSmall) const
 {
     valueSmall = 1.0E300;
@@ -490,46 +452,27 @@ size_t BandMatrix::checkColumns(doublereal& valueSmall) const
     }
     return jSmall;
 }
-//====================================================================================================================
+
 GeneralMatrix* BandMatrix::duplMyselfAsGeneralMatrix() const
 {
     return new BandMatrix(*this);
 }
-//====================================================================================================================
+
 bool BandMatrix::factored() const
 {
     return m_factored;
 }
-//====================================================================================================================
-// Return a pointer to the top of column j, columns are assumed to be contiguous in memory
-/*
- *  @param j   Value of the column
- *
- *  @return  Returns a pointer to the top of the column
- */
+
 doublereal* BandMatrix::ptrColumn(size_t j)
 {
     return m_colPtrs[j];
 }
-//====================================================================================================================
-// Return a vector of const pointers to the columns
-/*
- *  Note the value of the pointers are protected by their being const.
- *  However, the value of the matrix is open to being changed.
- *
- *   @return returns a vector of pointers to the top of the columns
- *           of the matrices.
- */
+
 doublereal* const* BandMatrix::colPts()
 {
     return &(m_colPtrs[0]);
 }
-//====================================================================================================================
-// Copy the data from one array into another without doing any checking
-/*
- *  This differs from the assignment operator as no resizing is done and memcpy() is used.
- *  @param y Array to be copied
- */
+
 void BandMatrix::copyData(const GeneralMatrix& y)
 {
     m_factored = false;
@@ -537,15 +480,10 @@ void BandMatrix::copyData(const GeneralMatrix& y)
     GeneralMatrix* yyPtr = const_cast<GeneralMatrix*>(&y);
     (void) memcpy(DATA_PTR(data), yyPtr->ptrColumn(0), n);
 }
-//====================================================================================================================
-/*
- * clear the factored flag
- */
+
 void BandMatrix::clearFactorFlag()
 {
     m_factored = 0;
 }
-//====================================================================================================================
-//====================================================================================================================
-}
 
+}
