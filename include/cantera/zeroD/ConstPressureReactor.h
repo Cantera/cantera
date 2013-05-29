@@ -52,6 +52,7 @@ public:
     virtual size_t componentIndex(const std::string& nm) const;
 
 protected:
+    vector_fp m_hk; //!< Species molar enthalpies
 
 private:
 
