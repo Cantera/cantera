@@ -32,15 +32,9 @@ public:
     GeneralMatrix(int matType);
 
     //! Copy Constructor
-    /*!
-     *  @param right Object to be copied
-     */
     GeneralMatrix(const GeneralMatrix& right);
 
     //! Assignment operator
-    /*!
-     *  @param right  Object to be copied
-     */
     GeneralMatrix& operator=(const GeneralMatrix& right);
 
     //! Destructor. Does nothing.
@@ -48,7 +42,7 @@ public:
 
     //! Duplicator member function
     /*!
-     *  This function will duplicate the matrix given a generic GeneralMatrix pointer
+     *  This function will duplicate the matrix given a generic GeneralMatrix
      *
      *  @return Returns a pointer to the malloced object
      */
@@ -112,26 +106,16 @@ public:
     virtual void useFactorAlgorithm(int fAlgorithm) = 0;
 
     //! Return the factor algorithm used
-    /*!
-     *
-     */
     virtual int factorAlgorithm() const = 0;
 
     //! Calculate the one norm of the matrix
-    /*!
-     *   Returns the one norm of the matrix
-     */
     virtual doublereal oneNorm() const = 0;
-
 
     //! Return the number of rows in the matrix
     virtual size_t nRows() const = 0;
 
-
     //! Return the size and structure of the matrix
     /*!
-     * This is inherited from GeneralMatrix
-     *
      * @param iStruct OUTPUT Pointer to a vector of ints that describe the structure of the matrix.
      *
      * @return  returns the number of rows and columns in the matrix.
@@ -166,7 +150,6 @@ public:
      *  Returns a changeable reference to the matrix entry
      */
     virtual doublereal& operator()(size_t i, size_t j) = 0;
-
 
     //! Constant Index into the (i,j) element
     /*!
