@@ -52,9 +52,7 @@ enum IterType {
  */
 class Integrator
 {
-
 public:
-
     //! Default Constructor
     Integrator() {
     }

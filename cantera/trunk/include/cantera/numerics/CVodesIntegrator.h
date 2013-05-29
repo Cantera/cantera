@@ -33,19 +33,19 @@ public:
     explicit CVodesErr(const std::string& msg) : CanteraError("CVodesIntegrator", msg) {}
 };
 
-
 /**
- *  Wrapper class for 'cvodes' integrator from LLNL.
+ * Wrapper class for 'cvodes' integrator from LLNL.
  *
  * @see FuncEval.h. Classes that use CVodeInt:
  * ImplicitChem, ImplicitSurfChem, Reactor
- *
  */
 class CVodesIntegrator : public Integrator
 {
-
 public:
-
+    /**
+     *  Constructor. Default settings: dense jacobian, no user-supplied
+     *  Jacobian function, Newton iteration.
+     */
     CVodesIntegrator();
     virtual ~CVodesIntegrator();
     virtual void setTolerances(double reltol, size_t n, double* abstol);
@@ -87,13 +87,11 @@ public:
     virtual std::string getErrorInfo(int N);
 
 protected:
-
     //! Applies user-specified options to the underlying CVODES solver. Called
     //! during integrator initialization or reinitialization.
     void applyOptions();
 
 private:
-
     void sensInit(double t0, FuncEval& func);
 
     size_t m_neq;
