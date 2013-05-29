@@ -23,20 +23,20 @@ public:
     explicit CVodeErr(const std::string& msg) : CanteraError("CVodeInt", msg) {}
 };
 
-
 /**
  *  Wrapper class for 'cvode' integrator from LLNL.
  *  The unmodified cvode code is in directory ext/cvode.
  *
  * @see FuncEval.h. Classes that use CVodeInt:
  * ImplicitChem, ImplicitSurfChem, Reactor
- *
  */
 class CVodeInt : public Integrator
 {
-
 public:
-
+    /*!
+     *  Constructor. Default settings: dense jacobian, no user-supplied
+     *  Jacobian function, Newton iteration.
+     */
     CVodeInt();
     virtual ~CVodeInt();
     virtual void setTolerances(double reltol, size_t n, double* abstol);
@@ -63,7 +63,6 @@ public:
     virtual void setMaxErrTestFails(int nmax) {}
 
 private:
-
     int m_neq;
     void* m_cvode_mem;
     double m_t0;

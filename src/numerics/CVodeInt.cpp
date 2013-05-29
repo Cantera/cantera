@@ -45,7 +45,6 @@ extern "C" {
         f->eval(t, ydata, ydotdata, NULL);
     }
 
-
     /**
      *  Function called by cvode to evaluate the Jacobian matrix.
      *  (temporary)
@@ -84,12 +83,6 @@ extern "C" {
 
 namespace Cantera
 {
-
-
-/**
- *  Constructor. Default settings: dense jacobian, no user-supplied
- *  Jacobian function, Newton iteration.
- */
 CVodeInt::CVodeInt() : m_neq(0),
     m_cvode_mem(0),
     m_t0(0.0),
@@ -111,8 +104,6 @@ CVodeInt::CVodeInt() : m_neq(0),
     fill(m_iopt, m_iopt+OPT_SIZE,0);
 }
 
-
-/// Destructor.
 CVodeInt::~CVodeInt()
 {
     if (m_cvode_mem) {
@@ -261,7 +252,6 @@ void CVodeInt::initialize(double t0, FuncEval& func)
     }
 }
 
-
 void CVodeInt::reinitialize(double t0, FuncEval& func)
 {
     m_t0  = t0;
@@ -333,6 +323,3 @@ int CVodeInt::nEvals() const
     return m_iopt[NFE];
 }
 }
-
-
-

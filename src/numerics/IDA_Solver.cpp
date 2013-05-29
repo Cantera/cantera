@@ -1,6 +1,5 @@
 /**
  *  @file IDA_Solver.cpp
- *
  */
 
 // Copyright 2006  California Institute of Technology
@@ -58,7 +57,6 @@ public:
 };
 }
 
-//======================================================================================================================
 extern "C" {
     //!  Function called by IDA to evaluate the residual, given y and ydot.
     /*!
@@ -96,8 +94,6 @@ extern "C" {
 
     //! Function called by by IDA to evaluate the Jacobian, given y and ydot.
     /*!
-     *
-     *
      * typedef int (*IDADlsDenseJacFn)(sd_size_t N, realtype t, realtype c_j,
      *                             N_Vector y, N_Vector yp, N_Vector r,
      *                             DlsMat Jac, void *user_data,
@@ -125,18 +121,11 @@ extern "C" {
         f->evalJacobianDP(t, delta_t, c_j,  ydata, ydotdata, colPts, rdata);
         return 0;
     }
-
-
 }
 
 namespace Cantera
 {
 
-//====================================================================================================================
-/*
- *  Constructor. Default settings: dense jacobian, no user-supplied
- *  Jacobian function, Newton iteration.
- */
 IDA_Solver::IDA_Solver(ResidJacEval& f) :
     DAE_Solver(f),
     m_ida_mem(0),
@@ -172,7 +161,7 @@ IDA_Solver::IDA_Solver(ResidJacEval& f) :
     m_mlower(0)
 {
 }
-//====================================================================================================================
+
 IDA_Solver::~IDA_Solver()
 {
     if (m_ida_mem) {
@@ -192,27 +181,26 @@ IDA_Solver::~IDA_Solver()
     }
     delete m_fdata;
 }
-//====================================================================================================================
+
 doublereal IDA_Solver::solution(int k) const
 {
     return NV_Ith_S(nv(m_y),k);
 }
-//====================================================================================================================
+
 const doublereal* IDA_Solver::solutionVector() const
 {
     return NV_DATA_S(nv(m_y));
 }
-//====================================================================================================================
+
 doublereal IDA_Solver::derivative(int k) const
 {
     return NV_Ith_S(nv(m_ydot),k);
 }
-//====================================================================================================================
+
 const doublereal* IDA_Solver::derivativeVector() const
 {
     return NV_DATA_S(nv(m_ydot));
 }
-//====================================================================================================================
 
 void IDA_Solver::setTolerances(double reltol, double* abstol)
 {
@@ -231,7 +219,7 @@ void IDA_Solver::setTolerances(double reltol, double* abstol)
         }
     }
 }
-//====================================================================================================================
+
 void IDA_Solver::setTolerances(doublereal reltol, doublereal abstol)
 {
     m_itol = IDA_SS;
@@ -244,51 +232,51 @@ void IDA_Solver::setTolerances(doublereal reltol, doublereal abstol)
         }
     }
 }
-//====================================================================================================================
+
 void IDA_Solver::setLinearSolverType(int solverType)
 {
     m_type = solverType;
 }
-//====================================================================================================================
+
 void IDA_Solver::setDenseLinearSolver()
 {
     setLinearSolverType(0);
 }
-//====================================================================================================================
+
 void IDA_Solver::setBandedLinearSolver(int m_upper, int m_lower)
 {
     m_type = 2;
     m_upper = m_mupper;
     m_mlower = m_lower;
 }
-//====================================================================================================================
+
 void IDA_Solver::setMaxOrder(int n)
 {
     m_maxord = n;
 }
-//====================================================================================================================
+
 void IDA_Solver::setMaxNumSteps(int n)
 {
     m_maxsteps = n;
 }
-//====================================================================================================================
+
 void IDA_Solver::setInitialStepSize(doublereal h0)
 {
     m_h0 = h0;
 }
-//====================================================================================================================
+
 void IDA_Solver::setStopTime(doublereal tstop)
 {
     m_tstop = tstop;
 }
-//====================================================================================================================
+
 doublereal IDA_Solver::getCurrentStepFromIDA()
 {
     doublereal hcur;
     IDAGetCurrentStep(m_ida_mem, &hcur);
     return hcur;
 }
-//====================================================================================================================
+
 void IDA_Solver::setJacobianType(int formJac)
 {
     m_formJac = formJac;
@@ -301,22 +289,22 @@ void IDA_Solver::setJacobianType(int formJac)
         }
     }
 }
-//====================================================================================================================
+
 void IDA_Solver::setMaxErrTestFailures(int maxErrTestFails)
 {
     m_maxErrTestFails = maxErrTestFails;
 }
-//====================================================================================================================
+
 void IDA_Solver::setMaxNonlinIterations(int n)
 {
     m_maxNonlinIters = n;
 }
-//====================================================================================================================
+
 void IDA_Solver::setMaxNonlinConvFailures(int n)
 {
     m_maxNonlinConvFails = n;
 }
-//====================================================================================================================
+
 void IDA_Solver::inclAlgebraicInErrorTest(bool yesno)
 {
     if (yesno) {
@@ -326,10 +314,8 @@ void IDA_Solver::inclAlgebraicInErrorTest(bool yesno)
     }
 }
 
-//====================================================================================================================
 void IDA_Solver::init(doublereal t0)
 {
-
     m_t0 = t0;
     m_told = t0;
     m_told_old = t0;
@@ -524,18 +510,8 @@ void IDA_Solver::init(doublereal t0)
             throw IDA_Err("IDASetSuppressAlg failed.");
         }
     }
-
-
-
 }
-//====================================================================================================================
-// Calculate consistent value of the starting solution given the starting solution derivatives
-/*
- * This method may be called if the initial conditions do not
- * satisfy the residual equation F = 0. Given the derivatives
- * of all variables, this method computes the initial y
- * values.
- */
+
 void IDA_Solver::correctInitial_Y_given_Yp(doublereal* y, doublereal* yp,  doublereal tout)
 {
     int icopt = IDA_Y_INIT;
@@ -566,24 +542,9 @@ void IDA_Solver::correctInitial_Y_given_Yp(doublereal* y, doublereal* yp,  doubl
         yp[i] = yyp[i];
     }
 }
-//====================================================================================================================
-/*
- * This method may be called if the initial conditions do not
- * satisfy the residual equation F = 0. Given the initial
- * values of all differential variables, it computes the
- * initial values of all algebraic variables and the initial
- * derivatives of all differential variables.
- *
- *  @param y      Calculated value of the solution vector after the procedure ends
- *  @param yp     Calculated value of the solution derivative after the procedure
- *  @param        The first value of t at which a soluton will be
- *                requested (from IDASolve).  (This is needed here to
- *                determine the direction of integration and rough scale
- *                in the independent variable t.
- */
+
 void IDA_Solver::correctInitial_YaYp_given_Yd(doublereal* y, doublereal* yp, doublereal tout)
 {
-
     int icopt = IDA_YA_YDP_INIT;
     doublereal tout1 = tout;
     if (tout == 0.0) {
@@ -612,7 +573,7 @@ void IDA_Solver::correctInitial_YaYp_given_Yd(doublereal* y, doublereal* yp, dou
         yp[i] = yyp[i];
     }
 }
-//====================================================================================================================
+
 int IDA_Solver::solve(double tout)
 {
     double tretn;
@@ -646,7 +607,7 @@ int IDA_Solver::solve(double tout)
     }
     return flag;
 }
-//====================================================================================================================
+
 double IDA_Solver::step(double tout)
 {
     double t;
@@ -670,7 +631,7 @@ double IDA_Solver::step(double tout)
     m_deltat = m_tcurrent - m_told;
     return t;
 }
-//====================================================================================================================
+
 doublereal IDA_Solver::getOutputParameter(int flag) const
 {
     long int lenrw, leniw;
@@ -682,7 +643,6 @@ doublereal IDA_Solver::getOutputParameter(int flag) const
     }
     return 0.0;
 }
-//====================================================================================================================
 
 }
 #endif

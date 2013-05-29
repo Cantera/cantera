@@ -1,6 +1,5 @@
 /**
  *  @file CVodesIntegrator.cpp
- *
  */
 
 // Copyright 2001  California Institute of Technology
@@ -104,12 +103,6 @@ extern "C" {
 
 namespace Cantera
 {
-
-
-/**
- *  Constructor. Default settings: dense jacobian, no user-supplied
- *  Jacobian function, Newton iteration.
- */
 CVodesIntegrator::CVodesIntegrator() :
     m_neq(0),
     m_cvode_mem(0),
@@ -140,8 +133,6 @@ CVodesIntegrator::CVodesIntegrator() :
     //fill(m_iopt, m_iopt+OPT_SIZE,0);
 }
 
-
-/// Destructor.
 CVodesIntegrator::~CVodesIntegrator()
 {
     if (m_cvode_mem) {

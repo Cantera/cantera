@@ -60,17 +60,9 @@ public:
 
     virtual ~IDA_Solver();
 
-    /**
-     * Set error tolerances. This version specifies a scalar
-     * relative tolerance, and a vector absolute tolerance.
-     */
     virtual void setTolerances(doublereal reltol,
                                doublereal* abstol);
 
-    /**
-     * Set error tolerances. This version specifies a scalar
-     * relative tolerance, and a scalar absolute tolerance.
-     */
     virtual void setTolerances(doublereal reltol, doublereal abstol);
 
     virtual void setLinearSolverType(int solverType);
@@ -145,24 +137,9 @@ public:
      */
     virtual doublereal getOutputParameter(int flag) const;
 
-    //! Calculate consistent value of the starting solution given the starting solution derivatives
-    /*!
-     * This method may be called if the initial conditions do not
-     * satisfy the residual equation F = 0. Given the derivatives
-     * of all variables, this method computes the initial y
-     * values.
-     */
     virtual void correctInitial_Y_given_Yp(doublereal* y, doublereal* yp,
                                            doublereal tout);
 
-    //! Calculate consistent value of the algebraic constraints and derivatives at the start of the problem
-    /*!
-     * This method may be called if the initial conditions do not
-     * satisfy the residual equation F = 0. Given the initial
-     * values of all differential variables, it computes the
-     * initial values of all algebraic variables and the initial
-     * derivatives of all differential variables.
-     */
     virtual void correctInitial_YaYp_given_Yd(doublereal* y, doublereal* yp, doublereal tout);
 
     //! Step the system to a final value of the time
@@ -201,7 +178,6 @@ public:
      *   solver's init routine failed. In any case, the user should see
      *   the printed error message for more details.
      *
-     *
      * IDA_TOO_MUCH_WORK:
      *   The solver took mxstep internal steps but could not reach tout.
      *   The default value for mxstep is MXSTEP_DEFAULT = 500.
@@ -237,7 +213,6 @@ public:
      * IDA_RES_FAIL:
      *    The user's residual function returned a nonrecoverable error
      *    flag.
-     *
      */
     virtual int solve(doublereal tout);
 
@@ -245,15 +220,10 @@ public:
 
     virtual void init(doublereal t0);
 
-    //! the current value of solution component k.
-    /*!
-     *  @param k  index of the solution
-     */
     virtual doublereal solution(int k) const;
 
     virtual const doublereal* solutionVector() const;
 
-    //! the current value of the derivative of solution component k.
     virtual doublereal derivative(int k) const;
 
     virtual const doublereal* derivativeVector() const;
@@ -263,7 +233,6 @@ public:
     }
 
 protected:
-
     //! Pointer to the IDA memory for the problem
     void* m_ida_mem;
 
@@ -279,7 +248,6 @@ protected:
     void* m_constraints;
     void* m_abstol;
     int m_type;
-
 
     int m_itol;
     int m_iter;
@@ -350,4 +318,3 @@ protected:
 
 #endif
 #endif
-
