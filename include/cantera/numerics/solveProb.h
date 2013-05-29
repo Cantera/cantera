@@ -55,13 +55,8 @@ const int SOLVEPROB_RESIDUAL   = 2;
 const int SOLVEPROB_JACOBIAN   = 3;
 const int SOLVEPROB_TRANSIENT  = 4;
 
-
-
-
 namespace Cantera
 {
-
-
 //! Method to solve a pseudo steady state of a nonlinear problem
 /*!
  *   The following class handles the solution of a nonlinear problem.
@@ -76,7 +71,6 @@ namespace Cantera
  *    Res_ss(C) is the steady state residual to be solved. Res_td(C) is the
  *    time dependent residual which leads to the steady state residual.
  *
- *
  *  Solution Method
  *
  *  This routine is typically used within a residual calculation in a large code.
@@ -84,10 +78,9 @@ namespace Cantera
  *  work every time. Therefore, requirements demand that it be robust but also
  *  efficient.
  *
- *  The solution methodology is largely determined by the <TT>ifunc<\TT> parameter,
+ *  The solution methodology is largely determined by the <TT>ifunc</TT> parameter,
  *  that is input to the solution object. This parameter may have the following
  *  4 values:
- *
  *
  *  1: SOLVEPROB_INITIALIZE   = This assumes that the initial guess supplied to the
  *                          routine is far from the correct one. Substantial
@@ -127,7 +120,6 @@ namespace Cantera
  *  Damping is based on a "delta damping" technique. The solution unknowns
  *  are not allowed to vary too much between iterations.
  *
- *
  *   EXTRA_ACCURACY:A constant that is the ratio of the required update norm in
  *    this Newton iteration compared to that in the nonlinear solver.
  *     A value of 0.1 is used so surface species are safely  overconverged.
@@ -146,21 +138,11 @@ namespace Cantera
  */
 class solveProb
 {
-
 public:
 
     //! Constructor for the object
-    /*!
-     *  @param surfChemPtr  Pointer to the ImplicitSurfChem object that
-     *                      defines the surface problem to be solved.
-     *
-     *  @param bulkFunc     Integer representing how the bulk phases
-     *                      should be handled. Currently, only the
-     *                      default value of BULK_ETCH is supported.
-     */
     solveProb(ResidEval* resid);
 
-    //! Destructor. Deletes the integrator.
     virtual ~solveProb();
 
 private:
@@ -172,7 +154,6 @@ private:
     solveProb& operator=(const solveProb& right);
 
 public:
-
     //! Main routine that actually calculates the pseudo steady state
     //! of the surface problem
     /*!
@@ -197,7 +178,7 @@ public:
 
     //! Report the current state of the solution
     /*!
-     *  @param Report the solution vector for the nonlinear problem
+     *  @param[out] CSoln solution vector for the nonlinear problem
      */
     virtual void reportState(doublereal* const CSoln) const;
 
@@ -210,20 +191,17 @@ public:
      */
     virtual void setBounds(const doublereal botBounds[], const doublereal topBounds[]);
 
-
     void setAtol(const doublereal atol[]);
     void setAtolConst(const doublereal atolconst);
 
 private:
-
-    //! Printing routine that gets called at the start of every
-    //! invocation
+    //! Printing routine that gets called at the start of every invocation
     virtual void print_header(int ioflag, int ifunc, doublereal time_scale,
                               doublereal reltol,
                               doublereal netProdRate[]);
 
 #ifdef DEBUG_SOLVEPROB
-
+    //! Prints out the residual and Jacobian
     virtual void printResJac(int ioflag, int neq, const Array2D& Jac,
                              doublereal resid[], doublereal wtResid[], doublereal norm);
 #endif
@@ -236,11 +214,7 @@ private:
                                 doublereal resid[],
                                 doublereal wtSpecies[], size_t dim, bool do_time);
 
-
     //! Print a summary of the solution
-    /*!
-     *
-     */
     virtual void printFinal(int ioflag, doublereal damp, size_t label_d, size_t label_t,
                             doublereal inv_t, doublereal t_real, int iter,
                             doublereal update_norm, doublereal resid_norm,
@@ -264,7 +238,7 @@ private:
      *
      *    @param netProdRateSolnSP  Output variable. Net production rate
      *             of all of the species in the solution vector.
-     *    @param XMolSolnSP output variable.
+     *    @param Csoln output variable.
      *            Mole fraction of all of the species in the  solution vector
      *    @param label Output variable. Pointer to the value of the
      *                 species index (kindexSP) that is controlling
@@ -286,7 +260,9 @@ private:
 
     //! Calculate the solution and residual weights
     /*!
-     *   @param wtSpecies Weights to use for the soln unknowns. These
+     * Calculate the weighting factors for norms wrt both the species
+     * concentration unknowns and the residual unknowns.
+     *  @param wtSpecies Weights to use for the soln unknowns. These
      *                    are in concentration units
      *  @param wtResid    Weights to sue for the residual unknowns.
      *
@@ -313,6 +289,7 @@ private:
 
     //! Main Function evaluation
     /*!
+     * This calculates the net production rates of all species
      *
      *  @param resid output Vector of residuals, length = m_neq
      *  @param CSolnSP  Vector of species concentrations, unknowns in the
@@ -323,7 +300,7 @@ private:
      *  @param deltaT  Delta time for time dependent problem.
      */
     virtual void  fun_eval(doublereal* const resid, const doublereal* const CSolnSP,
-                           const doublereal* const CSolnOldSP,  const bool do_time, const doublereal deltaT);
+                           const doublereal* const CSolnSPOld, const bool do_time, const doublereal deltaT);
 
     //! Main routine that calculates the current residual and Jacobian
     /*!
@@ -445,8 +422,7 @@ private:
      */
     vector_int m_ipiv;
 
-    //! Vector of pointers to the top of the columns of the
-    //! jacobians
+    //! Vector of pointers to the top of the columns of the jacobians
     /*!
      *   The "dim" by "dim" computed Jacobian matrix for the
      *   local Newton's method.
@@ -455,8 +431,7 @@ private:
 
     //! Jacobian
     /*!
-     *   m_neq by m_neq computed Jacobian matrix for the
-     *   local Newton's method.
+     *  m_neq by m_neq computed Jacobian matrix for the local Newton's method.
      */
     Array2D m_Jac;
 
@@ -471,7 +446,6 @@ private:
      *  This defaults to 0.0
      */
     vector_fp m_botBounds;
-
 
 public:
     int m_ioflag;

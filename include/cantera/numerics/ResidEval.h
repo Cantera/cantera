@@ -78,10 +78,8 @@ public:
         return (m_alg[k] == 1);
     }
 
-
     /**
-     * Evaluate the residual function. Called by the
-     * integrator.
+     * Evaluate the residual function. Called by the integrator.
      * @param t time. (input)
      * @param y solution vector. (input)
      * @param ydot rate of change of solution vector. (input)
@@ -109,11 +107,17 @@ public:
         return eval(t, y, DATA_PTR(ydot), r);
     }
 
-    /**
-     * Fill the solution and derivative vectors with the initial
-     * conditions at initial time t0.
-     * @return 1   Everything is fine
-     *         0 or neg Something went wrong
+    //! Fill in the initial conditions
+    /*!
+     * Values for both the solution and the value of ydot may be provided.
+     *
+     * @param[in] t0             Time
+     * @param[out] y             Solution vector
+     * @param[out] ydot          Rate of change of solution vector.
+     *
+     * @return Returns a flag to indicate that operation is successful.
+     *            1  Means a successful operation
+     *           -0 or neg value Means an unsuccessful operation
      */
     virtual int getInitialConditions(const doublereal t0, doublereal* const y,
                                      doublereal* const ydot) {

@@ -169,7 +169,7 @@ public:
      * derivatives of all differential variables.
      *  @param y      Calculated value of the solution vector after the procedure ends
      *  @param yp     Calculated value of the solution derivative after the procedure
-     *  @param        The first value of t at which a soluton will be
+     *  @param tout   The first value of t at which a soluton will be
      *                requested (from IDASolve).  (This is needed here to
      *                determine the direction of integration and rough scale
      *                in the independent variable t.
