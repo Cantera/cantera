@@ -4,3 +4,5 @@ Chemical Kinetics
 =================
 
 .. autoclass:: Kinetics
+
+.. autoclass:: ReactionPathDiagram
