@@ -30,8 +30,6 @@ namespace Cantera
 
 static doublereal calcWeightedNorm(const doublereal [], const doublereal dx[], size_t);
 
-//================================================================================================
-// Main constructor
 solveProb::solveProb(ResidEval* resid) :
     m_residFunc(resid),
     m_neq(0),
@@ -67,22 +65,20 @@ solveProb::solveProb(ResidEval* resid) :
     }
 
 }
-//================================================================================================
-// Empty destructor
+
 solveProb::~solveProb()
 {
 }
-//================================================================================================
-/*
- * The following calculation is a Newton's method to
- * get the surface fractions of the surface and bulk species by
- * requiring that the
- * surface species production rate = 0 and that the bulk fractions are
- * proportional to their production rates.
- */
+
 int solveProb::solve(int ifunc, doublereal time_scale,
                      doublereal reltol)
 {
+    /*
+     * The following calculation is a Newton's method to get the surface fractions
+     * of the surface and bulk species by requiring that the surface species
+     * production rate = 0 and that the bulk fractions are proportional to their
+     * production rates.
+     */
     doublereal EXTRA_ACCURACY = 0.001;
     if (ifunc == SOLVEPROB_JACOBIAN) {
         EXTRA_ACCURACY *= 0.001;
@@ -392,43 +388,27 @@ int solveProb::solve(int ifunc, doublereal time_scale,
     }
     return 0;
 }
-//================================================================================================
-/*
- * Update the surface states of the surface phases.
- */
+
 void solveProb::reportState(doublereal* const CSolnSP) const
 {
     std::copy(m_CSolnSP.begin(), m_CSolnSP.end(), CSolnSP);
 }
-//================================================================================================
-/*
- * This calculates the net production rates of all species
- *
- * This calculates the function eval.
- *      (should switch to special_species formulation for sum condition)
- *
- * @internal
- *   This routine uses the m_numEqn1 and m_netProductionRatesSave vectors
- *   as temporary internal storage.
- */
+
 void solveProb::fun_eval(doublereal* const resid, const doublereal* const CSoln,
                          const doublereal* const CSolnOld,  const bool do_time,
                          const doublereal deltaT)
 {
+    /*
+     *   This routine uses the m_numEqn1 and m_netProductionRatesSave vectors
+     *   as temporary internal storage.
+     */
     if (do_time) {
         m_residFunc->evalSimpleTD(0.0, CSoln, CSolnOld, deltaT, resid);
     } else {
         m_residFunc->evalSS(0.0, CSoln, resid);
     }
 }
-//================================================================================================
-/*
- * Calculate the Jacobian and residual
- *
- * @internal
- *   This routine uses the m_numEqn2 vector
- *   as temporary internal storage.
- */
+
 void solveProb::resjac_eval(std::vector<doublereal*> &JacCol,
                             doublereal resid[], doublereal CSoln[],
                             const doublereal CSolnOld[], const bool do_time,
@@ -452,6 +432,7 @@ void solveProb::resjac_eval(std::vector<doublereal*> &JacCol,
         }
         dc = std::max(1.0E-11 * sd, fabs(cSave) * 1.0E-6);
         CSoln[kCol] += dc;
+        // Use the m_numEqn2 vector as temporary internal storage.
         fun_eval(DATA_PTR(m_numEqn2), CSoln, CSolnOld, do_time, deltaT);
         col_j = JacCol[kCol];
         for (size_t i = 0; i < m_neq; i++) {
@@ -461,26 +442,9 @@ void solveProb::resjac_eval(std::vector<doublereal*> &JacCol,
     }
 
 }
-//================================================================================================
+
 #define APPROACH 0.50
-//  This function calculates a damping factor for the Newton iteration update
-//  vector, dxneg, to insure that all solution components stay within prescribed bounds
-/*
- *  The default for this class is that all solution components are bounded between zero and one.
- *  this is because the original unknowns were mole fractions and surface site fractions.
- *
- *      dxneg[] = negative of the update vector.
- *
- * The constant "APPROACH" sets the fraction of the distance to the boundary
- * that the step can take.  If the full step would not force any fraction
- * outside of the bounds, then Newton's method is mostly allowed to operate normally.
- * There is also some solution damping employed.
- *
- *  @param x       Vector of the current solution components
- *  @param dxneg   Vector of the negative of the full solution update vector.
- *  @param dim     Size of the solution vector
- *  @param label   return int, stating which solution component caused the most damping.
- */
+
 doublereal solveProb::calc_damping(doublereal x[], doublereal dxneg[], size_t dim, size_t* label)
 {
     doublereal  damp = 1.0, xnew, xtop, xbot;
@@ -554,7 +518,7 @@ doublereal solveProb::calc_damping(doublereal x[], doublereal dxneg[], size_t di
 
 }
 #undef APPROACH
-//================================================================================================
+
 /*
  *    This function calculates the norm  of an update, dx[],
  *    based on the weighted values of x.
@@ -572,12 +536,7 @@ static doublereal calcWeightedNorm(const doublereal wtX[], const doublereal dx[]
     }
     return sqrt(norm/dim);
 }
-//================================================================================================
-/*
- * Calculate the weighting factors for norms wrt both the species
- * concentration unknowns and the residual unknowns.
- *
- */
+
 void solveProb::calcWeights(doublereal wtSpecies[], doublereal wtResid[],
                             const doublereal CSoln[])
 {
@@ -601,18 +560,7 @@ void solveProb::calcWeights(doublereal wtSpecies[], doublereal wtResid[],
         }
     }
 }
-//================================================================================================
-/*
- *    This routine calculates a pretty conservative 1/del_t based
- *    on  MAX_i(sdot_i/(X_i*SDen0)).  This probably guarantees
- *    diagonal dominance.
- *
- *     Small surface fractions are allowed to intervene in the del_t
- *     determination, no matter how small.  This may be changed.
- *     Now minimum changed to 1.0e-12,
- *
- *     Maximum time step set to time_scale.
- */
+
 doublereal solveProb::
 calc_t(doublereal netProdRateSolnSP[], doublereal Csoln[],
        size_t* label, size_t* label_old, doublereal* label_factor, int ioflag)
@@ -665,14 +613,7 @@ calc_t(doublereal netProdRateSolnSP[], doublereal Csoln[],
     return inv_timeScale;
 
 }
-//====================================================================================================================
-// Set the bottom and top bounds on the solution vector
-/*
- *  The default is for the bottom is 0.0, while the default for the top is 1.0
- *
- *   @param botBounds Vector of bottom bounds
- *   @param topBounds vector of top bounds
- */
+
 void solveProb::setBounds(const doublereal botBounds[], const doublereal topBounds[])
 {
     for (size_t k = 0; k < m_neq; k++) {
@@ -680,11 +621,7 @@ void solveProb::setBounds(const doublereal botBounds[], const doublereal topBoun
         m_topBounds[k] = topBounds[k];
     }
 }
-//====================================================================================================================
-/*
- *  printResJac(): prints out the residual and Jacobian.
- *
- */
+
 #ifdef DEBUG_SOLVEPROB
 void solveProb::printResJac(int ioflag, int neq, const Array2D& Jac,
                             doublereal resid[], doublereal wtRes[],
@@ -693,10 +630,7 @@ void solveProb::printResJac(int ioflag, int neq, const Array2D& Jac,
 
 }
 #endif
-//================================================================================================
-/*
- * Optional printing at the start of the solveProb problem
- */
+
 void solveProb::print_header(int ioflag, int ifunc, doublereal time_scale,
                              doublereal reltol,
                              doublereal netProdRate[])
@@ -881,9 +815,8 @@ void solveProb::printIteration(int ioflag, doublereal damp, size_t label_d,
                "------------------------------\n");
     }
 #endif
-} /* printIteration */
+}
 
-//================================================================================================
 void solveProb::printFinal(int ioflag, doublereal damp, size_t label_d, size_t label_t,
                            doublereal inv_t, doublereal t_real, int iter,
                            doublereal update_norm, doublereal resid_norm,
@@ -971,7 +904,7 @@ void solveProb::printFinal(int ioflag, doublereal damp, size_t label_d, size_t l
     }
 #endif
 }
-//================================================================================================
+
 #ifdef DEBUG_SOLVEPROB
 void solveProb::
 printIterationHeader(int ioflag, doublereal damp,doublereal inv_t, doublereal t_real,
@@ -995,21 +928,19 @@ printIterationHeader(int ioflag, doublereal damp,doublereal inv_t, doublereal t_
     }
 }
 #endif
-//================================================================================================
+
 void solveProb::setAtol(const doublereal atol[])
 {
     for (size_t k = 0; k < m_neq; k++, k++) {
         m_atol[k] = atol[k];
     }
 }
-//================================================================================================
+
 void solveProb::setAtolConst(const doublereal atolconst)
 {
     for (size_t k = 0; k < m_neq; k++, k++) {
         m_atol[k] = atolconst;
     }
 }
-//================================================================================================
-
 
 }
