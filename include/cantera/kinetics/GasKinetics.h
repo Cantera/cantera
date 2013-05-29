@@ -220,6 +220,7 @@ protected:
     bool m_ROP_ok;
 
     doublereal m_temp;
+    doublereal m_pres; //!< Last pressure at which rates were evaluated
     vector_fp m_rfn;
     vector_fp falloff_work;
     vector_fp concm_3b_values;
