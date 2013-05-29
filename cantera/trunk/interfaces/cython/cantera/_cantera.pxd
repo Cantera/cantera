@@ -564,9 +564,13 @@ cdef class Wall:
     cdef WallSurface right_surface
     cdef object _velocity_func
     cdef object _heat_flux_func
+    cdef ReactorBase _left_reactor
+    cdef ReactorBase _right_reactor
     cdef str name
 
 cdef class FlowDevice:
     cdef CxxFlowDevice* dev
     cdef Func1 _rate_func
     cdef str name
+    cdef ReactorBase _upstream
+    cdef ReactorBase _downstream

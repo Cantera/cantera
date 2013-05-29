@@ -399,6 +399,9 @@ cdef class Wall:
         left._add_wall(self)
         right._add_wall(self)
         self.wall.install(deref(left.rbase), deref(right.rbase))
+        # Keep references to prevent premature garbage collection
+        self._left_reactor = left
+        self._right_reactor = right
 
     property left:
         """ The left surface of this wall. """
@@ -532,6 +535,9 @@ cdef class FlowDevice:
         upstream._add_outlet(self)
         downstream._add_inlet(self)
         self.dev.install(deref(upstream.rbase), deref(downstream.rbase))
+        # Keep references to prevent premature garbage collection
+        self._upstream = upstream
+        self._downstream = downstream
 
     def mdot(self, double t):
         """
