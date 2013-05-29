@@ -121,6 +121,127 @@ class TestKinetics(utilities.CanteraTest):
                              self.phase.delta_standard_gibbs)
 
 
+class KineticsRepeatability(utilities.CanteraTest):
+    """
+    Tests to make sure that lazily evaluated of terms in the rate expression
+    are always updated correctly.
+    """
+    T0 = 1200
+    T1 = 1300
+    rho0 = 2.4
+    rho1 = 3.1
+    P0 = 1.4e5
+    P1 = 3.7e6
+
+    def setup_gas(self, mech):
+        gas = ct.Solution(mech)
+        self.X0 = 1 + np.sin(range(1, gas.n_species+1))
+        self.X1 = 1 + np.sin(range(2, gas.n_species+2))
+        return gas
+
+    def check_rates_composition(self, mech):
+        gas = self.setup_gas(mech)
+        gas.TRX = self.T0, self.rho0, self.X0
+        w1 = gas.net_production_rates
+
+        # change everything to guarantee recomputation of rates
+        gas.TRX = self.T1, self.rho1, self.X1
+        w2 = gas.net_production_rates
+
+        gas.TRX = self.T0, self.rho0, self.X1
+        w3 = gas.net_production_rates
+
+        # change only composition, and make sure the rates match
+        gas.TRX = self.T0, self.rho0, self.X0
+        w4 = gas.net_production_rates
+
+        self.assertArrayNear(w1, w4)
+
+    def check_rates_temperature1(self, mech):
+        gas = self.setup_gas(mech)
+        gas.TRX = self.T0, self.rho0, self.X0
+        w1 = gas.net_production_rates
+
+        # change everything to guarantee recomputation of rates
+        gas.TRX = self.T1, self.rho1, self.X1
+        w2 = gas.net_production_rates
+
+        gas.TRX = self.T1, self.rho0, self.X0
+        w3 = gas.net_production_rates
+
+        # change only temperature, and make sure the rates match
+        gas.TRX = self.T0, self.rho0, self.X0
+        w4 = gas.net_production_rates
+
+        self.assertArrayNear(w1, w4)
+
+    def check_rates_temperature2(self, mech):
+        gas = self.setup_gas(mech)
+        gas.TPX = self.T0, self.P0, self.X0
+        w1 = gas.net_production_rates
+
+        # change everything to guarantee recomputation of rates
+        gas.TPX = self.T1, self.P1, self.X1
+        w2 = gas.net_production_rates
+
+        gas.TPX = self.T1, self.P0, self.X0
+        w3 = gas.net_production_rates
+
+        # change only temperature, and make sure the rates match
+        gas.TPX = self.T0, self.P0, self.X0
+        w4 = gas.net_production_rates
+
+        self.assertArrayNear(w1, w4)
+
+    def check_rates_pressure(self, mech):
+        gas = self.setup_gas(mech)
+        gas.TPX = self.T0, self.P0, self.X0
+        w1 = gas.net_production_rates
+
+        # change everything to guarantee recomputation of rates
+        gas.TPX = self.T1, self.P1, self.X1
+        w2 = gas.net_production_rates
+
+        gas.TPX = self.T0, self.P1, self.X0
+        w3 = gas.net_production_rates
+
+        # change only pressure, and make sure the rates match
+        gas.TPX = self.T0, self.P0, self.X0
+        w4 = gas.net_production_rates
+
+        self.assertArrayNear(w1, w4)
+
+    def test_gri30_composition(self):
+        self.check_rates_composition('gri30.xml')
+
+    def test_gri30_temperature(self):
+        self.check_rates_temperature1('gri30.xml')
+        self.check_rates_temperature2('gri30.xml')
+
+    def test_gri30_pressure(self):
+        self.check_rates_pressure('gri30.xml')
+
+    def test_h2o2_composition(self):
+        self.check_rates_composition('h2o2.xml')
+
+    def test_h2o2_temperature(self):
+        self.check_rates_temperature1('h2o2.xml')
+        self.check_rates_temperature2('h2o2.xml')
+
+    def test_h2o2_pressure(self):
+        self.check_rates_pressure('h2o2.xml')
+
+    def test_pdep_composition(self):
+        self.check_rates_composition('pdep_test.xml')
+
+    def test_pdep_temperature(self):
+        self.check_rates_temperature1('pdep_test.xml')
+        self.check_rates_temperature2('pdep_test.xml')
+
+    def test_pdep_pressure(self):
+        self.check_rates_pressure('pdep_test.xml')
+
+
 class TestEmptyKinetics(utilities.CanteraTest):
     def test_empty(self):
         gas = ct.Solution('air-no-reactions.xml')
