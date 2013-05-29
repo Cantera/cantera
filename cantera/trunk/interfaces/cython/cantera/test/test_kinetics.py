@@ -1,5 +1,6 @@
 import unittest
 import numpy as np
+import re
 
 import cantera as ct
 from . import utilities
@@ -250,3 +251,53 @@ class TestEmptyKinetics(utilities.CanteraTest):
         self.assertArrayNear(gas.creation_rates, np.zeros(gas.n_species))
         self.assertArrayNear(gas.destruction_rates, np.zeros(gas.n_species))
         self.assertArrayNear(gas.net_production_rates, np.zeros(gas.n_species))
+
+
+class TestReactionPath(utilities.CanteraTest):
+    def test_dot_output(self):
+        gas = ct.Solution('gri30.xml')
+        gas.TPX = 1300.0, ct.one_atm, 'CH4:0.4, O2:1, N2:3.76'
+        r = ct.Reactor(gas)
+        net = ct.ReactorNet([r])
+        T = r.T
+        while T < 1900:
+            net.step(1.0)
+            T = r.T
+
+        for element in ['N','C','H','O']:
+            diagram = ct.ReactionPathDiagram(gas, element)
+            diagram.label_threshold = 0.01
+
+            dot = diagram.get_dot()
+            dot = dot.replace('\n', ' ')
+            nodes1 = set()
+            nodes2 = set()
+            species = set()
+            for line in dot.split(';'):
+                m = re.match(r'(.*)\[(.*)\]', line)
+                if not m:
+                    continue
+                A, B = m.groups()
+                if '->' in A:
+                    # edges
+                    nodes1.update(s.strip() for s in A.split('->'))
+                else:
+                    # nodes
+                    nodes2.add(A.strip())
+                    spec = re.search('label="(.*?)"', B).group(1)
+                    self.assertTrue(spec not in species)
+                    species.add(spec)
+
+            # Make sure that the output was actually parsable and that we
+            # found some nodes
+            self.assertTrue(nodes1)
+            self.assertTrue(species)
+
+            # All nodes should be connected to some edge (this does not
+            # require the graph to be connected)
+            self.assertEqual(nodes1, nodes2)
+
+            # All of the species in the graph should contain the element whose
+            # flux we're looking at
+            for spec in species:
+                self.assertTrue(gas.n_atoms(spec, element) > 0)
