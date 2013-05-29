@@ -562,6 +562,98 @@ class TestWellStirredReactorIgnition(utilities.CanteraTest):
         self.assertTrue(T[-1] < 910) # mixture did not ignite
 
 
+class TestConstPressureReactor(utilities.CanteraTest):
+    """
+    The constant pressure reactor should give essentially the same results as
+    as a regular "Reactor" with a wall with a very high expansion rate
+    coefficient.
+    """
+    def create_reactors(self, add_Q=False, add_mdot=False, add_surf=False):
+        self.gas = ct.Solution('gri30.xml')
+        self.gas.TPX = 900, 25*ct.one_atm, 'CO:0.5, H2O:0.2'
+
+        self.gas1 = ct.Solution('gri30.xml')
+        self.gas1.ID = 'gas'
+        self.gas2 = ct.Solution('gri30.xml')
+        self.gas2.ID = 'gas'
+        resGas = ct.Solution('gri30.xml')
+        solid = ct.Solution('diamond.xml', 'diamond')
+
+        T0 = 1200
+        P0 = 25*ct.one_atm
+        X0 = 'CH4:0.5, H2O:0.2, CO:0.3'
+
+        self.gas1.TPX = T0, P0, X0
+        self.gas2.TPX = T0, P0, X0
+
+        self.r1 = ct.Reactor(self.gas1)
+        self.r2 = ct.ConstPressureReactor(self.gas2)
+
+        self.r1.volume = 0.2
+        self.r2.volume = 0.2
+
+        resGas.TP = T0 - 300, P0
+        env = ct.Reservoir(resGas)
+
+        U = 300 if add_Q else 0
+
+        self.w1 = ct.Wall(self.r1, env, K=1e3, A=0.1, U=U)
+        self.w2 = ct.Wall(self.r2, env, A=0.1, U=U)
+
+        if add_mdot:
+            mfc1 = ct.MassFlowController(env, self.r1, mdot=0.05)
+            mfc2 = ct.MassFlowController(env, self.r2, mdot=0.05)
+
+        if add_surf:
+            interface1 = ct.Interface('diamond.xml', 'diamond_100',
+                                      (self.gas1, solid))
+            interface2 = ct.Interface('diamond.xml', 'diamond_100',
+                                      (self.gas2, solid))
+
+            C = np.zeros(interface1.n_species)
+            C[0] = 0.3
+            C[4] = 0.7
+            self.w1.left.kinetics = interface1
+            self.w2.left.kinetics = interface2
+            self.w1.left.coverages = C
+            self.w2.left.coverages = C
+
+        self.net1 = ct.ReactorNet([self.r1])
+        self.net2 = ct.ReactorNet([self.r2])
+        self.net1.set_max_time_step(0.05)
+        self.net2.set_max_time_step(0.05)
+        self.net2.max_err_test_fails = 10
+
+    def integrate(self, surf=False):
+        for t in np.arange(0.5, 50, 1.0):
+            self.net1.advance(t)
+            self.net2.advance(t)
+            self.assertArrayNear(self.r1.thermo.Y, self.r2.thermo.Y,
+                                 rtol=5e-4, atol=1e-6)
+            self.assertNear(self.r1.T, self.r2.T, rtol=1e-5)
+            self.assertNear(self.r1.thermo.P, self.r2.thermo.P, rtol=1e-6)
+            if surf:
+                self.assertArrayNear(self.w1.left.coverages,
+                                     self.w2.left.coverages,
+                                     rtol=1e-4, atol=1e-8)
+
+    def test_closed(self):
+        self.create_reactors()
+        self.integrate()
+
+    def test_with_heat_transfer(self):
+        self.create_reactors(add_Q=True)
+        self.integrate()
+
+    def test_with_mdot(self):
+        self.create_reactors(add_mdot=True)
+        self.integrate()
+
+    def test_with_surface_reactions(self):
+        self.create_reactors(add_surf=True)
+        self.integrate(surf=True)
+
+
 class TestFlowReactor(utilities.CanteraTest):
     def test_nonreacting(self):
         g = ct.Solution('h2o2.xml')
