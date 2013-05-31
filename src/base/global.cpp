@@ -72,6 +72,11 @@ void error(const std::string& msg)
     app()->logerror(msg);
 }
 
+void warn_deprecated(const std::string& method, const std::string& extra)
+{
+    app()->warn_deprecated(method, extra);
+}
+
 // **************** HTML Logging ****************
 
 #ifdef WITH_HTML_LOGS
