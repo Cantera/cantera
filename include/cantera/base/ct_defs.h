@@ -24,16 +24,6 @@
 #include <map>
 #include <string>
 
-// Warn about deprecated functions at compile time
-#ifdef __GNUC__
-#define DEPRECATED(func) func __attribute__ ((deprecated))
-#elif defined(_MSC_VER)
-#define DEPRECATED(func) __declspec(deprecated) func
-#else
-#pragma message("WARNING: You need to implement DEPRECATED for this compiler")
-#define DEPRECATED(func) func
-#endif
-
 /**
  * Namespace for the Cantera kernel.
  */

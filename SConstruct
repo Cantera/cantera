@@ -204,12 +204,12 @@ if env['CC'] == 'gcc' or env['CC'] == 'llvm-gcc':
     defaults.debugCcFlags = '-g'
     defaults.noOptimizeCcFlags = '-O0 -fno-inline'
     defaults.optimizeCcFlags = '-O3 -DNDEBUG -finline-functions -Wno-inline'
-    defaults.warningFlags = '-Wall -Wno-deprecated-declarations'
+    defaults.warningFlags = '-Wall'
 
 elif env['CC'] == 'cl': # Visual Studio
     defaults.cxxFlags = '/EHsc'
     defaults.ccFlags = ' '.join(['/MD', '/nologo', '/Zc:wchar_t', '/Zc:forScope',
-                                 '/D_SCL_SECURE_NO_WARNINGS', '/D_CRT_SECURE_NO_WARNINGS', '/wd4996'])
+                                 '/D_SCL_SECURE_NO_WARNINGS', '/D_CRT_SECURE_NO_WARNINGS'])
     defaults.debugCcFlags = '/Zi /Fd${TARGET}.pdb'
     defaults.noOptimizeCcFlags = '/Od /Ob0'
     defaults.optimizeCcFlags = '/O2 /DNDEBUG'
@@ -226,7 +226,7 @@ elif env['CC'] == 'icc':
 
 elif env['CC'] == 'clang':
     defaults.cxxFlags = ''
-    defaults.ccFlags = '-fcolor-diagnostics -Wno-deprecated-declarations'
+    defaults.ccFlags = '-fcolor-diagnostics'
     defaults.debugCcFlags = '-g'
     defaults.noOptimizeCcFlags = '-O0'
     defaults.optimizeCcFlags = '-O3 -DNDEBUG'
@@ -234,9 +234,6 @@ elif env['CC'] == 'clang':
 
 else:
     print "WARNING: Unrecognized C compiler '%s'" % env['CC']
-
-# TODO: Once deprecated functions have been removed, remove the
-# compiler options: -Wno-deprecated-declarations and /wd4996
 
 if env['OS'] in ('Windows', 'Darwin'):
     defaults.threadFlags = ''
