@@ -73,20 +73,26 @@ class TestResults(object):
         self.failed = {}
 
     def printReport(self, target, source, env):
-        total = len(self.passed) + len(self.failed)
+        if self.failed:
+            failures = ('Failed tests:' +
+                        ''.join('\n    - ' + n for n in self.failed) +
+                        '\n')
+        else:
+            failures = ''
         print """
 *****************************
 ***    Testing Summary    ***
 *****************************
 
 Tests passed: %(passed)s
-Tests failed: %(failed)s
 Up-to-date tests skipped: %(skipped)s
-
+Tests failed: %(failed)s
+%(failures)s
 *****************************""" % dict(
             passed=len(self.passed),
             failed=len(self.failed),
-            skipped=len(self.tests))
+            skipped=len(self.tests),
+            failures=failures)
 
         if self.failed:
             raise SCons.Errors.BuildError(self, 'One or more tests failed.')
