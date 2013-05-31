@@ -439,6 +439,7 @@ cdef class ThermoPhase(_SolutionBase):
         def __get__(self):
             return self.T, self.density
         def __set__(self, values):
+            assert len(values) == 2
             self.thermo.setState_TR(values[0], values[1] * self._mass_factor())
 
     property TDX:
@@ -449,6 +450,7 @@ cdef class ThermoPhase(_SolutionBase):
         def __get__(self):
             return self.T, self.density, self.X
         def __set__(self, values):
+            assert len(values) == 3
             self.X = values[2]
             self.TD = values[:2]
 
@@ -460,6 +462,7 @@ cdef class ThermoPhase(_SolutionBase):
         def __get__(self):
             return self.T, self.density, self.Y
         def __set__(self, values):
+            assert len(values) == 3
             self.Y = values[2]
             self.TD = values[:2]
 
@@ -468,6 +471,7 @@ cdef class ThermoPhase(_SolutionBase):
         def __get__(self):
             return self.T, self.P
         def __set__(self, values):
+            assert len(values) == 2
             self.thermo.setState_TP(values[0], values[1])
 
     property TPX:
@@ -475,6 +479,7 @@ cdef class ThermoPhase(_SolutionBase):
         def __get__(self):
             return self.T, self.P, self.X
         def __set__(self, values):
+            assert len(values) == 3
             self.X = values[2]
             self.TP = values[:2]
 
@@ -483,6 +488,7 @@ cdef class ThermoPhase(_SolutionBase):
         def __get__(self):
             return self.T, self.P, self.Y
         def __set__(self, values):
+            assert len(values) == 3
             self.Y = values[2]
             self.TP = values[:2]
 
@@ -494,6 +500,7 @@ cdef class ThermoPhase(_SolutionBase):
         def __get__(self):
             return self.u, self.v
         def __set__(self, values):
+            assert len(values) == 2
             self.thermo.setState_UV(values[0] / self._mass_factor(),
                                     values[1] / self._mass_factor())
 
@@ -505,6 +512,7 @@ cdef class ThermoPhase(_SolutionBase):
         def __get__(self):
             return self.u, self.v, self.X
         def __set__(self, values):
+            assert len(values) == 3
             self.X = values[2]
             self.UV = values[:2]
 
@@ -516,6 +524,7 @@ cdef class ThermoPhase(_SolutionBase):
         def __get__(self):
             return self.u, self.v, self.Y
         def __set__(self, values):
+            assert len(values) == 3
             self.Y = values[2]
             self.UV = values[:2]
 
@@ -524,6 +533,7 @@ cdef class ThermoPhase(_SolutionBase):
         def __get__(self):
             return self.h, self.P
         def __set__(self, values):
+            assert len(values) == 2
             self.thermo.setState_HP(values[0] / self._mass_factor(), values[1])
 
     property HPX:
@@ -531,6 +541,7 @@ cdef class ThermoPhase(_SolutionBase):
         def __get__(self):
             return self.h, self.P, self.X
         def __set__(self, values):
+            assert len(values) == 3
             self.X = values[2]
             self.HP = values[:2]
 
@@ -539,6 +550,7 @@ cdef class ThermoPhase(_SolutionBase):
         def __get__(self):
             return self.h, self.P, self.Y
         def __set__(self, values):
+            assert len(values) == 3
             self.Y = values[2]
             self.HP = values[:2]
 
@@ -547,6 +559,7 @@ cdef class ThermoPhase(_SolutionBase):
         def __get__(self):
             return self.s, self.P
         def __set__(self, values):
+            assert len(values) == 2
             self.thermo.setState_SP(values[0] / self._mass_factor(), values[1])
 
     property SPX:
@@ -554,6 +567,7 @@ cdef class ThermoPhase(_SolutionBase):
         def __get__(self):
             return self.s, self.P, self.X
         def __set__(self, values):
+            assert len(values) == 3
             self.X = values[2]
             self.SP = values[:2]
 
@@ -562,6 +576,7 @@ cdef class ThermoPhase(_SolutionBase):
         def __get__(self):
             return self.s, self.P, self.Y
         def __set__(self, values):
+            assert len(values) == 3
             self.Y = values[2]
             self.SP = values[:2]
 
@@ -573,6 +588,7 @@ cdef class ThermoPhase(_SolutionBase):
         def __get__(self):
             return self.s, self.v
         def __set__(self, values):
+            assert len(values) == 2
             self.thermo.setState_SV(values[0] / self._mass_factor(),
                                     values[1] / self._mass_factor())
 
@@ -584,6 +600,7 @@ cdef class ThermoPhase(_SolutionBase):
         def __get__(self):
             return self.s, self.v, self.X
         def __set__(self, values):
+            assert len(values) == 3
             self.X = values[2]
             self.SV = values[:2]
 
@@ -595,6 +612,7 @@ cdef class ThermoPhase(_SolutionBase):
         def __get__(self):
             return self.s, self.v, self.Y
         def __set__(self, values):
+            assert len(values) == 3
             self.Y = values[2]
             self.SV = values[:2]
 
