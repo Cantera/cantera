@@ -168,6 +168,19 @@ class TestThermoPhase(utilities.CanteraTest):
         self.check_setters(T1 = 750.0, rho1 = 0.02,
                            Y1 = [0.2, 0.1, 0.0, 0.3, 0.1, 0.0, 0.0, 0.2, 0.1])
 
+    def test_setter_errors(self):
+        with self.assertRaises(Exception):
+            self.phase.TD = 400
+
+        with self.assertRaises(AssertionError):
+            self.phase.TP = 300, 101325, 'CH4:1.0'
+
+        with self.assertRaises(AssertionError):
+            self.phase.HPY = 1.2e6, 101325
+
+        with self.assertRaises(AssertionError):
+            self.phase.UVX = -4e5, 4.4, 'H2:1.0', -1
+
     def check_getters(self):
         T,P,X = self.phase.TPX
         self.assertNear(T, self.phase.T)
