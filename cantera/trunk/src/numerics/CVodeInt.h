@@ -10,6 +10,7 @@
 #include "cantera/numerics/FuncEval.h"
 #include "cantera/base/ctexceptions.h"
 #include "cantera/base/ct_defs.h"
+#include "../../ext/cvode/include/nvector.h"
 
 namespace Cantera
 {
@@ -66,7 +67,7 @@ private:
     int m_neq;
     void* m_cvode_mem;
     double m_t0;
-    void* m_y, *m_abstol;
+    N_Vector m_y, m_abstol;
     int m_type;
     int m_itol;
     int m_method;
