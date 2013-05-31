@@ -644,8 +644,6 @@ void solveSP::resjac_eval(std::vector<doublereal*> &JacCol,
     }
 }
 
-#define APPROACH 0.80
-
 /*!
  * This function calculates a damping factor for the Newton iteration update
  * vector, dxneg, to insure that all site and bulk fractions, x, remain
@@ -659,6 +657,7 @@ void solveSP::resjac_eval(std::vector<doublereal*> &JacCol,
  */
 static doublereal calc_damping(doublereal x[], doublereal dxneg[], size_t dim, int* label)
 {
+    const doublereal APPROACH = 0.80;
     doublereal    damp = 1.0, xnew, xtop, xbot;
     static doublereal damp_old = 1.0;
 
@@ -714,7 +713,6 @@ static doublereal calc_damping(doublereal x[], doublereal dxneg[], size_t dim, i
     return damp;
 
 } /* calc_damping */
-#undef APPROACH
 
 /*
  *    This function calculates the norm  of an update, dx[],
