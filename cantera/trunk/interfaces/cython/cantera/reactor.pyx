@@ -258,7 +258,7 @@ cdef class WallSurface:
     """
     def __cinit__(self, Wall wall, int side):
         self.wall = wall
-        self.cxxwall = wall.wall
+        self.cxxwall = &wall.wall
         self.side = side
         self._kinetics = None
 
@@ -330,11 +330,6 @@ cdef class Wall:
     temperature of the reactor it faces.
     """
 
-    def __cinit__(self, *args, **kwargs):
-        self.wall = new CxxWall()
-        self.left_surface = WallSurface(self, 0)
-        self.right_surface = WallSurface(self, 1)
-
     def __init__(self, left, right, *, name=None, A=None, K=None, U=None,
                  Q=None, velocity=None, kinetics=(None,None)):
         """
@@ -365,6 +360,9 @@ cdef class Wall:
             chemistry occurs on only one side, enter ``None`` for the
             non-reactive side.
         """
+        self.left_surface = WallSurface(self, 0)
+        self.right_surface = WallSurface(self, 1)
+
         self._velocity_func = None
         self._heat_flux_func = None
 
@@ -700,11 +698,8 @@ cdef class ReactorNet:
     >>> reactor_network = ReactorNet([r1, r2])
     >>> reactor_network.advance(time)
     """
-    cdef CxxReactorNet* net
+    cdef CxxReactorNet net
     cdef list _reactors
-
-    def __cinit__(self, *args, **kwargs):
-        self.net = new CxxReactorNet()
 
     def __init__(self, reactors=()):
         self._reactors = []  # prevents premature garbage collection

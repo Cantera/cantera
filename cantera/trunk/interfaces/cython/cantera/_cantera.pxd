@@ -593,7 +593,7 @@ cdef class WallSurface:
     cdef Kinetics _kinetics
 
 cdef class Wall:
-    cdef CxxWall* wall
+    cdef CxxWall wall
     cdef WallSurface left_surface
     cdef WallSurface right_surface
     cdef object _velocity_func
