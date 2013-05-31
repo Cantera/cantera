@@ -440,7 +440,9 @@ cdef class ThermoPhase(_SolutionBase):
             return self.T, self.density
         def __set__(self, values):
             assert len(values) == 2
-            self.thermo.setState_TR(values[0], values[1] * self._mass_factor())
+            T = values[0] if values[0] is not None else self.T
+            D = values[1] if values[1] is not None else self.density
+            self.thermo.setState_TR(T, D * self._mass_factor())
 
     property TDX:
         """
@@ -451,8 +453,10 @@ cdef class ThermoPhase(_SolutionBase):
             return self.T, self.density, self.X
         def __set__(self, values):
             assert len(values) == 3
+            T = values[0] if values[0] is not None else self.T
+            D = values[1] if values[1] is not None else self.density
             self.X = values[2]
-            self.TD = values[:2]
+            self.thermo.setState_TR(T, D * self._mass_factor())
 
     property TDY:
         """
@@ -463,8 +467,10 @@ cdef class ThermoPhase(_SolutionBase):
             return self.T, self.density, self.Y
         def __set__(self, values):
             assert len(values) == 3
+            T = values[0] if values[0] is not None else self.T
+            D = values[1] if values[1] is not None else self.density
             self.Y = values[2]
-            self.TD = values[:2]
+            self.thermo.setState_TR(T, D * self._mass_factor())
 
     property TP:
         """Get/Set temperature [K] and pressure [Pa]."""
@@ -472,7 +478,9 @@ cdef class ThermoPhase(_SolutionBase):
             return self.T, self.P
         def __set__(self, values):
             assert len(values) == 2
-            self.thermo.setState_TP(values[0], values[1])
+            T = values[0] if values[0] is not None else self.T
+            P = values[1] if values[1] is not None else self.P
+            self.thermo.setState_TP(T, P)
 
     property TPX:
         """Get/Set temperature [K], pressure [Pa], and mole fractions."""
@@ -480,8 +488,10 @@ cdef class ThermoPhase(_SolutionBase):
             return self.T, self.P, self.X
         def __set__(self, values):
             assert len(values) == 3
+            T = values[0] if values[0] is not None else self.T
+            P = values[1] if values[1] is not None else self.P
             self.X = values[2]
-            self.TP = values[:2]
+            self.thermo.setState_TP(T, P)
 
     property TPY:
         """Get/Set temperature [K], pressure [Pa], and mass fractions."""
@@ -489,8 +499,10 @@ cdef class ThermoPhase(_SolutionBase):
             return self.T, self.P, self.Y
         def __set__(self, values):
             assert len(values) == 3
+            T = values[0] if values[0] is not None else self.T
+            P = values[1] if values[1] is not None else self.P
             self.Y = values[2]
-            self.TP = values[:2]
+            self.thermo.setState_TP(T, P)
 
     property UV:
         """
@@ -501,8 +513,10 @@ cdef class ThermoPhase(_SolutionBase):
             return self.u, self.v
         def __set__(self, values):
             assert len(values) == 2
-            self.thermo.setState_UV(values[0] / self._mass_factor(),
-                                    values[1] / self._mass_factor())
+            U = values[0] if values[0] is not None else self.u
+            V = values[1] if values[1] is not None else self.v
+            self.thermo.setState_UV(U / self._mass_factor(),
+                                    V / self._mass_factor())
 
     property UVX:
         """
@@ -513,8 +527,11 @@ cdef class ThermoPhase(_SolutionBase):
             return self.u, self.v, self.X
         def __set__(self, values):
             assert len(values) == 3
+            U = values[0] if values[0] is not None else self.u
+            V = values[1] if values[1] is not None else self.v
             self.X = values[2]
-            self.UV = values[:2]
+            self.thermo.setState_UV(U / self._mass_factor(),
+                                    V / self._mass_factor())
 
     property UVY:
         """
@@ -525,8 +542,11 @@ cdef class ThermoPhase(_SolutionBase):
             return self.u, self.v, self.Y
         def __set__(self, values):
             assert len(values) == 3
+            U = values[0] if values[0] is not None else self.u
+            V = values[1] if values[1] is not None else self.v
             self.Y = values[2]
-            self.UV = values[:2]
+            self.thermo.setState_UV(U / self._mass_factor(),
+                                    V / self._mass_factor())
 
     property HP:
         """Get/Set enthalpy [J/kg or J/kmol] and pressure [Pa]."""
@@ -534,7 +554,9 @@ cdef class ThermoPhase(_SolutionBase):
             return self.h, self.P
         def __set__(self, values):
             assert len(values) == 2
-            self.thermo.setState_HP(values[0] / self._mass_factor(), values[1])
+            H = values[0] if values[0] is not None else self.h
+            P = values[1] if values[1] is not None else self.P
+            self.thermo.setState_HP(H / self._mass_factor(), P)
 
     property HPX:
         """Get/Set enthalpy [J/kg or J/kmol], pressure [Pa] and mole fractions."""
@@ -542,8 +564,10 @@ cdef class ThermoPhase(_SolutionBase):
             return self.h, self.P, self.X
         def __set__(self, values):
             assert len(values) == 3
+            H = values[0] if values[0] is not None else self.h
+            P = values[1] if values[1] is not None else self.P
             self.X = values[2]
-            self.HP = values[:2]
+            self.thermo.setState_HP(H / self._mass_factor(), P)
 
     property HPY:
         """Get/Set enthalpy [J/kg or J/kmol], pressure [Pa] and mass fractions."""
@@ -551,8 +575,10 @@ cdef class ThermoPhase(_SolutionBase):
             return self.h, self.P, self.Y
         def __set__(self, values):
             assert len(values) == 3
+            H = values[0] if values[0] is not None else self.h
+            P = values[1] if values[1] is not None else self.P
             self.Y = values[2]
-            self.HP = values[:2]
+            self.thermo.setState_HP(H / self._mass_factor(), P)
 
     property SP:
         """Get/Set entropy [J/kg/K or J/kmol/K] and pressure [Pa]."""
@@ -560,7 +586,9 @@ cdef class ThermoPhase(_SolutionBase):
             return self.s, self.P
         def __set__(self, values):
             assert len(values) == 2
-            self.thermo.setState_SP(values[0] / self._mass_factor(), values[1])
+            S = values[0] if values[0] is not None else self.s
+            P = values[1] if values[1] is not None else self.P
+            self.thermo.setState_SP(S / self._mass_factor(), P)
 
     property SPX:
         """Get/Set entropy [J/kg/K or J/kmol/K], pressure [Pa], and mole fractions."""
@@ -568,8 +596,10 @@ cdef class ThermoPhase(_SolutionBase):
             return self.s, self.P, self.X
         def __set__(self, values):
             assert len(values) == 3
+            S = values[0] if values[0] is not None else self.s
+            P = values[1] if values[1] is not None else self.P
             self.X = values[2]
-            self.SP = values[:2]
+            self.thermo.setState_SP(S / self._mass_factor(), P)
 
     property SPY:
         """Get/Set entropy [J/kg/K or J/kmol/K], pressure [Pa], and mass fractions."""
@@ -577,8 +607,10 @@ cdef class ThermoPhase(_SolutionBase):
             return self.s, self.P, self.Y
         def __set__(self, values):
             assert len(values) == 3
+            S = values[0] if values[0] is not None else self.s
+            P = values[1] if values[1] is not None else self.P
             self.Y = values[2]
-            self.SP = values[:2]
+            self.thermo.setState_SP(S / self._mass_factor(), P)
 
     property SV:
         """
@@ -589,8 +621,10 @@ cdef class ThermoPhase(_SolutionBase):
             return self.s, self.v
         def __set__(self, values):
             assert len(values) == 2
-            self.thermo.setState_SV(values[0] / self._mass_factor(),
-                                    values[1] / self._mass_factor())
+            S = values[0] if values[0] is not None else self.s
+            V = values[1] if values[1] is not None else self.v
+            self.thermo.setState_SV(S / self._mass_factor(),
+                                    V / self._mass_factor())
 
     property SVX:
         """
@@ -601,8 +635,11 @@ cdef class ThermoPhase(_SolutionBase):
             return self.s, self.v, self.X
         def __set__(self, values):
             assert len(values) == 3
+            S = values[0] if values[0] is not None else self.s
+            V = values[1] if values[1] is not None else self.v
             self.X = values[2]
-            self.SV = values[:2]
+            self.thermo.setState_SV(S / self._mass_factor(),
+                                    V / self._mass_factor())
 
     property SVY:
         """
@@ -613,8 +650,11 @@ cdef class ThermoPhase(_SolutionBase):
             return self.s, self.v, self.Y
         def __set__(self, values):
             assert len(values) == 3
+            S = values[0] if values[0] is not None else self.s
+            V = values[1] if values[1] is not None else self.v
             self.Y = values[2]
-            self.SV = values[:2]
+            self.thermo.setState_SV(S / self._mass_factor(),
+                                    V / self._mass_factor())
 
     # partial molar / non-dimensional properties
     property partial_molar_enthalpies:

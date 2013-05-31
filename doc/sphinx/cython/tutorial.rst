@@ -276,6 +276,16 @@ Or, to set all the mass fractions to equal values::
 
     >>> gas1.Y = np.ones(53)
 
+When setting the state, you can control what properties are held constant by
+passing the special value `None` to the property setter. For example, to
+change the specific volume to 2.1 m^3/kg while holding entropy constant::
+
+    >>> gas.SV = None, 2.1
+
+Or to set the mass fractions while holding temperature and pressure constant::
+
+    >>> gas.TPX = None, None, 'CH4:1.0, O2:0.5'
+
 Working With Mechanism Files
 ----------------------------
 
