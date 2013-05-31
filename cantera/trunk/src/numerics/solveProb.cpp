@@ -443,10 +443,9 @@ void solveProb::resjac_eval(std::vector<doublereal*> &JacCol,
 
 }
 
-#define APPROACH 0.50
-
 doublereal solveProb::calc_damping(doublereal x[], doublereal dxneg[], size_t dim, size_t* label)
 {
+    const doublereal APPROACH = 0.50;
     doublereal  damp = 1.0, xnew, xtop, xbot;
     static doublereal damp_old = 1.0;
     *label = npos;
@@ -517,7 +516,6 @@ doublereal solveProb::calc_damping(doublereal x[], doublereal dxneg[], size_t di
     return damp;
 
 }
-#undef APPROACH
 
 /*
  *    This function calculates the norm  of an update, dx[],
