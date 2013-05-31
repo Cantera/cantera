@@ -168,6 +168,40 @@ class TestThermoPhase(utilities.CanteraTest):
         self.check_setters(T1 = 750.0, rho1 = 0.02,
                            Y1 = [0.2, 0.1, 0.0, 0.3, 0.1, 0.0, 0.0, 0.2, 0.1])
 
+    def test_setters_hold_constant(self):
+        props = ('T','P','s','h','u','v','X','Y')
+        pairs = [('TP', 'T', 'P'), ('SP', 's', 'P'),
+                 ('UV', 'u', 'v')]
+
+        self.phase.TDX = 1000, 1.5, 'H2O:0.1, O2:0.95, AR:3.0'
+        values = {}
+        for p in props:
+            values[p] = getattr(self.phase, p)
+
+        for pair, first, second in pairs:
+            self.phase.TDX = 500, 2.5, 'H2:0.1, O2:1.0, AR:3.0'
+            first_val = getattr(self.phase, first)
+            second_val = getattr(self.phase, second)
+
+            setattr(self.phase, pair, (values[first], None))
+            self.assertNear(getattr(self.phase, first), values[first])
+            self.assertNear(getattr(self.phase, second), second_val)
+
+            self.phase.TDX = 500, 2.5, 'H2:0.1, O2:1.0, AR:3.0'
+            setattr(self.phase, pair, (None, values[second]))
+            self.assertNear(getattr(self.phase, first), first_val)
+            self.assertNear(getattr(self.phase, second), values[second])
+
+            self.phase.TDX = 500, 2.5, 'H2:0.1, O2:1.0, AR:3.0'
+            setattr(self.phase, pair + 'X', (None, None, values['X']))
+            self.assertNear(getattr(self.phase, first), first_val)
+            self.assertNear(getattr(self.phase, second), second_val)
+
+            self.phase.TDX = 500, 2.5, 'H2:0.1, O2:1.0, AR:3.0'
+            setattr(self.phase, pair + 'Y', (None, None, values['Y']))
+            self.assertNear(getattr(self.phase, first), first_val)
+            self.assertNear(getattr(self.phase, second), second_val)
+
     def test_setter_errors(self):
         with self.assertRaises(Exception):
             self.phase.TD = 400
