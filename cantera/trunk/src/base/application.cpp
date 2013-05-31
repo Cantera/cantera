@@ -366,6 +366,17 @@ void Application::ApplicationDestroy()
     }
 }
 
+void Application::warn_deprecated(const std::string& method,
+                                  const std::string& extra)
+{
+    if (warnings.count(method)) {
+        return;
+    }
+    warnings.insert(method);
+    writelog("WARNING: '" + method + "' is deprecated. " + extra);
+    writelogendl();
+}
+
 void Application::thread_complete()
 {
 #if defined(THREAD_SAFE_CANTERA)

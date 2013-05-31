@@ -6,6 +6,7 @@
 #include "cantera/base/logger.h"
 
 #include <map>
+#include <set>
 #include <memory>
 #include <string>
 #include <vector>
@@ -435,6 +436,12 @@ public:
         pMessenger->logerror(msg);
     }
 
+    //! Print a warning indicating that *method* is deprecated. Additional
+    //! information (removal version, alternatives) can be specified in
+    //! *extra*. Deprecation warnings are printed once per method per
+    //! invocation of the application.
+    void warn_deprecated(const std::string& method, const std::string& extra="");
+
     //! @copydoc Messages::setLogger
     void setLogger(Logger* logwriter) {
         pMessenger->setLogger(logwriter);
@@ -535,6 +542,9 @@ protected:
     std::string tmp_dir;
     //! Current vector of xml file trees that have been previously parsed
     std::map<std::string, XML_Node*> xmlfiles;
+    //! Vector of deprecation warnings that have been emitted (to suppress duplicates)
+    std::set<std::string> warnings;
+
     //! Current pointer to the logwriter
     //Logger* logwriter;
 #ifdef WITH_HTML_LOGS

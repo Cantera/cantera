@@ -177,6 +177,9 @@ void writelogendl();
 //! @copydoc Application::Messages::logerror
 void error(const std::string& msg);
 
+//! @copydoc Application::warn_deprecated
+void warn_deprecated(const std::string& method, const std::string& extra="");
+
 //! @copydoc Application::Messages::setLogger
 void setLogger(Logger* logwriter);
 
