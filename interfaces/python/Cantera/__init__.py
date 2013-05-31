@@ -15,6 +15,13 @@ from importFromFile import *
 import os as _os
 import sys as _sys
 
+import warnings
+warnings.warn(
+    "\nThis version of the Cantera Python module is deprecated and will not be\n"
+    "available in Cantera 2.2 or later. For details on the new module, see\n"
+    "http://cantera.github.io/dev-docs/sphinx/html/cython/index.html\n",
+    stacklevel=2)
+
 if not os.getenv('PYTHON_CMD'):
     # Setting PYTHON_CMD here avoids issues with .cti -> .xml conversions
     # in cases where the python interpreter isn't in the system path.
