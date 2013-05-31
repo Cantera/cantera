@@ -565,6 +565,39 @@ cdef class ThermoPhase(_SolutionBase):
             self.Y = values[2]
             self.SP = values[:2]
 
+    property SV:
+        """
+        Get/Set entropy [J/kg/K or J/kmol/K] and specific volume [m^3/kg or
+        m^3/kmol].
+        """
+        def __get__(self):
+            return self.s, self.v
+        def __set__(self, values):
+            self.thermo.setState_SV(values[0] / self._mass_factor(),
+                                    values[1] / self._mass_factor())
+
+    property SVX:
+        """
+        Get/Set entropy [J/kg/K or J/kmol/K], specific volume [m^3/kg or
+        m^3/kmol], and mole fractions.
+        """
+        def __get__(self):
+            return self.s, self.v, self.X
+        def __set__(self, values):
+            self.X = values[2]
+            self.SV = values[:2]
+
+    property SVY:
+        """
+        Get/Set entropy [J/kg/K or J/kmol/K], specific volume [m^3/kg or
+        m^3/kmol], and mass fractions.
+        """
+        def __get__(self):
+            return self.s, self.v, self.Y
+        def __set__(self, values):
+            self.Y = values[2]
+            self.SV = values[:2]
+
     # partial molar / non-dimensional properties
     property partial_molar_enthalpies:
         """Array of species partial molar enthalpies [J/kmol]."""
