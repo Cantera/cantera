@@ -305,17 +305,18 @@ if localenv['python_package'] == 'full':
          comparisons=[('diamond_blessed.csv', 'diamond.csv')],
          artifacts=['diamond.xml'], dependencies=testDeps)
     Test('python-frac', 'python', '$python_cmd', 'frac_blessed.out',
-         arguments='frac.py', artifacts=['frac.xml'], dependencies=testDeps)
+         arguments='frac.py', artifacts=['frac.xml'], dependencies=testDeps,
+         options='-Wignore')
     Test('python-tut1', pjoin('python','tut1'), '$python_cmd',
          'output_blessed.txt', arguments='tut1.py', artifacts=['gri30.xml'],
-         dependencies=testDeps)
+         dependencies=testDeps, options='-Wignore')
     Test('python-tut2', pjoin('python','tut2'), '$python_cmd',
-         'output_blessed.txt', arguments='tut2.py',
+         'output_blessed.txt', arguments='tut2.py', options='-Wignore',
          dependencies=testDeps, artifacts=['gri30.xml', 'diamond.xml'])
     # Skipping Python Tutorial 3 (documentation only)
     Test('python-tut4', pjoin('python','tut4'), '$python_cmd',
          'output_blessed.txt', arguments='tut4.py', artifacts=['gri30.xml'],
-         dependencies=testDeps)
+         dependencies=testDeps, options='-Wignore')
 
 finish_tests = localenv.Command('finish_tests', [], testResults.printReport)
 localenv.Depends(finish_tests, 'test-run')
