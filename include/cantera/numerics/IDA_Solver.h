@@ -240,13 +240,13 @@ protected:
     doublereal m_t0;
 
     //!  Current value of the solution vector
-    void* m_y;
+    N_Vector m_y;
 
     //! Current value of the derivative of the solution vector
-    void* m_ydot;
-    void* m_id;
-    void* m_constraints;
-    void* m_abstol;
+    N_Vector m_ydot;
+    N_Vector m_id;
+    N_Vector m_constraints;
+    N_Vector m_abstol;
     int m_type;
 
     int m_itol;

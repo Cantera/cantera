@@ -15,15 +15,9 @@ using namespace std;
 #include "../../ext/cvode/include/cvdense.h"
 #include "../../ext/cvode/include/cvdiag.h"
 #include "../../ext/cvode/include/cvspgmr.h"
-#include "../../ext/cvode/include/nvector.h"
 #include "../../ext/cvode/include/cvode.h"
 
 #include "cantera/base/stringUtils.h"
-
-inline static N_Vector nv(void* x)
-{
-    return reinterpret_cast<N_Vector>(x);
-}
 
 extern "C" {
 
@@ -110,21 +104,21 @@ CVodeInt::~CVodeInt()
         CVodeFree(m_cvode_mem);
     }
     if (m_y) {
-        N_VFree(nv(m_y));
+        N_VFree(m_y);
     }
     if (m_abstol) {
-        N_VFree(nv(m_abstol));
+        N_VFree(m_abstol);
     }
     delete[] m_iopt;
 }
 
 double& CVodeInt::solution(size_t k)
 {
-    return N_VIth(nv(m_y), int(k));
+    return N_VIth(m_y, int(k));
 }
 double* CVodeInt::solution()
 {
-    return N_VDATA(nv(m_y));
+    return N_VDATA(m_y);
 }
 
 void CVodeInt::setTolerances(double reltol, size_t n, double* abstol)
@@ -133,12 +127,12 @@ void CVodeInt::setTolerances(double reltol, size_t n, double* abstol)
     m_nabs = int(n);
     if (m_nabs != m_neq) {
         if (m_abstol) {
-            N_VFree(nv(m_abstol));
+            N_VFree(m_abstol);
         }
-        m_abstol = reinterpret_cast<void*>(N_VNew(m_nabs, 0));
+        m_abstol = N_VNew(m_nabs, 0);
     }
     for (int i=0; i<m_nabs; i++) {
-        N_VIth(nv(m_abstol), i) = abstol[i];
+        N_VIth(m_abstol, i) = abstol[i];
     }
     m_reltol = reltol;
 }
@@ -201,14 +195,14 @@ void CVodeInt::initialize(double t0, FuncEval& func)
     m_t0  = t0;
 
     if (m_y) {
-        N_VFree(nv(m_y));    // free solution vector if already allocated
+        N_VFree(m_y);    // free solution vector if already allocated
     }
-    m_y = reinterpret_cast<void*>(N_VNew(m_neq, 0));   // allocate solution vector
+    m_y = N_VNew(m_neq, 0);   // allocate solution vector
     // check abs tolerance array size
     if (m_itol == 1 && m_nabs < m_neq) {
         throw CVodeErr("not enough absolute tolerance values specified.");
     }
-    func.getInitialConditions(m_t0, m_neq, N_VDATA(nv(m_y)));
+    func.getInitialConditions(m_t0, m_neq, N_VDATA(m_y));
 
     // set options
     m_iopt[MXSTEP] = m_maxsteps;
@@ -223,12 +217,12 @@ void CVodeInt::initialize(double t0, FuncEval& func)
     m_data = (void*)&func;
 
     if (m_itol) {
-        m_cvode_mem = CVodeMalloc(m_neq, cvode_rhs, m_t0, nv(m_y), m_method,
+        m_cvode_mem = CVodeMalloc(m_neq, cvode_rhs, m_t0, m_y, m_method,
                                   m_iter, m_itol, &m_reltol,
-                                  nv(m_abstol), m_data, NULL, 1, m_iopt,
+                                  m_abstol, m_data, NULL, 1, m_iopt,
                                   DATA_PTR(m_ropt), NULL);
     } else {
-        m_cvode_mem = CVodeMalloc(m_neq, cvode_rhs, m_t0, nv(m_y), m_method,
+        m_cvode_mem = CVodeMalloc(m_neq, cvode_rhs, m_t0, m_y, m_method,
                                   m_iter, m_itol, &m_reltol,
                                   &m_abstols, m_data, NULL, 1, m_iopt,
                                   DATA_PTR(m_ropt), NULL);
@@ -255,7 +249,7 @@ void CVodeInt::initialize(double t0, FuncEval& func)
 void CVodeInt::reinitialize(double t0, FuncEval& func)
 {
     m_t0  = t0;
-    func.getInitialConditions(m_t0, m_neq, N_VDATA(nv(m_y)));
+    func.getInitialConditions(m_t0, m_neq, N_VDATA(m_y));
 
     // set options
     m_iopt[MXSTEP] = m_maxsteps;
@@ -268,12 +262,12 @@ void CVodeInt::reinitialize(double t0, FuncEval& func)
     m_data = (void*)&func;
     int result;
     if (m_itol) {
-        result = CVReInit(m_cvode_mem, cvode_rhs, m_t0, nv(m_y), m_method,
+        result = CVReInit(m_cvode_mem, cvode_rhs, m_t0, m_y, m_method,
                           m_iter, m_itol, &m_reltol,
-                          nv(m_abstol), m_data, NULL, 1, m_iopt,
+                          m_abstol, m_data, NULL, 1, m_iopt,
                           DATA_PTR(m_ropt), NULL);
     } else {
-        result = CVReInit(m_cvode_mem, cvode_rhs, m_t0, nv(m_y), m_method,
+        result = CVReInit(m_cvode_mem, cvode_rhs, m_t0, m_y, m_method,
                           m_iter, m_itol, &m_reltol,
                           &m_abstols, m_data, NULL, 1, m_iopt,
                           DATA_PTR(m_ropt), NULL);
@@ -301,7 +295,7 @@ void CVodeInt::integrate(double tout)
 {
     double t;
     int flag;
-    flag = CVode(m_cvode_mem, tout, nv(m_y), &t, NORMAL);
+    flag = CVode(m_cvode_mem, tout, m_y, &t, NORMAL);
     if (flag != SUCCESS) {
         throw CVodeErr(" CVode error encountered. Error code: " + int2str(flag));
     }
@@ -311,7 +305,7 @@ double CVodeInt::step(double tout)
 {
     double t;
     int flag;
-    flag = CVode(m_cvode_mem, tout, nv(m_y), &t, ONE_STEP);
+    flag = CVode(m_cvode_mem, tout, m_y, &t, ONE_STEP);
     if (flag != SUCCESS) {
         throw CVodeErr(" CVode error encountered. Error code: " + int2str(flag));
     }
