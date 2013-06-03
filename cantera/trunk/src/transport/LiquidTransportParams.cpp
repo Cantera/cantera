@@ -12,8 +12,6 @@ using namespace std;
 
 namespace Cantera
 {
-
-//====================================================================================================================
 //! Exception thrown if an error is encountered while reading the transport database.
 class LTPmodelError : public CanteraError
 {
@@ -22,7 +20,7 @@ public:
         CanteraError("LTPspecies", "error parsing transport data: " + msg + "\n") {
     }
 };
-//====================================================================================================================
+
 LiquidTransportParams::LiquidTransportParams() :
     TransportParams(),
     LTData(0),
@@ -38,9 +36,8 @@ LiquidTransportParams::LiquidTransportParams() :
     model_speciesDiffusivity(LTI_MODEL_NOTSET),
     model_hydroradius(LTI_MODEL_NOTSET)
 {
-
 }
-//====================================================================================================================
+
 LiquidTransportParams::~LiquidTransportParams()
 {
     delete viscosity;
@@ -50,7 +47,7 @@ LiquidTransportParams::~LiquidTransportParams()
     delete electCond;
     delete hydroRadius;
 }
-//====================================================================================================================
+
 LiquidTransportParams::LiquidTransportParams(const LiquidTransportParams& right) :
     TransportParams(),
     LTData(0),
@@ -65,7 +62,6 @@ LiquidTransportParams::LiquidTransportParams(const LiquidTransportParams& right)
 {
     operator=(right);
 }
-//====================================================================================================================
 
 LiquidTransportParams&  LiquidTransportParams::operator=(const LiquidTransportParams& right)
 {
@@ -117,6 +113,5 @@ LiquidTransportParams&  LiquidTransportParams::operator=(const LiquidTransportPa
 
     return *this;
 }
-//====================================================================================================================
 
 } //namespace Cantera
