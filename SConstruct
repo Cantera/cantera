@@ -779,10 +779,21 @@ if not conf.CheckCXXHeader('cmath', '<>'):
     print 'ERROR: The C++ compiler is not correctly configured.'
     sys.exit(0)
 
+def get_expression_value(includes, expression):
+    s = ['#include ' + i for i in includes]
+    s.extend(('#include <iostream>',
+              'int main(int argc, char** argv) {',
+              '    std::cout << %s << std::endl;' % expression,
+              '    return 0;',
+              '}\n'))
+    return '\n'.join(s)
+
 env['HAS_TIMES_H'] = conf.CheckCHeader('sys/times.h', '""')
 env['HAS_UNISTD_H'] = conf.CheckCHeader('unistd.h', '""')
 env['HAS_MATH_H_ERF'] = conf.CheckDeclaration('erf', '#include <math.h>', 'C++')
 env['HAS_BOOST_MATH'] = conf.CheckCXXHeader('boost/math/special_functions/erf.hpp', '<>')
+boost_version_source = get_expression_value(['<boost/version.hpp>'], 'BOOST_LIB_VERSION')
+retcode, env['BOOST_LIB_VERSION'] = conf.TryRun(boost_version_source, '.cpp')
 
 import SCons.Conftest, SCons.SConf
 ret = SCons.Conftest.CheckLib(SCons.SConf.CheckContext(conf),
@@ -799,13 +810,8 @@ env['LIBM'] = ['m'] if env['NEED_LIBM'] else []
 
 if env['HAS_SUNDIALS'] and env['use_sundials'] != 'n':
     # Determine Sundials version
-    sundials_version_source = """
-#include <iostream>
-#include "sundials/sundials_config.h"
-int main(int argc, char** argv) {
-    std::cout << SUNDIALS_PACKAGE_VERSION << std::endl;
-    return 0;
-}"""
+    sundials_version_source = get_expression_value(['"sundials/sundials_config.h"'],
+                                                   'SUNDIALS_PACKAGE_VERSION')
     retcode, sundials_version = conf.TryRun(sundials_version_source, '.cpp')
     if retcode == 0:
         print """ERROR: Failed to determine Sundials version."""
