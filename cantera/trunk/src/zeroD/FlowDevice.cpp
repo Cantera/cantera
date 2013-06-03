@@ -1,4 +1,3 @@
-
 #include "cantera/zeroD/FlowDevice.h"
 #include "cantera/zeroD/ReactorBase.h"
 #include "cantera/numerics/Func1.h"
@@ -45,11 +44,6 @@ void FlowDevice::setFunction(Func1* f)
     m_func = f;
 }
 
-
-/**
- * Mass flow rate of outlet species k.  Returns zero if this
- * species is not present in the upstream mixture.
- */
 doublereal FlowDevice::outletSpeciesMassFlowRate(size_t k)
 {
     if (k >= m_nspout) {

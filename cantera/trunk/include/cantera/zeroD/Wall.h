@@ -20,33 +20,45 @@ class Kinetics;
 class Func1;
 class SurfPhase;
 
+//! Represents a wall between between two ReactorBase objects.
+/*!
+ * Walls can move (changing the volume of the adjacent reactors), allow heat
+ * transfer between reactors, and provide a location for surface reactions to
+ * take place.
+ */
 class Wall
 {
-
 public:
-
-    /// Constructor
     Wall();
 
-    /// Destructor.  Since Wall instances do not allocate memory,
-    /// the destructor does nothing.
     virtual ~Wall() {}
 
-
-    /// Rate of volume change (kg/s). Positive value increases
-    /// volume of reactor on left, and decreases volume on right.
+    //! Rate of volume change (m^3/s) for the adjacent reactors.
+    /*! The volume rate of change is given by
+     * \f[ \dot V = K A (P_{left} - P_{right}) + F(t) \f]
+     * where *K* is the specified expansion rate coefficient, *A* is the wall
+     * area, and *F(t)* is a specified function of time. Positive values for
+     * `vdot` correspond to increases in the volume of reactor on left, and
+     * decreases in the volume of the reactor on the right.
+     */
     virtual doublereal vdot(doublereal t);
 
-    /// Heat flow rate through the wall (W). Positive values
-    /// denote a flux from left to right.
+    //! Heat flow rate through the wall (W).
+    /*!
+     * The heat flux is given by
+     * \f[ Q = h A (T_{left} - T_{right}) + A G(t) \f]
+     * where *h* is the heat transfer coefficient, *A* is the wall area, and
+     * *G(t)* is a specified function of time. Positive values denote a flux
+     * from left to right.
+     */
     virtual doublereal Q(doublereal t);
 
-    /// Area in m^2.
+    //! Area in m^2.
     doublereal area() {
         return m_area;
     }
 
-    /// Set the area [m^2].
+    //! Set the area [m^2].
     void setArea(doublereal a) {
         m_area = a;
     }
@@ -60,7 +72,7 @@ public:
         m_rrth = 1.0/Rth;
     }
 
-    /// Set the overall heat transfer coefficient [W/m^2/K].
+    //! Set the overall heat transfer coefficient [W/m^2/K].
     void setHeatTransferCoeff(doublereal U) {
         m_rrth = U;
     }
@@ -70,7 +82,7 @@ public:
         return m_rrth;
     }
 
-    /// Set the emissivity.
+    //! Set the emissivity.
     void setEmissivity(doublereal epsilon) {
         if (epsilon > 1.0 || epsilon < 0.0)
             throw Cantera::CanteraError("Wall::setEmissivity",
@@ -82,16 +94,14 @@ public:
         return m_emiss;
     }
 
-    /** Set the piston velocity to a specified function. */
+    //! Set the wall velocity to a specified function of time
     void setVelocity(Cantera::Func1* f=0) {
         if (f) {
             m_vf = f;
         }
     }
 
-    /**
-     * Set the expansion rate coefficient.
-     */
+    //! Set the expansion rate coefficient.
     void setExpansionRateCoeff(doublereal k) {
         m_k = k;
     }
@@ -101,71 +111,65 @@ public:
         return m_k;
     }
 
-    /// Specify the heat flux function \f$ q_0(t) \f$.
+    //! Specify the heat flux function \f$ q_0(t) \f$.
     void setHeatFlux(Cantera::Func1* q) {
         m_qf = q;
     }
 
-    /// Install the wall between two reactors or reservoirs
+    //! Install the wall between two reactors or reservoirs
     bool install(ReactorBase& leftReactor, ReactorBase& rightReactor);
 
-    /// Called just before the start of integration
+    //! Called just before the start of integration
     virtual void initialize();
 
-    /// True if the wall is correctly configured and ready to use.
+    //! True if the wall is correctly configured and ready to use.
     virtual bool ready() {
         return (m_left != 0 && m_right != 0);
     }
 
-    //        int type() { return 0; }
-
-
-    /// Return a reference to the reactor or reservoir to the left
-    /// of the wall.
+    //! Return a reference to the Reactor or Reservoir to the left
+    //! of the wall.
     ReactorBase& left() const {
         return *m_left;
     }
 
-    /// Return a reference to the reactor or reservoir to the
-    /// right of the wall.
+    //! Return a reference to the Reactor or Reservoir to the
+    //! right of the wall.
     const ReactorBase& right() {
         return *m_right;
     }
 
-    // /// Set wall parameters.
-    //virtual void setParameters(int n, doublereal* coeffs) {
-    //    m_coeffs.resize(n);
-    //    copy(coeffs, coeffs + n, m_coeffs.begin());
-    //}
-
-    // Specify the heterogeneous reaction mechanisms for each side
-    // of the wall.
+    //! Specify the heterogeneous reaction mechanisms for each side of the
+    //! wall. Passing a null pointer indicates that there is no reaction
+    //! mechanism for the corresponding wall surface.
     void setKinetics(Cantera::Kinetics* leftMechanism,
                      Cantera::Kinetics* rightMechanism);
 
-    /// Return a pointer to the surface phase object for the left
-    /// or right wall surface.
+    //! Return a pointer to the surface phase object for the left
+    //! (`leftright=0`) or right (`leftright=1`) wall surface.
     Cantera::SurfPhase* surface(int leftright) {
         return m_surf[leftright];
     }
 
+    //! Return a pointer to the surface kinetics object for the left
+    //! (`leftright=0`) or right (`leftright=1`) wall surface.
     Cantera::Kinetics* kinetics(int leftright) {
         return m_chem[leftright];
     }
 
-    /// Set the surface coverages on the left or right surface to
-    /// the values in array 'cov'.
+    //! Set the surface coverages on the left (`leftright = 0`) or right
+    //! (`leftright = 1`) surface to the values in array `cov`.
     void setCoverages(int leftright, const doublereal* cov);
 
-    /// Write the coverages of the left or right surface into
-    /// array cov.
+    //! Write the coverages of the left or right surface into array `cov`.
     void getCoverages(int leftright, doublereal* cov);
 
-    /// Set the coverages in the surface phase object to the
-    /// values for this wall surface.
+    //! Set the coverages in the surface phase object to the
+    //! values for this wall surface.
     void syncCoverages(int leftright);
 
-
+    //! Number of sensitivity parameters associated with reactions on the left
+    //! (`lr = 0`) or right (`lr = 1`) side of the wall.
     size_t nSensParams(int lr) const {
         if (lr == 0) {
             return m_pleft.size();
@@ -177,12 +181,7 @@ public:
     void setSensitivityParameters(int lr, double* params);
     void resetSensitivityParameters(int lr);
 
-    //        int componentIndex(string nm) const;
-
 protected:
-
-    //vector_fp m_coeffs;
-
     ReactorBase* m_left;
     ReactorBase* m_right;
     Cantera::Kinetics* m_chem[2];
@@ -196,9 +195,6 @@ protected:
 
     std::vector<size_t> m_pleft, m_pright;
     Cantera::vector_fp m_leftmult_save, m_rightmult_save;
-
-private:
-
 };
 
 }
