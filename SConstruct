@@ -81,6 +81,8 @@ if os.name == 'nt':
         msvc_version = '9.0' # Visual Studio 2008
     elif 'MSC v.1600' in sys.version:
         msvc_version = '10.0' # Visual Studio 2010
+    elif 'MSC v.1700' in sys.version:
+        msvc_version = '11.0' # Visual Studio 2012
     else:
         msvc_version = None
 
@@ -207,9 +209,12 @@ if env['CC'] == 'gcc' or env['CC'] == 'llvm-gcc':
     defaults.warningFlags = '-Wall'
 
 elif env['CC'] == 'cl': # Visual Studio
-    defaults.cxxFlags = '/EHsc'
-    defaults.ccFlags = ' '.join(['/MD', '/nologo', '/Zc:wchar_t', '/Zc:forScope',
-                                 '/D_SCL_SECURE_NO_WARNINGS', '/D_CRT_SECURE_NO_WARNINGS'])
+    defaults.cxxFlags = ['/EHsc']
+    defaults.ccFlags = ['/MD', '/nologo', '/Zc:wchar_t', '/Zc:forScope',
+                        '/D_SCL_SECURE_NO_WARNINGS', '/D_CRT_SECURE_NO_WARNINGS']
+    if env['MSVC_VERSION'] == '11.0':
+        # Fix compatibility issue between VS2012 and Google Test
+        defaults.cxxFlags.append('D_VARIADIC_MAX=10')
     defaults.debugCcFlags = '/Zi /Fd${TARGET}.pdb'
     defaults.noOptimizeCcFlags = '/Od /Ob0'
     defaults.optimizeCcFlags = '/O2 /DNDEBUG'
