@@ -22,11 +22,7 @@ const int Valve_Type = 3;
 
 /**
  * Base class for 'flow devices' (valves, pressure regulators, etc.)
- * connecting reactors. Allowance is made for devices that are closed-loop
- * controllers. Several methods for these are defined here that do nothing but
- * may be overloaded to set or get the setpoint, gains, etc. The behavior of
- * overloaded methods should be consistent with the behavior described here.
- * The base-class versions of these methods print a warning if called.
+ * connecting reactors.
  * @ingroup reactor0
  */
 class FlowDevice
@@ -65,55 +61,6 @@ public:
 
     //! specific enthalpy
     doublereal enthalpy_mass();
-
-    //         /**
-    //          * Setpoint. Default = 0.0.
-    //          */
-    //         virtual doublereal setpoint() { warn("setpoint"); return 0.0; }
-
-
-    //         /* Update the internal state, if necessary. By default this method
-    //          * does nothing, but may be overloaded for devices that have a
-    //          * state.
-    //          */
-    //         virtual void update() {warn("update");}
-
-
-    //         /* Reset the device. By default this method does nothing, but
-    //          * may be overloaded for devices that have a state that depends on
-    //          * past history.
-    //          */
-    //         virtual void reset() {warn("reset");}
-
-    //         /**
-    //          * Set the setpoint. May be changed at any time. By default,
-    //          * this does nothing.
-    //          */
-    //         virtual void setSetpoint(doublereal value) {warn("setSetpoint");}
-
-    //         /**
-    //          * Set the controller gains. Returns false if the number of
-    //          * gains is too small, or if an illegal value is specified.
-    //          */
-    //         virtual bool setGains(int n, const doublereal* gains) {
-    //             warn("setGains");
-    //             return true;
-    //         }
-
-    //         /**
-    //          * Get the controller gains. Returns false if the 'gains'
-    //          * array is too small.
-    //          */
-    //         virtual bool getGains(int n, doublereal* gains) {
-    //             warn("getGains");
-    //             return true;
-    //         }
-
-    //         /**
-    //          * Maximum difference between input and setpoint since
-    //          * last call to 'reset'.
-    //          */
-    //         virtual doublereal maxError() {warn("maxError"); return 0.0;}
 
     /**
      * Install a flow device between two reactors.
@@ -163,11 +110,6 @@ private:
     ReactorBase* m_in;
     ReactorBase* m_out;
     std::vector<size_t> m_in2out, m_out2in;
-
-    void warn(const std::string& meth) {
-        writelog(std::string("Warning: method ") + meth + " of base class "
-                 + " FlowDevice called. Nothing done.\n");
-    }
 };
 
 }
