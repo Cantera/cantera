@@ -170,7 +170,6 @@ double ReactorNet::step(doublereal time)
     return m_time;
 }
 
-
 void ReactorNet::addReactor(ReactorBase* r, bool iown)
 {
     r->setNetwork(this);
@@ -184,23 +183,6 @@ void ReactorNet::addReactor(ReactorBase* r, bool iown)
                  ", since type = "+int2str(r->type())+"\n", m_verbose);
     }
 }
-
-//     void ReactorNet::addSensitivityParam(int n, int stype, int i) {
-//         m_reactors[n]->addSensitivityParam(int stype, int i);
-//         m_sensreactor.push_back(n);
-//         m_nSenseParams++;
-//     }
-
-//     void ReactorNet::setParameters(int np, double* p) {
-//         int n, nr;
-//         for (n = 0; n < np; n++) {
-//             if (n < m_nSenseParams) {
-//                 nr = m_sensreactor[n];
-//                 m_reactors[nr]->setParameter(n, p[n]);
-//             }
-//         }
-//     }
-
 
 void ReactorNet::eval(doublereal t, doublereal* y,
                       doublereal* ydot, doublereal* p)
@@ -217,8 +199,6 @@ void ReactorNet::eval(doublereal t, doublereal* y,
         pstart += m_nparams[n];
     }
 }
-
-
 
 void ReactorNet::evalJacobian(doublereal t, doublereal* y,
                               doublereal* ydot, doublereal* p, Array2D* j)
