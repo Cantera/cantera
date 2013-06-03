@@ -28,9 +28,8 @@ class GasTransportParams;
 
 //! Class MixTransport implements mixture-averaged transport properties for ideal gas mixtures.
 /*!
- *    The model is based on that described by Kee, Coltrin, and Glarborg, "Theoretical and
- *    Practical Aspects of Chemically Reacting Flow Modeling."
- *
+ * The model is based on that described by Kee, Coltrin, and Glarborg,
+ * "Theoretical and Practical Aspects of Chemically Reacting Flow Modeling."
  *
  * The viscosity is computed using the Wilke mixture rule (kg /m /s)
  *
@@ -45,7 +44,6 @@ class GasTransportParams;
  *                     + \sqrt{\left(\frac{\mu_k}{\mu_j}\sqrt{\frac{M_j}{M_k}}\right)}\right]^2}
  *                     {\sqrt{8}\sqrt{1 + M_k/M_j}}
  *    \f]
- *
  *
  * The thermal conductivity is computed from the following mixture rule:
  *   \f[
@@ -62,11 +60,9 @@ class GasTransportParams;
  *
  *  The units of lambda are W / m K which is equivalent to kg m / s^3 K.
  *
- *
  */
 class MixTransport : public GasTransport
 {
-
 protected:
 
     //! Default constructor.
@@ -74,31 +70,8 @@ protected:
 
 public:
 
-    //!Copy Constructor for the %MixTransport object.
-    /*!
-     * @param right  %LiquidTransport to be copied
-     */
     MixTransport(const MixTransport& right);
-
-    //! Assignment operator
-    /*!
-     *  This is NOT a virtual function.
-     *
-     * @param right    Reference to %LiquidTransport object to be copied
-     *                 into the current one.
-     */
     MixTransport& operator=(const  MixTransport& right);
-
-    //! Duplication routine for objects which inherit from
-    //! %Transport
-    /*!
-     *  This virtual routine can be used to duplicate %Transport objects
-     *  inherited from %Transport even if the application only has
-     *  a pointer to %Transport to work with.
-     *
-     *  These routines are basically wrappers around the derived copy
-     *  constructor.
-     */
     virtual Transport* duplMyselfAsTransport() const;
 
     //! Return the model id for transport
@@ -158,17 +131,15 @@ public:
 
     //! Update the internal parameters whenever the temperature has changed
     /*!
-     *  @internal
-     *      This is called whenever a transport property is requested if the temperature has changed
-     *      since the last call to update_T().
+     *  This is called whenever a transport property is requested if
+     *  the temperature has changed since the last call to update_T().
      */
     virtual void update_T();
 
     //! Update the internal parameters whenever the concentrations have changed
     /*!
-     *  @internal
-     *      This is called whenever a transport property is requested if the concentrations have changed
-     *      since the last call to update_C().
+     *  This is called whenever a transport property is requested if the
+     *  concentrations have changed since the last call to update_C().
      */
     virtual void update_C();
 
@@ -176,7 +147,6 @@ public:
     //! given the gradients in mole fraction and temperature
     /*!
      *  Units for the returned fluxes are kg m-2 s-1.
-     *
      *
      * The diffusive mass flux of species \e k is computed from
      * \f[
@@ -223,14 +193,12 @@ private:
 
     //! Update the temperature dependent parts of the species thermal conductivities
     /*!
-     * These are evaluated from the polynomial fits of the temperature and are assumed to be
-     * independent of pressure
+     * These are evaluated from the polynomial fits of the temperature and are
+     * assumed to be independent of pressure
      */
     void updateCond_T();
 
-    // --------- Member Data -------------
 private:
-
     //! Polynomial fits to the thermal conductivity of each species
     /*!
      *  m_condcoeffs[k] is vector of polynomial coefficients for species k
@@ -240,9 +208,8 @@ private:
 
     //! vector of species thermal conductivities (W/m /K)
     /*!
-     *  These are used in wilke's rule to calculate the viscosity of the solution
-     *  units = W /m /K = kg m /s^3 /K.
-     *  length = m_kk
+     *  These are used in wilke's rule to calculate the viscosity of the
+     *  solution. units = W /m /K = kg m /s^3 /K. length = m_kk.
      */
     vector_fp m_cond;
 

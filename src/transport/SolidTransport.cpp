@@ -20,7 +20,6 @@ using namespace std;
 namespace Cantera
 {
 
-//====================================================================================================================
 SolidTransport::SolidTransport() :
     Transport() ,
     m_nmobile(0),
@@ -33,7 +32,7 @@ SolidTransport::SolidTransport() :
     m_Elam(0)
 {
 }
-//====================================================================================================================
+
 SolidTransport::SolidTransport(const SolidTransport& right) :
     Transport(),
     m_nmobile(0),
@@ -51,7 +50,7 @@ SolidTransport::SolidTransport(const SolidTransport& right) :
      */
     *this = right;
 }
-//====================================================================================================================
+
 SolidTransport& SolidTransport::operator=(const SolidTransport& b)
 {
     if (&b != this) {
@@ -71,27 +70,15 @@ SolidTransport& SolidTransport::operator=(const SolidTransport& b)
     return *this;
 
 }
-//====================================================================================================================
+
 Transport* SolidTransport::duplMyselfAsTransport() const
 {
     SolidTransport* tr = new SolidTransport(*this);
     return dynamic_cast<Transport*>(tr);
 }
 
-//====================================================================================================================
-// Initialize the transport object
-/*
- * Here we change all of the internal dimensions to be sufficient.
- * We get the object ready to do property evaluations.
- * A lot of the input required to do property evaluations is
- * contained in the SolidTransportData class that is
- * filled in TransportFactory.
- *
- * @param tr  Transport parameters for the phase
- */
 bool SolidTransport::initSolid(SolidTransportData& tr)
 {
-
     m_thermo = tr.thermo;
     tr.thermo = 0;
     //m_nsp   = m_thermo->nSpecies();
@@ -116,8 +103,6 @@ bool SolidTransport::initSolid(SolidTransportData& tr)
 
     return true;
 }
-
-//====================================================================================================================
 
 void SolidTransport::setParameters(const int n, const int k, const doublereal* const p)
 {
@@ -148,32 +133,12 @@ void SolidTransport::setParameters(const int n, const int k, const doublereal* c
 
 }
 
-/******************  ionConductivity ******************************/
-
-// Returns the ionic conductivity of the phase
-/*
- *  The thermo phase needs to be updated (temperature) prior to calling this.
- *  The ionConductivity calculation is handled by subclasses of
- *  LTPspecies as specified in the input file.
- *
- */
 doublereal SolidTransport::ionConductivity()
 {
     // LTPspecies method
     return m_ionConductivity->getSpeciesTransProp();
 }
 
-/******************  electron Conductivity ******************************/
-
-// Returns the electron conductivity of the phase
-/*
- *  The thermo phase needs to be updated (temperature) prior to calling this.
- *  The ionConductivity calculation is handled by subclasses of
- *  LTPspecies as specified in the input file.
- *
- * There is also a legacy multicomponent diffusion approach to electrical conductivity.
- *
- */
 doublereal SolidTransport::electricalConductivity()
 {
     if (m_nmobile == 0) {
@@ -192,17 +157,6 @@ doublereal SolidTransport::electricalConductivity()
 
 /******************  thermalConductivity ******************************/
 
-// Returns the thermal conductivity of the phase
-/*
- *  The thermo phase needs to be updated (temperature) prior to calling this.
- *  The thermalConductivity calculation is handled by subclasses of
- *  LTPspecies as specified in the input file.
- *
- *  There is also a legacy method to evaluate
- * \f[
- * \lambda = A T^n \exp(-E/RT)
- * \f]
- */
 doublereal SolidTransport::thermalConductivity()
 {
     if (m_Alam > 0.0) {
@@ -215,40 +169,18 @@ doublereal SolidTransport::thermalConductivity()
     }
 }
 
-/******************  defectDiffusivity ******************************/
-
-// Returns the diffusivity of the phase
-/*
- *  The thermo phase needs to be updated (temperature) prior to calling this.
- *  The defectDiffusivity calculation is handled by subclasses of
- *  LTPspecies as specified in the input file.
- *
- */
 doublereal SolidTransport::defectDiffusivity()
 {
     // LTPspecies method
     return m_defectDiffusivity->getSpeciesTransProp();
 }
 
-/******************  defectActivity ******************************/
-
-// Returns the diffusivity of the phase
-/*
- *  The thermo phase needs to be updated (temperature) prior to calling this.
- *  The defectActivity calculation is handled by subclasses of
- *  LTPspecies as specified in the input file.
- *
- */
 doublereal SolidTransport::defectActivity()
 {
     // LTPspecies method
     return m_defectActivity->getSpeciesTransProp();
 }
-//====================================================================================================================
-/*
- * Compute the mobilities of the species from the diffusion coefficients,
- * using the Einstein relation.
- */
+
 void SolidTransport::getMobilities(doublereal* const mobil)
 {
     getMixDiffCoeffs(mobil);
@@ -259,18 +191,7 @@ void SolidTransport::getMobilities(doublereal* const mobil)
     }
 
 }
-//====================================================================================================================
-/*
- * The diffusion coefficients are computed from
- *
- * \f[
- * D_k = A_k T^{n_k} \exp(-E_k/RT).
- * \f]
- *
- * The diffusion coefficients are only non-zero for species for
- * which parameters have been specified using method
- * setParameters.
- */
+
 void SolidTransport::getMixDiffCoeffs(doublereal* const d)
 {
     size_t nsp = m_thermo->nSpecies();
@@ -279,4 +200,3 @@ void SolidTransport::getMixDiffCoeffs(doublereal* const d)
     }
 }
 }
-//====================================================================================================================

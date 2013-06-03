@@ -5,7 +5,6 @@
 
 // Copyright 2001  California Institute of Technology
 
-
 #ifndef CT_PECOSTRAN_H
 #define CT_PECOSTRAN_H
 
@@ -31,14 +30,11 @@
 namespace Cantera
 {
 
-
 class GasTransportParams;
 
 /**
- *
  * Class PecosTransport implements mixture-averaged transport
  * properties for ideal gas mixtures.
- *
  */
 class PecosTransport : public Transport
 {
@@ -50,9 +46,20 @@ public:
 
     //! Viscosity of the mixture
     /*!
-     *
+     * The viscosity is computed using the Wilke mixture rule.
+     * \f[
+     * \mu = \sum_k \frac{\mu_k X_k}{\sum_j \Phi_{k,j} X_j}.
+     * \f]
+     * Here \f$ \mu_k \f$ is the viscosity of pure species \e k,
+     * and
+     * \f[
+     * \Phi_{k,j} = \frac{\left[1
+     * + \sqrt{\left(\frac{\mu_k}{\mu_j}\sqrt{\frac{M_j}{M_k}}\right)}\right]^2}
+     * {\sqrt{8}\sqrt{1 + M_k/M_j}}
+     * \f]
+     * @see updateViscosity_T();
      */
-    virtual doublereal viscosity();
+     virtual doublereal viscosity();
 
     virtual void getSpeciesViscosities(doublereal* const visc) {
         update_T();
@@ -66,8 +73,8 @@ public:
      */
     virtual void getThermalDiffCoeffs(doublereal* const dt);
 
-    /*! returns the mixture thermal conductivity
-     *
+    //! Returns the mixture thermal conductivity
+    /*!
      * This is computed using the lumped model,
      * \f[
      *    k = k^{tr} + k^{ve}
@@ -81,18 +88,33 @@ public:
      *    k^{ve}= \mu_s C_{v,s}^{vib} + \mu_s C_{v,s}^{elec}
      * \f]
      *
+     * The thermal conductivity is computed using the Wilke mixture rule.
+     * \f[
+     *     k = \sum_s \frac{k_s X_s}{\sum_j \Phi_{s,j} X_j}.
+     * \f]
+     * Here \f$ k_s \f$ is the conductivity of pure species \e s,
+     * and
+     * \f[
+     * \Phi_{s,j} = \frac{\left[1
+     * + \sqrt{\left(\frac{\mu_k}{\mu_j}\sqrt{\frac{M_j}{M_s}}\right)}\right]^2}
+     * {\sqrt{8}\sqrt{1 + M_s/M_j}}
+     * \f]
+     * @see updateCond_T();
+     * @todo Reconcile these these formulas with the implementation
      */
     virtual doublereal thermalConductivity();
 
+    //! binary diffusion coefficients
+    /*!
+     *  Using Ramshaw's self-consistent Effective Binary Diffusion
+     *  (1990, J. Non-Equilib. Thermo)
+     */
     virtual void getBinaryDiffCoeffs(const size_t ld, doublereal* const d);
-
 
     //! Mixture-averaged diffusion coefficients [m^2/s].
     /*!
-    * For the single species case or the pure fluid case
-    * the routine returns the self-diffusion coefficient.
-    * This is need to avoid a Nan result in the formula
-    * below.
+    *   For the single species case or the pure fluid case the routine returns
+    *   the self-diffusion coefficient. This is need to avoid a NaN result.
     */
     virtual void getMixDiffCoeffs(doublereal* const d);
 
@@ -121,13 +143,22 @@ public:
 
     virtual void getMobilities(doublereal* const mobil);
     virtual void update_T();
+
+    /**
+     *  This is called the first time any transport property is requested from
+     *  Mixture after the concentrations have changed.
+     */
     virtual void update_C();
 
-    //! Get the species diffusive mass fluxes wrt to
-    //! the mass averaged velocity,
-    //! given the gradients in mole fraction and temperature
+    //! Get the species diffusive mass fluxes wrt to the mass averaged
+    //! velocity, given the gradients in mole fraction and temperature
     /*!
-     *  Units for the returned fluxes are kg m-2 s-1.
+     * The diffusive mass flux of species \e k is computed from
+     * \f[
+     * \vec{j}_k = -n M_k D_k \nabla X_k + \frac{\rho_k}{\rho} \sum_r n M_r D_r \nabla X_r
+     * \f]
+     * This neglects pressure, forced and thermal diffusion.
+     * Units for the returned fluxes are kg m-2 s-1.
      *
      *  @param ndim Number of dimensions in the flux expressions
      *  @param grad_T Gradient of the temperature
@@ -151,24 +182,18 @@ public:
 
     //! Initialize the transport object
     /*!
-     *
      * Here we change all of the internal dimensions to be sufficient.
      * We get the object ready to do property evaluations.
      *
-     * @param tr  Transport parameters for all of the species
-     *            in the phase.
-     *
+     * @param tr  Transport parameters for all of the species in the phase.
      */
     virtual bool initGas(GasTransportParams& tr);
 
-
     /**
-     *
      * Reads the transport table specified (currently defaults to internal file)
      *
      * Reads the user-specified transport table, appending new species
      * data and/or replacing default species data.
-     *
      */
     void read_blottner_transport_table();
 
@@ -181,11 +206,9 @@ public:
      *
      * @param k Species number to obtain the properties from.
      */
-    struct GasTransportData getGasTransportData(int);
+    struct GasTransportData getGasTransportData(int k);
 
 protected:
-
-    /// default constructor
     PecosTransport();
 
 private:
@@ -253,9 +276,41 @@ private:
     vector_fp  m_spwork;
 
     void updateThermal_T();
+
+    /**
+     * Update the temperature-dependent viscosity terms. Updates the array of
+     * pure species viscosities, and the weighting functions in the viscosity
+     * mixture rule. The flag m_visc_ok is set to true.
+     */
     void updateViscosity_T();
+
+    /**
+     * Update the temperature-dependent parts of the mixture-averaged
+     * thermal conductivity.
+     *
+     * Calculated as,
+     * \f[
+     *    k= \mu_s (5/2 * C_{v,s}^{trans} + C_{v,s}^{rot} + C_{v,s}^{vib}
+     * \f]
+     */
     void updateCond_T();
+
+    /**
+     * Update the pure-species viscosities. (Pa-s) = (kg/m/sec)
+     *
+     * Using Blottner fit for viscosity. Defines kinematic viscosity
+     * of the form
+     * \f[
+     *   \mu_s\left(T\right) = 0.10 \exp\left(A_s\left(\log T\right)^2 + B_s\log T + C_s\right)
+     * \f]
+     * where \f$ A_s \f$, \f$ B_s \f$, and \f$ C_s \f$ are constants.
+     */
     void updateSpeciesViscosities();
+
+    /**
+     * Update the binary diffusion coefficients. These are evaluated
+     * from the polynomial fits at unit pressure (1 Pa).
+     */
     void updateDiff_T();
     void correctBinDiffCoeffs();
     bool m_viscmix_ok;

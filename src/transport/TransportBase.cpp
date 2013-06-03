@@ -18,10 +18,6 @@ using namespace std;
 
 namespace Cantera
 {
-
-//////////////////// class LiquidTransport methods //////////////
-
-
 Transport::Transport(thermo_t* thermo, size_t ndim) :
     m_thermo(thermo),
     m_ready(false),
@@ -59,7 +55,6 @@ Transport* Transport::duplMyselfAsTransport() const
     return new Transport(*this);
 }
 
-
 Transport::~Transport()
 {
 }
@@ -69,9 +64,6 @@ bool Transport::ready()
     return m_ready;
 }
 
-// Set the number of dimensions to be expected in flux expressions
-/* Internal memory will be set with this value
- */
 void Transport::setNDim(const int ndim)
 {
     m_nDim = ndim;
@@ -91,16 +83,11 @@ void Transport::checkSpeciesArraySize(size_t kk) const
     }
 }
 
-
-/* Set transport model parameters. This method may be
- * overloaded in subclasses to set model-specific parameters.
- */
 void Transport::setParameters(const int type, const int k,
                               const doublereal* const p)
 {
     err("setParameters");
 }
-
 
 void Transport::setThermo(thermo_t& thermo)
 {
@@ -128,7 +115,6 @@ void Transport::setThermo(thermo_t& thermo)
     }
 }
 
-
 doublereal Transport::err(const std::string& msg) const
 {
 
@@ -140,7 +126,6 @@ doublereal Transport::err(const std::string& msg) const
     return 0.0;
 }
 
-
 void Transport::finalize()
 {
     if (!ready()) {
@@ -150,12 +135,10 @@ void Transport::finalize()
                            "finalize has already been called.");
 }
 
-//====================================================================================================================
 void Transport::getSpeciesFluxes(size_t ndim, const doublereal* const grad_T,
                                  size_t ldx, const doublereal* const grad_X,
                                  size_t ldf, doublereal* const fluxes)
 {
     err("getSpeciesFluxes");
 }
-//====================================================================================================================
 }

@@ -88,15 +88,19 @@ public:
     virtual void getMixDiffCoeffsMole(doublereal* const d);
 
     //! Returns the mixture-averaged diffusion coefficients [m^2/s].
-    //! These are the coefficients for calculating the diffusive mass fluxes
-    //! from the species mass fraction gradients, computed according to
-    //! Eq. 12.178 in "Chemically Reacting Flow":
-    //!
-    //! \f[  \frac{1}{D_{km}} = \sum_{j \ne k}^K \frac{X_j}{\mathcal{D}_{kj}} +
-    //!     \frac{X_k}{1-Y_k} \sum_{j \ne k}^K \frac{Y_j}{\mathcal{D}_{kj}} \f]
-    //!
-    //! @param[out] d vector of mixture-averaged diffusion coefficients for
-    //!     each species, length m_nsp.
+    /*! 
+     * These are the coefficients for calculating the diffusive mass fluxes
+     * from the species mass fraction gradients, computed according to
+     * Eq. 12.178 in "Chemically Reacting Flow":
+     *
+     * \f[
+     *     \frac{1}{D_{km}} = \sum_{j \ne k}^K \frac{X_j}{\mathcal{D}_{kj}} +
+     *     \frac{X_k}{1-Y_k} \sum_{j \ne k}^K \frac{Y_j}{\mathcal{D}_{kj}}
+     * \f]
+     *
+     * @param[out] d vector of mixture-averaged diffusion coefficients for
+     *     each species, length m_nsp.
+     */
     virtual void getMixDiffCoeffsMass(doublereal* const d);
 
 protected:
@@ -174,14 +178,16 @@ protected:
 
     //! Holds square roots of molecular weight ratios
     /*!
-     *   m_wratjk(j,k)  = sqrt(mw[j]/mw[k])        j < k
-     *   m_wratjk(k,j)  = sqrt(sqrt(mw[j]/mw[k]))  j < k
+     *  @code
+     *  m_wratjk(j,k)  = sqrt(mw[j]/mw[k])        j < k
+     *  m_wratjk(k,j)  = sqrt(sqrt(mw[j]/mw[k]))  j < k
+     *  @endcode
      */
     DenseMatrix m_wratjk;
 
     //! Holds square roots of molecular weight ratios
     /*!
-     *   m_wratjk1(j,k)  = sqrt(1.0 + mw[k]/mw[j])        j < k
+     *  `m_wratjk1(j,k)  = sqrt(1.0 + mw[k]/mw[j])        j < k`
      */
     DenseMatrix m_wratkj1;
 
@@ -222,17 +228,17 @@ protected:
      *  that fits the binary diffusion coefficient. The relationship between i
      *  j and ic is determined from the following algorithm:
      *
-     *     int ic = 0;
-     *     for (i = 0; i < m_nsp; i++) {
-     *        for (j = i; j < m_nsp; j++) {
-     *          ic++;
-     *        }
-     *     }
+     *      int ic = 0;
+     *      for (i = 0; i < m_nsp; i++) {
+     *         for (j = i; j < m_nsp; j++) {
+     *           ic++;
+     *         }
+     *      }
      */
     std::vector<vector_fp> m_diffcoeffs;
 
-    //! Matrix of binary diffusion coefficients at the reference pressure and the current temperature
-    //! Size is nsp x nsp.
+    //! Matrix of binary diffusion coefficients at the reference pressure and
+    //! the current temperature Size is nsp x nsp.
     DenseMatrix m_bdiff;
 };
 

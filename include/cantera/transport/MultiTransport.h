@@ -21,21 +21,17 @@ namespace Cantera
 
 class GasTransportParams;
 
-//====================================================================================================================
-//! Class MultiTransport implements multicomponent transport
-//! properties for ideal gas mixtures.
+//! Class MultiTransport implements multicomponent transport properties for
+//! ideal gas mixtures.
 /*!
- *
- *  The implementation generally
- * follows the procedure outlined in Kee, Coltrin, and Glarborg,
- * "Theoretical and Practical Aspects of Chemically Reacting Flow
- * Modeling," Wiley Interscience.
+ * The implementation generally follows the procedure outlined in Kee,
+ * Coltrin, and Glarborg, "Theoretical and Practical Aspects of Chemically
+ * Reacting Flow Modeling," Wiley Interscience.
  *
  * @ingroup transportProps
  */
 class MultiTransport : public GasTransport
 {
-
 protected:
 
     //! default constructor
@@ -45,7 +41,6 @@ protected:
     MultiTransport(thermo_t* thermo=0);
 
 public:
-    // overloaded base class methods
     virtual int model() const {
         if (m_mode == CK_Mode) {
             return CK_Multicomponent;
@@ -111,11 +106,11 @@ public:
                                 const doublereal delta,
                                 doublereal* const fluxes);
 
-    //! Get the mass diffusional fluxes [kg/m^2/s] of the species, given the thermodynamic
-    //! state at two nearby points.
+    //! Get the mass diffusional fluxes [kg/m^2/s] of the species, given the
+    //! thermodynamic state at two nearby points.
     /*!
-     * The specific diffusional fluxes are calculated with reference to the mass averaged
-     * velocity. This is a one-dimensional vector
+     * The specific diffusional fluxes are calculated with reference to the
+     * mass averaged velocity. This is a one-dimensional vector
      *
      * @param state1 Array of temperature, density, and mass
      *               fractions for state 1.
@@ -138,7 +133,6 @@ public:
     friend class TransportFactory;
 
 protected:
-
     //! Update basic temperature-dependent quantities if the temperature has changed.
     void update_T();
 
@@ -150,7 +144,6 @@ protected:
     void updateThermal_T();
 
 private:
-
     doublereal m_thermal_tlast;
 
     // property values
@@ -180,8 +173,8 @@ public:
     vector_fp   m_sigma;
     vector_fp   m_alpha;
     DenseMatrix   m_dipole;
-private:
 
+private:
     vector_fp  m_sqrt_eps_k;
     DenseMatrix m_log_eps_k;
     vector_fp  m_frot_298;
