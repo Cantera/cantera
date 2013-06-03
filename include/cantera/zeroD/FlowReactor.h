@@ -13,32 +13,19 @@ namespace Cantera
 {
 
 /**
- * Adiabatic, reversible flow in a constant-area duct.
+ * Adiabatic flow in a constant-area duct.
  */
 class FlowReactor : public Reactor
 {
-
 public:
-
-    /**
-     * Default constructor.
-     */
     FlowReactor();
 
     virtual int type() const {
         return FlowReactorType;
     }
 
-    //-----------------------------------------------------
-
     virtual void getInitialConditions(doublereal t0, size_t leny,
                                       doublereal* y);
-
-
-    //-----------------------------------------------------
-    virtual size_t neq() {
-        return m_nv;
-    }
 
     virtual void initialize(doublereal t0 = 0.0);
     virtual void evalEqs(doublereal t, doublereal* y,
@@ -64,17 +51,18 @@ public:
     double distance() const {
         return m_dist;
     }
+
+    //! Return the index in the solution vector for this reactor of the
+    //! component named *nm*. Possible values for *nm* are "X" (position),
+    //! "U", the name of a homogeneous phase species, or the name of a surface
+    //! species.
     virtual size_t componentIndex(const std::string& nm) const;
 
 protected:
-
     doublereal m_speed, m_dist, m_T;
     doublereal m_fctr;
     doublereal m_rho0, m_speed0, m_P0, m_h0;
-
-private:
 };
 }
 
 #endif
-
