@@ -15,9 +15,6 @@ using namespace std;
 
 namespace Cantera
 {
-
-
-//! \cond
 const int DeltaDegree = 6;
 
 double MMCollisionInt::delta[8] = {0.0, 0.25, 0.50, 0.75, 1.0,
@@ -36,14 +33,12 @@ doublereal quadInterp(doublereal x0, doublereal* x, doublereal* y)
     return a*(x0 - x[0])*(x0 - x[1]) + (dy21/dx21)*(x0 - x[1]) + y[1];
 }
 
-
 double MMCollisionInt::tstar22[37] = {
     0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0,
     1.2, 1.4, 1.6, 1.8, 2.0, 2.5, 3.0, 3.5, 4.0,
     5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 12.0, 14.0, 16.0,
     18.0, 20.0, 25.0, 30.0, 35.0, 40.0, 50.0, 75.0, 100.0
 };
-
 
 double MMCollisionInt::omega22_table[37*8] = {
     4.1005, 4.266,  4.833,  5.742,  6.729,  8.624,  10.34,  11.89,
@@ -84,8 +79,6 @@ double MMCollisionInt::omega22_table[37*8] = {
     0.61397, 0.6141, 0.6143, 0.6145, 0.6147, 0.6148, 0.6148, 0.6147,
     0.5887, 0.5889, 0.5894, 0.59,   0.5903, 0.5901, 0.5895, 0.5885
 };
-
-//-----------------------------
 
 // changed upper limit to 500 from 1.0e10  dgg 5/21/04
 double MMCollisionInt::tstar[39] = {
@@ -181,7 +174,6 @@ double MMCollisionInt::bstar_table[39*8] = {
     1.10185
 };
 
-
 double MMCollisionInt::cstar_table[39*8] = {
     0.8889,  0.77778, 0.77778,0.77778,0.77778,0.77778,0.77778,0.77778,
     0.88575, 0.8988, 0.8378, 0.8029, 0.7876, 0.7805, 0.7799, 0.7801,
@@ -224,27 +216,14 @@ double MMCollisionInt::cstar_table[39*8] = {
     0.94444, 0.94444,0.94444,0.94444,0.94444,0.94444,0.94444,0.94444
 };
 
-//! \endcond
-
-//====================================================================================================================
 MMCollisionInt::MMCollisionInt()
 {
 }
-//====================================================================================================================
+
 MMCollisionInt::~MMCollisionInt()
 {
 }
-//====================================================================================================================
-// Initialize the object for calculation
-/*
- *
- *  @param xml         Pointer to the log file that will receive the debug output
- *                     messages
- *  @param tsmin       Minimum value of Tstar to carry out the fitting
- *  @param tsmax       Maximum value of Tstar to carry out the fitting
- *  @param loglevel    Set the loglevel for the object. The default
- *                     loglevel is zero, indicating no output.
- */
+
 void MMCollisionInt::init(XML_Writer* xml, doublereal tsmin, doublereal tsmax, int log_level)
 {
 #ifdef DEBUG_MODE
@@ -375,7 +354,6 @@ void MMCollisionInt::init(XML_Writer* xml, doublereal tsmin, doublereal tsmax, i
 #endif
     }
 }
-//====================================================================================================================
 
 doublereal MMCollisionInt::fitDelta(int table, int ntstar, int degree, doublereal* c)
 {
@@ -401,7 +379,6 @@ doublereal MMCollisionInt::fitDelta(int table, int ntstar, int degree, doublerea
     w[0] = -1.0;
     return polyfit(8, delta, begin, DATA_PTR(w), degree, ndeg, 0.0, c);
 }
-//====================================================================================================================
 
 doublereal MMCollisionInt::omega22(double ts, double deltastar)
 {
@@ -430,7 +407,6 @@ doublereal MMCollisionInt::omega22(double ts, double deltastar)
     return quadInterp(log(ts), DATA_PTR(m_logTemp)
                       + i1, DATA_PTR(values));
 }
-//====================================================================================================================
 
 doublereal MMCollisionInt::astar(double ts, double deltastar)
 {
@@ -459,8 +435,6 @@ doublereal MMCollisionInt::astar(double ts, double deltastar)
     return quadInterp(log(ts), DATA_PTR(m_logTemp)
                       + i1, DATA_PTR(values));
 }
-//====================================================================================================================
-
 
 doublereal MMCollisionInt::bstar(double ts, double deltastar)
 {
@@ -489,7 +463,6 @@ doublereal MMCollisionInt::bstar(double ts, double deltastar)
     return quadInterp(log(ts), DATA_PTR(m_logTemp) + i1,
                       DATA_PTR(values));
 }
-//====================================================================================================================
 
 doublereal MMCollisionInt::cstar(double ts, double deltastar)
 {
@@ -519,12 +492,9 @@ doublereal MMCollisionInt::cstar(double ts, double deltastar)
                       DATA_PTR(values));
 }
 
-//====================================================================================================================
-
 void MMCollisionInt::fit_omega22(ostream& logfile, int degree,
                                  doublereal deltastar, doublereal* o22)
 {
-
     int i, n = m_nmax - m_nmin + 1;
     int ndeg=0;
     string indent = "    ";
@@ -549,7 +519,6 @@ void MMCollisionInt::fit_omega22(ostream& logfile, int degree,
         m_xml->XML_comment(logfile, p);
     }
 }
-//====================================================================================================================
 
 void MMCollisionInt::fit(ostream& logfile, int degree,
                          doublereal deltastar, doublereal* a, doublereal* b, doublereal* c)
@@ -620,9 +589,5 @@ void MMCollisionInt::fit(ostream& logfile, int degree,
         m_xml->XML_close(logfile, "tstar_fit");
     }
 }
-//====================================================================================================================
+
 } // namespace
-//======================================================================================================================
-
-
-
