@@ -2,11 +2,6 @@
  *  @file SolidTransportData.cpp
  *  Source code for solid transport property evaluations.
  */
-/*
- *  $Author: hkmoffa $
- *  $Date: 2010-07-13 13:22:30 -0600 (Tue, 13 Jul 2010) $
- *  $Revision: 507 $
- */
 
 #include "cantera/transport/SolidTransportData.h"
 
@@ -14,8 +9,6 @@ using namespace std;
 
 namespace Cantera
 {
-
-//====================================================================================================================
 SolidTransportData::SolidTransportData() :
     speciesName("-"),
     ionConductivity(0),
@@ -26,8 +19,7 @@ SolidTransportData::SolidTransportData() :
 {
 
 }
-//====================================================================================================================
-// Copy constructor
+
 SolidTransportData::SolidTransportData(const SolidTransportData& right) :
     speciesName("-"),
     ionConductivity(0),
@@ -38,8 +30,7 @@ SolidTransportData::SolidTransportData(const SolidTransportData& right) :
 {
     *this = right; //use assignment operator to do other work
 }
-//====================================================================================================================
-// Assignment operator
+
 SolidTransportData& SolidTransportData::operator=(const SolidTransportData& right)
 {
     if (&right != this) {
@@ -64,7 +55,7 @@ SolidTransportData& SolidTransportData::operator=(const SolidTransportData& righ
     }
     return *this;
 }
-//====================================================================================================================
+
 SolidTransportData::~SolidTransportData()
 {
     delete ionConductivity;
@@ -73,5 +64,5 @@ SolidTransportData::~SolidTransportData()
     delete defectDiffusivity;
     delete defectActivity;
 }
-//====================================================================================================================
+
 }

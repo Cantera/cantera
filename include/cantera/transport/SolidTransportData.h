@@ -2,15 +2,9 @@
  *  @file SolidTransportData.h
  *  Header file defining class SolidTransportData
  */
-/*
- *  $Author: hkmoffa $
- *  $Date: 2010-07-13 13:22:30 -0600 (Tue, 13 Jul 2010) $
- *  $Revision: 507 $
- */
 
 #ifndef CT_SOLIDTRANSPORTDATA_H
 #define CT_SOLIDTRANSPORTDATA_H
-
 
 // STL includes
 #include <vector>
@@ -32,36 +26,26 @@ namespace Cantera
  * A SolidTransportData object is created for a solid phase
  * (not for each species as happens for the analogous LiquidTransportData).
  *
- * This class is mainly used to collect transport properties
- * from the parse phase in the TranportFactory and transfer
- * them to the Transport class.  Transport properties are
- * expressed by subclasses of LTPspecies.
- * Note that we use the liquid phase species model for the solid phases.
- * That is, for the time being at least, we ignore mixing models for
- * solid phases and just specify a transport property at the level
- * that we specify the transport property for a species in the liquid phase.
- * One may need to be careful about deleting pointers to LTPspecies
- * objects created in the TransportFactory.
+ * This class is mainly used to collect transport properties from the parse
+ * phase in the TranportFactory and transfer them to the Transport class.
+ * Transport properties are expressed by subclasses of LTPspecies. Note that
+ * we use the liquid phase species model for the solid phases. That is, for
+ * the time being at least, we ignore mixing models for solid phases and just
+ * specify a transport property at the level that we specify the transport
+ * property for a species in the liquid phase. One may need to be careful
+ * about deleting pointers to LTPspecies objects created in the
+ * TransportFactory.
  *
- *  All of the pointers in this class are shallow pointers. Therefore, this
- *  is a passthrough class, which keeps track of pointer ownership by zeroing
- *  pointers as we go. Yes, Yes, yes, this is not good.
+ * All of the pointers in this class are shallow pointers. Therefore, this is
+ * a passthrough class, which keeps track of pointer ownership by zeroing
+ * pointers as we go. Yes, Yes, yes, this is not good.
  */
 class SolidTransportData : public TransportParams
 {
-
 public:
-
-    //! Default constructor
     SolidTransportData();
-
-    //! Copy constructor
     SolidTransportData(const SolidTransportData& right);
-
-    //! Assignment operator
     SolidTransportData& operator=(const SolidTransportData& right);
-
-    //! Destructor
     ~SolidTransportData();
 
     //! A SolidTransportData object is instantiated for each species.
@@ -129,4 +113,3 @@ protected:
 
 }
 #endif
-
