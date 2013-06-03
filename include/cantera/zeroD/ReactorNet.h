@@ -14,18 +14,17 @@
 namespace Cantera
 {
 
+//! A class representing a network of connected reactors.
+/*!
+ *  This class is used to integrate the time-dependent governing equations for
+ *  a network of reactors (Reactor, ConstPressureReactor) connected by various
+ *  means, e.g. Wall, MassFlowController, Valve, PressureController.
+ */
 class ReactorNet : public Cantera::FuncEval
 {
-
 public:
-
-    //! Constructor
     ReactorNet();
-
-    //! Destructor
     virtual ~ReactorNet();
-
-    //-----------------------------------------------------
 
     /** @name Methods to set up a simulation. */
     //@{
@@ -40,7 +39,7 @@ public:
         m_init = false;
     }
 
-    /// Set the maximum time step.
+    //! Set the maximum time step.
     void setMaxTimeStep(double maxstep) {
         m_maxstep = maxstep;
         m_init = false;
@@ -53,6 +52,7 @@ public:
         m_init = false;
     }
 
+    //! Set the relative and absolute tolerances for the integrator.
     void setTolerances(doublereal rtol, doublereal atol) {
         if (rtol >= 0.0) {
             m_rtol = rtol;
@@ -63,6 +63,8 @@ public:
         m_init = false;
     }
 
+    //! Set the relative and absolute tolerances for integrating the
+    //! sensitivity equations.
     void setSensitivityTolerances(doublereal rtol, doublereal atol) {
         if (rtol >= 0.0) {
             m_rtolsens = rtol;
@@ -73,74 +75,97 @@ public:
         m_init = false;
     }
 
-    /// Current value of the simulation time.
+    //! Current value of the simulation time.
     doublereal time() {
         return m_time;
     }
 
-    /// Relative tolerance.
+    //! Relative tolerance.
     doublereal rtol() {
         return m_rtol;
     }
 
-    /// Absolute integration tolerance
+    //! Absolute integration tolerance
     doublereal atol() {
         return m_atols;
     }
 
-    /// Relative sensitivity tolerance
+    //! Relative sensitivity tolerance
     doublereal rtolSensitivity() const {
         return m_rtolsens;
     }
 
-    /// Absolute sensitivity tolerance
+    //! Absolute sensitivity tolerance
     doublereal atolSensitivity() const {
         return m_atolsens;
     }
 
     /**
-     * Advance the state of all reactors in time.
+     * Advance the state of all reactors in time. Take as many internal
+     * timesteps as necessary to reach *time*.
      * @param time Time to advance to (s).
      */
     void advance(doublereal time);
 
+    //! Advance the state of all reactors in time. Take a single timestep
+    //! toward *time*.
     double step(doublereal time);
 
     //@}
 
+    //! Add the reactor *r* to this reactor network.
     void addReactor(ReactorBase* r, bool iown = false);
 
+    //! Return a reference to the *n*-th reactor in this network. The reactor
+    //! indices are determined by the order in which the reactors were added
+    //! to the reactor network.
     ReactorBase& reactor(int n) {
         return *m_r[n];
     }
 
+    //! Returns `true` if verbose logging output is enabled.
     bool verbose() const {
         return m_verbose;
     }
+
+    //! Enable or disable verbose logging while setting up and integrating the
+    //! reactor network.
     void setVerbose(bool v = true) {
         m_verbose = v;
     }
 
-    /// Return a reference to the integrator.
+    //! Return a reference to the integrator.
     Integrator& integrator() {
         return *m_integ;
     }
 
+    //! Update the state of all the reactors in the network to correspond to
+    //! the values in the solution vector *y*.
     void updateState(doublereal* y);
 
+    //! Return the sensitivity of the *k*-th solution component with
+    //! respect to the *p*-th sensitivity parameter.
     double sensitivity(size_t k, size_t p) {
         return m_integ->sensitivity(k, m_sensIndex[p])/m_integ->solution(k);
     }
 
+    //! Return the sensitivity of the species named *species* with respect to
+    //! the *p*-th sensitivity parameter.
     double sensitivity(const std::string& species, size_t p, int reactor=0) {
         size_t k = globalComponentIndex(species, reactor);
         return sensitivity(k, p);
     }
 
+    //! Evaluate the Jacobian matrix for the reactor network.
+    /*!
+     *  @param[in] t Time at which to evaluate the Jacobian
+     *  @param[in] y Global state vector at time *t*
+     *  @param[out] ydot Time derivative of the state vector evaluated at *t*.
+     *  @param[in] p sensitivity parameter vector (unused?)
+     *  @param[out] j Jacobian matrix, size neq() by neq().
+     */
     void evalJacobian(doublereal t, doublereal* y,
                       doublereal* ydot, doublereal* p, Array2D* j);
-
-    //-----------------------------------------------------
 
     // overloaded methods of class FuncEval
     virtual size_t neq() {
@@ -154,6 +179,9 @@ public:
         return m_ntotpar;
     }
 
+    //! Return the index corresponding to the species named *species* in the
+    //! reactor with index *reactor* in the global state vector for the
+    //! reactor network.
     size_t globalComponentIndex(const std::string& species, size_t reactor=0);
 
     //! Used by Reactor and Wall objects to register the addition of
@@ -217,11 +245,7 @@ protected:
     vector_fp m_ydot;
 
     std::vector<bool> m_iown;
-
-private:
-
 };
 }
 
 #endif
-
