@@ -1,7 +1,6 @@
 /**
- *  @file Reactor.cpp
- *
- *  A zero-dimensional reactor
+ *  @file ConstPressureReactor.cpp A constant pressure zero-dimensional
+ *      reactor
  */
 
 // Copyright 2001  California Institute of Technology
@@ -114,10 +113,6 @@ void ConstPressureReactor::updateState(doublereal* y)
     m_thermo->saveState(m_state);
 }
 
-
-/*
- * Called by the integrator to evaluate ydot given y at time 'time'.
- */
 void ConstPressureReactor::evalEqs(doublereal time, doublereal* y,
                                    doublereal* ydot, doublereal* params)
 {

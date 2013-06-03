@@ -1,7 +1,5 @@
 /**
- *  @file Reactor.cpp
- *
- *  A zero-dimensional reactor
+ *  @file Reactor.cpp A zero-dimensional reactor
  */
 
 // Copyright 2001  California Institute of Technology
@@ -28,8 +26,6 @@ Reactor::Reactor() : ReactorBase(),
     m_nsens(npos)
 {}
 
-// overloaded method of FuncEval. Called by the integrator to
-// get the initial conditions.
 void Reactor::getInitialConditions(double t0, size_t leny, double* y)
 {
     m_init = true;
@@ -65,9 +61,6 @@ void Reactor::getInitialConditions(double t0, size_t leny, double* y)
     }
 }
 
-/*
- *  Must be called before calling method 'advance'
- */
 void Reactor::initialize(doublereal t0)
 {
     m_thermo->restoreState(m_state);
@@ -155,10 +148,6 @@ void Reactor::updateState(doublereal* y)
     m_thermo->saveState(m_state);
 }
 
-
-/*
- * Called by the integrator to evaluate ydot given y at time 'time'.
- */
 void Reactor::evalEqs(doublereal time, doublereal* y,
                       doublereal* ydot, doublereal* params)
 {
@@ -326,7 +315,6 @@ std::vector<std::pair<void*, int> > Reactor::getSensitivityOrder() const
     }
     return order;
 }
-
 
 size_t Reactor::componentIndex(const string& nm) const
 {

@@ -1,7 +1,5 @@
 /**
-*  @file FlowReactor.cpp
-*
-*  A zero-dimensional reactor
+*  @file FlowReactor.cpp A steady-state plug flow reactor
 */
 
 // Copyright 2001  California Institute of Technology
@@ -21,8 +19,6 @@ FlowReactor::FlowReactor() :
 {
 }
 
-// overloaded method of FuncEval. Called by the integrator to
-// get the initial conditions.
 void FlowReactor::getInitialConditions(double t0, size_t leny, double* y)
 {
     m_init = true;
@@ -40,9 +36,6 @@ void FlowReactor::getInitialConditions(double t0, size_t leny, double* y)
     y[1] = m_speed0;
 }
 
-/*
- *  Must be called before calling method 'advance'
- */
 void FlowReactor::initialize(doublereal t0)
 {
     m_thermo->restoreState(m_state);
@@ -76,10 +69,6 @@ void FlowReactor::updateState(doublereal* y)
     m_thermo->saveState(m_state);
 }
 
-
-/*
- * Called by the integrator to evaluate ydot given y at time 'time'.
- */
 void FlowReactor::evalEqs(doublereal time, doublereal* y,
                           doublereal* ydot, doublereal* params)
 {
@@ -125,10 +114,7 @@ void FlowReactor::evalEqs(doublereal time, doublereal* y,
             m_kin->setMultiplier(m_pnum[n], mult/params[n]);
         }
     }
-
-
 }
-
 
 size_t FlowReactor::componentIndex(const string& nm) const
 {
