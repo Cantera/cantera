@@ -1,7 +1,6 @@
 /**
  *  @file PecosTransport.cpp
  *  Mixture-averaged transport properties.
- *
  */
 
 #include "cantera/thermo/ThermoPhase.h"
@@ -20,20 +19,15 @@ using namespace std;
 namespace Cantera
 {
 
-//////////////////// class PecosTransport methods //////////////
-
 PecosTransport::PecosTransport() :
     m_nsp(0),
     m_temp(-1.0),
     m_logt(0.0)
 {
-
-
 }
 
 bool PecosTransport::initGas(GasTransportParams& tr)
 {
-
     // constant substance attributes
     m_thermo = tr.thermo;
     m_nsp   = m_thermo->nSpecies();
@@ -107,33 +101,8 @@ bool PecosTransport::initGas(GasTransportParams& tr)
     return true;
 }
 
-
-/*********************************************************
- *
- *                Public methods
- *
- *********************************************************/
-
-
-/******************  viscosity ******************************/
-
-/**
- * The viscosity is computed using the Wilke mixture rule.
- * \f[
- * \mu = \sum_k \frac{\mu_k X_k}{\sum_j \Phi_{k,j} X_j}.
- * \f]
- * Here \f$ \mu_k \f$ is the viscosity of pure species \e k,
- * and
- * \f[
- * \Phi_{k,j} = \frac{\left[1
- * + \sqrt{\left(\frac{\mu_k}{\mu_j}\sqrt{\frac{M_j}{M_k}}\right)}\right]^2}
- * {\sqrt{8}\sqrt{1 + M_k/M_j}}
- * \f]
- * @see updateViscosity_T();
- */
 doublereal PecosTransport::viscosity()
 {
-
     update_T();
     update_C();
 
@@ -157,14 +126,6 @@ doublereal PecosTransport::viscosity()
     return vismix;
 }
 
-/******************* binary diffusion coefficients **************/
-/*
- *
- *  Using Ramshaw's self-consistent Effective Binary Diffusion
- *  (1990, J. Non-Equilib. Thermo)
- *  Adding more doxygen would be good here
- */
-
 void PecosTransport::getBinaryDiffCoeffs(const size_t ld, doublereal* const d)
 {
     int i,j;
@@ -183,7 +144,6 @@ void PecosTransport::getBinaryDiffCoeffs(const size_t ld, doublereal* const d)
         }
 }
 
-
 void PecosTransport::getMobilities(doublereal* const mobil)
 {
     int k;
@@ -194,23 +154,6 @@ void PecosTransport::getMobilities(doublereal* const mobil)
     }
 }
 
-
-/****************** thermal conductivity **********************/
-
-/**
- * The thermal conductivity is computed using the Wilke mixture rule.
- * \f[
- * \k = \sum_s \frac{k_s X_s}{\sum_j \Phi_{s,j} X_j}.
- * \f]
- * Here \f$ \k_s \f$ is the conductivity of pure species \e s,
- * and
- * \f[
- * \Phi_{s,j} = \frac{\left[1
- * + \sqrt{\left(\frac{\mu_k}{\mu_j}\sqrt{\frac{M_j}{M_s}}\right)}\right]^2}
- * {\sqrt{8}\sqrt{1 + M_s/M_j}}
- * \f]
- * @see updateCond_T();
- */
 doublereal PecosTransport::thermalConductivity()
 {
     int k;
@@ -237,15 +180,6 @@ doublereal PecosTransport::thermalConductivity()
 
 }
 
-
-/****************** thermal diffusion coefficients ************/
-
-/**
- * Thermal diffusion is not considered in this pecos
- * model. To include thermal diffusion, use transport manager
- * MultiTransport instead. This methods fills out array dt with
- * zeros.
- */
 void PecosTransport::getThermalDiffCoeffs(doublereal* const dt)
 {
     int k;
@@ -254,18 +188,6 @@ void PecosTransport::getThermalDiffCoeffs(doublereal* const dt)
     }
 }
 
-/**
- * @param ndim The number of spatial dimensions (1, 2, or 3).
- * @param grad_T The temperature gradient (ignored in this model).
- * @param ldx  Leading dimension of the grad_X array.
- * The diffusive mass flux of species \e k is computed from
- * \f[
- * \vec{j}_k = -n M_k D_k \nabla X_k + \frac{\rho_k}{\rho} \sum_r n M_r D_r \nabla X_r
- * \f]
- *
- * This is neglective pressure, forced and thermal diffusion.
- *
- */
 void PecosTransport::getSpeciesFluxes(size_t ndim,
                                       const doublereal* const grad_T,
                                       size_t ldx, const doublereal* const grad_X,
@@ -305,17 +227,8 @@ void PecosTransport::getSpeciesFluxes(size_t ndim,
     }
 }
 
-/**
- * Mixture-averaged diffusion coefficients [m^2/s].
- *
- * For the single species case or the pure fluid case
- * the routine returns the self-diffusion coefficient.
- * This is need to avoid a Nan result in the formula
- * below.
- */
 void PecosTransport::getMixDiffCoeffs(doublereal* const d)
 {
-
     update_T();
     update_C();
 
@@ -443,8 +356,7 @@ void PecosTransport::update_T()
     m_polytempvec[3] = m_logt*m_logt*m_logt;
     m_polytempvec[4] = m_logt*m_logt*m_logt*m_logt;
 
-    // temperature has changed, so polynomial fits will need to be
-    // redone.
+    // temperature has changed, so polynomial fits will need to be redone.
     m_viscmix_ok = false;
     m_spvisc_ok = false;
     m_viscwt_ok = false;
@@ -455,11 +367,6 @@ void PecosTransport::update_T()
     m_condmix_ok = false;
 }
 
-/**
- *  @internal This is called the first time any transport property
- *  is requested from Mixture after the concentrations
- *  have changed.
- */
 void PecosTransport::update_C()
 {
     // signal that concentration-dependent quantities will need to
@@ -479,27 +386,8 @@ void PecosTransport::update_C()
     }
 }
 
-/*************************************************************************
- *
- *    methods to update temperature-dependent properties
- *
- *************************************************************************/
-
-/**
- *
- * Update the temperature-dependent parts of the mixture-averaged
- * thermal conductivity.
- *
- * Calculated as,
- * \f[
- *    k= \mu_s (5/2 * C_{v,s}^{trans} + C_{v,s}^{rot} + C_{v,s}^{vib}
- * \f]
- *
- *
- */
 void PecosTransport::updateCond_T()
 {
-
     int k;
     doublereal fivehalves = 5/2;
     for (k = 0; k < m_nsp; k++) {
@@ -510,14 +398,8 @@ void PecosTransport::updateCond_T()
     m_condmix_ok = false;
 }
 
-
-/**
- * Update the binary diffusion coefficients. These are evaluated
- * from the polynomial fits at unit pressure (1 Pa).
- */
 void PecosTransport::updateDiff_T()
 {
-
     // evaluate binary diffusion coefficients at unit pressure
     int i,j;
     int ic = 0;
@@ -544,19 +426,6 @@ void PecosTransport::updateDiff_T()
     m_diffmix_ok = false;
 }
 
-
-/**
- *
- * Update the pure-species viscosities. (Pa-s) = (kg/m/sec)
- *
- * Using Blottner fit for viscosity. Defines kinematic viscosity
- * of the form
- * \f[
- *   \mu_s\left(T\right) = 0.10 \exp\left(A_s\left(\log T\right)^2 + B_s\log T + C_s\right)
- * \f]
- * where \f$ A_s \f$, \f$ B_s \f$, and \f$ C_s \f$ are constants.
- *
- */
 void PecosTransport::updateSpeciesViscosities()
 {
 
@@ -573,12 +442,6 @@ void PecosTransport::updateSpeciesViscosities()
     // time to update mixing
     m_spvisc_ok = true;
 }
-
-/*
- * read_blottner_transport_table()
- *  loads up A B and C for blottner fits
- *  hardcoded for air, will need to generalize later
- */
 
 void PecosTransport::read_blottner_transport_table()
 {
@@ -701,14 +564,6 @@ void PecosTransport::read_blottner_transport_table()
 
 }
 
-/**
- *
- * Update the temperature-dependent viscosity terms.
- * Updates the array of pure species viscosities, and the
- * weighting functions in the viscosity mixture rule.
- * The flag m_visc_ok is set to true.
- *
- */
 void PecosTransport::updateViscosity_T()
 {
     doublereal vratiokj, wratiojk, factor1;
@@ -736,4 +591,3 @@ void PecosTransport::updateViscosity_T()
 }
 
 }
-

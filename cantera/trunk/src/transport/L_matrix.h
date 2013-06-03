@@ -7,21 +7,14 @@
 #ifndef CT_LMATRIX_H
 #define CT_LMATRIX_H
 
-#include "cantera/numerics/DenseMatrix.h"
-#include "cantera/base/ct_defs.h"
-
-#include <vector>
-
-/////////////////////////////////////////////////////////////////////
+#include "cantera/transport/MultiTransport.h"
 
 namespace Cantera
 {
-//====================================================================================================================
-//  #define CHEMKIN_COMPATIBILITY_MODE
 
 //! Constant to compare dimensionless heat capacities against zero
 const doublereal Min_C_Internal = 0.001;
-//====================================================================================================================
+
 bool MultiTransport::hasInternalModes(size_t j)
 {
 #ifdef CHEMKIN_COMPATIBILITY_MODE
@@ -31,13 +24,8 @@ bool MultiTransport::hasInternalModes(size_t j)
 #endif
 }
 
-//====================================================================================================================
-/*
- * Evaluate the upper-left block of the L matrix.
- */
 void MultiTransport::eval_L0000(const doublereal* const x)
 {
-
     doublereal prefactor = 16.0*m_temp/25.0;
     doublereal sum;
     for (size_t i = 0; i < m_nsp; i++)  {
@@ -58,10 +46,9 @@ void MultiTransport::eval_L0000(const doublereal* const x)
         m_Lmatrix(i,i) = 0.0;
     }
 }
-//====================================================================================================================
+
 void MultiTransport::eval_L0010(const doublereal* const x)
 {
-
     doublereal prefactor = 1.6*m_temp;
 
     doublereal sum, wj, xj;
@@ -82,7 +69,7 @@ void MultiTransport::eval_L0010(const doublereal* const x)
         m_Lmatrix(j,j+m_nsp) += sum;
     }
 }
-//====================================================================================================================
+
 void MultiTransport::eval_L1000()
 {
     for (size_t j = 0; j < m_nsp; j++) {
@@ -91,10 +78,9 @@ void MultiTransport::eval_L1000()
         }
     }
 }
-//====================================================================================================================
+
 void MultiTransport::eval_L1010(const doublereal* x)
 {
-
     const doublereal fiveover3pi = 5.0/(3.0*Pi);
     doublereal prefactor = (16.0*m_temp)/25.0;
 
@@ -134,10 +120,9 @@ void MultiTransport::eval_L1010(const doublereal* x)
         m_Lmatrix(j+m_nsp,j+m_nsp) -= sum*constant1;
     }
 }
-//====================================================================================================================
+
 void MultiTransport::eval_L1001(const doublereal* x)
 {
-
     doublereal prefactor = 32.00*m_temp/(5.00*Pi);
     doublereal constant, sum;
     size_t n2 = 2*m_nsp;
@@ -162,7 +147,6 @@ void MultiTransport::eval_L1001(const doublereal* x)
         }
     }
 }
-//====================================================================================================================
 
 void MultiTransport::eval_L0001()
 {
@@ -173,7 +157,6 @@ void MultiTransport::eval_L0001()
         }
     }
 }
-//====================================================================================================================
 
 void MultiTransport::eval_L0100()
 {
@@ -183,7 +166,6 @@ void MultiTransport::eval_L0100()
             m_Lmatrix(i+n2,j) = 0.0;    //  see Eq. (12.123)
         }
 }
-//====================================================================================================================
 
 void MultiTransport::eval_L0110()
 {
@@ -193,10 +175,9 @@ void MultiTransport::eval_L0110()
             m_Lmatrix(i+n2,j+m_nsp) = m_Lmatrix(j+m_nsp,i+n2);    //  see Eq. (12.123)
         }
 }
-//====================================================================================================================
+
 void MultiTransport::eval_L0101(const doublereal* x)
 {
-
     const doublereal fivepi = 5.00*Pi;
     const doublereal eightoverpi = 8.0 / Pi;
 
@@ -231,5 +212,5 @@ void MultiTransport::eval_L0101(const doublereal* x)
     }
 }
 }
-//======================================================================================================================
+
 #endif

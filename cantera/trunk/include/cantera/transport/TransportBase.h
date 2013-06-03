@@ -103,29 +103,23 @@ const VelocityBasis VB_SPECIES_3 = 3;
 
 //! Base class for transport property managers.
 /*!
- *  All classes that compute transport properties for a single phase
- *  derive from this class.  Class
- *  %Transport is meant to be used as a base class only. It is
- *  possible to instantiate it, but its methods throw exceptions if
- *  called.
- *
- *  Note, transport properties for multiphase situations have yet to be
- *  fully developed within Cantera.
- *
- *  All member functions are virtual, unless otherwise stated.
+ *  All classes that compute transport properties for a single phase derive
+ *  from this class.  Class Transport is meant to be used as a base class
+ *  only. It is possible to instantiate it, but its methods throw exceptions
+ *  if called.
  *
  * <HR>
- * <H2> Relationship of the %Transport class to the %ThermoPhase Class </H2>
+ * <H2> Relationship of the %Transport class to the ThermoPhase Class </H2>
  * <HR>
  *
  *   This section describes how calculations are carried out within
- *   the %Transport class. The %Transport class and derived classes of the
- *   the %Transport class necessarily use the %ThermoPhase class to obtain
+ *   the Transport class. The Transport class and derived classes of the
+ *   the Transport class necessarily use the ThermoPhase class to obtain
  *   the list of species and the thermodynamic state of the phase.
  *
- *   No state information is stored within %Transport classes.
- *   Queries to the underlying ThermoPhase object must be made to obtain
- *   the state of the system.
+ *   No state information is stored within Transport classes. Queries to the
+ *   underlying ThermoPhase object must be made to obtain the state of the
+ *   system.
  *
  *   An exception to this however is the state information concerning the
  *   the gradients of variables. This information is not stored within
@@ -138,22 +132,20 @@ const VelocityBasis VB_SPECIES_3 = 3;
  *   also implicitly assumed that the underlying state within the ThermoPhase
  *   object has not changed its values.
  *
- *
  * <HR>
  * <H2> Diffusion Fluxes and their Relationship to Reference Velocities </H2>
  * <HR>
  *
- *  The diffusion fluxes must be referenced to a particular reference
- *  fluid velocity.
- *  Most typical is to reference the diffusion fluxes to the mass averaged velocity, but
- *  referencing to the mole averaged velocity is suitable for some
- *  liquid flows, and referencing to a single species is suitable for
- *  solid phase transport within a lattice.  Currently, the identity of the reference
- *  velocity is coded into each transport object as a typedef named VelocityBasis, which
- *  is equated to an integer. Negative values of this variable refer to mass or mole-averaged
- *  velocities.  Zero or positive quantities refers to the reference
- *  velocity being referenced to a particular species. Below are the predefined constants
- *  for its value.
+ *  The diffusion fluxes must be referenced to a particular reference fluid
+ *  velocity. Most typical is to reference the diffusion fluxes to the mass
+ *  averaged velocity, but referencing to the mole averaged velocity is suitable
+ *  for some liquid flows, and referencing to a single species is suitable for
+ *  solid phase transport within a lattice.  Currently, the identity of the
+ *  reference velocity is coded into each transport object as a typedef named
+ *  VelocityBasis, which is equated to an integer. Negative values of this
+ *  variable refer to mass or mole-averaged velocities.  Zero or positive
+ *  quantities refers to the reference velocity being referenced to a particular
+ *  species. Below are the predefined constants for its value.
  *
  *  - VB_MASSAVG    Diffusion velocities are based on the mass averaged velocity
  *  - VB_MOLEAVG    Diffusion velocities are based on the mole averaged velocities
@@ -165,7 +157,6 @@ const VelocityBasis VB_SPECIES_3 = 3;
  *  All gas phase transport managers by default specify the mass-averaged velocity as their
  *  reference velocities.
  *
- *
  *  @todo Provide a general mechanism to store the gradients of state variables
  *        within the system.
  *
@@ -173,9 +164,7 @@ const VelocityBasis VB_SPECIES_3 = 3;
  */
 class Transport
 {
-
 public:
-
     //!  Constructor.
     /*!
      * New transport managers should be created using
@@ -189,30 +178,15 @@ public:
      */
     Transport(thermo_t* thermo=0, size_t ndim = 1);
 
-    //! Destructor.
     virtual ~Transport();
-
-    //!  Copy Constructor for the %Transport  object.
-    /*!
-     * @param right  Transport to be copied
-     */
     Transport(const Transport& right);
-
-    //! Assignment operator
-    /*!
-     *  This is NOT a virtual function.
-     *
-     * @param right    Reference to Transport object to be copied into the
-     *                 current one.
-     */
     Transport&  operator=(const Transport& right);
 
-    //! Duplication routine for objects which inherit from
-    //! %Transport
+    //! Duplication routine for objects which inherit from Transport
     /*!
-     *  This virtual routine can be used to duplicate %Transport objects
-     *  inherited from %Transport even if the application only has
-     *  a pointer to %Transport to work with.
+     *  This virtual routine can be used to duplicate objects derived from
+     *  Transport even if the application only has a pointer to Transport to
+     *  work with.
      *
      *  These routines are basically wrappers around the derived copy
      *  constructor.
@@ -220,46 +194,38 @@ public:
     // Note ->need working copy constructors and operator=() functions for all first
     virtual Transport* duplMyselfAsTransport() const;
 
-
     //! Transport model.
     /*!
-     * The transport model is the set of equations used to compute the transport properties. This
-     * virtual method returns an integer flag that identifies the
+     * The transport model is the set of equations used to compute the transport
+     * properties. This method returns an integer flag that identifies the
      * transport model implemented. The base class returns 0.
      */
     virtual int model() const {
         return 0;
     }
 
-    /**
-     * Phase object. Every transport manager is designed to compute
-     * properties for a specific phase of a mixture, which might be a
-     * liquid solution, a gas mixture, a surface, etc. This method
-     * returns a reference to the object representing the phase
-     * itself.
+    /*!
+     * Phase object. Every transport manager is designed to compute properties
+     * for a specific phase of a mixture, which might be a liquid solution, a
+     * gas mixture, a surface, etc. This method returns a reference to the
+     * object representing the phase itself.
      */
     thermo_t& thermo() {
         return *m_thermo;
     }
 
-
-    /**
+    /*!
      * Returns true if the transport manager is ready for use.
      */
     bool ready();
 
     //! Set the number of dimensions to be expected in flux expressions
     /*!
-     *   Internal memory will be set with this value.
-     *
      *  @param ndim  Number of dimensions in flux expressions
      */
     void setNDim(const int ndim);
 
     //! Return the number of dimensions in flux expressions
-    /*!
-     *   @return  Returns the number of dimensions
-     */
     size_t nDim() const {
         return m_nDim;
     }
@@ -278,8 +244,7 @@ public:
      */
     //@{
 
-
-    /**
+    /*!
      * The viscosity in Pa-s.
      */
     virtual doublereal viscosity() {
@@ -323,10 +288,8 @@ public:
         err("getSpeciesIonConductivity");
     }
 
-
     //! Returns the pointer to the mobility ratios of the species in the phase
     /*!
-     *
      * @param mobRat Returns a matrix of mobility ratios for the current problem.
      *               The mobility ratio mobRat(i,j) is defined as the ratio of the
      *               mobility of species i to species j.
@@ -355,14 +318,14 @@ public:
 
     //! Returns the self diffusion coefficients of the species in the phase
     /*!
-     *  The self diffusion coefficient is the diffusion coefficient of a tracer species
-     *  at the current temperature and composition of the species. Therefore,
-     *  the dilute limit of transport is assumed for the tracer species.
-     *  The effective formula may be calculated from the stefan-maxwell formulation by
-     *  adding another row for the tracer species, assigning all D's to be equal
-     *  to the respective species D's, and then taking the limit as the
-     *  tracer species mole fraction goes to zero. The corresponding flux equation
-     *  for the tracer species k in units of kmol m-2 s-1 is.
+     *  The self diffusion coefficient is the diffusion coefficient of a tracer
+     *  species at the current temperature and composition of the species.
+     *  Therefore, the dilute limit of transport is assumed for the tracer
+     *  species. The effective formula may be calculated from the stefan-maxwell
+     *  formulation by adding another row for the tracer species, assigning all
+     *  D's to be equal to the respective species D's, and then taking the limit
+     *  as the tracer species mole fraction goes to zero. The corresponding flux
+     *  equation for the tracer species k in units of kmol m-2 s-1 is.
      *
      *  \f[
      *       J_k = - D^{sd}_k \frac{C_k}{R T}  \nabla \mu_k
@@ -375,20 +338,17 @@ public:
      *  These in turn employ subclasses of LTPspecies to
      *  determine the individual species self diffusion coeffs.
      *
-     *  @param selfDiff Vector of self-diffusion coefficients
-     *                  Length = number of species in phase
-     *                  units = m**2 s-1
+     *  @param selfDiff Vector of self-diffusion coefficients. Length = number
+     *                  of species in phase. units = m**2 s-1.
      */
     virtual void selfDiffusion(doublereal* const selfDiff) {
         err("selfDiffusion");
     }
 
-
     //! Returns the pure species self diffusion in solution of each species
     /*!
-     *  The pure species molar volumes are evaluated using the
-     *  appropriate subclasses of LTPspecies as specified in the
-     *  input file.
+     *  The pure species molar volumes are evaluated using the appropriate
+     *  subclasses of LTPspecies as specified in the input file.
      *
      * @param selfDiff  array of length "number of species"
      *              to hold returned self diffusion coeffs.
@@ -407,13 +367,12 @@ public:
         return err("thermalConductivity");
     }
 
-    /**
+    /*!
      * The electrical conductivity (Siemens/m).
      */
     virtual doublereal electricalConductivity() {
         return err("electricalConductivity");
     }
-
 
     //! Get the Electrical mobilities (m^2/V/s).
     /*!
@@ -427,10 +386,9 @@ public:
      *          \mu^e_k = \frac{F D_k}{R T}
      *     \f]
      *
-     *
-     * @param mobil_e  Returns the mobilities of
-     *               the species in array \c mobil_e. The array must be
-     *               dimensioned at least as large as the number of species.
+     * @param mobil_e  Returns the mobilities of the species in array \c
+     *               mobil_e. The array must be dimensioned at least as large as
+     *               the number of species.
      */
     virtual void getMobilities(doublereal* const mobil_e) {
         err("getMobilities");
@@ -449,15 +407,13 @@ public:
      *          \mu^f_k = \frac{D_k}{R T}
      *     \f]
      *
-     *
-     * @param mobil_f  Returns the mobilities of
-     *               the species in array \c mobil. The array must be
-     *               dimensioned at least as large as the number of species.
+     * @param mobil_f  Returns the mobilities of the species in array \c mobil.
+     *               The array must be dimensioned at least as large as the
+     *               number of species.
      */
     virtual void getFluidMobilities(doublereal* const mobil_f) {
         err("getFluidMobilities");
     }
-
 
     //@}
 
@@ -471,9 +427,8 @@ public:
      *            \vec{J} = \sigma \vec{E}
      *     \f]
      *
-     *   We assume here that the mixture electrical conductivity is an
-     *   isotropic quantity, at this stage. Tensors may be included at a
-     *   later time.
+     *   We assume here that the mixture electrical conductivity is an isotropic
+     *   quantity, at this stage. Tensors may be included at a later time.
      *
      *   The conductivity is the reciprocal of the resistivity.
      *
@@ -507,14 +462,13 @@ public:
         err("getElectricCurrent");
     }
 
-
-    //! Get the species diffusive mass fluxes wrt to the specified solution averaged velocity,
-    //! given the gradients in mole fraction and temperature
+    //! Get the species diffusive mass fluxes wrt to the specified solution
+    //! averaged velocity, given the gradients in mole fraction and temperature
     /*!
      *  Units for the returned fluxes are kg m-2 s-1.
      *
-     *  Usually the specified solution average velocity is the mass averaged velocity.
-     *  This is changed in some subclasses, however.
+     *  Usually the specified solution average velocity is the mass averaged
+     *  velocity. This is changed in some subclasses, however.
      *
      *  @param ndim       Number of dimensions in the flux expressions
      *  @param grad_T     Gradient of the temperature
@@ -534,28 +488,23 @@ public:
                                   size_t ldx, const doublereal* const grad_X,
                                   size_t ldf, doublereal* const fluxes);
 
-    //! Get the species diffusive mass fluxes wrt to
-    //! the mass averaged velocity,
-    //! given the gradients in mole fraction, temperature
-    //! and electrostatic potential.
+    //! Get the species diffusive mass fluxes wrt to the mass averaged velocity,
+    //! given the gradients in mole fraction, temperature and electrostatic
+    //! potential.
     /*!
      *  Units for the returned fluxes are kg m-2 s-1.
      *
-     *  @param ndim Number of dimensions in the flux expressions
-     *  @param grad_T Gradient of the temperature
-     *                 (length = ndim)
-     * @param ldx  Leading dimension of the grad_X array
-     *              (usually equal to m_nsp but not always)
-     * @param grad_X Gradients of the mole fraction
-     *             Flat vector with the m_nsp in the inner loop.
-     *             length = ldx * ndim
-     * @param ldf  Leading dimension of the fluxes array
-     *              (usually equal to m_nsp but not always)
-     * @param grad_Phi Gradients of the electrostatic potential
-     *                 (length = ndim)
-     * @param fluxes  Output of the diffusive mass fluxes
-     *             Flat vector with the m_nsp in the inner loop.
-     *             length = ldx * ndim
+     * @param[in] ndim Number of dimensions in the flux expressions
+     * @param[in] grad_T Gradient of the temperature. (length = ndim)
+     * @param[in] ldx  Leading dimension of the grad_X array (usually equal to
+     *              m_nsp but not always)
+     * @param[in] grad_X Gradients of the mole fraction. Flat vector with the
+     *             m_nsp in the inner loop. length = ldx * ndim.
+     * @param[in] ldf  Leading dimension of the fluxes array (usually equal to
+     *              m_nsp but not always).
+     * @param[in] grad_Phi Gradients of the electrostatic potential (length = ndim)
+     * @param[out] fluxes  The diffusive mass fluxes. Flat vector with the m_nsp
+     *             in the inner loop. length = ldx * ndim.
      */
     virtual void getSpeciesFluxesES(size_t ndim,
                                     const doublereal* grad_T,
@@ -567,28 +516,20 @@ public:
         getSpeciesFluxes(ndim, grad_T, ldx, grad_X, ldf, fluxes);
     }
 
-
-    //! Get the species diffusive velocities wrt to
-    //! the mass averaged velocity,
+    //! Get the species diffusive velocities wrt to the mass averaged velocity,
     //! given the gradients in mole fraction and temperature
     /*!
-     *  Units for the returned velocities are m s-1
-     *
-     *  @param ndim Number of dimensions in the flux expressions
-     *  @param grad_T Gradient of the temperature
-     *                 (length = ndim)
-     * @param ldx  Leading dimension of the grad_X array
-     *              (usually equal to m_nsp but not always)
-     * @param grad_X Gradients of the mole fraction
-     *             Flat vector with the m_nsp in the inner loop.
-     *             length = ldx * ndim
-     * @param ldf  Leading dimension of the fluxes array
-     *              (usually equal to m_nsp but not always)
-     * @param Vdiff  Output of the diffusive velocities wrt the mass-averaged
-     *               velocity
+     * @param[in] ndim Number of dimensions in the flux expressions
+     * @param[in] grad_T Gradient of the temperature (length = ndim)
+     * @param[in] ldx  Leading dimension of the grad_X array (usually equal to
+     *              m_nsp but not always)
+     * @param[in] grad_X Gradients of the mole fraction. Flat vector with the
+     *             m_nsp in the inner loop. length = ldx * ndim
+     * @param[in] ldf  Leading dimension of the fluxes array (usually equal to
+     *              m_nsp but not always)
+     * @param[out] Vdiff  Diffusive velocities wrt the mass- averaged velocity.
      *               Flat vector with the m_nsp in the inner loop.
-     *               length = ldx * ndim
-     *               units are m / s.
+     *               length = ldx * ndim. units are m / s.
      */
     virtual void getSpeciesVdiff(size_t ndim,
                                  const doublereal* grad_T,
@@ -600,27 +541,22 @@ public:
     }
 
     //! Get the species diffusive velocities wrt to the mass averaged velocity,
-    //! given the gradients in mole fraction, temperature,
-    //! and electrostatic potential.
+    //! given the gradients in mole fraction, temperature, and electrostatic
+    //! potential.
     /*!
-     *  Units for the returned velocities are m s-1.
-     *
-     *  @param ndim Number of dimensions in the flux expressions
-     *  @param grad_T Gradient of the temperature
+     *  @param[in] ndim Number of dimensions in the flux expressions
+     *  @param[in] grad_T Gradient of the temperature (length = ndim)
+     * @param[in] ldx  Leading dimension of the grad_X array (usually equal to
+     *              m_nsp but not always)
+     * @param[in] grad_X Gradients of the mole fraction. Flat vector with the
+     *             m_nsp in the inner loop. length = ldx * ndim.
+     * @param[in] ldf  Leading dimension of the fluxes array (usually equal to
+     *              m_nsp but not always)
+     * @param[in] grad_Phi Gradients of the electrostatic potential
      *                 (length = ndim)
-     * @param ldx  Leading dimension of the grad_X array
-     *              (usually equal to m_nsp but not always)
-     * @param grad_X Gradients of the mole fraction
-     *             Flat vector with the m_nsp in the inner loop.
-     *             length = ldx * ndim
-     * @param ldf  Leading dimension of the fluxes array
-     *              (usually equal to m_nsp but not always)
-     * @param grad_Phi Gradients of the electrostatic potential
-     *                 (length = ndim)
-     * @param Vdiff  Output of the diffusive velocities wrt the mass-averaged velocity
-     *               Flat vector with the m_nsp in the inner loop.
-     *               length = ldx * ndim
-     *               units are m / s.
+     * @param[out] Vdiff  Diffusive velocities wrt the mass-averaged velocity.
+     *               Flat vector with the m_nsp in the inner loop. length = ldx
+     *               * ndim units are m / s.
      */
     virtual void getSpeciesVdiffES(size_t ndim,
                                    const doublereal* grad_T,
@@ -632,20 +568,18 @@ public:
         getSpeciesVdiff(ndim, grad_T, ldx, grad_X, ldf, Vdiff);
     }
 
-
-    //! Get the molar fluxes [kmol/m^2/s], given the thermodynamic
-    //! state at two nearby points.
+    //! Get the molar fluxes [kmol/m^2/s], given the thermodynamic state at two
+    //! nearby points.
     /*!
-     * @param state1 Array of temperature, density, and mass
-     *               fractions for state 1.
-     * @param state2 Array of temperature, density, and mass
-     *               fractions for state 2.
-     * @param delta  Distance from state 1 to state 2 (m).
-     * @param cfluxes Output array containing the diffusive molar fluxes of species
-     *               from state1 to state2. This is a flat vector with the
-     *               m_nsp in the inner loop.
-     *               length = ldx * ndim.
-     *               Units are [kmol/m^2/s].
+     * @param[in] state1 Array of temperature, density, and mass fractions for
+     *               state 1.
+     * @param[in] state2 Array of temperature, density, and mass fractions for
+     *               state 2.
+     * @param[in] delta  Distance from state 1 to state 2 (m).
+     * @param[out] cfluxes Output array containing the diffusive molar fluxes of
+     *               species from state1 to state2. This is a flat vector with
+     *               m_nsp in the inner loop. length = ldx * ndim. Units are
+     *               [kmol/m^2/s].
      */
     virtual void getMolarFluxes(const doublereal* const state1,
                                 const doublereal* const state2, const doublereal delta,
@@ -653,20 +587,18 @@ public:
         err("getMolarFluxes");
     }
 
-
-    //!  Get the mass fluxes [kg/m^2/s], given the thermodynamic
-    //!  state at two nearby points.
+    //!  Get the mass fluxes [kg/m^2/s], given the thermodynamic state at two
+    //!  nearby points.
     /*!
-     * @param state1 Array of temperature, density, and mass
+     * @param[in] state1 Array of temperature, density, and mass
      *               fractions for state 1.
-     * @param state2 Array of temperature, density, and mass
-     *               fractions for state 2.
-     * @param delta Distance from state 1 to state 2 (m).
-     * @param mfluxes Output array containing the diffusive mass fluxes of species
-     *               from state1 to state2. This is a flat vector with the
-     *               m_nsp in the inner loop.
-     *               length = ldx * ndim.
-     *               Units are [kg/m^2/s].
+     * @param[in] state2 Array of temperature, density, and mass fractions for
+     *               state 2.
+     * @param[in] delta Distance from state 1 to state 2 (m).
+     * @param[out] mfluxes Output array containing the diffusive mass fluxes of
+     *               species from state1 to state2. This is a flat vector with
+     *               m_nsp in the inner loop. length = ldx * ndim. Units are
+     *               [kg/m^2/s].
      */
     virtual void getMassFluxes(const doublereal* state1,
                                const doublereal* state2, doublereal delta,
@@ -676,9 +608,9 @@ public:
 
     //! Return a vector of Thermal diffusion coefficients [kg/m/sec].
     /*!
-     * The thermal diffusion coefficient \f$ D^T_k \f$ is defined
-     * so that the diffusive mass flux of species <I>k</I> induced by the
-     * local temperature gradient is given by the following formula
+     * The thermal diffusion coefficient \f$ D^T_k \f$ is defined so that the
+     * diffusive mass flux of species <I>k</I> induced by the local temperature
+     * gradient is given by the following formula:
      *
      *    \f[
      *         M_k J_k = -D^T_k \nabla \ln T.
@@ -686,26 +618,24 @@ public:
      *
      *   The thermal diffusion coefficient can be either positive or negative.
      *
-     * @param dt On return, dt will contain the species thermal
-     *           diffusion coefficients.  Dimension dt at least as large as
-     *           the number of species. Units are kg/m/s.
+     * @param dt On return, dt will contain the species thermal diffusion
+     *           coefficients.  Dimension dt at least as large as the number of
+     *           species. Units are kg/m/s.
      */
     virtual void getThermalDiffCoeffs(doublereal* const dt)  {
         err("getThermalDiffCoeffs");
     }
 
-
     //! Returns the matrix of binary diffusion coefficients [m^2/s].
     /*!
-     *  @param ld  Inner stride for writing the two dimension diffusion
+     *  @param[in] ld  Inner stride for writing the two dimension diffusion
      *             coefficients into a one dimensional vector
-     *  @param d   Diffusion coefficient matrix (must be at least m_k * m_k
+     *  @param[out] d   Diffusion coefficient matrix (must be at least m_k * m_k
      *             in length.
      */
     virtual void getBinaryDiffCoeffs(const size_t ld, doublereal* const d) {
         err("getBinaryDiffCoeffs");
     }
-
 
     //! Return the Multicomponent diffusion coefficients. Units: [m^2/s].
     /*!
@@ -713,8 +643,8 @@ public:
      * model, then this method returns the array of multicomponent
      * diffusion coefficients. Otherwise it throws an exception.
      *
-     *  @param ld  The dimension of the inner loop of d (usually equal to m_nsp)
-     *  @param d  flat vector of diffusion coefficients, fortran ordering.
+     *  @param[in] ld  The dimension of the inner loop of d (usually equal to m_nsp)
+     *  @param[out] d  flat vector of diffusion coefficients, fortran ordering.
      *            d[ld*j+i] is the D_ij diffusion coefficient (the diffusion
      *            coefficient for species i due to species j).
      */
@@ -722,15 +652,12 @@ public:
         err("getMultiDiffCoeffs");
     }
 
-
     //! Returns a vector of mixture averaged diffusion coefficients
     /**
-     * Mixture-averaged diffusion coefficients [m^2/s].  If the
-     *
-     * transport manager implements a mixture-averaged diffusion
-     * model, then this method returns the array of
-     * mixture-averaged diffusion coefficients. Otherwise it
-     * throws an exception.
+     * Mixture-averaged diffusion coefficients [m^2/s].  If the transport
+     * manager implements a mixture-averaged diffusion model, then this method
+     * returns the array of mixture-averaged diffusion coefficients. Otherwise
+     * it throws an exception.
      *
      * @param d  Return vector of mixture averaged diffusion coefficients
      *           Units = m2/s. Length = n_sp
@@ -738,7 +665,6 @@ public:
     virtual void getMixDiffCoeffs(doublereal* const d) {
         err("getMixDiffCoeffs");
     }
-
 
     //! Returns a vector of mixture averaged diffusion coefficients
     virtual void getMixDiffCoeffsMole(doublereal* const d) {
@@ -752,9 +678,10 @@ public:
 
     //! Set model parameters for derived classes
     /*!
-     *   This method may be derived in subclasses to set model-specific parameters.
-     *   The primary use of this class is to set parameters while in the middle of a calculation
-     *   without actually having to dynamically cast the base Transport pointer.
+     *  This method may be derived in subclasses to set model-specific
+     *  parameters. The primary use of this class is to set parameters while in
+     *  the middle of a calculation without actually having to dynamically cast
+     *  the base Transport pointer.
      *
      *  @param type    Specifies the type of parameters to set
      *                 0 : Diffusion coefficient
@@ -792,7 +719,6 @@ public:
 
     friend class TransportFactory;
 
-
 protected:
 
     /**
@@ -800,13 +726,6 @@ protected:
      * These methods are used internally during construction.
      * @{
      */
-
-    /**
-     * Called by TransportFactory to set parameters.
-     */
-    //virtual bool init(TransportParams& tr)
-    //{ err("init"); return false; }
-
 
     //! Called by TransportFactory to set parameters.
     /*!
@@ -848,8 +767,7 @@ public:
         return false;
     }
 
-public:
-    //! Specifies the %ThermPhase object.
+    //! Specifies the ThermoPhase object.
     /*!
      *  We have relaxed this operation so that it will succeed when
      *  the underlying old and new ThermoPhase objects have the same
@@ -865,14 +783,12 @@ public:
      */
     virtual void setThermo(thermo_t& thermo);
 
-
 protected:
     //! Enable the transport object for use.
     /*!
-     * Once finalize() has been called, the
-     * transport manager should be ready to compute any supported
-     * transport property, and no further modifications to the
-     * model parameters should be made.
+     * Once finalize() has been called, the transport manager should be ready to
+     * compute any supported transport property, and no further modifications to
+     * the model parameters should be made.
      */
     void finalize();
 
@@ -898,16 +814,14 @@ private:
 
     //! Error routine
     /*!
-     * Throw an exception if a method of this class is
-     * invoked. This probably indicates that a transport manager
-     * is being used that does not implement all virtual methods,
-     * and one of those methods was called by the application
-     * program. For example, a transport manager that computes the
-     * thermal conductivity of a solid may not define the
-     * viscosity() method, since the viscosity is in this case
-     * meaningless. If the application invokes the viscosity()
-     * method, the base class method will be called, resulting in
-     * an exception being thrown.
+     * Throw an exception if a method of this class is invoked. This probably
+     * indicates that a transport manager is being used that does not implement
+     * all virtual methods, and one of those methods was called by the
+     * application program. For example, a transport manager that computes the
+     * thermal conductivity of a solid may not define the viscosity() method,
+     * since the viscosity is in this case meaningless. If the application
+     * invokes the viscosity() method, the base class method will be called,
+     * resulting in an exception being thrown.
      *
      *  @param msg  Descriptive message string to add to the error report
      *

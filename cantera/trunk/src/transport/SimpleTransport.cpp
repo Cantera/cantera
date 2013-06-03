@@ -16,7 +16,6 @@ using namespace std;
 
 namespace Cantera
 {
-//================================================================================================
 SimpleTransport::SimpleTransport(thermo_t* thermo, int ndim) :
     Transport(thermo, ndim),
     tempDepType_(0),
@@ -37,7 +36,7 @@ SimpleTransport::SimpleTransport(thermo_t* thermo, int ndim) :
     m_nDim(1)
 {
 }
-//================================================================================================
+
 SimpleTransport::SimpleTransport(const SimpleTransport& right) :
     Transport(),
     tempDepType_(0),
@@ -63,7 +62,7 @@ SimpleTransport::SimpleTransport(const SimpleTransport& right) :
      */
     *this = right;
 }
-//================================================================================================
+
 SimpleTransport& SimpleTransport::operator=(const SimpleTransport& right)
 {
     if (&right == this) {
@@ -136,12 +135,12 @@ SimpleTransport& SimpleTransport::operator=(const SimpleTransport& right)
 
     return *this;
 }
-//================================================================================================
+
 Transport* SimpleTransport::duplMyselfAsTransport() const
 {
     return new SimpleTransport(*this);
 }
-//================================================================================================
+
 SimpleTransport::~SimpleTransport()
 {
     for (size_t k = 0; k < m_coeffVisc_Ns.size() ; k++) {
@@ -157,11 +156,7 @@ SimpleTransport::~SimpleTransport()
         delete m_coeffHydroRadius_Ns[k];
     }
 }
-//================================================================================================
-// Initialize the object
-/*
- *  This is where we dimension everything.
- */
+
 bool SimpleTransport::initLiquid(LiquidTransportParams& tr)
 {
     // constant substance attributes
@@ -194,10 +189,6 @@ bool SimpleTransport::initLiquid(LiquidTransportParams& tr)
                     throw CanteraError("SimpleTransport::initLiquid", "Unknown compositionDependence Model: " + modelName);
                 }
             }
-
-
-
-
         }
     }
 
@@ -349,9 +340,6 @@ bool SimpleTransport::initLiquid(LiquidTransportParams& tr)
         }
     }
 
-
-
-
     m_molefracs.resize(m_nsp);
     m_concentrations.resize(m_nsp);
 
@@ -380,28 +368,8 @@ bool SimpleTransport::initLiquid(LiquidTransportParams& tr)
     return true;
 }
 
-//================================================================================================
-// Returns the mixture viscosity of the solution
-/*
- * The viscosity is computed using the general mixture rules
- * specified in the variable compositionDepType_.
- *
- * Solvent-only:
- *    \f[
- *         \mu = \mu_0
- *    \f]
- * Mixture-average:
- *    \f[
- *         \mu = \sum_k {\mu_k X_k}
- *    \f]
- *
- * Here \f$ \mu_k \f$ is the viscosity of pure species \e k.
- *
- * @see updateViscosity_T();
- */
 doublereal SimpleTransport::viscosity()
 {
-
     update_T();
     update_C();
 
@@ -425,7 +393,7 @@ doublereal SimpleTransport::viscosity()
     m_visc_mix_ok = true;
     return m_viscmix;
 }
-//================================================================================================
+
 void SimpleTransport::getSpeciesViscosities(doublereal* const visc)
 {
     update_T();
@@ -434,7 +402,7 @@ void SimpleTransport::getSpeciesViscosities(doublereal* const visc)
     }
     copy(m_viscSpecies.begin(), m_viscSpecies.end(), visc);
 }
-//================================================================================================
+
 void SimpleTransport::getBinaryDiffCoeffs(size_t ld, doublereal* d)
 {
     double bdiff;
@@ -453,23 +421,7 @@ void SimpleTransport::getBinaryDiffCoeffs(size_t ld, doublereal* d)
         }
     }
 }
-//================================================================================================
-//       Get the electrical Mobilities (m^2/V/s).
-/*
- *   This function returns the mobilities. In some formulations
- *   this is equal to the normal mobility multiplied by faraday's constant.
- *
- *   Frequently, but not always, the mobility is calculated from the
- *   diffusion coefficient using the Einstein relation
- *
- *     \f[
- *          \mu^e_k = \frac{F D_k}{R T}
- *     \f]
- *
- * @param mobil_e  Returns the mobilities of
- *               the species in array \c mobil_e. The array must be
- *               dimensioned at least as large as the number of species.
- */
+
 void SimpleTransport::getMobilities(doublereal* const mobil)
 {
     getMixDiffCoeffs(DATA_PTR(m_spwork));
@@ -478,25 +430,7 @@ void SimpleTransport::getMobilities(doublereal* const mobil)
         mobil[k] = c1 * m_spwork[k];
     }
 }
-//================================================================================================
-//        Get the fluid mobilities (s kmol/kg).
-/*
- *   This function returns the fluid mobilities. Usually, you have
- *   to multiply Faraday's constant into the resulting expression
- *   to general a species flux expression.
- *
- *   Frequently, but not always, the mobility is calculated from the
- *   diffusion coefficient using the Einstein relation
- *
- *     \f[
- *          \mu^f_k = \frac{D_k}{R T}
- *     \f]
- *
- *
- * @param mobil_f  Returns the mobilities of
- *               the species in array \c mobil. The array must be
- *               dimensioned at least as large as the number of species.
- */
+
 void  SimpleTransport::getFluidMobilities(doublereal* const mobil_f)
 {
     getMixDiffCoeffs(DATA_PTR(m_spwork));
@@ -505,7 +439,7 @@ void  SimpleTransport::getFluidMobilities(doublereal* const mobil_f)
         mobil_f[k] = c1 * m_spwork[k];
     }
 }
-//================================================================================================
+
 void SimpleTransport::set_Grad_V(const doublereal* const grad_V)
 {
     doMigration_ = false;
@@ -516,14 +450,14 @@ void SimpleTransport::set_Grad_V(const doublereal* const grad_V)
         }
     }
 }
-//================================================================================================
+
 void SimpleTransport::set_Grad_T(const doublereal* const grad_T)
 {
     for (size_t a = 0; a < m_nDim; a++) {
         m_Grad_T[a] = grad_T[a];
     }
 }
-//================================================================================================
+
 void SimpleTransport::set_Grad_X(const doublereal* const grad_X)
 {
     size_t itop = m_nDim * m_nsp;
@@ -531,25 +465,7 @@ void SimpleTransport::set_Grad_X(const doublereal* const grad_X)
         m_Grad_X[i] = grad_X[i];
     }
 }
-//================================================================================================
-// Returns the mixture thermal conductivity of the solution
-/*
- * The thermal is computed using the general mixture rules
- * specified in the variable compositionDepType_.
- *
- * Solvent-only:
- *    \f[
- *         \lambda = \lambda_0
- *    \f]
- * Mixture-average:
- *    \f[
- *         \lambda = \sum_k {\lambda_k X_k}
- *    \f]
- *
- * Here \f$ \lambda_k \f$ is the thermal conductivity of pure species \e k.
- *
- * @see updateCond_T();
- */
+
 doublereal SimpleTransport::thermalConductivity()
 {
     update_T();
@@ -570,14 +486,7 @@ doublereal SimpleTransport::thermalConductivity()
     }
     return m_lambda;
 }
-//================================================================================================
 
-/*
- * Thermal diffusion is not considered in this mixture-averaged
- * model. To include thermal diffusion, use transport manager
- * MultiTransport instead. This methods fills out array dt with
- * zeros.
- */
 void SimpleTransport::getThermalDiffCoeffs(doublereal* const dt)
 {
     for (size_t k = 0; k < m_nsp; k++) {
@@ -585,31 +494,6 @@ void SimpleTransport::getThermalDiffCoeffs(doublereal* const dt)
     }
 }
 
-//====================================================================================================================
-//! Get the species diffusive velocities wrt to the averaged velocity,
-//! given the gradients in mole fraction and temperature
-/*!
- * The average velocity can be computed on a mole-weighted
- * or mass-weighted basis, or the diffusion velocities may
- * be specified as relative to a specific species (i.e. a
- * solvent) all according to the velocityBasis input parameter.
- *
- *  Units for the returned velocities are m s-1.
- *
- *  @param ndim Number of dimensions in the flux expressions
- *  @param grad_T Gradient of the temperature
- *                 (length = ndim)
- * @param ldx  Leading dimension of the grad_X array
- *              (usually equal to m_nsp but not always)
- * @param grad_X Gradients of the mole fraction
- *             Flat vector with the m_nsp in the inner loop.
- *             length = ldx * ndim
- * @param ldf  Leading dimension of the fluxes array
- *              (usually equal to m_nsp but not always)
- * @param Vdiff  Output of the diffusive velocities.
- *             Flat vector with the m_nsp in the inner loop.
- *             length = ldx * ndim
- */
 void SimpleTransport::getSpeciesVdiff(size_t ndim,
                                       const doublereal* grad_T,
                                       int ldx,
@@ -634,33 +518,7 @@ void SimpleTransport::getSpeciesVdiff(size_t ndim,
         }
     }
 }
-//================================================================================================
-// Get the species diffusive velocities wrt to the averaged velocity,
-// given the gradients in mole fraction, temperature and electrostatic potential.
-/*
- * The average velocity can be computed on a mole-weighted
- * or mass-weighted basis, or the diffusion velocities may
- * be specified as relative to a specific species (i.e. a
- * solvent) all according to the velocityBasis input parameter.
- *
- *  Units for the returned velocities are m s-1.
- *
- *  @param ndim       Number of dimensions in the flux expressions
- *  @param grad_T     Gradient of the temperature
- *                       (length = ndim)
- * @param ldx         Leading dimension of the grad_X array
- *                       (usually equal to m_nsp but not always)
- * @param grad_X      Gradients of the mole fraction
- *                    Flat vector with the m_nsp in the inner loop.
- *                       length = ldx * ndim
- * @param ldf         Leading dimension of the fluxes array
- *                        (usually equal to m_nsp but not always)
- * @param grad_Phi   Gradients of the electrostatic potential
- *                        (length = ndim)
- * @param Vdiff      Output of the species diffusion velocities
- *                   Flat vector with the m_nsp in the inner loop.
- *                     length = ldx * ndim
- */
+
 void SimpleTransport::getSpeciesVdiffES(size_t ndim, const doublereal* grad_T,
                                         int ldx,  const doublereal* grad_X,
                                         int ldf,  const doublereal* grad_Phi,
@@ -684,36 +542,7 @@ void SimpleTransport::getSpeciesVdiffES(size_t ndim, const doublereal* grad_T,
         }
     }
 }
-//================================================================================================
-//   Get the species diffusive mass fluxes wrt to the specified solution averaged velocity,
-//   given the gradients in mole fraction and temperature
-/*
- *  units = kg/m2/s
- *
- *  The diffusive mass flux of species \e k is computed from the following
- *  formula
- *
- *  Usually the specified solution average velocity is the mass averaged velocity.
- *  This is changed in some subclasses, however.
- *
- *    \f[
- *         j_k = - \rho M_k D_k \nabla X_k - Y_k V_c
- *    \f]
- *
- *    where V_c is the correction velocity
- *
- *    \f[
- *         V_c =  - \sum_j {\rho M_j D_j \nabla X_j}
- *    \f]
- *
- *
- * @param ndim     The number of spatial dimensions (1, 2, or 3).
- * @param grad_T   The temperature gradient (ignored in this model).
- * @param ldx      Leading dimension of the grad_X array.
- * @param grad_X   Gradient of the mole fractions(length nsp * num dimensions);
- * @param ldf      Leading dimension of the fluxes array.
- * @param fluxes   Output fluxes of species.
- */
+
 void SimpleTransport::getSpeciesFluxes(size_t ndim,  const doublereal* const grad_T,
                                        size_t ldx, const doublereal* const grad_X,
                                        size_t ldf, doublereal* const fluxes)
@@ -722,34 +551,7 @@ void SimpleTransport::getSpeciesFluxes(size_t ndim,  const doublereal* const gra
     set_Grad_X(grad_X);
     getSpeciesFluxesExt(ldf, fluxes);
 }
-//================================================================================================
-//  Return the species diffusive mass fluxes wrt to
-//  the mass averaged velocity.
-/*
- *
- *  units = kg/m2/s
- *
- * Internally, gradients in the in mole fraction, temperature
- * and electrostatic potential contribute to the diffusive flux
- *
- *
- * The diffusive mass flux of species \e k is computed from the following
- * formula
- *
- *    \f[
- *         j_k = - M_k z_k u^f_k F c_k \nabla \Psi  - c M_k D_k \nabla X_k  - Y_k V_c
- *    \f]
- *
- *    where V_c is the correction velocity
- *
- *    \f[
- *         V_c =  - \sum_j {M_k z_k u^f_k F c_k \nabla \Psi + c M_j D_j \nabla X_j}
- *    \f]
- *
- *  @param ldf     stride of the fluxes array. Must be equal to
- *                 or greater than the number of species.
- *  @param fluxes  Vector of calculated fluxes
- */
+
 void SimpleTransport::getSpeciesFluxesExt(size_t ldf, doublereal* fluxes)
 {
     AssertThrow(ldf >= m_nsp ,"SimpleTransport::getSpeciesFluxesExt: Stride must be greater than m_nsp");
@@ -829,11 +631,7 @@ void SimpleTransport::getSpeciesFluxesExt(size_t ldf, doublereal* fluxes)
                            "unknown velocity basis");
     }
 }
-//================================================================================================
-// Mixture-averaged diffusion coefficients [m^2/s].
-/*
- *  Returns the simple diffusion coefficients input into the model. Nothing fancy here.
- */
+
 void SimpleTransport::getMixDiffCoeffs(doublereal* const d)
 {
     update_T();
@@ -846,20 +644,7 @@ void SimpleTransport::getMixDiffCoeffs(doublereal* const d)
         d[k] = m_diffSpecies[k];
     }
 }
-//================================================================================================
 
-// Handles the effects of changes in the mixture concentration
-/*
- *   This is called for every interface call to check whether
- *   the concentrations have changed. Concentrations change
- *   whenever the pressure or the mole fraction has changed.
- *   If it has changed, the recalculations should be done.
- *
- *   Note this should be a lightweight function since it's
- *   part of all of the interfaces.
- *
- *   @internal
- */
 bool SimpleTransport::update_C()
 {
     // If the pressure has changed then the concentrations
@@ -896,11 +681,6 @@ bool SimpleTransport::update_C()
     return true;
 }
 
-//================================================================================================
-/**
- * Update the temperature-dependent parts of the mixture-averaged
- * thermal conductivity.
- */
 void SimpleTransport::updateCond_T()
 {
     if (compositionDepType_ == 0) {
@@ -913,10 +693,7 @@ void SimpleTransport::updateCond_T()
     m_cond_temp_ok = true;
     m_cond_mix_ok = false;
 }
-//================================================================================================
-/**
- * Update the species diffusion coefficients.
- */
+
 void SimpleTransport::updateDiff_T()
 {
     if (useHydroRadius_) {
@@ -934,21 +711,11 @@ void SimpleTransport::updateDiff_T()
     m_diff_temp_ok = true;
     m_diff_mix_ok = false;
 }
-//================================================================================================
-/**
- * Update the pure-species viscosities.
- */
+
 void SimpleTransport::updateViscosities_C()
 {
-
 }
-//================================================================================================
-/**
- * Update the temperature-dependent viscosity terms.
- * Updates the array of pure species viscosities, and the
- * weighting functions in the viscosity mixture rule.
- * The flag m_visc_ok is set to true.
- */
+
 void SimpleTransport::updateViscosity_T()
 {
     if (compositionDepType_ == 0) {
@@ -961,7 +728,7 @@ void SimpleTransport::updateViscosity_T()
     m_visc_temp_ok = true;
     m_visc_mix_ok = false;
 }
-//=================================================================================================
+
 bool SimpleTransport::update_T()
 {
     doublereal t = m_thermo->temperature();
@@ -990,11 +757,7 @@ bool SimpleTransport::update_T()
 
     return true;
 }
-//================================================================================================
-/*
- * Throw an exception if this method is invoked.
- * This probably indicates something is not yet implemented.
- */
+
 doublereal SimpleTransport::err(const std::string& msg) const
 {
     throw CanteraError("SimpleTransport Class",
@@ -1004,7 +767,5 @@ doublereal SimpleTransport::err(const std::string& msg) const
 
     return 0.0;
 }
-//===================================================================================================================
 
 }
-//======================================================================================================================

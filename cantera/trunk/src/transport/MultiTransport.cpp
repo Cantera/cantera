@@ -7,18 +7,12 @@
  *  See file License.txt for licensing information
  */
 
-#include "cantera/thermo/ThermoPhase.h"
-
 #include "cantera/transport/MultiTransport.h"
 #include "cantera/numerics/ctlapack.h"
-
-#include "cantera/numerics/DenseMatrix.h"
-#include "cantera/base/utilities.h"
 #include "cantera/base/utilities.h"
 #include "L_matrix.h"
 #include "cantera/transport/TransportParams.h"
 #include "cantera/thermo/IdealGasPhase.h"
-
 #include "cantera/transport/TransportFactory.h"
 #include "cantera/base/stringUtils.h"
 
@@ -31,10 +25,7 @@ namespace Cantera
 ///////////////////// helper functions /////////////////////////
 
 /**
- *  @internal
- *
- *  The Parker temperature correction to the rotational collision
- *  number.
+ *  The Parker temperature correction to the rotational collision number.
  *
  *  @param tr Reduced temperature \f$ \epsilon/kT \f$
  *  @param sqtr square root of tr.
@@ -54,7 +45,6 @@ MultiTransport::MultiTransport(thermo_t* thermo)
 {
 }
 
-//====================================================================================================================
 bool MultiTransport::initGas(GasTransportParams& tr)
 {
     GasTransport::initGas(tr);
@@ -126,13 +116,6 @@ bool MultiTransport::initGas(GasTransportParams& tr)
     return true;
 }
 
-//====================================================================================================================
-
-/****************** thermal conductivity **********************/
-
-/**
- * @internal
- */
 doublereal MultiTransport::thermalConductivity()
 {
     solveLMatrixEquation();
@@ -142,13 +125,7 @@ doublereal MultiTransport::thermalConductivity()
     }
     return -4.0*sum;
 }
-//====================================================================================================================
-// Return the thermal diffusion coefficients for the species
-/*
- *
- *  @param dt thermal diffusion coefficients
- *             (length = m_nsp)
- */
+
 void MultiTransport::getThermalDiffCoeffs(doublereal* const dt)
 {
     solveLMatrixEquation();
@@ -157,11 +134,7 @@ void MultiTransport::getThermalDiffCoeffs(doublereal* const dt)
         dt[k] = c * m_mw[k] * m_molefracs[k] * m_a[k];
     }
 }
-//====================================================================================================================
 
-/**
- * @internal
- */
 void MultiTransport::solveLMatrixEquation()
 {
     // if T has changed, update the temperature-dependent properties.
@@ -206,6 +179,7 @@ void MultiTransport::solveLMatrixEquation()
     // evaluate the submatrices of the L matrix
     m_Lmatrix.resize(3*m_nsp, 3*m_nsp, 0.0);
 
+    //! Evaluate the upper-left block of the L matrix.
     eval_L0000(DATA_PTR(m_molefracs));
     eval_L0010(DATA_PTR(m_molefracs));
     eval_L0001();
@@ -242,26 +216,6 @@ void MultiTransport::solveLMatrixEquation()
     m_l0000_ok = false;
 }
 
-//====================================================================================================================
-//  Get the species diffusive mass fluxes wrt to  the mass averaged velocity,
-//  given the gradients in mole fraction and temperature
-/*
- *  Units for the returned fluxes are kg m-2 s-1.
- *
- *  @param ndim     Number of dimensions in the flux expressions
- *  @param grad_T   Gradient of the temperature
- *                   (length = ndim)
- * @param ldx       Leading dimension of the grad_X array
- *                   (usually equal to m_nsp but not always)
- * @param grad_X    Gradients of the mole fraction
- *                  Flat vector with the m_nsp in the inner loop.
- *                   length = ldx * ndim
- * @param ldf       Leading dimension of the fluxes array
- *                   (usually equal to m_nsp but not always)
- * @param fluxes    Output of the diffusive mass fluxes
- *                  Flat vector with the m_nsp in the inner loop.
- *                   length = ldx * ndim
- */
 void MultiTransport::getSpeciesFluxes(size_t ndim, const doublereal* const grad_T,
                                       size_t ldx, const doublereal* const grad_X,
                                       size_t ldf, doublereal* const fluxes)
@@ -375,21 +329,7 @@ void MultiTransport::getSpeciesFluxes(size_t ndim, const doublereal* const grad_
         }
     }
 }
-//====================================================================================================================
-// Get the mass diffusional fluxes [kg/m^2/s] of the species, given the thermodynamic
-// state at two nearby points.
-/*
- * The specific diffusional fluxes are calculated with reference to the mass averaged
- * velocity. This is a one-dimensional vector
- *
- * @param state1 Array of temperature, density, and mass
- *               fractions for state 1.
- * @param state2 Array of temperature, density, and mass
- *               fractions for state 2.
- * @param delta  Distance from state 1 to state 2 (m).
- * @param fluxes Output mass fluxes of the species.
- *               (length = m_nsp)
- */
+
 void MultiTransport::getMassFluxes(const doublereal* state1, const doublereal* state2, doublereal delta,
                                    doublereal* fluxes)
 {
@@ -495,7 +435,7 @@ void MultiTransport::getMassFluxes(const doublereal* state1, const doublereal* s
         }
     }
 }
-//====================================================================================================================
+
 void MultiTransport::getMolarFluxes(const doublereal* const state1,
                                     const doublereal* const state2,
                                     const doublereal delta,
@@ -546,8 +486,6 @@ void MultiTransport::getMultiDiffCoeffs(const size_t ld, doublereal* const d)
         }
     }
 }
-//====================================================================================================================
-
 
 void MultiTransport::update_T()
 {
@@ -582,12 +520,6 @@ void MultiTransport::update_C()
     m_l0000_ok = false;
     m_lmatrix_soln_ok = false;
 }
-
-/*************************************************************************
- *
- *    methods to update temperature-dependent properties
- *
- *************************************************************************/
 
 void MultiTransport::updateThermal_T()
 {

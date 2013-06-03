@@ -7,7 +7,6 @@
 
 // Copyright 2003  California Institute of Technology
 
-
 #ifndef CT_DUSTYGASTRAN_H
 #define CT_DUSTYGASTRAN_H
 
@@ -15,19 +14,19 @@
 #include "TransportBase.h"
 #include "cantera/numerics/DenseMatrix.h"
 
-
 namespace Cantera
 {
-
 //! Class DustyGasTransport implements the Dusty Gas model for transport in porous media.
 /*!
- *    As implemented here, only species transport is handled. The viscosity, thermal conductivity, and thermal
- *    diffusion coefficients are not implemented.
+ *  As implemented here, only species transport is handled. The viscosity,
+ *  thermal conductivity, and thermal diffusion coefficients are not
+ *  implemented.
  *
- *   The dusty gas model includes the effects of Darcy's law. There is a net flux of species due to a pressure gradient
- *   that is part of Darcy's law.
+ *  The dusty gas model includes the effects of Darcy's law. There is a net
+ *  flux of species due to a pressure gradient that is part of Darcy's law.
  *
- *   The dusty gas model expresses the value of the molar flux of species \f$ k \f$, \f$ J_k \f$ by the following formula.
+ *  The dusty gas model expresses the value of the molar flux of species \f$ k
+ *  \f$, \f$ J_k \f$ by the following formula.
  *
  *   \f[
  *       \sum_{j \ne k}{\frac{X_j J_k - X_k J_j}{D^e_{kj}}} + \frac{J_k}{\mathcal{D}^{e}_{k,knud}} =
@@ -61,24 +60,17 @@ namespace Cantera
  */
 class DustyGasTransport : public Transport
 {
-
 public:
-
     //! default constructor
     /*!
-     *  @param thermo   Pointer to the %ThermoPhase object for this phase. Defaults to zero.
+     *  @param thermo   Pointer to the ThermoPhase object for this phase. Defaults to zero.
      */
     DustyGasTransport(thermo_t* thermo=0);
 
-    //!   Copy Constructor for the %DustyGasTransport object.
-    /*!
-     *    @param right  %LiquidTransport to be copied
-     */
     DustyGasTransport(const DustyGasTransport& right);
 
     //! Assignment operator
     /*!
-     *
      *    Warning -> Shallow pointer copies are made of m_thermo and m_gastran.. gastran may not point to the correct
      *               object after this copy. The routine initialize() must be called after this
      *               routine to complete the copy.
@@ -88,43 +80,17 @@ public:
      */
     DustyGasTransport& operator=(const  DustyGasTransport& right);
 
-    //! Destructor.
     virtual ~DustyGasTransport();
-
-    //! Duplication routine for objects which inherit from %Transport
-    /*!
-     *  This virtual routine can be used to duplicate %Transport objects
-     *  inherited from %Transport even if the application only has
-     *  a pointer to %Transport to work with.
-     *
-     *  These routines are basically wrappers around the derived copy
-     *  constructor.
-     */
     virtual Transport* duplMyselfAsTransport() const;
-
-    //! Specifies the %ThermPhase object.
-    /*!
-     *  We have relaxed this operation so that it will succeed when
-     *  the underlying old and new ThermoPhase objects have the same
-     *  number of species and the same names of the species in the
-     *  same order. The idea here is to allow copy constructors and duplicators
-     *  to work. In order for them to work, we need a method to switch the
-     *  internal pointer within the Transport object after the duplication
-     *  takes place.  Also, different thermodynamic instanteations of the same
-     *  species should also work.
-     *
-     *   @param   thermo  Reference to the ThermoPhase object that
-     *                    the transport object will use
-     */
-    virtual void setThermo(thermo_t& thermo);
 
     //---------------------------------------------------------
     // overloaded base class methods
 
+    virtual void setThermo(thermo_t& thermo);
+
     virtual int model() const {
         return cDustyGasTransport;
     }
-
 
     //! Set the Parameters in the model
     /*!
@@ -140,7 +106,6 @@ public:
      */
     virtual void setParameters(const int type, const int k, const doublereal* const p);
 
-
     //! Return the Multicomponent diffusion coefficients. Units: [m^2/s].
     /*!
      * Returns the array of multicomponent diffusion coefficients.
@@ -154,7 +119,6 @@ public:
 
     //! Get the molar fluxes [kmol/m^2/s], given the thermodynamic state at two nearby points.
     /*!
-     *
      *   \f[
      *       J_k = - \sum_{j = 1, N} \left[D^{multi}_{kj}\right]^{-1} \left( \nabla C_j  + \frac{C_j}{\mathcal{D}^{knud}_j} \frac{\kappa}{\mu} \nabla p \right)
      *   \f]
@@ -220,11 +184,9 @@ public:
      */
     Transport& gasTransport();
 
-
     //! Make the TransportFactory object a friend, because this object has restricted its
     //! instantiation to classes which are friends.
     friend class TransportFactory;
-
 
 protected:
 
@@ -235,60 +197,62 @@ protected:
      *
      *  This is a protected routine, so that initialization of the Model must occur within Cantera's setup
      *
-     *   @param  phase           Pointer to the underlying ThermoPhase model for the gas phase
-     *   @param  gastr           Pointer to the underlying Transport model for transport in the gas phase.
+     *   @param  phase  Pointer to the underlying ThermoPhase model for the gas phase
+     *   @param  gastr  Pointer to the underlying Transport model for transport in the gas phase.
      */
     void initialize(ThermoPhase* phase, Transport* gastr);
 
-
 private:
-
     //! Update temperature-dependent quantities within the object
     /*!
-     *  The object keeps a value m_temp, which is the temperature at which quantities were last evaluated
-     *  at. If the temperature is changed, update Booleans are set false, triggering recomputation.
+     *  The object keeps a value m_temp, which is the temperature at which
+     *  quantities were last evaluated at. If the temperature is changed,
+     *  update Booleans are set false, triggering recomputation.
      */
     void updateTransport_T();
 
     //! Update concentration-dependent quantities within the object
     /*!
-     *  The object keeps a value m_temp, which is the temperature at which quantities were last evaluated
-     *  at. If the temperature is changed, update Booleans are set false, triggering recomputation.
+     *  The object keeps a value m_temp, which is the temperature at which
+     *  quantities were last evaluated at. If the temperature is changed,
+     *  update Booleans are set false, triggering recomputation.
      */
     void updateTransport_C();
 
     //! Private routine to update the dusty gas binary diffusion coefficients
     /*!
-     *  The dusty gas binary diffusion coefficients \f$  D^{dg}_{i,j} \f$ are evaluated from the binary
-     *  gas-phase diffusion coefficients \f$  D^{bin}_{i,j} \f$  using the following formula
+     *  The dusty gas binary diffusion coefficients \f$  D^{dg}_{i,j} \f$ are
+     *  evaluated from the binary gas-phase diffusion coefficients \f$
+     *  D^{bin}_{i,j} \f$  using the following formula
      *
      *     \f[
      *         D^{dg}_{i,j} =  \frac{\phi}{\tau} D^{bin}_{i,j}
      *     \f]
      *
-     *  where \f$ \phi \f$ is the porosity of the media and \f$ \tau \f$ is the tortuosity of the media.
+     *  where \f$ \phi \f$ is the porosity of the media and \f$ \tau \f$ is
+     *  the tortuosity of the media.
      *
      */
     void updateBinaryDiffCoeffs();
 
-    //! Private routine to update the Multicomponent diffusion coefficients that are used in the approximation
+    //! Update the Multicomponent diffusion coefficients that are used in the
+    //! approximation
     /*!
      *  This routine updates the H matrix and then inverts it.
      */
     void updateMultiDiffCoeffs();
 
-    //! Private routine to update the Knudsen diffusion coefficients
+    //! Update the Knudsen diffusion coefficients
     /*!
      *  The Knudsen diffusion coefficients are given by the following form
      *
      *     \f[
      *        \mathcal{D}^{knud}_k =  \frac{2}{3} \frac{r_{pore} \phi}{\tau} \left( \frac{8 R T}{\pi W_k}  \right)^{1/2}
      *     \f]
-     *
      */
     void updateKnudsenDiffCoeffs();
 
-    //! Private routine to calculate the H matrix
+    //! Calculate the H matrix
     /*!
      *  The multicomponent diffusion H matrix \f$  H_{k,l} \f$ is given by the following form
      *
@@ -321,7 +285,6 @@ private:
      *     \f[
      *        \mathcal{D}^{knud}_k =  \frac{2}{3} \frac{r_{pore} \phi}{\tau} \left( \frac{8 R T}{\pi W_k}  \right)^{1/2}
      *     \f]
-     *
      */
     vector_fp m_dk;
 
@@ -397,9 +360,3 @@ private:
 };
 }
 #endif
-
-
-
-
-
-

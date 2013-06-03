@@ -18,8 +18,6 @@ using namespace std;
 
 namespace Cantera
 {
-
-//====================================================================================================================
 DustyGasTransport::DustyGasTransport(thermo_t* thermo) :
     Transport(thermo),
     m_mw(0),
@@ -39,7 +37,7 @@ DustyGasTransport::DustyGasTransport(thermo_t* thermo) :
     m_gastran(0)
 {
 }
-//====================================================================================================================
+
 DustyGasTransport::DustyGasTransport(const DustyGasTransport& right) :
     Transport(),
     m_mw(0),
@@ -60,14 +58,7 @@ DustyGasTransport::DustyGasTransport(const DustyGasTransport& right) :
 {
     *this = right;
 }
-//====================================================================================================================
-// Assignment operator
-/*
- *  This is NOT a virtual function.
- *
- * @param right    Reference to %DustyGasTransport object to be copied
- *                 into the current one.
- */
+
 DustyGasTransport& DustyGasTransport::operator=(const  DustyGasTransport& right)
 {
     if (&right == this) {
@@ -100,60 +91,25 @@ DustyGasTransport& DustyGasTransport::operator=(const  DustyGasTransport& right)
 
     return *this;
 }
-//====================================================================================================================
+
 DustyGasTransport::~DustyGasTransport()
 {
     delete m_gastran;
 }
-//====================================================================================================================
-// Duplication routine for objects which inherit from %Transport
-/*
- *  This virtual routine can be used to duplicate %Transport objects
- *  inherited from %Transport even if the application only has
- *  a pointer to %Transport to work with.
- *
- *  These routines are basically wrappers around the derived copy
- *  constructor.
- */
+
 Transport* DustyGasTransport::duplMyselfAsTransport() const
 {
     DustyGasTransport* tr = new DustyGasTransport(*this);
     return dynamic_cast<Transport*>(tr);
 }
-//====================================================================================================================
-// Specifies the %ThermPhase object.
-/*
- *  We have relaxed this operation so that it will succeed when
- *  the underlying old and new ThermoPhase objects have the same
- *  number of species and the same names of the species in the
- *  same order. The idea here is to allow copy constructors and duplicators
- *  to work. In order for them to work, we need a method to switch the
- *  internal pointer within the Transport object after the duplication
- *  takes place.  Also, different thermodynamic instanteations of the same
- *  species should also work.
- *
- *   @param   thermo  Reference to the ThermoPhase object that
- *                    the transport object will use
- */
+
 void DustyGasTransport::setThermo(thermo_t& thermo)
 {
 
     Transport::setThermo(thermo);
     m_gastran->setThermo(thermo);
 }
-//====================================================================================================================
-//   Set the Parameters in the model
-/*
- *    @param type     Type of the parameter to set
- *                     0 - porosity
- *                     1 - tortuosity
- *                     2 - mean pore radius
- *                     3 - mean particle radius
- *                     4 - permeability
- *    @param k         Unused int
- *    @param p         pointer to double for the input list of parameters
- *
- */
+
 void DustyGasTransport::setParameters(const int type, const int k, const doublereal* const p)
 {
     switch (type) {
@@ -176,17 +132,7 @@ void DustyGasTransport::setParameters(const int type, const int k, const doubler
         throw CanteraError("DustyGasTransport::init", "unknown parameter");
     }
 }
-//====================================================================================================================
-//  Initialization routine called by TransportFactory
-/*
- *  The DustyGas model is a subordinate model to the gas phase transport model. Here we
- *  set the gas phase models.
- *
- *  This is a protected routine, so that initialization of the Model must occur within Cantera's setup
- *
- *   @param  phase           Pointer to the underlying ThermoPhase model for the gas phase
- *   @param  gastr           Pointer to the underlying Transport model for transport in the gas phase.
- */
+
 void DustyGasTransport::initialize(ThermoPhase* phase, Transport* gastr)
 {
 
@@ -216,19 +162,7 @@ void DustyGasTransport::initialize(ThermoPhase* phase, Transport* gastr)
     m_spwork.resize(m_nsp);
     m_spwork2.resize(m_nsp);
 }
-//====================================================================================================================
-// Private routine to update the dusty gas binary diffusion coefficients
-/*
- *  The dusty gas binary diffusion coefficients \f$  D^{dg}_{i,j} \f$ are evaluated from the binary
- *  gas-phase diffusion coefficients \f$  D^{bin}_{i,j} \f$  using the following formula
- *
- *     \f[
- *         D^{dg}_{i,j} =  \frac{\phi}{\tau} D^{bin}_{i,j}
- *     \f]
- *
- *  where \f$ \phi \f$ is the porosity of the media and \f$ \tau \f$ is the tortuosity of the media.
- *
- */
+
 void DustyGasTransport::updateBinaryDiffCoeffs()
 {
     if (m_bulk_ok) {
@@ -245,16 +179,7 @@ void DustyGasTransport::updateBinaryDiffCoeffs()
     }
     m_bulk_ok = true;
 }
-//====================================================================================================================
-// Private routine to update the Knudsen diffusion coefficients
-/*
- *  The Knudsen diffusion coefficients are given by the following form
- *
- *     \f[
- *        \mathcal{D}^{knud}_k =  \frac{2}{3} \frac{r_{pore} \phi}{\tau} \left( \frac{8 R T}{\pi W_k}  \right)^{1/2}
- *     \f]
- *
- */
+
 void DustyGasTransport::updateKnudsenDiffCoeffs()
 {
     if (m_knudsen_ok) {
@@ -269,21 +194,6 @@ void DustyGasTransport::updateKnudsenDiffCoeffs()
     m_knudsen_ok = true;
 }
 
-//====================================================================================================================
-// Private routine to calculate the H matrix
-/*
- *  The H matrix is the term we have given to the matrix of coefficients in the equation for the molar
- *  fluxes. The matrix must be inverted in order to calculate the molar fluxes.
- *
- *  The multicomponent diffusion H matrix \f$  H_{k,l} \f$ is given by the following formulas
- *
- *     \f[
- *        H_{k,l} = - \frac{X_k}{D^e_{k,l}}
- *     \f]
- *     \f[
- *        H_{k,k} = \frac{1}{\mathcal(D)^{e}_{k, knud}} + \sum_{j \ne k}^N{ \frac{X_j}{D^e_{k,j}} }
- *     \f]
- */
 void DustyGasTransport::eval_H_matrix()
 {
     updateBinaryDiffCoeffs();
@@ -306,13 +216,12 @@ void DustyGasTransport::eval_H_matrix()
         m_multidiff(k,k) = 1.0/m_dk[k] + sum;
     }
 }
-//====================================================================================================================
+
 void DustyGasTransport::getMolarFluxes(const doublereal* const state1,
                                        const doublereal* const state2,
                                        const doublereal delta,
                                        doublereal* const fluxes)
 {
-
     doublereal conc1, conc2;
 
     // cbar will be the average concentration between the two points
@@ -369,11 +278,7 @@ void DustyGasTransport::getMolarFluxes(const doublereal* const state1,
     increment(m_multidiff, cbar, fluxes);
     scale(fluxes, fluxes + m_nsp, fluxes, -1.0);
 }
-//====================================================================================================================
-// Private routine to update the Multicomponent diffusion coefficients that are used in the approximation
-/*
- *  This routine updates the H matrix and then inverts it.
- */
+
 void DustyGasTransport::updateMultiDiffCoeffs()
 {
     // see if temperature has changed
@@ -392,16 +297,7 @@ void DustyGasTransport::updateMultiDiffCoeffs()
                            "invert returned ierr = "+int2str(ierr));
     }
 }
-//====================================================================================================================
-// Return the Multicomponent diffusion coefficients. Units: [m^2/s].
-/*
- * Returns the array of multicomponent diffusion coefficients.
- *
- *  @param ld  The dimension of the inner loop of d (usually equal to m_nsp)
- *  @param d  flat vector of diffusion coefficients, fortran ordering.
- *            d[ld*j+i] is the D_ij diffusion coefficient (the diffusion
- *            coefficient for species i due to species j).
- */
+
 void DustyGasTransport::getMultiDiffCoeffs(const size_t ld, doublereal* const d)
 {
     updateMultiDiffCoeffs();
@@ -411,12 +307,7 @@ void DustyGasTransport::getMultiDiffCoeffs(const size_t ld, doublereal* const d)
         }
     }
 }
-//====================================================================================================================
-// Update temperature-dependent quantities within the object
-/*
- *  The object keeps a value m_temp, which is the temperature at which quantities were last evaluated
- *  at. If the temperature is changed, update Booleans are set false, triggering recomputation.
- */
+
 void DustyGasTransport::updateTransport_T()
 {
     if (m_temp == m_thermo->temperature()) {
@@ -426,7 +317,7 @@ void DustyGasTransport::updateTransport_T()
     m_knudsen_ok = false;
     m_bulk_ok = false;
 }
-//====================================================================================================================
+
 void DustyGasTransport::updateTransport_C()
 {
     m_thermo->getMoleFractions(DATA_PTR(m_x));
@@ -439,75 +330,40 @@ void DustyGasTransport::updateTransport_C()
     // diffusion coeffs depend on Pressure
     m_bulk_ok = false;
 }
-//====================================================================================================================
-// Set the porosity (dimensionless)
-/*
- *  @param   porosity       Set the value of the porosity
- */
+
 void DustyGasTransport::setPorosity(doublereal porosity)
 {
     m_porosity = porosity;
     m_knudsen_ok = false;
     m_bulk_ok = false;
 }
-//====================================================================================================================
-// Set the tortuosity (dimensionless)
-/*
- *   @param    tort   Value of the tortuosity
- */
+
 void DustyGasTransport::setTortuosity(doublereal tort)
 {
     m_tortuosity = tort;
     m_knudsen_ok = false;
     m_bulk_ok = false;
 }
-//====================================================================================================================
-// Set the mean pore radius (m)
-/*
- *     @param   rbar    Value of the pore radius ( m)
- */
+
 void DustyGasTransport::setMeanPoreRadius(doublereal rbar)
 {
     m_pore_radius = rbar;
     m_knudsen_ok = false;
 }
-//====================================================================================================================
-// Set the mean particle diameter
-/*
- *   @param dbar   Set the mean particle diameter (m)
- */
+
 void  DustyGasTransport::setMeanParticleDiameter(doublereal dbar)
 {
     m_diam = dbar;
 }
-//====================================================================================================================
-// Set the permeability of the media
-/*
- * If not set, the value for close-packed spheres will be used by default.
- *
- *  The value for close-packed spheres is given below, where p is the porosity,
- *  t is the tortuosity, and d is the diameter of the sphere
- *
- *  \f[
- *      \kappa = \frac{p^3 d^2}{72 t (1 - p)^2}
- *  \f]
- *
- * @param B  set the permeability of the media (units = m^2)
- */
+
 void  DustyGasTransport::setPermeability(doublereal B)
 {
     m_perm = B;
 }
-//====================================================================================================================
-//   Return a reference to the transport manager used to compute the gas
-//   binary diffusion coefficients and the viscosity.
-/*
- *   @return  Returns a reference to the gas transport object
- */
+
 Transport&  DustyGasTransport::gasTransport()
 {
     return *m_gastran;
 }
 
-//====================================================================================================================
 }
