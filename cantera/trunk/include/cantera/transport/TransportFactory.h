@@ -20,7 +20,6 @@
 #include "LiquidTransportParams.h"
 #include "SolidTransportData.h"
 
-//======================================================================================================================
 namespace Cantera
 {
 
@@ -30,28 +29,26 @@ class GasTransportParams;
 class LiquidTransportParams;
 class XML_Node;
 
-//! The purpose of the TransportFactory class is to create new instances of
-//! 'transport managers', which are classes that provide transport
-//! properties and which are derived from the base class, %Transport.
+//! Factory class for creating new instances of classes derived from Transport.
 /*!
- * TransportFactory handles all initialization required, including evaluation of collision integrals and
- * generating polynomial fits.  Transport managers can also be created in other ways.
+ * Creates 'transport managers', which are classes derived from class
+ * Transport that provide transport properties. TransportFactory handles all
+ * initialization required, including evaluation of collision integrals and
+ * generating polynomial fits.  Transport managers can also be created in
+ * other ways.
  *
  * @ingroup transportgroup
  * @ingroup transportProps
  */
 class TransportFactory : public FactoryBase
 {
-
 public:
-
-    //!   Return a pointer to a TransportFactory instance.
+    //! Return a pointer to a TransportFactory instance.
     /*!
-     *  TransportFactory is implemented as a 'singleton',
-     * which means that at most one instance may be created. The
-     * constructor is private. When a TransportFactory instance is
-     * required, call static method factory() to return a pointer
-     * to the TransportFactory instance.
+     * TransportFactory is implemented as a 'singleton', which means that at
+     * most one instance may be created. The constructor is private. When a
+     * TransportFactory instance is required, call static method factory() to
+     * return a pointer to the TransportFactory instance.
      *
      * @code
      * TransportFactory* f;
@@ -66,7 +63,7 @@ public:
         return s_factory;
     }
 
-    //! Deletes the statically malloced instance.
+    //! Deletes the statically allocated factory instance.
     virtual void deleteFactory();
 
     //! Get the name of the transport model corresponding to the specified constant.
@@ -77,18 +74,17 @@ public:
 
     //! Make one of several transport models, and return a base class pointer to it.
     /*!
-     *  This method operates at the level of a  single transport property as a function of temperature
-     *  and possibly composition. It's a factory for LTPspecies classes.
+     *  This method operates at the level of a  single transport property as a
+     *  function of temperature and possibly composition. It's a factory for
+     *  LTPspecies classes.
      *
      *  @param trNode XML node
      *  @param name  reference to the name
      *  @param tp_ind   TransportPropertyType class
      *  @param thermo   Pointer to the %ThermoPhase class
      */
-
     virtual LTPspecies* newLTP(const XML_Node& trNode, const std::string& name,
                                TransportPropertyType tp_ind, thermo_t* thermo);
-
 
     //! Factory function for the construction of new LiquidTranInteraction
     //! objects, which are transport models.
@@ -103,7 +99,6 @@ public:
     virtual LiquidTranInteraction* newLTI(const XML_Node& trNode,
                                           TransportPropertyType tp_ind,
                                           LiquidTransportParams& trParam);
-
 
     //! Build a new transport manager using a transport manager
     //! that may not be the same as in the phase description
@@ -127,8 +122,8 @@ public:
 
     //! Initialize an existing transport manager
     /*!
-     *  This routine sets up an existing gas-phase transport manager.
-     *  It calculates the collision integrals and calls the initGas() function to
+     *  This routine sets up an existing gas-phase transport manager. It
+     *  calculates the collision integrals and calls the initGas() function to
      *  populate the species-dependent data structure.
      *
      *  @param tr        Pointer to the Transport manager
@@ -137,30 +132,27 @@ public:
      *                   collision integrals. defaults to no.
      *  @param log_level Defaults to zero, no logging
      *
-     *                     In DEBUG_MODE, this routine will create the file transport_log.xml
-     *                     and write informative information to it.
-     *
+     *  In DEBUG_MODE, this routine will create the file transport_log.xml
+     *  and write informative information to it.
      */
     virtual void initTransport(Transport* tr, thermo_t* thermo, int mode=0, int log_level=0);
 
     //! Initialize an existing transport manager for liquid phase
     /*!
-     *  This routine sets up an existing liquid-phase transport manager.
-     *  It is similar to initTransport except that it uses the LiquidTransportParams
+     *  This routine sets up an existing liquid-phase transport manager. It is
+     *  similar to initTransport except that it uses the LiquidTransportParams
      *  class and calls setupLiquidTransport().
      *
      * @param tr        Pointer to the Transport manager
      * @param thermo    Pointer to the ThermoPhase object
      * @param log_level Defaults to zero, no logging
      *
-     *                     In DEBUG_MODE, this routine will create the file transport_log.xml
-     *                     and write informative information to it.
+     * In DEBUG_MODE, this routine will create the file transport_log.xml
+     * and write informative information to it.
      */
     virtual void initLiquidTransport(Transport* tr, thermo_t* thermo, int log_level=0);
 
 private:
-
-
     //! Initialize an existing transport manager for solid phase
     /*!
      *  This routine sets up an existing solid-phase transport manager.
@@ -171,15 +163,12 @@ private:
      * @param thermo    Pointer to the ThermoPhase object
      * @param log_level Defaults to zero, no logging
      *
-     *                     In DEBUG_MODE, this routine will create the file transport_log.xml
-     *                     and write informative information to it.
+     * In DEBUG_MODE, this routine will create the file transport_log.xml
+     * and write informative information to it.
      */
     virtual void initSolidTransport(Transport* tr, thermo_t* thermo, int log_level=0);
 
-
 private:
-
-
     //! Static instance of the factor -> This is the only instance of this
     //! object allowed
     static TransportFactory* s_factory;
@@ -190,7 +179,6 @@ private:
     //! The constructor is private; use static method factory() to
     //! get a pointer to a factory instance
     /*!
-     *
      *   The default constructor for this class sets up
      *   m_models[], a mapping between the string name
      *   for a transport model and the integer name.
@@ -255,21 +243,20 @@ private:
     void getLiquidInteractionsTransportData(const XML_Node& phaseTran_db, XML_Node& log,
                                             const std::vector<std::string>& names, LiquidTransportParams& tr);
 
-
     //! Read transport property data from a file for a solid phase
     /*!
      * Given a phase XML data base, this method constructs the
      * SolidTransportData object containing the transport data for the phase.
      *
-     * @param db   Reference to XML_Node containing the phase.
+     * @param transportNode Reference to XML_Node containing the phase.
      * @param log  Reference to an XML log file. (currently unused)
+     * @param phaseName name of the corresponding phase
      * @param tr   Reference to the SolidTransportData object that will contain the results.
      */
     void getSolidTransportData(const XML_Node& transportNode,
                                XML_Node& log,
                                const std::string phaseName,
                                SolidTransportData& tr);
-
 
     //! Generate polynomial fits to the viscosity, conductivity, and
     //! the binary diffusion coefficients
@@ -309,7 +296,6 @@ private:
     void fitCollisionIntegrals(std::ostream& logfile, GasTransportParams& tr,
                                MMCollisionInt& integrals);
 
-
     //! Prepare to build a new kinetic-theory-based transport manager for low-density gases
     /*!
      *  This class fills up the GastransportParams structure for the current phase
@@ -327,7 +313,6 @@ private:
      */
     void setupMM(std::ostream& flog,  const std::vector<const XML_Node*> &transport_database,
                  thermo_t* thermo, int mode, int log_level,  GasTransportParams& tr);
-
 
     //! Prepare to build a new transport manager for liquids assuming that
     //! viscosity transport data is provided in Arrhenius form.
@@ -347,7 +332,6 @@ private:
      *  @param trParam              SolidTransportData structure to be filled up with information
      */
     void setupSolidTransport(std::ostream& flog, thermo_t* thermo, int log_level, SolidTransportData& trParam);
-
 
     //! Second-order correction to the binary diffusion coefficients
     /*!
@@ -395,12 +379,11 @@ private:
                               const GasTransportParams& tr, doublereal& f_eps,
                               doublereal& f_sigma);
 
-
     //! Boolean indicating whether to turn on verbose printing
     bool m_verbose;
 
-    //! Mapping between between the string name
-    //!   for a transport model and the integer name.
+    //! Mapping between between the string name for a transport model and the
+    //! integer name.
     std::map<std::string, int> m_models;
 
     //! Inverse mapping of transport models, from integer constant to string
@@ -419,10 +402,10 @@ private:
     std::map<std::string, LiquidTranMixingModel> m_LTImodelMap;
 };
 
-//====================================================================================================================
 //!  Create a new transport manager instance.
 /*!
- *  @param transportModel  String identifying the transport model to be instantiated, defaults to the empty string
+ *  @param transportModel  String identifying the transport model to be
+ *      instantiated, defaults to the empty string
  *  @param thermo          ThermoPhase object associated with the phase, defaults to null pointer
  *  @param loglevel        int containing the Loglevel, defaults to zero
  *  @param f               ptr to the TransportFactory object if it's been malloced.
@@ -432,20 +415,19 @@ private:
  */
 Transport* newTransportMgr(const std::string& transportModel = "",  thermo_t* thermo = 0, int loglevel = 0,
                            TransportFactory* f = 0, int ndim=1);
-//====================================================================================================================
+
 //!  Create a new transport manager instance.
 /*!
- *  @param thermo          ThermoPhase object associated with the phase, defaults to null pointer
+ *  @param thermo          ThermoPhase object associated with the phase
  *  @param loglevel        int containing the Loglevel, defaults to zero
- *  @param f               ptr to the TransportFactory object if it's been malloced.
- *
+ *  @param f               ptr to the TransportFactory object if it's been
+ *      allocated.
  *  @return                Returns a transport manager for the phase
  *
  * @ingroup transportProps
  */
 Transport* newDefaultTransportMgr(thermo_t* thermo, int loglevel = 0,  TransportFactory* f = 0);
 
-//====================================================================================================================
 } // End of namespace Cantera
-//======================================================================================================================
+
 #endif
