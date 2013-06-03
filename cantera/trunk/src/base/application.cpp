@@ -9,6 +9,7 @@
 #include <map>
 #include <string>
 #include <fstream>
+#include <functional>
 
 using std::string;
 using std::endl;
