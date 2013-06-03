@@ -14,9 +14,7 @@ namespace Cantera
 
 class Reservoir : public ReactorBase
 {
-
 public:
-
     Reservoir() {}
     virtual int type() const {
         return ReservoirType;
@@ -26,12 +24,8 @@ public:
     void insert(Cantera::ThermoPhase& contents) {
         setThermoMgr(contents);
     }
-
-private:
-
 };
 
 }
 
 #endif
-

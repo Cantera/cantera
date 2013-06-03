@@ -7,7 +7,6 @@
 
 namespace Cantera
 {
-
 Wall::Wall() : m_left(0), m_right(0),
     m_area(0.0), m_k(0.0), m_rrth(0.0), m_emiss(0.0),
     m_vf(0), m_qf(0)
@@ -38,10 +37,6 @@ void Wall::initialize()
     std::sort(m_pright.begin(), m_pright.end());
 }
 
-/** Specify the kinetics managers for the surface mechanisms on
- * the left side and right side of the wall. Enter 0 if there is
- * no reaction mechanism.
- */
 void Wall::setKinetics(Kinetics* left, Kinetics* right)
 {
     m_chem[0] = left;
@@ -72,14 +67,6 @@ void Wall::setKinetics(Kinetics* left, Kinetics* right)
     }
 }
 
-/**
- * The volume rate of change is given by
- * \f[ \dot V = K A (P_{left} - P_{right}) + F(t) \f]
- * where \f$ F(t) \f$ is a specified function of time.
- *
- * This method is used by class Reactor to compute the
- * rate of volume change of the reactor.
- */
 doublereal Wall::vdot(doublereal t)
 {
     double rate1 = m_k * m_area *
@@ -90,12 +77,6 @@ doublereal Wall::vdot(doublereal t)
     return rate1;
 }
 
-/**
- * The heat flux is given by
- * \f[ Q = h A (T_{left} - T_{right}) + A G(t) \f]
- * where h is the heat transfer coefficient, and
- * \f$ G(t) \f$ is a specified function of time.
- */
 doublereal Wall::Q(doublereal t)
 {
     double q1 = (m_area * m_rrth) *

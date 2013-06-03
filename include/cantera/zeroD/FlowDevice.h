@@ -21,45 +21,29 @@ const int PressureController_Type = 2;
 const int Valve_Type = 3;
 
 /**
- * Base class for 'flow devices' (valves, pressure regulators,
- * etc.)  connecting reactors. Allowance is made for devices that
- * are closed-loop controllers. Several methods for these are
- * defined here that do nothing but may be overloaded to set or
- * get the setpoint, gains, etc. The behavior of overloaded
- * methods should be consistent with the behavior described
- * here. The base-class versions of these methods print a warning
- * if called.
+ * Base class for 'flow devices' (valves, pressure regulators, etc.)
+ * connecting reactors. Allowance is made for devices that are closed-loop
+ * controllers. Several methods for these are defined here that do nothing but
+ * may be overloaded to set or get the setpoint, gains, etc. The behavior of
+ * overloaded methods should be consistent with the behavior described here.
+ * The base-class versions of these methods print a warning if called.
  * @ingroup reactor0
  */
 class FlowDevice
 {
-
 public:
-
-    /// Constructor
     FlowDevice() : m_mdot(0.0), m_func(0), m_type(0),
         m_nspin(0), m_nspout(0),
         m_in(0), m_out(0) {}
 
-    /// Destructor (does nothing)
     virtual ~FlowDevice() {}
 
-    //        /// Copy constructor.
-    //         FlowDevice(const FlowDevice& a) : m_in(a.m_in), m_out(a.m_out) {}
-
-    //         /// Assignment operator
-    //         FlowDevice& operator=(const FlowDevice& a) {
-    //             if (this == &a) return *this;
-    //             m_in = a.m_in;
-    //             m_out = a.m_out;
-    //             return *this;
-    //         }
-
+    //! Return an integer indicating the type of flow device
     int type() {
         return m_type;
     }
 
-    /**
+    /*!
      * Mass flow rate (kg/s).
      */
     doublereal massFlowRate(double time = -999.0) {
@@ -69,14 +53,17 @@ public:
         return m_mdot;
     }
 
-    // Update the mass flow rate at time 'time'. This must be
-    // overloaded in subclassess to update m_mdot.
+    //! Update the mass flow rate at time 'time'. This must be overloaded in
+    //! subclassess to update m_mdot.
     virtual void updateMassFlowRate(doublereal time) {}
 
-    // mass flow rate of outlet species k
+    /*!
+     * Mass flow rate (kg/s) of outlet species k. Returns zero if this species
+     * is not present in the upstream mixture.
+     */
     doublereal outletSpeciesMassFlowRate(size_t k);
 
-    // specific enthalpy
+    //! specific enthalpy
     doublereal enthalpy_mass();
 
     //         /**
@@ -139,37 +126,39 @@ public:
         return (m_in != 0 && m_out != 0);
     }
 
-    /// Return a reference to the upstream reactor.
+    //! Return a reference to the upstream reactor.
     ReactorBase& in() const {
         return *m_in;
     }
 
-    /// Return a const reference to the downstream reactor.
+    //! Return a const reference to the downstream reactor.
     const ReactorBase& out() const {
         return *m_out;
     }
 
-    /// set parameters
+    //! set parameters
     virtual void setParameters(int n, doublereal* coeffs) {
         m_coeffs.resize(n);
         std::copy(coeffs, coeffs + n, m_coeffs.begin());
     }
 
+    //! Set a function of a single variable that is used in determining the
+    //! mass flow rate through the device. The meaning of this function
+    //! depends on the parameterization of the derived type.
     void setFunction(Cantera::Func1* f);
+
+    //! Set the fixed mass flow rate (kg/s) through the flow device.
     void setMassFlowRate(doublereal mdot) {
         m_mdot = mdot;
     }
 
-
 protected:
-
     doublereal m_mdot;
     Cantera::Func1* m_func;
     vector_fp m_coeffs;
     int m_type;
 
 private:
-
     size_t m_nspin, m_nspout;
     ReactorBase* m_in;
     ReactorBase* m_out;
