@@ -126,8 +126,13 @@ public:
      * ThermoPhase object. The properties must be already contained
      * within the current thermodynamic state of the system.
      *
+     * @param s phase object to be equilibrated
+     * @param XY property pair to hold constant
      * @param elMoles specified vector of element abundances.
-     *
+     * @param useThermoPhaseElementPotentials get the initial estimate for the
+     *     chemical potentials from the ThermoPhase object (true) or create
+     *     our own estimate (false)
+     * @param loglvel Specify amount of debug logging (0 to disable)
      * @return Successful returns are indicated by a return value of 0.
      *     Unsuccessful returns are indicated by a return value of -1 for lack
      *     of convergence or -3 for a singular jacobian.
@@ -172,6 +177,7 @@ protected:
      * Set mixture to an equilibrium state consistent with specified
      * element potentials and temperature.
      *
+     * @param s mixture to be updated
      * @param x vector of non-dimensional element potentials
      * \f[ \lambda_m/RT \f].
      * @param t temperature in K.

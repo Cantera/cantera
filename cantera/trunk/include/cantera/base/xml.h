@@ -407,7 +407,7 @@ public:
 
     //! Sets the name of the XML node
     /*!
-     * @param name The name of the XML node
+     * @param name_ The name of the XML node
      */
     void setName(const std::string& name_) {
         m_name = name_;

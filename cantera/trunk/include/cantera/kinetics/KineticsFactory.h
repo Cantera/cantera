@@ -60,6 +60,9 @@ public:
      *              called "model", with a string value. The value of this
      *              string is used to decide which kinetics manager is used to
      *              calculate the reaction mechanism.
+     * @param th    Vector of phases. The first phase is the phase in which
+     *              the reactions occur, and the subsequent phases (if any)
+     *              are e.g. bulk phases adjacent to a reacting surface.
      *
      * @return Pointer to the new kinetics manager.
      */
