@@ -128,6 +128,10 @@ CVodesIntegrator::CVodesIntegrator() :
     m_mupper(0), m_mlower(0),
     m_sens_ok(false)
 {
+#if SUNDIALS_VERSION <= 23
+    warn_deprecated("Use of Sundials 2.2 and 2.3",
+                    "Support for these versions will be removed in Cantera 2.2.");
+#endif
     //m_ropt.resize(OPT_SIZE,0.0);
     //m_iopt = new long[OPT_SIZE];
     //fill(m_iopt, m_iopt+OPT_SIZE,0);
