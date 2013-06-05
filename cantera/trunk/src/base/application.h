@@ -173,6 +173,7 @@ protected:
          *  @param title String name of the LogGroup
          *  @param loglevel loglevel of the group.
          *  @ingroup HTML_logs
+         *  @deprecated HTML logs will be removed in Cantera 2.2
          */
         void beginLogGroup(const std::string& title, int loglevel) ;
 
@@ -184,6 +185,7 @@ protected:
          * @param value    string value
          *
          * @ingroup HTML_logs
+         * @deprecated HTML logs will be removed in Cantera 2.2
          */
         void addLogEntry(const std::string& tag, const std::string& value) ;
 
@@ -195,6 +197,7 @@ protected:
          * @param value    double value
          *
          * @ingroup HTML_logs
+         * @deprecated HTML logs will be removed in Cantera 2.2
          */
         void addLogEntry(const std::string& tag, doublereal value) ;
 
@@ -206,6 +209,7 @@ protected:
          * @param value    integer value
          *
          * @ingroup HTML_logs
+         * @deprecated HTML logs will be removed in Cantera 2.2
          */
         void addLogEntry(const std::string& tag, int value) ;
 
@@ -216,6 +220,7 @@ protected:
          * @param msg  Message to be added
          *
          * @ingroup HTML_logs
+         * @deprecated HTML logs will be removed in Cantera 2.2
          */
         void addLogEntry(const std::string& msg) ;
 
@@ -229,6 +234,7 @@ protected:
          *
          * @param title Name of the log group. It defaults to the most recent
          *              log group created.
+         * @deprecated HTML logs will be removed in Cantera 2.2
          */
         void endLogGroup(const std::string& title) ;
 
@@ -244,6 +250,7 @@ protected:
          *  be defined.
          *
          *  @param  file Name of the file to be written
+         *  @deprecated HTML logs will be removed in Cantera 2.2
          */
         void write_logfile(const std::string& file);
 #endif

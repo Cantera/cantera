@@ -153,6 +153,8 @@ void Application::Messages::writelogendl()
 
 void Application::Messages::beginLogGroup(const std::string& title, int _loglevel /*=-99*/)
 {
+    Cantera::warn_deprecated("Application::Messages::beginLogGroup",
+                             "HTML Logs will be removed in Cantera 2.2");
     // Add the current loglevel to the vector of loglevels
     loglevels.push_back(loglevel);
 
@@ -240,6 +242,9 @@ void Application::Messages::endLogGroup(const std::string& title)
 
 void Application::Messages::write_logfile(const std::string& file)
 {
+    Cantera::warn_deprecated("Application::Messages::write_logfile",
+                             "HTML Logs will be removed in Cantera 2.2");
+
     if (!xmllog) {
         return;
     }
