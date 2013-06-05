@@ -395,9 +395,9 @@ config_options = [
     BoolVariable(
         'with_html_log_files',
         """write HTML log files. Some multiphase equilibrium procedures can
-           write copious diagnostic log messages. Set this to 'n' to disable
-           this capability. (results in slightly faster equilibrium calculations)""",
-        True),
+           write copious diagnostic log messages. Deprecated -- to be removed
+           in Cantera 2.2.""",
+        False),
     EnumVariable(
         'use_sundials',
         """Cantera uses the CVODE or CVODES ODE integrator to time-integrate
@@ -1091,6 +1091,8 @@ else:
 
 cdefine('H298MODIFY_CAPABILITY', 'with_h298modify_capability')
 cdefine('WITH_HTML_LOGS', 'with_html_log_files')
+if env['with_html_log_files']:
+    print 'WARNING: Support for HTML log files is deprecated and will be removed in Cantera 2.2.'
 
 cdefine('LAPACK_FTN_STRING_LEN_AT_END', 'lapack_ftn_string_len_at_end')
 cdefine('LAPACK_FTN_TRAILING_UNDERSCORE', 'lapack_ftn_trailing_underscore')
