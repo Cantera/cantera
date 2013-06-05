@@ -47,16 +47,19 @@ class WxsGenerator(object):
         #self.prefix: path to the parent directory
         directories = {}
 
+        # replace characters that are not valid in IDs
+        clean = lambda s: s.replace('/', '_').replace('@', 'a').replace('-','_')
+
         directories[directory] = self.Directory(parent, directory, directory)
         for path, dirs, files in os.walk('/'.join((self.prefix, directory))):
             path = path.replace(self.prefix + '/', '', 1).replace('\\', '/')
             for d in dirs:
                 dpath = '/'.join((path, d))
-                ID = dpath.replace('/', '_').replace('@', 'a')
+                ID = clean(dpath)
                 directories[dpath] = self.Directory(directories[path], ID, d)
 
             for f in files:
-                ID = '_'.join((path, f)).replace('/', '_').replace('@', 'a')
+                ID = clean('_'.join((path, f)))
                 self.FileComponent(directories[path], ID, ID, f,
                               '/'.join((self.prefix, path, f)))
                 et.SubElement(feature, 'ComponentRef', dict(Id=ID))
