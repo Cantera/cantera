@@ -22,8 +22,6 @@ using namespace std;
 namespace Cantera
 {
 
-
-//====================================================================================================================
 AqueousTransport::AqueousTransport() :
     m_iStateMF(-1),
     m_temp(-1.0),
@@ -48,14 +46,8 @@ AqueousTransport::AqueousTransport() :
 {
 }
 
-//====================================================================================================================
-// Initialize the object
-/*
- *  This is where we dimension everything.
- */
 bool AqueousTransport::initLiquid(LiquidTransportParams& tr)
 {
-
     // constant substance attributes
     m_thermo = tr.thermo;
     m_nsp   = m_thermo->nSpecies();

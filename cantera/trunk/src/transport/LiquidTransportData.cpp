@@ -8,8 +8,6 @@ using namespace std;
 
 namespace Cantera
 {
-
-//====================================================================================================================
 LiquidTransportData::LiquidTransportData() :
     speciesName("-"),
     hydroRadius(0),
@@ -23,8 +21,7 @@ LiquidTransportData::LiquidTransportData() :
 {
 
 }
-//====================================================================================================================
-// Copy constructor
+
 LiquidTransportData::LiquidTransportData(const LiquidTransportData& right) :
     speciesName("-"),
     hydroRadius(0),
@@ -38,8 +35,7 @@ LiquidTransportData::LiquidTransportData(const LiquidTransportData& right) :
 {
     *this = right; //use assignment operator to do other work
 }
-//====================================================================================================================
-// Assignment operator
+
 LiquidTransportData& LiquidTransportData::operator=(const LiquidTransportData& right)
 {
     if (&right != this) {
@@ -81,7 +77,7 @@ LiquidTransportData& LiquidTransportData::operator=(const LiquidTransportData& r
     }
     return *this;
 }
-//====================================================================================================================
+
 LiquidTransportData::~LiquidTransportData()
 {
     delete hydroRadius;
@@ -103,5 +99,5 @@ LiquidTransportData::~LiquidTransportData()
     delete electCond;
     delete speciesDiffusivity;
 }
-//====================================================================================================================
+
 }

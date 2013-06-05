@@ -12,7 +12,6 @@
 namespace Cantera
 {
 
-//====================================================================================================================
 //! Enumeration of the types of transport properties that can be
 //! handled by the variables in the various Transport classes.
 /*!
@@ -44,7 +43,6 @@ enum TransportPropertyType {
     TP_DEFECTDIFF
 };
 
-//====================================================================================================================
 //! Temperature dependence type for pure (liquid) species properties
 /*!
  *  Types of temperature dependencies:
@@ -61,7 +59,6 @@ enum LTPTemperatureDependenceType {
     LTP_TD_EXPT
 };
 
-//====================================================================================================================
 //! Class LTPspecies holds transport parameters for a specific liquid-phase species.
 /*!
  * Subclasses handle different means of specifying transport properties
@@ -75,15 +72,13 @@ enum LTPTemperatureDependenceType {
  */
 class LTPspecies
 {
-
 public:
-
     //! Construct an LTPspecies object for a liquid transport property.
     /*!
      *    The species transport property is constructed from the XML node,
-     *    \verbatim <propNode>, \endverbatim that is a child of the
-     *    \verbatim <transport> \endverbatim node in the species block and specifies a type of transport
-     *    property (like viscosity)
+     *    `<propNode>` that is a child of the `<transport>` node in the
+     *    species block and specifies a type of transport property (like
+     *    viscosity)
      *
      *   @param   propNode      Pointer to the XML node that contains the property information. A default
      *                          value of 0 is allowed for the base class, but not for classes which
@@ -96,19 +91,8 @@ public:
     LTPspecies(const XML_Node* const propNode = 0,  const std::string name = "-",
                TransportPropertyType tp_ind = TP_UNKNOWN, const thermo_t* thermo = 0);
 
-    //! Copy constructor
-    /*!
-     *  @param   right       Object to be copied
-     */
     LTPspecies(const LTPspecies& right);
-
-    //! Assignment operator
-    /*!
-     *  @param   right       Object to be copied
-     */
     LTPspecies& operator=(const LTPspecies& right);
-
-    //! Destructor
     virtual ~LTPspecies();
 
     //! Duplication routine
@@ -130,15 +114,9 @@ public:
     virtual doublereal getSpeciesTransProp();
 
     //! Check to see if the property evaluation will be positive
-    /*!
-     *  @return  Returns a boolean
-     */
     virtual bool checkPositive() const;
 
     //! Return the weight mixture
-    /*!
-     *  @return  Returns a single double which is used as a weight
-     */
     doublereal getMixWeight() const;
 
 private:
@@ -182,7 +160,6 @@ protected:
     doublereal m_mixWeight;
 };
 
-//====================================================================================================================
 //! Class LTPspecies_Const holds transport parameters for a
 //! specific liquid-phase species (LTPspecies) when the
 //! transport property is just a constant value.
@@ -204,16 +181,12 @@ protected:
  */
 class LTPspecies_Const : public  LTPspecies
 {
-
 public:
-
     //! Construct an LTPspecies object for a liquid transport property
     //! expressed as a constant value.
     /** The transport property is constructed from the XML node,
-     *  \verbatim <propNode>, \endverbatim that is a child of the
-     *  \verbatim <transport> \endverbatim node and specifies a type of
-     *  transport property (like viscosity).
-     *
+     *  `<propNode>`, that is a child of the `<transport>` node and specifies
+     *  a type of transport property (like viscosity).
      *
      *   @param   propNode      Reference to the XML node that contains the property information.
      *   @param   name          String containing the species name
@@ -224,22 +197,8 @@ public:
     LTPspecies_Const(const XML_Node& propNode, const std::string name,
                      TransportPropertyType tp_ind,  const thermo_t* const thermo);
 
-    //! Copy constructor
-    /*!
-     *  @param   right       Object to be copied
-     */
     LTPspecies_Const(const LTPspecies_Const& right);
-
-    //! Assignment operator
-    /*!
-     *  @param   right       Object to be copied
-     */
     LTPspecies_Const& operator=(const LTPspecies_Const& right);
-
-    //! duplication routine
-    /*!
-     *  @return  Returns a copy of this routine as a pointer to LTPspecies
-     */
     virtual LTPspecies* duplMyselfAsLTPspecies() const;
 
     //! Returns the pure species transport property
@@ -249,10 +208,8 @@ public:
      *  adjusted internally according to the information provided.
      */
     doublereal getSpeciesTransProp();
-
 };
 
-//====================================================================================================================
 //! Class LTPspecies_Arrhenius holds transport parameters for a
 //! specific liquid-phase species (LTPspecies) when the
 //! transport property is expressed in Arrhenius form.
@@ -283,16 +240,13 @@ public:
  */
 class LTPspecies_Arrhenius : public  LTPspecies
 {
-
 public:
-
     //! Construct an LTPspecies object for a liquid transport property
     //! expressed in extended Arrhenius form.
     /*!
-     *  The transport property is constructed from the XML node,
-     *  \verbatim <propNode>, \endverbatim that is a child of the
-     *  \verbatim <transport> \endverbatim node and specifies a type of  transport property (like viscosity)
-     *
+     *  The transport property is constructed from the XML node, `<propNode>`,
+     *  that is a child of the `<transport>` node and specifies a type of
+     *  transport property (like viscosity)
      *
      *   @param   propNode      Reference to the XML node that contains the property information.This class
      *                          is assumed to be parameterized by reading XML_Node information.
@@ -300,28 +254,12 @@ public:
      *   @param   tp_ind        enum TransportPropertyType containing the property id that this object
      *                          is creating a parameterization for (e.g., viscosity)
      *   @param   thermo        const pointer to the ThermoPhase object, which is used to find the temperature.
-     *
-
      */
     LTPspecies_Arrhenius(const XML_Node& propNode, const std::string name,
                          TransportPropertyType tp_ind, const thermo_t* thermo);
 
-    //! Copy constructor
-    /*!
-     *  @param right     Object to be copied
-     */
     LTPspecies_Arrhenius(const LTPspecies_Arrhenius& right);
-
-    //! Assignment operator
-    /*!
-     *  @param right     Object to be copied
-     */
     LTPspecies_Arrhenius& operator=(const LTPspecies_Arrhenius& right);
-
-    //! duplication routine
-    /*!
-     *  @return  Returns a copy of this routine as a pointer to LTPspecies
-     */
     virtual LTPspecies* duplMyselfAsLTPspecies() const;
 
     //! Return the pure species value for this transport property evaluated
@@ -333,10 +271,9 @@ public:
      *      \mu = A T^n \exp( - E / R T ).
      * \f]
      *
-     * Note that for viscosity, the convention is such that
-     * a positive activation energy corresponds to the typical
-     * case of a positive argument to the exponential so that
-     * the Arrhenius expression is
+     * Note that for viscosity, the convention is such that a positive
+     * activation energy corresponds to the typical case of a positive
+     * argument to the exponential so that the Arrhenius expression is
      *
      * \f[
      *      \mu = A T^n \exp( + E / R T ).
@@ -348,7 +285,6 @@ public:
     doublereal getSpeciesTransProp();
 
 protected:
-
     //! temperature from thermo object
     doublereal m_temp;
 
@@ -362,7 +298,6 @@ protected:
     doublereal m_logProp;
 };
 
-//====================================================================================================================
 //! Class LTPspecies_Poly holds transport parameters for a
 //! specific liquid-phase species (LTPspecies) when the transport
 //! property is expressed as a polynomial in temperature.
@@ -390,14 +325,12 @@ protected:
  */
 class LTPspecies_Poly : public  LTPspecies
 {
-
 public:
-
     //! Construct an LTPspecies object for a liquid transport property expressed as a polynomial in temperature.
     /*!
-     *  The transport property is constructed from the XML node, \verbatim <propNode>, \endverbatim that is a child of the
-     *  \verbatim <transport> \endverbatim node and specifies a type of transport property (like viscosity).
-     *
+     *  The transport property is constructed from the XML node, `<propNode>`,
+     *  that is a child of the `<transport>` node and specifies a type of
+     *  transport property (like viscosity).
      *
      *   @param   propNode      Reference to the XML node that contains the property information. This class
      *                          must be parameterized by reading XML_Node information.
@@ -405,27 +338,11 @@ public:
      *   @param   tp_ind        enum TransportPropertyType containing the property id that this object
      *                          is creating a parameterization for (e.g., viscosity)
      *   @param   thermo        const pointer to the ThermoPhase object, which is used to find the temperature.
-     *
-
      */
     LTPspecies_Poly(const XML_Node& propNode, const std::string name, TransportPropertyType tp_ind, const thermo_t* thermo);
 
-    //! Copy constructor
-    /*!
-     *  @param right   Object to be copied
-     */
     LTPspecies_Poly(const LTPspecies_Poly& right);
-
-    //! Assignment operator
-    /*!
-     *  @param right   Object to be copied
-     */
     LTPspecies_Poly& operator=(const LTPspecies_Poly& right);
-
-    //! Duplication routine
-    /*!
-     *  @return  Returns a copy of this routine as a pointer to LTPspecies
-     */
     virtual LTPspecies* duplMyselfAsLTPspecies() const;
 
     //! Returns the pure species transport property
@@ -437,18 +354,16 @@ public:
     doublereal getSpeciesTransProp();
 
 protected:
-
     //! temperature from thermo object
     doublereal m_temp;
 
     //! most recent evaluation of transport property
     doublereal m_prop;
-
 };
 
-//====================================================================================================================
-//! Class LTPspecies_ExpT holds transport parameters for a  specific liquid-phase species (LTPspecies)
-//! when the transport property is expressed as an exponential in temperature.
+//! Class LTPspecies_ExpT holds transport parameters for a  specific liquid-
+//! phase species (LTPspecies) when the transport property is expressed as an
+//! exponential in temperature.
 /*!
  * Used for pure species properties with equations of the form
  *
@@ -475,15 +390,13 @@ protected:
  */
 class LTPspecies_ExpT : public  LTPspecies
 {
-
 public:
-
     //! Construct an LTPspecies object for a liquid transport property
     //! expressed as an exponential in temperature.
     /*!
-     *  The transport property is constructed from the XML node, \verbatim <propNode>, \endverbatim that is a child of the
-     *  \verbatim <transport> \endverbatim node and specifies a type of transport property (like viscosity).
-     *
+     *  The transport property is constructed from the XML node, `<propNode>`,
+     *  that is a child of the `<transport>` node and specifies a type of
+     *  transport property (like viscosity).
      *
      *   @param   propNode      Reference to the XML node that contains the property information. This class
      *                          must be parameterized by reading XML_Node information.
@@ -491,28 +404,12 @@ public:
      *   @param   tp_ind        enum TransportPropertyType containing the property id that this object
      *                          is creating a parameterization for (e.g., viscosity)
      *   @param   thermo        const pointer to the ThermoPhase object, which is used to find the temperature.
-     *
      */
     LTPspecies_ExpT(const XML_Node& propNode, const std::string name,
                     TransportPropertyType tp_ind,  const thermo_t* thermo);
 
-
-    //! Copy constructor
-    /*!
-     *  @param right   Object to be copied
-     */
     LTPspecies_ExpT(const LTPspecies_ExpT& right);
-
-    //! Assignment operator
-    /*!
-     *  @param right   Object to be copied
-     */
     LTPspecies_ExpT&  operator=(const LTPspecies_ExpT& right);
-
-    //! Duplication routine
-    /*!
-     *  @return  Returns a copy of this routine as a pointer to LTPspecies
-     */
     virtual LTPspecies* duplMyselfAsLTPspecies() const;
 
     //! Returns the pure species transport property
@@ -524,16 +421,12 @@ public:
     doublereal getSpeciesTransProp();
 
 protected:
-
     //! temperature from thermo object
     doublereal m_temp;
 
     //! most recent evaluation of transport property
     doublereal m_prop;
-
 };
-
-//====================================================================================================================
 
 }
 #endif
