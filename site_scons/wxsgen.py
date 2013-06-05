@@ -12,9 +12,11 @@ class WxsGenerator(object):
         if self.x64:
             self.CANTERA_UUID = uuid.UUID('F707EB9E-3723-11E1-A99F-525400631BAF')
             self.pfilesName = 'ProgramFiles64Folder'
+            self.productName = 'Cantera 2.0 (64-bit)'
         else:
             self.CANTERA_UUID = uuid.UUID('1B36CAF0-279D-11E1-8979-001FBC085391')
             self.pfilesName = 'ProgramFilesFolder'
+            self.productName = 'Cantera 2.0 (32-bit)'
 
     def Directory(self, parent, Id, Name):
         return et.SubElement(parent, 'Directory',
@@ -69,7 +71,7 @@ class WxsGenerator(object):
     def make_wxs(self, outFile):
         wix = et.Element("Wix", {'xmlns': 'http://schemas.microsoft.com/wix/2006/wi'})
         product = et.SubElement(wix, "Product",
-                                dict(Name='Cantera 2.0',
+                                dict(Name=self.productName,
                                      Id=str(self.CANTERA_UUID),
                                      UpgradeCode='2340BEE1-279D-11E1-A4AA-001FBC085391',
                                      Language='1033',
