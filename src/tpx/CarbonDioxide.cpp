@@ -7,8 +7,6 @@
  */
 
 #include "CarbonDioxide.h"
-#include <math.h>
-#include <string.h>
 #include "cantera/base/stringUtils.h"
 
 using namespace Cantera;

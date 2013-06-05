@@ -20,9 +20,6 @@
 #include "cantera/thermo/IdealMolalSoln.h"
 #include "cantera/thermo/ThermoFactory.h"
 
-#include <cmath>
-#include <fstream>
-
 using namespace ctml;
 
 namespace Cantera

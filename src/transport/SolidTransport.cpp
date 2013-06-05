@@ -10,11 +10,6 @@
 #include "cantera/transport/SolidTransportData.h"
 #include "cantera/transport/SolidTransport.h"
 
-
-#include "cantera/base/utilities.h"
-
-#include <iostream>
-
 using namespace std;
 
 namespace Cantera

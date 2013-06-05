@@ -7,8 +7,6 @@
 #include "cantera/base/global.h"
 #include "cantera/base/stringUtils.h"
 
-#include <math.h>
-#include <iostream>
 #include <cstdio>
 
 using namespace std;

@@ -13,10 +13,6 @@
 #include "cantera/base/global.h"
 #include "cantera/base/stringUtils.h"
 
-#include <cctype>
-#include <cstring>
-#include <cstdlib>
-
 using namespace std;
 using namespace Cantera;
 

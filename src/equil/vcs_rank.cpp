@@ -20,9 +20,7 @@
 #include "cantera/base/clockWC.h"
 #include "cantera/base/ctexceptions.h"
 
-#include <string>
 #include <cstdio>
-#include "math.h"
 using namespace std;
 
 namespace VCSnonideal {

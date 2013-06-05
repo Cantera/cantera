@@ -13,8 +13,6 @@
 #include "TortuosityBruggeman.h"
 #include "cantera/base/ctexceptions.h"
 
-#include <string>
-
 namespace Cantera
 {
 

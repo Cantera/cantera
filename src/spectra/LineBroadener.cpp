@@ -1,5 +1,6 @@
 #include "cantera/base/ct_defs.h"
 #include <math.h>
+#include <iostream>
 
 #ifdef USE_BOOST_MATH
 #include <boost/math/special_functions/erf.hpp>

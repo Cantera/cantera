@@ -1,8 +1,6 @@
 #ifndef CXX_IDEALGASMIX
 #define CXX_IDEALGASMIX
 
-#include <string>
-
 #include "thermo/IdealGasPhase.h"
 #include "kinetics/GasKinetics.h"
 #include "kinetics/importKinetics.h"

@@ -14,12 +14,6 @@
 #include "cantera/numerics/ctlapack.h"
 #include "cantera/base/stringUtils.h"
 
-/* Standard include files */
-#include <cstdio>
-#include <cstdlib>
-#include <cmath>
-#include <vector>
-
 using namespace std;
 namespace Cantera
 {

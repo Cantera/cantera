@@ -17,7 +17,6 @@
  * @defgroup solverGroup Solvers for Equation Systems
  */
 
-#include <vector>
 #include "ResidEval.h"
 
 namespace Cantera

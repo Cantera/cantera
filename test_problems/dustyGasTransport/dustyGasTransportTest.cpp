@@ -3,6 +3,7 @@
 #include "cantera/transport/DustyGasTransport.h"
 
 #include <memory>
+#include <cstdio>
 
 using namespace std;
 using namespace Cantera;

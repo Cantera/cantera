@@ -15,10 +15,6 @@
 #include "cantera/equil/vcs_VolPhase.h"
 #include "cantera/equil/vcs_SpeciesProperties.h"
 
-#include <cstdio>
-#include <cstdlib>
-#include <cmath>
-
 namespace VCSnonideal
 {
 void VCS_SOLVE::vcs_SSPhase()

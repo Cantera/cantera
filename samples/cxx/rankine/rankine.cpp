@@ -1,9 +1,7 @@
 // An open Rankine cycle
 
-#include <string>
-#include <map>
-
 #include "cantera/PureFluid.h"    // defines class Water
+#include <cstdio>
 
 using namespace Cantera;
 

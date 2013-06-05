@@ -2,12 +2,8 @@
  * @file BasisOptimize.cpp Functions which calculation optimized basis of the
  *     stoichiometric coefficient matrix (see /ref equil functions)
  */
-#include "cantera/base/ct_defs.h"
-#include "cantera/base/global.h"
 #include "cantera/thermo/ThermoPhase.h"
 #include "cantera/equil/MultiPhase.h"
-
-#include <cstring>
 
 using namespace Cantera;
 using namespace std;

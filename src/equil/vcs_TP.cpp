@@ -3,10 +3,6 @@
 #include "cantera/equil/vcs_species_thermo.h"
 #include "cantera/equil/vcs_VolPhase.h"
 
-#include <cstdio>
-#include <cstdlib>
-#include <cmath>
-
 namespace VCSnonideal
 {
 int VCS_SOLVE::vcs_TP(int ipr, int ip1, int maxit, double T_arg, double pres_arg)

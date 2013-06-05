@@ -17,16 +17,12 @@
 #include "cantera/equil/vcs_solve.h"
 #include "cantera/equil/equil.h"
 
-#include "cantera/base/ct_defs.h"
 #include "cantera/base/stringUtils.h"
 #include "cantera/thermo/mix_defs.h"
 #include "cantera/thermo/speciesThermoTypes.h"
 #include "cantera/thermo/IdealSolidSolnPhase.h"
 #include "cantera/thermo/IdealMolalSoln.h"
 #include "cantera/equil/ChemEquil.h"
-
-#include <string>
-#include <vector>
 
 using namespace std;
 

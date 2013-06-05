@@ -9,16 +9,12 @@
 
 #include "cantera/numerics/funcs.h"
 
-#include <vector>
-#include <algorithm>
-
-using namespace std;
-
 #include "cantera/numerics/ctlapack.h"
-#include "cantera/base/ct_defs.h"
 #include "cantera/base/ctexceptions.h"
 #include "cantera/base/stringUtils.h"
 #include "cantera/numerics/polyfit.h"
+
+using namespace std;
 
 #ifndef FTN_TRAILING_UNDERSCORE
 #define _DPOLFT_ dpolft

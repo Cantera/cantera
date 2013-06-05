@@ -12,11 +12,6 @@
 #include "cantera/equil/vcs_species_thermo.h"
 #include "cantera/equil/vcs_solve.h"
 
-#include <cstdio>
-#include <cstdlib>
-#include <cmath>
-#include <iostream>
-
 using namespace std;
 
 namespace VCSnonideal

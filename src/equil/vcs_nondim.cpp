@@ -14,10 +14,6 @@
 #include "cantera/base/stringUtils.h"
 #include "cantera/base/ctexceptions.h"
 
-#include <cstdio>
-#include <cstdlib>
-#include <cmath>
-
 namespace VCSnonideal
 {
 double VCS_SOLVE::vcs_nondim_Farad(int mu_units, double TKelvin) const

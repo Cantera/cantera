@@ -16,10 +16,6 @@
 #include "cantera/base/ctexceptions.h"
 #include "cantera/equil/vcs_internal.h"
 
-#include <cstdio>
-#include <cstdlib>
-#include <cmath>
-
 using namespace std;
 
 namespace VCSnonideal

@@ -5,11 +5,8 @@
 #include "cantera/base/ct_thread.h"
 #include "cantera/base/logger.h"
 
-#include <map>
 #include <set>
 #include <memory>
-#include <string>
-#include <vector>
 
 namespace Cantera
 {

@@ -14,9 +14,6 @@
 
 #include <fstream>
 #include <sstream>
-#include <string>
-#include <cstdlib>
-#include <ctime>
 
 using namespace Cantera;
 using namespace std;

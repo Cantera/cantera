@@ -11,8 +11,6 @@
 
 #include "cantera/numerics/BEulerInt.h"
 
-#include <iostream>
-
 using namespace std;
 
 namespace Cantera

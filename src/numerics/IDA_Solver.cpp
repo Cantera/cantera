@@ -7,8 +7,6 @@
 #include "cantera/numerics/IDA_Solver.h"
 #include "cantera/base/stringUtils.h"
 
-#include <iostream>
-
 #if SUNDIALS_VERSION >= 24
 #include "sundials/sundials_types.h"
 #include "sundials/sundials_math.h"

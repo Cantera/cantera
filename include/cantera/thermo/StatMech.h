@@ -15,8 +15,6 @@
 #include "cantera/base/global.h"
 #include "SpeciesThermoInterpType.h"
 #include "SpeciesThermoMgr.h"
-#include <string>
-#include <map>
 
 namespace Cantera
 {

@@ -9,7 +9,6 @@
  * See file License.txt for licensing information.
  */
 
-#include <limits>
 
 #include "cantera/numerics/SquareMatrix.h"
 #include "cantera/numerics/GeneralMatrix.h"
@@ -20,11 +19,7 @@
 #include "cantera/base/vec_functions.h"
 #include "cantera/base/stringUtils.h"
 
-#include <cfloat>
-#include <ctime>
-#include <vector>
-#include <cstdio>
-#include <cmath>
+#include <limits>
 
 using namespace std;
 

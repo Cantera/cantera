@@ -14,8 +14,6 @@
 using namespace ctml;
 using namespace std;
 
-#include <cstdlib>
-
 namespace Cantera
 {
 

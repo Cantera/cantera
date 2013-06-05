@@ -11,13 +11,10 @@
 #include "cantera/tpx/Sub.h"
 #include "cantera/tpx/utils.h"
 
-#include <cstdlib>
-#include <iomanip>
-#include <fstream>
+#include <cstdio>
 
 using std::string;
 using std::endl;
-using std::setw;
 
 namespace Cantera
 {

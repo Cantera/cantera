@@ -13,12 +13,6 @@
 #include "TransportParams.h"
 #include "LiquidTransportParams.h"
 
-#include <vector>
-#include <string>
-#include <map>
-#include <numeric>
-#include <algorithm>
-
 namespace Cantera
 {
 

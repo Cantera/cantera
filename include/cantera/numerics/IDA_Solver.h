@@ -8,8 +8,6 @@
 #ifndef CT_IDA_SOLVER_H
 #define CT_IDA_SOLVER_H
 
-#include <vector>
-
 #include "DAE_Solver.h"
 #include "cantera/base/ctexceptions.h"
 

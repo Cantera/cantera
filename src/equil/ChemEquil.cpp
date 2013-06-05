@@ -6,8 +6,6 @@
 
 //  Copyright 2001 California Institute of Technology
 
-#include <vector>
-
 #include "cantera/equil/ChemEquil.h"
 #include "cantera/numerics/DenseMatrix.h"
 
@@ -26,7 +24,6 @@
 using namespace std;
 
 #include <cstdio>
-#include <cstdlib>
 
 int Cantera::ChemEquil_print_lvl = 0;
 

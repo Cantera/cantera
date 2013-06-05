@@ -10,7 +10,6 @@
 #include "cantera/thermo/WaterSSTP.h"
 #include "cantera/thermo/WaterProps.h"
 
-#include <iostream>
 using namespace std;
 
 namespace Cantera

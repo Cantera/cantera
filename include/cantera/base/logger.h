@@ -9,8 +9,6 @@
 #include "ct_defs.h"
 
 #include <iostream>
-#include <string>
-#include <cstdlib>
 
 namespace Cantera
 {

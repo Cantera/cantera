@@ -4,12 +4,10 @@
  */
 
 #include "cantera/transport/LiquidTransportParams.h"
-#include <iostream>
 #include "cantera/thermo/IonsFromNeutralVPSSTP.h"
 #include "cantera/thermo/MargulesVPSSTP.h"
 #include "cantera/base/stringUtils.h"
 
-#include <stdlib.h>
 using namespace std;
 using namespace ctml;
 

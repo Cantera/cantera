@@ -1,4 +1,3 @@
-#include <iostream>
 #include "cantera/IdealGasMix.h"
 #include "cantera/equilibrium.h"
 

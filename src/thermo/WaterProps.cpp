@@ -13,8 +13,6 @@
 #include "cantera/thermo/WaterPropsIAPWS.h"
 #include "cantera/base/stringUtils.h"
 
-#include <cmath>
-
 namespace Cantera
 {
 WaterProps::WaterProps():

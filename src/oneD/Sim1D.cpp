@@ -6,8 +6,6 @@
 #include "cantera/oneD/MultiJac.h"
 
 #include <fstream>
-#include <cstdlib>
-#include <cstdio>
 
 using namespace std;
 

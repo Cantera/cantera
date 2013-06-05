@@ -17,7 +17,6 @@
 #include "cantera/thermo/PDSS_Water.h"
 #include "cantera/base/stringUtils.h"
 
-#include <cstdlib>
 #include <fstream>
 
 using namespace std;

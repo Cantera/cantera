@@ -53,8 +53,6 @@
 
 #include "cantera/base/stringUtils.h"
 
-#include <cstdlib>
-
 using namespace std;
 using namespace ctml;
 

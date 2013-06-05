@@ -12,13 +12,7 @@
 #include "cantera/base/clockWC.h"
 #include "cantera/numerics/ctlapack.h"
 
-/* Standard include files */
-
 #include <cstdio>
-#include <cstdlib>
-#include <cmath>
-
-#include <vector>
 
 using namespace std;
 namespace Cantera

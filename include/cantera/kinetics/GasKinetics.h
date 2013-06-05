@@ -9,9 +9,6 @@
 #ifndef CT_GASKINETICS_H
 #define CT_GASKINETICS_H
 
-#include <fstream>
-#include <map>
-
 #include "cantera/thermo/mix_defs.h"
 #include "Kinetics.h"
 
@@ -21,9 +18,6 @@
 #include "ThirdBodyMgr.h"
 #include "FalloffMgr.h"
 #include "RateCoeffMgr.h"
-
-#include <cmath>
-#include <cstdlib>
 
 namespace Cantera
 {

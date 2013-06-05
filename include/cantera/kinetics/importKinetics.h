@@ -15,8 +15,6 @@
 #ifndef CT_IMPORTCTML_H
 #define CT_IMPORTCTML_H
 
-#include <string>
-
 #include "cantera/thermo/ThermoPhase.h"
 #include "Kinetics.h"
 

@@ -19,7 +19,6 @@
 #include "cantera/thermo/VPStandardStateTP.h"
 #include "cantera/base/stringUtils.h"
 
-#include <cmath>
 #include <fstream>
 
 namespace Cantera

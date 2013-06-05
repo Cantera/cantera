@@ -5,14 +5,6 @@
 #ifndef CT_WATERTRAN_H
 #define CT_WATERTRAN_H
 
-// STL includes
-#include <vector>
-#include <string>
-#include <map>
-#include <numeric>
-#include <algorithm>
-
-// Cantera includes
 #include "TransportBase.h"
 #include "cantera/numerics/DenseMatrix.h"
 #include "LiquidTransportParams.h"

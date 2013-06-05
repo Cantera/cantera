@@ -8,19 +8,16 @@
  * U.S. Government retains certain rights in this software.
  */
 
-#include <cstdio>
-#include <cstdlib>
-#include <cmath>
-#include <cassert>
-
 #include "cantera/equil/vcs_solve.h"
 #include "cantera/equil/vcs_internal.h"
 #include "cantera/equil/vcs_VolPhase.h"
 #include "cantera/equil/vcs_species_thermo.h"
-#include "cantera/base/ctexceptions.h"
 
+#include "cantera/base/ctexceptions.h"
 #include "cantera/base/clockWC.h"
 #include "cantera/base/stringUtils.h"
+
+#include <cstdio>
 
 using namespace std;
 using namespace Cantera;

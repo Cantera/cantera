@@ -1,7 +1,5 @@
 #include "Water.h"
 #include "cantera/base/stringUtils.h"
-#include <math.h>
-#include <string.h>
 
 using namespace Cantera;
 

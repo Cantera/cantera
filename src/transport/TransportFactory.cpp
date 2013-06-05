@@ -31,8 +31,6 @@
 #include "cantera/base/ctml.h"
 #include "cantera/base/stringUtils.h"
 
-#include <cstdio>
-#include <cstring>
 #include <fstream>
 
 using namespace std;

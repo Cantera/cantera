@@ -6,15 +6,12 @@
 #ifndef CT_LIQUIDTRANSPORTPARAMS_H
 #define CT_LIQUIDTRANSPORTPARAMS_H
 
-#include "cantera/base/ct_defs.h"
 #include "TransportBase.h"
 #include "TransportParams.h"
 #include "LiquidTransportData.h"
 #include "LiquidTranInteraction.h"
 #include "cantera/base/xml.h"
 #include "cantera/base/XML_Writer.h"
-
-#include <vector>
 
 namespace Cantera
 {

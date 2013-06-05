@@ -5,7 +5,6 @@
 // Copyright 2001  California Institute of Technology
 
 #include "CVodeInt.h"
-#include <iostream>
 using namespace std;
 
 // cvode includes

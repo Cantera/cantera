@@ -12,12 +12,6 @@
 
 #include "cantera/kinetics.h"
 
-#include <iostream>
-#include <string>
-#include <vector>
-#include <string>
-#include <iomanip>
-
 using namespace std;
 using namespace Cantera;
 

@@ -28,8 +28,6 @@ using namespace std;
 #include "cantera/base/xml.h"
 #include "cantera/base/ctml.h"
 
-#include <cmath>
-
 using namespace ctml;
 
 namespace Cantera

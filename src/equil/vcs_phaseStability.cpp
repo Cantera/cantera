@@ -9,10 +9,6 @@
 #include "cantera/equil/vcs_VolPhase.h"
 
 #include <cstdio>
-#include <cstdlib>
-#include <cmath>
-#include <vector>
-#include <cstring>
 #include <algorithm>
 
 using namespace std;

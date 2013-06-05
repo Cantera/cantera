@@ -6,8 +6,6 @@
 #include "cantera/base/xml.h"
 #include "units.h"
 
-#include <map>
-#include <string>
 #include <fstream>
 #include <functional>
 

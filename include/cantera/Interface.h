@@ -5,7 +5,6 @@
 #ifndef CXX_INTERFACE
 #define CXX_INTERFACE
 
-#include <string>
 #include "thermo.h"
 #include "kinetics.h"
 

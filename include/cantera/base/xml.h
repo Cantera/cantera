@@ -10,12 +10,7 @@
 #define CT_XML_H
 
 #include "ctexceptions.h"
-#include "ct_defs.h"
 #include "global.h"
-
-#include <string>
-#include <vector>
-#include <iostream>
 
 //@{
 #define XML_INDENT 4

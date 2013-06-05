@@ -12,9 +12,6 @@
 #include "cantera/thermo/WaterPropsIAPWS.h"
 #include "cantera/base/ctexceptions.h"
 #include "cantera/base/stringUtils.h"
-#include <cmath>
-#include <cstdio>
-#include <cstdlib>
 
 namespace Cantera
 {

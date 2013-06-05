@@ -4,9 +4,6 @@
  */
 #include "cantera/tpx/Sub.h"
 #include "cantera/base/stringUtils.h"
-#include <math.h>
-#include <fstream>
-#include <stdio.h>
 
 using std::string;
 using namespace Cantera;

@@ -13,6 +13,8 @@
 #include "cantera/numerics/DenseMatrix.h"
 #include "Cabinet.h"
 
+#include <fstream>
+
 using namespace std;
 using namespace Cantera;
 

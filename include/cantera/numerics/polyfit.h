@@ -9,8 +9,6 @@
 #ifndef CT_POLYFIT_H
 #define CT_POLYFIT_H
 
-#include <vector>
-
 #include "cantera/base/ct_defs.h"
 
 namespace Cantera

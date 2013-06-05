@@ -20,9 +20,7 @@
 
 #include "cantera/base/stringUtils.h"
 
-#include <cstring>
-#include <cstdlib>
-#include <fstream>
+#include <cstdio>
 
 using namespace std;
 using namespace ctml;

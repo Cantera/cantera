@@ -15,8 +15,6 @@
 #include "cantera/base/ctexceptions.h"
 #include "cantera/base/ct_thread.h"
 
-#include <string>
-
 namespace Cantera
 {
 

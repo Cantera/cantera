@@ -16,9 +16,6 @@
 #include "cantera/base/xml.h"
 #include "cantera/base/stringUtils.h"
 
-#include <cmath>
-#include <fstream>
-
 using namespace std;
 
 namespace Cantera

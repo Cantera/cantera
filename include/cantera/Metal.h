@@ -1,8 +1,6 @@
 #ifndef CXX_METAL
 #define CXX_METAL
 
-#include <string>
-
 #include "thermo/MetalPhase.h"
 #include "kinetics/importKinetics.h"
 
