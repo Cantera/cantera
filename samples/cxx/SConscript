@@ -49,6 +49,12 @@ for subdir, name, extensions in samples:
     localenv['tmpl_cantera_linkflags'] = repr([x for x in linkflags if x])
     localenv['tmpl_progname'] = name
     localenv['tmpl_sourcename'] = name + '.cpp'
+    env_args = []
+    if localenv['TARGET_ARCH'] is not None:
+        env_args.append('TARGET_ARCH={0!r}'.format(localenv['TARGET_ARCH']))
+    if 'MSVC_VERSION' in localenv:
+        env_args.append('MSVC_VERSION={0!r}'.format(localenv['MSVC_VERSION']))
+    localenv['tmpl_env_args'] = ', '.join(env_args)
 
     sconstruct = localenv.SubstFile(pjoin(subdir, 'SConstruct'), 'SConstruct.in')
     install(pjoin('$inst_sampledir', 'cxx', subdir), sconstruct)
