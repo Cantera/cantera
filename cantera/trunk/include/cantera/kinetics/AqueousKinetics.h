@@ -35,6 +35,7 @@ class ReactionData;
  *   Concentration
  *
  * @ingroup kinetics
+ * @deprecated Not actually implemented
  */
 class AqueousKinetics : public Kinetics
 {
