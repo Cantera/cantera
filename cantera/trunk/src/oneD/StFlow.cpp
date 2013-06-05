@@ -18,22 +18,10 @@ using namespace std;
 namespace Cantera
 {
 
-
-//-------------------  importSolution ------------------------
-
-/**
- * Import a previous solution to use as an initial estimate. The
- * previous solution may have been computed using a different
- * reaction mechanism. Species in the old and new mechanisms are
- * matched by name, and any species in the new mechanism that were
- * not in the old one are set to zero. The new solution is created
- * with the same number of grid points as in the old solution.
- */
 void importSolution(size_t points,
                     doublereal* oldSoln, IdealGasPhase& oldmech,
                     size_t size_new, doublereal* newSoln, IdealGasPhase& newmech)
 {
-
     // Number of components in old and new solutions
     size_t nv_old = oldmech.nSpecies() + 4;
     size_t nv_new = newmech.nSpecies() + 4;
@@ -80,7 +68,6 @@ void importSolution(size_t points,
         newmech.getMassFractions(&newSoln[nv_new*j + 4]);
     }
 }
-
 
 static void st_drawline()
 {
@@ -193,10 +180,6 @@ StFlow::StFlow(IdealGasPhase* ph, size_t nsp, size_t points) :
     setID("stagnation flow");
 }
 
-
-/**
- * Change the grid size. Called after grid refinement.
- */
 void StFlow::resize(size_t ncomponents, size_t points)
 {
     Domain1D::resize(ncomponents, points);
@@ -225,7 +208,6 @@ void StFlow::resize(size_t ncomponents, size_t points)
     m_z.resize(m_points);
 }
 
-
 void StFlow::setupGrid(size_t n, const doublereal* z)
 {
     resize(m_nv, n);
@@ -238,10 +220,6 @@ void StFlow::setupGrid(size_t n, const doublereal* z)
     }
 }
 
-
-/**
- * Install a transport manager.
- */
 void StFlow::setTransport(Transport& trans, bool withSoret)
 {
     m_trans = &trans;
@@ -275,11 +253,6 @@ void StFlow::enableSoret(bool withSoret)
     }
 }
 
-
-/**
- * Set the gas object state to be consistent with the solution at
- * point j.
- */
 void StFlow::setGas(const doublereal* x, size_t j)
 {
     m_thermo->setTemperature(T(x,j));
@@ -288,11 +261,6 @@ void StFlow::setGas(const doublereal* x, size_t j)
     m_thermo->setPressure(m_press);
 }
 
-
-/**
- * Set the gas state to be consistent with the solution at the
- * midpoint between j and j + 1.
- */
 void StFlow::setGasAtMidpoint(const doublereal* x, size_t j)
 {
     m_thermo->setTemperature(0.5*(T(x,j)+T(x,j+1)));
@@ -304,7 +272,6 @@ void StFlow::setGasAtMidpoint(const doublereal* x, size_t j)
     m_thermo->setMassFractions_NoNorm(DATA_PTR(m_ybar));
     m_thermo->setPressure(m_press);
 }
-
 
 void StFlow::_finalize(const doublereal* x)
 {
@@ -353,23 +320,9 @@ void StFlow::_finalize(const doublereal* x)
     }
 }
 
-
-//------------------------------------------------------
-
-/**
- *  Evaluate the residual function for axisymmetric stagnation
- *  flow. If jpt is less than zero, the residual function is
- *  evaluated at all grid points. If jpt >= 0, then the residual
- *  function is only evaluated at grid points jpt-1, jpt, and
- *  jpt+1. This option is used to efficiently evaluate the
- *  Jacobian numerically.
- *
- */
-
 void StFlow::eval(size_t jg, doublereal* xg,
                   doublereal* rg, integer* diagg, doublereal rdt)
 {
-
     // if evaluating a Jacobian, and the global point is outside
     // the domain of influence for this domain, then skip
     // evaluating the residual
@@ -555,10 +508,6 @@ void StFlow::eval(size_t jg, doublereal* xg,
     }
 }
 
-/**
- * Update the transport properties at grid points in the range
- * from j0 to j1, based on solution x.
- */
 void StFlow::updateTransport(doublereal* x, size_t j0, size_t j1)
 {
     if (m_transport_option == c_Mixav_Transport) {
@@ -602,13 +551,6 @@ void StFlow::updateTransport(doublereal* x, size_t j0, size_t j1)
     }
 }
 
-
-
-
-
-/**
- * Print the solution.
- */
 void StFlow::showSolution(const doublereal* x)
 {
     size_t nn = m_nv/5;
@@ -660,10 +602,6 @@ void StFlow::showSolution(const doublereal* x)
     writelog("\n");
 }
 
-
-/**
- * Update the diffusive mass fluxes.
- */
 void StFlow::updateDiffFluxes(const doublereal* x, size_t j0, size_t j1)
 {
     size_t j, k, m;
@@ -706,7 +644,6 @@ void StFlow::updateDiffFluxes(const doublereal* x, size_t j0, size_t j1)
     }
 }
 
-
 string StFlow::componentName(size_t n) const
 {
     switch (n) {
@@ -727,11 +664,8 @@ string StFlow::componentName(size_t n) const
     }
 }
 
-
 size_t StFlow::componentIndex(const std::string& name) const
 {
-
-
     if (name=="u") {
         return 0;
     } else if (name=="V") {
@@ -750,7 +684,6 @@ size_t StFlow::componentIndex(const std::string& name) const
 
     return npos;
 }
-
 
 void StFlow::restore(const XML_Node& dom, doublereal* soln, int loglevel)
 {
@@ -922,7 +855,6 @@ void StFlow::restore(const XML_Node& dom, doublereal* soln, int loglevel)
     }
 }
 
-
 XML_Node& StFlow::save(XML_Node& o, const doublereal* const sol)
 {
     size_t k;
@@ -1060,7 +992,6 @@ void FreeFlame::evalRightBoundary(doublereal* x, doublereal* rsd,
     rsd[index(4,j)] = 1.0 - sum;
     diag[index(4,j)] = 0;
 }
-
 
 void FreeFlame::evalContinuity(size_t j, doublereal* x, doublereal* rsd,
                                integer* diag, doublereal rdt)

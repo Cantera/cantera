@@ -1,7 +1,5 @@
 /**
- *  @file MultiJac.cpp
- *
- *  Implementation file for class MultiJac
+ *  @file MultiJac.cpp Implementation file for class MultiJac
  */
 
 /*
@@ -47,10 +45,6 @@ void MultiJac::incrementDiagonal(int j, doublereal d)
     value(j,j) = m_ssdiag[j];
 }
 
-/**
- * Evaluate the Jacobian at x0. The array of residual values at x0
- * is supplied as an input.
- */
 void MultiJac::eval(doublereal* x0, doublereal* resid0, doublereal rdt)
 {
     m_nevals++;
@@ -99,5 +93,3 @@ void MultiJac::eval(doublereal* x0, doublereal* resid0, doublereal rdt)
 }
 
 } // namespace
-
-// $Log: MultiJac.cpp,v

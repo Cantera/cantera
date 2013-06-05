@@ -23,7 +23,6 @@ Bdry1D::Bdry1D() : Domain1D(1, 1, 0.0),
     m_type = cConnectorType;
 }
 
-
 void Bdry1D::
 _init(size_t n)
 {
@@ -73,15 +72,9 @@ _init(size_t n)
     }
 }
 
-
-
-
 //----------------------------------------------------------
-//
 //   Inlet1D methods
-//
 //----------------------------------------------------------
-
 
 void Inlet1D::
 setMoleFractions(const std::string& xin)
@@ -121,7 +114,6 @@ componentName(size_t n) const
 void Inlet1D::
 init()
 {
-
     _init(2);
 
     // set bounds (mdot, T)
@@ -157,7 +149,6 @@ init()
         m_yin[0] = 1.0;
     }
 }
-
 
 void Inlet1D::
 eval(size_t jg, doublereal* xg, doublereal* rg,
@@ -234,8 +225,6 @@ eval(size_t jg, doublereal* xg, doublereal* rg,
             rb[4+k] += x[0]*(m_yin[k]);
         }
     }
-
-
 }
 
 XML_Node& Inlet1D::
@@ -274,8 +263,6 @@ restore(const XML_Node& dom, doublereal* soln, int loglevel)
     }
     resize(2,1);
 }
-
-
 
 //--------------------------------------------------
 //      Empty1D
@@ -338,8 +325,6 @@ restore(const XML_Node& dom, doublereal* soln, int loglevel)
     Domain1D::restore(dom, soln, loglevel);
     resize(1,1);
 }
-
-
 
 //--------------------------------------------------
 //      Symm1D
@@ -413,7 +398,6 @@ eval(size_t jg, doublereal* xg, doublereal* rg,
     }
 }
 
-
 XML_Node& Symm1D::
 save(XML_Node& o, const doublereal* const soln)
 {
@@ -428,7 +412,6 @@ restore(const XML_Node& dom, doublereal* soln, int loglevel)
     Domain1D::restore(dom, soln, loglevel);
     resize(1,1);
 }
-
 
 //--------------------------------------------------
 //      Outlet1D
@@ -465,7 +448,6 @@ init()
         m_flow_left->setViscosityFlag(false);
     }
 }
-
 
 void Outlet1D::
 eval(size_t jg, doublereal* xg, doublereal* rg,
@@ -522,7 +504,6 @@ eval(size_t jg, doublereal* xg, doublereal* rg,
     }
 }
 
-
 XML_Node& Outlet1D::
 save(XML_Node& o, const doublereal* const soln)
 {
@@ -538,13 +519,9 @@ restore(const XML_Node& dom, doublereal* soln, int loglevel)
     resize(1,1);
 }
 
-
-
-
 //--------------------------------------------------
 //      OutletRes1D
 //--------------------------------------------------
-
 
 void OutletRes1D::
 setMoleFractions(const std::string& xres)
@@ -609,7 +586,6 @@ init()
     }
 }
 
-
 void OutletRes1D::
 eval(size_t jg, doublereal* xg, doublereal* rg,
      integer* diagg, doublereal rdt)
@@ -670,7 +646,6 @@ eval(size_t jg, doublereal* xg, doublereal* rg,
     }
 }
 
-
 XML_Node& OutletRes1D::
 save(XML_Node& o, const doublereal* const soln)
 {
@@ -704,14 +679,9 @@ restore(const XML_Node& dom, doublereal* soln, int loglevel)
     resize(1,1);
 }
 
-
 //-----------------------------------------------------------
-//
 //  Surf1D
-//
 //-----------------------------------------------------------
-
-
 
 string Surf1D::componentName(size_t n) const
 {
@@ -738,7 +708,6 @@ init()
     const doublereal atol = 1.e-4;
     setTolerances(1, &rtol, 1, &atol);
 }
-
 
 void Surf1D::
 eval(size_t jg, doublereal* xg, doublereal* rg,
@@ -793,16 +762,9 @@ restore(const XML_Node& dom, doublereal* soln, int loglevel)
     resize(1,1);
 }
 
-
-
-
 //-----------------------------------------------------------
-//
 //  ReactingSurf1D
-//
 //-----------------------------------------------------------
-
-
 
 string ReactingSurf1D::componentName(size_t n) const
 {
@@ -841,7 +803,6 @@ init()
     atol[0] = 1.0e-4;
     setTolerances(m_nv, DATA_PTR(rtol), m_nv, DATA_PTR(atol));
 }
-
 
 void ReactingSurf1D::
 eval(size_t jg, doublereal* xg, doublereal* rg,
@@ -967,4 +928,3 @@ restore(const XML_Node& dom, doublereal* soln, int loglevel)
     resize(m_nsp+1,1);
 }
 }
-

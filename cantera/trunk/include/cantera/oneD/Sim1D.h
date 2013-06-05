@@ -12,24 +12,20 @@ namespace Cantera
 {
 
 /**
- * One-dimensional simulations. Class Sim1D extends class OneDim
- * by storing the solution vector, and by adding a hybrid
- * Newton/time-stepping solver.
+ * One-dimensional simulations. Class Sim1D extends class OneDim by storing
+ * the solution vector, and by adding a hybrid Newton/time-stepping solver.
  */
 class Sim1D : public OneDim
 {
-
 public:
-
 
     //! Default constructor.
     /*!
-     *  This constructor is provided to make
-     *  the class default-constructible, but is not meant to be
-     *  used in most applications.  Use the next constructor
+     *  This constructor is provided to make the class default-constructible,
+     *  but is not meant to be used in most applications.  Use the next
+     *  constructor
      */
     Sim1D();
-
 
     /**
      * Standard constructor.
@@ -52,15 +48,41 @@ public:
     void setInitialGuess(const std::string& component, vector_fp& locs,
                          vector_fp& vals);
 
-    /// Set one entry in the solution vector.
+    /**
+     * Set a single value in the solution vector.
+     * @param dom domain number, beginning with 0 for the leftmost domain.
+     * @param comp component number
+     * @param localPoint grid point within the domain, beginning with 0 for
+     *     the leftmost grid point in the domain.
+     * @param value the value.
+     */
     void setValue(size_t dom, size_t comp, size_t localPoint,  doublereal value);
 
-    /// Get one entry in the solution vector.
+    /**
+     * Get one entry in the solution vector.
+     * @param dom domain number, beginning with 0 for the leftmost domain.
+     * @param comp component number
+     * @param localPoint grid point within the domain, beginning with 0 for
+     *     the leftmost grid point in the domain.
+     */
     doublereal value(size_t dom, size_t comp, size_t localPoint) const;
 
     doublereal workValue(size_t dom, size_t comp, size_t localPoint) const;
 
-    /// Specify a profile for one component of one domain.
+    /**
+     * Specify a profile for one component of one domain.
+     * @param dom domain number, beginning with 0 for the leftmost domain.
+     * @param comp component number
+     * @param pos A vector of relative positions, beginning with 0.0 at the
+     *     left of the domain, and ending with 1.0 at the right of the domain.
+     * @param values A vector of values corresponding to the relative position
+     *     locations.
+     *
+     * Note that the vector pos and values can have lengths different than the
+     * number of grid points, but their lengths must be equal. The values at
+     * the grid points will be linearly interpolated based on the (pos,
+     * values) specification.
+     */
     void setProfile(size_t dom, size_t comp, const vector_fp& pos,
                     const vector_fp& values);
 
@@ -96,10 +118,16 @@ public:
     /// Refine the grid in all domains.
     int refine(int loglevel=0);
 
+    //! Add node for fixed temperature point of freely propagating flame
     int setFixedTemperature(doublereal t);
+
     void setAdiabaticFlame(void);
 
-    /// Set the criteria for grid refinement.
+    /**
+     * Set grid refinement criteria. If dom >= 0, then the settings
+     * apply only to the specified domain.  If dom < 0, the settings
+     * are applied to each domain.  @see Refiner::setCriteria.
+     */
     void setRefineCriteria(int dom = -1, doublereal ratio = 10.0,
                            doublereal slope = 0.8, doublereal curve = 0.8, doublereal prune = -0.1);
     void setMaxGridPoints(int dom = -1, int npoints = 300);
@@ -112,7 +140,9 @@ public:
     */
     void setGridMin(int dom, double gridmin);
 
+    //! Initialize the solution with a previously-saved solution.
     void restore(const std::string& fname, const std::string& id, int loglevel=2);
+
     void getInitialSoln();
 
     void setSolution(const doublereal* soln) {
@@ -128,17 +158,20 @@ public:
     void evalSSJacobian();
 
 protected:
+    //! the solution vector
+    vector_fp m_x;
 
-    vector_fp m_x;          // the solution vector
-    vector_fp m_xnew;       // a work array used to hold the residual
-    //      or the new solution
-    doublereal m_tstep;     // timestep
-    vector_int m_steps;     // array of number of steps to take before
-    //      re-attempting the steady-state solution
+    //! a work array used to hold the residual or the new solution
+    vector_fp m_xnew;
 
+    //! timestep
+    doublereal m_tstep;
+
+    //! array of number of steps to take before re-attempting the steady-state
+    //! solution
+    vector_int m_steps;
 
 private:
-
     /// Calls method _finalize in each domain.
     void finalize();
 
@@ -146,11 +179,7 @@ private:
      * @return 0 if successful, -1 on failure
      */
     int newtonSolve(int loglevel);
-
-
 };
 
 }
 #endif
-
-

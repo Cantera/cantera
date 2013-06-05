@@ -8,7 +8,6 @@ using namespace std;
 
 namespace Cantera
 {
-
 static void r_drawline()
 {
     string s(78,'#');
@@ -26,11 +25,9 @@ Refiner::Refiner(Domain1D& domain) :
     m_thresh = std::sqrt(std::numeric_limits<double>::epsilon());
 }
 
-
 int Refiner::analyze(size_t n, const doublereal* z,
                      const doublereal* x)
 {
-
     if (n >= m_npmax) {
         writelog("max number of grid points reached ("+int2str(m_npmax)+".\n");
         return -2;
@@ -213,7 +210,6 @@ void Refiner::show()
         writelog("no new points needed in "+m_domain->id()+"\n");
     }
 }
-
 
 int Refiner::getNewGrid(int n, const doublereal* z,
                         int nn, doublereal* zn)

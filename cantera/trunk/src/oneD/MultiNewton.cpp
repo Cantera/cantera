@@ -1,7 +1,5 @@
 /**
- *  @file MultiNewton.cpp
- *
- *  Damped Newton solver for 1D multi-domain problems
+ *  @file MultiNewton.cpp Damped Newton solver for 1D multi-domain problems
  */
 
 /*
@@ -9,7 +7,6 @@
  */
 
 #include <vector>
-using namespace std;
 
 #include "cantera/oneD/MultiNewton.h"
 
@@ -40,7 +37,6 @@ public:
     }
 };
 
-
 /**
  * Return a damping coefficient that keeps the solution after taking one
  * Newton step between specified lower and upper bounds. This function only
@@ -49,7 +45,6 @@ public:
 doublereal bound_step(const doublereal* x, const doublereal* step,
                       Domain1D& r, int loglevel)
 {
-
     char buf[100];
     size_t np = r.nPoints();
     size_t nv = r.nComponents();
@@ -102,7 +97,6 @@ doublereal bound_step(const doublereal* x, const doublereal* step,
     return fbound;
 }
 
-
 /**
  * This function computes the square of a weighted norm of a step
  * vector for one domain.
@@ -125,7 +119,6 @@ doublereal bound_step(const doublereal* x, const doublereal* step,
  * solution component n in the domain. The second term,
  * \f$\epsilon_{a,n}\f$, is the absolute error tolerance for component
  * n.
- *
  */
 doublereal norm_square(const doublereal* x,
                        const doublereal* step, Domain1D& r)
@@ -165,12 +158,9 @@ const string dashedline =
 const doublereal DampFactor = sqrt(2.0);
 const size_t NDAMP = 7;
 
-
-
 //-----------------------------------------------------------
 //                 MultiNewton methods
 //-----------------------------------------------------------
-
 
 MultiNewton::MultiNewton(int sz)
     : m_maxAge(5)
@@ -186,9 +176,6 @@ MultiNewton::~MultiNewton()
     }
 }
 
-/**
- * Prepare for a new solution vector length.
- */
 void MultiNewton::resize(size_t sz)
 {
     m_n = sz;
@@ -198,10 +185,6 @@ void MultiNewton::resize(size_t sz)
     m_workarrays.clear();
 }
 
-
-/**
- * Compute the weighted 2-norm of 'step'.
- */
 doublereal MultiNewton::norm2(const doublereal* x,
                               const doublereal* step, OneDim& r) const
 {
@@ -216,11 +199,6 @@ doublereal MultiNewton::norm2(const doublereal* x,
     return sqrt(sum);
 }
 
-
-/**
- * Compute the undamped Newton step.  The residual function is
- * evaluated at x, but the Jacobian is not recomputed.
- */
 void MultiNewton::step(doublereal* x, doublereal* step,
                        OneDim& r, MultiJac& jac, int loglevel)
 {
@@ -281,12 +259,6 @@ void MultiNewton::step(doublereal* x, doublereal* step,
 #endif
 }
 
-
-/**
- * Return the factor by which the undamped Newton step 'step0'
- * must be multiplied in order to keep all solution components in
- * all domains between their specified lower and upper bounds.
- */
 doublereal MultiNewton::boundStep(const doublereal* x0,
                                   const doublereal* step0, const OneDim& r, int loglevel)
 {
@@ -299,20 +271,10 @@ doublereal MultiNewton::boundStep(const doublereal* x0,
     return fbound;
 }
 
-
-/**
- * On entry, step0 must contain an undamped Newton step for the
- * solution x0. This method attempts to find a damping coefficient
- * such that the next undamped step would have a norm smaller than
- * that of step0. If successful, the new solution after taking the
- * damped step is returned in x1, and the undamped step at x1 is
- * returned in step1.
- */
 int MultiNewton::dampStep(const doublereal* x0, const doublereal* step0,
                           doublereal* x1, doublereal* step1, doublereal& s1,
                           OneDim& r, MultiJac& jac, int loglevel, bool writetitle)
 {
-
     // write header
     if (loglevel > 0 && writetitle) {
         writelog("\n\nDamped Newton iteration:\n");
@@ -404,12 +366,6 @@ int MultiNewton::dampStep(const doublereal* x0, const doublereal* step0,
     }
 }
 
-
-/**
- * Find the solution to F(X) = 0 by damped Newton iteration.  On
- * entry, x0 contains an initial estimate of the solution.  On
- * successful return, x1 contains the converged solution.
- */
 int MultiNewton::solve(doublereal* x0, doublereal* x1,
                        OneDim& r, MultiJac& jac, int loglevel)
 {
@@ -510,11 +466,6 @@ int MultiNewton::solve(doublereal* x0, doublereal* x1,
     return m;
 }
 
-
-/**
- * Get a pointer to an array of length m_n for temporary work
- * space.
- */
 doublereal* MultiNewton::getWorkArray()
 {
     doublereal* w = 0;
@@ -528,10 +479,6 @@ doublereal* MultiNewton::getWorkArray()
     return w;
 }
 
-/**
- * Release a work array by pushing its pointer onto the stack of
- * available arrays.
- */
 void MultiNewton::releaseWorkArray(doublereal* work)
 {
     m_workarrays.push_back(work);
