@@ -328,6 +328,7 @@ std::string parseSpeciesName(const std::string& nameStr, std::string& phaseName)
 
 int stripLTWScstring(char str[])
 {
+    warn_deprecated("stripLTWScstring");
     int  i = 0, j = 0;
     char ch;
     const char COM_CHAR='\0';
