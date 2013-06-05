@@ -206,6 +206,7 @@ std::string wrapString(const std::string& s,
  *  @param str On output 'str' contains the same characters as on input except
  *             the leading and trailing white space and comments have been
  *             removed.
+ *  @deprecated
  */
 int stripLTWScstring(char str[]);
 
