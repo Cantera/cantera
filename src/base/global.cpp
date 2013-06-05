@@ -77,6 +77,11 @@ void warn_deprecated(const std::string& method, const std::string& extra)
     app()->warn_deprecated(method, extra);
 }
 
+void suppress_deprecation_warnings()
+{
+    app()->suppress_deprecation_warnings();
+}
+
 // **************** HTML Logging ****************
 
 #ifdef WITH_HTML_LOGS

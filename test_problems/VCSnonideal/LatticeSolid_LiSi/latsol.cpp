@@ -11,6 +11,7 @@ using namespace Cantera;
 
 void testProblem()
 {
+    suppress_deprecation_warnings();
     double T = 273.15 + 352.0;
     VCSnonideal::vcs_timing_print_lvl = 0;
 

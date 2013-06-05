@@ -321,6 +321,7 @@ Application::Application() :
     stop_on_error(false),
     options(),
     xmlfiles(),
+    m_suppress_deprecation_warnings(false),
     pMessenger()
 {
 #if !defined( THREAD_SAFE_CANTERA )
@@ -373,7 +374,7 @@ void Application::ApplicationDestroy()
 void Application::warn_deprecated(const std::string& method,
                                   const std::string& extra)
 {
-    if (warnings.count(method)) {
+    if (m_suppress_deprecation_warnings || warnings.count(method)) {
         return;
     }
     warnings.insert(method);
