@@ -1,7 +1,7 @@
 /**
  *  @file utilities.h
  *  Various templated functions that carry out common vector
- *  operations (see \ref globalUtilFuncs).
+ *  operations (see \ref utils).
  */
 
 // Copyright 2001  California Institute of Technology

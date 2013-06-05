@@ -54,7 +54,7 @@ public:
     /**
      * Return the multiplier required to convert an activation
      * energy to SI units.
-     * @param units activation energy units
+     * @param units_ activation energy units
      */
     doublereal actEnergyToSI(const std::string& units_) {
         if (m_act_u.find(units_) != m_act_u.end()) {
@@ -71,7 +71,7 @@ public:
      *  <string, doublereal>called  m_u[] and m_act_u for activity
      * coefficients. These maps are initialized with likely values.
      *
-     * @param units String containing the units description
+     * @param units_ String containing the units description
      */
     doublereal toSI(const std::string& units_) {
 

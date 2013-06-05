@@ -79,7 +79,7 @@ public:
      *  points directly to a ctml element named "reaction". i refers
      *  to the number id of the reaction in the kinetics object.
      *
-     * @param iRxn Reaction number.
+     * @param i Reaction number.
      * @param r XML_Node containing reaction data.
      * @param kin Kinetics manager to which reaction will be added.
      * @param default_phase Default phase for locating a species
@@ -92,7 +92,7 @@ public:
      * @ingroup kineticsmgr
      */
     bool installReaction(int i, const XML_Node& r, Kinetics& kin,
-                         std::string default_phase, ReactionRules& rule,
+                         std::string default_phase, ReactionRules& rules,
                          bool validate_rxn) ;
 };
 

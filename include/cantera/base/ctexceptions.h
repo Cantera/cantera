@@ -33,7 +33,7 @@ namespace Cantera
  *  Below is an example of how to catch errors that throw the CanteraError class.
  *  In general, all Cantera C++ programs will have this basic structure.
  *
- *  \include edemo.cpp
+ *  \include demo1a.cpp
  *
  *  The function showErrors() will print out the fatal error
  *  condition to standard output.
@@ -160,6 +160,7 @@ public:
      *
      * @param func String name for the function within which the error was
      *             generated.
+     * @param arrayName name of the corresponding array
      * @param m   This is the value of the out-of-bounds index.
      * @param mmax This is the maximum allowed value of the index. The
      *             minimum allowed value is assumed to be 0.
