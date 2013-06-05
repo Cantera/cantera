@@ -1,8 +1,6 @@
 #ifndef CXX_GRI30H
 #define CXX_GRI30H
 
-#include <string>
-
 #include "thermo/IdealGasPhase.h"
 #include "kinetics/GRI_30_Kinetics.h"
 #include "kinetics/importKinetics.h"

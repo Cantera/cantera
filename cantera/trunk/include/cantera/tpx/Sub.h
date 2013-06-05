@@ -3,9 +3,6 @@
 
 #include "cantera/base/ctexceptions.h"
 
-#include <iostream>
-#include <string>
-
 namespace tpx
 {
 

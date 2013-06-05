@@ -20,8 +20,7 @@
 #include "cantera/thermo/ThermoFactory.h"
 #include "cantera/base/stringUtils.h"
 
-#include <cmath>
-#include <fstream>
+#include <cstdio>
 
 using namespace std;
 

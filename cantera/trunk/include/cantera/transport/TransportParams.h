@@ -7,9 +7,6 @@
 #ifndef CT_TRANSPORTPARAMS_H
 #define CT_TRANSPORTPARAMS_H
 
-#include <vector>
-
-#include "cantera/base/ct_defs.h"
 #include "cantera/numerics/DenseMatrix.h"
 #include "TransportBase.h"
 

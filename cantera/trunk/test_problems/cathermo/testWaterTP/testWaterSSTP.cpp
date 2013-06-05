@@ -2,7 +2,6 @@
 #include "cantera/thermo/WaterSSTP.h"
 
 #include <cstdio>
-#include <cmath>
 
 using namespace std;
 using namespace Cantera;

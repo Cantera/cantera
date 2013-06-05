@@ -10,14 +10,6 @@
 #ifndef CT_SOLIDTRAN_H
 #define CT_SOLIDTRAN_H
 
-// STL includes
-#include <vector>
-#include <string>
-#include <map>
-#include <numeric>
-#include <algorithm>
-
-// Cantera includes
 #include "LTPspecies.h"
 #include "TransportBase.h"
 #include "cantera/numerics/DenseMatrix.h"

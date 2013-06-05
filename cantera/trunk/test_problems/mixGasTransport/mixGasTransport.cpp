@@ -19,13 +19,7 @@
 
 #include "cantera/transport.h"
 #include "cantera/IdealGasMix.h"
-#include "cantera/transport/TransportFactory.h"
-
-#include <iostream>
-#include <string>
-#include <vector>
-#include <string>
-#include <iomanip>
+#include <cstdio>
 
 using namespace std;
 using namespace Cantera;

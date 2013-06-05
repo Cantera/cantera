@@ -11,10 +11,6 @@
 #include "cantera/equil/vcs_solve.h"
 #include "cantera/equil/vcs_internal.h"
 
-#include <cstdio>
-#include <cstdlib>
-#include <cmath>
-
 namespace VCSnonideal
 {
 int VCS_SOLVE::vcs_rearrange()

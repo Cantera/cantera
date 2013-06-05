@@ -6,8 +6,6 @@
  *  Copyright 2001 California Institute of Technology
  */
 
-#include <vector>
-
 #include "cantera/oneD/MultiNewton.h"
 
 #include "cantera/base/ctexceptions.h"
@@ -15,8 +13,6 @@
 #include "cantera/base/stringUtils.h"
 
 #include <cstdio>
-#include <cmath>
-#include <ctime>
 
 using namespace std;
 

@@ -10,11 +10,6 @@
  * See file License.txt for licensing information.
  */
 
-#include <cmath>
-
-#include <iostream>
-#include <fstream>
-
 #include "LogPrintCtrl.h"
 #include "cantera/base/global.h"
 

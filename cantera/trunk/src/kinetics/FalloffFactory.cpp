@@ -7,8 +7,6 @@
 #include "cantera/base/ctexceptions.h"
 #include "cantera/base/stringUtils.h"
 
-#include <cmath>
-
 namespace Cantera
 {
 

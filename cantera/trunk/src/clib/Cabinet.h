@@ -4,9 +4,7 @@
 #ifndef CT_CABINET_H
 #define CT_CABINET_H
 
-#include <vector>
 #include "cantera/base/stringUtils.h"
-#include "cantera/base/config.h"
 #include "cantera/base/ctexceptions.h"
 #include "clib_defs.h"
 

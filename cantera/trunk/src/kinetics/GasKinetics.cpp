@@ -13,7 +13,6 @@
 #include "cantera/kinetics/ThirdBodyMgr.h"
 #include "cantera/kinetics/RateCoeffMgr.h"
 
-#include <iostream>
 using namespace std;
 
 namespace Cantera

@@ -10,7 +10,6 @@
 #include "cantera/base/ct_defs.h"
 
 #include <iostream>
-#include <string>
 
 namespace Cantera
 {

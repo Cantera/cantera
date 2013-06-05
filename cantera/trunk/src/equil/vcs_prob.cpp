@@ -17,8 +17,6 @@
 #include "cantera/thermo/ThermoPhase.h"
 #include "cantera/thermo/MolalityVPSSTP.h"
 
-#include <cstdlib>
-#include <string>
 #include <cstdio>
 
 using namespace std;

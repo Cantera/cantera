@@ -12,6 +12,7 @@
 #include "ctexceptions.h"
 #include "utilities.h"
 
+#include <iostream>
 #include <cstring>
 
 namespace Cantera

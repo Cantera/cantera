@@ -13,7 +13,6 @@
 
 #include "cantera/numerics/ctlapack.h"
 
-#include <iostream>
 using namespace std;
 
 namespace Cantera

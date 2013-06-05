@@ -14,7 +14,6 @@
 #include "cantera/kinetics/RateCoeffMgr.h"
 #include "cantera/thermo/IdealGasPhase.h"
 
-#include <iostream>
 using namespace std;
 
 

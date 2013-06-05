@@ -16,9 +16,6 @@
 #include "cantera/thermo/FixedChemPotSSTP.h"
 #include "cantera/thermo/SpeciesThermo.h"
 #include "cantera/thermo/ThermoFactory.h"
-
-
-#include <string>
 #include "cantera/thermo/SimpleThermo.h"
 namespace Cantera
 {

@@ -15,10 +15,8 @@
 #include "cantera/thermo/ThermoPhase.h"
 #include "cantera/thermo/mix_defs.h"
 
-#include <string>
 #include <sstream>
 #include <cstdio>
-#include <cstdlib>
 
 namespace VCSnonideal
 {

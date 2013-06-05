@@ -5,15 +5,14 @@
 
 #include "cantera/thermo/ThermoPhase.h"
 #include "cantera/transport/PecosTransport.h"
-
 #include "cantera/base/utilities.h"
 #include "cantera/transport/TransportParams.h"
 #include "cantera/transport/TransportFactory.h"
 #include "cantera/base/stringUtils.h"
-
 #include "cantera/thermo/IdealGasPhase.h"
 
-#include <iostream>
+#include <sstream>
+
 using namespace std;
 
 namespace Cantera

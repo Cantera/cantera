@@ -9,7 +9,6 @@
 
 #ifndef CT_NASATHERMO_H
 #define CT_NASATHERMO_H
-#include <string>
 
 #include "cantera/thermo/SpeciesThermoMgr.h"
 #include "cantera/thermo/NasaPoly1.h"

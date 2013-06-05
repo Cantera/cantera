@@ -7,6 +7,7 @@
 #include "cantera/base/ct_defs.h"
 #include "cantera/base/global.h"
 #include "cantera/base/ctexceptions.h"
+#include <iostream>
 
 #ifdef _WIN32
 // Windows (MSVC or MinGW)

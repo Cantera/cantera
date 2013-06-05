@@ -5,13 +5,6 @@
 #ifndef CT_LIQUIDTRANSPORTDATA_H
 #define CT_LIQUIDTRANSPORTDATA_H
 
-
-// STL includes
-#include <vector>
-#include <string>
-
-// Cantera includes
-#include "cantera/base/ct_defs.h"
 #include "TransportBase.h"
 #include "cantera/base/FactoryBase.h"
 #include "LTPspecies.h"

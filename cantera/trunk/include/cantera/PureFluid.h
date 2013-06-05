@@ -1,8 +1,6 @@
 #ifndef CXX_PUREFLUID
 #define CXX_PUREFLUID
 
-#include <string>
-
 #include "thermo/PureFluidPhase.h"
 #include "kinetics.h"
 #include "base/stringUtils.h"

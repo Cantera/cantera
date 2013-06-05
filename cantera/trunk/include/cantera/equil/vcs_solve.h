@@ -22,8 +22,6 @@
 *
 *     ###  -> to be eliminated
 */
-#include <vector>
-#include <string>
 
 #include "cantera/base/ct_defs.h"
 #include "cantera/equil/vcs_defs.h"

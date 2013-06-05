@@ -6,12 +6,6 @@
 #ifndef CT_SOLIDTRANSPORTDATA_H
 #define CT_SOLIDTRANSPORTDATA_H
 
-// STL includes
-#include <vector>
-#include <string>
-
-// Cantera includes
-#include "cantera/base/ct_defs.h"
 #include "cantera/transport/TransportBase.h"
 #include "cantera/transport/TransportParams.h"
 #include "cantera/base/FactoryBase.h"

@@ -8,23 +8,11 @@
 // Test case to check error thrown if using Fe (not supported species)
 //
 
-#include <iostream>
-#include <string>
-#include <vector>
-#include <string>
-#include <iomanip>
-
-using namespace std;
-
-/*****************************************************************/
-/*****************************************************************/
-
 #include "cantera/transport.h"
 #include "cantera/IdealGasMix.h"
 #include "cantera/equil/equil.h"
 
-#include "cantera/transport/TransportFactory.h"
-
+using namespace std;
 using namespace Cantera;
 
 int main(int argc, char** argv)

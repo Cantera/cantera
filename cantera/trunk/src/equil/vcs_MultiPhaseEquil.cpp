@@ -16,19 +16,15 @@
 
 #include "cantera/equil/vcs_solve.h"
 
-#include "cantera/base/ct_defs.h"
 #include "cantera/thermo/mix_defs.h"
 #include "cantera/base/clockWC.h"
 #include "cantera/base/stringUtils.h"
-#include "cantera/thermo/ThermoPhase.h"
 #include "cantera/thermo/speciesThermoTypes.h"
 #include "cantera/thermo/IdealSolidSolnPhase.h"
 #include "cantera/thermo/IdealMolalSoln.h"
 #include "cantera/equil/ChemEquil.h"
 #include "cantera/equil/vcs_SpeciesProperties.h"
 
-#include <string>
-#include <vector>
 #include <cstdio>
 
 using namespace Cantera;

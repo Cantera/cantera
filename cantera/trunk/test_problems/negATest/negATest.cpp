@@ -1,6 +1,6 @@
 #include "cantera/kinetics.h"
 
-#include <string>
+#include <cstdio>
 
 using namespace Cantera;
 using namespace std;

@@ -18,6 +18,8 @@
 #include "OneDim.h"
 #include "cantera/base/ctml.h"
 
+#include <cstdio>
+
 namespace Cantera
 {
 

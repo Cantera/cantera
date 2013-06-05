@@ -1,6 +1,5 @@
 #include "Oxygen.h"
 #include "cantera/base/stringUtils.h"
-#include <math.h>
 
 using namespace Cantera;
 

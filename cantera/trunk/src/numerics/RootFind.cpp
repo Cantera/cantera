@@ -9,7 +9,6 @@
  * See file License.txt for licensing information.
  */
 
-#include "cantera/base/ct_defs.h"
 #include "cantera/numerics/RootFind.h"
 
 // turn on debugging for now
@@ -20,13 +19,6 @@
 #include "cantera/base/global.h"
 #include "cantera/base/utilities.h"
 #include "cantera/base/stringUtils.h"
-/* Standard include files */
-
-#include <cstdio>
-#include <cstdlib>
-#include <cmath>
-
-#include <vector>
 
 using namespace std;
 namespace Cantera

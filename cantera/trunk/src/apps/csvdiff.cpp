@@ -20,12 +20,8 @@
  *        one another.
  */
 
-#include <stdio.h>
-#include <cstdlib>
-#include <string.h>
 #include <math.h>
 #include <float.h>
-#include <limits.h>
 #include <algorithm>
 #include "cantera/base/config.h"
 #ifndef _MSC_VER

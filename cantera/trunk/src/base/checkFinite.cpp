@@ -12,9 +12,6 @@
 #include "cantera/base/ct_defs.h"
 
 #include <stdexcept>
-
-#include <cmath>
-#include <cstdlib>
 #include <cstdio>
 
 // We expect that there will be special casing based on the computer

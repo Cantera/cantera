@@ -2,10 +2,6 @@
  *  @file cti2ctml.cpp
  */
 
-#include <iostream>
-#include <string>
-#include <vector>
-
 #include "cantera/base/ct_defs.h"
 #include "cantera/base/xml.h"
 #include "cantera/base/ctml.h"

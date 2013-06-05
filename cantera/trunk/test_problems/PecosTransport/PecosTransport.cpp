@@ -17,19 +17,13 @@
 
 // perhaps, later, an analytical solution could be added
 
-
-#include <iostream>
-#include <string>
-#include <vector>
-#include <string>
-#include <iomanip>
-
-using namespace std;
-
 #include "cantera/transport.h"
 #include "cantera/IdealGasMix.h"
 #include "cantera/transport/TransportFactory.h"
 
+#include <cstdio>
+
+using namespace std;
 using namespace Cantera;
 
 void printDbl(double val)

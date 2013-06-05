@@ -10,7 +10,6 @@
 #define CT_CTEXCEPTIONS_H
 
 #include <exception>
-#include <iostream>
 #include <string>
 
 namespace Cantera

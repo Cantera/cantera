@@ -8,20 +8,9 @@
 // Test case for the statistical mechanics in cantera
 //
 
-#include <iostream>
-#include <string>
-#include <vector>
-#include <string>
-#include <iomanip>
-
-/*****************************************************************/
-/*****************************************************************/
-
 #include "cantera/transport.h"
 #include "cantera/IdealGasMix.h"
 #include "cantera/equil/equil.h"
-
-#include "cantera/transport/TransportFactory.h"
 
 using namespace std;
 using namespace Cantera;

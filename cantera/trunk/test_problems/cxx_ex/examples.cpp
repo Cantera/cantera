@@ -2,7 +2,6 @@
 #include "cantera/base/global.h"
 
 #include <iostream>
-#include <stdlib.h>
 
 using namespace Cantera;
 using namespace std;

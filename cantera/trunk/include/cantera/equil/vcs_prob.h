@@ -14,7 +14,6 @@
 #include "vcs_DoubleStarStar.h"
 #include "vcs_IntStarStar.h"
 #include "cantera/equil/vcs_defs.h"
-#include <vector>
 #include <string>
 
 namespace VCSnonideal

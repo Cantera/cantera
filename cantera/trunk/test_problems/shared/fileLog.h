@@ -1,6 +1,5 @@
 #include "cantera/base/logger.h"
 
-#include <string>
 #include <fstream>
 
 class fileLog: public Cantera::Logger

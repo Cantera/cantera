@@ -11,8 +11,6 @@
 #include "cantera/thermo/ConstDensityThermo.h"
 #include "cantera/thermo/SpeciesThermo.h"
 
-#include <cmath>
-
 using namespace ctml;
 
 namespace Cantera

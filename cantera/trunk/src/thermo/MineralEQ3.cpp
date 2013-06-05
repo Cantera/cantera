@@ -20,8 +20,6 @@
 #include "cantera/thermo/ThermoFactory.h"
 #include "cantera/thermo/MineralEQ3.h"
 
-#include <string>
-
 using namespace std;
 
 namespace Cantera

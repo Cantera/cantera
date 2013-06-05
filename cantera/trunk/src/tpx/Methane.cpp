@@ -1,7 +1,5 @@
 #include "Methane.h"
 #include "cantera/base/stringUtils.h"
-#include <math.h>
-#include <iostream>
 
 using namespace std;
 using namespace Cantera;

@@ -13,7 +13,6 @@
 
 #include "cantera/kinetics/importKinetics.h"
 #include "cantera/thermo/mix_defs.h"
-#include <time.h>
 #include <memory>
 
 //   Cantera includes
@@ -31,8 +30,6 @@
 
 #include "cantera/base/xml.h"
 #include "cantera/base/ctml.h"
-
-#include <cstdlib>
 
 using namespace ctml;
 using namespace std;

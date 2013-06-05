@@ -13,9 +13,6 @@
 #include "cantera/numerics/ctlapack.h"
 #include "cantera/numerics/ResidJacEval.h"
 
-#include <iostream>
-#include <vector>
-
 using namespace std;
 
 namespace Cantera

@@ -15,8 +15,6 @@
 
 #include "ImplicitSurfChem.h"
 #include "cantera/kinetics/InterfaceKinetics.h"
-
-#include <vector>
 #include "cantera/base/Array.h"
 
 //! @defgroup solvesp_methods Surface Problem Solver Methods

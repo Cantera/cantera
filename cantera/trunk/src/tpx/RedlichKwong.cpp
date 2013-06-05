@@ -1,5 +1,4 @@
 #include "RedlichKwong.h"
-#include <math.h>
 
 namespace tpx
 {

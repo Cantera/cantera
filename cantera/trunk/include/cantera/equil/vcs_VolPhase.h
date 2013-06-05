@@ -14,9 +14,6 @@
 #include "cantera/equil/vcs_DoubleStarStar.h"
 #include "cantera/equil/vcs_SpeciesProperties.h"
 
-#include <vector>
-#include <string>
-
 // Forward reference for ThermoPhase object within the Cantera namespace
 namespace Cantera
 {

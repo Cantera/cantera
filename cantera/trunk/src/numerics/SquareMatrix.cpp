@@ -9,15 +9,10 @@
  * See file License.txt for licensing information.
  */
 
-#include "cantera/base/ct_defs.h"
 #include "cantera/base/stringUtils.h"
 #include "cantera/numerics/ctlapack.h"
 #include "cantera/numerics/SquareMatrix.h"
 #include "cantera/base/global.h"
-
-#include <iostream>
-#include <vector>
-#include <cstring>
 
 using namespace std;
 

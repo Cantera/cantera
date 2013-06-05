@@ -15,8 +15,6 @@
 #include "cantera/thermo/SpeciesThermoFactory.h"
 #include "cantera/thermo/GeneralSpeciesThermo.h"
 
-#include <string>
-
 using namespace std;
 
 namespace Cantera

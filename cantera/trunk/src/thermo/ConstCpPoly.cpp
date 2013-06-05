@@ -7,7 +7,6 @@
 // Copyright 2001  California Institute of Technology
 
 #include "ConstCpPoly.h"
-#include <cmath>
 
 namespace Cantera
 {

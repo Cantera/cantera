@@ -7,13 +7,9 @@
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the
  * U.S. Government retains certain rights in this software.
  */
-#include <cstdlib>
-#include <cmath>
-#include <cassert>
 
 #include "cantera/equil/vcs_internal.h"
-#include <cstring>
-#include <cstdlib>
+#include <cassert>
 
 using namespace std;
 

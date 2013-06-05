@@ -10,9 +10,6 @@
 
 #include "cantera/kinetics/Group.h"
 
-#include <algorithm>
-#include <cmath>
-
 namespace Cantera
 {
 

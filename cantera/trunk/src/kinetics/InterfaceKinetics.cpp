@@ -6,12 +6,12 @@
 
 #include "cantera/kinetics/InterfaceKinetics.h"
 #include "cantera/kinetics/EdgeKinetics.h"
-#include "cantera/thermo/SurfPhase.h"
-
 #include "cantera/kinetics/ReactionData.h"
 #include "cantera/kinetics/RateCoeffMgr.h"
-
 #include "cantera/kinetics/ImplicitSurfChem.h"
+#include "cantera/thermo/SurfPhase.h"
+
+#include <cstdio>
 
 using namespace std;
 

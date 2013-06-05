@@ -20,12 +20,8 @@
 #include "cantera/base/global.h"
 #include "cantera/base/ctml.h"
 
-#include <string>
 #include <sstream>
 #include <cstdio>
-#include <cstring>
-#include <cstdlib>
-#include <cctype>
 
 namespace Cantera
 {

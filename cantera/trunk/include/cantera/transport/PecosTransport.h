@@ -8,22 +8,6 @@
 #ifndef CT_PECOSTRAN_H
 #define CT_PECOSTRAN_H
 
-// STL includes
-#include <vector>
-#include <string>
-#include <map>
-#include <numeric>
-#include <algorithm>
-
-#include <iostream>
-#include <cstdlib>
-#include <fstream>
-#include <sstream>
-#include <stdlib.h>
-#include <math.h>
-#include <stdio.h>
-
-// Cantera includes
 #include "TransportBase.h"
 #include "cantera/numerics/DenseMatrix.h"
 

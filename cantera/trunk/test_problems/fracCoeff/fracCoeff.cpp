@@ -10,12 +10,7 @@
 // make things simpler.
 
 #include "cantera/kinetics.h"
-
-#include <iostream>
-#include <string>
-#include <vector>
-#include <string>
-#include <iomanip>
+#include <cstdio>
 
 using namespace std;
 using namespace Cantera;

@@ -1,8 +1,6 @@
 #ifndef CXX_INCOMPRESSIBLE
 #define CXX_INCOMPRESSIBLE
 
-#include <string>
-
 #include "thermo/ConstDensityThermo.h"
 #include "kinetics/importKinetics.h"
 

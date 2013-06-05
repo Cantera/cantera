@@ -10,12 +10,8 @@
  * See file License.txt for licensing information.
  */
 
-#include <cmath>
-
-#include <iostream>
-#include <fstream>
-
 #include "cantera/base/PrintCtrl.h"
+#include <cmath>
 
 using namespace std;
 

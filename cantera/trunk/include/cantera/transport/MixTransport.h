@@ -10,14 +10,6 @@
 #ifndef CT_MIXTRAN_H
 #define CT_MIXTRAN_H
 
-// STL includes
-#include <vector>
-#include <string>
-#include <map>
-#include <numeric>
-#include <algorithm>
-
-// Cantera includes
 #include "GasTransport.h"
 #include "cantera/numerics/DenseMatrix.h"
 

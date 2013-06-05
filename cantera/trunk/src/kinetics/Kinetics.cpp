@@ -15,7 +15,6 @@
 
 #include "cantera/kinetics/ImplicitSurfChem.h"
 
-#include <iostream>
 using namespace std;
 
 

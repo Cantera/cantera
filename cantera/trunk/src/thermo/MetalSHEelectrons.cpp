@@ -18,8 +18,6 @@
 #include "cantera/thermo/SingleSpeciesTP.h"
 #include "cantera/thermo/ThermoFactory.h"
 
-#include <string>
-
 namespace Cantera
 {
 

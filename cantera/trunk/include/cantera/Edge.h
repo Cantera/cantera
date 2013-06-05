@@ -1,8 +1,6 @@
 #ifndef CXX_EDGE
 #define CXX_EDGE
 
-#include <string>
-
 #include "thermo.h"
 #include "kinetics/EdgeKinetics.h"
 #include "kinetics/importKinetics.h"

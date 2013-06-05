@@ -10,8 +10,6 @@
 #include "cantera/base/Array.h"
 #include "cantera/base/ctexceptions.h"
 
-#include <vector>
-#include <string>
 #include <fstream>
 
 namespace Cantera

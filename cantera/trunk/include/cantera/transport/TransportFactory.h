@@ -8,10 +8,6 @@
 #ifndef CT_TRANSPORTFACTORY_H
 #define CT_TRANSPORTFACTORY_H
 
-// STL includes
-#include <iostream>
-#include <new>
-
 // Cantera includes
 #include "cantera/base/ct_defs.h"
 #include "cantera/base/ct_thread.h"

@@ -8,9 +8,6 @@
 #ifndef CT_DAE_Solver_H
 #define CT_DAE_Solver_H
 
-#include <vector>
-
-#include "cantera/base/ct_defs.h"
 #include "ResidJacEval.h"
 #include "cantera/base/global.h"
 

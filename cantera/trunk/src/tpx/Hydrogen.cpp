@@ -1,5 +1,4 @@
 #include "Hydrogen.h"
-#include <math.h>
 #include "cantera/base/stringUtils.h"
 
 using namespace Cantera;

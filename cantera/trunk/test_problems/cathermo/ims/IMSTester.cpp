@@ -15,10 +15,6 @@
 //  working correctly
 
 #include "cantera/thermo/IdealMolalSoln.h"
-
-#include <iostream>
-#include <string>
-#include <vector>
 #include <cstdio>
 
 using namespace std;

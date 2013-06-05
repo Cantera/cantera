@@ -6,14 +6,8 @@
 #ifndef CT_LTPSPECIES_H
 #define CT_LTPSPECIES_H
 
-// Cantera includes
-#include "cantera/base/ct_defs.h"
 #include "TransportBase.h"
 #include "cantera/base/FactoryBase.h"
-
-// STL includes
-#include <vector>
-#include <string>
 
 namespace Cantera
 {

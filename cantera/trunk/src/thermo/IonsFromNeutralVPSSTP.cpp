@@ -19,11 +19,8 @@
 #include "cantera/thermo/IonsFromNeutralVPSSTP.h"
 #include "cantera/thermo/ThermoFactory.h"
 #include "cantera/thermo/PDSS_IonsFromNeutral.h"
-#include "cantera/thermo/mix_defs.h"
 #include "cantera/base/stringUtils.h"
 
-#include <cmath>
-#include <iomanip>
 #include <fstream>
 
 using namespace std;

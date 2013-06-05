@@ -13,8 +13,6 @@
 #include "TortuosityPercolation.h"
 #include "cantera/base/ctexceptions.h"
 
-#include <string>
-
 namespace Cantera
 {
 

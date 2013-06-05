@@ -15,7 +15,6 @@
 #include "cantera/base/ctexceptions.h"
 #include "cantera/base/stringUtils.h"
 #include "SpeciesThermo.h"
-#include <map>
 
 namespace Cantera
 {

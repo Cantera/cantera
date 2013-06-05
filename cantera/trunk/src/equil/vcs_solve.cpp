@@ -19,10 +19,6 @@
 
 #include "cantera/base/clockWC.h"
 
-#include <string>
-#include <cstdlib>
-#include <math.h>
-
 using namespace std;
 
 namespace VCSnonideal
