@@ -15,7 +15,7 @@ int main(int argc, char** argv)
     ChemEquil_print_lvl = 0;
 #endif
     try {
-
+        suppress_deprecation_warnings();
         IdealGasPhase* gas = new IdealGasMix("air_below6000K.xml","air_below6000K");
 
         vector_fp IndVar2(6, 0.0);

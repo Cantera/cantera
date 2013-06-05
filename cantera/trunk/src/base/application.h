@@ -446,6 +446,10 @@ public:
     //! invocation of the application.
     void warn_deprecated(const std::string& method, const std::string& extra="");
 
+    void suppress_deprecation_warnings() {
+        m_suppress_deprecation_warnings = true;
+    }
+
     //! @copydoc Messages::setLogger
     void setLogger(Logger* logwriter) {
         pMessenger->setLogger(logwriter);
@@ -548,6 +552,8 @@ protected:
     std::map<std::string, XML_Node*> xmlfiles;
     //! Vector of deprecation warnings that have been emitted (to suppress duplicates)
     std::set<std::string> warnings;
+
+    bool m_suppress_deprecation_warnings;
 
     //! Current pointer to the logwriter
     //Logger* logwriter;
