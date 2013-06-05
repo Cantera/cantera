@@ -34,7 +34,7 @@ img_file = 'rxnpath.png'
 img_path = os.path.join(os.getcwd(), img_file)
 
 diagram.write_dot(dot_file)
-print diagram.get_data()
+print(diagram.get_data())
 
 print("Wrote graphviz input file to '{0}'.".format(os.path.join(os.getcwd(), dot_file)))
 
