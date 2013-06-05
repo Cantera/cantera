@@ -793,7 +793,8 @@ env['HAS_UNISTD_H'] = conf.CheckCHeader('unistd.h', '""')
 env['HAS_MATH_H_ERF'] = conf.CheckDeclaration('erf', '#include <math.h>', 'C++')
 env['HAS_BOOST_MATH'] = conf.CheckCXXHeader('boost/math/special_functions/erf.hpp', '<>')
 boost_version_source = get_expression_value(['<boost/version.hpp>'], 'BOOST_LIB_VERSION')
-retcode, env['BOOST_LIB_VERSION'] = conf.TryRun(boost_version_source, '.cpp')
+retcode, boost_lib_version = conf.TryRun(boost_version_source, '.cpp')
+env['BOOST_LIB_VERSION'] = boost_lib_version.strip()
 
 import SCons.Conftest, SCons.SConf
 ret = SCons.Conftest.CheckLib(SCons.SConf.CheckContext(conf),
@@ -1230,6 +1231,14 @@ if addInstallActions:
     install(env.InstallAs,
             pjoin('$inst_bindir','ctml_writer%s' % pyExt),
             'interfaces/python/ctml_writer.py')
+
+    # Copy external libaries for Windows installations
+    if env['CC'] == 'cl':
+        boost_suffix = '-vc%s-mt-%s.lib' % (env['MSVC_VERSION'].replace('.',''),
+                                        env['BOOST_LIB_VERSION'])
+        install('$inst_libdir', pjoin('$boost_lib_dir', 'libboost_date_time' + boost_suffix))
+        install('$inst_libdir', pjoin('$boost_lib_dir', 'libboost_thread' + boost_suffix))
+
 
 ### List of libraries needed to link to Cantera ###
 linkLibs = ['cantera']
