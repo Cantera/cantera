@@ -20,19 +20,14 @@ class Func1;
  */
 class OneDim
 {
-
 public:
-
-    // Default constructor.
     OneDim();
 
-    // Constructor.
+    //! Construct a OneDim container for the domains in the list *domains*.
     OneDim(std::vector<Domain1D*> domains);
-
-    /// Destructor.
     virtual ~OneDim();
 
-    /// Add a domain.
+    /// Add a domain. Domains are added left-to-right.
     void addDomain(Domain1D* d);
 
     //! Return a reference to the Jacobian evaluator.
@@ -116,7 +111,11 @@ public:
         return m_bw;
     }
 
-    /// Initialize.
+    /*!
+     * Initialize all domains. On the first call, this methods calls the init
+     * method of each domain, proceeding from left to right. Subsequent calls
+     * do nothing.
+     */
     void init();
 
     /// Total number of points.
@@ -125,8 +124,9 @@ public:
     }
 
     /**
-     * Steady-state max norm of the residual evaluated using solution x.
-     * On return, array r contains the steady-state residual values.
+     * Steady-state max norm (infinity norm) of the residual evaluated using
+     * solution x. On return, array r contains the steady-state residual
+     * values. Used only for diagnostic output.
      */
     doublereal ssnorm(doublereal* x, doublereal* r);
 
@@ -135,7 +135,7 @@ public:
         return m_rdt;
     }
 
-    /// Prepare for time stepping beginning with solution x.
+    //! Prepare for time stepping beginning with solution *x* and timestep *dt*.
     void initTimeInteg(doublereal dt, doublereal* x);
 
     /// True if transient mode.
@@ -148,13 +148,13 @@ public:
         return (m_rdt == 0.0);
     }
 
-
-    /**
-     * Set steady mode.  After invoking this method, subsequent
-     * calls to solve() will solve the steady-state problem.
+    /*!
+     * Prepare to solve the steady-state problem. After invoking this method,
+     * subsequent calls to solve() will solve the steady-state problem. Sets
+     * the reciprocal of the time step to zero, and, if it was previously non-
+     * zero, signals that a new Jacobian will be needed.
      */
     void setSteadyMode();
-
 
     /**
      * Evaluate the multi-domain residual function
@@ -170,18 +170,31 @@ public:
     void eval(size_t j, double* x, double* r, doublereal rdt=-1.0,
               int count = 1);
 
-    /// Pointer to the domain global point i belongs to.
+    //! Return a pointer to the domain global point *i* belongs to.
+    /*!
+     * The domains are scanned right-to-left, and the first one with starting
+     * location less or equal to i is returned.
+     */
     Domain1D* pointDomain(size_t i);
 
+    //! Call after one or more grids has been refined.
     void resize();
-
-    //doublereal solveTime() { return m_solve_time; }
 
     //void setTransientMask();
     vector_int& transientMask() {
         return m_mask;
     }
 
+    /*!
+     * Take time steps using Backward Euler.
+     *
+     * @param nsteps number of steps
+     * @param dt initial step size
+     * @param x current solution vector
+     * @param r solution vector after time stepping
+     * @param loglevel controls amount of printed diagnostics
+     * @returns size of last timestep taken
+     */
     double timeStep(int nsteps, double dt, double* x,
                     double* r, int loglevel);
 
@@ -214,6 +227,18 @@ public:
             m_ts_jac_age = m_ss_jac_age;
         }
     }
+
+    /**
+     * Save statistics on function and Jacobian evaluation, and reset the
+     * counters. Statistics are saved only if the number of Jacobian
+     * evaluations is greater than zero. The statistics saved are:
+     *
+     *    - number of grid points
+     *    - number of Jacobian evaluations
+     *    - CPU time spent evaluating Jacobians
+     *    - number of non-Jacobian function evaluations
+     *    - CPU time spent evaluating functions
+     */
     void saveStats();
 
     //! Set a function that will be called every time #eval is called.
@@ -224,7 +249,6 @@ public:
     }
 
 protected:
-
     void evalSSJacobian(doublereal* x, doublereal* xnew);
 
     doublereal m_tmin;        // minimum timestep size
@@ -259,7 +283,6 @@ protected:
     Func1* m_interrupt;
 
 private:
-
     // statistics
     int m_nevals;
     doublereal m_evaltime;
@@ -268,12 +291,8 @@ private:
     vector_fp m_jacElapsed;
     vector_int m_funcEvals;
     vector_fp m_funcElapsed;
-
-
 };
 
 }
 
 #endif
-
-

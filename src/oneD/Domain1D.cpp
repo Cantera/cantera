@@ -1,6 +1,5 @@
 /**
  * @file Domain1D.cpp
- *
  */
 
 #include "cantera/oneD/Domain1D.h"
@@ -165,7 +164,6 @@ void Domain1D::restore(const XML_Node& dom, doublereal* soln, int loglevel)
     }
 }
 
-// called to set up initial grid, and after grid refinement
 void Domain1D::setupGrid(size_t n, const doublereal* z)
 {
     if (n > 1) {
@@ -176,17 +174,12 @@ void Domain1D::setupGrid(size_t n, const doublereal* z)
     }
 }
 
-
 void drawline()
 {
     writelog("\n-------------------------------------"
              "------------------------------------------");
 }
 
-
-/**
- * Print the solution.
- */
 void Domain1D::showSolution(const doublereal* x)
 {
     size_t nn = m_nv/5;
@@ -235,8 +228,6 @@ void Domain1D::showSolution(const doublereal* x)
     writelog("\n");
 }
 
-
-// initial solution
 void Domain1D::_getInitialSoln(doublereal* x)
 {
     for (size_t j = 0; j < m_points; j++) {
@@ -252,6 +243,5 @@ doublereal Domain1D::initialValue(size_t n, size_t j)
                        "base class method called!");
     return 0.0;
 }
-
 
 } // namespace

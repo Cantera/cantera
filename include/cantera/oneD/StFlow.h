@@ -1,6 +1,5 @@
 /**
  * @file StFlow.h
- *
  */
 // Copyright 2001  California Institute of Technology
 
@@ -34,36 +33,26 @@ const int c_Mixav_Transport = 0;
 const int c_Multi_Transport = 1;
 const int c_Soret = 2;
 
-//-----------------------------------------------------------
-//  Class StFlow
-//-----------------------------------------------------------
-
-
 /**
- *  This class represents 1D flow domains that satisfy the
- *  one-dimensional similarity solution for chemically-reacting,
- *  axisymmetric, flows.
+ *  This class represents 1D flow domains that satisfy the one-dimensional
+ *  similarity solution for chemically-reacting, axisymmetric, flows.
  */
 class StFlow : public Domain1D
 {
-
 public:
-
     //--------------------------------
     // construction and destruction
     //--------------------------------
 
-    /// Constructor. Create a new flow domain.
-    /// @param ph Object representing the gas phase. This object
-    /// will be used to evaluate all thermodynamic, kinetic, and transport
-    /// properties.
-    /// @param nsp Number of species.
+    //! Create a new flow domain.
+    //! @param ph Object representing the gas phase. This object will be used
+    //!     to evaluate all thermodynamic, kinetic, and transport properties.
+    //! @param nsp Number of species.
+    //! @param points Initial number of grid points
     StFlow(IdealGasPhase* ph = 0, size_t nsp = 1, size_t points = 1);
 
-    /**
-     * @name Problem Specification
-     */
-    //@{
+    //! @name Problem Specification
+    //! @{
 
     virtual void setupGrid(size_t n, const doublereal* z);
 
@@ -85,31 +74,31 @@ public:
         m_thermo = &th;
     }
 
-    /// Set the kinetics manager. The kinetics manager must
+    //! Set the kinetics manager. The kinetics manager must
     void setKinetics(Kinetics& kin) {
         m_kin = &kin;
     }
 
-    /// set the transport manager
+    //! set the transport manager
     void setTransport(Transport& trans, bool withSoret = false);
     void enableSoret(bool withSoret);
     bool withSoret() const {
         return m_do_soret;
     }
 
-    /// Set the pressure. Since the flow equations are for the limit of
-    /// small Mach number, the pressure is very nearly constant
-    /// throughout the flow.
+    //! Set the pressure. Since the flow equations are for the limit of
+    //! small Mach number, the pressure is very nearly constant
+    //! throughout the flow.
     void setPressure(doublereal p) {
         m_press = p;
     }
 
-    /// The current pressure [Pa].
+    //! The current pressure [Pa].
     doublereal pressure() const {
         return m_press;
     }
 
-    /// @todo remove? may be unused
+    //! @todo remove? may be unused
     virtual void setState(size_t point, const doublereal* state,
                           doublereal* x) {
         setTemperature(point, state[2]);
@@ -118,7 +107,7 @@ public:
         }
     }
 
-    /// Write the initial solution estimate into array x.
+    //! Write the initial solution estimate into array x.
     virtual void _getInitialSoln(doublereal* x) {
         for (size_t j = 0; j < m_points; j++) {
             T(x,j) = m_thermo->temperature();
@@ -128,64 +117,58 @@ public:
 
     virtual void _finalize(const doublereal* x);
 
-
-    /// Sometimes it is desired to carry out the simulation
-    /// using a specified temperature profile, rather than
-    /// computing it by solving the energy equation. This
-    /// method specifies this profile.
+    //! Sometimes it is desired to carry out the simulation using a specified
+    //! temperature profile, rather than computing it by solving the energy
+    //! equation. This method specifies this profile.
     void setFixedTempProfile(vector_fp& zfixed, vector_fp& tfixed) {
         m_zfix = zfixed;
         m_tfix = tfixed;
     }
 
-    /**
-     * Set the temperature fixed point at grid point j, and
-     * disable the energy equation so that the solution will be
-     * held to this value.
+    /*!
+     * Set the temperature fixed point at grid point j, and disable the energy
+     * equation so that the solution will be held to this value.
      */
     void setTemperature(size_t j, doublereal t) {
         m_fixedtemp[j] = t;
         m_do_energy[j] = false;
     }
 
-    /**
-     * Set the mass fraction fixed point for species k at grid
-     * point j, and disable the species equation so that the
-     * solution will be held to this value.
-     * note: in practice, the species are hardly ever held fixed.
+    /*!
+     * Set the mass fraction fixed point for species k at grid point j, and
+     * disable the species equation so that the solution will be held to this
+     * value. Note: in practice, the species are hardly ever held fixed.
      */
     void setMassFraction(size_t j, size_t k, doublereal y) {
         m_fixedy(k,j) = y;
         m_do_species[k] = true; // false;
     }
 
-
-    /// The fixed temperature value at point j.
+    //! The fixed temperature value at point j.
     doublereal T_fixed(size_t j) const {
         return m_fixedtemp[j];
     }
 
-
-    /// The fixed mass fraction value of species k at point j.
+    //! The fixed mass fraction value of species k at point j.
     doublereal Y_fixed(size_t k, size_t j) const {
         return m_fixedy(k,j);
     }
 
+    // @}
 
     virtual std::string componentName(size_t n) const;
 
     size_t componentIndex(const std::string& name) const;
 
-
+    //! Print the solution.
     virtual void showSolution(const doublereal* x);
 
     //! Save the current solution for this domain into an XML_Node
     /*!
-     *
      *  @param o    XML_Node to save the solution to.
-     *  @param sol  Current value of the solution vector.
-     *              The object will pick out which part of the solution
-     *              vector pertains to this object.
+     *  @param sol  Current value of the solution vector. The object will pick
+     *              out which part of the solution vector pertains to this
+     *              object.
      */
     virtual XML_Node& save(XML_Node& o, const doublereal* const sol);
 
@@ -256,13 +239,18 @@ public:
 
     void integrateChem(doublereal* x,doublereal dt);
 
+    //! Change the grid size. Called after grid refinement.
     void resize(size_t components, size_t points);
 
     virtual void setFixedPoint(int j0, doublereal t0) {}
 
-
     void setJac(MultiJac* jac);
+
+    //! Set the gas object state to be consistent with the solution at point j.
     void setGas(const doublereal* x, size_t j);
+
+    //! Set the gas state to be consistent with the solution at the midpoint
+    //! between j and j + 1.
     void setGasAtMidpoint(const doublereal* x, size_t j);
 
     doublereal density(size_t j) const {
@@ -276,6 +264,13 @@ public:
         m_dovisc = dovisc;
     }
 
+    /*!
+     *  Evaluate the residual function for axisymmetric stagnation flow. If
+     *  jpt is less than zero, the residual function is evaluated at all grid
+     *  points. If jpt >= 0, then the residual function is only evaluated at
+     *  grid points jpt-1, jpt, and jpt+1. This option is used to efficiently
+     *  evaluate the Jacobian numerically.
+     */
     virtual void eval(size_t j, doublereal* x, doublereal* r,
                       integer* mask, doublereal rdt);
 
@@ -289,7 +284,6 @@ public:
                                 integer* diag, doublereal rdt) = 0;
 
 protected:
-
     doublereal component(const doublereal* x, size_t i, size_t j) const {
         return x[index(i,j)];
     }
@@ -306,15 +300,15 @@ protected:
         return m_wdot(k,j);
     }
 
-    /// write the net production rates at point j into array m_wdot
+    //! Write the net production rates at point `j` into array `m_wdot`
     void getWdot(doublereal* x, size_t j) {
         setGas(x,j);
         m_kin->getNetProductionRates(&m_wdot(0,j));
     }
 
     /**
-     * update the thermodynamic properties from point
-     * j0 to point j1 (inclusive), based on solution x.
+     * Update the thermodynamic properties from point j0 to point j1
+     * (inclusive), based on solution x.
      */
     void updateThermo(const doublereal* x, size_t j0, size_t j1) {
         for (size_t j = j0; j <= j1; j++) {
@@ -324,7 +318,6 @@ protected:
             m_cp[j]  = m_thermo->cp_mass();
         }
     }
-
 
     //--------------------------------
     // central-differenced derivatives
@@ -338,10 +331,8 @@ protected:
     }
 
 
-    //--------------------------------
-    //      solution components
-    //--------------------------------
-
+    //! @name Solution components
+    //! @{
 
     doublereal T(const doublereal* x, size_t j) const {
         return x[index(c_offset_T, j)];
@@ -391,11 +382,11 @@ protected:
     doublereal flux(size_t k, size_t j) const {
         return m_flux(k, j);
     }
+    //! @}
 
-
-    // convective spatial derivatives. These use upwind
-    // differencing, assuming u(z) is negative
-
+    //! @name convective spatial derivatives.
+    //! These use upwind differencing, assuming u(z) is negative
+    //! @{
     doublereal dVdz(const doublereal* x, size_t j) const {
         size_t jloc = (u(x,j) > 0.0 ? j : j + 1);
         return (V(x,jloc) - V(x,jloc-1))/m_dz[jloc-1];
@@ -410,6 +401,7 @@ protected:
         size_t jloc = (u(x,j) > 0.0 ? j : j + 1);
         return (T(x,jloc) - T(x,jloc-1))/m_dz[jloc-1];
     }
+    //! @}
 
     doublereal shear(const doublereal* x, size_t j) const {
         doublereal c1 = m_visc[j-1]*(V(x,j) - V(x,j-1));
@@ -427,13 +419,11 @@ protected:
         return m*m_nsp*m_nsp + m_nsp*j + k;
     }
 
+    //! Update the diffusive mass fluxes.
     void updateDiffFluxes(const doublereal* x, size_t j0, size_t j1);
 
-
     //---------------------------------------------------------
-    //
     //             member data
-    //
     //---------------------------------------------------------
 
     // inlet
@@ -500,13 +490,14 @@ protected:
     vector_fp m_tfix;
 
     bool m_dovisc;
+
+    //! Update the transport properties at grid points in the range from `j0`
+    //! to `j1`, based on solution `x`.
     void updateTransport(doublereal* x, size_t j0, size_t j1);
 
 private:
     vector_fp m_ybar;
-
 };
-
 
 /**
  * A class for axisymmetric stagnation flows.
@@ -554,26 +545,14 @@ public:
     }
 };
 
-
-/*
-class OneDFlow : public StFlow {
-public:
-    OneDFlow(igthermo_t* ph = 0, int nsp = 1, int points = 1) :
-        StFlow(ph, nsp, points) {
-    }
-    virtual ~OneDFlow() {}
-    virtual void eval(int j, doublereal* x, doublereal* r,
-        integer* mask, doublereal rdt);
-    virtual std::string flowType() { return "OneDFlow"; }
-    doublereal mdot(doublereal* x, int j) {
-        return x[index(c_offset_L,j)];
-    }
-
-private:
-    void updateTransport(doublereal* x,int j0, int j1);
-};
-*/
-
+/**
+ * Import a previous solution to use as an initial estimate. The
+ * previous solution may have been computed using a different
+ * reaction mechanism. Species in the old and new mechanisms are
+ * matched by name, and any species in the new mechanism that were
+ * not in the old one are set to zero. The new solution is created
+ * with the same number of grid points as in the old solution.
+ */
 void importSolution(size_t points, doublereal* oldSoln, IdealGasPhase& oldmech,
                     size_t size_new, doublereal* newSoln, IdealGasPhase& newmech);
 

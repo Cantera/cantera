@@ -8,12 +8,25 @@ namespace Cantera
 
 class Domain1D;
 
+//! Refine Domain1D grids so that profiles satisfy adaptation tolerances
 class Refiner
 {
 public:
     Refiner(Domain1D& domain);
     virtual ~Refiner() {}
 
+    //! Set grid refinement criteria
+    /*!
+     *  @param ratio Maximum ratio between grid spacing at adjacent intervals.
+     *      E.g. `(x[j+1] - x[j]) / (x[j] - x[j-1]) < ratio`
+     *  @param slope Maximum fractional change in the value of each solution
+     *      component between adjacent grid points
+     *  @param curve Maximum fractional change in the derivative of each
+     *      solution component between adjacent grid points.
+     *  @param prune Threshold for removing unnecessary grid points. `prune`
+     *      should be smaller than both `slope` and `curve`. Set `prune <= 0`
+     *      to disable pruning.
+     */
     void setCriteria(doublereal ratio = 10.0,
                      doublereal slope = 0.8,
                      doublereal curve = 0.8,
@@ -26,6 +39,8 @@ public:
     void setActive(int comp, bool state = true) {
         m_active[comp] = state;
     }
+
+    //! Set the maximum number of points allowed in the domain
     void setMaxPoints(int npmax) {
         m_npmax = npmax;
     }
@@ -54,6 +69,7 @@ public:
         return (m_keep[j] != -1);
     }
     double value(const double* x, size_t i, size_t j);
+
     double maxRatio() {
         return m_ratio;
     }

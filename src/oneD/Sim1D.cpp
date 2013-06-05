@@ -20,20 +20,18 @@ static void sim1D_drawline()
     s += '\n';
     writelog(s.c_str());
 }
-//====================================================================================================================
+
 Sim1D::Sim1D() :
     OneDim()
 {
     //writelog("Sim1D default constructor\n");
 }
-//====================================================================================================================
+
 Sim1D::Sim1D(vector<Domain1D*>& domains) :
     OneDim(domains)
 {
-
-    // resize the internal solution vector and the wprk array,
-    // and perform domain-specific initialization of the
-    // solution vector.
+    // resize the internal solution vector and the wprk array, and perform
+    // domain-specific initialization of the solution vector.
 
     m_x.resize(size(), 0.0);
     m_xnew.resize(size(), 0.0);
@@ -49,13 +47,10 @@ Sim1D::Sim1D(vector<Domain1D*>& domains) :
     m_steps.push_back(2);
     m_steps.push_back(5);
     m_steps.push_back(10);
-
 }
-//====================================================================================================================
 
 void Sim1D::setInitialGuess(const std::string& component, vector_fp& locs, vector_fp& vals)
 {
-
     for (size_t dom=0; dom<m_nd; dom++) {
         Domain1D& d = domain(dom);
         size_t ncomp = d.nComponents();
@@ -67,15 +62,6 @@ void Sim1D::setInitialGuess(const std::string& component, vector_fp& locs, vecto
     }
 }
 
-
-/**
- * Set a single value in the solution vector.
- * @param dom domain number, beginning with 0 for the leftmost domain.
- * @param comp component number
- * @param localPoint grid point within the domain, beginning with 0 for
- * the leftmost grid point in the domain.
- * @param value the value.
- */
 void Sim1D::setValue(size_t dom, size_t comp, size_t localPoint,  doublereal value)
 {
     size_t iloc = domain(dom).loc() + domain(dom).index(comp, localPoint);
@@ -85,13 +71,6 @@ void Sim1D::setValue(size_t dom, size_t comp, size_t localPoint,  doublereal val
     m_x[iloc] = value;
 }
 
-
-/**
- * @param dom domain number, beginning with 0 for the leftmost domain.
- * @param comp component number
- * @param localPoint grid point within the domain, beginning with 0 for
- * the leftmost grid point in the domain.
- */
 doublereal Sim1D::value(size_t dom, size_t comp, size_t localPoint) const
 {
     size_t iloc = domain(dom).loc() + domain(dom).index(comp, localPoint);
@@ -110,21 +89,6 @@ doublereal Sim1D::workValue(size_t dom, size_t comp, size_t localPoint) const
     return m_xnew[iloc];
 }
 
-
-/**
- * @param dom domain number, beginning with 0 for the leftmost domain.
- * @param comp component number
- * @param pos A vector of relative positions, beginning with 0.0 at the
- * left of the domain, and ending with 1.0 at the right of the domain.
- * @param values A vector of values corresponding to the relative position
- * locations.
- *
- * Note that the vector pos and values can have lengths
- * different than the number of grid points, but their lengths
- * must be equal. The values at the grid points will be
- * linearly interpolated based on the (pos, values)
- * specification.
- */
 void Sim1D::setProfile(size_t dom, size_t comp,
                        const vector_fp& pos, const vector_fp& values)
 {
@@ -141,7 +105,6 @@ void Sim1D::setProfile(size_t dom, size_t comp,
     }
 }
 
-
 void Sim1D::save(const std::string& fname, const std::string& id,
                  const std::string& desc, int loglevel)
 {
@@ -156,9 +119,6 @@ void Sim1D::saveResidual(const std::string& fname, const std::string& id,
     OneDim::save(fname, id, desc, &res[0], loglevel);
 }
 
-/**
- * Initialize the solution with a previously-saved solution.
- */
 void Sim1D::restore(const std::string& fname, const std::string& id,
                     int loglevel)
 {
@@ -203,7 +163,6 @@ void Sim1D::restore(const std::string& fname, const std::string& id,
     finalize();
 }
 
-
 void Sim1D::setFlatProfile(size_t dom, size_t comp, doublereal v)
 {
     size_t np = domain(dom).nPoints();
@@ -212,7 +171,6 @@ void Sim1D::setFlatProfile(size_t dom, size_t comp, doublereal v)
         setValue(dom, comp, n, v);
     }
 }
-
 
 void Sim1D::showSolution(ostream& s)
 {
@@ -248,7 +206,6 @@ void Sim1D::finalize()
     }
 }
 
-
 void Sim1D::setTimeStep(doublereal stepsize, size_t n, integer* tsteps)
 {
     m_tstep = stepsize;
@@ -257,7 +214,6 @@ void Sim1D::setTimeStep(doublereal stepsize, size_t n, integer* tsteps)
         m_steps[i] = tsteps[i];
     }
 }
-
 
 int Sim1D::newtonSolve(int loglevel)
 {
@@ -272,7 +228,6 @@ int Sim1D::newtonSolve(int loglevel)
                            "ERROR: OneDim::solve returned m = " + int2str(m) + "\n");
     }
 }
-
 
 void Sim1D::solve(int loglevel, bool refine_grid)
 {
@@ -388,10 +343,6 @@ void Sim1D::solve(int loglevel, bool refine_grid)
     }
 }
 
-
-/**
- * Refine the grid in all domains.
- */
 int Sim1D::refine(int loglevel)
 {
     int ianalyze, np = 0;
@@ -485,10 +436,6 @@ int Sim1D::refine(int loglevel)
     return np;
 }
 
-
-/**
- * Add node for fixed temperature point of freely propagating flame
- */
 int Sim1D::setFixedTemperature(doublereal t)
 {
     int np = 0;
@@ -598,11 +545,6 @@ void Sim1D::setAdiabaticFlame(void)
     }
 }
 
-/**
- * Set grid refinement criteria. If dom >= 0, then the settings
- * apply only to the specified domain.  If dom < 0, the settings
- * are applied to each domain.  @see Refiner::setCriteria.
- */
 void Sim1D::setRefineCriteria(int dom, doublereal ratio,
                               doublereal slope, doublereal curve, doublereal prune)
 {
@@ -629,7 +571,6 @@ void Sim1D::setGridMin(int dom, double gridmin)
         }
     }
 }
-
 
 void Sim1D::setMaxGridPoints(int dom, int npoints)
 {
