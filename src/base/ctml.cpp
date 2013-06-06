@@ -228,6 +228,8 @@ void getIntegers(const Cantera::XML_Node& node,
 void getFloats(const Cantera::XML_Node& node, std::map<std::string, double>& v,
                const bool convert)
 {
+    warn_deprecated("ctml::getFloats",
+                    "To be removed in Cantera 2.2.");
     std::vector<XML_Node*> f;
     node.getChildren("float",f);
     int n = static_cast<int>(f.size());
