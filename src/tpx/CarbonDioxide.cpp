@@ -1,9 +1,8 @@
-/* FILE: CarbonDioxide.cpp
- * DESCRIPTION:
- *  representation of substance Carbon Dioxide
- *  values and functions are from
- *  "Thermodynamic Properties in SI" by W.C. Reynolds
- * AUTHOR: me@rebeccahhunt.com: GCEP, Stanford University
+/**
+ * @file CarbonDioxide.cpp representation of substance Carbon Dioxide.
+ *
+ * Values and functions are from "Thermodynamic Properties in SI" by W.C.
+ * Reynolds AUTHOR: me@rebeccahhunt.com: GCEP, Stanford University
  */
 
 #include "CarbonDioxide.h"

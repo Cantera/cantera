@@ -1,7 +1,7 @@
 /**
- * @file solveProb.h
- *       Header file for implicit nonlinear solver with the option of a pseudotransient
- *  (see \ref numerics and class \link Cantera::solveProb solveProb\endlink).
+ * @file solveProb.h Header file for implicit nonlinear solver with the option
+ *       of a pseudotransient (see \ref numerics and class \link
+ *       Cantera::solveProb solveProb\endlink).
  */
 
 /*

@@ -1,3 +1,4 @@
+//! @file GasTransport.cpp
 #include "cantera/transport/GasTransport.h"
 #include "cantera/transport/TransportParams.h"
 

@@ -1,10 +1,8 @@
-/* FILE: Heptane.cpp
- * DESCRIPTION:
- *  representation of substance Heptane
- *  values and functions are from
- *  "Thermodynamic Properties in SI" bu W.C. Reynolds
- * AUTHOR: jrh@stanford.edu: GCEP, Stanford University
+/**
+ * @file Heptane.cpp representation of substance Heptane.
  *
+ * Values and functions are from "Thermodynamic Properties in SI" by W.C.
+ * Reynolds. AUTHOR: jrh@stanford.edu: GCEP, Stanford University
  */
 
 #include "Heptane.h"

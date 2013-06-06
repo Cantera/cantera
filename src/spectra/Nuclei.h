@@ -1,5 +1,5 @@
 /**
- * Provides class Nucleus
+ * @file Nuclei.h Provides class Nucleus
  */
 
 #ifndef CT_NUCL_H

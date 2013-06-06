@@ -1,3 +1,4 @@
+//! @file MultiPhaseEquil.h
 #ifndef CT_MULTIPHASE_EQUIL
 #define CT_MULTIPHASE_EQUIL
 

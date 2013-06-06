@@ -1,5 +1,5 @@
 /**
- *  @file DenseMatrix.cpp
+ *  @file SquareMatrix.cpp
  */
 
 /*

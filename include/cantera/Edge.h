@@ -1,3 +1,4 @@
+//! @file Edge.h
 #ifndef CXX_EDGE
 #define CXX_EDGE
 

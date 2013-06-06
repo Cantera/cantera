@@ -1,3 +1,4 @@
+//! @file Metal.h
 #ifndef CXX_METAL
 #define CXX_METAL
 

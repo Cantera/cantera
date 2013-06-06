@@ -1,4 +1,4 @@
-// HFC134a
+//! @file HFC134a.cpp
 
 #include "HFC134a.h"
 #include "cantera/base/stringUtils.h"

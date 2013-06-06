@@ -1,4 +1,4 @@
-// Lee-Kesler equation of state
+//! @file lk.cpp Lee-Kesler equation of state
 
 #include "lk.h"
 #include <math.h>

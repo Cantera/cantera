@@ -1,7 +1,7 @@
 /**
- * @file RootFind.h
- *       Header file for implicit nonlinear solver of a one dimensional function
- *  (see \ref numerics and class \link Cantera::RootFind RootFind\endlink).
+ * @file RootFind.h Header file for implicit nonlinear solver of a one
+ *       dimensional function (see \ref numerics and class \link
+ *       Cantera::RootFind RootFind\endlink).
  */
 
 /*

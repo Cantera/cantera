@@ -1,3 +1,4 @@
+//! @file OneDim.cpp
 #include "cantera/oneD/MultiJac.h"
 #include "cantera/oneD/MultiNewton.h"
 #include "cantera/oneD/OneDim.h"

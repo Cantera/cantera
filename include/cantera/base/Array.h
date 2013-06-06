@@ -1,6 +1,5 @@
 /**
- *  @file Array.h
- *  Header file for class Array2D
+ *  @file Array.h Header file for class Cantera::Array2D
  */
 // Copyright 2001  California Institute of Technology
 

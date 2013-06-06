@@ -1,3 +1,4 @@
+//! @file Methane.cpp
 #include "Methane.h"
 #include "cantera/base/stringUtils.h"
 

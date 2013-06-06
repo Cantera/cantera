@@ -1,3 +1,4 @@
+//! @file ReactorNet.cpp
 #include "cantera/zeroD/ReactorNet.h"
 #include "cantera/numerics/Integrator.h"
 #include "cantera/zeroD/FlowDevice.h"

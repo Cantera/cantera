@@ -1,4 +1,4 @@
-/*
+/**
  * @file: RootFind.cpp  root finder for 1D problems
  */
 

@@ -1,6 +1,6 @@
 /*!
- * @file vcs_solve.h Header file for the internal class that holds the
- *     problem.
+ * @file vcs_solve.cpp Implementation file for the internal class that holds
+ *     the problem.
  */
 /*
  * Copyright (2005) Sandia Corporation. Under the terms of

@@ -1,6 +1,5 @@
 /**
- *  @file speciesThermoTypes.h
- *       Contains const definitions for types of species
+ *  @file speciesThermoTypes.h Contains const definitions for types of species
  *       reference-state thermodynamics managers (see \ref spthermo)
  */
 // Copyright 2001  California Institute of Technology

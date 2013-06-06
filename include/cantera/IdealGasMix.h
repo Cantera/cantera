@@ -1,3 +1,4 @@
+//! @file IdealGasMix.h
 #ifndef CXX_IDEALGASMIX
 #define CXX_IDEALGASMIX
 
