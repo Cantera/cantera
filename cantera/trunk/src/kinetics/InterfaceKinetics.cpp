@@ -497,6 +497,8 @@ void InterfaceKinetics::getRevRateConstants(doublereal* krev, bool doIrreversibl
 
 void InterfaceKinetics::getActivationEnergies(doublereal* E)
 {
+    warn_deprecated("Kinetics::getActivationEnergies",
+                    "To be removed in Cantera 2.2.");
     copy(m_E.begin(), m_E.end(), E);
 }
 
