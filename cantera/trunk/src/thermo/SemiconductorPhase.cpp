@@ -1,4 +1,4 @@
-
+//! @file SemiconductorPhase.cpp
 #include "cantera/thermo/SemiconductorPhase.h"
 
 using namespace std;

@@ -1,6 +1,5 @@
 /**
- *  @file WaterTransport.h
- *   Header file defining class LiquidTransport
+ *  @file WaterTransport.h Header file defining class WaterTransport
  */
 #ifndef CT_WATERTRAN_H
 #define CT_WATERTRAN_H

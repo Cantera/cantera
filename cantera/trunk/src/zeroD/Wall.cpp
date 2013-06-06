@@ -1,3 +1,4 @@
+//! @file Wall.cpp
 #include "cantera/zeroD/Wall.h"
 #include "cantera/zeroD/ReactorBase.h"
 #include "cantera/zeroD/ReactorNet.h"

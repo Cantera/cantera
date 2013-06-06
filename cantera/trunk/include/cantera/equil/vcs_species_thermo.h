@@ -1,3 +1,4 @@
+//! @file vcs_species_thermo.h
 
 /*
  * Copyright (2005) Sandia Corporation. Under the terms of

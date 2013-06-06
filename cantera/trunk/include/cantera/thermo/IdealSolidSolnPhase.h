@@ -1,12 +1,10 @@
 /**
- * @file IdealSolidSolnPhase.h
- *      Header file for an ideal solid solution model
+ * @file IdealSolidSolnPhase.h Header file for an ideal solid solution model
  *      with incompressible thermodynamics (see \ref thermoprops and
  *      \link Cantera::IdealSolidSolnPhase IdealSolidSolnPhase\endlink).
  *
- *      This class inherits from the Cantera class ThermoPhase
- *      and implements an ideal solid solution model with incompressible
- *      thermodynamics.
+ * This class inherits from the Cantera class ThermoPhase and implements an
+ * ideal solid solution model with incompressible thermodynamics.
  */
 /*
  * Copyright 2006 Sandia Corporation. Under the terms of Contract

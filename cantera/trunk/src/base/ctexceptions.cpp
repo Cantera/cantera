@@ -1,3 +1,4 @@
+//! @file ctexceptions.cpp
 #include "cantera/base/ctexceptions.h"
 
 #include "application.h"

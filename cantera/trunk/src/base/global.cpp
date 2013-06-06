@@ -1,3 +1,4 @@
+//! @file global.cpp
 #include "cantera/base/global.h"
 
 #include "cantera/base/ctexceptions.h"

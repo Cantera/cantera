@@ -1,8 +1,8 @@
 /**
- *  @file IdealSolidSolnPhase.cpp
- *      Implementation file for an ideal solid solution model
- *      with incompressible thermodynamics (see \ref thermoprops and
- *      \link Cantera::IdealSolidSolnPhase IdealSolidSolnPhase\endlink).
+ *  @file IdealSolidSolnPhase.cpp Implementation file for an ideal solid
+ *      solution model with incompressible thermodynamics (see \ref
+ *      thermoprops and \link Cantera::IdealSolidSolnPhase
+ *      IdealSolidSolnPhase\endlink).
  */
 /*
  * Copyright 2006 Sandia Corporation. Under the terms of Contract

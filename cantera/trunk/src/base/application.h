@@ -1,3 +1,4 @@
+//! @file application.h
 #ifndef CT_BASE_APPLICATION_H
 #define CT_BASE_APPLICATION_H
 

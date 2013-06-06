@@ -1,5 +1,5 @@
-/*
- * @file: solveSP.cpp Implicit solver for nonlinear problems
+/**
+ * @file: solveProb.cpp Implicit solver for nonlinear problems
  */
 
 /*

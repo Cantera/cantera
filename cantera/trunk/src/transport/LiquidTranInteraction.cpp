@@ -1,5 +1,5 @@
 /**
- *  @file LiquidTransportParams.cpp
+ *  @file LiquidTranInteraction.cpp
  *  Source code for liquid mixture transport property evaluations.
  */
 

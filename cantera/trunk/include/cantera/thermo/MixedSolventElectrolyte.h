@@ -1,5 +1,5 @@
 /**
- *  @file  MargulesVPSSTP.h
+ *  @file  MixedSolventElectrolyte.h
  *   Header for intermediate ThermoPhase object for phases which
  *   employ gibbs excess free energy based formulations
  *  (see \ref thermoprops

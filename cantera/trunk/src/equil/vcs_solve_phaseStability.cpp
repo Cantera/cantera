@@ -1,7 +1,4 @@
-/**
- * @file vcs_solve_TP.cpp Implementation file that contains the
- *     main algorithm for finding an equilibrium
- */
+//! @file vcs_solve_phaseStability.cpp
 
 /*
  * Copyright (2005) Sandia Corporation. Under the terms of
