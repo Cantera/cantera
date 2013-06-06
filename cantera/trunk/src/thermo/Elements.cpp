@@ -216,6 +216,7 @@ Elements::Elements() :
     m_elem_type(0),
     numSubscribers(0)
 {
+    warn_deprecated("class Elements");
 }
 
 /*
