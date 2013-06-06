@@ -14,6 +14,7 @@
  */
 
 #include "cantera/base/ct_defs.h"
+#include "cantera/base/global.h"
 
 /**
  * Namespace for spectroscopic functions and classes.
@@ -24,13 +25,16 @@ namespace Cantera
 /**
  * Class Rotor represents a non-rigid quantum-mechanical rotor.
  * @ingroup spectroscopy
+ * @deprecated incomplete / abandoned
  */
 class Rotor
 {
 public:
 
     /// Default Constructor.
-    Rotor() {}
+    Rotor() {
+        warn_deprecated("class Rotor");
+    }
 
     /// Destructor.
     virtual ~Rotor() {}

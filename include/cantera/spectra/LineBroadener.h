@@ -6,6 +6,7 @@
 
 #include "cantera/base/ct_defs.h"
 #include "cantera/base/ctexceptions.h"
+#include "cantera/base/global.h"
 
 namespace Cantera
 {
@@ -14,6 +15,7 @@ namespace Cantera
  * Base class for classes implementing line shapes of
  * various types.
  * @ingroup spectroscopy
+ * @deprecated incomplete / abandoned
  */
 class LineBroadener
 {
@@ -21,7 +23,9 @@ class LineBroadener
 public:
 
     /// Default constructor
-    LineBroadener() {}
+    LineBroadener() {
+        warn_deprecated("class LineBroadener");
+    }
 
     /// Destructor
     virtual ~LineBroadener() {}
