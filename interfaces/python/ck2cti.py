@@ -30,6 +30,7 @@ This module contains functions for converting Chemkin-format input files to
 Cantera input files (CTI).
 """
 
+from __future__ import print_function
 import logging
 import types
 import os.path
@@ -93,7 +94,7 @@ class Species(object):
     def to_cti(self, indent=0):
         lines = []
         atoms = ' '.join('{0}:{1}'.format(*a)
-                         for a in self.composition.iteritems())
+                         for a in self.composition.items())
 
         prefix = ' '*(indent+8)
 
@@ -325,7 +326,7 @@ class KineticsModel(object):
     def efficiencyString(self):
         if hasattr(self, 'efficiencies'):
             return ' '.join('{0}:{1}'.format(mol, eff)
-                            for mol,eff in self.efficiencies.iteritems())
+                            for mol,eff in self.efficiencies.items())
         else:
             return ''
 
@@ -550,7 +551,7 @@ class ThirdBody(KineticsModel):
         self.arrheniusHigh = arrheniusHigh
         self.efficiencies = {}
         if efficiencies is not None:
-            for mol, eff in efficiencies.iteritems():
+            for mol, eff in efficiencies.items():
                 self.efficiencies[mol] = eff
 
     def isPressureDependent(self):
@@ -908,7 +909,7 @@ class Parser(object):
         # column 80 on the first line of the thermo entry
         if len(lines[0]) > 80:
             elements = lines[0][80:]
-            composition2 = self.parseComposition(elements, len(elements)/10, 10)
+            composition2 = self.parseComposition(elements, len(elements)//10, 10)
             composition.update(composition2)
 
         # Construct and return the thermodynamics model
@@ -1602,7 +1603,7 @@ class Parser(object):
         f.write('\n'.join(lines))
 
     def showHelp(self):
-        print """
+        print("""
 ck2cti.py: Convert Chemkin-format mechanisms to Cantera input files (.cti)
 
 Usage:
@@ -1623,7 +1624,7 @@ input file, with the extension changed to '.cti'.
 The '--permissive' option allows certain recoverable parsing errors (e.g.
 duplicate transport data) to be ignored.
 
-"""
+""")
 
     def convertMech(self, inputFile, thermoFile=None,
                     transportFile=None, phaseName='gas',
@@ -1655,8 +1656,8 @@ duplicate transport data) to be ignored.
         # Write output file
         self.writeCTI(name=phaseName, outName=outName)
         if not quiet:
-            print 'Wrote CTI mechanism file to {0!r}.'.format(outName)
-            print 'Mechanism contains {0} species and {1} reactions.'.format(len(self.speciesList), len(self.reactions))
+            print('Wrote CTI mechanism file to {0!r}.'.format(outName))
+            print('Mechanism contains {0} species and {1} reactions.'.format(len(self.speciesList), len(self.reactions)))
 
 
 if __name__ == '__main__':
@@ -1677,9 +1678,9 @@ if __name__ == '__main__':
                                      repr(' '.join(args)))
 
     except getopt.GetoptError as e:
-        print 'ck2cti.py: Error parsing arguments:'
-        print e
-        print 'Run "ck2cti.py --help" to see usage help.'
+        print('ck2cti.py: Error parsing arguments:')
+        print(e)
+        print('Run "ck2cti.py --help" to see usage help.')
         sys.exit(1)
 
     parser = Parser()
@@ -1691,7 +1692,7 @@ if __name__ == '__main__':
     if '--input' in options:
         inputFile = options['--input']
     else:
-        print 'Error: no mechanism input file specified'
+        print('Error: no mechanism input file specified')
         sys.exit(1)
 
     if '--output' in options:
