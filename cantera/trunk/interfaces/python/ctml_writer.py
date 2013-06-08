@@ -16,16 +16,16 @@
 #
 # This will produce CTML file 'infile.xml'
 
-import string
+from __future__ import print_function
 
 class CTI_Error:
     """Exception raised if an error is encountered while
     parsing the input file.
     @ingroup pygroup"""
     def __init__(self, msg):
-        print '\n\n***** Error parsing input file *****\n\n'
-        print msg
-        print
+        print('\n\n***** Error parsing input file *****\n\n')
+        print(msg)
+        print()
 
 
 
@@ -64,10 +64,10 @@ class XMLnode:
 
         # convert 'value' to a string if it is not already, and
         # strip leading whitespace
-        if type(value) != types.StringType:
-            self._value = string.lstrip(repr(value))
+        if not isinstance(value, str):
+            self._value = repr(value).lstrip()
         else:
-            self._value = string.lstrip(value)
+            self._value = value.lstrip()
 
         self._attribs = {}    # dictionary of attributes
         self._children = []   # list of child nodes
@@ -159,14 +159,14 @@ class XMLnode:
         else:
             f.write('>')
             if self._value != "":
-                vv = string.lstrip(self._value)
+                vv = self._value.lstrip()
                 ieol = vv.find('\n')
                 if ieol >= 0:
                     while 1 > 0:
                         ieol = vv.find('\n')
                         if ieol >= 0:
                             f.write('\n  '+indnt+vv[:ieol])
-                            vv = string.lstrip(vv[ieol+1:])
+                            vv = vv[ieol+1:].lstrip()
                         else:
                             f.write('\n  '+indnt+vv)
                             break
@@ -190,7 +190,7 @@ eV = 9.64853364595687e7
 # Electron Mass in kg
 ElectronMass = 9.10938291e-31
 
-import types, math, copy
+import math, copy
 
 # default units
 _ulen = 'm'
@@ -239,7 +239,7 @@ def validate(species = 'yes', reactions = 'yes'):
 
 def isnum(a):
     """True if a is an integer or floating-point number."""
-    if type(a) == types.IntType or type(a) == types.FloatType:
+    if isinstance(a, (int, float)):
         return 1
     else:
         return 0
@@ -324,7 +324,7 @@ def write(outName=None):
     elif _name != 'noname':
         x.write(_name+'.xml')
     else:
-        print x
+        print(x)
 
     if _valexport:
         f = open(_valexport,'w')
@@ -360,7 +360,7 @@ def addFloat(x, nm, val, fmt='', defunits=''):
 
 
 def getAtomicComp(atoms):
-    if type(atoms) == types.DictType: return atoms
+    if isinstance(atoms, dict): return atoms
     a = atoms.replace(',',' ')
     toks = a.split()
     d = {}
@@ -539,7 +539,7 @@ class species:
                 else:
                     s += '0,'
             f.write(s)
-            if type(self._thermo) == types.InstanceType:
+            if isinstance(self._thermo, thermo):
                 self._thermo.export(f, fmt)
             else:
                 nt = len(self._thermo)
@@ -565,7 +565,7 @@ class species:
             s.addChild("size",self._size)
         if self._thermo:
             t = s.addChild("thermo")
-            if type(self._thermo) == types.InstanceType:
+            if isinstance(self._thermo, thermo):
                 self._thermo.build(t)
             else:
                 nt = len(self._thermo)
@@ -573,7 +573,7 @@ class species:
                     self._thermo[n].build(t)
         if self._transport:
             t = s.addChild("transport")
-            if type(self._transport) == types.InstanceType:
+            if isinstance(self._transport, transport):
                 self._transport.build(t)
             else:
                 nt = len(self._transport)
@@ -833,8 +833,10 @@ class const_cp(thermo):
         addFloat(c,'s0',self._c[2], defunits = energy_units+'/K')
         addFloat(c,'cp0',self._c[3], defunits = energy_units+'/K')
 
+class transport:
+    pass
 
-class gas_transport:
+class gas_transport(transport):
     """
     Species-specific Transport coefficients for ideal gas transport models.
     """
@@ -876,8 +878,10 @@ class gas_transport:
         addFloat(t, "polarizability", (self._polar, 'A3'),'%8.3f')
         addFloat(t, "rotRelax", self._rot_relax,'%8.3f')
 
+class rate_expression:
+    pass
 
-class Arrhenius:
+class Arrhenius(rate_expression):
     def __init__(self,
                  A = 0.0,
                  n = 0.0,
@@ -899,7 +903,7 @@ class Arrhenius:
         self._type = rate_type
 
         if coverage:
-            if type(coverage[0]) == types.StringType:
+            if isinstance(coverage[0], str):
                 self._cov = [coverage]
             else:
                 self._cov = coverage
@@ -996,7 +1000,7 @@ class reaction:
         self._e = equation
         self._order = order
 
-        if type(options) == types.StringType:
+        if isinstance(options, str):
             self._options = [options]
         else:
             self._options = options
@@ -1157,7 +1161,7 @@ class reaction:
                 electro['beta'] = repr(self._beta)
 
         for kf in self._kf:
-            if type(kf) == types.InstanceType:
+            if isinstance(kf, rate_expression):
                 k = kf
             else:
                 k = Arrhenius(A = kf[0], n = kf[1], E = kf[2])
@@ -1219,10 +1223,10 @@ class three_body_reaction(reaction):
         self._eff = efficiencies
 
         # clean up reactant and product lists
-        for r in self._r.keys():
+        for r in list(self._r.keys()):
             if r == 'M' or r == 'm':
                 del self._r[r]
-        for p in self._p.keys():
+        for p in list(self._p.keys()):
             if p == 'M' or p == 'm':
                 del self._p[p]
 
@@ -1288,7 +1292,7 @@ class falloff_reaction(reaction):
             del self._r['m)']
             del self._p['m)']
         else:
-            for r in self._r.keys():
+            for r in list(self._r.keys()):
                 if r[-1] == ')' and r.find('(') < 0:
                     species = r[:-1]
                     if self._eff:
@@ -1543,7 +1547,7 @@ class phase:
         self._sp = []
         self._rx = []
 
-        if type(options) == types.StringType:
+        if isinstance(options, str):
             self._options = [options]
         else:
             self._options = options
@@ -1557,7 +1561,7 @@ class phase:
         #--------------------------------
 
         # if a single string is entered, make it a list
-        if type(species) == types.StringType:
+        if isinstance(species, str):
             self._species = [species]
         else:
             self._species = species
@@ -1635,7 +1639,7 @@ class phase:
 
     def buildrxns(self, p):
 
-        if type(self._rxns) == types.StringType:
+        if isinstance(self._rxns, str):
             self._rxns = [self._rxns]
 
         # for each reaction string, check whether or not the reactions
@@ -1738,9 +1742,9 @@ class ideal_gas(phase):
         self._kin = kinetics
         self._tr = transport
         if self.debug:
-            print 'Read ideal_gas entry '+self._name
+            print('Read ideal_gas entry '+self._name)
             try:
-                print 'in file '+__name__
+                print('in file '+__name__)
             except:
                 pass
 
@@ -1770,7 +1774,7 @@ class stoichiometric_solid(phase):
                  name = '',
                  elements = '',
                  species = '',
-                 density = -1.0,
+                 density = None,
                  transport = 'None',
                  initial_state = None,
                  options = []):
@@ -1782,7 +1786,7 @@ class stoichiometric_solid(phase):
                        initial_state, options)
         self._dens = density
         self._pure = 1
-        if self._dens < 0.0:
+        if self._dens is None:
             raise CTI_Error('density must be specified.')
         self._tr = transport
 
@@ -1987,7 +1991,7 @@ class lattice_solid(phase):
             for el in e:
                 if not el in elist:
                     elist.append(el)
-        elements = string.join(elist)
+        elements = ' '.join(elist)
 
         # find species
         slist = []
@@ -1999,7 +2003,7 @@ class lattice_solid(phase):
             for sp in s:
                 if not sp in slist:
                     slist.append(sp)
-        species = string.join(slist)
+        species = ' '.join(slist)
 
         phase.__init__(self, name, 3, elements, species, 'none',
                        initial_state, options)
@@ -2393,21 +2397,23 @@ def convert(filename, outName=None):
     root, _ = os.path.splitext(base)
     dataset(root)
     try:
-        execfile(filename)
+        with open(filename) as f:
+            code = compile(f.read(), filename, 'exec')
+            exec(code)
     except SyntaxError as err:
         # Show more context than the default SyntaxError message
         # to help see problems in multi-line statements
         text = open(filename).readlines()
-        print '%s in "%s" on line %i:\n' % (err.__class__.__name__,
+        print('%s in "%s" on line %i:\n' % (err.__class__.__name__,
                                             err.filename,
-                                            err.lineno)
-        print '|  Line |'
+                                            err.lineno))
+        print('|  Line |')
         for i in range(max(err.lineno-6, 0),
                        min(err.lineno+3, len(text))):
-            print '| % 5i |' % (i+1), text[i].rstrip()
+            print('| % 5i |' % (i+1), text[i].rstrip())
             if i == err.lineno-1:
-                print ' '* (err.offset+9) + '^'
-        print
+                print(' '* (err.offset+9) + '^')
+        print()
         sys.exit(3)
     except TypeError as err:
         import traceback
@@ -2416,16 +2422,16 @@ def convert(filename, outName=None):
         tb = traceback.extract_tb(sys.exc_info()[2])
         lineno = tb[-1][1]
 
-        print '%s on line %i of %s:' % (err.__class__.__name__, lineno, filename)
-        print err
-        print '\n| Line |'
+        print('%s on line %i of %s:' % (err.__class__.__name__, lineno, filename))
+        print(err)
+        print('\n| Line |')
 
         for i in range(max(lineno-6, 0),
                        min(lineno+3, len(text))):
             if i == lineno-1:
-                print '> % 4i >' % (i+1), text[i].rstrip()
+                print('> % 4i >' % (i+1), text[i].rstrip())
             else:
-                print '| % 4i |' % (i+1), text[i].rstrip()
+                print('| % 4i |' % (i+1), text[i].rstrip())
 
         sys.exit(4)
 
