@@ -18,7 +18,7 @@
 
 from __future__ import print_function
 
-class CTI_Error:
+class CTI_Error(Exception):
     """Exception raised if an error is encountered while
     parsing the input file.
     @ingroup pygroup"""
@@ -49,7 +49,7 @@ indent = ['',
 
 #-----------------------------------------------------
 
-class XMLnode:
+class XMLnode(object):
 
     """This is a minimal class to allow easy creation of an XML tree
     from Python. It can write XML, but cannot read it."""
@@ -415,7 +415,7 @@ def getReactionSpecies(s):
     return d
 
 
-class element:
+class element(object):
     """ An atomic element or isotope. """
     def __init__(self, symbol = '',
                  atomic_mass = 0.01,
@@ -439,7 +439,7 @@ class element:
         e["atomicNumber"] = repr(self._num)
 
 
-class species_set:
+class species_set(object):
     def __init__(self, name = '', species = []):
         self._s = species
         self._name = name
@@ -456,7 +456,7 @@ class species_set:
             #    raise 'wrong object type in species_set: '+s.__class__
 
 
-class species:
+class species(object):
     """A constituent of a phase or interface."""
 
     def __init__(self,
@@ -580,7 +580,7 @@ class species:
                 for n in range(nt):
                     self._transport[n].build(t)
 
-class thermo:
+class thermo(object):
     """Base class for species standard-state thermodynamic properties."""
     def _build(self, p):
         return p.addChild("thermo")
@@ -833,7 +833,7 @@ class const_cp(thermo):
         addFloat(c,'s0',self._c[2], defunits = energy_units+'/K')
         addFloat(c,'cp0',self._c[3], defunits = energy_units+'/K')
 
-class transport:
+class transport(object):
     pass
 
 class gas_transport(transport):
@@ -878,7 +878,7 @@ class gas_transport(transport):
         addFloat(t, "polarizability", (self._polar, 'A3'),'%8.3f')
         addFloat(t, "rotRelax", self._rot_relax,'%8.3f')
 
-class rate_expression:
+class rate_expression(object):
     pass
 
 class Arrhenius(rate_expression):
@@ -971,7 +971,7 @@ def getPairs(s):
         m[key] = float(val)
     return m
 
-class reaction:
+class reaction(object):
     """
     A homogeneous chemical reaction with pressure-independent rate coefficient
     and mass-action kinetics.
@@ -1455,7 +1455,7 @@ class edge_reaction(reaction):
 #--------------
 
 
-class state:
+class state(object):
     """
     An embedded entry that specifies the thermodynamic state of a phase
     or interface.
@@ -1504,7 +1504,7 @@ class state:
         if self._m: st.addChild('soluteMolalities', self._m)
 
 
-class phase:
+class phase(object):
     """Base class for phases of matter."""
 
     def __init__(self,
@@ -2338,7 +2338,7 @@ class edge(phase):
 
 # falloff parameterizations
 
-class Troe:
+class Troe(object):
     """The Troe falloff function."""
     def __init__(self, A = 0.0, T3 = 0.0, T1 = 0.0, T2 = -999.9):
         """
@@ -2358,7 +2358,7 @@ class Troe:
         f['type'] = 'Troe'
 
 
-class SRI:
+class SRI(object):
     """ The SRI falloff function."""
     def __init__(self, A = 0.0, B = 0.0, C = 0.0, D = -999.9, E=-999.9):
         """
@@ -2378,7 +2378,7 @@ class SRI:
         f['type'] = 'SRI'
 
 
-class Lindemann:
+class Lindemann(object):
     """The Lindemann falloff function."""
     def __init__(self):
         """ This falloff function takes no parameters."""
