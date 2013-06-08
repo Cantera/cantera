@@ -40,6 +40,22 @@ def add_dependencies(mod, ext):
               mglob(localenv, 'cantera/examples/misc', 'py')):
         localenv.Depends(mod, f)
 
+if os.name == 'nt':
+  script_ext = '.py'
+  localenv['py_ctml_writer'] = repr('scripts/ctml_writer.py')
+else:
+  script_ext = ''
+  localenv['py_ctml_writer'] = repr('scripts/ctml_writer')
+
+# The actual ctml_writer script
+build(env.Command('ctml_writer.py',
+                  '#interfaces/python/ctml_writer.py',
+                  Copy('$TARGET', '$SOURCE')))
+
+# thin wrapper
+build(env.Command('scripts/ctml_writer%s' % script_ext,
+                  'scripts/ctml_writer.py.in',
+                  Copy('$TARGET', '$SOURCE')))
 
 def install_module(prefix, python_version):
     if prefix == 'USER':
