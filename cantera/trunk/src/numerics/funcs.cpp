@@ -14,6 +14,8 @@
 #include "cantera/base/stringUtils.h"
 #include "cantera/numerics/polyfit.h"
 
+#include <algorithm>
+
 using namespace std;
 
 #ifndef FTN_TRAILING_UNDERSCORE
