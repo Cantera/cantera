@@ -7,6 +7,7 @@
 #include "TransportBase.h"
 #include "cantera/numerics/DenseMatrix.h"
 #include "LiquidTransportParams.h"
+#include "cantera/thermo/WaterPropsIAPWS.h"
 
 namespace Cantera
 {

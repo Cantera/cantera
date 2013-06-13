@@ -10,6 +10,7 @@
 
 #include "SpeciesThermoMgr.h"
 #include "speciesThermoTypes.h"
+#include "cantera/base/global.h"
 
 namespace Cantera
 {
