@@ -21,7 +21,10 @@ namespace Cantera
 {
 
 GRI_30_Kinetics::
-GRI_30_Kinetics(thermo_t* th) : GasKinetics(th) {}
+GRI_30_Kinetics(thermo_t* th) : GasKinetics(th) {
+    warn_deprecated("class GRI_30_Kinetics",
+                    "To be removed in Cantera 2.2.");
+}
 
 void GRI_30_Kinetics::
 gri30_update_rates_T()

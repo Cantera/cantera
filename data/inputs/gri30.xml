@@ -18,7 +18,7 @@
       <pressure units="Pa">101325.0</pressure>
     </state>
     <thermo model="IdealGas"/>
-    <kinetics model="GRI30"/>
+    <kinetics model="GasKinetics"/>
     <transport model="None"/>
   </phase>
 
@@ -38,7 +38,7 @@
       <pressure units="Pa">101325.0</pressure>
     </state>
     <thermo model="IdealGas"/>
-    <kinetics model="GRI30"/>
+    <kinetics model="GasKinetics"/>
     <transport model="Mix"/>
   </phase>
 
@@ -58,7 +58,7 @@
       <pressure units="Pa">101325.0</pressure>
     </state>
     <thermo model="IdealGas"/>
-    <kinetics model="GRI30"/>
+    <kinetics model="GasKinetics"/>
     <transport model="Multi"/>
   </phase>
 

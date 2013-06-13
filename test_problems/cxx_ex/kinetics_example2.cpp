@@ -21,6 +21,7 @@ using namespace Cantera;
 
 int kinetics_example2(int job)
 {
+    suppress_deprecation_warnings();
     try {
         std::cout << "Ignition simulation using class GRI30." << std::endl;
 

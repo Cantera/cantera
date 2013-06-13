@@ -540,7 +540,7 @@ class TestWellStirredReactorIgnition(utilities.CanteraTest):
                 break
 
         # regression test; no external basis for this result
-        self.assertNear(tIg, 2.2284, 1e-3)
+        self.assertNear(tIg, 2.2249, 1e-3)
 
     def test_ignition2(self):
         self.setup(900.0, 10*ct.one_atm, 1.0, 20.0)
@@ -553,7 +553,7 @@ class TestWellStirredReactorIgnition(utilities.CanteraTest):
                 break
 
         # regression test; no external basis for this result
-        self.assertNear(tIg, 1.4900, 1e-3)
+        self.assertNear(tIg, 1.4856, 1e-3)
 
     def test_ignition3(self):
         self.setup(900.0, 10*ct.one_atm, 1.0, 80.0)

@@ -17,6 +17,7 @@ const int cGRI_30_Kinetics = cGasKinetics + 1;
 
 /**
  *  Kinetics manager implementing reaction mechanism GRI-Mech 3.0
+ *  @deprecated
  */
 class GRI_30_Kinetics : public GasKinetics
 {
