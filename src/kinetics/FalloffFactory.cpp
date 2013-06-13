@@ -6,6 +6,7 @@
 #include "cantera/kinetics/FalloffFactory.h"
 #include "cantera/base/ctexceptions.h"
 #include "cantera/base/stringUtils.h"
+#include "cantera/base/global.h"
 
 namespace Cantera
 {
@@ -432,12 +433,15 @@ protected:
  * Reference: Wang, H., and Frenklach, M., Chem. Phys. Lett. vol. 205, 271 (1993).
  *
  * @ingroup falloffGroup
+ * @deprecated
  */
 class WF93 : public Falloff
 {
 public:
     //! Default constructor
-    WF93() {}
+    WF93() {
+        warn_deprecated("class WF93", "To be removed in Cantera 2.2.");
+    }
 
     //! Initialization routine
     /*!
