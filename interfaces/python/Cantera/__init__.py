@@ -15,6 +15,8 @@ from importFromFile import *
 import os as _os
 import sys as _sys
 
+__version__ = _cantera.ct_get_version()
+
 import warnings
 warnings.warn(
     "\nThis version of the Cantera Python module is deprecated and will not be\n"
