@@ -186,9 +186,9 @@ class XMLnode:
 OneAtm = 1.01325e5
 OneBar = 1.0e5
 # Conversion from eV to J/kmol (electronCharge * Navrog)
-eV = 96.4853E6
+eV = 9.64853364595687e7
 # Electron Mass in kg
-ElectronMass = 9.10938188e-31
+ElectronMass = 9.10938291e-31
 
 import types, math, copy
 
@@ -203,7 +203,7 @@ _upres = 'Pa'
 
 # used to convert reaction pre-exponentials
 _length = {'cm':0.01, 'm':1.0, 'mm':0.001}
-_moles = {'kmol':1.0, 'mol':0.001, 'molec':1.0/6.023e26}
+_moles = {'kmol':1.0, 'mol':0.001, 'molec':1.0/6.02214129e26}
 _time = {'s':1.0, 'min':60.0, 'hr':3600.0}
 
 # default std state pressure
