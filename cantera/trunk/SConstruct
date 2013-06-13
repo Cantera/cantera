@@ -1194,6 +1194,8 @@ if addInstallActions:
 
     # Make symlinks to replicate old header directory structure
     if env['legacy_headers']:
+        print ('WARNING: Installation of legacy headers is deprecated. '
+               'This installation option will be removed in Cantera 2.2.')
         install(env.Command, pjoin('$inst_incdir', 'kernel'), [], Mkdir("$TARGET"))
         install('$inst_incdir', 'platform/legacy/Cantera_legacy.h')
 
