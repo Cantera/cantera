@@ -15,6 +15,8 @@ from importFromFile import *
 import os as _os
 import sys as _sys
 
+__version__ = _cantera.ct_get_version()
+
 if not os.getenv('PYTHON_CMD'):
     # Setting PYTHON_CMD here avoids issues with .cti -> .xml conversions
     # in cases where the python interpreter isn't in the system path.
