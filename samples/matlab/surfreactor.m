@@ -45,7 +45,7 @@ setArea(w, 1.0e-4);
 setHeatTransferCoeff(w,1.0e1);  % W/m2/K
 
 % set expansion rate parameter. dV/dt = KA(P_1 - P_2)
-setExpansionRateCoeff(w, 1.0e2);
+setExpansionRateCoeff(w, 1.0);
 
 network = ReactorNet({r});
 % setTolerances(network, 1.0e-8, 1.0e-12);
