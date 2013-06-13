@@ -120,7 +120,7 @@ public:
      *  @param compModelNode   `<compositionDependence>` XML node
      *  @param thermo          Pointer to thermo object
      */
-    virtual void init(const XML_Node& compModelNode = 0,
+    virtual void init(const XML_Node& compModelNode = XML_Node(),
                       thermo_t* thermo = 0);
 
     virtual void setParameters(LiquidTransportParams& trParam) {

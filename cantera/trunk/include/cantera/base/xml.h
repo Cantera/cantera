@@ -100,15 +100,6 @@ public:
 class XML_Node
 {
 public:
-    //! Default constructor for XML_Node, representing a tree structure
-    /*!
-     *  Constructor for an XML_Node, which is a node in a tree-like structure
-     *  representing an XML file.
-     *
-     *  @param cnm  Name of the node. The default name of the node is "`--`"
-     */
-    XML_Node(const char* cnm = 0);
-
     //! Constructor for XML_Node, representing a tree structure
     /*!
      *  @param nm  Name of the node.
@@ -116,7 +107,7 @@ public:
      *  @param parent   Pointer to the parent for this node in the tree.
      *                  A value of 0 indicates this is the top of the tree.
      */
-    XML_Node(const std::string& nm, XML_Node* const parent);
+    explicit XML_Node(const std::string& nm="--", XML_Node* const parent=0);
 
     XML_Node(const XML_Node& right);
     XML_Node& operator=(const XML_Node& right);

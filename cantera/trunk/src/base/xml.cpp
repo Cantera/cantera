@@ -309,24 +309,6 @@ std::string XML_Reader::readValue()
 
 //////////////////////////  XML_Node  /////////////////////////////////
 
-XML_Node::XML_Node(const char* cnm)  :
-    m_name(""),
-    m_value(""),
-    m_parent(0),
-    m_root(0),
-    m_locked(false),
-    m_nchildren(0),
-    m_iscomment(false) ,
-    m_linenum(0)
-{
-    if (! cnm) {
-        m_name = "--";
-    } else {
-        m_name = cnm;
-    }
-    m_root = this;
-}
-
 XML_Node::XML_Node(const std::string& nm, XML_Node* const parent_) :
     m_name(nm),
     m_value(""),
