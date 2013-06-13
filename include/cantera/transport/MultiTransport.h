@@ -8,10 +8,6 @@
 #ifndef CT_MULTITRAN_H
 #define CT_MULTITRAN_H
 
-// Define this for better agreement with Chemkin TRANLIB results, even
-// if the results are less correct.
-//#undef CHEMKIN_COMPATIBILITY_MODE
-
 // Cantera includes
 #include "GasTransport.h"
 #include "cantera/numerics/DenseMatrix.h"

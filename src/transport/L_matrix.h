@@ -17,11 +17,7 @@ const doublereal Min_C_Internal = 0.001;
 
 bool MultiTransport::hasInternalModes(size_t j)
 {
-#ifdef CHEMKIN_COMPATIBILITY_MODE
-    return (m_crot[j] > Min_C_Internal);
-#else
     return (m_cinternal[j] > Min_C_Internal);
-#endif
 }
 
 void MultiTransport::eval_L0000(const doublereal* const x)
