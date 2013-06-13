@@ -30,8 +30,6 @@
 namespace Cantera
 {
 
-#undef CHEMKIN_COMPATIBILITY_MODE
-
 //! Creates a pointer to the start of the raw data for a vector
 #ifndef DATA_PTR
 #define DATA_PTR(vec) &vec[0]

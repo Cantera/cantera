@@ -165,9 +165,6 @@ void MultiTransport::solveLMatrixEquation()
     // all *monatomic* species are excluded. Since monatomic
     // radicals can have non-zero internal heat capacities due to
     // electronic excitation, they should be retained.
-    //
-    // But if CHEMKIN_COMPATIBILITY_MODE is defined, then all
-    // monatomic species are excluded.
 
     for (size_t k = 0; k < m_nsp; k++) {
         if (!hasInternalModes(k)) {
