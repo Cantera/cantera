@@ -613,36 +613,6 @@ protected:
      */
     std::vector<std::vector<bool> > m_rxnPhaseIsProduct;
 
-#ifdef KINETICS_WITH_INTERMEDIATE_ZEROED_PHASES
-    //! Vector of ints indicating whether zeroed phase is an intermediate for
-    //! the formation of another phase
-    /*!
-     *  If a phase is zeroed out but it is an intermediate, then the phase can
-     *  be formed whether it is stable or not, but the destruction rate of
-     *  species in that phase can't exceed the formation rate for species in
-     *  that phase.
-     *
-     *  length = number of phases in the object. By default all phases are not
-     *  intermediates
-     */
-    std::vector<int> m_phaseIsIntermediate;
-    int m_numIntermediatePhases;
-
-    //! Reaction rate reduction factor for intermediates
-    /*!
-     *  Individual reaction rates are reduced to accommodate the requirements of intermediate
-     *  zero phases.
-     *
-     *  length = number of reactions in the object. By default all phases are
-     *  not intermediates.
-     */
-    std::vector<doublereal> m_rxnRateFactorPhaseIntermediates;
-
-    //! Work vector having length number of species
-    std::vector<doublereal> m_speciesTmpP;
-    std::vector<doublereal> m_speciesTmpD;
-#endif
-
     int m_ioFlag;
 };
 }

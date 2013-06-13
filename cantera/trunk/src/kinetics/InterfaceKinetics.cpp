@@ -606,33 +606,6 @@ void InterfaceKinetics::updateROP()
     m_ROP_ok = true;
 }
 
-#ifdef KINETICS_WITH_INTERMEDIATE_ZEROED_PHASES
-//=================================================================================================
-InterfaceKinetics::adjustRatesForIntermediatePhases()
-{
-    doublereal sFac = 1.0;
-
-    getCreatingRates(DATA_PTR(m_speciestmpP));
-    getDestructionRates(DATA_PTR(m_speciestmpD));
-
-    for (iphase = 0; iphase < nphases; iphase++) {
-        if (m_intermediatePhases(iphase)) {
-            for (isp = 0; isp < nspecies; isp++) {
-                if (m_speciesTmpD[ispI] > m_speciesTmpP[I]) {
-                    sFac = m_speciesTmpD[ispI]/ m_speciesTmpP[I];
-                }
-                // Loop over reactions that are reactants for the species in the phase
-                // reducing their rates.
-
-
-            }
-        }
-
-    }
-
-}
-#endif
-
 void InterfaceKinetics::getDeltaGibbs(doublereal* deltaG)
 {
     /*
