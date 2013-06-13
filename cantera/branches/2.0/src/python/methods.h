@@ -91,6 +91,7 @@ static PyMethodDef ct_methods[] = {
     {"ct_refcnt", ct_refcnt,  METH_VARARGS},
     {"ct_ck2cti", ct_ck2cti,  METH_VARARGS},
     {"ct_writelogfile", ct_writelogfile,  METH_VARARGS},
+    {"ct_get_version", ct_get_version, METH_VARARGS},
     //{"readlog", ct_readlog,  METH_VARARGS},
     //{"buildSolutionFromXML", ct_buildSolutionFromXML, METH_VARARGS},
 

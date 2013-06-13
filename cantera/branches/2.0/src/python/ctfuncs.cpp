@@ -102,7 +102,7 @@ ct_writelogfile(PyObject* self, PyObject* args)
     return Py_BuildValue("i",iok);
 }
 
-
-
-
-
+static PyObject* ct_get_version(PyObject* self, PyObject* args)
+{
+    return Py_BuildValue("s",std::string(CANTERA_VERSION).c_str());
+}
