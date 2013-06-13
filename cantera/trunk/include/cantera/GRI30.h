@@ -18,6 +18,7 @@ namespace Cantera
  * class GRI_30_Kinetics, which is the kinetics manager with
  * hard-wired replacements for some of the generic kinetics
  * methods like "getNetReactionRates."
+ * @deprecated
  */
 class GRI30 :
     public IdealGasPhase,
