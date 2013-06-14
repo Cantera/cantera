@@ -139,7 +139,6 @@ protected:
     //! conductivity and thermal diffusion coefficients.
     void updateThermal_T();
 
-private:
     doublereal m_thermal_tlast;
 
     // property values
@@ -170,7 +169,7 @@ public:
     vector_fp   m_alpha;
     DenseMatrix   m_dipole;
 
-private:
+protected:
     vector_fp  m_sqrt_eps_k;
     DenseMatrix m_log_eps_k;
     vector_fp  m_frot_298;
@@ -226,7 +225,7 @@ private:
         return m_thermo->molarDensity() * GasConstant * m_thermo->temperature();
     }
 
-    void solveLMatrixEquation();
+    virtual void solveLMatrixEquation();
     DenseMatrix incl;
     bool m_debug;
 };
