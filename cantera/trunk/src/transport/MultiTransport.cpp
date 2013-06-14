@@ -513,8 +513,6 @@ void MultiTransport::update_C()
             m_lmatrix_soln_ok = false;
         }
     }
-    m_l0000_ok = false;
-    m_lmatrix_soln_ok = false;
 }
 
 void MultiTransport::updateThermal_T()
