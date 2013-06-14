@@ -61,6 +61,9 @@ if localenv['OS'] in ('Darwin', 'Windows'):
     if (localenv['use_sundials'] == 'y'):
         localenv.Append(LIBS=localenv['sundials_libs'],
                         LIBPATH=localenv['sundials_libdir'])
+    if localenv['blas_lapack_libs']:
+        localenv.Append(LIBS=localenv['blas_lapack_libs'],
+                        LIBPATH=localenv['blas_lapack_dir'])
 
 if localenv['toolchain'] == 'mingw':
     localenv.Append(LINKFLAGS=['-static-libgcc', '-static-libstdc++'])
