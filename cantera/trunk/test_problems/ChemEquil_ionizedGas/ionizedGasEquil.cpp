@@ -55,15 +55,21 @@ int main(int argc, char** argv)
                 gas->setState_UV(IndVar2[j]+offset,1.0/IndVar1[i]);
                 double tkelvin = gas->temperature();
                 double pres = gas->pressure();
-                printf("Initial T = %g, pres = %g atm \n", tkelvin, pres/OneAtm);
+                printf("Initial T = %g, pres = %g atm\n", tkelvin, pres/OneAtm);
+
                 beginLogGroup("topEquil", -1);
-                equilibrate(*gas,"UV", -1);
+                equilibrate(*gas,"UV", 0, 1e-12);
                 endLogGroup("topEquil");
-                cout << gas->report() << endl;
 
                 tkelvin = gas->temperature();
                 pres = gas->pressure();
                 printf("Final T = %g, pres = %g atm\n", tkelvin, pres/OneAtm);
+                cout << "enthalpy = " << gas->enthalpy_mass() << endl;
+                cout << "entropy = " << gas->entropy_mass() << endl;
+                cout << "Gibbs function = " << gas->gibbs_mass() << endl;
+                cout << "heat capacity c_p = " << gas->cp_mass() << endl;
+                cout << "heat capacity c_v = " << gas->cv_mass() << endl << endl;
+
                 gas->getMoleFractions(DATA_PTR(Xmol));
                 fprintf(FF,"%10.4g, %10.4g,", tkelvin, pres);
                 for (size_t k = 0; k < kk; k++) {

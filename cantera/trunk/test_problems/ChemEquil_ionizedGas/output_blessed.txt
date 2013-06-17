@@ -1,1386 +1,336 @@
-Initial T = 207.283, pres = 5.89439e-09 atm 
- 
-  air_below6000K:
- 
-       temperature         207.283  K
-          pressure     0.000597249  Pa
-           density           1e-08  kg/m^3
-  mean mol. weight         28.8565  amu
- 
-                          1 kg            1 kmol
-                       -----------      ------------
-          enthalpy        -91746.5       -2.647e+06     J
-   internal energy         -151471       -4.371e+06     J
-           entropy         11980.8        3.457e+05     J/K
-    Gibbs function    -2.57518e+06       -7.431e+07     J
- heat capacity c_p         1009.36        2.913e+04     J/K
- heat capacity c_v         721.229        2.081e+04     J/K
- 
-                           X                 Y          Chem. Pot. / RT    
-                     -------------     ------------     ------------
-                N2        0.78847         0.765436         -42.4943
-                O2        0.21153         0.234564         -45.4397
-                 N   9.55489e-113     4.63788e-113         -21.2471
-                 O    1.18074e-56      6.54656e-57         -22.7198
-                NO    1.82545e-23      1.89817e-23          -43.967
-               NO+   2.10356e-228     2.18733e-228          7.59466
-          Electron   2.10356e-228     3.97291e-233         -545.901
-                N+              0                0     
-                O+              0                0     
-               N2+              0                0     
-               O2+   2.80992e-274     3.11585e-274          6.12197
-
+Initial T = 207.283, pres = 5.89439e-09 atm
 Final T = 207.283, pres = 5.89439e-09 atm
-Initial T = 207.283, pres = 5.89439e-08 atm 
- 
-  air_below6000K:
- 
-       temperature         207.283  K
-          pressure      0.00597249  Pa
-           density           1e-07  kg/m^3
-  mean mol. weight         28.8565  amu
- 
-                          1 kg            1 kmol
-                       -----------      ------------
-          enthalpy        -91746.5       -2.647e+06     J
-   internal energy         -151471       -4.371e+06     J
-           entropy         11317.4        3.266e+05     J/K
-    Gibbs function    -2.43765e+06       -7.034e+07     J
- heat capacity c_p         1009.36        2.913e+04     J/K
- heat capacity c_v         721.229        2.081e+04     J/K
- 
-                           X                 Y          Chem. Pot. / RT    
-                     -------------     ------------     ------------
-                N2        0.78847         0.765436         -40.1917
-                O2        0.21153         0.234564         -43.1371
-                 N   3.02152e-113     1.46663e-113         -20.0959
-                 O    3.73382e-57       2.0702e-57         -21.5685
-                NO    1.82545e-23      1.89817e-23         -41.6644
-               NO+   1.89281e-229     1.96818e-229          7.48909
-          Electron   1.89281e-229     3.57487e-234         -546.007
-                N+              0                0     
-                O+              0                0     
-               N2+              0                0     
-               O2+   2.52839e-275     2.80367e-275           6.0164
+enthalpy = -91746.5
+entropy = 11980.8
+Gibbs function = -2.57518e+06
+heat capacity c_p = 1009.36
+heat capacity c_v = 721.229
 
+Initial T = 207.283, pres = 5.89439e-08 atm
 Final T = 207.283, pres = 5.89439e-08 atm
-Initial T = 207.283, pres = 5.89439e-07 atm 
- 
-  air_below6000K:
- 
-       temperature         207.283  K
-          pressure       0.0597249  Pa
-           density           1e-06  kg/m^3
-  mean mol. weight         28.8565  amu
- 
-                          1 kg            1 kmol
-                       -----------      ------------
-          enthalpy        -91746.5       -2.647e+06     J
-   internal energy         -151471       -4.371e+06     J
-           entropy         10653.9        3.074e+05     J/K
-    Gibbs function    -2.30013e+06       -6.637e+07     J
- heat capacity c_p         1009.36        2.913e+04     J/K
- heat capacity c_v         721.229        2.081e+04     J/K
- 
-                           X                 Y          Chem. Pot. / RT    
-                     -------------     ------------     ------------
-                N2        0.78847         0.765436         -37.8891
-                O2        0.21153         0.234564         -40.8345
-                 N   9.55489e-114     4.63788e-114         -18.9446
-                 O    1.18074e-57      6.54656e-58         -20.4172
-                NO    1.82545e-23      1.89817e-23         -39.3618
-               NO+   2.37697e-230     2.47162e-230          7.71685
-          Electron   2.37697e-230     4.48927e-235         -545.779
-                N+              0                0     
-                O+              0                0     
-               N2+              0                0     
-               O2+   3.17512e-276     3.52082e-276          6.24416
+enthalpy = -91746.5
+entropy = 11317.4
+Gibbs function = -2.43765e+06
+heat capacity c_p = 1009.36
+heat capacity c_v = 721.229
 
+Initial T = 207.283, pres = 5.89439e-07 atm
 Final T = 207.283, pres = 5.89439e-07 atm
-Initial T = 207.283, pres = 5.89439e-06 atm 
- 
-  air_below6000K:
- 
-       temperature         207.283  K
-          pressure        0.597249  Pa
-           density           1e-05  kg/m^3
-  mean mol. weight         28.8565  amu
- 
-                          1 kg            1 kmol
-                       -----------      ------------
-          enthalpy        -91746.5       -2.647e+06     J
-   internal energy         -151471       -4.371e+06     J
-           entropy          9990.5        2.883e+05     J/K
-    Gibbs function    -2.16261e+06       -6.241e+07     J
- heat capacity c_p         1009.36        2.913e+04     J/K
- heat capacity c_v         721.229        2.081e+04     J/K
- 
-                           X                 Y          Chem. Pot. / RT    
-                     -------------     ------------     ------------
-                N2        0.78847         0.765436         -35.5865
-                O2        0.21153         0.234564         -38.5319
-                 N   3.02152e-114     1.46663e-114         -17.7933
-                 O    3.73382e-58       2.0702e-58          -19.266
-                NO    1.82545e-23      1.89817e-23         -37.0592
-               NO+   2.13882e-231     2.22399e-231          7.61128
-          Electron   2.13882e-231     4.03949e-236         -545.885
-                N+              0                0     
-                O+              0                0     
-               N2+              0                0     
-               O2+   2.85701e-277     3.16807e-277          6.13859
+enthalpy = -91746.5
+entropy = 10653.9
+Gibbs function = -2.30013e+06
+heat capacity c_p = 1009.36
+heat capacity c_v = 721.229
 
+Initial T = 207.283, pres = 5.89439e-06 atm
 Final T = 207.283, pres = 5.89439e-06 atm
-Initial T = 207.283, pres = 5.89439e-05 atm 
- 
-  air_below6000K:
- 
-       temperature         207.283  K
-          pressure         5.97249  Pa
-           density          0.0001  kg/m^3
-  mean mol. weight         28.8565  amu
- 
-                          1 kg            1 kmol
-                       -----------      ------------
-          enthalpy        -91746.5       -2.647e+06     J
-   internal energy         -151471       -4.371e+06     J
-           entropy         9327.05        2.691e+05     J/K
-    Gibbs function    -2.02509e+06       -5.844e+07     J
- heat capacity c_p         1009.36        2.913e+04     J/K
- heat capacity c_v         721.229        2.081e+04     J/K
- 
-                           X                 Y          Chem. Pot. / RT    
-                     -------------     ------------     ------------
-                N2        0.78847         0.765436         -33.2839
-                O2        0.21153         0.234564         -36.2293
-                 N   9.55489e-115     4.63788e-115          -16.642
-                 O    1.18074e-58      6.54656e-59         -18.1147
-                NO    1.82545e-23      1.89817e-23         -34.7566
-               NO+   1.92453e-232     2.00117e-232          7.50571
-          Electron   1.92453e-232     3.63478e-237          -545.99
-                N+              0                0     
-                O+              0                0     
-               N2+              0                0     
-               O2+   2.57077e-278     2.85066e-278          6.03302
+enthalpy = -91746.5
+entropy = 9990.5
+Gibbs function = -2.16261e+06
+heat capacity c_p = 1009.36
+heat capacity c_v = 721.229
 
+Initial T = 207.283, pres = 5.89439e-05 atm
 Final T = 207.283, pres = 5.89439e-05 atm
-Initial T = 207.283, pres = 0.000589439 atm 
- 
-  air_below6000K:
- 
-       temperature         207.283  K
-          pressure         59.7249  Pa
-           density           0.001  kg/m^3
-  mean mol. weight         28.8565  amu
- 
-                          1 kg            1 kmol
-                       -----------      ------------
-          enthalpy        -91746.5       -2.647e+06     J
-   internal energy         -151471       -4.371e+06     J
-           entropy          8663.6          2.5e+05     J/K
-    Gibbs function    -1.88757e+06       -5.447e+07     J
- heat capacity c_p         1009.36        2.913e+04     J/K
- heat capacity c_v         721.229        2.081e+04     J/K
- 
-                           X                 Y          Chem. Pot. / RT    
-                     -------------     ------------     ------------
-                N2        0.78847         0.765436         -30.9814
-                O2        0.21153         0.234564         -33.9267
-                 N   3.02152e-115     1.46663e-115         -15.4907
-                 O    3.73382e-59       2.0702e-59         -16.9634
-                NO    1.82545e-23      1.89817e-23          -32.454
-               NO+   1.73171e-233     1.80067e-233          7.40014
-          Electron   1.73171e-233     3.27061e-238         -546.096
-                N+              0                0     
-                O+              0                0     
-               N2+              0                0     
-               O2+    2.3132e-279     2.56505e-279          5.92745
+enthalpy = -91746.5
+entropy = 9327.05
+Gibbs function = -2.02509e+06
+heat capacity c_p = 1009.36
+heat capacity c_v = 721.229
 
+Initial T = 207.283, pres = 0.000589439 atm
 Final T = 207.283, pres = 0.000589439 atm
-Initial T = 207.283, pres = 0.00589439 atm 
- 
-  air_below6000K:
- 
-       temperature         207.283  K
-          pressure         597.249  Pa
-           density            0.01  kg/m^3
-  mean mol. weight         28.8565  amu
- 
-                          1 kg            1 kmol
-                       -----------      ------------
-          enthalpy        -91746.5       -2.647e+06     J
-   internal energy         -151471       -4.371e+06     J
-           entropy         8000.16        2.309e+05     J/K
-    Gibbs function    -1.75005e+06        -5.05e+07     J
- heat capacity c_p         1009.36        2.913e+04     J/K
- heat capacity c_v         721.229        2.081e+04     J/K
- 
-                           X                 Y          Chem. Pot. / RT    
-                     -------------     ------------     ------------
-                N2        0.78847         0.765436         -28.6788
-                O2        0.21153         0.234564         -31.6242
-                 N   9.55489e-116     4.63788e-116         -14.3394
-                 O    1.18074e-59      6.54656e-60         -15.8121
-                NO    1.82545e-23      1.89817e-23         -30.1515
-               NO+   2.17466e-234     2.26126e-234           7.6279
-          Electron   2.17466e-234     4.10719e-239         -545.868
-                N+              0                0     
-                O+              0                0     
-               N2+              0                0     
-               O2+   2.90489e-280     3.22116e-280          6.15521
+enthalpy = -91746.5
+entropy = 8663.6
+Gibbs function = -1.88757e+06
+heat capacity c_p = 1009.36
+heat capacity c_v = 721.229
 
+Initial T = 207.283, pres = 0.00589439 atm
 Final T = 207.283, pres = 0.00589439 atm
-Initial T = 414.143, pres = 1.17767e-08 atm 
- 
-  air_below6000K:
- 
-       temperature         414.143  K
-          pressure      0.00119328  Pa
-           density           1e-08  kg/m^3
-  mean mol. weight         28.8565  amu
- 
-                          1 kg            1 kmol
-                       -----------      ------------
-          enthalpy          117856        3.401e+06     J
-   internal energy        -1471.39       -4.246e+04     J
-           entropy         12482.2        3.602e+05     J/K
-    Gibbs function    -5.05157e+06       -1.458e+08     J
- heat capacity c_p         1022.57        2.951e+04     J/K
- heat capacity c_v         734.437        2.119e+04     J/K
- 
-                           X                 Y          Chem. Pot. / RT    
-                     -------------     ------------     ------------
-                N2        0.78847         0.765436         -41.7103
-                O2        0.21153         0.234564         -44.6571
-                 N    2.06855e-53      1.00406e-53         -20.8551
-                 O     1.8737e-25      1.03887e-25         -22.3285
-                NO    5.58574e-12      5.80828e-12         -43.1837
-               NO+   1.18328e-103      1.2304e-103          8.47393
-          Electron   1.18328e-103     2.23481e-108         -257.896
-                N+   2.11704e-208     1.02756e-208          30.8025
-                O+   8.94877e-170     4.96145e-170          29.3291
-               N2+   1.83077e-168     1.77725e-168          9.94734
-               O2+   9.54009e-127     1.05788e-126          7.00053
+enthalpy = -91746.5
+entropy = 8000.16
+Gibbs function = -1.75005e+06
+heat capacity c_p = 1009.36
+heat capacity c_v = 721.229
 
+Initial T = 414.143, pres = 1.17767e-08 atm
 Final T = 414.143, pres = 1.17767e-08 atm
-Initial T = 414.143, pres = 1.17767e-07 atm 
- 
-  air_below6000K:
- 
-       temperature         414.143  K
-          pressure       0.0119328  Pa
-           density           1e-07  kg/m^3
-  mean mol. weight         28.8565  amu
- 
-                          1 kg            1 kmol
-                       -----------      ------------
-          enthalpy          117856        3.401e+06     J
-   internal energy        -1471.39       -4.246e+04     J
-           entropy         11818.8         3.41e+05     J/K
-    Gibbs function    -4.77681e+06       -1.378e+08     J
- heat capacity c_p         1022.57        2.951e+04     J/K
- heat capacity c_v         734.437        2.119e+04     J/K
- 
-                           X                 Y          Chem. Pot. / RT    
-                     -------------     ------------     ------------
-                N2        0.78847         0.765436         -39.4077
-                O2        0.21153         0.234564         -42.3545
-                 N    6.54134e-54      3.17512e-54         -19.7038
-                 O    5.92517e-26      3.28519e-26         -21.1772
-                NO    5.58574e-12      5.80828e-12         -40.8811
-               NO+   7.31103e-104     7.60217e-104           10.295
-          Electron   7.31103e-104      1.3808e-108         -256.075
-                N+   4.13637e-209     2.00769e-209          31.4723
-                O+   1.74845e-170     9.69391e-171          29.9989
-               N2+   1.13116e-168     1.09809e-168          11.7684
-               O2+   5.89445e-127     6.53621e-127          8.82162
+enthalpy = 117856
+entropy = 12482.2
+Gibbs function = -5.05157e+06
+heat capacity c_p = 1022.57
+heat capacity c_v = 734.437
 
+Initial T = 414.143, pres = 1.17767e-07 atm
 Final T = 414.143, pres = 1.17767e-07 atm
-Initial T = 414.143, pres = 1.17767e-06 atm 
- 
-  air_below6000K:
- 
-       temperature         414.143  K
-          pressure        0.119328  Pa
-           density           1e-06  kg/m^3
-  mean mol. weight         28.8565  amu
- 
-                          1 kg            1 kmol
-                       -----------      ------------
-          enthalpy          117856        3.401e+06     J
-   internal energy        -1471.39       -4.246e+04     J
-           entropy         11155.3        3.219e+05     J/K
-    Gibbs function    -4.50205e+06       -1.299e+08     J
- heat capacity c_p         1022.57        2.951e+04     J/K
- heat capacity c_v         734.437        2.119e+04     J/K
- 
-                           X                 Y          Chem. Pot. / RT    
-                     -------------     ------------     ------------
-                N2        0.78847         0.765436         -37.1051
-                O2        0.21153         0.234564         -40.0519
-                 N    2.06855e-54      1.00406e-54         -18.5525
-                 O     1.8737e-26      1.03887e-26          -20.026
-                NO    5.58574e-12      5.80828e-12         -38.5785
-               NO+    4.5172e-104     4.69708e-104          12.1161
-          Electron    4.5172e-104     8.53144e-109         -254.254
-                N+   8.08184e-210     3.92271e-210          32.1421
-                O+   3.41621e-171     1.89404e-171          30.6687
-               N2+   6.98901e-169      6.7847e-169          13.5895
-               O2+   3.64195e-127     4.03846e-127          10.6427
+enthalpy = 117856
+entropy = 11818.8
+Gibbs function = -4.77681e+06
+heat capacity c_p = 1022.57
+heat capacity c_v = 734.437
 
+Initial T = 414.143, pres = 1.17767e-06 atm
 Final T = 414.143, pres = 1.17767e-06 atm
-Initial T = 414.143, pres = 1.17767e-05 atm 
- 
-  air_below6000K:
- 
-       temperature         414.143  K
-          pressure         1.19328  Pa
-           density           1e-05  kg/m^3
-  mean mol. weight         28.8565  amu
- 
-                          1 kg            1 kmol
-                       -----------      ------------
-          enthalpy          117856        3.401e+06     J
-   internal energy        -1471.39       -4.246e+04     J
-           entropy         10491.9        3.028e+05     J/K
-    Gibbs function    -4.22728e+06        -1.22e+08     J
- heat capacity c_p         1022.57        2.951e+04     J/K
- heat capacity c_v         734.437        2.119e+04     J/K
- 
-                           X                 Y          Chem. Pot. / RT    
-                     -------------     ------------     ------------
-                N2        0.78847         0.765436         -34.8025
-                O2        0.21153         0.234564         -37.7493
-                 N    6.54134e-55      3.17512e-55         -17.4013
-                 O    5.92517e-27      3.28519e-27         -18.8747
-                NO    5.58574e-12      5.80828e-12         -36.2759
-               NO+     2.791e-104     2.90214e-104          13.9372
-          Electron     2.791e-104     5.27124e-109         -252.432
-                N+   1.57907e-210     7.66438e-211          32.8119
-                O+   6.67475e-172     3.70067e-172          31.3385
-               N2+   4.31823e-169       4.192e-169          15.4106
-               O2+   2.25021e-127     2.49521e-127          12.4638
+enthalpy = 117856
+entropy = 11155.3
+Gibbs function = -4.50205e+06
+heat capacity c_p = 1022.57
+heat capacity c_v = 734.437
 
+Initial T = 414.143, pres = 1.17767e-05 atm
 Final T = 414.143, pres = 1.17767e-05 atm
-Initial T = 414.143, pres = 0.000117767 atm 
- 
-  air_below6000K:
- 
-       temperature         414.143  K
-          pressure         11.9328  Pa
-           density          0.0001  kg/m^3
-  mean mol. weight         28.8565  amu
- 
-                          1 kg            1 kmol
-                       -----------      ------------
-          enthalpy          117856        3.401e+06     J
-   internal energy        -1471.39       -4.246e+04     J
-           entropy         9828.43        2.836e+05     J/K
-    Gibbs function    -3.95252e+06       -1.141e+08     J
- heat capacity c_p         1022.57        2.951e+04     J/K
- heat capacity c_v         734.437        2.119e+04     J/K
- 
-                           X                 Y          Chem. Pot. / RT    
-                     -------------     ------------     ------------
-                N2        0.78847         0.765436         -32.4999
-                O2        0.21153         0.234564         -35.4467
-                 N    2.06855e-55      1.00406e-55           -16.25
-                 O     1.8737e-27      1.03887e-27         -17.7234
-                NO    5.58574e-12      5.80828e-12         -33.9733
-               NO+   1.72445e-104     1.79312e-104          15.7583
-          Electron   1.72445e-104     3.25689e-109         -250.611
-                N+   3.08525e-211      1.4975e-211          33.4817
-                O+   1.30414e-172     7.23054e-173          32.0083
-               N2+   2.66806e-169     2.59007e-169          17.2317
-               O2+   1.39032e-127     1.54169e-127          14.2849
+enthalpy = 117856
+entropy = 10491.9
+Gibbs function = -4.22728e+06
+heat capacity c_p = 1022.57
+heat capacity c_v = 734.437
 
+Initial T = 414.143, pres = 0.000117767 atm
 Final T = 414.143, pres = 0.000117767 atm
-Initial T = 414.143, pres = 0.00117767 atm 
- 
-  air_below6000K:
- 
-       temperature         414.143  K
-          pressure         119.328  Pa
-           density           0.001  kg/m^3
-  mean mol. weight         28.8565  amu
- 
-                          1 kg            1 kmol
-                       -----------      ------------
-          enthalpy          117856        3.401e+06     J
-   internal energy        -1471.39       -4.246e+04     J
-           entropy         9164.98        2.645e+05     J/K
-    Gibbs function    -3.67776e+06       -1.061e+08     J
- heat capacity c_p         1022.57        2.951e+04     J/K
- heat capacity c_v         734.437        2.119e+04     J/K
- 
-                           X                 Y          Chem. Pot. / RT    
-                     -------------     ------------     ------------
-                N2        0.78847         0.765436         -30.1973
-                O2        0.21153         0.234564         -33.1441
-                 N    6.54134e-56      3.17512e-56         -15.0987
-                 O    5.92517e-28      3.28519e-28         -16.5721
-                NO    5.58574e-12      5.80828e-12         -31.6707
-               NO+   1.06547e-104      1.1079e-104          17.5794
-          Electron   1.06547e-104      2.0123e-109          -248.79
-                N+   6.02811e-212     2.92589e-212          34.1515
-                O+    2.5481e-173     1.41274e-173          32.6781
-               N2+   1.64849e-169      1.6003e-169          19.0528
-               O2+   8.59023e-128     9.52549e-128           16.106
+enthalpy = 117856
+entropy = 9828.43
+Gibbs function = -3.95252e+06
+heat capacity c_p = 1022.57
+heat capacity c_v = 734.437
 
+Initial T = 414.143, pres = 0.00117767 atm
 Final T = 414.143, pres = 0.00117767 atm
-Initial T = 414.143, pres = 0.0117767 atm 
- 
-  air_below6000K:
- 
-       temperature         414.143  K
-          pressure         1193.28  Pa
-           density            0.01  kg/m^3
-  mean mol. weight         28.8565  amu
- 
-                          1 kg            1 kmol
-                       -----------      ------------
-          enthalpy          117856        3.401e+06     J
-   internal energy        -1471.39       -4.246e+04     J
-           entropy         8501.54        2.453e+05     J/K
-    Gibbs function      -3.403e+06        -9.82e+07     J
- heat capacity c_p         1022.57        2.951e+04     J/K
- heat capacity c_v         734.437        2.119e+04     J/K
- 
-                           X                 Y          Chem. Pot. / RT    
-                     -------------     ------------     ------------
-                N2        0.78847         0.765436         -27.8948
-                O2        0.21153         0.234564         -30.8416
-                 N    2.06855e-56      1.00406e-56         -13.9474
-                 O     1.8737e-28      1.03887e-28         -15.4208
-                NO    5.58574e-12      5.80828e-12         -29.3682
-               NO+   6.58311e-105     6.84526e-105          19.4005
-          Electron   6.58311e-105     1.24332e-109         -246.969
-                N+    1.1778e-212     5.71674e-213          34.8213
-                O+   4.97859e-174     2.76027e-174          33.3479
-               N2+   1.01854e-169     9.88763e-170          20.8739
-               O2+   5.30756e-128     5.88543e-128          17.9271
+enthalpy = 117856
+entropy = 9164.98
+Gibbs function = -3.67776e+06
+heat capacity c_p = 1022.57
+heat capacity c_v = 734.437
 
+Initial T = 414.143, pres = 0.0117767 atm
 Final T = 414.143, pres = 0.0117767 atm
-Initial T = 1153.16, pres = 3.27918e-08 atm 
- 
-  air_below6000K:
- 
-       temperature         1152.47  K
-          pressure      0.00332065  Pa
-           density           1e-08  kg/m^3
-  mean mol. weight         28.8562  amu
- 
-                          1 kg            1 kmol
-                       -----------      ------------
-          enthalpy          930594        2.685e+07     J
-   internal energy          598529        1.727e+07     J
-           entropy         13299.8        3.838e+05     J/K
-    Gibbs function    -1.43969e+07       -4.154e+08     J
- heat capacity c_p         1172.94        3.385e+04     J/K
- heat capacity c_v         884.809        2.553e+04     J/K
- 
-                           X                 Y          Chem. Pot. / RT    
-                     -------------     ------------     ------------
-                N2       0.788394          0.76537         -42.7126
-                O2       0.211449         0.234477          -45.755
-                 N    2.86322e-15       1.3898e-15         -21.3563
-                 O    2.23429e-05      1.23881e-05         -22.8775
-                NO    0.000134495      0.000139855         -44.2338
-               NO+    9.19182e-24      9.55796e-24          7.08711
-          Electron    9.19182e-24      1.73604e-28         -74.3236
-                N+    1.62618e-56      7.89313e-57          29.9646
-                O+    3.10638e-43      1.72229e-43          28.4434
-               N2+    1.23319e-46      1.19715e-46          8.60828
-               O2+    3.28017e-32      3.63734e-32          5.56594
+enthalpy = 117856
+entropy = 8501.54
+Gibbs function = -3.403e+06
+heat capacity c_p = 1022.57
+heat capacity c_v = 734.437
 
+Initial T = 1153.16, pres = 3.27918e-08 atm
 Final T = 1152.47, pres = 3.27723e-08 atm
-Initial T = 1152.47, pres = 3.27723e-07 atm 
- 
-  air_below6000K:
- 
-       temperature         1152.61  K
-          pressure       0.0332105  Pa
-           density           1e-07  kg/m^3
-  mean mol. weight         28.8564  amu
- 
-                          1 kg            1 kmol
-                       -----------      ------------
-          enthalpy          930634        2.685e+07     J
-   internal energy          598529        1.727e+07     J
-           entropy         12636.3        3.646e+05     J/K
-    Gibbs function    -1.36341e+07       -3.934e+08     J
- heat capacity c_p         1172.96        3.385e+04     J/K
- heat capacity c_v         884.832        2.553e+04     J/K
- 
-                           X                 Y          Chem. Pot. / RT    
-                     -------------     ------------     ------------
-                N2         0.7884          0.76537         -40.4103
-                O2       0.211458         0.234486         -43.4526
-                 N    9.11178e-16      4.42281e-16         -20.2051
-                 O    7.08916e-06      3.93058e-06         -21.7263
-                NO    0.000134663      0.000140029         -41.9314
-               NO+    2.46459e-23      2.56275e-23          10.3625
-          Electron    2.46459e-23      4.65479e-28         -71.0349
-                N+    1.39537e-56      6.77277e-57          32.0888
-                O+    2.65434e-43      1.47165e-43          30.5676
-               N2+    3.32956e-46      3.23224e-46          11.8837
-               O2+    8.81663e-32      9.77658e-32          8.84134
+enthalpy = 930594
+entropy = 13299.8
+Gibbs function = -1.43969e+07
+heat capacity c_p = 1172.94
+heat capacity c_v = 884.809
 
+Initial T = 1152.47, pres = 3.27723e-07 atm
 Final T = 1152.61, pres = 3.27762e-07 atm
-Initial T = 1152.61, pres = 3.27762e-06 atm 
- 
-  air_below6000K:
- 
-       temperature         1152.66  K
-          pressure        0.332118  Pa
-           density           1e-06  kg/m^3
-  mean mol. weight         28.8565  amu
- 
-                          1 kg            1 kmol
-                       -----------      ------------
-          enthalpy          930647        2.686e+07     J
-   internal energy          598529        1.727e+07     J
-           entropy         11972.9        3.455e+05     J/K
-    Gibbs function      -1.287e+07       -3.714e+08     J
- heat capacity c_p         1172.97        3.385e+04     J/K
- heat capacity c_v         884.839        2.553e+04     J/K
- 
-                           X                 Y          Chem. Pot. / RT    
-                     -------------     ------------     ------------
-                N2       0.788402          0.76537         -38.1078
-                O2       0.211461         0.234488         -41.1501
-                 N     2.8872e-16      1.40143e-16         -19.0539
-                 O    2.24418e-06      1.24428e-06          -20.575
-                NO    0.000134717      0.000140084         -39.6289
-               NO+     6.5493e-23      6.81011e-23          13.6381
-          Electron     6.5493e-23      1.23694e-27          -67.755
-                N+    1.17701e-56      5.71292e-57          34.2132
-                O+      2.236e-43       1.2397e-43           32.692
-               N2+    8.86734e-46      8.60813e-46          15.1593
-               O2+    2.34471e-31          2.6e-31           12.117
+enthalpy = 930634
+entropy = 12636.3
+Gibbs function = -1.36341e+07
+heat capacity c_p = 1172.96
+heat capacity c_v = 884.832
 
+Initial T = 1152.61, pres = 3.27762e-06 atm
 Final T = 1152.66, pres = 3.27775e-06 atm
-Initial T = 1152.66, pres = 3.27775e-05 atm 
- 
-  air_below6000K:
- 
-       temperature         1152.68  K
-          pressure         3.32122  Pa
-           density           1e-05  kg/m^3
-  mean mol. weight         28.8565  amu
- 
-                          1 kg            1 kmol
-                       -----------      ------------
-          enthalpy          930651        2.686e+07     J
-   internal energy          598529        1.727e+07     J
-           entropy         11309.4        3.263e+05     J/K
-    Gibbs function    -1.21054e+07       -3.493e+08     J
- heat capacity c_p         1172.97        3.385e+04     J/K
- heat capacity c_v         884.841        2.553e+04     J/K
- 
-                           X                 Y          Chem. Pot. / RT    
-                     -------------     ------------     ------------
-                N2       0.788402          0.76537         -35.8052
-                O2       0.211462         0.234489         -38.8475
-                 N    9.13593e-17      4.43452e-17         -17.9026
-                 O     7.0991e-07      3.93608e-07         -19.4238
-                NO    0.000134734      0.000140102         -37.3264
-               NO+    1.73541e-22      1.80451e-22          16.9138
-          Electron    1.73541e-22      3.27759e-27         -64.4779
-                N+    9.87434e-57      4.79275e-57          36.3376
-                O+    1.87507e-43      1.03959e-43          34.8164
-               N2+    2.35127e-45      2.28254e-45           18.435
-               O2+    6.21445e-31      6.89105e-31          15.3927
+enthalpy = 930647
+entropy = 11972.9
+Gibbs function = -1.287e+07
+heat capacity c_p = 1172.97
+heat capacity c_v = 884.839
 
+Initial T = 1152.66, pres = 3.27775e-05 atm
 Final T = 1152.68, pres = 3.27779e-05 atm
-Initial T = 1152.68, pres = 0.000327779 atm 
- 
-  air_below6000K:
- 
-       temperature         1152.68  K
-          pressure         33.2123  Pa
-           density          0.0001  kg/m^3
-  mean mol. weight         28.8565  amu
- 
-                          1 kg            1 kmol
-                       -----------      ------------
-          enthalpy          930652        2.686e+07     J
-   internal energy          598529        1.727e+07     J
-           entropy           10646        3.072e+05     J/K
-    Gibbs function    -1.13407e+07       -3.273e+08     J
- heat capacity c_p         1172.97        3.385e+04     J/K
- heat capacity c_v         884.842        2.553e+04     J/K
- 
-                           X                 Y          Chem. Pot. / RT    
-                     -------------     ------------     ------------
-                N2       0.788403          0.76537         -33.5026
-                O2       0.211462          0.23449         -36.5449
-                 N    2.88962e-17       1.4026e-17         -16.7513
-                 O    2.24517e-07      1.24483e-07         -18.2725
-                NO    0.000134739      0.000140107         -35.0238
-               NO+    4.59068e-22      4.77348e-22          20.1888
-          Electron    4.59068e-22      8.67021e-27         -61.2026
-                N+    8.26319e-57      4.01074e-57          38.4612
-                O+    1.56891e-43      8.69849e-44          36.9401
-               N2+    6.22119e-45      6.03933e-45          21.7099
-               O2+    1.64404e-30      1.82303e-30          18.6676
+enthalpy = 930651
+entropy = 11309.4
+Gibbs function = -1.21054e+07
+heat capacity c_p = 1172.97
+heat capacity c_v = 884.841
 
+Initial T = 1152.68, pres = 0.000327779 atm
 Final T = 1152.68, pres = 0.00032778 atm
-Initial T = 1152.68, pres = 0.0032778 atm 
- 
-  air_below6000K:
- 
-       temperature         1152.68  K
-          pressure         332.124  Pa
-           density           0.001  kg/m^3
-  mean mol. weight         28.8565  amu
- 
-                          1 kg            1 kmol
-                       -----------      ------------
-          enthalpy          930652        2.686e+07     J
-   internal energy          598529        1.727e+07     J
-           entropy         9982.52        2.881e+05     J/K
-    Gibbs function     -1.0576e+07       -3.052e+08     J
- heat capacity c_p         1172.97        3.385e+04     J/K
- heat capacity c_v         884.842        2.553e+04     J/K
- 
-                           X                 Y          Chem. Pot. / RT    
-                     -------------     ------------     ------------
-                N2       0.788403          0.76537            -31.2
-                O2       0.211463          0.23449         -34.2424
-                 N    9.13835e-18      4.43569e-18            -15.6
-                 O    7.10009e-08      3.93663e-08         -17.1212
-                NO    0.000134741      0.000140109         -32.7212
-               NO+    1.15163e-21      1.19749e-21           23.411
-          Electron    1.15163e-21      2.17504e-26         -57.9803
-                N+    6.55598e-57       3.1821e-57          40.5321
-                O+    1.24471e-43      6.90105e-44           39.011
-               N2+    1.56078e-44      1.51515e-44          24.9321
-               O2+    4.12439e-30      4.57344e-30          21.8898
+enthalpy = 930652
+entropy = 10646
+Gibbs function = -1.13407e+07
+heat capacity c_p = 1172.97
+heat capacity c_v = 884.842
 
+Initial T = 1152.68, pres = 0.0032778 atm
 Final T = 1152.68, pres = 0.00327781 atm
-Initial T = 1152.68, pres = 0.0327781 atm 
- 
-  air_below6000K:
- 
-       temperature         1152.68  K
-          pressure         3321.24  Pa
-           density            0.01  kg/m^3
-  mean mol. weight         28.8565  amu
- 
-                          1 kg            1 kmol
-                       -----------      ------------
-          enthalpy          930653        2.686e+07     J
-   internal energy          598529        1.727e+07     J
-           entropy         9319.07        2.689e+05     J/K
-    Gibbs function    -9.81127e+06       -2.831e+08     J
- heat capacity c_p         1172.97        3.385e+04     J/K
- heat capacity c_v         884.842        2.553e+04     J/K
- 
-                           X                 Y          Chem. Pot. / RT    
-                     -------------     ------------     ------------
-                N2       0.788403          0.76537         -28.8975
-                O2       0.211463          0.23449         -31.9398
-                 N    2.88986e-18      1.40272e-18         -14.4487
-                 O    2.24527e-08      1.24488e-08         -15.9699
-                NO    0.000134741       0.00014011         -30.4186
-               NO+    9.17162e-22      9.53685e-22          25.4859
-          Electron    9.17162e-22       1.7322e-26         -55.9053
-                N+    1.65115e-57      8.01424e-58          41.4557
-                O+    3.13482e-44      1.73803e-44          39.9346
-               N2+    1.24303e-44       1.2067e-44           27.007
-               O2+     3.2847e-30      3.64232e-30          23.9647
+enthalpy = 930652
+entropy = 9982.52
+Gibbs function = -1.0576e+07
+heat capacity c_p = 1172.97
+heat capacity c_v = 884.842
 
+Initial T = 1152.68, pres = 0.0327781 atm
 Final T = 1152.68, pres = 0.0327781 atm
-Initial T = 3008.94, pres = 8.55633e-08 atm 
- 
-  air_below6000K:
- 
-       temperature         1764.11  K
-          pressure      0.00544642  Pa
-           density           1e-08  kg/m^3
-  mean mol. weight         26.9308  amu
- 
-                          1 kg            1 kmol
-                       -----------      ------------
-          enthalpy     2.94317e+06        7.926e+07     J
-   internal energy     2.39853e+06        6.459e+07     J
-           entropy         14438.6        3.888e+05     J/K
-    Gibbs function    -2.25281e+07       -6.067e+08     J
- heat capacity c_p         1254.18        3.378e+04     J/K
- heat capacity c_v         945.446        2.546e+04     J/K
- 
-                           X                 Y          Chem. Pot. / RT    
-                     -------------     ------------     ------------
-                N2       0.734463          0.76399         -43.5726
-                O2       0.129292         0.153622         -47.1099
-                 N    7.04713e-08      3.66522e-08         -21.7863
-                 O       0.133465        0.0792904          -23.555
-                NO     0.00278025       0.00309774         -45.3413
-               NO+    5.61007e-11      6.25059e-11        -0.112185
-          Electron    5.61008e-11      1.13531e-15         -45.2291
-                N+    1.27884e-29      6.65098e-30          23.4428
-                O+    2.26329e-21      1.34456e-21          21.6741
-               N2+    1.38337e-25      1.43896e-25          1.65648
-               O2+    1.15431e-16      1.37151e-16         -1.88085
+enthalpy = 930653
+entropy = 9319.07
+Gibbs function = -9.81127e+06
+heat capacity c_p = 1172.97
+heat capacity c_v = 884.842
 
+Initial T = 3008.94, pres = 8.55633e-08 atm
 Final T = 1764.11, pres = 5.3752e-08 atm
-Initial T = 1764.11, pres = 5.3752e-07 atm 
- 
-  air_below6000K:
- 
-       temperature         1879.19  K
-          pressure       0.0576567  Pa
-           density           1e-07  kg/m^3
-  mean mol. weight          27.099  amu
- 
-                          1 kg            1 kmol
-                       -----------      ------------
-          enthalpy      2.9751e+06        8.062e+07     J
-   internal energy     2.39853e+06          6.5e+07     J
-           entropy         13729.9        3.721e+05     J/K
-    Gibbs function    -2.28259e+07       -6.186e+08     J
- heat capacity c_p         1261.81        3.419e+04     J/K
- heat capacity c_v         954.993        2.588e+04     J/K
- 
-                           X                 Y          Chem. Pot. / RT    
-                     -------------     ------------     ------------
-                N2       0.738358         0.763273         -41.4151
-                O2       0.135652         0.160179         -44.9212
-                 N    1.60764e-07      8.30944e-08         -20.7075
-                 O       0.121806         0.071915         -22.4606
-                NO     0.00418364       0.00463245         -43.1681
-               NO+     1.4724e-10      1.63033e-10         -1.13141
-          Electron    1.47241e-10      2.96122e-15         -42.0367
-                N+    4.30776e-28      2.22647e-28          21.3292
-                O+    2.09233e-20      1.23528e-20          19.5761
-               N2+    3.12512e-24      3.23051e-24         0.621633
-               O2+    6.60464e-16      7.79868e-16         -2.88445
+enthalpy = 2.94317e+06
+entropy = 14438.6
+Gibbs function = -2.25281e+07
+heat capacity c_p = 1254.18
+heat capacity c_v = 945.446
 
+Initial T = 1764.11, pres = 5.3752e-07 atm
 Final T = 1879.19, pres = 5.69028e-07 atm
-Initial T = 1879.19, pres = 5.69028e-06 atm 
- 
-  air_below6000K:
- 
-       temperature         2006.78  K
-          pressure        0.611351  Pa
-           density           1e-06  kg/m^3
-  mean mol. weight         27.2925  amu
- 
-                          1 kg            1 kmol
-                       -----------      ------------
-          enthalpy     3.00988e+06        8.215e+07     J
-   internal energy     2.39853e+06        6.546e+07     J
-           entropy         13025.8        3.555e+05     J/K
-    Gibbs function    -2.31301e+07       -6.313e+08     J
- heat capacity c_p         1269.31        3.464e+04     J/K
- heat capacity c_v          964.67        2.633e+04     J/K
- 
-                           X                 Y          Chem. Pot. / RT    
-                     -------------     ------------     ------------
-                N2       0.742613          0.76223         -39.2679
-                O2       0.142745         0.167359         -42.7409
-                 N    3.48948e-07      1.79083e-07          -19.634
-                 O       0.108396        0.0635441         -21.3704
-                NO     0.00624513       0.00686607         -41.0044
-               NO+     3.6799e-10      4.04571e-10          -2.1058
-          Electron    3.67994e-10      7.34841e-15         -38.8986
-                N+    1.25614e-26      6.44638e-27          19.2646
-                O+    1.73238e-19      1.01552e-19          17.5282
-               N2+    6.36219e-23      6.53013e-23         -0.36932
-               O2+    3.53456e-15      4.14399e-15         -3.84228
+enthalpy = 2.9751e+06
+entropy = 13729.9
+Gibbs function = -2.28259e+07
+heat capacity c_p = 1261.81
+heat capacity c_v = 954.993
 
+Initial T = 1879.19, pres = 5.69028e-06 atm
 Final T = 2006.78, pres = 6.03356e-06 atm
-Initial T = 2006.78, pres = 6.03356e-05 atm 
- 
-  air_below6000K:
- 
-       temperature         2147.22  K
-          pressure          6.4886  Pa
-           density           1e-05  kg/m^3
-  mean mol. weight         27.5144  amu
- 
-                          1 kg            1 kmol
-                       -----------      ------------
-          enthalpy     3.04739e+06        8.385e+07     J
-   internal energy     2.39853e+06        6.599e+07     J
-           entropy         12327.1        3.392e+05     J/K
-    Gibbs function    -2.34218e+07       -6.444e+08     J
- heat capacity c_p         1276.53        3.512e+04     J/K
- heat capacity c_v         974.347        2.681e+04     J/K
- 
-                           X                 Y          Chem. Pot. / RT    
-                     -------------     ------------     ------------
-                N2       0.747195         0.760748         -37.1302
-                O2       0.150579         0.175121         -40.5685
-                 N    7.05861e-07      3.59332e-07         -18.5651
-                 O      0.0930175        0.0540889         -20.2842
-                NO     0.00920812         0.010042         -38.8493
-               NO+    8.56687e-10      9.34253e-10         -3.01308
-          Electron    8.56704e-10      1.69694e-14         -35.8362
-                N+     2.9835e-25      1.51875e-25          17.2712
-                O+    1.22521e-18      7.12428e-19           15.552
-               N2+     1.1165e-21      1.13673e-21         -1.29393
-               O2+    1.71649e-14      1.99621e-14         -4.73222
+enthalpy = 3.00988e+06
+entropy = 13025.8
+Gibbs function = -2.31301e+07
+heat capacity c_p = 1269.31
+heat capacity c_v = 964.67
 
+Initial T = 2006.78, pres = 6.03356e-05 atm
 Final T = 2147.22, pres = 6.40375e-05 atm
-Initial T = 2147.22, pres = 0.000640375 atm 
- 
-  air_below6000K:
- 
-       temperature         2299.14  K
-          pressure         68.8485  Pa
-           density          0.0001  kg/m^3
-  mean mol. weight         27.7655  amu
- 
-                          1 kg            1 kmol
-                       -----------      ------------
-          enthalpy     3.08701e+06        8.571e+07     J
-   internal energy     2.39853e+06         6.66e+07     J
-           entropy         11634.4         3.23e+05     J/K
-    Gibbs function    -2.36622e+07        -6.57e+08     J
- heat capacity c_p         1283.27        3.563e+04     J/K
- heat capacity c_v         983.817        2.732e+04     J/K
- 
-                           X                 Y          Chem. Pot. / RT    
-                     -------------     ------------     ------------
-                N2       0.752001         0.758717         -34.9992
-                O2       0.159067          0.18332          -38.402
-                 N    1.28756e-06      6.49531e-07         -17.4996
-                 O      0.0756139        0.0435712          -19.201
-                NO      0.0133167        0.0143914         -36.7006
-               NO+     1.7931e-09      1.93777e-09          -3.8169
-          Electron    1.79318e-09      3.51977e-14         -32.8837
-                N+    5.23861e-24       2.6426e-24          15.3841
-                O+    6.86351e-18      3.95484e-18          13.6827
-               N2+    1.57328e-20       1.5873e-20         -2.11548
-               O2+    7.20579e-14      8.30428e-14         -5.51832
+enthalpy = 3.04739e+06
+entropy = 12327.1
+Gibbs function = -2.34218e+07
+heat capacity c_p = 1276.53
+heat capacity c_v = 974.347
 
+Initial T = 2147.22, pres = 0.000640375 atm
 Final T = 2299.14, pres = 0.000679482 atm
-Initial T = 2299.14, pres = 0.00679482 atm 
- 
-  air_below6000K:
- 
-       temperature          2457.5  K
-          pressure         728.699  Pa
-           density           0.001  kg/m^3
-  mean mol. weight         28.0401  amu
- 
-                          1 kg            1 kmol
-                       -----------      ------------
-          enthalpy     3.12723e+06        8.769e+07     J
-   internal energy     2.39853e+06        6.725e+07     J
-           entropy         10948.3         3.07e+05     J/K
-    Gibbs function    -2.37781e+07       -6.667e+08     J
- heat capacity c_p         1289.27        3.615e+04     J/K
- heat capacity c_v         992.753        2.784e+04     J/K
- 
-                           X                 Y          Chem. Pot. / RT    
-                     -------------     ------------     ------------
-                N2       0.756823         0.756106         -32.8686
-                O2       0.167916         0.191622         -36.2366
-                 N    2.00898e-06      1.00354e-06         -16.4343
-                 O      0.0565842        0.0322864         -18.1183
-                NO      0.0186748        0.0199843         -34.5526
-               NO+    3.18618e-09      3.40953e-09         -4.45754
-          Electron    3.18643e-09      6.19329e-14         -30.0951
-                N+    5.81847e-23      2.90637e-23          13.6608
-                O+    2.69658e-17      1.53859e-17          11.9768
-               N2+     1.5875e-19      1.58596e-19         -2.77354
-               O2+    2.41732e-13      2.75856e-13         -6.14154
+enthalpy = 3.08701e+06
+entropy = 11634.4
+Gibbs function = -2.36622e+07
+heat capacity c_p = 1283.27
+heat capacity c_v = 983.817
 
+Initial T = 2299.14, pres = 0.00679482 atm
 Final T = 2457.5, pres = 0.0071917 atm
-Initial T = 2457.5, pres = 0.071917 atm 
- 
-  air_below6000K:
- 
-       temperature         2610.53  K
-          pressure          7664.7  Pa
-           density            0.01  kg/m^3
-  mean mol. weight         28.3183  amu
- 
-                          1 kg            1 kmol
-                       -----------      ------------
-          enthalpy       3.165e+06        8.963e+07     J
-   internal energy     2.39853e+06        6.792e+07     J
-           entropy         10268.9        2.908e+05     J/K
-    Gibbs function    -2.36423e+07       -6.695e+08     J
- heat capacity c_p         1294.24        3.665e+04     J/K
- heat capacity c_v         1000.63        2.834e+04     J/K
- 
-                           X                 Y          Chem. Pot. / RT    
-                     -------------     ------------     ------------
-                N2        0.76129         0.753095         -30.7261
-                O2       0.176463         0.199398         -34.0624
-                 N    2.47226e-06      1.22282e-06         -15.3631
-                 O      0.0372967         0.021072         -17.0312
-                NO      0.0249474        0.0264343         -32.3943
-               NO+    4.39753e-09      4.65954e-09         -4.84135
-          Electron     4.3981e-09      8.46436e-14         -27.5529
-                N+     3.2153e-22      1.59028e-22          12.1898
-                O+    6.15927e-17      3.47977e-17          10.5217
-               N2+    9.61027e-19      9.50663e-19         -3.17324
-               O2+     5.7381e-13      6.48375e-13         -6.50946
+enthalpy = 3.12723e+06
+entropy = 10948.3
+Gibbs function = -2.37781e+07
+heat capacity c_p = 1289.27
+heat capacity c_v = 992.753
 
+Initial T = 2457.5, pres = 0.071917 atm
 Final T = 2610.53, pres = 0.0756447 atm
-Initial T = 6437.5, pres = 1.86538e-07 atm 
- 
-  air_below6000K:
- 
-       temperature         2945.66  K
-          pressure       0.0104079  Pa
-           density           1e-08  kg/m^3
-  mean mol. weight         23.5318  amu
- 
-                          1 kg            1 kmol
-                       -----------      ------------
-          enthalpy     7.43931e+06        1.751e+08     J
-   internal energy     6.39853e+06        1.506e+08     J
-           entropy         16362.2         3.85e+05     J/K
-    Gibbs function     -4.0758e+07       -9.591e+08     J
- heat capacity c_p         1321.41         3.11e+04     J/K
- heat capacity c_v         968.083        2.278e+04     J/K
- 
-                           X                 Y          Chem. Pot. / RT    
-                     -------------     ------------     ------------
-                N2       0.630849         0.750995         -44.8654
-                O2    1.39321e-06       1.8945e-06          -59.788
-                 N      0.0241544        0.0143773         -22.4327
-                 O       0.344887         0.234491          -29.894
-                NO    0.000102862      0.000131162         -52.3267
-               NO+    2.91195e-06      3.71306e-06         -17.4905
-          Electron     2.9128e-06       6.7461e-11         -34.8362
-                N+    7.39612e-12       4.4022e-12          12.4035
-                O+    8.35044e-10      5.67732e-10          4.94225
-               N2+    3.21604e-12      3.82847e-12         -10.0292
-               O2+    3.03231e-12       4.1233e-12         -24.9517
+enthalpy = 3.165e+06
+entropy = 10268.9
+Gibbs function = -2.36423e+07
+heat capacity c_p = 1294.24
+heat capacity c_v = 1000.63
 
+Initial T = 6437.5, pres = 1.86538e-07 atm
 Final T = 2945.66, pres = 1.02718e-07 atm
-Initial T = 2945.66, pres = 1.02718e-06 atm 
- 
-  air_below6000K:
- 
-       temperature         3079.99  K
-          pressure        0.108465  Pa
-           density           1e-07  kg/m^3
-  mean mol. weight           23.61  amu
- 
-                          1 kg            1 kmol
-                       -----------      ------------
-          enthalpy     7.48317e+06        1.767e+08     J
-   internal energy     6.39853e+06        1.511e+08     J
-           entropy         15549.9        3.671e+05     J/K
-    Gibbs function    -4.04105e+07       -9.541e+08     J
- heat capacity c_p         1323.23        3.124e+04     J/K
- heat capacity c_v         971.072        2.293e+04     J/K
- 
-                           X                 Y          Chem. Pot. / RT    
-                     -------------     ------------     ------------
-                N2       0.636117          0.75476         -42.6792
-                O2    5.85311e-06      7.93277e-06         -56.1844
-                 N      0.0177436        0.0105265         -21.3396
-                 O       0.345878         0.234386         -28.0922
-                NO    0.000248907      0.000316338         -49.4318
-               NO+    3.28002e-06      4.16854e-06         -16.9579
-          Electron    3.28087e-06      7.57338e-11         -32.4738
-                N+    6.29867e-12      3.73657e-12          11.1342
-                O+    8.26488e-10      5.60054e-10          4.38165
-               N2+    4.52445e-12      5.36821e-12         -10.2053
-               O2+    9.62403e-12      1.30433e-11         -23.7105
+enthalpy = 7.43931e+06
+entropy = 16362.2
+Gibbs function = -4.0758e+07
+heat capacity c_p = 1321.41
+heat capacity c_v = 968.083
 
+Initial T = 2945.66, pres = 1.02718e-06 atm
 Final T = 3079.99, pres = 1.07046e-06 atm
-Initial T = 3079.99, pres = 1.07046e-05 atm 
- 
-  air_below6000K:
- 
-       temperature         3207.45  K
-          pressure         1.12586  Pa
-           density           1e-06  kg/m^3
-  mean mol. weight          23.687  amu
- 
-                          1 kg            1 kmol
-                       -----------      ------------
-          enthalpy     7.52439e+06        1.782e+08     J
-   internal energy     6.39853e+06        1.516e+08     J
-           entropy         14740.4        3.492e+05     J/K
-    Gibbs function    -3.97547e+07       -9.417e+08     J
- heat capacity c_p         1324.78        3.138e+04     J/K
- heat capacity c_v         973.762        2.307e+04     J/K
- 
-                           X                 Y          Chem. Pot. / RT    
-                     -------------     ------------     ------------
-                N2       0.641057         0.758149         -40.4837
-                O2    2.74932e-05      3.71407e-05         -52.4587
-                 N      0.0116961       0.00691623         -20.2419
-                 O       0.346589         0.234104         -26.2294
-                NO    0.000623445      0.000789766         -46.4712
-               NO+    3.38375e-06      4.28639e-06         -16.2766
-          Electron    3.38445e-06      7.78708e-11         -30.1946
-                N+    3.78767e-12      2.23967e-12          9.95278
-                O+    6.56614e-10      4.43496e-10          3.96527
-               N2+    4.89318e-12      5.78683e-12         -10.2891
-               O2+    2.83818e-11      3.83404e-11         -22.2641
+enthalpy = 7.48317e+06
+entropy = 15549.9
+Gibbs function = -4.04105e+07
+heat capacity c_p = 1323.23
+heat capacity c_v = 971.072
 
+Initial T = 3079.99, pres = 1.07046e-05 atm
 Final T = 3207.45, pres = 1.11114e-05 atm
-Initial T = 3207.45, pres = 0.000111114 atm 
- 
-  air_below6000K:
- 
-       temperature          3318.6  K
-          pressure         11.6123  Pa
-           density           1e-05  kg/m^3
-  mean mol. weight         23.7613  amu
- 
-                          1 kg            1 kmol
-                       -----------      ------------
-          enthalpy     7.55976e+06        1.796e+08     J
-   internal energy     6.39853e+06         1.52e+08     J
-           entropy         13933.4        3.311e+05     J/K
-    Gibbs function    -3.86797e+07       -9.191e+08     J
- heat capacity c_p            1326        3.151e+04     J/K
- heat capacity c_v         976.083        2.319e+04     J/K
- 
-                           X                 Y          Chem. Pot. / RT    
-                     -------------     ------------     ------------
-                N2       0.645083         0.760523         -38.2726
-                O2    0.000148599      0.000200115         -48.5744
-                 N     0.00670218       0.00395078         -19.1363
-                 O       0.346431         0.233265         -24.2872
-                NO     0.00162923       0.00205741         -43.4235
-               NO+    3.10981e-06      3.92705e-06         -15.4006
-          Electron    3.11029e-06      7.13389e-11          -28.023
-                N+     1.4529e-12      8.56417e-13          8.88666
-                O+    3.92166e-10      2.64052e-10          3.73577
-               N2+    3.76233e-12      4.43552e-12         -10.2497
-               O2+    7.58612e-11      1.02159e-10         -20.5514
+enthalpy = 7.52439e+06
+entropy = 14740.4
+Gibbs function = -3.97547e+07
+heat capacity c_p = 1324.78
+heat capacity c_v = 973.762
 
+Initial T = 3207.45, pres = 0.000111114 atm
 Final T = 3318.6, pres = 0.000114605 atm
-Initial T = 3318.6, pres = 0.00114605 atm 
- 
-  air_below6000K:
- 
-       temperature          3417.1  K
-          pressure         119.127  Pa
-           density          0.0001  kg/m^3
-  mean mol. weight         23.8496  amu
- 
-                          1 kg            1 kmol
-                       -----------      ------------
-          enthalpy      7.5898e+06         1.81e+08     J
-   internal energy     6.39853e+06        1.526e+08     J
-           entropy         13129.1        3.131e+05     J/K
-    Gibbs function    -3.72737e+07        -8.89e+08     J
- heat capacity c_p         1326.98        3.165e+04     J/K
- heat capacity c_v         978.355        2.333e+04     J/K
- 
-                           X                 Y          Chem. Pot. / RT    
-                     -------------     ------------     ------------
-                N2       0.647745         0.760834         -36.0515
-                O2    0.000876281        0.0011757         -44.5899
-                 N     0.00347456       0.00204059         -18.0258
-                 O       0.343542         0.230464         -22.2949
-                NO     0.00435762        0.0054825         -40.3207
-               NO+    2.62296e-06      3.29999e-06         -14.3889
-          Electron    2.62334e-06      5.99473e-11         -25.9318
-                N+    4.05747e-13      2.38284e-13            7.906
-                O+    1.90602e-10       1.2786e-10          3.63684
-               N2+    2.27333e-12      2.67018e-12         -10.1198
-               O2+     1.8727e-10      2.51255e-10         -18.6581
+enthalpy = 7.55976e+06
+entropy = 13933.4
+Gibbs function = -3.86797e+07
+heat capacity c_p = 1326
+heat capacity c_v = 976.083
 
+Initial T = 3318.6, pres = 0.00114605 atm
 Final T = 3417.1, pres = 0.00117569 atm
-Initial T = 3417.1, pres = 0.0117569 atm 
- 
-  air_below6000K:
- 
-       temperature         3555.18  K
-          pressure         1230.49  Pa
-           density           0.001  kg/m^3
-  mean mol. weight         24.0224  amu
- 
-                          1 kg            1 kmol
-                       -----------      ------------
-          enthalpy     7.62902e+06        1.833e+08     J
-   internal energy     6.39853e+06        1.537e+08     J
-           entropy         12328.9        2.962e+05     J/K
-    Gibbs function    -3.62024e+07       -8.697e+08     J
- heat capacity c_p         1328.33        3.191e+04     J/K
- heat capacity c_v         982.219         2.36e+04     J/K
- 
-                           X                 Y          Chem. Pot. / RT    
-                     -------------     ------------     ------------
-                N2       0.649921         0.757899         -33.8647
-                O2     0.00420967       0.00560745         -40.8464
-                 N     0.00209792       0.00122323         -16.9323
-                 O       0.332941         0.221746         -20.4232
-                NO      0.0108249        0.0135212         -37.3555
-               NO+    2.48459e-06      3.10342e-06         -13.6141
-          Electron    2.48521e-06      5.63824e-11         -23.7414
-                N+     1.8826e-13      1.09764e-13          6.80912
-                O+    1.25433e-10      8.35383e-11          3.31823
-               N2+    2.02816e-12      2.36507e-12         -10.1232
-               O2+     4.9681e-10       6.6176e-10          -17.105
+enthalpy = 7.5898e+06
+entropy = 13129.1
+Gibbs function = -3.72737e+07
+heat capacity c_p = 1326.98
+heat capacity c_v = 978.355
 
+Initial T = 3417.1, pres = 0.0117569 atm
 Final T = 3555.18, pres = 0.012144 atm
-Initial T = 3555.18, pres = 0.12144 atm 
- 
-  air_below6000K:
- 
-       temperature         3800.17  K
-          pressure         12968.3  Pa
-           density            0.01  kg/m^3
-  mean mol. weight         24.3643  amu
- 
-                          1 kg            1 kmol
-                       -----------      ------------
-          enthalpy     7.69536e+06        1.875e+08     J
-   internal energy     6.39853e+06        1.559e+08     J
-           entropy           11537        2.811e+05     J/K
-    Gibbs function    -3.61473e+07       -8.807e+08     J
- heat capacity c_p            1331        3.243e+04     J/K
- heat capacity c_v         989.741        2.411e+04     J/K
- 
-                           X                 Y          Chem. Pot. / RT    
-                     -------------     ------------     ------------
-                N2       0.653418         0.751284         -31.7613
-                O2      0.0124849         0.016397          -37.678
-                 N     0.00186302       0.00107103         -15.8806
-                 O       0.309477         0.203226          -18.839
-                NO      0.0227505        0.0280186         -34.7196
-               NO+    3.18466e-06      3.92203e-06         -13.4287
-          Electron    3.18646e-06      7.12772e-11         -21.2909
-                N+    3.11869e-13      1.79283e-13          5.41025
-                O+    1.78546e-10      1.17243e-10          2.45188
-               N2+    4.81484e-12      5.53587e-12         -10.4704
-               O2+    1.62059e-09      2.12837e-09         -16.3871
+enthalpy = 7.62902e+06
+entropy = 12328.9
+Gibbs function = -3.62024e+07
+heat capacity c_p = 1328.33
+heat capacity c_v = 982.219
 
+Initial T = 3555.18, pres = 0.12144 atm
 Final T = 3800.17, pres = 0.127987 atm
-Initial T = 7052.08, pres = 2.37509e-07 atm 
- 
-  air_below6000K:
- 
-       temperature         3293.99  K
-          pressure       0.0125025  Pa
-           density           1e-08  kg/m^3
-  mean mol. weight         21.9058  amu
- 
-                          1 kg            1 kmol
-                       -----------      ------------
-          enthalpy     1.09488e+07        2.398e+08     J
-   internal energy     9.69853e+06        2.125e+08     J
-           entropy         17407.2        3.813e+05     J/K
-    Gibbs function    -4.63903e+07       -1.016e+09     J
- heat capacity c_p         1343.53        2.943e+04     J/K
- heat capacity c_v         963.973        2.112e+04     J/K
- 
-                           X                 Y          Chem. Pot. / RT    
-                     -------------     ------------     ------------
-                N2        0.51821         0.662695         -45.2973
-                O2    1.57962e-07      2.30743e-07         -62.2251
-                 N        0.16062         0.102702         -22.6487
-                 O       0.321096          0.23452         -31.1125
-                NO    4.64564e-05      6.36351e-05         -53.7612
-               NO+    1.40273e-05       1.9214e-05         -20.4316
-          Electron    1.40838e-05      3.50394e-10         -33.3296
-                N+    4.79438e-09      3.06545e-09           10.681
-                O+    5.12905e-08        3.746e-08           2.2171
-               N2+    4.04431e-10      5.17183e-10         -11.9677
-               O2+    1.18531e-11       1.7314e-11         -28.8954
+enthalpy = 7.69536e+06
+entropy = 11537
+Gibbs function = -3.61473e+07
+heat capacity c_p = 1331
+heat capacity c_v = 989.741
 
+Initial T = 7052.08, pres = 2.37509e-07 atm
 Final T = 3293.99, pres = 1.2339e-07 atm
-Initial T = 3293.99, pres = 1.2339e-06 atm 
- 
-  air_below6000K:
- 
-       temperature         3516.01  K
-          pressure        0.132781  Pa
-           density           1e-07  kg/m^3
-  mean mol. weight         22.0165  amu
- 
-                          1 kg            1 kmol
-                       -----------      ------------
-          enthalpy     1.10263e+07        2.428e+08     J
-   internal energy     9.69853e+06        2.135e+08     J
-           entropy         16535.4        3.641e+05     J/K
-    Gibbs function    -4.71122e+07       -1.037e+09     J
- heat capacity c_p         1346.82        2.965e+04     J/K
- heat capacity c_v          969.17        2.134e+04     J/K
- 
-                           X                 Y          Chem. Pot. / RT    
-                     -------------     ------------     ------------
-                N2       0.525825         0.669053         -43.1683
-                O2    5.17852e-07      7.52646e-07         -58.9387
-                 N       0.151376         0.096304         -21.5842
-                 O       0.322655         0.234474         -29.4693
-                NO    0.000104379      0.000142258         -51.0535
-               NO+    1.95396e-05      2.66299e-05         -20.2701
-          Electron    1.96344e-05      4.86033e-10         -30.7834
-                N+    9.13263e-09      5.80989e-09          9.19923
-                O+    8.45599e-08      6.14476e-08          1.31403
-               N2+    1.05957e-09      1.34816e-09         -12.3849
-               O2+    4.50092e-11      6.54153e-11         -28.1553
+enthalpy = 1.09488e+07
+entropy = 17407.2
+Gibbs function = -4.63903e+07
+heat capacity c_p = 1343.53
+heat capacity c_v = 963.973
 
+Initial T = 3293.99, pres = 1.2339e-06 atm
 Final T = 3516.01, pres = 1.31045e-06 atm
-Initial T = 3516.01, pres = 1.31045e-05 atm 
- 
-  air_below6000K:
- 
-       temperature         3766.66  K
-          pressure         1.41427  Pa
-           density           1e-06  kg/m^3
-  mean mol. weight         22.1442  amu
- 
-                          1 kg            1 kmol
-                       -----------      ------------
-          enthalpy     1.11128e+07        2.461e+08     J
-   internal energy     9.69853e+06        2.148e+08     J
-           entropy         15668.2         3.47e+05     J/K
-    Gibbs function    -4.79042e+07       -1.061e+09     J
- heat capacity c_p         1350.74        2.991e+04     J/K
- heat capacity c_v         975.267         2.16e+04     J/K
- 
-                           X                 Y          Chem. Pot. / RT    
-                     -------------     ------------     ------------
-                N2       0.534543         0.676223         -41.0514
-                O2    1.72905e-06      2.49851e-06         -55.6498
-                 N        0.14078        0.0890466         -20.5257
-                 O       0.324385         0.234372         -27.8249
-                NO    0.000236102      0.000319926         -48.3506
-               NO+     2.7034e-05      3.66314e-05         -20.1004
-          Electron    2.71895e-05      6.69173e-10         -28.2502
-                N+     1.6686e-08      1.05539e-08          7.72452
-                O+    1.35926e-07      9.82048e-08         0.425337
-               N2+    2.70467e-09      3.42148e-09         -12.8012
-               O2+    1.70141e-10      2.45853e-10         -27.3995
+enthalpy = 1.10263e+07
+entropy = 16535.4
+Gibbs function = -4.71122e+07
+heat capacity c_p = 1346.82
+heat capacity c_v = 969.17
 
+Initial T = 3516.01, pres = 1.31045e-05 atm
 Final T = 3766.66, pres = 1.39577e-05 atm
-Initial T = 3766.66, pres = 0.000139577 atm 
- 
-  air_below6000K:
- 
-       temperature         4050.36  K
-          pressure         15.1064  Pa
-           density           1e-05  kg/m^3
-  mean mol. weight         22.2928  amu
- 
-                          1 kg            1 kmol
-                       -----------      ------------
-          enthalpy     1.12092e+07        2.499e+08     J
-   internal energy     9.69853e+06        2.162e+08     J
-           entropy         14806.5        3.301e+05     J/K
-    Gibbs function    -4.87625e+07       -1.087e+09     J
- heat capacity c_p         1355.57        3.022e+04     J/K
- heat capacity c_v           982.6         2.19e+04     J/K
- 
-                           X                 Y          Chem. Pot. / RT    
-                     -------------     ------------     ------------
-                N2       0.544538         0.684274         -38.9472
-                O2    5.90963e-06      8.48259e-06         -52.3543
-                 N         0.1286        0.0808002         -19.4736
-                 O       0.326244         0.234143         -26.1771
-                NO    0.000538493      0.000724811         -45.6508
-               NO+    3.70146e-05      4.98207e-05         -19.9165
-          Electron    3.72616e-05      9.10947e-10         -25.7343
-                N+    2.87992e-08       1.8094e-08          6.26065
-                O+    2.10967e-07      1.51405e-07        -0.442899
-               N2+    6.65577e-09      8.36357e-09          -13.213
-               O2+    6.38183e-10      9.16023e-10           -26.62
+enthalpy = 1.11128e+07
+entropy = 15668.2
+Gibbs function = -4.79042e+07
+heat capacity c_p = 1350.74
+heat capacity c_v = 975.267
 
+Initial T = 3766.66, pres = 0.000139577 atm
 Final T = 4050.36, pres = 0.000149089 atm
-Initial T = 4050.36, pres = 0.00149089 atm 
- 
-  air_below6000K:
- 
-       temperature         4371.57  K
-          pressure         161.774  Pa
-           density          0.0001  kg/m^3
-  mean mol. weight         22.4679  amu
- 
-                          1 kg            1 kmol
-                       -----------      ------------
-          enthalpy     1.13163e+07        2.543e+08     J
-   internal energy     9.69853e+06        2.179e+08     J
-           entropy           13951        3.134e+05     J/K
-    Gibbs function    -4.96714e+07       -1.116e+09     J
- heat capacity c_p         1361.54        3.059e+04     J/K
- heat capacity c_v         991.482        2.228e+04     J/K
- 
-                           X                 Y          Chem. Pot. / RT    
-                     -------------     ------------     ------------
-                N2       0.555954         0.693176          -36.856
-                O2    2.08095e-05      2.96369e-05         -49.0466
-                 N       0.114619        0.0714551          -18.428
-                 O       0.328065         0.233616         -24.5233
-                NO     0.00124059       0.00165682         -42.9513
-               NO+    4.98714e-05      6.66028e-05         -19.7099
-          Electron     5.0247e-05      1.21883e-09         -23.2415
-                N+    4.59404e-08      2.86387e-08          4.81344
-                O+    3.11685e-07      2.21944e-07         -1.28184
-               N2+    1.55455e-08      1.93821e-08         -13.6146
-               O2+     2.3627e-09      3.36491e-09         -25.8051
+enthalpy = 1.12092e+07
+entropy = 14806.5
+Gibbs function = -4.87625e+07
+heat capacity c_p = 1355.57
+heat capacity c_v = 982.6
 
+Initial T = 4050.36, pres = 0.00149089 atm
 Final T = 4371.57, pres = 0.00159659 atm
-Initial T = 4371.57, pres = 0.0159659 atm 
- 
-  air_below6000K:
- 
-       temperature         4734.02  K
-          pressure         1735.66  Pa
-           density           0.001  kg/m^3
-  mean mol. weight         22.6777  amu
- 
-                          1 kg            1 kmol
-                       -----------      ------------
-          enthalpy     1.14342e+07        2.593e+08     J
-   internal energy     9.69853e+06        2.199e+08     J
-           entropy         13102.7        2.971e+05     J/K
-    Gibbs function    -5.05943e+07       -1.147e+09     J
- heat capacity c_p         1368.64        3.104e+04     J/K
- heat capacity c_v            1002        2.272e+04     J/K
- 
-                           X                 Y          Chem. Pot. / RT    
-                     -------------     ------------     ------------
-                N2       0.568791          0.70262         -34.7776
-                O2    7.60329e-05      0.000107284         -45.7193
-                 N      0.0987447         0.060989         -17.3888
-                 O       0.329365         0.232371         -22.8596
-                NO     0.00289125       0.00382558         -40.2484
-               NO+    6.55577e-05      8.67415e-05          -19.468
-          Electron    6.60952e-05      1.58843e-09         -20.7804
-                N+    6.57115e-08      4.05847e-08          3.39166
-                O+    4.29524e-07      3.03024e-07         -2.07919
-               N2+    3.37053e-08      4.16349e-08         -13.9971
-               O2+    8.55851e-09      1.20761e-08         -24.9388
+enthalpy = 1.13163e+07
+entropy = 13951
+Gibbs function = -4.96714e+07
+heat capacity c_p = 1361.54
+heat capacity c_v = 991.482
 
+Initial T = 4371.57, pres = 0.0159659 atm
 Final T = 4734.02, pres = 0.0171296 atm
-Initial T = 4734.02, pres = 0.171296 atm 
- 
-  air_below6000K:
- 
-       temperature          5139.7  K
-          pressure         18630.6  Pa
-           density            0.01  kg/m^3
-  mean mol. weight         22.9374  amu
- 
-                          1 kg            1 kmol
-                       -----------      ------------
-          enthalpy     1.15616e+07        2.652e+08     J
-   internal energy     9.69853e+06        2.225e+08     J
-           entropy         12263.1        2.813e+05     J/K
-    Gibbs function    -5.14671e+07       -1.181e+09     J
- heat capacity c_p         1376.17        3.157e+04     J/K
- heat capacity c_v         1013.69        2.325e+04     J/K
- 
-                           X                 Y          Chem. Pot. / RT    
-                     -------------     ------------     ------------
-                N2       0.582659         0.711602         -32.7112
-                O2    0.000289378      0.000403696         -42.3671
-                 N      0.0812647        0.0496243         -16.3556
-                 O       0.328809         0.229352         -21.1836
-                NO     0.00681049        0.0089093         -37.5392
-               NO+    8.30643e-05      0.000108661         -19.1761
-          Electron    8.37793e-05      1.99062e-09         -18.3631
-                N+    8.12589e-08      4.96188e-08          2.00744
-                O+    5.37875e-07      3.75168e-07          -2.8205
-               N2+      6.601e-08      8.06165e-08         -14.3482
-               O2+    2.99001e-08      4.17114e-08         -24.0041
+enthalpy = 1.14342e+07
+entropy = 13102.7
+Gibbs function = -5.05943e+07
+heat capacity c_p = 1368.64
+heat capacity c_v = 1002
 
+Initial T = 4734.02, pres = 0.171296 atm
 Final T = 5139.7, pres = 0.18387 atm
+enthalpy = 1.15616e+07
+entropy = 12263.1
+Gibbs function = -5.14671e+07
+heat capacity c_p = 1376.17
+heat capacity c_v = 1013.69
+
