@@ -1482,6 +1482,7 @@ public:
      *         (These are the actionable element constraints).
      *
      * @return  Returns number of components. This is the rank of the matrix
+     * @deprecated
      */
     int vcs_rank(const double* awtmp, size_t numSpecies, const double* matrix,  size_t numElemConstraints,
                  std::vector<size_t> &compRes, std::vector<size_t> &elemComp, int* const usedZeroedSpecies) const;
