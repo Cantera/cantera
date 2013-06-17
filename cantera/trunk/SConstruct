@@ -638,6 +638,12 @@ for arg in ARGUMENTS:
         print 'Encountered unexpected command line argument: %r' % arg
         sys.exit(0)
 
+# Print values of all build options:
+print "Configuration variables read from 'cantera.conf' and command line:"
+for line in open('cantera.conf'):
+    print '   ', line.strip()
+print
+
 # ********************************************
 # *** Configure system-specific properties ***
 # ********************************************
