@@ -65,6 +65,7 @@ public:
      *
      * @param testProb Hard -coded test problem to instantiate.
      *                 Current valid values are 1.
+     * @deprecated To be refactored into a standalone test
      */
     RedlichKwongMFTP(int testProb);
 
