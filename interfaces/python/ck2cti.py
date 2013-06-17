@@ -809,6 +809,27 @@ def fortFloat(s):
     return float(s)
 
 
+def get_index(seq, value):
+    """
+    Find the first location in *seq* which contains a case-insensitive,
+    whitespace-insensitive match for *value*. Returns *None* if no match is
+    found.
+    """
+    if isinstance(seq, str):
+        seq = seq.split()
+    value = value.lower().strip()
+    for i,item in enumerate(seq):
+        if item.lower() == value:
+            return i
+    return None
+
+def contains(seq, value):
+    if isinstance(seq, str):
+        return value.lower() in seq.lower()
+    else:
+        return get_index(seq, value) is not None
+
+
 class Parser(object):
     def __init__(self):
         self.processed_units = False
@@ -1300,32 +1321,32 @@ class Parser(object):
                 line = line.strip()
                 tokens = line.split()
 
-                if 'ELEMENTS' in line:
-                    index = tokens.index('ELEMENTS')
+                if contains(line, 'ELEMENTS'):
+                    index = get_index(tokens, 'ELEMENTS')
                     tokens = tokens[index+1:]
-                    while 'END' not in tokens:
+                    while not contains(line, 'END'):
                         line = f.readline()
                         line = removeCommentFromLine(line)[0]
                         line = line.strip()
                         tokens.extend(line.split())
 
                     for token in tokens:
-                        if token == 'END':
+                        if token.upper() == 'END':
                             break
                         self.elements.append(token.capitalize())
 
-                elif 'SPECIES' in line:
+                elif contains(line, 'SPECIES'):
                     # List of species identifiers
-                    index = tokens.index('SPECIES')
+                    index = get_index(tokens, 'SPECIES')
                     tokens = tokens[index+1:]
-                    while 'END' not in tokens:
+                    while not contains(line, 'END'):
                         line = f.readline()
                         line = removeCommentFromLine(line)[0]
                         line = line.strip()
                         tokens.extend(line.split())
 
                     for token in tokens:
-                        if token == 'END':
+                        if token.upper() == 'END':
                             break
                         if token in self.speciesDict:
                             species = self.speciesDict[token]
@@ -1334,11 +1355,11 @@ class Parser(object):
                             self.speciesDict[token] = species
                         self.speciesList.append(species)
 
-                elif 'THERM' in line.upper() and 'NASA9' in line:
+                elif contains(line, 'THERM') and contains(line, 'NASA9'):
                     entryPosition = 0
                     entryLength = None
                     entry = []
-                    while not line.startswith('END'):
+                    while not get_index(line, 'END') == 0:
                         line = f.readline()
                         line = removeCommentFromLine(line)[0]
                         if not line:
@@ -1377,12 +1398,12 @@ class Parser(object):
 
                         entryPosition += 1
 
-                elif 'THERM' in line:
+                elif contains(line, 'THERM'):
                     # List of thermodynamics (hopefully one per species!)
                     line = f.readline()
                     TintDefault = float(line.split()[1])
                     thermo = ''
-                    while line != '' and 'END' not in line:
+                    while not contains(line, 'END'):
                         line = removeCommentFromLine(line)[0]
                         if len(line) >= 80 and line[79] in ['1', '2', '3', '4']:
                             thermo += line
@@ -1397,13 +1418,13 @@ class Parser(object):
                                 thermo = ''
                         line = f.readline()
 
-                elif 'REACTIONS' in line:
+                elif contains(line, 'REACTIONS'):
                     # Reactions section
                     energyUnits = 'CAL/MOL'
                     moleculeUnits = 'MOLES'
                     try:
-                        energyUnits = tokens[1]
-                        moleculeUnits = tokens[2]
+                        energyUnits = tokens[1].upper()
+                        moleculeUnits = tokens[2].upper()
                     except IndexError:
                         pass
 
@@ -1423,7 +1444,7 @@ class Parser(object):
                     comments = ''
 
                     line = f.readline()
-                    while line != '' and 'END' not in line:
+                    while line and not contains(line, 'END'):
 
                         lineStartsWithComment = line.startswith('!')
                         line, comment = removeCommentFromLine(line)
@@ -1476,9 +1497,9 @@ class Parser(object):
                         if revReaction is not None:
                             self.reactions.append(revReaction)
 
-                elif 'TRAN' in line:
+                elif contains(line, 'TRAN'):
                     line = f.readline()
-                    while 'END' not in line:
+                    while not contains(line, 'END'):
                         transportLines.append(line)
 
                 line = f.readline()
@@ -1515,7 +1536,7 @@ class Parser(object):
             line = line.strip()
             if not line or line.startswith('!'):
                 continue
-            if line.startswith('END'):
+            if get_index(line, 'END') == 0:
                 break
 
             data = line.split()
