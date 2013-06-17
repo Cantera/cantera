@@ -1314,8 +1314,13 @@ class Parser(object):
                 comment = ''
                 return line, comment
 
-        with open(path, 'r') as f:
-            line = f.readline()
+        with open(path, 'r') as ck_file:
+            self.line_number = 0
+            def readline():
+                self.line_number += 1
+                return ck_file.readline()
+
+            line = readline()
             while line != '':
                 line = removeCommentFromLine(line)[0]
                 line = line.strip()
@@ -1325,7 +1330,7 @@ class Parser(object):
                     index = get_index(tokens, 'ELEMENTS')
                     tokens = tokens[index+1:]
                     while not contains(line, 'END'):
-                        line = f.readline()
+                        line = readline()
                         line = removeCommentFromLine(line)[0]
                         line = line.strip()
                         tokens.extend(line.split())
@@ -1340,7 +1345,7 @@ class Parser(object):
                     index = get_index(tokens, 'SPECIES')
                     tokens = tokens[index+1:]
                     while not contains(line, 'END'):
-                        line = f.readline()
+                        line = readline()
                         line = removeCommentFromLine(line)[0]
                         line = line.strip()
                         tokens.extend(line.split())
@@ -1360,7 +1365,7 @@ class Parser(object):
                     entryLength = None
                     entry = []
                     while not get_index(line, 'END') == 0:
-                        line = f.readline()
+                        line = readline()
                         line = removeCommentFromLine(line)[0]
                         if not line:
                             continue
@@ -1400,7 +1405,7 @@ class Parser(object):
 
                 elif contains(line, 'THERM'):
                     # List of thermodynamics (hopefully one per species!)
-                    line = f.readline()
+                    line = readline()
                     TintDefault = float(line.split()[1])
                     thermo = ''
                     while not contains(line, 'END'):
@@ -1416,7 +1421,7 @@ class Parser(object):
                                 except KeyError:
                                     logging.info('Skipping unexpected species "{0}" while reading thermodynamics entry.'.format(label))
                                 thermo = ''
-                        line = f.readline()
+                        line = readline()
 
                 elif contains(line, 'REACTIONS'):
                     # Reactions section
@@ -1440,10 +1445,11 @@ class Parser(object):
 
                     kineticsList = []
                     commentsList = []
+                    startLines = []
                     kinetics = ''
                     comments = ''
 
-                    line = f.readline()
+                    line = readline()
                     while line and not contains(line, 'END'):
 
                         lineStartsWithComment = line.startswith('!')
@@ -1455,6 +1461,7 @@ class Parser(object):
                             # Finish previous record
                             kineticsList.append(kinetics)
                             commentsList.append(comments)
+                            startLines.append(self.line_number)
                             kinetics = ''
                             comments = ''
 
@@ -1463,20 +1470,23 @@ class Parser(object):
                         if comment:
                             comments += comment + '\n'
 
-                        line = f.readline()
+                        line = readline()
 
                     # Don't forget the last reaction!
                     if kinetics.strip() != '':
+                        startLines.append(self.line_number)
                         kineticsList.append(kinetics)
                         commentsList.append(comments)
 
                     if kineticsList[0] == '' and commentsList[-1] == '':
                         # True for mechanism files generated from RMG-Py
                         kineticsList.pop(0)
+                        startLines.pop(0)
                         commentsList.pop(-1)
                     elif kineticsList[0] == '' and commentsList[0] == '':
                         # True for mechanism files generated from RMG-Java
                         kineticsList.pop(0)
+                        startLines.pop(0)
                         commentsList.pop(0)
                     else:
                         # In reality, comments can occur anywhere in the mechanism
@@ -1491,18 +1501,20 @@ class Parser(object):
                         if len(kineticsList) != len(commentsList):
                             commentsList = ['' for kinetics in kineticsList]
 
-                    for kinetics, comments in zip(kineticsList, commentsList):
+                    for kinetics, comments, line_number in zip(kineticsList, commentsList, startLines):
                         reaction,revReaction = self.readKineticsEntry(kinetics)
+                        reaction.line_number = line_number
                         self.reactions.append(reaction)
                         if revReaction is not None:
+                            revReaction.line_number = line_number
                             self.reactions.append(revReaction)
 
                 elif contains(line, 'TRAN'):
-                    line = f.readline()
+                    line = readline()
                     while not contains(line, 'END'):
                         transportLines.append(line)
 
-                line = f.readline()
+                line = readline()
 
         # Check for marked (and unmarked!) duplicate reactions
         # Raise exception for unmarked duplicate reactions
@@ -1516,7 +1528,7 @@ class Parser(object):
                     elif reaction1.kinetics.isPressureDependent() == reaction2.kinetics.isPressureDependent():
                         # If both reactions are pressure-independent or both are pressure-dependent, then they need duplicate tags
                         # pdep and non-pdep reactions are treated as different, so those are okay
-                        raise InputParseError('Encountered unmarked duplicate reaction {0}.'.format(reaction1))
+                        raise InputParseError('Encountered unmarked duplicate reaction {0} (See lines {1} and {2} of the input file.).'.format(reaction1, reaction1.line_number, reaction2.line_number))
 
         index = 0
         for reaction in self.reactions:
