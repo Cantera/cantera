@@ -189,6 +189,7 @@ public:
      *     uA[3] = Pa(pressure) units - default = 0;
      *     uA[4] = Temperature units - default = 0;
      *     uA[5] = time units - default = 0
+     * @deprecated
      */
     virtual void getUnitsStandardConc(double* uA, int k = 0,
                                       int sizeUA = 6) const;
