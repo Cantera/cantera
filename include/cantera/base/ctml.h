@@ -769,6 +769,7 @@ void getString(const Cantera::XML_Node& node, const std::string& titleString,
  * @param[out] valueString  Value string that is found in the child node.
  * @param[out] typeString   String type. This is an optional output variable.
  *         It is filled with the attribute "type" of the XML entry.
+ * @deprecated
  */
 void getNamedStringValue(const Cantera::XML_Node& node, const std::string& nameString, std::string& valueString,
                          std::string& typeString);
