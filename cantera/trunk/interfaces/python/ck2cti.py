@@ -34,7 +34,6 @@ from __future__ import print_function
 
 from collections import defaultdict
 import logging
-import types
 import os.path
 import numpy as np
 import re
@@ -766,8 +765,6 @@ class TransportData(object):
     def __init__(self, label, geometry, wellDepth, collisionDiameter,
                  dipoleMoment, polarizability, zRot, comment=None):
 
-        if not isinstance(label, types.StringTypes):
-            raise InputParseError("Bad label for transport data: " + repr(label))
         if int(geometry) not in (0,1,2):
             raise InputParseError("Bad geometry flag '{0}' for species '{1}'".format(geometry, label))
 
