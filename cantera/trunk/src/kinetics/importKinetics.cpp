@@ -541,9 +541,9 @@ void getRateCoefficient(const XML_Node& kf, Kinetics& kin,
                                           kin.thermo(kin.surfacePhaseIndex()), rdata);
                 }
 
-                if (coeff[0] <= 0.0 && !rules.allowNegativeA) {
+                if (coeff[0] < 0.0 && !rules.allowNegativeA) {
                     throw CanteraError("getRateCoefficient",
-                                       "negative or zero A coefficient for reaction "+int2str(rdata.number));
+                                       "negative A coefficient for reaction "+int2str(rdata.number));
                 }
             } else if (nm == "Arrhenius_ExchangeCurrentDensity") {
                 vector_fp coeff(3);
