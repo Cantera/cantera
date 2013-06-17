@@ -31,11 +31,14 @@ Cantera input files (CTI).
 """
 
 from __future__ import print_function
+
+from collections import defaultdict
 import logging
 import types
 import os.path
 import numpy as np
 import re
+import itertools
 
 QUANTITY_UNITS = {'MOL': 'mol',
                   'MOLE': 'mol',
@@ -1516,19 +1519,7 @@ class Parser(object):
 
                 line = readline()
 
-        # Check for marked (and unmarked!) duplicate reactions
-        # Raise exception for unmarked duplicate reactions
-        for index1 in range(len(self.reactions)):
-            reaction1 = self.reactions[index1]
-            for index2 in range(index1+1, len(self.reactions)):
-                reaction2 = self.reactions[index2]
-                if reaction1.reactants == reaction2.reactants and reaction1.products == reaction2.products:
-                    if reaction1.duplicate and reaction2.duplicate:
-                        pass
-                    elif reaction1.kinetics.isPressureDependent() == reaction2.kinetics.isPressureDependent():
-                        # If both reactions are pressure-independent or both are pressure-dependent, then they need duplicate tags
-                        # pdep and non-pdep reactions are treated as different, so those are okay
-                        raise InputParseError('Encountered unmarked duplicate reaction {0} (See lines {1} and {2} of the input file.).'.format(reaction1, reaction1.line_number, reaction2.line_number))
+        self.checkDuplicateReactions()
 
         index = 0
         for reaction in self.reactions:
@@ -1537,6 +1528,27 @@ class Parser(object):
 
         if transportLines:
             self.parseTransportData(transportLines)
+
+    def checkDuplicateReactions(self):
+        """
+        Check for marked (and unmarked!) duplicate reactions. Raise exception
+        for unmarked duplicate reactions.
+
+        Pressure-independent and pressure-dependent reactions are treated as
+        different, so they don't need to be marked as duplicate.
+        """
+        message = ('Encountered unmarked duplicate reaction {0} '
+                   '(See lines {1} and {2} of the input file.).')
+
+        possible_duplicates = defaultdict(list)
+        for r in self.reactions:
+            k = tuple(r.reactants), tuple(r.products), r.kinetics.isPressureDependent()
+            possible_duplicates[k].append(r)
+
+        for reactions in possible_duplicates.values():
+            for r1,r2 in itertools.combinations(reactions, 2):
+                if not r1.duplicate or not r2.duplicate:
+                    raise InputParseError(message.format(r1, r1.line_number, r2.line_number))
 
     def parseTransportData(self, lines):
         """
