@@ -1560,13 +1560,13 @@ class Parser(object):
             if get_index(line, 'END') == 0:
                 break
 
-            data = line.split()
+            if '!' in line:
+                line, comment = line.split('!', 1)
+                data = line.split() + [comment]
+            else:
+                data = line.split()
             if len(data) < 7:
                 raise InputParseError('Unable to parse transport data: not enough parameters')
-            if len(data) >= 8:
-                # comment may contain spaces. Rejoin into a single field.
-                comment = ''.join(data[7:]).lstrip('!')
-                data = data[:7] + [comment]
 
             speciesName = data[0]
             if speciesName in self.speciesDict:
