@@ -17,6 +17,7 @@
 namespace Cantera
 {
 //! Class SolidTransport implements transport properties for solids.
+//! @ingroup tranprops
 class SolidTransport : public Transport
 {
 public:

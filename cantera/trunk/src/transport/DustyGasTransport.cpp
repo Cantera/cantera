@@ -1,8 +1,6 @@
 /**
  *  @file DustyGasTransport.cpp
  *  Implementation file for class DustyGasTransport
- *
- *  @ingroup transportProps
  */
 
 /*

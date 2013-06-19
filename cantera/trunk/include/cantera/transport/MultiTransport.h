@@ -24,7 +24,7 @@ class GasTransportParams;
  * Coltrin, and Glarborg, "Theoretical and Practical Aspects of Chemically
  * Reacting Flow Modeling," Wiley Interscience.
  *
- * @ingroup transportProps
+ * @ingroup tranprops
  */
 class MultiTransport : public GasTransport
 {

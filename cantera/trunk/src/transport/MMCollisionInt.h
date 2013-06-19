@@ -20,7 +20,7 @@ class XML_Writer;
  * interpolate the tabulated collision integrals in Monchick and
  * Mason, "Transport Properties of Polar Gases," J. Chem. Phys. (1961)
  *
- * @ingroup transportgroup
+ * @ingroup tranprops
  */
 class MMCollisionInt
 {

@@ -51,7 +51,7 @@ class GasTransportParams;
  *  The flux of energy has units of energy (kg m2 /s2) per second per area.
  *
  *  The units of lambda are W / m K which is equivalent to kg m / s^3 K.
- *
+ *  @ingroup tranprops
  */
 class MixTransport : public GasTransport
 {
