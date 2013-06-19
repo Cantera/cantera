@@ -27,6 +27,7 @@ class WaterProps;
 class PDSS_Water;
 
 //! Transport Parameters for pure water
+//! @ingroup tranprops
 class WaterTransport : public Transport
 {
 public:

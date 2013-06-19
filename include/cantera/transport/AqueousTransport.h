@@ -101,6 +101,7 @@ class LiquidTransportParams;
  *  In the first part, the viscosity of the pure species are calculated
  *  In the second part, a mixing rule is applied, based on the
  *  Wilkes correlation, to yield the mixture viscosity.
+ * @ingroup tranprops
  */
 class AqueousTransport : public Transport
 {

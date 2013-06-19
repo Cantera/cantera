@@ -57,6 +57,7 @@ namespace Cantera
  *  (4)   J. W. Veldsink, R. M. J. van Damme, G. F. Versteeg, W. P. M. van Swaaij,
  *        "The use of the dusty gas model for the description of mass transport with chemical reaction in porous media,"
  *        Chemical Engineering Journal, 57, 115 - 125 (1995).
+ * @ingroup tranprops
  */
 class DustyGasTransport : public Transport
 {

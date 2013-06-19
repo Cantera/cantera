@@ -12,6 +12,7 @@ namespace Cantera
 
 //! Class GasTransport implements some functions and properties that are
 //! shared by the MixTransport and MultiTransport classes.
+//! @ingroup tranprops
 class GasTransport : public Transport
 {
 public:

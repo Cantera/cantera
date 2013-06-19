@@ -33,8 +33,7 @@ class XML_Node;
  * generating polynomial fits.  Transport managers can also be created in
  * other ways.
  *
- * @ingroup transportgroup
- * @ingroup transportProps
+ * @ingroup tranprops
  */
 class TransportFactory : public FactoryBase
 {
@@ -407,7 +406,7 @@ private:
  *  @param f               ptr to the TransportFactory object if it's been malloced.
  *  @param ndim            Number of dimensions for transport fluxes
  *
- * @ingroup transportProps
+ * @ingroup tranprops
  */
 Transport* newTransportMgr(const std::string& transportModel = "",  thermo_t* thermo = 0, int loglevel = 0,
                            TransportFactory* f = 0, int ndim=1);
@@ -420,7 +419,7 @@ Transport* newTransportMgr(const std::string& transportModel = "",  thermo_t* th
  *      allocated.
  *  @return                Returns a transport manager for the phase
  *
- * @ingroup transportProps
+ * @ingroup tranprops
  */
 Transport* newDefaultTransportMgr(thermo_t* thermo, int loglevel = 0,  TransportFactory* f = 0);
 
