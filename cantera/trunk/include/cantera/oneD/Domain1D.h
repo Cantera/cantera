@@ -32,6 +32,7 @@ class OneDim;
 
 /**
  * Base class for one-dimensional domains.
+ * @ingroup onedim
  */
 class Domain1D
 {

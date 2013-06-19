@@ -14,6 +14,7 @@ namespace Cantera
 /**
  * One-dimensional simulations. Class Sim1D extends class OneDim by storing
  * the solution vector, and by adding a hybrid Newton/time-stepping solver.
+ * @ingroup onedim
  */
 class Sim1D : public OneDim
 {

@@ -36,6 +36,7 @@ const int c_Soret = 2;
 /**
  *  This class represents 1D flow domains that satisfy the one-dimensional
  *  similarity solution for chemically-reacting, axisymmetric, flows.
+ *  @ingroup onedim
  */
 class StFlow : public Domain1D
 {
@@ -501,6 +502,7 @@ private:
 
 /**
  * A class for axisymmetric stagnation flows.
+ * @ingroup onedim
  */
 class AxiStagnFlow : public StFlow
 {
@@ -522,6 +524,7 @@ public:
 
 /**
  * A class for freely-propagating premixed flames.
+ * @ingroup onedim
  */
 class FreeFlame : public StFlow
 {
