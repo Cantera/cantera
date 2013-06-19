@@ -36,6 +36,7 @@ const int RightInlet = -1;
  *
  * The public methods are all virtual, and the base class
  * implementations throw exceptions.
+ * @ingroup onedim
  */
 class Bdry1D : public Domain1D
 {
@@ -115,6 +116,7 @@ private:
 
 /**
  * An inlet.
+ * @ingroup onedim
  */
 class Inlet1D : public Bdry1D
 {
@@ -188,6 +190,7 @@ protected:
 
 /**
  * A terminator that does nothing.
+ * @ingroup onedim
  */
 class Empty1D : public Domain1D
 {
@@ -215,6 +218,7 @@ public:
 /**
  * A symmetry plane. The axial velocity u = 0, and all other
  * components have zero axial gradients.
+ * @ingroup onedim
  */
 class Symm1D : public Bdry1D
 {
@@ -272,6 +276,7 @@ public:
 
 /**
  * An outlet with specified composition.
+ * @ingroup onedim
  */
 class OutletRes1D : public Bdry1D
 {
@@ -360,6 +365,7 @@ public:
 
 /**
  * A reacting surface.
+ * @ingroup onedim
  */
 class ReactingSurf1D : public Bdry1D
 {

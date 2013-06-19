@@ -17,6 +17,7 @@ namespace Cantera
 /**
  * Newton iterator for multi-domain, one-dimensional problems.
  * Used by class OneDim.
+ * @ingroup onedim
  */
 class MultiNewton
 {

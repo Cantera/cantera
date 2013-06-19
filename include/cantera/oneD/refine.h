@@ -9,6 +9,7 @@ namespace Cantera
 class Domain1D;
 
 //! Refine Domain1D grids so that profiles satisfy adaptation tolerances
+//! @ingroup onedim
 class Refiner
 {
 public:
