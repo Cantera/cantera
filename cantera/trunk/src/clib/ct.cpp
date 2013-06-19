@@ -697,7 +697,7 @@ extern "C" {
     double th_critTemperature(int n)
     {
         try {
-            return ThermoCabinet::get<PureFluidPhase>(n).critTemperature();
+            return ThermoCabinet::item(n).critTemperature();
         } catch (...) {
             return handleAllExceptions(DERR, DERR);
         }
@@ -706,7 +706,7 @@ extern "C" {
     double th_critPressure(int n)
     {
         try {
-            return ThermoCabinet::get<PureFluidPhase>(n).critPressure();
+            return ThermoCabinet::item(n).critPressure();
         } catch (...) {
             return handleAllExceptions(DERR, DERR);
         }
@@ -715,7 +715,7 @@ extern "C" {
     double th_critDensity(int n)
     {
         try {
-            return ThermoCabinet::get<PureFluidPhase>(n).critDensity();
+            return ThermoCabinet::item(n).critDensity();
         } catch (...) {
             return handleAllExceptions(DERR, DERR);
         }
