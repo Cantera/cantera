@@ -1,4 +1,5 @@
-import SI, math
+import math
+from . import SI
 
 #
 # Definitions of common density units

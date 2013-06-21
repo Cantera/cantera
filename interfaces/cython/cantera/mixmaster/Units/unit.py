@@ -1,6 +1,6 @@
 import operator
 
-class unit:
+class unit(object):
 
     _zero = (0,) * 7
     _negativeOne = (-1, ) * 7
@@ -37,8 +37,10 @@ class unit:
 
         return unit(value, derivation)
 
-
     def __div__(self, other):
+        return self.__truediv__(other)
+
+    def __truediv__(self, other):
         if type(other) == type(0) or type(other) == type(0.0):
             return unit(self.value/other, self.derivation)
 
@@ -77,6 +79,9 @@ class unit:
         return unit.__mul__(self, other)
 
     def __rdiv__(self, other):
+        return self.__rtruediv__(other)
+
+    def __rtruediv__(self, other):
         if type(other) != type(0) and type(other) != type(0.0):
             raise BadOperation(self, other)
 

@@ -1,9 +1,14 @@
-from Tkinter import *
+import sys
+if sys.version_info.major == 3:
+    from tkinter import *
+else:
+    from Tkinter import *
+
 import re, math
 from Cantera import *
-from Units import temperature, specificEnergy, specificEntropy
-from UnitChooser import UnitVar
-from GraphFrame import Graph
+from .Units import temperature, specificEnergy, specificEntropy
+from .UnitChooser import UnitVar
+from .GraphFrame import Graph
 
 def testit():
     pass
@@ -44,7 +49,7 @@ class SpeciesInfo(Label):
         Label(self.eframe,text='Atoms:')\
                                .grid(row=0,column=0,sticky=N+W)
         for el, c in self.sp.composition():
-            Label(self.eframe,text=`int(c)`+' '+el).grid(row=0,column=r)
+            Label(self.eframe,text=repr(int(c))+' '+el).grid(row=0,column=r)
             r = r + 1
 
 

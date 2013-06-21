@@ -1,11 +1,20 @@
+from __future__ import print_function
+
 from types import *
-from Tkinter import *
-from ScrolledText import ScrolledText
+
+import sys
+if sys.version_info.major == 3:
+    from tkinter import *
+    from tkinter.scrolledtext import ScrolledText
+else:
+    from Tkinter import *
+    from ScrolledText import ScrolledText
+
 #import datawindow
 #import filewindow
 
 def ff():
-    print ' hi '
+    print(' hi ')
 
 class ControlWindow(Frame):
     fncs = [ff]*10
@@ -90,23 +99,23 @@ class ControlWindow(Frame):
         return filemenu
 
 def testevent(event):
-    print 'event ',event.value
+    print('event ',event.value)
 
-def make_menu(name, menubar, list):
+def make_menu(name, menubar, lst):
     nc = len(name)
     button=Menubutton(menubar, text=name, width=nc+4, padx=3,pady=1)
     button.pack(side=LEFT)
     menu = Menu(button,tearoff=FALSE)
     m = menu
     i = 0
-    for entry in list:
+    for entry in lst:
         i += 1
         if entry == 'separator':
             menu.add_separator({})
-        elif type(entry)==ListType:
+        elif isinstance(entry, list):
             for num in entry:
                 menu.entryconfig(num,state=DISABLED)
-        elif type(entry[1]) != ListType:
+        elif not isinstance(entry[1], list):
             if i == 20:
                 i = 0
                 submenu = Menu(button,tearoff=FALSE)
@@ -143,7 +152,6 @@ def menuitem_state(button, *statelist):
             pass
 
 class ArgumentWindow(Toplevel):
-    import tkMessageBox
     def __init__(self, sim, **options):
         Toplevel.__init__(self, sim.cwin)
         self.resizable(FALSE,FALSE)

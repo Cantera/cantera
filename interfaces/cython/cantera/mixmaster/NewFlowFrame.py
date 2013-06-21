@@ -1,7 +1,12 @@
-from Tkinter import *
 from Cantera import *
 
-from SpeciesInfo import SpeciesInfo
+import sys
+if sys.version_info.major == 3:
+    from tkinter import *
+else:
+    from Tkinter import *
+
+from .SpeciesInfo import SpeciesInfo
 
 _CUTOFF = 1.e-15
 _ATOL = 1.e-15

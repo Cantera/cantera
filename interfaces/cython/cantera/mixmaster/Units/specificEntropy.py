@@ -1,4 +1,4 @@
-import SI, energy, mass
+from . import SI, energy, mass
 
 units = ['J__kg_K', 'kJ__kg_K', 'cal__g_K']
 

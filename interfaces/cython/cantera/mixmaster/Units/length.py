@@ -1,5 +1,5 @@
-from SI import meter
-from SI import nano, milli, centi, kilo
+from .SI import meter
+from .SI import nano, milli, centi, kilo
 
 #
 # Definitions of common length units

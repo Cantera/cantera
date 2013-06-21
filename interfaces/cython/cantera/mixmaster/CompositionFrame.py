@@ -1,7 +1,13 @@
-from Tkinter import *
+import sys
+
+if sys.version_info.major == 3:
+    from tkinter import *
+else:
+    from Tkinter import *
+
 from Cantera import *
 
-from SpeciesInfo import SpeciesInfo
+from .SpeciesInfo import SpeciesInfo
 #from KineticsFrame import KineticsFrame
 
 _CUTOFF = 1.e-15

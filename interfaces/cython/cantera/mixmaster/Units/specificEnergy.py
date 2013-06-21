@@ -1,4 +1,4 @@
-import SI, energy, mass
+from . import SI, energy, mass
 
 #
 # Definitions of common energy units

@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from unit import unit, dimensionless
+from .unit import unit, dimensionless
 
 #
 # The basic SI units
@@ -75,39 +75,39 @@ yocto = 1e-24
 
 if __name__ == "__main__":
 
-    print "The 7 base SI units:"
-    print "             meter: %s" % meter
-    print "          kilogram: %s" % kilogram
-    print "            second: %s" % second
-    print "            ampere: %s" % ampere
-    print "            kelvin: %s" % kelvin
-    print "              mole: %s" % mole
-    print "           candela: %s" % candela
-    print
-    print "The 21 SI derived units with special names:"
-    print "            radian: %s" % radian
-    print "         steradian: %s" % steradian
-    print "             hertz: %s" % hertz
+    print("The 7 base SI units:")
+    print("             meter: %s" % meter)
+    print("          kilogram: %s" % kilogram)
+    print("            second: %s" % second)
+    print("            ampere: %s" % ampere)
+    print("            kelvin: %s" % kelvin)
+    print("              mole: %s" % mole)
+    print("           candela: %s" % candela)
+    print("")
+    print("The 21 SI derived units with special names:")
+    print("            radian: %s" % radian)
+    print("         steradian: %s" % steradian)
+    print("             hertz: %s" % hertz)
 
-    print "            newton: %s" % newton
-    print "            pascal: %s" % pascal
-    print "             joule: %s" % joule
-    print "              watt: %s" % watt
+    print("            newton: %s" % newton)
+    print("            pascal: %s" % pascal)
+    print("             joule: %s" % joule)
+    print("              watt: %s" % watt)
 
-    print "           coulomb: %s" % coulomb
-    print "              volt: %s" % volt
-    print "             farad: %s" % farad
-    print "               ohm: %s" % ohm
-    print "           siemens: %s" % siemens
-    print "             weber: %s" % weber
-    print "             tesla: %s" % tesla
-    print "             henry: %s" % henry
+    print("           coulomb: %s" % coulomb)
+    print("              volt: %s" % volt)
+    print("             farad: %s" % farad)
+    print("               ohm: %s" % ohm)
+    print("           siemens: %s" % siemens)
+    print("             weber: %s" % weber)
+    print("             tesla: %s" % tesla)
+    print("             henry: %s" % henry)
 
-    print "    degree Celsius: %s" % celsius
+    print("    degree Celsius: %s" % celsius)
 
-    print "             lumen: %s" % lumen
-    print "               lux: %s" % lux
+    print("             lumen: %s" % lumen)
+    print("               lux: %s" % lux)
 
-    print "         becquerel: %s" % becquerel
-    print "              gray: %s" % gray
-    print "           sievert: %s" % sievert
+    print("         becquerel: %s" % becquerel)
+    print("              gray: %s" % gray)
+    print("           sievert: %s" % sievert)

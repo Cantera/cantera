@@ -1,6 +1,6 @@
 from Cantera import GasConstant, OneAtm
 from Cantera.num import zeros, ones
-from utilities import handleError
+from .utilities import handleError
 
 def spdict(phase, x):
     nm = phase.speciesNames()

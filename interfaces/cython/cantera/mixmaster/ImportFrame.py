@@ -1,8 +1,14 @@
-import os, math
-from Tkinter import *
+import os, math,sys
+
+if sys.version_info.major == 3:
+    from tkinter import *
+    from tkinter.filedialog import askopenfilename
+else:
+    from Tkinter import *
+    from tkFileDialog import askopenfilename
+
 from Cantera import *
 #from Cantera.ck2ctml import ck2ctml
-from tkFileDialog import askopenfilename
 
 class ImportFrame(Frame):
     def __init__(self,top):
@@ -84,7 +90,7 @@ class ImportFrame(Frame):
         else: nm = ff
         outfile = p+os.sep+nm+'.xml'
         try:
-            print 'not supported.'
+            print('not supported.')
             #ck2ctml(infile = ckfile, thermo = thermdb,
             #       transport = trandb, outfile = outfile,
             #       id = nm)
@@ -92,7 +98,7 @@ class ImportFrame(Frame):
             return
 
         except:
-            print 'Errors were encountered. See log file ck2ctml.log'
+            print('Errors were encountered. See log file ck2ctml.log')
             self.hide()
             return
 

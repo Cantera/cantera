@@ -3,10 +3,13 @@
 #  the selected elements
 #
 
-from Tkinter import *
-from types import *
-import tkMessageBox
+import sys
+if sys.version_info.major == 3:
+    from tkinter import *
+else:
+    from Tkinter import *
 
+from types import *
 from Cantera import *
 
 class SpeciesFrame(Frame):
@@ -171,4 +174,4 @@ def showElementProperties(ellist):
 
 
 if __name__ == "__main__":
-    print getSpecies()
+    print(getSpecies())
