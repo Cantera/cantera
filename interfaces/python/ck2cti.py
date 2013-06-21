@@ -1459,19 +1459,16 @@ class Parser(object):
 
                     # Don't forget the last reaction!
                     if kinetics.strip() != '':
-                        startLines.append(self.line_number)
                         kineticsList.append(kinetics)
                         commentsList.append(comments)
 
                     if kineticsList[0] == '' and commentsList[-1] == '':
                         # True for mechanism files generated from RMG-Py
                         kineticsList.pop(0)
-                        startLines.pop(0)
                         commentsList.pop(-1)
                     elif kineticsList[0] == '' and commentsList[0] == '':
                         # True for mechanism files generated from RMG-Java
                         kineticsList.pop(0)
-                        startLines.pop(0)
                         commentsList.pop(0)
                     else:
                         # In reality, comments can occur anywhere in the mechanism
@@ -1487,7 +1484,11 @@ class Parser(object):
                             commentsList = ['' for kinetics in kineticsList]
 
                     for kinetics, comments, line_number in zip(kineticsList, commentsList, startLines):
-                        reaction,revReaction = self.readKineticsEntry(kinetics)
+                        try:
+                            reaction,revReaction = self.readKineticsEntry(kinetics)
+                        except Exception as e:
+                            print('Error reading reaction entry starting on line {0}:'.format(line_number))
+                            raise
                         reaction.line_number = line_number
                         self.reactions.append(reaction)
                         if revReaction is not None:
