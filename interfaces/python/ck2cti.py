@@ -312,6 +312,7 @@ class KineticsModel(object):
         self.Pmax = Pmax
         self.comment = comment
         self.parser = parser
+        self.efficiencies = {}
 
     def isPressureDependent(self):
         """
@@ -326,11 +327,8 @@ class KineticsModel(object):
         raise InputParseError('to_cti is not implemented for objects of class {0}'.format(self.__class__.__name__))
 
     def efficiencyString(self):
-        if hasattr(self, 'efficiencies'):
-            return ' '.join('{0}:{1}'.format(mol, eff)
-                            for mol,eff in self.efficiencies.items())
-        else:
-            return ''
+        return ' '.join('{0}:{1}'.format(mol, eff)
+                        for mol,eff in self.efficiencies.items())
 
 
 class KineticsData(KineticsModel):
@@ -1539,12 +1537,20 @@ class Parser(object):
 
         possible_duplicates = defaultdict(list)
         for r in self.reactions:
-            k = tuple(r.reactants), tuple(r.products), r.kinetics.isPressureDependent()
+            k = (tuple(r.reactants), tuple(r.products), r.kinetics.isPressureDependent())
             possible_duplicates[k].append(r)
 
         for reactions in possible_duplicates.values():
             for r1,r2 in itertools.combinations(reactions, 2):
-                if not r1.duplicate or not r2.duplicate:
+                if r1.duplicate and r2.duplicate:
+                    pass # marked duplicate reaction
+                elif r1.thirdBody.upper() == 'M' and r1.kinetics.efficiencies.get(r2.thirdBody) == 0:
+                    pass # explicit zero efficiency
+                elif r2.thirdBody.upper() == 'M' and r2.kinetics.efficiencies.get(r1.thirdBody) == 0:
+                    pass # explicit zero efficiency
+                elif r1.thirdBody != r2.thirdBody:
+                    pass # distinct third bodies
+                else:
                     raise InputParseError(message.format(r1, r1.line_number, r2.line_number))
 
     def parseTransportData(self, lines):
