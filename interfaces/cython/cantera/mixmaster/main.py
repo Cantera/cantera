@@ -23,9 +23,8 @@ else:
 import sys, os, string
 
 # Cantera imports
-from Cantera import *
-from Cantera.num import zeros
-from Cantera.gases import IdealGasMix
+from cantera import *
+from numpy import zeros
 from . import utilities
 
 # local imports
@@ -66,7 +65,7 @@ class MixMaster:
         ff = os.path.splitext(self.fname)
 
         try:
-            self.mech = IdealGasMix(pathname)
+            self.mech = Solution(pathname)
             self.mechname = ff[0]
 
         except:
@@ -121,17 +120,17 @@ class MixMaster:
 
     def makeMix(self):
         self.mix = Mix(self.mech)
-        nsp = self.mech.nSpecies()
+        nsp = self.mech.n_species
         self.species = []
-        nm = self.mech.speciesNames()
+        nm = self.mech.species_names
 
         for k in range(nsp):
             self.species.append(Species(self.mech, nm[k]))
 
-        x = self.mech.moleFractions()
+        x = self.mech.X
         self.mix.setMoles(x)
-        self.mix.set(temperature = self.mech.temperature(),
-                     pressure = self.mech.pressure())
+        self.mix.set(temperature = self.mech.T,
+                     pressure = self.mech.P)
 
 
 

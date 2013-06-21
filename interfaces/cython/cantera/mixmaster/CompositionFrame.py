@@ -5,7 +5,8 @@ if sys.version_info.major == 3:
 else:
     from Tkinter import *
 
-from Cantera import *
+from cantera import *
+import numpy as np
 
 from .SpeciesInfo import SpeciesInfo
 #from KineticsFrame import KineticsFrame
@@ -94,12 +95,12 @@ class CompFrame(Frame):
 
         elif c == 2:
             mf.var.set("Concentration")
-            mf.comp = mix.concentrations()
+            mf.comp = g.concentrations
             #mf.data = spdict(mix,mix,mf.comp)
 
         for s in mf.variable.keys():
             try:
-                k = g.speciesIndex(s)
+                k = g.species_index(s)
                 if mf.comp[k] > _CUTOFF:
                     mf.variable[s].set(mf.comp[k])
                 else:
@@ -129,7 +130,7 @@ class MixtureFrame(Frame):
         #self.scroll.grid(column=0,row=1)
         self.var = StringVar()
         self.var.set("Moles")
-        self.comp = array(self.top.mix.moles())
+        self.comp = np.array(self.top.mix.moles())
         self.names = self.top.mix.speciesNames()
         self.nsp = len(self.names)
         #self.data = self.top.mix.moleDict()
@@ -149,7 +150,7 @@ class MixtureFrame(Frame):
     def update(self):
         self.newcomp = 0
         for s in self.variable.keys():
-            k = self.g.speciesIndex(s)
+            k = self.g.species_index(s)
             current = self.comp[k]
             val = self.variable[s].get()
             dv = abs(val - current)

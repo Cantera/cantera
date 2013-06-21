@@ -12,7 +12,7 @@ else:
 from types import *
 import string
 
-from Cantera import *
+from cantera import *
 
 # (row,column) positions in the periodic table
 _pos = {'H':(1,1), 'He':(1,18),

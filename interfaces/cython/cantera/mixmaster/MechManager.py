@@ -1,4 +1,4 @@
-from Cantera import *
+from cantera import *
 
 import sys
 if sys.version_info.major == 3:

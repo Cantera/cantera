@@ -6,7 +6,7 @@ else:
     from Tkinter import *
 
 import math
-from Cantera.num import *
+from numpy import *
 
 def plotLimits(ypts, f=0.0, ndiv=5, logscale=0):
     """Return plot limits that"""

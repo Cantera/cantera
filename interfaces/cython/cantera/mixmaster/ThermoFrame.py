@@ -1,6 +1,6 @@
 
 
-from Cantera import *
+from cantera import *
 
 import sys
 if sys.version_info.major == 3:
@@ -93,12 +93,12 @@ class ThermoFrame(Frame):
             self.prop[1].check()
 
     def showState(self):
-        self.prop[_TEMPERATURE].set(self.mix.g.temperature())
-        self.prop[_PRESSURE].set(self.mix.g.pressure())
-        self.prop[_DENSITY].set(self.mix.g.density())
-        self.prop[_INTENERGY].set(self.mix.g.intEnergy_mass())
-        self.prop[_ENTHALPY].set(self.mix.g.enthalpy_mass())
-        self.prop[_ENTROPY].set(self.mix.g.entropy_mass())
+        self.prop[_TEMPERATURE].set(self.mix.g.T)
+        self.prop[_PRESSURE].set(self.mix.g.P)
+        self.prop[_DENSITY].set(self.mix.g.density)
+        self.prop[_INTENERGY].set(self.mix.g.int_energy_mass)
+        self.prop[_ENTHALPY].set(self.mix.g.enthalpy_mass)
+        self.prop[_ENTROPY].set(self.mix.g.entropy_mass)
 
     def setState(self,event=None):
         if event:

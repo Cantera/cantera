@@ -11,8 +11,7 @@ else:
 
 
 
-from Cantera.gases import IdealGasMix
-from Cantera import *
+from cantera import *
 
 class NewFlowDialog:
 

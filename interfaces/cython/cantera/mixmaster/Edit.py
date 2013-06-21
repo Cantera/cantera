@@ -8,7 +8,7 @@ else:
 
 from .ElementFrame import getElements
 from .utilities import handleError
-from Cantera import *
+from cantera import *
 from .config import *
 from .SpeciesFrame import getSpecies
 
