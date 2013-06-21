@@ -151,7 +151,7 @@ cdef class ReactionPathDiagram:
         Write the reaction path diagram formatted for use by Graphviz's 'dot'
         program to the file named *filename*.
         """
-        open(filename, 'wb').write(self.get_dot())
+        open(filename, 'wb').write(self.get_dot().encode('utf-8'))
 
     def get_data(self):
         """
