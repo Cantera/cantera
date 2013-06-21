@@ -7,10 +7,9 @@ if sys.version_info.major == 3:
 else:
     from Tkinter import *
 
-from Cantera import *
+from cantera import *
 
 from .SpeciesInfo import SpeciesInfo
-from Cantera import rxnpath
 import webbrowser
 
 _CUTOFF = 1.e-15
@@ -65,21 +64,21 @@ class KineticsFrame(Frame):
         if c == 0:
             mf.var.set("Creation Rates")
             #mf.data = spdict(mix.g, mix.moles())
-            mf.comp = g.creationRates()
+            mf.comp = g.creation_rates
 
         elif c == 1:
             mf.var.set("Destruction Rates")
             #mf.data = spdict(mix.g,mix.mass())
-            mf.comp = g.destructionRates()
+            mf.comp = g.destruction_rates
 
         elif c == 2:
             mf.var.set("Net Production Rates")
-            mf.comp = g.netProductionRates()
+            mf.comp = g.net_production_rates
             #mf.data = spdict(mix,mix,mf.comp)
 
         for s in mf.variable.keys():
             try:
-                k = g.speciesIndex(s)
+                k = g.species_index(s)
                 if mf.comp[k] > _CUTOFF or -mf.comp[k] > _CUTOFF:
                     mf.variable[s].set(mf.comp[k])
                 else:
@@ -191,7 +190,7 @@ class ReactionKineticsFrame(Frame):
         self.config(relief=GROOVE, bd=4)
         self.top = top
         self.g = self.top.mix.g
-        nr = self.g.nReactions()
+        nr = self.g.n_reactions
         self.eqs=Text(self,width=40,height=30)
         self.data = []
         self.start = DoubleVar()
@@ -204,7 +203,7 @@ class ReactionKineticsFrame(Frame):
             self.data.append(Text(self,width=15,height=30))
 
         for n in range(nr):
-            s = self.g.reactionEqn(n)
+            s = self.g.reaction_equation(n)
             self.eqs.insert(END,s+'\n')
         self.eqs.grid(column=0,row=1,sticky=W+E+N)
         for i in range(4):
@@ -254,10 +253,10 @@ class ReactionKineticsFrame(Frame):
         #       return
 
         self.master.deiconify()
-        nr = self.g.nReactions()
-        frop = self.g.fwdRatesOfProgress()
-        rrop = self.g.revRatesOfProgress()
-        kp = self.g.equilibriumConstants()
+        nr = self.g.n_reactions
+        frop = self.g.forward_rates_of_progress
+        rrop = self.g.reverse_rates_of_progress
+        kp = self.g.equilibrium_constants
         self.data[0].delete(1.0,END)
         self.data[1].delete(1.0,END)
         self.data[2].delete(1.0,END)
@@ -276,7 +275,7 @@ class ReactionKineticsFrame(Frame):
             self.data[2].insert(END,s)
             s = '%12.5e \n' % (kp[n],)
             self.data[3].insert(END,s)
-            self.eqs.insert(END, self.g.reactionEqn(n)+'\n')
+            self.eqs.insert(END, self.g.reaction_equation(n)+'\n')
 
 class ReactionPathFrame(Frame):
 
@@ -302,7 +301,7 @@ class ReactionPathFrame(Frame):
         self.sc.bind('<ButtonRelease-1>',self.show)
         scframe.grid(row=3,column=0,columnspan=10)
 
-        enames = self.g.elementNames()
+        enames = self.g.element_names
         self.nel = len(enames)
 
         i = 1
@@ -329,7 +328,7 @@ class ReactionPathFrame(Frame):
         sp.grid(column=2,row=1)
         sp.bind('<Any-Leave>',self.show)
 
-        self.b = rxnpath.PathBuilder(self.g)
+
 
         self.fmt = StringVar()
         self.fmt.set('svg')
@@ -371,27 +370,25 @@ class ReactionPathFrame(Frame):
     def show(self,e=None):
 
         self.master.deiconify()
-        el = self.g.elementName(self.el.get())
-        det = 'false'
-        if self.detailed.get() == 1: det = 'true'
-        flow = 'one_way'
-        if self.net.get() == 1: flow = 'net'
-        self.d = rxnpath.PathDiagram(arrow_width=-2,
-                                     flow_type=flow,
-                                     detailed = det,
-                                     threshold=math.pow(10.0,
-                                                   self.thresh.get()))
+        el = self.g.element_name(self.el.get())
+        det = False
+        if self.detailed.get() == 1: det = True
+        flow = 'OneWayFlow'
+        if self.net.get() == 1: flow = 'NetFlow'
+
+        self.d = ReactionPathDiagram(self.g, el)
+        self.d.arrow_width = -2
+        self.d.flow_type = flow
+        self.d.show_details = det
+        self.d.threshold = math.pow(10.0, self.thresh.get())
         node = self.local.get()
         try:
-            k = self.g.speciesIndex(node)
-            self.d.displayOnly(k)
+            k = self.g.species_index(node)
+            self.d.display_only(k)
         except:
-            self.d.displayOnly()
+            self.d.display_only(-1)
 
-        self.b.build(element = el, diagram = self.d,
-                dotfile = 'rxnpath.dot', format = 'dot')
-        #self.b.build(element = el, diagram = self.d,
-        #       dotfile = 'rxnpath.txt', format = 'plain')
+        self.d.write_dot('rxnpath.dot')
 
         if self.browser.get() == 1:
             fmt = self.fmt.get()

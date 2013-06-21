@@ -7,9 +7,8 @@ else:
     from Tkinter import *
     from tkFileDialog import askopenfilename
 
-from Cantera import *
-from Cantera.num import *
-from Cantera import num
+from cantera import *
+import numpy as num
 from .GraphFrame import Graph
 from .DataGraph import DataGraph, plotLimits
 from .ControlPanel import make_menu

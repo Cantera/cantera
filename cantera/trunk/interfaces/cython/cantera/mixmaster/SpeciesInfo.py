@@ -5,7 +5,7 @@ else:
     from Tkinter import *
 
 import re, math
-from Cantera import *
+from cantera import *
 from .Units import temperature, specificEnergy, specificEntropy
 from .UnitChooser import UnitVar
 from .GraphFrame import Graph

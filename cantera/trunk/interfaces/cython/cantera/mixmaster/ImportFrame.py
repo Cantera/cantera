@@ -7,7 +7,7 @@ else:
     from Tkinter import *
     from tkFileDialog import askopenfilename
 
-from Cantera import *
+from cantera import *
 #from Cantera.ck2ctml import ck2ctml
 
 class ImportFrame(Frame):

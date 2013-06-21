@@ -10,7 +10,7 @@ else:
     from Tkinter import *
 
 from types import *
-from Cantera import *
+from cantera import *
 
 class SpeciesFrame(Frame):
 
