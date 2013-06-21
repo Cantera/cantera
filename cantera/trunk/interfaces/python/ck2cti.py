@@ -1302,35 +1302,28 @@ class Parser(object):
 
         transportLines = []
 
-        def removeCommentFromLine(line):
-            if '!' in line:
-                index = line.index('!')
-                comment = line[index+1:-1]
-                line = line[0:index] + '\n'
-                return line, comment
-            else:
-                comment = ''
-                return line, comment
-
         with open(path, 'r') as ck_file:
             self.line_number = 0
+
             def readline():
                 self.line_number += 1
-                return ck_file.readline()
+                line = ck_file.readline()
+                if '!' in line:
+                    return line.split('!', 1)
+                elif line:
+                    return line, ''
+                else:
+                    return None, None
 
-            line = readline()
-            while line != '':
-                line = removeCommentFromLine(line)[0]
-                line = line.strip()
+            line, comment = readline()
+            while line is not None:
                 tokens = line.split()
 
                 if contains(line, 'ELEMENTS'):
                     index = get_index(tokens, 'ELEMENTS')
                     tokens = tokens[index+1:]
                     while not contains(line, 'END'):
-                        line = readline()
-                        line = removeCommentFromLine(line)[0]
-                        line = line.strip()
+                        line, comment = readline()
                         tokens.extend(line.split())
 
                     for token in tokens:
@@ -1343,9 +1336,7 @@ class Parser(object):
                     index = get_index(tokens, 'SPECIES')
                     tokens = tokens[index+1:]
                     while not contains(line, 'END'):
-                        line = readline()
-                        line = removeCommentFromLine(line)[0]
-                        line = line.strip()
+                        line, comment = readline()
                         tokens.extend(line.split())
 
                     for token in tokens:
@@ -1363,8 +1354,7 @@ class Parser(object):
                     entryLength = None
                     entry = []
                     while not get_index(line, 'END') == 0:
-                        line = readline()
-                        line = removeCommentFromLine(line)[0]
+                        line, comment = readline()
                         if not line:
                             continue
 
@@ -1403,11 +1393,10 @@ class Parser(object):
 
                 elif contains(line, 'THERM'):
                     # List of thermodynamics (hopefully one per species!)
-                    line = readline()
+                    line, comment = readline()
                     TintDefault = float(line.split()[1])
                     thermo = ''
                     while not contains(line, 'END'):
-                        line = removeCommentFromLine(line)[0]
                         if len(line) >= 80 and line[79] in ['1', '2', '3', '4']:
                             thermo += line
                             if line[79] == '4':
@@ -1419,7 +1408,7 @@ class Parser(object):
                                 except KeyError:
                                     logging.info('Skipping unexpected species "{0}" while reading thermodynamics entry.'.format(label))
                                 thermo = ''
-                        line = readline()
+                        line, comment = readline()
 
                 elif contains(line, 'REACTIONS'):
                     # Reactions section
@@ -1447,11 +1436,9 @@ class Parser(object):
                     kinetics = ''
                     comments = ''
 
-                    line = readline()
-                    while line and not contains(line, 'END'):
-
-                        lineStartsWithComment = line.startswith('!')
-                        line, comment = removeCommentFromLine(line)
+                    line, comment = readline()
+                    while line is not None and not contains(line, 'END'):
+                        lineStartsWithComment = not line and comment
                         line = line.strip()
                         comment = comment.strip()
 
@@ -1468,7 +1455,7 @@ class Parser(object):
                         if comment:
                             comments += comment + '\n'
 
-                        line = readline()
+                        line, comment = readline()
 
                     # Don't forget the last reaction!
                     if kinetics.strip() != '':
@@ -1508,11 +1495,14 @@ class Parser(object):
                             self.reactions.append(revReaction)
 
                 elif contains(line, 'TRAN'):
-                    line = readline()
+                    line, comment = readline()
                     while not contains(line, 'END'):
-                        transportLines.append(line)
+                        if comment:
+                            transportLines.append('!'.join((line, comment)))
+                        else:
+                            transportLines.append(line)
 
-                line = readline()
+                line, comment = readline()
 
         self.checkDuplicateReactions()
 
