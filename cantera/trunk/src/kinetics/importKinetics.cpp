@@ -13,7 +13,6 @@
 
 #include "cantera/kinetics/importKinetics.h"
 #include "cantera/thermo/mix_defs.h"
-#include <memory>
 
 //   Cantera includes
 #include "cantera/thermo/speciesThermoTypes.h"
@@ -48,23 +47,7 @@ ReactionRules::ReactionRules() :
 class rxninfo
 {
 public:
-    //! Net stoichiometric coefficients for each reaction
-    std::vector< std::map<int, doublereal> > m_rdata;
-
-    //! string name (i.e. the reaction equation)
-    std::vector<std::string> m_eqn;
-
-    //! Indicates whether each reaction is marked "duplicate"
-    std::vector<int> m_dup;
-
-    //! Number of reactants in each reaction
-    std::vector<size_t>  m_nr;
-
-    //! Indicates "type" of each reaction (see reaction_defs.h)
-    std::vector<int>  m_typ;
-
-    //! Indicates whether each reaction is reversible
-    std::vector<bool> m_rev;
+    std::vector<ReactionData*> m_rdata;
 
     //! Map of (vector indicating participating species) to reaction numbers
     //! Used to speed up duplicate reaction checks.
@@ -91,6 +74,12 @@ public:
     bool installReaction(int i, const XML_Node& r, Kinetics& kin,
                          std::string default_phase, ReactionRules& rules,
                          bool validate_rxn) ;
+
+    ~rxninfo() {
+        for (size_t i = 0; i < m_rdata.size(); i++) {
+            delete m_rdata[i];
+        }
+    }
 };
 
 void checkRxnElementBalance(Kinetics& kin,
@@ -632,13 +621,13 @@ bool rxninfo::installReaction(int iRxn, const XML_Node& r, Kinetics& kin,
     // We use the ReactionData object to store initial values read in from the
     // xml data. Then, when we have collected everything we add the reaction to
     // the kinetics object, kin, at the end of the routine.
-    ReactionData rdata;
+    ReactionData& rdata = **m_rdata.insert(m_rdata.end(), new ReactionData());
     rdata.validate = validate_rxn;
 
     // Check to see if the reaction is specified to be a duplicate of another
     // reaction. It's an error if the reaction is a duplicate and this is not
     // set.
-    int dup = (r.hasAttrib("duplicate")) ? 1 : 0;
+    rdata.duplicate = (r.hasAttrib("duplicate")) ? 1 : 0;
 
     // Check to see if the reaction rate constant can be negative. It's an
     // error if a negative rate constant is found and this is not set.
@@ -649,12 +638,12 @@ bool rxninfo::installReaction(int iRxn, const XML_Node& r, Kinetics& kin,
     // back into "<" and ">" which cannot easily be stored in an XML file. This
     // reaction string is used only for display purposes. It is not parsed for
     //  the identities of reactants or products.
-    string eqn = (r.hasChild("equation")) ? r("equation") : "<no equation>";
-    for (size_t nn = 0; nn < eqn.size(); nn++) {
-        if (eqn[nn] == '[') {
-            eqn[nn] = '<';
-        } else if (eqn[nn] == ']') {
-            eqn[nn] = '>';
+    rdata.equation = (r.hasChild("equation")) ? r("equation") : "<no equation>";
+    for (size_t nn = 0; nn < rdata.equation.size(); nn++) {
+        if (rdata.equation[nn] == '[') {
+            rdata.equation[nn] = '<';
+        } else if (rdata.equation[nn] == ']') {
+            rdata.equation[nn] = '>';
         }
     }
 
@@ -756,45 +745,37 @@ bool rxninfo::installReaction(int iRxn, const XML_Node& r, Kinetics& kin,
 
     // Look for undeclared duplicate reactions.
     if (validate_rxn) {
-        map<int, doublereal> rxnstoich;
         vector<char> participants(kin.nTotalSpecies(), 0);
         for (size_t nn = 0; nn < rdata.reactants.size(); nn++) {
-            rxnstoich[-1 - int(rdata.reactants[nn])] -= rdata.rstoich[nn];
+            rdata.net_stoich[-1 - int(rdata.reactants[nn])] -= rdata.rstoich[nn];
             participants[rdata.reactants[nn]] += 1;
         }
         for (size_t nn = 0; nn < rdata.products.size(); nn++) {
-            rxnstoich[int(rdata.products[nn])+1] += rdata.pstoich[nn];
+            rdata.net_stoich[int(rdata.products[nn])+1] += rdata.pstoich[nn];
             participants[rdata.products[nn]] += 2;
         }
 
         vector<size_t>& related = m_participants[participants];
         for (size_t mm = 0; mm < related.size(); mm++) {
-            size_t nn = related[mm];
-            if ((rdata.reactants.size() == m_nr[nn])
-                    && (rdata.reactionType == m_typ[nn])) {
-                doublereal c = isDuplicateReaction(rxnstoich, m_rdata[nn]);
+            ReactionData& other = *m_rdata[related[mm]];
+            if ((rdata.reactants.size() == other.reactants.size())
+                    && (rdata.reactionType == other.reactionType)) {
+                doublereal c = isDuplicateReaction(rdata.net_stoich, other.net_stoich);
                 if (c > 0.0
                         || (c < 0.0 && rdata.reversible)
-                        || (c < 0.0 && m_rev[nn])) {
-                    if ((!dup || !m_dup[nn])) {
+                        || (c < 0.0 && other.reversible)) {
+                    if ((!rdata.duplicate || !other.duplicate)) {
                         string msg = string("Undeclared duplicate reactions detected: \n")
-                                     +"Reaction "+int2str(nn+1)+": "+m_eqn[nn]
-                                     +"\nReaction "+int2str(iRxn+1)+": "+eqn+"\n";
+                                     +"Reaction "+int2str(other.number+1)+": "+other.equation
+                                     +"\nReaction "+int2str(iRxn+1)+": "+rdata.equation+"\n";
                         throw CanteraError("installReaction", msg);
                     }
                 }
             }
         }
-        m_dup.push_back(dup);
-        m_rev.push_back(rdata.reversible);
-        m_eqn.push_back(eqn);
-        m_nr.push_back(rdata.reactants.size());
-        m_typ.push_back(rdata.reactionType);
-        m_rdata.push_back(rxnstoich);
         m_participants[participants].push_back(m_rdata.size() - 1);
     }
 
-    rdata.equation = eqn;
     rdata.number = iRxn;
     rdata.rxn_number = iRxn;
 
@@ -817,7 +798,7 @@ bool rxninfo::installReaction(int iRxn, const XML_Node& r, Kinetics& kin,
 bool installReactionArrays(const XML_Node& p, Kinetics& kin,
                            std::string default_phase, bool check_for_duplicates)
 {
-    const std::auto_ptr<rxninfo> _rxns(new rxninfo);
+    rxninfo _rxns;
 
     vector<XML_Node*> rarrays;
     int itot = 0;
@@ -891,8 +872,8 @@ bool installReactionArrays(const XML_Node& p, Kinetics& kin,
             for (i = 0; i < nrxns; i++) {
                 const XML_Node* r = allrxns[i];
                 if (r) {
-                    if (_rxns->installReaction(itot, *r, kin,
-                                               default_phase, rxnrule, check_for_duplicates)) {
+                    if (_rxns.installReaction(itot, *r, kin,
+                                              default_phase, rxnrule, check_for_duplicates)) {
                         ++itot;
                     }
                 }
@@ -926,8 +907,8 @@ bool installReactionArrays(const XML_Node& p, Kinetics& kin,
                          * sometimes has surprising results.
                          */
                         if ((rxid >= imin) && (rxid <= imax)) {
-                            if (_rxns->installReaction(itot, *r, kin,
-                                                       default_phase, rxnrule, check_for_duplicates)) {
+                            if (_rxns.installReaction(itot, *r, kin,
+                                                      default_phase, rxnrule, check_for_duplicates)) {
                                 ++itot;
                             }
                         }
