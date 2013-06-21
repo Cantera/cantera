@@ -55,8 +55,14 @@ public:
     std::vector<grouplist_t> pgroups;
     std::map<size_t, doublereal> thirdBodyEfficiencies;
 
+    //! Net stoichiometric coefficients for participating species
+    std::map<int, doublereal> net_stoich;
+
     //! True if the current reaction is reversible. False otherwise
     bool reversible;
+
+    //! True if the current reaction is marked as duplicate
+    bool duplicate;
 
     //! Type of the rate coefficient for the forward rate constant
     /*!
