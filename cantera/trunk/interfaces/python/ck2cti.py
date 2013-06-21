@@ -1699,7 +1699,7 @@ duplicate transport data) to be ignored.
             print('Mechanism contains {0} species and {1} reactions.'.format(len(self.speciesList), len(self.reactions)))
 
 
-if __name__ == '__main__':
+def main(argv):
     import getopt
     import sys
 
@@ -1707,7 +1707,7 @@ if __name__ == '__main__':
                    'permissive', 'help', 'debug']
 
     try:
-        optlist, args = getopt.getopt(sys.argv[1:], 'dh', longOptions)
+        optlist, args = getopt.getopt(argv, 'dh', longOptions)
         options = dict()
         for o,a in optlist:
             options[o] = a
@@ -1748,3 +1748,7 @@ if __name__ == '__main__':
 
     parser.convertMech(inputFile, thermoFile, transportFile, phaseName,
                        outName, permissive=permissive)
+
+if __name__ == '__main__':
+    import sys
+    main(sys.argv[1:])

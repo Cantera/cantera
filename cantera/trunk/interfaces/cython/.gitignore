@@ -9,8 +9,11 @@ cantera/test/data/*.dat
 cantera/test/data/*.csv
 setup2.py
 setup3.py
-ctml_writer.py
+cantera/ctml_writer.py
 scripts/ctml_writer.py
 scripts/ctml_writer
+cantera/ck2cti.py
+scripts/ck2cti.py
+scripts/ck2cti
 Cantera.egg-info
 dist

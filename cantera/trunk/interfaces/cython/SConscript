@@ -43,18 +43,26 @@ def add_dependencies(mod, ext):
 if os.name == 'nt':
   script_ext = '.py'
   localenv['py_ctml_writer'] = repr('scripts/ctml_writer.py')
+  localenv['py_ck2cti'] = repr('scripts/ck2cti.py')
 else:
   script_ext = ''
   localenv['py_ctml_writer'] = repr('scripts/ctml_writer')
+  localenv['py_ck2cti'] = repr('scripts/ck2cti')
 
-# The actual ctml_writer script
-build(env.Command('ctml_writer.py',
+# The actual ctml_writer and ck2cti scripts
+build(env.Command('cantera/ctml_writer.py',
                   '#interfaces/python/ctml_writer.py',
+                  Copy('$TARGET', '$SOURCE')))
+build(env.Command('cantera/ck2cti.py',
+                  '#interfaces/python/ck2cti.py',
                   Copy('$TARGET', '$SOURCE')))
 
 # thin wrapper
 build(env.Command('scripts/ctml_writer%s' % script_ext,
                   'scripts/ctml_writer.py.in',
+                  Copy('$TARGET', '$SOURCE')))
+build(env.Command('scripts/ck2cti%s' % script_ext,
+                  'scripts/ck2cti.py.in',
                   Copy('$TARGET', '$SOURCE')))
 
 def install_module(prefix, python_version):
