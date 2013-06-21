@@ -1,5 +1,10 @@
-from Tkinter import *
-from UnitChooser import UnitVar
+import sys
+if sys.version_info.major == 3:
+    from tkinter import *
+else:
+    from Tkinter import *
+
+from .UnitChooser import UnitVar
 
 _tv = ['Temperature','Internal Energy','Enthalpy']
 _pv = ['Pressure', 'Density']

@@ -1,12 +1,18 @@
-import os, math, string
-from Tkinter import *
+import os, math, string, sys
+
+if sys.version_info.major == 3:
+    from tkinter import *
+    from tkinter.filedialog import askopenfilename
+else:
+    from Tkinter import *
+    from tkFileDialog import askopenfilename
+
 from Cantera import *
 from Cantera.num import *
 from Cantera import num
-from tkFileDialog import askopenfilename
-from GraphFrame import Graph
-from DataGraph import DataGraph, plotLimits
-from ControlPanel import make_menu
+from .GraphFrame import Graph
+from .DataGraph import DataGraph, plotLimits
+from .ControlPanel import make_menu
 
 
 U_LOC = 1
@@ -180,7 +186,7 @@ class DataFrame(Frame):
 
         if self.data[P_LOC,0] == 0.0:
             self.data[P_LOC,:] = ones(self.np,'d')*OneAtm
-            print 'Warning: no pressure data. P set to 1 atm.'
+            print('Warning: no pressure data. P set to 1 atm.')
 
         self.sc.config(cnf={'from':0,'to':self.np-1})
         if self.loc.get() <= 0:

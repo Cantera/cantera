@@ -1,7 +1,11 @@
 
 
 # functionality imports
-from Tkinter import *
+import sys
+if sys.version_info.major == 3:
+    from tkinter import *
+else:
+    from Tkinter import *
 
 from Cantera.gui import menu, newflow
 
@@ -27,7 +31,7 @@ class App:
         self.newbutton.grid(row = 1, column = 1)
 
     def notyet(self):
-        print 'not yet!'
+        print('not yet!')
 
 
     def newflow(self):

@@ -1,8 +1,15 @@
-import os, math
-from Tkinter import *
+from __future__ import print_function
+
+import os, math, sys
+
+if sys.version_info.major == 3:
+    from tkinter import *
+else:
+    from Tkinter import *
+
 from Cantera import *
 
-from SpeciesInfo import SpeciesInfo
+from .SpeciesInfo import SpeciesInfo
 from Cantera import rxnpath
 import webbrowser
 
@@ -241,7 +248,7 @@ class ReactionKineticsFrame(Frame):
 
     def show(self,e=None,b=None,c=None):
         v = self.vis.get()
-        print e,b,c
+        print(e,b,c)
         #if v == 0:
         #       self.hide()
         #       return

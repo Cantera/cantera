@@ -3,9 +3,13 @@
 #  the selected elements
 #
 
-from Tkinter import *
+import sys
+if sys.version_info.major == 3:
+    from tkinter import *
+else:
+    from Tkinter import *
+
 from types import *
-import tkMessageBox
 import string
 
 from Cantera import *
@@ -140,15 +144,15 @@ class ElementPropertyFrame(Frame):
                                      sticky=W,
                                      padx=10)
             Label(self,
-                  text=`el.atomicNumber`).grid(column=1,
-                                               row=n,
-                                               sticky=W,
-                                               padx=10)
+                  text=repr(el.atomicNumber)).grid(column=1,
+                                                   row=n,
+                                                   sticky=W,
+                                                   padx=10)
             Label(self,
-                  text=`el.atomicWeight`).grid(column=2,
-                                               row=n,
-                                               sticky=W,
-                                               padx=10)
+                  text=repr(el.atomicWeight)).grid(column=2,
+                                                   row=n,
+                                                   sticky=W,
+                                                   padx=10)
             n = n + 1
 
 
@@ -179,4 +183,4 @@ def showElementProperties(ellist):
 
 
 if __name__ == "__main__":
-    print getElements()
+    print(getElements())

@@ -1,4 +1,4 @@
-from SI import second
+from .SI import second
 
 #
 # Definitions of common time units

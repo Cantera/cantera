@@ -1,7 +1,13 @@
 from Cantera import *
-from Tkinter import *
-from ControlPanel import ControlWindow
-from ControlPanel import make_menu, menuitem_state
+
+import sys
+if sys.version_info.major == 3:
+    from tkinter import *
+else:
+    from Tkinter import *
+
+from .ControlPanel import ControlWindow
+from .ControlPanel import make_menu, menuitem_state
 #from Cantera.Examples.Tk import _mechdir
 import os
 

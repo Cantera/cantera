@@ -1,4 +1,4 @@
-from SI import kilogram
+from .SI import kilogram
 
 #
 # Definitions of common mass units

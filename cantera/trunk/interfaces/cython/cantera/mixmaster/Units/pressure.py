@@ -1,4 +1,4 @@
-import SI
+from . import SI
 
 #
 # Definitions of common pressure units

@@ -1,4 +1,4 @@
-from SI import meter
+from .SI import meter
 
 #
 # Definitions of common force units

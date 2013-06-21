@@ -1,4 +1,4 @@
-from SI import joule
+from .SI import joule
 
 #
 # Definitions of common energy units

@@ -1,12 +1,17 @@
 
 
 from Cantera import *
-from Tkinter import *
 
-from Units import temperature, pressure, density, specificEnergy, specificEntropy
-from UnitChooser import UnitVar
-from ThermoProp import ThermoProp
-from utilities import handleError
+import sys
+if sys.version_info.major == 3:
+    from tkinter import *
+else:
+    from Tkinter import *
+
+from .Units import temperature, pressure, density, specificEnergy, specificEntropy
+from .UnitChooser import UnitVar
+from .ThermoProp import ThermoProp
+from .utilities import handleError
 
 _PRESSURE = 1
 _TEMPERATURE = 0

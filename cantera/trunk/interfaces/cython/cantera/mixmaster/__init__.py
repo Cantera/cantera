@@ -1,4 +1,4 @@
 
 # from Cantera import *
 
-from main import MixMaster
+#from .main import MixMaster

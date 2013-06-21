@@ -1,7 +1,15 @@
 
-from Tkinter import *
-from tkFileDialog import askopenfilename
-import tkMessageBox
+import sys
+if sys.version_info.major == 3:
+    from tkinter import *
+    from tkinter.filedialog import askopenfilename
+    from tkinter import messagebox
+else:
+    from Tkinter import *
+    import tkMessageBox as messagebox
+    from tkFileDialog import askopenfilename
+
+
 
 from Cantera.gases import IdealGasMix
 from Cantera import *
@@ -104,8 +112,8 @@ class NewFlowDialog:
                 self.gas = IdealGasMix(import_file = infile)
 
         except:
-            tkMessageBox.showerror('Create Gas',
-                                   'Error reading file %s. See log file for more information.' % infile)
+            messagebox.showerror('Create Gas',
+                                 'Error reading file %s. See log file for more information.' % infile)
 
         #self.flow = Flow1D(flow_type = ftype, flow_geom = fgeom,
         #                   pressure = p, grid = gr, gas = g)

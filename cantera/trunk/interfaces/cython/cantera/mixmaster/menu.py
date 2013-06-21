@@ -1,17 +1,20 @@
-from Tkinter import *
+import sys
+if sys.version_info.major == 3:
+    from tkinter import *
+else:
+    from Tkinter import *
 
-def make_menu(name, menubar, list):
-    from types import *
+def make_menu(name, menubar, lst):
     button=Menubutton(menubar, text=name, padx=3,pady=1)
     button.pack(side=LEFT, anchor=W)
     menu = Menu(button,tearoff=FALSE)
-    for entry in list:
+    for entry in lst:
         if entry == 'separator':
             menu.add_separator({})
-        elif type(entry)==ListType:
+        elif isinstance(entry, list):
             for num in entry:
                 menu.entryconfig(num,state=DISABLED)
-        elif type(entry[1]) != ListType:
+        elif not isinstance(entry[1], list):
             if len(entry) == 2 or entry[2] == 'command':
                 menu.add_command(label=entry[0],
                                  command=entry[1])

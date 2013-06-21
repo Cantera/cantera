@@ -1,10 +1,16 @@
-from Tkinter import *
+from __future__ import print_function
+import sys
 
-from ElementFrame import getElements
-from utilities import handleError
+if sys.version_info.major == 3:
+    from tkinter import *
+else:
+    from Tkinter import *
+
+from .ElementFrame import getElements
+from .utilities import handleError
 from Cantera import *
-from config import *
-from SpeciesFrame import getSpecies
+from .config import *
+from .SpeciesFrame import getSpecies
 
 def testit():
     pass
@@ -25,7 +31,7 @@ class EditFrame(Frame):
     def __init__(self, master, app):
         Frame.__init__(self, master)
         self.mix = app.mix
-        print self.mix, dir(self.mix)
+        print(self.mix, dir(self.mix))
         self.app = app
         self.master = master
         self.master.title("Cantera Mechanism Editor")
@@ -76,8 +82,8 @@ class EditFrame(Frame):
                 c, r = 0, r + 1
 
     def getspecies(self):
-        print getSpecies(self.mix.speciesNames(),
-                         self.mix.speciesNames())
+        print(getSpecies(self.mix.speciesNames(),
+                         self.mix.speciesNames()))
 
     def editSpecies(self, event=None):
         e = Toplevel(event.widget.master)
@@ -145,7 +151,7 @@ class EditFrame(Frame):
         for fr in e.children.values():
             for item in fr.children.values():
                 try:
-                    print item.cget('selection')
+                    print(item.cget('selection'))
                 except:
                     pass
         e.destroy()

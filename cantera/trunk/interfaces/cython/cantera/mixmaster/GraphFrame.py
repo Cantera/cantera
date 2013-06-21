@@ -1,5 +1,9 @@
+import sys
+if sys.version_info.major == 3:
+    from tkinter import *
+else:
+    from Tkinter import *
 
-from Tkinter import *
 import math
 
 class Graph(Frame):
@@ -59,8 +63,8 @@ class Graph(Frame):
                              relief=SUNKEN,bd=1)
         self.canvas.create_text(4,2,text=self.maxY,anchor=NW)
         self.canvas.create_text(4,self.graph_h,text=self.minY,anchor=SW)
-        self.ml["text"] = `minX`
-        self.mr["text"] = `maxX`
+        self.ml["text"] = repr(minX)
+        self.mr["text"] = repr(maxX)
         self.canvas.pack()
         self.last_points = []
 
@@ -125,4 +129,4 @@ if __name__=='__main__':
     #print("finished")
     g.pauseWhenFinished()
     h.pauseWhenFinished()
-    print g
+    print(g)

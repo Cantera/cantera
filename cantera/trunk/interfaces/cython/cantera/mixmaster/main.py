@@ -10,29 +10,37 @@ _app_version = '1.0'
 
 
 # functionality imports
-from Tkinter import *
-import tkMessageBox
+import sys
+if sys.version_info.major == 3:
+    from tkinter import *
+    from tkinter import messagebox
+    from tkinter.filedialog import askopenfilename
+else:
+    from Tkinter import *
+    import tkMessageBox as messagebox
+    from tkFileDialog import askopenfilename
+
 import sys, os, string
 
 # Cantera imports
 from Cantera import *
 from Cantera.num import zeros
-import utilities
 from Cantera.gases import IdealGasMix
+from . import utilities
 
 # local imports
-from TransportFrame import TransportFrame
-from CompositionFrame import MixtureFrame
-from ThermoFrame import ThermoFrame
-from ImportFrame import ImportFrame
-from DataFrame import DataFrame
-from KineticsFrame import SpeciesKineticsFrame, ReactionKineticsFrame, ReactionPathFrame
+from .TransportFrame import TransportFrame
+from .CompositionFrame import MixtureFrame
+from .ThermoFrame import ThermoFrame
+from .ImportFrame import ImportFrame
+from .DataFrame import DataFrame
+from .KineticsFrame import SpeciesKineticsFrame, ReactionKineticsFrame, ReactionPathFrame
 #from Edit import EditFrame
-from MechManager import MechManager, _autoload
-from UnitChooser import UnitVar
-from ControlPanel import ControlWindow
-from ControlPanel import make_menu, menuitem_state
-from Mix import Mix, Species
+from .MechManager import MechManager, _autoload
+from .UnitChooser import UnitVar
+from .ControlPanel import ControlWindow
+from .ControlPanel import make_menu, menuitem_state
+from .Mix import Mix, Species
 
 def testit():
     return
@@ -44,7 +52,6 @@ class MixMaster:
         sys.exit(0)
 
     def openmech(self):
-        from tkFileDialog import askopenfilename
         pathname = askopenfilename(filetypes=[("Cantera Input Files", "*.cti"),
                                               ("XML Files", "*.xml *.ctml"),
                                               ("All Files", "*.*")])
@@ -81,7 +88,7 @@ class MixMaster:
     def addWindow(self, name, w):
         """Add a new window, or replace an existing one."""
         wstate = ''
-        if self._windows.has_key(name):
+        if name in self._windows:
             try:
                 wstate = self._windows[name].master.state()
                 self._windows[name].master.destroy()
@@ -304,8 +311,8 @@ class MixMaster:
 
     def aboutmix(self):
 
-        m = tkMessageBox.showinfo(title = 'About MixMaster',
-                                  message = """
+        m = messagebox.showinfo(title = 'About MixMaster',
+                                message = """
                      MixMaster
 
                     version """+_app_version+"""
