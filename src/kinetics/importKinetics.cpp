@@ -743,8 +743,15 @@ bool rxninfo::installReaction(int iRxn, const XML_Node& r, Kinetics& kin,
         throw CanteraError("installReaction", "Unknown reaction type: " + typ);
     }
 
-    // Look for undeclared duplicate reactions.
+    rdata.number = iRxn;
+    rdata.rxn_number = iRxn;
+
+    // Read the rate coefficient data from the XML file. Trigger an
+    // exception for negative A unless specifically authorized.
+    getRateCoefficient(r.child("rateCoeff"), kin, rdata, rules);
+
     if (validate_rxn) {
+        // Look for undeclared duplicate reactions.
         vector<char> participants(kin.nTotalSpecies(), 0);
         for (size_t nn = 0; nn < rdata.reactants.size(); nn++) {
             rdata.net_stoich[-1 - int(rdata.reactants[nn])] -= rdata.rstoich[nn];
@@ -758,34 +765,40 @@ bool rxninfo::installReaction(int iRxn, const XML_Node& r, Kinetics& kin,
         vector<size_t>& related = m_participants[participants];
         for (size_t mm = 0; mm < related.size(); mm++) {
             ReactionData& other = *m_rdata[related[mm]];
-            if ((rdata.reactants.size() == other.reactants.size())
-                    && (rdata.reactionType == other.reactionType)) {
-                doublereal c = isDuplicateReaction(rdata.net_stoich, other.net_stoich);
-                if (c > 0.0
-                        || (c < 0.0 && rdata.reversible)
-                        || (c < 0.0 && other.reversible)) {
-                    if ((!rdata.duplicate || !other.duplicate)) {
-                        string msg = string("Undeclared duplicate reactions detected: \n")
-                                     +"Reaction "+int2str(other.number+1)+": "+other.equation
-                                     +"\nReaction "+int2str(iRxn+1)+": "+rdata.equation+"\n";
-                        throw CanteraError("installReaction", msg);
+            if (rdata.reactants.size() != other.reactants.size()) {
+                continue; // different numbers of reactants
+            } else if (rdata.reactionType != other.reactionType) {
+                continue; // different reaction types
+            } else if (rdata.duplicate && other.duplicate) {
+                continue; // marked duplicates
+            }
+            doublereal c = isDuplicateReaction(rdata.net_stoich, other.net_stoich);
+            if (c == 0) {
+                continue; // stoichiometries differ (not by a multiple)
+            } else if (c < 0.0 && !rdata.reversible && !other.reversible) {
+                continue; // irreversible reactions in opposite directions
+            } else if (rdata.reactionType == FALLOFF_RXN ||
+                       rdata.reactionType == THREE_BODY_RXN ||
+                       rdata.reactionType == CHEMACT_RXN) {
+                bool thirdBodyOk = true;
+                for (size_t k = 0; k < kin.nTotalSpecies(); k++) {
+                    if (rdata.efficiency(k) * other.efficiency(k) != 0.0) {
+                        thirdBodyOk = false;
                     }
                 }
+                if (thirdBodyOk) {
+                    continue; // No overlap in third body efficiencies
+                }
             }
+            string msg = string("Undeclared duplicate reactions detected: \n")
+                         +"Reaction "+int2str(other.number+1)+": "+other.equation
+                         +"\nReaction "+int2str(iRxn+1)+": "+rdata.equation+"\n";
+            throw CanteraError("installReaction", msg);
         }
         m_participants[participants].push_back(m_rdata.size() - 1);
-    }
 
-    rdata.number = iRxn;
-    rdata.rxn_number = iRxn;
-
-    // Read the rate coefficient data from the XML file. Trigger an
-    // exception for negative A unless specifically authorized.
-    getRateCoefficient(r.child("rateCoeff"), kin, rdata, rules);
-
-    // Check to see that the elements balance in the reaction.
-    // Throw an error if they don't
-    if (validate_rxn) {
+        // Check to see that the elements balance in the reaction.
+        // Throw an error if they don't
         checkRxnElementBalance(kin, rdata);
     }
 

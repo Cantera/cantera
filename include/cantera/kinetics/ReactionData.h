@@ -102,6 +102,16 @@ public:
 
     //! Chebyshev coefficients. length chebDegreeT * chebDegreeP
     vector_fp chebCoeffs;
+
+    //! Get the actual third-body efficiency for species *k*
+    double efficiency(size_t k) const {
+        std::map<size_t, doublereal>::const_iterator iter = thirdBodyEfficiencies.find(k);
+        if (iter != thirdBodyEfficiencies.end()) {
+            return iter->second;
+        } else {
+            return default_3b_eff;
+        }
+    }
 };
 }
 
