@@ -103,17 +103,17 @@ doublereal IdealGasPhase::cv_tr(doublereal atomicity) const
 {
     // k is the species number
     int dum = 0;
-    int type = 0;
+    int type = m_spthermo->reportType();
     doublereal c[12];
     doublereal minTemp_;
     doublereal maxTemp_;
     doublereal refPressure_;
 
-    m_spthermo->reportParams(dum, type, c, minTemp_, maxTemp_, refPressure_);
-
     if (type != 111) {
         throw CanteraError("Error in IdealGasPhase.cpp", "cv_tr only supported for StatMech!. \n\n");
     }
+
+    m_spthermo->reportParams(dum, type, c, minTemp_, maxTemp_, refPressure_);
 
     // see reportParameters for specific details
     return c[3];
@@ -134,7 +134,7 @@ doublereal IdealGasPhase::cv_vib(const int k, const doublereal T) const
 
     // k is the species number
     int dum = 0;
-    int type = 0;
+    int type = m_spthermo->reportType();
     doublereal c[12];
     doublereal minTemp_;
     doublereal maxTemp_;
@@ -142,13 +142,12 @@ doublereal IdealGasPhase::cv_vib(const int k, const doublereal T) const
 
     c[0] = temperature();
 
-    m_spthermo->reportParams(dum, type, c, minTemp_, maxTemp_, refPressure_);
-
     // basic sanity check
     if (type != 111) {
         throw CanteraError("Error in IdealGasPhase.cpp", "cv_vib only supported for StatMech!. \n\n");
-
     }
+
+    m_spthermo->reportParams(dum, type, c, minTemp_, maxTemp_, refPressure_);
 
     // see reportParameters for specific details
     return c[4];
