@@ -1246,7 +1246,7 @@ if addInstallActions:
             'interfaces/python/ctml_writer.py')
 
     # Copy external libaries for Windows installations
-    if env['CC'] == 'cl':
+    if env['CC'] == 'cl' and env['use_boost_libs']:
         boost_suffix = '-vc%s-mt-%s.lib' % (env['MSVC_VERSION'].replace('.',''),
                                         env['BOOST_LIB_VERSION'])
         install('$inst_libdir', pjoin('$boost_lib_dir', 'libboost_date_time' + boost_suffix))
