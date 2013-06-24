@@ -890,7 +890,10 @@ if env['python3_package'] in ('y', 'default'):
         script = '\n'.join(("from distutils.sysconfig import *",
                             "import site",
                             "print(get_python_version())",
-                            "print(site.getusersitepackages())"))
+                            "try:"
+                            "    print(site.getusersitepackages())",
+                            "except AttributeError:",
+                            "    print(site.USER_SITE)"))
         info = getCommandOutput(env['python3_cmd'], '-c', script)
         env['python3_version'], env['python3_usersitepackages'] = info.splitlines()
     except OSError:
