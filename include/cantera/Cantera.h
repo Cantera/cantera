@@ -1,6 +1,8 @@
 /**
  * @file Cantera.h
  *  Basic include file to be used in all Cantera application environments.
+ *  @deprecated To be removed in Cantera 2.2. Applications should include
+ *     relevant headers directly.
  */
 
 /* 
