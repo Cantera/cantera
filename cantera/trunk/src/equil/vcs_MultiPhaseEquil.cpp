@@ -1145,12 +1145,12 @@ int  vcs_Cantera_to_vprob(Cantera::MultiPhase* mphase,
              */
             SpeciesThermo& sp = tPhase->speciesThermo();
 
-            int spType;
-            double c[150];
-            double minTemp, maxTemp, refPressure;
-            sp.reportParams(k, spType, c, minTemp, maxTemp, refPressure);
+            int spType = sp.reportType(k);
 
             if (spType == SIMPLE) {
+                double c[4];
+                double minTemp, maxTemp, refPressure;
+                sp.reportParams(k, spType, c, minTemp, maxTemp, refPressure);
                 ts_ptr->SS0_Model  = VCS_SS0_CONSTANT;
                 ts_ptr->SS0_T0  = c[0];
                 ts_ptr->SS0_H0  = c[1];
