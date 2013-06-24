@@ -101,6 +101,7 @@ bool SolidTransport::initSolid(SolidTransportData& tr)
 
 void SolidTransport::setParameters(const int n, const int k, const doublereal* const p)
 {
+    warn_deprecated("SolidTransport::setParameters");
     switch (n) {
 
     case 0:

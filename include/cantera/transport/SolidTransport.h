@@ -95,6 +95,7 @@ public:
 
     virtual void getMobilities(doublereal* const mobil);
 
+    //! @deprecated
     virtual void setParameters(const int n, const int k, const doublereal* const p);
 
     friend class TransportFactory;
