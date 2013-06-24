@@ -148,6 +148,7 @@ public:
                                       doublereal* cp_R,
                                       doublereal* h_RT,
                                       doublereal* s_R) const ;
+    //! @deprecated
     virtual void reportParameters(size_t& n, int& type,
                                   doublereal& tlow, doublereal& thigh,
                                   doublereal& pref,

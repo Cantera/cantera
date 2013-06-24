@@ -13,6 +13,7 @@
 #define CT_SHOMATEPOLY1_H
 
 #include "cantera/thermo/SpeciesThermoInterpType.h"
+#include "cantera/base/global.h"
 
 namespace Cantera
 {
@@ -216,10 +217,12 @@ public:
         updateProperties(tPoly, cp_R, h_RT, s_R);
     }
 
+    //! @deprecated
     virtual void reportParameters(size_t& n, int& type,
                                   doublereal& tlow, doublereal& thigh,
                                   doublereal& pref,
                                   doublereal* const coeffs) const {
+        warn_deprecated("ShomatePoly::reportParameters");
         n = m_index;
         type = SHOMATE;
         tlow = m_lowT;
@@ -236,6 +239,7 @@ public:
      *                 parameters for the standard state.
      */
     virtual void modifyParameters(doublereal* coeffs) {
+        warn_deprecated("ShomatePoly::modifyParameters");
         if (m_coeff.size() != 7) {
             throw CanteraError("modifyParameters",
                                "modifying something that hasn't been initialized");
@@ -495,10 +499,12 @@ public:
         }
     }
 
+    //! @deprecated
     virtual void reportParameters(size_t& n, int& type,
                                   doublereal& tlow, doublereal& thigh,
                                   doublereal& pref,
                                   doublereal* const coeffs) const {
+        warn_deprecated("ShomatePoly2::reportParameters");
         n = m_index;
         type = SHOMATE2;
         tlow = m_lowT;
@@ -517,6 +523,7 @@ public:
      *                 parameters for the standard state.
      */
     virtual void modifyParameters(doublereal* coeffs) {
+        warn_deprecated("ShomatePoly2::modifyParameters");
         delete msp_low;
         delete msp_high;
         std::copy(coeffs, coeffs + 15, m_coeff.begin());

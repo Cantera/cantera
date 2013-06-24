@@ -186,10 +186,12 @@ public:
         updateProperties(tPoly, cp_R, h_RT, s_R);
     }
 
+    //! @deprecated
     virtual void reportParameters(size_t& n, int& type,
                                   doublereal& tlow, doublereal& thigh,
                                   doublereal& pref,
                                   doublereal* const coeffs) const {
+        warn_deprecated("NasaPoly1::reportParameters");
         n = m_index;
         type = NASA1;
         tlow = m_lowT;
@@ -206,8 +208,10 @@ public:
     /*!
      * @param coeffs   Vector of coefficients used to set the
      *                 parameters for the standard state.
+     * @deprecated
      */
     virtual void modifyParameters(doublereal* coeffs) {
+        warn_deprecated("NasaPoly1::modifyParameters");
         m_coeff[0] = coeffs[5];
         m_coeff[1] = coeffs[6];
         for (int i = 0; i < 5; i++) {
