@@ -103,7 +103,9 @@ public:
      *                     4 - permeability
      *    @param k        Unused int
      *    @param p         pointer to double for the input list of parameters
-     *
+     *    @deprecated Use the individual methods setPorosity(),
+     *        setTortuosity(), setMeanPoreRadius(), setMeanParticleDiameter(),
+     *        and setPermeability()
      */
     virtual void setParameters(const int type, const int k, const doublereal* const p);
 

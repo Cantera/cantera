@@ -690,6 +690,7 @@ public:
      *  @param k       Species index to set the parameters on
      *  @param p       Vector of parameters. The length of the vector
      *                 varies with the parameterization
+     *  @deprecated
      */
     virtual void setParameters(const int type, const int k, const doublereal* const p);
 
