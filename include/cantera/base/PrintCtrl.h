@@ -45,6 +45,7 @@ namespace Cantera
  *  conversion utility.
  *
  * @ingroup globalUtilFuncs
+ * @deprecated To be removed in Cantera 2.2.
  */
 class PrintCtrl
 {

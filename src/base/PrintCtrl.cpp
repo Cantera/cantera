@@ -11,6 +11,7 @@
  */
 
 #include "cantera/base/PrintCtrl.h"
+#include "cantera/base/global.h"
 #include <cmath>
 
 using namespace std;
@@ -30,6 +31,7 @@ PrintCtrl::PrintCtrl(std::ostream& coutProxy, int Ndec,
     m_wMax(19),
     m_cropCntrl(ctlocal)
 {
+    warn_deprecated("class PrintCtrl");
 }
 
 void PrintCtrl::pr_de_c10(const double din, int p, const int wMin,
