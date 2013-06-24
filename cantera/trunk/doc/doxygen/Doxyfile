@@ -1299,6 +1299,7 @@ PREDEFINED             = WITH_HTML_LOGS \
                          HAS_SUNDIALS \
                          SUNDIALS_VERSION=25 \
                          THREAD_SAFE_CANTERA \
+                         DEBUG_MODE \
                          HAVE_CONFIG_H \
                          DEPRECATED(x)=x
 
