@@ -1095,7 +1095,10 @@ cdefine('NEEDS_GENERIC_TEMPL_STATIC_DECL', 'OS', 'Solaris')
 cdefine('HAS_NUMPY', 'python_array', 'numpy')
 cdefine('HAS_NUMARRAY', 'python_array', 'numarray')
 cdefine('HAS_NUMERIC', 'python_array', 'numeric')
-cdefine('HAS_NO_PYTHON', 'python_package', 'none')
+if env['python_package'] == 'none' and env['python3_package'] == 'n':
+    configh['HAS_NO_PYTHON'] = 1
+else:
+    configh['HAS_NO_PYTHON'] = None
 
 cdefine('HAS_SUNDIALS', 'use_sundials', 'y')
 if env['use_sundials'] == 'y':
