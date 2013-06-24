@@ -32,7 +32,7 @@ namespace Cantera
  *  is what I came up with.
  *
  * @ingroup globalUtilFuncs
- *
+ * @deprecated To be removed in Cantera 2.2.
  */
 class LogPrintCtrl
 {

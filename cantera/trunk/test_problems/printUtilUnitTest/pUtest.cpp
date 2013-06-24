@@ -4,6 +4,7 @@
 
 #include "cantera/base/PrintCtrl.h"
 #include "base/LogPrintCtrl.h"
+#include "cantera/base/global.h"
 
 using namespace Cantera;
 using namespace std;
@@ -285,6 +286,7 @@ void doLogger()
 
 int main()
 {
+    suppress_deprecation_warnings();
 #ifdef _MSC_VER
     _set_output_format(_TWO_DIGIT_EXPONENT);
 #endif

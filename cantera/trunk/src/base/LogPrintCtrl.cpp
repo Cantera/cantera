@@ -22,6 +22,7 @@ LogPrintCtrl::LogPrintCtrl(int Ndec) :
     m_ffss(0),
     m_pc(0)
 {
+    warn_deprecated("class LogPrintCtrl");
     m_ffss = new std::ostream(m_os.rdbuf());
     m_pc = new PrintCtrl(*m_ffss, Ndec);
 }
