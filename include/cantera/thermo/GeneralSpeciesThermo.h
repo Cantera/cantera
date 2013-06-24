@@ -116,6 +116,8 @@ public:
     virtual doublereal maxTemp(size_t k=npos) const;
     virtual doublereal refPressure(size_t k=npos) const;
     virtual int reportType(size_t index) const;
+
+    //! @deprecated
     virtual void reportParams(size_t index, int& type,
                               doublereal* const c,
                               doublereal& minTemp,
