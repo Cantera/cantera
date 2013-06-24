@@ -236,8 +236,10 @@ public:
     }
 
     //! Set the lower and upper bounds for each solution component.
+    //! @deprecated Use the scalar version
     void setBounds(size_t nl, const doublereal* lower,
                    size_t nu, const doublereal* upper) {
+        warn_deprecated("setBounds", "Use the scalar version.");
         if (nl < m_nv || nu < m_nv)
             throw CanteraError("Domain1D::setBounds",
                                "wrong array size for solution bounds. "

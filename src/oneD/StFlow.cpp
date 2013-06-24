@@ -134,31 +134,15 @@ StFlow::StFlow(IdealGasPhase* ph, size_t nsp, size_t points) :
 
     //-------------- default solution bounds --------------------
 
-    vector_fp vmin(m_nv), vmax(m_nv);
-
-    // no bounds on u
-    vmin[0] = -1.e20;
-    vmax[0] = 1.e20;
-
-    // V
-    vmin[1] = -1.e20;
-    vmax[1] = 1.e20;
-
-    // temperature bounds
-    vmin[2] = 200.0;
-    vmax[2]= 1.e9;
-
-    // lamda should be negative
-    vmin[3] = -1.e20;
-    vmax[3] = 1.e20;
+    setBounds(0, -1e20, 1e20); // no bounds on u
+    setBounds(1, -1e20, 1e20); // V
+    setBounds(2, 200.0, 1e9); // temperature bounds
+    setBounds(3, -1e20, 1e20); // lamda should be negative
 
     // mass fraction bounds
     for (size_t k = 0; k < m_nsp; k++) {
-        vmin[4+k] = -1.0e-5;
-        vmax[4+k] = 1.0e5;
+        setBounds(4+k, -1.0e-5, 1.0e5);
     }
-    setBounds(vmin.size(), DATA_PTR(vmin), vmax.size(), DATA_PTR(vmax));
-
 
     //-------------------- default error tolerances ----------------
     setTransientTolerances(1.0e-8, 1.0e-15);
