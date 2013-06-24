@@ -17,10 +17,6 @@
 #include "cantera/base/stringUtils.h"
 #include "cantera/equil/MultiPhase.h"
 
-#ifdef DEBUG_MODE
-#include "cantera/base/PrintCtrl.h"
-#endif
-
 using namespace std;
 
 #include <cstdio>
@@ -235,14 +231,12 @@ int ChemEquil::setInitialMoles(thermo_t& s, vector_fp& elMoleGoal,
 
 #ifdef DEBUG_MODE
         if (ChemEquil_print_lvl > 0) {
-            PrintCtrl pc(std::cout, -28, PrintCtrl::CT_OFF_GLOBALOBEY);
             writelog("setInitialMoles:   Estimated Mole Fractions\n");
             writelogf("  Temperature = %g\n", s.temperature());
             writelogf("  Pressure = %g\n", s.pressure());
             for (size_t k = 0; k < m_kk; k++) {
                 string nnn = s.speciesName(k);
                 double mf = s.moleFraction(k);
-                mf = pc.cropAbs10(mf, -28);
                 writelogf("         %-12s % -10.5g\n", nnn.c_str(), mf);
             }
             writelog("      Element_Name   ElementGoal  ElementMF\n");
@@ -324,7 +318,6 @@ int ChemEquil::estimateElementPotentials(thermo_t& s, vector_fp& lambda_RT,
 
 #ifdef DEBUG_MODE
     if (ChemEquil_print_lvl > 0) {
-        PrintCtrl pc(std::cout, -28, PrintCtrl::CT_OFF_GLOBALOBEY);
         for (size_t m = 0; m < m_nComponents; m++) {
             int isp = m_component[m];
             string nnn = s.speciesName(isp);
@@ -337,9 +330,8 @@ int ChemEquil::estimateElementPotentials(thermo_t& s, vector_fp& lambda_RT,
         writelog("  id       Name     MF     mu/RT \n");
         for (size_t n = 0; n < s.nSpecies(); n++) {
             string nnn = s.speciesName(n);
-            double mf = pc.cropAbs10(xMF_est[n], -28);
             writelogf("%10d %15s %10.5g %10.5g\n",
-                      n, nnn.c_str(), mf, mu_RT[n]);
+                      n, nnn.c_str(), xMF_est[n], mu_RT[n]);
         }
     }
 #endif
@@ -1072,12 +1064,10 @@ void ChemEquil::equilResidual(thermo_t& s, const vector_fp& x,
 
 #ifdef DEBUG_MODE
     if (ChemEquil_print_lvl > 0 && !m_doResPerturb) {
-        PrintCtrl pc(std::cout, -14, PrintCtrl::CT_OFF_GLOBALOBEY);
         writelog("Residual:      ElFracGoal     ElFracCurrent     Resid\n");
         for (int n = 0; n < m_mm; n++) {
-            double rrr = pc.cropAbs10(resid[n], -14);
             writelogf("               % -14.7E % -14.7E    % -10.5E\n",
-                      elmFracGoal[n], elmFrac[n], rrr);
+                      elmFracGoal[n], elmFrac[n], resid[n]);
         }
     }
 #endif
@@ -1096,11 +1086,9 @@ void ChemEquil::equilResidual(thermo_t& s, const vector_fp& x,
 
 #ifdef DEBUG_MODE
     if (ChemEquil_print_lvl > 0 && !m_doResPerturb) {
-        PrintCtrl pc(std::cout, -14, PrintCtrl::CT_OFF_GLOBALOBEY);
         writelog("               Goal           Xvalue          Resid\n");
         writelogf("      XX   :   % -14.7E % -14.7E    % -10.5E\n", xval, xx, resid[m_mm]);
-        double rrr = pc.cropAbs10(resid[m_skip], -14);
-        writelogf("      YY(%1d):   % -14.7E % -14.7E    % -10.5E\n", m_skip, yval, yy, rrr);
+        writelogf("      YY(%1d):   % -14.7E % -14.7E    % -10.5E\n", m_skip, yval, yy, resid[m_skip]);
     }
 #endif
 }
