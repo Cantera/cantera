@@ -116,10 +116,8 @@ init()
 {
     _init(2);
 
-    // set bounds (mdot, T)
-    const doublereal lower[2] = {-1.0e5, 200.0};
-    const doublereal upper[2] = {1.0e5, 1.e5};
-    setBounds(2, lower, 2, upper);
+    setBounds(0, -1e5, 1e5); // mdot
+    setBounds(1, 200.0, 1e5); // T
 
     // set tolerances
     setSteadyTolerances(1e-4, 1e-5);
@@ -281,10 +279,7 @@ string Empty1D::componentName(size_t n) const
 void Empty1D::
 init()   //_init(1);
 {
-    // set bounds (T)
-    const doublereal lower = -1.0;
-    const doublereal upper = 1.0;
-    setBounds(1, &lower, 1, &upper);
+    setBounds(0, -1.0, 1.0);
 
     // set tolerances
     setSteadyTolerances(1e-4, 1e-4);
@@ -343,10 +338,7 @@ void Symm1D::
 init()
 {
     _init(1);
-    // set bounds (T)
-    const doublereal lower = -1.0;
-    const doublereal upper = 1.0;
-    setBounds(1, &lower, 1, &upper);
+    setBounds(0, -1.0, 1.0);
 
     // set tolerances
     setSteadyTolerances(1e-4, 1e-4);
@@ -429,10 +421,7 @@ void Outlet1D::
 init()
 {
     _init(1);
-    // set bounds (T)
-    const doublereal lower = -1.0;
-    const doublereal upper = 1.0;
-    setBounds(1, &lower, 1, &upper);
+    setBounds(0, -1.0, 1.0);
 
     // set tolerances
     setSteadyTolerances(1e-4, 1e-4);
@@ -556,9 +545,7 @@ init()
 {
     _init(1);
     // set bounds (dummy)
-    const doublereal lower = -1.0;
-    const doublereal upper = 1.0;
-    setBounds(1, &lower, 1, &upper);
+    setBounds(0, -1.0, 1.0);
 
     // set tolerances
     setSteadyTolerances(1e-4, 1e-4);
@@ -694,9 +681,7 @@ init()
 {
     _init(1);
     // set bounds (T)
-    const doublereal lower = 200.0;
-    const doublereal upper = 1.e5;
-    setBounds(1, &lower, 1, &upper);
+    setBounds(0, 200.0, 1e5);
 
     // set tolerances
     setSteadyTolerances(1e-4, 1e-4);
@@ -780,15 +765,10 @@ init()
     m_fixed_cov[0] = 1.0;
     m_work.resize(m_kin->nTotalSpecies(), 0.0);
 
-    // set bounds
-    vector_fp lower(m_nv), upper(m_nv);
-    lower[0] = 200.0;
-    upper[0] = 1.e5;
+    setBounds(0, 200.0, 1e5);
     for (size_t n = 0; n < m_nsp; n++) {
-        lower[n+1] = -1.0e-5;
-        upper[n+1] = 2.0;
+        setBounds(n+1, -1.0e-5, 2.0);
     }
-    setBounds(m_nv, DATA_PTR(lower), m_nv, DATA_PTR(upper));
     setSteadyTolerances(1.0e-5, 1.0e-9);
     setTransientTolerances(1.0e-5, 1.0e-9);
     setSteadyTolerances(1.0e-5, 1.0e-4, 0);
