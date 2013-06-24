@@ -246,6 +246,7 @@ void GeneralSpeciesThermo::
 reportParams(size_t index, int& type, doublereal* const c,
              doublereal& minTemp_, doublereal& maxTemp_, doublereal& refPressure_) const
 {
+    warn_deprecated("GeneralSpeciesThermo::reportParams");
     SpeciesThermoInterpType* sp = m_sp[index];
     size_t n;
     if (sp) {

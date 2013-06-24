@@ -101,6 +101,7 @@ public:
 
     virtual int reportType(size_t k) const;
 
+    //! @deprecated
     virtual void reportParams(size_t index, int& type,
                               doublereal* const c,
                               doublereal& minTemp,

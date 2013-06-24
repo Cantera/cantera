@@ -179,6 +179,7 @@ void NasaThermo::reportParams(size_t index, int& type,
                               doublereal& maxTemp,
                               doublereal& refPressure) const
 {
+    warn_deprecated("NasaThermo::reportParams");
     type = reportType(index);
     if (type == NASA) {
         size_t grp = m_group_map[index];

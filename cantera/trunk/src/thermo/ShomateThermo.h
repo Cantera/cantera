@@ -289,11 +289,13 @@ public:
         return SHOMATE;
     }
 
+    //! @deprecated
     virtual void reportParams(size_t index, int& type,
                               doublereal* const c,
                               doublereal& minTemp,
                               doublereal& maxTemp,
                               doublereal& refPressure) const {
+        warn_deprecated("ShomateThermo::reportParams");
         type = reportType(index);
         if (type == SHOMATE) {
             size_t grp = m_group_map[index];
