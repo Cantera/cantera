@@ -1126,10 +1126,12 @@ initThermoXML(XML_Node& phaseNode, const std::string& id_)
 
 void DebyeHuckel::setParameters(int n, doublereal* const c)
 {
+    warn_deprecated("DebyeHuckel::setParameters");
 }
 
 void DebyeHuckel::getParameters(int& n, doublereal* const c) const
 {
+    warn_deprecated("DebyeHuckel::getParameters");
 }
 
 void DebyeHuckel::setParametersFromXML(const XML_Node& eosdata)

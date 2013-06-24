@@ -185,16 +185,12 @@ doublereal SurfPhase::logStandardConc(size_t k) const
 
 void SurfPhase::setParameters(int n, doublereal* const c)
 {
+    warn_deprecated("SurfPhase::setParameters");
     if (n != 1) {
         throw CanteraError("SurfPhase::setParameters",
                            "Bad value for number of parameter");
     }
-    m_n0 = c[0];
-    if (m_n0 <= 0.0) {
-        throw CanteraError("SurfPhase::setParameters",
-                           "Bad value for parameter");
-    }
-    m_logn0 = log(m_n0);
+    setSiteDensity(c[0]);
 }
 
 void SurfPhase::getGibbs_RT(doublereal* grt) const
@@ -276,8 +272,12 @@ void SurfPhase::initThermo()
 
 void SurfPhase::setSiteDensity(doublereal n0)
 {
-    doublereal x = n0;
-    setParameters(1, &x);
+    if (n0 <= 0.0) {
+        throw CanteraError("SurfPhase::setSiteDensity",
+                           "Bad value for parameter");
+    }
+    m_n0 = n0;
+    m_logn0 = log(m_n0);
 }
 
 void SurfPhase::setCoverages(const doublereal* theta)

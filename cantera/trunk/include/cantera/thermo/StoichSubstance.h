@@ -355,8 +355,10 @@ public:
 
     virtual void initThermo();
 
+    //! @deprecated Use setDensity()
     virtual void setParameters(int n, double* const c);
 
+    //! @deprecated Use density()
     virtual void getParameters(int& n, double* const c) const;
 
     virtual void setParametersFromXML(const XML_Node& eosdata);

@@ -567,11 +567,16 @@ public:
      * these depends on the subclass.
      * @param n number of parameters
      * @param c array of  n coefficients
-     *
+     * @deprecated Unimplemented
      */
-    virtual void setParameters(int n, doublereal* const c) {}
+    virtual void setParameters(int n, doublereal* const c) {
+        warn_deprecated("SingleSpeciesTP::setParameters");
+    }
 
-    virtual void getParameters(int& n, doublereal* const c) const {}
+    //! @deprecated Unimplemented
+    virtual void getParameters(int& n, doublereal* const c) const {
+        warn_deprecated("SingleSpeciesTP::getParameters");
+    }
 
     /**
      * Set equation of state parameter values from XML

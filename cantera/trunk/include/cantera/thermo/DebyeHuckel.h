@@ -1074,6 +1074,7 @@ public:
      *
      * @param n number of parameters
      * @param c array of \a n coefficients
+     * @deprecated Unimplemented
      */
     virtual void setParameters(int n, doublereal* const c);
 
@@ -1084,6 +1085,7 @@ public:
      *
      * @param n number of parameters
      * @param c array of \a n coefficients
+     * @deprecated Unimplemented
      */
     virtual void getParameters(int& n, doublereal* const c) const;
 

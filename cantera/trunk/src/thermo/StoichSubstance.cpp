@@ -246,12 +246,14 @@ void StoichSubstance::getCp_R_ref(doublereal* cprt) const
 
 void StoichSubstance::setParameters(int n, double* const c)
 {
+    warn_deprecated("StoichSubstance::setParameters");
     double rho = c[0];
     setDensity(rho);
 }
 
 void StoichSubstance::getParameters(int& n, double* const c) const
 {
+    warn_deprecated("StoichSubstance::getParameters");
     double rho = density();
     c[0] = rho;
 }

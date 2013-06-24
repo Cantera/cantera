@@ -1452,8 +1452,11 @@ public:
      *
      * @param n number of parameters
      * @param c array of \a n coefficients
+     * @deprecated Use methods specific to the derived class
      */
-    virtual void setParameters(int n, doublereal* const c) {}
+    virtual void setParameters(int n, doublereal* const c) {
+        warn_deprecated("ThermoPhase::setParameters");
+    }
 
 
     //! Get the equation of state parameters in a vector
@@ -1463,8 +1466,11 @@ public:
      *
      * @param n number of parameters
      * @param c array of \a n coefficients
+     * @deprecated Use methods specific to the derived class
      */
-    virtual void getParameters(int& n, doublereal* const c) const {}
+    virtual void getParameters(int& n, doublereal* const c) const {
+        warn_deprecated("ThermoPhase::getParameters");
+    }
 
 
     //! Set equation of state parameter values from XML entries.
