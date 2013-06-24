@@ -3,20 +3,22 @@
 #include "cantera/thermo/MargulesVPSSTP.h"
 #include "cantera/thermo/IonsFromNeutralVPSSTP.h"
 #include "cantera/IdealGasMix.h"
-#include "cantera/base/PrintCtrl.h"
 
 #include <memory>
+#include <iomanip>
+#include <sstream>
 
 using namespace Cantera;
 using namespace std;
 
-Cantera::PrintCtrl pc;
+std::stringstream ss;
 
 void printValue(const std::string& label, double value)
 {
-    std::cout << label;
-    pc.pr_de(value, 4, 13);
-    std::cout << std::endl;
+    ss.str("");
+    ss.clear();
+    ss << std::setw(13) << value;
+    std::cout << label << ss.str() << std::endl;
 }
 
 void printRates(InterfaceKinetics& iKin)
@@ -40,6 +42,7 @@ void printRates(InterfaceKinetics& iKin)
 
 void testProblem()
 {
+    ss << std::scientific << std::setprecision(3) << std::uppercase;
     XML_Node xc;
     ctml::get_CTML_Tree(&xc, "ReactionSurf.xml");
     XML_Node* xg = xc.findNameID("phase", "reaction_surface");

@@ -6,7 +6,6 @@
 #include "cantera/equilibrium.h"
 #include "cantera/thermo/IdealSolnGasVPSS.h"
 #include "cantera/thermo/ThermoFactory.h"
-#include "cantera/base/PrintCtrl.h"
 
 using namespace std;
 using namespace Cantera;
@@ -17,7 +16,6 @@ int main(int argc, char** argv)
     _set_output_format(_TWO_DIGIT_EXPONENT);
 #endif
     try {
-        PrintCtrl::GlobalCrop = PrintCtrl::GCT_CROP;
         Cantera::IdealSolnGasVPSS gg("silane.xml", "silane");
         ThermoPhase* g = &gg;
         //ThermoPhase *g = newPhase("silane.xml", "silane");
