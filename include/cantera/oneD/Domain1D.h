@@ -252,19 +252,44 @@ public:
     }
 
     //! set the error tolerances for all solution components.
+    //! @deprecated Use setTransientTolerances() and setSteadyTolerances().
     void setTolerances(size_t nr, const doublereal* rtol,
                        size_t na, const doublereal* atol, int ts = 0);
 
     //! set the error tolerances for solution component \a n.
+    //! @deprecated Use setTransientTolerances() and setSteadyTolerances().
     void setTolerances(size_t n, doublereal rtol, doublereal atol, int ts = 0);
 
-    //! set scalar error tolerances. All solution components will
-    //! have the same relative and absolute error tolerances.
+    //! set scalar error tolerances. All solution components will have the
+    //! same relative and absolute error tolerances.
+    //! @deprecated Use setTransientTolerances() and setSteadyTolerances().
     void setTolerances(doublereal rtol, doublereal atol,int ts=0);
 
-    void setTolerancesTS(doublereal rtol, doublereal atol);
+    //! Set tolerances for time-stepping mode
+    /*!
+     *  @param rtol Relative tolerance
+     *  @param atol Absolute tolerance
+     *  @param n    component index these tolerances apply to. If set to -1
+     *      (the default), these tolerances will be applied to all solution
+     *      components.
+     */
+    void setTransientTolerances(doublereal rtol, doublereal atol, size_t n=npos);
 
-    void setTolerancesSS(doublereal rtol, doublereal atol);
+    //! @deprecated use setTransientTolerances()
+    void setTolerancesTS(doublereal rtol, doublereal atol, size_t n=npos);
+
+    //! Set tolerances for steady-state mode
+    /*!
+     *  @param rtol Relative tolerance
+     *  @param atol Absolute tolerance
+     *  @param n    component index these tolerances apply to. If set to -1
+     *      (the default), these tolerances will be applied to all solution
+     *      components.
+     */
+    void setSteadyTolerances(doublereal rtol, doublereal atol, size_t n=npos);
+
+    //! @deprecated use setSteadyTolerances()
+    void setTolerancesSS(doublereal rtol, doublereal atol, size_t n=npos);
 
     //! Relative tolerance of the nth component.
     doublereal rtol(size_t n) {

@@ -161,10 +161,8 @@ StFlow::StFlow(IdealGasPhase* ph, size_t nsp, size_t points) :
 
 
     //-------------------- default error tolerances ----------------
-    vector_fp rtol(m_nv, 1.0e-8);
-    vector_fp atol(m_nv, 1.0e-15);
-    setTolerances(rtol.size(), DATA_PTR(rtol), atol.size(), DATA_PTR(atol),false);
-    setTolerances(rtol.size(), DATA_PTR(rtol), atol.size(), DATA_PTR(atol),true);
+    setTransientTolerances(1.0e-8, 1.0e-15);
+    setSteadyTolerances(1.0e-8, 1.0e-15);
 
     //-------------------- grid refinement -------------------------
     m_refiner->setActive(0, false);
