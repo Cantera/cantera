@@ -77,7 +77,15 @@ cdef class Domain1D:
         unspecified components. The keyword *Y* can be used to stand for all
         species mass fractions in flow domains.
         """
-        self._set_tolerances(1, default, Y, kwargs)
+        if default is not None:
+            self.domain.setSteadyTolerances(default[0], default[1])
+
+        if Y is not None:
+            for n in range(4, self.n_components):
+                self.domain.setSteadyTolerances(Y[0], Y[1], n)
+
+        for name,(lower,upper) in kwargs.items():
+            self.domain.setSteadyTolerances(lower, upper, self.component_name(name))
 
     def set_transient_tolerances(self, *, default=None, Y=None, **kwargs):
         """
@@ -89,21 +97,15 @@ cdef class Domain1D:
         unspecified components. The keyword *Y* can be used to stand for all
         species mass fractions in flow domains.
         """
-        self._set_tolerances(-1, default, Y, kwargs)
-
-    def _set_tolerances(self, is_transient, default, Y, components):
         if default is not None:
-            for n in range(self.n_components):
-                self.domain.setTolerances(n, default[0], default[1],
-                                          is_transient)
+            self.domain.setTransientTolerances(default[0], default[1])
 
         if Y is not None:
             for n in range(4, self.n_components):
-                self.domain.setTolerances(n, Y[0], Y[1], is_transient)
+                self.domain.setTransientTolerances(Y[0], Y[1], n)
 
-        for name,(lower,upper) in components.items():
-            self.domain.setTolerances(self.component_name(name),
-                                      lower, upper, is_transient)
+        for name,(lower,upper) in kwargs.items():
+            self.domain.setTransientTolerances(lower, upper, self.component_name(name))
 
     def bounds(self, component):
         """

@@ -122,9 +122,8 @@ init()
     setBounds(2, lower, 2, upper);
 
     // set tolerances
-    vector_fp rtol(2, 1e-4);
-    vector_fp atol(2, 1.e-5);
-    setTolerances(2, DATA_PTR(rtol), 2, DATA_PTR(atol));
+    setSteadyTolerances(1e-4, 1e-5);
+    setTransientTolerances(1e-4, 1e-5);
 
     // if a flow domain is present on the left, then this must be
     // a right inlet. Note that an inlet object can only be a
@@ -288,9 +287,8 @@ init()   //_init(1);
     setBounds(1, &lower, 1, &upper);
 
     // set tolerances
-    const doublereal rtol = 1e-4;
-    const doublereal atol = 1.e-4;
-    setTolerances(1, &rtol, 1, &atol);
+    setSteadyTolerances(1e-4, 1e-4);
+    setTransientTolerances(1e-4, 1e-4);
 }
 
 void Empty1D::
@@ -351,9 +349,8 @@ init()
     setBounds(1, &lower, 1, &upper);
 
     // set tolerances
-    const doublereal rtol = 1e-4;
-    const doublereal atol = 1.e-4;
-    setTolerances(1, &rtol, 1, &atol);
+    setSteadyTolerances(1e-4, 1e-4);
+    setTransientTolerances(1e-4, 1e-4);
 }
 
 void Symm1D::
@@ -438,9 +435,8 @@ init()
     setBounds(1, &lower, 1, &upper);
 
     // set tolerances
-    const doublereal rtol = 1e-4;
-    const doublereal atol = 1.e-4;
-    setTolerances(1, &rtol, 1, &atol);
+    setSteadyTolerances(1e-4, 1e-4);
+    setTransientTolerances(1e-4, 1e-4);
     if (m_flow_right) {
         m_flow_right->setViscosityFlag(false);
     }
@@ -565,9 +561,8 @@ init()
     setBounds(1, &lower, 1, &upper);
 
     // set tolerances
-    const doublereal rtol = 1e-4;
-    const doublereal atol = 1.e-4;
-    setTolerances(1, &rtol, 1, &atol);
+    setSteadyTolerances(1e-4, 1e-4);
+    setTransientTolerances(1e-4, 1e-4);
 
     if (m_flow_left) {
         m_flow = m_flow_left;
@@ -704,9 +699,8 @@ init()
     setBounds(1, &lower, 1, &upper);
 
     // set tolerances
-    const doublereal rtol = 1e-4;
-    const doublereal atol = 1.e-4;
-    setTolerances(1, &rtol, 1, &atol);
+    setSteadyTolerances(1e-4, 1e-4);
+    setTransientTolerances(1e-4, 1e-4);
 }
 
 void Surf1D::
@@ -795,13 +789,10 @@ init()
         upper[n+1] = 2.0;
     }
     setBounds(m_nv, DATA_PTR(lower), m_nv, DATA_PTR(upper));
-    vector_fp rtol(m_nv), atol(m_nv);
-    for (size_t n = 0; n < m_nv; n++) {
-        rtol[n] = 1.0e-5;
-        atol[n] = 1.0e-9;
-    }
-    atol[0] = 1.0e-4;
-    setTolerances(m_nv, DATA_PTR(rtol), m_nv, DATA_PTR(atol));
+    setSteadyTolerances(1.0e-5, 1.0e-9);
+    setTransientTolerances(1.0e-5, 1.0e-9);
+    setSteadyTolerances(1.0e-5, 1.0e-4, 0);
+    setTransientTolerances(1.0e-5, 1.0e-4, 0);
 }
 
 void ReactingSurf1D::
