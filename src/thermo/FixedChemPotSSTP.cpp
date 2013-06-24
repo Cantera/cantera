@@ -328,11 +328,13 @@ void FixedChemPotSSTP::initThermoXML(XML_Node& phaseNode, const std::string& id_
 
 void FixedChemPotSSTP::setParameters(int n, doublereal* const c)
 {
+    warn_deprecated("FixedChemPotSSTP::setParameters");
     chemPot_ = c[0];
 }
 
 void FixedChemPotSSTP::getParameters(int& n, doublereal* const c) const
 {
+    warn_deprecated("FixedChemPotSSTP::getParameters");
     n = 1;
     c[0] = chemPot_;
 }

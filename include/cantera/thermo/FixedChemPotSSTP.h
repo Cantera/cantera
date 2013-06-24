@@ -543,6 +543,7 @@ public:
      * @param n number of parameters = 1
      * @param c array of \a n coefficients
      *        c[0] = density of phase [ kg/m3 ]
+     * @deprecated Use setChemicalPotential()
      */
     virtual void setParameters(int n, doublereal* const c);
 
@@ -556,6 +557,7 @@ public:
      *  For this phase:
      *       -  n = 1
      *       -  c[0] = density of phase [ kg/m3 ]
+     * @deprecated Use getChemPotentials()
      */
     virtual void getParameters(int& n, doublereal* const c) const;
 
