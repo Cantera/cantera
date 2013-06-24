@@ -179,6 +179,7 @@ public:
      *        coeffs[index] = minTempZone
      *        coeffs[index+1] = maxTempZone
      *        coeffs[index+2+i] from i =0,9 are the coefficients themselves
+     * @deprecated
      */
     virtual void reportParameters(size_t& n, int& type,
                                   doublereal& tlow, doublereal& thigh,
@@ -189,6 +190,7 @@ public:
     /*!
      * @param coeffs   Vector of coefficients used to set the
      *                 parameters for the standard state.
+     * @deprecated
      */
     virtual void modifyParameters(doublereal* coeffs);
 

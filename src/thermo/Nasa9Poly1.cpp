@@ -137,6 +137,7 @@ void Nasa9Poly1::reportParameters(size_t& n, int& type,
                                   doublereal& pref,
                                   doublereal* const coeffs) const
 {
+    warn_deprecated("Nasa9Poly1::reportParameters");
     n = m_index;
     type = NASA9;
     tlow = m_lowT;
@@ -152,6 +153,7 @@ void Nasa9Poly1::reportParameters(size_t& n, int& type,
 
 void Nasa9Poly1::modifyParameters(doublereal* coeffs)
 {
+    warn_deprecated("Nasa9Poly1::modifyParameters");
     for (int i = 0; i < 9; i++) {
         m_coeff[i] = coeffs[i];
     }

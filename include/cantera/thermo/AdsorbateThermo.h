@@ -12,6 +12,7 @@
 #define CT_ADSORBATE_H
 
 #include "SpeciesThermoInterpType.h"
+#include "cantera/base/global.h"
 
 namespace Cantera
 {
@@ -118,10 +119,12 @@ public:
         s_R[m_index] = h_RT[m_index] - _free_energy_RT(temp);
     }
 
+    //! @deprecated
     void reportParameters(size_t& n, int& type,
                           doublereal& tlow, doublereal& thigh,
                           doublereal& pref,
                           doublereal* const coeffs) const {
+        warn_deprecated("AdsorbateThermo::reportParameters");
         n = m_index;
         type = ADSORBATE;
         tlow = m_lowT;

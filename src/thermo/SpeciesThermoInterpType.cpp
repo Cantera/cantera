@@ -8,6 +8,7 @@
 #include "cantera/thermo/VPSSMgr.h"
 #include "cantera/thermo/PDSS.h"
 #include "cantera/base/ctexceptions.h"
+ #include "cantera/base/global.h"
 
 namespace Cantera
 {
@@ -128,6 +129,7 @@ void  STITbyPDSS::reportParameters(size_t& index, int& type,
                                    doublereal& refPressure,
                                    doublereal* const coeffs) const
 {
+    warn_deprecated("STITbyPDSS::reportParameters");
     index = m_speciesIndex;
     type = PDSS_TYPE;
     minTemp = m_vpssmgr_ptr->minTemp(m_speciesIndex);
@@ -137,6 +139,7 @@ void  STITbyPDSS::reportParameters(size_t& index, int& type,
 
 void  STITbyPDSS::modifyParameters(doublereal* coeffs)
 {
+    warn_deprecated("STITbyPDSS::modifyParameters");
 }
 
 }
