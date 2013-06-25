@@ -727,6 +727,53 @@ class NASA9(thermo):
         u["name"] = "coeffs"
 
 
+class activityCoefficients(object):
+    pass
+
+
+class pureFluidParameters(activityCoefficients):
+    """
+    """
+
+    def __init__(self, species = None, a_coeff = [], b_coeff = 0):
+        """
+        """
+        self._species = species
+        self._acoeff = a_coeff
+        self._bcoeff = b_coeff
+
+    def build(self,a):
+        f= a.addChild("pureFluidParameters")
+        f['species'] = self._species
+        s = '%10.4E, %10.4E \n' % (self._acoeff[0], self._acoeff[1])
+        ac = f.addChild("a_coeff",s)
+        ac["units"] = _upres+'-'+_ulen+'6/'+_umol+'2'
+        ac["model"] = "linear_a"
+        s = '%0.2f \n' % self._bcoeff
+        bc = f.addChild("b_coeff",s)
+        bc["units"] = _ulen+'3/'+_umol
+
+
+class crossFluidParameters(activityCoefficients):
+    def __init__(self, species = None, a_coeff = [], b_coeff = []):
+        self._species1, self._species2 = species.split(' ')
+        self._acoeff = a_coeff
+        self._bcoeff = b_coeff
+
+    def build(self,a):
+        f= a.addChild("crossFluidParameters")
+        f["species2"] = self._species2
+        f["species1"] = self._species1
+        s = '%10.4E, %10.4E \n' % (self._acoeff[0], self._acoeff[1])
+        ac = f.addChild("a_coeff",s)
+        ac["units"] = _upres+'-'+_ulen+'6/'+_umol+'2'
+        ac["model"] = "linear_a"
+        if self._bcoeff:
+            s = '%0.2f \n' % self._bcoeff
+            bc = f.addChild("b_coeff",s)
+            bc["units"] = _ulen+'3/'+_umol
+
+
 class Shomate(thermo):
     """Shomate polynomial parameterization."""
 
@@ -2066,6 +2113,46 @@ class liquid_vapor(phase):
         k = ph.addChild("kinetics")
         k['model'] = 'none'
 
+class RedlichKwongMFTP(phase):
+    """A multi-component fluid model for non-ideal gas fluids.
+        """
+
+    def __init__(self,
+                 name = '',
+                 elements = '',
+                 species = '',
+                 initial_state = None,
+                 activity_coefficients = None,
+                 transport = 'None',
+                 options = []):
+
+        phase.__init__(self,name, 3, elements, species, 'none',
+                       initial_state,options)
+        self._pure = 0
+        self._tr = transport
+        self._activityCoefficients = activity_coefficients
+
+    def conc_dim(self):
+        return (0,0)
+
+    def build(self, p):
+        ph = phase.build(self,p)
+        e = ph.addChild("thermo")
+        e['model'] = 'RedlichKwongMFTP'
+        if self._activityCoefficients:
+            a = e.addChild("activityCoefficients")
+            if isinstance(self._activityCoefficients, activityCoefficients):
+                self._activityCoefficients.build(a)
+            else:
+                na = len(self._activityCoefficients)
+                for n in range(na):
+                    self._activityCoefficients[n].build(a)
+
+        if self._tr:
+            t = ph.addChild('transport')
+            t['model'] = self._tr
+        k = ph.addChild("kinetics")
+        k['model'] = 'none'
 
 
 class redlich_kwong(phase):
