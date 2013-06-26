@@ -121,7 +121,6 @@ void Sim1D::restore(const std::string& fname, const std::string& id,
                     int loglevel)
 {
     ifstream s(fname.c_str());
-    //char buf[100];
     if (!s)
         throw CanteraError("Sim1D::restore",
                            "could not open input file "+fname);
@@ -136,26 +135,25 @@ void Sim1D::restore(const std::string& fname, const std::string& id,
     }
 
     vector<XML_Node*> xd;
-    size_t sz = 0, np, m;
-    for (m = 0; m < m_nd; m++) {
-        XML_Node* d = f->findID(domain(m).id());
-        if (!d) {
-            writelog("No data for domain "+domain(m).id());
-            xd.push_back(0);
-            sz += domain(m).nComponents();
-        } else {
-            const XML_Node& node = *d;
-            xd.push_back(d);
-            np = intValue(node["points"]);
-            sz += np*domain(m).nComponents();
+    f->getChildren("domain", xd);
+    if (xd.size() != m_nd) {
+        throw CanteraError("Sim1D::restore", "Solution does not contain the "
+                           " correct number of domains. Found " +
+                           int2str(xd.size()) + "expected " +
+                           int2str(m_nd) + ".\n");
+    }
+    size_t sz = 0;
+    for (size_t m = 0; m < m_nd; m++) {
+        if (loglevel > 0 && xd[m]->attrib("id") != domain(m).id()) {
+            writelog("Warning: domain names do not match: '" +
+                     (*xd[m])["id"] + + "' and '" + domain(m).id() + "'\n");
         }
+        sz += domain(m).nComponents() * intValue((*xd[m])["points"]);
     }
     m_x.resize(sz);
     m_xnew.resize(sz);
-    for (m = 0; m < m_nd; m++) {
-        if (xd[m]) {
-            domain(m).restore(*xd[m], DATA_PTR(m_x) + domain(m).loc(), loglevel);
-        }
+    for (size_t m = 0; m < m_nd; m++) {
+        domain(m).restore(*xd[m], DATA_PTR(m_x) + domain(m).loc(), loglevel);
     }
     resize();
     finalize();
