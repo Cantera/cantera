@@ -785,10 +785,14 @@ if env['coverage']:
         exit(0)
 
 
+def config_error(message):
+    print 'ERROR:', message
+    print "See 'config.log' for details."
+    sys.exit(1)
+
 # First, a sanity check:
 if not conf.CheckCXXHeader('cmath', '<>'):
-    print 'ERROR: The C++ compiler is not correctly configured.'
-    sys.exit(0)
+    config_error('The C++ compiler is not correctly configured.')
 
 def get_expression_value(includes, expression):
     s = ['#include ' + i for i in includes]
@@ -826,8 +830,7 @@ if env['HAS_SUNDIALS'] and env['use_sundials'] != 'n':
                                                    'SUNDIALS_PACKAGE_VERSION')
     retcode, sundials_version = conf.TryRun(sundials_version_source, '.cpp')
     if retcode == 0:
-        print """ERROR: Failed to determine Sundials version."""
-        sys.exit(0)
+        config_error("Failed to determine Sundials version.")
 
     # Ignore the minor version, e.g. 2.4.x -> 2.4
     env['sundials_version'] = '.'.join(sundials_version.strip().split('.')[:2])
@@ -942,9 +945,7 @@ if env['use_sundials'] == 'default':
         print "INFO: Sundials was not found. Building with minimal ODE solver capabilities."
         env['use_sundials'] = 'n'
 elif env['use_sundials'] == 'y' and not env['HAS_SUNDIALS']:
-    print "ERROR: Unable to find Sundials headers and / or libraries."
-    print "See config.log for details."
-    sys.exit(1)
+    config_error("Unable to find Sundials headers and / or libraries.")
 elif env['use_sundials'] == 'y' and env['sundials_version'] not in ('2.2','2.3','2.4','2.5'):
     print """ERROR: Sundials version %r is not supported.""" % env['sundials_version']
     sys.exit(1)
@@ -1123,8 +1124,7 @@ if not env['HAS_MATH_H_ERF']:
     if env['HAS_BOOST_MATH']:
         configh['USE_BOOST_MATH'] = 1
     else:
-        print "Error: Couldn't find 'erf' in either <math.h> or Boost.Math"
-        sys.exit(1)
+        config_error("Couldn't find 'erf' in either <math.h> or Boost.Math")
 else:
     configh['USE_BOOST_MATH'] = None
 
