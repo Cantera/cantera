@@ -246,10 +246,8 @@ else:
 
 if env['OS'] in ('Windows', 'Darwin'):
     defaults.threadFlags = ''
-    defaults.singleLibrary = True
 else:
     defaults.threadFlags = '-pthread'
-    defaults.singleLibrary = False
 
 defaults.fsLayout = 'compact' if env['OS'] == 'Windows' else 'standard'
 defaults.env_vars = 'LD_LIBRARY_PATH' if 'LD_LIBRARY_PATH' in os.environ else ''
@@ -574,9 +572,11 @@ config_options = [
         False),
     BoolVariable(
         'single_library',
-        """If set, include code from the 'ext' folder in the cantera library
-        rather than creating separate libraries for ctlapack, ctf2c, etc.""",
-        defaults.singleLibrary),
+        """If set to 'n', code from the 'ext' folder in the cantera library
+        will be placed in separate libraries for ctlapack, ctf2c, etc., rather
+        than being included in the cantera library. NOTE: This option is
+        deprecated, and will be removed in Cantera 2.2.""",
+        True),
     EnumVariable(
         'layout',
         """The layout of the directory structure. 'standard' installs files to
