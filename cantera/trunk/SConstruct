@@ -276,15 +276,16 @@ config_options = [
         defaults.prefix, installPathTest),
     EnumVariable(
         'python_package',
-        """If you plan to work in Python, or you want to use the
-           graphical MixMaster application, then you need the 'full'
-           Cantera Python Package. If, on the other hand, you will
-           only use Cantera from some other language (e.g. MATLAB or
-           Fortran 90/95) and only need Python to process .cti files,
-           then you only need a 'minimal' subset of the package
-           (actually, only one file). The default behavior is to build
-           the Python package if the required prerequisites (numpy) are
-           installed.""",
+        """If you plan to work in Python, or you want to use the graphical
+           MixMaster application, then you need either the 'new' or 'full'
+           Cantera Python Package. If, on the other hand, you will only use
+           Cantera from some other language (e.g. MATLAB or Fortran 90/95) and
+           only need Python to process .cti files, then you only need a
+           'minimal' subset of the package (actually, only one file). The
+           default behavior is to build the Python package if the required
+           prerequisites (numpy) are installed. NOTE: The legacy 'full' option
+           is deprecated in favor of the 'new' Python package. The legacy
+           Python package will be removed in Cantera 2.2 """,
         'default', ('new', 'full', 'minimal', 'none', 'default')),
     PathVariable(
         'python_cmd',
@@ -853,16 +854,17 @@ if env['python_package'] in ('full','default','new'):
             print """WARNING: Couldn't find include directory for Python array package"""
             env['python_array_include'] = ''
 
-        print """INFO: Building the full Python package using %s.""" % env['python_array']
         if env['python_package'] == 'default':
-            env['python_package'] = 'full'
+            env['python_package'] = 'new'
+        package_desc = 'new' if env['python_package'] == 'new' else 'legacy'
+        print """INFO: Building the %s Python package using %s.""" % (package_desc, env['python_array'])
     except ImportError:
         if env['python_package'] in ('full', 'new'):
             print ("""ERROR: Unable to find the array package """
-                   """'%s' required by the full Python package.""" % env['python_array'])
+                   """'%s' required by the Python package.""" % env['python_array'])
             sys.exit(1)
         else:
-            print ("""WARNING: Not building the full Python package """
+            print ("""WARNING: Not building the Python package """
                    """ because the array package '%s' could not be found.""" % env['python_array'])
             warnNoPython = True
             env['python_package'] = 'minimal'
@@ -885,6 +887,11 @@ if env['python_package'] in ('full','default','new'):
         else:
             env['python_convert_examples'] = False
             print """WARNING: Couldn't find '3to2'. Python examples will not work correctly."""
+
+    if env['python_package'] == 'full':
+        print ("WARNING: The 'python_package=full' option is deprecated. "
+               "This legacy Python package will be removed in Cantera 2.2. "
+               "The new Python package may be build using 'python_package=new'.")
 
 else:
     warnNoPython = False
