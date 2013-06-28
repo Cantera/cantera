@@ -55,9 +55,13 @@ architecture (32-bit or 64-bit) you want to use. See :ref:`sec-dependencies` for
 the full list of dependencies.
 
 * If you want to build the Python module, you must use the same version of the
-  Microsoft compiler as was used to compile Python. For current versions of
-  Python (2.6 and 2.7) this means that you must use Visual Studio 2008 or the
-  equivalent version of the Windows SDK (see link below).
+  Microsoft compiler as was used to compile Python. For Python 2.6 and Python
+  2.7, this means that you must use Visual Studio 2008 or the equivalent
+  version of the Windows SDK (see link below). For Python 3.3, you should use
+  Visual Studio 2010, or the corresponding version of the Windows SDK.
+* Note that the the "Express" editions of Visual Studio do not include a
+  64-bit compiler, so if you want to build 64-bit Cantera, you will also need
+  to install the Windows SDK.
 * The build process will produce a Python module compatible with the version of
   Python used for the compilation. To generate different modules for other
   versions of Python, you will need to install those versions of Python and
@@ -371,10 +375,21 @@ program.
 
 * Microsoft compilers (C/C++)
 
-  * Windows SDK: http://www.microsoft.com/download/en/details.aspx?id=3138
-    This is equivalent to Visual Studio 2008. It is a free download.
   * Known to work with version 9.0 (Visual Studio 2008) and version 10.0
-    (Visual Studio 2010).
+    (Visual Studio 2010). Expected to work with version 11.0 (Visual Studio
+    2012).
+  * If you are building the Python module, you must use the same version and
+    architecture (32- or 64-bit) as your copy of Python was compiled with:
+    Visual Studio 2008 for Python 2.6, 2.7, and 3.2, or Visual Studio 2010 for
+    Python 3.3.
+  * The "Express" editions of Visual Studio 2008 and 2010 do not include a
+    64-bit compiler. To compile Cantera with 64-bit support, you must install
+    the corresponding version of the Windows SDK, available as a free
+    download.
+  * Windows SDK, equivalent to Visual Studio 2008:
+    http://www.microsoft.com/download/en/details.aspx?id=3138
+  * Windows SDK, equivalent to Visual Studio 2010:
+    http://www.microsoft.com/en-us/download/details.aspx?id=8279
 
 * MinGW (C/C++/Fortran)
 
