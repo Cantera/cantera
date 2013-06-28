@@ -149,7 +149,7 @@ void IdealSolnGasVPSS::calcDensity()
         Phase::setDensity(dens);
     } else {
         const doublereal* const dtmp = moleFractdivMMW();
-        const vector_fp& vss = m_VPSS_ptr->standardVolumes();
+        const vector_fp& vss = m_VPSS_ptr->getStandardVolumes();
         double invDens = dot(vss.begin(), vss.end(), dtmp);
         /*
          * Set the density in the parent State object directly,
@@ -176,7 +176,7 @@ void IdealSolnGasVPSS::getActivityConcentrations(doublereal* c) const
     if (m_idealGas) {
         getConcentrations(c);
     } else {
-        const vector_fp& vss = m_VPSS_ptr->standardVolumes();
+        const vector_fp& vss = m_VPSS_ptr->getStandardVolumes();
         switch (m_formGC) {
         case 0:
             for (size_t k = 0; k < m_kk; k++) {
@@ -203,7 +203,7 @@ doublereal IdealSolnGasVPSS::standardConcentration(size_t k) const
         double p = pressure();
         return p/(GasConstant * temperature());
     } else {
-        const vector_fp& vss = m_VPSS_ptr->standardVolumes();
+        const vector_fp& vss = m_VPSS_ptr->getStandardVolumes();
         switch (m_formGC) {
         case 0:
             return 1.0;

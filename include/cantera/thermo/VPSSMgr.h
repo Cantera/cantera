@@ -17,6 +17,7 @@
 
 #include "cantera/base/ct_defs.h"
 #include "mix_defs.h"
+#include "cantera/base/global.h"
 
 namespace Cantera
 {
@@ -364,7 +365,9 @@ public:
     virtual const vector_fp& getStandardVolumes() const;
 
     //! Return a reference to a vector of the species standard molar volumes
+    //! @deprecated Use getStandardVolumes()
     const vector_fp& standardVolumes() const {
+        warn_deprecated("VPSSMgr::standardVolumes");
         return m_Vss;
     }
 
