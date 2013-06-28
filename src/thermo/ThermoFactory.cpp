@@ -353,6 +353,11 @@ static void formSpeciesXMLNodeList(std::vector<XML_Node*> &spDataNodeList,
                 }
             }
         } else {
+            std::map<std::string, XML_Node*> speciesNodes;
+            for (size_t k = 0; k < db->nChildren(); k++) {
+                XML_Node& child = db->child(k);
+                speciesNodes[child["name"]] = &child;
+            }
             for (size_t k = 0; k < nsp; k++) {
                 string stemp = spnames[k];
                 skip = false;
@@ -367,11 +372,12 @@ static void formSpeciesXMLNodeList(std::vector<XML_Node*> &spDataNodeList,
                 if (!skip) {
                     declared[stemp] = true;
                     // Find the species in the database by name.
-                    XML_Node* s = db->findByAttr("name", stemp);
-                    if (!s) {
+                    std::map<std::string, XML_Node*>::iterator iter = speciesNodes.find(stemp);
+                    if (iter == speciesNodes.end()) {
                         throw CanteraError("importPhase","no data for species, \""
                                            + stemp + "\"");
                     }
+                    XML_Node* s = iter->second;
                     nSpecies++;
                     spNamesList.resize(nSpecies);
                     spDataNodeList.resize(nSpecies, 0);
