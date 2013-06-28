@@ -117,10 +117,6 @@ void addInteger(Cantera::XML_Node& node, const std::string& titleString,
  *   @param maxval        Maximum allowed value of the float. The default is the
  *                        special double, Cantera::Undef, which means to ignore the
  *                        entry.
- *
- * @todo I don't think this is used. Figure out what is used for writing floats,
- *       and codify that. minval and maxval should be codified.
- *       typeString should be codified as to its usage.
  */
 void addFloat(Cantera::XML_Node& node, const std::string& titleString,
               const doublereal value, const std::string& unitsString="",
@@ -170,10 +166,6 @@ void addFloat(Cantera::XML_Node& node, const std::string& titleString,
  *   @param maxval        Maximum allowed value of the int. This is an optional
  *                        parameter. The default is the special double,
  *                        Cantera::Undef, which means to ignore the entry.
- *
- * @todo I don't think this is used. Figure out what is used for writing integers,
- *       and codify that. unitsString shouldn't be here, since it's an int.
- *       typeString should be codified as to its usage.
  */
 void addFloatArray(Cantera::XML_Node& node,  const std::string& titleString,
                    const size_t n,  const doublereal* const values,
