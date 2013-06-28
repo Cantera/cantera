@@ -49,9 +49,9 @@ class rxninfo
 public:
     std::vector<ReactionData*> m_rdata;
 
-    //! Map of (vector indicating participating species) to reaction numbers
+    //! Map of (key indicating participating species) to reaction numbers
     //! Used to speed up duplicate reaction checks.
-    std::map<std::vector<char>, std::vector<size_t> > m_participants;
+    std::map<unsigned long int, std::vector<size_t> > m_participants;
 
     /**
      *  Install an individual reaction into a kinetics manager. The
@@ -752,14 +752,14 @@ bool rxninfo::installReaction(int iRxn, const XML_Node& r, Kinetics& kin,
 
     if (validate_rxn) {
         // Look for undeclared duplicate reactions.
-        vector<char> participants(kin.nTotalSpecies(), 0);
+        unsigned long int participants = 0;
         for (size_t nn = 0; nn < rdata.reactants.size(); nn++) {
             rdata.net_stoich[-1 - int(rdata.reactants[nn])] -= rdata.rstoich[nn];
-            participants[rdata.reactants[nn]] += 1;
+            participants += rdata.reactants[nn];
         }
         for (size_t nn = 0; nn < rdata.products.size(); nn++) {
             rdata.net_stoich[int(rdata.products[nn])+1] += rdata.pstoich[nn];
-            participants[rdata.products[nn]] += 2;
+            participants += 1000000 * rdata.products[nn];
         }
 
         vector<size_t>& related = m_participants[participants];
