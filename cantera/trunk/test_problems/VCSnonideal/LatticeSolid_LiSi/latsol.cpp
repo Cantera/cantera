@@ -55,7 +55,7 @@ void testProblem()
     mmm.addPhase(&LiFixed, 100.);
 
     int solver = 2;
-    int printLvl = 10;
+    int printLvl = 3;
     int estimateEquil = 0;
 
     vcs_equilibrate(mmm, "TP", estimateEquil, printLvl, solver);
