@@ -368,7 +368,7 @@ public:
      *  @param testProb Hard-coded value. Only the value of 1 is used. It's
      *                  for a LiKCl system -> test to predict the eutectic and
      *                  liquidus correctly.
-     *  @deprecatedu unimplemented
+     *  @deprecated unimplemented
      */
     PhaseCombo_Interaction(int testProb);
 

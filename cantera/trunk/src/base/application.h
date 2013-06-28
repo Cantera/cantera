@@ -447,6 +447,8 @@ public:
     //! invocation of the application.
     void warn_deprecated(const std::string& method, const std::string& extra="");
 
+    //! Globally disable printing of deprecation warnings. Used primarily to
+    //! prevent certain tests from failing.
     void suppress_deprecation_warnings() {
         m_suppress_deprecation_warnings = true;
     }
