@@ -126,59 +126,71 @@ class XMLnode(object):
 
     def write(self, filename):
         """Write out the XML tree to a file."""
-        f = open(filename, 'w')
-        f.write('<?xml version="1.0"?>\n')
-        self._write(f, 0)
-        f.write('\n')
+        s = ['<?xml version="1.0"?>\n']
+        self._write(s, 0)
+        s.append('\n')
+        with open(filename, 'w') as f:
+            f.write(''.join(s))
 
-    def _write(self, f, level = 0):
+    def write_comment(self, s, level):
+        s.append('\n'+indent[level]+'<!--')
+        value = self._value
+        if value:
+            if value[0] != ' ':
+                value = ' '+value
+            if value[-1] != ' ':
+                value = value+' '
+        s.append(value+'-->')
 
-        """Internal method used to write the XML representation of
-        each node."""
-        if self._name == "": return
+    def write_attribs(self, s):
+        for a in self._attribs:
+            s.append(' '+a+'="'+self._attribs[a]+'"')
 
+    def write_value(self, s, level):
         indnt = indent[level]
+        vv = self._value.lstrip()
+        ieol = vv.find('\n')
+        if ieol >= 0:
+            while True:
+                ieol = vv.find('\n')
+                if ieol >= 0:
+                    s.extend(('\n  ', indnt, vv[:ieol]))
+                    vv = vv[ieol+1:].lstrip()
+                else:
+                    s.extend(('\n  ',indnt,vv))
+                    break
+        else:
+            s.append(self._value)
+
+    def _write(self, s, level = 0):
+        """Internal method used to write the XML representation of each node."""
+        if not self.name:
+            return
 
         # handle comments
         if self._name == '_comment_':
-            f.write('\n'+indnt+'<!--')
-            if len(self._value) > 0:
-                if self._value[0] != ' ':
-                    self._value = ' '+self._value
-                if self._value[-1] != ' ':
-                    self._value = self._value+' '
-            f.write(self._value+'-->')
+            self.write_comment(s, level)
             return
 
+        indnt = indent[level]
+
         # write the opening tag and attributes
-        f.write(indnt + '<' + self._name)
-        for a in self._attribs.keys():
-            f.write(' '+a+'="'+self._attribs[a]+'"')
-        if (self._value == "" and self.nChildren() == 0):
-            f.write('/>')
+        s.extend((indnt, '<', self._name))
+        self.write_attribs(s)
+
+        if not self._value and not self._children:
+            s.append('/>')
         else:
-            f.write('>')
-            if self._value != "":
-                vv = self._value.lstrip()
-                ieol = vv.find('\n')
-                if ieol >= 0:
-                    while 1 > 0:
-                        ieol = vv.find('\n')
-                        if ieol >= 0:
-                            f.write('\n  '+indnt+vv[:ieol])
-                            vv = vv[ieol+1:].lstrip()
-                        else:
-                            f.write('\n  '+indnt+vv)
-                            break
-                else:
-                    f.write(self._value)
+            s.append('>')
+            if self._value:
+                self.write_value(s, level)
 
             for c in self._children:
-                f.write('\n')
-                c._write(f, level + 2)
-            if (self.nChildren() > 0):
-                f.write('\n'+indnt)
-            f.write('</'+self._name+'>')
+                s.append('\n')
+                c._write(s, level + 2)
+            if self._children:
+                s.extend(('\n', indnt))
+            s.extend(('</', self._name, '>'))
 
 #--------------------------------------------------
 
