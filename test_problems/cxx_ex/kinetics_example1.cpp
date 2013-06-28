@@ -75,6 +75,7 @@ int kinetics_example1(int job)
         // create a container object to run the simulation
         // and add the reactor to it
         ReactorNet* sim_ptr = new ReactorNet();
+        sim_ptr->setVerbose(false);
         sim_ptr->addReactor(&r);
 
         double tm;
