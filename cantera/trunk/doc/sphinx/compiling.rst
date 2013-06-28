@@ -107,15 +107,30 @@ OS X
 Downloading the Cantera source code
 ===================================
 
+Stable Release
+--------------
+
 * Option 1: Download the most recent source tarball from the `Cantera Google
   Code Site <http://code.google.com/p/cantera/downloads/list>`_ and extract the
   contents.
 
 * Option 2: Check out the code using Subversion::
 
-    svn checkout http://cantera.googlecode.com/svn/cantera/trunk/ cantera
+    svn checkout http://cantera.googlecode.com/svn/cantera/branches/2.0/ cantera
 
 * Option 3: Check out the code using Git::
+
+    git svn clone --std-layout http://cantera.googlecode.com/svn/cantera cantera
+    git checkout 2.0
+
+Development Version
+-------------------
+
+* Option 1: Check out the code using Subversion::
+
+    svn checkout http://cantera.googlecode.com/svn/cantera/trunk/ cantera
+
+* Option 2: Check out the code using Git::
 
     git svn clone --std-layout http://cantera.googlecode.com/svn/cantera cantera
 
