@@ -50,9 +50,10 @@ indent = ['',
 #-----------------------------------------------------
 
 class XMLnode(object):
-
     """This is a minimal class to allow easy creation of an XML tree
     from Python. It can write XML, but cannot read it."""
+
+    __slots__ = ('_name', '_value', '_attribs', '_children', '_childmap')
 
     def __init__(self, name="--", value = ""):
 
@@ -1104,28 +1105,17 @@ class reaction(object):
         if self._id:
             id = self._id
         else:
-            if self._num < 10:
-                nstr = '000'+str(self._num)
-            elif self._num < 100:
-                nstr = '00'+str(self._num)
-            elif self._num < 1000:
-                nstr = '0'+str(self._num)
-            else:
-                nstr = str(self._num)
-            id = nstr
-
+            id = '%04i' % self._num
 
         self.mdim = 0
         self.ldim = 0
-        rstr = ''
 
         rxnph = []
-        for s in self._r.keys():
+        for s in self._r:
             ns = self._rxnorder[s]
             nm = -999
             nl = -999
 
-            rstr += s+':'+str(self._r[s])+' '
             mindim = 4
             for ph in _phases:
                 if ph.has_species(s):
@@ -1153,20 +1143,17 @@ class reaction(object):
         else:
             r['reversible'] = 'no'
 
-        noptions = len(self._options)
-        for nss in range(noptions):
-            s = self._options[nss]
+        for s in self._options:
             if s == 'duplicate':
                 r['duplicate'] = 'yes'
             elif s == 'negative_A':
                 r['negative_A'] = 'yes'
 
-        ee = self._e.replace('<','[')
-        ee = ee.replace('>',']')
+        ee = self._e.replace('<','[').replace('>',']')
         r.addChild('equation',ee)
 
         if self._order:
-            for osp in self._rxnorder.keys():
+            for osp in self._rxnorder:
                 o = r.addChild('order',self._rxnorder[osp])
                 o['species'] = osp
 
@@ -1233,14 +1220,10 @@ class reaction(object):
                 self.ldim -= 3
                 nm = 'k0'
 
-        rstr = rstr[:-1]
+        rstr = ' '.join('%s:%s' % item for item in self._r.items())
+        pstr = ' '.join('%s:%s' % item for item in self._p.items())
         r.addChild('reactants',rstr)
-        pstr = ''
-        for s in self._p.keys():
-            ns = self._p[s]
-            pstr += s+':'+repr(ns)+' '
-        pstr = pstr[:-1]
-        r.addChild('products',pstr)
+        r.addChild('products', pstr)
         return r
 
 #-------------------
