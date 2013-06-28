@@ -35,7 +35,11 @@ Linux
 
 * Building the python module also requires::
 
-      python-dev python-numpy python-numpy-dev
+      cython python-dev python-numpy python-numpy-dev
+
+* The minimum compatible Cython version is 0.17. If your distribution does not
+  contain a suitable version, you may be able to install a more recent version
+  using `easy_install` or `pip`.
 
 * Building the Fortran interface also requires gfortran or another supported
   Fortran compiler.
@@ -404,7 +408,7 @@ Optional Programs
 
 * `Cython <http://cython.org/>`_
 
-  * Required to build the new Python module
+  * Required to build the Python module
   * Known to work with versions 0.17 and 0.18. Expected to work with
     versions >= 0.17.
   * Supports Python 2.7 and 3.2. Expected to work with versions >= 3.2.
