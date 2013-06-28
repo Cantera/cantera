@@ -5,8 +5,6 @@
 using namespace std;
 using namespace Cantera;
 
-int CHECK_DEBUG_MODE = 0;
-
 void pAtable(HMWSoln* HMW)
 {
     size_t nsp = HMW->nSpecies();
@@ -15,13 +13,9 @@ void pAtable(HMWSoln* HMW)
     double activities[100];
     double moll[100];
 
-    if (CHECK_DEBUG_MODE == 1) {
-        HMW->m_debugCalc = 1;
-    }
     HMW->getMolalityActivityCoefficients(acMol);
     HMW->getMoleFractions(mf);
     HMW->getActivities(activities);
-    HMW->m_debugCalc = 0;
     HMW->getMolalities(moll);
     string sName;
     printf("            Name      Activity  ActCoeffMolal "
@@ -44,19 +38,6 @@ int main(int argc, char** argv)
     try {
 
         HMWSoln* HMW = new HMWSoln(1);
-
-#ifdef DEBUG_MODE
-        CHECK_DEBUG_MODE = 1;
-#endif
-        if (CHECK_DEBUG_MODE == 1) {
-            HMW->m_debugCalc = 1;
-            if (HMW->debugPrinting()) {
-                FILE* ff = fopen("CheckDebug.txt", "w");
-                fprintf(ff,"%1d\n", 1);
-                fclose(ff);
-            }
-            HMW->m_debugCalc = 0;
-        }
 
         size_t nsp = HMW->nSpecies();
 

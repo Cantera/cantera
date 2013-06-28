@@ -5,8 +5,6 @@
 using namespace std;
 using namespace Cantera;
 
-int CHECK_DEBUG_MODE = 0;
-
 void pAtable(HMWSoln* HMW)
 {
     size_t nsp = HMW->nSpecies();
@@ -64,19 +62,6 @@ int main(int argc, char** argv)
         moll[1] += sum;
 
         HMW->setState_TPM(Temp, OneAtm, moll);
-
-#ifdef DEBUG_MODE
-        CHECK_DEBUG_MODE = 1;
-#endif
-        if (CHECK_DEBUG_MODE == 1) {
-            HMW->m_debugCalc = 1;
-            if (HMW->debugPrinting()) {
-                FILE* ff = fopen("CheckDebug.txt", "w");
-                fprintf(ff,"%1d\n", 1);
-                fclose(ff);
-            }
-            HMW->m_debugCalc = 1;
-        }
 
         printf("       Temperature = %.4f K\n", Temp);
         HMW->printCoeffs();
