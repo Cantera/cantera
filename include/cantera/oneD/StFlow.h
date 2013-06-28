@@ -99,9 +99,10 @@ public:
         return m_press;
     }
 
-    //! @todo remove? may be unused
+    //! @deprecated unused
     virtual void setState(size_t point, const doublereal* state,
                           doublereal* x) {
+        warn_deprecated("StFlow::setState");
         setTemperature(point, state[2]);
         for (size_t k = 0; k < m_nsp; k++) {
             setMassFraction(point, k, state[4+k]);
