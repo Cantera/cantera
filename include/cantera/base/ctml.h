@@ -580,7 +580,7 @@ bool getOptionalFloat(const Cantera::XML_Node& parent, const std::string& name,
  * @param node     Current XML node to get the values from
  * @param v        Output map of the results.
  * @param convert  Turn on conversion to SI units
- * @param deprecated Unused. To be removed in Cantera 2.2.
+ * @deprecated Unused. To be removed in Cantera 2.2.
  */
 void getFloats(const Cantera::XML_Node& node, std::map<std::string, double>& v,
                const bool convert=true);
