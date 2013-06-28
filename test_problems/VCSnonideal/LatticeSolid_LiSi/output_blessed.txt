@@ -3,12 +3,7 @@ Number of elements = 3
 dg_corr = -1.57754e+08
 um_li_chempot = -1.65555e+08
 Unknown Cantera EOS to VCSnonideal: 0
-vcs_Cantera_convert: Species Type 8 not known 
-vcs_Cantera_convert: Species Type 8 not known 
 Unknown Cantera EOS to VCSnonideal: 20
-vcs_Cantera_convert: Species Type 8 not known 
-vcs_Cantera_convert: Species Type 1 not known 
-vcs_Cantera_convert: Species Type 1 not known 
 Unknown Cantera EOS to VCSnonideal: 70
 
 ================================================================================
@@ -138,75 +133,6 @@ VCS CALCULATION METHOD
  Li7Si3(S)          7       0       0       3      -1          1                 -4.20140E+08   5.00000E-01       Mol_Num
  V(i)               0       0       0       0       1          1                  8.98000E+04   4.95000E-01       Mol_Num
  Li(i)              1       0       0       0       1          1                 -1.52202E+07   5.00000E-03       Mol_Num
-
-==============================================================================================================
- Iteration =   0, Iterations since last evaluation of optimal basis =   0 (all species)
-   --- Total Old       Dimensionless Gibbs Free Energy = -4.1205648238769E+03
-   --- Total tentative Dimensionless Gibbs Free Energy = -4.1206708518557E+03
-   -------------------------------------------------------------------------------------------------------
-   --- Summary of the Update  (all species):
-   ---      Species Status Initial_KMoles Final_KMoles Initial_Mu/RT     Mu/RT     Init_Del_G/RT   Delta_G/RT
-   ---   LiFixed           1.000000E+02  1.000045E+02 -3.185106E+01 -3.185106E+01
-   ---   LiCl(L)           7.000000E+00  7.000000E+00 -8.660120E+01 -8.660120E+01
-   ---   KCl(L)            3.000000E+00  3.000000E+00 -9.603612E+01 -9.603612E+01
-   ---   Li7Si3(S)         5.000000E-01  5.000000E-01 -8.152370E+01 -8.152370E+01
-   ---   V(i)              4.950000E-01  4.995000E-01 -6.859210E-01 -6.768711E-01
-   ---   Li(i)         1   5.000000E-03  5.000000E-04 -8.226514E+00 -1.052910E+01  2.431046E+01  2.199883E+01
-   ---                                                        Norms of Delta G():  2.431046E+01  2.199883E+01
-   ---           Phase_Name    KMoles(after update)
-   ---   --------------------------------------------------
-   ---   MoltenSalt_electrolyte =   1.0000000E+01
-   ---   Li7Si3_and_Interstitials(S) =   1.0000000E+00
-   ---              LiFixed =   1.0000450E+02
-   -------------------------------------------------------------------------------------------------------
-   --- Total Old Dimensionless Gibbs Free Energy = -4.1205648238769E+03
-   --- Total New Dimensionless Gibbs Free Energy = -4.1206708518557E+03
-
-==============================================================================================================
- Iteration =   1, Iterations since last evaluation of optimal basis =   1 (all species)
-   --- Total Old       Dimensionless Gibbs Free Energy = -4.1206708518557E+03
-   --- Total tentative Dimensionless Gibbs Free Energy = -4.1206813510191E+03
-   -------------------------------------------------------------------------------------------------------
-   --- Summary of the Update  (all species):
-   ---      Species Status Initial_KMoles Final_KMoles Initial_Mu/RT     Mu/RT     Init_Del_G/RT   Delta_G/RT
-   ---   LiFixed           1.000045E+02  1.000050E+02 -3.185106E+01 -3.185106E+01
-   ---   LiCl(L)           7.000000E+00  7.000000E+00 -8.660120E+01 -8.660120E+01
-   ---   KCl(L)            3.000000E+00  3.000000E+00 -9.603612E+01 -9.603612E+01
-   ---   Li7Si3(S)         5.000000E-01  5.000000E-01 -8.152370E+01 -8.152370E+01
-   ---   V(i)              4.995000E-01  5.000000E-01 -6.768711E-01 -6.758706E-01
-   ---   Li(i)         0   5.000000E-04  1.396324E-13 -1.052910E+01 -3.252796E+01  2.199886E+01 -1.000381E-03
-   ---                                                        Norms of Delta G():  2.199886E+01  1.000381E-03
-   ---           Phase_Name    KMoles(after update)
-   ---   --------------------------------------------------
-   ---   MoltenSalt_electrolyte =   1.0000000E+01
-   ---   Li7Si3_and_Interstitials(S) =   1.0000000E+00
-   ---              LiFixed =   1.0000500E+02
-   -------------------------------------------------------------------------------------------------------
-   --- Total Old Dimensionless Gibbs Free Energy = -4.1206708518557E+03
-   --- Total New Dimensionless Gibbs Free Energy = -4.1206813510191E+03
-
-==============================================================================================================
- Iteration =   2, Iterations since last evaluation of optimal basis =   2 (all species)
-   --- Total Old       Dimensionless Gibbs Free Energy = -4.1206813510191E+03
-   --- Total tentative Dimensionless Gibbs Free Energy = -4.1206813510191E+03
-   -------------------------------------------------------------------------------------------------------
-   --- Summary of the Update  (all species):
-   ---      Species Status Initial_KMoles Final_KMoles Initial_Mu/RT     Mu/RT     Init_Del_G/RT   Delta_G/RT
-   ---   LiFixed           1.000050E+02  1.000050E+02 -3.185106E+01 -3.185106E+01
-   ---   LiCl(L)           7.000000E+00  7.000000E+00 -8.660120E+01 -8.660120E+01
-   ---   KCl(L)            3.000000E+00  3.000000E+00 -9.603612E+01 -9.603612E+01
-   ---   Li7Si3(S)         5.000000E-01  5.000000E-01 -8.152370E+01 -8.152370E+01
-   ---   V(i)              5.000000E-01  5.000000E-01 -6.758706E-01 -6.758706E-01
-   ---   Li(i)         0   1.396324E-13  1.397722E-13 -3.252796E+01 -3.252696E+01 -1.000381E-03  0.000000E+00
-   ---                                                        Norms of Delta G():  1.000381E-03  0.000000E+00
-   ---           Phase_Name    KMoles(after update)
-   ---   --------------------------------------------------
-   ---   MoltenSalt_electrolyte =   1.0000000E+01
-   ---   Li7Si3_and_Interstitials(S) =   1.0000000E+00
-   ---              LiFixed =   1.0000500E+02
-   -------------------------------------------------------------------------------------------------------
-   --- Total Old Dimensionless Gibbs Free Energy = -4.1206813510191E+03
-   --- Total New Dimensionless Gibbs Free Energy = -4.1206813510191E+03
 
 
 
