@@ -21,6 +21,7 @@
 #include "Cabinet.h"
 #include "cantera/kinetics/InterfaceKinetics.h"
 #include "cantera/thermo/PureFluidPhase.h"
+#include "cantera/thermo/MixtureFugacityTP.h"
 
 using namespace std;
 using namespace Cantera;
@@ -605,7 +606,7 @@ extern "C" {
             return handleAllExceptions(-1, ERR);
         }
     }
-
+    
     doublereal th_refPressure(int n)
     {
         try {
@@ -767,6 +768,19 @@ extern "C" {
             return handleAllExceptions(-1, ERR);
         }
     }
+    
+    //-------------MFTP Models------------------//
+    
+    
+    double th_calculatePsat(int n, double TKelvin, double molarVolGas, double molarVolLiquid)
+    {
+        try {
+            return ThermoCabinet::get<MixtureFugacityTP>(n).calculatePsat(TKelvin, molarVolGas, molarVolLiquid);
+        } catch (...) {
+            return handleAllExceptions(DERR, DERR);
+        }
+    }
+
 
     //-------------- Kinetics ------------------//
 
