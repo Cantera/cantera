@@ -91,7 +91,7 @@ static void thermoset(int nlhs, mxArray* plhs[],
 static void thermoget(int nlhs, mxArray* plhs[],
                       int nrhs, const mxArray* prhs[])
 {
-    double vv, psat, tsat;
+    double vv, psat, tsat, TK;
     int n = getInt(prhs[1]);
     int job = getInt(prhs[2]);
 
@@ -174,6 +174,11 @@ static void thermoget(int nlhs, mxArray* plhs[],
             break;
         case 25:
             vv = th_electricPotential(n);
+                break;
+        case 26:
+            double molarVolGas, molarVolLiquid;
+            TK = getDouble(prhs[3]);
+            vv = th_calculatePsat(n,TK,molarVolGas,molarVolLiquid);
             break;
         default:
             ok = false;
