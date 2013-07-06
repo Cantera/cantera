@@ -535,6 +535,9 @@ Falloff* FalloffFactory::newFalloff(int type, const vector_fp& c)
 {
     Falloff* f;
     switch (type) {
+    case SIMPLE_FALLOFF:
+        f = new Falloff();
+        break;
     case TROE3_FALLOFF:
         f = new Troe3();
         break;

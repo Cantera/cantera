@@ -27,8 +27,9 @@ namespace Cantera
  */
 
 /**
- * Base class for falloff function calculators. Each instance of a
- * subclass of Falloff computes one falloff function.
+ * Base class for falloff function calculators. Each instance of a subclass of
+ * Falloff computes one falloff function. This base class implements the
+ * trivial falloff function F = 1.0.
  *
  * @ingroup falloffGroup
  */
@@ -47,7 +48,7 @@ public:
      * @param c Vector of coefficients of the parameterization. The number and
      *     meaning of these coefficients is subclass-dependent.
      */
-    virtual void init(const vector_fp& c) =0;
+    virtual void init(const vector_fp& c) {}
 
     /**
      * Update the temperature-dependent portions of the falloff
@@ -78,10 +79,14 @@ public:
      *
      * @return Returns the value of the falloff function \f$ F \f$ defined above
      */
-    virtual doublereal F(doublereal pr, const doublereal* work) const =0;
+    virtual doublereal F(doublereal pr, const doublereal* work) const {
+        return 1.0;
+    }
 
     //! The size of the work array required.
-    virtual size_t workSize() =0;
+    virtual size_t workSize() {
+        return 0;
+    }
 };
 
 /**
