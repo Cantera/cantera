@@ -118,6 +118,15 @@ class chemkinConverterTest(utilities.CanteraTest):
                                         'sri-falloff.cti')
         self.checkKinetics(ref, gas, [300, 800, 1450, 2800], [5e3, 1e5, 2e6])
 
+    def test_chemically_activated(self):
+        name = 'chemically-activated-reaction'
+        convertMech('../data/{0}.inp'.format(name),
+                    outName='{0}.cti'.format(name), quiet=True)
+
+        ref, gas = self.checkConversion('../data/{0}.xml'.format(name),
+                                        '{0}.cti'.format(name))
+        self.checkKinetics(ref, gas, [300, 800, 1450, 2800], [5e3, 1e5, 2e6, 1e7])
+
     def test_explicit_third_bodies(self):
         convertMech('../data/explicit-third-bodies.inp',
                     thermoFile='../data/dummy-thermo.dat',

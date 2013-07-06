@@ -627,6 +627,62 @@ class Falloff(ThirdBody):
         return '\n'.join(lines)
 
 
+class ChemicallyActivated(ThirdBody):
+    """
+    A kinetic model of a phenomenological rate coefficient k(T, P) using the
+    expression
+
+    .. math:: k(T,P) = k_0(T) \\left[ \\frac{1}{1 + P_\\mathrm{r}} \\right] F
+
+    where
+
+    .. math::
+
+        P_\\mathrm{r} &= \\frac{k_0(T)}{k_\\infty(T)} [\\ce{M}]
+
+        k_0(T) &= A_0 T^{n_0} \\exp \\left( - \\frac{E_0}{RT} \\right)
+
+        k_\\infty(T) &= A_\\infty T^{n_\\infty} \\exp \\left( - \\frac{E_\\infty}{RT} \\right)
+
+    and :math:`[\\ce{M}] \\approx P/RT` is the concentration of the bath gas.
+    The Arrhenius expressions :math:`k_0(T)` and :math:`k_\\infty(T)`
+    represent the low-pressure and high-pressure limit kinetics, respectively.
+    The former is necessarily one reaction order higher than the latter. The
+    allowable parameterizations for the function *F* are the same as for the
+    `Falloff` class. A collision efficiency can be used to further correct the
+    value of :math:`k(T,P)`.
+
+    The attributes are:
+
+    =============== ======================= ====================================
+    Attribute       Type                    Description
+    =============== ======================= ====================================
+    `arrheniusLow`  :class:`Arrhenius`      The Arrhenius kinetics at the low-pressure limit
+    `arrheniusHigh` :class:`Arrhenius`      The Arrhenius kinetics at the high-pressure limit
+    `efficiencies`  ``dict``                A mapping of species to collider efficiencies
+    `F`                                     Falloff function parameterization
+    =============== ======================= ====================================
+    """
+    def __init__(self, arrheniusLow=None, F=None, **kwargs):
+        ThirdBody.__init__(self, **kwargs)
+        self.arrheniusLow = arrheniusLow
+        self.F = F
+
+    def to_cti(self, reactantstr, arrow, productstr, indent=0):
+        rxnstr = reactantstr + arrow + productstr
+        prefix = ' '*(indent + 30)
+        lines = ['chemically_activated_reaction({0!r},'.format(rxnstr)]
+        lines.append(prefix + 'kLow={0},'.format(self.arrheniusLow.rateStr()))
+        lines.append(prefix + 'kHigh={0},'.format(self.arrheniusHigh.rateStr()))
+        if self.efficiencies:
+            lines.append(prefix + 'efficiencies={0!r},'.format(self.efficiencyString()))
+        if self.F:
+            lines.append(prefix + 'falloff={0},'.format(self.F.to_cti()))
+
+        lines[-1] = lines[-1][:-1] + ')'
+        return '\n'.join(lines)
+
+
 class Troe(object):
     """
     For the Troe model the parameter :math:`F` is computed via
@@ -1052,10 +1108,9 @@ class Parser(object):
         klow_units = self.getRateConstantUnits(length_dim + 3, 'cm',
                                                quantity_dim + 1, quantity_units)
 
-        # The rest of the first line contains the high-P limit Arrhenius parameters (if available)
-        #tokens = lines[0][52:].split()
+        # The rest of the first line contains Arrhenius parameters
         tokens = lines[0].split()[1:]
-        arrheniusHigh = Arrhenius(
+        arrhenius = Arrhenius(
             A=(A,kunits),
             n=n,
             Ea=(Ea, energy_units),
@@ -1064,11 +1119,12 @@ class Parser(object):
         )
 
         if len(lines) == 1:
-            # If there's only one line then we know to use the high-P limit kinetics as-is
-            reaction.kinetics = arrheniusHigh
+            # If there's only one line then we know to use the kinetics as-is
+            reaction.kinetics = arrhenius
         else:
             # There's more kinetics information to be read
             arrheniusLow = None
+            arrheniusHigh = None
             falloff = None
             chebyshev = None
             pdepArrhenius = None
@@ -1084,7 +1140,7 @@ class Parser(object):
                     reaction.duplicate = True
 
                 elif 'low' in line.lower():
-                    # Low-pressure-limit Arrhenius parameters
+                    # Low-pressure-limit Arrhenius parameters for "falloff" reaction
                     tokens = tokens[1].split()
                     arrheniusLow = Arrhenius(
                         A=(float(tokens[0].strip()),klow_units),
@@ -1093,6 +1149,20 @@ class Parser(object):
                         T0=(1,"K"),
                         parser=self
                     )
+
+                elif 'high' in line.lower():
+                    # High-pressure-limit Arrhenius parameters for "chemically
+                    # activated" reaction
+                    tokens = tokens[1].split()
+                    arrheniusHigh = Arrhenius(
+                        A=(float(tokens[0].strip()),kunits),
+                        n=float(tokens[1].strip()),
+                        Ea=(float(tokens[2].strip()),energy_units),
+                        T0=(1,"K"),
+                        parser=self
+                    )
+                    # Need to fix units on the base reaction:
+                    arrhenius.A = (arrhenius.A[0], klow_units)
 
                 elif 'rev' in line.lower():
                     reaction.reversible = False
@@ -1215,17 +1285,23 @@ class Parser(object):
                     parser=self
                 )
             elif arrheniusLow is not None:
-                reaction.kinetics = Falloff(arrheniusHigh=arrheniusHigh,
+                reaction.kinetics = Falloff(arrheniusHigh=arrhenius,
                                             arrheniusLow=arrheniusLow,
                                             F=falloff,
                                             parser=self,
                                             efficiencies=efficiencies)
+            elif arrheniusHigh is not None:
+                reaction.kinetics = ChemicallyActivated(arrheniusHigh=arrheniusHigh,
+                                                        arrheniusLow=arrhenius,
+                                                        F=falloff,
+                                                        parser=self,
+                                                        efficiencies=efficiencies)
             elif thirdBody:
-                reaction.kinetics = ThirdBody(arrheniusHigh=arrheniusHigh,
+                reaction.kinetics = ThirdBody(arrheniusHigh=arrhenius,
                                               parser=self,
                                               efficiencies=efficiencies)
             else:
-                reaction.kinetics = arrheniusHigh
+                reaction.kinetics = arrhenius
 
         return reaction, revReaction
 
