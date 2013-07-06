@@ -291,6 +291,44 @@ the "SRI" falloff function. It is implemented by the :class:`SRI` directive.
       function, which has a C++ implementation, but doesn't appear to be implemented
       in the CTI or CTML parsers.
 
+Chemically-Activated Reactions
+==============================
+
+For these reactions, the rate falls off as the pressure increases, due to
+collisional stabilization of a reaction intermediate. Example:
+
+.. math::
+     \mathrm{Si + SiH_4 (+M) \leftrightarrow Si_2H_2 + H_2 (+M)}
+
+which competes with:
+
+.. math::
+    \mathrm{Si + SiH_4 (+M) \leftrightarrow Si_2H_4 (+M)}
+
+Like falloff reactions, chemically-activated reactions are described by
+blending between a "low pressure" and a "high pressure" rate expression. The
+difference is that the forward rate constant is written as being proportional
+to the *low pressure* rate constant:
+
+.. math::
+
+    k_f(T, P_r) = k_0 \left(\frac{1}{1 + P_r}\right) F(T, P_r)
+
+and the optional blending function *F* may described by any of the
+parameterizations allowed for falloff reactions. Chemically-activated
+reactions can be defined using the :class:`chemically_activated_reaction`
+directive.
+
+An example of a reaction specified with this parameterization::
+
+    chemically_activated_reaction('CH3 + OH (+ M) <=> CH2O + H2 (+ M)',
+                                  kLow=[2.823201e+02, 1.46878, (-3270.56495, 'cal/mol')],
+                                  kHigh=[5.880000e-14, 6.721, (-3022.227, 'cal/mol')],
+                                  falloff=Troe(A=1.671, T3=434.782, T1=2934.21, T2=3919.0))
+
+In this example, the units of :math:`k_0` (`kLow`) are m^3/kmol/s and the
+units of :math:`k_\infty` (`kHigh`) are 1/s.
+
 Pressure-Dependent Arrhenius Rate Expressions (P-Log)
 =====================================================
 

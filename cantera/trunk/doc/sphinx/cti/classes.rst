@@ -106,6 +106,9 @@ Reactions
 .. autoclass:: ctml_writer.falloff_reaction
    :no-undoc-members:
 
+.. autoclass:: ctml_writer.chemically_activated_reaction
+   :no-undoc-members:
+
 .. autoclass:: ctml_writer.pdep_arrhenius
    :no-undoc-members:
 
