@@ -571,7 +571,7 @@ class ThirdBody(KineticsModel):
         return '\n'.join(lines)
 
 
-class Lindemann(ThirdBody):
+class Falloff(ThirdBody):
     """
     A kinetic model of a phenomenological rate coefficient k(T, P) using the
     expression
@@ -591,9 +591,10 @@ class Lindemann(ThirdBody):
     and :math:`[\\ce{M}] \\approx P/RT` is the concentration of the
     bath gas. The Arrhenius expressions :math:`k_0(T)` and :math:`k_\\infty(T)`
     represent the low-pressure and high-pressure limit kinetics, respectively.
-    The former is necessarily one reaction order higher than the latter. For
-    the Lindemann model, :math:`F = 1`. A collision efficiency can be used to
-    further correct the value of :math:`k(T,P)`.
+    The former is necessarily one reaction order higher than the latter.
+    Several different parameterizations are allowed for the falloff function
+    :math:`F(P_r, T)`. A collision efficiency can be used to further correct
+    the value of :math:`k(T,P)`.
 
     The attributes are:
 
@@ -603,13 +604,13 @@ class Lindemann(ThirdBody):
     `arrheniusLow`  :class:`Arrhenius`      The Arrhenius kinetics at the low-pressure limit
     `arrheniusHigh` :class:`Arrhenius`      The Arrhenius kinetics at the high-pressure limit
     `efficiencies`  ``dict``                A mapping of species to collider efficiencies
+    `F`                                     Falloff function parameterization
     =============== ======================= ====================================
-
     """
-
-    def __init__(self, arrheniusLow=None, **kwargs):
+    def __init__(self, arrheniusLow=None, F=None, **kwargs):
         ThirdBody.__init__(self, **kwargs)
         self.arrheniusLow = arrheniusLow
+        self.F = F
 
     def to_cti(self, reactantstr, arrow, productstr, indent=0):
         rxnstr = reactantstr + arrow + productstr
@@ -619,35 +620,15 @@ class Lindemann(ThirdBody):
         lines.append(prefix + 'kf0={0},'.format(self.arrheniusLow.rateStr()))
         if self.efficiencies:
             lines.append(prefix + 'efficiencies={0!r},'.format(self.efficiencyString()))
+        if self.F:
+            lines.append(prefix + 'falloff={0},'.format(self.F.to_cti()))
 
         lines[-1] = lines[-1][:-1] + ')'
         return '\n'.join(lines)
 
 
-class Troe(Lindemann):
+class Troe(object):
     """
-    A kinetic model of a phenomenological rate coefficient k(T, P) using the
-    expression
-
-    .. math:: k(T,P) = k_\\infty(T) \\left[ \\frac{P_\\mathrm{r}}{1 + P_\\mathrm{r}} \\right] F
-
-    where
-
-    .. math::
-
-        P_\\mathrm{r} &= \\frac{k_0(T)}{k_\\infty(T)} [\\ce{M}]
-
-        k_0(T) &= A_0 T^{n_0} \\exp \\left( - \\frac{E_0}{RT} \\right)
-
-        k_\\infty(T) &= A_\\infty T^{n_\\infty} \\exp \\left( - \\frac{E_\\infty}{RT} \\right)
-
-    and :math:`[\\ce{M}] \\approx P/RT` is the concentration of the
-    bath gas. The Arrhenius expressions :math:`k_0(T)` and :math:`k_\\infty(T)`
-    represent the low-pressure and high-pressure limit kinetics, respectively.
-    The former is necessarily one reaction order higher than the latter. A
-    collision efficiency can be used to further correct the value of
-    :math:`k(T,P)`.
-
     For the Troe model the parameter :math:`F` is computed via
 
     .. math::
@@ -667,9 +648,6 @@ class Troe(Lindemann):
     =============== ======================= ====================================
     Attribute       Type                    Description
     =============== ======================= ====================================
-    `arrheniusLow`  :class:`Arrhenius`      The Arrhenius kinetics at the low-pressure limit
-    `arrheniusHigh` :class:`Arrhenius`      The Arrhenius kinetics at the high-pressure limit
-    `efficiencies`  ``dict``                A mapping of species to collider efficiencies
     `alpha`         :class:`Quantity`       The :math:`\\alpha` parameter
     `T1`            :class:`Quantity`       The :math:`T_1` parameter
     `T2`            :class:`Quantity`       The :math:`T_2` parameter
@@ -678,35 +656,20 @@ class Troe(Lindemann):
 
     """
 
-    def __init__(self, alpha=0.0, T3=0.0, T1=0.0, T2=None, **kwargs):
-        Lindemann.__init__(self, **kwargs)
+    def __init__(self, alpha=0.0, T3=0.0, T1=0.0, T2=None):
         self.alpha = alpha
         self.T3 = T3
         self.T1 = T1
         self.T2 = T2
 
-    def to_cti(self, reactantstr, arrow, productstr, indent=0):
-        rxnstr = reactantstr + arrow + productstr
-        prefix = ' '*17
-        lines = ['falloff_reaction({0!r},'.format(rxnstr),
-                 prefix + 'kf={0},'.format(self.arrheniusHigh.rateStr()),
-                 prefix + 'kf0={0},'.format(self.arrheniusLow.rateStr())]
-
+    def to_cti(self):
         if self.T2:
-            troeArgs = 'A={0.alpha[0]}, T3={0.T3[0]}, T1={0.T1[0]}, T2={0.T2[0]}'.format(self)
+            return 'Troe(A={0.alpha[0]}, T3={0.T3[0]}, T1={0.T1[0]}, T2={0.T2[0]})'.format(self)
         else:
-            troeArgs = 'A={0.alpha[0]}, T3={0.T3[0]}, T1={0.T1[0]}'.format(self)
-        lines.append(prefix + 'falloff=Troe({0}),'.format(troeArgs))
-
-        if self.efficiencies:
-            lines.append(prefix + 'efficiencies={0!r},'.format(self.efficiencyString()))
-
-        # replace trailing comma
-        lines[-1] = lines[-1][:-1] + ')'
-        return '\n'.join(lines)
+            return 'Troe(A={0.alpha[0]}, T3={0.T3[0]}, T1={0.T1[0]})'.format(self)
 
 
-class Sri(Lindemann):
+class Sri(object):
     """
     A kinetic model of a phenomenological rate coefficient k(T, P) using the
     "SRI" formulation of the blending function :math:`F` using either 3 or
@@ -717,9 +680,6 @@ class Sri(Lindemann):
     =============== ======================= ====================================
     Attribute       Type                    Description
     =============== ======================= ====================================
-    `arrheniusLow`  :class:`Arrhenius`      The Arrhenius kinetics at the low-pressure limit
-    `arrheniusHigh` :class:`Arrhenius`      The Arrhenius kinetics at the high-pressure limit
-    `efficiencies`  ``dict``                A mapping of species to collider efficiencies
     `A`            ``float``                The :math:`a` parameter
     `B`            ``float``                The :math:`b` parameter
     `C`            ``float``                The :math:`c` parameter
@@ -728,33 +688,18 @@ class Sri(Lindemann):
     =============== ======================= ====================================
     """
 
-    def __init__(self, A=0.0, B=0.0, C=0.0, D=1.0, E=0.0, **kwargs):
-        Lindemann.__init__(self, **kwargs)
+    def __init__(self, A=0.0, B=0.0, C=0.0, D=1.0, E=0.0):
         self.A = A
         self.B = B
         self.C = C
         self.D = D
         self.E = E
 
-    def to_cti(self, reactantstr, arrow, productstr, indent=0):
-        rxnstr = reactantstr + arrow + productstr
-        prefix = ' '*17
-        lines = ['falloff_reaction({0!r},'.format(rxnstr),
-                 prefix + 'kf={0},'.format(self.arrheniusHigh.rateStr()),
-                 prefix + 'kf0={0},'.format(self.arrheniusLow.rateStr())]
-
+    def to_cti(self):
         if self.D == 1.0 and self.E == 0.0:
-            sriArgs = 'A={0.A}, B={0.B}, C={0.C}'.format(self)
+            return 'SRI(A={0.A}, B={0.B}, C={0.C})'.format(self)
         else:
-            sriArgs = 'A={0.A}, B={0.B}, C={0.C}, D={0.D}, E={0.E}'.format(self)
-        lines.append(prefix + 'falloff=SRI({0}),'.format(sriArgs))
-
-        if self.efficiencies:
-            lines.append(prefix + 'efficiencies={0!r},'.format(self.efficiencyString()))
-
-        # replace trailing comma
-        lines[-1] = lines[-1][:-1] + ')'
-        return '\n'.join(lines)
+            return 'SRI(A={0.A}, B={0.B}, C={0.C}, D={0.D}, E={0.E})'.format(self)
 
 
 class TransportData(object):
@@ -1124,8 +1069,7 @@ class Parser(object):
         else:
             # There's more kinetics information to be read
             arrheniusLow = None
-            troe = None
-            sri = None
+            falloff = None
             chebyshev = None
             pdepArrhenius = None
             efficiencies = {}
@@ -1181,12 +1125,11 @@ class Parser(object):
                     except (IndexError, ValueError):
                         T2 = None
 
-                    troe = Troe(
+                    falloff = Troe(
                         alpha=(alpha,''),
                         T3=(T3,"K"),
                         T1=(T1,"K"),
                         T2=(T2,"K") if T2 is not None else None,
-                        parser=self
                     )
                 elif 'sri' in line.lower():
                     # SRI falloff parameters
@@ -1202,9 +1145,9 @@ class Parser(object):
                         E = None
 
                     if D is None or E is None:
-                        sri = Sri(A=A, B=B, C=C, parser=self)
+                        falloff = Sri(A=A, B=B, C=C)
                     else:
-                        sri = Sri(A=A, B=B, C=C, D=D, E=E, parser=self)
+                        falloff = Sri(A=A, B=B, C=C, D=D, E=E)
 
                 elif 'cheb' in line.lower():
                     # Chebyshev parameters
@@ -1271,25 +1214,16 @@ class Parser(object):
                     arrhenius=[arrh for P, arrh in pdepArrhenius],
                     parser=self
                 )
-            elif troe is not None:
-                troe.arrheniusHigh = arrheniusHigh
-                troe.arrheniusLow = arrheniusLow
-                troe.efficiencies = efficiencies
-                reaction.kinetics = troe
-            elif sri is not None:
-                sri.arrheniusHigh = arrheniusHigh
-                sri.arrheniusLow = arrheniusLow
-                sri.efficiencies = efficiencies
-                reaction.kinetics = sri
             elif arrheniusLow is not None:
-                reaction.kinetics = Lindemann(arrheniusHigh=arrheniusHigh,
-                                              arrheniusLow=arrheniusLow,
-                                              parser=self)
-                reaction.kinetics.efficiencies = efficiencies
+                reaction.kinetics = Falloff(arrheniusHigh=arrheniusHigh,
+                                            arrheniusLow=arrheniusLow,
+                                            F=falloff,
+                                            parser=self,
+                                            efficiencies=efficiencies)
             elif thirdBody:
                 reaction.kinetics = ThirdBody(arrheniusHigh=arrheniusHigh,
-                                              parser=self)
-                reaction.kinetics.efficiencies = efficiencies
+                                              parser=self,
+                                              efficiencies=efficiencies)
             else:
                 reaction.kinetics = arrheniusHigh
 
