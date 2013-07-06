@@ -183,15 +183,6 @@ public:
 
     friend class TransportFactory;
 
-    /**
-     * Return a structure containing all of the pertinent parameters
-     * about a species that was used to construct the Transport
-     * properties in this object.
-     *
-     * @param k Species number to obtain the properties from.
-     */
-    struct GasTransportData getGasTransportData(int k);
-
 protected:
     PecosTransport();
 
