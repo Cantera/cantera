@@ -504,6 +504,7 @@ addReaction(ReactionData& r)
     installGroups(reactionNumber(), r.rgroups, r.pgroups);
     incrementRxnCount();
     m_rxneqn.push_back(r.equation);
+    m_rxntype.push_back(r.reactionType);
 }
 
 void GasKinetics::
