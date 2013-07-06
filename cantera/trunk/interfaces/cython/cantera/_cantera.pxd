@@ -67,12 +67,12 @@ cdef extern from "cantera/thermo/ThermoPhase.h" namespace "Cantera":
 
         # element properties
         size_t nElements()
-        size_t elementIndex(string)
+        size_t elementIndex(string) except +
         string elementName(size_t) except +
 
         # species properties
         size_t nSpecies()
-        size_t speciesIndex(string)
+        size_t speciesIndex(string) except +
         string speciesName(size_t) except +
         double nAtoms(size_t, size_t) except +
         void getAtoms(size_t, double*) except +
