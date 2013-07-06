@@ -301,3 +301,16 @@ class TestReactionPath(utilities.CanteraTest):
             # flux we're looking at
             for spec in species:
                 self.assertTrue(gas.n_atoms(spec, element) > 0)
+
+
+class TestChemicallyActivated(utilities.CanteraTest):
+    def test_rate_evaluation(self):
+        gas = ct.Solution('chemically-activated-reaction.xml')
+        P = [2026.5, 202650.0, 10132500.0] # pressure
+
+        # forward rate of progress, computed using Chemkin
+        Rf = [2.851022e-04, 2.775924e+00, 2.481792e+03]
+
+        for i in range(len(P)):
+            gas.TPX = 900.0, P[i], [0.01, 0.01, 0.04, 0.10, 0.84]
+            self.assertNear(gas.forward_rates_of_progress[0], Rf[i], 2e-5)

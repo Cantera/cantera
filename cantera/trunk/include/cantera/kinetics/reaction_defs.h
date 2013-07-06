@@ -56,7 +56,6 @@ const int CHEBYSHEV_RXN = 6;
  * off as the pressure increases, due to collisional stabilization of
  * a reaction intermediate. Example: Si + SiH4 (+M) <-> Si2H2 + H2
  * (+M), which competes with Si + SiH4 (+M) <-> Si2H4 (+M).
- * @todo Implement chemical activation reactions.
  */
 const int CHEMACT_RXN    = 8;
 

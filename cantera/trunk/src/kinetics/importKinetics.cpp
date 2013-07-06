@@ -253,14 +253,16 @@ bool getReagents(const XML_Node& rxn, Kinetics& kin, int rp,
  * The Arrhenius expression is
  * \f[        k =  A T^(b) exp (-E_a / RT). \f]
  */
-static void getArrhenius(const XML_Node& node, int& highlow,
+static void getArrhenius(const XML_Node& node, int& labeled,
                          doublereal& A, doublereal& b, doublereal& E)
 {
 
     if (node["name"] == "k0") {
-        highlow = 0;
+        labeled = -1;
+    } else if (node["name"] == "kHigh") {
+        labeled = 1;
     } else {
-        highlow = 1;
+        labeled = 0;
     }
     /*
      * We parse the children for the A, b, and E components.
@@ -505,24 +507,24 @@ void getRateCoefficient(const XML_Node& kf, Kinetics& kin,
             throw CanteraError("getRateCoefficient", "Unknown type: " + type);
         }
 
-        vector_fp clow(3,0.0), chigh(3,0.0);
+        vector_fp c_alt(3,0.0), c_base(3,0.0);
         for (size_t m = 0; m < kf.nChildren(); m++) {
             const XML_Node& c = kf.child(m);
             string nm = c.name();
-            int highlow=0;
+            int labeled=0;
 
             if (nm == "Arrhenius") {
                 vector_fp coeff(3);
                 if (c["type"] == "stick") {
                     getStick(c, kin, rdata, coeff[0], coeff[1], coeff[2]);
-                    chigh = coeff;
+                    c_base = coeff;
                 } else {
-                    getArrhenius(c, highlow, coeff[0], coeff[1], coeff[2]);
-                    if (highlow == 1 || rdata.reactionType == THREE_BODY_RXN
+                    getArrhenius(c, labeled, coeff[0], coeff[1], coeff[2]);
+                    if (labeled == 0 || rdata.reactionType == THREE_BODY_RXN
                             || rdata.reactionType == ELEMENTARY_RXN) {
-                        chigh = coeff;
+                        c_base = coeff;
                     } else {
-                        clow = coeff;
+                        c_alt = coeff;
                     }
                 }
                 if (rdata.reactionType == SURFACE_RXN || rdata.reactionType == EDGE_RXN) {
@@ -536,8 +538,8 @@ void getRateCoefficient(const XML_Node& kf, Kinetics& kin,
                 }
             } else if (nm == "Arrhenius_ExchangeCurrentDensity") {
                 vector_fp coeff(3);
-                getArrhenius(c, highlow, coeff[0], coeff[1], coeff[2]);
-                chigh = coeff;
+                getArrhenius(c, labeled, coeff[0], coeff[1], coeff[2]);
+                c_base = coeff;
                 rdata.rateCoeffType = EXCHANGE_CURRENT_REACTION_RATECOEFF_TYPE;
             } else if (nm == "falloff") {
                 getFalloff(c, rdata);
@@ -551,17 +553,16 @@ void getRateCoefficient(const XML_Node& kf, Kinetics& kin,
          * Store the coefficients in the ReactionData object for return
          * from this function.
          */
-        if (rdata.reactionType == CHEMACT_RXN) {
-            rdata.rateCoeffParameters = clow;
+        if (rdata.reactionType == FALLOFF_RXN) {
+            rdata.rateCoeffParameters = c_base;
+            rdata.auxRateCoeffParameters = c_alt;
+        } else if (rdata.reactionType == CHEMACT_RXN) {
+            rdata.rateCoeffParameters = c_alt;
+            rdata.auxRateCoeffParameters = c_base;
         } else {
-            rdata.rateCoeffParameters = chigh;
+            rdata.rateCoeffParameters = c_base;
         }
 
-        if (rdata.reactionType == FALLOFF_RXN) {
-            rdata.auxRateCoeffParameters = clow;
-        } else if (rdata.reactionType == CHEMACT_RXN) {
-            rdata.auxRateCoeffParameters = chigh;
-        }
     }
 }
 

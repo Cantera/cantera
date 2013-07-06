@@ -359,7 +359,11 @@ void GasKinetics::processFalloffReactions()
     m_falloffn.pr_to_falloff(&pr[0], work);
 
     for (size_t i = 0; i < m_nfall; i++) {
-        pr[i] *= m_rfn_high[i];
+        if (m_rxntype[m_fallindx[i]] == FALLOFF_RXN) {
+            pr[i] *= m_rfn_high[i];
+        } else { // CHEMACT_RXN
+            pr[i] *= m_rfn_low[i];
+        }
     }
 
     scatter_copy(pr.begin(), pr.begin() + m_nfall,
@@ -487,6 +491,7 @@ addReaction(ReactionData& r)
         addThreeBodyReaction(r);
         break;
     case FALLOFF_RXN:
+    case CHEMACT_RXN:
         addFalloffReaction(r);
         break;
     case PLOG_RXN:
@@ -533,7 +538,8 @@ addFalloffReaction(ReactionData& r)
 
     // install the falloff function calculator for
     // this reaction
-    m_falloffn.install(m_nfall, r.falloffType, r.falloffParameters);
+    m_falloffn.install(m_nfall, r.falloffType, r.reactionType,
+                       r.falloffParameters);
 
     // forward rxn order equals number of reactants, since rate
     // coeff is defined in terms of the high-pressure limit
@@ -541,7 +547,7 @@ addFalloffReaction(ReactionData& r)
 
     // increment the falloff reaction counter
     ++m_nfall;
-    registerReaction(reactionNumber(), FALLOFF_RXN, iloc);
+    registerReaction(reactionNumber(), r.reactionType, iloc);
 }
 
 void GasKinetics::

@@ -44,16 +44,18 @@ public:
     /*
      * @param rxn Index of the falloff reaction. This will be used to
      *     determine which array entry is modified in method pr_to_falloff.
-     * @param type of falloff function to install.
+     * @param falloffType of falloff function to install.
+     * @param reactionType Either `FALLOFF_RXN` or `CHEMACT_RXN`
      * @param c vector of coefficients for the falloff function.
      */
-    void install(size_t rxn, int type,
+    void install(size_t rxn, int falloffType, int reactionType,
                  const vector_fp& c) {
         m_rxn.push_back(rxn);
-        Falloff* f = m_factory->newFalloff(type,c);
+        Falloff* f = m_factory->newFalloff(falloffType,c);
         m_offset.push_back(m_worksize);
         m_worksize += f->workSize();
         m_falloff.push_back(f);
+        m_reactionType.push_back(reactionType);
     }
 
     //! Size of the work array required to store intermediate results.
@@ -80,8 +82,15 @@ public:
     void pr_to_falloff(doublereal* values, const doublereal* work) {
         for (size_t i = 0; i < m_rxn.size(); i++) {
             double pr = values[m_rxn[i]];
-            values[m_rxn[i]] *=
-                m_falloff[i]->F(pr, work + m_offset[i]) /(1.0 + pr);
+            if (m_reactionType[i] == FALLOFF_RXN) {
+                // Pr / (1 + Pr) * F
+                values[m_rxn[i]] *=
+                    m_falloff[i]->F(pr, work + m_offset[i]) /(1.0 + pr);
+            } else {
+                // 1 / (1 + Pr) * F
+                values[m_rxn[i]] =
+                    m_falloff[i]->F(pr, work + m_offset[i]) /(1.0 + pr);
+            }
         }
     }
 
@@ -92,6 +101,9 @@ protected:
     vector_int m_loc;
     std::vector<vector_fp::difference_type> m_offset;
     size_t m_worksize;
+
+    //! Distinguish between falloff and chemically activated reactions
+    vector_int m_reactionType;
 };
 }
 
