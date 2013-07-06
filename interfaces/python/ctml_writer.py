@@ -1219,6 +1219,12 @@ class reaction(object):
                 self.mdim += 1
                 self.ldim -= 3
                 nm = 'k0'
+            elif self._type == 'chemAct':
+                # set values for high-pressure rate coeff if this is a
+                # chemically activated reaction
+                self.mdim -= 1
+                self.ldim += 3
+                nm = 'kHigh'
 
         rstr = ' '.join('%s:%s' % item for item in self._r.items())
         pstr = ' '.join('%s:%s' % item for item in self._p.items())
@@ -1282,10 +1288,44 @@ class three_body_reaction(reaction):
             eff['default'] = repr(self._effm)
 
 
-#---------------
+class pdep_reaction(reaction):
+    """ Base class for falloff_reaction and chemically_activated_reaction """
+
+    def clean_up_reactants_products(self):
+        del self._r['(+']
+        del self._p['(+']
+        if 'M)' in self._r:
+            del self._r['M)']
+            del self._p['M)']
+        elif 'm)' in self._r:
+            del self._r['m)']
+            del self._p['m)']
+        else:
+            for r in list(self._r.keys()):
+                if r[-1] == ')' and r.find('(') < 0:
+                    species = r[:-1]
+                    if self._eff:
+                        raise CTI_Error('(+ '+species+') and '+self._eff+' cannot both be specified')
+                    self._eff = species+':1.0'
+                    self._effm = 0.0
+
+                    del self._r[r]
+                    del self._p[r]
+
+    def build(self, p):
+        r = reaction.build(self, p)
+        if r == 0: return
+        kfnode = r.child('rateCoeff')
+
+        if self._eff and self._effm >= 0.0:
+            eff = kfnode.addChild('efficiencies',self._eff)
+            eff['default'] = repr(self._effm)
+
+        if self._falloff:
+            self._falloff.build(kfnode)
 
 
-class falloff_reaction(reaction):
+class falloff_reaction(pdep_reaction):
     """ A gas-phase falloff reaction. """
     def __init__(self, equation, kf0, kf,
                  efficiencies='', falloff=None, id='', options=[]):
@@ -1324,40 +1364,49 @@ class falloff_reaction(reaction):
         self._effm = 1.0
         self._eff = efficiencies
 
-        # clean up reactant and product lists
-        del self._r['(+']
-        del self._p['(+']
-        if 'M)' in self._r:
-            del self._r['M)']
-            del self._p['M)']
-        elif 'm)' in self._r:
-            del self._r['m)']
-            del self._p['m)']
-        else:
-            for r in list(self._r.keys()):
-                if r[-1] == ')' and r.find('(') < 0:
-                    species = r[:-1]
-                    if self._eff:
-                        raise CTI_Error('(+ '+species+') and '+self._eff+' cannot both be specified')
-                    self._eff = species+':1.0'
-                    self._effm = 0.0
-
-                    del self._r[r]
-                    del self._p[r]
+        self.clean_up_reactants_products()
 
 
-    def build(self, p):
-        r = reaction.build(self, p)
-        if r == 0: return
-        kfnode = r.child('rateCoeff')
+class chemically_activated_reaction(pdep_reaction):
+    """ A gas-phase, chemically activated reaction. """
 
-        if self._eff and self._effm >= 0.0:
-            eff = kfnode.addChild('efficiencies',self._eff)
-            eff['default'] = repr(self._effm)
+    def __init__(self, equation, kLow, kHigh,
+                 efficiencies='', falloff=None, id='', options=[]):
+        """
+        :param equation:
+            A string specifying the chemical equation.
+        :param kLow:
+            The rate coefficient for the forward direction in the low-pressure
+            limit. If a sequence of three numbers is given, these will be
+            interpreted as [A, n,E] in the modified Arrhenius function.
+        :param kHigh:
+            The rate coefficient for the forward direction in the high-pressure
+            limit. If a sequence of three numbers is given, these will be
+            interpreted as [A, n,E] in the modified Arrhenius function.
+        :param efficiencies:
+            A string specifying the third-body collision efficiencies. The
+            efficiency for unspecified species is set to 1.0.
+        :param falloff:
+            An embedded entry specifying a falloff function. If omitted, a
+            unity falloff function (Lindemann form) will be used.
+        :param id:
+            An optional identification string. If omitted, it defaults to a
+            four-digit numeric string beginning with 0001 for the first
+            reaction in the file.
+        :param options:
+            Processing options, as described in :ref:`sec-phase-options`.
+        """
+        reaction.__init__(self, equation, (kLow, kHigh), id, '', options)
+        self._type = 'chemAct'
+        # use a Lindemann falloff function by default
+        self._falloff = falloff
+        if self._falloff == None:
+            self._falloff = Lindemann()
 
-        if self._falloff:
-            self._falloff.build(kfnode)
+        self._effm = 1.0
+        self._eff = efficiencies
 
+        self.clean_up_reactants_products()
 
 class pdep_arrhenius(reaction):
     """
