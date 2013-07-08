@@ -200,6 +200,16 @@ class chemkinConverterTest(utilities.CanteraTest):
         gas.set(X='H2:1.0, O2:1.0', T=300, P=101325)
         self.assertAlmostEqual(gas.thermalConductivity(), 0.07663, 4)
 
+    def test_transport_embedded(self):
+        convertMech('../data/with-transport.inp',
+                    outName='with-transport.cti', quiet=True)
+
+        gas = ct.IdealGasMix('with-transport.cti')
+        gas.set(X=[0.2, 0.3, 0.5])
+        D = gas.mixDiffCoeffs()
+        for d in D:
+            self.assertTrue(d > 0.0)
+
     def test_transport_missing_species(self):
         def convert():
             convertMech('../../data/inputs/h2o2.inp',

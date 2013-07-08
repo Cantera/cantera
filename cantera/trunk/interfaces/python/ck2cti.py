@@ -1518,6 +1518,7 @@ class Parser(object):
                             transportLines.append('!'.join((line, comment)))
                         else:
                             transportLines.append(line)
+                        line, comment = readline()
 
                 line, comment = readline()
 
