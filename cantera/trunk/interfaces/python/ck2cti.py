@@ -1124,196 +1124,191 @@ class Parser(object):
             parser=self
         )
 
-        if len(lines) == 1:
-            # If there's only one line then we know to use the kinetics as-is
-            reaction.kinetics = arrhenius
-        else:
-            # There's more kinetics information to be read
-            arrheniusLow = None
-            arrheniusHigh = None
-            falloff = None
-            chebyshev = None
-            pdepArrhenius = None
-            efficiencies = {}
-            chebyshevCoeffs = []
-            revReaction = None
+        arrheniusLow = None
+        arrheniusHigh = None
+        falloff = None
+        chebyshev = None
+        pdepArrhenius = None
+        efficiencies = {}
+        chebyshevCoeffs = []
+        revReaction = None
 
-            # Note that the subsequent lines could be in any order
-            for line in lines[1:]:
-                tokens = line.split('/')
-                if 'dup' in line.lower():
-                    # Duplicate reaction
-                    reaction.duplicate = True
+        # Note that the subsequent lines could be in any order
+        for line in lines[1:]:
+            tokens = line.split('/')
+            if 'dup' in line.lower():
+                # Duplicate reaction
+                reaction.duplicate = True
 
-                elif 'low' in line.lower():
-                    # Low-pressure-limit Arrhenius parameters for "falloff" reaction
-                    tokens = tokens[1].split()
-                    arrheniusLow = Arrhenius(
-                        A=(float(tokens[0].strip()),klow_units),
-                        n=float(tokens[1].strip()),
-                        Ea=(float(tokens[2].strip()),energy_units),
-                        T0=(1,"K"),
-                        parser=self
-                    )
-
-                elif 'high' in line.lower():
-                    # High-pressure-limit Arrhenius parameters for "chemically
-                    # activated" reaction
-                    tokens = tokens[1].split()
-                    arrheniusHigh = Arrhenius(
-                        A=(float(tokens[0].strip()),kunits),
-                        n=float(tokens[1].strip()),
-                        Ea=(float(tokens[2].strip()),energy_units),
-                        T0=(1,"K"),
-                        parser=self
-                    )
-                    # Need to fix units on the base reaction:
-                    arrhenius.A = (arrhenius.A[0], klow_units)
-
-                elif 'rev' in line.lower():
-                    reaction.reversible = False
-
-                    # Create a reaction proceeding in the opposite direction
-                    revReaction = Reaction(reactants=reaction.products,
-                                           products=reaction.reactants,
-                                           thirdBody=reaction.thirdBody,
-                                           reversible=False)
-                    tokens = tokens[1].split()
-                    revReaction.kinetics = Arrhenius(
-                        A=(float(tokens[0].strip()),klow_units),
-                        n=float(tokens[1].strip()),
-                        Ea=(float(tokens[2].strip()),energy_units),
-                        T0=(1,"K"),
-                        parser=self
-                    )
-                    if thirdBody:
-                        revReaction.kinetics = ThirdBody(
-                            arrheniusHigh=revReaction.kinetics,
-                            parser=self)
-
-                elif 'ford' in line.lower():
-                    tokens = tokens[1].split()
-                    reaction.fwdOrders[tokens[0].strip()] = tokens[1].strip()
-
-                elif 'troe' in line.lower():
-                    # Troe falloff parameters
-                    tokens = tokens[1].split()
-                    alpha = float(tokens[0].strip())
-                    T3 = float(tokens[1].strip())
-                    T1 = float(tokens[2].strip())
-                    try:
-                        T2 = float(tokens[3].strip())
-                    except (IndexError, ValueError):
-                        T2 = None
-
-                    falloff = Troe(
-                        alpha=(alpha,''),
-                        T3=(T3,"K"),
-                        T1=(T1,"K"),
-                        T2=(T2,"K") if T2 is not None else None,
-                    )
-                elif 'sri' in line.lower():
-                    # SRI falloff parameters
-                    tokens = tokens[1].split()
-                    A = float(tokens[0].strip())
-                    B = float(tokens[1].strip())
-                    C = float(tokens[2].strip())
-                    try:
-                        D = float(tokens[3].strip())
-                        E = float(tokens[4].strip())
-                    except (IndexError, ValueError):
-                        D = None
-                        E = None
-
-                    if D is None or E is None:
-                        falloff = Sri(A=A, B=B, C=C)
-                    else:
-                        falloff = Sri(A=A, B=B, C=C, D=D, E=E)
-
-                elif 'cheb' in line.lower():
-                    # Chebyshev parameters
-                    if chebyshev is None:
-                        chebyshev = Chebyshev()
-                    tokens = [t.strip() for t in tokens]
-                    if 'TCHEB' in line:
-                        index = tokens.index('TCHEB')
-                        tokens2 = tokens[index+1].split()
-                        chebyshev.Tmin = float(tokens2[0].strip())
-                        chebyshev.Tmax = float(tokens2[1].strip())
-                    if 'PCHEB' in line:
-                        index = tokens.index('PCHEB')
-                        tokens2 = tokens[index+1].split()
-                        chebyshev.Pmin = (float(tokens2[0].strip()), 'atm')
-                        chebyshev.Pmax = (float(tokens2[1].strip()), 'atm')
-                    if 'TCHEB' in line or 'PCHEB' in line:
-                        pass
-                    elif chebyshev.degreeT == 0 or chebyshev.degreeP == 0:
-                        tokens2 = tokens[1].split()
-                        chebyshev.degreeT = int(float(tokens2[0].strip()))
-                        chebyshev.degreeP = int(float(tokens2[1].strip()))
-                        chebyshev.coeffs = np.zeros((chebyshev.degreeT,chebyshev.degreeP), np.float64)
-                    else:
-                        tokens2 = tokens[1].split()
-                        chebyshevCoeffs.extend([float(t.strip()) for t in tokens2])
-
-                elif 'plog' in line.lower():
-                    # Pressure-dependent Arrhenius parameters
-                    if pdepArrhenius is None:
-                        pdepArrhenius = []
-                    tokens = tokens[1].split()
-                    pdepArrhenius.append([float(tokens[0].strip()), Arrhenius(
-                        A=(float(tokens[1].strip()),kunits),
-                        n=float(tokens[2].strip()),
-                        Ea=(float(tokens[3].strip()),energy_units),
-                        T0=(1,"K"),
-                        parser=self
-                    )])
-                else:
-                    # Assume a list of collider efficiencies
-                    for collider, efficiency in zip(tokens[0::2], tokens[1::2]):
-                        efficiencies[collider.strip()] = float(efficiency.strip())
-
-            # Decide which kinetics to keep and store them on the reaction object
-            # Only one of these should be true at a time!
-            if chebyshev is not None:
-                if chebyshev.Tmin is None or chebyshev.Tmax is None:
-                    raise InputParseError('Missing TCHEB line for reaction {0}'.format(reaction))
-                if chebyshev.Pmin is None or chebyshev.Pmax is None:
-                    raise InputParseError('Missing PCHEB line for reaction {0}'.format(reaction))
-                index = 0
-                for t in range(chebyshev.degreeT):
-                    for p in range(chebyshev.degreeP):
-                        chebyshev.coeffs[t,p] = chebyshevCoeffs[index]
-                        index += 1
-                reaction.kinetics = chebyshev
-            elif pdepArrhenius is not None:
-                reaction.kinetics = PDepArrhenius(
-                    pressures=([P for P, arrh in pdepArrhenius],"atm"),
-                    arrhenius=[arrh for P, arrh in pdepArrhenius],
+            elif 'low' in line.lower():
+                # Low-pressure-limit Arrhenius parameters for "falloff" reaction
+                tokens = tokens[1].split()
+                arrheniusLow = Arrhenius(
+                    A=(float(tokens[0].strip()),klow_units),
+                    n=float(tokens[1].strip()),
+                    Ea=(float(tokens[2].strip()),energy_units),
+                    T0=(1,"K"),
                     parser=self
                 )
-            elif arrheniusLow is not None:
-                reaction.kinetics = Falloff(arrheniusHigh=arrhenius,
-                                            arrheniusLow=arrheniusLow,
-                                            F=falloff,
-                                            parser=self,
-                                            efficiencies=efficiencies)
-            elif arrheniusHigh is not None:
-                reaction.kinetics = ChemicallyActivated(arrheniusHigh=arrheniusHigh,
-                                                        arrheniusLow=arrhenius,
-                                                        F=falloff,
-                                                        parser=self,
-                                                        efficiencies=efficiencies)
-            elif thirdBody:
-                reaction.kinetics = ThirdBody(arrheniusHigh=arrhenius,
-                                              parser=self,
-                                              efficiencies=efficiencies)
-            else:
-                reaction.kinetics = arrhenius
 
-            if revReaction:
-                revReaction.duplicate = reaction.duplicate
-                revReaction.kinetics.efficiencies = reaction.kinetics.efficiencies
+            elif 'high' in line.lower():
+                # High-pressure-limit Arrhenius parameters for "chemically
+                # activated" reaction
+                tokens = tokens[1].split()
+                arrheniusHigh = Arrhenius(
+                    A=(float(tokens[0].strip()),kunits),
+                    n=float(tokens[1].strip()),
+                    Ea=(float(tokens[2].strip()),energy_units),
+                    T0=(1,"K"),
+                    parser=self
+                )
+                # Need to fix units on the base reaction:
+                arrhenius.A = (arrhenius.A[0], klow_units)
+
+            elif 'rev' in line.lower():
+                reaction.reversible = False
+
+                # Create a reaction proceeding in the opposite direction
+                revReaction = Reaction(reactants=reaction.products,
+                                       products=reaction.reactants,
+                                       thirdBody=reaction.thirdBody,
+                                       reversible=False)
+                tokens = tokens[1].split()
+                revReaction.kinetics = Arrhenius(
+                    A=(float(tokens[0].strip()),klow_units),
+                    n=float(tokens[1].strip()),
+                    Ea=(float(tokens[2].strip()),energy_units),
+                    T0=(1,"K"),
+                    parser=self
+                )
+                if thirdBody:
+                    revReaction.kinetics = ThirdBody(
+                        arrheniusHigh=revReaction.kinetics,
+                        parser=self)
+
+            elif 'ford' in line.lower():
+                tokens = tokens[1].split()
+                reaction.fwdOrders[tokens[0].strip()] = tokens[1].strip()
+
+            elif 'troe' in line.lower():
+                # Troe falloff parameters
+                tokens = tokens[1].split()
+                alpha = float(tokens[0].strip())
+                T3 = float(tokens[1].strip())
+                T1 = float(tokens[2].strip())
+                try:
+                    T2 = float(tokens[3].strip())
+                except (IndexError, ValueError):
+                    T2 = None
+
+                falloff = Troe(
+                    alpha=(alpha,''),
+                    T3=(T3,"K"),
+                    T1=(T1,"K"),
+                    T2=(T2,"K") if T2 is not None else None,
+                )
+            elif 'sri' in line.lower():
+                # SRI falloff parameters
+                tokens = tokens[1].split()
+                A = float(tokens[0].strip())
+                B = float(tokens[1].strip())
+                C = float(tokens[2].strip())
+                try:
+                    D = float(tokens[3].strip())
+                    E = float(tokens[4].strip())
+                except (IndexError, ValueError):
+                    D = None
+                    E = None
+
+                if D is None or E is None:
+                    falloff = Sri(A=A, B=B, C=C)
+                else:
+                    falloff = Sri(A=A, B=B, C=C, D=D, E=E)
+
+            elif 'cheb' in line.lower():
+                # Chebyshev parameters
+                if chebyshev is None:
+                    chebyshev = Chebyshev()
+                tokens = [t.strip() for t in tokens]
+                if 'TCHEB' in line:
+                    index = tokens.index('TCHEB')
+                    tokens2 = tokens[index+1].split()
+                    chebyshev.Tmin = float(tokens2[0].strip())
+                    chebyshev.Tmax = float(tokens2[1].strip())
+                if 'PCHEB' in line:
+                    index = tokens.index('PCHEB')
+                    tokens2 = tokens[index+1].split()
+                    chebyshev.Pmin = (float(tokens2[0].strip()), 'atm')
+                    chebyshev.Pmax = (float(tokens2[1].strip()), 'atm')
+                if 'TCHEB' in line or 'PCHEB' in line:
+                    pass
+                elif chebyshev.degreeT == 0 or chebyshev.degreeP == 0:
+                    tokens2 = tokens[1].split()
+                    chebyshev.degreeT = int(float(tokens2[0].strip()))
+                    chebyshev.degreeP = int(float(tokens2[1].strip()))
+                    chebyshev.coeffs = np.zeros((chebyshev.degreeT,chebyshev.degreeP), np.float64)
+                else:
+                    tokens2 = tokens[1].split()
+                    chebyshevCoeffs.extend([float(t.strip()) for t in tokens2])
+
+            elif 'plog' in line.lower():
+                # Pressure-dependent Arrhenius parameters
+                if pdepArrhenius is None:
+                    pdepArrhenius = []
+                tokens = tokens[1].split()
+                pdepArrhenius.append([float(tokens[0].strip()), Arrhenius(
+                    A=(float(tokens[1].strip()),kunits),
+                    n=float(tokens[2].strip()),
+                    Ea=(float(tokens[3].strip()),energy_units),
+                    T0=(1,"K"),
+                    parser=self
+                )])
+            else:
+                # Assume a list of collider efficiencies
+                for collider, efficiency in zip(tokens[0::2], tokens[1::2]):
+                    efficiencies[collider.strip()] = float(efficiency.strip())
+
+        # Decide which kinetics to keep and store them on the reaction object
+        # Only one of these should be true at a time!
+        if chebyshev is not None:
+            if chebyshev.Tmin is None or chebyshev.Tmax is None:
+                raise InputParseError('Missing TCHEB line for reaction {0}'.format(reaction))
+            if chebyshev.Pmin is None or chebyshev.Pmax is None:
+                raise InputParseError('Missing PCHEB line for reaction {0}'.format(reaction))
+            index = 0
+            for t in range(chebyshev.degreeT):
+                for p in range(chebyshev.degreeP):
+                    chebyshev.coeffs[t,p] = chebyshevCoeffs[index]
+                    index += 1
+            reaction.kinetics = chebyshev
+        elif pdepArrhenius is not None:
+            reaction.kinetics = PDepArrhenius(
+                pressures=([P for P, arrh in pdepArrhenius],"atm"),
+                arrhenius=[arrh for P, arrh in pdepArrhenius],
+                parser=self
+            )
+        elif arrheniusLow is not None:
+            reaction.kinetics = Falloff(arrheniusHigh=arrhenius,
+                                        arrheniusLow=arrheniusLow,
+                                        F=falloff,
+                                        parser=self,
+                                        efficiencies=efficiencies)
+        elif arrheniusHigh is not None:
+            reaction.kinetics = ChemicallyActivated(arrheniusHigh=arrheniusHigh,
+                                                    arrheniusLow=arrhenius,
+                                                    F=falloff,
+                                                    parser=self,
+                                                    efficiencies=efficiencies)
+        elif thirdBody:
+            reaction.kinetics = ThirdBody(arrheniusHigh=arrhenius,
+                                          parser=self,
+                                          efficiencies=efficiencies)
+        else:
+            reaction.kinetics = arrhenius
+
+        if revReaction:
+            revReaction.duplicate = reaction.duplicate
+            revReaction.kinetics.efficiencies = reaction.kinetics.efficiencies
 
         return reaction, revReaction
 
