@@ -100,6 +100,20 @@ class chemkinConverterTest(utilities.CanteraTest):
                                               outName='h2o2_missingThermo.cti',
                                               quiet=True))
 
+    def test_duplicate_thermo(self):
+        self.assertRaises(ck2cti.InputParseError,
+                          lambda: convertMech('../data/duplicate-thermo.inp',
+                                              outName='duplicate-thermo.cti',
+                                              quiet=True))
+
+        convertMech('../data/duplicate-thermo.inp',
+                    outName='duplicate-thermo.cti',
+                    quiet=True, permissive=True)
+
+        gas = ct.IdealGasMix('duplicate-thermo.cti')
+        self.assertTrue(gas.nSpecies(), 3)
+        self.assertTrue(gas.nReactions(), 2)
+
     def test_pathologicalSpeciesNames(self):
         convertMech('../data/species-names.inp',
                     outName='species-names.cti', quiet=True)
