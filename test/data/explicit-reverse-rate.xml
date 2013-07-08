@@ -116,5 +116,34 @@
       <reactants>H:1 P1:1.0</reactants>
       <products>R1B:1 R1A:1.0</products>
     </reaction>
+
+    <!-- reaction 0003    -->
+    <reaction reversible="no" type="threeBody" id="0003">
+      <equation>R1A + R1B + M =] P1 + H + M</equation>
+      <rateCoeff>
+        <Arrhenius>
+           <A>1.000000E-08</A>
+           <b>0.0</b>
+           <E units="cal/mol">5000.000000</E>
+        </Arrhenius>
+      </rateCoeff>
+      <reactants>R1B:1 R1A:1.0</reactants>
+      <products>H:1 P1:1.0</products>
+    </reaction>
+
+    <!-- reaction 0004    -->
+    <reaction reversible="no" type="threeBody" id="0004">
+      <equation>P1 + H + M =] R1A + R1B + M</equation>
+      <rateCoeff>
+        <Arrhenius>
+           <A>3.900000E+06</A>
+           <b>1.0</b>
+           <E units="cal/mol">6500.000000</E>
+        </Arrhenius>
+      </rateCoeff>
+      <reactants>H:1 P1:1.0</reactants>
+      <products>R1B:1 R1A:1.0</products>
+    </reaction>
   </reactionData>
+
 </ctml>
