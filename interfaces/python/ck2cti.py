@@ -1421,9 +1421,14 @@ class Parser(object):
                         if entryPosition == entryLength-1:
                             label, thermo, comp, note = self.readNasa9Entry(entry)
                             try:
-                                self.speciesDict[label].thermo = thermo
-                                self.speciesDict[label].composition = comp
-                                self.speciesDict[label].note = note
+                                species = self.speciesDict[label]
+                                # use the first set of thermo data found
+                                if species.thermo is not None:
+                                    self.warn('Found additional thermo entry for species {0}'.format(label))
+                                else:
+                                    species.thermo = thermo
+                                    species.composition = comp
+                                    species.note = note
                             except KeyError:
                                 logging.info('Skipping unexpected species "{0}" while reading thermodynamics entry.'.format(label))
 
@@ -1452,9 +1457,14 @@ class Parser(object):
                             if line[79] == '4':
                                 label, thermo, comp, note = self.readThermoEntry(thermo, TintDefault)
                                 try:
-                                    self.speciesDict[label].thermo = thermo
-                                    self.speciesDict[label].composition = comp
-                                    self.speciesDict[label].note = note
+                                    species = self.speciesDict[label]
+                                    # use the first set of thermo data found
+                                    if species.thermo is not None:
+                                        self.warn('Found additional thermo entry for species {0}'.format(label))
+                                    else:
+                                        species.thermo = thermo
+                                        species.composition = comp
+                                        species.note = note
                                 except KeyError:
                                     logging.info('Skipping unexpected species "{0}" while reading thermodynamics entry.'.format(label))
                                 thermo = []
