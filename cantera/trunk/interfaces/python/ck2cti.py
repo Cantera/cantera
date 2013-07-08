@@ -230,7 +230,8 @@ class Reaction(object):
     """
 
     def __init__(self, index=-1, reactants=None, products=None, kinetics=None,
-                 reversible=True, duplicate=False, fwdOrders=None):
+                 reversible=True, duplicate=False, fwdOrders=None,
+                 thirdBody=None):
         self.index = index
         self.reactants = reactants  # list of (stoichiometry, species) tuples
         self.products = products  # list of (stoichiometry, specis) tuples
@@ -238,7 +239,7 @@ class Reaction(object):
         self.reversible = reversible
         self.duplicate = duplicate
         self.fwdOrders = fwdOrders if fwdOrders is not None else {}
-        self.thirdBody = None
+        self.thirdBody = thirdBody
 
     def _coeff_string(self, coeffs):
         L = []
@@ -1175,6 +1176,7 @@ class Parser(object):
                     # Create a reaction proceeding in the opposite direction
                     revReaction = Reaction(reactants=reaction.products,
                                            products=reaction.reactants,
+                                           thirdBody=reaction.thirdBody,
                                            reversible=False)
                     tokens = tokens[1].split()
                     revReaction.kinetics = Arrhenius(
@@ -1184,6 +1186,10 @@ class Parser(object):
                         T0=(1,"K"),
                         parser=self
                     )
+                    if thirdBody:
+                        revReaction.kinetics = ThirdBody(
+                            arrheniusHigh=revReaction.kinetics,
+                            parser=self)
 
                 elif 'ford' in line.lower():
                     tokens = tokens[1].split()
@@ -1267,9 +1273,6 @@ class Parser(object):
                     for collider, efficiency in zip(tokens[0::2], tokens[1::2]):
                         efficiencies[collider.strip()] = float(efficiency.strip())
 
-            if revReaction:
-                revReaction.duplicate = reaction.duplicate
-
             # Decide which kinetics to keep and store them on the reaction object
             # Only one of these should be true at a time!
             if chebyshev is not None:
@@ -1307,6 +1310,10 @@ class Parser(object):
                                               efficiencies=efficiencies)
             else:
                 reaction.kinetics = arrhenius
+
+            if revReaction:
+                revReaction.duplicate = reaction.duplicate
+                revReaction.kinetics.efficiencies = reaction.kinetics.efficiencies
 
         return reaction, revReaction
 
@@ -1614,9 +1621,11 @@ class Parser(object):
             for r1,r2 in itertools.combinations(reactions, 2):
                 if r1.duplicate and r2.duplicate:
                     pass # marked duplicate reaction
-                elif r1.thirdBody.upper() == 'M' and r1.kinetics.efficiencies.get(r2.thirdBody) == 0:
+                elif (r1.thirdBody and r1.thirdBody.upper() == 'M' and
+                      r1.kinetics.efficiencies.get(r2.thirdBody) == 0):
                     pass # explicit zero efficiency
-                elif r2.thirdBody.upper() == 'M' and r2.kinetics.efficiencies.get(r1.thirdBody) == 0:
+                elif (r2.thirdBody and r2.thirdBody.upper() == 'M' and
+                      r2.kinetics.efficiencies.get(r1.thirdBody) == 0):
                     pass # explicit zero efficiency
                 elif r1.thirdBody != r2.thirdBody:
                     pass # distinct third bodies
