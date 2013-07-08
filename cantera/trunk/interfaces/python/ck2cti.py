@@ -892,15 +892,14 @@ class Parser(object):
             units = '1' + units
         return units
 
-    def readThermoEntry(self, entry, TintDefault):
+    def readThermoEntry(self, lines, TintDefault):
         """
-        Read a thermodynamics `entry` for one species in a Chemkin-format file
+        Read a thermodynamics entry for one species in a Chemkin-format file
         (consisting of two 7-coefficient NASA polynomials). Returns the label of
         the species, the thermodynamics model as a :class:`MultiNASA` object, the
         elemental composition of the species, and the comment/note associated with
         the thermo entry.
         """
-        lines = entry.splitlines()
         identifier = lines[0][0:24].split()
         species = identifier[0].strip()
 
@@ -1412,10 +1411,10 @@ class Parser(object):
                     line, comment = readline()
                     if not contains(line, 'END'):
                         TintDefault = float(line.split()[1])
-                    thermo = ''
+                    thermo = []
                     while not contains(line, 'END'):
                         if len(line) >= 80 and line[79] in ['1', '2', '3', '4']:
-                            thermo += line
+                            thermo.append(line)
                             if line[79] == '4':
                                 label, thermo, comp, note = self.readThermoEntry(thermo, TintDefault)
                                 try:
@@ -1424,7 +1423,7 @@ class Parser(object):
                                     self.speciesDict[label].note = note
                                 except KeyError:
                                     logging.info('Skipping unexpected species "{0}" while reading thermodynamics entry.'.format(label))
-                                thermo = ''
+                                thermo = []
                         line, comment = readline()
 
                 elif contains(line, 'REACTIONS'):
