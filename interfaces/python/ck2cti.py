@@ -1312,7 +1312,7 @@ class Parser(object):
 
         transportLines = []
 
-        with open(path, 'r') as ck_file:
+        with open(path, 'rU') as ck_file:
             self.line_number = 0
 
             def readline():
@@ -1692,7 +1692,7 @@ duplicate transport data) to be ignored.
             self.loadChemkinFile(thermoFile)
 
         if transportFile:
-            lines = open(transportFile).readlines()
+            lines = open(transportFile, 'rU').readlines()
             self.parseTransportData(lines)
 
             # Transport validation: make sure all species have transport data
