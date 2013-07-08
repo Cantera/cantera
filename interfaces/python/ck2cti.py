@@ -1404,7 +1404,8 @@ class Parser(object):
                 elif contains(line, 'THERM'):
                     # List of thermodynamics (hopefully one per species!)
                     line, comment = readline()
-                    TintDefault = float(line.split()[1])
+                    if not contains(line, 'END'):
+                        TintDefault = float(line.split()[1])
                     thermo = ''
                     while not contains(line, 'END'):
                         if len(line) >= 80 and line[79] in ['1', '2', '3', '4']:
