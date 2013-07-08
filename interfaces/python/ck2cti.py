@@ -1331,6 +1331,7 @@ class Parser(object):
                     return None, None
 
             line, comment = readline()
+            advance = True
             while line is not None:
                 tokens = line.split()
 
@@ -1338,6 +1339,14 @@ class Parser(object):
                     index = get_index(tokens, 'ELEMENTS')
                     tokens = tokens[index+1:]
                     while not contains(line, 'END'):
+                        # Grudging support for implicit end of section
+                        if contains(line, 'SPECIES'):
+                            self.warn('"ELEMENTS" section implicitly ended by start of '
+                                      'next section on line {0}.'.format(self.line_number))
+                            advance = False
+                            tokens.pop()
+                            break
+
                         line, comment = readline()
                         tokens.extend(line.split())
 
@@ -1351,6 +1360,15 @@ class Parser(object):
                     index = get_index(tokens, 'SPECIES')
                     tokens = tokens[index+1:]
                     while not contains(line, 'END'):
+                        # Grudging support for implicit end of section
+                        if (contains(line, 'REACTIONS') or contains(line, 'TRAN') or
+                            contains(line, 'THERM')):
+                            self.warn('"SPECIES" section implicitly ended by start of '
+                                      'next section on line {0}.'.format(self.line_number))
+                            advance = False
+                            tokens.pop()
+                            break
+
                         line, comment = readline()
                         tokens.extend(line.split())
 
@@ -1369,6 +1387,14 @@ class Parser(object):
                     entryLength = None
                     entry = []
                     while not get_index(line, 'END') == 0:
+                        # Grudging support for implicit end of section
+                        if (contains(line, 'REACTIONS') or contains(line, 'TRAN')):
+                            self.warn('"THERMO" section implicitly ended by start of '
+                                      'next section on line {0}.'.format(self.line_number))
+                            advance = False
+                            tokens.pop()
+                            break
+
                         line, comment = readline()
                         if not line:
                             continue
@@ -1413,6 +1439,14 @@ class Parser(object):
                         TintDefault = float(line.split()[1])
                     thermo = []
                     while not contains(line, 'END'):
+                        # Grudging support for implicit end of section
+                        if contains(line, 'REACTIONS') or contains(line, 'TRAN'):
+                            self.warn('"THERMO" section implicitly ended by start of '
+                                      'next section on line {0}.'.format(self.line_number))
+                            advance = False
+                            tokens.pop()
+                            break
+
                         if len(line) >= 80 and line[79] in ['1', '2', '3', '4']:
                             thermo.append(line)
                             if line[79] == '4':
@@ -1454,6 +1488,13 @@ class Parser(object):
 
                     line, comment = readline()
                     while line is not None and not contains(line, 'END'):
+                        # Grudging support for implicit end of section
+                        if contains(line, 'TRAN'):
+                            self.warn('"REACTIONS" section implicitly ended by start of '
+                                      'next section on line {0}.'.format(self.line_number))
+                            advance = False
+                            break
+
                         lineStartsWithComment = not line and comment
                         line = line.strip()
                         comment = comment.strip()
@@ -1513,14 +1554,25 @@ class Parser(object):
 
                 elif contains(line, 'TRAN'):
                     line, comment = readline()
-                    while not contains(line, 'END'):
+                    while line is not None and not contains(line, 'END'):
+                        # Grudging support for implicit end of section
+                        if contains(line, 'REACTIONS'):
+                            self.warn('"TRANSPORT" section implicitly ended by start of '
+                                      'next section on line {0}.'.format(self.line_number))
+                            advance = False
+                            tokens.pop()
+                            break
+
                         if comment:
                             transportLines.append('!'.join((line, comment)))
                         else:
                             transportLines.append(line)
                         line, comment = readline()
 
-                line, comment = readline()
+                if advance:
+                    line, comment = readline()
+                else:
+                    advance = True
 
         self.checkDuplicateReactions()
 
