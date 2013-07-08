@@ -926,8 +926,8 @@ class Parser(object):
                            for i,j,k in [(2,30,45), (2,45,60), (2,60,75), (3,0,15),
                                          (3,15,30), (3,30,45), (3,45,60)]]
 
-        except (IndexError, ValueError):
-            raise InputParseError('Error while reading thermo entry for species {0}'.format(species))
+        except (IndexError, ValueError) as err:
+            raise InputParseError('Error while reading thermo entry for species {0}:\n{1}'.format(species, err))
 
         composition = self.parseComposition(lines[0][24:44], 4, 5)
 
@@ -987,8 +987,8 @@ class Parser(object):
                 polys.append(NASA(Tmin=(Tmin,"K"), Tmax=(Tmax,"K"), coeffs=coeffs))
                 totalTmin = min(Tmin, totalTmin)
                 totalTmax = max(Tmax, totalTmax)
-        except (IndexError, ValueError):
-            raise InputParseError('Error while reading thermo entry for species {0}'.format(species))
+        except (IndexError, ValueError) as err:
+            raise InputParseError('Error while reading thermo entry for species {0}:\n{1}'.format(species, err))
 
         thermo = MultiNASA(polynomials=polys,
                            Tmin=(totalTmin,"K"),
