@@ -100,6 +100,22 @@ class chemkinConverterTest(utilities.CanteraTest):
                                               outName='h2o2_missingThermo.cti',
                                               quiet=True))
 
+    def test_pathologicalSpeciesNames(self):
+        convertMech('../data/species-names.inp',
+                    outName='species-names.cti', quiet=True)
+        gas = ct.IdealGasMix('species-names.cti')
+
+        self.assertEqual(gas.nSpecies(), 3)
+        self.assertEqual(gas.speciesName(0), '(Parens)')
+        self.assertEqual(gas.speciesName(1), '@#$%^-2')
+        self.assertEqual(gas.speciesName(2), '[xy2]*{.}')
+
+        self.assertEqual(gas.nReactions(), 2)
+        nu = gas.productStoichCoeffs() - gas.reactantStoichCoeffs()
+        self.assertEqual(list(nu[:,0]), [-1, -1, 2])
+        self.assertEqual(list(nu[:,1]), [-2, 3, -1])
+
+
     def test_nasa9(self):
         convertMech('../data/nasa9-test.inp',
                     thermoFile='../data/nasa9-test-therm.dat',
