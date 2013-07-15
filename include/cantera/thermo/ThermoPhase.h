@@ -1278,7 +1278,7 @@ public:
     /*!
      * @param t Temperature (Kelvin)
      */
-    virtual doublereal satPressure(doublereal t) const {
+    virtual doublereal satPressure(doublereal t) {
         err("satPressure");
         return -1.0;
     }

@@ -734,7 +734,7 @@ extern "C" {
     double th_satTemperature(int n, double p)
     {
         try {
-            return ThermoCabinet::get<PureFluidPhase>(n).satTemperature(p);
+            return ThermoCabinet::item(n).satTemperature(p);
         } catch (...) {
             return handleAllExceptions(DERR, DERR);
         }
@@ -743,7 +743,7 @@ extern "C" {
     double th_satPressure(int n, double t)
     {
         try {
-            return ThermoCabinet::get<PureFluidPhase>(n).satPressure(t);
+            return ThermoCabinet::item(n).satPressure(t);
         } catch (...) {
             return handleAllExceptions(DERR, DERR);
         }
@@ -769,18 +769,6 @@ extern "C" {
         }
     }
     
-    //-------------MFTP Models------------------//
-    
-    
-    double th_calculatePsat(int n, double TKelvin, double molarVolGas, double molarVolLiquid)
-    {
-        try {
-            return ThermoCabinet::get<MixtureFugacityTP>(n).calculatePsat(TKelvin, molarVolGas, molarVolLiquid);
-        } catch (...) {
-            return handleAllExceptions(DERR, DERR);
-        }
-    }
-
 
     //-------------- Kinetics ------------------//
 

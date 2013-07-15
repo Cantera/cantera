@@ -14,6 +14,7 @@
 #include "cantera/thermo/VPSSMgr.h"
 #include "cantera/thermo/PDSS.h"
 #include "cantera/base/stringUtils.h"
+#include "cantera/base/xml.h"
 
 using namespace std;
 
@@ -828,6 +829,15 @@ doublereal MixtureFugacityTP::densSpinodalGas() const
     throw CanteraError("", "unimplmented");
     return 0.0;
 }
+    
+doublereal MixtureFugacityTP::satPressure(doublereal TKelvin)
+{
+    doublereal molarVolGas;
+    doublereal molarVolLiquid;
+    return calculatePsat(TKelvin, molarVolGas, molarVolLiquid);
+}
+
+    
 doublereal MixtureFugacityTP::calculatePsat(doublereal TKelvin, doublereal& molarVolGas,
         doublereal& molarVolLiquid)
 {
