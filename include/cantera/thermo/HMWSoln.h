@@ -1985,7 +1985,7 @@ public:
      *
      * @param T  Temperature (kelvin)
      */
-    virtual doublereal satPressure(doublereal T) const;
+    virtual doublereal satPressure(doublereal T);
 
     virtual doublereal vaporFraction() const {
         err("vaprFraction");

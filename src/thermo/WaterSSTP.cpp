@@ -451,8 +451,7 @@ void WaterSSTP::setDensity(const doublereal dens)
     m_sub->setState_TR(temp, dens);
 }
 
-doublereal WaterSSTP::satPressure(doublereal t) const
-{
+doublereal WaterSSTP::satPressure(doublereal t) {
     doublereal tsave = temperature();
     doublereal dsave = density();
     doublereal pp = m_sub->psat(t);
