@@ -343,7 +343,7 @@ void PureFluidPhase::setState_SP(doublereal s, doublereal p,
     setState_TR(m_sub->Temp(), 1.0/m_sub->v());
 }
 
-doublereal PureFluidPhase::satPressure(doublereal t) const
+doublereal PureFluidPhase::satPressure(doublereal t) 
 {
     doublereal vsv = m_sub->v();
     Set(tpx::PropertyPair::TV,t,vsv);

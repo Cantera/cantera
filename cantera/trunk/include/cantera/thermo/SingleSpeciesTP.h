@@ -601,7 +601,7 @@ public:
         return -1.0;
     }
 
-    virtual doublereal satPressure(doublereal t) const {
+    virtual doublereal satPressure(doublereal t) {
         err("satPressure");
         return -1.0;
     }
