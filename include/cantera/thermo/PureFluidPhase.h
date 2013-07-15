@@ -442,7 +442,7 @@ public:
     /*!
      * @param t Temperature (Kelvin)
      */
-    virtual doublereal satPressure(doublereal t) const;
+    virtual doublereal satPressure(doublereal t);
 
     //! Return the fraction of vapor at the current conditions
     virtual doublereal vaporFraction() const;
