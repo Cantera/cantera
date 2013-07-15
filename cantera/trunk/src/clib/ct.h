@@ -58,7 +58,6 @@ extern "C" {
     CANTERA_CAPI double th_cv_mole(int n);
     CANTERA_CAPI double th_pressure(int n);
     CANTERA_CAPI int th_setPressure(int n, double p);
-    CANTERA_CAPI double th_calculatePsat(int n, double TKelvin, double molarVolGas, double molarVolLiquid);
     CANTERA_CAPI double th_enthalpy_mass(int n);
     CANTERA_CAPI double th_intEnergy_mass(int n);
     CANTERA_CAPI double th_entropy_mass(int n);

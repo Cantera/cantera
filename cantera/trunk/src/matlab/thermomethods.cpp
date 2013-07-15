@@ -175,11 +175,6 @@ static void thermoget(int nlhs, mxArray* plhs[],
         case 25:
             vv = th_electricPotential(n);
                 break;
-        case 26:
-            double molarVolGas, molarVolLiquid;
-            TK = getDouble(prhs[3]);
-            vv = th_calculatePsat(n,TK,molarVolGas,molarVolLiquid);
-            break;
         default:
             ok = false;
         }
