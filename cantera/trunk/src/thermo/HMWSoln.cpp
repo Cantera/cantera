@@ -1020,8 +1020,7 @@ void HMWSoln::setParametersFromXML(const XML_Node& eosdata)
 {
 }
 
-doublereal HMWSoln::satPressure(doublereal t) const
-{
+doublereal HMWSoln::satPressure(doublereal t) {
     double p_old = pressure();
     double t_old = temperature();
     double pres = m_waterSS->satPressure(t);
