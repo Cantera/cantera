@@ -42,8 +42,8 @@ void Reactor::getInitialConditions(double t0, size_t leny, double* y)
     // set the second component to the total volume
     y[1] = m_vol;
 
-    // Set the third component to the temperature
-    y[2] = m_thermo->temperature();
+    // set the third component to the total internal energy
+    y[2] = m_thermo->intEnergy_mass() * m_mass;
 
     // set components y+3 ... y+K+2 to the mass fractions of each species
     m_thermo->getMassFractions(y+3);
@@ -66,7 +66,6 @@ void Reactor::initialize(doublereal t0)
     m_thermo->restoreState(m_state);
     m_sdot.resize(m_nsp, 0.0);
     m_wdot.resize(m_nsp, 0.0);
-    m_uk.resize(m_nsp, 0.0);
     m_nv = m_nsp + 3;
     for (size_t w = 0; w < m_nwalls; w++)
         if (m_wall[w]->surface(m_lr[w])) {
@@ -123,13 +122,42 @@ void Reactor::updateState(doublereal* y)
     }
 
     // The components of y are [0] the total mass, [1] the total volume,
-    // [2] the temperature, [3...K+3] are the mass fractions of each species,
-    // and [K+3...] are the coverages of surface species on each wall.
+    // [2] the total internal energy, [3...K+3] are the mass fractions of each
+    // species, and [K+3...] are the coverages of surface species on each wall.
     m_mass = y[0];
     m_vol = y[1];
 
     m_thermo->setMassFractions_NoNorm(y+3);
-    m_thermo->setState_TR(y[2], m_mass / m_vol);
+
+    if (m_energy) {
+        // Use Newton's method to determine the mixture temperature. Tight
+        // tolerances are required both for Jacobian evaluation and for
+        // sensitivity analysis to work correctly.
+
+        doublereal U = y[2];
+        doublereal T = temperature();
+        double dT = 100;
+
+        int i = 0;
+        while (abs(dT / T) > 10 * DBL_EPSILON) {
+            m_thermo->setState_TR(T, m_mass / m_vol);
+            double dUdT = m_thermo->cv_mass() * m_mass;
+            dT = (m_thermo->intEnergy_mass() * m_mass - U) / dUdT;
+            dT = std::min(dT, 0.5 * T);
+            T -= dT;
+            i++;
+            if (i > 100) {
+                std::string message = "no convergence";
+                message += "\nU/m = " + fp2str(U / m_mass);
+                message += "\nT = " + fp2str(T);
+                message += "\nrho = " + fp2str(m_mass / m_vol);
+                message += "\n";
+                throw CanteraError("Reactor::updateState", message);
+            }
+        }
+    } else {
+        m_thermo->setDensity(m_mass/m_vol);
+    }
 
     size_t loc = m_nsp + 3;
     SurfPhase* surf;
@@ -171,11 +199,8 @@ void Reactor::evalEqs(doublereal time, doublereal* y,
 
     m_vdot = 0.0;
     m_Q    = 0.0;
-    double mcvdTdt = 0.0; // m * c_v * dT/dt
     double dmdt = 0.0; // dm/dt (gas phase)
     double* dYdt = ydot + 3;
-
-    m_thermo->getPartialMolarIntEnergies(&m_uk[0]);
 
     // compute wall terms
     size_t loc = m_nsp+3;
@@ -210,6 +235,9 @@ void Reactor::evalEqs(doublereal time, doublereal* y,
         }
     }
 
+    // volume equation
+    ydot[1] = m_vdot;
+
     const vector_fp& mw = m_thermo->molecularWeights();
     const doublereal* Y = m_thermo->massFractions();
 
@@ -223,52 +251,55 @@ void Reactor::evalEqs(doublereal time, doublereal* y,
         dYdt[k] = (m_wdot[k] * m_vol + m_sdot[k]) * mw[k] / m_mass;
         mdot_surf += m_sdot[k] * mw[k];
     }
-    dmdt += mdot_surf;
+    dmdt += mdot_surf; // mass added to gas phase from surface reations
 
-    // compression work and external heat transfer
-    mcvdTdt += - m_pressure * m_vdot - m_Q;
-
-    for (size_t n = 0; n < m_nsp; n++) {
-        // heat release from gas phase and surface reations
-        mcvdTdt -= m_wdot[n] * m_uk[n] * m_vol;
-        mcvdTdt -= m_sdot[n] * m_uk[n];
+    for (size_t k = 0; k < m_nsp; k++) {
         // dilution by net surface mass flux
-        dYdt[n] -= Y[n] * mdot_surf / m_mass;
+        dYdt[k] -= Y[k] * mdot_surf / m_mass;
+    }
+
+    /*
+     *  Energy equation.
+     *  \f[
+     *  \dot U = -P\dot V + A \dot q + \dot m_{in} h_{in}
+     * - \dot m_{out} h.
+     * \f]
+     */
+    if (m_energy) {
+        ydot[2] = - m_thermo->pressure() * m_vdot - m_Q;
+    } else {
+        ydot[2] = 0.0;
     }
 
     // add terms for open system
     if (m_open) {
+        doublereal enthalpy = m_thermo->enthalpy_mass();
+
         // outlets
         for (size_t i = 0; i < m_nOutlets; i++) {
             double mdot_out = m_outlet[i]->massFlowRate(time);
             dmdt -= mdot_out; // mass flow out of system
-            mcvdTdt -= mdot_out * m_pressure * m_vol / m_mass; // flow work
+            if (m_energy) {
+                ydot[2] -= mdot_out * enthalpy;
+            }
         }
 
         // inlets
         for (size_t i = 0; i < m_nInlets; i++) {
             double mdot_in = m_inlet[i]->massFlowRate(time);
             dmdt += mdot_in; // mass flow into system
-            mcvdTdt += m_inlet[i]->enthalpy_mass() * mdot_in;
             for (size_t n = 0; n < m_nsp; n++) {
                 double mdot_spec = m_inlet[i]->outletSpeciesMassFlowRate(n);
                 // flow of species into system and dilution by other species
                 dYdt[n] += (mdot_spec - mdot_in * Y[n]) / m_mass;
-
-                // In combintion with h_in*mdot_in, flow work plus thermal
-                // energy carried with the species
-                mcvdTdt -= m_uk[n] / mw[n] * mdot_spec;
+            }
+            if (m_energy) {
+                ydot[2] += mdot_in * m_inlet[i]->enthalpy_mass();
             }
         }
     }
 
     ydot[0] = dmdt;
-    ydot[1] = m_vdot;
-    if (m_energy) {
-        ydot[2] = mcvdTdt / (m_mass * m_thermo->cv_mass());
-    } else {
-        ydot[2] = 0;
-    }
 
     for (size_t i = 0; i < m_nv; i++) {
         AssertFinite(ydot[i], "Reactor::evalEqs",
@@ -324,7 +355,7 @@ size_t Reactor::componentIndex(const string& nm) const
     if (nm == "V") {
         return 1;
     }
-    if (nm == "T") {
+    if (nm == "U") {
         return 2;
     }
 
