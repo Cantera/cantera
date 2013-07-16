@@ -26,6 +26,7 @@ Documentation
    Compiliation Instructions <compiling>
    language-interfaces
    cti/index
+   reactors
    python/index
    cython/index
    matlab/index
