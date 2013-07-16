@@ -233,6 +233,15 @@ cdef class IdealGasReactor(Reactor):
     reactor_type = "IdealGasReactor"
 
 
+cdef class IdealGasConstPressureReactor(Reactor):
+    """
+    A homogeneous, constant pressure, zero-dimensional reactor for ideal gas
+    mixtures. The volume of the reactor changes as a function of time in order
+    to keep the pressure constant.
+    """
+    reactor_type = "IdealGasConstPressureReactor"
+
+
 cdef class FlowReactor(Reactor):
     """
     A steady-state plug flow reactor with constant cross sectional area.
