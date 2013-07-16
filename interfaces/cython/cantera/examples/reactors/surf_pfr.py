@@ -76,7 +76,7 @@ for n in range(NReactors):
 
     # create a new reactor
     gas.TDY = TDY
-    r = ct.Reactor(gas, energy='off')
+    r = ct.IdealGasReactor(gas, energy='off')
     r.volume = rvol
 
     # create a reservoir to represent the reactor immediately upstream. Note

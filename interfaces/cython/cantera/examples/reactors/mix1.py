@@ -42,7 +42,7 @@ downstream = ct.Reservoir(gas_b)
 # reservoir, since the state will change with time if the inlet mass flow
 # rates change or if there is chemistry occurring.
 gas_b.TPX = 300.0, ct.one_atm, 'O2:0.21, N2:0.78, AR:0.01'
-mixer = ct.Reactor(gas_b)
+mixer = ct.IdealGasReactor(gas_b)
 
 # create two mass flow controllers connecting the upstream reservoirs to the
 # mixer, and set their mass flow rates to values corresponding to

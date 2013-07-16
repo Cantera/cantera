@@ -34,7 +34,7 @@ igniter = ct.Reservoir(gas)
 
 # create the combustor, and fill it in initially with N2
 gas.TPX = 300.0, ct.one_atm, 'N2:1.0'
-combustor = ct.Reactor(gas)
+combustor = ct.IdealGasReactor(gas)
 combustor.volume = 1.0
 
 # create a reservoir for the exhaust
