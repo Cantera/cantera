@@ -64,7 +64,7 @@ public:
      * a pointer to this substance is stored, and as the integration
      * proceeds, the state of the substance is modified.
      */
-    void setThermoMgr(thermo_t& thermo);
+    virtual void setThermoMgr(thermo_t& thermo);
 
     //! Connect an inlet FlowDevice to this reactor
     void addInlet(FlowDevice& inlet);

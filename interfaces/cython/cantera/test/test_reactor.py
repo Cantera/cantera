@@ -7,6 +7,8 @@ from . import utilities
 
 
 class TestReactor(utilities.CanteraTest):
+    reactorClass = ct.Reactor
+
     def make_reactors(self, independent=True, n_reactors=2,
                       T1=300, P1=101325, X1='O2:1.0',
                       T2=300, P2=101325, X2='O2:1.0'):
@@ -15,7 +17,7 @@ class TestReactor(utilities.CanteraTest):
 
         self.gas1 = ct.Solution('h2o2.xml')
         self.gas1.TPX = T1, P1, X1
-        self.r1 = ct.Reactor(self.gas1)
+        self.r1 = self.reactorClass(self.gas1)
         self.net.add_reactor(self.r1)
 
         if independent:
@@ -25,7 +27,7 @@ class TestReactor(utilities.CanteraTest):
 
         if n_reactors >= 2:
             self.gas2.TPX = T2, P2, X2
-            self.r2 = ct.Reactor(self.gas2)
+            self.r2 = self.reactorClass(self.gas2)
             self.net.add_reactor(self.r2)
 
     def add_wall(self, **kwargs):
@@ -33,7 +35,7 @@ class TestReactor(utilities.CanteraTest):
         return self.w
 
     def test_insert(self):
-        R = ct.Reactor()
+        R = self.reactorClass()
         f1 = lambda r: r.T
         f2 = lambda r: r.kinetics.net_production_rates
         self.assertRaises(Exception, f1, R)
@@ -470,6 +472,10 @@ class TestReactor(utilities.CanteraTest):
         self.assertNear(p1a, p1b)
         self.assertNear(p2a, p2b)
 
+class TestIdealGasReactor(TestReactor):
+    reactorClass = ct.IdealGasReactor
+
+
 class TestWellStirredReactorIgnition(utilities.CanteraTest):
     """ Ignition (or not) of a well-stirred reactor """
     def setup(self, T0, P0, mdot_fuel, mdot_ox):
@@ -486,7 +492,7 @@ class TestWellStirredReactorIgnition(utilities.CanteraTest):
 
         # reactor, initially filled with N2
         self.gas.TPX = T0, P0, "N2:1.0"
-        self.combustor = ct.Reactor(self.gas)
+        self.combustor = ct.IdealGasReactor(self.gas)
         self.combustor.volume = 1.0
 
         # outlet
@@ -587,7 +593,7 @@ class TestConstPressureReactor(utilities.CanteraTest):
         self.gas1.TPX = T0, P0, X0
         self.gas2.TPX = T0, P0, X0
 
-        self.r1 = ct.Reactor(self.gas1)
+        self.r1 = ct.IdealGasReactor(self.gas1)
         self.r2 = ct.ConstPressureReactor(self.gas2)
 
         self.r1.volume = 0.2
@@ -710,11 +716,11 @@ class TestWallKinetics(utilities.CanteraTest):
         self.solid = ct.Solution('diamond.xml', 'diamond')
         self.interface = ct.Interface('diamond.xml', 'diamond_100',
                                       (self.gas, self.solid))
-        self.r1 = ct.Reactor(self.gas)
+        self.r1 = ct.IdealGasReactor(self.gas)
         self.r1.volume = 0.01
         self.net.add_reactor(self.r1)
 
-        self.r2 = ct.Reactor(self.gas)
+        self.r2 = ct.IdealGasReactor(self.gas)
         self.r2.volume = 0.01
         self.net.add_reactor(self.r2)
 
@@ -809,7 +815,7 @@ class TestReactorSensitivities(utilities.CanteraTest):
         net = ct.ReactorNet()
         gas = ct.Solution('gri30.xml')
         gas.TPX = 1300, 20*101325, 'CO:1.0, H2:0.1, CH4:0.1, H2O:0.5'
-        r1 = ct.Reactor(gas)
+        r1 = ct.IdealGasReactor(gas)
         net.add_reactor(r1)
 
         self.assertEqual(net.n_sensitivity_params, 0)
@@ -831,14 +837,14 @@ class TestReactorSensitivities(utilities.CanteraTest):
         solid = ct.Solution('diamond.xml', 'diamond')
         interface = ct.Interface('diamond.xml', 'diamond_100',
                                  (gas1, solid))
-        r1 = ct.Reactor(gas1)
+        r1 = ct.IdealGasReactor(gas1)
         net.add_reactor(r1)
         net.atol_sensitivity = 1e-10
         net.rtol_sensitivity = 1e-8
 
         gas2 = ct.Solution('h2o2.xml')
         gas2.TPX = 900, 101325, 'H2:0.1, OH:1e-7, O2:0.1, AR:1e-5'
-        r2 = ct.Reactor(gas2)
+        r2 = ct.IdealGasReactor(gas2)
         net.add_reactor(r2)
 
         w = ct.Wall(r1, r2)
@@ -881,7 +887,7 @@ class TestReactorSensitivities(utilities.CanteraTest):
             net = ct.ReactorNet()
             gas.TPX = 900, 101325, 'H2:0.1, OH:1e-7, O2:0.1, AR:1e-5'
 
-            r = ct.Reactor(gas)
+            r = ct.IdealGasReactor(gas)
             net.add_reactor(r)
             return r, net
 
@@ -920,11 +926,11 @@ class TestReactorSensitivities(utilities.CanteraTest):
             net = ct.ReactorNet()
             gas1 = ct.Solution('h2o2.xml')
             gas1.TPX = 900, 101325, 'H2:0.1, OH:1e-7, O2:0.1, AR:1e-5'
-            rA = ct.Reactor(gas1)
+            rA = ct.IdealGasReactor(gas1)
 
             gas2 = ct.Solution('h2o2.xml')
             gas2.TPX = 920, 101325, 'H2:0.1, OH:1e-7, O2:0.1, AR:0.5'
-            rB = ct.Reactor(gas2)
+            rB = ct.IdealGasReactor(gas2)
             if reverse:
                 net.add_reactor(rB)
                 net.add_reactor(rA)
@@ -986,8 +992,8 @@ class TestReactorSensitivities(utilities.CanteraTest):
             gas1.TPX = 1200, 1e3, 'H:0.002, H2:1, CH4:0.01, CH3:0.0002'
             gas2.TPX = 900, 101325, 'H2:0.1, OH:1e-7, O2:0.1, AR:1e-5'
             net = ct.ReactorNet()
-            rA = ct.Reactor(gas1)
-            rB = ct.Reactor(gas2)
+            rA = ct.IdealGasReactor(gas1)
+            rB = ct.IdealGasReactor(gas2)
 
             if order % 2 == 0:
                 wA = ct.Wall(rA, rB)
