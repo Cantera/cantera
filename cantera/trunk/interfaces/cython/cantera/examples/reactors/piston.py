@@ -31,9 +31,9 @@ gas1.TPX = 900.0, ct.one_atm, 'H2:2, O2:1, AR:20'
 gas2 = ct.Solution('gri30.xml')
 gas2.TPX = 900.0, ct.one_atm, 'CO:2, H2O:0.01, O2:5'
 
-r1 = ct.Reactor(gas1)
+r1 = ct.IdealGasReactor(gas1)
 r1.volume = 0.5
-r2 = ct.Reactor(gas2)
+r2 = ct.IdealGasReactor(gas2)
 r2.volume = 0.1
 w = ct.Wall(r1, r2, K=1.0e3)
 

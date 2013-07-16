@@ -12,7 +12,7 @@ temp = 1500.0
 pres = ct.one_atm
 
 gri3.TPX = temp, pres, 'CH4:0.1, O2:2, N2:7.52'
-r = ct.Reactor(gri3)
+r = ct.IdealGasReactor(gri3)
 
 air = ct.Solution('air.xml')
 air.TP = temp, pres

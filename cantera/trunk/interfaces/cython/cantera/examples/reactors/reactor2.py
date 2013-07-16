@@ -30,7 +30,7 @@ ar = ct.Solution('argon.xml')
 ar.TP = 1000.0, 20.0 * ct.one_atm
 
 # create a reactor to represent the side of the cylinder filled with argon
-r1 = ct.Reactor(ar)
+r1 = ct.IdealGasReactor(ar)
 
 # create a reservoir for the environment, and fill it with air.
 env = ct.Reservoir(ct.Solution('air.xml'))
@@ -40,7 +40,7 @@ gri3 = ct.Solution('gri30.xml')
 gri3.TPX = 500.0, 0.2 * ct.one_atm, 'CH4:1.1, O2:2, N2:7.52'
 
 # create a reactor for the methane/air side
-r2 = ct.Reactor(gri3)
+r2 = ct.IdealGasReactor(gri3)
 
 #-----------------------------------------------------------------------------
 # Now couple the reactors by defining common walls that may move (a piston) or

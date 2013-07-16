@@ -257,7 +257,7 @@ class TestReactionPath(utilities.CanteraTest):
     def test_dot_output(self):
         gas = ct.Solution('gri30.xml')
         gas.TPX = 1300.0, ct.one_atm, 'CH4:0.4, O2:1, N2:3.76'
-        r = ct.Reactor(gas)
+        r = ct.IdealGasReactor(gas)
         net = ct.ReactorNet([r])
         T = r.T
         while T < 1900:
