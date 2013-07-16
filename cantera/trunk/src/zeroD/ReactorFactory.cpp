@@ -10,6 +10,7 @@
 #include "cantera/zeroD/FlowReactor.h"
 #include "cantera/zeroD/ConstPressureReactor.h"
 #include "cantera/zeroD/IdealGasReactor.h"
+#include "cantera/zeroD/IdealGasConstPressureReactor.h"
 
 using namespace std;
 namespace Cantera
@@ -18,14 +19,16 @@ namespace Cantera
 ReactorFactory* ReactorFactory::s_factory = 0;
 mutex_t ReactorFactory::reactor_mutex;
 
-static int ntypes = 5;
+static int ntypes = 6;
 static string _types[] = {"Reservoir", "Reactor", "ConstPressureReactor",
-                          "FlowReactor", "IdealGasReactor"
+                          "FlowReactor", "IdealGasReactor",
+                          "IdealGasConstPressureReactor"
                          };
 
 // these constants are defined in ReactorBase.h
 static int _itypes[]   = {ReservoirType, ReactorType, ConstPressureReactorType,
-                          FlowReactorType, IdealGasReactorType
+                          FlowReactorType, IdealGasReactorType,
+                          IdealGasConstPressureReactorType
                          };
 
 /**
@@ -59,6 +62,8 @@ ReactorBase* ReactorFactory::newReactor(int ir)
         return new ConstPressureReactor();
     case IdealGasReactorType:
         return new IdealGasReactor();
+    case IdealGasConstPressureReactorType:
+        return new IdealGasConstPressureReactor();
     default:
         throw Cantera::CanteraError("ReactorFactory::newReactor",
                                     "unknown reactor type!");

@@ -222,7 +222,7 @@ class TestReactor(utilities.CanteraTest):
 
         gas1 = ct.Solution('h2o2.xml')
         gas1.TPX = T0, P0, X0
-        r1 = ct.ConstPressureReactor(gas1)
+        r1 = ct.IdealGasConstPressureReactor(gas1)
 
         net = ct.ReactorNet()
         net.add_reactor(r1)
@@ -575,6 +575,9 @@ class TestConstPressureReactor(utilities.CanteraTest):
     as a regular "Reactor" with a wall with a very high expansion rate
     coefficient.
     """
+
+    reactorClass = ct.ConstPressureReactor
+
     def create_reactors(self, add_Q=False, add_mdot=False, add_surf=False):
         self.gas = ct.Solution('gri30.xml')
         self.gas.TPX = 900, 25*ct.one_atm, 'CO:0.5, H2O:0.2'
@@ -594,7 +597,7 @@ class TestConstPressureReactor(utilities.CanteraTest):
         self.gas2.TPX = T0, P0, X0
 
         self.r1 = ct.IdealGasReactor(self.gas1)
-        self.r2 = ct.ConstPressureReactor(self.gas2)
+        self.r2 = self.reactorClass(self.gas2)
 
         self.r1.volume = 0.2
         self.r2.volume = 0.2
@@ -659,6 +662,10 @@ class TestConstPressureReactor(utilities.CanteraTest):
     def test_with_surface_reactions(self):
         self.create_reactors(add_surf=True)
         self.integrate(surf=True)
+
+
+class TestIdealGasConstPressureReactor(TestConstPressureReactor):
+    reactorClass = ct.IdealGasConstPressureReactor
 
 
 class TestFlowReactor(utilities.CanteraTest):
