@@ -164,6 +164,7 @@ elif localenv['python_package'] == 'new':
     pyTest = addTestScript('cython2', 'python', 'runCythonTests.py',
                            interpreter='$python_cmd',
                            dependencies=(localenv['python2_module'] +
+                                         localenv['python2_extension'] +
                                          mglob(localenv, '#interfaces/cython/cantera/test', 'py')),
                            env_vars={'PYTHONPATH':Dir('#build/python2').abspath})
     localenv.Alias('test-cython2', pyTest)
@@ -173,6 +174,7 @@ if localenv['python3_package'] == 'y':
     pyTest = addTestScript('cython3', 'python', 'runCythonTests.py',
                            interpreter='$python3_cmd',
                            dependencies=(localenv['python3_module'] +
+                                         localenv['python3_extension'] +
                                          mglob(localenv, '#interfaces/cython/cantera/test', 'py')),
                            env_vars={'PYTHONPATH':Dir('#build/python3').abspath})
     localenv.Alias('test-cython3', pyTest)

@@ -145,6 +145,7 @@ if localenv['python3_package'] == 'y':
                                  'setup3.py',
                                  build_cmd))
     env['python3_module'] = mod
+    env['python3_extension'] = ext
 
     localenv.AddPreAction(ext, Delete('interfaces/cython/cantera/_cantera.cpp'))
 
@@ -173,6 +174,7 @@ if localenv['python_package'] == 'new':
                                  'setup2.py',
                                  build_cmd))
     env['python2_module'] = mod
+    env['python2_extension'] = ext
 
     localenv.AddPreAction(ext, Delete('interfaces/cython/cantera/_cantera.cpp'))
 
