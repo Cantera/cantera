@@ -149,7 +149,7 @@ class TestReactor(utilities.CanteraTest):
             return nSteps
 
         n_baseline = integrate(1e-10, 1e-20)
-        n_rtol = integrate(1e-6, 1e-20)
+        n_rtol = integrate(5e-7, 1e-20)
         n_atol = integrate(1e-10, 1e-6)
 
         self.assertTrue(n_baseline > n_rtol)
@@ -315,7 +315,8 @@ class TestReactor(utilities.CanteraTest):
         ma = self.r1.volume * self.r1.density
         Ya = self.r1.Y
 
-        self.net.rtol = 1e-12
+        self.net.rtol = 1e-11
+        self.net.set_max_time_step(0.05)
         self.net.advance(2.5)
 
         mb = self.r1.volume * self.r1.density
@@ -832,6 +833,8 @@ class TestReactorSensitivities(utilities.CanteraTest):
                                  (gas1, solid))
         r1 = ct.Reactor(gas1)
         net.add_reactor(r1)
+        net.atol_sensitivity = 1e-10
+        net.rtol_sensitivity = 1e-8
 
         gas2 = ct.Solution('h2o2.xml')
         gas2.TPX = 900, 101325, 'H2:0.1, OH:1e-7, O2:0.1, AR:1e-5'
@@ -867,8 +870,8 @@ class TestReactorSensitivities(utilities.CanteraTest):
             self.assertArrayNear(S[K2+1,:], np.zeros(2))
 
             # Sensitivity coefficients for the disjoint reactors should be zero
-            self.assertNear(np.linalg.norm(S[Ns:K2,1]), 0.0)
-            self.assertNear(np.linalg.norm(S[K2+Ns:,0]), 0.0)
+            self.assertNear(np.linalg.norm(S[Ns:K2,1]), 0.0, atol=1e-5)
+            self.assertNear(np.linalg.norm(S[K2+Ns:,0]), 0.0, atol=1e-5)
 
     def test_parameter_order1(self):
         # Single reactor, changing the order in which parameters are added
