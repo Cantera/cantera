@@ -113,8 +113,9 @@ protected:
 /*!
  *  This is the preferred method to create an Interface instance.
  */
-Interface* importInterface(const std::string& infile, const std::string& id,
-                           std::vector<Cantera::ThermoPhase*> phases)
+inline Interface* importInterface(const std::string& infile,
+                                  const std::string& id,
+                                  std::vector<Cantera::ThermoPhase*> phases)
 {
     return new Interface(infile, id, phases);
 }
