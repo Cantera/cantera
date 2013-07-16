@@ -31,8 +31,8 @@ getInitialConditions(double t0, size_t leny, double* y)
     // set the first component to the total mass
     y[0] = m_thermo->density() * m_vol;
 
-    // set the second component to the temperature
-    y[1] = m_thermo->temperature();
+    // set the second component to the total enthalpy
+    y[1] = m_thermo->enthalpy_mass() * m_thermo->density() * m_vol;
 
     // set components y+2 ... y+K+1 to the mass fractions Y_k of each species
     m_thermo->getMassFractions(y+2);
@@ -55,7 +55,6 @@ void ConstPressureReactor::initialize(doublereal t0)
     m_thermo->restoreState(m_state);
     m_sdot.resize(m_nsp, 0.0);
     m_wdot.resize(m_nsp, 0.0);
-    m_hk.resize(m_nsp, 0.0);
     m_nv = m_nsp + 2;
     for (size_t w = 0; w < m_nwalls; w++)
         if (m_wall[w]->surface(m_lr[w])) {
@@ -89,12 +88,16 @@ void ConstPressureReactor::initialize(doublereal t0)
 
 void ConstPressureReactor::updateState(doublereal* y)
 {
-    // The components of y are [0] the total mass, [1] the temperature,
+    // The components of y are [0] the total mass, [1] the total enthalpy,
     // [2...K+2) are the mass fractions of each species, and [K+2...] are the
     // coverages of surface species on each wall.
     m_mass = y[0];
     m_thermo->setMassFractions_NoNorm(y+2);
-    m_thermo->setState_TP(y[1], m_pressure);
+    if (m_energy) {
+        m_thermo->setState_HP(y[1]/m_mass, m_pressure, 1.0e-4);
+    } else {
+        m_thermo->setPressure(m_pressure);
+    }
     m_vol = m_mass / m_thermo->density();
 
     size_t loc = m_nsp + 2;
@@ -144,10 +147,8 @@ void ConstPressureReactor::evalEqs(doublereal time, doublereal* y,
 
     // compute wall terms
     doublereal rs0, sum, wallarea;
-    double mcpdTdt = 0.0; // m * c_p * dT/dt
     double dmdt = 0.0; // dm/dt (gas phase)
     double* dYdt = ydot + 2;
-    m_thermo->getPartialMolarEnthalpies(&m_hk[0]);
 
     SurfPhase* surf;
     size_t lr, ns, loc = m_nsp+2, surfloc;
@@ -196,40 +197,39 @@ void ConstPressureReactor::evalEqs(doublereal time, doublereal* y,
     dmdt += mdot_surf;
 
     // external heat transfer
-    mcpdTdt -= m_Q;
+    double dHdt = - m_Q;
 
     for (size_t n = 0; n < m_nsp; n++) {
-        // heat release from gas phase and surface reations
-        mcpdTdt -= m_wdot[n] * m_hk[n] * m_vol;
-        mcpdTdt -= m_sdot[n] * m_hk[n];
         // dilution by net surface mass flux
         dYdt[n] -= Y[n] * mdot_surf / m_mass;
     }
 
     // add terms for open system
     if (m_open) {
+        double enthalpy = m_thermo->enthalpy_mass();
         // outlets
         for (size_t i = 0; i < m_nOutlets; i++) {
-            dmdt -= m_outlet[i]->massFlowRate(time); // mass flow out of system
+            double mdot_out = m_outlet[i]->massFlowRate(time); // mass flow out of system
+            dmdt -= mdot_out;
+            dHdt -= mdot_out * enthalpy;
         }
 
         // inlets
         for (size_t i = 0; i < m_nInlets; i++) {
             double mdot_in = m_inlet[i]->massFlowRate(time);
             dmdt += mdot_in; // mass flow into system
-            mcpdTdt += m_inlet[i]->enthalpy_mass() * mdot_in;
             for (size_t n = 0; n < m_nsp; n++) {
                 double mdot_spec = m_inlet[i]->outletSpeciesMassFlowRate(n);
                 // flow of species into system and dilution by other species
                 dYdt[n] += (mdot_spec - mdot_in * Y[n]) / m_mass;
-                mcpdTdt -= m_hk[n] / mw[n] * mdot_spec;
             }
+            dHdt += mdot_in * m_inlet[i]->enthalpy_mass();
         }
     }
 
     ydot[0] = dmdt;
     if (m_energy) {
-        ydot[1] = mcpdTdt / (m_mass * m_thermo->cp_mass());
+        ydot[1] = dHdt;
     } else {
         ydot[1] = 0.0;
     }
@@ -256,7 +256,7 @@ size_t ConstPressureReactor::componentIndex(const string& nm) const
     if (nm == "m") {
         return 0;
     }
-    if (nm == "T") {
+    if (nm == "H") {
         return 1;
     }
     // check for a gas species name
