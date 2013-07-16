@@ -53,7 +53,7 @@ t0 = cputime;
 for n = 1:100
   t = t + dt;
   advance(network, t);
-  tim(n) = time(r);
+  tim(n) = time(network);
   temp(n) = temperature(r);  
   x(n,1:3) = moleFraction(gas,{'OH','H','H2'});
 end
