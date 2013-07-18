@@ -2,7 +2,7 @@ from __future__ import print_function
 
 import os, math, sys
 
-if sys.version_info.major == 3:
+if sys.version_info[0] == 3:
     from tkinter import *
 else:
     from Tkinter import *
