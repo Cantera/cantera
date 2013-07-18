@@ -52,12 +52,12 @@ class TestFreeFlame(utilities.CanteraTest):
     tol_ss = [1.0e-5, 1.0e-14]  # [rtol atol] for steady-state problem
     tol_ts = [1.0e-4, 1.0e-11]  # [rtol atol] for time stepping
 
-    def create_sim(self, p, Tin, reactants):
+    def create_sim(self, p, Tin, reactants, mech='h2o2.xml'):
 
         initial_grid = [0.0, 0.001, 0.01, 0.02, 0.029, 0.03]  # m
 
         # IdealGasMix object used to compute mixture properties
-        self.gas = ct.Solution('h2o2.xml')
+        self.gas = ct.Solution(mech)
         self.gas.TPX = Tin, p, reactants
 
         # Flame object
@@ -254,6 +254,63 @@ class TestFreeFlame(utilities.CanteraTest):
         for attr in ct.FlameBase.__dict__:
             if isinstance(ct.FlameBase.__dict__[attr], property):
                 getattr(self.sim, attr)
+
+    def test_save_restore_add_species(self):
+        reactants= 'H2:1.1, O2:1, AR:5'
+        p = 2 * ct.one_atm
+        Tin = 400
+
+        filename = 'onedim-add-species.xml'
+        if os.path.exists(filename):
+            os.remove(filename)
+
+        self.create_sim(p, Tin, reactants, mech='h2o2.xml')
+        gas1 = self.gas
+        self.solve_fixed_T()
+        self.solve_mix(ratio=5, slope=0.5, curve=0.3)
+        self.sim.save(filename, 'test', loglevel=0)
+        T1 = self.sim.T
+        Y1 = self.sim.Y
+
+        gas2 = ct.Solution('h2o2-plus.xml')
+        self.sim = ct.FreeFlame(gas2)
+        self.sim.restore(filename, 'test', loglevel=0)
+        T2 = self.sim.T
+        Y2 = self.sim.Y
+
+        self.assertArrayNear(T1, T2)
+        for k1, species in enumerate(gas1.species_names):
+            k2 = gas2.species_index(species)
+            self.assertArrayNear(Y1[k1], Y2[k2])
+
+
+    def test_save_restore_remove_species(self):
+        reactants= 'H2:1.1, O2:1, AR:5'
+        p = 2 * ct.one_atm
+        Tin = 400
+
+        filename = 'onedim-add-species.xml'
+        if os.path.exists(filename):
+            os.remove(filename)
+
+        self.create_sim(p, Tin, reactants, mech='h2o2-plus.xml')
+        gas1 = self.gas
+        self.solve_fixed_T()
+        self.solve_mix(ratio=5, slope=0.5, curve=0.3)
+        self.sim.save(filename, 'test', loglevel=0)
+        T1 = self.sim.T
+        Y1 = self.sim.Y
+
+        gas2 = ct.Solution('h2o2.xml')
+        self.sim = ct.FreeFlame(gas2)
+        self.sim.restore(filename, 'test', loglevel=0)
+        T2 = self.sim.T
+        Y2 = self.sim.Y
+
+        self.assertArrayNear(T1, T2)
+        for k2, species in enumerate(gas2.species_names):
+            k1 = gas1.species_index(species)
+            self.assertArrayNear(Y1[k1], Y2[k2])
 
 
 class TestDiffusionFlame(utilities.CanteraTest):
