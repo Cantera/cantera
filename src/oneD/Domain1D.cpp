@@ -173,9 +173,23 @@ void Domain1D::restore(const XML_Node& dom, doublereal* soln, int loglevel)
         string title = nodes[i]->attrib("title");
         getFloatArray(*nodes[i], values, false);
         if (values.size() != nComponents()) {
-            throw CanteraError("Domain1D::restore", "Got an array of length " +
-                               int2str(values.size()) + " when one of length " +
-                               int2str(nComponents()) + "was expected.");
+            if (loglevel > 0) {
+                writelog("Warning: Domain1D::restore: Got an array of length " +
+                         int2str(values.size()) + " when one of length " +
+                         int2str(nComponents()) + " was expected. " +
+                         "Tolerances for individual species may not be preserved.\n");
+            }
+            // The number of components will differ when restoring from a
+            // mechanism with a different number of species. Assuming that
+            // tolerances are the same for all species, we can just copy the
+            // tolerance from the last species.
+            if (!values.empty()) {
+                values.resize(nComponents(), values[values.size()-1]);
+            } else {
+                // If the tolerance vector is empty, just leave the defaults
+                // in place.
+                continue;
+            }
         }
         if (title == "abstol_transient") {
             m_atol_ts = values;

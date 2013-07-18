@@ -823,9 +823,14 @@ void StFlow::restore(const XML_Node& dom, doublereal* soln, int loglevel)
                 m_do_species[i] = x[i];
             }
         } else if (!x.empty()) {
-            throw CanteraError("StFlow::restore", "species_enabled is length" +
-                               int2str(x.size()) + "but should be length" +
-                               int2str(m_nsp));
+            // This may occur when restoring from a mechanism with a different
+            // number of species.
+            if (loglevel > 0) {
+                writelog("\nWarning: StFlow::restore: species_enabled is length " +
+                         int2str(x.size()) + " but should be length " +
+                         int2str(m_nsp) + ". Enabling all species equations by default.");
+            }
+            m_do_species.assign(m_nsp, true);
         }
     }
 
