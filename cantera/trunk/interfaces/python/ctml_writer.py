@@ -2528,13 +2528,13 @@ def convert(filename, outName=None):
     root, _ = os.path.splitext(base)
     dataset(root)
     try:
-        with open(filename) as f:
+        with open(filename, 'rU') as f:
             code = compile(f.read(), filename, 'exec')
             exec(code)
     except SyntaxError as err:
         # Show more context than the default SyntaxError message
         # to help see problems in multi-line statements
-        text = open(filename).readlines()
+        text = open(filename, 'rU').readlines()
         print('%s in "%s" on line %i:\n' % (err.__class__.__name__,
                                             err.filename,
                                             err.lineno))
@@ -2549,7 +2549,7 @@ def convert(filename, outName=None):
     except TypeError as err:
         import traceback
 
-        text = open(filename).readlines()
+        text = open(filename, 'rU').readlines()
         tb = traceback.extract_tb(sys.exc_info()[2])
         lineno = tb[-1][1]
 
