@@ -1,3 +1,5 @@
+.. _sec-compiling:
+
 *************************
 Cantera Compilation Guide
 *************************
