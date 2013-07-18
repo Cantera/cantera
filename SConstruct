@@ -841,7 +841,7 @@ env = conf.Finish()
 
 
 # Python 2 Package Settings
-cython_min_version = LooseVersion('0.17.0')
+cython_min_version = LooseVersion('0.17')
 if env['python_package'] in ('full','default','new'):
     # Check for Cython:
     try:
@@ -932,9 +932,16 @@ if env['python3_package'] in ('y', 'default'):
                             "try:"
                             "    print(site.getusersitepackages())",
                             "except AttributeError:",
-                            "    print(site.USER_SITE)"))
+                            "    print(site.USER_SITE)",
+                            "try:",
+                            "    import Cython",
+                            "    print(Cython.__version__)",
+                            "except ImportError:",
+                            "    print('0.0.0')"))
         info = getCommandOutput(env['python3_cmd'], '-c', script)
-        env['python3_version'], env['python3_usersitepackages'] = info.splitlines()
+        (env['python3_version'],
+         env['python3_usersitepackages'],
+         cython_version) = info.splitlines()
     except OSError:
         info = False
 
@@ -947,7 +954,16 @@ if env['python3_package'] in ('y', 'default'):
             print ('ERROR: Could not execute the Python 3 interpreter %r' %
                    env['python3_cmd'])
             sys.exit(1)
+    elif cython_version < cython_min_version:
+        message = ("Cython package for Python 3 not found or incompatible version: "
+                   "Found {0} but {1} or newer is required".format(cython_version, cython_min_version))
+        if env['python3_package'] == 'new':
+            print("ERROR: " + message)
+            sys.exit(1)
+        else:
+            print ("WARNING: " + message)
     else:
+        print 'INFO: Using Cython version {0} for Python 3.x.'.format(cython_version)
         env['python3_package'] = 'y'
 
 
