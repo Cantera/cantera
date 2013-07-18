@@ -290,6 +290,69 @@ class TestThermoPhase(utilities.CanteraTest):
         self.assertEqual(self.phase.max_temp, 3500.0)
 
 
+class TestThermo(utilities.CanteraTest):
+    def setUp(self):
+        self.gas = ct.ThermoPhase('h2o2.xml')
+
+    def test_setSV_lowT(self):
+        """
+        Set state in terms of (s,v) when the end temperature is below the
+        phase's nominal temperature limit.
+        """
+
+        self.gas.TPX = 450, 1e5, 'H2:1.0, O2:0.4, AR:3'
+        s1, v1 = self.gas.SV
+        self.gas.SV = s1, 3 * v1
+
+        self.assertNear(self.gas.s, s1)
+        self.assertNear(self.gas.v, 3 * v1)
+        self.assertTrue(self.gas.T < self.gas.min_temp)
+
+    def test_setSV_highT(self):
+        """
+        Set state in terms of (s,v) when the end temperature is above the
+        phase's nominal temperature limit.
+        """
+
+        self.gas.TPX = 2900, 1e5, 'H2:1.0, O2:0.4, AR:3'
+        s1, v1 = self.gas.SV
+        self.gas.SV = s1, 0.3 * v1
+
+        self.assertNear(self.gas.s, s1)
+        self.assertNear(self.gas.v, 0.3 * v1)
+        self.assertTrue(self.gas.T > self.gas.max_temp)
+
+    def test_setHP_lowT(self):
+        """
+        Set state in terms of (s,v) when the end temperature is below the
+        phase's nominal temperature limit.
+        """
+
+        self.gas.TPX = 450, 1e5, 'H2:1.0, O2:0.4, AR:3'
+        deltaH = 1.25e5
+        h1, p1 = self.gas.HP
+        self.gas.HP = h1 - deltaH, None
+
+        self.assertNear(self.gas.h, h1 - deltaH)
+        self.assertNear(self.gas.P, p1)
+        self.assertTrue(self.gas.T < self.gas.min_temp)
+
+    def test_setHP_highT(self):
+        """
+        Set state in terms of (s,v) when the end temperature is above the
+        phase's nominal temperature limit.
+        """
+
+        self.gas.TPX = 2800, 1e5, 'H2:1.0, O2:0.4, AR:3'
+        deltaH = 8.25e5
+        h1, p1 = self.gas.HP
+        self.gas.HP = h1 + deltaH, None
+
+        self.assertNear(self.gas.h, h1 + deltaH)
+        self.assertNear(self.gas.P, p1)
+        self.assertTrue(self.gas.T > self.gas.max_temp)
+
+
 class TestInterfacePhase(utilities.CanteraTest):
     def setUp(self):
         self.gas = ct.Solution('diamond.xml', 'gas')
