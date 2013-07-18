@@ -3,7 +3,7 @@ from __future__ import print_function
 from types import *
 
 import sys
-if sys.version_info.major == 3:
+if sys.version_info[0] == 3:
     from tkinter import *
     from tkinter.scrolledtext import ScrolledText
 else:

@@ -11,7 +11,7 @@ _app_version = '1.0'
 
 # functionality imports
 import sys
-if sys.version_info.major == 3:
+if sys.version_info[0] == 3:
     from tkinter import *
     from tkinter import messagebox
     from tkinter.filedialog import askopenfilename

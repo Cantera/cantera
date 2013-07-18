@@ -10,7 +10,7 @@ import sys
 import os
 
 cantera_root = os.getcwd().split(os.sep)[:-2]
-if sys.version_info.major == 3:
+if sys.version_info[0] == 3:
     sys.path.insert(0, os.sep.join(cantera_root + ['build', 'python3']))
 else:
     sys.path.insert(0, os.sep.join(cantera_root + ['build', 'python2']))

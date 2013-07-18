@@ -3,7 +3,7 @@ import os, sys
 import types, traceback
 
 try:
-    if sys.version_info.major == 3:
+    if sys.version_info[0] == 3:
         from tkinter import Tk
         from tkinter import messagebox
     else:
