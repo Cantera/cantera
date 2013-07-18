@@ -27,8 +27,8 @@ Documentation
    language-interfaces
    cti/index
    reactors
-   python/index
    cython/index
+   python/index
    matlab/index
    cxx-guide/index
 
