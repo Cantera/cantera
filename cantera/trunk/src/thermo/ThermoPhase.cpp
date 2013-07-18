@@ -516,10 +516,10 @@ void ThermoPhase::setState_SPorSV(doublereal Starget, doublereal p,
             }
         } else if (Tnew < Tmin && !ignoreBounds) {
             setState_conditional_TP(Tmin, p, !doSV);
-            double Smin = enthalpy_mass();
+            double Smin = entropy_mass();
             if (Smin <= Starget) {
                 if (Sbot > Starget) {
-                    Sbot = Tmin;
+                    Tbot = Tmin;
                     Sbot = Smin;
                 }
             } else {
