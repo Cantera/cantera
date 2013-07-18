@@ -12,6 +12,7 @@ import shutil
 import itertools
 
 import SCons.Errors
+from distutils.version import LooseVersion
 
 class DefineDict(object):
     """

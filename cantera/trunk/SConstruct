@@ -841,7 +841,28 @@ env = conf.Finish()
 
 
 # Python 2 Package Settings
+cython_min_version = LooseVersion('0.17.0')
 if env['python_package'] in ('full','default','new'):
+    # Check for Cython:
+    try:
+        import Cython
+        cython_version = LooseVersion(Cython.__version__)
+        print 'INFO: Found Cython version {0} for Python 2.x.'.format(cython_version)
+    except ImportError:
+        cython_version = LooseVersion('0.0.0')
+
+    if cython_version >= cython_min_version:
+        have_cython2 = True
+    else:
+        message = ("Cython not found or incompatible version: "
+                   "Found {0} but {1} or newer is required".format(cython_version, cython_min_version))
+        if env['python_package'] == 'new':
+            print("ERROR: " + message)
+            sys.exit(1)
+        else:
+            have_cython2 = False
+            print ("WARNING: " + message)
+
     # Test to see if we can import the specified array module
     warnNoPython = False
     if env['python_array_home']:
@@ -855,7 +876,10 @@ if env['python_package'] in ('full','default','new'):
             env['python_array_include'] = ''
 
         if env['python_package'] == 'default':
-            env['python_package'] = 'new'
+            if have_cython2:
+                env['python_package'] = 'new'
+            else:
+                env['python_package'] = 'full'
         package_desc = 'new' if env['python_package'] == 'new' else 'legacy'
         print """INFO: Building the %s Python package using %s.""" % (package_desc, env['python_array'])
     except ImportError:
