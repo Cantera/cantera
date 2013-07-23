@@ -1,4 +1,4 @@
-import unittest
+from .utilities import unittest
 import numpy as np
 
 import cantera as ct

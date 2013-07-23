@@ -1,5 +1,13 @@
 import numpy as np
-import unittest
+import sys
+
+if sys.version_info[:2] < (2,7):
+    # unittest2 is a backport of the new features added to the
+    # unittest testing framework in Python 2.7. See
+    # https://pypi.python.org/pypi/unittest2
+    import unittest2 as unittest
+else:
+    import unittest
 
 
 class CanteraTest(unittest.TestCase):
