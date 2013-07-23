@@ -1,6 +1,12 @@
 import csv
 import interrupts
 
+try:
+    # Python 2.7 or 3.2+
+    from math import erf
+except ImportError:
+    from scipy.special import erf
+
 cdef class Domain1D:
     cdef CxxDomain1D* domain
     def __cinit__(self, *args, **kwargs):
@@ -1200,7 +1206,7 @@ class CounterflowDiffusionFlame(FlameBase):
         for j in range(nz):
             x = zz[j]
             zeta = f * (x - x0)
-            zmix = 0.5 * (1.0 - math.erf(zeta))
+            zmix = 0.5 * (1.0 - erf(zeta))
             if zmix > zst:
                 Y[j] = Yeq + (Yin_f - Yeq) * (zmix - zst) / (1.0 - zst)
                 T[j] = Teq + (T0f - Teq) * (zmix - zst) / (1.0 - zst)
