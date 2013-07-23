@@ -432,6 +432,31 @@ cdef class ThermoPhase(_SolutionBase):
         def __get__(self):
             return self.thermo.cp_mass()
 
+    property critical_temperature:
+        """Critical temperature [K]."""
+        def __get__(self):
+            return self.thermo.critTemperature()
+
+    property critical_pressure:
+        """Critical pressure [Pa]."""
+        def __get__(self):
+            return self.thermo.critPressure()
+
+    property critical_density:
+        """Critical density [kg/m^3 or kmol/m^3] depending on `basis`."""
+        def __get__(self):
+            return self.thermo.critDensity() / self._mass_factor()
+
+    property P_sat:
+        """Saturation pressure [Pa] at the current temperature."""
+        def __get__(self):
+            return self.thermo.satPressure(self.T)
+
+    property T_sat:
+        """Saturation temperature [K] at the current pressure."""
+        def __get__(self):
+            return self.thermo.satTemperature(self.P)
+
     ######## Methods to get/set the complete thermodynamic state ########
 
     property TD:
@@ -828,31 +853,6 @@ cdef class PureFluid(ThermoPhase):
     A pure substance that can  be a gas, a liquid, a mixed gas-liquid fluid,
     or a fluid beyond its critical point.
     """
-    property critical_temperature:
-        """Critical temperature [K]."""
-        def __get__(self):
-            return self.thermo.critTemperature()
-
-    property critical_pressure:
-        """Critical pressure [Pa]."""
-        def __get__(self):
-            return self.thermo.critPressure()
-
-    property critical_density:
-        """Critical density [kg/m^3 or kmol/m^3] depending on `basis`."""
-        def __get__(self):
-            return self.thermo.critDensity() / self._mass_factor()
-
-    property P_sat:
-        """Saturation pressure [Pa] at the current temperature."""
-        def __get__(self):
-            return self.thermo.satPressure(self.T)
-
-    property T_sat:
-        """Saturation temperature [K] at the current pressure."""
-        def __get__(self):
-            return self.thermo.satTemperature(self.P)
-
     property X:
         """Vapor fraction (quality)."""
         def __get__(self):
