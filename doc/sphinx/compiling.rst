@@ -187,11 +187,17 @@ For compatibility, the legacy Python module is still available, though it will n
 receive feature updates, and will be removed in a future Cantera release. Users
 are encouraged to switch to the new Python module when possible.
 
+The Cython module is compatible with the following Python versions: 2.6, 2.7,
+3.1, 3.2, and 3.3. Support for Python 2.6 and Python 3.1 requires the ``scipy``
+and ``unittest2`` packages to be installed as well (see :ref:`sec-dependencies`)
+to provide certain features that are included in the standard
+library in more recent versions.
+
 Building for Python 2
 .....................
 
-By default, SCons will build the legacy Python module. To build the new module,
-use the SCons option ``python_package=new``.
+By default, SCons will attempt to build the new Python module. To build the
+legacy Python module instead, use the SCons option ``python_package=full``.
 
 Building for Python 3
 .....................
@@ -449,6 +455,17 @@ Optional Programs
 
   * Used to convert Cython examples to Python 2 syntax.
   * Known to work with version 1.0
+
+* `Scipy <http://scipy.org/install.html>`_
+
+  * Required in order to use the new Python module with Python 2.6 or 3.1.
+
+* Unittest2
+
+  * Required in order to run the test suite for the new Python module with
+    Python 2.6 or Python 3.1.
+  * https://pypi.python.org/pypi/unittest2 (Python 2.6)
+  * https://pypi.python.org/pypi/unittest2py3k (Python 3.1)
 
 * Matlab
 
