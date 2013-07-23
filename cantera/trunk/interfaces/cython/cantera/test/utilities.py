@@ -1,10 +1,12 @@
 import numpy as np
 import sys
 
-if sys.version_info[:2] < (2,7):
-    # unittest2 is a backport of the new features added to the
-    # unittest testing framework in Python 2.7. See
-    # https://pypi.python.org/pypi/unittest2
+_ver = sys.version_info[:2]
+if  _ver < (2,7) or (3,0) <= _ver < (3,2):
+    # unittest2 is a backport of the new features added to the unittest
+    # testing framework in Python 2.7 and Python 3.2. See
+    # https://pypi.python.org/pypi/unittest2 (for Python 2.x)
+    # https://pypi.python.org/pypi/unittest2py3k (for Python 3.x)
     import unittest2 as unittest
 else:
     import unittest
