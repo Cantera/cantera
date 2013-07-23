@@ -1,8 +1,8 @@
-import unittest
 import numpy as np
 
 import cantera as ct
 from . import utilities
+from .utilities import unittest
 
 class TestFunc1(utilities.CanteraTest):
     def test_function(self):

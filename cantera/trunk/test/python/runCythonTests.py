@@ -15,7 +15,7 @@ if sys.version_info[0] == 3:
 else:
     sys.path.insert(0, os.sep.join(cantera_root + ['build', 'python2']))
 
-import unittest
+from cantera.test.utilities import unittest
 import cantera
 
 if __name__ == '__main__':

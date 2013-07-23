@@ -1,5 +1,5 @@
 import numpy as np
-import unittest
+from .utilities import unittest
 import re
 
 import cantera as ct
