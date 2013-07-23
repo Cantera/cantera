@@ -21,10 +21,6 @@ using namespace std;
 namespace Cantera
 {
 Nasa9PolyMultiTempRegion::Nasa9PolyMultiTempRegion() :
-    m_lowT(0.0),
-    m_highT(0.0),
-    m_Pref(0.0),
-    m_index(0),
     m_numTempRegions(0),
     m_currRegion(0)
 {
@@ -32,10 +28,6 @@ Nasa9PolyMultiTempRegion::Nasa9PolyMultiTempRegion() :
 
 Nasa9PolyMultiTempRegion::
 Nasa9PolyMultiTempRegion(std::vector<Cantera::Nasa9Poly1*> &regionPts) :
-    m_lowT(0.0),
-    m_highT(0.0),
-    m_Pref(0.0),
-    m_index(0),
     m_numTempRegions(0),
     m_currRegion(0)
 {
@@ -73,10 +65,7 @@ Nasa9PolyMultiTempRegion(std::vector<Cantera::Nasa9Poly1*> &regionPts) :
 
 Nasa9PolyMultiTempRegion::
 Nasa9PolyMultiTempRegion(const Nasa9PolyMultiTempRegion& b) :
-    m_lowT(b.m_lowT),
-    m_highT(b.m_highT),
-    m_Pref(b.m_Pref),
-    m_index(b.m_index),
+    SpeciesThermoInterpType(b),
     m_numTempRegions(b.m_numTempRegions),
     m_lowerTempBounds(b.m_lowerTempBounds),
     m_currRegion(b.m_currRegion)
@@ -92,14 +81,11 @@ Nasa9PolyMultiTempRegion&
 Nasa9PolyMultiTempRegion::operator=(const Nasa9PolyMultiTempRegion& b)
 {
     if (&b != this) {
+        SpeciesThermoInterpType::operator=(b);
         for (size_t i = 0; i < m_numTempRegions; i++) {
             delete m_regionPts[i];
             m_regionPts[i] = 0;
         }
-        m_lowT   = b.m_lowT;
-        m_highT  = b.m_highT;
-        m_Pref   = b.m_Pref;
-        m_index  = b.m_index;
         m_numTempRegions = b.m_numTempRegions;
         m_lowerTempBounds = b.m_lowerTempBounds;
         m_currRegion = b.m_currRegion;
@@ -125,29 +111,9 @@ Nasa9PolyMultiTempRegion::duplMyselfAsSpeciesThermoInterpType() const
     return new Nasa9PolyMultiTempRegion(*this);
 }
 
-doublereal Nasa9PolyMultiTempRegion::minTemp() const
-{
-    return m_lowT;
-}
-
-doublereal Nasa9PolyMultiTempRegion::maxTemp() const
-{
-    return m_highT;
-}
-
-doublereal Nasa9PolyMultiTempRegion::refPressure() const
-{
-    return m_Pref;
-}
-
 int Nasa9PolyMultiTempRegion::reportType() const
 {
     return NASA9MULTITEMP;
-}
-
-size_t Nasa9PolyMultiTempRegion::speciesIndex() const
-{
-    return m_index;
 }
 
 void Nasa9PolyMultiTempRegion::updateProperties(const doublereal* tt,

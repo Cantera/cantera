@@ -57,9 +57,7 @@ class ShomatePoly : public SpeciesThermoInterpType
 {
 public:
     //! Empty constructor
-    ShomatePoly()
-        : m_lowT(0.0), m_highT(0.0),
-          m_Pref(0.0), m_index(0) {}
+    ShomatePoly() {}
 
     //! Constructor used in templated instantiations
     /*!
@@ -83,10 +81,8 @@ public:
      */
     ShomatePoly(size_t n, doublereal tlow, doublereal thigh, doublereal pref,
                 const doublereal* coeffs) :
-        m_lowT(tlow),
-        m_highT(thigh),
-        m_Pref(pref),
-        m_index(n) {
+            SpeciesThermoInterpType(n, tlow, thigh, pref)
+    {
         m_coeff.resize(7);
         std::copy(coeffs, coeffs + 7, m_coeff.begin());
     }
@@ -96,11 +92,9 @@ public:
      * @param b object to be copied
      */
     ShomatePoly(const ShomatePoly& b) :
-        m_lowT(b.m_lowT),
-        m_highT(b.m_highT),
-        m_Pref(b.m_Pref),
-        m_coeff(vector_fp(7)),
-        m_index(b.m_index) {
+        SpeciesThermoInterpType(b),
+        m_coeff(vector_fp(7))
+    {
         std::copy(b.m_coeff.begin(),
                   b.m_coeff.begin() + 7,
                   m_coeff.begin());
@@ -112,10 +106,7 @@ public:
      */
     ShomatePoly& operator=(const ShomatePoly& b) {
         if (&b != this) {
-            m_lowT   = b.m_lowT;
-            m_highT  = b.m_highT;
-            m_Pref   = b.m_Pref;
-            m_index  = b.m_index;
+            SpeciesThermoInterpType::operator=(b);
             m_coeff.resize(7);
             std::copy(b.m_coeff.begin(),
                       b.m_coeff.begin() + 7,
@@ -130,24 +121,8 @@ public:
         return (SpeciesThermoInterpType*) sp;
     }
 
-    virtual doublereal minTemp() const {
-        return m_lowT;
-    }
-
-    virtual doublereal maxTemp() const {
-        return m_highT;
-    }
-
-    virtual doublereal refPressure() const {
-        return m_Pref;
-    }
-
     virtual int reportType() const {
         return SHOMATE;
-    }
-
-    virtual size_t speciesIndex() const {
-        return m_index;
     }
 
     //! Update the properties for this species, given a temperature polynomial
@@ -282,16 +257,8 @@ public:
 #endif
 
 protected:
-    //! Minimum temperature for which the parameterization is valid (Kelvin)
-    doublereal m_lowT;
-    //! Maximum temperature for which the parameterization is valid (Kelvin)
-    doublereal m_highT;
-    //! Reference pressure (Pa)
-    doublereal m_Pref;
     //! Array of coeffcients
     vector_fp m_coeff;
-    //! Species Index
-    size_t m_index;
 };
 
 //! The Shomate polynomial parameterization for two temperature ranges
@@ -340,13 +307,10 @@ class ShomatePoly2 : public SpeciesThermoInterpType
 public:
     //! Empty constructor
     ShomatePoly2()
-        : m_lowT(0.0),
-          m_midT(0.0),
-          m_highT(0.0),
-          m_Pref(0.0),
+        : m_midT(0.0),
           msp_low(0),
-          msp_high(0),
-          m_index(0) {
+          msp_high(0)
+    {
         m_coeff.resize(15);
     }
 
@@ -365,13 +329,11 @@ public:
      */
     ShomatePoly2(size_t n, doublereal tlow, doublereal thigh, doublereal pref,
                  const doublereal* coeffs) :
-        m_lowT(tlow),
+        SpeciesThermoInterpType(n, tlow, thigh, pref),
         m_midT(0.0),
-        m_highT(thigh),
-        m_Pref(pref),
         msp_low(0),
-        msp_high(0),
-        m_index(n)  {
+        msp_high(0)
+    {
         m_coeff.resize(15);
         std::copy(coeffs, coeffs + 15, m_coeff.begin());
         m_midT = coeffs[0];
@@ -384,14 +346,12 @@ public:
      * @param b object to be copied.
      */
     ShomatePoly2(const ShomatePoly2& b) :
-        m_lowT(b.m_lowT),
+        SpeciesThermoInterpType(b),
         m_midT(b.m_midT),
-        m_highT(b.m_highT),
-        m_Pref(b.m_Pref),
         msp_low(0),
         msp_high(0),
-        m_coeff(vector_fp(15)),
-        m_index(b.m_index) {
+        m_coeff(vector_fp(15))
+    {
         std::copy(b.m_coeff.begin(),
                   b.m_coeff.begin() + 15,
                   m_coeff.begin());
@@ -407,11 +367,8 @@ public:
      */
     ShomatePoly2& operator=(const ShomatePoly2& b) {
         if (&b != this) {
-            m_lowT   = b.m_lowT;
+            SpeciesThermoInterpType::operator=(b);
             m_midT   = b.m_midT;
-            m_highT  = b.m_highT;
-            m_Pref   = b.m_Pref;
-            m_index  = b.m_index;
             std::copy(b.m_coeff.begin(),
                       b.m_coeff.begin() + 15,
                       m_coeff.begin());
@@ -437,24 +394,8 @@ public:
         return (SpeciesThermoInterpType*) sp;
     }
 
-    virtual doublereal minTemp() const {
-        return m_lowT;
-    }
-
-    virtual doublereal maxTemp() const {
-        return m_highT;
-    }
-
-    virtual doublereal refPressure() const {
-        return m_Pref;
-    }
-
     virtual int reportType() const {
         return SHOMATE2;
-    }
-
-    virtual size_t speciesIndex() const {
-        return m_index;
     }
 
     //! Update the properties for this species, given a temperature polynomial
@@ -565,22 +506,14 @@ public:
 #endif
 
 protected:
-    //! Minimum temperature the representation is valid(kelvin)
-    doublereal m_lowT;
     //! Midrange temperature (kelvin)
     doublereal m_midT;
-    //! Maximum temperature the representation is valid (kelvin)
-    doublereal m_highT;
-    //! Reference pressure (Pascal)
-    doublereal m_Pref;
     //! Pointer to the Shomate polynomial for the low temperature region.
     ShomatePoly* msp_low;
     //! Pointer to the Shomate polynomial for the high temperature region.
     ShomatePoly* msp_high;
     //! Array of the original coefficients.
     vector_fp m_coeff;
-    //! Species index
-    size_t m_index;
 };
 }
 

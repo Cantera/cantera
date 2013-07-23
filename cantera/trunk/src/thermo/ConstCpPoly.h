@@ -77,16 +77,8 @@ public:
     virtual SpeciesThermoInterpType*
     duplMyselfAsSpeciesThermoInterpType() const;
 
-    doublereal minTemp() const;
-    doublereal maxTemp() const;
-    doublereal refPressure() const;
-
     virtual int reportType() const {
         return CONSTANT_CP;
-    }
-
-    virtual size_t speciesIndex() const {
-        return m_index;
     }
 
     //! Update the properties for this species, given a temperature polynomial
@@ -138,14 +130,6 @@ protected:
     doublereal m_s0_R;
     //! log of the t0 value
     doublereal m_logt0;
-    //! Minimum temperature for which the parameterization is valid (Kelvin)
-    doublereal m_lowT;
-    //! Maximum temperature for which the parameterization is valid (Kelvin)
-    doublereal m_highT;
-    //! Reference pressure (Pa)
-    doublereal m_Pref;
-    //! Species Index
-    size_t m_index;
 };
 
 }

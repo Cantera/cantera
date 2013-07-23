@@ -102,11 +102,7 @@ public:
     virtual SpeciesThermoInterpType*
     duplMyselfAsSpeciesThermoInterpType() const;
 
-    virtual doublereal minTemp() const;
-    virtual doublereal maxTemp() const;
-    virtual doublereal refPressure() const;
     virtual int reportType() const;
-    virtual size_t speciesIndex() const;
 
     //! Update the properties for this species, given a temperature polynomial
     /*!
@@ -195,14 +191,6 @@ public:
     virtual void modifyParameters(doublereal* coeffs);
 
 protected:
-    //! lowest valid temperature
-    doublereal m_lowT;
-    //! highest valid temperature
-    doublereal m_highT;
-    //! standard-state pressure
-    doublereal m_Pref;
-    //! species index
-    size_t m_index;
     //! Number of temperature regions
     size_t m_numTempRegions;
 

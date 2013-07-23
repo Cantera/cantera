@@ -10,18 +10,13 @@
 
 namespace Cantera
 {
-StatMech::StatMech()
-    : m_lowT(0.1), m_highT(1.0),
-      m_Pref(1.0E5), m_index(0) {}
+StatMech::StatMech() {}
 
 StatMech::StatMech(int n, doublereal tlow, doublereal thigh,
                    doublereal pref,
                    const doublereal* coeffs,
                    const std::string& my_name) :
-    m_lowT(tlow),
-    m_highT(thigh),
-    m_Pref(pref),
-    m_index(n),
+    SpeciesThermoInterpType(n, tlow, thigh, pref),
     sp_name(my_name)
 {
     // should error on zero -- cannot take ln(0)
@@ -33,21 +28,14 @@ StatMech::StatMech(int n, doublereal tlow, doublereal thigh,
 }
 
 StatMech::StatMech(const StatMech& b) :
-    m_lowT(b.m_lowT),
-    m_highT(b.m_highT),
-    m_Pref(b.m_Pref),
-    m_index(b.m_index)
+    SpeciesThermoInterpType(b)
 {
-
 }
 
 StatMech& StatMech::operator=(const StatMech& b)
 {
     if (&b != this) {
-        m_lowT   = b.m_lowT;
-        m_highT  = b.m_highT;
-        m_Pref   = b.m_Pref;
-        m_index  = b.m_index;
+        SpeciesThermoInterpType::operator=(b);
     }
     return *this;
 }
@@ -58,29 +46,9 @@ StatMech::duplMyselfAsSpeciesThermoInterpType() const
     return new StatMech(*this);
 }
 
-doublereal StatMech::minTemp() const
-{
-    return m_lowT;
-}
-
-doublereal StatMech::maxTemp() const
-{
-    return m_highT;
-}
-
-doublereal StatMech::refPressure() const
-{
-    return m_Pref;
-}
-
 int StatMech::reportType() const
 {
     return STAT;
-}
-
-size_t StatMech::speciesIndex() const
-{
-    return m_index;
 }
 
 int StatMech::buildmap()
