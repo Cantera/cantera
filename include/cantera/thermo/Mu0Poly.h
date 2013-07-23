@@ -112,16 +112,8 @@ public:
     virtual SpeciesThermoInterpType*
     duplMyselfAsSpeciesThermoInterpType() const;
 
-    virtual doublereal minTemp() const;
-    virtual doublereal maxTemp() const;
-    virtual doublereal refPressure() const;
-
     virtual int reportType() const {
         return MU0_INTERP;
-    }
-
-    virtual size_t speciesIndex() const {
-        return m_index;
     }
 
     //! Update the properties for this species, given a temperature polynomial
@@ -191,16 +183,6 @@ protected:
 
     //! Heat capacity at the points
     vector_fp m_cp0_R_int;
-    //! Limiting low temperature
-    doublereal m_lowT;
-    //! Limiting high temperature
-    doublereal m_highT;
-
-    //! Reference pressure
-    doublereal m_Pref;
-
-    //! Species index
-    size_t m_index;
 
 private:
     //! process the coefficients

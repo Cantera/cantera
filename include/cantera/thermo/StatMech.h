@@ -19,7 +19,7 @@
 namespace Cantera
 {
 
-// Statistical mechanics
+//! Statistical mechanics
 /*!
  * @ingroup spthermo
  */
@@ -60,23 +60,8 @@ public:
     virtual SpeciesThermoInterpType*
     duplMyselfAsSpeciesThermoInterpType() const;
 
-    //! Returns the minimum temperature that the thermo
-    //! parameterization is valid
-    virtual doublereal minTemp() const;
-
-    //! Returns the maximum temperature that the thermo
-    //! parameterization is valid
-    virtual doublereal maxTemp() const;
-
-    //! Returns the reference pressure (Pa)
-    virtual doublereal refPressure() const;
-
     //! Returns an integer representing the type of parameterization
     virtual int reportType() const;
-
-    //! Returns an integer representing the species index
-    virtual size_t speciesIndex() const;
-
     //! Build a series of maps for the properties needed for species
     int buildmap();
 
@@ -156,14 +141,6 @@ public:
     virtual void modifyParameters(doublereal* coeffs);
 
 protected:
-    //! lowest valid temperature
-    doublereal m_lowT;
-    //! highest valid temperature
-    doublereal m_highT;
-    //! standard-state pressure
-    doublereal m_Pref;
-    //! species index
-    int m_index;
     //! array of polynomial coefficients
     vector_fp m_coeff;
 

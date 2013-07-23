@@ -19,45 +19,36 @@ using namespace ctml;
 namespace Cantera
 {
 Mu0Poly::Mu0Poly() : m_numIntervals(0),
-    m_H298(0.0),
-    m_lowT(0.0),
-    m_highT(0.0),
-    m_Pref(0.0),
-    m_index(0)
+    m_H298(0.0)
 {
 }
 
 Mu0Poly::Mu0Poly(size_t n, doublereal tlow, doublereal thigh,
                  doublereal pref,
                  const doublereal* coeffs) :
+    SpeciesThermoInterpType(n, tlow, thigh, pref),
     m_numIntervals(0),
-    m_H298(0.0),
-    m_lowT(tlow),
-    m_highT(thigh),
-    m_Pref(pref),
-    m_index(n)
+    m_H298(0.0)
 {
     processCoeffs(coeffs);
 }
 
 Mu0Poly::Mu0Poly(const Mu0Poly& b)
-    : m_numIntervals(b.m_numIntervals),
+    : SpeciesThermoInterpType(b),
+      m_numIntervals(b.m_numIntervals),
       m_H298(b.m_H298),
       m_t0_int(b.m_t0_int),
       m_mu0_R_int(b.m_mu0_R_int),
       m_h0_R_int(b.m_h0_R_int),
       m_s0_R_int(b.m_s0_R_int),
-      m_cp0_R_int(b.m_cp0_R_int),
-      m_lowT(b.m_lowT),
-      m_highT(b.m_highT),
-      m_Pref(b.m_Pref),
-      m_index(b.m_index)
+      m_cp0_R_int(b.m_cp0_R_int)
 {
 }
 
 Mu0Poly& Mu0Poly::operator=(const Mu0Poly& b)
 {
     if (&b != this) {
+        SpeciesThermoInterpType::operator=(b);
         m_numIntervals = b.m_numIntervals;
         m_H298         = b.m_H298;
         m_t0_int       = b.m_t0_int;
@@ -65,10 +56,6 @@ Mu0Poly& Mu0Poly::operator=(const Mu0Poly& b)
         m_h0_R_int     = b.m_h0_R_int;
         m_s0_R_int     = b.m_s0_R_int;
         m_cp0_R_int    = b.m_cp0_R_int;
-        m_lowT         = b.m_lowT;
-        m_highT        = b.m_highT;
-        m_Pref         = b.m_Pref;
-        m_index        = b.m_index;
     }
     return *this;
 }
@@ -77,19 +64,6 @@ SpeciesThermoInterpType*
 Mu0Poly::duplMyselfAsSpeciesThermoInterpType() const
 {
     return new Mu0Poly(*this);
-}
-
-doublereal Mu0Poly::minTemp() const
-{
-    return m_lowT;
-}
-doublereal  Mu0Poly::maxTemp() const
-{
-    return m_highT;
-}
-doublereal Mu0Poly::refPressure() const
-{
-    return m_Pref;
 }
 
 void  Mu0Poly::

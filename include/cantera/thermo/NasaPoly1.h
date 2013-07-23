@@ -15,6 +15,7 @@
 
 #include "cantera/base/global.h"
 #include "SpeciesThermoInterpType.h"
+#include <iostream>
 
 namespace Cantera
 {
@@ -49,8 +50,7 @@ class NasaPoly1 : public SpeciesThermoInterpType
 public:
     //! Empty constructor
     NasaPoly1()
-        : m_lowT(0.0), m_highT(0.0),
-          m_Pref(0.0), m_index(0), m_coeff(7, 0.0) {}
+        : m_coeff(7, 0.0) {}
 
     //! constructor used in templated instantiations
     /*!
@@ -63,10 +63,7 @@ public:
      */
     NasaPoly1(size_t n, doublereal tlow, doublereal thigh, doublereal pref,
               const doublereal* coeffs) :
-        m_lowT(tlow),
-        m_highT(thigh),
-        m_Pref(pref),
-        m_index(n),
+        SpeciesThermoInterpType(n, tlow, thigh, pref),
         m_coeff(vector_fp(7)) {
         std::copy(coeffs, coeffs + 7, m_coeff.begin());
     }
@@ -76,11 +73,9 @@ public:
      * @param b object to be copied
      */
     NasaPoly1(const NasaPoly1& b) :
-        m_lowT(b.m_lowT),
-        m_highT(b.m_highT),
-        m_Pref(b.m_Pref),
-        m_index(b.m_index),
-        m_coeff(vector_fp(7)) {
+        SpeciesThermoInterpType(b),
+        m_coeff(vector_fp(7))
+    {
         std::copy(b.m_coeff.begin(),
                   b.m_coeff.begin() + 7,
                   m_coeff.begin());
@@ -92,10 +87,7 @@ public:
      */
     NasaPoly1& operator=(const NasaPoly1& b) {
         if (&b != this) {
-            m_lowT   = b.m_lowT;
-            m_highT  = b.m_highT;
-            m_Pref   = b.m_Pref;
-            m_index  = b.m_index;
+            SpeciesThermoInterpType::operator=(b);
             std::copy(b.m_coeff.begin(),
                       b.m_coeff.begin() + 7,
                       m_coeff.begin());
@@ -109,24 +101,8 @@ public:
         return (SpeciesThermoInterpType*) np;
     }
 
-    virtual doublereal minTemp() const     {
-        return m_lowT;
-    }
-
-    virtual doublereal maxTemp() const     {
-        return m_highT;
-    }
-
-    virtual doublereal refPressure() const {
-        return m_Pref;
-    }
-
     virtual int reportType() const {
         return NASA1;
-    }
-
-    virtual size_t speciesIndex() const {
-        return m_index;
     }
 
     //! Update the properties for this species, given a temperature polynomial
@@ -258,14 +234,6 @@ public:
 #endif
 
 protected:
-    //! lowest valid temperature
-    doublereal m_lowT;
-    //! highest valid temperature
-    doublereal m_highT;
-    //! standard-state pressure
-    doublereal m_Pref;
-    //! species index
-    size_t m_index;
     //! array of polynomial coefficients
     vector_fp m_coeff;
 };

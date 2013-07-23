@@ -32,11 +32,8 @@ class Adsorbate : public SpeciesThermoInterpType
 public:
 
     //! Empty constructor
-    Adsorbate()
-        : m_lowT(0.0),
-          m_highT(0.0),
-          m_index(0),
-          m_nFreqs(0) {
+    Adsorbate() :
+        m_nFreqs(0) {
     }
 
     //! Full Constructor
@@ -47,9 +44,9 @@ public:
      * @param pref      output - reference pressure (Pa).
      */
     Adsorbate(size_t n, doublereal tlow, doublereal thigh, doublereal pref,
-              const doublereal* coeffs) : m_lowT(tlow),
-        m_highT(thigh),
-        m_index(n) {
+              const doublereal* coeffs)
+        : SpeciesThermoInterpType(n, tlow, thigh, pref)
+    {
         m_nFreqs = int(coeffs[0]);
         m_be = coeffs[1];
         m_freq.resize(m_nFreqs);
@@ -58,10 +55,6 @@ public:
 
     /// Copy Constructor
     Adsorbate(const Adsorbate& b) :
-        m_lowT(b.m_lowT),
-        m_highT(b.m_highT),
-        m_Pref(b.m_Pref),
-        m_index(b.m_index),
         m_be(b.m_be) {
         m_nFreqs = b.m_nFreqs;
         std::copy(b.m_freq.begin(), b.m_freq.begin() + m_nFreqs,
@@ -89,24 +82,8 @@ public:
         m_Pref = refPressure_;
     }
 
-    virtual doublereal minTemp() const     {
-        return m_lowT;
-    }
-
-    virtual doublereal maxTemp() const     {
-        return m_highT;
-    }
-
-    virtual doublereal refPressure() const {
-        return OneAtm;
-    }
-
     virtual int reportType() const {
         return ADSORBATE;
-    }
-
-    virtual size_t speciesIndex() const {
-        return m_index;
     }
 
     void updatePropertiesTemp(const doublereal temp,
@@ -138,14 +115,6 @@ public:
     }
 
 protected:
-    //!  lowest valid temperature
-    doublereal m_lowT;
-    //! Highest valid temperature
-    doublereal m_highT;
-    //! Reference state pressure
-    doublereal m_Pref;
-    //! species index
-    size_t m_index;
     size_t m_nFreqs;
     //! array of vib frequencies
     vector_fp m_freq;

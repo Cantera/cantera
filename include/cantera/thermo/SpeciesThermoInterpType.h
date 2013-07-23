@@ -161,6 +161,14 @@ public:
     //! Constructor
     SpeciesThermoInterpType();
 
+    //! Constructor
+    SpeciesThermoInterpType(size_t n, doublereal tlow,
+                            doublereal thigh, doublereal pref) :
+        m_lowT(tlow),
+        m_highT(thigh),
+        m_Pref(pref),
+        m_index(n) {}
+
     //! Destructor
     virtual ~SpeciesThermoInterpType();
 
@@ -170,20 +178,28 @@ public:
 
     //! Returns the minimum temperature that the thermo
     //! parameterization is valid
-    virtual doublereal minTemp() const = 0;
+    virtual doublereal minTemp() const {
+        return m_lowT;
+    }
 
     //! Returns the maximum temperature that the thermo
     //! parameterization is valid
-    virtual doublereal maxTemp() const = 0;
+    virtual doublereal maxTemp() const {
+        return m_highT;
+    }
 
     //! Returns the reference pressure (Pa)
-    virtual doublereal refPressure() const = 0;
+    virtual doublereal refPressure() const {
+        return m_Pref;
+    }
 
     //! Returns an integer representing the type of parameterization
     virtual int reportType() const = 0;
 
     //! Returns an integer representing the species index
-    virtual size_t speciesIndex() const = 0;
+    virtual size_t speciesIndex() const {
+        return m_index;
+    }
 
     //! Update the properties for this species, given a temperature polynomial
     /*!
@@ -275,6 +291,16 @@ public:
     virtual void modifyOneHf298(const int k, const doublereal Hf298New);
 
 #endif
+
+protected:
+    //!  lowest valid temperature
+    doublereal m_lowT;
+    //! Highest valid temperature
+    doublereal m_highT;
+    //! Reference state pressure
+    doublereal m_Pref;
+    //! species index
+    size_t m_index;
 };
 
 //!  Class for the thermodynamic manager for an individual species' reference state
@@ -346,9 +372,6 @@ public:
     //! Returns an integer representing the type of parameterization
     virtual int reportType() const;
 
-    //! Returns an integer representing the species index
-    virtual size_t speciesIndex() const;
-
     virtual void updateProperties(const doublereal* tempPoly,
                                   doublereal* cp_R, doublereal* h_RT,
                                   doublereal* s_R) const;
@@ -377,9 +400,6 @@ private:
      * This object is not owned by the current one.
      */
     PDSS* m_PDSS_ptr;
-
-    //! Species index within the phase
-    size_t m_speciesIndex;
 };
 
 }
