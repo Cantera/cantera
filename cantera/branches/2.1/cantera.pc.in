@@ -1,0 +1,24 @@
+# cantera installation details
+prefix=/h2/topalian/workspace/cantera/install
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+# Fortran compilation and linking information
+# Retrieve these using `pkg-config --variable=name cantera`
+#fflags=-I${exec_prefix}/lib
+#flibs=-L${exec_prefix}/lib -lfcantera -lcantera
+
+Name: cantera
+Description: An object-oriented software toolkit for chemical kinetics, thermodynamics, and transport processes.
+URL: http://code.google.com/p/cantera/
+Requires:
+Version: 2.0.1
+
+LINK  = -lctcxx -luser -loneD -lzeroD -lequil -lkinetics -ltransport -lthermo  -lctnumerics -lctmath -ltpx -lctspectra -lctbase -lcvode -lctlapack -lctblas -lctf2c -lm -lstdc++
+
+#Libs: -L${libdir} ${LINK}
+#Cflags: -I${includedir}
+
+fflags=-I${exec_prefix}/lib -I${includedir}
+#fflags=-I${exec_prefix}/lib
+flibs=-L${exec_prefix}/lib ${LINK}

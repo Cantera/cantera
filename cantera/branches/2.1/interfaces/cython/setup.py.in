@@ -1,0 +1,48 @@
+import os
+from distutils.core import setup
+from Cython.Build import cythonize
+
+from distutils.command.build import build
+
+def get_build_lib(self):
+    return self._build_lib
+
+def set_build_lib(self, val):
+    if val is None or self._build_lib is None:
+        self._build_lib = val
+
+# Monkey patch to prevent bdist_msi from incorrectly overwriting the value of
+# build-lib specified on the command line.
+# See http://bugs.python.org/issue1109963
+build.build_lib = property(get_build_lib, set_build_lib)
+
+exts = cythonize("cantera/_cantera.pyx")
+
+exts[0].include_dirs += @py_include_dirs@
+exts[0].extra_compile_args += @py_extra_compiler_args@
+exts[0].libraries += @py_cantera_libs@
+exts[0].library_dirs += @py_libdirs@
+exts[0].extra_link_args += @py_extra_link_args@
+
+setup(name="Cantera",
+      version="@cantera_version@",
+      description="The Cantera Python Interface",
+      long_description="""
+              """,
+      author="Raymond Speth",
+      author_email="speth@mit.edu",
+      url="http://code.google.com/p/cantera",
+      packages = ['cantera',
+                  'cantera.data',
+                  'cantera.test',
+                  'cantera.test.data',
+                  'cantera.mixmaster',
+                  'cantera.mixmaster.Units',
+                  'cantera.examples'],
+      scripts=[@py_ctml_writer@,
+               @py_ck2cti@,
+               @py_mixmaster@],
+      ext_modules = exts,
+      package_data = {'cantera.data': ['*.*'],
+                      'cantera.test.data': ['*.*'],
+                      'cantera.examples': ['*/*.*']})

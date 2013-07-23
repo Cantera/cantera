@@ -1,0 +1,52 @@
+#!/bin/sh
+#
+#
+temp_success="1"
+/bin/rm  -f output.txt outputa.txt table.csv diff_out.txt diff_csv.txt
+testName="ChemEquil_ionizedGas"
+
+#################################################################
+#
+#################################################################
+CANTERA_DATA=${CANTERA_DATA:=../../data/inputs}; export CANTERA_DATA
+
+CANTERA_BIN=${CANTERA_BIN:=../../bin}
+./ionizedGasEquil > output.txt
+retnStat=$?
+if [ $retnStat != "0" ]
+then
+  temp_success="1"
+  echo "ERROR: $testName: ionizedGasEquil returned with bad status, $retnStat, check output"
+fi
+
+#diff -w output.txt output_blessed.txt > diff_out.txt
+#retnStat_txt=$?
+${CANTERA_BIN}/csvdiff -a 1.0E-19 table.csv table_blessed.csv > diff_csv.txt
+retnStat_csv=$?
+
+eCode=1
+if test $retnStat_csv = "0"
+then
+  eCode=0
+  echo "Successful test comparison on " $testName
+#  if [ $retnStat_txt != "0" ]
+#  then
+#     echo "   But, text output files have differences. See diff_out.txt"
+#     return 1
+#  fi
+else
+  echo "Unsuccessful test comparison on " $testName " test"
+  if test $retnStat_csv != "1"
+  then
+     echo "      csv files are different - see diff_csv.txt"
+     return 1
+  fi
+#  if test $retnStat_txt != "0"
+#  then
+#     echo "      And, text output files have differences. See diff_out.txt"
+#     return 1
+#  fi
+fi
+#
+#
+exit 0

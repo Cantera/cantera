@@ -1,0 +1,24 @@
+from buildutils import *
+
+Import('env', 'build', 'install')
+
+localenv = env.Clone()
+
+if localenv['doxygen_docs']:
+    if localenv['graphvizdir']:
+        localenv.Append(PATH=localenv['graphvizdir'])
+
+    build(localenv.Command('#build/docs/doxygen/html/index.html',
+                           'doxygen/Doxyfile', 'doxygen $SOURCE'))
+    install(pjoin('$inst_docdir', 'doxygen/html'),
+            mglob(localenv, '#/build/docs/doxygen/html', 'html', 'svg', 'css', 'png'))
+
+if localenv['sphinx_docs']:
+    localenv['SPHINXBUILD'] = Dir('#build/docs/sphinx')
+    localenv['SPHINXSRC'] = Dir('sphinx')
+
+    sphinxdocs = build(localenv.Command('${SPHINXBUILD}/html/index.html',
+        'sphinx/conf.py',
+        '${sphinx_cmd} -b html -d ${SPHINXBUILD}/doctrees ${SPHINXSRC} ${SPHINXBUILD}/html'))
+
+    localenv.AlwaysBuild(sphinxdocs)

@@ -1,0 +1,31 @@
+from distutils.core import setup, Extension
+from distutils.sysconfig import get_config_var
+import os
+
+dataFiles = ['_cantera%s' % get_config_var('SO')]
+if os.name == 'nt':
+    dataFiles.append('cantera_shared.dll')
+
+if '@python_package@' == 'full':
+    setup(name="Cantera",
+          version="@cantera_version@",
+          description="The Cantera Python Interface",
+          long_description="""
+              """,
+          author="Prof. D. G. Goodwin, Caltech",
+          author_email="dgoodwin@caltech.edu",
+          url="http://code.google.com/p/cantera",
+          packages = ["","Cantera","Cantera.OneD",
+                      "MixMaster","MixMaster.Units"],
+          package_data = {'Cantera': dataFiles})
+
+elif '@python_package@' == 'minimal':
+    setup(name="Cantera CTI File Processor",
+          version="@cantera_version@",
+          description="Converts .cti files to CTML",
+          long_description="""
+              """,
+          author="Prof. D. G. Goodwin, Caltech",
+          author_email="dgoodwin@caltech.edu",
+          url="http://code.google.com/p/cantera",
+          py_modules = ["ctml_writer"])

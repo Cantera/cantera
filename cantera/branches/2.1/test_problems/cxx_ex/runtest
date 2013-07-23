@@ -1,0 +1,189 @@
+#!/bin/sh
+#
+temp_success="1"
+/bin/rm  -f eq1.csv  tr1.csv tr2.csv  kin1.csv  kin2.csv \
+            kin1_blessed_tmp.csv kin2_blessed_tmp.csv
+
+echo " "
+echo "***************************************************"
+echo "        Testing the Cantera C++ Examples           "
+echo "***************************************************"
+echo " "
+#################################################################
+#
+#################################################################
+CANTERA_DATA=${CANTERA_DATA:=../../data/inputs}; export CANTERA_DATA
+
+CANTERA_BIN=${CANTERA_BIN:=../../bin}
+../../examples/cxx/cxx_examples > cxx_examples.out
+retnStat=$?
+if [ $retnStat != "0" ]
+then
+  temp_success="0"
+  echo "cxx_examples returned with bad status, $retnStat, check output"
+  exit 1
+fi
+
+#
+# Machine dependent blessed files require knowing the machType
+#
+machType=`../../bin/get_arch`
+
+#################################################################
+#
+#################################################################
+
+$CANTERA_BIN/csvdiff eq1.csv eq1_blessed.csv > eq1_test.out
+retnStat=$?
+if [ $retnStat = "0" ]
+then
+  echo "successful csv comparison on eq1 test"
+else
+  echo "########################################################"
+  echo "unsuccessful csv comparison on eq1 test"
+  echo "   For more information, see files:"
+  echo "       test_problems/cxx_ex/eq1_test.out"
+  echo "       test_problems/cxx_ex/eq1.csv"
+  echo "       test_problems/cxx_ex/eq1_blessed.csv"
+  echo "########################################################"
+  echo "FAILED" > csvCode.txt
+  temp_success="0"
+  exit 1
+fi
+
+#################################################################
+#
+#################################################################
+
+$CANTERA_BIN/csvdiff tr1.csv tr1_blessed.csv > tr1_test.out
+retnStat=$?
+if [ $retnStat = "0" ]
+then
+  echo "successful csv comparison on tr1 test"
+  if [ $temp_success = "1" ]
+  then
+    echo "PASSED" > csvCode.txt
+  fi
+else
+  echo "########################################################"
+  echo "unsuccessful csv comparison on tr1 test"
+  echo "   For more information, see files:"
+  echo "       test_problems/cxx_ex/tr1_test.out"
+  echo "       test_problems/cxx_ex/tr1.csv"
+  echo "       test_problems/cxx_ex/tr1_blessed.csv"
+  echo "########################################################"
+  echo "FAILED" > csvCode.txt
+  temp_success="0"
+  exit 1
+fi
+
+#################################################################
+#
+#################################################################
+
+$CANTERA_BIN/csvdiff tr2.csv tr2_blessed.csv > tr2_test.out
+retnStat=$?
+if [ $retnStat = "0" ]
+then
+  echo "successful csv comparison on tr2 test"
+  if [ $temp_success = "1" ]
+  then
+    echo "PASSED" > csvCode.txt
+  fi
+else
+  echo "########################################################"
+  echo "unsuccessful csv comparison on tr2 test"
+  echo "   For more information, see files:"
+  echo "       test_problems/cxx_ex/tr2_test.out"
+  echo "       test_problems/cxx_ex/tr2.csv"
+  echo "       test_problems/cxx_ex/tr2_blessed.csv"
+  echo "########################################################"
+  echo "FAILED" > csvCode.txt
+  temp_success="0"
+  exit 1
+fi
+
+#################################################################
+# KIN1 -> Test for compliance
+#################################################################
+#
+# Currently kin1 is creating a machine dependent result:
+# -> difference is in one time in minor components during the middle
+#    of a large change.
+#
+cp  kin1_blessed.csv  kin1_blessed_tmp.csv
+if test x"$machType" = "xcygwin" ; then
+  /bin/cp  kin1_blessed_win.csv   kin1_blessed_tmp.csv
+fi
+
+$CANTERA_BIN/csvdiff -r 3.0E-3 kin1.csv kin1_blessed_tmp.csv > kin1_test.out
+retnStat=$?
+if [ $retnStat = "0" ]
+then
+  echo "successful csv comparison on kin1 test"
+  if [ $temp_success = "1" ]
+  then
+    echo "PASSED" > csvCode.txt
+  fi
+else
+  echo "########################################################"
+  echo "unsuccessful csv comparison on kin1 test"
+  echo "   For more information, see files:"
+  echo "       test_problems/cxx_ex/kin1_test.out"
+  echo "       test_problems/cxx_ex/kin1.csv"
+  echo "       test_problems/cxx_ex/kin1_blessed_tmp.csv"
+  echo "########################################################"
+  echo "FAILED" > csvCode.txt
+  temp_success="0"
+  exit 1
+fi
+
+#################################################################
+# kin2 test -> check for compliance
+#################################################################
+#
+# Currently kin2 is creating a machine dependent result:
+# -> difference is in one time in minor components during the middle
+#    of a large change.
+#
+cp  kin2_blessed.csv  kin2_blessed_tmp.csv
+if test x"$machType" = "xcygwin" ; then
+  /bin/cp  kin2_blessed_win.csv   kin2_blessed_tmp.csv
+fi
+
+$CANTERA_BIN/csvdiff kin2.csv kin2_blessed_tmp.csv > kin2_test.out
+retnStat=$?
+if [ $retnStat = "0" ]
+then
+  echo "successful csv comparison on kin2 test"
+  if [ $temp_success = "1" ]
+  then
+    echo "PASSED" > csvCode.txt
+  fi
+else
+  echo "########################################################"
+  echo "unsuccessful csv comparison on kin2 test"
+  echo "   For more information, see files:"
+  echo "       test_problems/cxx_ex/kin2_test.out"
+  echo "       test_problems/cxx_ex/kin2.csv"
+  echo "       test_problems/cxx_ex/kin2_blessed_tmp.csv"
+  echo "########################################################"
+  echo "FAILED" > csvCode.txt
+  temp_success="0"
+  exit 1
+fi
+if [ $temp_success = "1" ]
+then
+  echo 'cxx_examples csv test PASSED!'
+  exit 0
+else
+  echo 'cxx_examples csv test FAILED!'
+  exit 1
+fi
+
+echo
+
+#################################################################
+#
+#################################################################
+

@@ -1,0 +1,52 @@
+
+
+**** WARNING ****
+For species SI2H6, discontinuity in s/R detected at Tmid = 1000
+	Value computed using low-temperature polynomial:  49.5493.
+	Value computed using high-temperature polynomial: 49.7214.
+
+
+**** WARNING ****
+For species SI3H8, discontinuity in s/R detected at Tmid = 1000
+	Value computed using low-temperature polynomial:  65.9731.
+	Value computed using high-temperature polynomial: 66.2781.
+
+
+**** WARNING ****
+For species SI2, discontinuity in s/R detected at Tmid = 1000
+	Value computed using low-temperature polynomial:  32.8813.
+	Value computed using high-temperature polynomial: 32.9489.
+ 
+  silane:
+ 
+       temperature            1500  K
+          pressure             100  Pa
+           density     1.83141e-05  kg/m^3
+  mean mol. weight         2.28407  amu
+ 
+                          1 kg            1 kmol
+                       -----------      ------------
+          enthalpy     1.70169e+07        3.887e+07     J
+   internal energy     1.15568e+07         2.64e+07     J
+           entropy          103868        2.372e+05     J/K
+    Gibbs function    -1.38785e+08        -3.17e+08     J
+ heat capacity c_p         14161.9        3.235e+04     J/K
+ heat capacity c_v         10521.7        2.403e+04     J/K
+ 
+                           X                 Y          Chem. Pot. / RT    
+                     -------------     ------------     ------------
+                H2       0.995395         0.878516         -25.5277
+                 H    0.000559189      0.000246765         -12.7639
+                HE              0                0     
+              SIH4    1.05353e-07      1.48141e-06          -50.984
+                SI     0.00105487        0.0129709        0.0714726
+               SIH    1.26092e-05      0.000160609         -12.6924
+              SIH2     1.1854e-05      0.000156222         -25.4563
+              SIH3    1.18917e-07      1.61966e-06         -38.2201
+           H3SISIH    6.98874e-12      1.84206e-10         -50.9125
+             SI2H6      1.585e-14      4.31757e-13         -76.4403
+          H2SISIH2    1.78449e-10      4.70348e-09         -50.9125
+             SI3H8    6.42003e-21      2.59491e-19         -101.897
+               SI2    0.000118129       0.00290508         0.142945
+               SI3     0.00284751         0.105041         0.214418
+

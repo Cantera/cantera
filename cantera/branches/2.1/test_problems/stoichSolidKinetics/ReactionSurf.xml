@@ -1,0 +1,71 @@
+
+<?xml version="1.0"?>
+<ctml>
+  <validate reactions="yes" species="yes"/>
+                   
+
+  <phase dim="2" id="reaction_surface">
+    <elementArray datasrc="elements.xml">  Ca C O Fe N </elementArray>
+    <speciesArray datasrc="#species_ReactingSurf"> empty_site </speciesArray>
+  
+    <state>
+      <temperature units="K"> 1500.0 </temperature>
+      <coverages> empty_site:1.0 </coverages>
+    </state>
+    <thermo model="Surface">
+      <site_density units="mol/cm2"> 3e-09 </site_density>
+    </thermo>
+    <kinetics model="Interface"/>
+    <reactionArray datasrc="#data_StoichRxns"/>
+
+    <transport model="None"/>
+    <phaseArray> CaCO3(S) air CaO(S) Fe3O4(S) FeO(S) Fe(S) </phaseArray>
+  </phase>
+
+
+ <!-- species definitions     -->
+  <speciesData id="species_ReactingSurf">
+
+
+    <species name="empty_site">
+      <atomArray>  </atomArray>
+      <thermo>
+        <const_cp Tmax="5000.0" Tmin="100.0">
+           <t0 units="K">298.15</t0>
+           <h0 units="kJ/mol">0.0</h0>
+           <s0 units="J/mol/K">0.0</s0>
+           <cp0 units="J/mol/K">0.0</cp0>
+        </const_cp>
+      </thermo>
+    </species>
+
+  </speciesData>
+
+ <reactionData id="data_StoichRxns">
+
+  <!--
+       Lumped reaction within the anode turning one phase of LiSi into another
+       phase of LiSi, ejecting a Li ion into the molten salt. 
+       This may be considered a lumped mechanism because processes probably occur 
+       via several smaller steps. The first step is the ejection of Li from one phase
+       into an institial Li species in the other phase. Then the Li(i) diffuses through
+       that phase to the surface where it loses an electron an then gets ejected into
+       salt phase. 
+    -->
+    <reaction reversible="yes" type="surface" id="0001">
+      <equation> CaCO3(S) [=]  CaO(S) + CO2 </equation>
+      <rateCoeff>
+        <Arrhenius>
+           <A>1.0E-5</A>
+           <b>0.0</b>
+           <E units="kJ/mol"> 20.000000 </E>
+        </Arrhenius>
+      </rateCoeff>
+      <reactants> CaCO3(S):1.0 </reactants>
+      <products>  CaO(S):1.0  CO2:1.0  </products>
+    </reaction>
+
+
+  </reactionData>
+
+</ctml>

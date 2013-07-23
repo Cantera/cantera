@@ -1,0 +1,11 @@
+/*! \page NOOP
+
+Note: This page does not contain any useful documentation (sorry).  It
+is used to include graphics to trick doxygen into copying them for us.
+We apologize for the hackery in advance.
+
+\image html circle-logo-small.png
+
+\b 42.
+
+*/

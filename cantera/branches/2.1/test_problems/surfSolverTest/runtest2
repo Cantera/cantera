@@ -1,0 +1,51 @@
+#!/bin/sh
+#
+#
+
+temp_success="1"
+/bin/rm  -f output2.txt  diff_2test.txt results2.txt
+tname="surfaceSolver"
+
+#################################################################
+#
+#################################################################
+CANTERA_DATA=${CANTERA_DATA:=../../data/inputs}; export CANTERA_DATA
+
+CANTERA_BIN=${CANTERA_BIN:=../../bin}
+./surfaceSolver2 haca2.xml > output2.txt
+retnStat=$?
+if [ $retnStat != "0" ]
+then
+  temp_success="0"
+  echo "surfaceSolver ($tname test) returned with bad status, $retnStat, check output"
+fi
+diff  results2.txt results2_blessed.txt  > diff_2csv.txt
+retnStat_csv=$?
+
+diff -w output2.txt surfaceSolver2_blessed.out > diff_2out.txt
+retnStat_txt=$?
+
+if test $retnStat_csv = "0"
+then
+  echo "Successful test comparison on "`pwd`
+  if [ $retnStat_txt != "0" ]
+  then
+     echo "   But, text output files have differences. See diff_2out.txt"
+     return 1
+  fi
+else
+  echo "Unsuccessful test comparison on "`pwd` " test"
+  if test $retnStat_csv != "0"
+  then
+     echo "      results files are different - see diff_2csv.txt"
+     return 1
+  fi
+  if test $retnStat_txt != "0"
+  then
+     echo "      And, text output files have differences. See diff_2out.txt"
+     return 1
+  fi
+fi
+
+return 0
+
