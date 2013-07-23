@@ -33,14 +33,6 @@ public:
      *   @param otherPhases      Neighboring phases that may participate in the
      *                           reactions on this interface. Don't include the
      *                           surface phase
-     *
-     * @deprecated
-     *   While it's convenient to have the surface phase and the interfacial reaction
-     *   together, this class doesn't satisfy the primary issue, which is one
-     *   of instantiation of all the ThermoPhase classes that accompany a
-     *   surface reaction. This is accomplished by the PhaseList class along with
-     *   the ReactingSurface class. These classes will be migrated into Cantera
-     *   soon.
      */
     Interface(const std::string& infile, std::string id,
               std::vector<Cantera::ThermoPhase*> otherPhases) :
