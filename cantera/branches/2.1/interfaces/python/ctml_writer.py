@@ -1416,7 +1416,7 @@ class pdep_arrhenius(reaction):
     :param equation:
         A string specifying the chemical equation.
     :param args:
-        Each additiona argument is a sequence of four elements specifying the
+        Each additional argument is a sequence of four elements specifying the
         pressure and the Arrhenius parameters at that pressure.
     """
     def __init__(self, equation='', *args, **kwargs):
