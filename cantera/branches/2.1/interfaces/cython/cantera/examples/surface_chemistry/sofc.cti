@@ -8,12 +8,6 @@
 #
 #########################################################################
 
-
-# since Cantera input files are actually executable Python scripts,
-# we can put any valid Python statements in the input file. Here we
-# import the value of R from Cantera.
-from Cantera import GasConstant
-
 # These units will be used by default for any quantities entered
 # without units. Quantities with compound units (e.g. concentration)
 # will be constructed from these - the units of concentration will be
