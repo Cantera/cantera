@@ -995,8 +995,7 @@ int  vcs_Cantera_to_vprob(Cantera::MultiPhase* mphase,
             VolPhase->m_eqnState = VCS_EOS_CONSTANT;
             break;
         case cSurf:
-            plogf("cSurf not handled yet\n");
-            exit(EXIT_FAILURE);
+            throw CanteraError("VCSnonideal", "cSurf not handled yet.");
         case cStoichSubstance:
             VolPhase->m_eqnState = VCS_EOS_STOICH_SUB;
             break;
@@ -1006,8 +1005,7 @@ int  vcs_Cantera_to_vprob(Cantera::MultiPhase* mphase,
             }
             break;
         case cEdge:
-            plogf("cEdge not handled yet\n");
-            exit(EXIT_FAILURE);
+            throw CanteraError("VCSnonideal", "cEdge not handled yet.");
         case cIdealSolidSolnPhase0:
         case cIdealSolidSolnPhase1:
         case cIdealSolidSolnPhase2:
