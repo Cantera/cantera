@@ -10,7 +10,7 @@
  *  $Revision$
  */
 /*
- * Copywrite 2004 Sandia Corporation. Under the terms of Contract
+ * Copyright 2004 Sandia Corporation. Under the terms of Contract
  * DE-AC04-94AL85000 with Sandia Corporation, the U.S. Government
  * retains certain rights in this software.
  * See file License.txt for licensing information.
@@ -199,7 +199,7 @@ public:
      *  @param typeCalc     Type of the calculation
      *  @param y_curr       Current value of the solution vector
      *  @param ydot_curr    Current value of the time derivative of the solution vector
-     *  @param evalType     Base evalulation type. Defaults to Base_ResidEval
+     *  @param evalType     Base evaluation type. Defaults to Base_ResidEval
      *
      * @return Returns a flag to indicate that operation is successful.
      *            1  Means a successful operation.
@@ -1095,7 +1095,7 @@ private:
     //! absolute tolerance in the unscaled solution unknowns
     doublereal userResidRtol_;
 
-    //! Check the residual tolerances explictly against user input
+    //! Check the residual tolerances explicitly against user input
     /*!
      *   0 Don't calculate residual weights from residual tolerance inputs
      *   1 Calculate residual weights from residual tolerance inputs only

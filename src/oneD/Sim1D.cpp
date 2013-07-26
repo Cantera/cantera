@@ -28,7 +28,7 @@ Sim1D::Sim1D() :
 Sim1D::Sim1D(vector<Domain1D*>& domains) :
     OneDim(domains)
 {
-    // resize the internal solution vector and the wprk array, and perform
+    // resize the internal solution vector and the work array, and perform
     // domain-specific initialization of the solution vector.
 
     m_x.resize(size(), 0.0);
