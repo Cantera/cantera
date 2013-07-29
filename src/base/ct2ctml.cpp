@@ -75,7 +75,10 @@ void ct2ctml(const char* file, const int debug)
                     "if True:\n" << // Use this so that the rest is a single block
                     "    import sys\n" <<
                     "    sys.stderr = sys.stdout\n" <<
-                    "    import ctml_writer\n" <<
+                    "    try:\n" <<
+                    "        from cantera import ctml_writer\n" <<
+                    "    except ImportError:\n" <<
+                    "        import ctml_writer\n" <<
                     "    ctml_writer.convert(r'" << file << "')\n" <<
                     "    sys.exit(0)\n\n"
                     "sys.exit(7)\n";
