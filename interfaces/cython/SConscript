@@ -73,17 +73,32 @@ def install_module(prefix, python_version):
         extra = ''
 
     major = python_version[0]
+    ver = '3' if major == '3' else ''
     dummy = 'dummy' + major
     if localenv['PYTHON_INSTALLER'] == 'direct':
-        install(localenv.Command, dummy, mod,
-                build_cmd + ' install --record ../../build/python%s-installed-files.txt %s' % (major, extra))
+        mod_inst = install(localenv.Command, dummy, mod,
+                           build_cmd + ' install %s' % extra +
+                           ' --record ../../build/python%s-installed-files.txt' % major)
+        global_env = env
+        def find_module_dir(target, source, env):
+            check = pjoin('cantera','__init__.py')
+            for filename in open('build/python%s-installed-files.txt' % major).readlines():
+                filename = filename.strip()
+                if filename.endswith(check):
+                    filename = filename.replace(check,'')
+                    global_env['python%s_module_loc' % ver] = os.path.normpath(filename)
+                    break
+        localenv.AlwaysBuild(localenv.AddPostAction(mod_inst, find_module_dir))
+
     elif localenv['PYTHON_INSTALLER'] == 'debian':
         install(localenv.Command, dummy, mod,
                 build_cmd + ' install --install-layout=deb --no-compile %s' % extra)
+        env['python%s_module_loc' % ver] = '<unspecified>'
     elif localenv['PYTHON_INSTALLER'] == 'binary':
         install(localenv.Command, dummy, mod,
                 build_cmd + ' bdist_msi --dist-dir=../..' +
                 ' --target-version=%s' % python_version)
+        env['python%s_module_loc' % ver] = '<unspecified>'
 
 
 libDirs = ('../../build/lib', localenv['sundials_libdir'],

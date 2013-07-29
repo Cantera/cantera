@@ -929,7 +929,7 @@ if env['python3_package'] in ('y', 'default'):
         script = '\n'.join(("from distutils.sysconfig import *",
                             "import site",
                             "print(get_python_version())",
-                            "try:"
+                            "try:",
                             "    print(site.getusersitepackages())",
                             "except AttributeError:",
                             "    print(site.USER_SITE)",
@@ -1081,12 +1081,6 @@ if env['layout'] == 'debian':
 
     env['inst_python_bindir'] = pjoin(base, 'cantera-python', 'usr', 'bin')
     env['python_prefix'] = pjoin(base, 'cantera-python', 'usr')
-    env['python_module_loc'] = pjoin(env['python_prefix'],
-                                     'python%i.%i' % sys.version_info[:2],
-                                     'dist-packages')
-    env['python3_module_loc'] = env.subst(pjoin('${python3_prefix}',
-                                                'python${python3_version}',
-                                                'dist-packages'))
     env['ct_datadir'] = '/usr/share/cantera/data'
 else:
     env['inst_libdir'] = pjoin(instRoot, 'lib')
@@ -1094,18 +1088,7 @@ else:
     env['inst_python_bindir'] = pjoin(instRoot, 'bin')
     env['inst_incdir'] = pjoin(instRoot, 'include', 'cantera')
     env['inst_incroot'] = pjoin(instRoot, 'include')
-    if env['python_prefix'] == 'USER':
-        env['python_module_loc'] = env['python_usersitepackages']
-    else:
-        env['python_module_loc'] = pjoin(env['python_prefix'], 'lib',
-                                         'python%i.%i' % sys.version_info[:2],
-                                         'site-packages')
-    if env['python3_package'] == 'y' and env['python3_prefix'] == 'USER':
-        env['python3_module_loc'] = env['python3_usersitepackages']
-    else:
-        env['python3_module_loc'] = env.subst(pjoin('${python3_prefix}', 'lib',
-                                                    'python${python3_version}',
-                                                    'site-packages'))
+
     if env['layout'] == 'compact':
         env['inst_matlab_dir'] = pjoin(instRoot, 'matlab', 'toolbox')
         env['inst_datadir'] = pjoin(instRoot, 'data')
@@ -1429,9 +1412,14 @@ build_cantera = Alias('build', finish_build)
 Default('build')
 
 def postInstallMessage(target, source, env):
-    env['python_module_loc'] = env.subst(env['python_module_loc'])
+    if env['python_package'] == 'none':
+        env['python_module_loc'] = 'NONE'
+
+    if env['python3_package'] == 'y':
+        env['python3_example_loc'] = pjoin(env['python3_module_loc'], 'cantera', 'examples')
+
     env['python_example_loc'] = pjoin(env['python_module_loc'], 'cantera', 'examples')
-    env['python3_example_loc'] = pjoin(env['python3_module_loc'], 'cantera', 'examples')
+
     env['matlab_sample_loc'] = pjoin(env['ct_matlab_dir'], 'matlab')
     env['matlab_ctpath_loc'] = pjoin(env['prefix'], 'matlab', 'ctpath.m')
     print """
@@ -1463,7 +1451,7 @@ File locations:
     if env['python3_package'] == 'y':
         print """
   Python 3 package (cantera)  %(python3_module_loc)s
-  Python 3 samples            %(python3_module_loc)s""" % env,
+  Python 3 samples            %(python3_example_loc)s""" % env,
 
     if env['matlab_toolbox'] == 'y':
         print """
