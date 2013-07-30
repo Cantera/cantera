@@ -128,28 +128,9 @@ void IdealGasConstPressureReactor::evalEqs(doublereal time, doublereal* y,
 {
     size_t nk;
     m_thermo->restoreState(m_state);
+    applySensitivity(params);
 
     Kinetics* kin;
-    size_t npar, ploc;
-    double mult;
-
-    // process sensitivity parameters
-    if (params) {
-
-        npar = m_pnum.size();
-        for (size_t n = 0; n < npar; n++) {
-            mult = m_kin->multiplier(m_pnum[n]);
-            m_kin->setMultiplier(m_pnum[n], mult*params[n]);
-        }
-        ploc = npar;
-        for (size_t m = 0; m < m_nwalls; m++) {
-            if (m_nsens_wall[m] > 0) {
-                m_wall[m]->setSensitivityParameters(m_lr[m], params + ploc);
-                ploc += m_nsens_wall[m];
-            }
-        }
-    }
-
     m_Q = 0.0;
 
     // compute wall terms
@@ -244,21 +225,7 @@ void IdealGasConstPressureReactor::evalEqs(doublereal time, doublereal* y,
         ydot[1] = 0.0;
     }
 
-    // reset sensitivity parameters
-    if (params) {
-        npar = m_pnum.size();
-        for (size_t n = 0; n < npar; n++) {
-            mult = m_kin->multiplier(m_pnum[n]);
-            m_kin->setMultiplier(m_pnum[n], mult/params[n]);
-        }
-        ploc = npar;
-        for (size_t m = 0; m < m_nwalls; m++) {
-            if (m_nsens_wall[m] > 0) {
-                m_wall[m]->resetSensitivityParameters(m_lr[m]);
-                ploc += m_nsens_wall[m];
-            }
-        }
-    }
+    resetSensitivity(params);
 }
 
 size_t IdealGasConstPressureReactor::componentIndex(const string& nm) const

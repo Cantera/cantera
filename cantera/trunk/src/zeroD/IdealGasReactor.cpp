@@ -138,22 +138,7 @@ void IdealGasReactor::evalEqs(doublereal time, doublereal* y,
                       doublereal* ydot, doublereal* params)
 {
     m_thermo->restoreState(m_state);
-
-    // process sensitivity parameters
-    if (params) {
-        size_t npar = m_pnum.size();
-        for (size_t n = 0; n < npar; n++) {
-            double mult = m_kin->multiplier(m_pnum[n]);
-            m_kin->setMultiplier(m_pnum[n], mult*params[n]);
-        }
-        size_t ploc = npar;
-        for (size_t m = 0; m < m_nwalls; m++) {
-            if (m_nsens_wall[m] > 0) {
-                m_wall[m]->setSensitivityParameters(m_lr[m], params + ploc);
-                ploc += m_nsens_wall[m];
-            }
-        }
-    }
+    applySensitivity(params);
 
     m_vdot = 0.0;
     m_Q    = 0.0;
@@ -261,21 +246,7 @@ void IdealGasReactor::evalEqs(doublereal time, doublereal* y,
                      "ydot[" + int2str(i) + "] is not finite");
     }
 
-    // reset sensitivity parameters
-    if (params) {
-        size_t npar = m_pnum.size();
-        for (size_t n = 0; n < npar; n++) {
-            double mult = m_kin->multiplier(m_pnum[n]);
-            m_kin->setMultiplier(m_pnum[n], mult/params[n]);
-        }
-        size_t ploc = npar;
-        for (size_t m = 0; m < m_nwalls; m++) {
-            if (m_nsens_wall[m] > 0) {
-                m_wall[m]->resetSensitivityParameters(m_lr[m]);
-                ploc += m_nsens_wall[m];
-            }
-        }
-    }
+    resetSensitivity(params);
 }
 
 size_t IdealGasReactor::componentIndex(const string& nm) const

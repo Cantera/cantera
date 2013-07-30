@@ -145,6 +145,12 @@ public:
     virtual size_t componentIndex(const std::string& nm) const;
 
 protected:
+    //! Set reaction rate multipliers based on the sensitivity variables in
+    //! *params*.
+    virtual void applySensitivity(double* params);
+    //! Reset the reaction rate multipliers
+    virtual void resetSensitivity(double* params);
+
     //! Pointer to the homogeneous Kinetics object that handles the reactions
     Kinetics*   m_kin;
 
