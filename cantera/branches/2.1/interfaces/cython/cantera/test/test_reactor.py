@@ -886,7 +886,7 @@ class TestReactorSensitivities(utilities.CanteraTest):
             self.assertNear(np.linalg.norm(S[Ns:K2,1]), 0.0, atol=1e-5)
             self.assertNear(np.linalg.norm(S[K2+Ns:,0]), 0.0, atol=1e-5)
 
-    def test_parameter_order1(self):
+    def _test_parameter_order1(self, reactorClass):
         # Single reactor, changing the order in which parameters are added
         gas = ct.Solution('h2o2.xml')
 
@@ -894,7 +894,7 @@ class TestReactorSensitivities(utilities.CanteraTest):
             net = ct.ReactorNet()
             gas.TPX = 900, 101325, 'H2:0.1, OH:1e-7, O2:0.1, AR:1e-5'
 
-            r = ct.IdealGasReactor(gas)
+            r = reactorClass(gas)
             net.add_reactor(r)
             return r, net
 
@@ -924,6 +924,12 @@ class TestReactorSensitivities(utilities.CanteraTest):
 
         for i,j in enumerate((2,1,3,0)):
             self.assertArrayNear(S1[:,i], S2[:,j])
+
+    def test_parameter_order1a(self):
+        self._test_parameter_order1(ct.IdealGasReactor)
+
+    def test_parameter_order1b(self):
+        self._test_parameter_order1(ct.IdealGasConstPressureReactor)
 
     def test_parameter_order2(self):
         # Multiple reactors, changing the order in which parameters are added
