@@ -369,6 +369,23 @@ class Reactor(ReactorBase):
                              verbose = verbose, type = 2)
 
 
+class IdealGasReactor(ReactorBase):
+    """
+    Similar to :class:`.Reactor`, but with a set of governing equations
+    optimized specifically for ideal gas mixtures.
+    """
+    def __init__(self, contents = None, name = '',
+                 volume = 1.0, energy = 'on',
+                 verbose = 0):
+        global _reactorcount
+        if name == '':
+            name = 'IdealGasReactor_'+`_reactorcount`
+        _reactorcount += 1
+        ReactorBase.__init__(self, contents = contents, name = name,
+                             volume = volume, energy = energy,
+                             verbose = verbose, type = 5)
+
+
 class FlowReactor(ReactorBase):
     def __init__(self, contents = None, name = '',
                  volume = 1.0, energy = 'on',
@@ -436,6 +453,23 @@ class ConstPressureReactor(ReactorBase):
         ReactorBase.__init__(self, contents = contents, name = name,
                              volume = volume, energy = energy,
                              verbose = verbose, type = 4)
+
+
+class IdealGasConstPressureReactor(ReactorBase):
+    """
+    Similar to :class:`.ConstPressureReactor`, but with a set of governing
+    equations optimized specifically for ideal gas mixtures.
+    """
+    def __init__(self, contents = None, name = '',
+                 volume = 1.0, energy = 'on',
+                 verbose = 0):
+        global _reactorcount
+        if name == '':
+            name = 'IdealGasConstPRessureReactor_'+`_reactorcount`
+        _reactorcount += 1
+        ReactorBase.__init__(self, contents = contents, name = name,
+                             volume = volume, energy = energy,
+                             verbose = verbose, type = 6)
 
 
 class Reservoir(ReactorBase):
