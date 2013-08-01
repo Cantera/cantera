@@ -35,12 +35,8 @@ mutex_t FalloffFactory::falloff_mutex;
  *
  * \f[ N = 0.75 - 1.27 \log_{10} F_{cent} \f]
  *
- *  There are a few requirements for the parameters:
- *
- *  - T_3 is required to greater than or equal to zero. If it is zero, then
- *    the term is set to zero.
- *  - T_1 is required to greater than or equal to zero. If it is zero, then
- *    the term is set to zero.
+ *  - If \f$ T_3 \f$ is zero, then the corresponding term is set to zero.
+ *  - If \f$ T_1 \f$ is zero, then the corresponding term is set to zero.
  *
  * @ingroup falloffGroup
  */
@@ -58,21 +54,13 @@ public:
     virtual void init(const vector_fp& c) {
         m_a  = c[0];
 
-        if (c[1] <= 0.0) {
-            if (c[1] == 0.0) {
-                m_rt3 = 1000.;
-            } else {
-                throw CanteraError("Troe3::init()", "T3 parameter is less than zero");
-            }
+        if (c[1] == 0.0) {
+            m_rt3 = 1000.;
         } else {
             m_rt3 = 1.0/c[1];
         }
-        if (c[2] <= 0.0) {
-            if (c[2] == 0.0) {
-                m_rt1 = 1000.;
-            } else {
-                throw CanteraError("Troe3::init()", "T1 parameter is less than zero");
-            }
+        if (c[2] == 0.0) {
+            m_rt1 = 1000.;
         } else {
             m_rt1 = 1.0/c[2];
         }
@@ -143,12 +131,8 @@ protected:
  *
  * \f[ N = 0.75 - 1.27 \log_{10} F_{cent} \f]
  *
- *  There are a few requirements for the parameters
- *
- *  - T_3 is required to greater than or equal to zero. If it is zero,
- *    then the term is set to zero.
- *  - T_1 is required to greater than or equal to zero. If it is zero,
- *    then the term is set to zero.
+ *  - If \f$ T_3 \f$ is zero, then the corresponding term is set to zero.
+ *  - If \f$ T_1 \f$ is zero, then the corresponding term is set to zero.
  *
  * @ingroup falloffGroup
  */
@@ -166,21 +150,13 @@ public:
      */
     virtual void init(const vector_fp& c) {
         m_a  = c[0];
-        if (c[1] <= 0.0) {
-            if (c[1] == 0.0) {
-                m_rt3 = 1000.;
-            } else {
-                throw CanteraError("Troe4::init()", "T3 parameter is less than zero");
-            }
+        if (c[1] == 0.0) {
+            m_rt3 = 1000.;
         } else {
             m_rt3 = 1.0/c[1];
         }
-        if (c[2] <= 0.0) {
-            if (c[2] == 0.0) {
-                m_rt1 = 1000.;
-            } else {
-                throw CanteraError("Troe4::init()", "T1 parameter is less than zero");
-            }
+        if (c[2] == 0.0) {
+            m_rt1 = 1000.;
         } else {
             m_rt1 = 1.0/c[2];
         }
