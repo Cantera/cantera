@@ -46,13 +46,13 @@ f.solve(loglevel=loglevel, refine_grid=refine_grid)
 f.save('h2_adiabatic.xml', 'energy',
        'solution with mixture-averaged transport')
 f.show_solution()
-print('mixture-averaged flamespeed = {:7f} m/s'.format(f.u[0]))
+print('mixture-averaged flamespeed = {0:7f} m/s'.format(f.u[0]))
 
 # Solve with multi-component transport properties
 f.transport_model = 'Multi'
 f.solve(loglevel, refine_grid)
 f.show_solution()
-print('multicomponent flamespeed = {:7f} m/s'.format(f.u[0]))
+print('multicomponent flamespeed = {0:7f} m/s'.format(f.u[0]))
 f.save('h2_adiabatic.xml','energy_multi',
        'solution with multicomponent transport')
 

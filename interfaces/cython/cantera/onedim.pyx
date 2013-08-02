@@ -498,7 +498,7 @@ cdef class Sim1D:
                     idom = i
                     dom = d
             if idom is None:
-                raise KeyError('Domain named "{}" not found.'.format(dom))
+                raise KeyError('Domain named "{0}" not found.'.format(dom))
 
         assert 0 <= idom < len(self.domains)
         return idom
@@ -933,7 +933,7 @@ class FlameBase(Sim1D):
                             list(getattr(self.gas, species)))
         csvfile.close()
         if not quiet:
-            print("Solution saved to '{}'.".format(filename))
+            print("Solution saved to '{0}'.".format(filename))
 
 
 def _trim(docstring):

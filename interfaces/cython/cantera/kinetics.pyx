@@ -50,15 +50,15 @@ cdef class Kinetics(_SolutionBase):
 
     def _check_phase_index(self, n):
         if not 0 <= n < self.n_phases:
-            raise ValueError("Phase index ({}) out of range".format(n))
+            raise ValueError("Phase index ({0}) out of range".format(n))
 
     def _check_reaction_index(self, n):
         if not 0 <= n < self.n_reactions:
-            raise ValueError("Reaction index ({}) out of range".format(n))
+            raise ValueError("Reaction index ({0}) out of range".format(n))
 
     def _check_kinetics_species_index(self, n):
         if not 0 <= n < self.n_total_species:
-            raise ValueError("Kinetics Species index ({}) out of range".format(n))
+            raise ValueError("Kinetics Species index ({0}) out of range".format(n))
 
     def kinetics_species_index(self, int species, int phase):
         """
