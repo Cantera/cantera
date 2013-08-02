@@ -140,7 +140,7 @@ cdef class Mixture:
         4.0
         """
         if not 0 <= k < self.n_species:
-            raise IndexError('Species index ({}) out of range (0 < {})'.format(k, self.n_species))
+            raise IndexError('Species index ({0}) out of range (0 < {1})'.format(k, self.n_species))
         return self.mix.nAtoms(k, self.element_index(m))
 
     property n_phases:
@@ -332,7 +332,7 @@ cdef class Mixture:
             iSolver = 1
         else:
             raise ValueError('Unrecognized equilibrium solver '
-                             'specified: "{}"'.format(solver))
+                             'specified: "{0}"'.format(solver))
 
         vcs_equilibrate(deref(self.mix), stringify(XY).c_str(), estimate_equil,
                         print_level, iSolver, rtol, max_steps, max_iter,

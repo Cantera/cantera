@@ -49,7 +49,7 @@ def show_coverages(s):
     cov = s.coverages
     names = s.species_names
     for n in range(s.n_species):
-        print('{:16s}  {:13.4g}'.format(names[n], cov[n]))
+        print('{0:16s}  {1:13.4g}'.format(names[n], cov[n]))
 
 
 def equil_OCV(gas1, gas2):

@@ -57,7 +57,7 @@ sim = ct.ReactorNet([mixer])
 
 # Since the mixer is a reactor, we need to integrate in time to reach steady
 # state. A few residence times should be enough.
-print('{:>14s} {:>14s} {:>14s}  {:>14s}  {:>14s}'.format(
+print('{0:>14s} {1:>14s} {2:>14s}  {3:>14s}  {4:>14s}'.format(
       't [s]', 'T [K]', 'h [J/kg]', 'P [Pa]', 'X_CH4'))
 
 t = 0.0
@@ -65,7 +65,7 @@ for n in range(30):
     tres = mixer.mass/(mfc1.mdot(t) + mfc2.mdot(t))
     t += 0.5*tres
     sim.advance(t)
-    print('{:14.5g} {:14.5g} {:14.5g}  {:14.5g}  {:14.5g}'.format(
+    print('{0:14.5g} {1:14.5g} {2:14.5g}  {3:14.5g}  {4:14.5g}'.format(
           t, mixer.T, mixer.thermo.h, mixer.thermo.P, mixer.thermo['CH4'].X[0]))
 
 # view the state of the gas in the mixer
