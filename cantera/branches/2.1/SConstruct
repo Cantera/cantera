@@ -601,7 +601,7 @@ config_options = [
         name recognized by the 'dot' program. On linux systems, this
         should be lowercase 'helvetica'.""",
      'Helvetica'),
-    ('cantera_version', '', '2.1.0b1')
+    ('cantera_version', '', '2.1.0b2')
 ]
 
 opts.AddVariables(*config_options)
