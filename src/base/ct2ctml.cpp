@@ -154,7 +154,7 @@ void ck2cti(const std::string& in_file, const std::string& thermo_file,
         pyin << "    import sys\n";
         pyin << "    sys.stderr = sys.stdout\n";
         pyin << "    import ck2cti\n";
-        pyin << "    ck2cti.convertMech(r'" << in_file << "',";
+        pyin << "    ck2cti.Parser().convertMech(r'" << in_file << "',";
         if (thermo_file != "" && thermo_file != "-") {
             pyin << " thermoFile=r'" << thermo_file << "',";
         }
