@@ -1340,7 +1340,7 @@ class Parser(object):
                 if contains(line, 'ELEMENTS'):
                     index = get_index(tokens, 'ELEMENTS')
                     tokens = tokens[index+1:]
-                    while not contains(line, 'END'):
+                    while line is not None and not contains(line, 'END'):
                         # Grudging support for implicit end of section
                         if contains(line, 'SPECIES'):
                             self.warn('"ELEMENTS" section implicitly ended by start of '
@@ -1361,7 +1361,7 @@ class Parser(object):
                     # List of species identifiers
                     index = get_index(tokens, 'SPECIES')
                     tokens = tokens[index+1:]
-                    while not contains(line, 'END'):
+                    while line is not None and not contains(line, 'END'):
                         # Grudging support for implicit end of section
                         if (contains(line, 'REACTIONS') or contains(line, 'TRAN') or
                             contains(line, 'THERM')):
@@ -1388,7 +1388,7 @@ class Parser(object):
                     entryPosition = 0
                     entryLength = None
                     entry = []
-                    while not get_index(line, 'END') == 0:
+                    while line is not None and not get_index(line, 'END') == 0:
                         # Grudging support for implicit end of section
                         if (contains(line, 'REACTIONS') or contains(line, 'TRAN')):
                             self.warn('"THERMO" section implicitly ended by start of '
@@ -1442,10 +1442,10 @@ class Parser(object):
                 elif contains(line, 'THERM'):
                     # List of thermodynamics (hopefully one per species!)
                     line, comment = readline()
-                    if not contains(line, 'END'):
+                    if line is not None and not contains(line, 'END'):
                         TintDefault = float(line.split()[1])
                     thermo = []
-                    while not contains(line, 'END'):
+                    while line is not None and not contains(line, 'END'):
                         # Grudging support for implicit end of section
                         if contains(line, 'REACTIONS') or contains(line, 'TRAN'):
                             self.warn('"THERMO" section implicitly ended by start of '
