@@ -57,6 +57,9 @@ void reactormethods(int nlhs, mxArray* plhs[],
         case 9:
             iok = reactor_setEnergy(i, int(v));
             break;
+        case 10:
+            iok = flowReactor_setMassFlowRate(i, v);
+            break;
         default:
             mexErrMsgTxt("unknown job parameter");
         }
