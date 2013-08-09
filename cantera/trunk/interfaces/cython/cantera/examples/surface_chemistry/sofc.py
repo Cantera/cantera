@@ -11,7 +11,7 @@ not need to be separately specified), as well as polarization curves.
 NOTE: The parameters here, and in the input file sofc.cti, are not to be
 relied upon for a real SOFC simulation! They are meant to illustrate only how
 to do such a calculation in Cantera. While some of the parameters may be close
-to real values, others are simply set arbitratily to give reasonable-looking
+to real values, others are simply set arbitrarily to give reasonable-looking
 results.
 
 It is recommended that you read input file sofc.cti before reading or running
@@ -49,7 +49,7 @@ def show_coverages(s):
     cov = s.coverages
     names = s.species_names
     for n in range(s.n_species):
-        print('{:16s}  {:13.4g}'.format(names[n], cov[n]))
+        print('{0:16s}  {1:13.4g}'.format(names[n], cov[n]))
 
 
 def equil_OCV(gas1, gas2):

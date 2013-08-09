@@ -13,7 +13,7 @@
 # to be relied upon for a real SOFC simulation! They are meant to
 # illustrate only how to do such a calculation in Cantera. While some
 # of the parameters may be close to real values, others are simply set
-# arbitratily to give reasonable-looking results.
+# arbitrarily to give reasonable-looking results.
 
 # It is recommended that you read input file sofc.cti before reading
 # or running this script!

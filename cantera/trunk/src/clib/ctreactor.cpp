@@ -10,6 +10,7 @@
 #include "cantera/zeroD/ConstPressureReactor.h"
 #include "cantera/zeroD/ReactorNet.h"
 #include "cantera/zeroD/Reservoir.h"
+#include "cantera/zeroD/ReactorFactory.h"
 #include "cantera/zeroD/Wall.h"
 #include "cantera/zeroD/flowControllers.h"
 #include "Cabinet.h"
@@ -37,18 +38,7 @@ extern "C" {
     int reactor_new(int type)
     {
         try {
-            ReactorBase* r=0;
-            if (type == ReactorType) {
-                r = new Reactor();
-            } else if (type == FlowReactorType) {
-                r = new FlowReactor();
-            } else if (type == ConstPressureReactorType) {
-                r = new ConstPressureReactor();
-            } else if (type == ReservoirType) {
-                r = new Reservoir();
-            } else {
-                r = new ReactorBase();
-            }
+            ReactorBase* r = ReactorFactory::factory()->newReactor(type);
             return ReactorCabinet::add(r);
         } catch (...) {
             return handleAllExceptions(-1, ERR);

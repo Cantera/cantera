@@ -71,7 +71,7 @@ py_mix_nElements(PyObject* self, PyObject* args)
     }
 
     _val = int(mix_nElements(i));
-    if (_val < -900) {
+    if (_val <= -1) {
         return reportCanteraError();
     }
     return Py_BuildValue("i",_val);
@@ -88,7 +88,7 @@ py_mix_elementIndex(PyObject* self, PyObject* args)
     }
 
     _val = int(mix_elementIndex(i,name));
-    if (_val < -900) {
+    if (_val <= -1) {
         return reportCanteraError();
     }
     return Py_BuildValue("i",_val);
@@ -104,7 +104,7 @@ py_mix_nSpecies(PyObject* self, PyObject* args)
     }
 
     _val = int(mix_nSpecies(i));
-    if (_val < -900) {
+    if (_val <= -1) {
         return reportCanteraError();
     }
     return Py_BuildValue("i",_val);
@@ -120,7 +120,7 @@ py_mix_speciesIndex(PyObject* self, PyObject* args)
     }
 
     _val = mix_speciesIndex(i,k,p);
-    if (int(_val) < -900) {
+    if (int(_val) <= -1) {
         return reportCanteraError();
     }
     return Py_BuildValue("i",_val);
@@ -138,7 +138,7 @@ py_mix_nAtoms(PyObject* self, PyObject* args)
     }
 
     _val = mix_nAtoms(i,k,m);
-    if (int(_val) < -900) {
+    if (int(_val) == DERR) {
         return reportCanteraError();
     }
     return Py_BuildValue("d",_val);
@@ -155,7 +155,7 @@ py_mix_setTemperature(PyObject* self, PyObject* args)
     }
 
     _val = mix_setTemperature(i,t);
-    if (int(_val) == -1) {
+    if (int(_val) <= -1) {
         return reportCanteraError();
     }
     return Py_BuildValue("i",_val);
@@ -172,7 +172,7 @@ py_mix_minTemp(PyObject* self, PyObject* args)
     }
 
     _val = mix_minTemp(i);
-    if (int(_val) == -1) {
+    if (int(_val) == DERR) {
         return reportCanteraError();
     }
     return Py_BuildValue("d",_val);
@@ -189,7 +189,7 @@ py_mix_maxTemp(PyObject* self, PyObject* args)
     }
 
     _val = mix_maxTemp(i);
-    if (int(_val) == -1) {
+    if (int(_val) == DERR) {
         return reportCanteraError();
     }
     return Py_BuildValue("d",_val);
@@ -206,7 +206,7 @@ py_mix_charge(PyObject* self, PyObject* args)
     }
 
     _val = mix_charge(i);
-    if (int(_val) == -1) {
+    if (int(_val) == DERR) {
         return reportCanteraError();
     }
     return Py_BuildValue("d",_val);
@@ -224,7 +224,7 @@ py_mix_phaseCharge(PyObject* self, PyObject* args)
     }
 
     _val = mix_phaseCharge(i,p);
-    if (int(_val) == -1) {
+    if (int(_val) == DERR) {
         return reportCanteraError();
     }
     return Py_BuildValue("d",_val);
@@ -241,7 +241,7 @@ py_mix_temperature(PyObject* self, PyObject* args)
     }
 
     _val = mix_temperature(i);
-    if (int(_val) == -1) {
+    if (int(_val) == DERR) {
         return reportCanteraError();
     }
     return Py_BuildValue("d",_val);
@@ -259,7 +259,7 @@ py_mix_setPressure(PyObject* self, PyObject* args)
     }
 
     _val = mix_setPressure(i,p);
-    if (int(_val) == -1) {
+    if (int(_val) <= -1) {
         return reportCanteraError();
     }
     return Py_BuildValue("i",_val);
@@ -276,7 +276,7 @@ py_mix_pressure(PyObject* self, PyObject* args)
     }
 
     _val = mix_pressure(i);
-    if (int(_val) == -1) {
+    if (int(_val) <= -1) {
         return reportCanteraError();
     }
     return Py_BuildValue("d",_val);
@@ -293,7 +293,7 @@ py_mix_phaseMoles(PyObject* self, PyObject* args)
     }
 
     _val = mix_phaseMoles(i,n);
-    if (int(_val) < -900) {
+    if (int(_val) == DERR) {
         return reportCanteraError();
     }
     return Py_BuildValue("d",_val);
@@ -330,7 +330,7 @@ py_mix_speciesMoles(PyObject* self, PyObject* args)
     }
 
     _val = mix_speciesMoles(i,k);
-    if (int(_val) < -900) {
+    if (int(_val) == DERR) {
         return reportCanteraError();
     }
     return Py_BuildValue("d",_val);
@@ -348,7 +348,7 @@ py_mix_elementMoles(PyObject* self, PyObject* args)
     }
 
     _val = mix_elementMoles(i,m);
-    if (int(_val) < -900) {
+    if (int(_val) == DERR) {
         return reportCanteraError();
     }
     return Py_BuildValue("d",_val);
@@ -371,7 +371,7 @@ py_mix_setMoles(PyObject* self, PyObject* args)
     size_t n_len = n_array->dimensions[0];
 
     _val = mix_setMoles(i,n_len,n_data);
-    if (int(_val) < -900) {
+    if (int(_val) < 0) {
         return reportCanteraError();
     }
     return Py_BuildValue("i",_val);
@@ -389,7 +389,7 @@ py_mix_setMolesByName(PyObject* self, PyObject* args)
     }
 
     _val = mix_setMolesByName(i,n);
-    if (int(_val) < -900) {
+    if (int(_val) < 0) {
         return reportCanteraError();
     }
     return Py_BuildValue("i",_val);
@@ -409,7 +409,7 @@ py_mix_equilibrate(PyObject* self, PyObject* args)
     }
 
     _val = mix_equilibrate(i,XY,err,maxsteps,maxiter,loglevel);
-    if (int(_val) < -900) {
+    if (int(_val) == DERR) {
         return reportCanteraError();
     }
     return Py_BuildValue("d",_val);
@@ -438,7 +438,7 @@ py_mix_vcs_equilibrate(PyObject* self, PyObject* args)
     _val = mix_vcs_equilibrate(i, XY, estimateEquil, printLvl, solver,
                                rtol, maxsteps, maxiter, loglevel);
 
-    if (int(_val) < -900) {
+    if (int(_val) == ERR) {
         return reportCanteraError();
     }
     return Py_BuildValue("d", _val);

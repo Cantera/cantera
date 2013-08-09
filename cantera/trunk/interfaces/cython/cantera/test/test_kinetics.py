@@ -233,14 +233,14 @@ class KineticsRepeatability(utilities.CanteraTest):
         self.check_rates_pressure('h2o2.xml')
 
     def test_pdep_composition(self):
-        self.check_rates_composition('pdep_test.xml')
+        self.check_rates_composition('pdep-test.xml')
 
     def test_pdep_temperature(self):
-        self.check_rates_temperature1('pdep_test.xml')
-        self.check_rates_temperature2('pdep_test.xml')
+        self.check_rates_temperature1('pdep-test.xml')
+        self.check_rates_temperature2('pdep-test.xml')
 
     def test_pdep_pressure(self):
-        self.check_rates_pressure('pdep_test.xml')
+        self.check_rates_pressure('pdep-test.xml')
 
 
 class TestEmptyKinetics(utilities.CanteraTest):

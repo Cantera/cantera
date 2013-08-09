@@ -71,7 +71,7 @@ for i in range(npoints):
     mix.equilibrate('HP', solver='gibbs', max_steps=1000)
 
     tad[i] = mix.T
-    print('At phi = {:12.4g}, Tad = {:12.4g}'.format(phi[i], tad[i]))
+    print('At phi = {0:12.4g}, Tad = {1:12.4g}'.format(phi[i], tad[i]))
     xeq[:,i] = mix.species_moles
 
 # write output CSV file for importing into Excel

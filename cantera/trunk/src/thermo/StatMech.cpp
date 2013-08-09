@@ -502,18 +502,18 @@ int StatMech::buildmap()
     name_map["e"]->nvib=0;
 
     for (ii=0; ii < SS.size(); ii++) {
-        // check nvib was initalized for all species
+        // check nvib was initialized for all species
         if (name_map[SS[ii]]->nvib == -1) {
             std::cout << name_map[SS[ii]]->nvib << std::endl;
             throw CanteraError("Error in StatMech.cpp",
                                "nvib not initialized!. \n\n");
 
         } else {
-            // check that theta is initalized
+            // check that theta is initialized
             for (int i=0; i<name_map[SS[ii]]->nvib; i++) {
                 if (name_map[SS[ii]]->theta[i] <= 0.0) {
                     throw CanteraError("Error in StatMech.cpp",
-                                       "theta not initalized!. \n\n");
+                                       "theta not initialized!. \n\n");
                 }
             }
 

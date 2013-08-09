@@ -438,7 +438,7 @@ public:
      */
     virtual doublereal satTemperature(doublereal p) const;
 
-    //! Return the saturation pressure given the temperatur
+    //! Return the saturation pressure given the temperature
     /*!
      * @param t Temperature (Kelvin)
      */

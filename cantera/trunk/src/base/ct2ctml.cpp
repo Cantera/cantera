@@ -75,7 +75,10 @@ void ct2ctml(const char* file, const int debug)
                     "if True:\n" << // Use this so that the rest is a single block
                     "    import sys\n" <<
                     "    sys.stderr = sys.stdout\n" <<
-                    "    import ctml_writer\n" <<
+                    "    try:\n" <<
+                    "        from cantera import ctml_writer\n" <<
+                    "    except ImportError:\n" <<
+                    "        import ctml_writer\n" <<
                     "    ctml_writer.convert(r'" << file << "')\n" <<
                     "    sys.exit(0)\n\n"
                     "sys.exit(7)\n";
@@ -151,7 +154,7 @@ void ck2cti(const std::string& in_file, const std::string& thermo_file,
         pyin << "    import sys\n";
         pyin << "    sys.stderr = sys.stdout\n";
         pyin << "    import ck2cti\n";
-        pyin << "    ck2cti.convertMech(r'" << in_file << "',";
+        pyin << "    ck2cti.Parser().convertMech(r'" << in_file << "',";
         if (thermo_file != "" && thermo_file != "-") {
             pyin << " thermoFile=r'" << thermo_file << "',";
         }

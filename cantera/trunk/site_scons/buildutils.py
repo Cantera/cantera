@@ -13,6 +13,7 @@ import itertools
 
 import SCons.Errors
 from distutils.version import LooseVersion
+import distutils.sysconfig
 
 class DefineDict(object):
     """
@@ -234,7 +235,7 @@ def compareTextFiles(env, file1, file2):
             abserr = abs(num1-num2)
             relerr = abserr / (0.5 * abs(num1 + num2) + atol)
             if abserr > (1.1*delta + atol) and relerr > rtol:
-                print 'Values differ: {: 14g} {: 14g}; rel. err = {:.3e}; abs. err = {:.3e}'.format(num1, num2, relerr, abserr)
+                print 'Values differ: {0: 14g} {1: 14g}; rel. err = {2:.3e}; abs. err = {3:.3e}'.format(num1, num2, relerr, abserr)
                 allMatch = False
                 break
 

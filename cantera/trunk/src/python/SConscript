@@ -87,15 +87,29 @@ else:
     extra = ''
 
 if localenv['PYTHON_INSTALLER'] == 'direct':
-    install(localenv.Command, 'dummy', pymodule,
-            'cd %s && $python_cmd setup.py install --record ../../build/python-installed-files.txt %s' % (moddir,extra))
+    mod_inst = install(localenv.Command, 'dummy', pymodule,
+                       'cd %s && $python_cmd setup.py install %s' % (moddir,extra) +
+                       ' --record ../../build/python-installed-files.txt')
+    global_env = env
+    def find_module_dir(target, source, env):
+        check = pjoin('Cantera','__init__.py')
+        for filename in open('build/python-installed-files.txt').readlines():
+            filename = filename.strip()
+            if filename.endswith(check):
+                filename = filename.replace(check,'')
+                global_env['python_module_loc'] = os.path.normpath(filename)
+                break
+    localenv.AlwaysBuild(localenv.AddPostAction(mod_inst, find_module_dir))
+
 elif localenv['PYTHON_INSTALLER'] == 'debian':
     install(localenv.Command, 'dummy', pymodule,
             'cd %s && $python_cmd setup.py install %s --install-layout=deb --no-compile' % (moddir,extra))
+    env['python_module_loc'] = '<unspecified>'
 elif localenv['PYTHON_INSTALLER'] == 'binary':
     install(localenv.Command, 'dummy', pymodule,
             'cd %s && $python_cmd setup.py bdist_msi --dist-dir=../..' % moddir +
             ' --target-version=' + distutils.sysconfig.get_python_version())
+    env['python_module_loc'] = '<unspecified>'
 
 if localenv['python_package'] == 'full':
     install(localenv.RecursiveInstall, pjoin('$inst_sampledir', 'python'),

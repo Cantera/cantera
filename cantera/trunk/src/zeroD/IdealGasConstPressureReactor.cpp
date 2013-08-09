@@ -94,6 +94,7 @@ void IdealGasConstPressureReactor::initialize(doublereal t0)
         }
     }
     m_work.resize(maxnt);
+    std::sort(m_pnum.begin(), m_pnum.end());
     m_init = true;
 }
 

@@ -68,7 +68,7 @@ mass_flow_rate = velocity * gas.density * area
 TDY = gas.TDY
 cov = surf.coverages
 
-print(('  {:>10s}'*4).format('distance', 'X_CH4', 'X_H2', 'X_CO'))
+print('    distance       X_CH4        X_H2        X_CO')
 
 for n in range(NReactors):
     surf.TP = TDY[0], ct.one_atm
@@ -148,7 +148,7 @@ for n in range(NReactors):
     dist = n * rlen * 1.0e3   # distance in mm
 
     if not n % 10:
-        print(('  {:10f}'*4).format(dist, *gas['CH4','H2','CO'].X))
+        print('  {0:10f}  {1:10f}  {2:10f}  {3:10f}'.format(dist, *gas['CH4','H2','CO'].X))
 
     # write the gas mole fractions and surface coverages vs. distance
     writer.writerow([dist, r.T - 273.15, r.thermo.P/ct.one_atm] +
