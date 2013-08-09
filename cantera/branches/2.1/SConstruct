@@ -661,7 +661,7 @@ elif env['env_vars']:
     for name in env['env_vars'].split(','):
         if name in os.environ:
             env['ENV'][name] = os.environ[name]
-        else:
+        elif name not in defaults.env_vars:
             print 'WARNING: failed to propagate environment variable', name
 
 env['extra_inc_dirs'] = [d for d in env['extra_inc_dirs'].split(':') if d]
