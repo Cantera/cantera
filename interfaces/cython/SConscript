@@ -13,7 +13,7 @@ def configure_numpy(python_command):
                         "print(get_python_version())",
                         "print(numpy.get_include())"))
     info = getCommandOutput(python_command, '-c', script)
-    module_ext, py_version, numpy_include = info.splitlines()
+    module_ext, py_version, numpy_include = info.splitlines()[-3:]
 
     incDirs = (".", "../../include", numpy_include,
                localenv['sundials_include'], localenv['boost_inc_dir'])

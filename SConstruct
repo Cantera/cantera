@@ -941,7 +941,7 @@ if env['python3_package'] in ('y', 'default'):
         info = getCommandOutput(env['python3_cmd'], '-c', script)
         (env['python3_version'],
          env['python3_usersitepackages'],
-         cython_version) = info.splitlines()
+         cython_version) = info.splitlines()[-3:]
     except OSError:
         info = False
 
