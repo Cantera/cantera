@@ -42,8 +42,8 @@ class TestThermoPhase(utilities.CanteraTest):
     def test_setCompositionString(self):
         self.phase.X = 'H2:1.0, O2:1.0'
         X = self.phase.X
-        self.assertEqual(X[0], 0.5)
-        self.assertEqual(X[3], 0.5)
+        self.assertNear(X[0], 0.5)
+        self.assertNear(X[3], 0.5)
 
         def set_bad():
             self.phase.X = 'H2:1.0, CO2:1.5'
@@ -285,9 +285,9 @@ class TestThermoPhase(utilities.CanteraTest):
         self.assertNear(self.phase.thermal_expansion_coeff, 1.0/self.phase.T)
 
     def test_ref_info(self):
-        self.assertEqual(self.phase.reference_pressure, ct.one_atm)
-        self.assertEqual(self.phase.min_temp, 300.0)
-        self.assertEqual(self.phase.max_temp, 3500.0)
+        self.assertNear(self.phase.reference_pressure, ct.one_atm)
+        self.assertNear(self.phase.min_temp, 300.0)
+        self.assertNear(self.phase.max_temp, 3500.0)
 
 
 class TestThermo(utilities.CanteraTest):
@@ -362,4 +362,4 @@ class TestInterfacePhase(utilities.CanteraTest):
 
     def test_properties(self):
         self.interface.site_density = 100
-        self.assertEqual(self.interface.site_density, 100)
+        self.assertNear(self.interface.site_density, 100)
