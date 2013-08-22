@@ -204,10 +204,8 @@ if localenv['python_package'] == 'new':
             subprocess.call(['3to2', '--no-diff', '-n', '-w','-x', 'str',
                              '-x', 'open', target[0].abspath])
 
-        for subdir in os.listdir('cantera/examples'):
+        for subdir in subdirs('cantera/examples'):
             dirpath = pjoin('cantera', 'examples', subdir)
-            if not os.path.isdir(dirpath):
-                continue
             for filename in os.listdir(dirpath):
                 if not filename.endswith('.py'):
                     continue
