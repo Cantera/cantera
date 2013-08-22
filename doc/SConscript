@@ -34,4 +34,15 @@ if localenv['sphinx_docs']:
             build(b)
             localenv.Depends(sphinxdocs, b)
 
+    # Matlab examples: create individual documentation pages with the source
+    # for each example
+    for f in mglob(env, '#samples/matlab', 'm'):
+        tmpenv = env.Clone()
+        tmpenv['script_name'] = f.name
+        tmpenv['script_path'] = '../../../../samples/matlab/%s' % f.name
+        b = tmpenv.SubstFile('#doc/sphinx/matlab/examples/%s.rst' % f.name[:-2],
+                             '#doc/sphinx/matlab/examples/example-script.rst.in')
+        build(b)
+        localenv.Depends(sphinxdocs, b)
+
     localenv.AlwaysBuild(sphinxdocs)
