@@ -1,0 +1,5 @@
+@script_name@
+=======================================================================
+
+.. literalinclude:: @script_path@
+   :language: matlab
