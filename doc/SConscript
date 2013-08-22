@@ -21,4 +21,17 @@ if localenv['sphinx_docs']:
         'sphinx/conf.py',
         '${sphinx_cmd} -b html -d ${SPHINXBUILD}/doctrees ${SPHINXSRC} ${SPHINXBUILD}/html'))
 
+    # Python examples: Create individual documentation pages with the source
+    # for each example
+    example_root = Dir('#interfaces/cython/cantera/examples').abspath
+    for subdir in subdirs(example_root):
+        for f in mglob(env, pjoin(example_root, subdir), 'py'):
+            tmpenv = env.Clone()
+            tmpenv['script_name'] = f.name
+            tmpenv['script_path'] = '../../../../interfaces/cython/cantera/examples/%s/%s' % (subdir, f.name)
+            b = tmpenv.SubstFile('#doc/sphinx/cython/examples/%s_%s.rst' % (subdir, f.name[:-3]),
+                                 '#doc/sphinx/cython/examples/example-script.rst.in')
+            build(b)
+            localenv.Depends(sphinxdocs, b)
+
     localenv.AlwaysBuild(sphinxdocs)

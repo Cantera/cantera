@@ -17,3 +17,4 @@ Contents:
    zerodim
    onedim
    constants
+   examples

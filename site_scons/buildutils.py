@@ -12,6 +12,7 @@ import shutil
 import itertools
 
 import SCons.Errors
+import SCons
 from distutils.version import LooseVersion
 import distutils.sysconfig
 
@@ -404,6 +405,13 @@ def psplit(s):
     path.reverse()
     return path
 
+
+def subdirs(path):
+    """ Get the subdirectories of a specified directory """
+    for subdir in os.listdir(path):
+        dirpath = pjoin(path, subdir)
+        if os.path.isdir(dirpath):
+            yield subdir
 
 def stripDrive(s):
     """
