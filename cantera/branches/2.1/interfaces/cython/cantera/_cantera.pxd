@@ -180,6 +180,7 @@ cdef extern from "cantera/transport/TransportBase.h" namespace "Cantera":
         int model()
         double viscosity() except +
         double thermalConductivity() except +
+        double electricalConductivity() except +
 
 
 cdef extern from "cantera/transport/DustyGasTransport.h" namespace "Cantera":

@@ -50,6 +50,11 @@ cdef class Transport(_SolutionBase):
         def __get__(self):
             return self.transport.viscosity()
 
+    property electrical_conductivity:
+        """Electrical conductivity. [S/m]."""
+        def __get__(self):
+            return self.transport.electricalConductivity()
+
     property thermal_conductivity:
         """Thermal conductivity. [W/m/K]."""
         def __get__(self):

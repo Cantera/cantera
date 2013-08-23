@@ -395,6 +395,10 @@ MODULE CANTERA
      MODULE PROCEDURE ctthermo_temperature
   END INTERFACE temperature
 
+  INTERFACE electricalConductivity
+     MODULE PROCEDURE ctrans_electricalConductivity
+  END INTERFACE electricalConductivity
+
   INTERFACE thermalConductivity
      MODULE PROCEDURE ctrans_thermalConductivity
   END INTERFACE thermalConductivity

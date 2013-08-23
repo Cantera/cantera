@@ -1190,6 +1190,15 @@ extern "C" {
         }
     }
 
+    double trans_electricalConductivity(int n)
+    {
+        try {
+            return TransportCabinet::item(n).electricalConductivity();
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
     double trans_thermalConductivity(int n)
     {
         try {

@@ -925,6 +925,15 @@ extern "C" {
         }
     }
 
+    doublereal trans_electricalconductivity_(const integer* n)
+    {
+        try {
+            return _ftrans(n)->electricalConductivity();
+        } catch (...) {
+            return handleAllExceptions(DERR, DERR);
+        }
+    }
+
     doublereal trans_thermalconductivity_(const integer* n)
     {
         try {
