@@ -434,8 +434,7 @@ L_MAINLOOP_ALL_SPECIES:
      *         converged. -> we have run out of iterations!
      */
     if (m_VCount->Its > maxit) {
-        solveFail = -1;
-        goto L_RETURN_BLOCK;
+        return -1;
     }
 
     /* ********************************************************************** */
@@ -2671,9 +2670,6 @@ size_t VCS_SOLVE::vcs_add_all_deleted()
                 double maxDG = std::min(m_deltaGRxn_new[irxn], 690.0);
                 double dx = m_tPhaseMoles_old[iph] * exp(- maxDG);
                 m_molNumSpecies_new[kspec] = dx;
-                if (m_molNumSpecies_new[kspec] > 2 *VCS_DELETE_MINORSPECIES_CUTOFF) {
-                    m_molNumSpecies_new[kspec] = 2 * VCS_DELETE_MINORSPECIES_CUTOFF;
-                }
             }
         }
     }
