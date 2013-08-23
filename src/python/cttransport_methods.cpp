@@ -72,6 +72,20 @@ py_viscosity(PyObject* self, PyObject* args)
 }
 
 static PyObject*
+py_electricalConductivity(PyObject* self, PyObject* args)
+{
+    int n;
+    if (!PyArg_ParseTuple(args, "i:py_electricalConductivity", &n)) {
+        return NULL;
+    }
+    double sigma = trans_electricalConductivity(n);
+    if (sigma < 0.0) {
+        return reportError(int(sigma));
+    }
+    return Py_BuildValue("d",sigma);
+}
+
+static PyObject*
 py_thermalConductivity(PyObject* self, PyObject* args)
 {
     int n;

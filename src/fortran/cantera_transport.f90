@@ -25,6 +25,13 @@ contains
     self%err = 0
   end function ctrans_viscosity
 
+  double precision function ctrans_electricalConductivity(self)
+    implicit none
+    type(phase_t), intent(inout) :: self
+    ctrans_electricalConductivity = trans_electricalConductivity(self%tran_id)
+    self%err = 0
+  end function ctrans_electricalConductivity
+
   double precision function ctrans_thermalConductivity(self)
     implicit none
     type(phase_t), intent(inout) :: self

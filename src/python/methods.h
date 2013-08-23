@@ -76,6 +76,7 @@ static PyMethodDef ct_methods[] = {
     {"Transport", py_transport_new,  METH_VARARGS},
     {"tran_delete", py_transport_delete,  METH_VARARGS},
     {"tran_viscosity", py_viscosity,  METH_VARARGS},
+    {"tran_electricalConductivity", py_electricalConductivity,  METH_VARARGS},
     {"tran_thermalConductivity", py_thermalConductivity,  METH_VARARGS},
     {"tran_thermalDiffCoeffs", py_thermalDiffCoeffs,  METH_VARARGS},
     {"tran_binaryDiffCoeffs", py_binaryDiffCoeffs,  METH_VARARGS},
