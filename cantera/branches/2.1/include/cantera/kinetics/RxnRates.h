@@ -130,6 +130,17 @@ protected:
 
 /**
  * An Arrhenius rate with coverage-dependent terms.
+ *
+ * The rate expression is given by:
+ * \f[
+ *     k_f = A T^b \exp \left(
+ *             \sum a_k \theta_k
+ *             - \frac{1}{RT} \left( E_a + \sum E_k\theta_k \right)
+ *             + \sum m_k \log \theta_k
+ *             \right)
+ *   \f]
+ * where the parameters \f$ (a_k, E_k, m_k) \f$ describe the dependency on the
+ * surface coverage of species \f$k, \theta_k \f$.
  */
 class SurfaceArrhenius
 {
