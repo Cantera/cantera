@@ -672,6 +672,8 @@ print
 # Copy in external environment variables
 if env['env_vars'] == 'all':
     env['ENV'].update(os.environ)
+    if 'PYTHONHOME' in env['ENV']:
+        del env['ENV']['PYTHONHOME']
 elif env['env_vars']:
     for name in env['env_vars'].split(','):
         if name in os.environ:
