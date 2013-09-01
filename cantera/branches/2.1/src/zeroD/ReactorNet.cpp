@@ -256,6 +256,9 @@ void ReactorNet::getInitialConditions(doublereal t0,
 
 size_t ReactorNet::globalComponentIndex(const string& species, size_t reactor)
 {
+    if (!m_init) {
+        initialize();
+    }
     size_t start = 0;
     size_t n;
     for (n = 0; n < reactor; n++) {
