@@ -523,6 +523,11 @@ config_options = [
     ('boost_thread_lib',
      'The name of the Boost.Thread library.',
      'boost_thread'),
+    ('boost_windows_libs',
+     """Comma-separated list containing the names of the Boost libraries
+        required to link Cantera programs on Windows. These libraries will be
+        copied to the Cantera installation directory.""",
+     'thread,system,date_time,chrono'), # default is correct for Boost 1.54
     BoolVariable(
         'build_with_f2c',
         """For external procedures written in Fortran 77, both the
@@ -1287,9 +1292,9 @@ if addInstallActions:
     if env['CC'] == 'cl' and env['use_boost_libs']:
         boost_suffix = '-vc%s-mt-%s.lib' % (env['MSVC_VERSION'].replace('.',''),
                                         env['BOOST_LIB_VERSION'])
-        install('$inst_libdir', pjoin('$boost_lib_dir', 'libboost_date_time' + boost_suffix))
-        install('$inst_libdir', pjoin('$boost_lib_dir', 'libboost_thread' + boost_suffix))
-
+        for lib in env['boost_windows_libs'].split(','):
+            install('$inst_libdir', pjoin('$boost_lib_dir',
+                                          'libboost_{0}{1}'.format(lib, boost_suffix)))
 
 ### List of libraries needed to link to Cantera ###
 linkLibs = ['cantera']
