@@ -508,6 +508,10 @@ int CVodesIntegrator::nEvals() const
 
 double CVodesIntegrator::sensitivity(size_t k, size_t p)
 {
+    if (m_time == m_t0) {
+        // calls to CVodeGetSens are only allowed after a successful time step.
+        return 0.0;
+    }
     if (!m_sens_ok && m_np) {
 #if SUNDIALS_VERSION <= 23
         int flag = CVodeGetSens(m_cvode_mem, m_time, m_yS);

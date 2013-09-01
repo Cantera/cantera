@@ -146,6 +146,9 @@ public:
     //! Return the sensitivity of the *k*-th solution component with
     //! respect to the *p*-th sensitivity parameter.
     double sensitivity(size_t k, size_t p) {
+        if (!m_init) {
+            initialize();
+        }
         return m_integ->sensitivity(k, m_sensIndex[p])/m_integ->solution(k);
     }
 
