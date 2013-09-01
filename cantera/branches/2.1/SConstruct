@@ -430,6 +430,16 @@ config_options = [
            Not needed if the libraries are installed in a standard location,
            e.g. /usr/lib.""",
         '', PathVariable.PathAccept),
+    PathVariable(
+        'sundials_license',
+        """Path to the sundials LICENSE file. Needed so that it can be included
+           when bundling Sundials""",
+        '', PathVariable.PathAccept),
+    BoolVariable(
+        'install_sundials',
+        """Determines whether Sundials library and header files are installed
+           alongside Cantera. Intended for use when installing on Windows.""",
+        os.name == 'nt'),
     ('blas_lapack_libs',
      """Cantera comes with Fortran (or C) versions of those parts of BLAS and
         LAPACK it requires. But performance may be better if you use a version
@@ -1295,6 +1305,19 @@ if addInstallActions:
         for lib in env['boost_windows_libs'].split(','):
             install('$inst_libdir', pjoin('$boost_lib_dir',
                                           'libboost_{0}{1}'.format(lib, boost_suffix)))
+
+    # Copy sundials library and header files
+    if env['install_sundials']:
+        for subdir in ['cvode','cvodes','ida','idas','kinsol','nvector','sundials']:
+            if os.path.exists(pjoin(env['sundials_include'], subdir)):
+                install(env.RecursiveInstall, pjoin('$inst_incdir', '..', subdir),
+                        pjoin(env['sundials_include'], subdir))
+        if os.path.exists(env['sundials_license']):
+            install(pjoin('$inst_incdir', '..', 'sundials'), env['sundials_license'])
+        libprefix = '' if os.name == 'nt' else 'lib'
+        install('$inst_libdir', mglob(env, env['sundials_libdir'],
+                                      '^{0}sundials_*'.format(libprefix)))
+
 
 ### List of libraries needed to link to Cantera ###
 linkLibs = ['cantera']
