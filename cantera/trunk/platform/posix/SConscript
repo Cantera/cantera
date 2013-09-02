@@ -36,8 +36,7 @@ pc_incdirs = []
 pc_cflags = []
 
 localenv['mak_corelibs'] = '-lcantera'
-if not env['single_library']:
-    localenv['mak_corelibs'] += ' -lctmath -lexecstream'
+localenv['mak_corelibs'] += ' -lctmath -lexecstream'
 
 localenv['mak_extra_includes'] = ['-I%s' % s for s in localenv['extra_inc_dirs']]
 pc_incdirs.extend(localenv['extra_inc_dirs'])

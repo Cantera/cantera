@@ -163,11 +163,13 @@ public:
 
     //! Constructor
     SpeciesThermoInterpType(size_t n, doublereal tlow,
-                            doublereal thigh, doublereal pref) :
-        m_lowT(tlow),
-        m_highT(thigh),
-        m_Pref(pref),
-        m_index(n) {}
+                            doublereal thigh, doublereal pref);
+
+    //! Constructor
+    /*!
+     *  @param b Object to be copied
+     */
+    SpeciesThermoInterpType(const SpeciesThermoInterpType& b);
 
     //! Destructor
     virtual ~SpeciesThermoInterpType();
@@ -381,13 +383,11 @@ public:
                                       doublereal* h_RT,
                                       doublereal* s_R) const;
 
-    //! @deprecated
     virtual void reportParameters(size_t& index, int& type,
                                   doublereal& minTemp, doublereal& maxTemp,
                                   doublereal& refPressure,
                                   doublereal* const coeffs) const;
 
-    //! @deprecated
     virtual void modifyParameters(doublereal* coeffs);
 
 private:

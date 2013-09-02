@@ -115,42 +115,38 @@ for subdir, extensions, prepFunction in libs:
 
     localenv = prepFunction(env)
 
-    if localenv['single_library']:
-        objects = localenv.SharedObject(mglob(localenv, subdir, *extensions))
-        libraryTargets.extend(objects)
+    libName = 'ct' + subdir
+    if libName == 'ctf2c_blas':
+        libName = 'ctblas'
+    if libName == 'ctf2c_lapack':
+        libName = 'ctlapack'
+    if libName == 'ctf2c_math':
+        libName = 'ctmath'
+    if libName == 'ctcvode/source':
+        libName = 'cvode'
+    if libName == 'ctlibexecstream':
+        libName = 'execstream'
+    if libName == 'ctf2c_libs':
+        libName = 'ctf2c'
+
+    if localenv['renamed_shared_libraries']:
+        sharedLibName = libName + '_shared'
     else:
-        libName = 'ct' + subdir
-        if libName == 'ctf2c_blas':
-            libName = 'ctblas'
-        if libName == 'ctf2c_lapack':
-            libName = 'ctlapack'
-        if libName == 'ctf2c_math':
-            libName = 'ctmath'
-        if libName == 'ctcvode/source':
-            libName = 'cvode'
-        if libName == 'ctlibexecstream':
-            libName = 'execstream'
-        if libName == 'ctf2c_libs':
-            libName = 'ctf2c'
+        sharedLibName = libName
 
-        if localenv['renamed_shared_libraries']:
-            sharedLibName = libName + '_shared'
-        else:
-            sharedLibName = libName
+    if env['VERBOSE']:
+        print "INFO 2:", subdir, ' with ', extensions
+        print "        libName = ", libName, " sharedLibName = ", sharedLibName
 
-        if env['VERBOSE']:
-            print "INFO 2:", subdir, ' with ', extensions
-            print "        libName = ", libName, " sharedLibName = ", sharedLibName
+    objects = localenv.SharedObject(mglob(localenv, subdir, *extensions))
 
-        objects = localenv.SharedObject(mglob(localenv, subdir, *extensions))
+    # Build the static library
+    lib = build(localenv.StaticLibrary(pjoin('..', 'lib', libName), objects))
+    install('$inst_libdir', lib)
 
-        # Build the static library
-        lib = build(localenv.StaticLibrary(pjoin('..', 'lib', libName), objects))
-        install('$inst_libdir', lib)
-
-        # Build the shared library
-        liby = build(localenv.SharedLibrary(pjoin('..', 'lib', sharedLibName), objects))
-        install('$inst_libdir', liby)
+    # Build the shared library
+    liby = build(localenv.SharedLibrary(pjoin('..', 'lib', sharedLibName), objects))
+    install('$inst_libdir', liby)
 
 # Google Test: Used internally for Cantera unit tests. Optionally, the headers
 # and compiled library can be installed alongside Cantera using the scons

@@ -251,6 +251,8 @@ else:
 
 defaults.fsLayout = 'compact' if env['OS'] == 'Windows' else 'standard'
 defaults.env_vars = 'LD_LIBRARY_PATH,PYTHONPATH'
+#defaults.env_vars = 'PYTHONPATH' if 'PYTHONPATH' in os.environ else ''
+
 defaults.python_prefix = '$prefix' if env['OS'] != 'Windows' else ''
 
 # Transform lists into strings to keep cantera.conf clean
@@ -1293,6 +1295,8 @@ if addInstallActions:
 
 ### List of libraries needed to link to Cantera ###
 linkLibs = ['cantera']
+
+### List of shared libraries needed to link applications to Cantera
 linkSharedLibs = ['cantera_shared']
 
 
@@ -1302,31 +1306,34 @@ if env['use_sundials'] == 'y':
     linkSharedLibs.extend(('sundials_cvodes', 'sundials_ida', 'sundials_nvecserial'))
 else:
     env['sundials_libs'] = []
-    if not env['single_library']:
-        linkLibs.extend(['cvode'])
-        linkSharedLibs.extend(['cvode_shared'])
+    linkLibs.extend(['cvode'])
+    linkSharedLibs.extend(['cvode_shared'])
     #print 'linkLibs = ', linkLibs
 
-if not env['single_library']:
-    linkLibs.append('ctmath')
-    linkSharedLibs.append('ctmath_shared')
+linkLibs.append('ctmath')
+linkSharedLibs.append('ctmath_shared')
 
     # Add execstream to the link line
-    linkLibs.append('execstream')
-    linkSharedLibs.append('execstream_shared')
+linkLibs.append('execstream')
+linkSharedLibs.append('execstream_shared')
+
+#print 'linklibs' , linkLibs
+#print env.Dump()
+#exit (0)
 
 #  Add lapack and blas to the link line
+#        If there is a special blas and lapack add that in
 if env['blas_lapack_libs']:
     linkLibs.extend(env['blas_lapack_libs'])
     linkSharedLibs.extend(env['blas_lapack_libs'])
-elif not env['single_library']:
+else:
     linkLibs.extend(('ctlapack', 'ctblas'))
     linkSharedLibs.extend(('ctlapack_shared', 'ctblas_shared'))
 
 if not env['build_with_f2c']:
     linkLibs.extend(env['FORTRANSYSLIBS'])
     linkSharedLibs.append(env['FORTRANSYSLIBS'])
-elif not env['single_library']:
+else:
     # Add the f2c library when f2c is requested
     linkLibs.append('ctf2c')
     linkSharedLibs.append('ctf2c_shared')
@@ -1564,6 +1571,9 @@ if any(target.startswith('test') for target in COMMAND_LINE_TARGETS):
     SConscript('build/test/SConscript')
 
     # Regression tests
+    print 'we are here -> add test_problems'
+    print env.Dump()
+    # exit(0)
     SConscript('test_problems/SConscript')
 
     if 'test-help' in COMMAND_LINE_TARGETS:

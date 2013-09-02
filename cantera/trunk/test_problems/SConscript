@@ -5,7 +5,8 @@ localenv = env.Clone()
 localenv.Prepend(CPPPATH=['#include', '#src', 'shared'])
 localenv.Append(CCFLAGS=env['warning_flags'])
 
-os.environ['PYTHONPATH'] = pjoin(os.getcwd(), '..', 'interfaces', 'python')
+os.environ['PYTHONPATH'] = pjoin(os.getcwd(), '..', 'interfaces', 'python') +  ':/usr/netpub/numpy/numpy-1.6.2/lib/python2.7/site-packages'
+
 os.environ['CANTERA_DATA'] = pjoin(os.getcwd(), '..', 'build', 'data')
 
 PASSED_FILES = {}
