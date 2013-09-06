@@ -937,6 +937,8 @@ if env['python_package'] in ('full','default','new'):
 else:
     warnNoPython = False
     env['python_array_include'] = ''
+    env['python_module_loc'] = ''
+    env['install_python2_action'] = ''
 
 
 # Python 3 Package Settings
