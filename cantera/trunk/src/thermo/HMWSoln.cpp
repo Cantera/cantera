@@ -1008,12 +1008,10 @@ void HMWSoln::getPartialMolarCp(doublereal* cpbar) const
 
 void HMWSoln::setParameters(int n, doublereal* const c)
 {
-    warn_deprecated("HMWSoln::setParameters");
 }
 
 void HMWSoln::getParameters(int& n, doublereal* const c) const
 {
-    warn_deprecated("HMWSoln::getParameters");
 }
 
 void HMWSoln::setParametersFromXML(const XML_Node& eosdata)

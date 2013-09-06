@@ -303,14 +303,12 @@ XML_Node* MetalSHEelectrons::makeDefaultXMLTree()
 
 void MetalSHEelectrons::setParameters(int n, doublereal* const c)
 {
-    warn_deprecated("MetalSHEelectrons::setParameters");
     doublereal rho = c[0];
     setDensity(rho);
 }
 
 void MetalSHEelectrons::getParameters(int& n, doublereal* const c) const
 {
-    warn_deprecated("MetalSHEelectrons::getParameters");
     doublereal rho = density();
     n = 1;
     c[0] = rho;

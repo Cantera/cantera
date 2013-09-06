@@ -302,7 +302,6 @@ public:
      * @param minTemp   output - Minimum temperature
      * @param maxTemp   output - Maximum temperature
      * @param refPressure output - reference pressure (Pa).
-     * @deprecated
      */
     virtual void reportParams(size_t index, int& type,
                               doublereal* const c,

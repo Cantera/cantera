@@ -255,14 +255,12 @@ void StoichSubstanceSSTP::initThermoXML(XML_Node& phaseNode, const std::string& 
 
 void StoichSubstanceSSTP::setParameters(int n, doublereal* const c)
 {
-    warn_deprecated("StoichSubstanceSSTP::setParameters");
     doublereal rho = c[0];
     setDensity(rho);
 }
 
 void StoichSubstanceSSTP::getParameters(int& n, doublereal* const c) const
 {
-    warn_deprecated("StoichSubstanceSSTP::getParameters");
     doublereal rho = density();
     n = 1;
     c[0] = rho;
@@ -364,7 +362,6 @@ void electrodeElectron::initThermoXML(XML_Node& phaseNode, const std::string& id
 
 void electrodeElectron::setParameters(int n, doublereal* const c)
 {
-    warn_deprecated("electrodeElectron::setParameters");
     doublereal rho = 10.0;
     setDensity(rho);
 }

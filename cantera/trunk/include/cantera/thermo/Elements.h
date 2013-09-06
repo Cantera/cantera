@@ -110,8 +110,6 @@ class XML_Node;
  * in a particular instantiation of the class.
  *
  * @ingroup phases
- * @deprecated The functionality of this class was merged into class Phase in
- *     Cantera 2.0. This class will be removed in Cantera 2.2.
  */
 class Elements
 {

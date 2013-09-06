@@ -345,7 +345,6 @@ public:
      * @param n number of parameters. Must be one
      * @param c array of \a n coefficients
      *           c[0] = The site density (kmol m-2)
-     * @deprecated use setSiteDensity()
      */
     virtual void setParameters(int n, doublereal* const c);
 

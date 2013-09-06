@@ -280,7 +280,6 @@ public:
      * @param k species index. Defaults to 0.
      * @param sizeUA output int containing the size of the vector.
      *        Currently, this is equal to 6.
-     * @deprecated
      */
     virtual void getUnitsStandardConc(doublereal* uA, int k = 0,
                                       int sizeUA = 6) const;
@@ -397,7 +396,6 @@ public:
      * @param n number of parameters
      * @param c array of \a n coefficients
      *        c[0] = density of phase [ kg/m3 ]
-     * @deprecated Use setDensity()
      */
     virtual void setParameters(int n, doublereal* const c);
 
@@ -411,7 +409,6 @@ public:
      *  For this phase:
      *       -  n = 1
      *       -  c[0] = density of phase [ kg/m3 ]
-     * @deprecated use density()
      */
     virtual void getParameters(int& n, doublereal* const c) const;
 

@@ -609,7 +609,6 @@ void StatMech::reportParameters(size_t& n, int& type,
                                 doublereal& pref,
                                 doublereal* const coeffs) const
 {
-    warn_deprecated("StatMech::reportParameters");
     species* s;
 
     n = m_index;

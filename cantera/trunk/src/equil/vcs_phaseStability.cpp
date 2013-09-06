@@ -15,7 +15,22 @@ using namespace std;
 
 namespace VCSnonideal
 {
-
+//====================================================================================================================
+// Utility function that evaluates whether a phase can be popped into existence
+/*
+ * A phase can be popped iff the stoichiometric coefficients for the
+ * component species, whose concentrations will be lowered during the
+ * process, are positive by at least a small degree.
+ *  
+ * If one of the phase species is a zeroed component, then the phase can
+ * be popped if the component increases in mole number as the phase moles
+ * are increased.
+ * 
+ * @param iphasePop  id of the phase, which is currently zeroed,
+ *        
+ * @return Returns true if the phase can come into existence
+ *         and false otherwise.
+ */
 bool VCS_SOLVE::vcs_popPhasePossible(const size_t iphasePop) const
 {
     vcs_VolPhase* Vphase = m_VolPhaseList[iphasePop];
@@ -31,7 +46,8 @@ bool VCS_SOLVE::vcs_popPhasePossible(const size_t iphasePop) const
     /*
      * Loop through all of the species in the phase. We say the phase
      * can be popped, if there is one species in the phase that can be
-     * popped.
+     * popped. This does not mean that the phase will be popped or that it 
+     * leads to a lower Gibbs free energy.
      */
     for (size_t k = 0; k < Vphase->nSpecies(); k++) {
         size_t kspec = Vphase->spGlobalIndexVCS(k);
@@ -45,13 +61,18 @@ bool VCS_SOLVE::vcs_popPhasePossible(const size_t iphasePop) const
         size_t irxn = kspec - m_numComponents;
         if (kspec >= m_numComponents) {
             bool iPopPossible = true;
+	    /*
+	     *  Note one case is if the component is a member of the popping phase.
+	     *  This component will be zeroed and the logic here will negate the current
+	     *  species from causing a positive if this component is consumed. 
+	     */
             for (size_t j = 0; j < m_numComponents; ++j) {
                 if (m_elType[j] == VCS_ELEM_TYPE_ABSPOS) {
                     double stoicC = m_stoichCoeffRxnMatrix[irxn][j];
                     if (stoicC != 0.0) {
-                        double negChangeComp = - stoicC * 1.0;
+                        double negChangeComp = - stoicC;
                         if (negChangeComp > 0.0) {
-                            // TODO: We may have to come up with a tolerance here
+                            // If there is no component to give, then the species can't be created
                             if (m_molNumSpecies_old[j] <= VCS_DELETE_ELEMENTABS_CUTOFF*0.5) {
                                 iPopPossible = false;
                             }
@@ -59,12 +80,13 @@ bool VCS_SOLVE::vcs_popPhasePossible(const size_t iphasePop) const
                     }
                 }
             }
+            // We are here when the species can be popped because all its needed components have positive mole numbers
             if (iPopPossible) {
                 return true;
             }
         } else {
             /*
-             * We are here when the species in the phase is a component. Its mole number is zero.
+             * We are here when the species, k, in the phase is a component. Its mole number is zero.
              * We loop through the regular reaction looking for a reaction that can pop the
              * component.
              */
@@ -74,6 +96,7 @@ bool VCS_SOLVE::vcs_popPhasePossible(const size_t iphasePop) const
                 // First, if the component is a product of the reaction
                 if (m_stoichCoeffRxnMatrix[jrxn][kspec] > 0.0) {
                     foundJrxn = true;
+                    // We can do the reaction if all other reactant components have positive mole fractions
                     for (size_t kcomp = 0; kcomp < m_numComponents; kcomp++) {
                         if (m_stoichCoeffRxnMatrix[jrxn][kcomp] < 0.0) {
                             if (m_molNumSpecies_old[kcomp] <= VCS_DELETE_ELEMENTABS_CUTOFF*0.5) {
@@ -94,6 +117,7 @@ bool VCS_SOLVE::vcs_popPhasePossible(const size_t iphasePop) const
                         foundJrxn = false;
                         continue;
                     }
+                   // We can do the backwards reaction if all of the product components species are positive
                     for (size_t kcomp = 0; kcomp < m_numComponents; kcomp++) {
                         if (m_stoichCoeffRxnMatrix[jrxn][kcomp] > 0.0) {
                             if (m_molNumSpecies_old[kcomp] <= VCS_DELETE_ELEMENTABS_CUTOFF*0.5) {
@@ -111,7 +135,7 @@ bool VCS_SOLVE::vcs_popPhasePossible(const size_t iphasePop) const
     }
     return false;
 }
-
+//=====================================================================================================
 int  VCS_SOLVE::vcs_phasePopDeterminePossibleList()
 {
     int nfound = 0;
@@ -126,7 +150,7 @@ int  VCS_SOLVE::vcs_phasePopDeterminePossibleList()
      *  For zeroed components it lists the phases, which are currently zeroed,
      *     which have a species with a positive stoichiometric value wrt the component.
      *     Therefore, we could pop the component species and pop that phase at the same time
-     *     if we considered no other factors than keeping the component mole number positve.
+     *     if we considered no other factors than keeping the component mole number positive.
      *
      *     It does not count species with positive stoichiometric values if that species
      *     already has a positive mole number. The phase is already popped.
@@ -238,7 +262,7 @@ int  VCS_SOLVE::vcs_phasePopDeterminePossibleList()
 
     return nfound;
 }
-
+//========================================================================================================
 size_t VCS_SOLVE::vcs_popPhaseID(std::vector<size_t> & phasePopPhaseIDs)
 {
     size_t iphasePop = npos;
@@ -565,7 +589,7 @@ int VCS_SOLVE::vcs_popPhaseRxnStepSizes(const size_t iphasePop)
 
     return 0;
 }
-
+ //====================================================================================================================
 double VCS_SOLVE::vcs_phaseStabilityTest(const size_t iph)
 {
     /*
@@ -897,5 +921,5 @@ double VCS_SOLVE::vcs_phaseStabilityTest(const size_t iph)
 #endif
     return funcPhaseStability;
 }
-
+//====================================================================================================================
 }

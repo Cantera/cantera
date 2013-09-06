@@ -159,7 +159,6 @@ void  STITbyPDSS::reportParameters(size_t& index, int& type,
                                    doublereal& refPressure,
                                    doublereal* const coeffs) const
 {
-    warn_deprecated("STITbyPDSS::reportParameters");
     index = m_index;
     type = PDSS_TYPE;
     minTemp = m_vpssmgr_ptr->minTemp(m_index);

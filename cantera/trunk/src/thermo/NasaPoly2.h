@@ -151,12 +151,10 @@ public:
         }
     }
 
-    //! @deprecated
     void reportParameters(size_t& n, int& type,
                           doublereal& tlow, doublereal& thigh,
                           doublereal& pref,
                           doublereal* const coeffs) const {
-        warn_deprecated("NasaPoly2::reportParameters");
         n = m_index;
         type = NASA2;
         tlow = m_lowT;
