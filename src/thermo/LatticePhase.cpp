@@ -402,14 +402,12 @@ void LatticePhase::_updateThermo() const
 
 void LatticePhase::setParameters(int n, doublereal* const c)
 {
-    warn_deprecated("LatticePhase::setParameters");
     m_site_density = c[0];
     setMolarDensity(m_site_density);
 }
 
 void LatticePhase::getParameters(int& n, doublereal* const c) const
 {
-    warn_deprecated("LatticePhase::getParameters");
     double d = molarDensity();
     c[0] = d;
     n = 1;

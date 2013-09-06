@@ -65,7 +65,6 @@ public:
      *
      * @param testProb Hard -coded test problem to instantiate.
      *                 Current valid values are 1.
-     * @deprecated To be refactored into a standalone test
      */
     RedlichKwongMFTP(int testProb);
 
@@ -305,7 +304,6 @@ public:
      * @param k species index. Defaults to 0.
      * @param sizeUA output int containing the size of the vector.
      *        Currently, this is equal to 6.
-     * @deprecated
      */
     virtual void getUnitsStandardConc(double* uA, int k = 0, int sizeUA = 6) const;
 

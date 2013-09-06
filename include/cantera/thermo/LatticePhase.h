@@ -853,7 +853,6 @@ public:
      * @param n number of parameters. Must be one
      * @param c array of \a n coefficients
      *           c[0] = The bulk  lattice density (kmol m-3)
-     * @deprecated Use setMolarDensity()
      */
     virtual void setParameters(int n, doublereal* const c);
 
@@ -867,7 +866,6 @@ public:
      *  For this phase:
      *       -  n = 1
      *       -  c[0] = molar density of phase [ kmol/m^3 ]
-     * @deprecated Use molarDensity()
      */
     virtual void getParameters(int& n, doublereal* const c) const;
 

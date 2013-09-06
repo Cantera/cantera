@@ -30,8 +30,6 @@ AqueousKinetics::AqueousKinetics(thermo_t* thermo) :
     m_temp(0.0),
     m_finalized(false)
 {
-    warn_deprecated("AqueousKinetics",
-                    "Unfinished implementation of this class will be removed.");
     if (thermo != 0) {
         addPhase(*thermo);
     }

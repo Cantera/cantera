@@ -29,7 +29,7 @@ CANTERA_INSTALL_ROOT=@ct_installroot@
 
 CANTERA_CORE_INCLUDES=-I$(CANTERA_INSTALL_ROOT)/include
 
-CANTERA_EXTRA_INCLUDES=@mak_extra_includes@
+CANTERA_EXTRA_INCLUDES=@mak_extra_includes@ 
 
 # Required Cantera libraries
 CANTERA_CORE_LIBS=@mak_threadflags@ -L$(CANTERA_INSTALL_ROOT)/lib @mak_corelibs@
@@ -67,9 +67,11 @@ CANTERA_SUNDIALS_LIBS=@mak_sundials_libdir@ @mak_sundials_libs@
 CANTERA_have_blas_lapack_dir=@mak_have_blas_lapack_dir@
 
 ifeq ($(CANTERA_have_blas_lapack_dir), 1)
-CANTERA_BLAS_LAPACK_LIBS=-L@blas_lapack_dir@ @mak_blas_lapack_libs@
+CANTERA_BLAS_LAPACK_LIBS=@blas_lapack_dir@ @mak_blas_lapack_libs@
+CANTERA_BLAS_LAPACK_LIBS_DEP=  @mak_blas_lapack_libs_dep@
 else
 CANTERA_BLAS_LAPACK_LIBS=@mak_blas_lapack_libs@
+CANTERA_BLAS_LAPACK_LIBS_DEP=$(CANTERA_INSTALL_DIR)/lib/libctlapack.a $(CANTERA_INSTALL_DIR)/lib/libctblas.a
 endif
 
 ###############################################################################

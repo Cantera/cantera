@@ -102,7 +102,6 @@ void Mu0Poly::reportParameters(size_t& n, int& type,
                                doublereal& pref,
                                doublereal* const coeffs) const
 {
-    warn_deprecated("Mu0Poly::reportParameters");
     n = m_index;
     type = MU0_INTERP;
     tlow = m_lowT;

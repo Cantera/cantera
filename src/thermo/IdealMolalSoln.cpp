@@ -673,12 +673,10 @@ void IdealMolalSoln::initThermoXML(XML_Node& phaseNode, const std::string& id_)
 
 void IdealMolalSoln::setParameters(int n, doublereal* const c)
 {
-    warn_deprecated("IdealMolalSoln::setParameters");
 }
 
 void IdealMolalSoln::getParameters(int& n, doublereal* const c) const
 {
-    warn_deprecated("IdealMolalSoln::getParameters");
 }
 
 void IdealMolalSoln::setParametersFromXML(const XML_Node& eosdata)

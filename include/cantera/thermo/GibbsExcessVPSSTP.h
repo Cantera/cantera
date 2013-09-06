@@ -261,7 +261,6 @@ public:
      * @param k species index. Defaults to 0.
      * @param sizeUA output int containing the size of the vector.
      *        Currently, this is equal to 6.
-     * @deprecated
      */
     virtual void getUnitsStandardConc(double* uA, int k = 0,
                                       int sizeUA = 6) const;
@@ -487,7 +486,6 @@ protected:
     //! utility routine to check mole fraction sum
     /*!
      * @param x   vector of mole fractions.
-     * @deprecated
      */
     double checkMFSum(const doublereal* const x) const;
 
@@ -518,12 +516,12 @@ protected:
 
     //! Storage for the current derivative values of the
     //! gradients with respect to logarithm of the mole fraction of the
-    //! log of the activity coefficients of the species  @deprecated
+    //! log of the activity coefficients of the species  
     mutable std::vector<doublereal> dlnActCoeffdlnN_diag_;
 
     //! Storage for the current derivative values of the
     //! gradients with respect to logarithm of the mole fraction of the
-    //! log of the activity coefficients of the species  @deprecated
+    //! log of the activity coefficients of the species 
     mutable std::vector<doublereal> dlnActCoeffdlnX_diag_;
 
     //! Storage for the current derivative values of the  gradients with respect to logarithm of the species mole number of the

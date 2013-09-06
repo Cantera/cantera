@@ -170,7 +170,6 @@ void Nasa9PolyMultiTempRegion::reportParameters(size_t& n, int& type,
         doublereal& pref,
         doublereal* const coeffs) const
 {
-    warn_deprecated("Nasa9PolyMultiTempRegion::reportParameters");
     n = m_index;
     type = NASA9MULTITEMP;
     tlow = m_lowT;
@@ -196,7 +195,6 @@ void Nasa9PolyMultiTempRegion::reportParameters(size_t& n, int& type,
 
 void Nasa9PolyMultiTempRegion::modifyParameters(doublereal* coeffs)
 {
-    warn_deprecated("Nasa9PolyMultiTempRegion::modifyParameters");
     int index = 3;
     for (size_t iReg = 0; iReg < m_numTempRegions; iReg++) {
         m_regionPts[iReg]->modifyParameters(coeffs + index);

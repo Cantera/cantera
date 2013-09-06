@@ -253,7 +253,6 @@ public:
      * @param refPressure output - reference pressure (Pa).
      * @param coeffs    Vector of coefficients used to set the
      *                  parameters for the standard state.
-     * @deprecated
      */
     virtual void reportParameters(size_t& index, int& type,
                                   doublereal& minTemp, doublereal& maxTemp,
@@ -264,7 +263,6 @@ public:
     /*!
      * @param coeffs   Vector of coefficients used to set the
      *                 parameters for the standard state.
-     * @deprecated
      */
     virtual void modifyParameters(doublereal* coeffs) {}
 

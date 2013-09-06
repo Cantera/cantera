@@ -20,6 +20,7 @@ import SCons.Errors
 # Do the substitution
 def _subst_file(target, source, env, pattern, replace):
     # Read file
+    #print 'CALLING SUBST_FILE'
     f = open(source, "rU")
     try:
         contents = f.read()
@@ -32,7 +33,7 @@ def _subst_file(target, source, env, pattern, replace):
         if not SCons.Util.is_String(value):
             raise SCons.Errors.UserError("Substitution must be a string.")
         return value
-
+    #print 'pattern  = ' , pattern
     contents = re.sub(pattern, subfn, contents)
 
     # Write file
@@ -59,6 +60,7 @@ def _subst_keys(source, pattern):
             keys.append(key)
         return ''
 
+    
     re.sub(pattern, subfn, contents)
 
     return keys
@@ -73,7 +75,17 @@ def _subst_value(env, key):
 
     # env.subst already returns a string even if it is stored as a number
     # such as env['HAVE_XYZ'] = 1
-    return env.subst("${%s}" % key)
+    #print 'key = ', key
+    #print '  straight env = ', env[key]
+    #print '  str of the thing = ', str(env[key])
+    #print '  subst(${}) of the thing = ', env.subst("${%s}" % key) 
+    #print '  %s of the thing = ', "%s" % str(env[key])
+    aa = env[key]
+    if aa == []:
+       aa = ''
+    return aa
+    #return str(env[key])
+    #return env.subst("${%s}" % key)
 
 
 # Builder related functions
@@ -84,6 +96,7 @@ def _subst_action(target, source, env):
     # Substitute in the files
     pattern = env["SUBST_PATTERN"]
     replace = env["SUBST_REPLACE"]
+    #print 'SUBSTITUTE: ', pattern, ' for ', replace
 
     for (t, s) in zip(target, source):
         _subst_file(str(t), str(s), env, pattern, replace)
@@ -113,6 +126,7 @@ def _subst_emitter(target, source, env):
         d = dict()
         for key in keys:
             value = _subst_value(env, key)
+            # print 'key = ', key, ' -> value = ', value
             if not value is None:
                 d[key] = value
 

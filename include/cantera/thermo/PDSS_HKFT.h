@@ -109,7 +109,6 @@ public:
      *  Note this is just an extra routine to check the arithmetic
      *
      * @return returns the species standard state enthalpy in  J kmol-1
-     * @deprecated
      */
     doublereal enthalpy_mole2() const;
 #endif
@@ -229,7 +228,6 @@ public:
      * @param minTemp   output - Minimum temperature
      * @param maxTemp   output - Maximum temperature
      * @param refPressure output - reference pressure (Pa).
-     * @deprecated
      */
     virtual void reportParams(size_t& kindex, int& type, doublereal* const c,
                               doublereal& minTemp, doublereal& maxTemp,
@@ -258,7 +256,6 @@ private:
     //! between the reference state at Tr, Pr and T,P
     /*!
      *  This is an extra routine that was added to check the arithmetic
-     *  @deprecated
      */
     doublereal deltaH() const;
 #endif

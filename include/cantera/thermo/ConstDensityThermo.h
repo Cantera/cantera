@@ -289,10 +289,8 @@ public:
      *
      * @param n number of parameters
      * @param c array of \a n coefficients
-     * @deprecated Use setDensity()
      */
     virtual void setParameters(int n, doublereal* const c) {
-        warn_deprecated("ConstDensityThermo::setParamters");
         setDensity(c[0]);
     }
 
@@ -303,10 +301,8 @@ public:
      *
      * @param n number of parameters
      * @param c array of \a n coefficients
-     * @deprecated Use density()
      */
     virtual void getParameters(int& n, doublereal* const c) const {
-        warn_deprecated("ConstDensityThermo::getParameters");
         double d = density();
         c[0] = d;
         n = 1;

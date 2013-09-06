@@ -234,14 +234,12 @@ void MineralEQ3::initThermo()
 
 void MineralEQ3::setParameters(int n, doublereal* const c)
 {
-    warn_deprecated("MineralEQ3::setParameters");
     doublereal rho = c[0];
     setDensity(rho);
 }
 
 void MineralEQ3::getParameters(int& n, doublereal* const c) const
 {
-    warn_deprecated("MineralEQ3::getParameters");
     doublereal rho = density();
     n = 1;
     c[0] = rho;

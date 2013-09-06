@@ -1167,7 +1167,6 @@ void PDSS_HKFT::reportParams(size_t& kindex, int& type,
                              doublereal& maxTemp_,
                              doublereal& refPressure_) const
 {
-    warn_deprecated("PDSS_HKFT::reportParams");
     // Fill in the first part
     PDSS::reportParams(kindex, type, c, minTemp_, maxTemp_,
                        refPressure_);
