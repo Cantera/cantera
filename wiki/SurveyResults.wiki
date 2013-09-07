@@ -1,0 +1,47 @@
+#summary Results of Cantera Users Survey
+
+This is a summary of the results of the survey of Cantera users that was conducted June/July 2013. Number of respondents = 35.
+
+= Use of Existing Cantera Capabilities =
+
+https://cantera.googlecode.com/svn/wiki/survey-results/language-interfaces.png
+
+https://cantera.googlecode.com/svn/wiki/survey-results/major-features.png
+
+https://cantera.googlecode.com/svn/wiki/survey-results/thermo-models.png
+
+https://cantera.googlecode.com/svn/wiki/survey-results/equilibrium-solvers.png
+
+https://cantera.googlecode.com/svn/wiki/survey-results/transport-models.png
+
+https://cantera.googlecode.com/svn/wiki/survey-results/reactor-features.png
+
+https://cantera.googlecode.com/svn/wiki/survey-results/onedim-features.png
+
+= Compilation & Installation =
+
+https://cantera.googlecode.com/svn/wiki/survey-results/operating-system.png
+
+https://cantera.googlecode.com/svn/wiki/survey-results/install-method.png
+
+https://cantera.googlecode.com/svn/wiki/survey-results/compilers.png
+
+https://cantera.googlecode.com/svn/wiki/survey-results/python-version.png
+
+https://cantera.googlecode.com/svn/wiki/survey-results/libraries-available.png
+
+https://cantera.googlecode.com/svn/wiki/survey-results/python-packages-available.png
+
+= Future Directions for Cantera = 
+
+https://cantera.googlecode.com/svn/wiki/survey-results/dependencies.png
+
+https://cantera.googlecode.com/svn/wiki/survey-results/new-features.png
+
+https://cantera.googlecode.com/svn/wiki/survey-results/development-focus.png
+
+= Other = 
+
+https://cantera.googlecode.com/svn/wiki/survey-results/usage-environment.png
+
+https://cantera.googlecode.com/svn/wiki/survey-results/help-resources.png
