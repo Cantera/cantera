@@ -45,3 +45,109 @@ https://cantera.googlecode.com/svn/wiki/survey-results/development-focus.png
 https://cantera.googlecode.com/svn/wiki/survey-results/usage-environment.png
 
 https://cantera.googlecode.com/svn/wiki/survey-results/help-resources.png
+
+== Suggested Development Priorities ==
+
+(lightly edited for clarity)
+
+  * Better documentation, so that users know which advanced features, thermodynamic models, etc., are available to them. Something similar to a 'reboot' of the definingphases.pdf tutorial with a broader scope, would be very useful.
+  * Documentation & Tutorials are the most important points.
+  * more documentation
+  * Need a step-by step to get started with.  It would have saved me a tremendous amount of fiddling around.
+  * The documentation should include information and examples of new thermodynamic models like RedlichKwong etc.
+  * Need more sample/demo/tutorial codes and scripts. Most of the various features are not well-known even to a seasoned user.
+  * In general I have the feeling that C++ could have more attention from the documentation, as it has really powerfull capabilities of expanding the project by the community.
+  * Non-Ideal Phases (in Python)
+  * It would be great if the interfaces could be modularized enough that there could either be a self-contained Python interface installable by pip, or a pip-installable Python interface that depends on having base Cantera installed on a user's machine. Right now, sandboxing a Python installation is a little difficult, which makes contributing to development more difficult. To hack on Cantera, I want to be able to switch easily between development Cantera and stable Cantera; if I can do that via a pip install (with appropriate flags to locate the right version of Cantera) to a virtualenv, that would be awesome.
+  * For me the most important is to get my students using Cantera and so anything which will improve the accessibility of the Python interface (a few of my students have used the MATLAB interface but many have given up). So for me (egoistic) the improvement of the the Python (MATLAB?) and Fortran(lowest priority) interfaces should be put on graded highest; followed by the 
+  * Better management of the Matlab toolbox, since many academic users access Cantera through this interface.
+  * I have always struggled getting a functional matlab build. The build system has been a constant source of frustration with Cantera over the years.  
+  * The basic problem for me using the cantera with matlab interface. Many functions are not available in matlab. For example: I need to model supercritical fluids but cantera/matlab interface is missing.
+  * 1D-transient systems (Python)
+  * Multiphase Vapor Liquid Equilibrium capabilities would be very interesting.
+  * Mechanism reduction
+  * Some sort of parallelization for single reactors.
+  * Either a tutorial to figure out how to use a parallel CVODEs solver or GPU acceleration would be incredibly valuable.
+  * Possibilities to influence/set the space dependent energy source terms (inc. radiation)
+  * I would LOVE a C# interface
+  * GPU development is a significant need in the future, but would require very serious thought to get it done well.
+  * perfectly stirred reactors
+  * Having proper models for plasma or weakly ionized species, allowing external electric field.
+  * soot
+  * An ideal plug flow reactor model should be included in Future releases.
+  * Examples on flame 'extinction' and 'extinction time' calculations could add more value.
+  * FreeFlame 1D solver is very poor. Can't handle large mechanisms such as 2000 reactions and 100 species. It needs to be robust.
+  * Ideal steady state flow reactors such 'perfectly mixed flow reactor' and 'Plug flow reactor' should be included as objects in Cantera.
+  * I would like to use it with real mixtures towards Organic Rankine Cycles with mixtures
+  * Robustness of the solver
+  * Improving installation process, preventing it from being a moving target
+  * 1D solver (flame) robustnness. 
+  * Allow more modularity with the C++ code. Especially by removing function defintions from header files to allow library development by users.
+  * FreeFlame solver is very poor and needs to be robust
+
+== Application areas ==
+
+  * Process simulation
+  * calculation of heat exchanger
+  * fluid properties
+  * equilibrate (combustion, reaction)
+  * As a thermo-kinetic library for house-coded models of electrochemical and thermo-fluid systems
+  * fuel cells
+  * batteries
+  * fuel reforming
+  * Biomass and coal gasification
+  * IC engines
+  * flames
+  * Chemical Kinetics
+  * Reduction of oxidation mechanisms
+  * numerical analisys of single and two-phase flows thermodynamic cycles
+  * internal combustion engines
+  * Flame calculations
+  * Reflected Shock tubes
+  * Supersonic and Hypersonic flow
+  * Counterflow flame computations
+  * gas turbine combustion
+  * Combustion in liquid rocket engines
+  * Generally obtaining properties of mixtures
+  * Catalytic combustion
+  * flame speed
+  * partially premixed opposed flows
+  * reactor networks
+  * premixed combustion (natural gas, H2)
+  * Reduced chemical mechanisms and automated mechanism reduction using DRGEP
+  * Development of numerical methods for reduced-order modeling
+  * premixed combustion
+  * stagnation point flow
+  * combustion in reactors or piston-engine
+  * Chemical Vapor Deposition
+  * gas turbine combustion
+  * Gas kinetics
+  * thermodynamic cycles
+  * ion and plasma kinetics
+  * spherically expanding flames
+  * stagnation flames
+  * turbine combustors
+  * catalytic oxidation
+  * autoignition
+  * equilibrium
+  * PSR
+  * flame simulation
+  * utility boilers
+  * diesel engine combustion chambers
+  * PEM/SOFC fuel cells
+  * CFD of turbulent combustion
+  * Thermal plasmas
+  * Gas mixtures
+  * modeling catalytic chemistry
+  * supercritical liquids
+  * internal combustion engines
+  * DNS simulations of reactive flows
+  * combustion and flame
+  * gas turbine
+  * furnace
+  * combustor development
+  * Fuel Cells
+  * gas turbine engines
+  * Large eddy simulations
+  * thermochemical biomass conversion
+  * Gas turbine combustion
