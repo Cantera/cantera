@@ -165,6 +165,7 @@ void ck2cti(const std::string& in_file, const std::string& thermo_file,
             pyin << " transportFile=r'" << transport_file << "',";
         }
         pyin << " phaseName='" << id_tag << "',";
+	pyin << " permissive=True,";
         pyin << " quiet=True)\n";
         pyin << "    sys.exit(0)\n\n";
         pyin << "sys.exit(7)\n";
