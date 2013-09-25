@@ -2,8 +2,6 @@ cdef enum Thermasis:
     mass_basis = 0
     molar_basis = 1
 
-ctypedef void (*thermoMethod1d)(CxxThermoPhase*, double*) except +
-
 cdef class ThermoPhase(_SolutionBase):
     """
     A phase with an equation of state.
@@ -814,7 +812,6 @@ cdef class ThermoPhase(_SolutionBase):
 
 cdef class InterfacePhase(ThermoPhase):
     """ A class representing a surface or edge phase"""
-    cdef CxxSurfPhase* surf
     def __cinit__(self, *args, **kwargs):
         if self.thermo.eosType() not in (thermo_type_surf, thermo_type_edge):
             raise TypeError('Underlying ThermoPhase object is of the wrong type.')
