@@ -8,7 +8,6 @@ except ImportError:
     from scipy.special import erf
 
 cdef class Domain1D:
-    cdef CxxDomain1D* domain
     def __cinit__(self, *args, **kwargs):
         self.domain = NULL
 
@@ -169,9 +168,6 @@ cdef class Boundary1D(Domain1D):
     :param phase:
         The (gas) phase corresponding to the adjacent flow domain
     """
-    cdef CxxBdry1D* boundary
-    cdef _SolutionBase phase
-
     def __cinit__(self, *args, **kwargs):
         self.boundary = NULL
 
@@ -238,7 +234,6 @@ cdef class Inlet1D(Boundary1D):
     domain - it must be either the leftmost or rightmost domain in a
     stack.
     """
-    cdef CxxInlet1D* inlet
     def __cinit__(self, *args, **kwargs):
         self.inlet = new CxxInlet1D()
         self.boundary = <CxxBdry1D*>(self.inlet)
@@ -258,7 +253,6 @@ cdef class Outlet1D(Boundary1D):
     A one-dimensional outlet. An outlet imposes a zero-gradient boundary
     condition on the flow.
     """
-    cdef CxxOutlet1D* outlet
     def __cinit__(self, *args, **kwargs):
         self.outlet = new CxxOutlet1D()
         self.boundary = <CxxBdry1D*>(self.outlet)
@@ -271,7 +265,6 @@ cdef class OutletReservoir1D(Boundary1D):
     """
     A one-dimensional outlet into a reservoir.
     """
-    cdef CxxOutletRes1D* outlet
     def __cinit__(self, *args, **kwargs):
         self.outlet = new CxxOutletRes1D()
         self.boundary = <CxxBdry1D*>(self.outlet)
@@ -282,7 +275,6 @@ cdef class OutletReservoir1D(Boundary1D):
 
 cdef class SymmetryPlane1D(Boundary1D):
     """A symmetry plane."""
-    cdef CxxSymm1D* symm
     def __cinit__(self, *args, **kwargs):
         self.symm = new CxxSymm1D()
         self.boundary = <CxxBdry1D*>(self.symm)
@@ -293,7 +285,6 @@ cdef class SymmetryPlane1D(Boundary1D):
 
 cdef class Surface1D(Boundary1D):
     """A solid surface."""
-    cdef CxxSurf1D* surf
     def __cinit__(self, *args, **kwargs):
         self.surf = new CxxSurf1D()
         self.boundary = <CxxBdry1D*>(self.surf)
@@ -304,7 +295,6 @@ cdef class Surface1D(Boundary1D):
 
 cdef class ReactingSurface1D(Boundary1D):
     """A reacting solid surface."""
-    cdef CxxReactingSurf1D* surf
     def __cinit__(self, *args, **kwargs):
         self.surf = new CxxReactingSurf1D()
         self.boundary = <CxxBdry1D*>(self.surf)
@@ -328,8 +318,6 @@ cdef class ReactingSurface1D(Boundary1D):
 
 cdef class _FlowBase(Domain1D):
     """ Base class for 1D flow domains """
-    cdef CxxStFlow* flow
-    cdef _SolutionBase gas
     def __cinit__(self, *args, **kwargs):
         self.flow = NULL
 
@@ -451,11 +439,6 @@ cdef class Sim1D:
 
     Domains are ordered left-to-right, with domain number 0 at the left.
     """
-    cdef CxxSim1D* sim
-    cdef readonly object domains
-    cdef object _initialized
-    cdef Func1 interrupt
-
     def __cinit__(self, *args, **kwargs):
         self.sim = NULL
 

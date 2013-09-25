@@ -27,10 +27,6 @@ cdef class Mixture:
     Each one stores its own state information locally, and synchronizes the
     phases objects whenever it requires phase properties.
     """
-
-    cdef CxxMultiPhase* mix
-    cdef list _phases
-
     def __cinit__(self, phases):
         self.mix = new CxxMultiPhase()
         self._phases = []

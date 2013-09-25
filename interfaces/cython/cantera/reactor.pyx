@@ -712,9 +712,6 @@ cdef class ReactorNet:
     >>> reactor_network = ReactorNet([r1, r2])
     >>> reactor_network.advance(time)
     """
-    cdef CxxReactorNet net
-    cdef list _reactors
-
     def __init__(self, reactors=()):
         self._reactors = []  # prevents premature garbage collection
         for R in reactors:

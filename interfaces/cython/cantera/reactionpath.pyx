@@ -1,11 +1,4 @@
 cdef class ReactionPathDiagram:
-    cdef CxxReactionPathDiagram diagram
-    cdef CxxReactionPathBuilder builder
-    cdef Kinetics kinetics
-    cdef str element
-    cdef pybool built
-    cdef CxxStringStream _log
-
     def __init__(self, Kinetics kin, str element):
         """
         Create a reaction path diagram for the fluxes of the element *element*
