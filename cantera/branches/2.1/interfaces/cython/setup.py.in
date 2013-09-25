@@ -62,4 +62,4 @@ setup(name="Cantera",
       package_data = {'cantera.data': ['*.*'],
                       'cantera.test.data': ['*.*'],
                       'cantera.examples': ['*/*.*'],
-                      'cantera': ['*.pxd']})
+                      'cantera': ['*.pxd', '*.h']})
