@@ -29,7 +29,7 @@ cdef extern from "cantera/thermo/mix_defs.h":
     cdef int kinetics_type_edge "Cantera::cEdgeKinetics"
 
 
-cdef extern from "funcWrapper.h":
+cdef extern from "cantera/cython/funcWrapper.h":
     ctypedef double (*callback_wrapper)(double, void*, void**)
     cdef int translate_exception()
 
@@ -498,7 +498,7 @@ cdef extern from "cantera/kinetics/ReactionPath.h":
         void build(CxxKinetics&, string&, CxxStringStream&, CxxReactionPathDiagram&, cbool)
 
 
-cdef extern from "wrappers.h":
+cdef extern from "cantera/cython/wrappers.h":
     # config definitions
     cdef string get_cantera_version()
     cdef int get_sundials_version()
