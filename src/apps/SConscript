@@ -7,7 +7,7 @@ localenv.Prepend(CPPPATH=['#src', '#include', '#src/apps'])
 def buildProgram(name, src):
     prog = build(localenv.Program(target=pjoin('#build/bin', name),
                                   source=src,
-                                  LIBS=env['cantera_libs']))
+                                  LIBS=env['cantera_libs']+env['boost_libs']))
     install('$inst_bindir', prog)
 
 buildProgram('cti2ctml', ['cti2ctml.cpp'])
