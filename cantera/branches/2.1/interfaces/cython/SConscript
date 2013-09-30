@@ -106,7 +106,7 @@ def install_module(prefix, python_version):
 
 
 libDirs = ('../../build/lib', localenv['sundials_libdir'],
-           localenv['boost_lib_dir'])
+           localenv['blas_lapack_dir'], localenv['boost_lib_dir'])
 localenv['py_cantera_libs'] = repr(localenv['cantera_libs'])
 localenv['py_libdirs'] = repr([x for x in libDirs if x])
 
