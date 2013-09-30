@@ -1,6 +1,3 @@
-ctypedef void (*transportMethod1d)(CxxTransport*, double*) except +
-ctypedef void (*transportMethod2d)(CxxTransport*, size_t, double*) except +
-
 # NOTE: These cdef functions cannot be members of Transport because they would
 # cause "layout conflicts" when creating derived classes with multiple bases,
 # e.g. class Solution. [Cython 0.16]
