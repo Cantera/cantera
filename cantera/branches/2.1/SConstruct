@@ -1327,7 +1327,6 @@ if addInstallActions:
 linkLibs = ['cantera']
 linkSharedLibs = ['cantera_shared']
 
-
 if env['use_sundials'] == 'y':
     env['sundials_libs'] = ['sundials_cvodes', 'sundials_ida', 'sundials_nvecserial']
     linkLibs.extend(('sundials_cvodes', 'sundials_ida', 'sundials_nvecserial'))
@@ -1362,6 +1361,9 @@ elif not env['single_library']:
     # Add the f2c library when f2c is requested
     linkLibs.append('ctf2c')
     linkSharedLibs.append('ctf2c_shared')
+
+linkLibs.extend(env['boost_libs'])
+linkSharedLibs.extend(env['boost_libs'])
 
 # Store the list of needed static link libraries in the environment
 env['cantera_libs'] = linkLibs
