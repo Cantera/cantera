@@ -797,9 +797,6 @@ next:
     }
 #endif
 
-
-    // compute grad f = F*J
-    jac.leftMult(DATA_PTR(res_trial), DATA_PTR(grad));
     copy(x.begin(), x.end(), oldx.begin());
     oldf = f;
     scale(res_trial.begin(), res_trial.end(), res_trial.begin(), -1.0);
