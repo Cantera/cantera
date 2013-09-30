@@ -1757,11 +1757,21 @@ duplicate transport data) to be ignored.
         if permissive is not None:
             self.warning_as_error = not permissive
 
-        # Read input mechanism files
-        self.loadChemkinFile(inputFile)
+        try:
+            # Read input mechanism files
+            self.loadChemkinFile(inputFile)
+        except Exception:
+            print("\nERROR: Unable to parse '{0}' near line {1}:\n".format(
+                    inputFile, self.line_number))
+            raise
 
         if thermoFile:
-            self.loadChemkinFile(thermoFile)
+            try:
+                self.loadChemkinFile(thermoFile)
+            except Exception:
+                print("\nERROR: Unable to parse '{0}' near line {1}:\n".format(
+                        thermoFile, self.line_number))
+                raise
 
         if transportFile:
             lines = open(transportFile, 'rU').readlines()
