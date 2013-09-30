@@ -380,10 +380,10 @@ void IdealGasPhase::setToEquilState(const doublereal* mu_RT)
         tmp = -grt[k] + mu_RT[k];
         if (tmp < -600.) {
             m_pp[k] = 0.0;
-        } else if (tmp > 500.0) {
-            tmp2 = tmp / 500.;
+        } else if (tmp > 300.0) {
+            tmp2 = tmp / 300.;
             tmp2 *= tmp2;
-            m_pp[k] = m_p0 * exp(500.) * tmp2;
+            m_pp[k] = m_p0 * exp(300.) * tmp2;
         } else {
             m_pp[k] = m_p0 * exp(tmp);
         }
