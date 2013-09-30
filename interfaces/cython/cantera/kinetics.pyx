@@ -1,5 +1,3 @@
-ctypedef void (*kineticsMethod1d)(CxxKinetics*, double*) except +
-
 # NOTE: These cdef functions cannot be members of Kinetics because they would
 # cause "layout conflicts" when creating derived classes with multiple bases,
 # e.g. class Solution. [Cython 0.16]

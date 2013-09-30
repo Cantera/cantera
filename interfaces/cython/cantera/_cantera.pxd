@@ -561,11 +561,13 @@ cdef extern from "cantera/cython/wrappers.h":
     cdef void tran_getMultiDiffCoeffs(CxxTransport*, size_t, double*) except +
     cdef void tran_getBinaryDiffCoeffs(CxxTransport*, size_t, double*) except +
 
-
-cdef string stringify(x)
-
+# typedefs
 ctypedef void (*thermoMethod1d)(CxxThermoPhase*, double*) except +
+ctypedef void (*transportMethod1d)(CxxTransport*, double*) except +
+ctypedef void (*transportMethod2d)(CxxTransport*, size_t, double*) except +
+ctypedef void (*kineticsMethod1d)(CxxKinetics*, double*) except +
 
+# classes
 cdef class _SolutionBase:
     cdef CxxThermoPhase* thermo
     cdef CxxKinetics* kinetics
@@ -590,6 +592,12 @@ cdef class Kinetics(_SolutionBase):
 
 cdef class InterfaceKinetics(Kinetics):
     pass
+
+cdef class Transport(_SolutionBase):
+     pass
+
+cdef class DustyGasTransport(Transport):
+     pass
 
 cdef class Mixture:
     cdef CxxMultiPhase* mix
@@ -711,3 +719,12 @@ cdef class ReactionPathDiagram:
     cdef str element
     cdef pybool built
     cdef CxxStringStream _log
+
+# free functions
+cdef string stringify(x)
+cdef pystr(string x)
+cdef np.ndarray get_species_array(Kinetics kin, kineticsMethod1d method)
+cdef np.ndarray get_reaction_array(Kinetics kin, kineticsMethod1d method)
+cdef np.ndarray get_transport_1d(Transport tran, transportMethod1d method)
+cdef np.ndarray get_transport_2d(Transport tran, transportMethod2d method)
+cdef CxxIdealGasPhase* getIdealGasPhase(ThermoPhase phase) except *
