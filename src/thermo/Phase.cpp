@@ -25,7 +25,6 @@ Phase::Phase() :
     m_dens(0.001),
     m_mmw(0.0),
     m_stateNum(-1),
-    m_speciesFrozen(false),
     m_elementsFrozen(false),
     m_mm(0),
     m_elem_type(0)
@@ -42,7 +41,6 @@ Phase::Phase(const Phase& right) :
     m_dens(0.001),
     m_mmw(0.0),
     m_stateNum(-1),
-    m_speciesFrozen(false) ,
     m_elementsFrozen(false),
     m_mm(0),
     m_elem_type(0)
@@ -70,7 +68,6 @@ Phase& Phase::operator=(const Phase& right)
     m_rmolwts = right.m_rmolwts;
     m_stateNum = -1;
 
-    m_speciesFrozen = right.m_speciesFrozen;
     m_speciesNames = right.m_speciesNames;
     m_speciesComp = right.m_speciesComp;
     m_speciesCharge = right.m_speciesCharge;
@@ -877,8 +874,26 @@ void Phase::addSpecies(const std::string& name_, const doublereal* comp,
         m_speciesComp.push_back(compNew[m]);
         wt += compNew[m] * aw[m];
     }
+
+    // Some surface phases may define species representing empty sites
+    // that have zero molecular weight. Give them a very small molecular
+    // weight to avoid dividing by zero.
+    wt = std::max(wt, Tiny);
     m_molwts.push_back(wt);
+    m_rmolwts.push_back(1.0/wt);
     m_kk++;
+
+    // Ensure that the Phase has a valid mass fraction vector that sums to
+    // one. We will assume that species 0 has a mass fraction of 1.0 and mass
+    // fraction of all other species is 0.0.
+    if (m_kk == 1) {
+        m_y.push_back(1.0);
+        m_ym.push_back(m_rmolwts[0]);
+        m_mmw = 1.0 / m_ym[0];
+    } else {
+        m_y.push_back(0.0);
+        m_ym.push_back(0.0);
+    }
 }
 
 void Phase::addUniqueSpecies(const std::string& name_, const doublereal* comp,
@@ -910,48 +925,9 @@ void Phase::addUniqueSpecies(const std::string& name_, const doublereal* comp,
     addSpecies(name_, comp, charge_, size_);
 }
 
-void Phase::freezeSpecies()
-{
-    m_speciesFrozen = true;
-    init(molecularWeights());
-}
-
-void Phase::init(const vector_fp& mw)
-{
-    m_kk = mw.size();
-    m_rmolwts.resize(m_kk);
-    m_y.resize(m_kk, 0.0);
-    m_ym.resize(m_kk, 0.0);
-    copy(mw.begin(), mw.end(), m_molwts.begin());
-    for (size_t k = 0; k < m_kk; k++) {
-        if (m_molwts[k] < 0.0) {
-            throw CanteraError("Phase::init",
-                               "negative molecular weight for species number "
-                               + int2str(k));
-        }
-
-        // Some surface phases may define species representing empty sites
-        // that have zero molecular weight. Give them a very small molecular
-        // weight to avoid dividing by zero.
-        if (m_molwts[k] < Tiny) {
-            m_molwts[k] = Tiny;
-        }
-        m_rmolwts[k] = 1.0/m_molwts[k];
-    }
-
-    // Now that we have resized the State object, let's fill it with a valid
-    // mass fraction vector that sums to one. The Phase object should never
-    // have a mass fraction vector that doesn't sum to one. We will assume that
-    // species 0 has a mass fraction of 1.0 and mass fraction of all other
-    // species is 0.0.
-    m_y[0] = 1.0;
-    m_ym[0] = m_y[0] * m_rmolwts[0];
-    m_mmw = 1.0 / m_ym[0];
-}
-
 bool Phase::ready() const
 {
-    return (m_kk > 0 && m_elementsFrozen && m_speciesFrozen);
+    return (m_kk > 0 && m_elementsFrozen);
 }
 
 } // namespace Cantera

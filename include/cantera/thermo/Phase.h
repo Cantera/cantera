@@ -682,15 +682,6 @@ public:
                           doublereal size = 1.0);
     //!@} end group adding species and elements
 
-    //! Call when finished adding species.
-    //! Prepare to use them for calculation of mixture properties.
-    virtual void freezeSpecies();
-
-    //! True if freezeSpecies has been called.
-    bool speciesFrozen() {
-        return m_speciesFrozen;
-    }
-
     virtual bool ready() const;
 
     //! Return the State Mole Fraction Number
@@ -699,12 +690,6 @@ public:
     }
 
 protected:
-    //! @internal Initialize.
-    //! Make a local copy of the vector of molecular weights, and resize the
-    //! composition arrays to the appropriate size.
-    //!     @param mw Vector of molecular weights of the species.
-    void init(const vector_fp& mw);
-
     //! Set the molecular weight of a single species to a given value
     //!     @param k       id of the species
     //!     @param mw      Molecular Weight (kg kmol-1)
@@ -764,11 +749,6 @@ private:
     //! State Change variable. Whenever the mole fraction vector changes,
     //! this int is incremented.
     int m_stateNum;
-
-    //! Boolean indicating whether the number of species has been frozen.
-    //! During the construction of the phase, this is false. After construction
-    //! of the the phase, this is true.
-    bool m_speciesFrozen;
 
     //! If this is true, then no elements may be added to the object.
     bool m_elementsFrozen;
