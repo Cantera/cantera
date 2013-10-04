@@ -99,7 +99,6 @@ FixedChemPotSSTP::FixedChemPotSSTP(const std::string& Ename, doublereal val) :
     c[2] = 0.0;
     c[3] = 0.0;
     m_spthermo->install(pname, 0, SIMPLE, c, 0.0, 1.0E30, OneAtm);
-    freezeSpecies();
     initThermo();
     m_p0 = OneAtm;
     m_tlast = 298.15;

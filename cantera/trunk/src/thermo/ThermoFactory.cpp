@@ -602,10 +602,8 @@ bool importPhase(XML_Node& phase, ThermoPhase* th,
         th->installSlavePhases(&phase);
     }
 
-    // done adding species.
-    th->freezeSpecies();
-
-    // Perform any required subclass-specific initialization.
+    // Done adding species. Perform any required subclass-specific
+    // initialization.
     th->initThermo();
 
     // Perform any required subclass-specific initialization
