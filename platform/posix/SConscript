@@ -37,7 +37,8 @@ pc_incdirs = []
 pc_cflags = []
 
 localenv['mak_corelibs'] = '-lcantera'
-localenv['mak_corelibs'] += ' -lctmath -lexecstream'
+if not env['single_library']:
+    localenv['mak_corelibs'] += ' -lctmath -lexecstream'
 
 localenv['mak_extra_includes'] = ['-I%s' % s for s in localenv['extra_inc_dirs']]
 pc_incdirs.extend(localenv['extra_inc_dirs'])
@@ -85,10 +86,13 @@ localenv['mak_have_blas_lapack_dir'] = '1' if localenv['blas_lapack_dir'] else '
 
 if localenv['blas_lapack_dir']:
     localenv['mak_blas_lapack_libs'] = ' '.join('-l%s' % s for s in localenv['blas_lapack_libs'])
-else:
+elif not env['single_library']:
     localenv['mak_blas_lapack_libs'] = ('-L' + '$(CANTERA_INSTALL_ROOT)/lib' + ' -lctlapack -lctblas')
     localenv['mak_blas_lapack_libs_dep'] = ( '$' + '(CANTERA_INSTALL_ROOT)' + '/lib' + 'ctlapack' + '.a' + ' $(CANTERA_INSTALL_ROOT)/lib/libctblas.a')
     print 'blas = ', localenv['mak_blas_lapack_libs_dep']
+else:
+    localenv['mak_blas_lapack_libs'] = ''
+    localenv['mak_blas_lapack_libs_dep'] = ''
 
 if 'Accelerate' in localenv['FRAMEWORKS']:
     localenv['mak_blas_lapack_libs'] += ' -framework Accelerate'
