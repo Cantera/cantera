@@ -1306,34 +1306,32 @@ if env['use_sundials'] == 'y':
     linkSharedLibs.extend(('sundials_cvodes', 'sundials_ida', 'sundials_nvecserial'))
 else:
     env['sundials_libs'] = []
-    linkLibs.extend(['cvode'])
-    linkSharedLibs.extend(['cvode_shared'])
+    if not env['single_library']:
+        linkLibs.extend(['cvode'])
+        linkSharedLibs.extend(['cvode_shared'])
     #print 'linkLibs = ', linkLibs
 
-linkLibs.append('ctmath')
-linkSharedLibs.append('ctmath_shared')
+if not env['single_library']:
+    linkLibs.append('ctmath')
+    linkSharedLibs.append('ctmath_shared')
 
     # Add execstream to the link line
-linkLibs.append('execstream')
-linkSharedLibs.append('execstream_shared')
-
-#print 'linklibs' , linkLibs
-#print env.Dump()
-#exit (0)
+    linkLibs.append('execstream')
+    linkSharedLibs.append('execstream_shared')
 
 #  Add lapack and blas to the link line
 #        If there is a special blas and lapack add that in
 if env['blas_lapack_libs']:
     linkLibs.extend(env['blas_lapack_libs'])
     linkSharedLibs.extend(env['blas_lapack_libs'])
-else:
+elif not env['single_library']:
     linkLibs.extend(('ctlapack', 'ctblas'))
     linkSharedLibs.extend(('ctlapack_shared', 'ctblas_shared'))
 
 if not env['build_with_f2c']:
     linkLibs.extend(env['FORTRANSYSLIBS'])
     linkSharedLibs.append(env['FORTRANSYSLIBS'])
-else:
+elif not env['single_library']:
     # Add the f2c library when f2c is requested
     linkLibs.append('ctf2c')
     linkSharedLibs.append('ctf2c_shared')
