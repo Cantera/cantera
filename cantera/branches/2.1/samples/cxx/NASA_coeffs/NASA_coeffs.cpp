@@ -1,5 +1,7 @@
 #include "cantera/IdealGasMix.h"    // defines class IdealGasMix
 
+#include <cstdio>
+
 using namespace Cantera;
 
 // The program is put into a function so that error handling code can
