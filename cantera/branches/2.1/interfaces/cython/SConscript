@@ -110,7 +110,8 @@ libDirs = ('../../build/lib', localenv['sundials_libdir'],
 localenv['py_cantera_libs'] = repr(localenv['cantera_libs'])
 localenv['py_libdirs'] = repr([x for x in libDirs if x])
 
-# Compile the Python module with the same compiler as the rest of Cantera
+# Compile the Python module with the same compiler as the rest of Cantera,
+# unless otherwise specified
 localenv['py_extra_compiler_args'] = repr([])
 localenv['py_extra_link_args'] = repr([])
 if localenv['OS'] == 'Windows':
@@ -129,6 +130,8 @@ else:
     if '-fprofile-arcs' in localenv['CCFLAGS']:
         localenv['py_extra_compiler_args'] = repr(['-fprofile-arcs', '-ftest-coverage'])
         localenv['py_extra_link_args'] = repr(['-fprofile-arcs', '-ftest-coverage'])
+    if  env['python_compiler']:
+        localenv['ENV']['CC'] = env['python_compiler']
 
 if 'LDFLAGS' not in localenv['ENV']:
     localenv['ENV']['LDFLAGS'] = ''
