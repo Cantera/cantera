@@ -132,6 +132,7 @@ else:
         localenv['py_extra_link_args'] = repr(['-fprofile-arcs', '-ftest-coverage'])
     if  env['python_compiler']:
         localenv['ENV']['CC'] = env['python_compiler']
+	localenv['ENV']['CXX'] = env['python_compiler']
 
 if 'LDFLAGS' not in localenv['ENV']:
     localenv['ENV']['LDFLAGS'] = ''
