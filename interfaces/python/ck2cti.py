@@ -1475,23 +1475,26 @@ class Parser(object):
 
                 elif contains(line, 'REACTIONS'):
                     # Reactions section
-                    energyUnits = 'CAL/MOL'
-                    moleculeUnits = 'MOLES'
-                    try:
-                        energyUnits = tokens[1].upper()
-                        moleculeUnits = tokens[2].upper()
-                    except IndexError:
-                        pass
 
-                    if not self.processed_units:
+                    for token in tokens[1:]:
+                        units = token.upper()
+                        if units in ENERGY_UNITS:
+                            if (self.processed_units and
+                                self.energy_units != ENERGY_UNITS[units]):
+                                raise InputParseError("Multiple REACTIONS sections with "
+                                                      "different units are not supported.")
+                            self.energy_units = ENERGY_UNITS[units]
+                        elif units in QUANTITY_UNITS:
+                            if (self.processed_units and
+                                self.quantity_units != QUANTITY_UNITS[units]):
+                                raise InputParseError("Multiple REACTIONS sections with "
+                                                      "different units are not supported.")
+                            self.quantity_units = QUANTITY_UNITS[units]
+                        else:
+                            raise InputParseError("Unrecognized energy or quantity unit, {0!r}".format(units))
+
+                    if len(tokens) > 1:
                         self.processed_units = True
-                        self.energy_units = ENERGY_UNITS[energyUnits]
-                        self.quantity_units = QUANTITY_UNITS[moleculeUnits]
-                    else:
-                        if (self.energy_units != ENERGY_UNITS[energyUnits] or
-                            self.quantity_units != QUANTITY_UNITS[moleculeUnits]):
-                            raise InputParseError("Multiple REACTIONS sections with "
-                                                  "different units are not supported.")
 
                     kineticsList = []
                     commentsList = []
