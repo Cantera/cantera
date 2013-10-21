@@ -809,11 +809,12 @@ def fortFloat(s):
     return float(s)
 
 def isnumberlike(text):
-    """ Returns true if `text` contains only the digits 0-9 and '.' """
-    for char in text:
-        if not char.isdigit() and char != '.':
-            return False
-    return True
+    """ Returns true if `text` can be interpreted as a floating point number. """
+    try:
+        float(text)
+        return True
+    except ValueError:
+        return False
 
 def get_index(seq, value):
     """
@@ -1070,10 +1071,10 @@ class Parser(object):
 
             for term in expression.split('+'):
                 term = term.strip()
-                if isnumberlike(term[0]):
+                if term[0].isdigit() or term[0] == '.':
                     # This allows for for non-unity stoichiometric coefficients, e.g.
                     # 2A=B+C or .85A+.15B=>C
-                    j = [i for i,c in enumerate(term) if not isnumberlike(c)][0]
+                    j = [i for i in range(len(term)) if isnumberlike(term[:i])][-1]
                     if term[:j].isdigit():
                         stoichiometry = int(term[:j])
                     else:
