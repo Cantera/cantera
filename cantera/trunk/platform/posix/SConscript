@@ -85,6 +85,7 @@ localenv['mak_have_blas_lapack_dir'] = '1' if localenv['blas_lapack_dir'] else '
 
 if localenv['blas_lapack_dir']:
     localenv['mak_blas_lapack_libs'] = ' '.join('-l%s' % s for s in localenv['blas_lapack_libs'])
+    localenv['mak_blas_lapack_libs_dep'] = ''
 elif not env['single_library']:
     localenv['mak_blas_lapack_libs'] = ('-L' + '$(CANTERA_INSTALL_ROOT)/lib' + ' -lctlapack -lctblas')
     localenv['mak_blas_lapack_libs_dep'] = ( '$' + '(CANTERA_INSTALL_ROOT)' + '/lib' + 'ctlapack' + '.a' + ' $(CANTERA_INSTALL_ROOT)/lib/libctblas.a')
