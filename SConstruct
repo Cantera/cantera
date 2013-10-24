@@ -865,6 +865,7 @@ env = conf.Finish()
 
 # Python 2 Package Settings
 cython_min_version = LooseVersion('0.17')
+env['install_python2_action'] = ''
 if env['python_package'] in ('full','default','new'):
     # Check for Cython:
     try:
@@ -944,8 +945,6 @@ else:
     warnNoPython = False
     env['python_array_include'] = ''
     env['python_module_loc'] = ''
-    env['install_python2_action'] = ''
-
 
 # Python 3 Package Settings
 if env['python3_package'] in ('y', 'default'):
