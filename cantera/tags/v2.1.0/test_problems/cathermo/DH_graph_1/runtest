@@ -1,0 +1,53 @@
+#!/bin/sh
+#
+# run_test
+#
+##########################################################################
+# A couple of validity checks
+if test ! $# -eq 0 ; then
+   echo 'usage: runtest'
+   echo '    '
+   exit -1
+fi
+
+temp_success="0"
+/bin/rm  -f output.txt outputa.txt
+##########################################################################
+CANTERA_DATA=${CANTERA_DATA:=../../../data/inputs}; export CANTERA_DATA
+
+CANTERA_BIN=${CANTERA_BIN:=../../../bin}
+
+prog=DH_graph_1
+if test ! -x $prog ; then
+   echo $prog ' does not exist'
+   exit -1
+fi
+##########################################################################
+/bin/rm -f test.out test.diff   DH_graph_1.csv
+
+# echo 'Testing the  DH dilute act calculation - act vs I'
+./$prog  DH_NaCl_dilute.xml  > DH_graph_1.csv
+retnStat=$?
+diff DH_graph_1.csv DH_NaCl_dilute_blessed.csv > diff.out
+zres=$?
+if test "$zres" = "0"  -a "$retnStat" = "0"; then
+  echo "successful diff comparison on $prog dilute  test"
+else
+  echo "unsuccessful diff comparison on $prog dilute test"
+  temp_success="1"
+  if [ $retnStat != "0" ]
+  then
+    echo "$prog returned with bad status, $retnStat, check output"
+  fi
+fi
+
+
+
+##########################################################################
+if test $temp_success = "0" ; then
+  echo "PASSED" > csvCode.txt
+  return 0
+else
+  echo "FAILED" > csvCode.txt
+  return 1
+fi

@@ -1,0 +1,150 @@
+# These phase definitions represent fluids with complete liquid/vapor
+# equations of state. Depending on conditions, they may represent a
+# single-phase fluid, either liquid or vapor, or a saturated
+# liquid/vapor mixture. They use equations of state in the 'TPX'
+# package, which in turn take most of the equations of state from the
+# compilation 'Thermodynamic Properties in SI', by W. C. Reynolds.
+
+liquid_vapor(name = "water",
+             elements = " O  H ",
+             species = "H2O",
+             substance_flag = 0,
+             initial_state = state(temperature = 300.0,
+                                   pressure = OneAtm))
+
+liquid_vapor(name = "nitrogen",
+             elements = " N ",
+             species = "N2",
+             substance_flag = 1,
+             initial_state = state(temperature = 300.0,
+                                   pressure = OneAtm))
+
+liquid_vapor(name = "methane",
+             elements = " C H ",
+             species = "CH4",
+             substance_flag = 2,
+             initial_state = state(temperature = 300.0,
+                                   pressure = OneAtm))
+
+liquid_vapor(name = "hydrogen",
+             elements = " H ",
+             species = "H2",
+             substance_flag = 3,
+             initial_state = state(temperature = 300.0,
+                                   pressure = OneAtm))
+
+liquid_vapor(name = "oxygen",
+             elements = " O ",
+             species = "O2",
+             substance_flag = 4,
+             initial_state = state(temperature = 300.0,
+                                   pressure = OneAtm))
+
+liquid_vapor(name = "carbondioxide",
+             elements = " C O ",
+             species = "CO2",
+             substance_flag = 7,
+             initial_state = state(temperature = 280.0,
+                                   pressure = OneAtm))
+
+liquid_vapor(name = "heptane",
+             elements = " C H ",
+             species = "C7H16",
+             substance_flag = 8,
+             initial_state = state(temperature = 300.0,
+                                   pressure = OneAtm))
+
+liquid_vapor(name = "hfc134a",
+             elements = " C F H ",
+             species = "C2F4H2",
+             substance_flag = 5,
+             initial_state = state(temperature = 300.0,
+                                   pressure = OneAtm))
+#------------------------------------------------------------------
+
+# Note that these species definitions are used ONLY to set the
+# reference state values for the entropy and enthalpy at 298.15 K,
+# and to define the elemental composition. They are not used to
+# compute properties.
+
+#------------------------------------------------------------------
+
+species(name = "H2O",
+    atoms = " H:2  O:1 ",
+    thermo = (
+        NASA( [  273.16,  1000.00], [  4.198640560E+00,  -2.036434100E-03,
+                 6.520402110E-06,  -5.487970620E-09,   1.771978170E-12,
+                -3.029372670E+04,  -8.490322080E-01] ),
+        NASA( [ 1000.00,  1600.00], [  3.033992490E+00,   2.176918040E-03,
+                -1.640725180E-07,  -9.704198700E-11,   1.682009920E-14,
+                -3.000429710E+04,   4.966770100E+00] ) ) )
+
+species(name = "N2",
+    atoms = " N:2 ",
+    thermo = (
+        NASA( [  63.15,  1000.00], [  3.298677000E+00,   1.408240400E-03,
+                -3.963222000E-06,   5.641515000E-09,  -2.444854000E-12,
+                -1.020899900E+03,   3.950372000E+00] ),
+        NASA( [ 1000.00,  2000.00], [  2.926640000E+00,   1.487976800E-03,
+                -5.684760000E-07,   1.009703800E-10,  -6.753351000E-15,
+                -9.227977000E+02,   5.980528000E+00] ) ) )
+
+species(name = "CH4",
+    atoms = " C:1  H:4 ",
+    thermo = (
+        NASA( [  90.68,  1000.00], [  5.149876130E+00,  -1.367097880E-02,
+                 4.918005990E-05,  -4.847430260E-08,   1.666939560E-11,
+                -1.024664760E+04,  -4.641303760E+00] ),
+        NASA( [ 1000.00,  1700.00], [  7.485149500E-02,   1.339094670E-02,
+                -5.732858090E-06,   1.222925350E-09,  -1.018152300E-13,
+                -9.468344590E+03,   1.843731800E+01] ) ) )
+
+species(name = "O2",
+    atoms = " O:2 ",
+    thermo = (
+        NASA( [  54.34,  1000.00], [  3.782456360E+00,  -2.996734160E-03,
+                 9.847302010E-06,  -9.681295090E-09,   3.243728370E-12,
+                -1.063943560E+03,   3.657675730E+00] ),
+        NASA( [ 1000.00,  2000.00], [  3.282537840E+00,   1.483087540E-03,
+                -7.579666690E-07,   2.094705550E-10,  -2.167177940E-14,
+                -1.088457720E+03,   5.453231290E+00] ) ) )
+
+species(name = "H2",
+    atoms = " H:2 ",
+    thermo = (
+        NASA( [  13.8,  1000.00], [  2.344331120E+00,   7.980520750E-03,
+                -1.947815100E-05,   2.015720940E-08,  -7.376117610E-12,
+                -9.179351730E+02,   6.830102380E-01] ),
+        NASA( [ 1000.00,  5000.00], [  3.337279200E+00,  -4.940247310E-05,
+                 4.994567780E-07,  -1.795663940E-10,   2.002553760E-14,
+                -9.501589220E+02,  -3.205023310E+00] ) ) )
+
+species(name = "CO2",
+    atoms = " C:1 O:2 ",
+    thermo = (
+        NASA( [  200.00,  1000.00], [  2.356773520E+00,   8.984596770E-03,
+                -7.123562690E-06,   2.459190220E-09,  -1.436995480E-13,
+                -4.837196970E+04,   9.901052220E+00] ),
+        NASA( [ 1000.00,  3500.00], [  3.857460290E+00,   4.414370260E-03,
+                -2.214814040E-06,   5.234901880E-10,  -4.720841640E-14,
+                -4.875916600E+04,   2.271638060E+00] ) ) )
+
+species(name = "C7H16",
+    atoms = " C:7 H:16 ",
+    thermo = (
+        NASA( [  200.00,  1000.00], [  1.115324840E+01,  -9.494154330E-03,
+                 1.955711810E-04,  -2.497525200E-07,   9.848732130E-11,
+                -2.677117350E+04,  -1.590961100E+01] ),
+        NASA( [ 1000.00,  6000.00], [  1.853547040E+01,   3.914204680E-02,
+                -1.380302680E-05,   2.224038740E-09,   -1.334525800E-13,
+                -3.195007830E+04,  -7.019028400E+01] ) ) )
+
+# these thermo values result in h = 0, s = 0 for sat. liquid at 273.15 K.
+# This convention is not consistent with that followed elsewhere in Cantera,
+# but data on the heat of formation of c2f4h2 was not found.
+
+species(name = "C2F4H2",
+        atoms = " C:2 F:4 H:2 ",
+        thermo = const_cp(t0 = 273.15,
+                          h0 = 23083414.8686,
+                          s0 = 167025.466))

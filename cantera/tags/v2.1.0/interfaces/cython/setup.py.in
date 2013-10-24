@@ -1,0 +1,65 @@
+import os
+from distutils.core import setup
+from Cython.Build import cythonize
+
+# Monkey patch to prevent bdist_msi from incorrectly overwriting the value of
+# build-lib specified on the command line.
+# See http://bugs.python.org/issue1109963
+
+# This patch works by returning False the first time that the
+# 'has_ext_modules' method is called in bdist_msi.run, which is where the
+# replacement of build_lib happens. Subsequent calls to 'has_ext_modules'
+# should use the correct value so that the resulting installer is specific to
+# this Python version. Known to affect Python versions 2.6 through 3.3. If
+# this bug is ever fixed, this patch should be made conditional on the Python
+# version.
+if os.name == 'nt':
+    from distutils.command.bdist_msi import bdist_msi
+    bdist_run_orig = bdist_msi.run
+    def bdist_run_new(self):
+        has_ext_modules_orig = self.distribution.has_ext_modules
+        self._first_call = True
+        def has_ext_modules():
+            if self._first_call:
+                self._first_call = False
+                return False
+            else:
+                return has_ext_modules_orig()
+
+        self.distribution.has_ext_modules = has_ext_modules
+        return bdist_run_orig(self)
+
+    bdist_msi.run = bdist_run_new
+
+
+exts = cythonize("cantera/_cantera.pyx")
+
+exts[0].include_dirs += @py_include_dirs@
+exts[0].extra_compile_args += @py_extra_compiler_args@
+exts[0].libraries += @py_cantera_libs@
+exts[0].library_dirs += @py_libdirs@
+exts[0].extra_link_args += @py_extra_link_args@
+
+setup(name="Cantera",
+      version="@cantera_version@",
+      description="The Cantera Python Interface",
+      long_description="""
+              """,
+      author="Raymond Speth",
+      author_email="speth@mit.edu",
+      url="http://code.google.com/p/cantera",
+      packages = ['cantera',
+                  'cantera.data',
+                  'cantera.test',
+                  'cantera.test.data',
+                  'cantera.mixmaster',
+                  'cantera.mixmaster.Units',
+                  'cantera.examples'],
+      scripts=[@py_ctml_writer@,
+               @py_ck2cti@,
+               @py_mixmaster@],
+      ext_modules = exts,
+      package_data = {'cantera.data': ['*.*'],
+                      'cantera.test.data': ['*.*'],
+                      'cantera.examples': ['*/*.*'],
+                      'cantera': ['*.pxd']})

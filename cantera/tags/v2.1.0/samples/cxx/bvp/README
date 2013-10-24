@@ -1,0 +1,4 @@
+This example program solves the Blasius boundary value problem for the
+velocity profile of a laminar boundary layer over a flat plate. It
+uses class BoundaryValueProblem, which provides a simplified interface
+to the boundary value problem capabilities of Cantera.

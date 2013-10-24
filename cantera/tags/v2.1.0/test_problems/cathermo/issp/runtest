@@ -1,0 +1,34 @@
+#!/bin/sh
+#
+#
+temp_success="1"
+/bin/rm  -f output.txt outputa.txt
+
+#################################################################
+#
+#################################################################
+CANTERA_DATA=${CANTERA_DATA:=../../../data/inputs}; export CANTERA_DATA
+
+CANTERA_BIN=${CANTERA_BIN:=../../../bin}
+./ISSPTester > output.txt
+retnStat=$?
+if [ $retnStat != "0" ]
+then
+  temp_success="0"
+  echo "ISSPTester returned with bad status, $retnStat, check output"
+fi
+
+$CANTERA_BIN/exp3to2.sh output.txt > outputa.txt
+diff -w outputa.txt output_blessed.txt > diff_test.out
+retnStat=$?
+if [ $retnStat = "0" ]
+then
+  echo "successful diff comparison on issp test"
+  return 0
+else
+  echo "unsuccessful diff comparison on issp test"
+  echo "FAILED" > csvCode.txt
+  temp_success="0"
+  return 1
+fi
+

@@ -1,0 +1,27 @@
+Number of species = 12
+Number of reactions = 12
+rop [ 0:O ] = 0.447052 
+rop [ 1:O2 ] = -0.0021443 
+rop [ 2:N ] = 0 
+rop [ 3:NO ] = -279.361 
+rop [ 4:NO2 ] = 0.00214319 
+rop [ 5:N2O ] = 278.914 
+rop [ 6:N2 ] = 0.444906 
+rop [ 7:NH ] = -279.359 
+rop [ 8:H ] = 279.359 
+rop [ 9:H2O ] = 0 
+rop [ 10:NH2 ] = 0 
+rop [ 11:AR ] = 0 
+number of reactions = 12
+fwd_rop[  0] =       479.304    rev_rop[  0] =         97.94
+fwd_rop[  1] =      -128.201    rev_rop[  1] =      -26.1964
+fwd_rop[  2] =             0    rev_rop[  2] =             0
+fwd_rop[  3] =            -0    rev_rop[  3] =            -0
+fwd_rop[  4] =             0    rev_rop[  4] =   1.10334e-06
+fwd_rop[  5] =             0    rev_rop[  5] =             0
+fwd_rop[  6] =             0    rev_rop[  6] =             0
+fwd_rop[  7] =             0    rev_rop[  7] =             0
+fwd_rop[  8] =             0    rev_rop[  8] =   6.58592e-06
+fwd_rop[  9] =      0.444906    rev_rop[  9] =             0
+fwd_rop[ 10] =             0    rev_rop[ 10] =             0
+fwd_rop[ 11] =             0    rev_rop[ 11] =    0.00214319

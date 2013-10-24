@@ -1,0 +1,88 @@
+/*! \mainpage The cantera Library
+
+<b>Version \version</b>, Build Date: \builddate
+
+Built by: \builduser on \buildhost
+<hr>
+
+\section overview Overview
+
+Thank you for your interest in cantera. To aid in usage, this manual is
+further divided into the following subsections:
+
+<ul>
+  <li> \subpage model "Library Overview" </li>
+  <li> \subpage install "Installation/Linkage" </li>
+  <li> \link cantera.h C/C++ Interface \endlink </li>
+  <li> \subpage apif "Fortran Interface" </li>
+  <li> \link tut "Tutorial" </li>
+</ul>
+
+<!-- \subpage apiF Fortran API -->
+<!-- \subpage examples Examples -->
+
+\section bugs Reporting Bugs
+
+Bugs in the code and errors or omissions in the documentation can be
+reported to nick@ices.utexas.edu.  Requests and contributions are
+welcome at the same e-mail address.  All bug reports should include:
+<ul>
+<li>the version number of the library,
+<li>the hardware and operating system,
+<li>the compiler used, including version number and compilation options,
+<li>a description of the bug behavior, and ideally, 
+<li>a short program which reproduces the bug.
+</ul>
+
+\section licence License
+Copyright (C) 2010 The PECOS Development Team
+\copydoc LicenseLGPL
+
+\section acknowledgements Acknowledgments
+\copydoc Acknowledgments
+
+\section pecos-center More Information About PECOS
+\copydoc About2
+
+ */
+
+
+/*! \page model Library Overview
+
+\copydoc LicenseLGPL
+
+This is a chemical kinetics library. 
+
+<h2>Chemical Kinetics Overview</h2>
+
+This library is designed to simplify the process of accessing chemical kinetics.
+
+<h2>PECOS Center Background</h2>
+
+The Center for Predictive Engineering and COmputational Sciences (PECOS) is a DOE-funded Center 
+of Excellence within the Institute for Computational Engineering and Sciences (ICES) 
+at The University of Texas at Austin. PECOS is one of five such centers sponsored under 
+the Predictive Science Academic Alliance Program (PSAAP) of the National Nuclear Security 
+Administration’s Advanced Simulation and Computing Program.
+
+PECOS brings together an interdisciplinary, multi-university team with partners at the 
+DOE National Labs and NASA. The goal of the PECOS Center is to develop the next generation 
+of advanced computational methods for predictive simulation of multiscale, multiphysics phenomena, 
+and to apply these methods to the analysis of vehicles reentering the atmosphere. In pursuing 
+this research, PECOS is advancing the science and modeling of atmospheric reentry, and 
+the science of predictive simulation.
+
+<h2> Developers </h2>
+
+Developers of the library include:
+
+
+Sylvain Plessis
+
+<a href="mailto:nick@ices.utexas.edu">Nicholas Malaya</a>
+
+Chris Simmons
+
+<h2> Citing </h2>
+
+Please add the following citation.
