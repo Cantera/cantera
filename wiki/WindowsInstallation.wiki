@@ -22,6 +22,10 @@ These installation instructions are for Cantera 2.1.0.
     * *32-bit*: Go to the [http://sourceforge.net/projects/numpy/files/NumPy/ NumPy download page].
     * Download the most recent release of the 1.x series for Python X.Y.
     * Run the installer.
+  # *Remove old versions of Cantera*
+    * Use The Windows "Add/Remove Programs" interface
+    * Remove both the main Cantera package and the Python module.
+    * The Python module will be listed as "Python X.Y Cantera ..."
   # *Install Cantera*
     * Go to the [http://code.google.com/p/cantera/downloads/list Cantera Downloads] page.
     * *64-bit*: Download *`Cantera-2.1.0-x64.msi`* and *`Cantera-Python-2.1.0-x64-pyX.Y.msi`*.
