@@ -246,3 +246,15 @@ should be replaced with::
     >>> f.flame.set_steady_tolerances(default=tol_ss)
     >>> f.flame.set_transient_tolerances(default=tol_ts)
     >>> f.set_refine_criteria(ratio=4, slope=0.2, curve=0.3, prune=0.04)
+
+To change the transport model and enbale calculation of the Soret diffusion term, the following::
+
+    >>> gas.addTransportModel('Multi')
+    >>> gas.switchTransportModel('Multi')
+    >>> f.flame.setTransportModel(gas)
+    >>> f.flame.enableSoret()
+
+should be replaced with::
+
+    >>> f.transport_model = 'Multi'
+    >>> f.soret_enabled = True
