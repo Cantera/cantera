@@ -128,35 +128,41 @@ public:
     //! Specific heat at constant volume [J/kg/K]
     virtual double cv() {
         double Tsave = T, dt = 1.e-4*T;
-        set_T(Tsave - dt);
+        double T1 = std::max(Tmin(), Tsave - dt);
+        double T2 = std::min(Tmax(), Tsave + dt);
+        set_T(T1);
         double s1 = s();
-        set_T(Tsave + dt);
+        set_T(T2);
         double s2 = s();
         set_T(Tsave);
-        return T*(s2 - s1)/(2.0*dt);
+        return T*(s2 - s1)/(T2-T1);
     }
 
     //! Specific heat at constant pressure [J/kg/K]
     virtual double cp() {
         double Tsave = T, dt = 1.e-4*T;
+        double T1 = std::max(Tmin(), Tsave - dt);
+        double T2 = std::min(Tmax(), Tsave + dt);
         double p0 = P();
-        Set(PropertyPair::TP, Tsave - dt, p0);
+        Set(PropertyPair::TP, T1, p0);
         double s1 = s();
-        Set(PropertyPair::TP, Tsave + dt, p0);
+        Set(PropertyPair::TP, T2, p0);
         double s2 = s();
         Set(PropertyPair::TP, Tsave, p0);
-        return T*(s2 - s1)/(2.0*dt);
+        return T*(s2 - s1)/(T2-T1);
     }
 
     virtual double thermalExpansionCoeff() {
         double Tsave = T, dt = 1.e-4*T;
+        double T1 = std::max(Tmin(), Tsave - dt);
+        double T2 = std::min(Tmax(), Tsave + dt);
         double p0 = P();
-        Set(PropertyPair::TP, Tsave - dt, p0);
+        Set(PropertyPair::TP, T1, p0);
         double v1 = v();
-        Set(PropertyPair::TP, Tsave + dt, p0);
+        Set(PropertyPair::TP, T2, p0);
         double v2 = v();
         Set(PropertyPair::TP, Tsave, p0);
-        return (v2 - v1)/((v2 + v1)*dt);
+        return (v2 - v1)/((v2 + v1)*(T2-T1));
     }
 
     virtual double isothermalCompressibility() {
