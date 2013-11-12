@@ -69,6 +69,7 @@ cdef extern from "cantera/thermo/ThermoPhase.h" namespace "Cantera":
         size_t nElements()
         size_t elementIndex(string) except +
         string elementName(size_t) except +
+        double atomicWeight(size_t) except +
 
         # species properties
         size_t nSpecies()
