@@ -5,6 +5,7 @@
  */
 #include "cantera/tpx/Sub.h"
 #include "cantera/base/stringUtils.h"
+#include "cantera/base/global.h"
 
 using std::string;
 using namespace Cantera;
@@ -35,9 +36,9 @@ double Substance::dPsdT()
 {
     double tsave = T;
     double ps1 = Ps();
-    set_T(T + DeltaT);
+    T = T + DeltaT;
     double dpdt = (Ps() - ps1)/DeltaT;
-    set_T(tsave);
+    T = tsave;
     return dpdt;
 }
 
@@ -387,7 +388,7 @@ int Substance::Lever(int itp, double sat, double val, propertyFlag::type ifunc)
         if (sat >= Tcrit()) {
             return 0;
         }
-        set_T(sat);
+        T = sat;
         psat = Ps();
     } else if (itp == Pgiven) {
         if (sat >= Pcrit()) {
@@ -506,11 +507,7 @@ void Substance::set_xy(propertyFlag::type ifx, propertyFlag::type ify,
         }
         v_here += dv;
         t_here += dt;
-        if (t_here >= Tmax()) {
-            t_here = Tmax() - 0.001;
-        } else if (t_here <= Tmin()) {
-            t_here = Tmin() + 0.001;
-        }
+        t_here = clip(t_here, Tmin(), Tmax());
         if (v_here <= 0.0) {
             v_here = 0.0001;
         }
@@ -580,7 +577,7 @@ void Substance::set_TPp(double Temp, double Pressure)
     int LoopCount = 0;
 
     double v_save = 1.0/Rho;
-    set_T(Temp);
+    T = Temp;
     v_here = vp();
 
     // loop
