@@ -218,7 +218,7 @@ elif env['CC'] == 'cl': # Visual Studio
                         '/D_SCL_SECURE_NO_WARNINGS', '/D_CRT_SECURE_NO_WARNINGS']
     if env['MSVC_VERSION'] == '11.0':
         # Fix compatibility issue between VS2012 and Google Test
-        defaults.cxxFlags.append('D_VARIADIC_MAX=10')
+        defaults.cxxFlags.append('/D_VARIADIC_MAX=10')
     defaults.debugCcFlags = '/Zi /Fd${TARGET}.pdb'
     defaults.noOptimizeCcFlags = '/Od /Ob0'
     defaults.optimizeCcFlags = '/O2 /DNDEBUG'
