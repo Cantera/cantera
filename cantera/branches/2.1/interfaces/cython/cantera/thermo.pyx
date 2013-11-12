@@ -175,6 +175,15 @@ cdef class ThermoPhase(_SolutionBase):
         def __get__(self):
             return [self.element_name(m) for m in range(self.n_elements)]
 
+    def atomic_weight(self, m):
+        """Atomic weight [kg/kmol] of element *m*"""
+        return self.thermo.atomicWeight(self.element_index(m))
+
+    property atomic_weights:
+        """Array of atomic weight [kg/kmol] for each element in the mixture."""
+        def __get__(self):
+            return np.array([self.thermo.atomicWeight(m) for m in range(self.n_elements)])
+
     property n_species:
         """Number of species."""
         def __get__(self):
