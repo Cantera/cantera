@@ -489,6 +489,8 @@ class species(object):
             The atomic composition, specified by a string containing
             space-delimited <element>:<atoms> pairs. The number of atoms may be
             either an integer or a floating-point number.
+        :param note:
+            A user-defined comment. Not evaluated by Cantera itself.
         :param thermo:
             The parameterization to use to compute the reference-state
             thermodynamic properties. This must be one of the entry types
@@ -1603,6 +1605,7 @@ class phase(object):
                  dim = 3,
                  elements = '',
                  species = '',
+                 note = '',
                  reactions = 'none',
                  initial_state = None,
                  options = []):
@@ -1615,6 +1618,8 @@ class phase(object):
         :param species:
             The species. A string or sequence of strings in the format
             described in :ref:`sec-defining-species`.
+        :param note:
+            A user-defined comment. Not evaluated by Cantera itself.
         :param reactions:
             The homogeneous reactions. If omitted, no reactions will be
             included. A string or sequence of strings in the format described
@@ -1637,6 +1642,7 @@ class phase(object):
         self._el = elements
         self._sp = []
         self._rx = []
+        self._comment = note
 
         if isinstance(options, str):
             self._options = [options]
@@ -1800,6 +1806,10 @@ class phase(object):
         #self._eos.build(ph)
         if self._initial:
             self._initial.build(ph)
+
+        if self._comment:
+            ph.addChild('note',self._comment)
+
         return ph
 
 
@@ -1809,6 +1819,7 @@ class ideal_gas(phase):
                  name = '',
                  elements = '',
                  species = '',
+                 note = '',
                  reactions = 'none',
                  kinetics = 'GasKinetics',
                  transport = 'None',
@@ -1827,7 +1838,7 @@ class ideal_gas(phase):
             ``'multi'``, or ``'mix'``. Default: ``'none'``.
         """
 
-        phase.__init__(self, name, 3, elements, species, reactions,
+        phase.__init__(self, name, 3, elements, species, note, reactions,
                        initial_state, options)
         self._pure = 0
         self._kin = kinetics
@@ -1865,6 +1876,7 @@ class stoichiometric_solid(phase):
                  name = '',
                  elements = '',
                  species = '',
+                 note = '',
                  density = None,
                  transport = 'None',
                  initial_state = None,
@@ -1873,7 +1885,7 @@ class stoichiometric_solid(phase):
         See :class:`.phase` for descriptions of the parameters.
         """
 
-        phase.__init__(self, name, 3, elements, species, 'none',
+        phase.__init__(self, name, 3, elements, species, note, 'none',
                        initial_state, options)
         self._dens = density
         self._pure = 1
@@ -1907,6 +1919,7 @@ class stoichiometric_liquid(stoichiometric_solid):
                  name = '',
                  elements = '',
                  species = '',
+                 note = '',
                  density = -1.0,
                  transport = 'None',
                  initial_state = None,
@@ -1925,12 +1938,13 @@ class metal(phase):
                  name = '',
                  elements = '',
                  species = '',
+                 note = '',
                  density = -1.0,
                  transport = 'None',
                  initial_state = None,
                  options = []):
 
-        phase.__init__(self, name, 3, elements, species, 'none',
+        phase.__init__(self, name, 3, elements, species, note, 'none',
                        initial_state, options)
         self._dens = density
         self._pure = 0
@@ -1956,6 +1970,7 @@ class semiconductor(phase):
                  name = '',
                  elements = '',
                  species = '',
+                 note = '',
                  density = -1.0,
                  bandgap = 1.0 * eV,
                  effectiveMass_e = 1.0 * ElectronMass,
@@ -1964,7 +1979,7 @@ class semiconductor(phase):
                  initial_state = None,
                  options = []):
 
-        phase.__init__(self, name, 3, elements, species, 'none',
+        phase.__init__(self, name, 3, elements, species, note, 'none',
                        initial_state, options)
         self._dens = density
         self._pure = 0
@@ -1997,12 +2012,13 @@ class incompressible_solid(phase):
                  name = '',
                  elements = '',
                  species = '',
+                 note = '',
                  density = -1.0,
                  transport = 'None',
                  initial_state = None,
                  options = []):
 
-        phase.__init__(self, name, 3, elements, species, 'none',
+        phase.__init__(self, name, 3, elements, species, note, 'none',
                        initial_state, options)
         self._dens = density
         self._pure = 0
@@ -2026,16 +2042,18 @@ class incompressible_solid(phase):
 
 
 class lattice(phase):
-    def __init__(self, name = '',
+    def __init__(self, 
+                 name = '',
                  elements = '',
                  species = '',
+                 note = '',
                  reactions = 'none',
                  transport = 'None',
                  initial_state = None,
                  options = [],
                  site_density = -1.0,
                  vacancy_species = ''):
-        phase.__init__(self, name, 3, elements, species, 'none',
+        phase.__init__(self, name, 3, elements, species, note, 'none',
                         initial_state, options)
         self._tr = transport
         self._n = site_density
@@ -2070,6 +2088,7 @@ class lattice_solid(phase):
                  name = '',
                  elements = '',
                  species = '',
+                 note = '',
                  lattices = [],
                  transport = 'None',
                  initial_state = None,
@@ -2096,7 +2115,7 @@ class lattice_solid(phase):
                     slist.append(sp)
         species = ' '.join(slist)
 
-        phase.__init__(self, name, 3, elements, species, 'none',
+        phase.__init__(self, name, 3, elements, species, note, 'none',
                        initial_state, options)
         self._lattices = lattices
         if lattices == []:
@@ -2136,11 +2155,12 @@ class liquid_vapor(phase):
                  name = '',
                  elements = '',
                  species = '',
+                 note = '',
                  substance_flag = 0,
                  initial_state = None,
                  options = []):
 
-        phase.__init__(self, name, 3, elements, species, 'none',
+        phase.__init__(self, name, 3, elements, species, note, 'none',
                        initial_state, options)
         self._subflag = substance_flag
         self._pure = 1
@@ -2165,12 +2185,13 @@ class RedlichKwongMFTP(phase):
                  name = '',
                  elements = '',
                  species = '',
+                 note = '',
                  initial_state = None,
                  activity_coefficients = None,
                  transport = 'None',
                  options = []):
 
-        phase.__init__(self,name, 3, elements, species, 'none',
+        phase.__init__(self,name, 3, elements, species, note, 'none',
                        initial_state,options)
         self._pure = 0
         self._tr = transport
@@ -2210,13 +2231,14 @@ class redlich_kwong(phase):
                  name = '',
                  elements = '',
                  species = '',
+                 note = '',
                  substance_flag = 7,
                  initial_state = None,
                  Tcrit = 1.0,
                  Pcrit = 1.0,
                  options = []):
 
-        phase.__init__(self, name, 3, elements, species, 'none',
+        phase.__init__(self, name, 3, elements, species, note, 'none',
                        initial_state, options)
         self._subflag = 7
         self._pure = 1
@@ -2245,6 +2267,7 @@ class ideal_interface(phase):
                  name = '',
                  elements = '',
                  species = '',
+                 note = '',
                  reactions = 'none',
                  site_density = 0.0,
                  phases = [],
@@ -2267,7 +2290,7 @@ class ideal_interface(phase):
             at this interface.
         """
         self._type = 'surface'
-        phase.__init__(self, name, 2, elements, species, reactions,
+        phase.__init__(self, name, 2, elements, species, note, reactions,
                        initial_state, options)
         self._pure = 0
         self._kin = kinetics
@@ -2297,6 +2320,7 @@ class edge(phase):
                  name = '',
                  elements = '',
                  species = '',
+                 note = '',
                  reactions = 'none',
                  site_density = 0.0,
                  phases = [],
@@ -2306,7 +2330,7 @@ class edge(phase):
                  options = []):
 
         self._type = 'edge'
-        phase.__init__(self, name, 1, elements, species, reactions,
+        phase.__init__(self, name, 1, elements, species, note, reactions,
                        initial_state, options)
         self._pure = 0
         self._kin = kinetics
@@ -2433,6 +2457,7 @@ class edge(phase):
 ##                  name = '',
 ##                  elements = '',
 ##                  species = '',
+##                  note = '',
 ##                  transport = 'None',
 ##                  initial_state = None,
 ##                  solvent = '',
@@ -2440,7 +2465,7 @@ class edge(phase):
 ##                  activity_coefficients = None,
 ##                  options = []):
 
-##         phase.__init__(self, name, 3, elements, species, 'none',
+##         phase.__init__(self, name, 3, elements, species, note, 'none',
 ##                        initial_state, options)
 ##         self._pure = 0
 ##         self._solvent = solvent
