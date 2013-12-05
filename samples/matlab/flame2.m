@@ -20,9 +20,9 @@ comp2       =  'C2H6:1';            % fuel composition
 
 initial_grid = 0.02*[0.0 0.2 0.4 0.6 0.8 1.0];  % m
 
-tol_ss    = [1.0e-5 1.0e-12];       % [rtol atol] for steady-state
+tol_ss    = [1.0e-5 1.0e-13];       % [rtol atol] for steady-state
                                     % problem
-tol_ts    = [1.0e-3 1.0e-4];        % [rtol atol] for time stepping
+tol_ts    = [1.0e-4 1.0e-13];        % [rtol atol] for time stepping
 
 loglevel  = 1;                      % amount of diagnostic output (0
                                     % to 5)
