@@ -18,6 +18,7 @@ cdef extern from "cantera/base/ctml.h" namespace "ctml":
 cdef extern from "cantera/base/global.h" namespace "Cantera":
     cdef void CxxAddDirectory "Cantera::addDirectory" (string)
     cdef size_t CxxNpos "Cantera::npos"
+    cdef void CxxAppdelete "Cantera::appdelete" ()
 
 cdef extern from "cantera/thermo/mix_defs.h":
     cdef int thermo_type_ideal_gas "Cantera::cIdealGas"

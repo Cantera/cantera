@@ -24,3 +24,7 @@ def _have_sundials():
     return bool(get_sundials_version())
 
 __version__ = pystr(get_cantera_version())
+
+def appdelete():
+    """ Delete all global Cantera C++ objects """
+    CxxAppdelete()
