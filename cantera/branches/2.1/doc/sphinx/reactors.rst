@@ -99,14 +99,14 @@ The rate of change in the mass of each species is:
 
     \frac{d(mY_k)}{dt} = \sum_{in} \dot{m}_{in} Y_{k,in} -
                          \sum_{out} \dot{m}_{out} Y_k +
-                        + \dot{m}_{k,gen}
+                         \dot{m}_{k,gen}
 
 Expanding the derivative on the left hand side and substituting the equation
 for `dm/dt`, the equation for each homogeneous phase species is:
 
 .. math::
 
-    m \frac{dY}{dt} = \sum_{in} (Y_{k,in} - Y_k) +
+    m \frac{dY}{dt} = \sum_{in} \dot{m}_in (Y_{k,in} - Y_k)+
                       \dot{m}_{k,gen} - Y_k \dot{m}_{gen}
 
 Energy Conservation
