@@ -25,6 +25,7 @@
       <pressure units="Pa">506625.0</pressure>
       <massFractions>O2:0.5, N2:0.5</massFractions>
     </state>
+    <note>This phase contains no Argon.</note>
     <thermo model="IdealGas"/>
     <kinetics model="GasKinetics"/>
     <transport model="None"/>
