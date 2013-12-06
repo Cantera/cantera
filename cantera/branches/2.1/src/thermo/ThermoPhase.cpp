@@ -966,8 +966,8 @@ std::string ThermoPhase::report(bool show_thermo) const
                 s += p;
             }
         } else {
-            sprintf(p, " \n                           X"
-                    "Y\n");
+            sprintf(p, " \n                           X     "
+                    "            Y\n");
             s += p;
             sprintf(p, "                     -------------"
                     "     ------------\n");
