@@ -1,6 +1,9 @@
+#include "cantera/base/logger.h"
 #include "cantera/thermo/ThermoPhase.h"
 #include "cantera/transport/TransportBase.h"
 #include "cantera/kinetics/Kinetics.h"
+
+#include "Python.h"
 
 // Wrappers for preprocessor defines
 std::string get_cantera_version()
@@ -12,6 +15,23 @@ int get_sundials_version()
 {
     return SUNDIALS_VERSION;
 }
+
+class PythonLogger : public Cantera::Logger
+{
+public:
+    virtual void write(const std::string& s) {
+        // 1000 bytes is the maximum size permitted by PySys_WriteStdout
+        static const size_t N = 999;
+        for (size_t i = 0; i < s.size(); i+=N) {
+            PySys_WriteStdout("%s", s.substr(i, N).c_str());
+        }
+    }
+
+    virtual void error(const std::string& msg) {
+        std::string err = "raise Exception('''"+msg+"''')";
+        PyRun_SimpleString(err.c_str());
+    }
+};
 
 // Function which populates a 1D array
 #define ARRAY_FUNC(PREFIX, CLASS_NAME, FUNC_NAME) \
