@@ -1928,7 +1928,7 @@ class stoichiometric_liquid(stoichiometric_solid):
         See :class:`.phase` for descriptions of the parameters.
         """
         stoichiometric_solid.__init__(self, name, elements,
-                                      species, density, transport,
+                                      species, note, density, transport,
                                       initial_state, options)
 
 
