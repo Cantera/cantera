@@ -1336,14 +1336,13 @@ class Parser(object):
             line, comment = readline()
             advance = True
             while line is not None:
-                tokens = line.split()
+                tokens = line.split() or ['']
 
-                if contains(line, 'ELEMENTS'):
-                    index = get_index(tokens, 'ELEMENTS')
-                    tokens = tokens[index+1:]
+                if tokens[0].upper().startswith('ELEM'):
+                    tokens = tokens[1:]
                     while line is not None and not contains(line, 'END'):
                         # Grudging support for implicit end of section
-                        if contains(line, 'SPECIES'):
+                        if contains(line, 'SPEC'):
                             self.warn('"ELEMENTS" section implicitly ended by start of '
                                       'next section on line {0}.'.format(self.line_number))
                             advance = False
@@ -1358,14 +1357,13 @@ class Parser(object):
                             break
                         self.elements.append(token.capitalize())
 
-                elif contains(line, 'SPECIES'):
+                elif tokens[0].upper().startswith('SPEC'):
                     # List of species identifiers
-                    index = get_index(tokens, 'SPECIES')
-                    tokens = tokens[index+1:]
+                    tokens = tokens[1:]
                     while line is not None and not contains(line, 'END'):
                         # Grudging support for implicit end of section
-                        if (contains(line, 'REACTIONS') or contains(line, 'TRAN') or
-                            contains(line, 'THERM')):
+                        if (contains(line, 'REAC') or contains(line, 'TRAN') or
+                            contains(line, 'THER')):
                             self.warn('"SPECIES" section implicitly ended by start of '
                                       'next section on line {0}.'.format(self.line_number))
                             advance = False
@@ -1385,13 +1383,13 @@ class Parser(object):
                             self.speciesDict[token] = species
                         self.speciesList.append(species)
 
-                elif contains(line, 'THERM') and contains(line, 'NASA9'):
+                elif tokens[0].upper().startswith('THER') and contains(line, 'NASA9'):
                     entryPosition = 0
                     entryLength = None
                     entry = []
                     while line is not None and not get_index(line, 'END') == 0:
                         # Grudging support for implicit end of section
-                        if (contains(line, 'REACTIONS') or contains(line, 'TRAN')):
+                        if (contains(line, 'REAC') or contains(line, 'TRAN')):
                             self.warn('"THERMO" section implicitly ended by start of '
                                       'next section on line {0}.'.format(self.line_number))
                             advance = False
@@ -1440,7 +1438,7 @@ class Parser(object):
 
                         entryPosition += 1
 
-                elif contains(line, 'THERM'):
+                elif tokens[0].upper().startswith('THER'):
                     # List of thermodynamics (hopefully one per species!)
                     line, comment = readline()
                     if line is not None and not contains(line, 'END'):
@@ -1448,7 +1446,7 @@ class Parser(object):
                     thermo = []
                     while line is not None and not contains(line, 'END'):
                         # Grudging support for implicit end of section
-                        if contains(line, 'REACTIONS') or contains(line, 'TRAN'):
+                        if contains(line, 'REAC') or contains(line, 'TRAN'):
                             self.warn('"THERMO" section implicitly ended by start of '
                                       'next section on line {0}.'.format(self.line_number))
                             advance = False
@@ -1473,7 +1471,7 @@ class Parser(object):
                                 thermo = []
                         line, comment = readline()
 
-                elif contains(line, 'REACTIONS'):
+                elif tokens[0].upper().startswith('REAC'):
                     # Reactions section
 
                     for token in tokens[1:]:
@@ -1568,11 +1566,11 @@ class Parser(object):
                             revReaction.line_number = line_number
                             self.reactions.append(revReaction)
 
-                elif contains(line, 'TRAN'):
+                elif tokens[0].upper().startswith('TRAN'):
                     line, comment = readline()
                     while line is not None and not contains(line, 'END'):
                         # Grudging support for implicit end of section
-                        if contains(line, 'REACTIONS'):
+                        if contains(line, 'REAC'):
                             self.warn('"TRANSPORT" section implicitly ended by start of '
                                       'next section on line {0}.'.format(self.line_number))
                             advance = False

@@ -1,6 +1,4 @@
-ELEMENTS
-H  C   AR
-END
+   ELEM  H  C   AR  END
 
 SPECIES
 H
@@ -22,4 +20,4 @@ H+R2(+M) = P2A+P2B(+M)          4.0E18   -0.5   100
   LOW/7.0E26 -1.0 0/
   SRI/1.1 700.0 1234.0 56 0.7/
   R3/3/ P1/0.4/ R1A/0.0/
-END
+  END
