@@ -39,6 +39,9 @@ import numpy as np
 import re
 import itertools
 
+reFloat = re.compile(r'\+?\d*\.?\d+([eEdD][-+]?\d+)?$')
+reInt = re.compile(r'\+?\d+$')
+
 QUANTITY_UNITS = {'MOL': 'mol',
                   'MOLE': 'mol',
                   'MOLES': 'mol',
@@ -997,6 +1000,18 @@ class Parser(object):
 
         return species, thermo, composition, note
 
+    def setupKinetics(self):
+        self.valid_tokens = dict((k,'species') for k in self.speciesDict)
+        self.valid_tokens.update(('(+%s)' % k, 'falloff3b: %s' % k) for k in self.speciesDict)
+        self.valid_tokens['M'] = 'third-body'
+        self.valid_tokens['m'] = 'third-body'
+        self.valid_tokens['(+M)'] = 'falloff3b'
+        self.valid_tokens['(+m)'] = 'falloff3b'
+        self.valid_tokens['<=>'] = 'equal'
+        self.valid_tokens['=>'] = 'equal'
+        self.valid_tokens['='] = 'equal'
+        self.Slen = max(map(len, self.valid_tokens))
+
     def readKineticsEntry(self, entry):
         """
         Read a kinetics `entry` for a single reaction as loaded from a
@@ -1034,19 +1049,48 @@ class Parser(object):
         n = float(tokens[-2])
         Ea = float(tokens[-1])
         reaction = ''.join(tokens[:-3])
-        revReaction = None
 
-        # Split the reaction equation into reactants and products
-        if '<=>' in reaction:
-            reversible = True
-            reactants, products = reaction.split('<=>')
-        elif '=>' in reaction:
-            reversible = False
-            reactants, products = reaction.split('=>')
-        elif '=' in reaction:
-            reversible = True
-            reactants, products = reaction.split('=')
-        else:
+        # Identify tokens comprising the reaction expression.  Look for the
+        # longest possible sub-sequences first.
+        locs = {}
+        for i in range(self.Slen, 0, -1):
+            for j in range(len(reaction)-i+1):
+                test = reaction[j:j+i]
+                if test in self.valid_tokens:
+                    reaction = reaction[:j] + ' '*i + reaction[j+i:]
+                    locs[j] = test, self.valid_tokens[test]
+
+        # Anything that's left should be a stoichiometric coefficient or a '+'
+        # between species
+        for token in reaction.split():
+            j = reaction.find(token)
+            i = len(token)
+            reaction = reaction[:j] + ' '*i + reaction[j+i:]
+            if reInt.match(token):
+                locs[j] = int(token), 'coeff'
+            elif reFloat.match(token):
+                locs[j] = float(token), 'coeff'
+            elif token != '+':
+                raise InputParseError('Unexpected token "{0}" in reaction expression "{1}".'.format(token, reaction))
+
+        reactants = []
+        products = []
+        stoichiometry = 1
+        lhs = True
+        for token,kind in [v for k,v in sorted(locs.items())]:
+            if kind == 'equal':
+                reversible = token in ('<=>', '=')
+                lhs = False
+            elif kind == 'coeff':
+                stoichiometry = token
+            elif lhs:
+                reactants.append((stoichiometry,token,kind))
+                stoichiometry = 1
+            else:
+                products.append((stoichiometry,token,kind))
+                stoichiometry = 1
+
+        if lhs is True:
             raise InputParseError("Failed to find reactant/product delimiter in reaction string.")
 
         # Create a new Reaction object for this reaction
@@ -1055,39 +1099,13 @@ class Parser(object):
         def parseExpression(expression, dest):
             falloff3b = None
             thirdBody = False  # simple third body reaction (non-falloff)
-
-            # Look for third-body species for falloff reactions
-            if re.search(r'\(\+[Mm]\)', expression):
-                falloff3b = 'M'
-                expression = re.sub(r'(\(\+[Mm]\))', '', expression)
-            elif re.search(r'\(\+.*\)', expression):
-                # See if it matches a known species
-                for species in self.speciesDict:
-                    if re.search(r'\(\+%s\)' % re.escape(species), expression):
-                        falloff3b = species
-                        expression = re.sub(r'(\(\+%s\))' % re.escape(species),
-                                            '', expression)
-                        break
-
-            for term in expression.split('+'):
-                term = term.strip()
-                if term[0].isdigit() or term[0] == '.':
-                    # This allows for for non-unity stoichiometric coefficients, e.g.
-                    # 2A=B+C or .85A+.15B=>C
-                    j = [i for i in range(len(term)) if isnumberlike(term[:i])][-1]
-                    if term[:j].isdigit():
-                        stoichiometry = int(term[:j])
-                    else:
-                        stoichiometry = float(term[:j])
-                    species = term[j:]
-                else:
-                    species = term
-                    stoichiometry = 1
-
-                if species == 'M' or species == 'm':
+            for stoichiometry,species,kind in expression:
+                if kind == 'third-body':
                     thirdBody = True
-                elif species not in self.speciesDict:
-                    raise InputParseError('Unexpected species "{0}" in reaction expression "{1}".'.format(species, expression))
+                elif kind == 'falloff3b':
+                    falloff3b = 'M'
+                elif kind.startswith('falloff3b:'):
+                    falloff3b = kind.split()[1]
                 else:
                     dest.append((stoichiometry, self.speciesDict[species]))
 
@@ -1116,7 +1134,6 @@ class Parser(object):
                                                quantity_dim + 1, quantity_units)
 
         # The rest of the first line contains Arrhenius parameters
-        tokens = lines[0].split()[1:]
         arrhenius = Arrhenius(
             A=(A,kunits),
             n=n,
@@ -1554,6 +1571,7 @@ class Parser(object):
                         if len(kineticsList) != len(commentsList):
                             commentsList = ['' for kinetics in kineticsList]
 
+                    self.setupKinetics()
                     for kinetics, comments, line_number in zip(kineticsList, commentsList, startLines):
                         try:
                             reaction,revReaction = self.readKineticsEntry(kinetics)
