@@ -2,8 +2,6 @@ cdef enum Thermasis:
     mass_basis = 0
     molar_basis = 1
 
-ctypedef void (*thermoMethod1d)(CxxThermoPhase*, double*) except +
-
 cdef class ThermoPhase(_SolutionBase):
     """
     A phase with an equation of state.
@@ -176,6 +174,15 @@ cdef class ThermoPhase(_SolutionBase):
         """A list of all the element names."""
         def __get__(self):
             return [self.element_name(m) for m in range(self.n_elements)]
+
+    def atomic_weight(self, m):
+        """Atomic weight [kg/kmol] of element *m*"""
+        return self.thermo.atomicWeight(self.element_index(m))
+
+    property atomic_weights:
+        """Array of atomic weight [kg/kmol] for each element in the mixture."""
+        def __get__(self):
+            return np.array([self.thermo.atomicWeight(m) for m in range(self.n_elements)])
 
     property n_species:
         """Number of species."""
@@ -814,7 +821,6 @@ cdef class ThermoPhase(_SolutionBase):
 
 cdef class InterfacePhase(ThermoPhase):
     """ A class representing a surface or edge phase"""
-    cdef CxxSurfPhase* surf
     def __cinit__(self, *args, **kwargs):
         if self.thermo.eosType() not in (thermo_type_surf, thermo_type_edge):
             raise TypeError('Underlying ThermoPhase object is of the wrong type.')

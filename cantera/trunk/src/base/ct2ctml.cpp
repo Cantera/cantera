@@ -150,11 +150,14 @@ void ck2cti(const std::string& in_file, const std::string& thermo_file,
         stringstream output_stream;
 
         ostream& pyin = python.in();
-        pyin << "if True:\n"; // Use this so that the rest is a single block
-        pyin << "    import sys\n";
-        pyin << "    sys.stderr = sys.stdout\n";
-        pyin << "    import ck2cti\n";
-        pyin << "    ck2cti.Parser().convertMech(r'" << in_file << "',";
+        pyin << "if True:\n" << // Use this so that the rest is a single block
+                "    import sys\n" <<
+                "    sys.stderr = sys.stdout\n" <<
+                "    try:\n" <<
+                "        from cantera import ck2cti\n" << // Cython module
+                "    except ImportError:\n" <<
+                "        import ck2cti\n" << // legacy Python module
+                "    ck2cti.Parser().convertMech(r'" << in_file << "',";
         if (thermo_file != "" && thermo_file != "-") {
             pyin << " thermoFile=r'" << thermo_file << "',";
         }
@@ -162,6 +165,7 @@ void ck2cti(const std::string& in_file, const std::string& thermo_file,
             pyin << " transportFile=r'" << transport_file << "',";
         }
         pyin << " phaseName='" << id_tag << "',";
+	pyin << " permissive=True,";
         pyin << " quiet=True)\n";
         pyin << "    sys.exit(0)\n\n";
         pyin << "sys.exit(7)\n";

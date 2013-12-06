@@ -34,3 +34,5 @@ config.log
 *.gcno
 coverage/
 coverage.info
+doc/sphinx/cython/examples/*.rst
+doc/sphinx/matlab/examples/*.rst

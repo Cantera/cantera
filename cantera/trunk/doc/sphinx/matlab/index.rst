@@ -7,3 +7,4 @@ Matlab Interface User's Guide
    :maxdepth: 2
 
    input-tutorial
+   examples

@@ -280,7 +280,7 @@ extern "C" {
     {
         try {
             ThermoPhase& p = ThermoCabinet::item(n);
-            p.checkElementArraySize(lenm);
+            p.checkSpeciesArraySize(lenm);
             const vector_fp& wt = p.molecularWeights();
             copy(wt.begin(), wt.end(), mw);
             return 0;
@@ -1185,6 +1185,15 @@ extern "C" {
     {
         try {
             return TransportCabinet::item(n).viscosity();
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
+    double trans_electricalConductivity(int n)
+    {
+        try {
+            return TransportCabinet::item(n).electricalConductivity();
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }

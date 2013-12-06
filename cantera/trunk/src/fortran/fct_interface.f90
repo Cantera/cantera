@@ -379,6 +379,10 @@ interface
         integer, intent(in) :: n
     end function trans_viscosity
 
+    double precision function trans_electricalConductivity(n)
+        integer, intent(in) :: n
+    end function trans_electricalConductivity
+
     double precision function trans_thermalConductivity(n)
         integer, intent(in) :: n
     end function trans_thermalConductivity

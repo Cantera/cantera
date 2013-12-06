@@ -100,6 +100,7 @@ if localenv['PYTHON_INSTALLER'] == 'direct':
                 global_env['python_module_loc'] = os.path.normpath(filename)
                 break
     localenv.AlwaysBuild(localenv.AddPostAction(mod_inst, find_module_dir))
+    env['install_python2_action'] = mod_inst
 
 elif localenv['PYTHON_INSTALLER'] == 'debian':
     install(localenv.Command, 'dummy', pymodule,

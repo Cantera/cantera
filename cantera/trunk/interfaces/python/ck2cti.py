@@ -39,6 +39,9 @@ import numpy as np
 import re
 import itertools
 
+reFloat = re.compile(r'\+?\d*\.?\d+([eEdD][-+]?\d+)?$')
+reInt = re.compile(r'\+?\d+$')
+
 QUANTITY_UNITS = {'MOL': 'mol',
                   'MOLE': 'mol',
                   'MOLES': 'mol',
@@ -809,11 +812,12 @@ def fortFloat(s):
     return float(s)
 
 def isnumberlike(text):
-    """ Returns true if `text` contains only the digits 0-9 and '.' """
-    for char in text:
-        if not char.isdigit() and char != '.':
-            return False
-    return True
+    """ Returns true if `text` can be interpreted as a floating point number. """
+    try:
+        float(text)
+        return True
+    except ValueError:
+        return False
 
 def get_index(seq, value):
     """
@@ -996,6 +1000,18 @@ class Parser(object):
 
         return species, thermo, composition, note
 
+    def setupKinetics(self):
+        self.valid_tokens = dict((k,'species') for k in self.speciesDict)
+        self.valid_tokens.update(('(+%s)' % k, 'falloff3b: %s' % k) for k in self.speciesDict)
+        self.valid_tokens['M'] = 'third-body'
+        self.valid_tokens['m'] = 'third-body'
+        self.valid_tokens['(+M)'] = 'falloff3b'
+        self.valid_tokens['(+m)'] = 'falloff3b'
+        self.valid_tokens['<=>'] = 'equal'
+        self.valid_tokens['=>'] = 'equal'
+        self.valid_tokens['='] = 'equal'
+        self.Slen = max(map(len, self.valid_tokens))
+
     def readKineticsEntry(self, entry):
         """
         Read a kinetics `entry` for a single reaction as loaded from a
@@ -1033,19 +1049,48 @@ class Parser(object):
         n = float(tokens[-2])
         Ea = float(tokens[-1])
         reaction = ''.join(tokens[:-3])
-        revReaction = None
 
-        # Split the reaction equation into reactants and products
-        if '<=>' in reaction:
-            reversible = True
-            reactants, products = reaction.split('<=>')
-        elif '=>' in reaction:
-            reversible = False
-            reactants, products = reaction.split('=>')
-        elif '=' in reaction:
-            reversible = True
-            reactants, products = reaction.split('=')
-        else:
+        # Identify tokens comprising the reaction expression.  Look for the
+        # longest possible sub-sequences first.
+        locs = {}
+        for i in range(self.Slen, 0, -1):
+            for j in range(len(reaction)-i+1):
+                test = reaction[j:j+i]
+                if test in self.valid_tokens:
+                    reaction = reaction[:j] + ' '*i + reaction[j+i:]
+                    locs[j] = test, self.valid_tokens[test]
+
+        # Anything that's left should be a stoichiometric coefficient or a '+'
+        # between species
+        for token in reaction.split():
+            j = reaction.find(token)
+            i = len(token)
+            reaction = reaction[:j] + ' '*i + reaction[j+i:]
+            if reInt.match(token):
+                locs[j] = int(token), 'coeff'
+            elif reFloat.match(token):
+                locs[j] = float(token), 'coeff'
+            elif token != '+':
+                raise InputParseError('Unexpected token "{0}" in reaction expression "{1}".'.format(token, reaction))
+
+        reactants = []
+        products = []
+        stoichiometry = 1
+        lhs = True
+        for token,kind in [v for k,v in sorted(locs.items())]:
+            if kind == 'equal':
+                reversible = token in ('<=>', '=')
+                lhs = False
+            elif kind == 'coeff':
+                stoichiometry = token
+            elif lhs:
+                reactants.append((stoichiometry,token,kind))
+                stoichiometry = 1
+            else:
+                products.append((stoichiometry,token,kind))
+                stoichiometry = 1
+
+        if lhs is True:
             raise InputParseError("Failed to find reactant/product delimiter in reaction string.")
 
         # Create a new Reaction object for this reaction
@@ -1054,39 +1099,13 @@ class Parser(object):
         def parseExpression(expression, dest):
             falloff3b = None
             thirdBody = False  # simple third body reaction (non-falloff)
-
-            # Look for third-body species for falloff reactions
-            if re.search(r'\(\+[Mm]\)', expression):
-                falloff3b = 'M'
-                expression = re.sub(r'(\(\+[Mm]\))', '', expression)
-            elif re.search(r'\(\+.*\)', expression):
-                # See if it matches a known species
-                for species in self.speciesDict:
-                    if re.search(r'\(\+%s\)' % re.escape(species), expression):
-                        falloff3b = species
-                        expression = re.sub(r'(\(\+%s\))' % re.escape(species),
-                                            '', expression)
-                        break
-
-            for term in expression.split('+'):
-                term = term.strip()
-                if isnumberlike(term[0]):
-                    # This allows for for non-unity stoichiometric coefficients, e.g.
-                    # 2A=B+C or .85A+.15B=>C
-                    j = [i for i,c in enumerate(term) if not isnumberlike(c)][0]
-                    if term[:j].isdigit():
-                        stoichiometry = int(term[:j])
-                    else:
-                        stoichiometry = float(term[:j])
-                    species = term[j:]
-                else:
-                    species = term
-                    stoichiometry = 1
-
-                if species == 'M' or species == 'm':
+            for stoichiometry,species,kind in expression:
+                if kind == 'third-body':
                     thirdBody = True
-                elif species not in self.speciesDict:
-                    raise InputParseError('Unexpected species "{0}" in reaction expression "{1}".'.format(species, expression))
+                elif kind == 'falloff3b':
+                    falloff3b = 'M'
+                elif kind.startswith('falloff3b:'):
+                    falloff3b = kind.split()[1]
                 else:
                     dest.append((stoichiometry, self.speciesDict[species]))
 
@@ -1115,7 +1134,6 @@ class Parser(object):
                                                quantity_dim + 1, quantity_units)
 
         # The rest of the first line contains Arrhenius parameters
-        tokens = lines[0].split()[1:]
         arrhenius = Arrhenius(
             A=(A,kunits),
             n=n,
@@ -1335,14 +1353,13 @@ class Parser(object):
             line, comment = readline()
             advance = True
             while line is not None:
-                tokens = line.split()
+                tokens = line.split() or ['']
 
-                if contains(line, 'ELEMENTS'):
-                    index = get_index(tokens, 'ELEMENTS')
-                    tokens = tokens[index+1:]
+                if tokens[0].upper().startswith('ELEM'):
+                    tokens = tokens[1:]
                     while line is not None and not contains(line, 'END'):
                         # Grudging support for implicit end of section
-                        if contains(line, 'SPECIES'):
+                        if contains(line, 'SPEC'):
                             self.warn('"ELEMENTS" section implicitly ended by start of '
                                       'next section on line {0}.'.format(self.line_number))
                             advance = False
@@ -1357,14 +1374,13 @@ class Parser(object):
                             break
                         self.elements.append(token.capitalize())
 
-                elif contains(line, 'SPECIES'):
+                elif tokens[0].upper().startswith('SPEC'):
                     # List of species identifiers
-                    index = get_index(tokens, 'SPECIES')
-                    tokens = tokens[index+1:]
+                    tokens = tokens[1:]
                     while line is not None and not contains(line, 'END'):
                         # Grudging support for implicit end of section
-                        if (contains(line, 'REACTIONS') or contains(line, 'TRAN') or
-                            contains(line, 'THERM')):
+                        if (contains(line, 'REAC') or contains(line, 'TRAN') or
+                            contains(line, 'THER')):
                             self.warn('"SPECIES" section implicitly ended by start of '
                                       'next section on line {0}.'.format(self.line_number))
                             advance = False
@@ -1384,13 +1400,13 @@ class Parser(object):
                             self.speciesDict[token] = species
                         self.speciesList.append(species)
 
-                elif contains(line, 'THERM') and contains(line, 'NASA9'):
+                elif tokens[0].upper().startswith('THER') and contains(line, 'NASA9'):
                     entryPosition = 0
                     entryLength = None
                     entry = []
                     while line is not None and not get_index(line, 'END') == 0:
                         # Grudging support for implicit end of section
-                        if (contains(line, 'REACTIONS') or contains(line, 'TRAN')):
+                        if (contains(line, 'REAC') or contains(line, 'TRAN')):
                             self.warn('"THERMO" section implicitly ended by start of '
                                       'next section on line {0}.'.format(self.line_number))
                             advance = False
@@ -1439,7 +1455,7 @@ class Parser(object):
 
                         entryPosition += 1
 
-                elif contains(line, 'THERM'):
+                elif tokens[0].upper().startswith('THER'):
                     # List of thermodynamics (hopefully one per species!)
                     line, comment = readline()
                     if line is not None and not contains(line, 'END'):
@@ -1447,7 +1463,7 @@ class Parser(object):
                     thermo = []
                     while line is not None and not contains(line, 'END'):
                         # Grudging support for implicit end of section
-                        if contains(line, 'REACTIONS') or contains(line, 'TRAN'):
+                        if contains(line, 'REAC') or contains(line, 'TRAN'):
                             self.warn('"THERMO" section implicitly ended by start of '
                                       'next section on line {0}.'.format(self.line_number))
                             advance = False
@@ -1472,25 +1488,28 @@ class Parser(object):
                                 thermo = []
                         line, comment = readline()
 
-                elif contains(line, 'REACTIONS'):
+                elif tokens[0].upper().startswith('REAC'):
                     # Reactions section
-                    energyUnits = 'CAL/MOL'
-                    moleculeUnits = 'MOLES'
-                    try:
-                        energyUnits = tokens[1].upper()
-                        moleculeUnits = tokens[2].upper()
-                    except IndexError:
-                        pass
 
-                    if not self.processed_units:
+                    for token in tokens[1:]:
+                        units = token.upper()
+                        if units in ENERGY_UNITS:
+                            if (self.processed_units and
+                                self.energy_units != ENERGY_UNITS[units]):
+                                raise InputParseError("Multiple REACTIONS sections with "
+                                                      "different units are not supported.")
+                            self.energy_units = ENERGY_UNITS[units]
+                        elif units in QUANTITY_UNITS:
+                            if (self.processed_units and
+                                self.quantity_units != QUANTITY_UNITS[units]):
+                                raise InputParseError("Multiple REACTIONS sections with "
+                                                      "different units are not supported.")
+                            self.quantity_units = QUANTITY_UNITS[units]
+                        else:
+                            raise InputParseError("Unrecognized energy or quantity unit, {0!r}".format(units))
+
+                    if len(tokens) > 1:
                         self.processed_units = True
-                        self.energy_units = ENERGY_UNITS[energyUnits]
-                        self.quantity_units = QUANTITY_UNITS[moleculeUnits]
-                    else:
-                        if (self.energy_units != ENERGY_UNITS[energyUnits] or
-                            self.quantity_units != QUANTITY_UNITS[moleculeUnits]):
-                            raise InputParseError("Multiple REACTIONS sections with "
-                                                  "different units are not supported.")
 
                     kineticsList = []
                     commentsList = []
@@ -1552,11 +1571,12 @@ class Parser(object):
                         if len(kineticsList) != len(commentsList):
                             commentsList = ['' for kinetics in kineticsList]
 
+                    self.setupKinetics()
                     for kinetics, comments, line_number in zip(kineticsList, commentsList, startLines):
                         try:
                             reaction,revReaction = self.readKineticsEntry(kinetics)
                         except Exception as e:
-                            print('Error reading reaction entry starting on line {0}:'.format(line_number))
+                            logging.error('Error reading reaction entry starting on line {0}:'.format(line_number))
                             raise
                         reaction.line_number = line_number
                         self.reactions.append(reaction)
@@ -1564,11 +1584,11 @@ class Parser(object):
                             revReaction.line_number = line_number
                             self.reactions.append(revReaction)
 
-                elif contains(line, 'TRAN'):
+                elif tokens[0].upper().startswith('TRAN'):
                     line, comment = readline()
                     while line is not None and not contains(line, 'END'):
                         # Grudging support for implicit end of section
-                        if contains(line, 'REACTIONS'):
+                        if contains(line, 'REAC'):
                             self.warn('"TRANSPORT" section implicitly ended by start of '
                                       'next section on line {0}.'.format(self.line_number))
                             advance = False
@@ -1753,15 +1773,27 @@ duplicate transport data) to be ignored.
                     outName=None, quiet=False, permissive=None):
         if quiet:
             logging.basicConfig(level=logging.ERROR)
+        else:
+            logging.basicConfig(level=logging.INFO)
 
         if permissive is not None:
             self.warning_as_error = not permissive
 
-        # Read input mechanism files
-        self.loadChemkinFile(inputFile)
+        try:
+            # Read input mechanism files
+            self.loadChemkinFile(inputFile)
+        except Exception:
+            logging.warning("\nERROR: Unable to parse '{0}' near line {1}:\n".format(
+                            inputFile, self.line_number))
+            raise
 
         if thermoFile:
-            self.loadChemkinFile(thermoFile)
+            try:
+                self.loadChemkinFile(thermoFile)
+            except Exception:
+                logging.warning("\nERROR: Unable to parse '{0}' near line {1}:\n".format(
+                                thermoFile, self.line_number))
+                raise
 
         if transportFile:
             lines = open(transportFile, 'rU').readlines()

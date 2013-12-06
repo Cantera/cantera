@@ -32,14 +32,10 @@ ThermoPhase::ThermoPhase() :
 
 ThermoPhase::~ThermoPhase()
 {
-    for (size_t k = 0; k < m_kk; k++) {
-        if (m_speciesData[k]) {
-            delete m_speciesData[k];
-            m_speciesData[k] = 0;
-        }
+    for (size_t k = 0; k < m_speciesData.size(); k++) {
+        delete m_speciesData[k];
     }
     delete m_spthermo;
-    m_spthermo = 0;
 }
 
 ThermoPhase::ThermoPhase(const ThermoPhase& right)  :
@@ -70,11 +66,8 @@ operator=(const ThermoPhase& right)
     /*
      * We need to destruct first
      */
-    for (size_t k = 0; k < m_kk; k++) {
-        if (m_speciesData[k]) {
-            delete m_speciesData[k];
-            m_speciesData[k] = 0;
-        }
+    for (size_t k = 0; k < m_speciesData.size(); k++) {
+        delete m_speciesData[k];
     }
     delete m_spthermo;
 
@@ -973,8 +966,8 @@ std::string ThermoPhase::report(bool show_thermo) const
                 s += p;
             }
         } else {
-            sprintf(p, " \n                           X"
-                    "Y\n");
+            sprintf(p, " \n                           X     "
+                    "            Y\n");
             s += p;
             sprintf(p, "                     -------------"
                     "     ------------\n");

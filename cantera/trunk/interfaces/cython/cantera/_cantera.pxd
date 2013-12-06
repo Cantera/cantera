@@ -18,6 +18,7 @@ cdef extern from "cantera/base/ctml.h" namespace "ctml":
 cdef extern from "cantera/base/global.h" namespace "Cantera":
     cdef void CxxAddDirectory "Cantera::addDirectory" (string)
     cdef size_t CxxNpos "Cantera::npos"
+    cdef void CxxAppdelete "Cantera::appdelete" ()
 
 cdef extern from "cantera/thermo/mix_defs.h":
     cdef int thermo_type_ideal_gas "Cantera::cIdealGas"
@@ -29,7 +30,7 @@ cdef extern from "cantera/thermo/mix_defs.h":
     cdef int kinetics_type_edge "Cantera::cEdgeKinetics"
 
 
-cdef extern from "funcWrapper.h":
+cdef extern from "cantera/cython/funcWrapper.h":
     ctypedef double (*callback_wrapper)(double, void*, void**)
     cdef int translate_exception()
 
@@ -69,6 +70,7 @@ cdef extern from "cantera/thermo/ThermoPhase.h" namespace "Cantera":
         size_t nElements()
         size_t elementIndex(string) except +
         string elementName(size_t) except +
+        double atomicWeight(size_t) except +
 
         # species properties
         size_t nSpecies()
@@ -180,6 +182,7 @@ cdef extern from "cantera/transport/TransportBase.h" namespace "Cantera":
         int model()
         double viscosity() except +
         double thermalConductivity() except +
+        double electricalConductivity() except +
 
 
 cdef extern from "cantera/transport/DustyGasTransport.h" namespace "Cantera":
@@ -497,10 +500,15 @@ cdef extern from "cantera/kinetics/ReactionPath.h":
         void build(CxxKinetics&, string&, CxxStringStream&, CxxReactionPathDiagram&, cbool)
 
 
-cdef extern from "wrappers.h":
+cdef extern from "cantera/cython/wrappers.h":
     # config definitions
     cdef string get_cantera_version()
     cdef int get_sundials_version()
+
+    cdef cppclass CxxPythonLogger "PythonLogger":
+        pass
+
+    cdef void CxxSetLogger "setLogger" (CxxPythonLogger*)
 
     # ThermoPhase composition
     cdef void thermo_getMassFractions(CxxThermoPhase*, double*) except +
@@ -560,9 +568,13 @@ cdef extern from "wrappers.h":
     cdef void tran_getMultiDiffCoeffs(CxxTransport*, size_t, double*) except +
     cdef void tran_getBinaryDiffCoeffs(CxxTransport*, size_t, double*) except +
 
+# typedefs
+ctypedef void (*thermoMethod1d)(CxxThermoPhase*, double*) except +
+ctypedef void (*transportMethod1d)(CxxTransport*, double*) except +
+ctypedef void (*transportMethod2d)(CxxTransport*, size_t, double*) except +
+ctypedef void (*kineticsMethod1d)(CxxKinetics*, double*) except +
 
-cdef string stringify(x)
-
+# classes
 cdef class _SolutionBase:
     cdef CxxThermoPhase* thermo
     cdef CxxKinetics* kinetics
@@ -571,8 +583,33 @@ cdef class _SolutionBase:
     cdef np.ndarray _selected_species
     cdef object parent
 
+cdef class ThermoPhase(_SolutionBase):
+    cdef double _mass_factor(self)
+    cdef double _mole_factor(self)
+    cpdef int element_index(self, element) except *
+    cpdef int species_index(self, species) except *
+    cdef np.ndarray _getArray1(self, thermoMethod1d method)
+    cdef void _setArray1(self, thermoMethod1d method, values) except *
+
+cdef class InterfacePhase(ThermoPhase):
+    cdef CxxSurfPhase* surf
+
 cdef class Kinetics(_SolutionBase):
     pass
+
+cdef class InterfaceKinetics(Kinetics):
+    pass
+
+cdef class Transport(_SolutionBase):
+     pass
+
+cdef class DustyGasTransport(Transport):
+     pass
+
+cdef class Mixture:
+    cdef CxxMultiPhase* mix
+    cdef list _phases
+    cpdef int element_index(self, element) except *
 
 cdef class Func1:
     cdef CxxFunc1* func
@@ -589,6 +626,21 @@ cdef class ReactorBase:
 cdef class Reactor(ReactorBase):
     cdef CxxReactor* reactor
     cdef object _kinetics
+
+cdef class Reservoir(ReactorBase):
+    pass
+
+cdef class ConstPressureReactor(Reactor):
+    pass
+
+cdef class IdealGasReactor(Reactor):
+    pass
+
+cdef class IdealGasConstPressureReactor(Reactor):
+    pass
+
+cdef class FlowReactor(Reactor):
+    pass
 
 cdef class WallSurface:
     cdef CxxWall* cxxwall
@@ -612,3 +664,74 @@ cdef class FlowDevice:
     cdef str name
     cdef ReactorBase _upstream
     cdef ReactorBase _downstream
+
+cdef class MassFlowController(FlowDevice):
+    pass
+
+cdef class Valve(FlowDevice):
+    pass
+
+cdef class PressureController(FlowDevice):
+    pass
+
+cdef class ReactorNet:
+    cdef CxxReactorNet net
+    cdef list _reactors
+
+cdef class Domain1D:
+    cdef CxxDomain1D* domain
+
+cdef class Boundary1D(Domain1D):
+    cdef CxxBdry1D* boundary
+    cdef _SolutionBase phase
+
+cdef class Inlet1D(Boundary1D):
+    cdef CxxInlet1D* inlet
+
+cdef class Outlet1D(Boundary1D):
+    cdef CxxOutlet1D* outlet
+
+cdef class OutletReservoir1D(Boundary1D):
+    cdef CxxOutletRes1D* outlet
+
+cdef class SymmetryPlane1D(Boundary1D):
+    cdef CxxSymm1D* symm
+
+cdef class Surface1D(Boundary1D):
+    cdef CxxSurf1D* surf
+
+cdef class ReactingSurface1D(Boundary1D):
+    cdef CxxReactingSurf1D* surf
+
+cdef class _FlowBase(Domain1D):
+    cdef CxxStFlow* flow
+    cdef _SolutionBase gas
+
+cdef class FreeFlow(_FlowBase):
+    pass
+
+cdef class AxisymmetricStagnationFlow(_FlowBase):
+    pass
+
+cdef class Sim1D:
+    cdef CxxSim1D* sim
+    cdef readonly object domains
+    cdef object _initialized
+    cdef Func1 interrupt
+
+cdef class ReactionPathDiagram:
+    cdef CxxReactionPathDiagram diagram
+    cdef CxxReactionPathBuilder builder
+    cdef Kinetics kinetics
+    cdef str element
+    cdef pybool built
+    cdef CxxStringStream _log
+
+# free functions
+cdef string stringify(x)
+cdef pystr(string x)
+cdef np.ndarray get_species_array(Kinetics kin, kineticsMethod1d method)
+cdef np.ndarray get_reaction_array(Kinetics kin, kineticsMethod1d method)
+cdef np.ndarray get_transport_1d(Transport tran, transportMethod1d method)
+cdef np.ndarray get_transport_2d(Transport tran, transportMethod2d method)
+cdef CxxIdealGasPhase* getIdealGasPhase(ThermoPhase phase) except *

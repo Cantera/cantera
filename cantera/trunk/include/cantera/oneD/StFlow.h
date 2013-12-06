@@ -160,7 +160,7 @@ public:
 
     virtual std::string componentName(size_t n) const;
 
-    size_t componentIndex(const std::string& name) const;
+    virtual size_t componentIndex(const std::string& name) const;
 
     //! Print the solution.
     virtual void showSolution(const doublereal* x);

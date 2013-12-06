@@ -78,15 +78,17 @@ env['matlab_extension'] = ctmethods
 ### Install the Matlab toolbox ###
 
 # 'ctpath.m'
+globalenv = env
 def copy_var(target, source, env):
     if env['python_prefix'] == 'USER':
         env['python_module_loc_sc'] = ''
     else:
-        env['python_module_loc_sc'] = env['python_module_loc']
+        env['python_module_loc_sc'] = globalenv['python_module_loc']
 
 target = localenv.SubstFile('#interfaces/matlab/ctpath.m',
                             '#interfaces/matlab/ctpath.m.in')
 localenv.AddPreAction(target, copy_var)
+localenv.Depends(target, env['install_python2_action'])
 install('$inst_matlab_dir', target)
 
 # 'cantera_demos.m'

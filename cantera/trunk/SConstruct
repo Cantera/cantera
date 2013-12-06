@@ -218,7 +218,7 @@ elif env['CC'] == 'cl': # Visual Studio
                         '/D_SCL_SECURE_NO_WARNINGS', '/D_CRT_SECURE_NO_WARNINGS']
     if env['MSVC_VERSION'] == '11.0':
         # Fix compatibility issue between VS2012 and Google Test
-        defaults.cxxFlags.append('D_VARIADIC_MAX=10')
+        defaults.cxxFlags.append('/D_VARIADIC_MAX=10')
     defaults.debugCcFlags = '/Zi /Fd${TARGET}.pdb'
     defaults.noOptimizeCcFlags = '/Od /Ob0'
     defaults.optimizeCcFlags = '/O2 /DNDEBUG'
@@ -341,6 +341,12 @@ config_options = [
            default 'site-packages' directory. To install to the current user's
            site-packages directory, use 'python3_prefix=USER'.""",
         defaults.python_prefix, PathVariable.PathAccept),
+    PathVariable(
+        'python_compiler',
+        """ Compiler to use while building the Python extension module. By default,
+            the compiler will be selected by distutils. Applies to both Python 2
+            and Python 3.""",
+        '', PathVariable.PathAccept),
     EnumVariable(
         'matlab_toolbox',
         """This variable controls whether the Matlab toolbox will be built. If
@@ -432,6 +438,16 @@ config_options = [
            Not needed if the libraries are installed in a standard location,
            e.g. /usr/lib.""",
         '', PathVariable.PathAccept),
+    PathVariable(
+        'sundials_license',
+        """Path to the sundials LICENSE file. Needed so that it can be included
+           when bundling Sundials""",
+        '', PathVariable.PathAccept),
+    BoolVariable(
+        'install_sundials',
+        """Determines whether Sundials library and header files are installed
+           alongside Cantera. Intended for use when installing on Windows.""",
+        os.name == 'nt'),
     ('blas_lapack_libs',
      """Cantera comes with Fortran (or C) versions of those parts of BLAS and
         LAPACK it requires. But performance may be better if you use a version
@@ -525,6 +541,11 @@ config_options = [
     ('boost_thread_lib',
      'The name of the Boost.Thread library.',
      'boost_thread'),
+    ('boost_windows_libs',
+     """Comma-separated list containing the names of the Boost libraries
+        required to link Cantera programs on Windows. These libraries will be
+        copied to the Cantera installation directory.""",
+     'thread,system,date_time,chrono'), # default is correct for Boost 1.54
     BoolVariable(
         'build_with_f2c',
         """For external procedures written in Fortran 77, both the
@@ -603,7 +624,7 @@ config_options = [
         name recognized by the 'dot' program. On linux systems, this
         should be lowercase 'helvetica'.""",
      'Helvetica'),
-    ('cantera_version', '', '2.1.0b2')
+    ('cantera_version', '', '2.1.0')
 ]
 
 opts.AddVariables(*config_options)
@@ -659,6 +680,8 @@ print
 # Copy in external environment variables
 if env['env_vars'] == 'all':
     env['ENV'].update(os.environ)
+    if 'PYTHONHOME' in env['ENV']:
+        del env['ENV']['PYTHONHOME']
 elif env['env_vars']:
     for name in env['env_vars'].split(','):
         if name in os.environ:
@@ -844,6 +867,7 @@ env = conf.Finish()
 
 # Python 2 Package Settings
 cython_min_version = LooseVersion('0.17')
+env['install_python2_action'] = ''
 if env['python_package'] in ('full','default','new'):
     # Check for Cython:
     try:
@@ -922,7 +946,7 @@ if env['python_package'] in ('full','default','new'):
 else:
     warnNoPython = False
     env['python_array_include'] = ''
-
+    env['python_module_loc'] = ''
 
 # Python 3 Package Settings
 if env['python3_package'] in ('y', 'default'):
@@ -943,7 +967,7 @@ if env['python3_package'] in ('y', 'default'):
         info = getCommandOutput(env['python3_cmd'], '-c', script)
         (env['python3_version'],
          env['python3_usersitepackages'],
-         cython_version) = info.splitlines()
+         cython_version) = info.splitlines()[-3:]
     except OSError:
         info = False
 
@@ -1289,8 +1313,21 @@ if addInstallActions:
     if env['CC'] == 'cl' and env['use_boost_libs']:
         boost_suffix = '-vc%s-mt-%s.lib' % (env['MSVC_VERSION'].replace('.',''),
                                         env['BOOST_LIB_VERSION'])
-        install('$inst_libdir', pjoin('$boost_lib_dir', 'libboost_date_time' + boost_suffix))
-        install('$inst_libdir', pjoin('$boost_lib_dir', 'libboost_thread' + boost_suffix))
+        for lib in env['boost_windows_libs'].split(','):
+            install('$inst_libdir', pjoin('$boost_lib_dir',
+                                          'libboost_{0}{1}'.format(lib, boost_suffix)))
+
+    # Copy sundials library and header files
+    if env['install_sundials']:
+        for subdir in ['cvode','cvodes','ida','idas','kinsol','nvector','sundials']:
+            if os.path.exists(pjoin(env['sundials_include'], subdir)):
+                install(env.RecursiveInstall, pjoin('$inst_incdir', '..', subdir),
+                        pjoin(env['sundials_include'], subdir))
+        if os.path.exists(env['sundials_license']):
+            install(pjoin('$inst_incdir', '..', 'sundials'), env['sundials_license'])
+        libprefix = '' if os.name == 'nt' else 'lib'
+        install('$inst_libdir', mglob(env, env['sundials_libdir'],
+                                      '^{0}sundials_*'.format(libprefix)))
 
 
 ### List of libraries needed to link to Cantera ###
@@ -1298,7 +1335,6 @@ linkLibs = ['cantera']
 
 ### List of shared libraries needed to link applications to Cantera
 linkSharedLibs = ['cantera_shared']
-
 
 if env['use_sundials'] == 'y':
     env['sundials_libs'] = ['sundials_cvodes', 'sundials_ida', 'sundials_nvecserial']
@@ -1335,6 +1371,9 @@ elif not env['single_library']:
     # Add the f2c library when f2c is requested
     linkLibs.append('ctf2c')
     linkSharedLibs.append('ctf2c_shared')
+
+linkLibs.extend(env['boost_libs'])
+linkSharedLibs.extend(env['boost_libs'])
 
 # Store the list of needed static link libraries in the environment
 env['cantera_libs'] = linkLibs

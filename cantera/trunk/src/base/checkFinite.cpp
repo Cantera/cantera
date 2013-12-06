@@ -44,10 +44,10 @@ void checkFinite(const double tmp)
         throw std::range_error("checkFinite()");
     }
 #else
-    if (!finite(tmp)) {
-        if (isnan(tmp)) {
+    if (!::finite(tmp)) {
+        if (::isnan(tmp)) {
             printf("checkFinite() ERROR: we have encountered a nan!\n");
-        } else if (isinf(tmp) == 1) {
+        } else if (::isinf(tmp) == 1) {
             printf("checkFinite() ERROR: we have encountered a pos inf!\n");
         } else {
             printf("checkFinite() ERROR: we have encountered a neg inf!\n");

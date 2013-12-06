@@ -1,6 +1,3 @@
-ctypedef void (*transportMethod1d)(CxxTransport*, double*) except +
-ctypedef void (*transportMethod2d)(CxxTransport*, size_t, double*) except +
-
 # NOTE: These cdef functions cannot be members of Transport because they would
 # cause "layout conflicts" when creating derived classes with multiple bases,
 # e.g. class Solution. [Cython 0.16]
@@ -49,6 +46,11 @@ cdef class Transport(_SolutionBase):
         """Viscosity [Pa-s]."""
         def __get__(self):
             return self.transport.viscosity()
+
+    property electrical_conductivity:
+        """Electrical conductivity. [S/m]."""
+        def __get__(self):
+            return self.transport.electricalConductivity()
 
     property thermal_conductivity:
         """Thermal conductivity. [W/m/K]."""

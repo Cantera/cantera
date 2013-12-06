@@ -12,6 +12,7 @@ import shutil
 import itertools
 
 import SCons.Errors
+import SCons
 from distutils.version import LooseVersion
 import distutils.sysconfig
 
@@ -405,6 +406,13 @@ def psplit(s):
     return path
 
 
+def subdirs(path):
+    """ Get the subdirectories of a specified directory """
+    for subdir in os.listdir(path):
+        dirpath = pjoin(path, subdir)
+        if os.path.isdir(dirpath):
+            yield subdir
+
 def stripDrive(s):
     """
     Remove a Windows drive letter specification from a path.
@@ -583,9 +591,14 @@ def getCommandOutput(cmd, *args):
     Substitute for subprocess.check_output which is only available
     in Python >= 2.7
     """
+    environ = dict(os.environ)
+    if 'PYTHONHOME' in environ:
+        # Can cause problems when trying to run a different Python interpreter
+        del environ['PYTHONHOME']
     proc = subprocess.Popen([cmd] + list(args),
                             stdout=subprocess.PIPE,
-                            stderr=subprocess.PIPE)
+                            stderr=subprocess.PIPE,
+                            env=environ)
     data, err = proc.communicate()
     if proc.returncode:
         raise OSError(err)
