@@ -1,7 +1,7 @@
 Elements
 H  C
 End
-SPECIES
+SPEC
 (Parens)  @#$%^-2  [xy2]*{.}
 end
 
@@ -21,7 +21,7 @@ thermo
 -4.84743026E-08 1.66693956E-11-1.02466476E+04-4.64130376E+00                   4
 end
 
-reactions
+     reaction
 (Parens) + @#$%^-2 = 2 [xy2]*{.}      1.2345e12  1.0  200.0
 2(Parens) + [xy2]*{.} = 3@#$%^-2   5.4321e10  1.0  500.0
 end
