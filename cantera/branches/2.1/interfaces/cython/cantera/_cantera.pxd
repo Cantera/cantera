@@ -505,6 +505,11 @@ cdef extern from "cantera/cython/wrappers.h":
     cdef string get_cantera_version()
     cdef int get_sundials_version()
 
+    cdef cppclass CxxPythonLogger "PythonLogger":
+        pass
+
+    cdef void CxxSetLogger "setLogger" (CxxPythonLogger*)
+
     # ThermoPhase composition
     cdef void thermo_getMassFractions(CxxThermoPhase*, double*) except +
     cdef void thermo_setMassFractions(CxxThermoPhase*, double*) except +
