@@ -1558,7 +1558,7 @@ class Parser(object):
                         try:
                             reaction,revReaction = self.readKineticsEntry(kinetics)
                         except Exception as e:
-                            print('Error reading reaction entry starting on line {0}:'.format(line_number))
+                            logging.error('Error reading reaction entry starting on line {0}:'.format(line_number))
                             raise
                         reaction.line_number = line_number
                         self.reactions.append(reaction)
@@ -1755,6 +1755,8 @@ duplicate transport data) to be ignored.
                     outName=None, quiet=False, permissive=None):
         if quiet:
             logging.basicConfig(level=logging.ERROR)
+        else:
+            logging.basicConfig(level=logging.INFO)
 
         if permissive is not None:
             self.warning_as_error = not permissive
@@ -1763,16 +1765,16 @@ duplicate transport data) to be ignored.
             # Read input mechanism files
             self.loadChemkinFile(inputFile)
         except Exception:
-            print("\nERROR: Unable to parse '{0}' near line {1}:\n".format(
-                    inputFile, self.line_number))
+            logging.warning("\nERROR: Unable to parse '{0}' near line {1}:\n".format(
+                            inputFile, self.line_number))
             raise
 
         if thermoFile:
             try:
                 self.loadChemkinFile(thermoFile)
             except Exception:
-                print("\nERROR: Unable to parse '{0}' near line {1}:\n".format(
-                        thermoFile, self.line_number))
+                logging.warning("\nERROR: Unable to parse '{0}' near line {1}:\n".format(
+                                thermoFile, self.line_number))
                 raise
 
         if transportFile:
