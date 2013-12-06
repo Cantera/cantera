@@ -29,7 +29,7 @@ function s = IdealGasMix(a,b,c)
 %   calls. If the initial call includes a transport database, then
 %   the CTML file will contain transport data.
 %
-%   See also: ck2ctml, Solution
+%   See also: ck2cti, Solution
 %
 dotloc = findstr(a,'.');
 if dotloc(end) > 1
