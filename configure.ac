@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.61)
-AC_INIT([cantera], [2.1.0], [nick@ices.utexas.edu])
+AC_INIT([cantera], [2.2a], [nick@ices.utexas.edu])
 AC_CONFIG_HEADER(config.h)
 AC_CONFIG_AUX_DIR([build-aux])
 #AX_ENABLE_BUILDDIR
