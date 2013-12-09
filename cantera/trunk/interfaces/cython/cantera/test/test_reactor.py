@@ -661,6 +661,8 @@ class TestConstPressureReactor(utilities.CanteraTest):
 
     def test_with_surface_reactions(self):
         self.create_reactors(add_surf=True)
+        self.net1.atol = self.net2.atol = 1e-18
+        self.net1.rtol = self.net2.rtol = 1e-9
         self.integrate(surf=True)
 
 
