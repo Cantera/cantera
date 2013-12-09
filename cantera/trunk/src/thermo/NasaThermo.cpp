@@ -82,12 +82,14 @@ void NasaThermo::install(const std::string& name, size_t index, int type,
     vector_fp chigh(c+8, c+15);
     vector_fp clow(c+1, c+8);
 
-    checkContinuity(name, tmid, &clow[0], &chigh[0]);
-    //if (maxError > 1e-6) {
-    //    fixDiscontinuities(tlow, tmid, thigh, &clow[0], &chigh[0]);
-    //    AssertThrowMsg(checkContinuity(name, tmid, &clow[0], &chigh[0]) < 1e-12,
-    //           "NasaThermo::install", "Polynomials still not continuous");
-    //}
+    if (!m_allow_discontinuities) {
+        doublereal maxError = checkContinuity(name, tmid, &clow[0], &chigh[0]);
+        if (maxError > 1e-6) {
+            fixDiscontinuities(tlow, tmid, thigh, &clow[0], &chigh[0]);
+            AssertThrowMsg(checkContinuity(name, tmid, &clow[0], &chigh[0]) < 1e-12,
+                   "NasaThermo::install", "Polynomials still not continuous");
+        }
+    }
 
     m_high[igrp-1].push_back(NasaPoly1(index, tmid, thigh,
                                        ref_pressure, &chigh[0]));

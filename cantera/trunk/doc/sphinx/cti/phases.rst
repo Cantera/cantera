@@ -269,6 +269,9 @@ Option String                       Meaning
 ``'skip_undeclared_third_bodies'``  When importing reactions with third body efficiencies,
                                     ignore any efficiencies for undeclared species, rather
                                     than flagging them as an error.
+``'allow_discontinuous_thermo'``    Disable the automatic adjustment of NASA polynomials to
+                                    eliminate discontinuities in enthalpy and entropy at the
+                                    midpoint temperature.
 ==================================  ================
 
 Using the ``options`` field, it is possible to extract a sub-mechanism from a large
