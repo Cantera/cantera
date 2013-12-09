@@ -36,7 +36,9 @@ if strcmp(getenv('OS'), 'Windows_NT')
 end
 
 % Set path to Python module
-setenv('PYTHONPATH', fullfile(cantera_root, 'interfaces', 'python'))
+if strcmp(getenv('PYTHONPATH'), '')
+    setenv('PYTHONPATH', fullfile(cantera_root, 'build', 'python2'))
+end
 
 % A simple test to make sure that the ctmethods.mex file is present and working
 f = Func('polynomial', 3, [1,2,3,4]);

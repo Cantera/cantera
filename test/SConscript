@@ -9,14 +9,7 @@ localenv.Prepend(CPPPATH=['#ext/gtest/include', '#include'],
 localenv.Append(LIBS=['gtest'] + localenv['cantera_libs'],
                 CCFLAGS=env['warning_flags'])
 
-#localenv['ENV']['PYTHONPATH'] = Dir('#interfaces/python').abspath 
-localenv['ENV']['PYTHONPATH'] = Dir('#interfaces/python').abspath
 localenv['ENV']['CANTERA_DATA'] = Dir('#build/data').abspath
-
-#print localenv.Dump()
-print localenv['ENV']['PYTHONPATH']
-#exit(0)
-
 
 PASSED_FILES = {}
 
@@ -105,7 +98,7 @@ def addTestScript(testname, subdir, script, interpreter, dependencies=(), env_va
     return run_program
 
 
-def addMatlabTest(script, testName, dependencies=None):
+def addMatlabTest(script, testName, dependencies=None, env_vars=()):
     def matlabRunner(target, source, env):
         passedFile = target[0]
         del testResults.tests[passedFile.name]
@@ -123,6 +116,7 @@ def addMatlabTest(script, testName, dependencies=None):
 
         environ = dict(os.environ)
         environ.update(env['ENV'])
+        environ.update(env_vars)
         code = subprocess.call([pjoin(env['matlab_path'], 'bin', 'matlab')] +
                                matlabOptions + ['-r', runCommand],
                                env=environ, cwd=Dir('#test/matlab').abspath)
@@ -175,13 +169,24 @@ if localenv['python3_package'] == 'y':
                            dependencies=(localenv['python3_module'] +
                                          localenv['python3_extension'] +
                                          mglob(localenv, '#interfaces/cython/cantera/test', 'py')),
-                           env_vars={'PYTHONPATH':Dir('#build/python3').abspath})
+                           env_vars={'PYTHONPATH':Dir('#build/python3').abspath,
+                                     'PYTHON_CMD': localenv.subst('$python3_cmd')})
     localenv.Alias('test-cython3', pyTest)
     env['testNames'].append('cython3')
 
 if localenv['matlab_toolbox'] == 'y':
+    if localenv['python_package'] in ('full', 'minimal'):
+        env_vars = {'PYTHONPATH': Dir('#build/python2').abspath,
+                    'PYTHON_CMD': localenv.subst('$python_cmd')}
+    elif localenv['python3_package'] == 'y':
+        env_vars = {'PYTHONPATH': Dir('#build/python3').abspath,
+                    'PYTHON_CMD': localenv.subst('$python3_cmd')}
+    else:
+        env_vars = {} # ck2cti test is likely to fail
+
     matlabTest = addMatlabTest('runCanteraTests.m', 'matlab',
-                               dependencies=mglob(localenv, 'matlab', 'm'))
+                               dependencies=mglob(localenv, 'matlab', 'm'),
+			       env_vars=env_vars)
     localenv.Alias('test-matlab', matlabTest)
     env['testNames'].append('matlab')
 
