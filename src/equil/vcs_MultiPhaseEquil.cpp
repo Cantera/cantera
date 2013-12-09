@@ -80,7 +80,6 @@ int vcs_MultiPhaseEquil::equilibrate_TV(int XY, doublereal xtarget,
                                         int printLvl, doublereal err,
                                         int maxsteps, int loglevel)
 {
-    addLogEntry("problem type","fixed T, V");
     //            doublereal dt = 1.0e3;
     doublereal Vtarget = m_mix->volume();
     doublereal dVdP;
@@ -108,7 +107,6 @@ int vcs_MultiPhaseEquil::equilibrate_TV(int XY, doublereal xtarget,
     for (int n = 0; n < maxiter; n++) {
         Pnow = m_mix->pressure();
 
-        beginLogGroup("iteration "+int2str(n));
         switch (XY) {
         case TV:
             iSuccess = equilibrate_TP(strt, printLvlSub, err, maxsteps, loglevel);
@@ -147,14 +145,8 @@ int vcs_MultiPhaseEquil::equilibrate_TV(int XY, doublereal xtarget,
         }
 
         Verr = fabs((Vtarget - Vnow)/Vtarget);
-        addLogEntry("P",fp2str(Pnow));
-        addLogEntry("V rel error",fp2str(Verr));
-        endLogGroup();
 
         if (Verr < err) {
-            addLogEntry("P iterations",int2str(n));
-            addLogEntry("Final P",fp2str(Pnow));
-            addLogEntry("V rel error",fp2str(Verr));
             goto done;
         }
         // find dV/dP
@@ -217,8 +209,6 @@ int vcs_MultiPhaseEquil::equilibrate_HP(doublereal Htarget,
     if (Thigh <= 0.0 || Thigh > 1.0E6) {
         Thigh = 2.0 * m_mix->maxTemp();
     }
-    addLogEntry("problem type","fixed H,P");
-    addLogEntry("H target",fp2str(Htarget));
 
     doublereal cpb = 1.0, dT, dTa, dTmax, Tnew;
     doublereal Hnow;
@@ -233,8 +223,6 @@ int vcs_MultiPhaseEquil::equilibrate_HP(doublereal Htarget,
 
         // start with a loose error tolerance, but tighten it as we get
         // close to the final temperature
-        beginLogGroup("iteration "+int2str(n));
-
         try {
             Tnow = m_mix->temperature();
             iSuccess = equilibrate_TP(strt, printLvlSub, err, maxsteps, loglevel);
@@ -295,13 +283,6 @@ int vcs_MultiPhaseEquil::equilibrate_HP(doublereal Htarget,
             double denom = std::max(fabs(Htarget), acpb);
             Herr = Htarget - Hnow;
             HConvErr = fabs((Herr)/denom);
-            addLogEntry("T",fp2str(m_mix->temperature()));
-            addLogEntry("H",fp2str(Hnow));
-            addLogEntry("Herr",fp2str(Herr));
-            addLogEntry("H rel error",fp2str(HConvErr));
-            addLogEntry("lower T bound",fp2str(Tlow));
-            addLogEntry("upper T bound",fp2str(Thigh));
-            endLogGroup(); // iteration
             if (printLvl > 0) {
                 plogf("   equilibrate_HP: It = %d, Tcurr  = %g Hcurr = %g, Htarget = %g\n",
                       n, Tnow, Hnow, Htarget);
@@ -310,9 +291,6 @@ int vcs_MultiPhaseEquil::equilibrate_HP(doublereal Htarget,
             }
 
             if (HConvErr < err) { // || dTa < 1.0e-4) {
-                addLogEntry("T iterations",int2str(n));
-                addLogEntry("Final T",fp2str(m_mix->temperature()));
-                addLogEntry("H rel error",fp2str(Herr));
                 if (printLvl > 0) {
                     plogf("   equilibrate_HP: CONVERGENCE: Hfinal  = %g Tfinal = %g, Its = %d \n",
                           Hnow, Tnow, n);
@@ -329,8 +307,6 @@ int vcs_MultiPhaseEquil::equilibrate_HP(doublereal Htarget,
 
         } catch (CanteraError err) {
             if (!estimateEquil) {
-                addLogEntry("no convergence",
-                            "try estimating composition at the start");
                 strt = -1;
             } else {
                 Tnew = 0.5*(Tnow + Thigh);
@@ -338,15 +314,10 @@ int vcs_MultiPhaseEquil::equilibrate_HP(doublereal Htarget,
                     Tnew = Tnow + 1.0;
                 }
                 m_mix->setTemperature(Tnew);
-                addLogEntry("no convergence",
-                            "trying T = "+fp2str(Tnow));
             }
-            endLogGroup();
         }
 
     }
-    addLogEntry("reached max number of T iterations",int2str(maxiter));
-    endLogGroup();
     throw CanteraError("MultiPhase::equilibrate_HP",
                        "No convergence for T");
 done:
@@ -371,8 +342,6 @@ int vcs_MultiPhaseEquil::equilibrate_SP(doublereal Starget,
     if (Thigh <= 0.0 || Thigh > 1.0E6) {
         Thigh = 2.0 * m_mix->maxTemp();
     }
-    addLogEntry("problem type","fixed S,P");
-    addLogEntry("S target",fp2str(Starget));
 
     doublereal cpb = 1.0, dT, dTa, dTmax, Tnew;
     doublereal Snow;
@@ -392,8 +361,6 @@ int vcs_MultiPhaseEquil::equilibrate_SP(doublereal Starget,
 
         // start with a loose error tolerance, but tighten it as we get
         // close to the final temperature
-        beginLogGroup("iteration "+int2str(n));
-
         try {
             Tnow = m_mix->temperature();
             int iSuccess = equilibrate_TP(strt, printLvlSub, err, maxsteps, loglevel);
@@ -455,13 +422,6 @@ int vcs_MultiPhaseEquil::equilibrate_SP(doublereal Starget,
             double denom = std::max(fabs(Starget), acpb);
             Serr = Starget - Snow;
             SConvErr = fabs((Serr)/denom);
-            addLogEntry("T",fp2str(m_mix->temperature()));
-            addLogEntry("S",fp2str(Snow));
-            addLogEntry("Serr",fp2str(Serr));
-            addLogEntry("S rel error",fp2str(SConvErr));
-            addLogEntry("lower T bound",fp2str(Tlow));
-            addLogEntry("upper T bound",fp2str(Thigh));
-            endLogGroup(); // iteration
             if (printLvl > 0) {
                 plogf("   equilibrate_SP: It = %d, Tcurr  = %g Scurr = %g, Starget = %g\n",
                       n, Tnow, Snow, Starget);
@@ -470,9 +430,6 @@ int vcs_MultiPhaseEquil::equilibrate_SP(doublereal Starget,
             }
 
             if (SConvErr < err) { // || dTa < 1.0e-4) {
-                addLogEntry("T iterations",int2str(n));
-                addLogEntry("Final T",fp2str(m_mix->temperature()));
-                addLogEntry("S rel error",fp2str(Serr));
                 if (printLvl > 0) {
                     plogf("   equilibrate_SP: CONVERGENCE: Sfinal  = %g Tfinal = %g, Its = %d \n",
                           Snow, Tnow, n);
@@ -489,8 +446,6 @@ int vcs_MultiPhaseEquil::equilibrate_SP(doublereal Starget,
 
         } catch (CanteraError err) {
             if (!estimateEquil) {
-                addLogEntry("no convergence",
-                            "try estimating composition at the start");
                 strt = -1;
             } else {
                 Tnew = 0.5*(Tnow + Thigh);
@@ -498,15 +453,10 @@ int vcs_MultiPhaseEquil::equilibrate_SP(doublereal Starget,
                     Tnew = Tnow + 1.0;
                 }
                 m_mix->setTemperature(Tnew);
-                addLogEntry("no convergence",
-                            "trying T = "+fp2str(Tnow));
             }
-            endLogGroup();
         }
 
     }
-    addLogEntry("reached max number of T iterations",int2str(maxiter));
-    endLogGroup();
     throw CanteraError("MultiPhase::equilibrate_SP",
                        "No convergence for T");
 }
@@ -606,12 +556,6 @@ int vcs_MultiPhaseEquil::equilibrate_TP(int estimateEquil,
         throw CanteraError("vcs_MultiPhaseEquil::equilibrate",
                            "Pressure less than zero on input");
     }
-
-    beginLogGroup("vcs_MultiPhaseEquil::equilibrate_TP", loglevel);
-    addLogEntry("problem type","fixed T,P");
-    addLogEntry("Temperature", T);
-    addLogEntry("Pressure", pres);
-
 
     /*
      * Print out the problem specification from the point of
@@ -714,7 +658,6 @@ int vcs_MultiPhaseEquil::equilibrate_TP(int estimateEquil,
             }
         }
     }
-    endLogGroup();
     return iSuccess;
 }
 
@@ -1523,11 +1466,6 @@ int vcs_MultiPhaseEquil::determine_PhaseStability(int iph, double& funcStab, int
                            "Pressure less than zero on input");
     }
 
-    beginLogGroup("vcs_MultiPhaseEquil::determine_PhaseStability", loglevel);
-    addLogEntry("problem type", "fixed T,P");
-    addLogEntry("Temperature", T);
-    addLogEntry("Pressure", pres);
-
     /*
      * Print out the problem specification from the point of
      * view of the vprob object.
@@ -1616,8 +1554,6 @@ int vcs_MultiPhaseEquil::determine_PhaseStability(int iph, double& funcStab, int
             }
         }
     }
-    endLogGroup("vcs_MultiPhaseEquil::determine_PhaseStability");
-
     return iStable;
 }
 

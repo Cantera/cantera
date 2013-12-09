@@ -57,9 +57,7 @@ int main(int argc, char** argv)
                 double pres = gas->pressure();
                 printf("Initial T = %g, pres = %g atm\n", tkelvin, pres/OneAtm);
 
-                beginLogGroup("topEquil", -1);
                 equilibrate(*gas,"UV", 0, 1e-12);
-                endLogGroup("topEquil");
 
                 tkelvin = gas->temperature();
                 pres = gas->pressure();

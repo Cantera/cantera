@@ -83,47 +83,6 @@ void suppress_deprecation_warnings()
     app()->suppress_deprecation_warnings();
 }
 
-// **************** HTML Logging ****************
-
-#ifdef WITH_HTML_LOGS
-
-void beginLogGroup(const std::string& title, int loglevel)
-{
-    app()->beginLogGroup(title, loglevel) ;
-}
-
-void addLogEntry(const std::string& tag, const std::string& value)
-{
-    app()->addLogEntry(tag, value) ;
-}
-
-void addLogEntry(const std::string& tag, doublereal value)
-{
-    app()->addLogEntry(tag, value) ;
-}
-
-void addLogEntry(const std::string& tag, int value)
-{
-    app()->addLogEntry(tag, value) ;
-}
-
-void addLogEntry(const std::string& msg)
-{
-    app()->addLogEntry(msg) ;
-}
-
-void endLogGroup(const std::string& title)
-{
-    app()->endLogGroup(title) ;
-}
-
-void write_logfile(const std::string& file)
-{
-    app()->write_logfile(file) ;
-}
-
-#endif // WITH_HTML_LOGS
-
 // **************** Global Data ****************
 
 Unit* Unit::s_u = 0;

@@ -65,16 +65,10 @@ public:
                            int maxsteps = 1000, int loglevel=-99);
     doublereal error();
 
-#if defined(WITH_HTML_LOGS)
-    //! Return a string specifying the jth reaction.
-    std::string reactionString(size_t j);
-    void printInfo(int loglevel);
-#else
     inline std::string reactionString(size_t j) {
         return std::string("");
     }
     inline void printInfo(int loglevel) {}
-#endif
 
     void setInitialMixMoles(int loglevel = 0) {
         setInitialMoles(loglevel);

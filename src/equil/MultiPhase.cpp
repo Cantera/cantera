@@ -595,26 +595,14 @@ doublereal MultiPhase::equilibrate(int XY, doublereal err,
     if (!m_init) {
         init();
     }
-    if (loglevel > 0) {
-        beginLogGroup("MultiPhase::equilibrate", loglevel);
-    }
 
     if (XY == TP) {
-        if (loglevel > 0) {
-            addLogEntry("problem type","fixed T,P");
-            addLogEntry("Temperature",temperature());
-            addLogEntry("Pressure", pressure());
-        }
-
         // create an equilibrium manager
         e = new MultiPhaseEquil(this);
         try {
             e->equilibrate(XY, err, maxsteps, loglevel);
         } catch (CanteraError& err) {
             err.save();
-            if (loglevel > 0) {
-                endLogGroup();
-            }
             delete e;
             e = 0;
             throw err;
@@ -626,10 +614,6 @@ doublereal MultiPhase::equilibrate(int XY, doublereal err,
         h0 = enthalpy();
         Tlow = 0.5*m_Tmin;      // lower bound on T
         Thigh = 2.0*m_Tmax;     // upper bound on T
-        if (loglevel > 0) {
-            addLogEntry("problem type","fixed H,P");
-            addLogEntry("H target",fp2str(h0));
-        }
         for (n = 0; n < maxiter; n++) {
 
             // if 'strt' is false, the current composition will be used as
@@ -641,9 +625,6 @@ doublereal MultiPhase::equilibrate(int XY, doublereal err,
             e = new MultiPhaseEquil(this, strt);
             // start with a loose error tolerance, but tighten it as we get
             // close to the final temperature
-            if (loglevel > 0) {
-                beginLogGroup("iteration "+int2str(n));
-            }
 
             try {
                 e->equilibrate(TP, err, maxsteps, loglevel);
@@ -680,22 +661,8 @@ doublereal MultiPhase::equilibrate(int XY, doublereal err,
                 }
 
                 herr = fabs((h0 - hnow)/h0);
-                if (loglevel > 0) {
-                    addLogEntry("T",fp2str(temperature()));
-                    addLogEntry("H",fp2str(hnow));
-                    addLogEntry("H rel error",fp2str(herr));
-                    addLogEntry("lower T bound",fp2str(Tlow));
-                    addLogEntry("upper T bound",fp2str(Thigh));
-                    endLogGroup(); // iteration
-                }
-
 
                 if (herr < err) { // || dta < 1.0e-4) {
-                    if (loglevel > 0) {
-                        addLogEntry("T iterations",int2str(n));
-                        addLogEntry("Final T",fp2str(temperature()));
-                        addLogEntry("H rel error",fp2str(herr));
-                    }
                     goto done;
                 }
                 tnew = m_temp + dt;
@@ -716,9 +683,6 @@ doublereal MultiPhase::equilibrate(int XY, doublereal err,
             catch (CanteraError& err) {
                 err.save();
                 if (!strt) {
-                    if (loglevel > 0)
-                        addLogEntry("no convergence",
-                                    "try estimating starting composition");
                     strt = true;
                 } else {
                     tnew = 0.5*(m_temp + Thigh);
@@ -726,20 +690,10 @@ doublereal MultiPhase::equilibrate(int XY, doublereal err,
                         tnew = m_temp + 1.0;
                     }
                     setTemperature(tnew);
-                    if (loglevel > 0)
-                        addLogEntry("no convergence",
-                                    "trying T = "+fp2str(m_temp));
-                }
-                if (loglevel > 0) {
-                    endLogGroup();
                 }
             }
             delete e;
             e = 0;
-        }
-        if (loglevel > 0) {
-            addLogEntry("reached max number of T iterations",int2str(maxiter));
-            endLogGroup();
         }
         throw CanteraError("MultiPhase::equilibrate",
                            "No convergence for T");
@@ -747,18 +701,9 @@ doublereal MultiPhase::equilibrate(int XY, doublereal err,
         s0 = entropy();
         Tlow = 1.0; // m_Tmin;      // lower bound on T
         Thigh = 1.0e6; // m_Tmax;   // upper bound on T
-        if (loglevel > 0) {
-            addLogEntry("problem type","fixed S,P");
-            addLogEntry("S target",fp2str(s0));
-            addLogEntry("min T",fp2str(Tlow));
-            addLogEntry("max T",fp2str(Thigh));
-        }
         for (n = 0; n < maxiter; n++) {
             delete e;
             e = new MultiPhaseEquil(this, strt);
-            if (loglevel > 0) {
-                beginLogGroup("iteration "+int2str(n));
-            }
 
             try {
                 e->equilibrate(TP, err, maxsteps, loglevel);
@@ -773,12 +718,6 @@ doublereal MultiPhase::equilibrate(int XY, doublereal err,
                     }
                 }
                 serr = fabs((s0 - snow)/s0);
-                if (loglevel > 0) {
-                    addLogEntry("T",fp2str(temperature()));
-                    addLogEntry("S",fp2str(snow));
-                    addLogEntry("S rel error",fp2str(serr));
-                    endLogGroup();
-                }
                 dt = (s0 - snow)*m_temp/cp();
                 dtmax = 0.5*fabs(Thigh - Tlow);
                 dtmax = (dtmax > 500.0 ? 500.0 : dtmax);
@@ -787,11 +726,6 @@ doublereal MultiPhase::equilibrate(int XY, doublereal err,
                     dt *= dtmax/dta;
                 }
                 if (herr < err || dta < 1.0e-4) {
-                    if (loglevel > 0) {
-                        addLogEntry("T iterations",int2str(n));
-                        addLogEntry("Final T",fp2str(temperature()));
-                        addLogEntry("S rel error",fp2str(serr));
-                    }
                     goto done;
                 }
                 tnew = m_temp + dt;
@@ -807,34 +741,18 @@ doublereal MultiPhase::equilibrate(int XY, doublereal err,
             catch (CanteraError& err) {
                 err.save();
                 if (!strt) {
-                    if (loglevel > 0) {
-                        addLogEntry("no convergence",
-                                    "setting strt to True");
-                    }
                     strt = true;
                 } else {
                     tnew = 0.5*(m_temp + Thigh);
                     setTemperature(tnew);
-                    if (loglevel > 0) {
-                        addLogEntry("no convergence",
-                                    "trying T = "+fp2str(m_temp));
-                    }
-                }
-                if (loglevel > 0) {
-                    endLogGroup();
                 }
             }
             delete e;
             e = 0;
         }
-        if (loglevel > 0) {
-            addLogEntry("reached max number of T iterations",int2str(maxiter));
-            endLogGroup();
-        }
         throw CanteraError("MultiPhase::equilibrate",
                            "No convergence for T");
     } else if (XY == TV) {
-        addLogEntry("problem type","fixed T, V");
         //            doublereal dt = 1.0e3;
         doublereal v0 = volume();
         doublereal dVdP;
@@ -845,19 +763,12 @@ doublereal MultiPhase::equilibrate(int XY, doublereal err,
             pnow = pressure();
             MultiPhaseEquil e(this, start);
             start = false;
-            beginLogGroup("iteration "+int2str(n));
 
             e.equilibrate(TP, err, maxsteps, loglevel);
             vnow = volume();
             verr = fabs((v0 - vnow)/v0);
-            addLogEntry("P",fp2str(pressure()));
-            addLogEntry("V rel error",fp2str(verr));
-            endLogGroup();
 
             if (verr < err) {
-                addLogEntry("P iterations",int2str(n));
-                addLogEntry("Final P",fp2str(pressure()));
-                addLogEntry("V rel error",fp2str(verr));
                 goto done;
             }
             // find dV/dP
@@ -868,18 +779,12 @@ doublereal MultiPhase::equilibrate(int XY, doublereal err,
     }
 
     else {
-        if (loglevel > 0) {
-            endLogGroup();
-        }
         throw CanteraError("MultiPhase::equilibrate","unknown option");
     }
     return -1.0;
 done:
     delete e;
     e = 0;
-    if (loglevel > 0) {
-        endLogGroup();
-    }
     return err;
 }
 

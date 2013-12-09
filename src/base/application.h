@@ -34,7 +34,6 @@ class XML_Node;
  * here. At most one instance is created, and it is not destroyed
  * until the process terminates.
  *
- * @ingroup HTML_logs
  * @ingroup textlogs
  * @ingroup globalData
  */
@@ -42,9 +41,6 @@ class Application
 {
 protected:
     //! Class to carry out messages
-    /*!
-     * @ingroup HTML_logs
-     */
     class Messages
     {
     public:
@@ -162,100 +158,6 @@ protected:
          */
         void setLogger(Logger* logwriter) ;
 
-#ifdef WITH_HTML_LOGS
-
-        //!Create a new group for log messages.
-        /*!
-         *  Usually this is called upon entering the function, with the title
-         *  parameter equal to the name of the function or method. Subsequent
-         *  messages written with addLogEntry will appear grouped under this
-         *  heading, until endLogGroup() is called.
-         *
-         *  @param title String name of the LogGroup
-         *  @param loglevel loglevel of the group.
-         *  @ingroup HTML_logs
-         *  @deprecated HTML logs will be removed in Cantera 2.2
-         */
-        void beginLogGroup(const std::string& title, int loglevel) ;
-
-        //! Add an entry to an HTML log file.
-        /*!
-         *  Entries appear in the form "tag:value".
-         *
-         * @param tag      tag
-         * @param value    string value
-         *
-         * @ingroup HTML_logs
-         * @deprecated HTML logs will be removed in Cantera 2.2
-         */
-        void addLogEntry(const std::string& tag, const std::string& value) ;
-
-        //! Add an entry to an HTML log file.
-        /*!
-         *  Entries appear in the form "tag:value".
-         *
-         * @param tag      tag
-         * @param value    double value
-         *
-         * @ingroup HTML_logs
-         * @deprecated HTML logs will be removed in Cantera 2.2
-         */
-        void addLogEntry(const std::string& tag, doublereal value) ;
-
-        //! Add an entry to an HTML log file.
-        /*!
-         *  Entries appear in the form "tag:value".
-         *
-         * @param tag      tag
-         * @param value    integer value
-         *
-         * @ingroup HTML_logs
-         * @deprecated HTML logs will be removed in Cantera 2.2
-         */
-        void addLogEntry(const std::string& tag, int value) ;
-
-        //! Add an entry to an HTML log file.
-        /*!
-         *  Entries appear in the form "msg".
-         *
-         * @param msg  Message to be added
-         *
-         * @ingroup HTML_logs
-         * @deprecated HTML logs will be removed in Cantera 2.2
-         */
-        void addLogEntry(const std::string& msg) ;
-
-        //! Close the current group of log messages.
-        /*!
-         *  This is typically called just before leaving a function or method,
-         *  to close the group of messages that were output from this
-         *  function. Subsequent messages written with addLogEntry() will
-         *  appear at the next-higher level in the outline, unless
-         *  beginLogGroup() is called first to create a new group.
-         *
-         * @param title Name of the log group. It defaults to the most recent
-         *              log group created.
-         * @deprecated HTML logs will be removed in Cantera 2.2
-         */
-        void endLogGroup(const std::string& title) ;
-
-        //! Write the HTML log file.
-        /*!
-         *  Log entries are stored in memory in an XML tree until this
-         *  function is called, which writes the tree to a file and clears the
-         *  entries stored in memory.  The output file will have the name
-         *  specified in the 'file' argument.  If this argument has no
-         *  extension, the extension '.html' will be appended. Also, if the
-         *  file already exists, an integer will be appended to the name so
-         *  that no existing log file will be overwritten. WITH_HTML_LOGS must
-         *  be defined.
-         *
-         *  @param  file Name of the file to be written
-         *  @deprecated HTML logs will be removed in Cantera 2.2
-         */
-        void write_logfile(const std::string& file);
-#endif
-
     protected:
         //! Current list of error messages
         std::vector<std::string> errorMessage;
@@ -265,22 +167,6 @@ protected:
 
         //! Current pointer to the logwriter
         Logger* logwriter;
-#ifdef WITH_HTML_LOGS
-        //! Current pointer to the top of the XML_Node tree for the current HTML log
-        XML_Node* xmllog;
-
-        //! Pointer to the last current position in the XML_Node tree for the current HTML log
-        XML_Node* current;
-
-        //! Current value of the loglevel
-        int loglevel;
-
-        //! Vector of loglevels for loggroups that are open
-        std::vector<int> loglevels;
-
-        //! Current vector of loggroups that are open
-        std::vector<std::string> loggroups;
-#endif
     } ;
 
 #ifdef THREAD_SAFE_CANTERA
@@ -467,43 +353,6 @@ public:
      */
     void thread_complete() ;
 
-#ifdef WITH_HTML_LOGS
-    //! @copydoc Messages::beginLogGroup
-    void beginLogGroup(const std::string& title, int loglevel) {
-        pMessenger->beginLogGroup(title,loglevel);
-    }
-
-    //! @copydoc Messages::addLogEntry(const std::string&, const std::string&)
-    void addLogEntry(const std::string& tag, const std::string& value) {
-        pMessenger->addLogEntry(tag, value);
-    }
-
-    //! @copydoc Messages::addLogEntry(const std::string&, doublereal)
-    void addLogEntry(const std::string& tag, doublereal value) {
-        pMessenger->addLogEntry(tag, value);
-    }
-
-    //! @copydoc Messages::addLogEntry(const std::string&, int)
-    void addLogEntry(const std::string& tag, int value) {
-        pMessenger->addLogEntry(tag, value);
-    }
-
-    //! @copydoc Messages::addLogEntry(const std::string&)
-    void addLogEntry(const std::string& msg) {
-        pMessenger->addLogEntry(msg);
-    }
-
-    //! @copydoc Messages::endLogGroup
-    void endLogGroup(const std::string& title) {
-        pMessenger->endLogGroup(title) ;
-    }
-
-    //! @copydoc Messages::write_logfile
-    void write_logfile(const std::string& file) {
-        pMessenger->write_logfile(file) ;
-    }
-#endif
-
 protected:
     //! Set the default directories for input files.
     /*!
@@ -560,18 +409,6 @@ protected:
 
     //! Current pointer to the logwriter
     //Logger* logwriter;
-#ifdef WITH_HTML_LOGS
-    //! Current pointer to the top of the XML_Node tree for the current HTML log
-    //XML_Node *xmllog;
-    //! Pointer to the last current position in the XML_Node tree for the current HTML log
-    //XML_Node *current;
-    //! Current value of loglevel
-    //int loglevel;
-    //! Vector of loglevels for loggroups that are open
-    //vector<int> loglevels;
-    //! Current vector of loggroups that are open
-    //vector<string> loggroups;
-#endif
 
 #if defined(THREAD_SAFE_CANTERA)
     ThreadMessages   pMessenger ;

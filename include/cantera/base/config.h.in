@@ -99,8 +99,6 @@ typedef  int          ftnlen;       // Fortran hidden string length type
 // present to support conversions
 %(HAS_NO_PYTHON)s
 
-%(WITH_HTML_LOGS)s
-
 //--------------------- compile options ----------------------------
 %(THREAD_SAFE_CANTERA)s
 

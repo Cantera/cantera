@@ -44,9 +44,7 @@ namespace Cantera
  *                   to take when T and/or P is not held fixed.
  *  @param loglevel  loglevel Controls amount of diagnostic output. loglevel
  *                   = 0 suppresses diagnostics, and increasingly-verbose messages
- *                   are written as loglevel increases. The messages are written to
- *                   a file in HTML format for viewing in a web browser.
- *                   @see HTML_logs
+ *                   are written as loglevel increases.
  *
  * @return The number of iterations it took to equilibrate the system.
  *

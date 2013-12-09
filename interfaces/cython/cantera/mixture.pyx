@@ -313,14 +313,7 @@ cdef class Mixture:
             process. 0 indicates no output, while larger numbers produce
             successively more verbose information.
         :param log_level:
-            Controls the amount of diagnostic output written to an HTML log
-            file. If log_level = 0, no diagnostic output is written. For
-            values > 0, more detailed information is written to the log file as
-            log_level increases. The default log file name is
-            "equilibrium_log.html", but if this file exists, the log
-            information will be written to "equilibrium_log{n}.html",
-            where {n} is an integer chosen to avoid overwriting existing
-            log files.
+            Controls the amount of diagnostic output written.
         """
         if solver == 'vcs':
             iSolver = 2
