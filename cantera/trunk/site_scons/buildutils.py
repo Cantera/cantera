@@ -144,7 +144,7 @@ def regression_test(target, source, env):
     with open(pjoin(dir,outputName), 'w') as outfile:
         code = subprocess.call([program.abspath] + clopts + clargs,
                                stdout=outfile, stderr=outfile,
-                               cwd=dir)
+                               cwd=dir, env=env['ENV'])
 
     diff = 0
     # Compare output files
