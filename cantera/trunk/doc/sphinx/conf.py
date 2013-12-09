@@ -20,7 +20,6 @@ if sys.version_info[0] == 3:
     sys.path.insert(0, os.path.abspath('../../build/python3'))
 else:
     sys.path.insert(0, os.path.abspath('../../build/python2'))
-    sys.path.insert(0, os.path.abspath('../../interfaces/python'))
 
 sys.path.append(os.path.abspath('.'))
 sys.path.append(os.path.abspath('./exts'))
