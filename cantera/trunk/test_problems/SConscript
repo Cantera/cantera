@@ -8,9 +8,13 @@ localenv.Append(CCFLAGS=env['warning_flags'])
 if localenv['python_package'] in ('full', 'minimal'):
     localenv['ENV']['PYTHONPATH'] = pjoin(os.getcwd(), '..', 'build', 'python2')
     localenv['ENV']['PYTHON_CMD'] = localenv.subst('$python_cmd')
+    haveConverters = True
 elif localenv['python3_package'] == 'y':
     localenv['ENV']['PYTHONPATH'] = pjoin(os.getcwd(), '..', 'build', 'python3')
     localenv['ENV']['PYTHON_CMD'] = localenv.subst('$python3_cmd')
+    haveConverters = True
+else:
+    haveConverters = False
 
 localenv['ENV']['CANTERA_DATA'] = pjoin(os.getcwd(), '..', 'build', 'data')
 
@@ -250,8 +254,9 @@ diamond = localenv.Program('diamondSurf/runDiamond',
 diamond_name = diamond[0].name
 Test('diamondSurf-xml', 'diamondSurf', diamond, 'runDiamond_blessed.out',
      options='diamond_blessed.xml', artifacts=diamond_name)
-Test('diamondSurf-cti', 'diamondSurf', diamond, 'runDiamond_blessed.out',
-     options='diamond.cti', artifacts=diamond_name)
+if haveConverters:
+    Test('diamondSurf-cti', 'diamondSurf', diamond, 'runDiamond_blessed.out',
+         options='diamond.cti', artifacts=diamond_name)
 CompileAndTest('dustyGasTransport', 'dustyGasTransport', 'dustyGasTransport',
                'output_blessed.txt')
 CompileAndTest('fracCoeff', 'fracCoeff', 'fracCoeff', 'frac_blessed.out')
@@ -267,14 +272,16 @@ negA = localenv.Program('negATest/negATest',
 negA_name = negA[0].name
 Test('negA-xml', 'negATest', negA, 'negATest_blessed.out',
      options='noxNeg_blessed.xml', artifacts=negA_name)
-Test('negA-cti', 'negATest', negA, 'negATest_blessed.out',
-     options='noxNeg.cti', artifacts=negA_name)
+if haveConverters:
+    Test('negA-cti', 'negATest', negA, 'negATest_blessed.out',
+         options='noxNeg.cti', artifacts=negA_name)
 
 CompileAndTest('pecosTransport', 'PecosTransport', 'pecosTransport', 'output_blessed.txt')
 CompileAndTest('printUtil', 'printUtilUnitTest', 'pUtest', 'output_blessed.txt')
 CompileAndTest('pureFluid', 'pureFluidTest', 'testPureWater', 'output_blessed.txt')
-CompileAndTest('rankine_democxx', 'rankine_democxx', 'rankine', 'output_blessed.txt',
-               artifacts=['liquidvapor.xml'])
+if haveConverters:
+    CompileAndTest('rankine_democxx', 'rankine_democxx', 'rankine', 'output_blessed.txt',
+                   artifacts=['liquidvapor.xml'])
 CompileAndTest('silane_equil', 'silane_equil', 'silane_equi', 'output_blessed.txt')
 # spectroscopy is incomplete
 CompileAndTest('simpleTransport', 'simpleTransport', 'simpleTransport',
