@@ -286,13 +286,6 @@ config_options = [
            PYTHON_CMD is not set, then the configuration process will use the
            same Python interpreter being used by SCons.""",
         sys.executable),
-    EnumVariable(
-        'python_array',
-        """The Cantera Python interface requires one of the Python array
-           packages listed. Support for the legacy 'numeric' and 'numarray'
-           packages is deprecated, and will be removed in a future version
-           of Cantera.""",
-        'numpy', ('numpy', 'numarray', 'numeric')),
     PathVariable(
         'python_array_home',
         """If numpy was installed using the --home option, set this to
@@ -887,21 +880,20 @@ if env['python_package'] in ('full','default'):
     if env['python_array_home']:
         sys.path.append(env['python_array_home'])
     try:
-        np = __import__(env['python_array'])
+        import numpy as np
         try:
             env['python_array_include'] = np.get_include()
         except AttributeError:
-            print """WARNING: Couldn't find include directory for Python array package"""
+            print """WARNING: Couldn't find include directory for NumPy"""
             env['python_array_include'] = ''
 
     except ImportError:
         if env['python_package'] == 'full':
-            print ("""ERROR: Unable to find the array package """
-                   """'%s' required by the Python package.""" % env['python_array'])
+            print """ERROR: Couldn't find include directory for NumPy"""
             sys.exit(1)
         else:
             print ("""WARNING: Not building the Python package """
-                   """ because the array package '%s' could not be found.""" % env['python_array'])
+                   """ because NumPy could not be found.""")
             warnNoPython = True
             env['python_package'] = 'minimal'
 
@@ -909,7 +901,7 @@ if env['python_package'] in ('full','default'):
         env['python_package'] = 'minimal'
     else:
         env['python_package'] = 'full'
-        print """INFO: Building the Python package using %s.""" % env['python_array']
+        print """INFO: Building the full Python package."""
 
     try:
         import site
@@ -1012,11 +1004,6 @@ elif env['use_sundials'] == 'y' and env['sundials_version'] not in ('2.2','2.3',
 if env.get('sundials_version') in ('2.2', '2.3'):
     print 'WARNING: Support for Sundials %s is deprecated and will be removed.' % env['sundials_version']
     print 'WARNING: Upgrading to Sundials 2.5 is strongly recommended.'
-
-# Deprecation warnings for numarray and numeric
-if env.get('python_array') in ('numarray', 'numeric'):
-    print 'WARNING: Support for "%s" is deprecated and will be removed.' % env['python_array']
-    print 'WARNING: Upgrading to the "numpy" package is strongly recommended.'
 
 # **********************************************
 # *** Set additional configuration variables ***
@@ -1134,9 +1121,6 @@ configh['DARWIN'] = 1 if env['OS'] == 'Darwin' else None
 configh['CYGWIN'] = 1 if env['OS'] == 'Cygwin' else None
 cdefine('NEEDS_GENERIC_TEMPL_STATIC_DECL', 'OS', 'Solaris')
 
-cdefine('HAS_NUMPY', 'python_array', 'numpy')
-cdefine('HAS_NUMARRAY', 'python_array', 'numarray')
-cdefine('HAS_NUMERIC', 'python_array', 'numeric')
 if env['python_package'] == 'none' and env['python3_package'] == 'n':
     configh['HAS_NO_PYTHON'] = 1
 else:
