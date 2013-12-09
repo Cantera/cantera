@@ -10,7 +10,7 @@ localenv.Append(LIBS=['gtest'] + localenv['cantera_libs'],
                 CCFLAGS=env['warning_flags'])
 
 #localenv['ENV']['PYTHONPATH'] = Dir('#interfaces/python').abspath 
-localenv['ENV']['PYTHONPATH'] = Dir('#interfaces/python').abspath + ':/usr/netpub/numpy/numpy-1.6.2/lib/python2.7/site-packages'
+localenv['ENV']['PYTHONPATH'] = Dir('#interfaces/python').abspath
 localenv['ENV']['CANTERA_DATA'] = Dir('#build/data').abspath
 
 #print localenv.Dump()
