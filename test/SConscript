@@ -160,13 +160,6 @@ addTestProgram('thermo', 'thermo')
 addTestProgram('kinetics', 'kinetics')
 
 if localenv['python_package'] == 'full':
-    pyTest = addTestScript('python', 'python', 'runTests.py',
-                           interpreter='$python_cmd',
-                           dependencies=(mglob(localenv, 'python', 'py') +
-                                         localenv['python_module']))
-    localenv.Alias('test-python', pyTest)
-    env['testNames'].append('python')
-elif localenv['python_package'] == 'new':
     pyTest = addTestScript('cython2', 'python', 'runCythonTests.py',
                            interpreter='$python_cmd',
                            dependencies=(localenv['python2_module'] +
@@ -185,7 +178,6 @@ if localenv['python3_package'] == 'y':
                            env_vars={'PYTHONPATH':Dir('#build/python3').abspath})
     localenv.Alias('test-cython3', pyTest)
     env['testNames'].append('cython3')
-
 
 if localenv['matlab_toolbox'] == 'y':
     matlabTest = addMatlabTest('runCanteraTests.m', 'matlab',

@@ -3,132 +3,134 @@
 CTI Class Reference
 *******************
 
-.. py:module:: ctml_writer
+.. py:module:: cantera.ctml_writer
+
+.. py:currentmodule:: cantera.ctml_writer
 
 Basic Classes & Functions
 =========================
 
-.. autofunction:: ctml_writer.units
+.. autofunction:: units
 
-.. autoclass:: ctml_writer.state
+.. autoclass:: state
    :no-undoc-members:
 
 Phases of Matter
 ================
 
-.. autoclass:: ctml_writer.phase
+.. autoclass:: phase
    :no-members:
 
-.. autoclass:: ctml_writer.ideal_gas
+.. autoclass:: ideal_gas
    :no-undoc-members:
 
-.. autoclass:: ctml_writer.stoichiometric_solid
+.. autoclass:: stoichiometric_solid
    :no-members:
 
-.. autoclass:: ctml_writer.stoichiometric_liquid
+.. autoclass:: stoichiometric_liquid
    :no-undoc-members:
 
-.. autoclass:: ctml_writer.metal
+.. autoclass:: metal
    :no-undoc-members:
 
-.. autoclass:: ctml_writer.semiconductor
+.. autoclass:: semiconductor
    :no-undoc-members:
 
-.. autoclass:: ctml_writer.incompressible_solid
+.. autoclass:: incompressible_solid
    :no-undoc-members:
 
-.. autoclass:: ctml_writer.lattice
+.. autoclass:: lattice
    :no-undoc-members:
 
-.. autoclass:: ctml_writer.lattice_solid
+.. autoclass:: lattice_solid
    :no-undoc-members:
 
-.. autoclass:: ctml_writer.liquid_vapor
+.. autoclass:: liquid_vapor
    :no-undoc-members:
 
-.. autoclass:: ctml_writer.redlich_kwong
+.. autoclass:: redlich_kwong
    :no-undoc-members:
 
-.. autoclass:: ctml_writer.ideal_interface
+.. autoclass:: ideal_interface
    :no-undoc-members:
 
-.. autoclass:: ctml_writer.edge
+.. autoclass:: edge
    :no-undoc-members:
 
 Elements and Species
 ====================
 
-.. autoclass:: ctml_writer.element
+.. autoclass:: element
    :no-undoc-members:
 
-.. autoclass:: ctml_writer.species
+.. autoclass:: species
    :no-undoc-members:
 
 Thermodynamic Properties
 ========================
 
-.. autoclass:: ctml_writer.Mu0_table
+.. autoclass:: Mu0_table
    :no-undoc-members:
 
-.. autoclass:: ctml_writer.NASA
+.. autoclass:: NASA
    :no-undoc-members:
 
-.. autoclass:: ctml_writer.NASA9
+.. autoclass:: NASA9
    :no-undoc-members:
 
-.. autoclass:: ctml_writer.Shomate
+.. autoclass:: Shomate
    :no-undoc-members:
 
-.. autoclass:: ctml_writer.Adsorbate
+.. autoclass:: Adsorbate
    :no-undoc-members:
 
-.. autoclass:: ctml_writer.const_cp
+.. autoclass:: const_cp
    :no-undoc-members:
 
 Transport Properties
 ====================
 
-.. autoclass:: ctml_writer.gas_transport
+.. autoclass:: gas_transport
    :no-undoc-members:
 
 Reactions
 =========
 
-.. autoclass:: ctml_writer.reaction
+.. autoclass:: reaction
    :no-undoc-members:
 
-.. autoclass:: ctml_writer.Arrhenius
+.. autoclass:: Arrhenius
    :no-undoc-members:
 
-.. autoclass:: ctml_writer.three_body_reaction
+.. autoclass:: three_body_reaction
    :no-undoc-members:
 
-.. autoclass:: ctml_writer.falloff_reaction
+.. autoclass:: falloff_reaction
    :no-undoc-members:
 
-.. autoclass:: ctml_writer.chemically_activated_reaction
+.. autoclass:: chemically_activated_reaction
    :no-undoc-members:
 
-.. autoclass:: ctml_writer.pdep_arrhenius
+.. autoclass:: pdep_arrhenius
    :no-undoc-members:
 
-.. autoclass:: ctml_writer.chebyshev_reaction
+.. autoclass:: chebyshev_reaction
    :no-undoc-members:
 
-.. autoclass:: ctml_writer.surface_reaction
+.. autoclass:: surface_reaction
    :no-undoc-members:
 
-.. autoclass:: ctml_writer.edge_reaction
+.. autoclass:: edge_reaction
    :no-undoc-members:
 
 Falloff Parameterizations
 -------------------------
 
-.. autoclass:: ctml_writer.Troe
+.. autoclass:: Troe
    :no-undoc-members:
 
-.. autoclass:: ctml_writer.SRI
+.. autoclass:: SRI
    :no-undoc-members:
 
-.. autoclass:: ctml_writer.Lindemann
+.. autoclass:: Lindemann
    :no-undoc-members:

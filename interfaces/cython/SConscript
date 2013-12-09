@@ -47,14 +47,6 @@ localenv['py_ctml_writer'] = repr('scripts/ctml_writer%s' % script_ext)
 localenv['py_ck2cti'] = repr('scripts/ck2cti%s' % script_ext)
 localenv['py_mixmaster'] = repr('scripts/mixmaster%s' % script_ext)
 
-# The actual ctml_writer and ck2cti scripts
-build(env.Command('cantera/ctml_writer.py',
-                  '#interfaces/python/ctml_writer.py',
-                  Copy('$TARGET', '$SOURCE')))
-build(env.Command('cantera/ck2cti.py',
-                  '#interfaces/python/ck2cti.py',
-                  Copy('$TARGET', '$SOURCE')))
-
 # thin wrappers
 scripts = []
 for script in mglob(env, 'scripts', 'py.in'):
@@ -177,7 +169,7 @@ if localenv['python3_package'] == 'y':
 
 
 # Cython module for Python 2.x
-if localenv['python_package'] == 'new':
+if localenv['python_package'] == 'full':
     module_ext, py2_version = configure_numpy(localenv['python_cmd'])
     make_setup = localenv.SubstFile('#interfaces/cython/setup2.py',
                                     '#interfaces/cython/setup.py.in')

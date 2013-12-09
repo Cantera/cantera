@@ -46,20 +46,15 @@ extraEnvArgs = {}
 if 'clean' in COMMAND_LINE_TARGETS:
     removeDirectory('build')
     removeDirectory('stage')
-    removeDirectory('interfaces/python/build')
     removeDirectory('.sconf_temp')
     removeFile('.sconsign.dblite')
     removeFile('include/cantera/base/config.h')
-    removeFile('interfaces/python/setup.py')
     removeFile('ext/f2c_libs/arith.h')
     removeFile('ext/f2c_libs/signal1.h')
     removeFile('ext/f2c_libs/sysdep1.h')
     for name in os.listdir('.'):
         if name.endswith('.msi'):
             removeFile(name)
-    for name in os.listdir('interfaces/python/Cantera'):
-        if name.startswith('_cantera') or name.startswith('cantera_shared'):
-            removeFile('interfaces/python/Cantera/' + name)
     removeFile('interfaces/matlab/toolbox/cantera_shared.dll')
     for name in os.listdir('interfaces/matlab/toolbox'):
         if name.startswith('ctmethods.'):
@@ -189,8 +184,7 @@ compiler_options = [
      'The C++ compiler to use.',
      env['CXX']),
     ('CC',
-     """The C compiler to use. This is only used to compile CVODE and
-        the Python extension module.""",
+     """The C compiler to use. This is only used to compile CVODE.""",
      env['CC'])]
 opts.AddVariables(*compiler_options)
 opts.Update(env)
@@ -278,15 +272,13 @@ config_options = [
     EnumVariable(
         'python_package',
         """If you plan to work in Python, or you want to use the graphical
-           MixMaster application, then you need either the 'new' or 'full'
-           Cantera Python Package. If, on the other hand, you will only use
-           Cantera from some other language (e.g. MATLAB or Fortran 90/95) and
-           only need Python to process .cti files, then you only need a
-           'minimal' subset of the package (actually, only one file). The
-           default behavior is to build the Python package if the required
-           prerequisites (numpy) are installed. NOTE: The legacy 'full' option
-           is deprecated in favor of the 'new' Python package. The legacy
-           Python package will be removed in Cantera 2.2 """,
+           MixMaster application, then you need the 'full' Cantera Python
+           Package. If, on the other hand, you will only use Cantera from
+           some other language (e.g. MATLAB or Fortran 90/95) and only need
+           Python to process .cti files, then you only need a 'minimal'
+           subset of the package (actually, only two files). The default
+           behavior is to build the Python package if the required
+           prerequisites (numpy) are installed.""",
         'default', ('new', 'full', 'minimal', 'none', 'default')),
     PathVariable(
         'python_cmd',
@@ -867,7 +859,11 @@ env = conf.Finish()
 # Python 2 Package Settings
 cython_min_version = LooseVersion('0.17')
 env['install_python2_action'] = ''
-if env['python_package'] in ('full','default','new'):
+if env['python_package'] == 'new':
+    env['python_package'] = 'full' # Allow 'new' as a synonym for 'full'
+warnNoPython = False
+
+if env['python_package'] in ('full','default'):
     # Check for Cython:
     try:
         import Cython
@@ -876,20 +872,18 @@ if env['python_package'] in ('full','default','new'):
     except ImportError:
         cython_version = LooseVersion('0.0.0')
 
-    if cython_version >= cython_min_version:
-        have_cython2 = True
-    else:
+    if cython_version < cython_min_version:
         message = ("Cython not found or incompatible version: "
                    "Found {0} but {1} or newer is required".format(cython_version, cython_min_version))
-        if env['python_package'] == 'new':
+        if env['python_package'] == 'full':
             print("ERROR: " + message)
             sys.exit(1)
         else:
-            have_cython2 = False
+            warnNoPython = True
+            env['python_package'] = 'minimal'
             print ("WARNING: " + message)
 
     # Test to see if we can import the specified array module
-    warnNoPython = False
     if env['python_array_home']:
         sys.path.append(env['python_array_home'])
     try:
@@ -900,15 +894,8 @@ if env['python_package'] in ('full','default','new'):
             print """WARNING: Couldn't find include directory for Python array package"""
             env['python_array_include'] = ''
 
-        if env['python_package'] == 'default':
-            if have_cython2:
-                env['python_package'] = 'new'
-            else:
-                env['python_package'] = 'full'
-        package_desc = 'new' if env['python_package'] == 'new' else 'legacy'
-        print """INFO: Building the %s Python package using %s.""" % (package_desc, env['python_array'])
     except ImportError:
-        if env['python_package'] in ('full', 'new'):
+        if env['python_package'] == 'full':
             print ("""ERROR: Unable to find the array package """
                    """'%s' required by the Python package.""" % env['python_array'])
             sys.exit(1)
@@ -918,15 +905,20 @@ if env['python_package'] in ('full','default','new'):
             warnNoPython = True
             env['python_package'] = 'minimal'
 
+    if warnNoPython:
+        env['python_package'] = 'minimal'
+    else:
+        env['python_package'] = 'full'
+        print """INFO: Building the Python package using %s.""" % env['python_array']
+
     try:
         import site
         env['python_usersitepackages'] = site.getusersitepackages()
     except AttributeError: # getusersitepackages is only in Python 2.7+
         env['python_usersitepackages'] = '<user site-packages directory>'
 
-    # Check for 3to2 if we're building the "new" Python module
-    # See http://pypi.python.org/pypi/3to2
-    if env['python_package'] == 'new':
+    # Check for 3to2. See http://pypi.python.org/pypi/3to2
+    if env['python_package'] == 'full':
         try:
             ret = getCommandOutput('3to2','-l')
         except OSError:
@@ -937,13 +929,7 @@ if env['python_package'] in ('full','default','new'):
             env['python_convert_examples'] = False
             print """WARNING: Couldn't find '3to2'. Python examples will not work correctly."""
 
-    if env['python_package'] == 'full':
-        print ("WARNING: The 'python_package=full' option is deprecated. "
-               "This legacy Python package will be removed in Cantera 2.2. "
-               "The new Python package may be build using 'python_package=new'.")
-
 else:
-    warnNoPython = False
     env['python_array_include'] = ''
     env['python_module_loc'] = ''
 
@@ -982,7 +968,7 @@ if env['python3_package'] in ('y', 'default'):
     elif cython_version < cython_min_version:
         message = ("Cython package for Python 3 not found or incompatible version: "
                    "Found {0} but {1} or newer is required".format(cython_version, cython_min_version))
-        if env['python3_package'] == 'new':
+        if env['python3_package'] == 'y':
             print("ERROR: " + message)
             sys.exit(1)
         else:
@@ -1247,7 +1233,7 @@ for cti in mglob(env, 'data/inputs', 'cti'):
     outName = os.path.splitext(cti.name)[0] + '.xml'
     convertedInputFiles.add(outName)
     build(env.Command('build/data/%s' % outName, cti.path,
-                      '$python_cmd interfaces/python/ctml_writer.py $SOURCE $TARGET'))
+                      '$python_cmd interfaces/cython/cantera/ctml_writer.py $SOURCE $TARGET'))
 
 
 # Copy input files which are not present as cti:
@@ -1303,10 +1289,10 @@ if addInstallActions:
     pyExt = '.py' if env['OS'] == 'Windows' else ''
     install(env.InstallAs,
             pjoin('$inst_bindir','ck2cti%s' % pyExt),
-            'interfaces/python/ck2cti.py')
+            'interfaces/cython/cantera/ck2cti.py')
     install(env.InstallAs,
             pjoin('$inst_bindir','ctml_writer%s' % pyExt),
-            'interfaces/python/ctml_writer.py')
+            'interfaces/cython/cantera/ctml_writer.py')
 
     # Copy external libaries for Windows installations
     if env['CC'] == 'cl' and env['use_boost_libs']:
@@ -1394,12 +1380,11 @@ if env['f90_interface'] == 'y':
 VariantDir('build/src', 'src', duplicate=0)
 SConscript('build/src/SConscript')
 
-if env['python_package'] in ('full','minimal'):
-    VariantDir('build/src/python', 'src/python', duplicate=0)
-    SConscript('build/src/python/SConscript')
-
-if env['python3_package'] == 'y' or env['python_package'] == 'new':
+if env['python3_package'] == 'y' or env['python_package'] == 'full':
     SConscript('interfaces/cython/SConscript')
+
+if env['python_package'] == 'minimal':
+    SConscript('interfaces/python_minimal/SConscript')
 
 SConscript('build/src/apps/SConscript')
 
@@ -1477,18 +1462,14 @@ File locations:
 
     if env['python_package'] == 'full':
         print """
-  Python 2 package (Cantera)  %(python_module_loc)s""" % env,
+  Python 2 package (cantera)  %(python_module_loc)s
+  Python 2 samples            %(python_example_loc)s""" % env,
     elif warnNoPython:
         print """
     #################################################################
-     WARNING: the Cantera Python package was not installed because a
-     suitable array package (e.g. numpy) could not be found.
+     WARNING: the Cantera Python package was not installed because
+     the prerequisites (Cython and NumPy) could not be found.
     #################################################################"""
-
-    if env['python_package'] == 'new':
-        print """
-  Python 2 package (cantera)  %(python_module_loc)s
-  Python 2 samples            %(python_example_loc)s""" % env,
 
     if env['python3_package'] == 'y':
         print """

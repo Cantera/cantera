@@ -183,10 +183,6 @@ redesigned API that simplifies many operations and aims to provide a more
 
 Building the new Python module requires the Cython package for Python.
 
-For compatibility, the legacy Python module is still available, though it will not
-receive feature updates, and will be removed in a future Cantera release. Users
-are encouraged to switch to the new Python module when possible.
-
 The Cython module is compatible with the following Python versions: 2.6, 2.7,
 3.1, 3.2, and 3.3. Support for Python 2.6 and Python 3.1 requires the ``scipy``
 and ``unittest2`` packages to be installed as well (see :ref:`sec-dependencies`)
@@ -196,8 +192,8 @@ library in more recent versions.
 Building for Python 2
 .....................
 
-By default, SCons will attempt to build the new Python module. To build the
-legacy Python module instead, use the SCons option ``python_package=full``.
+By default, SCons will attempt to build the Cython-based Python module for
+Python 2, if both Numpy and Cython are installed.
 
 Building for Python 3
 .....................
@@ -424,7 +420,7 @@ Other Required Software
   * http://python.org/download/
   * Known to work with 2.6 and 2.7; Expected to work with versions >= 2.5
   * The Cython module supports Python 2.x and 3.x. However, SCons requires
-    Python 2.x, so compilation of the Cython module requires two Python
+    Python 2.x, so compilation of the Python 3 module requires two Python
     installations.
 
 * Boost
@@ -458,11 +454,11 @@ Optional Programs
 
 * `Scipy <http://scipy.org/install.html>`_
 
-  * Required in order to use the new Python module with Python 2.6 or 3.1.
+  * Required in order to use the Python module with Python 2.6 or 3.1.
 
 * Unittest2
 
-  * Required in order to run the test suite for the new Python module with
+  * Required in order to run the test suite for the Python module with
     Python 2.6 or Python 3.1.
   * https://pypi.python.org/pypi/unittest2 (Python 2.6)
   * https://pypi.python.org/pypi/unittest2py3k (Python 3.1)
