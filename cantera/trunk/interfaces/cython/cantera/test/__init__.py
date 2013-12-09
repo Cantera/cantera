@@ -12,3 +12,4 @@ from .test_mixture import *
 from .test_func1 import *
 from .test_reactor import *
 from .test_onedim import *
+from .test_convert import *
