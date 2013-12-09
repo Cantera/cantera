@@ -21,8 +21,7 @@ if __name__ == '__main__':
 
     loader = unittest.TestLoader()
     runner = unittest.TextTestRunner(verbosity=2)
-    suite = loader.loadTestsFromName('testKinetics')
-    suite.addTests(loader.loadTestsFromName('testPureFluid'))
+    suite = loader.loadTestsFromName('testPureFluid')
     suite.addTests(loader.loadTestsFromName('testEquilibrium'))
     suite.addTests(loader.loadTestsFromName('testReactors'))
     suite.addTests(loader.loadTestsFromName('testConvert'))
