@@ -434,8 +434,8 @@ bool importPhase(XML_Node& phase, ThermoPhase* th,
     // Set equation of state parameters. The parameters are
     // specific to each subclass of ThermoPhase, so this is done
     // by method setParametersFromXML in each subclass.
+    const XML_Node& eos = phase.child("thermo");
     if (phase.hasChild("thermo")) {
-        const XML_Node& eos = phase.child("thermo");
         th->setParametersFromXML(eos);
     } else {
         throw CanteraError("importPhase",
@@ -561,6 +561,10 @@ bool importPhase(XML_Node& phase, ThermoPhase* th,
         // used, and selects a class that can handle the
         // parameterizations found.
         spth = newSpeciesThermoMgr(spDataNodeList);
+        if (eos["allow_discontinuities"] == "true") {
+            std::cout << "ALLOWING DISCONTINUOUS THERMO!" << std::endl;
+            spth->m_allow_discontinuities = true;
+        }
 
         // install it in the phase object
         th->setSpeciesThermo(spth);

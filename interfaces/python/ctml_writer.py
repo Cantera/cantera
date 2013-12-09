@@ -1810,6 +1810,10 @@ class phase(object):
         if self._comment:
             ph.addChild('note',self._comment)
 
+        thermo = ph.addChild('thermo')
+        if 'allow_discontinuous_thermo' in self._options:
+            thermo['allow_discontinuities'] = 'true'
+
         return ph
 
 
@@ -1854,8 +1858,7 @@ class ideal_gas(phase):
 
     def build(self, p):
         ph = phase.build(self, p)
-        e = ph.addChild("thermo")
-        e['model'] = 'IdealGas'
+        ph.child('thermo')['model'] = 'IdealGas'
         k = ph.addChild("kinetics")
         k['model'] = self._kin
         t = ph.addChild('transport')
@@ -1900,7 +1903,7 @@ class stoichiometric_solid(phase):
 
     def build(self, p):
         ph = phase.build(self, p)
-        e = ph.addChild("thermo")
+        e = ph.child('thermo')
         e['model'] = 'StoichSubstance'
         addFloat(e, 'density', self._dens, defunits = _umass+'/'+_ulen+'3')
         if self._tr:
@@ -1955,7 +1958,7 @@ class metal(phase):
 
     def build(self, p):
         ph = phase.build(self, p)
-        e = ph.addChild("thermo")
+        e = ph.child("thermo")
         e['model'] = 'Metal'
         addFloat(e, 'density', self._dens, defunits = _umass+'/'+_ulen+'3')
         if self._tr:
@@ -1993,7 +1996,7 @@ class semiconductor(phase):
 
     def build(self, p):
         ph = phase.build(self, p)
-        e = ph.addChild("thermo")
+        e = ph.child("thermo")
         e['model'] = 'Semiconductor'
         addFloat(e, 'density', self._dens, defunits = _umass+'/'+_ulen+'3')
         addFloat(e, 'effectiveMass_e', self._emass, defunits = _umass)
@@ -2031,7 +2034,7 @@ class incompressible_solid(phase):
 
     def build(self, p):
         ph = phase.build(self, p)
-        e = ph.addChild("thermo")
+        e = ph.child("thermo")
         e['model'] = 'Incompressible'
         addFloat(e, 'density', self._dens, defunits = _umass+'/'+_ulen+'3')
         if self._tr:
@@ -2071,7 +2074,7 @@ class lattice(phase):
         #if visible == 0:
         #    return
         ph = phase.build(self, p)
-        e = ph.addChild('thermo')
+        e = ph.child('thermo')
         e['model'] = 'Lattice'
         addFloat(e, 'site_density', self._n, defunits = _umol+'/'+_ulen+'3')
         if self._vac:
@@ -2128,7 +2131,7 @@ class lattice_solid(phase):
 
     def build(self, p):
         ph = phase.build(self, p)
-        e = ph.addChild("thermo")
+        e = ph.child("thermo")
         e['model'] = 'LatticeSolid'
 
         if self._lattices:
@@ -2171,7 +2174,7 @@ class liquid_vapor(phase):
 
     def build(self, p):
         ph = phase.build(self, p)
-        e = ph.addChild("thermo")
+        e = ph.child("thermo")
         e['model'] = 'PureFluid'
         e['fluid_type'] = repr(self._subflag)
         k = ph.addChild("kinetics")
@@ -2202,7 +2205,7 @@ class RedlichKwongMFTP(phase):
 
     def build(self, p):
         ph = phase.build(self,p)
-        e = ph.addChild("thermo")
+        e = ph.child("thermo")
         e['model'] = 'RedlichKwongMFTP'
         if self._activityCoefficients:
             a = e.addChild("activityCoefficients")
@@ -2250,7 +2253,7 @@ class redlich_kwong(phase):
 
     def build(self, p):
         ph = phase.build(self, p)
-        e = ph.addChild("thermo")
+        e = ph.child("thermo")
         e['model'] = 'PureFluid'
         e['fluid_type'] = repr(self._subflag)
         addFloat(e, 'Tc', self._tc, defunits = "K")
@@ -2300,7 +2303,7 @@ class ideal_interface(phase):
 
     def build(self, p):
         ph = phase.build(self, p)
-        e = ph.addChild("thermo")
+        e = ph.child("thermo")
         e['model'] = 'Surface'
         addFloat(e, 'site_density', self._sitedens, defunits = _umol+'/'+_ulen+'2')
         k = ph.addChild("kinetics")
@@ -2340,7 +2343,7 @@ class edge(phase):
 
     def build(self, p):
         ph = phase.build(self, p)
-        e = ph.addChild("thermo")
+        e = ph.child("thermo")
         e['model'] = 'Edge'
         addFloat(e, 'site_density', self._sitedens, defunits = _umol+'/'+_ulen)
         k = ph.addChild("kinetics")
@@ -2476,7 +2479,7 @@ class edge(phase):
 
 ##     def build(self, p):
 ##         ph = phase.build(self, p)
-##         e = ph.addChild("thermo")
+##         e = ph.child("thermo")
 ##         sc = e.addChild("standardConc")
 ##         sc['model'] = self._stdconc
 ##         e['model'] = 'HMW'
