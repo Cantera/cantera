@@ -8,6 +8,9 @@ class TestThermoPhase(utilities.CanteraTest):
     def setUp(self):
         self.phase = ct.Solution('h2o2.xml')
 
+    def teste_phases(self):
+        self.assertEqual(self.phase.n_phases, 1)
+
     def test_species(self):
         self.assertEqual(self.phase.n_species, 9)
         for i,name in enumerate(self.phase.species_names):
@@ -23,13 +26,29 @@ class TestThermoPhase(utilities.CanteraTest):
             self.assertEqual(i, self.phase.element_index(i))
 
     def test_n_atoms(self):
-        self.assertEqual(self.phase.n_atoms('H2', 'H'), 2)
-        self.assertEqual(self.phase.n_atoms('H2O2', 'H'), 2)
-        self.assertEqual(self.phase.n_atoms('HO2', 'H'), 1)
-        self.assertEqual(self.phase.n_atoms('AR', 'H'), 0)
+        data = [(1, 'O', 'O'), (2, 'O', 'O2'), (1, 'H', 'OH'),
+                (2, 'H', 'H2O'), (2, 'O', 'H2O2'), (1, 'Ar', 'AR'),
+                (0, 'O', 'H'), (0, 'H', 'AR'), (0, 'Ar', 'HO2')]
+        for (n, elem, species) in data:
+            self.assertEqual(self.phase.n_atoms(species, elem), n)
+            mElem = self.phase.element_index(elem)
+            kSpec = self.phase.species_index(species)
+            self.assertEqual(self.phase.n_atoms(kSpec, mElem), n)
 
         self.assertRaises(ValueError, lambda: self.phase.n_atoms('C', 'H2'))
         self.assertRaises(ValueError, lambda: self.phase.n_atoms('H', 'CH4'))
+
+    def test_weights(self):
+        atomic_weights = self.phase.atomic_weights
+        molecular_weights = self.phase.molecular_weights
+        self.assertEqual(self.phase.n_elements, len(atomic_weights))
+        self.assertEqual(self.phase.n_species, len(molecular_weights))
+
+        for i,mw in enumerate(molecular_weights):
+            test_weight = 0.0
+            for j,aw in enumerate(atomic_weights):
+                test_weight += aw * self.phase.n_atoms(i,j)
+            self.assertAlmostEqual(test_weight, mw)
 
     def test_setComposition(self):
         X = np.zeros(self.phase.n_species)
@@ -101,7 +120,6 @@ class TestThermoPhase(utilities.CanteraTest):
         self.assertEqual(self.phase.volume_mole, self.phase.v)
         self.assertEqual(self.phase.cv_mole, self.phase.cv)
         self.assertEqual(self.phase.cp_mole, self.phase.cp)
-
 
     def check_setters(self, T1, rho1, Y1):
         T0, rho0, Y0 = self.phase.TDY
@@ -293,6 +311,7 @@ class TestThermoPhase(utilities.CanteraTest):
 class TestThermo(utilities.CanteraTest):
     def setUp(self):
         self.gas = ct.ThermoPhase('h2o2.xml')
+        self.gas.TPX = 450, 2e5, 'H2:1.0, O2:0.4, AR:3, H2O:0.1'
 
     def test_setSV_lowT(self):
         """
@@ -352,6 +371,44 @@ class TestThermo(utilities.CanteraTest):
         self.assertNear(self.gas.P, p1)
         self.assertTrue(self.gas.T > self.gas.max_temp)
 
+    def test_volume(self):
+        """ This phase should follow the ideal gas law """
+        g = self.gas
+        self.assertAlmostEqual(g.P, g.density_mole * ct.gas_constant * g.T)
+
+        self.assertAlmostEqual(
+            g.P / g.density,
+            ct.gas_constant / g.mean_molecular_weight * g.T)
+
+        self.assertAlmostEqual(g.density, 1.0 / g.volume_mass)
+
+    def test_energy(self):
+        g = self.gas
+        mmw = g.mean_molecular_weight
+        self.assertAlmostEqual(g.enthalpy_mass, g.enthalpy_mole / mmw)
+        self.assertAlmostEqual(g.int_energy_mass, g.int_energy_mole / mmw)
+        self.assertAlmostEqual(g.gibbs_mass, g.gibbs_mole / mmw)
+        self.assertAlmostEqual(g.entropy_mass, g.entropy_mole / mmw)
+
+        self.assertAlmostEqual(g.cv_mass, g.cv_mole / mmw)
+        self.assertAlmostEqual(g.cp_mass, g.cp_mole / mmw)
+        self.assertAlmostEqual(g.cv_mole + ct.gas_constant, g.cp_mole)
+
+    def test_nondimensional(self):
+        g = self.gas
+        R = ct.gas_constant
+
+        self.assertAlmostEqual(np.dot(g.standard_cp_R, g.X),
+                               g.cp_mole / R)
+        self.assertAlmostEqual(np.dot(g.standard_enthalpies_RT, g.X),
+                               g.enthalpy_mole / (R*g.T))
+
+        Smix_R = - np.dot(g.X, np.log(g.X+1e-20))
+        self.assertAlmostEqual(np.dot(g.standard_entropies_R, g.X) + Smix_R,
+                               g.entropy_mole / R)
+        self.assertAlmostEqual(np.dot(g.standard_gibbs_RT, g.X) - Smix_R,
+                               g.gibbs_mole / (R*g.T))
+
 
 class TestInterfacePhase(utilities.CanteraTest):
     def setUp(self):
@@ -363,3 +420,38 @@ class TestInterfacePhase(utilities.CanteraTest):
     def test_properties(self):
         self.interface.site_density = 100
         self.assertNear(self.interface.site_density, 100)
+
+
+class ImportTest(utilities.CanteraTest):
+    """
+    Test the various ways of creating a Solution object
+    """
+    def check(self, gas, name, T, P, nSpec, nElem):
+        self.assertEqual(gas.name, name)
+        self.assertAlmostEqual(gas.T, T)
+        self.assertAlmostEqual(gas.P, P)
+        self.assertEqual(gas.n_species, nSpec)
+        self.assertEqual(gas.n_elements, nElem)
+
+    def test_import_phase_cti(self):
+        gas1 = ct.Solution('../data/air-no-reactions.cti', 'air')
+        self.check(gas1, 'air', 300, 101325, 8, 3)
+
+        gas2 = ct.Solution('../data/air-no-reactions.cti', 'notair')
+        self.check(gas2, 'notair', 900, 5*101325, 7, 2)
+
+    def test_import_phase_cti2(self):
+        # This should import the first phase, i.e. 'air'
+        gas = ct.Solution('../data/air-no-reactions.cti')
+        self.check(gas, 'air', 300, 101325, 8, 3)
+
+    def test_import_phase_xml(self):
+        gas1 = ct.Solution('../data/air-no-reactions.xml', 'air')
+        self.check(gas1, 'air', 300, 101325, 8, 3)
+
+        gas2 = ct.Solution('../data/air-no-reactions.xml', 'notair')
+        self.check(gas2, 'notair', 900, 5*101325, 7, 2)
+
+    def test_checkReactionBalance(self):
+        self.assertRaises(Exception,
+                          lambda: ct.Solution('../data/h2o2_unbalancedReaction.xml'))
