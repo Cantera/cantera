@@ -144,7 +144,6 @@ extern "C" {
                                      int nphases, int* ith, int nkin);
     CANTERA_CAPI int getCanteraError(int buflen, char* buf);
     CANTERA_CAPI int showCanteraErrors();
-    CANTERA_CAPI int write_HTML_log(const char* file);
     CANTERA_CAPI int setLogWriter(void* logger);
     CANTERA_CAPI int addCanteraDirectory(size_t buflen, char* buf);
     CANTERA_CAPI int clearStorage();
@@ -157,7 +156,6 @@ extern "C" {
 
     CANTERA_CAPI int ck_to_cti(char* in_file, char* db_file,
                                char* tr_file, char* id_tag, int debug, int validate);
-    CANTERA_CAPI int writelogfile(char* logfile);
 }
 
 #endif

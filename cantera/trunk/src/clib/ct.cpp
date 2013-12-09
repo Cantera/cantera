@@ -1347,16 +1347,6 @@ extern "C" {
         }
     }
 
-    int write_HTML_log(const char* file)
-    {
-        try {
-            write_logfile(file);
-            return 0;
-        } catch (...) {
-            return handleAllExceptions(-1, ERR);
-        }
-    }
-
     int getCanteraError(int buflen, char* buf)
     {
         try {
@@ -1509,15 +1499,4 @@ extern "C" {
             return handleAllExceptions(-1, ERR);
         }
     }
-
-    int writelogfile(char* logfile)
-    {
-        try {
-            write_logfile(logfile);
-            return 0;
-        } catch (...) {
-            return handleAllExceptions(-1, ERR);
-        }
-    }
-
 }

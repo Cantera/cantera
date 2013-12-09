@@ -346,8 +346,7 @@ public:
      *                  TP problem.
      *  @param maxiter Maximum number of "outer" iterations for problems
      *                 holding fixed something other than (T,P).
-     *  @param loglevel Level of diagnostic output, written to a file in HTML
-     *                  format.
+     *  @param loglevel Level of diagnostic output
      */
     doublereal equilibrate(int XY, doublereal err = 1.0e-9,
                            int maxsteps = 1000, int maxiter = 200, int loglevel = -99);

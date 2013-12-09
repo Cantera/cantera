@@ -198,9 +198,6 @@ int ChemEquil::setInitialMoles(thermo_t& s, vector_fp& elMoleGoal,
                                int loglevel)
 {
     int iok = 0;
-    if (loglevel > 0) {
-        beginLogGroup("ChemEquil::setInitialMoles");
-    }
     try {
         MultiPhase mp;
         mp.addPhase(&s, 1.0);
@@ -214,13 +211,6 @@ int ChemEquil::setInitialMoles(thermo_t& s, vector_fp& elMoleGoal,
         }
         for (size_t m = 0; m < m_nComponents; m++) {
             m_component[m] = e.componentIndex(m);
-        }
-        for (size_t k = 0; k < m_kk; k++) {
-            if (s.moleFraction(k) > 0.0) {
-                if (loglevel > 0)
-                    addLogEntry(s.speciesName(k),
-                                s.moleFraction(k));
-            }
         }
         /*
          * Update the current values of the temp, density, and
@@ -253,18 +243,12 @@ int ChemEquil::setInitialMoles(thermo_t& s, vector_fp& elMoleGoal,
         err.save();
         iok = -1;
     }
-    if (loglevel > 0) {
-        endLogGroup();
-    }
     return iok;
 }
 
 int ChemEquil::estimateElementPotentials(thermo_t& s, vector_fp& lambda_RT,
         vector_fp& elMolesGoal, int loglevel)
 {
-    if (loglevel > 0) {
-        beginLogGroup("estimateElementPotentials");
-    }
     //for (k = 0; k < m_kk; k++) {
     //    if (m_molefractions[k] > 0.0) {
     //        m_molefractions[k] = fmaxx(m_molefractions[k], 0.05);
@@ -345,9 +329,6 @@ int ChemEquil::estimateElementPotentials(thermo_t& s, vector_fp& lambda_RT,
 
     int info = solve(aa, DATA_PTR(b));
     if (info) {
-        if (loglevel > 0) {
-            addLogEntry("failed to estimate initial element potentials.");
-        }
         info = -2;
     }
     for (size_t m = 0; m < m_nComponents; m++) {
@@ -355,13 +336,6 @@ int ChemEquil::estimateElementPotentials(thermo_t& s, vector_fp& lambda_RT,
     }
     for (size_t m = m_nComponents; m < m_mm;  m++) {
         lambda_RT[m_orderVectorElements[m]] = 0.0;
-    }
-    if (info == 0) {
-        if (loglevel > 0) {
-            for (size_t m = 0; m < m_mm; m++) {
-                addLogEntry(s.elementName(m),lambda_RT[m]);
-            }
-        }
     }
 
 #ifdef DEBUG_MODE
@@ -385,9 +359,6 @@ int ChemEquil::estimateElementPotentials(thermo_t& s, vector_fp& lambda_RT,
         }
     }
 #endif
-    if (loglevel > 0) {
-        endLogGroup();
-    }
     return info;
 }
 
@@ -429,9 +400,6 @@ int ChemEquil::equilibrate(thermo_t& s, const char* XYstr,
     int n;
     const vector<string>& eNames = s.elementNames();
 #endif
-    if (loglevel > 0) {
-        beginLogGroup("ChemEquil::equilibrate");
-    }
     initialize(s);
     update(s);
     switch (XY) {
@@ -470,24 +438,13 @@ int ChemEquil::equilibrate(thermo_t& s, const char* XYstr,
         m_p2.reset(new DensityCalculator<thermo_t>);
         break;
     default:
-        if (loglevel > 0) {
-            endLogGroup("ChemEquil::equilibrate");
-        }
         throw CanteraError("equilibrate","illegal property pair.");
-    }
-    if (loglevel > 0) {
-        addLogEntry("Problem type","fixed "+m_p1->symbol()+", "+m_p2->symbol());
-        addLogEntry(m_p1->symbol(), m_p1->value(s));
-        addLogEntry(m_p2->symbol(), m_p2->value(s));
     }
     // If the temperature is one of the specified variables, and
     // it is outside the valid range, throw an exception.
     if (tempFixed) {
         double tfixed = s.temperature();
         if (tfixed > s.maxTemp() + 1.0 || tfixed < s.minTemp() - 1.0) {
-            if (loglevel > 0) {
-                endLogGroup("ChemEquil::equilibrate");
-            }
             throw CanteraError("ChemEquil","Specified temperature ("
                                +fp2str(s.temperature())+" K) outside "
                                "valid range of "+fp2str(s.minTemp())+" K to "
@@ -550,10 +507,6 @@ int ChemEquil::equilibrate(thermo_t& s, const char* XYstr,
     doublereal tminPhase = s.minTemp();
     // loop to estimate T
     if (!tempFixed) {
-        if (loglevel > 0) {
-            beginLogGroup("Initial T Estimate");
-        }
-
         doublereal tmin;
         doublereal tmax;
 
@@ -637,17 +590,11 @@ int ChemEquil::equilibrate(thermo_t& s, const char* XYstr,
                 printf("We shouldn't be here\n");
                 exit(EXIT_FAILURE);
             }
-            if (loglevel > 0) {
-                addLogEntry("new T estimate", t0);
-            }
             if (t0 < 100.) {
                 printf("t0 - we are here %g\n", t0);
                 exit(EXIT_FAILURE);
             }
             s.setTemperature(t0);
-        }
-        if (loglevel > 0) {
-            endLogGroup("Initial T Estimate");    // initial T estimate
         }
     }
 
@@ -697,19 +644,12 @@ int ChemEquil::equilibrate(thermo_t& s, const char* XYstr,
      * to be very stable.
      */
     int info = estimateEP_Brinkley(s, x, elMolesGoal);
-    if (info != 0) {
-        if (info == 1) {
-            addLogEntry("estimateEP_Brinkley didn't converge in given max iterations");
-        } else if (info == -3) {
-            addLogEntry("estimateEP_Brinkley had a singular Jacobian. Continuing anyway");
-        }
-    } else {
+    if (info == 0) {
         setToEquilState(s, x, s.temperature());
         // Tempting -> However, nonideal is a problem. Turn on if not worried
         //             about nonideality and you are having problems with the main
         //             algorithm.
         //if (XY == TP) {
-        // endLogGroup("ChemEquil::equilibrate");
         // return 0;
         //}
     }
@@ -753,18 +693,11 @@ int ChemEquil::equilibrate(thermo_t& s, const char* XYstr,
 next:
 
     iter++;
-    if (iter > 1 && loglevel > 0) {
-        endLogGroup("Iteration "+int2str(iter-1));    // iteration
-    }
-    if (loglevel > 0) {
-        beginLogGroup("Iteration "+int2str(iter));
-    }
 
     // compute the residual and the jacobian using the current
     // solution vector
     equilResidual(s, x, elMolesGoal, res_trial, xval, yval);
     f = 0.5*dot(res_trial.begin(), res_trial.end(), res_trial.begin());
-    addLogEntry("Residual norm", f);
 
     // Compute the Jacobian matrix
     equilJacobian(s, x, elMolesGoal, jac, xval, yval);
@@ -808,9 +741,6 @@ next:
         info = solve(jac, DATA_PTR(res_trial));
     } catch (CanteraError& err) {
         err.save();
-        addLogEntry("Jacobian is singular.");
-        endLogGroup(); // iteration
-        endLogGroup(); // equilibrate
         s.restoreState(state);
 
         throw CanteraError("equilibrate",
@@ -846,7 +776,6 @@ next:
         }
     }
     if (fctr != 1.0) {
-        addLogEntry("WARNING: factor to keep solution in bounds", fctr);
 #ifdef DEBUG_MODE
         if (ChemEquil_print_lvl > 0) {
             writelogf("WARNING Soln Damping because of bounds: %g\n", fctr);
@@ -861,9 +790,6 @@ next:
                   x, f, elMolesGoal , xval, yval)) {
         fail++;
         if (fail > 3) {
-            addLogEntry("dampStep","Failed 3 times. Giving up.");
-            endLogGroup(); // iteration
-            endLogGroup(); // equilibrate
             s.restoreState(state);
             throw CanteraError("equilibrate",
                                "Cannot find an acceptable Newton damping coefficient.");
@@ -916,21 +842,9 @@ converge:
             && fabs(deltax) < options.relTolerance
             && fabs(deltay) < options.relTolerance) {
         options.iterations = iter;
-        if (loglevel > 0) {
-            endLogGroup("Iteration "+int2str(iter)); // iteration
-            beginLogGroup("Converged solution");
-            addLogEntry("Iterations",iter);
-            addLogEntry("Relative error in "+m_p1->symbol(),deltax);
-            addLogEntry("Relative error in "+m_p2->symbol(),deltay);
-            addLogEntry("Max residual",rmax);
-            beginLogGroup("Element potentials");
-        }
         doublereal rt = GasConstant* s.temperature();
         for (m = 0; m < m_mm; m++) {
             m_lambda[m] = x[m]*rt;
-            if (loglevel > 0) {
-                addLogEntry("element "+ s.elementName(m), fp2str(x[m]));
-            }
         }
 
         if (m_eloc != npos) {
@@ -941,10 +855,6 @@ converge:
          * to the original ThermoPhase object.
          */
         s.setElementPotentials(m_lambda);
-        if (loglevel > 0) {
-            addLogEntry("Saving Element Potentials to ThermoPhase Object");
-            endLogGroup("Element potentials");
-        }
         if (s.temperature() > s.maxTemp() + 1.0 ||
                 s.temperature() < s.minTemp() - 1.0) {
             writelog("Warning: Temperature ("
@@ -952,21 +862,12 @@ converge:
                      "valid range of "+fp2str(s.minTemp())+" K to "
                      +fp2str(s.maxTemp())+" K\n");
         }
-        if (loglevel > 0) {
-            endLogGroup("Converged solution");
-            endLogGroup("ChemEquil::equilibrate");
-        }
         return 0;
     }
 
     // no convergence
 
     if (iter > options.maxIterations) {
-        if (loglevel > 0) {
-            addLogEntry("equilibrate","no convergence");
-            endLogGroup("Iteration "+int2str(iter));
-            endLogGroup("ChemEquil::equilibrate");
-        }
         s.restoreState(state);
         throw CanteraError("equilibrate",
                            "no convergence in "+int2str(options.maxIterations)
@@ -1026,9 +927,6 @@ void ChemEquil::equilResidual(thermo_t& s, const vector_fp& x,
                               const vector_fp& elmFracGoal, vector_fp& resid,
                               doublereal xval, doublereal yval, int loglevel)
 {
-    if (loglevel > 0) {
-        beginLogGroup("ChemEquil::equilResidual");
-    }
     doublereal xx, yy;
     doublereal temp = exp(x[m_mm]);
     setToEquilState(s, x, temp);
@@ -1054,9 +952,6 @@ void ChemEquil::equilResidual(thermo_t& s, const vector_fp& x,
                 resid[m] = log((1.0 + elmFracGoal[m]) / (1.0 + elmFrac[m]));
             }
         }
-        if (loglevel > 0)
-            addLogEntry(s.elementName(m),fp2str(elmFrac[m])+"  ("
-                        +fp2str(elmFracGoal[m])+")");
     }
 
 #ifdef DEBUG_MODE
@@ -1073,13 +968,6 @@ void ChemEquil::equilResidual(thermo_t& s, const vector_fp& x,
     yy = m_p2->value(s);
     resid[m_mm] = xx/xval - 1.0;
     resid[m_skip] = yy/yval - 1.0;
-    if (loglevel > 0) {
-        string xstr = fp2str(xx)+"  ("+fp2str(xval)+")";
-        addLogEntry(m_p1->symbol(), xstr);
-        string ystr = fp2str(yy)+"  ("+fp2str(yval)+")";
-        addLogEntry(m_p2->symbol(), ystr);
-        endLogGroup("ChemEquil::equilResidual");
-    }
 
 #ifdef DEBUG_MODE
     if (ChemEquil_print_lvl > 0 && !m_doResPerturb) {
@@ -1094,9 +982,6 @@ void ChemEquil::equilJacobian(thermo_t& s, vector_fp& x,
                               const vector_fp& elmols, DenseMatrix& jac,
                               doublereal xval, doublereal yval, int loglevel)
 {
-    if (loglevel > 0) {
-        beginLogGroup("equilJacobian");
-    }
     vector_fp& r0 = m_jwork1;
     vector_fp& r1 = m_jwork2;
     size_t len = x.size();
@@ -1132,9 +1017,6 @@ void ChemEquil::equilJacobian(thermo_t& s, vector_fp& x,
         x[n] = xsave;
     }
     m_doResPerturb = false;
-    if (loglevel > 0) {
-        endLogGroup("equilJacobian");
-    }
 }
 
 double ChemEquil::calcEmoles(thermo_t& s, vector_fp& x, const double& n_t,
@@ -1681,7 +1563,6 @@ int ChemEquil::estimateEP_Brinkley(thermo_t& s, vector_fp& x,
             solve(a1, DATA_PTR(resid));
         } catch (CanteraError& err) {
             err.save();
-            addLogEntry("estimateEP_Brinkley:Jacobian is singular.");
 #ifdef DEBUG_MODE
             writelog("Matrix is SINGULAR.ERROR\n", ChemEquil_print_lvl);
 #endif

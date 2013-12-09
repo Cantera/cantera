@@ -1,8 +1,8 @@
 /**
  * @file global.h
  * This file contains definitions for utility functions and text for modules,
- * inputfiles, logs, textlogs, HTML_logs (see \ref inputfiles, \ref logs,
- * \ref textlogs and \ref HTML_logs).
+ * inputfiles, logs, textlogs, (see \ref inputfiles, \ref logs, and
+ * \ref textlogs).
  *
  * @ingroup utils
  *
@@ -13,7 +13,6 @@
  *     -  inputfiles  (see \ref inputfiles)
  *     -  logs        (see \ref logs)
  *     -  textlogs    (see \ref textlogs)
- *     -  HTML_logs   (see \ref HTML_logs)
  */
 // Copyright 2001  California Institute of Technology
 
@@ -135,11 +134,9 @@ std::string canteraRoot();
  *
  * Writing diagnostic information to the screen or to a file. It is often
  * useful to be able to write diagnostic messages to the screen or to a file.
- * Cantera provides two sets of procedures for this purpose. The first set is
- * designed to write text messages to the screen to document the progress of a
- * complex calculation, such as a flame simulation.The second set writes
- * nested lists in HTML format. This is useful to print debugging output for a
- * complex calculation that calls many different procedures.
+ * Cantera a set of procedures for this purpose designed to write text messages
+ * to the screen to document the progress of a complex calculation, such as a
+ * flame simulation.
  */
 
 /*!
@@ -205,61 +202,6 @@ XML_Node* get_XML_File(const std::string& file, int debug = 0);
 
 //! @copydoc Application::close_XML_File
 void close_XML_File(const std::string& file);
-
-#ifdef WITH_HTML_LOGS
-
-/*!
- * @defgroup HTML_logs Writing HTML Logfiles
- * @ingroup logs
- *
- *  These functions are designed to allow writing HTML diagnostic
- *  messages in a manner that allows users to control how much
- *  diagnostic output to print. It works like this: Suppose you
- *  have function A that invokes function B that invokes function
- *  C. You want to be able to print diagnostic messages just from
- *  function A, or from A and B, or from A, B, and C, or to turn
- *  off printing diagnostic messages altogether. All you need to
- *  do is call 'beginLogGroup' within function A, and specify a
- *  loglevel value. Then in B, call beginLogGroup again, but
- *  without an explicit value for loglevel. By default, the
- *  current level is decremented by one in beginLogGroup. If it
- *  is <= 0, no log messages are written. Thus, if each function
- *  begins with beginLogGroup and calls endLogGroup before
- *  returning, then setting loglevel = 3 will cause messages from
- *  A, B, and C to be written (in nested HTML lists), loglevel =
- *  2 results in messages only being written from A and B, etc.
- */
-
-//! @copydoc Application::Messages::beginLogGroup
-void beginLogGroup(const std::string& title, int loglevel=-99);
-
-//! @copydoc Application::Messages::addLogEntry(const std::string&, const std::string&)
-void addLogEntry(const std::string& tag, const std::string& value);
-
-//! @copydoc Application::Messages::addLogEntry(const std::string&, doublereal)
-void addLogEntry(const std::string& tag, doublereal value);
-
-//! @copydoc Application::Messages::addLogEntry(const std::string&, int)
-void addLogEntry(const std::string& tag, int value);
-
-//! @copydoc Application::Messages::addLogEntry(const std::string&)
-void addLogEntry(const std::string& msg);
-
-//! @copydoc Application::Messages::endLogGroup
-void endLogGroup(const std::string& title="");
-
-//! @copydoc Application::Messages::write_logfile
-void write_logfile(const std::string& file = "log.html");
-
-#else
-inline void beginLogGroup(const std::string& title, int loglevel=-99) {}
-inline void addLogEntry(const std::string& tag, const std::string& value) {}
-inline void addLogEntry(const std::string& tag, doublereal value) {}
-inline void addLogEntry(const std::string& tag, int value) {}
-inline void addLogEntry(const std::string& msg) {}
-inline void endLogGroup(const std::string& title="") {}
-inline void write_logfile(const std::string& file = "log.html") {}
-#endif
 
 //! This routine will locate an XML node in either the input
 //! XML tree or in another input file specified by the file

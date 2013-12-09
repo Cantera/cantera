@@ -117,11 +117,7 @@ cdef class ThermoPhase(_SolutionBase):
             'outer' iterations on T or P when some property pair other
             than TP is specified.
         :param loglevel:
-            Set to a value > 0 to write diagnostic output to a file in HTML
-            format. Larger values generate more detailed information. The file
-            will be named ``equilibrate_log.html.`` Subsequent files will be
-            named ``equilibrate_log1.html``, etc., so that log files are
-            not overwritten.
+            Set to a value > 0 to write diagnostic output.
             """
         cdef int iSolver
         if isinstance(solver, int):

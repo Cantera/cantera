@@ -45,9 +45,7 @@ namespace Cantera
  *                 when T and/or P is not held fixed.
  *  @param loglevel Controls amount of diagnostic output. loglevel
  *                  = 0 suppresses diagnostics, and increasingly-verbose
- *                  messages are written as loglevel increases. The
- *                  messages are written to a file in HTML format for viewing
- *                  in a web browser. @see HTML_logs
+ *                  messages are written as loglevel increases.
  *
  *  @ingroup equilfunctions
  */
@@ -88,9 +86,7 @@ int vcs_equilibrate(thermo_t& s, const char* XY,
  *                 when T and/or P is not held fixed.
  *  @param loglevel Controls amount of diagnostic output. loglevel
  *                  = 0 suppresses diagnostics, and increasingly-verbose
- *                  messages are written as loglevel increases. The
- *                  messages are written to a file in HTML format for viewing
- *                  in a web browser. @see HTML_logs
+ *                  messages are written as loglevel increases.
  *
  *  @ingroup equilfunctions
  */
@@ -132,9 +128,7 @@ int vcs_equilibrate(MultiPhase& s, const char* XY,
  *                 not held fixed.
  *  @param loglevel Controls amount of diagnostic output. loglevel
  *                  = 0 suppresses diagnostics, and increasingly-verbose
- *                  messages are written as loglevel increases. The
- *                  messages are written to a file in HTML format for viewing
- *                  in a web browser. @see HTML_logs
+ *                  messages are written as loglevel increases.
  *
  *  @ingroup equilfunctions
  */
@@ -157,9 +151,7 @@ int vcs_equilibrate_1(MultiPhase& s, int ixy,
  *                  with debug flags to get some printing).
  *  @param loglevel Controls amount of diagnostic output. loglevel
  *                  = 0 suppresses diagnostics, and increasingly-verbose
- *                  messages are written as loglevel increases. The
- *                  messages are written to a file in HTML format for viewing
- *                  in a web browser. @see HTML_logs
+ *                  messages are written as loglevel increases.
  */
 int vcs_determine_PhaseStability(MultiPhase& s, int iphase,
                                  double& funcStab, int printLvl, int loglevel);
@@ -288,8 +280,7 @@ public:
      *                  compile with debug flags to get some printing).
      *  @param err      Internal error level
      *  @param maxsteps max steps allowed.
-     *  @param loglevel Determines the amount of printing to the HTML
-     *                  output file.
+     *  @param loglevel Determines the amount of printing to the output file.
      */
     int equilibrate(int XY, int estimateEquil = 0,
                     int printLvl= 0, doublereal err = 1.0e-6,
@@ -313,8 +304,7 @@ public:
      *                  compile with debug flags to get some printing).
      *  @param err     Internal error level
      *  @param maxsteps max steps allowed.
-     *  @param loglevel Determines the amount of printing to the HTML
-     *                  output file.
+     *  @param loglevel Determines the amount of printing to the output file.
      */
     int equilibrate_TP(int estimateEquil = 0,
                        int printLvl= 0, doublereal err = 1.0e-6,
@@ -352,8 +342,7 @@ public:
      *                   constructor call for meaning of the levels.
      *  @param err     Internal error level
      *  @param maxsteps max steps allowed.
-     *  @param loglevel Determines the amount of printing to the HTML
-     *                  output file.
+     *  @param loglevel Determines the amount of printing to the output file.
      */
     int equilibrate_HP(doublereal Htarget, int XY, double Tlow, double Thigh,
                        int estimateEquil = 0,
@@ -389,8 +378,7 @@ public:
      *                   constructor call for meaning of the levels.
      *  @param err     Internal error level
      *  @param maxsteps max steps allowed.
-     *  @param loglevel Determines the amount of printing to the HTML
-     *                  output file.
+     *  @param loglevel Determines the amount of printing to the output file.
      */
     int equilibrate_SP(doublereal Starget, double Tlow, double Thigh,
                        int estimateEquil = 0,
@@ -424,8 +412,7 @@ public:
      *                  main constructor call for meaning of the levels.
      *  @param err     Internal error level
      *  @param maxsteps max steps allowed.
-     *  @param logLevel Determines the amount of printing to the HTML
-     *                  output file.
+     *  @param logLevel Determines the amount of printing to the output file.
      */
     int equilibrate_TV(int XY, doublereal xtarget,
                        int  estimateEquil = 0,
@@ -442,7 +429,7 @@ public:
      *  @param printLvl  Determines the amount of printing that gets sent to
      *                   stdout from the vcs package (Note, you may have to
      *                   compile with debug flags to get some printing).
-     *  @param logLevel Determines the amount of printing to the HTML output file.
+     *  @param logLevel Determines the amount of printing to the output file.
      */
     int determine_PhaseStability(int iph, double& funcStab,  int printLvl= 0, int logLevel = -99);
 

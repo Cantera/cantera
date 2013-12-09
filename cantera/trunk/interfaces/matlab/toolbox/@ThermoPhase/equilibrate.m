@@ -22,13 +22,8 @@ function a = equilibrate(a, xy, solver, rtol, maxsteps, maxiter, loglevel)
 %        specifies the number of 'outer' iterations on T or P when
 %        some property pair other than TP is specified.
 %
-%        loglevel -- set to a value > 0 to write diagnostic output to
-%        a file in HTML format. Larger values generate more detailed
-%        information. The file will be named 'equilibrate_log.html.'
-%        Subsequent files will be named 'equilibrate_log1.html',
-%        'equilibrate_log2.html', etc., so that log files are not
-%        overwritten.
-%
+%        loglevel -- set to a value > 0 to write diagnostic output
+%        Larger values generate more detailed information.
 %
 
 % use the ChemEquil solver by default
