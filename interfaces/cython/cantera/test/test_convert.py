@@ -1,11 +1,10 @@
 import os
-import unittest
 import numpy as np
 import itertools
-import ck2cti
 
 import utilities
-import Cantera as ct
+import cantera as ct
+from cantera import ck2cti
 
 
 def convertMech(inputFile, outName=None, **kwargs):
@@ -17,35 +16,35 @@ def convertMech(inputFile, outName=None, **kwargs):
 
 class chemkinConverterTest(utilities.CanteraTest):
     def checkConversion(self, refFile, testFile):
-        ref = ct.IdealGasMix(refFile)
-        gas = ct.IdealGasMix(testFile)
+        ref = ct.Solution(refFile)
+        gas = ct.Solution(testFile)
 
-        self.assertEqual(ref.elementNames(), gas.elementNames())
-        self.assertEqual(ref.speciesNames(), gas.speciesNames())
-        coeffs_ref = ref.reactantStoichCoeffs()
-        coeffs_gas = gas.reactantStoichCoeffs()
+        self.assertEqual(ref.element_names, gas.element_names)
+        self.assertEqual(ref.species_names, gas.species_names)
+        coeffs_ref = ref.reactant_stoich_coeffs()
+        coeffs_gas = gas.reactant_stoich_coeffs()
         self.assertEqual(coeffs_gas.shape, coeffs_ref.shape)
         self.assertTrue((coeffs_gas == coeffs_ref).all())
 
-        compositionA = [[ref.nAtoms(i,j) for j in range(ref.nElements())]
-                        for i in range(ref.nSpecies())]
-        compositionB = [[gas.nAtoms(i,j) for j in range(gas.nElements())]
-                        for i in range(gas.nSpecies())]
+        compositionA = [[ref.n_atoms(i,j) for j in range(ref.n_elements)]
+                        for i in range(ref.n_species)]
+        compositionB = [[gas.n_atoms(i,j) for j in range(gas.n_elements)]
+                        for i in range(gas.n_species)]
         self.assertEqual(compositionA, compositionB)
 
         return ref, gas
 
     def checkThermo(self, ref, gas, temperatures):
         for T in temperatures:
-            ref.set(T=T, P=ct.OneAtm)
-            gas.set(T=T, P=ct.OneAtm)
-            ref_cp = ref.cp_R()
-            gas_cp = gas.cp_R()
-            ref_h = ref.enthalpies_RT()
-            gas_h = gas.enthalpies_RT()
-            ref_s = ref.entropies_R()
-            gas_s = gas.entropies_R()
-            for i in range(gas.nSpecies()):
+            ref.TP = T, ct.one_atm
+            gas.TP = T, ct.one_atm
+            ref_cp = ref.standard_cp_R
+            gas_cp = gas.standard_cp_R
+            ref_h = ref.standard_enthalpies_RT
+            gas_h = gas.standard_enthalpies_RT
+            ref_s = ref.standard_entropies_R
+            gas_s = gas.standard_entropies_R
+            for i in range(gas.n_species):
                 message = ' for species {0} at T = {1}'.format(i, T)
                 self.assertNear(ref_cp[i], gas_cp[i], 1e-7, msg='cp'+message)
                 self.assertNear(ref_h[i], gas_h[i], 1e-7, msg='h'+message)
@@ -53,13 +52,13 @@ class chemkinConverterTest(utilities.CanteraTest):
 
     def checkKinetics(self, ref, gas, temperatures, pressures, tol=1e-8):
         for T,P in itertools.product(temperatures, pressures):
-            ref.set(T=T, P=P)
-            gas.set(T=T, P=P)
-            ref_kf = ref.fwdRateConstants()
-            ref_kr = ref.revRateConstants()
-            gas_kf = gas.fwdRateConstants()
-            gas_kr = gas.revRateConstants()
-            for i in range(gas.nReactions()):
+            ref.TP = T, P
+            gas.TP = T, P
+            ref_kf = ref.forward_rate_constants
+            ref_kr = ref.reverse_rate_constants
+            gas_kf = gas.forward_rate_constants
+            gas_kr = gas.reverse_rate_constants
+            for i in range(gas.n_reactions):
                 message = ' for reaction {0} at T = {1}, P = {2}'.format(i, T, P)
                 self.assertNear(ref_kf[i], gas_kf[i], rtol=tol, msg='kf '+message)
                 self.assertNear(ref_kr[i], gas_kr[i], rtol=tol, msg='kr '+message)
@@ -110,24 +109,24 @@ class chemkinConverterTest(utilities.CanteraTest):
                     outName='duplicate-thermo.cti',
                     quiet=True, permissive=True)
 
-        gas = ct.IdealGasMix('duplicate-thermo.cti')
-        self.assertTrue(gas.nSpecies(), 3)
-        self.assertTrue(gas.nReactions(), 2)
+        gas = ct.Solution('duplicate-thermo.cti')
+        self.assertTrue(gas.n_species, 3)
+        self.assertTrue(gas.n_reactions, 2)
 
     def test_pathologicalSpeciesNames(self):
         convertMech('../data/species-names.inp',
                     outName='species-names.cti', quiet=True)
-        gas = ct.IdealGasMix('species-names.cti')
+        gas = ct.Solution('species-names.cti')
 
-        self.assertEqual(gas.nSpecies(), 5)
-        self.assertEqual(gas.speciesName(0), '(Parens)')
-        self.assertEqual(gas.speciesName(1), '@#$%^-2')
-        self.assertEqual(gas.speciesName(2), '[xy2]*{.}')
-        self.assertEqual(gas.speciesName(3), 'plus+')
-        self.assertEqual(gas.speciesName(4), 'eq=uals')
+        self.assertEqual(gas.n_species, 5)
+        self.assertEqual(gas.species_name(0), '(Parens)')
+        self.assertEqual(gas.species_name(1), '@#$%^-2')
+        self.assertEqual(gas.species_name(2), '[xy2]*{.}')
+        self.assertEqual(gas.species_name(3), 'plus+')
+        self.assertEqual(gas.species_name(4), 'eq=uals')
 
-        self.assertEqual(gas.nReactions(), 4)
-        nu = gas.productStoichCoeffs() - gas.reactantStoichCoeffs()
+        self.assertEqual(gas.n_reactions, 4)
+        nu = gas.product_stoich_coeffs() - gas.reactant_stoich_coeffs()
         self.assertEqual(list(nu[:,0]), [-1, -1, 2, 0, 0])
         self.assertEqual(list(nu[:,1]), [-2, 3, -1, 0, 0])
         self.assertEqual(list(nu[:,2]), [-1, 0, 0, 1, 0])
@@ -143,9 +142,9 @@ class chemkinConverterTest(utilities.CanteraTest):
                     outName='unterminated-sections.cti',
                     quiet=True, permissive=True)
 
-        gas = ct.IdealGasMix('unterminated-sections.cti')
-        self.assertEqual(gas.nSpecies(), 3)
-        self.assertEqual(gas.nReactions(), 2)
+        gas = ct.Solution('unterminated-sections.cti')
+        self.assertEqual(gas.n_species, 3)
+        self.assertEqual(gas.n_reactions, 2)
 
     def test_nasa9(self):
         convertMech('../data/nasa9-test.inp',
@@ -193,11 +192,11 @@ class chemkinConverterTest(utilities.CanteraTest):
 
         # Reactions with explicit reverse rate constants are transformed into
         # two irreversible reactions with reactants and products swapped.
-        Rr = gas.revRateConstants()
+        Rr = gas.reverse_rate_constants
         self.assertEqual(Rr[0], 0.0)
         self.assertEqual(Rr[1], 0.0)
-        Rstoich = gas.reactantStoichCoeffs()
-        Pstoich = gas.productStoichCoeffs()
+        Rstoich = gas.reactant_stoich_coeffs()
+        Pstoich = gas.product_stoich_coeffs()
         self.assertEqual(list(Rstoich[:,0]), list(Pstoich[:,1]))
         self.assertEqual(list(Rstoich[:,1]), list(Pstoich[:,0]))
 
@@ -227,17 +226,17 @@ class chemkinConverterTest(utilities.CanteraTest):
                     transportFile='../../data/transport/gri30_tran.dat',
                     outName='h2o2_transport_normal.cti', quiet=True)
 
-        gas = ct.IdealGasMix('h2o2_transport_normal.cti')
-        gas.set(X='H2:1.0, O2:1.0', T=300, P=101325)
-        self.assertAlmostEqual(gas.thermalConductivity(), 0.07663, 4)
+        gas = ct.Solution('h2o2_transport_normal.cti')
+        gas.TPX = 300, 101325, 'H2:1.0, O2:1.0'
+        self.assertAlmostEqual(gas.thermal_conductivity, 0.07663, 4)
 
     def test_transport_embedded(self):
         convertMech('../data/with-transport.inp',
                     outName='with-transport.cti', quiet=True)
 
-        gas = ct.IdealGasMix('with-transport.cti')
-        gas.set(X=[0.2, 0.3, 0.5])
-        D = gas.mixDiffCoeffs()
+        gas = ct.Solution('with-transport.cti')
+        gas.X = [0.2, 0.3, 0.5]
+        D = gas.mix_diff_coeffs
         for d in D:
             self.assertTrue(d > 0.0)
 
