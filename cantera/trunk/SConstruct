@@ -251,7 +251,6 @@ else:
 
 defaults.fsLayout = 'compact' if env['OS'] == 'Windows' else 'standard'
 defaults.env_vars = 'LD_LIBRARY_PATH,PYTHONPATH'
-#defaults.env_vars = 'PYTHONPATH' if 'PYTHONPATH' in os.environ else ''
 
 defaults.python_prefix = '$prefix' if env['OS'] != 'Windows' else ''
 
@@ -1345,7 +1344,6 @@ else:
     if not env['single_library']:
         linkLibs.extend(['cvode'])
         linkSharedLibs.extend(['cvode_shared'])
-    #print 'linkLibs = ', linkLibs
 
 if not env['single_library']:
     linkLibs.append('ctmath')
@@ -1608,9 +1606,6 @@ if any(target.startswith('test') for target in COMMAND_LINE_TARGETS):
     SConscript('build/test/SConscript')
 
     # Regression tests
-    print 'we are here -> add test_problems'
-    print env.Dump()
-    # exit(0)
     SConscript('test_problems/SConscript')
 
     if 'test-help' in COMMAND_LINE_TARGETS:
