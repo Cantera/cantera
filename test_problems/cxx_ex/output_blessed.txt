@@ -23,20 +23,6 @@ Output files:
 >>>>>  example 2
 
 Description:  
-Ignition simulation using class GRI30.
-Constant-pressure ignition of a hydrogen/oxygen/nitrogen mixture 
-beginning at T = 1001 K and P = 1 atm.
- Tfinal = 2663.78
-Output files:
-  kin2.csv    (Excel CSV file)
-  kin2.dat    (Tecplot data file)
-
-
-
-
->>>>>  example 3
-
-Description:  
 Ignition simulation using class IdealGasMix with file gri30.cti.
 Constant-pressure ignition of a hydrogen/oxygen/nitrogen mixture 
 beginning at T = 1001 K and P = 1 atm.
@@ -48,7 +34,7 @@ Output files:
 
 
 
->>>>>  example 4
+>>>>>  example 3
 
 Description:  
 Chemical equilibrium.
