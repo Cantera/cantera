@@ -83,12 +83,6 @@ class ReactionData;
 /// phases with different electric potentials --- something that
 /// class GasKinetics doesn't deal with at all.
 ///
-/// Kinetics managers may be also created that hard-wire a
-/// particular reaction mechanism in C++ code. This can often
-/// result in faster performance. An example of this is the
-/// kinetics manager GRI30_Kinetics that hard-wires the rate
-/// expressions for the natural gas combustion mechanism GRI-3.0.
-///
 /// Many of the methods of class Kinetics write into arrays the
 /// values of some quantity for each species, for example the net
 /// production rate.  These methods always write the results into

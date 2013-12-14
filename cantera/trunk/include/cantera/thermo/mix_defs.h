@@ -152,7 +152,6 @@ enum VPSSMgr_enumType {
 
 // kinetic manager types
 const int cGasKinetics = 2;
-const int cGRI30 = 3;
 const int cInterfaceKinetics = 4;
 const int cLineKinetics = 5;
 const int cEdgeKinetics = 6;

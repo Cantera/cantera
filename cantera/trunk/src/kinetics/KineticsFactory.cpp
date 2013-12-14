@@ -6,7 +6,6 @@
 #include "cantera/kinetics/KineticsFactory.h"
 
 #include "cantera/kinetics/GasKinetics.h"
-#include "cantera/kinetics/GRI_30_Kinetics.h"
 #include "cantera/kinetics/InterfaceKinetics.h"
 #include "cantera/kinetics/EdgeKinetics.h"
 #include "cantera/kinetics/importKinetics.h"
@@ -20,9 +19,9 @@ namespace Cantera
 KineticsFactory* KineticsFactory::s_factory = 0;
 mutex_t KineticsFactory::kinetics_mutex;
 
-static int ntypes = 6;
-static string _types[] = {"none", "GasKinetics", "GRI30", "Interface", "Edge", "AqueousKinetics"};
-static int _itypes[]   = {0, cGasKinetics, cGRI30, cInterfaceKinetics, cEdgeKinetics, cAqueousKinetics};
+static int ntypes = 5;
+static string _types[] = {"none", "GasKinetics", "Interface", "Edge", "AqueousKinetics"};
+static int _itypes[]   = {0, cGasKinetics, cInterfaceKinetics, cEdgeKinetics, cAqueousKinetics};
 
 Kinetics* KineticsFactory::
 newKinetics(XML_Node& phaseData, vector<ThermoPhase*> th)
@@ -60,10 +59,6 @@ newKinetics(XML_Node& phaseData, vector<ThermoPhase*> th)
 
     case cGasKinetics:
         k = new GasKinetics;
-        break;
-
-    case cGRI30:
-        k = new GRI_30_Kinetics;
         break;
 
     case cInterfaceKinetics:
@@ -106,10 +101,6 @@ Kinetics* KineticsFactory::newKinetics(const string& model)
 
     case cGasKinetics:
         k = new GasKinetics;
-        break;
-
-    case cGRI30:
-        k = new GRI_30_Kinetics;
         break;
 
     case cInterfaceKinetics:

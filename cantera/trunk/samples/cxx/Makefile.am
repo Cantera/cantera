@@ -1,6 +1,6 @@
 h_sources  = example_utils.h
 
-cc_sources = examples.cpp kinetics_example1.cpp kinetics_example2.cpp \
+cc_sources = examples.cpp kinetics_example1.cpp \
 	     kinetics_example3.cpp  equil_example1.cpp                \
 	     transport_example1.cpp transport_example2.cpp            \
 	     rxnpath_example1.cpp 
