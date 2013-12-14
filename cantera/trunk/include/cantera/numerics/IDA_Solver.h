@@ -13,9 +13,6 @@
 
 #if HAS_SUNDIALS
 
-#if SUNDIALS_VERSION == 22
-#include "nvector_serial.h"
-#else
 #include "sundials/sundials_nvector.h"
 
 // These constants are defined internally in the ida package, ida.c
@@ -24,10 +21,7 @@
 #define IDA_SV  2
 #define IDA_WF  3
 
-#endif
-#if SUNDIALS_VERSION >= 24
 #define REAL_WORKSPACE_SIZE 0
-#endif
 
 namespace Cantera
 {
