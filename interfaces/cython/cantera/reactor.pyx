@@ -194,6 +194,12 @@ cdef class Reactor(ReactorBase):
             self.reactor.setEnergy(int(value))
 
     def add_sensitivity_reaction(self, m):
+        """
+        Specifies that the sensitivity of the state variables with respect to
+        reaction *m* should be computed. *m* is the 0-based reaction index.
+        The reactor must be part of a network first. Specifying the same
+        reaction more than one time raises an exception.
+        """
         self.reactor.addSensitivityReaction(m)
 
     def component_index(self, name):
@@ -812,12 +818,40 @@ cdef class ReactorNet:
             self.net.setVerbose(v)
 
     def sensitivity(self, species, int p, int r=0):
+        """
+        Returns the sensitivity of the solution variable *species* in reactor
+        *r* with respect to the parameter *p*. Returns an empty array until the
+        first time step is taken. See `ReactorNet.component_index` and
+        `sensitivities` to determine the integer index for the variables.
+        Otherwise, a string can be passed into *species* to automatically look
+        up the index.
+        """
+
         if isinstance(species, int):
             return self.net.sensitivity(species,p)
         elif isinstance(species, (str, unicode)):
             return self.net.sensitivity(stringify(species), p, r)
 
     def sensitivities(self):
+        """
+        Returns the senstivities of all of the solution variables with respect
+        to all of the registered parameters. The sensitivities are returned in
+        an array with dimensions *(n_vars, n_sensitivity_params)*, unless no
+        timesteps have been taken, in which case the shape is
+        *(0, n_sensitivity_params)*. The order of the variables (i.e. rows) is:
+
+        `Reactor` or `IdealGasReactor`:
+
+          - 0  - mass
+          - 1  - volume
+          - 2  - internal energy or temperature
+          - 3+ - mass fractions of the species
+
+        `ConstPressureReactor` or `IdealGasConstPressureReactor`:
+          - 0  - mass
+          - 1  - enthalpy or temperature
+          - 2+ - mass fractions of the species
+        """
         cdef np.ndarray[np.double_t, ndim=2] data = \
                 np.empty((self.n_vars, self.n_sensitivity_params))
         cdef int p,k
@@ -827,12 +861,31 @@ cdef class ReactorNet:
         return data
 
     def sensitivity_parameter_name(self, int p):
+        """
+        Name of the sensitivity parameter with index *p*.
+        """
         return pystr(self.net.sensitivityParameterName(p))
 
     property n_sensitivity_params:
+        """
+        The number of registered sensitivity parameters.
+        """
         def __get__(self):
             return self.net.nparams()
 
     property n_vars:
+        """
+        The number of state variables in the system. This is the sum of the
+        number of variables for each `Reactor` and `Wall` in the system.
+        Equal to:
+
+        `Reactor` and `IdealGasReactor`: `n_species` + 3 (mass, volume,
+        internal energy or temperature).
+
+        `ConstPressureReactor` and `IdealGasConstPressureReactor`:
+        `n_species` + 2 (mass, enthalpy or temperature).
+
+        `Wall`: number of surface species
+        """
         def __get__(self):
             return self.net.neq()
