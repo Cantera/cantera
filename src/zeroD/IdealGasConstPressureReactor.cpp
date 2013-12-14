@@ -231,12 +231,16 @@ void IdealGasConstPressureReactor::evalEqs(doublereal time, doublereal* y,
 
 size_t IdealGasConstPressureReactor::componentIndex(const string& nm) const
 {
-    if (nm == "T") {
+    size_t k = speciesIndex(nm);
+    if (k != npos) {
+        return k + 2;
+    } else if (nm == "m" || nm == "mass") {
+        return 0;
+    } else if (nm == "T" || nm == "temperature") {
         return 1;
     } else {
-        return ConstPressureReactor::componentIndex(nm);
+        return npos;
     }
-
 }
 
 }

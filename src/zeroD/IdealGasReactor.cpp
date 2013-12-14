@@ -251,10 +251,17 @@ void IdealGasReactor::evalEqs(doublereal time, doublereal* y,
 
 size_t IdealGasReactor::componentIndex(const string& nm) const
 {
-    if (nm == "T") {
+    size_t k = speciesIndex(nm);
+    if (k != npos) {
+        return k + 3;
+    } else if (nm == "m" || nm == "mass") {
+        return 0;
+    } else if (nm == "V" || nm == "volume") {
+        return 1;
+    } else if (nm == "T" || nm == "temperature") {
         return 2;
     } else {
-        return Reactor::componentIndex(nm);
+        return npos;
     }
 }
 

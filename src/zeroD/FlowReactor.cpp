@@ -118,16 +118,14 @@ void FlowReactor::evalEqs(doublereal time, doublereal* y,
 
 size_t FlowReactor::componentIndex(const string& nm) const
 {
-    if (nm == "X") {
-        return 0;
-    }
-    if (nm == "U") {
-        return 1;
-    }
     // check for a gas species name
     size_t k = m_thermo->speciesIndex(nm);
     if (k != npos) {
         return k + 2;
+    } else if (nm == "X" || nm == "distance") {
+        return 0;
+    } else if (nm == "U" || nm == "velocity") {
+        return 1;
     } else {
         return npos;
     }

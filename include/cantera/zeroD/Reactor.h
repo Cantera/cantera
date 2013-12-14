@@ -151,6 +151,12 @@ protected:
     //! Reset the reaction rate multipliers
     virtual void resetSensitivity(double* params);
 
+    //! Return the index in the solution vector for this reactor of the species
+    //! named *nm*, in either the homogeneous phase or a surface phase, relative
+    //! to the start of the species terms. Used to implement componentIndex for
+    //! specific reactor implementations.
+    virtual size_t speciesIndex(const std::string& nm) const;
+
     //! Pointer to the homogeneous Kinetics object that handles the reactions
     Kinetics*   m_kin;
 
