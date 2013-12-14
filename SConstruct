@@ -990,14 +990,9 @@ if env['use_sundials'] == 'default':
         env['use_sundials'] = 'n'
 elif env['use_sundials'] == 'y' and not env['HAS_SUNDIALS']:
     config_error("Unable to find Sundials headers and / or libraries.")
-elif env['use_sundials'] == 'y' and env['sundials_version'] not in ('2.2','2.3','2.4','2.5'):
+elif env['use_sundials'] == 'y' and env['sundials_version'] not in ('2.4','2.5'):
     print """ERROR: Sundials version %r is not supported.""" % env['sundials_version']
     sys.exit(1)
-
-# Deprecation warnings for old Sundials versions
-if env.get('sundials_version') in ('2.2', '2.3'):
-    print 'WARNING: Support for Sundials %s is deprecated and will be removed.' % env['sundials_version']
-    print 'WARNING: Upgrading to Sundials 2.5 is strongly recommended.'
 
 # **********************************************
 # *** Set additional configuration variables ***

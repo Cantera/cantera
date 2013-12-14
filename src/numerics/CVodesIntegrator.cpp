@@ -11,20 +11,6 @@
 #include <iostream>
 using namespace std;
 
-#if SUNDIALS_VERSION == 22
-
-#include "sundials_types.h"
-#include "sundials_math.h"
-#include "cvodes.h"
-#include "cvodes_dense.h"
-#include "cvodes_diag.h"
-#include "cvodes_spgmr.h"
-#include "cvodes_band.h"
-#include "nvector_serial.h"
-
-#else
-
-#if SUNDIALS_VERSION >= 23
 #include "sundials/sundials_types.h"
 #include "sundials/sundials_math.h"
 #include "sundials/sundials_nvector.h"
@@ -35,16 +21,8 @@ using namespace std;
 #include "cvodes/cvodes_spgmr.h"
 #include "cvodes/cvodes_band.h"
 
-#else
-#error unsupported Sundials version!
-#endif
-
-#if SUNDIALS_VERSION >= 24
 #define CV_SS 1
 #define CV_SV 2
-#endif
-
-#endif
 
 #include <sstream>
 #include <algorithm>
@@ -128,10 +106,6 @@ CVodesIntegrator::CVodesIntegrator() :
     m_mupper(0), m_mlower(0),
     m_sens_ok(false)
 {
-#if SUNDIALS_VERSION <= 23
-    warn_deprecated("Use of Sundials 2.2 and 2.3",
-                    "Support for these versions will be removed in Cantera 2.2.");
-#endif
     //m_ropt.resize(OPT_SIZE,0.0);
     //m_iopt = new long[OPT_SIZE];
     //fill(m_iopt, m_iopt+OPT_SIZE,0);
@@ -271,19 +245,8 @@ void CVodesIntegrator::sensInit(double t0, FuncEval& func)
         }
     }
 
-    int flag;
-
-#if SUNDIALS_VERSION <= 23
-    flag = CVodeSensMalloc(m_cvode_mem, m_np, CV_STAGGERED, m_yS);
-    if (flag != CV_SUCCESS) {
-        throw CVodesErr("Error in CVodeSensMalloc");
-    }
-    vector_fp atol(m_np, m_abstolsens);
-    double rtol = m_reltolsens;
-    flag = CVodeSetSensTolerances(m_cvode_mem, CV_SS, rtol, DATA_PTR(atol));
-#elif SUNDIALS_VERSION >= 24
-    flag = CVodeSensInit(m_cvode_mem, m_np, CV_STAGGERED,
-                         CVSensRhsFn(0), m_yS);
+    int flag = CVodeSensInit(m_cvode_mem, m_np, CV_STAGGERED,
+                             CVSensRhsFn(0), m_yS);
 
     if (flag != CV_SUCCESS) {
         throw CVodesErr("Error in CVodeSensMalloc");
@@ -291,7 +254,6 @@ void CVodesIntegrator::sensInit(double t0, FuncEval& func)
     vector_fp atol(m_np, m_abstolsens);
     double rtol = m_reltolsens;
     flag = CVodeSensSStolerances(m_cvode_mem, rtol, DATA_PTR(atol));
-#endif
 
 }
 
@@ -330,29 +292,7 @@ void CVodesIntegrator::initialize(double t0, FuncEval& func)
         throw CVodesErr("CVodeCreate failed.");
     }
 
-    int flag = 0;
-#if SUNDIALS_VERSION <= 23
-    if (m_itol == CV_SV) {
-        // vector atol
-        flag = CVodeMalloc(m_cvode_mem, cvodes_rhs, m_t0, m_y, m_itol,
-                           m_reltol, m_abstol);
-    } else {
-        // scalar atol
-        flag = CVodeMalloc(m_cvode_mem, cvodes_rhs, m_t0, m_y, m_itol,
-                           m_reltol, &m_abstols);
-    }
-    if (flag != CV_SUCCESS) {
-        if (flag == CV_MEM_FAIL) {
-            throw CVodesErr("Memory allocation failed.");
-        } else if (flag == CV_ILL_INPUT) {
-            throw CVodesErr("Illegal value for CVodeMalloc input argument.");
-        } else {
-            throw CVodesErr("CVodeMalloc failed.");
-        }
-    }
-#elif SUNDIALS_VERSION >= 24
-
-    flag = CVodeInit(m_cvode_mem, cvodes_rhs, m_t0, m_y);
+    int flag = CVodeInit(m_cvode_mem, cvodes_rhs, m_t0, m_y);
     if (flag != CV_SUCCESS) {
         if (flag == CV_MEM_FAIL) {
             throw CVodesErr("Memory allocation failed.");
@@ -377,24 +317,16 @@ void CVodesIntegrator::initialize(double t0, FuncEval& func)
             throw CVodesErr("CVodeInit failed.");
         }
     }
-#endif
 
     // pass a pointer to func in m_data
     delete m_fdata;
     m_fdata = new FuncData(&func, func.nparams());
 
     //m_data = (void*)&func;
-#if SUNDIALS_VERSION <= 23
-    flag = CVodeSetFdata(m_cvode_mem, (void*)m_fdata);
-    if (flag != CV_SUCCESS) {
-        throw CVodesErr("CVodeSetFdata failed.");
-    }
-#elif SUNDIALS_VERSION >= 24
     flag = CVodeSetUserData(m_cvode_mem, (void*)m_fdata);
     if (flag != CV_SUCCESS) {
         throw CVodesErr("CVodeSetUserData failed.");
     }
-#endif
     if (func.nparams() > 0) {
         sensInit(t0, func);
         flag = CVodeSetSensParams(m_cvode_mem, DATA_PTR(m_fdata->m_pars),
@@ -418,26 +350,10 @@ void CVodesIntegrator::reinitialize(double t0, FuncEval& func)
 
     int result;
 
-#if SUNDIALS_VERSION <= 23
-    if (m_itol == CV_SV) {
-        result = CVodeReInit(m_cvode_mem, cvodes_rhs, m_t0, m_y,
-                             m_itol, m_reltol,
-                             m_abstol);
-    } else {
-        result = CVodeReInit(m_cvode_mem, cvodes_rhs, m_t0, m_y,
-                             m_itol, m_reltol,
-                             &m_abstols);
-    }
-    if (result != CV_SUCCESS) {
-        throw CVodesErr("CVodeReInit failed. result = "+int2str(result));
-    }
-#elif SUNDIALS_VERSION >= 24
     result = CVodeReInit(m_cvode_mem, m_t0, m_y);
     if (result != CV_SUCCESS) {
         throw CVodesErr("CVodeReInit failed. result = "+int2str(result));
     }
-#endif
-
     applyOptions();
 }
 
@@ -513,11 +429,7 @@ double CVodesIntegrator::sensitivity(size_t k, size_t p)
         return 0.0;
     }
     if (!m_sens_ok && m_np) {
-#if SUNDIALS_VERSION <= 23
-        int flag = CVodeGetSens(m_cvode_mem, m_time, m_yS);
-#elif SUNDIALS_VERSION >= 24
         int flag = CVodeGetSens(m_cvode_mem, &m_time, m_yS);
-#endif
         if (flag != CV_SUCCESS) {
             throw CVodesErr("CVodeGetSens failed. Error code: " + int2str(flag));
         }
