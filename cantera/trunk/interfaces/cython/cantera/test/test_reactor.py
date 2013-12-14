@@ -617,16 +617,16 @@ class TestConstPressureReactor(utilities.CanteraTest):
             mfc2 = ct.MassFlowController(env, self.r2, mdot=0.05)
 
         if add_surf:
-            interface1 = ct.Interface('diamond.xml', 'diamond_100',
+            self.interface1 = ct.Interface('diamond.xml', 'diamond_100',
                                       (self.gas1, solid))
-            interface2 = ct.Interface('diamond.xml', 'diamond_100',
+            self.interface2 = ct.Interface('diamond.xml', 'diamond_100',
                                       (self.gas2, solid))
 
-            C = np.zeros(interface1.n_species)
+            C = np.zeros(self.interface1.n_species)
             C[0] = 0.3
             C[4] = 0.7
-            self.w1.left.kinetics = interface1
-            self.w2.left.kinetics = interface2
+            self.w1.left.kinetics = self.interface1
+            self.w2.left.kinetics = self.interface2
             self.w1.left.coverages = C
             self.w2.left.coverages = C
 
@@ -635,6 +635,19 @@ class TestConstPressureReactor(utilities.CanteraTest):
         self.net1.set_max_time_step(0.05)
         self.net2.set_max_time_step(0.05)
         self.net2.max_err_test_fails = 10
+
+    def test_component_index(self):
+        self.create_reactors(add_surf=True)
+        for (gas,net,iface,r) in ((self.gas1, self.net1, self.interface1, self.r1),
+                                  (self.gas2, self.net2, self.interface2, self.r2)):
+            net.step(1.0)
+
+            N0 = net.n_vars - gas.n_species - iface.n_species
+            N1 = net.n_vars - iface.n_species
+            for i, name in enumerate(gas.species_names):
+                self.assertEqual(i + N0, r.component_index(name))
+            for i, name in enumerate(iface.species_names):
+                self.assertEqual(i + N1, r.component_index(name))
 
     def integrate(self, surf=False):
         for t in np.arange(0.5, 50, 1.0):

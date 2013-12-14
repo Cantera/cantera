@@ -318,22 +318,12 @@ std::vector<std::pair<void*, int> > Reactor::getSensitivityOrder() const
     return order;
 }
 
-size_t Reactor::componentIndex(const string& nm) const
+size_t Reactor::speciesIndex(const string& nm) const
 {
-    if (nm == "m") {
-        return 0;
-    }
-    if (nm == "V") {
-        return 1;
-    }
-    if (nm == "U") {
-        return 2;
-    }
-
     // check for a gas species name
     size_t k = m_thermo->speciesIndex(nm);
     if (k != npos) {
-        return k + 3;
+        return k;
     }
 
     // check for a wall species
@@ -345,13 +335,29 @@ size_t Reactor::componentIndex(const string& nm) const
             th = &m_wall[m]->kinetics(m_lr[m])->thermo(kp);
             k = th->speciesIndex(nm);
             if (k != npos) {
-                return k + 3 + m_nsp + walloffset;
+                return k + m_nsp + walloffset;
             } else {
                 walloffset += th->nSpecies();
             }
         }
     }
     return npos;
+}
+
+size_t Reactor::componentIndex(const string& nm) const
+{
+    size_t k = speciesIndex(nm);
+    if (k != npos) {
+        return k + 3;
+    } else if (nm == "m" || nm == "mass") {
+        return 0;
+    } else if (nm == "V" || nm == "volume") {
+        return 1;
+    } else if (nm == "U" || nm == "int_energy") {
+        return 2;
+    } else {
+        return npos;
+    }
 }
 
 void Reactor::applySensitivity(double* params)

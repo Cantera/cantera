@@ -223,34 +223,16 @@ void ConstPressureReactor::evalEqs(doublereal time, doublereal* y,
 
 size_t ConstPressureReactor::componentIndex(const string& nm) const
 {
-    if (nm == "m") {
-        return 0;
-    }
-    if (nm == "H") {
-        return 1;
-    }
-    // check for a gas species name
-    size_t k = m_thermo->speciesIndex(nm);
+    size_t k = speciesIndex(nm);
     if (k != npos) {
         return k + 2;
+    } else if (nm == "m" || nm == "mass") {
+        return 0;
+    } else if (nm == "H" || nm == "enthalpy") {
+        return 1;
+    } else {
+        return npos;
     }
-
-    // check for a wall species
-    size_t walloffset = 0, kp = 0;
-    thermo_t* th;
-    for (size_t m = 0; m < m_nwalls; m++) {
-        if (m_wall[m]->kinetics(m_lr[m])) {
-            kp = m_wall[m]->kinetics(m_lr[m])->reactionPhaseIndex();
-            th = &m_wall[m]->kinetics(m_lr[m])->thermo(kp);
-            k = th->speciesIndex(nm);
-            if (k != npos) {
-                return k + 2 + m_nsp + walloffset;
-            } else {
-                walloffset += th->nSpecies();
-            }
-        }
-    }
-    return npos;
 }
 
 }
