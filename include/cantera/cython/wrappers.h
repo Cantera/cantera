@@ -75,7 +75,6 @@ KIN_1D(getRevRatesOfProgress)
 KIN_1D(getNetRatesOfProgress)
 
 KIN_1D(getEquilibriumConstants)
-KIN_1D(getActivationEnergies)
 KIN_1D(getFwdRateConstants)
 KIN_1D(getRevRateConstants)
 

@@ -173,7 +173,6 @@ public:
     virtual void getFwdRateConstants(doublereal* kfwd);
     virtual void getRevRateConstants(doublereal* krev,
                                      bool doIrreversible = false);
-    virtual void getActivationEnergies(doublereal* E);
 
     //! @}
     //! @name Reaction Mechanism Construction
