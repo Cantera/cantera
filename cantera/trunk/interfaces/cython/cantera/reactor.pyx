@@ -817,20 +817,19 @@ cdef class ReactorNet:
         def __set__(self, pybool v):
             self.net.setVerbose(v)
 
-    def sensitivity(self, species, int p, int r=0):
+    def sensitivity(self, component, int p, int r=0):
         """
-        Returns the sensitivity of the solution variable *species* in reactor
-        *r* with respect to the parameter *p*. Returns an empty array until the
-        first time step is taken. See `ReactorNet.component_index` and
-        `sensitivities` to determine the integer index for the variables.
-        Otherwise, a string can be passed into *species* to automatically look
-        up the index.
+        Returns the sensitivity of the solution variable *component* in
+        reactor *r* with respect to the parameter *p*. *component* can be a
+        string or an integer. See `component_index` and `sensitivities` to
+        determine the integer index for the variables. If it is not given, *r*
+        defaults to the first reactor. Returns an empty array until the first
+        time step is taken.
         """
-
-        if isinstance(species, int):
-            return self.net.sensitivity(species,p)
-        elif isinstance(species, (str, unicode)):
-            return self.net.sensitivity(stringify(species), p, r)
+        if isinstance(component, int):
+            return self.net.sensitivity(component, p)
+        elif isinstance(component, (str, unicode)):
+            return self.net.sensitivity(stringify(component), p, r)
 
     def sensitivities(self):
         """

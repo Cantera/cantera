@@ -254,7 +254,7 @@ void ReactorNet::getInitialConditions(doublereal t0,
     }
 }
 
-size_t ReactorNet::globalComponentIndex(const string& species, size_t reactor)
+size_t ReactorNet::globalComponentIndex(const string& component, size_t reactor)
 {
     if (!m_init) {
         initialize();
@@ -264,7 +264,7 @@ size_t ReactorNet::globalComponentIndex(const string& species, size_t reactor)
     for (n = 0; n < reactor; n++) {
         start += m_size[n];
     }
-    return start + m_reactors[n]->componentIndex(species);
+    return start + m_reactors[n]->componentIndex(component);
 }
 
 void ReactorNet::registerSensitivityReaction(void* reactor,
