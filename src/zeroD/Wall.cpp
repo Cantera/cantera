@@ -9,7 +9,7 @@
 namespace Cantera
 {
 Wall::Wall() : m_left(0), m_right(0),
-    m_area(0.0), m_k(0.0), m_rrth(0.0), m_emiss(0.0),
+    m_area(1.0), m_k(0.0), m_rrth(0.0), m_emiss(0.0),
     m_vf(0), m_qf(0)
 {
     for (int n = 0; n < 2; n++) {
