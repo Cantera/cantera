@@ -197,11 +197,6 @@ cdef class Kinetics(_SolutionBase):
         def __get__(self):
             return get_reaction_array(self, kin_getEquilibriumConstants)
 
-    property activation_energies:
-        """Activation energies for all reactions [K]."""
-        def __get__(self):
-            return get_reaction_array(self, kin_getActivationEnergies)
-
     property forward_rate_constants:
         """
         Forward rate constants for all reactions. Units are a combination of

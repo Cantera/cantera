@@ -740,18 +740,6 @@ public:
         err("getFwdRateConstants");
     }
 
-    /**
-     * Return the activation energies in Kelvin.
-     *
-     * length is the number of reactions
-     *
-     * @param E     Ouptut vector of activation energies. Length: m_ii.
-     * @deprecated To be removed in Cantera 2.2.
-     */
-    virtual void getActivationEnergies(doublereal* E) {
-        err("getActivationEnergies");
-    }
-
     //! @}
     //! @name Reaction Mechanism Construction
     //! @{

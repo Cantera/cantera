@@ -107,7 +107,6 @@ extern "C" {
 
     CANTERA_CAPI int kin_getFwdRateConstants(int n, size_t len, double* kfwd);
     CANTERA_CAPI int kin_getRevRateConstants(int n, int doIrreversible, size_t len, double* krev);
-    CANTERA_CAPI int kin_getActivationEnergies(int n, size_t len, double* E);
     CANTERA_CAPI int kin_getDelta(int n, int job, size_t len, double* delta);
     CANTERA_CAPI int kin_getCreationRates(int n, size_t len, double* cdot);
     CANTERA_CAPI int kin_getDestructionRates(int n, size_t len, double* ddot);

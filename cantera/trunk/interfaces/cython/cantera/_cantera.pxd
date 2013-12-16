@@ -543,7 +543,6 @@ cdef extern from "cantera/cython/wrappers.h":
     cdef void kin_getNetRatesOfProgress(CxxKinetics*, double*) except +
 
     cdef void kin_getEquilibriumConstants(CxxKinetics*, double*) except +
-    cdef void kin_getActivationEnergies(CxxKinetics*, double*) except +
     cdef void kin_getFwdRateConstants(CxxKinetics*, double*) except +
     cdef void kin_getRevRateConstants(CxxKinetics*, double*) except +
 

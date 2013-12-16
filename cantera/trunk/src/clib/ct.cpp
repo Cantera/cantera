@@ -997,18 +997,6 @@ extern "C" {
         }
     }
 
-    int kin_getActivationEnergies(int n, size_t len, double* E)
-    {
-        try {
-            Kinetics& k = KineticsCabinet::item(n);
-            k.checkReactionArraySize(len);
-            k.getActivationEnergies(E);
-            return 0;
-        } catch (...) {
-            return handleAllExceptions(-1, ERR);
-        }
-    }
-
     int kin_getDelta(int n, int job, size_t len, double* delta)
     {
         try {
