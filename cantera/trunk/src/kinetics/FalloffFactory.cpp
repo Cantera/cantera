@@ -387,126 +387,6 @@ protected:
     doublereal m_e;
 };
 
-//! Wang-Frenklach falloff function.
-/*!
- * The falloff function defines the value of \f$ F \f$ in the following
- * rate expression
- *
- *  \f[ k = k_{\infty} \left( \frac{P_r}{1 + P_r} \right) F \f]
- *  where
- *  \f[ P_r = \frac{k_0 [M]}{k_{\infty}} \f]
- *
- *  \f[ F = 10.0^{Flog} \f]
- *  where
- *  \f[ Flog = \frac{\log_{10} F_{cent}}{\exp{(\frac{\log_{10} P_r - \alpha}{\sigma})^2}} \f]
- *    where
- *  \f[ F_{cent} = (1 - A)\exp(-T/T_3) + A \exp(-T/T_1) + \exp(-T/T_2) \f]
- *
- *  \f[ \alpha = \alpha_0 + \alpha_1 T + \alpha_2 T^2 \f]
- *
- *  \f[ \sigma = \sigma_0 + \sigma_1 T + \sigma_2 T^2 \f]
- *
- * Reference: Wang, H., and Frenklach, M., Chem. Phys. Lett. vol. 205, 271 (1993).
- *
- * @ingroup falloffGroup
- * @deprecated
- */
-class WF93 : public Falloff
-{
-public:
-    //! Default constructor
-    WF93() {
-        warn_deprecated("class WF93", "To be removed in Cantera 2.2.");
-    }
-
-    //! Initialization routine
-    /*!
-     *  @param c  Vector of 10 doubles with the following ordering: a, T_1,
-     *            T_2, T_3, alpha0, alpha1, alpha2 sigma0, sigma1, sigma2
-     */
-    virtual void init(const vector_fp& c) {
-        m_a = c[0];
-        m_rt1 = 1.0/c[1];
-        m_t2 = c[2];
-        m_rt3  = 1.0/c[3];
-        m_alpha0 = c[4];
-        m_alpha1 = c[5];
-        m_alpha2 = c[6];
-        m_sigma0 = c[7];
-        m_sigma1 = c[8];
-        m_sigma2 = c[9];
-    }
-
-    //! Update the temperature parameters in the representation
-    /*!
-     *   The workspace has a length of three
-     *
-     *   @param T         Temperature (Kelvin)
-     *   @param work      Vector of working space representing
-     *                    the temperature dependent part of the
-     *                    parameterization.
-     */
-    virtual void updateTemp(doublereal T, doublereal* work) const {
-        work[0] = m_alpha0 + (m_alpha1 + m_alpha2*T)*T; // alpha
-        work[1] = m_sigma0 + (m_sigma1 + m_sigma2*T)*T; // sigma
-        doublereal Fcent = (1.0 - m_a) * exp(- T * m_rt3)
-                           + m_a * exp(- T * m_rt1) + exp(-m_t2/T);
-        work[2] = log10(Fcent);
-    }
-
-    virtual doublereal F(doublereal pr, const doublereal* work) const {
-        doublereal lpr = log10(std::max(pr, SmallNumber));
-        doublereal x = (lpr - work[0])/work[1];
-        doublereal flog = work[2]/exp(x*x);
-        return pow(10.0, flog);
-    }
-
-    virtual size_t workSize() {
-        return 3;
-    }
-
-protected:
-    //! Value of the \f$ \alpha_0 \f$ coefficient. This is the fifth
-    //! coefficient in the xml list.
-    doublereal m_alpha0;
-
-    //! Value of the \f$ \alpha_1 \f$ coefficient. This is the 6th coefficient
-    //! in the xml list.
-    doublereal m_alpha1;
-
-    //! Value of the \f$ \alpha_2 \f$ coefficient. This is the 7th coefficient
-    //! in the xml list.
-    doublereal m_alpha2;
-
-    //! Value of the \f$ \sigma_0 \f$ coefficient. This is the 8th coefficient
-    //! in the xml list.
-    doublereal m_sigma0;
-
-    //! Value of the \f$ \sigma_1 \f$ coefficient. This is the 9th coefficient
-    //! in the xml list.
-    doublereal m_sigma1;
-
-    //! Value of the \f$ \sigma_2 \f$ coefficient. This is the 10th
-    //! coefficient in the xml list.
-    doublereal m_sigma2;
-
-    //! Value of the \f$ a \f$ coefficient. This is the first coefficient in
-    //! the xml list.
-    doublereal m_a;
-
-    //! Value of inverse of the \f$ t1 \f$ coefficient. This is the second
-    //! coefficient in the xml list.
-    doublereal m_rt1;
-
-    //! Value of the \f$ t2 \f$ coefficient. This is the third coefficient in
-    //! the xml list.
-    doublereal m_t2;
-
-    //! Value of the inverse of the \f$ t3 \f$ coefficient. This is the 4th
-    //! coefficient in the xml list.
-    doublereal m_rt3;
-};
-
 Falloff* FalloffFactory::newFalloff(int type, const vector_fp& c)
 {
     Falloff* f;
@@ -525,9 +405,6 @@ Falloff* FalloffFactory::newFalloff(int type, const vector_fp& c)
         break;
     case SRI5_FALLOFF:
         f = new SRI5();
-        break;
-    case WF_FALLOFF:
-        f = new WF93();
         break;
     default:
         return 0;

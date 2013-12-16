@@ -107,7 +107,6 @@ const int TROE3_FALLOFF = 110;
 const int TROE4_FALLOFF = 111;
 const int SRI3_FALLOFF  = 112;
 const int SRI5_FALLOFF  = 113;
-const int WF_FALLOFF = 114;
 //@}
 }
 
