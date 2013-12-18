@@ -432,7 +432,7 @@ Interfaces
 Now that we have seen how to define bulk, three-dimensional phases, we can
 describe the procedure to define an interface between phases.
 
-Cantera presently implements a simple model for an interface that treats is as a
+Cantera presently implements a simple model for an interface that treats it as a
 two-dimensional ideal solution of interfacial species. There is a fixed site
 density :math:`n^0`, and each site may be occupied by one of several adsorbates,
 or may be empty. The chemical potential of each species is computed using the
@@ -457,7 +457,7 @@ The entry type for this interface model is
 non-ideal, coverage-dependent properties.)
 
 Defining an interface is much like defining a phase. There are two new fields:
-``phases`` and ``site_density``. The phases field specifies the bulk phases that
+``phases`` and ``site_density``. The ``phases`` field specifies the bulk phases that
 participate in the heterogeneous reactions. Although in most cases this string
 will list one or two phases, no limit is placed on the number. This is
 particularly useful in some electrochemical problems, where reactions take place
@@ -486,7 +486,7 @@ The :class:`state` entry
 
 The initial state of either a phase or an interface may be set using an embedded
 :class:`state` entry. Note that only one of (``pressure``, ``density``) may be
-specified, and only one (``mole_fractions``, ``mass_fractions``, ``coverages``).
+specified, and only one of (``mole_fractions``, ``mass_fractions``, ``coverages``).
 
 .. rubric:: References
 
