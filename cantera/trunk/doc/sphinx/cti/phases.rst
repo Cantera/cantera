@@ -419,6 +419,9 @@ reactions, since the composition is fixed.) ::
                          initial_state=state(temperature=300.0,
                                              pressure=(1.0, 'atm'))
 
+In the example above, the definition of the species ``'C(gr)'`` must appear
+elsewhere in the input file.
+
 Stoichiometric Liquid
 ---------------------
 
