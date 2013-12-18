@@ -390,17 +390,17 @@ Two transport models are available for use with ideal gas mixtures. The first is
 a multicomponent transport model that is based on the model described by
 Dixon-Lewis [#dl68]_ (see also Kee et al. [#Kee2003]_). The second is a model that uses
 mixture rules. To select the multicomponent model, set the transport field to
-the string ``'multi'``, and to select the mixture-averaged model, set it to the
-string ``'mix'``::
+the string ``'Multi'``, and to select the mixture-averaged model, set it to the
+string ``'Mix'``::
 
     ideal_gas(name="gas1",
               ...,
-              transport="multi", # use multicomponent formulation
+              transport="Multi", # use multicomponent formulation
               ...)
 
     ideal_gas(name="gas2",
               ...,
-              transport="mix", # use mixture-averaged formulation
+              transport="Mix", # use mixture-averaged formulation
               ...)
 
 Stoichiometric Solid
