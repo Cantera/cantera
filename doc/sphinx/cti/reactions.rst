@@ -63,8 +63,8 @@ As a shorthand, if the ``rate_coeff`` field is assigned a sequence of three numb
     rate_coeff = [1.0e13, 0, (7.3, 'kcal/mol')] # equivalent to above
 
 The units of the pre-exponential factor *A* can be specified explicitly if
-desired. If not specified, they will be constructed using the *quantity*, length,
-and time units specified in the units directive. Since the units of *A* depend on
+desired. If not specified, they will be constructed using the *quantity*, *length*,
+and *time* units specified in the units directive. Since the units of *A* depend on
 the reaction order, the units of each reactant concentration (different for bulk
 species in solution, surface species, and pure condensed-phase species), and the
 units of the rate of progress (different for homogeneous and heterogeneous
@@ -158,15 +158,15 @@ A three-body reaction is a gas-phase reaction of the form:
 
 .. math::
 
-    {\rm A + B} \rightleftharpoons {\rm AB + M}
+    {\rm A + B + M} \rightleftharpoons {\rm AB + M}
 
-Here M is an unspecified collision partner that carries away excess energy to
-stabilize the AB molecule (forward direction) or supplies energy to break the AB
+Here *M* is an unspecified collision partner that carries away excess energy to
+stabilize the *AB* molecule (forward direction) or supplies energy to break the *AB*
 bond (reverse direction).
 
 Different species may be more or less effective in acting as the collision partner. A species that is much lighter than
-A and B may not be able to transfer much of its kinetic energy, and so would be inefficient as a collision partner. On
-the other hand, a species with a transition from its ground state that is nearly resonant with one in the AB* activated
+*A* and *B* may not be able to transfer much of its kinetic energy, and so would be inefficient as a collision partner. On
+the other hand, a species with a transition from its ground state that is nearly resonant with one in the *AB** activated
 complex may be much more effective at exchanging energy than would otherwise be expected.
 
 These effects can be accounted for by defining a collision efficiency
