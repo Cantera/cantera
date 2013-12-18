@@ -126,7 +126,7 @@ Stable Release
 
 * Option 3: Check out the code using Git::
 
-    git svn clone --std-layout http://cantera.googlecode.com/svn/cantera cantera
+    git svn clone --stdlayout http://cantera.googlecode.com/svn/cantera cantera
     git checkout 2.0
 
 Development Version
@@ -138,7 +138,7 @@ Development Version
 
 * Option 2: Check out the code using Git::
 
-    git svn clone --std-layout http://cantera.googlecode.com/svn/cantera cantera
+    git svn clone --stdlayout http://cantera.googlecode.com/svn/cantera cantera
 
 Determine configuration options
 ===============================
