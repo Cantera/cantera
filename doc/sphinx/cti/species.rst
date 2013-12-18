@@ -11,7 +11,7 @@ Elements and Species
 Elements
 ========
 
-The element entry defines an element or an isotope of an element. Note that
+The :class:`element` entry defines an element or an isotope of an element. Note that
 these entries are not often needed, since the the database file ``elements.xml``
 is searched for element definitions when importing phase and interface
 definitions.  An explicit element entry is needed only if an isotope not in
@@ -103,7 +103,7 @@ species-specific coefficients.
 Currently, the only entry type is :class:`gas_transport`, which supplies
 parameters needed by the ideal-gas transport property models. The field values
 and their units of the :class:`gas_transport` entry are compatible with the
-transport database parameters described by Kee et al. [1986]. Entries in
+transport database parameters described by Kee et al. [#Kee1986]_. Entries in
 transport databases in the format described in their report can be used directly
 in the fields of the :class:`gas_transport` entry, without requiring any unit
 conversion. The numeric field values should all be entered as pure numbers, with
@@ -225,3 +225,9 @@ Example::
                        h0 = (-5.0, 'kcal/mol') )
 
 .. See ##REF## for more examples of use of this parameterization.
+
+.. rubric:: References
+
+.. [#Kee1986] R. J. Kee, G. Dixon-Lewis, J. Warnatz, M. E. Coltrin, and J. A. Miller.
+   A FORTRAN Computer Code Package for the Evaluation of Gas-Phase, Multicomponent
+   Transport Properties. Technical Report SAND86-8246, Sandia National Laboratories, 1986.
