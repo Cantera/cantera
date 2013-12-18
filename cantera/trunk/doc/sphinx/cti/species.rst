@@ -176,7 +176,7 @@ The Shomate parameterization is:
 
 .. math::
 
-    \hat{c}_p^0(T) = A + Bt + Ct^2 + Dt^3 | \frac{E}{t^2}
+    \hat{c}_p^0(T) = A + Bt + Ct^2 + Dt^3 + \frac{E}{t^2}
 
     \hat{h}^0(T) = At + \frac{Bt^2}{2} + \frac{Ct^3}{3} + \frac{Dt^4}{4} -
                    \frac{E}{t} + F
@@ -190,7 +190,7 @@ G. This parameterization is used to represent reference-state properties in the
 coefficients A through G should be entered precisely as shown there, with no
 units attached. Unit conversions to SI will be handled internally.
 
-Example usage of the :class:`shomate` directive::
+Example usage of the :class:`Shomate` directive::
 
     # use a single Shomate parameterization.
     species(name = "O2",
@@ -204,7 +204,7 @@ Constant Heat Capacity
 
 In some cases, species properties may only be required at a single temperature
 or over a narrow temperature range. In such cases, the heat capacity can be
-approximated as constant, and simpler expressions used for the thermodynamic
+approximated as constant, and simpler expressions can be used for the thermodynamic
 properties. The :class:`const_cp` parameterization computes the properties as
 follows:
 
