@@ -2,7 +2,11 @@
 Unit tests for Cantera's Cython-based Python module.
 
 This script gathers all the tests defined 'cantera.test' module, runs them,
-and prints a report.
+and prints a report. Extra command line arguments can be used to run subsets
+of the test suite, e.g.
+
+    python runCythonTests.py thermo kinetics
+    python runCythonTests.py onedim reactor
 """
 from __future__ import print_function
 
@@ -17,6 +21,7 @@ else:
 
 from cantera.test.utilities import unittest
 import cantera
+import cantera.test
 
 if __name__ == '__main__':
     print('\n* INFO: using Cantera module found at this location:')
@@ -25,7 +30,16 @@ if __name__ == '__main__':
 
     loader = unittest.TestLoader()
     runner = unittest.TextTestRunner(verbosity=2)
-    suite = loader.loadTestsFromName('cantera.test')
+    suite = unittest.TestSuite()
+    subsets = []
+    for name in dir(cantera.test):
+        if name.startswith('test_') and name[5:] in sys.argv:
+            subsets.append('cantera.test.' + name)
+
+    if not subsets:
+        subsets.append('cantera.test')
+
+    suite = loader.loadTestsFromNames(subsets)
 
     results = runner.run(suite)
     sys.exit(len(results.errors) + len(results.failures))
