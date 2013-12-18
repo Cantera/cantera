@@ -54,7 +54,8 @@ def addTestProgram(subdir, progName):
                                              [], [Delete(passedFile.abspath)]))
 
 
-def addTestScript(testname, subdir, script, interpreter, dependencies=(), env_vars={}):
+def addTestScript(testname, subdir, script, interpreter, args='',
+                  dependencies=(), env_vars={}, optional=False):
     """
     Create targets for running and resetting a test script.
     """
@@ -70,7 +71,7 @@ def addTestScript(testname, subdir, script, interpreter, dependencies=(), env_va
         for k,v in env_vars.iteritems():
             print k,v
             environ[k] = v
-        code = subprocess.call([env.subst(interpreter), source[0].abspath],
+        code = subprocess.call([env.subst(interpreter), source[0].abspath] + args.split(),
                                env=environ,
                                cwd=workDir)
         if not code:
@@ -90,7 +91,8 @@ def addTestScript(testname, subdir, script, interpreter, dependencies=(), env_va
         if isinstance(dep, str):
             dep = File(pjoin(subdir, dep))
         testenv.Depends(run_program, dep)
-    Alias('test', run_program)
+    if not optional:
+        Alias('test', run_program)
     if os.path.exists(passedFile.abspath):
         Alias('test-reset', testenv.Command('reset-%s%s' % (subdir, testname),
                                             [], [Delete(passedFile.abspath)]))
@@ -153,26 +155,45 @@ def addMatlabTest(script, testName, dependencies=None, env_vars=()):
 addTestProgram('thermo', 'thermo')
 addTestProgram('kinetics', 'kinetics')
 
+python_subtests = ['']
+test_root = '#interfaces/cython/cantera/test'
+for f in mglob(localenv, test_root, '^test_*.py'):
+    python_subtests.append(f.name[5:-3])
+
 if localenv['python_package'] == 'full':
-    pyTest = addTestScript('cython2', 'python', 'runCythonTests.py',
-                           interpreter='$python_cmd',
-                           dependencies=(localenv['python2_module'] +
-                                         localenv['python2_extension'] +
-                                         mglob(localenv, '#interfaces/cython/cantera/test', 'py')),
-                           env_vars={'PYTHONPATH':Dir('#build/python2').abspath})
-    localenv.Alias('test-cython2', pyTest)
-    env['testNames'].append('cython2')
+    # Create test aliases for individual test modules (e.g. test-cython2-thermo;
+    # not run as part of the main suite) and a single test runner with all the
+    # tests (test-cython2) for the main suite.
+    for subset in python_subtests:
+        name = 'cython2-' + subset if subset else 'cython2'
+        pyTest = addTestScript(name, 'python', 'runCythonTests.py',
+                               args=subset,
+                               interpreter='$python_cmd',
+                               dependencies=(localenv['python2_module'] +
+                                             localenv['python2_extension'] +
+                                             mglob(localenv, test_root, 'py')),
+                               env_vars={'PYTHONPATH':Dir('#build/python2').abspath},
+                               optional=bool(subset))
+        localenv.Alias('test-' + name, pyTest)
+        env['testNames'].append(name)
 
 if localenv['python3_package'] == 'y':
-    pyTest = addTestScript('cython3', 'python', 'runCythonTests.py',
-                           interpreter='$python3_cmd',
-                           dependencies=(localenv['python3_module'] +
-                                         localenv['python3_extension'] +
-                                         mglob(localenv, '#interfaces/cython/cantera/test', 'py')),
-                           env_vars={'PYTHONPATH':Dir('#build/python3').abspath,
-                                     'PYTHON_CMD': localenv.subst('$python3_cmd')})
-    localenv.Alias('test-cython3', pyTest)
-    env['testNames'].append('cython3')
+    # Create test aliases for individual test modules (e.g. test-cython3-thermo;
+    # not run as part of the main suite) and a single test runner with all the
+    # tests (test-cython3) for the main suite.
+    for subset in python_subtests:
+        name = 'cython3-' + subset if subset else 'cython3'
+        pyTest = addTestScript('cython3', 'python', 'runCythonTests.py',
+                               interpreter='$python3_cmd',
+                               args=subset,
+                               dependencies=(localenv['python3_module'] +
+                                             localenv['python3_extension'] +
+                                             mglob(localenv, test_root, 'py')),
+                               env_vars={'PYTHONPATH':Dir('#build/python3').abspath,
+                                         'PYTHON_CMD': localenv.subst('$python3_cmd')},
+                               optional=bool(subset))
+        localenv.Alias('test-' + name, pyTest)
+        env['testNames'].append(name)
 
 if localenv['matlab_toolbox'] == 'y':
     if localenv['python_package'] in ('full', 'minimal'):
