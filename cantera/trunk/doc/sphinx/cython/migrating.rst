@@ -107,7 +107,7 @@ should be replaced with::
     >>> gas.P
     >>> gas.Y
 
-For pure fluid phases, the property `X` refers to the vapor mass fraction or "quality" of the phase. The following::
+For pure fluid phases, the property ``X`` refers to the vapor mass fraction or "quality" of the phase. The following::
 
     >>> w = Cantera.liquidvapor.Water()
     >>> w.set(T=400, Vapor=0.5)
