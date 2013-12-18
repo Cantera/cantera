@@ -166,7 +166,7 @@ General
   The above paths are typical defaults on Linux, Windows, and OS X,
   respectively.
 * SCons saves configuration options specified on the command line in the file
-  \b cantera.conf in the root directory of the source tree, so generally it is
+  **cantera.conf** in the root directory of the source tree, so generally it is
   not necessary to respecify configuration options when rebuilding Cantera. To
   unset a previously set configuration option, either remove the corresponding
   line from cantera.conf or use the syntax::
