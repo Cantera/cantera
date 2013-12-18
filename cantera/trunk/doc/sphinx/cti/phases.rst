@@ -278,10 +278,12 @@ Using the ``options`` field, it is possible to extract a sub-mechanism from a la
 reaction mechanism, as follows::
 
     ideal_gas(name = 'hydrogen_mech',
-              species = 'gri30: all',
+              elements = 'H O',
+              species = 'gri30:all',
               reactions = 'gri30:all',
               options = ('skip_undeclared_elements',
-                         'skip_undeclared_species'))
+                         'skip_undeclared_species',
+                         'skip_undeclared_third_bodies'))
 
 If we import this into Matlab, for example, we get a gas mixture containing the
 8 species (out of 53 total) that contain only H and O:
@@ -290,53 +292,64 @@ If we import this into Matlab, for example, we get a gas mixture containing the
 
     >> gas = importPhase('gas.cti', 'hydrogen_mech')
 
-           temperature                300 K
-           pressure               1237.28 Pa
-           density                  0.001 kg/m^3
-           mean mol. weight       2.01588 amu
+      hydrogen_mech:
 
-                           X                Y
-                     ------------     ------------
-                H2   1.000000e+00     1.000000e+00
-                 H   0.000000e+00     0.000000e+00
-                 O   0.000000e+00     0.000000e+00
-                O2   0.000000e+00     0.000000e+00
-                OH   0.000000e+00     0.000000e+00
-               H2O   0.000000e+00     0.000000e+00
-               HO2   0.000000e+00     0.000000e+00
-              H2O2   0.000000e+00     0.000000e+00
+           temperature           0.001  K
+              pressure      0.00412448  Pa
+               density           0.001  kg/m^3
+      mean mol. weight         2.01588  amu
+
+                              1 kg            1 kmol
+                           -----------      ------------
+              enthalpy     -3.786e+006      -7.632e+006     J
+       internal energy     -3.786e+006      -7.632e+006     J
+               entropy         6210.88       1.252e+004     J/K
+        Gibbs function     -3.786e+006      -7.632e+006     J
+     heat capacity c_p         9669.19       1.949e+004     J/K
+     heat capacity c_v          5544.7       1.118e+004     J/K
+
+                               X                 Y          Chem. Pot. / RT
+                         -------------     ------------     ------------
+                    H2              1                1          -917934
+                     H              0                0
+                     O              0                0
+                    O2              0                0
+                    OH              0                0
+                   H2O              0                0
+                   HO2              0                0
+                  H2O2              0                0
 
     >> eqs = reactionEqn(gas)
 
     eqs =
 
         '2 O + M <=> O2 + M'
-	'O + H + M <=> OH + M'
-	'O + H2 <=> H + OH'
-	'O + HO2 <=> OH + O2'
-	'O + H2O2 <=> OH + HO2'
-	'H + O2 + M <=> HO2 + M'
-	'H + 2 O2 <=> HO2 + O2'
-	'H + O2 + H2O <=> HO2 + H2O'
-	'H + O2 <=> O + OH'
-	'2 H + M <=> H2 + M'
-	'2 H + H2 <=> 2 H2'
-	'2 H + H2O <=> H2 + H2O'
-	'H + OH + M <=> H2O + M'
-	'H + HO2 <=> O + H2O'
-	'H + HO2 <=> O2 + H2'
-	'H + HO2 <=> 2 OH'
-	'H + H2O2 <=> HO2 + H2'
-	'H + H2O2 <=> OH + H2O'
-	'OH + H2 <=> H + H2O'
-	'2 OH (+ M) <=> H2O2 (+ M)'
-	'2 OH <=> O + H2O'
-	'OH + HO2 <=> O2 + H2O'
-	'OH + H2O2 <=> HO2 + H2O'
-	'OH + H2O2 <=> HO2 + H2O'
-	'2 HO2 <=> O2 + H2O2'
-	'2 HO2 <=> O2 + H2O2'
-	'OH + HO2 <=> O2 + H2O'
+        'O + H + M <=> OH + M'
+        'O + H2 <=> H + OH'
+        'O + HO2 <=> OH + O2'
+        'O + H2O2 <=> OH + HO2'
+        'H + O2 + M <=> HO2 + M'
+        'H + 2 O2 <=> HO2 + O2'
+        'H + O2 + H2O <=> HO2 + H2O'
+        'H + O2 <=> O + OH'
+        '2 H + M <=> H2 + M'
+        '2 H + H2 <=> 2 H2'
+        '2 H + H2O <=> H2 + H2O'
+        'H + OH + M <=> H2O + M'
+        'H + HO2 <=> O + H2O'
+        'H + HO2 <=> O2 + H2'
+        'H + HO2 <=> 2 OH'
+        'H + H2O2 <=> HO2 + H2'
+        'H + H2O2 <=> OH + H2O'
+        'OH + H2 <=> H + H2O'
+        '2 OH (+ M) <=> H2O2 (+ M)'
+        '2 OH <=> O + H2O'
+        'OH + HO2 <=> O2 + H2O'
+        'OH + H2O2 <=> HO2 + H2O'
+        'OH + H2O2 <=> HO2 + H2O'
+        '2 HO2 <=> O2 + H2O2'
+        '2 HO2 <=> O2 + H2O2'
+        'OH + HO2 <=> O2 + H2O'
 
 Ideal Gas Mixtures
 ------------------
@@ -351,13 +364,13 @@ them. It supports all of the options in the widely-used model described by Kee
 et al. [#Kee1989]_, plus some additional options for species thermodynamic
 properties and reaction rate expressions.
 
-An example of an ideal_gas entry is shown below::
+An example of an ``ideal_gas`` entry is shown below::
 
     ideal_gas(name='air8',
               elements='N O Ar',
               species='gri30: N2 O2 N O NO NO2 N2O AR',
               reactions='all',
-              transport='mix',
+              transport='Mix',
               initial_state=state(temperature=500.0,
                                   pressure=(1.0, 'atm'),
                                   mole_fractions='N2:0.78, O2:0.21, AR:0.01'))
