@@ -974,6 +974,14 @@ if env['matlab_toolbox'] == 'y':
         print """ERROR: Unable to build the Matlab toolbox because 'matlab_path' has not been set."""
         sys.exit(1)
 
+    if env['blas_lapack_libs']:
+        print ('ERROR: The Matlab toolbox is incompatible with external BLAS '
+               'and LAPACK libraries. Unset blas_lapack_libs (e.g. "scons '
+               'build blas_lapack_libs=") in order to build the Matlab '
+               'toolbox, or set matlab_toolbox=n to use the specified BLAS/'
+               'LAPACK libraries and skip building the Matlab toolbox.')
+        sys.exit(1)
+
     if not (os.path.isdir(matPath) and
             os.path.isdir(pjoin(matPath, 'extern'))):
         print """ERROR: Path set for 'matlab_path' is not correct."""
