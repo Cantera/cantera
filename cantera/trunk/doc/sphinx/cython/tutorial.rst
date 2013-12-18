@@ -173,8 +173,8 @@ Properties may be read independently or together::
     >>> gas1.UV
     (8346188.494954427, 48.8465747765848)
 
-The composition can be set in terms of either mole fractions (`X`) or mass
-fractions (`Y`)::
+The composition can be set in terms of either mole fractions (``X``) or mass
+fractions (``Y``)::
 
     >>> gas1.X = 'CH4:1, O2:2, N2:7.52'
 
@@ -264,7 +264,7 @@ The composition above was specified using a string. The format is a comma-
 separated list of ``<species name>:<relative mole numbers>`` pairs. The mole
 numbers will be normalized to produce the mole fractions, and therefore they
 are "relative" mole numbers. Mass fractions can be set in this way too by
-changing 'X' to 'Y' in the above statements.
+changing ``X`` to ``Y`` in the above statements.
 
 The composition can also be set using an array, which must have the same size
 as the number of species. For example, to set all 53 mole fractions to the
@@ -307,7 +307,7 @@ your system, set environment variable ``CANTERA_DATA`` to the directory where
 they are located. Alternatively, you can call function `add_directory` to add
 a directory to the Cantera search path::
 
-    >>> add_directory('/usr/local/cantera/my_data_files')
+    >>> ct.add_directory('/usr/local/cantera/my_data_files')
 
 Cantera input files are plain text files, and can be created with any text
 editor. See the document :ref:`sec-defining-phases` for more information.
@@ -321,8 +321,8 @@ two bulk phases and the interface between them from file ``diamond.cti``::
     >>> diamond_surf = ct.Interface('diamond.cti' , 'diamond_100',
                                     [gas2, diamond])
 
-Note that the bulk (i.e., 3D) phases that participate in the surface reactions
-must also be passed as arguments to `Interface`.
+Note that the bulk (i.e., 3D or homogeneous) phases that participate in the
+surface reactions must also be passed as arguments to `Interface`.
 
 When Cantera reads a ``.cti`` input file, wherever it is located, it always
 writes a file of the same name but with extension ``.xml`` *in the local
@@ -398,7 +398,7 @@ method::
     >>> g.TPX = 300.0, ct.one_atm, 'CH4:0.95,O2:2,N2:7.52'
     >>> g.equilibrate('TP')
 
-The above statement sets the state of object 'g' to the state of chemical
+The above statement sets the state of object ``g`` to the state of chemical
 equilibrium holding temperature and pressure fixed. Alternatively, the
 specific enthalpy and pressure can be held fixed::
 
@@ -411,7 +411,7 @@ Other options are:
     - 'SV'   fixed specific entropy and specific volume
     - 'SP'   fixed specific entropy and pressure
 
-How can you tell if 'equilibrate' has correctly found the chemical equilibrium
+How can you tell if ``equilibrate`` has correctly found the chemical equilibrium
 state? One way is verify that the net rates of progress of all reversible
 reactions are zero. Here is the code to do this:
 
@@ -428,12 +428,12 @@ If the magnitudes of the numbers in this list are all very small, then each
 reversible reaction is very nearly equilibrated, which only occurs if the gas
 is in chemical equilibrium.
 
-You might be wondering how 'equilibrate' works. (Then again, you might not).
-Method 'equilibrate' invokes Cantera's chemical equilibrium solver, which uses
+You might be wondering how ``equilibrate`` works. (Then again, you might not).
+Method ``equilibrate`` invokes Cantera's chemical equilibrium solver, which uses
 an element potential method. The element potential method is one of a class of
-equivalent 'nonstoichiometric' methods that all have the characteristic that
+equivalent *nonstoichiometric* methods that all have the characteristic that
 the problem reduces to solving a set of M nonlinear algebraic equations, where
-M is the number of elements (not species). The so-called 'stoichiometric'
+M is the number of elements (not species). The so-called *stoichiometric*
 methods, on the other hand, (including Gibbs minimization), require solving K
 nonlinear equations, where K is the number of species (usually K >> M). See
 Smith and Missen, "Chemical Reaction Equilibrium Analysis" for more
