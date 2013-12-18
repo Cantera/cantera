@@ -372,7 +372,7 @@ that pressure.
 Chebyshev Reaction Rate Expressions
 ===================================
 
-Class :class:`chebyshev` represents a phenomenological rate coefficient
+Class :class:`chebyshev_reaction` represents a phenomenological rate coefficient
 :math:`k(T,P)` in terms of a bivariate Chebyshev polynomial. The rate constant
 can be written as:
 
