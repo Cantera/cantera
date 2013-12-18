@@ -21,7 +21,7 @@ Basic usage:
 
     'scons test-NAME' - Run the test named "NAME".
 
-    'scons samples' - Compile the C++ and Fortran samples
+    'scons samples' - Compile the C++ and Fortran samples.
 
     'scons msi' - Build a Windows installer (.msi) for Cantera.
 """
@@ -72,7 +72,7 @@ windows_compiler_options = []
 if os.name == 'nt':
     # On Windows, use the same version of Visual Studio that was used
     # to compile Python, and target the same architecture, unless
-    # the user specified another option
+    # the user specified another option.
 
     if 'MSC v.1400' in sys.version:
         msvc_version = '8.0' # Visual Studio 2005
@@ -97,7 +97,7 @@ if os.name == 'nt':
          msvc_version),
         ('target_arch',
          """Target architecture. The default is the same
-            architecture as the installed version of Python""",
+            architecture as the installed version of Python.""",
          target_arch),
         EnumVariable(
             'toolchain',
@@ -304,7 +304,7 @@ config_options = [
         'python3_package',
         """Controls whether or not the Python 3 module will be built. By
             default, the module will be built if the Python 3 interpreter can
-            be found""",
+            be found.""",
         'default', ('y','n','default')),
     PathVariable(
         'python3_cmd',
@@ -314,7 +314,7 @@ config_options = [
     PathVariable(
         'python3_array_home',
         """"If numpy was installed to a custom location (e.g. using the --home
-            option, set this to the directory for numpy""",
+            option, set this to the directory for numpy.""",
         '', PathVariable.PathAccept),
     PathVariable(
         'python3_prefix',
@@ -373,15 +373,15 @@ config_options = [
         False),
     BoolVariable(
         'doxygen_docs',
-        """Build HTML documentation for the C++ interface using Doxygen""",
+        """Build HTML documentation for the C++ interface using Doxygen.""",
         False),
     BoolVariable(
         'sphinx_docs',
-        """Build HTML documentation for the Python module using Sphinx""",
+        """Build HTML documentation for the Python module using Sphinx.""",
         False),
     PathVariable(
         'sphinx_cmd',
-        """Command to use for building the Sphinx documentation""",
+        """Command to use for building the Sphinx documentation.""",
         'sphinx-build', PathVariable.PathAccept),
     BoolVariable(
         'with_h298modify_capability',
@@ -401,7 +401,7 @@ config_options = [
            will be used if you have it, and if not the older CVODE will be
            used. Or set USE_SUNDIALS to 'y' or 'n' to force using it or not.
            Note that sensitivity analysis with Cantera requires use of
-           sundials. See: http://www.llnl.gov/CASC/sundials""",
+           sundials. See: http://www.llnl.gov/CASC/sundials.""",
         'default', ('default', 'y', 'n')),
     PathVariable(
         'sundials_include',
@@ -419,7 +419,7 @@ config_options = [
     PathVariable(
         'sundials_license',
         """Path to the sundials LICENSE file. Needed so that it can be included
-           when bundling Sundials""",
+           when bundling Sundials.""",
         '', PathVariable.PathAccept),
     BoolVariable(
         'install_sundials',
@@ -432,7 +432,7 @@ config_options = [
         of these libraries optimized for your machine hardware. If you want to
         use your own libraries, set blas_lapack_libs to the the list of
         libraries that should be passed to the linker, separated by commas,
-        e.g. "lapack,blas" or "lapack,f77blas,cblas,atlas". """,
+        e.g. "lapack,blas" or "lapack,f77blas,cblas,atlas".""",
      ''),
     PathVariable('blas_lapack_dir',
         """Directory containing the libraries specified by 'blas_lapack_libs'.""",
@@ -450,7 +450,7 @@ config_options = [
     ('env_vars',
      """Environment variables to propagate through to SCons. Either the
         string "all" or a comma separated list of variable names, e.g.
-        'LD_LIBRARY_PATH,HOME'""",
+        'LD_LIBRARY_PATH,HOME'.""",
      defaults.env_vars),
     ('cxx_flags',
      'Compiler flags passed to the C++ compiler only.',
@@ -459,13 +459,13 @@ config_options = [
      'Compiler flags passed to both the C and C++ compilers, regardless of optimization level',
      defaults.ccFlags),
     ('thread_flags',
-     'Compiler and linker flags for POSIX multithreading support',
+     'Compiler and linker flags for POSIX multithreading support.',
      defaults.threadFlags),
     BoolVariable(
         'optimize',
         """Enable extra compiler optimizations specified by the
            "optimize_flags" variable, instead of the flags specified by the
-           "debug_flags" variable""",
+           "debug_flags" variable.""",
         True),
     ('optimize_flags',
      'Additional compiler flags passed to the C/C++ compiler when optimize=yes.',
@@ -484,10 +484,10 @@ config_options = [
      'Additional compiler flags passed to the C/C++ compiler when debug=no.',
      defaults.noDebugCcFlags),
     ('debug_linker_flags',
-     'Additional options passed to the linker when debug=yes',
+     'Additional options passed to the linker when debug=yes.',
      defaults.debugLinkFlags),
     ('no_debug_linker_flags',
-     'Additional options passed to the linker when debug=yes',
+     'Additional options passed to the linker when debug=no.',
      defaults.noDebugLinkFlags),
     ('warning_flags',
      """Additional compiler flags passed to the C/C++ compiler to enable
@@ -495,10 +495,10 @@ config_options = [
         Cantera (e.g. excluding code in the 'ext' directory).""",
      defaults.warningFlags),
     ('extra_inc_dirs',
-     'Additional directories to search for header files (colon-separated list)',
+     'Additional directories to search for header files (colon-separated list).',
      ''),
     ('extra_lib_dirs',
-     'Additional directories to search for libraries (colon-separated list)',
+     'Additional directories to search for libraries (colon-separated list).',
      ''),
     BoolVariable(
         'build_thread_safe',
@@ -510,11 +510,11 @@ config_options = [
         False),
     PathVariable(
         'boost_inc_dir',
-        'Location of the Boost header files',
+        'Location of the Boost header files.',
         defaults.boostIncDir, PathVariable.PathAccept),
     PathVariable(
         'boost_lib_dir',
-        'Directory containing the Boost.Thread library',
+        'Directory containing the Boost.Thread library.',
         defaults.boostLibDir, PathVariable.PathAccept),
     ('boost_thread_lib',
      'The name of the Boost.Thread library.',
@@ -533,7 +533,7 @@ config_options = [
         True),
     ('F77',
      """Compiler used to build the external Fortran 77 procedures from
-        the Fortran source code""",
+        the Fortran source code.""",
      env.get('F77')),
     ('F77FLAGS',
      """Fortran 77 Compiler flags. Note that the Fortran compiler
@@ -695,7 +695,7 @@ if env['f90_interface'] in ('y','default'):
         env['f90_interface'] = 'y'
         env['FORTRAN'] = env['F90']
     elif env['f90_interface'] == 'y':
-        print "ERROR: Couldn't find a suitable Fortran compiler to build the Fortran 90 interface"
+        print "ERROR: Couldn't find a suitable Fortran compiler to build the Fortran 90 interface."
         sys.exit(1)
     else:
         print "INFO: Skipping compilation of the Fortran 90 interface."
@@ -785,7 +785,7 @@ if env['coverage']:
         env.Append(LINKFLAGS=['-fprofile-arcs', '-ftest-coverage'])
 
     else:
-        print 'Error: coverage testing is only available with GCC'
+        print 'Error: coverage testing is only available with GCC.'
         exit(0)
 
 
@@ -838,7 +838,7 @@ if env['HAS_SUNDIALS'] and env['use_sundials'] != 'n':
 
     # Ignore the minor version, e.g. 2.4.x -> 2.4
     env['sundials_version'] = '.'.join(sundials_version.strip().split('.')[:2])
-    print """INFO: Using Sundials version %s""" % sundials_version.strip()
+    print """INFO: Using Sundials version %s.""" % sundials_version.strip()
 
 env = conf.Finish()
 
@@ -861,7 +861,7 @@ if env['python_package'] in ('full','default'):
 
     if cython_version < cython_min_version:
         message = ("Cython not found or incompatible version: "
-                   "Found {0} but {1} or newer is required".format(cython_version, cython_min_version))
+                   "Found {0} but {1} or newer is required.".format(cython_version, cython_min_version))
         if env['python_package'] == 'full':
             print("ERROR: " + message)
             sys.exit(1)
@@ -878,12 +878,12 @@ if env['python_package'] in ('full','default'):
         try:
             env['python_array_include'] = np.get_include()
         except AttributeError:
-            print """WARNING: Couldn't find include directory for NumPy"""
+            print """WARNING: Couldn't find include directory for NumPy."""
             env['python_array_include'] = ''
 
     except ImportError:
         if env['python_package'] == 'full':
-            print """ERROR: Couldn't find include directory for NumPy"""
+            print """ERROR: Couldn't find include directory for NumPy."""
             sys.exit(1)
         else:
             print ("""WARNING: Not building the Python package """
@@ -945,15 +945,15 @@ if env['python3_package'] in ('y', 'default'):
     if not info:
         if env['python3_package'] == 'default':
             print ('INFO: Not building the Python 3 package because the Python '
-                   '3 interpreter %r could not be found' % env['python3_cmd'])
+                   '3 interpreter %r could not be found.' % env['python3_cmd'])
             env['python3_package'] = 'n'
         else:
-            print ('ERROR: Could not execute the Python 3 interpreter %r' %
+            print ('ERROR: Could not execute the Python 3 interpreter %r.' %
                    env['python3_cmd'])
             sys.exit(1)
     elif cython_version < cython_min_version:
         message = ("Cython package for Python 3 not found or incompatible version: "
-                   "Found {0} but {1} or newer is required".format(cython_version, cython_min_version))
+                   "Found {0} but {1} or newer is required.".format(cython_version, cython_min_version))
         if env['python3_package'] == 'y':
             print("ERROR: " + message)
             sys.exit(1)
@@ -1143,7 +1143,7 @@ if not env['HAS_MATH_H_ERF']:
     if env['HAS_BOOST_MATH']:
         configh['USE_BOOST_MATH'] = 1
     else:
-        config_error("Couldn't find 'erf' in either <math.h> or Boost.Math")
+        config_error("Couldn't find 'erf' in either <math.h> or Boost.Math.")
 else:
     configh['USE_BOOST_MATH'] = None
 
@@ -1405,7 +1405,7 @@ def postBuildMessage(target, source, env):
     print "- To run the test suite, type 'scons test'."
     if os.name == 'nt':
         print "- To install, type 'scons install'."
-        print "- To create a Windows MSI installer, type 'scons msi'"
+        print "- To create a Windows MSI installer, type 'scons msi'."
     else:
         print "- To install, type '[sudo] scons install'."
     print "*******************************************************"
