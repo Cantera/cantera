@@ -660,7 +660,7 @@ class NASA(thermo):
             This must be entered as a sequence of two temperature values.
             Required.
         :param coeffs:
-            Array of seven coefficients :math:`(a_0, \ldots , a_6)`
+            List of seven coefficients :math:`(a_0, \ldots , a_6)`
         :param p0:
             The reference-state pressure, usually 1 atm or 1 bar. If omitted,
             the default value is used, which is set by the ``standard_pressure``
@@ -707,6 +707,18 @@ class NASA9(thermo):
 
     def __init__(self, Trange = (0.0, 0.0),
                  coeffs = [], p0 = -1.0):
+        r"""
+        :param Trange:
+            The temperature range over which the parameterization is valid.
+            This must be entered as a sequence of two temperature values.
+            Required.
+        :param coeffs:
+            List of nine coefficients :math:`(a_0, \ldots , a_8)`
+        :param p0:
+            The reference-state pressure, usually 1 atm or 1 bar. If omitted,
+            the default value is used, which is set by the ``standard_pressure``
+            directive.
+        """
         self._t = Trange         # Range of the polynomial representation
         self._pref = p0          # Reference pressure
         if len(coeffs) != 9:
