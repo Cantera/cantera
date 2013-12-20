@@ -169,7 +169,7 @@ def make_python_tests(version):
         pyTest = addTestScript(
             name, 'python', 'runCythonTests.py',
             args=subset,
-            interpreter='$python_cmd',
+            interpreter='$python_cmd' if version == 2 else '$python3_cmd',
             dependencies=(localenv['python%i_module' % version] +
                           localenv['python%i_extension' % version] +
                           mglob(localenv, test_root, 'py')),
