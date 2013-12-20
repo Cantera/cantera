@@ -311,17 +311,16 @@ void ReactionPathDiagram::exportToDot(ostream& s)
                         node(kend)->visible    = true;
 
                         s << "s" << kbegin << " -> s" << kend;
+                        s <<  "[fontname=\""+m_font+"\", style=\"setlinewidth(";
 
                         if (arrow_width < 0) {
                             lwidth = 1.0 - 4.0
                                      * log10(flxratio/threshold)/log10(threshold) + 1.0;
-                            s <<  "[fontname=\""+m_font+"\", style=\"setlinewidth("
-                              << lwidth << ")\"";
+                            s << lwidth << ")\"";
                             s << ", arrowsize="
                               <<  std::min(6.0, 0.5*lwidth);
                         } else {
-                            s <<  ", style=\"setlinewidth("
-                              <<  arrow_width << ")\"";
+                            s <<  arrow_width << ")\"";
                             s << ", arrowsize=" << flxratio + 1;
                         }
 
