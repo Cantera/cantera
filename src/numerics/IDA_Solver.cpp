@@ -7,7 +7,7 @@
 #include "cantera/numerics/IDA_Solver.h"
 #include "cantera/base/stringUtils.h"
 
-#if HAVE_SUNDIALS
+#if HAS_SUNDIALS
 #include "sundials/sundials_types.h"
 #include "sundials/sundials_math.h"
 #include "ida/ida.h"
