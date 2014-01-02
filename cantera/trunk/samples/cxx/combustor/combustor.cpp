@@ -83,7 +83,7 @@ void runexample()
     // time-dependent igniter mass flow rate.
     double A = 0.1;
     double FWHM = 0.2;
-    double t0 = 1.0;
+    double t0 = 0.5;
     Gaussian igniter_mdot(A, t0, FWHM);
 
     MassFlowController m3;
@@ -102,22 +102,32 @@ void runexample()
 
     // take single steps to 6 s, writing the results to a CSV file
     // for later plotting.
-    double tfinal = 6.0;
+    double tfinal = 1.0;
     double tnow = 0.0;
     double tres;
     int k;
 
     std::ofstream f("combustor_cxx.csv");
+    std::vector<size_t> k_out;
+    k_out.push_back(gas.speciesIndex("CH4"));
+    k_out.push_back(gas.speciesIndex("O2"));
+    k_out.push_back(gas.speciesIndex("CO2"));
+    k_out.push_back(gas.speciesIndex("H2O"));
+    k_out.push_back(gas.speciesIndex("CO"));
+    k_out.push_back(gas.speciesIndex("OH"));
+    k_out.push_back(gas.speciesIndex("H"));
+    k_out.push_back(gas.speciesIndex("C2H6"));
 
     while (tnow < tfinal) {
-        tnow = sim.step(tfinal);
+        tnow += 0.005;
+        sim.advance(tnow);
         tres = combustor.mass()/v.massFlowRate();
         f << tnow << ", "
           << combustor.temperature() << ", "
           << tres << ", ";
         ThermoPhase& c = combustor.contents();
-        for (k = 0; k < nsp; k++) {
-            f << c.moleFraction(k) << ", ";
+        for (size_t i = 0; i < k_out.size(); i++) {
+            f << c.moleFraction(k_out[i]) << ", ";
         }
         f << std::endl;
     }
