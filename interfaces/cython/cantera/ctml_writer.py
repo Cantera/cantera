@@ -958,22 +958,42 @@ class rate_expression(object):
 class Arrhenius(rate_expression):
     def __init__(self,
                  A = 0.0,
-                 n = 0.0,
+                 b = 0.0,
                  E = 0.0,
                  coverage = [],
-                 rate_type = ''):
+                 rate_type = '',
+                 n = None):
         """
         :param A:
             The pre-exponential coefficient. Required input. If entered without
             units, the units will be computed considering all factors that
             affect the units. The resulting units string is written to the CTML
             file individually for each reaction pre-exponential coefficient.
-        :param n:
+        :param b:
             The temperature exponent. Dimensionless. Default: 0.0.
         :param E:
             Activation energy. Default: 0.0.
+        :param coverage:
+
+        :param rate_type:
+
+        :param n:
+            The temperature exponent. Dimensionless. Default: 0.0. Deprecated usage
+            provided for compatibility.
         """
-        self._c = [A, n, E]
+        if n is not None and b != 0.0:
+            raise CTI_Error("n and b cannot both be specified for the "
+                            "temperature exponent. Specify one or the other.")
+        elif n is not None and b == 0.0:
+            b = n
+            print("Warning: Usage of n to specify the temperature exponent is "
+                  "deprecated and will be removed in a future version. Use b "
+                  "to specify the temperature exponent by keyword. Please check "
+                  "your cti file for places where the temperature exponent of "
+                  "the reaction rate is set by n = XXX and change them to "
+                  "b = XXX.")
+
+        self._c = [A, b, E]
         self._type = rate_type
 
         if coverage:
@@ -1033,8 +1053,8 @@ reactant, but this reaction has """+str(ngas)+': '+str(gas_species))
                 c.addChild('m', repr(cov[2]))
                 addFloat(c, 'e', cov[3], fmt = '%f', defunits = _ue)
 
-def stick(A = 0.0, n = 0.0, E = 0.0, coverage = []):
-    return Arrhenius(A = A, n = n, E = E, coverage = coverage, rate_type = 'stick')
+def stick(A = 0.0, b = 0.0, E = 0.0, coverage = []):
+    return Arrhenius(A = A, b = b, E = E, coverage = coverage, rate_type = 'stick')
 
 
 def getPairs(s):
@@ -1059,10 +1079,10 @@ class reaction(object):
         """
         :param equation:
             A string specifying the chemical equation.
-        :param rate_coeff:
+        :param kf:
             The rate coefficient for the forward direction. If a sequence of
-            three numbers is given, these will be interpreted as [A, n,E] in
-            the modified Arrhenius function :math:`A T^n exp(-E/\hat{R}T)`.
+            three numbers is given, these will be interpreted as [A, b, E] in
+            the modified Arrhenius function :math:`A T^b exp(-E/\hat{R}T)`.
         :param id:
             An optional identification string. If omitted, it defaults to a
             four-digit numeric string beginning with 0001 for the first
@@ -1224,7 +1244,7 @@ class reaction(object):
             if isinstance(kf, rate_expression):
                 k = kf
             else:
-                k = Arrhenius(A = kf[0], n = kf[1], E = kf[2])
+                k = Arrhenius(A = kf[0], b = kf[1], E = kf[2])
             k.build(kfnode, self.unit_factor(), gas_species = self._igspecies,
                     name = nm, rxn_phase = self._rxnphase)
 
@@ -1265,9 +1285,9 @@ class three_body_reaction(reaction):
             A string specifying the chemical equation. The reaction can be
             written in either the association or dissociation directions, and
             may be reversible or irreversible.
-        :param rate_coeff:
+        :param kf:
             The rate coefficient for the forward direction. If a sequence of
-            three numbers is given, these will be interpreted as [A,n,E] in
+            three numbers is given, these will be interpreted as [A, b, E] in
             the modified Arrhenius function.
         :param efficiencies:
             A string specifying the third-body collision efficiencies.
@@ -1346,14 +1366,14 @@ class falloff_reaction(pdep_reaction):
         """
         :param equation:
             A string specifying the chemical equation.
-        :param rate_coeff_inf:
+        :param kf:
             The rate coefficient for the forward direction in the high-pressure
             limit. If a sequence of three numbers is given, these will be
-            interpreted as [A, n,E] in the modified Arrhenius function.
-        :param rate_coeff_0:
+            interpreted as [A, b, E] in the modified Arrhenius function.
+        :param kf0:
             The rate coefficient for the forward direction in the low-pressure
             limit. If a sequence of three numbers is given, these will be
-            interpreted as [A, n,E] in the modified Arrhenius function.
+            interpreted as [A, b, E] in the modified Arrhenius function.
         :param efficiencies:
             A string specifying the third-body collision efficiencies. The
             efficiency for unspecified species is set to 1.0.
@@ -1392,11 +1412,11 @@ class chemically_activated_reaction(pdep_reaction):
         :param kLow:
             The rate coefficient for the forward direction in the low-pressure
             limit. If a sequence of three numbers is given, these will be
-            interpreted as [A, n,E] in the modified Arrhenius function.
+            interpreted as [A, b, E] in the modified Arrhenius function.
         :param kHigh:
             The rate coefficient for the forward direction in the high-pressure
             limit. If a sequence of three numbers is given, these will be
-            interpreted as [A, n,E] in the modified Arrhenius function.
+            interpreted as [A, b, E] in the modified Arrhenius function.
         :param efficiencies:
             A string specifying the third-body collision efficiencies. The
             efficiency for unspecified species is set to 1.0.
@@ -1436,9 +1456,9 @@ class pdep_arrhenius(reaction):
     def __init__(self, equation='', *args, **kwargs):
         self.pressures = []
         self.arrhenius = []
-        for p, A, n, Ea in args:
+        for p, A, b, Ea in args:
             self.pressures.append(p)
-            self.arrhenius.append((A, n, Ea))
+            self.arrhenius.append((A, b, Ea))
 
         reaction.__init__(self, equation, self.arrhenius, **kwargs)
         self._type = 'plog'
@@ -1522,15 +1542,15 @@ class surface_reaction(reaction):
         """
         :param equation:
             A string specifying the chemical equation.
-        :param rate_coeff:
+        :param kf:
             The rate coefficient for the forward direction. If a sequence of
-            three numbers is given, these will be interpreted as [A, n,E] in
+            three numbers is given, these will be interpreted as [A, b, E] in
             the modified Arrhenius function.
         :param sticking_prob:
             The reactive sticking probability for the forward direction. This
             can only be specified if there is only one bulk-phase reactant and
             it belongs to an ideal gas phase. If a sequence of three numbers is
-            given, these will be interpreted as [A, n,E] in the modified
+            given, these will be interpreted as [A, b, E] in the modified
             Arrhenius function.
         :param id:
             An optional identification string. If omitted, it defaults to a

@@ -367,9 +367,9 @@ class Arrhenius(KineticsModel):
     Represent a set of modified Arrhenius kinetics. The kinetic expression has
     the form
 
-    .. math:: k(T) = A \\left( \\frac{T}{T_0} \\right)^n \\exp \\left( - \\frac{E_\\mathrm{a}}{RT} \\right)
+    .. math:: k(T) = A \\left( \\frac{T}{T_0} \\right)^b \\exp \\left( - \\frac{E_\\mathrm{a}}{RT} \\right)
 
-    where :math:`A`, :math:`n`, :math:`E_\\mathrm{a}`, and :math:`T_0` are the
+    where :math:`A`, :math:`b`, :math:`E_\\mathrm{a}`, and :math:`T_0` are the
     parameters to be set, :math:`T` is absolute temperature, and :math:`R` is
     the gas law constant. The attributes are:
 
@@ -378,17 +378,17 @@ class Arrhenius(KineticsModel):
     =============== =================== ========================================
     `A`             :class:`Quantity`   The preexponential factor in s^-1, m^3/mol*s, etc.
     `T0`            :class:`Quantity`   The reference temperature in K
-    `n`             :class:`Quantity`   The temperature exponent
+    `b`             :class:`Quantity`   The temperature exponent
     `Ea`            :class:`Quantity`   The activation energy in J/mol
     =============== =================== ========================================
 
     """
 
-    def __init__(self, A=0.0, n=0.0, Ea=0.0, T0=1.0, **kwargs):
+    def __init__(self, A=0.0, b=0.0, Ea=0.0, T0=1.0, **kwargs):
         KineticsModel.__init__(self, **kwargs)
         self.A = A
         self.T0 = T0
-        self.n = n
+        self.b = b
         self.Ea = Ea
 
     def isPressureDependent(self):
@@ -408,7 +408,7 @@ class Arrhenius(KineticsModel):
         else:
             Ea = "({0}, '{1}')".format(*self.Ea)
 
-        return '[{0}, {1}, {2}]'.format(A, self.n, Ea)
+        return '[{0}, {1}, {2}]'.format(A, self.b, Ea)
 
     def to_cti(self, reactantstr, arrow, productstr, indent=0):
         rxnstring = reactantstr + arrow + productstr
@@ -420,7 +420,7 @@ class PDepArrhenius(KineticsModel):
     A kinetic model of a phenomenological rate coefficient k(T, P) using the
     expression
 
-    .. math:: k(T,P) = A(P) T^{n(P)} \\exp \\left[ \\frac{-E_\\mathrm{a}(P)}{RT} \\right]
+    .. math:: k(T,P) = A(P) T^{b(P)} \\exp \\left[ \\frac{-E_\\mathrm{a}(P)}{RT} \\right]
 
     where the modified Arrhenius parameters are stored at a variety of pressures
     and interpolated between on a logarithmic scale. The attributes are:
@@ -452,7 +452,7 @@ class PDepArrhenius(KineticsModel):
         rxnstring = reactantstr + arrow + productstr
         lines = ['pdep_arrhenius({0!r},'.format(rxnstring)]
         prefix = ' '*(indent+15)
-        template = '[({0}, {1!r}), {2.A[0]:e}, {2.n}, {2.Ea[0]}],'
+        template = '[({0}, {1!r}), {2.A[0]:e}, {2.b}, {2.Ea[0]}],'
         for pressure,arrhenius in zip(self.pressures[0], self.arrhenius):
             lines.append(prefix + template.format(pressure,
                                                   self.pressures[1],
@@ -1046,7 +1046,7 @@ class Parser(object):
         # The first line contains the reaction equation and a set of modified Arrhenius parameters
         tokens = lines[0].split()
         A = float(tokens[-3])
-        n = float(tokens[-2])
+        b = float(tokens[-2])
         Ea = float(tokens[-1])
         reaction = ''.join(tokens[:-3])
 
@@ -1136,7 +1136,7 @@ class Parser(object):
         # The rest of the first line contains Arrhenius parameters
         arrhenius = Arrhenius(
             A=(A,kunits),
-            n=n,
+            b=b,
             Ea=(Ea, energy_units),
             T0=(1,"K"),
             parser=self
@@ -1163,7 +1163,7 @@ class Parser(object):
                 tokens = tokens[1].split()
                 arrheniusLow = Arrhenius(
                     A=(float(tokens[0].strip()),klow_units),
-                    n=float(tokens[1].strip()),
+                    b=float(tokens[1].strip()),
                     Ea=(float(tokens[2].strip()),energy_units),
                     T0=(1,"K"),
                     parser=self
@@ -1175,7 +1175,7 @@ class Parser(object):
                 tokens = tokens[1].split()
                 arrheniusHigh = Arrhenius(
                     A=(float(tokens[0].strip()),kunits),
-                    n=float(tokens[1].strip()),
+                    b=float(tokens[1].strip()),
                     Ea=(float(tokens[2].strip()),energy_units),
                     T0=(1,"K"),
                     parser=self
@@ -1194,7 +1194,7 @@ class Parser(object):
                 tokens = tokens[1].split()
                 revReaction.kinetics = Arrhenius(
                     A=(float(tokens[0].strip()),klow_units),
-                    n=float(tokens[1].strip()),
+                    b=float(tokens[1].strip()),
                     Ea=(float(tokens[2].strip()),energy_units),
                     T0=(1,"K"),
                     parser=self
@@ -1276,7 +1276,7 @@ class Parser(object):
                 tokens = tokens[1].split()
                 pdepArrhenius.append([float(tokens[0].strip()), Arrhenius(
                     A=(float(tokens[1].strip()),kunits),
-                    n=float(tokens[2].strip()),
+                    b=float(tokens[2].strip()),
                     Ea=(float(tokens[3].strip()),energy_units),
                     T0=(1,"K"),
                     parser=self
