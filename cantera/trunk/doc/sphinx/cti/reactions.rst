@@ -51,14 +51,17 @@ Arrhenius function
 
 .. math::
 
-    k_f(T) = A T^n \exp(-E/\hat{R}T)
+    k_f(T) = A T^b \exp(-E/\hat{R}T)
 
 which is defined with an :class:`Arrhenius` entry::
 
-    rate_coeff = Arrhenius(A=1.0e13, n=0, E=(7.3, 'kcal/mol'))
+    rate_coeff = Arrhenius(A=1.0e13, b=0, E=(7.3, 'kcal/mol'))
     rate_coeff = Arrhenius(1.0e13, 0, (7.3, 'kcal/mol'))
 
-As a shorthand, if the ``rate_coeff`` field is assigned a sequence of three numbers, these are assumed to be :math:`(A, n, E)` in the modified Arrhenius function::
+Note: the usage of ``n`` as the temperature exponent has been deprecated. It is
+still available in version 2.2 but will be removed.
+
+As a shorthand, if the ``rate_coeff`` field is assigned a sequence of three numbers, these are assumed to be :math:`(A, b, E)` in the modified Arrhenius function::
 
     rate_coeff = [1.0e13, 0, (7.3, 'kcal/mol')] # equivalent to above
 
@@ -71,11 +74,11 @@ units of the rate of progress (different for homogeneous and heterogeneous
 reactions), it is usually best not to specify units for *A*, in which case they
 will be computed taking all of these factors into account.
 
-Note: if :math:`n \ne 0`, then the term :math:`T^n` should have units of
-:math:`K^n`, which would change the units of *A*. This is not done, however, so
+Note: if :math:`b \ne 0`, then the term :math:`T^b` should have units of
+:math:`K^b`, which would change the units of *A*. This is not done, however, so
 the units associated with A are really the units for :math:`k_f` . One way to
-formally express this is to replace :math:`T^n` by the non-dimensional quantity
-:math:`[T/(1 K)]^n`.
+formally express this is to replace :math:`T^b` by the non-dimensional quantity
+:math:`[T/(1 K)]^b`.
 
 The ID String
 -------------
@@ -147,9 +150,9 @@ combustion mechanism [#Smith1997]_ are shown below::
     reaction( "O + HO2 <=> OH + O2", [2.00000E+13, 0.0, 0])
     reaction( "O + H2O2 <=> OH + HO2", [9.63000E+06, 2.0, 4000])
     reaction( "O + HCCO <=> H + 2 CO", [1.00000E+14, 0.0, 0])
-    reaction( "H + O2 + AR <=> HO2 + AR", [7.00000E+17, -0.8, 0])
-    reaction( "HO2 + C3H7 <=> O2 + C3H8", [2.55000E+10, 0.255, -943])
-    reaction( "HO2 + C3H7 => OH + C2H5 + CH2O", [2.41000E+13, 0.0, 0])
+    reaction( "H + O2 + AR <=> HO2 + AR", kf=Arrhenius(A=7.00000E+17, b=-0.8, E=0))
+    reaction( equation = "HO2 + C3H7 <=> O2 + C3H8", kf=Arrhenius(2.55000E+10, 0.255, -943))
+    reaction( equation = "HO2 + C3H7 => OH + C2H5 + CH2O", kf=[2.41000E+13, 0.0, 0])
 
 Three-Body Reactions
 ====================
