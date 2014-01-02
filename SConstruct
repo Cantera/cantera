@@ -1425,8 +1425,8 @@ def postInstallMessage(target, source, env):
 
     env['python_example_loc'] = pjoin(env['python_module_loc'], 'cantera', 'examples')
 
-    env['matlab_sample_loc'] = pjoin(env['ct_matlab_dir'], 'matlab')
-    env['matlab_ctpath_loc'] = pjoin(env['prefix'], 'matlab', 'ctpath.m')
+    env['matlab_sample_loc'] = pjoin(env['ct_sampledir'], 'matlab')
+    env['matlab_ctpath_loc'] = pjoin(env['ct_matlab_dir'], 'ctpath.m')
     print """
 Cantera has been successfully installed.
 
