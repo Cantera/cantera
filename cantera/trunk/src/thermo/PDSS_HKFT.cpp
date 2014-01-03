@@ -22,8 +22,18 @@
 using namespace std;
 using namespace ctml;
 
+
+
+
 namespace Cantera
 {
+//==================================================================================================================================
+/*
+ *  Set the default to error exit if there is an input file inconsistency
+ */ 
+int PDSS_HKFT::s_InputInconsistencyErrorExit = 1;
+
+//==================================================================================================================================
 PDSS_HKFT::PDSS_HKFT(VPStandardStateTP* tp, size_t spindex) :
     PDSS(tp, spindex),
     m_waterSS(0),
@@ -51,8 +61,9 @@ PDSS_HKFT::PDSS_HKFT(VPStandardStateTP* tp, size_t spindex) :
     m_pres = OneAtm;
     m_pdssType = cPDSS_MOLAL_HKFT;
     m_presR_bar = OneAtm * 1.0E-5;
+    m_presR_bar = 1.0;
 }
-
+//==========================================================================================================================
 PDSS_HKFT::PDSS_HKFT(VPStandardStateTP* tp, size_t spindex,
                      const std::string& inputFile, const std::string& id) :
     PDSS(tp, spindex),
@@ -74,13 +85,14 @@ PDSS_HKFT::PDSS_HKFT(VPStandardStateTP* tp, size_t spindex,
     m_omega_pr_tr(0.0),
     m_Y_pr_tr(0.0),
     m_Z_pr_tr(0.0),
-    m_presR_bar(0.0),
+    m_presR_bar(1.0),
     m_domega_jdT_prtr(0.0),
     m_charge_j(0.0)
 {
     m_pres = OneAtm;
     m_pdssType = cPDSS_MOLAL_HKFT;
     m_presR_bar = OneAtm * 1.0E-5;
+    m_presR_bar = 1.0;
     constructPDSSFile(tp, spindex, inputFile, id);
 }
 
@@ -112,6 +124,7 @@ PDSS_HKFT::PDSS_HKFT(VPStandardStateTP* tp, size_t spindex, const XML_Node& spec
     m_pres = OneAtm;
     m_pdssType = cPDSS_MOLAL_HKFT;
     m_presR_bar = OneAtm * 1.0E-5;
+    m_presR_bar = 1.0;
     // We have to read the info from here
     constructPDSSXML(tp, spindex, speciesNode, phaseRoot, spInstalled);
 }
@@ -513,7 +526,7 @@ doublereal PDSS_HKFT::critDensity() const
     throw CanteraError("PDSS_HKFT::critDensity()", "unimplemented");
     return 0.0;
 }
-
+//=====================================================================================================================
 void PDSS_HKFT::initThermo()
 {
     PDSS::initThermo();
@@ -537,12 +550,13 @@ void PDSS_HKFT::initThermo()
     m_waterProps = new WaterProps(m_waterSS);
 
     m_presR_bar = OneAtm / 1.0E5;
+    m_presR_bar = 1.0;
     m_charge_j = m_tp->charge(m_spindex);
     convertDGFormation();
 
     //! Ok, we have mu. Let's check it against the input value
     // of DH_F to see that we have some internal consistency
-
+ 
     doublereal Hcalc = m_Mu0_tr_pr + 298.15 * (m_Entrop_tr_pr * 1.0E3 * 4.184);
 
     doublereal DHjmol = m_deltaH_formation_tr_pr * 1.0E3 * 4.184;
@@ -550,10 +564,21 @@ void PDSS_HKFT::initThermo()
     // If the discrepancy is greater than 100 cal gmol-1, print
     // an error and exit.
     if (fabs(Hcalc -DHjmol) > 100.* 1.0E3 * 4.184) {
-        throw CanteraError(" PDSS_HKFT::initThermo()",
-                           "DHjmol is not consistent with G and S: " +
-                           fp2str(Hcalc/(4.184E3)) + " vs "
-                           + fp2str(m_deltaH_formation_tr_pr) + "cal gmol-1");
+	std::string sname = m_tp->speciesName(m_spindex);
+	if (s_InputInconsistencyErrorExit) {
+
+	    throw CanteraError(" PDSS_HKFT::initThermo() for " + sname,
+			       "DHjmol is not consistent with G and S: " +
+			       fp2str(Hcalc/(4.184E3)) + " vs "
+			       + fp2str(m_deltaH_formation_tr_pr) + "cal gmol-1");
+	} else {
+	    writelog(" PDSS_HKFT::initThermo() WARNING: "
+		     "DHjmol for " + sname + " is not consistent with G and S: calculated " +
+		     fp2str(Hcalc/(4.184E3)) + " vs input "
+			+ fp2str(m_deltaH_formation_tr_pr) + "cal gmol-1");
+	    writelog("                                : continuing with consistent DHjmol = " + fp2str(Hcalc/(4.184E3)));
+	    m_deltaH_formation_tr_pr = Hcalc / (1.0E3 * 4.184);
+	}
     }
     doublereal nu = 166027;
 
@@ -578,7 +603,7 @@ void PDSS_HKFT::initThermo()
                              + nu * m_charge_j / (3.082 + gval) / (3.082 + gval) * dgvaldT;
     }
 }
-
+//=================================================================================================================
 void PDSS_HKFT::initThermoXML(const XML_Node& phaseNode, const std::string& id)
 {
     PDSS::initThermoXML(phaseNode, id);
@@ -592,7 +617,7 @@ void PDSS_HKFT::initAllPtrs(VPStandardStateTP* vptp_ptr, VPSSMgr* vpssmgr_ptr,
     delete m_waterProps;
     m_waterProps = new WaterProps(m_waterSS);
 }
-
+//===================================================================================================================
 void PDSS_HKFT::constructPDSSXML(VPStandardStateTP* tp, size_t spindex,
                                  const XML_Node& speciesNode,
                                  const XML_Node& phaseNode, bool spInstalled)
@@ -853,7 +878,7 @@ doublereal PDSS_HKFT::deltaH() const
     return deltaH_calgmol * 1.0E3 * 4.184;
 }
 #endif
-
+//================================================================================================================
 doublereal PDSS_HKFT::deltaG() const
 {
     doublereal pbar = m_pres * 1.0E-5;
@@ -1183,5 +1208,5 @@ void PDSS_HKFT::reportParams(size_t& kindex, int& type,
     c[9] =  m_c2;
     c[10] = m_omega_pr_tr;
 }
-
+//============================================================================================================
 }

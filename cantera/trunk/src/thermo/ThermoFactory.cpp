@@ -561,10 +561,6 @@ bool importPhase(XML_Node& phase, ThermoPhase* th,
         // used, and selects a class that can handle the
         // parameterizations found.
         spth = newSpeciesThermoMgr(spDataNodeList);
-        if (eos["allow_discontinuities"] == "true") {
-            std::cout << "ALLOWING DISCONTINUOUS THERMO!" << std::endl;
-            spth->m_allow_discontinuities = true;
-        }
 
         // install it in the phase object
         th->setSpeciesThermo(spth);

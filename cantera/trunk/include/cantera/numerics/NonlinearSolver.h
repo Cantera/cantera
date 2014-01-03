@@ -135,7 +135,7 @@ public:
     NonlinearSolver(const NonlinearSolver& right);
 
     //! Destructor
-    ~NonlinearSolver();
+    virtual ~NonlinearSolver();
 
     //! Assignment operator
     NonlinearSolver& operator=(const NonlinearSolver& right);
