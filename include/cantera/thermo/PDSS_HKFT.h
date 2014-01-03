@@ -32,6 +32,9 @@ class WaterProps;
 class PDSS_HKFT : public PDSS
 {
 public:
+
+    
+
     //! @name  Constructors
     //! @{
 
@@ -443,6 +446,13 @@ private:
 
     //! Charge of the ion
     doublereal m_charge_j;
+
+    //!  Static variable determining error exiting 
+    /*!
+     *   If true, then will error exit if there is an inconsistency in DG0, DH0, and DS0.
+     *   If not, then will rewrite DH0 to be consistent with the other two.
+     */
+    static int s_InputInconsistencyErrorExit;
 };
 
 }
