@@ -113,6 +113,19 @@ class chemkinConverterTest(utilities.CanteraTest):
         self.assertTrue(gas.n_species, 3)
         self.assertTrue(gas.n_reactions, 2)
 
+    def test_duplicate_species(self):
+        self.assertRaises(ck2cti.InputParseError,
+                          lambda: convertMech('../data/duplicate-species.inp',
+                                              outName='duplicate-species.cti',
+                                              quiet=True))
+
+        convertMech('../data/duplicate-species.inp',
+                    outName='duplicate-species.cti',
+                    quiet=True, permissive=True)
+
+        gas = ct.Solution('duplicate-species.cti')
+        self.assertEqual(gas.species_names, ['foo','bar','baz'])
+
     def test_pathologicalSpeciesNames(self):
         convertMech('../data/species-names.inp',
                     outName='species-names.cti', quiet=True)
