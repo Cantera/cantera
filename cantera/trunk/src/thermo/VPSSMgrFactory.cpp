@@ -189,10 +189,8 @@ static void getVPSSMgrTypes(std::vector<XML_Node*> & spDataNodeList,
 void VPSSMgrFactory::deleteFactory()
 {
     ScopedLock lock(vpss_species_thermo_mutex);
-    if (s_factory) {
-        delete s_factory;
-        s_factory = 0;
-    }
+    delete s_factory;
+    s_factory = 0;
 }
 
 VPSSMgr_enumType

@@ -144,10 +144,8 @@ operator=(const DebyeHuckel& b)
 
         m_densWaterSS         = b.m_densWaterSS;
 
-        if (m_waterProps) {
-            delete m_waterProps;
-            m_waterProps = 0;
-        }
+        delete m_waterProps;
+        m_waterProps = 0;
         if (b.m_waterProps) {
             m_waterProps = new WaterProps(m_waterSS);
         }
@@ -164,10 +162,8 @@ operator=(const DebyeHuckel& b)
 
 DebyeHuckel::~DebyeHuckel()
 {
-    if (m_waterProps) {
-        delete m_waterProps;
-        m_waterProps = 0;
-    }
+    delete m_waterProps;
+    m_waterProps = 0;
 }
 
 ThermoPhase* DebyeHuckel::duplMyselfAsThermoPhase() const

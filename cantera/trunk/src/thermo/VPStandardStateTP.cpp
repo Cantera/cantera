@@ -79,10 +79,7 @@ VPStandardStateTP::operator=(const VPStandardStateTP& b)
         /*
          *  Duplicate the VPSS Manager object that conducts the calculations
          */
-        if (m_VPSS_ptr) {
-            delete m_VPSS_ptr;
-            m_VPSS_ptr = 0;
-        }
+        delete m_VPSS_ptr;
         m_VPSS_ptr = (b.m_VPSS_ptr)->duplMyselfAsVPSSMgr();
 
         /*

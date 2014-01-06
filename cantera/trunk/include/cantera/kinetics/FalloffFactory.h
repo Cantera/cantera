@@ -117,10 +117,8 @@ public:
 
     virtual void deleteFactory() {
         ScopedLock lock(falloff_mutex);
-        if (s_factory) {
-            delete s_factory;
-            s_factory = 0;
-        }
+        delete s_factory;
+        s_factory = 0;
     }
 
     //! Return a pointer to a new falloff function calculator.

@@ -72,10 +72,8 @@ public:
     //! delete the static instance of this factory
     virtual void deleteFactory() {
         ScopedLock lock(thermo_mutex);
-        if (s_factory) {
-            delete s_factory;
-            s_factory = 0;
-        }
+        delete s_factory;
+        s_factory = 0;
     }
 
     //! Create a new thermodynamic property manager.

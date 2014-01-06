@@ -196,10 +196,8 @@ initThermoXML(XML_Node& phaseNode, const std::string& id)
     /*
      * We have to do something with the thermo function here.
      */
-    if (m_spthermo) {
-        delete m_spthermo;
-        m_spthermo = 0;
-    }
+    delete m_spthermo;
+    m_spthermo = 0;
 
     /*
      * Set the flag to say we are ready to calculate stuff

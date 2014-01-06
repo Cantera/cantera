@@ -40,10 +40,8 @@ public:
      */
     static void deleteUnit() {
         ScopedLock lock(units_mutex);
-        if (s_u) {
-            delete s_u;
-            s_u = 0;
-        }
+        delete s_u;
+        s_u = 0;
     }
 
     //! Empty Destructor

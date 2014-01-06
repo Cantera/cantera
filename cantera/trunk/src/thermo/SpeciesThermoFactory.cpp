@@ -121,10 +121,8 @@ SpeciesThermoFactory* SpeciesThermoFactory::factory()
 void SpeciesThermoFactory::deleteFactory()
 {
     ScopedLock lock(species_thermo_mutex);
-    if (s_factory) {
-        delete s_factory;
-        s_factory = 0;
-    }
+    delete s_factory;
+    s_factory = 0;
 }
 
 SpeciesThermo* SpeciesThermoFactory::newSpeciesThermo(std::vector<XML_Node*> & spDataNodeList) const

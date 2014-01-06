@@ -255,10 +255,8 @@ operator=(const HMWSoln& b)
 
         m_densWaterSS         = b.m_densWaterSS;
 
-        if (m_waterProps) {
-            delete m_waterProps;
-            m_waterProps = 0;
-        }
+        delete m_waterProps;
+        m_waterProps = 0;
         if (b.m_waterProps) {
             m_waterProps = new WaterProps(dynamic_cast<PDSS_Water*>(m_waterSS));
         }
@@ -535,10 +533,8 @@ HMWSoln::HMWSoln(int testProb) :
 
 HMWSoln::~HMWSoln()
 {
-    if (m_waterProps) {
-        delete m_waterProps;
-        m_waterProps = 0;
-    }
+    delete m_waterProps;
+    m_waterProps = 0;
 }
 
 ThermoPhase* HMWSoln::duplMyselfAsThermoPhase() const

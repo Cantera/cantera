@@ -86,10 +86,8 @@ Phase& Phase::operator=(const Phase& right)
      * to have our own individual copies of the XML data tree
      * in each object
      */
-    if (m_xml) {
-        delete m_xml;
-        m_xml = 0;
-    }
+    delete m_xml;
+    m_xml = 0;
     if (right.m_xml) {
         m_xml = new XML_Node();
         (right.m_xml)->copy(m_xml);
@@ -102,10 +100,8 @@ Phase& Phase::operator=(const Phase& right)
 
 Phase::~Phase()
 {
-    if (m_xml) {
-        delete m_xml;
-        m_xml = 0;
-    }
+    delete m_xml;
+    m_xml = 0;
 }
 
 XML_Node& Phase::xml()
