@@ -360,9 +360,9 @@ XML_Node& XML_Node::operator=(const XML_Node& right)
 
 XML_Node::~XML_Node()
 {
-    if (m_locked)
-        throw CanteraError("XML_Node::~XML_Node",
-                           "attempt to delete locked XML_Node "+name());
+    if (m_locked) {
+        writelog("XML_Node::~XML_Node: deleted a locked XML_Node: "+name());
+    }
     int n = static_cast<int>(m_children.size());
     for (int i = 0; i < n; i++) {
         if (m_children[i]) {
