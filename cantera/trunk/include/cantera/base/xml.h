@@ -156,17 +156,6 @@ public:
      */
     XML_Node& addChild(const std::string& sname);
 
-    //! Add a child node to the current node with a specified name
-    /*!
-     * This will add an XML_Node as a child to the current node.
-     * The node will be blank except for the specified name.
-     *
-     *  @param cstring  Name of the new child as a c string
-     *
-     *  @return         Returns a reference to the added node
-     */
-    XML_Node& addChild(const char* cstring);
-
     //! Add a child node to the current xml node, and at the
     //! same time add a value to the child
     /*!
