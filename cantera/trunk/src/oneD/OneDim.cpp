@@ -320,14 +320,6 @@ void OneDim::init()
     m_init = true;
 }
 
-void Domain1D::needJacUpdate()
-{
-    if (m_container) {
-        m_container->jacobian().setAge(10000);
-        m_container->saveStats();
-    }
-}
-
 doublereal OneDim::timeStep(int nsteps, doublereal dt, doublereal* x,
                             doublereal* r, int loglevel)
 {

@@ -3,7 +3,9 @@
  */
 
 #include "cantera/oneD/Domain1D.h"
- #include "cantera/base/ctml.h"
+#include "cantera/oneD/OneDim.h"
+#include "cantera/oneD/MultiJac.h"
+#include "cantera/base/ctml.h"
 
 #include <cstdio>
 
@@ -103,6 +105,14 @@ void Domain1D::setTolerancesSS(doublereal rtol, doublereal atol, size_t n)
     warn_deprecated("Domain1D::setTolerancesSS",
                     "Use setSteadyTolerances");
     setSteadyTolerances(rtol, atol, n);
+}
+
+void Domain1D::needJacUpdate()
+{
+    if (m_container) {
+        m_container->jacobian().setAge(10000);
+        m_container->saveStats();
+    }
 }
 
 void Domain1D::
