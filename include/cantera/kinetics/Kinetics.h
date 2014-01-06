@@ -292,12 +292,7 @@ public:
      * methods that return the species production rates, for example.
      */
     size_t nTotalSpecies() const {
-        size_t n=0, np;
-        np = nPhases();
-        for (size_t p = 0; p < np; p++) {
-            n += thermo(p).nSpecies();
-        }
-        return n;
+        return m_kk;
     }
 
     /**
