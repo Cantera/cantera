@@ -1443,7 +1443,8 @@ class Parser(object):
                                 species = self.speciesDict[label]
                                 # use the first set of thermo data found
                                 if species.thermo is not None:
-                                    self.warn('Found additional thermo entry for species {0}'.format(label))
+                                    self.warn('Found additional thermo entry for species {0}. '
+                                              'If --permissive was given, the first entry is used.'.format(label))
                                 else:
                                     species.thermo = thermo
                                     species.composition = comp
@@ -1479,7 +1480,8 @@ class Parser(object):
                                     species = self.speciesDict[label]
                                     # use the first set of thermo data found
                                     if species.thermo is not None:
-                                        self.warn('Found additional thermo entry for species {0}'.format(label))
+                                        self.warn('Found additional thermo entry for species {0}. '
+                                                  'If --permissive was given, the first entry is used.'.format(label))
                                     else:
                                         species.thermo = thermo
                                         species.composition = comp
