@@ -87,11 +87,11 @@ WaterProps& WaterProps::operator=(const WaterProps& b)
 
 doublereal WaterProps::density_T(doublereal T, doublereal P, int ifunc)
 {
-    doublereal Tc = T - 273.15;
-    const doublereal U1 = 288.9414;
-    const doublereal U2 = 508929.2;
-    const doublereal U3 = 68.12963;
-    const doublereal U4 = -3.9863;
+    static const doublereal Tc = T - 273.15;
+    static const doublereal U1 = 288.9414;
+    static const doublereal U2 = 508929.2;
+    static const doublereal U3 = 68.12963;
+    static const doublereal U4 = -3.9863;
 
     doublereal tmp1 = Tc + U1;
     doublereal tmp4 = Tc + U4;
@@ -140,15 +140,15 @@ doublereal WaterProps::density_T(doublereal T, doublereal P, int ifunc)
 doublereal WaterProps::relEpsilon(doublereal T, doublereal P_pascal,
                                   int ifunc)
 {
-    const doublereal U1 = 3.4279E2;
-    const doublereal U2 = -5.0866E-3;
-    const doublereal U3 = 9.4690E-7;
-    const doublereal U4 = -2.0525;
-    const doublereal U5 = 3.1159E3;
-    const doublereal U6 = -1.8289E2;
-    const doublereal U7 = -8.0325E3;
-    const doublereal U8 = 4.2142E6;
-    const doublereal U9 = 2.1417;
+    static const doublereal U1 = 3.4279E2;
+    static const doublereal U2 = -5.0866E-3;
+    static const doublereal U3 = 9.4690E-7;
+    static const doublereal U4 = -2.0525;
+    static const doublereal U5 = 3.1159E3;
+    static const doublereal U6 = -1.8289E2;
+    static const doublereal U7 = -8.0325E3;
+    static const doublereal U8 = 4.2142E6;
+    static const doublereal U9 = 2.1417;
     doublereal T2 = T * T;
 
     doublereal eps1000 = U1 * exp(U2 * T + U3 * T2);
@@ -354,16 +354,9 @@ doublereal WaterProps::isothermalCompressibility_IAPWS(doublereal temp, doublere
     return m_waterIAPWS->isothermalCompressibility();
 }
 
-// Parameters for the viscosityWater() function
+static const doublereal H[4] = {1., 0.978197, 0.579829, -0.202354};
 
-// \cond
-const doublereal H[4] = {1.,
-                         0.978197,
-                         0.579829,
-                         -0.202354
-                        };
-
-const doublereal Hij[6][7] = {
+static const doublereal Hij[6][7] = {
     { 0.5132047, 0.2151778, -0.2818107,  0.1778064, -0.04176610,          0.,           0.},
     { 0.3205656, 0.7317883, -1.070786 ,  0.4605040,          0., -0.01578386,           0.},
     { 0.,        1.241044 , -1.263184 ,  0.2340379,          0.,          0.,           0.},
@@ -371,14 +364,14 @@ const doublereal Hij[6][7] = {
     {-0.7782567,      0.0 ,         0.,  0.       ,          0.,          0.,           0.},
     { 0.1885447,      0.0 ,         0.,  0.       ,          0.,          0.,           0.},
 };
-const doublereal TStar = 647.27;       // Kelvin
-const doublereal rhoStar = 317.763;    // kg / m3
-const doublereal presStar = 22.115E6;  // Pa
-const doublereal muStar = 55.071E-6;   //Pa s
-// \endcond
+
+static const doublereal rhoStar = 317.763;    // kg / m3
+static const doublereal presStar = 22.115E6;  // Pa
 
 doublereal WaterProps::viscosityWater() const
 {
+    static const doublereal TStar = 647.27;       // Kelvin
+    static const doublereal muStar = 55.071E-6;   //Pa s
     doublereal temp = m_waterIAPWS->temperature();
     doublereal dens = m_waterIAPWS->density();
 
