@@ -576,8 +576,6 @@ public:
     //! called to set up initial grid, and after grid refinement
     virtual void setupGrid(size_t n, const doublereal* z);
 
-    void setGrid(size_t n, const doublereal* z);
-
     /**
      * Writes some or all initial solution values into the global
      * solution array, beginning at the location pointed to by

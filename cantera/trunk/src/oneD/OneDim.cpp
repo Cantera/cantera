@@ -429,13 +429,4 @@ void OneDim::save(const std::string& fname, std::string id,
     writelog("Solution saved to file "+fname+" as solution "+id+".\n", loglevel);
 }
 
-void Domain1D::setGrid(size_t n, const doublereal* z)
-{
-    m_z.resize(n);
-    m_points = n;
-    for (size_t j = 0; j < m_points; j++) {
-        m_z[j] = z[j];
-    }
-}
-
 }
