@@ -435,11 +435,6 @@ XML_Node& XML_Node::addChild(const std::string& sname)
     return *m_children.back();
 }
 
-XML_Node& XML_Node::addChild(const char* cstring)
-{
-    return addChild(std::string(cstring));
-}
-
 XML_Node& XML_Node::addChild(const std::string& name_, const std::string& value_)
 {
     XML_Node& c = addChild(name_);
