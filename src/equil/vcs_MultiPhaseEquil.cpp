@@ -69,10 +69,8 @@ vcs_MultiPhaseEquil::~vcs_MultiPhaseEquil()
 {
     delete m_vprob;
     m_vprob = 0;
-    if (m_vsolvePtr) {
-        delete m_vsolvePtr;
-        m_vsolvePtr = 0;
-    }
+    delete m_vsolvePtr;
+    m_vsolvePtr = 0;
 }
 
 int vcs_MultiPhaseEquil::equilibrate_TV(int XY, doublereal xtarget,

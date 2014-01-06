@@ -72,10 +72,7 @@ WaterProps& WaterProps::operator=(const WaterProps& b)
     }
 
     if (m_own_sub) {
-        if (m_waterIAPWS) {
-            delete m_waterIAPWS;
-            m_waterIAPWS = 0;
-        }
+        delete m_waterIAPWS;
     }
     if (b.m_own_sub) {
         m_waterIAPWS = new WaterPropsIAPWS();

@@ -216,10 +216,8 @@ TransportFactory::TransportFactory() :
 void TransportFactory::deleteFactory()
 {
     ScopedLock transportLock(transport_mutex);
-    if (s_factory) {
-        delete s_factory;
-        s_factory = 0;
-    }
+    delete s_factory;
+    s_factory = 0;
 }
 
 std::string TransportFactory::modelName(int model)
