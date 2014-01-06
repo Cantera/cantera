@@ -415,24 +415,12 @@ XML_Node& XML_Node::mergeAsChild(XML_Node& node)
 
 XML_Node& XML_Node::addChild(const XML_Node& node)
 {
-    XML_Node* xx = new XML_Node(node);
-    m_children.push_back(xx);
-    m_nchildren = static_cast<int>(m_children.size());
-    m_childindex.insert(pair<const std::string, XML_Node*>(xx->name(), xx));
-    xx->setRoot(root());
-    xx->setParent(this);
-    return *m_children.back();
+    return mergeAsChild(*(new XML_Node(node)));
 }
 
 XML_Node& XML_Node::addChild(const std::string& sname)
 {
-    XML_Node* xxx = new XML_Node(sname, this);
-    m_children.push_back(xxx);
-    m_nchildren = m_children.size();
-    m_childindex.insert(pair<const std::string, XML_Node*>(sname, xxx));
-    xxx->setRoot(root());
-    xxx->setParent(this);
-    return *m_children.back();
+    return mergeAsChild(*(new XML_Node(sname, this)));
 }
 
 XML_Node& XML_Node::addChild(const std::string& name_, const std::string& value_)
