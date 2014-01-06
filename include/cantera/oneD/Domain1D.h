@@ -344,7 +344,6 @@ public:
      * Set this if something has changed in the governing
      * equations (e.g. the value of a constant has been changed,
      * so that the last-computed Jacobian is no longer valid.
-     * Note: see file OneDim.cpp for the implementation of this method.
      */
     void needJacUpdate();
 
