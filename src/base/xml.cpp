@@ -315,7 +315,6 @@ XML_Node::XML_Node(const std::string& nm, XML_Node* const parent_) :
     m_parent(parent_),
     m_root(0),
     m_locked(false),
-    m_nchildren(0),
     m_iscomment(false),
     m_linenum(0)
 {
@@ -332,7 +331,6 @@ XML_Node::XML_Node(const XML_Node& right) :
     m_parent(0),
     m_root(0),
     m_locked(false),
-    m_nchildren(0),
     m_iscomment(right.m_iscomment),
     m_linenum(right.m_linenum)
 {
@@ -392,7 +390,6 @@ void XML_Node::clear()
     m_attribs.clear();
     m_children.clear();
 
-    m_nchildren = 0;
     m_iscomment = false;
     m_linenum = 0;
 
@@ -406,7 +403,6 @@ void XML_Node::addComment(const std::string& comment)
 XML_Node& XML_Node::mergeAsChild(XML_Node& node)
 {
     m_children.push_back(&node);
-    m_nchildren = static_cast<int>(m_children.size());
     m_childindex.insert(pair<const std::string, XML_Node*>(node.name(),  m_children.back()));
     node.setRoot(root());
     node.setParent(this);
@@ -443,7 +439,6 @@ void XML_Node::removeChild(const XML_Node* const node)
     vector<XML_Node*>::iterator i;
     i = find(m_children.begin(), m_children.end(), node);
     m_children.erase(i);
-    m_nchildren = m_children.size();
     m_childindex.erase(node->name());
 }
 
@@ -578,7 +573,7 @@ size_t XML_Node::nChildren(const bool discardComments) const
 {
     if (discardComments) {
         size_t count = 0;
-        for (size_t i = 0; i < m_nchildren; i++) {
+        for (size_t i = 0; i < m_children.size(); i++) {
             XML_Node* xc = m_children[i];
             if (!(xc->isComment())) {
                 count++;
@@ -586,7 +581,7 @@ size_t XML_Node::nChildren(const bool discardComments) const
         }
         return count;
     }
-    return m_nchildren;
+    return m_children.size();
 }
 
 bool XML_Node::isComment() const
@@ -618,7 +613,7 @@ findNameID(const std::string& nameTarget,
             return const_cast<XML_Node*>(this);
         }
     }
-    for (size_t n = 0; n < m_nchildren; n++) {
+    for (size_t n = 0; n < m_children.size(); n++) {
         sc = m_children[n];
         if (sc->name() == nameTarget) {
             if (idTarget == "") {
@@ -630,7 +625,7 @@ findNameID(const std::string& nameTarget,
             }
         }
     }
-    for (size_t n = 0; n < m_nchildren; n++) {
+    for (size_t n = 0; n < m_children.size(); n++) {
         sc = m_children[n];
         scResult = sc->findNameID(nameTarget, idTarget);
         if (scResult) {
@@ -656,7 +651,7 @@ XML_Node* XML_Node::findNameIDIndex(const std::string& nameTarget,
             }
         }
     }
-    for (size_t n = 0; n < m_nchildren; n++) {
+    for (size_t n = 0; n < m_children.size(); n++) {
         sc = m_children[n];
         if (sc->name() == nameTarget) {
             ii = sc->attrib("index");
@@ -815,7 +810,7 @@ void XML_Node::copyUnion(XML_Node* const node_dest) const
         }
     }
     const vector<XML_Node*> &vsc = node_dest->children();
-    for (size_t n = 0; n < m_nchildren; n++) {
+    for (size_t n = 0; n < m_children.size(); n++) {
         sc = m_children[n];
         size_t ndc = node_dest->nChildren();
         dc = 0;
@@ -870,7 +865,7 @@ void XML_Node::copy(XML_Node* const node_dest) const
     }
     const vector<XML_Node*> &vsc = node_dest->children();
 
-    for (size_t n = 0; n < m_nchildren; n++) {
+    for (size_t n = 0; n < m_children.size(); n++) {
         sc = m_children[n];
         size_t ndc = node_dest->nChildren();
         // Here is where we do a malloc of the child node.
@@ -883,7 +878,7 @@ void XML_Node::copy(XML_Node* const node_dest) const
 void XML_Node::lock()
 {
     m_locked = true;
-    for (size_t i = 0; i < m_nchildren; i++) {
+    for (size_t i = 0; i < m_children.size(); i++) {
         m_children[i]->lock();
     }
 }
@@ -891,7 +886,7 @@ void XML_Node::lock()
 void XML_Node::unlock()
 {
     m_locked = false;
-    for (size_t i = 0; i < m_nchildren; i++) {
+    for (size_t i = 0; i < m_children.size(); i++) {
         m_children[i]->unlock();
     }
 }
@@ -966,7 +961,7 @@ void XML_Node::write_int(std::ostream& s, int level, int numRecursivesAllowed) c
     for (; b != m_attribs.end(); ++b) {
         s << " " << b->first << "=\"" << b->second << "\"";
     }
-    if (m_value == "" && m_nchildren == 0) {
+    if (m_value == "" && m_children.empty()) {
         s << "/>";
     } else {
         s << ">";
@@ -1046,12 +1041,12 @@ void XML_Node::write_int(std::ostream& s, int level, int numRecursivesAllowed) c
             }
         }
         if (numRecursivesAllowed > 0) {
-            for (size_t i = 0; i < m_nchildren; i++) {
+            for (size_t i = 0; i < m_children.size(); i++) {
                 s << endl;
                 m_children[i]->write_int(s,level + 2, numRecursivesAllowed - 1);
             }
         }
-        if (m_nchildren > 0) {
+        if (!m_children.empty()) {
             s << endl << indent;
         }
         s << "</" << m_name << ">";
@@ -1061,7 +1056,7 @@ void XML_Node::write_int(std::ostream& s, int level, int numRecursivesAllowed) c
 void XML_Node::write(std::ostream& s, const int level, int numRecursivesAllowed) const
 {
     if (m_name == "--" && m_root == this) {
-        for (size_t i = 0; i < m_nchildren; i++) {
+        for (size_t i = 0; i < m_children.size(); i++) {
             m_children[i]->write_int(s,level, numRecursivesAllowed-1);
             s << endl;
         }
@@ -1079,7 +1074,7 @@ XML_Node& XML_Node::root() const
 void XML_Node::setRoot(const XML_Node& newRoot)
 {
     m_root = const_cast<XML_Node*>(&newRoot);
-    for (size_t i = 0; i < m_nchildren; i++) {
+    for (size_t i = 0; i < m_children.size(); i++) {
         m_children[i]->setRoot(newRoot);
     }
 }

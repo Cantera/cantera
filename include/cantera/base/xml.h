@@ -713,9 +713,6 @@ protected:
     //! Vector of pointers to child nodes
     std::vector<XML_Node*> m_children;
 
-    //! Number of children of this node
-    size_t m_nchildren;
-
     //! True if the current node is a comment node
     bool m_iscomment;
 
