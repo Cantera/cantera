@@ -1,4 +1,10 @@
 cdef class ReactionPathDiagram:
+    def __cinit__(self, *args, **kwargs):
+        self._log = new CxxStringStream()
+
+    def __dealloc__(self):
+        del self._log
+
     def __init__(self, Kinetics kin, str element):
         """
         Create a reaction path diagram for the fluxes of the element *element*
@@ -6,7 +12,7 @@ cdef class ReactionPathDiagram:
         *kin*.
         """
         self.kinetics = kin
-        self.builder.init(self._log, deref(kin.kinetics))
+        self.builder.init(deref(self._log), deref(kin.kinetics))
         self.element = element
         self.built = False
 
@@ -163,7 +169,7 @@ cdef class ReactionPathDiagram:
         return representations of the diagram, e.g. write_dot().
         """
         self.builder.build(deref(self.kinetics.kinetics),
-                           stringify(self.element), self._log,
+                           stringify(self.element), deref(self._log),
                            self.diagram, True)
         self.built = True
         if verbose:
