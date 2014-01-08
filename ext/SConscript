@@ -159,6 +159,8 @@ localenv = env.Clone()
 localenv.Prepend(CPPPATH=[Dir('#ext/gtest'),
                           Dir('#ext/gtest/include')],
                  CPPDEFINES={'GTEST_HAS_PTHREAD': 0})
+if not localenv['HAS_TR1_TUPLE']:
+    localenv.Append(CPPDEFINES='GTEST_USE_OWN_TR1_TUPLE')
 
 gtest = build(localenv.Library(pjoin('../lib', 'gtest'),
                               source=['gtest/src/gtest-all.cc']))
