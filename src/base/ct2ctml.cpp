@@ -78,9 +78,10 @@ void ct2ctml(const char* file, const int debug)
                     "    try:\n" <<
                     "        from cantera import ctml_writer\n" <<
                     "    except ImportError:\n" <<
-                    "        import ctml_writer\n" <<
+                    "        print('sys.path: ' + repr(sys.path) + '\\n')\n" <<
+                    "        raise\n" <<
                     "    ctml_writer.convert(r'" << file << "')\n" <<
-                    "    sys.exit(0)\n\n"
+                    "    sys.exit(0)\n\n" <<
                     "sys.exit(7)\n";
         python.close_in();
         std::string line;
@@ -154,9 +155,10 @@ void ck2cti(const std::string& in_file, const std::string& thermo_file,
                 "    import sys\n" <<
                 "    sys.stderr = sys.stdout\n" <<
                 "    try:\n" <<
-                "        from cantera import ck2cti\n" << // Cython module
+                "        from cantera import ck2cti\n" <<
                 "    except ImportError:\n" <<
-                "        import ck2cti\n" << // legacy Python module
+                "        print('sys.path: ' + repr(sys.path))\n" <<
+                "        raise\n"
                 "    ck2cti.Parser().convertMech(r'" << in_file << "',";
         if (thermo_file != "" && thermo_file != "-") {
             pyin << " thermoFile=r'" << thermo_file << "',";
@@ -165,7 +167,7 @@ void ck2cti(const std::string& in_file, const std::string& thermo_file,
             pyin << " transportFile=r'" << transport_file << "',";
         }
         pyin << " phaseName='" << id_tag << "',";
-	pyin << " permissive=True,";
+        pyin << " permissive=True,";
         pyin << " quiet=True)\n";
         pyin << "    sys.exit(0)\n\n";
         pyin << "sys.exit(7)\n";
