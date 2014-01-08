@@ -693,6 +693,24 @@ extern "C" {
         }
     }
 
+    doublereal th_thermalExpansionCoeff(int n)
+    {
+        try {
+            return ThermoCabinet::item(n).thermalExpansionCoeff();
+        } catch (...) {
+            return handleAllExceptions(DERR, DERR);
+        }
+    }
+
+    doublereal th_isothermalCompressibility(int n)
+    {
+        try {
+            return ThermoCabinet::item(n).isothermalCompressibility();
+        } catch (...) {
+            return handleAllExceptions(DERR, DERR);
+        }
+    }
+
     //-------------- pure fluids ---------------//
 
     double th_critTemperature(int n)
