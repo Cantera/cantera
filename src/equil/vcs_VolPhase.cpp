@@ -270,7 +270,7 @@ void vcs_VolPhase::resize(const size_t phaseNum, const size_t nspecies,
     for (size_t i = 0; i < nspecies; i++) {
         Xmol_[i] = 1.0/nspecies;
         creationMoleNumbers_[i] = 1.0/nspecies;
-        if (IndSpecies[i] - m_numElemConstraints >= 0) {
+        if (IndSpecies[i] >= m_numElemConstraints) {
             creationGlobalRxnNumbers_[i] = IndSpecies[i] - m_numElemConstraints;
         } else {
             creationGlobalRxnNumbers_[i] = npos;

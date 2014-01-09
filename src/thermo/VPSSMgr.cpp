@@ -225,11 +225,10 @@ VPSSMgr::getStandardVolumes(doublereal* vol) const
 const vector_fp&
 VPSSMgr::getStandardVolumes() const
 {
-    if (m_useTmpStandardStateStorage) {
-        return m_Vss;
-    } else {
+    if (!m_useTmpStandardStateStorage) {
         err("getStandardVolumes");
     }
+    return m_Vss;
 }
 
 /*****************************************************************/

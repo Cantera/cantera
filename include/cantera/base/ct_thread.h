@@ -47,7 +47,6 @@ class ScopedLock
 {
 public:
     explicit ScopedLock(const int m) : m_(m) {}
-private:
     int m_;
 };
 

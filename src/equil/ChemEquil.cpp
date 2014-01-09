@@ -809,7 +809,6 @@ converge:
     yy = m_p2->value(s);
     deltax = (xx - xval)/xval;
     deltay = (yy - yval)/yval;
-    doublereal rmax = 0.0;
     bool passThis = true;
     for (m = 0; m < nvar; m++) {
         double tval =  options.relTolerance;

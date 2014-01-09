@@ -280,7 +280,6 @@ int MultiPhaseEquil::setInitialMoles(int loglevel)
         // set the moles of the phase objects to match
         updateMixMoles();
     }
-    for (ik = 0; ik < m_nsp; ik++)
     return 0;
 }
 
