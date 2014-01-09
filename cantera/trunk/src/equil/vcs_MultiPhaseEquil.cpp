@@ -195,7 +195,7 @@ int vcs_MultiPhaseEquil::equilibrate_HP(doublereal Htarget,
     int iSuccess;
     if (XY != HP && XY != UP) {
         throw CanteraError("vcs_MultiPhaseEquil::equilibrate_HP",
-                           "Wrong XP" + XY);
+                           "Wrong XP" + int2str(XY));
     }
     int strt = estimateEquil;
 

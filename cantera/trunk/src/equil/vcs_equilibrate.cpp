@@ -151,7 +151,7 @@ int vcs_equilibrate_1(MultiPhase& s, int ixy,
     } else if (solver == 1) {
         if (ixy == TP || ixy == HP || ixy == SP || ixy == TV) {
             try {
-                double err = s.equilibrate(ixy, tol, maxsteps, maxiter, loglevel);
+                s.equilibrate(ixy, tol, maxsteps, maxiter, loglevel);
                 return 0;
             } catch (CanteraError& e) {
                 e.save();

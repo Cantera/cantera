@@ -1217,7 +1217,7 @@ static bool interpret_double(const char* token, double* retn_value,
     } else if (strmatch(token,"dbl_epsilon")) {
         *retn_value = DBL_EPSILON;
     } else {
-        if ((retn = sscanf(token, "%el", &retn_float)) != 1) {
+        if ((retn = sscanf(token, "%le", &retn_float)) != 1) {
             *retn_value = (double) retn;
             return false;
         } else {
