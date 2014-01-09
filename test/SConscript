@@ -57,8 +57,8 @@ def addTestProgram(subdir, progName):
                                              [], [Delete(passedFile.abspath)]))
 
 
-def addTestScript(testname, subdir, script, interpreter, args='',
-                  dependencies=(), env_vars={}, optional=False):
+def addPythonTest(testname, subdir, script, interpreter, outfile,
+                  args='', dependencies=(), env_vars={}, optional=False):
     """
     Create targets for running and resetting a test script.
     """
@@ -69,6 +69,8 @@ def addTestScript(testname, subdir, script, interpreter, args='',
         del testResults.tests[passedFile.name]
         if not os.path.isdir(workDir):
             os.mkdir(workDir)
+        if os.path.exists(outfile):
+            os.remove(outfile)
 
         environ = dict(env['ENV'])
         for k,v in env_vars.iteritems():
@@ -80,10 +82,13 @@ def addTestScript(testname, subdir, script, interpreter, args='',
         if not code:
             # Test was successful
             open(target[0].path, 'w').write(time.asctime()+'\n')
-            testResults.passed[passedFile.name] = True
-        else:
-            testResults.failed[passedFile.name] = True
 
+        for line in open(outfile):
+            status, name = line.strip().split(': ', 1)
+            if status == 'PASS':
+                testResults.passed[':'.join((testname,name))] = 1
+            elif status in ('FAIL', 'ERROR'):
+                testResults.failed[':'.join((testname,name))] = 1
 
     testenv = localenv.Clone()
     passedFile = File(pjoin(subdir, '%s.passed' % testname))
@@ -169,10 +174,11 @@ def make_python_tests(version):
     # tests (test-cython2) for the main suite.
     for subset in python_subtests:
         name = 'cython%i-' %version + subset if subset else 'cython%i' % version
-        pyTest = addTestScript(
+        pyTest = addPythonTest(
             name, 'python', 'runCythonTests.py',
             args=subset,
             interpreter='$python_cmd' if version == 2 else '$python3_cmd',
+            outfile=File('#test/work/python%d-results.txt' % version).abspath,
             dependencies=(localenv['python%i_module' % version] +
                           localenv['python%i_extension' % version] +
                           mglob(localenv, test_root, 'py')),

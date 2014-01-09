@@ -23,13 +23,31 @@ from cantera.test.utilities import unittest
 import cantera
 import cantera.test
 
+class TestResult(unittest.TextTestResult):
+    def __init__(self, *args, **kwargs):
+        unittest.TextTestResult.__init__(self, *args, **kwargs)
+        self.outfile = open('python%d-results.txt' % sys.version_info[0], 'w')
+
+    def addSuccess(self, test):
+        self.outfile.write('PASS: %s\n' % test)
+        unittest.TextTestResult.addSuccess(self, test)
+
+    def addFailure(self, test, err):
+        self.outfile.write('FAIL: %s\n' % test)
+        unittest.TextTestResult.addFailure(self, test, err)
+
+    def addFailure(self, test, err):
+        self.outfile.write('ERROR: %s\n' % test)
+        unittest.TextTestResult.addFailure(self, test, err)
+
+
 if __name__ == '__main__':
     print('\n* INFO: using Cantera module found at this location:')
     print('*     ', repr(cantera.__file__), '\n')
     sys.stdout.flush()
 
     loader = unittest.TestLoader()
-    runner = unittest.TextTestRunner(verbosity=2)
+    runner = unittest.TextTestRunner(verbosity=2, resultclass=TestResult)
     suite = unittest.TestSuite()
     subsets = []
     for name in dir(cantera.test):
