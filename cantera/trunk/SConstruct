@@ -1048,14 +1048,14 @@ addInstallActions = ('install' in COMMAND_LINE_TARGETS or
 # Directories where things will be staged for package creation. These
 # variables should always be used by the Install(...) targets
 if env['stage_dir']:
-    pp = env['python_prefix']
     instRoot = pjoin(os.getcwd(), env['stage_dir'],
                      stripDrive(env['prefix']).strip('/\\'))
-    if pp:
-        env['python_prefix'] = pjoin(os.getcwd(), env['stage_dir'],
-                                     stripDrive(pp).strip('/\\'))
-    else:
-        env['python_prefix'] = pjoin(os.getcwd(), env['stage_dir'])
+    for k in ('python_prefix', 'python3_prefix'):
+        if env[k]:
+            env[k] = pjoin(os.getcwd(), env['stage_dir'],
+                           stripDrive(env[k]).strip('/\\'))
+        else:
+            env[k] = pjoin(os.getcwd(), env['stage_dir'])
 else:
     instRoot = env['prefix']
 
