@@ -66,7 +66,7 @@ def addPythonTest(testname, subdir, script, interpreter, outfile,
         """Scons Action to run a test script using the specified interpreter"""
         workDir = Dir('#test/work').abspath
         passedFile = target[0]
-        del testResults.tests[passedFile.name]
+        testResults.tests.pop(passedFile.name, None)
         if not os.path.isdir(workDir):
             os.mkdir(workDir)
         if os.path.exists(outfile):
@@ -93,7 +93,6 @@ def addPythonTest(testname, subdir, script, interpreter, outfile,
     testenv = localenv.Clone()
     passedFile = File(pjoin(subdir, '%s.passed' % testname))
     PASSED_FILES[testname] = str(passedFile)
-    testResults.tests[passedFile.name] = True
     run_program = testenv.Command(passedFile, pjoin(subdir, script), scriptRunner)
     for dep in dependencies:
         if isinstance(dep, str):
@@ -101,6 +100,7 @@ def addPythonTest(testname, subdir, script, interpreter, outfile,
         testenv.Depends(run_program, dep)
     if not optional:
         Alias('test', run_program)
+        testResults.tests[passedFile.name] = True
     if os.path.exists(passedFile.abspath):
         Alias('test-reset', testenv.Command('reset-%s%s' % (subdir, testname),
                                             [], [Delete(passedFile.abspath)]))
