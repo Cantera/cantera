@@ -33,6 +33,7 @@ f.show_solution()
 
 # Solve with the energy equation disabled
 f.energy_enabled = False
+f.transport_model = 'Mix'
 f.set_max_jac_age(10, 10)
 f.set_time_step(1e-5, [2, 5, 10, 20])
 f.solve(loglevel=loglevel, refine_grid=False)
