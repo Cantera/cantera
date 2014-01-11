@@ -31,6 +31,7 @@ f.flame.set_transient_tolerances(default=tol_ts)
 f.show_solution()
 
 f.energy_enabled = False
+f.transport_model = 'Mix'
 f.set_max_jac_age(10, 10)
 f.solve(loglevel, refine_grid=False)
 f.save('h2_burner_flame.xml', 'no_energy',
