@@ -3,5 +3,5 @@
 Transport Properties
 ====================
 
-.. autoclass:: Transport
-.. autoclass:: DustyGasTransport
+.. autoclass:: Transport(infile='', phaseid='')
+.. autoclass:: DustyGasTransport(infile='', phaseid='')

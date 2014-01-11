@@ -5,29 +5,29 @@ One-dimensional Reacting Flows
 
 Composite Domains
 -----------------
-.. autoclass:: FreeFlame
-.. autoclass:: BurnerFlame
-.. autoclass:: CounterflowDiffusionFlame
+.. autoclass:: FreeFlame(gas, grid=None)
+.. autoclass:: BurnerFlame(gas, grid=None)
+.. autoclass:: CounterflowDiffusionFlame(gas, grid=None)
 
 Flow Domains
 ------------
-.. autoclass:: FreeFlow
+.. autoclass:: FreeFlow(thermo)
     :inherited-members:
-.. autoclass:: AxisymmetricStagnationFlow
+.. autoclass:: AxisymmetricStagnationFlow(thermo)
     :inherited-members:
 
 Boundaries
 ----------
-.. autoclass:: Inlet1D
-.. autoclass:: Outlet1D
-.. autoclass:: OutletReservoir1D
-.. autoclass:: SymmetryPlane1D
-.. autoclass:: Surface1D
-.. autoclass:: ReactingSurface1D
+.. autoclass:: Inlet1D(phase, name=None)
+.. autoclass:: Outlet1D(phase, name=None)
+.. autoclass:: OutletReservoir1D(phase, name=None)
+.. autoclass:: SymmetryPlane1D(phase, name=None)
+.. autoclass:: Surface1D(phase, name=None)
+.. autoclass:: ReactingSurface1D(phase, name=None)
 
 Base Classes
 ------------
-.. autoclass:: Domain1D
-.. autoclass:: Boundary1D
-.. autoclass:: Sim1D
-.. autoclass:: FlameBase
+.. autoclass:: Domain1D(name=None)
+.. autoclass:: Boundary1D(phase, name=None)
+.. autoclass:: Sim1D(domains)
+.. autoclass:: FlameBase(domains, gas, grid=None)
