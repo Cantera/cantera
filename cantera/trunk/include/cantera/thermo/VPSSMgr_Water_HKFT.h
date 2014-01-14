@@ -120,6 +120,16 @@ public:
                                     const XML_Node* const phaseNode_ptr);
     //@}
 
+    //! Initialize the internal shallow pointers in this object
+    /*!
+     * There are a bunch of internal shallow pointers that point to the owning
+     * VPStandardStateTP and SpeciesThermo objects. This function reinitializes
+     * them. This function is called like an onion.
+     *
+     *  @param vp_ptr   Pointer to the VPStandardStateTP standard state
+     *  @param sp_ptr   Pointer to the SpeciesThermo standard state
+     */
+    virtual void initAllPtrs(VPStandardStateTP* vp_ptr, SpeciesThermo* sp_ptr);
 private:
     //! Shallow pointer to the water object
     PDSS_Water* m_waterSS;
