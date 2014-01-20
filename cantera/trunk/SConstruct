@@ -841,6 +841,20 @@ if env['HAS_SUNDIALS'] and env['use_sundials'] != 'n':
     env['sundials_version'] = '.'.join(sundials_version.strip().split('.')[:2])
     print """INFO: Using Sundials version %s.""" % sundials_version.strip()
 
+    #Determine whether or not Sundials was built with BLAS/LAPACK
+    sundials_blas_lapack = get_expression_value(['"sundials/sundials_config.h"'],
+                                                   'SUNDIALS_BLAS_LAPACK')
+    retcode, has_sundials_lapack = conf.TryRun(sundials_blas_lapack, '.cpp')
+    if retcode == 0:
+        config_error("Failed to determine Sundials BLAS/LAPACK.")
+    env['has_sundials_lapack'] = int(has_sundials_lapack.strip())
+    
+    #In the case where a user is trying to link Cantera to an exteral BLAS/LAPACK
+    #library, but Sundials was configured without this support, print a Warning.
+    if not env['has_sundials_lapack'] and not env['BUILD_BLAS_LAPACK']:
+        print ('WARNING: External BLAS/LAPACK has been specified for Cantera'
+               'but Sundials was built without this support.')
+
 env = conf.Finish()
 
 
@@ -1129,6 +1143,11 @@ if env['use_sundials'] == 'y':
     configh['SUNDIALS_VERSION'] = env['sundials_version'].replace('.','')
 else:
     configh['SUNDIALS_VERSION'] = 0
+    
+if env['has_sundials_lapack'] and not env['BUILD_BLAS_LAPACK']:
+    configh['SUNDIALS_USE_LAPACK'] = 1
+else:
+    configh['SUNDIALS_USE_LAPACK'] = 0
 
 cdefine('H298MODIFY_CAPABILITY', 'with_h298modify_capability')
 

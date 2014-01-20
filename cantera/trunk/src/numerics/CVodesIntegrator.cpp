@@ -16,10 +16,15 @@ using namespace std;
 #include "sundials/sundials_nvector.h"
 #include "nvector/nvector_serial.h"
 #include "cvodes/cvodes.h"
-#include "cvodes/cvodes_dense.h"
+#if SUNDIALS_USE_LAPACK
+    #include "cvodes/cvodes_lapack.h"
+#else
+    #include "cvodes/cvodes_dense.h"
+    #include "cvodes/cvodes_band.h"
+#endif
 #include "cvodes/cvodes_diag.h"
 #include "cvodes/cvodes_spgmr.h"
-#include "cvodes/cvodes_band.h"
+
 
 #define CV_SS 1
 #define CV_SV 2
@@ -361,7 +366,11 @@ void CVodesIntegrator::applyOptions()
 {
     if (m_type == DENSE + NOJAC) {
         long int N = m_neq;
-        CVDense(m_cvode_mem, N);
+        #if SUNDIALS_USE_LAPACK
+            CVLapackDense(m_cvode_mem, N);
+        #else
+            CVDense(m_cvode_mem, N);
+        #endif
     } else if (m_type == DIAG) {
         CVDiag(m_cvode_mem);
     } else if (m_type == GMRES) {
@@ -370,7 +379,11 @@ void CVodesIntegrator::applyOptions()
         long int N = m_neq;
         long int nu = m_mupper;
         long int nl = m_mlower;
-        CVBand(m_cvode_mem, N, nu, nl);
+        #if SUNDIALS_USE_LAPACK
+            CVLapackBand(m_cvode_mem, N, nu, nl);
+        #else
+            CVBand(m_cvode_mem, N, nu, nl);
+        #endif
     } else {
         throw CVodesErr("unsupported option");
     }
