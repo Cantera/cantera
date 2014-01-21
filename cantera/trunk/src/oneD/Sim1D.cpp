@@ -4,7 +4,7 @@
 
 #include "cantera/oneD/Sim1D.h"
 #include "cantera/oneD/MultiJac.h"
-
+#include "cantera/oneD/StFlow.h"
 #include <fstream>
 
 using namespace std;
@@ -451,33 +451,33 @@ int Sim1D::setFixedTemperature(doublereal t)
         size_t comp = d.nComponents();
 
         // loop over points in the current grid to determine where new point is needed.
+        FreeFlame* d_free = dynamic_cast<FreeFlame*>(&domain(n));
         size_t npnow = d.nPoints();
         size_t nstart = znew.size();
-        for (m = 0; m < npnow-1; m++) {
-            if (value(n,2,m) == t) {
-                zfixed = d.grid(m);
-                //set d.zfixed, d.ztemp
-                d.m_zfixed = zfixed;
-                d.m_tfixed = t;
-                addnewpt = false;
-                break;
-            } else if ((value(n,2,m)<t) && (value(n,2,m+1)>t)) {
-                z1 = d.grid(m);
-                m1 = m;
-                z2 = d.grid(m+1);
-                t1 = value(n,2,m);
-                t2 = value(n,2,m+1);
+        if (d_free) {
+            for (m = 0; m < npnow-1; m++) {
+                if (value(n,2,m) == t) {
+                    zfixed = d.grid(m);
+                    d_free->m_zfixed = zfixed;
+                    d_free->m_tfixed = t;
+                    addnewpt = false;
+                    break;
+                } else if ((value(n,2,m)<t) && (value(n,2,m+1)>t)) {
+                    z1 = d.grid(m);
+                    m1 = m;
+                    z2 = d.grid(m+1);
+                    t1 = value(n,2,m);
+                    t2 = value(n,2,m+1);
 
-                zfixed = (z1-z2)/(t1-t2)*(t-t2)+z2;
-                //set d.zfixed, d.ztemp;
-                d.m_zfixed = zfixed;
-                d.m_tfixed = t;
-                addnewpt = true;
-                break;
-                //copy solution domain and push back values
+                    zfixed = (z1-z2)/(t1-t2)*(t-t2)+z2;
+                    d_free->m_zfixed = zfixed;
+                    d_free->m_tfixed = t;
+                    addnewpt = true;
+                    break;
+                    //copy solution domain and push back values
+                }
             }
         }
-
 
         for (m = 0; m < npnow; m++) {
             // add the current grid point to the new grid

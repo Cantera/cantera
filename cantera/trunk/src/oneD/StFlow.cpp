@@ -96,9 +96,6 @@ StFlow::StFlow(IdealGasPhase* ph, size_t nsp, size_t points) :
     m_points = points;
     m_thermo = ph;
 
-    m_zfixed = Undef;
-    m_tfixed = Undef;
-
     if (ph == 0) {
         return;    // used to create a dummy object
     }
@@ -275,30 +272,6 @@ void StFlow::_finalize(const doublereal* x)
     }
     if (e) {
         solveEnergyEqn();
-    }
-
-    // If the domain contains the temperature fixed point, make sure that it
-    // is correctly set. This may be necessary when the grid has been modified
-    // externally.
-    if (m_tfixed != Undef) {
-        bool found_zfix = false;
-        for (size_t j = 0; j < m_points; j++) {
-            if (z(j) == m_zfixed) {
-                found_zfix = true;
-                break;
-            }
-        }
-        if (!found_zfix) {
-            for (size_t j = 0; j < m_points - 1; j++) {
-                // Find where the temperature profile crosses the current
-                // fixed temperature.
-                if ((T(x, j) - m_tfixed) * (T(x, j+1) - m_tfixed) <= 0.0) {
-                    m_tfixed = T(x, j+1);
-                    m_zfixed = z(j+1);
-                    break;
-                }
-            }
-        }
     }
 }
 
@@ -687,9 +660,6 @@ void StFlow::restore(const XML_Node& dom, doublereal* soln, int loglevel)
     pp = getFloat(dom, "pressure", "pressure");
     setPressure(pp);
 
-    getOptionalFloat(dom, "t_fixed", m_tfixed);
-    getOptionalFloat(dom, "z_fixed", m_zfixed);
-
     vector<XML_Node*> d;
     dom.child("grid_data").getChildren("floatArray",d);
     size_t nd = d.size();
@@ -857,11 +827,6 @@ XML_Node& StFlow::save(XML_Node& o, const doublereal* const sol)
     XML_Node& gv = flow.addChild("grid_data");
     addFloat(flow, "pressure", m_press, "Pa", "pressure");
 
-    if (m_zfixed != Undef) {
-        addFloat(flow, "z_fixed", m_zfixed, "m");
-        addFloat(flow, "t_fixed", m_tfixed, "K");
-    }
-
     addFloatArray(gv,"z",m_z.size(),DATA_PTR(m_z),
                   "m","length");
     vector_fp x(soln.nColumns());
@@ -956,6 +921,15 @@ void AxiStagnFlow::evalContinuity(size_t j, doublereal* x, doublereal* rsd,
     diag[index(c_offset_U, j)] = 0;
 }
 
+FreeFlame::FreeFlame(IdealGasPhase* ph, size_t nsp, size_t points) :
+    StFlow(ph, nsp, points),
+    m_zfixed(Undef),
+    m_tfixed(Undef)
+{
+    m_dovisc = false;
+    setID("flame");
+}
+
 void FreeFlame::evalRightBoundary(doublereal* x, doublereal* rsd,
                                   integer* diag, doublereal rdt)
 {
@@ -1010,6 +984,49 @@ void FreeFlame::evalContinuity(size_t j, doublereal* x, doublereal* rsd,
     }
     //algebraic constraint
     diag[index(c_offset_U, j)] = 0;
+}
+
+void FreeFlame::_finalize(const doublereal* x)
+{
+    StFlow::_finalize(x);
+    // If the domain contains the temperature fixed point, make sure that it
+    // is correctly set. This may be necessary when the grid has been modified
+    // externally.
+    if (m_tfixed != Undef) {
+        for (size_t j = 0; j < m_points; j++) {
+            if (z(j) == m_zfixed) {
+                return; // fixed point is already set correctly
+            }
+        }
+
+        for (size_t j = 0; j < m_points - 1; j++) {
+            // Find where the temperature profile crosses the current
+            // fixed temperature.
+            if ((T(x, j) - m_tfixed) * (T(x, j+1) - m_tfixed) <= 0.0) {
+                m_tfixed = T(x, j+1);
+                m_zfixed = z(j+1);
+                return;
+            }
+        }
+    }
+}
+
+
+void FreeFlame::restore(const XML_Node& dom, doublereal* soln, int loglevel)
+{
+    StFlow::restore(dom, soln, loglevel);
+    getOptionalFloat(dom, "t_fixed", m_tfixed);
+    getOptionalFloat(dom, "z_fixed", m_zfixed);
+}
+
+XML_Node& FreeFlame::save(XML_Node& o, const doublereal* const sol)
+{
+    XML_Node& flow = StFlow::save(o, sol);
+    if (m_zfixed != Undef) {
+        addFloat(flow, "z_fixed", m_zfixed, "m");
+        addFloat(flow, "t_fixed", m_tfixed, "K");
+    }
+    return flow;
 }
 
 }  // namespace
