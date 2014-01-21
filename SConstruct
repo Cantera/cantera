@@ -851,7 +851,7 @@ if env['HAS_SUNDIALS'] and env['use_sundials'] != 'n':
     #In the case where a user is trying to link Cantera to an exteral BLAS/LAPACK
     #library, but Sundials was configured without this support, print a Warning.
     if not env['has_sundials_lapack'] and not env['BUILD_BLAS_LAPACK']:
-        print ('WARNING: External BLAS/LAPACK has been specified for Cantera'
+        print ('WARNING: External BLAS/LAPACK has been specified for Cantera '
                'but Sundials was built without this support.')
 
 env = conf.Finish()
