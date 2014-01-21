@@ -9,9 +9,6 @@ localenv.Prepend(CPPPATH=['#ext/gtest/include', '#include'],
 localenv.Append(LIBS=['gtest'] + localenv['cantera_libs'],
                 CCFLAGS=env['warning_flags'])
 
-if not localenv['HAS_TR1_TUPLE']:
-    localenv.Append(CPPDEFINES='GTEST_USE_OWN_TR1_TUPLE')
-
 localenv['ENV']['CANTERA_DATA'] = Dir('#build/data').abspath
 
 PASSED_FILES = {}
