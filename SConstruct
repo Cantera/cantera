@@ -1142,8 +1142,8 @@ if env['use_sundials'] == 'y':
     configh['SUNDIALS_VERSION'] = env['sundials_version'].replace('.','')
 else:
     configh['SUNDIALS_VERSION'] = 0
-    
-if env['has_sundials_lapack'] and not env['BUILD_BLAS_LAPACK']:
+
+if env.get('has_sundials_lapack') and not env['BUILD_BLAS_LAPACK']:
     configh['SUNDIALS_USE_LAPACK'] = 1
 else:
     configh['SUNDIALS_USE_LAPACK'] = 0
