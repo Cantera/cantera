@@ -278,7 +278,7 @@ doublereal NasaThermo::checkContinuity(const std::string& name, double tmid,
     doublereal cplow = cp_R(tmid, clow);
     doublereal cphigh = cp_R(tmid, chigh);
     doublereal delta = cplow - cphigh;
-    doublereal maxError = abs(delta);
+    doublereal maxError = std::abs(delta);
     if (fabs(delta/(fabs(cplow)+1.0E-4)) > 0.001) {
         writelog("\n\n**** WARNING ****\nFor species "+name+
                  ", discontinuity in cp/R detected at Tmid = "
@@ -433,7 +433,7 @@ void NasaThermo::fixDiscontinuities(doublereal Tlow, doublereal Tmid,
     ct_dgelss(nRows, nCols, 1, &M(0,0), nRows, &b[0], nRows,
               &sigma[0], -1, rank, &work[0], lwork, info);
     work.resize(work[0]);
-    lwork = work[0];
+    lwork = static_cast<int>(work[0]);
     ct_dgelss(nRows, nCols, 1, &M(0,0), nRows, &b[0], nRows,
               &sigma[0], -1, rank, &work[0], lwork, info);
 
