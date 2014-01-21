@@ -1,6 +1,7 @@
 //! @file refine.cpp
 #include "cantera/oneD/refine.h"
 #include "cantera/oneD/Domain1D.h"
+#include "cantera/oneD/StFlow.h"
 
 #include <algorithm>
 #include <limits>
@@ -132,6 +133,8 @@ int Refiner::analyze(size_t n, const doublereal* z,
         }
     }
 
+    FreeFlame* fflame = dynamic_cast<FreeFlame*>(m_domain);
+
     // Refine based on properties of the grid itself
     for (size_t j = 1; j < n-1; j++) {
         // Add a new point if the ratio with left interval is too large
@@ -167,7 +170,7 @@ int Refiner::analyze(size_t n, const doublereal* z,
         }
 
         // Keep the point where the temperature is fixed
-        if (z[j] == m_domain->m_zfixed) {
+        if (fflame && z[j] == fflame->m_zfixed) {
             m_keep[j] = 1;
         }
     }

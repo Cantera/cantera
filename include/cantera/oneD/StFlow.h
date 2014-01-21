@@ -530,12 +530,7 @@ public:
 class FreeFlame : public StFlow
 {
 public:
-    FreeFlame(IdealGasPhase* ph = 0, size_t nsp = 1, size_t points = 1) :
-        StFlow(ph, nsp, points) {
-        m_dovisc = false;
-        setID("flame");
-    }
-
+    FreeFlame(IdealGasPhase* ph = 0, size_t nsp = 1, size_t points = 1);
     virtual void evalRightBoundary(doublereal* x, doublereal* res,
                                    integer* diag, doublereal rdt);
     virtual void evalContinuity(size_t j, doublereal* x, doublereal* r,
@@ -547,6 +542,16 @@ public:
     virtual bool fixed_mdot() {
         return false;
     }
+    virtual void _finalize(const doublereal* x);
+    virtual void restore(const XML_Node& dom, doublereal* soln, int loglevel);
+
+    virtual XML_Node& save(XML_Node& o, const doublereal* const sol);
+
+    //! Location of the point where temperature is fixed
+    doublereal m_zfixed;
+
+    //! Temperature at the point used to fix the flame location
+    doublereal m_tfixed;
 };
 
 /**

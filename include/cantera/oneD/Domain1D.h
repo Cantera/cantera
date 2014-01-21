@@ -601,9 +601,6 @@ public:
      */
     virtual void _finalize(const doublereal* x) {}
 
-    doublereal m_zfixed;
-    doublereal m_tfixed;
-
     bool m_adiabatic;
 
 protected:
