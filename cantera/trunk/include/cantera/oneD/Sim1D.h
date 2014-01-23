@@ -122,8 +122,6 @@ public:
     //! Add node for fixed temperature point of freely propagating flame
     int setFixedTemperature(doublereal t);
 
-    void setAdiabaticFlame(void);
-
     /**
      * Set grid refinement criteria. If dom >= 0, then the settings
      * apply only to the specified domain.  If dom < 0, the settings

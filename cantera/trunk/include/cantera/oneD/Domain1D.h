@@ -601,8 +601,6 @@ public:
      */
     virtual void _finalize(const doublereal* x) {}
 
-    bool m_adiabatic;
-
 protected:
     doublereal m_rdt;
     size_t m_nv;

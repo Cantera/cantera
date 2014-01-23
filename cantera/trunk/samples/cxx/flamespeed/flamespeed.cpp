@@ -203,7 +203,6 @@ int flamespeed(int np, void* p)
         flow.fixTemperature();
         refine_grid=false;
         flame.setFixedTemperature(900.0);
-        //    flame.setAdiabaticFlame();
         flame.solve(loglevel,refine_grid);
         refine_grid = true;
         flow.solveEnergyEqn();
