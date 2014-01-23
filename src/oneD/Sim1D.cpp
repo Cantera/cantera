@@ -35,7 +35,6 @@ Sim1D::Sim1D(vector<Domain1D*>& domains) :
     m_xnew.resize(size(), 0.0);
     for (size_t n = 0; n < m_nd; n++) {
         domain(n)._getInitialSoln(DATA_PTR(m_x) + start(n));
-        domain(n).m_adiabatic=false;
     }
 
     // set some defaults
@@ -531,14 +530,6 @@ int Sim1D::setFixedTemperature(doublereal t)
     resize();
     finalize();
     return np;
-}
-
-void Sim1D::setAdiabaticFlame(void)
-{
-    for (size_t n = 0; n < m_nd; n++) {
-        Domain1D& d = domain(n);
-        d.m_adiabatic=true;
-    }
 }
 
 void Sim1D::setRefineCriteria(int dom, doublereal ratio,
