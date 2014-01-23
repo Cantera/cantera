@@ -62,7 +62,7 @@ Support and Bug Reporting
 **What information should I include in my bug report?**
 
     - The version of Cantera are you using, and how you installed it
-    - The operating system are you using
+    - The operating system you are using
     - If you compiled Cantera, what compiler you used, and what compilation
       options you specified
     - The version of Python or Matlab are you using, if applicable
