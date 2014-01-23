@@ -58,6 +58,9 @@ nq = 0;
 while length(property_argin) >= 2,
     prop = property_argin{1};
     val = property_argin{2};
+    if issparse(val)
+        val = full(val);
+    end
     property_argin = property_argin(3:end);
     switch prop
         case 'Temperature'
