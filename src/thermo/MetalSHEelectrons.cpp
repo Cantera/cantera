@@ -81,7 +81,8 @@ MetalSHEelectrons::MetalSHEelectrons(XML_Node& xmlphase, const std::string& id_)
 }
 
 MetalSHEelectrons::MetalSHEelectrons(const MetalSHEelectrons&  right) :
-    SingleSpeciesTP()
+    SingleSpeciesTP(),
+    xdef_(0)
 {
     operator=(right);
 }
@@ -99,7 +100,10 @@ MetalSHEelectrons::operator=(const MetalSHEelectrons& right)
     }
 
     delete xdef_;
-    xdef_ = new XML_Node(*right.xdef_);
+    if(right.xdef_)
+    {
+      xdef_ = new XML_Node(*right.xdef_);
+    }
 
     return *this;
 }

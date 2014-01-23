@@ -299,6 +299,18 @@ VPSSMgr_Water_HKFT::createInstallPDSS(size_t k, const XML_Node& speciesNode,
     return kPDSS;
 }
 
+void
+VPSSMgr_Water_HKFT::initAllPtrs(VPStandardStateTP* vp_ptr,
+                                    SpeciesThermo* sp_ptr)
+{
+    VPSSMgr::initAllPtrs(vp_ptr, sp_ptr);
+    m_waterSS = dynamic_cast<PDSS_Water*>(m_vptp_ptr->providePDSS(0));
+    if (!m_waterSS) {
+        throw CanteraError("VPSSMgr_Water_ConstVol::initAllPtrs",
+                           "bad dynamic cast");
+    }
+}
+
 PDSS_enumType VPSSMgr_Water_HKFT::reportPDSSType(int k) const
 {
     return cPDSS_UNDEF;
