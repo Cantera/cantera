@@ -725,7 +725,7 @@ cdef class ReactionPathDiagram:
     cdef Kinetics kinetics
     cdef str element
     cdef pybool built
-    cdef CxxStringStream _log
+    cdef CxxStringStream* _log
 
 # free functions
 cdef string stringify(x)
