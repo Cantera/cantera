@@ -354,12 +354,12 @@ config_options = [
            if one is found.""",
         'default', ('y', 'n', 'default')),
     PathVariable(
-        'F90',
-        """The Fortran 90 compiler. If unspecified, the builder will look for a
-           compatible compiler (gfortran, ifort, g95) in the $PATH.""",
+        'FORTRAN',
+        """The Fortran (90) compiler. If unspecified, the builder will look for
+           a compatible compiler (gfortran, ifort, g95) in the $PATH.""",
         '', PathVariable.PathAccept),
-    ('F90FLAGS',
-     'Compilation options for the Fortran 90 compiler.',
+    ('FORTRANFLAGS',
+     'Compilation options for the Fortran (90) compiler.',
      '-O3'),
     BoolVariable(
         'debug_verbose',
@@ -676,41 +676,43 @@ env.Append(CPPPATH=env['extra_inc_dirs'],
 # Try to find a Fortran compiler:
 if env['f90_interface'] in ('y','default'):
     foundF90 = False
-    if env['F90']:
+    if env['FORTRAN']:
         env['f90_interface'] = 'y'
-        if which(env['F90']) is not None:
+        if which(env['FORTRAN']) is not None:
             foundF90 = True
         else:
-            print "WARNING: Couldn't find specified Fortran compiler: '%s'" % env['F90']
+            print "WARNING: Couldn't find specified Fortran compiler: '%s'" % env['FORTRAN']
 
     for compiler in ['gfortran', 'ifort', 'g95']:
         if foundF90:
             break
         if which(compiler) is not None:
             print "INFO: Using '%s' to build the Fortran 90 interface" % which(compiler)
-            env['F90'] = compiler
+            env['FORTRAN'] = compiler
             foundF90 = True
 
     if foundF90:
         env['f90_interface'] = 'y'
-        env['FORTRAN'] = env['F90']
     elif env['f90_interface'] == 'y':
         print "ERROR: Couldn't find a suitable Fortran compiler to build the Fortran 90 interface."
         sys.exit(1)
     else:
         print "INFO: Skipping compilation of the Fortran 90 interface."
 
-if 'gfortran' in env['F90']:
+if 'gfortran' in env['FORTRAN']:
     env['FORTRANMODDIRPREFIX'] = '-J'
     env['FORTRANSYSLIBS'] = ['gfortran']
-elif 'g95' in env['F90']:
+elif 'g95' in env['FORTRAN']:
     env['FORTRANMODDIRPREFIX'] = '-fmod='
     env['FORTRANSYSLIBS'] = ['f95']
-elif 'ifort' in env['F90']:
+elif 'ifort' in env['FORTRAN']:
     env['FORTRANMODDIRPREFIX'] = '-module '
     env['FORTRANSYSLIBS'] = []
 else:
     env['FORTRANSYSLIBS'] = []
+
+env['F77'] = env['F90'] = env['F95'] = env['F03'] = env['FORTRAN']
+env['F77FLAGS'] = env['F90FLAGS'] = env['F95FLAGS'] = env['F03FLAGS'] = env['FORTRANFLAGS']
 
 env['FORTRANMODDIR'] = '${TARGET.dir}'
 

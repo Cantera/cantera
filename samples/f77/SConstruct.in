@@ -1,4 +1,5 @@
-env = Environment()
+import os
+env = Environment(ENV = os.environ)
 
 env['F77'] = '@F77@'
 env['CC'] = '@CC@'
