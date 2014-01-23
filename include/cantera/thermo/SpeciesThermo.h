@@ -156,7 +156,7 @@ class SpeciesThermo
 public:
 
     //! Constructor
-    SpeciesThermo() {}
+    SpeciesThermo() : m_allow_discontinuities(false) {}
 
     //! Destructor
     virtual ~SpeciesThermo() {}
@@ -333,6 +333,8 @@ public:
      */
     virtual void modifyOneHf298(const int k, const doublereal Hf298New) = 0;
 #endif
+
+    bool m_allow_discontinuities;
 };
 //@}
 }
