@@ -1395,10 +1395,11 @@ class Parser(object):
                             break
                         if token in self.speciesDict:
                             species = self.speciesDict[token]
+                            self.warn('Found additional declaration of species {0}'.format(species))
                         else:
                             species = Species(label=token)
                             self.speciesDict[token] = species
-                        self.speciesList.append(species)
+                            self.speciesList.append(species)
 
                 elif tokens[0].upper().startswith('THER') and contains(line, 'NASA9'):
                     entryPosition = 0
