@@ -1,4 +1,5 @@
-env = Environment()
+import os
+env = Environment(ENV = os.environ)
 
 env['F90'] = '@F90@'
 env.Append(FFLAGS='-g',
