@@ -554,18 +554,6 @@ public:
     doublereal m_tfixed;
 };
 
-/**
- * Import a previous solution to use as an initial estimate. The
- * previous solution may have been computed using a different
- * reaction mechanism. Species in the old and new mechanisms are
- * matched by name, and any species in the new mechanism that were
- * not in the old one are set to zero. The new solution is created
- * with the same number of grid points as in the old solution.
- * @deprecated Conversion is handled automatically when loading from XML
- */
-void importSolution(size_t points, doublereal* oldSoln, IdealGasPhase& oldmech,
-                    size_t size_new, doublereal* newSoln, IdealGasPhase& newmech);
-
 }
 
 #endif

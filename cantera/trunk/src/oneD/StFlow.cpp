@@ -18,57 +18,6 @@ using namespace std;
 namespace Cantera
 {
 
-void importSolution(size_t points,
-                    doublereal* oldSoln, IdealGasPhase& oldmech,
-                    size_t size_new, doublereal* newSoln, IdealGasPhase& newmech)
-{
-    // Number of components in old and new solutions
-    size_t nv_old = oldmech.nSpecies() + 4;
-    size_t nv_new = newmech.nSpecies() + 4;
-
-    if (size_new < nv_new*points) {
-        throw CanteraError("importSolution",
-                           "new solution array must have length "+
-                           int2str(nv_new*points));
-    }
-
-    size_t n, j, knew;
-    string nm;
-
-    // copy u,V,T,lambda
-    for (j = 0; j < points; j++)
-        for (n = 0; n < 4; n++) {
-            newSoln[nv_new*j + n] = oldSoln[nv_old*j + n];
-        }
-
-    // copy mass fractions
-    size_t nsp0 = oldmech.nSpecies();
-    //int nsp1 = newmech.nSpecies();
-
-    // loop over the species in the old mechanism
-    for (size_t k = 0; k < nsp0; k++) {
-        nm = oldmech.speciesName(k);      // name
-
-        // location of this species in the new mechanism.
-        // If < 0, then the species is not in the new mechanism.
-        knew = newmech.speciesIndex(nm);
-
-        // copy this species from the old to the new solution vectors
-        if (knew != npos) {
-            for (j = 0; j < points; j++) {
-                newSoln[nv_new*j + 4 + knew] = oldSoln[nv_old*j + 4 + k];
-            }
-        }
-    }
-
-
-    // normalize mass fractions
-    for (j = 0; j < points; j++) {
-        newmech.setMassFractions(&newSoln[nv_new*j + 4]);
-        newmech.getMassFractions(&newSoln[nv_new*j + 4]);
-    }
-}
-
 static void st_drawline()
 {
     writelog("\n-------------------------------------"
