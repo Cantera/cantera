@@ -1385,6 +1385,11 @@ class Parser(object):
                                       'next section on line {0}.'.format(self.line_number))
                             advance = False
                             tokens.pop()
+                            # Fix the case where there THERMO ALL or REAC UNITS
+                            # ends the species section
+                            if (tokens[-1].upper().startswith('THER') or
+                                tokens[-1].upper().startswith('REAC')):
+                                tokens.pop()
                             break
 
                         line, comment = readline()

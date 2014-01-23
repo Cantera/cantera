@@ -160,6 +160,20 @@ class chemkinConverterTest(utilities.CanteraTest):
         self.assertEqual(gas.nSpecies(), 3)
         self.assertEqual(gas.nReactions(), 2)
 
+    def test_unterminatedSections2(self):
+        self.assertRaises(ck2cti.InputParseError,
+                          lambda: convertMech('../data/unterminated-sections2.inp',
+                                              outName='unterminated-sections2.cti',
+                                              quiet=True))
+
+        convertMech('../data/unterminated-sections2.inp',
+                    outName='unterminated-sections2.cti',
+                    quiet=True, permissive=True)
+
+        gas = ct.IdealGasMix('unterminated-sections2.cti')
+        self.assertEqual(gas.nSpecies(), 3)
+        self.assertEqual(gas.nReactions(), 2)
+
     def test_nasa9(self):
         convertMech('../data/nasa9-test.inp',
                     thermoFile='../data/nasa9-test-therm.dat',
