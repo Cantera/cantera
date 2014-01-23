@@ -23,6 +23,7 @@
 #include <math.h>
 #include <float.h>
 #include <algorithm>
+#include <cstdlib>
 #include "cantera/base/config.h"
 #ifndef _MSC_VER
 #include <unistd.h>
