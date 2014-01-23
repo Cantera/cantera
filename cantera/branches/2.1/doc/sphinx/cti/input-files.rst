@@ -24,7 +24,7 @@ with Python syntax you already understand many of the details and can probably
 skip ahead to :ref:`sec-dimensions`.
 
 Entries have fields that can be assigned values. A species entry is shown below
-that has fields name and atoms (plus several others)::
+that has fields *name* and *atoms* (plus several others)::
 
     species(name='C60', atoms='C:60')
 
@@ -83,11 +83,6 @@ character on a line is ignored::
 
 Strings
 -------
-
-Strings may be enclosed in single quotes or double quotes, but they must
-match. To create a string containing single quotes, enclose it in double quotes,
-and vice versa. If you want to create a string to extend over multiple lines,
-enclose it in triple double quotes.
 
 Strings may be enclosed in single quotes or double quotes, but they must
 match. To create a string containing single quotes, enclose it in double quotes,
@@ -361,7 +356,7 @@ use two formats, one designed for writing by humans, the other for reading by
 machines, and provide a preprocessor to convert the human-friendly format to the
 machine-friendly one.
 
-Preprocessor Intenals: the ``ctml_writer`` Module
+Preprocessor Internals: the ``ctml_writer`` Module
 -------------------------------------------------
 
 If you are interested in seeing the internals of how the preprocessing works,

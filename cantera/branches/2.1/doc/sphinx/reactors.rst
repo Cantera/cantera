@@ -106,8 +106,8 @@ for `dm/dt`, the equation for each homogeneous phase species is:
 
 .. math::
 
-    m \frac{dY}{dt} = \sum_{in} \dot{m}_in (Y_{k,in} - Y_k)+
-                      \dot{m}_{k,gen} - Y_k \dot{m}_{gen}
+    m \frac{dY}{dt} = \sum_{in} \dot{m}_{in} (Y_{k,in} - Y_k)+
+                      \dot{m}_{k,gen} - Y_k \dot{m}_{wall}
 
 Energy Conservation
 -------------------
@@ -117,7 +117,7 @@ for an open system:
 
 .. math::
 
-    \frac{dU}{dt} = - p \frac{dV}{dt} - Q +
+    \frac{dU}{dt} = - p \frac{dV}{dt} - \dot{Q} +
                     \sum_{in} \dot{m}_{in} h_{in} - h \sum_{out} \dot{m}_{out}
 
 Ideal Gas Reactor
@@ -141,9 +141,9 @@ temperature:
 
 .. math::
 
-    m c_v \frac{dT}{dt} = - p \frac{dV}{dt} - Q
+    m c_v \frac{dT}{dt} = - p \frac{dV}{dt} - \dot{Q}
         + \sum_{in} \dot{m}_{in} \left( h_{in} - \sum_k u_k Y_{k,in} \right)
-        - p V \sum_{out} \dot{m}_{out} - \sum_k \dot{m}_{k,gen} u_k
+        - \frac{p V}{m} \sum_{out} \dot{m}_{out} - \sum_k \dot{m}_{k,gen} u_k
 
 While this form of the energy equation is somewhat more complicated, it
 significantly reduces the cost of evaluating the system Jacobian, since the
@@ -168,7 +168,7 @@ Noting that `dp/dt = 0` and substituting into the energy equation yields:
 
 .. math::
 
-   \frac{dH}{dt} = - Q + \sum_{in} \dot{m}_{in} h_{in}
+   \frac{dH}{dt} = - \dot{Q} + \sum_{in} \dot{m}_{in} h_{in}
                    - h \sum_{out} \dot{m}_{out}
 
 The species and continuity equations are the same as for the general reactor
@@ -193,5 +193,5 @@ temperature:
 
 .. math::
 
-    m c_p \frac{dT}{dt} = - Q - \sum_k h_k \dot{m}_{k,gen}
+    m c_p \frac{dT}{dt} = - \dot{Q} - \sum_k h_k \dot{m}_{k,gen}
         + \sum_{in} \dot{m}_{in} \left(h_{in} - \sum_k h_k Y_{k,in} \right)

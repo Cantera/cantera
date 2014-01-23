@@ -24,7 +24,9 @@ Reactors
 
 .. autoclass:: Reservoir
 .. autoclass:: Reactor
+.. autoclass:: IdealGasReactor
 .. autoclass:: ConstPressureReactor
+.. autoclass:: IdealGasConstPressureReactor
 .. autoclass:: FlowReactor
 
 Flow Controllers
