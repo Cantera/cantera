@@ -28,16 +28,21 @@ class TestResult(unittest.TextTestResult):
         unittest.TextTestResult.__init__(self, *args, **kwargs)
         self.outfile = open('python%d-results.txt' % sys.version_info[0], 'w')
 
+    def reformat(self, test_string):
+        name, cls = test_string.split()
+        cls = cls.replace('(cantera.test.', '').replace(')','')
+        return '%s.%s' % (cls, name)
+
     def addSuccess(self, test):
-        self.outfile.write('PASS: %s\n' % test)
+        self.outfile.write('PASS: %s\n' % self.reformat(str(test)))
         unittest.TextTestResult.addSuccess(self, test)
 
     def addFailure(self, test, err):
-        self.outfile.write('FAIL: %s\n' % test)
+        self.outfile.write('FAIL: %s\n' % self.reformat(str(test)))
         unittest.TextTestResult.addFailure(self, test, err)
 
     def addError(self, test, err):
-        self.outfile.write('ERROR: %s\n' % test)
+        self.outfile.write('ERROR: %s\n' % self.reformat(str(test)))
         unittest.TextTestResult.addFailure(self, test, err)
 
 
