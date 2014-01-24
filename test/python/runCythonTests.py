@@ -36,7 +36,7 @@ class TestResult(unittest.TextTestResult):
         self.outfile.write('FAIL: %s\n' % test)
         unittest.TextTestResult.addFailure(self, test, err)
 
-    def addFailure(self, test, err):
+    def addError(self, test, err):
         self.outfile.write('ERROR: %s\n' % test)
         unittest.TextTestResult.addFailure(self, test, err)
 
