@@ -50,20 +50,20 @@ while length(property_argin) >= 2,
         case 'tol'
             sz = size(val);
             if sz == nComponents(a)
-                setTolerances(a, val(1,:), val(2,:));
+                setSteadyTolerances(a, val(1,:), val(2,:));
             elseif length(val) == 2
-                setTolerances(a, 'default', val(1), val(2));
+                setSteadyTolerances(a, 'default', val(1), val(2));
             else
                 error('wrong array size for error tolerances');
             end
         case 'tol-time'
             sz = size(val);
             if sz == nComponents(a)
-                setTolerances(a, val(1,:), val(2,:));
+                setTransientTolerances(a, val(1,:), val(2,:));
             elseif length(val) == 2
                 rt = val(1);
                 at = val(2);
-                setTolerances(a, 'default', rt, at, 'ts');
+                setTransientTolerances(a, 'default', rt, at);
             else
                 error('wrong array size for error tolerances');
             end

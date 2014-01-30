@@ -152,13 +152,26 @@ extern "C" {
         }
     }
 
-    int domain_setTolerances(int i, int n, double rtol,
-                             double atol, int itime)
+    int domain_setSteadyTolerances(int i, int n, double rtol,
+                                   double atol)
     {
         try {
             Domain1D& dom = DomainCabinet::item(i);
             dom.checkComponentIndex(n);
-            dom.setTolerances(n, rtol, atol, itime);
+            dom.setSteadyTolerances(rtol, atol, n);
+            return 0;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
+    int domain_setTransientTolerances(int i, int n, double rtol,
+                                      double atol)
+    {
+        try {
+            Domain1D& dom = DomainCabinet::item(i);
+            dom.checkComponentIndex(n);
+            dom.setTransientTolerances(rtol, atol, n);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
