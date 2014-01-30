@@ -18,6 +18,8 @@
 
 from __future__ import print_function
 
+import sys
+
 class CTI_Error(Exception):
     """Exception raised if an error is encountered while
     parsing the input file.
@@ -130,8 +132,11 @@ class XMLnode(object):
         s = ['<?xml version="1.0"?>\n']
         self._write(s, 0)
         s.append('\n')
-        with open(filename, 'w') as f:
-            f.write(''.join(s))
+        if isinstance(filename, str):
+            with open(filename, 'w') as f:
+                f.write(''.join(s))
+        else:
+            filename.write(''.join(s))
 
     def write_comment(self, s, level):
         s.append('\n'+indent[level]+'<!--')
@@ -332,7 +337,9 @@ def write(outName=None):
     for rx in _reactions:
         rx.build(r)
 
-    if outName is not None:
+    if outName == 'STDOUT':
+        x.write(sys.stdout)
+    elif outName is not None:
         x.write(outName)
     elif _name != 'noname':
         x.write(_name+'.xml')
@@ -2583,7 +2590,7 @@ class Lindemann(object):
 validate()
 
 def convert(filename, outName=None):
-    import os, sys
+    import os
     base = os.path.basename(filename)
     root, _ = os.path.splitext(base)
     dataset(root)

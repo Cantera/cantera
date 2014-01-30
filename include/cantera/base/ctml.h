@@ -818,6 +818,15 @@ Cantera::XML_Node getCtmlTree(const std::string& file);
  */
 void ct2ctml(const char* file, const int debug = 0);
 
+//! Get a string with the ctml representation of a cti file.
+/*!
+ *  @param   file    Path to the input file in CTI format
+ *  @return  String containing the xml representation of the input file
+ *
+ *  @ingroup inputfiles
+ */
+std::string ct2ctml_string(const std::string& file);
+
 //! Convert a Chemkin-format mechanism into a CTI file.
 /*!
  * @param in_file         input file containing species and reactions

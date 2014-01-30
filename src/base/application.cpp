@@ -281,10 +281,15 @@ XML_Node* Application::get_XML_File(const std::string& file, int debug)
                 return xmlfiles[ff];
             }
             /*
-             * Ok, we didn't find the processed XML tree. Do the conversion
-             * to xml, possibly overwriting the file, ff, in the process.
+             * Ok, we didn't find the processed XML tree. Do the conversion from cti
              */
-            ctml::ct2ctml(path.c_str(),debug);
+            string phase_xml = ctml::ct2ctml_string(path);
+            XML_Node* x = new XML_Node("doc");
+            std::stringstream s(phase_xml);
+            x->build(s);
+            x->lock();
+            xmlfiles[ff] = x;
+            return x;
         } else {
             ff = path;
         }

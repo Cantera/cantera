@@ -1,6 +1,7 @@
 #include "gtest/gtest.h"
 #include "cantera/thermo/FixedChemPotSSTP.h"
 #include "cantera/thermo/ThermoFactory.h"
+#include "cantera/base/ctml.h"
 
 namespace Cantera
 {
@@ -27,5 +28,39 @@ TEST_F(FixedChemPotSstpConstructorTest, SimpleConstructor)
     p.getChemPotentials(&mu);
     ASSERT_FLOAT_EQ(-2.3e7, mu);
 }
+
+#ifndef HAS_NO_PYTHON // skip these tests if the Python converter is unavailable
+class InputFileConversionTest : public testing::Test
+{
+public:
+    InputFileConversionTest() {
+        appdelete();
+    }
+
+    ThermoPhase* p1;
+    ThermoPhase* p2;
+    void compare()
+    {
+        ASSERT_EQ(p1->nSpecies(), p2->nSpecies());
+        for (size_t i = 0; i < p1->nSpecies(); i++) {
+            ASSERT_EQ(p1->speciesName(i), p2->speciesName(i));
+            ASSERT_EQ(p1->molecularWeight(i), p2->molecularWeight(i));
+        }
+    }
+};
+
+TEST_F(InputFileConversionTest, ExplicitConversion) {
+    p1 = newPhase("../data/air-no-reactions.xml", "");
+    ctml::ct2ctml("../data/air-no-reactions.cti");
+    p2 = newPhase("air-no-reactions.xml", "");
+    compare();
+}
+
+TEST_F(InputFileConversionTest, ImplicitConversion) {
+    p1 = newPhase("../data/air-no-reactions.xml", "");
+    p2 = newPhase("../data/air-no-reactions.cti", "");
+    compare();
+}
+#endif
 
 } // namespace Cantera

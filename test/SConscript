@@ -35,23 +35,25 @@ def testRunner(target, source, env):
         testResults.failed[passedFile.name] = program
 
 
-def addTestProgram(subdir, progName):
+def addTestProgram(subdir, progName, env_vars={}):
     """
     Compile a test program and create a targets for running
     and resetting the test.
     """
-    program = localenv.Program(pjoin(subdir, progName),
-                               mglob(localenv, subdir, 'cpp'))
+    testenv = localenv.Clone()
+    testenv['ENV'].update(env_vars)
+    program = testenv.Program(pjoin(subdir, progName),
+                              mglob(testenv, subdir, 'cpp'))
     passedFile = File(pjoin(str(program[0].dir), '%s.passed' % program[0].name))
     PASSED_FILES[progName] = str(passedFile)
     testResults.tests[passedFile.name] = program
-    run_program = localenv.Command(passedFile, program, testRunner)
+    run_program = testenv.Command(passedFile, program, testRunner)
     Alias('test', run_program)
     Alias('test-%s' % progName, run_program)
     env['testNames'].append(progName)
     if os.path.exists(passedFile.abspath):
-        Alias('test-reset', localenv.Command('reset-%s%s' % (subdir, progName),
-                                             [], [Delete(passedFile.abspath)]))
+        Alias('test-reset', testenv.Command('reset-%s%s' % (subdir, progName),
+                                            [], [Delete(passedFile.abspath)]))
 
 
 def addPythonTest(testname, subdir, script, interpreter, outfile,
@@ -156,8 +158,18 @@ def addMatlabTest(script, testName, dependencies=None, env_vars=()):
 
     return run_program
 
+if localenv['python_package'] in ('full', 'minimal'):
+    python_env_vars = {'PYTHONPATH': Dir('#build/python2').abspath,
+                       'PYTHON_CMD': localenv.subst('$python_cmd')}
+elif localenv['python3_package'] == 'y':
+    python_env_vars = {'PYTHONPATH': Dir('#build/python3').abspath,
+                       'PYTHON_CMD': localenv.subst('$python3_cmd')}
+else:
+    python_env_vars = {} # Tests calling ck2cti or ctml_writer will fail
+
+
 # Instantiate tests
-addTestProgram('thermo', 'thermo')
+addTestProgram('thermo', 'thermo', env_vars=python_env_vars)
 addTestProgram('kinetics', 'kinetics')
 
 python_subtests = ['']
@@ -191,18 +203,9 @@ if localenv['python3_package'] == 'y':
     make_python_tests(3)
 
 if localenv['matlab_toolbox'] == 'y':
-    if localenv['python_package'] in ('full', 'minimal'):
-        env_vars = {'PYTHONPATH': Dir('#build/python2').abspath,
-                    'PYTHON_CMD': localenv.subst('$python_cmd')}
-    elif localenv['python3_package'] == 'y':
-        env_vars = {'PYTHONPATH': Dir('#build/python3').abspath,
-                    'PYTHON_CMD': localenv.subst('$python3_cmd')}
-    else:
-        env_vars = {} # ck2cti test is likely to fail
-
     matlabTest = addMatlabTest('runCanteraTests.m', 'matlab',
                                dependencies=mglob(localenv, 'matlab', 'm'),
-			       env_vars=env_vars)
+			       env_vars=python_env_vars)
     localenv.Alias('test-matlab', matlabTest)
     env['testNames'].append('matlab')
 
