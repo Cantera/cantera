@@ -279,8 +279,7 @@ CompileAndTest('pecosTransport', 'PecosTransport', 'pecosTransport', 'output_ble
 CompileAndTest('printUtil', 'printUtilUnitTest', 'pUtest', 'output_blessed.txt')
 CompileAndTest('pureFluid', 'pureFluidTest', 'testPureWater', 'output_blessed.txt')
 if haveConverters:
-    CompileAndTest('rankine_democxx', 'rankine_democxx', 'rankine', 'output_blessed.txt',
-                   artifacts=['liquidvapor.xml'])
+    CompileAndTest('rankine_democxx', 'rankine_democxx', 'rankine', 'output_blessed.txt')
 CompileAndTest('silane_equil', 'silane_equil', 'silane_equi', 'output_blessed.txt')
 # spectroscopy is incomplete
 CompileAndTest('simpleTransport', 'simpleTransport', 'simpleTransport',
@@ -291,12 +290,12 @@ CompileAndTest('surfkin', 'surfkin', 'surfdemo', 'output_blessed.txt')
 CompileAndTest('surfSolver', 'surfSolverTest', 'surfaceSolver', None,
                arguments='haca2.xml',
                comparisons=[('results_blessed.txt', 'results.txt')],
-               artifacts=['results.txt', 'diamond.xml'],
+               artifacts=['results.txt'],
                extensions=['^surfaceSolver.cpp'])
 CompileAndTest('surfSolver2', 'surfSolverTest', 'surfaceSolver2', None,
                arguments='haca2.xml',
                comparisons=[('results2_blessed.txt', 'results2.txt')],
-               artifacts=['results2.txt', 'diamond.xml'],
+               artifacts=['results2.txt'],
                extensions=['^surfaceSolver2.cpp'])
 CompileAndTest('VCS-NaCl', pjoin('VCSnonideal', 'NaCl_equil'),
                'nacl_equil', 'good_out.txt',
