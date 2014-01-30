@@ -15,58 +15,6 @@ using namespace ctml;
 namespace Cantera
 {
 
-void Domain1D::
-setTolerances(size_t nr, const doublereal* rtol,
-              size_t na, const doublereal* atol, int ts)
-{
-    warn_deprecated("Domain1D::setTolerances",
-                    "Use setTransientTolerances or setSteadyTolerances.");
-    if (nr < m_nv || na < m_nv)
-        throw CanteraError("Domain1D::setTolerances",
-                           "wrong array size for solution error tolerances. "
-                           "Size should be at least "+int2str(m_nv));
-    if (ts >= 0) {
-        copy(rtol, rtol + m_nv, m_rtol_ss.begin());
-        copy(atol, atol + m_nv, m_atol_ss.begin());
-    }
-    if (ts <= 0) {
-        copy(rtol, rtol + m_nv, m_rtol_ts.begin());
-        copy(atol, atol + m_nv, m_atol_ts.begin());
-    }
-}
-
-void Domain1D::
-setTolerances(size_t n, doublereal rtol, doublereal atol, int ts)
-{
-    warn_deprecated("Domain1D::setTolerances",
-                    "Use setTransientTolerances or setSteadyTolerances.");
-    if (ts >= 0) {
-        m_rtol_ss[n] = rtol;
-        m_atol_ss[n] = atol;
-    }
-    if (ts <= 0) {
-        m_rtol_ts[n] = rtol;
-        m_atol_ts[n] = atol;
-    }
-}
-
-void Domain1D::
-setTolerances(doublereal rtol, doublereal atol,int ts)
-{
-    warn_deprecated("Domain1D::setTolerances",
-                    "Use setTransientTolerances or setSteadyTolerances.");
-    for (size_t n = 0; n < m_nv; n++) {
-        if (ts >= 0) {
-            m_rtol_ss[n] = rtol;
-            m_atol_ss[n] = atol;
-        }
-        if (ts <= 0) {
-            m_rtol_ts[n] = rtol;
-            m_atol_ts[n] = atol;
-        }
-    }
-}
-
 void Domain1D::setTransientTolerances(doublereal rtol, doublereal atol, size_t n)
 {
     if (n == npos) {
@@ -80,13 +28,6 @@ void Domain1D::setTransientTolerances(doublereal rtol, doublereal atol, size_t n
     }
 }
 
-void Domain1D::setTolerancesTS(doublereal rtol, doublereal atol, size_t n)
-{
-    warn_deprecated("Domain1D::setTolerancesTS",
-                    "Use setTransientTolerances");
-    setTransientTolerances(rtol, atol, n);
-}
-
 void Domain1D::setSteadyTolerances(doublereal rtol, doublereal atol, size_t n)
 {
     if (n == npos) {
@@ -98,13 +39,6 @@ void Domain1D::setSteadyTolerances(doublereal rtol, doublereal atol, size_t n)
         m_rtol_ss[n] = rtol;
         m_atol_ss[n] = atol;
     }
-}
-
-void Domain1D::setTolerancesSS(doublereal rtol, doublereal atol, size_t n)
-{
-    warn_deprecated("Domain1D::setTolerancesSS",
-                    "Use setSteadyTolerances");
-    setSteadyTolerances(rtol, atol, n);
 }
 
 void Domain1D::needJacUpdate()

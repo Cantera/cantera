@@ -229,14 +229,6 @@ void onedimmethods(int nlhs, mxArray* plhs[],
             upper = getDouble(prhs[5]);
             iok = domain_setBounds(dom, n, lower, upper);
             break;
-        case 52:
-            checkNArgs(7, nrhs);
-            n = getInt(prhs[3]) - 1;
-            rtol = getDouble(prhs[4]);
-            atol = getDouble(prhs[5]);
-            itime = getInt(prhs[6]);
-            iok = domain_setTolerances(dom, n, rtol, atol, itime);
-            break;
         case 53:
             checkNArgs(4, nrhs);
             grid = mxGetPr(prhs[3]);
@@ -246,6 +238,18 @@ void onedimmethods(int nlhs, mxArray* plhs[],
         case 54:
             id = getString(prhs[3]);
             iok = domain_setID(dom, id);
+            break;
+        case 55:
+        case 56:
+            checkNArgs(6, nrhs);
+            n = getInt(prhs[3]) - 1;
+            rtol = getDouble(prhs[4]);
+            atol = getDouble(prhs[5]);
+            if (job == 55) {
+                iok = domain_setSteadyTolerances(dom, n, rtol, atol);
+            } else {
+                iok = domain_setTransientTolerances(dom, n, rtol, atol);
+            }
             break;
         case 60:
             checkNArgs(4, nrhs);
