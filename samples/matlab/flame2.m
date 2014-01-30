@@ -126,6 +126,3 @@ title('Radial Velocity / Radius [s^-1]');
 subplot(2,3,6);
 plotSolution(fl, 'flow', 'u');
 title('Axial Velocity [m/s]');
-
-
-

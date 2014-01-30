@@ -58,6 +58,3 @@ inline ReactorBase* newReactor(const std::string& model,
 }
 
 #endif
-
-
-

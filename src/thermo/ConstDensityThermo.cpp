@@ -181,7 +181,3 @@ void ConstDensityThermo::setParametersFromXML(const XML_Node& eosdata)
 }
 
 }
-
-
-
-

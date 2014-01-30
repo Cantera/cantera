@@ -97,9 +97,6 @@ protected:
 
 };
 
-
-
 }
 
 #endif
-
