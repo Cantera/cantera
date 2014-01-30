@@ -96,6 +96,3 @@ module cantera_funcs
     end subroutine ctfunc_addCanteraDirectory
 
 end module cantera_funcs
-
-
-

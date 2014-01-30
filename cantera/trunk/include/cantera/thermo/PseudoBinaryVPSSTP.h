@@ -255,8 +255,6 @@ protected:
 #define  PBTYPE_SINGLECATION       2
 #define  PBTYPE_MULTICATIONANION   3
 
-
-
 }
 
 #endif

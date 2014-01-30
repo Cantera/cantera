@@ -100,9 +100,6 @@ protected:
 
 };
 
-
-
 }
 
 #endif
-

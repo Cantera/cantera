@@ -86,13 +86,8 @@ protected:
      *   is the percolation threshold.
      */
     double conductivityExponent_;
-
-
 };
-
-
 
 }
 
 #endif
-
