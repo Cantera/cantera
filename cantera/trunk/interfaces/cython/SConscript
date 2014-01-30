@@ -6,7 +6,7 @@ Import('env', 'build', 'install')
 localenv = env.Clone()
 
 
-def configure_numpy(python_command):
+def configure_numpy(env, python_command):
     script = '\n'.join(("from distutils.sysconfig import *",
                         "import numpy",
                         "print(get_config_var('SO'))",
@@ -17,7 +17,7 @@ def configure_numpy(python_command):
 
     incDirs = (".", "../../include", numpy_include,
                localenv['sundials_include'], localenv['boost_inc_dir'])
-    localenv['py_include_dirs'] = repr([x for x in incDirs if x])
+    env['py_include_dirs'] = repr([x for x in incDirs if x])
 
     return module_ext, py_version
 
@@ -141,9 +141,10 @@ build(testFiles)
 
 # Cython module for Python 3.x
 if localenv['python3_package'] == 'y':
-    module_ext, py3_version = configure_numpy(localenv['python3_cmd'])
-    make_setup = localenv.SubstFile('#interfaces/cython/setup3.py',
-                                    '#interfaces/cython/setup.py.in')
+    py3env = localenv.Clone()
+    module_ext, py3_version = configure_numpy(py3env, py3env['python3_cmd'])
+    make_setup = py3env.SubstFile('#interfaces/cython/setup3.py',
+                                  '#interfaces/cython/setup.py.in')
     build(make_setup)
 
     build_base = ('cd interfaces/cython &&'
@@ -153,26 +154,27 @@ if localenv['python3_package'] == 'y':
                  + compilerOpt)
 
     build_cmd = build_base % 'build'
-    ext = build(localenv.Command('#build/python3/cantera/_cantera%s' % module_ext,
-                                 'setup3.py',
-                                 build_base % 'build_ext'))
-    mod = build(localenv.Command('#build/python3/cantera/__init__.py',
-                                 'setup3.py',
-                                 build_cmd))
+    ext = build(py3env.Command('#build/python3/cantera/_cantera%s' % module_ext,
+                               'setup3.py',
+                               build_base % 'build_ext'))
+    mod = build(py3env.Command('#build/python3/cantera/__init__.py',
+                               'setup3.py',
+                               build_cmd))
     env['python3_module'] = mod
     env['python3_extension'] = ext
 
-    localenv.AddPreAction(ext, Delete('interfaces/cython/cantera/_cantera.cpp'))
+    py3env.AddPreAction(ext, Delete('interfaces/cython/cantera/_cantera.cpp'))
 
     add_dependencies(mod, ext)
-    install_module(localenv['python3_prefix'], py3_version)
+    install_module(py3env['python3_prefix'], py3_version)
 
 
 # Cython module for Python 2.x
 if localenv['python_package'] == 'full':
-    module_ext, py2_version = configure_numpy(localenv['python_cmd'])
-    make_setup = localenv.SubstFile('#interfaces/cython/setup2.py',
-                                    '#interfaces/cython/setup.py.in')
+    py2env = localenv.Clone()
+    module_ext, py2_version = configure_numpy(py2env, py2env['python_cmd'])
+    make_setup = py2env.SubstFile('#interfaces/cython/setup2.py',
+                                  '#interfaces/cython/setup.py.in')
     build(make_setup)
 
     build_base = ('cd interfaces/cython &&'
@@ -182,16 +184,16 @@ if localenv['python_package'] == 'full':
                  + compilerOpt)
 
     build_cmd = build_base % 'build'
-    ext = build(localenv.Command('#build/python2/cantera/_cantera%s' % module_ext,
-                                 'setup2.py',
-                                 build_base % 'build_ext'))
-    mod = build(localenv.Command('#build/python2/cantera/__init__.py',
-                                 'setup2.py',
-                                 build_cmd))
+    ext = build(py2env.Command('#build/python2/cantera/_cantera%s' % module_ext,
+                               'setup2.py',
+                               build_base % 'build_ext'))
+    mod = build(py2env.Command('#build/python2/cantera/__init__.py',
+                               'setup2.py',
+                               build_cmd))
     env['python2_module'] = mod
     env['python2_extension'] = ext
 
-    localenv.AddPreAction(ext, Delete('interfaces/cython/cantera/_cantera.cpp'))
+    py2env.AddPreAction(ext, Delete('interfaces/cython/cantera/_cantera.cpp'))
 
     # Use 3to2 to convert examples from Python 3 syntax
     if env['python_convert_examples']:
@@ -206,10 +208,10 @@ if localenv['python_package'] == 'full':
                 if not filename.endswith('.py'):
                     continue
                 targetdir = '../../build/python2/cantera/examples'
-                a = build(localenv.Command(pjoin(targetdir, subdir, filename),
-                                           pjoin(dirpath, filename),
-                                           convert_example))
-                localenv.Depends(a, mod)
+                a = build(py2env.Command(pjoin(targetdir, subdir, filename),
+                                         pjoin(dirpath, filename),
+                                         convert_example))
+                py2env.Depends(a, mod)
 
     add_dependencies(mod, ext)
-    install_module(localenv['python_prefix'], py2_version)
+    install_module(py2env['python_prefix'], py2_version)
