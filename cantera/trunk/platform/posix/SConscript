@@ -130,7 +130,3 @@ localenv['pc_cflags'] = ' '.join(pc_cflags)
 
 pc = build(localenv.SubstFile('cantera.pc', 'cantera.pc.in'))
 install('$inst_libdir/pkgconfig', pc)
-
-# @deprecated The install_tsc script is unused and should be removed
-if localenv['layout'] != 'debian':
-    install('$inst_bindir', '#platform/posix/bin/install_tsc')
