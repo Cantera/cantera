@@ -81,6 +81,8 @@ def addPythonTest(testname, subdir, script, interpreter, outfile,
         if not code:
             # Test was successful
             open(target[0].path, 'w').write(time.asctime()+'\n')
+        else:
+            testResults.failed[testname] = True
 
         for line in open(outfile):
             status, name = line.strip().split(': ', 1)
