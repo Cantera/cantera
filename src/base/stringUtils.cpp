@@ -57,9 +57,8 @@ std::string int2str(const size_t n)
 
 std::string lowercase(const std::string& s)
 {
-    int n = static_cast<int>(s.size());
     std::string lc(s);
-    for (int i = 0; i < n; i++) {
+    for (size_t i = 0; i < s.size(); i++) {
         lc[i] = (char) tolower(s[i]);
     }
     return lc;
@@ -109,10 +108,8 @@ std::string stripws(const std::string& s)
 
 std::string stripnonprint(const std::string& s)
 {
-    int i;
-    int n = static_cast<int>(s.size());
     std::string ss = "";
-    for (i = 0; i < n; i++) {
+    for (size_t i = 0; i < s.size(); i++) {
         if (isprint(s[i])) {
             ss += s[i];
         }

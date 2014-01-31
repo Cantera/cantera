@@ -676,15 +676,13 @@ void SpeciesThermoFactory::installThermoForSpecies
     // These shouldn't interfere with the algorithm at any point.
     const std::vector<XML_Node*>& tpWC = thermo.children();
     std::vector<XML_Node*> tp;
-    for (int i = 0; i < static_cast<int>(tpWC.size()); i++) {
+    for (size_t i = 0; i < tpWC.size(); i++) {
         if (!(tpWC[i])->isComment()) {
             tp.push_back(tpWC[i]);
         }
     }
-    int nc = static_cast<int>(tp.size());
-    string mname = thermo["model"];
 
-    if (mname == "MineralEQ3") {
+    if (thermo["model"] == "MineralEQ3") {
         const XML_Node* f = tp[0];
         if (f->name() != "MinEQ3") {
             throw CanteraError("SpeciesThermoFactory::installThermoForSpecies",
@@ -692,7 +690,7 @@ void SpeciesThermoFactory::installThermoForSpecies
         }
         installMinEQ3asShomateThermoFromXML(speciesNode["name"], th_ptr, spthermo, k, f);
     } else {
-        if (nc == 1) {
+        if (tp.size() == 1) {
             const XML_Node* f = tp[0];
             if (f->name() == "Shomate") {
                 installShomateThermoFromXML(speciesNode["name"], spthermo, k, f, 0);
@@ -712,7 +710,7 @@ void SpeciesThermoFactory::installThermoForSpecies
                 throw UnknownSpeciesThermoModel("installThermoForSpecies",
                                                 speciesNode["name"], f->name());
             }
-        } else if (nc == 2) {
+        } else if (tp.size() == 2) {
             const XML_Node* f0 = tp[0];
             const XML_Node* f1 = tp[1];
             if (f0->name() == "NASA" && f1->name() == "NASA") {
@@ -727,7 +725,7 @@ void SpeciesThermoFactory::installThermoForSpecies
                 throw UnknownSpeciesThermoModel("installThermoForSpecies", speciesNode["name"],
                                                 f0->name() + " and " + f1->name());
             }
-        } else if (nc > 2) {
+        } else if (tp.size() > 2) {
             const XML_Node* f0 = tp[0];
             if (f0->name() == "NASA9") {
                 installNasa9ThermoFromXML(speciesNode["name"], spthermo, k, tp);

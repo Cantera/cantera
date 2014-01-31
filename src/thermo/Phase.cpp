@@ -763,12 +763,8 @@ void Phase::addElementsFromXML(const XML_Node& phase)
         }
     }
 
-    int nel = static_cast<int>(enames.size());
-    int i;
-    string enm;
-    XML_Node* e = 0;
-    for (i = 0; i < nel; i++) {
-        e = 0;
+    for (size_t i = 0; i < enames.size(); i++) {
+        XML_Node* e = 0;
         if (local_db) {
             //writelog("looking in local database.");
             e = local_db->findByAttr("name",enames[i]);

@@ -366,7 +366,7 @@ long int Application::readStringRegistryKey(const std::string& keyName, const st
 
 void Application::Messages::popError()
 {
-    if (static_cast<int>(errorMessage.size()) > 0) {
+    if (!errorMessage.empty()) {
         errorRoutine.pop_back() ;
         errorMessage.pop_back() ;
     }
@@ -374,7 +374,7 @@ void Application::Messages::popError()
 
 std::string Application::Messages::lastErrorMessage()
 {
-    if (static_cast<int>(errorMessage.size()) > 0) {
+    if (!errorMessage.empty()) {
         string head =
             "\n\n************************************************\n"
             "                Cantera Error!                  \n"
@@ -388,7 +388,7 @@ std::string Application::Messages::lastErrorMessage()
 
 void Application::Messages::getErrors(std::ostream& f)
 {
-    int i = static_cast<int>(errorMessage.size());
+    size_t i = errorMessage.size();
     if (i == 0) {
         return;
     }
@@ -397,8 +397,7 @@ void Application::Messages::getErrors(std::ostream& f)
     f << "                   Cantera Error!                  " << endl;
     f << "************************************************" << endl
       << endl;
-    int j;
-    for (j = 0; j < i; j++) {
+    for (size_t j = 0; j < i; j++) {
         f << endl;
         f << "Procedure: " << errorRoutine[j] << endl;
         f << "Error:     " << errorMessage[j] << endl;
@@ -410,7 +409,7 @@ void Application::Messages::getErrors(std::ostream& f)
 
 void Application::Messages::logErrors()
 {
-    int i = static_cast<int>(errorMessage.size());
+    size_t i = errorMessage.size();
     if (i == 0) {
         return;
     }
@@ -418,8 +417,7 @@ void Application::Messages::logErrors()
     writelog("************************************************\n");
     writelog("                   Cantera Error!                  \n");
     writelog("************************************************\n\n");
-    int j;
-    for (j = 0; j < i; j++) {
+    for (size_t j = 0; j < i; j++) {
         writelog("\n");
         writelog(string("Procedure: ")+ errorRoutine[j]+" \n");
         writelog(string("Error:     ")+ errorMessage[j]+" \n");
@@ -516,12 +514,10 @@ std::string Application::findInputFile(const std::string& name)
     string inname;
     std::vector<string>& dirs = inputDirs;
 
-    int nd;
     if (islash == string::npos && ibslash == string::npos) {
-        nd = static_cast<int>(dirs.size());
-        int i;
+        size_t nd = dirs.size();
         inname = "";
-        for (i = 0; i < nd; i++) {
+        for (size_t i = 0; i < nd; i++) {
             inname = dirs[i] + "/" + name;
             std::ifstream fin(inname.c_str());
             if (fin) {
@@ -533,9 +529,9 @@ std::string Application::findInputFile(const std::string& name)
         msg = "\nInput file " + name
               + " not found in director";
         msg += (nd == 1 ? "y " : "ies ");
-        for (i = 0; i < nd; i++) {
+        for (size_t i = 0; i < nd; i++) {
             msg += "\n'" + dirs[i] + "'";
-            if (i < nd-1) {
+            if (i+1 < nd) {
                 msg += ", ";
             }
         }

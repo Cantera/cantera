@@ -476,9 +476,8 @@ bool importPhase(XML_Node& phase, ThermoPhase* th,
     XML_Node* db = 0;
     vector<XML_Node*> sparrays;
     phase.getChildren("speciesArray", sparrays);
-    int jsp, nspa = static_cast<int>(sparrays.size());
     if (ssConvention != cSS_CONVENTION_SLAVE) {
-        if (nspa == 0) {
+        if (sparrays.empty()) {
             throw CanteraError("importPhase",
                                "phase, " + th->id() + ", has zero \"speciesArray\" XML nodes.\n"
                                + " There must be at least one speciesArray nodes "
@@ -486,10 +485,10 @@ bool importPhase(XML_Node& phase, ThermoPhase* th,
         }
     }
     vector<XML_Node*> dbases;
-    vector_int sprule(nspa,0);
+    vector_int sprule(sparrays.size(),0);
 
     // loop over the speciesArray elements
-    for (jsp = 0; jsp < nspa; jsp++) {
+    for (size_t jsp = 0; jsp < sparrays.size(); jsp++) {
 
         const XML_Node& speciesArray = *sparrays[jsp];
 
