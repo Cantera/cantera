@@ -8,6 +8,7 @@
 #include "units.h"
 
 #include <fstream>
+#include <sstream>
 #include <functional>
 
 using std::string;
