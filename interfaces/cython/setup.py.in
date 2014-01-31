@@ -1,6 +1,5 @@
 import os
 from distutils.core import setup
-from Cython.Build import cythonize
 
 # Monkey patch to prevent bdist_msi from incorrectly overwriting the value of
 # build-lib specified on the command line.
@@ -32,14 +31,6 @@ if os.name == 'nt':
     bdist_msi.run = bdist_run_new
 
 
-exts = cythonize("cantera/_cantera.pyx")
-
-exts[0].include_dirs += @py_include_dirs@
-exts[0].extra_compile_args += @py_extra_compiler_args@
-exts[0].libraries += @py_cantera_libs@
-exts[0].library_dirs += @py_libdirs@
-exts[0].extra_link_args += @py_extra_link_args@
-
 setup(name="Cantera",
       version="@cantera_version@",
       description="The Cantera Python Interface",
@@ -58,8 +49,7 @@ setup(name="Cantera",
       scripts=[@py_ctml_writer@,
                @py_ck2cti@,
                @py_mixmaster@],
-      ext_modules = exts,
       package_data = {'cantera.data': ['*.*'],
                       'cantera.test.data': ['*.*'],
                       'cantera.examples': ['*/*.*'],
-                      'cantera': ['*.pxd']})
+                      'cantera': ["@py_extension@", '*.pxd']})
