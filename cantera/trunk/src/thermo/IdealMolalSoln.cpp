@@ -561,8 +561,7 @@ void IdealMolalSoln::initThermoXML(XML_Node& phaseNode, const std::string& id_)
         XML_Node& scNode = thermoNode.child("solvent");
         std::vector<std::string> nameSolventa;
         getStringArray(scNode, nameSolventa);
-        int nsp = static_cast<int>(nameSolventa.size());
-        if (nsp != 1) {
+        if (nameSolventa.size() != 1) {
             throw CanteraError("IdealMolalSoln::initThermoXML",
                                "badly formed solvent XML node");
         }

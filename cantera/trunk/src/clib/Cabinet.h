@@ -118,8 +118,7 @@ public:
      */
     static int clear() {
         dataRef data = getData();
-        int n = static_cast<int>(data.size());
-        for (int i = 1; i < n; i++) {
+        for (size_t i = 1; i < data.size(); i++) {
             del(i);
         }
         if (canDelete) {

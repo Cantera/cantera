@@ -598,8 +598,7 @@ void StFlow::restore(const XML_Node& dom, doublereal* soln, int loglevel)
 
     vector<XML_Node*> str;
     dom.getChildren("string",str);
-    int nstr = static_cast<int>(str.size());
-    for (int istr = 0; istr < nstr; istr++) {
+    for (size_t istr = 0; istr < str.size(); istr++) {
         const XML_Node& nd = *str[istr];
         writelog(nd["title"]+": "+nd.value()+"\n");
     }

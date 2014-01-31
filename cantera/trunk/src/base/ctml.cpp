@@ -209,10 +209,9 @@ void getIntegers(const Cantera::XML_Node& node,
 {
     std::vector<XML_Node*> f;
     node.getChildren("integer",f);
-    int n = static_cast<int>(f.size());
     integer x;
     std::string typ, title, vmin, vmax;
-    for (int i = 0; i < n; i++) {
+    for (size_t i = 0; i < f.size(); i++) {
         const XML_Node& fi = *(f[i]);
         x = atoi(fi().c_str());
         title = fi["title"];
@@ -232,10 +231,9 @@ void getFloats(const Cantera::XML_Node& node, std::map<std::string, double>& v,
                     "To be removed in Cantera 2.2.");
     std::vector<XML_Node*> f;
     node.getChildren("float",f);
-    int n = static_cast<int>(f.size());
     doublereal x, x0, x1, fctr;
     std::string typ, title, units, vmin, vmax;
-    for (int i = 0; i < n; i++) {
+    for (size_t i = 0; i < f.size(); i++) {
         const XML_Node& fi = *(f[i]);
         x = fpValue(fi());
         x0 = Undef;
@@ -510,9 +508,8 @@ void getMap(const Cantera::XML_Node& node, std::map<std::string, std::string>& m
     std::vector<std::string> v;
     getStringArray(node, v);
     std::string key, val;
-    int n = static_cast<int>(v.size());
     string::size_type icolon;
-    for (int i = 0; i < n; i++) {
+    for (size_t i = 0; i < v.size(); i++) {
         icolon = v[i].find(":");
         if (icolon == string::npos) {
             throw CanteraError("getMap","missing colon in map entry ("

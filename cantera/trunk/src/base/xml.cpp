@@ -343,8 +343,7 @@ XML_Node::XML_Node(const XML_Node& right) :
 XML_Node& XML_Node::operator=(const XML_Node& right)
 {
     if (&right != this) {
-        int n = static_cast<int>(m_children.size());
-        for (int i = 0; i < n; i++) {
+        for (size_t i = 0; i < m_children.size(); i++) {
             if (m_children[i]) {
                 if (m_children[i]->parent() == this) {
                     delete m_children[i];
@@ -363,8 +362,7 @@ XML_Node::~XML_Node()
     if (m_locked) {
         writelog("XML_Node::~XML_Node: deleted a locked XML_Node: "+name());
     }
-    int n = static_cast<int>(m_children.size());
-    for (int i = 0; i < n; i++) {
+    for (size_t i = 0; i < m_children.size(); i++) {
         if (m_children[i]) {
             if (m_children[i]->parent() == this) {
                 delete m_children[i];
@@ -376,8 +374,7 @@ XML_Node::~XML_Node()
 
 void XML_Node::clear()
 {
-    int n = static_cast<int>(m_children.size());
-    for (int i = 0; i < n; i++) {
+    for (size_t i = 0; i < m_children.size(); i++) {
         if (m_children[i]) {
             if (m_children[i]->parent() == this) {
                 delete m_children[i];
@@ -948,8 +945,7 @@ void XML_Node::write_int(std::ostream& s, int level, int numRecursivesAllowed) c
             s << " ";
         }
         s << m_value;
-        int ll = static_cast<int>(m_value.size()) - 1;
-        if (! isspace(m_value[ll])) {
+        if (! isspace(m_value[m_value.size()-1])) {
             s << " ";
         }
         s << "-->";
@@ -987,10 +983,10 @@ void XML_Node::write_int(std::ostream& s, int level, int numRecursivesAllowed) c
                         }
                         vv = vv.substr(ieol+1);
                     } else {
-                        int lll = static_cast<int>(vv.size()) - 1;
-                        if (lll >= 0) {
-                            int jf = lll;
-                            for (int j = 0; j < lll; j++) {
+                        size_t lll = vv.size() - 1;
+                        if (lll != npos) {
+                            size_t jf = lll;
+                            for (size_t j = 0; j < lll; j++) {
                                 if (! isspace(vv[j])) {
                                     jf = j;
                                     break;
@@ -1007,7 +1003,7 @@ void XML_Node::write_int(std::ostream& s, int level, int numRecursivesAllowed) c
             } else {
                 bool doSpace = true;
                 bool doNewLine = false;
-                int ll = static_cast<int>(m_value.size()) - 1;
+                size_t ll = m_value.size() - 1;
                 if (ll > 25) {
                     doNewLine = true;
                 }

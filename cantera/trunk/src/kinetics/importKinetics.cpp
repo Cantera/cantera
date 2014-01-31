@@ -402,8 +402,8 @@ static void getFalloff(const XML_Node& f, ReactionData& rdata)
     vector<string> p;
     getStringArray(f,p);
     vector_fp c;
-    int np = static_cast<int>(p.size());
-    for (int n = 0; n < np; n++) {
+    size_t np = p.size();
+    for (size_t n = 0; n < np; n++) {
         c.push_back(fpValue(p[n]));
     }
     if (type == "Troe") {
@@ -825,12 +825,11 @@ bool installReactionArrays(const XML_Node& p, Kinetics& kin,
      * end result being purely additive.
      */
     p.getChildren("reactionArray",rarrays);
-    int na = static_cast<int>(rarrays.size());
-    if (na == 0) {
+    if (rarrays.empty()) {
         kin.finalize();
         return false;
     }
-    for (int n = 0; n < na; n++) {
+    for (size_t n = 0; n < rarrays.size(); n++) {
         /*
          * Go get a reference to the current xml element,
          * reactionArray. We will process this element now.
@@ -868,7 +867,6 @@ bool installReactionArrays(const XML_Node& p, Kinetics& kin,
                 rxnrule.skipUndeclaredThirdBodies = true;
             }
         }
-        int i, nrxns = 0;
         /*
          * Search for child elements called include. We only include
          * a reaction if it's tagged by one of the include fields.
@@ -876,14 +874,12 @@ bool installReactionArrays(const XML_Node& p, Kinetics& kin,
          */
         vector<XML_Node*> incl;
         rxns.getChildren("include",incl);
-        int ninc = static_cast<int>(incl.size());
 
         vector<XML_Node*> allrxns;
         rdata->getChildren("reaction",allrxns);
-        nrxns = static_cast<int>(allrxns.size());
         // if no 'include' directive, then include all reactions
-        if (ninc == 0) {
-            for (i = 0; i < nrxns; i++) {
+        if (incl.empty()) {
+            for (size_t i = 0; i < allrxns.size(); i++) {
                 const XML_Node* r = allrxns[i];
                 if (r) {
                     if (_rxns.installReaction(itot, *r, kin,
@@ -893,7 +889,7 @@ bool installReactionArrays(const XML_Node& p, Kinetics& kin,
                 }
             }
         } else {
-            for (int nii = 0; nii < ninc; nii++) {
+            for (size_t nii = 0; nii < incl.size(); nii++) {
                 const XML_Node& ii = *incl[nii];
                 string imin = ii["min"];
                 string imax = ii["max"];
@@ -907,7 +903,7 @@ bool installReactionArrays(const XML_Node& p, Kinetics& kin,
                     }
                 }
 
-                for (i = 0; i < nrxns; i++) {
+                for (size_t i = 0; i < allrxns.size(); i++) {
                     const XML_Node* r = allrxns[i];
                     string rxid;
                     if (r) {
