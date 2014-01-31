@@ -325,12 +325,6 @@ config_options = [
            default 'site-packages' directory. To install to the current user's
            site-packages directory, use 'python3_prefix=USER'.""",
         defaults.python_prefix, PathVariable.PathAccept),
-    PathVariable(
-        'python_compiler',
-        """ Compiler to use while building the Python extension module. By default,
-            the compiler will be selected by distutils. Applies to both Python 2
-            and Python 3.""",
-        '', PathVariable.PathAccept),
     EnumVariable(
         'matlab_toolbox',
         """This variable controls whether the Matlab toolbox will be built. If
