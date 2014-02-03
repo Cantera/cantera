@@ -1001,16 +1001,18 @@ class Parser(object):
         return species, thermo, composition, note
 
     def setupKinetics(self):
-        self.valid_tokens = dict((k,'species') for k in self.speciesDict)
-        self.valid_tokens.update(('(+%s)' % k, 'falloff3b: %s' % k) for k in self.speciesDict)
-        self.valid_tokens['M'] = 'third-body'
-        self.valid_tokens['m'] = 'third-body'
-        self.valid_tokens['(+M)'] = 'falloff3b'
-        self.valid_tokens['(+m)'] = 'falloff3b'
-        self.valid_tokens['<=>'] = 'equal'
-        self.valid_tokens['=>'] = 'equal'
-        self.valid_tokens['='] = 'equal'
-        self.Slen = max(map(len, self.valid_tokens))
+        # We look for species including the next permissible character. '\n' is
+        # appended to the reaction string to identify the last species in the
+        # reaction string. Checking this character is necessary to correctly
+        # identify species with names ending in '+' or '='.
+        self.species_tokens = set()
+        for next_char in ('<','=','(','+','\n'):
+            self.species_tokens.update(k + next_char for k in self.speciesDict)
+        self.other_tokens = {'M': 'third-body', 'm': 'third-body',
+                             '(+M)': 'falloff3b', '(+m)': 'falloff3b',
+                             '<=>': 'equal', '=>': 'equal', '=': 'equal'}
+        self.other_tokens.update(('(+%s)' % k, 'falloff3b: %s' % k) for k in self.speciesDict)
+        self.Slen = max(map(len, self.other_tokens))
 
     def readKineticsEntry(self, entry):
         """
@@ -1048,17 +1050,26 @@ class Parser(object):
         A = float(tokens[-3])
         n = float(tokens[-2])
         Ea = float(tokens[-1])
-        reaction = ''.join(tokens[:-3])
+        reaction = ''.join(tokens[:-3]) + '\n'
 
-        # Identify tokens comprising the reaction expression.  Look for the
-        # longest possible sub-sequences first.
+        # Identify species tokens in the reaction expression in order of
+        # decreasing length
         locs = {}
         for i in range(self.Slen, 0, -1):
             for j in range(len(reaction)-i+1):
                 test = reaction[j:j+i]
-                if test in self.valid_tokens:
+                if test in self.species_tokens:
+                    reaction = reaction[:j] + ' '*(i-1) + reaction[j+i-1:]
+                    locs[j] = test[:-1], 'species'
+
+        # Identify other tokens in the reaction expression in order of
+        # descending length
+        for i in range(self.Slen, 0, -1):
+            for j in range(len(reaction)-i+1):
+                test = reaction[j:j+i]
+                if test in self.other_tokens:
                     reaction = reaction[:j] + ' '*i + reaction[j+i:]
-                    locs[j] = test, self.valid_tokens[test]
+                    locs[j] = test, self.other_tokens[test]
 
         # Anything that's left should be a stoichiometric coefficient or a '+'
         # between species
