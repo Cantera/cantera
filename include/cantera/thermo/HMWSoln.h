@@ -2402,6 +2402,9 @@ private:
      *                       = 1.0E3 at 25C
      */
     mutable double m_A_Debye;
+    mutable double m_last_dA_DebyedP_TP;
+    mutable double m_last_dA_DebyedP_TP_T;
+    mutable double m_last_dA_DebyedP_TP_P;
 
     //!  Water standard state calculator
     /*!

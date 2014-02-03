@@ -39,6 +39,9 @@ HMWSoln::HMWSoln() :
     m_IionicMolalityStoich(0.0),
     m_form_A_Debye(A_DEBYE_WATER),
     m_A_Debye(1.172576),   // units = sqrt(kg/gmol)
+    m_last_dA_DebyedP_TP(-1.0),
+    m_last_dA_DebyedP_TP_T(-1.0),
+    m_last_dA_DebyedP_TP_P(-1.0),
     m_waterSS(0),
     m_densWaterSS(1000.),
     m_waterProps(0),
@@ -89,6 +92,9 @@ HMWSoln::HMWSoln(const std::string& inputFile, const std::string& id_) :
     m_IionicMolalityStoich(0.0),
     m_form_A_Debye(A_DEBYE_WATER),
     m_A_Debye(1.172576),   // units = sqrt(kg/gmol)
+    m_last_dA_DebyedP_TP(-1.0),
+    m_last_dA_DebyedP_TP_T(-1.0),
+    m_last_dA_DebyedP_TP_P(-1.0),
     m_waterSS(0),
     m_densWaterSS(1000.),
     m_waterProps(0),
@@ -140,6 +146,9 @@ HMWSoln::HMWSoln(XML_Node& phaseRoot, const std::string& id_) :
     m_IionicMolalityStoich(0.0),
     m_form_A_Debye(A_DEBYE_WATER),
     m_A_Debye(1.172576),   // units = sqrt(kg/gmol)
+    m_last_dA_DebyedP_TP(-1.0),
+    m_last_dA_DebyedP_TP_T(-1.0),
+    m_last_dA_DebyedP_TP_P(-1.0),
     m_waterSS(0),
     m_densWaterSS(1000.),
     m_waterProps(0),
@@ -191,6 +200,9 @@ HMWSoln::HMWSoln(const HMWSoln& b) :
     m_IionicMolalityStoich(0.0),
     m_form_A_Debye(A_DEBYE_WATER),
     m_A_Debye(1.172576),   // units = sqrt(kg/gmol)
+    m_last_dA_DebyedP_TP(-1.0),
+    m_last_dA_DebyedP_TP_T(-1.0),
+    m_last_dA_DebyedP_TP_P(-1.0),
     m_waterSS(0),
     m_densWaterSS(1000.),
     m_waterProps(0),
@@ -401,6 +413,9 @@ HMWSoln::HMWSoln(int testProb) :
     m_IionicMolalityStoich(0.0),
     m_form_A_Debye(A_DEBYE_WATER),
     m_A_Debye(1.172576),   // units = sqrt(kg/gmol)
+    m_last_dA_DebyedP_TP(-1.0),
+    m_last_dA_DebyedP_TP_T(-1.0),
+    m_last_dA_DebyedP_TP_P(-1.0),
     m_waterSS(0),
     m_densWaterSS(1000.),
     m_waterProps(0),
@@ -1089,12 +1104,23 @@ double HMWSoln::dA_DebyedP_TP(double tempArg, double presArg) const
         P = presArg;
     }
     double dAdP;
+    const double tol = 1.e-6;
     switch (m_form_A_Debye) {
     case A_DEBYE_CONST:
         dAdP = 0.0;
         break;
     case A_DEBYE_WATER:
-        dAdP = m_waterProps->ADebye(T, P, 3);
+        if( std::abs(T - m_last_dA_DebyedP_TP_T) > tol || std::abs(P - m_last_dA_DebyedP_TP_P) > tol )
+        {
+            dAdP = m_waterProps->ADebye(T, P, 3);
+            m_last_dA_DebyedP_TP_T = T;
+            m_last_dA_DebyedP_TP_P = P;
+            m_last_dA_DebyedP_TP  = dAdP;
+        }
+        else
+        {
+            dAdP = m_last_dA_DebyedP_TP;
+        }
         break;
     default:
         printf("shouldn't be here\n");
