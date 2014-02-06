@@ -21,7 +21,6 @@ namespace Cantera
 {
 
 ThermoPhase::ThermoPhase() :
-    Phase(),
     m_spthermo(0), m_speciesData(0),
     m_phi(0.0),
     m_hasElementPotentials(false),
@@ -39,7 +38,6 @@ ThermoPhase::~ThermoPhase()
 }
 
 ThermoPhase::ThermoPhase(const ThermoPhase& right)  :
-    Phase(),
     m_spthermo(0),
     m_speciesData(0),
     m_phi(0.0),
@@ -53,8 +51,7 @@ ThermoPhase::ThermoPhase(const ThermoPhase& right)  :
     *this = operator=(right);
 }
 
-ThermoPhase& ThermoPhase::
-operator=(const ThermoPhase& right)
+ThermoPhase& ThermoPhase::operator=(const ThermoPhase& right)
 {
     /*
      * Check for self assignment.
@@ -153,22 +150,19 @@ void ThermoPhase::setState_TPX(doublereal t, doublereal p, const std::string& x)
     setState_TP(t,p);
 }
 
-void ThermoPhase::setState_TPY(doublereal t, doublereal p,
-                               const doublereal* y)
+void ThermoPhase::setState_TPY(doublereal t, doublereal p, const doublereal* y)
 {
     setMassFractions(y);
     setState_TP(t,p);
 }
 
-void ThermoPhase::setState_TPY(doublereal t, doublereal p,
-                               compositionMap& y)
+void ThermoPhase::setState_TPY(doublereal t, doublereal p, compositionMap& y)
 {
     setMassFractionsByName(y);
     setState_TP(t,p);
 }
 
-void ThermoPhase::setState_TPY(doublereal t, doublereal p,
-                               const std::string& y)
+void ThermoPhase::setState_TPY(doublereal t, doublereal p, const std::string& y)
 {
     compositionMap yy = parseCompString(y, speciesNames());
     setMassFractionsByName(yy);
@@ -199,8 +193,7 @@ void ThermoPhase::setState_HP(doublereal Htarget, doublereal p,
     setState_HPorUV(Htarget, p, dTtol, false);
 }
 
-void ThermoPhase::setState_UV(doublereal u, doublereal v,
-                              doublereal dTtol)
+void ThermoPhase::setState_UV(doublereal u, doublereal v, doublereal dTtol)
 {
     setState_HPorUV(u, v, dTtol, true);
 }
@@ -217,12 +210,11 @@ void ThermoPhase::setState_HPorUV(doublereal Htarget, doublereal p,
                                   doublereal dTtol, bool doUV)
 {
     doublereal dt;
-    doublereal Hmax = 0.0, Hmin = 0.0;
     doublereal v = 0.0;
 
     // Assign the specific volume or pressure and make sure it's positive
     if (doUV) {
-        v = p;
+        doublereal v = p;
         if (v < 1.0E-300) {
             throw CanteraError("setState_HPorUV (UV)",
                                "Input specific volume is too small or negative. v = " + fp2str(v));
@@ -301,7 +293,7 @@ void ThermoPhase::setState_HPorUV(doublereal Htarget, doublereal p,
         // Check Max and Min values
         if (Tnew > Tmax && !ignoreBounds) {
             setState_conditional_TP(Tmax, p, !doUV);
-            Hmax = (doUV) ? intEnergy_mass() : enthalpy_mass();
+            double Hmax = (doUV) ? intEnergy_mass() : enthalpy_mass();
             if (Hmax >= Htarget) {
                 if (Htop < Htarget) {
                     Ttop = Tmax;
@@ -314,7 +306,7 @@ void ThermoPhase::setState_HPorUV(doublereal Htarget, doublereal p,
         }
         if (Tnew < Tmin && !ignoreBounds) {
             setState_conditional_TP(Tmin, p, !doUV);
-            Hmin = (doUV) ? intEnergy_mass() : enthalpy_mass();
+            double Hmin = (doUV) ? intEnergy_mass() : enthalpy_mass();
             if (Hmin <= Htarget) {
                 if (Hbot > Htarget) {
                     Tbot = Tmin;
@@ -644,7 +636,6 @@ SpeciesThermo& ThermoPhase::speciesThermo(int k)
 void ThermoPhase::initThermoFile(const std::string& inputFile,
                                  const std::string& id)
 {
-
     if (inputFile.size() == 0) {
         throw CanteraError("ThermoPhase::initThermoFile",
                            "input file is null");
@@ -659,7 +650,6 @@ void ThermoPhase::initThermoFile(const std::string& inputFile,
      * The phase object automatically constructs an XML object.
      * Use this object to store information.
      */
-    //XML_Node& phaseNode_XML = xml();
     XML_Node* fxml = new XML_Node();
     fxml->build(fin);
     XML_Node* fxml_phase = findXMLPhase(fxml, id);
@@ -668,8 +658,6 @@ void ThermoPhase::initThermoFile(const std::string& inputFile,
                            "ERROR: Can not find phase named " +
                            id + " in file named " + inputFile);
     }
-    //fxml_phase->copy(&phaseNode_XML);
-    //initThermoXML(*fxml_phase, id);
     bool m_ok = importPhase(*fxml_phase, this);
     if (!m_ok) {
         throw CanteraError("ThermoPhase::initThermoFile","importPhase failed ");
@@ -679,10 +667,6 @@ void ThermoPhase::initThermoFile(const std::string& inputFile,
 
 void ThermoPhase::initThermoXML(XML_Node& phaseNode, const std::string& id)
 {
-
-    /*
-     * and sets the state
-     */
     if (phaseNode.hasChild("state")) {
         XML_Node& stateNode = phaseNode.child("state");
         setStateFromXML(stateNode);
@@ -694,28 +678,20 @@ void ThermoPhase::setReferenceComposition(const doublereal* const x)
 {
     xMol_Ref.resize(m_kk);
     if (x) {
-        for (size_t k = 0; k < m_kk; k++) {
-            xMol_Ref[k] = x[k];
-        }
+        copy(x, x + m_kk, xMol_Ref.begin());
     } else {
-        getMoleFractions(DATA_PTR(xMol_Ref));
+        getMoleFractions(&xMol_Ref[0]);
     }
-    double sum = -1.0;
-    for (size_t k = 0; k < m_kk; k++) {
-        sum += xMol_Ref[k];
-    }
+    double sum = accumulate(xMol_Ref.begin(), xMol_Ref.end(), -1.0);
     if (fabs(sum) > 1.0E-11) {
         throw CanteraError("ThermoPhase::setReferenceComposition",
                            "input mole fractions don't sum to 1.0");
     }
-
 }
 
 void ThermoPhase::getReferenceComposition(doublereal* const x) const
 {
-    for (size_t k = 0; k < m_kk; k++) {
-        x[k] = xMol_Ref[k];
-    }
+    copy(xMol_Ref.begin(), xMol_Ref.end(), x);
 }
 
 void ThermoPhase::initThermo()
@@ -775,7 +751,6 @@ void ThermoPhase::setStateFromXML(const XML_Node& state)
 
 void ThermoPhase::setElementPotentials(const vector_fp& lambda)
 {
-    doublereal rrt = 1.0/(GasConstant* temperature());
     size_t mm = nElements();
     if (lambda.size() < mm) {
         throw CanteraError("setElementPotentials", "lambda too small");
@@ -783,19 +758,14 @@ void ThermoPhase::setElementPotentials(const vector_fp& lambda)
     if (!m_hasElementPotentials) {
         m_lambdaRRT.resize(mm);
     }
-    for (size_t m = 0; m < mm; m++) {
-        m_lambdaRRT[m] = lambda[m] * rrt;
-    }
+    scale(m_lambdaRRT, 1.0/(GasConstant* temperature()));
     m_hasElementPotentials = true;
 }
 
 bool ThermoPhase::getElementPotentials(doublereal* lambda) const
 {
-    doublereal rt = GasConstant* temperature();
     if (m_hasElementPotentials) {
-        for (size_t m = 0; m < nElements(); m++) {
-            lambda[m] =  m_lambdaRRT[m] * rt;
-        }
+        scale(lambda, lambda + nElements(), lambda, GasConstant* temperature());
     }
     return m_hasElementPotentials;
 }
@@ -946,7 +916,6 @@ std::string ThermoPhase::report(bool show_thermo) const
         getMassFractions(&y[0]);
         getChemPotentials(&mu[0]);
         doublereal rt = GasConstant * temperature();
-        //if (th.nSpecies() > 1) {
 
         if (show_thermo) {
             sprintf(p, " \n                           X     "
@@ -979,7 +948,6 @@ std::string ThermoPhase::report(bool show_thermo) const
             }
         }
     }
-    //}
     catch (CanteraError& err) {
         err.save();
     }

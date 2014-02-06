@@ -90,19 +90,15 @@ class XML_Node;
  *   activity concentrations. The dimensions depend on the number
  *   of products and reactants.
  *
- *
  * The kinetics manager requires the calculation of K_c for the
  * calculation of the reverse rate constant
- *
  *
  * @ingroup thermoprops
  * @ingroup phases
  */
 class ThermoPhase : public Phase
 {
-
 public:
-
     //! Constructor. Note that ThermoPhase is meant to be used as
     //! a base class, so this constructor should not be called
     //! explicitly.
@@ -119,15 +115,12 @@ public:
 
     //! Assignment operator
     /*!
-     *  This is NOT a virtual function.
-     *
      * @param right    Reference to %ThermoPhase object to be copied into the
      *                 current one.
      */
     ThermoPhase& operator=(const ThermoPhase& right);
 
-    //! Duplication routine for objects which inherit from
-    //!  ThermoPhase.
+    //! Duplication routine for objects which inherit from ThermoPhase.
     /*!
     *  This virtual routine can be used to duplicate %ThermoPhase objects
     *  inherited from %ThermoPhase even if the application only has
@@ -335,9 +328,8 @@ public:
      * @}
      * @name Electric Potential
      *
-     * The phase may be at some non-zero electrical
-     * potential. These methods set or get the value of the
-     * electric potential.
+     * The phase may be at some non-zero electrical potential. These methods
+     * set or get the value of the electric potential.
      */
     //@{
 
@@ -372,8 +364,7 @@ public:
      * \hat R T \log a_k. \f] The quantity \f$\mu_k^0(T,P)\f$ is
      * the standard chemical potential at unit activity,
      * which depends on  temperature and pressure,
-     * but not on composition. The
-     * activity is dimensionless.
+     * but not on composition. The activity is dimensionless.
      * @{
      */
 
@@ -951,8 +942,7 @@ public:
     /**
      * @name Setting the State
      *
-     * These methods set all or part of the thermodynamic
-     * state.
+     * These methods set all or part of the thermodynamic state.
      * @{
      */
 
@@ -1084,7 +1074,6 @@ public:
     virtual void setState_UV(doublereal u, doublereal v, doublereal tol = 1.e-4);
 
 private:
-
     //! Carry out work in HP and UV calculations.
     /*!
      * @param h     Specific enthalpy or internal energy (J/kg)
@@ -1098,7 +1087,6 @@ private:
                          doublereal tol = 1.e-4, bool doUV = false);
 
 public:
-
     //! Set the specific entropy (J/kg/K) and pressure (Pa).
     /*!
      * This function fixes the internal state of the phase so that
@@ -1152,7 +1140,6 @@ public:
      * @{
      */
 
-
     //!This method is used by the ChemEquil equilibrium solver.
     /*!
      * It sets the state such that the chemical potentials satisfy
@@ -1182,7 +1169,6 @@ public:
      */
     void setElementPotentials(const vector_fp& lambda);
 
-
     //!  Returns the element potentials stored in the ThermoPhase object
     /*!
      * Returns the stored element potentials.
@@ -1209,20 +1195,17 @@ public:
 
     /// Critical temperature (K).
     virtual doublereal critTemperature() const {
-        err("critTemperature");
-        return -1.0;
+        return err("critTemperature");
     }
 
     /// Critical pressure (Pa).
     virtual doublereal critPressure() const {
-        err("critPressure");
-        return -1.0;
+        return err("critPressure");
     }
 
     /// Critical density (kg/m3).
     virtual doublereal critDensity() const {
-        err("critDensity");
-        return -1.0;
+        return err("critDensity");
     }
 
     //@}
@@ -1240,8 +1223,7 @@ public:
      * @param p Pressure (Pa)
      */
     virtual doublereal satTemperature(doublereal p) const {
-        err("satTemperature");
-        return -1.0;
+        return err("satTemperature");
     }
 
     //! Return the saturation pressure given the temperature
@@ -1249,14 +1231,12 @@ public:
      * @param t Temperature (Kelvin)
      */
     virtual doublereal satPressure(doublereal t) {
-        err("satPressure");
-        return -1.0;
+        return err("satPressure");
     }
 
     //! Return the fraction of vapor at the current conditions
     virtual doublereal vaporFraction() const {
-        err("vaprFraction");
-        return -1.0;
+        return err("vaprFraction");
     }
 
     //! Set the state to a saturated system at a particular temperature
@@ -1334,8 +1314,7 @@ public:
 
     /**
      * @internal
-     * Initialization of a ThermoPhase object using an
-     * ctml file.
+     * Initialization of a ThermoPhase object using an ctml file.
      *
      *   This routine is a precursor to initThermoXML(XML_Node*)
      *   routine, which does most of the work.
@@ -1426,7 +1405,6 @@ public:
     virtual void setParameters(int n, doublereal* const c) {
     }
 
-
     //! Get the equation of state parameters in a vector
     /*!
      * @internal
@@ -1438,10 +1416,8 @@ public:
     virtual void getParameters(int& n, doublereal* const c) const {
     }
 
-
     //! Set equation of state parameter values from XML entries.
     /*!
-     *
      * This method is called by function importPhase() in
      * file importCTML.cpp when processing a phase definition in
      * an input file. It should be overloaded in subclasses to set
@@ -1453,7 +1429,6 @@ public:
      *                the "thermo" entry for this phase in the input file.
      */
     virtual void setParametersFromXML(const XML_Node& eosdata) {}
-
 
     //! Set the initial state of the phase to the conditions
     //! specified in the state XML element.
@@ -1576,7 +1551,6 @@ public:
     //@}
 
 protected:
-
     //! Fills `names` and `data` with the column names and species thermo
     //! properties to be included in the output of the reportCSV method.
     virtual void getCsvReportData(std::vector<std::string>& names,
@@ -1637,13 +1611,11 @@ protected:
     std::vector<doublereal> xMol_Ref;
 
 private:
-
     //! Error function that gets called for unhandled cases
     /*!
      * @param msg String containing the message.
      */
     doublereal err(const std::string& msg) const;
-
 };
 
 //! typedef for the ThermoPhase class
@@ -1652,4 +1624,3 @@ typedef ThermoPhase thermo_t;
 }
 
 #endif
-
