@@ -35,6 +35,7 @@ from __future__ import print_function
 from collections import defaultdict
 import logging
 import os.path
+import sys
 import numpy as np
 import re
 import itertools
@@ -66,6 +67,14 @@ ENERGY_UNITS = {'CAL/': 'cal/mol',
                 'KJOULES/MOL': 'kJ/mol',
                 'KJOULES/MOLE': 'kJ/mol'}
 
+if sys.version_info[0] == 2:
+    string_types = (str, unicode)
+    def strip_nonascii(s):
+        return s.decode('ascii', 'ignore')
+else:
+    string_types = (str,)
+    def strip_nonascii(s):
+        return s.encode('ascii', 'ignore').decode()
 
 def compatible_quantities(quantity_basis, units):
     if quantity_basis == 'mol':
@@ -825,7 +834,7 @@ def get_index(seq, value):
     whitespace-insensitive match for *value*. Returns *None* if no match is
     found.
     """
-    if isinstance(seq, str):
+    if isinstance(seq, string_types):
         seq = seq.split()
     value = value.lower().strip()
     for i,item in enumerate(seq):
@@ -834,7 +843,7 @@ def get_index(seq, value):
     return None
 
 def contains(seq, value):
-    if isinstance(seq, str):
+    if isinstance(seq, string_types):
         return value.lower() in seq.lower()
     else:
         return get_index(seq, value) is not None
@@ -1353,7 +1362,7 @@ class Parser(object):
 
             def readline():
                 self.line_number += 1
-                line = ck_file.readline()
+                line = strip_nonascii(ck_file.readline())
                 if '!' in line:
                     return line.split('!', 1)
                 elif line:
@@ -1815,7 +1824,7 @@ duplicate transport data) to be ignored.
                 raise
 
         if transportFile:
-            lines = open(transportFile, 'rU').readlines()
+            lines = [strip_nonascii(line) for line in open(transportFile, 'rU')]
             self.parseTransportData(lines)
 
             # Transport validation: make sure all species have transport data
@@ -1835,7 +1844,6 @@ duplicate transport data) to be ignored.
 
 def main(argv):
     import getopt
-    import sys
 
     longOptions = ['input=', 'thermo=', 'transport=', 'id=', 'output=',
                    'permissive', 'help', 'debug']
