@@ -6,9 +6,7 @@
 
 #include "cantera/base/ctml.h"
 
-//@{
 #define CTML_VERSION_1_4_1
-//@}
 
 #include "cantera/base/global.h"
 #include "cantera/base/stringUtils.h"
@@ -19,7 +17,6 @@ using namespace Cantera;
 namespace ctml
 {
 std::string FP_Format = "%23.15E";
-std::string INT_Format = "%8d";
 
 void addInteger(Cantera::XML_Node& node, const std::string& title, const int val,
                 const std::string& units, const std::string& type)
@@ -70,9 +67,8 @@ void addFloatArray(Cantera::XML_Node& node, const std::string& title, const size
                    const std::string& type,
                    const doublereal minval, const doublereal maxval)
 {
-    size_t i;
     std::string v = "";
-    for (i = 0; i < n; i++) {
+    for (size_t i = 0; i < n; i++) {
         v += fp2str(vals[i],FP_Format);
         if (i == n-1) {
             v += "\n";
@@ -104,9 +100,8 @@ void addNamedFloatArray(Cantera::XML_Node& node, const std::string& name, const 
                         const std::string type, const doublereal minval,
                         const doublereal maxval)
 {
-    int i;
     std::string v = "";
-    for (i = 0; i < n; i++) {
+    for (int i = 0; i < n; i++) {
         v += fp2str(vals[i],FP_Format);
         if (i == n-1) {
             v += "\n";
@@ -152,10 +147,7 @@ void addString(Cantera::XML_Node& node, const std::string& titleString,
 XML_Node* getByTitle(const Cantera::XML_Node& node, const std::string& title)
 {
     XML_Node* s = node.findByAttr("title", title);
-    if (!s) {
-        return 0;
-    }
-    if (s->parent() == &node) {
+    if (s && s->parent() == &node) {
         return s;
     }
     return 0;
@@ -172,15 +164,14 @@ std::string getChildValue(const Cantera::XML_Node& parent, const std::string& na
 void getString(const Cantera::XML_Node& node, const std::string& titleString, std::string& valueString,
                std::string& typeString)
 {
-    valueString = "";
-    typeString = "";
     XML_Node* s = getByTitle(node, titleString);
-    if (s)
-        if (s->name() == "string") {
-            valueString = (*s).value();
-            typeString = (*s)["type"];
-            return;
-        }
+    if (s && s->name() == "string") {
+        valueString = s->value();
+        typeString = (*s)["type"];
+    } else {
+        valueString = "";
+        typeString = "";
+    }
 }
 
 void getNamedStringValue(const Cantera::XML_Node& node, const std::string& nameString, std::string& valueString,
@@ -194,12 +185,9 @@ void getNamedStringValue(const Cantera::XML_Node& node, const std::string& nameS
         typeString = xc["type"];
     } else {
         XML_Node* s = getByTitle(node, nameString);
-        if (s) {
-            if (s->name() == "string") {
-                valueString = (*s).value();
-                typeString = (*s)["type"];
-                return;
-            }
+        if (s && s->name() == "string") {
+            valueString = (*s).value();
+            typeString = (*s)["type"];
         }
     }
 }
@@ -209,18 +197,11 @@ void getIntegers(const Cantera::XML_Node& node,
 {
     std::vector<XML_Node*> f;
     node.getChildren("integer",f);
-    integer x;
-    std::string typ, title, vmin, vmax;
     for (size_t i = 0; i < f.size(); i++) {
-        const XML_Node& fi = *(f[i]);
-        x = atoi(fi().c_str());
-        title = fi["title"];
-        vmin = fi["min"];
-        vmax = fi["max"];
-        if (vmin != "")
-            if (fi["max"] != "") {
-                v[title] = x;
-            }
+        const XML_Node& fi = *f[i];
+        if (fi["min"] != "" && fi["max"] != "") {
+            v[fi["title"]] = intValue(fi());
+        }
     }
 }
 
@@ -231,34 +212,21 @@ void getFloats(const Cantera::XML_Node& node, std::map<std::string, double>& v,
                     "To be removed in Cantera 2.2.");
     std::vector<XML_Node*> f;
     node.getChildren("float",f);
-    doublereal x, x0, x1, fctr;
-    std::string typ, title, units, vmin, vmax;
     for (size_t i = 0; i < f.size(); i++) {
         const XML_Node& fi = *(f[i]);
-        x = fpValue(fi());
-        x0 = Undef;
-        x1 = Undef;
-        typ = fi["type"];
-        title = fi["title"];
-        units = fi["units"];
-        vmin = fi["min"];
-        vmax = fi["max"];
-        if (vmin != "") {
-            x0 = fpValue(vmin);
-            if (x < x0 - Tiny) {
-                writelog("\nWarning: value "+fi()+" is below lower limit of "
-                         +vmin+".\n");
-            }
+        doublereal x = fpValue(fi());
+        const string& vmin = fi["min"];
+        const string& vmax = fi["max"];
+        if (vmin != "" && x < fpValue(vmin) - Tiny) {
+            writelog("\nWarning: value "+fi()+" is below lower limit of "
+                     +vmin+".\n");
         }
-        if (fi["max"] != "") {
-            x1 = fpValue(vmax);
-            if (x > x1 + Tiny) {
-                writelog("\nWarning: value "+fi()+" is above upper limit of "
-                         +vmax+".\n");
-            }
+        if (fi["max"] != "" && x > fpValue(vmax) + Tiny) {
+            writelog("\nWarning: value "+fi()+" is above upper limit of "
+                     +vmax+".\n");
         }
-        fctr = (convert ? toSI(units) : 1.0); // toSI(typ,units);
-        v[title] = fctr*x;
+        doublereal fctr = (convert ? toSI(fi["units"]) : 1.0); // toSI(typ,units);
+        v[fi["title"]] = fctr*x;
     }
 }
 
@@ -277,27 +245,18 @@ doublereal getFloat(const Cantera::XML_Node& parent,
 doublereal getFloatCurrent(const Cantera::XML_Node& node,
                            const std::string& type)
 {
-    doublereal x, x0, x1, fctr = 1.0;
-    string units, vmin, vmax;
-    x = fpValue(node());
-    x0 = Undef;
-    x1 = Undef;
-    units = node["units"];
-    vmin = node["min"];
-    vmax = node["max"];
-    if (vmin != "") {
-        x0 = fpValue(vmin);
-        if (x < x0 - Tiny) {
-            writelog("\nWarning: value "+node()+" is below lower limit of "
-                     +vmin+".\n");
-        }
+    doublereal fctr = 1.0;
+    doublereal x = fpValue(node());
+    const string& units = node["units"];
+    const string& vmin = node["min"];
+    const string& vmax = node["max"];
+    if (vmin != "" && x < fpValue(vmin) - Tiny) {
+        writelog("\nWarning: value "+node()+" is below lower limit of "
+                 +vmin+".\n");
     }
-    if (node["max"] != "") {
-        x1 = fpValue(vmax);
-        if (x > x1 + Tiny) {
-            writelog("\nWarning: value "+node()+" is above upper limit of "
-                     +vmax+".\n");
-        }
+    if (node["max"] != "" && x > fpValue(vmax) + Tiny) {
+        writelog("\nWarning: value "+node()+" is above upper limit of "
+                 +vmax+".\n");
     }
     // Note, most types of converters default to toSI() type atm.
     // This may change and become more specific in the future.
@@ -336,7 +295,7 @@ bool getOptionalFloat(const Cantera::XML_Node& parent,
                       const std::string& type)
 {
     if (parent.hasChild(name)) {
-        fltRtn= getFloat(parent, name, type);
+        fltRtn = getFloat(parent, name, type);
         return true;
     }
     return false;
@@ -366,17 +325,14 @@ doublereal getFloatDefaultUnits(const Cantera::XML_Node& parent,
         throw CanteraError("getFloatDefaultUnits",
                            "type of units must be supplied and understood");
     }
-    doublereal val = getFloat(parent, name, type);
-    val /= fctr;
-    return val;
+    return getFloat(parent, name, type) / fctr;
 }
 
 bool getOptionalModel(const Cantera::XML_Node& parent, const std::string& nodeName,
                       std::string& modelName)
 {
     if (parent.hasChild(nodeName)) {
-        const XML_Node& node = parent.child(nodeName);
-        modelName = node["model"];
+        modelName = parent.child(nodeName)["model"];
         return true;
     }
     return false;
@@ -390,26 +346,16 @@ int getInteger(const Cantera::XML_Node& parent, const std::string& name)
                            "no child XML element named " + name);
     }
     const XML_Node& node = parent.child(name);
-    int x, x0, x1;
-    string units, vmin, vmax;
-    x = atoi(node().c_str());
-    x0 = -9999999;
-    x1 =  9999999;
-    vmin = node["min"];
-    vmax = node["max"];
-    if (vmin != "") {
-        x0 = atoi(vmin.c_str());
-        if (x < x0) {
-            writelog("\nWarning: value "+node()+" is below lower limit of "
-                     +vmin+".\n");
-        }
+    int x = intValue(node());
+    const string& vmin = node["min"];
+    const string& vmax = node["max"];
+    if (vmin != "" && x < intValue(vmin)) {
+        writelog("\nWarning: value "+node()+" is below lower limit of "
+                 +vmin+".\n");
     }
-    if (node["max"] != "") {
-        x1 = atoi(vmax.c_str());
-        if (x > x1) {
-            writelog("\nWarning: value "+node()+" is above upper limit of "
-                     +vmax+".\n");
-        }
+    if (node["max"] != "" && x > intValue(vmax)) {
+        writelog("\nWarning: value "+node()+" is above upper limit of "
+                 +vmax+".\n");
     }
     return x;
 }
@@ -418,12 +364,8 @@ size_t getFloatArray(const Cantera::XML_Node& node, std::vector<doublereal> & v,
                      const bool convert, const std::string& unitsString,
                      const std::string& nodeName)
 {
-    std::string::size_type icom;
-    string numstr;
-    doublereal dtmp;
-    string nn = node.name();
     const Cantera::XML_Node* readNode = &node;
-    if (nn != nodeName) {
+    if (node.name() != nodeName) {
         vector<Cantera::XML_Node*> ll;
         node.getChildren(nodeName, ll);
         if (ll.size() == 0) {
@@ -447,7 +389,7 @@ size_t getFloatArray(const Cantera::XML_Node& node, std::vector<doublereal> & v,
     /*
      * Get the attributes field, units, from the XML node
      */
-    std::string units = (*readNode)["units"];
+    std::string units = readNode->attrib("units");
     if (units != "" && convert) {
         if (unitsString == "actEnergy" && units != "") {
             funit = actEnergyToSI(units);
@@ -456,22 +398,20 @@ size_t getFloatArray(const Cantera::XML_Node& node, std::vector<doublereal> & v,
         }
     }
 
-    if ((*readNode)["min"] != "") {
-        vmin = fpValueCheck((*readNode)["min"]);
+    if (readNode->attrib("min") != "") {
+        vmin = fpValueCheck(readNode->attrib("min"));
     }
-    if ((*readNode)["max"] != "") {
-        vmax = fpValueCheck((*readNode)["max"]);
+    if (readNode->attrib("max") != "") {
+        vmax = fpValueCheck(readNode->attrib("max"));
     }
 
-    doublereal vv;
     std::string val = readNode->value();
-    while (1 > 0) {
-        icom = val.find(',');
+    while (true) {
+        size_t icom = val.find(',');
         if (icom != string::npos) {
-            numstr = val.substr(0,icom);
+            string numstr = val.substr(0,icom);
             val = val.substr(icom+1,val.size());
-            dtmp = fpValueCheck(numstr);
-            v.push_back(dtmp);
+            v.push_back(fpValueCheck(numstr));
         } else {
             /*
              * This little bit of code is to allow for the
@@ -482,12 +422,11 @@ size_t getFloatArray(const Cantera::XML_Node& node, std::vector<doublereal> & v,
              * possibility in for backwards compatibility.
              */
             if (!val.empty()) {
-                dtmp = fpValueCheck(val);
-                v.push_back(dtmp);
+                v.push_back(fpValueCheck(val));
             }
             break;
         }
-        vv = v.back();
+        doublereal vv = v.back();
         if (vmin != Undef && vv < vmin - Tiny) {
             writelog("\nWarning: value "+fp2str(vv)+
                      " is below lower limit of " +fp2str(vmin)+".\n");
@@ -507,17 +446,13 @@ void getMap(const Cantera::XML_Node& node, std::map<std::string, std::string>& m
 {
     std::vector<std::string> v;
     getStringArray(node, v);
-    std::string key, val;
-    string::size_type icolon;
     for (size_t i = 0; i < v.size(); i++) {
-        icolon = v[i].find(":");
+        size_t icolon = v[i].find(":");
         if (icolon == string::npos) {
             throw CanteraError("getMap","missing colon in map entry ("
                                +v[i]+")");
         }
-        key = v[i].substr(0,icolon);
-        val = v[i].substr(icolon+1, v[i].size());
-        m[key] = val;
+        m[v[i].substr(0,icolon)] = v[i].substr(icolon+1, v[i].size());
     }
 }
 
@@ -527,16 +462,14 @@ int getPairs(const Cantera::XML_Node& node, std::vector<std::string>& key,
     vector<string> v;
     getStringArray(node, v);
     int n = static_cast<int>(v.size());
-    string::size_type icolon;
     for (int i = 0; i < n; i++) {
-        icolon = v[i].find(":");
+        size_t icolon = v[i].find(":");
         if (icolon == string::npos) {
             throw CanteraError("getPairs","Missing a colon in the Pair entry ("
                                +v[i]+")");
         }
         key.push_back(v[i].substr(0,icolon));
         val.push_back(v[i].substr(icolon+1, v[i].size()));
-        //cout << "getPairs: " << key.back() << " " << val.back() << endl;
     }
     return n;
 }
@@ -547,23 +480,15 @@ void getMatrixValues(const Cantera::XML_Node& node,
                      Cantera::Array2D& retnValues, const bool convert,
                      const bool matrixSymmetric)
 {
-    size_t szKey1 = keyStringRow.size();
-    size_t szKey2 = keyStringCol.size();
-    size_t nrow   = retnValues.nRows();
-    size_t ncol   = retnValues.nColumns();
-    if (szKey1 > nrow) {
+    if (keyStringRow.size() > retnValues.nRows()) {
         throw CanteraError("getMatrixValues",
                            "size of key1 greater than numrows");
-    }
-    if (szKey2 > ncol) {
+    } else if (keyStringCol.size() > retnValues.nColumns()) {
         throw CanteraError("getMatrixValues",
                            "size of key2 greater than num cols");
-    }
-    if (matrixSymmetric) {
-        if (nrow != ncol) {
-            throw CanteraError("getMatrixValues",
-                               "nrow != ncol for a symmetric matrix");
-        }
+    } else if (matrixSymmetric && retnValues.nRows() != retnValues.nColumns()) {
+        throw CanteraError("getMatrixValues",
+                           "nrow != ncol for a symmetric matrix");
     }
 
     /*
@@ -571,58 +496,42 @@ void getMatrixValues(const Cantera::XML_Node& node,
      * and determine the conversion factor, funit.
      */
     doublereal funit = 1.0;
-    string units = node["units"];
-    if (units != "" && convert) {
-        funit = toSI(units);
+    if (convert && node["units"] != "") {
+        funit = toSI(node["units"]);
     }
 
-    string key1;
-    string key2;
-    string rmm;
-    string val;
     vector<string> v;
     getStringArray(node, v);
-    string::size_type icolon;
     for (size_t i = 0; i < v.size(); i++) {
-        icolon = v[i].find(":");
+        size_t icolon = v[i].find(":");
         if (icolon == string::npos) {
             throw CanteraError("getMatrixValues","Missing two colons ("
                                +v[i]+")");
         }
-        key1 = v[i].substr(0,icolon);
-        rmm = v[i].substr(icolon+1, v[i].size());
+        string key1 = v[i].substr(0,icolon);
+        string rmm = v[i].substr(icolon+1, v[i].size());
+
         icolon = rmm.find(":");
         if (icolon == string::npos) {
             throw CanteraError("getMatrixValues","Missing one colon ("
                                +v[i]+")");
         }
-        key2 = rmm.substr(0,icolon);
-        val = rmm.substr(icolon+1, rmm.size());
 
-        size_t icol = npos;
-        size_t irow = npos;
-        for (size_t j = 0; j < szKey1; j++) {
-            if (key1 == keyStringRow[j]) {
-                irow = j;
-                break;
-            }
-        }
-        if (irow == npos) {
+        size_t irow = find(keyStringRow.begin(), keyStringRow.end(), key1)
+                      - keyStringRow.begin();
+        if (irow == keyStringRow.size()) {
             throw CanteraError("getMatrixValues","Row not matched by string: "
                                + key1);
         }
-        for (size_t j = 0; j < szKey2; j++) {
-            if (key2 == keyStringCol[j]) {
-                icol = j;
-                break;
-            }
-        }
-        if (icol == npos) {
+
+        string key2 = rmm.substr(0,icolon);
+        size_t icol = find(keyStringCol.begin(), keyStringCol.end(), key2)
+                      - keyStringCol.begin();
+        if (icol == keyStringCol.size()) {
             throw CanteraError("getMatrixValues","Col not matched by string: "
                                + key2);
         }
-        double dval = fpValueCheck(val);
-        dval *= funit;
+        double dval = fpValueCheck(rmm.substr(icolon+1, rmm.size())) * funit;
         /*
          * Finally, insert the value;
          */
@@ -635,8 +544,7 @@ void getMatrixValues(const Cantera::XML_Node& node,
 
 void getStringArray(const Cantera::XML_Node& node, std::vector<std::string>& v)
 {
-    std::string val = node.value();
-    tokenizeString(val, v);
+    tokenizeString(node.value(), v);
 }
 
 }
