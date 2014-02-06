@@ -145,10 +145,8 @@ public:
                               doublereal& maxTemp,
                               doublereal& refPressure) const;
 
-#ifdef H298MODIFY_CAPABILITY
     virtual doublereal reportOneHf298(const int k) const;
     virtual void modifyOneHf298(const int k, const doublereal Hf298New);
-#endif
 
     //! Initialized to the type of parameterization
     /*!

@@ -304,8 +304,6 @@ SpeciesThermoInterpType* GeneralSpeciesThermo::provideSTIT(size_t k)
     return m_sp[k];
 }
 
-#ifdef H298MODIFY_CAPABILITY
-
 doublereal GeneralSpeciesThermo::reportOneHf298(int k) const
 {
     SpeciesThermoInterpType* sp_ptr = m_sp[k];
@@ -323,7 +321,5 @@ void GeneralSpeciesThermo::modifyOneHf298(const int k, const doublereal Hf298New
         sp_ptr->modifyOneHf298(k, Hf298New);
     }
 }
-
-#endif
 
 }

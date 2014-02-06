@@ -191,8 +191,6 @@ public:
         }
     }
 
-#ifdef H298MODIFY_CAPABILITY
-
     virtual doublereal reportHf298(doublereal* const h298 = 0) const {
         double tt[6];
         double temp = 298.15;
@@ -226,8 +224,6 @@ public:
         double delH = Hf298New - hcurr;
         m_coeff[0] += (delH) / GasConstant;
     }
-
-#endif
 
 protected:
     //! array of polynomial coefficients

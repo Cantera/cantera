@@ -176,8 +176,6 @@ public:
         return m_spthermo->minTemp(k);
     }
 
-#ifdef H298MODIFY_CAPABILITY
-
     //! Report the 298 K Heat of Formation of the standard state of one species (J kmol-1)
     /*!
      *   The 298K Heat of Formation is defined as the enthalpy change to create the standard state
@@ -201,33 +199,6 @@ public:
     virtual void modifyOneHf298SS(const size_t& k, const doublereal Hf298New) {
         m_spthermo->modifyOneHf298(k, Hf298New);
     }
-
-#else
-
-    //! Report the 298 K Heat of Formation of the standard state of one species (J kmol-1)
-    /*!
-     *   The 298K Heat of Formation is defined as the enthalpy change to create the standard state
-     *   of the species from its constituent elements in their standard states at 298 K and 1 bar.
-     *
-     *   @param k    species index
-     *   @return     Returns the current value of the Heat of Formation at 298K and 1 bar
-     */
-    doublereal Hf298SS(const int k) const {
-        return err("Hf298SS - H298MODIFY_CAPABILITY not compiled in");
-    }
-
-    //! Modify the value of the 298 K Heat of Formation of one species in the phase (J kmol-1)
-    /*!
-     *   The 298K heat of formation is defined as the enthalpy change to create the standard state
-     *   of the species from its constituent elements in their standard states at 298 K and 1 bar.
-     *
-     *   @param  k           Species k
-     *   @param  Hf298New    Specify the new value of the Heat of Formation at 298K and 1 bar
-     */
-    virtual void modifyOneHf298SS(const int k, const doublereal Hf298New) {
-        (void) err("Hf298SS - H298MODIFY_CAPABILITY not compiled in");
-    }
-#endif
 
     //! Maximum temperature for which the thermodynamic data for the species
     //! are valid.

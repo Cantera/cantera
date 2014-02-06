@@ -165,8 +165,6 @@ public:
         }
     }
 
-#ifdef H298MODIFY_CAPABILITY
-
     doublereal reportHf298(doublereal* const h298 = 0) const {
         double h;
         if (298.15 <= m_midT) {
@@ -194,8 +192,6 @@ public:
         hnew = h + delH;
         mnp_high.modifyOneHf298(k, hnew);
     }
-
-#endif
 
 protected:
     //! Midrange temperature

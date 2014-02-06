@@ -209,7 +209,6 @@ void NasaThermo::reportParams(size_t index, int& type,
     }
 }
 
-#ifdef H298MODIFY_CAPABILITY
 doublereal NasaThermo::reportOneHf298(const int k) const
 {
     int grp = m_group_map[k];
@@ -252,7 +251,6 @@ void NasaThermo::modifyOneHf298(const int k, const doublereal Hf298New)
         nlow->modifyOneHf298(k, hnew);
     }
 }
-#endif
 
 doublereal NasaThermo::cp_R(double t, const doublereal* c)
 {

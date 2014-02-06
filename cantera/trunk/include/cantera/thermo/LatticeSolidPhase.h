@@ -624,8 +624,6 @@ public:
      */
     void setLatticeMoleFractionsByName(int n, const std::string& x);
 
-#ifdef H298MODIFY_CAPABILITY
-
     //! Modify the value of the 298 K Heat of Formation of one species in the phase (J kmol-1)
     /*!
      *   The 298K heat of formation is defined as the enthalpy change to create the standard state
@@ -635,7 +633,6 @@ public:
      *   @param  Hf298New    Specify the new value of the Heat of Formation at 298K and 1 bar
      */
     virtual void modifyOneHf298SS(const size_t& k, const doublereal Hf298New);
-#endif
 
 private:
     //! error routine

@@ -328,8 +328,6 @@ public:
         }
     }
 
-#ifdef H298MODIFY_CAPABILITY
-
     virtual doublereal reportOneHf298(int k) const {
         doublereal h;
         doublereal t = 298.15;
@@ -376,7 +374,6 @@ public:
 
     }
 
-#endif
 protected:
     //! Vector of vector of NasaPoly1's for the high temp region.
     /*!

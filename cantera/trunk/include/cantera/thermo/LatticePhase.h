@@ -733,8 +733,6 @@ public:
     /// @name Thermodynamic Values for the Species Reference States
     //@{
 
-#ifdef H298MODIFY_CAPABILITY
-
     //! Modify the value of the 298 K Heat of Formation of one species in the phase (J kmol-1)
     /*!
      *   The 298K heat of formation is defined as the enthalpy change to create the standard state
@@ -747,7 +745,6 @@ public:
         m_spthermo->modifyOneHf298(k, Hf298New);
         m_tlast += 0.0001234;
     }
-#endif
 
     //! Returns the vector of nondimensional
     //!  Enthalpies of the reference state at the current temperature
