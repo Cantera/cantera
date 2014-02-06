@@ -263,7 +263,6 @@ public:
         }
     }
 
-#ifdef H298MODIFY_CAPABILITY
     virtual doublereal reportOneHf298(int k) const {
         throw CanteraError("reportHF298", "unimplemented");
     }
@@ -271,7 +270,6 @@ public:
     virtual void modifyOneHf298(const int k, const doublereal Hf298New) {
         throw CanteraError("reportHF298", "unimplemented");
     }
-#endif
 
 protected:
     //! Mapping between the species index and the vector index where the coefficients are kept

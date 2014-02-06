@@ -162,13 +162,11 @@ void VPStandardStateTP::getEnthalpy_RT(doublereal* hrt) const
 }
 
 //================================================================================================
-#ifdef H298MODIFY_CAPABILITY
 void VPStandardStateTP::modifyOneHf298SS(const size_t& k, const doublereal Hf298New)
 {
     m_spthermo->modifyOneHf298(k, Hf298New);
     m_Tlast_ss += 0.0001234;
 }
-#endif
 //================================================================================================
 void VPStandardStateTP::getEntropy_R(doublereal* srt) const
 {

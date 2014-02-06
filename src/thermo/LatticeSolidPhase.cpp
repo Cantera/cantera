@@ -512,7 +512,6 @@ void LatticeSolidPhase::setParametersFromXML(const XML_Node& eosdata)
 
 }
 
-#ifdef H298MODIFY_CAPABILITY
 void LatticeSolidPhase::modifyOneHf298SS(const size_t& k, const doublereal Hf298New)
 {
     for (size_t n = 0; n < m_nlattice; n++) {
@@ -525,7 +524,6 @@ void LatticeSolidPhase::modifyOneHf298SS(const size_t& k, const doublereal Hf298
     m_tlast += 0.0001234;
     _updateThermo();
 }
-#endif
 
 doublereal LatticeSolidPhase::err(const std::string& msg) const
 {

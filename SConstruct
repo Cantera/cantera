@@ -377,11 +377,6 @@ config_options = [
         'sphinx_cmd',
         """Command to use for building the Sphinx documentation.""",
         'sphinx-build', PathVariable.PathAccept),
-    BoolVariable(
-        'with_h298modify_capability',
-        """Enable changing the 298K heats of formation directly via
-           the C++ layer.""",
-        False),
     EnumVariable(
         'use_sundials',
         """Cantera uses the CVODE or CVODES ODE integrator to time-integrate
@@ -1143,8 +1138,6 @@ if env.get('has_sundials_lapack') and not env['BUILD_BLAS_LAPACK']:
     configh['SUNDIALS_USE_LAPACK'] = 1
 else:
     configh['SUNDIALS_USE_LAPACK'] = 0
-
-cdefine('H298MODIFY_CAPABILITY', 'with_h298modify_capability')
 
 cdefine('LAPACK_FTN_STRING_LEN_AT_END', 'lapack_ftn_string_len_at_end')
 cdefine('LAPACK_FTN_TRAILING_UNDERSCORE', 'lapack_ftn_trailing_underscore')

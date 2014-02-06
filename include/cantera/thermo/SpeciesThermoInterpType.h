@@ -266,8 +266,6 @@ public:
      */
     virtual void modifyParameters(doublereal* coeffs) {}
 
-#ifdef H298MODIFY_CAPABILITY
-
     //! Report the 298 K Heat of Formation of the standard state of one species (J kmol-1)
     /*!
      *   The 298K Heat of Formation is defined as the enthalpy change to create the standard state
@@ -289,8 +287,6 @@ public:
      *   @param  Hf298New    Specify the new value of the Heat of Formation at 298K and 1 bar
      */
     virtual void modifyOneHf298(const int k, const doublereal Hf298New);
-
-#endif
 
 protected:
     //!  lowest valid temperature

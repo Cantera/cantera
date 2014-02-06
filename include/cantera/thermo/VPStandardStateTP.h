@@ -397,7 +397,6 @@ public:
      */
     virtual void getEnthalpy_RT_ref(doublereal* hrt) const;
 
-#ifdef H298MODIFY_CAPABILITY
     //!  Modify the value of the 298 K Heat of Formation of the standard state of
     //!  one species in the phase (J kmol-1)
     /*!
@@ -409,7 +408,6 @@ public:
      *                       units = J/kmol.
      */
     void modifyOneHf298SS(const size_t& k, const doublereal Hf298New);
-#endif
 
     //!  Returns the vector of nondimensional
     //!  Gibbs free energies of the reference state at the current temperature

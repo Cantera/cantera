@@ -110,8 +110,6 @@ void ConstCpPoly::modifyParameters(doublereal* coeffs)
     m_logt0 = log(m_t0);
 }
 
-#ifdef H298MODIFY_CAPABILITY
-
 doublereal ConstCpPoly::reportHf298(doublereal* const h298) const
 {
     double temp = 298.15;
@@ -131,7 +129,5 @@ void ConstCpPoly::modifyOneHf298(const size_t& k, const doublereal Hf298New)
     doublereal delH = Hf298New - hnow;
     m_h0_R += delH / GasConstant;
 }
-
-#endif
 
 }

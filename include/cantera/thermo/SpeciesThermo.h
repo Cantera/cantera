@@ -309,7 +309,6 @@ public:
                               doublereal& maxTemp,
                               doublereal& refPressure) const =0;
 
-#ifdef H298MODIFY_CAPABILITY
     //! Report the 298 K Heat of Formation of the standard state of one species (J kmol-1)
     /*!
      *   The 298K Heat of Formation is defined as the enthalpy change to create the standard state
@@ -331,7 +330,6 @@ public:
      *                       units = J/kmol.
      */
     virtual void modifyOneHf298(const int k, const doublereal Hf298New) = 0;
-#endif
 
 };
 //@}

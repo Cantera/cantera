@@ -219,8 +219,6 @@ public:
         std::copy(coeffs, coeffs + 7, m_coeff.begin());
     }
 
-#ifdef H298MODIFY_CAPABILITY
-
     virtual doublereal reportHf298(doublereal* const h298 = 0) const {
         double tPoly[4];
         doublereal tt = 1.e-3*298.15;
@@ -250,8 +248,6 @@ public:
         doublereal delH = Hf298New - hnow;
         m_coeff[5] += delH / 1.0E6;
     }
-
-#endif
 
 protected:
     //! Array of coeffcients
@@ -467,8 +463,6 @@ public:
         msp_high = new ShomatePoly(m_index, m_midT, m_highT, m_Pref, coeffs+8);
     }
 
-#ifdef H298MODIFY_CAPABILITY
-
     virtual doublereal reportHf298(doublereal* const h298 = 0) const {
         doublereal h;
         if (298.15 <= m_midT) {
@@ -496,8 +490,6 @@ public:
         hnew = h + delH;
         msp_high->modifyOneHf298(k, hnew);
     }
-
-#endif
 
 protected:
     //! Midrange temperature (kelvin)

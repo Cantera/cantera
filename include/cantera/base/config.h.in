@@ -104,10 +104,6 @@ typedef  int          ftnlen;       // Fortran hidden string length type
 
 //-------------- Optional Cantera Capabilities ----------------------
 
-//    Enable sensitivity analysis via changing H298 directly
-//    for species
-%(H298MODIFY_CAPABILITY)s
-
 //    Enable Sundials to use an external BLAS/LAPACK library if it was
 //    built to use this option
 %(SUNDIALS_USE_LAPACK)s
