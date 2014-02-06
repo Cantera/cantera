@@ -1,5 +1,6 @@
 from buildutils import *
 import subprocess
+from xml.etree import ElementTree
 
 Import('env','build','install')
 localenv = env.Clone()
@@ -17,29 +18,41 @@ PASSED_FILES = {}
 if 'LD_LIBRARY_PATH' in os.environ:
     localenv['ENV']['LD_LIBRARY_PATH'] = os.environ['LD_LIBRARY_PATH']
 
-def testRunner(target, source, env):
-    """SCons Action to run a compiled test program"""
-    program = source[0]
-    passedFile = target[0]
-    workDir = Dir('#test/work').abspath
-
-    del testResults.tests[passedFile.name]
-    if not os.path.isdir(workDir):
-        os.mkdir(workDir)
-    code = subprocess.call([program.abspath], env=env['ENV'], cwd=workDir)
-    if not code:
-        # Test was successful
-        open(passedFile.path, 'w').write(time.asctime()+'\n')
-        testResults.passed[passedFile.name] = program
-    else:
-        testResults.failed[passedFile.name] = program
-
 
 def addTestProgram(subdir, progName, env_vars={}):
     """
     Compile a test program and create a targets for running
     and resetting the test.
     """
+    def gtestRunner(target, source, env):
+        """SCons Action to run a compiled gtest program"""
+        program = source[0]
+        passedFile = target[0]
+        testResults.tests.pop(passedFile.name, None)
+        workDir = Dir('#test/work').abspath
+        resultsFile = pjoin(workDir, 'gtest-%s.xml' % progName)
+        if os.path.exists(resultsFile):
+            os.remove(resultsFile)
+
+        if not os.path.isdir(workDir):
+            os.mkdir(workDir)
+        code = subprocess.call([program.abspath, '--gtest_output=xml:'+resultsFile],
+                               env=env['ENV'], cwd=workDir)
+
+        if not code:
+            # Test was successful
+            open(passedFile.path, 'w').write(time.asctime()+'\n')
+        else:
+            testResults.failed[passedFile.name] = program
+
+        results = ElementTree.parse(resultsFile)
+        for test in results.findall('.//testcase'):
+            testName = ': '.join((progName, test.get('name')))
+            if test.findall('failure'):
+                testResults.failed[testName] = 1
+            else:
+                testResults.passed[testName] = 1
+
     testenv = localenv.Clone()
     testenv['ENV'].update(env_vars)
     program = testenv.Program(pjoin(subdir, progName),
@@ -47,7 +60,7 @@ def addTestProgram(subdir, progName, env_vars={}):
     passedFile = File(pjoin(str(program[0].dir), '%s.passed' % program[0].name))
     PASSED_FILES[progName] = str(passedFile)
     testResults.tests[passedFile.name] = program
-    run_program = testenv.Command(passedFile, program, testRunner)
+    run_program = testenv.Command(passedFile, program, gtestRunner)
     Alias('test', run_program)
     Alias('test-%s' % progName, run_program)
     env['testNames'].append(progName)
