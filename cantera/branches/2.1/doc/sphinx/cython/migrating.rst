@@ -134,6 +134,13 @@ should be replaced with::
     >>> gas.UV = -1.1e6, 5.5
     >>> gas.TPY = 300, 101325, 'H2:1.0'
 
+The ``saveState`` and ``restoreState`` methods have been removed. Their
+functionality can be replicated as follows::
+
+    >>> state = gas.TDY
+    >>> # (operations that modify gas)
+    >>> gas.TDY = state
+
 Printing Phase Summaries
 ------------------------
 
