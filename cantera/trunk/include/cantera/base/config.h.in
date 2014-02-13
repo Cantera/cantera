@@ -1,6 +1,3 @@
-//
-//  Run the 'preconfig' script to generate 'config.h' from this input file.
-//
 #ifndef CT_CONFIG_H
 #define CT_CONFIG_H
 
