@@ -62,7 +62,8 @@ Creates an object which represents an ``IdealGasPhase`` mixture with a
 ``GasKinetics`` reaction mechansm and a ``MixTransport`` transport model,
 based on the parameters specified in the input file.
 
-For importing multiple phases from a single file, the ``importPhases`` function has been retained with the new name ``import_phases``::
+For importing multiple phases from a single file, the ``importPhases`` function
+has been retained with the new name ``import_phases``::
 
     >>> gas, anode_bulk, oxide = ct.import_phases('sofc.cti',
                                                   ['gas', 'metal', 'oxide_bulk'])
@@ -95,7 +96,8 @@ should be replaced with::
     >>> kf = gas.forward_rate_constants
     >>> gas.name = 'foo'
 
-Some common properties have been renamed according to the variable that is typically used to represent them::
+Some common properties have been renamed according to the variable that is
+typically used to represent them::
 
     >>> gas.temperature()
     >>> gas.pressure()
@@ -107,7 +109,8 @@ should be replaced with::
     >>> gas.P
     >>> gas.Y
 
-For pure fluid phases, the property ``X`` refers to the vapor mass fraction or "quality" of the phase. The following::
+For pure fluid phases, the property ``X`` refers to the vapor mass fraction or
+"quality" of the phase. The following::
 
     >>> w = Cantera.liquidvapor.Water()
     >>> w.set(T=400, Vapor=0.5)
@@ -120,7 +123,8 @@ should be replaced with::
 Setting Thermodyamic State
 --------------------------
 
-The ``set`` method has been removed in favor of property pairs or triplets. The following::
+The ``set`` method has been removed in favor of property pairs or triplets. The
+following::
 
     >>> gas.setMoleFractions('CH4:1.0, O2:0.1')
     >>> gas.set(X='CH4:1.0, O2:0.1')
@@ -145,7 +149,9 @@ Printing Phase Summaries
 ------------------------
 
 `Solution` objects no longer print out a verbose summary as their string
-representation. Instead, the summary report can be generated using the `report()` method, which returns a string, or by calling the `Solution` object to print the report to the screen. The following are equivalent::
+representation. Instead, the summary report can be generated using the
+`report()` method, which returns a string, or by calling the `Solution` object
+to print the report to the screen. The following are equivalent::
 
     >>> print(gas.report())
     >>> gas()
@@ -153,17 +159,18 @@ representation. Instead, the summary report can be generated using the `report()
 Getting Properties for a Subset of Species
 ------------------------------------------
 
-Some methods previously accepted an optional list of species as a filter,
-e.g.::
+Some methods previously accepted an optional list of species as a filter, e.g.::
 
     >>> gas.massFractions(['OH','H'])
 
-This is not compatible with the Python "property" syntax, so the following alternative is used instead::
+This is not compatible with the Python "property" syntax, so the following
+alternative is used instead::
 
     >>> gas['OH','H2'].Y
     array([ 0.,  1.])
 
-This works for any property which returns a value for each species, and works with species names, indices, and index ranges::
+This works for any property which returns a value for each species, and works
+with species names, indices, and index ranges::
 
     >>> gas[1,2,6].partial_molar_cp
     array([ 20786.15525072,  21900.30946418,  34929.99146762])
@@ -181,16 +188,22 @@ to specify the species list again::
 Transport Models
 ----------------
 
-The old method for setting the transport model, `switchTransportModel` has been replaced with the `transport_model` property. To use the multicomponent transport model::
+The old method for setting the transport model, `switchTransportModel` has been
+replaced with the `transport_model` property. To use the multicomponent
+transport model::
 
     >>> gas.transport_model = 'Multi'
 
-Note that unlike the previous implementation, only one transport model can be associated with a `Solution` object at a time, so there is a larger cost with switching models. If you need to alternate between transport models, it is generally better to use two different `Solution` objects.
+Note that unlike the previous implementation, only one transport model can be
+associated with a `Solution` object at a time, so there is a larger cost with
+switching models. If you need to alternate between transport models, it is
+generally better to use two different `Solution` objects.
 
 Reactor Networks
 ----------------
 
-As with the `Solution` class, properties are now used to get and set most parameters of reactors, flow devices, walls, etc. The following old code::
+As with the `Solution` class, properties are now used to get and set most
+parameters of reactors, flow devices, walls, etc. The following old code::
 
     >>> Y = reactor.massFractions()
     >>> X = reactor.contents().moleFractions()
@@ -243,7 +256,8 @@ should be replaced with::
 
     >>> f.energy_enabled = False
 
-However, the methods for setting tolerances and refinement criteria have been retained in slightly modified forms. The following::
+However, the methods for setting tolerances and refinement criteria have been
+retained in slightly modified forms. The following::
 
     >>> f.set(tol=tol_ss, tol_time=tol_ts)
     >>> f.setRefineCriteria(ratio=4, slope=0.2, curve=0.3, prune=0.04)
@@ -254,7 +268,8 @@ should be replaced with::
     >>> f.flame.set_transient_tolerances(default=tol_ts)
     >>> f.set_refine_criteria(ratio=4, slope=0.2, curve=0.3, prune=0.04)
 
-To change the transport model and enbale calculation of the Soret diffusion term, the following::
+To change the transport model and enbale calculation of the Soret diffusion
+term, the following::
 
     >>> gas.addTransportModel('Multi')
     >>> gas.switchTransportModel('Multi')
