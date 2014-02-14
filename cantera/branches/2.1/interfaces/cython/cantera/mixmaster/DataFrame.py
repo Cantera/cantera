@@ -149,7 +149,7 @@ class DataFrame(Frame):
                 except:
                     fdata[j,n] = 0.0
 
-        self.nsp = self.g.nSpecies()
+        self.nsp = self.g.n_species
         self.y = np.zeros(self.nsp,'d')
         self.data = np.zeros((self.nsp+6,self.np),'d')
         self.data[0,:] = fdata[0,:]
@@ -158,7 +158,7 @@ class DataFrame(Frame):
         w = []
         for n in range(1,nv-1):
             try:
-                k = self.g.speciesIndex(vars[n])
+                k = self.g.species_index(vars[n])
             except:
                 k = -1
             v2 = vars[n]
@@ -184,7 +184,7 @@ class DataFrame(Frame):
                 w.append((vars[n], self.newplot, 'check', self.loc, k + Y_LOC))
 
         if self.data[P_LOC,0] == 0.0:
-            self.data[P_LOC,:] = np.ones(self.np,'d')*OneAtm
+            self.data[P_LOC,:] = np.ones(self.np,'d')*one_atm
             print('Warning: no pressure data. P set to 1 atm.')
 
         self.sc.config(cnf={'from':0,'to':self.np-1})
@@ -214,7 +214,7 @@ class DataFrame(Frame):
         if self.plt:
             self.plt.destroy()
 
-        self.nsp = self.g.nSpecies()
+        self.nsp = self.g.n_species
         self.label = ['-']*(self.nsp + 6)
 
         self.y = np.zeros(self.nsp,'d')
@@ -232,7 +232,7 @@ class DataFrame(Frame):
         for f in fa:
             t = f['title']
             try:
-                k = self.g.speciesIndex(t)
+                k = self.g.species_index(t)
             except:
                 k = -1
             v = XML.getFloatArray(f)
