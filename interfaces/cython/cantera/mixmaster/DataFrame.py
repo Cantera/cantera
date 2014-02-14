@@ -8,7 +8,7 @@ else:
     from tkFileDialog import askopenfilename
 
 from cantera import *
-import numpy as num
+import numpy as np
 from .GraphFrame import Graph
 from .DataGraph import DataGraph, plotLimits
 from .ControlPanel import make_menu
@@ -140,7 +140,7 @@ class DataFrame(Frame):
                 break
         nv = len(vv)
         vars = vv
-        fdata = zeros((nv, self.np),'d')
+        fdata = np.zeros((nv, self.np),'d')
         for n in range(self.np):
             v = string.split(lines[n+1],',')
             for j in range(nv):
@@ -150,8 +150,8 @@ class DataFrame(Frame):
                     fdata[j,n] = 0.0
 
         self.nsp = self.g.nSpecies()
-        self.y = zeros(self.nsp,'d')
-        self.data = zeros((self.nsp+6,self.np),'d')
+        self.y = np.zeros(self.nsp,'d')
+        self.data = np.zeros((self.nsp+6,self.np),'d')
         self.data[0,:] = fdata[0,:]
         self.label = ['-']*(self.nsp+6)
         self.label[0] = vars[0]
@@ -184,7 +184,7 @@ class DataFrame(Frame):
                 w.append((vars[n], self.newplot, 'check', self.loc, k + Y_LOC))
 
         if self.data[P_LOC,0] == 0.0:
-            self.data[P_LOC,:] = ones(self.np,'d')*OneAtm
+            self.data[P_LOC,:] = np.ones(self.np,'d')*OneAtm
             print('Warning: no pressure data. P set to 1 atm.')
 
         self.sc.config(cnf={'from':0,'to':self.np-1})
@@ -217,7 +217,7 @@ class DataFrame(Frame):
         self.nsp = self.g.nSpecies()
         self.label = ['-']*(self.nsp + 6)
 
-        self.y = zeros(self.nsp,'d')
+        self.y = np.zeros(self.nsp,'d')
         gdata = self.soln.child('flowfield/grid_data')
         xp = self.soln.child('flowfield').children('float')
         p = 0.0
@@ -227,7 +227,7 @@ class DataFrame(Frame):
         fa = gdata.children('floatArray')
         self.np = int(fa[0]['size'])
 
-        self.data = zeros((self.nsp+6,self.np),'d')
+        self.data = np.zeros((self.nsp+6,self.np),'d')
         w = []
         for f in fa:
             t = f['title']
@@ -256,7 +256,7 @@ class DataFrame(Frame):
                 self.label[V_LOC] = t
                 w.append((t, self.newplot, 'check', self.loc, V_LOC))
 
-        self.data[P_LOC,:] = ones(self.np,'d')*p
+        self.data[P_LOC,:] = np.ones(self.np,'d')*p
         self.label[P_LOC] = 'P (Pa)'
         self.sc.config(cnf={'from':0,'to':self.np-1})
         if self.loc.get() <= 0:
@@ -301,7 +301,7 @@ class DataFrame(Frame):
                 if self.ydata[n] <= 0.0:
                     #print n, self.ydata[n]
                     self.ydata[n] = 1.0e-20
-            self.ydata = num.log10(self.ydata)
+            self.ydata = np.log10(self.ydata)
             ylog = 1
 
         self.gdata = []
