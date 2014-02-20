@@ -65,10 +65,6 @@ typedef  int          ftnlen;       // Fortran hidden string length type
 // data file search path.
 %(DARWIN)s
 
-// Identify whether the operating system is cygwin's overlay of
-// windows, with gcc being used as the compiler.
-%(CYGWIN)s
-
 // Identify whether the operating system is Solaris
 // with a native compiler
 %(SOLARIS)s
