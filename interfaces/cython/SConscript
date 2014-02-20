@@ -12,17 +12,21 @@ def configure_python(env, python_command):
                         "import numpy",
                         "print(get_config_var('EXT_SUFFIX') or get_config_var('SO'))",
                         "print(get_config_var('INCLUDEPY'))",
+                        "print(get_config_var('LDLIBRARY'))",
                         "print(get_config_var('prefix'))",
                         "print(get_python_version())",
                         "print(numpy.get_include())"))
     info = getCommandOutput(python_command, '-c', script)
-    module_ext, inc, prefix, py_version, numpy_include = info.splitlines()[-5:]
+    module_ext, inc, pylib, prefix, py_version, numpy_include = info.splitlines()[-6:]
     env.Append(CPPPATH=[inc, numpy_include, Dir('#include')])
     env.Prepend(LIBS=env['cantera_libs'])
     if env['OS'] == 'Darwin':
         env.Append(LINKFLAGS='-undefined dynamic_lookup')
     elif env['OS'] == 'Windows':
         env.Append(LIBPATH=prefix+'/libs')
+    elif env['OS'] == 'Cygwin':
+        # extract 'pythonX.Y' from 'libpythonX.Y.dll.a'
+        env.Append(LIBS=pylib[3:-6])
     return module_ext, py_version
 
 
