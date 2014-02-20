@@ -32,11 +32,22 @@ namespace Cantera {
 
 void checkFinite(const double tmp)
 {
-#ifdef _WIN32
+#if defined _WIN32
     if (_finite(tmp)) {
         if (_isnan(tmp)) {
             printf("checkFinite() ERROR: we have encountered a nan!\n");
         } else if (_fpclass(tmp) == _FPCLASS_PINF) {
+            printf("checkFinite() ERROR: we have encountered a pos inf!\n");
+        } else {
+            printf("checkFinite() ERROR: we have encountered a neg inf!\n");
+        }
+        throw std::range_error("checkFinite()");
+    }
+#elif defined __CYGWIN__
+    if (!finite(tmp)) {
+        if (isnan(tmp)) {
+            printf("checkFinite() ERROR: we have encountered a nan!\n");
+        } else if (isinf(tmp) == 1) {
             printf("checkFinite() ERROR: we have encountered a pos inf!\n");
         } else {
             printf("checkFinite() ERROR: we have encountered a neg inf!\n");
