@@ -26,10 +26,6 @@
 using namespace std;
 using namespace Cantera;
 
-#ifdef _WIN32
-#include "windows.h"
-#endif
-
 typedef Cabinet<ThermoPhase> ThermoCabinet;
 typedef Cabinet<Kinetics> KineticsCabinet;
 typedef Cabinet<Transport> TransportCabinet;
