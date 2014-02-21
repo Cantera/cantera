@@ -331,7 +331,7 @@ void MargulesVPSSTP::getPartialMolarEntropies(doublereal* sbar) const
 void MargulesVPSSTP::getPartialMolarVolumes(doublereal* vbar) const
 {
 
-    size_t iA, iB, delAK, delBK;
+    size_t iA, iB;
     double XA, XB, g0 , g1;
     double T = temperature();
 
@@ -340,10 +340,6 @@ void MargulesVPSSTP::getPartialMolarVolumes(doublereal* vbar) const
      */
     getStandardVolumes(vbar);
 
-    for (size_t iK = 0; iK < m_kk; iK++) {
-        delAK = 0;
-        delBK = 0;
-    }
     for (size_t i = 0; i <  numBinaryInteractions_; i++) {
         iA =  m_pSpecies_A_ij[i];
         iB =  m_pSpecies_B_ij[i];
