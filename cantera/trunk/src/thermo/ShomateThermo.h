@@ -328,12 +328,12 @@ public:
         }
     }
 
-    virtual doublereal reportOneHf298(int k) const {
+    virtual doublereal reportOneHf298(const size_t k) const {
         doublereal h;
         doublereal t = 298.15;
 
-        int grp = m_group_map[k];
-        int pos = m_posInGroup_map[k];
+        size_t grp = m_group_map[k];
+        size_t pos = m_posInGroup_map[k];
         const std::vector<ShomatePoly> &mlg = m_low[grp-1];
         const ShomatePoly* nlow = &(mlg[pos]);
 
@@ -348,10 +348,10 @@ public:
         return h;
     }
 
-    virtual void modifyOneHf298(const int k, const doublereal Hf298New) {
+    virtual void modifyOneHf298(const size_t k, const doublereal Hf298New) {
 
-        int grp = m_group_map[k];
-        int pos = m_posInGroup_map[k];
+        size_t grp = m_group_map[k];
+        size_t pos = m_posInGroup_map[k];
         std::vector<ShomatePoly> &mlg = m_low[grp-1];
         ShomatePoly* nlow = &(mlg[pos]);
         std::vector<ShomatePoly> &mhg = m_high[grp-1];

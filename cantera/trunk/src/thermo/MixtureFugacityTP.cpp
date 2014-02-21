@@ -147,7 +147,7 @@ void MixtureFugacityTP::getEnthalpy_RT(doublereal* hrt) const
     getEnthalpy_RT_ref(hrt);
 }
 
-void MixtureFugacityTP::modifyOneHf298SS(const int k, const doublereal Hf298New)
+void MixtureFugacityTP::modifyOneHf298SS(const size_t k, const doublereal Hf298New)
 {
     m_spthermo->modifyOneHf298(k, Hf298New);
     m_Tlast_ref += 0.0001234;
