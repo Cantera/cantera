@@ -1371,9 +1371,6 @@ int RedlichKwongMFTP::NicholsSolve(double TKelvin, double pres, doublereal a, do
     Vroot[0] = 0.0;
     Vroot[1] = 0.0;
     Vroot[2] = 0.0;
-    int nTurningPoints;
-    bool lotsOfNumError = false;
-    doublereal Vturn[2];
     if (TKelvin <= 0.0) {
         throw CanteraError("RedlichKwongMFTP::NicholsSolve()",  "neg temperature");
     }
@@ -1421,46 +1418,11 @@ int RedlichKwongMFTP::NicholsSolve(double TKelvin, double pres, doublereal a, do
         }
     }
 
-
     int nSolnValues;
-    nTurningPoints = 2;
-
-#ifdef PRINTPV
-    double V[100];
-    int n = 0;
-    for (int i = 0; i < 90; i++) {
-        V[n++] = 0.030 + 0.005 * i;
-    }
-    double p1, presCalc;
-    for (int i = 0; i < n; i++) {
-        p1 = dpdVCalc(TKelvin, V[i], presCalc);
-        printf(" %13.5g %13.5g %13.5g \n", V[i], presCalc , p1);
-    }
-#endif
 
     double h2 = 4. * an * an * delta2 * delta2 * delta2;
-    if (delta2 == 0.0) {
-        nTurningPoints = 1;
-        Vturn[0] = xN;
-        Vturn[1] = xN;
-    } else if (delta2 < 0.0) {
-        nTurningPoints = 0;
-        Vturn[0] = xN;
-        Vturn[1] = xN;
-    } else {
+    if (delta2 > 0.0) {
         delta = sqrt(delta2);
-        Vturn[0] = xN - delta;
-        Vturn[1] = xN + delta;
-#ifdef PRINTPV
-        double presCalc;
-        double p1 = dpdVCalc(TKelvin, Vturn[0], presCalc);
-
-        double p2 = dpdVCalc(TKelvin, Vturn[1], presCalc);
-
-        printf("p1 = %g p2 = %g \n", p1, p2);
-        p1 = dpdVCalc(TKelvin, 0.9*Vturn[0], presCalc);
-        printf("0.9 p1 = %g \n", p1);
-#endif
     }
 
     doublereal h = 2.0 * an * delta * delta2;
@@ -1520,9 +1482,6 @@ int RedlichKwongMFTP::NicholsSolve(double TKelvin, double pres, doublereal a, do
         Vroot[2] = 0.0;
 
         tmp = an *  Vroot[0] * Vroot[0] * Vroot[0] + bn * Vroot[0] * Vroot[0] + cn  * Vroot[0] + dn;
-        if (fabs(tmp) > 1.0E-4) {
-            lotsOfNumError = true;
-        }
 
     } else if (desc < 0.0) {
         doublereal tmp = - yN/h;
@@ -1545,7 +1504,6 @@ int RedlichKwongMFTP::NicholsSolve(double TKelvin, double pres, doublereal a, do
         for (int i = 0; i < 3; i++) {
             tmp = an *  Vroot[i] * Vroot[i] * Vroot[i] + bn * Vroot[i] * Vroot[i] + cn  * Vroot[i] + dn;
             if (fabs(tmp) > 1.0E-4) {
-                lotsOfNumError = true;
                 for (int j = 0; j < 3; j++) {
                     if (j != i) {
                         if (fabs(Vroot[i] - Vroot[j]) < 1.0E-4 * (fabs(Vroot[i]) + fabs(Vroot[j]))) {
@@ -1584,9 +1542,6 @@ int RedlichKwongMFTP::NicholsSolve(double TKelvin, double pres, doublereal a, do
         }
         for (int i = 0; i < 2; i++) {
             tmp = an *  Vroot[i] * Vroot[i] * Vroot[i] + bn * Vroot[i] * Vroot[i] + cn  * Vroot[i] + dn;
-            if (fabs(tmp) > 1.0E-4) {
-                lotsOfNumError = true;
-            }
         }
     }
 

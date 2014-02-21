@@ -84,9 +84,9 @@ int VCS_SOLVE::vcs_solve_TP(int print_lvl, int printDetails, int maxit)
     size_t iphaseDelete;  /* integer that determines which phase is being deleted */
     std::vector<size_t> phasePopPhaseIDs(0);
     size_t doPhaseDeleteIph = npos;
-    size_t doPhaseDeleteKspec = npos;
 
 #ifdef DEBUG_MODE
+    size_t doPhaseDeleteKspec = npos;
     char ANOTE[128];
     /*
      * Set the debug print lvl to the same as the print lvl.
@@ -419,10 +419,10 @@ L_MAINLOOP_ALL_SPECIES:
                   "phase creation delta was used instead\n");
         }
     }
+    doPhaseDeleteKspec = npos;
 #endif
     lec = false;
     doPhaseDeleteIph = npos;
-    doPhaseDeleteKspec = npos;
     /*
      *    Zero out the net change in moles of multispecies phases
      */
@@ -868,9 +868,9 @@ L_MAINLOOP_ALL_SPECIES:
                                  */
                                 m_molNumSpecies_new[kspec] = 0.0;
                                 doPhaseDeleteIph = iph;
-                                doPhaseDeleteKspec = kspec;
 
 #ifdef DEBUG_MODE
+                                doPhaseDeleteKspec = kspec;
                                 if (m_debug_print_lvl >= 2) {
                                     if (m_speciesStatus[kspec] >= 0) {
                                         plogf("   --- SS species changed to zeroedss: ");

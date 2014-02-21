@@ -586,7 +586,7 @@ doublereal MultiPhase::equilibrate(int XY, doublereal err,
     doublereal h0;
     int n;
     doublereal hnow, herr = 1.0;
-    doublereal snow, serr = 1.0, s0;
+    doublereal snow, s0;
     doublereal Tlow = -1.0, Thigh = -1.0;
     doublereal Hlow = Undef, Hhigh = Undef, tnew;
     doublereal dta=0.0, dtmax, cpb;
@@ -717,7 +717,6 @@ doublereal MultiPhase::equilibrate(int XY, doublereal err,
                         Thigh = m_temp;
                     }
                 }
-                serr = fabs((s0 - snow)/s0);
                 dt = (s0 - snow)*m_temp/cp();
                 dtmax = 0.5*fabs(Thigh - Tlow);
                 dtmax = (dtmax > 500.0 ? 500.0 : dtmax);
