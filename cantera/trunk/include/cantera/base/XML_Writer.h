@@ -26,7 +26,7 @@ public:
         return m_s;
     }
 
-    inline std::string XML_filter(const std::string& name) {
+    std::string XML_filter(const std::string& name) {
         int ns = static_cast<int>(name.size());
         std::string nm(name);
         for (int m = 0; m < ns; m++)
@@ -51,14 +51,14 @@ public:
      *    s : Output stream containing the XML file
      *    comment : Reference to a string containing the comment
      */
-    inline void XML_comment(std::ostream& s, const std::string& comment) {
+    void XML_comment(std::ostream& s, const std::string& comment) {
         for (int n = 0; n < _level; n++) {
             s << _indent;
         }
         s << "<!--" << comment << "-->" << std::endl;
     }
 
-    inline void XML_open(std::ostream& s, const std::string& tag, const std::string& p = "") {
+    void XML_open(std::ostream& s, const std::string& tag, const std::string& p = "") {
         for (int n = 0; n < _level; n++) {
             s << _indent;
         }
@@ -66,7 +66,7 @@ public:
         s << "<" << XML_filter(tag) << p << ">" << std::endl;
     }
 
-    inline void XML_close(std::ostream& s, const std::string& tag) {
+    void XML_close(std::ostream& s, const std::string& tag) {
         _level--;
         for (int n = 0; n < _level; n++) {
             s << _indent;

@@ -253,7 +253,7 @@ public:
     }
 
     //! Set all of the entries to zero
-    inline void zero() {
+    void zero() {
         size_t nn = m_nrows * m_ncols;
         if (nn > 0) {
             /*
