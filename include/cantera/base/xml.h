@@ -280,6 +280,9 @@ public:
     void addAttribute(const std::string& attrib, const doublereal value,
                       const std::string& fmt="%g");
 
+    //! Add an unsigned integer attribute
+    void addAttribute(const std::string& attrib, size_t value);
+
     //! The operator[] is overloaded to provide a lookup capability
     //! on attributes for the current XML element.
     /*!
