@@ -501,6 +501,11 @@ void XML_Node::addAttribute(const std::string& attrib_,
     m_attribs[attrib_] = fp2str(value_, fmt);
 }
 
+void XML_Node::addAttribute(const std::string& attrib_, const size_t value_)
+{
+    m_attribs[attrib_] = int2str(value_);
+}
+
 std::string XML_Node::operator[](const std::string& attr) const
 {
     return attrib(attr);

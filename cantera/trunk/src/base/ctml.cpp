@@ -95,13 +95,13 @@ void addFloatArray(Cantera::XML_Node& node, const std::string& title, const size
     }
 }
 
-void addNamedFloatArray(Cantera::XML_Node& node, const std::string& name, const int n,
+void addNamedFloatArray(Cantera::XML_Node& node, const std::string& name, const size_t n,
                         const doublereal* const vals, const std::string units,
                         const std::string type, const doublereal minval,
                         const doublereal maxval)
 {
     std::string v = "";
-    for (int i = 0; i < n; i++) {
+    for (size_t i = 0; i < n; i++) {
         v += fp2str(vals[i],FP_Format);
         if (i == n-1) {
             v += "\n";

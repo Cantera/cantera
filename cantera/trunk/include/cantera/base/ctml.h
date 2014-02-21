@@ -212,7 +212,7 @@ void addFloatArray(Cantera::XML_Node& node,  const std::string& titleString,
  *                    parameter. The default is the special double,
  *                    Cantera::Undef, which means to ignore the entry.
  */
-void addNamedFloatArray(Cantera::XML_Node& parentNode, const std::string& name, const int n,
+void addNamedFloatArray(Cantera::XML_Node& parentNode, const std::string& name, const size_t n,
                         const doublereal* const vals, const std::string units = "",
                         const std::string type = "",
                         const doublereal minval = Cantera::Undef,
