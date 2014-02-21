@@ -756,11 +756,11 @@ bool rxninfo::installReaction(int iRxn, const XML_Node& r, Kinetics& kin,
         unsigned long int participants = 0;
         for (size_t nn = 0; nn < rdata.reactants.size(); nn++) {
             rdata.net_stoich[-1 - int(rdata.reactants[nn])] -= rdata.rstoich[nn];
-            participants += rdata.reactants[nn];
+            participants += static_cast<unsigned long int>(rdata.reactants[nn]);
         }
         for (size_t nn = 0; nn < rdata.products.size(); nn++) {
             rdata.net_stoich[int(rdata.products[nn])+1] += rdata.pstoich[nn];
-            participants += 1000000 * rdata.products[nn];
+            participants += 1000000 * static_cast<unsigned long int>(rdata.products[nn]);
         }
 
         vector<size_t>& related = m_participants[participants];
