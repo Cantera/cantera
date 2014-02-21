@@ -512,7 +512,7 @@ void LatticeSolidPhase::setParametersFromXML(const XML_Node& eosdata)
 
 }
 
-void LatticeSolidPhase::modifyOneHf298SS(const size_t& k, const doublereal Hf298New)
+void LatticeSolidPhase::modifyOneHf298SS(const size_t k, const doublereal Hf298New)
 {
     for (size_t n = 0; n < m_nlattice; n++) {
         if (lkstart_[n+1] < k) {

@@ -162,7 +162,7 @@ void VPStandardStateTP::getEnthalpy_RT(doublereal* hrt) const
 }
 
 //================================================================================================
-void VPStandardStateTP::modifyOneHf298SS(const size_t& k, const doublereal Hf298New)
+void VPStandardStateTP::modifyOneHf298SS(const size_t k, const doublereal Hf298New)
 {
     m_spthermo->modifyOneHf298(k, Hf298New);
     m_Tlast_ss += 0.0001234;

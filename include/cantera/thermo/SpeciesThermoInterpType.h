@@ -286,7 +286,7 @@ public:
      *   @param  k           Species k
      *   @param  Hf298New    Specify the new value of the Heat of Formation at 298K and 1 bar
      */
-    virtual void modifyOneHf298(const int k, const doublereal Hf298New);
+    virtual void modifyOneHf298(const size_t k, const doublereal Hf298New);
 
 protected:
     //!  lowest valid temperature

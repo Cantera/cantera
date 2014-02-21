@@ -407,7 +407,7 @@ public:
      *   @param  Hf298New    Specify the new value of the Heat of Formation at 298K and 1 bar.
      *                       units = J/kmol.
      */
-    void modifyOneHf298SS(const size_t& k, const doublereal Hf298New);
+    void modifyOneHf298SS(const size_t k, const doublereal Hf298New);
 
     //!  Returns the vector of nondimensional
     //!  Gibbs free energies of the reference state at the current temperature

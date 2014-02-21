@@ -243,7 +243,7 @@ public:
         return hh;
     }
 
-    virtual void modifyOneHf298(const int k, const doublereal Hf298New) {
+    virtual void modifyOneHf298(const size_t k, const doublereal Hf298New) {
         doublereal hnow = reportHf298();
         doublereal delH = Hf298New - hnow;
         m_coeff[5] += delH / 1.0E6;
@@ -476,7 +476,7 @@ public:
         return h;
     }
 
-    virtual void modifyOneHf298(const size_t& k, const doublereal Hf298New) {
+    virtual void modifyOneHf298(const size_t k, const doublereal Hf298New) {
         if (k != m_index) {
             return;
         }
