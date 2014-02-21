@@ -64,7 +64,7 @@ public:
      *  @param linenum  inputs the line number
      *  @param msg      String message to be sent to the user
      */
-    TransportDBError(int linenum, const std::string& msg) :
+    TransportDBError(size_t linenum, const std::string& msg) :
         CanteraError("getTransportData", "error reading transport data: "  + msg + "\n") {
     }
 };
@@ -580,7 +580,7 @@ void TransportFactory::setupSolidTransport(std::ostream& flog, thermo_t* thermo,
     // constant mixture attributes
     trParam.thermo = thermo;
     trParam.nsp_ = trParam.thermo->nSpecies();
-    int nsp = trParam.nsp_;
+    size_t nsp = trParam.nsp_;
 
     trParam.tmin = thermo->minTemp();
     trParam.tmax = thermo->maxTemp();
@@ -1118,8 +1118,8 @@ void TransportFactory::getSolidTransportData(const XML_Node& transportNode,
 {
     try {
 
-        int num = transportNode.nChildren();
-        for (int iChild = 0; iChild < num; iChild++) {
+        size_t num = transportNode.nChildren();
+        for (size_t iChild = 0; iChild < num; iChild++) {
             //tranTypeNode is a type of transport property like viscosity
             XML_Node& tranTypeNode = transportNode.child(iChild);
             std::string nodeName = tranTypeNode.name();

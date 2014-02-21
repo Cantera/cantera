@@ -430,7 +430,7 @@ void NasaThermo::fixDiscontinuities(doublereal Tlow, doublereal Tmid,
     // First get the desired size of the work array
     ct_dgelss(nRows, nCols, 1, &M(0,0), nRows, &b[0], nRows,
               &sigma[0], -1, rank, &work[0], lwork, info);
-    work.resize(work[0]);
+    work.resize(static_cast<size_t>(work[0]));
     lwork = static_cast<int>(work[0]);
     ct_dgelss(nRows, nCols, 1, &M(0,0), nRows, &b[0], nRows,
               &sigma[0], -1, rank, &work[0], lwork, info);

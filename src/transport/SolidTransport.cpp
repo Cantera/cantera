@@ -142,9 +142,8 @@ doublereal SolidTransport::electricalConductivity()
         return m_electConductivity->getSpeciesTransProp();
     } else {
         getMobilities(&m_work[0]);
-        int nsp = m_thermo->nSpecies();
         doublereal sum = 0.0;
-        for (int k = 0; k < nsp; k++) {
+        for (size_t k = 0; k < m_thermo->nSpecies(); k++) {
             sum += m_thermo->charge(k) * m_thermo->moleFraction(k) * m_work[k];
         }
         return sum * m_thermo->molarDensity();

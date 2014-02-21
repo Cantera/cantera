@@ -134,7 +134,7 @@ public:
      * to it in the list is replaced by a pointer to the first element
      * in the list.
      */
-    static void del(int n) {
+    static void del(size_t n) {
         dataRef data = getData();
         if (n == 0) {
             return;
