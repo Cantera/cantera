@@ -65,10 +65,10 @@ public:
                            int maxsteps = 1000, int loglevel=-99);
     doublereal error();
 
-    inline std::string reactionString(size_t j) {
+    std::string reactionString(size_t j) {
         return std::string("");
     }
-    inline void printInfo(int loglevel) {}
+    void printInfo(int loglevel) {}
 
     void setInitialMixMoles(int loglevel = 0) {
         setInitialMoles(loglevel);
