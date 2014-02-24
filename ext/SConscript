@@ -8,12 +8,8 @@ def prep_default(env):
     localenv = env.Clone()
 
     # Suppress warnings from external code and auto-generated code
-    if 'g++' in localenv['CXX']:
-        localenv.Append(CCFLAGS=['-Wno-format', '-Wno-format-security',
-                                 '-Wno-unused-result'])
-
-    if localenv['CC'] == 'clang':
-        localenv['CCFLAGS'].append('-w')
+    if 'g++' in localenv['CXX'] or 'clang' in localenv['CXX']:
+        localenv.Append(CCFLAGS='-w')
 
     return localenv
 
@@ -139,11 +135,7 @@ for subdir, extensions, prepFunction in libs:
 # Google Test: Used internally for Cantera unit tests. Optionally, the headers
 # and compiled library can be installed alongside Cantera using the scons
 # option 'install_gtest=y'.
-localenv = env.Clone()
-localenv.Prepend(CPPPATH=[Dir('#ext/gtest'),
-                          Dir('#ext/gtest/include')],
-                 CPPDEFINES={'GTEST_HAS_PTHREAD': 0})
-
+localenv = prep_gtest(env)
 gtest = build(localenv.Library(pjoin('../lib', 'gtest'),
                               source=['gtest/src/gtest-all.cc']))
 
