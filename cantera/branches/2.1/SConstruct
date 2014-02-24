@@ -143,6 +143,8 @@ env = Environment(tools=toolchain+['textfile', 'subst', 'recursiveInstall', 'wix
 
 env['OS'] = platform.system()
 env['OS_BITS'] = int(platform.architecture()[0][:2])
+if 'cygwin' in env['OS'].lower():
+    env['OS'] = 'Cygwin' # remove Windows version suffix
 
 # Fixes a linker error in Windows
 if os.name == 'nt' and 'TMP' in os.environ:
@@ -1142,7 +1144,6 @@ cdefine('DEBUG_MODE', 'debug_verbose')
 # Need to test all of these to see what platform.system() returns
 configh['SOLARIS'] = 1 if env['OS'] == 'Solaris' else None
 configh['DARWIN'] = 1 if env['OS'] == 'Darwin' else None
-configh['CYGWIN'] = 1 if env['OS'] == 'Cygwin' else None
 cdefine('NEEDS_GENERIC_TEMPL_STATIC_DECL', 'OS', 'Solaris')
 
 cdefine('HAS_NUMPY', 'python_array', 'numpy')
