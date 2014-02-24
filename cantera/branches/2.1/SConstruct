@@ -52,8 +52,6 @@ if 'clean' in COMMAND_LINE_TARGETS:
     removeFile('include/cantera/base/config.h')
     removeFile('interfaces/python/setup.py')
     removeFile('ext/f2c_libs/arith.h')
-    removeFile('ext/f2c_libs/signal1.h')
-    removeFile('ext/f2c_libs/sysdep1.h')
     for name in os.listdir('.'):
         if name.endswith('.msi'):
             removeFile(name)
