@@ -114,6 +114,7 @@ localenv['py_libdirs'] = repr([x for x in libDirs if x])
 # unless otherwise specified
 localenv['py_extra_compiler_args'] = repr([])
 localenv['py_extra_link_args'] = repr([])
+compilerOpt = ''
 if localenv['OS'] == 'Windows':
     if env['CC'] == 'cl':
         flags = ['/EHsc']
@@ -122,11 +123,9 @@ if localenv['OS'] == 'Windows':
             localenv['py_extra_link_args'] = repr(['/DEBUG'])
         compilerOpt = ' --compiler=msvc'
         localenv['py_extra_compiler_args'] = repr(flags)
-
-    elif env['CC'] == 'gcc':
+    elif 'gcc' in env['CC']:
         compilerOpt = ' --compiler=mingw32'
 else:
-    compilerOpt = ''
     if '-fprofile-arcs' in localenv['CCFLAGS']:
         localenv['py_extra_compiler_args'] = repr(['-fprofile-arcs', '-ftest-coverage'])
         localenv['py_extra_link_args'] = repr(['-fprofile-arcs', '-ftest-coverage'])
