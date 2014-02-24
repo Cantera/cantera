@@ -68,9 +68,6 @@ if localenv['OS'] in ('Darwin', 'Windows', 'Cygwin'):
         localenv.Append(LIBS=localenv['boost_libs'],
                         LIBPATH=localenv['boost_lib_dir'])
 
-if localenv['toolchain'] == 'mingw':
-    localenv.Append(LINKFLAGS=['-static-libgcc', '-static-libstdc++'])
-
 # Build the Cantera shared library using the correct name
 if localenv['layout'] != 'debian':
     # Define the name according to the environmental variable
