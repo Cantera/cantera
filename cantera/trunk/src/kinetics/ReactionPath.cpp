@@ -84,7 +84,7 @@ ReactionPathDiagram::ReactionPathDiagram()
     normal_color = "steelblue";
     dashed_color = "gray";
     dot_options = "center=1;";
-    m_font = "Helvetica"; // RXNPATH_FONT;
+    m_font = "Helvetica";
     bold_min = 0.2;
     dashed_max = 0.0;
     label_min = 0.0;
