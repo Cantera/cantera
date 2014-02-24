@@ -69,9 +69,6 @@ typedef  int          ftnlen;       // Fortran hidden string length type
 // with a native compiler
 %(SOLARIS)s
 
-//--------- Fonts for reaction path diagrams ----------------------
-%(RXNPATH_FONT)s
-
 //---------- C++ Compiler Variations ------------------------------
 
 // This define is needed to account for the variability for how

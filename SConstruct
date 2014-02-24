@@ -586,11 +586,6 @@ config_options = [
            NOTE: Matlab comes with a stripped-down version of 'dot'. If 'dot'
            is on your path, make sure it is not the Matlab version!""",
         '', PathVariable.PathAccept),
-    ('rpfont',
-     """The font to use in reaction path diagrams. This must be a font
-        name recognized by the 'dot' program. On linux systems, this
-        should be lowercase 'helvetica'.""",
-     'Helvetica'),
     ('cantera_version', '', '2.2a')
 ]
 
@@ -1156,8 +1151,6 @@ cdefine('LAPACK_FTN_STRING_LEN_AT_END', 'lapack_ftn_string_len_at_end')
 cdefine('LAPACK_FTN_TRAILING_UNDERSCORE', 'lapack_ftn_trailing_underscore')
 cdefine('FTN_TRAILING_UNDERSCORE', 'lapack_ftn_trailing_underscore')
 cdefine('LAPACK_NAMES_LOWERCASE', 'lapack_names', 'lower')
-
-configh['RXNPATH_FONT'] = quoted(env['rpfont'])
 cdefine('THREAD_SAFE_CANTERA', 'build_thread_safe')
 
 if not env['HAS_MATH_H_ERF']:
