@@ -116,8 +116,8 @@ Downloading the Cantera source code
 Stable Release
 --------------
 
-* Option 1: Download the most recent source tarball from the `Cantera Google
-  Code Site <http://code.google.com/p/cantera/downloads/list>`_ and extract the
+* Option 1: Download the most recent source tarball from `SourceForge
+  <https://sourceforge.net/projects/cantera/files/cantera/>`_ and extract the
   contents.
 
 * Option 2: Check out the code using Subversion::
