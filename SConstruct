@@ -662,49 +662,6 @@ env['extra_lib_dirs'] = [d for d in env['extra_lib_dirs'].split(':') if d]
 env.Append(CPPPATH=env['extra_inc_dirs'],
            LIBPATH=env['extra_lib_dirs'])
 
-# Try to find a Fortran compiler:
-if env['f90_interface'] in ('y','default'):
-    foundF90 = False
-    if env['FORTRAN']:
-        env['f90_interface'] = 'y'
-        if which(env['FORTRAN']) is not None:
-            foundF90 = True
-        else:
-            print "WARNING: Couldn't find specified Fortran compiler: '%s'" % env['FORTRAN']
-
-    for compiler in ['gfortran', 'ifort', 'g95']:
-        if foundF90:
-            break
-        if which(compiler) is not None:
-            print "INFO: Using '%s' to build the Fortran 90 interface" % which(compiler)
-            env['FORTRAN'] = compiler
-            foundF90 = True
-
-    if foundF90:
-        env['f90_interface'] = 'y'
-    elif env['f90_interface'] == 'y':
-        print "ERROR: Couldn't find a suitable Fortran compiler to build the Fortran 90 interface."
-        sys.exit(1)
-    else:
-        print "INFO: Skipping compilation of the Fortran 90 interface."
-
-if 'gfortran' in env['FORTRAN']:
-    env['FORTRANMODDIRPREFIX'] = '-J'
-    env['FORTRANSYSLIBS'] = ['gfortran']
-elif 'g95' in env['FORTRAN']:
-    env['FORTRANMODDIRPREFIX'] = '-fmod='
-    env['FORTRANSYSLIBS'] = ['f95']
-elif 'ifort' in env['FORTRAN']:
-    env['FORTRANMODDIRPREFIX'] = '-module '
-    env['FORTRANSYSLIBS'] = []
-else:
-    env['FORTRANSYSLIBS'] = []
-
-env['F77'] = env['F90'] = env['F95'] = env['F03'] = env['FORTRAN']
-env['F77FLAGS'] = env['F90FLAGS'] = env['F95FLAGS'] = env['F03FLAGS'] = env['FORTRANFLAGS']
-
-env['FORTRANMODDIR'] = '${TARGET.dir}'
-
 if env['CC'] == 'cl':
     # embed manifest file
     env['LINKCOM'] = [env['LINKCOM'],
@@ -844,6 +801,63 @@ if env['HAS_SUNDIALS'] and env['use_sundials'] != 'n':
     if not env['has_sundials_lapack'] and not env['BUILD_BLAS_LAPACK']:
         print ('WARNING: External BLAS/LAPACK has been specified for Cantera '
                'but Sundials was built without this support.')
+
+# Try to find a working Fortran compiler:
+env['FORTRANSYSLIBS'] = []
+fortran_libs = {'gfortran':'gfortran', 'g95':'f95'}
+def check_fortran(compiler, expected=False):
+    if which(compiler) is not None:
+        lib = fortran_libs.get(compiler)
+        if lib:
+            have_lib = conf.CheckLib(lib)
+            if have_lib:
+                env.Append(FORTRANSYSLIBS=lib)
+                env['FORTRAN'] = compiler
+                return True
+            else:
+                print ("WARNING: Unable to use '%s' to compile the Fortran "
+                       "interface because the library '%s' could not be found." %
+                       (compiler, lib))
+        else:
+            env['FORTRAN'] = compiler
+            return True
+    elif expected:
+        print "WARNING: Couldn't find specified Fortran compiler: '%s'" % compiler
+
+    return False
+
+if env['f90_interface'] in ('y','default'):
+    foundF90 = False
+    if env['FORTRAN']:
+        foundF90 = check_fortran(env['FORTRAN'], True)
+
+    for compiler in ('gfortran', 'ifort', 'g95'):
+        if foundF90:
+            break
+        foundF90 = check_fortran(compiler)
+
+    if foundF90:
+        print "INFO: Using '%s' to build the Fortran 90 interface" % env['FORTRAN']
+        env['f90_interface'] = 'y'
+    else:
+        if env['f90_interface'] == 'y':
+            print "ERROR: Couldn't find a suitable Fortran compiler to build the Fortran 90 interface."
+            sys.exit(1)
+        else:
+            env['f90_interface'] = 'n'
+            print "INFO: Skipping compilation of the Fortran 90 interface."
+
+if 'gfortran' in env['FORTRAN']:
+    env['FORTRANMODDIRPREFIX'] = '-J'
+elif 'g95' in env['FORTRAN']:
+    env['FORTRANMODDIRPREFIX'] = '-fmod='
+elif 'ifort' in env['FORTRAN']:
+    env['FORTRANMODDIRPREFIX'] = '-module '
+
+env['F77'] = env['F90'] = env['F95'] = env['F03'] = env['FORTRAN']
+env['F77FLAGS'] = env['F90FLAGS'] = env['F95FLAGS'] = env['F03FLAGS'] = env['FORTRANFLAGS']
+
+env['FORTRANMODDIR'] = '${TARGET.dir}'
 
 env = conf.Finish()
 
