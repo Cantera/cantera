@@ -8,14 +8,14 @@ Installation
 **How do I install Cantera on Windows?**
 
     Download the MSI installer for Cantera and the corresponding Python module
-    from `Google Code <https://code.google.com/p/cantera/downloads/list>`_.
+    from `SourceForge <https://sourceforge.net/projects/cantera/files/cantera/>`_.
     Choose between x86 and x64 based on the versions of Python and/or Matlab
     you want to work with.
 
 **How do I install Cantera on Linux?**
 
-    Download the source code from `Google Code
-    <https://code.google.com/p/cantera/downloads/list>`_ and follow the
+    Download the source code (e.g. ``cantera-2.1.1.tar.gz``) from `SourceForge
+    <https://sourceforge.net/projects/cantera/files/cantera/>`_ and follow the
     instructions in the :ref:`sec-compiling`.
 
 General
