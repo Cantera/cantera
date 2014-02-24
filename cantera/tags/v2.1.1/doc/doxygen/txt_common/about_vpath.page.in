@@ -1,0 +1,39 @@
+/*! \page About2
+
+\htmlonly
+<table border="0" width="660" >
+    <tr><td width=95> <img src="circle-logo-small.png" /> </td>
+        <td>
+	The <a href="http://pecos.ices.utexas.edu">Center for
+	Predictive Engineering and Computational Sciences</a> (PECOS)
+	is one of five US centers sponsored under the Predictive
+	Science Academic Alliance Program (PSAAP) of the National
+	Nuclear Security Administration's Advanced Simulation and
+	Computing Program. The PECOS center is housed within
+	the <a href="http://www.ices.utexas.edu">Institute for
+	Computational Engineering and Sciences (ICES) </a> at the
+	<a href="http://www.utexas.edu">University of Texas at
+	Austin</a>.  For additional information or questions regarding
+	the PECOS center, please contact <a href="mailto:info@pecos.ices.utexas.edu">info@pecos.ices.utexas.edu</a>.
+	</td>
+     </tr>	    
+</table>
+\endhtmlonly
+
+\latexonly
+\begin{tabular}{m{2.2cm} m{0.80\textwidth} }
+\includegraphics[width=2cm]{@abs_top_srcdir@/doxygen/fig_common/circle-logo.pdf} &
+The \href{http://pecos.ices.utexas.edu}{Center for Predictive
+Engineering and Computational Sciences} (PECOS) is one of five US
+centers sponsored under the Predictive Science Academic Alliance
+Program (PSAAP) of the National Nuclear Security Administration's
+Advanced Simulation and Computing Program. The PECOS center is housed
+within the \href{http://www.ices.utexas.edu}{Institute for
+Computational Engineering and Sciences} (ICES) at the
+\href{http://www.utexas.edu"}{University of Texas at Austin}.  For
+additional information or questions regarding the PECOS center, please
+contact info@pecos.ices.utexas.edu.
+\end{tabular}
+\endlatexonly
+
+*/

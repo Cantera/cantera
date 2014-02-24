@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<ctml>
+  <validate reactions="yes" species="yes"/>
+
+  <!-- phase simple     -->
+  <phase dim="3" id="simple">
+    <elementArray datasrc="elements.xml">C O H N</elementArray>
+    <speciesArray datasrc="nasa_gas.xml#species_data">CH4 O2 N2 CO2 H2O</speciesArray>
+    <thermo model="IdealGas"/>
+    <kinetics model="GasKinetics"/>
+    <transport model="None"/>
+  </phase>
+
+  <!-- phase full     -->
+  <phase dim="3" id="full">
+    <elementArray datasrc="elements.xml">C O H N</elementArray>
+    <speciesArray datasrc="nasa_gas.xml#species_data">CH4 H2O O2 CO2 CO H2 N2</speciesArray>
+    <thermo model="IdealGas"/>
+    <kinetics model="GasKinetics"/>
+    <transport model="None"/>
+  </phase>
+
+  <!-- phase syngas     -->
+  <phase dim="3" id="syngas">
+    <elementArray datasrc="elements.xml">C O H N</elementArray>
+    <speciesArray datasrc="nasa_gas.xml#species_data">CO H2 O2 N2 CO2 H2O</speciesArray>
+    <thermo model="IdealGas"/>
+    <kinetics model="GasKinetics"/>
+    <transport model="None"/>
+  </phase>
+
+  <!-- species definitions     -->
+  <speciesData id="species_data"/>
+  <reactionData id="reaction_data"/>
+</ctml>

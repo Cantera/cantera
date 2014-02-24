@@ -1,0 +1,112 @@
+###############################################################################
+# Include Snippet for Makefiles
+#
+#    To create Cantera C++ applications from the install environment
+#    include this file into your Makefile environment by putting
+#    the line "include Cantera.mak" in your Makefile.
+#
+#  Main Variables:
+#
+#      CANTERA_INCLUDES = Variable containing the include path
+#      CANTERA_LIBS = List of libraries to include on the link line
+#
+#      CANTERA_FORTRAN_LIBS = list of libraries to link for Fortran programs
+#      CANTERA_FORTRAN_MODS = Directory containing the F90 .mod files
+#
+
+CANTERA_VERSION=@cantera_version@
+
+###############################################################################
+#        CANTERA CORE
+###############################################################################
+
+# The directory where Cantera include files may be found.
+#  Include files in application programs should start with:
+#     #include "cantera/thermo.h"
+#     #include "cantera/kernel/HMWSoln.h"
+
+CANTERA_INSTALL_ROOT=@ct_installroot@
+
+CANTERA_CORE_INCLUDES=-I$(CANTERA_INSTALL_ROOT)/include
+
+CANTERA_EXTRA_INCLUDES=@mak_extra_includes@
+
+# Required Cantera libraries
+CANTERA_CORE_LIBS=@mak_threadflags@ -L$(CANTERA_INSTALL_ROOT)/lib @mak_corelibs@
+
+CANTERA_CORE_LIBS_DEP = $(CANTERA_INSTALL_ROOT)/lib/libcantera.a
+
+CANTERA_EXTRA_LIBDIRS=@mak_extra_libdirs@
+
+CANTERA_CORE_FTN=-L@ct_libdir@ -lcantera_fortran @mak_corelibs@
+
+CANTERA_FORTRAN_MODS=$(CANTERA_INSTALL_ROOT)/include/cantera
+
+CANTERA_FORTRAN_SYSLIBS=@mak_fort_threadflags@ -lstdc++
+
+CANTERA_SYSLIBS=@mak_syslibs@
+
+###############################################################################
+#            BOOST
+###############################################################################
+
+CANTERA_BOOST_INCLUDES=@mak_boost_include@
+CANTERA_BOOST_LIBS=@mak_boost_libdir@ @mak_boost_libs@
+
+###############################################################################
+#         CVODE/SUNDIALS LINKAGE
+###############################################################################
+
+CANTERA_SUNDIALS_INCLUDE=@mak_sundials_include@
+CANTERA_SUNDIALS_LIBS=@mak_sundials_libdir@ @mak_sundials_libs@
+
+###############################################################################
+#         BLAS LAPACK LINKAGE
+###############################################################################
+
+CANTERA_have_blas_lapack_dir=@mak_have_blas_lapack_dir@
+
+ifeq ($(CANTERA_have_blas_lapack_dir), 1)
+CANTERA_BLAS_LAPACK_LIBS=-L@blas_lapack_dir@ @mak_blas_lapack_libs@
+else
+CANTERA_BLAS_LAPACK_LIBS=@mak_blas_lapack_libs@
+endif
+
+###############################################################################
+#       F2C USAGE
+###############################################################################
+
+CANTERA_F2C_LIBS= @mak_f2c_lib@
+
+###############################################################################
+#      COMBINATIONS OF INCLUDES AND LIBS
+###############################################################################
+
+CANTERA_INCLUDES=$(CANTERA_CORE_INCLUDES) $(CANTERA_SUNDIALS_INCLUDE) \
+                 $(CANTERA_BOOST_INCLUDES) $(CANTERA_EXTRA_INCLUDES)
+
+CANTERA_TOTAL_INCLUDES = $(CANTERA_INCLUDES)
+
+# Add this into the compilation environment to identify the version number
+CANTERA_DEFINES = -DCANTERA_VERSION=@cantera_version@
+
+CANTERA_LIBS=$(CANTERA_CORE_LIBS) \
+             $(CANTERA_EXTRA_LIBDIRS) $(CANTERA_SUNDIALS_LIBS) \
+             $(CANTERA_BLAS_LAPACK_LIBS) $(CANTERA_BOOST_LIBS) \
+             $(CANTERA_F2C_LIBS) $(CANTERA_SYSLIBS)
+
+CANTERA_TOTAL_LIBS=$(CANTERA_LIBS)
+
+CANTERA_TOTAL_LIBS_DEP= $(CANTERA_CORE_LIBS_DEP) \
+                        $(CANTERA_SUNDIALS_LIBS_DEP) \
+                        $(CANTERA_BLAS_LAPACK_LIBS_DEP)
+
+
+CANTERA_FORTRAN_LIBS=$(CANTERA_CORE_FTN) \
+                     $(CANTERA_EXTRA_LIBDIRS) $(CANTERA_SUNDIALS_LIBS) \
+                     $(CANTERA_BLAS_LAPACK_LIBS) $(CANTERA_F2C_LIBS) \
+                     $(CANTERA_BOOST_LIBS) $(CANTERA_FORTRAN_SYSLIBS)
+
+###############################################################################
+#  END
+###############################################################################

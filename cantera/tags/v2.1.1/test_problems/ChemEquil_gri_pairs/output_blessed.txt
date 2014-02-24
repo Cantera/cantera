@@ -1,0 +1,9 @@
+ enth = -2.1541e+06
+attempted equil at (H,P) = -2.2541e+06,      1e+05
+ entropy = 12212
+attempted equil at (S,P) =      12312,      1e+05
+ dens = 0.155457
+attempted equil at (S,V,dens) =      12312,     7.1474,    0.13991
+attempted equil at (T,V, dens) =       1800,     7.1474,    0.13991
+ inte = -2.31473e+06
+attempted equil at (U,V,dens) = -2.4147e+06,     7.1474,    0.13991

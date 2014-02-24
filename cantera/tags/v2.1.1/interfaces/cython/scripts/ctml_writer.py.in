@@ -1,0 +1,8 @@
+#!/usr/bin/python
+from cantera import ctml_writer
+
+if __name__ == "__main__":
+    import sys
+    if len(sys.argv) not in (2,3):
+        raise ValueError('Incorrect number of command line arguments.')
+    ctml_writer.convert(*sys.argv[1:])

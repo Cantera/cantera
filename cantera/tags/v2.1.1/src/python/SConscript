@@ -1,0 +1,117 @@
+from buildutils import *
+import distutils.sysconfig
+
+Import('env', 'build', 'install')
+
+gcv = distutils.sysconfig.get_config_var
+
+####################################
+### Old Python Module: Raw C API ###
+####################################
+
+localenv = env.Clone()
+
+localenv.Append(CPPPATH=[gcv('INCLUDEPY'), env['python_array_include']],
+                LIBPATH=(gcv('LIBDIR') or ''))
+
+if localenv['OS'] == 'Windows':
+    localenv.Append(LIBPATH=pjoin(gcv('prefix'), 'libs'))
+
+for var in ('VS80COMNTOOLS', 'VS90COMNTOOLS', 'VS100COMNTOOLS'):
+    if var in os.environ:
+        localenv['ENV'][var] = os.environ[var]
+
+make_setup = localenv.SubstFile('#interfaces/python/setup.py',
+                                '#interfaces/python/setup.py.in')
+
+extraArgs = ''
+if localenv['python_package'] == 'full':
+    localenv.Prepend(CPPPATH=['#src', '#include'])
+
+    cantera_libname = 'cantera_shared' if os.name=='nt' else 'cantera'
+    #pylinklibs = [cantera_libname, 'cvode', 'ctmath', 'ctlapack', 'ctblas', 'ctf2c', 'execstream']
+    if os.name == 'nt':
+      pylinklibs = list(env['cantera_shared_libs'])
+    else:
+      pylinklibs = list(env['cantera_libs'])
+
+    if localenv['toolchain'] == 'mingw':
+        # On Windows, we need to link against the Python "import" library.
+        # With MSVC, this is automatically handled by a "#pragma comment
+        # directive in the Python headers, but for MinGW we need to do
+        # it manually.
+        pylinklibs.append('python%s' % gcv('VERSION'))
+
+        # Link statically so we don't have to include a copy of libstdc++
+        localenv.Append(LINKFLAGS=['-static-libgcc', '-static-libstdc++'])
+        extraArgs += '--compiler=mingw32'
+
+    # OS X requires library dependencies to be specified at link time
+    if localenv['OS'] == 'Darwin':
+        pylinklibs.append('python%s' % gcv('VERSION'))
+
+    pylinklibs.extend(localenv['sundials_libs'])
+    pylinklibs.extend(localenv['blas_lapack_libs'])
+
+    pymodule = localenv.SharedLibrary('#interfaces/python/Cantera/_cantera',
+                                      ['pycantera.cpp'],
+                                      LIBS=pylinklibs,
+                                      SHLIBPREFIX='',
+                                      SHLIBSUFFIX=gcv('SO'))
+    build(pymodule)
+    localenv.Depends(pymodule, make_setup)
+    if localenv['OS'] == 'Windows':
+        for file in localenv['cantera_shlib']:
+            dest = pjoin('interfaces', 'python', 'Cantera', file.name)
+            localenv.AddPreAction(pymodule,Copy(dest, file))
+
+    env['python_module'] = pymodule
+
+elif localenv['python_package'] == 'minimal':
+    pymodule = make_setup
+
+moddir = pjoin('interfaces', 'python')
+localenv.AddPostAction(make_setup,
+                       'cd %s && $python_cmd setup.py build %s' % (moddir,
+                                                                   extraArgs))
+
+# Install the Python module
+if localenv['python_prefix'] == 'USER':
+    # Install to the platform-specific user site-packages directory
+    extra = '--user'
+elif localenv['python_prefix']:
+    # A specific location for the Cantera python module has been specified
+    extra = '--prefix="%s"' % localenv['python_prefix']
+else:
+    # Install Python module in the default location
+    extra = ''
+
+if localenv['PYTHON_INSTALLER'] == 'direct':
+    mod_inst = install(localenv.Command, 'dummy', pymodule,
+                       'cd %s && $python_cmd setup.py install %s' % (moddir,extra) +
+                       ' --record ../../build/python-installed-files.txt')
+    global_env = env
+    def find_module_dir(target, source, env):
+        check = pjoin('Cantera','__init__.py')
+        for filename in open('build/python-installed-files.txt').readlines():
+            filename = filename.strip()
+            if filename.endswith(check):
+                filename = filename.replace(check,'')
+                global_env['python_module_loc'] = os.path.normpath(filename)
+                break
+    localenv.AlwaysBuild(localenv.AddPostAction(mod_inst, find_module_dir))
+    env['install_python2_action'] = mod_inst
+
+elif localenv['PYTHON_INSTALLER'] == 'debian':
+    install(localenv.Command, 'dummy', pymodule,
+            'cd %s && $python_cmd setup.py install %s --install-layout=deb --no-compile' % (moddir,extra))
+    env['python_module_loc'] = '<unspecified>'
+elif localenv['PYTHON_INSTALLER'] == 'binary':
+    install(localenv.Command, 'dummy', pymodule,
+            'cd %s && $python_cmd setup.py bdist_msi --dist-dir=../..' % moddir +
+            ' --target-version=' + distutils.sysconfig.get_python_version())
+    env['python_module_loc'] = '<unspecified>'
+
+if localenv['python_package'] == 'full':
+    install(localenv.RecursiveInstall, pjoin('$inst_sampledir', 'python'),
+            '#samples/python')

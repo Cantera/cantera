@@ -1,0 +1,59 @@
+#!/bin/sh
+#
+#   install_ts source DEST_DIR'
+#
+#  Install a file checking the time step first
+#
+# HKM -> openBSD doesn't have a -v option
+#
+if test $# -ne 2 ; then
+  echo 'install_ts ERROR: This program requires 2 and only 2 parameters:'
+  echo '   install_ts source DEST_DIR'
+  exit -1
+fi
+lh=$1
+INCDIR=$2
+#
+VERBOSE=-v
+verbose='y'
+if test "x$VERBOSE" = "x-v" ; then
+  verbose=
+fi
+INSTALL_XV="/usr/bin/install -c -m 755 -c $VERBOSE "
+INSTALL_V="/usr/bin/install -c -m 644 -c $VERBOSE "
+#
+# If the destination directory doesn't exist yet, create it
+#
+if test ! -d $INCDIR ; then
+   /usr/bin/install -c -d $INCDIR
+fi
+th="${INCDIR}"/"${lh}"  ; 
+if test ! -f "${lh}" ; then
+  echo 'install_ts ERROR: the file, ' ${lh} ', does not exist' 
+  exit -1
+fi
+if test ! -f "${th}" ; then
+    if test -x "${lh}" ; then
+      $INSTALL_XV "${lh}" "${th}"
+    else
+      $INSTALL_V  "${lh}" "${th}"
+    fi
+    if test x"$verbose" = xy ; then
+      echo "${lh}" ' -> '   "${th}"  
+    fi
+else 
+#            if test "${lh}" -nt "${th}" ; then 
+   /ascldap/users/hkmoffa/Cantera/gc/canteraLiquidTransportDevelop/bin/tscompare "${lh}" "${th}"
+   res=$?
+   if test "$res" = "0" ; then
+    if test -x "${lh}" ; then
+      $INSTALL_XV "${lh}" "${th}"
+    else
+      $INSTALL_V  "${lh}" "${th}"
+    fi
+    if test x"$verbose" = xy ; then
+      echo "${lh}" ' -> '   "${th}"  
+    fi
+  fi 
+fi
+exit 0

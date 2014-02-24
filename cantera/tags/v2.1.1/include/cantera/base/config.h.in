@@ -1,0 +1,121 @@
+//
+//  Run the 'preconfig' script to generate 'config.h' from this input file.
+//
+#ifndef CT_CONFIG_H
+#define CT_CONFIG_H
+
+//---------------------------- Version Flags ------------------//
+// Cantera version -> this will be a double-quoted string value
+//                    referring to branch number within svn
+%(CANTERA_VERSION)s
+
+//------------------------ Development flags ------------------//
+//
+// Compile in additional debug printing where available.
+// Note, the printing may need to be turned on via a switch.
+// This just compiles in the code.
+%(DEBUG_MODE)s
+
+#ifdef DEBUG_MODE
+#define DEBUG_MODE_ENABLED 1
+#else
+#define DEBUG_MODE_ENABLED 0
+#endif
+
+//------------------------ Fortran settings -------------------//
+
+// define types doublereal, integer, and ftnlen to match the
+// corresponding Fortran data types on your system. The defaults
+// are OK for most systems
+
+typedef  double       doublereal;   // Fortran double precision
+typedef  int          integer;      // Fortran integer
+typedef  int          ftnlen;       // Fortran hidden string length type
+
+
+// Fortran compilers pass character strings in argument lists by
+// adding a hidden argument with the length of the string. Some
+// compilers add the hidden length argument immediately after the
+// CHARACTER variable being passed, while others put all of the hidden
+// length arguments at the end of the argument list. Define this if
+// the lengths are at the end of the argument list. This is usually the
+// case for most unix Fortran compilers, but is (by default) false for
+// Visual Fortran under Windows.
+#define STRING_LEN_AT_END
+
+
+// Define this if Fortran adds a trailing underscore to names in object files.
+// For linux and most unix systems, this is the case.
+%(FTN_TRAILING_UNDERSCORE)s
+
+
+%(HAS_SUNDIALS)s
+%(SUNDIALS_VERSION)s
+
+//-------- LAPACK / BLAS ---------
+
+%(LAPACK_FTN_STRING_LEN_AT_END)s
+%(LAPACK_NAMES_LOWERCASE)s
+%(LAPACK_FTN_TRAILING_UNDERSCORE)s
+
+//-------- BOOST --------
+%(USE_BOOST_MATH)s
+
+//--------- operating system --------------------------------------
+
+// The configure script defines this if the operating system is Mac
+// OS X, This used to add some Mac-specific directories to the default
+// data file search path.
+%(DARWIN)s
+
+// Identify whether the operating system is Solaris
+// with a native compiler
+%(SOLARIS)s
+
+//--------- Fonts for reaction path diagrams ----------------------
+%(RXNPATH_FONT)s
+
+//---------- C++ Compiler Variations ------------------------------
+
+// This define is needed to account for the variability for how
+// static variables in templated classes are defined. Right now
+// this is only turned on for the SunPro compiler on Solaris.
+// in that system , you need to declare the static storage variable.
+// with the following line in the include file
+//
+//    template<class M> Cabinet<M>* Cabinet<M>::__storage;
+//
+// Note, on other systems that declaration is treated as a definition
+// and this leads to multiple defines at link time
+%(NEEDS_GENERIC_TEMPL_STATIC_DECL)s
+
+//--------------------- Python ------------------------------------
+
+// If this is defined, the Cantera Python interface will use the
+// Numeric package
+%(HAS_NUMERIC)s
+
+// If this is defined, the Cantera Python interface will use the
+// numarray package
+%(HAS_NUMARRAY)s
+
+// If this is defined, the Cantera Python interface will use the
+// numpy package
+%(HAS_NUMPY)s
+
+// If this is defined, then python will not be assumed to be
+// present to support conversions
+%(HAS_NO_PYTHON)s
+
+%(WITH_HTML_LOGS)s
+
+//--------------------- compile options ----------------------------
+%(THREAD_SAFE_CANTERA)s
+
+//-------------- Optional Cantera Capabilities ----------------------
+
+//    Enable sensitivity analysis via changing H298 directly
+//    for species
+%(H298MODIFY_CAPABILITY)s
+
+#endif

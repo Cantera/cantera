@@ -1,0 +1,196 @@
+from buildutils import *
+import subprocess
+
+Import('env','build','install')
+localenv = env.Clone()
+
+localenv.Prepend(CPPPATH=['#ext/gtest/include', '#include'],
+                 LIBPATH='#build/lib')
+localenv.Append(LIBS=['gtest'] + localenv['cantera_libs'],
+                CCFLAGS=env['warning_flags'])
+
+localenv['ENV']['PYTHONPATH'] = Dir('#interfaces/python').abspath
+localenv['ENV']['CANTERA_DATA'] = Dir('#build/data').abspath
+
+PASSED_FILES = {}
+
+# Needed for Intel runtime libraries when compiling with ICC
+if 'LD_LIBRARY_PATH' in os.environ:
+    localenv['ENV']['LD_LIBRARY_PATH'] = os.environ['LD_LIBRARY_PATH']
+
+def testRunner(target, source, env):
+    """SCons Action to run a compiled test program"""
+    program = source[0]
+    passedFile = target[0]
+    workDir = Dir('#test/work').abspath
+
+    del testResults.tests[passedFile.name]
+    if not os.path.isdir(workDir):
+        os.mkdir(workDir)
+    code = subprocess.call([program.abspath], env=env['ENV'], cwd=workDir)
+    if not code:
+        # Test was successful
+        open(passedFile.path, 'w').write(time.asctime()+'\n')
+        testResults.passed[passedFile.name] = program
+    else:
+        testResults.failed[passedFile.name] = program
+
+
+def addTestProgram(subdir, progName):
+    """
+    Compile a test program and create a targets for running
+    and resetting the test.
+    """
+    program = localenv.Program(pjoin(subdir, progName),
+                               mglob(localenv, subdir, 'cpp'))
+    passedFile = File(pjoin(str(program[0].dir), '%s.passed' % program[0].name))
+    PASSED_FILES[progName] = str(passedFile)
+    testResults.tests[passedFile.name] = program
+    run_program = localenv.Command(passedFile, program, testRunner)
+    Alias('test', run_program)
+    Alias('test-%s' % progName, run_program)
+    env['testNames'].append(progName)
+    if os.path.exists(passedFile.abspath):
+        Alias('test-reset', localenv.Command('reset-%s%s' % (subdir, progName),
+                                             [], [Delete(passedFile.abspath)]))
+
+
+def addTestScript(testname, subdir, script, interpreter, dependencies=(), env_vars={}):
+    """
+    Create targets for running and resetting a test script.
+    """
+    def scriptRunner(target, source, env):
+        """Scons Action to run a test script using the specified interpreter"""
+        workDir = Dir('#test/work').abspath
+        passedFile = target[0]
+        del testResults.tests[passedFile.name]
+        if not os.path.isdir(workDir):
+            os.mkdir(workDir)
+
+        environ = dict(env['ENV'])
+        for k,v in env_vars.iteritems():
+            print k,v
+            environ[k] = v
+        code = subprocess.call([env.subst(interpreter), source[0].abspath],
+                               env=environ,
+                               cwd=workDir)
+        if not code:
+            # Test was successful
+            open(target[0].path, 'w').write(time.asctime()+'\n')
+            testResults.passed[passedFile.name] = True
+        else:
+            testResults.failed[passedFile.name] = True
+
+
+    testenv = localenv.Clone()
+    passedFile = File(pjoin(subdir, '%s.passed' % testname))
+    PASSED_FILES[testname] = str(passedFile)
+    testResults.tests[passedFile.name] = True
+    run_program = testenv.Command(passedFile, pjoin('#test', subdir, script), scriptRunner)
+
+    for dep in dependencies:
+        if isinstance(dep, str):
+            dep = File(pjoin(subdir, dep))
+        testenv.Depends(run_program, dep)
+    Alias('test', run_program)
+    if os.path.exists(passedFile.abspath):
+        Alias('test-reset', testenv.Command('reset-%s%s' % (subdir, testname),
+                                            [], [Delete(passedFile.abspath)]))
+
+    return run_program
+
+
+def addMatlabTest(script, testName, dependencies=None):
+    def matlabRunner(target, source, env):
+        passedFile = target[0]
+        del testResults.tests[passedFile.name]
+        workDir = Dir('#test/work').abspath
+        if not os.path.isdir(workDir):
+            os.mkdir(workDir)
+        outfile = pjoin(workDir, 'matlab-results.txt')
+        runCommand = "%s('%s'); exit" % (source[0].name[:-2], outfile)
+        if os.name == 'nt':
+            matlabOptions = ['-nojvm','-nosplash','-wait']
+        else:
+            matlabOptions = ['-nojvm','-nodisplay']
+        if os.path.exists(outfile):
+            os.remove(outfile)
+
+        environ = dict(os.environ)
+        environ.update(env['ENV'])
+        code = subprocess.call([pjoin(env['matlab_path'], 'bin', 'matlab')] +
+                               matlabOptions + ['-r', runCommand],
+                               env=environ, cwd=Dir('#test/matlab').abspath)
+        results = open(outfile).read()
+        print '-------- Matlab test results --------'
+        print results
+        print '------ end Matlab test results ------'
+        if 'FAILED' in results:
+            testResults.failed[passedFile.name] = True
+        else:
+            testResults.passed[passedFile.name] = True
+            open(target[0].path, 'w').write(time.asctime()+'\n')
+
+    testenv = localenv.Clone()
+    passedFile = File(pjoin('matlab', '%s.passed' % (script)))
+    PASSED_FILES[testName] = str(passedFile)
+    testResults.tests[passedFile.name] = True
+    run_program = testenv.Command(passedFile, pjoin('matlab', script), matlabRunner)
+
+    dependencies = (dependencies or []) + localenv['matlab_extension']
+    for dep in dependencies:
+        if isinstance(dep, str):
+            dep = File(pjoin('matlab', dep))
+        testenv.Depends(run_program, dep)
+
+    Alias('test', run_program)
+    if os.path.exists(passedFile.abspath):
+        Alias('test-reset', testenv.Command('reset-%s%s' % ('matlab', script),
+                                            [], [Delete(passedFile.abspath)]))
+
+    return run_program
+
+# Instantiate tests
+addTestProgram('thermo', 'thermo')
+addTestProgram('kinetics', 'kinetics')
+
+if localenv['python_package'] == 'full':
+    pyTest = addTestScript('python', 'python', 'runTests.py',
+                           interpreter='$python_cmd',
+                           dependencies=(mglob(localenv, 'python', 'py') +
+                                         localenv['python_module']))
+    localenv.Alias('test-python', pyTest)
+    env['testNames'].append('python')
+elif localenv['python_package'] == 'new':
+    pyTest = addTestScript('cython2', 'python', 'runCythonTests.py',
+                           interpreter='$python_cmd',
+                           dependencies=(localenv['python2_module'] +
+                                         localenv['python2_extension'] +
+                                         mglob(localenv, '#interfaces/cython/cantera/test', 'py')),
+                           env_vars={'PYTHONPATH':Dir('#build/python2').abspath})
+    localenv.Alias('test-cython2', pyTest)
+    env['testNames'].append('cython2')
+
+if localenv['python3_package'] == 'y':
+    pyTest = addTestScript('cython3', 'python', 'runCythonTests.py',
+                           interpreter='$python3_cmd',
+                           dependencies=(localenv['python3_module'] +
+                                         localenv['python3_extension'] +
+                                         mglob(localenv, '#interfaces/cython/cantera/test', 'py')),
+                           env_vars={'PYTHONPATH':Dir('#build/python3').abspath})
+    localenv.Alias('test-cython3', pyTest)
+    env['testNames'].append('cython3')
+
+
+if localenv['matlab_toolbox'] == 'y':
+    matlabTest = addMatlabTest('runCanteraTests.m', 'matlab',
+                               dependencies=mglob(localenv, 'matlab', 'm'))
+    localenv.Alias('test-matlab', matlabTest)
+    env['testNames'].append('matlab')
+
+# Force explicitly-named tests to run even if SCons thinks they're up to date
+for command in COMMAND_LINE_TARGETS:
+    if command.startswith('test-'):
+        name = command[5:]
+        if name in PASSED_FILES and os.path.exists(PASSED_FILES[name]):
+            os.remove(PASSED_FILES[name])

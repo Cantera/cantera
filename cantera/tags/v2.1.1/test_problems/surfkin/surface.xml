@@ -1,0 +1,90 @@
+<?xml version="1.0"?>
+<ctml>
+
+  <phase id="surface" dim="2">
+    <state>
+      <temperature units="K">500</temperature>
+    </state>
+    <thermo model="Surface">
+       <site_density>1.0e-9</site_density>
+    </thermo>
+    <elementArray datasrc="elements.xml"> O H  C</elementArray>
+    <speciesArray datasrc="#surf_species_data">
+     surf_site surf_H
+    </speciesArray>
+    <reactionArray datasrc="#surf_rxn_data">
+    </reactionArray>
+    <kinetics model="Interface"/>
+    <phaseArray> gri30 </phaseArray>
+  </phase>
+
+  <!-- species data 
+       Note that these entries are for demonstration only, and the thermo
+       is made up.
+  -->
+
+  <speciesData id="surf_species_data">
+
+    <species name="surf_site">
+      <note>open site</note>
+      <atomArray> </atomArray>
+      <thermo>
+        <NASA P0="100000.0" Tmax="1000" Tmin="200">
+          <floatArray name="coeff" size="7">
+           2.344331120E+000,  7.980520750E-003, -1.947815100E-005,
+           2.015720940E-008, -7.376117610E-012, -9.179351730E+002,
+           6.830102380E-001
+          </floatArray>
+        </NASA>
+        <NASA  P0="100000.0" Tmax="3500" Tmin="1000">
+          <floatArray name="coeff" size="7">
+           3.337279200E+000, -4.940247310E-005,  4.994567780E-007,
+          -1.795663940E-010,  2.002553760E-014, -9.501589220E+002,
+          -3.205023310E+000
+          </floatArray>
+        </NASA>
+      </thermo>
+    </species>
+
+    <species name="surf_H">
+      <note>surface H</note>
+      <atomArray> H:1 </atomArray>
+      <thermo>
+        <NASA P0="100000.0" Tmax="1000" Tmin="200">
+          <floatArray name="coeff" size="7">
+           2.500000000E+000,  7.053328190E-013, -1.995919640E-015,
+           2.300816320E-018, -9.277323320E-022,  2.547365990E+004,
+          -4.466828530E-001
+          </floatArray>
+        </NASA>
+        <NASA  P0="100000.0" Tmax="3500" Tmin="1000">
+          <floatArray name="coeff" size="7">
+           2.500000010E+000, -2.308429730E-011,  1.615619480E-014,
+          -4.735152350E-018,  4.981973570E-022,  2.547365990E+004,
+          -4.466829140E-001
+          </floatArray>
+        </NASA>
+      </thermo>
+    </species>
+
+  </speciesData>
+
+  <!-- reaction data -->
+  <reactionData id="surf_rxn_data">
+
+    <!-- reaction 1 -->
+    <reaction id="surf_rxn_1" reversible="yes">
+      <equation>H + surf_H [=] H2 + surf_site</equation>
+      <reactants> H:1 surf_H:1 </reactants>
+      <products>H2:1 surf_site:1 </products>
+      <rateCoeff>
+        <Arrhenius>
+          <A units="cm3/mol/s">1.0E14</A>
+          <b>0.0</b>
+          <E units="cal/mol">0.0</E>
+        </Arrhenius>
+      </rateCoeff>
+    </reaction>
+
+  </reactionData>
+</ctml>

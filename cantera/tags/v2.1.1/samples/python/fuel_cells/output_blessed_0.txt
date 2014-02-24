@@ -1,0 +1,37 @@
+
+ anode surface
+
+             (m)         0.6187 
+            H(m)         0.3811 
+            O(m)       8.63e-05 
+           OH(m)      2.593e-06 
+          H2O(m)      5.057e-05 
+
+ anode-side oxide surface
+
+            (ox)        0.04994 
+         O''(ox)         0.9489 
+         OH'(ox)       0.001128 
+         H2O(ox)      3.359e-08 
+
+ cathode surface
+
+             (m)      1.482e-07 
+            H(m)      7.573e-14 
+            O(m)              1 
+           OH(m)      2.492e-08 
+          H2O(m)      4.033e-13 
+
+ cathode-side oxide surface
+
+            (ox)        0.04999 
+         O''(ox)         0.9498 
+         OH'(ox)      0.0002061 
+         H2O(ox)       1.12e-09 
+
+ocv from zero current is:  1.1375780672
+OCV from thermo equil is:  1.1375780672
+Ea0 =  -0.733444291655
+Ec0 =  0.40413377554
+
+polarization curve data written to file sofc.csv

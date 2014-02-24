@@ -1,0 +1,13 @@
+
+Notes on this calculation
+
+Silverster and Pitzer have the following numbers for equilibrium at 25C
+      Delta_G0 = -9.0416 kJ gmol-1
+      m_sat    = 6.146
+      meanAC_moll = 1.008
+This table is meant to run through that calculation. at 298.15. 
+Thus Delta_G(298.15) should be 0.0. It's -0.00487 kJ/gmol -> very close =).
+
+
+
+
