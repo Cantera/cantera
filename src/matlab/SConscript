@@ -25,7 +25,6 @@ if localenv['OS'] == 'Windows':
         linkflags.append('/MACHINE:' + machtype)
     elif localenv['CC'] == 'gcc':
         linkflags.append('-Wl,--export-all-symbols')
-        linkflags.extend(['-static-libgcc', '-static-libstdc++'])
 
 elif localenv['OS'] == 'Darwin':
     linklibs = list(env['cantera_libs'])

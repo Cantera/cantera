@@ -808,6 +808,8 @@ if env['coverage']:
         print 'Error: coverage testing is only available with GCC'
         exit(0)
 
+if env['toolchain'] == 'mingw':
+    env.Append(LINKFLAGS=['-static-libgcc', '-static-libstdc++'])
 
 def config_error(message):
     print 'ERROR:', message
