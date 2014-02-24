@@ -86,7 +86,8 @@ def addTestScript(testname, subdir, script, interpreter, dependencies=(), env_va
     passedFile = File(pjoin(subdir, '%s.passed' % testname))
     PASSED_FILES[testname] = str(passedFile)
     testResults.tests[passedFile.name] = True
-    run_program = testenv.Command(passedFile, pjoin(subdir, script), scriptRunner)
+    run_program = testenv.Command(passedFile, pjoin('#test', subdir, script), scriptRunner)
+
     for dep in dependencies:
         if isinstance(dep, str):
             dep = File(pjoin(subdir, dep))
