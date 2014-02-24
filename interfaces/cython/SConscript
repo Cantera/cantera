@@ -24,6 +24,10 @@ def configure_python(env, python_command):
         env.Append(LINKFLAGS='-undefined dynamic_lookup')
     elif env['OS'] == 'Windows':
         env.Append(LIBPATH=prefix+'/libs')
+        if env['toolchain'] == 'mingw':
+            env.Append(LIBS='python%s' % py_version.replace('.',''))
+            if env['OS_BITS'] == 64:
+                env.Append(CPPDEFINES='MS_WIN64')
     elif env['OS'] == 'Cygwin':
         # extract 'pythonX.Y' from 'libpythonX.Y.dll.a'
         env.Append(LIBS=pylib[3:-6])
