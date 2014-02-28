@@ -63,6 +63,8 @@ const int cFixedChemPot = 70;
 /// Constant partial molar volume solution IdealSolidSolnPhase.h
 const int cIdealSolidSolnPhase = 5009;
 
+const int cMaskellSolidSolnPhase = 5010;
+
 //! HMW - Strong electrolyte using the Pitzer formulation
 const int cHMW = 40;
 

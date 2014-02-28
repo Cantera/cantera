@@ -15,6 +15,7 @@
 #include "VPSSMgrFactory.h"
 
 #include "cantera/thermo/IdealSolidSolnPhase.h"
+#include "cantera/thermo/MaskellSolidSolnPhase.h"
 #include "cantera/thermo/MargulesVPSSTP.h"
 #include "cantera/thermo/RedlichKisterVPSSTP.h"
 #include "cantera/thermo/IonsFromNeutralVPSSTP.h"
@@ -63,7 +64,7 @@ ThermoFactory* ThermoFactory::s_factory = 0;
 mutex_t ThermoFactory::thermo_mutex;
 
 //! Define the number of %ThermoPhase types for use in this factory routine
-static int ntypes = 26;
+static int ntypes = 27;
 
 //! Define the string name of the %ThermoPhase types that are handled by this factory routine
 static string _types[] = {"IdealGas", "Incompressible",
@@ -74,7 +75,7 @@ static string _types[] = {"IdealGas", "Incompressible",
                           "MineralEQ3", "MetalSHEelectrons", "Margules", "PhaseCombo_Interaction",
                           "IonsFromNeutralMolecule", "FixedChemPot", "MolarityIonicVPSSTP",
                           "MixedSolventElectrolyte", "Redlich-Kister", "RedlichKwong",
-                          "RedlichKwongMFTP"
+                          "RedlichKwongMFTP", "MaskellSolidSolnPhase"
                          };
 
 //! Define the integer id of the %ThermoPhase types that are handled by this factory routine
@@ -86,7 +87,7 @@ static int _itypes[]   = {cIdealGas, cIncompressible,
                           cMineralEQ3, cMetalSHEelectrons,
                           cMargulesVPSSTP,  cPhaseCombo_Interaction, cIonsFromNeutral, cFixedChemPot,
                           cMolarityIonicVPSSTP, cMixedSolventElectrolyte, cRedlichKisterVPSSTP,
-                          cRedlichKwongMFTP, cRedlichKwongMFTP
+                          cRedlichKwongMFTP, cRedlichKwongMFTP, cMaskellSolidSolnPhase
                          };
 
 ThermoPhase* ThermoFactory::newThermoPhase(const std::string& model)
@@ -201,6 +202,10 @@ ThermoPhase* ThermoFactory::newThermoPhase(const std::string& model)
 
     case cIdealSolnGasVPSS_iscv:
         th = new IdealSolnGasVPSS;
+        break;
+
+    case cMaskellSolidSolnPhase:
+        th = new MaskellSolidSolnPhase;
         break;
 
     default:
