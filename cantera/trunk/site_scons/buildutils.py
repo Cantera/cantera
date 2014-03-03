@@ -555,7 +555,7 @@ def getSpawn(env):
     Adapted from http://www.scons.org/wiki/LongCmdLinesOnWin32
     """
 
-    if 'cmd.exe' not in env['SHELL'] or env['CXX'] == 'cl':
+    if 'cmd.exe' not in env['SHELL'] or env.subst('$CXX') == 'cl':
         return env['SPAWN']
 
     try:
