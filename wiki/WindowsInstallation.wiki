@@ -18,9 +18,8 @@ These installation instructions are for Cantera 2.1.1.
     * Run the installer. The default installation options should be fine.
     * Python is required in order to work with `.cti` input files even if you are not using the Python interface to Cantera.
   # *Install Numpy*
-    * *64-bit*: Go to the [http://www.lfd.uci.edu/~gohlke/pythonlibs/ Unofficial Windows Binaries for Python Extension Packages] page.
-    * *32-bit*: Go to the [http://sourceforge.net/projects/numpy/files/NumPy/ NumPy download page].
-    * Download the most recent release of the 1.x series for Python X.Y.
+    * Go to the [http://www.lfd.uci.edu/~gohlke/pythonlibs/ Unofficial Windows Binaries for Python Extension Packages] page.
+    * Download the most recent release of the 1.x series for Python X.Y that matches your Python architecture. The binaries for Cantera 2.1.1 require Numpy 1.8.0 or newer.
     * Run the installer.
   # *Remove old versions of Cantera*
     * Use The Windows "Add/Remove Programs" interface
