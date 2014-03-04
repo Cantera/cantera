@@ -115,6 +115,12 @@ cdef class ReactorBase:
         """
         self._walls.append(wall)
 
+    def __reduce__(self):
+        raise NotImplementedError('Reactor object is not picklable')
+
+    def __copy__(self):
+        raise NotImplementedError('Reactor object is not copyable')
+
 
 cdef class Reactor(ReactorBase):
     """
@@ -888,3 +894,9 @@ cdef class ReactorNet:
         """
         def __get__(self):
             return self.net.neq()
+
+    def __reduce__(self):
+        raise NotImplementedError('ReactorNet object is not picklable')
+
+    def __copy__(self):
+        raise NotImplementedError('ReactorNet object is not copyable')

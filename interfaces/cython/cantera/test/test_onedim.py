@@ -47,6 +47,20 @@ class TestOnedim(utilities.CanteraTest):
         self.assertArrayNear(inlet.X, Xref)
         self.assertArrayNear(inlet.Y, Yref)
 
+    def test_unpicklable(self):
+        import pickle
+        gas = ct.Solution('h2o2.xml')
+        flame = ct.FreeFlow(gas)
+        with self.assertRaises(NotImplementedError):
+            pickle.dumps(flame)
+
+    def test_uncopyable(self):
+        import copy
+        gas = ct.Solution('h2o2.xml')
+        flame = ct.FreeFlow(gas)
+        with self.assertRaises(NotImplementedError):
+            copy.copy(flame)
+
 
 class TestFreeFlame(utilities.CanteraTest):
     tol_ss = [1.0e-5, 1.0e-14]  # [rtol atol] for steady-state problem

@@ -307,6 +307,16 @@ class TestThermoPhase(utilities.CanteraTest):
         self.assertNear(self.phase.min_temp, 300.0)
         self.assertNear(self.phase.max_temp, 3500.0)
 
+    def test_unpicklable(self):
+        import pickle
+        with self.assertRaises(NotImplementedError):
+            pickle.dumps(self.phase)
+
+    def test_uncopyable(self):
+        import copy
+        with self.assertRaises(NotImplementedError):
+            copy.copy(self.phase)
+
 
 class TestThermo(utilities.CanteraTest):
     def setUp(self):
