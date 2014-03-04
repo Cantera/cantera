@@ -76,6 +76,12 @@ cdef class _SolutionBase:
             for i,spec in enumerate(species):
                 self._selected_species[i] = self.species_index(spec)
 
+    def __reduce__(self):
+        raise NotImplementedError('Solution object is not picklable')
+
+    def __copy__(self):
+        raise NotImplementedError('Solution object is not copyable')
+
     def __dealloc__(self):
         # only delete the C++ objects if this is the parent object
         if self.parent is None:

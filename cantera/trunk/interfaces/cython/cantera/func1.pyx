@@ -71,3 +71,9 @@ cdef class Func1:
 
     def __call__(self, t):
         return self.func.eval(t)
+
+    def __reduce__(self):
+        raise NotImplementedError('Func1 object is not picklable')
+
+    def __copy__(self):
+        raise NotImplementedError('Func1 object is not copyable')

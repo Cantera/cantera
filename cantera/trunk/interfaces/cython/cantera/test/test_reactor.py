@@ -474,6 +474,23 @@ class TestReactor(utilities.CanteraTest):
         self.assertNear(p1a, p1b)
         self.assertNear(p2a, p2b)
 
+    def test_unpicklable(self):
+        self.make_reactors()
+        import pickle
+        with self.assertRaises(NotImplementedError):
+            pickle.dumps(self.r1)
+        with self.assertRaises(NotImplementedError):
+            pickle.dumps(self.net)
+
+    def test_uncopyable(self):
+        self.make_reactors()
+        import copy
+        with self.assertRaises(NotImplementedError):
+            copy.copy(self.r1)
+        with self.assertRaises(NotImplementedError):
+            copy.copy(self.net)
+
+
 class TestIdealGasReactor(TestReactor):
     reactorClass = ct.IdealGasReactor
 

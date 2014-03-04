@@ -160,6 +160,11 @@ cdef class Domain1D:
         def __set__(self, desc):
             self.domain.setDesc(stringify(desc))
 
+    def __reduce__(self):
+        raise NotImplementedError('Domain1D object is not picklable')
+
+    def __copy__(self):
+        raise NotImplementedError('Domain1D object is not copyable')
 
 cdef class Boundary1D(Domain1D):
     """

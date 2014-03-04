@@ -39,3 +39,15 @@ class TestFunc1(utilities.CanteraTest):
 
         f = ct.Func1(fails)
         self.assertRaises(ValueError, f, 0.1)
+
+    def test_unpicklable(self):
+        import pickle
+        f = ct.Func1(np.sin)
+        with self.assertRaises(NotImplementedError):
+            pickle.dumps(f)
+
+    def test_uncopyable(self):
+        import copy
+        f = ct.Func1(np.sin)
+        with self.assertRaises(NotImplementedError):
+            copy.copy(f)
