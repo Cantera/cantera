@@ -1,1 +1,0 @@
-#SUBDIRS = NaCl_equil
