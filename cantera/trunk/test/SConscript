@@ -42,16 +42,20 @@ def addTestProgram(subdir, progName, env_vars={}):
         if not code:
             # Test was successful
             open(passedFile.path, 'w').write(time.asctime()+'\n')
-        else:
-            testResults.failed[passedFile.name] = program
 
-        results = ElementTree.parse(resultsFile)
-        for test in results.findall('.//testcase'):
-            testName = ': '.join((progName, test.get('name')))
-            if test.findall('failure'):
-                testResults.failed[testName] = 1
-            else:
-                testResults.passed[testName] = 1
+        if os.path.exists(resultsFile):
+            # Determine individual test status
+            results = ElementTree.parse(resultsFile)
+            for test in results.findall('.//testcase'):
+                testName = ': '.join((progName, test.get('name')))
+                if test.findall('failure'):
+                    testResults.failed[testName] = 1
+                else:
+                    testResults.passed[testName] = 1
+        else:
+            # Total failure of the test program - unable to determine status
+            # of individual tests
+            testResults.failed[passedFile.name] = program
 
     testenv = localenv.Clone()
     testenv['ENV'].update(env_vars)
