@@ -1,6 +1,7 @@
 #include "gtest/gtest.h"
 #include "cantera/thermo/MaskellSolidSolnPhase.h"
 #include "cantera/thermo/SimpleThermo.h"
+#include "cantera/thermo/VPSSMgr_General.h"
 #include "cantera/thermo/ThermoFactory.h"
 #include <iostream>
 
@@ -15,37 +16,6 @@ public:
     MaskellSolidSolnPhase_Test() : test_phase(NULL) {}
 
     ~MaskellSolidSolnPhase_Test() { delete test_phase; }
-
-    void initializeTestPhaseWithSimpleThermo()
-    {
-        test_phase = new MaskellSolidSolnPhase();
-        test_phase->addElement("A", 1.);
-        test_phase->addElement("B", 2.);
-        std::vector<double> comp(2);
-        comp[0] = 1.;
-        comp[1] = 0.;
-        test_phase->addSpecies("A", &comp[0], 0., 1.);
-        comp[0] = 0.;
-        comp[1] = 1.;
-        test_phase->addSpecies("B", &comp[0], 0., 1.);
-
-        // Setup simple thermo  so that the standard state enthalpy and
-        // gibbs free energies are always 0 so that we can just test the
-        // additional contribution from the Maskell model
-        SimpleThermo * spec_thermo = new SimpleThermo();
-        std::vector<double> coeffs(4);
-        coeffs[0] = 1;
-        coeffs[1] = 0;
-        coeffs[2] = 0;
-        coeffs[3] = 0;
-        spec_thermo->install("A", 0, 0, &coeffs[0], 0., 1000., 1.);
-        coeffs[1] = 1000;
-        spec_thermo->install("B", 1, 0, &coeffs[0], 0., 1000., 1.);
-        test_phase->setSpeciesThermo(spec_thermo);
-
-        test_phase->setState_TP(298., 1.);
-        set_r(0.5);
-    }
 
     void initializeTestPhaseWithXML(const std::string & filename)
     {
@@ -87,7 +57,10 @@ TEST_F(MaskellSolidSolnPhase_Test, construct_from_xml)
 
 TEST_F(MaskellSolidSolnPhase_Test, chem_potentials)
 {
-    initializeTestPhaseWithSimpleThermo();
+    const std::string valid_file("../data/MaskellSolidSolnPhase_valid.xml");
+    initializeTestPhaseWithXML(valid_file);
+    test_phase->setState_TP(298., 1.);
+    set_r(0.5);
 
     MaskellSolidSolnPhase * maskell_phase = dynamic_cast<MaskellSolidSolnPhase *>(test_phase);
 
@@ -102,6 +75,18 @@ TEST_F(MaskellSolidSolnPhase_Test, chem_potentials)
     maskell_phase->set_h_mix(-5000.);
     const double expected_result_minus_5000[9] = { 1.2340671035887627e7, 8.013594700219031e6, 4.992303607179179e6, 2.4166670154679064e6, 0., -2.4166670154679064e6, -4.9923036071791835e6, -8.013594700219034e6, -1.2340671035887627e7};
     check_chemPotentials(expected_result_minus_5000);
+}
+
+TEST_F(MaskellSolidSolnPhase_Test, partialMolarVolumes)
+{
+    const std::string valid_file("../data/MaskellSolidSolnPhase_valid.xml");
+    initializeTestPhaseWithXML(valid_file);
+    ASSERT_TRUE(dynamic_cast<MaskellSolidSolnPhase *>(test_phase) != NULL);
+
+    std::vector<double> pmv(2);
+    test_phase->getPartialMolarVolumes(&pmv[0]);
+    EXPECT_EQ(0.005, pmv[0]);
+    EXPECT_EQ(0.01, pmv[1]);
 }
 
 };

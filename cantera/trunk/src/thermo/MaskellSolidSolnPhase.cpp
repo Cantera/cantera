@@ -21,7 +21,6 @@ namespace Cantera
 {
 //=====================================================================================================
 MaskellSolidSolnPhase::MaskellSolidSolnPhase() :
-    ThermoPhase(),
     m_Pref(OneAtm),
     m_Pcurrent(OneAtm),
     m_tlast(-1.0),
@@ -34,7 +33,6 @@ MaskellSolidSolnPhase::MaskellSolidSolnPhase() :
 }
 //=====================================================================================================
 MaskellSolidSolnPhase::MaskellSolidSolnPhase(const MaskellSolidSolnPhase& b) :
-    ThermoPhase(),
     m_Pref(OneAtm),
     m_Pcurrent(OneAtm),
     m_tlast(-1.0),
@@ -51,7 +49,7 @@ MaskellSolidSolnPhase& MaskellSolidSolnPhase::
 operator=(const MaskellSolidSolnPhase& b)
 {
     if (this != &b) {
-        ThermoPhase::operator=(b);
+        VPStandardStateTP::operator=(b);
     }
     return *this;
 }
@@ -108,6 +106,21 @@ setDensity(const doublereal rho)
         throw CanteraError("MaskellSolidSolnPhase::setDensity",
                            "Density is not an independent variable");
     }
+}
+
+void MaskellSolidSolnPhase::
+calcDensity()
+{
+    const vector_fp & vbar = getStandardVolumes();
+
+    vector_fp moleFracs(m_kk);
+    Phase::getMoleFractions(&moleFracs[0]);
+    doublereal vtotal = 0.0;
+    for (size_t i = 0; i < m_kk; i++) {
+        vtotal += vbar[i] * moleFracs[i];
+    }
+    doublereal dd = meanMolecularWeight() / vtotal;
+    Phase::setDensity(dd);
 }
 
 void MaskellSolidSolnPhase::setPressure(doublereal p)
@@ -180,6 +193,7 @@ getPartialMolarCp(doublereal* cpbar) const
 void MaskellSolidSolnPhase::
 getPartialMolarVolumes(doublereal* vbar) const
 {
+  getStandardVolumes(vbar);
 }
 
 void MaskellSolidSolnPhase::
@@ -254,7 +268,7 @@ void MaskellSolidSolnPhase::initThermoXML(XML_Node& phaseNode, const std::string
      * Call the base initThermo, which handles setting the initial
      * state.
      */
-    ThermoPhase::initThermoXML(phaseNode, id_);
+    VPStandardStateTP::initThermoXML(phaseNode, id_);
 }
 
 void MaskellSolidSolnPhase::_updateThermo() const
