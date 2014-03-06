@@ -490,20 +490,25 @@ std::string XML_Node::operator()(const std::string& loc) const
     return value(loc);
 }
 
-void XML_Node::addAttribute(const std::string& attrib_, const std::string& value_)
+void XML_Node::addAttribute(const std::string& attrib, const std::string& value)
 {
-    m_attribs[attrib_] = value_;
+    m_attribs[attrib] = value;
 }
 
-void XML_Node::addAttribute(const std::string& attrib_,
-                            const doublereal value_, const std::string& fmt)
+void XML_Node::addAttribute(const std::string& attrib,
+                            const doublereal vvalue, const std::string& fmt)
 {
-    m_attribs[attrib_] = fp2str(value_, fmt);
+    m_attribs[attrib] = fp2str(vvalue, fmt);
 }
 
-void XML_Node::addAttribute(const std::string& attrib_, const size_t value_)
+void XML_Node::addAttribute(const std::string& aattrib, const int vvalue)
 {
-    m_attribs[attrib_] = int2str(value_);
+    m_attribs[aattrib] = int2str(vvalue);
+}
+
+void XML_Node::addAttribute(const std::string& aattrib, const size_t vvalue)
+{
+    m_attribs[aattrib] = int2str(vvalue);
 }
 
 std::string XML_Node::operator[](const std::string& attr) const
