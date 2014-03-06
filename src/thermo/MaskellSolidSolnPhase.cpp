@@ -19,25 +19,34 @@
 
 namespace Cantera
 {
-
+//=====================================================================================================
 MaskellSolidSolnPhase::MaskellSolidSolnPhase() :
     ThermoPhase(),
     m_Pref(OneAtm),
     m_Pcurrent(OneAtm),
-    m_tlast(-1),
+    m_tlast(-1.0),
     m_h0_RT(2),
     m_cp0_R(2),
     m_g0_RT(2),
     m_s0_R(2),
-    h_mixing(0.)
+    h_mixing(0.0)
 {
 }
-
-MaskellSolidSolnPhase::MaskellSolidSolnPhase(const MaskellSolidSolnPhase& b)
+//=====================================================================================================
+MaskellSolidSolnPhase::MaskellSolidSolnPhase(const MaskellSolidSolnPhase& b) :
+    ThermoPhase(),
+    m_Pref(OneAtm),
+    m_Pcurrent(OneAtm),
+    m_tlast(-1.0),
+    m_h0_RT(2),
+    m_cp0_R(2),
+    m_g0_RT(2),
+    m_s0_R(2),
+    h_mixing(0.0)
 {
     *this = b;
 }
-
+//=====================================================================================================
 MaskellSolidSolnPhase& MaskellSolidSolnPhase::
 operator=(const MaskellSolidSolnPhase& b)
 {
@@ -46,16 +55,16 @@ operator=(const MaskellSolidSolnPhase& b)
     }
     return *this;
 }
-
+//=====================================================================================================
 ThermoPhase* MaskellSolidSolnPhase::duplMyselfAsThermoPhase() const
 {
     return new MaskellSolidSolnPhase(*this);
 }
-
+//=====================================================================================================
 /********************************************************************
  *            Molar Thermodynamic Properties of the Solution
  ********************************************************************/
-
+//=====================================================================================================
 doublereal MaskellSolidSolnPhase::
 enthalpy_mole() const
 {
@@ -65,7 +74,7 @@ enthalpy_mole() const
     const doublereal fmval = fm(r);
     return h0 + r * fmval * h_mixing;
 }
-
+//=====================================================================================================
 doublereal xlogx(doublereal x)
 {
   return x * std::log(x);
@@ -119,6 +128,8 @@ void MaskellSolidSolnPhase::setMolarDensity(const doublereal n)
 void MaskellSolidSolnPhase::
 getActivityCoefficients(doublereal* ac) const
 {
+ // throw CanteraError("MaskellSolidSolnPhase::getActivityCoefficients()",
+ //                    "needs to be implemented");
 }
 
 void MaskellSolidSolnPhase::
