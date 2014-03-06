@@ -28,7 +28,8 @@ MaskellSolidSolnPhase::MaskellSolidSolnPhase() :
     m_cp0_R(2),
     m_g0_RT(2),
     m_s0_R(2),
-    h_mixing(0.0)
+    h_mixing(0.0),
+    product_species_index(0)
 {
 }
 //=====================================================================================================
@@ -40,7 +41,8 @@ MaskellSolidSolnPhase::MaskellSolidSolnPhase(const MaskellSolidSolnPhase& b) :
     m_cp0_R(2),
     m_g0_RT(2),
     m_s0_R(2),
-    h_mixing(0.0)
+    h_mixing(0.0),
+    product_species_index(0)
 {
     *this = b;
 }
@@ -59,6 +61,26 @@ ThermoPhase* MaskellSolidSolnPhase::duplMyselfAsThermoPhase() const
     return new MaskellSolidSolnPhase(*this);
 }
 //=====================================================================================================
+void MaskellSolidSolnPhase::
+getActivityConcentrations(doublereal* c) const
+{
+    std::vector<doublereal> pmv(m_kk);
+    getPartialMolarVolumes(&pmv[0]);
+    const doublereal* const dtmp = moleFractdivMMW();
+    const double mmw = meanMolecularWeight();
+    for (size_t k = 0; k < m_kk; k++) {
+        c[k] = dtmp[k] * mmw / pmv[k];
+    }
+}
+
+doublereal MaskellSolidSolnPhase::standardConcentration(size_t k) const
+{
+    std::vector<doublereal> pmv(m_kk);
+    getPartialMolarVolumes(&pmv[0]);
+    doublereal result = 1.0 / pmv[k];
+    return result;
+}
+
 /********************************************************************
  *            Molar Thermodynamic Properties of the Solution
  ********************************************************************/
@@ -68,21 +90,21 @@ enthalpy_mole() const
 {
     _updateThermo();
     const doublereal h0 = GasConstant * temperature() * mean_X(&m_h0_RT[0]);
-    const doublereal r = moleFraction(0);
+    const doublereal r = moleFraction(product_species_index);
     const doublereal fmval = fm(r);
     return h0 + r * fmval * h_mixing;
 }
 //=====================================================================================================
 doublereal xlogx(doublereal x)
 {
-  return x * std::log(x);
+    return x * std::log(x);
 }
 
 doublereal MaskellSolidSolnPhase::entropy_mole() const
 {
     _updateThermo();
     const doublereal s0 = GasConstant * mean_X(&m_s0_R[0]);
-    const doublereal r = moleFraction(0);
+    const doublereal r = moleFraction(product_species_index);
     const doublereal fmval = fm(r);
     const doublereal rfm = r * fmval;
     return s0 + GasConstant * (xlogx(1-rfm) - xlogx(rfm) - xlogx(1-r-rfm) - xlogx((1-fmval)*r) - xlogx(1-r) - xlogx(r));
@@ -149,7 +171,7 @@ void MaskellSolidSolnPhase::
 getChemPotentials(doublereal* mu) const
 {
     _updateThermo();
-    const doublereal r = moleFraction(0);
+    const doublereal r = moleFraction(product_species_index);
     const doublereal pval = p(r);
     const doublereal fmval = fm(r);
     const doublereal rfm = r * fmval;
@@ -157,8 +179,9 @@ getChemPotentials(doublereal* mu) const
     const doublereal muDelta = -pval * h_mixing - GasConstant * temperature()
                        * std::log( (std::pow(1 - rfm, pval) * std::pow(rfm, pval) * std::pow(r - rfm, 1 - pval) * r)  /
                                    (std::pow(1 - r - rfm, 1 + pval) * (1 - r)) );
-    mu[0] = RT * m_g0_RT[0] + muDelta;
-    mu[1] = RT * m_g0_RT[1] - muDelta;
+    const int sign = (product_species_index == 0) ? 1 : -1;
+    mu[0] = RT * m_g0_RT[0] + sign * muDelta;
+    mu[1] = RT * m_g0_RT[1] - sign * muDelta;
 }
 
 void MaskellSolidSolnPhase::
@@ -252,6 +275,19 @@ void MaskellSolidSolnPhase::initThermoXML(XML_Node& phaseNode, const std::string
             throw CanteraError(subname.c_str(),
                                "Mixing enthalpy parameter not specified.");
         }
+
+        if (thNode.hasChild("product_species")) {
+            XML_Node& scNode = thNode.child("product_species");
+            std::string product_species_name = scNode.value();
+            product_species_index = speciesIndex(product_species_name);
+            if( product_species_index == npos )
+            {
+              throw CanteraError(subname.c_str(),
+                                 "Species " + product_species_name + " not found.");
+            }
+            std::cout << "parsed product_species_index = " << product_species_index << std::endl;
+        }
+
     } else {
         throw CanteraError(subname.c_str(),
                            "Unspecified thermo model");

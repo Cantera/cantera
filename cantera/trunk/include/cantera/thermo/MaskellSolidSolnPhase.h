@@ -34,25 +34,7 @@ namespace Cantera
 class MaskellSolidSolnPhase : public VPStandardStateTP
 {
 public:
-    /**
-     * The generalized concentrations can have three different forms
-     * depending on the value of the member attribute #m_formGC, which
-     * is supplied in the constructor or read from the xml data file.
-     *
-     * @param formCG This parameter initializes the #m_formGC variable.
-     */
     MaskellSolidSolnPhase();
-
-    //! Construct and initialize an MaskellSolidSolnPhase ThermoPhase object
-    //! directly from an XML database
-    /*!
-     * @param root   XML tree containing a description of the phase.
-     *               The tree must be positioned at the XML element
-     *               named phase with id, "id", on input to this routine.
-     * @param id     The name of this phase. This is used to look up
-     *               the phase in the XML datafile.
-     */
-    //MaskellSolidSolnPhase(XML_Node& root, const std::string& id="");
 
     //! Copy Constructor
     MaskellSolidSolnPhase(const MaskellSolidSolnPhase&);
@@ -66,6 +48,61 @@ public:
      * Given a pointer to ThermoPhase, this function can duplicate the object.
      */
     virtual ThermoPhase* duplMyselfAsThermoPhase() const;
+
+    /**
+     * This method returns the array of generalized
+     * concentrations. The generalized concentrations are used
+     * in the evaluation of the rates of progress for reactions
+     * involving species in this phase. The generalized
+     * concentration divided by the standard concentration is also
+     * equal to the activity of species.
+     *
+     * For this implementation the activity is defined to be the
+     * mole fraction of the species. The generalized concentration
+     * is defined to be equal to the mole fraction divided by
+     * the partial molar volume. The generalized concentrations
+     * for species in this phase therefore have units of
+     * kmol m<SUP>-3</SUP>. Rate constants must reflect this fact.
+     *
+     * On a general note, the following must be true.
+     * For an ideal solution, the generalized concentration  must consist
+     * of the mole fraction multiplied by a constant. The constant may be
+     * fairly arbitrarily chosen, with differences adsorbed into the
+     * reaction rate expression. 1/V_N, 1/V_k, or 1 are equally good,
+     * as long as the standard concentration is adjusted accordingly.
+     * However, it must be a constant (and not the concentration, btw,
+     * which is a function of the mole fractions) in order for the
+     * ideal solution properties to hold at the same time having the
+     * standard concentration to be independent of the mole fractions.
+     *
+     * In this implementation the form of the generalized concentrations
+     * depend upon the member attribute, #m_formGC.
+     *
+     * HKM Note: We have absorbed the pressure dependence of the pure species
+     *        state into the thermodynamics functions. Therefore the
+     *        standard state on which the activities are based depend
+     *        on both temperature and pressure. If we hadn't, it would have
+     *        appeared in this function in a very awkward exp[] format.
+     *
+     * @param c  Pointer to array of doubles of length m_kk, which on exit
+     *           will contain the generalized concentrations.
+     */
+    virtual void getActivityConcentrations(doublereal* c) const;
+
+    //! Return the standard concentration for the kth species
+    /*!
+     * The standard concentration \f$ C^0_k \f$ used to normalize the
+     * generalized concentration. In many cases, this quantity will be the
+     * same for all species in a phase. However, for this case, we will return
+     * a distinct concentration for each species. This is the inverse of the
+     * species molar volume. Units for the standard concentration are kmol
+     * m<SUP>-3</SUP>.
+     *
+     * @param k Species number: this is a require parameter,
+     * a change from the ThermoPhase base class, where it was
+     * an optional parameter.
+     */
+    virtual doublereal standardConcentration(size_t k) const;
 
     //! @name Molar Thermodynamic Properties of the Solution
     //! @{
@@ -309,6 +346,9 @@ protected:
 
     //! Value of the enthalpy change on mixing due to protons changing from type B to type A configurations.
     doublereal h_mixing;
+
+    //! Index of the species whose mole fraction defines the extent of reduction r
+    int product_species_index;
 
 private:
     // Functions to calculate some of the pieces of the mixing terms.
