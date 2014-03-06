@@ -82,6 +82,7 @@ TEST_F(MaskellSolidSolnPhase_Test, construct_from_xml)
     const std::string valid_file("../data/MaskellSolidSolnPhase_valid.xml");
     initializeTestPhaseWithXML(valid_file);
     MaskellSolidSolnPhase * maskell_phase = dynamic_cast<MaskellSolidSolnPhase *>(test_phase);
+    EXPECT_TRUE(maskell_phase != NULL);
 }
 
 TEST_F(MaskellSolidSolnPhase_Test, chem_potentials)

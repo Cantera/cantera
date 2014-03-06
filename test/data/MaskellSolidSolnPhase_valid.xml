@@ -31,7 +31,13 @@
       <thermo>     
         <Shomate Pref="1 bar" Tmax="800." Tmin="250.0">
           <floatArray size="1">
-            1.
+            1.,
+            1.,
+            1.,
+            1.,
+            1.,
+            1.,
+            1.,
           </floatArray>
         </Shomate>
       </thermo>
@@ -45,6 +51,12 @@
       <thermo>
         <Shomate Pref="1 bar" Tmax="800." Tmin="250.0">
           <floatArray size="1">
+            6.94544000E+01,
+            6.94544000E+01,
+            6.94544000E+01,
+            6.94544000E+01,
+            6.94544000E+01,
+            6.94544000E+01,
             6.94544000E+01,
           </floatArray>
         </Shomate>
