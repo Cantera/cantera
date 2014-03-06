@@ -12,7 +12,7 @@
     </speciesArray>
     <thermo model="MaskellSolidSolnPhase">
       <h_mix>-1000.</h_mix>
-      <density units="kg/m3"> 1.0 </density>
+      <product_species>H(s)</product_species>
     </thermo>
     <kinetics model="none"/>
     <state>
