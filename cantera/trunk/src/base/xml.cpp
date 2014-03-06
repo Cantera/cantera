@@ -416,18 +416,18 @@ XML_Node& XML_Node::addChild(const std::string& sname)
     return mergeAsChild(*(new XML_Node(sname, this)));
 }
 
-XML_Node& XML_Node::addChild(const std::string& name_, const std::string& value_)
+XML_Node& XML_Node::addChild(const std::string& name, const std::string& value)
 {
-    XML_Node& c = addChild(name_);
-    c.addValue(value_);
+    XML_Node& c = addChild(name);
+    c.addValue(value);
     return c;
 }
 
-XML_Node& XML_Node::addChild(const std::string& name_, const doublereal value_,
+XML_Node& XML_Node::addChild(const std::string& name, const doublereal value,
                              const std::string& fmt)
 {
-    XML_Node& c = addChild(name_);
-    c.addValue(value_, fmt);
+    XML_Node& c = addChild(name);
+    c.addValue(value, fmt);
     return c;
 }
 
