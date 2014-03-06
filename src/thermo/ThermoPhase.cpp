@@ -758,14 +758,14 @@ void ThermoPhase::setElementPotentials(const vector_fp& lambda)
     if (!m_hasElementPotentials) {
         m_lambdaRRT.resize(mm);
     }
-    scale(m_lambdaRRT, 1.0/(GasConstant* temperature()));
+    scale(lambda.begin(), lambda.end(), m_lambdaRRT.begin(), 1.0/(GasConstant* temperature()));
     m_hasElementPotentials = true;
 }
 
 bool ThermoPhase::getElementPotentials(doublereal* lambda) const
 {
     if (m_hasElementPotentials) {
-        scale(lambda, lambda + nElements(), lambda, GasConstant* temperature());
+        scale(m_lambdaRRT.begin(), m_lambdaRRT.end(), lambda, GasConstant* temperature());
     }
     return m_hasElementPotentials;
 }
