@@ -280,7 +280,18 @@ public:
     void addAttribute(const std::string& attrib, const doublereal value,
                       const std::string& fmt="%g");
 
+    //! Add an integer attribute
+    /*!
+     * @param attrib   String name for the attribute to be assigned
+     * @param value    int Value that the node will be assigned
+     */
+    void addAttribute(const std::string& attrib, int value);
+
     //! Add an unsigned integer attribute
+    /*!
+     * @param attrib   String name for the attribute to be assigned
+     * @param value    int Value that the node will be assigned
+     */
     void addAttribute(const std::string& attrib, size_t value);
 
     //! The operator[] is overloaded to provide a lookup capability
