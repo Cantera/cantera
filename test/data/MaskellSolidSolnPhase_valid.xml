@@ -29,17 +29,12 @@
     <species name="H(s)">
       <atomArray> H:1 He:2 </atomArray>
       <thermo>     
-        <Shomate Pref="1 bar" Tmax="800." Tmin="250.0">
-          <floatArray size="1">
-            1.,
-            1.,
-            1.,
-            1.,
-            1.,
-            1.,
-            1.,
-          </floatArray>
-        </Shomate>
+        <const_cp Pref="1 bar" Tmax="800." Tmin="250.0">
+          <t0>1</t0>
+          <h0>0</h0>
+          <s0>0</s0>
+          <cp0>0</cp0>
+        </const_cp>
       </thermo>
        <standardState  model="constant_incompressible">
           <molarVolume units="m3/kmol"> 0.005 </molarVolume>
@@ -49,20 +44,15 @@
     <species name="He(s)">
       <atomArray> H:0 He:1 </atomArray>
       <thermo>
-        <Shomate Pref="1 bar" Tmax="800." Tmin="250.0">
-          <floatArray size="1">
-            6.94544000E+01,
-            6.94544000E+01,
-            6.94544000E+01,
-            6.94544000E+01,
-            6.94544000E+01,
-            6.94544000E+01,
-            6.94544000E+01,
-          </floatArray>
-        </Shomate>
+        <const_cp Pref="1 bar" Tmax="800." Tmin="250.0">
+          <t0>1</t0>
+          <h0>1000</h0>
+          <s0>0</s0>
+          <cp0>0</cp0>
+        </const_cp>
       </thermo> 
       <standardState  model="constant_incompressible">
-          <molarVolume units="m3/kmol"> 0.005 </molarVolume>
+          <molarVolume units="m3/kmol"> 0.01 </molarVolume>
       </standardState>
     </species>
   </speciesData>

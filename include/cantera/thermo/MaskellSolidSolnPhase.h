@@ -16,6 +16,7 @@
 
 #include "mix_defs.h"
 #include "ThermoPhase.h"
+#include "VPStandardStateTP.h"
 #include "ThermoFactory.h"
 #include "SpeciesThermo.h"
 
@@ -30,7 +31,7 @@ namespace Cantera
  *
  * @ingroup thermoprops
  */
-class MaskellSolidSolnPhase : public ThermoPhase
+class MaskellSolidSolnPhase : public VPStandardStateTP
 {
 public:
     /**
@@ -136,6 +137,8 @@ public:
      * @param rho  Input density
      */
     virtual void setDensity(const doublereal rho);
+
+    virtual void calcDensity();
 
     /**
      * Overwritten setMolarDensity() function is necessary because the
