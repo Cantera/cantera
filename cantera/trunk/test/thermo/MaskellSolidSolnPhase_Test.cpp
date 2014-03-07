@@ -37,8 +37,8 @@ public:
             const double r = 0.1 * (i+1);
             set_r(r);
             test_phase->getChemPotentials(&chemPotentials[0]);
-            EXPECT_NEAR(expected_result[i], chemPotentials[0], 1.e-6);
-            EXPECT_NEAR(1000.-expected_result[i], chemPotentials[1], 1.e-6);
+            EXPECT_NEAR(-expected_result[i], chemPotentials[0], 1.e-6);
+            EXPECT_NEAR(1000.+expected_result[i], chemPotentials[1], 1.e-6);
         }
     }
 };
@@ -78,6 +78,18 @@ TEST_F(MaskellSolidSolnPhase_Test, chem_potentials)
     check_chemPotentials(expected_result_minus_5000);
 }
 
+TEST_F(MaskellSolidSolnPhase_Test, partialMolarVolumes)
+{
+    const std::string valid_file("../data/MaskellSolidSolnPhase_valid.xml");
+    initializeTestPhaseWithXML(valid_file);
+    ASSERT_TRUE(dynamic_cast<MaskellSolidSolnPhase *>(test_phase) != NULL);
+
+    std::vector<double> pmv(2);
+    test_phase->getPartialMolarVolumes(&pmv[0]);
+    EXPECT_EQ(0.005, pmv[0]);
+    EXPECT_EQ(0.01, pmv[1]);
+}
+
 TEST_F(MaskellSolidSolnPhase_Test, activityCoeffs)
 {
     const std::string valid_file("../data/MaskellSolidSolnPhase_valid.xml");
@@ -105,16 +117,38 @@ TEST_F(MaskellSolidSolnPhase_Test, activityCoeffs)
     }
 }
 
-TEST_F(MaskellSolidSolnPhase_Test, partialMolarVolumes)
+TEST_F(MaskellSolidSolnPhase_Test, standardConcentrations)
 {
     const std::string valid_file("../data/MaskellSolidSolnPhase_valid.xml");
     initializeTestPhaseWithXML(valid_file);
     ASSERT_TRUE(dynamic_cast<MaskellSolidSolnPhase *>(test_phase) != NULL);
 
-    std::vector<double> pmv(2);
-    test_phase->getPartialMolarVolumes(&pmv[0]);
-    EXPECT_EQ(0.005, pmv[0]);
-    EXPECT_EQ(0.01, pmv[1]);
+    EXPECT_DOUBLE_EQ(1.0 / 0.005, test_phase->standardConcentration(0));
+    EXPECT_DOUBLE_EQ(1.0 / 0.01, test_phase->standardConcentration(1));
+}
+
+TEST_F(MaskellSolidSolnPhase_Test, activityConcentrations)
+{
+    const std::string valid_file("../data/MaskellSolidSolnPhase_valid.xml");
+    initializeTestPhaseWithXML(valid_file);
+    ASSERT_TRUE(dynamic_cast<MaskellSolidSolnPhase *>(test_phase) != NULL);
+
+    // Check to make sure activityConcentration_i == standardConcentration_i * gamma_i * X_i
+    std::vector<double> standardConcs(2);
+    std::vector<double> activityCoeffs(2);
+    std::vector<double> activityConcentrations(2);
+    for(int i=0; i < 9; ++i)
+    {
+        const double r = 0.1 * (i+1);
+        set_r(r);
+        test_phase->getActivityCoefficients(&activityCoeffs[0]);
+        standardConcs[0] = test_phase->standardConcentration(0);
+        standardConcs[1] = test_phase->standardConcentration(1);
+        test_phase->getActivityConcentrations(&activityConcentrations[0]);
+
+        EXPECT_NEAR(standardConcs[0] * r * activityCoeffs[0], activityConcentrations[0], 1.e-6);
+        EXPECT_NEAR(standardConcs[1] * (1-r) * activityCoeffs[1], activityConcentrations[1], 1.e-6);
+    }
 }
 
 };
