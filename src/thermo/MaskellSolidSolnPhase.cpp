@@ -68,10 +68,10 @@ getActivityConcentrations(doublereal* c) const
 {
     std::vector<doublereal> pmv(m_kk);
     getPartialMolarVolumes(&pmv[0]);
-    const doublereal* const dtmp = moleFractdivMMW();
-    const double mmw = meanMolecularWeight();
-    for (size_t k = 0; k < m_kk; k++) {
-        c[k] = dtmp[k] * mmw / pmv[k];
+    getActivityCoefficients(c);
+    for(unsigned sp=0; sp < m_kk; ++sp)
+    {
+      c[sp] *= moleFraction(sp) / pmv[sp];
     }
 }
 
@@ -174,8 +174,8 @@ getActivityCoefficients(doublereal* ac) const
     const doublereal A = (std::pow(1 - rfm, pval) * std::pow(rfm, pval) * std::pow(r - rfm, 1 - pval))  /
                          (std::pow(1 - r - rfm, 1 + pval) * (1 - r));
     const doublereal B = pval * h_mixing / RT;
-    ac[product_species_index] = 1 / (A * r * r) * std::exp(-B);
-    ac[reactant_species_index] = A * r / (1 - r) * std::exp(B);
+    ac[product_species_index] = A * std::exp(B);
+    ac[reactant_species_index] = 1 / (A * r * (1-r) ) * std::exp(-B);
 }
 
 void MaskellSolidSolnPhase::
@@ -191,8 +191,8 @@ getChemPotentials(doublereal* mu) const
                                GasConstant * temperature() *
                                std::log( (std::pow(1 - rfm, pval) * std::pow(rfm, pval) * std::pow(r - rfm, 1 - pval) * r)  /
                                (std::pow(1 - r - rfm, 1 + pval) * (1 - r)) );
-    mu[product_species_index] = RT * m_g0_RT[product_species_index] - DgbarDr;
-    mu[reactant_species_index] = RT * m_g0_RT[reactant_species_index] + DgbarDr;
+    mu[product_species_index] = RT * m_g0_RT[product_species_index] + DgbarDr;
+    mu[reactant_species_index] = RT * m_g0_RT[reactant_species_index] - DgbarDr;
 }
 
 void MaskellSolidSolnPhase::

@@ -57,33 +57,6 @@ public:
      * concentration divided by the standard concentration is also
      * equal to the activity of species.
      *
-     * For this implementation the activity is defined to be the
-     * mole fraction of the species. The generalized concentration
-     * is defined to be equal to the mole fraction divided by
-     * the partial molar volume. The generalized concentrations
-     * for species in this phase therefore have units of
-     * kmol m<SUP>-3</SUP>. Rate constants must reflect this fact.
-     *
-     * On a general note, the following must be true.
-     * For an ideal solution, the generalized concentration  must consist
-     * of the mole fraction multiplied by a constant. The constant may be
-     * fairly arbitrarily chosen, with differences adsorbed into the
-     * reaction rate expression. 1/V_N, 1/V_k, or 1 are equally good,
-     * as long as the standard concentration is adjusted accordingly.
-     * However, it must be a constant (and not the concentration, btw,
-     * which is a function of the mole fractions) in order for the
-     * ideal solution properties to hold at the same time having the
-     * standard concentration to be independent of the mole fractions.
-     *
-     * In this implementation the form of the generalized concentrations
-     * depend upon the member attribute, #m_formGC.
-     *
-     * HKM Note: We have absorbed the pressure dependence of the pure species
-     *        state into the thermodynamics functions. Therefore the
-     *        standard state on which the activities are based depend
-     *        on both temperature and pressure. If we hadn't, it would have
-     *        appeared in this function in a very awkward exp[] format.
-     *
      * @param c  Pointer to array of doubles of length m_kk, which on exit
      *           will contain the generalized concentrations.
      */
