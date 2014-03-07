@@ -29,7 +29,8 @@ MaskellSolidSolnPhase::MaskellSolidSolnPhase() :
     m_g0_RT(2),
     m_s0_R(2),
     h_mixing(0.0),
-    product_species_index(0)
+    product_species_index(0),
+    reactant_species_index(1)
 {
 }
 //=====================================================================================================
@@ -42,7 +43,8 @@ MaskellSolidSolnPhase::MaskellSolidSolnPhase(const MaskellSolidSolnPhase& b) :
     m_g0_RT(2),
     m_s0_R(2),
     h_mixing(0.0),
-    product_species_index(0)
+    product_species_index(0),
+    reactant_species_index(1)
 {
     *this = b;
 }
@@ -163,8 +165,17 @@ void MaskellSolidSolnPhase::setMolarDensity(const doublereal n)
 void MaskellSolidSolnPhase::
 getActivityCoefficients(doublereal* ac) const
 {
- // throw CanteraError("MaskellSolidSolnPhase::getActivityCoefficients()",
- //                    "needs to be implemented");
+    _updateThermo();
+    const doublereal r = moleFraction(product_species_index);
+    const doublereal pval = p(r);
+    const doublereal fmval = fm(r);
+    const doublereal rfm = r * fmval;
+    const doublereal RT = GasConstant * temperature();
+    const doublereal A = (std::pow(1 - rfm, pval) * std::pow(rfm, pval) * std::pow(r - rfm, 1 - pval))  /
+                         (std::pow(1 - r - rfm, 1 + pval) * (1 - r));
+    const doublereal B = pval * h_mixing / RT;
+    ac[product_species_index] = 1 / (A * r * r) * std::exp(-B);
+    ac[reactant_species_index] = A * r / (1 - r) * std::exp(B);
 }
 
 void MaskellSolidSolnPhase::
@@ -176,12 +187,12 @@ getChemPotentials(doublereal* mu) const
     const doublereal fmval = fm(r);
     const doublereal rfm = r * fmval;
     const doublereal RT = GasConstant * temperature();
-    const doublereal muDelta = -pval * h_mixing - GasConstant * temperature()
-                       * std::log( (std::pow(1 - rfm, pval) * std::pow(rfm, pval) * std::pow(r - rfm, 1 - pval) * r)  /
-                                   (std::pow(1 - r - rfm, 1 + pval) * (1 - r)) );
-    const int sign = (product_species_index == 0) ? 1 : -1;
-    mu[0] = RT * m_g0_RT[0] + sign * muDelta;
-    mu[1] = RT * m_g0_RT[1] - sign * muDelta;
+    const doublereal DgbarDr = pval * h_mixing +
+                               GasConstant * temperature() *
+                               std::log( (std::pow(1 - rfm, pval) * std::pow(rfm, pval) * std::pow(r - rfm, 1 - pval) * r)  /
+                               (std::pow(1 - r - rfm, 1 + pval) * (1 - r)) );
+    mu[product_species_index] = RT * m_g0_RT[product_species_index] - DgbarDr;
+    mu[reactant_species_index] = RT * m_g0_RT[reactant_species_index] + DgbarDr;
 }
 
 void MaskellSolidSolnPhase::
@@ -280,12 +291,17 @@ void MaskellSolidSolnPhase::initThermoXML(XML_Node& phaseNode, const std::string
             XML_Node& scNode = thNode.child("product_species");
             std::string product_species_name = scNode.value();
             product_species_index = speciesIndex(product_species_name);
-            if( product_species_index == npos )
+            if( product_species_index == static_cast<int>(npos) )
             {
               throw CanteraError(subname.c_str(),
                                  "Species " + product_species_name + " not found.");
             }
-            std::cout << "parsed product_species_index = " << product_species_index << std::endl;
+            if( product_species_index == 0 )
+            {
+              reactant_species_index = 1;
+            } else {
+              reactant_species_index = 0;
+            }
         }
 
     } else {

@@ -349,6 +349,7 @@ protected:
 
     //! Index of the species whose mole fraction defines the extent of reduction r
     int product_species_index;
+    int reactant_species_index;
 
 private:
     // Functions to calculate some of the pieces of the mixing terms.
