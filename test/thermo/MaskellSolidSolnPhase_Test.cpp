@@ -63,6 +63,7 @@ TEST_F(MaskellSolidSolnPhase_Test, chem_potentials)
     set_r(0.5);
 
     MaskellSolidSolnPhase * maskell_phase = dynamic_cast<MaskellSolidSolnPhase *>(test_phase);
+    ASSERT_TRUE(maskell_phase != NULL);
 
     maskell_phase->set_h_mix(0.);
     const double expected_result_0[9] = {1.2338461168724738e7, 8.011774549216799e6, 4.990989640314685e6, 2.415973128783114e6, 0., -2.415973128783114e6, -4.99098964031469e6, -8.0117745492168e6, -1.2338461168724738e7};
@@ -75,6 +76,33 @@ TEST_F(MaskellSolidSolnPhase_Test, chem_potentials)
     maskell_phase->set_h_mix(-5000.);
     const double expected_result_minus_5000[9] = { 1.2340671035887627e7, 8.013594700219031e6, 4.992303607179179e6, 2.4166670154679064e6, 0., -2.4166670154679064e6, -4.9923036071791835e6, -8.013594700219034e6, -1.2340671035887627e7};
     check_chemPotentials(expected_result_minus_5000);
+}
+
+TEST_F(MaskellSolidSolnPhase_Test, activityCoeffs)
+{
+    const std::string valid_file("../data/MaskellSolidSolnPhase_valid.xml");
+    initializeTestPhaseWithXML(valid_file);
+    test_phase->setState_TP(298., 1.);
+    set_r(0.5);
+
+    MaskellSolidSolnPhase * maskell_phase = dynamic_cast<MaskellSolidSolnPhase *>(test_phase);
+    ASSERT_TRUE(maskell_phase != NULL);
+
+    // Test that mu0 + RT log(activityCoeff * MoleFrac) == mu
+    const double RT = GasConstant * 298.;
+    std::vector<double> mu0(2);
+    std::vector<double> activityCoeffs(2);
+    std::vector<double> chemPotentials(2);
+    for(int i=0; i < 9; ++i)
+    {
+        const double r = 0.1 * (i+1);
+        set_r(r);
+        test_phase->getChemPotentials(&chemPotentials[0]);
+        test_phase->getActivityCoefficients(&activityCoeffs[0]);
+        test_phase->getStandardChemPotentials(&mu0[0]);
+        EXPECT_NEAR(chemPotentials[0], mu0[0] + RT*std::log(activityCoeffs[0] * r), 1.e-6);
+        EXPECT_NEAR(chemPotentials[1], mu0[1] + RT*std::log(activityCoeffs[1] * (1-r)), 1.e-6);
+    }
 }
 
 TEST_F(MaskellSolidSolnPhase_Test, partialMolarVolumes)
