@@ -25,7 +25,8 @@ ThermoPhase::ThermoPhase() :
     m_phi(0.0),
     m_hasElementPotentials(false),
     m_chargeNeutralityNecessary(false),
-    m_ssConvention(cSS_CONVENTION_TEMPERATURE)
+    m_ssConvention(cSS_CONVENTION_TEMPERATURE),
+    m_tlast(0.0)
 {
 }
 
@@ -92,6 +93,7 @@ ThermoPhase& ThermoPhase::operator=(const ThermoPhase& right)
     m_hasElementPotentials = right.m_hasElementPotentials;
     m_chargeNeutralityNecessary = right.m_chargeNeutralityNecessary;
     m_ssConvention = right.m_ssConvention;
+    m_tlast = right.m_tlast;
     return *this;
 }
 

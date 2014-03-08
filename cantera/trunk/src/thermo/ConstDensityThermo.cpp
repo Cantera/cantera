@@ -16,13 +16,12 @@ using namespace ctml;
 namespace Cantera
 {
 
-ConstDensityThermo::ConstDensityThermo() : m_tlast(0.0)
+ConstDensityThermo::ConstDensityThermo()
 {
 }
 
 
 ConstDensityThermo::ConstDensityThermo(const ConstDensityThermo& right)
-    : m_tlast(0.0)
 {
     *this = operator=(right);
 }
@@ -33,7 +32,6 @@ ConstDensityThermo& ConstDensityThermo::operator=(const ConstDensityThermo& righ
         return *this;
     }
 
-    m_tlast         = right.m_tlast;
     m_h0_RT         = right.m_h0_RT;
     m_cp0_R         = right.m_cp0_R;
     m_g0_RT         = right.m_g0_RT;

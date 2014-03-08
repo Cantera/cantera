@@ -511,19 +511,6 @@ public:
      */
     virtual void getEnthalpy_RT_ref(doublereal* hrt) const;
 
-    //! Modify the value of the 298 K Heat of Formation of one species in the phase (J kmol-1)
-    /*!
-     *   The 298K heat of formation is defined as the enthalpy change to create the standard state
-     *   of the species from its constituent elements in their standard states at 298 K and 1 bar.
-     *
-     *   @param  k           Species k
-     *   @param  Hf298New    Specify the new value of the Heat of Formation at 298K and 1 bar
-     */
-    virtual void modifyOneHf298SS(const size_t k, const doublereal Hf298New) {
-        m_spthermo->modifyOneHf298(k, Hf298New);
-        m_tlast += 0.0001234;
-    }
-
     //!  Returns the vector of nondimensional
     //!  entropies of the reference state at the current temperature
     //!  of the solution and the reference pressure for each species.
@@ -599,9 +586,6 @@ protected:
 
     //! Current value of the pressure (Pa)
     doublereal m_press;
-
-    //! Current value of the temperature (Kelvin)
-    mutable doublereal    m_tlast;
 
     //! Temporary storage for the reference state enthalpies
     mutable vector_fp      m_h0;

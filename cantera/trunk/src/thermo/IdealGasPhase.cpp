@@ -17,14 +17,12 @@ namespace Cantera
 
 IdealGasPhase::IdealGasPhase() :
     m_p0(-1.0),
-    m_tlast(0.0),
     m_logc0(0.0)
 {
 }
 
 IdealGasPhase::IdealGasPhase(const std::string& inputFile, const std::string& id_) :
     m_p0(-1.0),
-    m_tlast(0.0),
     m_logc0(0.0)
 {
     initThermoFile(inputFile, id_);
@@ -32,7 +30,6 @@ IdealGasPhase::IdealGasPhase(const std::string& inputFile, const std::string& id
 
 IdealGasPhase::IdealGasPhase(XML_Node& phaseRef, const std::string& id_) :
     m_p0(-1.0),
-    m_tlast(0.0),
     m_logc0(0.0)
 {
     initThermoXML(phaseRef, id_);
@@ -40,7 +37,6 @@ IdealGasPhase::IdealGasPhase(XML_Node& phaseRef, const std::string& id_) :
 
 IdealGasPhase::IdealGasPhase(const IdealGasPhase& right) :
     m_p0(right.m_p0),
-    m_tlast(right.m_tlast),
     m_logc0(right.m_logc0)
 {
     /*
@@ -55,7 +51,6 @@ IdealGasPhase& IdealGasPhase::operator=(const IdealGasPhase& right)
     if (&right != this) {
         ThermoPhase::operator=(right);
         m_p0 = right.m_p0;
-        m_tlast = right.m_tlast;
         m_logc0 = right.m_logc0;
         m_h0_RT = right.m_h0_RT;
         m_cp0_R = right.m_cp0_R;

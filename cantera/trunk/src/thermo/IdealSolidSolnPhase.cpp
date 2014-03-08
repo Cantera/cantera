@@ -22,8 +22,7 @@ IdealSolidSolnPhase::IdealSolidSolnPhase(int formGC) :
     ThermoPhase(),
     m_formGC(formGC),
     m_Pref(OneAtm),
-    m_Pcurrent(OneAtm),
-    m_tlast(0.0)
+    m_Pcurrent(OneAtm)
 {
     if (formGC < 0 || formGC > 2) {
         throw CanteraError(" IdealSolidSolnPhase Constructor",
@@ -36,8 +35,7 @@ IdealSolidSolnPhase::IdealSolidSolnPhase(const std::string& inputFile,
     ThermoPhase(),
     m_formGC(formGC),
     m_Pref(OneAtm),
-    m_Pcurrent(OneAtm),
-    m_tlast(0.0)
+    m_Pcurrent(OneAtm)
 {
     if (formGC < 0 || formGC > 2) {
         throw CanteraError(" IdealSolidSolnPhase Constructor",
@@ -51,8 +49,7 @@ IdealSolidSolnPhase::IdealSolidSolnPhase(XML_Node& root, const std::string& id_,
     ThermoPhase(),
     m_formGC(formGC),
     m_Pref(OneAtm),
-    m_Pcurrent(OneAtm),
-    m_tlast(0.0)
+    m_Pcurrent(OneAtm)
 {
     if (formGC < 0 || formGC > 2) {
         throw CanteraError(" IdealSolidSolnPhase Constructor",
@@ -76,7 +73,6 @@ operator=(const IdealSolidSolnPhase& b)
         m_Pref       = b.m_Pref;
         m_Pcurrent   = b.m_Pcurrent;
         m_speciesMolarVolume = b.m_speciesMolarVolume;
-        m_tlast      = b.m_tlast;
         m_h0_RT      = b.m_h0_RT;
         m_cp0_R      = b.m_cp0_R;
         m_g0_RT      = b.m_g0_RT;

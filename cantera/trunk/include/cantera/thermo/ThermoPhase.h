@@ -191,6 +191,7 @@ public:
      */
     virtual void modifyOneHf298SS(const size_t k, const doublereal Hf298New) {
         m_spthermo->modifyOneHf298(k, Hf298New);
+        m_tlast += 0.0001234;
     }
 
     //! Maximum temperature for which the thermodynamic data for the species
@@ -1609,6 +1610,9 @@ protected:
      *  the state xml file in the input file
      */
     std::vector<doublereal> xMol_Ref;
+
+    //! last value of the temperature processed by reference state
+    mutable doublereal m_tlast;
 
 private:
     //! Error function that gets called for unhandled cases
