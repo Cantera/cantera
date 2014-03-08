@@ -644,9 +644,6 @@ private:
     doublereal err(const std::string& msg) const;
 
 protected:
-    //! Last temperature at which the reference thermo was calculated
-    mutable doublereal  m_tlast;
-
     //! Current value of the pressure
     doublereal m_press;
 

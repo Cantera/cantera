@@ -21,7 +21,6 @@ namespace Cantera
 LatticePhase::LatticePhase() :
     m_Pref(OneAtm),
     m_Pcurrent(OneAtm),
-    m_tlast(0.0),
     m_speciesMolarVolume(0),
     m_site_density(0.0)
 {
@@ -30,7 +29,6 @@ LatticePhase::LatticePhase() :
 LatticePhase::LatticePhase(const LatticePhase& right) :
     m_Pref(OneAtm),
     m_Pcurrent(OneAtm),
-    m_tlast(0.0),
     m_speciesMolarVolume(0),
     m_site_density(0.0)
 {
@@ -43,7 +41,6 @@ LatticePhase& LatticePhase::operator=(const LatticePhase& right)
         ThermoPhase::operator=(right);
         m_Pref       = right.m_Pref;
         m_Pcurrent     = right.m_Pcurrent;
-        m_tlast      = right.m_tlast;
         m_h0_RT      = right.m_h0_RT;
         m_cp0_R      = right.m_cp0_R;
         m_g0_RT      = right.m_g0_RT;

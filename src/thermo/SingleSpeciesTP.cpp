@@ -20,16 +20,14 @@ namespace Cantera
 SingleSpeciesTP::SingleSpeciesTP() :
     ThermoPhase(),
     m_press(OneAtm),
-    m_p0(OneAtm),
-    m_tlast(-1.0)
+    m_p0(OneAtm)
 {
 }
 
 SingleSpeciesTP::SingleSpeciesTP(const SingleSpeciesTP& right):
     ThermoPhase(),
     m_press(OneAtm),
-    m_p0(OneAtm),
-    m_tlast(-1.0)
+    m_p0(OneAtm)
 {
     *this = operator=(right);
 }
@@ -40,7 +38,6 @@ SingleSpeciesTP& SingleSpeciesTP::operator=(const SingleSpeciesTP& right)
         ThermoPhase::operator=(right);
         m_press      = right.m_press;
         m_p0         = right.m_p0;
-        m_tlast      = right.m_tlast;
         m_h0_RT      = right.m_h0_RT;
         m_cp0_R      = right.m_cp0_R;
         m_s0_R       = right.m_s0_R;

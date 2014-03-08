@@ -20,7 +20,6 @@ using namespace std;
 namespace Cantera
 {
 LatticeSolidPhase::LatticeSolidPhase() :
-    m_tlast(0.0),
     m_press(-1.0),
     m_molar_density(0.0),
     m_nlattice(0),
@@ -32,7 +31,6 @@ LatticeSolidPhase::LatticeSolidPhase() :
 }
 
 LatticeSolidPhase::LatticeSolidPhase(const LatticeSolidPhase& right) :
-    m_tlast(0.0),
     m_press(-1.0),
     m_molar_density(0.0),
     m_nlattice(0),

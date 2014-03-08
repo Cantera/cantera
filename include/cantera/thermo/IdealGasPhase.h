@@ -768,10 +768,6 @@ public:
      */
     virtual void getEnthalpy_RT_ref(doublereal* hrt) const;
 
-    virtual void modifyOneHf298SS(const size_t k, const doublereal Hf298New) {
-        m_spthermo->modifyOneHf298(k, Hf298New);
-        m_tlast += 0.0001234;
-    }
     //!  Returns the vector of nondimensional
     //!  Gibbs Free Energies of the reference state at the current temperature
     //!  of the solution and the reference pressure for the species.
@@ -919,9 +915,6 @@ protected:
      *  All species must have the same reference state pressure.
      */
     doublereal m_p0;
-
-    //! last value of the temperature processed by reference state
-    mutable doublereal m_tlast;
 
     //! Temporary storage for log of p/RT
     mutable doublereal m_logc0;

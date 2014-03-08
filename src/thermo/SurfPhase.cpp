@@ -21,8 +21,7 @@ SurfPhase::SurfPhase(doublereal n0):
     ThermoPhase(),
     m_n0(n0),
     m_logn0(0.0),
-    m_press(OneAtm),
-    m_tlast(0.0)
+    m_press(OneAtm)
 {
     if (n0 > 0.0) {
         m_logn0 = log(n0);
@@ -34,8 +33,7 @@ SurfPhase::SurfPhase(const std::string& infile, std::string id_) :
     ThermoPhase(),
     m_n0(0.0),
     m_logn0(0.0),
-    m_press(OneAtm),
-    m_tlast(0.0)
+    m_press(OneAtm)
 {
     XML_Node* root = get_XML_File(infile);
     if (id_ == "-") {
@@ -60,8 +58,7 @@ SurfPhase::SurfPhase(XML_Node& xmlphase) :
     ThermoPhase(),
     m_n0(0.0),
     m_logn0(0.0),
-    m_press(OneAtm),
-    m_tlast(0.0)
+    m_press(OneAtm)
 {
     const XML_Node& th = xmlphase.child("thermo");
     string model = th["model"];
@@ -75,8 +72,7 @@ SurfPhase::SurfPhase(XML_Node& xmlphase) :
 SurfPhase::SurfPhase(const SurfPhase& right) :
     m_n0(right.m_n0),
     m_logn0(right.m_logn0),
-    m_press(right.m_press),
-    m_tlast(right.m_tlast)
+    m_press(right.m_press)
 {
     *this = operator=(right);
 }
@@ -89,7 +85,6 @@ operator=(const SurfPhase& right)
         m_n0         = right.m_n0;
         m_logn0      = right.m_logn0;
         m_press      = right.m_press;
-        m_tlast      = right.m_tlast;
         m_h0         = right.m_h0;
         m_s0         = right.m_s0;
         m_cp0        = right.m_cp0;

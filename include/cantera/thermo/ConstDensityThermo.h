@@ -324,9 +324,6 @@ public:
     virtual void setParametersFromXML(const XML_Node& eosdata);
 
 protected:
-    //! last value of the temperature processed by reference state
-    mutable doublereal     m_tlast;
-
     //! Temporary storage for dimensionless reference state enthalpies
     mutable vector_fp      m_h0_RT;
 

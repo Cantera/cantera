@@ -907,12 +907,6 @@ protected:
      */
     vector_fp   m_speciesMolarVolume;
 
-    /**
-     *  Value of the temperature at which the thermodynamics functions
-     * for the reference state of the species were last evaluated.
-     */
-    mutable doublereal   m_tlast;
-
     //! Vector containing the species reference enthalpies at T = m_tlast
     mutable vector_fp      m_h0_RT;
 

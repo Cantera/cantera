@@ -297,11 +297,6 @@ public:
      */
     virtual void getEnthalpy_RT_ref(doublereal* hrt) const;
 
-    virtual void modifyOneHf298SS(const size_t k, const doublereal Hf298New) {
-        m_spthermo->modifyOneHf298(k, Hf298New);
-        m_tlast += 0.0001234;
-    }
-
     /**
      *  Returns the vector of nondimensional
      *  enthalpies of the reference state at the current temperature
@@ -362,7 +357,6 @@ protected:
     doublereal m_press;
     doublereal m_p0;
 
-    mutable doublereal     m_tlast;
     mutable vector_fp      m_h0_RT;
     mutable vector_fp      m_cp0_R;
     mutable vector_fp      m_s0_R;
