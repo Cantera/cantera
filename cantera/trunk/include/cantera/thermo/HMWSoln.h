@@ -3272,6 +3272,9 @@ private:
      */
     void calc_lambdas(double is) const;
 
+    //! Track the last ionic strength lambdas were calculated at to avoid unnecessarily recalculating them
+    mutable double last_is;
+
     /**
      *  Calculate etheta and etheta_prime
      *

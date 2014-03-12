@@ -73,6 +73,7 @@ HMWSoln::HMWSoln() :
     CROP_ln_gamma_o_max(3.0),
     CROP_ln_gamma_k_min(-5.0),
     CROP_ln_gamma_k_max(15.0),
+    last_is(-1.0),
     m_debugCalc(0)
 {
     for (size_t i = 0; i < 17; i++) {
@@ -126,6 +127,7 @@ HMWSoln::HMWSoln(const std::string& inputFile, const std::string& id_) :
     CROP_ln_gamma_o_max(3.0),
     CROP_ln_gamma_k_min(-5.0),
     CROP_ln_gamma_k_max(15.0),
+    last_is(-1.0),
     m_debugCalc(0)
 {
     for (int i = 0; i < 17; i++) {
@@ -180,6 +182,7 @@ HMWSoln::HMWSoln(XML_Node& phaseRoot, const std::string& id_) :
     CROP_ln_gamma_o_max(3.0),
     CROP_ln_gamma_k_min(-5.0),
     CROP_ln_gamma_k_max(15.0),
+    last_is(-1.0),
     m_debugCalc(0)
 {
     for (int i = 0; i < 17; i++) {
@@ -234,6 +237,7 @@ HMWSoln::HMWSoln(const HMWSoln& b) :
     CROP_ln_gamma_o_max(3.0),
     CROP_ln_gamma_k_min(-5.0),
     CROP_ln_gamma_k_max(15.0),
+    last_is(-1.0),
     m_debugCalc(0)
 {
     /*
@@ -447,6 +451,7 @@ HMWSoln::HMWSoln(int testProb) :
     CROP_ln_gamma_o_max(3.0),
     CROP_ln_gamma_k_min(-5.0),
     CROP_ln_gamma_k_max(15.0),
+    last_is(-1.0),
     m_debugCalc(0)
 {
     if (testProb != 1) {
@@ -1845,7 +1850,10 @@ void HMWSoln::s_updatePitzer_CoeffWRTemp(int doDerivs) const
         }
     }
 
-
+    const double twoT = 2.0 * T;
+    const double invT = 1.0 / T;
+    const double invT2 = invT * invT;
+    const double twoinvT3 = 2.0 * invT * invT2;
     for (i = 1; i < m_kk; i++) {
         for (j = 1; j < m_kk; j++) {
             for (size_t k = 1; k < m_kk; k++) {
@@ -1868,14 +1876,14 @@ void HMWSoln::s_updatePitzer_CoeffWRTemp(int doDerivs) const
                                    + Psi_coeff[4]*tln;
 
                     m_Psi_ijk_L[n] = Psi_coeff[1]
-                                     + Psi_coeff[2]*2.0*T
-                                     - Psi_coeff[3]/(T*T)
-                                     + Psi_coeff[4]/T;
+                                     + Psi_coeff[2]*twoT
+                                     - Psi_coeff[3]*invT2
+                                     + Psi_coeff[4]*invT;
 
                     m_Psi_ijk_LL[n] =
                         Psi_coeff[2]*2.0
-                        + 2.0*Psi_coeff[3]/(T*T*T)
-                        - Psi_coeff[4]/(T*T);
+                        + Psi_coeff[3]*twoinvT3
+                        - Psi_coeff[4]*invT2;
                 }
             }
         }
@@ -5456,6 +5464,9 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dP() const
 
 void HMWSoln::calc_lambdas(double is) const
 {
+    const double tol = 1.e-12;
+    if( std::abs(is - last_is) < tol ) return;
+
     double aphi, dj, jfunc, jprime, t, x, zprod;
     int i, ij, j;
     /*
@@ -5513,6 +5524,7 @@ void HMWSoln::calc_lambdas(double is) const
 #endif
         }
     }
+    last_is = is;
 }
 
 void HMWSoln::calc_thetas(int z1, int z2,

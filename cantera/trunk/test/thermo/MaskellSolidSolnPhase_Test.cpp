@@ -123,8 +123,8 @@ TEST_F(MaskellSolidSolnPhase_Test, standardConcentrations)
     initializeTestPhaseWithXML(valid_file);
     ASSERT_TRUE(dynamic_cast<MaskellSolidSolnPhase *>(test_phase) != NULL);
 
-    EXPECT_DOUBLE_EQ(1.0 / 0.005, test_phase->standardConcentration(0));
-    EXPECT_DOUBLE_EQ(1.0 / 0.01, test_phase->standardConcentration(1));
+    EXPECT_DOUBLE_EQ(1.0, test_phase->standardConcentration(0));
+    EXPECT_DOUBLE_EQ(1.0, test_phase->standardConcentration(1));
 }
 
 TEST_F(MaskellSolidSolnPhase_Test, activityConcentrations)

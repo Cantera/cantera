@@ -65,17 +65,17 @@ public:
     //! Return the standard concentration for the kth species
     /*!
      * The standard concentration \f$ C^0_k \f$ used to normalize the
-     * generalized concentration. In many cases, this quantity will be the
-     * same for all species in a phase. However, for this case, we will return
-     * a distinct concentration for each species. This is the inverse of the
-     * species molar volume. Units for the standard concentration are kmol
-     * m<SUP>-3</SUP>.
+     * generalized concentration.
      *
-     * @param k Species number: this is a require parameter,
-     * a change from the ThermoPhase base class, where it was
-     * an optional parameter.
+     * @param k Species number: this is an optional parameter,
      */
-    virtual doublereal standardConcentration(size_t k) const;
+    virtual doublereal standardConcentration(size_t k=0) const { return 1.0; }
+
+    //! Natural logarithm of the standard concentration of the kth species.
+    /*!
+     * @param k    index of the species (defaults to zero)
+     */
+    virtual doublereal logStandardConc(size_t k=0) const { return 0.0; }
 
     //! @name Molar Thermodynamic Properties of the Solution
     //! @{
@@ -294,7 +294,12 @@ protected:
      * Function to call through to m_spthermo->update and fill m_h0_RT,
      * m_cp0_R, m_g0_RT, m_s0_R.
      */
-    void _updateThermo() const;
+    bool _updateThermo() const;
+
+    //! Vector containing the last computed activity coefficients at T = m_tlast and r = last_r
+    mutable std::vector<doublereal> last_ac;
+    //! Last value of r used to update activity coeffs
+    mutable doublereal last_r;
 
     //! Vector containing the species reference enthalpies at T = m_tlast
     mutable vector_fp      m_h0_RT;

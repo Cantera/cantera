@@ -23,6 +23,8 @@ namespace Cantera
 MaskellSolidSolnPhase::MaskellSolidSolnPhase() :
     m_Pref(OneAtm),
     m_Pcurrent(OneAtm),
+    last_ac(2),
+    last_r(-1.0),
     m_h0_RT(2),
     m_cp0_R(2),
     m_g0_RT(2),
@@ -36,6 +38,8 @@ MaskellSolidSolnPhase::MaskellSolidSolnPhase() :
 MaskellSolidSolnPhase::MaskellSolidSolnPhase(const MaskellSolidSolnPhase& b) :
     m_Pref(OneAtm),
     m_Pcurrent(OneAtm),
+    last_ac(2),
+    last_r(-1.0),
     m_h0_RT(2),
     m_cp0_R(2),
     m_g0_RT(2),
@@ -64,21 +68,11 @@ ThermoPhase* MaskellSolidSolnPhase::duplMyselfAsThermoPhase() const
 void MaskellSolidSolnPhase::
 getActivityConcentrations(doublereal* c) const
 {
-    std::vector<doublereal> pmv(m_kk);
-    getPartialMolarVolumes(&pmv[0]);
     getActivityCoefficients(c);
     for(unsigned sp=0; sp < m_kk; ++sp)
     {
-      c[sp] *= moleFraction(sp) / pmv[sp];
+      c[sp] *= moleFraction(sp);
     }
-}
-
-doublereal MaskellSolidSolnPhase::standardConcentration(size_t k) const
-{
-    std::vector<doublereal> pmv(m_kk);
-    getPartialMolarVolumes(&pmv[0]);
-    doublereal result = 1.0 / pmv[k];
-    return result;
 }
 
 /********************************************************************
@@ -163,17 +157,23 @@ void MaskellSolidSolnPhase::setMolarDensity(const doublereal n)
 void MaskellSolidSolnPhase::
 getActivityCoefficients(doublereal* ac) const
 {
-    _updateThermo();
+    bool temp_changed = _updateThermo();
     const doublereal r = moleFraction(product_species_index);
-    const doublereal pval = p(r);
-    const doublereal fmval = fm(r);
-    const doublereal rfm = r * fmval;
-    const doublereal RT = GasConstant * temperature();
-    const doublereal A = (std::pow(1 - rfm, pval) * std::pow(rfm, pval) * std::pow(r - rfm, 1 - pval))  /
-                         (std::pow(1 - r - rfm, 1 + pval) * (1 - r));
-    const doublereal B = pval * h_mixing / RT;
-    ac[product_species_index] = A * std::exp(B);
-    ac[reactant_species_index] = 1 / (A * r * (1-r) ) * std::exp(-B);
+    const doublereal tol = 1.e-12;
+    if( temp_changed || std::abs(r - last_r) > tol )
+    {
+      const doublereal pval = p(r);
+      const doublereal fmval = fm(r);
+      const doublereal rfm = r * fmval;
+      const doublereal RT = GasConstant * temperature();
+      const doublereal A = (std::pow(1 - rfm, pval) * std::pow(rfm, pval) * std::pow(r - rfm, 1 - pval))  /
+                           (std::pow(1 - r - rfm, 1 + pval) * (1 - r));
+      const doublereal B = pval * h_mixing / RT;
+      last_ac[product_species_index] = A * std::exp(B);
+      last_ac[reactant_species_index] = 1 / (A * r * (1-r) ) * std::exp(-B);
+      last_r = r;
+    }
+    std::copy(last_ac.begin(), last_ac.end(), ac);
 }
 
 void MaskellSolidSolnPhase::
@@ -324,7 +324,7 @@ void MaskellSolidSolnPhase::initThermoXML(XML_Node& phaseNode, const std::string
     VPStandardStateTP::initThermoXML(phaseNode, id_);
 }
 
-void MaskellSolidSolnPhase::_updateThermo() const
+bool MaskellSolidSolnPhase::_updateThermo() const
 {
     assert(m_kk == 2);
     doublereal tnow = temperature();
@@ -339,7 +339,9 @@ void MaskellSolidSolnPhase::_updateThermo() const
             m_g0_RT[k] = m_h0_RT[k] - m_s0_R[k];
         }
         m_tlast = tnow;
+        return true;
     }
+    return false;
 }
 
 doublereal MaskellSolidSolnPhase::s() const
