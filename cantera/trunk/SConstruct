@@ -536,11 +536,6 @@ config_options = [
         '',
         PathVariable.PathAccept),
     BoolVariable(
-        'legacy_headers',
-        """Create symbolic links for headers that were installed to the
-        'kernel' subdirectory in previous versions of Cantera.""",
-        False),
-    BoolVariable(
         'VERBOSE',
         """Create verbose output about what scons is doing.""",
         False),
@@ -1246,38 +1241,6 @@ if addInstallActions:
     # Put headers in place
     headerBase = 'include/cantera'
     install(env.RecursiveInstall, '$inst_incdir', 'include/cantera')
-
-    # Make symlinks to replicate old header directory structure
-    if env['legacy_headers']:
-        print ('WARNING: Installation of legacy headers is deprecated. '
-               'This installation option will be removed in Cantera 2.2.')
-        install(env.Command, pjoin('$inst_incdir', 'kernel'), [], Mkdir("$TARGET"))
-        install('$inst_incdir', 'platform/legacy/Cantera_legacy.h')
-
-        if env['OS'] == 'Windows':
-            cmd = Copy("$TARGET", "$SOURCE")
-        else:
-            def RelativeSymlink(target, source, env):
-                if os.path.exists(target[0].path):
-                    os.remove(target[0].path)
-                srcpath = psplit(source[0].abspath)
-                tgtpath = psplit(target[0].abspath)
-                nCommon = max(i for i,(dir1,dir2) in enumerate(zip(srcpath, tgtpath))
-                              if dir1 == dir2)
-                relsrc = os.sep.join(['..'] + srcpath[nCommon-1:])
-                os.symlink(relsrc, target[0].abspath)
-
-            cmd = RelativeSymlink
-
-        for name in os.listdir('include/cantera'):
-            if not os.path.isdir(pjoin('include/cantera', name)):
-                continue
-            for filename in os.listdir(pjoin('include/cantera', name)):
-                if not filename.endswith('.h'):
-                    continue
-                headerdir = pjoin(instRoot, 'include', 'cantera')
-                install(env.Command, pjoin(headerdir, 'kernel', filename),
-                        pjoin(headerdir, name, filename), cmd)
 
     # Data files
     install('$inst_datadir', mglob(env, pjoin('build','data'), 'cti', 'xml'))
