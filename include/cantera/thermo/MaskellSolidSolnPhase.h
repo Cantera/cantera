@@ -274,7 +274,11 @@ public:
 
 
     void set_h_mix(const doublereal hmix) { h_mixing = hmix; }
+
 protected:
+    void invalidateCachedDataOnStateChange(StateVariable changed_var);
+
+private:
     /**
      * Value of the reference pressure for all species in this phase.
      * The T dependent polynomials are evaluated at the reference
@@ -294,12 +298,12 @@ protected:
      * Function to call through to m_spthermo->update and fill m_h0_RT,
      * m_cp0_R, m_g0_RT, m_s0_R.
      */
-    bool _updateThermo() const;
+    void _updateThermo() const;
+    mutable bool m_updateThermo_valid;
 
     //! Vector containing the last computed activity coefficients at T = m_tlast and r = last_r
-    mutable std::vector<doublereal> m_last_ac;
-    //! Last value of r used to update activity coeffs
-    mutable doublereal m_last_mole_frac_product;
+    mutable std::vector<doublereal> m_activity_coeffs;
+    mutable bool m_activity_coeffs_valid;
 
     //! Vector containing the species reference enthalpies at T = m_tlast
     mutable vector_fp      m_h0_RT;
@@ -323,7 +327,6 @@ protected:
     int product_species_index;
     int reactant_species_index;
 
-private:
     // Functions to calculate some of the pieces of the mixing terms.
     doublereal s() const;
     doublereal fm(const doublereal r) const;

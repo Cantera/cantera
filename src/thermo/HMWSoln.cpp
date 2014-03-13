@@ -38,12 +38,10 @@ HMWSoln::HMWSoln() :
     m_TempPitzerRef(298.15),
     m_IionicMolalityStoich(0.0),
     m_form_A_Debye(A_DEBYE_WATER),
+    m_A_Debye_valid(false),
     m_A_Debye(1.172576),   // units = sqrt(kg/gmol)
-    m_last_dA_DebyedP_TP(-1.0),
-    m_last_dA_DebyedP_TP_T(-1.0),
-    m_last_dA_DebyedP_TP_P(-1.0),
-    m_last_P(-1.0),
-    m_last_T(-1.0),
+    m_dA_DebyedP_TP_valid(false),
+    m_dA_DebyedP_TP(-1.0),
     m_waterSS(0),
     m_densWaterSS(1000.),
     m_waterProps(0),
@@ -75,6 +73,10 @@ HMWSoln::HMWSoln() :
     CROP_ln_gamma_o_max(3.0),
     CROP_ln_gamma_k_min(-5.0),
     CROP_ln_gamma_k_max(15.0),
+    s_update_lnMolalityActCoeff_valid(false),
+    s_update_dlnMolalityActCoeff_dT_valid(false),
+    s_update_d2lnMolalityActCoeff_dT2_valid(false),
+    s_update_dlnMolalityActCoeff_dP_valid(false),
     m_last_is(-1.0),
     m_debugCalc(0)
 {
@@ -94,12 +96,10 @@ HMWSoln::HMWSoln(const std::string& inputFile, const std::string& id_) :
     m_TempPitzerRef(298.15),
     m_IionicMolalityStoich(0.0),
     m_form_A_Debye(A_DEBYE_WATER),
+    m_A_Debye_valid(false),
     m_A_Debye(1.172576),   // units = sqrt(kg/gmol)
-    m_last_dA_DebyedP_TP(-1.0),
-    m_last_dA_DebyedP_TP_T(-1.0),
-    m_last_dA_DebyedP_TP_P(-1.0),
-    m_last_P(-1.0),
-    m_last_T(-1.0),
+    m_dA_DebyedP_TP_valid(false),
+    m_dA_DebyedP_TP(-1.0),
     m_waterSS(0),
     m_densWaterSS(1000.),
     m_waterProps(0),
@@ -131,6 +131,10 @@ HMWSoln::HMWSoln(const std::string& inputFile, const std::string& id_) :
     CROP_ln_gamma_o_max(3.0),
     CROP_ln_gamma_k_min(-5.0),
     CROP_ln_gamma_k_max(15.0),
+    s_update_lnMolalityActCoeff_valid(false),
+    s_update_dlnMolalityActCoeff_dT_valid(false),
+    s_update_d2lnMolalityActCoeff_dT2_valid(false),
+    s_update_dlnMolalityActCoeff_dP_valid(false),
     m_last_is(-1.0),
     m_debugCalc(0)
 {
@@ -151,12 +155,10 @@ HMWSoln::HMWSoln(XML_Node& phaseRoot, const std::string& id_) :
     m_TempPitzerRef(298.15),
     m_IionicMolalityStoich(0.0),
     m_form_A_Debye(A_DEBYE_WATER),
+    m_A_Debye_valid(false),
     m_A_Debye(1.172576),   // units = sqrt(kg/gmol)
-    m_last_dA_DebyedP_TP(-1.0),
-    m_last_dA_DebyedP_TP_T(-1.0),
-    m_last_dA_DebyedP_TP_P(-1.0),
-    m_last_P(-1.0),
-    m_last_T(-1.0),
+    m_dA_DebyedP_TP_valid(false),
+    m_dA_DebyedP_TP(-1.0),
     m_waterSS(0),
     m_densWaterSS(1000.),
     m_waterProps(0),
@@ -188,6 +190,10 @@ HMWSoln::HMWSoln(XML_Node& phaseRoot, const std::string& id_) :
     CROP_ln_gamma_o_max(3.0),
     CROP_ln_gamma_k_min(-5.0),
     CROP_ln_gamma_k_max(15.0),
+    s_update_lnMolalityActCoeff_valid(false),
+    s_update_dlnMolalityActCoeff_dT_valid(false),
+    s_update_d2lnMolalityActCoeff_dT2_valid(false),
+    s_update_dlnMolalityActCoeff_dP_valid(false),
     m_last_is(-1.0),
     m_debugCalc(0)
 {
@@ -208,12 +214,10 @@ HMWSoln::HMWSoln(const HMWSoln& b) :
     m_TempPitzerRef(298.15),
     m_IionicMolalityStoich(0.0),
     m_form_A_Debye(A_DEBYE_WATER),
+    m_A_Debye_valid(false),
     m_A_Debye(1.172576),   // units = sqrt(kg/gmol)
-    m_last_dA_DebyedP_TP(-1.0),
-    m_last_dA_DebyedP_TP_T(-1.0),
-    m_last_dA_DebyedP_TP_P(-1.0),
-    m_last_P(-1.0),
-    m_last_T(-1.0),
+    m_dA_DebyedP_TP_valid(false),
+    m_dA_DebyedP_TP(-1.0),
     m_waterSS(0),
     m_densWaterSS(1000.),
     m_waterProps(0),
@@ -245,6 +249,10 @@ HMWSoln::HMWSoln(const HMWSoln& b) :
     CROP_ln_gamma_o_max(3.0),
     CROP_ln_gamma_k_min(-5.0),
     CROP_ln_gamma_k_max(15.0),
+    s_update_lnMolalityActCoeff_valid(false),
+    s_update_dlnMolalityActCoeff_dT_valid(false),
+    s_update_d2lnMolalityActCoeff_dT2_valid(false),
+    s_update_dlnMolalityActCoeff_dP_valid(false),
     m_last_is(-1.0),
     m_debugCalc(0)
 {
@@ -424,12 +432,10 @@ HMWSoln::HMWSoln(int testProb) :
     m_TempPitzerRef(298.15),
     m_IionicMolalityStoich(0.0),
     m_form_A_Debye(A_DEBYE_WATER),
+    m_A_Debye_valid(false),
     m_A_Debye(1.172576),   // units = sqrt(kg/gmol)
-    m_last_dA_DebyedP_TP(-1.0),
-    m_last_dA_DebyedP_TP_T(-1.0),
-    m_last_dA_DebyedP_TP_P(-1.0),
-    m_last_P(-1.0),
-    m_last_T(-1.0),
+    m_dA_DebyedP_TP_valid(false),
+    m_dA_DebyedP_TP(-1.0),
     m_waterSS(0),
     m_densWaterSS(1000.),
     m_waterProps(0),
@@ -461,6 +467,10 @@ HMWSoln::HMWSoln(int testProb) :
     CROP_ln_gamma_o_max(3.0),
     CROP_ln_gamma_k_min(-5.0),
     CROP_ln_gamma_k_max(15.0),
+    s_update_lnMolalityActCoeff_valid(false),
+    s_update_dlnMolalityActCoeff_dT_valid(false),
+    s_update_d2lnMolalityActCoeff_dT2_valid(false),
+    s_update_dlnMolalityActCoeff_dP_valid(false),
     m_last_is(-1.0),
     m_debugCalc(0)
 {
@@ -1051,6 +1061,11 @@ doublereal HMWSoln::satPressure(doublereal t) {
 
 double HMWSoln::A_Debye_TP(double tempArg, double presArg) const
 {
+    if(m_A_Debye_valid) {
+      return m_A_Debye;
+    }
+    m_A_Debye_valid = true;
+
     double T = temperature();
     double A;
     if (tempArg != -1.0) {
@@ -1113,22 +1128,17 @@ double HMWSoln::dA_DebyedP_TP(double tempArg, double presArg) const
         P = presArg;
     }
     double dAdP;
-    const double tol = 1.e-6;
     switch (m_form_A_Debye) {
     case A_DEBYE_CONST:
         dAdP = 0.0;
         break;
     case A_DEBYE_WATER:
-        if( std::abs(T - m_last_dA_DebyedP_TP_T) > tol || std::abs(P - m_last_dA_DebyedP_TP_P) > tol )
-        {
-            dAdP = m_waterProps->ADebye(T, P, 3);
-            m_last_dA_DebyedP_TP_T = T;
-            m_last_dA_DebyedP_TP_P = P;
-            m_last_dA_DebyedP_TP  = dAdP;
-        }
-        else
-        {
-            dAdP = m_last_dA_DebyedP_TP;
+        if(!m_dA_DebyedP_TP_valid) {
+          dAdP = m_waterProps->ADebye(T, P, 3);
+          m_dA_DebyedP_TP  = dAdP;
+          m_dA_DebyedP_TP_valid = true;
+        } else {
+          dAdP = m_dA_DebyedP_TP;
         }
         break;
     default:
@@ -1347,30 +1357,13 @@ void HMWSoln::initLengths()
     counterIJ_setup();
 }
 
-bool HMWSoln::cropped_molalities_changed() const
-{
-    if( m_last_cropped_molalities.size() != m_kk ) {
-      m_last_cropped_molalities.resize(m_kk);
-      std::fill(m_last_cropped_molalities.begin(), m_last_cropped_molalities.end(), -1.0);
-    }
-
-    bool result = false;
-    const doublereal tol = 1.e-12;
-    for(size_t k=0; k < m_kk; ++k) {
-        if( std::abs(m_molalitiesCropped[k] - m_last_cropped_molalities[k]) > tol ) {
-          result = true;
-        }
-    }
-
-    if(result) {
-      std::copy( m_molalitiesCropped.begin(), m_molalitiesCropped.end(), m_last_cropped_molalities.begin() );
-    }
-
-    return result;
-}
-
 void HMWSoln::s_update_lnMolalityActCoeff() const
 {
+    if(s_update_lnMolalityActCoeff_valid) {
+      return;
+    }
+    s_update_lnMolalityActCoeff_valid = true;
+
     /*
      * Calculate the molalities. Currently, the molalities
      * may not be current with respect to the contents of the
@@ -1382,19 +1375,6 @@ void HMWSoln::s_update_lnMolalityActCoeff() const
      *  in all activity coefficient calculations.
      */
     calcMolalitiesCropped();
-
-    double T = temperature();
-    double P = pressure();
-    const doublereal tol = 1.e-12;
-    if( std::abs(m_A_Debye - m_last_A_Debye) < tol &&
-        std::abs(T - m_last_T) < tol &&
-        std::abs(P - m_last_P) < tol &&
-        !cropped_molalities_changed() ) {
-      return;
-    }
-    m_last_T = T;
-    m_last_P = P;
-    m_last_A_Debye = m_A_Debye;
 
     /*
      * Calculate the stoichiometric ionic charge. This isn't used in the
@@ -2964,6 +2944,11 @@ s_updatePitzer_lnMolalityActCoeff() const
 
 void HMWSoln::s_update_dlnMolalityActCoeff_dT() const
 {
+    if(s_update_dlnMolalityActCoeff_dT_valid) {
+      return;
+    }
+    s_update_dlnMolalityActCoeff_dT_valid = true;
+
     /*
      *  Zero the unscaled 2nd derivatives
      */
@@ -3813,6 +3798,11 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dT() const
 
 void HMWSoln::s_update_d2lnMolalityActCoeff_dT2() const
 {
+    if(s_update_d2lnMolalityActCoeff_dT2_valid) {
+      return;
+    }
+    s_update_d2lnMolalityActCoeff_dT2_valid = true;
+
     /*
      *  Zero the unscaled 2nd derivatives
      */
@@ -4667,6 +4657,10 @@ void HMWSoln::s_updatePitzer_d2lnMolalityActCoeff_dT2() const
 
 void HMWSoln::s_update_dlnMolalityActCoeff_dP() const
 {
+    if(s_update_dlnMolalityActCoeff_dP_valid) {
+      return;
+    }
+    s_update_dlnMolalityActCoeff_dP_valid = true;
     m_dlnActCoeffMolaldP_Unscaled.assign(m_kk, 0.0);
     s_updatePitzer_dlnMolalityActCoeff_dP();
 
@@ -5504,10 +5498,10 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dP() const
 
 void HMWSoln::calc_lambdas(double is) const
 {
-    const double tol = 1.e-12;
-    if( std::abs(is - m_last_is) < tol ) {
+    if( m_last_is == is ) {
       return;
     }
+    m_last_is = is;
 
     double aphi, dj, jfunc, jprime, t, x, zprod;
     int i, ij, j;
@@ -5566,7 +5560,6 @@ void HMWSoln::calc_lambdas(double is) const
 #endif
         }
     }
-    m_last_is = is;
 }
 
 void HMWSoln::calc_thetas(int z1, int z2,
@@ -5883,6 +5876,19 @@ doublereal HMWSoln::s_NBS_CLM_dlnMolalityActCoeff_dP() const
     doublereal sqrtIs = sqrt(m_IionicMolality);
     doublereal dAdP = dA_DebyedP_TP();
     return - dAdP * sqrtIs /(1.0 + 1.5 * sqrtIs);
+}
+
+void HMWSoln::invalidateCachedDataOnStateChange(StateVariable changed_var)
+{
+    if( changed_var == PRESSURE || changed_var == TEMPERATURE ) {
+      m_A_Debye_valid = false;
+      m_dA_DebyedP_TP_valid = false;
+    }
+    s_update_lnMolalityActCoeff_valid = false;
+    s_update_dlnMolalityActCoeff_dT_valid = false;
+    s_update_d2lnMolalityActCoeff_dT2_valid = false;
+    s_update_dlnMolalityActCoeff_dP_valid = false;
+    MolalityVPSSTP::invalidateCachedDataOnStateChange(changed_var);
 }
 
 int HMWSoln::debugPrinting()

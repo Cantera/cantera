@@ -1131,6 +1131,7 @@ private:
     //! Helper function used by setState_HPorUV and setState_SPorSV.
     //! Sets the temperature and (if set_p is true) the pressure.
     void setState_conditional_TP(doublereal t, doublereal p, bool set_p);
+
 public:
 
     //@}
