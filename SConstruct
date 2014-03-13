@@ -197,19 +197,16 @@ opts.Update(env)
 
 defaults.cxxFlags = ''
 defaults.ccFlags = ''
-defaults.noOptimizeCcFlags = ''
-defaults.optimizeCcFlags = ''
-defaults.debugCcFlags = ''
+defaults.noOptimizeCcFlags = '-O0'
+defaults.optimizeCcFlags = '-O3'
+defaults.debugCcFlags = '-g'
 defaults.noDebugCcFlags = ''
 defaults.debugLinkFlags = ''
 defaults.noDebugLinkFlags = ''
-defaults.warningFlags = ''
+defaults.warningFlags = '-Wall'
 
 if 'gcc' in env.subst('$CC'):
-    defaults.debugCcFlags = '-g'
-    defaults.noOptimizeCcFlags = '-O0'
-    defaults.optimizeCcFlags = '-O3 -Wno-inline'
-    defaults.warningFlags = '-Wall'
+    defaults.optimizeCcFlags += ' -Wno-inline'
 
 elif env['CC'] == 'cl': # Visual Studio
     defaults.cxxFlags = ['/EHsc']
@@ -226,17 +223,10 @@ elif env['CC'] == 'cl': # Visual Studio
 
 elif 'icc' in env.subst('$CC'):
     defaults.ccFlags = '-vec-report0 -diag-disable 1478'
-    defaults.debugCcFlags = '-g'
-    defaults.noOptimizeCcFlags = '-O0'
-    defaults.optimizeCcFlags = '-O3'
     defaults.warningFlags = '-Wcheck'
 
 elif 'clang' in env.subst('$CC'):
     defaults.ccFlags = '-fcolor-diagnostics'
-    defaults.debugCcFlags = '-g'
-    defaults.noOptimizeCcFlags = '-O0'
-    defaults.optimizeCcFlags = '-O3'
-    defaults.warningFlags = '-Wall'
 
 else:
     print "WARNING: Unrecognized C compiler '%s'" % env['CC']
