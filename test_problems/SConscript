@@ -275,7 +275,6 @@ if haveConverters:
     Test('negA-cti', 'negATest', negA, 'negATest_blessed.out',
          options='noxNeg.cti', artifacts=negA_name)
 
-CompileAndTest('pecosTransport', 'PecosTransport', 'pecosTransport', 'output_blessed.txt')
 CompileAndTest('printUtil', 'printUtilUnitTest', 'pUtest', 'output_blessed.txt')
 CompileAndTest('pureFluid', 'pureFluidTest', 'testPureWater', 'output_blessed.txt')
 if haveConverters:

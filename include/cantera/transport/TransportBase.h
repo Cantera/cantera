@@ -54,7 +54,6 @@ const int cAqueousTransport    = 750;
 const int cSimpleTransport     = 770;
 const int cRadiativeTransport  = 800;
 const int cWaterTransport      = 721;
-const int cPecosTransport      = 900;
 //!   \endcond
 
 // forward reference
