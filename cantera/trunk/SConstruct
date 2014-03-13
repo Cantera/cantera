@@ -206,15 +206,14 @@ defaults.noDebugLinkFlags = ''
 defaults.warningFlags = ''
 
 if 'gcc' in env.subst('$CC'):
-    defaults.cxxFlags = '-ftemplate-depth-128'
     defaults.debugCcFlags = '-g'
-    defaults.noOptimizeCcFlags = '-O0 -fno-inline'
-    defaults.optimizeCcFlags = '-O3 -DNDEBUG -finline-functions -Wno-inline'
+    defaults.noOptimizeCcFlags = '-O0'
+    defaults.optimizeCcFlags = '-O3 -DNDEBUG -Wno-inline'
     defaults.warningFlags = '-Wall'
 
 elif env['CC'] == 'cl': # Visual Studio
     defaults.cxxFlags = ['/EHsc']
-    defaults.ccFlags = ['/MD', '/nologo', '/Zc:wchar_t', '/Zc:forScope',
+    defaults.ccFlags = ['/MD', '/nologo',
                         '/D_SCL_SECURE_NO_WARNINGS', '/D_CRT_SECURE_NO_WARNINGS']
     if env['MSVC_VERSION'] == '11.0':
         # Fix compatibility issue between VS2012 and Google Test
@@ -226,15 +225,13 @@ elif env['CC'] == 'cl': # Visual Studio
     defaults.warningFlags = '/W3'
 
 elif 'icc' in env.subst('$CC'):
-    defaults.cxxFlags = '-ftemplate-depth-128'
     defaults.ccFlags = '-vec-report0 -diag-disable 1478'
     defaults.debugCcFlags = '-g'
-    defaults.noOptimizeCcFlags = '-O0 -fno-inline'
-    defaults.optimizeCcFlags = '-O3 -finline-functions -DNDEBUG'
+    defaults.noOptimizeCcFlags = '-O0'
+    defaults.optimizeCcFlags = '-O3 -DNDEBUG'
     defaults.warningFlags = '-Wcheck'
 
 elif 'clang' in env.subst('$CC'):
-    defaults.cxxFlags = ''
     defaults.ccFlags = '-fcolor-diagnostics'
     defaults.debugCcFlags = '-g'
     defaults.noOptimizeCcFlags = '-O0'
