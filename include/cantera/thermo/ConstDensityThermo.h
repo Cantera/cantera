@@ -153,12 +153,6 @@ public:
      */
     virtual doublereal standardConcentration(size_t k=0) const;
 
-    //! Natural logarithm of the standard concentration of the kth species.
-    /*!
-     * @param k    index of the species (defaults to zero)
-     */
-    virtual doublereal logStandardConc(size_t k=0) const;
-
     //! Get the Gibbs functions for the standard
     //! state of the species at the current <I>T</I> and <I>P</I> of the solution
     /*!

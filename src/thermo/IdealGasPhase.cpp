@@ -100,13 +100,6 @@ doublereal IdealGasPhase::standardConcentration(size_t k) const
     return p / (GasConstant * temperature());
 }
 
-doublereal IdealGasPhase::logStandardConc(size_t k) const
-{
-    _updateThermo();
-    double p = pressure();
-    return std::log(p / (GasConstant * temperature()));
-}
-
 void IdealGasPhase::getActivityCoefficients(doublereal* ac) const
 {
     for (size_t k = 0; k < m_kk; k++) {

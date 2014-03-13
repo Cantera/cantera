@@ -812,12 +812,6 @@ doublereal HMWSoln::standardConcentration(size_t k) const
     return 1.0 / mvSolvent;
 }
 
-doublereal HMWSoln::logStandardConc(size_t k) const
-{
-    double c_solvent = standardConcentration(k);
-    return log(c_solvent);
-}
-
 void HMWSoln::getUnitsStandardConc(double* uA, int k, int sizeUA) const
 {
     for (int i = 0; i < sizeUA; i++) {
