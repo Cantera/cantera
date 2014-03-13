@@ -208,7 +208,7 @@ defaults.warningFlags = ''
 if 'gcc' in env.subst('$CC'):
     defaults.debugCcFlags = '-g'
     defaults.noOptimizeCcFlags = '-O0'
-    defaults.optimizeCcFlags = '-O3 -DNDEBUG -Wno-inline'
+    defaults.optimizeCcFlags = '-O3 -Wno-inline'
     defaults.warningFlags = '-Wall'
 
 elif env['CC'] == 'cl': # Visual Studio
@@ -220,7 +220,7 @@ elif env['CC'] == 'cl': # Visual Studio
         defaults.cxxFlags.append('/D_VARIADIC_MAX=10')
     defaults.debugCcFlags = '/Zi /Fd${TARGET}.pdb'
     defaults.noOptimizeCcFlags = '/Od /Ob0'
-    defaults.optimizeCcFlags = '/O2 /DNDEBUG'
+    defaults.optimizeCcFlags = '/O2'
     defaults.debugLinkFlags = '/DEBUG'
     defaults.warningFlags = '/W3'
 
@@ -228,14 +228,14 @@ elif 'icc' in env.subst('$CC'):
     defaults.ccFlags = '-vec-report0 -diag-disable 1478'
     defaults.debugCcFlags = '-g'
     defaults.noOptimizeCcFlags = '-O0'
-    defaults.optimizeCcFlags = '-O3 -DNDEBUG'
+    defaults.optimizeCcFlags = '-O3'
     defaults.warningFlags = '-Wcheck'
 
 elif 'clang' in env.subst('$CC'):
     defaults.ccFlags = '-fcolor-diagnostics'
     defaults.debugCcFlags = '-g'
     defaults.noOptimizeCcFlags = '-O0'
-    defaults.optimizeCcFlags = '-O3 -DNDEBUG'
+    defaults.optimizeCcFlags = '-O3'
     defaults.warningFlags = '-Wall'
 
 else:
@@ -710,11 +710,13 @@ conf = Configure(env)
 env['CXXFLAGS'] = listify(env['cxx_flags'])
 env['CCFLAGS'] = listify(env['cc_flags']) + listify(env['thread_flags'])
 env['LINKFLAGS'] += listify(env['thread_flags'])
+env['CPPDEFINES'] = {}
 
 env['warning_flags'] = listify(env['warning_flags'])
 
 if env['optimize']:
     env['CCFLAGS'] += listify(env['optimize_flags'])
+    env.Append(CPPDEFINES=['NDEBUG'])
 else:
     env['CCFLAGS'] += listify(env['no_optimize_flags'])
 
