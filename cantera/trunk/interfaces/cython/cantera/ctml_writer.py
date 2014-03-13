@@ -2613,23 +2613,27 @@ def convert(filename, outName=None):
                 print(' '* (err.offset+9) + '^')
         print()
         sys.exit(3)
-    except TypeError as err:
+    except Exception as err:
         import traceback
 
         text = open(filename, 'rU').readlines()
         tb = traceback.extract_tb(sys.exc_info()[2])
         lineno = tb[-1][1]
+        if tb[-1][0] == filename:
+            # Error in input file
+            print('%s on line %i of %s:' % (err.__class__.__name__, lineno, filename))
+            print(err)
+            print('\n| Line |')
 
-        print('%s on line %i of %s:' % (err.__class__.__name__, lineno, filename))
-        print(err)
-        print('\n| Line |')
-
-        for i in range(max(lineno-6, 0),
-                       min(lineno+3, len(text))):
-            if i == lineno-1:
-                print('> % 4i >' % (i+1), text[i].rstrip())
-            else:
-                print('| % 4i |' % (i+1), text[i].rstrip())
+            for i in range(max(lineno-6, 0),
+                           min(lineno+3, len(text))):
+                if i == lineno-1:
+                    print('> % 4i >' % (i+1), text[i].rstrip())
+                else:
+                    print('| % 4i |' % (i+1), text[i].rstrip())
+        else:
+            # Error in ctml_writer or elsewhere
+            traceback.print_exc()
 
         sys.exit(4)
 
