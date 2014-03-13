@@ -297,9 +297,9 @@ protected:
     bool _updateThermo() const;
 
     //! Vector containing the last computed activity coefficients at T = m_tlast and r = last_r
-    mutable std::vector<doublereal> last_ac;
+    mutable std::vector<doublereal> m_last_ac;
     //! Last value of r used to update activity coeffs
-    mutable doublereal last_r;
+    mutable doublereal m_last_mole_frac_product;
 
     //! Vector containing the species reference enthalpies at T = m_tlast
     mutable vector_fp      m_h0_RT;
