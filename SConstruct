@@ -24,6 +24,10 @@ Basic usage:
     'scons samples' - Compile the C++ and Fortran samples.
 
     'scons msi' - Build a Windows installer (.msi) for Cantera.
+
+    'scons sphinx' - Build the Sphinx documentation
+
+    'scons doxygen' - Build the Doxygen documentation
 """
 
 from buildutils import *
@@ -34,7 +38,7 @@ if not COMMAND_LINE_TARGETS:
     sys.exit(0)
 
 valid_commands = ('build','clean','install','uninstall',
-                  'help','msi','samples')
+                  'help','msi','samples','sphinx','doxygen')
 
 for command in COMMAND_LINE_TARGETS:
     if command not in valid_commands and not command.startswith('test'):
@@ -586,7 +590,6 @@ opts.AddVariables(*config_options)
 opts.Update(env)
 opts.Save('cantera.conf', env)
 
-
 if 'help' in COMMAND_LINE_TARGETS:
     ### Print help about configuration options and exit.
     print """
@@ -613,6 +616,11 @@ running 'scons build'. The format of this file is:
     for opt in opts.options:
         print '\n'.join(formatOption(env, opt))
     sys.exit(0)
+
+if 'doxygen' in COMMAND_LINE_TARGETS:
+    env['doxygen_docs'] = True
+if 'sphinx' in COMMAND_LINE_TARGETS:
+    env['sphinx_docs'] = True
 
 valid_arguments = (set(opt[0] for opt in windows_compiler_options) |
                    set(opt[0] for opt in compiler_options) |
