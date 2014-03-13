@@ -332,6 +332,9 @@ void Phase::setMoleFractions(const doublereal* const x)
      */
     m_mmw = sum/norm;
     m_stateNum++;
+    if(massFractionsChanged()) {
+        invalidateCachedDataOnStateChange(SPECIES);
+    }
 }
 
 void Phase::setMoleFractions_NoNorm(const doublereal* const x)
@@ -342,6 +345,9 @@ void Phase::setMoleFractions_NoNorm(const doublereal* const x)
     transform(m_ym.begin(), m_ym.begin() + m_kk, m_molwts.begin(),
               m_y.begin(), multiplies<double>());
     m_stateNum++;
+    if(massFractionsChanged()) {
+        invalidateCachedDataOnStateChange(SPECIES);
+    }
 }
 
 void Phase::setMoleFractionsByName(compositionMap& xMap)
@@ -376,6 +382,9 @@ void Phase::setMassFractions(const doublereal* const y)
               m_ym.begin(), multiplies<double>());
     m_mmw = 1.0 / accumulate(m_ym.begin(), m_ym.end(), 0.0);
     m_stateNum++;
+    if(massFractionsChanged()) {
+        invalidateCachedDataOnStateChange(SPECIES);
+    }
 }
 
 void Phase::setMassFractions_NoNorm(const doublereal* const y)
@@ -387,6 +396,9 @@ void Phase::setMassFractions_NoNorm(const doublereal* const y)
     sum = accumulate(m_ym.begin(), m_ym.end(), 0.0);
     m_mmw = 1.0/sum;
     m_stateNum++;
+    if( massFractionsChanged() ) {
+        invalidateCachedDataOnStateChange(SPECIES);
+    }
 }
 
 void Phase::setMassFractionsByName(compositionMap& yMap)
@@ -407,6 +419,22 @@ void Phase::setMassFractionsByName(const std::string& y)
 {
     compositionMap c = parseCompString(y, speciesNames());
     setMassFractionsByName(c);
+}
+
+bool Phase::massFractionsChanged()
+{
+  if(m_last_y.size() != m_kk) {
+    m_last_y.resize(m_kk);
+    std::fill(m_last_y.begin(), m_last_y.end(), -1.0);
+  }
+
+  bool result = false;
+  for(size_t k=0; k < m_kk; ++k) {
+    if(m_y[k] != m_last_y[k]) {
+      result = true;
+    }
+  }
+  return result;
 }
 
 void Phase::setState_TRX(doublereal t, doublereal dens, const doublereal* x)

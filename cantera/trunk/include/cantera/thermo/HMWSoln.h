@@ -2362,6 +2362,9 @@ public:
      */
     int m_form_A_Debye;
 
+protected:
+    virtual void invalidateCachedDataOnStateChange(StateVariable changed_var);
+
 private:
     /**
      * A_Debye -> this expression appears on the top of the
@@ -2394,14 +2397,10 @@ private:
      *                    dw = C_0 * M_0 (density of water) (kg/m3)
      *                       = 1.0E3 at 25C
      */
+    mutable bool m_A_Debye_valid;
     mutable double m_A_Debye;
-    mutable double m_last_dA_DebyedP_TP;
-    mutable double m_last_dA_DebyedP_TP_T;
-    mutable double m_last_dA_DebyedP_TP_P;
-
-    mutable double m_last_P;
-    mutable double m_last_T;
-    mutable double m_last_A_Debye;
+    mutable bool m_dA_DebyedP_TP_valid;
+    mutable double m_dA_DebyedP_TP;
 
     //!  Water standard state calculator
     /*!
@@ -3173,8 +3172,7 @@ private:
      * natural logarithm of the molality activity coefficients
      */
     void s_update_lnMolalityActCoeff() const;
-    mutable std::vector<doublereal> m_last_cropped_molalities;
-    bool cropped_molalities_changed() const;
+    mutable bool s_update_lnMolalityActCoeff_valid;
 
     //! This function calculates the temperature derivative of the
     //! natural logarithm of the molality activity coefficients.
@@ -3183,6 +3181,7 @@ private:
      * coefficient is on the molality scale. It's derivative is too.
      */
     void s_update_dlnMolalityActCoeff_dT() const;
+    mutable bool s_update_dlnMolalityActCoeff_dT_valid;
 
     /**
      * This function calculates the temperature second derivative
@@ -3190,6 +3189,7 @@ private:
      * coefficients.
      */
     void s_update_d2lnMolalityActCoeff_dT2() const;
+    mutable bool s_update_d2lnMolalityActCoeff_dT2_valid;
 
     /**
      * This function calculates the pressure derivative of the
@@ -3198,6 +3198,7 @@ private:
      * Assumes that the activity coefficients are current.
      */
     void s_update_dlnMolalityActCoeff_dP() const;
+    mutable bool s_update_dlnMolalityActCoeff_dP_valid;
 
     //! This function will be called to update the internally stored
     //! natural logarithm of the molality activity coefficients
@@ -3270,9 +3271,7 @@ private:
      * @param is Ionic strength
      */
     void calc_lambdas(double is) const;
-
-    //! Track the last ionic strength lambdas were calculated at to avoid unnecessarily recalculating them
-    mutable double m_last_is;
+    mutable doublereal m_last_is;
 
     /**
      *  Calculate etheta and etheta_prime
