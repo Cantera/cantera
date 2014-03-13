@@ -350,12 +350,6 @@ doublereal DebyeHuckel::standardConcentration(size_t k) const
     return 1.0 / mvSolvent;
 }
 
-doublereal DebyeHuckel::logStandardConc(size_t k) const
-{
-    double c_solvent = standardConcentration(k);
-    return log(c_solvent);
-}
-
 void DebyeHuckel::getUnitsStandardConc(double* uA, int k, int sizeUA) const
 {
     for (int i = 0; i < sizeUA; i++) {

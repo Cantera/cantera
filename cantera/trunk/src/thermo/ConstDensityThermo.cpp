@@ -117,11 +117,6 @@ doublereal ConstDensityThermo::standardConcentration(size_t k) const
     return molarDensity();
 }
 
-doublereal ConstDensityThermo::logStandardConc(size_t k) const
-{
-    return log(molarDensity());
-}
-
 void ConstDensityThermo::getChemPotentials(doublereal* mu) const
 {
     doublereal vdp = (pressure() - m_spthermo->refPressure())/

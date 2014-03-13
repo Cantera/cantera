@@ -96,12 +96,6 @@ doublereal PseudoBinaryVPSSTP::standardConcentration(size_t k) const
     return -1.0;
 }
 
-doublereal PseudoBinaryVPSSTP::logStandardConc(size_t k) const
-{
-    err("logStandardConc");
-    return -1.0;
-}
-
 void PseudoBinaryVPSSTP::getElectrochemPotentials(doublereal* mu) const
 {
     getChemPotentials(mu);

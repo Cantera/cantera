@@ -135,13 +135,6 @@ public:
      */
     virtual doublereal standardConcentration(size_t k=0) const;
 
-    /**
-     * Returns the natural logarithm of the standard
-     * concentration of the kth species
-     *
-     * @param k  species index
-     */
-    virtual doublereal logStandardConc(size_t k=0) const;
     //@}
     /// @name  Partial Molar Properties of the Solution
     //@{

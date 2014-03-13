@@ -554,13 +554,6 @@ public:
      */
     virtual doublereal standardConcentration(size_t k = 0) const;
 
-    //! Returns the natural logarithm of the standard
-    //! concentration of the kth species
-    /*!
-     * @param k    index of the species. (defaults to zero)
-     */
-    virtual doublereal logStandardConc(size_t k = 0) const;
-
     //! Get the array of non-dimensional activity coefficients at
     //! the current solution temperature, pressure, and solution concentration.
     /*!

@@ -408,14 +408,6 @@ public:
     virtual doublereal standardConcentration(size_t k=0) const;
 
     /*!
-     * Returns the natural logarithm of the standard
-     * concentration of the kth species
-     *
-     * @param k  Species index
-     */
-    virtual doublereal logStandardConc(size_t k=0) const;
-
-    /*!
      * Returns the units of the standard and generalized
      * concentrations Note they have the same units, as their
      * ratio is defined to be equal to the activity of the kth

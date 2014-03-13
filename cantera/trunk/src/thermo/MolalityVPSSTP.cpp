@@ -299,12 +299,6 @@ doublereal MolalityVPSSTP::standardConcentration(size_t k) const
     return -1.0;
 }
 
-doublereal MolalityVPSSTP::logStandardConc(size_t k) const
-{
-    err("logStandardConc");
-    return -1.0;
-}
-
 void MolalityVPSSTP::getActivities(doublereal* ac) const
 {
     err("getActivities");

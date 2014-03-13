@@ -378,12 +378,6 @@ doublereal RedlichKwongMFTP::standardConcentration(size_t k) const
     return 1.0 / m_tmpV[k];
 }
 
-doublereal RedlichKwongMFTP::logStandardConc(size_t k) const
-{
-    double c = standardConcentration(k);
-    return std::log(c);
-}
-
 void RedlichKwongMFTP::getUnitsStandardConc(double* uA, int, int sizeUA) const
 {
     //int eos = eosType();

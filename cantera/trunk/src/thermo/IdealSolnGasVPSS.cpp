@@ -217,12 +217,6 @@ doublereal IdealSolnGasVPSS::standardConcentration(size_t k) const
     }
 }
 
-doublereal IdealSolnGasVPSS::logStandardConc(size_t k) const
-{
-    double c = standardConcentration(k);
-    return std::log(c);
-}
-
 void IdealSolnGasVPSS::getUnitsStandardConc(double* uA, int, int sizeUA) const
 {
     int eos = eosType();

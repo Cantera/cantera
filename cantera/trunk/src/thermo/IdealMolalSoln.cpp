@@ -269,12 +269,6 @@ doublereal IdealMolalSoln::standardConcentration(size_t k) const
     return c0;
 }
 
-doublereal IdealMolalSoln::logStandardConc(size_t k) const
-{
-    double c0 = standardConcentration(k);
-    return log(c0);
-}
-
 void IdealMolalSoln::getUnitsStandardConc(double* uA, int k, int sizeUA) const
 {
     int eos = eosType();
