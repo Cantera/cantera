@@ -23,8 +23,8 @@ namespace Cantera
 MaskellSolidSolnPhase::MaskellSolidSolnPhase() :
     m_Pref(OneAtm),
     m_Pcurrent(OneAtm),
-    last_ac(2),
-    last_r(-1.0),
+    m_last_ac(2),
+    m_last_mole_frac_product(-1.0),
     m_h0_RT(2),
     m_cp0_R(2),
     m_g0_RT(2),
@@ -38,8 +38,8 @@ MaskellSolidSolnPhase::MaskellSolidSolnPhase() :
 MaskellSolidSolnPhase::MaskellSolidSolnPhase(const MaskellSolidSolnPhase& b) :
     m_Pref(OneAtm),
     m_Pcurrent(OneAtm),
-    last_ac(2),
-    last_r(-1.0),
+    m_last_ac(2),
+    m_last_mole_frac_product(-1.0),
     m_h0_RT(2),
     m_cp0_R(2),
     m_g0_RT(2),
@@ -160,8 +160,7 @@ getActivityCoefficients(doublereal* ac) const
     bool temp_changed = _updateThermo();
     const doublereal r = moleFraction(product_species_index);
     const doublereal tol = 1.e-12;
-    if( temp_changed || std::abs(r - last_r) > tol )
-    {
+    if( temp_changed || std::abs(r - m_last_mole_frac_product) > tol ) {
       const doublereal pval = p(r);
       const doublereal fmval = fm(r);
       const doublereal rfm = r * fmval;
@@ -169,11 +168,11 @@ getActivityCoefficients(doublereal* ac) const
       const doublereal A = (std::pow(1 - rfm, pval) * std::pow(rfm, pval) * std::pow(r - rfm, 1 - pval))  /
                            (std::pow(1 - r - rfm, 1 + pval) * (1 - r));
       const doublereal B = pval * h_mixing / RT;
-      last_ac[product_species_index] = A * std::exp(B);
-      last_ac[reactant_species_index] = 1 / (A * r * (1-r) ) * std::exp(-B);
-      last_r = r;
+      m_last_ac[product_species_index] = A * std::exp(B);
+      m_last_ac[reactant_species_index] = 1 / (A * r * (1-r) ) * std::exp(-B);
+      m_last_mole_frac_product = r;
     }
-    std::copy(last_ac.begin(), last_ac.end(), ac);
+    std::copy(m_last_ac.begin(), m_last_ac.end(), ac);
 }
 
 void MaskellSolidSolnPhase::

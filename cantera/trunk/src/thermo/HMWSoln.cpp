@@ -73,7 +73,7 @@ HMWSoln::HMWSoln() :
     CROP_ln_gamma_o_max(3.0),
     CROP_ln_gamma_k_min(-5.0),
     CROP_ln_gamma_k_max(15.0),
-    last_is(-1.0),
+    m_last_is(-1.0),
     m_debugCalc(0)
 {
     for (size_t i = 0; i < 17; i++) {
@@ -127,7 +127,7 @@ HMWSoln::HMWSoln(const std::string& inputFile, const std::string& id_) :
     CROP_ln_gamma_o_max(3.0),
     CROP_ln_gamma_k_min(-5.0),
     CROP_ln_gamma_k_max(15.0),
-    last_is(-1.0),
+    m_last_is(-1.0),
     m_debugCalc(0)
 {
     for (int i = 0; i < 17; i++) {
@@ -182,7 +182,7 @@ HMWSoln::HMWSoln(XML_Node& phaseRoot, const std::string& id_) :
     CROP_ln_gamma_o_max(3.0),
     CROP_ln_gamma_k_min(-5.0),
     CROP_ln_gamma_k_max(15.0),
-    last_is(-1.0),
+    m_last_is(-1.0),
     m_debugCalc(0)
 {
     for (int i = 0; i < 17; i++) {
@@ -237,7 +237,7 @@ HMWSoln::HMWSoln(const HMWSoln& b) :
     CROP_ln_gamma_o_max(3.0),
     CROP_ln_gamma_k_min(-5.0),
     CROP_ln_gamma_k_max(15.0),
-    last_is(-1.0),
+    m_last_is(-1.0),
     m_debugCalc(0)
 {
     /*
@@ -451,7 +451,7 @@ HMWSoln::HMWSoln(int testProb) :
     CROP_ln_gamma_o_max(3.0),
     CROP_ln_gamma_k_min(-5.0),
     CROP_ln_gamma_k_max(15.0),
-    last_is(-1.0),
+    m_last_is(-1.0),
     m_debugCalc(0)
 {
     if (testProb != 1) {
@@ -5465,7 +5465,9 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dP() const
 void HMWSoln::calc_lambdas(double is) const
 {
     const double tol = 1.e-12;
-    if( std::abs(is - last_is) < tol ) return;
+    if( std::abs(is - m_last_is) < tol ) {
+      return;
+    }
 
     double aphi, dj, jfunc, jprime, t, x, zprod;
     int i, ij, j;
@@ -5524,7 +5526,7 @@ void HMWSoln::calc_lambdas(double is) const
 #endif
         }
     }
-    last_is = is;
+    m_last_is = is;
 }
 
 void HMWSoln::calc_thetas(int z1, int z2,
