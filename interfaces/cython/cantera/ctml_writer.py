@@ -2055,7 +2055,7 @@ class incompressible_solid(phase):
                  elements = '',
                  species = '',
                  note = '',
-                 density = -1.0,
+                 density = None,
                  transport = 'None',
                  initial_state = None,
                  options = []):
@@ -2064,7 +2064,7 @@ class incompressible_solid(phase):
                        initial_state, options)
         self._dens = density
         self._pure = 0
-        if self._dens < 0.0:
+        if self._dens is None:
             raise CTI_Error('density must be specified.')
         self._tr = transport
 
@@ -2093,7 +2093,7 @@ class lattice(phase):
                  transport = 'None',
                  initial_state = None,
                  options = [],
-                 site_density = -1.0,
+                 site_density = None,
                  vacancy_species = ''):
         phase.__init__(self, name, 3, elements, species, note, 'none',
                         initial_state, options)
@@ -2105,7 +2105,7 @@ class lattice(phase):
             raise CTI_Error('sublattice name must be specified')
         if species == '':
             raise CTI_Error('sublattice species must be specified')
-        if site_density < 0.0:
+        if site_density is None:
             raise CTI_Error('sublattice '+name
                             +' site density must be specified')
 
