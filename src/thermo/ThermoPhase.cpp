@@ -884,23 +884,23 @@ std::string ThermoPhase::report(bool show_thermo) const
             s += p;
             sprintf(p, "                       -----------      ------------\n");
             s += p;
-            sprintf(p, "          enthalpy    %12.6g     %12.4g     J\n",
+            sprintf(p, "          enthalpy    %12.5g     %12.4g     J\n",
                     enthalpy_mass(), enthalpy_mole());
             s += p;
-            sprintf(p, "   internal energy    %12.6g     %12.4g     J\n",
+            sprintf(p, "   internal energy    %12.5g     %12.4g     J\n",
                     intEnergy_mass(), intEnergy_mole());
             s += p;
-            sprintf(p, "           entropy    %12.6g     %12.4g     J/K\n",
+            sprintf(p, "           entropy    %12.5g     %12.4g     J/K\n",
                     entropy_mass(), entropy_mole());
             s += p;
-            sprintf(p, "    Gibbs function    %12.6g     %12.4g     J\n",
+            sprintf(p, "    Gibbs function    %12.5g     %12.4g     J\n",
                     gibbs_mass(), gibbs_mole());
             s += p;
-            sprintf(p, " heat capacity c_p    %12.6g     %12.4g     J/K\n",
+            sprintf(p, " heat capacity c_p    %12.5g     %12.4g     J/K\n",
                     cp_mass(), cp_mole());
             s += p;
             try {
-                sprintf(p, " heat capacity c_v    %12.6g     %12.4g     J/K\n",
+                sprintf(p, " heat capacity c_v    %12.5g     %12.4g     J/K\n",
                         cv_mass(), cv_mole());
                 s += p;
             } catch (CanteraError& err) {
