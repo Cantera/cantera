@@ -304,3 +304,19 @@ class chemkinConverterTest(utilities.CanteraTest):
                         quiet=True)
 
         self.assertRaises(ck2cti.InputParseError, convert)
+
+class CtmlConverterTest(utilities.CanteraTest):
+    def test_sofc(self):
+        gas_a, anode_bulk, oxide_a = ct.import_phases(
+            '../../interfaces/cython/cantera/examples/surface_chemistry/sofc.cti',
+            ['gas', 'metal', 'oxide_bulk'])
+
+        self.assertNear(gas_a.P, ct.one_atm)
+        self.assertNear(anode_bulk['electron'].X, 1.0)
+        self.assertNear(oxide_a.density, 700)
+
+    def test_diamond(self):
+        gas, solid = ct.import_phases('diamond.cti', ['gas','diamond'])
+        face = ct.Interface('diamond.cti', 'diamond_100', [gas, solid])
+
+        self.assertNear(face.site_density, 3e-8)
