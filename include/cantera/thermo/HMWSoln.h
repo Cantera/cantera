@@ -2406,6 +2406,10 @@ private:
     mutable double m_last_dA_DebyedP_TP_T;
     mutable double m_last_dA_DebyedP_TP_P;
 
+    mutable double m_last_P;
+    mutable double m_last_T;
+    mutable double m_last_A_Debye;
+
     //!  Water standard state calculator
     /*!
      *  derived from the equation of state for water.
@@ -3176,6 +3180,8 @@ private:
      * natural logarithm of the molality activity coefficients
      */
     void s_update_lnMolalityActCoeff() const;
+    mutable std::vector<doublereal> m_last_cropped_molalities;
+    bool cropped_molalities_changed() const;
 
     //! This function calculates the temperature derivative of the
     //! natural logarithm of the molality activity coefficients.
