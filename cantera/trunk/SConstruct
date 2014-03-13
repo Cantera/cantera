@@ -88,6 +88,12 @@ if os.name == 'nt':
     else:
         target_arch = 'x86'
 
+    # Make an educated guess about the right default compiler
+    if which('g++') and not which('cl.exe'):
+        defaultToolchain = 'mingw'
+    else:
+        defaultToolchain = 'msvc'
+
     windows_compiler_options.extend([
         ('msvc_version',
          """Version of Visual Studio to use. The default is the same version
@@ -100,7 +106,7 @@ if os.name == 'nt':
         EnumVariable(
             'toolchain',
             """The preferred compiler toolchain.""",
-            'msvc', ('msvc', 'mingw', 'intel'))])
+            defaultToolchain, ('msvc', 'mingw', 'intel'))])
     opts.AddVariables(*windows_compiler_options)
 
     pickCompilerEnv = Environment()
@@ -121,6 +127,7 @@ if os.name == 'nt':
         toolchain = ['intelc'] # note: untested
 
     extraEnvArgs['TARGET_ARCH'] = pickCompilerEnv['target_arch']
+    print 'INFO: Compiling using the following toolchain(s):', repr(toolchain)
 
 else:
     toolchain = ['default']
@@ -134,7 +141,6 @@ env = Environment(tools=toolchain+['textfile', 'subst', 'recursiveInstall', 'wix
 # To print the current environment
 #
 # print env.Dump()
-
 
 env['OS'] = platform.system()
 env['OS_BITS'] = int(platform.architecture()[0][:2])
