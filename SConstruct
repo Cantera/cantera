@@ -205,7 +205,7 @@ defaults.debugLinkFlags = ''
 defaults.noDebugLinkFlags = ''
 defaults.warningFlags = ''
 
-if env['CC'] == 'gcc' or env['CC'] == 'llvm-gcc':
+if 'gcc' in env.subst('$CC'):
     defaults.cxxFlags = '-ftemplate-depth-128'
     defaults.debugCcFlags = '-g'
     defaults.noOptimizeCcFlags = '-O0 -fno-inline'
@@ -225,7 +225,7 @@ elif env['CC'] == 'cl': # Visual Studio
     defaults.debugLinkFlags = '/DEBUG'
     defaults.warningFlags = '/W3'
 
-elif env['CC'] == 'icc':
+elif 'icc' in env.subst('$CC'):
     defaults.cxxFlags = '-ftemplate-depth-128'
     defaults.ccFlags = '-vec-report0 -diag-disable 1478'
     defaults.debugCcFlags = '-g'
@@ -233,7 +233,7 @@ elif env['CC'] == 'icc':
     defaults.optimizeCcFlags = '-O3 -finline-functions -DNDEBUG'
     defaults.warningFlags = '-Wcheck'
 
-elif env['CC'] == 'clang':
+elif 'clang' in env.subst('$CC'):
     defaults.cxxFlags = ''
     defaults.ccFlags = '-fcolor-diagnostics'
     defaults.debugCcFlags = '-g'
@@ -729,7 +729,7 @@ else:
     env['LINKFLAGS'] += listify(env['no_debug_linker_flags'])
 
 if env['coverage']:
-    if  env['CC'] == 'gcc':
+    if  'gcc' in env.subst('$CC'):
         env.Append(CCFLAGS=['-fprofile-arcs', '-ftest-coverage'])
         env.Append(LINKFLAGS=['-fprofile-arcs', '-ftest-coverage'])
 
