@@ -42,6 +42,8 @@ HMWSoln::HMWSoln() :
     m_last_dA_DebyedP_TP(-1.0),
     m_last_dA_DebyedP_TP_T(-1.0),
     m_last_dA_DebyedP_TP_P(-1.0),
+    m_last_P(-1.0),
+    m_last_T(-1.0),
     m_waterSS(0),
     m_densWaterSS(1000.),
     m_waterProps(0),
@@ -96,6 +98,8 @@ HMWSoln::HMWSoln(const std::string& inputFile, const std::string& id_) :
     m_last_dA_DebyedP_TP(-1.0),
     m_last_dA_DebyedP_TP_T(-1.0),
     m_last_dA_DebyedP_TP_P(-1.0),
+    m_last_P(-1.0),
+    m_last_T(-1.0),
     m_waterSS(0),
     m_densWaterSS(1000.),
     m_waterProps(0),
@@ -151,6 +155,8 @@ HMWSoln::HMWSoln(XML_Node& phaseRoot, const std::string& id_) :
     m_last_dA_DebyedP_TP(-1.0),
     m_last_dA_DebyedP_TP_T(-1.0),
     m_last_dA_DebyedP_TP_P(-1.0),
+    m_last_P(-1.0),
+    m_last_T(-1.0),
     m_waterSS(0),
     m_densWaterSS(1000.),
     m_waterProps(0),
@@ -206,6 +212,8 @@ HMWSoln::HMWSoln(const HMWSoln& b) :
     m_last_dA_DebyedP_TP(-1.0),
     m_last_dA_DebyedP_TP_T(-1.0),
     m_last_dA_DebyedP_TP_P(-1.0),
+    m_last_P(-1.0),
+    m_last_T(-1.0),
     m_waterSS(0),
     m_densWaterSS(1000.),
     m_waterProps(0),
@@ -420,6 +428,8 @@ HMWSoln::HMWSoln(int testProb) :
     m_last_dA_DebyedP_TP(-1.0),
     m_last_dA_DebyedP_TP_T(-1.0),
     m_last_dA_DebyedP_TP_P(-1.0),
+    m_last_P(-1.0),
+    m_last_T(-1.0),
     m_waterSS(0),
     m_densWaterSS(1000.),
     m_waterProps(0),
@@ -1343,6 +1353,28 @@ void HMWSoln::initLengths()
     counterIJ_setup();
 }
 
+bool HMWSoln::cropped_molalities_changed() const
+{
+    if( m_last_cropped_molalities.size() != m_kk ) {
+      m_last_cropped_molalities.resize(m_kk);
+      std::fill(m_last_cropped_molalities.begin(), m_last_cropped_molalities.end(), -1.0);
+    }
+
+    bool result = false;
+    const doublereal tol = 1.e-12;
+    for(size_t k=0; k < m_kk; ++k) {
+        if( std::abs(m_molalitiesCropped[k] - m_last_cropped_molalities[k]) > tol ) {
+          result = true;
+        }
+    }
+
+    if(result) {
+      std::copy( m_molalitiesCropped.begin(), m_molalitiesCropped.end(), m_last_cropped_molalities.begin() );
+    }
+
+    return result;
+}
+
 void HMWSoln::s_update_lnMolalityActCoeff() const
 {
     /*
@@ -1356,6 +1388,20 @@ void HMWSoln::s_update_lnMolalityActCoeff() const
      *  in all activity coefficient calculations.
      */
     calcMolalitiesCropped();
+
+    double T = temperature();
+    double P = pressure();
+    const doublereal tol = 1.e-12;
+    if( std::abs(m_A_Debye - m_last_A_Debye) < tol &&
+        std::abs(T - m_last_T) < tol &&
+        std::abs(P - m_last_P) < tol &&
+        !cropped_molalities_changed() ) {
+      return;
+    }
+    m_last_T = T;
+    m_last_P = P;
+    m_last_A_Debye = m_A_Debye;
+
     /*
      * Calculate the stoichiometric ionic charge. This isn't used in the
      * Pitzer formulation.
