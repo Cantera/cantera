@@ -135,7 +135,10 @@ if os.name == 'nt':
 
 else:
     toolchain = ['default']
-
+#
+#  Go get the environment especially the toolchain which we will use to compile
+#  the code
+#
 env = Environment(tools=toolchain+['textfile', 'subst', 'recursiveInstall', 'wix'],
                   ENV={'PATH': os.environ['PATH']},
                   toolchain=toolchain,
@@ -641,12 +644,22 @@ if env['env_vars'] == 'all':
     if 'PYTHONHOME' in env['ENV']:
         del env['ENV']['PYTHONHOME']
 elif env['env_vars']:
-    for name in env['env_vars'].split(','):
-        if name in os.environ:
+    for name_n in env['env_vars'].split(','):
+        #
+        # Strip name of leading and trailer white space. This is a known error that has led to problems.
+        #
+        name = name_n.strip()
+        print 'name environ lookup is : ', os.environ[name]
+        #
+        # Add name to the saved environment for later use, getting the environmental value
+        # 
+        if name in os.environ :
             env['ENV'][name] = os.environ[name]
         elif name not in defaults.env_vars:
             print 'WARNING: failed to propagate environment variable', name
+            print '         Go back and edit cantera.conf file'
 
+# exit(0)
 env['extra_inc_dirs'] = [d for d in env['extra_inc_dirs'].split(':') if d]
 env['extra_lib_dirs'] = [d for d in env['extra_lib_dirs'].split(':') if d]
 
@@ -1554,3 +1567,8 @@ if any(target.startswith('test') for target in COMMAND_LINE_TARGETS):
         for name in env['testNames']:
             print 'test-%s' % name
         sys.exit(0)
+ 
+
+#import pdb; pdb.set_trace()
+
+

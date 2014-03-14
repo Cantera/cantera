@@ -181,9 +181,27 @@ def addMatlabTest(script, testName, dependencies=None, env_vars=()):
 if localenv['python_package'] in ('full', 'minimal'):
     python_env_vars = {'PYTHONPATH': Dir('#build/python2').abspath,
                        'PYTHON_CMD': localenv.subst('$python_cmd')}
+    #
+    # I guess we need to install the current python installation which is located
+    # within our own build directory in front of the existing PYTHONPATH which
+    # contains locations for numpy and other packages
+    #
+    if 'PYTHONPATH' in env['ENV'] :
+        tmpp = Dir('#build/python2').abspath + ':'+ env['ENV']['PYTHONPATH']
+    else:
+        tmpp = Dir('#build/python2').abspath
+    python_env_vars['PYTHONPATH'] = tmpp
+    # print 'python_env_vars = ', python_env_vars['PYTHONPATH']
+    # import pdb; pdb.set_trace()
+
 elif localenv['python3_package'] == 'y':
     python_env_vars = {'PYTHONPATH': Dir('#build/python3').abspath,
                        'PYTHON_CMD': localenv.subst('$python3_cmd')}
+    if 'PYTHONPATH' in env['ENV'] :
+        tmpp = Dir('#build/python3').abspath + ':'+ env['ENV']['PYTHONPATH']
+    else:
+        tmpp = Dir('#build/python3').abspath
+    python_env_vars['PYTHONPATH'] = tmpp
 else:
     python_env_vars = {} # Tests calling ck2cti or ctml_writer will fail
 
@@ -203,6 +221,16 @@ def make_python_tests(version):
     # tests (test-cython2) for the main suite.
     for subset in python_subtests:
         name = 'cython%i-' %version + subset if subset else 'cython%i' % version
+        #
+        # Need to respect the incoming PYTHONPATH variable and to put the current install
+        # dir in front of PYTHONPATH
+        #
+        if 'PYTHONPATH' in env['ENV']:
+            tmpp =  Dir('#build/python%i' % version).abspath + ":" + env['ENV']['PYTHONPATH']
+        else:
+            tmpp = Dir('#build/python%i' % version).abspath 
+
+
         pyTest = addPythonTest(
             name, 'python', 'runCythonTests.py',
             args=subset,
@@ -211,7 +239,8 @@ def make_python_tests(version):
             dependencies=(localenv['python%i_module' % version] +
                           localenv['python%i_extension' % version] +
                           mglob(localenv, test_root, 'py')),
-            env_vars={'PYTHONPATH':Dir('#build/python%i' % version).abspath},
+            # env_vars={'PYTHONPATH':Dir('#build/python%i' % version).abspath},
+            env_vars={'PYTHONPATH': tmpp },
             optional=bool(subset))
         localenv.Alias('test-' + name, pyTest)
         env['testNames'].append(name)
