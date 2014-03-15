@@ -439,6 +439,65 @@ public:
      */
     virtual doublereal cv_mole() const;
 
+    /**
+     * @returns species translational/rotational specific heat at
+     * constant volume.  Inferred from the species gas
+     * constant and number of translational/rotational
+     * degrees of freedom.  The translational/rotational
+     * modes are assumed to be fully populated, and are
+     * given by
+     * \f[
+     *   C^{tr}_{v,s} \equiv \frac{\partial e^{tr}_s}{\partial T} = \frac{5}{2} R_s
+     * \f]
+     * for diatomic molecules and
+     * \f[
+     *   C^{tr}_{v,s} \equiv \frac{\partial e^{tr}_s}{\partial T} = \frac{3}{2} R_s
+     * \f]
+     * for atoms.
+     */
+    virtual doublereal cv_tr(doublereal) const;
+
+    /**
+     * @returns species translational specific heat at constant volume.
+     * Since the translational modes are assumed to be fully populated
+     * this is simply
+     * \f[
+     *   C^{trans}_{v,s} \equiv \frac{\partial e^{trans}_s}{\partial T} = \frac{3}{2} R_s
+     * \f]
+     */
+    virtual doublereal cv_trans() const;
+
+    /**
+     * @returns species rotational specific heat at constant volume.
+     * By convention, we lump the translational/rotational components
+     * \f[
+     *   C^{tr}_{v,s} \equiv C^{trans}_{v,s} + C^{rot}_{v,s}
+     * \f]
+     * so then
+     * \f[
+     *   C^{rot}_{v,s} \equiv C^{tr}_{v,s} - C^{trans}_{v,s}
+     * \f]
+     */
+    virtual doublereal cv_rot(double atomicity) const;
+
+    /**
+     * @returns species vibrational specific heat at
+     * constant volume,
+     * \f[
+     *     C^{vib}_{v,s} = \frac{\partial e^{vib}_{v,s} }{\partial T}
+     * \f]
+     * where the species vibration energy \f$ e^{vib}_{v,s} \f$ is
+     * - atom:
+     *   0
+     * - Diatomic:
+     *   \f[ \frac{R_s \theta_{v,s}}{e^{\theta_{v,s}/T}-1} \f]
+     * - General Molecule:
+     *   \f[
+     *       \sum_i \frac{R_s \theta_{v,s,i}}{e^{\theta_{v,s,i}/T}-1}
+     *   \f]
+     */
+    virtual doublereal cv_vib(int k, doublereal T) const;
+
     //! @}
     //! @name Mechanical Equation of State
     //! @{

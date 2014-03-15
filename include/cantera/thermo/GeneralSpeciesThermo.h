@@ -12,6 +12,7 @@
 #include "SpeciesThermoMgr.h"
 #include "NasaPoly1.h"
 #include "Nasa9Poly1.h"
+#include "StatMech.h"
 #include "speciesThermoTypes.h"
 
 namespace Cantera
