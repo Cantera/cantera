@@ -17,6 +17,7 @@ using namespace std;
 #include "cantera/thermo/Mu0Poly.h"
 #include "Nasa9PolyMultiTempRegion.h"
 #include "cantera/thermo/Nasa9Poly1.h"
+#include "cantera/thermo/StatMech.h"
 
 #include "cantera/thermo/AdsorbateThermo.h"
 #include "cantera/thermo/SpeciesThermoMgr.h"
@@ -578,6 +579,52 @@ static void installNasa9ThermoFromXML(const std::string& speciesName,
     }
 }
 
+/**
+ * Install a stat mech based property solver
+ * for species k into a SpeciesThermo instance.
+ */
+static void installStatMechThermoFromXML(const std::string& speciesName,
+        SpeciesThermo& sp, int k,
+        const std::vector<XML_Node*>& tp)
+{
+    const XML_Node* fptr = tp[0];
+    int nRegTmp = tp.size();
+    vector_fp cPoly;
+    std::vector<StatMech*> regionPtrs;
+    doublereal tmin = 0.0;
+    doublereal tmax = 0.0; 
+    doublereal pref = OneAtm;
+
+    // Loop over all of the possible temperature regions
+    for (int i = 0; i < nRegTmp; i++) {
+        fptr = tp[i];
+        if (fptr) {
+            if (fptr->name() == "StatMech") {
+                 tmin = fpValue((*fptr)["Tmin"]);
+                 tmax = fpValue((*fptr)["Tmax"]);
+                 if ((*fptr).hasAttrib("P0")) {
+                     pref = fpValue((*fptr)["P0"]);
+                 }
+                 if ((*fptr).hasAttrib("Pref")) {
+                     pref = fpValue((*fptr)["Pref"]);
+                 }
+                 if (fptr->hasChild("floatArray")) {
+                    getFloatArray(fptr->child("floatArray"), cPoly, false);
+                    if (cPoly.size() != 0) {
+                        throw CanteraError("installStatMechThermoFromXML",
+                                           "Expected no coeff: this is not a polynomial representation");
+                    }
+                }
+            }
+        }
+    }
+    // set properties
+    tmin = 0.1;
+    vector_fp coeffs(1);
+    coeffs[0] = 0.0;
+    (&sp)->install(speciesName, k, STAT, &coeffs[0], tmin, tmax, pref);
+}
+
 //! Install a Adsorbate polynomial thermodynamic property parameterization for species k into a SpeciesThermo instance.
 /*!
  * This is called by method installThermoForSpecies if a Adsorbate block is found in the XML input.
@@ -665,6 +712,8 @@ void SpeciesThermoFactory::installThermoForSpecies
                 installMu0ThermoFromXML(speciesNode["name"], spthermo, k, f);
             } else if (f->name() == "NASA9") {
                 installNasa9ThermoFromXML(speciesNode["name"], spthermo, k, tp);
+            } else if (f->name() == "StatMech") {
+                installStatMechThermoFromXML(speciesNode["name"], spthermo, k, tp);
             } else if (f->name() == "adsorbate") {
                 installAdsorbateThermoFromXML(speciesNode["name"], spthermo, k, *f);
             } else {
@@ -678,6 +727,8 @@ void SpeciesThermoFactory::installThermoForSpecies
                 installNasaThermoFromXML(speciesNode["name"], spthermo, k, f0, f1);
             } else if (f0->name() == "Shomate" && f1->name() == "Shomate") {
                 installShomateThermoFromXML(speciesNode["name"], spthermo, k, f0, f1);
+            } else if (f0->name() == "StatMech") {
+                installStatMechThermoFromXML(speciesNode["name"], spthermo, k, tp);
             } else if (f0->name() == "NASA9" && f1->name() == "NASA9") {
                 installNasa9ThermoFromXML(speciesNode["name"], spthermo, k, tp);
             } else {
@@ -688,6 +739,8 @@ void SpeciesThermoFactory::installThermoForSpecies
             const XML_Node* f0 = tp[0];
             if (f0->name() == "NASA9") {
                 installNasa9ThermoFromXML(speciesNode["name"], spthermo, k, tp);
+            } else if (f0->name() == "StatMech") {
+                installStatMechThermoFromXML(speciesNode["name"], spthermo, k, tp);
             } else {
                 throw UnknownSpeciesThermoModel("installThermoForSpecies", speciesNode["name"],
                                                 "multiple");

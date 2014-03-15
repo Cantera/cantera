@@ -1,0 +1,11 @@
+
+
+************************************************
+                   Cantera Error!                  
+************************************************
+
+
+Procedure: installStatMechThermoFromXML
+Error:     Expected no coeff: this is not a polynomial representation
+
+

@@ -58,6 +58,10 @@
 //! This is implemented in the class Nasa9PolyMultiTempRegion in Nasa9Poly1MultiTempRegion
 #define NASA9MULTITEMP  513
 
+//! Properties derived from theoretical considerations
+//! This is implemented in the class statmech in StatMech.h
+#define STAT  111
+
 //! Surface Adsorbate Model for a species on a surface.
 //! This is implemented in the class Adsorbate.
 #define ADSORBATE 1024

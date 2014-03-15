@@ -1,0 +1,23 @@
+
+
+************************************************
+                   Cantera Error!                  
+************************************************
+
+
+Procedure: StatMech.cpp
+Error:     species properties not found!. 
+
+
+
+Procedure: StatMech.cpp
+Error:     species properties not found!. 
+
+
+
+Procedure: StatMech.cpp
+Error:     species properties not found!. 
+
+
+
+

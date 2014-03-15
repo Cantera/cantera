@@ -145,6 +145,11 @@ void GeneralSpeciesThermo::install(const std::string& name,
                                     refPressure_, c);
         break;
 
+    case STAT:
+        m_sp[index] = new StatMech(index, minTemp_, maxTemp_,
+                                   refPressure_, c, name);
+        break;
+
     case ADSORBATE:
         m_sp[index] = new Adsorbate(index, minTemp_, maxTemp_,
                                     refPressure_, c);

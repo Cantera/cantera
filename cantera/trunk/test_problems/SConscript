@@ -297,6 +297,7 @@ if haveConverters:
     Test('negA-cti', 'negATest', negA, 'negATest_blessed.out',
          options='noxNeg.cti', artifacts=negA_name)
 
+CompileAndTest('pecosTransport', 'PecosTransport', 'pecosTransport', 'output_blessed.txt')
 CompileAndTest('printUtil', 'printUtilUnitTest', 'pUtest', 'output_blessed.txt')
 CompileAndTest('pureFluid', 'pureFluidTest', 'testPureWater', 'output_blessed.txt')
 if haveConverters:
@@ -307,6 +308,16 @@ CompileAndTest('simpleTransport', 'simpleTransport', 'simpleTransport',
                'output_blessed.txt')
 CompileAndTest('stoichSolidKinetics', 'stoichSolidKinetics',
                'stoichSolidKinetics', 'output_blessed.txt')
+CompileAndTest('statmech_test', 'statmech_test',
+               'statmech_test', 'output_blessed.txt')
+CompileAndTest('statmech_properties', 'statmech_properties',
+               'statmech_properties', 'output_blessed.txt')
+CompileAndTest('statmech_test_poly', 'statmech_test_poly',
+               'statmech_test_poly', 'output_blessed.txt')
+CompileAndTest('statmech_transport', 'statmech_transport',
+               'statmech_transport', 'output_blessed.txt')
+CompileAndTest('statmech_test_Fe', 'statmech',
+               'statmech_test_Fe', 'output_blessed.txt')
 CompileAndTest('surfkin', 'surfkin', 'surfdemo', 'output_blessed.txt')
 CompileAndTest('surfSolver', 'surfSolverTest', 'surfaceSolver', None,
                arguments='haca2.xml',
