@@ -2,10 +2,9 @@
 Copyright (c) 2001-2009, California Institute of Technology
 All rights reserved.
 
-Copyright (c) 2009, 2011, Sandia Corporation. Under the terms of 
+Copyright (c) 2009 Sandia Corporation. Under the terms of 
 Contract AC04-94AL85000 with Sandia Corporation, the U.S. Government 
-retains certain rights to certain parts of this software.
-All rights reserved.
+retains certain rights in this software.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are
