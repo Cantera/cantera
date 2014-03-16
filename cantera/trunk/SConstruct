@@ -649,7 +649,6 @@ elif env['env_vars']:
         # Strip name of leading and trailer white space. This is a known error that has led to problems.
         #
         name = name_n.strip()
-        print 'name environ lookup is : ', os.environ[name]
         #
         # Add name to the saved environment for later use, getting the environmental value
         # 
@@ -659,7 +658,6 @@ elif env['env_vars']:
             print 'WARNING: failed to propagate environment variable', name
             print '         Go back and edit cantera.conf file'
 
-# exit(0)
 env['extra_inc_dirs'] = [d for d in env['extra_inc_dirs'].split(':') if d]
 env['extra_lib_dirs'] = [d for d in env['extra_lib_dirs'].split(':') if d]
 
