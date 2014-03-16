@@ -15,7 +15,7 @@ echo " "
 CANTERA_DATA=${CANTERA_DATA:=../../data/inputs}; export CANTERA_DATA
 
 CANTERA_BIN=${CANTERA_BIN:=../../bin}
-../../examples/cxx/cxx_examples > cxx_examples.out
+cxx_examples > cxx_examples.out
 retnStat=$?
 if [ $retnStat != "0" ]
 then
@@ -27,7 +27,9 @@ fi
 #
 # Machine dependent blessed files require knowing the machType
 #
-machType=`../../bin/get_arch`
+#machType=`../../bin/get_arch`
+machType='linux'
+
 
 #################################################################
 #
@@ -139,34 +141,34 @@ else
 fi
 
 #################################################################
-# kin2 test -> check for compliance
+# kin3 test -> check for compliance
 #################################################################
 #
-# Currently kin2 is creating a machine dependent result:
+# Currently kin3 is creating a machine dependent result:
 # -> difference is in one time in minor components during the middle
 #    of a large change.
 #
-cp  kin2_blessed.csv  kin2_blessed_tmp.csv
+cp  kin3_blessed.csv  kin3_blessed_tmp.csv
 if test x"$machType" = "xcygwin" ; then
-  /bin/cp  kin2_blessed_win.csv   kin2_blessed_tmp.csv
+  /bin/cp  kin3_blessed_win.csv   kin3_blessed_tmp.csv
 fi
 
-$CANTERA_BIN/csvdiff kin2.csv kin2_blessed_tmp.csv > kin2_test.out
+$CANTERA_BIN/csvdiff kin3.csv kin3_blessed_tmp.csv > kin3_test.out
 retnStat=$?
 if [ $retnStat = "0" ]
 then
-  echo "successful csv comparison on kin2 test"
+  echo "successful csv comparison on kin3 test"
   if [ $temp_success = "1" ]
   then
     echo "PASSED" > csvCode.txt
   fi
 else
   echo "########################################################"
-  echo "unsuccessful csv comparison on kin2 test"
+  echo "unsuccessful csv comparison on kin3 test"
   echo "   For more information, see files:"
-  echo "       test_problems/cxx_ex/kin2_test.out"
-  echo "       test_problems/cxx_ex/kin2.csv"
-  echo "       test_problems/cxx_ex/kin2_blessed_tmp.csv"
+  echo "       test_problems/cxx_ex/kin3_test.out"
+  echo "       test_problems/cxx_ex/kin3.csv"
+  echo "       test_problems/cxx_ex/kin3_blessed_tmp.csv"
   echo "########################################################"
   echo "FAILED" > csvCode.txt
   temp_success="0"
