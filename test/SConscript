@@ -98,15 +98,18 @@ def addPythonTest(testname, subdir, script, interpreter, outfile,
         if not code:
             # Test was successful
             open(target[0].path, 'w').write(time.asctime()+'\n')
-        else:
-            testResults.failed[testname] = True
 
-        for line in open(outfile):
-            status, name = line.strip().split(': ', 1)
-            if status == 'PASS':
-                testResults.passed[':'.join((testname,name))] = 1
-            elif status in ('FAIL', 'ERROR'):
-                testResults.failed[':'.join((testname,name))] = 1
+        if os.path.exists(outfile):
+            # Determine individual test status
+            for line in open(outfile):
+                status, name = line.strip().split(': ', 1)
+                if status == 'PASS':
+                    testResults.passed[':'.join((testname,name))] = 1
+                elif status in ('FAIL', 'ERROR'):
+                    testResults.failed[':'.join((testname,name))] = 1
+        else:
+            # Total failure - unable to determine status of individual tests
+            testResults.failed[testname] = True
 
     testenv = localenv.Clone()
     passedFile = File(pjoin(subdir, '%s.passed' % testname))
