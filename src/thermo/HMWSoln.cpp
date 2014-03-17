@@ -30,6 +30,7 @@ namespace Cantera
 
 HMWSoln::HMWSoln() :
     MolalityVPSSTP(),
+    m_density_valid(false),
     m_formPitzer(PITZERFORM_BASE),
     m_formPitzerTemp(PITZER_TEMP_CONSTANT),
     m_formGC(2),
@@ -73,10 +74,10 @@ HMWSoln::HMWSoln() :
     CROP_ln_gamma_o_max(3.0),
     CROP_ln_gamma_k_min(-5.0),
     CROP_ln_gamma_k_max(15.0),
-    s_update_lnMolalityActCoeff_valid(false),
-    s_update_dlnMolalityActCoeff_dT_valid(false),
-    s_update_d2lnMolalityActCoeff_dT2_valid(false),
-    s_update_dlnMolalityActCoeff_dP_valid(false),
+    m_s_update_lnMolalityActCoeff_valid(false),
+    m_s_update_dlnMolalityActCoeff_dT_valid(false),
+    m_s_update_d2lnMolalityActCoeff_dT2_valid(false),
+    m_s_update_dlnMolalityActCoeff_dP_valid(false),
     m_last_is(-1.0),
     m_debugCalc(0)
 {
@@ -88,6 +89,7 @@ HMWSoln::HMWSoln() :
 
 HMWSoln::HMWSoln(const std::string& inputFile, const std::string& id_) :
     MolalityVPSSTP(),
+    m_density_valid(false),
     m_formPitzer(PITZERFORM_BASE),
     m_formPitzerTemp(PITZER_TEMP_CONSTANT),
     m_formGC(2),
@@ -131,10 +133,10 @@ HMWSoln::HMWSoln(const std::string& inputFile, const std::string& id_) :
     CROP_ln_gamma_o_max(3.0),
     CROP_ln_gamma_k_min(-5.0),
     CROP_ln_gamma_k_max(15.0),
-    s_update_lnMolalityActCoeff_valid(false),
-    s_update_dlnMolalityActCoeff_dT_valid(false),
-    s_update_d2lnMolalityActCoeff_dT2_valid(false),
-    s_update_dlnMolalityActCoeff_dP_valid(false),
+    m_s_update_lnMolalityActCoeff_valid(false),
+    m_s_update_dlnMolalityActCoeff_dT_valid(false),
+    m_s_update_d2lnMolalityActCoeff_dT2_valid(false),
+    m_s_update_dlnMolalityActCoeff_dP_valid(false),
     m_last_is(-1.0),
     m_debugCalc(0)
 {
@@ -147,6 +149,7 @@ HMWSoln::HMWSoln(const std::string& inputFile, const std::string& id_) :
 
 HMWSoln::HMWSoln(XML_Node& phaseRoot, const std::string& id_) :
     MolalityVPSSTP(),
+    m_density_valid(false),
     m_formPitzer(PITZERFORM_BASE),
     m_formPitzerTemp(PITZER_TEMP_CONSTANT),
     m_formGC(2),
@@ -190,10 +193,10 @@ HMWSoln::HMWSoln(XML_Node& phaseRoot, const std::string& id_) :
     CROP_ln_gamma_o_max(3.0),
     CROP_ln_gamma_k_min(-5.0),
     CROP_ln_gamma_k_max(15.0),
-    s_update_lnMolalityActCoeff_valid(false),
-    s_update_dlnMolalityActCoeff_dT_valid(false),
-    s_update_d2lnMolalityActCoeff_dT2_valid(false),
-    s_update_dlnMolalityActCoeff_dP_valid(false),
+    m_s_update_lnMolalityActCoeff_valid(false),
+    m_s_update_dlnMolalityActCoeff_dT_valid(false),
+    m_s_update_d2lnMolalityActCoeff_dT2_valid(false),
+    m_s_update_dlnMolalityActCoeff_dP_valid(false),
     m_last_is(-1.0),
     m_debugCalc(0)
 {
@@ -206,6 +209,7 @@ HMWSoln::HMWSoln(XML_Node& phaseRoot, const std::string& id_) :
 
 HMWSoln::HMWSoln(const HMWSoln& b) :
     MolalityVPSSTP(),
+    m_density_valid(false),
     m_formPitzer(PITZERFORM_BASE),
     m_formPitzerTemp(PITZER_TEMP_CONSTANT),
     m_formGC(2),
@@ -249,10 +253,10 @@ HMWSoln::HMWSoln(const HMWSoln& b) :
     CROP_ln_gamma_o_max(3.0),
     CROP_ln_gamma_k_min(-5.0),
     CROP_ln_gamma_k_max(15.0),
-    s_update_lnMolalityActCoeff_valid(false),
-    s_update_dlnMolalityActCoeff_dT_valid(false),
-    s_update_d2lnMolalityActCoeff_dT2_valid(false),
-    s_update_dlnMolalityActCoeff_dP_valid(false),
+    m_s_update_lnMolalityActCoeff_valid(false),
+    m_s_update_dlnMolalityActCoeff_dT_valid(false),
+    m_s_update_d2lnMolalityActCoeff_dT2_valid(false),
+    m_s_update_dlnMolalityActCoeff_dP_valid(false),
     m_last_is(-1.0),
     m_debugCalc(0)
 {
@@ -424,6 +428,7 @@ operator=(const HMWSoln& b)
 
 HMWSoln::HMWSoln(int testProb) :
     MolalityVPSSTP(),
+    m_density_valid(false),
     m_formPitzer(PITZERFORM_BASE),
     m_formPitzerTemp(PITZER_TEMP_CONSTANT),
     m_formGC(2),
@@ -467,10 +472,10 @@ HMWSoln::HMWSoln(int testProb) :
     CROP_ln_gamma_o_max(3.0),
     CROP_ln_gamma_k_min(-5.0),
     CROP_ln_gamma_k_max(15.0),
-    s_update_lnMolalityActCoeff_valid(false),
-    s_update_dlnMolalityActCoeff_dT_valid(false),
-    s_update_d2lnMolalityActCoeff_dT2_valid(false),
-    s_update_dlnMolalityActCoeff_dP_valid(false),
+    m_s_update_lnMolalityActCoeff_valid(false),
+    m_s_update_dlnMolalityActCoeff_dT_valid(false),
+    m_s_update_d2lnMolalityActCoeff_dT2_valid(false),
+    m_s_update_dlnMolalityActCoeff_dP_valid(false),
     m_last_is(-1.0),
     m_debugCalc(0)
 {
@@ -716,6 +721,10 @@ void HMWSoln::setPressure(doublereal p)
 
 void HMWSoln::calcDensity()
 {
+    if( m_density_valid ) {
+        return;
+    }
+    m_density_valid = true;
     double* vbar = &m_pp[0];
     getPartialMolarVolumes(vbar);
     double* x = &m_tmpV[0];
@@ -775,13 +784,17 @@ void HMWSoln::setState_TP(doublereal temp, doublereal pres)
     /*
      * Store the current pressure
      */
-    m_Pcurrent = pres;
+    if(m_Pcurrent != pres) {
+      m_Pcurrent = pres;
+      invalidateCachedDataOnStateChange(PRESSURE);
+    }
 
     /*
      * update the standard state thermo
      * -> This involves calling the water function and setting the pressure
      */
     updateStandardStateThermo();
+
     /*
      * Store the internal density of the water SS.
      * Note, we would have to do this for all other
@@ -1359,10 +1372,10 @@ void HMWSoln::initLengths()
 
 void HMWSoln::s_update_lnMolalityActCoeff() const
 {
-    if(s_update_lnMolalityActCoeff_valid) {
+    if(m_s_update_lnMolalityActCoeff_valid) {
       return;
     }
-    s_update_lnMolalityActCoeff_valid = true;
+    m_s_update_lnMolalityActCoeff_valid = true;
 
     /*
      * Calculate the molalities. Currently, the molalities
@@ -2944,10 +2957,10 @@ s_updatePitzer_lnMolalityActCoeff() const
 
 void HMWSoln::s_update_dlnMolalityActCoeff_dT() const
 {
-    if(s_update_dlnMolalityActCoeff_dT_valid) {
+    if(m_s_update_dlnMolalityActCoeff_dT_valid) {
       return;
     }
-    s_update_dlnMolalityActCoeff_dT_valid = true;
+    m_s_update_dlnMolalityActCoeff_dT_valid = true;
 
     /*
      *  Zero the unscaled 2nd derivatives
@@ -3798,10 +3811,10 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dT() const
 
 void HMWSoln::s_update_d2lnMolalityActCoeff_dT2() const
 {
-    if(s_update_d2lnMolalityActCoeff_dT2_valid) {
+    if(m_s_update_d2lnMolalityActCoeff_dT2_valid) {
       return;
     }
-    s_update_d2lnMolalityActCoeff_dT2_valid = true;
+    m_s_update_d2lnMolalityActCoeff_dT2_valid = true;
 
     /*
      *  Zero the unscaled 2nd derivatives
@@ -4657,10 +4670,10 @@ void HMWSoln::s_updatePitzer_d2lnMolalityActCoeff_dT2() const
 
 void HMWSoln::s_update_dlnMolalityActCoeff_dP() const
 {
-    if(s_update_dlnMolalityActCoeff_dP_valid) {
+    if(m_s_update_dlnMolalityActCoeff_dP_valid) {
       return;
     }
-    s_update_dlnMolalityActCoeff_dP_valid = true;
+    m_s_update_dlnMolalityActCoeff_dP_valid = true;
     m_dlnActCoeffMolaldP_Unscaled.assign(m_kk, 0.0);
     s_updatePitzer_dlnMolalityActCoeff_dP();
 
@@ -5884,10 +5897,11 @@ void HMWSoln::invalidateCachedDataOnStateChange(StateVariable changed_var)
       m_A_Debye_valid = false;
       m_dA_DebyedP_TP_valid = false;
     }
-    s_update_lnMolalityActCoeff_valid = false;
-    s_update_dlnMolalityActCoeff_dT_valid = false;
-    s_update_d2lnMolalityActCoeff_dT2_valid = false;
-    s_update_dlnMolalityActCoeff_dP_valid = false;
+    m_density_valid = false;
+    m_s_update_lnMolalityActCoeff_valid = false;
+    m_s_update_dlnMolalityActCoeff_dT_valid = false;
+    m_s_update_d2lnMolalityActCoeff_dT2_valid = false;
+    m_s_update_dlnMolalityActCoeff_dP_valid = false;
     MolalityVPSSTP::invalidateCachedDataOnStateChange(changed_var);
 }
 

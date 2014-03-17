@@ -1487,6 +1487,7 @@ protected:
      *       member of the ThermoPhase base class.
      */
     void calcDensity();
+    mutable bool m_density_valid;
 
 public:
     //! Returns the current value of the density
@@ -3172,7 +3173,7 @@ private:
      * natural logarithm of the molality activity coefficients
      */
     void s_update_lnMolalityActCoeff() const;
-    mutable bool s_update_lnMolalityActCoeff_valid;
+    mutable bool m_s_update_lnMolalityActCoeff_valid;
 
     //! This function calculates the temperature derivative of the
     //! natural logarithm of the molality activity coefficients.
@@ -3181,7 +3182,7 @@ private:
      * coefficient is on the molality scale. It's derivative is too.
      */
     void s_update_dlnMolalityActCoeff_dT() const;
-    mutable bool s_update_dlnMolalityActCoeff_dT_valid;
+    mutable bool m_s_update_dlnMolalityActCoeff_dT_valid;
 
     /**
      * This function calculates the temperature second derivative
@@ -3189,7 +3190,7 @@ private:
      * coefficients.
      */
     void s_update_d2lnMolalityActCoeff_dT2() const;
-    mutable bool s_update_d2lnMolalityActCoeff_dT2_valid;
+    mutable bool m_s_update_d2lnMolalityActCoeff_dT2_valid;
 
     /**
      * This function calculates the pressure derivative of the
@@ -3198,7 +3199,7 @@ private:
      * Assumes that the activity coefficients are current.
      */
     void s_update_dlnMolalityActCoeff_dP() const;
-    mutable bool s_update_dlnMolalityActCoeff_dP_valid;
+    mutable bool m_s_update_dlnMolalityActCoeff_dP_valid;
 
     //! This function will be called to update the internally stored
     //! natural logarithm of the molality activity coefficients
