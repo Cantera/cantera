@@ -503,7 +503,8 @@ config_options = [
         'Directory containing the Boost.Thread library.',
         defaults.boostLibDir, PathVariable.PathAccept),
     ('boost_thread_lib',
-     'The name of the Boost.Thread library.',
+     """A comma-separated list containing the names of the libraries needed to
+        link to Boost.Thread.""",
      'boost_thread'),
     ('boost_windows_libs',
      """Comma-separated list containing the names of the Boost libraries
@@ -1182,7 +1183,7 @@ env['boost_libs'] = []
 if env['build_thread_safe']:
     env['use_boost_libs'] = True
     if env['CC'] != 'cl':
-        env['boost_libs'].append(env['boost_thread_lib'])
+        env['boost_libs'].extend(listify(env['boost_thread_lib']))
 else:
     env['use_boost_libs'] = False
 
