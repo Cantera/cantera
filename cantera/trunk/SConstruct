@@ -135,10 +135,7 @@ if os.name == 'nt':
 
 else:
     toolchain = ['default']
-#
-#  Go get the environment especially the toolchain which we will use to compile
-#  the code
-#
+
 env = Environment(tools=toolchain+['textfile', 'subst', 'recursiveInstall', 'wix'],
                   ENV={'PATH': os.environ['PATH']},
                   toolchain=toolchain,
@@ -644,19 +641,12 @@ if env['env_vars'] == 'all':
     if 'PYTHONHOME' in env['ENV']:
         del env['ENV']['PYTHONHOME']
 elif env['env_vars']:
-    for name_n in env['env_vars'].split(','):
-        #
-        # Strip name of leading and trailer white space. This is a known error that has led to problems.
-        #
-        name = name_n.strip()
-        #
-        # Add name to the saved environment for later use, getting the environmental value
-        # 
-        if name in os.environ :
+    for name in listify(env['env_vars']):
+        if name in os.environ:
             env['ENV'][name] = os.environ[name]
         elif name not in defaults.env_vars:
-            print 'WARNING: failed to propagate environment variable', name
-            print '         Go back and edit cantera.conf file'
+            print 'WARNING: failed to propagate environment variable', repr(name)
+            print '         Edit cantera.conf or the build command line to fix this.'
 
 env['extra_inc_dirs'] = [d for d in env['extra_inc_dirs'].split(':') if d]
 env['extra_lib_dirs'] = [d for d in env['extra_lib_dirs'].split(':') if d]
@@ -876,6 +866,11 @@ if env['python_package'] == 'new':
 warnNoPython = False
 
 if env['python_package'] in ('full','default'):
+    # The directory within the source tree which will contain the Python 2 module
+    env['pythonpath_build2'] = Dir('build/python2').abspath
+    if 'PYTHONPATH' in env['ENV']:
+        env['pythonpath_build2'] += os.path.pathsep + env['ENV']['PYTHONPATH']
+
     # Check for Cython:
     try:
         import Cython
@@ -946,6 +941,11 @@ else:
 
 # Python 3 Package Settings
 if env['python3_package'] in ('y', 'default'):
+    # The directory within the source tree which will contain the Python 3 module
+    env['pythonpath_build3'] = Dir('build/python3').abspath
+    if 'PYTHONPATH' in env['ENV']:
+        env['pythonpath_build3'] += os.path.pathsep + env['ENV']['PYTHONPATH']
+
     # See if we can execute the Python 3 interpreter
     try:
         script = '\n'.join(("from distutils.sysconfig import *",
@@ -1565,8 +1565,3 @@ if any(target.startswith('test') for target in COMMAND_LINE_TARGETS):
         for name in env['testNames']:
             print 'test-%s' % name
         sys.exit(0)
- 
-
-#import pdb; pdb.set_trace()
-
-

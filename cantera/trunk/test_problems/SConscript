@@ -6,33 +6,11 @@ localenv.Prepend(CPPPATH=['#include', '#src', 'shared'])
 localenv.Append(CCFLAGS=env['warning_flags'])
 
 if localenv['python_package'] in ('full', 'minimal'):
-    tmp1  = pjoin(os.getcwd(), '..', 'build', 'python2')
-    #
-    # I guess we need to install the current python installation which is located
-    # within our own build directory in front of the existing PYTHONPATH which
-    # contains locations for numpy and other packages
-    #
-    if 'PYTHONPATH' in env['ENV'] :
-        tmpp = tmp1 + ':' + env['ENV']['PYTHONPATH']
-    else:
-        tmpp = tmp1
-
-    localenv['ENV']['PYTHONPATH'] = tmpp
+    localenv['ENV']['PYTHONPATH'] = localenv['pythonpath_build2']
     localenv['ENV']['PYTHON_CMD'] = localenv.subst('$python_cmd')
     haveConverters = True
 elif localenv['python3_package'] == 'y':
-    tmp1  = pjoin(os.getcwd(), '..', 'build', 'python3')
-    #
-    # I guess we need to install the current python installation which is located
-    # within our own build directory in front of the existing PYTHONPATH which
-    # contains locations for numpy and other packages
-    #
-    if 'PYTHONPATH' in env['ENV'] :
-        tmpp = tmp1 + ':' + env['ENV']['PYTHONPATH']
-    else:
-        tmpp = tmp1
-
-    localenv['ENV']['PYTHONPATH'] = tmpp
+    localenv['ENV']['PYTHONPATH'] = localenv['pythonpath_build3']
     localenv['ENV']['PYTHON_CMD'] = localenv.subst('$python3_cmd')
     haveConverters = True
 else:
