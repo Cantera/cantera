@@ -62,7 +62,12 @@ if 'clean' in COMMAND_LINE_TARGETS:
         if name.startswith('ctmethods.'):
             removeFile('interfaces/matlab/toolbox/' + name)
     print 'Done removing output files.'
-    sys.exit(0)
+
+    if COMMAND_LINE_TARGETS == ['clean']:
+        # Just exit if there's nothing else to do
+        sys.exit(0)
+    else:
+        Alias('clean', [])
 
 # ******************************************************
 # *** Set system-dependent defaults for some options ***
