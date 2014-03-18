@@ -275,9 +275,6 @@ public:
 
     void set_h_mix(const doublereal hmix) { h_mixing = hmix; }
 
-protected:
-    void invalidateCachedDataOnStateChange(StateVariable changed_var);
-
 private:
     /**
      * Value of the reference pressure for all species in this phase.
@@ -299,11 +296,6 @@ private:
      * m_cp0_R, m_g0_RT, m_s0_R.
      */
     void _updateThermo() const;
-    mutable bool m_updateThermo_valid;
-
-    //! Vector containing the last computed activity coefficients at T = m_tlast and r = last_r
-    mutable std::vector<doublereal> m_activity_coeffs;
-    mutable bool m_activity_coeffs_valid;
 
     //! Vector containing the species reference enthalpies at T = m_tlast
     mutable vector_fp      m_h0_RT;
