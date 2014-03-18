@@ -1637,6 +1637,10 @@ void HMWSoln::s_updatePitzer_CoeffWRTemp(int doDerivs) const
     const double* CphiMX_coeff;
     const double* Theta_coeff;
     double T = temperature();
+    const double twoT = 2.0 * T;
+    const double invT = 1.0 / T;
+    const double invT2 = invT * invT;
+    const double twoinvT3 = 2.0 * invT * invT2;
     double Tr = m_TempPitzerRef;
     double tinv = 0.0, tln = 0.0, tlin = 0.0, tquad = 0.0;
     if (m_formPitzerTemp == PITZER_TEMP_LINEAR) {
@@ -1726,56 +1730,56 @@ void HMWSoln::s_updatePitzer_CoeffWRTemp(int doDerivs) const
                                         + Theta_coeff[4]*tln;
 
                 m_Beta0MX_ij_L[counterIJ] =  beta0MX_coeff[1]
-                                             + beta0MX_coeff[2]*2.0*T
-                                             - beta0MX_coeff[3]/(T*T)
-                                             + beta0MX_coeff[4]/T;
+                                             + beta0MX_coeff[2]*twoT
+                                             - beta0MX_coeff[3]*invT2
+                                             + beta0MX_coeff[4]*invT;
 
                 m_Beta1MX_ij_L[counterIJ] =  beta1MX_coeff[1]
-                                             + beta1MX_coeff[2]*2.0*T
-                                             - beta1MX_coeff[3]/(T*T)
-                                             + beta1MX_coeff[4]/T;
+                                             + beta1MX_coeff[2]*twoT
+                                             - beta1MX_coeff[3]*invT2
+                                             + beta1MX_coeff[4]*invT;
 
                 m_Beta2MX_ij_L[counterIJ] =  beta2MX_coeff[1]
-                                             + beta2MX_coeff[2]*2.0*T
-                                             - beta2MX_coeff[3]/(T*T)
-                                             + beta2MX_coeff[4]/T;
+                                             + beta2MX_coeff[2]*twoT
+                                             - beta2MX_coeff[3]*invT2
+                                             + beta2MX_coeff[4]*invT;
 
                 m_CphiMX_ij_L[counterIJ] =  CphiMX_coeff[1]
-                                            + CphiMX_coeff[2]*2.0*T
-                                            - CphiMX_coeff[3]/(T*T)
-                                            + CphiMX_coeff[4]/T;
+                                            + CphiMX_coeff[2]*twoT
+                                            - CphiMX_coeff[3]*invT2
+                                            + CphiMX_coeff[4]*invT;
 
                 m_Theta_ij_L[counterIJ] =   Theta_coeff[1]
-                                            + Theta_coeff[2]*2.0*T
-                                            - Theta_coeff[3]/(T*T)
-                                            + Theta_coeff[4]/T;
+                                            + Theta_coeff[2]*twoT
+                                            - Theta_coeff[3]*invT2
+                                            + Theta_coeff[4]*invT;
 
                 doDerivs = 2;
                 if (doDerivs > 1) {
                     m_Beta0MX_ij_LL[counterIJ] =
                         + beta0MX_coeff[2]*2.0
-                        + 2.0*beta0MX_coeff[3]/(T*T*T)
-                        - beta0MX_coeff[4]/(T*T);
+                        + beta0MX_coeff[3]*twoinvT3
+                        - beta0MX_coeff[4]*invT2;
 
                     m_Beta1MX_ij_LL[counterIJ] =
                         + beta1MX_coeff[2]*2.0
-                        + 2.0*beta1MX_coeff[3]/(T*T*T)
-                        - beta1MX_coeff[4]/(T*T);
+                        + beta1MX_coeff[3]*twoinvT3
+                        - beta1MX_coeff[4]*invT2;
 
                     m_Beta2MX_ij_LL[counterIJ] =
                         + beta2MX_coeff[2]*2.0
-                        + 2.0*beta2MX_coeff[3]/(T*T*T)
-                        - beta2MX_coeff[4]/(T*T);
+                        + beta2MX_coeff[3]*twoinvT3
+                        - beta2MX_coeff[4]*invT2;
 
                     m_CphiMX_ij_LL[counterIJ] =
                         + CphiMX_coeff[2]*2.0
-                        + 2.0*CphiMX_coeff[3]/(T*T*T)
-                        - CphiMX_coeff[4]/(T*T);
+                        + CphiMX_coeff[3]*twoinvT3
+                        - CphiMX_coeff[4]*invT2;
 
                     m_Theta_ij_LL[counterIJ] =
                         + Theta_coeff[2]*2.0
-                        + 2.0*Theta_coeff[3]/(T*T*T)
-                        - Theta_coeff[4]/(T*T);
+                        + Theta_coeff[3]*twoinvT3
+                        - Theta_coeff[4]*invT2;
                 }
 
 #ifdef DEBUG_HKM
@@ -1819,14 +1823,14 @@ void HMWSoln::s_updatePitzer_CoeffWRTemp(int doDerivs) const
                                        + Lambda_coeff[4]*tln;
 
                     m_Lambda_nj_L(i,j) = Lambda_coeff[1]
-                                         + Lambda_coeff[2]*2.0*T
-                                         - Lambda_coeff[3]/(T*T)
-                                         + Lambda_coeff[4]/T;
+                                         + Lambda_coeff[2]*twoT
+                                         - Lambda_coeff[3]*invT2
+                                         + Lambda_coeff[4]*invT;
 
                     m_Lambda_nj_LL(i,j) =
                         Lambda_coeff[2]*2.0
-                        + 2.0*Lambda_coeff[3]/(T*T*T)
-                        - Lambda_coeff[4]/(T*T);
+                        + Lambda_coeff[3]*twoinvT3
+                        - Lambda_coeff[4]*invT2;
                 }
 
                 if (j == i) {
@@ -1848,57 +1852,70 @@ void HMWSoln::s_updatePitzer_CoeffWRTemp(int doDerivs) const
                                       + Mu_coeff[4]*tln;
 
                         m_Mu_nnn_L[i] = Mu_coeff[1]
-                                        + Mu_coeff[2]*2.0*T
-                                        - Mu_coeff[3]/(T*T)
-                                        + Mu_coeff[4]/T;
+                                        + Mu_coeff[2]*twoT
+                                        - Mu_coeff[3]*invT2
+                                        + Mu_coeff[4]*invT;
 
                         m_Mu_nnn_LL[i] =
                             Mu_coeff[2]*2.0
-                            + 2.0*Mu_coeff[3]/(T*T*T)
-                            - Mu_coeff[4]/(T*T);
+                            + Mu_coeff[3]*twoinvT3
+                            - Mu_coeff[4]*invT2;
                     }
                 }
             }
         }
     }
 
-    const double twoT = 2.0 * T;
-    const double invT = 1.0 / T;
-    const double invT2 = invT * invT;
-    const double twoinvT3 = 2.0 * invT * invT2;
-    for (i = 1; i < m_kk; i++) {
-        for (j = 1; j < m_kk; j++) {
-            for (size_t k = 1; k < m_kk; k++) {
-                n = i * m_kk *m_kk + j * m_kk + k ;
-                const double* Psi_coeff = m_Psi_ijk_coeff.ptrColumn(n);
-                switch (m_formPitzerTemp) {
-                case PITZER_TEMP_CONSTANT:
-                    m_Psi_ijk[n] = Psi_coeff[0];
-                    break;
-                case PITZER_TEMP_LINEAR:
-                    m_Psi_ijk[n]      = Psi_coeff[0] + Psi_coeff[1]*tlin;
-                    m_Psi_ijk_L[n]    = Psi_coeff[1];
-                    m_Psi_ijk_LL[n]   = 0.0;
-                    break;
-                case PITZER_TEMP_COMPLEX1:
-                    m_Psi_ijk[n] = Psi_coeff[0]
-                                   + Psi_coeff[1]*tlin
-                                   + Psi_coeff[2]*tquad
-                                   + Psi_coeff[3]*tinv
-                                   + Psi_coeff[4]*tln;
+    switch(m_formPitzerTemp) {
+    case PITZER_TEMP_CONSTANT:
+      for (i = 1; i < m_kk; i++) {
+          for (j = 1; j < m_kk; j++) {
+              for (size_t k = 1; k < m_kk; k++) {
+                  n = i * m_kk *m_kk + j * m_kk + k ;
+                  const double* Psi_coeff = m_Psi_ijk_coeff.ptrColumn(n);
+                  m_Psi_ijk[n] = Psi_coeff[0];
+              }
+          }
+      }
+      break;
+    case PITZER_TEMP_LINEAR:
+      for (i = 1; i < m_kk; i++) {
+          for (j = 1; j < m_kk; j++) {
+              for (size_t k = 1; k < m_kk; k++) {
+                  n = i * m_kk *m_kk + j * m_kk + k ;
+                  const double* Psi_coeff = m_Psi_ijk_coeff.ptrColumn(n);
+                  m_Psi_ijk[n]      = Psi_coeff[0] + Psi_coeff[1]*tlin;
+                  m_Psi_ijk_L[n]    = Psi_coeff[1];
+                  m_Psi_ijk_LL[n]   = 0.0;
+              }
+          }
+      }
+      break;
+    case PITZER_TEMP_COMPLEX1:
+      for (i = 1; i < m_kk; i++) {
+          for (j = 1; j < m_kk; j++) {
+              for (size_t k = 1; k < m_kk; k++) {
+                  n = i * m_kk *m_kk + j * m_kk + k ;
+                  const double* Psi_coeff = m_Psi_ijk_coeff.ptrColumn(n);
+                  m_Psi_ijk[n] = Psi_coeff[0]
+                                 + Psi_coeff[1]*tlin
+                                 + Psi_coeff[2]*tquad
+                                 + Psi_coeff[3]*tinv
+                                 + Psi_coeff[4]*tln;
 
-                    m_Psi_ijk_L[n] = Psi_coeff[1]
-                                     + Psi_coeff[2]*twoT
-                                     - Psi_coeff[3]*invT2
-                                     + Psi_coeff[4]*invT;
+                  m_Psi_ijk_L[n] = Psi_coeff[1]
+                                   + Psi_coeff[2]*twoT
+                                   - Psi_coeff[3]*invT2
+                                   + Psi_coeff[4]*invT;
 
-                    m_Psi_ijk_LL[n] =
-                        Psi_coeff[2]*2.0
-                        + Psi_coeff[3]*twoinvT3
-                        - Psi_coeff[4]*invT2;
-                }
-            }
-        }
+                  m_Psi_ijk_LL[n] =
+                      Psi_coeff[2]*2.0
+                      + Psi_coeff[3]*twoinvT3
+                      - Psi_coeff[4]*invT2;
+              }
+          }
+      }
+      break;
     }
 
 }
