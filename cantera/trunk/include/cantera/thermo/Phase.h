@@ -10,6 +10,7 @@
 #include "cantera/base/vec_functions.h"
 #include "cantera/base/ctml.h"
 #include "cantera/thermo/Elements.h"
+#include "cantera/base/ValueCache.h"
 
 namespace Cantera
 {
@@ -732,6 +733,8 @@ protected:
       OTHER
     };
     virtual void invalidateCachedDataOnStateChange(StateVariable changed_var) {}
+
+    mutable ValueCache m_cache;
 
     //! Set the molecular weight of a single species to a given value
     //!     @param k       id of the species
