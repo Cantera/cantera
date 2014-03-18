@@ -383,20 +383,21 @@ void IdealGasPhase::setToEquilState(const doublereal* mu_RT)
 
 void IdealGasPhase::_updateThermo() const
 {
+    static const int cacheId = m_cache.getId();
+    CachedScalar cached = m_cache.getScalar(cacheId);
     doublereal tnow = temperature();
 
     // If the temperature has changed since the last time these
     // properties were computed, recompute them.
-    if (m_tlast != tnow) {
+    if (cached.state1 != tnow) {
         m_spthermo->update(tnow, &m_cp0_R[0], &m_h0_RT[0], &m_s0_R[0]);
-        m_tlast = tnow;
+        cached.state1 = tnow;
 
         // update the species Gibbs functions
         for (size_t k = 0; k < m_kk; k++) {
             m_g0_RT[k] = m_h0_RT[k] - m_s0_R[k];
         }
         m_logc0 = log(m_p0 / (GasConstant * tnow));
-        m_tlast = tnow;
     }
 }
 }
