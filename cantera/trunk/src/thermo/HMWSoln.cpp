@@ -1354,6 +1354,7 @@ void HMWSoln::s_update_lnMolalityActCoeff() const
     }
     cached.state1 = tnow;
     cached.state2 = pnow;
+    cached.stateNum = stateNumNow;
 
     /*
      * Calculate the molalities. Currently, the molalities
@@ -2287,7 +2288,7 @@ s_updatePitzer_lnMolalityActCoeff() const
     // A_Debye_Huckel = 0.5107; <- This value is used to match GWB data
     //                             ( A * ln(10) = 1.17593)
     // Aphi = A_Debye_Huckel * 2.30258509 / 3.0;
-    Aphi = m_A_Debye / 3.0;
+    Aphi = A_Debye_TP() / 3.0;
     F = -Aphi * (sqrt(Is) / (1.0 + 1.2*sqrt(Is))
                  + (2.0/1.2) * log(1.0+1.2*(sqrtIs)));
 #ifdef DEBUG_MODE
@@ -2945,6 +2946,7 @@ void HMWSoln::s_update_dlnMolalityActCoeff_dT() const
     }
     cached.state1 = tnow;
     cached.state2 = pnow;
+    cached.stateNum = stateNumNow;
 
     /*
      *  Zero the unscaled 2nd derivatives
@@ -3805,6 +3807,7 @@ void HMWSoln::s_update_d2lnMolalityActCoeff_dT2() const
     }
     cached.state1 = tnow;
     cached.state2 = pnow;
+    cached.stateNum = stateNumNow;
 
     /*
      *  Zero the unscaled 2nd derivatives
@@ -4670,6 +4673,8 @@ void HMWSoln::s_update_dlnMolalityActCoeff_dP() const
     }
     cached.state1 = tnow;
     cached.state2 = pnow;
+    cached.stateNum = stateNumNow;
+
     m_dlnActCoeffMolaldP_Unscaled.assign(m_kk, 0.0);
     s_updatePitzer_dlnMolalityActCoeff_dP();
 
@@ -5861,7 +5866,7 @@ void HMWSoln::s_updateScaling_pHScaling_dP() const
 doublereal HMWSoln::s_NBS_CLM_lnMolalityActCoeff() const
 {
     doublereal sqrtIs = sqrt(m_IionicMolality);
-    doublereal A = m_A_Debye;
+    doublereal A = A_Debye_TP();
     doublereal lnGammaClMs2 = - A * sqrtIs /(1.0 + 1.5 * sqrtIs);
     return  lnGammaClMs2;
 }
