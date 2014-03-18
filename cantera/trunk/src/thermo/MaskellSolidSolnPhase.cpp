@@ -23,9 +23,6 @@ namespace Cantera
 MaskellSolidSolnPhase::MaskellSolidSolnPhase() :
     m_Pref(OneAtm),
     m_Pcurrent(OneAtm),
-    m_updateThermo_valid(false),
-    m_activity_coeffs(2),
-    m_activity_coeffs_valid(false),
     m_h0_RT(2),
     m_cp0_R(2),
     m_g0_RT(2),
@@ -39,9 +36,6 @@ MaskellSolidSolnPhase::MaskellSolidSolnPhase() :
 MaskellSolidSolnPhase::MaskellSolidSolnPhase(const MaskellSolidSolnPhase& b) :
     m_Pref(OneAtm),
     m_Pcurrent(OneAtm),
-    m_updateThermo_valid(false),
-    m_activity_coeffs(2),
-    m_activity_coeffs_valid(false),
     m_h0_RT(2),
     m_cp0_R(2),
     m_g0_RT(2),
@@ -160,8 +154,17 @@ void MaskellSolidSolnPhase::
 getActivityCoefficients(doublereal* ac) const
 {
     _updateThermo();
-    if( !m_activity_coeffs_valid ) {
-      m_activity_coeffs_valid = true;
+    static const int cacheId = m_cache.getId();
+    CachedArray cached = m_cache.getArray(cacheId);
+    const doublereal tnow = temperature();
+    const doublereal pnow = pressure();
+    const int stateNumNow = stateMFNumber();
+    if( cached.state1 != temperature() || cached.state2 != pressure() || cached.stateNum != stateNumNow ) {
+      cached.state1 = tnow;
+      cached.state2 = pnow;
+      cached.stateNum = stateNumNow;
+      cached.value.resize(2);
+
       const doublereal r = moleFraction(product_species_index);
       const doublereal pval = p(r);
       const doublereal fmval = fm(r);
@@ -170,10 +173,10 @@ getActivityCoefficients(doublereal* ac) const
       const doublereal A = (std::pow(1 - rfm, pval) * std::pow(rfm, pval) * std::pow(r - rfm, 1 - pval))  /
                            (std::pow(1 - r - rfm, 1 + pval) * (1 - r));
       const doublereal B = pval * h_mixing / RT;
-      m_activity_coeffs[product_species_index] = A * std::exp(B);
-      m_activity_coeffs[reactant_species_index] = 1 / (A * r * (1-r) ) * std::exp(-B);
+      cached.value[product_species_index] = A * std::exp(B);
+      cached.value[reactant_species_index] = 1 / (A * r * (1-r) ) * std::exp(-B);
     }
-    std::copy(m_activity_coeffs.begin(), m_activity_coeffs.end(), ac);
+    std::copy(cached.value.begin(), cached.value.end(), ac);
 }
 
 void MaskellSolidSolnPhase::
@@ -327,19 +330,20 @@ void MaskellSolidSolnPhase::initThermoXML(XML_Node& phaseNode, const std::string
 void MaskellSolidSolnPhase::_updateThermo() const
 {
     assert(m_kk == 2);
-    if (!m_updateThermo_valid) {
-        m_updateThermo_valid = true;
-        /*
-         * Update the thermodynamic functions of the reference state.
-         */
-        doublereal tnow = temperature();
+    static const int cacheId = m_cache.getId();
+    CachedScalar cached = m_cache.getScalar(cacheId);
+    /*
+     * Update the thermodynamic functions of the reference state.
+     */
+    doublereal tnow = temperature();
+    if( cached.state1 != tnow )
+    {
+        cached.state1 = tnow;
         m_spthermo->update(tnow, DATA_PTR(m_cp0_R), DATA_PTR(m_h0_RT),
                            DATA_PTR(m_s0_R));
-        m_tlast = tnow;
         for (size_t k = 0; k < m_kk; k++) {
             m_g0_RT[k] = m_h0_RT[k] - m_s0_R[k];
         }
-        m_tlast = tnow;
     }
 }
 
@@ -358,13 +362,6 @@ doublereal MaskellSolidSolnPhase::p(const doublereal r) const
 {
   const doublereal sval = s();
   return (1 - 2*r) / std::sqrt(sval*sval - 4 * sval * r + 4 * sval * r * r);
-}
-
-void MaskellSolidSolnPhase::invalidateCachedDataOnStateChange(StateVariable changed_var)
-{
-  m_updateThermo_valid = false;
-  m_activity_coeffs_valid = false;
-  VPStandardStateTP::invalidateCachedDataOnStateChange(changed_var);
 }
 
 }  // end namespace Cantera

@@ -30,7 +30,6 @@ namespace Cantera
 
 HMWSoln::HMWSoln() :
     MolalityVPSSTP(),
-    m_density_valid(false),
     m_formPitzer(PITZERFORM_BASE),
     m_formPitzerTemp(PITZER_TEMP_CONSTANT),
     m_formGC(2),
@@ -39,10 +38,7 @@ HMWSoln::HMWSoln() :
     m_TempPitzerRef(298.15),
     m_IionicMolalityStoich(0.0),
     m_form_A_Debye(A_DEBYE_WATER),
-    m_A_Debye_valid(false),
     m_A_Debye(1.172576),   // units = sqrt(kg/gmol)
-    m_dA_DebyedP_TP_valid(false),
-    m_dA_DebyedP_TP(-1.0),
     m_waterSS(0),
     m_densWaterSS(1000.),
     m_waterProps(0),
@@ -74,10 +70,6 @@ HMWSoln::HMWSoln() :
     CROP_ln_gamma_o_max(3.0),
     CROP_ln_gamma_k_min(-5.0),
     CROP_ln_gamma_k_max(15.0),
-    m_s_update_lnMolalityActCoeff_valid(false),
-    m_s_update_dlnMolalityActCoeff_dT_valid(false),
-    m_s_update_d2lnMolalityActCoeff_dT2_valid(false),
-    m_s_update_dlnMolalityActCoeff_dP_valid(false),
     m_last_is(-1.0),
     m_debugCalc(0)
 {
@@ -89,7 +81,6 @@ HMWSoln::HMWSoln() :
 
 HMWSoln::HMWSoln(const std::string& inputFile, const std::string& id_) :
     MolalityVPSSTP(),
-    m_density_valid(false),
     m_formPitzer(PITZERFORM_BASE),
     m_formPitzerTemp(PITZER_TEMP_CONSTANT),
     m_formGC(2),
@@ -98,10 +89,7 @@ HMWSoln::HMWSoln(const std::string& inputFile, const std::string& id_) :
     m_TempPitzerRef(298.15),
     m_IionicMolalityStoich(0.0),
     m_form_A_Debye(A_DEBYE_WATER),
-    m_A_Debye_valid(false),
     m_A_Debye(1.172576),   // units = sqrt(kg/gmol)
-    m_dA_DebyedP_TP_valid(false),
-    m_dA_DebyedP_TP(-1.0),
     m_waterSS(0),
     m_densWaterSS(1000.),
     m_waterProps(0),
@@ -133,10 +121,6 @@ HMWSoln::HMWSoln(const std::string& inputFile, const std::string& id_) :
     CROP_ln_gamma_o_max(3.0),
     CROP_ln_gamma_k_min(-5.0),
     CROP_ln_gamma_k_max(15.0),
-    m_s_update_lnMolalityActCoeff_valid(false),
-    m_s_update_dlnMolalityActCoeff_dT_valid(false),
-    m_s_update_d2lnMolalityActCoeff_dT2_valid(false),
-    m_s_update_dlnMolalityActCoeff_dP_valid(false),
     m_last_is(-1.0),
     m_debugCalc(0)
 {
@@ -149,7 +133,6 @@ HMWSoln::HMWSoln(const std::string& inputFile, const std::string& id_) :
 
 HMWSoln::HMWSoln(XML_Node& phaseRoot, const std::string& id_) :
     MolalityVPSSTP(),
-    m_density_valid(false),
     m_formPitzer(PITZERFORM_BASE),
     m_formPitzerTemp(PITZER_TEMP_CONSTANT),
     m_formGC(2),
@@ -158,10 +141,7 @@ HMWSoln::HMWSoln(XML_Node& phaseRoot, const std::string& id_) :
     m_TempPitzerRef(298.15),
     m_IionicMolalityStoich(0.0),
     m_form_A_Debye(A_DEBYE_WATER),
-    m_A_Debye_valid(false),
     m_A_Debye(1.172576),   // units = sqrt(kg/gmol)
-    m_dA_DebyedP_TP_valid(false),
-    m_dA_DebyedP_TP(-1.0),
     m_waterSS(0),
     m_densWaterSS(1000.),
     m_waterProps(0),
@@ -193,10 +173,6 @@ HMWSoln::HMWSoln(XML_Node& phaseRoot, const std::string& id_) :
     CROP_ln_gamma_o_max(3.0),
     CROP_ln_gamma_k_min(-5.0),
     CROP_ln_gamma_k_max(15.0),
-    m_s_update_lnMolalityActCoeff_valid(false),
-    m_s_update_dlnMolalityActCoeff_dT_valid(false),
-    m_s_update_d2lnMolalityActCoeff_dT2_valid(false),
-    m_s_update_dlnMolalityActCoeff_dP_valid(false),
     m_last_is(-1.0),
     m_debugCalc(0)
 {
@@ -209,7 +185,6 @@ HMWSoln::HMWSoln(XML_Node& phaseRoot, const std::string& id_) :
 
 HMWSoln::HMWSoln(const HMWSoln& b) :
     MolalityVPSSTP(),
-    m_density_valid(false),
     m_formPitzer(PITZERFORM_BASE),
     m_formPitzerTemp(PITZER_TEMP_CONSTANT),
     m_formGC(2),
@@ -218,10 +193,7 @@ HMWSoln::HMWSoln(const HMWSoln& b) :
     m_TempPitzerRef(298.15),
     m_IionicMolalityStoich(0.0),
     m_form_A_Debye(A_DEBYE_WATER),
-    m_A_Debye_valid(false),
     m_A_Debye(1.172576),   // units = sqrt(kg/gmol)
-    m_dA_DebyedP_TP_valid(false),
-    m_dA_DebyedP_TP(-1.0),
     m_waterSS(0),
     m_densWaterSS(1000.),
     m_waterProps(0),
@@ -253,10 +225,6 @@ HMWSoln::HMWSoln(const HMWSoln& b) :
     CROP_ln_gamma_o_max(3.0),
     CROP_ln_gamma_k_min(-5.0),
     CROP_ln_gamma_k_max(15.0),
-    m_s_update_lnMolalityActCoeff_valid(false),
-    m_s_update_dlnMolalityActCoeff_dT_valid(false),
-    m_s_update_d2lnMolalityActCoeff_dT2_valid(false),
-    m_s_update_dlnMolalityActCoeff_dP_valid(false),
     m_last_is(-1.0),
     m_debugCalc(0)
 {
@@ -428,7 +396,6 @@ operator=(const HMWSoln& b)
 
 HMWSoln::HMWSoln(int testProb) :
     MolalityVPSSTP(),
-    m_density_valid(false),
     m_formPitzer(PITZERFORM_BASE),
     m_formPitzerTemp(PITZER_TEMP_CONSTANT),
     m_formGC(2),
@@ -437,10 +404,7 @@ HMWSoln::HMWSoln(int testProb) :
     m_TempPitzerRef(298.15),
     m_IionicMolalityStoich(0.0),
     m_form_A_Debye(A_DEBYE_WATER),
-    m_A_Debye_valid(false),
     m_A_Debye(1.172576),   // units = sqrt(kg/gmol)
-    m_dA_DebyedP_TP_valid(false),
-    m_dA_DebyedP_TP(-1.0),
     m_waterSS(0),
     m_densWaterSS(1000.),
     m_waterProps(0),
@@ -472,10 +436,6 @@ HMWSoln::HMWSoln(int testProb) :
     CROP_ln_gamma_o_max(3.0),
     CROP_ln_gamma_k_min(-5.0),
     CROP_ln_gamma_k_max(15.0),
-    m_s_update_lnMolalityActCoeff_valid(false),
-    m_s_update_dlnMolalityActCoeff_dT_valid(false),
-    m_s_update_d2lnMolalityActCoeff_dT2_valid(false),
-    m_s_update_dlnMolalityActCoeff_dP_valid(false),
     m_last_is(-1.0),
     m_debugCalc(0)
 {
@@ -721,10 +681,18 @@ void HMWSoln::setPressure(doublereal p)
 
 void HMWSoln::calcDensity()
 {
-    if( m_density_valid ) {
+    static const int cacheId = m_cache.getId();
+    CachedScalar cached = m_cache.getScalar(cacheId);
+    const doublereal tnow = temperature();
+    const doublereal pnow = pressure();
+    const int stateNumNow = stateMFNumber();
+    if( cached.state1 == tnow && cached.state2 == pnow && cached.stateNum == stateNumNow ) {
         return;
     }
-    m_density_valid = true;
+    cached.state1 = tnow;
+    cached.state2 = pnow;
+    cached.stateNum = stateNumNow;
+
     double* vbar = &m_pp[0];
     getPartialMolarVolumes(vbar);
     double* x = &m_tmpV[0];
@@ -784,10 +752,7 @@ void HMWSoln::setState_TP(doublereal temp, doublereal pres)
     /*
      * Store the current pressure
      */
-    if(m_Pcurrent != pres) {
-      m_Pcurrent = pres;
-      invalidateCachedDataOnStateChange(PRESSURE);
-    }
+    m_Pcurrent = pres;
 
     /*
      * update the standard state thermo
@@ -1074,11 +1039,6 @@ doublereal HMWSoln::satPressure(doublereal t) {
 
 double HMWSoln::A_Debye_TP(double tempArg, double presArg) const
 {
-    if(m_A_Debye_valid) {
-      return m_A_Debye;
-    }
-    m_A_Debye_valid = true;
-
     double T = temperature();
     double A;
     if (tempArg != -1.0) {
@@ -1088,6 +1048,14 @@ double HMWSoln::A_Debye_TP(double tempArg, double presArg) const
     if (presArg != -1.0) {
         P = presArg;
     }
+
+    static const int cacheId = m_cache.getId();
+    CachedScalar cached = m_cache.getScalar(cacheId);
+    if(cached.state1 == T && cached.state2 == P) {
+        return m_A_Debye;
+    }
+    cached.state1 = T;
+    cached.state2 = P;
 
     switch (m_form_A_Debye) {
     case A_DEBYE_CONST:
@@ -1140,18 +1108,22 @@ double HMWSoln::dA_DebyedP_TP(double tempArg, double presArg) const
     if (presArg != -1.0) {
         P = presArg;
     }
+
     double dAdP;
+    static const int cacheId = m_cache.getId();
+    CachedScalar cached = m_cache.getScalar(cacheId);
     switch (m_form_A_Debye) {
     case A_DEBYE_CONST:
         dAdP = 0.0;
         break;
     case A_DEBYE_WATER:
-        if(!m_dA_DebyedP_TP_valid) {
-          dAdP = m_waterProps->ADebye(T, P, 3);
-          m_dA_DebyedP_TP  = dAdP;
-          m_dA_DebyedP_TP_valid = true;
+        if( cached.state1 == T && cached.state2 == P ) {
+            dAdP = cached.value;
         } else {
-          dAdP = m_dA_DebyedP_TP;
+            cached.state1 = T;
+            cached.state2 = P;
+            dAdP = m_waterProps->ADebye(T, P, 3);
+            cached.value  = dAdP;
         }
         break;
     default:
@@ -1372,10 +1344,16 @@ void HMWSoln::initLengths()
 
 void HMWSoln::s_update_lnMolalityActCoeff() const
 {
-    if(m_s_update_lnMolalityActCoeff_valid) {
-      return;
+    static const int cacheId = m_cache.getId();
+    CachedScalar cached = m_cache.getScalar(cacheId);
+    const doublereal tnow = temperature();
+    const doublereal pnow = pressure();
+    const int stateNumNow = stateMFNumber();
+    if( cached.state1 == tnow && cached.state2 == pnow && cached.stateNum == stateNumNow ) {
+        return;
     }
-    m_s_update_lnMolalityActCoeff_valid = true;
+    cached.state1 = tnow;
+    cached.state2 = pnow;
 
     /*
      * Calculate the molalities. Currently, the molalities
@@ -2957,10 +2935,16 @@ s_updatePitzer_lnMolalityActCoeff() const
 
 void HMWSoln::s_update_dlnMolalityActCoeff_dT() const
 {
-    if(m_s_update_dlnMolalityActCoeff_dT_valid) {
-      return;
+    static const int cacheId = m_cache.getId();
+    CachedScalar cached = m_cache.getScalar(cacheId);
+    const doublereal tnow = temperature();
+    const doublereal pnow = pressure();
+    const int stateNumNow = stateMFNumber();
+    if( cached.state1 == tnow && cached.state2 == pnow && cached.stateNum == stateNumNow ) {
+        return;
     }
-    m_s_update_dlnMolalityActCoeff_dT_valid = true;
+    cached.state1 = tnow;
+    cached.state2 = pnow;
 
     /*
      *  Zero the unscaled 2nd derivatives
@@ -3811,10 +3795,16 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dT() const
 
 void HMWSoln::s_update_d2lnMolalityActCoeff_dT2() const
 {
-    if(m_s_update_d2lnMolalityActCoeff_dT2_valid) {
-      return;
+    static const int cacheId = m_cache.getId();
+    CachedScalar cached = m_cache.getScalar(cacheId);
+    const doublereal tnow = temperature();
+    const doublereal pnow = pressure();
+    const int stateNumNow = stateMFNumber();
+    if( cached.state1 == tnow && cached.state2 == pnow && cached.stateNum == stateNumNow ) {
+        return;
     }
-    m_s_update_d2lnMolalityActCoeff_dT2_valid = true;
+    cached.state1 = tnow;
+    cached.state2 = pnow;
 
     /*
      *  Zero the unscaled 2nd derivatives
@@ -4670,10 +4660,16 @@ void HMWSoln::s_updatePitzer_d2lnMolalityActCoeff_dT2() const
 
 void HMWSoln::s_update_dlnMolalityActCoeff_dP() const
 {
-    if(m_s_update_dlnMolalityActCoeff_dP_valid) {
-      return;
+    static const int cacheId = m_cache.getId();
+    CachedScalar cached = m_cache.getScalar(cacheId);
+    const doublereal tnow = temperature();
+    const doublereal pnow = pressure();
+    const int stateNumNow = stateMFNumber();
+    if( cached.state1 == tnow && cached.state2 == pnow && cached.stateNum == stateNumNow ) {
+        return;
     }
-    m_s_update_dlnMolalityActCoeff_dP_valid = true;
+    cached.state1 = tnow;
+    cached.state2 = pnow;
     m_dlnActCoeffMolaldP_Unscaled.assign(m_kk, 0.0);
     s_updatePitzer_dlnMolalityActCoeff_dP();
 
@@ -5889,20 +5885,6 @@ doublereal HMWSoln::s_NBS_CLM_dlnMolalityActCoeff_dP() const
     doublereal sqrtIs = sqrt(m_IionicMolality);
     doublereal dAdP = dA_DebyedP_TP();
     return - dAdP * sqrtIs /(1.0 + 1.5 * sqrtIs);
-}
-
-void HMWSoln::invalidateCachedDataOnStateChange(StateVariable changed_var)
-{
-    if( changed_var == PRESSURE || changed_var == TEMPERATURE ) {
-      m_A_Debye_valid = false;
-      m_dA_DebyedP_TP_valid = false;
-    }
-    m_density_valid = false;
-    m_s_update_lnMolalityActCoeff_valid = false;
-    m_s_update_dlnMolalityActCoeff_dT_valid = false;
-    m_s_update_d2lnMolalityActCoeff_dT2_valid = false;
-    m_s_update_dlnMolalityActCoeff_dP_valid = false;
-    MolalityVPSSTP::invalidateCachedDataOnStateChange(changed_var);
 }
 
 int HMWSoln::debugPrinting()

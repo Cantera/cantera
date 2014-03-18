@@ -552,14 +552,7 @@ public:
             throw CanteraError("Phase::setDensity()", "density must be positive");
         }
         m_dens = density_;
-        if(density_ != m_last_dens) {
-            invalidateCachedDataOnStateChange(DENSITY);
-            m_last_dens = density_;
-        }
     }
-private:
-    mutable doublereal m_last_dens;
-public:
 
     //! Set the internally stored molar density (kmol/m^3) of the phase.
     //!     @param[in] molarDensity Input molar density (kmol/m^3).
@@ -573,15 +566,8 @@ public:
                                "temperature must be positive");
         }
         m_temp = temp;
-        if(temp != m_last_temp) {
-            invalidateCachedDataOnStateChange(TEMPERATURE);
-            m_last_temp = temp;
-        }
     }
     //@}
-private:
-    mutable doublereal m_last_temp;
-public:
 
     //! @name Mean Properties
     //!@{
@@ -705,35 +691,6 @@ public:
     }
 
 protected:
-    //! Virtual function to simplify caching of extensive computations in child classes.
-    /*!
-     *  The intent is that this virtual function should be called any time a state variable
-     *  of a ThermoPhase class is changed the class can mark any cached data that is expensive to
-     *  compute as invalid. For example:
-     *  class APhase : public Phase
-     *  {
-     *  public:
-     *    void update_activity_coeffs(); // Expensive function that only needs to run on state change
-     *    void update_activity_coeffs_dT(); // Another expensive function
-     *  private:
-     *    // Variables that track whether the state has been changed since the expensive functions
-     *    // were last run to avoid unnecessary work. These will be updated to false by invalidateCachedDataOnStateChange()
-     *    bool m_activity_coeffs_valid;
-     *    bool m_activity_coeffs_dT_valid;
-     *  }
-     *
-     *  This is somewhat easier to manage than having each individual expensive function track the last T, P, X_i, etc
-     *  that it was calculated at to determine whether it is safe to skip the expensive computation.
-     */
-    enum StateVariable {
-      PRESSURE,
-      TEMPERATURE,
-      SPECIES,
-      DENSITY,
-      OTHER
-    };
-    virtual void invalidateCachedDataOnStateChange(StateVariable changed_var) {}
-
     mutable ValueCache m_cache;
 
     //! Set the molecular weight of a single species to a given value
@@ -787,8 +744,6 @@ private:
     mutable vector_fp m_ym;
 
     mutable vector_fp m_y; //!< species mass fractions
-    mutable vector_fp m_last_y;
-    bool massFractionsChanged();
 
     vector_fp m_molwts; //!< species molecular weights (kg kmol-1)
 
