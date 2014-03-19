@@ -683,15 +683,9 @@ void HMWSoln::calcDensity()
 {
     static const int cacheId = m_cache.getId();
     CachedScalar cached = m_cache.getScalar(cacheId);
-    const doublereal tnow = temperature();
-    const doublereal pnow = pressure();
-    const int stateNumNow = stateMFNumber();
-    if( cached.state1 == tnow && cached.state2 == pnow && cached.stateNum == stateNumNow ) {
+    if(cached.validate(temperature(), pressure(), stateMFNumber())) {
         return;
     }
-    cached.state1 = tnow;
-    cached.state2 = pnow;
-    cached.stateNum = stateNumNow;
 
     double* vbar = &m_pp[0];
     getPartialMolarVolumes(vbar);
@@ -1051,11 +1045,9 @@ double HMWSoln::A_Debye_TP(double tempArg, double presArg) const
 
     static const int cacheId = m_cache.getId();
     CachedScalar cached = m_cache.getScalar(cacheId);
-    if(cached.state1 == T && cached.state2 == P) {
+    if(cached.validate(T, P)) {
         return m_A_Debye;
     }
-    cached.state1 = T;
-    cached.state2 = P;
 
     switch (m_form_A_Debye) {
     case A_DEBYE_CONST:
@@ -1117,11 +1109,9 @@ double HMWSoln::dA_DebyedP_TP(double tempArg, double presArg) const
         dAdP = 0.0;
         break;
     case A_DEBYE_WATER:
-        if( cached.state1 == T && cached.state2 == P ) {
+        if(cached.validate(T, P)) {
             dAdP = cached.value;
         } else {
-            cached.state1 = T;
-            cached.state2 = P;
             dAdP = m_waterProps->ADebye(T, P, 3);
             cached.value  = dAdP;
         }
@@ -1346,15 +1336,9 @@ void HMWSoln::s_update_lnMolalityActCoeff() const
 {
     static const int cacheId = m_cache.getId();
     CachedScalar cached = m_cache.getScalar(cacheId);
-    const doublereal tnow = temperature();
-    const doublereal pnow = pressure();
-    const int stateNumNow = stateMFNumber();
-    if( cached.state1 == tnow && cached.state2 == pnow && cached.stateNum == stateNumNow ) {
+    if( cached.validate(temperature(), pressure(), stateMFNumber()) ) {
         return;
     }
-    cached.state1 = tnow;
-    cached.state2 = pnow;
-    cached.stateNum = stateNumNow;
 
     /*
      * Calculate the molalities. Currently, the molalities
@@ -2955,15 +2939,9 @@ void HMWSoln::s_update_dlnMolalityActCoeff_dT() const
 {
     static const int cacheId = m_cache.getId();
     CachedScalar cached = m_cache.getScalar(cacheId);
-    const doublereal tnow = temperature();
-    const doublereal pnow = pressure();
-    const int stateNumNow = stateMFNumber();
-    if( cached.state1 == tnow && cached.state2 == pnow && cached.stateNum == stateNumNow ) {
+    if( cached.validate(temperature(), pressure(), stateMFNumber()) ) {
         return;
     }
-    cached.state1 = tnow;
-    cached.state2 = pnow;
-    cached.stateNum = stateNumNow;
 
     /*
      *  Zero the unscaled 2nd derivatives
@@ -3816,15 +3794,9 @@ void HMWSoln::s_update_d2lnMolalityActCoeff_dT2() const
 {
     static const int cacheId = m_cache.getId();
     CachedScalar cached = m_cache.getScalar(cacheId);
-    const doublereal tnow = temperature();
-    const doublereal pnow = pressure();
-    const int stateNumNow = stateMFNumber();
-    if( cached.state1 == tnow && cached.state2 == pnow && cached.stateNum == stateNumNow ) {
+    if( cached.validate(temperature(), pressure(), stateMFNumber()) ) {
         return;
     }
-    cached.state1 = tnow;
-    cached.state2 = pnow;
-    cached.stateNum = stateNumNow;
 
     /*
      *  Zero the unscaled 2nd derivatives
@@ -4682,15 +4654,9 @@ void HMWSoln::s_update_dlnMolalityActCoeff_dP() const
 {
     static const int cacheId = m_cache.getId();
     CachedScalar cached = m_cache.getScalar(cacheId);
-    const doublereal tnow = temperature();
-    const doublereal pnow = pressure();
-    const int stateNumNow = stateMFNumber();
-    if( cached.state1 == tnow && cached.state2 == pnow && cached.stateNum == stateNumNow ) {
+    if( cached.validate(temperature(), pressure(), stateMFNumber()) ) {
         return;
     }
-    cached.state1 = tnow;
-    cached.state2 = pnow;
-    cached.stateNum = stateNumNow;
 
     m_dlnActCoeffMolaldP_Unscaled.assign(m_kk, 0.0);
     s_updatePitzer_dlnMolalityActCoeff_dP();
