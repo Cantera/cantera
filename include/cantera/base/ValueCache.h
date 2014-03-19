@@ -33,6 +33,71 @@ struct CachedValue {
         stateNum(std::numeric_limits<int>::min())
     {
     }
+
+    //! Check whether the currently cached value is valid based on
+    //! a single state variable. If it is not valid it updates the stored
+    //! state to the new state in addition to returning false.
+    bool validate(double state1New) {
+      if(state1 == state1New) {
+        return true;
+      } else {
+        state1 = state1New;
+      }
+      return false;
+    }
+
+    //! Check whether the currently cached value is valid based on
+    //! state1 and state2. If it is not valid it updates the stored
+    //! state to the new state in addition to returning false.
+    bool validate(double state1New, double state2New) {
+      if(state1 == state1New && state2 == state2New) {
+        return true;
+      } else {
+        state1 = state1New;
+        state2 = state2New;
+      }
+      return false;
+    }
+
+    //! Check whether the currently cached value is valid based on
+    //! state1 and stateNum. If it is not valid it updates the stored
+    //! state to the new state in addition to returning false.
+    bool validate(double state1New, int stateNumNew) {
+      if(state1 == state1New && stateNum == stateNumNew) {
+        return true;
+      } else {
+        state1 = state1New;
+        stateNum = stateNumNew;
+      }
+      return false;
+    }
+
+    //! Check whether the currently cached value is valid based on
+    //! stateNum. If it is not valid it updates the stored
+    //! state to the new state in addition to returning false.
+    bool validate(int stateNumNew) {
+      if(stateNum == stateNumNew) {
+        return true;
+      } else {
+        stateNum = stateNumNew;
+      }
+      return false;
+    }
+
+    //! Check whether the currently cached value is valid based on
+    //! state1, state2, and stateNum. If it is not valid it updates the stored
+    //! state to the new state in addition to returning false.
+    bool validate(double state1New, double state2New, int stateNumNew) {
+      if(state1 == state1New && state2 == state2New && stateNum == stateNumNew) {
+        return true;
+      } else {
+        state1 = state1New;
+        state2 = state2New;
+        stateNum = stateNumNew;
+      }
+      return false;
+    }
+
     //! Value of the first state variable for the state at which #value was
     //! evaluated, e.g. temperature.
     double state1;

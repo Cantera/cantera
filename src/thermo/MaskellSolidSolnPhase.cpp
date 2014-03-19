@@ -156,13 +156,7 @@ getActivityCoefficients(doublereal* ac) const
     _updateThermo();
     static const int cacheId = m_cache.getId();
     CachedArray cached = m_cache.getArray(cacheId);
-    const doublereal tnow = temperature();
-    const doublereal pnow = pressure();
-    const int stateNumNow = stateMFNumber();
-    if( cached.state1 != temperature() || cached.state2 != pressure() || cached.stateNum != stateNumNow ) {
-      cached.state1 = tnow;
-      cached.state2 = pnow;
-      cached.stateNum = stateNumNow;
+    if( !cached.validate(temperature(), pressure(), stateMFNumber()) ) {
       cached.value.resize(2);
 
       const doublereal r = moleFraction(product_species_index);
@@ -336,9 +330,8 @@ void MaskellSolidSolnPhase::_updateThermo() const
      * Update the thermodynamic functions of the reference state.
      */
     doublereal tnow = temperature();
-    if( cached.state1 != tnow )
+    if( !cached.validate(tnow) )
     {
-        cached.state1 = tnow;
         m_spthermo->update(tnow, DATA_PTR(m_cp0_R), DATA_PTR(m_h0_RT),
                            DATA_PTR(m_s0_R));
         for (size_t k = 0; k < m_kk; k++) {
