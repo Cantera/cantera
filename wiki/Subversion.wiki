@@ -5,7 +5,7 @@
 
 Anonymous, read-only source checkout:
 
-   svn  checkout  http://cantera.googlecode.com/svn/cantera18/trunk/  cantera-read-only
+   svn  checkout  http://cantera.googlecode.com/svn/cantera/trunk  cantera-read-only
 
 Developers, please keep reading!
 
@@ -50,9 +50,12 @@ If you don't have the above settings then when you add a new file it will not ha
 
 To checkout cantera
 
-  svn checkout https://cantera.googlecode.com/svn/cantera18/trunk/ --username USERNAME
+  svn checkout https://cantera.googlecode.com/svn/cantera/trunk/ --username USERNAME
 
 where you will replace USERNAME with your username. The first time, you will be prompted for your personal googlecode.com password which you can find by going to your profile at http://code.google.com/u/USERNAME and clicking on the settings tab.
+
+Recommended coding practices and style for Cantera are listed in 
+[https://drive.google.com/folderview?id=0Bz0KUVyMyQtcMjBlMDM0N2UtZmUxZS00ZTJkLThkY2MtNTU1MzI2YTBhMzRh&usp=sharing CanteraDevelopmentPractices].
 
 To check in your changes
 
