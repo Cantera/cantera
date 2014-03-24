@@ -3240,23 +3240,22 @@ done:
     return retnCode;
 }
 
-void NonlinearSolver::
-setPreviousTimeStep(const std::vector<doublereal>& y_nm1, const std::vector<doublereal>& ydot_nm1)
+void NonlinearSolver::setPreviousTimeStep(const std::vector<doublereal>& y_nm1,
+                                          const std::vector<doublereal>& ydot_nm1)
 {
     m_y_nm1 = y_nm1;
     m_ydot_nm1 = ydot_nm1;
 }
 
-void NonlinearSolver::
-print_solnDelta_norm_contrib(const doublereal* const step_1,
-                             const char* const stepNorm_1,
-                             const doublereal* const step_2,
-                             const char* const stepNorm_2,
-                             const char* const title,
-                             const doublereal* const y_n_curr,
-                             const doublereal* const y_n_1,
-                             doublereal damp,
-                             size_t num_entries)
+void NonlinearSolver::print_solnDelta_norm_contrib(const doublereal* const step_1,
+                                                   const char* const stepNorm_1,
+                                                   const doublereal* const step_2,
+                                                   const char* const stepNorm_2,
+                                                   const char* const title,
+                                                   const doublereal* const y_n_curr,
+                                                   const doublereal* const y_n_1,
+                                                   doublereal damp,
+                                                   size_t num_entries)
 {
     bool used;
     doublereal dmax0, dmax1, error, rel_norm;
@@ -3608,8 +3607,9 @@ int NonlinearSolver::beuler_jac(GeneralMatrix& J, doublereal* const f,
     return retn;
 }
 
-void NonlinearSolver::
-calc_ydot(const int order, const doublereal* const y_curr, doublereal* const ydot_curr) const
+void NonlinearSolver::calc_ydot(const int order, 
+                                const doublereal* const y_curr,
+                                doublereal* const ydot_curr) const
 {
     if (!ydot_curr) {
         return;

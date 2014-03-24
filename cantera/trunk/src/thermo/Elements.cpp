@@ -363,8 +363,7 @@ int Elements::changeElementType(int m, int elem_type)
  *  looks up the required parameters for the regular interface
  *  and then calls the base routine.
  */
-void Elements::
-addElement(const std::string& symbol, doublereal weight)
+void Elements::addElement(const std::string& symbol, doublereal weight)
 {
     if (weight == -12345.0) {
         weight = LookupWtElements(symbol);
@@ -387,8 +386,7 @@ addElement(const std::string& symbol, doublereal weight)
     m_mm++;
 }
 //===========================================================================================================
-void Elements::
-addElement(const XML_Node& e)
+void Elements::addElement(const XML_Node& e)
 {
     doublereal weight = fpValue(e["atomicWt"]);
     string symbol = e["name"];
@@ -408,10 +406,9 @@ addElement(const XML_Node& e)
  *  The default weight is a special value, which will cause the
  *  routine to look up the actual weight via a string lookup.
  */
-void Elements::
-addUniqueElement(const std::string& symbol,
-                 doublereal weight, int atomicNumber_, doublereal entropy298,
-                 int elem_type)
+void Elements::addUniqueElement(const std::string& symbol, doublereal weight,
+                                int atomicNumber_, doublereal entropy298,
+                                int elem_type)
 {
     if (weight == -12345.0) {
         weight =  LookupWtElements(symbol);
@@ -460,8 +457,7 @@ addUniqueElement(const std::string& symbol,
  * @todo call addUniqueElement(symbol, weight) instead of
  * addElement.
  */
-void Elements::
-addUniqueElement(const XML_Node& e)
+void Elements::addUniqueElement(const XML_Node& e)
 {
     doublereal weight = 0.0;
     if (e.hasAttrib("atomicWt")) {

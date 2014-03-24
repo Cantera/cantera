@@ -28,8 +28,8 @@ void IdealGasConstPressureReactor::setThermoMgr(ThermoPhase& thermo)
 }
 
 
-void IdealGasConstPressureReactor::
-getInitialConditions(double t0, size_t leny, double* y)
+void IdealGasConstPressureReactor::getInitialConditions(double t0, size_t leny,
+                                                        double* y)
 {
     m_init = true;
     if (m_thermo == 0) {

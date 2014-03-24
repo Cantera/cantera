@@ -151,24 +151,21 @@ void SingleSpeciesTP::getElectrochemPotentials(doublereal* mu) const
     getChemPotentials(mu);
 }
 
-void SingleSpeciesTP::
-getPartialMolarEnthalpies(doublereal* hbar) const
+void SingleSpeciesTP::getPartialMolarEnthalpies(doublereal* hbar) const
 {
     double _rt = GasConstant * temperature();
     getEnthalpy_RT(hbar);
     hbar[0] *= _rt;
 }
 
-void SingleSpeciesTP::
-getPartialMolarIntEnergies(doublereal* ubar) const
+void SingleSpeciesTP::getPartialMolarIntEnergies(doublereal* ubar) const
 {
     double _rt = GasConstant * temperature();
     getIntEnergy_RT(ubar);
     ubar[0] *= _rt;
 }
 
-void SingleSpeciesTP::
-getPartialMolarEntropies(doublereal* sbar) const
+void SingleSpeciesTP::getPartialMolarEntropies(doublereal* sbar) const
 {
     getEntropy_R(sbar);
     sbar[0] *= GasConstant;

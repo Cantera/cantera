@@ -56,8 +56,7 @@ IdealMolalSoln::IdealMolalSoln(const IdealMolalSoln& b) :
     *this = b;
 }
 
-IdealMolalSoln& IdealMolalSoln::
-operator=(const IdealMolalSoln& b)
+IdealMolalSoln& IdealMolalSoln::operator=(const IdealMolalSoln& b)
 {
     if (&b != this) {
         MolalityVPSSTP::operator=(b);
@@ -334,8 +333,7 @@ void IdealMolalSoln::getActivities(doublereal* ac) const
     }
 }
 
-void IdealMolalSoln::
-getMolalityActivityCoefficients(doublereal* acMolality) const
+void IdealMolalSoln::getMolalityActivityCoefficients(doublereal* acMolality) const
 {
     if (IMS_typeCutoff_ == 0) {
         for (size_t k = 0; k < m_kk; k++) {

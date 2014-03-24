@@ -53,8 +53,7 @@ GibbsExcessVPSSTP::GibbsExcessVPSSTP(const GibbsExcessVPSSTP& b) :
     GibbsExcessVPSSTP::operator=(b);
 }
 
-GibbsExcessVPSSTP& GibbsExcessVPSSTP::
-operator=(const GibbsExcessVPSSTP& b)
+GibbsExcessVPSSTP& GibbsExcessVPSSTP::operator=(const GibbsExcessVPSSTP& b)
 {
     if (&b == this) {
         return *this;

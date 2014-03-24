@@ -17,8 +17,7 @@ using namespace std;
 
 namespace Cantera
 {
-GasKinetics::
-GasKinetics(thermo_t* thermo) :
+GasKinetics::GasKinetics(thermo_t* thermo) :
     Kinetics(),
     m_nfall(0),
     m_nirrev(0),
@@ -427,8 +426,7 @@ void GasKinetics::updateROP()
     m_ROP_ok = true;
 }
 
-void GasKinetics::
-getFwdRateConstants(doublereal* kfwd)
+void GasKinetics::getFwdRateConstants(doublereal* kfwd)
 {
     update_rates_C();
     update_rates_T();
@@ -457,8 +455,7 @@ getFwdRateConstants(doublereal* kfwd)
     }
 }
 
-void GasKinetics::
-getRevRateConstants(doublereal* krev, bool doIrreversible)
+void GasKinetics::getRevRateConstants(doublereal* krev, bool doIrreversible)
 {
     /*
      * go get the forward rate constants. -> note, we don't
@@ -480,8 +477,7 @@ getRevRateConstants(doublereal* krev, bool doIrreversible)
     }
 }
 
-void GasKinetics::
-addReaction(ReactionData& r)
+void GasKinetics::addReaction(ReactionData& r)
 {
     switch (r.reactionType) {
     case ELEMENTARY_RXN:
@@ -512,8 +508,7 @@ addReaction(ReactionData& r)
     m_rxntype.push_back(r.reactionType);
 }
 
-void GasKinetics::
-addFalloffReaction(ReactionData& r)
+void GasKinetics::addFalloffReaction(ReactionData& r)
 {
     // install high and low rate coeff calculators
     // and add constant terms to high and low rate coeff value vectors
@@ -550,8 +545,7 @@ addFalloffReaction(ReactionData& r)
     registerReaction(reactionNumber(), r.reactionType, iloc);
 }
 
-void GasKinetics::
-addElementaryReaction(ReactionData& r)
+void GasKinetics::addElementaryReaction(ReactionData& r)
 {
     // install rate coeff calculator
     size_t iloc = m_rates.install(reactionNumber(), r);
@@ -564,8 +558,7 @@ addElementaryReaction(ReactionData& r)
     registerReaction(reactionNumber(), ELEMENTARY_RXN, iloc);
 }
 
-void GasKinetics::
-addThreeBodyReaction(ReactionData& r)
+void GasKinetics::addThreeBodyReaction(ReactionData& r)
 {
     // install rate coeff calculator
     size_t iloc = m_rates.install(reactionNumber(), r);

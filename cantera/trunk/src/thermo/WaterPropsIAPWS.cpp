@@ -308,9 +308,8 @@ doublereal WaterPropsIAPWS::Gibbs() const
     return gRT * Rgas * temperature;
 }
 
-void  WaterPropsIAPWS::
-corr(doublereal temperature, doublereal pressure, doublereal& densLiq,
-     doublereal& densGas, doublereal& delGRT)
+void  WaterPropsIAPWS::corr(doublereal temperature, doublereal pressure,
+    doublereal& densLiq, doublereal& densGas, doublereal& delGRT)
 {
 
     densLiq = density(temperature, pressure, WATER_LIQUID, densLiq);
@@ -334,9 +333,8 @@ corr(doublereal temperature, doublereal pressure, doublereal& densLiq,
     delGRT = gibbsLiqRT - gibbsGasRT;
 }
 
-void WaterPropsIAPWS::
-corr1(doublereal temperature, doublereal pressure, doublereal& densLiq,
-      doublereal& densGas, doublereal& pcorr)
+void WaterPropsIAPWS::corr1(doublereal temperature, doublereal pressure,
+    doublereal& densLiq, doublereal& densGas, doublereal& pcorr)
 {
 
     densLiq = density(temperature, pressure, WATER_LIQUID, densLiq);

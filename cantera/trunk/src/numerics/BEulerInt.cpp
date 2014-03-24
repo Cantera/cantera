@@ -653,8 +653,7 @@ void BEulerInt::calc_y_pred(int order)
 
 }
 
-void BEulerInt::
-calc_ydot(int order, double* y_curr, double* ydot_curr)
+void BEulerInt::calc_ydot(int order, double* y_curr, double* ydot_curr)
 {
     int    i;
     double c1;
@@ -1928,16 +1927,15 @@ done:
     return m;
 }
 
-void BEulerInt::
-print_solnDelta_norm_contrib(const double* const solnDelta0,
-                             const char* const s0,
-                             const double* const solnDelta1,
-                             const char* const s1,
-                             const char* const title,
-                             const double* const y0,
-                             const double* const y1,
-                             double damp,
-                             int num_entries)
+void BEulerInt::print_solnDelta_norm_contrib(const double* const solnDelta0,
+                                             const char* const s0,
+                                             const double* const solnDelta1,
+                                             const char* const s1,
+                                             const char* const title,
+                                             const double* const y0,
+                                             const double* const y1,
+                                             double damp,
+                                             int num_entries)
 {
     int i, j, jnum;
     bool used;

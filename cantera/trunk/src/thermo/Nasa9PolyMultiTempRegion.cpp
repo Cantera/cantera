@@ -26,8 +26,7 @@ Nasa9PolyMultiTempRegion::Nasa9PolyMultiTempRegion() :
 {
 }
 
-Nasa9PolyMultiTempRegion::
-Nasa9PolyMultiTempRegion(std::vector<Cantera::Nasa9Poly1*> &regionPts) :
+Nasa9PolyMultiTempRegion::Nasa9PolyMultiTempRegion(vector<Nasa9Poly1*>& regionPts) :
     m_numTempRegions(0),
     m_currRegion(0)
 {
@@ -63,8 +62,7 @@ Nasa9PolyMultiTempRegion(std::vector<Cantera::Nasa9Poly1*> &regionPts) :
     }
 }
 
-Nasa9PolyMultiTempRegion::
-Nasa9PolyMultiTempRegion(const Nasa9PolyMultiTempRegion& b) :
+Nasa9PolyMultiTempRegion::Nasa9PolyMultiTempRegion(const Nasa9PolyMultiTempRegion& b) :
     SpeciesThermoInterpType(b),
     m_numTempRegions(b.m_numTempRegions),
     m_lowerTempBounds(b.m_lowerTempBounds),

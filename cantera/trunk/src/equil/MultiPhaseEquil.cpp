@@ -470,8 +470,7 @@ void MultiPhaseEquil::step(doublereal omega, vector_fp& deltaN,
     updateMixMoles();
 }
 
-doublereal MultiPhaseEquil::
-stepComposition(int loglevel)
+doublereal MultiPhaseEquil::stepComposition(int loglevel)
 {
     m_iter++;
     size_t ik, k = 0;

@@ -91,8 +91,7 @@ InterfaceKinetics::InterfaceKinetics(const InterfaceKinetics& right) :
     *this = operator=(right);
 }
 
-InterfaceKinetics& InterfaceKinetics::
-operator=(const InterfaceKinetics& right)
+InterfaceKinetics& InterfaceKinetics::operator=(const InterfaceKinetics& right)
 {
     /*
      * Check for self assignment.
@@ -1031,8 +1030,7 @@ bool InterfaceKinetics::ready() const
     return m_finalized;
 }
 
-void InterfaceKinetics::
-advanceCoverages(doublereal tstep)
+void InterfaceKinetics::advanceCoverages(doublereal tstep)
 {
     if (m_integrator == 0) {
         vector<InterfaceKinetics*> k;
@@ -1045,8 +1043,8 @@ advanceCoverages(doublereal tstep)
     m_integrator = 0;
 }
 
-void InterfaceKinetics::
-solvePseudoSteadyStateProblem(int ifuncOverride, doublereal timeScaleOverride)
+void InterfaceKinetics::solvePseudoSteadyStateProblem(
+    int ifuncOverride, doublereal timeScaleOverride)
 {
     // create our own solver object
     if (m_integrator == 0) {

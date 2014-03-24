@@ -23,8 +23,7 @@ Bdry1D::Bdry1D() : Domain1D(1, 1, 0.0),
     m_type = cConnectorType;
 }
 
-void Bdry1D::
-_init(size_t n)
+void Bdry1D::_init(size_t n)
 {
     if (m_index == npos) {
         throw CanteraError("Bdry1D",
@@ -76,8 +75,7 @@ _init(size_t n)
 //   Inlet1D methods
 //----------------------------------------------------------
 
-void Inlet1D::
-setMoleFractions(const std::string& xin)
+void Inlet1D::setMoleFractions(const std::string& xin)
 {
     m_xstr = xin;
     if (m_flow) {
@@ -87,8 +85,7 @@ setMoleFractions(const std::string& xin)
     }
 }
 
-void Inlet1D::
-setMoleFractions(doublereal* xin)
+void Inlet1D::setMoleFractions(doublereal* xin)
 {
     if (m_flow) {
         m_flow->phase().setMoleFractions(xin);
@@ -97,8 +94,7 @@ setMoleFractions(doublereal* xin)
     }
 }
 
-string Inlet1D::
-componentName(size_t n) const
+string Inlet1D::componentName(size_t n) const
 {
     switch (n) {
     case 0:
@@ -111,8 +107,7 @@ componentName(size_t n) const
     return "unknown";
 }
 
-void Inlet1D::
-init()
+void Inlet1D::init()
 {
     _init(2);
 
@@ -147,9 +142,8 @@ init()
     }
 }
 
-void Inlet1D::
-eval(size_t jg, doublereal* xg, doublereal* rg,
-     integer* diagg, doublereal rdt)
+void Inlet1D::eval(size_t jg, doublereal* xg, doublereal* rg,
+                   integer* diagg, doublereal rdt)
 {
     if (jg != npos && (jg + 2 < firstPoint() || jg > lastPoint() + 2)) {
         return;
@@ -224,8 +218,7 @@ eval(size_t jg, doublereal* xg, doublereal* rg,
     }
 }
 
-XML_Node& Inlet1D::
-save(XML_Node& o, const doublereal* const soln)
+XML_Node& Inlet1D::save(XML_Node& o, const doublereal* const soln)
 {
     const doublereal* s = soln + loc();
     XML_Node& inlt = Domain1D::save(o, soln);
@@ -240,8 +233,7 @@ save(XML_Node& o, const doublereal* const soln)
     return inlt;
 }
 
-void Inlet1D::
-restore(const XML_Node& dom, doublereal* soln, int loglevel)
+void Inlet1D::restore(const XML_Node& dom, doublereal* soln, int loglevel)
 {
     Domain1D::restore(dom, soln, loglevel);
     soln[0] = m_mdot = ctml::getFloat(dom, "mdot", "massflowrate");
@@ -276,8 +268,7 @@ string Empty1D::componentName(size_t n) const
     return "<unknown>";
 }
 
-void Empty1D::
-init()   //_init(1);
+void Empty1D::init()
 {
     setBounds(0, -1.0, 1.0);
 
@@ -286,8 +277,7 @@ init()   //_init(1);
     setTransientTolerances(1e-4, 1e-4);
 }
 
-void Empty1D::
-eval(size_t jg, doublereal* xg, doublereal* rg,
+void Empty1D::eval(size_t jg, doublereal* xg, doublereal* rg,
      integer* diagg, doublereal rdt)
 {
     if (jg != npos && (jg + 2 < firstPoint() || jg > lastPoint() + 2)) {
@@ -304,16 +294,14 @@ eval(size_t jg, doublereal* xg, doublereal* rg,
     diag[0] = 0;
 }
 
-XML_Node& Empty1D::
-save(XML_Node& o, const doublereal* const soln)
+XML_Node& Empty1D::save(XML_Node& o, const doublereal* const soln)
 {
     XML_Node& symm = Domain1D::save(o, soln);
     symm.addAttribute("type","empty");
     return symm;
 }
 
-void Empty1D::
-restore(const XML_Node& dom, doublereal* soln, int loglevel)
+void Empty1D::restore(const XML_Node& dom, doublereal* soln, int loglevel)
 {
     Domain1D::restore(dom, soln, loglevel);
     resize(1,1);
@@ -334,8 +322,7 @@ string Symm1D::componentName(size_t n) const
     return "<unknown>";
 }
 
-void Symm1D::
-init()
+void Symm1D::init()
 {
     _init(1);
     setBounds(0, -1.0, 1.0);
@@ -345,9 +332,8 @@ init()
     setTransientTolerances(1e-4, 1e-4);
 }
 
-void Symm1D::
-eval(size_t jg, doublereal* xg, doublereal* rg,
-     integer* diagg, doublereal rdt)
+void Symm1D::eval(size_t jg, doublereal* xg, doublereal* rg, integer* diagg,
+                  doublereal rdt)
 {
     if (jg != npos && (jg + 2< firstPoint() || jg > lastPoint() + 2)) {
         return;
@@ -387,16 +373,14 @@ eval(size_t jg, doublereal* xg, doublereal* rg,
     }
 }
 
-XML_Node& Symm1D::
-save(XML_Node& o, const doublereal* const soln)
+XML_Node& Symm1D::save(XML_Node& o, const doublereal* const soln)
 {
     XML_Node& symm = Domain1D::save(o, soln);
     symm.addAttribute("type","symmetry");
     return symm;
 }
 
-void Symm1D::
-restore(const XML_Node& dom, doublereal* soln, int loglevel)
+void Symm1D::restore(const XML_Node& dom, doublereal* soln, int loglevel)
 {
     Domain1D::restore(dom, soln, loglevel);
     resize(1,1);
@@ -417,8 +401,7 @@ string Outlet1D::componentName(size_t n) const
     return "<unknown>";
 }
 
-void Outlet1D::
-init()
+void Outlet1D::init()
 {
     _init(1);
     setBounds(0, -1.0, 1.0);
@@ -434,9 +417,8 @@ init()
     }
 }
 
-void Outlet1D::
-eval(size_t jg, doublereal* xg, doublereal* rg,
-     integer* diagg, doublereal rdt)
+void Outlet1D::eval(size_t jg, doublereal* xg, doublereal* rg, integer* diagg,
+                    doublereal rdt)
 {
     if (jg != npos && (jg + 2 < firstPoint() || jg > lastPoint() + 2)) {
         return;
@@ -489,16 +471,14 @@ eval(size_t jg, doublereal* xg, doublereal* rg,
     }
 }
 
-XML_Node& Outlet1D::
-save(XML_Node& o, const doublereal* const soln)
+XML_Node& Outlet1D::save(XML_Node& o, const doublereal* const soln)
 {
     XML_Node& outlt = Domain1D::save(o, soln);
     outlt.addAttribute("type","outlet");
     return outlt;
 }
 
-void Outlet1D::
-restore(const XML_Node& dom, doublereal* soln, int loglevel)
+void Outlet1D::restore(const XML_Node& dom, doublereal* soln, int loglevel)
 {
     Domain1D::restore(dom, soln, loglevel);
     resize(1,1);
@@ -508,8 +488,7 @@ restore(const XML_Node& dom, doublereal* soln, int loglevel)
 //      OutletRes1D
 //--------------------------------------------------
 
-void OutletRes1D::
-setMoleFractions(const std::string& xres)
+void OutletRes1D::setMoleFractions(const std::string& xres)
 {
     m_xstr = xres;
     if (m_flow) {
@@ -519,8 +498,7 @@ setMoleFractions(const std::string& xres)
     }
 }
 
-void OutletRes1D::
-setMoleFractions(doublereal* xres)
+void OutletRes1D::setMoleFractions(doublereal* xres)
 {
     if (m_flow) {
         m_flow->phase().setMoleFractions(xres);
@@ -540,8 +518,7 @@ string OutletRes1D::componentName(size_t n) const
     return "<unknown>";
 }
 
-void OutletRes1D::
-init()
+void OutletRes1D::init()
 {
     _init(1);
     // set bounds (dummy)
@@ -568,9 +545,8 @@ init()
     }
 }
 
-void OutletRes1D::
-eval(size_t jg, doublereal* xg, doublereal* rg,
-     integer* diagg, doublereal rdt)
+void OutletRes1D::eval(size_t jg, doublereal* xg, doublereal* rg,
+                       integer* diagg, doublereal rdt)
 {
 
     if (jg != npos && (jg + 2 < firstPoint() || jg > lastPoint() + 2)) {
@@ -628,8 +604,7 @@ eval(size_t jg, doublereal* xg, doublereal* rg,
     }
 }
 
-XML_Node& OutletRes1D::
-save(XML_Node& o, const doublereal* const soln)
+XML_Node& OutletRes1D::save(XML_Node& o, const doublereal* const soln)
 {
     XML_Node& outlt = Domain1D::save(o, soln);
     outlt.addAttribute("type","outletres");
@@ -641,8 +616,7 @@ save(XML_Node& o, const doublereal* const soln)
     return outlt;
 }
 
-void OutletRes1D::
-restore(const XML_Node& dom, doublereal* soln, int loglevel)
+void OutletRes1D::restore(const XML_Node& dom, doublereal* soln, int loglevel)
 {
     Domain1D::restore(dom, soln, loglevel);
     m_temp = ctml::getFloat(dom, "temperature");
@@ -676,8 +650,7 @@ string Surf1D::componentName(size_t n) const
     return "<unknown>";
 }
 
-void Surf1D::
-init()
+void Surf1D::init()
 {
     _init(1);
     // set bounds (T)
@@ -688,9 +661,8 @@ init()
     setTransientTolerances(1e-4, 1e-4);
 }
 
-void Surf1D::
-eval(size_t jg, doublereal* xg, doublereal* rg,
-     integer* diagg, doublereal rdt)
+void Surf1D::eval(size_t jg, doublereal* xg, doublereal* rg,
+                  integer* diagg, doublereal rdt)
 {
     if (jg != npos && (jg + 2 < firstPoint() || jg > lastPoint() + 2)) {
         return;
@@ -720,8 +692,7 @@ eval(size_t jg, doublereal* xg, doublereal* rg,
     }
 }
 
-XML_Node& Surf1D::
-save(XML_Node& o, const doublereal* const soln)
+XML_Node& Surf1D::save(XML_Node& o, const doublereal* const soln)
 {
     const doublereal* s = soln + loc();
     //XML_Node& inlt = o.addChild("inlet");
@@ -733,8 +704,7 @@ save(XML_Node& o, const doublereal* const soln)
     return inlt;
 }
 
-void Surf1D::
-restore(const XML_Node& dom, doublereal* soln, int loglevel)
+void Surf1D::restore(const XML_Node& dom, doublereal* soln, int loglevel)
 {
     Domain1D::restore(dom, soln, loglevel);
     soln[0] = m_temp = ctml::getFloat(dom, "temperature", "temperature");
@@ -756,8 +726,7 @@ string ReactingSurf1D::componentName(size_t n) const
     }
 }
 
-void ReactingSurf1D::
-init()
+void ReactingSurf1D::init()
 {
     m_nv = m_nsp + 1;
     _init(m_nsp+1);
@@ -775,9 +744,8 @@ init()
     setTransientTolerances(1.0e-5, 1.0e-4, 0);
 }
 
-void ReactingSurf1D::
-eval(size_t jg, doublereal* xg, doublereal* rg,
-     integer* diagg, doublereal rdt)
+void ReactingSurf1D::eval(size_t jg, doublereal* xg, doublereal* rg,
+                          integer* diagg, doublereal rdt)
 {
     if (jg != npos && (jg + 2 < firstPoint() || jg > lastPoint() + 2)) {
         return;
@@ -864,8 +832,7 @@ eval(size_t jg, doublereal* xg, doublereal* rg,
     }
 }
 
-XML_Node& ReactingSurf1D::
-save(XML_Node& o, const doublereal* const soln)
+XML_Node& ReactingSurf1D::save(XML_Node& o, const doublereal* const soln)
 {
     const doublereal* s = soln + loc();
     XML_Node& dom = Domain1D::save(o, soln);
@@ -878,8 +845,8 @@ save(XML_Node& o, const doublereal* const soln)
     return dom;
 }
 
-void ReactingSurf1D::
-restore(const XML_Node& dom, doublereal* soln, int loglevel)
+void ReactingSurf1D::restore(const XML_Node& dom, doublereal* soln,
+                             int loglevel)
 {
     Domain1D::restore(dom, soln, loglevel);
     soln[0] = m_temp = ctml::getFloat(dom, "temperature");

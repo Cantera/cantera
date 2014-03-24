@@ -235,8 +235,7 @@ HMWSoln::HMWSoln(const HMWSoln& b) :
     *this = b;
 }
 
-HMWSoln& HMWSoln::
-operator=(const HMWSoln& b)
+HMWSoln& HMWSoln::operator=(const HMWSoln& b)
 {
     if (&b != this) {
         MolalityVPSSTP::operator=(b);
@@ -843,8 +842,7 @@ void HMWSoln::getActivities(doublereal* ac) const
     //applyphScale(ac);
 }
 
-void HMWSoln::
-getUnscaledMolalityActivityCoefficients(doublereal* acMolality) const
+void HMWSoln::getUnscaledMolalityActivityCoefficients(doublereal* acMolality) const
 {
     updateStandardStateThermo();
     A_Debye_TP(-1.0, -1.0);
@@ -913,8 +911,7 @@ void HMWSoln::getPartialMolarEnthalpies(doublereal* hbar) const
     }
 }
 
-void HMWSoln::
-getPartialMolarEntropies(doublereal* sbar) const
+void HMWSoln::getPartialMolarEntropies(doublereal* sbar) const
 {
     /*
      * Get the standard state entropies at the temperature
@@ -1904,8 +1901,7 @@ void HMWSoln::s_updatePitzer_CoeffWRTemp(int doDerivs) const
 
 }
 
-void HMWSoln::
-s_updatePitzer_lnMolalityActCoeff() const
+void HMWSoln::s_updatePitzer_lnMolalityActCoeff() const
 {
     /*
      * HKM -> Assumption is made that the solvent is

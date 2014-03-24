@@ -47,8 +47,7 @@ ThermoPhase* ConstDensityThermo::duplMyselfAsThermoPhase() const
     return new ConstDensityThermo(*this);
 }
 
-int ConstDensityThermo::
-eosType() const
+int ConstDensityThermo::eosType() const
 {
     return cIncompressible;
 }

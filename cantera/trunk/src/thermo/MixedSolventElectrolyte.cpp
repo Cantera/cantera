@@ -56,8 +56,8 @@ MixedSolventElectrolyte::MixedSolventElectrolyte(const MixedSolventElectrolyte& 
     MixedSolventElectrolyte::operator=(b);
 }
 
-MixedSolventElectrolyte& MixedSolventElectrolyte::
-operator=(const MixedSolventElectrolyte& b)
+MixedSolventElectrolyte&
+MixedSolventElectrolyte::operator=(const MixedSolventElectrolyte& b)
 {
     if (&b == this) {
         return *this;

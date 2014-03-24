@@ -58,8 +58,7 @@ Kinetics::Kinetics(const Kinetics& right) :
     *this = right;
 }
 
-Kinetics& Kinetics::
-operator=(const Kinetics& right)
+Kinetics& Kinetics::operator=(const Kinetics& right)
 {
     /*
      * Check for self assignment.

@@ -547,9 +547,9 @@ void solveProb::calcWeights(doublereal wtSpecies[], doublereal wtResid[],
     }
 }
 
-doublereal solveProb::
-calc_t(doublereal netProdRateSolnSP[], doublereal Csoln[],
-       size_t* label, size_t* label_old, doublereal* label_factor, int ioflag)
+doublereal solveProb::calc_t(doublereal netProdRateSolnSP[], doublereal Csoln[],
+                             size_t* label, size_t* label_old, 
+                             doublereal* label_factor, int ioflag)
 {
     doublereal tmp, inv_timeScale=0.0;
     for (size_t k = 0; k < m_neq; k++) {
@@ -892,9 +892,9 @@ void solveProb::printFinal(int ioflag, doublereal damp, size_t label_d, size_t l
 }
 
 #ifdef DEBUG_SOLVEPROB
-void solveProb::
-printIterationHeader(int ioflag, doublereal damp,doublereal inv_t, doublereal t_real,
-                     int iter, bool do_time)
+void solveProb::printIterationHeader(int ioflag, doublereal damp, 
+                                     doublereal inv_t, doublereal t_real,
+                                     int iter, bool do_time)
 {
     if (ioflag > 1) {
         printf("\n===============================Iteration %5d "

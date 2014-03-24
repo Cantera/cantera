@@ -49,9 +49,8 @@ void Domain1D::needJacUpdate()
     }
 }
 
-void Domain1D::
-eval(size_t jg, doublereal* xg, doublereal* rg,
-     integer* mask, doublereal rdt)
+void Domain1D::eval(size_t jg, doublereal* xg, doublereal* rg,
+                    integer* mask, doublereal rdt)
 {
 
     if (jg != npos && (jg + 1 < firstPoint() || jg > lastPoint() + 1)) {

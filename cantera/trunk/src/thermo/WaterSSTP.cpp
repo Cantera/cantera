@@ -113,8 +113,7 @@ void WaterSSTP::initThermo()
     SingleSpeciesTP::initThermo();
 }
 
-void WaterSSTP::
-initThermoXML(XML_Node& phaseNode, const std::string& id)
+void WaterSSTP::initThermoXML(XML_Node& phaseNode, const std::string& id)
 {
     /*
      * Do initializations that don't depend on knowing the XML file
@@ -205,8 +204,7 @@ initThermoXML(XML_Node& phaseNode, const std::string& id)
     m_ready = true;
 }
 
-void WaterSSTP::
-setParametersFromXML(const XML_Node& eosdata)
+void WaterSSTP::setParametersFromXML(const XML_Node& eosdata)
 {
     eosdata._require("model","PureLiquidWater");
 }
@@ -376,8 +374,7 @@ doublereal WaterSSTP::pressure() const
     return m_sub->pressure();
 }
 
-void WaterSSTP::
-setPressure(doublereal p)
+void WaterSSTP::setPressure(doublereal p)
 {
     double T = temperature();
     double dens = density();

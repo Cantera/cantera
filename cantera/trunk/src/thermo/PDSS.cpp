@@ -314,8 +314,7 @@ doublereal PDSS::molarVolume_ref() const
     return 0.0;
 }
 
-doublereal PDSS::
-enthalpyDelp_mole() const
+doublereal PDSS::enthalpyDelp_mole() const
 {
     doublereal RT = m_temp * GasConstant;
     doublereal tmp = enthalpy_RT_ref();

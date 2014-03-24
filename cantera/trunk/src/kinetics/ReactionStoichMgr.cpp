@@ -46,10 +46,9 @@ ReactionStoichMgr& ReactionStoichMgr::operator=(const ReactionStoichMgr& right)
     return *this;
 }
 
-void ReactionStoichMgr::
-add(size_t rxn, const std::vector<size_t>& reactants,
-    const std::vector<size_t>& products,
-    bool reversible)
+void ReactionStoichMgr::add(size_t rxn, const std::vector<size_t>& reactants,
+                            const std::vector<size_t>& products,
+                            bool reversible)
 {
 
     m_reactants.add(rxn, reactants);
@@ -61,8 +60,7 @@ add(size_t rxn, const std::vector<size_t>& reactants,
     }
 }
 
-void ReactionStoichMgr::
-add(size_t rxn, const ReactionData& r)
+void ReactionStoichMgr::add(size_t rxn, const ReactionData& r)
 {
 
     std::vector<size_t> rk;
@@ -118,9 +116,8 @@ add(size_t rxn, const ReactionData& r)
     }
 }
 
-void ReactionStoichMgr::
-getCreationRates(size_t nsp, const doublereal* ropf,
-                 const doublereal* ropr, doublereal* c)
+void ReactionStoichMgr::getCreationRates(size_t nsp, const doublereal* ropf,
+                                         const doublereal* ropr, doublereal* c)
 {
     // zero out the output array
     fill(c, c + nsp, 0.0);
@@ -133,9 +130,9 @@ getCreationRates(size_t nsp, const doublereal* ropf,
     m_reactants.incrementSpecies(ropr, c);
 }
 
-void ReactionStoichMgr::
-getDestructionRates(size_t nsp, const doublereal* ropf,
-                    const doublereal* ropr, doublereal* d)
+void ReactionStoichMgr::getDestructionRates(size_t nsp, const doublereal* ropf,
+                                            const doublereal* ropr,
+                                            doublereal* d)
 {
     fill(d, d + nsp, 0.0);
     // the reverse direction destroys products in reversible reactions
@@ -144,8 +141,9 @@ getDestructionRates(size_t nsp, const doublereal* ropf,
     m_reactants.incrementSpecies(ropf, d);
 }
 
-void ReactionStoichMgr::
-getNetProductionRates(size_t nsp, const doublereal* ropnet, doublereal* w)
+void ReactionStoichMgr::getNetProductionRates(size_t nsp, 
+                                              const doublereal* ropnet,
+                                              doublereal* w)
 {
     fill(w, w + nsp, 0.0);
     // products are created for positive net rate of progress
@@ -155,8 +153,8 @@ getNetProductionRates(size_t nsp, const doublereal* ropnet, doublereal* w)
     m_reactants.decrementSpecies(ropnet, w);
 }
 
-void ReactionStoichMgr::
-getReactionDelta(size_t nr, const doublereal* g, doublereal* dg)
+void ReactionStoichMgr::getReactionDelta(size_t nr, const doublereal* g,
+                                         doublereal* dg)
 {
     fill(dg, dg + nr, 0.0);
     // products add
@@ -166,28 +164,25 @@ getReactionDelta(size_t nr, const doublereal* g, doublereal* dg)
     m_reactants.decrementReactions(g, dg);
 }
 
-void ReactionStoichMgr::
-getRevReactionDelta(size_t nr, const doublereal* g, doublereal* dg)
+void ReactionStoichMgr::getRevReactionDelta(size_t nr, const doublereal* g,
+                                            doublereal* dg)
 {
     fill(dg, dg + nr, 0.0);
     m_revproducts.incrementReactions(g, dg);
     m_reactants.decrementReactions(g, dg);
 }
 
-void ReactionStoichMgr::
-multiplyReactants(const doublereal* c, doublereal* r)
+void ReactionStoichMgr::multiplyReactants(const doublereal* c, doublereal* r)
 {
     m_reactants.multiply(c, r);
 }
 
-void ReactionStoichMgr::
-multiplyRevProducts(const doublereal* c, doublereal* r)
+void ReactionStoichMgr::multiplyRevProducts(const doublereal* c, doublereal* r)
 {
     m_revproducts.multiply(c, r);
 }
 
-void ReactionStoichMgr::
-write(const string& filename)
+void ReactionStoichMgr::write(const string& filename)
 {
     ofstream f(filename.c_str());
     f << "namespace mech {" << endl;
@@ -200,8 +195,7 @@ write(const string& filename)
     f.close();
 }
 
-void ReactionStoichMgr::
-writeCreationRates(ostream& f)
+void ReactionStoichMgr::writeCreationRates(ostream& f)
 {
     f << "    void getCreationRates(const doublereal* rf, const doublereal* rb," << endl;
     f << "          doublereal* c) {" << endl;
@@ -218,8 +212,7 @@ writeCreationRates(ostream& f)
     f << "    }" << endl << endl << endl;
 }
 
-void ReactionStoichMgr::
-writeDestructionRates(ostream& f)
+void ReactionStoichMgr::writeDestructionRates(ostream& f)
 {
     f << "    void getDestructionRates(const doublereal* rf, const doublereal* rb," << endl;
     f << "          doublereal* d) {" << endl;
@@ -235,8 +228,7 @@ writeDestructionRates(ostream& f)
     f << "    }" << endl << endl << endl;
 }
 
-void ReactionStoichMgr::
-writeNetProductionRates(ostream& f)
+void ReactionStoichMgr::writeNetProductionRates(ostream& f)
 {
     f << "    void getNetProductionRates(const doublereal* r, doublereal* w) {" << endl;
     map<size_t, string> out;
@@ -252,8 +244,7 @@ writeNetProductionRates(ostream& f)
     f << "    }" << endl << endl << endl;
 }
 
-void ReactionStoichMgr::
-writeMultiplyReactants(ostream& f)
+void ReactionStoichMgr::writeMultiplyReactants(ostream& f)
 {
     f << "    void multiplyReactants(const doublereal* c, doublereal* r) {" << endl;
     map<size_t, string> out;
@@ -266,8 +257,7 @@ writeMultiplyReactants(ostream& f)
     f << "    }" << endl << endl << endl;
 }
 
-void ReactionStoichMgr::
-writeMultiplyRevProducts(ostream& f)
+void ReactionStoichMgr::writeMultiplyRevProducts(ostream& f)
 {
     f << "    void multiplyRevProducts(const doublereal* c, doublereal* r) {" << endl;
     map<size_t, string> out;

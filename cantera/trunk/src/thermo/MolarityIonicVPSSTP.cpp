@@ -80,8 +80,7 @@ MolarityIonicVPSSTP::MolarityIonicVPSSTP(const MolarityIonicVPSSTP& b) :
     *this = operator=(b);
 }
 
-MolarityIonicVPSSTP& MolarityIonicVPSSTP::
-operator=(const MolarityIonicVPSSTP& b)
+MolarityIonicVPSSTP& MolarityIonicVPSSTP::operator=(const MolarityIonicVPSSTP& b)
 {
     if (&b != this) {
         GibbsExcessVPSSTP::operator=(b);

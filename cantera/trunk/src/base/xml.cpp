@@ -608,9 +608,8 @@ void XML_Node::_require(const std::string& a, const std::string& v) const
     throw CanteraError("XML_Node::require", msg);
 }
 
-XML_Node* XML_Node::
-findNameID(const std::string& nameTarget,
-           const std::string& idTarget) const
+XML_Node* XML_Node::findNameID(const std::string& nameTarget,
+                               const std::string& idTarget) const
 {
     XML_Node* scResult = 0;
     XML_Node* sc;

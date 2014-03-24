@@ -18,8 +18,7 @@ namespace Cantera
 
 ConstPressureReactor::ConstPressureReactor() : Reactor() {}
 
-void ConstPressureReactor::
-getInitialConditions(double t0, size_t leny, double* y)
+void ConstPressureReactor::getInitialConditions(double t0, size_t leny, double* y)
 {
     m_init = true;
     if (m_thermo == 0) {

@@ -54,8 +54,7 @@ PseudoBinaryVPSSTP::PseudoBinaryVPSSTP(const PseudoBinaryVPSSTP& b) :
     *this = operator=(b);
 }
 
-PseudoBinaryVPSSTP& PseudoBinaryVPSSTP::
-operator=(const PseudoBinaryVPSSTP& b)
+PseudoBinaryVPSSTP& PseudoBinaryVPSSTP::operator=(const PseudoBinaryVPSSTP& b)
 {
     if (&b != this) {
         GibbsExcessVPSSTP::operator=(b);

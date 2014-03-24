@@ -74,8 +74,7 @@ MultiPhase& MultiPhase::operator=(const MultiPhase& right)
     return *this;
 }
 
-void MultiPhase::
-addPhases(MultiPhase& mix)
+void MultiPhase::addPhases(MultiPhase& mix)
 {
     size_t n;
     for (n = 0; n < mix.m_np; n++) {
@@ -83,8 +82,8 @@ addPhases(MultiPhase& mix)
     }
 }
 
-void MultiPhase::
-addPhases(std::vector<ThermoPhase*>& phases, const vector_fp& phaseMoles)
+void MultiPhase::addPhases(std::vector<ThermoPhase*>& phases,
+                           const vector_fp& phaseMoles)
 {
     size_t np = phases.size();
     size_t n;
@@ -94,8 +93,7 @@ addPhases(std::vector<ThermoPhase*>& phases, const vector_fp& phaseMoles)
     init();
 }
 
-void MultiPhase::
-addPhase(ThermoPhase* p, doublereal moles)
+void MultiPhase::addPhase(ThermoPhase* p, doublereal moles)
 {
     if (m_init) {
         throw CanteraError("addPhase",

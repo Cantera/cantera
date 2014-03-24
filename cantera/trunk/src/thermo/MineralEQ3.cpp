@@ -142,8 +142,7 @@ doublereal MineralEQ3::thermalExpansionCoeff() const
  * ---- Chemical Potentials and Activities ----
  */
 
-void MineralEQ3::
-getActivityConcentrations(doublereal* c) const
+void MineralEQ3::getActivityConcentrations(doublereal* c) const
 {
     c[0] = 1.0;
 }
@@ -158,8 +157,7 @@ doublereal MineralEQ3::logStandardConc(size_t k) const
     return 0.0;
 }
 
-void MineralEQ3::
-getUnitsStandardConc(doublereal* uA, int k, int sizeUA) const
+void MineralEQ3::getUnitsStandardConc(doublereal* uA, int k, int sizeUA) const
 {
     for (int i = 0; i < 6; i++) {
         uA[i] = 0;
@@ -170,8 +168,7 @@ getUnitsStandardConc(doublereal* uA, int k, int sizeUA) const
  * Properties of the Standard State of the Species in the Solution
  */
 
-void MineralEQ3::
-getStandardChemPotentials(doublereal* mu0) const
+void MineralEQ3::getStandardChemPotentials(doublereal* mu0) const
 {
     getGibbs_RT(mu0);
     mu0[0] *= GasConstant * temperature();
