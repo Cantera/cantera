@@ -15,6 +15,7 @@
 #define CT_GENERALMATRIX_H
 
 #include "cantera/base/ct_defs.h"
+#include "cantera/base/ctexceptions.h"
 
 namespace Cantera
 {
@@ -77,7 +78,9 @@ public:
      *
      * @return  Returns the info variable from lapack
      */
-    virtual int factorQR() = 0;
+    virtual int factorQR() {
+        throw NotImplementedError("GeneralMatrix::factorQR");
+    }
 
     //! Returns an estimate of the inverse of the condition number for the matrix
     /*!
@@ -85,7 +88,9 @@ public:
      *
      * @return  returns the inverse of the condition number
      */
-    virtual doublereal rcondQR() = 0;
+    virtual doublereal rcondQR() {
+        throw NotImplementedError("GeneralMatrix::rcondQR");
+    }
 
     //! Returns an estimate of the inverse of the condition number for the matrix
     /*!
@@ -103,7 +108,9 @@ public:
      *                   0 LU factorization
      *                   1 QR factorization
      */
-    virtual void useFactorAlgorithm(int fAlgorithm) = 0;
+    virtual void useFactorAlgorithm(int fAlgorithm) {
+        throw NotImplementedError("GeneralMatrix::useFactorAlgorithm");
+    };
 
     //! Return the factor algorithm used
     virtual int factorAlgorithm() const = 0;

@@ -218,22 +218,6 @@ public:
 
     virtual void zero();
 
-    //! Factors the A matrix using the QR algorithm, overwriting A
-    /*!
-     * we set m_factored to 2 to indicate the matrix is now QR factored
-     *
-     * @return  Returns the info variable from lapack
-     */
-    virtual int factorQR();
-
-    //! Returns an estimate of the inverse of the condition number for the matrix
-    /*!
-     *   The matrix must have been previously factored using the QR algorithm
-     *
-     * @return  returns the inverse of the condition number
-     */
-    virtual doublereal rcondQR();
-
     //! Returns an estimate of the inverse of the condition number for the matrix
     /*!
      *   The matrix must have been previously factored using the LU algorithm
@@ -244,21 +228,8 @@ public:
      */
     virtual doublereal rcond(doublereal a1norm);
 
-    //! Change the way the matrix is factored
-    /*!
-     *  @param fAlgorithm   integer
-     *                   0 LU factorization
-     *                   1 QR factorization
-     */
-    virtual void useFactorAlgorithm(int fAlgorithm);
-
-    //! Returns the factor algorithm used
-    /*!
-     *     0 LU decomposition
-     *     1 QR decomposition
-     *
-     * This routine will always return 0
-     */
+    //! Returns the factor algorithm used.  This method will always return 0
+    //! (LU) for band matrices.
     virtual int factorAlgorithm() const;
 
     //! Returns the one norm of the matrix
