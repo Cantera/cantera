@@ -131,7 +131,7 @@ vector_int& DenseMatrix::ipiv()
     return m_ipiv;
 }
 
-int solve(DenseMatrix& A, double* b)
+int solve(DenseMatrix& A, double* b, size_t nrhs, size_t ldb)
 {
     int info = 0;
     if (A.nColumns() != A.nRows()) {
@@ -164,8 +164,11 @@ int solve(DenseMatrix& A, double* b)
                             "DGETRF returned INFO = "+int2str(info) + ". The argument i has an illegal value");
     }
 
-    ct_dgetrs(ctlapack::NoTranspose, A.nRows(), 1, A.ptrColumn(0),
-              A.nRows(), &A.ipiv()[0], b, A.nColumns(), info);
+    if (ldb == 0) {
+        ldb = A.nColumns();
+    }
+    ct_dgetrs(ctlapack::NoTranspose, A.nRows(), nrhs, A.ptrColumn(0),
+              A.nRows(), &A.ipiv()[0], b, ldb, info);
     if (info != 0) {
         if (A.m_printLevel) {
             writelogf("solve(DenseMatrix& A, double* b): DGETRS returned INFO = %d\n", info);
@@ -179,55 +182,7 @@ int solve(DenseMatrix& A, double* b)
 
 int solve(DenseMatrix& A, DenseMatrix& b)
 {
-    int info = 0;
-    if (A.nColumns() != A.nRows()) {
-        if (A.m_printLevel) {
-            writelogf("solve(DenseMatrix& A, DenseMatrix& b): Can only solve a square matrix\n");
-        }
-        if (! A.m_useReturnErrorCode) {
-            throw CELapackError("solve(DenseMatrix& A, DenseMatrix& b)", "Can only solve a square matrix");
-        }
-        return -1;
-    }
-    ct_dgetrf(A.nRows(), A.nColumns(), A.ptrColumn(0),
-              A.nRows(), &A.ipiv()[0], info);
-    if (info != 0) {
-        if (info > 0) {
-            if (A.m_printLevel) {
-                writelogf("solve(DenseMatrix& A, DenseMatrix& b): DGETRF returned INFO = %d   U(i,i) is exactly zero. The factorization has"
-                          " been completed, but the factor U is exactly singular, and division by zero will occur if "
-                          "it is used to solve a system of equations.\n", info);
-            }
-            if (! A.m_useReturnErrorCode) {
-                throw CELapackError("solve(DenseMatrix& A, DenseMatrix& b)",
-                                    "DGETRF returned INFO = "+int2str(info) + ".   U(i,i) is exactly zero. The factorization has"
-                                    " been completed, but the factor U is exactly singular, and division by zero will occur if "
-                                    "it is used to solve a system of equations.");
-            }
-        } else {
-            if (A.m_printLevel) {
-                writelogf("solve(DenseMatrix& A, DenseMatrix& b): DGETRF returned INFO = %d. The argument i has an illegal value\n", info);
-            }
-            if (! A.m_useReturnErrorCode) {
-                throw CELapackError("solve(DenseMatrix& A, DenseMatrix& b)",
-                                    "DGETRF returned INFO = "+int2str(info) + ". The argument i has an illegal value");
-            }
-        }
-        return info;
-    }
-
-    ct_dgetrs(ctlapack::NoTranspose, A.nRows(), b.nColumns(), A.ptrColumn(0),
-              A.nRows(), &A.ipiv()[0], b.ptrColumn(0), b.nRows(), info);
-    if (info != 0) {
-        if (A.m_printLevel) {
-            writelogf("solve(DenseMatrix& A, DenseMatrix& b): DGETRS returned INFO = %d\n", info);
-        }
-        if (! A.m_useReturnErrorCode) {
-            throw CELapackError("solve(DenseMatrix& A, DenseMatrix& b)", "DGETRS returned INFO = "+int2str(info));
-        }
-    }
-
-    return info;
+    return solve(A, b.ptrColumn(0), b.nColumns(), b.nRows());
 }
 
 void multiply(const DenseMatrix& A, const double* const b, double* const prod)
