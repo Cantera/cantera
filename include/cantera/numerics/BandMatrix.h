@@ -339,14 +339,6 @@ protected:
 
     //! Extra dp work array needed - size = 3n
     vector_fp work_;
-
-private:
-
-    //! Error function that gets called for unhandled cases
-    /*!
-     * @param msg String containing the message.
-     */
-    void err(const std::string& msg) const;
 };
 
 //! Utility routine to print out the matrix
