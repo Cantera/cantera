@@ -316,8 +316,7 @@ private:
 
     //! Main routine that calculates the current residual and Jacobian
     /*!
-     *  @param JacCol  Vector of pointers to the tops of columns of the
-     *                 Jacobian to be evaluated.
+     *  @param jac     Jacobian to be evaluated.
      *  @param resid   output Vector of residuals, length = m_neq
      *  @param CSolnSP  Vector of species concentrations, unknowns in the
      *                  problem, length = m_neq. These are tweaked in order
@@ -327,7 +326,7 @@ private:
      *  @param do_time Calculate a time dependent residual
      *  @param deltaT  Delta time for time dependent problem.
      */
-    void resjac_eval(std::vector<doublereal*>& JacCol, doublereal* resid,
+    void resjac_eval(SquareMatrix& jac, doublereal* resid,
                      doublereal* CSolnSP,
                      const doublereal* CSolnSPOld,  const bool do_time,
                      const doublereal deltaT);
@@ -532,13 +531,6 @@ private:
 
     //! Vector of mole fractions. length m_maxTotSpecies
     vector_fp m_XMolKinSpecies;
-
-    //! Vector of pointers to the top of the columns of the Jacobian
-    /*!
-     *   The "dim" by "dim" computed Jacobian matrix for the
-     *   local Newton's method.
-     */
-    std::vector<doublereal*> m_JacCol;
 
     //! Jacobian. m_neq by m_neq computed Jacobian matrix for the local
     //! Newton's method.
