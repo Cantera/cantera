@@ -44,7 +44,7 @@ public:
     //! Assignment operator
     SquareMatrix& operator=(const SquareMatrix& right);
 
-    int solve(doublereal* b);
+    int solve(doublereal* b, size_t nrhs=1, size_t ldb=0);
 
     void resize(size_t n, size_t m, doublereal v = 0.0);
 

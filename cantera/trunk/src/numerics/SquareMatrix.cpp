@@ -60,7 +60,7 @@ SquareMatrix& SquareMatrix::operator=(const SquareMatrix& y)
     return *this;
 }
 
-int SquareMatrix::solve(doublereal* b)
+int SquareMatrix::solve(doublereal* b, size_t nrhs, size_t ldb)
 {
     if (useQR_) {
         return solveQR(b);
@@ -75,12 +75,15 @@ int SquareMatrix::solve(doublereal* b)
             return retn;
         }
     }
+    if (ldb == 0) {
+        ldb = nColumns();
+    }
     /*
      * Solve the factored system
      */
     ct_dgetrs(ctlapack::NoTranspose, static_cast<int>(nRows()),
-              1, &(*(begin())), static_cast<int>(nRows()),
-              DATA_PTR(ipiv()), b, static_cast<int>(nColumns()), info);
+              nrhs, &(*(begin())), static_cast<int>(nRows()),
+              DATA_PTR(ipiv()), b, ldb, info);
     if (info != 0) {
         if (m_printLevel) {
             writelogf("SquareMatrix::solve(): DGETRS returned INFO = %d\n", info);

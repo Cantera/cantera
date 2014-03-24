@@ -270,16 +270,19 @@ int BandMatrix::solve(const doublereal* const b, doublereal* const x)
     return solve(x);
 }
 
-int BandMatrix::solve(doublereal* b)
+int BandMatrix::solve(doublereal* b, size_t nrhs, size_t ldb)
 {
     int info = 0;
     if (!m_factored) {
         info = factor();
     }
+    if (ldb == 0) {
+        ldb = nColumns();
+    }
     if (info == 0)
         ct_dgbtrs(ctlapack::NoTranspose, nColumns(), nSubDiagonals(),
-                  nSuperDiagonals(), 1, DATA_PTR(ludata), ldim(),
-                  DATA_PTR(ipiv()), b, nColumns(), info);
+                  nSuperDiagonals(), nrhs, DATA_PTR(ludata), ldim(),
+                  DATA_PTR(ipiv()), b, ldb, info);
 
     // error handling
     if (info != 0) {
