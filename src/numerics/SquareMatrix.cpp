@@ -134,7 +134,7 @@ int SquareMatrix::factor()
     if (useQR_) {
         return factorQR();
     }
-    a1norm_ = ct_dlange('1', m_nrows, m_nrows, &(*(begin())), m_nrows, DATA_PTR(work));
+    a1norm_ = ct_dlange('1', m_nrows, m_nrows, &(*(begin())), m_nrows, 0);
     integer n = static_cast<int>(nRows());
     int info=0;
     m_factored = 1;
