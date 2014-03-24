@@ -462,6 +462,11 @@ static void installShomateThermoFromXML(const std::string& speciesName, SpeciesT
         if (dualRange) {
             getFloatArray(f1ptr->child("floatArray"), c1, false);
         } else {
+            if(c0.size() != 7)
+            {
+              throw CanteraError("installShomateThermoFromXML",
+                                 "Shomate thermo requires 7 coefficients in float array.");
+            }
             c1.resize(7,0.0);
             copy(c0.begin(), c0.begin()+7, c1.begin());
         }
@@ -474,6 +479,11 @@ static void installShomateThermoFromXML(const std::string& speciesName, SpeciesT
     } else {
         throw CanteraError("installShomateThermoFromXML",
                            "non-continuous temperature ranges.");
+    }
+    if(c0.size() != 7 || c1.size() != 7)
+    {
+      throw CanteraError("installShomateThermoFromXML",
+                         "Shomate thermo requires 7 coefficients in float array.");
     }
     vector_fp c(15);
     c[0] = tmid;
