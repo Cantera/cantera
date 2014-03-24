@@ -11,7 +11,6 @@
 #define CT_BANDMATRIX_H
 
 #include "cantera/base/ct_defs.h"
-#include "ctlapack.h"
 #include "cantera/base/utilities.h"
 #include "cantera/base/ctexceptions.h"
 #include "GeneralMatrix.h"

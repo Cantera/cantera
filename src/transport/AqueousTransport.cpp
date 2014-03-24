@@ -11,8 +11,6 @@
 #include "cantera/transport/LiquidTransportParams.h"
 #include "cantera/transport/TransportFactory.h"
 
-#include "cantera/numerics/ctlapack.h"
-
 #include "cantera/base/stringUtils.h"
 
 #include <cstdio>

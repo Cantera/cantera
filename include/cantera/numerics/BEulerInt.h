@@ -12,7 +12,6 @@
 #define CT_BEULERINT_H
 
 #include "cantera/base/ct_defs.h"
-#include "cantera/numerics/ctlapack.h"
 #include "cantera/base/utilities.h"
 #include "cantera/base/ctexceptions.h"
 
