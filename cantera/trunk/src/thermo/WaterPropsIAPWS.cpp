@@ -37,7 +37,7 @@ static const doublereal M_water = 18.015268;
 static const doublereal Rgas = 8.314371E3;   // Joules kmol-1 K-1
 
 // Base constructor
-WaterPropsIAPWS:: WaterPropsIAPWS() :
+WaterPropsIAPWS::WaterPropsIAPWS() :
     m_phi(0),
     tau(-1.0),
     delta(-1.0),
@@ -288,12 +288,12 @@ doublereal WaterPropsIAPWS::dpdrho() const
     return retn * Rgas * temperature / M_water;
 }
 
-doublereal WaterPropsIAPWS:: coeffPresExp() const
+doublereal WaterPropsIAPWS::coeffPresExp() const
 {
     return m_phi->dimdpdT(tau, delta);
 }
 
-doublereal WaterPropsIAPWS:: coeffThermExp() const
+doublereal WaterPropsIAPWS::coeffThermExp() const
 {
     doublereal kappa = isothermalCompressibility();
     doublereal beta = coeffPresExp();

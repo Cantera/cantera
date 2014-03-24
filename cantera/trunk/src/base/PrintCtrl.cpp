@@ -210,7 +210,7 @@ bool PrintCtrl::doCrop() const
     return retn;
 }
 
-void PrintCtrl:: setCropCntrl(CROP_TYPE ctlocal)
+void PrintCtrl::setCropCntrl(CROP_TYPE ctlocal)
 {
     m_cropCntrl = ctlocal;
 }

@@ -422,7 +422,7 @@ void LiquidTransport::getSpeciesViscosities(doublereal* const visc)
     copy(m_viscSpecies.begin(), m_viscSpecies.end(), visc);
 }
 
-doublereal LiquidTransport:: ionConductivity()
+doublereal LiquidTransport::ionConductivity()
 {
     update_T();
     update_C();
@@ -457,7 +457,7 @@ void LiquidTransport::getSpeciesIonConductivity(doublereal* ionCond)
     copy(m_ionCondSpecies.begin(), m_ionCondSpecies.end(), ionCond);
 }
 
-void LiquidTransport:: mobilityRatio(doublereal* mobRat)
+void LiquidTransport::mobilityRatio(doublereal* mobRat)
 {
 
     update_T();
