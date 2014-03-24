@@ -183,31 +183,49 @@ public:
     }
 
     void solveEnergyEqn(size_t j=npos) {
+        bool changed = false;
         if (j == npos)
             for (size_t i = 0; i < m_points; i++) {
+                if (!m_do_energy[i]) {
+                    changed = true;
+                }
                 m_do_energy[i] = true;
             }
         else {
+            if (!m_do_energy[j]) {
+                changed = true;
+            }
             m_do_energy[j] = true;
         }
         m_refiner->setActive(0, true);
         m_refiner->setActive(1, true);
         m_refiner->setActive(2, true);
-        needJacUpdate();
+        if (changed) {
+            needJacUpdate();
+        }
     }
 
     void fixTemperature(size_t j=npos) {
+        bool changed = false;
         if (j == npos)
             for (size_t i = 0; i < m_points; i++) {
+                if (m_do_energy[i]) {
+                    changed = true;
+                }
                 m_do_energy[i] = false;
             }
         else {
+            if (m_do_energy[j]) {
+                changed = true;
+            }
             m_do_energy[j] = false;
         }
         m_refiner->setActive(0, false);
         m_refiner->setActive(1, false);
         m_refiner->setActive(2, false);
-        needJacUpdate();
+        if (changed) {
+            needJacUpdate();
+        }
     }
 
     bool doSpecies(size_t k) {
