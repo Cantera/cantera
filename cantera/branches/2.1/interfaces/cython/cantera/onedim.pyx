@@ -771,7 +771,7 @@ cdef class Sim1D:
             Amount of logging information to display while restoring,
             from 0 (disabled) to 2 (most verbose).
 
-        >>> s.restore(filename='save.xml', id='energy_off')
+        >>> s.restore(filename='save.xml', name='energy_off')
         """
         self.sim.restore(stringify(filename), stringify(name), loglevel)
         self._initialized = True
