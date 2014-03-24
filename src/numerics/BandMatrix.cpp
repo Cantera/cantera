@@ -333,18 +333,6 @@ void BandMatrix::err(const std::string& msg) const
     throw CanteraError("BandMatrix() unimplemented function", msg);
 }
 
-int  BandMatrix::factorQR()
-{
-    factor();
-    return 0;
-}
-
-doublereal  BandMatrix::rcondQR()
-{
-    double a1norm = oneNorm();
-    return rcond(a1norm);
-}
-
 doublereal  BandMatrix::rcond(doublereal a1norm)
 {
     int printLevel = 0;
@@ -374,11 +362,6 @@ doublereal  BandMatrix::rcond(doublereal a1norm)
         }
     }
     return rcond;
-}
-
-void BandMatrix::useFactorAlgorithm(int fAlgorithm)
-{
-    // QR algorithm isn't implemented for banded matrix.
 }
 
 int BandMatrix::factorAlgorithm() const
