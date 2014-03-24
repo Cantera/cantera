@@ -237,9 +237,6 @@ public:
 
     virtual GeneralMatrix* duplMyselfAsGeneralMatrix() const;
 
-    //! Report whether the current matrix has been factored.
-    virtual bool factored() const;
-
     //! Return a pointer to the top of column j, column values are assumed to be contiguous in memory
     /*!
      *  The LAPACK bandstructure has column values which are contiguous in memory:
@@ -280,9 +277,6 @@ public:
      */
     virtual void copyData(const GeneralMatrix& y);
 
-    //! Clear the factored flag
-    virtual void clearFactorFlag();
-
     //! Check to see if we have any zero rows in the jacobian
     /*!
      *  This utility routine checks to see if any rows are zero.
@@ -312,9 +306,6 @@ protected:
 
     //! Factorized data
     vector_fp ludata;
-
-    //! Boolean indicating whether the matrix is factored
-    bool m_factored;
 
     //! Number of rows and columns of the matrix
     size_t m_n;

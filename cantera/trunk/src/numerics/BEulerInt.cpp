@@ -1481,7 +1481,7 @@ void BEulerInt::doNewtonSolve(double time_curr, double* y_curr,
     RRow[0] = delta_y[focusRow];
     RRow[1] = delta_y[focusRow+1];
     double Pcutoff = 1.0E-70;
-    if (!jac.m_factored) {
+    if (!jac.factored()) {
         jacBack = jac;
     } else {
         freshJac = false;

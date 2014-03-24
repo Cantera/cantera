@@ -23,7 +23,6 @@ namespace Cantera
 
 BandMatrix::BandMatrix() :
     GeneralMatrix(1),
-    m_factored(false),
     m_n(0),
     m_kl(0),
     m_ku(0),
@@ -35,7 +34,6 @@ BandMatrix::BandMatrix() :
 
 BandMatrix::BandMatrix(size_t n, size_t kl, size_t ku, doublereal v)   :
     GeneralMatrix(1),
-    m_factored(false),
     m_n(n),
     m_kl(kl),
     m_ku(ku),
@@ -54,8 +52,7 @@ BandMatrix::BandMatrix(size_t n, size_t kl, size_t ku, doublereal v)   :
 }
 
 BandMatrix::BandMatrix(const BandMatrix& y) :
-    GeneralMatrix(1),
-    m_factored(false),
+    GeneralMatrix(y),
     m_n(0),
     m_kl(0),
     m_ku(0),
@@ -66,7 +63,6 @@ BandMatrix::BandMatrix(const BandMatrix& y) :
     m_ku = y.m_ku;
     data = y.data;
     ludata = y.ludata;
-    m_factored = y.m_factored;
     m_ipiv = y.m_ipiv;
     m_colPtrs.resize(m_n);
     size_t ldab = (2 *m_kl + m_ku + 1);
@@ -87,7 +83,6 @@ BandMatrix& BandMatrix::operator=(const BandMatrix& y)
     m_ipiv = y.m_ipiv;
     data = y.data;
     ludata = y.ludata;
-    m_factored = y.m_factored;
     m_colPtrs.resize(m_n);
     size_t ldab = (2 * m_kl + m_ku + 1);
     for (size_t j = 0; j < m_n; j++) {
@@ -439,11 +434,6 @@ GeneralMatrix* BandMatrix::duplMyselfAsGeneralMatrix() const
     return new BandMatrix(*this);
 }
 
-bool BandMatrix::factored() const
-{
-    return m_factored;
-}
-
 doublereal* BandMatrix::ptrColumn(size_t j)
 {
     return m_colPtrs[j];
@@ -460,11 +450,6 @@ void BandMatrix::copyData(const GeneralMatrix& y)
     size_t n = sizeof(doublereal) * m_n * (2 *m_kl + m_ku + 1);
     GeneralMatrix* yyPtr = const_cast<GeneralMatrix*>(&y);
     (void) memcpy(DATA_PTR(data), yyPtr->ptrColumn(0), n);
-}
-
-void BandMatrix::clearFactorFlag()
-{
-    m_factored = 0;
 }
 
 }
