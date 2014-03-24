@@ -93,8 +93,7 @@ def addPythonTest(testname, subdir, script, interpreter, outfile,
             print k,v
             environ[k] = v
         code = subprocess.call([env.subst(interpreter), source[0].abspath] + args.split(),
-                               env=environ,
-                               cwd=workDir)
+                               env=environ)
         if not code:
             # Test was successful
             open(target[0].path, 'w').write(time.asctime()+'\n')
