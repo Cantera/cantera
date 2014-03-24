@@ -14,7 +14,7 @@
 
 #include "ImplicitSurfChem.h"
 #include "cantera/kinetics/InterfaceKinetics.h"
-#include "cantera/base/Array.h"
+#include "cantera/numerics/SquareMatrix.h"
 
 //! @defgroup solvesp_methods Surface Problem Solver Methods
 //! @{
@@ -533,9 +533,6 @@ private:
     //! Vector of mole fractions. length m_maxTotSpecies
     vector_fp m_XMolKinSpecies;
 
-    //! pivots. length MAX(1, m_neq)
-    vector_int m_ipiv;
-
     //! Vector of pointers to the top of the columns of the Jacobian
     /*!
      *   The "dim" by "dim" computed Jacobian matrix for the
@@ -545,7 +542,7 @@ private:
 
     //! Jacobian. m_neq by m_neq computed Jacobian matrix for the local
     //! Newton's method.
-    Array2D m_Jac;
+    SquareMatrix m_Jac;
 
 public:
     int m_ioflag;

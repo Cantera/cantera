@@ -10,7 +10,6 @@
 
 #include "cantera/kinetics/solveSP.h"
 #include "cantera/base/clockWC.h"
-#include "cantera/numerics/ctlapack.h"
 
 #include <cstdio>
 
@@ -125,8 +124,6 @@ solveSP::solveSP(ImplicitSurfChem* surfChemPtr, int bulkFunc) :
     m_wtResid.resize(dim1, 0.0);
     m_wtSpecies.resize(dim1, 0.0);
     m_resid.resize(dim1, 0.0);
-    m_ipiv.resize(dim1, 0);
-
     m_Jac.resize(dim1, dim1, 0.0);
     m_JacCol.resize(dim1, 0);
     for (size_t k = 0; k < dim1; k++) {
@@ -152,7 +149,6 @@ int solveSP::solveSurfProb(int ifunc, doublereal time_scale, doublereal TKelvin,
     doublereal     label_factor = 1.0;
     int iter=0; // iteration number on numlinear solver
     int iter_max=1000; // maximum number of nonlinear iterations
-    int nrhs=1;
     doublereal deltaT = 1.0E-10; // Delta time step
     doublereal damp=1.0, tmp;
     //  Weighted L2 norm of the residual.  Currently, this is only
@@ -291,13 +287,11 @@ int solveSP::solveSurfProb(int ifunc, doublereal time_scale, doublereal TKelvin,
                                       DATA_PTR(m_resid), m_neq);
 
         /*
-         *  Solve Linear system (with LAPACK).  The solution is in resid[]
+         *  Solve Linear system.  The solution is in resid[]
          */
-        ct_dgetrf(m_neq, m_neq, m_JacCol[0], m_neq, DATA_PTR(m_ipiv), info);
+        info = m_Jac.factor();
         if (info==0) {
-            ct_dgetrs(ctlapack::NoTranspose, m_neq, nrhs, m_JacCol[0],
-                      m_neq, DATA_PTR(m_ipiv), DATA_PTR(m_resid), m_neq,
-                      info);
+            m_Jac.solve(&m_resid[0]);
         }
         /*
          *    Force convergence if residual is small to avoid
