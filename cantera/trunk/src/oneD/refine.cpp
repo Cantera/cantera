@@ -27,6 +27,32 @@ Refiner::Refiner(Domain1D& domain) :
     m_thresh = std::sqrt(std::numeric_limits<double>::epsilon());
 }
 
+void Refiner::setCriteria(doublereal ratio, doublereal slope,
+                          doublereal curve, doublereal prune)
+{
+    if (ratio < 2.0) {
+        throw CanteraError("Refiner::setCriteria",
+            "'ratio' must be greater than 2.0 (" + fp2str(ratio) +
+            " was specified).");
+    } else if (slope < 0.0 || slope > 1.0) {
+        throw CanteraError("Refiner::setCriteria",
+            "'slope' must be between 0.0 and 1.0 (" + fp2str(slope) +
+            " was specified).");
+    } else if (curve < 0.0 || curve > 1.0) {
+        throw CanteraError("Refiner::setCriteria",
+            "'curve' must be between 0.0 and 1.0 (" + fp2str(curve) +
+            " was specified).");
+    } else if (prune > curve || prune > slope) {
+        throw CanteraError("Refiner::setCriteria",
+            "'prune' must be less than 'curve' and 'slope' (" + fp2str(prune) +
+            " was specified).");
+    }
+    m_ratio = ratio;
+    m_slope = slope;
+    m_curve = curve;
+    m_prune = prune;
+}
+
 int Refiner::analyze(size_t n, const doublereal* z,
                      const doublereal* x)
 {

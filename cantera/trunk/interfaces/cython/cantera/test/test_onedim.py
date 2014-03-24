@@ -297,7 +297,6 @@ class TestFreeFlame(utilities.CanteraTest):
             k2 = gas2.species_index(species)
             self.assertArrayNear(Y1[k1], Y2[k2])
 
-
     def test_save_restore_remove_species(self):
         reactants= 'H2:1.1, O2:1, AR:5'
         p = 2 * ct.one_atm
@@ -325,6 +324,18 @@ class TestFreeFlame(utilities.CanteraTest):
         for k2, species in enumerate(gas2.species_names):
             k1 = gas1.species_index(species)
             self.assertArrayNear(Y1[k1], Y2[k2])
+
+    def test_refine_criteria_boundscheck(self):
+        self.create_sim(ct.one_atm, 300.0, 'H2:1.1, O2:1, AR:5')
+        good = [3.0, 0.1, 0.2, 0.05]
+        bad = [1.2, 1.1, -2, 0.3]
+
+        self.sim.set_refine_criteria(*good)
+        for i in range(4):
+            with self.assertRaises(Exception):
+                vals = list(good)
+                vals[i] = bad[i]
+                self.sim.set_refine_criteria(*vals)
 
 
 class TestDiffusionFlame(utilities.CanteraTest):

@@ -31,12 +31,8 @@ public:
     void setCriteria(doublereal ratio = 10.0,
                      doublereal slope = 0.8,
                      doublereal curve = 0.8,
-                     doublereal prune = -0.1) {
-        m_ratio = ratio;
-        m_slope = slope;
-        m_curve = curve;
-        m_prune = prune;
-    }
+                     doublereal prune = -0.1);
+
     void setActive(int comp, bool state = true) {
         m_active[comp] = state;
     }

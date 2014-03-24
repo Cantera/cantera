@@ -449,7 +449,7 @@ cdef extern from "cantera/oneD/Sim1D.h":
         void getInitialSoln() except +
         void solve(int, cbool) except +translate_exception
         void refine(int) except +
-        void setRefineCriteria(size_t, double, double, double, double)
+        void setRefineCriteria(size_t, double, double, double, double) except +
         void save(string, string, string, int) except +
         void restore(string, string, int) except +
         void writeStats(int) except +
