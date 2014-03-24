@@ -125,10 +125,6 @@ solveSP::solveSP(ImplicitSurfChem* surfChemPtr, int bulkFunc) :
     m_wtSpecies.resize(dim1, 0.0);
     m_resid.resize(dim1, 0.0);
     m_Jac.resize(dim1, dim1, 0.0);
-    m_JacCol.resize(dim1, 0);
-    for (size_t k = 0; k < dim1; k++) {
-        m_JacCol[k] = m_Jac.ptrColumn(k);
-    }
 }
 
 solveSP::~solveSP()
@@ -268,7 +264,7 @@ int solveSP::solveSurfProb(int ifunc, doublereal time_scale, doublereal TKelvin,
          * Call the routine to numerically evaluation the jacobian
          * and residual for the current iteration.
          */
-        resjac_eval(m_JacCol, DATA_PTR(m_resid), DATA_PTR(m_CSolnSP),
+        resjac_eval(m_Jac, DATA_PTR(m_resid), DATA_PTR(m_CSolnSP),
                     DATA_PTR(m_CSolnSPOld), do_time, deltaT);
 
         /*
@@ -580,14 +576,13 @@ void solveSP::fun_eval(doublereal* resid, const doublereal* CSoln,
     }
 }
 
-void solveSP::resjac_eval(std::vector<doublereal*> &JacCol,
+void solveSP::resjac_eval(SquareMatrix& jac,
                           doublereal resid[], doublereal CSoln[],
                           const doublereal CSolnOld[], const bool do_time,
                           const doublereal deltaT)
 {
     size_t kColIndex = 0, nsp, jsp, i, kCol;
     doublereal dc, cSave, sd;
-    doublereal* col_j;
     /*
      * Calculate the residual
      */
@@ -603,9 +598,8 @@ void solveSP::resjac_eval(std::vector<doublereal*> &JacCol,
             dc = std::max(1.0E-10 * sd, fabs(cSave) * 1.0E-7);
             CSoln[kColIndex] += dc;
             fun_eval(DATA_PTR(m_numEqn2), CSoln, CSolnOld, do_time, deltaT);
-            col_j = JacCol[kColIndex];
             for (i = 0; i < m_neq; i++) {
-                col_j[i] = (m_numEqn2[i] - resid[i])/dc;
+                jac(i, kColIndex) = (m_numEqn2[i] - resid[i])/dc;
             }
             CSoln[kColIndex] = cSave;
             kColIndex++;
@@ -621,9 +615,8 @@ void solveSP::resjac_eval(std::vector<doublereal*> &JacCol,
                 dc = std::max(1.0E-10 * sd, fabs(cSave) * 1.0E-7);
                 CSoln[kColIndex] += dc;
                 fun_eval(DATA_PTR(m_numEqn2), CSoln, CSolnOld, do_time, deltaT);
-                col_j = JacCol[kColIndex];
                 for (i = 0; i < m_neq; i++) {
-                    col_j[i] = (m_numEqn2[i] - resid[i])/dc;
+                    jac(i, kColIndex) = (m_numEqn2[i] - resid[i])/dc;
                 }
                 CSoln[kColIndex] = cSave;
                 kColIndex++;
