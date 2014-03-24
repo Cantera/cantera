@@ -328,11 +328,6 @@ ostream& operator<<(ostream& s, const BandMatrix& m)
     return s;
 }
 
-void BandMatrix::err(const std::string& msg) const
-{
-    throw CanteraError("BandMatrix() unimplemented function", msg);
-}
-
 doublereal  BandMatrix::rcond(doublereal a1norm)
 {
     int printLevel = 0;
