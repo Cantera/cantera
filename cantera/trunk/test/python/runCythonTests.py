@@ -13,11 +13,17 @@ from __future__ import print_function
 import sys
 import os
 
-cantera_root = os.getcwd().split(os.sep)[:-2]
-if sys.version_info[0] == 3:
-    sys.path.insert(0, os.sep.join(cantera_root + ['build', 'python3']))
+cantera_root = os.path.relpath(__file__).split(os.sep)[:-1] + ['..', '..']
+py_version = 'python3' if sys.version_info[0] == 3 else 'python2'
+module_path = os.path.abspath(os.sep.join(cantera_root + ['build', py_version]))
+
+if 'PYTHONPATH' in os.environ:
+    os.environ['PYTHONPATH'] = module_path + os.path.pathsep + os.environ['PYTHONPATH']
 else:
-    sys.path.insert(0, os.sep.join(cantera_root + ['build', 'python2']))
+    os.environ['PYTHONPATH'] = module_path
+
+sys.path.insert(0, module_path)
+os.chdir(os.sep.join(cantera_root + ['test', 'work']))
 
 from cantera.test.utilities import unittest
 import cantera
