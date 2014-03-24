@@ -11,7 +11,6 @@
 
 #include "cantera/numerics/solveProb.h"
 #include "cantera/base/clockWC.h"
-#include "cantera/numerics/ctlapack.h"
 #include "cantera/base/stringUtils.h"
 
 using namespace std;
@@ -48,7 +47,6 @@ solveProb::solveProb(ResidEval* resid) :
     m_wtResid.resize(dim1, 0.0);
     m_wtSpecies.resize(dim1, 0.0);
     m_resid.resize(dim1, 0.0);
-    m_ipiv.resize(dim1, 0);
     m_topBounds.resize(dim1, 1.0);
     m_botBounds.resize(dim1, 0.0);
 
@@ -84,7 +82,6 @@ int solveProb::solve(int ifunc, doublereal time_scale,
     doublereal label_factor = 1.0;
     int iter=0; // iteration number on numlinear solver
     int iter_max=1000; // maximum number of nonlinear iterations
-    int nrhs=1;
     doublereal deltaT = 1.0E-10; // Delta time step
     doublereal damp=1.0, tmp;
     //  Weighted L2 norm of the residual.  Currently, this is only
@@ -238,12 +235,9 @@ int solveProb::solve(int ifunc, doublereal time_scale,
         /*
          *  Solve Linear system (with LAPACK).  The solution is in resid[]
          */
-
-        ct_dgetrf(m_neq, m_neq, m_JacCol[0], m_neq, DATA_PTR(m_ipiv), info);
+        info = m_Jac.factor();
         if (info==0) {
-            ct_dgetrs(ctlapack::NoTranspose, m_neq, nrhs, m_JacCol[0],
-                      m_neq, DATA_PTR(m_ipiv), DATA_PTR(m_resid), m_neq,
-                      info);
+            m_Jac.solve(&m_resid[0]);
         }
         /*
          *    Force convergence if residual is small to avoid
