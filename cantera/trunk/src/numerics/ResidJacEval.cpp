@@ -10,7 +10,6 @@
  */
 
 #include "cantera/base/ct_defs.h"
-#include "cantera/numerics/ctlapack.h"
 #include "cantera/numerics/ResidJacEval.h"
 
 using namespace std;

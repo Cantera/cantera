@@ -8,7 +8,6 @@
 #include "cantera/base/utilities.h"
 #include "cantera/transport/LiquidTransportParams.h"
 #include "cantera/transport/TransportFactory.h"
-#include "cantera/numerics/ctlapack.h"
 #include "cantera/base/stringUtils.h"
 
 using namespace std;

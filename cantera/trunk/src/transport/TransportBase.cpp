@@ -11,8 +11,6 @@
 #include "cantera/transport/TransportFactory.h"
 #include "cantera/base/stringUtils.h"
 
-#include "cantera/numerics/ctlapack.h"
-
 using namespace std;
 
 namespace Cantera
