@@ -209,11 +209,11 @@ void StFlow::_finalize(const doublereal* x)
     bool e = m_do_energy[0];
     for (j = 0; j < m_points; j++) {
         if (e || nz == 0) {
-            setTemperature(j, T(x, j));
+            m_fixedtemp[j] = T(x, j);
         } else {
             zz = (z(j) - z(0))/(z(m_points - 1) - z(0));
             tt = linearInterp(zz, m_zfix, m_tfix);
-            setTemperature(j, tt);
+            m_fixedtemp[j] = tt;
         }
         for (k = 0; k < m_nsp; k++) {
             setMassFraction(j, k, Y(x, k, j));
