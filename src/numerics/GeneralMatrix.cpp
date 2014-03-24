@@ -16,12 +16,14 @@ namespace Cantera
 {
 
 GeneralMatrix::GeneralMatrix(int matType) :
-    matrixType_(matType)
+    matrixType_(matType),
+    m_factored(0)
 {
 }
 
 GeneralMatrix::GeneralMatrix(const GeneralMatrix& y) :
-    matrixType_(y.matrixType_)
+    matrixType_(y.matrixType_),
+    m_factored(y.m_factored)
 {
 }
 
@@ -31,6 +33,7 @@ GeneralMatrix&  GeneralMatrix::operator=(const GeneralMatrix& y)
         return *this;
     }
     matrixType_ = y.matrixType_;
+    m_factored = y.m_factored;
     return *this;
 }
 

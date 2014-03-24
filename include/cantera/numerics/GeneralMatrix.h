@@ -130,7 +130,9 @@ public:
     virtual size_t nRowsAndStruct(size_t* const iStruct = 0) const = 0;
 
     //! clear the factored flag
-    virtual void clearFactorFlag() = 0;
+    virtual void clearFactorFlag() {
+        m_factored = 0;
+    };
 
     //! Solves the Ax = b system returning x in the b spot.
     /*!
@@ -142,7 +144,9 @@ public:
     virtual int solve(doublereal* b, size_t nrhs=1, size_t ldb=0) = 0;
 
     //! true if the current factorization is up to date with the matrix
-    virtual bool factored() const = 0;
+    virtual bool factored() const {
+        return (m_factored != 0);
+    }
 
     //! Return a pointer to the top of column j, columns are assumed to be contiguous in memory
     /*!
@@ -228,6 +232,11 @@ public:
      */
     int matrixType_;
 
+protected:
+    //! Indicates whether the matrix is factored. 0 for unfactored; Non-zero values
+    //! indicate a particular factorization (LU=1, QR=2).
+    int m_factored;
 };
+
 }
 #endif

@@ -22,7 +22,6 @@ namespace Cantera
 SquareMatrix::SquareMatrix() :
     DenseMatrix(),
     GeneralMatrix(0),
-    m_factored(0),
     a1norm_(0.0),
     useQR_(0)
 {
@@ -31,7 +30,6 @@ SquareMatrix::SquareMatrix() :
 SquareMatrix::SquareMatrix(size_t n, doublereal v)  :
     DenseMatrix(n, n, v),
     GeneralMatrix(0),
-    m_factored(0),
     a1norm_(0.0),
     useQR_(0)
 
@@ -41,7 +39,6 @@ SquareMatrix::SquareMatrix(size_t n, doublereal v)  :
 SquareMatrix::SquareMatrix(const SquareMatrix& y) :
     DenseMatrix(y),
     GeneralMatrix(0),
-    m_factored(y.m_factored),
     a1norm_(y.a1norm_),
     useQR_(y.useQR_)
 {
@@ -54,7 +51,6 @@ SquareMatrix& SquareMatrix::operator=(const SquareMatrix& y)
     }
     DenseMatrix::operator=(y);
     GeneralMatrix::operator=(y);
-    m_factored = y.m_factored;
     a1norm_ = y.a1norm_;
     useQR_ = y.useQR_;
     return *this;
@@ -148,11 +144,6 @@ int SquareMatrix::factor()
         }
     }
     return info;
-}
-
-void SquareMatrix::clearFactorFlag()
-{
-    m_factored = 0;
 }
 
 void SquareMatrix::setFactorFlag()
@@ -313,11 +304,6 @@ void SquareMatrix::useFactorAlgorithm(int fAlgorithm)
 int SquareMatrix::factorAlgorithm() const
 {
     return (int) useQR_;
-}
-
-bool SquareMatrix::factored() const
-{
-    return (m_factored != 0);
 }
 
 doublereal* SquareMatrix::ptrColumn(size_t j)

@@ -69,12 +69,9 @@ public:
      */
     int solveQR(doublereal* b);
 
-    virtual void clearFactorFlag();
-
     //! set the factored flag
     void setFactorFlag();
 
-    virtual bool factored() const;
     virtual void useFactorAlgorithm(int fAlgorithm);
 
     //! Returns the factor algorithm used
@@ -121,11 +118,6 @@ public:
     virtual size_t checkRows(doublereal& valueSmall) const;
     virtual size_t checkColumns(doublereal& valueSmall) const;
 
-protected:
-    //!  the factor flag
-    int m_factored;
-
-public:
     //! Work vector for QR algorithm
     vector_fp tau;
 
