@@ -77,8 +77,7 @@ SurfPhase::SurfPhase(const SurfPhase& right) :
     *this = operator=(right);
 }
 
-SurfPhase& SurfPhase::
-operator=(const SurfPhase& right)
+SurfPhase& SurfPhase::operator=(const SurfPhase& right)
 {
     if (&right != this) {
         ThermoPhase::operator=(right);
@@ -194,8 +193,7 @@ void SurfPhase::getGibbs_RT(doublereal* grt) const
     scale(m_mu0.begin(), m_mu0.end(), grt, rrt);
 }
 
-void SurfPhase::
-getEnthalpy_RT(doublereal* hrt) const
+void SurfPhase::getEnthalpy_RT(doublereal* hrt) const
 {
     _updateThermo();
     double rrt = 1.0/(GasConstant*temperature());

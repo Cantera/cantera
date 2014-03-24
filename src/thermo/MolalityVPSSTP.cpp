@@ -57,8 +57,7 @@ MolalityVPSSTP::MolalityVPSSTP(const MolalityVPSSTP& b) :
     *this = operator=(b);
 }
 
-MolalityVPSSTP& MolalityVPSSTP::
-operator=(const MolalityVPSSTP& b)
+MolalityVPSSTP& MolalityVPSSTP::operator=(const MolalityVPSSTP& b)
 {
     if (&b != this) {
         VPStandardStateTP::operator=(b);
@@ -73,8 +72,7 @@ operator=(const MolalityVPSSTP& b)
     return *this;
 }
 
-ThermoPhase*
-MolalityVPSSTP::duplMyselfAsThermoPhase() const
+ThermoPhase* MolalityVPSSTP::duplMyselfAsThermoPhase() const
 {
     return new MolalityVPSSTP(*this);
 }
@@ -120,8 +118,7 @@ size_t MolalityVPSSTP::solventIndex() const
     return m_indexSolvent;
 }
 
-void  MolalityVPSSTP::
-setMoleFSolventMin(doublereal xmolSolventMIN)
+void  MolalityVPSSTP::setMoleFSolventMin(doublereal xmolSolventMIN)
 {
     if (xmolSolventMIN <= 0.0) {
         throw CanteraError("MolalityVPSSTP::setSolute ", "trouble");

@@ -23,8 +23,8 @@ static int ntypes = 5;
 static string _types[] = {"none", "GasKinetics", "Interface", "Edge", "AqueousKinetics"};
 static int _itypes[]   = {0, cGasKinetics, cInterfaceKinetics, cEdgeKinetics, cAqueousKinetics};
 
-Kinetics* KineticsFactory::
-newKinetics(XML_Node& phaseData, vector<ThermoPhase*> th)
+Kinetics* KineticsFactory::newKinetics(XML_Node& phaseData,
+                                       vector<ThermoPhase*> th)
 {
     /*
      * Look for a child of the xml element phase called

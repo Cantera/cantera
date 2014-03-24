@@ -298,8 +298,7 @@ void ImplicitSurfChem::setConcSpecies(const doublereal* const vecConcSpecies)
     }
 }
 
-void ImplicitSurfChem::
-setCommonState_TP(doublereal TKelvin, doublereal PresPa)
+void ImplicitSurfChem::setCommonState_TP(doublereal TKelvin, doublereal PresPa)
 {
     for (size_t ip = 0; ip < m_nsurf; ip++) {
         ThermoPhase* TP_ptr = m_surf[ip];

@@ -1131,8 +1131,7 @@ void HMWSoln::constructPhaseXML(XML_Node& phaseNode, std::string id_)
 
 }
 
-void HMWSoln::
-initThermoXML(XML_Node& phaseNode, const std::string& id_)
+void HMWSoln::initThermoXML(XML_Node& phaseNode, const std::string& id_)
 {
     string stemp;
     if (id_.size() > 0) {

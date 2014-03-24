@@ -53,8 +53,7 @@ MargulesVPSSTP::MargulesVPSSTP(const MargulesVPSSTP& b) :
     MargulesVPSSTP::operator=(b);
 }
 
-MargulesVPSSTP& MargulesVPSSTP::
-operator=(const MargulesVPSSTP& b)
+MargulesVPSSTP& MargulesVPSSTP::operator=(const MargulesVPSSTP& b)
 {
     if (&b == this) {
         return *this;

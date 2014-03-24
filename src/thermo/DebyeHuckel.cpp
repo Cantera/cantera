@@ -117,8 +117,7 @@ DebyeHuckel::DebyeHuckel(const DebyeHuckel& b) :
     *this = b;
 }
 
-DebyeHuckel& DebyeHuckel::
-operator=(const DebyeHuckel& b)
+DebyeHuckel& DebyeHuckel::operator=(const DebyeHuckel& b)
 {
     if (&b != this) {
         MolalityVPSSTP::operator=(b);
@@ -392,8 +391,7 @@ void DebyeHuckel::getActivities(doublereal* ac) const
         exp(m_lnActCoeffMolal[m_indexSolvent]) * xmolSolvent;
 }
 
-void DebyeHuckel::
-getMolalityActivityCoefficients(doublereal* acMolality) const
+void DebyeHuckel::getMolalityActivityCoefficients(doublereal* acMolality) const
 {
     _updateStandardStateThermo();
     A_Debye_TP(-1.0, -1.0);
@@ -469,8 +467,7 @@ void DebyeHuckel::getPartialMolarEnthalpies(doublereal* hbar) const
     }
 }
 
-void DebyeHuckel::
-getPartialMolarEntropies(doublereal* sbar) const
+void DebyeHuckel::getPartialMolarEntropies(doublereal* sbar) const
 {
     /*
      * Get the standard state entropies at the temperature
@@ -608,8 +605,7 @@ static int interp_est(const std::string& estString)
     return rval;
 }
 
-void DebyeHuckel::
-initThermoXML(XML_Node& phaseNode, const std::string& id_)
+void DebyeHuckel::initThermoXML(XML_Node& phaseNode, const std::string& id_)
 {
     if (id_.size() > 0) {
         std::string idp = phaseNode.id();

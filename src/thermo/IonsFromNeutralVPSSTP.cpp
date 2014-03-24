@@ -122,8 +122,8 @@ IonsFromNeutralVPSSTP::IonsFromNeutralVPSSTP(const IonsFromNeutralVPSSTP& b) :
     IonsFromNeutralVPSSTP::operator=(b);
 }
 
-IonsFromNeutralVPSSTP& IonsFromNeutralVPSSTP::
-operator=(const IonsFromNeutralVPSSTP& b)
+IonsFromNeutralVPSSTP&
+IonsFromNeutralVPSSTP::operator=(const IonsFromNeutralVPSSTP& b)
 {
     if (&b == this) {
         return *this;

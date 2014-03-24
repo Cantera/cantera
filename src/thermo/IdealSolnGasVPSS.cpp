@@ -56,8 +56,7 @@ IdealSolnGasVPSS::IdealSolnGasVPSS(const IdealSolnGasVPSS& b) :
     *this = b;
 }
 
-IdealSolnGasVPSS& IdealSolnGasVPSS::
-operator=(const IdealSolnGasVPSS& b)
+IdealSolnGasVPSS& IdealSolnGasVPSS::operator=(const IdealSolnGasVPSS& b)
 {
     if (&b != this) {
         /*

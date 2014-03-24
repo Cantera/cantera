@@ -52,8 +52,7 @@ PhaseCombo_Interaction::PhaseCombo_Interaction(const PhaseCombo_Interaction& b) 
     PhaseCombo_Interaction::operator=(b);
 }
 
-PhaseCombo_Interaction& PhaseCombo_Interaction::
-operator=(const PhaseCombo_Interaction& b)
+PhaseCombo_Interaction& PhaseCombo_Interaction::operator=(const PhaseCombo_Interaction& b)
 {
     if (&b == this) {
         return *this;

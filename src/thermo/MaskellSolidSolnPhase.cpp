@@ -47,8 +47,8 @@ MaskellSolidSolnPhase::MaskellSolidSolnPhase(const MaskellSolidSolnPhase& b) :
     *this = b;
 }
 //=====================================================================================================
-MaskellSolidSolnPhase& MaskellSolidSolnPhase::
-operator=(const MaskellSolidSolnPhase& b)
+MaskellSolidSolnPhase&
+MaskellSolidSolnPhase::operator=(const MaskellSolidSolnPhase& b)
 {
     if (this != &b) {
         VPStandardStateTP::operator=(b);
@@ -61,8 +61,7 @@ ThermoPhase* MaskellSolidSolnPhase::duplMyselfAsThermoPhase() const
     return new MaskellSolidSolnPhase(*this);
 }
 //=====================================================================================================
-void MaskellSolidSolnPhase::
-getActivityConcentrations(doublereal* c) const
+void MaskellSolidSolnPhase::getActivityConcentrations(doublereal* c) const
 {
     getActivityCoefficients(c);
     for(unsigned sp=0; sp < m_kk; ++sp)
@@ -75,8 +74,7 @@ getActivityConcentrations(doublereal* c) const
  *            Molar Thermodynamic Properties of the Solution
  ********************************************************************/
 //=====================================================================================================
-doublereal MaskellSolidSolnPhase::
-enthalpy_mole() const
+doublereal MaskellSolidSolnPhase::enthalpy_mole() const
 {
     _updateThermo();
     const doublereal h0 = GasConstant * temperature() * mean_X(&m_h0_RT[0]);
@@ -104,8 +102,7 @@ doublereal MaskellSolidSolnPhase::entropy_mole() const
  *                  Mechanical Equation of State
  ********************************************************************/
 
-void MaskellSolidSolnPhase::
-setDensity(const doublereal rho)
+void MaskellSolidSolnPhase::setDensity(const doublereal rho)
 {
     /*
      * Unless the input density is exactly equal to the density
@@ -120,8 +117,7 @@ setDensity(const doublereal rho)
     }
 }
 
-void MaskellSolidSolnPhase::
-calcDensity()
+void MaskellSolidSolnPhase::calcDensity()
 {
     const vector_fp & vbar = getStandardVolumes();
 
@@ -150,8 +146,7 @@ void MaskellSolidSolnPhase::setMolarDensity(const doublereal n)
  *        Chemical Potentials and Activities
  ********************************************************************/
 
-void MaskellSolidSolnPhase::
-getActivityCoefficients(doublereal* ac) const
+void MaskellSolidSolnPhase::getActivityCoefficients(doublereal* ac) const
 {
     _updateThermo();
     static const int cacheId = m_cache.getId();
@@ -173,8 +168,7 @@ getActivityCoefficients(doublereal* ac) const
     std::copy(cached.value.begin(), cached.value.end(), ac);
 }
 
-void MaskellSolidSolnPhase::
-getChemPotentials(doublereal* mu) const
+void MaskellSolidSolnPhase::getChemPotentials(doublereal* mu) const
 {
     _updateThermo();
     const doublereal r = moleFraction(product_species_index);
@@ -190,8 +184,7 @@ getChemPotentials(doublereal* mu) const
     mu[reactant_species_index] = RT * m_g0_RT[reactant_species_index] - DgbarDr;
 }
 
-void MaskellSolidSolnPhase::
-getChemPotentials_RT(doublereal* mu) const
+void MaskellSolidSolnPhase::getChemPotentials_RT(doublereal* mu) const
 {
   const doublereal invRT = 1.0 / (GasConstant * temperature());
   getChemPotentials(mu);
@@ -210,26 +203,22 @@ void MaskellSolidSolnPhase::getPartialMolarEnthalpies(doublereal* hbar) const
   throw CanteraError("MaskellSolidSolnPhase::getPartialMolarEnthalpies()", "Not yet implemented.");
 }
 
-void MaskellSolidSolnPhase::
-getPartialMolarEntropies(doublereal* sbar) const
+void MaskellSolidSolnPhase::getPartialMolarEntropies(doublereal* sbar) const
 {
   throw CanteraError("MaskellSolidSolnPhase::getPartialMolarEntropies()", "Not yet implemented.");
 }
 
-void MaskellSolidSolnPhase::
-getPartialMolarCp(doublereal* cpbar) const
+void MaskellSolidSolnPhase::getPartialMolarCp(doublereal* cpbar) const
 {
   throw CanteraError("MaskellSolidSolnPhase::getPartialMolarCp()", "Not yet implemented.");
 }
 
-void MaskellSolidSolnPhase::
-getPartialMolarVolumes(doublereal* vbar) const
+void MaskellSolidSolnPhase::getPartialMolarVolumes(doublereal* vbar) const
 {
   getStandardVolumes(vbar);
 }
 
-void MaskellSolidSolnPhase::
-getPureGibbs(doublereal* gpure) const
+void MaskellSolidSolnPhase::getPureGibbs(doublereal* gpure) const
 {
     _updateThermo();
     const doublereal RT = GasConstant * temperature();
@@ -239,8 +228,7 @@ getPureGibbs(doublereal* gpure) const
     }
 }
 
-void MaskellSolidSolnPhase::
-getStandardChemPotentials(doublereal* mu) const
+void MaskellSolidSolnPhase::getStandardChemPotentials(doublereal* mu) const
 {
   // What is the difference between this and getPureGibbs? IdealSolidSolnPhase gives the same for both
   getPureGibbs(mu);

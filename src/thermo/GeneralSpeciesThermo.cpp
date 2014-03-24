@@ -31,8 +31,7 @@ GeneralSpeciesThermo::GeneralSpeciesThermo() :
     m_thigh_min = 1.0E30;
 }
 
-GeneralSpeciesThermo::
-GeneralSpeciesThermo(const GeneralSpeciesThermo& b) :
+GeneralSpeciesThermo::GeneralSpeciesThermo(const GeneralSpeciesThermo& b) :
     m_tlow_max(b.m_tlow_max),
     m_thigh_min(b.m_thigh_min),
     m_kk(b.m_kk)
@@ -204,9 +203,8 @@ void GeneralSpeciesThermo::installPDSShandler(size_t k, PDSS* PDSS_ptr,
     install_STIT(stit_ptr);
 }
 
-void GeneralSpeciesThermo::
-update_one(size_t k, doublereal t, doublereal* cp_R,
-           doublereal* h_RT, doublereal* s_R) const
+void GeneralSpeciesThermo::update_one(size_t k, doublereal t, doublereal* cp_R,
+                                      doublereal* h_RT, doublereal* s_R) const
 {
     SpeciesThermoInterpType* sp_ptr = m_sp[k];
     if (sp_ptr) {
@@ -214,9 +212,8 @@ update_one(size_t k, doublereal t, doublereal* cp_R,
     }
 }
 
-void GeneralSpeciesThermo::
-update(doublereal t, doublereal* cp_R,
-       doublereal* h_RT, doublereal* s_R) const
+void GeneralSpeciesThermo::update(doublereal t, doublereal* cp_R,
+                                  doublereal* h_RT, doublereal* s_R) const
 {
     vector<SpeciesThermoInterpType*>::const_iterator _begin, _end;
     _begin  = m_sp.begin();
@@ -242,9 +239,9 @@ int GeneralSpeciesThermo::reportType(size_t index) const
     return -1;
 }
 
-void GeneralSpeciesThermo::
-reportParams(size_t index, int& type, doublereal* const c,
-             doublereal& minTemp_, doublereal& maxTemp_, doublereal& refPressure_) const
+void GeneralSpeciesThermo::reportParams(size_t index, int& type,
+        doublereal* const c, doublereal& minTemp_, doublereal& maxTemp_,
+        doublereal& refPressure_) const
 {
     SpeciesThermoInterpType* sp = m_sp[index];
     size_t n;

@@ -26,8 +26,7 @@ StoichSubstance::StoichSubstance(const StoichSubstance& right) :
     *this = operator=(right);
 }
 
-StoichSubstance& StoichSubstance::
-operator=(const StoichSubstance& right)
+StoichSubstance& StoichSubstance::operator=(const StoichSubstance& right)
 {
     if (&right != this) {
         ThermoPhase::operator=(right);
@@ -143,8 +142,7 @@ void StoichSubstance::getStandardChemPotentials(doublereal*  mu0) const
     mu0[0] = gibbs_mole();
 }
 
-void StoichSubstance::
-getUnitsStandardConc(double* uA, int k, int sizeUA) const
+void StoichSubstance::getUnitsStandardConc(double* uA, int k, int sizeUA) const
 {
     for (int i = 0; i < sizeUA; i++) {
         uA[i] = 0.0;

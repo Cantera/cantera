@@ -754,9 +754,10 @@ void solveSP::calcWeights(doublereal wtSpecies[], doublereal wtResid[],
     }
 }
 
-doublereal solveSP::
-calc_t(doublereal netProdRateSolnSP[], doublereal XMolSolnSP[],
-       int* label, int* label_old, doublereal* label_factor, int ioflag)
+doublereal solveSP::calc_t(doublereal netProdRateSolnSP[],
+                          doublereal XMolSolnSP[],
+                          int* label, int* label_old,
+                          doublereal* label_factor, int ioflag)
 {
     size_t k, isp, nsp, kstart;
     doublereal   inv_timeScale = 1.0E-10;

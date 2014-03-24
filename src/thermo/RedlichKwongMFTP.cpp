@@ -180,8 +180,7 @@ RedlichKwongMFTP::RedlichKwongMFTP(const RedlichKwongMFTP& b) :
     *this = b;
 }
 
-RedlichKwongMFTP& RedlichKwongMFTP::
-operator=(const RedlichKwongMFTP& b)
+RedlichKwongMFTP& RedlichKwongMFTP::operator=(const RedlichKwongMFTP& b)
 {
     if (&b != this) {
         /*

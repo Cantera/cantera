@@ -131,8 +131,7 @@ RedlichKisterVPSSTP::RedlichKisterVPSSTP(const RedlichKisterVPSSTP& b) :
     RedlichKisterVPSSTP::operator=(b);
 }
 
-RedlichKisterVPSSTP& RedlichKisterVPSSTP::
-operator=(const RedlichKisterVPSSTP& b)
+RedlichKisterVPSSTP& RedlichKisterVPSSTP::operator=(const RedlichKisterVPSSTP& b)
 {
     if (&b == this) {
         return *this;
@@ -153,8 +152,7 @@ operator=(const RedlichKisterVPSSTP& b)
     return *this;
 }
 
-ThermoPhase*
-RedlichKisterVPSSTP::duplMyselfAsThermoPhase() const
+ThermoPhase* RedlichKisterVPSSTP::duplMyselfAsThermoPhase() const
 {
     return new RedlichKisterVPSSTP(*this);
 }

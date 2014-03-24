@@ -153,8 +153,8 @@ double VCS_SPECIES_THERMO::GStar_R_calc(size_t kglob, double TKelvin,
     return fe;
 }
 
-double VCS_SPECIES_THERMO::
-VolStar_calc(size_t kglob, double TKelvin, double presPA)
+double VCS_SPECIES_THERMO::VolStar_calc(size_t kglob, double TKelvin, 
+                                        double presPA)
 {
     char yo[] = "VCS_SPECIES_THERMO::VStar_calc ";
     double vol, T;

@@ -752,12 +752,12 @@ void SpeciesThermoFactory::installThermoForSpecies
     }
 }
 
-void SpeciesThermoFactory::
-installVPThermoForSpecies(size_t k, const XML_Node& speciesNode,
-                          VPStandardStateTP* vp_ptr,
-                          VPSSMgr* vpssmgr_ptr,
-                          SpeciesThermo* spthermo_ptr,
-                          const XML_Node* phaseNode_ptr) const
+void SpeciesThermoFactory::installVPThermoForSpecies(size_t k,
+    const XML_Node& speciesNode,
+    VPStandardStateTP* vp_ptr,
+    VPSSMgr* vpssmgr_ptr,
+    SpeciesThermo* spthermo_ptr,
+    const XML_Node* phaseNode_ptr) const
 {
 
     // Call the VPStandardStateTP object to install the pressure dependent species

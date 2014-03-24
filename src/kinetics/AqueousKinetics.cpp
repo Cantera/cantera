@@ -100,11 +100,13 @@ Kinetics* AqueousKinetics::duplMyselfAsKinetics(const std::vector<thermo_t*> & t
     return gK;
 }
 
-void AqueousKinetics::
-update_T() {}
+void AqueousKinetics::update_T()
+{
+}
 
-void AqueousKinetics::
-update_C() {}
+void AqueousKinetics::update_C()
+{
+}
 
 void AqueousKinetics::_update_rates_T()
 {
@@ -117,8 +119,7 @@ void AqueousKinetics::_update_rates_T()
     m_ROP_ok = false;
 }
 
-void AqueousKinetics::
-_update_rates_C()
+void AqueousKinetics::_update_rates_C()
 {
     thermo().getActivityConcentrations(&m_conc[0]);
 
@@ -312,8 +313,7 @@ void AqueousKinetics::updateROP()
     m_ROP_ok = true;
 }
 
-void AqueousKinetics::
-getFwdRateConstants(doublereal* kfwd)
+void AqueousKinetics::getFwdRateConstants(doublereal* kfwd)
 {
     _update_rates_T();
     _update_rates_C();
@@ -329,8 +329,8 @@ getFwdRateConstants(doublereal* kfwd)
     }
 }
 
-void AqueousKinetics::
-getRevRateConstants(doublereal* krev, bool doIrreversible)
+void AqueousKinetics::getRevRateConstants(doublereal* krev,
+                                          bool doIrreversible)
 {
     /*
      * go get the forward rate constants. -> note, we don't
