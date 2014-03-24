@@ -8,7 +8,6 @@
  */
 
 #include "cantera/transport/MultiTransport.h"
-#include "cantera/numerics/ctlapack.h"
 #include "cantera/base/utilities.h"
 #include "cantera/transport/TransportParams.h"
 #include "cantera/thermo/IdealGasPhase.h"
@@ -279,25 +278,16 @@ void MultiTransport::getSpeciesFluxes(size_t ndim, const doublereal* const grad_
     }
 
     // use LAPACK to solve the equations
-    int info=0;
-    ct_dgetrf(static_cast<int>(m_aa.nRows()),
-              static_cast<int>(m_aa.nColumns()), m_aa.ptrColumn(0),
-              static_cast<int>(m_aa.nRows()),
-              &m_aa.ipiv()[0], info);
-    if (info == 0) {
-        ct_dgetrs(ctlapack::NoTranspose,
-                  static_cast<int>(m_aa.nRows()), ndim,
-                  m_aa.ptrColumn(0), static_cast<int>(m_aa.nRows()),
-                  &m_aa.ipiv()[0], fluxes, ldf, info);
-        if (info != 0) {
-            info += 100;
-        }
-    } else
+    int info = m_aa.factor();
+    if (info) {
         throw CanteraError("MultiTransport::getSpeciesFluxes",
-                           "Error in DGETRF");
-    if (info > 50)
+                           "Error factorizing matrix.");
+    }
+    info = m_aa.solve(fluxes, ndim, ldf);
+    if (info) {
         throw CanteraError("MultiTransport::getSpeciesFluxes",
-                           "Error in DGETRS");
+                           "Error solving linear system.");
+    }
 
     size_t offset;
     doublereal pp = pressure_ig();
@@ -397,22 +387,17 @@ void MultiTransport::getMassFluxes(const doublereal* state1, const doublereal* s
     }
     fluxes[jmax] = 0.0;
 
-    // use LAPACK to solve the equations
-    int info=0;
-    size_t nr = m_aa.nRows();
-    size_t nc = m_aa.nColumns();
-
-    ct_dgetrf(nr, nc, m_aa.ptrColumn(0), nr, &m_aa.ipiv()[0], info);
-    if (info == 0) {
-        int ndim = 1;
-        ct_dgetrs(ctlapack::NoTranspose, nr, ndim,
-                  m_aa.ptrColumn(0), nr, &m_aa.ipiv()[0], fluxes, nr, info);
-        if (info != 0)
-            throw CanteraError("MultiTransport::getMassFluxes",
-                               "Error in DGETRS. Info = "+int2str(info));
-    } else
+    // Solve the equations
+    int info = m_aa.factor();
+    if (info) {
         throw CanteraError("MultiTransport::getMassFluxes",
-                           "Error in DGETRF.  Info = "+int2str(info));
+                           "Error in factorization.  Info = "+int2str(info));
+    }
+    info = m_aa.solve(fluxes);
+    if (info) {
+        throw CanteraError("MultiTransport::getMassFluxes",
+                           "Error in linear solve. Info = "+int2str(info));
+    }
 
     doublereal pp = pressure_ig();
 
