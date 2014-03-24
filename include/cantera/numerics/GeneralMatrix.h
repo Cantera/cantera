@@ -127,9 +127,12 @@ public:
 
     //! Solves the Ax = b system returning x in the b spot.
     /*!
-     *  @param b  Vector for the rhs of the equation system
+     *  @param b    Vector for the rhs of the equation system
+     *  @param nrhs Number of right-hand sides to solve, default 1
+     *  @param ldb  Leading dimension of the right-hand side array.
+     *              Defaults to nRows()
      */
-    virtual int solve(doublereal* b) = 0;
+    virtual int solve(doublereal* b, size_t nrhs=1, size_t ldb=0) = 0;
 
     //! true if the current factorization is up to date with the matrix
     virtual bool factored() const = 0;

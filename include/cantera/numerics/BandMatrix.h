@@ -191,7 +191,7 @@ public:
      *          0 indicates a success
      *         ~0  Some error occurred, see the LAPACK documentation
      */
-    int solve(doublereal* b);
+    int solve(doublereal* b, size_t nrhs=1, size_t ldb=0);
 
     //! Returns an iterator for the start of the band storage data
     /*!
