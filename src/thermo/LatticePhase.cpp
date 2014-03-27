@@ -75,23 +75,10 @@ doublereal LatticePhase::enthalpy_mole() const
            + (pressure() - p0)/molarDensity();
 }
 
-doublereal LatticePhase::intEnergy_mole() const
-{
-    doublereal p0 = m_spthermo->refPressure();
-    return GasConstant * temperature() *
-           mean_X(&enthalpy_RT_ref()[0])
-           - p0/molarDensity();
-}
-
 doublereal LatticePhase::entropy_mole() const
 {
     return GasConstant * (mean_X(&entropy_R_ref()[0]) -
                           sum_xlogx());
-}
-
-doublereal LatticePhase::gibbs_mole() const
-{
-    return enthalpy_mole() - temperature() * entropy_mole();
 }
 
 doublereal LatticePhase::cp_mole() const

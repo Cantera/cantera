@@ -218,14 +218,6 @@ public:
      */
     virtual doublereal enthalpy_mole() const;
 
-    /**
-     * Molar internal energy. J/kmol.
-     *
-     * This is calculated from the soln enthalpy and then
-     * subtracting pV.
-     */
-    virtual doublereal intEnergy_mole() const;
-
     //! Molar entropy. Units: J/kmol/K.
     virtual doublereal entropy_mole() const;
 

@@ -388,19 +388,6 @@ public:
     }
 
     /**
-     * Molar internal energy. J/kmol. For an ideal gas mixture,
-     * \f[
-     * \hat u(T) = \sum_k X_k \hat h^0_k(T) - \hat R T,
-     * \f]
-     * and is a function only of temperature.
-     * The reference-state pure-species enthalpies
-     * \f$ \hat h^0_k(T) \f$ are computed by the species thermodynamic
-     * property manager.
-     * @see SpeciesThermo
-     */
-    virtual doublereal intEnergy_mole() const;
-
-    /**
      * Molar entropy. Units: J/kmol/K.
      * For an ideal gas mixture,
      * \f[
@@ -412,12 +399,6 @@ public:
      * @see SpeciesThermo
      */
     virtual doublereal entropy_mole() const;
-
-    /**
-     * Molar Gibbs free Energy for an ideal gas.
-     * Units =  J/kmol.
-     */
-    virtual doublereal gibbs_mole() const;
 
     /**
      * Molar heat capacity at constant pressure. Units: J/kmol/K.

@@ -1389,13 +1389,6 @@ public:
      */
     virtual doublereal relative_molal_enthalpy() const;
 
-    /// Molar internal energy. Units: J/kmol.
-    /**
-     * Molar internal energy of the solution. Units: J/kmol.
-     *      (HKM -> Bump up to Parent object)
-     */
-    virtual doublereal intEnergy_mole() const;
-
     /// Molar entropy. Units: J/kmol/K.
     /**
      * Molar entropy of the solution. Units: J/kmol/K.

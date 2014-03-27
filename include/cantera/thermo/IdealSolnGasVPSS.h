@@ -81,14 +81,8 @@ public:
     /// Molar enthalpy. Units: J/kmol.
     doublereal enthalpy_mole() const;
 
-    /// Molar internal energy. Units: J/kmol.
-    doublereal intEnergy_mole() const;
-
     /// Molar entropy. Units: J/kmol/K.
     doublereal entropy_mole() const;
-
-    /// Molar Gibbs function. Units: J/kmol.
-    doublereal gibbs_mole() const;
 
     /// Molar heat capacity at constant pressure. Units: J/kmol/K.
     doublereal cp_mole() const;

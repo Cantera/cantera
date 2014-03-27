@@ -69,19 +69,9 @@ ThermoPhase* IdealGasPhase::duplMyselfAsThermoPhase() const
 
 // Molar Thermodynamic Properties of the Solution ------------------
 
-doublereal IdealGasPhase::intEnergy_mole() const
-{
-    return GasConstant * temperature() * (mean_X(&enthalpy_RT_ref()[0]) - 1.0);
-}
-
 doublereal IdealGasPhase::entropy_mole() const
 {
     return GasConstant * (mean_X(&entropy_R_ref()[0]) - sum_xlogx() - std::log(pressure() / m_spthermo->refPressure()));
-}
-
-doublereal IdealGasPhase::gibbs_mole() const
-{
-    return enthalpy_mole() - temperature() * entropy_mole();
 }
 
 doublereal IdealGasPhase::cp_mole() const

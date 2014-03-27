@@ -119,14 +119,6 @@ doublereal IdealSolidSolnPhase::enthalpy_mole() const
     return htp + (pressure() - m_Pref)/molarDensity();
 }
 
-doublereal IdealSolidSolnPhase::intEnergy_mole() const
-{
-    const double* eptr = DATA_PTR(enthalpy_RT_ref().begin());
-    doublereal htp = (GasConstant * temperature() *
-                      mean_X(eptr));
-    return htp - m_Pref / molarDensity();
-}
-
 doublereal IdealSolidSolnPhase::entropy_mole() const
 {
     const double* dptr = DATA_PTR(entropy_R_ref());

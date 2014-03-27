@@ -199,15 +199,6 @@ doublereal DebyeHuckel::enthalpy_mole() const
     return mean_X(DATA_PTR(m_tmpV));
 }
 
-doublereal DebyeHuckel::intEnergy_mole() const
-{
-    // This is calculated from the soln enthalpy and then subtracting pV.
-    double hh = enthalpy_mole();
-    double pres = pressure();
-    double molarV = 1.0/molarDensity();
-    return hh - pres * molarV;
-}
-
 doublereal DebyeHuckel::entropy_mole() const
 {
     getPartialMolarEntropies(DATA_PTR(m_tmpV));
