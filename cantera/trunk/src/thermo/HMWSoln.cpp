@@ -690,20 +690,6 @@ void HMWSoln::calcDensity()
     Phase::setDensity(dd);
 }
 
-doublereal HMWSoln::isothermalCompressibility() const
-{
-    throw CanteraError("HMWSoln::isothermalCompressibility",
-                       "unimplemented");
-    return 0.0;
-}
-
-doublereal HMWSoln::thermalExpansionCoeff() const
-{
-    throw CanteraError("HMWSoln::thermalExpansionCoeff",
-                       "unimplemented");
-    return 0.0;
-}
-
 double HMWSoln::density() const
 {
     //    calcDensity();

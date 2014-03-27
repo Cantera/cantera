@@ -344,13 +344,6 @@ void RedlichKwongMFTP::setConcentrations(const doublereal* const c)
     updateAB();
 }
 
-doublereal RedlichKwongMFTP::isothermalCompressibility() const
-{
-    throw CanteraError("RedlichKwongMFTP::isothermalCompressibility() ",
-                       "not implemented");
-    return 0.0;
-}
-
 void RedlichKwongMFTP::getActivityConcentrations(doublereal* c) const
 {
     getPartialMolarVolumes(DATA_PTR(m_partialMolarVolumes));

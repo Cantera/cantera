@@ -572,34 +572,6 @@ public:
     virtual void setParametersFromXML(const XML_Node& eosdata) {}
 
     //@}
-    /// @name Saturation properties.
-    /// These methods are only implemented by subclasses that
-    /// implement full liquid-vapor equations of state.
-    ///
-    virtual doublereal satTemperature(doublereal p) const {
-        err("satTemperature");
-        return -1.0;
-    }
-
-    virtual doublereal satPressure(doublereal t) {
-        err("satPressure");
-        return -1.0;
-    }
-
-    virtual doublereal vaporFraction() const {
-        err("vaprFraction");
-        return -1.0;
-    }
-
-    virtual void setState_Tsat(doublereal t, doublereal x) {
-        err("setState_sat");
-    }
-
-    virtual void setState_Psat(doublereal p, doublereal x) {
-        err("setState_sat");
-    }
-
-    //@}
 
     /**
      * @internal Initialize.

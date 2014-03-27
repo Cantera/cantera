@@ -284,20 +284,6 @@ void DebyeHuckel::calcDensity()
     Phase::setDensity(dd);
 }
 
-doublereal DebyeHuckel::isothermalCompressibility() const
-{
-    throw CanteraError("DebyeHuckel::isothermalCompressibility",
-                       "unimplemented");
-    return 0.0;
-}
-
-doublereal DebyeHuckel::thermalExpansionCoeff() const
-{
-    throw CanteraError("DebyeHuckel::thermalExpansionCoeff",
-                       "unimplemented");
-    return 0.0;
-}
-
 void DebyeHuckel::setDensity(doublereal rho)
 {
     double dens = density();

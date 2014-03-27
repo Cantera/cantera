@@ -1545,29 +1545,6 @@ public:
     virtual void setState_TP(doublereal t, doublereal p);
 
     /**
-     * The isothermal compressibility. Units: 1/Pa.
-     * The isothermal compressibility is defined as
-     * \f[
-     * \kappa_T = -\frac{1}{v}\left(\frac{\partial v}{\partial P}\right)_T
-     * \f]
-     *  It's equal to zero for this model, since the molar volume
-     *  doesn't change with pressure or temperature.
-     */
-    virtual doublereal isothermalCompressibility() const;
-
-    /**
-     * The thermal expansion coefficient. Units: 1/K.
-     * The thermal expansion coefficient is defined as
-     *
-     * \f[
-     * \beta = \frac{1}{v}\left(\frac{\partial v}{\partial T}\right)_P
-     * \f]
-     *  It's equal to zero for this model, since the molar volume
-     *  doesn't change with pressure or temperature.
-     */
-    virtual doublereal thermalExpansionCoeff() const;
-
-    /**
      * @}
      * @name Potential Energy
      *
@@ -1918,40 +1895,6 @@ public:
      */
     virtual void setParametersFromXML(const XML_Node& eosdata);
 
-    //---------------------------------------------------------
-    /// @name Critical state properties.
-    /// These methods are only implemented by some subclasses.
-    //@{
-
-    /// Critical temperature (K).
-    virtual doublereal critTemperature() const {
-        err("critTemperature");
-        return -1.0;
-    }
-
-    /// Critical pressure (Pa).
-    virtual doublereal critPressure() const {
-        err("critPressure");
-        return -1.0;
-    }
-
-    /// Critical density (kg/m3).
-    virtual doublereal critDensity() const {
-        err("critDensity");
-        return -1.0;
-    }
-
-    //@}
-
-    /// @name Saturation properties.
-    /// These methods are only implemented by subclasses that
-    /// implement full liquid-vapor equations of state.
-    ///
-    virtual doublereal satTemperature(doublereal p) const {
-        err("satTemperature");
-        return -1.0;
-    }
-
     //! Get the saturation pressure for a given temperature.
     /*!
      * Note the limitations of this function. Stability considerations
@@ -1968,21 +1911,6 @@ public:
      * @param T  Temperature (kelvin)
      */
     virtual doublereal satPressure(doublereal T);
-
-    virtual doublereal vaporFraction() const {
-        err("vaprFraction");
-        return -1.0;
-    }
-
-    virtual void setState_Tsat(doublereal t, doublereal x) {
-        err("setState_sat");
-    }
-
-    virtual void setState_Psat(doublereal p, doublereal x) {
-        err("setState_sat");
-    }
-
-    //@}
 
     /*
      *  -------------- Utilities -------------------------------
