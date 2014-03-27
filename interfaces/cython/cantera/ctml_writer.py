@@ -20,14 +20,18 @@ from __future__ import print_function
 
 import sys
 
+def _printerr(*args):
+    # All debug and error output should go to stderr
+    print(*args, file=sys.stderr)
+
 class CTI_Error(Exception):
     """Exception raised if an error is encountered while
     parsing the input file.
     @ingroup pygroup"""
     def __init__(self, msg):
-        print('\n\n***** Error parsing input file *****\n\n')
-        print(msg)
-        print()
+        _printerr('\n\n***** Error parsing input file *****\n\n')
+        _printerr(msg)
+        _printerr()
 
 
 
@@ -993,12 +997,13 @@ class Arrhenius(rate_expression):
                             "temperature exponent. Specify one or the other.")
         elif n is not None and b == 0.0:
             b = n
-            print("Warning: Usage of n to specify the temperature exponent is "
-                  "deprecated and will be removed in a future version. Use b "
-                  "to specify the temperature exponent by keyword. Please check "
-                  "your cti file for places where the temperature exponent of "
-                  "the reaction rate is set by n = XXX and change them to "
-                  "b = XXX.")
+            _printerr(
+                "Warning: Usage of n to specify the temperature exponent is "
+                "deprecated and will be removed in a future version. Use b "
+                "to specify the temperature exponent by keyword. Please check "
+                "your cti file for places where the temperature exponent of "
+                "the reaction rate is set by n = XXX and change them to "
+                "b = XXX.")
 
         self._c = [A, b, E]
         self._type = rate_type
@@ -1887,9 +1892,9 @@ class ideal_gas(phase):
         self._kin = kinetics
         self._tr = transport
         if self.debug:
-            print('Read ideal_gas entry '+self._name)
+            _printerr('Read ideal_gas entry '+self._name)
             try:
-                print('in file '+__name__)
+                _printerr('in file '+__name__)
             except:
                 pass
 
@@ -2590,6 +2595,7 @@ class Lindemann(object):
 validate()
 
 def convert(filename, outName=None):
+
     import os
     base = os.path.basename(filename)
     root, _ = os.path.splitext(base)
@@ -2602,16 +2608,16 @@ def convert(filename, outName=None):
         # Show more context than the default SyntaxError message
         # to help see problems in multi-line statements
         text = open(filename, 'rU').readlines()
-        print('%s in "%s" on line %i:\n' % (err.__class__.__name__,
-                                            err.filename,
-                                            err.lineno))
-        print('|  Line |')
+        _printerr('%s in "%s" on line %i:\n' % (err.__class__.__name__,
+                                                err.filename,
+                                                err.lineno))
+        _printerr('|  Line |')
         for i in range(max(err.lineno-6, 0),
                        min(err.lineno+3, len(text))):
-            print('| % 5i |' % (i+1), text[i].rstrip())
+            _printerr('| % 5i |' % (i+1), text[i].rstrip())
             if i == err.lineno-1:
-                print(' '* (err.offset+9) + '^')
-        print()
+                _printerr(' '* (err.offset+9) + '^')
+        _printerr()
         sys.exit(3)
     except Exception as err:
         import traceback
@@ -2621,16 +2627,16 @@ def convert(filename, outName=None):
         lineno = tb[-1][1]
         if tb[-1][0] == filename:
             # Error in input file
-            print('%s on line %i of %s:' % (err.__class__.__name__, lineno, filename))
-            print(err)
-            print('\n| Line |')
+            _printerr('%s on line %i of %s:' % (err.__class__.__name__, lineno, filename))
+            _printerr(err)
+            _printerr('\n| Line |')
 
             for i in range(max(lineno-6, 0),
                            min(lineno+3, len(text))):
                 if i == lineno-1:
-                    print('> % 4i >' % (i+1), text[i].rstrip())
+                    _printerr('> % 4i >' % (i+1), text[i].rstrip())
                 else:
-                    print('| % 4i |' % (i+1), text[i].rstrip())
+                    _printerr('| % 4i |' % (i+1), text[i].rstrip())
         else:
             # Error in ctml_writer or elsewhere
             traceback.print_exc()
