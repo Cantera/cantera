@@ -629,41 +629,6 @@ public:
      */
     virtual void setParametersFromXML(const XML_Node& eosdata);
 
-    /// @name Critical state properties.
-    /// These methods are only implemented by some subclasses.
-
-    //@{
-
-    /**
-     *   Critical temperature (K).
-     *   Not implemented for this phase type.
-     */
-    virtual doublereal critTemperature() const {
-        err("critTemperature");
-        return -1.0;
-    }
-
-    /**
-     *  Critical pressure (Pa).
-     *
-     * Not implemented for this phase type.
-     */
-    virtual doublereal critPressure() const {
-        err("critPressure");
-        return -1.0;
-    }
-
-    /**
-     *  Critical density (kg/m3).
-     *  Not implemented for this phase type.
-     */
-    virtual doublereal critDensity() const {
-        err("critDensity");
-        return -1.0;
-    }
-
-    //@}
-
     /*
      *  -------------- Utilities -------------------------------
      */

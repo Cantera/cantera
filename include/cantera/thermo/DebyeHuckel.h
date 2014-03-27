@@ -793,31 +793,6 @@ public:
     virtual void setState_TP(doublereal t, doublereal p);
 
     /**
-     * The isothermal compressibility. Units: 1/Pa.
-     * The isothermal compressibility is defined as
-     * \f[
-     * \kappa_T = -\frac{1}{v}\left(\frac{\partial v}{\partial P}\right)_T
-     * \f]
-     *
-     *  It's equal to zero for this model, since the molar volume
-     *  doesn't change with pressure or temperature.
-     */
-    virtual doublereal isothermalCompressibility() const;
-
-    /**
-     * The thermal expansion coefficient. Units: 1/K.
-     * The thermal expansion coefficient is defined as
-     *
-     * \f[
-     * \beta = \frac{1}{v}\left(\frac{\partial v}{\partial T}\right)_P
-     * \f]
-     *
-     *  It's equal to zero for this model, since the molar volume
-     *  doesn't change with pressure or temperature.
-     */
-    virtual doublereal thermalExpansionCoeff() const;
-
-    /**
      * @}
      * @name Activities, Standard States,  and Activity Concentrations
      *
@@ -1094,48 +1069,6 @@ public:
      *                the "thermo" entry for this phase in the input file.
      */
     virtual void setParametersFromXML(const XML_Node& eosdata);
-
-    /// @name Saturation properties.
-    /// These methods are only implemented by subclasses that
-    /// implement full liquid-vapor equations of state.
-    ///
-    virtual doublereal satTemperature(doublereal p) const {
-        err("satTemperature");
-        return -1.0;
-    }
-
-    //! Get the saturation pressure for a given temperature.
-    /*!
-     * Note the limitations of this function. Stability considerations
-     * concerning multiphase equilibrium are ignored in this
-     * calculation. Therefore, the call is made directly to the SS of
-     * water underneath. The object is put back into its original
-     * state at the end of the call.
-     *
-     * @todo This is probably not implemented correctly. The stability
-     *       of the salt should be added into this calculation. The
-     *       underlying water model may be called to get the stability
-     *       of the pure water solution, if needed.
-     *
-     * @param T  Temperature (kelvin)
-     */
-    virtual doublereal satPressure(doublereal T) {
-        err("satPressure");
-        return -1.0;
-    }
-
-    virtual doublereal vaporFraction() const {
-        err("vaprFraction");
-        return -1.0;
-    }
-
-    virtual void setState_Tsat(doublereal t, doublereal x) {
-        err("setState_sat");
-    }
-
-    virtual void setState_Psat(doublereal p, doublereal x) {
-        err("setState_sat");
-    }
 
     //@}
 

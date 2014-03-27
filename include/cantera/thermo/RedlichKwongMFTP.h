@@ -135,14 +135,6 @@ public:
      */
     virtual doublereal pressure() const;
 
-    //! Returns  the isothermal compressibility. Units: 1/Pa.
-    /*!
-     * The isothermal compressibility is defined as
-     * \f[
-     * \kappa_T = -\frac{1}{v}\left(\frac{\partial v}{\partial P}\right)_T
-     * \f]
-     */
-    virtual doublereal isothermalCompressibility() const;
     // @}
 
 protected:
