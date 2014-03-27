@@ -1807,6 +1807,8 @@ duplicate transport data) to be ignored.
         if permissive is not None:
             self.warning_as_error = not permissive
 
+        if not os.path.exists(inputFile):
+            raise IOError('Missing input file: {0!r}'.format(inputFile))
         try:
             # Read input mechanism files
             self.loadChemkinFile(inputFile)
@@ -1816,6 +1818,8 @@ duplicate transport data) to be ignored.
             raise
 
         if thermoFile:
+            if not os.path.exists(thermoFile):
+                raise IOError('Missing thermo file: {0!r}'.format(thermoFile))
             try:
                 self.loadChemkinFile(thermoFile)
             except Exception:
@@ -1824,6 +1828,8 @@ duplicate transport data) to be ignored.
                 raise
 
         if transportFile:
+            if not os.path.exists(transportFile):
+                raise IOError('Missing transport file: {0!r}'.format(transportFile))
             lines = [strip_nonascii(line) for line in open(transportFile, 'rU')]
             self.parseTransportData(lines)
 
