@@ -80,6 +80,11 @@ TEST_F(ChemkinConversionTest, ValidConversion) {
     ASSERT_GT(p->temperature(), 0.0);
 }
 
+TEST_F(ChemkinConversionTest, MissingInputFile) {
+    ASSERT_THROW(ctml::ck2cti("nonexistent-file.inp"),
+                 CanteraError);
+}
+
 TEST_F(ChemkinConversionTest, FailedConversion) {
     copyInputFile("h2o2_missingThermo.inp");
     ASSERT_THROW(ctml::ck2cti("h2o2_missingThermo.inp"),
