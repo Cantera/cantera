@@ -60,23 +60,10 @@ doublereal ConstDensityThermo::enthalpy_mole() const
            + (pressure() - p0)/molarDensity();
 }
 
-doublereal ConstDensityThermo::intEnergy_mole() const
-{
-    doublereal p0 = m_spthermo->refPressure();
-    return GasConstant * temperature() *
-           mean_X(&enthalpy_RT()[0])
-           - p0/molarDensity();
-}
-
 doublereal ConstDensityThermo::entropy_mole() const
 {
     return GasConstant * (mean_X(&entropy_R()[0]) -
                           sum_xlogx());
-}
-
-doublereal ConstDensityThermo::gibbs_mole() const
-{
-    return enthalpy_mole() - temperature() * entropy_mole();
 }
 
 doublereal ConstDensityThermo::cp_mole() const

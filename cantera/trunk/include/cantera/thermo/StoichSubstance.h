@@ -98,12 +98,6 @@ public:
     virtual doublereal entropy_mole() const;
 
     /**
-     * Molar gibbs Function. Units: J/kmol. This is determined
-     * from the molar enthalpy and entropy functions.
-     */
-    virtual doublereal gibbs_mole() const;
-
-    /**
      * Molar heat capacity at constant pressure. Units: J/kmol/K.
      * For an incompressible substance, \f$ \hat c_p = \hat c_v\f$.
      */

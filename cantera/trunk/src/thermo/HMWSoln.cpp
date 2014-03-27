@@ -628,14 +628,6 @@ doublereal HMWSoln::relative_molal_enthalpy() const
     return L / xuse;
 }
 
-doublereal HMWSoln::intEnergy_mole() const
-{
-    double hh = enthalpy_mole();
-    double pres = pressure();
-    double molarV = 1.0/molarDensity();
-    return hh - pres * molarV;
-}
-
 doublereal HMWSoln::entropy_mole() const
 {
     getPartialMolarEntropies(DATA_PTR(m_tmpV));

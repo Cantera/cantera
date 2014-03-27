@@ -98,24 +98,12 @@ doublereal IdealSolnGasVPSS::enthalpy_mole() const
             mean_X(DATA_PTR(enth_RT)));
 }
 
-doublereal IdealSolnGasVPSS::intEnergy_mole() const
-{
-    doublereal p0 = pressure();
-    doublereal md = molarDensity();
-    return enthalpy_mole() - p0 / md;
-}
-
 doublereal IdealSolnGasVPSS::entropy_mole() const
 {
     updateStandardStateThermo();
     const vector_fp& entrop_R = m_VPSS_ptr->entropy_R();
     return GasConstant * (mean_X(DATA_PTR(entrop_R)) - sum_xlogx());
 
-}
-
-doublereal IdealSolnGasVPSS::gibbs_mole() const
-{
-    return enthalpy_mole() - temperature() * entropy_mole();
 }
 
 doublereal IdealSolnGasVPSS::cp_mole() const

@@ -62,11 +62,6 @@ doublereal StoichSubstance::entropy_mole() const
     return GasConstant * m_s0_R[0];
 }
 
-doublereal StoichSubstance::gibbs_mole() const
-{
-    return enthalpy_mole() - temperature() * entropy_mole();
-}
-
 doublereal StoichSubstance::cp_mole() const
 {
     _updateThermo();

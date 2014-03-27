@@ -654,9 +654,6 @@ public:
     /// Molar enthalpy of the solution. Units: J/kmol.
     virtual doublereal enthalpy_mole() const;
 
-    /// Molar internal energy of the solution. Units: J/kmol.
-    virtual doublereal intEnergy_mole() const;
-
     /// Molar entropy. Units: J/kmol/K.
     /**
      * For an ideal, constant partial molar volume solution mixture with

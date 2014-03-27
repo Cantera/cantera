@@ -314,14 +314,6 @@ doublereal IonsFromNeutralVPSSTP::enthalpy_mole() const
     return mean_X(DATA_PTR(m_pp));
 }
 
-doublereal IonsFromNeutralVPSSTP::intEnergy_mole() const
-{
-    double hh = enthalpy_mole();
-    double pres = pressure();
-    double molarV = 1.0/molarDensity();
-    return hh - pres * molarV;
-}
-
 doublereal IonsFromNeutralVPSSTP::entropy_mole() const
 {
     getPartialMolarEntropies(DATA_PTR(m_pp));
