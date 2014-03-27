@@ -2,6 +2,7 @@
 #include "cantera/thermo/FixedChemPotSSTP.h"
 #include "cantera/thermo/ThermoFactory.h"
 #include "cantera/base/ctml.h"
+#include <fstream>
 
 namespace Cantera
 {
@@ -30,10 +31,10 @@ TEST_F(FixedChemPotSstpConstructorTest, SimpleConstructor)
 }
 
 #ifndef HAS_NO_PYTHON // skip these tests if the Python converter is unavailable
-class InputFileConversionTest : public testing::Test
+class CtiConversionTest : public testing::Test
 {
 public:
-    InputFileConversionTest() {
+    CtiConversionTest() {
         appdelete();
     }
 
@@ -49,18 +50,43 @@ public:
     }
 };
 
-TEST_F(InputFileConversionTest, ExplicitConversion) {
+TEST_F(CtiConversionTest, ExplicitConversion) {
     p1 = newPhase("../data/air-no-reactions.xml", "");
     ctml::ct2ctml("../data/air-no-reactions.cti");
     p2 = newPhase("air-no-reactions.xml", "");
     compare();
 }
 
-TEST_F(InputFileConversionTest, ImplicitConversion) {
+TEST_F(CtiConversionTest, ImplicitConversion) {
     p1 = newPhase("../data/air-no-reactions.xml", "");
     p2 = newPhase("../data/air-no-reactions.cti", "");
     compare();
 }
+
+class ChemkinConversionTest : public testing::Test {
+public:
+    void copyInputFile(const std::string& name) {
+        std::string in_name = "../data/" + name;
+        std::ifstream source(in_name.c_str(), std::ios::binary);
+        std::ofstream dest(name.c_str(), std::ios::binary);
+        dest << source.rdbuf();
+    }
+};
+
+TEST_F(ChemkinConversionTest, ValidConversion) {
+    copyInputFile("pdep-test.inp");
+    ctml::ck2cti("pdep-test.inp");
+    ThermoPhase* p = newPhase("pdep-test.cti", "");
+    ASSERT_GT(p->temperature(), 0.0);
+}
+
+TEST_F(ChemkinConversionTest, FailedConversion) {
+    copyInputFile("h2o2_missingThermo.inp");
+    ASSERT_THROW(ctml::ck2cti("h2o2_missingThermo.inp"),
+                 CanteraError);
+}
+
+
 #endif
 
 } // namespace Cantera
