@@ -2,8 +2,8 @@
 Frequently Asked Questions
 **************************
 
-Installation
-------------
+Installation & Compilation
+--------------------------
 
 **How do I install Cantera on Windows?**
 
@@ -17,6 +17,23 @@ Installation
     Download the source code (e.g. ``cantera-2.1.1.tar.gz``) from `SourceForge
     <https://sourceforge.net/projects/cantera/files/cantera/>`_ and follow the
     instructions in the :ref:`sec-compiling`.
+
+**How do I debug issues with the SCons build system?**
+
+    Sometimes, it is helpful to see all of the internal variables defined by
+    SCons, either automatically or by the Cantera build scripts. To do this, add
+    ``dump`` to your SCons command line. For example::
+
+        $ scons build dump
+
+    will show the variables that would be set during the ``build`` step. Note
+    that in this case, the ``build`` step will not be executed.
+
+    Alternatively, it is also possible to run SCons through the Python debugger, and set a breakpoint in the ``SConstruct`` file. For example::
+
+        $ scons --debug=pdb build
+        (Pdb) b /full/path/to/SConstruct:33
+        (Pdb) cont
 
 General
 -------

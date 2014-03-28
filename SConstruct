@@ -38,7 +38,7 @@ if not COMMAND_LINE_TARGETS:
     sys.exit(0)
 
 valid_commands = ('build','clean','install','uninstall',
-                  'help','msi','samples','sphinx','doxygen')
+                  'help','msi','samples','sphinx','doxygen','dump')
 
 for command in COMMAND_LINE_TARGETS:
     if command not in valid_commands and not command.startswith('test'):
@@ -145,11 +145,6 @@ env = Environment(tools=toolchain+['textfile', 'subst', 'recursiveInstall', 'wix
                   ENV={'PATH': os.environ['PATH']},
                   toolchain=toolchain,
                   **extraEnvArgs)
-
-#
-# To print the current environment
-#
-# print env.Dump()
 
 env['OS'] = platform.system()
 env['OS_BITS'] = int(platform.architecture()[0][:2])
@@ -1571,3 +1566,9 @@ if any(target.startswith('test') for target in COMMAND_LINE_TARGETS):
         for name in env['testNames']:
             print 'test-%s' % name
         sys.exit(0)
+
+### Dump (debugging SCons)
+if 'dump' in COMMAND_LINE_TARGETS:
+    # Typical usage: 'scons build dump'
+    print env.Dump()
+    sys.exit(0)
