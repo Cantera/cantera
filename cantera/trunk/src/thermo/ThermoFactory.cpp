@@ -2,7 +2,6 @@
  *  @file ThermoFactory.cpp
  *     Definitions for the factory class that can create known %ThermoPhase objects
  *     (see \ref thermoprops and class \link Cantera::ThermoFactory ThermoFactory\endlink).
- *
  */
 // Copyright 2001  California Institute of Technology
 
@@ -63,10 +62,10 @@ namespace Cantera
 ThermoFactory* ThermoFactory::s_factory = 0;
 mutex_t ThermoFactory::thermo_mutex;
 
-//! Define the number of %ThermoPhase types for use in this factory routine
+//! Define the number of ThermoPhase types for use in this factory routine
 static int ntypes = 27;
 
-//! Define the string name of the %ThermoPhase types that are handled by this factory routine
+//! Define the string name of the ThermoPhase types that are handled by this factory routine
 static string _types[] = {"IdealGas", "Incompressible",
                           "Surface", "Edge", "Metal", "StoichSubstance",
                           "PureFluid", "LatticeSolid", "Lattice",
@@ -78,7 +77,7 @@ static string _types[] = {"IdealGas", "Incompressible",
                           "RedlichKwongMFTP", "MaskellSolidSolnPhase"
                          };
 
-//! Define the integer id of the %ThermoPhase types that are handled by this factory routine
+//! Define the integer id of the ThermoPhase types that are handled by this factory routine
 static int _itypes[]   = {cIdealGas, cIncompressible,
                           cSurf, cEdge, cMetal, cStoichSubstance,
                           cPureFluid, cLatticeSolid, cLattice,
@@ -92,137 +91,82 @@ static int _itypes[]   = {cIdealGas, cIncompressible,
 
 ThermoPhase* ThermoFactory::newThermoPhase(const std::string& model)
 {
-
     int ieos=-1;
 
     for (int n = 0; n < ntypes; n++) {
         if (model == _types[n]) {
             ieos = _itypes[n];
+            break;
         }
     }
 
-    ThermoPhase* th=0;
     switch (ieos) {
 
     case cIdealGas:
-        th = new IdealGasPhase;
-        break;
-
+        return new IdealGasPhase;
     case cIncompressible:
-        th = new ConstDensityThermo;
-        break;
-
+        return new ConstDensityThermo;
     case cSurf:
-        th = new SurfPhase;
-        break;
-
+        return new SurfPhase;
     case cEdge:
-        th = new EdgePhase;
-        break;
-
+        return new EdgePhase;
     case cIdealSolidSolnPhase:
-        th = new IdealSolidSolnPhase();
-        break;
-
+        return new IdealSolidSolnPhase();
     case cMargulesVPSSTP:
-        th = new MargulesVPSSTP();
-        break;
-
+        return new MargulesVPSSTP();
     case cRedlichKisterVPSSTP:
-        th = new RedlichKisterVPSSTP();
-        break;
-
+        return new RedlichKisterVPSSTP();
     case cMolarityIonicVPSSTP:
-        th = new MolarityIonicVPSSTP();
-        break;
-
+        return new MolarityIonicVPSSTP();
     case cPhaseCombo_Interaction:
-        th = new PhaseCombo_Interaction();
-        break;
-
+        return new PhaseCombo_Interaction();
     case cIonsFromNeutral:
-        th = new IonsFromNeutralVPSSTP();
-        break;
-
+        return new IonsFromNeutralVPSSTP();
     case cMetal:
-        th = new MetalPhase;
-        break;
-
+        return new MetalPhase;
     case cStoichSubstance:
 #ifdef USE_SSTP
-        th = new StoichSubstanceSSTP;
+        return new StoichSubstanceSSTP;
 #else
-        th = new StoichSubstance;
+        return new StoichSubstance;
 #endif
-        break;
-
     case cFixedChemPot:
-        th = new FixedChemPotSSTP;
-        break;
-
+        return new FixedChemPotSSTP;
     case cMineralEQ3:
-        th = new MineralEQ3();
-        break;
-
+        return new MineralEQ3();
     case cMetalSHEelectrons:
-        th = new MetalSHEelectrons();
-        break;
-
+        return new MetalSHEelectrons();
     case cLatticeSolid:
-        th = new LatticeSolidPhase;
-        break;
-
+        return new LatticeSolidPhase;
     case cLattice:
-        th = new LatticePhase;
-        break;
-
+        return new LatticePhase;
     case cPureFluid:
-        th = new PureFluidPhase;
-        break;
-
+        return new PureFluidPhase;
     case cRedlichKwongMFTP:
-        th = new RedlichKwongMFTP;
-        break;
-
+        return new RedlichKwongMFTP;
     case cHMW:
-        th = new HMWSoln;
-        break;
-
+        return new HMWSoln;
     case cDebyeHuckel:
-        th = new DebyeHuckel;
-        break;
-
+        return new DebyeHuckel;
     case cIdealMolalSoln:
-        th = new IdealMolalSoln;
-        break;
-
+        return new IdealMolalSoln;
     case cVPSS_IdealGas:
-        th = new IdealSolnGasVPSS;
-        break;
-
+        return new IdealSolnGasVPSS;
     case cIdealSolnGasVPSS_iscv:
-        th = new IdealSolnGasVPSS;
-        break;
-
+        return new IdealSolnGasVPSS;
     case cMaskellSolidSolnPhase:
-        th = new MaskellSolidSolnPhase;
-        break;
-
+        return new MaskellSolidSolnPhase;
     default:
-        throw UnknownThermoPhaseModel("ThermoFactory::newThermoPhase",
-                                      model);
+        throw UnknownThermoPhaseModel("ThermoFactory::newThermoPhase", model);
     }
-    return th;
 }
 
 std::string eosTypeString(int ieos, int length)
 {
     std::string ss = "UnknownPhaseType";
-    // bool found = false;
-    for (int n = 0; n <  ntypes; n++) {
+    for (int n = 0; n < ntypes; n++) {
         if (_itypes[n] == ieos) {
-            ss = _types[n];
-            //found = true;
+            return _types[n];
         }
     }
     return ss;
@@ -230,8 +174,7 @@ std::string eosTypeString(int ieos, int length)
 
 ThermoPhase* newPhase(XML_Node& xmlphase)
 {
-    const XML_Node& th = xmlphase.child("thermo");
-    string model = th["model"];
+    string model = xmlphase.child("thermo")["model"];
     ThermoPhase* t = newThermoPhase(model);
     if (model == "singing cows") {
         throw CanteraError("ThermoPhase::newPhase", "Cows don't sing");
@@ -244,8 +187,6 @@ ThermoPhase* newPhase(XML_Node& xmlphase)
     } else {
         importPhase(xmlphase, t);
     }
-    //return t;
-    //importPhase(xmlphase, t);
     return t;
 }
 
@@ -255,16 +196,12 @@ ThermoPhase* newPhase(const std::string& infile, std::string id)
     if (id == "-") {
         id = "";
     }
-    XML_Node* xphase = get_XML_NameID("phase", std::string("#")+id, root);
+    XML_Node* xphase = get_XML_NameID("phase", "#"+id, root);
     if (!xphase) {
         throw CanteraError("newPhase",
                            "Couldn't find phase named \"" + id + "\" in file, " + infile);
     }
-    if (xphase) {
-        return newPhase(*xphase);
-    } else {
-        return (ThermoPhase*) 0;
-    }
+    return newPhase(*xphase);
 }
 
 //====================================================================================================================
@@ -287,12 +224,8 @@ static void formSpeciesXMLNodeList(std::vector<XML_Node*> &spDataNodeList,
                                    const std::vector<XML_Node*> spArray_dbases,
                                    const vector_int sprule)
 {
-
     // used to check that each species is declared only once
     std::map<std::string, bool> declared;
-
-    size_t nSpecies = 0;
-    bool skip;
 
     for (size_t jsp = 0; jsp < spArray_dbases.size(); jsp++) {
         const XML_Node& speciesArray = *spArray_names[jsp];
@@ -326,13 +259,9 @@ static void formSpeciesXMLNodeList(std::vector<XML_Node*> &spDataNodeList,
                 }
                 if (!skip) {
                     declared[stemp] = true;
-                    nSpecies++;
-                    spNamesList.resize(nSpecies);
-                    spDataNodeList.resize(nSpecies, 0);
-                    spRuleList.resize(nSpecies, 0);
-                    spNamesList[nSpecies-1] = stemp;
-                    spDataNodeList[nSpecies-1] = allsp[nn];
-                    spRuleList[nSpecies-1] = sprule[jsp];
+                    spNamesList.push_back(stemp);
+                    spDataNodeList.push_back(allsp[nn]);
+                    spRuleList.push_back(sprule[jsp]);
                 }
             }
         } else if (nsp == 1 && spnames[0] == "unique") {
@@ -348,13 +277,9 @@ static void formSpeciesXMLNodeList(std::vector<XML_Node*> &spDataNodeList,
                 }
                 if (!skip) {
                     declared[stemp] = true;
-                    nSpecies++;
-                    spNamesList.resize(nSpecies);
-                    spDataNodeList.resize(nSpecies, 0);
-                    spRuleList.resize(nSpecies, 0);
-                    spNamesList[nSpecies-1] = stemp;
-                    spDataNodeList[nSpecies-1] = allsp[nn];
-                    spRuleList[nSpecies-1] = sprule[jsp];
+                    spNamesList.push_back(stemp);
+                    spDataNodeList.push_back(allsp[nn]);
+                    spRuleList.push_back(sprule[jsp]);
                 }
             }
         } else {
@@ -365,7 +290,7 @@ static void formSpeciesXMLNodeList(std::vector<XML_Node*> &spDataNodeList,
             }
             for (size_t k = 0; k < nsp; k++) {
                 string stemp = spnames[k];
-                skip = false;
+                bool skip = false;
                 if (declared[stemp]) {
                     if (sprule[jsp] >= 10) {
                         skip = true;
@@ -382,14 +307,9 @@ static void formSpeciesXMLNodeList(std::vector<XML_Node*> &spDataNodeList,
                         throw CanteraError("importPhase","no data for species, \""
                                            + stemp + "\"");
                     }
-                    XML_Node* s = iter->second;
-                    nSpecies++;
-                    spNamesList.resize(nSpecies);
-                    spDataNodeList.resize(nSpecies, 0);
-                    spRuleList.resize(nSpecies, 0);
-                    spNamesList[nSpecies-1] = stemp;
-                    spDataNodeList[nSpecies-1] = s;
-                    spRuleList[nSpecies-1] = sprule[jsp];
+                    spNamesList.push_back(stemp);
+                    spDataNodeList.push_back(iter->second);
+                    spRuleList.push_back(sprule[jsp]);
                 }
             }
         }
@@ -399,9 +319,7 @@ static void formSpeciesXMLNodeList(std::vector<XML_Node*> &spDataNodeList,
 bool importPhase(XML_Node& phase, ThermoPhase* th,
                  SpeciesThermoFactory* spfactory)
 {
-
-    // Check the the supplied XML node in fact represents a
-    // phase.
+    // Check the the supplied XML node in fact represents a phase.
     if (phase.name() != "phase") {
         throw CanteraError("importPhase",
                            "Current const XML_Node named, " + phase.name() +
@@ -419,8 +337,7 @@ bool importPhase(XML_Node& phase, ThermoPhase* th,
     phaseNode_XML.clear();
     phase.copy(&phaseNode_XML);
 
-    // set the id attribute of the phase to the 'id' attribute
-    // in the XML tree.
+    // set the id attribute of the phase to the 'id' attribute in the XML tree.
     th->setID(phase.id());
     th->setName(phase.id());
 
@@ -458,8 +375,7 @@ bool importPhase(XML_Node& phase, ThermoPhase* th,
         }
     }
 
-    // if no species thermo factory was supplied,
-    // use the default one.
+    // if no species thermo factory was supplied, use the default one.
     if (!spfactory) {
         spfactory = SpeciesThermoFactory::factory();
     }
@@ -478,7 +394,6 @@ bool importPhase(XML_Node& phase, ThermoPhase* th,
      * sources. For each one, a speciesArray element must be
      * present.
      ***************************************************************/
-    XML_Node* db = 0;
     vector<XML_Node*> sparrays;
     phase.getChildren("speciesArray", sparrays);
     if (ssConvention != cSS_CONVENTION_SLAVE) {
@@ -501,16 +416,14 @@ bool importPhase(XML_Node& phase, ThermoPhase* th,
         //
         //   <skip element="undeclared">
         //
-        // then set sprule[jsp] to 1, so
-        // that any species with an undeclared element will be
-        // quietly skipped when importing species.
-        // Additionally, if the skip node has the following attribute:
+        // then set sprule[jsp] to 1, so that any species with an undeclared
+        // element will be quietly skipped when importing species. Additionally,
+        // if the skip node has the following attribute:
         //
         // <skip species="duplicate">
         //
-        // then duplicate species names will not cause Cantera to
-        // throw an exception. Instead, the duplicate entry will
-        // be discarded.
+        // then duplicate species names will not cause Cantera to throw an
+        // exception. Instead, the duplicate entry will be discarded.
         if (speciesArray.hasChild("skip")) {
             const XML_Node& sk = speciesArray.child("skip");
             string eskip = sk["element"];
@@ -523,14 +436,12 @@ bool importPhase(XML_Node& phase, ThermoPhase* th,
             }
         }
 
-        string fname, idstr;
-
         // Get a pointer to the node containing the species
         // definitions for the species declared in this
         // speciesArray element. This may be in the local file
         // containing the phase element, or may be in another
         // file.
-        db = get_XML_Node(speciesArray["datasrc"], &phase.root());
+        XML_Node* db = get_XML_Node(speciesArray["datasrc"], &phase.root());
         if (db == 0) {
             throw CanteraError("importPhase()",
                                " Can not find XML node for species database: "
@@ -550,10 +461,6 @@ bool importPhase(XML_Node& phase, ThermoPhase* th,
     std::vector<int> spRuleList;
     formSpeciesXMLNodeList(spDataNodeList, spNamesList, spRuleList,
                            sparrays, dbases, sprule);
-
-    // If the phase has a species thermo manager already installed,
-    // delete it since we are adding new species.
-    //delete &th->speciesThermo();
 
     // Decide whether the the phase has a variable pressure ss or not
     SpeciesThermo* spth = 0;
@@ -634,10 +541,9 @@ bool installSpecies(size_t k, const XML_Node& s, thermo_t& th,
     map<string,string> comp;
     getMap(a, comp);
 
-    // check that all elements in the species
-    // exist in 'p'. If rule != 0, quietly skip
-    // this species if some elements are undeclared;
-    // otherwise, throw an exception
+    // check that all elements in the species exist in 'p'. If rule != 0,
+    // quietly skip this species if some elements are undeclared; otherwise,
+    // throw an exception
     map<string,string>::const_iterator _b = comp.begin();
     for (; _b != comp.end(); ++_b) {
         if (th.elementIndex(_b->first) == npos) {
@@ -651,9 +557,8 @@ bool installSpecies(size_t k, const XML_Node& s, thermo_t& th,
         }
     }
 
-    // construct a vector of atom numbers for each
-    // element in phase th. Elements not declared in the
-    // species (i.e., not in map comp) will have zero
+    // construct a vector of atom numbers for each element in phase th. Elements
+    // not declared in the species (i.e., not in map comp) will have zero
     // entries in the vector.
     size_t nel = th.nElements();
     vector_fp ecomp(nel, 0.0);
