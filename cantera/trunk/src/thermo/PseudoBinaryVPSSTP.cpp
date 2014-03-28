@@ -84,11 +84,6 @@ PseudoBinaryVPSSTP::duplMyselfAsThermoPhase() const
     return new PseudoBinaryVPSSTP(*this);
 }
 
-int PseudoBinaryVPSSTP::eosType() const
-{
-    return 0;
-}
-
 doublereal PseudoBinaryVPSSTP::standardConcentration(size_t k) const
 {
     err("standardConcentration");

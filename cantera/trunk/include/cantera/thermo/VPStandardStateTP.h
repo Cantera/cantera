@@ -86,15 +86,6 @@ public:
     //@}
     //! @name  Utilities (VPStandardStateTP)
     //@{
-    /**
-     * Equation of state type flag. The base class returns
-     * zero. Subclasses should define this to return a unique
-     * non-zero value. Constants defined for this purpose are
-     * listed in mix_defs.h.
-     */
-    virtual int eosType() const {
-        return 0;
-    }
 
     //! This method returns the convention used in specification
     //! of the standard state, of which there are currently two,

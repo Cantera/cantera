@@ -223,16 +223,6 @@ public:
     //! @name  Utilities
     //! @{
 
-    //! Equation of state type flag.
-    /*!
-     * The ThermoPhase base class returns
-     * zero. Subclasses should define this to return a unique
-     * non-zero value. Known constants defined for this purpose are
-     * listed in mix_defs.h. The MolalityVPSSTP class also returns
-     * zero, as it is a non-complete class.
-     */
-    virtual int eosType() const;
-
     //! Set the pH scale, which determines the scale for single-ion activity
     //! coefficients.
     /*!

@@ -81,11 +81,6 @@ ThermoPhase* MolalityVPSSTP::duplMyselfAsThermoPhase() const
  *  -------------- Utilities -------------------------------
  */
 
-int MolalityVPSSTP::eosType() const
-{
-    return 0;
-}
-
 void MolalityVPSSTP::setpHScale(const int pHscaleType)
 {
     m_pHScalingType = pHscaleType;

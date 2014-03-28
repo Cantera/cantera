@@ -109,11 +109,6 @@ void GibbsExcessVPSSTP::setConcentrations(const doublereal* const c)
     getMoleFractions(DATA_PTR(moleFractions_));
 }
 
-int GibbsExcessVPSSTP::eosType() const
-{
-    return 0;
-}
-
 /*
  * ------------ Mechanical Properties ------------------------------
  */

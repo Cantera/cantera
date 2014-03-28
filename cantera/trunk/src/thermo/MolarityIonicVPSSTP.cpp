@@ -109,15 +109,6 @@ MolarityIonicVPSSTP::duplMyselfAsThermoPhase() const
 }
 
 /*
- *  -------------- Utilities -------------------------------
- */
-
-int MolarityIonicVPSSTP::eosType() const
-{
-    return 0;
-}
-
-/*
  * - Activities, Standard States, Activity Concentrations -----------
  */
 

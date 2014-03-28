@@ -150,15 +150,6 @@ MixedSolventElectrolyte::MixedSolventElectrolyte(int testProb)  :
 }
 
 /*
- *  -------------- Utilities -------------------------------
- */
-
-int MixedSolventElectrolyte::eosType() const
-{
-    return 0;
-}
-
-/*
  * - Activities, Standard States, Activity Concentrations -----------
  */
 
