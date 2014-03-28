@@ -207,31 +207,24 @@ void ReactorNet::evalJacobian(doublereal t, doublereal* y,
     doublereal ysave, dy;
     Array2D& jac = *j;
 
-    // use a try... catch block, since exceptions are not passed
-    // through CVODE, since it is C code
-    try {
-        //evaluate the unperturbed ydot
-        eval(t, y, ydot, p);
-        for (size_t n = 0; n < m_nv; n++) {
+    //evaluate the unperturbed ydot
+    eval(t, y, ydot, p);
+    for (size_t n = 0; n < m_nv; n++) {
 
-            // perturb x(n)
-            ysave = y[n];
-            dy = m_atol[n] + fabs(ysave)*m_rtol;
-            y[n] = ysave + dy;
-            dy = y[n] - ysave;
+        // perturb x(n)
+        ysave = y[n];
+        dy = m_atol[n] + fabs(ysave)*m_rtol;
+        y[n] = ysave + dy;
+        dy = y[n] - ysave;
 
-            // calculate perturbed residual
-            eval(t, y, DATA_PTR(m_ydot), p);
+        // calculate perturbed residual
+        eval(t, y, DATA_PTR(m_ydot), p);
 
-            // compute nth column of Jacobian
-            for (size_t m = 0; m < m_nv; m++) {
-                jac(m,n) = (m_ydot[m] - ydot[m])/dy;
-            }
-            y[n] = ysave;
+        // compute nth column of Jacobian
+        for (size_t m = 0; m < m_nv; m++) {
+            jac(m,n) = (m_ydot[m] - ydot[m])/dy;
         }
-    } catch (CanteraError& err) {
-        std::cerr << err.what() << std::endl;
-        error("Terminating execution.");
+        y[n] = ysave;
     }
 }
 
