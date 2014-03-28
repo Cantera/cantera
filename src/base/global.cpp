@@ -70,6 +70,7 @@ void writelogendl()
 
 void error(const std::string& msg)
 {
+    warn_deprecated("error");
     app()->logerror(msg);
 }
 

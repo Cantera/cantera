@@ -144,6 +144,7 @@ protected:
          *  is not desired, then derive a class and reimplement this method.
          *
          * @param msg    Error message to be written to cerr.
+         * @deprecated To be removed after Cantera 2.2
          */
         void logerror(const std::string& msg) ;
 
