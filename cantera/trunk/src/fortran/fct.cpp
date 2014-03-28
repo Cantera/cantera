@@ -40,12 +40,7 @@ inline ThermoPhase* _fph(const integer* n)
 
 static Kinetics* _fkin(const integer* n)
 {
-    if (*n >= 0) {
-        return &KineticsCabinet::item(*n);
-    } else {
-        error("_fkin: negative kinetics index");
-        return &KineticsCabinet::item(0);
-    }
+    return &KineticsCabinet::item(*n);
 }
 
 inline ThermoPhase* _fth(const integer* n)
