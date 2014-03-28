@@ -157,11 +157,6 @@ ThermoPhase* RedlichKisterVPSSTP::duplMyselfAsThermoPhase() const
     return new RedlichKisterVPSSTP(*this);
 }
 
-int RedlichKisterVPSSTP::eosType() const
-{
-    return 0;
-}
-
 /*
  * - Activities, Standard States, Activity Concentrations -----------
  */

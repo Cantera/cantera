@@ -147,15 +147,6 @@ MargulesVPSSTP::MargulesVPSSTP(int testProb)  :
 }
 
 /*
- *  -------------- Utilities -------------------------------
- */
-
-int MargulesVPSSTP::eosType() const
-{
-    return 0;
-}
-
-/*
  * - Activities, Standard States, Activity Concentrations -----------
  */
 

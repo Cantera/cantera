@@ -138,19 +138,6 @@ public:
      */
     ThermoPhase* duplMyselfAsThermoPhase() const;
 
-    //! @name  Utilities
-    //! @{
-
-    /**
-     * Equation of state type flag. The base class returns
-     * zero. Subclasses should define this to return a unique
-     * non-zero value. Constants defined for this purpose are
-     * listed in mix_defs.h.
-     */
-    virtual int eosType() const {
-        return 0;
-    }
-
     //! @}
     //! @name  Molar Thermodynamic Properties of the Solution
     //! @{
