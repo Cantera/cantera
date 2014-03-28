@@ -18,6 +18,27 @@ Installation & Compilation
     <https://sourceforge.net/projects/cantera/files/cantera/>`_ and follow the
     instructions in the :ref:`sec-compiling`.
 
+**What do I do if compiling Cantera fails?**
+
+    - Examine the output of the ``scons build`` command, especially anything
+      identified as a       ``WARNING`` or ``ERROR``. Check for discrepancies
+      with your expected configuration (e.g. not finding SUNDIALS even though
+      you have it installed).
+    - Check the contents of ``cantera.conf`` to make sure they are correct.
+    - If any of the configuration tests (``Checking for...``) fail unexpectedly,
+      look at the contents of ``config.log`` to determine the reason.
+    - If none of these help identify the cause of the failure, consider asking
+      for help on the Cantera Users' Group. If you decide to make a post, please
+      include the following information:
+
+      * The contents of ``cantera.conf`` and ``config.log``
+      * The output of the ``scons build`` and ``scons build dump`` commands
+        (you can direct this output to a file by running ``scons build >buildlog.txt 2>&1``)
+      * The exact version of Cantera you are trying to compile, and how it was
+        obtained (i.e. downloaded source tarball or the specific Git/SVN commit)
+      * Your operating system, compiler versions, and the versions of any other
+        relevant software.
+
 **How do I debug issues with the SCons build system?**
 
     Sometimes, it is helpful to see all of the internal variables defined by

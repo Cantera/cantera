@@ -1569,6 +1569,8 @@ if any(target.startswith('test') for target in COMMAND_LINE_TARGETS):
 
 ### Dump (debugging SCons)
 if 'dump' in COMMAND_LINE_TARGETS:
+    import pprint
     # Typical usage: 'scons build dump'
-    print env.Dump()
+    print 'os.environ:\n', pprint.pprint(dict(os.environ))
+    print 'env.Dump():\n', env.Dump()
     sys.exit(0)
