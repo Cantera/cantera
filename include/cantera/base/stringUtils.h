@@ -114,6 +114,7 @@ int fillArrayFromString(const std::string& str, doublereal* const a,
  *
  *  @param infile      Input file name
  *  @return Returns a logfile name
+ *  @deprecated Unused function to be removed after Cantera 2.2.
  */
 std::string logfileName(const std::string& infile);
 
@@ -123,6 +124,7 @@ std::string logfileName(const std::string& infile);
  *                     of the full file name
  *
  *  @return Returns the basename
+ *  @deprecated Unused function to be removed after Cantera 2.2.
  */
 std::string getBaseName(const std::string& fullPath);
 
