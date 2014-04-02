@@ -252,6 +252,10 @@ doublereal fpValueCheck(const std::string& val)
                 throw CanteraError("fpValueCheck",
                                    "string has more than one .");
             }
+            if (numExp > 0) {
+                throw CanteraError("fpValueCheck",
+                                   "string has decimal point in exponent");
+            }
         } else if (ch == 'e' || ch == 'E' || ch == 'd' || ch == 'D') {
             numExp++;
             str[i] = 'E';
