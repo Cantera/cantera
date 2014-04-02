@@ -79,6 +79,10 @@ class TestThermoPhase(utilities.CanteraTest):
             self.phase.X = 'H2:1e-x4'
         self.assertArrayNear(X0, self.phase.X)
 
+        with self.assertRaises(Exception):
+            self.phase.X = 'H2:1e-1.4'
+        self.assertArrayNear(X0, self.phase.X)
+
     def test_report(self):
         report = self.phase.report()
         self.assertTrue(self.phase.name in report)
