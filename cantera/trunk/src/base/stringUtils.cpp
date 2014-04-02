@@ -200,6 +200,7 @@ int fillArrayFromString(const std::string& str,
 
 std::string getBaseName(const std::string& path)
 {
+    warn_deprecated("getBaseName", "To be removed after Cantera 2.2.");
     std::string file;
     size_t idot = path.find_last_of('.');
     size_t islash = path.find_last_of('/');
@@ -277,6 +278,7 @@ doublereal fpValueCheck(const std::string& val)
 //=====================================================================================================================
 std::string logfileName(const std::string& infile)
 {
+    warn_deprecated("logfileName", "To be removed after Cantera 2.2.");
     std::string logfile = getBaseName(infile);
     logfile += ".log";
     return logfile;
