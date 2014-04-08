@@ -239,64 +239,6 @@ void SingleSpeciesTP::getCp_R_ref(doublereal* cpr) const
  * ------------------ Setting the State ------------------------
  */
 
-void SingleSpeciesTP::setState_TPX(doublereal t, doublereal p,
-                                   const doublereal* x)
-{
-    setTemperature(t);
-    setPressure(p);
-}
-
-void SingleSpeciesTP::setState_TPX(doublereal t, doublereal p,
-                                   const compositionMap& x)
-{
-    setTemperature(t);
-    setPressure(p);
-}
-
-void SingleSpeciesTP::setState_TPX(doublereal t, doublereal p,
-                                   const std::string& x)
-{
-    setTemperature(t);
-    setPressure(p);
-}
-
-void SingleSpeciesTP::setState_TPY(doublereal t, doublereal p,
-                                   const doublereal* y)
-{
-    setTemperature(t);
-    setPressure(p);
-}
-
-void SingleSpeciesTP::setState_TPY(doublereal t, doublereal p,
-                                   const compositionMap& y)
-{
-    setTemperature(t);
-    setPressure(p);
-}
-
-void SingleSpeciesTP::setState_TPY(doublereal t, doublereal p,
-                                   const std::string& y)
-{
-    setTemperature(t);
-    setPressure(p);
-}
-
-void SingleSpeciesTP::setState_PX(doublereal p, doublereal* x)
-{
-    if (x[0] != 1.0) {
-        err("setStatePX -> x[0] not 1.0");
-    }
-    setPressure(p);
-}
-
-void SingleSpeciesTP::setState_PY(doublereal p, doublereal* y)
-{
-    if (y[0] != 1.0) {
-        err("setStatePY -> x[0] not 1.0");
-    }
-    setPressure(p);
-}
-
 void SingleSpeciesTP::setState_HP(doublereal h, doublereal p,
                                   doublereal tol)
 {
@@ -417,7 +359,7 @@ void SingleSpeciesTP::initThermo()
      *  Make sure the species mole fraction is equal to 1.0;
      */
     double x = 1.0;
-    setMoleFractions(&x);
+    ThermoPhase::setMoleFractions(&x);
     /*
      * Call the base class initThermo object.
      */

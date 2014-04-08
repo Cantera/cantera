@@ -401,100 +401,11 @@ public:
      * @{
      */
 
-    //! Set the temperature (K), pressure (Pa), and mole fractions.
-    /*!
-     * Note, the mole fractions are set to X[0] = 1.0.
-     * Setting the pressure may involve the solution of a nonlinear equation.
-     *
-     * @param t    Temperature (K)
-     * @param p    Pressure (Pa)
-     * @param x    Vector of mole fractions.
-     *             Length is equal to m_kk.
-     */
-    void setState_TPX(doublereal t, doublereal p, const doublereal* x);
+    //! Mass fractions are fixed, with Y[0] = 1.0.
+    void setMassFractions(const doublereal* y) {};
 
-    //! Set the temperature (K), pressure (Pa), and mole fractions.
-    /*!
-     * Note, the mole fractions are set to X[0] = 1.0.
-     * Setting the pressure may involve the solution of a nonlinear equation.
-     *
-     * @param t    Temperature (K)
-     * @param p    Pressure (Pa)
-     * @param x    String containing a composition map of the mole fractions. Species not in
-     *             the composition map are assumed to have zero mole fraction
-     */
-    void setState_TPX(doublereal t, doublereal p, const compositionMap& x);
-
-    //! Set the temperature (K), pressure (Pa), and mole fractions.
-    /*!
-     * Note, the mole fractions are set to X[0] = 1.0.
-     * Setting the pressure may involve the solution of a nonlinear equation.
-     *
-     * @param t    Temperature (K)
-     * @param p    Pressure (Pa)
-     * @param x    String containing a composition map of the mole fractions. Species not in
-     *             the composition map are assumed to have zero mole fraction
-     */
-    void setState_TPX(doublereal t, doublereal p, const std::string& x);
-
-    //! Set the internally stored temperature (K), pressure (Pa), and mass fractions of the phase.
-    /*!
-     * Note, the mass fractions are set to Y[0] = 1.0.
-     * Setting the pressure may involve the solution of a nonlinear equation.
-     *
-     * @param t    Temperature (K)
-     * @param p    Pressure (Pa)
-     * @param y    Vector of mass fractions.
-     *             Length is equal to m_kk.
-     */
-    void setState_TPY(doublereal t, doublereal p, const doublereal* y);
-
-    //! Set the internally stored temperature (K), pressure (Pa), and mass fractions of the phase
-    /*!
-     * Note, the mass fractions are set to Y[0] = 1.0.
-     * Setting the pressure may involve the solution of a nonlinear equation.
-     *
-     * @param t    Temperature (K)
-     * @param p    Pressure (Pa)
-     * @param y    Composition map of mass fractions. Species not in
-     *             the composition map are assumed to have zero mass fraction
-     */
-    void setState_TPY(doublereal t, doublereal p, const compositionMap& y);
-
-    //! Set the internally stored temperature (K), pressure (Pa), and mass fractions of the phase
-    /*!
-     * Note, the mass fractions are set to Y[0] = 1.0.
-     * Setting the pressure may involve the solution of a nonlinear equation.
-     *
-     * @param t    Temperature (K)
-     * @param p    Pressure (Pa)
-     * @param y    String containing a composition map of the mass fractions. Species not in
-     *             the composition map are assumed to have zero mass fraction
-     */
-    void setState_TPY(doublereal t, doublereal p, const std::string& y);
-
-    //! Set the pressure (Pa) and mole fractions.
-    /*!
-     * Note, the mole fractions are set to X[0] = 1.0.
-     * Setting the pressure may involve the solution of a nonlinear equation.
-     *
-     * @param p    Pressure (Pa)
-     * @param x    Vector of mole fractions.
-     *             Length is equal to m_kk.
-     */
-    void setState_PX(doublereal p, doublereal* x);
-
-    //! Set the internally stored pressure (Pa) and mass fractions.
-    /*!
-     * Note, the mass fractions are set to Y[0] = 1.0.
-     * Note, the temperature is held constant during this operation.
-     * Setting the pressure may involve the solution of a nonlinear equation.
-     *
-     * @param p    Pressure (Pa)
-     * @param y    Vector of mass fractions.
-     *             Length is equal to m_kk.
-     */
-    void setState_PY(doublereal p, doublereal* y);
+    //! Mole fractions are fixed, with x[0] = 1.0.
+    void setMoleFractions(const doublereal* x) {};
 
     //! Set the internally stored specific enthalpy (J/kg) and pressure (Pa) of the phase.
     /*!
