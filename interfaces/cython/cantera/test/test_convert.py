@@ -2,7 +2,7 @@ import os
 import numpy as np
 import itertools
 
-import utilities
+from . import utilities
 import cantera as ct
 from cantera import ck2cti
 
