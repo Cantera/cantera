@@ -251,8 +251,7 @@ extern "C" {
     {
         try {
             ThermoPhase* p = _fph(n);
-            compositionMap xx = parseCompString(f2string(x, lx), p->speciesNames());
-            p->setMoleFractionsByName(xx);
+            p->setMoleFractionsByName(f2string(x, lx));
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -278,8 +277,7 @@ extern "C" {
     {
         try {
             ThermoPhase* p = _fph(n);
-            compositionMap yy = parseCompString(f2string(y, leny), p->speciesNames());
-            p->setMassFractionsByName(yy);
+            p->setMassFractionsByName(f2string(y, leny));
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
