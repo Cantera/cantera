@@ -222,8 +222,7 @@ extern "C" {
     {
         try {
             ThermoPhase& p = ThermoCabinet::item(n);
-            compositionMap xx = parseCompString(x, p.speciesNames());
-            p.setMoleFractionsByName(xx);
+            p.setMoleFractionsByName(x);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -251,8 +250,7 @@ extern "C" {
     {
         try {
             ThermoPhase& p = ThermoCabinet::item(n);
-            compositionMap yy = parseCompString(y, p.speciesNames());
-            p.setMassFractionsByName(yy);
+            p.setMassFractionsByName(y);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);

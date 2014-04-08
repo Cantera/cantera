@@ -147,8 +147,7 @@ void ThermoPhase::setState_TPX(doublereal t, doublereal p, const compositionMap&
 
 void ThermoPhase::setState_TPX(doublereal t, doublereal p, const std::string& x)
 {
-    compositionMap xx = parseCompString(x, speciesNames());
-    setMoleFractionsByName(xx);
+    setMoleFractionsByName(x);
     setState_TP(t,p);
 }
 
@@ -166,8 +165,7 @@ void ThermoPhase::setState_TPY(doublereal t, doublereal p, const compositionMap&
 
 void ThermoPhase::setState_TPY(doublereal t, doublereal p, const std::string& y)
 {
-    compositionMap yy = parseCompString(y, speciesNames());
-    setMassFractionsByName(yy);
+    setMassFractionsByName(y);
     setState_TP(t,p);
 }
 
