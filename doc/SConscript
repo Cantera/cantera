@@ -32,7 +32,7 @@ if localenv['sphinx_docs']:
             tmpenv['script_name'] = f.name
             tmpenv['script_path'] = '../../../../interfaces/cython/cantera/examples/%s/%s' % (subdir, f.name)
             b = tmpenv.SubstFile('#doc/sphinx/cython/examples/%s_%s.rst' % (subdir, f.name[:-3]),
-                                 '#doc/sphinx/cython/examples/example-script.rst.in')
+                                 '#doc/sphinx/cython/example-script.rst.in')
             build(b)
             localenv.Depends(sphinxdocs, b)
 
@@ -43,7 +43,7 @@ if localenv['sphinx_docs']:
         tmpenv['script_name'] = f.name
         tmpenv['script_path'] = '../../../../samples/matlab/%s' % f.name
         b = tmpenv.SubstFile('#doc/sphinx/matlab/examples/%s.rst' % f.name[:-2],
-                             '#doc/sphinx/matlab/examples/example-script.rst.in')
+                             '#doc/sphinx/matlab/example-script.rst.in')
         build(b)
         localenv.Depends(sphinxdocs, b)
 
