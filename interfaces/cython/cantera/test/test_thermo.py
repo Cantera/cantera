@@ -104,6 +104,16 @@ class TestThermoPhase(utilities.CanteraTest):
         with self.assertRaises(Exception):
             self.phase.Y = {'H2':1.0, 'O2':'xx'}
 
+    def test_setCompositionSlice(self):
+        self.phase['H2', 'O2'].X = 0.1, 0.9
+        X = self.phase.X
+        self.assertNear(X[0], 0.1)
+        self.assertNear(X[3], 0.9)
+
+    def test_setCompositionSlice_bad(self):
+        with self.assertRaises(ValueError):
+            self.phase['H2','O2'].Y = [0.1, 0.2, 0.3]
+
     def test_report(self):
         report = self.phase.report()
         self.assertTrue(self.phase.name in report)
