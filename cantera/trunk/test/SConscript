@@ -98,6 +98,7 @@ def addPythonTest(testname, subdir, script, interpreter, outfile,
             # Test was successful
             open(target[0].path, 'w').write(time.asctime()+'\n')
 
+        failures = 0
         if os.path.exists(outfile):
             # Determine individual test status
             for line in open(outfile):
@@ -106,8 +107,10 @@ def addPythonTest(testname, subdir, script, interpreter, outfile,
                     testResults.passed[':'.join((testname,name))] = 1
                 elif status in ('FAIL', 'ERROR'):
                     testResults.failed[':'.join((testname,name))] = 1
-        else:
-            # Total failure - unable to determine status of individual tests
+                    failures += 1
+
+        if code and failures == 0:
+            # Failure, but unable to determine status of individual tests
             testResults.failed[testname] = True
 
     testenv = localenv.Clone()
