@@ -344,15 +344,14 @@ void Phase::setMoleFractions_NoNorm(const doublereal* const x)
     m_stateNum++;
 }
 
-void Phase::setMoleFractionsByName(compositionMap& xMap)
+void Phase::setMoleFractionsByName(const compositionMap& xMap)
 {
     size_t kk = nSpecies();
-    doublereal x;
     vector_fp mf(kk, 0.0);
     for (size_t k = 0; k < kk; k++) {
-        x = xMap[speciesName(k)];
-        if (x > 0.0) {
-            mf[k] = x;
+        compositionMap::const_iterator iter = xMap.find(speciesName(k));
+        if (iter != xMap.end() && iter->second > 0.0) {
+            mf[k] = iter->second;
         }
     }
     setMoleFractions(&mf[0]);
@@ -389,15 +388,14 @@ void Phase::setMassFractions_NoNorm(const doublereal* const y)
     m_stateNum++;
 }
 
-void Phase::setMassFractionsByName(compositionMap& yMap)
+void Phase::setMassFractionsByName(const compositionMap& yMap)
 {
     size_t kk = nSpecies();
-    doublereal y;
     vector_fp mf(kk, 0.0);
     for (size_t k = 0; k < kk; k++) {
-        y = yMap[speciesName(k)];
-        if (y > 0.0) {
-            mf[k] = y;
+        compositionMap::const_iterator iter = yMap.find(speciesName(k));
+        if (iter != yMap.end() && iter->second > 0.0) {
+            mf[k] = iter->second;
         }
     }
     setMassFractions(&mf[0]);
@@ -423,7 +421,7 @@ void Phase::setState_TNX(doublereal t, doublereal n, const doublereal* x)
     setMolarDensity(n);
 }
 
-void Phase::setState_TRX(doublereal t, doublereal dens, compositionMap& x)
+void Phase::setState_TRX(doublereal t, doublereal dens, const compositionMap& x)
 {
     setMoleFractionsByName(x);
     setTemperature(t);
@@ -437,7 +435,7 @@ void Phase::setState_TRY(doublereal t, doublereal dens, const doublereal* y)
     setDensity(dens);
 }
 
-void Phase::setState_TRY(doublereal t, doublereal dens, compositionMap& y)
+void Phase::setState_TRY(doublereal t, doublereal dens, const compositionMap& y)
 {
     setMassFractionsByName(y);
     setTemperature(t);

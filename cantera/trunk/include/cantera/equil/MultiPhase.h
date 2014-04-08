@@ -452,7 +452,7 @@ public:
      *              Mole numbers that are less than or equal to zero will be
      *              set to zero. units = kmol.
      */
-    void setMolesByName(compositionMap& xMap);
+    void setMolesByName(const compositionMap& xMap);
 
     //! Set the moles via a string containing their names.
     /*!

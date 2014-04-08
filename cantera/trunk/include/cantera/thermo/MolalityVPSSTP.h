@@ -352,7 +352,7 @@ public:
      *
      * @param xMap  Composition Map containing the molalities.
      */
-    void setMolalitiesByName(compositionMap& xMap);
+    void setMolalitiesByName(const compositionMap& xMap);
 
     //! Set the molalities of a phase
     /*!
@@ -660,7 +660,7 @@ public:
      * @param p           Pressure (Pa)
      * @param m           compositionMap containing the molalities
      */
-    void setState_TPM(doublereal t, doublereal p, compositionMap& m);
+    void setState_TPM(doublereal t, doublereal p, const compositionMap& m);
 
     //! Set the temperature (K), pressure (Pa), and molalities.
     /*!

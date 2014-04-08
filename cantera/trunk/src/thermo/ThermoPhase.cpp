@@ -139,7 +139,7 @@ void ThermoPhase::setState_TPX(doublereal t, doublereal p, const doublereal* x)
     setState_TP(t,p);
 }
 
-void ThermoPhase::setState_TPX(doublereal t, doublereal p, compositionMap& x)
+void ThermoPhase::setState_TPX(doublereal t, doublereal p, const compositionMap& x)
 {
     setMoleFractionsByName(x);
     setState_TP(t,p);
@@ -158,7 +158,7 @@ void ThermoPhase::setState_TPY(doublereal t, doublereal p, const doublereal* y)
     setState_TP(t,p);
 }
 
-void ThermoPhase::setState_TPY(doublereal t, doublereal p, compositionMap& y)
+void ThermoPhase::setState_TPY(doublereal t, doublereal p, const compositionMap& y)
 {
     setMassFractionsByName(y);
     setState_TP(t,p);

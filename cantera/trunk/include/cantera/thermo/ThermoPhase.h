@@ -969,7 +969,7 @@ public:
      * @param x    Composition map of mole fractions. Species not in
      *             the composition map are assumed to have zero mole fraction
      */
-    virtual void setState_TPX(doublereal t, doublereal p, compositionMap& x);
+    virtual void setState_TPX(doublereal t, doublereal p, const compositionMap& x);
 
     //! Set the temperature (K), pressure (Pa), and mole fractions.
     /*!
@@ -1005,7 +1005,7 @@ public:
      * @param y    Composition map of mass fractions. Species not in
      *             the composition map are assumed to have zero mass fraction
      */
-    virtual void setState_TPY(doublereal t, doublereal p, compositionMap& y);
+    virtual void setState_TPY(doublereal t, doublereal p, const compositionMap& y);
 
     //! Set the internally stored temperature (K), pressure (Pa), and mass fractions of the phase
     /*!

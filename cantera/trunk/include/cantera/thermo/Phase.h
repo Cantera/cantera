@@ -298,7 +298,7 @@ public:
     //! Set the species mole fractions by name.
     //! Species not listed by name in \c xMap are set to zero.
     //!     @param xMap map from species names to mole fraction values.
-    void setMoleFractionsByName(compositionMap& xMap);
+    void setMoleFractionsByName(const compositionMap& xMap);
 
     //! Set the mole fractions of a group of species by name. Species which
     //! are not listed by name in the composition map are set to zero.
@@ -308,7 +308,7 @@ public:
     //! Set the species mass fractions by name.
     //! Species not listed by name in \c yMap are set to zero.
     //!     @param yMap map from species names to mass fraction values.
-    void setMassFractionsByName(compositionMap& yMap);
+    void setMassFractionsByName(const compositionMap& yMap);
 
     //! Set the species mass fractions by name.
     //! Species not listed by name in \c x are set to zero.
@@ -327,7 +327,7 @@ public:
     //!     @param x     Composition Map containing the mole fractions.
     //!                  Species not included in the map are assumed to have
     //!                  a zero mole fraction.
-    void setState_TRX(doublereal t, doublereal dens, compositionMap& x);
+    void setState_TRX(doublereal t, doublereal dens, const compositionMap& x);
 
     //! Set the internally stored temperature (K), density, and mass fractions.
     //!     @param t     Temperature in kelvin
@@ -341,7 +341,7 @@ public:
     //!     @param y     Composition Map containing the mass fractions.
     //!                  Species not included in the map are assumed to have
     //!                  a zero mass fraction.
-    void setState_TRY(doublereal t, doublereal dens, compositionMap& y);
+    void setState_TRY(doublereal t, doublereal dens, const compositionMap& y);
 
     //! Set the internally stored temperature (K), molar density (kmol/m^3), and mole fractions.
     //!     @param t     Temperature in kelvin
