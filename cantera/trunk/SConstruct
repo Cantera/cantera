@@ -54,6 +54,8 @@ if 'clean' in COMMAND_LINE_TARGETS:
     removeFile('.sconsign.dblite')
     removeFile('include/cantera/base/config.h')
     removeFile('ext/f2c_libs/arith.h')
+    removeDirectory('doc/sphinx/matlab/examples')
+    removeDirectory('doc/sphinx/cython/examples')
     for name in os.listdir('.'):
         if name.endswith('.msi'):
             removeFile(name)
