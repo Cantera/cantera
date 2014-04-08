@@ -178,7 +178,7 @@ void MolalityVPSSTP::setMolalities(const doublereal* const molal)
     calcMolalities();
 }
 
-void MolalityVPSSTP::setMolalitiesByName(compositionMap& mMap)
+void MolalityVPSSTP::setMolalitiesByName(const compositionMap& mMap)
 {
     /*
      *  HKM -> Might need to be more complicated here, setting
@@ -186,7 +186,6 @@ void MolalityVPSSTP::setMolalitiesByName(compositionMap& mMap)
      *         preserved.
      */
     size_t kk = nSpecies();
-    doublereal x;
     /*
      * Get a vector of mole fractions
      */
@@ -194,14 +193,10 @@ void MolalityVPSSTP::setMolalitiesByName(compositionMap& mMap)
     getMoleFractions(DATA_PTR(mf));
     double xmolS = mf[m_indexSolvent];
     double xmolSmin = std::max(xmolS, m_xmolSolventMIN);
-    compositionMap::iterator p;
     for (size_t k = 0; k < kk; k++) {
-        p = mMap.find(speciesName(k));
-        if (p != mMap.end()) {
-            x = mMap[speciesName(k)];
-            if (x > 0.0) {
-                mf[k] = x * m_Mnaught * xmolSmin;
-            }
+        compositionMap::const_iterator iter = mMap.find(speciesName(k));
+        if (iter != mMap.end() && iter->second > 0.0) {
+            mf[k] = iter->second * m_Mnaught * xmolSmin;
         }
     }
     /*
@@ -403,7 +398,7 @@ void MolalityVPSSTP::setState_TPM(doublereal t, doublereal p,
     setState_TP(t, p);
 }
 
-void MolalityVPSSTP::setState_TPM(doublereal t, doublereal p, compositionMap& m)
+void MolalityVPSSTP::setState_TPM(doublereal t, doublereal p, const compositionMap& m)
 {
     setMolalitiesByName(m);
     setState_TP(t, p);

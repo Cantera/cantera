@@ -433,15 +433,14 @@ void MultiPhase::setPhaseMoleFractions(const size_t n, const doublereal* const x
     }
 }
 
-void MultiPhase::setMolesByName(compositionMap& xMap)
+void MultiPhase::setMolesByName(const compositionMap& xMap)
 {
     size_t kk = nSpecies();
-    doublereal x;
     vector_fp moles(kk, 0.0);
     for (size_t k = 0; k < kk; k++) {
-        x = xMap[speciesName(k)];
-        if (x > 0.0) {
-            moles[k] = x;
+        compositionMap::const_iterator iter = xMap.find(speciesName(k));
+        if (iter != xMap.end() && iter->second > 0.0) {
+            moles[k] = iter->second;
         }
     }
     setMoles(DATA_PTR(moles));

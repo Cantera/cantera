@@ -247,7 +247,7 @@ void SingleSpeciesTP::setState_TPX(doublereal t, doublereal p,
 }
 
 void SingleSpeciesTP::setState_TPX(doublereal t, doublereal p,
-                                   compositionMap& x)
+                                   const compositionMap& x)
 {
     setTemperature(t);
     setPressure(p);
@@ -268,7 +268,7 @@ void SingleSpeciesTP::setState_TPY(doublereal t, doublereal p,
 }
 
 void SingleSpeciesTP::setState_TPY(doublereal t, doublereal p,
-                                   compositionMap& y)
+                                   const compositionMap& y)
 {
     setTemperature(t);
     setPressure(p);
