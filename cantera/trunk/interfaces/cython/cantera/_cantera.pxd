@@ -1,5 +1,6 @@
 from libcpp.vector cimport vector
 from libcpp.string cimport string
+from libcpp.map cimport map as stdmap
 from libcpp cimport bool as cbool
 from cpython cimport bool as pybool
 
@@ -84,10 +85,12 @@ cdef extern from "cantera/thermo/ThermoPhase.h" namespace "Cantera":
 
         # composition
         void setMassFractionsByName(string) except +
+        void setMassFractionsByName(stdmap[string,double]&) except +
         double massFraction(size_t) except +
         double massFraction(string) except +
 
         void setMoleFractionsByName(string) except +
+        void setMoleFractionsByName(stdmap[string,double]&) except +
         void getMoleFractions(double*) except +
         double moleFraction(size_t) except +
         double moleFraction(string) except +
