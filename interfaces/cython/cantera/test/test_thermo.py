@@ -83,6 +83,27 @@ class TestThermoPhase(utilities.CanteraTest):
             self.phase.X = 'H2:1e-1.4'
         self.assertArrayNear(X0, self.phase.X)
 
+    def test_setCompositionDict(self):
+        self.phase.X = {'H2':1.0, 'O2':3.0}
+        X = self.phase.X
+        self.assertNear(X[0], 0.25)
+        self.assertNear(X[3], 0.75)
+
+        self.phase.Y = {'H2':1.0, 'O2':3.0}
+        Y = self.phase.Y
+        self.assertNear(Y[0], 0.25)
+        self.assertNear(Y[3], 0.75)
+
+    @unittest.expectedFailure
+    def test_setCompositionDict_bad1(self):
+        # Non-existent species should raise an exception
+        with self.assertRaises(Exception):
+            self.phase.X = {'H2':1.0, 'HCl':3.0}
+
+    def test_setCompositionDict_bad2(self):
+        with self.assertRaises(Exception):
+            self.phase.Y = {'H2':1.0, 'O2':'xx'}
+
     def test_report(self):
         report = self.phase.report()
         self.assertTrue(self.phase.name in report)

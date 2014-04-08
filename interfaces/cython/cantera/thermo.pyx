@@ -2,6 +2,16 @@ cdef enum Thermasis:
     mass_basis = 0
     molar_basis = 1
 
+
+cdef stdmap[string,double] comp_map(dict X) except *:
+    cdef stdmap[string,double] m
+    cdef str species
+    cdef float val
+    for species,value in X.items():
+        m[stringify(species)] = value
+    return m
+
+
 cdef class ThermoPhase(_SolutionBase):
     """
     A phase with an equation of state.
@@ -255,10 +265,11 @@ cdef class ThermoPhase(_SolutionBase):
 
     property Y:
         """
-        Get/Set the species mass fractions. Can be set as either an array or
-        as a string. Always returns an array::
+        Get/Set the species mass fractions. Can be set as an array, as a dict,
+        or as a string. Always returns an array::
 
             >>> phase.Y = [0.1, 0, 0, 0.4, 0, 0, 0, 0, 0.5]
+            >>> phase.Y = {'H2':0.1, 'O2':0.4, 'AR':0.5}
             >>> phase.Y = 'H2:0.1, O2:0.4, AR:0.5'
             >>> phase.Y
             array([0.1, 0, 0, 0.4, 0, 0, 0, 0, 0.5])
@@ -268,25 +279,29 @@ cdef class ThermoPhase(_SolutionBase):
         def __set__(self, Y):
             if isinstance(Y, (str, unicode)):
                 self.thermo.setMassFractionsByName(stringify(Y))
+            elif isinstance(Y, dict):
+                self.thermo.setMassFractionsByName(comp_map(Y))
             else:
                 self._setArray1(thermo_setMassFractions, Y)
 
     property X:
         """
-        Get/Set the species mole fractions. Can be set as either an array or
-        as a string. Always returns an array::
+        Get/Set the species mole fractions. Can be set as an array, as a dict,
+        or as a string. Always returns an array::
 
             >>> phase.X = [0.1, 0, 0, 0.4, 0, 0, 0, 0, 0.5]
+            >>> phase.X = {'H2':0.1, 'O2':0.4, 'AR':0.5}
             >>> phase.X = 'H2:0.1, O2:0.4, AR:0.5'
             >>> phase.X
             array([0.1, 0, 0, 0.4, 0, 0, 0, 0, 0.5])
-
         """
         def __get__(self):
             return self._getArray1(thermo_getMoleFractions)
         def __set__(self, X):
             if isinstance(X, (str, unicode)):
                 self.thermo.setMoleFractionsByName(stringify(X))
+            elif isinstance(X, dict):
+                self.thermo.setMoleFractionsByName(comp_map(X))
             else:
                 self._setArray1(thermo_setMoleFractions, X)
 
