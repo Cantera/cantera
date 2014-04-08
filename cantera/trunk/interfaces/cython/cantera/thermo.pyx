@@ -246,11 +246,16 @@ cdef class ThermoPhase(_SolutionBase):
             return data
 
     cdef void _setArray1(self, thermoMethod1d method, values) except *:
-        if len(values) != self.n_species:
-            raise ValueError("Array has incorrect length")
+        cdef np.ndarray[np.double_t, ndim=1] data
 
-        cdef np.ndarray[np.double_t, ndim=1] data = \
-            np.ascontiguousarray(values, dtype=np.double)
+        if len(values) == self.n_species:
+            data = np.ascontiguousarray(values, dtype=np.double)
+        elif len(values) == len(self._selected_species):
+            data = np.zeros(self.n_species, dtype=np.double)
+            for i,k in enumerate(self._selected_species):
+                data[k] = values[i]
+        else:
+            raise ValueError("Array has incorrect length")
         method(self.thermo, &data[0])
 
     property molecular_weights:
