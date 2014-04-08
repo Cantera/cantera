@@ -1268,17 +1268,17 @@ class Parser(object):
                 if chebyshev is None:
                     chebyshev = Chebyshev()
                 tokens = [t.strip() for t in tokens]
-                if 'TCHEB' in line:
-                    index = tokens.index('TCHEB')
+                if contains(tokens, 'TCHEB'):
+                    index = get_index(tokens, 'TCHEB')
                     tokens2 = tokens[index+1].split()
                     chebyshev.Tmin = float(tokens2[0].strip())
                     chebyshev.Tmax = float(tokens2[1].strip())
-                if 'PCHEB' in line:
-                    index = tokens.index('PCHEB')
+                if contains(tokens, 'PCHEB'):
+                    index = get_index(tokens, 'PCHEB')
                     tokens2 = tokens[index+1].split()
                     chebyshev.Pmin = (float(tokens2[0].strip()), 'atm')
                     chebyshev.Pmax = (float(tokens2[1].strip()), 'atm')
-                if 'TCHEB' in line or 'PCHEB' in line:
+                if contains(tokens, 'TCHEB') or contains(tokens, 'PCHEB'):
                     pass
                 elif chebyshev.degreeT == 0 or chebyshev.degreeP == 0:
                     tokens2 = tokens[1].split()
