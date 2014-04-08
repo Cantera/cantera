@@ -41,7 +41,9 @@ import cantera.test
 class TestResult(unittest.TextTestResult):
     def __init__(self, *args, **kwargs):
         unittest.TextTestResult.__init__(self, *args, **kwargs)
-        self.outfile = open('python%d-results.txt' % sys.version_info[0], 'w')
+        self.outName = 'python%d-results.txt' % sys.version_info[0]
+        with open(self.outName, 'w') as f:
+            pass # just create an empty output file
 
     def reformat(self, test_string):
         name, cls = test_string.split()
@@ -49,15 +51,18 @@ class TestResult(unittest.TextTestResult):
         return '%s.%s' % (cls, name)
 
     def addSuccess(self, test):
-        self.outfile.write('PASS: %s\n' % self.reformat(str(test)))
+        with open(self.outName, 'a') as f:
+            f.write('PASS: %s\n' % self.reformat(str(test)))
         unittest.TextTestResult.addSuccess(self, test)
 
     def addFailure(self, test, err):
-        self.outfile.write('FAIL: %s\n' % self.reformat(str(test)))
+        with open(self.outName, 'a') as f:
+            f.write('FAIL: %s\n' % self.reformat(str(test)))
         unittest.TextTestResult.addFailure(self, test, err)
 
     def addError(self, test, err):
-        self.outfile.write('ERROR: %s\n' % self.reformat(str(test)))
+        with open(self.outName, 'a') as f:
+            f.write('ERROR: %s\n' % self.reformat(str(test)))
         unittest.TextTestResult.addFailure(self, test, err)
 
 
