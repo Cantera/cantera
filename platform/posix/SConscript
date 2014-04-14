@@ -22,12 +22,6 @@ if localenv['layout'] != 'debian':
     localenv.Depends(target, env['install_python2_action'])
     install('$inst_bindir', target)
 
-# 'mixmaster'
-if env['python_package'] == 'full':
-    target = build(localenv.SubstFile('mixmaster', 'mixmaster.in'))
-    inst = install('$inst_python_bindir', target)
-    install(localenv.AddPostAction, inst, Chmod('$TARGET', 0755))
-
 # Cantera.mak include file for Makefile projects
 # cantera.pc for use with pkg-config
 
