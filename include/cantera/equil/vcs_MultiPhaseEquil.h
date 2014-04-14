@@ -9,6 +9,7 @@
 #include "MultiPhase.h"
 #include "vcs_defs.h"
 #include "vcs_solve.h"
+#include "vcs_prob.h"
 
 namespace Cantera
 {
@@ -163,7 +164,6 @@ int vcs_determine_PhaseStability(MultiPhase& s, int iphase,
 //! equilibrium solver.
 namespace VCSnonideal
 {
-class VCS_PROB;
 
 //! Translate a MultiPhase object into a VCS_PROB problem definition object
 /*!
@@ -225,7 +225,7 @@ public:
      */
     vcs_MultiPhaseEquil(Cantera::MultiPhase* mix, int printLvl);
 
-    virtual ~vcs_MultiPhaseEquil();
+    virtual ~vcs_MultiPhaseEquil() {}
 
     //! Return the index of the ith component
     /*!
@@ -482,7 +482,7 @@ protected:
      *  constraints. All of these make the problem statement different than
      *  the simple element conservation statement.
      */
-    VCSnonideal::VCS_PROB* m_vprob;
+    VCSnonideal::VCS_PROB m_vprob;
 
     //! Pointer to the MultiPhase mixture that will be equilibrated.
     /*!
