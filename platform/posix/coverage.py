@@ -15,6 +15,8 @@ def getDirectories():
     sourcedirs = set()
     rootdir = os.getcwd()
     for dirpath, dirnames, filenames in os.walk(rootdir):
+        if 'test_problems' in dirpath or '/ext/' in dirpath:
+            continue
         for fname in filenames:
             if fname.endswith('.gcda'):
                 dirpath.replace(rootdir, '', 1)
