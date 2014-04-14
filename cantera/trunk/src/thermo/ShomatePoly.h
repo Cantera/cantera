@@ -14,6 +14,7 @@
 
 #include "cantera/thermo/SpeciesThermoInterpType.h"
 #include "cantera/base/global.h"
+#include "cantera/base/ctexceptions.h"
 
 namespace Cantera
 {
