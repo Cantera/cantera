@@ -294,9 +294,7 @@ class ShomatePoly2 : public SpeciesThermoInterpType
 public:
     //! Empty constructor
     ShomatePoly2()
-        : m_midT(0.0),
-          msp_low(0),
-          msp_high(0)
+        : m_midT(0.0)
     {
         m_coeff.resize(15);
     }
@@ -318,12 +316,10 @@ public:
                  const doublereal* coeffs) :
         SpeciesThermoInterpType(n, tlow, thigh, pref),
         m_midT(coeffs[0]),
-        msp_low(0),
-        msp_high(0),
+        msp_low(n, tlow, coeffs[0], pref, coeffs+1),
+        msp_high(n, coeffs[0], thigh, pref, coeffs+8),
         m_coeff(coeffs, coeffs + 15)
     {
-        msp_low  = new ShomatePoly(n, tlow, m_midT, pref, coeffs+1);
-        msp_high = new ShomatePoly(n, m_midT, thigh, pref, coeffs+8);
     }
 
     //! Copy constructor
@@ -333,14 +329,10 @@ public:
     ShomatePoly2(const ShomatePoly2& b) :
         SpeciesThermoInterpType(b),
         m_midT(b.m_midT),
-        msp_low(0),
-        msp_high(0),
+        msp_low(b.msp_low),
+        msp_high(b.msp_high),
         m_coeff(b.m_coeff)
     {
-        msp_low  = new ShomatePoly(m_index, m_lowT, m_midT,
-                                   m_Pref, &m_coeff[1]);
-        msp_high = new ShomatePoly(m_index, m_midT, m_highT,
-                                   m_Pref, &m_coeff[8]);
     }
 
     //! Assignment operator
@@ -352,20 +344,10 @@ public:
             SpeciesThermoInterpType::operator=(b);
             m_midT   = b.m_midT;
             m_coeff  = b.m_coeff;
-            delete msp_low;
-            delete msp_high;
-            msp_low  = new ShomatePoly(m_index, m_lowT, m_midT,
-                                       m_Pref, &m_coeff[1]);
-            msp_high = new ShomatePoly(m_index, m_midT, m_highT,
-                                       m_Pref, &m_coeff[8]);
+            msp_low =  b.msp_low;
+            msp_high = b.msp_high;
         }
         return *this;
-    }
-
-    //! Destructor
-    virtual ~ShomatePoly2() {
-        delete msp_low;
-        delete msp_high;
     }
 
     virtual SpeciesThermoInterpType*
@@ -403,9 +385,9 @@ public:
                                   doublereal* s_R) const {
         double T = 1000 * tt[0];
         if (T <= m_midT) {
-            msp_low->updateProperties(tt, cp_R, h_RT, s_R);
+            msp_low.updateProperties(tt, cp_R, h_RT, s_R);
         } else {
-            msp_high->updateProperties(tt, cp_R, h_RT, s_R);
+            msp_high.updateProperties(tt, cp_R, h_RT, s_R);
         }
     }
 
@@ -414,9 +396,9 @@ public:
                                       doublereal* h_RT,
                                       doublereal* s_R) const {
         if (temp <= m_midT) {
-            msp_low->updatePropertiesTemp(temp, cp_R, h_RT, s_R);
+            msp_low.updatePropertiesTemp(temp, cp_R, h_RT, s_R);
         } else {
-            msp_high->updatePropertiesTemp(temp, cp_R, h_RT, s_R);
+            msp_high.updatePropertiesTemp(temp, cp_R, h_RT, s_R);
         }
     }
 
@@ -442,20 +424,18 @@ public:
      *                 parameters for the standard state.
      */
     virtual void modifyParameters(doublereal* coeffs) {
-        delete msp_low;
-        delete msp_high;
         std::copy(coeffs, coeffs + 15, m_coeff.begin());
         m_midT = coeffs[0];
-        msp_low  = new ShomatePoly(m_index, m_lowT, m_midT,  m_Pref, coeffs+1);
-        msp_high = new ShomatePoly(m_index, m_midT, m_highT, m_Pref, coeffs+8);
+        msp_low = ShomatePoly(m_index, m_lowT, m_midT,  m_Pref, coeffs+1);
+        msp_high = ShomatePoly(m_index, m_midT, m_highT, m_Pref, coeffs+8);
     }
 
     virtual doublereal reportHf298(doublereal* const h298 = 0) const {
         doublereal h;
         if (298.15 <= m_midT) {
-            h = msp_low->reportHf298(h298);
+            h = msp_low.reportHf298(h298);
         } else {
-            h = msp_high->reportHf298(h298);
+            h = msp_high.reportHf298(h298);
         }
         if (h298) {
             h298[m_index] = h;
@@ -470,21 +450,21 @@ public:
 
         doublereal h298now = reportHf298(0);
         doublereal delH = Hf298New - h298now;
-        double h = msp_low->reportHf298(0);
+        double h = msp_low.reportHf298(0);
         double hnew = h + delH;
-        msp_low->modifyOneHf298(k, hnew);
-        h  = msp_high->reportHf298(0);
+        msp_low.modifyOneHf298(k, hnew);
+        h  = msp_high.reportHf298(0);
         hnew = h + delH;
-        msp_high->modifyOneHf298(k, hnew);
+        msp_high.modifyOneHf298(k, hnew);
     }
 
 protected:
     //! Midrange temperature (kelvin)
     doublereal m_midT;
-    //! Pointer to the Shomate polynomial for the low temperature region.
-    ShomatePoly* msp_low;
-    //! Pointer to the Shomate polynomial for the high temperature region.
-    ShomatePoly* msp_high;
+    //! Shomate polynomial for the low temperature region.
+    ShomatePoly msp_low;
+    //! Shomate polynomial for the high temperature region.
+    ShomatePoly msp_high;
     //! Array of the original coefficients.
     vector_fp m_coeff;
 };
