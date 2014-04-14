@@ -24,8 +24,6 @@ public:
     double Vcrit();
     double Tmin();
     double Tmax();
-    char* name();
-    char* formula();
 
     //! Pressure. Equation P-3 in Reynolds. P(rho, T).
     double Pp();

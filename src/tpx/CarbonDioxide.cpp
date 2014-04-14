@@ -310,14 +310,6 @@ double CarbonDioxide::Tmax()
 {
     return Tmx;
 }
-char* CarbonDioxide::name()
-{
-    return (char*) m_name.c_str() ;
-}
-char* CarbonDioxide::formula()
-{
-    return (char*) m_formula.c_str();
-}
 double CarbonDioxide::MolWt()
 {
     return M;

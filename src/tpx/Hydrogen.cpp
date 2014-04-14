@@ -264,14 +264,6 @@ double hydrogen::Tmax()
 {
     return Tmx;
 }
-char* hydrogen::name()
-{
-    return (char*) m_name.c_str();
-}
-char* hydrogen::formula()
-{
-    return (char*) m_formula.c_str();
-}
 double hydrogen::MolWt()
 {
     return M;

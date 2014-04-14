@@ -22,8 +22,6 @@ public:
     double Vcrit();
     double Tmin();
     double Tmax();
-    char* name();
-    char* formula();
 
     double Pp();
     double up();

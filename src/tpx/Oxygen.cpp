@@ -242,14 +242,6 @@ double oxygen::Tmax()
 {
     return Tmx;
 }
-char* oxygen::name()
-{
-    return (char*) m_name.c_str();
-}
-char* oxygen::formula()
-{
-    return (char*) m_formula.c_str();
-}
 double oxygen::MolWt()
 {
     return M;
