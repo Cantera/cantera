@@ -8,6 +8,7 @@
 #include "cantera/base/ct_defs.h"
 #include "MultiPhase.h"
 #include "vcs_defs.h"
+#include "vcs_solve.h"
 
 namespace Cantera
 {
@@ -163,7 +164,6 @@ int vcs_determine_PhaseStability(MultiPhase& s, int iphase,
 namespace VCSnonideal
 {
 class VCS_PROB;
-class VCS_SOLVE;
 
 //! Translate a MultiPhase object into a VCS_PROB problem definition object
 /*!
@@ -517,12 +517,12 @@ protected:
      */
     Cantera::vector_int m_species;
 
-    //! Pointer to the object that does all of the equilibration work.
+    //! The object that does all of the equilibration work.
     /*!
      * VCS_SOLVE will have different ordering for species and element constraints
-     * than this object or the VCS_PROB object. This object owns the pointer.
+     * than this object or the VCS_PROB object.
      */
-    VCSnonideal::VCS_SOLVE* m_vsolvePtr;
+    VCSnonideal::VCS_SOLVE m_vsolve;
 };
 
 //! Global hook for turning on and off time printing.

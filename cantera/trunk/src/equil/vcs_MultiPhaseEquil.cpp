@@ -14,8 +14,6 @@
 #include "cantera/equil/vcs_VolPhase.h"
 #include "cantera/equil/vcs_species_thermo.h"
 
-#include "cantera/equil/vcs_solve.h"
-
 #include "cantera/thermo/mix_defs.h"
 #include "cantera/base/clockWC.h"
 #include "cantera/base/stringUtils.h"
@@ -35,16 +33,14 @@ namespace VCSnonideal
 vcs_MultiPhaseEquil::vcs_MultiPhaseEquil() :
     m_vprob(0),
     m_mix(0),
-    m_printLvl(0),
-    m_vsolvePtr(0)
+    m_printLvl(0)
 {
 }
 
 vcs_MultiPhaseEquil::vcs_MultiPhaseEquil(Cantera::MultiPhase* mix, int printLvl) :
     m_vprob(0),
     m_mix(0),
-    m_printLvl(printLvl),
-    m_vsolvePtr(0)
+    m_printLvl(printLvl)
 {
     /*
      * Create a VCS_PROB object that describes the equilibrium problem.
@@ -69,8 +65,6 @@ vcs_MultiPhaseEquil::~vcs_MultiPhaseEquil()
 {
     delete m_vprob;
     m_vprob = 0;
-    delete m_vsolvePtr;
-    m_vsolvePtr = 0;
 }
 
 int vcs_MultiPhaseEquil::equilibrate_TV(int XY, doublereal xtarget,
@@ -571,10 +565,7 @@ int vcs_MultiPhaseEquil::equilibrate_TP(int estimateEquil,
     } else {
         ip1 = 0;
     }
-    if (!m_vsolvePtr) {
-        m_vsolvePtr = new VCS_SOLVE();
-    }
-    int iSuccess = m_vsolvePtr->vcs(m_vprob, 0, ipr, ip1, maxit);
+    int iSuccess = m_vsolve.vcs(m_vprob, 0, ipr, ip1, maxit);
 
     /*
      * Transfer the information back to the MultiPhase object.
@@ -651,7 +642,7 @@ int vcs_MultiPhaseEquil::equilibrate_TP(int estimateEquil,
         plogf("------------------------------------------"
               "-------------------\n");
         if (printLvl > 2) {
-            if (m_vsolvePtr->m_timing_print_lvl > 0) {
+            if (m_vsolve.m_timing_print_lvl > 0) {
                 plogf("Total time = %12.6e seconds\n", te);
             }
         }
@@ -1377,15 +1368,15 @@ int vcs_Cantera_update_vprob(Cantera::MultiPhase* mphase,
 
 void vcs_MultiPhaseEquil::getStoichVector(size_t rxn, Cantera::vector_fp& nu)
 {
-    size_t nsp = m_vsolvePtr->m_numSpeciesTot;
+    size_t nsp = m_vsolve.m_numSpeciesTot;
     nu.resize(nsp, 0.0);
     for (size_t i = 0; i < nsp; i++) {
         nu[i] = 0.0;
     }
     size_t nc = numComponents();
     // scMatrix [nrxn][ncomp]
-    const DoubleStarStar& scMatrix = m_vsolvePtr->m_stoichCoeffRxnMatrix;
-    const std::vector<size_t>& indSpecies = m_vsolvePtr->m_speciesMapIndex;
+    const DoubleStarStar& scMatrix = m_vsolve.m_stoichCoeffRxnMatrix;
+    const std::vector<size_t>& indSpecies = m_vsolve.m_speciesMapIndex;
     if (rxn > nsp - nc) {
         return;
     }
@@ -1400,27 +1391,19 @@ void vcs_MultiPhaseEquil::getStoichVector(size_t rxn, Cantera::vector_fp& nu)
 
 size_t vcs_MultiPhaseEquil::numComponents() const
 {
-    size_t nc = npos;
-    if (m_vsolvePtr) {
-        nc =  m_vsolvePtr->m_numComponents;
-    }
-    return nc;
+    return m_vsolve.m_numComponents;
 }
 
 size_t vcs_MultiPhaseEquil::numElemConstraints() const
 {
-    size_t nec = npos;
-    if (m_vsolvePtr) {
-        nec =  m_vsolvePtr->m_numElemConstraints;
-    }
-    return nec;
+    return m_vsolve.m_numElemConstraints;
 }
 
 size_t vcs_MultiPhaseEquil::component(size_t m) const
 {
     size_t nc = numComponents();
     if (m < nc) {
-        return m_vsolvePtr->m_speciesMapIndex[m];
+        return m_vsolve.m_speciesMapIndex[m];
     } else {
         return npos;
     }
@@ -1473,10 +1456,7 @@ int vcs_MultiPhaseEquil::determine_PhaseStability(int iph, double& funcStab, int
     /*
      * Call the thermo Program
      */
-    if (!m_vsolvePtr) {
-        m_vsolvePtr = new VCS_SOLVE();
-    }
-    int iStable = m_vsolvePtr->vcs_PS(m_vprob, iph, printLvl, funcStab);
+    int iStable = m_vsolve.vcs_PS(m_vprob, iph, printLvl, funcStab);
 
     /*
      * Transfer the information back to the MultiPhase object.
@@ -1547,7 +1527,7 @@ int vcs_MultiPhaseEquil::determine_PhaseStability(int iph, double& funcStab, int
         plogf("------------------------------------------"
               "-------------------\n");
         if (printLvl > 2) {
-            if (m_vsolvePtr->m_timing_print_lvl > 0) {
+            if (m_vsolve.m_timing_print_lvl > 0) {
                 plogf("Total time = %12.6e seconds\n", te);
             }
         }
