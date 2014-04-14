@@ -64,8 +64,7 @@ public:
     NasaPoly1(size_t n, doublereal tlow, doublereal thigh, doublereal pref,
               const doublereal* coeffs) :
         SpeciesThermoInterpType(n, tlow, thigh, pref),
-        m_coeff(vector_fp(7)) {
-        std::copy(coeffs, coeffs + 7, m_coeff.begin());
+        m_coeff(coeffs, coeffs + 7) {
     }
 
     //! copy constructor
@@ -74,11 +73,8 @@ public:
      */
     NasaPoly1(const NasaPoly1& b) :
         SpeciesThermoInterpType(b),
-        m_coeff(vector_fp(7))
+        m_coeff(b.m_coeff)
     {
-        std::copy(b.m_coeff.begin(),
-                  b.m_coeff.begin() + 7,
-                  m_coeff.begin());
     }
 
     //! assignment operator
@@ -88,9 +84,7 @@ public:
     NasaPoly1& operator=(const NasaPoly1& b) {
         if (&b != this) {
             SpeciesThermoInterpType::operator=(b);
-            std::copy(b.m_coeff.begin(),
-                      b.m_coeff.begin() + 7,
-                      m_coeff.begin());
+            m_coeff = b.m_coeff;
         }
         return *this;
     }

@@ -81,10 +81,9 @@ public:
      */
     ShomatePoly(size_t n, doublereal tlow, doublereal thigh, doublereal pref,
                 const doublereal* coeffs) :
-            SpeciesThermoInterpType(n, tlow, thigh, pref)
+            SpeciesThermoInterpType(n, tlow, thigh, pref),
+            m_coeff(coeffs, coeffs + 7)
     {
-        m_coeff.resize(7);
-        std::copy(coeffs, coeffs + 7, m_coeff.begin());
     }
 
     //! copy constructor
@@ -93,11 +92,8 @@ public:
      */
     ShomatePoly(const ShomatePoly& b) :
         SpeciesThermoInterpType(b),
-        m_coeff(vector_fp(7))
+        m_coeff(b.m_coeff)
     {
-        std::copy(b.m_coeff.begin(),
-                  b.m_coeff.begin() + 7,
-                  m_coeff.begin());
     }
 
     //! Assignment operator
@@ -107,10 +103,7 @@ public:
     ShomatePoly& operator=(const ShomatePoly& b) {
         if (&b != this) {
             SpeciesThermoInterpType::operator=(b);
-            m_coeff.resize(7);
-            std::copy(b.m_coeff.begin(),
-                      b.m_coeff.begin() + 7,
-                      m_coeff.begin());
+            m_coeff = b.m_coeff;
         }
         return *this;
     }
@@ -323,13 +316,11 @@ public:
     ShomatePoly2(size_t n, doublereal tlow, doublereal thigh, doublereal pref,
                  const doublereal* coeffs) :
         SpeciesThermoInterpType(n, tlow, thigh, pref),
-        m_midT(0.0),
+        m_midT(coeffs[0]),
         msp_low(0),
-        msp_high(0)
+        msp_high(0),
+        m_coeff(coeffs, coeffs + 15)
     {
-        m_coeff.resize(15);
-        std::copy(coeffs, coeffs + 15, m_coeff.begin());
-        m_midT = coeffs[0];
         msp_low  = new ShomatePoly(n, tlow, m_midT, pref, coeffs+1);
         msp_high = new ShomatePoly(n, m_midT, thigh, pref, coeffs+8);
     }
@@ -343,11 +334,8 @@ public:
         m_midT(b.m_midT),
         msp_low(0),
         msp_high(0),
-        m_coeff(vector_fp(15))
+        m_coeff(b.m_coeff)
     {
-        std::copy(b.m_coeff.begin(),
-                  b.m_coeff.begin() + 15,
-                  m_coeff.begin());
         msp_low  = new ShomatePoly(m_index, m_lowT, m_midT,
                                    m_Pref, &m_coeff[1]);
         msp_high = new ShomatePoly(m_index, m_midT, m_highT,
@@ -362,9 +350,7 @@ public:
         if (&b != this) {
             SpeciesThermoInterpType::operator=(b);
             m_midT   = b.m_midT;
-            std::copy(b.m_coeff.begin(),
-                      b.m_coeff.begin() + 15,
-                      m_coeff.begin());
+            m_coeff  = b.m_coeff;
             delete msp_low;
             delete msp_high;
             msp_low  = new ShomatePoly(m_index, m_lowT, m_midT,

@@ -66,11 +66,10 @@ public:
     NasaPoly2(size_t n, doublereal tlow, doublereal thigh, doublereal pref,
               const doublereal* coeffs) :
         SpeciesThermoInterpType(n, tlow, thigh, pref),
+        m_midT(coeffs[0]),
         mnp_low(n, tlow, coeffs[0], pref, coeffs +1),
         mnp_high(n, tlow, thigh, pref, coeffs + 8),
-        m_coeff(15, 0.0) {
-        std::copy(coeffs, coeffs + 15, m_coeff.begin());
-        m_midT = coeffs[0];
+        m_coeff(coeffs, coeffs + 15) {
     }
 
     //! Copy Constructor
