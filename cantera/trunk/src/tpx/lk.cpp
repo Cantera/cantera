@@ -160,14 +160,6 @@ double leekesler::Tmax()
 {
     return 10000.0;
 }
-char* leekesler::name()
-{
-    return (char*) m_name.c_str();
-}
-char* leekesler::formula()
-{
-    return (char*) m_formula.c_str();
-}
 double leekesler::MolWt()
 {
     return Mw;

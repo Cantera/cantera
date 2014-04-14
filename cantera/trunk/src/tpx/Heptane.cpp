@@ -263,14 +263,6 @@ double Heptane::Tmax()
 {
     return Tmx;
 }
-char* Heptane::name()
-{
-    return (char*) m_name.c_str();
-}
-char* Heptane::formula()
-{
-    return (char*) m_formula.c_str();
-}
 double Heptane::MolWt()
 {
     return M;

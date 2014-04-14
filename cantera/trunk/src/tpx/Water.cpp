@@ -217,14 +217,6 @@ double water::Tmax()
 {
     return Tmx;
 }
-char* water::name()
-{
-    return (char*) m_name.c_str();
-}
-char* water::formula()
-{
-    return (char*) m_formula.c_str();
-}
 double water::MolWt()
 {
     return M;

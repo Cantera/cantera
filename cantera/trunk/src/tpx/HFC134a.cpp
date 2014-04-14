@@ -210,14 +210,6 @@ double HFC134a::Tmax()
 {
     return Tmx;
 }
-char* HFC134a::name()
-{
-    return (char*) m_name.c_str();
-}
-char* HFC134a::formula()
-{
-    return (char*) m_formula.c_str();
-}
 double HFC134a::MolWt()
 {
     return M;

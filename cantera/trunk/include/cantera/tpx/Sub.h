@@ -76,10 +76,15 @@ public:
     virtual double Tmax()=0;
 
     //! Name of the substance
-    virtual char* name() = 0;
+    const char* name() {
+        return m_name.c_str();
+    }
 
     //! Chemical formula for the substance
-    virtual char* formula() = 0;
+     const char* formula() {
+        return m_formula.c_str();
+    }
+
     //! @}
 
     //! @name Properties
