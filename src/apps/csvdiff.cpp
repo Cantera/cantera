@@ -290,6 +290,8 @@ static void get_sizes(FILE* fp, int& nTitleLines, int& nColTitleLines,
             if (maxCommas < numCommas[i]) {
                 maxCommas = numCommas[i];
             }
+        } else {
+            maxCommas = numCommas[0];
         }
     }
     /*
@@ -326,9 +328,13 @@ static void get_sizes(FILE* fp, int& nTitleLines, int& nColTitleLines,
         }
     }
 
-
-
     int doingLineType = LT_TITLELINE;
+    if (nScanLines == 2) {
+        nTitleLines = 0;
+        doingLineType = LT_COLTITLE;
+    }
+
+
     rewind(fp);
     for (i = 0; i < nScanLines; i++) {
         retn = read_line(fp, scanLine, 0);
