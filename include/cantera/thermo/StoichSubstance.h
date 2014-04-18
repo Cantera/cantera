@@ -224,6 +224,21 @@ public:
      */
     virtual void getPartialMolarEntropies(doublereal* sbar) const;
 
+    //! Get the species partial molar enthalpies. Units: J/kmol.
+    /*!
+     * @param ubar    Output vector of species partial molar internal energies.
+     *                Length = m_kk. units are J/kmol.
+     */
+    virtual void getPartialMolarIntEnergies(doublereal* ubar) const;
+
+    //! Get the partial molar heat capacities Units: J/kmol/K
+    /*!
+     * @param cpbar   Output vector of species partial molar heat capacities
+     *                at constant pressure.
+     *                Length = m_kk. units are J/kmol/K.
+     */
+    virtual void getPartialMolarCp(doublereal* cpbar) const;
+
     /**
      * returns an array of partial molar volumes of the species
      * in the solution. Units: m^3 kmol-1.
