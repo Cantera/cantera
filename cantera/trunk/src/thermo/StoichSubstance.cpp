@@ -169,6 +169,16 @@ void StoichSubstance::getPartialMolarEntropies(doublereal* sbar) const
     sbar[0] = entropy_mole();
 }
 
+void StoichSubstance::getPartialMolarIntEnergies(doublereal* ubar) const
+{
+    ubar[0] = intEnergy_mole();
+}
+
+void StoichSubstance::getPartialMolarCp(doublereal *cpbar) const
+{
+    cpbar[0] = cp_mole();
+}
+
 void StoichSubstance::getPartialMolarVolumes(doublereal* vbar) const
 {
     vbar[0] = 1.0 / molarDensity();
