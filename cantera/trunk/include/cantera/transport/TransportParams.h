@@ -42,7 +42,7 @@ public:
     //! Local storage of the number of species
     size_t nsp_;
 
-    //!  Pointer to the ThermoPhase object
+    //!  Pointer to the ThermoPhase object: shallow pointer
     thermo_t* thermo;
 
     //! Local storage of the molecular weights of the species
