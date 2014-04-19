@@ -221,25 +221,20 @@ LiquidTransport::~LiquidTransport()
     delete m_diffMixModel;
     //if ( m_radiusMixModel ) delete m_radiusMixModel;
 }
-
+//=============================================================================================================================
 bool LiquidTransport::initLiquid(LiquidTransportParams& tr)
 {
-
-    // constant substance attributes
+    //
+    //  Transfer quantitities from the database to the Transport object
+    //
     m_thermo = tr.thermo;
-    tr.thermo = 0;
     m_velocityBasis = tr.velocityBasis_;
     m_nsp   = m_thermo->nSpecies();
     m_nsp2 = m_nsp*m_nsp;
-
-    // make a local copy of the molecular weights
+    //
+    //  Resize the local storage according to the number of species
+    // 
     m_mw.resize(m_nsp, 0.0);
-    copy(m_thermo->molecularWeights().begin(),
-         m_thermo->molecularWeights().end(), m_mw.begin());
-
-    /*
-     *  Get the input Viscosities, and stuff
-     */
     m_viscSpecies.resize(m_nsp, 0.0);
     m_viscTempDep_Ns.resize(m_nsp, 0);
     m_ionCondSpecies.resize(m_nsp, 0.0);
@@ -252,18 +247,25 @@ bool LiquidTransport::initLiquid(LiquidTransportParams& tr)
     m_selfDiffMixModel.resize(m_nsp);
     m_selfDiffSpecies.resize(m_nsp, m_nsp, 0.0);
     m_selfDiffMix.resize(m_nsp,0.0);
-    for (size_t k=0; k < m_nsp; k++) {
+    for (size_t k = 0; k < m_nsp; k++) {
         m_selfDiffTempDep_Ns[k].resize(m_nsp, 0);
     }
-    for (size_t k=0; k < m_nsp2; k++) {
+    for (size_t k = 0; k < m_nsp2; k++) {
         m_mobRatTempDep_Ns[k].resize(m_nsp, 0);
     }
     m_lambdaSpecies.resize(m_nsp, 0.0);
     m_lambdaTempDep_Ns.resize(m_nsp, 0);
     m_hydrodynamic_radius.resize(m_nsp, 0.0);
     m_radiusTempDep_Ns.resize(m_nsp, 0);
-
-    //first populate mixing rules and indices
+    //
+    //  Make a local copy of the molecular weights
+    //
+    copy(m_thermo->molecularWeights().begin(), m_thermo->molecularWeights().end(), m_mw.begin());
+    //
+    //  First populate mixing rules and indices
+    //       (NOTE, we transfer pointers of malloced quantities. We zero out pointers so that
+    //        we only have one copy of the malloced quantity)
+    //
     for (size_t k = 0; k < m_nsp; k++) {
         m_selfDiffMixModel[k] = tr.selfDiffusion[k];
         tr.selfDiffusion[k] = 0;
@@ -340,7 +342,10 @@ bool LiquidTransport::initLiquid(LiquidTransportParams& tr)
 
     m_diffMixModel = tr.speciesDiffusivity;
     tr.speciesDiffusivity = 0;
-
+    if (! m_diffMixModel) {
+        throw CanteraError("LiquidTransport::initLiquid()",
+                           "A speciesDiffusivity model is required in the transport block for the phase, but none was provided");
+    }
 
     m_bdiff.resize(m_nsp,m_nsp, 0.0);
 
