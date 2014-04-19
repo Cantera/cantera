@@ -39,19 +39,22 @@ public:
     LiquidTranInteraction* ionConductivity;
 
     //! Vector of pointer to the LiquidTranInteraction object which handles the calculation of
-    //! each species' mobility ratios for the phase
+    //! the mobility ratios for the phase
     /*!
+     *  The mobility ratio is defined via the following quantity where i and j are species indecises.
+     *
      *   mobRat(i,j) = mu_i / mu_j
      *
      *    It is returned in fortran-ordering format. ie. it is returned as mobRat[k], where
      *
      *        k = j * nsp + i
+     *
+     *   Length = nsp * nsp
      */
     std::vector<LiquidTranInteraction*> mobilityRatio;
 
     //! Vector of pointer to the LiquidTranInteraction object which handles
-    //! the calculation of each species' self diffusion coefficient for the
-    //! phase
+    //! the calculation of each species' self diffusion coefficient for the phase
     std::vector<LiquidTranInteraction*> selfDiffusion;
 
     //! Pointer to the  LiquidTranInteraction object which handles the
