@@ -17,7 +17,7 @@ namespace Cantera
 SimpleTransport::SimpleTransport(thermo_t* thermo, int ndim) :
     Transport(thermo, ndim),
     tempDepType_(0),
-    compositionDepType_(0),
+    compositionDepType_(LTI_MODEL_SOLVENT),
     useHydroRadius_(false),
     doMigration_(0),
     m_iStateMF(-1),
@@ -39,7 +39,7 @@ SimpleTransport::SimpleTransport(thermo_t* thermo, int ndim) :
 SimpleTransport::SimpleTransport(const SimpleTransport& right) :
     Transport(),
     tempDepType_(0),
-    compositionDepType_(0),
+    compositionDepType_(LTI_MODEL_SOLVENT),
     useHydroRadius_(false),
     doMigration_(0),
     m_iStateMF(-1),
@@ -172,30 +172,18 @@ bool SimpleTransport::initLiquid(LiquidTransportParams& tr)
         XML_Node& transportNode = phaseNode.child("transport");
         string transportModel = transportNode.attrib("model");
         if (transportModel == "Simple") {
-            /*
-             * <compositionDependence model="Solvent_Only"/>
-            *      or
-             * <compositionDependence model="Mixture_Averaged"/>
-             */
-            std::string modelName = "";
-            if (ctml::getOptionalModel(transportNode, "compositionDependence",
-                                       modelName)) {
-                modelName = lowercase(modelName);
-                if (modelName == "solvent_only") {
-                    compositionDepType_ = 0;
-                } else if (modelName == "mixture_averaged") {
-                    compositionDepType_ = 1;
-                } else {
-                    throw CanteraError("SimpleTransport::initLiquid", "Unknown compositionDependence Model: " + modelName);
-                }
-            }
-        }
+
+	    compositionDepType_ = tr.compositionDepTypeDefault_;
+          
+        } else {
+	    throw CanteraError("SimpleTransport::initLiquid()",
+			       "transport model isn't the correct type: " + transportModel);
+	}
     }
 
     // make a local copy of the molecular weights
     m_mw.resize(m_nsp);
-    copy(m_thermo->molecularWeights().begin(),
-         m_thermo->molecularWeights().end(), m_mw.begin());
+    copy(m_thermo->molecularWeights().begin(), m_thermo->molecularWeights().end(), m_mw.begin());
 
     /*
      *  Get the input Viscosities
@@ -382,13 +370,16 @@ doublereal SimpleTransport::viscosity()
         updateViscosity_T();
     }
 
-    if (compositionDepType_ == 0) {
+    if (compositionDepType_ == LTI_MODEL_SOLVENT) {
         m_viscmix = m_viscSpecies[0];
-    } else if (compositionDepType_ == 1) {
+    } else if (compositionDepType_ == LTI_MODEL_MOLEFRACS) {
         m_viscmix = 0.0;
         for (size_t k = 0; k < m_nsp; k++) {
             m_viscmix += m_viscSpecies[k] * m_molefracs[k];
         }
+    } else {
+        throw CanteraError("SimpleTransport::viscosity()",
+                           "Unknowns compositionDepType");
     }
     m_visc_mix_ok = true;
     return m_viscmix;
@@ -474,13 +465,16 @@ doublereal SimpleTransport::thermalConductivity()
         updateCond_T();
     }
     if (!m_cond_mix_ok) {
-        if (compositionDepType_ == 0) {
+        if (compositionDepType_ == LTI_MODEL_SOLVENT) {
             m_lambda = m_condSpecies[0];
-        } else if (compositionDepType_ == 1) {
+        } else if (compositionDepType_ == LTI_MODEL_MOLEFRACS) {
             m_lambda = 0.0;
             for (size_t k = 0; k < m_nsp; k++) {
                 m_lambda += m_condSpecies[k] * m_molefracs[k];
             }
+        } else {
+            throw CanteraError("SimpleTransport::thermalConductivity()",
+                               "Unknown compositionDepType"); 
         }
         m_cond_mix_ok = true;
     }
@@ -683,7 +677,7 @@ bool SimpleTransport::update_C()
 
 void SimpleTransport::updateCond_T()
 {
-    if (compositionDepType_ == 0) {
+    if (compositionDepType_ == LTI_MODEL_SOLVENT) {
         m_condSpecies[0] = m_coeffLambda_Ns[0]->getSpeciesTransProp();
     } else {
         for (size_t k = 0; k < m_nsp; k++) {
@@ -718,7 +712,7 @@ void SimpleTransport::updateViscosities_C()
 
 void SimpleTransport::updateViscosity_T()
 {
-    if (compositionDepType_ == 0) {
+    if (compositionDepType_ == LTI_MODEL_SOLVENT) {
         m_viscSpecies[0] = m_coeffVisc_Ns[0]->getSpeciesTransProp();
     } else {
         for (size_t k = 0; k < m_nsp; k++) {

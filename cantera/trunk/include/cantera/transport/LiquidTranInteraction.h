@@ -72,7 +72,6 @@ namespace Cantera
  */
 enum LiquidTranMixingModel {
     LTI_MODEL_NOTSET=-1,
-    LTI_MODEL_NONE,
     LTI_MODEL_SOLVENT,
     LTI_MODEL_MOLEFRACS,
     LTI_MODEL_MASSFRACS,
@@ -80,7 +79,9 @@ enum LiquidTranMixingModel {
     LTI_MODEL_PAIRWISE_INTERACTION,
     LTI_MODEL_STEFANMAXWELL_PPN,
     LTI_MODEL_STOKES_EINSTEIN,
-    LTI_MODEL_MOLEFRACS_EXPT
+    LTI_MODEL_MOLEFRACS_EXPT,
+    LTI_MODEL_NONE,
+    LTI_MODEL_MULTIPLE
 };
 
 //! Base class to handle transport property evaluation in a mixture.
