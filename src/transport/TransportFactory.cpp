@@ -203,7 +203,6 @@ TransportFactory::TransportFactory() :
     m_LTRmodelMap["exptemp"] = LTP_TD_EXPT;
 
     m_LTImodelMap[""] = LTI_MODEL_NOTSET;
-    m_LTImodelMap["none"] = LTI_MODEL_NONE;
     m_LTImodelMap["solvent"] = LTI_MODEL_SOLVENT;
     m_LTImodelMap["moleFractions"] = LTI_MODEL_MOLEFRACS;
     m_LTImodelMap["massFractions"] = LTI_MODEL_MASSFRACS;
@@ -211,6 +210,8 @@ TransportFactory::TransportFactory() :
     m_LTImodelMap["pairwiseInteraction"] = LTI_MODEL_PAIRWISE_INTERACTION;
     m_LTImodelMap["stefanMaxwell_PPN"] = LTI_MODEL_STEFANMAXWELL_PPN;
     m_LTImodelMap["moleFractionsExpT"] = LTI_MODEL_MOLEFRACS_EXPT;
+    m_LTImodelMap["none"] = LTI_MODEL_NONE;
+    m_LTImodelMap["multiple"] = LTI_MODEL_MULTIPLE;
 }
 
 void TransportFactory::deleteFactory()
@@ -301,10 +302,20 @@ LiquidTranInteraction* TransportFactory::newLTI(const XML_Node& trNode,
         lti = new LTI_MoleFracs_ExpT(tp_ind);
         lti->init(trNode, thermo);
         break;
-    default:
-        //      throw CanteraError("newLTI","unknown transport model: " + model );
+    case LTI_MODEL_NOTSET:
+    case LTI_MODEL_NONE:
+    case LTI_MODEL_MULTIPLE:
         lti = new LiquidTranInteraction(tp_ind);
         lti->init(trNode, thermo);
+        break;
+    default:
+        //
+        // @TODO make sure we can throw an error here with existing datasets and tests before changing code 
+        //
+        lti = new LiquidTranInteraction(tp_ind);
+        lti->init(trNode, thermo);
+        // throw CanteraError("TransportFactory::newLTI()",
+        //                    "unknown Liquid Transport Interaction submodel: " + model );
     }
     return lti;
 }
@@ -999,9 +1010,9 @@ void TransportFactory::getLiquidSpeciesTransportData(const std::vector<const XML
   these species read from the file.
 */
 void TransportFactory::getLiquidInteractionsTransportData(const XML_Node& transportNode,
-        XML_Node& log,
-        const std::vector<std::string> &names,
-        LiquidTransportParams& trParam)
+							  XML_Node& log,
+							  const std::vector<std::string> &names,
+							  LiquidTransportParams& trParam)
 {
     try {
 
@@ -1018,93 +1029,103 @@ void TransportFactory::getLiquidInteractionsTransportData(const XML_Node& transp
             trParam.selfDiffusion.resize(nsp,0);
             ThermoPhase* temp_thermo = trParam.thermo;
 
+	    if (tranTypeNode.name() == "compositionDependence") {
+		std::string modelName = tranTypeNode.attrib("model");
+		std::map<string, LiquidTranMixingModel>::iterator it = m_LTImodelMap.find(modelName);
+		if (it == m_LTImodelMap.end()) {
+		    throw CanteraError("TransportFactory::getLiquidInteractionsTransportData",
+				       "Unknown compositionDependence string: " + modelName);
+		} else {
+		    trParam.compositionDepTypeDefault_ = (*it).second;
+		}
+	    } else {
+		if (tranTypeNode.hasChild("compositionDependence")) {
+		    //compDepNode contains the interaction model
+		    XML_Node& compDepNode = tranTypeNode.child("compositionDependence");
+		    switch (m_tranPropMap[nodeName]) {
+			break;
+		    case TP_VISCOSITY:
+			trParam.viscosity = newLTI(compDepNode, m_tranPropMap[nodeName], trParam);
+			break;
+		    case TP_IONCONDUCTIVITY:
+			trParam.ionConductivity = newLTI(compDepNode,
+							 m_tranPropMap[nodeName],
+							 trParam);
+			break;
+		    case TP_MOBILITYRATIO: {
+			for (size_t iSpec = 0; iSpec< nBinInt; iSpec++) {
+			    XML_Node& propSpecNode = compDepNode.child(iSpec);
+			    string specName = propSpecNode.name();
+			    size_t loc = specName.find(":");
+			    string firstSpec = specName.substr(0,loc);
+			    string secondSpec = specName.substr(loc+1);
+			    size_t index = temp_thermo->speciesIndex(firstSpec.c_str())+nsp*temp_thermo->speciesIndex(secondSpec.c_str());
+			    trParam.mobilityRatio[index] = newLTI(propSpecNode,
+								  m_tranPropMap[nodeName],
+								  trParam);
+			};
+		    };
+			break;
+		    case TP_SELFDIFFUSION: {
+			for (size_t iSpec = 0; iSpec< nsp; iSpec++) {
+			    XML_Node& propSpecNode = compDepNode.child(iSpec);
+			    string specName = propSpecNode.name();
+			    size_t index = temp_thermo->speciesIndex(specName.c_str());
+			    trParam.selfDiffusion[index] = newLTI(propSpecNode,
+								  m_tranPropMap[nodeName],
+								  trParam);
+			};
+		    };
+			break;
+		    case TP_THERMALCOND:
+			trParam.thermalCond = newLTI(compDepNode,
+						     m_tranPropMap[nodeName],
+						     trParam);
+			break;
+		    case TP_DIFFUSIVITY:
+			trParam.speciesDiffusivity = newLTI(compDepNode,
+							    m_tranPropMap[nodeName],
+							    trParam);
+			break;
+		    case TP_HYDRORADIUS:
+			trParam.hydroRadius = newLTI(compDepNode,
+						     m_tranPropMap[nodeName],
+						     trParam);
+			break;
+		    case TP_ELECTCOND:
+			trParam.electCond = newLTI(compDepNode,
+						   m_tranPropMap[nodeName],
+						   trParam);
+			break;
+		    default:
+			throw CanteraError("getLiquidInteractionsTransportData","unknown transport property: " + nodeName);
 
-            if (tranTypeNode.hasChild("compositionDependence")) {
-                //compDepNode contains the interaction model
-                XML_Node& compDepNode = tranTypeNode.child("compositionDependence");
-                switch (m_tranPropMap[nodeName]) {
-                    break;
-                case TP_VISCOSITY:
-                    trParam.viscosity = newLTI(compDepNode, m_tranPropMap[nodeName], trParam);
-                    break;
-                case TP_IONCONDUCTIVITY:
-                    trParam.ionConductivity = newLTI(compDepNode,
-                                                     m_tranPropMap[nodeName],
-                                                     trParam);
-                    break;
-                case TP_MOBILITYRATIO: {
-                    for (size_t iSpec = 0; iSpec< nBinInt; iSpec++) {
-                        XML_Node& propSpecNode = compDepNode.child(iSpec);
-                        string specName = propSpecNode.name();
-                        size_t loc = specName.find(":");
-                        string firstSpec = specName.substr(0,loc);
-                        string secondSpec = specName.substr(loc+1);
-                        size_t index = temp_thermo->speciesIndex(firstSpec.c_str())+nsp*temp_thermo->speciesIndex(secondSpec.c_str());
-                        trParam.mobilityRatio[index] = newLTI(propSpecNode,
-                                                              m_tranPropMap[nodeName],
-                                                              trParam);
-                    };
-                };
-                break;
-                case TP_SELFDIFFUSION: {
-                    for (size_t iSpec = 0; iSpec< nsp; iSpec++) {
-                        XML_Node& propSpecNode = compDepNode.child(iSpec);
-                        string specName = propSpecNode.name();
-                        size_t index = temp_thermo->speciesIndex(specName.c_str());
-                        trParam.selfDiffusion[index] = newLTI(propSpecNode,
-                                                              m_tranPropMap[nodeName],
-                                                              trParam);
-                    };
-                };
-                break;
-                case TP_THERMALCOND:
-                    trParam.thermalCond = newLTI(compDepNode,
-                                                 m_tranPropMap[nodeName],
-                                                 trParam);
-                    break;
-                case TP_DIFFUSIVITY:
-                    trParam.speciesDiffusivity = newLTI(compDepNode,
-                                                        m_tranPropMap[nodeName],
-                                                        trParam);
-                    break;
-                case TP_HYDRORADIUS:
-                    trParam.hydroRadius = newLTI(compDepNode,
-                                                 m_tranPropMap[nodeName],
-                                                 trParam);
-                    break;
-                case TP_ELECTCOND:
-                    trParam.electCond = newLTI(compDepNode,
-                                               m_tranPropMap[nodeName],
-                                               trParam);
-                    break;
-                default:
-                    throw CanteraError("getLiquidInteractionsTransportData","unknown transport property: " + nodeName);
-
-                }
-            }
-            /* Allow a switch between mass-averaged, mole-averaged
-             * and solvent specified reference velocities.
-             * XML code within the transportProperty node
-             * (i.e. within <viscosity>) should read as follows
-             * <velocityBasis basis="mass"> <!-- mass averaged -->
-             * <velocityBasis basis="mole"> <!-- mole averaged -->
-             * <velocityBasis basis="H2O">  <!-- H2O solvent -->
-             */
-            if (tranTypeNode.hasChild("velocityBasis")) {
-                std::string velocityBasis =
-                    tranTypeNode.child("velocityBasis").attrib("basis");
-                if (velocityBasis == "mass") {
-                    trParam.velocityBasis_ = VB_MASSAVG;
-                } else if (velocityBasis == "mole") {
-                    trParam.velocityBasis_ = VB_MOLEAVG;
-                } else if (trParam.thermo->speciesIndex(velocityBasis) > 0) {
-                    trParam.velocityBasis_ = static_cast<int>(trParam.thermo->speciesIndex(velocityBasis));
-                } else {
-                    int linenum = __LINE__;
-                    throw TransportDBError(linenum, "Unknown attribute \"" + velocityBasis + "\" for <velocityBasis> node. ");
-                }
-            }
-        }
+		    }
+		}
+		/* Allow a switch between mass-averaged, mole-averaged
+		 * and solvent specified reference velocities.
+		 * XML code within the transportProperty node
+		 * (i.e. within <viscosity>) should read as follows
+		 * <velocityBasis basis="mass"> <!-- mass averaged -->
+		 * <velocityBasis basis="mole"> <!-- mole averaged -->
+		 * <velocityBasis basis="H2O">  <!-- H2O solvent -->
+		 */
+		if (tranTypeNode.hasChild("velocityBasis")) {
+		    std::string velocityBasis =
+			tranTypeNode.child("velocityBasis").attrib("basis");
+		    if (velocityBasis == "mass") {
+			trParam.velocityBasis_ = VB_MASSAVG;
+		    } else if (velocityBasis == "mole") {
+			trParam.velocityBasis_ = VB_MOLEAVG;
+		    } else if (trParam.thermo->speciesIndex(velocityBasis) > 0) {
+			trParam.velocityBasis_ = static_cast<int>(trParam.thermo->speciesIndex(velocityBasis));
+		    } else {
+			int linenum = __LINE__;
+			throw TransportDBError(linenum, "Unknown attribute \"" + velocityBasis + "\" for <velocityBasis> node. ");
+		    }
+		}
+	    }
+	}
     } catch (CanteraError& err) {
         std::cout << err.what() << std::endl;
     }

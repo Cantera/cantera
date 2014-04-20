@@ -508,16 +508,16 @@ private:
 
     //! Composition dependence of the transport properties
     /*!
-     *   The following coefficients are allowed to have simple
-     *   composition dependencies
+     *   The following coefficients are allowed to have simple composition dependencies
+     *
      *       mixture viscosity
      *       mixture thermal conductivity
      *
-     *   Types of composition dependencies
+     *   Permissible types of composition dependencies
      *    0 - Solvent values (i.e., species 0) contributes only
      *    1 - linear combination of mole fractions;
      */
-    int compositionDepType_;
+    enum LiquidTranMixingModel compositionDepType_;
 
     //! Boolean indicating whether to use the hydrodynamic radius formulation
     /*!

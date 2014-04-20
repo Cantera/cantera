@@ -86,7 +86,7 @@
     <kinetics model="none" >
     </kinetics>
     <transport model="Simple">
-      <compositionDependence model="Solvent_Only"/>
+      <compositionDependence model="solvent"/>
       <!--
         <compositionDependence model="Mixture_Averaged"/>
       -->
