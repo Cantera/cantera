@@ -219,7 +219,7 @@ static int breakStrCommas(char* str, char** strlets, int maxPieces)
 /*
  *  Here, we ensure consistency of the file
  *    ntitleLines of any content
- *    nColTitleLines of nCol columns. Each are separated by column
+ *    nColTitleLines of nCol columns. Each are separated by column.
  *    nDataRows of nCol columns. Each are separated by columns
  *        Each column is identified as either a text or double. Each double entry must be able to be read
  *        as a double.
@@ -242,6 +242,13 @@ static void check_consistency(FILE* fp, const char *fileName,  const int nTitleL
 	if (retn == -1) {
 	    fprintf(stderr, "check_consistency() error for file %s, Line %d couldn't be read\n",
 		    fileName, i);
+	    exit(-1);
+	}
+    }
+    if (nColTitleLines == 0) {
+	if (nTitleLines > 0) {
+	    fprintf(stderr, "check_consistency() error for file %s, number column title lines are zero but number title lines are greater than 0",
+		    fileName);
 	    exit(-1);
 	}
     }
