@@ -184,7 +184,7 @@ void InterfaceKinetics::_update_rates_T()
         m_logtemp = log(T);
         m_rates.update(T, m_logtemp, DATA_PTR(m_rfn));
         if (m_has_exchange_current_density_formulation) {
-            applyExchangeCurrentDensityFormulation(DATA_PTR(m_rfn));
+            convertExchangeCurrentDensityFormulation(DATA_PTR(m_rfn));
         }
         if (m_has_electrochem_rxns) {
             applyButlerVolmerCorrection(DATA_PTR(m_rfn));
@@ -348,7 +348,9 @@ void InterfaceKinetics::getEquilibriumConstants(doublereal* kc)
     }
 }
 
-void InterfaceKinetics::getExchangeCurrentQuantities()
+/** values needed to convert from exchange current density to surface reaction rate.
+ */
+void InterfaceKinetics::updateExchangeCurrentQuantities()
 {
     /*
      * First collect vectors of the standard Gibbs free energies of the
@@ -451,9 +453,15 @@ void InterfaceKinetics::applyButlerVolmerCorrection(doublereal* const kf)
     }
 }
 
-void InterfaceKinetics::applyExchangeCurrentDensityFormulation(doublereal* const kfwd)
+/**
+ * For a reaction rate that was given in units of Amps/m2 (exchange current
+ *  density formulation with iECDFormulation == true), convert the rate to
+ *  kmoles/m2/s.
+ *  RENAMED THIS METHOD from "apply" to "convert"
+ */
+void InterfaceKinetics::convertExchangeCurrentDensityFormulation(doublereal* const kfwd)
 {
-    getExchangeCurrentQuantities();
+    updateExchangeCurrentQuantities();
     doublereal rt = GasConstant*thermo(0).temperature();
     doublereal rrt = 1.0/rt;
     for (size_t i = 0; i < m_ctrxn.size(); i++) {
@@ -496,7 +504,9 @@ void InterfaceKinetics::getRevRateConstants(doublereal* krev, bool doIrreversibl
 
 void InterfaceKinetics::updateROP()
 {
+    // evaluate rate and equilibrium constants at temperature and phi (electric potential)
     _update_rates_T();
+    // get updated activities (rates updated below)
     _update_rates_C();
 
     if (m_ROP_ok) {

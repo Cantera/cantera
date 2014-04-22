@@ -103,7 +103,9 @@ public:
 
     virtual void getEquilibriumConstants(doublereal* kc);
 
-    void getExchangeCurrentQuantities();
+    /** values needed to convert from exchange current density to surface reaction rate.
+     */
+    void updateExchangeCurrentQuantities();
 
     virtual void getDeltaGibbs(doublereal* deltaG);
 
@@ -305,8 +307,15 @@ public:
     void applyButlerVolmerCorrection(doublereal* const kf);
 
     //! When an electrode reaction rate is optionally specified in terms of its
-    //! exchange current density, extra vectors need to be precalculated
-    void applyExchangeCurrentDensityFormulation(doublereal* const kfwd);
+    //! exchange current density, adjust to standard reaction rate form.
+    /**
+     * For a reaction rate that was given in units of Amps/m2 (exchange current
+     *  density formulation with iECDFormulation == true), convert the rate to
+     *  kmoles/m2/s.
+     *  RENAMED THIS METHOD from "apply" to "convert"
+     */
+
+    void convertExchangeCurrentDensityFormulation(doublereal* const kfwd);
 
     //! Set the existence of a phase in the reaction object
     /*!
