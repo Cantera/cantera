@@ -116,14 +116,8 @@ def addPythonTest(testname, subdir, script, interpreter, outfile,
     testenv = localenv.Clone()
     passedFile = File(pjoin(subdir, '%s.passed' % testname))
     PASSED_FILES[testname] = str(passedFile)
-<<<<<<< HEAD
 
     run_program = testenv.Command(passedFile, pjoin('#test', subdir, script), scriptRunner)
-=======
-    testResults.tests[passedFile.name] = True
-    run_program = testenv.Command(passedFile, pjoin('#test', subdir, script), scriptRunner)
-
->>>>>>> [SCons] Workaround for SCons bug under Cygwin
     for dep in dependencies:
         if isinstance(dep, str):
             dep = File(pjoin(subdir, dep))
