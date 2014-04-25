@@ -923,11 +923,11 @@ class transport(object):
 
 class gas_transport(transport):
     """
-    Species-specific Transport coefficients for ideal gas transport models.
+    Species-specific Transport coefficients for gas-phase transport models.
     """
     def __init__(self, geom = 'nonlin',
                  diam = 0.0, well_depth = 0.0, dipole = 0.0,
-                 polar = 0.0, rot_relax = 0.0, omega_ac = 0.0):
+                 polar = 0.0, rot_relax = 0.0, acentric_factor = 0.0):
         """
         :param geom:
             A string specifying the molecular geometry. One of ``atom``,
@@ -953,7 +953,7 @@ class gas_transport(transport):
         self._dipole = dipole
         self._polar = polar
         self._rot_relax = rot_relax
-        self._w_ac = omega_ac
+        self._w_ac = acentric_factor
 
     def build(self, t):
         #t = s.addChild("transport")
@@ -966,7 +966,8 @@ class gas_transport(transport):
         addFloat(t, "dipoleMoment", (self._dipole, 'Debye'),'%8.3f')
         addFloat(t, "polarizability", (self._polar, 'A3'),'%8.3f')
         addFloat(t, "rotRelax", self._rot_relax,'%8.3f')
-        addFloat(t, "omega_ac", self._w_ac, '%8.3f')
+        if self._w_ac is not None:
+            addFloat(t, "acentric_factor", self._w_ac, '%8.3f')
 
 class rate_expression(object):
     pass
