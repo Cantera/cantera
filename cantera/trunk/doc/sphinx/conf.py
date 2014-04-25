@@ -47,8 +47,8 @@ autoclass_content = 'both'
 mathjax_path = 'http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=default'
 
 doxylink = {
-        'ct' : (os.path.abspath('../../build/docs/Cantera.tag'),
-                '../../doxygen/html/')
+    'ct' : (os.path.abspath('../../build/docs/Cantera.tag'),
+            '../../doxygen/html/')
 }
 
 # Add any paths that contain templates here, relative to this directory.
@@ -206,9 +206,9 @@ htmlhelp_basename = 'Canteradoc'
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
-  ('index', 'Cantera.tex', u'Cantera Documentation',
-   u'Cantera Developers', 'manual'),
-]
+                   ('index', 'Cantera.tex', u'Cantera Documentation',
+                    u'Cantera Developers', 'manual'),
+                   ]
 
 # The name of an image file (relative to this directory) to place at the top of
 # the title page.
@@ -239,6 +239,6 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('index', 'cantera', u'Cantera Documentation',
-     [u'Cantera Developers'], 1)
-]
+             ('index', 'cantera', u'Cantera Documentation',
+              [u'Cantera Developers'], 1)
+             ]
