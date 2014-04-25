@@ -904,7 +904,7 @@ class gas_transport(transport):
     """
     def __init__(self, geom = 'nonlin',
                  diam = 0.0, well_depth = 0.0, dipole = 0.0,
-                 polar = 0.0, rot_relax = 0.0, omega_ac = 0.0):
+                 polar = 0.0, rot_relax = 0.0):
         """
         :param geom:
             A string specifying the molecular geometry. One of ``atom``,
@@ -920,9 +920,6 @@ class gas_transport(transport):
         :param rot_relax:
             The rotational relaxation collision number at 298 K. Dimensionless.
             Default: 0.0
-        :param w_ac:
-            Pitzer's acentric factor.  Dimensionless.
-            Default: 0.0
         """
         self._geom = geom
         self._diam = diam
@@ -930,7 +927,6 @@ class gas_transport(transport):
         self._dipole = dipole
         self._polar = polar
         self._rot_relax = rot_relax
-        self._w_ac = omega_ac
 
     def build(self, t):
         #t = s.addChild("transport")
@@ -943,7 +939,6 @@ class gas_transport(transport):
         addFloat(t, "dipoleMoment", (self._dipole, 'Debye'),'%8.3f')
         addFloat(t, "polarizability", (self._polar, 'A3'),'%8.3f')
         addFloat(t, "rotRelax", self._rot_relax,'%8.3f')
-        addFloat(t, "omega_ac", self._w_ac, '%8.3f')
 
 class rate_expression(object):
     pass
@@ -2194,19 +2189,19 @@ class RedlichKwongMFTP(phase):
                  elements = '',
                  species = '',
                  note = '',
-                 reactions = 'none',
-                 kinetics = 'GasKinetics',
                  initial_state = None,
                  activity_coefficients = None,
                  transport = 'None',
                  options = []):
 
-        phase.__init__(self,name, 3, elements, species, note, reactions,
+        phase.__init__(self,name, 3, elements, species, note, 'none',
                        initial_state,options)
         self._pure = 0
-        self._kin = kinetics
         self._tr = transport
         self._activityCoefficients = activity_coefficients
+
+    def conc_dim(self):
+        return (0,0)
 
     def build(self, p):
         ph = phase.build(self,p)
@@ -2224,9 +2219,8 @@ class RedlichKwongMFTP(phase):
         if self._tr:
             t = ph.addChild('transport')
             t['model'] = self._tr
-        if self._kin:
-            k = ph.addChild("kinetics")
-            k['model'] = self._kin
+        k = ph.addChild("kinetics")
+        k['model'] = 'none'
 
 
 class redlich_kwong(phase):
