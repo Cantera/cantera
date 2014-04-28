@@ -1362,7 +1362,7 @@ if env['python_package'] == 'minimal':
 
 SConscript('build/src/apps/SConscript')
 
-if env['OS'] != 'Windows':
+if env['CC'] != 'cl':
     VariantDir('build/platform', 'platform/posix', duplicate=0)
     SConscript('build/platform/SConscript')
 
