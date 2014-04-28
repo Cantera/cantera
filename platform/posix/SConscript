@@ -8,7 +8,7 @@ localenv = env.Clone()
 ### Generate customized scripts ###
 
 # 'setup_cantera'
-if localenv['layout'] != 'debian':
+if localenv['layout'] != 'debian' and env['OS'] != 'Windows':
     v = sys.version_info
 
     def copy_var(target, source, env):
