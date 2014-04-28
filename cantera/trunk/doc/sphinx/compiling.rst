@@ -123,12 +123,12 @@ Stable Release
 
 * Option 2: Check out the code using Subversion::
 
-    svn checkout http://cantera.googlecode.com/svn/cantera/branches/2.0/ cantera
+    svn checkout http://cantera.googlecode.com/svn/cantera/branches/2.1/ cantera
 
 * Option 3: Check out the code using Git::
 
     git svn clone --stdlayout http://cantera.googlecode.com/svn/cantera cantera
-    git checkout 2.0
+    git checkout 2.1
 
 Development Version
 -------------------
