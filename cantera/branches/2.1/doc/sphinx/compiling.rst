@@ -486,6 +486,20 @@ Optional Programs
           configure --with-cflags=-fPIC
 
 * `Windows Installer XML (WiX) toolset <http://wix.sourceforge.net/>`_
+  .. note:: If you are compiling Sundials 2.5.0 on Windows using CMake, you need
+            to edit the ``CMakeLists.txt`` file first and change the lines::
+
+              SET(PACKAGE_STRING "SUNDIALS 2.4.0")
+              SET(PACKAGE_VERSION "2.4.0")
+
+            to read::
+
+              SET(PACKAGE_STRING "SUNDIALS 2.5.0")
+              SET(PACKAGE_VERSION "2.5.0")
+
+            instead, so that Cantera can correctly identify the version of
+            Sundials.
+
 
   * Required to build MSI installers on Windows.
   * Known to work with version 3.5.
