@@ -139,7 +139,7 @@ compositionMap parseCompString(const std::string& ss,
             if (icolon != std::string::npos) {
                 std::string name = stripws(s.substr(0, icolon));
                 if (iend != std::string::npos) {
-                    num = s.substr(icolon+1, iend-icolon);
+                    num = s.substr(icolon+1, iend-icolon-1);
                     s = s.substr(iend+1, s.size());
                 } else {
                     num = s.substr(icolon+1, s.size());
@@ -149,7 +149,7 @@ compositionMap parseCompString(const std::string& ss,
                     throw CanteraError("parseCompString",
                                        "unknown species " + name);
                 }
-                x[name] = fpValue(num);
+                x[name] = fpValueCheck(num);
             } else {
                 s = "";
             }
