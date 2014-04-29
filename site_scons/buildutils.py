@@ -13,6 +13,7 @@ import itertools
 
 import SCons.Errors
 import SCons
+import SCons.Node.FS
 from distutils.version import LooseVersion
 import distutils.sysconfig
 
@@ -604,3 +605,8 @@ def getCommandOutput(cmd, *args):
         raise OSError(err)
 
     return data.strip()
+
+# Monkey patch for SCons Cygwin bug
+# See http://scons.tigris.org/issues/show_bug.cgi?id=2664
+if 'cygwin' in platform.system().lower():
+    SCons.Node.FS._my_normcase = lambda x: x
