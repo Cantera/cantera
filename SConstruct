@@ -701,7 +701,20 @@ else:
 # *** Compiler Configuration Tests ***
 # ************************************
 
-conf = Configure(env)
+def CheckStatement(context, function, includes=""):
+    context.Message('Checking for %s... ' % function)
+    src = """
+%(include)s
+int main(int argc, char** argv) {
+    %(func)s;
+    return 0;
+}
+""" % {'func':function, 'include':includes}
+    result = context.TryCompile(src, '.cpp')
+    context.Result(result)
+    return result
+
+conf = Configure(env, custom_tests={'CheckStatement': CheckStatement})
 
 # Set up compiler options before running configuration tests
 env['CXXFLAGS'] = listify(env['cxx_flags'])
@@ -757,6 +770,12 @@ def get_expression_value(includes, expression):
 env['HAS_TIMES_H'] = conf.CheckCHeader('sys/times.h', '""')
 env['HAS_UNISTD_H'] = conf.CheckCHeader('unistd.h', '""')
 env['HAS_MATH_H_ERF'] = conf.CheckDeclaration('erf', '#include <math.h>', 'C++')
+
+env['HAS_GLOBAL_ISNAN'] = conf.CheckStatement('::isnan(1.0)', '#include <cmath>')
+env['HAS_STD_ISNAN'] = conf.CheckStatement('std::isnan(1.0)', '#include <cmath>')
+env['HAS_UNDERSCORE_ISNAN'] = conf.CheckStatement('_isnan(1.0)',
+                                                  '#include <cmath>\n#include <float.h>')
+
 env['HAS_BOOST_MATH'] = conf.CheckCXXHeader('boost/math/special_functions/erf.hpp', '<>')
 boost_version_source = get_expression_value(['<boost/version.hpp>'], 'BOOST_LIB_VERSION')
 retcode, boost_lib_version = conf.TryRun(boost_version_source, '.cpp')
@@ -1178,6 +1197,10 @@ if not env['HAS_MATH_H_ERF']:
         config_error("Couldn't find 'erf' in either <math.h> or Boost.Math.")
 else:
     configh['USE_BOOST_MATH'] = None
+
+cdefine('USE_GLOBAL_ISNAN', 'HAS_GLOBAL_ISNAN')
+cdefine('USE_STD_ISNAN', 'HAS_STD_ISNAN')
+cdefine('USE_UNDERSCORE_ISNAN', 'HAS_UNDERSCORE_ISNAN')
 
 config_h = env.Command('include/cantera/base/config.h',
                        'include/cantera/base/config.h.in',
