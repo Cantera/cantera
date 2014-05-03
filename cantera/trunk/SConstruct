@@ -860,6 +860,10 @@ env['FORTRANMODDIR'] = '${TARGET.dir}'
 
 env = conf.Finish()
 
+if env['VERBOSE']:
+    print '-------------------- begin config.log --------------------'
+    print open('config.log').read()
+    print '--------------------- end config.log ---------------------'
 
 # Python 2 Package Settings
 cython_min_version = LooseVersion('0.17')
