@@ -277,18 +277,17 @@ int MolalityVPSSTP::activityConvention() const
 
 void MolalityVPSSTP::getActivityConcentrations(doublereal* c) const
 {
-    err("getActivityConcentrations");
+    throw NotImplementedError("MolalityVPSSTP::getActivityConcentrations");
 }
 
 doublereal MolalityVPSSTP::standardConcentration(size_t k) const
 {
-    err("standardConcentration");
-    return -1.0;
+    throw NotImplementedError("MolalityVPSSTP::standardConcentration");
 }
 
 void MolalityVPSSTP::getActivities(doublereal* ac) const
 {
-    err("getActivities");
+    throw NotImplementedError("MolalityVPSSTP::getActivities");
 }
 
 void MolalityVPSSTP::getActivityCoefficients(doublereal* ac) const
@@ -341,13 +340,6 @@ void MolalityVPSSTP::getElectrochemPotentials(doublereal* mu) const
     }
 }
 
-doublereal MolalityVPSSTP::err(const std::string& msg) const
-{
-    throw CanteraError("MolalityVPSSTP","Base class method "
-                       +msg+" called. Equation of state type: "+int2str(eosType()));
-    return 0;
-}
-
 void MolalityVPSSTP::getUnitsStandardConc(double* uA, int k, int sizeUA) const
 {
     for (int i = 0; i < sizeUA; i++) {
@@ -375,7 +367,7 @@ void MolalityVPSSTP::getUnitsStandardConc(double* uA, int k, int sizeUA) const
 void MolalityVPSSTP::setToEquilState(const doublereal* lambda_RT)
 {
     updateStandardStateThermo();
-    err("setToEquilState");
+    throw NotImplementedError("MolalityVPSSTP::setToEquilState");
 }
 
 void MolalityVPSSTP::setStateFromXML(const XML_Node& state)
@@ -428,12 +420,12 @@ void MolalityVPSSTP::initThermo()
 
 void MolalityVPSSTP::getUnscaledMolalityActivityCoefficients(doublereal* acMolality) const
 {
-    err("getUnscaledMolalityActivityCoefficients");
+    throw NotImplementedError("MolalityVPSSTP::getUnscaledMolalityActivityCoefficients");
 }
 
 void MolalityVPSSTP::applyphScale(doublereal* acMolality) const
 {
-    err("applyphScale");
+    throw NotImplementedError("MolalityVPSSTP::applyphScale");
 }
 
 size_t MolalityVPSSTP::findCLMIndex() const

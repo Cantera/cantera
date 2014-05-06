@@ -321,15 +321,6 @@ private:
      */
     void s_update_dlnActCoeff_dX_() const;
 
-private:
-    //! Error function
-    /*!
-     *  Print an error string and exit
-     *
-     * @param msg  Message to be printed
-     */
-    doublereal err(const std::string& msg) const;
-
 protected:
     // Pseudobinary type
     /*!

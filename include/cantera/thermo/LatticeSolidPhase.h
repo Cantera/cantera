@@ -338,7 +338,7 @@ public:
      *   @param k species index
      */
     doublereal moleFraction(const int k) const {
-        return err("not implemented");
+        throw NotImplementedError("LatticeSolidPhase::moleFraction");
     }
 
     //! Get the species mass fractions.
@@ -347,7 +347,7 @@ public:
      *          greater than or equal to the number of species.
      */
     void getMassFractions(doublereal* const y) const {
-        err("not implemented");
+        throw NotImplementedError("LatticeSolidPhase::getMassFractions");
     }
 
     //! Mass fraction of species k.
@@ -358,7 +358,7 @@ public:
      * @param k    species index
      */
     doublereal massFraction(const int k) const {
-        return err("not implemented");
+        throw NotImplementedError("LatticeSolidPhase::massFraction");
     }
 
     //! Set the mass fractions to the specified values, and then
@@ -373,7 +373,7 @@ public:
      *           Length is m_kk.
      */
     virtual void setMassFractions(const doublereal* const y) {
-        err("not implemented");
+        throw NotImplementedError("LatticeSolidPhase::setMassFractions");
     }
 
     //! Set the mass fractions to the specified values without normalizing.
@@ -386,19 +386,19 @@ public:
      *           Length is m_kk.
      */
     virtual void setMassFractions_NoNorm(const doublereal* const y) {
-        err("not implemented");
+        throw NotImplementedError("LatticeSolidPhase::setMassFractions_NoNorm");
     }
 
     void getConcentrations(doublereal* const c) const {
-        err("not implemented");
+        throw NotImplementedError("LatticeSolidPhase::getConcentrations");
     }
 
     doublereal concentration(int k) const {
-        return err("not implemented");
+        throw NotImplementedError("LatticeSolidPhase::concentration");
     }
 
     virtual void setConcentrations(const doublereal* const conc) {
-        err("not implemented");
+        throw NotImplementedError("LatticeSolidPhase::setConcentrations");
     }
 
     //! This method returns an array of generalized activity concentrations
@@ -633,15 +633,6 @@ public:
      *   @param  Hf298New    Specify the new value of the Heat of Formation at 298K and 1 bar
      */
     virtual void modifyOneHf298SS(const size_t k, const doublereal Hf298New);
-
-private:
-    //! error routine
-    /*!
-     *  @param msg Message
-     *
-     *  @return nothing
-     */
-    doublereal err(const std::string& msg) const;
 
 protected:
     //! Current value of the pressure

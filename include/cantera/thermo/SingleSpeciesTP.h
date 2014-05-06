@@ -187,11 +187,7 @@ public:
      * @param ac Output vector of activity coefficients. Length: 1.
      */
     virtual void getActivityCoefficients(doublereal* ac) const {
-        if (m_kk == 1) {
-            ac[0] = 1.0;
-        } else {
-            err("getActivityCoefficients");
-        }
+        ac[0] = 1.0;
     }
 
     //@}
@@ -532,17 +528,6 @@ protected:
      *        S0 whenever the temperature has changed.
      */
     void _updateThermo() const;
-
-private:
-
-    //! Error return for unhandled cases.
-    /*!
-     * It's used when this class doesn't have an answer for the question given
-     * to it, because the derived class isn't overriding a function.
-     *
-     * @param msg   String message
-     */
-    doublereal err(const std::string& msg) const;
 };
 
 }

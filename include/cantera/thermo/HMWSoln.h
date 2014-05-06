@@ -1853,7 +1853,7 @@ public:
      */
     virtual void setToEquilState(const doublereal* lambda_RT) {
         updateStandardStateThermo();
-        err("setToEquilState");
+        throw NotImplementedError("HMWSoln::setToEquilState");
     }
 
     //@}
@@ -3061,12 +3061,6 @@ private:
      */
     mutable std::vector<int> CROP_speciesCropped_;
     //! @}
-
-    //! Local error routine
-    /*!
-     * @param msg print out a message and error exit
-     */
-    doublereal err(const std::string& msg) const;
 
     //!  Initialize all of the species-dependent lengths in the object
     void initLengths();

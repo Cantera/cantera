@@ -359,13 +359,6 @@ void MixedSolventElectrolyte::getPartialMolarVolumes(doublereal* vbar) const
     }
 }
 
-doublereal MixedSolventElectrolyte::err(const std::string& msg) const
-{
-    throw CanteraError("MixedSolventElectrolyte","Base class method "
-                       +msg+" called. Equation of state type: "+int2str(eosType()));
-    return 0;
-}
-
 void MixedSolventElectrolyte::initThermo()
 {
     initLengths();

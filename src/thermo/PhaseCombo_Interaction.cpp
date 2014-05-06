@@ -367,13 +367,6 @@ void PhaseCombo_Interaction::getPartialMolarVolumes(doublereal* vbar) const
     }
 }
 
-doublereal PhaseCombo_Interaction::err(const std::string& msg) const
-{
-    throw CanteraError("PhaseCombo_Interaction","Base class method "
-                       +msg+" called. Equation of state type: "+int2str(eosType()));
-    return 0;
-}
-
 void PhaseCombo_Interaction::initThermo()
 {
     initLengths();

@@ -295,12 +295,4 @@ void Kinetics::finalize()
     }
 }
 
-void Kinetics::err(const std::string& m) const
-{
-    throw CanteraError("Kinetics::" + m,
-                       "The default Base class method was called, when "
-                       "the inherited class's method should "
-                       "have been called");
-}
-
 }

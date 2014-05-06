@@ -882,12 +882,6 @@ protected:
     mutable vector_fp      mPDSS_Vss;
 
     friend class PDSS;
-private:
-    //! Error message to indicate an unimplemented feature
-    /*!
-     * @param msg  Error message string
-     */
-    void err(const std::string& msg) const;
 };
 //@}
 }

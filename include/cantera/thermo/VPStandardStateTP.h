@@ -118,7 +118,7 @@ public:
      *                         log Activity Coefficients. length = m_kk
      */
     virtual void getdlnActCoeffdlnN_diag(doublereal* dlnActCoeffdlnN_diag) const {
-        err("getdlnActCoeffdlnN_diag");
+        throw NotImplementedError("VPStandardStateTP::getdlnActCoeffdlnN_diag");
     }
 
     //@}
@@ -578,14 +578,6 @@ protected:
      *  Copy operations are deep.
      */
     std::vector<PDSS*> m_PDSS_storage;
-
-private:
-    //! VPStandardStateTP has its own err routine
-    /*!
-     * @param msg  Error message string
-     */
-    doublereal err(const std::string& msg) const;
-
 };
 }
 

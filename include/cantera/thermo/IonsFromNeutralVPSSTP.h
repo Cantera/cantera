@@ -615,18 +615,7 @@ private:
      */
     void s_update_dlnActCoeff_dlnN() const;
 
-
-private:
-    //! Error function
-    /*!
-     *  Print an error string and exit
-     *
-     * @param msg  Message to be printed
-     */
-    doublereal err(const std::string& msg) const;
-
 protected:
-
     //! Ion solution type
     /*!
      *  There is either mixing on the anion, cation, or both lattices.

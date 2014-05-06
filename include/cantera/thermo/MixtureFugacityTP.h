@@ -159,7 +159,7 @@ public:
      *                         log Activity Coefficients. length = m_kk
      */
     virtual void getdlnActCoeffdlnN_diag(doublereal* dlnActCoeffdlnN_diag) const {
-        err("getdlnActCoeffdlnN_diag");
+        throw NotImplementedError("MixtureFugacityTP::getdlnActCoeffdlnN_diag");
     }
 
     //@}
@@ -850,13 +850,6 @@ protected:
     mutable vector_fp      m_s0_R;
 
     spinodalFunc* fdpdv_;
-
-private:
-    //! MixtureFugacityTP has its own err routine
-    /*!
-     * @param msg  Error message string
-     */
-    doublereal err(const std::string& msg) const;
 };
 }
 

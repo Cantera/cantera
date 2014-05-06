@@ -727,17 +727,6 @@ private:
 
     //! Temporary variable that stores the rho Vc value
     double rhoVc[3];
-
-private:
-
-    //! Throw an exception if this method is invoked.
-    /*!
-     * This probably indicates something is not yet implemented.
-     *
-     * @param msg   Indicates the member function which is not implemented
-     */
-    doublereal err(const std::string& msg) const;
-
 };
 }
 #endif

@@ -167,7 +167,7 @@ doublereal IdealMolalSoln::cp_mole() const
 
 doublereal IdealMolalSoln::cv_mole() const
 {
-    return err("not implemented");
+    throw NotImplementedError("IdealMolalSoln::cv_mole");
 }
 
 //
@@ -677,17 +677,6 @@ void IdealMolalSoln::setParametersFromXML(const XML_Node& eosdata)
 /*
  * ------------ Private and Restricted Functions ------------------
  */
-
-/*
- * Bail out of functions with an error exit if they are not
- * implemented.
- */
-doublereal IdealMolalSoln::err(const std::string& msg) const
-{
-    throw CanteraError("IdealMolalSoln",
-                       "Unfinished func called: " + msg);
-    return 0.0;
-}
 
 void  IdealMolalSoln::s_updateIMS_lnMolalityActCoeff() const
 {

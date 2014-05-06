@@ -248,7 +248,7 @@ public:
      * The viscosity in Pa-s.
      */
     virtual doublereal viscosity() {
-        return err("viscosity");
+        throw NotImplementedError("Transport::viscosity");
     }
 
     //! Returns the pure species viscosities
@@ -258,7 +258,7 @@ public:
      * @param visc   Vector of viscosities
      */
     virtual void getSpeciesViscosities(doublereal* const visc) {
-        err("getSpeciesViscosities");
+        throw NotImplementedError("Transport::getSpeciesViscosities");
     }
 
     /**
@@ -268,14 +268,14 @@ public:
      * it, in which case an exception is thrown if called.
      */
     virtual doublereal bulkViscosity() {
-        return err("bulkViscosity");
+        throw NotImplementedError("Transport::bulkViscosity");
     }
 
     /**
      * The ionic conductivity in 1/ohm/m.
      */
     virtual doublereal ionConductivity() {
-        return err("ionConductivity");
+        throw NotImplementedError("Transport::ionConductivity");
     }
 
     //! Returns the pure species ionic conductivity
@@ -285,7 +285,7 @@ public:
      * @param ionCond   Vector of ionic conductivities
      */
     virtual void getSpeciesIonConductivity(doublereal* const ionCond) {
-        err("getSpeciesIonConductivity");
+        throw NotImplementedError("Transport::getSpeciesIonConductivity");
     }
 
     //! Returns the pointer to the mobility ratios of the species in the phase
@@ -303,7 +303,7 @@ public:
      *    The size of mobRat must be at least equal to  nsp*nsp
      */
     virtual void mobilityRatio(double* mobRat) {
-        err("mobilityRatio");
+        throw NotImplementedError("Transport::mobilityRatio");
     }
 
     //! Returns the pure species limit of the mobility ratios
@@ -313,7 +313,7 @@ public:
      * @param mobRat   Vector of mobility ratios
      */
     virtual void getSpeciesMobilityRatio(double** mobRat) {
-        err("getSpeciesMobilityRatio");
+        throw NotImplementedError("Transport::getSpeciesMobilityRatio");
     }
 
     //! Returns the self diffusion coefficients of the species in the phase
@@ -342,7 +342,7 @@ public:
      *                  of species in phase. units = m**2 s-1.
      */
     virtual void selfDiffusion(doublereal* const selfDiff) {
-        err("selfDiffusion");
+        throw NotImplementedError("Transport::selfDiffusion");
     }
 
     //! Returns the pure species self diffusion in solution of each species
@@ -354,7 +354,7 @@ public:
      *              to hold returned self diffusion coeffs.
      */
     virtual void getSpeciesSelfDiffusion(double** selfDiff) {
-        err("getSpeciesSelfDiffusion");
+        throw NotImplementedError("Transport::getSpeciesSelfDiffusion");
     }
 
     //!  Returns the mixture thermal conductivity in W/m/K.
@@ -364,14 +364,14 @@ public:
      * @return returns thermal conductivity in W/m/K.
      */
     virtual doublereal thermalConductivity() {
-        return err("thermalConductivity");
+        throw NotImplementedError("Transport::thermalConductivity");
     }
 
     /*!
      * The electrical conductivity (Siemens/m).
      */
     virtual doublereal electricalConductivity() {
-        return err("electricalConductivity");
+        throw NotImplementedError("Transport::electricalConductivity");
     }
 
     //! Get the Electrical mobilities (m^2/V/s).
@@ -391,7 +391,7 @@ public:
      *               the number of species.
      */
     virtual void getMobilities(doublereal* const mobil_e) {
-        err("getMobilities");
+        throw NotImplementedError("Transport::getMobilities");
     }
 
     //! Get the fluid mobilities (s kmol/kg).
@@ -412,7 +412,7 @@ public:
      *               number of species.
      */
     virtual void getFluidMobilities(doublereal* const mobil_f) {
-        err("getFluidMobilities");
+        throw NotImplementedError("Transport::getFluidMobilities");
     }
 
     //@}
@@ -435,8 +435,7 @@ public:
      *   The units are Siemens m-1,  where 1 S = 1 A / volt = 1 s^3 A^2 /kg /m^2
      */
     virtual doublereal getElectricConduct() {
-        err("getElectricConduct");
-        return 0.0;
+        throw NotImplementedError("Transport::getElectricConduct");
     }
 
     //! Compute the electric current density in A/m^2
@@ -459,7 +458,7 @@ public:
                                     int ldf,
                                     const doublereal* grad_V,
                                     doublereal* current) {
-        err("getElectricCurrent");
+        throw NotImplementedError("Transport::getElectricCurrent");
     }
 
     //! Get the species diffusive mass fluxes wrt to the specified solution
@@ -537,7 +536,7 @@ public:
                                  const doublereal* grad_X,
                                  int ldf,
                                  doublereal* Vdiff) {
-        err("getSpeciesVdiff");
+        throw NotImplementedError("Transport::getSpeciesVdiff");
     }
 
     //! Get the species diffusive velocities wrt to the mass averaged velocity,
@@ -584,7 +583,7 @@ public:
     virtual void getMolarFluxes(const doublereal* const state1,
                                 const doublereal* const state2, const doublereal delta,
                                 doublereal* const cfluxes) {
-        err("getMolarFluxes");
+        throw NotImplementedError("Transport::getMolarFluxes");
     }
 
     //!  Get the mass fluxes [kg/m^2/s], given the thermodynamic state at two
@@ -603,7 +602,7 @@ public:
     virtual void getMassFluxes(const doublereal* state1,
                                const doublereal* state2, doublereal delta,
                                doublereal* mfluxes) {
-        err("getMassFluxes");
+        throw NotImplementedError("Transport::getMassFluxes");
     }
 
     //! Return a vector of Thermal diffusion coefficients [kg/m/sec].
@@ -623,7 +622,7 @@ public:
      *           species. Units are kg/m/s.
      */
     virtual void getThermalDiffCoeffs(doublereal* const dt)  {
-        err("getThermalDiffCoeffs");
+        throw NotImplementedError("Transport::getThermalDiffCoeffs");
     }
 
     //! Returns the matrix of binary diffusion coefficients [m^2/s].
@@ -634,7 +633,7 @@ public:
      *             in length.
      */
     virtual void getBinaryDiffCoeffs(const size_t ld, doublereal* const d) {
-        err("getBinaryDiffCoeffs");
+        throw NotImplementedError("Transport::getBinaryDiffCoeffs");
     }
 
     //! Return the Multicomponent diffusion coefficients. Units: [m^2/s].
@@ -649,7 +648,7 @@ public:
      *            coefficient for species i due to species j).
      */
     virtual void getMultiDiffCoeffs(const size_t ld, doublereal* const d) {
-        err("getMultiDiffCoeffs");
+        throw NotImplementedError("Transport::getMultiDiffCoeffs");
     }
 
     //! Returns a vector of mixture averaged diffusion coefficients
@@ -663,17 +662,17 @@ public:
      *           Units = m2/s. Length = n_sp
      */
     virtual void getMixDiffCoeffs(doublereal* const d) {
-        err("getMixDiffCoeffs");
+        throw NotImplementedError("Transport::getMixDiffCoeffs");
     }
 
     //! Returns a vector of mixture averaged diffusion coefficients
     virtual void getMixDiffCoeffsMole(doublereal* const d) {
-        err("getMixDiffCoeffsMole");
+        throw NotImplementedError("Transport::getMixDiffCoeffsMole");
     }
 
     //! Returns a vector of mixture averaged diffusion coefficients
     virtual void getMixDiffCoeffsMass(doublereal* const d) {
-        err("getMixDiffCoeffsMass");
+        throw NotImplementedError("Transport::getMixDiffCoeffsMass");
     }
 
     //! Set model parameters for derived classes
@@ -737,8 +736,7 @@ protected:
      *             to initialize the class
      */
     virtual bool initGas(GasTransportParams& tr) {
-        err("initGas");
-        return false;
+        throw NotImplementedError("Transport::initGas");
     }
 
     //! Called by TransportFactory to set parameters.
@@ -750,8 +748,7 @@ protected:
      *             to initialize the class
      */
     virtual bool initLiquid(LiquidTransportParams& tr) {
-        err("initLiquid");
-        return false;
+        throw NotImplementedError("Transport::initLiquid");
     }
 
 public:
@@ -764,8 +761,7 @@ public:
      *             to initialize the class
      */
     virtual bool initSolid(SolidTransportData& tr) {
-        err("initSolid");
-        return false;
+        throw NotImplementedError("Transport::initSolid");
     }
 
     //! Specifies the ThermoPhase object.
@@ -810,26 +806,6 @@ protected:
     //!    Velocity basis from which diffusion velocities are computed.
     //!    Defaults to the mass averaged basis = -2
     int m_velocityBasis;
-
-private:
-
-    //! Error routine
-    /*!
-     * Throw an exception if a method of this class is invoked. This probably
-     * indicates that a transport manager is being used that does not implement
-     * all virtual methods, and one of those methods was called by the
-     * application program. For example, a transport manager that computes the
-     * thermal conductivity of a solid may not define the viscosity() method,
-     * since the viscosity is in this case meaningless. If the application
-     * invokes the viscosity() method, the base class method will be called,
-     * resulting in an exception being thrown.
-     *
-     *  @param msg  Descriptive message string to add to the error report
-     *
-     *  @return  returns a double, though we will never get there
-     */
-    doublereal err(const std::string& msg) const;
-
 };
 
 }

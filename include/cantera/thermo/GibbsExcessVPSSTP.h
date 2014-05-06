@@ -288,7 +288,7 @@ public:
      *                         log Activity Coefficients. length = m_kk
      */
     virtual void getdlnActCoeffdT(doublereal* dlnActCoeffdT) const {
-        err("getdlnActCoeffdT");
+        throw NotImplementedError("GibbsExcessVPSSTP::getdlnActCoeffdT");
     }
 
     //! Get the array of derivatives of the log activity coefficients with respect to the log of the species mole numbers
@@ -311,7 +311,8 @@ public:
      *                           log Activity Coefficients. length = m_kk * m_kk
      */
     virtual void getdlnActCoeffdlnN(const size_t ld, doublereal* const dlnActCoeffdlnN)  {
-        err(" getdlnActCoeffdlnN: nonzero and nonimplemented");
+        throw NotImplementedError("GibbsExcessVPSSTP::getdlnActCoeffdlnN: "
+                                  "nonzero and nonimplemented");
     }
 
     //! Get the array of log concentration-like derivatives of the
@@ -333,7 +334,7 @@ public:
      *                         log Activity Coefficients. length = m_kk
      */
     virtual void getdlnActCoeffdlnX(doublereal* dlnActCoeffdlnX) const {
-        err("getdlnActCoeffdlnX");
+        throw NotImplementedError("GibbsExcessVPSSTP::getdlnActCoeffdlnX");
     }
 
     //@}
@@ -464,14 +465,6 @@ private:
     //! been identified.
     void initLengths();
 
-    //! Error function
-    /*!
-     *  Print an error string and exit
-     *
-     * @param msg  Message to be printed
-     */
-    doublereal err(const std::string& msg) const;
-
 protected:
     //! utility routine to check mole fraction sum
     /*!
@@ -479,7 +472,6 @@ protected:
      */
     double checkMFSum(const doublereal* const x) const;
 
-protected:
     //! Storage for the current values of the mole fractions of the species
     /*!
      * This vector is kept up-to-date when the setState functions are called.
