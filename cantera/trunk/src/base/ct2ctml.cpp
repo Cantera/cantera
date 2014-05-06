@@ -15,6 +15,10 @@
 #include <fstream>
 #include <sstream>
 
+#ifdef _WIN32
+#include <windows.h>
+#endif
+
 using namespace Cantera;
 using namespace std;
 
@@ -95,6 +99,7 @@ std::string ct2ctml_string(const std::string& file)
         stringstream output_stream, error_stream;
         std::vector<string> args;
         args.push_back("-c");
+
         args.push_back(
                     "from __future__ import print_function\n"
                     "import sys\n"
@@ -108,16 +113,20 @@ std::string ct2ctml_string(const std::string& file)
 
         python.start(pypath(), args.begin(), args.end());
         std::string line;
-        while (true) {
-            if (python.out().good()) {
-                std::getline(python.out(), line);
-                output_stream << line << std::endl;
-            } else if (python.err().good()) {
-                std::getline(python.err(), line);
-                error_stream << line << std::endl;
-            } else {
-                break;
-            }
+
+        while (python.out().good()) {
+            std::getline(python.out(), line);
+            output_stream << line << std::endl;
+        }
+
+#ifdef _WIN32
+        // Sleeping for 1 ms prevents a (somewhat inexplicable) deadlock while
+        // reading from the stream.
+        Sleep(1);
+#endif
+        while (python.err().good()) {
+            std::getline(python.err(), line);
+            error_stream << line << std::endl;
         }
         python.close();
         python_exit_code = python.exit_code();
