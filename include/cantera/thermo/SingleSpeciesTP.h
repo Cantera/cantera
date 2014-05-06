@@ -402,10 +402,10 @@ public:
      */
 
     //! Mass fractions are fixed, with Y[0] = 1.0.
-    void setMassFractions(const doublereal* y) {};
+    void setMassFractions(const doublereal* const y) {};
 
     //! Mole fractions are fixed, with x[0] = 1.0.
-    void setMoleFractions(const doublereal* x) {};
+    void setMoleFractions(const doublereal* const x) {};
 
     //! Set the internally stored specific enthalpy (J/kg) and pressure (Pa) of the phase.
     /*!
