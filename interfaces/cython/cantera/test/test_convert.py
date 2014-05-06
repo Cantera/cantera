@@ -320,3 +320,7 @@ class CtmlConverterTest(utilities.CanteraTest):
         face = ct.Interface('diamond.cti', 'diamond_100', [gas, solid])
 
         self.assertNear(face.site_density, 3e-8)
+
+    def test_pdep(self):
+        gas = ct.Solution('../data/pdep-test.cti')
+        self.assertEqual(gas.n_reactions, 6)

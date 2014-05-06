@@ -247,7 +247,7 @@ pdep_arrhenius('H + R4 <=> H + P4',
                [(10.0, 'atm'), 1.740000e+07, 1.98, 4521.0])
 
 # Reaction 5
-chebyshev_reaction('R5 + H (+ M) <=> P5A + P5B (+ M)',
+chebyshev_reaction('R5 + H (+ M) <=> P5A + P5B (+M)',
                    Tmin=300.0, Tmax=2000.0,
                    Pmin=(0.0098692326671601278, 'atm'), Pmax=(98.692326671601279, 'atm'),
                    coeffs=[[ 8.28830e+00, -1.13970e+00, -1.20590e-01,  1.60340e-02],
