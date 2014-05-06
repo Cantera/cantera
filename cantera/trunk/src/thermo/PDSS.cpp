@@ -216,8 +216,7 @@ void PDSS::initPtrs()
 
 doublereal PDSS::enthalpy_mole() const
 {
-    err("enthalpy_mole()");
-    return 0.0;
+    throw NotImplementedError("PDSS::enthalpy_mole()");
 }
 
 doublereal PDSS::enthalpy_RT() const
@@ -228,14 +227,12 @@ doublereal PDSS::enthalpy_RT() const
 
 doublereal PDSS::intEnergy_mole() const
 {
-    err("intEnergy_mole()");
-    return 0.0;
+    throw NotImplementedError("PDSS::intEnergy_mole()");
 }
 
 doublereal PDSS::entropy_mole() const
 {
-    err("entropy_mole()");
-    return 0.0;
+    throw NotImplementedError("PDSS::entropy_mole()");
 }
 
 doublereal PDSS::entropy_R() const
@@ -245,8 +242,7 @@ doublereal PDSS::entropy_R() const
 
 doublereal PDSS::gibbs_mole() const
 {
-    err("gibbs_mole()");
-    return 0.0;
+    throw NotImplementedError("PDSS::gibbs_mole()");
 }
 
 doublereal PDSS::gibbs_RT() const
@@ -257,8 +253,7 @@ doublereal PDSS::gibbs_RT() const
 
 doublereal PDSS::cp_mole() const
 {
-    err("cp_mole()");
-    return 0.0;
+    throw NotImplementedError("PDSS::cp_mole()");
 }
 
 doublereal PDSS::cp_R() const
@@ -268,50 +263,42 @@ doublereal PDSS::cp_R() const
 
 doublereal PDSS::molarVolume() const
 {
-    err("molarVolume()");
-    return 0.0;
+    throw NotImplementedError("PDSS::molarVolume()");
 }
 
 doublereal PDSS::density() const
 {
-    err("density()");
-    return 0.0;
+    throw NotImplementedError("PDSS::density()");
 }
 
 doublereal PDSS::cv_mole() const
 {
-    err("cv_mole()");
-    return 0.0;
+    throw NotImplementedError("PDSS::cv_mole()");
 }
 
 doublereal PDSS::gibbs_RT_ref() const
 {
-    err("gibbs_RT_ref()");
-    return 0.0;
+    throw NotImplementedError("PDSS::gibbs_RT_ref()");
 }
 
 doublereal PDSS::enthalpy_RT_ref() const
 {
-    err("enthalpy_RT_ref()");
-    return 0.0;
+    throw NotImplementedError("PDSS::enthalpy_RT_ref()");
 }
 
 doublereal PDSS::entropy_R_ref() const
 {
-    err("entropy_RT_ref()");
-    return 0.0;
+    throw NotImplementedError("PDSS::entropy_RT_ref()");
 }
 
 doublereal PDSS::cp_R_ref() const
 {
-    err("entropy_RT_ref()");
-    return 0.0;
+    throw NotImplementedError("PDSS::entropy_RT_ref()");
 }
 
 doublereal PDSS::molarVolume_ref() const
 {
-    err("molarVolume_ref()");
-    return 0.0;
+    throw NotImplementedError("PDSS::molarVolume_ref()");
 }
 
 doublereal PDSS::enthalpyDelp_mole() const
@@ -348,26 +335,22 @@ doublereal PDSS::pressure() const
 
 doublereal PDSS::thermalExpansionCoeff() const
 {
-    throw CanteraError("PDSS::thermalExpansionCoeff()", "unimplemented");
-    return 0.0;
+    throw NotImplementedError("PDSS::thermalExpansionCoeff()");
 }
 
 doublereal PDSS::critTemperature() const
 {
-    err("critTemperature()");
-    return 0.0;
+    throw NotImplementedError("PDSS::critTemperature()");
 }
 
 doublereal PDSS::critPressure() const
 {
-    err("critPressure()");
-    return 0.0;
+    throw NotImplementedError("PDSS::critPressure()");
 }
 
 doublereal PDSS::critDensity() const
 {
-    err("critDensity()");
-    return 0.0;
+    throw NotImplementedError("PDSS::critDensity()");
 }
 
 void PDSS::setPressure(doublereal pres)
@@ -396,23 +379,17 @@ void PDSS::setMolecularWeight(doublereal mw)
 
 void PDSS::setState_TP(doublereal temp, doublereal pres)
 {
-    err("setState_TP()");
+    throw NotImplementedError("PDSS::setState_TP()");
 }
 
 void PDSS::setState_TR(doublereal temp, doublereal rho)
 {
-    err("setState_TR()");
+    throw NotImplementedError("PDSS::setState_TR()");
 }
 
 doublereal PDSS::satPressure(doublereal t)
 {
-    err("satPressure()");
-    return 0.0;
-}
-
-void PDSS::err(const std::string& msg) const
-{
-    throw CanteraError("PDSS::" + msg, "unimplemented");
+    throw NotImplementedError("PDSS::satPressure()");
 }
 
 void PDSS::reportParams(size_t& kindex, int& type,

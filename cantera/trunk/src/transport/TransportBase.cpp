@@ -83,7 +83,7 @@ void Transport::checkSpeciesArraySize(size_t kk) const
 void Transport::setParameters(const int type, const int k,
                               const doublereal* const p)
 {
-    err("setParameters");
+    throw NotImplementedError("Transport::setParameters");
 }
 
 void Transport::setThermo(thermo_t& thermo)
@@ -112,17 +112,6 @@ void Transport::setThermo(thermo_t& thermo)
     }
 }
 
-doublereal Transport::err(const std::string& msg) const
-{
-
-    throw CanteraError("Transport Base Class",
-                       "\n\n\n**** Method "+ msg +" not implemented in model "
-                       + int2str(model()) + " ****\n"
-                       "(Did you forget to specify a transport model?)\n\n\n");
-
-    return 0.0;
-}
-
 void Transport::finalize()
 {
     if (!ready()) {
@@ -136,6 +125,6 @@ void Transport::getSpeciesFluxes(size_t ndim, const doublereal* const grad_T,
                                  size_t ldx, const doublereal* const grad_X,
                                  size_t ldf, doublereal* const fluxes)
 {
-    err("getSpeciesFluxes");
+    throw NotImplementedError("Transport::getSpeciesFluxes");
 }
 }

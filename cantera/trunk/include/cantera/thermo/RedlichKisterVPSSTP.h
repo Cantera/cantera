@@ -645,15 +645,6 @@ public:
     void Vint(double& VintOut, double& voltsOut) ;
 #endif
 
-private:
-    //! Error function
-    /*!
-     *  Print an error string and exit
-     *
-     * @param msg  Message to be printed
-     */
-    doublereal err(const std::string& msg) const;
-
 protected:
     //! number of binary interaction expressions
     size_t numBinaryInteractions_;

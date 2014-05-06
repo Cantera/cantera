@@ -523,10 +523,4 @@ void LatticeSolidPhase::modifyOneHf298SS(const size_t k, const doublereal Hf298N
     _updateThermo();
 }
 
-doublereal LatticeSolidPhase::err(const std::string& msg) const
-{
-    throw CanteraError("LatticeSolidPhase","Unimplemented " + msg);
-    return 0.0;
-}
-
 } // End namespace Cantera

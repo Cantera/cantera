@@ -222,13 +222,6 @@ const vector_fp& GibbsExcessVPSSTP::getPartialMolarVolumesVector() const
     return getStandardVolumes();
 }
 
-doublereal GibbsExcessVPSSTP::err(const std::string& msg) const
-{
-    throw CanteraError("GibbsExcessVPSSTP","Base class method "
-                       +msg+" called. Equation of state type: "+int2str(eosType()));
-    return 0;
-}
-
 double GibbsExcessVPSSTP::checkMFSum(const doublereal* const x) const
 {
     doublereal norm = accumulate(x, x + m_kk, 0.0);

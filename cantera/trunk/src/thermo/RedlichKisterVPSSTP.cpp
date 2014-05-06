@@ -344,13 +344,6 @@ void RedlichKisterVPSSTP::getPartialMolarVolumes(doublereal* vbar) const
     }
 }
 
-doublereal RedlichKisterVPSSTP::err(const std::string& msg) const
-{
-    throw CanteraError("RedlichKisterVPSSTP","Base class method "
-                       +msg+" called. Equation of state type: "+int2str(eosType()));
-    return 0;
-}
-
 void RedlichKisterVPSSTP::initThermo()
 {
     initLengths();

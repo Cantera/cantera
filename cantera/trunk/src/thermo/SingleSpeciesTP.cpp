@@ -52,8 +52,7 @@ ThermoPhase* SingleSpeciesTP::duplMyselfAsThermoPhase() const
 
 int SingleSpeciesTP::eosType() const
 {
-    err("eosType");
-    return -1;
+    throw NotImplementedError("SingleSpeciesTP::eosType");
 }
 
 /*
@@ -327,14 +326,6 @@ void SingleSpeciesTP::setState_SV(doublereal s, doublereal v,
         }
     }
     throw CanteraError("setState_SV","no convergence. dt = " + fp2str(dt));
-}
-
-doublereal SingleSpeciesTP::err(const std::string& msg) const
-{
-    throw CanteraError("SingleSpeciesTP","Base class method "
-                       +msg+" called. Equation of state type: "
-                       +int2str(eosType()));
-    return 0;
 }
 
 void SingleSpeciesTP::initThermo()

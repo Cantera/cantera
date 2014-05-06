@@ -403,7 +403,7 @@ public:
      *                of progress of the reactions. Length: m_ii.
      */
     virtual void getFwdRatesOfProgress(doublereal* fwdROP) {
-        err("getFwdRatesOfProgress");
+        throw NotImplementedError("Kinetics::getFwdRatesOfProgress");
     }
 
     //!  Return the Reverse rates of progress of the reactions
@@ -415,7 +415,7 @@ public:
      *                of progress of the reactions. Length: m_ii.
      */
     virtual void getRevRatesOfProgress(doublereal* revROP) {
-        err("getRevRatesOfProgress");
+        throw NotImplementedError("Kinetics::getRevRatesOfProgress");
     }
 
     /**
@@ -426,7 +426,7 @@ public:
      * @param netROP  Output vector of the net ROP. Length: m_ii.
      */
     virtual void getNetRatesOfProgress(doublereal* netROP) {
-        err("getNetRatesOfProgress");
+        throw NotImplementedError("Kinetics::getNetRatesOfProgress");
     }
 
     //! Return a vector of Equilibrium constants.
@@ -439,7 +439,7 @@ public:
      *             Length: m_ii.
      */
     virtual void getEquilibriumConstants(doublereal* kc) {
-        err("getEquilibriumConstants");
+        throw NotImplementedError("Kinetics::getEquilibriumConstants");
     }
 
     /**
@@ -460,7 +460,7 @@ public:
      */
     virtual void getReactionDelta(const doublereal* property,
                                   doublereal* deltaProperty) {
-        err("getReactionDelta");
+        throw NotImplementedError("Kinetics::getReactionDelta");
     }
 
     //! Return the vector of values for the reaction gibbs free energy change.
@@ -472,7 +472,7 @@ public:
      * @param deltaG  Output vector of  deltaG's for reactions Length: m_ii.
      */
     virtual void getDeltaGibbs(doublereal* deltaG) {
-        err("getDeltaGibbs");
+        throw NotImplementedError("Kinetics::getDeltaGibbs");
     }
 
     //! Return the vector of values for the reaction electrochemical free
@@ -486,7 +486,7 @@ public:
      * @param deltaM  Output vector of  deltaM's for reactions Length: m_ii.
      */
     virtual void getDeltaElectrochemPotentials(doublereal* deltaM) {
-        err("getDeltaElectrochemPotentials");
+        throw NotImplementedError("Kinetics::getDeltaElectrochemPotentials");
     }
 
     /**
@@ -498,7 +498,7 @@ public:
      * @param deltaH  Output vector of deltaH's for reactions Length: m_ii.
      */
     virtual void getDeltaEnthalpy(doublereal* deltaH) {
-        err("getDeltaEnthalpy");
+        throw NotImplementedError("Kinetics::getDeltaEnthalpy");
     }
 
     /**
@@ -510,7 +510,7 @@ public:
      * @param deltaS  Output vector of deltaS's for reactions Length: m_ii.
      */
     virtual void getDeltaEntropy(doublereal* deltaS) {
-        err("getDeltaEntropy");
+        throw NotImplementedError("Kinetics::getDeltaEntropy");
     }
 
     /**
@@ -523,7 +523,7 @@ public:
      * @param deltaG  Output vector of ss deltaG's for reactions Length: m_ii.
      */
     virtual void getDeltaSSGibbs(doublereal* deltaG) {
-        err("getDeltaSSGibbs");
+        throw NotImplementedError("Kinetics::getDeltaSSGibbs");
     }
 
     /**
@@ -536,7 +536,7 @@ public:
      * @param deltaH  Output vector of ss deltaH's for reactions Length: m_ii.
      */
     virtual void getDeltaSSEnthalpy(doublereal* deltaH) {
-        err("getDeltaSSEnthalpy");
+        throw NotImplementedError("Kinetics::getDeltaSSEnthalpy");
     }
 
     /**
@@ -549,7 +549,7 @@ public:
      * @param deltaS  Output vector of ss deltaS's for reactions Length: m_ii.
      */
     virtual void getDeltaSSEntropy(doublereal* deltaS) {
-        err("getDeltaSSEntropy");
+        throw NotImplementedError("Kinetics::getDeltaSSEntropy");
     }
 
     //! @}
@@ -564,7 +564,7 @@ public:
      * @param cdot   Output vector of creation rates. Length: m_kk.
      */
     virtual void getCreationRates(doublereal* cdot) {
-        err("getCreationRates");
+        throw NotImplementedError("Kinetics::getCreationRates");
     }
 
     /**
@@ -575,7 +575,7 @@ public:
      * @param ddot   Output vector of destruction rates. Length: m_kk.
      */
     virtual void getDestructionRates(doublereal* ddot) {
-        err("getDestructionRates");
+        throw NotImplementedError("Kinetics::getDestructionRates");
     }
 
     /**
@@ -587,7 +587,7 @@ public:
      * @param wdot   Output vector of net production rates. Length: m_kk.
      */
     virtual void getNetProductionRates(doublereal* wdot) {
-        err("getNetProductionRates");
+        throw NotImplementedError("Kinetics::getNetProductionRates");
     }
 
     //! @}
@@ -601,8 +601,7 @@ public:
      * @param i   reaction index
      */
     virtual doublereal reactantStoichCoeff(size_t k, size_t i) const {
-        err("reactantStoichCoeff");
-        return -1.0;
+        throw NotImplementedError("Kinetics::reactantStoichCoeff");
     }
 
     /**
@@ -612,8 +611,7 @@ public:
      * @param i   reaction index
      */
     virtual doublereal productStoichCoeff(size_t k, size_t i) const {
-        err("productStoichCoeff");
-        return -1.0;
+        throw NotImplementedError("Kinetics::productStoichCoeff");
     }
 
     //! Reactant order of species k in reaction i.
@@ -625,8 +623,7 @@ public:
      * @param i   reaction index
      */
     virtual doublereal reactantOrder(size_t k, size_t i) const {
-        err("reactantOrder");
-        return -1.0;
+        throw NotImplementedError("Kinetics::reactantOrder");
     }
 
     //! product Order of species k in reaction i.
@@ -640,8 +637,7 @@ public:
      * @param i   reaction index
      */
     virtual doublereal productOrder(int k, int i) const {
-        err("productOrder");
-        return -1.0;
+        throw NotImplementedError("Kinetics::productOrder");
     }
 
     //! Get the vector of activity concentrations used in the kinetics object
@@ -650,7 +646,7 @@ public:
      *               to the number of species in the kinetics object
      */
     virtual void getActivityConcentrations(doublereal* const conc) {
-        err("getActivityConcentrations");
+        throw NotImplementedError("Kinetics::getActivityConcentrations");
     }
 
     /**
@@ -681,8 +677,7 @@ public:
      * @param i   reaction index
      */
     virtual int reactionType(size_t i) const {
-        err("reactionType");
-        return -1;
+        throw NotImplementedError("Kinetics::reactionType");
     }
 
     /**
@@ -693,8 +688,7 @@ public:
      * @param i   reaction index
      */
     virtual bool isReversible(size_t i) {
-        err("isReversible");
-        return false;
+        throw NotImplementedError("Kinetics::isReversible");
     }
 
     /**
@@ -703,8 +697,7 @@ public:
      * @param i   reaction index
      */
     virtual std::string reactionString(size_t i) const {
-        err("reactionStd::String");
-        return "<null>";
+        throw NotImplementedError("Kinetics::reactionStd::String");
     }
 
     /**
@@ -716,7 +709,7 @@ public:
      *                constants. Length: m_ii.
      */
     virtual void getFwdRateConstants(doublereal* kfwd) {
-        err("getFwdRateConstants");
+        throw NotImplementedError("Kinetics::getFwdRateConstants");
     }
 
     /**
@@ -732,7 +725,7 @@ public:
      */
     virtual void getRevRateConstants(doublereal* krev,
                                      bool doIrreversible = false) {
-        err("getFwdRateConstants");
+        throw NotImplementedError("Kinetics::getFwdRateConstants");
     }
 
     //! @}
@@ -785,16 +778,14 @@ public:
      *               to be added.
      */
     virtual void addReaction(ReactionData& r) {
-        err("addReaction");
+        throw NotImplementedError("Kinetics::addReaction");
     }
 
     virtual const std::vector<grouplist_t>& reactantGroups(size_t i) {
-        //err("reactantGroups");
         return m_dummygroups;
     }
 
     virtual const std::vector<grouplist_t>& productGroups(size_t i) {
-        //err("productGroups");
         return m_dummygroups;
     }
 
@@ -947,13 +938,6 @@ protected:
 private:
     //! Vector of group lists
     std::vector<grouplist_t> m_dummygroups;
-
-    //! Function indicating that a function inherited from the base class
-    //! hasn't had a definition assigned to it
-    /*!
-     * @param m String message
-     */
-    void err(const std::string& m) const;
 };
 
 }

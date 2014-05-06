@@ -802,16 +802,6 @@ protected:
      * units are (kg/kmol)
      */
     mutable vector_fp  m_molalities;
-
-private:
-    //! Error function
-    /*!
-     *  Print an error string and exit
-     *
-     * @param msg  Message to be printed
-     */
-    doublereal err(const std::string& msg) const;
-
 };
 
 

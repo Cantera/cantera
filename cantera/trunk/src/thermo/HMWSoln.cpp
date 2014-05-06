@@ -1169,13 +1169,6 @@ double HMWSoln::AionicRadius(int k) const
  * ------------ Private and Restricted Functions ------------------
  */
 
-doublereal HMWSoln::err(const std::string& msg) const
-{
-    throw CanteraError("HMWSoln",
-                       "Unfinished func called: " + msg);
-    return 0.0;
-}
-
 void HMWSoln::initLengths()
 {
     m_kk = nSpecies();

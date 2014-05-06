@@ -245,14 +245,6 @@ public:
      */
     PDSS_enumType reportPDSSType() const;
 
-private:
-    //! Set an error within this object for an unhandled capability
-    /*!
-     * @param msg    Message string for this error
-     */
-    void err(const std::string& msg) const;
-
-public:
      //! @}
      //! @name Molar Thermodynamic Properties of the Species Standard State in the Solution
      //! @{

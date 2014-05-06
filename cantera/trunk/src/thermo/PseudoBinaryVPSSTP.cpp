@@ -86,8 +86,7 @@ PseudoBinaryVPSSTP::duplMyselfAsThermoPhase() const
 
 doublereal PseudoBinaryVPSSTP::standardConcentration(size_t k) const
 {
-    err("standardConcentration");
-    return -1.0;
+    throw NotImplementedError("PseudoBinaryVPSSTP::standardConcentration");
 }
 
 void PseudoBinaryVPSSTP::getElectrochemPotentials(doublereal* mu) const
@@ -157,13 +156,6 @@ void PseudoBinaryVPSSTP::calcPseudoBinaryMoleFractions() const
         break;
 
     }
-}
-
-doublereal PseudoBinaryVPSSTP::err(const std::string& msg) const
-{
-    throw CanteraError("PseudoBinaryVPSSTP","Base class method "
-                       +msg+" called. Equation of state type: "+int2str(eosType()));
-    return 0;
 }
 
 void PseudoBinaryVPSSTP::initThermo()

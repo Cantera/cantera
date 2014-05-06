@@ -63,18 +63,17 @@ public:
 
     /// Set the mole fractions by specifying a std::string.
     virtual void setMoleFractions(const std::string& xin) {
-        err("setMoleFractions");
+        throw NotImplementedError("Bdry1D::setMoleFractions");
     }
 
     /// Set the mole fractions by specifying an array.
     virtual void setMoleFractions(doublereal* xin) {
-        err("setMoleFractions");
+        throw NotImplementedError("Bdry1D::setMoleFractions");
     }
 
     /// Mass fraction of species k.
     virtual doublereal massFraction(size_t k) {
-        err("massFraction");
-        return 0.0;
+        throw NotImplementedError("Bdry1D::massFraction");
     }
 
     /// Set the total mass flow rate.
@@ -105,12 +104,6 @@ protected:
     size_t m_start_left, m_start_right;
     ThermoPhase* m_phase_left, *m_phase_right;
     doublereal m_temp, m_mdot;
-
-private:
-    void err(const std::string& method) {
-        throw CanteraError("Bdry1D::"+method,
-                           "attempt to call base class method "+method);
-    }
 };
 
 

@@ -219,10 +219,9 @@ doublereal DebyeHuckel::cp_mole() const
 
 doublereal DebyeHuckel::cv_mole() const
 {
+    throw NotImplementedError("DebyeHuckel::cv_mole");
     //getPartialMolarCv(m_tmpV.begin());
     //return mean_X(m_tmpV.begin());
-    err("not implemented");
-    return 0.0;
 }
 
 //
@@ -1212,13 +1211,6 @@ double DebyeHuckel::AionicRadius(int k) const
 /*
  * ------------ Private and Restricted Functions ------------------
  */
-
-doublereal DebyeHuckel::err(const std::string& msg) const
-{
-    throw CanteraError("DebyeHuckel",
-                       "Unfinished func called: " + msg);
-    return 0.0;
-}
 
 void DebyeHuckel::initLengths()
 {

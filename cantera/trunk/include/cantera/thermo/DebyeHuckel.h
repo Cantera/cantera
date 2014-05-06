@@ -1027,7 +1027,7 @@ protected:
      */
 public:
     virtual void setToEquilState(const doublereal* lambda_RT) {
-        err("setToEquilState");
+        throw NotImplementedError("DebyeHuckel::setToEquilState");
     }
 
     //@}
@@ -1484,10 +1484,6 @@ protected:
     mutable vector_fp m_dlnActCoeffMolaldP;
 
 private:
-
-    //! Bail out of functions with an error exit if they are not implemented.
-    doublereal err(const std::string& msg) const;
-
     //! Initialize the internal lengths.
     /*!
      * This internal function adjusts the lengths of arrays based on
@@ -1495,7 +1491,6 @@ private:
      */
     void initLengths();
 
-private:
     //! Calculate the log activity coefficients
     /*!
      * This function updates the internally stored natural logarithm of the

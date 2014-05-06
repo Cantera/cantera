@@ -104,17 +104,6 @@ int  MixtureFugacityTP::reportSolnBranchActual() const
 }
 
 /*
- * ------------Molar Thermodynamic Properties -------------------------
- */
-
-doublereal MixtureFugacityTP::err(const std::string& msg) const
-{
-    throw CanteraError("MixtureFugacityTP","Base class method "
-                       +msg+" called. Equation of state type: "+int2str(eosType()));
-    return 0;
-}
-
-/*
  * ---- Partial Molar Properties of the Solution -----------------
  */
 
@@ -369,7 +358,8 @@ void MixtureFugacityTP::setMoleFractions_NoState(const doublereal* const x)
 
 void MixtureFugacityTP::calcDensity()
 {
-    err("MixtureFugacityTP::calcDensity() called, but EOS for phase is not known");
+    throw NotImplementedError("MixtureFugacityTP::calcDensity() "
+                              "called, but EOS for phase is not known");
 }
 
 void MixtureFugacityTP::setState_TP(doublereal t, doublereal pres)

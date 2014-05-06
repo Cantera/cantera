@@ -339,7 +339,7 @@ public:
      * @param pe   Input potential energy.
      */
     virtual void setPotentialEnergy(int k, doublereal pe) {
-        err("setPotentialEnergy");
+        throw NotImplementedError("IdealMolalSoln::setPotentialEnergy");
     }
 
     /**
@@ -349,7 +349,7 @@ public:
      * @param k Species index
      */
     virtual doublereal potentialEnergy(int k) const {
-        return err("potentialEnergy");
+        throw NotImplementedError("IdealMolalSoln::potentialEnergy");
     }
 
     /**
@@ -576,7 +576,7 @@ public:
      * @param lambda_RT vector of Nondimensional element potentials.
      */
     virtual void setToEquilState(const doublereal* lambda_RT) {
-        err("setToEquilState");
+        throw NotImplementedError("IdealMolalSoln::setToEquilState");
     }
 
     //@}
@@ -744,13 +744,6 @@ public:
     //! @}
 
 private:
-
-    //! Internal error message
-    /*!
-     *  @param          msg message to be printed
-     */
-    doublereal err(const std::string& msg) const;
-
     //! This function will be called to update the internally stored
     //! natural logarithm of the molality activity coefficients
     /*!

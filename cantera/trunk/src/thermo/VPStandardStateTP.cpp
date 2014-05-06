@@ -126,13 +126,6 @@ int VPStandardStateTP::standardStateConvention() const
     return cSS_CONVENTION_VPSS;
 }
 
-doublereal VPStandardStateTP::err(const std::string& msg) const
-{
-    throw CanteraError("VPStandardStateTP","Base class method "
-                       +msg+" called. Equation of state type: "+int2str(eosType()));
-    return 0;
-}
-
 void VPStandardStateTP::getChemPotentials_RT(doublereal* muRT) const
 {
     getChemPotentials(muRT);
@@ -300,7 +293,8 @@ void VPStandardStateTP::setPressure(doublereal p)
 
 void VPStandardStateTP::calcDensity()
 {
-    err("VPStandardStateTP::calcDensity() called, but EOS for phase is not known");
+    throw NotImplementedError("VPStandardStateTP::calcDensity() called, "
+                              "but EOS for phase is not known");
 }
 
 

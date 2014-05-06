@@ -349,13 +349,6 @@ void MargulesVPSSTP::getPartialMolarVolumes(doublereal* vbar) const
     }
 }
 
-doublereal MargulesVPSSTP::err(const std::string& msg) const
-{
-    throw CanteraError("MargulesVPSSTP","Base class method "
-                       +msg+" called. Equation of state type: "+int2str(eosType()));
-    return 0;
-}
-
 void MargulesVPSSTP::initThermo()
 {
     initLengths();

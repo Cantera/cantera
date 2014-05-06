@@ -348,17 +348,6 @@ void  MolarityIonicVPSSTP::s_update_dlnActCoeff_dX_() const
 
 }
 
-/*
- * ------------ Partial Molar Properties of the Solution ------------
- */
-
-doublereal MolarityIonicVPSSTP::err(const std::string& msg) const
-{
-    throw CanteraError("MolarityIonicVPSSTP","Base class method "
-                       +msg+" called. Equation of state type: "+int2str(eosType()));
-    return 0;
-}
-
 void MolarityIonicVPSSTP::initThermo()
 {
     GibbsExcessVPSSTP::initThermo();

@@ -847,13 +847,6 @@ void IonsFromNeutralVPSSTP::setConcentrations(const doublereal* const c)
  * ------------ Partial Molar Properties of the Solution ------------
  */
 
-doublereal IonsFromNeutralVPSSTP::err(const std::string& msg) const
-{
-    throw CanteraError("IonsFromNeutralVPSSTP","Base class method "
-                       +msg+" called. Equation of state type: "+int2str(eosType()));
-    return 0;
-}
-
 void IonsFromNeutralVPSSTP::initThermo()
 {
     initLengths();

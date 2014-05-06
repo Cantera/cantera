@@ -583,13 +583,6 @@ void ThermoPhase::setState_SPorSV(doublereal Starget, doublereal p,
     }
 }
 
-doublereal ThermoPhase::err(const std::string& msg) const
-{
-    throw CanteraError("ThermoPhase","Base class method "
-                       +msg+" called. Equation of state type: "+int2str(eosType()));
-    return 0.0;
-}
-
 void ThermoPhase::getUnitsStandardConc(double* uA, int k, int sizeUA) const
 {
     for (int i = 0; i < sizeUA; i++) {

@@ -752,14 +752,4 @@ bool SimpleTransport::update_T()
     return true;
 }
 
-doublereal SimpleTransport::err(const std::string& msg) const
-{
-    throw CanteraError("SimpleTransport Class",
-                       "\n\n\n**** Method "+ msg +" not implemented in model "
-                       + int2str(model()) + " ****\n"
-                       "(Did you forget to specify a transport model?)\n\n\n");
-
-    return 0.0;
-}
-
 }
