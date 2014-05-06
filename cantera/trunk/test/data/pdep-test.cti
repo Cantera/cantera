@@ -256,7 +256,7 @@ chebyshev_reaction('R5 + H (+ M) <=> P5A + P5B (+M)',
                            [-3.12850e-02, -3.94120e-02,  4.43750e-02,  1.44580e-02]])
 
 # Reaction 6
-chebyshev_reaction('R6 (+ M) <=> P6A + P6B (+ M)',
+chebyshev_reaction('R6 <=> P6A + P6B',
                    Tmin=290.0, Tmax=3000.0,
                    Pmin=(0.0098692326671601278, 'atm'), Pmax=(98.692326671601279, 'atm'),
                    coeffs=[[-1.44280e+01,  2.59970e-01, -2.24320e-02, -2.78700e-03],
