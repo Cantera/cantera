@@ -324,3 +324,11 @@ class CtmlConverterTest(utilities.CanteraTest):
     def test_pdep(self):
         gas = ct.Solution('../data/pdep-test.cti')
         self.assertEqual(gas.n_reactions, 6)
+
+    def test_invalid(self):
+        try:
+            gas = ct.Solution('../data/invalid.cti')
+        except RuntimeError as e:
+            err = e
+
+        self.assertIn('Multiply-declared species', err.args[0])
