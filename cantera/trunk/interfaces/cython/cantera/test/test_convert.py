@@ -251,6 +251,19 @@ class chemkinConverterTest(utilities.CanteraTest):
         self.checkKinetics(default, custom,
                            [300, 800, 1450, 2800], [5e3, 1e5, 2e6], 1e-7)
 
+    def test_float_stoich_coeffs(self):
+        convertMech('../data/float-stoich.inp',
+                    thermoFile='../data/dummy-thermo.dat',
+                    outName='float-stoich.cti', quiet=True)
+        gas = ct.Solution('float-stoich.cti')
+
+        R = gas.reactant_stoich_coeffs()
+        P = gas.product_stoich_coeffs()
+        self.assertArrayNear(R[:,0], [0, 1.5, 0.5, 0])
+        self.assertArrayNear(P[:,0], [1, 0, 0, 1])
+        self.assertArrayNear(R[:,1], [1, 0, 0, 1])
+        self.assertArrayNear(P[:,1], [0, 0.33, 1.67, 0])
+
     def test_transport_normal(self):
         convertMech('../../data/inputs/h2o2.inp',
                     transportFile='../../data/transport/gri30_tran.dat',

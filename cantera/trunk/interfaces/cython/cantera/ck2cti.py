@@ -40,9 +40,6 @@ import numpy as np
 import re
 import itertools
 
-reFloat = re.compile(r'\+?\d*\.?\d+([eEdD][-+]?\d+)?$')
-reInt = re.compile(r'\+?\d+$')
-
 QUANTITY_UNITS = {'MOL': 'mol',
                   'MOLE': 'mol',
                   'MOLES': 'mol',
@@ -1086,12 +1083,16 @@ class Parser(object):
             j = reaction.find(token)
             i = len(token)
             reaction = reaction[:j] + ' '*i + reaction[j+i:]
-            if reInt.match(token):
+            if token == '+':
+                continue
+
+            try:
                 locs[j] = int(token), 'coeff'
-            elif reFloat.match(token):
-                locs[j] = float(token), 'coeff'
-            elif token != '+':
-                raise InputParseError('Unexpected token "{0}" in reaction expression "{1}".'.format(token, reaction))
+            except ValueError:
+                try:
+                    locs[j] = float(token), 'coeff'
+                except ValueError:
+                    raise InputParseError('Unexpected token "{0}" in reaction expression "{1}".'.format(token, reaction))
 
         reactants = []
         products = []
