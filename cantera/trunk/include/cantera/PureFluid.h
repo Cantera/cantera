@@ -4,20 +4,16 @@
 
 #include "thermo/PureFluidPhase.h"
 #include "kinetics.h"
-#include "base/stringUtils.h"
 
 namespace Cantera
 {
 
-
 class PureFluid : public PureFluidPhase
 {
 public:
-
     PureFluid() : m_ok(false), m_r(0) {}
 
     PureFluid(const std::string& infile, std::string id="") : m_ok(false), m_r(0) {
-
         m_r = get_XML_File(infile);
         if (id == "-") {
             id = "";
@@ -27,7 +23,6 @@ public:
                                           "buildSolutionFromXML returned false");
     }
 
-
     PureFluid(XML_Node& root, const std::string& id) : m_ok(false), m_r(0) {
         m_ok = buildSolutionFromXML(root, id, "phase", this, 0);
     }
@@ -35,9 +30,11 @@ public:
     bool operator!() {
         return !m_ok;
     }
+
     bool ready() const {
         return m_ok;
     }
+
     friend std::ostream& operator<<(std::ostream& s, PureFluid& mix) {
         std::string r = mix.report(true);
         s << r;
@@ -47,8 +44,6 @@ public:
 protected:
     bool m_ok;
     XML_Node* m_r;
-
-private:
 };
 
 class Water : public PureFluid
@@ -59,6 +54,5 @@ public:
 };
 
 }
-
 
 #endif

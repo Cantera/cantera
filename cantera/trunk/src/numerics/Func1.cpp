@@ -8,7 +8,6 @@ using namespace std;
 namespace Cantera
 {
 
-
 Func1::Func1() :
     m_c(0.0),
     m_f1(0),
@@ -123,24 +122,20 @@ int Func1::order() const
     return 3;
 }
 
-
 Func1& Func1::func1_dup() const
 {
     return m_f1->duplicate();
 }
-
 
 Func1& Func1::func2_dup() const
 {
     return m_f2->duplicate();
 }
 
-
 Func1* Func1::parent() const
 {
     return m_parent;
 }
-
 
 void Func1::setParent(Func1* p)
 {
@@ -224,9 +219,6 @@ string Func1::write(const std::string& arg) const
     return "<unknown " + int2str(ID()) + ">("+arg+")";
 }
 
-
-
-
 string Pow1::write(const std::string& arg) const
 {
     //cout << "Pow1" << endl;
@@ -244,7 +236,6 @@ string Pow1::write(const std::string& arg) const
         return arg;
     }
 }
-
 
 string Const1::write(const std::string& arg) const
 {

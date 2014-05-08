@@ -908,7 +908,6 @@ public:
     /// @name  Partial Molar Properties of the Solution
     //@{
 
-
     //! Get the species chemical potentials. Units: J/kmol.
     /*!
      *
@@ -1007,7 +1006,6 @@ public:
 
     //@}
 
-protected:
     /**
      * @name Chemical Equilibrium
      * @{
@@ -1025,7 +1023,6 @@ protected:
      * @param lambda_RT Input vector of dimensionless element potentials
      *                  The length is equal to nElements().
      */
-public:
     virtual void setToEquilState(const doublereal* lambda_RT) {
         throw NotImplementedError("DebyeHuckel::setToEquilState");
     }
@@ -1255,8 +1252,6 @@ private:
     //@}
 
 protected:
-
-
     //! form of the Debye-Huckel parameterization  used in the model.
     /*!
      * The options are described at the top of this document,
@@ -1346,7 +1341,6 @@ protected:
     mutable double m_IionicMolalityStoich;
 
 public:
-
     /**
      * Form of the constant outside the Debye-Huckel term
      * called A. It's normally a function of temperature
@@ -1366,7 +1360,6 @@ public:
     int m_form_A_Debye;
 
 protected:
-
     //! Current value of the Debye Constant, A_Debye
     /**
      * A_Debye -> this expression appears on the top of the

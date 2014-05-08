@@ -450,7 +450,6 @@ public:
     /// @name  Partial Molar Properties of the Solution
     //@{
 
-
     //!Get the species chemical potentials: Units: J/kmol.
     /*!
      * This function returns a vector of chemical potentials of the
@@ -494,7 +493,6 @@ public:
      *               Length: m_kk.
      */
     virtual void getPartialMolarEnthalpies(doublereal* hbar) const;
-
 
     //! Returns an array of partial molar entropies of the species in the solution. Units: J/kmol.
     /*!

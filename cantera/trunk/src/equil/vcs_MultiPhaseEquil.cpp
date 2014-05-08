@@ -197,8 +197,6 @@ int vcs_MultiPhaseEquil::equilibrate_HP(doublereal Htarget,
     int printLvlSub = std::max(printLvl - 1, 0);
 
     for (int n = 0; n < maxiter; n++) {
-
-
         // start with a loose error tolerance, but tighten it as we get
         // close to the final temperature
         try {

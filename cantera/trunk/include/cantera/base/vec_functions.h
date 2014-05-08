@@ -19,8 +19,6 @@
 
 namespace Cantera
 {
-
-
 //! Templated function that copies the first n entries from x to y.
 /*!
  *
@@ -126,7 +124,6 @@ inline void add_each(T& x, const T& y)
                    x.begin(), std::plus<typename T::value_type>());
 }
 
-
 //! Templated dot ratio class
 /*!
  *  Calculates the quantity:
@@ -154,7 +151,6 @@ inline doublereal _dot_ratio(InputIter x_begin, InputIter x_end,
     }
     return start_value;
 }
-
 
 //! Finds the entry in a vector with maximum absolute
 //! value, and return this value.
