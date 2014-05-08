@@ -206,11 +206,6 @@ void PDSS_IonsFromNeutral::constructPDSSFile(VPStandardStateTP* tp, size_t spind
     delete fxml;
 }
 
-void PDSS_IonsFromNeutral::initThermoXML(const XML_Node& phaseNode, const std::string& id)
-{
-    PDSS::initThermoXML(phaseNode, id);
-}
-
 void PDSS_IonsFromNeutral::initThermo()
 {
     PDSS::initThermo();
@@ -331,13 +326,6 @@ PDSS_IonsFromNeutral::density() const
 }
 
 doublereal
-PDSS_IonsFromNeutral::cv_mole() const
-{
-    throw CanteraError("PDSS_IonsFromNeutral::cv_mole()", "unimplemented");
-    return 0.0;
-}
-
-doublereal
 PDSS_IonsFromNeutral::gibbs_RT_ref() const
 {
     neutralMoleculePhase_->getGibbs_RT_ref(DATA_PTR(tmpNM));
@@ -399,34 +387,6 @@ doublereal PDSS_IonsFromNeutral::molarVolume_ref() const
     return val;
 }
 
-doublereal  PDSS_IonsFromNeutral::pressure() const
-{
-    return m_pres;
-}
-
-void PDSS_IonsFromNeutral::setPressure(doublereal p)
-{
-    m_pres = p;
-}
-
-doublereal PDSS_IonsFromNeutral::critTemperature() const
-{
-    throw CanteraError("PDSS_IonsFromNeutral::critTemperature()", "unimplemented");
-    return 0.0;
-}
-
-doublereal PDSS_IonsFromNeutral::critPressure() const
-{
-    throw CanteraError("PDSS_IonsFromNeutral::critPressure()", "unimplemented");
-    return 0.0;
-}
-
-doublereal PDSS_IonsFromNeutral::critDensity() const
-{
-    throw CanteraError("PDSS_IonsFromNeutral::critDensity()", "unimplemented");
-    return 0.0;
-}
-
 doublereal PDSS_IonsFromNeutral::temperature() const
 {
     /*
@@ -449,13 +409,6 @@ void PDSS_IonsFromNeutral::setState_TP(doublereal temp, doublereal pres)
 
 void  PDSS_IonsFromNeutral::setState_TR(doublereal temp, doublereal rho)
 {
-}
-
-doublereal PDSS_IonsFromNeutral::satPressure(doublereal t)
-{
-    throw CanteraError("PDSS_IonsFromNeutral::satPressure()", "unimplemented");
-    /*NOTREACHED*/
-    return 0.0;
 }
 
 }

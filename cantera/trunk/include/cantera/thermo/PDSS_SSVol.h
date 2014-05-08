@@ -259,9 +259,6 @@ private:
     //! @name Miscellaneous properties of the standard state
     //! @{
 
-    virtual doublereal critTemperature() const;
-    virtual doublereal critPressure() const;
-    virtual doublereal critDensity() const;
     virtual doublereal satPressure(doublereal t);
 
     //! @}

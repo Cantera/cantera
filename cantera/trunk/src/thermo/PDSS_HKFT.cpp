@@ -232,13 +232,6 @@ doublereal PDSS_HKFT::enthalpy_mole() const
     return h;
 }
 
-doublereal PDSS_HKFT::enthalpy_RT() const
-{
-    doublereal hh = enthalpy_mole();
-    doublereal RT = GasConstant * m_temp;
-    return hh / RT;
-}
-
 #ifdef DEBUG_MODE
 doublereal PDSS_HKFT::enthalpy_mole2() const
 {
@@ -362,13 +355,6 @@ doublereal PDSS_HKFT::cp_mole() const
     return Cp;
 }
 
-doublereal
-PDSS_HKFT::cv_mole() const
-{
-    throw CanteraError("PDSS_HKFT::cv_mole()", "unimplemented");
-    return 0.0;
-}
-
 doublereal  PDSS_HKFT::molarVolume() const
 {
     // Initially do all calculations in (cal/gmol/Pa)
@@ -480,53 +466,12 @@ PDSS_HKFT::molarVolume_ref() const
     return ee;
 }
 
-doublereal
-PDSS_HKFT::pressure() const
-{
-    return m_pres;
-}
-
-void
-PDSS_HKFT::setPressure(doublereal p)
-{
-    m_pres = p;
-}
-
-void PDSS_HKFT::setTemperature(doublereal temp)
-{
-    m_temp = temp;
-}
-
-doublereal PDSS_HKFT::temperature() const
-{
-    return m_temp;
-}
-
 void PDSS_HKFT::setState_TP(doublereal temp, doublereal pres)
 {
     setTemperature(temp);
     setPressure(pres);
 }
 
-doublereal
-PDSS_HKFT::critTemperature() const
-{
-    throw CanteraError("PDSS_HKFT::critTemperature()", "unimplemented");
-    return 0.0;
-}
-
-doublereal PDSS_HKFT::critPressure() const
-{
-    throw CanteraError("PDSS_HKFT::critPressure()", "unimplemented");
-    return 0.0;
-}
-
-doublereal PDSS_HKFT::critDensity() const
-{
-    throw CanteraError("PDSS_HKFT::critDensity()", "unimplemented");
-    return 0.0;
-}
-//=====================================================================================================================
 void PDSS_HKFT::initThermo()
 {
     PDSS::initThermo();
@@ -602,11 +547,6 @@ void PDSS_HKFT::initThermo()
         m_domega_jdT_prtr =  -  nu * (m_charge_j * m_charge_j / (r_e_j * r_e_j) * dr_e_jdT)
                              + nu * m_charge_j / (3.082 + gval) / (3.082 + gval) * dgvaldT;
     }
-}
-//=================================================================================================================
-void PDSS_HKFT::initThermoXML(const XML_Node& phaseNode, const std::string& id)
-{
-    PDSS::initThermoXML(phaseNode, id);
 }
 
 void PDSS_HKFT::initAllPtrs(VPStandardStateTP* vptp_ptr, VPSSMgr* vpssmgr_ptr,

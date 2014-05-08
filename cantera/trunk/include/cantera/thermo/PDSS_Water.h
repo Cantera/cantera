@@ -275,9 +275,6 @@ public:
      */
     void constructPDSSXML(VPStandardStateTP* vptp_ptr, int spindex,
                           const XML_Node& phaseNode, const std::string& id);
-
-    virtual void initThermo();
-    virtual void initThermoXML(const XML_Node& phaseNode, const std::string& id);
     //@}
 
 private:

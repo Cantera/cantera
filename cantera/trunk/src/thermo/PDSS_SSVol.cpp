@@ -311,24 +311,6 @@ void PDSS_SSVol::calcMolarVolume() const
     }
 }
 
-doublereal PDSS_SSVol::critTemperature() const
-{
-    throw CanteraError("PDSS_SSVol::critTemperature()", "unimplemented");
-    return 0.0;
-}
-
-doublereal PDSS_SSVol::critPressure() const
-{
-    throw CanteraError("PDSS_SSVol::critPressure()", "unimplemented");
-    return 0.0;
-}
-
-doublereal PDSS_SSVol::critDensity() const
-{
-    throw CanteraError("PDSS_SSVol::critDensity()", "unimplemented");
-    return 0.0;
-}
-
 void PDSS_SSVol::setPressure(doublereal p)
 {
     m_pres = p;

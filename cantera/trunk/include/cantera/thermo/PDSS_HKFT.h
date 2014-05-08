@@ -116,12 +116,10 @@ public:
     doublereal enthalpy_mole2() const;
 #endif
 
-    virtual doublereal enthalpy_RT() const;
     virtual doublereal intEnergy_mole() const;
     virtual doublereal entropy_mole() const;
     virtual doublereal gibbs_mole() const;
     virtual doublereal cp_mole() const;
-    virtual doublereal cv_mole() const;
     virtual doublereal molarVolume() const;
     virtual doublereal density() const;
 
@@ -143,19 +141,7 @@ public:
     //! @name Mechanical Equation of State Properties
     //! @{
 
-    virtual doublereal pressure() const;
-    virtual void setPressure(doublereal pres);
-    virtual void setTemperature(doublereal temp);
-    doublereal temperature() const;
     virtual void setState_TP(doublereal temp, doublereal pres);
-
-    //! @}
-    //! @name Miscellaneous properties of the standard state
-    //! @{
-
-    virtual doublereal critTemperature() const;
-    virtual doublereal critPressure() const;
-    virtual doublereal critDensity() const;
 
     //! @}
     //! @name Initialization of the Object
@@ -202,7 +188,6 @@ public:
                           const XML_Node& speciesNode,
                           const XML_Node& phaseNode, bool spInstalled);
 
-    virtual void initThermoXML(const XML_Node& phaseNode, const std::string& id);
     virtual void initAllPtrs(VPStandardStateTP* vptp_ptr, VPSSMgr* vpssmgr_ptr,
                              SpeciesThermo* spthermo_ptr);
 
