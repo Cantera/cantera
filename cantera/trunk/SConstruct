@@ -75,6 +75,8 @@ if 'clean' in COMMAND_LINE_TARGETS:
 # *** Set system-dependent defaults for some options ***
 # ******************************************************
 
+print 'INFO: SCons is using the following Python interpreter:', sys.executable
+
 opts = Variables('cantera.conf')
 
 windows_compiler_options = []
