@@ -119,14 +119,6 @@ void PDSS_IdealGas::initThermo()
 }
 
 doublereal
-PDSS_IdealGas::enthalpy_mole() const
-{
-    doublereal val = enthalpy_RT();
-    doublereal RT = GasConstant * m_temp;
-    return val * RT;
-}
-
-doublereal
 PDSS_IdealGas::enthalpy_RT() const
 {
     return m_h0_RT_ptr[m_spindex];
@@ -141,37 +133,15 @@ PDSS_IdealGas::intEnergy_mole() const
 }
 
 doublereal
-PDSS_IdealGas::entropy_mole() const
-{
-    doublereal val = entropy_R();
-    return val * GasConstant;
-}
-
-doublereal
 PDSS_IdealGas::entropy_R() const
 {
     return m_s0_R_ptr[m_spindex] - log(m_pres/m_p0);
 }
 
 doublereal
-PDSS_IdealGas::gibbs_mole() const
-{
-    doublereal val = gibbs_RT();
-    doublereal RT = GasConstant * m_temp;
-    return val * RT;
-}
-
-doublereal
 PDSS_IdealGas::gibbs_RT() const
 {
     return m_g0_RT_ptr[m_spindex] + log(m_pres/m_p0);
-}
-
-doublereal
-PDSS_IdealGas::cp_mole() const
-{
-    doublereal val = cp_R();
-    return val * GasConstant;
 }
 
 doublereal

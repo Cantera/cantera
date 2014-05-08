@@ -675,6 +675,26 @@ protected:
     doublereal* m_Vss_ptr;
 };
 
+//! Base class for PDSS classes which compute molar properties directly
+class PDSS_Molar : public virtual PDSS
+{
+public:
+    virtual doublereal enthalpy_RT() const;
+    virtual doublereal entropy_R() const;
+    virtual doublereal gibbs_RT() const;
+    virtual doublereal cp_R() const;
+};
+
+//! Base class for PDSS classes which compute nondimensional properties directly
+class PDSS_Nondimensional : public virtual PDSS
+{
+public:
+    virtual doublereal enthalpy_mole() const;
+    virtual doublereal entropy_mole() const;
+    virtual doublereal gibbs_mole() const;
+    virtual doublereal cp_mole() const;
+};
+
 }
 
 #endif

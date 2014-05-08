@@ -157,14 +157,6 @@ void PDSS_ConstVol::initThermo()
 }
 
 doublereal
-PDSS_ConstVol::enthalpy_mole() const
-{
-    doublereal val = enthalpy_RT();
-    doublereal RT = GasConstant * m_temp;
-    return val * RT;
-}
-
-doublereal
 PDSS_ConstVol::enthalpy_RT() const
 {
     return m_hss_RT_ptr[m_spindex];
@@ -180,37 +172,15 @@ PDSS_ConstVol::intEnergy_mole() const
 }
 
 doublereal
-PDSS_ConstVol::entropy_mole() const
-{
-    doublereal val = entropy_R();
-    return val * GasConstant;
-}
-
-doublereal
 PDSS_ConstVol::entropy_R() const
 {
     return m_sss_R_ptr[m_spindex];
 }
 
 doublereal
-PDSS_ConstVol::gibbs_mole() const
-{
-    doublereal val = gibbs_RT();
-    doublereal RT = GasConstant * m_temp;
-    return val * RT;
-}
-
-doublereal
 PDSS_ConstVol::gibbs_RT() const
 {
     return m_gss_RT_ptr[m_spindex];
-}
-
-doublereal
-PDSS_ConstVol::cp_mole() const
-{
-    doublereal val = m_cpss_R_ptr[m_spindex];
-    return val * GasConstant;
 }
 
 doublereal
