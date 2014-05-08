@@ -216,14 +216,6 @@ void PDSS_IonsFromNeutral::initThermo()
 }
 
 doublereal
-PDSS_IonsFromNeutral::enthalpy_mole() const
-{
-    doublereal val = enthalpy_RT();
-    doublereal RT = GasConstant * m_temp;
-    return val * RT;
-}
-
-doublereal
 PDSS_IonsFromNeutral::enthalpy_RT() const
 {
     neutralMoleculePhase_->getEnthalpy_RT(DATA_PTR(tmpNM));
@@ -244,13 +236,6 @@ PDSS_IonsFromNeutral::intEnergy_mole() const
 }
 
 doublereal
-PDSS_IonsFromNeutral::entropy_mole() const
-{
-    doublereal val = entropy_R();
-    return val * GasConstant;
-}
-
-doublereal
 PDSS_IonsFromNeutral::entropy_R() const
 {
     neutralMoleculePhase_->getEntropy_R(DATA_PTR(tmpNM));
@@ -266,14 +251,6 @@ PDSS_IonsFromNeutral::entropy_R() const
 }
 
 doublereal
-PDSS_IonsFromNeutral::gibbs_mole() const
-{
-    doublereal val = gibbs_RT();
-    doublereal RT = GasConstant * m_temp;
-    return val * RT;
-}
-
-doublereal
 PDSS_IonsFromNeutral::gibbs_RT() const
 {
     neutralMoleculePhase_->getGibbs_RT(DATA_PTR(tmpNM));
@@ -286,13 +263,6 @@ PDSS_IonsFromNeutral::gibbs_RT() const
         val += 2.0 * log(2.0);
     }
     return val;
-}
-
-doublereal
-PDSS_IonsFromNeutral::cp_mole() const
-{
-    doublereal val = cp_R();
-    return val * GasConstant;
 }
 
 doublereal

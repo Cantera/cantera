@@ -27,7 +27,7 @@ class ThermoPhase;
  *
  * @ingroup pdssthermo
  */
-class PDSS_IonsFromNeutral : public PDSS
+class PDSS_IonsFromNeutral : public PDSS_Nondimensional
 {
 public:
     //! @name  Constructors
@@ -92,12 +92,9 @@ public:
 
     // See PDSS.h for documentation of functions overridden from Class PDSS
 
-    virtual doublereal enthalpy_mole() const;
     virtual doublereal enthalpy_RT() const;
     virtual doublereal intEnergy_mole() const;
-    virtual doublereal entropy_mole() const;
     virtual doublereal entropy_R() const;
-    virtual doublereal gibbs_mole() const;
 
     /*!
      * @copydoc PDSS::gibbs_RT()
@@ -112,7 +109,6 @@ public:
      * case is the single anion species, with species index <I>sp</I>.
      */
     virtual doublereal gibbs_RT() const;
-    virtual doublereal cp_mole() const;
     virtual doublereal cp_R() const;
     virtual doublereal molarVolume() const;
     virtual doublereal density() const;

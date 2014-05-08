@@ -29,7 +29,7 @@ class WaterProps;
 /*!
  * @ingroup pdssthermo
  */
-class PDSS_HKFT : public PDSS
+class PDSS_HKFT : public PDSS_Molar
 {
 public:
 

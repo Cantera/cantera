@@ -53,7 +53,7 @@ class WaterProps;
  *
  * @ingroup pdssthermo
  */
-class PDSS_Water : public PDSS
+class PDSS_Water : public PDSS_Molar
 {
 public:
     //! @name  Constructors

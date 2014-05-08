@@ -25,7 +25,7 @@ class VPStandardStateTP;
  *
  * @ingroup pdssthermo
  */
-class PDSS_IdealGas : public PDSS
+class PDSS_IdealGas : public PDSS_Nondimensional
 {
 public:
     //! @name  Constructors
@@ -88,14 +88,10 @@ public:
 
     // See PDSS.h for documentation of functions overridden from Class PDSS
 
-    virtual doublereal enthalpy_mole() const;
     virtual doublereal enthalpy_RT() const;
     virtual doublereal intEnergy_mole() const;
-    virtual doublereal entropy_mole() const;
     virtual doublereal entropy_R() const;
-    virtual doublereal gibbs_mole() const;
     virtual doublereal gibbs_RT() const;
-    virtual doublereal cp_mole() const;
     virtual doublereal cp_R() const;
     virtual doublereal cv_mole() const;
     virtual doublereal molarVolume() const;

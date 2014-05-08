@@ -221,8 +221,7 @@ doublereal PDSS::enthalpy_mole() const
 
 doublereal PDSS::enthalpy_RT() const
 {
-    double RT = GasConstant * m_temp;
-    return enthalpy_mole()/RT;
+    throw NotImplementedError("PDSS::enthalpy_RT()");
 }
 
 doublereal PDSS::intEnergy_mole() const
@@ -237,7 +236,7 @@ doublereal PDSS::entropy_mole() const
 
 doublereal PDSS::entropy_R() const
 {
-    return entropy_mole()/GasConstant;
+    throw NotImplementedError("PDSS::entropy_R()");
 }
 
 doublereal PDSS::gibbs_mole() const
@@ -247,8 +246,7 @@ doublereal PDSS::gibbs_mole() const
 
 doublereal PDSS::gibbs_RT() const
 {
-    double RT = GasConstant * m_temp;
-    return gibbs_mole()/RT;
+    throw NotImplementedError("PDSS::gibbs_RT()");
 }
 
 doublereal PDSS::cp_mole() const
@@ -258,7 +256,7 @@ doublereal PDSS::cp_mole() const
 
 doublereal PDSS::cp_R() const
 {
-    return cp_mole()/GasConstant;
+    throw NotImplementedError("PDSS::cp_R()");
 }
 
 doublereal PDSS::molarVolume() const
@@ -404,4 +402,49 @@ void PDSS::reportParams(size_t& kindex, int& type,
     maxTemp_ = m_maxTemp;
     refPressure_ = m_p0;
 }
+
+// PDSS_Molar methods
+
+doublereal PDSS_Molar::enthalpy_RT() const
+{
+    return enthalpy_mole() / (GasConstant * temperature());
+}
+
+doublereal PDSS_Molar::entropy_R() const
+{
+    return entropy_mole() / GasConstant;
+}
+
+doublereal PDSS_Molar::gibbs_RT() const
+{
+    return gibbs_mole() / (GasConstant * temperature());
+}
+
+doublereal PDSS_Molar::cp_R() const
+{
+    return cp_mole() / GasConstant;
+}
+
+// PDSS_Nondimensional methods
+
+doublereal PDSS_Nondimensional::enthalpy_mole() const
+{
+    return enthalpy_RT() * GasConstant * temperature();
+}
+
+doublereal PDSS_Nondimensional::entropy_mole() const
+{
+    return entropy_R() * GasConstant;
+}
+
+doublereal PDSS_Nondimensional::gibbs_mole() const
+{
+    return gibbs_RT() * GasConstant * temperature();
+}
+
+doublereal PDSS_Nondimensional::cp_mole() const
+{
+    return cp_R() * GasConstant;
+}
+
 }
