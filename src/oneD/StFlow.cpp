@@ -285,8 +285,6 @@ void StFlow::eval(size_t jg, doublereal* xg,
     doublereal sum, sum2, dtdzj;
 
     for (j = jmin; j <= jmax; j++) {
-
-
         //----------------------------------------------
         //         left boundary
         //----------------------------------------------
@@ -322,7 +320,6 @@ void StFlow::eval(size_t jg, doublereal* xg,
             }
             rsd[index(c_offset_Y, 0)] = 1.0 - sum;
         }
-
 
         else if (j == m_points - 1) {
             evalRightBoundary(x, rsd, diag, rdt);
@@ -958,7 +955,6 @@ void FreeFlame::_finalize(const doublereal* x)
         }
     }
 }
-
 
 void FreeFlame::restore(const XML_Node& dom, doublereal* soln, int loglevel)
 {

@@ -17,8 +17,6 @@
 namespace Cantera
 {
 
-
-
 //!  A class for 2D arrays stored in column-major
 //!  (Fortran-compatible) form.
 /*!
@@ -32,16 +30,13 @@ namespace Cantera
  */
 class Array2D
 {
-
 public:
-
     //! Type definition for the iterator class that is
     //! can be used by Array2D types.
     /*!
      *  this is just equal to vector_fp iterator.
      */
     typedef vector_fp::iterator iterator;
-
 
     //! Type definition for the const_iterator class that is
     //! can be used by Array2D types.
@@ -376,7 +371,6 @@ public:
     }
 
 protected:
-
     //! Data stored in a single array
     vector_fp m_data;
 

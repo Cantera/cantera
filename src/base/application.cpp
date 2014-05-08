@@ -25,7 +25,6 @@ using std::endl;
 namespace Cantera
 {
 
-
 // If running multiple threads in a cpp application, the Application class
 // is the only internal object that is single instance with static data.
 
@@ -49,7 +48,6 @@ static mutex_t app_mutex;
 
 //! Mutex for controlling access to XML file storage
 static mutex_t xml_mutex;
-
 
 Application::Messages::Messages() :
     errorMessage(0),
@@ -222,7 +220,6 @@ void Application::thread_complete()
 #endif
 }
 
-
 XML_Node* Application::get_XML_File(const std::string& file, int debug)
 {
     ScopedLock xmlLock(xml_mutex);
@@ -321,7 +318,6 @@ XML_Node* Application::get_XML_File(const std::string& file, int debug)
      */
     return xmlfiles[ff];
 }
-
 
 void Application::close_XML_File(const std::string& file)
 {
@@ -427,8 +423,6 @@ void Application::Messages::logErrors()
     errorMessage.clear();
     errorRoutine.clear();
 }
-
-
 
 void Application::setDefaultDirectories()
 {

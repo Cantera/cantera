@@ -537,8 +537,6 @@ L_MAINLOOP_ALL_SPECIES:
                     m_molNumSpecies_new[kspec] = m_molNumSpecies_old[kspec];
                 }
             } else {
-
-
                 if (m_speciesStatus[kspec] == VCS_SPECIES_INTERFACIALVOLTAGE) {
                     /********************************************************************/
                     /************************ VOLTAGE SPECIES ***************************/

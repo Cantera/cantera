@@ -339,13 +339,10 @@ void MolarityIonicVPSSTP::s_update_lnActCoeff() const
 
 void MolarityIonicVPSSTP::s_update_dlnActCoeff_dT() const
 {
-
-
 }
 
 void  MolarityIonicVPSSTP::s_update_dlnActCoeff_dX_() const
 {
-
 }
 
 void MolarityIonicVPSSTP::initThermo()
@@ -458,7 +455,6 @@ void MolarityIonicVPSSTP::initThermoXML(XML_Node& phaseNode, const std::string& 
 void MolarityIonicVPSSTP::readXMLBinarySpecies(XML_Node& xmLBinarySpecies)
 {
     std::string xname = xmLBinarySpecies.name();
-
 }
 
 std::string MolarityIonicVPSSTP::report(bool show_thermo) const

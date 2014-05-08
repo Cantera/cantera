@@ -17,7 +17,6 @@ using namespace std;
 namespace Cantera
 {
 
-
 /*! Database for atomic molecular weights
  *  Values are taken from the 1989 Standard Atomic Weights, CRC
  *
@@ -184,10 +183,6 @@ doublereal LookupWtElements(const std::string& ename)
     throw CanteraError("LookupWtElements", "element not found");
     return -1.0;
 }
-
-
-
-
 
 //!  Exception class to indicate a fixed set of elements.
 /*!

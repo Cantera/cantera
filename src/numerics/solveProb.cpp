@@ -846,8 +846,6 @@ void solveProb::printFinal(int ioflag, doublereal damp, size_t label_d, size_t l
     }
 #ifdef DEBUG_SOLVEPROB
     else if (ioflag > 1) {
-
-
         printf("\n================================== FINAL RESULT ========="
                "==================================================\n");
 

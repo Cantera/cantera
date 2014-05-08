@@ -737,18 +737,14 @@ void RedlichKwongMFTP::setToEquilState(const doublereal* mu_RT)
 
 void RedlichKwongMFTP::initLengths()
 {
-
-
     a_vec_Curr_.resize(m_kk * m_kk, 0.0);
     b_vec_Curr_.resize(m_kk, 0.0);
 
     a_coeff_vec.resize(2, m_kk * m_kk, 0.0);
 
-
     m_pc_Species.resize(m_kk, 0.0);
     m_tc_Species.resize(m_kk, 0.0);
     m_vc_Species.resize(m_kk, 0.0);
-
 
     m_pp.resize(m_kk, 0.0);
     m_tmpV.resize(m_kk, 0.0);
@@ -777,7 +773,6 @@ void RedlichKwongMFTP::initThermoXML(XML_Node& phaseNode, const std::string& id)
             throw CanteraError("RedlichKwongMFTP::initThermoXML",
                                "Unknown thermo model : " + model);
         }
-
 
         /*
          * Go get all of the coefficients and factors in the
@@ -1102,7 +1097,6 @@ doublereal RedlichKwongMFTP::densityCalc(doublereal TKelvin, doublereal presPa, 
 
     }
 
-
     doublereal volguess = mmw / rhoguess;
     NSolns_ = NicholsSolve(TKelvin, presPa, m_a_current, m_b_current, Vroot_);
 
@@ -1283,7 +1277,6 @@ void RedlichKwongMFTP::calculateAB(doublereal temp, doublereal& aCalc, doublerea
 
 doublereal RedlichKwongMFTP::da_dt() const
 {
-
     doublereal dadT = 0.0;
     if (m_formTempParam == 1) {
         for (size_t i = 0; i < m_kk; i++) {
