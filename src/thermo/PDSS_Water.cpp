@@ -256,16 +256,6 @@ void PDSS_Water::constructSet()
     m_pres = OneAtm;
 }
 
-void PDSS_Water::initThermo()
-{
-    PDSS::initThermo();
-}
-
-void PDSS_Water::initThermoXML(const XML_Node& phaseNode, const std::string& id)
-{
-    PDSS::initThermoXML(phaseNode, id);
-}
-
 doublereal PDSS_Water::enthalpy_mole() const
 {
     doublereal h = m_sub->enthalpy();

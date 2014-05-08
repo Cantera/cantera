@@ -123,15 +123,6 @@ public:
     virtual void setState_TR(doublereal temp, doublereal rho);
 
     //! @}
-    //! @name Miscellaneous properties of the standard state
-    //! @{
-
-    virtual doublereal critTemperature() const;
-    virtual doublereal critPressure() const;
-    virtual doublereal critDensity() const;
-    virtual doublereal satPressure(doublereal t);
-
-    //! @}
     //! @name Initialization of the Object
     //! @{
 
@@ -178,7 +169,6 @@ public:
     void constructPDSSXML(VPStandardStateTP* vptp_ptr, size_t spindex,
                           const XML_Node& phaseNode, const std::string& id);
 
-    virtual void initThermoXML(const XML_Node& phaseNode, const std::string& id);
     virtual void initThermo();
     //@}
 };
