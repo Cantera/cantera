@@ -15,6 +15,8 @@
 #include "cantera/base/ct_defs.h"
 #include "PDSS.h"
 #include "VPStandardStateTP.h"
+#include "WaterPropsIAPWS.h"
+ #include "WaterProps.h"
 
 namespace Cantera
 {
@@ -113,9 +115,6 @@ public:
      */
     PDSS_Water(VPStandardStateTP* tp, int spindex, const XML_Node& speciesNode,
                const XML_Node& phaseRef, bool spInstalled);
-
-    //! Destructor
-    virtual ~PDSS_Water();
 
     //! Duplication routine for objects which inherit from %PDSS
     /*!
@@ -216,12 +215,12 @@ public:
 
     //! Get a pointer to a changeable WaterPropsIAPWS object
     WaterPropsIAPWS* getWater() {
-        return m_sub;
+        return &m_sub;
     }
 
     //! Get a pointer to a changeable WaterPropsIAPWS object
     WaterProps* getWaterProps() {
-        return m_waterProps;
+        return &m_waterProps;
     }
 
     //! @}
@@ -283,7 +282,7 @@ private:
     /*!
      * This object owns m_sub
      */
-    mutable WaterPropsIAPWS* m_sub;
+    mutable WaterPropsIAPWS m_sub;
 
     //! Pointer to the WaterProps object
     /*!
@@ -293,7 +292,7 @@ private:
      * This object owns m_waterProps, and the WaterPropsIAPWS object used by
      * WaterProps is m_sub, which is defined above.
      */
-    WaterProps* m_waterProps;
+    WaterProps m_waterProps;
 
     //! State of the system - density
     /*!
