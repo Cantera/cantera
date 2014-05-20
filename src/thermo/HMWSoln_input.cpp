@@ -990,16 +990,16 @@ void HMWSoln::constructPhaseFile(std::string inputFile, std::string id_)
      * The phase object automatically constructs an XML object.
      * Use this object to store information.
      */
-    XML_Node& phaseNode_XML = xml();
     XML_Node* fxml = new XML_Node();
     fxml->build(fin);
     XML_Node* fxml_phase = findXMLPhase(fxml, id_);
+     
     if (!fxml_phase) {
         throw CanteraError("HMWSoln:constructPhaseFile",
                            "ERROR: Can not find phase named " +
                            id_ + " in file named " + inputFile);
     }
-    fxml_phase->copy(&phaseNode_XML);
+    setXMLdata(*fxml_phase);
     constructPhaseXML(*fxml_phase, id_);
     delete fxml;
 }

@@ -1101,9 +1101,7 @@ XML_Node* findXMLPhase(XML_Node* root,
         idattrib = root->id();
         if (idtarget == idattrib) {
             return root;
-        } else {
-            return               0;
-        }
+        } 
     }
 
     const vector<XML_Node*> &vsc = root->children();
@@ -1121,12 +1119,12 @@ XML_Node* findXMLPhase(XML_Node* root,
     }
     for (size_t n = 0; n < root->nChildren(); n++) {
         sc = vsc[n];
-        if (sc->name() != "phase") {
+        //if (sc->name() != "phase") {
             scResult = findXMLPhase(sc, idtarget);
             if (scResult) {
                 return scResult;
             }
-        }
+        //}
     }
     return scResult;
 }

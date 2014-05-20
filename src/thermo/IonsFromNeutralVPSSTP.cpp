@@ -213,7 +213,7 @@ void IonsFromNeutralVPSSTP::constructPhaseFile(std::string inputFile, std::strin
      * The phase object automatically constructs an XML object.
      * Use this object to store information.
      */
-    XML_Node& phaseNode_XML = xml();
+    //XML_Node& phaseNode_XML = xml();
     XML_Node* fxml = new XML_Node();
     fxml->build(fin);
     XML_Node* fxml_phase = findXMLPhase(fxml, id_);
@@ -222,7 +222,8 @@ void IonsFromNeutralVPSSTP::constructPhaseFile(std::string inputFile, std::strin
                            "ERROR: Can not find phase named " +
                            id_ + " in file named " + inputFile);
     }
-    fxml_phase->copy(&phaseNode_XML);
+    setXMLdata(*fxml_phase);
+    //fxml_phase->copy(&phaseNode_XML);
     constructPhaseXML(*fxml_phase, id_);
     delete fxml;
 }

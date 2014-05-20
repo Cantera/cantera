@@ -41,6 +41,7 @@ class Test(object):
             self.artifacts = [self.artifacts]
         self.comparisons = kwargs.get('comparisons') or ()
         self.tolerance = kwargs.get('tolerance') or 1e-5 # error tolerance for CSV comparison
+        # self.tolerance = kwargs.get('tolerance') or 1e-7 # error tolerance for CSV comparison
         self.threshold = kwargs.get('threshold') or 1e-14 # error threshold for CSV comparison
 
         # ignore lines starting with specified strings when comparing output files
