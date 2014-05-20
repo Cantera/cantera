@@ -46,7 +46,7 @@ Phase::Phase(const Phase& right) :
     m_elem_type(0)
 {
     // Use the assignment operator to do the actual copying
-    *this = operator=(right);
+    operator=(right);
 }
 
 Phase& Phase::operator=(const Phase& right)
@@ -86,11 +86,23 @@ Phase& Phase::operator=(const Phase& right)
      * to have our own individual copies of the XML data tree
      * in each object
      */
-    delete m_xml;
-    m_xml = 0;
+    if (m_xml) {
+        XML_Node* rroot = &(m_xml->root());
+        delete rroot;
+        m_xml = 0;
+    }
     if (right.m_xml) {
-        m_xml = new XML_Node();
-        (right.m_xml)->copy(m_xml);
+        XML_Node *rroot = &(right.m_xml->root());
+        XML_Node *root_xml = new XML_Node();
+        (rroot)->copy(root_xml);
+        string iidd = right.m_xml->id();
+        m_xml = findXMLPhase(root_xml, iidd); 
+        if (!m_xml) {
+          throw CanteraError("Phase::operator=()", "Confused: Couldn't find original phase " + iidd);
+        }
+        if (&(m_xml->root()) != root_xml) {
+          throw CanteraError("Phase::operator=()", "confused: root changed");
+        }
     }
     m_id    = right.m_id;
     m_name  = right.m_name;
@@ -100,13 +112,36 @@ Phase& Phase::operator=(const Phase& right)
 
 Phase::~Phase()
 {
-    delete m_xml;
+    if (m_xml) {
+        XML_Node* xroot = &(m_xml->root());
+        delete xroot;
+    }
     m_xml = 0;
 }
 
-XML_Node& Phase::xml()
+XML_Node& Phase::xml() const
 {
     return *m_xml;
+}
+
+void Phase::setXMLdata(XML_Node& xmlPhase)
+{
+    XML_Node* xroot = &(xmlPhase.root());
+    XML_Node *root_xml = new XML_Node();
+    (xroot)->copy(root_xml);
+    std::string iidd = xmlPhase.id();
+    if (m_xml) {
+       XML_Node *rOld = &(m_xml->root());
+       delete rOld;
+       m_xml = 0;
+    }
+    m_xml = findXMLPhase(root_xml, iidd);
+    if (!m_xml) {
+        throw CanteraError("Phase::setXMLdata()", "confused");
+    }
+    if (&(m_xml->root()) != root_xml) {
+        throw CanteraError("Phase::setXMLdata()", "confused");
+    }
 }
 
 std::string Phase::id() const

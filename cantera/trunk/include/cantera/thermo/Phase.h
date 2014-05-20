@@ -111,10 +111,24 @@ public:
     //!     @param right Reference to the class to be used in the copy
     Phase& operator=(const Phase& right);
 
-    //! Returns a reference to the XML_Node stored for the phase.
-    //! The XML_Node for the phase contains all of the input data used to set
-    //! up the model for the phase, during its initialization.
-    XML_Node& xml();
+    //! Returns a const reference to the XML_Node that describes the phase.
+    /*!
+     *       The XML_Node for the phase contains all of the input data used to set
+     *       up the model for the phase during its initialization.
+     *
+     */
+    XML_Node& xml() const;
+
+    //! Stores the XML tree information for the current phase
+    /*!
+     *  This function now stores the complete XML_Node tree as read into the code
+     *  via a file. This is needed to move around within the XML tree during
+     *  construction of transport and kinetics mechanisms after copy
+     *  construction operations.
+     *
+     *  @param xmlPhase Reference to the XML node corresponding to the phase
+     */
+    void setXMLdata(XML_Node& xmlPhase);   
 
     /*! @name Name and ID
      * Class Phase contains two strings that identify a phase. The ID is the
@@ -122,13 +136,13 @@ public:
      * initialize a phase when it is read. The name field is also initialized
      * to the value of the ID attribute of the XML phase node.
      *
-     * However, the name field  may be changed to another value during the
+     * However, the name field may be changed to another value during the
      * course of a calculation. For example, if a phase is located in two
-     * places, but has the same constitutive input, the ids of the two phases
+     * places, but has the same constitutive input, the IDs of the two phases
      * will be the same, but the names of the two phases may be different.
      *
      * It is an error to have two phases in a single problem with the same name
-     * or the same id (or the name from one phase being the same as the id of
+     * and ID (or the name from one phase being the same as the id of
      * another phase). Thus, it is expected that there is a 1-1 correspondence
      * between names and unique phases within a Cantera problem.
      */
@@ -138,10 +152,15 @@ public:
     std::string id() const;
 
     //! Set the string id for the phase.
-    //!     @param id String id of the phase
+    /*!
+     *    @param id String id of the phase
+     */
     void setID(const std::string& id);
 
     //! Return the name of the phase.
+    /*!
+     *   Names are unique within a Cantera problem.
+     */
     std::string name() const;
 
     //! Sets the string name for the phase.

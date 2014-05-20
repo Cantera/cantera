@@ -312,9 +312,7 @@ public:
      * For a reaction rate that was given in units of Amps/m2 (exchange current
      *  density formulation with iECDFormulation == true), convert the rate to
      *  kmoles/m2/s.
-     *  RENAMED THIS METHOD from "apply" to "convert"
      */
-
     void convertExchangeCurrentDensityFormulation(doublereal* const kfwd);
 
     //! Set the existence of a phase in the reaction object

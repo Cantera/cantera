@@ -453,7 +453,7 @@ void InterfaceKinetics::applyButlerVolmerCorrection(doublereal* const kf)
     }
 }
 
-/**
+/*
  * For a reaction rate that was given in units of Amps/m2 (exchange current
  *  density formulation with iECDFormulation == true), convert the rate to
  *  kmoles/m2/s.

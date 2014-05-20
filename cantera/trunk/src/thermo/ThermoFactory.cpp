@@ -333,9 +333,7 @@ bool importPhase(XML_Node& phase, ThermoPhase* th,
      * we are about to use to construct the object. We will then
      * be able to resurrect the information later by calling xml().
      */
-    XML_Node& phaseNode_XML = th->xml();
-    phaseNode_XML.clear();
-    phase.copy(&phaseNode_XML);
+    th->setXMLdata(phase);
 
     // set the id attribute of the phase to the 'id' attribute in the XML tree.
     th->setID(phase.id());
