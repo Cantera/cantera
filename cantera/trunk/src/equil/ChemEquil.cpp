@@ -1267,336 +1267,331 @@ int ChemEquil::estimateEP_Brinkley(thermo_t& s, vector_fp& x,
                     resid[m_mm] = 0.0;
                 }
             }
-            goto updateSolnVector;
-        }
+        } else {
+            /*
+             * Determine whether the matrix should be dumbed down because
+             * the coefficient matrix of species (with significant concentrations)
+             * is rank deficient.
+             *
+             * The basic idea is that at any time during the calculation only a
+             * small subset of species with sufficient concentration matters.
+             * If the rank of the element coefficient matrix for that subset of species
+             * is less than the number of elements, then the matrix created by
+             * the Brinkley method below may become singular.
+             *
+             * The logic below looks for obvious cases where the current element
+             * coefficient matrix is rank deficient.
+             *
+             * The way around rank-deficiency is to lump-sum the corresponding row
+             * of the matrix. Note, lump-summing seems to work very well in terms of
+             * its stability properties, i.e., it heads in the right direction,
+             * albeit with lousy convergence rates.
+             *
+             * NOTE: This probably should be extended to a full blown Gauss-Jordan
+             *       factorization scheme in the future. For Example
+             *       the scheme below would fail for the set: HCl  NH4Cl, NH3.
+             *       Hopefully, it's caught by the equal rows logic below.
+             */
+            for (m = 0; m < m_mm; m++) {
+                lumpSum[m] = 1;
+            }
 
-
-        /*
-         * Determine whether the matrix should be dumbed down because
-         * the coefficient matrix of species (with significant concentrations)
-         * is rank deficient.
-         *
-         * The basic idea is that at any time during the calculation only a
-         * small subset of species with sufficient concentration matters.
-         * If the rank of the element coefficient matrix for that subset of species
-         * is less than the number of elements, then the matrix created by
-         * the Brinkley method below may become singular.
-         *
-         * The logic below looks for obvious cases where the current element
-         * coefficient matrix is rank deficient.
-         *
-         * The way around rank-deficiency is to lump-sum the corresponding row
-         * of the matrix. Note, lump-summing seems to work very well in terms of
-         * its stability properties, i.e., it heads in the right direction,
-         * albeit with lousy convergence rates.
-         *
-         * NOTE: This probably should be extended to a full blown Gauss-Jordan
-         *       factorization scheme in the future. For Example
-         *       the scheme below would fail for the set: HCl  NH4Cl, NH3.
-         *       Hopefully, it's caught by the equal rows logic below.
-         */
-        for (m = 0; m < m_mm; m++) {
-            lumpSum[m] = 1;
-        }
-
-        nCutoff = 1.0E-9 * n_t_calc;
+            nCutoff = 1.0E-9 * n_t_calc;
 #ifdef DEBUG_MODE
-        writelog(" Lump Sum Elements Calculation: \n", ChemEquil_print_lvl);
+            writelog(" Lump Sum Elements Calculation: \n", ChemEquil_print_lvl);
 #endif
-        for (m = 0; m < m_mm; m++) {
-            size_t kMSp = npos;
-            size_t kMSp2 = npos;
-            int nSpeciesWithElem  = 0;
-            for (k = 0; k < m_kk; k++) {
-                if (n_i_calc[k] > nCutoff) {
-                    if (fabs(nAtoms(k,m)) > 0.001) {
-                        nSpeciesWithElem++;
-                        if (kMSp != npos) {
-                            kMSp2 = k;
-                            double factor = fabs(nAtoms(kMSp,m) / nAtoms(kMSp2,m));
-                            for (n = 0; n < m_mm; n++) {
-                                if (fabs(factor *  nAtoms(kMSp2,n) -  nAtoms(kMSp,n)) > 1.0E-8) {
-                                    lumpSum[m] = 0;
-                                    break;
+            for (m = 0; m < m_mm; m++) {
+                size_t kMSp = npos;
+                size_t kMSp2 = npos;
+                int nSpeciesWithElem  = 0;
+                for (k = 0; k < m_kk; k++) {
+                    if (n_i_calc[k] > nCutoff) {
+                        if (fabs(nAtoms(k,m)) > 0.001) {
+                            nSpeciesWithElem++;
+                            if (kMSp != npos) {
+                                kMSp2 = k;
+                                double factor = fabs(nAtoms(kMSp,m) / nAtoms(kMSp2,m));
+                                for (n = 0; n < m_mm; n++) {
+                                    if (fabs(factor *  nAtoms(kMSp2,n) -  nAtoms(kMSp,n)) > 1.0E-8) {
+                                        lumpSum[m] = 0;
+                                        break;
+                                    }
                                 }
+                            } else {
+                                kMSp = k;
                             }
-                        } else {
-                            kMSp = k;
                         }
+                    }
+                }
+#ifdef DEBUG_MODE
+                if (ChemEquil_print_lvl > 0) {
+                    string nnn = eNames[m];
+                    writelogf("               %5s %3d : %5d  %5d\n",nnn.c_str(), lumpSum[m], kMSp, kMSp2);
+                }
+#endif
+            }
+
+            /*
+             * Formulate the matrix.
+             */
+            for (im = 0; im < m_mm; im++) {
+                m = m_orderVectorElements[im];
+                if (im < m_nComponents) {
+                    for (n = 0; n < m_mm; n++) {
+                        a1(m,n) = 0.0;
+                        for (k = 0; k < m_kk; k++) {
+                            a1(m,n) += nAtoms(k,m) * nAtoms(k,n) * n_i_calc[k];
+                        }
+                    }
+                    a1(m,m_mm) = eMolesCalc[m];
+                    a1(m_mm, m) = eMolesCalc[m];
+                } else {
+                    for (n = 0; n <= m_mm; n++) {
+                        a1(m,n) = 0.0;
+                    }
+                    a1(m,m) = 1.0;
+                }
+            }
+            a1(m_mm, m_mm) = 0.0;
+
+            /*
+             * Formulate the residual, resid, and the estimate for the convergence criteria, sum
+             */
+            sum = 0.0;
+            for (im = 0; im < m_mm; im++) {
+                m = m_orderVectorElements[im];
+                if (im < m_nComponents) {
+                    resid[m] = elMoles[m] - eMolesCalc[m];
+                } else {
+                    resid[m] = 0.0;
+                }
+                /*
+                 * For equations with positive and negative coefficients, (electronic charge),
+                 * we must mitigate the convergence criteria by a condition limited by
+                 * finite precision of inverting a matrix.
+                 * Other equations with just positive coefficients aren't limited by this.
+                 */
+                if (m == m_eloc) {
+                    tmp = resid[m] / (elMoles[m] + elMolesTotal*1.0E-6 + options.absElemTol);
+                } else {
+                    tmp = resid[m] / (elMoles[m] + options.absElemTol);
+                }
+                sum += tmp * tmp;
+            }
+
+            for (m = 0; m < m_mm; m++) {
+                if (a1(m,m) < 1.0E-50) {
+#ifdef DEBUG_MODE
+                    if (ChemEquil_print_lvl > 0) {
+                        writelogf(" NOTE: Diagonalizing the analytical Jac row %d\n", m);
+                    }
+#endif
+                    for (n = 0; n < m_mm; n++) {
+                        a1(m,n) = 0.0;
+                    }
+                    a1(m,m) = 1.0;
+                    if (resid[m] > 0.0) {
+                        resid[m] = 1.0;
+                    } else if (resid[m] < 0.0) {
+                        resid[m] = -1.0;
+                    } else {
+                        resid[m] = 0.0;
+                    }
+                }
+            }
+
+
+            resid[m_mm] = n_t - n_t_calc;
+
+#ifdef DEBUG_MODE
+            if (ChemEquil_print_lvl > 0) {
+                writelog("Matrix:\n");
+                for (m = 0; m <= m_mm; m++) {
+                    writelog("       [");
+                    for (n = 0; n <= m_mm; n++) {
+                        writelogf(" %10.5g", a1(m,n));
+                    }
+                    writelogf("]  =   %10.5g\n", resid[m]);
+                }
+            }
+#endif
+
+            tmp = resid[m_mm] /(n_t + 1.0E-15);
+            sum += tmp * tmp;
+#ifdef DEBUG_MODE
+            if (ChemEquil_print_lvl > 0) {
+                writelogf("(it %d) Convergence = %g\n", iter, sum);
+            }
+#endif
+            /*
+             * Insist on 20x accuracy compared to the top routine.
+             * There are instances, for ill-conditioned or
+             * singular matrices where this is needed to move
+             * the system to a point where the matrices aren't
+             * singular.
+             */
+            if (sum < 0.05 * options.relTolerance) {
+                retn = 0;
+                break;
+            }
+
+            /*
+             * Row Sum scaling
+             */
+            for (m = 0; m <= m_mm; m++) {
+                tmp = 0.0;
+                for (n = 0; n <= m_mm; n++) {
+                    tmp += fabs(a1(m,n));
+                }
+                if (m < m_mm && tmp < 1.0E-30) {
+#ifdef DEBUG_MODE
+                    if (ChemEquil_print_lvl > 0) {
+                        writelogf(" NOTE: Diagonalizing row %d\n", m);
+                    }
+#endif
+                    for (n = 0; n <= m_mm; n++) {
+                        if (n != m) {
+                            a1(m,n) = 0.0;
+                            a1(n,m) = 0.0;
+                        }
+                    }
+                }
+                tmp = 1.0/tmp;
+                for (n = 0; n <= m_mm; n++) {
+                    a1(m,n) *= tmp;
+                }
+                resid[m] *= tmp;
+            }
+
+#ifdef DEBUG_MODE
+            if (ChemEquil_print_lvl > 0) {
+                writelog("Row Summed Matrix:\n");
+                for (m = 0; m <= m_mm; m++) {
+                    writelog("       [");
+                    for (n = 0; n <= m_mm; n++) {
+                        writelogf(" %10.5g", a1(m,n));
+                    }
+                    writelogf("]  =   %10.5g\n", resid[m]);
+                }
+            }
+#endif
+            /*
+             * Next Step: We have row-summed the equations.
+             * However, there are some degenerate cases where two
+             * rows will be multiplies of each other in terms of
+             * 0 < m, 0 < m part of the matrix. This occurs on a case
+             * by case basis, and depends upon the current state of the
+             * element potential values, which affect the concentrations
+             * of species.
+             * So, the way we have found to eliminate this problem is to
+             * lump-sum one of the rows of the matrix, except for the
+             * last column, and stick it all on the diagonal.
+             * Then, we at least have a non-singular matrix, and the
+             * modified equation moves the corresponding unknown in the
+             * correct direction.
+             * The previous row-sum operation has made the identification
+             * of identical rows much simpler.
+             *
+             * Note at least 6E-4 is necessary for the comparison.
+             * I'm guessing 1.0E-3. If two rows are anywhere close to being
+             * equivalent, the algorithm can get stuck in an oscillatory mode.
+             */
+            modifiedMatrix = false;
+            for (m = 0; m < m_mm; m++) {
+                size_t sameAsRow = npos;
+                for (size_t im = 0; im < m; im++) {
+                    bool theSame = true;
+                    for (n = 0; n < m_mm; n++) {
+                        if (fabs(a1(m,n) - a1(im,n)) > 1.0E-7) {
+                            theSame = false;
+                            break;
+                        }
+                    }
+                    if (theSame) {
+                        sameAsRow = im;
+                    }
+                }
+                if (sameAsRow != npos || lumpSum[m]) {
+#ifdef DEBUG_MODE
+                    if (ChemEquil_print_lvl > 0) {
+                        if (lumpSum[m]) {
+                            writelogf("Lump summing row %d, due to rank deficiency analysis\n", m);
+                        } else if (sameAsRow != npos) {
+                            writelogf("Identified that rows %d and %d are the same\n", m, sameAsRow);
+                        }
+                    }
+#endif
+                    modifiedMatrix = true;
+                    for (n = 0; n < m_mm; n++) {
+                        if (n != m) {
+                            a1(m,m) += fabs(a1(m,n));
+                            a1(m,n) = 0.0;
+                        }
+                    }
+                }
+            }
+
+            if (DEBUG_MODE_ENABLED && ChemEquil_print_lvl > 0 && modifiedMatrix) {
+                writelog("Row Summed, MODIFIED Matrix:\n");
+                for (m = 0; m <= m_mm; m++) {
+                    writelog("       [");
+                    for (n = 0; n <= m_mm; n++) {
+                        writelogf(" %10.5g", a1(m,n));
+                    }
+                    writelogf("]  =   %10.5g\n", resid[m]);
+                }
+            }
+
+            try {
+                solve(a1, DATA_PTR(resid));
+            } catch (CanteraError& err) {
+                err.save();
+#ifdef DEBUG_MODE
+                writelog("Matrix is SINGULAR.ERROR\n", ChemEquil_print_lvl);
+#endif
+                s.restoreState(state);
+                throw CanteraError("equilibrate:estimateEP_Brinkley()",
+                                   "Jacobian is singular. \nTry adding more species, "
+                                   "changing the elemental composition slightly, \nor removing "
+                                   "unused elements.");
+                //return -3;
+            }
+
+            /*
+             * Figure out the damping coefficient: Use a delta damping
+             * coefficient formulation: magnitude of change is capped
+             * to exp(1).
+             */
+            beta = 1.0;
+            for (m = 0; m < m_mm; m++) {
+                if (resid[m] > 1.0) {
+                    double betat = 1.0 / resid[m];
+                    if (betat < beta) {
+                        beta = betat;
+                    }
+                }
+                if (resid[m] < -1.0) {
+                    double betat = -1.0 / resid[m];
+                    if (betat < beta) {
+                        beta = betat;
                     }
                 }
             }
 #ifdef DEBUG_MODE
             if (ChemEquil_print_lvl > 0) {
-                string nnn = eNames[m];
-                writelogf("               %5s %3d : %5d  %5d\n",nnn.c_str(), lumpSum[m], kMSp, kMSp2);
+                if (beta != 1.0) {
+                    writelogf("(it %d) Beta = %g\n", iter, beta);
+                }
             }
 #endif
         }
-
-        /*
-         * Formulate the matrix.
-         */
-        for (im = 0; im < m_mm; im++) {
-            m = m_orderVectorElements[im];
-            if (im < m_nComponents) {
-                for (n = 0; n < m_mm; n++) {
-                    a1(m,n) = 0.0;
-                    for (k = 0; k < m_kk; k++) {
-                        a1(m,n) += nAtoms(k,m) * nAtoms(k,n) * n_i_calc[k];
-                    }
-                }
-                a1(m,m_mm) = eMolesCalc[m];
-                a1(m_mm, m) = eMolesCalc[m];
-            } else {
-                for (n = 0; n <= m_mm; n++) {
-                    a1(m,n) = 0.0;
-                }
-                a1(m,m) = 1.0;
-            }
-        }
-        a1(m_mm, m_mm) = 0.0;
-
-        /*
-         * Formulate the residual, resid, and the estimate for the convergence criteria, sum
-         */
-        sum = 0.0;
-        for (im = 0; im < m_mm; im++) {
-            m = m_orderVectorElements[im];
-            if (im < m_nComponents) {
-                resid[m] = elMoles[m] - eMolesCalc[m];
-            } else {
-                resid[m] = 0.0;
-            }
-            /*
-             * For equations with positive and negative coefficients, (electronic charge),
-             * we must mitigate the convergence criteria by a condition limited by
-             * finite precision of inverting a matrix.
-             * Other equations with just positive coefficients aren't limited by this.
-             */
-            if (m == m_eloc) {
-                tmp = resid[m] / (elMoles[m] + elMolesTotal*1.0E-6 + options.absElemTol);
-            } else {
-                tmp = resid[m] / (elMoles[m] + options.absElemTol);
-            }
-            sum += tmp * tmp;
-        }
-
-        for (m = 0; m < m_mm; m++) {
-            if (a1(m,m) < 1.0E-50) {
-#ifdef DEBUG_MODE
-                if (ChemEquil_print_lvl > 0) {
-                    writelogf(" NOTE: Diagonalizing the analytical Jac row %d\n", m);
-                }
-#endif
-                for (n = 0; n < m_mm; n++) {
-                    a1(m,n) = 0.0;
-                }
-                a1(m,m) = 1.0;
-                if (resid[m] > 0.0) {
-                    resid[m] = 1.0;
-                } else if (resid[m] < 0.0) {
-                    resid[m] = -1.0;
-                } else {
-                    resid[m] = 0.0;
-                }
-            }
-        }
-
-
-        resid[m_mm] = n_t - n_t_calc;
-
-#ifdef DEBUG_MODE
-        if (ChemEquil_print_lvl > 0) {
-            writelog("Matrix:\n");
-            for (m = 0; m <= m_mm; m++) {
-                writelog("       [");
-                for (n = 0; n <= m_mm; n++) {
-                    writelogf(" %10.5g", a1(m,n));
-                }
-                writelogf("]  =   %10.5g\n", resid[m]);
-            }
-        }
-#endif
-
-        tmp = resid[m_mm] /(n_t + 1.0E-15);
-        sum += tmp * tmp;
-#ifdef DEBUG_MODE
-        if (ChemEquil_print_lvl > 0) {
-            writelogf("(it %d) Convergence = %g\n", iter, sum);
-        }
-#endif
-        /*
-         * Insist on 20x accuracy compared to the top routine.
-         * There are instances, for ill-conditioned or
-         * singular matrices where this is needed to move
-         * the system to a point where the matrices aren't
-         * singular.
-         */
-        if (sum < 0.05 * options.relTolerance) {
-            retn = 0;
-            goto exit;
-        }
-
-        /*
-         * Row Sum scaling
-         */
-        for (m = 0; m <= m_mm; m++) {
-            tmp = 0.0;
-            for (n = 0; n <= m_mm; n++) {
-                tmp += fabs(a1(m,n));
-            }
-            if (m < m_mm && tmp < 1.0E-30) {
-#ifdef DEBUG_MODE
-                if (ChemEquil_print_lvl > 0) {
-                    writelogf(" NOTE: Diagonalizing row %d\n", m);
-                }
-#endif
-                for (n = 0; n <= m_mm; n++) {
-                    if (n != m) {
-                        a1(m,n) = 0.0;
-                        a1(n,m) = 0.0;
-                    }
-                }
-            }
-            tmp = 1.0/tmp;
-            for (n = 0; n <= m_mm; n++) {
-                a1(m,n) *= tmp;
-            }
-            resid[m] *= tmp;
-        }
-
-#ifdef DEBUG_MODE
-        if (ChemEquil_print_lvl > 0) {
-            writelog("Row Summed Matrix:\n");
-            for (m = 0; m <= m_mm; m++) {
-                writelog("       [");
-                for (n = 0; n <= m_mm; n++) {
-                    writelogf(" %10.5g", a1(m,n));
-                }
-                writelogf("]  =   %10.5g\n", resid[m]);
-            }
-        }
-#endif
-        /*
-         * Next Step: We have row-summed the equations.
-         * However, there are some degenerate cases where two
-         * rows will be multiplies of each other in terms of
-         * 0 < m, 0 < m part of the matrix. This occurs on a case
-         * by case basis, and depends upon the current state of the
-         * element potential values, which affect the concentrations
-         * of species.
-         * So, the way we have found to eliminate this problem is to
-         * lump-sum one of the rows of the matrix, except for the
-         * last column, and stick it all on the diagonal.
-         * Then, we at least have a non-singular matrix, and the
-         * modified equation moves the corresponding unknown in the
-         * correct direction.
-         * The previous row-sum operation has made the identification
-         * of identical rows much simpler.
-         *
-         * Note at least 6E-4 is necessary for the comparison.
-         * I'm guessing 1.0E-3. If two rows are anywhere close to being
-         * equivalent, the algorithm can get stuck in an oscillatory mode.
-         */
-        modifiedMatrix = false;
-        for (m = 0; m < m_mm; m++) {
-            size_t sameAsRow = npos;
-            for (size_t im = 0; im < m; im++) {
-                bool theSame = true;
-                for (n = 0; n < m_mm; n++) {
-                    if (fabs(a1(m,n) - a1(im,n)) > 1.0E-7) {
-                        theSame = false;
-                        break;
-                    }
-                }
-                if (theSame) {
-                    sameAsRow = im;
-                }
-            }
-            if (sameAsRow != npos || lumpSum[m]) {
-#ifdef DEBUG_MODE
-                if (ChemEquil_print_lvl > 0) {
-                    if (lumpSum[m]) {
-                        writelogf("Lump summing row %d, due to rank deficiency analysis\n", m);
-                    } else if (sameAsRow != npos) {
-                        writelogf("Identified that rows %d and %d are the same\n", m, sameAsRow);
-                    }
-                }
-#endif
-                modifiedMatrix = true;
-                for (n = 0; n < m_mm; n++) {
-                    if (n != m) {
-                        a1(m,m) += fabs(a1(m,n));
-                        a1(m,n) = 0.0;
-                    }
-                }
-            }
-        }
-
-        if (DEBUG_MODE_ENABLED && ChemEquil_print_lvl > 0 && modifiedMatrix) {
-            writelog("Row Summed, MODIFIED Matrix:\n");
-            for (m = 0; m <= m_mm; m++) {
-                writelog("       [");
-                for (n = 0; n <= m_mm; n++) {
-                    writelogf(" %10.5g", a1(m,n));
-                }
-                writelogf("]  =   %10.5g\n", resid[m]);
-            }
-        }
-
-        try {
-            solve(a1, DATA_PTR(resid));
-        } catch (CanteraError& err) {
-            err.save();
-#ifdef DEBUG_MODE
-            writelog("Matrix is SINGULAR.ERROR\n", ChemEquil_print_lvl);
-#endif
-            s.restoreState(state);
-            throw CanteraError("equilibrate:estimateEP_Brinkley()",
-                               "Jacobian is singular. \nTry adding more species, "
-                               "changing the elemental composition slightly, \nor removing "
-                               "unused elements.");
-            //return -3;
-        }
-
-        /*
-         * Figure out the damping coefficient: Use a delta damping
-         * coefficient formulation: magnitude of change is capped
-         * to exp(1).
-         */
-        beta = 1.0;
-        for (m = 0; m < m_mm; m++) {
-            if (resid[m] > 1.0) {
-                double betat = 1.0 / resid[m];
-                if (betat < beta) {
-                    beta = betat;
-                }
-            }
-            if (resid[m] < -1.0) {
-                double betat = -1.0 / resid[m];
-                if (betat < beta) {
-                    beta = betat;
-                }
-            }
-        }
-#ifdef DEBUG_MODE
-        if (ChemEquil_print_lvl > 0) {
-            if (beta != 1.0) {
-                writelogf("(it %d) Beta = %g\n", iter, beta);
-            }
-        }
-#endif
-
         /*
          * Update the solution vector
          */
-updateSolnVector:
         for (m = 0; m < m_mm; m++) {
             x[m] += beta * resid[m];
         }
         n_t *= exp(beta * resid[m_mm]);
-
 
 #ifdef DEBUG_MODE
         if (ChemEquil_print_lvl > 0) {
@@ -1609,7 +1604,6 @@ updateSolnVector:
         }
 #endif
     }
-exit:
 #ifdef DEBUG_MODE
     if (ChemEquil_print_lvl > 0) {
         double temp = s.temperature();
