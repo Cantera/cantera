@@ -1085,18 +1085,6 @@ void DebyeHuckel::initThermoXML(XML_Node& phaseNode, const std::string& id_)
 
 }
 
-void DebyeHuckel::setParameters(int n, doublereal* const c)
-{
-}
-
-void DebyeHuckel::getParameters(int& n, doublereal* const c) const
-{
-}
-
-void DebyeHuckel::setParametersFromXML(const XML_Node& eosdata)
-{
-}
-
 double DebyeHuckel::A_Debye_TP(double tempArg, double presArg) const
 {
     double T = temperature();
