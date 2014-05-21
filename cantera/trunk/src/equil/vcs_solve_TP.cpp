@@ -16,6 +16,7 @@
 #include "cantera/base/ctexceptions.h"
 #include "cantera/base/clockWC.h"
 #include "cantera/base/stringUtils.h"
+#include "cantera/numerics/ctlapack.h"
 
 #include <cstdio>
 
@@ -2942,6 +2943,8 @@ int VCS_SOLVE::vcs_basopt(const bool doJustComponents, double aw[], double sa[],
     ncTrial = std::min(m_numElemConstraints, m_numSpeciesTot);
     m_numComponents = ncTrial;
     *usedZeroedSpecies = false;
+    vector_int ipiv(ncTrial);
+    int info;
 
     /*
      *     Use a temporary work array for the mole numbers, aw[]
@@ -3242,22 +3245,18 @@ L_END_LOOP:
     for (i = 0; i < m_numRxnTot; ++i) {
         k = m_indexRxnToSpecies[i];
         for (j = 0; j < ncTrial; ++j) {
-            m_stoichCoeffRxnMatrix[i][j] = m_formulaMatrix[j][k];
+            m_stoichCoeffRxnMatrix[i][j] = - m_formulaMatrix[j][k];
         }
     }
-    /*
-     *     Use Gauss-Jordan block elimination to calculate
-     *     the reaction matrix, m_stoichCoeffRxnMatrix[][].
-     */
-
-    j = vcsUtil_gaussj(sm, m_numElemConstraints, ncTrial, m_stoichCoeffRxnMatrix[0], m_numRxnTot);
-    // j = vcsUtil_mlequ(sm, m_numElemConstraints, ncTrial, m_stoichCoeffRxnMatrix[0], m_numRxnTot);
-
-
-    if (j == 1) {
-        plogf("vcs_solve_TP ERROR: mlequ returned an error condition\n");
-        return  VCS_FAILED_CONVERGENCE;
+    // Solve the linear system to calculate the reaction matrix,
+    // m_stoichCoeffRxnMatrix[][].
+    ct_dgetrf(ncTrial, ncTrial, sm, m_numElemConstraints, &ipiv[0], info);
+    if (info) {
+        plogf("vcs_solve_TP ERROR: Error factorizing stoichiometric coefficient matrix\n");
+        return VCS_FAILED_CONVERGENCE;
     }
+    ct_dgetrs(ctlapack::NoTranspose, ncTrial, m_numRxnTot, sm, m_numElemConstraints,
+              &ipiv[0], m_stoichCoeffRxnMatrix[0], m_numElemConstraints, info);
 
     /*
      * NOW, if we have interfacial voltage unknowns, what we did
@@ -3296,19 +3295,20 @@ L_END_LOOP:
                 k = m_indexRxnToSpecies[i];
                 for (j = 0; j < ncTrial; ++j) {
                     if (j == jlose) {
-                        aw[j] = m_formulaMatrix[juse][k];
+                        aw[j] = - m_formulaMatrix[juse][k];
                     } else {
-                        aw[j] = m_formulaMatrix[j][k];
+                        aw[j] = - m_formulaMatrix[j][k];
                     }
                 }
             }
 
-            j = vcsUtil_gaussj(sm, m_numElemConstraints, ncTrial, aw, 1);
-            // j = vcsUtil_mlequ(sm, m_numElemConstraints, ncTrial, aw, 1);
-            if (j == 1) {
-                plogf("vcs_solve_TP ERROR: mlequ returned an error condition\n");
-                return  VCS_FAILED_CONVERGENCE;
+            ct_dgetrf(ncTrial, ncTrial, sm, m_numElemConstraints, &ipiv[0], info);
+            if (info) {
+                plogf("vcs_solve_TP ERROR: Error factorizing matrix\n");
+                return VCS_FAILED_CONVERGENCE;
             }
+            ct_dgetrs(ctlapack::NoTranspose, ncTrial, 1, sm, m_numElemConstraints,
+                      &ipiv[0], aw, m_numElemConstraints, info);
             i = k - ncTrial;
             for (j = 0; j < ncTrial; j++) {
                 m_stoichCoeffRxnMatrix[i][j] = aw[j];

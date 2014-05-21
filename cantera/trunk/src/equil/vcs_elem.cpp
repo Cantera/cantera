@@ -4,10 +4,14 @@
  *  element abundances constraints and the algorithm for fixing violations
  *  of the element abundances constraints.
  */
+#include "cantera/base/ct_defs.h"
 #include "cantera/equil/vcs_solve.h"
 #include "cantera/equil/vcs_internal.h"
 #include "cantera/base/ctexceptions.h"
+#include "cantera/numerics/ctlapack.h"
 #include "math.h"
+
+using namespace Cantera;
 
 namespace VCSnonideal
 {
@@ -266,14 +270,19 @@ int VCS_SOLVE::vcs_elcorr(double aa[], double x[])
             retn = 1;
         }
         for (size_t j = 0; j < m_numComponents; ++j) {
-            aa[j + i*m_numElemConstraints] = m_formulaMatrix[j][i];
+            aa[j + i*m_numElemConstraints] = - m_formulaMatrix[j][i];
         }
     }
-    int err = vcsUtil_mlequ(aa, m_numElemConstraints, m_numComponents, x, 1);
-    if (err == 1) {
-        plogf("vcs_elcorr ERROR: mlequ returned error condition\n");
+    int info;
+    vector_int ipiv(std::min(m_numComponents, m_numElemConstraints));
+    ct_dgetrf(m_numComponents, m_numComponents, aa, m_numElemConstraints,
+              &ipiv[0], info);
+    if (info) {
+        plogf("vcs_elcorr ERROR: matrix factorization\n");
         return VCS_FAILED_CONVERGENCE;
     }
+    ct_dgetrs(ctlapack::NoTranspose, m_numComponents, 1, aa,
+              m_numElemConstraints, &ipiv[0], x, m_numElemConstraints, info);
     /*
      * Now apply the new direction without creating negative species.
      */
