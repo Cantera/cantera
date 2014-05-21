@@ -128,7 +128,7 @@ public:
     //! @{
 
     virtual void setTemperature(doublereal temp);
-    doublereal temperature() const;
+    virtual doublereal temperature() const;
     virtual void setState_TP(doublereal temp, doublereal pres);
     virtual void setState_TR(doublereal temp, doublereal rho);
 

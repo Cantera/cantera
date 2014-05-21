@@ -439,7 +439,7 @@ public:
     virtual void setTemperature(doublereal temp);
 
     //! Return the current stored temperature
-    doublereal temperature() const;
+    virtual doublereal temperature() const;
 
     //! Set the internal temperature and pressure
     /*!
