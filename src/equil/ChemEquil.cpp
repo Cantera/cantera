@@ -686,195 +686,182 @@ int ChemEquil::equilibrate(thermo_t& s, const char* XYstr,
     vector_fp oldresid(nvar, 0.0);
     doublereal f, oldf;
 
-    int iter = 0;
     doublereal fctr = 1.0, newval;
 
-    goto converge;
-next:
-
-    iter++;
-
-    // compute the residual and the jacobian using the current
-    // solution vector
-    equilResidual(s, x, elMolesGoal, res_trial, xval, yval);
-    f = 0.5*dot(res_trial.begin(), res_trial.end(), res_trial.begin());
-
-    // Compute the Jacobian matrix
-    equilJacobian(s, x, elMolesGoal, jac, xval, yval);
-
-#ifdef DEBUG_MODE
-    if (ChemEquil_print_lvl > 0) {
-        writelogf("Jacobian matrix %d:\n", iter);
-        for (m = 0; m <= m_mm; m++) {
-            writelog("      [ ");
-            for (n = 0; n <= m_mm; n++) {
-                writelogf("%10.5g ", jac(m,n));
-            }
-            writelog(" ]");
-            char xName[32];
-            if (m < m_mm) {
-                string nnn = eNames[m];
-                sprintf(xName, "x_%-10s", nnn.c_str());
-            } else {
-                sprintf(xName, "x_XX");
-            }
-            if (m_eloc == m) {
-                sprintf(xName, "x_ELOC");
-            }
-            if (m == m_skip) {
-                sprintf(xName, "x_YY");
-            }
-            writelogf("%-12s", xName);
-            writelogf(" =  - (%10.5g)\n", res_trial[m]);
-        }
-    }
-#endif
-
-    copy(x.begin(), x.end(), oldx.begin());
-    oldf = f;
-    scale(res_trial.begin(), res_trial.end(), res_trial.begin(), -1.0);
-
-    /*
-     * Solve the system
-     */
-    try {
-        info = solve(jac, DATA_PTR(res_trial));
-    } catch (CanteraError& err) {
-        err.save();
-        s.restoreState(state);
-
-        throw CanteraError("equilibrate",
-                           "Jacobian is singular. \nTry adding more species, "
-                           "changing the elemental composition slightly, \nor removing "
-                           "unused elements.");
-        //return -3;
-    }
-
-    // find the factor by which the Newton step can be multiplied
-    // to keep the solution within bounds.
-    fctr = 1.0;
-    for (m = 0; m < nvar; m++) {
-        newval = x[m] + res_trial[m];
-        if (newval > above[m]) {
-            fctr = std::max(0.0,
-                            std::min(fctr,0.8*(above[m] - x[m])/(newval - x[m])));
-        } else if (newval < below[m]) {
-            if (m < m_mm && (m != m_skip)) {
-                res_trial[m] = -50;
-                if (x[m] < below[m] + 50.) {
-                    res_trial[m] = below[m] - x[m];
+    for (int iter = 0; iter < options.maxIterations; iter++)
+    {
+    //  check for convergence.
+        equilResidual(s, x, elMolesGoal, res_trial, xval, yval);
+        f = 0.5*dot(res_trial.begin(), res_trial.end(), res_trial.begin());
+        doublereal xx, yy, deltax, deltay;
+        xx = m_p1->value(s);
+        yy = m_p2->value(s);
+        deltax = (xx - xval)/xval;
+        deltay = (yy - yval)/yval;
+        bool passThis = true;
+        for (m = 0; m < nvar; m++) {
+            double tval =  options.relTolerance;
+            if (m < mm) {
+                /*
+                 * Special case convergence requirements for electron element.
+                 * This is a special case because the element coefficients may
+                 * be both positive and negative. And, typically they sum to 0.0.
+                 * Therefore, there is no natural absolute value for this quantity.
+                 * We supply the absolute value tolerance here. Note, this is
+                 * made easier since the element abundances are normalized to one
+                 * within this routine.
+                 *
+                 * Note, the 1.0E-13 value was recently relaxed from 1.0E-15, because
+                 * convergence failures were found to occur for the lower value
+                 * at small pressure (0.01 pascal).
+                 */
+                if (m == m_eloc) {
+                    tval = elMolesGoal[m] * options.relTolerance + options.absElemTol
+                           + 1.0E-13;
+                } else {
+                    tval = elMolesGoal[m] * options.relTolerance + options.absElemTol;
                 }
-            } else {
-                fctr = std::min(fctr, 0.8*(x[m] - below[m])/(x[m] - newval));
+            }
+            if (fabs(res_trial[m]) > tval) {
+                passThis = false;
             }
         }
-        // Delta Damping
-        if (m == mm) {
-            if (fabs(res_trial[mm]) > 0.2) {
-                fctr = std::min(fctr, 0.2/fabs(res_trial[mm]));
+        if (iter > 0 && passThis && fabs(deltax) < options.relTolerance
+                && fabs(deltay) < options.relTolerance) {
+            options.iterations = iter;
+            doublereal rt = GasConstant* s.temperature();
+            for (m = 0; m < m_mm; m++) {
+                m_lambda[m] = x[m]*rt;
             }
+
+            if (m_eloc != npos) {
+                adjustEloc(s, elMolesGoal);
+            }
+            /*
+             * Save the calculated and converged element potentials
+             * to the original ThermoPhase object.
+             */
+            s.setElementPotentials(m_lambda);
+            if (s.temperature() > s.maxTemp() + 1.0 ||
+                    s.temperature() < s.minTemp() - 1.0) {
+                writelog("Warning: Temperature ("
+                         +fp2str(s.temperature())+" K) outside "
+                         "valid range of "+fp2str(s.minTemp())+" K to "
+                         +fp2str(s.maxTemp())+" K\n");
+            }
+            return 0;
         }
-    }
-    if (fctr != 1.0) {
+        // compute the residual and the jacobian using the current
+        // solution vector
+        equilResidual(s, x, elMolesGoal, res_trial, xval, yval);
+        f = 0.5*dot(res_trial.begin(), res_trial.end(), res_trial.begin());
+
+        // Compute the Jacobian matrix
+        equilJacobian(s, x, elMolesGoal, jac, xval, yval);
+
 #ifdef DEBUG_MODE
         if (ChemEquil_print_lvl > 0) {
-            writelogf("WARNING Soln Damping because of bounds: %g\n", fctr);
-        }
-#endif
-    }
-
-    // multiply the step by the scaling factor
-    scale(res_trial.begin(), res_trial.end(), res_trial.begin(), fctr);
-
-    if (!dampStep(s, oldx, oldf, grad, res_trial,
-                  x, f, elMolesGoal , xval, yval)) {
-        fail++;
-        if (fail > 3) {
-            s.restoreState(state);
-            throw CanteraError("equilibrate",
-                               "Cannot find an acceptable Newton damping coefficient.");
-            //return -4;
-        }
-    } else {
-        fail = 0;
-    }
-
-converge:
-
-    //  check for convergence.
-    equilResidual(s, x, elMolesGoal, res_trial, xval, yval);
-    f = 0.5*dot(res_trial.begin(), res_trial.end(), res_trial.begin());
-    doublereal xx, yy, deltax, deltay;
-    xx = m_p1->value(s);
-    yy = m_p2->value(s);
-    deltax = (xx - xval)/xval;
-    deltay = (yy - yval)/yval;
-    bool passThis = true;
-    for (m = 0; m < nvar; m++) {
-        double tval =  options.relTolerance;
-        if (m < mm) {
-            /*
-             * Special case convergence requirements for electron element.
-             * This is a special case because the element coefficients may
-             * be both positive and negative. And, typically they sum to 0.0.
-             * Therefore, there is no natural absolute value for this quantity.
-             * We supply the absolute value tolerance here. Note, this is
-             * made easier since the element abundances are normalized to one
-             * within this routine.
-             *
-             * Note, the 1.0E-13 value was recently relaxed from 1.0E-15, because
-             * convergence failures were found to occur for the lower value
-             * at small pressure (0.01 pascal).
-             */
-            if (m == m_eloc) {
-                tval = elMolesGoal[m] * options.relTolerance + options.absElemTol
-                       + 1.0E-13;
-            } else {
-                tval = elMolesGoal[m] * options.relTolerance + options.absElemTol;
+            writelogf("Jacobian matrix %d:\n", iter);
+            for (m = 0; m <= m_mm; m++) {
+                writelog("      [ ");
+                for (n = 0; n <= m_mm; n++) {
+                    writelogf("%10.5g ", jac(m,n));
+                }
+                writelog(" ]");
+                char xName[32];
+                if (m < m_mm) {
+                    string nnn = eNames[m];
+                    sprintf(xName, "x_%-10s", nnn.c_str());
+                } else {
+                    sprintf(xName, "x_XX");
+                }
+                if (m_eloc == m) {
+                    sprintf(xName, "x_ELOC");
+                }
+                if (m == m_skip) {
+                    sprintf(xName, "x_YY");
+                }
+                writelogf("%-12s", xName);
+                writelogf(" =  - (%10.5g)\n", res_trial[m]);
             }
         }
-        if (fabs(res_trial[m]) > tval) {
-            passThis = false;
-        }
-    }
-    if (iter > 0 && passThis
-            && fabs(deltax) < options.relTolerance
-            && fabs(deltay) < options.relTolerance) {
-        options.iterations = iter;
-        doublereal rt = GasConstant* s.temperature();
-        for (m = 0; m < m_mm; m++) {
-            m_lambda[m] = x[m]*rt;
+#endif
+
+        copy(x.begin(), x.end(), oldx.begin());
+        oldf = f;
+        scale(res_trial.begin(), res_trial.end(), res_trial.begin(), -1.0);
+
+        /*
+         * Solve the system
+         */
+        try {
+            info = solve(jac, DATA_PTR(res_trial));
+        } catch (CanteraError& err) {
+            err.save();
+            s.restoreState(state);
+
+            throw CanteraError("equilibrate",
+                               "Jacobian is singular. \nTry adding more species, "
+                               "changing the elemental composition slightly, \nor removing "
+                               "unused elements.");
         }
 
-        if (m_eloc != npos) {
-            adjustEloc(s, elMolesGoal);
+        // find the factor by which the Newton step can be multiplied
+        // to keep the solution within bounds.
+        fctr = 1.0;
+        for (m = 0; m < nvar; m++) {
+            newval = x[m] + res_trial[m];
+            if (newval > above[m]) {
+                fctr = std::max(0.0,
+                                std::min(fctr,0.8*(above[m] - x[m])/(newval - x[m])));
+            } else if (newval < below[m]) {
+                if (m < m_mm && (m != m_skip)) {
+                    res_trial[m] = -50;
+                    if (x[m] < below[m] + 50.) {
+                        res_trial[m] = below[m] - x[m];
+                    }
+                } else {
+                    fctr = std::min(fctr, 0.8*(x[m] - below[m])/(x[m] - newval));
+                }
+            }
+            // Delta Damping
+            if (m == mm) {
+                if (fabs(res_trial[mm]) > 0.2) {
+                    fctr = std::min(fctr, 0.2/fabs(res_trial[mm]));
+                }
+            }
         }
-        /*
-         * Save the calculated and converged element potentials
-         * to the original ThermoPhase object.
-         */
-        s.setElementPotentials(m_lambda);
-        if (s.temperature() > s.maxTemp() + 1.0 ||
-                s.temperature() < s.minTemp() - 1.0) {
-            writelog("Warning: Temperature ("
-                     +fp2str(s.temperature())+" K) outside "
-                     "valid range of "+fp2str(s.minTemp())+" K to "
-                     +fp2str(s.maxTemp())+" K\n");
+        if (fctr != 1.0) {
+#ifdef DEBUG_MODE
+            if (ChemEquil_print_lvl > 0) {
+                writelogf("WARNING Soln Damping because of bounds: %g\n", fctr);
+            }
+#endif
         }
-        return 0;
+
+        // multiply the step by the scaling factor
+        scale(res_trial.begin(), res_trial.end(), res_trial.begin(), fctr);
+
+        if (!dampStep(s, oldx, oldf, grad, res_trial,
+                      x, f, elMolesGoal , xval, yval)) {
+            fail++;
+            if (fail > 3) {
+                s.restoreState(state);
+                throw CanteraError("equilibrate",
+                                   "Cannot find an acceptable Newton damping coefficient.");
+            }
+        } else {
+            fail = 0;
+        }
     }
 
     // no convergence
-
-    if (iter > options.maxIterations) {
-        s.restoreState(state);
-        throw CanteraError("equilibrate",
-                           "no convergence in "+int2str(options.maxIterations)
-                           +" iterations.");
-        //return -1;
-    }
-    goto next;
+    s.restoreState(state);
+    throw CanteraError("equilibrate",
+                       "no convergence in "+int2str(options.maxIterations)
+                       +" iterations.");
 }
+
 
 int ChemEquil::dampStep(thermo_t& mix, vector_fp& oldx,
                         double oldf, vector_fp& grad, vector_fp& step, vector_fp& x,
