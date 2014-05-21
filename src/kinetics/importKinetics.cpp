@@ -569,27 +569,27 @@ void getRateCoefficient(const XML_Node& kf, Kinetics& kin,
 doublereal isDuplicateReaction(std::map<int, doublereal>& r1,
                                std::map<int, doublereal>& r2)
 {
-
     map<int, doublereal>::const_iterator b = r1.begin(), e = r1.end();
     int k1 = b->first;
+    // check for duplicate written in the same direction
     doublereal ratio = 0.0;
-    if (r1[k1] == 0.0 || r2[k1] == 0.0) {
-        goto next;
-    }
-    ratio = r2[k1]/r1[k1];
-    ++b;
-    for (; b != e; ++b) {
-        k1 = b->first;
-        if (r1[k1] == 0.0 || r2[k1] == 0.0) {
-            goto next;
+    if (r1[k1] && r2[k1]) {
+        ratio = r2[k1]/r1[k1];
+        ++b;
+        bool different = false;
+        for (; b != e; ++b) {
+            k1 = b->first;
+            if (!r1[k1] || !r2[k1] || fabs(r2[k1]/r1[k1] - ratio) > 1.e-8) {
+                different = true;
+                break;
+            }
         }
-        if (fabs(r2[k1]/r1[k1] - ratio) > 1.e-8) {
-            goto next;
+        if (!different) {
+            return ratio;
         }
     }
-    return ratio;
-next:
-    ratio = 0.0;
+
+    // check for duplicate written in the reverse direction
     b = r1.begin();
     k1 = b->first;
     if (r1[k1] == 0.0 || r2[-k1] == 0.0) {
@@ -599,10 +599,7 @@ next:
     ++b;
     for (; b != e; ++b) {
         k1 = b->first;
-        if (r1[k1] == 0.0 || r2[-k1] == 0.0) {
-            return 0.0;
-        }
-        if (fabs(r2[-k1]/r1[k1] - ratio) > 1.e-8) {
+        if (!r1[k1] || !r2[-k1] || fabs(r2[-k1]/r1[k1] - ratio) > 1.e-8) {
             return 0.0;
         }
     }
