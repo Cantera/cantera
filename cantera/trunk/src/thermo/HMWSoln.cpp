@@ -983,18 +983,6 @@ void HMWSoln::getPartialMolarCp(doublereal* cpbar) const
  *  -------------- Utilities -------------------------------
  */
 
-void HMWSoln::setParameters(int n, doublereal* const c)
-{
-}
-
-void HMWSoln::getParameters(int& n, doublereal* const c) const
-{
-}
-
-void HMWSoln::setParametersFromXML(const XML_Node& eosdata)
-{
-}
-
 doublereal HMWSoln::satPressure(doublereal t) {
     double p_old = pressure();
     double t_old = temperature();

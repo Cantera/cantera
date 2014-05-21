@@ -1029,46 +1029,6 @@ public:
 
     //@}
 
-    //! Set the equation of state parameters
-    /*!
-     * @internal
-     *  The number and meaning of these depends on the subclass.
-     *
-     * @param n number of parameters
-     * @param c array of \a n coefficients
-     */
-    virtual void setParameters(int n, doublereal* const c);
-
-    //! Get the equation of state parameters in a vector
-    /*!
-     * @internal
-     * The number and meaning of these depends on the subclass.
-     *
-     * @param n number of parameters
-     * @param c array of \a n coefficients
-     */
-    virtual void getParameters(int& n, doublereal* const c) const;
-
-    //! Set equation of state parameter values from XML entries.
-    /*!
-     *
-     * This method is called by function importPhase() in
-     * file importCTML.cpp when processing a phase definition in
-     * an input file. It should be overloaded in subclasses to set
-     * any parameters that are specific to that particular phase
-     * model. Note, this method is called before the phase is
-     * initialized with elements and/or species.
-     *
-     * HKM -> Right now, the parameters are set elsewhere (initThermoXML)
-     *        It just didn't seem to fit.
-     *
-     * @param eosdata An XML_Node object corresponding to
-     *                the "thermo" entry for this phase in the input file.
-     */
-    virtual void setParametersFromXML(const XML_Node& eosdata);
-
-    //@}
-
     /*
      *  -------------- Utilities -------------------------------
      */

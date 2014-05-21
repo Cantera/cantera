@@ -470,19 +470,6 @@ public:
      */
     //@{
 
-    /**
-     * Set equation of state parameter values from XML
-     * entries. This method is called by function importPhase in
-     * file importCTML.cpp when processing a phase definition in
-     * an input file. It should be overloaded in subclasses to set
-     * any parameters that are specific to that particular phase
-     * model.
-     *
-     * @param eosdata An XML_Node object corresponding to
-     *                the "thermo" entry for this phase in the input file.
-     */
-    virtual void setParametersFromXML(const XML_Node& eosdata) {}
-
     virtual void initThermo();
 
     //!   Initialize a ThermoPhase object, potentially reading activity
