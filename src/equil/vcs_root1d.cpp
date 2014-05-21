@@ -9,8 +9,11 @@
  */
 
 #include "cantera/equil/vcs_internal.h"
+#include "cantera/numerics/ctlapack.h"
 
 #include <cstdio>
+
+using namespace Cantera;
 
 namespace VCSnonideal
 {
@@ -136,6 +139,8 @@ int vcsUtil_root1d(double xmin, double xmax, size_t itmax,
             posStraddle = false;
         }
     }
+    int ipiv[3];
+    int info;
 
     do {
         /*
@@ -171,13 +176,15 @@ int vcsUtil_root1d(double xmin, double xmax, size_t itmax,
             c[6] = SQUARE(x0);
             c[7] = SQUARE(x1);
             c[8] = SQUARE(x2);
-            f[0] = - f0;
-            f[1] = - f1;
-            f[2] = - f2;
-            retn = vcsUtil_mlequ(c, 3, 3, f, 1);
-            if (retn == 1) {
+            f[0] = f0;
+            f[1] = f1;
+            f[2] = f2;
+
+            ct_dgetrf(3, 3, c, 3, ipiv, info);
+            if (info) {
                 goto QUAD_BAIL;
             }
+            ct_dgetrs(ctlapack::NoTranspose, 3, 1, c, 3, ipiv, f, 3, info);
             root = f[1]* f[1] - 4.0 * f[0] * f[2];
             if (root >= 0.0) {
                 xn1 = (- f[1] + sqrt(root)) / (2.0 * f[2]);

@@ -4,6 +4,7 @@
  */
 #include "cantera/thermo/ThermoPhase.h"
 #include "cantera/equil/MultiPhase.h"
+#include "cantera/numerics/ctlapack.h"
 
 using namespace Cantera;
 using namespace std;
@@ -36,31 +37,6 @@ static void print_stringTrunc(const char* str, int space, int alignment);
  *  @return  index of the greatest value on *x* searched
  */
 static size_t amax(double* x, size_t j, size_t n);
-
-//! Invert an nxn matrix and solve m rhs's
-/*!
- * Solve  C X + B = 0
- *
- * This routine uses Gauss elimination and is optimized for the solution of
- * lots of rhs's. A crude form of row pivoting is used here.
- *
- * @param  c      C is the matrix to be inverted
- * @param  idem   first dimension in the calling routine.
- *                 idem >= n must be true
- * @param  n      number of rows and columns in the matrix
- * @param  b      rhs of the matrix problem
- * @param  m      number of rhs to be solved for
- *
- * - c[i+j*idem] = c_i_j = Matrix to be inverted
- * - b[i+j*idem] = b_i_j = vectors of rhs's. Each column is a new rhs.
- *
- * Where j = column number and i = row number.
- *
- * @return Retuns 1 if the matrix is singular, or 0 if the solution is OK
- *
- * The solution is returned in the matrix b.
- */
-static int mlequ(double* c, size_t idem, size_t n, double* b, size_t m);
 
 size_t Cantera::BasisOptimize(int* usedZeroedSpecies, bool doFormRxn,
                               MultiPhase* mphase, std::vector<size_t>& orderVectorSpecies,
@@ -357,18 +333,18 @@ size_t Cantera::BasisOptimize(int* usedZeroedSpecies, bool doFormRxn,
         kk = orderVectorSpecies[k];
         for (j = 0; j < nComponents; ++j) {
             jj = orderVectorElements[j];
-            formRxnMatrix[j + i * ne] = mphase->nAtoms(kk, jj);
+            formRxnMatrix[j + i * ne] = - mphase->nAtoms(kk, jj);
         }
     }
-    /*
-     *     Use Gauss-Jordan block elimination to calculate
-     *     the reaction matrix
-     */
-    int ierr = mlequ(DATA_PTR(sm), ne, nComponents, DATA_PTR(formRxnMatrix), nNonComponents);
-    if (ierr == 1) {
-        writelog("ERROR: mlequ returned an error condition\n");
-        throw CanteraError("basopt", "mlequ returned an error condition");
+    // Use LU factorization to calculate the reaction matrix
+    int info;
+    vector_int ipiv(nComponents);
+    ct_dgetrf(nComponents, nComponents, &sm[0], ne, &ipiv[0], info);
+    if (info) {
+        throw CanteraError("basopt", "factorization returned an error condition");
     }
+    ct_dgetrs(ctlapack::NoTranspose, nComponents, nNonComponents, &sm[0], ne,
+              &ipiv[0], &formRxnMatrix[0], ne, info);
 
 #ifdef DEBUG_MODE
     if (Cantera::BasisOptimize_print_lvl >= 1) {
@@ -488,70 +464,6 @@ static size_t amax(double* x, size_t j, size_t n)
         }
     }
     return largest;
-}
-
-static int mlequ(double* c, size_t idem, size_t n, double* b, size_t m)
-{
-    size_t i, j, k, l;
-    double R;
-
-    /*
-     * Loop over the rows
-     *    -> At the end of each loop, the only nonzero entry in the column
-     *       will be on the diagonal. We can therfore just invert the
-     *       diagonal at the end of the program to solve the equation system.
-     */
-    for (i = 0; i < n; ++i) {
-        if (c[i + i * idem] == 0.0) {
-            /*
-            *   Do a simple form of row pivoting to find a non-zero pivot
-            */
-            bool foundPivot = false;
-            for (k = i + 1; k < n; ++k) {
-                if (c[k + i * idem] != 0.0) {
-                    foundPivot = true;
-                    break;
-                }
-            }
-
-            if (!foundPivot) {
-#ifdef DEBUG_MODE
-                writelogf("vcs_mlequ ERROR: Encountered a zero column: %d\n", i);
-#endif
-                return 1;
-            }
-
-            for (j = 0; j < n; ++j) {
-                c[i + j * idem] += c[k + j * idem];
-            }
-            for (j = 0; j < m; ++j) {
-                b[i + j * idem] += b[k + j * idem];
-            }
-        }
-
-        for (l = 0; l < n; ++l) {
-            if (l != i && c[l + i * idem] != 0.0) {
-                R = c[l + i * idem] / c[i + i * idem];
-                c[l + i * idem] = 0.0;
-                for (j = i+1; j < n; ++j) {
-                    c[l + j * idem] -= c[i + j * idem] * R;
-                }
-                for (j = 0; j < m; ++j) {
-                    b[l + j * idem] -= b[i + j * idem] * R;
-                }
-            }
-        }
-    }
-    /*
-     *  The negative in the last expression is due to the form of B upon
-     *  input
-     */
-    for (i = 0; i < n; ++i) {
-        for (j = 0; j < m; ++j) {
-            b[i + j * idem] = -b[i + j * idem] / c[i + i*idem];
-        }
-    }
-    return 0;
 }
 
 size_t Cantera::ElemRearrange(size_t nComponents, const vector_fp& elementAbundances,
