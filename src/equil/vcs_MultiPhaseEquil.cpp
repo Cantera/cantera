@@ -60,19 +60,15 @@ int vcs_MultiPhaseEquil::equilibrate_TV(int XY, doublereal xtarget,
 {
     //            doublereal dt = 1.0e3;
     doublereal Vtarget = m_mix->volume();
-    doublereal dVdP;
     if ((XY != TV) && (XY != HV) && (XY != UV) && (XY != SV)) {
         throw CanteraError("vcs_MultiPhaseEquil::equilibrate_TV",
                            "Wrong XY flag:" + int2str(XY));
     }
     int maxiter = 100;
     int iSuccess = 0;
-    int innerXY;
-    double Pnow;
     if (XY == TV) {
         m_mix->setTemperature(xtarget);
     }
-    double Pnew;
     int strt = estimateEquil;
     double P1 = 0.0;
     double V1 = 0.0;
@@ -83,24 +79,21 @@ int vcs_MultiPhaseEquil::equilibrate_TV(int XY, doublereal xtarget,
     doublereal Vnow, Verr;
     int printLvlSub = std::max(0, printLvl - 1);
     for (int n = 0; n < maxiter; n++) {
-        Pnow = m_mix->pressure();
+        double Pnow = m_mix->pressure();
 
         switch (XY) {
         case TV:
             iSuccess = equilibrate_TP(strt, printLvlSub, err, maxsteps, loglevel);
             break;
         case HV:
-            innerXY = HP;
-            iSuccess = equilibrate_HP(xtarget, innerXY, Tlow, Thigh, strt,
+            iSuccess = equilibrate_HP(xtarget, HP, Tlow, Thigh, strt,
                                       printLvlSub, err, maxsteps, loglevel);
             break;
         case UV:
-            innerXY = UP;
-            iSuccess = equilibrate_HP(xtarget, innerXY, Tlow, Thigh, strt,
+            iSuccess = equilibrate_HP(xtarget, UP, Tlow, Thigh, strt,
                                       printLvlSub, err, maxsteps, loglevel);
             break;
         case SV:
-            innerXY = SP;
             iSuccess = equilibrate_SP(xtarget, Tlow, Thigh, strt,
                                       printLvlSub, err, maxsteps, loglevel);
             break;
@@ -127,9 +120,10 @@ int vcs_MultiPhaseEquil::equilibrate_TV(int XY, doublereal xtarget,
         if (Verr < err) {
             goto done;
         }
+        double Pnew;
         // find dV/dP
         if (n > 1) {
-            dVdP = (V2 - V1) / (P2 - P1);
+            double dVdP = (V2 - V1) / (P2 - P1);
             if (dVdP == 0.0) {
                 throw CanteraError("vcs_MultiPhase::equilibrate_TV",
                                    "dVdP == 0.0");
@@ -145,7 +139,7 @@ int vcs_MultiPhaseEquil::equilibrate_TV(int XY, doublereal xtarget,
 
         } else {
             m_mix->setPressure(Pnow*1.01);
-            dVdP = (m_mix->volume() - Vnow)/(0.01*Pnow);
+            double dVdP = (m_mix->volume() - Vnow)/(0.01*Pnow);
             Pnew = Pnow + 0.5*(Vtarget - Vnow)/dVdP;
             if (Pnew < 0.5* Pnow) {
                 Pnew = 0.5 * Pnow;
@@ -188,11 +182,9 @@ int vcs_MultiPhaseEquil::equilibrate_HP(doublereal Htarget,
         Thigh = 2.0 * m_mix->maxTemp();
     }
 
-    doublereal cpb = 1.0, dT, dTa, dTmax, Tnew;
-    doublereal Hnow;
+    doublereal cpb = 1.0, Tnew;
     doublereal Hlow = Undef;
     doublereal Hhigh = Undef;
-    doublereal Herr, HConvErr;
     doublereal Tnow = m_mix->temperature();
     int printLvlSub = std::max(printLvl - 1, 0);
 
@@ -203,11 +195,7 @@ int vcs_MultiPhaseEquil::equilibrate_HP(doublereal Htarget,
             Tnow = m_mix->temperature();
             iSuccess = equilibrate_TP(strt, printLvlSub, err, maxsteps, loglevel);
             strt = 0;
-            if (XY == UP) {
-                Hnow = m_mix->IntEnergy();
-            } else {
-                Hnow = m_mix->enthalpy();
-            }
+            double Hnow = (XY == UP) ? m_mix->IntEnergy() : m_mix->enthalpy();
             double pmoles[10];
             pmoles[0] = m_mix->phaseMoles(0);
             double Tmoles = pmoles[0];
@@ -237,6 +225,7 @@ int vcs_MultiPhaseEquil::equilibrate_HP(doublereal Htarget,
                     Hhigh = Hnow;
                 }
             }
+            double dT, dTa, dTmax, Tnew;
             if (Hlow != Undef && Hhigh != Undef) {
                 cpb = (Hhigh - Hlow)/(Thigh - Tlow);
                 dT = (Htarget - Hnow)/cpb;
@@ -257,8 +246,8 @@ int vcs_MultiPhaseEquil::equilibrate_HP(doublereal Htarget,
             }
             double acpb = std::max(fabs(cpb), 1.0E-6);
             double denom = std::max(fabs(Htarget), acpb);
-            Herr = Htarget - Hnow;
-            HConvErr = fabs((Herr)/denom);
+            double Herr = Htarget - Hnow;
+            double HConvErr = fabs((Herr)/denom);
             if (printLvl > 0) {
                 plogf("   equilibrate_HP: It = %d, Tcurr  = %g Hcurr = %g, Htarget = %g\n",
                       n, Tnow, Hnow, Htarget);
@@ -320,10 +309,8 @@ int vcs_MultiPhaseEquil::equilibrate_SP(doublereal Starget,
     }
 
     doublereal cpb = 1.0, dT, dTa, dTmax, Tnew;
-    doublereal Snow;
     doublereal Slow = Undef;
     doublereal Shigh = Undef;
-    doublereal Serr, SConvErr;
     doublereal Tnow = m_mix->temperature();
     if (Tnow < Tlow) {
         Tlow = Tnow;
@@ -341,7 +328,7 @@ int vcs_MultiPhaseEquil::equilibrate_SP(doublereal Starget,
             Tnow = m_mix->temperature();
             int iSuccess = equilibrate_TP(strt, printLvlSub, err, maxsteps, loglevel);
             strt = 0;
-            Snow = m_mix->entropy();
+            double Snow = m_mix->entropy();
             double pmoles[10];
             pmoles[0] = m_mix->phaseMoles(0);
             double Tmoles = pmoles[0];
@@ -396,8 +383,8 @@ int vcs_MultiPhaseEquil::equilibrate_SP(doublereal Starget,
 
             double acpb = std::max(fabs(cpb), 1.0E-6);
             double denom = std::max(fabs(Starget), acpb);
-            Serr = Starget - Snow;
-            SConvErr = fabs((Serr)/denom);
+            double Serr = Starget - Snow;
+            double SConvErr = fabs((Serr)/denom);
             if (printLvl > 0) {
                 plogf("   equilibrate_SP: It = %d, Tcurr  = %g Scurr = %g, Starget = %g\n",
                       n, Tnow, Snow, Starget);
@@ -441,10 +428,9 @@ int vcs_MultiPhaseEquil::equilibrate(int XY, int estimateEquil,
                                      int printLvl, doublereal err,
                                      int maxsteps, int loglevel)
 {
-    int iSuccess;
     doublereal xtarget;
     if (XY == TP) {
-        iSuccess = equilibrate_TP(estimateEquil, printLvl, err, maxsteps, loglevel);
+        return equilibrate_TP(estimateEquil, printLvl, err, maxsteps, loglevel);
     } else if (XY == HP || XY == UP) {
         if (XY == HP) {
             xtarget = m_mix->enthalpy();
@@ -453,36 +439,34 @@ int vcs_MultiPhaseEquil::equilibrate(int XY, int estimateEquil,
         }
         double Tlow  = 0.5 * m_mix->minTemp();
         double Thigh = 2.0 * m_mix->maxTemp();
-        iSuccess = equilibrate_HP(xtarget, XY, Tlow, Thigh,
-                                  estimateEquil, printLvl, err, maxsteps, loglevel);
+        return equilibrate_HP(xtarget, XY, Tlow, Thigh,
+                              estimateEquil, printLvl, err, maxsteps, loglevel);
     } else if (XY == SP) {
         xtarget = m_mix->entropy();
         double Tlow  = 0.5 * m_mix->minTemp();
         double Thigh = 2.0 * m_mix->maxTemp();
-        iSuccess = equilibrate_SP(xtarget, Tlow, Thigh,
-                                  estimateEquil, printLvl, err, maxsteps, loglevel);
-
+        return equilibrate_SP(xtarget, Tlow, Thigh,
+                              estimateEquil, printLvl, err, maxsteps, loglevel);
     } else if (XY == TV) {
         xtarget = m_mix->temperature();
-        iSuccess = equilibrate_TV(XY, xtarget,
-                                  estimateEquil, printLvl, err, maxsteps, loglevel);
+        return equilibrate_TV(XY, xtarget,
+                              estimateEquil, printLvl, err, maxsteps, loglevel);
     } else if (XY == HV) {
         xtarget = m_mix->enthalpy();
-        iSuccess = equilibrate_TV(XY, xtarget,
-                                  estimateEquil, printLvl, err, maxsteps, loglevel);
+        return equilibrate_TV(XY, xtarget,
+                              estimateEquil, printLvl, err, maxsteps, loglevel);
     } else if (XY == UV) {
         xtarget = m_mix->IntEnergy();
-        iSuccess = equilibrate_TV(XY, xtarget,
-                                  estimateEquil, printLvl, err, maxsteps, loglevel);
+        return equilibrate_TV(XY, xtarget,
+                              estimateEquil, printLvl, err, maxsteps, loglevel);
     } else if (XY == SV) {
         xtarget = m_mix->entropy();
-        iSuccess = equilibrate_TV(XY, xtarget, estimateEquil,
+        return equilibrate_TV(XY, xtarget, estimateEquil,
                                   printLvl, err, maxsteps, loglevel);
     } else {
         throw CanteraError(" vcs_MultiPhaseEquil::equilibrate",
                            "Unsupported Option");
     }
-    return iSuccess;
 }
 
 int vcs_MultiPhaseEquil::equilibrate_TP(int estimateEquil,
@@ -631,12 +615,7 @@ int vcs_MultiPhaseEquil::equilibrate_TP(int estimateEquil,
 
 void vcs_MultiPhaseEquil::reportCSV(const std::string& reportFile)
 {
-    size_t k;
-    size_t istart;
-    size_t nSpecies;
-
     double vol = 0.0;
-    string sName;
     size_t nphase = m_vprob.NPhase;
 
     FILE* FP = fopen(reportFile.c_str(), "w");
@@ -657,19 +636,18 @@ void vcs_MultiPhaseEquil::reportCSV(const std::string& reportFile)
     std::vector<double> mu0;
     std::vector<double> molalities;
 
-
     vol = 0.0;
     for (size_t iphase = 0; iphase < nphase; iphase++) {
-        istart =    m_mix->speciesIndex(0, iphase);
+        size_t istart = m_mix->speciesIndex(0, iphase);
         Cantera::ThermoPhase& tref = m_mix->phase(iphase);
-        nSpecies = tref.nSpecies();
+        size_t nSpecies = tref.nSpecies();
         VolPM.resize(nSpecies, 0.0);
         tref.getPartialMolarVolumes(VCS_DATA_PTR(VolPM));
         vcs_VolPhase* volP = m_vprob.VPhaseList[iphase];
 
         double TMolesPhase = volP->totalMoles();
         double VolPhaseVolumes = 0.0;
-        for (k = 0; k < nSpecies; k++) {
+        for (size_t k = 0; k < nSpecies; k++) {
             VolPhaseVolumes += VolPM[k] * mf[istart + k];
         }
         VolPhaseVolumes *= TMolesPhase;
@@ -685,14 +663,13 @@ void vcs_MultiPhaseEquil::reportCSV(const std::string& reportFile)
     fprintf(FP,"Number VCS iterations = %d\n", m_vprob.m_Iterations);
 
     for (size_t iphase = 0; iphase < nphase; iphase++) {
-        istart =    m_mix->speciesIndex(0, iphase);
+        size_t istart = m_mix->speciesIndex(0, iphase);
         Cantera::ThermoPhase& tref = m_mix->phase(iphase);
-        Cantera::ThermoPhase* tp = &tref;
         string phaseName = tref.name();
         vcs_VolPhase* volP = m_vprob.VPhaseList[iphase];
         double TMolesPhase = volP->totalMoles();
         //AssertTrace(TMolesPhase == m_mix->phaseMoles(iphase));
-        nSpecies = tref.nSpecies();
+        size_t nSpecies = tref.nSpecies();
         activity.resize(nSpecies, 0.0);
         ac.resize(nSpecies, 0.0);
 
@@ -701,15 +678,15 @@ void vcs_MultiPhaseEquil::reportCSV(const std::string& reportFile)
         VolPM.resize(nSpecies, 0.0);
         molalities.resize(nSpecies, 0.0);
 
-        int actConvention = tp->activityConvention();
-        tp->getActivities(VCS_DATA_PTR(activity));
-        tp->getActivityCoefficients(VCS_DATA_PTR(ac));
-        tp->getStandardChemPotentials(VCS_DATA_PTR(mu0));
+        int actConvention = tref.activityConvention();
+        tref.getActivities(VCS_DATA_PTR(activity));
+        tref.getActivityCoefficients(VCS_DATA_PTR(ac));
+        tref.getStandardChemPotentials(VCS_DATA_PTR(mu0));
 
-        tp->getPartialMolarVolumes(VCS_DATA_PTR(VolPM));
-        tp->getChemPotentials(VCS_DATA_PTR(mu));
+        tref.getPartialMolarVolumes(VCS_DATA_PTR(VolPM));
+        tref.getChemPotentials(VCS_DATA_PTR(mu));
         double VolPhaseVolumes = 0.0;
-        for (k = 0; k < nSpecies; k++) {
+        for (size_t k = 0; k < nSpecies; k++) {
             VolPhaseVolumes += VolPM[k] * mf[istart + k];
         }
         VolPhaseVolumes *= TMolesPhase;
@@ -717,9 +694,9 @@ void vcs_MultiPhaseEquil::reportCSV(const std::string& reportFile)
 
 
         if (actConvention == 1) {
-            MolalityVPSSTP* mTP = static_cast<MolalityVPSSTP*>(tp);
+            MolalityVPSSTP* mTP = static_cast<MolalityVPSSTP*>(&tref);
             mTP->getMolalities(VCS_DATA_PTR(molalities));
-            tp->getChemPotentials(VCS_DATA_PTR(mu));
+            tref.getChemPotentials(VCS_DATA_PTR(mu));
 
             if (iphase == 0) {
                 fprintf(FP,"        Name,      Phase,  PhaseMoles,  Mole_Fract, "
@@ -730,8 +707,8 @@ void vcs_MultiPhaseEquil::reportCSV(const std::string& reportFile)
                         "          ,          ,           ,"
                         "   (J/kmol),  (J/kmol),     (kmol), (m**3/kmol),     (m**3)\n");
             }
-            for (k = 0; k < nSpecies; k++) {
-                sName = tp->speciesName(k);
+            for (size_t k = 0; k < nSpecies; k++) {
+                std::string sName = tref.speciesName(k);
                 fprintf(FP,"%12s, %11s, %11.3e, %11.3e, %11.3e, %11.3e, %11.3e,"
                         "%11.3e, %11.3e, %11.3e, %11.3e, %11.3e\n",
                         sName.c_str(),
@@ -752,11 +729,11 @@ void vcs_MultiPhaseEquil::reportCSV(const std::string& reportFile)
                         "          ,           ,            ,"
                         "    (J/kmol),    (J/kmol),     (kmol), (m**3/kmol),       (m**3)\n");
             }
-            for (k = 0; k < nSpecies; k++) {
+            for (size_t k = 0; k < nSpecies; k++) {
                 molalities[k] = 0.0;
             }
-            for (k = 0; k < nSpecies; k++) {
-                sName = tp->speciesName(k);
+            for (size_t k = 0; k < nSpecies; k++) {
+                std::string sName = tref.speciesName(k);
                 fprintf(FP,"%12s, %11s, %11.3e, %11.3e, %11.3e, %11.3e, %11.3e, "
                         "%11.3e, %11.3e,% 11.3e, %11.3e, %11.3e\n",
                         sName.c_str(),
@@ -772,8 +749,8 @@ void vcs_MultiPhaseEquil::reportCSV(const std::string& reportFile)
         /*
          * Check consistency: These should be equal
          */
-        tp->getChemPotentials(fe+istart);
-        for (k = 0; k < nSpecies; k++) {
+        tref.getChemPotentials(fe+istart);
+        for (size_t k = 0; k < nSpecies; k++) {
             if (!vcs_doubleEqual(fe[istart+k], mu[k])) {
                 fprintf(FP,"ERROR: incompatibility!\n");
                 fclose(FP);
@@ -828,9 +805,6 @@ int  vcs_Cantera_to_vprob(Cantera::MultiPhase* mphase,
     vprob->Vol       = mphase->volume();
     vprob->Title     = "MultiPhase Object";
 
-    Cantera::ThermoPhase* tPhase = 0;
-
-    bool gasPhase;
     int printLvl = vprob->m_printLvl;
 
     /*
@@ -842,7 +816,7 @@ int  vcs_Cantera_to_vprob(Cantera::MultiPhase* mphase,
         /*
          * Get the thermophase object - assume volume phase
          */
-        tPhase = &(mphase->phase(iphase));
+        Cantera::ThermoPhase* tPhase = &(mphase->phase(iphase));
         size_t nelem = tPhase->nElements();
 
         /*
@@ -850,11 +824,7 @@ int  vcs_Cantera_to_vprob(Cantera::MultiPhase* mphase,
          * current phase.
          */
         int eos = tPhase->eosType();
-        if (eos == cIdealGas) {
-            gasPhase = true;
-        } else {
-            gasPhase = false;
-        }
+        bool gasPhase = (eos == cIdealGas);
 
         /*
          *    Find out the number of species in the phase
@@ -1226,10 +1196,9 @@ int vcs_Cantera_update_vprob(Cantera::MultiPhase* mphase,
     vprob->T         = mphase->temperature();
     vprob->PresPA    = mphase->pressure();
     vprob->Vol       = mphase->volume();
-    Cantera::ThermoPhase* tPhase = 0;
 
     for (size_t iphase = 0; iphase < totNumPhases; iphase++) {
-        tPhase = &(mphase->phase(iphase));
+        Cantera::ThermoPhase* tPhase = &(mphase->phase(iphase));
         vcs_VolPhase* volPhase = vprob->VPhaseList[iphase];
         /*
          * Set the electric potential of the volume phase from the

@@ -222,15 +222,14 @@ VCS_SOLVE::~VCS_SOLVE()
 
 void VCS_SOLVE::vcs_delete_memory()
 {
-    size_t j;
     size_t nspecies = m_numSpeciesTot;
 
-    for (j = 0; j < m_numPhases; j++) {
+    for (size_t j = 0; j < m_numPhases; j++) {
         delete m_VolPhaseList[j];
         m_VolPhaseList[j] = 0;
     }
 
-    for (j = 0; j < nspecies; j++) {
+    for (size_t j = 0; j < nspecies; j++) {
         delete m_speciesThermoList[j];
         m_speciesThermoList[j] = 0;
     }
@@ -247,7 +246,6 @@ void VCS_SOLVE::vcs_delete_memory()
 int VCS_SOLVE::vcs(VCS_PROB* vprob, int ifunc, int ipr, int ip1, int maxit)
 {
     int retn = 0, iconv = 0;
-    size_t nspecies0, nelements0, nphase0;
     Cantera::clockWC tickTock;
 
     int  iprintTime = std::max(ipr, ip1);
@@ -266,9 +264,9 @@ int VCS_SOLVE::vcs(VCS_PROB* vprob, int ifunc, int ipr, int ip1, int maxit)
          *         This function is called to create the private data
          *         using the public data.
          */
-        nspecies0 = vprob->nspecies + 10;
-        nelements0 = vprob->ne;
-        nphase0 = vprob->NPhase;
+        size_t nspecies0 = vprob->nspecies + 10;
+        size_t nelements0 = vprob->ne;
+        size_t nphase0 = vprob->NPhase;
 
         vcs_initSizes(nspecies0, nelements0, nphase0);
 
@@ -380,7 +378,6 @@ int VCS_SOLVE::vcs(VCS_PROB* vprob, int ifunc, int ipr, int ip1, int maxit)
 
 int VCS_SOLVE::vcs_prob_specifyFully(const VCS_PROB* pub)
 {
-    vcs_VolPhase* Vphase = 0;
     const char* ser =
         "vcs_pub_to_priv ERROR :ill defined interface -> bailout:\n\t";
 
@@ -566,7 +563,7 @@ int VCS_SOLVE::vcs_prob_specifyFully(const VCS_PROB* pub)
      *   TPhInertMoles[] -> must be copied over here
      */
     for (size_t iph = 0; iph < nph; iph++) {
-        Vphase = pub->VPhaseList[iph];
+        vcs_VolPhase* Vphase = pub->VPhaseList[iph];
         TPhInertMoles[iph] = Vphase->totalMolesInert();
     }
 
@@ -626,7 +623,7 @@ int VCS_SOLVE::vcs_prob_specifyFully(const VCS_PROB* pub)
             numPhSp[iph]++;
         }
         for (size_t iph = 0; iph < nph; iph++) {
-            Vphase = pub->VPhaseList[iph];
+            vcs_VolPhase* Vphase = pub->VPhaseList[iph];
             if (numPhSp[iph] != Vphase->nSpecies()) {
                 plogf("%sNumber of species in phase %d, %s, doesn't match\n",
                       ser, iph, Vphase->PhaseName.c_str());
@@ -703,7 +700,7 @@ int VCS_SOLVE::vcs_prob_specifyFully(const VCS_PROB* pub)
          * It should point to the species thermo pointer in the private
          * data space.
          */
-        Vphase = m_VolPhaseList[iph];
+        vcs_VolPhase* Vphase = m_VolPhaseList[iph];
         for (size_t k = 0; k < Vphase->nSpecies(); k++) {
             vcs_SpeciesProperties* sProp = Vphase->speciesProperty(k);
             size_t kT = Vphase->spGlobalIndexVCS(k);
@@ -715,7 +712,7 @@ int VCS_SOLVE::vcs_prob_specifyFully(const VCS_PROB* pub)
      * Specify the Activity Convention information
      */
     for (size_t iph = 0; iph < nph; iph++) {
-        Vphase = m_VolPhaseList[iph];
+        vcs_VolPhase* Vphase = m_VolPhaseList[iph];
         m_phaseActConvention[iph] = Vphase->p_activityConvention;
         if (Vphase->p_activityConvention != 0) {
             /*
@@ -762,10 +759,8 @@ int VCS_SOLVE::vcs_prob_specifyFully(const VCS_PROB* pub)
 
 int VCS_SOLVE::vcs_prob_specify(const VCS_PROB* pub)
 {
-    size_t kspec, k, i, j, iph;
     string yo("vcs_prob_specify ERROR: ");
     int retn = VCS_SUCCESS;
-    bool status_change = false;
 
     m_temperature = pub->T;
     m_pressurePA = pub->PresPA;
@@ -779,8 +774,8 @@ int VCS_SOLVE::vcs_prob_specify(const VCS_PROB* pub)
     m_tolmaj2 = 0.01 * m_tolmaj;
     m_tolmin2 = 0.01 * m_tolmin;
 
-    for (kspec = 0; kspec < m_numSpeciesTot; ++kspec) {
-        k = m_speciesMapIndex[kspec];
+    for (size_t kspec = 0; kspec < m_numSpeciesTot; ++kspec) {
+        size_t k = m_speciesMapIndex[kspec];
         m_molNumSpecies_old[kspec] = pub->w[k];
         m_molNumSpecies_new[kspec] = pub->mf[k];
         m_feSpecies_old[kspec] = pub->m_gibbsSpecies[k];
@@ -789,8 +784,8 @@ int VCS_SOLVE::vcs_prob_specify(const VCS_PROB* pub)
     /*
      * Transfer the element abundance goals to the solve object
      */
-    for (i = 0; i < m_numElemConstraints; i++) {
-        j = m_elementMapIndex[i];
+    for (size_t i = 0; i < m_numElemConstraints; i++) {
+        size_t j = m_elementMapIndex[i];
         m_elemAbundancesGoal[i] = pub->gai[j];
     }
 
@@ -813,7 +808,8 @@ int VCS_SOLVE::vcs_prob_specify(const VCS_PROB* pub)
      *         condition.
      */
 
-    for (iph = 0; iph < m_numPhases; iph++) {
+    bool status_change = false;
+    for (size_t iph = 0; iph < m_numPhases; iph++) {
         vcs_VolPhase* vPhase = m_VolPhaseList[iph];
         vcs_VolPhase* pub_phase_ptr = pub->VPhaseList[iph];
 

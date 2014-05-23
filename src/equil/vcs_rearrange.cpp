@@ -15,17 +15,16 @@ namespace VCSnonideal
 {
 int VCS_SOLVE::vcs_rearrange()
 {
-    size_t i, l, j;
     size_t k1 = 0;
 
     /* - Loop over all of the species */
-    for (i = 0; i < m_numSpeciesTot; ++i) {
+    for (size_t i = 0; i < m_numSpeciesTot; ++i) {
         /*
          *         Find the index of I in the index vector m_speciesIndexVector[].
          *         Call it k1 and continue.
          */
-        for (j = 0; j < m_numSpeciesTot; ++j) {
-            l = m_speciesMapIndex[j];
+        for (size_t j = 0; j < m_numSpeciesTot; ++j) {
+            size_t l = m_speciesMapIndex[j];
             k1 = j;
             if (l == i) {
                 break;

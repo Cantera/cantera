@@ -61,13 +61,10 @@ void VCS_SOLVE::checkDelta1(double* const dsLocal,
 int VCS_SOLVE::vcs_solve_TP(int print_lvl, int printDetails, int maxit)
 {
     int retn = VCS_SUCCESS, soldel, solveFail;
-    double test, RT;
-    size_t j, k, l, l1, kspec, irxn, i;
-    bool conv = false, allMinorZeroedSpecies = false, forced, lec;
-    size_t iph;
-    double dx, xx, par;
+    size_t kspec;
+    bool conv = false, allMinorZeroedSpecies = false;
     size_t it1 = 0;
-    size_t npb, iti, lnospec;
+    size_t npb, iti;
     bool dofast;
     int rangeErrorFound = 0;
     bool giveUpOnElemAbund = false;
@@ -76,10 +73,6 @@ int VCS_SOLVE::vcs_solve_TP(int print_lvl, int printDetails, int maxit)
     bool justDeletedMultiPhase = false;
     bool usedZeroedSpecies; /* return flag from basopt indicating that
                   one of the components had a zero concentration */
-    vcs_VolPhase* Vphase;
-    double*     sc_irxn = NULL;  /* Stoichiometric coefficients for cur rxn  */
-    double* dnPhase_irxn;
-    double atomComp;
     size_t iphasePop;
     int forceComponentCalc = 1;
     size_t iphaseDelete;  /* integer that determines which phase is being deleted */
@@ -145,7 +138,7 @@ int VCS_SOLVE::vcs_solve_TP(int print_lvl, int printDetails, int maxit)
 
         plogf(" PRESSURE%22.8g %3s\n", m_pressurePA, "Pa ");
         plogf(" TEMPERATURE%19.3f K\n", m_temperature);
-        Vphase = m_VolPhaseList[0];
+        vcs_VolPhase* Vphase = m_VolPhaseList[0];
         if (Vphase->nSpecies() > 0) {
             plogf(" PHASE1 INERTS%17.3f\n", TPhInertMoles[0]);
         }
@@ -154,7 +147,7 @@ int VCS_SOLVE::vcs_solve_TP(int print_lvl, int printDetails, int maxit)
         }
         plogf("\n ELEMENTAL ABUNDANCES             CORRECT");
         plogf("          FROM ESTIMATE           Type\n\n");
-        for (i = 0; i < m_numElemConstraints; ++i) {
+        for (size_t i = 0; i < m_numElemConstraints; ++i) {
             print_space(26);
             plogf("%-2.2s", (m_elementName[i]).c_str());
             plogf("%20.12E%20.12E     %3d\n", m_elemAbundancesGoal[i], m_elemAbundances[i],
@@ -187,14 +180,14 @@ int VCS_SOLVE::vcs_solve_TP(int print_lvl, int printDetails, int maxit)
         print_space(41);
         plogf("   STAN_CHEM_POT  EQUILIBRIUM_EST.  Species_Type\n\n");
         print_space(20);
-        for (i = 0; i < m_numElemConstraints; ++i) {
+        for (size_t i = 0; i < m_numElemConstraints; ++i) {
             plogf("%-4.4s    ", m_elementName[i].c_str());
         }
         plogf("   PhaseID\n");
-        RT = vcs_nondimMult_TP(m_VCS_UnitsFormat, m_temperature);
-        for (i = 0; i < m_numSpeciesTot; ++i) {
+        double RT = vcs_nondimMult_TP(m_VCS_UnitsFormat, m_temperature);
+        for (size_t i = 0; i < m_numSpeciesTot; ++i) {
             plogf(" %-18.18s", m_speciesName[i].c_str());
-            for (j = 0; j < m_numElemConstraints; ++j) {
+            for (size_t j = 0; j < m_numElemConstraints; ++j) {
                 plogf("% -7.3g ", m_formulaMatrix[j][i]);
             }
             plogf("  %3d  ", m_phaseID[i]);
@@ -211,13 +204,13 @@ int VCS_SOLVE::vcs_solve_TP(int print_lvl, int printDetails, int maxit)
         }
     }
 
-    for (i = 0; i < m_numSpeciesTot; ++i) {
+    for (size_t i = 0; i < m_numSpeciesTot; ++i) {
         if (m_molNumSpecies_old[i] < 0.0) {
             plogf("On Input species %-12s has a "
                   "negative MF, setting it small",
                   m_speciesName[i].c_str());
             plogendl();
-            iph = m_phaseID[i];
+            size_t iph = m_phaseID[i];
             double tmp = m_tPhaseMoles_old[iph] * VCS_RELDELETE_SPECIES_CUTOFF * 10;
             if (VCS_DELETE_MINORSPECIES_CUTOFF*10. > tmp) {
                 tmp = VCS_DELETE_MINORSPECIES_CUTOFF*10.;
@@ -246,7 +239,7 @@ int VCS_SOLVE::vcs_solve_TP(int print_lvl, int printDetails, int maxit)
      */
 L_COMPONENT_CALC:
     ;
-    test = -1.0e-10;
+    double test = -1.0e-10;
     retn = vcs_basopt(false, VCS_DATA_PTR(aw), VCS_DATA_PTR(sa),
                       VCS_DATA_PTR(sm), VCS_DATA_PTR(ss),
                       test, &usedZeroedSpecies);
@@ -260,6 +253,7 @@ L_COMPONENT_CALC:
     // Turn off the force componentCalc flag
     forceComponentCalc = 0;
 
+    bool lec = false;
     if (conv) {
         goto L_RETURN_BLOCK;
     }
@@ -269,7 +263,6 @@ L_COMPONENT_CALC:
     /************** EVALUATE INITIAL SPECIES STATUS VECTOR *******************/
     /*************************************************************************/
     allMinorZeroedSpecies = vcs_evaluate_speciesType();
-    lec = false;
 
     /*************************************************************************/
     /************** EVALUATE THE ELELEMT ABUNDANCE CHECK    ******************/
@@ -468,13 +461,13 @@ L_MAINLOOP_ALL_SPECIES:
         }
 #endif
 
-        for (k = 0; k < m_numSpeciesTot; k++) {
+        for (size_t k = 0; k < m_numSpeciesTot; k++) {
             m_molNumSpecies_new[k] = m_molNumSpecies_old[k] +  m_deltaMolNumSpecies[k];
-            iph = m_phaseID[k];
+            size_t iph = m_phaseID[k];
             m_tPhaseMoles_new[iph] += m_deltaMolNumSpecies[k];
         }
         if (kspec >= m_numComponents) {
-            if (m_molNumSpecies_new[k] != 0.0) {
+            if (m_molNumSpecies_new[m_numSpeciesTot] != 0.0) {
                 printf("vcs_solve_tp:: we shouldn't be here!\n");
                 exit(EXIT_FAILURE);
             }
@@ -518,14 +511,15 @@ L_MAINLOOP_ALL_SPECIES:
             plogf(" KMoles  Tent_KMoles Rxn_Adj   |    Comment \n");
         }
 #endif
-        for (irxn = 0; irxn < m_numRxnRdc; irxn++) {
+        for (size_t irxn = 0; irxn < m_numRxnRdc; irxn++) {
             kspec = m_indexRxnToSpecies[irxn];
-            sc_irxn = m_stoichCoeffRxnMatrix[irxn];
-            iph = m_phaseID[kspec];
-            Vphase = m_VolPhaseList[iph];
+            double* sc_irxn = m_stoichCoeffRxnMatrix[irxn];
+            size_t iph = m_phaseID[kspec];
+            vcs_VolPhase* Vphase = m_VolPhaseList[iph];
 #ifdef DEBUG_MODE
             ANOTE[0] = '\0';
 #endif
+            double dx;
             if (iphasePop != npos) {
                 if (iph == iphasePop) {
                     dx =  m_deltaMolNumSpecies[kspec];
@@ -586,7 +580,7 @@ L_MAINLOOP_ALL_SPECIES:
                         for (size_t j = 0; j < m_numElemConstraints; ++j) {
                             int elType = m_elType[j];
                             if (elType == VCS_ELEM_TYPE_ABSPOS) {
-                                atomComp = m_formulaMatrix[j][kspec];
+                                double atomComp = m_formulaMatrix[j][kspec];
                                 if (atomComp > 0.0) {
                                     double maxPermissible = m_elemAbundancesGoal[j] / atomComp;
                                     if (maxPermissible < VCS_DELETE_MINORSPECIES_CUTOFF) {
@@ -714,7 +708,7 @@ L_MAINLOOP_ALL_SPECIES:
                          *       branch to the code where we reevaluate the deletion
                          *       of all species.
                          */
-                        lnospec = vcs_delete_species(kspec);
+                        size_t lnospec = vcs_delete_species(kspec);
                         if (lnospec) {
                             goto L_RECHECK_DELETED;
                         }
@@ -830,7 +824,7 @@ L_MAINLOOP_ALL_SPECIES:
                              *       a little more so that the component values can only be
                              *       reduced by two 99%,
                              */
-                            for (j = 0; j < m_numComponents; ++j) {
+                            for (size_t j = 0; j < m_numComponents; ++j) {
                                 if (sc_irxn[j] != 0.0) {
                                     wx[j] = m_molNumSpecies_old[j] + sc_irxn[j] * dx;
                                     if (wx[j] <= m_molNumSpecies_old[j] * 0.01 - 1.0E-150) {
@@ -889,7 +883,7 @@ L_MAINLOOP_ALL_SPECIES:
                                 m_deltaMolNumSpecies[kspec] = dx;
                                 m_molNumSpecies_new[kspec] = 0.0;
 
-                                for (k = 0; k < m_numComponents; ++k) {
+                                for (size_t k = 0; k < m_numComponents; ++k) {
                                     m_deltaMolNumSpecies[k] = 0.0;
                                 }
                                 for (iph = 0; iph < m_numPhases; iph++) {
@@ -945,14 +939,14 @@ L_MAINLOOP_ALL_SPECIES:
                     exit(EXIT_FAILURE);
                 }
 #endif
-                for (k = 0; k < m_numComponents; ++k) {
+                for (size_t k = 0; k < m_numComponents; ++k) {
                     m_deltaMolNumSpecies[k] += sc_irxn[k] * dx;
                 }
                 /*
                  *         Calculate the tentative change in the total number of
                  *         moles in all of the phases
                  */
-                dnPhase_irxn = m_deltaMolNumPhase[irxn];
+                double* dnPhase_irxn = m_deltaMolNumPhase[irxn];
                 for (iph = 0; iph < m_numPhases; iph++) {
                     m_deltaPhaseMoles[iph] += dx * dnPhase_irxn[iph];
                 }
@@ -998,7 +992,7 @@ L_MAIN_LOOP_END_NO_PRINT:
 
 #ifdef DEBUG_MODE
         if (m_debug_print_lvl >= 2) {
-            for (k = 0; k < m_numComponents; k++) {
+            for (size_t k = 0; k < m_numComponents; k++) {
                 plogf("   --- ");
                 plogf("%-12.12s", m_speciesName[k].c_str());
                 plogf("  c%11.4E%11.4E%11.4E |\n",
@@ -1021,10 +1015,10 @@ L_MAIN_LOOP_END_NO_PRINT:
          *
          *
          */
-        par = 0.5;
-        for (k = 0; k < m_numComponents; ++k) {
+        double par = 0.5;
+        for (size_t k = 0; k < m_numComponents; ++k) {
             if (m_molNumSpecies_old[k] > 0.0) {
-                xx = -m_deltaMolNumSpecies[k] / m_molNumSpecies_old[k];
+                double xx = -m_deltaMolNumSpecies[k] / m_molNumSpecies_old[k];
                 if (par < xx) {
                     par = xx;
 #ifdef DEBUG_MODE
@@ -1037,7 +1031,7 @@ L_MAIN_LOOP_END_NO_PRINT:
                      * If we are here, we then do a step which violates element
                      * conservation.
                      */
-                    iph = m_phaseID[k];
+                    size_t iph = m_phaseID[k];
                     m_deltaPhaseMoles[iph] -= m_deltaMolNumSpecies[k];
                     m_deltaMolNumSpecies[k] = 0.0;
                 }
@@ -1055,10 +1049,10 @@ L_MAIN_LOOP_END_NO_PRINT:
                 plogendl();
             }
 #endif
-            for (i = 0; i < m_numSpeciesTot; ++i) {
+            for (size_t i = 0; i < m_numSpeciesTot; ++i) {
                 m_deltaMolNumSpecies[i] *= par;
             }
-            for (iph = 0; iph < m_numPhases; iph++) {
+            for (size_t iph = 0; iph < m_numPhases; iph++) {
                 m_deltaPhaseMoles[iph] *= par;
             }
         } else {
@@ -1089,7 +1083,7 @@ L_MAIN_LOOP_END_NO_PRINT:
         /*
          *        Calculate the tentative total mole numbers for each phase
          */
-        for (iph = 0; iph < m_numPhases; iph++) {
+        for (size_t iph = 0; iph < m_numPhases; iph++) {
             m_tPhaseMoles_new[iph] = m_tPhaseMoles_old[iph] + m_deltaPhaseMoles[iph];
         }
 
@@ -1125,7 +1119,7 @@ L_MAIN_LOOP_END_NO_PRINT:
             plogendl();
         }
 
-        forced = vcs_globStepDamp();
+        bool forced = vcs_globStepDamp();
 
         /*
          *       Print out the changes to the solution that FORCER produced
@@ -1136,13 +1130,13 @@ L_MAIN_LOOP_END_NO_PRINT:
             plogf("   --- FORCER SUBROUTINE changed the solution:\n");
             plogf("   --- SPECIES Status INIT MOLES TENT_MOLES");
             plogf("  FINAL KMOLES  INIT_DEL_G/RT  TENT_DEL_G/RT  FINAL_DELTA_G/RT\n");
-            for (i = 0; i < m_numComponents; ++i) {
+            for (size_t i = 0; i < m_numComponents; ++i) {
                 plogf("  --- %-12.12s", m_speciesName[i].c_str());
                 plogf("    %14.6E %14.6E %14.6E\n",  m_molNumSpecies_old[i],
                       m_molNumSpecies_old[i] + m_deltaMolNumSpecies[i], m_molNumSpecies_new[i]);
             }
             for (kspec = m_numComponents; kspec < m_numSpeciesRdc; ++kspec) {
-                irxn = kspec - m_numComponents;
+                size_t irxn = kspec - m_numComponents;
                 plogf("  --- %-12.12s", m_speciesName[kspec].c_str());
                 plogf(" %2d %14.6E%14.6E%14.6E%14.6E%14.6E%14.6E\n", m_speciesStatus[kspec],
                       m_molNumSpecies_old[kspec],
@@ -1186,14 +1180,14 @@ L_MAIN_LOOP_END_NO_PRINT:
         plogf("\n");
         plogf("   ---      Species Status Initial_KMoles Final_KMoles Initial_Mu/RT");
         plogf("     Mu/RT     Init_Del_G/RT   Delta_G/RT\n");
-        for (i = 0; i < m_numComponents; ++i) {
+        for (size_t i = 0; i < m_numComponents; ++i) {
             plogf("   ---   %-12.12s", m_speciesName[i].c_str());
             plogf("    ");
             plogf("%14.6E%14.6E%14.6E%14.6E\n", m_molNumSpecies_old[i],
                   m_molNumSpecies_new[i], m_feSpecies_old[i], m_feSpecies_new[i]);
         }
-        for (i = m_numComponents; i < m_numSpeciesRdc; ++i) {
-            l1 = i - m_numComponents;
+        for (size_t i = m_numComponents; i < m_numSpeciesRdc; ++i) {
+            size_t l1 = i - m_numComponents;
             plogf("   ---   %-12.12s", m_speciesName[i].c_str());
             plogf(" %2d %14.6E%14.6E%14.6E%14.6E%14.6E%14.6E\n",
                   m_speciesStatus[i], m_molNumSpecies_old[i],
@@ -1201,7 +1195,7 @@ L_MAIN_LOOP_END_NO_PRINT:
                   m_deltaGRxn_old[l1], m_deltaGRxn_new[l1]);
         }
         for (kspec = m_numSpeciesRdc; kspec < m_numSpeciesTot; ++kspec) {
-            l1 = kspec - m_numComponents;
+            size_t l1 = kspec - m_numComponents;
             plogf("   ---   %-12.12s", m_speciesName[kspec].c_str());
             plogf(" %2d %14.6E%14.6E%14.6E%14.6E%14.6E%14.6E\n",
                   m_speciesStatus[kspec], m_molNumSpecies_old[kspec],
@@ -1218,8 +1212,8 @@ L_MAIN_LOOP_END_NO_PRINT:
         plogf("   ---           Phase_Name    KMoles(after update)\n");
         plogf("   ---   ");
         vcs_print_line("-", 50);
-        for (iph = 0; iph < m_numPhases; iph++) {
-            Vphase = m_VolPhaseList[iph];
+        for (size_t iph = 0; iph < m_numPhases; iph++) {
+            vcs_VolPhase* Vphase = m_VolPhaseList[iph];
             plogf("   ---   %18s = %15.7E\n", Vphase->PhaseName.c_str(), m_tPhaseMoles_new[iph]);
         }
         plogf("   ");
@@ -1287,18 +1281,11 @@ L_MAIN_LOOP_END_NO_PRINT:
      *   absolute zero.
      */
     justDeletedMultiPhase = false;
-    for (iph = 0; iph < m_numPhases; iph++) {
-        Vphase = m_VolPhaseList[iph];
-        if (!(Vphase->m_singleSpecies)) {
+    for (size_t iph = 0; iph < m_numPhases; iph++) {
+        if (!(m_VolPhaseList[iph]->m_singleSpecies)) {
             if (m_tPhaseMoles_old[iph] != 0.0 &&
                     m_tPhaseMoles_old[iph]/m_totalMolNum <= VCS_DELETE_PHASE_CUTOFF) {
                 soldel = 1;
-
-                for (kspec = 0; kspec < m_numSpeciesRdc; kspec++) {
-                    if (m_phaseID[kspec] == iph && m_molNumSpecies_old[kspec] > 0.0) {
-                        irxn = kspec - m_numComponents;
-                    }
-                }
                 if (soldel) {
 #ifdef DEBUG_MODE
                     if (m_debug_print_lvl >= 1) {
@@ -1382,7 +1369,7 @@ L_MAIN_LOOP_END_NO_PRINT:
      *          the code logic.
      */
     dofast = (m_numComponents != 1);
-    for (i = 1; i < m_numComponents; ++i) {
+    for (size_t i = 1; i < m_numComponents; ++i) {
         if ((m_molNumSpecies_old[i - 1] * m_spSize[i-1]) < (m_molNumSpecies_old[i] * m_spSize[i])) {
             dofast = false;
             break;
@@ -1390,10 +1377,10 @@ L_MAIN_LOOP_END_NO_PRINT:
     }
     dofast = false;
     if (dofast) {
-        for (i = 0; i < m_numRxnRdc; ++i) {
-            l = m_indexRxnToSpecies[i];
+        for (size_t i = 0; i < m_numRxnRdc; ++i) {
+            size_t l = m_indexRxnToSpecies[i];
             if (m_speciesUnknownType[l] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
-                for (j = m_numComponents - 1; j != npos; j--) {
+                for (size_t j = m_numComponents - 1; j != npos; j--) {
                     bool doSwap = false;
                     if (m_SSPhase[j]) {
                         doSwap = (m_molNumSpecies_old[l] * m_spSize[l]) >
@@ -1455,10 +1442,10 @@ L_MAIN_LOOP_END_NO_PRINT:
             }
         }
     } else {
-        for (i = 0; i < m_numRxnRdc; ++i) {
-            l = m_indexRxnToSpecies[i];
+        for (size_t i = 0; i < m_numRxnRdc; ++i) {
+            size_t l = m_indexRxnToSpecies[i];
             if (m_speciesUnknownType[l] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
-                for (j = 0; j < m_numComponents; ++j) {
+                for (size_t j = 0; j < m_numComponents; ++j) {
                     bool doSwap = false;
                     if (m_SSPhase[j]) {
                         doSwap = (m_molNumSpecies_old[l] * m_spSize[l]) >
@@ -1541,7 +1528,7 @@ L_MAIN_LOOP_END_NO_PRINT:
         }
 #endif
         m_numRxnMinorZeroed = 0;
-        for (irxn = 0; irxn < m_numRxnRdc; irxn++) {
+        for (size_t irxn = 0; irxn < m_numRxnRdc; irxn++) {
             kspec = m_indexRxnToSpecies[irxn];
 
             int speciesType = vcs_species_type(kspec);
@@ -1616,7 +1603,7 @@ L_EQUILIB_CHECK:
             plogf("   --- Equilibrium check for major species: ");
         }
 #endif
-        for (irxn = 0; irxn < m_numRxnRdc; ++irxn) {
+        for (size_t irxn = 0; irxn < m_numRxnRdc; ++irxn) {
             kspec = irxn + m_numComponents;
             if (m_speciesStatus[kspec] == VCS_SPECIES_MAJOR && (fabs(m_deltaGRxn_new[irxn]) > m_tolmaj)) {
                 if (m_VCount->Its >= maxit) {
@@ -1680,7 +1667,7 @@ L_EQUILIB_CHECK:
             plogf("   --- Equilibrium check for minor species: ");
         }
 #endif
-        for (irxn = 0; irxn < m_numRxnRdc; ++irxn) {
+        for (size_t irxn = 0; irxn < m_numRxnRdc; ++irxn) {
             kspec = irxn + m_numComponents;
             if (m_speciesStatus[kspec] == VCS_SPECIES_MINOR && (fabs(m_deltaGRxn_new[irxn]) > m_tolmin)) {
                 if (m_VCount->Its >= maxit) {
@@ -1947,7 +1934,7 @@ L_RETURN_BLOCK_B:
         if (m_SSPhase[kspec]) {
             m_molNumSpecies_new[kspec] = 1.0;
         } else {
-            iph = m_phaseID[kspec];
+            size_t iph = m_phaseID[kspec];
             if (m_tPhaseMoles_old[iph] != 0.0) {
                 m_molNumSpecies_new[kspec] = m_molNumSpecies_old[kspec] / m_tPhaseMoles_old[iph];
             } else {
@@ -1957,9 +1944,8 @@ L_RETURN_BLOCK_B:
                  * This contains the mole fraction that would be true if
                  * the phase just pops into existence.
                  */
-                i = m_speciesLocalPhaseIndex[kspec];
-                Vphase = m_VolPhaseList[iph];
-                m_molNumSpecies_new[kspec] = Vphase->molefraction(i);
+                size_t i = m_speciesLocalPhaseIndex[kspec];
+                m_molNumSpecies_new[kspec] = m_VolPhaseList[iph]->molefraction(i);
             }
         }
     }
@@ -2110,7 +2096,6 @@ int VCS_SOLVE::delta_species(const size_t kspec, double* const delta_ptr)
 {
     size_t irxn = kspec - m_numComponents;
     int retn = 1;
-    double tmp;
     double delta = *delta_ptr;
 #ifdef DEBUG_MODE
     if (kspec < m_numComponents) {
@@ -2128,7 +2113,7 @@ int VCS_SOLVE::delta_species(const size_t kspec, double* const delta_ptr)
         double* sc_irxn = m_stoichCoeffRxnMatrix[irxn];
         for (size_t j = 0; j < m_numComponents; ++j) {
             if (m_molNumSpecies_old[j] > 0.0) {
-                tmp = sc_irxn[j] * dx;
+                double tmp = sc_irxn[j] * dx;
                 if (-tmp > m_molNumSpecies_old[j]) {
                     retn = 0;
                     dx = std::min(dx, - m_molNumSpecies_old[j] / sc_irxn[j]);
@@ -2155,7 +2140,7 @@ int VCS_SOLVE::delta_species(const size_t kspec, double* const delta_ptr)
         vcs_setFlagsVolPhase(iph, false, VCS_STATECALC_OLD);
 
         for (size_t j = 0; j < m_numComponents; ++j) {
-            tmp = sc_irxn[j] * dx;
+            double tmp = sc_irxn[j] * dx;
             if (tmp != 0.0) {
                 iph = m_phaseID[j];
                 m_molNumSpecies_old[j] += tmp;
@@ -2275,10 +2260,8 @@ int VCS_SOLVE::vcs_delete_species(const size_t kspec)
 
 void VCS_SOLVE::vcs_reinsert_deleted(size_t kspec)
 {
-    size_t k;
     // int irxn = kspec - m_numComponents;
     size_t iph = m_phaseID[kspec];
-    double dx;
 #ifdef DEBUG_MODE
     if (m_debug_print_lvl >= 2) {
         plogf("   --- Add back a deleted species: %-12s\n", m_speciesName[kspec].c_str());
@@ -2289,7 +2272,7 @@ void VCS_SOLVE::vcs_reinsert_deleted(size_t kspec)
      *  this adjusts m_molNumSpecies_old[] and m_tPhaseMoles_old[]
      * HKM -> make this a relative mole number!
      */
-    dx = m_tPhaseMoles_old[iph] * VCS_RELDELETE_SPECIES_CUTOFF * 10.;
+    double dx = m_tPhaseMoles_old[iph] * VCS_RELDELETE_SPECIES_CUTOFF * 10.;
     delta_species(kspec, &dx);
     m_speciesStatus[kspec] = VCS_SPECIES_MINOR;
 
@@ -2314,7 +2297,7 @@ void VCS_SOLVE::vcs_reinsert_deleted(size_t kspec)
     if (! m_SSPhase[kspec]) {
         if (Vphase->exists() == VCS_PHASE_EXIST_NO) {
             Vphase->setExistence(VCS_PHASE_EXIST_YES);
-            for (k = 0; k < m_numSpeciesTot; k++) {
+            for (size_t k = 0; k < m_numSpeciesTot; k++) {
                 if (m_phaseID[k] == iph) {
                     if (m_speciesStatus[k] != VCS_SPECIES_DELETED) {
                         m_speciesStatus[k] = VCS_SPECIES_MINOR;
@@ -2340,8 +2323,6 @@ void VCS_SOLVE::vcs_reinsert_deleted(size_t kspec)
 
 bool VCS_SOLVE::vcs_delete_multiphase(const size_t iph)
 {
-    size_t kspec, irxn;
-    double dx;
     vcs_VolPhase* Vphase = m_VolPhaseList[iph];
     bool successful = true;
     /*
@@ -2357,13 +2338,13 @@ bool VCS_SOLVE::vcs_delete_multiphase(const size_t iph)
     /*
      * Loop over all of the species in the phase.
      */
-    for (kspec = m_numComponents; kspec < m_numSpeciesRdc; ++kspec) {
+    for (size_t kspec = m_numComponents; kspec < m_numSpeciesRdc; ++kspec) {
         if (m_phaseID[kspec] == iph) {
             if (m_speciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
                 /*
                  * calculate an extent of rxn, dx, that zeroes out the species.
                  */
-                dx = - (m_molNumSpecies_old[kspec]);
+                double dx = - (m_molNumSpecies_old[kspec]);
                 double dxTent = dx;
 
                 int retn = delta_species(kspec, &dxTent);
@@ -2409,8 +2390,8 @@ bool VCS_SOLVE::vcs_delete_multiphase(const size_t iph)
             }
 #endif
             if (m_molNumSpecies_old[kcomp] != 0.0) {
-                for (kspec = m_numComponents; kspec < m_numSpeciesRdc; ++kspec) {
-                    irxn = kspec - m_numComponents;
+                for (size_t kspec = m_numComponents; kspec < m_numSpeciesRdc; ++kspec) {
+                    size_t irxn = kspec - m_numComponents;
                     if (m_phaseID[kspec] != iph) {
                         if (m_stoichCoeffRxnMatrix[irxn][kcomp] != 0.0) {
                             dxWant = -m_molNumSpecies_old[kcomp] / m_stoichCoeffRxnMatrix[irxn][kcomp];
@@ -2464,9 +2445,8 @@ bool VCS_SOLVE::vcs_delete_multiphase(const size_t iph)
      *   existence or not is checked as part of the main iteration
      *   loop.
      */
-    for (kspec = m_numSpeciesRdc; kspec < m_numSpeciesTot; ++kspec) {
+    for (size_t kspec = m_numSpeciesRdc; kspec < m_numSpeciesTot; ++kspec) {
         if (m_phaseID[kspec] == iph) {
-            irxn = kspec - m_numComponents;
             m_molNumSpecies_old[kspec]  = 0.0;
             m_molNumSpecies_new[kspec] = 0.0;
             m_deltaMolNumSpecies[kspec] = 0.0;
@@ -2506,8 +2486,6 @@ bool VCS_SOLVE::vcs_delete_multiphase(const size_t iph)
 
 int VCS_SOLVE::vcs_recheck_deleted()
 {
-    int npb;
-    size_t iph, kspec, irxn;
     double* xtcutoff = VCS_DATA_PTR(m_TmpPhase);
 #ifdef DEBUG_MODE
     if (m_debug_print_lvl >= 2) {
@@ -2523,8 +2501,8 @@ int VCS_SOLVE::vcs_recheck_deleted()
      * for formation reactions.
      * Note: fe[] here includes everything except for the ln(x[i]) term
      */
-    for (kspec = m_numSpeciesRdc; kspec < m_numSpeciesTot; ++kspec) {
-        iph = m_phaseID[kspec];
+    for (size_t kspec = m_numSpeciesRdc; kspec < m_numSpeciesTot; ++kspec) {
+        size_t iph = m_phaseID[kspec];
         m_feSpecies_new[kspec] = (m_SSfeSpecies[kspec] + log(m_actCoeffSpecies_old[kspec])
                                   - m_lnMnaughtSpecies[kspec]
                                   + m_chargeSpecies[kspec] * m_Faraday_dim * m_phasePhi[iph]);
@@ -2536,7 +2514,7 @@ int VCS_SOLVE::vcs_recheck_deleted()
      */
     vcs_deltag(0, true, VCS_STATECALC_NEW);
 
-    for (iph = 0; iph < m_numPhases; iph++) {
+    for (size_t iph = 0; iph < m_numPhases; iph++) {
         if (m_tPhaseMoles_old[iph] > 0.0) {
             xtcutoff[iph] = log(1.0 / VCS_RELDELETE_SPECIES_CUTOFF);
         } else {
@@ -2570,10 +2548,10 @@ int VCS_SOLVE::vcs_recheck_deleted()
      *   Thus, we need to amend the code. Also nonideal solutions will tend to
      *   complicate matters severely also.
      */
-    npb = 0;
-    for (irxn = m_numRxnRdc; irxn < m_numRxnTot; ++irxn) {
-        kspec = m_indexRxnToSpecies[irxn];
-        iph = m_phaseID[kspec];
+    int npb = 0;
+    for (size_t irxn = m_numRxnRdc; irxn < m_numRxnTot; ++irxn) {
+        size_t kspec = m_indexRxnToSpecies[irxn];
+        size_t iph = m_phaseID[kspec];
         if (m_tPhaseMoles_old[iph] == 0.0) {
             if (m_deltaGRxn_new[irxn] < 0.0) {
                 vcs_reinsert_deleted(kspec);
@@ -2602,10 +2580,9 @@ bool VCS_SOLVE::recheck_deleted_phase(const int iphase)
     if (Vphase->exists() == VCS_PHASE_EXIST_ZEROEDPHASE) {
         return false;
     }
-    size_t irxn, kspec;
     if (Vphase->m_singleSpecies) {
-        kspec = Vphase->spGlobalIndexVCS(0);
-        irxn = kspec + m_numComponents;
+        size_t kspec = Vphase->spGlobalIndexVCS(0);
+        size_t irxn = kspec + m_numComponents;
         if (m_deltaGRxn_old[irxn] < 0.0) {
             return true;
         }
@@ -2614,8 +2591,8 @@ bool VCS_SOLVE::recheck_deleted_phase(const int iphase)
 
     double phaseDG = 1.0;
     for (size_t kk = 0; kk <  Vphase->nSpecies(); kk++) {
-        kspec = Vphase->spGlobalIndexVCS(kk);
-        irxn = kspec + m_numComponents;
+        size_t kspec = Vphase->spGlobalIndexVCS(kk);
+        size_t irxn = kspec + m_numComponents;
         if (m_deltaGRxn_old[irxn] >  50.0) {
             m_deltaGRxn_old[irxn] =  50.0;
         }
@@ -2633,7 +2610,7 @@ bool VCS_SOLVE::recheck_deleted_phase(const int iphase)
 
 size_t VCS_SOLVE::vcs_add_all_deleted()
 {
-    size_t iph, kspec, retn;
+    size_t retn;
     if (m_numSpeciesRdc == m_numSpeciesTot) {
         return 0;
     }
@@ -2646,8 +2623,8 @@ size_t VCS_SOLVE::vcs_add_all_deleted()
     vcs_dcopy(VCS_DATA_PTR(m_molNumSpecies_new), VCS_DATA_PTR(m_molNumSpecies_old), m_numSpeciesTot);
 
     for (int cits = 0; cits < 3; cits++) {
-        for (kspec = m_numSpeciesRdc; kspec < m_numSpeciesTot; ++kspec) {
-            iph = m_phaseID[kspec];
+        for (size_t kspec = m_numSpeciesRdc; kspec < m_numSpeciesTot; ++kspec) {
+            size_t iph = m_phaseID[kspec];
             vcs_VolPhase* Vphase = m_VolPhaseList[iph];
             if (m_molNumSpecies_new[kspec] == 0.0) {
                 m_molNumSpecies_new[kspec] = VCS_DELETE_MINORSPECIES_CUTOFF * 1.0E-10;
@@ -2663,8 +2640,8 @@ size_t VCS_SOLVE::vcs_add_all_deleted()
          */
         vcs_deltag(0, true, VCS_STATECALC_NEW);
         for (size_t irxn = m_numRxnRdc; irxn < m_numRxnTot; ++irxn) {
-            kspec = m_indexRxnToSpecies[irxn];
-            iph = m_phaseID[kspec];
+            size_t kspec = m_indexRxnToSpecies[irxn];
+            size_t iph = m_phaseID[kspec];
             if (m_tPhaseMoles_old[iph] > 0.0) {
                 double maxDG = std::min(m_deltaGRxn_new[irxn], 690.0);
                 double dx = m_tPhaseMoles_old[iph] * exp(- maxDG);
@@ -2673,8 +2650,8 @@ size_t VCS_SOLVE::vcs_add_all_deleted()
         }
     }
     for (size_t irxn = m_numRxnRdc; irxn < m_numRxnTot; ++irxn) {
-        kspec = m_indexRxnToSpecies[irxn];
-        iph = m_phaseID[kspec];
+        size_t kspec = m_indexRxnToSpecies[irxn];
+        size_t iph = m_phaseID[kspec];
         if (m_tPhaseMoles_old[iph] > 0.0) {
             double dx =  m_molNumSpecies_new[kspec];
             retn = delta_species(kspec, &dx);
@@ -2718,8 +2695,8 @@ size_t VCS_SOLVE::vcs_add_all_deleted()
 
     retn = 0;
     for (size_t irxn = m_numRxnRdc; irxn < m_numRxnTot; ++irxn) {
-        kspec = m_indexRxnToSpecies[irxn];
-        iph = m_phaseID[kspec];
+        size_t kspec = m_indexRxnToSpecies[irxn];
+        size_t iph = m_phaseID[kspec];
         if (m_tPhaseMoles_old[iph] > 0.0) {
             if (fabs(m_deltaGRxn_old[irxn]) > m_tolmin) {
                 if (((m_molNumSpecies_old[kspec] * exp(-m_deltaGRxn_old[irxn])) >
@@ -2743,16 +2720,14 @@ size_t VCS_SOLVE::vcs_add_all_deleted()
 
 bool VCS_SOLVE::vcs_globStepDamp()
 {
-    double s1, s2, al;
-    size_t irxn, kspec, iph;
     double* dptr = VCS_DATA_PTR(m_deltaGRxn_new);
 
     /* *************************************************** */
     /* **** CALCULATE SLOPE AT END OF THE STEP  ********** */
     /* *************************************************** */
-    s2 = 0.0;
-    for (irxn = 0; irxn < m_numRxnRdc; ++irxn) {
-        kspec = irxn + m_numComponents;
+    double s2 = 0.0;
+    for (size_t irxn = 0; irxn < m_numRxnRdc; ++irxn) {
+        size_t kspec = irxn + m_numComponents;
         if (m_speciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
             s2 += dptr[irxn] * m_deltaMolNumSpecies[kspec];
         }
@@ -2762,10 +2737,10 @@ bool VCS_SOLVE::vcs_globStepDamp()
     /* *************************************************** */
     /* **** CALCULATE ORIGINAL SLOPE ********************* */
     /* ************************************************** */
-    s1 = 0.0;
+    double s1 = 0.0;
     dptr = VCS_DATA_PTR(m_deltaGRxn_old);
-    for (irxn = 0; irxn < m_numRxnRdc; ++irxn) {
-        kspec = irxn + m_numComponents;
+    for (size_t irxn = 0; irxn < m_numRxnRdc; ++irxn) {
+        size_t kspec = irxn + m_numComponents;
         if (m_speciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
             s1 += dptr[irxn] * m_deltaMolNumSpecies[kspec];
         }
@@ -2806,7 +2781,7 @@ bool VCS_SOLVE::vcs_globStepDamp()
     /* *************************************************** */
     /* **** FIT PCJ2822ARABOLA ********************************* */
     /* *************************************************** */
-    al = 1.0;
+    double al = 1.0;
     if (fabs(s1 -s2) > 1.0E-200) {
         al = s1 / (s1 - s2);
     }
@@ -2835,11 +2810,11 @@ bool VCS_SOLVE::vcs_globStepDamp()
 #endif
 
     dptr = VCS_DATA_PTR(m_molNumSpecies_new);
-    for (kspec = 0; kspec < m_numSpeciesRdc; ++kspec) {
+    for (size_t kspec = 0; kspec < m_numSpeciesRdc; ++kspec) {
         m_molNumSpecies_new[kspec] = m_molNumSpecies_old[kspec] +
                                      al * m_deltaMolNumSpecies[kspec];
     }
-    for (iph = 0; iph < m_numPhases; iph++) {
+    for (size_t iph = 0; iph < m_numPhases; iph++) {
         m_tPhaseMoles_new[iph] = m_tPhaseMoles_old[iph] + al * m_deltaPhaseMoles[iph];
     }
     vcs_updateVP(VCS_STATECALC_NEW);
@@ -2867,8 +2842,8 @@ bool VCS_SOLVE::vcs_globStepDamp()
 
     dptr = VCS_DATA_PTR(m_deltaGRxn_new);
     s2 = 0.0;
-    for (irxn = 0; irxn < m_numRxnRdc; ++irxn) {
-        kspec = irxn + m_numComponents;
+    for (size_t irxn = 0; irxn < m_numRxnRdc; ++irxn) {
+        size_t kspec = irxn + m_numComponents;
         if (m_speciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
             s2 += dptr[irxn] * m_deltaMolNumSpecies[kspec];
         }
@@ -2887,9 +2862,8 @@ bool VCS_SOLVE::vcs_globStepDamp()
 int VCS_SOLVE::vcs_basopt(const bool doJustComponents, double aw[], double sa[], double sm[],
                           double ss[], double test, bool* const usedZeroedSpecies)
 {
-    size_t  j, k, l, i, jl, ml, jr, irxn, kspec;
+    size_t k;
     bool lindep;
-    size_t ncTrial;
     size_t juse = npos;
     size_t jlose = npos;
     double* dptr, *scrxn_ptr;
@@ -2897,7 +2871,7 @@ int VCS_SOLVE::vcs_basopt(const bool doJustComponents, double aw[], double sa[],
 #ifdef DEBUG_MODE
     if (m_debug_print_lvl >= 2) {
         plogf("   ");
-        for (i=0; i<77; i++) {
+        for (size_t i=0; i<77; i++) {
             plogf("-");
         }
         plogf("\n");
@@ -2911,12 +2885,12 @@ int VCS_SOLVE::vcs_basopt(const bool doJustComponents, double aw[], double sa[],
             plogf("\n");
             plogf("   ---       Formula Matrix used in BASOPT calculation\n");
             plogf("   ---      Active |   ");
-            for (j = 0; j < m_numElemConstraints; j++) {
+            for (size_t j = 0; j < m_numElemConstraints; j++) {
                 plogf("  %1d  ", m_elementActive[j]);
             }
             plogf("\n");
             plogf("   ---     Species | ");
-            for (j = 0; j < m_numElemConstraints; j++) {
+            for (size_t j = 0; j < m_numElemConstraints; j++) {
                 plogf(" ");
                 vcs_print_stringTrunc(m_elementName[j].c_str(), 8, 1);
             }
@@ -2925,7 +2899,7 @@ int VCS_SOLVE::vcs_basopt(const bool doJustComponents, double aw[], double sa[],
                 plogf("   --- ");
                 vcs_print_stringTrunc(m_speciesName[k].c_str(), 11, 1);
                 plogf(" | ");
-                for (j = 0; j < m_numElemConstraints; j++) {
+                for (size_t j = 0; j < m_numElemConstraints; j++) {
                     plogf(" %8.2g", m_formulaMatrix[j][k]);
                 }
                 plogf("\n");
@@ -2940,7 +2914,7 @@ int VCS_SOLVE::vcs_basopt(const bool doJustComponents, double aw[], double sa[],
      *     It's equal to the minimum of the number of elements and the
      *     number of total species.
      */
-    ncTrial = std::min(m_numElemConstraints, m_numSpeciesTot);
+    size_t ncTrial = std::min(m_numElemConstraints, m_numSpeciesTot);
     m_numComponents = ncTrial;
     *usedZeroedSpecies = false;
     vector_int ipiv(ncTrial);
@@ -2959,7 +2933,7 @@ int VCS_SOLVE::vcs_basopt(const bool doJustComponents, double aw[], double sa[],
         }
     }
 
-    jr = npos;
+    size_t jr = npos;
     /*
      *   Top of a loop of some sort based on the index JR. JR is the
      *   current number of component species found.
@@ -3024,7 +2998,7 @@ int VCS_SOLVE::vcs_basopt(const bool doJustComponents, double aw[], double sa[],
                 size_t kfound = npos;
                 int minNonZeroes = 100000;
                 int nonZeroesKspec = 0;
-                for (kspec = ncTrial; kspec < m_numSpeciesTot; kspec++) {
+                for (size_t kspec = ncTrial; kspec < m_numSpeciesTot; kspec++) {
                     if (aw[kspec] >= 0.0) {
                         if (m_speciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
                             maxConcPossKspec = 1.0E10;
@@ -3064,9 +3038,9 @@ int VCS_SOLVE::vcs_basopt(const bool doJustComponents, double aw[], double sa[],
                 if (kfound == npos) {
                     double gmin = 0.0;
                     kfound = k;
-                    for (kspec = ncTrial; kspec < m_numSpeciesTot; kspec++) {
+                    for (size_t kspec = ncTrial; kspec < m_numSpeciesTot; kspec++) {
                         if (aw[kspec] >= 0.0) {
-                            irxn = kspec - ncTrial;
+                            size_t irxn = kspec - ncTrial;
                             if (m_deltaGRxn_new[irxn] < gmin) {
                                 gmin = m_deltaGRxn_new[irxn];
                                 kfound = kspec;
@@ -3089,7 +3063,7 @@ int VCS_SOLVE::vcs_basopt(const bool doJustComponents, double aw[], double sa[],
                 m_numRxnTot = m_numSpeciesTot - ncTrial;
                 m_numRxnRdc = m_numRxnTot - numPreDeleted;
                 m_numSpeciesRdc = m_numSpeciesTot - numPreDeleted;
-                for (i = 0; i < m_numSpeciesTot; ++i) {
+                for (size_t i = 0; i < m_numSpeciesTot; ++i) {
                     m_indexRxnToSpecies[i] = ncTrial + i;
                 }
 #ifdef DEBUG_MODE
@@ -3112,8 +3086,8 @@ int VCS_SOLVE::vcs_basopt(const bool doJustComponents, double aw[], double sa[],
              *          Modified Gram-Schmidt Method, p. 202 Dalquist
              *          QR factorization of a matrix without row pivoting.
              */
-            jl = jr;
-            for (j = 0; j < m_numElemConstraints; ++j) {
+            size_t jl = jr;
+            for (size_t j = 0; j < m_numElemConstraints; ++j) {
                 sm[j + jr*m_numElemConstraints] = m_formulaMatrix[j][k];
             }
             if (jl > 0) {
@@ -3123,9 +3097,9 @@ int VCS_SOLVE::vcs_basopt(const bool doJustComponents, double aw[], double sa[],
                  *         (this is slightly different than Dalquist)
                  *         R_JA_JA = 1
                  */
-                for (j = 0; j < jl; ++j) {
+                for (size_t j = 0; j < jl; ++j) {
                     ss[j] = 0.0;
-                    for (i = 0; i < m_numElemConstraints; ++i) {
+                    for (size_t i = 0; i < m_numElemConstraints; ++i) {
                         ss[j] += sm[i + jr*m_numElemConstraints] * sm[i + j*m_numElemConstraints];
                     }
                     ss[j] /= sa[j];
@@ -3134,8 +3108,8 @@ int VCS_SOLVE::vcs_basopt(const bool doJustComponents, double aw[], double sa[],
                  *     Now make the new column, (*,JR), orthogonal to the
                  *     previous columns
                  */
-                for (j = 0; j < jl; ++j) {
-                    for (l = 0; l < m_numElemConstraints; ++l) {
+                for (size_t j = 0; j < jl; ++j) {
+                    for (size_t l = 0; l < m_numElemConstraints; ++l) {
                         sm[l + jr*m_numElemConstraints] -= ss[j] * sm[l + j*m_numElemConstraints];
                     }
                 }
@@ -3145,7 +3119,7 @@ int VCS_SOLVE::vcs_basopt(const bool doJustComponents, double aw[], double sa[],
              *        It will be used in the denominator in future row calcs.
              */
             sa[jr] = 0.0;
-            for (ml = 0; ml < m_numElemConstraints; ++ml) {
+            for (size_t ml = 0; ml < m_numElemConstraints; ++ml) {
                 sa[jr] += SQUARE(sm[ml + jr*m_numElemConstraints]);
             }
             /* **************************************************** */
@@ -3237,14 +3211,14 @@ L_END_LOOP:
      * this program with ne being the species and nc being the
      * elements!!
      */
-    for (j = 0; j < ncTrial; ++j) {
-        for (i = 0; i < ncTrial; ++i) {
+    for (size_t j = 0; j < ncTrial; ++j) {
+        for (size_t i = 0; i < ncTrial; ++i) {
             sm[i + j*m_numElemConstraints] = m_formulaMatrix[i][j];
         }
     }
-    for (i = 0; i < m_numRxnTot; ++i) {
+    for (size_t i = 0; i < m_numRxnTot; ++i) {
         k = m_indexRxnToSpecies[i];
-        for (j = 0; j < ncTrial; ++j) {
+        for (size_t j = 0; j < ncTrial; ++j) {
             m_stoichCoeffRxnMatrix[i][j] = - m_formulaMatrix[j][k];
         }
     }
@@ -3265,14 +3239,14 @@ L_END_LOOP:
      */
     juse  = npos;
     jlose = npos;
-    for (j = 0; j < m_numElemConstraints; j++) {
+    for (size_t j = 0; j < m_numElemConstraints; j++) {
         if (!(m_elementActive[j])) {
             if (!strcmp((m_elementName[j]).c_str(), "E")) {
                 juse = j;
             }
         }
     }
-    for (j = 0; j < m_numElemConstraints; j++) {
+    for (size_t j = 0; j < m_numElemConstraints; j++) {
         if (m_elementActive[j]) {
             if (!strncmp((m_elementName[j]).c_str(), "cn_", 3)) {
                 jlose = j;
@@ -3282,8 +3256,8 @@ L_END_LOOP:
     for (k = 0; k < m_numSpeciesTot; k++) {
         if (m_speciesUnknownType[k] == VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
 
-            for (j = 0; j < ncTrial; ++j) {
-                for (i = 0; i < ncTrial; ++i) {
+            for (size_t j = 0; j < ncTrial; ++j) {
+                for (size_t i = 0; i < ncTrial; ++i) {
                     if (i == jlose) {
                         sm[i + j*m_numElemConstraints] = m_formulaMatrix[juse][j];
                     } else {
@@ -3291,9 +3265,9 @@ L_END_LOOP:
                     }
                 }
             }
-            for (i = 0; i < m_numRxnTot; ++i) {
+            for (size_t i = 0; i < m_numRxnTot; ++i) {
                 k = m_indexRxnToSpecies[i];
-                for (j = 0; j < ncTrial; ++j) {
+                for (size_t j = 0; j < ncTrial; ++j) {
                     if (j == jlose) {
                         aw[j] = - m_formulaMatrix[juse][k];
                     } else {
@@ -3309,8 +3283,8 @@ L_END_LOOP:
             }
             ct_dgetrs(ctlapack::NoTranspose, ncTrial, 1, sm, m_numElemConstraints,
                       &ipiv[0], aw, m_numElemConstraints, info);
-            i = k - ncTrial;
-            for (j = 0; j < ncTrial; j++) {
+            size_t i = k - ncTrial;
+            for (size_t j = 0; j < ncTrial; j++) {
                 m_stoichCoeffRxnMatrix[i][j] = aw[j];
             }
         }
@@ -3320,9 +3294,9 @@ L_END_LOOP:
     /*
      * Calculate the szTmp array for each formation reaction
      */
-    for (i = 0; i < m_numRxnTot; i++) {
+    for (size_t i = 0; i < m_numRxnTot; i++) {
         double szTmp = 0.0;
-        for (j = 0; j < ncTrial; j++) {
+        for (size_t j = 0; j < ncTrial; j++) {
             szTmp += fabs(m_stoichCoeffRxnMatrix[i][j]);
         }
         m_scSize[i] = szTmp;
@@ -3332,11 +3306,11 @@ L_END_LOOP:
 #ifdef DEBUG_MODE
     if (m_debug_print_lvl >= 2) {
         plogf("   ---                Components:");
-        for (j = 0; j < ncTrial; j++) {
+        for (size_t j = 0; j < ncTrial; j++) {
             plogf("        %3d", j);
         }
         plogf("\n   ---          Components Moles:");
-        for (j = 0; j < ncTrial; j++) {
+        for (size_t j = 0; j < ncTrial; j++) {
             if (m_speciesUnknownType[j] == VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
                 plogf(" % -10.3E", 0.0);
             } else {
@@ -3344,12 +3318,12 @@ L_END_LOOP:
             }
         }
         plogf("\n   ---   NonComponent|   Moles  |");
-        for (j = 0; j < ncTrial; j++) {
+        for (size_t j = 0; j < ncTrial; j++) {
             plogf(" %10.10s", m_speciesName[j].c_str());
         }
         //plogf("|    m_scSize");
         plogf("\n");
-        for (i = 0; i < m_numRxnTot; i++) {
+        for (size_t i = 0; i < m_numRxnTot; i++) {
             plogf("   --- %3d ", m_indexRxnToSpecies[i]);
             plogf("%-10.10s", m_speciesName[m_indexRxnToSpecies[i]].c_str());
             if (m_speciesUnknownType[m_indexRxnToSpecies[i]] == VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
@@ -3357,7 +3331,7 @@ L_END_LOOP:
             } else {
                 plogf("|% -10.3E|", m_molNumSpecies_old[m_indexRxnToSpecies[i]]);
             }
-            for (j = 0; j < ncTrial; j++) {
+            for (size_t j = 0; j < ncTrial; j++) {
                 plogf("    %+7.3f", m_stoichCoeffRxnMatrix[i][j]);
             }
             //plogf(" |  %6.2f", m_scSize[i]);
@@ -3369,24 +3343,23 @@ L_END_LOOP:
          *  Manual check on the satisfaction of the reaction matrix's ability
          *  to conserve elements
          */
-        double sum;
         double sumMax = -1.0;
         int iMax = -1;
         int jMax = -1;
-        size_t n;
-        for (i = 0; i < m_numRxnTot; ++i) {
+        for (size_t i = 0; i < m_numRxnTot; ++i) {
             k = m_indexRxnToSpecies[i];
-            for (j = 0; j < ncTrial; ++j) {
+            double sum;
+            for (size_t j = 0; j < ncTrial; ++j) {
                 if (j == jlose) {
                     sum = m_formulaMatrix[juse][k];
-                    for (n = 0; n < ncTrial; n++) {
+                    for (size_t n = 0; n < ncTrial; n++) {
                         double numElements = m_formulaMatrix[juse][n];
                         double coeff =  m_stoichCoeffRxnMatrix[i][n];
                         sum += coeff * numElements;
                     }
                 } else {
                     sum = m_formulaMatrix[j][k];
-                    for (n = 0; n < ncTrial; n++) {
+                    for (size_t n = 0; n < ncTrial; n++) {
                         double numElements = m_formulaMatrix[j][n];
                         double coeff =  m_stoichCoeffRxnMatrix[i][n];
                         sum += coeff * numElements;
@@ -3412,7 +3385,7 @@ L_END_LOOP:
         plogf("%-5.5s", m_elementName[jMax].c_str());
         plogf("\n");
         plogf("   ");
-        for (i=0; i<77; i++) {
+        for (size_t i=0; i<77; i++) {
             plogf("-");
         }
         plogf("\n");
@@ -3436,15 +3409,15 @@ L_END_LOOP:
      *  array, m_deltaMolNumPhase[irxn][iphase],
      *  and the phase participation array, PhaseParticipation[irxn][iphase]
      */
-    for (irxn = 0; irxn < m_numRxnTot; ++irxn) {
+    for (size_t irxn = 0; irxn < m_numRxnTot; ++irxn) {
         scrxn_ptr = m_stoichCoeffRxnMatrix[irxn];
         dptr = m_deltaMolNumPhase[irxn];
-        kspec = m_indexRxnToSpecies[irxn];
+        size_t kspec = m_indexRxnToSpecies[irxn];
         size_t iph = m_phaseID[kspec];
         int* pp_ptr = m_phaseParticipation[irxn];
         dptr[iph] = 1.0;
         pp_ptr[iph]++;
-        for (j = 0; j < ncTrial; ++j) {
+        for (size_t j = 0; j < ncTrial; ++j) {
             iph = m_phaseID[j];
             if (fabs(scrxn_ptr[j]) <= 1.0e-6) {
                 scrxn_ptr[j] = 0.0;
@@ -3722,20 +3695,11 @@ void VCS_SOLVE::vcs_chemPotPhase(const int stateCalc,
                                  double* const ac, double* const mu_i,
                                  const bool do_deleted)
 {
-
     vcs_VolPhase* Vphase = m_VolPhaseList[iph];
     size_t nkk = Vphase->nSpecies();
-    size_t k, kspec;
-
-#ifdef DEBUG_MODE
-    //if (m_debug_print_lvl >= 2) {
-    // plogf("   --- Subroutine vcs_chemPotPhase called for phase %d\n",
-    //     iph);
-    //}
-#endif
     double tMoles = TPhInertMoles[iph];
-    for (k = 0; k < nkk; k++) {
-        kspec = Vphase->spGlobalIndexVCS(k);
+    for (size_t k = 0; k < nkk; k++) {
+        size_t kspec = Vphase->spGlobalIndexVCS(k);
         tMoles += molNum[kspec];
     }
     double tlogMoles = 0.0;
@@ -3749,8 +3713,8 @@ void VCS_SOLVE::vcs_chemPotPhase(const int stateCalc,
     double phi = Vphase->electricPotential();
     double Faraday_phi = m_Faraday_dim * phi;
 
-    for (k = 0; k < nkk; k++) {
-        kspec = Vphase->spGlobalIndexVCS(k);
+    for (size_t k = 0; k < nkk; k++) {
+        size_t kspec = Vphase->spGlobalIndexVCS(k);
         if (kspec >= m_numComponents) {
             if (!do_deleted &&
                     (m_speciesStatus[kspec] == VCS_SPECIES_DELETED)) {
@@ -3786,13 +3750,8 @@ void VCS_SOLVE::vcs_chemPotPhase(const int stateCalc,
 void VCS_SOLVE::vcs_dfe(const int stateCalc,
                         const int ll, const size_t lbot, const size_t ltop)
 {
-    size_t l1, l2, iph, kspec, irxn;
-    size_t iphase;
     double* tPhMoles_ptr=0;
     double* actCoeff_ptr=0;
-    double* tlogMoles=0;
-    vcs_VolPhase* Vphase;
-
     double* feSpecies=0;
     double* molNum=0;
     if (stateCalc == VCS_STATECALC_OLD) {
@@ -3843,24 +3802,24 @@ void VCS_SOLVE::vcs_dfe(const int stateCalc,
     }
 #endif
 
-    tlogMoles = VCS_DATA_PTR(m_TmpPhase);
+    double* tlogMoles = VCS_DATA_PTR(m_TmpPhase);
     /*
      * Might as well recalculate the phase mole vector
      * and compare to the stored one. They should be correct.
      */
     double* tPhInertMoles = VCS_DATA_PTR(TPhInertMoles);
-    for (iph = 0; iph < m_numPhases; iph++) {
+    for (size_t iph = 0; iph < m_numPhases; iph++) {
         tlogMoles[iph] = tPhInertMoles[iph];
 
     }
-    for (kspec = 0; kspec < m_numSpeciesTot; kspec++) {
+    for (size_t kspec = 0; kspec < m_numSpeciesTot; kspec++) {
         if (m_speciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
-            iph = m_phaseID[kspec];
+            size_t iph = m_phaseID[kspec];
             tlogMoles[iph] += molNum[kspec];
         }
     }
 #ifdef DEBUG_MODE
-    for (iph = 0; iph < m_numPhases; iph++) {
+    for (size_t iph = 0; iph < m_numPhases; iph++) {
         if (! vcs_doubleEqual(tlogMoles[iph], tPhMoles_ptr[iph])) {
             plogf("phase Moles may be off, iph = %d, %20.14g %20.14g \n",
                   iph, tlogMoles[iph], tPhMoles_ptr[iph]);
@@ -3869,13 +3828,13 @@ void VCS_SOLVE::vcs_dfe(const int stateCalc,
     }
 #endif
     vcs_dzero(tlogMoles, m_numPhases);
-    for (iph = 0; iph < m_numPhases; iph++) {
+    for (size_t iph = 0; iph < m_numPhases; iph++) {
         if (tPhMoles_ptr[iph] > 0.0) {
             tlogMoles[iph] = log(tPhMoles_ptr[iph]);
         }
     }
 
-
+    size_t l1, l2;
     if (ll != 0) {
         l1 = lbot;
         l2 = m_numComponents;
@@ -3889,8 +3848,8 @@ void VCS_SOLVE::vcs_dfe(const int stateCalc,
      *  not current. Here we also trigger an update check for each
      *  VolPhase to see if its mole numbers are current with vcs
      */
-    for (iphase = 0; iphase < m_numPhases; iphase++) {
-        Vphase = m_VolPhaseList[iphase];
+    for (size_t iphase = 0; iphase < m_numPhases; iphase++) {
+        vcs_VolPhase* Vphase = m_VolPhaseList[iphase];
         Vphase->updateFromVCS_MoleNumbers(stateCalc);
         if (!Vphase->m_singleSpecies) {
             Vphase->sendToVCS_ActCoeff(stateCalc, VCS_DATA_PTR(actCoeff_ptr));
@@ -3906,8 +3865,8 @@ void VCS_SOLVE::vcs_dfe(const int stateCalc,
      *     finish up below with loops over either the major noncomponent
      *     species or the minor noncomponent species.
      */
-    for (kspec = l1; kspec < l2; ++kspec) {
-        iphase = m_phaseID[kspec];
+    for (size_t kspec = l1; kspec < l2; ++kspec) {
+        size_t iphase = m_phaseID[kspec];
         if (m_speciesUnknownType[kspec] == VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
 #ifdef DEBUG_MODE
             if (molNum[kspec] != m_phasePhi[iphase]) {
@@ -3931,7 +3890,7 @@ void VCS_SOLVE::vcs_dfe(const int stateCalc,
                                    + m_chargeSpecies[kspec] * m_Faraday_dim * m_phasePhi[iphase];
             } else {
                 if (molNum[kspec] <= VCS_DELETE_MINORSPECIES_CUTOFF) {
-                    iph = m_phaseID[kspec];
+                    size_t iph = m_phaseID[kspec];
                     if (tPhMoles_ptr[iph] > 0.0) {
                         feSpecies[kspec] = m_SSfeSpecies[kspec]
                                            + log(actCoeff_ptr[kspec] * VCS_DELETE_MINORSPECIES_CUTOFF)
@@ -3954,10 +3913,10 @@ void VCS_SOLVE::vcs_dfe(const int stateCalc,
     /* **** MAJORS ONLY ******************************* */
     /* ************************************************ */
     if (ll < 0) {
-        for (irxn = 0; irxn < m_numRxnRdc; ++irxn) {
-            kspec = m_indexRxnToSpecies[irxn];
+        for (size_t irxn = 0; irxn < m_numRxnRdc; ++irxn) {
+            size_t kspec = m_indexRxnToSpecies[irxn];
             if (m_speciesStatus[kspec] != VCS_SPECIES_MINOR) {
-                iphase = m_phaseID[kspec];
+                size_t iphase = m_phaseID[kspec];
                 if (m_speciesUnknownType[kspec] == VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
 #ifdef DEBUG_MODE
                     if (molNum[kspec] != m_phasePhi[iphase]) {
@@ -3981,7 +3940,7 @@ void VCS_SOLVE::vcs_dfe(const int stateCalc,
                                            + m_chargeSpecies[kspec] * m_Faraday_dim * m_phasePhi[iphase];
                     } else {
                         if (molNum[kspec] <= VCS_DELETE_MINORSPECIES_CUTOFF) {
-                            iph = m_phaseID[kspec];
+                            size_t iph = m_phaseID[kspec];
                             if (tPhMoles_ptr[iph] > 0.0) {
                                 feSpecies[kspec] = m_SSfeSpecies[kspec]
                                                    + log(actCoeff_ptr[kspec] * VCS_DELETE_MINORSPECIES_CUTOFF)
@@ -4005,10 +3964,10 @@ void VCS_SOLVE::vcs_dfe(const int stateCalc,
         /* **** MINORS ONLY ******************************* */
         /* ************************************************ */
     } else if (ll > 0) {
-        for (irxn = 0; irxn < m_numRxnRdc; ++irxn) {
-            kspec = m_indexRxnToSpecies[irxn];
+        for (size_t irxn = 0; irxn < m_numRxnRdc; ++irxn) {
+            size_t kspec = m_indexRxnToSpecies[irxn];
             if (m_speciesStatus[kspec] == VCS_SPECIES_MINOR) {
-                iphase = m_phaseID[kspec];
+                size_t iphase = m_phaseID[kspec];
                 if (m_speciesUnknownType[kspec] == VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
 #ifdef DEBUG_MODE
                     if (molNum[kspec] != m_phasePhi[iphase]) {
@@ -4032,7 +3991,7 @@ void VCS_SOLVE::vcs_dfe(const int stateCalc,
                                            + m_chargeSpecies[kspec] * m_Faraday_dim * m_phasePhi[iphase];
                     } else {
                         if (molNum[kspec] <= VCS_DELETE_MINORSPECIES_CUTOFF) {
-                            iph = m_phaseID[kspec];
+                            size_t iph = m_phaseID[kspec];
                             if (tPhMoles_ptr[iph] > 0.0) {
                                 feSpecies[kspec] = m_SSfeSpecies[kspec]
                                                    + log(actCoeff_ptr[kspec] * VCS_DELETE_MINORSPECIES_CUTOFF)
@@ -4061,7 +4020,6 @@ void  VCS_SOLVE::vcs_printSpeciesChemPot(const int stateCalc) const
 {
     double mfValue = 1.0;
     bool zeroedPhase = false;
-    size_t kspec;
 
     const double* molNum = VCS_DATA_PTR(m_molNumSpecies_old);
     const double* actCoeff_ptr = VCS_DATA_PTR(m_actCoeffSpecies_old);
@@ -4075,7 +4033,7 @@ void  VCS_SOLVE::vcs_printSpeciesChemPot(const int stateCalc) const
     for (size_t iph = 0; iph < m_numPhases; iph++) {
         tMoles[iph] = tPhInertMoles[iph];
     }
-    for (kspec = 0; kspec < m_numSpeciesTot; kspec++) {
+    for (size_t kspec = 0; kspec < m_numSpeciesTot; kspec++) {
         if (m_speciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
             size_t iph = m_phaseID[kspec];
             tMoles[iph] += molNum[kspec];
@@ -4088,7 +4046,7 @@ void  VCS_SOLVE::vcs_printSpeciesChemPot(const int stateCalc) const
     printf("   ");
     vcs_print_line("-", 132);
 
-    for (kspec = 0; kspec < m_numSpeciesTot; ++kspec) {
+    for (size_t kspec = 0; kspec < m_numSpeciesTot; ++kspec) {
         mfValue = 1.0;
         size_t iphase = m_phaseID[kspec];
         const vcs_VolPhase* Vphase = m_VolPhaseList[iphase];
@@ -4136,22 +4094,20 @@ void  VCS_SOLVE::vcs_printSpeciesChemPot(const int stateCalc) const
 #ifdef DEBUG_MODE
 void VCS_SOLVE::prneav() const
 {
-    size_t j;
-    bool kerr;
     std::vector<double> eav(m_numElemConstraints, 0.0);
 
-    for (j = 0; j < m_numElemConstraints; ++j) {
+    for (size_t j = 0; j < m_numElemConstraints; ++j) {
         for (size_t i = 0; i < m_numSpeciesTot; ++i) {
             if (m_speciesUnknownType[i] == VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
                 eav[j] += m_formulaMatrix[j][i] * m_molNumSpecies_old[i];
             }
         }
     }
-    kerr = false;
+    bool kerr = false;
     plogf("--------------------------------------------------");
     plogf("ELEMENT ABUNDANCE VECTOR:\n");
     plogf(" Element   Now      Orignal      Deviation          Type\n");
-    for (j = 0; j < m_numElemConstraints; ++j) {
+    for (size_t j = 0; j < m_numElemConstraints; ++j) {
         plogf("  ");
         plogf("%-2.2s", (m_elementName[j]).c_str());
         plogf(" = %15.6E     %15.6E     %15.6E  %3d\n",
@@ -4176,12 +4132,11 @@ void VCS_SOLVE::prneav() const
 
 double VCS_SOLVE::l2normdg(double dgLocal[]) const
 {
-    double tmp;
-    size_t irxn;
     if (m_numRxnRdc <= 0) {
         return 0.0;
     }
-    for (irxn = 0, tmp = 0.0; irxn < m_numRxnRdc; ++irxn) {
+    double tmp = 0;
+    for (size_t irxn = 0; irxn < m_numRxnRdc; ++irxn) {
         size_t kspec = irxn + m_numComponents;
         if (m_speciesStatus[kspec] == VCS_SPECIES_MAJOR || m_speciesStatus[kspec] == VCS_SPECIES_MINOR ||
                 dgLocal[irxn] < 0.0) {
@@ -4195,8 +4150,6 @@ double VCS_SOLVE::l2normdg(double dgLocal[]) const
 
 double VCS_SOLVE::vcs_tmoles()
 {
-    double sum;
-    vcs_VolPhase* Vphase;
     for (size_t i = 0; i < m_numPhases; i++) {
         m_tPhaseMoles_old[i] = TPhInertMoles[i];
     }
@@ -4205,10 +4158,10 @@ double VCS_SOLVE::vcs_tmoles()
             m_tPhaseMoles_old[m_phaseID[i]] += m_molNumSpecies_old[i];
         }
     }
-    sum = 0.0;
+    double sum = 0.0;
     for (size_t i = 0; i < m_numPhases; i++) {
         sum += m_tPhaseMoles_old[i];
-        Vphase = m_VolPhaseList[i];
+        vcs_VolPhase* Vphase = m_VolPhaseList[i];
         // Took out because we aren't updating mole fractions in Vphase
         // Vphase->TMoles = m_tPhaseMoles_old[i];
         if (m_tPhaseMoles_old[i] == 0.0) {
@@ -4224,9 +4177,8 @@ double VCS_SOLVE::vcs_tmoles()
 #ifdef DEBUG_MODE
 void VCS_SOLVE::check_tmoles() const
 {
-    size_t i;
     double sum = 0.0;
-    for (i = 0; i < m_numPhases; i++) {
+    for (size_t i = 0; i < m_numPhases; i++) {
         double m_tPhaseMoles_old_a = TPhInertMoles[i];
 
         for (size_t k = 0; k < m_numSpeciesTot; k++) {
@@ -4249,9 +4201,8 @@ void VCS_SOLVE::check_tmoles() const
 
 void VCS_SOLVE::vcs_updateVP(const int vcsState)
 {
-    vcs_VolPhase* Vphase;
     for (size_t i = 0; i < m_numPhases; i++) {
-        Vphase = m_VolPhaseList[i];
+        vcs_VolPhase* Vphase = m_VolPhaseList[i];
         if (vcsState == VCS_STATECALC_OLD) {
             Vphase->setMolesFromVCSCheck(VCS_STATECALC_OLD,
                                          VCS_DATA_PTR(m_molNumSpecies_old),
@@ -4355,22 +4306,20 @@ bool VCS_SOLVE::vcs_evaluate_speciesType()
 void VCS_SOLVE::vcs_switch2D(double* const* const Jac,
                              const size_t k1, const size_t k2) const
 {
-    size_t i;
     if (k1 == k2) {
         return;
     }
-    for (i = 0; i < m_numSpeciesTot; i++) {
+    for (size_t i = 0; i < m_numSpeciesTot; i++) {
         std::swap(Jac[k1][i], Jac[k2][i]);
     }
-    for (i = 0; i < m_numSpeciesTot; i++) {
+    for (size_t i = 0; i < m_numSpeciesTot; i++) {
         std::swap(Jac[i][k1], Jac[i][k2]);
     }
 }
 
 static void print_space(size_t num)
 {
-    size_t j;
-    for (j = 0; j < num; j++) {
+    for (size_t j = 0; j < num; j++) {
         plogf(" ");
     }
 }
@@ -4378,10 +4327,6 @@ static void print_space(size_t num)
 void VCS_SOLVE::vcs_deltag(const int l, const bool doDeleted,
                            const int vcsState, const bool alterZeroedPhases)
 {
-    size_t iph;
-    size_t irxn, kspec;
-    bool lneed;
-    double* dtmp_ptr;
     int icase = 0;
     size_t irxnl = m_numRxnRdc;
     if (doDeleted) {
@@ -4423,12 +4368,12 @@ void VCS_SOLVE::vcs_deltag(const int l, const bool doDeleted,
     /* **** MAJORS and ZEROED SPECIES ONLY ************* */
     /* ************************************************* */
     if (l < 0) {
-        for (irxn = 0; irxn < m_numRxnRdc; ++irxn) {
-            kspec = irxn + m_numComponents;
+        for (size_t irxn = 0; irxn < m_numRxnRdc; ++irxn) {
+            size_t kspec = irxn + m_numComponents;
             if (m_speciesStatus[kspec] != VCS_SPECIES_MINOR) {
                 icase = 0;
                 deltaGRxn[irxn] = feSpecies[m_indexRxnToSpecies[irxn]];
-                dtmp_ptr = m_stoichCoeffRxnMatrix[irxn];
+                double* dtmp_ptr = m_stoichCoeffRxnMatrix[irxn];
                 for (kspec = 0; kspec < m_numComponents; ++kspec) {
                     deltaGRxn[irxn] += dtmp_ptr[kspec] * feSpecies[kspec];
                     if (molNumSpecies[kspec] < VCS_DELETE_MINORSPECIES_CUTOFF && dtmp_ptr[kspec] < 0.0) {
@@ -4444,11 +4389,11 @@ void VCS_SOLVE::vcs_deltag(const int l, const bool doDeleted,
         /* ************************************************* */
         /* **** ALL REACTIONS ****************************** */
         /* ************************************************* */
-        for (irxn = 0; irxn < irxnl; ++irxn) {
+        for (size_t irxn = 0; irxn < irxnl; ++irxn) {
             icase = 0;
             deltaGRxn[irxn] = feSpecies[m_indexRxnToSpecies[irxn]];
-            dtmp_ptr = m_stoichCoeffRxnMatrix[irxn];
-            for (kspec = 0; kspec < m_numComponents; ++kspec) {
+            double* dtmp_ptr = m_stoichCoeffRxnMatrix[irxn];
+            for (size_t kspec = 0; kspec < m_numComponents; ++kspec) {
                 deltaGRxn[irxn] += dtmp_ptr[kspec] * feSpecies[kspec];
                 if (molNumSpecies[kspec] < VCS_DELETE_MINORSPECIES_CUTOFF &&
                         dtmp_ptr[kspec] < 0.0) {
@@ -4463,12 +4408,12 @@ void VCS_SOLVE::vcs_deltag(const int l, const bool doDeleted,
         /* ************************************************* */
         /* **** MINORS AND ZEROED SPECIES ****************** */
         /* ************************************************* */
-        for (irxn = 0; irxn < m_numRxnRdc; ++irxn) {
-            kspec = irxn + m_numComponents;
+        for (size_t irxn = 0; irxn < m_numRxnRdc; ++irxn) {
+            size_t kspec = irxn + m_numComponents;
             if (m_speciesStatus[kspec] <= VCS_SPECIES_MINOR) {
                 icase = 0;
                 deltaGRxn[irxn] = feSpecies[m_indexRxnToSpecies[irxn]];
-                dtmp_ptr = m_stoichCoeffRxnMatrix[irxn];
+                double* dtmp_ptr = m_stoichCoeffRxnMatrix[irxn];
                 for (kspec = 0; kspec < m_numComponents; ++kspec) {
                     deltaGRxn[irxn] += dtmp_ptr[kspec] * feSpecies[kspec];
                     if (m_molNumSpecies_old[kspec] < VCS_DELETE_MINORSPECIES_CUTOFF &&
@@ -4526,13 +4471,13 @@ void VCS_SOLVE::vcs_deltag(const int l, const bool doDeleted,
      */
     //alterZeroedPhases = false;
     if (alterZeroedPhases  && false) {
-        for (iph = 0; iph < m_numPhases; iph++) {
-            lneed = false;
+        for (size_t iph = 0; iph < m_numPhases; iph++) {
+            bool lneed = false;
             vcs_VolPhase* Vphase = m_VolPhaseList[iph];
             if (! Vphase->m_singleSpecies) {
                 double sum = 0.0;
                 for (size_t k = 0; k < Vphase->nSpecies(); k++) {
-                    kspec = Vphase->spGlobalIndexVCS(k);
+                    size_t kspec = Vphase->spGlobalIndexVCS(k);
                     if (m_speciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
                         sum += molNumSpecies[kspec];
                     }
@@ -4548,10 +4493,10 @@ void VCS_SOLVE::vcs_deltag(const int l, const bool doDeleted,
             if (lneed) {
                 double poly = 0.0;
                 for (size_t k = 0; k < Vphase->nSpecies(); k++) {
-                    kspec = Vphase->spGlobalIndexVCS(k);
+                    size_t kspec = Vphase->spGlobalIndexVCS(k);
                     // We may need to look at deltaGRxn for components!
                     if (kspec >= m_numComponents) {
-                        irxn = kspec - m_numComponents;
+                        size_t irxn = kspec - m_numComponents;
                         if (deltaGRxn[irxn] >  50.0) {
                             deltaGRxn[irxn] =  50.0;
                         }
@@ -4567,9 +4512,9 @@ void VCS_SOLVE::vcs_deltag(const int l, const bool doDeleted,
                  *      negative, then the phase will come back into existence.
                  */
                 for (size_t k = 0; k < Vphase->nSpecies(); k++) {
-                    kspec = Vphase->spGlobalIndexVCS(k);
+                    size_t kspec = Vphase->spGlobalIndexVCS(k);
                     if (kspec >= m_numComponents) {
-                        irxn = kspec - m_numComponents;
+                        size_t irxn = kspec - m_numComponents;
                         deltaGRxn[irxn] = 1.0 - poly;
                     }
                 }
@@ -4588,7 +4533,6 @@ void VCS_SOLVE::vcs_deltag(const int l, const bool doDeleted,
 
 void  VCS_SOLVE::vcs_printDeltaG(const int stateCalc)
 {
-    size_t j;
     double* deltaGRxn = VCS_DATA_PTR(m_deltaGRxn_old);
     double* feSpecies = VCS_DATA_PTR(m_feSpecies_old);
     double* molNumSpecies = VCS_DATA_PTR(m_molNumSpecies_old);
@@ -4605,15 +4549,15 @@ void  VCS_SOLVE::vcs_printDeltaG(const int stateCalc)
     bool zeroedPhase = false;
     if (m_debug_print_lvl >= 2) {
         plogf("   --- DELTA_G TABLE  Components:");
-        for (j = 0; j < m_numComponents; j++) {
+        for (size_t j = 0; j < m_numComponents; j++) {
             plogf("     %3d  ", j);
         }
         plogf("\n   ---          Components Moles:");
-        for (j = 0; j < m_numComponents; j++) {
+        for (size_t j = 0; j < m_numComponents; j++) {
             plogf("%10.3g", m_molNumSpecies_old[j]);
         }
         plogf("\n   ---   NonComponent|   Moles  |       ");
-        for (j = 0; j < m_numComponents; j++) {
+        for (size_t j = 0; j < m_numComponents; j++) {
             plogf("%-10.10s", m_speciesName[j].c_str());
         }
         //plogf("|    m_scSize");
@@ -4626,7 +4570,7 @@ void  VCS_SOLVE::vcs_printDeltaG(const int stateCalc)
             } else {
                 plogf("|%10.3g|", m_molNumSpecies_old[m_indexRxnToSpecies[i]]);
             }
-            for (j = 0; j < m_numComponents; j++) {
+            for (size_t j = 0; j < m_numComponents; j++) {
                 plogf("     %6.2f", m_stoichCoeffRxnMatrix[i][j]);
             }
             //plogf(" |  %6.2f", m_scSize[i]);
@@ -4723,10 +4667,6 @@ void  VCS_SOLVE::vcs_printDeltaG(const int stateCalc)
 void VCS_SOLVE::vcs_deltag_Phase(const size_t iphase, const bool doDeleted,
                                  const int stateCalc, const bool alterZeroedPhases)
 {
-    size_t iph;
-    size_t  irxn, kspec, kcomp;
-    double* dtmp_ptr;
-
     double* feSpecies=0;
     double* deltaGRxn=0;
     double* actCoeffSpecies=0;
@@ -4764,7 +4704,7 @@ void VCS_SOLVE::vcs_deltag_Phase(const size_t iphase, const bool doDeleted,
      * Single species Phase
      */
     if (vPhase->m_singleSpecies) {
-        kspec = vPhase->spGlobalIndexVCS(0);
+        size_t kspec = vPhase->spGlobalIndexVCS(0);
 #ifdef DEBUG_MODE
         if (iphase != m_phaseID[kspec]) {
             plogf("vcs_deltag_Phase index error\n");
@@ -4772,10 +4712,10 @@ void VCS_SOLVE::vcs_deltag_Phase(const size_t iphase, const bool doDeleted,
         }
 #endif
         if (kspec >= m_numComponents) {
-            irxn = kspec - m_numComponents;
+            size_t irxn = kspec - m_numComponents;
             deltaGRxn[irxn] = feSpecies[kspec];
-            dtmp_ptr = m_stoichCoeffRxnMatrix[irxn];
-            for (kcomp = 0; kcomp < m_numComponents; ++kcomp) {
+            double* dtmp_ptr = m_stoichCoeffRxnMatrix[irxn];
+            for (size_t kcomp = 0; kcomp < m_numComponents; ++kcomp) {
                 deltaGRxn[irxn] += dtmp_ptr[kcomp] * feSpecies[kcomp];
             }
         }
@@ -4786,17 +4726,16 @@ void VCS_SOLVE::vcs_deltag_Phase(const size_t iphase, const bool doDeleted,
     else {
         bool zeroedPhase = true;
 
-        for (irxn = 0; irxn < irxnl; ++irxn) {
-            kspec = m_indexRxnToSpecies[irxn];
+        for (size_t irxn = 0; irxn < irxnl; ++irxn) {
+            size_t kspec = m_indexRxnToSpecies[irxn];
             if (m_speciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
-                iph = m_phaseID[kspec];
-                if (iph == iphase) {
+                if (m_phaseID[kspec] == iphase) {
                     if (m_molNumSpecies_old[kspec] > 0.0) {
                         zeroedPhase = false;
                     }
                     deltaGRxn[irxn] = feSpecies[kspec];
-                    dtmp_ptr = m_stoichCoeffRxnMatrix[irxn];
-                    for (kcomp = 0; kcomp < m_numComponents; ++kcomp) {
+                    double* dtmp_ptr = m_stoichCoeffRxnMatrix[irxn];
+                    for (size_t kcomp = 0; kcomp < m_numComponents; ++kcomp) {
                         deltaGRxn[irxn] += dtmp_ptr[kcomp] * feSpecies[kcomp];
                     }
                 }
@@ -4846,10 +4785,9 @@ void VCS_SOLVE::vcs_deltag_Phase(const size_t iphase, const bool doDeleted,
         if (alterZeroedPhases) {
             if (zeroedPhase) {
                 double phaseDG = 1.0;
-                for (irxn = 0; irxn < irxnl; ++irxn) {
-                    kspec = m_indexRxnToSpecies[irxn];
-                    iph = m_phaseID[kspec];
-                    if (iph == iphase) {
+                for (size_t irxn = 0; irxn < irxnl; ++irxn) {
+                    size_t kspec = m_indexRxnToSpecies[irxn];
+                    if (m_phaseID[kspec] == iphase) {
                         if (deltaGRxn[irxn] >  50.0) {
                             deltaGRxn[irxn] =  50.0;
                         }
@@ -4862,10 +4800,9 @@ void VCS_SOLVE::vcs_deltag_Phase(const size_t iphase, const bool doDeleted,
                 /*
                  * Overwrite the individual dg's with the phase DG.
                  */
-                for (irxn = 0; irxn < irxnl; ++irxn) {
-                    kspec = m_indexRxnToSpecies[irxn];
-                    iph = m_phaseID[kspec];
-                    if (iph == iphase) {
+                for (size_t irxn = 0; irxn < irxnl; ++irxn) {
+                    size_t kspec = m_indexRxnToSpecies[irxn];
+                    if (m_phaseID[kspec] == iphase) {
                         deltaGRxn[irxn] = 1.0 - phaseDG;
                     }
                 }
@@ -4876,8 +4813,6 @@ void VCS_SOLVE::vcs_deltag_Phase(const size_t iphase, const bool doDeleted,
 
 void VCS_SOLVE::vcs_switch_pos(const bool ifunc, const size_t k1, const size_t k2)
 {
-    size_t i1, i2, iph, kp1, kp2;
-    vcs_VolPhase* pv1, *pv2;
     if (k1 == k2) {
         return;
     }
@@ -4891,11 +4826,11 @@ void VCS_SOLVE::vcs_switch_pos(const bool ifunc, const size_t k1, const size_t k
     /*
      *     Handle the index pointer in the phase structures first
      */
-    pv1 = m_VolPhaseList[m_phaseID[k1]];
-    pv2 = m_VolPhaseList[m_phaseID[k2]];
+    vcs_VolPhase* pv1 = m_VolPhaseList[m_phaseID[k1]];
+    vcs_VolPhase* pv2 = m_VolPhaseList[m_phaseID[k2]];
 
-    kp1 = m_speciesLocalPhaseIndex[k1];
-    kp2 = m_speciesLocalPhaseIndex[k2];
+    size_t kp1 = m_speciesLocalPhaseIndex[k1];
+    size_t kp2 = m_speciesLocalPhaseIndex[k2];
 #ifdef DEBUG_MODE
     if (pv1->spGlobalIndexVCS(kp1) != k1) {
         plogf("Indexing error in program\n");
@@ -4948,8 +4883,8 @@ void VCS_SOLVE::vcs_switch_pos(const bool ifunc, const size_t k1, const size_t k
         /*
          * Find the Rxn indices corresponding to the two species
          */
-        i1 = k1 - m_numComponents;
-        i2 = k2 - m_numComponents;
+        size_t i1 = k1 - m_numComponents;
+        size_t i2 = k2 - m_numComponents;
 #ifdef DEBUG_MODE
         if (i1 > (m_numRxnTot - 1) ||
                 i2 > (m_numRxnTot - 1)) {
@@ -4961,7 +4896,7 @@ void VCS_SOLVE::vcs_switch_pos(const bool ifunc, const size_t k1, const size_t k
             std::swap(m_stoichCoeffRxnMatrix[i1][j], m_stoichCoeffRxnMatrix[i2][j]);
         }
         std::swap(m_scSize[i1], m_scSize[i2]);
-        for (iph = 0; iph < m_numPhases; iph++) {
+        for (size_t iph = 0; iph < m_numPhases; iph++) {
             std::swap(m_deltaMolNumPhase[i1][iph], m_deltaMolNumPhase[i2][iph]);
             std::swap(m_phaseParticipation[i1][iph],
                       m_phaseParticipation[i2][iph]);
@@ -5053,16 +4988,13 @@ double VCS_SOLVE::vcs_birthGuess(const int kspec)
 
 void VCS_SOLVE::vcs_setFlagsVolPhases(const bool upToDate, const int stateCalc)
 {
-    vcs_VolPhase* Vphase;
     if (!upToDate) {
         for (size_t iph = 0; iph < m_numPhases; iph++) {
-            Vphase = m_VolPhaseList[iph];
-            Vphase->setMolesOutOfDate(stateCalc);
+            m_VolPhaseList[iph]->setMolesOutOfDate(stateCalc);
         }
     } else {
         for (size_t iph = 0; iph < m_numPhases; iph++) {
-            Vphase = m_VolPhaseList[iph];
-            Vphase->setMolesCurrent(stateCalc);
+            m_VolPhaseList[iph]->setMolesCurrent(stateCalc);
         }
     }
 }
@@ -5070,20 +5002,17 @@ void VCS_SOLVE::vcs_setFlagsVolPhases(const bool upToDate, const int stateCalc)
 void VCS_SOLVE::vcs_setFlagsVolPhase(const size_t iph, const bool upToDate,
                                      const int stateCalc)
 {
-    vcs_VolPhase* Vphase = m_VolPhaseList[iph];
     if (!upToDate) {
-        Vphase->setMolesOutOfDate(stateCalc);
+        m_VolPhaseList[iph]->setMolesOutOfDate(stateCalc);
     } else {
-        Vphase->setMolesCurrent(stateCalc);
+        m_VolPhaseList[iph]->setMolesCurrent(stateCalc);
     }
 }
 
 void VCS_SOLVE::vcs_updateMolNumVolPhases(const int stateCalc)
 {
-    vcs_VolPhase* Vphase;
     for (size_t iph = 0; iph < m_numPhases; iph++) {
-        Vphase = m_VolPhaseList[iph];
-        Vphase->updateFromVCS_MoleNumbers(stateCalc);
+        m_VolPhaseList[iph]->updateFromVCS_MoleNumbers(stateCalc);
     }
 }
 

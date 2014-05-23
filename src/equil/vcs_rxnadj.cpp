@@ -19,12 +19,8 @@ namespace VCSnonideal
 
 size_t VCS_SOLVE::vcs_RxnStepSizes(int& forceComponentCalc, size_t& kSpecial)
 {
-    size_t kspec, iph;
     size_t iphDel = npos;
-    double s, xx, dss;
     size_t k = 0;
-    vcs_VolPhase* Vphase = 0;
-    double* dnPhase_irxn;
 #ifdef DEBUG_MODE
     char ANOTE[128];
     if (m_debug_print_lvl >= 2) {
@@ -59,7 +55,7 @@ size_t VCS_SOLVE::vcs_RxnStepSizes(int& forceComponentCalc, size_t& kSpecial)
         sprintf(ANOTE, "Normal Calc");
 #endif
 
-        kspec = m_indexRxnToSpecies[irxn];
+        size_t kspec = m_indexRxnToSpecies[irxn];
 
         if (m_speciesStatus[kspec] == VCS_SPECIES_ZEROEDPHASE) {
             m_deltaMolNumSpecies[kspec] = 0.0;
@@ -68,7 +64,7 @@ size_t VCS_SOLVE::vcs_RxnStepSizes(int& forceComponentCalc, size_t& kSpecial)
 #endif
         } else if (m_speciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
 
-            dnPhase_irxn = m_deltaMolNumPhase[irxn];
+            double* dnPhase_irxn = m_deltaMolNumPhase[irxn];
 
             if (m_molNumSpecies_old[kspec] == 0.0 && (!m_SSPhase[kspec])) {
                 /********************************************************************/
@@ -84,10 +80,10 @@ size_t VCS_SOLVE::vcs_RxnStepSizes(int& forceComponentCalc, size_t& kSpecial)
                      * First decide if this species is part of a multiphase that
                      * is nontrivial in size.
                      */
-                    iph = m_phaseID[kspec];
+                    size_t iph = m_phaseID[kspec];
                     double tphmoles = m_tPhaseMoles_old[iph];
                     double trphmoles = tphmoles / m_totalMolNum;
-                    Vphase = m_VolPhaseList[iph];
+                    vcs_VolPhase* Vphase = m_VolPhaseList[iph];
                     if (Vphase->exists() && (trphmoles > VCS_DELETE_PHASE_CUTOFF)) {
                         m_deltaMolNumSpecies[kspec] = m_totalMolNum * VCS_SMALL_MULTIPHASE_SPECIES;
                         if (m_speciesStatus[kspec] == VCS_SPECIES_STOICHZERO) {
@@ -169,6 +165,7 @@ size_t VCS_SOLVE::vcs_RxnStepSizes(int& forceComponentCalc, size_t& kSpecial)
                 /*
                  *     Start of the regular processing
                  */
+                double s;
                 if (m_SSPhase[kspec]) {
                     s = 0.0;
                 } else {
@@ -182,7 +179,7 @@ size_t VCS_SOLVE::vcs_RxnStepSizes(int& forceComponentCalc, size_t& kSpecial)
                     }
                 }
                 for (size_t j = 0; j < m_numPhases; j++) {
-                    Vphase = m_VolPhaseList[j];
+                    vcs_VolPhase* Vphase = m_VolPhaseList[j];
                     if (!Vphase->m_singleSpecies) {
                         if (m_tPhaseMoles_old[j] > 0.0) {
                             s -= SQUARE(dnPhase_irxn[j]) / m_tPhaseMoles_old[j];
@@ -254,12 +251,13 @@ size_t VCS_SOLVE::vcs_RxnStepSizes(int& forceComponentCalc, size_t& kSpecial)
                      *     will zero out first.
                      *      -> The species to be zeroed out will be "k".
                      */
+                    double dss;
                     if (m_deltaGRxn_new[irxn] > 0.0) {
                         dss = m_molNumSpecies_old[kspec];
                         k = kspec;
                         for (size_t j = 0; j < m_numComponents; ++j) {
                             if (m_stoichCoeffRxnMatrix[irxn][j] > 0.0) {
-                                xx = m_molNumSpecies_old[j] / m_stoichCoeffRxnMatrix[irxn][j];
+                                double xx = m_molNumSpecies_old[j] / m_stoichCoeffRxnMatrix[irxn][j];
                                 if (xx < dss) {
                                     dss = xx;
                                     k = j;
@@ -271,7 +269,7 @@ size_t VCS_SOLVE::vcs_RxnStepSizes(int& forceComponentCalc, size_t& kSpecial)
                         dss = 1.0e10;
                         for (size_t j = 0; j < m_numComponents; ++j) {
                             if (m_stoichCoeffRxnMatrix[irxn][j] < 0.0) {
-                                xx = -m_molNumSpecies_old[j] / m_stoichCoeffRxnMatrix[irxn][j];
+                                double xx = -m_molNumSpecies_old[j] / m_stoichCoeffRxnMatrix[irxn][j];
                                 if (xx < dss) {
                                     dss = xx;
                                     k = j;
@@ -382,16 +380,11 @@ size_t VCS_SOLVE::vcs_RxnStepSizes(int& forceComponentCalc, size_t& kSpecial)
 
 int VCS_SOLVE::vcs_rxn_adj_cg()
 {
-    size_t irxn, j;
-    size_t k = 0;
-    size_t kspec;
     int soldel = 0;
-    double s, xx, dss;
-    double* dnPhase_irxn;
 #ifdef DEBUG_MODE
     char ANOTE[128];
     plogf("   ");
-    for (j = 0; j < 77; j++) {
+    for (size_t j = 0; j < 77; j++) {
         plogf("-");
     }
     plogf("\n   --- Subroutine rxn_adj_cg() called\n");
@@ -404,13 +397,13 @@ int VCS_SOLVE::vcs_rxn_adj_cg()
      *   We also evaluate whether the matrix is appropriate for
      *   this algorithm. If not, we bail out.
      */
-    for (irxn = 0; irxn < m_numRxnRdc; ++irxn) {
+    for (size_t irxn = 0; irxn < m_numRxnRdc; ++irxn) {
 #ifdef DEBUG_MODE
         sprintf(ANOTE, "Normal Calc");
 #endif
 
-        kspec = m_indexRxnToSpecies[irxn];
-        dnPhase_irxn = m_deltaMolNumPhase[irxn];
+        size_t kspec = m_indexRxnToSpecies[irxn];
+        double* dnPhase_irxn = m_deltaMolNumPhase[irxn];
 
         if (m_molNumSpecies_old[kspec] == 0.0 && (!m_SSPhase[kspec])) {
             /* *******************************************************************/
@@ -471,17 +464,18 @@ int VCS_SOLVE::vcs_rxn_adj_cg()
             /*
              *     Start of the regular processing
              */
+            double s;
             if (m_SSPhase[kspec]) {
                 s = 0.0;
             } else {
                 s = 1.0 / m_molNumSpecies_old[kspec];
             }
-            for (j = 0; j < m_numComponents; ++j) {
+            for (size_t j = 0; j < m_numComponents; ++j) {
                 if (!m_SSPhase[j]) {
                     s += SQUARE(m_stoichCoeffRxnMatrix[irxn][j]) / m_molNumSpecies_old[j];
                 }
             }
-            for (j = 0; j < m_numPhases; j++) {
+            for (size_t j = 0; j < m_numPhases; j++) {
                 if (!(m_VolPhaseList[j])->m_singleSpecies) {
                     if (m_tPhaseMoles_old[j] > 0.0) {
                         s -= SQUARE(dnPhase_irxn[j]) / m_tPhaseMoles_old[j];
@@ -502,12 +496,14 @@ int VCS_SOLVE::vcs_rxn_adj_cg()
                  *     Then, we need to follow the reaction to see which species
                  *     will zero out first.
                  */
+                size_t k;
+                double dss;
                 if (m_deltaGRxn_new[irxn] > 0.0) {
                     dss = m_molNumSpecies_old[kspec];
                     k = kspec;
-                    for (j = 0; j < m_numComponents; ++j) {
+                    for (size_t j = 0; j < m_numComponents; ++j) {
                         if (m_stoichCoeffRxnMatrix[irxn][j] > 0.0) {
-                            xx = m_molNumSpecies_old[j] / m_stoichCoeffRxnMatrix[irxn][j];
+                            double xx = m_molNumSpecies_old[j] / m_stoichCoeffRxnMatrix[irxn][j];
                             if (xx < dss) {
                                 dss = xx;
                                 k = j;
@@ -517,9 +513,9 @@ int VCS_SOLVE::vcs_rxn_adj_cg()
                     dss = -dss;
                 } else {
                     dss = 1.0e10;
-                    for (j = 0; j < m_numComponents; ++j) {
+                    for (size_t j = 0; j < m_numComponents; ++j) {
                         if (m_stoichCoeffRxnMatrix[irxn][j] < 0.0) {
-                            xx = -m_molNumSpecies_old[j] / m_stoichCoeffRxnMatrix[irxn][j];
+                            double xx = -m_molNumSpecies_old[j] / m_stoichCoeffRxnMatrix[irxn][j];
                             if (xx < dss) {
                                 dss = xx;
                                 k = j;
@@ -538,7 +534,7 @@ int VCS_SOLVE::vcs_rxn_adj_cg()
                 if (dss != 0.0) {
                     m_molNumSpecies_old[kspec] += dss;
                     m_tPhaseMoles_old[m_phaseID[kspec]] += dss;
-                    for (j = 0; j < m_numComponents; ++j) {
+                    for (size_t j = 0; j < m_numComponents; ++j) {
                         m_molNumSpecies_old[j] += dss * m_stoichCoeffRxnMatrix[irxn][j];
                         m_tPhaseMoles_old[m_phaseID[j]] += dss * m_stoichCoeffRxnMatrix[irxn][j];
                     }
@@ -582,7 +578,7 @@ int VCS_SOLVE::vcs_rxn_adj_cg()
 
 #ifdef DEBUG_MODE
     plogf("   ");
-    for (j = 0; j < 77; j++) {
+    for (size_t j = 0; j < 77; j++) {
         plogf("-");
     }
     plogf("\n");
@@ -610,27 +606,24 @@ double VCS_SOLVE::vcs_Hessian_diag_adj(size_t irxn, double hessianDiag_Ideal)
 
 double VCS_SOLVE::vcs_Hessian_actCoeff_diag(size_t irxn)
 {
-    size_t kspec, k, l, kph;
-    double s;
-    double* sc_irxn;
-    kspec = m_indexRxnToSpecies[irxn];
-    kph = m_phaseID[kspec];
+    size_t kspec = m_indexRxnToSpecies[irxn];
+    size_t kph = m_phaseID[kspec];
     double np_kspec = m_tPhaseMoles_old[kph];
     if (np_kspec < 1.0E-13) {
         np_kspec = 1.0E-13;
     }
-    sc_irxn = m_stoichCoeffRxnMatrix[irxn];
+    double* sc_irxn = m_stoichCoeffRxnMatrix[irxn];
     /*
      *   First the diagonal term of the Jacobian
      */
-    s = m_np_dLnActCoeffdMolNum[kspec][kspec] / np_kspec;
+    double s = m_np_dLnActCoeffdMolNum[kspec][kspec] / np_kspec;
     /*
      *    Next, the other terms. Note this only a loop over the components
      *    So, it's not too expensive to calculate.
      */
-    for (l = 0; l < m_numComponents; l++) {
+    for (size_t l = 0; l < m_numComponents; l++) {
         if (!m_SSPhase[l]) {
-            for (k = 0; k < m_numComponents; ++k) {
+            for (size_t k = 0; k < m_numComponents; ++k) {
                 if (m_phaseID[k] == m_phaseID[l]) {
                     double np = m_tPhaseMoles_old[m_phaseID[k]];
                     if (np > 0.0) {
@@ -697,7 +690,6 @@ double VCS_SOLVE::vcs_line_search(const size_t irxn, const double dx_orig)
 #endif
 {
     int its = 0;
-    size_t k;
     size_t kspec = m_indexRxnToSpecies[irxn];
     const int MAXITS = 10;
     double dx = dx_orig;
@@ -705,8 +697,6 @@ double VCS_SOLVE::vcs_line_search(const size_t irxn, const double dx_orig)
     double* molNumBase = VCS_DATA_PTR(m_molNumSpecies_old);
     double* acBase = VCS_DATA_PTR(m_actCoeffSpecies_old);
     double* ac = VCS_DATA_PTR(m_actCoeffSpecies_new);
-    double molSum = 0.0;
-    double slope;
     /*
      * Calculate the deltaG value at the dx = 0.0 point
      */
@@ -743,9 +733,9 @@ double VCS_SOLVE::vcs_line_search(const size_t irxn, const double dx_orig)
     }
 
     vcs_dcopy(VCS_DATA_PTR(m_molNumSpecies_new), molNumBase, m_numSpeciesRdc);
-    molSum = molNumBase[kspec];
+    double molSum = molNumBase[kspec];
     m_molNumSpecies_new[kspec] = molNumBase[kspec] + dx_orig;
-    for (k = 0; k < m_numComponents; k++) {
+    for (size_t k = 0; k < m_numComponents; k++) {
         m_molNumSpecies_new[k] = molNumBase[k] + sc_irxn[k] * dx_orig;
         molSum += molNumBase[k];
     }
@@ -769,7 +759,7 @@ double VCS_SOLVE::vcs_line_search(const size_t irxn, const double dx_orig)
      */
     if (fabs(deltaG1) < 0.8 * forig) {
         if (deltaG1 * deltaGOrig < 0.0) {
-            slope = (deltaG1 - deltaGOrig) / dx_orig;
+            double slope = (deltaG1 - deltaGOrig) / dx_orig;
             dx = -deltaGOrig / slope;
         } else {
             dx = dx_orig;
@@ -786,7 +776,7 @@ double VCS_SOLVE::vcs_line_search(const size_t irxn, const double dx_orig)
          */
         dx *= 0.5;
         m_molNumSpecies_new[kspec] = molNumBase[kspec] + dx;
-        for (k = 0; k < m_numComponents; k++) {
+        for (size_t k = 0; k < m_numComponents; k++) {
             m_molNumSpecies_new[k] = molNumBase[k] + sc_irxn[k] * dx;
         }
         vcs_setFlagsVolPhases(false, VCS_STATECALC_NEW);
@@ -806,7 +796,7 @@ double VCS_SOLVE::vcs_line_search(const size_t irxn, const double dx_orig)
          */
         if (fabs(deltaG) / forig < (1.0 - 0.1 * dx / dx_orig)) {
             if (deltaG * deltaGOrig < 0.0) {
-                slope = (deltaG - deltaGOrig) / dx;
+                double slope = (deltaG - deltaGOrig) / dx;
                 dx = -deltaGOrig / slope;
             }
             goto finalize;

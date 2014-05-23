@@ -36,7 +36,6 @@ int vcs_equilibrate(thermo_t& s, const char* XY,
 {
     MultiPhase* m = 0;
     int retn = 1;
-    int retnSub = 0;
 
     if (solver == 2) {
         m = new MultiPhase;
@@ -78,7 +77,7 @@ int vcs_equilibrate(thermo_t& s, const char* XY,
             if (estimateEquil == 0) {
                 useThermoPhaseElementPotentials = true;
             }
-            retnSub = e->equilibrate(s, XY,
+            int retnSub = e->equilibrate(s, XY,
                                      useThermoPhaseElementPotentials, loglevel-1);
             if (retnSub < 0) {
                 delete e;

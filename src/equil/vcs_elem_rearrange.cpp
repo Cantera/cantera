@@ -19,14 +19,11 @@ namespace VCSnonideal
 int VCS_SOLVE::vcs_elem_rearrange(double* const aw, double* const sa,
                                   double* const sm, double* const ss)
 {
-    size_t  j, k, l, i, jl, ml, jr, ielem;
-    bool lindep;
     size_t ncomponents = m_numComponents;
-    double test = -1.0E10;
 #ifdef DEBUG_MODE
     if (m_debug_print_lvl >= 2) {
         plogf("   ");
-        for (i=0; i<77; i++) {
+        for (size_t i=0; i<77; i++) {
             plogf("-");
         }
         plogf("\n");
@@ -41,10 +38,11 @@ int VCS_SOLVE::vcs_elem_rearrange(double* const aw, double* const sa,
      *        Use a temporary work array for the element numbers
      *        Also make sure the value of test is unique.
      */
-    lindep = false;
+    bool lindep = false;
+    double test = -1.0E10;
     do {
         lindep = false;
-        for (i = 0; i < m_numElemConstraints; ++i) {
+        for (size_t i = 0; i < m_numElemConstraints; ++i) {
             test -= 1.0;
             aw[i] = m_elemAbundancesGoal[i];
             if (test == aw[i]) {
@@ -57,9 +55,10 @@ int VCS_SOLVE::vcs_elem_rearrange(double* const aw, double* const sa,
      *        Top of a loop of some sort based on the index JR. JR is the
      *       current number independent elements found.
      */
-    jr = npos;
+    size_t jr = npos;
     do {
         ++jr;
+        size_t k;
         /*
          *     Top of another loop point based on finding a linearly
          *     independent species
@@ -70,7 +69,7 @@ int VCS_SOLVE::vcs_elem_rearrange(double* const aw, double* const sa,
              *    for the largest remaining species. Return its identity in K.
              */
             k = m_numElemConstraints;
-            for (ielem = jr; ielem < m_numElemConstraints; ielem++) {
+            for (size_t ielem = jr; ielem < m_numElemConstraints; ielem++) {
                 if (m_elementActive[ielem]) {
                     if (aw[ielem] != test) {
                         k = ielem;
@@ -98,13 +97,13 @@ int VCS_SOLVE::vcs_elem_rearrange(double* const aw, double* const sa,
              *          Modified Gram-Schmidt Method, p. 202 Dalquist
              *          QR factorization of a matrix without row pivoting.
              */
-            jl = jr;
+            size_t jl = jr;
             /*
              *   Fill in the row for the current element, k, under consideration
              *   The row will contain the Formula matrix value for that element
              *   from the current component.
              */
-            for (j = 0; j < ncomponents; ++j) {
+            for (size_t j = 0; j < ncomponents; ++j) {
                 sm[j + jr*ncomponents] = m_formulaMatrix[k][j];
             }
             if (jl > 0) {
@@ -114,9 +113,9 @@ int VCS_SOLVE::vcs_elem_rearrange(double* const aw, double* const sa,
                  *         (this is slightly different than Dalquist)
                  *         R_JA_JA = 1
                  */
-                for (j = 0; j < jl; ++j) {
+                for (size_t j = 0; j < jl; ++j) {
                     ss[j] = 0.0;
-                    for (i = 0; i < ncomponents; ++i) {
+                    for (size_t i = 0; i < ncomponents; ++i) {
                         ss[j] += sm[i + jr*ncomponents] * sm[i + j*ncomponents];
                     }
                     ss[j] /= sa[j];
@@ -125,8 +124,8 @@ int VCS_SOLVE::vcs_elem_rearrange(double* const aw, double* const sa,
                  *     Now make the new column, (*,JR), orthogonal to the
                  *     previous columns
                  */
-                for (j = 0; j < jl; ++j) {
-                    for (l = 0; l < ncomponents; ++l) {
+                for (size_t j = 0; j < jl; ++j) {
+                    for (size_t l = 0; l < ncomponents; ++l) {
                         sm[l + jr*ncomponents] -= ss[j] * sm[l + j*ncomponents];
                     }
                 }
@@ -137,7 +136,7 @@ int VCS_SOLVE::vcs_elem_rearrange(double* const aw, double* const sa,
              *        It will be used in the denominator in future row calcs.
              */
             sa[jr] = 0.0;
-            for (ml = 0; ml < ncomponents; ++ml) {
+            for (size_t ml = 0; ml < ncomponents; ++ml) {
                 sa[jr] += SQUARE(sm[ml + jr*ncomponents]);
             }
             /* **************************************************** */
@@ -181,8 +180,6 @@ void VCS_SOLVE::vcs_switch_elem_pos(size_t ipos, size_t jpos)
     if (ipos == jpos) {
         return;
     }
-    size_t j;
-    vcs_VolPhase* volPhase;
 #ifdef DEBUG_MODE
     if (ipos > (m_numElemConstraints - 1) ||
             jpos > (m_numElemConstraints - 1)) {
@@ -197,7 +194,7 @@ void VCS_SOLVE::vcs_switch_elem_pos(size_t ipos, size_t jpos)
      * to reflect the switch in the element positions.
      */
     for (size_t iph = 0; iph < m_numPhases; iph++) {
-        volPhase = m_VolPhaseList[iph];
+        vcs_VolPhase* volPhase = m_VolPhaseList[iph];
         for (size_t e = 0; e < volPhase->nElemConstraints(); e++) {
             if (volPhase->elemGlobalIndex(e) == ipos) {
                 volPhase->setElemGlobalIndex(e, jpos);
@@ -212,7 +209,7 @@ void VCS_SOLVE::vcs_switch_elem_pos(size_t ipos, size_t jpos)
     std::swap(m_elementMapIndex[ipos], m_elementMapIndex[jpos]);
     std::swap(m_elType[ipos], m_elType[jpos]);
     std::swap(m_elementActive[ipos], m_elementActive[jpos]);
-    for (j = 0; j < m_numSpeciesTot; ++j) {
+    for (size_t j = 0; j < m_numSpeciesTot; ++j) {
         std::swap(m_formulaMatrix[ipos][j], m_formulaMatrix[jpos][j]);
     }
     std::swap(m_elementName[ipos], m_elementName[jpos]);
