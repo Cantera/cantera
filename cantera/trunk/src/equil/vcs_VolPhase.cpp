@@ -481,8 +481,6 @@ void vcs_VolPhase::setMoleFractionsState(const double totalMoles,
 void vcs_VolPhase::setMolesFromVCS(const int stateCalc,
                                    const double* molesSpeciesVCS)
 {
-    size_t kglob;
-    double tmp;
     v_totalMoles = m_totalMolesInert;
 
     if (molesSpeciesVCS == 0) {
@@ -524,15 +522,15 @@ void vcs_VolPhase::setMolesFromVCS(const int stateCalc,
 
     for (size_t k = 0; k < m_numSpecies; k++) {
         if (m_speciesUnknownType[k] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
-            kglob = IndSpecies[k];
+            size_t kglob = IndSpecies[k];
             v_totalMoles += std::max(0.0, molesSpeciesVCS[kglob]);
         }
     }
     if (v_totalMoles > 0.0) {
         for (size_t k = 0; k < m_numSpecies; k++) {
             if (m_speciesUnknownType[k] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
-                kglob = IndSpecies[k];
-                tmp = std::max(0.0, molesSpeciesVCS[kglob]);
+                size_t kglob = IndSpecies[k];
+                double tmp = std::max(0.0, molesSpeciesVCS[kglob]);
                 Xmol_[k] = tmp / v_totalMoles;
             }
         }
@@ -551,7 +549,7 @@ void vcs_VolPhase::setMolesFromVCS(const int stateCalc,
      * in the equation system
      */
     if (m_phiVarIndex != npos) {
-        kglob = IndSpecies[m_phiVarIndex];
+        size_t kglob = IndSpecies[m_phiVarIndex];
         if (m_numSpecies == 1) {
             Xmol_[m_phiVarIndex] = 1.0;
         } else {
@@ -1200,9 +1198,6 @@ static bool chargeNeutralityElement(const Cantera::ThermoPhase* const tPhase)
 
 size_t vcs_VolPhase::transferElementsFM(const Cantera::ThermoPhase* const tPhase)
 {
-    size_t e, k, eT;
-    std::string ename;
-    size_t eFound = npos;
     size_t nebase = tPhase->nElements();
     size_t ne = nebase;
     size_t ns = tPhase->nSpecies();
@@ -1227,6 +1222,7 @@ size_t vcs_VolPhase::transferElementsFM(const Cantera::ThermoPhase* const tPhase
         m_elementType[ChargeNeutralityElement] = VCS_ELEM_TYPE_CHARGENEUTRALITY;
     }
 
+    size_t eFound = npos;
     if (hasChargedSpecies(tPhase)) {
         if (cne) {
             /*
@@ -1238,18 +1234,16 @@ size_t vcs_VolPhase::transferElementsFM(const Cantera::ThermoPhase* const tPhase
              * by toggling the ElActive variable. If we find we need it
              * later, we will retoggle ElActive to true.
              */
-            for (eT = 0; eT < nebase; eT++) {
-                ename = tPhase->elementName(eT);
-                if (ename == "E") {
+            for (size_t eT = 0; eT < nebase; eT++) {
+                if (tPhase->elementName(eT) == "E") {
                     eFound = eT;
                     m_elementActive[eT] = 0;
                     m_elementType[eT] = VCS_ELEM_TYPE_ELECTRONCHARGE;
                 }
             }
         } else {
-            for (eT = 0; eT < nebase; eT++) {
-                ename = tPhase->elementName(eT);
-                if (ename == "E") {
+            for (size_t eT = 0; eT < nebase; eT++) {
+                if (tPhase->elementName(eT) == "E") {
                     eFound = eT;
                     m_elementType[eT] = VCS_ELEM_TYPE_ELECTRONCHARGE;
                 }
@@ -1273,10 +1267,9 @@ size_t vcs_VolPhase::transferElementsFM(const Cantera::ThermoPhase* const tPhase
 
     elemResize(ne);
 
-    e = 0;
-    for (eT = 0; eT < nebase; eT++) {
-        ename = tPhase->elementName(eT);
-        m_elementNames[e] = ename;
+    size_t e = 0;
+    for (size_t eT = 0; eT < nebase; eT++) {
+        m_elementNames[e] = tPhase->elementName(eT);
         m_elementType[e] = tPhase->elementType(eT);
         e++;
     }
@@ -1288,15 +1281,14 @@ size_t vcs_VolPhase::transferElementsFM(const Cantera::ThermoPhase* const tPhase
             sss << "phase" << VP_ID_;
             pname = sss.str();
         }
-        ename = "cn_" + pname;
         e = ChargeNeutralityElement;
-        m_elementNames[e] = ename;
+        m_elementNames[e] = "cn_" + pname;
     }
 
     double* const* const fm = m_formulaMatrix.baseDataAddr();
-    for (k = 0; k < ns; k++) {
+    for (size_t k = 0; k < ns; k++) {
         e = 0;
-        for (eT = 0; eT < nebase; eT++) {
+        for (size_t eT = 0; eT < nebase; eT++) {
             fm[e][k] = tPhase->nAtoms(k, eT);
             e++;
         }
@@ -1306,7 +1298,7 @@ size_t vcs_VolPhase::transferElementsFM(const Cantera::ThermoPhase* const tPhase
     }
 
     if (cne) {
-        for (k = 0; k < ns; k++) {
+        for (size_t k = 0; k < ns; k++) {
             fm[ChargeNeutralityElement][k] = tPhase->charge(k);
         }
     }

@@ -29,12 +29,9 @@ static void print_line(const std::string& schar, size_t num)
 int VCS_SOLVE::vcs_report(int iconv)
 {
     bool printActualMoles = true, inertYes = false;
-    size_t i, j, l, k, kspec;
     size_t nspecies = m_numSpeciesTot;
-    double  g;
 
     char originalUnitsState = m_unitsState;
-
 
     std::vector<size_t> sortindex(nspecies,0);
     std::vector<double> xy(nspecies,0.0);
@@ -43,7 +40,7 @@ int VCS_SOLVE::vcs_report(int iconv)
     /* **** SORT DEPENDENT SPECIES IN DECREASING ORDER OF MOLES ***** */
     /* ************************************************************** */
 
-    for (i = 0; i < nspecies; ++i) {
+    for (size_t i = 0; i < nspecies; ++i) {
         sortindex[i] = i;
         xy[i] = m_molNumSpecies_old[i];
     }
@@ -52,8 +49,8 @@ int VCS_SOLVE::vcs_report(int iconv)
      *       and the sort index vector, sortindex, according to
      *       the magnitude of the mole fraction vector.
      */
-    for (l = m_numComponents; l < m_numSpeciesRdc; ++l) {
-        k = vcs_optMax(VCS_DATA_PTR(xy), 0, l, m_numSpeciesRdc);
+    for (size_t l = m_numComponents; l < m_numSpeciesRdc; ++l) {
+        size_t k = vcs_optMax(VCS_DATA_PTR(xy), 0, l, m_numSpeciesRdc);
         if (k != l) {
             std::swap(xy[k], xy[l]);
             std::swap(sortindex[k], sortindex[l]);
@@ -113,7 +110,7 @@ int VCS_SOLVE::vcs_report(int iconv)
     plogf(" Species                 Equilibrium kmoles   ");
     plogf("Mole Fraction    ChemPot/RT    SpecUnkType\n");
     print_line("-", 80);
-    for (i = 0; i < m_numComponents; ++i) {
+    for (size_t i = 0; i < m_numComponents; ++i) {
         plogf(" %-12.12s", m_speciesName[i].c_str());
         print_space(13);
         plogf("%14.7E     %14.7E    %12.4E", m_molNumSpecies_old[i] * molScale,
@@ -121,8 +118,8 @@ int VCS_SOLVE::vcs_report(int iconv)
         plogf("   %3d", m_speciesUnknownType[i]);
         plogf("\n");
     }
-    for (i = m_numComponents; i < m_numSpeciesRdc; ++i) {
-        l = sortindex[i];
+    for (size_t i = m_numComponents; i < m_numSpeciesRdc; ++i) {
+        size_t l = sortindex[i];
         plogf(" %-12.12s", m_speciesName[l].c_str());
         print_space(13);
 
@@ -139,7 +136,7 @@ int VCS_SOLVE::vcs_report(int iconv)
         }
         plogf("\n");
     }
-    for (i = 0; i < m_numPhases; i++) {
+    for (size_t i = 0; i < m_numPhases; i++) {
         if (TPhInertMoles[i] > 0.0) {
             inertYes = true;
             if (i == 0) {
@@ -154,15 +151,15 @@ int VCS_SOLVE::vcs_report(int iconv)
     }
     if (m_numSpeciesRdc != nspecies) {
         plogf("\n SPECIES WITH LESS THAN 1.0E-32 KMOLES:\n\n");
-        for (kspec = m_numSpeciesRdc; kspec < nspecies; ++kspec) {
+        for (size_t kspec = m_numSpeciesRdc; kspec < nspecies; ++kspec) {
             plogf(" %-12.12s", m_speciesName[kspec].c_str());
             // Note m_deltaGRxn_new[] stores in kspec slot not irxn slot, after solve
             plogf("             %14.7E     %14.7E    %12.4E",
                   m_molNumSpecies_old[kspec]*molScale,
                   m_molNumSpecies_new[kspec]*molScale, m_deltaGRxn_new[kspec]);
-            if (m_speciesUnknownType[i] == VCS_SPECIES_TYPE_MOLNUM) {
+            if (m_speciesUnknownType[kspec] == VCS_SPECIES_TYPE_MOLNUM) {
                 plogf("  KMol_Num");
-            } else if (m_speciesUnknownType[i] == VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
+            } else if (m_speciesUnknownType[kspec] == VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
                 plogf("   Voltage");
             } else {
                 plogf("   Unknown");
@@ -180,17 +177,17 @@ int VCS_SOLVE::vcs_report(int iconv)
     plogf("\n");
     print_line("-", m_numComponents*10 + 45);
     plogf("               |ComponentID|");
-    for (j = 0; j < m_numComponents; j++) {
+    for (size_t j = 0; j < m_numComponents; j++) {
         plogf("        %3d", j);
     }
     plogf(" |           |\n");
     plogf("               | Components|");
-    for (j = 0; j < m_numComponents; j++) {
+    for (size_t j = 0; j < m_numComponents; j++) {
         plogf(" %10.10s", m_speciesName[j].c_str());
     }
     plogf(" |           |\n");
     plogf(" NonComponent  |   Moles   |");
-    for (j = 0; j < m_numComponents; j++) {
+    for (size_t j = 0; j < m_numComponents; j++) {
         plogf(" %10.3g", m_molNumSpecies_old[j] * molScale);
     }
     plogf(" | DG/RT Rxn |\n");
@@ -200,7 +197,7 @@ int VCS_SOLVE::vcs_report(int iconv)
         plogf(" %3d ", kspec);
         plogf("%-10.10s", m_speciesName[kspec].c_str());
         plogf("|%10.3g |", m_molNumSpecies_old[kspec]*molScale);
-        for (j = 0; j < m_numComponents; j++) {
+        for (size_t j = 0; j < m_numComponents; j++) {
             plogf("     %6.2f", m_stoichCoeffRxnMatrix[irxn][j]);
         }
         plogf(" |%10.3g |", m_deltaGRxn_new[irxn]);
@@ -221,17 +218,17 @@ int VCS_SOLVE::vcs_report(int iconv)
     plogf("\n");
     print_line("-", m_numElemConstraints*10 + 58);
     plogf("                  | ElementID |");
-    for (j = 0; j < m_numElemConstraints; j++) {
+    for (size_t j = 0; j < m_numElemConstraints; j++) {
         plogf("        %3d", j);
     }
     plogf(" |                     |\n");
     plogf("                  | Element   |");
-    for (j = 0; j < m_numElemConstraints; j++) {
+    for (size_t j = 0; j < m_numElemConstraints; j++) {
         plogf(" %10.10s", (m_elementName[j]).c_str());
     }
     plogf(" |                     |\n");
     plogf("    PhaseName     |KMolTarget |");
-    for (j = 0; j < m_numElemConstraints; j++) {
+    for (size_t j = 0; j < m_numElemConstraints; j++) {
         plogf(" %10.3g", m_elemAbundancesGoal[j]);
     }
     plogf(" |     Gibbs Total     |\n");
@@ -249,7 +246,7 @@ int VCS_SOLVE::vcs_report(int iconv)
             }
         }
         vcs_elabPhase(iphase, VCS_DATA_PTR(gaPhase));
-        for (j = 0; j < m_numElemConstraints; j++) {
+        for (size_t j = 0; j < m_numElemConstraints; j++) {
             plogf(" %10.3g", gaPhase[j]);
             gaTPhase[j] += gaPhase[j];
         }
@@ -260,7 +257,7 @@ int VCS_SOLVE::vcs_report(int iconv)
     }
     print_line("-", m_numElemConstraints*10 + 58);
     plogf("    TOTAL         |%10.3e |", totalMoles);
-    for (j = 0; j < m_numElemConstraints; j++) {
+    for (size_t j = 0; j < m_numElemConstraints; j++) {
         plogf(" %10.3g", gaTPhase[j]);
     }
     plogf(" | %18.11E |\n", gibbsTotal);
@@ -278,8 +275,8 @@ int VCS_SOLVE::vcs_report(int iconv)
      *        energy of zero
      */
 
-    g = vcs_Total_Gibbs(VCS_DATA_PTR(m_molNumSpecies_old), VCS_DATA_PTR(m_feSpecies_old),
-                        VCS_DATA_PTR(m_tPhaseMoles_old));
+    double g = vcs_Total_Gibbs(VCS_DATA_PTR(m_molNumSpecies_old), VCS_DATA_PTR(m_feSpecies_old),
+                               VCS_DATA_PTR(m_tPhaseMoles_old));
     plogf("\n\tTotal Dimensionless Gibbs Free Energy = G/RT = %15.7E\n", g);
     if (inertYes) {
         plogf("\t\t(Inert species have standard free energy of zero)\n");
@@ -287,7 +284,7 @@ int VCS_SOLVE::vcs_report(int iconv)
 
     plogf("\nElemental Abundances (kmol): ");
     plogf("         Actual                    Target         Type      ElActive\n");
-    for (i = 0; i < m_numElemConstraints; ++i) {
+    for (size_t i = 0; i < m_numElemConstraints; ++i) {
         print_space(26);
         plogf("%-2.2s", (m_elementName[i]).c_str());
         plogf("%20.12E  %20.12E", m_elemAbundances[i]*molScale, m_elemAbundancesGoal[i]*molScale);
@@ -311,8 +308,8 @@ int VCS_SOLVE::vcs_report(int iconv)
     plogf("|  (MolNum ChemPot)|");
     plogf("\n");
     print_line("-", 147);
-    for (i = 0; i < nspecies; ++i) {
-        l = sortindex[i];
+    for (size_t i = 0; i < nspecies; ++i) {
+        size_t l = sortindex[i];
         size_t pid = m_phaseID[l];
         plogf(" %-12.12s", m_speciesName[l].c_str());
         plogf(" %14.7E ", m_molNumSpecies_old[l]*molScale);
@@ -351,7 +348,7 @@ int VCS_SOLVE::vcs_report(int iconv)
         plogf("|  %20.9E |", m_feSpecies_old[l] * m_molNumSpecies_old[l] * molScale);
         plogf("\n");
     }
-    for (i = 0; i < 125; i++) {
+    for (size_t i = 0; i < 125; i++) {
         plogf(" ");
     }
     plogf(" %20.9E\n", g);

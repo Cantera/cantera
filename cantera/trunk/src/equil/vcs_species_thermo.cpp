@@ -124,9 +124,8 @@ double VCS_SPECIES_THERMO::GStar_R_calc(size_t kglob, double TKelvin,
                                         double pres)
 {
     char yo[] = "VCS_SPECIES_THERMO::GStar_R_calc ";
-    double fe, T;
-    fe = G0_R_calc(kglob, TKelvin);
-    T = TKelvin;
+    double fe = G0_R_calc(kglob, TKelvin);
+    double T = TKelvin;
     if (UseCanteraCalls) {
         if (m_VCS_UnitsFormat != VCS_UNITS_MKS) {
             throw Cantera::CanteraError("VCS_SPECIES_THERMO::GStar_R_calc",
@@ -157,9 +156,9 @@ double VCS_SPECIES_THERMO::VolStar_calc(size_t kglob, double TKelvin,
                                         double presPA)
 {
     char yo[] = "VCS_SPECIES_THERMO::VStar_calc ";
-    double vol, T;
+    double vol;
 
-    T = TKelvin;
+    double T = TKelvin;
     if (UseCanteraCalls) {
         if (m_VCS_UnitsFormat != VCS_UNITS_MKS) {
             throw Cantera::CanteraError("VCS_SPECIES_THERMO::VolStar_calc",

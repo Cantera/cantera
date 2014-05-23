@@ -8,7 +8,6 @@ namespace VCSnonideal
 {
 int VCS_SOLVE::vcs_TP(int ipr, int ip1, int maxit, double T_arg, double pres_arg)
 {
-    int retn, iconv;
     /*
      *        Store the temperature and pressure in the private global variables
      */
@@ -18,7 +17,7 @@ int VCS_SOLVE::vcs_TP(int ipr, int ip1, int maxit, double T_arg, double pres_arg
      *        Evaluate the standard state free energies
      *        at the current temperatures and pressures.
      */
-    iconv = vcs_evalSS_TP(ipr, ip1, m_temperature, pres_arg);
+    int iconv = vcs_evalSS_TP(ipr, ip1, m_temperature, pres_arg);
 
     /*
      *        Prepare the problem data:
@@ -35,7 +34,7 @@ int VCS_SOLVE::vcs_TP(int ipr, int ip1, int maxit, double T_arg, double pres_arg
      *      If so, go get one. If not, then
      */
     if (m_doEstimateEquil) {
-        retn = vcs_inest_TP();
+        int retn = vcs_inest_TP();
         if (retn != VCS_SUCCESS) {
             plogf("vcs_inest_TP returned a failure flag\n");
         }

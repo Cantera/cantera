@@ -18,8 +18,7 @@ namespace VCSnonideal
 #ifndef USE_MEMSET
 void vcs_dzero(double* vector, int length)
 {
-    int i;
-    for (i = 0; i < length; i++) {
+    for (int i = 0; i < length; i++) {
         vector[i] = 0.0;
     }
 }
@@ -28,8 +27,7 @@ void vcs_dzero(double* vector, int length)
 #ifndef USE_MEMSET
 void vcs_izero(int* vector, int length)
 {
-    int i;
-    for (i = 0; i < length; i++) {
+    for (int i = 0; i < length; i++) {
         vector[i] = 0;
     }
 }
@@ -38,8 +36,7 @@ void vcs_izero(int* vector, int length)
 #ifndef USE_MEMSET
 void vcs_dcopy(double* const vec_to, const double* const vec_from, int length)
 {
-    int i;
-    for (i = 0; i < length; i++) {
+    for (int i = 0; i < length; i++) {
         vec_to[i] = vec_from[i];
     }
 }
@@ -48,8 +45,7 @@ void vcs_dcopy(double* const vec_to, const double* const vec_from, int length)
 #ifndef USE_MEMSET
 void vcs_icopy(int* vec_to, int* vec_from, int length)
 {
-    int i;
-    for (i = 0; i < length; i++) {
+    for (int i = 0; i < length; i++) {
         vec_to[i] = vec_from[i];
     }
 }
@@ -109,13 +105,12 @@ void vcs_vicopy(std::vector<int> &vec_to,
 
 size_t vcs_optMax(const double* x, const double* xSize, size_t j, size_t n)
 {
-    size_t i;
     size_t largest = j;
     double big = x[j];
     if (xSize) {
         assert(xSize[j] > 0.0);
         big *= xSize[j];
-        for (i = j + 1; i < n; ++i) {
+        for (size_t i = j + 1; i < n; ++i) {
             assert(xSize[i] > 0.0);
             if ((x[i] * xSize[i]) > big) {
                 largest = i;
@@ -123,7 +118,7 @@ size_t vcs_optMax(const double* x, const double* xSize, size_t j, size_t n)
             }
         }
     } else {
-        for (i = j + 1; i < n; ++i) {
+        for (size_t i = j + 1; i < n; ++i) {
             if (x[i] > big) {
                 largest = i;
                 big = x[i];
@@ -135,12 +130,12 @@ size_t vcs_optMax(const double* x, const double* xSize, size_t j, size_t n)
 
 int vcs_max_int(const int* vector, int length)
 {
-    int i, retn;
+    int retn;
     if (vector == NULL || length <= 0) {
         return 0;
     }
     retn = vector[0];
-    for (i = 1; i < length; i++) {
+    for (int i = 1; i < length; i++) {
         retn = std::max(retn, vector[i]);
     }
     return retn;
@@ -148,30 +143,23 @@ int vcs_max_int(const int* vector, int length)
 
 double vcsUtil_gasConstant(int mu_units)
 {
-    double r;
     switch (mu_units) {
     case VCS_UNITS_KCALMOL:
-        r = Cantera::GasConst_cal_mol_K * 1e-3;
-        break;
+        return Cantera::GasConst_cal_mol_K * 1e-3;
     case VCS_UNITS_UNITLESS:
-        r = 1.0;
-        break;
+        return 1.0;
     case VCS_UNITS_KJMOL:
-        r = Cantera::GasConstant * 1e-6;
-        break;
+        return Cantera::GasConstant * 1e-6;
     case VCS_UNITS_KELVIN:
-        r = 1.0;
-        break;
+        return 1.0;
     case VCS_UNITS_MKS:
         /* joules / kg-mol K = kg m2 / s2 kg-mol K */
-        r = Cantera::GasConstant;
-        break;
+        return Cantera::GasConstant;
     default:
         plogf("vcs_gasConstant error: uknown units: %d\n",
               mu_units);
         exit(EXIT_FAILURE);
     }
-    return r;
 }
 
 void vcs_print_line(const char* string, int num)
@@ -189,77 +177,66 @@ const char* vcs_speciesType_string(int speciesStatus, int length)
     const char* sss;
     switch (speciesStatus) {
     case VCS_SPECIES_COMPONENT:
-        sss = "Component Species";
-        break;
+        return "Component Species";
     case VCS_SPECIES_MAJOR:
-        sss = "Major Species";
-        break;
+        return "Major Species";
     case VCS_SPECIES_MINOR:
-        sss = "Minor Species";
-        break;
+        return "Minor Species";
     case VCS_SPECIES_ZEROEDPHASE:
         if (length < 48) {
-            sss = "Set Zeroed-Phase";
+            return "Set Zeroed-Phase";
         } else {
-            sss = "Purposely Zeroed-Phase Species (not in problem)";
+            return "Purposely Zeroed-Phase Species (not in problem)";
         }
-        break;
     case VCS_SPECIES_ZEROEDMS:
         if (length < 23) {
-            sss = "Zeroed-MS Phase";
+            return "Zeroed-MS Phase";
         } else {
-            sss = "Zeroed-MS Phase Species";
+            return "Zeroed-MS Phase Species";
         }
-        break;
     case VCS_SPECIES_ZEROEDSS:
         if (length < 23) {
-            sss = "Zeroed-SS Phase";
+            return "Zeroed-SS Phase";
         } else {
-            sss = "Zeroed-SS Phase Species";
+            return "Zeroed-SS Phase Species";
         }
-        break;
     case VCS_SPECIES_DELETED:
         if (length < 22) {
-            sss = "Deleted Species";
+            return "Deleted Species";
         } else if (length < 40) {
-            sss = "Deleted-Small Species";
+            return "Deleted-Small Species";
         } else {
-            sss = "Deleted-Small Species in a MS phase";
+            return "Deleted-Small Species in a MS phase";
         }
-        break;
     case VCS_SPECIES_ACTIVEBUTZERO:
         if (length < 47) {
-            sss = "Tmp Zeroed in MS";
+            return "Tmp Zeroed in MS";
         } else {
-            sss = "Zeroed Species in an active MS phase (tmp)";
+            return "Zeroed Species in an active MS phase (tmp)";
         }
-        break;
     case VCS_SPECIES_STOICHZERO:
         if (length < 56) {
-            sss = "Stoich Zeroed in MS";
+            return "Stoich Zeroed in MS";
         } else {
-            sss = "Zeroed Species in an active MS phase (Stoich Constraint)";
+            return "Zeroed Species in an active MS phase (Stoich Constraint)";
         }
-        break;
     case VCS_SPECIES_INTERFACIALVOLTAGE:
         if (length < 29) {
-            sss = "InterfaceVoltage";
+            return "InterfaceVoltage";
         } else {
-            sss = "InterfaceVoltage Species";
+            return "InterfaceVoltage Species";
         }
-        break;
     default:
-        sss = "unknown species type";
+        return "unknown species type";
     }
-    return sss;
 }
 
 void vcs_print_stringTrunc(const char* str, size_t space, int alignment)
 {
-    size_t i, ls = 0, rs = 0;
+    size_t ls = 0, rs = 0;
     size_t len = strlen(str);
     if ((len) >= space) {
-        for (i = 0; i < space; i++) {
+        for (size_t i = 0; i < space; i++) {
             plogf("%c", str[i]);
         }
     } else {
@@ -272,13 +249,13 @@ void vcs_print_stringTrunc(const char* str, size_t space, int alignment)
             rs = space - len - ls;
         }
         if (ls != 0) {
-            for (i = 0; i < ls; i++) {
+            for (size_t i = 0; i < ls; i++) {
                 plogf(" ");
             }
         }
         plogf("%s", str);
         if (rs != 0) {
-            for (i = 0; i < rs; i++) {
+            for (size_t i = 0; i < rs; i++) {
                 plogf(" ");
             }
         }

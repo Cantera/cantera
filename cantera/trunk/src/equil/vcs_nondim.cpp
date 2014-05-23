@@ -18,7 +18,6 @@ namespace VCSnonideal
 {
 double VCS_SOLVE::vcs_nondim_Farad(int mu_units, double TKelvin) const
 {
-    double Farad;
     if (TKelvin <= 0.0) {
         TKelvin = 293.15;
     }
@@ -26,59 +25,47 @@ double VCS_SOLVE::vcs_nondim_Farad(int mu_units, double TKelvin) const
     case VCS_UNITS_MKS:
     case VCS_UNITS_KJMOL:
     case VCS_UNITS_KCALMOL:
-        Farad = Cantera::ElectronCharge * Cantera::Avogadro /
+        return Cantera::ElectronCharge * Cantera::Avogadro /
                 (TKelvin * Cantera::GasConstant);
-        break;
     case VCS_UNITS_UNITLESS:
-        Farad = Cantera::ElectronCharge * Cantera::Avogadro;
-        break;
+        return Cantera::ElectronCharge * Cantera::Avogadro;
     case VCS_UNITS_KELVIN:
-        Farad = Cantera::ElectronCharge * Cantera::Avogadro/ TKelvin;
-        break;
+        return Cantera::ElectronCharge * Cantera::Avogadro/ TKelvin;
     default:
         plogf("vcs_nondim_Farad error: unknown units: %d\n", mu_units);
         plogendl();
         exit(EXIT_FAILURE);
     }
-    return Farad;
 }
 
 double VCS_SOLVE::vcs_nondimMult_TP(int mu_units, double TKelvin) const
 {
-    double rt;
     if (TKelvin <= 0.0) {
         TKelvin = 293.15;
     }
     switch (mu_units) {
     case VCS_UNITS_KCALMOL:
-        rt = TKelvin * Cantera::GasConst_cal_mol_K * 1e-3;
-        break;
+        return TKelvin * Cantera::GasConst_cal_mol_K * 1e-3;
     case VCS_UNITS_UNITLESS:
-        rt = 1.0;
-        break;
+        return 1.0;
     case VCS_UNITS_KJMOL:
-        rt = TKelvin * Cantera::GasConstant * 1e-6;
-        break;
+        return TKelvin * Cantera::GasConstant * 1e-6;
     case VCS_UNITS_KELVIN:
-        rt = TKelvin;
-        break;
+        return TKelvin;
     case VCS_UNITS_MKS:
-        rt = TKelvin * Cantera::GasConstant;
-        break;
+        return TKelvin * Cantera::GasConstant;
     default:
         plogf("vcs_nondimMult_TP error: unknown units: %d\n", mu_units);
         plogendl();
         exit(EXIT_FAILURE);
     }
-    return rt;
 }
 
 void VCS_SOLVE::vcs_nondim_TP()
 {
-    double tf;
     if (m_unitsState == VCS_DIMENSIONAL_G) {
         m_unitsState = VCS_NONDIMENSIONAL_G;
-        tf = 1.0 / vcs_nondimMult_TP(m_VCS_UnitsFormat, m_temperature);
+        double tf = 1.0 / vcs_nondimMult_TP(m_VCS_UnitsFormat, m_temperature);
         for (size_t i = 0; i < m_numSpeciesTot; ++i) {
             /*
              *        Modify the standard state and total chemical potential data,
@@ -166,10 +153,9 @@ void VCS_SOLVE::vcs_nondim_TP()
 
 void VCS_SOLVE::vcs_redim_TP(void)
 {
-    double tf;
     if (m_unitsState != VCS_DIMENSIONAL_G) {
         m_unitsState = VCS_DIMENSIONAL_G;
-        tf = vcs_nondimMult_TP(m_VCS_UnitsFormat, m_temperature);
+        double tf = vcs_nondimMult_TP(m_VCS_UnitsFormat, m_temperature);
         for (size_t i = 0; i < m_numSpeciesTot; ++i) {
             /*
              *        Modify the standard state and total chemical potential data,
