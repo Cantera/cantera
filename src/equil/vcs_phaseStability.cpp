@@ -398,7 +398,6 @@ int VCS_SOLVE::vcs_popPhaseRxnStepSizes(const size_t iphasePop)
         printf("ERROR vcs_popPhaseRxnStepSizes called for a phase that exists!");
         exit(-1);
     }
-    char anote[256];
     if (m_debug_print_lvl >= 2) {
         plogf("  ---  vcs_popPhaseRxnStepSizes() called to pop phase %s %d into existence\n",
               Vphase->PhaseName.c_str(), iphasePop);
@@ -426,12 +425,6 @@ int VCS_SOLVE::vcs_popPhaseRxnStepSizes(const size_t iphasePop)
         if (s != 0.0) {
             double s_old = s;
             s = vcs_Hessian_diag_adj(irxn, s_old);
-#ifdef DEBUG_MODE
-            if (s_old != s) {
-                sprintf(anote, "Normal calc: diag adjusted from %g "
-                        "to %g due to act coeff",  s_old, s);
-            }
-#endif
             m_deltaMolNumSpecies[kspec] = -m_deltaGRxn_new[irxn] / s;
         } else {
             // Ok, s is equal to zero. We can not apply a sophisticated theory
@@ -449,18 +442,8 @@ int VCS_SOLVE::vcs_popPhaseRxnStepSizes(const size_t iphasePop)
                     double negChangeComp = - stoicC * m_deltaMolNumSpecies[kspec];
                     if (negChangeComp > m_molNumSpecies_old[j]) {
                         if (m_molNumSpecies_old[j] > 0.0) {
-#ifdef DEBUG_MODE
-                            sprintf(anote, "Delta damped from %g "
-                                    "to %g due to component %lu (%10s) going neg", m_deltaMolNumSpecies[kspec],
-                                    -m_molNumSpecies_old[j]/stoicC, j,  m_speciesName[j].c_str());
-#endif
                             m_deltaMolNumSpecies[kspec] = - 0.5 * m_molNumSpecies_old[j] / stoicC;
                         } else {
-#ifdef DEBUG_MODE
-                            sprintf(anote, "Delta damped from %g "
-                                    "to %g due to component %lu (%10s) zero", m_deltaMolNumSpecies[kspec],
-                                    -m_molNumSpecies_old[j]/stoicC, j,  m_speciesName[j].c_str());
-#endif
                             m_deltaMolNumSpecies[kspec] = 0.0;
                         }
                     }
@@ -469,11 +452,6 @@ int VCS_SOLVE::vcs_popPhaseRxnStepSizes(const size_t iphasePop)
         }
         // Implement a damping term that limits m_deltaMolNumSpecies to the size of the mole number
         if (-m_deltaMolNumSpecies[kspec] > m_molNumSpecies_old[kspec]) {
-#ifdef DEBUG_MODE
-            sprintf(anote, "Delta damped from %g "
-                    "to %g due to %s going negative", m_deltaMolNumSpecies[kspec],
-                    -m_molNumSpecies_old[kspec],  m_speciesName[kspec].c_str());
-#endif
             m_deltaMolNumSpecies[kspec] = -m_molNumSpecies_old[kspec];
         }
 
