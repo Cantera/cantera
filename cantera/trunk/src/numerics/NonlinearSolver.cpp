@@ -18,6 +18,7 @@
 #include "cantera/base/clockWC.h"
 #include "cantera/base/vec_functions.h"
 #include "cantera/base/stringUtils.h"
+#include "cantera/base/global.h"
 
 #include <limits>
 
@@ -35,19 +36,6 @@ const doublereal DampFactor = 4.0;
 //! Number of damping steps that are carried out before the solution is deemed
 //! a failure
 const int NDAMP = 7;
-
-//! Print a line of a single repeated character string
-/*!
- *  @param str  Character string
- *  @param n    Iteration length
- */
-static void print_line(const char* str, int n)
-{
-    for (int i = 0; i < n; i++) {
-        printf("%s", str);
-    }
-    printf("\n");
-}
 
 bool NonlinearSolver::s_TurnOffTiming(false);
 
@@ -451,7 +439,7 @@ doublereal NonlinearSolver::solnErrorNorm(const doublereal* const delta_y, const
 
             const int num_entries = printLargest;
             printf("\t\t   ");
-            print_line("-", 90);
+            writeline('-', 90);
             printf("\t\t   solnErrorNorm(): ");
             if (title) {
                 printf("%s", title);
@@ -467,7 +455,7 @@ doublereal NonlinearSolver::solnErrorNorm(const doublereal* const delta_y, const
             printf("\t\t        I   weightdeltaY/sqtN|     deltaY    "
                    "ysolnOld     ysolnNew   Soln_Weights\n");
             printf("\t\t     ");
-            print_line("-", 88);
+            writeline('-', 88);
 
             for (int jnum = 0; jnum < num_entries; jnum++) {
                 dmax1 = -1.0;
@@ -497,7 +485,7 @@ doublereal NonlinearSolver::solnErrorNorm(const doublereal* const delta_y, const
                 }
             }
             printf("\t\t   ");
-            print_line("-", 90);
+            writeline('-', 90);
         }
     }
     return sum_norm;
@@ -539,7 +527,7 @@ doublereal NonlinearSolver::residErrorNorm(const doublereal* const resid, const 
         }
         if (m_print_flag >= 6) {
             printf("\t\t   ");
-            print_line("-", 90);
+            writeline('-', 90);
             printf("\t\t   residErrorNorm(): ");
             if (title) {
                 printf(" %s ", title);
@@ -550,7 +538,7 @@ doublereal NonlinearSolver::residErrorNorm(const doublereal* const resid, const 
             printf("\t\t        Printout of Largest Contributors to norm:\n");
             printf("\t\t        I       |Resid/ResWt|     UnsclRes          ResWt    |  y_curr\n");
             printf("\t\t     ");
-            print_line("-", 88);
+            writeline('-', 88);
             for (int jnum = 0; jnum < num_entries; jnum++) {
                 dmax1 = -1.0;
                 for (size_t i = 0; i < neq_; i++) {
@@ -578,7 +566,7 @@ doublereal NonlinearSolver::residErrorNorm(const doublereal* const resid, const 
             }
 
             printf("\t\t   ");
-            print_line("-", 90);
+            writeline('-', 90);
         }
     }
     return sum_norm;
@@ -2738,7 +2726,7 @@ int NonlinearSolver::solve_nonlinear_problem(int SolnType, doublereal* const y_c
 
         if (m_print_flag > 3) {
             printf("\t");
-            print_line("=", 119);
+            writeline('=', 119);
             printf("\tsolve_nonlinear_problem(): iteration %d:\n",
                    num_newt_its);
         }
@@ -3098,7 +3086,7 @@ int NonlinearSolver::solve_nonlinear_problem(int SolnType, doublereal* const y_c
                     printf("\t   solve_nonlinear_problem(): Problem Converged, stepNorm = %11.3E, reduction of res from %11.3E to %11.3E\n",
                            stepNorm_1, m_normResid_0, m_normResid_full);
                     printf("\t");
-                    print_line("=", 119);
+                    writeline('=', 119);
                 } else {
                     printf("\t   solve_nonlinear_problem(): Successfull step taken with stepNorm = %11.3E, reduction of res from %11.3E to %11.3E\n",
                            stepNorm_1, m_normResid_0, m_normResid_full);
@@ -3108,7 +3096,7 @@ int NonlinearSolver::solve_nonlinear_problem(int SolnType, doublereal* const y_c
                     printf("\t   solve_nonlinear_problem(): Damped Newton iteration successful, nonlin "
                            "converged, final estimate of the next solution update norm = %-12.4E\n", stepNorm_2);
                     printf("\t");
-                    print_line("=", 119);
+                    writeline('=', 119);
                 } else if (retnDamp >= NSOLN_RETN_CONTINUE) {
                     printf("\t   solve_nonlinear_problem(): Damped Newton iteration successful, "
                            "estimate of the next solution update norm = %-12.4E\n", stepNorm_2);
@@ -3237,7 +3225,7 @@ void NonlinearSolver::print_solnDelta_norm_contrib(const doublereal* const step_
            "%10s ysolnNewTrialRaw | solnWeight  wtDelSoln wtDelSolnTrial\n", stepNorm_1, stepNorm_2);
     std::vector<size_t> imax(num_entries, npos);
     printf("\t\t   ");
-    print_line("-", 125);
+    writeline('-', 125);
     for (size_t jnum = 0; jnum < num_entries; jnum++) {
         dmax1 = -1.0;
         for (size_t i = 0; i < neq_; i++) {
@@ -3270,7 +3258,7 @@ void NonlinearSolver::print_solnDelta_norm_contrib(const doublereal* const step_
         }
     }
     printf("\t\t   ");
-    print_line("-", 125);
+    writeline('-', 125);
 }
 //====================================================================================================================
 //!  This routine subtracts two numbers for one another

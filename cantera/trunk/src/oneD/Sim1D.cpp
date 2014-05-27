@@ -12,13 +12,6 @@ using namespace std;
 namespace Cantera
 {
 
-static void sim1D_drawline()
-{
-    string s(78,'.');
-    s += '\n';
-    writelog(s.c_str());
-}
-
 Sim1D::Sim1D() :
     OneDim()
 {
@@ -236,8 +229,7 @@ void Sim1D::solve(int loglevel, bool refine_grid)
 
         bool ok = false;
         if (loglevel > 0) {
-            writelog("\n");
-            sim1D_drawline();
+            writeline('.', 78, true, true);
         }
         while (!ok) {
             writelog("Attempt Newton solution of steady-state problem...", loglevel);
@@ -304,8 +296,7 @@ void Sim1D::solve(int loglevel, bool refine_grid)
             }
         }
         if (loglevel > 0) {
-            sim1D_drawline();
-            writelog("\n");
+            writeline('.', 78, true, true);
         }
         if (loglevel > 2) {
             showSolution();

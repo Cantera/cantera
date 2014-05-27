@@ -374,16 +374,6 @@ size_t vcs_optMax(const double* x, const double* xSize, size_t j, size_t n);
  */
 int vcs_max_int(const int* vector, int length);
 
-//! Prints a line consisting of multiple occurrences of the same string
-/*!
- *  This prints a string num times, and then terminate with a
- *  end of line character
- *
- * @param str C string that is null terminated
- * @param num number of times the string is to be printed
- */
-void vcs_print_line(const char* str, int num);
-
 //! Returns a const char string representing the type of the
 //! species given by the first argument
 /*!

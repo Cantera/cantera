@@ -18,12 +18,6 @@ using namespace std;
 namespace Cantera
 {
 
-static void st_drawline()
-{
-    writelog("\n-------------------------------------"
-             "------------------------------------------");
-}
-
 StFlow::StFlow(IdealGasPhase* ph, size_t nsp, size_t points) :
     Domain1D(nsp+4, points),
     m_inlet_u(0.0),
@@ -464,14 +458,14 @@ void StFlow::showSolution(const doublereal* x)
     sprintf(buf, "    Pressure:  %10.4g Pa \n", m_press);
     writelog(buf);
     for (i = 0; i < nn; i++) {
-        st_drawline();
+        writeline('-', 79, false, true);
         sprintf(buf, "\n        z   ");
         writelog(buf);
         for (n = 0; n < 5; n++) {
             sprintf(buf, " %10s ",componentName(i*5 + n).c_str());
             writelog(buf);
         }
-        st_drawline();
+        writeline('-', 79, false, true);
         for (j = 0; j < m_points; j++) {
             sprintf(buf, "\n %10.4g ",m_z[j]);
             writelog(buf);
@@ -483,14 +477,14 @@ void StFlow::showSolution(const doublereal* x)
         writelog("\n");
     }
     size_t nrem = m_nv - 5*nn;
-    st_drawline();
+    writeline('-', 79, false, true);
     sprintf(buf, "\n        z   ");
     writelog(buf);
     for (n = 0; n < nrem; n++) {
         sprintf(buf, " %10s ", componentName(nn*5 + n).c_str());
         writelog(buf);
     }
-    st_drawline();
+    writeline('-', 79, false, true);
     for (j = 0; j < m_points; j++) {
         sprintf(buf, "\n %10.4g ",m_z[j]);
         writelog(buf);
