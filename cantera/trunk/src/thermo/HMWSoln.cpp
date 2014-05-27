@@ -1848,12 +1848,6 @@ void HMWSoln::s_updatePitzer_lnMolalityActCoeff() const
         exit(EXIT_FAILURE);
     }
 
-#ifdef DEBUG_MODE
-    int printE = 0;
-    if (temperature() == 323.15) {
-        printE = 0;
-    }
-#endif
     std::string sni,  snj, snk;
 
     /*
@@ -2066,17 +2060,6 @@ void HMWSoln::s_updatePitzer_lnMolalityActCoeff() const
             n = m_kk*i + j;
             counterIJ = m_CounterIJ[n];
 
-#ifdef DEBUG_MODE
-            if (printE) {
-                if (counterIJ == 2) {
-                    printf("%s %s\n", speciesName(i).c_str(),
-                           speciesName(j).c_str());
-                    printf("beta0MX[%d] = %g\n", (int) counterIJ, beta0MX[counterIJ]);
-                    printf("beta1MX[%d] = %g\n", (int) counterIJ, beta1MX[counterIJ]);
-                    printf("beta2MX[%d] = %g\n", (int) counterIJ, beta2MX[counterIJ]);
-                }
-            }
-#endif
             /*
              * both species have a non-zero charge, and one is positive
              * and the other is negative
@@ -2143,15 +2126,6 @@ void HMWSoln::s_updatePitzer_lnMolalityActCoeff() const
             } else {
                 CMX[counterIJ] = 0.0;
             }
-#ifdef DEBUG_MODE
-            if (printE) {
-                if (counterIJ == 2) {
-                    printf("%s %s\n", speciesName(i).c_str(),
-                           speciesName(j).c_str());
-                    printf("CphiMX[%d] = %g\n", (int) counterIJ, CphiMX[counterIJ]);
-                }
-            }
-#endif
 #ifdef DEBUG_MODE
             if (m_debugCalc) {
                 sni = speciesName(i);
@@ -2220,11 +2194,6 @@ void HMWSoln::s_updatePitzer_lnMolalityActCoeff() const
     Aphi = A_Debye_TP() / 3.0;
     F = -Aphi * (sqrt(Is) / (1.0 + 1.2*sqrt(Is))
                  + (2.0/1.2) * log(1.0+1.2*(sqrtIs)));
-#ifdef DEBUG_MODE
-    if (printE) {
-        printf("Aphi = %20.13g\n", Aphi);
-    }
-#endif
 #ifdef DEBUG_MODE
     if (m_debugCalc) {
         printf(" initial value of F = %10.6f \n", F);
@@ -2821,11 +2790,6 @@ void HMWSoln::s_updatePitzer_lnMolalityActCoeff() const
     } else {
         osmotic_coef = 1.0;
     }
-#ifdef DEBUG_MODE
-    if (printE) {
-        printf("OsmCoef - 1 = %20.13g\n", osmotic_coef - 1.0);
-    }
-#endif
 #ifdef DEBUG_MODE
     if (m_debugCalc) {
         printf(" term1=%10.6f sum1=%10.6f sum2=%10.6f "
