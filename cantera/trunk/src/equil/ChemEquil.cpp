@@ -292,7 +292,7 @@ int ChemEquil::estimateElementPotentials(thermo_t& s, vector_fp& lambda_RT,
 
     if (DEBUG_MODE_ENABLED && ChemEquil_print_lvl > 0) {
         for (size_t m = 0; m < m_nComponents; m++) {
-            int isp = m_component[m];
+            int isp = static_cast<int>(m_component[m]);
             string nnn = s.speciesName(isp);
             writelogf("isp = %d, %s\n", isp, nnn.c_str());
         }
@@ -329,7 +329,7 @@ int ChemEquil::estimateElementPotentials(thermo_t& s, vector_fp& lambda_RT,
     if (DEBUG_MODE_ENABLED && ChemEquil_print_lvl > 0) {
         writelog(" id      CompSpecies      ChemPot       EstChemPot       Diff\n");
         for (size_t m = 0; m < m_nComponents; m++) {
-            int isp = m_component[m];
+            size_t isp = m_component[m];
             double tmp = 0.0;
             string sname = s.speciesName(isp);
             for (size_t n = 0; n < m_mm; n++) {
@@ -1567,8 +1567,8 @@ void ChemEquil::adjustEloc(thermo_t& s, vector_fp& elMolesGoal)
     s.getMoleFractions(DATA_PTR(m_molefractions));
     size_t k;
 
-    int maxPosEloc = -1;
-    int maxNegEloc = -1;
+    size_t maxPosEloc = npos;
+    size_t maxNegEloc = npos;
     double maxPosVal = -1.0;
     double maxNegVal = -1.0;
     if (DEBUG_MODE_ENABLED && ChemEquil_print_lvl > 0) {

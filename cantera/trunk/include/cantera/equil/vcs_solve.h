@@ -1366,7 +1366,7 @@ private:
     void prneav() const;
 #endif
 
-    void checkDelta1(double* const ds, double* const delTPhMoles, int kspec);
+    void checkDelta1(double* const ds, double* const delTPhMoles, size_t kspec);
 
     //! Estimate equilibrium compositions
     /*!

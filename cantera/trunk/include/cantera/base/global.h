@@ -171,7 +171,7 @@ void writelogf(const char* fmt,...);
 //! Write an end of line character to the screen and flush output
 void writelogendl();
 
-void writeline(char repeat, int count,
+void writeline(char repeat, size_t count,
                bool endl_after=true, bool endl_before=false);
 
 //! @copydoc Application::Messages::logerror

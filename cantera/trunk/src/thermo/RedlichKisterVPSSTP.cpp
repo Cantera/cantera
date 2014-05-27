@@ -760,7 +760,6 @@ void RedlichKisterVPSSTP::readXMLBinarySpecies(XML_Node& xmLBinarySpecies)
 #ifdef DEBUG_MODE
 void RedlichKisterVPSSTP::Vint(double& VintOut, double& voltsOut)
 {
-    int iA, iB, m;
     doublereal XA, XB;
     doublereal T = temperature();
     doublereal RT = GasConstant * T;
@@ -769,8 +768,8 @@ void RedlichKisterVPSSTP::Vint(double& VintOut, double& voltsOut)
     lnActCoeff_Scaled_.assign(m_kk, 0.0);
 
     for (int i = 0; i <  numBinaryInteractions_; i++) {
-        iA =  m_pSpecies_A_ij[i];
-        iB =  m_pSpecies_B_ij[i];
+        size_t iA =  m_pSpecies_A_ij[i];
+        size_t iB =  m_pSpecies_B_ij[i];
         XA = moleFractions_[iA];
         XB = moleFractions_[iB];
         if (XA <= 1.0E-14) {
@@ -780,7 +779,7 @@ void RedlichKisterVPSSTP::Vint(double& VintOut, double& voltsOut)
             XA = 1.0 - 1.0E-14;
         }
 
-        int N = m_N_ij[i];
+        size_t N = m_N_ij[i];
         vector_fp& he_vec = m_HE_m_ij[i];
         vector_fp& se_vec = m_SE_m_ij[i];
         double fac = 2.0 * XA - 1.0;
@@ -790,7 +789,7 @@ void RedlichKisterVPSSTP::Vint(double& VintOut, double& voltsOut)
         double polykp1 = fac;
         double poly1mk = fac;
 
-        for (m = 0; m < N; m++) {
+        for (size_t m = 0; m < N; m++) {
             doublereal A_ge = he_vec[m] - T * se_vec[m];
             Volts += A_ge * (polykp1 - (2.0 * XA * m * (1.0-XA)) / poly1mk);
             polykp1 *= fac;

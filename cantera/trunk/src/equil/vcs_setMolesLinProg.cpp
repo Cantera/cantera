@@ -21,12 +21,11 @@ static void printProgress(const vector<string> &spName,
                           const vector<double> &soln,
                           const vector<double> &ff)
 {
-    int nsp = soln.size();
     double sum = 0.0;
     plogf(" --- Summary of current progress:\n");
     plogf(" ---                   Name           Moles  -       SSGibbs \n");
     plogf(" -------------------------------------------------------------------------------------\n");
-    for (int k = 0; k < nsp; k++) {
+    for (size_t k = 0; k < soln.size(); k++) {
         plogf(" ---      %20s %12.4g  - %12.4g\n", spName[k].c_str(), soln[k], ff[k]);
         sum += soln[k] * ff[k];
     }
