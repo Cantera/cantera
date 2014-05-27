@@ -1452,6 +1452,27 @@ private:
      */
     void vcs_updateMolNumVolPhases(const int stateCalc);
 
+    // Helper functions used internally by vcs_solve_TP
+    int solve_tp_component_calc(bool& allMinorZeroedSpecies);
+    void solve_tp_inner(size_t& iti, size_t& it1, bool& uptodate_minors,
+                        bool& allMinorZeroedSpecies, int& forceComponentCalc,
+                        int& stage, bool printDetails, char* ANOTE);
+    void solve_tp_equilib_check(bool& allMinorZeroedSpecies, bool& uptodate_minors,
+                                bool& giveUpOnElemAbund, int& solveFail,
+                                size_t& iti, size_t& it1, int maxit,
+                                int& stage, bool& lec);
+    void solve_tp_elem_abund_check(size_t& iti, int& stage, bool& lec,
+                                   bool& giveUpOnElemAbund,
+                                   int& finalElemAbundAttempts,
+                                   int& rangeErrorFound);
+
+    // data used by vcs_solve_TP and it's helper functions
+    std::vector<double> m_sm;
+    std::vector<double> m_ss;
+    std::vector<double> m_sa;
+    std::vector<double> m_aw;
+    std::vector<double> m_wx;
+
 public:
     //! Calculate the rank of a matrix and return the rows and columns that
     //! will generate an independent basis for that rank
