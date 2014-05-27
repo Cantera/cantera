@@ -187,10 +187,6 @@ int VCS_SOLVE::vcs_setMolesLinProg()
             }
         }
 
-        // set the moles of the phase objects to match
-        //  updateMixMoles();
-        // Update the phase objects with the contents of the m_molNumSpecies_old vector
-        // vcs_updateVP(0);
 #ifdef DEBUG_MODE
         if (m_debug_print_lvl >= 2) {
             printProgress(m_speciesName, m_molNumSpecies_old, m_SSfeSpecies);

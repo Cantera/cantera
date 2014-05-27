@@ -90,8 +90,6 @@ static void getSpeciesThermoTypes(std::vector<XML_Node*> & spDataNodeList,
                 has_other = 1;
             } else {
                 has_other = 1;
-                //throw UnknownSpeciesThermoModel("getSpeciesThermoTypes:",
-                //                                spNode->attrib("name"), "missing");
             }
         } else {
             throw CanteraError("getSpeciesThermoTypes:",
@@ -135,7 +133,6 @@ SpeciesThermo* SpeciesThermoFactory::newSpeciesThermo(std::vector<XML_Node*> & s
         popError();
     }
     if (iother) {
-        //writelog("returning new GeneralSpeciesThermo");
         return new GeneralSpeciesThermo();
     }
     return newSpeciesThermo(NASA*inasa

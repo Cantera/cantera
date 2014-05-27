@@ -202,16 +202,11 @@ doublereal WaterProps::ADebye(doublereal T, doublereal P_input, int ifunc)
     doublereal psat = satPressure(T);
     doublereal P;
     if (psat > P_input) {
-        //printf("ADebye WARNING: p_input < psat: %g %g\n",
-        // P_input, psat);
         P = psat;
     } else {
         P = P_input;
     }
     doublereal epsRelWater = relEpsilon(T, P, 0);
-    //printf("releps calc = %g, compare to 78.38\n", epsRelWater);
-    //doublereal B_Debye = 3.28640E9;
-
     doublereal epsilon = epsilon_0 * epsRelWater;
     doublereal dw = density_IAPWS(T, P);
     doublereal tmp = sqrt(2.0 * Avogadro * dw / 1000.);
@@ -232,23 +227,12 @@ doublereal WaterProps::ADebye(doublereal T, doublereal P_input, int ifunc)
         doublereal depsRelWaterdT = relEpsilon(T, P, 1);
         dAdT -= A_Debye * (1.5 * depsRelWaterdT / epsRelWater);
 
-        //int methodD = 1;
-        //doublereal ddwdT = density_T_new(T, P, 1);
-        // doublereal contrib1 = A_Debye * (0.5 * ddwdT / dw);
-
         /*
          * calculate d(lnV)/dT _constantP, i.e., the cte
          */
         doublereal cte = coeffThermalExp_IAPWS(T, P);
         doublereal contrib2 =  - A_Debye * (0.5 * cte);
-
-        //dAdT += A_Debye * (0.5 * ddwdT / dw);
         dAdT += contrib2;
-
-#ifdef DEBUG_HKM
-        //printf("dAdT = %g, contrib1 = %g, contrib2 = %g\n",
-        //    dAdT, contrib1, contrib2);
-#endif
 
         if (ifunc == 1) {
             return dAdT;
@@ -264,13 +248,6 @@ doublereal WaterProps::ADebye(doublereal T, doublereal P_input, int ifunc)
 
             doublereal d2epsRelWaterdT2 = relEpsilon(T, P, 2);
 
-            //doublereal dT = -0.01;
-            //doublereal TT = T + dT;
-            //doublereal depsRelWaterdTdel = relEpsilon(TT, P, 1);
-            //doublereal d2alt = (depsRelWaterdTdel- depsRelWaterdT ) / dT;
-            //printf("diff %g %g\n",d2epsRelWaterdT2, d2alt);
-            // HKM -> checks out, i.e., they are the same.
-
             d2AdT2 += 1.5 * (- dAdT * depsRelWaterdT / epsRelWater
                              - A_Debye / epsRelWater *
                              (d2epsRelWaterdT2 - depsRelWaterdT * depsRelWaterdT / epsRelWater));
@@ -279,10 +256,6 @@ doublereal WaterProps::ADebye(doublereal T, doublereal P_input, int ifunc)
             doublereal Tdel = T + deltaT;
             doublereal cte_del =  coeffThermalExp_IAPWS(Tdel, P);
             doublereal dctedT = (cte_del - cte) / Tdel;
-
-
-            //doublereal d2dwdT2 = density_T_new(T, P, 2);
-
             doublereal contrib3 = 0.5 * (-(dAdT * cte) -(A_Debye * dctedT));
             d2AdT2 += contrib3;
 
@@ -309,8 +282,6 @@ doublereal WaterProps::ADebye(doublereal T, doublereal P_input, int ifunc)
         dAdP -=  A_Debye * (1.5 * depsRelWaterdP / epsRelWater);
 
         doublereal kappa = isothermalCompressibility_IAPWS(T,P);
-
-        //doublereal ddwdP = density_T_new(T, P, 3);
         dAdP += A_Debye * (0.5 * kappa);
 
         return dAdP;
@@ -375,24 +346,12 @@ doublereal WaterProps::viscosityWater() const
     doublereal temp = m_waterIAPWS->temperature();
     doublereal dens = m_waterIAPWS->density();
 
-    //WaterPropsIAPWS *waterP = new WaterPropsIAPWS();
-    //m_waterIAPWS->setState_TR(temp, dens);
-    //doublereal pressure = m_waterIAPWS->pressure();
-    //printf("pressure = %g\n", pressure);
-    //dens = 18.02 * pressure / (GasConstant * temp);
-    //printf ("mod dens = %g\n", dens);
-
     doublereal rhobar = dens/rhoStar;
     doublereal tbar = temp / TStar;
-    // doublereal pbar = pressure / presStar;
-
     doublereal tbar2 = tbar * tbar;
     doublereal tbar3 = tbar2 * tbar;
 
     doublereal mu0bar = std::sqrt(tbar) / (H[0] + H[1]/tbar + H[2]/tbar2 + H[3]/tbar3);
-
-    //printf("mu0bar = %g\n", mu0bar);
-    //printf("mu0 = %g\n", mu0bar * muStar);
 
     doublereal tfac1 = 1.0 / tbar - 1.0;
     doublereal tfac2 = tfac1 * tfac1;
@@ -463,8 +422,6 @@ doublereal WaterProps::thermalConductivityWater() const
     doublereal tbar2 = tbar * tbar;
     doublereal tbar3 = tbar2 * tbar;
     doublereal lambda0bar = sqrt(tbar) / (L[0] + L[1]/tbar + L[2]/tbar2 + L[3]/tbar3);
-
-    //doublereal lambdagas = lambda0bar * lambdastar * 1.0E3;
 
     doublereal tfac1 = 1.0 / tbar - 1.0;
     doublereal tfac2 = tfac1 * tfac1;

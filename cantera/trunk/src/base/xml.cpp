@@ -1119,12 +1119,10 @@ XML_Node* findXMLPhase(XML_Node* root,
     }
     for (size_t n = 0; n < root->nChildren(); n++) {
         sc = vsc[n];
-        //if (sc->name() != "phase") {
-            scResult = findXMLPhase(sc, idtarget);
-            if (scResult) {
-                return scResult;
-            }
-        //}
+        scResult = findXMLPhase(sc, idtarget);
+        if (scResult) {
+            return scResult;
+        }
     }
     return scResult;
 }

@@ -167,7 +167,6 @@ Application::Application() :
 
     // install a default logwriter that writes to standard
     // output / standard error
-    //      logwriter = new Logger();
     setDefaultDirectories();
 #if defined(THREAD_SAFE_CANTERA)
     Unit::units() ;

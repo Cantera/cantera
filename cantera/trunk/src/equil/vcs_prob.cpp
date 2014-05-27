@@ -261,7 +261,6 @@ void VCS_PROB::prob_report(int print_lvl)
         plogf("         Target_kmol    ElemType ElActive\n");
         double fac = 1.0;
         if (m_VCS_UnitsFormat == VCS_UNITS_MKS) {
-            //fac = 1.0E3;
             fac = 1.0;
         }
         for (size_t i = 0; i < ne; ++i) {
@@ -406,7 +405,6 @@ void VCS_PROB::reportCSV(const std::string& reportFile)
     for (size_t iphase = 0; iphase < NPhase; iphase++) {
         size_t istart = iK;
         vcs_VolPhase* volP = VPhaseList[iphase];
-        //const Cantera::ThermoPhase *tptr = volP->ptrThermoPhase();
         size_t nSpeciesPhase = volP->nSpecies();
         volPM.resize(nSpeciesPhase, 0.0);
         volP->sendToVCS_VolPM(VCS_DATA_PTR(volPM));
@@ -439,7 +437,6 @@ void VCS_PROB::reportCSV(const std::string& reportFile)
         size_t nSpeciesPhase = volP->nSpecies();
         volP->sendToVCS_VolPM(VCS_DATA_PTR(volPM));
         double TMolesPhase = volP->totalMoles();
-        //AssertTrace(TMolesPhase == m_mix->phaseMoles(iphase));
         activity.resize(nSpeciesPhase, 0.0);
         ac.resize(nSpeciesPhase, 0.0);
 

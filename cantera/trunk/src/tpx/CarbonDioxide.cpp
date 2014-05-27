@@ -212,7 +212,6 @@ double CarbonDioxide::up()
 
 double CarbonDioxide::sp()
 {
-    //double Tinverse = 1.0/T;
     double T2inverse = pow(T, -2);
     double T3inverse = pow(T, -3);
     double T4inverse = pow(T, -4);
@@ -267,8 +266,6 @@ double CarbonDioxide::Psat()
 
     log = ((Tc/T)-1)*sum;
     P=exp(log)*Pc;
-
-    //cout << "Psat is returning " << P << " at T " << T << " and Pc " << Pc << " and Tp " << Tp << endl;
     return P;
 
 }

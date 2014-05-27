@@ -345,12 +345,6 @@ void MineralEQ3::convertDGFormation()
             totalSum += na * ge;
         }
     }
-    // Add in the charge
-    // if (m_charge_j != 0.0) {
-    // ename = "H";
-    // ge = LookupGe(ename);
-    // totalSum -= m_charge_j * ge;
-    //}
     // Ok, now do the calculation. Convert to joules kmol-1
     doublereal dg = m_deltaG_formation_pr_tr * 4.184 * 1.0E3;
     //! Store the result into an internal variable.

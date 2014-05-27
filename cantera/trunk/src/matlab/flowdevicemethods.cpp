@@ -2,8 +2,6 @@
 #include "clib/ctreactor.h"
 #include "clib/ct.h"
 
-//const double Undef = -999.123;
-
 void flowdevicemethods(int nlhs, mxArray* plhs[],
                        int nrhs, const mxArray* prhs[])
 {

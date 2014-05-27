@@ -456,7 +456,6 @@ void StFlow::showSolution(const doublereal* x)
 {
     size_t nn = m_nv/5;
     size_t i, j, n;
-    //char* buf = new char[100];
     char buf[100];
 
     // The mean molecular weight is needed to convert
@@ -600,7 +599,6 @@ void StFlow::restore(const XML_Node& dom, doublereal* soln, int loglevel)
         writelog(nd["title"]+": "+nd.value()+"\n");
     }
 
-    //map<string, double> params;
     double pp = -1.0;
     pp = getFloat(dom, "pressure", "pressure");
     setPressure(pp);

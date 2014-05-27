@@ -140,7 +140,6 @@ void  STITbyPDSS::updatePropertiesTemp(const doublereal temp,
                                        doublereal* h_RT,
                                        doublereal* s_R) const
 {
-    //m_vpssmgr_ptr->setState_T(temp);
     m_PDSS_ptr->setTemperature(temp);
     AssertThrowMsg(m_index != npos, "STITbyPDSS::updatePropertiesTemp",
                    "object was probably not installed correctly");

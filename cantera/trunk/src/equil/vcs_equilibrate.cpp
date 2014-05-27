@@ -158,7 +158,6 @@ int vcs_equilibrate_1(MultiPhase& s, int ixy,
             }
         } else {
             throw CanteraError("equilibrate","unsupported option");
-            //return -1.0;
         }
     } else {
         throw CanteraError("vcs_equilibrate_1", "unknown solver");

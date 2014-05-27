@@ -218,7 +218,6 @@ void MultiPhase::init()
                     esum += m_atoms(m,k) * m_atomicNumber[m];
                 }
             }
-            //m_atoms(m_eloc, k) += esum;
         }
     }
 
@@ -615,10 +614,6 @@ doublereal MultiPhase::equilibrate(int XY, doublereal err,
 
             // if 'strt' is false, the current composition will be used as
             // the starting estimate; otherwise it will be estimated
-            //                if (e) {
-            //    cout << "e should be zero, but it is not!" << endl;
-            //    delete e;
-            // }
             e = new MultiPhaseEquil(this, strt);
             // start with a loose error tolerance, but tighten it as we get
             // close to the final temperature
@@ -654,19 +649,17 @@ doublereal MultiPhase::equilibrate(int XY, doublereal err,
                 } else {
                     tnew = sqrt(Tlow*Thigh);
                     dt = tnew - m_temp;
-                    //cpb = cp();
                 }
 
                 herr = fabs((h0 - hnow)/h0);
 
-                if (herr < err) { // || dta < 1.0e-4) {
+                if (herr < err) {
                     goto done;
                 }
                 tnew = m_temp + dt;
                 if (tnew < 0.0) {
                     tnew = 0.5*m_temp;
                 }
-                //dta = fabs(tnew - m_temp);
                 setTemperature(tnew);
 
                 // if the size of Delta T is not too large, use
@@ -696,8 +689,8 @@ doublereal MultiPhase::equilibrate(int XY, doublereal err,
                            "No convergence for T");
     } else if (XY == SP) {
         s0 = entropy();
-        Tlow = 1.0; // m_Tmin;      // lower bound on T
-        Thigh = 1.0e6; // m_Tmax;   // upper bound on T
+        Tlow = 1.0;    // lower bound on T
+        Thigh = 1.0e6; // upper bound on T
         for (n = 0; n < maxiter; n++) {
             delete e;
             e = new MultiPhaseEquil(this, strt);
@@ -749,7 +742,6 @@ doublereal MultiPhase::equilibrate(int XY, doublereal err,
         throw CanteraError("MultiPhase::equilibrate",
                            "No convergence for T");
     } else if (XY == TV) {
-        //            doublereal dt = 1.0e3;
         doublereal v0 = volume();
         doublereal dVdP;
         int n;

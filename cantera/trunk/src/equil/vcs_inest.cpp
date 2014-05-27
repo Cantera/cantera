@@ -25,8 +25,6 @@ void VCS_SOLVE::vcs_inest(double* const aw, double* const sa, double* const sm,
     size_t nspecies = m_numSpeciesTot;
     size_t nrxn = m_numRxnTot;
 
-    // double *molNum   = VCS_DATA_PTR(m_molNumSpecies_old);
-
     /*
      *       CALL ROUTINE TO SOLVE MAX(CC*molNum) SUCH THAT AX*molNum = BB
      *           AND molNum(I) .GE. 0.0

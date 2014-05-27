@@ -74,8 +74,6 @@ PDSS* PDSS_IdealGas::duplMyselfAsPDSS() const
 void PDSS_IdealGas::constructPDSSXML(VPStandardStateTP* tp, size_t spindex,
                                      const XML_Node& phaseNode, const std::string& id)
 {
-    //initThermo();
-    //initThermoXML(phaseNode, id);
 }
 
 void PDSS_IdealGas::constructPDSSFile(VPStandardStateTP* tp, size_t spindex,

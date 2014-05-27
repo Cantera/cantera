@@ -185,10 +185,6 @@ int solveSP::solveSurfProb(int ifunc, doublereal time_scale, doublereal TKelvin,
 
     // Calculate the largest species in each phase
     evalSurfLarge(DATA_PTR(m_CSolnSP));
-    /*
-     * Get the net production rate of all species in the kinetics manager.
-     */
-    // m_kin->getNetProductionRates(DATA_PTR(m_netProductionRatesSave));
 
     if (m_ioflag) {
         print_header(m_ioflag, ifunc, time_scale, true, reltol, abstol,
@@ -531,8 +527,6 @@ void solveSP::fun_eval(doublereal* resid, const doublereal* CSoln,
             kindexSP = m_numTotSurfSpecies;
             for (isp = 0; isp < m_numBulkPhasesSS; isp++) {
                 doublereal* XBlk = DATA_PTR(m_numEqn1);
-                //ThermoPhase *THptr = m_bulkPhasePtrs[isp];
-                //THptr->getMoleFractions(XBlk);
                 nsp = m_nSpeciesSurfPhase[isp];
                 size_t surfPhaseIndex = m_indexKinObjSurfPhase[isp];
                 InterfaceKinetics* m_kin = m_objects[isp];

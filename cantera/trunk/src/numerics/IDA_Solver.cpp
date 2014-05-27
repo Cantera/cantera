@@ -109,7 +109,6 @@ extern "C" {
         doublereal* const* colPts = Jac->cols;
         Cantera::IDA_Solver* s = d->m_solver;
         double delta_t = s->getCurrentStepFromIDA();
-        // printf(" delta_t = %g 1/cj = %g\n", delta_t, 1.0/c_j);
         f->evalJacobianDP(t, delta_t, c_j,  ydata, ydotdata, colPts, rdata);
         return 0;
     }

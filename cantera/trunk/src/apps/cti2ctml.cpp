@@ -62,9 +62,6 @@ int main(int argc, char** argv)
         XML_Node* xc = new XML_Node();
         std::string path = findInputFile(infile);
         ctml::get_CTML_Tree(xc, path, 0);
-        //XML_Node *xd = new XML_Node();
-        //xc->copy(xd);
-
     } catch (CanteraError& err) {
         std::cout << err.what() << std::endl;
     }

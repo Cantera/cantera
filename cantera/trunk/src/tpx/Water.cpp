@@ -168,21 +168,6 @@ double water::Psat()
     return exp(log)*Pc;
 }
 
-/*
-double water::dPsatdT(){
-    double log, sum1=0, sum2=0;
-        int i;
-    if ((T < Tmn) || (T > Tc))
-       set_Err(TempError); // Error("water::dPsatdT",TempError,T);
-    for (i=1;i<=8;i++)
-        sum1 += F[i-1]*pow(a*(T-Tp),double(i-1));
-    for (i=2;i<=8;i++)
-        sum2 += F[i-1]*a*(i-1)*pow(a*(T-Tp),double(i-2));
-    log = (Tc/T-1)*sum2 - Tc*sum1/(T*T);
-    return log*Psat();
-}
-*/
-
 double water::ldens()
 {
     double sum=0;

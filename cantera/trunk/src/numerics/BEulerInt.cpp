@@ -261,12 +261,6 @@ void BEulerInt::setSolnWeights()
 {
     int i;
     if (m_itol == 1) {
-        /*
-         * Adjust the atol vector if we are using vector
-         * atol conditions.
-         */
-        // m_func->adjustAtol(m_abstol);
-
         for (i = 0; i < m_neq; i++) {
             m_ewt[i] = m_abstol[i] + m_reltol * 0.5 *
                        (fabs(m_y_n[i]) + fabs(m_y_pred_n[i]));
@@ -532,10 +526,6 @@ void BEulerInt::beuler_jac(GeneralMatrix& J, double* const f,
          * Call the function to get a jacobian.
          */
         m_func->evalJacobian(time_curr, delta_t_n, CJ, y, ydot, J, f);
-#ifdef DEBUG_HKM
-        //double dddd = J(89, 89);
-        //checkFinite(dddd);
-#endif
         m_nJacEval++;
         m_nfe++;
     }  else {
@@ -595,7 +585,6 @@ void BEulerInt::beuler_jac(GeneralMatrix& J, double* const f,
             col_j = (double*) J.ptrColumn(j);
             ysave = y[j];
             dy = dyVector[j];
-            //dy = fmaxx(1.0E-6 * m_ewt[j], fabs(ysave)*1.0E-7);
 
             y[j] = ysave + dy;
             dy = y[j] - ysave;
@@ -613,7 +602,6 @@ void BEulerInt::beuler_jac(GeneralMatrix& J, double* const f,
             for (i = 0; i < m_neq; i++) {
                 diff = subtractRD(m_wksp[i], f[i]);
                 col_j[i] = diff / dy;
-                //col_j[i] = (m_wksp[i] - f[i])/dy;
             }
 
             y[j] = ysave;
@@ -1665,11 +1653,6 @@ int BEulerInt::dampStep(double time_curr, const double* y0,
          */
         for (j = 0; j < m_neq; j++) {
             y1[j] = y0[j] + ff*step0[j];
-            //                HKM setting intermediate y's to zero was a tossup.
-            //                    slightly different, equivalent results
-            //#ifdef DEBUG_HKM
-            //    y1[j] = MAX(0.0, y1[j]);
-            //#endif
         }
         calc_ydot(m_order, y1, ydot1);
 
@@ -1865,24 +1848,6 @@ int BEulerInt::solve_nonlinear_problem(double* const y_comm,
                 printf("\t\t\tDampnewton unsuccessful sfinal = %g\n", s1);
             }
         }
-
-        // If we are converged, then let's use the best solution possible
-        // for an end result. We did a resolve in dampStep(). Let's update
-        // the solution to reflect that.
-        // HKM 5/16 -> Took this out, since if the last step was a
-        //             damped step, then adding stp1[j] is undamped, and
-        //             may lead to oscillations. It kind of defeats the
-        //             purpose of dampStep() anyway.
-        // if (m == 1) {
-        //  for (int j = 0; j < m_neq; j++) {
-        //   y_new[j] += stp1[j];
-        //                HKM setting intermediate y's to zero was a tossup.
-        //                    slightly different, equivalent results
-        // #ifdef DEBUG_HKM
-        //     y_new[j] = MAX(0.0, y_new[j]);
-        // #endif
-        //  }
-        // }
 
         bool m_filterIntermediate = false;
         if (m_filterIntermediate) {

@@ -104,7 +104,6 @@ void thread_complete()
 XML_Node* get_XML_File(const std::string& file, int debug)
 {
     XML_Node* xtmp = app()->get_XML_File(file, debug) ;
-    //writelog("get_XML_File: returned from app:get_XML_FILE " + int2str(xtmp) + "\n");
     return xtmp;
 }
 

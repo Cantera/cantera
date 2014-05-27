@@ -246,9 +246,6 @@ doublereal SquareMatrix::rcond(doublereal anorm)
         throw CELapackError("SquareMatrix::rcond()", "matrix isn't factored correctly");
     }
 
-    //  doublereal anorm = ct_dlange('1', m_nrows, m_nrows, &(*(begin())), m_nrows, DATA_PTR(work));
-
-
     int rinfo = 0;
     rcond = ct_dgecon('1', m_nrows, &(*(begin())), m_nrows, anorm, DATA_PTR(work),
                       DATA_PTR(iwork_), rinfo);

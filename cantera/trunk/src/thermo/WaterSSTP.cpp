@@ -170,16 +170,12 @@ void WaterSSTP::initThermoXML(XML_Node& phaseNode, const std::string& id)
     }
     s = entropy_mole();
     s -=  GasConstant * log(oneBar/presLow);
-    //printf("s = %g\n", s);
 
     doublereal h = enthalpy_mole();
     if (h != -241.826E6) {
         EW_Offset = -241.826E6 - h;
     }
     h = enthalpy_mole();
-
-    //printf("h = %g\n", h);
-
 
     /*
      * Set the initial state of the system to 298.15 K and

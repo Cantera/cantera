@@ -21,7 +21,7 @@ ReactorNet::ReactorNet() : Cantera::FuncEval(), m_nr(0), m_nreactors(0),
 #ifdef DEBUG_MODE
     m_verbose = true;
 #endif
-    m_integ = newIntegrator("CVODE");// CVodeInt;
+    m_integ = newIntegrator("CVODE");
 
     // use backward differencing, with a full Jacobian computed
     // numerically, and use a Newton linear iterator

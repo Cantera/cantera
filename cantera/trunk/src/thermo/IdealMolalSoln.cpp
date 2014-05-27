@@ -226,7 +226,6 @@ void IdealMolalSoln::setState_TP(doublereal temp, doublereal pres)
     Phase::setTemperature(temp);
     m_Pcurrent = pres;
     updateStandardStateThermo();
-    //m_densWaterSS = m_waterSS->density();
     calcDensity();
 }
 

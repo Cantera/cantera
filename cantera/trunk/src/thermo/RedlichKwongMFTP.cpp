@@ -599,9 +599,6 @@ void RedlichKwongMFTP::getPartialMolarCp(doublereal* cpbar) const
 
 void RedlichKwongMFTP::getPartialMolarVolumes(doublereal* vbar) const
 {
-    // getStandardVolumes(vbar);
-
-
     for (size_t k = 0; k < m_kk; k++) {
         m_pp[k] = 0.0;
         for (size_t i = 0; i < m_kk; i++) {
@@ -1041,9 +1038,6 @@ doublereal RedlichKwongMFTP::liquidVolEst(doublereal TKelvin, doublereal& presGu
 
         int nsol = NicholsSolve(TKelvin, pres, atmp, btmp, Vroot);
 
-        // printf("nsol = %d\n", nsol);
-        // printf("liquidVolEst start: T = %g , p = %g, a = %g, b = %g\n", TKelvin, pres, m_a_current, m_b_current);
-
         if (nsol == 1 || nsol == 2) {
             double pc = critPressure();
             if (pres > pc) {
@@ -1062,7 +1056,6 @@ doublereal RedlichKwongMFTP::liquidVolEst(doublereal TKelvin, doublereal& presGu
     } else {
         v = -1.0;
     }
-    //printf ("     RedlichKwongMFTP::liquidVolEst %g %g converged in %d its\n", TKelvin, pres, i);
     return v;
 }
 
@@ -1117,8 +1110,6 @@ doublereal RedlichKwongMFTP::densityCalc(doublereal TKelvin, doublereal presPa, 
         if (phaseRequested == FLUID_GAS || phaseRequested == FLUID_SUPERCRIT || phaseRequested == FLUID_UNDEFINED) {
             molarVolLast = Vroot_[0];
         } else {
-            //molarVolLast = Vroot_[0];
-            //printf("DensityCalc(): Possible problem encountered\n");
             return -2.0;
         }
     } else if (NSolns_ == -1) {
@@ -1127,13 +1118,10 @@ doublereal RedlichKwongMFTP::densityCalc(doublereal TKelvin, doublereal presPa, 
         } else if (TKelvin > tcrit) {
             molarVolLast = Vroot_[0];
         } else {
-            // molarVolLast = Vroot_[0];
-            // printf("DensityCalc(): Possible problem encountered\n");
             return -2.0;
         }
     } else {
         molarVolLast = Vroot_[0];
-        //printf("DensityCalc(): Possible problem encountered\n");
         return -1.0;
     }
     return mmw / molarVolLast;
@@ -1412,13 +1400,6 @@ int RedlichKwongMFTP::NicholsSolve(double TKelvin, double pres, doublereal a, do
     } else if (desc == 0.0) {
         nSolnValues = 2;
         // We are here as p goes to zero.
-        //  double hleft = 3.0 * an * cn / (bn * bn);
-        //double ynleft = 9.0 * an * cn / (2.0 * bn * bn) - 27.0 * an * an * dn / (2.0 * bn * bn * bn);
-        //printf("hleft = %g , ynleft = %g\n", -3. / 2. * hleft, -ynleft);
-        //double h2left = - 3 *  hleft + 3 * hleft * hleft - hleft * hleft * hleft;
-        //double y2left = - 2.0 * ynleft + ynleft * ynleft;
-        //printf("h2left = %g , yn2left = %g\n", h2left, y2left);
-
     } else if (desc > 0.0) {
         nSolnValues = 1;
     }
@@ -1562,8 +1543,6 @@ int RedlichKwongMFTP::NicholsSolve(double TKelvin, double pres, doublereal a, do
             }
         }
     }
-    // writelog("RedlichKwongMFTP::NicholsSolve(T = " + fp2str(TKelvin) + ", p = " + fp2str(pres) + "): finished");
-    // writelogendl();
     return nSolnValues;
 }
 

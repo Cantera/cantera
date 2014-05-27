@@ -50,7 +50,6 @@ void FlowReactor::updateState(doublereal* y)
     m_dist         = y[0];
     m_speed        = y[1];
     doublereal* mss = y + 2;
-    //        doublereal mass = accumulate(y+2, y+2+m_nsp, 0.0);
     m_thermo->setMassFractions(mss);
 
     doublereal rho = m_rho0 * m_speed0/m_speed;

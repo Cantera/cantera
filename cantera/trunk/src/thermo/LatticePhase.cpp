@@ -96,17 +96,6 @@ doublereal LatticePhase::calcDensity()
     setMolarDensity(m_site_density);
     doublereal mw = meanMolecularWeight();
     doublereal dens = mw * m_site_density;
-    /*
-     * Calculate the molarVolume of the solution (m**3 kmol-1)
-     */
-    // const doublereal * const dtmp = moleFractdivMMW();
-    // doublereal invDens = dot(m_speciesMolarVolume.begin(), m_speciesMolarVolume.end(), dtmp);
-    /*
-     * Set the density in the parent State object directly,
-     * by calling the Phase::setDensity() function.
-     */
-    // doublereal dens = 1.0/invDens;
-    //  Phase::setDensity(dens);
     return dens;
 }
 

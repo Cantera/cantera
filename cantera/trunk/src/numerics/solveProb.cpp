@@ -157,14 +157,6 @@ int solveProb::solve(int ifunc, doublereal time_scale,
         std::copy(m_CSolnSP.begin(), m_CSolnSP.end(), m_CSolnSPOld.begin());
 
         /*
-         * Evaluate the largest surface species for each surface phase every
-         * 5 iterations.
-         */
-        //  if (iter%5 == 4) {
-        //    evalSurfLarge(DATA_PTR(m_CSolnSP));
-        // }
-
-        /*
          *    Calculate the value of the time step
          *       - heuristics to stop large oscillations in deltaT
          */
@@ -468,10 +460,6 @@ doublereal solveProb::calc_damping(doublereal x[], doublereal dxneg[], size_t di
             damp = APPROACH * (x[i] - xbot) / dxneg[i];
             *label = i;
         }
-        // else  if (fabs(xnew) > 2.0*MAX(fabs(x[i]), 1.0E-10)) {
-        //    damp = 0.5 * MAX(fabs(x[i]), 1.0E-9)/ fabs(xnew);
-        //    *label = i;
-        //     }
         double denom = fabs(x[i]) + 1.0E5 * m_atol[i];
         if ((fabs(delta_x) / denom) > 0.3) {
             double newdamp = 0.3 * denom / fabs(delta_x);
@@ -772,7 +760,6 @@ void solveProb::printIteration(int ioflag, doublereal damp, size_t label_d,
         for (int isp = 0; isp < m_numSurfPhases; isp++) {
             int nsp = m_nSpeciesSurfPhase[isp];
             InterfaceKinetics* m_kin = m_objects[isp];
-            //int surfPhaseIndex = m_kinObjPhaseIDSurfPhase[isp];
             m_kin->getNetProductionRates(DATA_PTR(m_numEqn1));
             for (int k = 0; k < nsp; k++, kindexSP++) {
                 int kspIndex = m_kinSpecIndex[kindexSP];

@@ -111,9 +111,6 @@ CVodesIntegrator::CVodesIntegrator() :
     m_mupper(0), m_mlower(0),
     m_sens_ok(false)
 {
-    //m_ropt.resize(OPT_SIZE,0.0);
-    //m_iopt = new long[OPT_SIZE];
-    //fill(m_iopt, m_iopt+OPT_SIZE,0);
 }
 
 CVodesIntegrator::~CVodesIntegrator()
@@ -131,8 +128,6 @@ CVodesIntegrator::~CVodesIntegrator()
         N_VDestroy_Serial(m_abstol);
     }
     delete m_fdata;
-
-    //delete[] m_iopt;
 }
 
 double& CVodesIntegrator::solution(size_t k)
@@ -327,7 +322,6 @@ void CVodesIntegrator::initialize(double t0, FuncEval& func)
     delete m_fdata;
     m_fdata = new FuncData(&func, func.nparams());
 
-    //m_data = (void*)&func;
     flag = CVodeSetUserData(m_cvode_mem, (void*)m_fdata);
     if (flag != CV_SUCCESS) {
         throw CVodesErr("CVodeSetUserData failed.");
@@ -345,13 +339,7 @@ void CVodesIntegrator::reinitialize(double t0, FuncEval& func)
 {
     m_t0  = t0;
     m_time = t0;
-    //try {
     func.getInitialConditions(m_t0, m_neq, NV_DATA_S(m_y));
-    //}
-    //catch (CanteraError) {
-    //showErrors();
-    //error("Teminating execution");
-    //}
 
     int result;
 
@@ -432,7 +420,6 @@ int CVodesIntegrator::nEvals() const
     long int ne;
     CVodeGetNumRhsEvals(m_cvode_mem, &ne);
     return ne;
-    //return m_iopt[NFE];
 }
 
 double CVodesIntegrator::sensitivity(size_t k, size_t p)

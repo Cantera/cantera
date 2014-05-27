@@ -249,14 +249,6 @@ int ChemEquil::setInitialMoles(thermo_t& s, vector_fp& elMoleGoal,
 int ChemEquil::estimateElementPotentials(thermo_t& s, vector_fp& lambda_RT,
         vector_fp& elMolesGoal, int loglevel)
 {
-    //for (k = 0; k < m_kk; k++) {
-    //    if (m_molefractions[k] > 0.0) {
-    //        m_molefractions[k] = fmaxx(m_molefractions[k], 0.05);
-    //    }
-    //}
-    //s.setState_PX(s.pressure(), m_molefractions.begin());
-
-
     vector_fp b(m_mm, -999.0);
     vector_fp mu_RT(m_kk, 0.0);
     vector_fp xMF_est(m_kk, 0.0);
@@ -646,12 +638,6 @@ int ChemEquil::equilibrate(thermo_t& s, const char* XYstr,
     int info = estimateEP_Brinkley(s, x, elMolesGoal);
     if (info == 0) {
         setToEquilState(s, x, s.temperature());
-        // Tempting -> However, nonideal is a problem. Turn on if not worried
-        //             about nonideality and you are having problems with the main
-        //             algorithm.
-        //if (XY == TP) {
-        // return 0;
-        //}
     }
 
     /*
@@ -1554,7 +1540,6 @@ int ChemEquil::estimateEP_Brinkley(thermo_t& s, vector_fp& x,
                                    "Jacobian is singular. \nTry adding more species, "
                                    "changing the elemental composition slightly, \nor removing "
                                    "unused elements.");
-                //return -3;
             }
 
             /*
