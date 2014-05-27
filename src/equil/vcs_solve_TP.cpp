@@ -36,12 +36,12 @@ static int  prnfm(void);
 /*****************************************************************************/
 
 void VCS_SOLVE::checkDelta1(double* const dsLocal,
-                            double* const delTPhMoles, int kspec)
+                            double* const delTPhMoles, size_t kspec)
 {
     std::vector<double> dchange(m_numPhases, 0.0);
-    for (int k = 0; k < kspec; k++) {
+    for (size_t k = 0; k < kspec; k++) {
         if (m_speciesUnknownType[k] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
-            int iph = m_phaseID[k];
+            size_t iph = m_phaseID[k];
             dchange[iph] += dsLocal[k];
         }
     }
@@ -115,7 +115,7 @@ int VCS_SOLVE::vcs_solve_TP(int print_lvl, int printDetails, int maxit)
 
     solveFail = false;
 
-    int ll; // only used in DEBUG_MODE
+    size_t ll; // only used in DEBUG_MODE
     /* ****************************************************** */
     /* **** Evaluate the elemental composition         ****** */
     /* ****************************************************** */
@@ -3167,8 +3167,8 @@ L_END_LOOP:
          *  to conserve elements
          */
         double sumMax = -1.0;
-        int iMax = -1;
-        int jMax = -1;
+        size_t iMax = npos;
+        size_t jMax = npos;
         for (size_t i = 0; i < m_numRxnTot; ++i) {
             k = m_indexRxnToSpecies[i];
             double sum;

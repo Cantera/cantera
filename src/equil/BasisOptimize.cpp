@@ -404,7 +404,7 @@ static void print_stringTrunc(const char* str, int space, int alignment)
  ***********************************************************************/
 {
     int i, ls=0, rs=0;
-    int len = strlen(str);
+    int len = static_cast<int>(strlen(str));
     if ((len) >= space) {
         for (i = 0; i < space; i++) {
             writelogf("%c", str[i]);

@@ -164,7 +164,6 @@ double vcsUtil_gasConstant(int mu_units)
 
 const char* vcs_speciesType_string(int speciesStatus, int length)
 {
-    const char* sss;
     switch (speciesStatus) {
     case VCS_SPECIES_COMPONENT:
         return "Component Species";

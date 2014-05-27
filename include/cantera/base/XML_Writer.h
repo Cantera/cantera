@@ -85,22 +85,22 @@ public:
 
     template<class iter>
     void XML_writeVector(std::ostream& s, const std::string& indent,
-                         const std::string& name, int vsize, iter v) {
+                         const std::string& name, size_t vsize, iter v) {
         int ni;
         for (ni = 0; ni < _level; ni++) {
             s << _indent;
         }
         s << "<" << XML_filter(name) << "> ";
 
-        int n = vsize;
-        int n5 = n/5;
-        int i, j, k = 0;
+        size_t n = vsize;
+        size_t n5 = n/5;
+        size_t i, j, k = 0;
         for (j = 0; j < n5; j++) {
             for (i = 0; i < 5; i++) {
-                s << v[k] << (k < n - 1 ? ", " : "");
+                s << v[k] << (k+1 < n ? ", " : "");
                 k++;
             }
-            if (j < n5-1) {
+            if (j+1 < n5) {
                 s << std::endl;
                 for (ni = 0; ni < _level; ni++) {
                     s << _indent;
@@ -108,7 +108,7 @@ public:
             }
         }
         for (i = k; i < n; i++) {
-            s << v[k] << (k < n - 1 ? ", " : "");
+            s << v[k] << (k+1 < n ? ", " : "");
             k++;
         }
 
