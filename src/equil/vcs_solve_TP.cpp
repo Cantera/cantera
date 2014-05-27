@@ -27,8 +27,6 @@ namespace VCSnonideal
 {
 
 /************ Prototypes for static functions ******************************/
-static void print_space(size_t num);
-
 #ifdef DEBUG_MODE
 #  ifdef DEBUG_NOT
 static void prneav(void);
@@ -148,7 +146,7 @@ int VCS_SOLVE::vcs_solve_TP(int print_lvl, int printDetails, int maxit)
         plogf("\n ELEMENTAL ABUNDANCES             CORRECT");
         plogf("          FROM ESTIMATE           Type\n\n");
         for (size_t i = 0; i < m_numElemConstraints; ++i) {
-            print_space(26);
+            writeline(' ', 26, false);
             plogf("%-2.2s", (m_elementName[i]).c_str());
             plogf("%20.12E%20.12E     %3d\n", m_elemAbundancesGoal[i], m_elemAbundances[i],
                   m_elType[i]);
@@ -177,9 +175,9 @@ int VCS_SOLVE::vcs_solve_TP(int print_lvl, int printDetails, int maxit)
             plogf(" Stan. Chem. Pot. in J/kmol\n");
         }
         plogf("\n SPECIES            FORMULA VECTOR   ");
-        print_space(41);
+        writeline(' ', 41, false);
         plogf("   STAN_CHEM_POT  EQUILIBRIUM_EST.  Species_Type\n\n");
-        print_space(20);
+        writeline(' ', 20, false);
         for (size_t i = 0; i < m_numElemConstraints; ++i) {
             plogf("%-4.4s    ", m_elementName[i].c_str());
         }
@@ -191,7 +189,7 @@ int VCS_SOLVE::vcs_solve_TP(int print_lvl, int printDetails, int maxit)
                 plogf("% -7.3g ", m_formulaMatrix[j][i]);
             }
             plogf("  %3d  ", m_phaseID[i]);
-            print_space(std::max(55-int(m_numElemConstraints)*8, 0));
+            writeline(' ', std::max(55-int(m_numElemConstraints)*8, 0), false);
             plogf("%12.5E  %12.5E", RT * m_SSfeSpecies[i], m_molNumSpecies_old[i]);
             if (m_speciesUnknownType[i] == VCS_SPECIES_TYPE_MOLNUM) {
                 plogf("       Mol_Num");
@@ -327,7 +325,7 @@ L_MAINLOOP_ALL_SPECIES:
 
     if (printDetails) {
         plogf("\n");
-        vcs_print_line("=", 110);
+        writeline('=', 110);
         plogf(" Iteration = %3d, Iterations since last evaluation of "
               "optimal basis = %3d",
               m_VCount->Its, it1 - 1);
@@ -999,7 +997,7 @@ L_MAIN_LOOP_END_NO_PRINT:
                       m_molNumSpecies_old[k]+m_deltaMolNumSpecies[k], m_deltaMolNumSpecies[k]);
             }
             plogf("   ");
-            vcs_print_line("-", 80);
+            writeline('-', 80);
             plogf("   --- Finished Main Loop");
             plogendl();
         }
@@ -1143,7 +1141,7 @@ L_MAIN_LOOP_END_NO_PRINT:
                       m_molNumSpecies_new[kspec], m_deltaGRxn_old[irxn],
                       m_deltaGRxn_tmp[irxn], m_deltaGRxn_new[irxn]);
             }
-            print_space(26);
+            writeline(' ', 26, false);
             plogf("Norms of Delta G():%14.6E%14.6E\n",
                   l2normdg(VCS_DATA_PTR(m_deltaGRxn_old)),
                   l2normdg(VCS_DATA_PTR(m_deltaGRxn_new)));
@@ -1166,7 +1164,7 @@ L_MAIN_LOOP_END_NO_PRINT:
 
     if (printDetails) {
         plogf("   ");
-        vcs_print_line("-", 103);
+        writeline('-', 103);
         plogf("   --- Summary of the Update ");
         if (iti == 0) {
             plogf(" (all species):");
@@ -1202,7 +1200,7 @@ L_MAIN_LOOP_END_NO_PRINT:
                   m_deltaGRxn_old[l1], m_deltaGRxn_new[l1]);
         }
         plogf("   ---");
-        print_space(56);
+        writeline(' ', 56, false);
         plogf("Norms of Delta G():%14.6E%14.6E",
               l2normdg(VCS_DATA_PTR(m_deltaGRxn_old)),
               l2normdg(VCS_DATA_PTR(m_deltaGRxn_new)));
@@ -1210,13 +1208,13 @@ L_MAIN_LOOP_END_NO_PRINT:
 
         plogf("   ---           Phase_Name    KMoles(after update)\n");
         plogf("   ---   ");
-        vcs_print_line("-", 50);
+        writeline('-', 50);
         for (size_t iph = 0; iph < m_numPhases; iph++) {
             vcs_VolPhase* Vphase = m_VolPhaseList[iph];
             plogf("   ---   %18s = %15.7E\n", Vphase->PhaseName.c_str(), m_tPhaseMoles_new[iph]);
         }
         plogf("   ");
-        vcs_print_line("-", 103);
+        writeline('-', 103);
         plogf("   --- Total Old Dimensionless Gibbs Free Energy = %20.13E\n",
               vcs_Total_Gibbs(VCS_DATA_PTR(m_molNumSpecies_old), VCS_DATA_PTR(m_feSpecies_old),
                               VCS_DATA_PTR(m_tPhaseMoles_old)));
@@ -4026,7 +4024,7 @@ void  VCS_SOLVE::vcs_printSpeciesChemPot(const int stateCalc) const
     printf("   ---  CHEMICAL POT TABLE (J/kmol) Name PhID     MolFR     ChemoSS   "
            "   logMF       Gamma       Elect       extra       ElectrChem\n");
     printf("   ");
-    vcs_print_line("-", 132);
+    writeline('-', 132);
 
     for (size_t kspec = 0; kspec < m_numSpeciesTot; ++kspec) {
         mfValue = 1.0;
@@ -4070,7 +4068,7 @@ void  VCS_SOLVE::vcs_printSpeciesChemPot(const int stateCalc) const
         printf(" % -12.4e\n", total *RT);
     }
     printf("   ");
-    vcs_print_line("-", 132);
+    writeline('-', 132);
 }
 
 #ifdef DEBUG_MODE
@@ -4294,13 +4292,6 @@ void VCS_SOLVE::vcs_switch2D(double* const* const Jac,
     }
     for (size_t i = 0; i < m_numSpeciesTot; i++) {
         std::swap(Jac[i][k1], Jac[i][k2]);
-    }
-}
-
-static void print_space(size_t num)
-{
-    for (size_t j = 0; j < num; j++) {
-        plogf(" ");
     }
 }
 
@@ -4563,7 +4554,7 @@ void  VCS_SOLVE::vcs_printDeltaG(const int stateCalc)
     printf("   --- DeltaG Table (J/kmol) Name       PhID   MoleNum      MolFR  "
            "  ElectrChemStar ElectrChem    DeltaGStar   DeltaG(Pred)  Stability\n");
     printf("   ");
-    vcs_print_line("-", 132);
+    writeline('-', 132);
 
     for (size_t kspec = 0; kspec < m_numSpeciesTot; kspec++) {
 
@@ -4637,7 +4628,7 @@ void  VCS_SOLVE::vcs_printDeltaG(const int stateCalc)
     }
 
     printf("   ");
-    vcs_print_line("-", 132);
+    writeline('-', 132);
 
 }
 

@@ -148,9 +148,6 @@ doublereal norm_square(const doublereal* x,
 //                  constants
 //-----------------------------------------------------------
 
-const string dashedline =
-    "-----------------------------------------------------------------";
-
 const doublereal DampFactor = sqrt(2.0);
 const size_t NDAMP = 7;
 
@@ -274,13 +271,13 @@ int MultiNewton::dampStep(const doublereal* x0, const doublereal* step0,
     // write header
     if (loglevel > 0 && writetitle) {
         writelog("\n\nDamped Newton iteration:\n");
-        writelog(dashedline);
+        writeline('-', 65, false);
 
         sprintf(m_buf,"\n%s  %9s   %9s     %9s   %9s   %9s  %5s %5s\n",
                 "m","F_damp","F_bound","log10(ss)",
                 "log10(s0)","log10(s1)","N_jac","Age");
         writelog(m_buf);
-        writelog(dashedline+"\n");
+        writeline('-', 65);
     }
 
     // compute the weighted norm of the undamped step size step0

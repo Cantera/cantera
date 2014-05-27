@@ -11,8 +11,11 @@
 #include "cantera/equil/vcs_solve.h"
 #include "cantera/equil/vcs_internal.h"
 #include "cantera/equil/vcs_VolPhase.h"
+#include "cantera/base/global.h"
 
 #include <cstdio>
+
+using namespace Cantera;
 
 namespace VCSnonideal
 {
@@ -352,7 +355,7 @@ size_t VCS_SOLVE::vcs_RxnStepSizes(int& forceComponentCalc, size_t& kSpecial)
 #ifdef DEBUG_MODE
                         if (m_debug_print_lvl >= 2) {
                             plogf("   ");
-                            vcs_print_line("-", 82);
+                            writeline('-', 82);
                         }
 #endif
                         return iphDel;
@@ -372,7 +375,7 @@ size_t VCS_SOLVE::vcs_RxnStepSizes(int& forceComponentCalc, size_t& kSpecial)
 #ifdef DEBUG_MODE
     if (m_debug_print_lvl >= 2) {
         plogf("   ");
-        vcs_print_line("-", 82);
+        writeline('-', 82);
     }
 #endif
     return iphDel;

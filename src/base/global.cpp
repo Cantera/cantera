@@ -68,6 +68,17 @@ void writelogendl()
     app()->writelogendl();
 }
 
+void writeline(char repeat, int count, bool endl_after, bool endl_before)
+{
+    if (endl_before) {
+        writelogendl();
+    }
+    writelog(std::string(count, repeat));
+    if (endl_after) {
+        writelogendl();
+    }
+}
+
 void error(const std::string& msg)
 {
     warn_deprecated("error");

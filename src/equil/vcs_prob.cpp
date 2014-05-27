@@ -16,9 +16,11 @@
 
 #include "cantera/thermo/ThermoPhase.h"
 #include "cantera/thermo/MolalityVPSSTP.h"
+#include "cantera/base/global.h"
 
 #include <cstdio>
 
+using namespace Cantera;
 using namespace std;
 
 namespace VCSnonideal
@@ -167,20 +169,6 @@ void VCS_PROB::set_gai()
     }
 }
 
-static void print_space(int num)
-{
-    for (int j = 0; j < num; j++) {
-        (void) plogf(" ");
-    }
-}
-
-static void print_char(const char letter, const int num)
-{
-    for (int i = 0; i < num; i++) {
-        plogf("%c", letter);
-    }
-}
-
 void VCS_PROB::prob_report(int print_lvl)
 {
     m_printLvl = print_lvl;
@@ -188,16 +176,11 @@ void VCS_PROB::prob_report(int print_lvl)
      *          Printout the species information: PhaseID's and mole nums
      */
     if (m_printLvl > 0) {
-        plogf("\n");
-        print_char('=', 80);
-        plogf("\n");
-        print_char('=', 20);
+        writeline('=', 80, true, true);
+        writeline('=', 20, false);
         plogf(" VCS_PROB: PROBLEM STATEMENT ");
-        print_char('=', 31);
-        plogf("\n");
-        print_char('=', 80);
-        plogf("\n");
-
+        writeline('=', 31);
+        writeline('=', 80);
         plogf("\n");
         if (prob_type == 0) {
             plogf("\tSolve a constant T, P problem:\n");
@@ -235,9 +218,7 @@ void VCS_PROB::prob_report(int print_lvl)
         /*
          *   Printout of the Phase structure information
          */
-        plogf("\n");
-        print_char('-', 80);
-        plogf("\n");
+        writeline('-', 80, true, true);
         plogf("             Information about phases\n");
         plogf("  PhaseName    PhaseNum SingSpec  GasPhase   "
               " EqnState    NumSpec");
@@ -264,7 +245,7 @@ void VCS_PROB::prob_report(int print_lvl)
             fac = 1.0;
         }
         for (size_t i = 0; i < ne; ++i) {
-            print_space(26);
+            writeline(' ', 26, false);
             plogf("%-2.2s", ElName[i].c_str());
             plogf("%20.12E  ", fac * gai[i]);
             plogf("%3d       %3d\n", m_elType[i], ElActive[i]);
@@ -301,15 +282,12 @@ void VCS_PROB::prob_report(int print_lvl)
                       Vphase->GStar_calc_one(kindex));
             }
         }
-        plogf("\n");
-        print_char('=', 80);
-        plogf("\n");
-        print_char('=', 20);
+        writeline('=', 80, true, true);
+        writeline('=', 20, false);
         plogf(" VCS_PROB: END OF PROBLEM STATEMENT ");
-        print_char('=', 24);
+        writeline('=', 24);
+        writeline('=', 80);
         plogf("\n");
-        print_char('=', 80);
-        plogf("\n\n");
     }
 }
 

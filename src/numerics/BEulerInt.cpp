@@ -307,14 +307,6 @@ double BEulerInt::filterNewStep(double timeCurrent, double* y_current, double* y
     return 0.0;
 }
 
-static void print_line(const char* str, int n)
-{
-    for (int i = 0; i < n; i++) {
-        printf("%s", str);
-    }
-    printf("\n");
-}
-
 /*
  * Print out for relevant time step information
  */
@@ -330,8 +322,7 @@ static void print_time_step1(int order, int n_time_step, double time,
     } else if (order == 2) {
         string = "Adams-Bashforth/TR";
     }
-    printf("\n");
-    print_line("=", 80);
+    writeline('=', 80, true, true);
     printf("\nStart of Time Step: %5d       Time_n = %9.5g Time_nm1 = %9.5g\n",
            n_time_step, time, time - delta_t_n);
     printf("\tIntegration method = %s\n", string);
@@ -366,9 +357,7 @@ static void print_time_step2(int  time_step_num, int order,
     printf("\t\tTolerated Error\n\n");
     printf("\t- Recommended next delta_t (not counting history) = %g\n",
            delta_t_np1);
-    printf("\n");
-    print_line("=", 80);
-    printf("\n");
+    writeline('=', 80, true, true);
 }
 
 /*
@@ -378,8 +367,7 @@ static void print_time_fail(bool convFailure, int time_step_num,
                             double time, double delta_t_n,
                             double delta_t_np1, double  time_error_factor)
 {
-    printf("\n");
-    print_line("=", 80);
+    writeline('=', 80, true, true);
     if (convFailure) {
         printf("\tTime Step Number %5d experienced a convergence "
                "failure\n", time_step_num);
@@ -400,8 +388,7 @@ static void print_time_fail(bool convFailure, int time_step_num,
         printf("\t\tCalculated truncation error factor  = %g\n",
                time_error_factor);
     }
-    printf("\n");
-    print_line("=", 80);
+    writeline('=', 80, true, true);
 }
 
 /*
@@ -412,8 +399,7 @@ static void print_final(double time, int step_failed,
                         int total_linear_solves, int numConvFails,
                         int numTruncFails, int nfe, int nJacEval)
 {
-    printf("\n");
-    print_line("=", 80);
+    writeline('=', 80, true, true);
     printf("TIME INTEGRATION ROUTINE HAS FINISHED: ");
     if (step_failed) {
         printf(" IT WAS A FAILURE\n");
@@ -428,8 +414,7 @@ static void print_final(double time, int step_failed,
     printf("\tNumber of TimeTruncErr fails  = %d\n", numTruncFails);
     printf("\tNumber of Function evals      = %d\n", nfe);
     printf("\tNumber of Jacobian evals/solvs= %d\n", nJacEval);
-    printf("\n");
-    print_line("=", 80);
+    writeline('=', 80, true, true);
 }
 
 /*
@@ -439,7 +424,7 @@ static void print_lvl1_Header(int nTimes)
 {
     printf("\n");
     if (nTimes) {
-        print_line("-", 80);
+        writeline('-', 80);
     }
     printf("time       Time              Time                     Time  ");
     if (nTimes == 0) {
@@ -454,8 +439,7 @@ static void print_lvl1_Header(int nTimes)
 
     printf(" No.               Rslt      size    Its  Its  stps  error     |");
     printf("  comment");
-    printf("\n");
-    print_line("-", 80);
+    writeline('-', 80, true);
 }
 
 /*
@@ -676,7 +660,7 @@ double BEulerInt::time_error_norm()
         printf("\t\t    I       entry   actual   predicted   "
                "    weight       ydot\n");
         printf("\t\t");
-        print_line("-", 70);
+        writeline('-', 70);
         for (j = 0; j < NUM_ENTRIES; j++) {
             imax[j] = -1;
         }
@@ -705,7 +689,7 @@ double BEulerInt::time_error_norm()
             }
         }
         printf("\t\t");
-        print_line("-", 70);
+        writeline('-', 70);
     }
 #endif
     rel_norm = 0.0;
@@ -1338,7 +1322,7 @@ double BEulerInt::soln_error_norm(const double* const delta_y,
         printf("\t\t         I    ysoln  deltaY  weightY  "
                "Error_Norm**2\n");
         printf("\t\t   ");
-        print_line("-", 80);
+        writeline('-', 80);
         for (int jnum = 0; jnum < num_entries; jnum++) {
             dmax1 = -1.0;
             for (i = 0; i < m_neq; i++) {
@@ -1364,7 +1348,7 @@ double BEulerInt::soln_error_norm(const double* const delta_y,
             }
         }
         printf("\t\t   ");
-        print_line("-", 80);
+        writeline('-', 80);
     }
     return sum_norm;
 }
@@ -1910,7 +1894,7 @@ void BEulerInt::print_solnDelta_norm_contrib(const double* const solnDelta0,
            "%10s weight relSoln0 relSoln1\n", s0, s1);
     vector_int imax(num_entries, -1);
     printf("\t\t   ");
-    print_line("-", 90);
+    writeline('-', 90);
     for (jnum = 0; jnum < num_entries; jnum++) {
         dmax1 = -1.0;
         for (i = 0; i < m_neq; i++) {
@@ -1944,7 +1928,7 @@ void BEulerInt::print_solnDelta_norm_contrib(const double* const solnDelta0,
         }
     }
     printf("\t\t   ");
-    print_line("-", 90);
+    writeline('-', 90);
 }
 
 } // End of namespace Cantera

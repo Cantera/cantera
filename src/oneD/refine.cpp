@@ -10,13 +10,6 @@ using namespace std;
 
 namespace Cantera
 {
-static void r_drawline()
-{
-    string s(78,'#');
-    s += '\n';
-    writelog(s.c_str());
-}
-
 Refiner::Refiner(Domain1D& domain) :
     m_ratio(10.0), m_slope(0.8), m_curve(0.8), m_prune(-0.001),
     m_min_range(0.01), m_domain(&domain), m_npmax(3000),
@@ -220,7 +213,7 @@ double Refiner::value(const double* x, size_t i, size_t j)
 void Refiner::show()
 {
     if (!m_loc.empty()) {
-        r_drawline();
+        writeline('#', 78);
         writelog(string("Refining grid in ") +
                  m_domain->id()+".\n"
                  +"    New points inserted after grid points ");
@@ -235,7 +228,7 @@ void Refiner::show()
             writelog(string(bb->first)+" ");
         }
         writelog("\n");
-        r_drawline();
+        writeline('#', 78);
     } else if (m_domain->nPoints() > 1) {
         writelog("no new points needed in "+m_domain->id()+"\n");
     }

@@ -162,16 +162,6 @@ double vcsUtil_gasConstant(int mu_units)
     }
 }
 
-void vcs_print_line(const char* string, int num)
-{
-    if (string) {
-        for (int j = 0; j < num; j++) {
-            plogf("%s", string);
-        }
-    }
-    plogendl();
-}
-
 const char* vcs_speciesType_string(int speciesStatus, int length)
 {
     const char* sss;

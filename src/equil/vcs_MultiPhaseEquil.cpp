@@ -762,18 +762,6 @@ void vcs_MultiPhaseEquil::reportCSV(const std::string& reportFile)
     fclose(FP);
 }
 
-//! print char repeatedly to log file
-/*!
- *  @param letter letter to be repeated
- *  @param num    Number of times repeated
- */
-static void print_char(const char letter, const int num)
-{
-    for (int i = 0; i < num; i++) {
-        plogf("%c", letter);
-    }
-}
-
 /*
  * HKM -> Work on transferring the current value of the voltages into the
  *        equilibrium problem.
@@ -1121,15 +1109,11 @@ int  vcs_Cantera_to_vprob(Cantera::MultiPhase* mphase,
      *          Printout the species information: PhaseID's and mole nums
      */
     if (vprob->m_printLvl > 1) {
-        plogf("\n");
-        print_char('=', 80);
-        plogf("\n");
-        print_char('=', 16);
+        writeline('=', 80, true, true);
+        writeline('=', 16, false);
         plogf(" Cantera_to_vprob: START OF PROBLEM STATEMENT ");
-        print_char('=', 20);
-        plogf("\n");
-        print_char('=', 80);
-        plogf("\n");
+        writeline('=', 20);
+        writeline('=', 80);
         plogf("             Phase IDs of species\n");
         plogf("            species     phaseID        phaseName   ");
         plogf(" Initial_Estimated_kMols\n");
@@ -1149,9 +1133,7 @@ int  vcs_Cantera_to_vprob(Cantera::MultiPhase* mphase,
         /*
          *   Printout of the Phase structure information
          */
-        plogf("\n");
-        print_char('-', 80);
-        plogf("\n");
+        writeline('-', 80, true, true);
         plogf("             Information about phases\n");
         plogf("  PhaseName    PhaseNum SingSpec GasPhase EqnState NumSpec");
         plogf("  TMolesInert       Tmoles(kmol)\n");
@@ -1166,15 +1148,12 @@ int  vcs_Cantera_to_vprob(Cantera::MultiPhase* mphase,
             plogf("%16e\n",  VolPhase->totalMoles());
         }
 
-        plogf("\n");
-        print_char('=', 80);
-        plogf("\n");
-        print_char('=', 16);
+        writeline('=', 80, true, true);
+        writeline('=', 16, false);
         plogf(" Cantera_to_vprob: END OF PROBLEM STATEMENT ");
-        print_char('=', 20);
+        writeline('=', 20);
+        writeline('=', 80);
         plogf("\n");
-        print_char('=', 80);
-        plogf("\n\n");
     }
 
     return VCS_SUCCESS;
@@ -1253,15 +1232,12 @@ int vcs_Cantera_update_vprob(Cantera::MultiPhase* mphase,
      *          Printout the species information: PhaseID's and mole nums
      */
     if (vprob->m_printLvl > 1) {
-        plogf("\n");
-        print_char('=', 80);
-        plogf("\n");
-        print_char('=', 20);
+        writeline('=', 80, true, true);
+        writeline('=', 20, false);
         plogf(" Cantera_to_vprob: START OF PROBLEM STATEMENT ");
-        print_char('=', 20);
+        writeline('=', 20);
+        writeline('=', 80);
         plogf("\n");
-        print_char('=', 80);
-        plogf("\n\n");
         plogf("             Phase IDs of species\n");
         plogf("            species     phaseID        phaseName   ");
         plogf(" Initial_Estimated_kMols\n");
@@ -1281,9 +1257,7 @@ int vcs_Cantera_update_vprob(Cantera::MultiPhase* mphase,
         /*
          *   Printout of the Phase structure information
          */
-        plogf("\n");
-        print_char('-', 80);
-        plogf("\n");
+        writeline('-', 80, true, true);
         plogf("             Information about phases\n");
         plogf("  PhaseName    PhaseNum SingSpec GasPhase EqnState NumSpec");
         plogf("  TMolesInert       Tmoles(kmol)\n");
@@ -1298,15 +1272,12 @@ int vcs_Cantera_update_vprob(Cantera::MultiPhase* mphase,
             plogf("%16e\n",  VolPhase->totalMoles());
         }
 
-        plogf("\n");
-        print_char('=', 80);
-        plogf("\n");
-        print_char('=', 20);
+        writeline('=', 80, true, true);
+        writeline('=', 20, false);
         plogf(" Cantera_to_vprob: END OF PROBLEM STATEMENT ");
-        print_char('=', 20);
+        writeline('=', 20);
+        writeline('=', 80);
         plogf("\n");
-        print_char('=', 80);
-        plogf("\n\n");
     }
 
     return VCS_SUCCESS;
