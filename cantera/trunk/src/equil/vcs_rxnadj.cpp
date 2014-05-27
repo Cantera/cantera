@@ -678,11 +678,7 @@ double VCS_SOLVE::deltaG_Recalc_Rxn(const int stateCalc, const size_t irxn, cons
     return deltaG;
 }
 
-#ifdef DEBUG_MODE
 double VCS_SOLVE::vcs_line_search(const size_t irxn, const double dx_orig, char* const ANOTE)
-#else
-double VCS_SOLVE::vcs_line_search(const size_t irxn, const double dx_orig)
-#endif
 {
     int its = 0;
     size_t kspec = m_indexRxnToSpecies[irxn];
@@ -701,17 +697,17 @@ double VCS_SOLVE::vcs_line_search(const size_t irxn, const double dx_orig)
     if (deltaGOrig > 0.0) {
         if (dx_orig > 0.0) {
             dx = 0.0;
-#ifdef DEBUG_MODE
-            sprintf(ANOTE, "Rxn reduced to zero step size in line search: dx>0 dg > 0");
-#endif
+            if (DEBUG_MODE_ENABLED && ANOTE) {
+                sprintf(ANOTE, "Rxn reduced to zero step size in line search: dx>0 dg > 0");
+            }
             return dx;
         }
     } else if (deltaGOrig < 0.0) {
         if (dx_orig < 0.0) {
             dx = 0.0;
-#ifdef DEBUG_MODE
-            sprintf(ANOTE, "Rxn reduced to zero step size in line search: dx<0 dg < 0");
-#endif
+            if (DEBUG_MODE_ENABLED && ANOTE) {
+                sprintf(ANOTE, "Rxn reduced to zero step size in line search: dx<0 dg < 0");
+            }
             return dx;
         }
     } else if (deltaGOrig == 0.0) {
