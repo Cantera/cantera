@@ -68,10 +68,6 @@ IonsFromNeutralVPSSTP::IonsFromNeutralVPSSTP(const std::string& inputFile,
     }
     constructPhaseFile(inputFile, id_);
     geThermo = dynamic_cast<GibbsExcessVPSSTP*>(neutralMoleculePhase_);
-    //y.resize(numNeutralMoleculeSpecies_,0.0);
-    //size_t numNeutMolSpec = geThermo->nSpecies();
-    //dlnActCoeff_NeutralMolecule.resize(numNeutMolSpec);
-    //dX_NeutralMolecule.resize(numNeutMolSpec);
 }
 
 IonsFromNeutralVPSSTP::IonsFromNeutralVPSSTP(XML_Node& phaseRoot,
@@ -213,7 +209,6 @@ void IonsFromNeutralVPSSTP::constructPhaseFile(std::string inputFile, std::strin
      * The phase object automatically constructs an XML object.
      * Use this object to store information.
      */
-    //XML_Node& phaseNode_XML = xml();
     XML_Node* fxml = new XML_Node();
     fxml->build(fin);
     XML_Node* fxml_phase = findXMLPhase(fxml, id_);
@@ -223,7 +218,6 @@ void IonsFromNeutralVPSSTP::constructPhaseFile(std::string inputFile, std::strin
                            id_ + " in file named " + inputFile);
     }
     setXMLdata(*fxml_phase);
-    //fxml_phase->copy(&phaseNode_XML);
     constructPhaseXML(*fxml_phase, id_);
     delete fxml;
 }
@@ -338,8 +332,6 @@ doublereal IonsFromNeutralVPSSTP::cv_mole() const
     // Need to revisit this, as it is wrong
     getPartialMolarCp(DATA_PTR(m_pp));
     return mean_X(DATA_PTR(m_pp));
-    //err("not implemented");
-    //return 0.0;
 }
 
 /*
@@ -356,12 +348,6 @@ void IonsFromNeutralVPSSTP::getDissociationCoeffs(vector_fp& coeffs,
 
 void IonsFromNeutralVPSSTP::getActivityCoefficients(doublereal* ac) const
 {
-
-    // This stuff has moved to the setState routines
-    //   calcNeutralMoleculeMoleFractions();
-    //   neutralMoleculePhase_->setState_TPX(temperature(), pressure(), DATA_PTR(NeutralMolecMoleFractions_));
-    //   neutralMoleculePhase_->getStandardChemPotentials(DATA_PTR(muNeutralMolecule_));
-
     /*
      * Update the activity coefficients
      */
@@ -383,13 +369,6 @@ void IonsFromNeutralVPSSTP::getChemPotentials(doublereal* mu) const
 {
     size_t icat, jNeut;
     doublereal xx, fact2;
-    /*
-     *  Transfer the mole fractions to the slave neutral molecule
-     *  phase
-     *   Note we may move this in the future.
-     */
-    //calcNeutralMoleculeMoleFractions();
-    //neutralMoleculePhase_->setState_TPX(temperature(), pressure(), DATA_PTR(NeutralMolecMoleFractions_));
 
     /*
      * Get the standard chemical potentials of netural molecules
@@ -403,7 +382,6 @@ void IonsFromNeutralVPSSTP::getChemPotentials(doublereal* mu) const
         neutralMoleculePhase_->getChemPotentials(mu);
         break;
     case cIonSolnType_SINGLEANION:
-        //  neutralMoleculePhase_->getActivityCoefficients(DATA_PTR(gammaNeutralMolecule_));
         neutralMoleculePhase_->getLnActivityCoefficients(DATA_PTR(lnActCoeff_NeutralMolecule_));
 
         fact2 = 2.0 * RT_ * log(2.0);
@@ -553,8 +531,6 @@ void IonsFromNeutralVPSSTP::setState_TP(doublereal t, doublereal p)
     /*
      * Calculate the partial molar volumes, and then the density of the fluid
      */
-
-    //calcDensity();
     double dd = neutralMoleculePhase_->density();
     Phase::setDensity(dd);
 }
@@ -616,8 +592,6 @@ void IonsFromNeutralVPSSTP::calcNeutralMoleculeMoleFractions() const
                            "molefracts don't sum to one: " + fp2str(sum));
     }
 #endif
-
-    // bool fmSimple = true;
 
     switch (ionSolnType_) {
 
@@ -717,9 +691,6 @@ void IonsFromNeutralVPSSTP::getNeutralMoleculeMoleGrads(const doublereal* const 
         y_[k] = 0.0;
         dy[k] = 0.0;
     }
-
-
-    // bool fmSimple = true;
 
     switch (ionSolnType_) {
 
@@ -1031,9 +1002,6 @@ void IonsFromNeutralVPSSTP::initThermoXML(XML_Node& phaseNode, const std::string
     for (size_t k = 0; k <  m_kk; k++) {
         fm_invert_ionForNeutral[k] = npos;
     }
-    /*    for (int jNeut = 0; jNeut <  numNeutralMoleculeSpecies_; jNeut++) {
-      fm_invert_ionForNeutral[jNeut] = -1;
-      }*/
     for (size_t jNeut = 0; jNeut <  numNeutralMoleculeSpecies_; jNeut++) {
         for (size_t m = 0; m < nElementsN; m++) {
             elemVectorN[m] = neutralMoleculePhase_->nAtoms(jNeut, m);

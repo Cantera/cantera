@@ -602,7 +602,6 @@ L_MAINLOOP_ALL_SPECIES:
                     if (resurrect) {
                         bool phaseResurrected = false;
                         if (Vphase->exists() == VCS_PHASE_EXIST_NO) {
-                            //Vphase->setExistence(1);
                             phaseResurrected = true;
                         }
 
@@ -1914,18 +1913,6 @@ L_RETURN_BLOCK_B:
      */
     vcs_updateVP(VCS_STATECALC_OLD);
     /*
-     *    Store the final Delta G values for each non-component species
-     *    in the species slot rather than the reaction slot
-     */
-    // kspec = m_numSpeciesTot;
-    // i = m_numRxnTot;
-    //for (irxn = 0; irxn < m_numRxnTot; ++irxn) {
-    //   --kspec;
-    // --i;
-    //  m_deltaGRxn_new[kspec] = m_deltaGRxn_new[i];
-    //}
-    // vcs_dzero(VCS_DATA_PTR(m_deltaGRxn_new), m_numComponents);
-    /*
      *       Evaluate the final mole fractions
      *        storing them in wt[]
      */
@@ -2015,7 +2002,6 @@ double VCS_SOLVE::vcs_minor_alt_calc(size_t kspec, size_t irxn, bool* do_delete
          * get the diagonal of the activity coefficient jacobian
          */
         s = m_np_dLnActCoeffdMolNum[kspec][kspec] / (m_tPhaseMoles_old[iph]);
-        // s *= (m_tPhaseMoles_old[iph]);
         /*
          *   We fit it to a power law approximation of the activity coefficient
          *
@@ -2043,7 +2029,6 @@ double VCS_SOLVE::vcs_minor_alt_calc(size_t kspec, size_t irxn, bool* do_delete
             tmp = 200.;
         }
         wTrial =  w_kspec * exp(tmp);
-        // wTrial = w_kspec * exp(-dg_irxn);
 
         molNum_kspec_new = wTrial;
 
@@ -2260,7 +2245,6 @@ int VCS_SOLVE::vcs_delete_species(const size_t kspec)
 
 void VCS_SOLVE::vcs_reinsert_deleted(size_t kspec)
 {
-    // int irxn = kspec - m_numComponents;
     size_t iph = m_phaseID[kspec];
 #ifdef DEBUG_MODE
     if (m_debug_print_lvl >= 2) {
@@ -3321,7 +3305,6 @@ L_END_LOOP:
         for (size_t j = 0; j < ncTrial; j++) {
             plogf(" %10.10s", m_speciesName[j].c_str());
         }
-        //plogf("|    m_scSize");
         plogf("\n");
         for (size_t i = 0; i < m_numRxnTot; i++) {
             plogf("   --- %3d ", m_indexRxnToSpecies[i]);
@@ -3334,7 +3317,6 @@ L_END_LOOP:
             for (size_t j = 0; j < ncTrial; j++) {
                 plogf("    %+7.3f", m_stoichCoeffRxnMatrix[i][j]);
             }
-            //plogf(" |  %6.2f", m_scSize[i]);
             plogf("\n");
         }
 
@@ -4162,8 +4144,6 @@ double VCS_SOLVE::vcs_tmoles()
     for (size_t i = 0; i < m_numPhases; i++) {
         sum += m_tPhaseMoles_old[i];
         vcs_VolPhase* Vphase = m_VolPhaseList[i];
-        // Took out because we aren't updating mole fractions in Vphase
-        // Vphase->TMoles = m_tPhaseMoles_old[i];
         if (m_tPhaseMoles_old[i] == 0.0) {
             Vphase->setTotalMoles(0.0);
         } else {
@@ -4469,7 +4449,6 @@ void VCS_SOLVE::vcs_deltag(const int l, const bool doDeleted,
      *         This can probably be solved by successive iteration.
      *         This should be implemented.
      */
-    //alterZeroedPhases = false;
     if (alterZeroedPhases  && false) {
         for (size_t iph = 0; iph < m_numPhases; iph++) {
             bool lneed = false;
@@ -4560,7 +4539,6 @@ void  VCS_SOLVE::vcs_printDeltaG(const int stateCalc)
         for (size_t j = 0; j < m_numComponents; j++) {
             plogf("%-10.10s", m_speciesName[j].c_str());
         }
-        //plogf("|    m_scSize");
         plogf("\n");
         for (size_t i = 0; i < m_numRxnTot; i++) {
             plogf("   --- %3d ", m_indexRxnToSpecies[i]);
@@ -4573,7 +4551,6 @@ void  VCS_SOLVE::vcs_printDeltaG(const int stateCalc)
             for (size_t j = 0; j < m_numComponents; j++) {
                 plogf("     %6.2f", m_stoichCoeffRxnMatrix[i][j]);
             }
-            //plogf(" |  %6.2f", m_scSize[i]);
             plogf("\n");
         }
         plogf("   ");
@@ -4843,8 +4820,6 @@ void VCS_SOLVE::vcs_switch_pos(const bool ifunc, const size_t k1, const size_t k
 #endif
     pv1->setSpGlobalIndexVCS(kp1, k2);
     pv2->setSpGlobalIndexVCS(kp2, k1);
-    //pv1->IndSpecies[kp1] = k2;
-    //pv2->IndSpecies[kp2] = k1;
     std::swap(m_speciesName[k1], m_speciesName[k2]);
     std::swap(m_molNumSpecies_old[k1], m_molNumSpecies_old[k2]);
     std::swap(m_speciesUnknownType[k1], m_speciesUnknownType[k2]);
@@ -4904,13 +4879,6 @@ void VCS_SOLVE::vcs_switch_pos(const bool ifunc, const size_t k1, const size_t k
         std::swap(m_deltaGRxn_new[i1],  m_deltaGRxn_new[i2]);
         std::swap(m_deltaGRxn_old[i1], m_deltaGRxn_old[i2]);
         std::swap(m_deltaGRxn_tmp[i1], m_deltaGRxn_tmp[i2]);
-
-        /*
-         *   We don't want to swap ir[], because the values of ir should
-         *   stay the same after the swap
-         *
-         * vcs_isw(ir, i1, i2);
-         */
     }
 }
 

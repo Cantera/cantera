@@ -1337,9 +1337,6 @@ void HMWSoln::initThermoXML(XML_Node& phaseNode, const std::string& id_)
                      m_speciesSize[k] << endl;
 #endif
             } else {
-                //  throw CanteraError("HMWSoln::initThermoXML",
-                //                     "Solvent SS Model \"" + modelStringa +
-                //                     "\" is not allowed, name = " + sss[0]);
                 m_waterSS = providePDSS(0);
                 m_waterSS->setState_TP(300., OneAtm);
                 double dens = m_waterSS->density();
@@ -1467,10 +1464,6 @@ void HMWSoln::initThermoXML(XML_Node& phaseNode, const std::string& id_)
             if (jmap != npos) {
                 const XML_Node& sp = *xspecies[jmap];
                 getOptionalFloat(sp, "stoichIsMods",  m_speciesCharge_Stoich[k]);
-                // if (sp.hasChild("stoichIsMods")) {
-                // double val = getFloat(sp, "stoichIsMods");
-                //m_speciesCharge_Stoich[k] = val;
-                //}
             }
         }
 
@@ -1672,19 +1665,6 @@ void HMWSoln::initThermoXML(XML_Node& phaseNode, const std::string& id_)
             notDone = false;
         }
     } while (notDone);
-
-
-
-
-
-
-
-
-    //    if (phaseNode.hasChild("state")) {
-    // XML_Node& stateNode = phaseNode.child("state");
-    // setStateFromXML(stateNode);
-    //}
-
 }
 
 void  HMWSoln::calcIMSCutoffParams_()

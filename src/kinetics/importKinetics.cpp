@@ -91,7 +91,6 @@ void checkRxnElementBalance(Kinetics& kin,
     bal.clear();
     balp.clear();
     balr.clear();
-    //cout << "checking " << rdata.equation << endl;
     size_t np = rdata.products.size();
 
     // iterate over the products
@@ -104,22 +103,17 @@ void checkRxnElementBalance(Kinetics& kin,
         for (size_t m = 0; m < ph.nElements(); m++) {
             bal[ph.elementName(m)] += kstoich*ph.nAtoms(klocal,m);
             balp[ph.elementName(m)] += kstoich*ph.nAtoms(klocal,m);
-            //cout << "product species " << ph.speciesName(klocal) << " has " << ph.nAtoms(klocal,m)
-            //     << " atoms of " << ph.elementName(m) << " and kstoich = " << kstoich << endl;
         }
     }
     for (size_t index = 0; index < rdata.reactants.size(); index++) {
         size_t kr = rdata.reactants[index];
         size_t n = kin.speciesPhaseIndex(kr);
-        //klocal = kr - kin.start(n);
         size_t klocal = kr - kin.kineticsSpeciesIndex(0,n);
         kstoich = rdata.rstoich[index];
         const ThermoPhase& ph = kin.speciesPhase(kr);
         for (size_t m = 0; m < ph.nElements(); m++) {
             bal[ph.elementName(m)] -= kstoich*ph.nAtoms(klocal,m);
             balr[ph.elementName(m)] += kstoich*ph.nAtoms(klocal,m);
-            //cout << "reactant species " << ph.speciesName(klocal) << " has " << ph.nAtoms(klocal,m)
-            //     << " atoms of " << ph.elementName(m) << " and kstoich = " << kstoich << endl;
         }
     }
 
@@ -211,7 +205,6 @@ bool getReagents(const XML_Node& rxn, Kinetics& kin, int rp,
         stoich.push_back(stch);
         ord = doublereal(stch);
         order.push_back(ord);
-        //cout << key[n] << " " << isp << " " << stch << endl;
 
         /*
          * Needed to process reaction orders below.
@@ -452,11 +445,11 @@ static void getEfficiencies(const XML_Node& eff, Kinetics& kin,
     getPairs(eff, key, val);
     string nm;
     string phse = kin.thermo(0).id();
-    for (size_t n = 0; n < key.size(); n++) { // ; bb != ee; ++bb) {
-        nm = key[n];// bb->first;
+    for (size_t n = 0; n < key.size(); n++) {
+        nm = key[n];
         size_t k = kin.kineticsSpeciesIndex(nm, phse);
         if (k != npos) {
-            rdata.thirdBodyEfficiencies[k] = fpValue(val[n]); // bb->second;
+            rdata.thirdBodyEfficiencies[k] = fpValue(val[n]);
         } else if (!rules.skipUndeclaredThirdBodies) {
             throw CanteraError("getEfficiencies", "Encountered third-body "
                                "efficiency for undefined species \"" + nm + "\"\n"
@@ -1018,7 +1011,6 @@ bool buildSolutionFromXML(XML_Node& root, const std::string& id,
 {
     XML_Node* x;
     x = get_XML_NameID(nm, string("#")+id, &root);
-    //            x = get_XML_Node(string("#")+id, &root);
     if (!x) {
         return false;
     }

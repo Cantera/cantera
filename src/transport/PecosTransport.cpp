@@ -427,10 +427,6 @@ void PecosTransport::updateDiff_T()
 
 void PecosTransport::updateSpeciesViscosities()
 {
-
-    // blottner
-    // return 0.10*std::exp(_a*(logT*logT) + _b*logT + _c);
-
     int k;
     // iterate over species, update pure-species viscosity
     for (k = 0; k < m_nsp; k++) {
@@ -444,28 +440,6 @@ void PecosTransport::updateSpeciesViscosities()
 
 void PecosTransport::read_blottner_transport_table()
 {
-    // istringstream blot
-    //   ("Air 2.68142000000e-02  3.17783800000e-01 -1.13155513000e+01\n"
-    //    "CPAir   2.68142000000e-02  3.17783800000e-01 -1.13155513000e+01\n"
-    //    "N       1.15572000000e-02  6.03167900000e-01 -1.24327495000e+01\n"
-    //    "N2      2.68142000000e-02  3.17783800000e-01 -1.13155513000e+01\n"
-    //    "CPN2    2.68142000000e-02  3.17783800000e-01 -1.13155513000e+01\n"
-    //    "NO      4.36378000000e-02 -3.35511000000e-02 -9.57674300000e+00\n"
-    //    "O       2.03144000000e-02  4.29440400000e-01 -1.16031403000e+01\n"
-    //    "O2      4.49290000000e-02 -8.26158000000e-02 -9.20194750000e+00\n"
-    //    "C       -8.3285e-3         0.7703240         -12.7378000\n"
-    //    "C2      -8.4311e-3         0.7876060         -13.0268000\n"
-    //    "C3      -8.4312e-3         0.7876090         -12.8240000\n"
-    //    "C2H     -2.4241e-2         1.0946550         -14.5835500\n"
-    //    "CN      -8.3811e-3         0.7860330         -12.9406000\n"
-    //    "CO      -0.019527394       1.013295          -13.97873\n"
-    //    "CO2     -0.019527387       1.047818          -14.32212\n"
-    //    "HCN     -2.4241e-2         1.0946550         -14.5835500\n"
-    //    "H       -8.3912e-3         0.7743270         -13.6653000\n"
-    //    "H2      -8.3346e-3         0.7815380         -13.5351000\n"
-    //    "e       0.00000000000e+00  0.00000000000e+00 -1.16031403000e+01\n");
-
-    //
     // from: AIAA-1997-2474 and Sandia Report SC-RR-70-754
     //
     //   # Air  -- Identical to N2 fit
@@ -544,23 +518,6 @@ void PecosTransport::read_blottner_transport_table()
 
         } // done with for loop
     }
-
-
-    // for (k = 0; k < m_nsp; k++)
-    //   {
-    //     string sss = m_thermo->speciesName(k);
-    //     cout << sss  << endl;
-    //     cout << a[k] << endl;
-    //     cout << b[k] << endl;
-    //     cout << c[k] << endl;
-    //   }
-
-    // simple sanity check
-    // if(i != m_nsp-1)
-    //   {
-    // 	std::cout << "error\n" << i << std::endl;
-    //   }
-
 }
 
 void PecosTransport::updateViscosity_T()

@@ -338,7 +338,6 @@ doublereal OneDim::timeStep(int nsteps, doublereal dt, doublereal* x,
             if (m == 100) {
                 dt *= 1.5;
             }
-            //                 else dt /= 1.5;
             if (dt > m_tmax) {
                 dt = m_tmax;
             }

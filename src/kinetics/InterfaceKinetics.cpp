@@ -232,7 +232,6 @@ void InterfaceKinetics::updateKc()
 {
     fill(m_rkcn.begin(), m_rkcn.end(), 0.0);
 
-    //static vector_fp mu(nTotalSpecies());
     if (m_nrev > 0) {
         /*
          * Get the vector of standard state electrochemical potentials for species in the Interfacial
@@ -278,15 +277,12 @@ void InterfaceKinetics::checkPartialEquil()
         doublereal rt = GasConstant*thermo(0).temperature();
         cout << "T = " << thermo(0).temperature() << " " << rt << endl;
         size_t nsp, ik=0;
-        //doublereal rt = GasConstant*thermo(0).temperature();
-        //            doublereal rrt = 1.0/rt;
         doublereal delta;
         for (size_t n = 0; n < nPhases(); n++) {
             thermo(n).getChemPotentials(DATA_PTR(dmu) + m_start[n]);
             nsp = thermo(n).nSpecies();
             for (size_t k = 0; k < nsp; k++) {
                 delta = Faraday * m_phi[n] * thermo(n).charge(k);
-                //cout << thermo(n).speciesName(k) << "   " << (delta+dmu[ik])/rt << " " << dmu[ik]/rt << endl;
                 dmu[ik] += delta;
                 ik++;
             }
@@ -431,7 +427,6 @@ void InterfaceKinetics::applyButlerVolmerCorrection(doublereal* const kf)
     for (size_t i = 0; i < m_beta.size(); i++) {
         size_t irxn = m_ctrxn[i];
         eamod = m_beta[i]*m_rwork[irxn];
-        //  if (eamod != 0.0 && m_E[irxn] != 0.0) {
         if (eamod != 0.0) {
 #ifdef DEBUG_KIN_MODE
             ea = GasConstant * m_E[irxn];
@@ -529,16 +524,11 @@ void InterfaceKinetics::updateROP()
 
     // multiply ropf by concentration products
     m_rxnstoich.multiplyReactants(DATA_PTR(m_conc), DATA_PTR(m_ropf));
-    //m_reactantStoich.multiply(m_conc.begin(), ropf.begin());
 
     // for reversible reactions, multiply ropr by concentration
     // products
     m_rxnstoich.multiplyRevProducts(DATA_PTR(m_conc),
                                     DATA_PTR(m_ropr));
-    //m_revProductStoich.multiply(m_conc.begin(), ropr.begin());
-
-    // do global reactions
-    //m_globalReactantStoich.power(m_conc.begin(), ropf.begin());
 
     for (size_t j = 0; j != m_ii; ++j) {
         m_ropnet[j] = m_ropf[j] - m_ropr[j];
@@ -617,9 +607,6 @@ void InterfaceKinetics::getDeltaGibbs(doublereal* deltaG)
     for (size_t n = 0; n < nPhases(); n++) {
         thermo(n).getChemPotentials(DATA_PTR(m_grt) + m_start[n]);
     }
-    //for (n = 0; n < m_grt.size(); n++) {
-    //    cout << n << "G_RT = " << m_grt[n] << endl;
-    //}
 
     /*
      * Use the stoichiometric manager to find deltaG for each
@@ -842,33 +829,6 @@ void InterfaceKinetics::setIOFlag(int ioFlag)
         m_integrator->setIOFlag(ioFlag);
     }
 }
-
-//     void InterfaceKinetics::
-//     addGlobalReaction(const ReactionData& r) {
-
-//         int iloc;
-//         // install rate coeff calculator
-//         vector_fp rp = r.rateCoeffParameters;
-//         int ncov = r.cov.size();
-//         for (int m = 0; m < ncov; m++) rp.push_back(r.cov[m]);
-//         iloc = m_rates.install( reactionNumber(),
-//             r.rateCoeffType, rp.size(),
-//             rp.begin() );
-//         // store activation energy
-//         m_E.push_back(r.rateCoeffParameters[2]);
-//         // add constant term to rate coeff value vector
-//         m_rfn.push_back(r.rateCoeffParameters[0]);
-
-//         int nr = r.order.size();
-//         vector_fp ordr(nr);
-//         for (int n = 0; n < nr; n++) {
-//             ordr[n] = r.order[n] - r.rstoich[n];
-//         }
-//         m_globalReactantStoich.add( reactionNumber(),
-//             r.reactants, ordr);
-
-//         registerReaction( reactionNumber(), GLOBAL_RXN, iloc);
-//     }
 
 void InterfaceKinetics::installReagents(const ReactionData& r)
 {

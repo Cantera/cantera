@@ -178,7 +178,6 @@ TransportFactory::TransportFactory() :
     m_models["User"] = cUserTransport;
     m_models["Pecos"] = cPecosTransport;
     m_models["None"] = None;
-    //m_models["Radiative"] = cRadiative;
     for (map<string, int>::iterator iter = m_models.begin();
             iter != m_models.end();
             iter++) {
@@ -314,8 +313,6 @@ LiquidTranInteraction* TransportFactory::newLTI(const XML_Node& trNode,
         //
         lti = new LiquidTranInteraction(tp_ind);
         lti->init(trNode, thermo);
-        // throw CanteraError("TransportFactory::newLTI()",
-        //                    "unknown Liquid Transport Interaction submodel: " + model );
     }
     return lti;
 }
@@ -563,8 +560,6 @@ void TransportFactory::setupLiquidTransport(std::ostream& flog, thermo_t* thermo
 
     // Need to identify a method to obtain interaction matrices.
     // This will fill LiquidTransportParams members visc_Eij, visc_Sij
-    // trParam.visc_Eij.resize(nsp,nsp);
-    // trParam.visc_Sij.resize(nsp,nsp);
     trParam.thermalCond_Aij.resize(nsp,nsp);
     trParam.diff_Dij.resize(nsp,nsp);
     trParam.radius_Aij.resize(nsp,nsp);
@@ -602,14 +597,7 @@ void TransportFactory::setupSolidTransport(std::ostream& flog, thermo_t* thermo,
     copy(trParam.thermo->molecularWeights().begin(),
          trParam.thermo->molecularWeights().end(), trParam.mw.begin());
 
-    // Resize all other vectors in trParam
-    //trParam.LTData.resize(nsp);
-
     XML_Node root, log;
-
-    // Note that getSolidSpeciesTransportData just populates the pure species transport data.
-    //    const std::vector<const XML_Node*> & species_database = thermo->speciesData();
-    //    getSolidSpeciesTransportData(species_database, log, trParam.thermo->speciesNames(), trParam);
 
     // getSolidTransportData() populates the
     // phase transport models like electronic conductivity
@@ -1148,7 +1136,6 @@ void TransportFactory::getSolidTransportData(const XML_Node& transportNode,
             ThermoPhase* temp_thermo = trParam.thermo;
 
             //tranTypeNode contains the interaction model
-            //	XML_Node &compDepNode = tranTypeNode.child("compositionDependence");
             switch (m_tranPropMap[nodeName]) {
             case TP_IONCONDUCTIVITY:
                 trParam.ionConductivity = newLTP(tranTypeNode, phaseName,
@@ -1183,9 +1170,6 @@ void TransportFactory::getSolidTransportData(const XML_Node& transportNode,
     } catch (CanteraError) {
         showErrors(std::cout);
     }
-    //catch(CanteraError) {
-    //  ;
-    //}
     return;
 }
 
@@ -1440,8 +1424,6 @@ void TransportFactory::fitProperties(GasTransportParams& tr,
                 // NOTE: THIS CORRECTION IS NOT APPLIED
                 doublereal fkj, fjk;
                 getBinDiffCorrection(t, tr, integrals, k, j, 1.0, 1.0, fkj, fjk);
-                //diffcoeff *= fkj;
-
 
                 if (mode == CK_Mode) {
                     diff[n] = log(diffcoeff);

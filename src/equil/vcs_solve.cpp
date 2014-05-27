@@ -91,7 +91,6 @@ void VCS_SOLVE::vcs_initSizes(const size_t nspecies0, const size_t nelements,
                                     " Number of species is nonpositive\n");
     }
 
-    //vcs_priv_init(this);
     m_VCS_UnitsFormat = VCS_UNITS_UNITLESS;
 
     /*

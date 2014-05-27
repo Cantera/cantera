@@ -22,7 +22,6 @@ static void sim1D_drawline()
 Sim1D::Sim1D() :
     OneDim()
 {
-    //writelog("Sim1D default constructor\n");
 }
 
 Sim1D::Sim1D(vector<Domain1D*>& domains) :
@@ -39,7 +38,6 @@ Sim1D::Sim1D(vector<Domain1D*>& domains) :
 
     // set some defaults
     m_tstep = 1.0e-5;
-    //m_maxtimestep = 10.0;
     m_steps.push_back(1);
     m_steps.push_back(2);
     m_steps.push_back(5);
@@ -387,7 +385,6 @@ int Sim1D::refine(int loglevel)
                     zmid = 0.5*(d.grid(m) + d.grid(m+1));
                     znew.push_back(zmid);
                     np++;
-                    //writelog(string("refine: adding point at ")+fp2str(zmid)+"\n");
 
                     // for each component, linearly interpolate
                     // the solution to this point
@@ -411,8 +408,7 @@ int Sim1D::refine(int loglevel)
     size_t gridstart = 0, gridsize;
     for (size_t n = 0; n < m_nd; n++) {
         Domain1D& d = domain(n);
-        //            Refiner& r = d.refiner();
-        gridsize = dsize[n]; // d.nPoints() + r.nNewPoints();
+        gridsize = dsize[n];
         d.setupGrid(gridsize, DATA_PTR(znew) + gridstart);
         gridstart += gridsize;
     }
@@ -423,8 +419,6 @@ int Sim1D::refine(int loglevel)
 
     // resize the work array
     m_xnew.resize(xnew.size());
-
-    //        copy(xnew.begin(), xnew.end(), m_xnew.begin());
 
     resize();
     finalize();
@@ -512,8 +506,7 @@ int Sim1D::setFixedTemperature(doublereal t)
     size_t gridstart = 0, gridsize;
     for (n = 0; n < m_nd; n++) {
         Domain1D& d = domain(n);
-        //            Refiner& r = d.refiner();
-        gridsize = dsize[n]; // d.nPoints() + r.nNewPoints();
+        gridsize = dsize[n];
         d.setupGrid(gridsize, DATA_PTR(znew) + gridstart);
         gridstart += gridsize;
     }

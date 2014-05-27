@@ -545,9 +545,7 @@ void Elements::addElementsFromXML(const XML_Node& phase)
     for (i = 0; i < nel; i++) {
         e = 0;
         if (local_db) {
-            //writelog("looking in local database.");
             e = local_db->findByAttr("name",enames[i]);
-            //if (!e) writelog(enames[i]+" not found.");
         }
         if (!e) {
             e = dbe->findByAttr("name",enames[i]);

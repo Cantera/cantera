@@ -168,10 +168,8 @@ void IdealGasPhase::getStandardChemPotentials(doublereal* muStar) const
 void IdealGasPhase::getChemPotentials(doublereal* mu) const
 {
     getStandardChemPotentials(mu);
-    //doublereal logp = log(pressure()/m_spthermo->refPressure());
     doublereal xx;
     doublereal rt = temperature() * GasConstant;
-    //const vector_fp& g_RT = gibbs_RT_ref();
     for (size_t k = 0; k < m_kk; k++) {
         xx = std::max(SmallNumber, moleFraction(k));
         mu[k] += rt * (log(xx));

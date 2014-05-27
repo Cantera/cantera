@@ -184,7 +184,7 @@ void MultiNewton::resize(size_t sz)
 doublereal MultiNewton::norm2(const doublereal* x,
                               const doublereal* step, OneDim& r) const
 {
-    doublereal f, sum = 0.0;//, fmx = 0.0;
+    doublereal f, sum = 0.0;
     size_t nd = r.nDomains();
     for (size_t n = 0; n < nd; n++) {
         f = norm_square(x + r.start(n), step + r.start(n),

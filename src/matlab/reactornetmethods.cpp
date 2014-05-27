@@ -6,8 +6,6 @@
 #include "clib/ct.h"
 #include "ctmatutils.h"
 
-//const double Undef = -999.123;
-
 void reactornetmethods(int nlhs, mxArray* plhs[],
                        int nrhs, const mxArray* prhs[])
 {

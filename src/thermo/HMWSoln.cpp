@@ -692,7 +692,6 @@ void HMWSoln::calcDensity()
 
 double HMWSoln::density() const
 {
-    //    calcDensity();
     return Phase::density();
 }
 
@@ -814,10 +813,6 @@ void HMWSoln::getActivities(doublereal* ac) const
     double xmolSolvent = moleFraction(m_indexSolvent);
     ac[m_indexSolvent] =
         exp(m_lnActCoeffMolal_Scaled[m_indexSolvent]) * xmolSolvent;
-    /*
-     * Apply the pH scale
-     */
-    //applyphScale(ac);
 }
 
 void HMWSoln::getUnscaledMolalityActivityCoefficients(doublereal* acMolality) const
@@ -1044,7 +1039,6 @@ double HMWSoln::dA_DebyedT_TP(double tempArg, double presArg) const
         break;
     case A_DEBYE_WATER:
         dAdT = m_waterProps->ADebye(T, P, 1);
-        //dAdT = WaterProps::ADebye(T, P, 1);
         break;
     default:
         printf("shouldn't be here\n");
@@ -1419,11 +1413,6 @@ void HMWSoln::calcMolalitiesCropped() const
                 double charge_j = charge(j);
                 double abs_charge_j = fabs(charge_j);
                 /*
-                 * Find the counterIJ for the symmetric binary interaction
-                 */
-                //  n = m_kk*i + j;
-                //  counterIJ = m_CounterIJ[n];
-                /*
                  * Only loop over oppositely charge species
                  */
                 if (charge_i * charge_j < 0) {
@@ -1721,18 +1710,6 @@ void HMWSoln::s_updatePitzer_CoeffWRTemp(int doDerivs) const
                         + Theta_coeff[3]*twoinvT3
                         - Theta_coeff[4]*invT2;
                 }
-
-#ifdef DEBUG_HKM
-                /*
-                 * Turn terms off for debugging
-                 */
-                //m_Beta0MX_ij_L[counterIJ] = 0;
-                //m_Beta0MX_ij_LL[counterIJ] = 0;
-                //m_Beta1MX_ij_L[counterIJ] = 0;
-                //m_Beta1MX_ij_LL[counterIJ] = 0;
-                //m_CphiMX_ij_L[counterIJ] = 0;
-                //m_CphiMX_ij_LL[counterIJ] = 0;
-#endif
                 break;
             }
         }
@@ -2240,10 +2217,6 @@ void HMWSoln::s_updatePitzer_lnMolalityActCoeff() const
         printf(" Step 7: \n");
     }
 #endif
-    // A_Debye_Huckel = 0.5092; (units = sqrt(kg/gmol))
-    // A_Debye_Huckel = 0.5107; <- This value is used to match GWB data
-    //                             ( A * ln(10) = 1.17593)
-    // Aphi = A_Debye_Huckel * 2.30258509 / 3.0;
     Aphi = A_Debye_TP() / 3.0;
     F = -Aphi * (sqrt(Is) / (1.0 + 1.2*sqrt(Is))
                  + (2.0/1.2) * log(1.0+1.2*(sqrtIs)));
@@ -2907,10 +2880,6 @@ void HMWSoln::s_update_dlnMolalityActCoeff_dT() const
      */
     s_updatePitzer_dlnMolalityActCoeff_dT();
 
-    //double xmolSolvent = moleFraction(m_indexSolvent);
-    //double xx = MAX(m_xmolSolventMIN, xmolSolvent);
-    //    double lnxs = log(xx);
-
     for (size_t k = 1; k < m_kk; k++) {
         if (CROP_speciesCropped_[k] == 2) {
             m_dlnActCoeffMolaldT_Unscaled[k] = 0.0;
@@ -3280,19 +3249,8 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dT() const
         printf(" Step 7: \n");
     }
 #endif
-    // A_Debye_Huckel = 0.5092; (units = sqrt(kg/gmol))
-    // A_Debye_Huckel = 0.5107; <- This value is used to match GWB data
-    //                             ( A * ln(10) = 1.17593)
-    // Aphi = A_Debye_Huckel * 2.30258509 / 3.0;
-
     double dA_DebyedT = dA_DebyedT_TP();
     double dAphidT = dA_DebyedT /3.0;
-#ifdef DEBUG_HKM
-    //dAphidT = 0.0;
-#endif
-    //F = -Aphi * ( sqrt(Is) / (1.0 + 1.2*sqrt(Is))
-    //      + (2.0/1.2) * log(1.0+1.2*(sqrtIs)));
-    //dAphidT = Al / (4.0 * GasConstant * T * T);
     dFdT = -dAphidT * (sqrt(Is) / (1.0 + 1.2*sqrt(Is))
                        + (2.0/1.2) * log(1.0+1.2*(sqrtIs)));
 #ifdef DEBUG_MODE
@@ -3734,7 +3692,6 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dT() const
      * We have just computed act_0. However, this routine returns
      *  ln(actcoeff[]). Therefore, we must calculate ln(actcoeff_0).
      */
-    //double xmolSolvent = moleFraction(m_indexSolvent);
     m_dlnActCoeffMolaldT_Unscaled[0] = d_lnwateract_dT;
 #ifdef DEBUG_MODE
     if (m_debugCalc) {
@@ -3761,10 +3718,6 @@ void HMWSoln::s_update_d2lnMolalityActCoeff_dT2() const
      * Calculate the unscaled 2nd derivatives
      */
     s_updatePitzer_d2lnMolalityActCoeff_dT2();
-
-    //double xmolSolvent = moleFraction(m_indexSolvent);
-    //double xx = MAX(m_xmolSolventMIN, xmolSolvent);
-    //double lnxs = log(xx);
 
     for (size_t k = 1; k < m_kk; k++) {
         if (CROP_speciesCropped_[k] == 2) {
@@ -4098,13 +4051,8 @@ void HMWSoln::s_updatePitzer_d2lnMolalityActCoeff_dT2() const
             if (charge(i)*charge(j) > 0) {
                 z1 = (int) fabs(charge(i));
                 z2 = (int) fabs(charge(j));
-                //Phi[counterIJ] = thetaij[counterIJ] + etheta[z1][z2];
-                //Phi_L[counterIJ] = thetaij_L[counterIJ];
                 Phi_LL[counterIJ] = thetaij_LL[counterIJ];
-                //Phiprime[counterIJ] = etheta_prime[z1][z2];
                 Phiprime[counterIJ] = 0.0;
-                //Phiphi[counterIJ] = Phi[counterIJ] + Is * Phiprime[counterIJ];
-                //Phiphi_L[counterIJ] = Phi_L[counterIJ] + Is * Phiprime[counterIJ];
                 Phiphi_LL[counterIJ] = Phi_LL[counterIJ];
             } else {
                 Phi_LL[counterIJ]      = 0.0;
@@ -4115,9 +4063,6 @@ void HMWSoln::s_updatePitzer_d2lnMolalityActCoeff_dT2() const
             if (m_debugCalc) {
                 sni = speciesName(i);
                 snj = speciesName(j);
-                //printf(" %-16s %-16s %10.6f %10.6f %10.6f \n",
-                //       sni.c_str(), snj.c_str(),
-                //       Phi_L[counterIJ], Phiprime[counterIJ], Phiphi_L[counterIJ] );
                 printf(" %-16s %-16s %10.6f %10.6f %10.6f \n",
                        sni.c_str(), snj.c_str(),
                        Phi_LL[counterIJ], Phiprime[counterIJ], Phiphi_LL[counterIJ]);
@@ -4134,23 +4079,7 @@ void HMWSoln::s_updatePitzer_d2lnMolalityActCoeff_dT2() const
         printf(" Step 7: \n");
     }
 #endif
-    // A_Debye_Huckel = 0.5092; (units = sqrt(kg/gmol))
-    // A_Debye_Huckel = 0.5107; <- This value is used to match GWB data
-    //                             ( A * ln(10) = 1.17593)
-    // Aphi = A_Debye_Huckel * 2.30258509 / 3.0;
-    // Aphi = m_A_Debye / 3.0;
-
-    //double dA_DebyedT = dA_DebyedT_TP();
-    //double dAphidT = dA_DebyedT /3.0;
     double d2AphidT2 = d2A_DebyedT2_TP() / 3.0;
-#ifdef DEBUG_HKM
-    //d2AphidT2 = 0.0;
-#endif
-    //F = -Aphi * ( sqrt(Is) / (1.0 + 1.2*sqrt(Is))
-    //      + (2.0/1.2) * log(1.0+1.2*(sqrtIs)));
-    //dAphidT = Al / (4.0 * GasConstant * T * T);
-    //dFdT = -dAphidT * ( sqrt(Is) / (1.0 + 1.2*sqrt(Is))
-    //       + (2.0/1.2) * log(1.0+1.2*(sqrtIs)));
     d2FdT2 = -d2AphidT2 * (sqrt(Is) / (1.0 + 1.2*sqrt(Is))
                            + (2.0/1.2) * log(1.0+1.2*(sqrtIs)));
 #ifdef DEBUG_MODE
@@ -4947,9 +4876,7 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dP() const
             if (charge(i)*charge(j) > 0) {
                 z1 = (int) fabs(charge(i));
                 z2 = (int) fabs(charge(j));
-                //Phi[counterIJ] = thetaij_L[counterIJ] + etheta[z1][z2];
                 Phi_P[counterIJ] = thetaij_P[counterIJ];
-                //Phiprime[counterIJ] = etheta_prime[z1][z2];
                 Phiprime[counterIJ] = 0.0;
                 Phiphi_P[counterIJ] = Phi_P[counterIJ] + Is * Phiprime[counterIJ];
             } else {
@@ -4977,19 +4904,8 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dP() const
         printf(" Step 7: \n");
     }
 #endif
-    // A_Debye_Huckel = 0.5092; (units = sqrt(kg/gmol))
-    // A_Debye_Huckel = 0.5107; <- This value is used to match GWB data
-    //                             ( A * ln(10) = 1.17593)
-    // Aphi = A_Debye_Huckel * 2.30258509 / 3.0;
-
     double dA_DebyedP = dA_DebyedP_TP(currTemp, currPres);
     double dAphidP = dA_DebyedP /3.0;
-#ifdef DEBUG_MODE
-    //dAphidT = 0.0;
-#endif
-    //F = -Aphi * ( sqrt(Is) / (1.0 + 1.2*sqrt(Is))
-    //      + (2.0/1.2) * log(1.0+1.2*(sqrtIs)));
-    //dAphidT = Al / (4.0 * GasConstant * T * T);
     dFdP = -dAphidP * (sqrt(Is) / (1.0 + 1.2*sqrt(Is))
                        + (2.0/1.2) * log(1.0+1.2*(sqrtIs)));
 #ifdef DEBUG_MODE
@@ -5436,7 +5352,6 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dP() const
      * We have just computed act_0. However, this routine returns
      *  ln(actcoeff[]). Therefore, we must calculate ln(actcoeff_0).
      */
-    //double xmolSolvent = moleFraction(m_indexSolvent);
     m_dlnActCoeffMolaldP_Unscaled[0] = d_lnwateract_dP;
 #ifdef DEBUG_MODE
     if (m_debugCalc) {

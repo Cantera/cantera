@@ -441,10 +441,6 @@ void LatticeSolidPhase::initLengths()
 void LatticeSolidPhase::_updateThermo() const
 {
     doublereal tnow = temperature();
-    //        if (fabs(molarDensity() - m_molar_density)/m_molar_density > 0.0001) {
-    //   throw CanteraError("_updateThermo","molar density changed from "
-    //        +fp2str(m_molar_density)+" to "+fp2str(molarDensity()));
-    //}
     if (m_tlast != tnow) {
         getMoleFractions(DATA_PTR(m_x));
         size_t strt = 0;

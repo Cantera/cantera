@@ -203,9 +203,7 @@ void RedlichKisterVPSSTP::getChemPotentials(doublereal* mu) const
      * Update the activity coefficients
      */
     s_update_lnActCoeff();
-    /*
-     *
-     */
+
     doublereal RT = GasConstant * temperature();
     for (size_t k = 0; k < m_kk; k++) {
         xx = std::max(moleFractions_[k], SmallNumber);
@@ -480,9 +478,6 @@ void RedlichKisterVPSSTP::s_update_lnActCoeff() const
             polyk *= fac;
         }
         // This gives the same result as above
-        //  printf("RT lnActCoeff_Scaled_[iA] = %15.8E   , lnA = %15.8E\n",  lnActCoeff_Scaled_[iA], lnA);
-        // printf("RT lnActCoeff_Scaled_[iB] = %15.8E   , lnB = %15.8E\n",  lnActCoeff_Scaled_[iB], lnB);
-
 #endif
 
     }
@@ -492,8 +487,6 @@ void RedlichKisterVPSSTP::s_update_lnActCoeff() const
 void RedlichKisterVPSSTP::s_update_dlnActCoeff_dT() const
 {
     doublereal XA, XB;
-    //   doublereal T = temperature();
-
     dlnActCoeffdT_Scaled_.assign(m_kk, 0.0);
     d2lnActCoeffdT2_Scaled_.assign(m_kk, 0.0);
 

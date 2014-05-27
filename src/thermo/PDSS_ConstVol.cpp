@@ -97,7 +97,6 @@ void PDSS_ConstVol::constructPDSSXML(VPStandardStateTP* tp, size_t spindex,
     m_constMolarVolume = ctml::getFloat(*ss, "molarVolume", "toSI");
 
     std::string id = "";
-    // initThermoXML(phaseNode, id);
 }
 
 void PDSS_ConstVol::constructPDSSFile(VPStandardStateTP* tp, size_t spindex,

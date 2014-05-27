@@ -90,7 +90,6 @@ bool VCS_SOLVE::vcs_popPhasePossible(const size_t iphasePop) const
              * We loop through the regular reaction looking for a reaction that can pop the
              * component.
              */
-            //printf("WE are here at new logic - CHECK\n");
             for (size_t jrxn = 0; jrxn < m_numRxnRdc; jrxn++) {
                 bool foundJrxn = false;
                 // First, if the component is a product of the reaction
@@ -105,7 +104,6 @@ bool VCS_SOLVE::vcs_popPhasePossible(const size_t iphasePop) const
                         }
                     }
                     if (foundJrxn) {
-                        //printf("We have found a component phase pop! CHECK1 \n");
                         return true;
                     }
                 }
@@ -126,7 +124,6 @@ bool VCS_SOLVE::vcs_popPhasePossible(const size_t iphasePop) const
                         }
                     }
                     if (foundJrxn) {
-                        //printf("We have found a component phase pop! CHECK2 \n");
                         return true;
                     }
                 }

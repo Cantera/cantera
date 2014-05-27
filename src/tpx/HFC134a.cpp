@@ -165,19 +165,6 @@ double HFC134a::Psat()
     return Pc*exp(f/x1);
 }
 
-/*
-  double HFC134a::dPsatdT(){
-  if ((T < Tmn) || (T > Tc)) set_Err(TempError);
-  double x1 = T/Tc;
-  double x2 = 1.0 - x1;
-  double f = -7.686556*x2 + 2.311791*pow(x2,1.5)
-  - 2.039554*x2*x2 - 3.583758*pow(x2,4);
-  double fp = -7.686556 + 1.5*2.311791*pow(x2,0.5)
-  - 2.0*2.039554*x2 - 4.0*3.583758*pow(x2,3);
-  return -Pc*exp(f/x1)*(fp/T + f/(x1*T));
-  }
-*/
-
 double HFC134a::ldens()
 {
     if ((T < Tmn) || (T > Tc)) {

@@ -707,9 +707,6 @@ double VCS_SOLVE::vcs_line_search(const size_t irxn, const double dx_orig)
         if (dx_orig > 0.0) {
             dx = 0.0;
 #ifdef DEBUG_MODE
-            if (m_debug_print_lvl >= 2) {
-                //plogf("    --- %s :Warning possible error dx>0 dg > 0\n", SpName[kspec]);
-            }
             sprintf(ANOTE, "Rxn reduced to zero step size in line search: dx>0 dg > 0");
 #endif
             return dx;
@@ -718,9 +715,6 @@ double VCS_SOLVE::vcs_line_search(const size_t irxn, const double dx_orig)
         if (dx_orig < 0.0) {
             dx = 0.0;
 #ifdef DEBUG_MODE
-            if (m_debug_print_lvl >= 2) {
-                //plogf("   --- %s :Warning possible error dx<0 dg < 0\n", SpName[kspec]);
-            }
             sprintf(ANOTE, "Rxn reduced to zero step size in line search: dx<0 dg < 0");
 #endif
             return dx;

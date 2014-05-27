@@ -58,7 +58,6 @@ int vcs_MultiPhaseEquil::equilibrate_TV(int XY, doublereal xtarget,
                                         int printLvl, doublereal err,
                                         int maxsteps, int loglevel)
 {
-    //            doublereal dt = 1.0e3;
     doublereal Vtarget = m_mix->volume();
     if ((XY != TV) && (XY != HV) && (XY != UV) && (XY != SV)) {
         throw CanteraError("vcs_MultiPhaseEquil::equilibrate_TV",
@@ -546,7 +545,6 @@ int vcs_MultiPhaseEquil::equilibrate_TP(int estimateEquil,
         for (size_t k = 0; k < tref.nSpecies(); k++, kGlob++) {
             phaseMole += m_vprob.w[kGlob];
         }
-        //phaseMole *= 1.0E-3;
         m_mix->setPhaseMoles(ip, phaseMole);
     }
 
@@ -1409,13 +1407,7 @@ int vcs_MultiPhaseEquil::determine_PhaseStability(int iph, double& funcStab, int
      * states.
      */
     m_mix->uploadMoleFractionsFromPhases();
-    //  for (int i = 0; i < m_vprob.nspecies; i++) {
-    // plogf("%d %15.3e\n", m_vprob.m_gibbsSpecies[i]);
-    //}
     m_mix->getChemPotentials(DATA_PTR(m_vprob.m_gibbsSpecies));
-    //for (int i = 0; i < m_vprob.nspecies; i++) {
-    // plogf("%d %15.3e\n", m_vprob.m_gibbsSpecies[i]);
-    //}
 
     double te = tickTock.secondsWC();
     if (printLvl > 0) {

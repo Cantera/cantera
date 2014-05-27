@@ -100,7 +100,6 @@ doublereal SingleSpeciesTP::cp_mole() const
      * function in ThermoPhase. However, the standard
      * state heat capacity will do fine here for now.
      */
-    //getPartialMolarCp(&cpbar);
     getCp_R(&cpbar);
     cpbar *= GasConstant;
     return cpbar;

@@ -169,7 +169,6 @@ void Domain1D::showSolution(const doublereal* x)
 {
     size_t nn = m_nv/5;
     size_t i, j, n;
-    //char* buf = new char[100];
     char buf[100];
     doublereal v;
     for (i = 0; i < nn; i++) {

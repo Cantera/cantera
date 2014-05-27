@@ -338,7 +338,6 @@ doublereal  BandMatrix::rcond(doublereal a1norm)
         throw CanteraError("BandMatrix::rcond()", "matrix isn't factored correctly");
     }
 
-    // doublereal anorm = oneNorm();
     size_t ldab = (2 *m_kl + m_ku + 1);
     int rinfo = 0;
     rcond = ct_dgbcon('1', m_n, m_kl, m_ku, DATA_PTR(ludata), ldab, DATA_PTR(m_ipiv), a1norm, DATA_PTR(work_),

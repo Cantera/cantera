@@ -112,7 +112,6 @@ void GeneralSpeciesThermo::install(const std::string& name,
         m_kk = index+1;
     }
 
-    //int nfreq = 3;
     /*
      * Create the necessary object
      */
@@ -224,9 +223,6 @@ void GeneralSpeciesThermo::update(doublereal t, doublereal* cp_R,
         if (sp_ptr) {
             sp_ptr->updatePropertiesTemp(t, cp_R, h_RT, s_R);
         }
-        // else {
-        //   writelog("General::update: sp_ptr is NULL!\n");
-        //}
     }
 }
 

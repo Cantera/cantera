@@ -80,8 +80,6 @@ void Nasa9Poly1::updateProperties(const doublereal* tt,
     cp_R[m_index] = cpdivR;
     h_RT[m_index] = hdivRT;
     s_R[m_index] = sdivR;
-    //writelog("NASA9poly1: for species "+int2str(m_index)+", h_RT = "+
-    //    fp2str(h)+"\n");
 }
 
 void Nasa9Poly1::updatePropertiesTemp(const doublereal temp,

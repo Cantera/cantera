@@ -443,9 +443,7 @@ void Outlet1D::eval(size_t jg, doublereal* xg, doublereal* rg, integer* diagg,
         rb[0] = xb[3];
         rb[2] = xb[2] - xb[2 + nc];
         for (k = 4; k < nc; k++) {
-            //if (m_flow_right->doSpecies(k-4)) {
             rb[k] = xb[k] - xb[k + nc];
-            //}
         }
     }
 
@@ -456,11 +454,8 @@ void Outlet1D::eval(size_t jg, doublereal* xg, doublereal* rg, integer* diagg,
         db = diag - nc;
 
         // zero Lambda
-
-        if (!m_flow_left->fixed_mdot()) {
-            ;    //                rb[0] = xb[0] - xb[0-nc]; //zero U gradient
-        } else {
-            rb[0] = xb[3];    // zero Lambda
+        if (m_flow_left->fixed_mdot()) {
+            rb[0] = xb[3];
         }
 
         rb[2] = xb[2] - xb[2 - nc];  // zero T gradient
@@ -596,7 +591,7 @@ void OutletRes1D::eval(size_t jg, doublereal* xg, doublereal* rg,
         } else {
             rb[0] = xb[3];    // zero Lambda
         }
-        rb[2] = xb[2] - m_temp; //xb[2] - xb[2 - nc];        // zero dT/dz
+        rb[2] = xb[2] - m_temp; // zero dT/dz
         for (k = 5; k < nc; k++) {
             rb[k] = xb[k] - m_yres[k-4];     // fixed Y
             db[k] = 0;
@@ -695,7 +690,6 @@ void Surf1D::eval(size_t jg, doublereal* xg, doublereal* rg,
 XML_Node& Surf1D::save(XML_Node& o, const doublereal* const soln)
 {
     const doublereal* s = soln + loc();
-    //XML_Node& inlt = o.addChild("inlet");
     XML_Node& inlt = Domain1D::save(o, soln);
     inlt.addAttribute("type","surface");
     for (size_t k = 0; k < nComponents(); k++) {
@@ -768,8 +762,6 @@ void ReactingSurf1D::eval(size_t jg, doublereal* xg, doublereal* rg,
     }
     m_sphase->setTemperature(x[0]);
     m_sphase->setCoverages(DATA_PTR(m_work));
-    //m_kin->advanceCoverages(1.0);
-    //m_sphase->getCoverages(m_fixed_cov.begin());
 
     // set the left gas state to the adjacent point
 
@@ -789,10 +781,6 @@ void ReactingSurf1D::eval(size_t jg, doublereal* xg, doublereal* rg,
 
     m_kin->getNetProductionRates(DATA_PTR(m_work));
     doublereal rs0 = 1.0/m_sphase->siteDensity();
-
-    //scale(m_work.begin(), m_work.end(), m_work.begin(), m_mult[0]);
-
-    //        bool enabled = true;
     size_t ioffset = m_kin->kineticsSpeciesIndex(0, m_surfindex);
 
     if (m_enabled) {

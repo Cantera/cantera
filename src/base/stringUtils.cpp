@@ -132,7 +132,6 @@ compositionMap parseCompString(const std::string& ss,
             s = s.substr(ibegin,s.size());
             size_t icolon = s.find(':');
             size_t iend = s.find_first_of(", ;\n\t");
-            //icomma = s.find(',');
             if (icolon != std::string::npos) {
                 std::string name = stripws(s.substr(0, icolon));
                 if (iend != std::string::npos) {

@@ -140,7 +140,6 @@ void AqueousKinetics::updateKc()
     // compute Delta G^0 for all reversible reactions
     m_rxnstoich.getRevReactionDelta(m_ii, &m_grt[0], &m_rkcn[0]);
 
-    //doublereal logStandConc = m_kdata->m_logStandConc;
     doublereal rrt = 1.0/(GasConstant * thermo().temperature());
     for (size_t i = 0; i < m_nrev; i++) {
         size_t irxn = m_revindex[i];

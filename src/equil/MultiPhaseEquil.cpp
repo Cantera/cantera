@@ -16,9 +16,6 @@ namespace Cantera
 
 MultiPhaseEquil::MultiPhaseEquil(MultiPhase* mix, bool start, int loglevel) : m_mix(mix)
 {
-    // the multi-phase mixture
-    //        m_mix = mix;
-
     // store some mixture parameters locally
     m_nel_mix = mix->nElements();
     m_nsp_mix = mix->nSpecies();
@@ -524,7 +521,7 @@ doublereal MultiPhaseEquil::stepComposition(int loglevel)
             if (m_work[k] < 0.0 && m_moles[k] > 0.0) {
                 omax = -m_moles[k]/m_work[k];
                 if (omax < omegamax) {
-                    omegamax = omax; //*1.000001;
+                    omegamax = omax;
                     if (omegamax < 1.0e-5) {
                         m_force = true;
                     }
@@ -622,8 +619,7 @@ doublereal MultiPhaseEquil::computeReactionSteps(vector_fp& dxi)
                     for (k = 0; k < m_nsp; k++) {
                         kc = m_species[k];
                         if (m_mix->speciesPhaseIndex(kc) == ip) {
-                            // bug fixed 7/12/06 DGG
-                            stoich = nu[k]; // nu[kc];
+                            stoich = nu[k];
                             psum += stoich * stoich;
                         }
                     }
@@ -758,7 +754,6 @@ void MultiPhaseEquil::reportCSV(const std::string& reportFile)
         VolPM.resize(nSpecies, 0.0);
         tref.getMoleFractions(&mf[istart]);
         tref.getPartialMolarVolumes(DATA_PTR(VolPM));
-        //vcs_VolPhase *volP = m_vprob->VPhaseList[iphase];
 
         double TMolesPhase = phaseMoles(iphase);
         double VolPhaseVolumes = 0.0;
@@ -773,8 +768,6 @@ void MultiPhaseEquil::reportCSV(const std::string& reportFile)
     fprintf(FP,"Temperature  = %11.5g kelvin\n", Temp);
     fprintf(FP,"Pressure     = %11.5g Pascal\n", pres);
     fprintf(FP,"Total Volume = %11.5g m**3\n", vol);
-    //    fprintf(FP,"Number Basis optimizations = %d\n", m_vprob->m_NumBasisOptimizations);
-    // fprintf(FP,"Number VCS iterations = %d\n", m_vprob->m_Iterations);
 
     for (size_t iphase = 0; iphase < nphase; iphase++) {
         istart =    m_mix->speciesIndex(0, iphase);
@@ -783,9 +776,7 @@ void MultiPhaseEquil::reportCSV(const std::string& reportFile)
         ThermoPhase* tp = &tref;
         tp->getMoleFractions(&mf[istart]);
         string phaseName = tref.name();
-        //      vcs_VolPhase *volP = m_vprob->VPhaseList[iphase];
         double TMolesPhase = phaseMoles(iphase);
-        //AssertTrace(TMolesPhase == m_mix->phaseMoles(iphase));
         nSpecies = tref.nSpecies();
         activity.resize(nSpecies, 0.0);
         ac.resize(nSpecies, 0.0);
@@ -859,21 +850,6 @@ void MultiPhaseEquil::reportCSV(const std::string& reportFile)
                         VolPM[k],  VolPhaseVolumes);
             }
         }
-#ifdef DEBUG_MODE
-        /*
-         * Check consistency: These should be equal
-         */
-        tp->getChemPotentials(&(fe[istart]));
-        for (k = 0; k < nSpecies; k++) {
-            //if (!vcs_doubleEqual(fe[istart+k], mu[k])) {
-            //  fprintf(FP,"ERROR: incompatibility!\n");
-            //  fclose(FP);
-            //  printf("ERROR: incompatibility!\n");
-            //  exit(EXIT_FAILURE);
-            // }
-        }
-#endif
-
     }
     fclose(FP);
 }

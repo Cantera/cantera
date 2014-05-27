@@ -92,7 +92,6 @@ PDSS*
 VPSSMgr_IdealGas::createInstallPDSS(size_t k, const XML_Node& speciesNode,
                                     const XML_Node* const phaseNode_ptr)
 {
-    //VPSSMgr::installSpecies(k, speciesNode, phaseNode_ptr);
     const XML_Node* ss = speciesNode.findByName("standardState");
     if (ss) {
         std::string model = (*ss)["model"];

@@ -608,24 +608,18 @@ void PDSS_HKFT::constructPDSSXML(VPStandardStateTP* tp, size_t spindex,
         doublereal val = getFloat(*hh, "DG0_f_Pr_Tr");
         m_deltaG_formation_tr_pr = val;
         hasDGO = 1;
-    } else {
-        // throw CanteraError("PDSS_HKFT::constructPDSSXML", " missing DG0_f_Pr_Tr field");
     }
 
     if (hh->hasChild("DH0_f_Pr_Tr")) {
         doublereal val = getFloat(*hh, "DH0_f_Pr_Tr");
         m_deltaH_formation_tr_pr = val;
         hasDHO = 1;
-    } else {
-        //  throw CanteraError("PDSS_HKFT::constructPDSSXML", " missing DH0_f_Pr_Tr field");
     }
 
     if (hh->hasChild("S0_Pr_Tr")) {
         doublereal val = getFloat(*hh, "S0_Pr_Tr");
         m_Entrop_tr_pr= val;
         hasSO = 1;
-    } else {
-        //  throw CanteraError("PDSS_HKFT::constructPDSSXML", " missing S0_Pr_Tr field");
     }
 
     const XML_Node* ss = speciesNode.findByName("standardState");
@@ -822,8 +816,6 @@ doublereal PDSS_HKFT::deltaH() const
 doublereal PDSS_HKFT::deltaG() const
 {
     doublereal pbar = m_pres * 1.0E-5;
-    //doublereal m_presR_bar = OneAtm * 1.0E-5;
-
     doublereal sterm = -  m_Entrop_tr_pr * (m_temp - 298.15);
 
     doublereal c1term = -m_c1 * (m_temp * log(m_temp/298.15) - (m_temp - 298.15));
@@ -1074,7 +1066,6 @@ doublereal PDSS_HKFT::gstar(const doublereal temp, const doublereal pres, const 
         if (fabs(fvalT - fval) > 1.0E-9) {
             printf("we are here\n");
         }
-        // return gvalT - fvalT;
     }
 #endif
     return res;

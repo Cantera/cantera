@@ -50,8 +50,6 @@ VPSSMgr::VPSSMgr(const VPSSMgr& right) :
     m_kk(0),
     m_vptp_ptr(0),
     m_spthermo(0),
-    //  m_Tnow(300.),
-    //   m_Pnow(OneAtm),
     m_tlast(-1.0),
     m_plast(-1.0),
     m_p0(-1.0),
@@ -404,36 +402,6 @@ void VPSSMgr::initThermoXML(XML_Node& phaseNode, const std::string& id)
             m_maxTemp = mint;
         }
     }
-#ifdef DEBUG_MODE
-    // Add a check to see that all references pressures are the same
-    double m_p0_k;
-    if (m_spthermo) {
-        for (size_t k = 0; k < m_kk; k++) {
-            m_p0_k = m_spthermo->refPressure(k);
-            if (m_p0 != m_p0_k) {
-                //throw CanteraError("VPSSMgr::initThermoXML",
-                //    "inconsistent ref pressures" + fp2str(m_p0) + " "
-                //    + fp2str(m_p0_k));
-                // writelog("VPSSMgr::initThermoXML:"
-                //    "inconsistent ref pressures: " + fp2str(m_p0) + " "
-                //    + fp2str(m_p0_k) + " for SpeciesThermo k = " + int2str(k) + "\n");
-            }
-        }
-    }
-
-    for (size_t k = 0; k < m_kk; k++) {
-        const PDSS* kPDSS = m_vptp_ptr->providePDSS(k);
-        m_p0_k = kPDSS->refPressure();
-        if (m_p0 != m_p0_k) {
-            //throw CanteraError("VPSSMgr::initThermoXML",
-            //    "inconsistent ref pressures" + fp2str(m_p0) + " "
-            //    + fp2str(m_p0_k));
-            //writelog("VPSSMgr::initThermoXML"
-            //    "inconsistent ref pressures: " + fp2str(m_p0) + " "
-            //    + fp2str(m_p0_k) + " for PDSS k = " + int2str(k) + "\n");
-        }
-    }
-#endif
 }
 
 void VPSSMgr::installSTSpecies(size_t k,  const XML_Node& s,

@@ -516,9 +516,7 @@ void  MixedSolventElectrolyte::getdlnActCoeffds(const doublereal dTds, const dou
     double XA, XB, g0, g1, dXA, dXB;
     double T = temperature();
     double RT = GasConstant*T;
-
-    //fvo_zero_dbl_1(dlnActCoeff, m_kk);
-    s_update_dlnActCoeff_dT();
+   s_update_dlnActCoeff_dT();
 
     for (size_t iK = 0; iK < m_kk; iK++) {
         dlnActCoeffds[iK] = 0.0;
@@ -585,22 +583,6 @@ void MixedSolventElectrolyte::s_update_dlnActCoeff_dlnN_diag() const
             g1 = (m_HE_c_ij[i] - T * m_SE_c_ij[i]) / RT;
 
             dlnActCoeffdlnN_diag_[iK] += 2*(delBK-XB)*(g0*(delAK-XA)+g1*(2*(delAK-XA)*XB+XA*(delBK-XB)));
-
-            // double gfac = g0 + g1 * XB;
-            // double gggg = (delBK - XB) * g1;
-
-
-            // dlnActCoeffdlnN_diag_[iK] += gfac * delAK * ( - XB + delBK);
-
-            // dlnActCoeffdlnN_diag_[iK] += gfac * delBK * ( - XA + delAK);
-
-            // dlnActCoeffdlnN_diag_[iK] += gfac * (2.0 * XA * XB - delAK * XB - XA * delBK);
-
-            // dlnActCoeffdlnN_diag_[iK] += (delAK * XB + XA * delBK - XA * XB) * g1 * (-XB + delBK);
-
-            // dlnActCoeffdlnN_diag_[iK] += gggg * ( - 2.0 * XA * XB + delAK * XB + XA * delBK);
-
-            // dlnActCoeffdlnN_diag_[iK] += - g1 * XA * XB * (- XB + delBK);
         }
         dlnActCoeffdlnN_diag_[iK] = XK*dlnActCoeffdlnN_diag_[iK];//-XK;
     }
@@ -650,22 +632,6 @@ void MixedSolventElectrolyte::s_update_dlnActCoeff_dlnN() const
 
                 dlnActCoeffdlnN_(iK,iM) += g0*((delAM-XA)*(delBK-XB)+(delAK-XA)*(delBM-XB));
                 dlnActCoeffdlnN_(iK,iM) += 2*g1*((delAM-XA)*(delBK-XB)*XB+(delAK-XA)*(delBM-XB)*XB+(delBM-XB)*(delBK-XB)*XA);
-
-                // double gfac = g0 + g1 * XB;
-                // double gggg = (delBK - XB) * g1;
-
-
-                // dlnActCoeffdlnN_(iK, iM) += gfac * delAK * ( - XB + delBM);
-
-                // dlnActCoeffdlnN_(iK, iM) += gfac * delBK * ( - XA + delAM);
-
-                // dlnActCoeffdlnN_(iK, iM) += gfac * (2.0 * XA * XB - delAM * XB - XA * delBM);
-
-                // dlnActCoeffdlnN_(iK, iM) += (delAK * XB + XA * delBK - XA * XB) * g1 * (-XB + delBM);
-
-                // dlnActCoeffdlnN_(iK, iM) += gggg * ( - 2.0 * XA * XB + delAM * XB + XA * delBM);
-
-                // dlnActCoeffdlnN_(iK, iM) += - g1 * XA * XB * (- XB + delBM);
             }
             dlnActCoeffdlnN_(iK,iM) = XM*dlnActCoeffdlnN_(iK,iM);
         }

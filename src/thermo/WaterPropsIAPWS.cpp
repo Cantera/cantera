@@ -411,7 +411,6 @@ int WaterPropsIAPWS::phaseState(bool checkState) const
         } else {
             doublereal T = T_c / tau;
             doublereal rho = delta * Rho_c;
-            //doublereal psatTable = psat_est(T);
             doublereal rhoMidAtm = 0.5 * (OneAtm * M_water / (Rgas * 373.15) + 1.0E3);
             doublereal rhoMid = Rho_c + (T - T_c) * (Rho_c - rhoMidAtm) / (T_c - 373.15);
             int iStateGuess = WATER_LIQUID;
@@ -424,8 +423,6 @@ int WaterPropsIAPWS::phaseState(bool checkState) const
             } else {
                 // When we are here we are between the spinodal curves
                 doublereal rhoDel = rho * 1.000001;
-
-                //setState_TR(T, rhoDel);
                 doublereal deltaSave = delta;
                 doublereal deltaDel = rhoDel / Rho_c;
                 delta = deltaDel;
@@ -438,7 +435,6 @@ int WaterPropsIAPWS::phaseState(bool checkState) const
                 } else {
                     iState = WATER_UNSTABLEGAS;
                 }
-                //setState_TR(T, rho);
                 delta = deltaSave;
 
                 m_phi->tdpolycalc(tau, delta);
@@ -489,7 +485,6 @@ doublereal WaterPropsIAPWS::densSpinodalWater() const
             slope = std::max(slope, dpdrho_new *5.0/ dens_new);
         } else {
             slope = -dpdrho_new;
-            //slope = MIN(slope, dpdrho_new *5.0 / dens_new);
             // shouldn't be here for liquid spinodal
         }
         doublereal delta_rho =  - dpdrho_new / slope;
@@ -579,10 +574,8 @@ doublereal WaterPropsIAPWS::densSpinodalSteam() const
         doublereal slope = (dpdrho_new - dpdrho_old)/(dens_new - dens_old);
         if (slope >= 0.0) {
             slope = dpdrho_new;
-            //slope = MAX(slope, dpdrho_new *5.0/ dens_new);
             // shouldn't be here for gas spinodal
         } else {
-            //slope = -dpdrho_new;
             slope = std::min(slope, dpdrho_new *5.0 / dens_new);
 
         }

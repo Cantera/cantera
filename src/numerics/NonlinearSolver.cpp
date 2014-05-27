@@ -188,8 +188,6 @@ NonlinearSolver::NonlinearSolver(ResidJacEval* func) :
         m_ewt[i] = atolk_[i];
     }
 
-
-    // jacCopyPtr_->resize(neq_, 0.0);
     deltaX_CP_.resize(neq_, 0.0);
     Jd_.resize(neq_, 0.0);
     deltaX_trust_.resize(neq_, 1.0);
@@ -1133,7 +1131,6 @@ int NonlinearSolver::doAffineNewtonSolve(const doublereal* const y_curr,   const
             return info;
         }
 
-        // doublereal *JTF = delta_y;
         vector_fp delyH(neq_);
         // First recalculate the scaled residual. It got wiped out doing the newton solve
         if (m_rowScaling) {
@@ -1329,9 +1326,6 @@ doublereal NonlinearSolver::doCauchyPointSolve(GeneralMatrix& jac)
         RJd_norm_ += m_resid[i] * Jd_[i] / m_residWts[i];
         JdJd_norm_ += Jd_[i] * Jd_[i];
     }
-    //if (RJd_norm_ > -1.0E-300) {
-    //  printf("we are here: zero residual\n");
-    //}
     if (fabs(JdJd_norm_) < 1.0E-290) {
         if (fabs(RJd_norm_) < 1.0E-300) {
             lambdaStar_ = 0.0;
@@ -1529,16 +1523,6 @@ void NonlinearSolver::setupDoubleDogleg()
      *         ---------------------------------------------
      *           (grad f)T H (grad f)  (grad f)T H-1 (grad f)
      */
-    // doublereal sumG = 0.0;
-    // doublereal sumH = 0.0;
-    //    for (int i = 0; i < neq_; i++) {
-    //  sumG =  deltax_cp_[i] *  deltax_cp_[i];
-    //   sumH =  deltax_cp_[i] *  newtDir[i];
-    //  }
-    // double  fac1 = sumG / lambdaStar_;
-    // double  fac2 = sumH / lambdaStar_;
-    // double  gamma = fac1 / fac2;
-    // doublereal   gamma =  m_normDeltaSoln_CP / m_normDeltaSoln_Newton;
     /*
      * This hasn't worked. so will do it heuristically. One issue is that the newton
      * direction is not the inverse of the Hessian times the gradient. The Hession
@@ -1944,8 +1928,6 @@ void  NonlinearSolver::readjustTrustVector()
     doublereal deltaXSizeOld = trustNorm;
     doublereal trustNormGoal = trustNorm * trustDelta_;
 
-    // This is the size of each component.
-    //    doublereal trustDeltaEach = trustDelta_ * trustNorm / neq_;
     doublereal oldVal;
     doublereal fabsy;
     // we use the old value of the trust region as an indicator
@@ -1954,7 +1936,6 @@ void  NonlinearSolver::readjustTrustVector()
         fabsy = fabs(m_y_n_curr[i]);
         // First off make sure that each trust region vector is 1/2 the size of each variable or smaller
         // unless overridden by the deltaStepMininum value.
-        //      doublereal newValue =  trustDeltaEach * m_ewt[i] / wtSum;
         doublereal newValue =  trustNormGoal  * m_ewt[i];
         if (newValue > 0.5 * fabsy) {
             if (fabsy * 0.5 > m_deltaStepMinimum[i]) {
@@ -2598,14 +2579,7 @@ int NonlinearSolver::decideStep(const doublereal time_curr, int leg, doublereal 
      *
      *      If we had to bounds delta the update, decrease the trust region
      */
-    if (m_dampBound < 1.0) {
-        //  trustDelta_ *= 0.5;
-        // NextTrustFactor_ *= 0.5;
-        // ll = trustRegionLength();
-        // if (m_print_flag >= 5) {
-        //	printf("\t\tdecideStep(): Trust region decreased from %g to %g due to bounds constraint\n", ll*2, ll);
-        //}
-    } else {
+    if (m_dampBound >= 1.0) {
         retn = 0;
         /*
          *  Calculate the expected residual from the quadratic model
@@ -3086,7 +3060,6 @@ int NonlinearSolver::solve_nonlinear_problem(int SolnType, doublereal* const y_c
         }
 
         if (m_print_flag == 2 || m_print_flag == 3) {
-            //   printf("\t    Iter Resid NewJac  | Fbound  | ResidBound |   Fdamp DampIts |   DeltaSolnNewton   ResidFinal \n");
             if (ResidWtsReevaluated_) {
                 printf("\t*");
             } else {
@@ -3426,7 +3399,6 @@ int NonlinearSolver::beuler_jac(GeneralMatrix& J, doublereal* const f,
                 col_j = (doublereal*) J.ptrColumn(j);
                 ysave = y[j];
                 dy = dyVector[j];
-                //dy = fmaxx(1.0E-6 * m_ewt[j], fabs(ysave)*1.0E-7);
 
                 y[j] = ysave + dy;
                 dy = y[j] - ysave;

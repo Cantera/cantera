@@ -202,14 +202,12 @@ void PDSS_Water::constructSet()
     }
     s = entropy_mole();
     s -=  GasConstant * log(oneBar/presLow);
-    //printf("s = %g\n", s);
 
     doublereal h = enthalpy_mole();
     if (h != -241.826E6) {
         EW_Offset = -241.826E6 - h;
     }
     h = enthalpy_mole();
-    //printf("h = %g\n", h);
 
     /*
      * Set the initial state of the system to 298.15 K and
@@ -322,10 +320,6 @@ void PDSS_Water::setPressure(doublereal p)
         waterState = WATER_SUPERCRIT;
     }
 
-#ifdef DEBUG_HKM
-    //printf("waterPDSS: set pres = %g t = %g, waterState = %d\n",
-    //      p, T, waterState);
-#endif
     doublereal dd = m_sub.density(T, p, waterState, dens);
     if (dd <= 0.0) {
         std::string stateString = "T = " +

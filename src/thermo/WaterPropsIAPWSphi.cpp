@@ -1151,7 +1151,6 @@ doublereal  WaterPropsIAPWSphi::cp_R() const
     doublereal  tau   = TAUsave;
     doublereal  delta = DELTAsave;
     doublereal  cvR = cv_R();
-    //doublereal  nd = phi0_d();
     doublereal  rd = phiR_d();
     doublereal  rdd = phiR_dd();
     doublereal  rdt = phiR_dt();

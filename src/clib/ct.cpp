@@ -1394,7 +1394,6 @@ extern "C" {
         try {
             string s;
             writelog("function readlog is deprecated!");
-            //getlog(s);
             int nlog = static_cast<int>(s.size());
             if (n < 0) {
                 return nlog;
@@ -1403,7 +1402,6 @@ extern "C" {
             copy(s.begin(), s.begin() + nn,
                  buf);
             buf[min(nlog, n-1)] = '\0';
-            //clearlog();
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);

@@ -18,20 +18,6 @@ static doublereal JoyceDixon(doublereal r)
 SemiconductorPhase::SemiconductorPhase(std::string infile,
                                        std::string id_) {}
 
-
-//    doublereal SemiconductorPhase::ionizedDonorConcentration() {
-//    return 1.0/(1.0 + 2.0*exp( fermiLevel() - m_edonor));
-//}
-
-//doublereal SemiconductorPhase::ionizedAcceptorConcentration() {
-//    return 1.0/(1.0 + 2.0*exp( m_eacceptor - fermiLevel()));
-//}
-
-//doublereal SemiconductorPhase::_dn(doublereal efermi) {
-//    m_fermi_level = efermi;
-//    return electronConcentration() - holeConcentration() +
-//        ionizedAcceptorConcentration() - ionizedDonorConcentration();
-//}
 void SemiconductorPhase::getChemPotentials(doublereal* mu) const
 {
     getActivityConcentrations(DATA_PTR(m_work));

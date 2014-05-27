@@ -148,7 +148,6 @@ vcs_VolPhase& vcs_VolPhase::operator=(const vcs_VolPhase& b)
          * Do a shallow copy because we haven' figured this out.
          */
         IndSpecies = b.IndSpecies;
-        //IndSpeciesContig = b.IndSpeciesContig;
 
         for (size_t k = 0; k < old_num; k++) {
             if (ListSpeciesPtr[k]) {
@@ -539,9 +538,6 @@ void vcs_VolPhase::setMolesFromVCS(const int stateCalc,
         // This is where we will start to store a better approximation
         // for the mole fractions, when the phase doesn't exist.
         // This is currently unimplemented.
-        //for (int k = 0; k < m_numSpecies; k++) {
-        //    Xmol_[k] = 1.0 / m_numSpecies;
-        //}
         m_existence = VCS_PHASE_EXIST_NO;
     }
     /*
@@ -815,21 +811,6 @@ void vcs_VolPhase::_updateLnActCoeffJac()
          */
         _updateMoleFractionDependencies();
         _updateActCoeff();
-        /*
-         * Calculate the column of the matrix
-         */
-        double* const np_lnActCoeffCol = np_dLnActCoeffdMolNumber[j];
-        for (size_t k = 0; k < m_numSpecies; k++) {
-            double tmp;
-            tmp = (ActCoeff[k] - ActCoeff_Base[k]) /
-                  ((ActCoeff[k] + ActCoeff_Base[k]) * 0.5 * deltaMoles_j);
-            if (fabs(tmp - np_lnActCoeffCol[k]) > 1.0E-4 * fabs(tmp) +  fabs(np_lnActCoeffCol[k])) {
-                //  printf(" we have an error\n");
-
-            }
-            //tmp = lnActCoeffCol[k];
-
-        }
         /*
          * Revert to the base case Xmol_, v_totalMoles
          */

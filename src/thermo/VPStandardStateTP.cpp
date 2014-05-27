@@ -356,7 +356,6 @@ void VPStandardStateTP::initThermoXML(XML_Node& phaseNode, const std::string& id
     // routine.
     VPStandardStateTP::initLengths();
 
-    //m_VPSS_ptr->initThermo();
     for (size_t k = 0; k < m_kk; k++) {
         PDSS* kPDSS = m_PDSS_storage[k];
         AssertTrace(kPDSS != 0);

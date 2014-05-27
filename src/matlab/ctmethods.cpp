@@ -89,8 +89,6 @@ extern "C" {
     void mexFunction(int nlhs, mxArray* plhs[],
                      int nrhs, const mxArray* prhs[])
     {
-        // mexPrintf("Number of lhs = %d\n", nlhs);
-        // mexPrintf("number of rhs = %d\n", nrhs);
         // create a log writer for error messages if this is the
         // first MATLAB function call
         initLogger();
