@@ -586,24 +586,20 @@ doublereal MultiPhase::equilibrate(int XY, doublereal err,
     doublereal Tlow = -1.0, Thigh = -1.0;
     doublereal Hlow = Undef, Hhigh = Undef, tnew;
     doublereal dta=0.0, dtmax, cpb;
-    MultiPhaseEquil* e = 0;
-
     if (!m_init) {
         init();
     }
 
     if (XY == TP) {
         // create an equilibrium manager
-        e = new MultiPhaseEquil(this);
+        MultiPhaseEquil e(this);
         try {
-            e->equilibrate(XY, err, maxsteps, loglevel);
+            e.equilibrate(XY, err, maxsteps, loglevel);
         } catch (CanteraError& err) {
             err.save();
-            delete e;
-            e = 0;
             throw err;
         }
-        goto done;
+        return err;
     }
 
     else if (XY == HP) {
@@ -614,12 +610,12 @@ doublereal MultiPhase::equilibrate(int XY, doublereal err,
 
             // if 'strt' is false, the current composition will be used as
             // the starting estimate; otherwise it will be estimated
-            e = new MultiPhaseEquil(this, strt);
+            MultiPhaseEquil e(this, strt);
             // start with a loose error tolerance, but tighten it as we get
             // close to the final temperature
 
             try {
-                e->equilibrate(TP, err, maxsteps, loglevel);
+                e.equilibrate(TP, err, maxsteps, loglevel);
                 hnow = enthalpy();
                 // the equilibrium enthalpy monotonically increases with T;
                 // if the current value is below the target, the we know the
@@ -654,7 +650,7 @@ doublereal MultiPhase::equilibrate(int XY, doublereal err,
                 herr = fabs((h0 - hnow)/h0);
 
                 if (herr < err) {
-                    goto done;
+                    return err;
                 }
                 tnew = m_temp + dt;
                 if (tnew < 0.0) {
@@ -682,8 +678,6 @@ doublereal MultiPhase::equilibrate(int XY, doublereal err,
                     setTemperature(tnew);
                 }
             }
-            delete e;
-            e = 0;
         }
         throw CanteraError("MultiPhase::equilibrate",
                            "No convergence for T");
@@ -692,11 +686,10 @@ doublereal MultiPhase::equilibrate(int XY, doublereal err,
         Tlow = 1.0;    // lower bound on T
         Thigh = 1.0e6; // upper bound on T
         for (n = 0; n < maxiter; n++) {
-            delete e;
-            e = new MultiPhaseEquil(this, strt);
+            MultiPhaseEquil e(this, strt);
 
             try {
-                e->equilibrate(TP, err, maxsteps, loglevel);
+                e.equilibrate(TP, err, maxsteps, loglevel);
                 snow = entropy();
                 if (snow < s0) {
                     if (m_temp > Tlow) {
@@ -715,7 +708,7 @@ doublereal MultiPhase::equilibrate(int XY, doublereal err,
                     dt *= dtmax/dta;
                 }
                 if (herr < err || dta < 1.0e-4) {
-                    goto done;
+                    return err;
                 }
                 tnew = m_temp + dt;
                 setTemperature(tnew);
@@ -736,8 +729,6 @@ doublereal MultiPhase::equilibrate(int XY, doublereal err,
                     setTemperature(tnew);
                 }
             }
-            delete e;
-            e = 0;
         }
         throw CanteraError("MultiPhase::equilibrate",
                            "No convergence for T");
@@ -757,7 +748,7 @@ doublereal MultiPhase::equilibrate(int XY, doublereal err,
             verr = fabs((v0 - vnow)/v0);
 
             if (verr < err) {
-                goto done;
+                return err;
             }
             // find dV/dP
             setPressure(pnow*1.01);
@@ -770,10 +761,6 @@ doublereal MultiPhase::equilibrate(int XY, doublereal err,
         throw CanteraError("MultiPhase::equilibrate","unknown option");
     }
     return -1.0;
-done:
-    delete e;
-    e = 0;
-    return err;
 }
 
 #ifdef MULTIPHASE_DEVEL
