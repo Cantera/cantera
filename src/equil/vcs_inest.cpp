@@ -33,8 +33,7 @@ void VCS_SOLVE::vcs_inest(double* const aw, double* const sa, double* const sm,
      */
     vcs_setMolesLinProg();
 
-#ifdef DEBUG_MODE
-    if (m_debug_print_lvl >= 2) {
+    if (DEBUG_MODE_ENABLED && m_debug_print_lvl >= 2) {
         plogf("%s Mole Numbers returned from linear programming (vcs_inest initial guess):\n",
               pprefix);
         plogf("%s     SPECIES          MOLE_NUMBER      -SS_ChemPotential\n", pprefix);
@@ -61,7 +60,6 @@ void VCS_SOLVE::vcs_inest(double* const aw, double* const sa, double* const sm,
         }
         plogendl();
     }
-#endif
 
     /*
      *     Make sure all species have positive definite mole numbers
@@ -135,8 +133,7 @@ void VCS_SOLVE::vcs_inest(double* const aw, double* const sa, double* const sm,
         }
     }
     vcs_deltag(0, true, VCS_STATECALC_NEW);
-#ifdef DEBUG_MODE
-    if (m_debug_print_lvl >= 2) {
+    if (DEBUG_MODE_ENABLED && m_debug_print_lvl >= 2) {
         for (size_t kspec = 0; kspec < nspecies; ++kspec) {
             plogf("%s", pprefix);
             plogf("%-12.12s", m_speciesName[kspec].c_str());
@@ -148,7 +145,6 @@ void VCS_SOLVE::vcs_inest(double* const aw, double* const sa, double* const sm,
                       m_feSpecies_new[kspec], m_SSfeSpecies[kspec], m_deltaGRxn_new[kspec-m_numComponents]);
         }
     }
-#endif
     /* ********************************************************** */
     /* **** ESTIMATE REACTION ADJUSTMENTS *********************** */
     /* ********************************************************** */
@@ -196,8 +192,7 @@ void VCS_SOLVE::vcs_inest(double* const aw, double* const sa, double* const sm,
             }
         }
     }
-#ifdef DEBUG_MODE
-    if (m_debug_print_lvl >= 2) {
+    if (DEBUG_MODE_ENABLED && m_debug_print_lvl >= 2) {
         for (size_t kspec = 0; kspec < nspecies; ++kspec) {
             if (m_speciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
                 plogf("%sdirection (", pprefix);
@@ -214,7 +209,6 @@ void VCS_SOLVE::vcs_inest(double* const aw, double* const sa, double* const sm,
             }
         }
     }
-#endif
     /* *********************************************************** */
     /* **** KEEP COMPONENT SPECIES POSITIVE ********************** */
     /* *********************************************************** */
@@ -316,8 +310,7 @@ void VCS_SOLVE::vcs_inest(double* const aw, double* const sa, double* const sm,
     } while (!finished);
 finished:
     ;
-#ifdef DEBUG_MODE
-    if (m_debug_print_lvl >= 2) {
+    if (DEBUG_MODE_ENABLED && m_debug_print_lvl >= 2) {
         plogf("%s     Final Mole Numbers produced by inest:\n",
               pprefix);
         plogf("%s     SPECIES      MOLE_NUMBER\n", pprefix);
@@ -328,7 +321,6 @@ finished:
             plogendl();
         }
     }
-#endif
 }
 
 int VCS_SOLVE::vcs_inest_TP()
@@ -342,24 +334,18 @@ int VCS_SOLVE::vcs_inest_TP()
          */
         vcs_elab();
         if (vcs_elabcheck(0)) {
-#ifdef DEBUG_MODE
-            if (m_debug_print_lvl >= 2) {
+            if (DEBUG_MODE_ENABLED && m_debug_print_lvl >= 2) {
                 plogf("%s Initial guess passed element abundances on input\n", pprefix);
                 plogf("%s m_doEstimateEquil = 1 so will use the input mole "
                       "numbers as estimates", pprefix);
                 plogendl();
             }
-#endif
             return retn;
-#ifdef DEBUG_MODE
-        } else {
-            if (m_debug_print_lvl >= 2) {
-                plogf("%s Initial guess failed element abundances on input\n", pprefix);
-                plogf("%s m_doEstimateEquil = 1 so will discard input "
-                      "mole numbers and find our own estimate", pprefix);
-                plogendl();
-            }
-#endif
+        } else if (DEBUG_MODE_ENABLED && m_debug_print_lvl >= 2) {
+            plogf("%s Initial guess failed element abundances on input\n", pprefix);
+            plogf("%s m_doEstimateEquil = 1 so will discard input "
+                  "mole numbers and find our own estimate", pprefix);
+            plogendl();
         }
     }
 
@@ -378,13 +364,11 @@ int VCS_SOLVE::vcs_inest_TP()
     /*
      *  Go get the estimate of the solution
      */
-#ifdef DEBUG_MODE
-    if (m_debug_print_lvl >= 2) {
+    if (DEBUG_MODE_ENABLED && m_debug_print_lvl >= 2) {
         plogf("%sGo find an initial estimate for the equilibrium problem",
               pprefix);
         plogendl();
     }
-#endif
     double test = -1.0E20;
     vcs_inest(VCS_DATA_PTR(aw), VCS_DATA_PTR(sa), VCS_DATA_PTR(sm),
               VCS_DATA_PTR(ss), test);
@@ -448,14 +432,12 @@ int VCS_SOLVE::vcs_inest_TP()
         }
     }
 
-#ifdef DEBUG_MODE
-    if (m_debug_print_lvl >= 2) {
+    if (DEBUG_MODE_ENABLED && m_debug_print_lvl >= 2) {
         plogf("%sTotal Dimensionless Gibbs Free Energy = %15.7E", pprefix,
               vcs_Total_Gibbs(VCS_DATA_PTR(m_molNumSpecies_old), VCS_DATA_PTR(m_feSpecies_new),
                               VCS_DATA_PTR(m_tPhaseMoles_old)));
         plogendl();
     }
-#endif
 
     /*
      * Record time

@@ -211,15 +211,12 @@ int VCS_SOLVE::vcs_elcorr(double aa[], double x[])
                     if (atomComp > 0.0) {
                         double maxPermissible = m_elemAbundancesGoal[i] / atomComp;
                         if (m_molNumSpecies_old[kspec] > maxPermissible) {
-
-#ifdef DEBUG_MODE
-                            if (m_debug_print_lvl >= 3) {
+                            if (DEBUG_MODE_ENABLED && m_debug_print_lvl >= 3) {
                                 plogf("  ---  vcs_elcorr: Reduced species %s from %g to %g "
                                       "due to %s max bounds constraint\n",
                                       m_speciesName[kspec].c_str(), m_molNumSpecies_old[kspec],
                                       maxPermissible, m_elementName[i].c_str());
                             }
-#endif
                             m_molNumSpecies_old[kspec] = maxPermissible;
                             changed = true;
                             if (m_molNumSpecies_old[kspec] < VCS_DELETE_MINORSPECIES_CUTOFF) {
@@ -229,13 +226,11 @@ int VCS_SOLVE::vcs_elcorr(double aa[], double x[])
                                 } else {
                                     m_speciesStatus[kspec] = VCS_SPECIES_ACTIVEBUTZERO;
                                 }
-#ifdef DEBUG_MODE
-                                if (m_debug_print_lvl >= 2) {
+                                if (DEBUG_MODE_ENABLED && m_debug_print_lvl >= 2) {
                                     plogf("  ---  vcs_elcorr: Zeroed species %s and changed "
                                           "status to %d due to max bounds constraint\n",
                                           m_speciesName[kspec].c_str(), m_speciesStatus[kspec]);
                                 }
-#endif
                             }
                         }
                     }

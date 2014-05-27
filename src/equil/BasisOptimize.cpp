@@ -9,7 +9,6 @@
 using namespace Cantera;
 using namespace std;
 
-#ifdef DEBUG_MODE
 namespace Cantera
 {
 int BasisOptimize_print_lvl = 0;
@@ -26,7 +25,6 @@ int BasisOptimize_print_lvl = 0;
  *                            2 left aligned
  */
 static void print_stringTrunc(const char* str, int space, int alignment);
-#endif
 
 //! Finds the location of the maximum component in a vector *x*
 /*!
@@ -78,9 +76,7 @@ size_t Cantera::BasisOptimize(int* usedZeroedSpecies, bool doFormRxn,
         }
     }
 
-#ifdef DEBUG_MODE
-    double molSave = 0.0;
-    if (BasisOptimize_print_lvl >= 1) {
+    if (DEBUG_MODE_ENABLED && BasisOptimize_print_lvl >= 1) {
         writelog("   ");
         for (i=0; i<77; i++) {
             writelog("-");
@@ -118,7 +114,6 @@ size_t Cantera::BasisOptimize(int* usedZeroedSpecies, bool doFormRxn,
             writelog("   --- \n");
         }
     }
-#endif
 
     /*
      *  Calculate the maximum value of the number of components possible
@@ -148,13 +143,14 @@ size_t Cantera::BasisOptimize(int* usedZeroedSpecies, bool doFormRxn,
         formRxnMatrix.resize(nspecies*ne, 0.0);
     }
 
-#ifdef DEBUG_MODE
     /*
      * For debugging purposes keep an unmodified copy of the array.
      */
-    vector_fp molNumBase(molNum);
-#endif
-
+    vector_fp molNumBase;
+    if (DEBUG_MODE_ENABLED) {
+        molNumBase = molNum;
+    }
+    double molSave = 0.0;
 
     size_t jr = npos;
     /*
@@ -260,8 +256,7 @@ size_t Cantera::BasisOptimize(int* usedZeroedSpecies, bool doFormRxn,
         /* **** REARRANGE THE DATA ****************** */
         /* ****************************************** */
         if (jr != k) {
-#ifdef DEBUG_MODE
-            if (BasisOptimize_print_lvl >= 1) {
+            if (DEBUG_MODE_ENABLED && BasisOptimize_print_lvl >= 1) {
                 kk = orderVectorSpecies[k];
                 sname = mphase->speciesName(kk);
                 writelogf("   ---   %-12.12s", sname.c_str());
@@ -270,7 +265,6 @@ size_t Cantera::BasisOptimize(int* usedZeroedSpecies, bool doFormRxn,
                 writelogf("(%9.2g) replaces %-12.12s", molSave, ename.c_str());
                 writelogf("(%9.2g) as component %3d\n", molNum[jj], jr);
             }
-#endif
             std::swap(orderVectorSpecies[jr], orderVectorSpecies[k]);
         }
 
@@ -346,8 +340,7 @@ size_t Cantera::BasisOptimize(int* usedZeroedSpecies, bool doFormRxn,
     ct_dgetrs(ctlapack::NoTranspose, nComponents, nNonComponents, &sm[0], ne,
               &ipiv[0], &formRxnMatrix[0], ne, info);
 
-#ifdef DEBUG_MODE
-    if (Cantera::BasisOptimize_print_lvl >= 1) {
+    if (DEBUG_MODE_ENABLED && Cantera::BasisOptimize_print_lvl >= 1) {
         writelog("   ---\n");
         writelogf("   ---  Number of Components = %d\n", nComponents);
         writelog("   ---  Formula Matrix:\n");
@@ -390,14 +383,10 @@ size_t Cantera::BasisOptimize(int* usedZeroedSpecies, bool doFormRxn,
         }
         writelog("\n");
     }
-#endif
 
     return nComponents;
 } /* basopt() ************************************************************/
 
-
-
-#ifdef DEBUG_MODE
 static void print_stringTrunc(const char* str, int space, int alignment)
 
 /***********************************************************************
@@ -442,7 +431,6 @@ static void print_stringTrunc(const char* str, int space, int alignment)
         }
     }
 }
-#endif
 
 /*
  * Finds the location of the maximum component in a double vector
@@ -482,8 +470,7 @@ size_t Cantera::ElemRearrange(size_t nComponents, const vector_fp& elementAbunda
     size_t nspecies = mphase->nSpecies();
 
     double test = -1.0E10;
-#ifdef DEBUG_MODE
-    if (BasisOptimize_print_lvl > 0) {
+    if (DEBUG_MODE_ENABLED && BasisOptimize_print_lvl > 0) {
         writelog("   ");
         for (i=0; i<77; i++) {
             writelog("-");
@@ -493,7 +480,6 @@ size_t Cantera::ElemRearrange(size_t nComponents, const vector_fp& elementAbunda
         writelog("check stoich. coefficient matrix\n");
         writelog("   ---    and to rearrange the element ordering once\n");
     }
-#endif
 
     /*
      * Perhaps, initialize the element ordering
@@ -578,11 +564,9 @@ size_t Cantera::ElemRearrange(size_t nComponents, const vector_fp& elementAbunda
                 // When we are here, there is an error usually.
                 // We haven't found the number of elements necessary.
                 // This is signalled by returning jr != nComponents.
-#ifdef DEBUG_MODE
-                if (BasisOptimize_print_lvl > 0) {
+                if (DEBUG_MODE_ENABLED && BasisOptimize_print_lvl > 0) {
                     writelogf("Error exit: returning with nComponents = %d\n", jr);
                 }
-#endif
                 return jr;
             }
 
@@ -659,8 +643,7 @@ size_t Cantera::ElemRearrange(size_t nComponents, const vector_fp& elementAbunda
         /* **** REARRANGE THE DATA ****************** */
         /* ****************************************** */
         if (jr != k) {
-#ifdef DEBUG_MODE
-            if (BasisOptimize_print_lvl > 0) {
+            if (DEBUG_MODE_ENABLED && BasisOptimize_print_lvl > 0) {
                 kk = orderVectorElements[k];
                 ename = mphase->elementName(kk);
                 writelog("   ---   ");
@@ -671,7 +654,6 @@ size_t Cantera::ElemRearrange(size_t nComponents, const vector_fp& elementAbunda
                 writelogf("%-2.2s", ename.c_str());
                 writelogf(" as element %3d\n", jr);
             }
-#endif
             std::swap(orderVectorElements[jr], orderVectorElements[k]);
         }
 

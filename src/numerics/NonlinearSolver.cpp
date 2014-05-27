@@ -381,11 +381,9 @@ void NonlinearSolver::createSolnWeights(const doublereal* const y)
 {
     for (size_t i = 0; i < neq_; i++) {
         m_ewt[i] = rtol_ * fabs(y[i]) + atolk_[i];
-#ifdef DEBUG_MODE
-        if (m_ewt[i] <= 0.0) {
+        if (DEBUG_MODE_ENABLED && m_ewt[i] <= 0.0) {
             throw CanteraError(" NonlinearSolver::createSolnWeights()", "ewts <= 0.0");
         }
-#endif
     }
 }
 
@@ -497,19 +495,19 @@ doublereal NonlinearSolver::residErrorNorm(const doublereal* const resid, const 
     doublereal sum_norm = 0.0, error;
 
     for (size_t i = 0; i < neq_; i++) {
-#ifdef DEBUG_MODE
-        checkFinite(resid[i]);
-#endif
+        if (DEBUG_MODE_ENABLED) {
+            checkFinite(resid[i]);
+        }
         error     = resid[i] / m_residWts[i];
-#ifdef DEBUG_MODE
-        checkFinite(error);
-#endif
+        if (DEBUG_MODE_ENABLED) {
+            checkFinite(error);
+        }
         sum_norm += (error * error);
     }
     sum_norm = sqrt(sum_norm / neq_);
-#ifdef DEBUG_MODE
-    checkFinite(sum_norm);
-#endif
+    if (DEBUG_MODE_ENABLED) {
+        checkFinite(sum_norm);
+    }
     if (printLargest) {
         const int num_entries = printLargest;
         doublereal dmax1, normContrib;
@@ -694,9 +692,9 @@ void NonlinearSolver::scaleMatrix(GeneralMatrix& jac, doublereal* const y_comm, 
                     } else {
                         m_rowWtScales[irow] += fabs(*jptr) * m_ewt[jcol];
                     }
-#ifdef DEBUG_MODE
-                    checkFinite(m_rowWtScales[irow]);
-#endif
+                    if (DEBUG_MODE_ENABLED) {
+                        checkFinite(m_rowWtScales[irow]);
+                    }
                     jptr++;
                 }
             }
@@ -718,9 +716,9 @@ void NonlinearSolver::scaleMatrix(GeneralMatrix& jac, doublereal* const y_comm, 
                         } else {
                             m_rowWtScales[irow] += vv * m_ewt[jcol];
                         }
-#ifdef DEBUG_MODE
-                        checkFinite(m_rowWtScales[irow]);
-#endif
+                        if (DEBUG_MODE_ENABLED) {
+                            checkFinite(m_rowWtScales[irow]);
+                        }
                     }
                 }
             }
@@ -1280,9 +1278,9 @@ doublereal NonlinearSolver::doCauchyPointSolve(GeneralMatrix& jac)
             }
             deltaX_CP_[j] -= m_resid[i] * jac(i,j) * colFac * rowFac * m_ewt[j] * m_ewt[j]
                              / (m_residWts[i] * m_residWts[i]);
-#ifdef DEBUG_MODE
-            checkFinite(deltaX_CP_[j]);
-#endif
+            if (DEBUG_MODE_ENABLED) {
+                checkFinite(deltaX_CP_[j]);
+            }
         }
     }
 
@@ -2664,10 +2662,8 @@ int NonlinearSolver::solve_nonlinear_problem(int SolnType, doublereal* const y_c
 
     doublereal stepNorm_1;
     doublereal stepNorm_2;
-#ifdef DEBUG_MODE
     int legBest;
     doublereal alphaBest;
-#endif
     bool trInit = false;
 
     copy(y_comm, y_comm + neq_, m_y_n_curr.begin());
@@ -2733,30 +2729,10 @@ int NonlinearSolver::solve_nonlinear_problem(int SolnType, doublereal* const y_c
         /*
          *  If we are far enough away from the solution, redo the solution weights and the trust vectors.
          */
-        if (m_normDeltaSoln_Newton > 1.0E2) {
+        if (m_normDeltaSoln_Newton > 1.0E2 || (num_newt_its % 5) == 1) {
             createSolnWeights(DATA_PTR(m_y_n_curr));
-#ifdef DEBUG_MODE
-            if (trInit) {
+            if (trInit && (DEBUG_MODE_ENABLED || doDogLeg_)) {
                 readjustTrustVector();
-            }
-#else
-            if (doDogLeg_ && trInit) {
-                readjustTrustVector();
-            }
-#endif
-        } else {
-            // Do this stuff every 5 iterations
-            if ((num_newt_its % 5) == 1) {
-                createSolnWeights(DATA_PTR(m_y_n_curr));
-#ifdef DEBUG_MODE
-                if (trInit) {
-                    readjustTrustVector();
-                }
-#else
-                if (doDogLeg_ && trInit) {
-                    readjustTrustVector();
-                }
-#endif
             }
         }
 
@@ -2829,21 +2805,12 @@ int NonlinearSolver::solve_nonlinear_problem(int SolnType, doublereal* const y_c
             }
         }
 
-
-#ifdef DEBUG_MODE
-        if (m_print_flag > 3) {
-            printf("\t   solve_nonlinear_problem(): Calculate the steepest descent direction and Cauchy Point\n");
-        }
-        m_normDeltaSoln_CP = doCauchyPointSolve(jac);
-
-#else
-        if (doDogLeg_) {
+        if (DEBUG_MODE_ENABLED || doDogLeg_) {
             if (m_print_flag > 3) {
                 printf("\t   solve_nonlinear_problem(): Calculate the steepest descent direction and Cauchy Point\n");
             }
             m_normDeltaSoln_CP = doCauchyPointSolve(jac);
         }
-#endif
 
         // compute the undamped Newton step
         if (doAffineSolve_) {
@@ -2889,25 +2856,17 @@ int NonlinearSolver::solve_nonlinear_problem(int SolnType, doublereal* const y_c
             }
         }
 
-
-        if (doDogLeg_) {
-
-
-
-#ifdef DEBUG_MODE
+        if (DEBUG_MODE_ENABLED && doDogLeg_ && m_print_flag >= 4) {
             doublereal trustD = calcTrustDistance(m_step_1);
-            if (m_print_flag >= 4) {
-                if (trustD > trustDelta_) {
-                    printf("\t\t   Newton's method step size, %g trustVectorUnits, larger than trust region, %g trustVectorUnits\n",
-                           trustD, trustDelta_);
-                    printf("\t\t   Newton's method step size, %g trustVectorUnits, larger than trust region, %g trustVectorUnits\n",
-                           trustD, trustDelta_);
-                } else {
-                    printf("\t\t   Newton's method step size, %g trustVectorUnits, smaller than trust region, %g trustVectorUnits\n",
-                           trustD, trustDelta_);
-                }
+            if (trustD > trustDelta_) {
+                printf("\t\t   Newton's method step size, %g trustVectorUnits, larger than trust region, %g trustVectorUnits\n",
+                       trustD, trustDelta_);
+                printf("\t\t   Newton's method step size, %g trustVectorUnits, larger than trust region, %g trustVectorUnits\n",
+                       trustD, trustDelta_);
+            } else {
+                printf("\t\t   Newton's method step size, %g trustVectorUnits, smaller than trust region, %g trustVectorUnits\n",
+                       trustD, trustDelta_);
             }
-#endif
         }
 
         /*
@@ -2930,26 +2889,19 @@ int NonlinearSolver::solve_nonlinear_problem(int SolnType, doublereal* const y_c
 
         if (doDogLeg_) {
             setupDoubleDogleg();
-#ifdef DEBUG_MODE
-            if (s_print_DogLeg && m_print_flag >= 5) {
+            if (DEBUG_MODE_ENABLED && s_print_DogLeg && m_print_flag >= 5) {
                 printf("\t   solve_nonlinear_problem(): Compare Linear and nonlinear residuals along double dog-leg path\n");
                 residualComparisonLeg(time_curr, DATA_PTR(m_ydot_n_curr), legBest, alphaBest);
             }
-#endif
             if (m_print_flag >= 4) {
                 printf("\t   solve_nonlinear_problem(): Calculate damping along dog-leg path to ensure residual decrease\n");
             }
             retnDamp = dampDogLeg(time_curr, DATA_PTR(m_y_n_curr), DATA_PTR(m_ydot_n_curr),
                                   m_step_1, DATA_PTR(m_y_n_trial), DATA_PTR(m_ydot_trial), stepNorm_1, stepNorm_2, jac, i_numTrials);
+        } else if (DEBUG_MODE_ENABLED && s_print_DogLeg && m_print_flag >= 5) {
+            printf("\t   solve_nonlinear_problem(): Compare Linear and nonlinear residuals along double dog-leg path\n");
+            residualComparisonLeg(time_curr, DATA_PTR(m_ydot_n_curr), legBest, alphaBest);
         }
-#ifdef DEBUG_MODE
-        else {
-            if (s_print_DogLeg && m_print_flag >= 5) {
-                printf("\t   solve_nonlinear_problem(): Compare Linear and nonlinear residuals along double dog-leg path\n");
-                residualComparisonLeg(time_curr, DATA_PTR(m_ydot_n_curr), legBest, alphaBest);
-            }
-        }
-#endif
 
         // Damp the Newton step
         /*
@@ -3336,11 +3288,11 @@ int NonlinearSolver::beuler_jac(GeneralMatrix& J, doublereal* const f,
                 return info;
             }
             m_nJacEval++;
-#ifdef DEBUG_MODE
-            for (int ii = 0; ii < neq_; ii++) {
-                checkFinite(f[ii]);
+            if (DEBUG_MODE_ENABLED) {
+                for (int ii = 0; ii < neq_; ii++) {
+                    checkFinite(f[ii]);
+                }
             }
-#endif
 
             /*
              * Malloc a vector and call the function object to return a set of
@@ -3403,14 +3355,14 @@ int NonlinearSolver::beuler_jac(GeneralMatrix& J, doublereal* const f,
                                             JacDelta_ResidEval, j, dy);
                 m_nfe++;
 
-#ifdef DEBUG_MODE
-                if (fabs(dy) < 1.0E-300) {
-                    throw CanteraError("NonlinearSolver::beuler_jac", "dy is equal to zero");
+                if (DEBUG_MODE_ENABLED) {
+                    if (fabs(dy) < 1.0E-300) {
+                        throw CanteraError("NonlinearSolver::beuler_jac", "dy is equal to zero");
+                    }
+                    for (int ii = 0; ii < neq_; ii++) {
+                        checkFinite(m_wksp[ii]);
+                    }
                 }
-                for (int ii = 0; ii < neq_; ii++) {
-                    checkFinite(m_wksp[ii]);
-                }
-#endif
 
                 if (info != 1) {
                     return info;
@@ -3483,14 +3435,14 @@ int NonlinearSolver::beuler_jac(GeneralMatrix& J, doublereal* const f,
 
                 info =  m_func->evalResidNJ(time_curr, delta_t_n, y, ydot, DATA_PTR(m_wksp), JacDelta_ResidEval, static_cast<int>(j), dy);
                 m_nfe++;
-#ifdef DEBUG_MODE
-                if (fabs(dy) < 1.0E-300) {
-                    throw CanteraError("NonlinearSolver::beuler_jac", "dy is equal to zero");
+                if (DEBUG_MODE_ENABLED) {
+                    if (fabs(dy) < 1.0E-300) {
+                        throw CanteraError("NonlinearSolver::beuler_jac", "dy is equal to zero");
+                    }
+                    for (int ii = 0; ii < neq_; ii++) {
+                        checkFinite(m_wksp[ii]);
+                    }
                 }
-                for (int ii = 0; ii < neq_; ii++) {
-                    checkFinite(m_wksp[ii]);
-                }
-#endif
                 if (info != 1) {
                     return info;
                 }
@@ -3613,17 +3565,17 @@ void NonlinearSolver::computeResidWts()
     if (checkUserResidualTols_ == 1) {
         for (size_t i = 0; i < neq_; i++) {
             m_residWts[i] = userResidAtol_[i] + userResidRtol_ * m_rowWtScales[i] / rtol_;
-#ifdef DEBUG_MODE
-            checkFinite(m_residWts[i]);
-#endif
+            if (DEBUG_MODE_ENABLED) {
+                checkFinite(m_residWts[i]);
+            }
         }
     } else {
         doublereal sum = 0.0;
         for (size_t i = 0; i < neq_; i++) {
             m_residWts[i] = m_rowWtScales[i];
-#ifdef DEBUG_MODE
-            checkFinite(m_residWts[i]);
-#endif
+            if (DEBUG_MODE_ENABLED) {
+                checkFinite(m_residWts[i]);
+            }
             sum += m_residWts[i];
         }
         sum /= neq_;

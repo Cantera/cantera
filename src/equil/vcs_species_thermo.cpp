@@ -185,9 +185,6 @@ double VCS_SPECIES_THERMO::VolStar_calc(size_t kglob, double TKelvin,
 
 double VCS_SPECIES_THERMO::G0_R_calc(size_t kglob, double TKelvin)
 {
-#ifdef DEBUG_MODE
-    char yo[] = "VS_SPECIES_THERMO::G0_R_calc ";
-#endif
     double fe, H, S;
     if (SS0_Model == VCS_SS0_CONSTANT) {
         return SS0_feSave;
@@ -216,9 +213,7 @@ double VCS_SPECIES_THERMO::G0_R_calc(size_t kglob, double TKelvin)
             fe = H - TKelvin * S;
             break;
         default:
-#ifdef DEBUG_MODE
-            plogf("%sERROR: unknown model\n", yo);
-#endif
+            plogf("VS_SPECIES_THERMO::G0_R_calc ERROR: unknown model\n");
             exit(EXIT_FAILURE);
         }
     }
@@ -229,9 +224,6 @@ double VCS_SPECIES_THERMO::G0_R_calc(size_t kglob, double TKelvin)
 
 double VCS_SPECIES_THERMO::eval_ac(size_t kglob)
 {
-#ifdef DEBUG_MODE
-    char yo[] = "VCS_SPECIES_THERMO::eval_ac ";
-#endif
     double ac;
     /*
      *  Activity coefficients are frequently evaluated on a per phase
@@ -248,9 +240,7 @@ double VCS_SPECIES_THERMO::eval_ac(size_t kglob)
             ac = 1.0;
             break;
         default:
-#ifdef DEBUG_MODE
-            plogf("%sERROR: unknown model\n", yo);
-#endif
+            plogf("VCS_SPECIES_THERMO::eval_ac ERROR: unknown model\n");
             exit(EXIT_FAILURE);
         }
     }

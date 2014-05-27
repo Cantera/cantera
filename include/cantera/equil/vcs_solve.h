@@ -1364,9 +1364,9 @@ private:
 
     //! Print out and check the elemental abundance vector
     void prneav() const;
+#endif
 
     void checkDelta1(double* const ds, double* const delTPhMoles, int kspec);
-#endif
 
     //! Estimate equilibrium compositions
     /*!

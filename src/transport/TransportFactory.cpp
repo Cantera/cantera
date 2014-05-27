@@ -507,31 +507,23 @@ void TransportFactory::setupMM(std::ostream& flog, const std::vector<const XML_N
 
     // initialize the collision integral calculator for the desired
     // T* range
-#ifdef DEBUG_MODE
-    if (m_verbose) {
+    if (DEBUG_MODE_ENABLED && m_verbose) {
         tr.xml->XML_open(flog, "collision_integrals");
     }
-#endif
     MMCollisionInt integrals;
     integrals.init(tr.xml, tstar_min, tstar_max, log_level);
     fitCollisionIntegrals(flog, tr, integrals);
-#ifdef DEBUG_MODE
-    if (m_verbose) {
+    if (DEBUG_MODE_ENABLED && m_verbose) {
         tr.xml->XML_close(flog, "collision_integrals");
     }
-#endif
     // make polynomial fits
-#ifdef DEBUG_MODE
-    if (m_verbose) {
+    if (DEBUG_MODE_ENABLED && m_verbose) {
         tr.xml->XML_open(flog, "property fits");
     }
-#endif
     fitProperties(tr, integrals, flog);
-#ifdef DEBUG_MODE
-    if (m_verbose) {
+    if (DEBUG_MODE_ENABLED && m_verbose) {
         tr.xml->XML_close(flog, "property fits");
     }
-#endif
 }
 
 void TransportFactory::setupLiquidTransport(std::ostream& flog, thermo_t* thermo, int log_level,
@@ -717,8 +709,7 @@ void TransportFactory::fitCollisionIntegrals(ostream& logfile,
 
     // Chemkin fits to sixth order polynomials
     int degree = (mode == CK_Mode ? 6 : COLL_INT_POLY_DEGREE);
-#ifdef DEBUG_MODE
-    if (m_verbose) {
+    if (DEBUG_MODE_ENABLED && m_verbose) {
         tr.xml->XML_open(logfile, "tstar_fits");
         tr.xml->XML_comment(logfile, "fits to A*, B*, and C* vs. log(T*).\n"
                             "These are done only for the required dstar(j,k) values.");
@@ -726,7 +717,6 @@ void TransportFactory::fitCollisionIntegrals(ostream& logfile,
             tr.xml->XML_comment(logfile, "*** polynomial coefficients not printed (log_level < 3) ***");
         }
     }
-#endif
     for (i = 0; i < nsp; i++) {
         for (j = i; j < nsp; j++)  {
             // Chemkin fits only delta* = 0
@@ -766,11 +756,9 @@ void TransportFactory::fitCollisionIntegrals(ostream& logfile,
             tr.poly[j][i] = tr.poly[i][j];
         }
     }
-#ifdef DEBUG_MODE
-    if (m_verbose) {
+    if (DEBUG_MODE_ENABLED && m_verbose) {
         tr.xml->XML_close(logfile, "tstar_fits");
     }
-#endif
 }
 
 void TransportFactory::getTransportData(const std::vector<const XML_Node*> &xspecies,
@@ -1178,9 +1166,6 @@ void TransportFactory::fitProperties(GasTransportParams& tr,
 {
     doublereal tstar;
     int ndeg = 0;
-#ifdef DEBUG_MODE
-    char s[100];
-#endif
     // number of points to use in generating fit data
     const size_t np = 50;
 
@@ -1206,29 +1191,26 @@ void TransportFactory::fitProperties(GasTransportParams& tr,
 
     // fit the pure-species viscosity and thermal conductivity for
     // each species
-#ifdef DEBUG_MODE
-    if (tr.log_level < 2 && m_verbose) {
+    if (DEBUG_MODE_ENABLED && tr.log_level < 2 && m_verbose) {
         tr.xml->XML_comment(logfile,
                             "*** polynomial coefficients not printed (log_level < 2) ***");
     }
-#endif
     doublereal sqrt_T, visc, err, relerr,
                mxerr = 0.0, mxrelerr = 0.0, mxerr_cond = 0.0, mxrelerr_cond = 0.0;
 
-#ifdef DEBUG_MODE
-    if (m_verbose) {
+    if (DEBUG_MODE_ENABLED && m_verbose) {
         tr.xml->XML_open(logfile, "viscosity");
         tr.xml->XML_comment(logfile,"Polynomial fits for viscosity");
         if (mode == CK_Mode) {
             tr.xml->XML_comment(logfile,"log(viscosity) fit to cubic "
                                 "polynomial in log(T)");
         } else {
+            char s[100];
             sprintf(s, "viscosity/sqrt(T) fit to "
                     "polynomial of degree %d in log(T)",degree);
             tr.xml->XML_comment(logfile,s);
         }
     }
-#endif
 
     doublereal cp_R, cond, w_RT, f_int, A_factor, B_factor,
                c1, cv_rot, cv_int, f_rot, f_trans, om11;
@@ -1348,15 +1330,13 @@ void TransportFactory::fitProperties(GasTransportParams& tr,
         tr.visccoeffs.push_back(c);
         tr.condcoeffs.push_back(c2);
 
-#ifdef DEBUG_MODE
-        if (tr.log_level >= 2 && m_verbose) {
+        if (DEBUG_MODE_ENABLED && tr.log_level >= 2 && m_verbose) {
             tr.xml->XML_writeVector(logfile, "    ", tr.thermo->speciesName(k),
                                     c.size(), DATA_PTR(c));
         }
-#endif
     }
-#ifdef DEBUG_MODE
-    if (m_verbose) {
+    if (DEBUG_MODE_ENABLED && m_verbose) {
+        char s[100];
         sprintf(s, "Maximum viscosity absolute error:  %12.6g", mxerr);
         tr.xml->XML_comment(logfile,s);
         sprintf(s, "Maximum viscosity relative error:  %12.6g", mxrelerr);
@@ -1398,7 +1378,6 @@ void TransportFactory::fitProperties(GasTransportParams& tr,
             tr.xml->XML_comment(logfile,s);
         }
     }
-#endif
 
     mxerr = 0.0, mxrelerr = 0.0;
     vector_fp diff(np + 1);
@@ -1457,16 +1436,14 @@ void TransportFactory::fitProperties(GasTransportParams& tr,
                 }
             }
             tr.diffcoeffs.push_back(c);
-#ifdef DEBUG_MODE
-            if (tr.log_level >= 2 && m_verbose) {
+            if (DEBUG_MODE_ENABLED && tr.log_level >= 2 && m_verbose) {
                 tr.xml->XML_writeVector(logfile, "    ", tr.thermo->speciesName(k)
                                         + "__"+tr.thermo->speciesName(j), c.size(), DATA_PTR(c));
             }
-#endif
         }
     }
-#ifdef DEBUG_MODE
-    if (m_verbose) {
+    if (DEBUG_MODE_ENABLED && m_verbose) {
+        char s[100];
         sprintf(s,"Maximum binary diffusion coefficient absolute error:"
                 "  %12.6g", mxerr);
         tr.xml->XML_comment(logfile,s);
@@ -1475,7 +1452,6 @@ void TransportFactory::fitProperties(GasTransportParams& tr,
         tr.xml->XML_comment(logfile,s);
         tr.xml->XML_close(logfile, "binary_diffusion_coefficients");
     }
-#endif
 }
 
 Transport* newTransportMgr(const std::string& transportModel, thermo_t* thermo, int loglevel, TransportFactory* f, int ndim)

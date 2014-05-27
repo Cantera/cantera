@@ -226,23 +226,22 @@ MMCollisionInt::~MMCollisionInt()
 
 void MMCollisionInt::init(XML_Writer* xml, doublereal tsmin, doublereal tsmax, int log_level)
 {
-#ifdef DEBUG_MODE
-    if (!xml) {
-        throw CanteraError("MMCollisionInt::init", "pointer to xml file is zero");
+    ostream* logfile = 0;
+    if (DEBUG_MODE_ENABLED) {
+        if (!xml) {
+            throw CanteraError("MMCollisionInt::init", "pointer to xml file is zero");
+        }
+        logfile = &xml->output();
+        m_xml = xml;
+    } else {
+        m_xml = 0;
+        log_level = 0;
     }
-    ostream& logfile = xml->output();
-    m_xml = xml;
-#else
-    m_xml = 0;
-    log_level = 0;
-#endif
     m_loglevel = log_level;
-#ifdef DEBUG_MODE
-    if (m_loglevel > 0) {
-        m_xml->XML_comment(logfile, "Collision Integral Polynomial Fits");
+    if (DEBUG_MODE_ENABLED && m_loglevel > 0) {
+        m_xml->XML_comment(*logfile, "Collision Integral Polynomial Fits");
     }
     char p[200];
-#endif
     m_nmin = -1;
     m_nmax = -1;
 
@@ -258,29 +257,25 @@ void MMCollisionInt::init(XML_Writer* xml, doublereal tsmin, doublereal tsmax, i
         m_nmin = 0;
         m_nmax = 36;
     }
-#ifdef DEBUG_MODE
-    if (m_loglevel > 0)  {
-        m_xml->XML_item(logfile, "Tstar_min", tstar[m_nmin + 1]);
-        m_xml->XML_item(logfile, "Tstar_max", tstar[m_nmax + 1]);
+    if (DEBUG_MODE_ENABLED && m_loglevel > 0)  {
+        m_xml->XML_item(*logfile, "Tstar_min", tstar[m_nmin + 1]);
+        m_xml->XML_item(*logfile, "Tstar_max", tstar[m_nmax + 1]);
     }
-#endif
     m_logTemp.resize(37);
     doublereal rmserr, e22 = 0.0, ea = 0.0, eb = 0.0, ec = 0.0;
 
-#ifdef DEBUG_MODE
-    if (m_loglevel > 0)  {
-        m_xml->XML_open(logfile, "dstar_fits");
-        m_xml->XML_comment(logfile, "Collision integral fits at each "
+    if (DEBUG_MODE_ENABLED && m_loglevel > 0)  {
+        m_xml->XML_open(*logfile, "dstar_fits");
+        m_xml->XML_comment(*logfile, "Collision integral fits at each "
                            "tabulated T* vs. delta*.\n"
                            "These polynomial fits are used to interpolate between "
                            "columns (delta*)\n in the Monchick and Mason tables."
                            " They are only used for nonzero delta*.");
         if (log_level < 4) {
-            m_xml->XML_comment(logfile,
+            m_xml->XML_comment(*logfile,
                                "polynomial coefficients not printed (log_level < 4)");
         }
     }
-#endif
 
     string indent = "    ";
     for (int i = 0; i < 37; i++) {
@@ -288,15 +283,13 @@ void MMCollisionInt::init(XML_Writer* xml, doublereal tsmin, doublereal tsmax, i
         vector_fp c(DeltaDegree+1);
 
         rmserr = fitDelta(0, i, DeltaDegree, DATA_PTR(c));
-#ifdef DEBUG_MODE
-        if (log_level > 3) {
+        if (DEBUG_MODE_ENABLED && log_level > 3) {
             sprintf(p, " Tstar=\"%12.6g\"", tstar[i+1]);
-            m_xml->XML_open(logfile, "dstar_fit", p);
-            m_xml->XML_item(logfile, "Tstar", tstar[i+1]);
-            m_xml->XML_writeVector(logfile, indent, "omega22",
+            m_xml->XML_open(*logfile, "dstar_fit", p);
+            m_xml->XML_item(*logfile, "Tstar", tstar[i+1]);
+            m_xml->XML_writeVector(*logfile, indent, "omega22",
                                    c.size(), DATA_PTR(c));
         }
-#endif
         m_o22poly.push_back(c);
         if (rmserr > e22) {
             e22 = rmserr;
@@ -304,54 +297,46 @@ void MMCollisionInt::init(XML_Writer* xml, doublereal tsmin, doublereal tsmax, i
 
         rmserr = fitDelta(1, i, DeltaDegree, DATA_PTR(c));
         m_apoly.push_back(c);
-#ifdef DEBUG_MODE
-        if (log_level > 3)
-            m_xml->XML_writeVector(logfile, indent, "astar",
+        if (DEBUG_MODE_ENABLED && log_level > 3)
+            m_xml->XML_writeVector(*logfile, indent, "astar",
                                    c.size(), DATA_PTR(c));
-#endif
         if (rmserr > ea) {
             ea = rmserr;
         }
 
         rmserr = fitDelta(2, i, DeltaDegree, DATA_PTR(c));
         m_bpoly.push_back(c);
-#ifdef DEBUG_MODE
-        if (log_level > 3)
-            m_xml->XML_writeVector(logfile, indent, "bstar",
+        if (DEBUG_MODE_ENABLED && log_level > 3)
+            m_xml->XML_writeVector(*logfile, indent, "bstar",
                                    c.size(), DATA_PTR(c));
-#endif
         if (rmserr > eb) {
             eb = rmserr;
         }
 
         rmserr = fitDelta(3, i, DeltaDegree, DATA_PTR(c));
         m_cpoly.push_back(c);
-#ifdef DEBUG_MODE
-        if (log_level > 3) {
-            m_xml->XML_writeVector(logfile, indent, "cstar",
+        if (DEBUG_MODE_ENABLED && log_level > 3) {
+            m_xml->XML_writeVector(*logfile, indent, "cstar",
                                    c.size(), DATA_PTR(c));
         }
-#endif
         if (rmserr > ec) {
             ec = rmserr;
         }
 
-#ifdef DEBUG_MODE
-        if (log_level > 3) {
-            m_xml->XML_close(logfile, "dstar_fit");
+        if (DEBUG_MODE_ENABLED && log_level > 3) {
+            m_xml->XML_close(*logfile, "dstar_fit");
         }
 
-        if (log_level > 0) {
+        if (DEBUG_MODE_ENABLED && log_level > 0) {
             sprintf(p,
                     "max RMS errors in fits vs. delta*:\n"
                     "      omega_22 =     %12.6g \n"
                     "      A*       =     %12.6g \n"
                     "      B*       =     %12.6g \n"
                     "      C*       =     %12.6g \n", e22, ea, eb, ec);
-            m_xml->XML_comment(logfile, p);
-            m_xml->XML_close(logfile, "dstar_fits");
+            m_xml->XML_comment(*logfile, p);
+            m_xml->XML_close(*logfile, "dstar_fits");
         }
-#endif
     }
 }
 

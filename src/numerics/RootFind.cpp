@@ -14,6 +14,8 @@
 // turn on debugging for now
 #ifndef DEBUG_MODE
 #define DEBUG_MODE
+#undef DEBUG_MODE_ENABLED
+#define DEBUG_MODE_ENABLED 1
 #endif
 
 #include "cantera/base/global.h"
@@ -32,7 +34,6 @@ namespace Cantera
 #define DSIGN(x) (( (x) == (0.0) ) ? (0.0) : ( ((x) > 0.0) ? 1.0 : -1.0 ))
 #endif
 
-#ifdef DEBUG_MODE
 //!  Print out a form for the current function evaluation
 /*!
  *  @param fp     Pointer to the FILE object
@@ -51,7 +52,6 @@ static void print_funcEval(FILE* fp, doublereal xval, doublereal fval, int its)
     fprintf(fp,"...............................................................\n");
     fprintf(fp,"\n");
 }
-#endif
 
 RootFind::RootFind(ResidEval* resid) :
     m_residFunc(resid),
@@ -196,10 +196,7 @@ int RootFind::solve(doublereal xmin, doublereal xmax, int itmax, doublereal& fun
     int converged = 0;
     int bottomBump = 0;
     int topBump = 0;
-#ifdef DEBUG_MODE
-    char fileName[80];
     FILE* fp = 0;
-#endif
     int doFinalFuncCall = 0;
     doublereal x1, x2, xnew, f1, f2, fnew, slope;
     doublereal deltaX2 = 0.0, deltaXnew = 0.0;
@@ -223,19 +220,16 @@ int RootFind::solve(doublereal xmin, doublereal xmax, int itmax, doublereal& fun
     rfT.reasoning = "First Point: ";
 
     callNum++;
-#ifdef DEBUG_MODE
-    if (printLvl >= 3 && writeLogAllowed_) {
+    if (DEBUG_MODE_ENABLED && printLvl >= 3 && writeLogAllowed_) {
+        char fileName[80];
         sprintf(fileName, "RootFind_%d.log", callNum);
         fp = fopen(fileName, "w");
         fprintf(fp, " Iter   TP_its  xval   Func_val  |  Reasoning\n");
         fprintf(fp, "-----------------------------------------------------"
                 "-------------------------------\n");
-    }
-#else
-    if (printLvl >= 3) {
+    } else if (printLvl >= 3) {
         writelog("WARNING: RootFind: printlvl >= 3, but debug mode not turned on\n");
     }
-#endif
     if (xmax <= xmin) {
         writelogf("%sxmin and xmax are bad: %g %g\n", stre, xmin, xmax);
         funcTargetValue = func(*xbest);
@@ -289,13 +283,10 @@ int RootFind::solve(doublereal xmin, doublereal xmax, int itmax, doublereal& fun
     int its = 1;
     f1 = func(x1);
 
-#ifdef DEBUG_MODE
-    if (printLvl >= 3 && writeLogAllowed_) {
+    if (DEBUG_MODE_ENABLED && printLvl >= 3 && writeLogAllowed_) {
         print_funcEval(fp, x1, f1, its);
         fprintf(fp, "%-5d  %-5d  %-15.5E %-15.5E\n", -2, 0, x1, f1);
     }
-#endif
-
 
     if (f1 == 0.0) {
         *xbest = x1;
@@ -345,12 +336,10 @@ int RootFind::solve(doublereal xmin, doublereal xmax, int itmax, doublereal& fun
     deltaX2 = x2 - x1;
     its++;
     f2 = func(x2);
-#ifdef DEBUG_MODE
-    if (printLvl >= 3 && writeLogAllowed_) {
+    if (DEBUG_MODE_ENABLED && printLvl >= 3 && writeLogAllowed_) {
         print_funcEval(fp, x2, f2, its);
         fprintf(fp, "%-5d  %-5d  %-15.5E %-15.5E", -1, 0, x2, f2);
     }
-#endif
 
     /*
      * Calculate the norm of the function, this is the nominal value of f. We try
@@ -410,12 +399,9 @@ int RootFind::solve(doublereal xmin, doublereal xmax, int itmax, doublereal& fun
          *    Find an estimate of the next point, xnew, to try based on
          *    a linear approximation from the last two points.
          */
-#ifdef DEBUG_MODE
-        if (fabs(x2 - x1) < 1.0E-14) {
+        if (DEBUG_MODE_ENABLED && fabs(x2 - x1) < 1.0E-14) {
             printf(" RootFind: we are here x2 = %g x1 = %g\n", x2, x1);
         }
-#endif
-
         doublereal delXtmp = deltaXControlled(x2, x1);
         slope = (f2 - f1) / delXtmp;
         rfT.slope = slope;
@@ -441,11 +427,9 @@ int RootFind::solve(doublereal xmin, doublereal xmax, int itmax, doublereal& fun
             }
             rfT.reasoning += "Slope is good. ";
         }
-#ifdef DEBUG_MODE
-        if (printLvl >= 3 && writeLogAllowed_) {
+        if (DEBUG_MODE_ENABLED && printLvl >= 3 && writeLogAllowed_) {
             fprintf(fp, " | xlin = %-11.5E", xnew);
         }
-#endif
         deltaXnew = xnew - x2;
         /*
          * If the suggested step size is too big, throw out step
@@ -541,19 +525,15 @@ int RootFind::solve(doublereal xmin, doublereal xmax, int itmax, doublereal& fun
             xDelMin = fabs(x2 - x1) / 10.;
             if (fabs(xnew - x1) < xDelMin) {
                 xnew = x1 + DSIGN(xnew-x1) * xDelMin;
-#ifdef DEBUG_MODE
-                if (printLvl >= 3 && writeLogAllowed_) {
+                if (DEBUG_MODE_ENABLED && printLvl >= 3 && writeLogAllowed_) {
                     fprintf(fp, " | x10%% = %-11.5E", xnew);
                 }
-#endif
             }
             if (fabs(xnew - x2) < 0.1 * xDelMin) {
                 xnew = x2 + DSIGN(xnew-x2) * 0.1 *  xDelMin;
-#ifdef DEBUG_MODE
-                if (printLvl >= 3 && writeLogAllowed_) {
+                if (DEBUG_MODE_ENABLED && printLvl >= 3 && writeLogAllowed_) {
                     fprintf(fp, " | x10%% = %-11.5E", xnew);
                 }
-#endif
             }
         } else {
             /*
@@ -569,11 +549,9 @@ int RootFind::solve(doublereal xmin, doublereal xmax, int itmax, doublereal& fun
             }
             if (fabs(xDelMax) < fabs(xnew - x2)) {
                 xnew = x2 + DSIGN(xnew-x2) * xDelMax;
-#ifdef DEBUG_MODE
-                if (printLvl >= 3 && writeLogAllowed_) {
+                if (DEBUG_MODE_ENABLED && printLvl >= 3 && writeLogAllowed_) {
                     fprintf(fp, " | xlimitsize = %-11.5E", xnew);
                 }
-#endif
             }
             /*
              *   If we are doing a jump outside the two previous points, make sure
@@ -583,28 +561,22 @@ int RootFind::solve(doublereal xmin, doublereal xmax, int itmax, doublereal& fun
             xDelMin = 0.1 * fabs(x2 - x1);
             if (fabs(xnew - x2) < xDelMin) {
                 xnew = x2 + DSIGN(xnew - x2) * xDelMin;
-#ifdef DEBUG_MODE
-                if (printLvl >= 3 && writeLogAllowed_) {
+                if (DEBUG_MODE_ENABLED && printLvl >= 3 && writeLogAllowed_) {
                     fprintf(fp, " | x10%% = %-11.5E", xnew);
                 }
-#endif
             }
             if (fabs(xnew - x1) < xDelMin) {
                 xnew = x1 + DSIGN(xnew - x1) * xDelMin;
-#ifdef DEBUG_MODE
-                if (printLvl >= 3 && writeLogAllowed_) {
+                if (DEBUG_MODE_ENABLED && printLvl >= 3 && writeLogAllowed_) {
                     fprintf(fp, " | x10%% = %-11.5E", xnew);
                 }
-#endif
             }
         }
         /*
          *  HKM -> Not sure this section is needed
          */
         if (foundStraddle) {
-#ifdef DEBUG_MODE
             double xorig = xnew;
-#endif
             if (posStraddle) {
                 if (f2 > 0.0) {
                     if (xnew > x2) {
@@ -638,13 +610,11 @@ int RootFind::solve(doublereal xmin, doublereal xmax, int itmax, doublereal& fun
                     }
                 }
             }
-#ifdef DEBUG_MODE
-            if (printLvl >= 3 && writeLogAllowed_) {
+            if (DEBUG_MODE_ENABLED && printLvl >= 3 && writeLogAllowed_) {
                 if (xorig != xnew) {
                     fprintf(fp, " | xstraddle = %-11.5E", xnew);
                 }
             }
-#endif
         }
 
         /*
@@ -686,11 +656,9 @@ int RootFind::solve(doublereal xmin, doublereal xmax, int itmax, doublereal& fun
                     xnew = xmax;
                 }
             }
-#ifdef DEBUG_MODE
-            if (printLvl >= 3 && writeLogAllowed_) {
+            if (DEBUG_MODE_ENABLED && printLvl >= 3 && writeLogAllowed_) {
                 fprintf(fp, " | xlimitmax = %-11.5E", xnew);
             }
-#endif
         }
         if (xnew < xmin) {
             bottomBump++;
@@ -712,23 +680,19 @@ int RootFind::solve(doublereal xmin, doublereal xmax, int itmax, doublereal& fun
                     xnew = xmin;
                 }
             }
-#ifdef DEBUG_MODE
-            if (printLvl >= 3 && writeLogAllowed_) {
+            if (DEBUG_MODE_ENABLED && printLvl >= 3 && writeLogAllowed_) {
                 fprintf(fp, " | xlimitmin = %-11.5E", xnew);
             }
-#endif
         }
 
         its++;
         fnew = func(xnew);
 
-#ifdef DEBUG_MODE
-        if (printLvl >= 3 && writeLogAllowed_) {
+        if (DEBUG_MODE_ENABLED && printLvl >= 3 && writeLogAllowed_) {
             fprintf(fp,"\n");
             print_funcEval(fp, xnew, fnew, its);
             fprintf(fp, "%-5d  %-5d  %-15.5E %-15.5E", its, 0, xnew, fnew);
         }
-#endif
         rfT.xval = xnew;
         rfT.fval = fnew;
         rfT.its = its;
@@ -1063,11 +1027,9 @@ done:
         if (printLvl >= 1) {
             writelogf("RootFind success: convergence achieved\n");
         }
-#ifdef DEBUG_MODE
-        if (printLvl >= 3 && writeLogAllowed_) {
+        if (DEBUG_MODE_ENABLED && printLvl >= 3 && writeLogAllowed_) {
             fprintf(fp, " | RootFind success in %d its, fnorm = %g\n", its, fnorm);
         }
-#endif
         rfHistory_.push_back(rfT);
     } else {
         rfT.reasoning = "FAILED CONVERGENCE ";
@@ -1090,11 +1052,9 @@ done:
             }
             rfT.reasoning += "Maximum iterations exceeded without convergence, cause unknown";
         }
-#ifdef DEBUG_MODE
-        if (printLvl >= 3 && writeLogAllowed_) {
+        if (DEBUG_MODE_ENABLED && printLvl >= 3 && writeLogAllowed_) {
             fprintf(fp, "\nRootFind failure in %d its\n", its);
         }
-#endif
 
         *xbest = x2;
         funcTargetValue = f2 + m_funcTargetValue;
@@ -1102,11 +1062,9 @@ done:
         rfT.fval = f2;
         rfHistory_.push_back(rfT);
     }
-#ifdef DEBUG_MODE
-    if (printLvl >= 3 && writeLogAllowed_) {
+    if (DEBUG_MODE_ENABLED && printLvl >= 3 && writeLogAllowed_) {
         fclose(fp);
     }
-#endif
 
     if (printLvl >= 2) {
         printTable();
@@ -1118,13 +1076,13 @@ done:
 doublereal RootFind::func(doublereal x)
 {
     doublereal r;
-#ifdef DEBUG_MODE
-    checkFinite(x);
-#endif
+    if (DEBUG_MODE_ENABLED) {
+        checkFinite(x);
+    }
     m_residFunc->evalSS(0.0, &x, &r);
-#ifdef DEBUG_MODE
-    checkFinite(r);
-#endif
+    if (DEBUG_MODE_ENABLED) {
+        checkFinite(r);
+    }
     doublereal ff = r  - m_funcTargetValue;
     if (x >= x_maxTried_) {
         x_maxTried_ = x;
