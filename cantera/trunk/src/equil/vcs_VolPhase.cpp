@@ -202,16 +202,10 @@ void vcs_VolPhase::resize(const size_t phaseNum, const size_t nspecies,
                           const size_t numElem, const char* const phaseName,
                           const double molesInert)
 {
-#ifdef DEBUG_MODE
-    if (nspecies <= 0) {
+    if (DEBUG_MODE_ENABLED && nspecies <= 0) {
         plogf("nspecies Error\n");
         exit(EXIT_FAILURE);
     }
-    if (phaseNum < 0) {
-        plogf("phaseNum should be greater than 0\n");
-        exit(EXIT_FAILURE);
-    }
-#endif
     setTotalMolesInert(molesInert);
     m_phi = 0.0;
     m_phiVarIndex = npos;
@@ -483,41 +477,31 @@ void vcs_VolPhase::setMolesFromVCS(const int stateCalc,
     v_totalMoles = m_totalMolesInert;
 
     if (molesSpeciesVCS == 0) {
-#ifdef DEBUG_MODE
-        if (m_owningSolverObject == 0) {
+        if (DEBUG_MODE_ENABLED && m_owningSolverObject == 0) {
             printf("vcs_VolPhase::setMolesFromVCS  shouldn't be here\n");
             exit(EXIT_FAILURE);
         }
-#endif
         if (stateCalc == VCS_STATECALC_OLD) {
             molesSpeciesVCS = VCS_DATA_PTR(m_owningSolverObject->m_molNumSpecies_old);
         } else if (stateCalc == VCS_STATECALC_NEW) {
             molesSpeciesVCS = VCS_DATA_PTR(m_owningSolverObject->m_molNumSpecies_new);
-        }
-#ifdef DEBUG_MODE
-        else {
+        } else if (DEBUG_MODE_ENABLED) {
             printf("vcs_VolPhase::setMolesFromVCS shouldn't be here\n");
             exit(EXIT_FAILURE);
         }
-#endif
-    }
-#ifdef DEBUG_MODE
-    else {
-        if (m_owningSolverObject) {
-            if (stateCalc == VCS_STATECALC_OLD) {
-                if (molesSpeciesVCS != VCS_DATA_PTR(m_owningSolverObject->m_molNumSpecies_old)) {
-                    printf("vcs_VolPhase::setMolesFromVCS shouldn't be here\n");
-                    exit(EXIT_FAILURE);
-                }
-            } else if (stateCalc == VCS_STATECALC_NEW) {
-                if (molesSpeciesVCS != VCS_DATA_PTR(m_owningSolverObject->m_molNumSpecies_new)) {
-                    printf("vcs_VolPhase::setMolesFromVCS shouldn't be here\n");
-                    exit(EXIT_FAILURE);
-                }
+    } else if (DEBUG_MODE_ENABLED && m_owningSolverObject) {
+        if (stateCalc == VCS_STATECALC_OLD) {
+            if (molesSpeciesVCS != VCS_DATA_PTR(m_owningSolverObject->m_molNumSpecies_old)) {
+                printf("vcs_VolPhase::setMolesFromVCS shouldn't be here\n");
+                exit(EXIT_FAILURE);
+            }
+        } else if (stateCalc == VCS_STATECALC_NEW) {
+            if (molesSpeciesVCS != VCS_DATA_PTR(m_owningSolverObject->m_molNumSpecies_new)) {
+                printf("vcs_VolPhase::setMolesFromVCS shouldn't be here\n");
+                exit(EXIT_FAILURE);
             }
         }
     }
-#endif
 
     for (size_t k = 0; k < m_numSpecies; k++) {
         if (m_speciesUnknownType[k] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
@@ -937,14 +921,12 @@ void vcs_VolPhase::setTotalMoles(const double totalMols)
     v_totalMoles = totalMols;
     if (m_totalMolesInert > 0.0) {
         m_existence = VCS_PHASE_EXIST_ALWAYS;
-#ifdef DEBUG_MODE
-        if (totalMols < m_totalMolesInert) {
+        if (DEBUG_MODE_ENABLED && totalMols < m_totalMolesInert) {
             printf(" vcs_VolPhase::setTotalMoles:: ERROR totalMoles "
                    "less than inert moles: %g %g\n",
                    totalMols, m_totalMolesInert);
             exit(EXIT_FAILURE);
         }
-#endif
     } else {
         if (m_singleSpecies && (m_phiVarIndex == 0)) {
             m_existence =  VCS_PHASE_EXIST_ALWAYS;
@@ -1046,30 +1028,24 @@ void vcs_VolPhase::setExistence(const int existence)
 {
     if (existence == VCS_PHASE_EXIST_NO || existence == VCS_PHASE_EXIST_ZEROEDPHASE) {
         if (v_totalMoles != 0.0) {
-#ifdef DEBUG_MODE
-            plogf("vcs_VolPhase::setExistence setting false existence for phase with moles");
-            plogendl();
-            exit(EXIT_FAILURE);
-#else
-            v_totalMoles = 0.0;
-#endif
+            if (DEBUG_MODE_ENABLED) {
+                plogf("vcs_VolPhase::setExistence setting false existence for phase with moles");
+                plogendl();
+                exit(EXIT_FAILURE);
+            } else {
+                v_totalMoles = 0.0;
+            }
         }
-    }
-#ifdef DEBUG_MODE
-    else {
-        if (m_totalMolesInert == 0.0) {
-            if (v_totalMoles == 0.0) {
-                if (!m_singleSpecies  || m_phiVarIndex != 0) {
-                    plogf("vcs_VolPhase::setExistence setting true existence for phase with no moles");
-                    plogendl();
-                    exit(EXIT_FAILURE);
-                }
+    } else if (DEBUG_MODE_ENABLED && m_totalMolesInert == 0.0) {
+        if (v_totalMoles == 0.0) {
+            if (!m_singleSpecies  || m_phiVarIndex != 0) {
+                plogf("vcs_VolPhase::setExistence setting true existence for phase with no moles");
+                plogendl();
+                exit(EXIT_FAILURE);
             }
         }
     }
-#endif
-#ifdef DEBUG_MODE
-    if (m_singleSpecies) {
+    if (DEBUG_MODE_ENABLED && m_singleSpecies) {
         if (m_phiVarIndex == 0) {
             if (existence == VCS_PHASE_EXIST_NO || existence == VCS_PHASE_EXIST_ZEROEDPHASE) {
                 plogf("vcs_VolPhase::Trying to set existence of an electron phase to false");
@@ -1078,7 +1054,6 @@ void vcs_VolPhase::setExistence(const int existence)
             }
         }
     }
-#endif
     m_existence = existence;
 }
 

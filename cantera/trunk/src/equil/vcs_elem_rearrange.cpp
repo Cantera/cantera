@@ -20,8 +20,7 @@ int VCS_SOLVE::vcs_elem_rearrange(double* const aw, double* const sa,
                                   double* const sm, double* const ss)
 {
     size_t ncomponents = m_numComponents;
-#ifdef DEBUG_MODE
-    if (m_debug_print_lvl >= 2) {
+    if (DEBUG_MODE_ENABLED && m_debug_print_lvl >= 2) {
         plogf("   ");
         for (size_t i=0; i<77; i++) {
             plogf("-");
@@ -32,7 +31,6 @@ int VCS_SOLVE::vcs_elem_rearrange(double* const aw, double* const sa,
         plogf("   ---    and to rearrange the element ordering once");
         plogendl();
     }
-#endif
 
     /*
      *        Use a temporary work array for the element numbers
@@ -152,8 +150,7 @@ int VCS_SOLVE::vcs_elem_rearrange(double* const aw, double* const sa,
         /* **** REARRANGE THE DATA ****************** */
         /* ****************************************** */
         if (jr != k) {
-#ifdef DEBUG_MODE
-            if (m_debug_print_lvl >= 2) {
+            if (DEBUG_MODE_ENABLED && m_debug_print_lvl >= 2) {
                 plogf("   ---   ");
                 plogf("%-2.2s", (m_elementName[k]).c_str());
                 plogf("(%9.2g) replaces ", m_elemAbundancesGoal[k]);
@@ -161,7 +158,6 @@ int VCS_SOLVE::vcs_elem_rearrange(double* const aw, double* const sa,
                 plogf("(%9.2g) as element %3d", m_elemAbundancesGoal[jr], jr);
                 plogendl();
             }
-#endif
             vcs_switch_elem_pos(jr, k);
             std::swap(aw[jr], aw[k]);
         }
@@ -180,15 +176,13 @@ void VCS_SOLVE::vcs_switch_elem_pos(size_t ipos, size_t jpos)
     if (ipos == jpos) {
         return;
     }
-#ifdef DEBUG_MODE
-    if (ipos > (m_numElemConstraints - 1) ||
+    if (DEBUG_MODE_ENABLED && ipos > (m_numElemConstraints - 1) ||
             jpos > (m_numElemConstraints - 1)) {
         plogf("vcs_switch_elem_pos: ifunc = 0: inappropriate args: %d %d\n",
               ipos, jpos);
         plogendl();
         exit(EXIT_FAILURE);
     }
-#endif
     /*
      * Change the element Global Index list in each vcs_VolPhase object
      * to reflect the switch in the element positions.

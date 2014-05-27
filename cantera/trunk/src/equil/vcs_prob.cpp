@@ -348,11 +348,9 @@ size_t VCS_PROB::addOnePhaseSpecies(vcs_VolPhase* volPhase, size_t k, size_t kT)
     double const* const* const fm = volPhase->getFormulaMatrix();
     for (size_t eVP = 0; eVP < volPhase->nElemConstraints(); eVP++) {
         size_t e = volPhase->elemGlobalIndex(eVP);
-#ifdef DEBUG_MODE
-        if (e == npos) {
+        if (DEBUG_MODE_ENABLED && e == npos) {
             exit(EXIT_FAILURE);
         }
-#endif
         FormulaMatrix[e][kT] = fm[eVP][k];
     }
     /*
@@ -490,20 +488,20 @@ void VCS_PROB::reportCSV(const std::string& reportFile)
             }
         }
 
-#ifdef DEBUG_MODE
-        /*
-         * Check consistency: These should be equal
-         */
-        tp->getChemPotentials(VCS_DATA_PTR(m_gibbsSpecies)+istart);
-        for (size_t k = 0; k < nSpeciesPhase; k++) {
-            if (!vcs_doubleEqual(m_gibbsSpecies[istart+k], mu[k])) {
-                fprintf(FP,"ERROR: incompatibility!\n");
-                fclose(FP);
-                plogf("ERROR: incompatibility!\n");
-                exit(EXIT_FAILURE);
+        if (DEBUG_MODE_ENABLED) {
+            /*
+             * Check consistency: These should be equal
+             */
+            tp->getChemPotentials(VCS_DATA_PTR(m_gibbsSpecies)+istart);
+            for (size_t k = 0; k < nSpeciesPhase; k++) {
+                if (!vcs_doubleEqual(m_gibbsSpecies[istart+k], mu[k])) {
+                    fprintf(FP,"ERROR: incompatibility!\n");
+                    fclose(FP);
+                    plogf("ERROR: incompatibility!\n");
+                    exit(EXIT_FAILURE);
+                }
             }
         }
-#endif
         iK += nSpeciesPhase;
     }
     fclose(FP);

@@ -757,14 +757,12 @@ size_t ElemRearrange(size_t nComponents, const vector_fp& elementAbundances,
                      std::vector<size_t>& orderVectorSpecies,
                      std::vector<size_t>& orderVectorElements);
 
-#ifdef DEBUG_MODE
 //! External int that is used to turn on debug printing for the
 //! BasisOptimze program.
 /*!
  *   Set this to 1 if you want debug printing from BasisOptimize.
  */
 extern int BasisOptimize_print_lvl;
-#endif
 }
 
 #endif

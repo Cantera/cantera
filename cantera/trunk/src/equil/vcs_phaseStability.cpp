@@ -51,13 +51,11 @@ bool VCS_SOLVE::vcs_popPhasePossible(const size_t iphasePop) const
      */
     for (size_t k = 0; k < Vphase->nSpecies(); k++) {
         size_t kspec = Vphase->spGlobalIndexVCS(k);
-#ifdef DEBUG_MODE
-        if (m_molNumSpecies_old[kspec] > 0.0) {
+        if (DEBUG_MODE_ENABLED && m_molNumSpecies_old[kspec] > 0.0) {
             printf("ERROR vcs_popPhasePossible we shouldn't be here %lu %g > 0.0",
                    kspec, m_molNumSpecies_old[kspec]);
             exit(-1);
         }
-#endif
         size_t irxn = kspec - m_numComponents;
         if (kspec >= m_numComponents) {
             bool iPopPossible = true;
@@ -264,23 +262,22 @@ size_t VCS_SOLVE::vcs_popPhaseID(std::vector<size_t> & phasePopPhaseIDs)
         plogf("   ---   Phase                 Status       F_e        MoleNum\n");
         plogf("   --------------------------------------------------------------------------\n");
     }
+#else
+    char* anote;
 #endif
     for (size_t iph = 0; iph < m_numPhases; iph++) {
         vcs_VolPhase* Vphase = m_VolPhaseList[iph];
         int existence = Vphase->exists();
-#ifdef DEBUG_MODE
-        strcpy(anote, "");
-#endif
+        if (DEBUG_MODE_ENABLED) {
+            strcpy(anote, "");
+        }
         if (existence > 0) {
-
-#ifdef DEBUG_MODE
-            if (m_debug_print_lvl >= 2) {
+            if (DEBUG_MODE_ENABLED && m_debug_print_lvl >= 2) {
                 plogf("  ---    %18s %5d           NA       %11.3e\n",
                       Vphase->PhaseName.c_str(),
                       existence,
                       m_tPhaseMoles_old[iph]);
             }
-#endif
         } else {
             if (Vphase->m_singleSpecies) {
                 /***********************************************************************
@@ -293,35 +290,31 @@ size_t VCS_SOLVE::vcs_popPhaseID(std::vector<size_t> & phasePopPhaseIDs)
                 doublereal deltaGRxn = m_deltaGRxn_old[irxn];
                 Fephase = exp(-deltaGRxn) - 1.0;
                 if (Fephase > 0.0) {
-#ifdef DEBUG_MODE
-                    strcpy(anote," (ready to be birthed)");
-#endif
+                    if (DEBUG_MODE_ENABLED) {
+                        strcpy(anote," (ready to be birthed)");
+                    }
                     if (Fephase > FephaseMax) {
                         iphasePop = iph;
                         FephaseMax = Fephase;
-#ifdef DEBUG_MODE
-                        strcpy(anote," (chosen to be birthed)");
-#endif
+                        if (DEBUG_MODE_ENABLED) {
+                            strcpy(anote," (chosen to be birthed)");
+                        }
                     }
                 }
-#ifdef DEBUG_MODE
-                if (Fephase < 0.0) {
+                if (DEBUG_MODE_ENABLED && Fephase < 0.0) {
                     strcpy(anote," (not stable)");
                     if (m_tPhaseMoles_old[iph] > 0.0) {
                         printf("shouldn't be here\n");
                         exit(-1);
                     }
                 }
-#endif
 
-#ifdef DEBUG_MODE
-                if (m_debug_print_lvl >= 2) {
+                if (DEBUG_MODE_ENABLED && m_debug_print_lvl >= 2) {
                     plogf("  ---    %18s %5d %10.3g %10.3g %s\n",
                           Vphase->PhaseName.c_str(),
                           existence, Fephase,
                           m_tPhaseMoles_old[iph], anote);
                 }
-#endif
 
             } else {
                 /***********************************************************************
@@ -341,22 +334,18 @@ size_t VCS_SOLVE::vcs_popPhaseID(std::vector<size_t> & phasePopPhaseIDs)
                             FephaseMax = Fephase;
                         }
                     }
-#ifdef DEBUG_MODE
-                    if (m_debug_print_lvl >= 2) {
+                    if (DEBUG_MODE_ENABLED && m_debug_print_lvl >= 2) {
                         plogf("  ---    %18s %5d  %11.3g %11.3g\n",
                               Vphase->PhaseName.c_str(),
                               existence, Fephase,
                               m_tPhaseMoles_old[iph]);
                     }
-#endif
                 } else {
-#ifdef DEBUG_MODE
-                    if (m_debug_print_lvl >= 2) {
+                    if (DEBUG_MODE_ENABLED && m_debug_print_lvl >= 2) {
                         plogf("  ---    %18s %5d   blocked  %11.3g\n",
                               Vphase->PhaseName.c_str(),
                               existence, m_tPhaseMoles_old[iph]);
                     }
-#endif
                 }
             }
         }
@@ -371,11 +360,9 @@ size_t VCS_SOLVE::vcs_popPhaseID(std::vector<size_t> & phasePopPhaseIDs)
      *   pop at a time.
      */
 
-#ifdef DEBUG_MODE
-    if (m_debug_print_lvl >= 2) {
+    if (DEBUG_MODE_ENABLED && m_debug_print_lvl >= 2) {
         plogf("   ---------------------------------------------------------------------\n");
     }
-#endif
     return iphasePop;
 }
 
@@ -607,19 +594,16 @@ double VCS_SOLVE::vcs_phaseStabilityTest(const size_t iph)
     damp = 1.0E-2;
 
     if (doSuccessiveSubstitution) {
-
-#ifdef DEBUG_MODE
         int KP = 0;
-        if (m_debug_print_lvl >= 2) {
+        if (DEBUG_MODE_ENABLED && m_debug_print_lvl >= 2) {
             plogf("   --- vcs_phaseStabilityTest() called\n");
             plogf("   ---  Its   X_old[%2d]  FracDel_old[%2d]  deltaF[%2d] FracDel_new[%2d]"
                   "  normUpdate     damp     FuncPhaseStability\n", KP, KP, KP, KP);
             plogf("   --------------------------------------------------------------"
                   "--------------------------------------------------------\n");
-        } else if (m_debug_print_lvl == 1) {
+        } else if (DEBUG_MODE_ENABLED && m_debug_print_lvl == 1) {
             plogf("   --- vcs_phaseStabilityTest() called for phase %d\n", iph);
         }
-#endif
 
         for (size_t k = 0; k < nsp; k++) {
             if (fracDelta_new[k] < 1.0E-13) {
@@ -828,12 +812,10 @@ double VCS_SOLVE::vcs_phaseStabilityTest(const size_t iph)
                 fracDelta_new[k] = fracDelta_old[k] + damp * (delFrac[k]);
             }
 
-#ifdef DEBUG_MODE
-            if (m_debug_print_lvl >= 2) {
+            if (DEBUG_MODE_ENABLED && m_debug_print_lvl >= 2) {
                 plogf("  --- %3d %12g %12g %12g %12g %12g %12g %12g\n", its, X_est[KP], fracDelta_old[KP],
                       delFrac[KP], fracDelta_new[KP], normUpdate, damp, funcPhaseStability);
             }
-#endif
 
             if (normUpdate < 1.0E-5 * damp) {
                 converged = true;
@@ -861,18 +843,16 @@ double VCS_SOLVE::vcs_phaseStabilityTest(const size_t iph)
         printf("not done yet\n");
         exit(-1);
     }
-#ifdef DEBUG_MODE
-    if (m_debug_print_lvl >= 2) {
+    if (DEBUG_MODE_ENABLED && m_debug_print_lvl >= 2) {
         plogf("  ------------------------------------------------------------"
               "-------------------------------------------------------------\n");
-    } else if (m_debug_print_lvl == 1) {
+    } else if (DEBUG_MODE_ENABLED && m_debug_print_lvl == 1) {
         if (funcPhaseStability > 0.0) {
             plogf("  --- phase %d with func = %g is to be born\n", iph, funcPhaseStability);
         } else {
             plogf("  --- phase %d with func = %g stays dead\n", iph, funcPhaseStability);
         }
     }
-#endif
     return funcPhaseStability;
 }
 //====================================================================================================================
