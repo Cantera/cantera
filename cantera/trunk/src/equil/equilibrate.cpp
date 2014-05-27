@@ -42,7 +42,7 @@ int equilibrate(thermo_t& s, const char* XY, int solver,
 
     while (redo) {
         if (solver >= 2) {
-            int printLvlSub = 0;
+            int printLvlSub = loglevel;
             int estimateEquil = 0;
             try {
                 MultiPhase m;
