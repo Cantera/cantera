@@ -900,7 +900,6 @@ public:
      */
     void vcs_CalcLnActCoeffJac(const double* const moleSpeciesVCS);
 
-#ifdef DEBUG_MODE
     //! A line search algorithm is carried out on one reaction
     /*!
      *  In this routine we carry out a rough line search algorithm to make
@@ -914,10 +913,7 @@ public:
      *  @return         Returns the optimized step length found by the search
      */
     double vcs_line_search(const size_t irxn, const double dx_orig,
-                           char* const ANOTE);
-#else
-    double vcs_line_search(const size_t irxn, const double dx_orig);
-#endif
+                           char* const ANOTE=0);
 
     //!   Print out a report on the state of the equilibrium problem to
     //!   standard output.
@@ -1310,11 +1306,8 @@ private:
      *                          branch to the section that deletes a species
      *                          from the current set of active species.
      */
-    double vcs_minor_alt_calc(size_t kspec, size_t irxn, bool* do_delete
-#ifdef DEBUG_MODE
-                              , char* ANOTE
-#endif
-                             ) const;
+    double vcs_minor_alt_calc(size_t kspec, size_t irxn, bool* do_delete,
+                              char* ANOTE=0) const;
 
     //! This routine optimizes the minimization of the total gibbs free energy
     //! by making sure the slope of the following functional stays negative:

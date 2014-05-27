@@ -627,11 +627,7 @@ void VCS_SOLVE::solve_tp_inner(size_t& iti, size_t& it1,
                 /************************ VOLTAGE SPECIES ***************************/
                 /********************************************************************/
                 bool soldel_ret;
-#ifdef DEBUG_MODE
                 dx = vcs_minor_alt_calc(kspec, irxn, &soldel_ret, ANOTE);
-#else
-                dx = vcs_minor_alt_calc(kspec, irxn, &soldel_ret);
-#endif
                 m_deltaMolNumSpecies[kspec] = dx;
             } else if (m_speciesStatus[kspec] < VCS_SPECIES_MINOR) {
                 /********************************************************************/
@@ -756,11 +752,7 @@ void VCS_SOLVE::solve_tp_inner(size_t& iti, size_t& it1,
                  *    that deletes a species from the current set of active species.
                  */
                 bool soldel_ret;
-#ifdef DEBUG_MODE
                 dx = vcs_minor_alt_calc(kspec, irxn, &soldel_ret, ANOTE);
-#else
-                dx = vcs_minor_alt_calc(kspec, irxn, &soldel_ret);
-#endif
                 m_deltaMolNumSpecies[kspec] = dx;
                 m_molNumSpecies_new[kspec] = m_molNumSpecies_old[kspec] + dx;
                 if (soldel_ret) {
@@ -975,11 +967,7 @@ void VCS_SOLVE::solve_tp_inner(size_t& iti, size_t& it1,
                         (m_speciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE)) {
                     double dx_old = dx;
 
-#ifdef DEBUG_MODE
                     dx = vcs_line_search(irxn, dx_old, ANOTE);
-#else
-                    dx = vcs_line_search(irxn, dx_old);
-#endif
                     vcs_setFlagsVolPhases(false, VCS_STATECALC_NEW);
                 }
                 m_deltaMolNumSpecies[kspec] = dx;
@@ -1728,11 +1716,8 @@ void VCS_SOLVE::solve_tp_elem_abund_check(size_t& iti, int& stage, bool& lec,
     stage = EQUILIB_CHECK;
 }
 
-double VCS_SOLVE::vcs_minor_alt_calc(size_t kspec, size_t irxn, bool* do_delete
-#ifdef DEBUG_MODE
-                                     , char* ANOTE
-#endif
-                                    ) const
+double VCS_SOLVE::vcs_minor_alt_calc(size_t kspec, size_t irxn, bool* do_delete,
+                                     char* ANOTE) const
 {
     double dx = 0.0, a;
     double w_kspec = m_molNumSpecies_old[kspec];
@@ -1750,9 +1735,9 @@ double VCS_SOLVE::vcs_minor_alt_calc(size_t kspec, size_t irxn, bool* do_delete
         if (dg_irxn < -200.) {
             dg_irxn = -200.;
         }
-#ifdef DEBUG_MODE
-        sprintf(ANOTE,"minor species alternative calc");
-#endif
+        if (DEBUG_MODE_ENABLED && ANOTE) {
+            sprintf(ANOTE,"minor species alternative calc");
+        }
         if (dg_irxn >= 23.0) {
             molNum_kspec_new = w_kspec * 1.0e-10;
             if (w_kspec < VCS_DELETE_MINORSPECIES_CUTOFF) {
@@ -1838,9 +1823,9 @@ L_ZERO_SPECIES:
          *   Need to check the sign -> This is good for electrons
          */
         dx = m_deltaGRxn_old[irxn]/ m_Faraday_dim;
-#ifdef DEBUG_MODE
-        sprintf(ANOTE,"voltage species alternative calc");
-#endif
+        if (DEBUG_MODE_ENABLED && ANOTE) {
+            sprintf(ANOTE,"voltage species alternative calc");
+        }
     }
     return dx;
 }
@@ -4566,12 +4551,7 @@ double VCS_SOLVE::vcs_birthGuess(const int kspec)
          *    we cap the moles here at 1.0E-15 kmol.
          */
         bool soldel_ret;
-#ifdef DEBUG_MODE
-        char ANOTE[32];
-        double dxm = vcs_minor_alt_calc(kspec, irxn, &soldel_ret, ANOTE);
-#else
         double dxm = vcs_minor_alt_calc(kspec, irxn, &soldel_ret);
-#endif
         dx = w_kspec + dxm;
         if (dx > 1.0E-15) {
             dx = 1.0E-15;
