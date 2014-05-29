@@ -363,16 +363,21 @@ If you are interested in seeing the internals of how the preprocessing works,
 take a look at file ``ctml_writer.py`` in the Cantera Python package. Or simply
 start Python, and type::
 
-    >>> import ctml_writer
-    >>> help(ctml_writer)
+    >>> import cantera.ctml_writer
+    >>> help(cantera.ctml_writer)
 
 The ``ctml_writer.py`` module can also be run as a script to convert input .cti
 files to CTML. For example, if you have an input file ``phasedefs.cti``, then
 simply type at the command line::
 
-    python ctml_writer.py phasedefs.cti
+    python -m cantera.ctml_writer phasedefs.cti
 
-to create CTML file ``phasedefs.xml``.
+to create CTML file ``phasedefs.xml``. On systems which support running Python
+scripts directly, a script to run ``ctml_writer`` directly is also installed. If
+the Cantera ``bin`` directory is on your ``PATH``, you can also do the
+conversion by running::
+
+    ctml_writer phasedefs.cti
 
 Of course, most of the time creation of the CTML file will happen behind the
 scenes, and you will not need to be concerned with CTML files at all.
