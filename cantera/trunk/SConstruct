@@ -1075,7 +1075,7 @@ if env['layout'] == 'compact':
 else:
     env['ct_datadir'] = pjoin(env['prefix'], 'share', 'cantera', 'data')
     env['ct_sampledir'] = pjoin(env['prefix'], 'share', 'cantera', 'samples')
-    env['ct_mandir'] = pjoin(env['prefix'], 'man', 'man1')
+    env['ct_mandir'] = pjoin(env['prefix'], 'share', 'man', 'man1')
     env['ct_matlab_dir'] = pjoin(env['prefix'], 'lib', 'cantera', 'matlab', 'toolbox')
 
 # Always set the stage directory before building an MSI installer
@@ -1148,7 +1148,7 @@ else:
         env['inst_datadir'] = pjoin(instRoot, 'share', 'cantera', 'data')
         env['inst_sampledir'] = pjoin(instRoot, 'share', 'cantera', 'samples')
         env['inst_docdir'] = pjoin(instRoot, 'share', 'cantera', 'doc')
-        env['inst_mandir'] = pjoin(instRoot, 'man', 'man1')
+        env['inst_mandir'] = pjoin(instRoot, 'share', 'man', 'man1')
 
 # **************************************
 # *** Set options needed in config.h ***
