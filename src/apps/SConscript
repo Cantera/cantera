@@ -10,8 +10,6 @@ def buildProgram(name, src):
                                   LIBS=env['cantera_libs']))
     install('$inst_bindir', prog)
 
-buildProgram('cti2ctml', ['cti2ctml.cpp'])
-
 if env['layout'] != 'debian':
     buildProgram('csvdiff', ['csvdiff.cpp', 'tok_input_util.cpp', 'mdp_allo.cpp'])
 
