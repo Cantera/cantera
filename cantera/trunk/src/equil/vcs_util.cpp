@@ -15,52 +15,6 @@ using namespace std;
 
 namespace VCSnonideal
 {
-#ifndef USE_MEMSET
-void vcs_dzero(double* vector, int length)
-{
-    for (int i = 0; i < length; i++) {
-        vector[i] = 0.0;
-    }
-}
-#endif
-
-#ifndef USE_MEMSET
-void vcs_izero(int* vector, int length)
-{
-    for (int i = 0; i < length; i++) {
-        vector[i] = 0;
-    }
-}
-#endif
-
-#ifndef USE_MEMSET
-void vcs_dcopy(double* const vec_to, const double* const vec_from, int length)
-{
-    for (int i = 0; i < length; i++) {
-        vec_to[i] = vec_from[i];
-    }
-}
-#endif
-
-#ifndef USE_MEMSET
-void vcs_icopy(int* vec_to, int* vec_from, int length)
-{
-    for (int i = 0; i < length; i++) {
-        vec_to[i] = vec_from[i];
-    }
-}
-#endif
-
-#ifndef USE_MEMSET
-void vcs_vdzero(std::vector<double> &vvv, int len)
-{
-    if (len < 0) {
-        std::fill(vvv.begin(), vvv.end(), 0.0);
-    } else {
-        std::fill_n(vvv.begin(), len, 0.0);
-    }
-}
-#endif
 
 double vcs_l2norm(const std::vector<double> vec)
 {
@@ -75,33 +29,6 @@ double vcs_l2norm(const std::vector<double> vec)
     }
     return std::sqrt(sum / len);
 }
-
-#ifndef USE_MEMSET
-void vcs_vizero(std::vector<int> &vvv, int len)
-{
-    if (len < 0) {
-        std::fill(vvv.begin(), vvv.end(), 0.0);
-    } else {
-        std::fill_n(vvv.begin(), len, 0.0);
-    }
-}
-#endif
-
-#ifndef USE_MEMSET
-void vcs_vdcopy(std::vector<double> &vec_to,
-                const std::vector<double> & vec_from, int length)
-{
-    std::copy(vec_from.begin(), vec_from.begin() + length, vec_to.begin());
-}
-#endif
-
-#ifndef USE_MEMSET
-void vcs_vicopy(std::vector<int> &vec_to,
-                const std::vector<int> & vec_from, int length)
-{
-    std::copy(vec_from.begin(), vec_from.begin() + length, vec_to.begin());
-}
-#endif
 
 size_t vcs_optMax(const double* x, const double* xSize, size_t j, size_t n)
 {

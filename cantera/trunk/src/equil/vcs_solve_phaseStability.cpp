@@ -170,7 +170,7 @@ int VCS_SOLVE::vcs_solve_phaseStability(const int iph, const int ifunc,
     if (printLvl > 3) {
         vcs_printDeltaG(VCS_STATECALC_OLD);
     }
-    vcs_dcopy(VCS_DATA_PTR(m_deltaGRxn_Deficient), VCS_DATA_PTR(m_deltaGRxn_old), m_numRxnRdc);
+    m_deltaGRxn_Deficient = m_deltaGRxn_old;
     funcVal = vcs_phaseStabilityTest(iph);
     if (funcVal > 0.0) {
         iStab = 1;

@@ -710,7 +710,7 @@ double VCS_SOLVE::vcs_line_search(const size_t irxn, const double dx_orig, char*
         return 0.0;
     }
 
-    vcs_dcopy(VCS_DATA_PTR(m_molNumSpecies_new), molNumBase, m_numSpeciesRdc);
+    m_molNumSpecies_new = m_molNumSpecies_old;
     double molSum = molNumBase[kspec];
     m_molNumSpecies_new[kspec] = molNumBase[kspec] + dx_orig;
     for (size_t k = 0; k < m_numComponents; k++) {

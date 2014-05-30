@@ -210,13 +210,13 @@ int VCS_SOLVE::vcs_prep()
     /*
      *        Initialize various arrays in the data to zero
      */
-    vcs_vdzero(m_feSpecies_old, m_numSpeciesTot);
-    vcs_vdzero(m_feSpecies_new, m_numSpeciesTot);
-    vcs_vdzero(m_molNumSpecies_new, m_numSpeciesTot);
-    vcs_dzero(&(m_deltaMolNumPhase(0,0)), m_numSpeciesTot * m_numPhases);
+    m_feSpecies_old.assign(m_feSpecies_old.size(), 0.0);
+    m_feSpecies_new.assign(m_feSpecies_new.size(), 0.0);
+    m_molNumSpecies_new.assign(m_molNumSpecies_new.size(), 0.0);
+    m_deltaMolNumPhase.zero();
     m_phaseParticipation.zero();
-    vcs_dzero(VCS_DATA_PTR(m_deltaPhaseMoles), m_numPhases);
-    vcs_dzero(VCS_DATA_PTR(m_tPhaseMoles_new), m_numPhases);
+    m_deltaPhaseMoles.assign(m_deltaPhaseMoles.size(), 0.0);
+    m_tPhaseMoles_new.assign(m_tPhaseMoles_new.size(), 0.0);
     /*
      *   Calculate the total number of moles in all phases.
      */
