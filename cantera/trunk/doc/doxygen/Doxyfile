@@ -577,7 +577,6 @@ INPUT                  = src/apps \
                          src/kinetics \
                          src/numerics \
                          src/oneD \
-                         src/spectra \
                          src/thermo \
                          src/tpx \
                          src/transport \
