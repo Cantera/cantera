@@ -156,8 +156,8 @@ void VCS_PROB::resizeElements(size_t nel, int force)
 
 void VCS_PROB::set_gai()
 {
+    gai.assign(gai.size(), 0.0);
     double* ElemAbund = VCS_DATA_PTR(gai);
-    vcs_dzero(ElemAbund, ne);
 
     for (size_t j = 0; j < ne; j++) {
         for (size_t kspec = 0; kspec < nspecies; kspec++) {

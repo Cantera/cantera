@@ -333,7 +333,7 @@ int VCS_SOLVE::vcs_solve_TP(int print_lvl, int printDetails, int maxit)
      *       Evaluate the final mole fractions
      *        storing them in wt[]
      */
-    vcs_vdzero(m_molNumSpecies_new, m_numSpeciesTot);
+    m_molNumSpecies_new.assign(m_molNumSpecies_new.size(), 0.0);
     for (size_t kspec = 0; kspec < m_numSpeciesTot; ++kspec) {
         if (m_SSPhase[kspec]) {
             m_molNumSpecies_new[kspec] = 1.0;
@@ -467,18 +467,18 @@ void VCS_SOLVE::solve_tp_inner(size_t& iti, size_t& it1,
     /*
      *  Copy the old solution into the new solution as an initial guess
      */
-    vcs_dcopy(VCS_DATA_PTR(m_feSpecies_new), VCS_DATA_PTR(m_feSpecies_old), m_numSpeciesRdc);
-    vcs_dcopy(VCS_DATA_PTR(m_actCoeffSpecies_new), VCS_DATA_PTR(m_actCoeffSpecies_old), m_numSpeciesRdc);
-    vcs_dcopy(VCS_DATA_PTR(m_deltaGRxn_new), VCS_DATA_PTR(m_deltaGRxn_old), m_numRxnRdc);
-    vcs_dcopy(VCS_DATA_PTR(m_deltaGRxn_Deficient), VCS_DATA_PTR(m_deltaGRxn_old), m_numRxnRdc);
-    vcs_dcopy(VCS_DATA_PTR(m_tPhaseMoles_new), VCS_DATA_PTR(m_tPhaseMoles_old), m_numPhases);
+    m_feSpecies_new = m_feSpecies_old;
+    m_actCoeffSpecies_new = m_actCoeffSpecies_old;
+    m_deltaGRxn_new = m_deltaGRxn_old;
+    m_deltaGRxn_Deficient = m_deltaGRxn_old;
+    m_tPhaseMoles_new = m_tPhaseMoles_old;
 
     /*
      *     Zero out the entire vector of updates. We sometimes would
      *     query these values below, and we want to be sure that no
      *     information is left from previous iterations.
      */
-    vcs_dzero(VCS_DATA_PTR(m_deltaMolNumSpecies), m_numSpeciesTot);
+    m_deltaMolNumSpecies.assign(m_deltaMolNumSpecies.size(), 0.0);
 
     /*************************************************************************/
     /************** DETERMINE IF DEAD PHASES POP INTO EXISTENCE **************/
@@ -527,7 +527,7 @@ void VCS_SOLVE::solve_tp_inner(size_t& iti, size_t& it1,
     /*
      *    Zero out the net change in moles of multispecies phases
      */
-    vcs_dzero(VCS_DATA_PTR(m_deltaPhaseMoles), m_numPhases);
+    m_deltaPhaseMoles.assign(m_deltaPhaseMoles.size(), 0.0);
 
     /* ********************************************************************** */
     /* ***************** MAIN LOOP IN CALCULATION *************************** */
@@ -1280,13 +1280,11 @@ void VCS_SOLVE::solve_tp_inner(size_t& iti, size_t& it1,
      *                loop.
      */
     vcs_updateMolNumVolPhases(VCS_STATECALC_NEW);
-    vcs_dcopy(VCS_DATA_PTR(m_tPhaseMoles_old), VCS_DATA_PTR(m_tPhaseMoles_new), m_numPhases);
-    vcs_dcopy(VCS_DATA_PTR(m_molNumSpecies_old), VCS_DATA_PTR(m_molNumSpecies_new),
-              m_numSpeciesRdc);
-    vcs_dcopy(VCS_DATA_PTR(m_actCoeffSpecies_old),
-              VCS_DATA_PTR(m_actCoeffSpecies_new), m_numSpeciesRdc);
-    vcs_dcopy(VCS_DATA_PTR(m_deltaGRxn_old), VCS_DATA_PTR(m_deltaGRxn_new), m_numRxnRdc);
-    vcs_dcopy(VCS_DATA_PTR(m_feSpecies_old), VCS_DATA_PTR(m_feSpecies_new), m_numSpeciesRdc);
+    m_tPhaseMoles_old = m_tPhaseMoles_new;
+    m_molNumSpecies_old = m_molNumSpecies_new;
+    m_actCoeffSpecies_old = m_actCoeffSpecies_new;
+    m_deltaGRxn_old = m_deltaGRxn_new;
+    m_feSpecies_old = m_feSpecies_new;
 
     vcs_setFlagsVolPhases(true, VCS_STATECALC_OLD);
     /*
@@ -2336,7 +2334,7 @@ size_t VCS_SOLVE::vcs_add_all_deleted()
      *     We are relying here on a old saved value of m_actCoeffSpecies_old[kspec]
      *  being sufficiently good. Note, we will recalculate everything at the end of the routine.
      */
-    vcs_dcopy(VCS_DATA_PTR(m_molNumSpecies_new), VCS_DATA_PTR(m_molNumSpecies_old), m_numSpeciesTot);
+    m_molNumSpecies_new = m_molNumSpecies_old;
 
     for (int cits = 0; cits < 3; cits++) {
         for (size_t kspec = m_numSpeciesRdc; kspec < m_numSpeciesTot; ++kspec) {
@@ -2499,8 +2497,7 @@ bool VCS_SOLVE::vcs_globStepDamp()
     /* **** ADJUST MOLE NUMBERS, CHEM. POT *************** */
     /* *************************************************** */
     if (DEBUG_MODE_ENABLED && m_debug_print_lvl >= 2) {
-        vcs_dcopy(VCS_DATA_PTR(m_deltaGRxn_tmp), VCS_DATA_PTR(m_deltaGRxn_new),
-                  m_numRxnRdc);
+        m_deltaGRxn_tmp = m_deltaGRxn_new;
     }
 
     dptr = VCS_DATA_PTR(m_molNumSpecies_new);
@@ -2610,7 +2607,8 @@ int VCS_SOLVE::vcs_basopt(const bool doJustComponents, double aw[], double sa[],
     /*
      *     Use a temporary work array for the mole numbers, aw[]
      */
-    vcs_dcopy(aw, VCS_DATA_PTR(m_molNumSpecies_old), m_numSpeciesTot);
+    std::copy(m_molNumSpecies_old.begin(), 
+              m_molNumSpecies_old.begin() + m_numSpeciesTot, aw);
     /*
      * Take out the Voltage unknowns from consideration
      */
@@ -3076,7 +3074,7 @@ L_END_LOOP:
     /*
      *  Zero out the change of Phase Moles array
      */
-    vcs_dzero(&m_deltaMolNumPhase(0,0), (NSPECIES0)*(NPHASE0));
+    m_deltaMolNumPhase.zero();
     m_phaseParticipation.zero();
     /*
      *  Loop over each reaction, creating the change in Phase Moles
@@ -3486,7 +3484,7 @@ void VCS_SOLVE::vcs_dfe(const int stateCalc,
             }
         }
     }
-    vcs_dzero(tlogMoles, m_numPhases);
+    m_TmpPhase.assign(m_TmpPhase.size(), 0.0);
     for (size_t iph = 0; iph < m_numPhases; iph++) {
         if (tPhMoles_ptr[iph] > 0.0) {
             tlogMoles[iph] = log(tPhMoles_ptr[iph]);

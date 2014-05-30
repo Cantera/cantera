@@ -110,8 +110,7 @@ int VCS_SOLVE::vcs_elcorr(double aa[], double x[])
     int retn = 0;
 
 #ifdef DEBUG_MODE
-    std::vector<double> ga_save(m_numElemConstraints, 0.0);
-    vcs_dcopy(VCS_DATA_PTR(ga_save), VCS_DATA_PTR(m_elemAbundances), m_numElemConstraints);
+    std::vector<double> ga_save(m_elemAbundances);
     if (m_debug_print_lvl >= 2) {
         plogf("   --- vcsc_elcorr: Element abundances correction routine");
         if (m_numElemConstraints != m_numComponents) {

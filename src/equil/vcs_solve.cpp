@@ -460,12 +460,12 @@ int VCS_SOLVE::vcs_prob_specifyFully(const VCS_PROB* pub)
     /*
      *  Copy over the species molecular weights
      */
-    vcs_vdcopy(m_wtSpecies, pub->WtSpecies, nspecies);
+    m_wtSpecies = pub->WtSpecies;
 
     /*
      * Copy over the charges
      */
-    vcs_vdcopy(m_chargeSpecies, pub->Charge, nspecies);
+    m_chargeSpecies = pub->Charge;
 
     /*
      * Malloc and Copy the VCS_SPECIES_THERMO structures
@@ -484,8 +484,7 @@ int VCS_SOLVE::vcs_prob_specifyFully(const VCS_PROB* pub)
     /*
      * Copy the species unknown type
      */
-    vcs_icopy(VCS_DATA_PTR(m_speciesUnknownType),
-              VCS_DATA_PTR(pub->SpeciesUnknownType), nspecies);
+    m_speciesUnknownType = pub->SpeciesUnknownType;
 
     /*
      *  iest => Do we have an initial estimate of the species mole numbers ?
@@ -496,10 +495,10 @@ int VCS_SOLVE::vcs_prob_specifyFully(const VCS_PROB* pub)
      * w[] -> Copy the equilibrium mole number estimate if it exists.
      */
     if (pub->w.size() != 0) {
-        vcs_vdcopy(m_molNumSpecies_old, pub->w, nspecies);
+        m_molNumSpecies_old = pub->w;
     } else {
         m_doEstimateEquil = -1;
-        vcs_dzero(VCS_DATA_PTR(m_molNumSpecies_old), nspecies);
+        m_molNumSpecies_old.assign(m_molNumSpecies_old.size(), 0.0);
     }
 
     /*
@@ -747,7 +746,7 @@ int VCS_SOLVE::vcs_prob_specifyFully(const VCS_PROB* pub)
      */
     m_totalVol = pub->Vol;
     if (m_PMVolumeSpecies.size() != 0) {
-        vcs_dcopy(VCS_DATA_PTR(m_PMVolumeSpecies), VCS_DATA_PTR(pub->VolPM), nspecies);
+        m_PMVolumeSpecies = pub->VolPM;
     }
 
     /*

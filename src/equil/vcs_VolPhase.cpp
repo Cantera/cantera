@@ -548,8 +548,7 @@ void vcs_VolPhase::setMolesFromVCS(const int stateCalc,
      */
     if (stateCalc == VCS_STATECALC_OLD) {
         if (v_totalMoles > 0.0) {
-            vcs_dcopy(VCS_DATA_PTR(creationMoleNumbers_), VCS_DATA_PTR(Xmol_), m_numSpecies);
-
+            creationMoleNumbers_ = Xmol_;
         }
     }
 
@@ -794,7 +793,7 @@ void vcs_VolPhase::_updateLnActCoeffJac()
          * Revert to the base case Xmol_, v_totalMoles
          */
         v_totalMoles = TMoles_base;
-        vcs_vdcopy(Xmol_, Xmol_Base, m_numSpecies);
+        Xmol_ = Xmol_Base;
     }
     /*
      * Go get base values for the activity coefficients.
@@ -847,7 +846,7 @@ void vcs_VolPhase::setPtrThermoPhase(Cantera::ThermoPhase* tp_ptr)
             resize(VP_ID_, nsp, nelem, PhaseName.c_str());
         }
         TP_ptr->getMoleFractions(VCS_DATA_PTR(Xmol_));
-        vcs_dcopy(VCS_DATA_PTR(creationMoleNumbers_), VCS_DATA_PTR(Xmol_), m_numSpecies);
+        creationMoleNumbers_ = Xmol_;
         _updateMoleFractionDependencies();
 
         /*
@@ -897,7 +896,7 @@ double vcs_VolPhase::molefraction(size_t k) const
 void vcs_VolPhase::setCreationMoleNumbers(const double* const n_k,
         const std::vector<size_t> &creationGlobalRxnNumbers)
 {
-    vcs_dcopy(VCS_DATA_PTR(creationMoleNumbers_), n_k, m_numSpecies);
+    creationMoleNumbers_.assign(n_k, n_k+m_numSpecies);
     for (size_t k = 0; k < m_numSpecies; k++) { 
         creationGlobalRxnNumbers_[k] = creationGlobalRxnNumbers[k];
     }

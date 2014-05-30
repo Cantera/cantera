@@ -558,7 +558,7 @@ double VCS_SOLVE::vcs_phaseStabilityTest(const size_t iph)
     vector<doublereal> fracDelta_old(nsp, 0.0);
     vector<doublereal> fracDelta_raw(nsp, 0.0);
     vector<size_t> creationGlobalRxnNumbers(nsp, npos);
-    vcs_dcopy(VCS_DATA_PTR(m_deltaGRxn_Deficient), VCS_DATA_PTR(m_deltaGRxn_old), m_numRxnRdc);
+    m_deltaGRxn_Deficient = m_deltaGRxn_old;
 
     vector<doublereal> m_feSpecies_Deficient(m_numComponents, 0.0);
     doublereal damp = 1.0;

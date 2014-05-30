@@ -65,7 +65,7 @@ void VCS_SOLVE::vcs_inest(double* const aw, double* const sa, double* const sm,
      *     Make sure all species have positive definite mole numbers
      *     Set voltages to zero for now, until we figure out what to do
      */
-    vcs_dzero(VCS_DATA_PTR(m_deltaMolNumSpecies), nspecies);
+    m_deltaMolNumSpecies.assign(m_deltaMolNumSpecies.size(), 0.0);
     for (size_t kspec = 0; kspec < nspecies; ++kspec) {
         if (m_speciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
             if (m_molNumSpecies_old[kspec] <= 0.0) {
@@ -113,14 +113,13 @@ void VCS_SOLVE::vcs_inest(double* const aw, double* const sa, double* const sm,
             TMolesMultiphase += m_tPhaseMoles_new[iph];
         }
     }
-    vcs_dcopy(VCS_DATA_PTR(m_molNumSpecies_new), VCS_DATA_PTR(m_molNumSpecies_old),  nspecies);
+    m_molNumSpecies_new = m_molNumSpecies_old;
     for (size_t kspec = 0; kspec < m_numComponents; ++kspec) {
         if (m_speciesUnknownType[kspec] != VCS_SPECIES_TYPE_MOLNUM) {
             m_molNumSpecies_new[kspec] = 0.0;
         }
     }
-    vcs_dcopy(VCS_DATA_PTR(m_feSpecies_new), VCS_DATA_PTR(m_SSfeSpecies),
-              nspecies);
+    m_feSpecies_new = m_SSfeSpecies;
 
     for (size_t kspec = 0; kspec < m_numComponents; ++kspec) {
         if (m_speciesUnknownType[kspec] == VCS_SPECIES_TYPE_MOLNUM) {
@@ -150,7 +149,7 @@ void VCS_SOLVE::vcs_inest(double* const aw, double* const sa, double* const sm,
     /* ********************************************************** */
     double* xtphMax = VCS_DATA_PTR(m_TmpPhase);
     double* xtphMin = VCS_DATA_PTR(m_TmpPhase2);
-    vcs_dzero(VCS_DATA_PTR(m_deltaPhaseMoles), m_numPhases);
+    m_deltaPhaseMoles.assign(m_deltaPhaseMoles.size(), 0.0);
     for (size_t iph = 0; iph < m_numPhases; iph++) {
         xtphMax[iph] = log(m_tPhaseMoles_new[iph] * 1.0E32);
         xtphMin[iph] = log(m_tPhaseMoles_new[iph] * 1.0E-32);
