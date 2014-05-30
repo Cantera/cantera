@@ -1,11 +1,11 @@
-.TH "ck2cti2" 1 "4 Jun 2012" "ck2cti2" \" -*- nroff -*-
+.TH "ck2cti" 1 "4 Jun 2012" "ck2cti" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
-ck2cti2 \- convert Chemkin-II-format mechanisms to Cantera input files (.cti)
+ck2cti \- convert Chemkin-II-format mechanisms to Cantera input files (.cti)
 
 .SH SYNOPSIS
-.B ck2cti2
+.B ck2cti
 --input=\fImech-file\fR
 [--thermo=\fIthermo-file\fR]
 [--transport=\fItransport-file\fR]
@@ -15,7 +15,7 @@ ck2cti2 \- convert Chemkin-II-format mechanisms to Cantera input files (.cti)
 
 .SH DESCRIPTION
 
-.I ck2cti2
+.I ck2cti
 converts a Chemkin-II-format reaction mechanism file to Cantera input
 format.  The resulting Cantera input file contains a definition of one
 .B ideal_gas
@@ -52,4 +52,4 @@ is omitted, it will be set to
 .B gas
 
 .SH EXAMPLE
-ck2cti2 --input=chem.inp --thermo=therm.dat --transport=tran.dat
+ck2cti --input=chem.inp --thermo=therm.dat --transport=tran.dat
