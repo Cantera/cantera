@@ -659,9 +659,8 @@ double VCS_SOLVE::deltaG_Recalc_Rxn(const int stateCalc, const size_t irxn, cons
                                     double* const mu_i)
 {
     size_t kspec = irxn + m_numComponents;
-    int* pp_ptr = m_phaseParticipation[irxn];
     for (size_t iphase = 0; iphase < m_numPhases; iphase++) {
-        if (pp_ptr[iphase]) {
+        if (m_phaseParticipation(iphase,irxn)) {
             vcs_chemPotPhase(stateCalc, iphase, molNum, ac, mu_i);
         }
     }

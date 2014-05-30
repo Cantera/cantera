@@ -12,7 +12,6 @@
 #define _VCS_PROB_H
 
 #include "cantera/base/Array.h"
-#include "vcs_IntStarStar.h"
 #include "cantera/equil/vcs_defs.h"
 #include <string>
 

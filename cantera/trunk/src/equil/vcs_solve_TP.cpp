@@ -3077,7 +3077,7 @@ L_END_LOOP:
      *  Zero out the change of Phase Moles array
      */
     vcs_dzero(&m_deltaMolNumPhase(0,0), (NSPECIES0)*(NPHASE0));
-    vcs_izero(m_phaseParticipation[0], (NSPECIES0)*(NPHASE0));
+    m_phaseParticipation.zero();
     /*
      *  Loop over each reaction, creating the change in Phase Moles
      *  array, m_deltaMolNumPhase(iphase,irxn),
@@ -3087,16 +3087,15 @@ L_END_LOOP:
         scrxn_ptr = m_stoichCoeffRxnMatrix.ptrColumn(irxn);
         size_t kspec = m_indexRxnToSpecies[irxn];
         size_t iph = m_phaseID[kspec];
-        int* pp_ptr = m_phaseParticipation[irxn];
         m_deltaMolNumPhase(iph,irxn) = 1.0;
-        pp_ptr[iph]++;
+        m_phaseParticipation(iph,irxn)++;
         for (size_t j = 0; j < ncTrial; ++j) {
             iph = m_phaseID[j];
             if (fabs(scrxn_ptr[j]) <= 1.0e-6) {
                 scrxn_ptr[j] = 0.0;
             } else {
                 m_deltaMolNumPhase(iph,irxn) += scrxn_ptr[j];
-                pp_ptr[iph]++;
+                m_phaseParticipation(iph,irxn)++;
             }
         }
     }
@@ -4506,8 +4505,8 @@ void VCS_SOLVE::vcs_switch_pos(const bool ifunc, const size_t k1, const size_t k
         std::swap(m_scSize[i1], m_scSize[i2]);
         for (size_t iph = 0; iph < m_numPhases; iph++) {
             std::swap(m_deltaMolNumPhase(iph,i1), m_deltaMolNumPhase(iph,i2));
-            std::swap(m_phaseParticipation[i1][iph],
-                      m_phaseParticipation[i2][iph]);
+            std::swap(m_phaseParticipation(iph,i1),
+                      m_phaseParticipation(iph,i2));
         }
         std::swap(m_deltaGRxn_new[i1],  m_deltaGRxn_new[i2]);
         std::swap(m_deltaGRxn_old[i1], m_deltaGRxn_old[i2]);
