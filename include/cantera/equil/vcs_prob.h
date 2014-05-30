@@ -11,7 +11,7 @@
 #ifndef _VCS_PROB_H
 #define _VCS_PROB_H
 
-#include "vcs_DoubleStarStar.h"
+#include "cantera/base/Array.h"
 #include "vcs_IntStarStar.h"
 #include "cantera/equil/vcs_defs.h"
 #include <string>
@@ -88,9 +88,9 @@ public:
 
     //!  Formula Matrix for the problem
     /*!
-     *   FormulaMatrix[j][kspec] = Number of elements, j, in the kspec species
+     *   FormulaMatrix(kspec,j) = Number of elements, j, in the kspec species
      */
-    DoubleStarStar FormulaMatrix;
+    Cantera::Array2D FormulaMatrix;
 
     //! Specifies the species unknown type
     /*!

@@ -185,7 +185,7 @@ int VCS_SOLVE::vcs_report(int iconv)
         plogf("%-10.10s", m_speciesName[kspec].c_str());
         plogf("|%10.3g |", m_molNumSpecies_old[kspec]*molScale);
         for (size_t j = 0; j < m_numComponents; j++) {
-            plogf("     %6.2f", m_stoichCoeffRxnMatrix[irxn][j]);
+            plogf("     %6.2f", m_stoichCoeffRxnMatrix(j,irxn));
         }
         plogf(" |%10.3g |", m_deltaGRxn_new[irxn]);
         plogf("\n");

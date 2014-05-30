@@ -73,7 +73,7 @@ VCS_PROB::VCS_PROB(size_t nsp, size_t nel, size_t nph) :
     w.resize(nspecies, 0.0);
     mf.resize(nspecies, 0.0);
     gai.resize(ne, 0.0);
-    FormulaMatrix.resize(ne, nspecies, 0.0);
+    FormulaMatrix.resize(nspecies, ne, 0.0);
     SpeciesUnknownType.resize(nspecies, VCS_SPECIES_TYPE_MOLNUM);
     VolPM.resize(nspecies, 0.0);
     PhaseID.resize(nspecies, npos);
@@ -123,7 +123,7 @@ void VCS_PROB::resizeSpecies(size_t nsp, int force)
         m_gibbsSpecies.resize(nsp, 0.0);
         w.resize(nsp, 0.0);
         mf.resize(nsp, 0.0);
-        FormulaMatrix.resize(NE0, nsp, 0.0);
+        FormulaMatrix.resize(nsp, NE0, 0.0);
         SpeciesUnknownType.resize(nsp, VCS_SPECIES_TYPE_MOLNUM);
         VolPM.resize(nsp, 0.0);
         PhaseID.resize(nsp, 0);
@@ -143,7 +143,7 @@ void VCS_PROB::resizeElements(size_t nel, int force)
 {
     if (force || nel > NE0) {
         gai.resize(nel, 0.0);
-        FormulaMatrix.resize(nel, NSPECIES0, 0.0);
+        FormulaMatrix.resize(NSPECIES0, nel, 0.0);
         ElName.resize(nel, "");
         m_elType.resize(nel, VCS_ELEM_TYPE_ABSPOS);
         ElActive.resize(nel, 1);
@@ -157,13 +157,12 @@ void VCS_PROB::resizeElements(size_t nel, int force)
 void VCS_PROB::set_gai()
 {
     double* ElemAbund = VCS_DATA_PTR(gai);
-    double* const* const fm = FormulaMatrix.baseDataAddr();
     vcs_dzero(ElemAbund, ne);
 
     for (size_t j = 0; j < ne; j++) {
         for (size_t kspec = 0; kspec < nspecies; kspec++) {
             if (SpeciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
-                ElemAbund[j] += fm[j][kspec] * w[kspec];
+                ElemAbund[j] += FormulaMatrix(kspec,j) * w[kspec];
             }
         }
     }
@@ -345,13 +344,13 @@ size_t VCS_PROB::addOnePhaseSpecies(vcs_VolPhase* volPhase, size_t k, size_t kT)
         plogf("Shouldn't be here\n");
         exit(EXIT_FAILURE);
     }
-    double const* const* const fm = volPhase->getFormulaMatrix();
+    const Cantera::Array2D& fm = volPhase->getFormulaMatrix();
     for (size_t eVP = 0; eVP < volPhase->nElemConstraints(); eVP++) {
         size_t e = volPhase->elemGlobalIndex(eVP);
         if (DEBUG_MODE_ENABLED && e == npos) {
             exit(EXIT_FAILURE);
         }
-        FormulaMatrix[e][kT] = fm[eVP][k];
+        FormulaMatrix(kT,e) = fm(k,eVP);
     }
     /*
      * Tell the phase object about the current position of the

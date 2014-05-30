@@ -51,7 +51,7 @@ void VCS_SOLVE::vcs_inest(double* const aw, double* const sa, double* const sm,
             if (m_elementActive[j]) {
                 double tmp = 0.0;
                 for (size_t kspec = 0; kspec < nspecies; ++kspec) {
-                    tmp +=  m_formulaMatrix[j][kspec] * m_molNumSpecies_old[kspec];
+                    tmp +=  m_formulaMatrix(kspec,j) * m_molNumSpecies_old[kspec];
                 }
                 plogf("%s     ", pprefix);
                 plogf("   %-9.9s", (m_elementName[j]).c_str());
@@ -184,11 +184,11 @@ void VCS_SOLVE::vcs_inest(double* const aw, double* const sa, double* const sm,
                                           * exp(-m_deltaGRxn_new[irxn]);
 
             for (size_t k = 0; k < m_numComponents; ++k) {
-                m_deltaMolNumSpecies[k] += m_stoichCoeffRxnMatrix[irxn][k] * m_deltaMolNumSpecies[kspec];
+                m_deltaMolNumSpecies[k] += m_stoichCoeffRxnMatrix(k,irxn) * m_deltaMolNumSpecies[kspec];
             }
 
             for (iph = 0; iph < m_numPhases; iph++) {
-                m_deltaPhaseMoles[iph] += m_deltaMolNumPhase[irxn][iph] * m_deltaMolNumSpecies[kspec];
+                m_deltaPhaseMoles[iph] += m_deltaMolNumPhase(iph,irxn) * m_deltaMolNumSpecies[kspec];
             }
         }
     }

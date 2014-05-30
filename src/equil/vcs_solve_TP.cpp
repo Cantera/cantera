@@ -168,7 +168,7 @@ int VCS_SOLVE::vcs_solve_TP(int print_lvl, int printDetails, int maxit)
         for (size_t i = 0; i < m_numSpeciesTot; ++i) {
             plogf(" %-18.18s", m_speciesName[i].c_str());
             for (size_t j = 0; j < m_numElemConstraints; ++j) {
-                plogf("% -7.3g ", m_formulaMatrix[j][i]);
+                plogf("% -7.3g ", m_formulaMatrix(i,j));
             }
             plogf("  %3d  ", m_phaseID[i]);
             writeline(' ', std::max(55-int(m_numElemConstraints)*8, 0), false);
@@ -603,7 +603,7 @@ void VCS_SOLVE::solve_tp_inner(size_t& iti, size_t& it1,
         }
         for (size_t irxn = 0; irxn < m_numRxnRdc; irxn++) {
             size_t kspec = m_indexRxnToSpecies[irxn];
-            double* sc_irxn = m_stoichCoeffRxnMatrix[irxn];
+            double* sc_irxn = m_stoichCoeffRxnMatrix.ptrColumn(irxn);
             size_t iph = m_phaseID[kspec];
             vcs_VolPhase* Vphase = m_VolPhaseList[iph];
             if (DEBUG_MODE_ENABLED) {
@@ -662,7 +662,7 @@ void VCS_SOLVE::solve_tp_inner(size_t& iti, size_t& it1,
                     for (size_t j = 0; j < m_numElemConstraints; ++j) {
                         int elType = m_elType[j];
                         if (elType == VCS_ELEM_TYPE_ABSPOS) {
-                            double atomComp = m_formulaMatrix[j][kspec];
+                            double atomComp = m_formulaMatrix(kspec,j);
                             if (atomComp > 0.0) {
                                 double maxPermissible = m_elemAbundancesGoal[j] / atomComp;
                                 if (maxPermissible < VCS_DELETE_MINORSPECIES_CUTOFF) {
@@ -998,9 +998,8 @@ void VCS_SOLVE::solve_tp_inner(size_t& iti, size_t& it1,
                  *         Calculate the tentative change in the total number of
                  *         moles in all of the phases
                  */
-                double* dnPhase_irxn = m_deltaMolNumPhase[irxn];
                 for (iph = 0; iph < m_numPhases; iph++) {
-                    m_deltaPhaseMoles[iph] += dx * dnPhase_irxn[iph];
+                    m_deltaPhaseMoles[iph] += dx * m_deltaMolNumPhase(iph,irxn);
                 }
             }
 
@@ -1397,27 +1396,27 @@ void VCS_SOLVE::solve_tp_inner(size_t& iti, size_t& it1,
                              (m_molNumSpecies_old[j] * m_spSize[j] * 1.01);
                 }
             }
-            if (doSwap && m_stoichCoeffRxnMatrix[i][j] != 0.0) {
+            if (doSwap && m_stoichCoeffRxnMatrix(j,i) != 0.0) {
                 if (DEBUG_MODE_ENABLED && m_debug_print_lvl >= 2) {
                     plogf("   --- Get a new basis because ");
                     plogf("%s", m_speciesName[l].c_str());
                     plogf(" is better than comp ");
                     plogf("%s", m_speciesName[j].c_str());
                     plogf(" and share nonzero stoic: %-9.1f",
-                          m_stoichCoeffRxnMatrix[i][j]);
+                          m_stoichCoeffRxnMatrix(j,i));
                     plogendl();
                 }
                 forceComponentCalc = 1;
                 return;
             }
 #ifdef DEBUG_NOT
-            if (m_speciesStatus[l] == VCS_SPECIES_ZEROEDMS && m_molNumSpecies_old[j] == 0.0 && m_stoichCoeffRxnMatrix[i][j] != 0.0 && dg[i] < 0.0) {
+            if (m_speciesStatus[l] == VCS_SPECIES_ZEROEDMS && m_molNumSpecies_old[j] == 0.0 && m_stoichCoeffRxnMatrix(j,i) != 0.0 && dg[i] < 0.0) {
                 if (DEBUG_MODE_ENABLED && m_debug_print_lvl >= 2) {
                     plogf("   --- Get a new basis because %s", m_speciesName[l].c_str());
                     plogf(" has dg < 0.0 and comp %s has zero mole num",
                           m_speciesName[j].c_str());
                     plogf(" and share nonzero stoic: %-9.1f",
-                          m_stoichCoeffRxnMatrix[i][j]);
+                          m_stoichCoeffRxnMatrix(j,i));
                     plogendl();
                 }
                 return;
@@ -1754,7 +1753,7 @@ double VCS_SOLVE::vcs_minor_alt_calc(size_t kspec, size_t irxn, bool* do_delete,
         /*
          * get the diagonal of the activity coefficient jacobian
          */
-        s = m_np_dLnActCoeffdMolNum[kspec][kspec] / (m_tPhaseMoles_old[iph]);
+        s = m_np_dLnActCoeffdMolNum(kspec,kspec) / (m_tPhaseMoles_old[iph]);
         /*
          *   We fit it to a power law approximation of the activity coefficient
          *
@@ -1846,7 +1845,7 @@ int VCS_SOLVE::delta_species(const size_t kspec, double* const delta_ptr)
          * one would work,
          */
         double dx = delta;
-        double* sc_irxn = m_stoichCoeffRxnMatrix[irxn];
+        double* sc_irxn = m_stoichCoeffRxnMatrix.ptrColumn(irxn);
         for (size_t j = 0; j < m_numComponents; ++j) {
             if (m_molNumSpecies_old[j] > 0.0) {
                 double tmp = sc_irxn[j] * dx;
@@ -2116,8 +2115,8 @@ bool VCS_SOLVE::vcs_delete_multiphase(const size_t iph)
                 for (size_t kspec = m_numComponents; kspec < m_numSpeciesRdc; ++kspec) {
                     size_t irxn = kspec - m_numComponents;
                     if (m_phaseID[kspec] != iph) {
-                        if (m_stoichCoeffRxnMatrix[irxn][kcomp] != 0.0) {
-                            dxWant = -m_molNumSpecies_old[kcomp] / m_stoichCoeffRxnMatrix[irxn][kcomp];
+                        if (m_stoichCoeffRxnMatrix(kcomp,irxn) != 0.0) {
+                            dxWant = -m_molNumSpecies_old[kcomp] / m_stoichCoeffRxnMatrix(kcomp,irxn);
                             if (dxWant + m_molNumSpecies_old[kspec]  < 0.0) {
                                 dxPerm = -m_molNumSpecies_old[kspec];
                             }
@@ -2126,9 +2125,9 @@ bool VCS_SOLVE::vcs_delete_multiphase(const size_t iph)
                                     if (m_phaseID[jcomp] == iph) {
                                         dxPerm = 0.0;
                                     } else {
-                                        dj = dxWant * m_stoichCoeffRxnMatrix[irxn][jcomp];
+                                        dj = dxWant * m_stoichCoeffRxnMatrix(jcomp,irxn);
                                         if (dj + m_molNumSpecies_old[kcomp]  < 0.0) {
-                                            dxPerm2 = -m_molNumSpecies_old[kcomp] / m_stoichCoeffRxnMatrix[irxn][jcomp];
+                                            dxPerm2 = -m_molNumSpecies_old[kcomp] / m_stoichCoeffRxnMatrix(jcomp,irxn);
                                         }
                                         if (fabs(dxPerm2) < fabs(dxPerm)) {
                                             dxPerm = dxPerm2;
@@ -2556,7 +2555,7 @@ int VCS_SOLVE::vcs_basopt(const bool doJustComponents, double aw[], double sa[],
     bool lindep;
     size_t juse = npos;
     size_t jlose = npos;
-    double* dptr, *scrxn_ptr;
+    double* scrxn_ptr;
     Cantera::clockWC tickTock;
     if (DEBUG_MODE_ENABLED && m_debug_print_lvl >= 2) {
         plogf("   ");
@@ -2589,7 +2588,7 @@ int VCS_SOLVE::vcs_basopt(const bool doJustComponents, double aw[], double sa[],
                 vcs_print_stringTrunc(m_speciesName[k].c_str(), 11, 1);
                 plogf(" | ");
                 for (size_t j = 0; j < m_numElemConstraints; j++) {
-                    plogf(" %8.2g", m_formulaMatrix[j][k]);
+                    plogf(" %8.2g", m_formulaMatrix(k,j));
                 }
                 plogf("\n");
             }
@@ -2694,7 +2693,7 @@ int VCS_SOLVE::vcs_basopt(const bool doJustComponents, double aw[], double sa[],
                             for (size_t j = 0; j < m_numElemConstraints; ++j) {
                                 if (m_elementActive[j]) {
                                     if (m_elType[j] == VCS_ELEM_TYPE_ABSPOS) {
-                                        double nu = m_formulaMatrix[j][kspec];
+                                        double nu = m_formulaMatrix(kspec,j);
                                         if (nu != 0.0) {
                                             nonZeroesKspec++;
                                             maxConcPossKspec = std::min(m_elemAbundancesGoal[j] / nu, maxConcPossKspec);
@@ -2774,7 +2773,7 @@ int VCS_SOLVE::vcs_basopt(const bool doJustComponents, double aw[], double sa[],
              */
             size_t jl = jr;
             for (size_t j = 0; j < m_numElemConstraints; ++j) {
-                sm[j + jr*m_numElemConstraints] = m_formulaMatrix[j][k];
+                sm[j + jr*m_numElemConstraints] = m_formulaMatrix(k,j);
             }
             if (jl > 0) {
                 /*
@@ -2893,24 +2892,24 @@ L_END_LOOP:
      */
     for (size_t j = 0; j < ncTrial; ++j) {
         for (size_t i = 0; i < ncTrial; ++i) {
-            sm[i + j*m_numElemConstraints] = m_formulaMatrix[i][j];
+            sm[i + j*m_numElemConstraints] = m_formulaMatrix(j,i);
         }
     }
     for (size_t i = 0; i < m_numRxnTot; ++i) {
         k = m_indexRxnToSpecies[i];
         for (size_t j = 0; j < ncTrial; ++j) {
-            m_stoichCoeffRxnMatrix[i][j] = - m_formulaMatrix[j][k];
+            m_stoichCoeffRxnMatrix(j,i) = - m_formulaMatrix(k,j);
         }
     }
     // Solve the linear system to calculate the reaction matrix,
-    // m_stoichCoeffRxnMatrix[][].
+    // m_stoichCoeffRxnMatrix.
     ct_dgetrf(ncTrial, ncTrial, sm, m_numElemConstraints, &ipiv[0], info);
     if (info) {
         plogf("vcs_solve_TP ERROR: Error factorizing stoichiometric coefficient matrix\n");
         return VCS_FAILED_CONVERGENCE;
     }
     ct_dgetrs(ctlapack::NoTranspose, ncTrial, m_numRxnTot, sm, m_numElemConstraints,
-              &ipiv[0], m_stoichCoeffRxnMatrix[0], m_numElemConstraints, info);
+              &ipiv[0], m_stoichCoeffRxnMatrix.ptrColumn(0), m_numElemConstraints, info);
 
     /*
      * NOW, if we have interfacial voltage unknowns, what we did
@@ -2939,9 +2938,9 @@ L_END_LOOP:
             for (size_t j = 0; j < ncTrial; ++j) {
                 for (size_t i = 0; i < ncTrial; ++i) {
                     if (i == jlose) {
-                        sm[i + j*m_numElemConstraints] = m_formulaMatrix[juse][j];
+                        sm[i + j*m_numElemConstraints] = m_formulaMatrix(j,juse);
                     } else {
-                        sm[i + j*m_numElemConstraints] = m_formulaMatrix[i][j];
+                        sm[i + j*m_numElemConstraints] = m_formulaMatrix(j,i);
                     }
                 }
             }
@@ -2949,9 +2948,9 @@ L_END_LOOP:
                 k = m_indexRxnToSpecies[i];
                 for (size_t j = 0; j < ncTrial; ++j) {
                     if (j == jlose) {
-                        aw[j] = - m_formulaMatrix[juse][k];
+                        aw[j] = - m_formulaMatrix(k,juse);
                     } else {
-                        aw[j] = - m_formulaMatrix[j][k];
+                        aw[j] = - m_formulaMatrix(k,j);
                     }
                 }
             }
@@ -2965,7 +2964,7 @@ L_END_LOOP:
                       &ipiv[0], aw, m_numElemConstraints, info);
             size_t i = k - ncTrial;
             for (size_t j = 0; j < ncTrial; j++) {
-                m_stoichCoeffRxnMatrix[i][j] = aw[j];
+                m_stoichCoeffRxnMatrix(j,i) = aw[j];
             }
         }
     }
@@ -2977,7 +2976,7 @@ L_END_LOOP:
     for (size_t i = 0; i < m_numRxnTot; i++) {
         double szTmp = 0.0;
         for (size_t j = 0; j < ncTrial; j++) {
-            szTmp += fabs(m_stoichCoeffRxnMatrix[i][j]);
+            szTmp += fabs(m_stoichCoeffRxnMatrix(j,i));
         }
         m_scSize[i] = szTmp;
     }
@@ -3009,7 +3008,7 @@ L_END_LOOP:
                 plogf("|% -10.3E|", m_molNumSpecies_old[m_indexRxnToSpecies[i]]);
             }
             for (size_t j = 0; j < ncTrial; j++) {
-                plogf("    %+7.3f", m_stoichCoeffRxnMatrix[i][j]);
+                plogf("    %+7.3f", m_stoichCoeffRxnMatrix(j,i));
             }
             plogf("\n");
         }
@@ -3027,17 +3026,17 @@ L_END_LOOP:
             double sum;
             for (size_t j = 0; j < ncTrial; ++j) {
                 if (j == jlose) {
-                    sum = m_formulaMatrix[juse][k];
+                    sum = m_formulaMatrix(k,juse);
                     for (size_t n = 0; n < ncTrial; n++) {
-                        double numElements = m_formulaMatrix[juse][n];
-                        double coeff =  m_stoichCoeffRxnMatrix[i][n];
+                        double numElements = m_formulaMatrix(n,juse);
+                        double coeff =  m_stoichCoeffRxnMatrix(n,i);
                         sum += coeff * numElements;
                     }
                 } else {
-                    sum = m_formulaMatrix[j][k];
+                    sum = m_formulaMatrix(k,j);
                     for (size_t n = 0; n < ncTrial; n++) {
-                        double numElements = m_formulaMatrix[j][n];
-                        double coeff =  m_stoichCoeffRxnMatrix[i][n];
+                        double numElements = m_formulaMatrix(n,j);
+                        double coeff =  m_stoichCoeffRxnMatrix(n,i);
                         sum += coeff * numElements;
                     }
                 }
@@ -3077,27 +3076,26 @@ L_END_LOOP:
     /*
      *  Zero out the change of Phase Moles array
      */
-    vcs_dzero(m_deltaMolNumPhase[0], (NSPECIES0)*(NPHASE0));
+    vcs_dzero(&m_deltaMolNumPhase(0,0), (NSPECIES0)*(NPHASE0));
     vcs_izero(m_phaseParticipation[0], (NSPECIES0)*(NPHASE0));
     /*
      *  Loop over each reaction, creating the change in Phase Moles
-     *  array, m_deltaMolNumPhase[irxn][iphase],
+     *  array, m_deltaMolNumPhase(iphase,irxn),
      *  and the phase participation array, PhaseParticipation[irxn][iphase]
      */
     for (size_t irxn = 0; irxn < m_numRxnTot; ++irxn) {
-        scrxn_ptr = m_stoichCoeffRxnMatrix[irxn];
-        dptr = m_deltaMolNumPhase[irxn];
+        scrxn_ptr = m_stoichCoeffRxnMatrix.ptrColumn(irxn);
         size_t kspec = m_indexRxnToSpecies[irxn];
         size_t iph = m_phaseID[kspec];
         int* pp_ptr = m_phaseParticipation[irxn];
-        dptr[iph] = 1.0;
+        m_deltaMolNumPhase(iph,irxn) = 1.0;
         pp_ptr[iph]++;
         for (size_t j = 0; j < ncTrial; ++j) {
             iph = m_phaseID[j];
             if (fabs(scrxn_ptr[j]) <= 1.0e-6) {
                 scrxn_ptr[j] = 0.0;
             } else {
-                dptr[iph] += scrxn_ptr[j];
+                m_deltaMolNumPhase(iph,irxn) += scrxn_ptr[j];
                 pp_ptr[iph]++;
             }
         }
@@ -3199,7 +3197,7 @@ int VCS_SOLVE::vcs_species_type(const size_t kspec) const
         for (size_t j = 0; j < m_numElemConstraints; ++j) {
             int elType = m_elType[j];
             if (elType == VCS_ELEM_TYPE_ABSPOS) {
-                double atomComp = m_formulaMatrix[j][kspec];
+                double atomComp = m_formulaMatrix(kspec,j);
                 if (atomComp > 0.0) {
                     double maxPermissible = m_elemAbundancesGoal[j] / atomComp;
                     if (maxPermissible < VCS_DELETE_MINORSPECIES_CUTOFF) {
@@ -3229,7 +3227,7 @@ int VCS_SOLVE::vcs_species_type(const size_t kspec) const
          */
         if (irxn >= 0) {
             for (size_t j = 0; j < m_numComponents; ++j) {
-                double stoicC = m_stoichCoeffRxnMatrix[irxn][j];
+                double stoicC = m_stoichCoeffRxnMatrix(j,irxn);
                 if (stoicC != 0.0) {
                     double negChangeComp = - stoicC;
                     if (negChangeComp > 0.0) {
@@ -3348,7 +3346,7 @@ int VCS_SOLVE::vcs_species_type(const size_t kspec) const
         double szAdj = m_scSize[irxn] * std::sqrt((double)m_numRxnTot);
         for (size_t k = 0; k < m_numComponents; ++k) {
             if (!(m_SSPhase[k])) {
-                if (m_stoichCoeffRxnMatrix[irxn][k] != 0.0) {
+                if (m_stoichCoeffRxnMatrix(k,irxn) != 0.0) {
                     if (m_molNumSpecies_old[kspec] * szAdj >= m_molNumSpecies_old[k] * 0.01) {
                         return VCS_SPECIES_MAJOR;
                     }
@@ -3758,7 +3756,7 @@ void VCS_SOLVE::prneav() const
     for (size_t j = 0; j < m_numElemConstraints; ++j) {
         for (size_t i = 0; i < m_numSpeciesTot; ++i) {
             if (m_speciesUnknownType[i] == VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
-                eav[j] += m_formulaMatrix[j][i] * m_molNumSpecies_old[i];
+                eav[j] += m_formulaMatrix(i,j) * m_molNumSpecies_old[i];
             }
         }
     }
@@ -3950,20 +3948,6 @@ bool VCS_SOLVE::vcs_evaluate_speciesType()
     return (m_numRxnMinorZeroed >= m_numRxnRdc);
 }
 
-void VCS_SOLVE::vcs_switch2D(double* const* const Jac,
-                             const size_t k1, const size_t k2) const
-{
-    if (k1 == k2) {
-        return;
-    }
-    for (size_t i = 0; i < m_numSpeciesTot; i++) {
-        std::swap(Jac[k1][i], Jac[k2][i]);
-    }
-    for (size_t i = 0; i < m_numSpeciesTot; i++) {
-        std::swap(Jac[i][k1], Jac[i][k2]);
-    }
-}
-
 void VCS_SOLVE::vcs_deltag(const int l, const bool doDeleted,
                            const int vcsState, const bool alterZeroedPhases)
 {
@@ -4011,7 +3995,7 @@ void VCS_SOLVE::vcs_deltag(const int l, const bool doDeleted,
             if (m_speciesStatus[kspec] != VCS_SPECIES_MINOR) {
                 icase = 0;
                 deltaGRxn[irxn] = feSpecies[m_indexRxnToSpecies[irxn]];
-                double* dtmp_ptr = m_stoichCoeffRxnMatrix[irxn];
+                double* dtmp_ptr = m_stoichCoeffRxnMatrix.ptrColumn(irxn);
                 for (kspec = 0; kspec < m_numComponents; ++kspec) {
                     deltaGRxn[irxn] += dtmp_ptr[kspec] * feSpecies[kspec];
                     if (molNumSpecies[kspec] < VCS_DELETE_MINORSPECIES_CUTOFF && dtmp_ptr[kspec] < 0.0) {
@@ -4030,7 +4014,7 @@ void VCS_SOLVE::vcs_deltag(const int l, const bool doDeleted,
         for (size_t irxn = 0; irxn < irxnl; ++irxn) {
             icase = 0;
             deltaGRxn[irxn] = feSpecies[m_indexRxnToSpecies[irxn]];
-            double* dtmp_ptr = m_stoichCoeffRxnMatrix[irxn];
+            double* dtmp_ptr = m_stoichCoeffRxnMatrix.ptrColumn(irxn);
             for (size_t kspec = 0; kspec < m_numComponents; ++kspec) {
                 deltaGRxn[irxn] += dtmp_ptr[kspec] * feSpecies[kspec];
                 if (molNumSpecies[kspec] < VCS_DELETE_MINORSPECIES_CUTOFF &&
@@ -4051,7 +4035,7 @@ void VCS_SOLVE::vcs_deltag(const int l, const bool doDeleted,
             if (m_speciesStatus[kspec] <= VCS_SPECIES_MINOR) {
                 icase = 0;
                 deltaGRxn[irxn] = feSpecies[m_indexRxnToSpecies[irxn]];
-                double* dtmp_ptr = m_stoichCoeffRxnMatrix[irxn];
+                double* dtmp_ptr = m_stoichCoeffRxnMatrix.ptrColumn(irxn);
                 for (kspec = 0; kspec < m_numComponents; ++kspec) {
                     deltaGRxn[irxn] += dtmp_ptr[kspec] * feSpecies[kspec];
                     if (m_molNumSpecies_old[kspec] < VCS_DELETE_MINORSPECIES_CUTOFF &&
@@ -4207,7 +4191,7 @@ void  VCS_SOLVE::vcs_printDeltaG(const int stateCalc)
                 plogf("|%10.3g|", m_molNumSpecies_old[m_indexRxnToSpecies[i]]);
             }
             for (size_t j = 0; j < m_numComponents; j++) {
-                plogf("     %6.2f", m_stoichCoeffRxnMatrix[i][j]);
+                plogf("     %6.2f", m_stoichCoeffRxnMatrix(j,i));
             }
             plogf("\n");
         }
@@ -4342,9 +4326,8 @@ void VCS_SOLVE::vcs_deltag_Phase(const size_t iphase, const bool doDeleted,
         if (kspec >= m_numComponents) {
             size_t irxn = kspec - m_numComponents;
             deltaGRxn[irxn] = feSpecies[kspec];
-            double* dtmp_ptr = m_stoichCoeffRxnMatrix[irxn];
             for (size_t kcomp = 0; kcomp < m_numComponents; ++kcomp) {
-                deltaGRxn[irxn] += dtmp_ptr[kcomp] * feSpecies[kcomp];
+                deltaGRxn[irxn] += m_stoichCoeffRxnMatrix(kcomp,irxn) * feSpecies[kcomp];
             }
         }
     }
@@ -4362,9 +4345,8 @@ void VCS_SOLVE::vcs_deltag_Phase(const size_t iphase, const bool doDeleted,
                         zeroedPhase = false;
                     }
                     deltaGRxn[irxn] = feSpecies[kspec];
-                    double* dtmp_ptr = m_stoichCoeffRxnMatrix[irxn];
                     for (size_t kcomp = 0; kcomp < m_numComponents; ++kcomp) {
-                        deltaGRxn[irxn] += dtmp_ptr[kcomp] * feSpecies[kcomp];
+                        deltaGRxn[irxn] += m_stoichCoeffRxnMatrix(kcomp,irxn) * feSpecies[kcomp];
                     }
                 }
             }
@@ -4491,10 +4473,15 @@ void VCS_SOLVE::vcs_switch_pos(const bool ifunc, const size_t k1, const size_t k
     std::swap(m_PMVolumeSpecies[k1], m_PMVolumeSpecies[k2]);
 
     for (size_t j = 0; j < m_numElemConstraints; ++j) {
-        std::swap(m_formulaMatrix[j][k1], m_formulaMatrix[j][k2]);
+        std::swap(m_formulaMatrix(k1,j), m_formulaMatrix(k2,j));
     }
-    if (m_useActCoeffJac) {
-        vcs_switch2D(m_np_dLnActCoeffdMolNum.baseDataAddr(), k1, k2);
+    if (m_useActCoeffJac && k1 != k2) {
+        for (size_t i = 0; i < m_numSpeciesTot; i++) {
+            std::swap(m_np_dLnActCoeffdMolNum(k1,i), m_np_dLnActCoeffdMolNum(k2,i));
+        }
+        for (size_t i = 0; i < m_numSpeciesTot; i++) {
+            std::swap(m_np_dLnActCoeffdMolNum(i,k1), m_np_dLnActCoeffdMolNum(i,k2));
+        }
     }
     std::swap(m_speciesStatus[k1], m_speciesStatus[k2]);
     /*
@@ -4514,11 +4501,11 @@ void VCS_SOLVE::vcs_switch_pos(const bool ifunc, const size_t k1, const size_t k
                   i1 , i2);
         }
         for (size_t j = 0; j < m_numComponents; ++j) {
-            std::swap(m_stoichCoeffRxnMatrix[i1][j], m_stoichCoeffRxnMatrix[i2][j]);
+            std::swap(m_stoichCoeffRxnMatrix(j,i1), m_stoichCoeffRxnMatrix(j,i2));
         }
         std::swap(m_scSize[i1], m_scSize[i2]);
         for (size_t iph = 0; iph < m_numPhases; iph++) {
-            std::swap(m_deltaMolNumPhase[i1][iph], m_deltaMolNumPhase[i2][iph]);
+            std::swap(m_deltaMolNumPhase(iph,i1), m_deltaMolNumPhase(iph,i2));
             std::swap(m_phaseParticipation[i1][iph],
                       m_phaseParticipation[i2][iph]);
         }
@@ -4574,7 +4561,7 @@ double VCS_SOLVE::vcs_birthGuess(const int kspec)
      * back from this routine. This evaluation should
      * be respected.
      */
-    double* sc_irxn = m_stoichCoeffRxnMatrix[irxn];
+    double* sc_irxn = m_stoichCoeffRxnMatrix.ptrColumn(irxn);
     for (size_t j = 0; j < m_numComponents; ++j) {
         // Only loop over element constraints that involve positive def. constraints
         if (m_speciesUnknownType[j] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {

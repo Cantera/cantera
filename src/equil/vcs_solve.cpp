@@ -97,7 +97,7 @@ void VCS_SOLVE::vcs_initSizes(const size_t nspecies0, const size_t nelements,
      * We will initialize sc[] to note the fact that it needs to be
      * filled with meaningful information.
      */
-    m_stoichCoeffRxnMatrix.resize(nspecies0, nelements, 0.0);
+    m_stoichCoeffRxnMatrix.resize(nelements, nspecies0, 0.0);
 
     m_scSize.resize(nspecies0, 0.0);
     m_spSize.resize(nspecies0, 1.0);
@@ -108,7 +108,7 @@ void VCS_SOLVE::vcs_initSizes(const size_t nspecies0, const size_t nelements,
 
     m_speciesUnknownType.resize(nspecies0, VCS_SPECIES_TYPE_MOLNUM);
 
-    m_deltaMolNumPhase.resize(nspecies0, nphase0, 0.0);
+    m_deltaMolNumPhase.resize(nphase0, nspecies0, 0.0);
     m_phaseParticipation.resize(nspecies0, nphase0, 0);
     m_phasePhi.resize(nphase0, 0.0);
 
@@ -130,7 +130,7 @@ void VCS_SOLVE::vcs_initSizes(const size_t nspecies0, const size_t nelements,
     m_TmpPhase.resize(nphase0, 0.0);
     m_TmpPhase2.resize(nphase0, 0.0);
 
-    m_formulaMatrix.resize(nelements, nspecies0);
+    m_formulaMatrix.resize(nspecies0, nelements);
 
     TPhInertMoles.resize(nphase0, 0.0);
 
@@ -445,10 +445,10 @@ int VCS_SOLVE::vcs_prob_specifyFully(const VCS_PROB* pub)
     for (size_t i = 0; i < nspecies; i++) {
         bool nonzero = false;
         for (size_t j = 0; j < nelements; j++) {
-            if (pub->FormulaMatrix[j][i] != 0.0) {
+            if (pub->FormulaMatrix(i,j) != 0.0) {
                 nonzero = true;
             }
-            m_formulaMatrix[j][i] = pub->FormulaMatrix[j][i];
+            m_formulaMatrix(i,j) = pub->FormulaMatrix(i,j);
         }
         if (!nonzero) {
             plogf("vcs_prob_specifyFully:: species %d %s has a zero formula matrix!\n", i,
@@ -522,7 +522,7 @@ int VCS_SOLVE::vcs_prob_specifyFully(const VCS_PROB* pub)
                 for (size_t kspec = 0; kspec < nspecies; kspec++) {
                     if (m_speciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
                         sum += m_molNumSpecies_old[kspec];
-                        m_elemAbundancesGoal[j] += m_formulaMatrix[j][kspec] * m_molNumSpecies_old[kspec];
+                        m_elemAbundancesGoal[j] += m_formulaMatrix(kspec,j) * m_molNumSpecies_old[kspec];
                     }
                 }
                 if (pub->m_elType[j] == VCS_ELEM_TYPE_LATTICERATIO) {

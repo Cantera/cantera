@@ -68,9 +68,6 @@ size_t VCS_SOLVE::vcs_RxnStepSizes(int& forceComponentCalc, size_t& kSpecial)
                 sprintf(ANOTE, "ZeroedPhase: Phase is artificially zeroed");
             }
         } else if (m_speciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
-
-            double* dnPhase_irxn = m_deltaMolNumPhase[irxn];
-
             if (m_molNumSpecies_old[kspec] == 0.0 && (!m_SSPhase[kspec])) {
                 /********************************************************************/
                 /******* MULTISPECIES PHASE WITH total moles equal to zero *********/
@@ -179,7 +176,7 @@ size_t VCS_SOLVE::vcs_RxnStepSizes(int& forceComponentCalc, size_t& kSpecial)
                 for (size_t j = 0; j < m_numComponents; ++j) {
                     if (!m_SSPhase[j]) {
                         if (m_molNumSpecies_old[j] > 0.0) {
-                            s += SQUARE(m_stoichCoeffRxnMatrix[irxn][j]) / m_molNumSpecies_old[j];
+                            s += SQUARE(m_stoichCoeffRxnMatrix(j,irxn)) / m_molNumSpecies_old[j];
                         }
                     }
                 }
@@ -187,7 +184,7 @@ size_t VCS_SOLVE::vcs_RxnStepSizes(int& forceComponentCalc, size_t& kSpecial)
                     vcs_VolPhase* Vphase = m_VolPhaseList[j];
                     if (!Vphase->m_singleSpecies) {
                         if (m_tPhaseMoles_old[j] > 0.0) {
-                            s -= SQUARE(dnPhase_irxn[j]) / m_tPhaseMoles_old[j];
+                            s -= SQUARE(m_deltaMolNumPhase(j,irxn)) / m_tPhaseMoles_old[j];
                         }
                     }
                 }
@@ -209,7 +206,7 @@ size_t VCS_SOLVE::vcs_RxnStepSizes(int& forceComponentCalc, size_t& kSpecial)
                     m_deltaMolNumSpecies[kspec] = -m_deltaGRxn_new[irxn] / s;
                     // New section to do damping of the m_deltaMolNumSpecies[]
                     for (size_t j = 0; j < m_numComponents; ++j) {
-                        double stoicC = m_stoichCoeffRxnMatrix[irxn][j];
+                        double stoicC = m_stoichCoeffRxnMatrix(j,irxn);
                         if (stoicC != 0.0) {
                             double negChangeComp = -stoicC * m_deltaMolNumSpecies[kspec];
                             if (negChangeComp > m_molNumSpecies_old[j]) {
@@ -259,8 +256,8 @@ size_t VCS_SOLVE::vcs_RxnStepSizes(int& forceComponentCalc, size_t& kSpecial)
                         dss = m_molNumSpecies_old[kspec];
                         k = kspec;
                         for (size_t j = 0; j < m_numComponents; ++j) {
-                            if (m_stoichCoeffRxnMatrix[irxn][j] > 0.0) {
-                                double xx = m_molNumSpecies_old[j] / m_stoichCoeffRxnMatrix[irxn][j];
+                            if (m_stoichCoeffRxnMatrix(j,irxn) > 0.0) {
+                                double xx = m_molNumSpecies_old[j] / m_stoichCoeffRxnMatrix(j,irxn);
                                 if (xx < dss) {
                                     dss = xx;
                                     k = j;
@@ -271,8 +268,8 @@ size_t VCS_SOLVE::vcs_RxnStepSizes(int& forceComponentCalc, size_t& kSpecial)
                     } else {
                         dss = 1.0e10;
                         for (size_t j = 0; j < m_numComponents; ++j) {
-                            if (m_stoichCoeffRxnMatrix[irxn][j] < 0.0) {
-                                double xx = -m_molNumSpecies_old[j] / m_stoichCoeffRxnMatrix[irxn][j];
+                            if (m_stoichCoeffRxnMatrix(j,irxn) < 0.0) {
+                                double xx = -m_molNumSpecies_old[j] / m_stoichCoeffRxnMatrix(j,irxn);
                                 if (xx < dss) {
                                     dss = xx;
                                     k = j;
@@ -318,7 +315,7 @@ size_t VCS_SOLVE::vcs_RxnStepSizes(int& forceComponentCalc, size_t& kSpecial)
                         }
                         m_deltaMolNumSpecies[kspec] = dss;
                         for (size_t j = 0; j < m_numComponents; ++j) {
-                            m_deltaMolNumSpecies[j] = dss * m_stoichCoeffRxnMatrix[irxn][j];
+                            m_deltaMolNumSpecies[j] = dss * m_stoichCoeffRxnMatrix(j,irxn);
                         }
 
                         iphDel = m_phaseID[k];
@@ -398,8 +395,6 @@ int VCS_SOLVE::vcs_rxn_adj_cg()
         }
 
         size_t kspec = m_indexRxnToSpecies[irxn];
-        double* dnPhase_irxn = m_deltaMolNumPhase[irxn];
-
         if (m_molNumSpecies_old[kspec] == 0.0 && (!m_SSPhase[kspec])) {
             /* *******************************************************************/
             /* **** MULTISPECIES PHASE WITH total moles equal to zero ************/
@@ -467,13 +462,13 @@ int VCS_SOLVE::vcs_rxn_adj_cg()
             }
             for (size_t j = 0; j < m_numComponents; ++j) {
                 if (!m_SSPhase[j]) {
-                    s += SQUARE(m_stoichCoeffRxnMatrix[irxn][j]) / m_molNumSpecies_old[j];
+                    s += SQUARE(m_stoichCoeffRxnMatrix(j,irxn)) / m_molNumSpecies_old[j];
                 }
             }
             for (size_t j = 0; j < m_numPhases; j++) {
                 if (!(m_VolPhaseList[j])->m_singleSpecies) {
                     if (m_tPhaseMoles_old[j] > 0.0) {
-                        s -= SQUARE(dnPhase_irxn[j]) / m_tPhaseMoles_old[j];
+                        s -= SQUARE(m_deltaMolNumPhase(j,irxn)) / m_tPhaseMoles_old[j];
                     }
                 }
             }
@@ -497,8 +492,8 @@ int VCS_SOLVE::vcs_rxn_adj_cg()
                     dss = m_molNumSpecies_old[kspec];
                     k = kspec;
                     for (size_t j = 0; j < m_numComponents; ++j) {
-                        if (m_stoichCoeffRxnMatrix[irxn][j] > 0.0) {
-                            double xx = m_molNumSpecies_old[j] / m_stoichCoeffRxnMatrix[irxn][j];
+                        if (m_stoichCoeffRxnMatrix(j,irxn) > 0.0) {
+                            double xx = m_molNumSpecies_old[j] / m_stoichCoeffRxnMatrix(j,irxn);
                             if (xx < dss) {
                                 dss = xx;
                                 k = j;
@@ -509,8 +504,8 @@ int VCS_SOLVE::vcs_rxn_adj_cg()
                 } else {
                     dss = 1.0e10;
                     for (size_t j = 0; j < m_numComponents; ++j) {
-                        if (m_stoichCoeffRxnMatrix[irxn][j] < 0.0) {
-                            double xx = -m_molNumSpecies_old[j] / m_stoichCoeffRxnMatrix[irxn][j];
+                        if (m_stoichCoeffRxnMatrix(j,irxn) < 0.0) {
+                            double xx = -m_molNumSpecies_old[j] / m_stoichCoeffRxnMatrix(j,irxn);
                             if (xx < dss) {
                                 dss = xx;
                                 k = j;
@@ -530,8 +525,8 @@ int VCS_SOLVE::vcs_rxn_adj_cg()
                     m_molNumSpecies_old[kspec] += dss;
                     m_tPhaseMoles_old[m_phaseID[kspec]] += dss;
                     for (size_t j = 0; j < m_numComponents; ++j) {
-                        m_molNumSpecies_old[j] += dss * m_stoichCoeffRxnMatrix[irxn][j];
-                        m_tPhaseMoles_old[m_phaseID[j]] += dss * m_stoichCoeffRxnMatrix[irxn][j];
+                        m_molNumSpecies_old[j] += dss * m_stoichCoeffRxnMatrix(j,irxn);
+                        m_tPhaseMoles_old[m_phaseID[j]] += dss * m_stoichCoeffRxnMatrix(j,irxn);
                     }
                     m_molNumSpecies_old[k] = 0.0;
                     m_tPhaseMoles_old[m_phaseID[k]] = 0.0;
@@ -607,11 +602,11 @@ double VCS_SOLVE::vcs_Hessian_actCoeff_diag(size_t irxn)
     if (np_kspec < 1.0E-13) {
         np_kspec = 1.0E-13;
     }
-    double* sc_irxn = m_stoichCoeffRxnMatrix[irxn];
+    double* sc_irxn = m_stoichCoeffRxnMatrix.ptrColumn(irxn);
     /*
      *   First the diagonal term of the Jacobian
      */
-    double s = m_np_dLnActCoeffdMolNum[kspec][kspec] / np_kspec;
+    double s = m_np_dLnActCoeffdMolNum(kspec,kspec) / np_kspec;
     /*
      *    Next, the other terms. Note this only a loop over the components
      *    So, it's not too expensive to calculate.
@@ -622,12 +617,12 @@ double VCS_SOLVE::vcs_Hessian_actCoeff_diag(size_t irxn)
                 if (m_phaseID[k] == m_phaseID[l]) {
                     double np = m_tPhaseMoles_old[m_phaseID[k]];
                     if (np > 0.0) {
-                        s += sc_irxn[k] * sc_irxn[l] * m_np_dLnActCoeffdMolNum[k][l] / np;
+                        s += sc_irxn[k] * sc_irxn[l] * m_np_dLnActCoeffdMolNum(l,k) / np;
                     }
                 }
             }
             if (kph == m_phaseID[l]) {
-                s += sc_irxn[l] * (m_np_dLnActCoeffdMolNum[kspec][l] + m_np_dLnActCoeffdMolNum[l][kspec]) / np_kspec;
+                s += sc_irxn[l] * (m_np_dLnActCoeffdMolNum(l,kspec) + m_np_dLnActCoeffdMolNum(kspec,l)) / np_kspec;
             }
 
         }
@@ -655,7 +650,7 @@ void VCS_SOLVE::vcs_CalcLnActCoeffJac(const double* const moleSpeciesVCS)
              * -> This scatter calculation is carried out in the
              *    vcs_VolPhase object.
              */
-            Vphase->sendToVCS_LnActCoeffJac(m_np_dLnActCoeffdMolNum.baseDataAddr());
+            Vphase->sendToVCS_LnActCoeffJac(m_np_dLnActCoeffdMolNum);
         }
     }
 }
@@ -671,9 +666,8 @@ double VCS_SOLVE::deltaG_Recalc_Rxn(const int stateCalc, const size_t irxn, cons
         }
     }
     double deltaG = mu_i[kspec];
-    double* sc_irxn = m_stoichCoeffRxnMatrix[irxn];
     for (size_t k = 0; k < m_numComponents; k++) {
-        deltaG += sc_irxn[k] * mu_i[k];
+        deltaG += m_stoichCoeffRxnMatrix(k,irxn) * mu_i[k];
     }
     return deltaG;
 }
@@ -684,7 +678,7 @@ double VCS_SOLVE::vcs_line_search(const size_t irxn, const double dx_orig, char*
     size_t kspec = m_indexRxnToSpecies[irxn];
     const int MAXITS = 10;
     double dx = dx_orig;
-    double* sc_irxn = m_stoichCoeffRxnMatrix[irxn];
+    double* sc_irxn = m_stoichCoeffRxnMatrix.ptrColumn(irxn);
     double* molNumBase = VCS_DATA_PTR(m_molNumSpecies_old);
     double* acBase = VCS_DATA_PTR(m_actCoeffSpecies_old);
     double* ac = VCS_DATA_PTR(m_actCoeffSpecies_new);
