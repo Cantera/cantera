@@ -116,7 +116,7 @@ int VCS_SOLVE::vcs_setMolesLinProg()
             ik = m_numComponents + irxn;
             dg_rt = m_SSfeSpecies[ik];
             dxi_min = 1.0e10;
-            const double* sc_irxn = m_stoichCoeffRxnMatrix[irxn];
+            const double* sc_irxn = m_stoichCoeffRxnMatrix.ptrColumn(irxn);
             for (size_t jcomp = 0; jcomp < m_numElemConstraints; jcomp++) {
                 dg_rt += m_SSfeSpecies[jcomp] * sc_irxn[jcomp];
             }

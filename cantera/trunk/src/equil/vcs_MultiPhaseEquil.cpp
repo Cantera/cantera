@@ -987,7 +987,7 @@ int  vcs_Cantera_to_vprob(Cantera::MultiPhase* mphase,
             sProp->WtSpecies = tPhase->molecularWeight(k);
             sProp->FormulaMatrixCol.resize(vprob->ne, 0.0);
             for (size_t e = 0; e < vprob->ne; e++) {
-                sProp->FormulaMatrixCol[e] = vprob->FormulaMatrix[e][kT];
+                sProp->FormulaMatrixCol[e] = vprob->FormulaMatrix(kT,e);
             }
             sProp->Charge = tPhase->charge(k);
             sProp->SurfaceSpecies = false;
@@ -1291,8 +1291,6 @@ void vcs_MultiPhaseEquil::getStoichVector(size_t rxn, Cantera::vector_fp& nu)
         nu[i] = 0.0;
     }
     size_t nc = numComponents();
-    // scMatrix [nrxn][ncomp]
-    const DoubleStarStar& scMatrix = m_vsolve.m_stoichCoeffRxnMatrix;
     const std::vector<size_t>& indSpecies = m_vsolve.m_speciesMapIndex;
     if (rxn > nsp - nc) {
         return;
@@ -1301,7 +1299,7 @@ void vcs_MultiPhaseEquil::getStoichVector(size_t rxn, Cantera::vector_fp& nu)
     nu[j] = 1.0;
     for (size_t kc = 0; kc < nc; kc++) {
         j = indSpecies[kc];
-        nu[j] = scMatrix[rxn][kc];
+        nu[j] = m_vsolve.m_stoichCoeffRxnMatrix(kc,rxn);
     }
 
 }

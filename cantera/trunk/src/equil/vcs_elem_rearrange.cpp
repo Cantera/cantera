@@ -102,7 +102,7 @@ int VCS_SOLVE::vcs_elem_rearrange(double* const aw, double* const sa,
              *   from the current component.
              */
             for (size_t j = 0; j < ncomponents; ++j) {
-                sm[j + jr*ncomponents] = m_formulaMatrix[k][j];
+                sm[j + jr*ncomponents] = m_formulaMatrix(j,k);
             }
             if (jl > 0) {
                 /*
@@ -204,7 +204,7 @@ void VCS_SOLVE::vcs_switch_elem_pos(size_t ipos, size_t jpos)
     std::swap(m_elType[ipos], m_elType[jpos]);
     std::swap(m_elementActive[ipos], m_elementActive[jpos]);
     for (size_t j = 0; j < m_numSpeciesTot; ++j) {
-        std::swap(m_formulaMatrix[ipos][j], m_formulaMatrix[jpos][j]);
+        std::swap(m_formulaMatrix(j,ipos), m_formulaMatrix(j,jpos));
     }
     std::swap(m_elementName[ipos], m_elementName[jpos]);
 }

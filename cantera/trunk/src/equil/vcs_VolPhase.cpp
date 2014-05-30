@@ -131,12 +131,7 @@ vcs_VolPhase& vcs_VolPhase::operator=(const vcs_VolPhase& b)
         }
         m_elementActive = b.m_elementActive;
         m_elementType = b.m_elementType;
-        m_formulaMatrix.resize(m_numElemConstraints, m_numSpecies, 0.0);
-        for (size_t e = 0; e < m_numElemConstraints; e++) {
-            for (size_t k = 0; k < m_numSpecies; k++) {
-                m_formulaMatrix[e][k] = b.m_formulaMatrix[e][k];
-            }
-        }
+        m_formulaMatrix = b.m_formulaMatrix;
         m_speciesUnknownType = b.m_speciesUnknownType;
         m_elemGlobalIndex    = b.m_elemGlobalIndex;
         PhaseName           = b.PhaseName;
@@ -299,7 +294,7 @@ void vcs_VolPhase::elemResize(const size_t numElemConstraints)
 
     m_elementActive.resize(numElemConstraints+1, 1);
     m_elementType.resize(numElemConstraints, VCS_ELEM_TYPE_ABSPOS);
-    m_formulaMatrix.resize(numElemConstraints, m_numSpecies, 0.0);
+    m_formulaMatrix.resize(m_numSpecies, numElemConstraints, 0.0);
 
     m_elementNames.resize(numElemConstraints, "");
     m_elemGlobalIndex.resize(numElemConstraints, npos);
@@ -750,10 +745,10 @@ void vcs_VolPhase::_updateLnActCoeffJac()
     if (!TP_ptr) {
         return;
     }
-    TP_ptr->getdlnActCoeffdlnN(m_numSpecies, &np_dLnActCoeffdMolNumber[0][0]);
+    TP_ptr->getdlnActCoeffdlnN(m_numSpecies, &np_dLnActCoeffdMolNumber(0,0));
     for (size_t j = 0; j < m_numSpecies; j++) {
         double moles_j_base = phaseTotalMoles * Xmol_[j];
-        double* const np_lnActCoeffCol = np_dLnActCoeffdMolNumber[j];
+        double* const np_lnActCoeffCol = np_dLnActCoeffdMolNumber.ptrColumn(j);
         if (moles_j_base < 1.0E-200) {
             moles_j_base = 1.0E-7 * moles_j_base + 1.0E-13 * phaseTotalMoles + 1.0E-150;
         }
@@ -812,7 +807,7 @@ void vcs_VolPhase::_updateLnActCoeffJac()
     _updateActCoeff();
 }
 
-void vcs_VolPhase::sendToVCS_LnActCoeffJac(double* const* const np_LnACJac_VCS)
+void vcs_VolPhase::sendToVCS_LnActCoeffJac(Cantera::Array2D& np_LnACJac_VCS)
 {
     /*
      * update the Ln Act Coeff jacobian entries with respect to the
@@ -826,11 +821,9 @@ void vcs_VolPhase::sendToVCS_LnActCoeffJac(double* const* const np_LnACJac_VCS)
      */
     for (size_t j = 0; j < m_numSpecies; j++) {
         size_t jglob = IndSpecies[j];
-        double* const np_lnACJacVCS_col = np_LnACJac_VCS[jglob];
-        const double* const np_lnACJac_col = np_dLnActCoeffdMolNumber[j];
         for (size_t k = 0; k < m_numSpecies; k++) {
             size_t kglob = IndSpecies[k];
-            np_lnACJacVCS_col[kglob] = np_lnACJac_col[k];
+            np_LnACJac_VCS(kglob,jglob) = np_dLnActCoeffdMolNumber(k,j);
         }
     }
 }
@@ -1217,7 +1210,7 @@ size_t vcs_VolPhase::transferElementsFM(const Cantera::ThermoPhase* const tPhase
 
     }
 
-    m_formulaMatrix.resize(ne, ns, 0.0);
+    m_formulaMatrix.resize(ns, ne, 0.0);
 
     m_speciesUnknownType.resize(ns, VCS_SPECIES_TYPE_MOLNUM);
 
@@ -1241,21 +1234,20 @@ size_t vcs_VolPhase::transferElementsFM(const Cantera::ThermoPhase* const tPhase
         m_elementNames[e] = "cn_" + pname;
     }
 
-    double* const* const fm = m_formulaMatrix.baseDataAddr();
     for (size_t k = 0; k < ns; k++) {
         e = 0;
         for (size_t eT = 0; eT < nebase; eT++) {
-            fm[e][k] = tPhase->nAtoms(k, eT);
+            m_formulaMatrix(k,e) = tPhase->nAtoms(k, eT);
             e++;
         }
         if (eFound != npos) {
-            fm[eFound][k] = - tPhase->charge(k);
+            m_formulaMatrix(k,eFound) = - tPhase->charge(k);
         }
     }
 
     if (cne) {
         for (size_t k = 0; k < ns; k++) {
-            fm[ChargeNeutralityElement][k] = tPhase->charge(k);
+            m_formulaMatrix(k,ChargeNeutralityElement) = tPhase->charge(k);
         }
     }
 
@@ -1285,9 +1277,9 @@ void vcs_VolPhase::setElementType(const size_t e, const int eType)
     m_elementType[e] = eType;
 }
 
-double const* const* vcs_VolPhase::getFormulaMatrix() const
+const Cantera::Array2D& vcs_VolPhase::getFormulaMatrix() const
 {
-    return m_formulaMatrix.constBaseDataAddr();
+    return m_formulaMatrix;
 }
 
 int vcs_VolPhase::speciesUnknownType(const size_t k) const

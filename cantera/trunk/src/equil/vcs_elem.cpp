@@ -21,7 +21,7 @@ void VCS_SOLVE::vcs_elab()
         m_elemAbundances[j] = 0.0;
         for (size_t i = 0; i < m_numSpeciesTot; ++i) {
             if (m_speciesUnknownType[i] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
-                m_elemAbundances[j] += m_formulaMatrix[j][i] * m_molNumSpecies_old[i];
+                m_elemAbundances[j] += m_formulaMatrix(i,j) * m_molNumSpecies_old[i];
             }
         }
     }
@@ -57,7 +57,7 @@ bool VCS_SOLVE::vcs_elabcheck(int ibound)
                      */
                     bool multisign = false;
                     for (size_t kspec = 0; kspec < m_numSpeciesTot; kspec++) {
-                        double eval = m_formulaMatrix[i][kspec];
+                        double eval = m_formulaMatrix(kspec,i);
                         if (eval < 0.0) {
                             multisign = true;
                         }
@@ -98,7 +98,7 @@ void VCS_SOLVE::vcs_elabPhase(size_t iphase, double* const elemAbundPhase)
         for (size_t i = 0; i < m_numSpeciesTot; ++i) {
             if (m_speciesUnknownType[i] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
                 if (m_phaseID[i] == iphase) {
-                    elemAbundPhase[j] += m_formulaMatrix[j][i] * m_molNumSpecies_old[i];
+                    elemAbundPhase[j] += m_formulaMatrix(i,j) * m_molNumSpecies_old[i];
                 }
             }
         }
@@ -142,7 +142,7 @@ int VCS_SOLVE::vcs_elcorr(double aa[], double x[])
         bool multisign = false;
         for (size_t kspec = 0; kspec < m_numSpeciesTot; kspec++) {
             if (m_speciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
-                double eval = m_formulaMatrix[i][kspec];
+                double eval = m_formulaMatrix(kspec,i);
                 if (eval < 0.0) {
                     multisign = true;
                 }
@@ -155,7 +155,7 @@ int VCS_SOLVE::vcs_elcorr(double aa[], double x[])
             if (numNonZero < 2) {
                 for (size_t kspec = 0; kspec < m_numSpeciesTot; kspec++) {
                     if (m_speciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
-                        double eval = m_formulaMatrix[i][kspec];
+                        double eval = m_formulaMatrix(kspec,i);
                         if (eval > 0.0) {
                             m_molNumSpecies_old[kspec] = m_elemAbundancesGoal[i] / eval;
                             changed = true;
@@ -167,7 +167,7 @@ int VCS_SOLVE::vcs_elcorr(double aa[], double x[])
                 size_t compID = npos;
                 for (size_t kspec = 0; kspec < m_numComponents; kspec++) {
                     if (m_speciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
-                        double eval = m_formulaMatrix[i][kspec];
+                        double eval = m_formulaMatrix(kspec,i);
                         if (eval > 0.0) {
                             compID = kspec;
                             numCompNonZero++;
@@ -178,10 +178,10 @@ int VCS_SOLVE::vcs_elcorr(double aa[], double x[])
                     double diff = m_elemAbundancesGoal[i];
                     for (size_t kspec = m_numComponents; kspec < m_numSpeciesTot; kspec++) {
                         if (m_speciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
-                            double eval = m_formulaMatrix[i][kspec];
+                            double eval = m_formulaMatrix(kspec,i);
                             diff -= eval * m_molNumSpecies_old[kspec];
                         }
-                        m_molNumSpecies_old[compID] = std::max(0.0,diff/m_formulaMatrix[i][compID]);
+                        m_molNumSpecies_old[compID] = std::max(0.0,diff/m_formulaMatrix(compID,i));
                         changed = true;
                     }
                 }
@@ -207,7 +207,7 @@ int VCS_SOLVE::vcs_elcorr(double aa[], double x[])
         if (elType == VCS_ELEM_TYPE_ABSPOS) {
             for (size_t kspec = 0; kspec < m_numSpeciesTot; kspec++) {
                 if (m_speciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
-                    double atomComp = m_formulaMatrix[i][kspec];
+                    double atomComp = m_formulaMatrix(kspec,i);
                     if (atomComp > 0.0) {
                         double maxPermissible = m_elemAbundancesGoal[i] / atomComp;
                         if (m_molNumSpecies_old[kspec] > maxPermissible) {
@@ -255,7 +255,7 @@ int VCS_SOLVE::vcs_elcorr(double aa[], double x[])
             retn = 1;
         }
         for (size_t j = 0; j < m_numComponents; ++j) {
-            aa[j + i*m_numElemConstraints] = - m_formulaMatrix[j][i];
+            aa[j + i*m_numElemConstraints] = - m_formulaMatrix(i,j);
         }
     }
     int info;
@@ -338,7 +338,7 @@ int VCS_SOLVE::vcs_elcorr(double aa[], double x[])
             double saveDir = 0.0;
             bool goodSpec = true;
             for (size_t i = 0; i < m_numComponents; ++i) {
-                double dir = m_formulaMatrix[i][kspec] * (m_elemAbundancesGoal[i] - m_elemAbundances[i]);
+                double dir = m_formulaMatrix(kspec,i) * (m_elemAbundancesGoal[i] - m_elemAbundances[i]);
                 if (fabs(dir) > 1.0E-10) {
                     if (dir > 0.0) {
                         if (saveDir < 0.0) {
@@ -353,7 +353,7 @@ int VCS_SOLVE::vcs_elcorr(double aa[], double x[])
                     }
                     saveDir = dir;
                 } else {
-                    if (m_formulaMatrix[i][kspec] != 0.) {
+                    if (m_formulaMatrix(kspec,i) != 0.) {
                         goodSpec = false;
                         break;
                     }
@@ -363,8 +363,8 @@ int VCS_SOLVE::vcs_elcorr(double aa[], double x[])
                 int its = 0;
                 double xx = 0.0;
                 for (size_t i = 0; i < m_numComponents; ++i) {
-                    if (m_formulaMatrix[i][kspec] != 0.0) {
-                        xx += (m_elemAbundancesGoal[i] - m_elemAbundances[i]) / m_formulaMatrix[i][kspec];
+                    if (m_formulaMatrix(kspec,i) != 0.0) {
+                        xx += (m_elemAbundancesGoal[i] - m_elemAbundances[i]) / m_formulaMatrix(kspec,i);
                         its++;
                     }
                 }
@@ -397,8 +397,8 @@ int VCS_SOLVE::vcs_elcorr(double aa[], double x[])
                 (m_elType[i] == VCS_ELEM_TYPE_ABSPOS && m_elemAbundancesGoal[i] == 0.0)) {
             for (size_t kspec = 0; kspec < m_numSpeciesRdc; kspec++) {
                 if (m_elemAbundances[i] > 0.0) {
-                    if (m_formulaMatrix[i][kspec] < 0.0) {
-                        m_molNumSpecies_old[kspec] -= m_elemAbundances[i] / m_formulaMatrix[i][kspec] ;
+                    if (m_formulaMatrix(kspec,i) < 0.0) {
+                        m_molNumSpecies_old[kspec] -= m_elemAbundances[i] / m_formulaMatrix(kspec,i) ;
                         if (m_molNumSpecies_old[kspec] < 0.0) {
                             m_molNumSpecies_old[kspec] = 0.0;
                         }
@@ -407,8 +407,8 @@ int VCS_SOLVE::vcs_elcorr(double aa[], double x[])
                     }
                 }
                 if (m_elemAbundances[i] < 0.0) {
-                    if (m_formulaMatrix[i][kspec] > 0.0) {
-                        m_molNumSpecies_old[kspec] -= m_elemAbundances[i] / m_formulaMatrix[i][kspec];
+                    if (m_formulaMatrix(kspec,i) > 0.0) {
+                        m_molNumSpecies_old[kspec] -= m_elemAbundances[i] / m_formulaMatrix(kspec,i);
                         if (m_molNumSpecies_old[kspec] < 0.0) {
                             m_molNumSpecies_old[kspec] = 0.0;
                         }
@@ -435,13 +435,13 @@ int VCS_SOLVE::vcs_elcorr(double aa[], double x[])
             bool useZeroed = true;
             for (size_t kspec = 0; kspec < m_numSpeciesRdc; kspec++) {
                 if (dev < 0.0) {
-                    if (m_formulaMatrix[i][kspec] < 0.0) {
+                    if (m_formulaMatrix(kspec,i) < 0.0) {
                         if (m_molNumSpecies_old[kspec] > 0.0) {
                             useZeroed = false;
                         }
                     }
                 } else {
-                    if (m_formulaMatrix[i][kspec] > 0.0) {
+                    if (m_formulaMatrix(kspec,i) > 0.0) {
                         if (m_molNumSpecies_old[kspec] > 0.0) {
                             useZeroed = false;
                         }
@@ -451,8 +451,8 @@ int VCS_SOLVE::vcs_elcorr(double aa[], double x[])
             for (size_t kspec = 0; kspec < m_numSpeciesRdc; kspec++) {
                 if (m_molNumSpecies_old[kspec] > 0.0 || useZeroed) {
                     if (dev < 0.0) {
-                        if (m_formulaMatrix[i][kspec] < 0.0) {
-                            double delta = dev / m_formulaMatrix[i][kspec] ;
+                        if (m_formulaMatrix(kspec,i) < 0.0) {
+                            double delta = dev / m_formulaMatrix(kspec,i) ;
                             m_molNumSpecies_old[kspec] += delta;
                             if (m_molNumSpecies_old[kspec] < 0.0) {
                                 m_molNumSpecies_old[kspec] = 0.0;
@@ -462,8 +462,8 @@ int VCS_SOLVE::vcs_elcorr(double aa[], double x[])
                         }
                     }
                     if (dev > 0.0) {
-                        if (m_formulaMatrix[i][kspec] > 0.0) {
-                            double delta = dev / m_formulaMatrix[i][kspec] ;
+                        if (m_formulaMatrix(kspec,i) > 0.0) {
+                            double delta = dev / m_formulaMatrix(kspec,i) ;
                             m_molNumSpecies_old[kspec] += delta;
                             if (m_molNumSpecies_old[kspec] < 0.0) {
                                 m_molNumSpecies_old[kspec] = 0.0;
