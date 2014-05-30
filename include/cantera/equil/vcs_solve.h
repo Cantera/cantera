@@ -25,7 +25,6 @@
 
 #include "cantera/base/ct_defs.h"
 #include "cantera/equil/vcs_defs.h"
-#include "cantera/equil/vcs_IntStarStar.h"
 #include "cantera/equil/vcs_internal.h"
 #include "cantera/base/Array.h"
 
@@ -199,7 +198,7 @@ public:
      *   irxn_th non-component species.
      * - #m_deltaMolNumPhase(iphase,irxn): Change in the number of moles in
      *   phase, iphase, due to the noncomponent formation reaction, irxn.
-     * - #m_phaseParticipation[irxn]: This is 1 if the phase, iphase,
+     * - #m_phaseParticipation(iphase,irxn): This is 1 if the phase, iphase,
      *   participates in the formation reaction, irxn, and zero otherwise.
      */
     int vcs_basopt(const bool doJustComponents, double aw[], double sa[], double sm[],
@@ -1633,8 +1632,8 @@ public:
     Cantera::Array2D m_deltaMolNumPhase;
 
     //!  This is 1 if the phase, iphase,  participates in the formation reaction
-    //!  irxn, and zero otherwise.  PhaseParticipation[irxn][iphase]
-    IntStarStar m_phaseParticipation;
+    //!  irxn, and zero otherwise.  PhaseParticipation(iphase,irxn)
+    Cantera::Array2D m_phaseParticipation;
 
     //! electric potential of the iph phase
     std::vector<double> m_phasePhi;

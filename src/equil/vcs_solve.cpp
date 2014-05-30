@@ -109,7 +109,7 @@ void VCS_SOLVE::vcs_initSizes(const size_t nspecies0, const size_t nelements,
     m_speciesUnknownType.resize(nspecies0, VCS_SPECIES_TYPE_MOLNUM);
 
     m_deltaMolNumPhase.resize(nphase0, nspecies0, 0.0);
-    m_phaseParticipation.resize(nspecies0, nphase0, 0);
+    m_phaseParticipation.resize(nphase0, nspecies0, 0);
     m_phasePhi.resize(nphase0, 0.0);
 
     m_molNumSpecies_new.resize(nspecies0, 0.0);
