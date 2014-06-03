@@ -110,6 +110,7 @@ void phasemethods(int nlhs, mxArray* plhs[],
     }
 
     else if (job < 20) {
+        double threshold;
 
         switch (job) {
         case 0:
@@ -152,7 +153,8 @@ void phasemethods(int nlhs, mxArray* plhs[],
             break;
         case 15:
             show_thermo = getInt(prhs[3]);
-            vv = write_phase(ph,show_thermo);
+            threshold = getDouble(prhs[4]);
+            vv = write_phase(ph,show_thermo,threshold);
             break;
         default:
             mexErrMsgTxt("Unknown job number");

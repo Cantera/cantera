@@ -114,12 +114,22 @@ class TestThermoPhase(utilities.CanteraTest):
         with self.assertRaises(ValueError):
             self.phase['H2','O2'].Y = [0.1, 0.2, 0.3]
 
-    def test_report(self):
-        report = self.phase.report()
-        self.assertTrue(self.phase.name in report)
-        self.assertTrue('temperature' in report)
+    def test_full_report(self):
+        report = self.phase.report(threshold=0.0)
+        self.assertIn(self.phase.name, report)
+        self.assertIn('temperature', report)
+        self.assertNotIn('minor', report)
         for name in self.phase.species_names:
-            self.assertTrue(name in report)
+            self.assertIn(name, report)
+
+    def test_default_report(self):
+        self.phase.X = 'H2:0.1, O2:0.9, HO2:1e-10, H2O2:1e-20'
+        report = self.phase.report()
+        self.assertIn('minor', report)
+        for name in (' H2 ', ' O2 ', ' HO2 '):
+            self.assertIn(name, report)
+        for name in (' H2O2 ', ' OH ', ' AR '):
+            self.assertNotIn(name, report)
 
     def test_name(self):
         self.assertEqual(self.phase.name, 'ohmech')

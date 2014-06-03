@@ -46,7 +46,7 @@ cdef extern from "cantera/thermo/ThermoPhase.h" namespace "Cantera":
 
         # miscellaneous
         int eosType()
-        string report(cbool) except +
+        string report(cbool, double) except +
         string name()
         void setName(string)
         string id()

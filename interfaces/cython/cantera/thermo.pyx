@@ -27,7 +27,7 @@ cdef class ThermoPhase(_SolutionBase):
         if 'source' not in kwargs:
             self.thermo_basis = mass_basis
 
-    def report(self, show_thermo=True):
+    def report(self, show_thermo=True, float threshold=1e-14):
         """
         Generate a report describing the thermodynamic state of this phase. To
         print the report to the terminal, simply call the phase object. The
@@ -36,10 +36,10 @@ cdef class ThermoPhase(_SolutionBase):
         >>> phase()
         >>> print(phase.report())
         """
-        return pystr(self.thermo.report(bool(show_thermo)))
+        return pystr(self.thermo.report(bool(show_thermo), threshold))
 
-    def __call__(self):
-        print(self.report())
+    def __call__(self, *args, **kwargs):
+        print(self.report(*args, **kwargs))
 
     property name:
         """

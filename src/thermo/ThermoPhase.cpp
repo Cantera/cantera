@@ -845,7 +845,7 @@ void ThermoPhase::getdlnActCoeffdlnN_numderiv(const size_t ld, doublereal* const
     setState_PX(pres, DATA_PTR(Xmol_Base));
 }
 
-std::string ThermoPhase::report(bool show_thermo) const
+std::string ThermoPhase::report(bool show_thermo, doublereal threshold) const
 {
     char p[800];
     string s = "";
@@ -910,6 +910,9 @@ std::string ThermoPhase::report(bool show_thermo) const
         getChemPotentials(&mu[0]);
         doublereal rt = GasConstant * temperature();
 
+        int nMinor = 0;
+        doublereal xMinor = 0.0;
+        doublereal yMinor = 0.0;
         if (show_thermo) {
             sprintf(p, " \n                           X     "
                     "            Y          Chem. Pot. / RT    \n");
@@ -918,14 +921,20 @@ std::string ThermoPhase::report(bool show_thermo) const
                     "------------     ------------\n");
             s += p;
             for (size_t k = 0; k < kk; k++) {
-                if (x[k] > SmallNumber) {
-                    sprintf(p, "%18s   %12.6g     %12.6g     %12.6g\n",
-                            speciesName(k).c_str(), x[k], y[k], mu[k]/rt);
+                if (x[k] >= threshold) {
+                    if (x[k] > SmallNumber) {
+                        sprintf(p, "%18s   %12.6g     %12.6g     %12.6g\n",
+                                speciesName(k).c_str(), x[k], y[k], mu[k]/rt);
+                    } else {
+                        sprintf(p, "%18s   %12.6g     %12.6g     \n",
+                                speciesName(k).c_str(), x[k], y[k]);
+                    }
+                    s += p;
                 } else {
-                    sprintf(p, "%18s   %12.6g     %12.6g     \n",
-                            speciesName(k).c_str(), x[k], y[k]);
+                    nMinor++;
+                    xMinor += x[k];
+                    yMinor += y[k];
                 }
-                s += p;
             }
         } else {
             sprintf(p, " \n                           X     "
@@ -935,10 +944,21 @@ std::string ThermoPhase::report(bool show_thermo) const
                     "     ------------\n");
             s += p;
             for (size_t k = 0; k < kk; k++) {
-                sprintf(p, "%18s   %12.6g     %12.6g\n",
-                        speciesName(k).c_str(), x[k], y[k]);
-                s += p;
+                if (x[k] >= threshold) {
+                    sprintf(p, "%18s   %12.6g     %12.6g\n",
+                            speciesName(k).c_str(), x[k], y[k]);
+                    s += p;
+                } else {
+                    nMinor++;
+                    xMinor += x[k];
+                    yMinor += y[k];
+                }
             }
+        }
+        if (nMinor) {
+            sprintf(p, "     [%+5i minor]   %12.6g     %12.6g\n",
+                    nMinor, xMinor, yMinor);
+            s += p;
         }
     }
     catch (CanteraError& err) {

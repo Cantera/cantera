@@ -175,7 +175,7 @@ void PseudoBinaryVPSSTP::initThermoXML(XML_Node& phaseNode, const std::string& i
     GibbsExcessVPSSTP::initThermoXML(phaseNode, id_);
 }
 
-std::string PseudoBinaryVPSSTP::report(bool show_thermo) const
+std::string PseudoBinaryVPSSTP::report(bool show_thermo, doublereal threshold) const
 {
     char p[800];
     string s = "";

@@ -502,7 +502,7 @@ void MolalityVPSSTP::initThermoXML(XML_Node& phaseNode, const std::string& id_)
 /**
   * Format a summary of the mixture state for output.
   */
-std::string MolalityVPSSTP::report(bool show_thermo) const
+std::string MolalityVPSSTP::report(bool show_thermo, doublereal threshold) const
 {
     char p[800];
     string s = "";
@@ -580,6 +580,8 @@ std::string MolalityVPSSTP::report(bool show_thermo) const
 
         sprintf(p, " \n");
         s += p;
+        int nMinor = 0;
+        doublereal xMinor = 0.0;
         if (show_thermo) {
             sprintf(p, "                           X        "
                     "   Molalities         Chem.Pot.    ChemPotSS    ActCoeffMolal\n");
@@ -591,14 +593,19 @@ std::string MolalityVPSSTP::report(bool show_thermo) const
                     "  ------------     ------------  ------------    ------------\n");
             s += p;
             for (size_t k = 0; k < kk; k++) {
-                if (x[k] > SmallNumber) {
-                    sprintf(p, "%18s  %12.6g     %12.6g     %12.6g   %12.6g   %12.6g\n",
-                            speciesName(k).c_str(), x[k], molal[k], mu[k], muss[k], acMolal[k]);
+                if (x[k] > threshold) {
+                    if (x[k] > SmallNumber) {
+                        sprintf(p, "%18s  %12.6g     %12.6g     %12.6g   %12.6g   %12.6g\n",
+                                speciesName(k).c_str(), x[k], molal[k], mu[k], muss[k], acMolal[k]);
+                    } else {
+                        sprintf(p, "%18s  %12.6g     %12.6g          N/A      %12.6g   %12.6g \n",
+                                speciesName(k).c_str(), x[k], molal[k], muss[k], acMolal[k]);
+                    }
+                    s += p;
                 } else {
-                    sprintf(p, "%18s  %12.6g     %12.6g          N/A      %12.6g   %12.6g \n",
-                            speciesName(k).c_str(), x[k], molal[k], muss[k], acMolal[k]);
+                    nMinor++;
+                    xMinor += x[k];
                 }
-                s += p;
             }
         } else {
             sprintf(p, "                           X"
@@ -608,10 +615,19 @@ std::string MolalityVPSSTP::report(bool show_thermo) const
                     "     ------------\n");
             s += p;
             for (size_t k = 0; k < kk; k++) {
-                sprintf(p, "%18s   %12.6g     %12.6g\n",
-                        speciesName(k).c_str(), x[k], molal[k]);
-                s += p;
+                if (x[k] > threshold) {
+                    sprintf(p, "%18s   %12.6g     %12.6g\n",
+                            speciesName(k).c_str(), x[k], molal[k]);
+                    s += p;
+                } else {
+                    nMinor++;
+                    xMinor += x[k];
+                }
             }
+        }
+        if (nMinor) {
+            sprintf(p, "     [%+5i minor] %12.6g\n", nMinor, xMinor);
+            s += p;
         }
     } catch (CanteraError& err) {
         err.save();

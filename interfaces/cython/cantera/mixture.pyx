@@ -48,7 +48,7 @@ cdef class Mixture:
     def __dealloc__(self):
         del self.mix
 
-    def report(self):
+    def report(self, threshold=1e-14):
         """
         Generate a report describing the thermodynamic state of this mixture. To
         print the report to the screen, simply call the mixture object. The
@@ -61,7 +61,7 @@ cdef class Mixture:
         for i,phase in enumerate(self._phases):
             s.append('************ Phase {0} ************'.format(phase.name))
             s.append('Moles:  {0}'.format(self.phase_moles(i)))
-            s.append(phase.report())
+            s.append(phase.report(threshold=threshold))
 
         return '\n'.join(s)
 

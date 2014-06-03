@@ -1336,11 +1336,11 @@ extern "C" {
         }
     }
 
-    int write_phase(int nth, int show_thermo)
+    int write_phase(int nth, int show_thermo, double threshold)
     {
         try {
             bool stherm = (show_thermo != 0);
-            writelog(ThermoCabinet::item(nth).report(stherm)+"\n");
+            writelog(ThermoCabinet::item(nth).report(stherm, threshold)+"\n");
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
