@@ -890,7 +890,7 @@ void ChemEquil::equilResidual(thermo_t& s, const vector_fp& x,
 
     if (DEBUG_MODE_ENABLED && ChemEquil_print_lvl > 0 && !m_doResPerturb) {
         writelog("Residual:      ElFracGoal     ElFracCurrent     Resid\n");
-        for (int n = 0; n < m_mm; n++) {
+        for (size_t n = 0; n < m_mm; n++) {
             writelogf("               % -14.7E % -14.7E    % -10.5E\n",
                       elmFracGoal[n], elmFrac[n], resid[n]);
         }

@@ -311,7 +311,7 @@ QUAD_BAIL:
         if (DEBUG_MODE_ENABLED && printLvl >= 3) {
             fprintf(fp,"\n");
             print_funcEval(fp, xnew, fnew, its);
-            fprintf(fp, "%-5d  %-5d  %-15.5E %-15.5E", its, 0, xnew, fnew);
+            fprintf(fp, "%-5d  %-5d  %-15.5E %-15.5E", (int) its, 0, xnew, fnew);
         }
 
         if (foundStraddle) {
@@ -372,7 +372,7 @@ QUAD_BAIL:
             plogf("vcs_root1d success: convergence achieved\n");
         }
         if (DEBUG_MODE_ENABLED && printLvl >= 3) {
-            fprintf(fp, " | vcs_root1d success in %d its, fnorm = %g\n", its, fnorm);
+            fprintf(fp, " | vcs_root1d success in %d its, fnorm = %g\n", (int) its, fnorm);
         }
     } else {
         retn = VCS_FAILED_CONVERGENCE;

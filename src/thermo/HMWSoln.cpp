@@ -5153,7 +5153,7 @@ void HMWSoln::calc_thetas(int z1, int z2,
     i = abs(z1);
     j = abs(z2);
 
-    if (DEBUG_MODE_ENABLED && i > 4 || j > 4) {
+    if (DEBUG_MODE_ENABLED && (i > 4 || j > 4)) {
         printf("we shouldn't be here\n");
         exit(EXIT_FAILURE);
     }
