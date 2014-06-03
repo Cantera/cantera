@@ -222,7 +222,10 @@ protected:
     doublereal m_time;
     bool m_init;
     size_t m_nv;
-    std::vector<size_t> m_size;
+
+    //! m_start[n] is the starting point in the state vector for reactor n
+    std::vector<size_t> m_start;
+
     vector_fp m_atol;
     doublereal m_rtol, m_rtolsens;
     doublereal m_atols, m_atolsens;
