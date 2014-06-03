@@ -4388,8 +4388,8 @@ void VCS_SOLVE::vcs_switch_pos(const bool ifunc, const size_t k1, const size_t k
     if (k1 == k2) {
         return;
     }
-    if (DEBUG_MODE_ENABLED && k1 > (m_numSpeciesTot - 1) ||
-            k2 > (m_numSpeciesTot - 1)) {
+    if (DEBUG_MODE_ENABLED && (k1 >= m_numSpeciesTot ||
+                               k2 >= m_numSpeciesTot)) {
         plogf("vcs_switch_pos: ifunc = 0: inappropriate args: %d %d\n",
               k1, k2);
     }
@@ -4457,8 +4457,7 @@ void VCS_SOLVE::vcs_switch_pos(const bool ifunc, const size_t k1, const size_t k
          */
         size_t i1 = k1 - m_numComponents;
         size_t i2 = k2 - m_numComponents;
-        if (DEBUG_MODE_ENABLED && i1 > (m_numRxnTot - 1) ||
-                i2 > (m_numRxnTot - 1)) {
+        if (DEBUG_MODE_ENABLED && (i1 > m_numRxnTot || i2 >= m_numRxnTot)) {
             plogf("switch_pos: ifunc = 1: inappropriate noncomp values: %d %d\n",
                   i1 , i2);
         }

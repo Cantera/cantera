@@ -176,8 +176,8 @@ void VCS_SOLVE::vcs_switch_elem_pos(size_t ipos, size_t jpos)
     if (ipos == jpos) {
         return;
     }
-    if (DEBUG_MODE_ENABLED && ipos > (m_numElemConstraints - 1) ||
-            jpos > (m_numElemConstraints - 1)) {
+    if (DEBUG_MODE_ENABLED && (ipos > (m_numElemConstraints - 1) ||
+                               jpos > (m_numElemConstraints - 1))) {
         plogf("vcs_switch_elem_pos: ifunc = 0: inappropriate args: %d %d\n",
               ipos, jpos);
         plogendl();

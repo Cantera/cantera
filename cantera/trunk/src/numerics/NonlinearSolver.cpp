@@ -3287,7 +3287,7 @@ int NonlinearSolver::beuler_jac(GeneralMatrix& J, doublereal* const f,
             }
             m_nJacEval++;
             if (DEBUG_MODE_ENABLED) {
-                for (int ii = 0; ii < neq_; ii++) {
+                for (size_t ii = 0; ii < neq_; ii++) {
                     checkFinite(f[ii]);
                 }
             }
@@ -3357,7 +3357,7 @@ int NonlinearSolver::beuler_jac(GeneralMatrix& J, doublereal* const f,
                     if (fabs(dy) < 1.0E-300) {
                         throw CanteraError("NonlinearSolver::beuler_jac", "dy is equal to zero");
                     }
-                    for (int ii = 0; ii < neq_; ii++) {
+                    for (size_t ii = 0; ii < neq_; ii++) {
                         checkFinite(m_wksp[ii]);
                     }
                 }
@@ -3437,7 +3437,7 @@ int NonlinearSolver::beuler_jac(GeneralMatrix& J, doublereal* const f,
                     if (fabs(dy) < 1.0E-300) {
                         throw CanteraError("NonlinearSolver::beuler_jac", "dy is equal to zero");
                     }
-                    for (int ii = 0; ii < neq_; ii++) {
+                    for (size_t ii = 0; ii < neq_; ii++) {
                         checkFinite(m_wksp[ii]);
                     }
                 }
