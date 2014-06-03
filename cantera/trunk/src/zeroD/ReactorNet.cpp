@@ -11,7 +11,7 @@ using namespace std;
 namespace Cantera
 {
 
-ReactorNet::ReactorNet() : Cantera::FuncEval(), m_nr(0), m_nreactors(0),
+ReactorNet::ReactorNet() : Cantera::FuncEval(),
     m_integ(0), m_time(0.0), m_init(false),
     m_nv(0), m_rtol(1.0e-9), m_rtolsens(1.0e-4),
     m_atols(1.0e-15), m_atolsens(1.0e-4),
@@ -33,14 +33,12 @@ ReactorNet::ReactorNet() : Cantera::FuncEval(), m_nr(0), m_nreactors(0),
 
 ReactorNet::~ReactorNet()
 {
-    for (size_t n = 0; n < m_nr; n++) {
+    for (size_t n = 0; n < m_reactors.size(); n++) {
         if (m_iown[n]) {
-            delete m_r[n];
+            delete m_reactors[n];
         }
-        m_r[n] = 0;
+        m_reactors[n] = 0;
     }
-    m_r.clear();
-    m_reactors.clear();
     delete m_integ;
 }
 
@@ -49,57 +47,51 @@ void ReactorNet::initialize()
     size_t n, nv;
     char buf[100];
     m_nv = 0;
-    m_reactors.clear();
-    m_nreactors = 0;
     writelog("Initializing reactor network.\n", m_verbose);
-    if (m_nr == 0)
+    if (m_reactors.empty())
         throw CanteraError("ReactorNet::initialize",
                            "no reactors in network!");
     size_t sensParamNumber = 0;
     m_start.assign(1, 0);
-    for (n = 0; n < m_nr; n++) {
-        if (m_r[n]->type() >= ReactorType) {
-            m_r[n]->initialize(m_time);
-            Reactor* r = (Reactor*)m_r[n];
-            m_reactors.push_back(r);
-            nv = r->neq();
-            m_nparams.push_back(r->nSensParams());
-            std::vector<std::pair<void*, int> > sens_objs = r->getSensitivityOrder();
-            for (size_t i = 0; i < sens_objs.size(); i++) {
-                std::map<size_t, size_t>& s = m_sensOrder[sens_objs[i]];
-                for (std::map<size_t, size_t>::iterator iter = s.begin();
-                        iter != s.end();
-                        ++iter) {
-                    m_sensIndex.resize(std::max(iter->second + 1, m_sensIndex.size()));
-                    m_sensIndex[iter->second] = sensParamNumber++;
-                }
+    for (n = 0; n < m_reactors.size(); n++) {
+        Reactor& r = *m_reactors[n];
+        r.initialize(m_time);
+        nv = r.neq();
+        m_nparams.push_back(r.nSensParams());
+        std::vector<std::pair<void*, int> > sens_objs = r.getSensitivityOrder();
+        for (size_t i = 0; i < sens_objs.size(); i++) {
+            std::map<size_t, size_t>& s = m_sensOrder[sens_objs[i]];
+            for (std::map<size_t, size_t>::iterator iter = s.begin();
+                    iter != s.end();
+                    ++iter) {
+                m_sensIndex.resize(std::max(iter->second + 1, m_sensIndex.size()));
+                m_sensIndex[iter->second] = sensParamNumber++;
             }
-            m_nv += nv;
-            m_start.push_back(m_nv);
-            m_nreactors++;
+        }
+        m_nv += nv;
+        m_start.push_back(m_nv);
 
-            if (m_verbose) {
-                sprintf(buf,"Reactor %s: %s variables.\n",
-                        int2str(n).c_str(), int2str(nv).c_str());
-                writelog(buf);
-                sprintf(buf,"            %s sensitivity params.\n",
-                        int2str(r->nSensParams()).c_str());
-                writelog(buf);
-            }
-            if (m_r[n]->type() == FlowReactorType && m_nr > 1) {
-                throw CanteraError("ReactorNet::initialize",
-                                   "FlowReactors must be used alone.");
-            }
+        if (m_verbose) {
+            sprintf(buf,"Reactor %s: %s variables.\n",
+                    int2str(n).c_str(), int2str(nv).c_str());
+            writelog(buf);
+            sprintf(buf,"            %s sensitivity params.\n",
+                    int2str(r.nSensParams()).c_str());
+            writelog(buf);
+        }
+        if (r.type() == FlowReactorType && m_reactors.size() > 1) {
+            throw CanteraError("ReactorNet::initialize",
+                               "FlowReactors must be used alone.");
         }
     }
 
-    m_connect.resize(m_nr*m_nr,0);
+    m_connect.resize(m_reactors.size()*m_reactors.size(), 0);
     m_ydot.resize(m_nv,0.0);
     size_t i, j, nin, nout, nw;
     ReactorBase* r, *rj;
-    for (i = 0; i < m_nr; i++) {
+    for (i = 0; i < m_reactors.size(); i++) {
         r = m_reactors[i];
-        for (j = 0; j < m_nr; j++) {
+        for (j = 0; j < m_reactors.size(); j++) {
             if (i == j) {
                 connect(i,j);
             } else {
@@ -172,13 +164,12 @@ double ReactorNet::step(doublereal time)
     return m_time;
 }
 
-void ReactorNet::addReactor(ReactorBase* r, bool iown)
+void ReactorNet::addReactor(Reactor* r, bool iown)
 {
     r->setNetwork(this);
     if (r->type() >= ReactorType) {
-        m_r.push_back(r);
+        m_reactors.push_back(r);
         m_iown.push_back(iown);
-        m_nr++;
         writelog("Adding reactor "+r->name()+"\n", m_verbose);
     } else {
         writelog("Not adding reactor "+r->name()+
@@ -193,7 +184,7 @@ void ReactorNet::eval(doublereal t, doublereal* y,
     size_t pstart = 0;
 
     updateState(y);
-    for (n = 0; n < m_nreactors; n++) {
+    for (n = 0; n < m_reactors.size(); n++) {
         m_reactors[n]->evalEqs(t, y + m_start[n],
                                ydot + m_start[n], p + pstart);
         pstart += m_nparams[n];
@@ -229,7 +220,7 @@ void ReactorNet::evalJacobian(doublereal t, doublereal* y,
 
 void ReactorNet::updateState(doublereal* y)
 {
-    for (size_t n = 0; n < m_nreactors; n++) {
+    for (size_t n = 0; n < m_reactors.size(); n++) {
         m_reactors[n]->updateState(y + m_start[n]);
     }
 }
@@ -237,7 +228,7 @@ void ReactorNet::updateState(doublereal* y)
 void ReactorNet::getInitialConditions(doublereal t0,
                                       size_t leny, doublereal* y)
 {
-    for (size_t n = 0; n < m_nreactors; n++) {
+    for (size_t n = 0; n < m_reactors.size(); n++) {
         m_reactors[n]->getInitialConditions(t0, m_start[n+1]-m_start[n],
                                             y + m_start[n]);
     }

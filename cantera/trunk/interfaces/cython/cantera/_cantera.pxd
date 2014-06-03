@@ -324,7 +324,7 @@ cdef extern from "cantera/zeroD/flowControllers.h":
 cdef extern from "cantera/zeroD/ReactorNet.h":
     cdef cppclass CxxReactorNet "Cantera::ReactorNet":
         CxxReactorNet()
-        void addReactor(CxxReactorBase*)
+        void addReactor(CxxReactor*)
         void advance(double) except +
         double step(double) except +
         double time()
