@@ -288,7 +288,7 @@ supports the extended 5-parameter form, given by:
 
     F(T, P_r) = d \bigl[a \exp(-b/T) + \exp(-T/c)\bigr]^{1/(1+\log_{10}^2 P_r )} T^e
 
-In keeping with the nomenclature of Kee et al.[#Kee1989]_, we will refer to this as
+In keeping with the nomenclature of Kee et al. [#Kee1989]_, we will refer to this as
 the "SRI" falloff function. It is implemented by the :class:`SRI` directive.
 
 .. :: NOTE: "definingphases.pdf" contains documentation for the Wang-Frenklach falloff
