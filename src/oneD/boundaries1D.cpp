@@ -789,9 +789,7 @@ void ReactingSurf1D::eval(size_t jg, doublereal* xg, doublereal* rg,
             r[k+1] = m_work[k + ioffset] * m_sphase->size(k) * rs0;
             r[k+1] -= rdt*(x[k+1] - prevSoln(k+1,0));
             diag[k+1] = 1;
-            if (x[k+1] > maxx) {
-                maxx = x[k+1];
-            }
+            maxx = std::max(x[k+1], maxx);
         }
         r[1] = 1.0 - sum;
         diag[1] = 0;

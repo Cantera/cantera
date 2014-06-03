@@ -206,9 +206,7 @@ int ChemEquil::setInitialMoles(thermo_t& s, vector_fp& elMoleGoal,
         e.setInitialMixMoles(loglevel-1);
 
         // store component indices
-        if (m_nComponents > m_kk) {
-            m_nComponents = m_kk;
-        }
+        m_nComponents = std::min(m_nComponents, m_kk);
         for (size_t m = 0; m < m_nComponents; m++) {
             m_component[m] = e.componentIndex(m);
         }
@@ -253,9 +251,7 @@ int ChemEquil::estimateElementPotentials(thermo_t& s, vector_fp& lambda_RT,
 
     s.getMoleFractions(DATA_PTR(xMF_est));
     for (size_t n = 0; n < s.nSpecies(); n++) {
-        if (xMF_est[n] < 1.0E-20) {
-            xMF_est[n] = 1.0E-20;
-        }
+        xMF_est[n] = std::max(xMF_est[n], 1e-20);
     }
     s.setMoleFractions(DATA_PTR(xMF_est));
     s.getMoleFractions(DATA_PTR(xMF_est));
@@ -272,9 +268,7 @@ int ChemEquil::estimateElementPotentials(thermo_t& s, vector_fp& lambda_RT,
     for (size_t m = 0; m < m_nComponents; m++) {
         size_t k = m_orderVectorSpecies[m];
         m_component[m] = k;
-        if (xMF_est[k] < 1.0E-8) {
-            xMF_est[k] = 1.0E-8;
-        }
+        xMF_est[k] = std::max(xMF_est[k], 1e-8);
     }
     s.setMoleFractions(DATA_PTR(xMF_est));
     s.getMoleFractions(DATA_PTR(xMF_est));
@@ -489,20 +483,11 @@ int ChemEquil::equilibrate(thermo_t& s, const char* XYstr,
     doublereal tminPhase = s.minTemp();
     // loop to estimate T
     if (!tempFixed) {
-        doublereal tmin;
-        doublereal tmax;
-
-        tmin = s.temperature();
-        if (tmin < tminPhase) {
-            tmin = tminPhase;
-        }
+        doublereal tmin = std::max(s.temperature(), tminPhase);
         if (tmin > tmaxPhase) {
             tmin = tmaxPhase - 20;
         }
-        tmax = tmin + 10.;
-        if (tmax > tmaxPhase) {
-            tmax = tmaxPhase;
-        }
+        doublereal tmax = std::min(tmin + 10., tmaxPhase);
         if (tmax < tminPhase) {
             tmax = tminPhase + 20;
         }
@@ -554,12 +539,7 @@ int ChemEquil::equilibrate(thermo_t& s, const char* XYstr,
             if (fabs(dt) < 50.0) {
                 break;
             }
-            if (dt >  200.) {
-                dt  = 200.;
-            }
-            if (dt < -200.) {
-                dt = -200.;
-            }
+            dt = clip(dt, -200.0, 200.0);
             if ((t0 + dt) < tminPhase) {
                 dt = 0.5*((t0) + tminPhase) - t0;
             }
@@ -938,7 +918,7 @@ void ChemEquil::equilJacobian(thermo_t& s, vector_fp& x,
     r0.resize(len);
     r1.resize(len);
     size_t n, m;
-    doublereal rdx, dx, xsave, dx2;
+    doublereal rdx, dx, xsave;
     doublereal atol = 1.e-10;
 
     equilResidual(s, x, elmols, r0, xval, yval, loglevel-1);
@@ -946,11 +926,7 @@ void ChemEquil::equilJacobian(thermo_t& s, vector_fp& x,
     m_doResPerturb = false;
     for (n = 0; n < len; n++) {
         xsave = x[n];
-        dx = atol;
-        dx2 = fabs(xsave) * 1.0E-7;
-        if (dx2 > dx) {
-            dx = dx2;
-        }
+        dx = std::max(atol, fabs(xsave) * 1.0E-7);
         x[n] = xsave + dx;
         dx = x[n] - xsave;
         rdx = 1.0/dx;
@@ -990,9 +966,7 @@ double ChemEquil::calcEmoles(thermo_t& s, vector_fp& x, const double& n_t,
         for (size_t m = 0; m < m_mm; m++) {
             tmp += nAtoms(k,m) * x[m];
         }
-        if (tmp > 100.) {
-            tmp = 100.;
-        }
+        tmp = std::min(tmp, 100.0);
         if (tmp < -300.) {
             n_i_calc[k] = 0.0;
         } else {
@@ -1060,17 +1034,10 @@ int ChemEquil::estimateEP_Brinkley(thermo_t& s, vector_fp& x,
     }
 
     for (m = 0; m < m_mm; m++) {
-        if (x[m] > 50.0) {
-            x[m] = 50.;
-        }
         if (elMoles[m] > 1.0E-70) {
-            if (x[m] < -100) {
-                x[m] = -100.;
-            }
+            x[m] = clip(x[m], -100.0, 50.0);
         } else {
-            if (x[m] < -1000.) {
-                x[m] = -1000.;
-            }
+            x[m] = clip(x[m], -1000.0, 50.0);
         }
     }
 
@@ -1088,9 +1055,7 @@ int ChemEquil::estimateEP_Brinkley(thermo_t& s, vector_fp& x,
             sum = nAtoms(k,m);
             tmp += sum * x[m];
             sum2 += sum;
-            if (sum2 > nAtomsMax) {
-                nAtomsMax = sum2;
-            }
+            nAtomsMax = std::max(nAtomsMax, sum2);
         }
         if (tmp > 100.) {
             n_t += 2.8E43;
@@ -1218,9 +1183,7 @@ int ChemEquil::estimateEP_Brinkley(thermo_t& s, vector_fp& x,
                     resid[m_mm] = 0.1;
                 }
             } else if (n_t > elMolesTotal) {
-                if (resid[m_mm] > 0.0) {
-                    resid[m_mm] = 0.0;
-                }
+                resid[m_mm] = std::min(resid[m_mm], 0.0);
             }
         } else {
             /*
@@ -1505,16 +1468,10 @@ int ChemEquil::estimateEP_Brinkley(thermo_t& s, vector_fp& x,
             beta = 1.0;
             for (m = 0; m < m_mm; m++) {
                 if (resid[m] > 1.0) {
-                    double betat = 1.0 / resid[m];
-                    if (betat < beta) {
-                        beta = betat;
-                    }
+                    beta = std::min(beta, 1.0 / resid[m]);
                 }
                 if (resid[m] < -1.0) {
-                    double betat = -1.0 / resid[m];
-                    if (betat < beta) {
-                        beta = betat;
-                    }
+                    beta = std::min(beta, -1.0 / resid[m]);
                 }
             }
             if (DEBUG_MODE_ENABLED && ChemEquil_print_lvl > 0) {

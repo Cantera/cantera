@@ -862,9 +862,7 @@ void InterfaceKinetics::installReagents(const ReactionData& r)
         nsFlt = r.rstoich[n];
         ns = (size_t) nsFlt;
         if ((doublereal) ns != nsFlt) {
-            if (ns < 1) {
-                ns = 1;
-            }
+            ns = std::max<size_t>(ns, 1);
         }
         /*
          * Add to m_rrxn. m_rrxn is a vector of maps. m_rrxn has a length
@@ -889,9 +887,7 @@ void InterfaceKinetics::installReagents(const ReactionData& r)
         nsFlt = r.pstoich[n];
         ns = (size_t) nsFlt;
         if ((doublereal) ns != nsFlt) {
-            if (ns < 1) {
-                ns = 1;
-            }
+            ns = std::max<size_t>(ns, 1);
         }
         /*
          * Add to m_prxn. m_prxn is a vector of maps. m_prxn has a length
@@ -1038,9 +1034,7 @@ void InterfaceKinetics::setPhaseExistence(const size_t iphase, const int exists)
     if (exists) {
         if (!m_phaseExists[iphase]) {
             m_phaseExistsCheck--;
-            if (m_phaseExistsCheck < 0) {
-                m_phaseExistsCheck = 0;
-            }
+            m_phaseExistsCheck = std::max(m_phaseExistsCheck, 0);
             m_phaseExists[iphase] = true;
         }
         m_phaseIsStable[iphase] = true;

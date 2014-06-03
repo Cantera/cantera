@@ -12,6 +12,7 @@
 #include <algorithm>
 
 using namespace std;
+using namespace Cantera;
 
 namespace VCSnonideal
 {
@@ -330,9 +331,7 @@ size_t VCS_SOLVE::vcs_popPhaseID(std::vector<size_t> & phasePopPhaseIDs)
                             FephaseMax = Fephase;
                         }
                     } else {
-                        if (Fephase > FephaseMax) {
-                            FephaseMax = Fephase;
-                        }
+                        FephaseMax = std::max(FephaseMax, Fephase);
                     }
                     if (DEBUG_MODE_ENABLED && m_debug_print_lvl >= 2) {
                         plogf("  ---    %18s %5d  %11.3g %11.3g\n",
@@ -484,10 +483,7 @@ int VCS_SOLVE::vcs_popPhaseRxnStepSizes(const size_t iphasePop)
                 ratioComp = 1.0;
                 if (deltaJ > 0.0) {
                     double delta0 = m_molNumSpecies_old[j];
-                    double dampj = delta0 / deltaJ * 0.9;
-                    if (dampj < damp) {
-                        damp = dampj;
-                    }
+                    damp = std::min(damp, delta0 / deltaJ * 0.9);
                 }
             } else {
                 if (m_elType[j] == VCS_ELEM_TYPE_ABSPOS) {
@@ -605,9 +601,7 @@ double VCS_SOLVE::vcs_phaseStabilityTest(const size_t iph)
         }
 
         for (size_t k = 0; k < nsp; k++) {
-            if (fracDelta_new[k] < 1.0E-13) {
-                fracDelta_new[k] = 1.0E-13;
-            }
+            fracDelta_new[k] = std::min(fracDelta_new[k], 1e-13);
         }
         bool converged = false;
         for (int its = 0; its < 200  && (!converged); its++) {
@@ -704,13 +698,7 @@ double VCS_SOLVE::vcs_phaseStabilityTest(const size_t iph)
                 size_t kspec = Vphase->spGlobalIndexVCS(k);
                 if (kspec >= m_numComponents) {
                     size_t irxn = kspec - m_numComponents;
-                    double deltaGRxn = m_deltaGRxn_Deficient[irxn];
-                    if (deltaGRxn >  50.0) {
-                        deltaGRxn =  50.0;
-                    }
-                    if (deltaGRxn < -50.0) {
-                        deltaGRxn = -50.0;
-                    }
+                    double deltaGRxn = clip(m_deltaGRxn_Deficient[irxn], -50.0, 50.0);
                     E_phi[k] = std::exp(-deltaGRxn) / m_actCoeffSpecies_new[kspec];
                     sum +=  E_phi[k];
                     funcPhaseStability += E_phi[k];
@@ -802,10 +790,7 @@ double VCS_SOLVE::vcs_phaseStabilityTest(const size_t iph)
                     }
                 }
             }
-            if (damp < 0.000001) {
-                damp = 0.000001;
-            }
-
+            damp = std::max(damp, 0.000001);
             for (size_t k = 0; k < nsp; k++) {
                 fracDelta_new[k] = fracDelta_old[k] + damp * (delFrac[k]);
             }

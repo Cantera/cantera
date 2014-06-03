@@ -369,9 +369,7 @@ doublereal BandMatrix::oneNorm() const
         for (int i = j - ku; i <= j + kl; i++) {
             sum += fabs(colP[kl + ku + i - j]);
         }
-        if (sum > value) {
-            value = sum;
-        }
+        value = std::max(sum, value);
     }
     return value;
 }
@@ -380,15 +378,11 @@ size_t BandMatrix::checkRows(doublereal& valueSmall) const
 {
     valueSmall = 1.0E300;
     size_t iSmall = npos;
-    double vv;
     for (int i = 0; i < (int) m_n; i++) {
         double valueS = 0.0;
         for (int j = i - (int) m_kl; j <= i + (int) m_ku; j++) {
             if (j >= 0 && j < (int) m_n) {
-                vv = fabs(value(i,j));
-                if (vv > valueS) {
-                    valueS = vv;
-                }
+                valueS = std::max(fabs(value(i,j)), valueS);
             }
         }
         if (valueS < valueSmall) {
@@ -406,15 +400,11 @@ size_t BandMatrix::checkColumns(doublereal& valueSmall) const
 {
     valueSmall = 1.0E300;
     size_t jSmall = npos;
-    double vv;
     for (int j = 0; j < (int) m_n; j++) {
         double valueS = 0.0;
         for (int i = j - (int) m_ku; i <= j + (int) m_kl; i++) {
             if (i >= 0 && i < (int) m_n) {
-                vv = fabs(value(i,j));
-                if (vv > valueS) {
-                    valueS = vv;
-                }
+                valueS = std::max(fabs(value(i,j)), valueS);
             }
         }
         if (valueS < valueSmall) {

@@ -295,10 +295,9 @@ template<class InputIter>
 inline doublereal absmax(InputIter begin, InputIter end)
 {
     doublereal amax = 0.0;
-    for (; begin != end; ++begin)
-        if (fabs(*begin) > amax) {
-            amax = fabs(*begin);
-        }
+    for (; begin != end; ++begin) {
+        amax = std::max(fabs(*begin), amax);
+    }
     return amax;
 }
 

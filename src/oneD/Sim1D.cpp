@@ -290,9 +290,7 @@ void Sim1D::solve(int loglevel, bool refine_grid)
                 } else {
                     nsteps = m_steps[istep];
                 }
-                if (dt > m_tmax) {
-                    dt = m_tmax;
-                }
+                dt = std::min(dt, m_tmax);
             }
         }
         if (loglevel > 0) {

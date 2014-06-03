@@ -51,9 +51,7 @@ ImplicitSurfChem::ImplicitSurfChem(vector<InterfaceKinetics*> k) :
         m_nsp.push_back(nsp);
         m_nv += m_nsp.back();
         nt = k[n]->nTotalSpecies();
-        if (nt > ntmax) {
-            ntmax = nt;
-        }
+        ntmax = std::max(nt, ntmax);
         m_specStartIndex.push_back(kinSpIndex);
         kinSpIndex += nsp;
 

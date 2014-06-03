@@ -243,12 +243,7 @@ void SingleSpeciesTP::setState_HP(doublereal h, doublereal p,
     doublereal dt;
     setPressure(p);
     for (int n = 0; n < 50; n++) {
-        dt = (h - enthalpy_mass())/cp_mass();
-        if (dt > 100.0) {
-            dt = 100.0;
-        } else if (dt < -100.0) {
-            dt = -100.0;
-        }
+        dt = clip((h - enthalpy_mass())/cp_mass(), -100.0, 100.0);
         setState_TP(temperature() + dt, p);
         if (fabs(dt) < tol) {
             return;
@@ -267,12 +262,7 @@ void SingleSpeciesTP::setState_UV(doublereal u, doublereal v,
         setDensity(1.0/v);
     }
     for (int n = 0; n < 50; n++) {
-        dt = (u - intEnergy_mass())/cv_mass();
-        if (dt > 100.0) {
-            dt = 100.0;
-        } else if (dt < -100.0) {
-            dt = -100.0;
-        }
+        dt = clip((u - intEnergy_mass())/cv_mass(), -100.0, 100.0);
         setTemperature(temperature() + dt);
         if (fabs(dt) < tol) {
             return;
@@ -289,12 +279,7 @@ void SingleSpeciesTP::setState_SP(doublereal s, doublereal p,
     doublereal dt;
     setPressure(p);
     for (int n = 0; n < 50; n++) {
-        dt = (s - entropy_mass())*temperature()/cp_mass();
-        if (dt > 100.0) {
-            dt = 100.0;
-        } else if (dt < -100.0) {
-            dt = -100.0;
-        }
+        dt = clip((s - entropy_mass())*temperature()/cp_mass(), -100.0, 100.0);
         setState_TP(temperature() + dt, p);
         if (fabs(dt) < tol) {
             return;
@@ -313,12 +298,7 @@ void SingleSpeciesTP::setState_SV(doublereal s, doublereal v,
         setDensity(1.0/v);
     }
     for (int n = 0; n < 50; n++) {
-        dt = (s - entropy_mass())*temperature()/cv_mass();
-        if (dt > 100.0) {
-            dt = 100.0;
-        } else if (dt < -100.0) {
-            dt = -100.0;
-        }
+        dt = clip((s - entropy_mass())*temperature()/cv_mass(), -100.0, 100.0);
         setTemperature(temperature() + dt);
         if (fabs(dt) < tol) {
             return;

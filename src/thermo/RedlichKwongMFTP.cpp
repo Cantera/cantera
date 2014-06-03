@@ -1025,11 +1025,7 @@ doublereal RedlichKwongMFTP::liquidVolEst(doublereal TKelvin, doublereal& presGu
     double btmp;
     calculateAB(TKelvin, atmp, btmp);
 
-    doublereal pres = presGuess;
-    double pp = psatEst(TKelvin);
-    if (pres < pp) {
-        pres = pp;
-    }
+    doublereal pres = std::max(psatEst(TKelvin), presGuess);
     double Vroot[3];
 
     bool foundLiq = false;

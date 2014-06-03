@@ -616,9 +616,7 @@ void GasKinetics::installReagents(const ReactionData& r)
         reactantGlobalOrder += nsFlt;
         ns = (size_t) nsFlt;
         if ((doublereal) ns != nsFlt) {
-            if (ns < 1) {
-                ns = 1;
-            }
+            ns = std::max<size_t>(ns, 1);
         }
         if (r.rstoich[n] != 0.0) {
             m_rrxn[r.reactants[n]][rnum] += r.rstoich[n];
@@ -636,9 +634,7 @@ void GasKinetics::installReagents(const ReactionData& r)
         productGlobalOrder += nsFlt;
         ns = (size_t) nsFlt;
         if ((double) ns != nsFlt) {
-            if (ns < 1) {
-                ns = 1;
-            }
+            ns = std::max<size_t>(ns, 1);
         }
         if (r.pstoich[n] != 0.0) {
             m_prxn[r.products[n]][rnum] += r.pstoich[n];

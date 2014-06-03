@@ -351,9 +351,7 @@ size_t SquareMatrix::checkRows(doublereal& valueSmall) const
     for (size_t i = 0; i < m_nrows; i++) {
         double valueS = 0.0;
         for (size_t j = 0; j < m_nrows; j++) {
-            if (fabs(value(i,j)) > valueS) {
-                valueS = fabs(value(i,j));
-            }
+            valueS = std::max(fabs(value(i,j)), valueS);
         }
         if (valueS < valueSmall) {
             iSmall = i;
@@ -370,9 +368,7 @@ size_t SquareMatrix::checkColumns(doublereal& valueSmall) const
     for (size_t j = 0; j < m_nrows; j++) {
         double valueS = 0.0;
         for (size_t i = 0; i < m_nrows; i++) {
-            if (fabs(value(i,j)) > valueS) {
-                valueS = fabs(value(i,j));
-            }
+            valueS = std::max(fabs(value(i,j)), valueS);
         }
         if (valueS < valueSmall) {
             jSmall = j;

@@ -192,9 +192,7 @@ int VCS_SOLVE::vcs_solve_TP(int print_lvl, int printDetails, int maxit)
             plogendl();
             size_t iph = m_phaseID[i];
             double tmp = m_tPhaseMoles_old[iph] * VCS_RELDELETE_SPECIES_CUTOFF * 10;
-            if (VCS_DELETE_MINORSPECIES_CUTOFF*10. > tmp) {
-                tmp = VCS_DELETE_MINORSPECIES_CUTOFF*10.;
-            }
+            tmp = std::max(tmp, VCS_DELETE_MINORSPECIES_CUTOFF*10.);
             m_molNumSpecies_old[i] = tmp;
         }
     }
@@ -1729,9 +1727,7 @@ double VCS_SOLVE::vcs_minor_alt_calc(size_t kspec, size_t irxn, bool* do_delete,
         if (w_kspec <= 0.0) {
             w_kspec = VCS_DELETE_MINORSPECIES_CUTOFF;
         }
-        if (dg_irxn < -200.) {
-            dg_irxn = -200.;
-        }
+        dg_irxn = std::max(dg_irxn, -200.0);
         if (DEBUG_MODE_ENABLED && ANOTE) {
             sprintf(ANOTE,"minor species alternative calc");
         }
@@ -1766,18 +1762,8 @@ double VCS_SOLVE::vcs_minor_alt_calc(size_t kspec, size_t irxn, bool* do_delete,
          *
          *
          */
-        a = w_kspec * s;
-        if (a < (-1.0 + 1.0E-8)) {
-            a = -1.0 + 1.0E-8;
-        } else  if (a > 100.0) {
-            a = 100.0;
-        }
-        tmp = -dg_irxn / (1.0 + a);
-        if (tmp < -200.) {
-            tmp = -200.;
-        } else if (tmp > 200.) {
-            tmp = 200.;
-        }
+        a = clip(w_kspec * s, -1.0+1e-8, 100.0);
+        tmp = clip(-dg_irxn / (1.0 + a), -200.0, 200.0);
         wTrial =  w_kspec * exp(tmp);
 
         molNum_kspec_new = wTrial;
@@ -1879,9 +1865,7 @@ int VCS_SOLVE::delta_species(const size_t kspec, double* const delta_ptr)
                 m_molNumSpecies_old[j] += tmp;
                 m_tPhaseMoles_old[iph] += tmp;
                 vcs_setFlagsVolPhase(iph, false, VCS_STATECALC_OLD);
-                if (m_molNumSpecies_old[j] < 0.0) {
-                    m_molNumSpecies_old[j] = 0.0;
-                }
+                m_molNumSpecies_old[j] = std::max(m_molNumSpecies_old[j], 0.0);
             }
         }
     }
@@ -2307,12 +2291,7 @@ bool VCS_SOLVE::recheck_deleted_phase(const int iphase)
     for (size_t kk = 0; kk <  Vphase->nSpecies(); kk++) {
         size_t kspec = Vphase->spGlobalIndexVCS(kk);
         size_t irxn = kspec + m_numComponents;
-        if (m_deltaGRxn_old[irxn] >  50.0) {
-            m_deltaGRxn_old[irxn] =  50.0;
-        }
-        if (m_deltaGRxn_old[irxn] < -50.0) {
-            m_deltaGRxn_old[irxn] = -50.0;
-        }
+        m_deltaGRxn_old[irxn] = clip(m_deltaGRxn_old[irxn], -50.0, 50.0);
         phaseDG -= exp(-m_deltaGRxn_old[irxn]);
     }
 
@@ -2710,12 +2689,8 @@ int VCS_SOLVE::vcs_basopt(const bool doJustComponents, double aw[], double sa[],
                                         }
                                     }
                                 }
-                                if (nonZeroesKspec < minNonZeroes) {
-                                    minNonZeroes = nonZeroesKspec;
-                                }
-                                if (maxConcPossKspec > maxConcPoss) {
-                                    maxConcPoss = maxConcPossKspec;
-                                }
+                                minNonZeroes = std::min(minNonZeroes, nonZeroesKspec);
+                                maxConcPoss = std::max(maxConcPoss, maxConcPossKspec);
                             }
                         }
                     }
@@ -4115,12 +4090,7 @@ void VCS_SOLVE::vcs_deltag(const int l, const bool doDeleted,
                     // We may need to look at deltaGRxn for components!
                     if (kspec >= m_numComponents) {
                         size_t irxn = kspec - m_numComponents;
-                        if (deltaGRxn[irxn] >  50.0) {
-                            deltaGRxn[irxn] =  50.0;
-                        }
-                        if (deltaGRxn[irxn] < -50.0) {
-                            deltaGRxn[irxn] = -50.0;
-                        }
+                        deltaGRxn[irxn] = clip(deltaGRxn[irxn], -50.0, 50.0);
                         poly += exp(-deltaGRxn[irxn])/actCoeffSpecies[kspec];
                     }
                 }
@@ -4395,12 +4365,7 @@ void VCS_SOLVE::vcs_deltag_Phase(const size_t iphase, const bool doDeleted,
                 for (size_t irxn = 0; irxn < irxnl; ++irxn) {
                     size_t kspec = m_indexRxnToSpecies[irxn];
                     if (m_phaseID[kspec] == iphase) {
-                        if (deltaGRxn[irxn] >  50.0) {
-                            deltaGRxn[irxn] =  50.0;
-                        }
-                        if (deltaGRxn[irxn] < -50.0) {
-                            deltaGRxn[irxn] = -50.0;
-                        }
+                        deltaGRxn[irxn] = clip(deltaGRxn[irxn], -50.0, 50.0);
                         phaseDG -= exp(-deltaGRxn[irxn])/actCoeffSpecies[kspec];
                     }
                 }
@@ -4536,10 +4501,7 @@ double VCS_SOLVE::vcs_birthGuess(const int kspec)
          */
         bool soldel_ret;
         double dxm = vcs_minor_alt_calc(kspec, irxn, &soldel_ret);
-        dx = w_kspec + dxm;
-        if (dx > 1.0E-15) {
-            dx = 1.0E-15;
-        }
+        dx = std::min(w_kspec + dxm, 1e-15);
     } else {
         /*
          * Logic to handle single species phases

@@ -953,9 +953,7 @@ doublereal PDSS_HKFT::f(const doublereal temp, const doublereal pres, const int 
     if (TC < 155.0) {
         return 0.0;
     }
-    if (TC > 355.0) {
-        TC = 355.0;
-    }
+    TC = std::min(TC, 355.0);
     if (presBar > 1000.) {
         return 0.0;
     }

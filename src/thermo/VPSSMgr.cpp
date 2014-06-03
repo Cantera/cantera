@@ -393,14 +393,8 @@ void VPSSMgr::initThermoXML(XML_Node& phaseNode, const std::string& id)
     m_p0 = kPDSS->refPressure();
     for (size_t i = 0; i < m_kk; i++) {
         const PDSS* kPDSS = m_vptp_ptr->providePDSS(i);
-        doublereal mint = kPDSS->minTemp();
-        if (mint > m_minTemp) {
-            m_minTemp = mint;
-        }
-        mint = kPDSS->maxTemp();
-        if (mint < m_maxTemp) {
-            m_maxTemp = mint;
-        }
+        m_minTemp = std::max(m_minTemp, kPDSS->minTemp());
+        m_maxTemp = std::min(m_maxTemp, kPDSS->maxTemp());
     }
 }
 

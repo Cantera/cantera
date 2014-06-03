@@ -68,9 +68,7 @@ void ConstPressureReactor::initialize(doublereal t0)
     for (size_t m = 0; m < m_nwalls; m++) {
         if (m_wall[m]->kinetics(m_lr[m])) {
             nt = m_wall[m]->kinetics(m_lr[m])->nTotalSpecies();
-            if (nt > maxnt) {
-                maxnt = nt;
-            }
+            maxnt = std::max(maxnt, nt);
             if (m_wall[m]->kinetics(m_lr[m])) {
                 if (&m_kin->thermo(0) !=
                         &m_wall[m]->kinetics(m_lr[m])->thermo(0)) {

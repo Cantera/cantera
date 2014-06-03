@@ -1383,10 +1383,7 @@ void HMWSoln::calcMolalitiesCropped() const
 
     for (size_t k = 0; k < m_kk; k++) {
         m_molalitiesCropped[k] = m_molalities[k];
-        Itmp = m_molalities[k] * charge(k) * charge(k);
-        if (Itmp > Imax) {
-            Imax = Itmp;
-        }
+        Imax = std::max(m_molalities[k] * charge(k) * charge(k), Imax);
     }
 
     int cropMethod = 1;

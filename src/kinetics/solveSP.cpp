@@ -154,10 +154,7 @@ int solveSP::solveSurfProb(int ifunc, doublereal time_scale, doublereal TKelvin,
     doublereal t_real = 0.0, update_norm = 1.0E6;
 
     bool do_time = false, not_converged = true;
-
-    if (m_ioflag > 1) {
-        m_ioflag = 1;
-    }
+    m_ioflag = std::min(m_ioflag, 1);
 
     /*
      *       Set the initial value of the do_time parameter
@@ -665,10 +662,7 @@ static doublereal calc_damping(doublereal x[], doublereal dxneg[], size_t dim, i
             *label = int(i);
         }
     }
-
-    if (damp < 1.0e-2) {
-        damp = 1.0e-2;
-    }
+    damp = std::max(damp, 1e-2);
     /*
      * Only allow the damping parameter to increase by a factor of three each
      * iteration. Heuristic to avoid oscillations in the value of damp

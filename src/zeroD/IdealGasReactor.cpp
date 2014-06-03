@@ -83,9 +83,7 @@ void IdealGasReactor::initialize(doublereal t0)
         m_wall[m]->initialize();
         if (m_wall[m]->kinetics(m_lr[m])) {
             nt = m_wall[m]->kinetics(m_lr[m])->nTotalSpecies();
-            if (nt > maxnt) {
-                maxnt = nt;
-            }
+            maxnt = std::max(maxnt, nt);
             if (m_wall[m]->kinetics(m_lr[m])) {
                 if (&m_kin->thermo(0) !=
                         &m_wall[m]->kinetics(m_lr[m])->thermo(0)) {

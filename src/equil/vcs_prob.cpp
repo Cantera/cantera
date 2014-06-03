@@ -148,9 +148,7 @@ void VCS_PROB::resizeElements(size_t nel, int force)
         m_elType.resize(nel, VCS_ELEM_TYPE_ABSPOS);
         ElActive.resize(nel, 1);
         NE0 = nel;
-        if (ne > NE0) {
-            ne = NE0;
-        }
+        ne = std::min(ne, NE0);
     }
 }
 

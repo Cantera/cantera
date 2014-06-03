@@ -157,14 +157,8 @@ void MultiPhase::addPhase(ThermoPhase* p, doublereal moles)
     // water, only one of which should be present if the mixture
     // represents an equilibrium state.
     if (p->nSpecies() > 1) {
-        double t = p->minTemp();
-        if (t > m_Tmin) {
-            m_Tmin = t;
-        }
-        t = p->maxTemp();
-        if (t < m_Tmax) {
-            m_Tmax = t;
-        }
+        m_Tmin = std::max(p->minTemp(), m_Tmin);
+        m_Tmax = std::min(p->maxTemp(), m_Tmax);
     }
 }
 
@@ -506,9 +500,7 @@ void MultiPhase::addSpeciesMoles(const int indexS, const doublereal addedMoles)
     vector_fp tmpMoles(m_nsp, 0.0);
     getMoles(DATA_PTR(tmpMoles));
     tmpMoles[indexS] += addedMoles;
-    if (tmpMoles[indexS] < 0.0) {
-        tmpMoles[indexS] = 0.0;
-    }
+    tmpMoles[indexS] = std::max(tmpMoles[indexS], 0.0);
     setMoles(DATA_PTR(tmpMoles));
 }
 
@@ -692,13 +684,9 @@ doublereal MultiPhase::equilibrate(int XY, doublereal err,
                 e.equilibrate(TP, err, maxsteps, loglevel);
                 snow = entropy();
                 if (snow < s0) {
-                    if (m_temp > Tlow) {
-                        Tlow = m_temp;
-                    }
+                    Tlow = std::max(Tlow, m_temp);
                 } else {
-                    if (m_temp < Thigh) {
-                        Thigh = m_temp;
-                    }
+                    Thigh = std::min(Thigh, m_temp);
                 }
                 dt = (s0 - snow)*m_temp/cp();
                 dtmax = 0.5*fabs(Thigh - Tlow);

@@ -813,9 +813,7 @@ void NonlinearSolver::calcSolnToResNormVector()
         if (resNormOld > 0.0) {
             m_ScaleSolnNormToResNorm = resNormOld;
         }
-        if (m_ScaleSolnNormToResNorm < 1.0E-8) {
-            m_ScaleSolnNormToResNorm = 1.0E-8;
-        }
+        m_ScaleSolnNormToResNorm = std::max(m_ScaleSolnNormToResNorm, 1e-8);
 
         // Recalculate the residual weights now that we know the value of m_ScaleSolnNormToResNorm
         computeResidWts();

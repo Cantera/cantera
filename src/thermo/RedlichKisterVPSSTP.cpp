@@ -731,11 +731,7 @@ void RedlichKisterVPSSTP::readXMLBinarySpecies(XML_Node& xmLBinarySpecies)
              * Get the string containing all of the values
              */
             ctml::getFloatArray(xmlChild, hParams, true, "toSI", "excessEnthalpy");
-            size_t nParamsFound = hParams.size();
-            if (nParamsFound > Npoly) {
-                Npoly = nParamsFound;
-            }
-
+            Npoly = std::max(hParams.size(), Npoly);
         }
 
         if (nodeName == "excessentropy") {
@@ -743,10 +739,7 @@ void RedlichKisterVPSSTP::readXMLBinarySpecies(XML_Node& xmLBinarySpecies)
              * Get the string containing all of the values
              */
             ctml::getFloatArray(xmlChild, sParams, true, "toSI", "excessEntropy");
-            size_t nParamsFound = sParams.size();
-            if (nParamsFound > Npoly) {
-                Npoly = nParamsFound;
-            }
+            Npoly = std::max(sParams.size(), Npoly);
         }
     }
     hParams.resize(Npoly, 0.0);

@@ -248,9 +248,7 @@ int VCS_SOLVE::vcs(VCS_PROB* vprob, int ifunc, int ipr, int ip1, int maxit)
     Cantera::clockWC tickTock;
 
     int  iprintTime = std::max(ipr, ip1);
-    if (m_timing_print_lvl < iprintTime) {
-        iprintTime = m_timing_print_lvl ;
-    }
+    iprintTime = std::min(iprintTime, m_timing_print_lvl);
 
     if (ifunc > 2) {
         plogf("vcs: Unrecognized value of ifunc, %d: bailing!\n",

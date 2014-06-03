@@ -291,27 +291,21 @@ void MMCollisionInt::init(XML_Writer* xml, doublereal tsmin, doublereal tsmax, i
                                    c.size(), DATA_PTR(c));
         }
         m_o22poly.push_back(c);
-        if (rmserr > e22) {
-            e22 = rmserr;
-        }
+        e22 = std::max(e22, rmserr);
 
         rmserr = fitDelta(1, i, DeltaDegree, DATA_PTR(c));
         m_apoly.push_back(c);
         if (DEBUG_MODE_ENABLED && log_level > 3)
             m_xml->XML_writeVector(*logfile, indent, "astar",
                                    c.size(), DATA_PTR(c));
-        if (rmserr > ea) {
-            ea = rmserr;
-        }
+        ea = std::max(ea, rmserr);
 
         rmserr = fitDelta(2, i, DeltaDegree, DATA_PTR(c));
         m_bpoly.push_back(c);
         if (DEBUG_MODE_ENABLED && log_level > 3)
             m_xml->XML_writeVector(*logfile, indent, "bstar",
                                    c.size(), DATA_PTR(c));
-        if (rmserr > eb) {
-            eb = rmserr;
-        }
+        eb = std::max(eb, rmserr);
 
         rmserr = fitDelta(3, i, DeltaDegree, DATA_PTR(c));
         m_cpoly.push_back(c);
@@ -319,9 +313,7 @@ void MMCollisionInt::init(XML_Writer* xml, doublereal tsmin, doublereal tsmax, i
             m_xml->XML_writeVector(*logfile, indent, "cstar",
                                    c.size(), DATA_PTR(c));
         }
-        if (rmserr > ec) {
-            ec = rmserr;
-        }
+        ec = std::max(ec, rmserr);
 
         if (DEBUG_MODE_ENABLED && log_level > 3) {
             m_xml->XML_close(*logfile, "dstar_fit");
@@ -372,10 +364,7 @@ doublereal MMCollisionInt::omega22(double ts, double deltastar)
             break;
         }
     int i1, i2;
-    i1 = i - 1;
-    if (i1 < 0) {
-        i1 = 0;
-    }
+    i1 = std::max(i - 1, 0);
     i2 = i1+3;
     if (i2 > 36) {
         i2 = 36;
@@ -400,10 +389,7 @@ doublereal MMCollisionInt::astar(double ts, double deltastar)
             break;
         }
     int i1, i2;
-    i1 = i - 1;
-    if (i1 < 0) {
-        i1 = 0;
-    }
+    i1 = std::max(i - 1, 0);
     i2 = i1+3;
     if (i2 > 36) {
         i2 = 36;
@@ -428,10 +414,7 @@ doublereal MMCollisionInt::bstar(double ts, double deltastar)
             break;
         }
     int i1, i2;
-    i1 = i - 1;
-    if (i1 < 0) {
-        i1 = 0;
-    }
+    i1 = std::max(i - 1, 0);
     i2 = i1+3;
     if (i2 > 36) {
         i2 = 36;
@@ -456,10 +439,7 @@ doublereal MMCollisionInt::cstar(double ts, double deltastar)
             break;
         }
     int i1, i2;
-    i1 = i - 1;
-    if (i1 < 0) {
-        i1 = 0;
-    }
+    i1 = std::max(i - 1,0);
     i2 = i1+3;
     if (i2 > 36) {
         i2 = 36;

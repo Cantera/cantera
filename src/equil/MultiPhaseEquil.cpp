@@ -264,9 +264,7 @@ int MultiPhaseEquil::setInitialMoles(int loglevel)
                     if (!redo && delta_xi < 1.0e-10 && ik < m_nel) {
                         redo = true;
                     }
-                    if (delta_xi < dxi_min) {
-                        dxi_min = delta_xi;
-                    }
+                    dxi_min = std::min(dxi_min, delta_xi);
                 }
             }
             // step the composition by dxi_min
@@ -706,9 +704,7 @@ doublereal MultiPhaseEquil::error()
         } else {
             err = fabs(m_deltaG_RT[j]);
         }
-        if (err > maxerr) {
-            maxerr = err;
-        }
+        maxerr = std::max(maxerr, err);
     }
     return maxerr;
 }

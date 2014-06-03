@@ -144,13 +144,8 @@ public:
         m_nspData++;
         doublereal tlow  = minTemp_;
         doublereal thigh = maxTemp_;
-
-        if (tlow > m_tlow_max) {
-            m_tlow_max = tlow;
-        }
-        if (thigh < m_thigh_min) {
-            m_thigh_min = thigh;
-        }
+        m_tlow_max = std::max(tlow, m_tlow_max);
+        m_thigh_min = std::min(thigh, m_thigh_min);
 
         if (m_tlow.size() < index + 1) {
             m_tlow.resize(index + 1,  tlow);

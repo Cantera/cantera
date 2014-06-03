@@ -598,10 +598,7 @@ double VCS_SOLVE::vcs_Hessian_actCoeff_diag(size_t irxn)
 {
     size_t kspec = m_indexRxnToSpecies[irxn];
     size_t kph = m_phaseID[kspec];
-    double np_kspec = m_tPhaseMoles_old[kph];
-    if (np_kspec < 1.0E-13) {
-        np_kspec = 1.0E-13;
-    }
+    double np_kspec = std::max(m_tPhaseMoles_old[kph], 1e-13);
     double* sc_irxn = m_stoichCoeffRxnMatrix.ptrColumn(irxn);
     /*
      *   First the diagonal term of the Jacobian

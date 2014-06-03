@@ -37,9 +37,7 @@ public:
         if (m_func) {
             m_mdot = m_func->eval(time);
         }
-        if (m_mdot < 0.0) {
-            m_mdot = 0.0;
-        }
+        m_mdot = std::max(m_mdot, 0.0);
     }
 };
 
@@ -67,9 +65,7 @@ public:
         doublereal master_mdot = m_master->massFlowRate(time);
         m_mdot = master_mdot + m_coeffs[0]*(in().pressure() -
                                             out().pressure());
-        if (m_mdot < 0.0) {
-            m_mdot = 0.0;
-        }
+        m_mdot = std::max(m_mdot, 0.0);
     }
 
 protected:
@@ -101,9 +97,7 @@ public:
         } else {
             m_mdot = m_coeffs[0]*delta_P;
         }
-        if (m_mdot < 0.0) {
-            m_mdot = 0.0;
-        }
+        m_mdot = std::max(m_mdot, 0.0);
     }
 };
 
