@@ -362,7 +362,7 @@ void PureFluidPhase::setState_Psat(doublereal p, doublereal x)
     setDensity(1.0/m_sub->v());
 }
 
-std::string PureFluidPhase::report(bool show_thermo) const
+std::string PureFluidPhase::report(bool show_thermo, doublereal threshold) const
 {
     char p[800];
     string s = "";

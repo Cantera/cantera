@@ -457,7 +457,7 @@ void MolarityIonicVPSSTP::readXMLBinarySpecies(XML_Node& xmLBinarySpecies)
     std::string xname = xmLBinarySpecies.name();
 }
 
-std::string MolarityIonicVPSSTP::report(bool show_thermo) const
+std::string MolarityIonicVPSSTP::report(bool show_thermo, doublereal threshold) const
 {
     char p[800];
     string s = "";

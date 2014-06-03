@@ -38,7 +38,7 @@ extern "C" {
     CANTERA_CAPI size_t phase_speciesIndex(int n, char* nm);
     CANTERA_CAPI int phase_report(int nth,
                                   int ibuf, char* buf, int show_thermo);
-    CANTERA_CAPI int write_phase(int nth, int show_thermo);
+    CANTERA_CAPI int write_phase(int nth, int show_thermo, double threshold);
 
     CANTERA_CAPI double phase_nAtoms(int n, size_t k, size_t m);
 

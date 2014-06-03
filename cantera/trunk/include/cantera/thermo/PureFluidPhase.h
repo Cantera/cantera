@@ -499,8 +499,10 @@ public:
     /*!
      * @param show_thermo If true, extra information is printed out
      *                    about the thermodynamic state of the system.
+     * @param threshold   Unused in this subclass
      */
-    virtual std::string report(bool show_thermo = true) const;
+    virtual std::string report(bool show_thermo=true,
+                               doublereal threshold=1e-14) const;
 
 protected:
 
