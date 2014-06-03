@@ -228,11 +228,10 @@ void VCS_SOLVE::vcs_inest(double* const aw, double* const sa, double* const sm,
     /* ******************************************** */
     /* **** CALCULATE NEW MOLE NUMBERS ************ */
     /* ******************************************** */
-    bool finished = false;
     size_t lt = 0;
     size_t ikl = 0;
     double s1 = 0.0;
-    do {
+    while (true) {
         for (size_t kspec = 0; kspec < m_numComponents; ++kspec) {
             if (m_speciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
                 m_molNumSpecies_old[kspec] = m_molNumSpecies_new[kspec] + par * m_deltaMolNumSpecies[kspec];
@@ -253,7 +252,7 @@ void VCS_SOLVE::vcs_inest(double* const aw, double* const sa, double* const sm,
          */
         vcs_tmoles();
         if (lt > 0) {
-            goto finished;
+            break;
         }
         /* ******************************************* */
         /* **** CONVERGENCE FORCING SECTION ********** */
@@ -265,13 +264,11 @@ void VCS_SOLVE::vcs_inest(double* const aw, double* const sa, double* const sm,
             s += m_deltaMolNumSpecies[kspec] * m_feSpecies_old[kspec];
         }
         if (s == 0.0) {
-            finished = true;
-            continue;
+            break;
         }
         if (s < 0.0) {
             if (ikl == 0) {
-                finished = true;
-                continue;
+                break;
             }
         }
         /* ***************************************** */
@@ -306,9 +303,8 @@ void VCS_SOLVE::vcs_inest(double* const aw, double* const sa, double* const sm,
             }
         }
         lt = 1;
-    } while (!finished);
-finished:
-    ;
+    }
+
     if (DEBUG_MODE_ENABLED && m_debug_print_lvl >= 2) {
         plogf("%s     Final Mole Numbers produced by inest:\n",
               pprefix);
