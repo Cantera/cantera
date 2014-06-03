@@ -729,10 +729,10 @@ cdef class ReactorNet:
         for R in reactors:
             self.add_reactor(R)
 
-    def add_reactor(self, ReactorBase r):
+    def add_reactor(self, Reactor r):
         """Add a reactor to the network."""
         self._reactors.append(r)
-        self.net.addReactor(r.rbase)
+        self.net.addReactor(r.reactor)
 
     def advance(self, double t):
         """

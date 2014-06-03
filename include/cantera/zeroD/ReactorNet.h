@@ -114,13 +114,13 @@ public:
     //@}
 
     //! Add the reactor *r* to this reactor network.
-    void addReactor(ReactorBase* r, bool iown = false);
+    void addReactor(Reactor* r, bool iown = false);
 
     //! Return a reference to the *n*-th reactor in this network. The reactor
     //! indices are determined by the order in which the reactors were added
     //! to the reactor network.
-    ReactorBase& reactor(int n) {
-        return *m_r[n];
+    Reactor& reactor(int n) {
+        return *m_reactors[n];
     }
 
     //! Returns `true` if verbose logging output is enabled.
@@ -198,26 +198,23 @@ public:
         return m_paramNames.at(p);
     }
 
+protected:
     void connect(size_t i, size_t j) {
-        m_connect[j*m_nr + i] = 1;
-        m_connect[i*m_nr + j] = 1;
+        m_connect[j*m_reactors.size() + i] = 1;
+        m_connect[i*m_reactors.size() + j] = 1;
     }
 
     bool connected(size_t i, size_t j) {
-        return (m_connect[m_nr*i + j] == 1);
+        return (m_connect[m_reactors.size()*i + j] == 1);
     }
 
-protected:
     /**
      * Initialize the reactor network. Called automatically the first time
      * advance or step is called.
      */
     void initialize();
 
-    std::vector<ReactorBase*> m_r;
     std::vector<Reactor*> m_reactors;
-    size_t m_nr;
-    size_t m_nreactors;
     Integrator* m_integ;
     doublereal m_time;
     bool m_init;
